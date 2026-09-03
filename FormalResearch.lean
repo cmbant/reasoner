@@ -9,6 +9,7 @@ import FormalResearch.QIA.ThreeCopyCharacterClosedForms
 import FormalResearch.QIA.ThreeCopyMemoryBinomialBridge
 import FormalResearch.QIA.ThreeCopyAlgebraBinomialBridge
 import FormalResearch.QIA.MultiplicityProfileDimensions
+import FormalResearch.QIA.MultiplicityProfileQuantumExcess
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
 import FormalResearch.QIB1.ApolarFullRank
@@ -53,6 +54,7 @@ import FormalResearch.Gaudin.TreeClassicalRankTriangle
 import FormalResearch.Gaudin.MatrixTreeRankTriangle
 import FormalResearch.Gaudin.BernoulliPathMatrix
 import FormalResearch.Gaudin.BernoulliInverseRecurrence
+import FormalResearch.Gaudin.BernoulliPrintedRecurrence
 import FormalResearch.Blaschke.CompositionBaseline
 import FormalResearch.Blaschke.CyclicChargeEnergy
 import FormalResearch.Blaschke.WronskianPair
