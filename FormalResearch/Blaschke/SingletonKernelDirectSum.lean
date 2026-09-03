@@ -45,11 +45,13 @@ theorem singletonWalshRange_inf_wronskianKernel_eq_bot_of_unitDisk
   apply le_antisymm
   · intro x hx
     rcases hx.1 with ⟨a, rfl⟩
-    rw [LinearMap.mem_ker] at hx
+    have hzero :
+        zeroFlipWronskianLin c (singletonWalshSynthesis n a) = 0 :=
+      LinearMap.mem_ker.mp hx.2
     have hcomp :=
       zeroFlipWronskianLin_singletonSynthesis_injective_of_unitDisk c hdisk hinj
     have ha : a = 0 := hcomp (by
-      simpa using hx.2)
+      simpa using hzero)
     subst a
     simp
   · exact bot_le
