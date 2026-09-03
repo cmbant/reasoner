@@ -68,6 +68,7 @@ import FormalResearch.Gaudin.BernoulliInverseRecurrence
 import FormalResearch.Gaudin.BernoulliInverseUniqueness
 import FormalResearch.Gaudin.BernoulliPrintedRecurrence
 import FormalResearch.Blaschke.CompositionBaseline
+import FormalResearch.Blaschke.CompositionStability
 import FormalResearch.Blaschke.CyclicChargeEnergy
 import FormalResearch.Blaschke.WronskianPair
 import FormalResearch.Blaschke.WalshBooleanCollapse
