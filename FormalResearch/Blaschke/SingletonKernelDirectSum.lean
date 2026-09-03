@@ -9,6 +9,13 @@ def singletonWalshRange (n : Nat) :
     Submodule ℚ (Finset (Fin n) → ℚ) :=
   LinearMap.range (singletonWalshSynthesis n)
 
+/-- The singleton Walsh complement has exactly the expected dimension `n`. -/
+theorem singletonWalshRange_finrank (n : Nat) :
+    Module.finrank ℚ (singletonWalshRange n) = n := by
+  unfold singletonWalshRange
+  rw [LinearMap.finrank_range_of_inj (singletonWalshSynthesis_injective n),
+    Module.finrank_fintype_fun_eq_card, Fintype.card_fin]
+
 /-- Every singleton Walsh basis vector belongs to the singleton synthesis
 range. -/
 theorem walshVector_singleton_mem_singletonWalshRange
