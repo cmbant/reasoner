@@ -139,4 +139,41 @@ theorem bernoulli_inverse_second_subdiag {j : Nat} (t : Nat → ℚ) (hj : 1 ≤
   field_simp [hjq]
   ring
 
+/-- Closed rational formula for `choose(n,6)`, again including the small `n`
+cases where both sides vanish. -/
+theorem cast_choose_six_rat (n : Nat) :
+    (n.choose 6 : ℚ) =
+      (n : ℚ) * ((n : ℚ) - 1) * ((n : ℚ) - 2) * ((n : ℚ) - 3) *
+        ((n : ℚ) - 4) * ((n : ℚ) - 5) / 720 := by
+  by_cases hn : 6 ≤ n
+  · obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hn
+    rw [Nat.cast_choose (by omega : 6 ≤ k + 6)]
+    norm_num [Nat.factorial_succ]
+    ring
+  · have hn' : n ≤ 5 := by omega
+    interval_cases n <;> norm_num
+
+/-- The third universal inverse subdiagonal derived recursively from the exact
+Bernoulli--Chebyshev convolution. -/
+theorem bernoulli_inverse_third_subdiag {j : Nat} (t : Nat → ℚ) (hj : 1 ≤ j)
+    (h0 : bernoulliInverseConvolution j 0 t = 1)
+    (h1 : bernoulliInverseConvolution j 1 t = 0)
+    (h2 : bernoulliInverseConvolution j 2 t = 0)
+    (h3 : bernoulliInverseConvolution j 3 t = 0) :
+    t 3 = -((j : ℚ) - 1) * ((j : ℚ) + 1) * ((j : ℚ) + 2) *
+      (31 * (j : ℚ)^2 + 97 * (j : ℚ) + 60) / 15120 := by
+  have ht0 := bernoulli_inverse_initial t hj h0
+  have ht1 := bernoulli_inverse_first_subdiag t hj h0 h1
+  have ht2 := bernoulli_inverse_second_subdiag t hj h0 h1 h2
+  have ht3 := bernoulli_inverse_normalized_recurrence
+    (j := j) (n := 3) t hj (by omega) h3
+  norm_num at ht3
+  rw [ht0, ht1, ht2, Nat.cast_choose_two, cast_choose_four_rat,
+    cast_choose_six_rat] at ht3
+  have hjq : (j : ℚ) ≠ 0 := by
+    exact_mod_cast Nat.ne_of_gt hj
+  rw [ht3]
+  field_simp [hjq]
+  ring
+
 end FormalResearch.Gaudin
