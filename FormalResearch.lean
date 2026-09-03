@@ -40,5 +40,6 @@ import FormalResearch.Blaschke.WalshBooleanCollapse
 import FormalResearch.Blaschke.ProductWronskian
 import FormalResearch.Blaschke.ZeroFlipWronskian
 import FormalResearch.Blaschke.WalshWronskianLinearMap
+import FormalResearch.Blaschke.WalshWronskianExactRank
 import FormalResearch.Racah.WeylCellWidth
 import FormalResearch.Racah.AbsLatticeIdentity
