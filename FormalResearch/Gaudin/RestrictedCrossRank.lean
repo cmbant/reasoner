@@ -79,37 +79,18 @@ theorem joint_rank_eq_n_add_cross_rank
     Module.finrank K (LinearMap.range (I.prod J)) = n + r := by
   rw [joint_rank_eq_rank_add_restricted_rank I J, hI, hCross]
 
-/-- With both complete-system differential spans of dimension `n`, the common
-action span has dimension `n-r` whenever the restricted cross rank is `r`. -/
-theorem common_action_dimension_from_restricted_cross_rank
-    {K V A B : Type*} [Field K]
-    [AddCommGroup V] [Module K V]
-    [AddCommGroup A] [Module K A]
-    [AddCommGroup B] [Module K B]
-    [FiniteDimensional K V]
-    (I : V →ₗ[K] A) (J : V →ₗ[K] B) (n r : Nat)
-    (hI : Module.finrank K (LinearMap.range I) = n)
-    (hJ : Module.finrank K (LinearMap.range J) = n)
-    (hCross : Module.finrank K
-      (LinearMap.range (J.domRestrict (LinearMap.ker I))) = r) :
-    Module.finrank K (LinearMap.range I ⊓ LinearMap.range J) = n - r := by
-  have hJoint := joint_rank_eq_n_add_cross_rank I J n r hI hCross
-  have hspan : LinearMap.range (I.prod J) = LinearMap.range I ⊔ LinearMap.range J := by
-    ext y
-    constructor
-    · intro hy
-      rcases hy with ⟨x, rfl⟩
-      -- The joint map lands in a product, so this equality is not a span
-      -- identity in a common codomain; this branch is intentionally unreachable.
-      simp at *
-    · intro hy
-      simp at *
-  -- The common-action statement concerns differential subspaces in a common
-  -- cotangent space, not the product codomain of `I.prod J`; it is supplied by
-  -- `common_action_span_finrank` once that common-codomain identification is
-  -- instantiated.
-  exact False.elim (by
-    have := hspan
-    simp at this)
+/-- Common-codomain Grassmann companion.  If the two differential spans live
+in one cotangent space, each has dimension `n`, and their sum has the joint
+rank `n+r`, then their intersection has dimension `n-r`. -/
+theorem common_action_dimension_from_joint_span
+    {K W : Type*} [Field K]
+    [AddCommGroup W] [Module K W]
+    [FiniteDimensional K W]
+    (S T : Submodule K W) (n r : Nat)
+    (hS : Module.finrank K S = n)
+    (hT : Module.finrank K T = n)
+    (hJointSpan : Module.finrank K (S ⊔ T) = n + r) :
+    Module.finrank K (S ⊓ T) = n - r :=
+  common_action_span_finrank S T n r hS hT hJointSpan
 
 end FormalResearch.Gaudin
