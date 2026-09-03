@@ -39,6 +39,7 @@ import FormalResearch.QIC.Endpoint14PolynomialIdentity
 import FormalResearch.QIC.GaussianEndpointNonsingular
 import FormalResearch.QIC.GaussianEndpointFullRank
 import FormalResearch.QIC.GaussianEndpointInjective
+import FormalResearch.QIC.GaussianEndpointAdjugateReconstruction
 import FormalResearch.QID.D5RankWitness
 import FormalResearch.QID.D5WeylEnumeration
 import FormalResearch.QID.D5AffineRank
