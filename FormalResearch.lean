@@ -62,6 +62,7 @@ import FormalResearch.Gaudin.CommonSplitComponentCount
 import FormalResearch.Gaudin.TreeClassicalRankTriangle
 import FormalResearch.Gaudin.MatrixTreeRankTriangle
 import FormalResearch.Gaudin.MatrixTreeHammingTriangle
+import FormalResearch.Gaudin.MatrixWeightedMetricBridge
 import FormalResearch.Gaudin.BernoulliPathMatrix
 import FormalResearch.Gaudin.BernoulliInverseRecurrence
 import FormalResearch.Gaudin.BernoulliInverseUniqueness
@@ -91,3 +92,4 @@ import FormalResearch.Bridges.B2BlaschkeGatePhase
 import FormalResearch.Bridges.B2BlaschkeSingletonSelection
 import FormalResearch.Bridges.B2BlaschkeWeightOneMultiplicity
 import FormalResearch.Bridges.B2BlaschkeRangeEquiv
+import FormalResearch.Bridges.B2BlaschkeQuotientEquiv
