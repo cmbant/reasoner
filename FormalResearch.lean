@@ -30,6 +30,7 @@ import FormalResearch.QID.D5AffineRank
 import FormalResearch.QID.D5ActiveAffineCertificate
 import FormalResearch.QID.D5FacetCertificate
 import FormalResearch.QID.D5CharacteristicZeroCertificate
+import FormalResearch.QID.D5SupportingFacet
 import FormalResearch.Gaudin.WeightedTreeMetric
 import FormalResearch.Gaudin.ExponentBookkeeping
 import FormalResearch.Gaudin.BernoulliPathMatrix
