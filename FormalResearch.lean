@@ -29,6 +29,7 @@ import FormalResearch.Gaudin.ExponentBookkeeping
 import FormalResearch.Gaudin.BernoulliPathMatrix
 import FormalResearch.Gaudin.BernoulliInverseRecurrence
 import FormalResearch.Blaschke.CompositionBaseline
+import FormalResearch.Blaschke.CyclicChargeEnergy
 import FormalResearch.Blaschke.WronskianPair
 import FormalResearch.Racah.WeylCellWidth
 import FormalResearch.Racah.AbsLatticeIdentity
