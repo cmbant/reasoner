@@ -24,6 +24,7 @@ import FormalResearch.QIB2.HammingOrbitEigenvalue
 import FormalResearch.QIB2.HammingOrbitAction
 import FormalResearch.QIB2.HammingRadialGate
 import FormalResearch.QIB2.HammingCanonicalGateAction
+import FormalResearch.QIB2.HammingBooleanCubePhase
 import FormalResearch.QIC.QubitTailDeterminants
 import FormalResearch.QIC.FiniteFieldIrreducibility
 import FormalResearch.QIC.GaussianNonvanishing
@@ -65,5 +66,6 @@ import FormalResearch.Blaschke.WalshWronskianKernelBasis
 import FormalResearch.Blaschke.WronskianAtomIndependence
 import FormalResearch.Blaschke.WronskianAtomNonvanishing
 import FormalResearch.Blaschke.WronskianAtomUnitDisk
+import FormalResearch.Blaschke.WronskianUnitDiskRank
 import FormalResearch.Racah.WeylCellWidth
 import FormalResearch.Racah.AbsLatticeIdentity
