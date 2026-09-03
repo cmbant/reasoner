@@ -8,7 +8,7 @@ on:
 jobs:
   modules:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -34,6 +34,9 @@ jobs:
       - name: QI-A printed chirality matrix
         continue-on-error: true
         run: timeout 120 lake env lean FormalResearch/QIA/PrintedChiralityMatrix.lean
+      - name: QI-A printed spectrum
+        continue-on-error: true
+        run: timeout 120 lake env lean FormalResearch/QIA/PrintedChiralitySpectrum.lean
       - name: finite-field lift
         continue-on-error: true
         run: timeout 120 lake env lean FormalResearch/Certificates/FiniteField.lean
@@ -49,6 +52,9 @@ jobs:
       - name: QI-B2 Hamming subset expansion
         continue-on-error: true
         run: timeout 120 lake env lean FormalResearch/QIB2/HammingSubsetExpansion.lean
+      - name: QI-B2 Hamming spectral phase
+        continue-on-error: true
+        run: timeout 120 lake env lean FormalResearch/QIB2/HammingSpectralPhase.lean
       - name: QI-D rank witness
         continue-on-error: true
         run: timeout 120 lake env lean FormalResearch/QID/D5RankWitness.lean
@@ -88,6 +94,9 @@ jobs:
       - name: QI-C endpoint symbolic identity
         continue-on-error: true
         run: timeout 180 lake env lean FormalResearch/QIC/Endpoint14PolynomialIdentity.lean
+      - name: QI-C Gaussian endpoint nonsingularity
+        continue-on-error: true
+        run: timeout 180 lake env lean FormalResearch/QIC/GaussianEndpointNonsingular.lean
       - name: Aggregate import
         continue-on-error: true
-        run: timeout 240 lake env lean FormalResearch.lean
+        run: timeout 300 lake env lean FormalResearch.lean
