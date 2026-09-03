@@ -130,4 +130,28 @@ theorem walsh_linear_sign_collapse {n : Nat} (T : Finset (Fin n))
       intro j hj
       rw [walsh_coordinate_orthogonal_of_card T hT j, mul_zero]
 
+/-- Module-valued version of the same collapse.  This is the form needed for
+polynomial-valued Wronskian atoms: every degree-≥2 Walsh character annihilates
+an arbitrary linear combination of Boolean signs with coefficients in a
+`ℚ`-module. -/
+theorem walsh_linear_sign_collapse_smul {n : Nat} {M : Type*}
+    [AddCommGroup M] [Module ℚ M]
+    (T : Finset (Fin n)) (hT : 1 < T.card) (c : Fin n → M) :
+    (∑ S : Finset (Fin n),
+      walshCharacter T S • (∑ j : Fin n, booleanSign S j • c j)) = 0 := by
+  calc
+    (∑ S : Finset (Fin n),
+      walshCharacter T S • (∑ j : Fin n, booleanSign S j • c j)) =
+      ∑ j : Fin n,
+        (∑ S : Finset (Fin n), walshCharacter T S * booleanSign S j) • c j := by
+          simp_rw [smul_sum, smul_smul]
+          rw [Fintype.sum_comm]
+          apply Fintype.sum_congr
+          intro j
+          rw [← Finset.sum_smul]
+    _ = 0 := by
+      apply Finset.sum_eq_zero
+      intro j hj
+      rw [walsh_coordinate_orthogonal_of_card T hT j, zero_smul]
+
 end FormalResearch.Blaschke
