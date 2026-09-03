@@ -34,5 +34,6 @@ import FormalResearch.Gaudin.BernoulliInverseRecurrence
 import FormalResearch.Blaschke.CompositionBaseline
 import FormalResearch.Blaschke.CyclicChargeEnergy
 import FormalResearch.Blaschke.WronskianPair
+import FormalResearch.Blaschke.WalshBooleanCollapse
 import FormalResearch.Racah.WeylCellWidth
 import FormalResearch.Racah.AbsLatticeIdentity
