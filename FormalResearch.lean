@@ -8,6 +8,7 @@ import FormalResearch.QIA.FourQubitD3BlockCensus
 import FormalResearch.QIA.ThreeCopyCharacterClosedForms
 import FormalResearch.QIA.ThreeCopyMemoryBinomialBridge
 import FormalResearch.QIA.ThreeCopyAlgebraBinomialBridge
+import FormalResearch.QIA.MultiplicityProfileDimensions
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
 import FormalResearch.QIB1.ApolarFullRank
@@ -48,6 +49,7 @@ import FormalResearch.Gaudin.RestrictedCrossRank
 import FormalResearch.Gaudin.CrossPoissonMatrixRank
 import FormalResearch.Gaudin.CommonSplitComponentCount
 import FormalResearch.Gaudin.TreeClassicalRankTriangle
+import FormalResearch.Gaudin.MatrixTreeRankTriangle
 import FormalResearch.Gaudin.BernoulliPathMatrix
 import FormalResearch.Gaudin.BernoulliInverseRecurrence
 import FormalResearch.Blaschke.CompositionBaseline
