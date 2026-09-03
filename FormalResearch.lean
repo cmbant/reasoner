@@ -37,6 +37,7 @@ import FormalResearch.Gaudin.WeightedTreeMetric
 import FormalResearch.Gaudin.ExponentBookkeeping
 import FormalResearch.Gaudin.TreeSpaceRank
 import FormalResearch.Gaudin.CrossRankLinearAlgebra
+import FormalResearch.Gaudin.CommonSplitComponentCount
 import FormalResearch.Gaudin.BernoulliPathMatrix
 import FormalResearch.Gaudin.BernoulliInverseRecurrence
 import FormalResearch.Blaschke.CompositionBaseline
