@@ -22,10 +22,10 @@ theorem walshVector_singleton_mem_singletonWalshRange
 entire Boolean coefficient space. -/
 theorem singletonWalshRange_sup_nonSingletonWalshSpan_eq_top (n : Nat) :
     singletonWalshRange n ⊔ nonSingletonWalshSpan n = ⊤ := by
-  rw [← (walshBasis n).span_eq]
   apply le_antisymm
   · exact le_top
-  · apply Submodule.span_le.mpr
+  · rw [← (walshBasis n).span_eq]
+    apply Submodule.span_le.mpr
     intro v hv
     rcases hv with ⟨T, rfl⟩
     by_cases hT : T.card = 1
@@ -42,16 +42,17 @@ theorem singletonWalshRange_inf_wronskianKernel_eq_bot_of_unitDisk
     (hdisk : ∀ j, ‖c j‖ < 1)
     (hinj : Function.Injective c) :
     singletonWalshRange n ⊓ LinearMap.ker (zeroFlipWronskianLin c) = ⊥ := by
-  apply le_bot_iff.mp
-  intro x hx
-  rcases hx.1 with ⟨a, rfl⟩
-  rw [LinearMap.mem_ker] at hx
-  have hcomp :=
-    zeroFlipWronskianLin_singletonSynthesis_injective_of_unitDisk c hdisk hinj
-  have ha : a = 0 := hcomp (by
-    simpa using hx.2)
-  subst a
-  simp
+  apply le_antisymm
+  · intro x hx
+    rcases hx.1 with ⟨a, rfl⟩
+    rw [LinearMap.mem_ker] at hx
+    have hcomp :=
+      zeroFlipWronskianLin_singletonSynthesis_injective_of_unitDisk c hdisk hinj
+    have ha : a = 0 := hcomp (by
+      simpa using hx.2)
+    subst a
+    simp
+  · exact bot_le
 
 /-- Exact direct-sum decomposition of Boolean zero-flip coefficient space:
 the singleton Walsh sector is a complement to the Wronskian kernel. -/
