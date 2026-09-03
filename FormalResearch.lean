@@ -23,3 +23,4 @@ import FormalResearch.QID.D5AffineRank
 import FormalResearch.QID.D5ActiveAffineCertificate
 import FormalResearch.Gaudin.WeightedTreeMetric
 import FormalResearch.Gaudin.ExponentBookkeeping
+import FormalResearch.Blaschke.CompositionBaseline
