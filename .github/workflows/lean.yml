@@ -1,8 +1,6 @@
 name: Lean verification
 
 on:
-  push:
-    branches: [formal-research-lean]
   workflow_dispatch:
 
 jobs:
