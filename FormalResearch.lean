@@ -8,6 +8,7 @@ import FormalResearch.QIA.FourQubitD3BlockCensus
 import FormalResearch.QIA.ThreeCopyCharacterClosedForms
 import FormalResearch.QIA.ThreeCopyMemoryBinomialBridge
 import FormalResearch.QIA.ThreeCopyAlgebraBinomialBridge
+import FormalResearch.QIA.ThreeCopyChiralityOnset
 import FormalResearch.QIA.MultiplicityProfileDimensions
 import FormalResearch.QIA.MultiplicityProfileQuantumExcess
 import FormalResearch.QIB1.ApolarPivot
@@ -26,6 +27,7 @@ import FormalResearch.QIB2.HammingOrbitAction
 import FormalResearch.QIB2.HammingRadialGate
 import FormalResearch.QIB2.HammingCanonicalGateAction
 import FormalResearch.QIB2.HammingBooleanCubePhase
+import FormalResearch.QIB2.HammingWalshWeightMultiplicity
 import FormalResearch.QIC.QubitTailDeterminants
 import FormalResearch.QIC.FiniteFieldIrreducibility
 import FormalResearch.QIC.GaussianNonvanishing
