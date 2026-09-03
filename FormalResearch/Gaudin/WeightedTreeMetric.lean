@@ -58,6 +58,13 @@ theorem weightedTreeDistance_triangle {E V : Type} [Fintype E] [Fintype V]
   have he := hamming_triangle e₁ e₂ e₃
   have hv := hamming_triangle v₁ v₂ v₃
   unfold weightedTreeDistance
-  omega
+  calc
+    ell * hamming e₁ e₃ + nu * hamming v₁ v₃ ≤
+        ell * (hamming e₁ e₂ + hamming e₂ e₃) +
+          nu * (hamming v₁ v₂ + hamming v₂ v₃) := by
+            exact Nat.add_le_add (Nat.mul_le_mul_left ell he) (Nat.mul_le_mul_left nu hv)
+    _ = (ell * hamming e₁ e₂ + nu * hamming v₁ v₂) +
+          (ell * hamming e₂ e₃ + nu * hamming v₂ v₃) := by
+            simp [Nat.mul_add, Nat.add_assoc, Nat.add_left_comm, Nat.add_comm]
 
 end FormalResearch.Gaudin
