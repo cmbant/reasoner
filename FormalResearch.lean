@@ -36,6 +36,7 @@ import FormalResearch.QIC.QubitTailAllLNonvanishing
 import FormalResearch.QIC.Endpoint14Evaluation
 import FormalResearch.QIC.Endpoint14PolynomialIdentity
 import FormalResearch.QIC.GaussianEndpointNonsingular
+import FormalResearch.QIC.GaussianEndpointFullRank
 import FormalResearch.QID.D5RankWitness
 import FormalResearch.QID.D5WeylEnumeration
 import FormalResearch.QID.D5AffineRank
@@ -72,4 +73,5 @@ import FormalResearch.Blaschke.WronskianAtomNonvanishing
 import FormalResearch.Blaschke.WronskianAtomUnitDisk
 import FormalResearch.Blaschke.WronskianUnitDiskRank
 import FormalResearch.Racah.WeylCellWidth
+import FormalResearch.Racah.WeylLatticeSpan
 import FormalResearch.Racah.AbsLatticeIdentity
