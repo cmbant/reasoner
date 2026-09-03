@@ -33,6 +33,7 @@ import FormalResearch.QID.D5CharacteristicZeroCertificate
 import FormalResearch.QID.D5SupportingFacet
 import FormalResearch.Gaudin.WeightedTreeMetric
 import FormalResearch.Gaudin.ExponentBookkeeping
+import FormalResearch.Gaudin.TreeSpaceRank
 import FormalResearch.Gaudin.BernoulliPathMatrix
 import FormalResearch.Gaudin.BernoulliInverseRecurrence
 import FormalResearch.Blaschke.CompositionBaseline
