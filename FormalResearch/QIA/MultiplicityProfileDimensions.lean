@@ -42,6 +42,7 @@ theorem multiplicityAlgebra_eq_memory_add_two_odd
         ∑ a : α, (g a + 2 * (g a).choose 2) := by
       apply Finset.sum_congr rfl
       intro a ha
+      have h := two_choose_two_add_self_eq_sq (g a)
       omega
     _ = (∑ a : α, g a) + ∑ a : α, 2 * (g a).choose 2 := by
       rw [Finset.sum_add_distrib]
