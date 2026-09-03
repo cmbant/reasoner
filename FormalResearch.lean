@@ -37,6 +37,7 @@ import FormalResearch.QIC.Endpoint14Evaluation
 import FormalResearch.QIC.Endpoint14PolynomialIdentity
 import FormalResearch.QIC.GaussianEndpointNonsingular
 import FormalResearch.QIC.GaussianEndpointFullRank
+import FormalResearch.QIC.GaussianEndpointInjective
 import FormalResearch.QID.D5RankWitness
 import FormalResearch.QID.D5WeylEnumeration
 import FormalResearch.QID.D5AffineRank
@@ -47,6 +48,7 @@ import FormalResearch.QID.D5AffineIndependence
 import FormalResearch.QID.D5SupportingFacet
 import FormalResearch.QID.D5FullFacetCertificate
 import FormalResearch.Gaudin.WeightedTreeMetric
+import FormalResearch.Gaudin.WeightedTreeMetricSeparation
 import FormalResearch.Gaudin.ExponentBookkeeping
 import FormalResearch.Gaudin.TreeSpaceRank
 import FormalResearch.Gaudin.CrossRankLinearAlgebra
