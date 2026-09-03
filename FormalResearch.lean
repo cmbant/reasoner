@@ -8,6 +8,7 @@ import FormalResearch.QIB1.ApolarTriangularRank
 import FormalResearch.QIB2.HammingGate
 import FormalResearch.QIB2.HammingSubsetExpansion
 import FormalResearch.QIB2.HammingSpectralPhase
+import FormalResearch.QIB2.KrawtchoukEigenvalue
 import FormalResearch.QIC.QubitTailDeterminants
 import FormalResearch.QIC.FiniteFieldIrreducibility
 import FormalResearch.QIC.GaussianNonvanishing
