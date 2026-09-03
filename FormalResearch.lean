@@ -22,6 +22,7 @@ import FormalResearch.QIB2.KrawtchoukGenerating
 import FormalResearch.QIB2.HammingOrbitEigenvalue
 import FormalResearch.QIB2.HammingOrbitAction
 import FormalResearch.QIB2.HammingRadialGate
+import FormalResearch.QIB2.HammingCanonicalGateAction
 import FormalResearch.QIC.QubitTailDeterminants
 import FormalResearch.QIC.FiniteFieldIrreducibility
 import FormalResearch.QIC.GaussianNonvanishing
@@ -58,5 +59,6 @@ import FormalResearch.Blaschke.WalshWronskianLinearMap
 import FormalResearch.Blaschke.WalshWronskianExactRank
 import FormalResearch.Blaschke.WalshWronskianKernelBasis
 import FormalResearch.Blaschke.WronskianAtomIndependence
+import FormalResearch.Blaschke.WronskianAtomNonvanishing
 import FormalResearch.Racah.WeylCellWidth
 import FormalResearch.Racah.AbsLatticeIdentity
