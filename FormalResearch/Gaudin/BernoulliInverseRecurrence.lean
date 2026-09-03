@@ -106,4 +106,37 @@ theorem bernoulli_inverse_first_subdiag {j : Nat} (t : Nat → ℚ) (hj : 1 ≤ 
   field_simp [hjq]
   ring
 
+/-- Closed rational formula for `choose(n,4)`, valid uniformly also for
+`n<4` where both sides vanish. -/
+theorem cast_choose_four_rat (n : Nat) :
+    (n.choose 4 : ℚ) =
+      (n : ℚ) * ((n : ℚ) - 1) * ((n : ℚ) - 2) * ((n : ℚ) - 3) / 24 := by
+  by_cases hn : 4 ≤ n
+  · obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hn
+    rw [Nat.cast_choose (by omega : 4 ≤ k + 4)]
+    norm_num [Nat.factorial_succ]
+    ring
+  · have hn' : n ≤ 3 := by omega
+    interval_cases n <;> norm_num
+
+/-- The second universal inverse subdiagonal, again derived from the exact
+convolution equations rather than inserted as table data.  It matches
+`t₂(j)=(j-1)(j+1)(7j+6)/360`. -/
+theorem bernoulli_inverse_second_subdiag {j : Nat} (t : Nat → ℚ) (hj : 1 ≤ j)
+    (h0 : bernoulliInverseConvolution j 0 t = 1)
+    (h1 : bernoulliInverseConvolution j 1 t = 0)
+    (h2 : bernoulliInverseConvolution j 2 t = 0) :
+    t 2 = ((j : ℚ) - 1) * ((j : ℚ) + 1) * (7 * (j : ℚ) + 6) / 360 := by
+  have ht0 := bernoulli_inverse_initial t hj h0
+  have ht1 := bernoulli_inverse_first_subdiag t hj h0 h1
+  have ht2 := bernoulli_inverse_normalized_recurrence
+    (j := j) (n := 2) t hj (by omega) h2
+  norm_num at ht2
+  rw [ht0, ht1, Nat.cast_choose_two, cast_choose_four_rat] at ht2
+  have hjq : (j : ℚ) ≠ 0 := by
+    exact_mod_cast Nat.ne_of_gt hj
+  rw [ht2]
+  field_simp [hjq]
+  ring
+
 end FormalResearch.Gaudin
