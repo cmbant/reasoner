@@ -44,6 +44,7 @@ import FormalResearch.Blaschke.CompositionBaseline
 import FormalResearch.Blaschke.CyclicChargeEnergy
 import FormalResearch.Blaschke.WronskianPair
 import FormalResearch.Blaschke.WalshBooleanCollapse
+import FormalResearch.Blaschke.WalshBasis
 import FormalResearch.Blaschke.ProductWronskian
 import FormalResearch.Blaschke.ZeroFlipWronskian
 import FormalResearch.Blaschke.WalshWronskianLinearMap
