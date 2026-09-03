@@ -10,15 +10,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: leanprover/lean-action@v1
-        with:
-          auto-config: false
-          build: false
-          test: false
-          lint: false
+      - name: Install Lean toolchain via elan
+        run: |
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
       - name: Resolve dependencies
         run: lake update
       - name: Fetch mathlib cache
         run: lake exe cache get
+      - name: Reject placeholders
+        run: |
+          if grep -R --line-number -E '\bsorry\b|\badmit\b' FormalResearch FormalResearch.lean; then
+            echo 'Lean placeholders found'
+            exit 1
+          fi
       - name: Build formal verification library
         run: lake build
