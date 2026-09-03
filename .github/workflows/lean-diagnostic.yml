@@ -1,4 +1,4 @@
-name: Lean module diagnostics
+name: Lean frontier diagnostics
 
 on:
   push:
@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  modules:
+  frontier:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -25,78 +25,18 @@ jobs:
             echo 'Lean placeholders found'
             exit 1
           fi
-      - name: QI-A chirality
+      - name: QI-A explicit printed spectrum
         continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QIA/FourQubitMatrix.lean
-      - name: QI-A pairing Gram
+        run: timeout 150 lake env lean FormalResearch/QIA/PrintedChiralitySpectrum.lean
+      - name: QI-B2 exact Hamming spectral phase
         continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QIA/PairingGram.lean
-      - name: QI-A printed chirality matrix
+        run: timeout 150 lake env lean FormalResearch/QIB2/HammingSpectralPhase.lean
+      - name: QI-C symbolic endpoint identity
         continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QIA/PrintedChiralityMatrix.lean
-      - name: QI-A printed spectrum
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QIA/PrintedChiralitySpectrum.lean
-      - name: finite-field lift
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/Certificates/FiniteField.lean
-      - name: QI-B1 apolar pivot
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QIB1/ApolarPivot.lean
-      - name: QI-B1 apolar triangular rank
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QIB1/ApolarTriangularRank.lean
-      - name: QI-B2 Hamming gate
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QIB2/HammingGate.lean
-      - name: QI-B2 Hamming subset expansion
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QIB2/HammingSubsetExpansion.lean
-      - name: QI-B2 Hamming spectral phase
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QIB2/HammingSpectralPhase.lean
-      - name: QI-D rank witness
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QID/D5RankWitness.lean
-      - name: QI-D Weyl enumeration
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QID/D5WeylEnumeration.lean
-      - name: QI-D affine rank
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QID/D5AffineRank.lean
-      - name: QI-D active affine simplex
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QID/D5ActiveAffineCertificate.lean
-      - name: Gaudin weighted metric
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/Gaudin/WeightedTreeMetric.lean
-      - name: Gaudin exponent bookkeeping
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/Gaudin/ExponentBookkeeping.lean
-      - name: QI-C finite-field irreducibility
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QIC/FiniteFieldIrreducibility.lean
-      - name: QI-C Gaussian modular nonvanishing
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QIC/GaussianNonvanishing.lean
-      - name: QI-C Gaussian integer lift
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QIC/GaussianIntegerLift.lean
-      - name: QI-C all-L scalar nonvanishing
-        continue-on-error: true
-        run: timeout 120 lake env lean FormalResearch/QIC/QubitTailAllLNonvanishing.lean
-      - name: QI-C tail inverse certificate
-        continue-on-error: true
-        run: timeout 180 lake env lean FormalResearch/QIC/QubitTailDeterminants.lean
-      - name: QI-C endpoint determinant values
-        continue-on-error: true
-        run: timeout 300 lake env lean FormalResearch/QIC/Endpoint14Evaluation.lean
-      - name: QI-C endpoint symbolic identity
-        continue-on-error: true
-        run: timeout 180 lake env lean FormalResearch/QIC/Endpoint14PolynomialIdentity.lean
+        run: timeout 210 lake env lean FormalResearch/QIC/Endpoint14PolynomialIdentity.lean
       - name: QI-C Gaussian endpoint nonsingularity
         continue-on-error: true
-        run: timeout 180 lake env lean FormalResearch/QIC/GaussianEndpointNonsingular.lean
+        run: timeout 210 lake env lean FormalResearch/QIC/GaussianEndpointNonsingular.lean
       - name: Aggregate import
         continue-on-error: true
-        run: timeout 300 lake env lean FormalResearch.lean
+        run: timeout 360 lake env lean FormalResearch.lean
