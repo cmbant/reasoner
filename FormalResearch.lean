@@ -90,3 +90,4 @@ import FormalResearch.Bridges.B2BlaschkeWalshGauge
 import FormalResearch.Bridges.B2BlaschkeGatePhase
 import FormalResearch.Bridges.B2BlaschkeSingletonSelection
 import FormalResearch.Bridges.B2BlaschkeWeightOneMultiplicity
+import FormalResearch.Bridges.B2BlaschkeRangeEquiv
