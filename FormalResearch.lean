@@ -6,6 +6,7 @@ import FormalResearch.QIA.PrintedChiralitySpectrum
 import FormalResearch.QIA.PairingToPrintedBasis
 import FormalResearch.QIA.FourQubitD3BlockCensus
 import FormalResearch.QIA.ThreeCopyCharacterClosedForms
+import FormalResearch.QIA.ThreeCopyMemoryBinomialBridge
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
 import FormalResearch.QIB1.ApolarFullRank
