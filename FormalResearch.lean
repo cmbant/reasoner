@@ -1,3 +1,4 @@
 import FormalResearch.Certificates.FiniteField
 import FormalResearch.QIA.FourQubitMatrix
 import FormalResearch.QID.D5RankWitness
+import FormalResearch.QID.D5WeylEnumeration
