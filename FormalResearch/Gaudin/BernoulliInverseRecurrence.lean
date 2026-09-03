@@ -85,4 +85,25 @@ theorem bernoulli_inverse_normalized_recurrence {j n : Nat} (t : Nat → ℚ)
         ((2 * (n - p) + 1 : Nat) : ℚ)) * t p := by
       rw [hratio]
 
+/-- The first universal inverse subdiagonal derived from the exact convolution
+relations.  This matches the handoff formula `t₁(j)=-(j-1)/6`. -/
+theorem bernoulli_inverse_first_subdiag {j : Nat} (t : Nat → ℚ) (hj : 1 ≤ j)
+    (h0 : bernoulliInverseConvolution j 0 t = 1)
+    (h1 : bernoulliInverseConvolution j 1 t = 0) :
+    t 1 = -((j : ℚ) - 1) / 6 := by
+  have ht0 := bernoulli_inverse_initial t hj h0
+  have ht1 := bernoulli_inverse_normalized_recurrence
+    (j := j) (n := 1) t hj (by omega) h1
+  norm_num at ht1
+  rw [ht0, Nat.cast_choose_two] at ht1
+  have hpred : ((j - 1 : Nat) : ℚ) = (j : ℚ) - 1 := by
+    rw [Nat.cast_sub hj]
+    norm_num
+  rw [hpred] at ht1
+  have hjq : (j : ℚ) ≠ 0 := by
+    exact_mod_cast Nat.ne_of_gt hj
+  rw [ht1]
+  field_simp [hjq]
+  ring
+
 end FormalResearch.Gaudin
