@@ -63,6 +63,7 @@ import FormalResearch.Gaudin.TreeClassicalRankTriangle
 import FormalResearch.Gaudin.MatrixTreeRankTriangle
 import FormalResearch.Gaudin.BernoulliPathMatrix
 import FormalResearch.Gaudin.BernoulliInverseRecurrence
+import FormalResearch.Gaudin.BernoulliInverseUniqueness
 import FormalResearch.Gaudin.BernoulliPrintedRecurrence
 import FormalResearch.Blaschke.CompositionBaseline
 import FormalResearch.Blaschke.CyclicChargeEnergy
