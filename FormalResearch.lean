@@ -6,6 +6,7 @@ import FormalResearch.QIA.PrintedChiralitySpectrum
 import FormalResearch.QIA.PairingToPrintedBasis
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
+import FormalResearch.QIB1.ApolarFullRank
 import FormalResearch.QIB2.HammingGate
 import FormalResearch.QIB2.HammingSubsetExpansion
 import FormalResearch.QIB2.HammingSpectralPhase
