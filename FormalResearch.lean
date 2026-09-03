@@ -3,6 +3,7 @@ import FormalResearch.QIA.FourQubitMatrix
 import FormalResearch.QIA.PairingGram
 import FormalResearch.QIA.PrintedChiralityMatrix
 import FormalResearch.QIA.PrintedChiralitySpectrum
+import FormalResearch.QIA.PairingToPrintedBasis
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
 import FormalResearch.QIB2.HammingGate
@@ -21,6 +22,7 @@ import FormalResearch.QID.D5RankWitness
 import FormalResearch.QID.D5WeylEnumeration
 import FormalResearch.QID.D5AffineRank
 import FormalResearch.QID.D5ActiveAffineCertificate
+import FormalResearch.QID.D5FacetCertificate
 import FormalResearch.Gaudin.WeightedTreeMetric
 import FormalResearch.Gaudin.ExponentBookkeeping
 import FormalResearch.Blaschke.CompositionBaseline
