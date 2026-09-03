@@ -72,6 +72,7 @@ import FormalResearch.Blaschke.WronskianAtomIndependence
 import FormalResearch.Blaschke.WronskianAtomNonvanishing
 import FormalResearch.Blaschke.WronskianAtomUnitDisk
 import FormalResearch.Blaschke.WronskianUnitDiskRank
+import FormalResearch.Blaschke.SingletonWalshSynthesis
 import FormalResearch.Racah.WeylCellWidth
 import FormalResearch.Racah.WeylLatticeSpan
 import FormalResearch.Racah.WeylCellTelescoping
