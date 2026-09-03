@@ -50,6 +50,7 @@ import FormalResearch.QID.D5SupportingFacet
 import FormalResearch.QID.D5FullFacetCertificate
 import FormalResearch.Gaudin.WeightedTreeMetric
 import FormalResearch.Gaudin.WeightedTreeMetricSeparation
+import FormalResearch.Gaudin.RobinsonFouldsHammingBridge
 import FormalResearch.Gaudin.ExponentBookkeeping
 import FormalResearch.Gaudin.TreeSpaceRank
 import FormalResearch.Gaudin.CrossRankLinearAlgebra
