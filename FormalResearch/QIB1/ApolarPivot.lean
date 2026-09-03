@@ -32,12 +32,12 @@ theorem apolar_selected_target_le {j r : Nat}
   · exact le_rfl
   · omega
 
-/-- Source-status marker for the checkpoint-8 proof boundary.  A downstream
-formal theorem that needs the reconstructed three-excitation L=2 rows should
-accept a value of this type explicitly rather than silently treating those
-rows as proved. -/
-structure ReconstructedL2Rows where
-  row02 : Prop
-  row11 : Prop
+/-!
+The checkpoint-8 reconstructed `L=2` three-excitation rows are deliberately
+*not* represented by declarations in this module.  Until their analytic
+Wigner--Eckart/Hahn derivation is formalized, any downstream theorem depending
+on those rows belongs in a separate conditional layer with the row identities
+written out as explicit hypotheses.
+-/
 
 end FormalResearch.QIB1
