@@ -61,6 +61,7 @@ import FormalResearch.Gaudin.CrossPoissonMatrixRank
 import FormalResearch.Gaudin.CommonSplitComponentCount
 import FormalResearch.Gaudin.TreeClassicalRankTriangle
 import FormalResearch.Gaudin.MatrixTreeRankTriangle
+import FormalResearch.Gaudin.MatrixTreeHammingTriangle
 import FormalResearch.Gaudin.BernoulliPathMatrix
 import FormalResearch.Gaudin.BernoulliInverseRecurrence
 import FormalResearch.Gaudin.BernoulliInverseUniqueness
