@@ -84,3 +84,4 @@ import FormalResearch.Racah.WeylLatticeSpan
 import FormalResearch.Racah.WeylCellTelescoping
 import FormalResearch.Racah.AbsLatticeIdentity
 import FormalResearch.Bridges.B2BlaschkeWalshGauge
+import FormalResearch.Bridges.B2BlaschkeGatePhase
