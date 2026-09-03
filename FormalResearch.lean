@@ -3,6 +3,7 @@ import FormalResearch.QIA.FourQubitMatrix
 import FormalResearch.QIA.PairingGram
 import FormalResearch.QIC.QubitTailDeterminants
 import FormalResearch.QIC.FiniteFieldIrreducibility
+import FormalResearch.QIC.GaussianNonvanishing
 import FormalResearch.QID.D5RankWitness
 import FormalResearch.QID.D5WeylEnumeration
 import FormalResearch.QID.D5AffineRank
