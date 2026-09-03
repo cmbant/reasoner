@@ -10,6 +10,7 @@ import FormalResearch.QIB2.HammingGate
 import FormalResearch.QIB2.HammingSubsetExpansion
 import FormalResearch.QIB2.HammingSpectralPhase
 import FormalResearch.QIB2.KrawtchoukEigenvalue
+import FormalResearch.QIB2.HammingOrbitEigenvalue
 import FormalResearch.QIC.QubitTailDeterminants
 import FormalResearch.QIC.FiniteFieldIrreducibility
 import FormalResearch.QIC.GaussianNonvanishing
@@ -25,6 +26,8 @@ import FormalResearch.QID.D5ActiveAffineCertificate
 import FormalResearch.QID.D5FacetCertificate
 import FormalResearch.Gaudin.WeightedTreeMetric
 import FormalResearch.Gaudin.ExponentBookkeeping
+import FormalResearch.Gaudin.BernoulliPathMatrix
+import FormalResearch.Gaudin.BernoulliInverseRecurrence
 import FormalResearch.Blaschke.CompositionBaseline
 import FormalResearch.Blaschke.WronskianPair
 import FormalResearch.Racah.WeylCellWidth
