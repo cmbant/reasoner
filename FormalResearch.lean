@@ -14,6 +14,7 @@ import FormalResearch.QIB2.HammingGate
 import FormalResearch.QIB2.HammingSubsetExpansion
 import FormalResearch.QIB2.HammingSpectralPhase
 import FormalResearch.QIB2.KrawtchoukEigenvalue
+import FormalResearch.QIB2.KrawtchoukGenerating
 import FormalResearch.QIB2.HammingOrbitEigenvalue
 import FormalResearch.QIB2.HammingOrbitAction
 import FormalResearch.QIC.QubitTailDeterminants
