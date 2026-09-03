@@ -2,13 +2,17 @@ import FormalResearch.Certificates.FiniteField
 import FormalResearch.QIA.FourQubitMatrix
 import FormalResearch.QIA.PairingGram
 import FormalResearch.QIB1.ApolarPivot
+import FormalResearch.QIB1.ApolarTriangularRank
 import FormalResearch.QIB2.HammingGate
+import FormalResearch.QIB2.HammingSubsetExpansion
 import FormalResearch.QIC.QubitTailDeterminants
 import FormalResearch.QIC.FiniteFieldIrreducibility
 import FormalResearch.QIC.GaussianNonvanishing
 import FormalResearch.QIC.GaussianIntegerLift
 import FormalResearch.QIC.QubitTailAllLNonvanishing
+import FormalResearch.QIC.Endpoint14Evaluation
 import FormalResearch.QID.D5RankWitness
 import FormalResearch.QID.D5WeylEnumeration
 import FormalResearch.QID.D5AffineRank
+import FormalResearch.QID.D5ActiveAffineCertificate
 import FormalResearch.Gaudin.WeightedTreeMetric
