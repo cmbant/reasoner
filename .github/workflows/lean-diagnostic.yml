@@ -85,6 +85,9 @@ jobs:
       - name: QI-C endpoint determinant values
         continue-on-error: true
         run: timeout 300 lake env lean FormalResearch/QIC/Endpoint14Evaluation.lean
+      - name: QI-C endpoint symbolic identity
+        continue-on-error: true
+        run: timeout 180 lake env lean FormalResearch/QIC/Endpoint14PolynomialIdentity.lean
       - name: Aggregate import
         continue-on-error: true
         run: timeout 240 lake env lean FormalResearch.lean
