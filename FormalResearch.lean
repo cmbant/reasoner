@@ -9,6 +9,7 @@ import FormalResearch.QIB1.ApolarTriangularRank
 import FormalResearch.QIB1.ApolarFullRank
 import FormalResearch.QIB1.ApolarKernelDimension
 import FormalResearch.QIB1.ApolarCoherentKernel
+import FormalResearch.QIB1.ApolarRealSpan
 import FormalResearch.QIB2.HammingGate
 import FormalResearch.QIB2.HammingSubsetExpansion
 import FormalResearch.QIB2.HammingSpectralPhase
