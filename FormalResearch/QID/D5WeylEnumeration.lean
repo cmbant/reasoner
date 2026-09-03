@@ -5,9 +5,11 @@ namespace FormalResearch.QID
 
 abbrev Fin5 := Fin 5
 
-/-- `true` denotes a negative row sign.  Type D means an even number of negatives. -/
-def evenSign (s : Fin5 → Bool) : Prop :=
-  ((Finset.univ.filter (fun i => s i = true)).card % 2) = 0
+def negCount (s : Fin5 → Bool) : Nat :=
+  ∑ i : Fin5, if s i then 1 else 0
+
+/-- `true` denotes a negative row sign. Type D means an even number of negatives. -/
+def evenSign (s : Fin5 → Bool) : Prop := negCount s % 2 = 0
 
 def signedPermutationScore (σ : Equiv.Perm Fin5) (s : Fin5 → Bool) : Int :=
   ∑ i : Fin5, if s i then -N5 i (σ i) else N5 i (σ i)
