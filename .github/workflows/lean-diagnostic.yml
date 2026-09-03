@@ -31,6 +31,9 @@ jobs:
       - name: QI-B2 exact Hamming spectral phase
         continue-on-error: true
         run: timeout 150 lake env lean FormalResearch/QIB2/HammingSpectralPhase.lean
+      - name: QI-B2 Krawtchouk coefficient identity
+        continue-on-error: true
+        run: timeout 150 lake env lean FormalResearch/QIB2/KrawtchoukEigenvalue.lean
       - name: QI-C symbolic endpoint identity
         continue-on-error: true
         run: timeout 210 lake env lean FormalResearch/QIC/Endpoint14PolynomialIdentity.lean
