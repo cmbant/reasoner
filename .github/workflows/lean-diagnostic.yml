@@ -37,9 +37,15 @@ jobs:
       - name: QI-B1 apolar pivot
         continue-on-error: true
         run: timeout 120 lake env lean FormalResearch/QIB1/ApolarPivot.lean
+      - name: QI-B1 apolar triangular rank
+        continue-on-error: true
+        run: timeout 120 lake env lean FormalResearch/QIB1/ApolarTriangularRank.lean
       - name: QI-B2 Hamming gate
         continue-on-error: true
         run: timeout 120 lake env lean FormalResearch/QIB2/HammingGate.lean
+      - name: QI-B2 Hamming subset expansion
+        continue-on-error: true
+        run: timeout 120 lake env lean FormalResearch/QIB2/HammingSubsetExpansion.lean
       - name: QI-D rank witness
         continue-on-error: true
         run: timeout 120 lake env lean FormalResearch/QID/D5RankWitness.lean
@@ -49,6 +55,9 @@ jobs:
       - name: QI-D affine rank
         continue-on-error: true
         run: timeout 120 lake env lean FormalResearch/QID/D5AffineRank.lean
+      - name: QI-D active affine simplex
+        continue-on-error: true
+        run: timeout 120 lake env lean FormalResearch/QID/D5ActiveAffineCertificate.lean
       - name: Gaudin weighted metric
         continue-on-error: true
         run: timeout 120 lake env lean FormalResearch/Gaudin/WeightedTreeMetric.lean
