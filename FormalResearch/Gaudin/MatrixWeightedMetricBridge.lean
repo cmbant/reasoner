@@ -31,11 +31,10 @@ theorem crossFiberMatrix_rank_twice_eq_weightedTreeDistance_one_zero
       weightedTreeDistance 1 0
         (finsetBoolIndicator s) (finsetBoolIndicator t)
         emptyVertexIndicator emptyVertexIndicator := by
-  have hTriangle := crossFiberMatrix_tree_hamming_triangle
+  have hRank := (crossFiberMatrix_tree_hamming_triangle
     I J bFiber bB componentLegs m k s t
-    hs ht hcommon hcard hlegs htri hMatrixComponents
-  rw [← su2TreeRank_twice_eq_splitIndicatorHamming hs ht] at hTriangle
-  rw [hTriangle.1]
+    hs ht hcommon hcard hlegs htri hMatrixComponents).1
+  rw [hRank]
   exact su2TreeRank_twice_eq_weightedTreeDistance_one_zero hs ht
 
 /-- Equivalent compact triangle exposing the common rank parameter and the
