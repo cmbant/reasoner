@@ -39,11 +39,13 @@ import FormalResearch.QID.D5FacetCertificate
 import FormalResearch.QID.D5CharacteristicZeroCertificate
 import FormalResearch.QID.D5AffineIndependence
 import FormalResearch.QID.D5SupportingFacet
+import FormalResearch.QID.D5FullFacetCertificate
 import FormalResearch.Gaudin.WeightedTreeMetric
 import FormalResearch.Gaudin.ExponentBookkeeping
 import FormalResearch.Gaudin.TreeSpaceRank
 import FormalResearch.Gaudin.CrossRankLinearAlgebra
 import FormalResearch.Gaudin.RestrictedCrossRank
+import FormalResearch.Gaudin.CrossPoissonMatrixRank
 import FormalResearch.Gaudin.CommonSplitComponentCount
 import FormalResearch.Gaudin.TreeClassicalRankTriangle
 import FormalResearch.Gaudin.BernoulliPathMatrix
