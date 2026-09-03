@@ -16,7 +16,7 @@ theorem bitMismatch_symm (a b : Bool) : bitMismatch a b = bitMismatch b a := by
 
 theorem bitMismatch_triangle (a b c : Bool) :
     bitMismatch a c ≤ bitMismatch a b + bitMismatch b c := by
-  native_decide
+  cases a <;> cases b <;> cases c <;> decide
 
 def hamming {ι : Type} [Fintype ι] (a b : ι → Bool) : Nat :=
   ∑ i, bitMismatch (a i) (b i)
@@ -65,6 +65,6 @@ theorem weightedTreeDistance_triangle {E V : Type} [Fintype E] [Fintype V]
             exact Nat.add_le_add (Nat.mul_le_mul_left ell he) (Nat.mul_le_mul_left nu hv)
     _ = (ell * hamming e₁ e₂ + nu * hamming v₁ v₂) +
           (ell * hamming e₂ e₃ + nu * hamming v₂ v₃) := by
-            simp [Nat.mul_add, Nat.add_assoc, Nat.add_left_comm, Nat.add_comm]
+            simp [Nat.mul_add, Nat.add_assoc, Nat.add_left_comm]
 
 end FormalResearch.Gaudin
