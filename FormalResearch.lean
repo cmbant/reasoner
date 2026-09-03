@@ -60,5 +60,6 @@ import FormalResearch.Blaschke.WalshWronskianExactRank
 import FormalResearch.Blaschke.WalshWronskianKernelBasis
 import FormalResearch.Blaschke.WronskianAtomIndependence
 import FormalResearch.Blaschke.WronskianAtomNonvanishing
+import FormalResearch.Blaschke.WronskianAtomUnitDisk
 import FormalResearch.Racah.WeylCellWidth
 import FormalResearch.Racah.AbsLatticeIdentity
