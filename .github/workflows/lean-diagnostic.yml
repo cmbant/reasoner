@@ -8,7 +8,7 @@ on:
 jobs:
   modules:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -67,6 +67,9 @@ jobs:
       - name: QI-C tail inverse certificate
         continue-on-error: true
         run: timeout 180 lake env lean FormalResearch/QIC/QubitTailDeterminants.lean
+      - name: QI-C endpoint determinant values
+        continue-on-error: true
+        run: timeout 300 lake env lean FormalResearch/QIC/Endpoint14Evaluation.lean
       - name: Aggregate import
         continue-on-error: true
         run: timeout 240 lake env lean FormalResearch.lean
