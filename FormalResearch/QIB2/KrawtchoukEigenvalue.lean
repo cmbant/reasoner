@@ -32,7 +32,7 @@ theorem binaryKrawtchouk_eq_coeff (d m r : Nat) :
     binaryKrawtchouk d m r =
       (((1 - X)^m * (1 + X)^(d - m) : Int[X]).coeff r) := by
   rw [binaryKrawtchouk, Polynomial.coeff_mul,
-    Finset.Nat.sum_antidiagonal_eq_sum_range_succ]
+    Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk]
   apply Finset.sum_congr rfl
   intro l hl
   rw [coeff_one_sub_X_pow, Polynomial.coeff_one_add_X_pow]

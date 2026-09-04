@@ -26,8 +26,9 @@ theorem cyclicCharge_reflection {d j : Nat} (hd : 0 < d) (hj : j < d) :
     cyclicCharge d (d - 1 - j) = - cyclicCharge d j := by
   simp [cyclicCharge]
   have hsub : ((d - 1 - j : Nat) : ℚ) = (d : ℚ) - 1 - j := by
-    push_cast
-    omega
+    rw [Nat.cast_sub (by omega : j ≤ d - 1)]
+    rw [Nat.cast_sub (by omega : 1 ≤ d)]
+    norm_num
   rw [hsub]
   field_simp [Nat.ne_of_gt hd]
   ring
@@ -36,6 +37,5 @@ theorem cyclicCharge_reflection {d j : Nat} (hd : 0 < d) (hj : j < d) :
 theorem cyclicCharge_middle_zero (r : Nat) :
     cyclicCharge (2*r + 1) r = 0 := by
   simp [cyclicCharge]
-  ring
 
 end FormalResearch.Blaschke
