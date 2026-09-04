@@ -22,9 +22,7 @@ theorem lawCosines_cell_width_sum {A B : ℚ} (c : ℚ) (N : Nat)
             intro k hk
             have hcell := lawCosines_cell_width (A := A) (B := B)
               (c + (k : ℚ)) hA hB
-            rw [hcell]
-            push_cast
-            ring
+            simpa [Nat.cast_add, Nat.cast_one, add_assoc] using hcell.symm
     _ = lawCosinesX A B c - lawCosinesX A B (c + (N : ℚ)) := by
       rw [Finset.sum_range_sub']
       simp
