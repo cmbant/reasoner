@@ -23,7 +23,7 @@ theorem chiralityKernelVec_nonzero : chiralityKernelVec ≠ 0 := by
   have h0 := congrFun h (0 : Fin 3)
   norm_num [chiralityKernelVec] at h0
 
-theorem chiralityK_kernel : chiralityK *ᵥ chiralityKernelVec = 0 := by
+theorem chiralityK_kernel : Matrix.mulVec chiralityK chiralityKernelVec = 0 := by
   native_decide
 
 /-- A nonzero two-by-two minor, using rows 0,2 and columns 0,1. -/

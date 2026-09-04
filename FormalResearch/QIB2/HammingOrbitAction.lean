@@ -34,7 +34,7 @@ lemma splitWalshCharacter_symmDiff {m n : Nat}
       (-1 : Int) ^ a.card * splitWalshCharacter x y := by
   unfold splitWalshCharacter
   simp_rw [bitSign_symmDiff]
-  rw [Finset.prod_mul_distrib, all_bitSign_product]
+  rw [Finset.prod_mul_distrib, all_bitSign_product x, all_bitSign_product a]
   ring
 
 /-- Radius-r Hamming/Bose--Mesner orbit operator in coordinates split into an

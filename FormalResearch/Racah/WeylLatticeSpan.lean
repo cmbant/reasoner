@@ -37,7 +37,7 @@ theorem lawCosines_lattice_span_from_zero {A B : ℚ} (N : Nat)
     (hA : A ≠ 0) (hB : B ≠ 0) :
     lawCosinesX A B 0 - lawCosinesX A B (N : ℚ) =
       (N : ℚ)^2 / (2 * A * B) := by
-  rw [lawCosines_lattice_span 0 N hA hB]
-  ring
+  simpa [pow_two] using
+    (lawCosines_lattice_span (A := A) (B := B) (c := 0) N hA hB)
 
 end FormalResearch.Racah
