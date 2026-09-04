@@ -71,6 +71,7 @@ import FormalResearch.Blaschke.CompositionBaseline
 import FormalResearch.Blaschke.CompositionStability
 import FormalResearch.Blaschke.CompositionEnergyTransfer
 import FormalResearch.Blaschke.CyclicChargeEnergy
+import FormalResearch.Blaschke.QuarticChargeGapAlgebra
 import FormalResearch.Blaschke.WronskianPair
 import FormalResearch.Blaschke.WalshBooleanCollapse
 import FormalResearch.Blaschke.WalshBasis

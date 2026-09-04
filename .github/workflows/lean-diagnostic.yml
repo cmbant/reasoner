@@ -25,6 +25,8 @@ jobs:
             echo 'Lean placeholders found'
             exit 1
           fi
+      - name: AUX-BV quartic charge-gap algebra
+        run: timeout 180 lake env lean FormalResearch/Blaschke/QuarticChargeGapAlgebra.lean
       - name: QI-A explicit printed spectrum
         continue-on-error: true
         run: timeout 150 lake env lean FormalResearch/QIA/PrintedChiralitySpectrum.lean
