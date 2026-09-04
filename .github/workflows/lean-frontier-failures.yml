@@ -5,10 +5,14 @@ on:
     branches: [formal-research-lean]
   workflow_dispatch:
 
+concurrency:
+  group: lean-frontier-failures-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   failures:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -47,3 +51,19 @@ jobs:
       - name: Gaudin Bernoulli inverse recurrence
         if: always()
         run: timeout 180 lake build FormalResearch.Gaudin.BernoulliInverseRecurrence
+
+      - name: Gaudin restricted cross-rank
+        if: always()
+        run: timeout 180 lake build FormalResearch.Gaudin.RestrictedCrossRank
+      - name: Blaschke product Wronskian
+        if: always()
+        run: timeout 180 lake build FormalResearch.Blaschke.ProductWronskian
+      - name: Racah Weyl cell telescoping
+        if: always()
+        run: timeout 180 lake build FormalResearch.Racah.WeylCellTelescoping
+      - name: QI-B2 Hamming Boolean-cube phase
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.HammingBooleanCubePhase
+      - name: QI-B1 apolar full-rank
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB1.ApolarFullRank
