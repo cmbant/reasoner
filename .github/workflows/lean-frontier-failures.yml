@@ -1,0 +1,49 @@
+name: Lean failure-only frontier
+
+on:
+  push:
+    branches: [formal-research-lean]
+  workflow_dispatch:
+
+jobs:
+  failures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean toolchain via elan
+        run: |
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies
+        run: lake update
+      - name: Fetch mathlib cache
+        run: lake exe cache get
+      - name: Reject placeholders
+        run: |
+          if grep -R --line-number -E '\bsorry\b|\badmit\b' FormalResearch FormalResearch.lean; then
+            echo 'Lean placeholders found'
+            exit 1
+          fi
+
+      - name: QI-C qubit-tail determinant
+        if: always()
+        run: timeout 300 lake build FormalResearch.QIC.QubitTailDeterminants
+      - name: QI-A three-copy binomial bridge
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIA.ThreeCopyMemoryBinomialBridge
+      - name: QI-B2 Krawtchouk generating
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.KrawtchoukGenerating
+      - name: QI-A printed chirality matrix
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIA.PrintedChiralityMatrix
+      - name: QI-C endpoint-14 evaluation
+        if: always()
+        run: timeout 300 lake build FormalResearch.QIC.Endpoint14Evaluation
+      - name: QI-C all-L qubit-tail nonvanishing
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIC.QubitTailAllLNonvanishing
+      - name: Gaudin Bernoulli inverse recurrence
+        if: always()
+        run: timeout 180 lake build FormalResearch.Gaudin.BernoulliInverseRecurrence
