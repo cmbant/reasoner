@@ -6,7 +6,7 @@ open Complex
 
 /-- Radical-free parametrization of the printed Hermitian qutrit matrix.  The
 paper is recovered by `x = sqrt 2`, `y = sqrt 3`; then `x*y = sqrt 6`. -/
-def printedA0xy (x y : ℝ) : Matrix (Fin 3) (Fin 3) ℂ :=
+noncomputable def printedA0xy (x y : ℝ) : Matrix (Fin 3) (Fin 3) ℂ :=
   !![0, -(I * y / 4), -(I * (x*y) / 8);
       I * y / 4, 0, 3 * I * x / 8;
       I * (x*y) / 8, -(3 * I * x / 8), 0]
@@ -15,16 +15,18 @@ def printedA0xy (x y : ℝ) : Matrix (Fin 3) (Fin 3) ℂ :=
 linear algebra is involved: only `x²=2`, `y²=3`. -/
 theorem printedA0xy_cubic (x y : ℝ) (hx : x^2 = 2) (hy : y^2 = 3) :
     printedA0xy x y ^ 3 = (9 / 16 : ℂ) • printedA0xy x y := by
+  have hxc : (x : ℂ)^2 = 2 := by exact_mod_cast hx
+  have hyc : (y : ℂ)^2 = 3 := by exact_mod_cast hy
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [printedA0xy, Matrix.mul_apply, Fin.sum_univ_succ] <;>
-    push_cast [hx, hy] <;>
-    ring_nf at hx hy ⊢ <;>
-    nlinarith
+    simp [printedA0xy, Matrix.mul_apply, Fin.sum_univ_succ, Complex.I_sq] <;>
+    ring_nf <;>
+    simp [hxc, hyc] <;>
+    ring
 
 /-- The paper's concrete matrix, written with `sqrt 2 * sqrt 3` in the
 `√6` slots to keep the formal algebra transparent. -/
-def printedA0 : Matrix (Fin 3) (Fin 3) ℂ :=
+noncomputable def printedA0 : Matrix (Fin 3) (Fin 3) ℂ :=
   printedA0xy (Real.sqrt 2) (Real.sqrt 3)
 
 theorem sqrt2_sq : (Real.sqrt 2)^2 = 2 := by norm_num
@@ -39,17 +41,12 @@ theorem printedA0_ne_zero : printedA0 ≠ 0 := by
   intro h
   have h01 := congrFun (congrFun h (0 : Fin 3)) (1 : Fin 3)
   simp [printedA0, printedA0xy] at h01
-  have hs : Real.sqrt 3 ≠ 0 := by positivity
-  exact hs (by
-    apply Complex.ofReal_injective
-    have := congrArg (fun z : ℂ => z * (4 * I)) h01
-    simp at this
-    simpa using this)
 
 /-- The displayed matrix is Hermitian. -/
 theorem printedA0_hermitian : printedA0.conjTranspose = printedA0 := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [printedA0, printedA0xy, Matrix.conjTranspose_apply]
+    simp [printedA0, printedA0xy, Matrix.conjTranspose_apply] <;>
+    ring
 
 end FormalResearch.QIA
