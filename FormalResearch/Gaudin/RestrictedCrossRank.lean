@@ -18,7 +18,9 @@ noncomputable def kerRestrictedEquivCommonKernel
     · exact x.1.2
     · have hx : (J.domRestrict (LinearMap.ker I)) x.1 = 0 :=
         LinearMap.mem_ker.mp x.2
-      exact LinearMap.mem_ker.mpr (by simpa using hx)⟩
+      apply LinearMap.mem_ker.mpr
+      change (J.domRestrict (LinearMap.ker I)) x.1 = 0
+      exact hx⟩
   invFun y := ⟨⟨y.1, y.2.1⟩, by
     rw [LinearMap.mem_ker]
     exact LinearMap.mem_ker.mp y.2.2⟩
