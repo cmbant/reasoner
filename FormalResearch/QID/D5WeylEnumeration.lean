@@ -20,7 +20,7 @@ def allD5 : Finset SignedPerm5 :=
 
 /-- Closed exhaustive audit that every Type-D5 Weyl score is at most five. -/
 def supportUpperCheck : Bool :=
-  allD5.toList.all (fun ps => decide (signedPermutationScore ps.1 ps.2 ≤ 5))
+  decide (∀ ps : SignedPerm5, ps ∈ allD5 → signedPermutationScore ps.1 ps.2 ≤ 5)
 
 theorem supportUpperCheck_passes : supportUpperCheck = true := by
   native_decide
