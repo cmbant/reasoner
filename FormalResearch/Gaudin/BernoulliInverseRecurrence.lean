@@ -111,10 +111,12 @@ theorem cast_choose_four_rat (n : Nat) :
       (n : ℚ) * ((n : ℚ) - 1) * ((n : ℚ) - 2) * ((n : ℚ) - 3) / 24 := by
   by_cases hn : 4 ≤ n
   · obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hn
+    have hkfac : (k.factorial : ℚ) ≠ 0 := by positivity
     rw [Nat.add_comm 4 k]
     rw [Nat.cast_choose ℚ (by omega : 4 ≤ k + 4)]
     norm_num [Nat.factorial_succ]
-    ring
+    simp [hkfac]
+    ring_nf
   · have hn' : n ≤ 3 := by omega
     interval_cases n <;> norm_num [Nat.choose]
 
@@ -132,6 +134,7 @@ theorem bernoulli_inverse_second_subdiag {j : Nat} (t : Nat → ℚ) (hj : 1 ≤
     (j := j) (n := 2) t hj (by omega) h2
   norm_num [Finset.sum_range_succ] at ht2
   rw [ht0, ht1, Nat.cast_choose_two, cast_choose_four_rat] at ht2
+  push_cast at ht2
   have hjq : (j : ℚ) ≠ 0 := by
     exact_mod_cast Nat.ne_of_gt hj
   rw [ht2]
@@ -146,10 +149,12 @@ theorem cast_choose_six_rat (n : Nat) :
         ((n : ℚ) - 4) * ((n : ℚ) - 5) / 720 := by
   by_cases hn : 6 ≤ n
   · obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hn
+    have hkfac : (k.factorial : ℚ) ≠ 0 := by positivity
     rw [Nat.add_comm 6 k]
     rw [Nat.cast_choose ℚ (by omega : 6 ≤ k + 6)]
     norm_num [Nat.factorial_succ]
-    ring
+    simp [hkfac]
+    ring_nf
   · have hn' : n ≤ 5 := by omega
     interval_cases n <;> norm_num [Nat.choose]
 
@@ -170,6 +175,7 @@ theorem bernoulli_inverse_third_subdiag {j : Nat} (t : Nat → ℚ) (hj : 1 ≤ 
   norm_num [Finset.sum_range_succ] at ht3
   rw [ht0, ht1, ht2, Nat.cast_choose_two, cast_choose_four_rat,
     cast_choose_six_rat] at ht3
+  push_cast at ht3
   have hjq : (j : ℚ) ≠ 0 := by
     exact_mod_cast Nat.ne_of_gt hj
   rw [ht3]
