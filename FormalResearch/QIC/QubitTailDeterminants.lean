@@ -76,12 +76,38 @@ specialized tail matrix is invertible with inverse `tailPlusInvNumerator(t)/denP
 theorem tailPlus_inverse_certificate :
     ∀ i j : Fin8, ∀ k : Fin9,
       matMul tailPlus tailPlusInvNumerator i j k = scalarMat denPlus i j k := by
+  letI : DecidablePred (fun i : Fin8 =>
+      ∀ j : Fin8, ∀ k : Fin9,
+        matMul tailPlus tailPlusInvNumerator i j k = scalarMat denPlus i j k) :=
+    fun i => by
+      letI : DecidablePred (fun j : Fin8 =>
+          ∀ k : Fin9,
+            matMul tailPlus tailPlusInvNumerator i j k = scalarMat denPlus i j k) :=
+        fun j => by
+          letI : DecidablePred (fun k : Fin9 =>
+              matMul tailPlus tailPlusInvNumerator i j k = scalarMat denPlus i j k) :=
+            fun _ => inferInstance
+          exact Fintype.decidableForallFintype
+      exact Fintype.decidableForallFintype
   native_decide
 
 /-- The corresponding exact inverse certificate for the second parity block. -/
 theorem tailMinus_inverse_certificate :
     ∀ i j : Fin8, ∀ k : Fin9,
       matMul tailMinus tailMinusInvNumerator i j k = scalarMat denMinus i j k := by
+  letI : DecidablePred (fun i : Fin8 =>
+      ∀ j : Fin8, ∀ k : Fin9,
+        matMul tailMinus tailMinusInvNumerator i j k = scalarMat denMinus i j k) :=
+    fun i => by
+      letI : DecidablePred (fun j : Fin8 =>
+          ∀ k : Fin9,
+            matMul tailMinus tailMinusInvNumerator i j k = scalarMat denMinus i j k) :=
+        fun j => by
+          letI : DecidablePred (fun k : Fin9 =>
+              matMul tailMinus tailMinusInvNumerator i j k = scalarMat denMinus i j k) :=
+            fun _ => inferInstance
+          exact Fintype.decidableForallFintype
+      exact Fintype.decidableForallFintype
   native_decide
 
 def qPlus : P9 := ![76323, -31772, -68674, -8079, 11018, 2448, 0, 0, 0]
