@@ -27,7 +27,12 @@ theorem apolarFull_selected (d : Nat) :
   by_cases hrc : r = c
   · subst c
     simp [apolarFull, apolarSquare, apolarSelectedCol]
-  · by_cases h2 : r.val + 2 = c.val
+  · have hcr : c.val ≠ r.val := by
+      intro h
+      apply hrc
+      apply Fin.ext
+      exact h.symm
+    by_cases h2 : r.val + 2 = c.val
     · have hk1 : (apolarSelectedCol c).val ≠ r.val + 1 := by
         simp [apolarSelectedCol]
         intro h
@@ -37,8 +42,10 @@ theorem apolarFull_selected (d : Nat) :
       have hk3 : (apolarSelectedCol c).val = r.val + 3 := by
         simp [apolarSelectedCol]
         omega
-      simp [apolarFull, apolarSquare, apolarSelectedCol, hrc, h2, hk1, hk3]
-    · have hk1 : (apolarSelectedCol c).val ≠ r.val + 1 := by
+      simp [apolarFull, apolarSquare, apolarSelectedCol, hrc, hcr, h2, hk1, hk3]
+      ring
+    · have h2' : c.val ≠ r.val + 2 := fun h => h2 h.symm
+      have hk1 : (apolarSelectedCol c).val ≠ r.val + 1 := by
         simp [apolarSelectedCol]
         intro h
         apply hrc
@@ -49,7 +56,7 @@ theorem apolarFull_selected (d : Nat) :
         intro h
         apply h2
         omega
-      simp [apolarFull, apolarSquare, apolarSelectedCol, hrc, h2, hk1, hk3]
+      simp [apolarFull, apolarSquare, apolarSelectedCol, hrc, hcr, h2, h2', hk1, hk3]
 
 /-- The *full* apolar differential matrix has maximal possible row rank in
 every degree `d≥3`.  Thus the earlier nonzero minor is promoted to a theorem
