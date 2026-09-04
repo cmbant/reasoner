@@ -19,10 +19,10 @@ theorem printedA0xy_cubic (x y : ℝ) (hx : x^2 = 2) (hy : y^2 = 3) :
   have hyc : (y : ℂ)^2 = 3 := by exact_mod_cast hy
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [printedA0xy, Matrix.mul_apply, Fin.sum_univ_succ, Complex.I_sq] <;>
+    simp [pow_succ, printedA0xy, Matrix.mul_apply, Fin.sum_univ_succ, Complex.I_sq] <;>
     ring_nf <;>
     simp [hxc, hyc] <;>
-    ring
+    ring_nf
 
 /-- The paper's concrete matrix, written with `sqrt 2 * sqrt 3` in the
 `√6` slots to keep the formal algebra transparent. -/
