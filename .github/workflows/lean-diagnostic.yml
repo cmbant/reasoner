@@ -72,6 +72,28 @@ jobs:
         if: always()
         run: timeout 300 lake build FormalResearch.QIC.QubitTailDeterminants
 
+      - name: Racah Weyl lattice-span frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Racah.WeylLatticeSpan
+      - name: QI-A four-qubit matrix frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIA.FourQubitMatrix
+      - name: QI-B2 Hamming orbit-action frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.HammingOrbitAction
+      - name: Gaudin common-split component frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Gaudin.CommonSplitComponentCount
+      - name: QI-B1 apolar triangular-rank frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB1.ApolarTriangularRank
+      - name: QI-B2 Hamming spectral-phase frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.HammingSpectralPhase
+      - name: QI-A three-copy binomial bridge frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIA.ThreeCopyMemoryBinomialBridge
+
       - name: FormalResearch aggregate build
         if: always()
         run: timeout 900 lake build FormalResearch
