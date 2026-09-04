@@ -7,7 +7,7 @@ open Polynomial
 open scoped BigOperators
 
 /-- Standard binary Krawtchouk generating polynomial. -/
-def binaryKrawtchoukGeneratingPoly (d m : Nat) : Int[X] :=
+noncomputable def binaryKrawtchoukGeneratingPoly (d m : Nat) : Int[X] :=
   (1 - X)^m * (1 + X)^(d - m)
 
 /-- Every coefficient of the generating polynomial is the manuscript's binary
@@ -23,10 +23,16 @@ theorem binaryKrawtchoukGeneratingPoly_expansion (d m : Nat) :
     binaryKrawtchoukGeneratingPoly d m =
       ∑ r ∈ Finset.range ((binaryKrawtchoukGeneratingPoly d m).natDegree + 1),
         C (binaryKrawtchouk d m r) * X^r := by
-  rw [(binaryKrawtchoukGeneratingPoly d m).as_sum_range_C_mul_X_pow]
-  apply Finset.sum_congr rfl
-  intro r hr
-  rw [binaryKrawtchoukGeneratingPoly_coeff]
+  calc
+    binaryKrawtchoukGeneratingPoly d m =
+        ∑ r ∈ Finset.range ((binaryKrawtchoukGeneratingPoly d m).natDegree + 1),
+          C ((binaryKrawtchoukGeneratingPoly d m).coeff r) * X^r :=
+      (binaryKrawtchoukGeneratingPoly d m).as_sum_range_C_mul_X_pow
+    _ = ∑ r ∈ Finset.range ((binaryKrawtchoukGeneratingPoly d m).natDegree + 1),
+          C (binaryKrawtchouk d m r) * X^r := by
+      apply Finset.sum_congr rfl
+      intro r hr
+      rw [binaryKrawtchoukGeneratingPoly_coeff]
 
 /-- Complex evaluation of the full generating identity.  This is the scalar
 bridge from radial Hamming eigenvalues to a closed product expression. -/
@@ -34,8 +40,20 @@ theorem binaryKrawtchouk_generating_eval_complex (d m : Nat) (z : ℂ) :
     ∑ r ∈ Finset.range ((binaryKrawtchoukGeneratingPoly d m).natDegree + 1),
         (binaryKrawtchouk d m r : ℂ) * z^r =
       (1 - z)^m * (1 + z)^(d - m) := by
-  have h := congrArg (Polynomial.eval₂ (Int.castRingHom ℂ) z)
-    (binaryKrawtchoukGeneratingPoly_expansion d m)
-  simpa [binaryKrawtchoukGeneratingPoly] using h.symm
+  calc
+    (∑ r ∈ Finset.range ((binaryKrawtchoukGeneratingPoly d m).natDegree + 1),
+        (binaryKrawtchouk d m r : ℂ) * z^r) =
+      Polynomial.eval₂ (Int.castRingHom ℂ) z
+        (∑ r ∈ Finset.range ((binaryKrawtchoukGeneratingPoly d m).natDegree + 1),
+          C (binaryKrawtchouk d m r) * X^r) := by
+        rw [Polynomial.eval₂_finsetSum]
+        apply Finset.sum_congr rfl
+        intro r hr
+        simp
+    _ = Polynomial.eval₂ (Int.castRingHom ℂ) z
+        (binaryKrawtchoukGeneratingPoly d m) := by
+      rw [← binaryKrawtchoukGeneratingPoly_expansion]
+    _ = (1 - z)^m * (1 + z)^(d - m) := by
+      simp [binaryKrawtchoukGeneratingPoly]
 
 end FormalResearch.QIB2
