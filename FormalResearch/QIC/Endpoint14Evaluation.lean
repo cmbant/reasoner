@@ -3,6 +3,7 @@ import Mathlib
 namespace FormalResearch.QIC
 
 abbrev Fin14 := Fin 14
+abbrev Fin7 := Fin 7
 abbrev P5 := Fin 5 → Int
 
 def p4 (a0 a1 a2 a3 a4 : Int) : P5 := ![a0,a1,a2,a3,a4]
@@ -33,9 +34,103 @@ def p4Int (t : Int) : Int := 144*t^4 - 60*t^3 - 841*t^2 + 633*t + 258
 def expectedEndpointDet (t : Int) : Int :=
   195689447424 * t^28 * (t-1)^8 * (t-2)^2 * p3Int t * p4Int t
 
+/-- Row order putting the fixed seven-row pivot block first. -/
+def endpointRowOrder : Fin14 → Fin14 :=
+  ![0, 1, 2, 3, 4, 6, 7, 5, 8, 9, 10, 11, 12, 13]
+
+/-- Column order putting the fixed seven-column pivot block first.  The final two
+complement columns are swapped so that the row and column permutations have the
+same parity. -/
+def endpointColOrder : Fin14 → Fin14 :=
+  ![2, 3, 4, 5, 6, 10, 12, 0, 1, 7, 8, 9, 13, 11]
+
+def endpointRowPerm : Equiv.Perm Fin14 :=
+  Equiv.ofBijective endpointRowOrder (by native_decide)
+
+def endpointColPerm : Equiv.Perm Fin14 :=
+  Equiv.ofBijective endpointColOrder (by native_decide)
+
+/-- Reindex old row labels into a `7+7` block decomposition. -/
+def endpointRowEquiv : Fin14 ≃ (Fin7 ⊕ Fin7) :=
+  (finSumFinEquiv.trans endpointRowPerm).symm
+
+/-- Reindex old column labels into a `7+7` block decomposition. -/
+def endpointColEquiv : Fin14 ≃ (Fin7 ⊕ Fin7) :=
+  (finSumFinEquiv.trans endpointColPerm).symm
+
+/-- The integer endpoint matrix embedded in the rationals. -/
+def endpointAtRat (t : Int) : Matrix Fin14 Fin14 ℚ :=
+  (endpointAt t).map (Int.castRingHom ℚ)
+
+/-- The endpoint matrix after the fixed independent row/column reindexing. -/
+def endpointReindexed (t : Int) : Matrix (Fin7 ⊕ Fin7) (Fin7 ⊕ Fin7) ℚ :=
+  Matrix.reindex endpointRowEquiv endpointColEquiv (endpointAtRat t)
+
+/-- The fixed `7×7` pivot block. -/
+def endpointPivot (t : Int) : Matrix Fin7 Fin7 ℚ :=
+  (endpointReindexed t).toBlocks₁₁
+
+/-- A computable inverse formula for the pivot block.  On the interpolation
+points `1,...,56` its determinant is nonzero, so this is its actual inverse. -/
+def endpointPivotInv (t : Int) : Matrix Fin7 Fin7 ℚ :=
+  (Matrix.det (endpointPivot t))⁻¹ • Matrix.adjugate (endpointPivot t)
+
+/-- The corresponding `7×7` Schur complement. -/
+def endpointSchur (t : Int) : Matrix Fin7 Fin7 ℚ :=
+  (endpointReindexed t).toBlocks₂₂ -
+    (endpointReindexed t).toBlocks₂₁ * endpointPivotInv t *
+      (endpointReindexed t).toBlocks₁₂
+
+lemma endpoint_reindex_sign :
+    Equiv.Perm.sign (endpointColEquiv.trans endpointRowEquiv.symm) = 1 := by
+  native_decide
+
+lemma endpoint_pivot_nonzero :
+    ∀ k : Fin 57, k ≠ 0 → Matrix.det (endpointPivot (k : Int)) ≠ 0 := by
+  native_decide
+
+lemma endpoint_schur_57_values :
+    ∀ k : Fin 57, k ≠ 0 →
+      Matrix.det (endpointPivot (k : Int)) * Matrix.det (endpointSchur (k : Int)) =
+        (expectedEndpointDet (k : Int) : ℚ) := by
+  native_decide
+
+lemma endpointAt_zero : endpointAt 0 = 0 := by
+  native_decide
+
 /-- Fifty-seven exact integer evaluations, enough to determine any polynomial of degree at most 56. -/
 theorem endpoint_det_57_values :
     ∀ k : Fin 57, Matrix.det (endpointAt (k : Int)) = expectedEndpointDet (k : Int) := by
-  native_decide
+  intro k
+  by_cases hk : k = 0
+  · subst k
+    rw [endpointAt_zero, Matrix.det_zero]
+    norm_num [expectedEndpointDet]
+  · have hpivot := endpoint_pivot_nonzero k hk
+    letI : Invertible (Matrix.det (endpointPivot (k : Int))) :=
+      invertibleOfNonzero hpivot
+    letI : Invertible (endpointPivot (k : Int)) :=
+      Matrix.invertibleOfDetInvertible _
+    have hinv : ⅟(endpointPivot (k : Int)) = endpointPivotInv (k : Int) := by
+      rfl
+    have hschur :
+        Matrix.det (endpointReindexed (k : Int)) =
+          Matrix.det (endpointPivot (k : Int)) * Matrix.det (endpointSchur (k : Int)) := by
+      rw [← Matrix.fromBlocks_toBlocks (endpointReindexed (k : Int))]
+      rw [Matrix.det_fromBlocks₁₁]
+      rw [hinv]
+      rfl
+    have hreindex :
+        Matrix.det (endpointReindexed (k : Int)) = Matrix.det (endpointAtRat (k : Int)) := by
+      rw [endpointReindexed, Matrix.det_reindex, endpoint_reindex_sign, one_mul]
+    have hrat :
+        Matrix.det (endpointAtRat (k : Int)) = (expectedEndpointDet (k : Int) : ℚ) := by
+      rw [← hreindex, hschur]
+      exact endpoint_schur_57_values k hk
+    have hcast :
+        (Matrix.det (endpointAt (k : Int)) : ℚ) = Matrix.det (endpointAtRat (k : Int)) := by
+      simpa [endpointAtRat] using
+        (RingHom.map_det (Int.castRingHom ℚ) (endpointAt (k : Int)))
+    exact_mod_cast hcast.trans hrat
 
 end FormalResearch.QIC
