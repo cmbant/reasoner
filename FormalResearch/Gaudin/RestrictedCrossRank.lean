@@ -12,7 +12,7 @@ noncomputable def kerRestrictedEquivCommonKernel
     [AddCommGroup B] [Module K B]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B) :
     LinearMap.ker (J.domRestrict (LinearMap.ker I)) ≃ₗ[K]
-      (LinearMap.ker I ⊓ LinearMap.ker J) where
+      ((LinearMap.ker I ⊓ LinearMap.ker J : Submodule K V)) where
   toFun x := ⟨x.1.1, by
     constructor
     · exact x.1.2
@@ -39,7 +39,7 @@ theorem restricted_kernel_finrank_eq_common_kernel
     [AddCommGroup B] [Module K B]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B) :
     Module.finrank K (LinearMap.ker (J.domRestrict (LinearMap.ker I))) =
-      Module.finrank K (LinearMap.ker I ⊓ LinearMap.ker J) := by
+      Module.finrank K ((LinearMap.ker I ⊓ LinearMap.ker J : Submodule K V)) := by
   exact LinearEquiv.finrank_eq (kerRestrictedEquivCommonKernel I J)
 
 /-- Exact rank decomposition for a joint map: the extra rank contributed by
@@ -89,8 +89,8 @@ theorem common_action_dimension_from_joint_span
     (S T : Submodule K W) (n r : Nat)
     (hS : Module.finrank K S = n)
     (hT : Module.finrank K T = n)
-    (hJointSpan : Module.finrank K (S ⊔ T) = n + r) :
-    Module.finrank K (S ⊓ T) = n - r :=
+    (hJointSpan : Module.finrank K ((S ⊔ T : Submodule K W)) = n + r) :
+    Module.finrank K ((S ⊓ T : Submodule K W)) = n - r :=
   common_action_span_finrank S T n r hS hT hJointSpan
 
 end FormalResearch.Gaudin
