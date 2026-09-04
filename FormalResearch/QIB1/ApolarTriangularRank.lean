@@ -16,8 +16,12 @@ def apolarSquare (d : Nat) : Matrix (Fin (d - 2)) (Fin (d - 2)) Int :=
 theorem apolarSquare_upper (d : Nat) : (apolarSquare d).IsUpperTriangular := by
   intro i j hij
   simp only [apolarSquare]
-  have hne : i ≠ j := by omega
+  have hne : i ≠ j := by
+    intro h
+    subst j
+    exact (lt_irrefl i) hij
   rw [if_neg hne]
+  have hijv : j.val < i.val := hij
   have h2 : i.val + 2 ≠ j.val := by omega
   rw [if_neg h2]
 
@@ -39,7 +43,7 @@ minor has positive determinant, hence is nonzero.  This is the finite linear
 algebra core of the statement that `D_F` has full row rank. -/
 theorem apolarSquare_det_pos {d : Nat} (hd : 3 ≤ d) :
     0 < (apolarSquare d).det := by
-  rw [Matrix.det_of_isUpperTriangular (apolarSquare d) (apolarSquare_upper d)]
+  rw [Matrix.det_of_isUpperTriangular (apolarSquare_upper d)]
   exact Finset.prod_pos fun i _ => apolarSquare_diag_pos hd i
 
 /-- In particular the canonical apolar square minor never vanishes. -/

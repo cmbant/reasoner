@@ -23,6 +23,7 @@ theorem common_split_component_rank_sum
       (∑ C : ι, b C) = ∑ C : ι, ((b C - 3) + 3) := by
         apply Finset.sum_congr rfl
         intro C hC
+        have hCtri := htri C
         omega
       _ = (∑ C : ι, (b C - 3)) + ∑ _C : ι, 3 := by
         rw [Finset.sum_add_distrib]

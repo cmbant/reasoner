@@ -15,8 +15,8 @@ lemma canonical_gate_on_swap_eigenvalue {ι : Type*} [DecidableEq ι]
     (odd : Finset ι) (i : ι) :
     gateA + gateB * swapEigenvalue odd i = if i ∈ odd then I else 1 := by
   by_cases h : i ∈ odd
-  · simp [swapEigenvalue, h, canonical_gate_at_minus]
-  · simp [swapEigenvalue, h, canonical_gate_at_plus]
+  · simpa [swapEigenvalue, h, sub_eq_add_neg] using canonical_gate_at_minus
+  · simpa [swapEigenvalue, h] using canonical_gate_at_plus
 
 /-- Exact finite-copy phase law: on a joint swap eigenvector with odd-rung set
 `odd`, the tensor-product flagship gate has phase `i` to the number of odd
