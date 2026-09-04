@@ -22,14 +22,13 @@ lemma giNormSq_const_two : giNormSq (giConst 2) = 4 := by norm_num [giNormSq, gi
 lemma giNormSq_eq_zero_iff (z : GInt) : giNormSq z = 0 ↔ z = giZero := by
   constructor
   · intro h
-    have hx : z.1 = 0 := by
-      have hx0 : 0 ≤ z.1 ^ 2 := sq_nonneg z.1
-      have hy0 : 0 ≤ z.2 ^ 2 := sq_nonneg z.2
-      nlinarith [h]
-    have hy : z.2 = 0 := by
-      have hx0 : 0 ≤ z.1 ^ 2 := sq_nonneg z.1
-      have hy0 : 0 ≤ z.2 ^ 2 := sq_nonneg z.2
-      nlinarith [h]
+    simp only [giNormSq] at h
+    have hx2 : z.1 ^ 2 = 0 := by
+      nlinarith [sq_nonneg z.1, sq_nonneg z.2]
+    have hy2 : z.2 ^ 2 = 0 := by
+      nlinarith [sq_nonneg z.1, sq_nonneg z.2]
+    have hx : z.1 = 0 := sq_eq_zero_iff.mp hx2
+    have hy : z.2 = 0 := sq_eq_zero_iff.mp hy2
     ext <;> simp [giZero, hx, hy]
   · rintro rfl
     exact giNormSq_zero
@@ -77,7 +76,8 @@ lemma giPow_base_ne_two {L : Nat} (hL : 1 ≤ L) :
     norm_num at hn ⊢
     exact hn
   subst L
-  native_decide
+  have hf := congrArg Prod.fst h
+  norm_num [giPow, giBase, giMul, giConst, giOne] at hf
 
 lemma giSub_eq_zero_iff (z w : GInt) : giSub z w = giZero ↔ z = w := by
   constructor
@@ -85,7 +85,9 @@ lemma giSub_eq_zero_iff (z w : GInt) : giSub z w = giZero ↔ z = w := by
     have h1 := congrArg Prod.fst h
     have h2 := congrArg Prod.snd h
     simp [giSub, giZero] at h1 h2
-    ext <;> assumption
+    ext
+    · exact sub_eq_zero.mp h1
+    · exact sub_eq_zero.mp h2
   · rintro rfl
     ext <;> simp [giSub, giZero]
 
@@ -95,8 +97,8 @@ lemma giSub_ne_zero_of_ne {z w : GInt} (h : z ≠ w) : giSub z w ≠ giZero := b
 
 lemma giConst_ne_zero {c : Int} (h : c ≠ 0) : giConst c ≠ giZero := by
   intro hc
-  have := congrArg Prod.fst hc
-  simpa [giConst, giZero] using this
+  have hc0 := congrArg Prod.fst hc
+  exact h (by simpa [giConst, giZero] using hc0)
 
 /-- The common linear factors in both 8x8 determinants are nonzero at every
 physical tail power `t=(1-i)^L`, `L≥1`. -/
