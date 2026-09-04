@@ -2,7 +2,7 @@ import Mathlib
 
 namespace FormalResearch.Blaschke
 
-open scoped BigOperators
+open scoped BigOperators symmDiff
 
 /-- The ±1 Boolean coordinate used in the Blaschke zero-flip family. -/
 def booleanSign {n : Nat} (S : Finset (Fin n)) (j : Fin n) : ℚ :=
@@ -144,7 +144,7 @@ theorem walsh_linear_sign_collapse_smul {n : Nat} {M : Type*}
       walshCharacter T S • (∑ j : Fin n, booleanSign S j • c j)) =
       ∑ j : Fin n,
         (∑ S : Finset (Fin n), walshCharacter T S * booleanSign S j) • c j := by
-          simp_rw [smul_sum, smul_smul]
+          simp_rw [Finset.smul_sum, smul_smul]
           rw [Fintype.sum_comm]
           apply Fintype.sum_congr
           intro j

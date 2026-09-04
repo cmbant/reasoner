@@ -6,20 +6,22 @@ open Complex
 
 /-- Coefficients of the canonical triplet/singlet phase gate
 `U = a I + b τ`. -/
-def gateA : ℂ := (1 + I) / 2
-def gateB : ℂ := (1 - I) / 2
+noncomputable def gateA : ℂ := (1 + I) / 2
+noncomputable def gateB : ℂ := (1 - I) / 2
 
 theorem gate_coeff_sum : gateA + gateB = 1 := by
   simp [gateA, gateB]
   ring
 
 theorem gate_coeff_sq_sum : gateA^2 + gateB^2 = 0 := by
-  simp [gateA, gateB]
+  unfold gateA gateB
   ring_nf
+  norm_num [Complex.I_sq]
 
 theorem gate_coeff_cross : 2 * gateA * gateB = 1 := by
-  simp [gateA, gateB]
+  unfold gateA gateB
   ring_nf
+  norm_num [Complex.I_sq]
 
 /-- Algebraic core of the exact Hamming gate identity: for any commuting
 involution `τ`, the canonical phase gate squares to `τ`.  The full `d`-rung
@@ -30,10 +32,8 @@ theorem canonical_gate_sq (τ : ℂ) (hτ : τ^2 = 1) :
     (gateA + gateB * τ)^2 =
         gateA^2 + (2 * gateA * gateB) * τ + gateB^2 * τ^2 := by ring
     _ = gateA^2 + τ + gateB^2 := by rw [gate_coeff_cross, hτ]; ring
-    _ = τ := by
-      have h := gate_coeff_sq_sum
-      ring_nf at h ⊢
-      exact h
+    _ = τ + (gateA^2 + gateB^2) := by ring
+    _ = τ := by rw [gate_coeff_sq_sum, add_zero]
 
 /-- On an even swap eigenvalue the gate phase is `1`. -/
 theorem canonical_gate_at_plus : gateA + gateB = 1 := gate_coeff_sum

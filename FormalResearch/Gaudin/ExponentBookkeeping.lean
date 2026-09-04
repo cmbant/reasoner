@@ -18,7 +18,7 @@ theorem exponentwise_rank_sum {ι : Type*} [Fintype ι]
         = A * (∑ i : ι, (e i : Int)) +
             B * ((∑ i : ι, (e i : Int) * (m i : Int)) -
               (∑ i : ι, (e i : Int))) := by
-                simp_rw [mul_add, mul_sub, mul_one]
+                simp_rw [mul_add, sub_mul, mul_sub, one_mul]
                 rw [Finset.sum_add_distrib, Finset.sum_sub_distrib]
                 ring
     _ = A * ell + B * (Nplus - ell) := by rw [hEll, hN]

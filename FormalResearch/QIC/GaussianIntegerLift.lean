@@ -29,7 +29,7 @@ def reduceG (p : Nat) (z : GInt) : GMod p :=
   ((z.1 : ZMod p), (z.2 : ZMod p))
 
 lemma reduceG_zero (p : Nat) : reduceG p giZero = gZero := by
-  rfl
+  ext <;> simp [reduceG, giZero, gZero]
 
 lemma reduceG_add (p : Nat) (z w : GInt) :
     reduceG p (giAdd z w) = gAdd (reduceG p z) (reduceG p w) := by
@@ -41,12 +41,13 @@ lemma reduceG_mul (p : Nat) (z w : GInt) :
 
 lemma reduceG_const (p : Nat) (c : Int) :
     reduceG p (giConst c) = gConst (c : ZMod p) := by
-  rfl
+  ext <;> simp [reduceG, giConst, gConst]
 
 lemma reduceG_pow (p : Nat) (z : GInt) (n : Nat) :
     reduceG p (giPow z n) = gPow (reduceG p z) n := by
   induction n with
-  | zero => rfl
+  | zero =>
+      ext <;> simp [reduceG, giPow, giOne, gPow, gOne]
   | succ n ih =>
       simp only [giPow, gPow]
       rw [reduceG_mul, ih]
@@ -62,10 +63,14 @@ lemma reduceG_eval5 (p : Nat) (c0 c1 c2 c3 c4 c5 : Int) (z : GInt) :
       reduceG_add, reduceG_const, reduceG_mul,
       reduceG_add, reduceG_const, reduceG_mul, reduceG_const]
 
-lemma reduceG_base13 : reduceG 13 giBase = base13 := by rfl
-lemma reduceG_base5 : reduceG 5 giBase = base5 := by rfl
-lemma reduceG_base11 : reduceG 11 giBase = base11 := by rfl
-lemma reduceG_base3 : reduceG 3 giBase = base3 := by rfl
+lemma reduceG_base13 : reduceG 13 giBase = base13 := by
+  ext <;> norm_num [reduceG, giBase, base13]
+lemma reduceG_base5 : reduceG 5 giBase = base5 := by
+  ext <;> norm_num [reduceG, giBase, base5]
+lemma reduceG_base11 : reduceG 11 giBase = base11 := by
+  ext <;> norm_num [reduceG, giBase, base11]
+lemma reduceG_base3 : reduceG 3 giBase = base3 := by
+  ext <;> norm_num [reduceG, giBase, base3]
 
 /-- Characteristic-zero nonvanishing of the `q_+` factor at every Gaussian power. -/
 theorem qPlus_all_powers_nonzero (L : Nat) :
