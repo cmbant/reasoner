@@ -43,7 +43,7 @@ theorem apolarFull_selected (d : Nat) :
         simp [apolarSelectedCol]
         omega
       simp [apolarFull, apolarSquare, apolarSelectedCol, hrc, hcr, h2, hk1, hk3]
-      ring
+      ring_nf
     · have h2' : c.val ≠ r.val + 2 := fun h => h2 h.symm
       have hk1 : (apolarSelectedCol c).val ≠ r.val + 1 := by
         simp [apolarSelectedCol]
