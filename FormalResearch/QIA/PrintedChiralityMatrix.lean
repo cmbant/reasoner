@@ -17,11 +17,19 @@ theorem printedA0xy_cubic (x y : ℝ) (hx : x^2 = 2) (hy : y^2 = 3) :
     printedA0xy x y ^ 3 = (9 / 16 : ℂ) • printedA0xy x y := by
   have hxc : (x : ℂ)^2 = 2 := by exact_mod_cast hx
   have hyc : (y : ℂ)^2 = 3 := by exact_mod_cast hy
+  have hxc3 : (x : ℂ)^3 = 2 * (x : ℂ) := by
+    calc
+      (x : ℂ)^3 = (x : ℂ)^2 * (x : ℂ) := by ring
+      _ = 2 * (x : ℂ) := by rw [hxc]
+  have hyc3 : (y : ℂ)^3 = 3 * (y : ℂ) := by
+    calc
+      (y : ℂ)^3 = (y : ℂ)^2 * (y : ℂ) := by ring
+      _ = 3 * (y : ℂ) := by rw [hyc]
   ext i j
   fin_cases i <;> fin_cases j <;>
     simp [pow_succ, printedA0xy, Matrix.mul_apply, Fin.sum_univ_succ, Complex.I_sq] <;>
     ring_nf <;>
-    simp [hxc, hyc] <;>
+    simp [hxc, hyc, hxc3, hyc3] <;>
     ring_nf
 
 /-- The paper's concrete matrix, written with `sqrt 2 * sqrt 3` in the
