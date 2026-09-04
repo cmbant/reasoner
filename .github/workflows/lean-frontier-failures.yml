@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: lean-frontier-failures-${{ github.ref }}
+  group: lean-frontier-failures-v2-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -48,7 +48,6 @@ jobs:
       - name: Gaudin Bernoulli inverse recurrence
         if: always()
         run: timeout 180 lake build FormalResearch.Gaudin.BernoulliInverseRecurrence
-
       - name: Gaudin restricted cross-rank
         if: always()
         run: timeout 180 lake build FormalResearch.Gaudin.RestrictedCrossRank
@@ -65,6 +64,18 @@ jobs:
         if: always()
         run: timeout 180 lake build FormalResearch.QIB1.ApolarFullRank
 
+  endpoint14:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean toolchain via elan
+        run: |
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies
+        run: lake update
+      - name: Fetch mathlib cache
+        run: lake exe cache get
       - name: QI-C endpoint-14 evaluation
-        if: always()
-        run: timeout 300 lake build FormalResearch.QIC.Endpoint14Evaluation
+        run: timeout 900 lake build FormalResearch.QIC.Endpoint14Evaluation
