@@ -117,13 +117,21 @@ theorem walsh_linear_sign_collapse {n : Nat} (T : Finset (Fin n))
   calc
     (∑ S : Finset (Fin n),
       walshCharacter T S * (∑ j : Fin n, c j * booleanSign S j)) =
-      ∑ j : Fin n, c j *
+      ∑ S : Finset (Fin n), ∑ j : Fin n,
+        walshCharacter T S * (c j * booleanSign S j) := by
+          apply Fintype.sum_congr
+          intro S
+          rw [Finset.mul_sum]
+    _ = ∑ j : Fin n, ∑ S : Finset (Fin n),
+        walshCharacter T S * (c j * booleanSign S j) := by
+          rw [Finset.sum_comm]
+    _ = ∑ j : Fin n, c j *
         (∑ S : Finset (Fin n), walshCharacter T S * booleanSign S j) := by
-          simp_rw [Finset.mul_sum, mul_assoc]
-          rw [Fintype.sum_comm]
           apply Fintype.sum_congr
           intro j
-          rw [← Finset.mul_sum]
+          rw [Finset.mul_sum]
+          apply Fintype.sum_congr
+          intro S
           ring
     _ = 0 := by
       apply Finset.sum_eq_zero
@@ -142,13 +150,22 @@ theorem walsh_linear_sign_collapse_smul {n : Nat} {M : Type*}
   calc
     (∑ S : Finset (Fin n),
       walshCharacter T S • (∑ j : Fin n, booleanSign S j • c j)) =
-      ∑ j : Fin n,
-        (∑ S : Finset (Fin n), walshCharacter T S * booleanSign S j) • c j := by
-          simp_rw [Finset.smul_sum, smul_smul]
-          rw [Fintype.sum_comm]
+      ∑ S : Finset (Fin n), ∑ j : Fin n,
+        (walshCharacter T S * booleanSign S j) • c j := by
+          apply Fintype.sum_congr
+          intro S
+          rw [Finset.smul_sum]
           apply Fintype.sum_congr
           intro j
-          rw [← Finset.sum_smul]
+          rw [smul_smul]
+    _ = ∑ j : Fin n, ∑ S : Finset (Fin n),
+        (walshCharacter T S * booleanSign S j) • c j := by
+          rw [Finset.sum_comm]
+    _ = ∑ j : Fin n,
+        (∑ S : Finset (Fin n), walshCharacter T S * booleanSign S j) • c j := by
+          apply Fintype.sum_congr
+          intro j
+          rw [Finset.sum_smul]
     _ = 0 := by
       apply Finset.sum_eq_zero
       intro j hj

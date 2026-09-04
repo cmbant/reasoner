@@ -3,24 +3,25 @@ import Mathlib
 namespace FormalResearch.Blaschke
 
 open Polynomial
+open scoped ComplexConjugate
 
 /-- Numerator factors used in the zero-flip/Walsh formulation. -/
 noncomputable def blaschkeA (c : ℂ) : ℂ[X] := X - C c
-noncomputable def blaschkeB (c : ℂ) : ℂ[X] := 1 - C (Complex.conj c) * X
+noncomputable def blaschkeB (c : ℂ) : ℂ[X] := 1 - C (conj c) * X
 
 @[simp] theorem derivative_blaschkeA (c : ℂ) :
     derivative (blaschkeA c) = 1 := by
   simp [blaschkeA]
 
 @[simp] theorem derivative_blaschkeB (c : ℂ) :
-    derivative (blaschkeB c) = C (-Complex.conj c) := by
+    derivative (blaschkeB c) = C (-conj c) := by
   simp [blaschkeB]
 
 /-- Exact reciprocal-pair Wronskian atom used in the Walsh sign formula. -/
 theorem blaschke_pair_wronskian (c : ℂ) :
     derivative (blaschkeA c) * blaschkeB c -
       blaschkeA c * derivative (blaschkeB c) =
-        C (1 - Complex.conj c * c) := by
+        C (1 - conj c * c) := by
   simp [blaschkeA, blaschkeB]
   ring
 
