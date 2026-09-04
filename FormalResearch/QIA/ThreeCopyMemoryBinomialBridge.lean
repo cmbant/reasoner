@@ -31,7 +31,6 @@ theorem threeCopyMemory_binomial_character_bridge (m : Nat) :
             rw [Finset.sum_comm]
             apply Finset.sum_congr rfl
             intro C hC
-            rw [Finset.mul_sum]
             apply Finset.sum_congr rfl
             intro k hk
             ring
