@@ -13,16 +13,12 @@ theorem exponentwise_rank_sum {ι : Type*} [Fintype ι]
     (hN : (∑ i : ι, (e i : Int) * (m i : Int)) = Nplus) :
     (∑ i : ι, (e i : Int) * (A + ((m i : Int) - 1) * B)) =
       ell * A + (Nplus - ell) * B := by
-  calc
-    (∑ i : ι, (e i : Int) * (A + ((m i : Int) - 1) * B))
-        = A * (∑ i : ι, (e i : Int)) +
-            B * ((∑ i : ι, (e i : Int) * (m i : Int)) -
-              (∑ i : ι, (e i : Int))) := by
-                simp_rw [mul_add, sub_mul, mul_sub, one_mul]
-                rw [Finset.sum_add_distrib, Finset.sum_sub_distrib]
-                ring
-    _ = A * ell + B * (Nplus - ell) := by rw [hEll, hN]
-    _ = ell * A + (Nplus - ell) * B := by ring
+  rw [← hEll, ← hN]
+  rw [sub_mul, Finset.sum_mul, Finset.sum_mul, Finset.sum_mul,
+    ← Finset.sum_sub_distrib, ← Finset.sum_add_distrib]
+  apply Finset.sum_congr rfl
+  intro i hi
+  ring
 
 /-- Consequently the universal coefficient multiplying vertex disagreement is
 `Nplus - ell = Σ e_m (m-1)`. -/
@@ -31,12 +27,9 @@ theorem vertex_weight_eq {ι : Type*} [Fintype ι]
     (hEll : (∑ i : ι, (e i : Int)) = ell)
     (hN : (∑ i : ι, (e i : Int) * (m i : Int)) = Nplus) :
     (∑ i : ι, (e i : Int) * ((m i : Int) - 1)) = Nplus - ell := by
-  calc
-    (∑ i : ι, (e i : Int) * ((m i : Int) - 1)) =
-        (∑ i : ι, (e i : Int) * (m i : Int)) -
-          (∑ i : ι, (e i : Int)) := by
-            simp_rw [mul_sub, mul_one]
-            rw [Finset.sum_sub_distrib]
-    _ = Nplus - ell := by rw [hN, hEll]
+  rw [← hEll, ← hN, ← Finset.sum_sub_distrib]
+  apply Finset.sum_congr rfl
+  intro i hi
+  ring
 
 end FormalResearch.Gaudin

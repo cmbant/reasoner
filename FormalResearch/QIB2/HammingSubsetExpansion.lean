@@ -11,13 +11,23 @@ theorem hamming_subset_expansion {ι R : Type*} [DecidableEq ι] [CommRing R]
     (∏ i ∈ s, (a + b * τ i)) =
       ∑ t ∈ s.powerset,
         b ^ t.card * a ^ (s.card - t.card) * ∏ i ∈ t, τ i := by
-  rw [Finset.prod_add (fun _ => b) (fun i => a) s]
-  apply Finset.sum_congr rfl
-  intro t ht
-  have hts : t ⊆ s := Finset.mem_powerset.mp ht
-  rw [Finset.prod_const, Finset.prod_const]
-  simp only [Finset.card_sdiff hts]
-  ring
+  calc
+    (∏ i ∈ s, (a + b * τ i)) =
+        ∏ i ∈ s, (b * τ i + a) := by
+          apply Finset.prod_congr rfl
+          intro i hi
+          ring
+    _ = ∑ t ∈ s.powerset,
+          (∏ i ∈ t, b * τ i) * ∏ i ∈ s \ t, a := by
+          rw [Finset.prod_add (fun i => b * τ i) (fun _ => a) s]
+    _ = ∑ t ∈ s.powerset,
+          b ^ t.card * a ^ (s.card - t.card) * ∏ i ∈ t, τ i := by
+          apply Finset.sum_congr rfl
+          intro t ht
+          have hts : t ⊆ s := Finset.mem_powerset.mp ht
+          rw [Finset.prod_mul_distrib]
+          simp only [Finset.prod_const, Finset.card_sdiff hts]
+          ring
 
 /-- The same identity specialized to the complete rung set `Fin d`. -/
 theorem hamming_subset_expansion_fin {d : Nat} {R : Type*} [CommRing R]
