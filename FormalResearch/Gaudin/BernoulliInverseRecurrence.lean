@@ -30,6 +30,7 @@ theorem bernoulli_inverse_raw_recurrence {j n : Nat} (t : Nat → ℚ)
   have hden : ((j + n : Nat) : ℚ) ≠ 0 := by
     exact_mod_cast Nat.ne_of_gt hpos
   rw [eq_div_iff hden]
+  ring_nf at hconv ⊢
   linarith
 
 /-- The diagonal inverse equation fixes the initial coefficient `t₀=1/j`.
@@ -96,10 +97,6 @@ theorem bernoulli_inverse_first_subdiag {j : Nat} (t : Nat → ℚ) (hj : 1 ≤ 
     (j := j) (n := 1) t hj (by omega) h1
   norm_num at ht1
   rw [ht0, Nat.cast_choose_two] at ht1
-  have hpred : ((j - 1 : Nat) : ℚ) = (j : ℚ) - 1 := by
-    rw [Nat.cast_sub hj]
-    norm_num
-  rw [hpred] at ht1
   have hjq : (j : ℚ) ≠ 0 := by
     exact_mod_cast Nat.ne_of_gt hj
   rw [ht1]
@@ -113,11 +110,11 @@ theorem cast_choose_four_rat (n : Nat) :
       (n : ℚ) * ((n : ℚ) - 1) * ((n : ℚ) - 2) * ((n : ℚ) - 3) / 24 := by
   by_cases hn : 4 ≤ n
   · obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hn
-    rw [Nat.cast_choose (by omega : 4 ≤ k + 4)]
+    rw [Nat.cast_choose ℚ (by omega : 4 ≤ k + 4)]
     norm_num [Nat.factorial_succ]
     ring
   · have hn' : n ≤ 3 := by omega
-    interval_cases n <;> norm_num
+    interval_cases n <;> norm_num [Nat.choose]
 
 /-- The second universal inverse subdiagonal, again derived from the exact
 convolution equations rather than inserted as table data.  It matches
@@ -131,7 +128,7 @@ theorem bernoulli_inverse_second_subdiag {j : Nat} (t : Nat → ℚ) (hj : 1 ≤
   have ht1 := bernoulli_inverse_first_subdiag t hj h0 h1
   have ht2 := bernoulli_inverse_normalized_recurrence
     (j := j) (n := 2) t hj (by omega) h2
-  norm_num at ht2
+  norm_num [Finset.sum_range_succ] at ht2
   rw [ht0, ht1, Nat.cast_choose_two, cast_choose_four_rat] at ht2
   have hjq : (j : ℚ) ≠ 0 := by
     exact_mod_cast Nat.ne_of_gt hj
@@ -147,11 +144,11 @@ theorem cast_choose_six_rat (n : Nat) :
         ((n : ℚ) - 4) * ((n : ℚ) - 5) / 720 := by
   by_cases hn : 6 ≤ n
   · obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hn
-    rw [Nat.cast_choose (by omega : 6 ≤ k + 6)]
+    rw [Nat.cast_choose ℚ (by omega : 6 ≤ k + 6)]
     norm_num [Nat.factorial_succ]
     ring
   · have hn' : n ≤ 5 := by omega
-    interval_cases n <;> norm_num
+    interval_cases n <;> norm_num [Nat.choose]
 
 /-- The third universal inverse subdiagonal derived recursively from the exact
 Bernoulli--Chebyshev convolution. -/
@@ -167,7 +164,7 @@ theorem bernoulli_inverse_third_subdiag {j : Nat} (t : Nat → ℚ) (hj : 1 ≤ 
   have ht2 := bernoulli_inverse_second_subdiag t hj h0 h1 h2
   have ht3 := bernoulli_inverse_normalized_recurrence
     (j := j) (n := 3) t hj (by omega) h3
-  norm_num at ht3
+  norm_num [Finset.sum_range_succ] at ht3
   rw [ht0, ht1, ht2, Nat.cast_choose_two, cast_choose_four_rat,
     cast_choose_six_rat] at ht3
   have hjq : (j : ℚ) ≠ 0 := by
