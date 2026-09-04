@@ -15,7 +15,8 @@ theorem joint_rank_via_common_kernel
     Module.finrank K (LinearMap.range (I.prod J)) +
         Module.finrank K ((LinearMap.ker I ⊓ LinearMap.ker J : Submodule K V)) =
       Module.finrank K V := by
-  simpa [LinearMap.ker_prod] using (I.prod J).finrank_range_add_finrank_ker
+  rw [← LinearMap.ker_prod]
+  exact (I.prod J).finrank_range_add_finrank_ker
 
 /-- If the tangent space has dimension `2n` and the common kernel of the two
 joint differentials has dimension `n-r`, then the joint differential has rank

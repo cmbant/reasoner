@@ -26,7 +26,7 @@ theorem hamming_subset_expansion {ι R : Type*} [DecidableEq ι] [CommRing R]
           intro t ht
           have hts : t ⊆ s := Finset.mem_powerset.mp ht
           rw [Finset.prod_mul_distrib]
-          simp only [Finset.prod_const, Finset.card_sdiff hts]
+          simp only [Finset.prod_const, Finset.card_sdiff_of_subset hts]
           ring
 
 /-- The same identity specialized to the complete rung set `Fin d`. -/
