@@ -94,6 +94,25 @@ jobs:
         if: always()
         run: timeout 180 lake build FormalResearch.QIA.ThreeCopyMemoryBinomialBridge
 
+      - name: QI-D D5 Weyl enumeration frontier build
+        if: always()
+        run: timeout 240 lake build FormalResearch.QID.D5WeylEnumeration
+      - name: QI-B2 Krawtchouk generating frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.KrawtchoukGenerating
+      - name: QI-A printed chirality matrix frontier build
+        if: always()
+        run: timeout 240 lake build FormalResearch.QIA.PrintedChiralityMatrix
+      - name: QI-C endpoint-14 evaluation frontier build
+        if: always()
+        run: timeout 300 lake build FormalResearch.QIC.Endpoint14Evaluation
+      - name: QI-C all-L qubit-tail nonvanishing frontier build
+        if: always()
+        run: timeout 240 lake build FormalResearch.QIC.QubitTailAllLNonvanishing
+      - name: Gaudin Bernoulli inverse recurrence frontier build
+        if: always()
+        run: timeout 240 lake build FormalResearch.Gaudin.BernoulliInverseRecurrence
+
       - name: FormalResearch aggregate build
         if: always()
         run: timeout 900 lake build FormalResearch
