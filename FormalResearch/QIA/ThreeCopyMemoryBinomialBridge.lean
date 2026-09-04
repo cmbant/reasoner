@@ -64,8 +64,19 @@ def threeCopyMemoryDimensionQ (m : Nat) : Rat :=
 theorem threeCopyMemoryDimensionQ_closed {m : Nat} (hm : 1 ≤ m) :
     threeCopyMemoryDimensionQ m = ((3 : Rat)^m + 3) / 6 := by
   unfold threeCopyMemoryDimensionQ s3StandardInvariantMultiplicityQ
-  rw [← Finset.sum_div]
-  congr 1
-  exact_mod_cast threeCopyMemory_weighted_numerator_closed hm
+  calc
+    (∑ k ∈ Finset.range (m + 1),
+        (m.choose k : Rat) * ((s3StandardInvariantNumerator k : Rat) / 6)) =
+      ∑ k ∈ Finset.range (m + 1),
+        ((m.choose k : Rat) * (s3StandardInvariantNumerator k : Rat)) / 6 := by
+          apply Finset.sum_congr rfl
+          intro k hk
+          ring
+    _ = (∑ k ∈ Finset.range (m + 1),
+          (m.choose k : Rat) * (s3StandardInvariantNumerator k : Rat)) / 6 := by
+      rw [Finset.sum_div]
+    _ = ((3 : Rat)^m + 3) / 6 := by
+      congr 1
+      exact_mod_cast threeCopyMemory_weighted_numerator_closed hm
 
 end FormalResearch.QIA
