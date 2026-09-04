@@ -5,6 +5,10 @@ on:
     branches: [formal-research-lean]
   workflow_dispatch:
 
+concurrency:
+  group: lean-frontier-diagnostics-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   frontier:
     runs-on: ubuntu-latest
