@@ -13,7 +13,7 @@ theorem joint_rank_via_common_kernel
     [FiniteDimensional K V]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B) :
     Module.finrank K (LinearMap.range (I.prod J)) +
-        Module.finrank K (LinearMap.ker I ⊓ LinearMap.ker J) =
+        Module.finrank K ((LinearMap.ker I ⊓ LinearMap.ker J : Submodule K V)) =
       Module.finrank K V := by
   simpa [LinearMap.ker_prod] using (I.prod J).finrank_range_add_finrank_ker
 
@@ -30,7 +30,8 @@ theorem joint_rank_eq_n_add_r
     (I : V →ₗ[K] A) (J : V →ₗ[K] B)
     (n r : Nat)
     (hV : Module.finrank K V = 2 * n)
-    (hcommon : Module.finrank K (LinearMap.ker I ⊓ LinearMap.ker J) = n - r)
+    (hcommon : Module.finrank K
+      ((LinearMap.ker I ⊓ LinearMap.ker J : Submodule K V)) = n - r)
     (hr : r ≤ n) :
     Module.finrank K (LinearMap.range (I.prod J)) = n + r := by
   have h := joint_rank_via_common_kernel I J
@@ -48,8 +49,8 @@ theorem common_action_span_finrank
     (S T : Submodule K W) (n r : Nat)
     (hS : Module.finrank K S = n)
     (hT : Module.finrank K T = n)
-    (hSup : Module.finrank K (S ⊔ T) = n + r) :
-    Module.finrank K (S ⊓ T) = n - r := by
+    (hSup : Module.finrank K ((S ⊔ T : Submodule K W)) = n + r) :
+    Module.finrank K ((S ⊓ T : Submodule K W)) = n - r := by
   have h := Submodule.finrank_sup_add_finrank_inf_eq S T
   rw [hSup, hS, hT] at h
   omega
@@ -63,9 +64,9 @@ theorem joint_span_finrank_of_common_actions
     (S T : Submodule K W) (n r : Nat)
     (hS : Module.finrank K S = n)
     (hT : Module.finrank K T = n)
-    (hInf : Module.finrank K (S ⊓ T) = n - r)
+    (hInf : Module.finrank K ((S ⊓ T : Submodule K W)) = n - r)
     (hr : r ≤ n) :
-    Module.finrank K (S ⊔ T) = n + r := by
+    Module.finrank K ((S ⊔ T : Submodule K W)) = n + r := by
   have h := Submodule.finrank_sup_add_finrank_inf_eq S T
   rw [hInf, hS, hT] at h
   omega

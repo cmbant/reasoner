@@ -4,6 +4,8 @@ import FormalResearch.Gaudin.TreeSpaceRank
 
 namespace FormalResearch.Gaudin
 
+open scoped symmDiff
+
 /-- Boolean indicator function of a finite split system. -/
 def finsetBoolIndicator {α : Type*} [DecidableEq α]
     (s : Finset α) : α → Bool :=

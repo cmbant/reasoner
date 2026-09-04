@@ -9,7 +9,7 @@ theorem bitMismatch_eq_zero_iff (a b : Bool) :
   simp [bitMismatch]
 
 /-- Hamming distance on Boolean indicator functions separates points. -/
-theorem hamming_eq_zero_iff {ι : Type} [Fintype ι]
+theorem hamming_eq_zero_iff {ι : Type*} [Fintype ι]
     (a b : ι → Bool) :
     hamming a b = 0 ↔ a = b := by
   unfold hamming
@@ -19,7 +19,7 @@ theorem hamming_eq_zero_iff {ι : Type} [Fintype ι]
 /-- With positive edge and vertex weights, the Gaudin weighted tree distance
 vanishes exactly when both encoded incidence systems agree. -/
 theorem weightedTreeDistance_eq_zero_iff
-    {E V : Type} [Fintype E] [Fintype V]
+    {E V : Type*} [Fintype E] [Fintype V]
     {ell nu : Nat} (hEll : 0 < ell) (hNu : 0 < nu)
     (e₁ e₂ : E → Bool) (v₁ v₂ : V → Bool) :
     weightedTreeDistance ell nu e₁ e₂ v₁ v₂ = 0 ↔
@@ -30,7 +30,7 @@ theorem weightedTreeDistance_eq_zero_iff
 /-- Positive-weight weighted tree distance is strictly positive for distinct
 encoded tree data. -/
 theorem weightedTreeDistance_pos_iff
-    {E V : Type} [Fintype E] [Fintype V]
+    {E V : Type*} [Fintype E] [Fintype V]
     {ell nu : Nat} (hEll : 0 < ell) (hNu : 0 < nu)
     (e₁ e₂ : E → Bool) (v₁ v₂ : V → Bool) :
     0 < weightedTreeDistance ell nu e₁ e₂ v₁ v₂ ↔

@@ -18,20 +18,20 @@ theorem bitMismatch_triangle (a b c : Bool) :
     bitMismatch a c ≤ bitMismatch a b + bitMismatch b c := by
   cases a <;> cases b <;> cases c <;> decide
 
-def hamming {ι : Type} [Fintype ι] (a b : ι → Bool) : Nat :=
+def hamming {ι : Type*} [Fintype ι] (a b : ι → Bool) : Nat :=
   ∑ i, bitMismatch (a i) (b i)
 
-theorem hamming_self {ι : Type} [Fintype ι] (a : ι → Bool) : hamming a a = 0 := by
+theorem hamming_self {ι : Type*} [Fintype ι] (a : ι → Bool) : hamming a a = 0 := by
   simp [hamming, bitMismatch]
 
-theorem hamming_symm {ι : Type} [Fintype ι] (a b : ι → Bool) :
+theorem hamming_symm {ι : Type*} [Fintype ι] (a b : ι → Bool) :
     hamming a b = hamming b a := by
   unfold hamming
   apply Finset.sum_congr rfl
   intro i hi
   exact bitMismatch_symm _ _
 
-theorem hamming_triangle {ι : Type} [Fintype ι] (a b c : ι → Bool) :
+theorem hamming_triangle {ι : Type*} [Fintype ι] (a b c : ι → Bool) :
     hamming a c ≤ hamming a b + hamming b c := by
   unfold hamming
   rw [← Finset.sum_add_distrib]
@@ -39,17 +39,17 @@ theorem hamming_triangle {ι : Type} [Fintype ι] (a b c : ι → Bool) :
 
 /-- Weighted mismatch distance used by the Gaudin transition metric once edge and vertex
 incidence data are encoded as Boolean indicator functions. -/
-def weightedTreeDistance {E V : Type} [Fintype E] [Fintype V]
+def weightedTreeDistance {E V : Type*} [Fintype E] [Fintype V]
     (ell nu : Nat) (e₁ e₂ : E → Bool) (v₁ v₂ : V → Bool) : Nat :=
   ell * hamming e₁ e₂ + nu * hamming v₁ v₂
 
-theorem weightedTreeDistance_symm {E V : Type} [Fintype E] [Fintype V]
+theorem weightedTreeDistance_symm {E V : Type*} [Fintype E] [Fintype V]
     (ell nu : Nat) (e₁ e₂ : E → Bool) (v₁ v₂ : V → Bool) :
     weightedTreeDistance ell nu e₁ e₂ v₁ v₂ =
       weightedTreeDistance ell nu e₂ e₁ v₂ v₁ := by
   simp [weightedTreeDistance, hamming_symm]
 
-theorem weightedTreeDistance_triangle {E V : Type} [Fintype E] [Fintype V]
+theorem weightedTreeDistance_triangle {E V : Type*} [Fintype E] [Fintype V]
     (ell nu : Nat)
     (e₁ e₂ e₃ : E → Bool) (v₁ v₂ v₃ : V → Bool) :
     weightedTreeDistance ell nu e₁ e₃ v₁ v₃ ≤

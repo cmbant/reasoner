@@ -3,7 +3,7 @@ import FormalResearch.QIB2.HammingOrbitEigenvalue
 
 namespace FormalResearch.QIB2
 
-open scoped BigOperators
+open scoped BigOperators symmDiff
 
 /-- Local ±1 Walsh sign of a Boolean subset at one coordinate. -/
 def bitSign {α : Type*} [DecidableEq α] (x : Finset α) (i : α) : Int :=
