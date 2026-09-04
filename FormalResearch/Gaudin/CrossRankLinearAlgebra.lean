@@ -12,9 +12,9 @@ theorem joint_rank_via_common_kernel
     [AddCommGroup B] [Module K B]
     [FiniteDimensional K V]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B) :
-    finrank K (LinearMap.range (I.prod J)) +
-        finrank K (LinearMap.ker I ⊓ LinearMap.ker J) =
-      finrank K V := by
+    Module.finrank K (LinearMap.range (I.prod J)) +
+        Module.finrank K (LinearMap.ker I ⊓ LinearMap.ker J) =
+      Module.finrank K V := by
   simpa [LinearMap.ker_prod] using (I.prod J).finrank_range_add_finrank_ker
 
 /-- If the tangent space has dimension `2n` and the common kernel of the two
@@ -29,10 +29,10 @@ theorem joint_rank_eq_n_add_r
     [FiniteDimensional K V]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B)
     (n r : Nat)
-    (hV : finrank K V = 2 * n)
-    (hcommon : finrank K (LinearMap.ker I ⊓ LinearMap.ker J) = n - r)
+    (hV : Module.finrank K V = 2 * n)
+    (hcommon : Module.finrank K (LinearMap.ker I ⊓ LinearMap.ker J) = n - r)
     (hr : r ≤ n) :
-    finrank K (LinearMap.range (I.prod J)) = n + r := by
+    Module.finrank K (LinearMap.range (I.prod J)) = n + r := by
   have h := joint_rank_via_common_kernel I J
   rw [hV, hcommon] at h
   omega
@@ -46,10 +46,10 @@ theorem common_action_span_finrank
     [AddCommGroup W] [Module K W]
     [FiniteDimensional K W]
     (S T : Submodule K W) (n r : Nat)
-    (hS : finrank K S = n)
-    (hT : finrank K T = n)
-    (hSup : finrank K (S ⊔ T) = n + r) :
-    finrank K (S ⊓ T) = n - r := by
+    (hS : Module.finrank K S = n)
+    (hT : Module.finrank K T = n)
+    (hSup : Module.finrank K (S ⊔ T) = n + r) :
+    Module.finrank K (S ⊓ T) = n - r := by
   have h := Submodule.finrank_sup_add_finrank_inf_eq S T
   rw [hSup, hS, hT] at h
   omega
@@ -61,11 +61,11 @@ theorem joint_span_finrank_of_common_actions
     [AddCommGroup W] [Module K W]
     [FiniteDimensional K W]
     (S T : Submodule K W) (n r : Nat)
-    (hS : finrank K S = n)
-    (hT : finrank K T = n)
-    (hInf : finrank K (S ⊓ T) = n - r)
+    (hS : Module.finrank K S = n)
+    (hT : Module.finrank K T = n)
+    (hInf : Module.finrank K (S ⊓ T) = n - r)
     (hr : r ≤ n) :
-    finrank K (S ⊔ T) = n + r := by
+    Module.finrank K (S ⊔ T) = n + r := by
   have h := Submodule.finrank_sup_add_finrank_inf_eq S T
   rw [hInf, hS, hT] at h
   omega

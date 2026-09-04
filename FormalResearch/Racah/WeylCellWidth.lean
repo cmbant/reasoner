@@ -28,6 +28,5 @@ theorem lawCosines_cell_width_centered {A B : ℚ} (c : ℚ)
       (c + 1/2) / (A*B) := by
   rw [lawCosines_cell_width c hA hB]
   field_simp [hA, hB]
-  ring
 
 end FormalResearch.Racah

@@ -60,8 +60,7 @@ theorem su2TreeRank_twice_eq_RF {α : Type*} [DecidableEq α]
     (hs : s.card = m - 3) (ht : t.card = m - 3) :
     2 * su2TreeRank m s t = robinsonFouldsDistance s t := by
   rw [su2TreeRank_eq_splitDefect hs, robinsonFoulds_eq_two_splitDefect]
-  · omega
-  · omega
+  omega
 
 /-- Equivalent common-split formula from G-I. -/
 theorem su2TreeRank_eq_common_split_formula {α : Type*} [DecidableEq α]

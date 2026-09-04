@@ -68,6 +68,5 @@ theorem cyclicCharge_energy {d : Nat} (hd : 0 < d) :
   rw [← Finset.sum_div, cyclicCharge_numerator_sq_sum]
   simp [gateABaseline]
   field_simp [hdq]
-  ring
 
 end FormalResearch.Blaschke

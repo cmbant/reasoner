@@ -36,6 +36,5 @@ theorem binaryKrawtchouk_eq_coeff (d m r : Nat) :
   apply Finset.sum_congr rfl
   intro l hl
   rw [coeff_one_sub_X_pow, Polynomial.coeff_one_add_X_pow]
-  ring
 
 end FormalResearch.QIB2

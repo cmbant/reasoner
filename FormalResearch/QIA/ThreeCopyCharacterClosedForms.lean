@@ -39,7 +39,6 @@ theorem threeCopyMemoryCharacterNumerator_closed {m : Nat} (hm : 1 ≤ m) :
   unfold threeCopyMemoryCharacterNumerator
   simp [s3ClassSize, s3StandardChar, Fin.sum_univ_succ,
     zero_pow (Nat.ne_of_gt hm)]
-  ring
 
 /-- Closed invariant-algebra numerator:
 `36 dim A_{m,3} = 5^m + 4·2^m + 4(-1)^m + 27`. -/
