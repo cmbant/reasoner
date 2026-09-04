@@ -116,6 +116,7 @@ theorem cast_choose_four_rat (n : Nat) :
     rw [Nat.cast_choose ℚ (by omega : 4 ≤ k + 4)]
     norm_num [Nat.factorial_succ]
     ring_nf
+    simp [mul_inv_cancel₀ hkfac]
   · have hn' : n ≤ 3 := by omega
     interval_cases n <;> norm_num [Nat.choose]
 
@@ -153,6 +154,7 @@ theorem cast_choose_six_rat (n : Nat) :
     rw [Nat.cast_choose ℚ (by omega : 6 ≤ k + 6)]
     norm_num [Nat.factorial_succ]
     ring_nf
+    simp [mul_inv_cancel₀ hkfac]
   · have hn' : n ≤ 5 := by omega
     interval_cases n <;> norm_num [Nat.choose]
 
