@@ -30,6 +30,7 @@ theorem bernoulli_inverse_raw_recurrence {j n : Nat} (t : Nat → ℚ)
   have hden : ((j + n : Nat) : ℚ) ≠ 0 := by
     exact_mod_cast Nat.ne_of_gt hpos
   rw [eq_div_iff hden]
+  rw [Nat.cast_add]
   ring_nf at hconv ⊢
   linarith
 
@@ -110,6 +111,7 @@ theorem cast_choose_four_rat (n : Nat) :
       (n : ℚ) * ((n : ℚ) - 1) * ((n : ℚ) - 2) * ((n : ℚ) - 3) / 24 := by
   by_cases hn : 4 ≤ n
   · obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hn
+    rw [Nat.add_comm 4 k]
     rw [Nat.cast_choose ℚ (by omega : 4 ≤ k + 4)]
     norm_num [Nat.factorial_succ]
     ring
@@ -134,7 +136,7 @@ theorem bernoulli_inverse_second_subdiag {j : Nat} (t : Nat → ℚ) (hj : 1 ≤
     exact_mod_cast Nat.ne_of_gt hj
   rw [ht2]
   field_simp [hjq]
-  ring
+  ring_nf
 
 /-- Closed rational formula for `choose(n,6)`, again including the small `n`
 cases where both sides vanish. -/
@@ -144,6 +146,7 @@ theorem cast_choose_six_rat (n : Nat) :
         ((n : ℚ) - 4) * ((n : ℚ) - 5) / 720 := by
   by_cases hn : 6 ≤ n
   · obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hn
+    rw [Nat.add_comm 6 k]
     rw [Nat.cast_choose ℚ (by omega : 6 ≤ k + 6)]
     norm_num [Nat.factorial_succ]
     ring
@@ -171,6 +174,6 @@ theorem bernoulli_inverse_third_subdiag {j : Nat} (t : Nat → ℚ) (hj : 1 ≤ 
     exact_mod_cast Nat.ne_of_gt hj
   rw [ht3]
   field_simp [hjq]
-  ring
+  ring_nf
 
 end FormalResearch.Gaudin
