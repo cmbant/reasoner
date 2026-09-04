@@ -23,8 +23,8 @@ theorem canonical_gate_boolean_local_phase {d : Nat}
     gateA + gateB * booleanWalshSign T i =
       if i ∈ T then I else 1 := by
   by_cases hi : i ∈ T
-  · simp [booleanWalshSign, hi, canonical_gate_at_minus]
-  · simp [booleanWalshSign, hi, gate_coeff_sum]
+  · simpa [booleanWalshSign, hi, sub_eq_add_neg] using canonical_gate_at_minus
+  · simpa [booleanWalshSign, hi] using gate_coeff_sum
 
 /-- Product form of the full Boolean-cube phase law: an arbitrary Walsh label
 `T` acquires exactly the phase `i^|T|`. -/
@@ -42,6 +42,7 @@ theorem canonical_gate_boolean_cube_phase {d : Nat}
     (∑ S ∈ (Finset.univ : Finset (Fin d)).powerset,
       gateB ^ S.card * gateA ^ (d - S.card) * booleanWalshCharacter T S) =
       I ^ T.card := by
+  simp only [booleanWalshCharacter]
   rw [← hamming_subset_expansion_fin gateA gateB (booleanWalshSign T)]
   exact canonical_gate_boolean_product_phase T
 
