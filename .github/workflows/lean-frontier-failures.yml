@@ -42,9 +42,6 @@ jobs:
       - name: QI-A printed chirality matrix
         if: always()
         run: timeout 180 lake build FormalResearch.QIA.PrintedChiralityMatrix
-      - name: QI-C endpoint-14 evaluation
-        if: always()
-        run: timeout 300 lake build FormalResearch.QIC.Endpoint14Evaluation
       - name: QI-C all-L qubit-tail nonvanishing
         if: always()
         run: timeout 180 lake build FormalResearch.QIC.QubitTailAllLNonvanishing
@@ -67,3 +64,7 @@ jobs:
       - name: QI-B1 apolar full-rank
         if: always()
         run: timeout 180 lake build FormalResearch.QIB1.ApolarFullRank
+
+      - name: QI-C endpoint-14 evaluation
+        if: always()
+        run: timeout 300 lake build FormalResearch.QIC.Endpoint14Evaluation
