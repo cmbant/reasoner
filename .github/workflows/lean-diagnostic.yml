@@ -8,7 +8,7 @@ on:
 jobs:
   frontier:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -25,25 +25,53 @@ jobs:
             echo 'Lean placeholders found'
             exit 1
           fi
+
       - name: AUX-BV quartic charge-gap module build
+        if: always()
         run: timeout 300 lake build FormalResearch.Blaschke.QuarticChargeGapAlgebra
+
+      - name: Racah Weyl cell-width maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Racah.WeylCellWidth
+      - name: QI-B2 Krawtchouk maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.KrawtchoukEigenvalue
+      - name: Gaudin tree-space-rank maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Gaudin.TreeSpaceRank
+      - name: Blaschke cyclic-charge-energy maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Blaschke.CyclicChargeEnergy
+      - name: QI-A three-copy closed-forms maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIA.ThreeCopyCharacterClosedForms
+      - name: Gaudin cross-rank maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Gaudin.CrossRankLinearAlgebra
+
+      - name: QI-B2 Hamming gate maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.HammingGate
+      - name: Blaschke Wronskian-pair maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Blaschke.WronskianPair
+      - name: Blaschke Walsh-collapse maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Blaschke.WalshBooleanCollapse
+      - name: Gaudin exponent-bookkeeping maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Gaudin.ExponentBookkeeping
+      - name: QI-C Gaussian-integer-lift maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIC.GaussianIntegerLift
+
+      - name: QI-B2 Hamming subset-expansion frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.HammingSubsetExpansion
+      - name: QI-C qubit-tail determinant frontier build
+        if: always()
+        run: timeout 300 lake build FormalResearch.QIC.QubitTailDeterminants
+
       - name: FormalResearch aggregate build
-        run: timeout 600 lake build FormalResearch
-      - name: QI-A explicit printed spectrum diagnostic
-        continue-on-error: true
-        run: timeout 150 lake env lean FormalResearch/QIA/PrintedChiralitySpectrum.lean
-      - name: QI-B2 exact Hamming spectral phase diagnostic
-        continue-on-error: true
-        run: timeout 150 lake env lean FormalResearch/QIB2/HammingSpectralPhase.lean
-      - name: QI-B2 Krawtchouk coefficient diagnostic
-        continue-on-error: true
-        run: timeout 150 lake env lean FormalResearch/QIB2/KrawtchoukEigenvalue.lean
-      - name: QI-C symbolic endpoint identity diagnostic
-        continue-on-error: true
-        run: timeout 210 lake env lean FormalResearch/QIC/Endpoint14PolynomialIdentity.lean
-      - name: QI-C Gaussian endpoint nonsingularity diagnostic
-        continue-on-error: true
-        run: timeout 210 lake env lean FormalResearch/QIC/GaussianEndpointNonsingular.lean
-      - name: Aggregate source diagnostic
-        continue-on-error: true
-        run: timeout 360 lake env lean FormalResearch.lean
+        if: always()
+        run: timeout 900 lake build FormalResearch
