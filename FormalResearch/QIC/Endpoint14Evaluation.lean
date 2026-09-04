@@ -38,17 +38,29 @@ def expectedEndpointDet (t : Int) : Int :=
 def endpointRowOrder : Fin14 → Fin14 :=
   ![0, 1, 2, 3, 4, 6, 7, 5, 8, 9, 10, 11, 12, 13]
 
+def endpointRowOrderInv : Fin14 → Fin14 :=
+  ![0, 1, 2, 3, 4, 7, 5, 6, 8, 9, 10, 11, 12, 13]
+
 /-- Column order putting the fixed seven-column pivot block first.  The final two
 complement columns are swapped so that the row and column permutations have the
 same parity. -/
 def endpointColOrder : Fin14 → Fin14 :=
   ![2, 3, 4, 5, 6, 10, 12, 0, 1, 7, 8, 9, 13, 11]
 
-def endpointRowPerm : Equiv.Perm Fin14 :=
-  Equiv.ofBijective endpointRowOrder (by native_decide)
+def endpointColOrderInv : Fin14 → Fin14 :=
+  ![7, 8, 0, 1, 2, 3, 4, 9, 10, 11, 5, 13, 6, 12]
 
-def endpointColPerm : Equiv.Perm Fin14 :=
-  Equiv.ofBijective endpointColOrder (by native_decide)
+def endpointRowPerm : Equiv.Perm Fin14 where
+  toFun := endpointRowOrder
+  invFun := endpointRowOrderInv
+  left_inv := by native_decide
+  right_inv := by native_decide
+
+def endpointColPerm : Equiv.Perm Fin14 where
+  toFun := endpointColOrder
+  invFun := endpointColOrderInv
+  left_inv := by native_decide
+  right_inv := by native_decide
 
 /-- Reindex old row labels into a `7+7` block decomposition. -/
 def endpointRowEquiv : Fin14 ≃ (Fin7 ⊕ Fin7) :=
@@ -104,14 +116,18 @@ theorem endpoint_det_57_values :
   intro k
   by_cases hk : k = 0
   · subst k
+    change Matrix.det (endpointAt 0) = expectedEndpointDet 0
     rw [endpointAt_zero, Matrix.det_zero]
     norm_num [expectedEndpointDet]
-  · have hpivot := endpoint_pivot_nonzero k hk
-    letI : Invertible (Matrix.det (endpointPivot (k : Int))) :=
+  · have hpivot :
+        Matrix.det ((endpointReindexed (k : Int)).toBlocks₁₁) ≠ 0 := by
+      simpa [endpointPivot] using endpoint_pivot_nonzero k hk
+    letI : Invertible (Matrix.det ((endpointReindexed (k : Int)).toBlocks₁₁)) :=
       invertibleOfNonzero hpivot
-    letI : Invertible (endpointPivot (k : Int)) :=
+    letI : Invertible ((endpointReindexed (k : Int)).toBlocks₁₁) :=
       Matrix.invertibleOfDetInvertible _
-    have hinv : ⅟(endpointPivot (k : Int)) = endpointPivotInv (k : Int) := by
+    have hinv :
+        ⅟((endpointReindexed (k : Int)).toBlocks₁₁) = endpointPivotInv (k : Int) := by
       rfl
     have hschur :
         Matrix.det (endpointReindexed (k : Int)) =
@@ -122,13 +138,15 @@ theorem endpoint_det_57_values :
       rfl
     have hreindex :
         Matrix.det (endpointReindexed (k : Int)) = Matrix.det (endpointAtRat (k : Int)) := by
-      rw [endpointReindexed, Matrix.det_reindex, endpoint_reindex_sign, one_mul]
+      rw [endpointReindexed, Matrix.det_reindex, endpoint_reindex_sign]
+      norm_num
     have hrat :
         Matrix.det (endpointAtRat (k : Int)) = (expectedEndpointDet (k : Int) : ℚ) := by
       rw [← hreindex, hschur]
       exact endpoint_schur_57_values k hk
     have hcast :
-        (Matrix.det (endpointAt (k : Int)) : ℚ) = Matrix.det (endpointAtRat (k : Int)) := by
+        ((Matrix.det (endpointAt (k : Int)) : Int) : ℚ) =
+          Matrix.det (endpointAtRat (k : Int)) := by
       simpa [endpointAtRat] using
         (RingHom.map_det (Int.castRingHom ℚ) (endpointAt (k : Int)))
     exact_mod_cast hcast.trans hrat
