@@ -25,23 +25,25 @@ jobs:
             echo 'Lean placeholders found'
             exit 1
           fi
-      - name: AUX-BV quartic charge-gap algebra
-        run: timeout 180 lake env lean FormalResearch/Blaschke/QuarticChargeGapAlgebra.lean
-      - name: QI-A explicit printed spectrum
+      - name: AUX-BV quartic charge-gap module build
+        run: timeout 300 lake build FormalResearch.Blaschke.QuarticChargeGapAlgebra
+      - name: FormalResearch aggregate build
+        run: timeout 600 lake build FormalResearch
+      - name: QI-A explicit printed spectrum diagnostic
         continue-on-error: true
         run: timeout 150 lake env lean FormalResearch/QIA/PrintedChiralitySpectrum.lean
-      - name: QI-B2 exact Hamming spectral phase
+      - name: QI-B2 exact Hamming spectral phase diagnostic
         continue-on-error: true
         run: timeout 150 lake env lean FormalResearch/QIB2/HammingSpectralPhase.lean
-      - name: QI-B2 Krawtchouk coefficient identity
+      - name: QI-B2 Krawtchouk coefficient diagnostic
         continue-on-error: true
         run: timeout 150 lake env lean FormalResearch/QIB2/KrawtchoukEigenvalue.lean
-      - name: QI-C symbolic endpoint identity
+      - name: QI-C symbolic endpoint identity diagnostic
         continue-on-error: true
         run: timeout 210 lake env lean FormalResearch/QIC/Endpoint14PolynomialIdentity.lean
-      - name: QI-C Gaussian endpoint nonsingularity
+      - name: QI-C Gaussian endpoint nonsingularity diagnostic
         continue-on-error: true
         run: timeout 210 lake env lean FormalResearch/QIC/GaussianEndpointNonsingular.lean
-      - name: Aggregate import
+      - name: Aggregate source diagnostic
         continue-on-error: true
         run: timeout 360 lake env lean FormalResearch.lean
