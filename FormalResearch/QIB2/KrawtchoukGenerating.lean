@@ -49,11 +49,12 @@ theorem binaryKrawtchouk_generating_eval_complex (d m : Nat) (z : ℂ) :
         rw [Polynomial.eval₂_finsetSum]
         apply Finset.sum_congr rfl
         intro r hr
-        simp
+        rw [Polynomial.eval₂_mul, Polynomial.eval₂_C, Polynomial.eval₂_X_pow]
+        rfl
     _ = Polynomial.eval₂ (Int.castRingHom ℂ) z
         (binaryKrawtchoukGeneratingPoly d m) := by
       rw [← binaryKrawtchoukGeneratingPoly_expansion]
     _ = (1 - z)^m * (1 + z)^(d - m) := by
-      simp [binaryKrawtchoukGeneratingPoly]
+      simp [binaryKrawtchoukGeneratingPoly, Polynomial.eval₂_pow]
 
 end FormalResearch.QIB2
