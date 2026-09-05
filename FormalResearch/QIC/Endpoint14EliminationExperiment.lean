@@ -40,7 +40,7 @@ lemma endpointElimLower3_tri : endpointElimLower3.IsLowerTriangular := by
   native_decide
 
 lemma endpointElimLower3_det : Matrix.det endpointElimLower3 = 1 := by
-  rw [Matrix.det_of_isLowerTriangular endpointElimLower3_tri]
+  rw [Matrix.det_of_isLowerTriangular endpointElimLower3 endpointElimLower3_tri]
   native_decide
 
 lemma endpointElimPerm3_sign : Equiv.Perm.sign endpointElimPerm3 = -1 := by
@@ -60,7 +60,7 @@ theorem endpointReduced_det_at_three :
       Matrix.det (endpointReducedAtRat 3) =
         (Matrix.det (endpointReducedAt 3) : ℚ) := by
     simpa [endpointReducedAtRat] using
-      (RingHom.map_det (Int.castRingHom ℚ) (endpointReducedAt 3))
+      ((Int.castRingHom ℚ).map_det (endpointReducedAt 3)).symm
   have hmul :
       Matrix.det endpointElimUpper3 =
         Matrix.det endpointElimLower3 *
