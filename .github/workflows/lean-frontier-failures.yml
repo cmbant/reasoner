@@ -66,7 +66,7 @@ jobs:
 
   endpoint14:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -77,5 +77,5 @@ jobs:
         run: lake update
       - name: Fetch mathlib cache
         run: lake exe cache get
-      - name: QI-C endpoint-14 elimination experiment
-        run: timeout 180 lake build FormalResearch.QIC.Endpoint14EliminationExperiment
+      - name: QI-C endpoint-14 full elimination certificate
+        run: timeout 600 lake build FormalResearch.QIC.Endpoint14EliminationCertificate
