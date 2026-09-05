@@ -1,29 +1,40 @@
 # Project updates and author correction notes
 
-Snapshot date: 2026-09-04.
+Original snapshot date: 2026-09-04. Source-authority migration synchronized: 2026-09-05.
 
-This directory is an author-facing correction and update ledger for the research papers and handoff archives associated with the `FormalResearch` Lean verification spine. It is **not** a substitute for the manuscripts, archive handoffs, or Lean source.
+**Current manuscript/source authority is now `cmbant/QIprojects`.** This directory is retained as the Lean-side audit ledger and historical formalization record. Project-local author corrections should be read from the corresponding QIprojects `AUTHOR_UPDATE_YYYY-MM-DD.md` file when one exists.
 
-## How to use these notes
+The Lean repository remains `cmbant/reasoner`, branch `formal-research-lean`; do not copy manuscript/source authority back into this repository. Exact source matching should now cite a QIprojects path/commit.
 
-For each stable project ID, the corresponding note records only changes that an original paper/archive author should act on: newer authoritative handoffs, corrected notation or formulas, claims that can be promoted or must be weakened, newly formalized exact fragments, and remaining specification mismatches.
+## Trust layers
 
-The trust layers are deliberately separate:
-
-- **PAPER / ARCHIVE:** what the current handoff or manuscript states.
+- **PAPER / SOURCE:** what the current QIprojects source/status states.
 - **EXACT DERIVATION / AUDIT:** exact algebra or a restartable certificate outside Lean.
-- **FORMALIZED-UNCOMPILED:** Lean source exists but has not passed the relevant exact-head build.
-- **LEAN-CHECKED:** the exact source was imported by the branch aggregate and the relevant exact-head GitHub Actions step passed.
-- **EXTERNAL:** a load-bearing analytic/geometric theorem is intentionally outside the current Lean formalization.
+- **FORMALIZED:** Lean source exists.
+- **MODULE-GREEN:** the exact Lean module build passed at the stated head.
+- **AGGREGATE-GREEN:** `lake build FormalResearch` passed at the stated head.
+- **LEAN-CHECKED:** semantic source match plus the relevant successful exact-head Lean build(s), with no masked failures/placeholders.
+- **EXTERNAL:** a load-bearing analytic/geometric/special-function input is intentionally outside the current Lean formalization.
 
-A green workflow by itself is not enough if the relevant aggregate/build step was allowed to continue on error. Check the exact-head job steps.
+A green workflow by itself is not enough if relevant proof steps were diagnostic-only or allowed to fail.
 
-## Current notes
+## Current source-side notes
 
-- `AUX-BV_2026-09-04.md` — Blaschke–Virasoro v13: quartic charge-gap correction/promotion path, corrected quartic coordinate convention, and degree-five boundary.
-- `AUX-L_2026-09-04.md` — uniform flux-balanced Laguerre companion: live authority advanced to v23 on 2026-09-04; v22 progressive-path wording correction.
-- `AUX-QW_2026-09-04.md` — q-Weyl / quantum-6j sequel classification and current open/checked boundary.
-- `AUX-W_2026-09-04.md` — Weyl-midpoint Wigner/Racah manuscript genealogy and separation from the sequel projects.
-- `LEAN_AND_GENEALOGY_2026-09-04.md` — repository head/CI discipline, branch cleanup, and stable-ID genealogy changes.
+In `cmbant/QIprojects`:
 
-Add a new project note whenever Lean analysis exposes a paper correction, a theorem is promoted/demoted, or a newer archive changes the authoritative handoff.
+- `Blaschke/AUTHOR_UPDATE_2026-09-05.md`
+- `Weyl/P3/AUTHOR_UPDATE_2026-09-05.md`
+- `Weyl/q-Weyl/AUTHOR_UPDATE_2026-09-05.md`
+- `ResearchNotes/Weyl/AUTHOR_UPDATE_2026-09-05.md`
+- `QI-C/AUTHOR_UPDATE_2026-09-05.md`
+- `docs/lean_status.md`
+
+## Historical Lean-side notes
+
+- `AUX-BV_2026-09-04.md` — original Blaschke v13 audit; superseded for source paths/status navigation by the QIprojects Blaschke author update.
+- `AUX-L_2026-09-04.md` — archive-era Laguerre classification; superseded by QIprojects' ResearchNotes classification.
+- `AUX-QW_2026-09-04.md` — original q-Weyl classification; current source is `QIprojects/Weyl/q-Weyl` turn 8.
+- `AUX-W_2026-09-04.md` — archive-era Weyl/P3 genealogy; current source is QIprojects Paper III v7.9.0.
+- `LEAN_AND_GENEALOGY_2026-09-04.md` — historical trust/CI audit; current cross-repository status is QIprojects `docs/lean_status.md`.
+
+See `SOURCE_SYNC_2026-09-05.md` for the exact migration reconciliation.
