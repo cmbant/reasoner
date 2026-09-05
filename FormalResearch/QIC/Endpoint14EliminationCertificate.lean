@@ -3,8 +3,15 @@ import FormalResearch.QIC.Endpoint14EliminationCertificate0
 import FormalResearch.QIC.Endpoint14EliminationCertificate1
 import FormalResearch.QIC.Endpoint14EliminationCertificate2
 import FormalResearch.QIC.Endpoint14EliminationCertificate3
-import FormalResearch.QIC.Endpoint14EliminationCertificate4
-import FormalResearch.QIC.Endpoint14EliminationCertificate5
+import FormalResearch.QIC.Endpoint14EliminationCertificate20
+import FormalResearch.QIC.Endpoint14EliminationCertificate21
+import FormalResearch.QIC.Endpoint14EliminationCertificate22
+import FormalResearch.QIC.Endpoint14EliminationCertificate23
+import FormalResearch.QIC.Endpoint14EliminationCertificate24
+import FormalResearch.QIC.Endpoint14EliminationCertificate25
+import FormalResearch.QIC.Endpoint14EliminationCertificate26
+import FormalResearch.QIC.Endpoint14EliminationCertificate27
+import FormalResearch.QIC.Endpoint14EliminationCertificate28
 
 namespace FormalResearch.QIC
 
@@ -14,7 +21,7 @@ open Matrix Equiv.Perm
 lemma endpointSample_injective : Function.Injective endpointSample := by
   native_decide
 
-/-- Assemble the six independently compiled exact elimination-certificate chunks. -/
+/-- Assemble the independently compiled exact elimination certificates. -/
 lemma endpointElim_certificate (k : EndpointSampleIndex) :
     endpointElimCertificateAt k := by
   fin_cases k <;>
@@ -39,15 +46,15 @@ lemma endpointElim_certificate (k : EndpointSampleIndex) :
     | exact endpointElim_certificate_17
     | exact endpointElim_certificate_18
     | exact endpointElim_certificate_19
-    | exact endpointElim_certificate_20
-    | exact endpointElim_certificate_21
-    | exact endpointElim_certificate_22
-    | exact endpointElim_certificate_23
-    | exact endpointElim_certificate_24
-    | exact endpointElim_certificate_25
-    | exact endpointElim_certificate_26
-    | exact endpointElim_certificate_27
-    | exact endpointElim_certificate_28
+    | exact endpointElim_certificate20_single
+    | exact endpointElim_certificate21_single
+    | exact endpointElim_certificate22_single
+    | exact endpointElim_certificate23_single
+    | exact endpointElim_certificate24_single
+    | exact endpointElim_certificate25_single
+    | exact endpointElim_certificate26_single
+    | exact endpointElim_certificate27_single
+    | exact endpointElim_certificate28_single
 
 lemma endpointElimLower_det (k : EndpointSampleIndex) :
     Matrix.det (endpointElimLower k) = 1 := by
