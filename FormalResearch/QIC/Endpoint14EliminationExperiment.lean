@@ -62,7 +62,7 @@ theorem endpointReduced_det_at_three :
     RingHom.map_det (Int.castRingHom ℚ) (endpointReducedAt 3)
   have hmap :
       Matrix.det (endpointReducedAtRat 3) =
-        (Matrix.det (endpointReducedAt 3) : ℚ) := by
+        ((Matrix.det (endpointReducedAt 3) : Int) : ℚ) := by
     simpa [endpointReducedAtRat] using hraw.symm
   have hmul :
       Matrix.det endpointElimUpper3 =
@@ -72,7 +72,7 @@ theorem endpointReduced_det_at_three :
     simp [endpointElimUpper3, Matrix.det_mul, mul_assoc]
   rw [endpointElimUpper3_det, endpointElimLower3_det,
       Matrix.det_permutation, endpointElimPerm3_sign, hmap] at hmul
-  have hq : (Matrix.det (endpointReducedAt 3) : ℚ) =
+  have hq : ((Matrix.det (endpointReducedAt 3) : Int) : ℚ) =
       (expectedReducedEndpointDet 3 : ℚ) := by
     linarith
   exact_mod_cast hq
