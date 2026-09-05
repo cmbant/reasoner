@@ -31,37 +31,37 @@ jobs:
           fi
 
       - name: QI-C qubit-tail determinant
-        if: always()
+        if: ${{ always() && !cancelled() }}
         run: timeout 300 lake build FormalResearch.QIC.QubitTailDeterminants
       - name: QI-A three-copy binomial bridge
-        if: always()
+        if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.QIA.ThreeCopyMemoryBinomialBridge
       - name: QI-B2 Krawtchouk generating
-        if: always()
+        if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.QIB2.KrawtchoukGenerating
       - name: QI-A printed chirality matrix
-        if: always()
+        if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.QIA.PrintedChiralityMatrix
       - name: QI-C all-L qubit-tail nonvanishing
-        if: always()
+        if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.QIC.QubitTailAllLNonvanishing
       - name: Gaudin Bernoulli inverse recurrence
-        if: always()
+        if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.Gaudin.BernoulliInverseRecurrence
       - name: Gaudin restricted cross-rank
-        if: always()
+        if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.Gaudin.RestrictedCrossRank
       - name: Blaschke product Wronskian
-        if: always()
+        if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.Blaschke.ProductWronskian
       - name: Racah Weyl cell telescoping
-        if: always()
+        if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.Racah.WeylCellTelescoping
       - name: QI-B2 Hamming Boolean-cube phase
-        if: always()
+        if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.QIB2.HammingBooleanCubePhase
       - name: QI-B1 apolar full-rank
-        if: always()
+        if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.QIB1.ApolarFullRank
 
   endpoint14:
