@@ -77,5 +77,5 @@ jobs:
         run: lake update
       - name: Fetch mathlib cache
         run: lake exe cache get
-      - name: QI-C endpoint-14 evaluation
-        run: timeout 900 lake build FormalResearch.QIC.Endpoint14Evaluation
+      - name: QI-C endpoint-14 Bird determinant experiment
+        run: timeout 900 lake build FormalResearch.QIC.Endpoint14BirdIdentity
