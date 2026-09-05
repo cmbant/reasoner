@@ -19,18 +19,39 @@ def endpointReducedAt (t : Int) : Matrix Fin14 Fin14 Int :=
 def expectedReducedEndpointDet (t : Int) : Int :=
   195689447424 * (t-1)^8 * (t-2)^2 * p3Int t * p4Int t
 
+/-- In the migrated fixed minor every entry has zero constant and linear
+coefficient.  This is the data fact behind the common `t^2` factor. -/
+lemma endpoint14_low_coeff_zero :
+    ∀ i j : Fin14, endpoint14 i j 0 = 0 ∧ endpoint14 i j 1 = 0 := by
+  native_decide
+
 /-- Entrywise bridge to the original endpoint matrix. -/
 theorem endpointAt_eq_t2_smul_reduced (t : Int) :
     endpointAt t = t^2 • endpointReducedAt t := by
   ext i j
-  simp [endpointAt, evalP5, endpointReducedAt, evalReducedP5]
+  have hz := endpoint14_low_coeff_zero i j
+  simp [endpointAt, evalP5, endpointReducedAt, evalReducedP5, hz.1, hz.2]
   ring
 
-/-- Engineering experiment: can the Bird determinant tactic cheaply certify one
-concrete reduced 14x14 determinant after delta-unfolding the migrated data? -/
+/-- Certified rewrite from the mathematical determinant to Bird's executable
+polynomial-time determinant algorithm.  This is the same correctness theorem
+used internally by mathlib's `eval_det`, but it works for an arbitrary matrix
+rather than requiring `!![...]` syntax. -/
+theorem endpointReduced_det_eq_bird (t : Int) :
+    Matrix.det (endpointReducedAt t) =
+      BirdDet.birdDet 14
+        (Array.ofFn fun k : Fin (14 * 14) =>
+          endpointReducedAt t k.divNat k.modNat) := by
+  rw [← Matrix.ofArray_ofFn (endpointReducedAt t)]
+  exact BirdDet.det_eq_birdDet
+    (Array.ofFn fun k : Fin (14 * 14) =>
+      endpointReducedAt t k.divNat k.modNat)
+    Array.size_ofFn
+
+/-- Engineering experiment: one concrete reduced determinant, computed through
+the certified Bird array algorithm rather than the Leibniz definition. -/
 example : Matrix.det (endpointReducedAt 3) = expectedReducedEndpointDet 3 := by
-  simp only [endpointReducedAt, endpoint14, evalReducedP5, p4]
-  eval_det
-  norm_num [expectedReducedEndpointDet, p3Int, p4Int]
+  rw [endpointReduced_det_eq_bird]
+  native_decide
 
 end FormalResearch.QIC
