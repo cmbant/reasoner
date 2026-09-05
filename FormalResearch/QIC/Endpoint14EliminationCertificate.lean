@@ -11,7 +11,8 @@ lemma endpointSample_injective : Function.Injective endpointSample := by
 
 /-- Closed finite verification of the exact Gaussian-elimination certificates.
 The determinant itself is not evaluated here: only triangularity, unit diagonal,
-permutation sign, and the diagonal product of the resulting upper matrix. -/
+permutation sign, and the diagonal product of the resulting upper matrix.
+The finite sample index is split first so each native check compiles separately. -/
 lemma endpointElim_certificate :
     ∀ k : EndpointSampleIndex,
       (endpointElimLower k).IsLowerTriangular ∧
@@ -20,7 +21,8 @@ lemma endpointElim_certificate :
       (endpointElimUpper k).IsUpperTriangular ∧
       (∏ i : Fin14, endpointElimUpper k i i) =
         -(expectedReducedEndpointDet (endpointSample k) : ℚ) := by
-  native_decide
+  intro k
+  fin_cases k <;> native_decide
 
 lemma endpointElimLower_det (k : EndpointSampleIndex) :
     Matrix.det (endpointElimLower k) = 1 := by
