@@ -75,7 +75,7 @@ theorem endpointReduced_det_at_three :
   norm_num at hmul
   have hq : ((Matrix.det (endpointReducedAt 3) : Int) : ℚ) =
       (expectedReducedEndpointDet 3 : ℚ) := by
-    exact neg_inj.mp hmul.symm
+    linarith only [hmul]
   exact_mod_cast hq
 
 end FormalResearch.QIC
