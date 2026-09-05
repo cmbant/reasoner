@@ -72,9 +72,10 @@ theorem endpointReduced_det_at_three :
     simp [endpointElimUpper3, Matrix.det_mul, mul_assoc]
   rw [endpointElimUpper3_det, endpointElimLower3_det,
       Matrix.det_permutation, endpointElimPerm3_sign, hmap] at hmul
+  norm_num at hmul
   have hq : ((Matrix.det (endpointReducedAt 3) : Int) : ℚ) =
       (expectedReducedEndpointDet 3 : ℚ) := by
-    linarith
+    exact neg_inj.mp hmul.symm
   exact_mod_cast hq
 
 end FormalResearch.QIC
