@@ -56,11 +56,14 @@ lemma endpointElimUpper3_det :
 
 theorem endpointReduced_det_at_three :
     Matrix.det (endpointReducedAt 3) = expectedReducedEndpointDet 3 := by
+  have hraw :
+      (Int.castRingHom ℚ) (Matrix.det (endpointReducedAt 3)) =
+        Matrix.det ((Int.castRingHom ℚ).mapMatrix (endpointReducedAt 3)) :=
+    RingHom.map_det (Int.castRingHom ℚ) (endpointReducedAt 3)
   have hmap :
       Matrix.det (endpointReducedAtRat 3) =
         (Matrix.det (endpointReducedAt 3) : ℚ) := by
-    simpa [endpointReducedAtRat] using
-      ((Int.castRingHom ℚ).map_det (endpointReducedAt 3)).symm
+    simpa [endpointReducedAtRat] using hraw.symm
   have hmul :
       Matrix.det endpointElimUpper3 =
         Matrix.det endpointElimLower3 *
