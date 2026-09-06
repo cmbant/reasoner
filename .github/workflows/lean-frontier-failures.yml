@@ -67,6 +67,27 @@ jobs:
         if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.QIC.Endpoint14EliminationExperiment
 
+  endpoint14-samples:
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[endpoint14-samples]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        sample: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean toolchain via elan
+        run: |
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies
+        run: lake update
+      - name: Fetch mathlib cache
+        run: lake exe cache get
+      - name: Build endpoint-14 sample ${{ matrix.sample }}
+        run: timeout 300 lake build FormalResearch.QIC.Endpoint14EliminationCertificate${{ matrix.sample }}
+
   endpoint14-full:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest

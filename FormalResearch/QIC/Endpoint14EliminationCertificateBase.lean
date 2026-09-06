@@ -6,7 +6,7 @@ namespace FormalResearch.QIC
 open Matrix Equiv.Perm
 
 /-- The finite proposition checked at one interpolation sample.  Keeping the
-statement separate lets the six certificate chunks compile independently. -/
+statement separate lets the per-sample certificate modules compile independently. -/
 abbrev endpointElimCertificateAt (k : EndpointSampleIndex) : Prop :=
   (endpointElimLower k).IsLowerTriangular ∧
     (∏ i : Fin14, endpointElimLower k i i) = 1 ∧
