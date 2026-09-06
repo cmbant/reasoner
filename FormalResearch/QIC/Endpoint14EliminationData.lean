@@ -5,6 +5,7 @@ import FormalResearch.QIC.Endpoint14EliminationData2
 import FormalResearch.QIC.Endpoint14EliminationData3
 import FormalResearch.QIC.Endpoint14EliminationData4
 import FormalResearch.QIC.Endpoint14EliminationData5
+import FormalResearch.QIC.Endpoint14EliminationDataNegativeTail
 
 namespace FormalResearch.QIC
 
@@ -12,9 +13,9 @@ open Matrix Equiv.Perm
 
 abbrev EndpointSampleIndex := Fin 29
 
-/-- The 29 distinct nonsingular interpolation values `0,3,4,...,30`. -/
+/-- Twenty-four original nonnegative samples plus five small negative samples. -/
 def endpointSample : EndpointSampleIndex → Int :=
-  ![0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+  ![0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -2, -3, -4, -5]
 
 def endpointElimPermZeroTo : Fin14 → Fin14 :=
   ![1, 12, 3, 5, 6, 7, 4, 8, 9, 10, 2, 11, 0, 13]
@@ -66,11 +67,11 @@ def endpointElimLower : EndpointSampleIndex → Matrix Fin14 Fin14 ℚ :=
     endpointElimLower21,
     endpointElimLower22,
     endpointElimLower23,
-    endpointElimLower24,
-    endpointElimLower25,
-    endpointElimLower26,
-    endpointElimLower27,
-    endpointElimLower28]
+    endpointElimLower24Small,
+    endpointElimLower25Small,
+    endpointElimLower26Small,
+    endpointElimLower27Small,
+    endpointElimLower28Small]
 
 /-- The resulting upper-triangular matrix at sample `k`. -/
 def endpointElimUpper (k : EndpointSampleIndex) : Matrix Fin14 Fin14 ℚ :=
