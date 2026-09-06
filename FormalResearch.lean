@@ -34,7 +34,6 @@ import FormalResearch.QIC.FiniteFieldIrreducibility
 import FormalResearch.QIC.GaussianNonvanishing
 import FormalResearch.QIC.GaussianIntegerLift
 import FormalResearch.QIC.QubitTailAllLNonvanishing
-import FormalResearch.QIC.Endpoint14Evaluation
 import FormalResearch.QIC.Endpoint14PolynomialIdentity
 import FormalResearch.QIC.GaussianEndpointNonsingular
 import FormalResearch.QIC.GaussianEndpointFullRank

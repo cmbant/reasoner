@@ -1,5 +1,5 @@
 import Mathlib
-import FormalResearch.QIC.Endpoint14Evaluation
+import FormalResearch.QIC.Endpoint14ReducedPolynomialIdentity
 
 namespace FormalResearch.QIC
 
@@ -7,23 +7,22 @@ open Polynomial Matrix Equiv.Perm
 
 /-- Convert the fixed degree-at-most-four coefficient representation used by the
 endpoint certificate into an ordinary integer polynomial. -/
-def p5Poly (p : P5) : Int[X] :=
+noncomputable def p5Poly (p : P5) : Int[X] :=
   C (p 0) + C (p 1) * X + C (p 2) * X^2 + C (p 3) * X^3 + C (p 4) * X^4
 
 /-- The actual 14 x 14 endpoint minor as a matrix over `Z[t]`. -/
-def endpointPoly : Matrix Fin14 Fin14 Int[X] :=
+noncomputable def endpointPoly : Matrix Fin14 Fin14 Int[X] :=
   fun i j => p5Poly (endpoint14 i j)
 
 /-- The factorized polynomial claimed by the manuscript/exact certificate. -/
-def expectedEndpointPoly : Int[X] :=
+noncomputable def expectedEndpointPoly : Int[X] :=
   C 195689447424 * X^28 * (X - C 1)^8 * (X - C 2)^2 *
     (2 * X^3 - 3 * X^2 - X - 3) *
     (144 * X^4 - 60 * X^3 - 841 * X^2 + 633 * X + 258)
 
 lemma p5Poly_eval (p : P5) (t : Int) :
     Polynomial.eval t (p5Poly p) = evalP5 p t := by
-  simp [p5Poly, evalP5]
-  ring
+  simp [p5Poly, evalP5] <;> ring
 
 lemma endpointPoly_eval_matrix (t : Int) :
     endpointPoly.map (Polynomial.evalRingHom t) = endpointAt t := by
@@ -33,13 +32,15 @@ lemma endpointPoly_eval_matrix (t : Int) :
 /-- Evaluation commutes with the determinant of the endpoint polynomial matrix. -/
 theorem endpointDetPoly_eval (t : Int) :
     Polynomial.eval t (Matrix.det endpointPoly) = Matrix.det (endpointAt t) := by
-  rw [← Polynomial.coe_evalRingHom, RingHom.map_det]
-  rw [endpointPoly_eval_matrix]
+  rw [← Polynomial.coe_evalRingHom, RingHom.map_det, RingHom.mapMatrix_apply,
+    endpointPoly_eval_matrix]
 
 /-- Every entry of the endpoint polynomial matrix has degree at most four. -/
 theorem endpointPoly_entry_natDegree_le :
     ∀ i j : Fin14, (endpointPoly i j).natDegree ≤ 4 := by
-  native_decide
+  intro i j
+  unfold endpointPoly p5Poly
+  compute_degree!
 
 /-- The 14 x 14 determinant has degree at most 14*4 = 56. -/
 theorem endpointDetPoly_natDegree_le :
@@ -65,38 +66,41 @@ theorem endpointDetPoly_natDegree_le :
 
 lemma expectedEndpointPoly_eval (t : Int) :
     Polynomial.eval t expectedEndpointPoly = expectedEndpointDet t := by
-  simp [expectedEndpointPoly, expectedEndpointDet, p3Int, p4Int]
-  ring
+  simp [expectedEndpointPoly, expectedEndpointDet, p3Int, p4Int] <;> ring
 
 lemma expectedEndpointPoly_natDegree_le : expectedEndpointPoly.natDegree ≤ 56 := by
-  native_decide
+  unfold expectedEndpointPoly
+  compute_degree!
 
-/-- The difference of the actual determinant polynomial and the factorized target
-vanishes at 57 distinct integer points. -/
+/-- Polynomial-level form of the universal entrywise `X^2` factor. -/
+theorem endpointPoly_eq_X2_smul_reduced :
+    endpointPoly = X^2 • endpointReducedPoly := by
+  ext i j
+  have hz := endpoint14_low_coeff_zero i j
+  simp [endpointPoly, p5Poly, endpointReducedPoly, p5ReducedPoly, hz.1, hz.2] <;> ring
+
+lemma expectedEndpointPoly_eq_X28_mul_reduced :
+    expectedEndpointPoly = X^28 * expectedReducedEndpointPoly := by
+  unfold expectedEndpointPoly expectedReducedEndpointPoly
+  ring
+
+/-- Full symbolic endpoint determinant identity, now obtained from the checked
+reduced degree-28 interpolation identity and the universal `X^2` entry factor. -/
+theorem endpoint_det_polynomial_identity :
+    Matrix.det endpointPoly = expectedEndpointPoly := by
+  rw [endpointPoly_eq_X2_smul_reduced, Matrix.det_smul,
+    endpoint_reduced_det_polynomial_identity]
+  rw [show Fintype.card Fin14 = 14 by native_decide]
+  rw [expectedEndpointPoly_eq_X28_mul_reduced]
+  ring
+
+/-- Compatibility form of the old 57-root statement.  The roots now follow
+from the symbolic identity rather than serving as its proof. -/
 theorem endpointDetPoly_difference_57_roots :
     ∀ k : Fin 57,
       Polynomial.eval (k.val : Int) (Matrix.det endpointPoly - expectedEndpointPoly) = 0 := by
   intro k
-  rw [Polynomial.eval_sub, endpointDetPoly_eval, expectedEndpointPoly_eval,
-    endpoint_det_57_values k]
-  exact sub_self _
-
-/-- Full symbolic endpoint determinant identity.  The determinant difference has
-natDegree at most 56, but has the 57 distinct roots 0,...,56, so it is zero. -/
-theorem endpoint_det_polynomial_identity :
-    Matrix.det endpointPoly = expectedEndpointPoly := by
-  rw [← sub_eq_zero]
-  apply Polynomial.eq_zero_of_natDegree_lt_card_of_eval_eq_zero
-    (Matrix.det endpointPoly - expectedEndpointPoly)
-    (f := fun k : Fin 57 => (k.val : Int))
-  · intro a b h
-    apply Fin.ext
-    exact_mod_cast h
-  · exact endpointDetPoly_difference_57_roots
-  · have hdeg :
-        (Matrix.det endpointPoly - expectedEndpointPoly).natDegree ≤ 56 :=
-      (Polynomial.natDegree_sub_le _ _).trans
-        (max_le endpointDetPoly_natDegree_le expectedEndpointPoly_natDegree_le)
-    simpa using (lt_of_le_of_lt hdeg (by decide : 56 < 57))
+  rw [endpoint_det_polynomial_identity]
+  simp
 
 end FormalResearch.QIC
