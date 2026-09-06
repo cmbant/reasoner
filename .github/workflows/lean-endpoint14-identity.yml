@@ -1,4 +1,4 @@
-name: Endpoint14 reduced identity
+name: Endpoint14 identity and aggregate
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
   identity:
     if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[endpoint14-identity]') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -32,3 +32,7 @@ jobs:
           fi
       - name: QI-C endpoint-14 reduced polynomial identity
         run: timeout 1200 lake build FormalResearch.QIC.Endpoint14ReducedPolynomialIdentity
+      - name: QI-C endpoint-14 full determinant bridge
+        run: timeout 300 lake build FormalResearch.QIC.Endpoint14PolynomialIdentity FormalResearch.QIC.GaussianEndpointNonsingular FormalResearch.QIC.GaussianEndpointFullRank FormalResearch.QIC.GaussianEndpointInjective FormalResearch.QIC.GaussianEndpointAdjugateReconstruction
+      - name: FormalResearch aggregate
+        run: timeout 1200 lake build FormalResearch
