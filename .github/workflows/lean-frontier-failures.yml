@@ -63,8 +63,12 @@ jobs:
       - name: QI-B1 apolar full-rank
         if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.QIB1.ApolarFullRank
+      - name: QI-C endpoint-14 one-point elimination smoke
+        if: ${{ always() && !cancelled() }}
+        run: timeout 180 lake build FormalResearch.QIC.Endpoint14EliminationExperiment
 
-  endpoint14:
+  endpoint14-full:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
