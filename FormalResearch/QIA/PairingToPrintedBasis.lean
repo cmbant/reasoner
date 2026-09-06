@@ -26,6 +26,16 @@ physical normalization `3 i / 8`. -/
 noncomputable def scaledIntegralChirality : Matrix (Fin 3) (Fin 3) ℂ :=
   (3 * I / 8) • (fun i j => (chiralityK i j : ℂ))
 
+/-- Explicit form of the scaled integral chirality matrix. -/
+lemma scaledIntegralChirality_eq :
+    scaledIntegralChirality =
+      !![-3*I/8, -3*I/8, -3*I/4;
+          3*I/8,  3*I/8,  3*I/4;
+          3*I/8, -3*I/8,  0] := by
+  ext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [scaledIntegralChirality, chiralityK] <;> ring
+
 /-- The integral pairing-coordinate matrix and the printed Hermitian matrix are
 exactly the same operator under the Gram--Schmidt change of basis. -/
 theorem pairing_printed_intertwining (x y : ℝ) (hx : x^2 = 2) (hy : y^2 = 3) :
@@ -33,11 +43,11 @@ theorem pairing_printed_intertwining (x y : ℝ) (hx : x^2 = 2) (hy : y^2 = 3) :
       pairingToPrinted x y * scaledIntegralChirality := by
   have hxc : (x : ℂ)^2 = 2 := by exact_mod_cast hx
   have hyc : (y : ℂ)^2 = 3 := by exact_mod_cast hy
-  unfold scaledIntegralChirality
+  rw [scaledIntegralChirality_eq]
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [printedA0xy, pairingToPrinted, chiralityK,
-      Matrix.mul_apply, Matrix.smul_apply, Fin.sum_univ_succ] <;>
+    simp [printedA0xy, pairingToPrinted, Matrix.mul_apply,
+      Fin.sum_univ_succ] <;>
     ring_nf <;>
     simp [hxc, hyc] <;>
     ring_nf
