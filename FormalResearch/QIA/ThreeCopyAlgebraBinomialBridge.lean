@@ -45,6 +45,7 @@ theorem threeCopyAlgebra_binomial_character_bridge (m : Nat) :
         (∑ k ∈ Finset.range (m + 1),
           (m.choose k : Int) *
             (s3StandardChar C * s3StandardChar D)^k) := by
+              rw [Finset.mul_sum]
               apply Finset.sum_congr rfl
               intro k hk
               ring
