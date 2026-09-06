@@ -7,15 +7,15 @@ open Polynomial Matrix Equiv.Perm
 
 /-- The degree-at-most-two polynomial obtained after removing the universal
 `X^2` factor from an endpoint entry. -/
-def p5ReducedPoly (p : P5) : Int[X] :=
+noncomputable def p5ReducedPoly (p : P5) : Int[X] :=
   C (p 2) + C (p 3) * X + C (p 4) * X^2
 
 /-- The reduced 14 x 14 endpoint minor as a matrix over `Z[X]`. -/
-def endpointReducedPoly : Matrix Fin14 Fin14 Int[X] :=
+noncomputable def endpointReducedPoly : Matrix Fin14 Fin14 Int[X] :=
   fun i j => p5ReducedPoly (endpoint14 i j)
 
 /-- The degree-28 reduced determinant target. -/
-def expectedReducedEndpointPoly : Int[X] :=
+noncomputable def expectedReducedEndpointPoly : Int[X] :=
   C 195689447424 * (X - C 1)^8 * (X - C 2)^2 *
     (2 * X^3 - 3 * X^2 - X - 3) *
     (144 * X^4 - 60 * X^3 - 841 * X^2 + 633 * X + 258)
@@ -23,7 +23,6 @@ def expectedReducedEndpointPoly : Int[X] :=
 lemma p5ReducedPoly_eval (p : P5) (t : Int) :
     Polynomial.eval t (p5ReducedPoly p) = evalReducedP5 p t := by
   simp [p5ReducedPoly, evalReducedP5]
-  ring
 
 lemma endpointReducedPoly_eval_matrix (t : Int) :
     endpointReducedPoly.map (Polynomial.evalRingHom t) = endpointReducedAt t := by
@@ -34,13 +33,15 @@ lemma endpointReducedPoly_eval_matrix (t : Int) :
 theorem endpointReducedDetPoly_eval (t : Int) :
     Polynomial.eval t (Matrix.det endpointReducedPoly) =
       Matrix.det (endpointReducedAt t) := by
-  rw [← Polynomial.coe_evalRingHom, RingHom.map_det]
-  rw [endpointReducedPoly_eval_matrix]
+  rw [← Polynomial.coe_evalRingHom, RingHom.map_det, RingHom.mapMatrix_apply,
+    endpointReducedPoly_eval_matrix]
 
 /-- Every reduced endpoint entry has degree at most two. -/
 theorem endpointReducedPoly_entry_natDegree_le :
     ∀ i j : Fin14, (endpointReducedPoly i j).natDegree ≤ 2 := by
-  native_decide
+  intro i j
+  unfold endpointReducedPoly p5ReducedPoly
+  compute_degree!
 
 /-- The determinant of the reduced 14 x 14 matrix has degree at most 28. -/
 theorem endpointReducedDetPoly_natDegree_le :
@@ -68,11 +69,11 @@ theorem endpointReducedDetPoly_natDegree_le :
 lemma expectedReducedEndpointPoly_eval (t : Int) :
     Polynomial.eval t expectedReducedEndpointPoly = expectedReducedEndpointDet t := by
   simp [expectedReducedEndpointPoly, expectedReducedEndpointDet, p3Int, p4Int]
-  ring
 
 lemma expectedReducedEndpointPoly_natDegree_le :
     expectedReducedEndpointPoly.natDegree ≤ 28 := by
-  native_decide
+  unfold expectedReducedEndpointPoly
+  compute_degree!
 
 /-- The determinant difference vanishes at the 29 checked interpolation samples. -/
 theorem endpointReducedDetPoly_difference_samples :
