@@ -92,26 +92,22 @@ physical tail length. -/
 theorem expectedEndpointPoly_gaussian_nonzero {L : Nat} (hL : 1 ≤ L) :
     Polynomial.eval₂ (Int.castRingHom GaussianInt) (gaussianTail L)
       expectedEndpointPoly ≠ 0 := by
-  have heval :
-      Polynomial.eval₂ (Int.castRingHom GaussianInt) (gaussianTail L)
-        expectedEndpointPoly =
+  have hfactor :
       (195689447424 : GaussianInt) * gaussianTail L ^ 28 *
         (gaussianTail L - 1)^8 * (gaussianTail L - 2)^2 *
         (2 * gaussianTail L^3 - 3 * gaussianTail L^2 - gaussianTail L - 3) *
         (144 * gaussianTail L^4 - 60 * gaussianTail L^3 -
-          841 * gaussianTail L^2 + 633 * gaussianTail L + 258) := by
-    simp [expectedEndpointPoly]
-    ring
-  rw [heval]
-  exact mul_ne_zero
-    (mul_ne_zero
+          841 * gaussianTail L^2 + 633 * gaussianTail L + 258) ≠ 0 := by
+    exact mul_ne_zero
       (mul_ne_zero
         (mul_ne_zero
-          (mul_ne_zero (by norm_num) (pow_ne_zero _ (gaussianTail_ne_zero L)))
-          (pow_ne_zero _ (sub_ne_zero.mpr (gaussianTail_ne_one hL))))
-        (pow_ne_zero _ (sub_ne_zero.mpr (gaussianTail_ne_two hL))))
-      (gaussian_p3_nonzero L))
-    (gaussian_p4_nonzero L)
+          (mul_ne_zero
+            (mul_ne_zero (by norm_num) (pow_ne_zero _ (gaussianTail_ne_zero L)))
+            (pow_ne_zero _ (sub_ne_zero.mpr (gaussianTail_ne_one hL))))
+          (pow_ne_zero _ (sub_ne_zero.mpr (gaussianTail_ne_two hL))))
+        (gaussian_p3_nonzero L))
+      (gaussian_p4_nonzero L)
+  simpa [expectedEndpointPoly] using hfactor
 
 /-- Evaluate the actual endpoint polynomial matrix at the physical Gaussian
 parameter. -/
