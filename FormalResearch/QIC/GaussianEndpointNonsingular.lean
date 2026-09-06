@@ -110,11 +110,13 @@ theorem expectedEndpointPoly_gaussian_nonzero {L : Nat} (hL : 1 ≤ L) :
   have h1eval :
       Polynomial.eval₂ (Int.castRingHom GaussianInt) (gaussianTail L)
         ((Polynomial.X - 1)^8) = (gaussianTail L - 1)^8 := by
-    simp
+    rw [Polynomial.eval₂_pow, Polynomial.eval₂_sub, Polynomial.eval₂_X,
+      Polynomial.eval₂_one]
   have h2eval :
       Polynomial.eval₂ (Int.castRingHom GaussianInt) (gaussianTail L)
         ((Polynomial.X - 2)^2) = (gaussianTail L - 2)^2 := by
-    simp
+    rw [Polynomial.eval₂_pow, Polynomial.eval₂_sub, Polynomial.eval₂_X]
+    norm_num
   simpa [expectedEndpointPoly, h1eval, h2eval] using hfactor
 
 /-- Evaluate the actual endpoint polynomial matrix at the physical Gaussian
