@@ -11,7 +11,7 @@ theorem endpointGaussian_adjugate_reconstruction
     {L : Nat} (v : Fin14 → GaussianInt) :
     (endpointGaussian L).adjugate.mulVec ((endpointGaussian L).mulVec v) =
       Matrix.det (endpointGaussian L) • v := by
-  rw [Matrix.mulVec_mulVec, Matrix.adjugate_mul]
+  rw [Matrix.mulVec_mulVec, Matrix.adjugate_mul, Matrix.smul_mulVec, Matrix.one_mulVec]
 
 /-- For every physical tail length, the reconstruction scalar is nonzero. -/
 theorem endpointGaussian_adjugate_reconstruction_nonzero
