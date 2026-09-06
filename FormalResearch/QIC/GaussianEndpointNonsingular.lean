@@ -107,7 +107,15 @@ theorem expectedEndpointPoly_gaussian_nonzero {L : Nat} (hL : 1 ≤ L) :
           (pow_ne_zero _ (sub_ne_zero.mpr (gaussianTail_ne_two hL))))
         (gaussian_p3_nonzero L))
       (gaussian_p4_nonzero L)
-  simpa [expectedEndpointPoly] using hfactor
+  have h1eval :
+      Polynomial.eval₂ (Int.castRingHom GaussianInt) (gaussianTail L)
+        ((Polynomial.X - 1)^8) = (gaussianTail L - 1)^8 := by
+    simp
+  have h2eval :
+      Polynomial.eval₂ (Int.castRingHom GaussianInt) (gaussianTail L)
+        ((Polynomial.X - 2)^2) = (gaussianTail L - 2)^2 := by
+    simp
+  simpa [expectedEndpointPoly, h1eval, h2eval] using hfactor
 
 /-- Evaluate the actual endpoint polynomial matrix at the physical Gaussian
 parameter. -/
