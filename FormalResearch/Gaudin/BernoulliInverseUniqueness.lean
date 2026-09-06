@@ -26,6 +26,7 @@ theorem bernoulli_inverse_prefix_unique
         rw [bernoulli_inverse_raw_recurrence t hj hn1 (ht n hn1 hnN),
           bernoulli_inverse_raw_recurrence u hj hn1 (hu n hn1 hnN)]
         congr 1
+        congr 1
         apply Finset.sum_congr rfl
         intro p hp
         have hpn : p < n := Finset.mem_range.mp hp
