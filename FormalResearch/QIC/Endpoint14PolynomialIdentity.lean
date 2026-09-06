@@ -75,9 +75,10 @@ lemma expectedEndpointPoly_natDegree_le : expectedEndpointPoly.natDegree ≤ 56 
 /-- Polynomial-level form of the universal entrywise `X^2` factor. -/
 theorem endpointPoly_eq_X2_smul_reduced :
     endpointPoly = (X^2 : Int[X]) • endpointReducedPoly := by
-  ext i j
+  funext i j
   have hz := endpoint14_low_coeff_zero i j
-  simp [endpointPoly, p5Poly, endpointReducedPoly, p5ReducedPoly, hz.1, hz.2] <;> ring
+  simp [endpointPoly, p5Poly, endpointReducedPoly, p5ReducedPoly, hz.1, hz.2]
+  ring
 
 lemma expectedEndpointPoly_eq_X28_mul_reduced :
     expectedEndpointPoly = X^28 * expectedReducedEndpointPoly := by
