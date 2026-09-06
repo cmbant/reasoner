@@ -67,6 +67,23 @@ jobs:
         if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.QIC.Endpoint14EliminationExperiment
 
+  aggregate-qia:
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[aggregate-qia]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean toolchain via elan
+        run: |
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies
+        run: lake update
+      - name: Fetch mathlib cache
+        run: lake exe cache get
+      - name: QI-A aggregate blockers
+        run: timeout 480 lake build FormalResearch.QIA.PairingToPrintedBasis FormalResearch.QIA.PrintedChiralitySpectrum FormalResearch.QIA.ThreeCopyAlgebraBinomialBridge
+
   endpoint14-samples:
     if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[endpoint14-samples]') }}
     runs-on: ubuntu-latest
