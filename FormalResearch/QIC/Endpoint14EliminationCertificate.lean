@@ -73,7 +73,7 @@ lemma endpointElim_certificate (k : EndpointSampleIndex) :
 
 lemma endpointElimLower_det (k : EndpointSampleIndex) :
     Matrix.det (endpointElimLower k) = 1 := by
-  rw [Matrix.det_of_isLowerTriangular (endpointElim_certificate k).1]
+  rw [Matrix.det_of_isLowerTriangular (endpointElimLower k) (endpointElim_certificate k).1]
   exact (endpointElim_certificate k).2.1
 
 lemma endpointElimPerm_sign (k : EndpointSampleIndex) :
