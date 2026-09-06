@@ -33,10 +33,11 @@ theorem pairing_printed_intertwining (x y : ℝ) (hx : x^2 = 2) (hy : y^2 = 3) :
       pairingToPrinted x y * scaledIntegralChirality := by
   have hxc : (x : ℂ)^2 = 2 := by exact_mod_cast hx
   have hyc : (y : ℂ)^2 = 3 := by exact_mod_cast hy
+  unfold scaledIntegralChirality
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [printedA0xy, pairingToPrinted, scaledIntegralChirality,
-      chiralityK, Matrix.mul_apply, Fin.sum_univ_succ] <;>
+    simp [printedA0xy, pairingToPrinted, chiralityK,
+      Matrix.mul_apply, Matrix.smul_apply, Fin.sum_univ_succ] <;>
     ring_nf <;>
     simp [hxc, hyc] <;>
     ring_nf
