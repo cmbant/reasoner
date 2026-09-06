@@ -88,6 +88,27 @@ jobs:
       - name: Build endpoint-14 sample ${{ matrix.sample }}
         run: timeout 300 lake build FormalResearch.QIC.Endpoint14EliminationCertificate${{ matrix.sample }}
 
+  endpoint14-tail:
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[endpoint14-tail]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    strategy:
+      fail-fast: false
+      matrix:
+        sample: [24, 25, 26, 27, 28]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean toolchain via elan
+        run: |
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies
+        run: lake update
+      - name: Fetch mathlib cache
+        run: lake exe cache get
+      - name: Build endpoint-14 tail sample ${{ matrix.sample }}
+        run: timeout 600 lake build FormalResearch.QIC.Endpoint14EliminationCertificate${{ matrix.sample }}
+
   endpoint14-full:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
