@@ -9,7 +9,7 @@ the determinant scalar.  This is the correct integral inverse statement
 without any unimodularity assumption. -/
 theorem endpointGaussian_adjugate_reconstruction
     {L : Nat} (v : Fin14 → GaussianInt) :
-    (endpointGaussian L).adjugate *ᵥ ((endpointGaussian L) *ᵥ v) =
+    (endpointGaussian L).adjugate.mulVec ((endpointGaussian L).mulVec v) =
       Matrix.det (endpointGaussian L) • v := by
   rw [Matrix.mulVec_mulVec, Matrix.adjugate_mul]
   simp
@@ -19,7 +19,7 @@ theorem endpointGaussian_adjugate_reconstruction_nonzero
     {L : Nat} (hL : 1 ≤ L) :
     Matrix.det (endpointGaussian L) ≠ 0 ∧
       ∀ v : Fin14 → GaussianInt,
-        (endpointGaussian L).adjugate *ᵥ ((endpointGaussian L) *ᵥ v) =
+        (endpointGaussian L).adjugate.mulVec ((endpointGaussian L).mulVec v) =
           Matrix.det (endpointGaussian L) • v := by
   exact ⟨endpointGaussian_det_nonzero hL,
     fun v => endpointGaussian_adjugate_reconstruction v⟩
@@ -30,7 +30,7 @@ matrix operation (the adjugate), with nonzero scaling at every physical tail. -/
 theorem endpointGaussian_scaled_recovery_certificate
     {L : Nat} (hL : 1 ≤ L) (v : Fin14 → GaussianInt) :
     Matrix.det (endpointGaussian L) ≠ 0 ∧
-      (endpointGaussian L).adjugate *ᵥ ((endpointGaussian L) *ᵥ v) =
+      (endpointGaussian L).adjugate.mulVec ((endpointGaussian L).mulVec v) =
         Matrix.det (endpointGaussian L) • v := by
   exact ⟨endpointGaussian_det_nonzero hL,
     endpointGaussian_adjugate_reconstruction v⟩
