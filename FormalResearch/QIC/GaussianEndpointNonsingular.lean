@@ -108,7 +108,7 @@ theorem expectedEndpointPoly_gaussian_nonzero {L : Nat} (hL : 1 ≤ L) :
 
 /-- Evaluate the actual endpoint polynomial matrix at the physical Gaussian
 parameter. -/
-def endpointGaussian (L : Nat) : Matrix Fin14 Fin14 GaussianInt :=
+noncomputable def endpointGaussian (L : Nat) : Matrix Fin14 Fin14 GaussianInt :=
   endpointPoly.map
     (Polynomial.eval₂RingHom (Int.castRingHom GaussianInt) (gaussianTail L))
 
