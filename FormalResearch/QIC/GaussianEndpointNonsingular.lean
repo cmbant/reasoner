@@ -56,7 +56,8 @@ def gaussianTail (L : Nat) : GaussianInt := toGaussian (giPow giBase L)
 
 lemma gaussianTail_pow (L : Nat) :
     gaussianTail L = (⟨1, -1⟩ : GaussianInt) ^ L := by
-  simp [gaussianTail, toGaussian_pow, giBase, toGaussian]
+  rw [gaussianTail, toGaussian_pow]
+  rfl
 
 lemma gaussianTail_ne_zero (L : Nat) : gaussianTail L ≠ 0 :=
   toGaussian_ne_zero (giPow_ne_zero (by native_decide : giBase ≠ giZero) L)
@@ -73,29 +74,35 @@ lemma gaussian_p3_nonzero (L : Nat) :
     2 * gaussianTail L ^ 3 - 3 * gaussianTail L ^ 2 - gaussianTail L - 3 ≠ 0 := by
   have h := toGaussian_ne_zero (p3_all_powers_nonzero L)
   rw [toGaussian_eval5] at h
-  simpa [gaussianTail] using h
+  simp [gaussianTail] at h ⊢
+  ring_nf at h ⊢
+  exact h
 
 lemma gaussian_p4_nonzero (L : Nat) :
     144 * gaussianTail L ^ 4 - 60 * gaussianTail L ^ 3 -
       841 * gaussianTail L ^ 2 + 633 * gaussianTail L + 258 ≠ 0 := by
   have h := toGaussian_ne_zero (p4_all_powers_nonzero L)
   rw [toGaussian_eval5] at h
-  simpa [gaussianTail] using h
+  simp [gaussianTail] at h ⊢
+  ring_nf at h ⊢
+  exact h
 
 /-- The manuscript's complete endpoint determinant factor is nonzero at every
 physical tail length. -/
 theorem expectedEndpointPoly_gaussian_nonzero {L : Nat} (hL : 1 ≤ L) :
     Polynomial.eval₂ (Int.castRingHom GaussianInt) (gaussianTail L)
       expectedEndpointPoly ≠ 0 := by
-  rw [show Polynomial.eval₂ (Int.castRingHom GaussianInt) (gaussianTail L)
-      expectedEndpointPoly =
+  have heval :
+      Polynomial.eval₂ (Int.castRingHom GaussianInt) (gaussianTail L)
+        expectedEndpointPoly =
       (195689447424 : GaussianInt) * gaussianTail L ^ 28 *
         (gaussianTail L - 1)^8 * (gaussianTail L - 2)^2 *
         (2 * gaussianTail L^3 - 3 * gaussianTail L^2 - gaussianTail L - 3) *
         (144 * gaussianTail L^4 - 60 * gaussianTail L^3 -
           841 * gaussianTail L^2 + 633 * gaussianTail L + 258) := by
-      simp [expectedEndpointPoly]
-      ring]
+    simp [expectedEndpointPoly]
+    ring
+  rw [heval]
   exact mul_ne_zero
     (mul_ne_zero
       (mul_ne_zero

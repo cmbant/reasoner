@@ -24,6 +24,12 @@ jobs:
         run: lake update
       - name: Fetch mathlib cache
         run: lake exe cache get
+      - name: Restore endpoint build cache
+        id: endpoint-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .lake/build
+          key: endpoint14-reduced-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lakefile.toml', 'FormalResearch/QIC/Endpoint14Data.lean', 'FormalResearch/QIC/Endpoint14ReducedData.lean', 'FormalResearch/QIC/Endpoint14EliminationData*.lean', 'FormalResearch/QIC/Endpoint14EliminationCertificate*.lean', 'FormalResearch/QIC/Endpoint14ReducedPolynomialIdentity.lean') }}
       - name: Reject placeholders
         run: |
           if grep -R --line-number -E '\bsorry\b|\badmit\b' FormalResearch FormalResearch.lean; then
@@ -32,6 +38,12 @@ jobs:
           fi
       - name: QI-C endpoint-14 reduced polynomial identity
         run: timeout 1200 lake build FormalResearch.QIC.Endpoint14ReducedPolynomialIdentity
+      - name: Save endpoint build cache
+        if: steps.endpoint-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .lake/build
+          key: ${{ steps.endpoint-cache.outputs.cache-primary-key }}
       - name: QI-C endpoint-14 full determinant bridge
         run: timeout 300 lake build FormalResearch.QIC.Endpoint14PolynomialIdentity FormalResearch.QIC.GaussianEndpointNonsingular FormalResearch.QIC.GaussianEndpointFullRank FormalResearch.QIC.GaussianEndpointInjective FormalResearch.QIC.GaussianEndpointAdjugateReconstruction
       - name: FormalResearch aggregate
