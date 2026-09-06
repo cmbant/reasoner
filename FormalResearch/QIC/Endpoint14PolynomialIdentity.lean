@@ -22,7 +22,7 @@ noncomputable def expectedEndpointPoly : Int[X] :=
 
 lemma p5Poly_eval (p : P5) (t : Int) :
     Polynomial.eval t (p5Poly p) = evalP5 p t := by
-  simp [p5Poly, evalP5] <;> ring
+  simp [p5Poly, evalP5]
 
 lemma endpointPoly_eval_matrix (t : Int) :
     endpointPoly.map (Polynomial.evalRingHom t) = endpointAt t := by
@@ -66,7 +66,7 @@ theorem endpointDetPoly_natDegree_le :
 
 lemma expectedEndpointPoly_eval (t : Int) :
     Polynomial.eval t expectedEndpointPoly = expectedEndpointDet t := by
-  simp [expectedEndpointPoly, expectedEndpointDet, p3Int, p4Int] <;> ring
+  simp [expectedEndpointPoly, expectedEndpointDet, p3Int, p4Int]
 
 lemma expectedEndpointPoly_natDegree_le : expectedEndpointPoly.natDegree ≤ 56 := by
   unfold expectedEndpointPoly
@@ -74,7 +74,7 @@ lemma expectedEndpointPoly_natDegree_le : expectedEndpointPoly.natDegree ≤ 56 
 
 /-- Polynomial-level form of the universal entrywise `X^2` factor. -/
 theorem endpointPoly_eq_X2_smul_reduced :
-    endpointPoly = X^2 • endpointReducedPoly := by
+    endpointPoly = (X^2 : Int[X]) • endpointReducedPoly := by
   ext i j
   have hz := endpoint14_low_coeff_zero i j
   simp [endpointPoly, p5Poly, endpointReducedPoly, p5ReducedPoly, hz.1, hz.2] <;> ring
