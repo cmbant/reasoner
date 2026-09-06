@@ -33,49 +33,47 @@ namespace FormalResearch.QIC
 
 open Matrix Equiv.Perm
 
-/-- The interpolation sample set `0,3,4,...,30` has no repetitions. -/
+/-- The 29 interpolation samples have no repetitions. -/
 lemma endpointSample_injective : Function.Injective endpointSample := by
   native_decide
 
 /-- Assemble the independently compiled exact elimination certificates. -/
 lemma endpointElim_certificate (k : EndpointSampleIndex) :
     endpointElimCertificateAt k := by
-  fin_cases k <;>
-    first
-    | exact endpointElim_certificate_0
-    | exact endpointElim_certificate_1
-    | exact endpointElim_certificate_2
-    | exact endpointElim_certificate_3
-    | exact endpointElim_certificate_4
-    | exact endpointElim_certificate_5
-    | exact endpointElim_certificate_6
-    | exact endpointElim_certificate_7
-    | exact endpointElim_certificate_8
-    | exact endpointElim_certificate_9
-    | exact endpointElim_certificate_10
-    | exact endpointElim_certificate_11
-    | exact endpointElim_certificate_12
-    | exact endpointElim_certificate_13
-    | exact endpointElim_certificate_14
-    | exact endpointElim_certificate_15
-    | exact endpointElim_certificate_16
-    | exact endpointElim_certificate_17
-    | exact endpointElim_certificate_18
-    | exact endpointElim_certificate_19
-    | exact endpointElim_certificate20_single
-    | exact endpointElim_certificate21_single
-    | exact endpointElim_certificate22_single
-    | exact endpointElim_certificate23_single
-    | exact endpointElim_certificate24_single
-    | exact endpointElim_certificate25_single
-    | exact endpointElim_certificate26_single
-    | exact endpointElim_certificate27_single
-    | exact endpointElim_certificate28_single
+  fin_cases k
+  · exact endpointElim_certificate_0
+  · exact endpointElim_certificate_1
+  · exact endpointElim_certificate_2
+  · exact endpointElim_certificate_3
+  · exact endpointElim_certificate_4
+  · exact endpointElim_certificate_5
+  · exact endpointElim_certificate_6
+  · exact endpointElim_certificate_7
+  · exact endpointElim_certificate_8
+  · exact endpointElim_certificate_9
+  · exact endpointElim_certificate_10
+  · exact endpointElim_certificate_11
+  · exact endpointElim_certificate_12
+  · exact endpointElim_certificate_13
+  · exact endpointElim_certificate_14
+  · exact endpointElim_certificate_15
+  · exact endpointElim_certificate_16
+  · exact endpointElim_certificate_17
+  · exact endpointElim_certificate_18
+  · exact endpointElim_certificate_19
+  · exact endpointElim_certificate20_single
+  · exact endpointElim_certificate21_single
+  · exact endpointElim_certificate22_single
+  · exact endpointElim_certificate23_single
+  · exact endpointElim_certificate24_single
+  · exact endpointElim_certificate25_single
+  · exact endpointElim_certificate26_single
+  · exact endpointElim_certificate27_single
+  · exact endpointElim_certificate28_single
 
 lemma endpointElimLower_det (k : EndpointSampleIndex) :
     Matrix.det (endpointElimLower k) = 1 := by
-  rw [Matrix.det_of_isLowerTriangular (endpointElimLower k)
-      (endpointElim_certificate k).1]
+  rw [Matrix.det_of_isLowerTriangular (endpointElim_certificate k).1]
   exact (endpointElim_certificate k).2.1
 
 lemma endpointElimPerm_sign (k : EndpointSampleIndex) :
@@ -85,8 +83,7 @@ lemma endpointElimPerm_sign (k : EndpointSampleIndex) :
 lemma endpointElimUpper_det (k : EndpointSampleIndex) :
     Matrix.det (endpointElimUpper k) =
       -(expectedReducedEndpointDet (endpointSample k) : ℚ) := by
-  rw [Matrix.det_of_isUpperTriangular (endpointElimUpper k)
-      (endpointElim_certificate k).2.2.2.1]
+  rw [Matrix.det_of_isUpperTriangular (endpointElim_certificate k).2.2.2.1]
   exact (endpointElim_certificate k).2.2.2.2
 
 /-- Each of the 29 reduced determinant values follows from determinant
