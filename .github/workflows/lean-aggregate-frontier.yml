@@ -40,3 +40,4 @@ jobs:
           FormalResearch.Blaschke.WalshWronskianKernelBasis
           FormalResearch.Gaudin.MatrixWeightedMetricBridge
           FormalResearch.Blaschke.WronskianAtomIndependence
+          FormalResearch.Blaschke.WronskianAtomNonvanishing
