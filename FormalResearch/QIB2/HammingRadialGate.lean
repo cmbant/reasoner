@@ -21,7 +21,8 @@ theorem homogenize_binary_generating {d m : Nat} (hm : m ≤ d)
   have hpow : a^m * a^(d - m) = a^d := by
     rw [← pow_add, Nat.add_sub_of_le hm]
   field_simp [ha]
-  rw [hpow]
+  linear_combination
+    -((a - b)^m * (a + b)^(d - m)) * hpow
 
 /-- The canonical gate coefficient `a=(1+i)/2` is nonzero. -/
 theorem gateA_ne_zero : gateA ≠ 0 := by
