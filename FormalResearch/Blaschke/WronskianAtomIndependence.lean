@@ -18,7 +18,7 @@ theorem polynomialFamily_linearIndependent_of_diagonal_eval
   have heval :
       (∑ i : Fin n, a i * eval (x j) (p i)) = 0 := by
     have h := congrArg (eval (x j)) ha
-    simpa using h
+    simpa only [eval_finsetSum, eval_smul, smul_eq_mul, eval_zero] using h
   have hj : a j * eval (x j) (p j) = 0 := by
     calc
       a j * eval (x j) (p j) =
@@ -54,8 +54,9 @@ theorem blaschkeWronskianAtom_eval_offdiag {n : Nat} (c : Fin n → ℂ)
           (fun k => blaschkeA (c k)) (fun k => blaschkeB (c k))) = 0 := by
     unfold allPairProduct
     rw [eval_prod]
-    apply Finset.prod_eq_zero (by simp [hij])
-    simp [blaschkeA]
+    apply Finset.prod_eq_zero (i := j)
+    · simp [hij]
+    · simp [blaschkeA]
   rw [hpair, mul_zero]
 
 /-- Therefore atom independence is reduced to the scalar diagonal condition
