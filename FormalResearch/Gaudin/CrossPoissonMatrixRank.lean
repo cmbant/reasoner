@@ -12,7 +12,7 @@ noncomputable def crossFiberMatrix
     [AddCommGroup V] [Module K V]
     [AddCommGroup A] [Module K A]
     [AddCommGroup B] [Module K B]
-    [Fintype ι] [Finite κ]
+    [Fintype ι] [DecidableEq ι] [Finite κ]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B)
     (bFiber : Module.Basis ι K (LinearMap.ker I)) (bB : Module.Basis κ K B) :
     Matrix κ ι K :=
