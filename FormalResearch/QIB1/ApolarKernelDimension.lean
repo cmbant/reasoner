@@ -30,6 +30,7 @@ theorem apolarSquareQ_diag (d : Nat) (i : Fin (d - 2)) :
     apolarSquareQ d i i = (apolarPivot d i.val : ℚ) := by
   change (apolarSquare d i i : ℚ) = (apolarPivot d i.val : ℚ)
   rw [apolarSquare_diag]
+  norm_num
 
 /-- Hence the rational pivot determinant is strictly positive. -/
 theorem apolarSquareQ_det_pos {d : Nat} (hd : 3 ≤ d) :
