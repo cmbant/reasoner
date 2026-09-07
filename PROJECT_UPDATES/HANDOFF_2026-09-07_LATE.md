@@ -5,21 +5,31 @@ This file supersedes only the restart/status portion of `PROJECT_UPDATES/HANDOFF
 ## Exact heads before this trigger commit
 
 - Research/source authority: `cmbant/QIprojects:main`
-  - `eae4a5a48aa2b2e29303d18352a508efe3f35a38`
-  - latest commit: `Merge PR #34: T17 revive free-fermion Racah entanglement note`
-- Lean canonical branch after PR #2:
+  - `afe15bdbe01b1c8c7b194695ae2991af49210bfd`
+  - latest commit: `Log-reproduction audit before the main merge: two defects fixed`
+- Lean canonical branch after PR #3:
   - `cmbant/reasoner:formal-research-lean`
-  - `963c2bdc2f052f5b88793ccc65b6722092b686cd`
+  - `302e6879d636cc5f722ad2aea8aa7f4c4eb22ec0`
 
-The source pin is unchanged during the aggregate-maintenance cycle. Relative to the old handoff pin `f7bb9cabb277515b8597150e06ec0b30fb049861`, current `QIprojects/main` is 56 commits ahead; relative to the older `4160942c260c2a2bdcd480c2cfa5ae5eca810721` snapshot it is 437 commits ahead.
+Since the previous late-update pin `eae4a5a48aa2b2e29303d18352a508efe3f35a38`, QIprojects advanced 103 commits. For this aggregate-maintenance lane, the compare contains no Gaudin changes and only one Blaschke path change, `Blaschke/verification/t09_transverse_counterfamily_exact.txt`; it does not revise the retained Walsh/Wronskian formal target.
 
 ## Aggregate-maintenance status
 
-The previous full Endpoint14 + aggregate run at canonical head `4d2b3af0d8e5147bad044fad20f09262a877c43b` kept Endpoint14 and placeholder rejection green, then exposed the next concrete full-corpus blocker in `FormalResearch/Blaschke/WronskianAtomIndependence.lean` before the monolithic build timed out.
+Authoritative Endpoint14/full-corpus run `34160170929` at canonical head `4ea95301af7f7764fe602138eaa5ccdc3bf9ef74` passed:
 
-That module was repaired on `agents/lean-aggregate-maintenance`. The compatibility changes are proof/API migration only: explicit polynomial evaluation rewrites through finite sums/scalar multiplication and an explicit erased-finset zero-factor witness. No new research claim was promoted.
+- placeholder rejection;
+- `FormalResearch.QIC.Endpoint14ReducedPolynomialIdentity`;
+- the full Endpoint14 determinant/adjugate bridge.
 
-The hard frontier gate was expanded to six modules:
+The full `timeout 1200 lake build FormalResearch` then failed/timed out. The completed compiler log showed the prior six repaired modules building successfully, including `FormalResearch.Blaschke.WronskianAtomIndependence`, and exposed the next concrete blocker:
+
+- `FormalResearch/Blaschke/WronskianAtomNonvanishing.lean`
+  - bare `conj` was no longer in scope under Lean 4.34 / current mathlib;
+  - the downstream goals were elaboration fallout from that missing identifier.
+
+The repair is compatibility-only: open the `ComplexConjugate` scope already used by the imported Blaschke modules. No theorem statement or research claim changed.
+
+The hard frontier gate is now seven modules:
 
 - `FormalResearch.Blaschke.WalshBasis`
 - `FormalResearch.Blaschke.WalshWronskianExactRank`
@@ -27,16 +37,17 @@ The hard frontier gate was expanded to six modules:
 - `FormalResearch.Blaschke.WalshWronskianKernelBasis`
 - `FormalResearch.Gaudin.MatrixWeightedMetricBridge`
 - `FormalResearch.Blaschke.WronskianAtomIndependence`
+- `FormalResearch.Blaschke.WronskianAtomNonvanishing`
 
-Actions run `34158964511` passed at maintenance head `ce8ee39813d545e67eddcb62bc9644eb2c75385c`, including placeholder rejection and all six modules.
+Actions run `34162067032` passed at maintenance head `5802469924dd3231c13f8370af61230f2a74294a`, including placeholder rejection and all seven modules.
 
-PR #2 merged that tested delta into canonical with merge commit `963c2bdc2f052f5b88793ccc65b6722092b686cd`.
+PR #3 merged that exact tested delta into canonical with merge commit `302e6879d636cc5f722ad2aea8aa7f4c4eb22ec0`.
 
 ## Current action
 
-This documentation-only commit carries the `[endpoint14-identity]` marker solely to trigger the authoritative exact-head workflow. It does not change Lean source.
+This documentation-only commit carries the `[endpoint14-identity]` marker solely to trigger the next authoritative exact-head workflow. It does not change Lean source.
 
-The required next gate is:
+The required gate is:
 
 1. placeholder rejection;
 2. `FormalResearch.QIC.Endpoint14ReducedPolynomialIdentity`;
@@ -49,6 +60,6 @@ If it fails, use only the completed compiler log to identify the next concrete m
 
 ## Claim discipline
 
-- Endpoint14 remains source-aligned to the unchanged QI-C certificate source and is module-green through the full Gaussian bridge.
-- The repaired Wronskian atom-independence theorem is conditional infrastructure under its stated nonvanishing hypothesis; it does not establish a new source-side Blaschke theorem by itself.
-- Do not promote B4 `F_C = 1/2`, the full Blaschke quartic reconstruction chain, degree-five Hodge stability, or the new q-Weyl analytic T2 results to Lean-checked without dedicated semantic/formal evidence.
+- Endpoint14 remains module-green through the full Gaussian bridge; global `LEAN-CHECKED` still requires aggregate green under current project discipline.
+- The repaired Wronskian modules are conditional/algebraic infrastructure and do not promote any new source-side Blaschke theorem.
+- Do not promote B4 `F_C = 1/2`, the full Blaschke quartic reconstruction chain, degree-five Hodge stability, or q-Weyl analytic results to Lean-checked without dedicated semantic/formal evidence.
