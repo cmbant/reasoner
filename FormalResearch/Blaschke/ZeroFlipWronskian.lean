@@ -5,8 +5,8 @@ import FormalResearch.Blaschke.WalshBooleanCollapse
 
 namespace FormalResearch.Blaschke
 
-open Polynomial Complex
-open scoped BigOperators
+open Polynomial
+open scoped BigOperators ComplexConjugate
 
 /-- The selected/complementary Blaschke-factor Wronskian for a zero-flip
 pattern `S`. -/
@@ -18,7 +18,7 @@ noncomputable def blaschkeZeroFlipWronskian {n : Nat} (c : Fin n → ℂ)
 /-- The polynomial coefficient multiplying the Boolean sign at coordinate `j`
 in the zero-flip Wronskian formula. -/
 noncomputable def blaschkeWronskianAtom {n : Nat} (c : Fin n → ℂ) (j : Fin n) : ℂ[X] :=
-  C (1 - Complex.conj (c j) * c j) *
+  C (1 - conj (c j) * c j) *
     allPairProduct (Finset.univ.erase j)
       (fun k => blaschkeA (c k)) (fun k => blaschkeB (c k))
 
@@ -28,7 +28,7 @@ theorem selectedLocalWronskian_blaschke {n : Nat} (c : Fin n → ℂ)
     (S : Finset (Fin n)) (j : Fin n) :
     selectedLocalWronskian S
         (fun k => blaschkeA (c k)) (fun k => blaschkeB (c k)) j =
-      booleanSign S j • C (1 - Complex.conj (c j) * c j) := by
+      booleanSign S j • C (1 - conj (c j) * c j) := by
   by_cases hj : j ∈ S
   · simp [selectedLocalWronskian, selectedFactor, complementaryFactor,
       booleanSign, hj]
@@ -50,7 +50,7 @@ theorem blaschkeZeroFlipWronskian_expansion {n : Nat} (c : Fin n → ℂ)
   apply Finset.sum_congr rfl
   intro j hj
   rw [selectedLocalWronskian_blaschke]
-  simp [blaschkeWronskianAtom, smul_mul_assoc]
+  simp [blaschkeWronskianAtom]
 
 /-- Walsh--Wronskian collapse: every Boolean Walsh character of level at least
 `2` lies in the kernel of the zero-flip Wronskian transform.  In particular,
