@@ -7,13 +7,13 @@ namespace FormalResearch.Gaudin
 the first one.  In a symplectic application, once the domain basis is chosen to
 be Hamiltonian fields of the first integrals, these entries are the cross
 Poisson brackets. -/
-def crossFiberMatrix
+noncomputable def crossFiberMatrix
     {K V A B ι κ : Type*} [Field K]
     [AddCommGroup V] [Module K V]
     [AddCommGroup A] [Module K A]
     [AddCommGroup B] [Module K B]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B)
-    (bFiber : Basis ι K (LinearMap.ker I)) (bB : Basis κ K B) :
+    (bFiber : Module.Basis ι K (LinearMap.ker I)) (bB : Module.Basis κ K B) :
     Matrix κ ι K :=
   LinearMap.toMatrix bFiber bB (J.domRestrict (LinearMap.ker I))
 
@@ -27,7 +27,7 @@ theorem crossFiberMatrix_rank_eq_restricted_rank
     [AddCommGroup B] [Module K B]
     [Finite ι] [Fintype κ] [DecidableEq κ]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B)
-    (bFiber : Basis ι K (LinearMap.ker I)) (bB : Basis κ K B) :
+    (bFiber : Module.Basis ι K (LinearMap.ker I)) (bB : Module.Basis κ K B) :
     (crossFiberMatrix I J bFiber bB).rank =
       Module.finrank K
         (LinearMap.range (J.domRestrict (LinearMap.ker I))) := by
@@ -44,7 +44,7 @@ theorem restricted_rank_eq_of_crossFiberMatrix_rank
     [AddCommGroup B] [Module K B]
     [Finite ι] [Fintype κ] [DecidableEq κ]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B)
-    (bFiber : Basis ι K (LinearMap.ker I)) (bB : Basis κ K B)
+    (bFiber : Module.Basis ι K (LinearMap.ker I)) (bB : Module.Basis κ K B)
     (r : Nat)
     (hMatrix : (crossFiberMatrix I J bFiber bB).rank = r) :
     Module.finrank K
@@ -63,7 +63,7 @@ theorem joint_rank_eq_n_add_crossFiberMatrix_rank
     [FiniteDimensional K V]
     [Finite ι] [Fintype κ] [DecidableEq κ]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B)
-    (bFiber : Basis ι K (LinearMap.ker I)) (bB : Basis κ K B)
+    (bFiber : Module.Basis ι K (LinearMap.ker I)) (bB : Module.Basis κ K B)
     (n r : Nat)
     (hI : Module.finrank K (LinearMap.range I) = n)
     (hMatrix : (crossFiberMatrix I J bFiber bB).rank = r) :
