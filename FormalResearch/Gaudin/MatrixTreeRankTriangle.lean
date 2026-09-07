@@ -16,9 +16,9 @@ theorem crossFiberMatrix_tree_rank_triangle
     [AddCommGroup A] [Module K A]
     [AddCommGroup B] [Module K B]
     [DecidableEq α] [Fintype β]
-    [Finite ι] [Fintype κ] [DecidableEq κ]
+    [Fintype ι] [DecidableEq ι] [Fintype κ] [DecidableEq κ]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B)
-    (bFiber : Basis ι K (LinearMap.ker I)) (bB : Basis κ K B)
+    (bFiber : Module.Basis ι K (LinearMap.ker I)) (bB : Module.Basis κ K B)
     (componentLegs : β → Nat) (m k : Nat) (s t : Finset α)
     (hs : s.card = m - 3) (ht : t.card = m - 3)
     (hcommon : (s ∩ t).card = k)
@@ -45,9 +45,9 @@ theorem joint_rank_tree_rank_triangle
     [AddCommGroup B] [Module K B]
     [FiniteDimensional K V]
     [DecidableEq α] [Fintype β]
-    [Finite ι] [Fintype κ] [DecidableEq κ]
+    [Fintype ι] [DecidableEq ι] [Fintype κ] [DecidableEq κ]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B)
-    (bFiber : Basis ι K (LinearMap.ker I)) (bB : Basis κ K B)
+    (bFiber : Module.Basis ι K (LinearMap.ker I)) (bB : Module.Basis κ K B)
     (componentLegs : β → Nat) (m k n : Nat) (s t : Finset α)
     (hs : s.card = m - 3) (ht : t.card = m - 3)
     (hcommon : (s ∩ t).card = k)

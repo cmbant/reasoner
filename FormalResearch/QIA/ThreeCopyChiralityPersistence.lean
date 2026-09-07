@@ -11,7 +11,7 @@ theorem six_mul_three_pow_lt_five_pow {m : Nat} (hm : 4 ≤ m) :
   | base => norm_num
   | succ m hm ih =>
       rw [pow_succ, pow_succ]
-      nlinarith
+      omega
 
 /-- Once the three-copy odd Hermitian sector appears at four parties, it stays
 strictly positive for every larger party number. -/

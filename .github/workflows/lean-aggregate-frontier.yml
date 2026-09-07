@@ -1,0 +1,38 @@
+name: Lean aggregate frontier blockers
+
+on:
+  push:
+    branches: [formal-research-lean]
+
+concurrency:
+  group: lean-aggregate-frontier-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  aggregate-next:
+    if: ${{ contains(github.event.head_commit.message, '[aggregate-next]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean toolchain via elan
+        run: |
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies
+        run: lake update
+      - name: Fetch mathlib cache
+        run: lake exe cache get
+      - name: Reject placeholders
+        run: |
+          if grep -R --line-number -E '\bsorry\b|\badmit\b' FormalResearch FormalResearch.lean; then
+            echo 'Lean placeholders found'
+            exit 1
+          fi
+      - name: Aggregate frontier blockers
+        run: >-
+          timeout 480 lake build
+          FormalResearch.Blaschke.WalshWronskianLinearMap
+          FormalResearch.Gaudin.MatrixTreeRankTriangle
+          FormalResearch.QIB2.HammingCanonicalGateAction
+          FormalResearch.QIA.ThreeCopyChiralityPersistence

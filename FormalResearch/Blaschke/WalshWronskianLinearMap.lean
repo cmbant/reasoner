@@ -8,7 +8,7 @@ open scoped BigOperators
 
 /-- The zero-flip Wronskian transform as an actual linear map from functions on
 the Boolean cube to polynomials. -/
-def zeroFlipWronskianLin {n : Nat} (c : Fin n → ℂ) :
+noncomputable def zeroFlipWronskianLin {n : Nat} (c : Fin n → ℂ) :
     (Finset (Fin n) → ℚ) →ₗ[ℚ] ℂ[X] :=
   Fintype.linearCombination ℚ (fun S => blaschkeZeroFlipWronskian c S)
 
@@ -27,7 +27,7 @@ theorem walshVector_mem_zeroFlipWronskian_kernel {n : Nat} (c : Fin n → ℂ)
 
 /-- The fixed `n` polynomial atoms which contain the entire image of the
 zero-flip Wronskian transform. -/
-def blaschkeWronskianAtomSpan {n : Nat} (c : Fin n → ℂ) : Submodule ℚ ℂ[X] :=
+noncomputable def blaschkeWronskianAtomSpan {n : Nat} (c : Fin n → ℂ) : Submodule ℚ ℂ[X] :=
   Submodule.span ℚ (Set.range (blaschkeWronskianAtom c))
 
 /-- Every zero-flip Wronskian lies in the span of the `n` fixed atoms. -/
@@ -54,6 +54,9 @@ theorem zeroFlipWronskianLin_range_le_atomSpan {n : Nat} (c : Fin n → ℂ) :
 Wronskian transform has rank at most the number `n` of Blaschke factors. -/
 theorem zeroFlipWronskianLin_range_finrank_le {n : Nat} (c : Fin n → ℂ) :
     Module.finrank ℚ (LinearMap.range (zeroFlipWronskianLin c)) ≤ n := by
+  letI : Module.Finite ℚ (blaschkeWronskianAtomSpan c) := by
+    unfold blaschkeWronskianAtomSpan
+    exact Module.Finite.span_of_finite ℚ (Set.finite_range _)
   calc
     Module.finrank ℚ (LinearMap.range (zeroFlipWronskianLin c)) ≤
         Module.finrank ℚ (blaschkeWronskianAtomSpan c) :=

@@ -10,7 +10,7 @@ open scoped BigOperators
 /-- Canonically weighted radial Hamming action on an integer-valued function,
 viewed in `ℂ`.  The normalization is written in the same `a^d (b/a)^r` form
 as the exact Krawtchouk phase theorem. -/
-def splitCanonicalHammingGateApply (d m : Nat)
+noncomputable def splitCanonicalHammingGateApply (d m : Nat)
     (f : Finset (Fin m) → Finset (Fin (d - m)) → Int)
     (x : Finset (Fin m)) (y : Finset (Fin (d - m))) : ℂ :=
   gateA^d *
@@ -34,11 +34,19 @@ theorem splitCanonicalHammingGate_walsh_eigenaction
           (gateB / gateA)^r *
             ((binaryKrawtchouk d m r : ℂ) *
               (splitWalshCharacter x y : ℂ))) =
-      (gateA^d *
+      gateA^d *
+        (∑ r ∈ Finset.range ((binaryKrawtchoukGeneratingPoly d m).natDegree + 1),
+          ((binaryKrawtchouk d m r : ℂ) * (gateB / gateA)^r) *
+            (splitWalshCharacter x y : ℂ)) := by
+      apply congrArg (fun z : ℂ => gateA^d * z)
+      apply Finset.sum_congr rfl
+      intro r hr
+      ring
+    _ = (gateA^d *
         (∑ r ∈ Finset.range ((binaryKrawtchoukGeneratingPoly d m).natDegree + 1),
           (binaryKrawtchouk d m r : ℂ) * (gateB / gateA)^r)) *
             (splitWalshCharacter x y : ℂ) := by
-      simp_rw [← Finset.sum_mul]
+      rw [← Finset.sum_mul]
       ring
     _ = I^m * (splitWalshCharacter x y : ℂ) := by
       rw [canonical_gate_krawtchouk_phase hm]
