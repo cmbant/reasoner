@@ -39,3 +39,4 @@ jobs:
           FormalResearch.Gaudin.MatrixTreeHammingTriangle
           FormalResearch.Blaschke.WalshWronskianKernelBasis
           FormalResearch.Gaudin.MatrixWeightedMetricBridge
+          FormalResearch.Blaschke.WronskianAtomIndependence
