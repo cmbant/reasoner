@@ -19,9 +19,7 @@ theorem zeroFlipWronskianLin_walsh_of_card_ne_one {n : Nat}
   apply Finset.sum_eq_zero
   intro j hj
   rw [← Finset.sum_smul]
-  change (∑ S : Finset (Fin n),
-      walshCharacter T S * walshCharacter ({j} : Finset (Fin n)) S) •
-        blaschkeWronskianAtom c j = 0
+  simp_rw [← walshCharacter_singleton]
   have hne : T ≠ ({j} : Finset (Fin n)) := by
     intro h
     apply hT
