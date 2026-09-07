@@ -73,6 +73,8 @@ theorem apolarFullR_mulVec_row {d : Nat} (v : Fin (d + 1) → ℝ)
     intro h
     have hv := congrArg Fin.val h
     simp [apolarColOne, apolarColThree] at hv
+  simp_rw [ite_mul, zero_mul]
+  rw [Finset.sum_ite]
   simp [h13, apolarColOne, apolarColThree]
 
 /-- Exact coherent-state factorization of one apolar row. -/
