@@ -10,15 +10,15 @@ open scoped BigOperators
 
 /-- The selected/complementary Blaschke-factor Wronskian for a zero-flip
 pattern `S`. -/
-def blaschkeZeroFlipWronskian {n : Nat} (c : Fin n → ℂ)
+noncomputable def blaschkeZeroFlipWronskian {n : Nat} (c : Fin n → ℂ)
     (S : Finset (Fin n)) : ℂ[X] :=
   selectedProductWronskian Finset.univ S
     (fun j => blaschkeA (c j)) (fun j => blaschkeB (c j))
 
 /-- The polynomial coefficient multiplying the Boolean sign at coordinate `j`
 in the zero-flip Wronskian formula. -/
-def blaschkeWronskianAtom {n : Nat} (c : Fin n → ℂ) (j : Fin n) : ℂ[X] :=
-  C (1 - conj (c j) * c j) *
+noncomputable def blaschkeWronskianAtom {n : Nat} (c : Fin n → ℂ) (j : Fin n) : ℂ[X] :=
+  C (1 - Complex.conj (c j) * c j) *
     allPairProduct (Finset.univ.erase j)
       (fun k => blaschkeA (c k)) (fun k => blaschkeB (c k))
 
@@ -28,7 +28,7 @@ theorem selectedLocalWronskian_blaschke {n : Nat} (c : Fin n → ℂ)
     (S : Finset (Fin n)) (j : Fin n) :
     selectedLocalWronskian S
         (fun k => blaschkeA (c k)) (fun k => blaschkeB (c k)) j =
-      booleanSign S j • C (1 - conj (c j) * c j) := by
+      booleanSign S j • C (1 - Complex.conj (c j) * c j) := by
   by_cases hj : j ∈ S
   · simp [selectedLocalWronskian, selectedFactor, complementaryFactor,
       booleanSign, hj]
@@ -47,8 +47,6 @@ theorem blaschkeZeroFlipWronskian_expansion {n : Nat} (c : Fin n → ℂ)
       ∑ j : Fin n, booleanSign S j • blaschkeWronskianAtom c j := by
   unfold blaschkeZeroFlipWronskian
   rw [selectedProductWronskian_expansion]
-  simp only [Finset.sum_const_zero, Finset.sum_filter, Finset.mem_univ,
-    if_true, Finset.sum_attach]
   apply Finset.sum_congr rfl
   intro j hj
   rw [selectedLocalWronskian_blaschke]
