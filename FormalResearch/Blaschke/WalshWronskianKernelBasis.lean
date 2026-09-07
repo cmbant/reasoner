@@ -14,7 +14,7 @@ theorem zeroFlipWronskianLin_walsh_of_card_ne_one {n : Nat}
     (c : Fin n → ℂ) (T : Finset (Fin n)) (hT : T.card ≠ 1) :
     zeroFlipWronskianLin c (walshVector T) = 0 := by
   simp only [zeroFlipWronskianLin, Fintype.linearCombination_apply, walshVector]
-  simp_rw [blaschkeZeroFlipWronskian_expansion, smul_sum, smul_smul]
+  simp_rw [blaschkeZeroFlipWronskian_expansion, Finset.smul_sum, smul_smul]
   rw [Fintype.sum_comm]
   apply Finset.sum_eq_zero
   intro j hj
@@ -66,7 +66,7 @@ theorem nonSingletonWalshSpan_le_kernel {n : Nat} (c : Fin n → ℂ) :
   apply Submodule.span_le.mpr
   intro v hv
   rcases hv with ⟨T, rfl⟩
-  rw [LinearMap.mem_ker]
+  change zeroFlipWronskianLin c (walshVector T.1) = 0
   exact zeroFlipWronskianLin_walsh_of_card_ne_one c T.1 T.2
 
 /-- If the `n` fixed Wronskian atoms are linearly independent, their span has
