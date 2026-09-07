@@ -116,7 +116,7 @@ jobs:
       - name: Fetch mathlib cache
         run: lake exe cache get
       - name: QI-B aggregate blockers
-        run: timeout 480 lake build FormalResearch.QIB2.HammingRadialGate FormalResearch.Bridges.B2BlaschkeWalshGauge FormalResearch.QIB1.ApolarKernelDimension
+        run: timeout 480 lake build FormalResearch.QIB2.HammingRadialGate FormalResearch.Bridges.B2BlaschkeWalshGauge FormalResearch.QIB1.ApolarKernelDimension FormalResearch.QIB1.ApolarCoherentKernel
 
   endpoint14-samples:
     if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[endpoint14-samples]') }}
