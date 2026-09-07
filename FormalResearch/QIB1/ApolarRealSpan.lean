@@ -28,7 +28,7 @@ theorem apolarSquareR_diag (d : Nat) (i : Fin (d - 2)) :
 /-- Hence the real pivot determinant is strictly positive. -/
 theorem apolarSquareR_det_pos {d : Nat} (hd : 3 ≤ d) :
     0 < (apolarSquareR d).det := by
-  rw [Matrix.det_of_isUpperTriangular (apolarSquareR d) (apolarSquareR_upper d)]
+  rw [Matrix.det_of_isUpperTriangular (apolarSquareR_upper d)]
   apply Finset.prod_pos
   intro i hi
   rw [apolarSquareR_diag]
