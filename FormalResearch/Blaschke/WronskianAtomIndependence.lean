@@ -55,7 +55,8 @@ theorem blaschkeWronskianAtom_eval_offdiag {n : Nat} (c : Fin n → ℂ)
     unfold allPairProduct
     rw [eval_prod]
     apply Finset.prod_eq_zero (i := j)
-    · exact fun (hji : j = i) => hij hji.symm
+    · exact Finset.mem_erase.mpr
+        ⟨(fun (hji : j = i) => hij hji.symm), Finset.mem_univ j⟩
     · simp [blaschkeA]
   rw [hpair, mul_zero]
 
