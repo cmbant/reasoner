@@ -15,7 +15,7 @@ theorem zeroFlipWronskianLin_walsh_of_card_ne_one {n : Nat}
     zeroFlipWronskianLin c (walshVector T) = 0 := by
   simp only [zeroFlipWronskianLin, Fintype.linearCombination_apply, walshVector]
   simp_rw [blaschkeZeroFlipWronskian_expansion, Finset.smul_sum, smul_smul]
-  rw [Fintype.sum_comm]
+  rw [Finset.sum_comm]
   apply Finset.sum_eq_zero
   intro j hj
   rw [← Finset.sum_smul]
