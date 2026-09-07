@@ -23,7 +23,7 @@ theorem booleanSign_correlation {n : Nat} (j k : Fin n) :
   by_cases hjk : j = k
   · subst k
     simp_rw [booleanSign_mul_self]
-    simp [hjk, Fintype.card_finset, Fintype.card_fin]
+    simp [Fintype.card_finset, Fintype.card_fin]
   · have h := walsh_coordinate_orthogonal ({j} : Finset (Fin n))
         (j := k) (k := j) (by simp) hjk
     simpa [walshCharacter_singleton, hjk] using h
@@ -34,7 +34,7 @@ theorem zeroFlipWronskian_singleton_walsh {n : Nat} (c : Fin n → ℂ) (j : Fin
     (∑ S : Finset (Fin n),
       booleanSign S j • blaschkeZeroFlipWronskian c S) =
       (((2^n : Nat) : ℚ)) • blaschkeWronskianAtom c j := by
-  simp_rw [blaschkeZeroFlipWronskian_expansion, smul_sum, smul_smul]
+  simp_rw [blaschkeZeroFlipWronskian_expansion, Finset.smul_sum, smul_smul]
   rw [Fintype.sum_comm]
   apply Eq.trans (Fintype.sum_congr _ _ fun k => by
     rw [booleanSign_correlation j k])

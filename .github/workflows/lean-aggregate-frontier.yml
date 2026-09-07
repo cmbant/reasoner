@@ -2,7 +2,9 @@ name: Lean aggregate frontier blockers
 
 on:
   push:
-    branches: [formal-research-lean]
+    branches:
+      - formal-research-lean
+      - 'agents/**'
 
 concurrency:
   group: lean-aggregate-frontier-${{ github.ref }}
@@ -32,7 +34,6 @@ jobs:
       - name: Aggregate frontier blockers
         run: >-
           timeout 480 lake build
-          FormalResearch.Blaschke.WalshWronskianLinearMap
-          FormalResearch.Gaudin.MatrixTreeRankTriangle
-          FormalResearch.QIB2.HammingCanonicalGateAction
-          FormalResearch.QIA.ThreeCopyChiralityPersistence
+          FormalResearch.Blaschke.WalshBasis
+          FormalResearch.Blaschke.WalshWronskianExactRank
+          FormalResearch.Gaudin.MatrixTreeHammingTriangle

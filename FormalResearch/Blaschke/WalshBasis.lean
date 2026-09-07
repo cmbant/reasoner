@@ -35,18 +35,19 @@ theorem walshCharacter_orthogonal {n : Nat}
   · subst U
     simp_rw [walshCharacter_mul_self]
     simp [Fintype.card_finset, Fintype.card_fin]
-  · have hsymm : (T ∆ U).Nonempty := by
-      rw [Finset.nonempty_iff_ne_empty]
-      intro hzero
-      have : T = U := by
-        ext k
-        have hk := congrArg (fun V : Finset (Fin n) => k ∈ V) hzero
-        simp [Finset.mem_symmDiff] at hk
-        tauto
-      exact hTU this
-    obtain ⟨k, hk⟩ := hsymm
-    have hmem : (k ∈ T ∧ k ∉ U) ∨ (k ∉ T ∧ k ∈ U) := by
-      simpa [Finset.mem_symmDiff] using hk
+  · have hmem : ∃ k : Fin n,
+        (k ∈ T ∧ k ∉ U) ∨ (k ∉ T ∧ k ∈ U) := by
+      by_contra h
+      apply hTU
+      ext k
+      constructor
+      · intro hkT
+        by_contra hkU
+        exact h ⟨k, Or.inl ⟨hkT, hkU⟩⟩
+      · intro hkU
+        by_contra hkT
+        exact h ⟨k, Or.inr ⟨hkT, hkU⟩⟩
+    obtain ⟨k, hmem⟩ := hmem
     let F : Finset (Fin n) → ℚ :=
       fun S => walshCharacter T S * walshCharacter U S
     have hneg : ∀ S : Finset (Fin n), F (toggleEquiv k S) = -F S := by
@@ -90,16 +91,61 @@ theorem walshVector_linearIndependent {n : Nat} :
           walshCharacter T S) = 0 := by
     simp_rw [hpoint, zero_mul]
     simp
-  rw [Finset.sum_mul, Fintype.sum_comm] at hcorr
-  simp_rw [← mul_assoc, walshCharacter_orthogonal] at hcorr
-  simp only [ite_mul, zero_mul, Finset.sum_ite_eq', Finset.mem_univ, if_pos] at hcorr
+  have hfactor (U : Finset (Fin n)) :
+      (∑ S : Finset (Fin n),
+        (a U * walshCharacter U S) * walshCharacter T S) =
+        a U * (∑ S : Finset (Fin n),
+          walshCharacter U S * walshCharacter T S) := by
+    change
+      (∑ S in (Finset.univ : Finset (Finset (Fin n))),
+        (a U * walshCharacter U S) * walshCharacter T S) =
+        a U * (∑ S in (Finset.univ : Finset (Finset (Fin n))),
+          walshCharacter U S * walshCharacter T S)
+    rw [Finset.mul_sum]
+    simp only [mul_assoc]
+  have hdistrib (S : Finset (Fin n)) :
+      (∑ U : Finset (Fin n), a U * walshCharacter U S) *
+          walshCharacter T S =
+        ∑ U : Finset (Fin n),
+          (a U * walshCharacter U S) * walshCharacter T S := by
+    change
+      (∑ U in (Finset.univ : Finset (Finset (Fin n))),
+        a U * walshCharacter U S) * walshCharacter T S =
+        ∑ U in (Finset.univ : Finset (Finset (Fin n))),
+          (a U * walshCharacter U S) * walshCharacter T S
+    rw [Finset.sum_mul]
+  have hcorr' :
+      (∑ U : Finset (Fin n), a U *
+        (∑ S : Finset (Fin n),
+          walshCharacter U S * walshCharacter T S)) = 0 := by
+    calc
+      (∑ U : Finset (Fin n), a U *
+        (∑ S : Finset (Fin n),
+          walshCharacter U S * walshCharacter T S)) =
+          ∑ U : Finset (Fin n), ∑ S : Finset (Fin n),
+            (a U * walshCharacter U S) * walshCharacter T S := by
+              apply Fintype.sum_congr
+              intro U
+              exact (hfactor U).symm
+      _ = ∑ S : Finset (Fin n), ∑ U : Finset (Fin n),
+            (a U * walshCharacter U S) * walshCharacter T S := by
+              rw [Fintype.sum_comm]
+      _ = ∑ S : Finset (Fin n),
+            (∑ U : Finset (Fin n), a U * walshCharacter U S) *
+              walshCharacter T S := by
+              apply Fintype.sum_congr
+              intro S
+              exact (hdistrib S).symm
+      _ = 0 := hcorr
+  simp_rw [walshCharacter_orthogonal] at hcorr'
+  simp only [mul_ite, mul_zero, Fintype.sum_ite_eq', if_pos] at hcorr'
   have hpow : (((2^n : Nat) : ℚ)) ≠ 0 := by positivity
-  exact (mul_eq_zero.mp hcorr).resolve_right hpow
+  exact (mul_eq_zero.mp hcorr').resolve_right hpow
 
 /-- Since the Walsh family has exactly the dimension of the Boolean function
 space, it is a basis. -/
 noncomputable def walshBasis (n : Nat) :
-    Basis (Finset (Fin n)) ℚ (Finset (Fin n) → ℚ) :=
+    Module.Basis (Finset (Fin n)) ℚ (Finset (Fin n) → ℚ) :=
   basisOfLinearIndependentOfCardEqFinrank walshVector_linearIndependent (by
     rw [Module.finrank_fintype_fun_eq_card, Fintype.card_finset, Fintype.card_fin])
 
