@@ -37,3 +37,5 @@ jobs:
           FormalResearch.Blaschke.WalshBasis
           FormalResearch.Blaschke.WalshWronskianExactRank
           FormalResearch.Gaudin.MatrixTreeHammingTriangle
+          FormalResearch.Blaschke.WalshWronskianKernelBasis
+          FormalResearch.Gaudin.MatrixWeightedMetricBridge
