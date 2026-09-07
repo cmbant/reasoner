@@ -52,7 +52,8 @@ theorem walshCharacter_orthogonal {n : Nat}
       fun S => walshCharacter T S * walshCharacter U S
     have hneg : ∀ S : Finset (Fin n), F (toggleEquiv k S) = -F S := by
       intro S
-      dsimp [F]
+      change walshCharacter T (toggleSubset k S) * walshCharacter U (toggleSubset k S) =
+        -(walshCharacter T S * walshCharacter U S)
       rcases hmem with h | h
       · rw [walshCharacter_toggle T S h.1,
           walshCharacter_toggle_not_mem U S h.2]
@@ -137,7 +138,7 @@ theorem walshVector_linearIndependent {n : Nat} :
               exact (hdistrib S).symm
       _ = 0 := hcorr
   simp_rw [walshCharacter_orthogonal] at hcorr'
-  simp only [mul_ite, mul_zero, Fintype.sum_ite_eq', if_pos] at hcorr'
+  simp only [mul_ite, mul_zero, Fintype.sum_ite_eq'] at hcorr'
   have hpow : (((2^n : Nat) : ℚ)) ≠ 0 := by positivity
   exact (mul_eq_zero.mp hcorr').resolve_right hpow
 
