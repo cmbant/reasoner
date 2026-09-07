@@ -4,7 +4,7 @@ import FormalResearch.Blaschke.WronskianAtomIndependence
 namespace FormalResearch.Blaschke
 
 open Polynomial Complex
-open scoped BigOperators
+open scoped BigOperators ComplexConjugate
 
 /-- The diagonal evaluation of a Wronskian atom factors into its local
 Blaschke weight and the products of all distinct zero and reciprocal factors. -/
