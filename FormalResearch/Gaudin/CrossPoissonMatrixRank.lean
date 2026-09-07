@@ -12,6 +12,7 @@ noncomputable def crossFiberMatrix
     [AddCommGroup V] [Module K V]
     [AddCommGroup A] [Module K A]
     [AddCommGroup B] [Module K B]
+    [Fintype ι]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B)
     (bFiber : Module.Basis ι K (LinearMap.ker I)) (bB : Module.Basis κ K B) :
     Matrix κ ι K :=
@@ -25,7 +26,7 @@ theorem crossFiberMatrix_rank_eq_restricted_rank
     [AddCommGroup V] [Module K V]
     [AddCommGroup A] [Module K A]
     [AddCommGroup B] [Module K B]
-    [Finite ι] [Fintype κ] [DecidableEq κ]
+    [Fintype ι] [Fintype κ] [DecidableEq κ]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B)
     (bFiber : Module.Basis ι K (LinearMap.ker I)) (bB : Module.Basis κ K B) :
     (crossFiberMatrix I J bFiber bB).rank =
@@ -42,7 +43,7 @@ theorem restricted_rank_eq_of_crossFiberMatrix_rank
     [AddCommGroup V] [Module K V]
     [AddCommGroup A] [Module K A]
     [AddCommGroup B] [Module K B]
-    [Finite ι] [Fintype κ] [DecidableEq κ]
+    [Fintype ι] [Fintype κ] [DecidableEq κ]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B)
     (bFiber : Module.Basis ι K (LinearMap.ker I)) (bB : Module.Basis κ K B)
     (r : Nat)
@@ -61,7 +62,7 @@ theorem joint_rank_eq_n_add_crossFiberMatrix_rank
     [AddCommGroup A] [Module K A]
     [AddCommGroup B] [Module K B]
     [FiniteDimensional K V]
-    [Finite ι] [Fintype κ] [DecidableEq κ]
+    [Fintype ι] [Fintype κ] [DecidableEq κ]
     (I : V →ₗ[K] A) (J : V →ₗ[K] B)
     (bFiber : Module.Basis ι K (LinearMap.ker I)) (bB : Module.Basis κ K B)
     (n r : Nat)
