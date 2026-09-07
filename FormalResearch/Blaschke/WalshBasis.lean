@@ -52,13 +52,12 @@ theorem walshCharacter_orthogonal {n : Nat}
       fun S => walshCharacter T S * walshCharacter U S
     have hneg : ∀ S : Finset (Fin n), F (toggleEquiv k S) = -F S := by
       intro S
+      dsimp [F]
       rcases hmem with h | h
-      · rw [show toggleEquiv k S = toggleSubset k S from rfl,
-          walshCharacter_toggle T S h.1,
+      · rw [walshCharacter_toggle T S h.1,
           walshCharacter_toggle_not_mem U S h.2]
         ring
-      · rw [show toggleEquiv k S = toggleSubset k S from rfl,
-          walshCharacter_toggle_not_mem T S h.1,
+      · rw [walshCharacter_toggle_not_mem T S h.1,
           walshCharacter_toggle U S h.2]
         ring
     have hperm := (toggleEquiv k).sum_comp F
@@ -97,9 +96,9 @@ theorem walshVector_linearIndependent {n : Nat} :
         a U * (∑ S : Finset (Fin n),
           walshCharacter U S * walshCharacter T S) := by
     change
-      (∑ S in (Finset.univ : Finset (Finset (Fin n))),
+      (∑ S ∈ (Finset.univ : Finset (Finset (Fin n))),
         (a U * walshCharacter U S) * walshCharacter T S) =
-        a U * (∑ S in (Finset.univ : Finset (Finset (Fin n))),
+        a U * (∑ S ∈ (Finset.univ : Finset (Finset (Fin n))),
           walshCharacter U S * walshCharacter T S)
     rw [Finset.mul_sum]
     simp only [mul_assoc]
@@ -109,9 +108,9 @@ theorem walshVector_linearIndependent {n : Nat} :
         ∑ U : Finset (Fin n),
           (a U * walshCharacter U S) * walshCharacter T S := by
     change
-      (∑ U in (Finset.univ : Finset (Finset (Fin n))),
+      (∑ U ∈ (Finset.univ : Finset (Finset (Fin n))),
         a U * walshCharacter U S) * walshCharacter T S =
-        ∑ U in (Finset.univ : Finset (Finset (Fin n))),
+        ∑ U ∈ (Finset.univ : Finset (Finset (Fin n))),
           (a U * walshCharacter U S) * walshCharacter T S
     rw [Finset.sum_mul]
   have hcorr' :
@@ -129,7 +128,7 @@ theorem walshVector_linearIndependent {n : Nat} :
               exact (hfactor U).symm
       _ = ∑ S : Finset (Fin n), ∑ U : Finset (Fin n),
             (a U * walshCharacter U S) * walshCharacter T S := by
-              rw [Fintype.sum_comm]
+              rw [Finset.sum_comm]
       _ = ∑ S : Finset (Fin n),
             (∑ U : Finset (Fin n), a U * walshCharacter U S) *
               walshCharacter T S := by

@@ -35,10 +35,28 @@ theorem zeroFlipWronskian_singleton_walsh {n : Nat} (c : Fin n → ℂ) (j : Fin
       booleanSign S j • blaschkeZeroFlipWronskian c S) =
       (((2^n : Nat) : ℚ)) • blaschkeWronskianAtom c j := by
   simp_rw [blaschkeZeroFlipWronskian_expansion, Finset.smul_sum, smul_smul]
-  rw [Fintype.sum_comm]
-  apply Eq.trans (Fintype.sum_congr _ _ fun k => by
-    rw [booleanSign_correlation j k])
-  simp
+  rw [Finset.sum_comm]
+  calc
+    (∑ k : Fin n, ∑ S : Finset (Fin n),
+      (booleanSign S j * booleanSign S k) • blaschkeWronskianAtom c k) =
+        ∑ k : Fin n,
+          (∑ S : Finset (Fin n), booleanSign S j * booleanSign S k) •
+            blaschkeWronskianAtom c k := by
+              apply Fintype.sum_congr
+              intro k
+              change
+                (∑ S ∈ (Finset.univ : Finset (Finset (Fin n))),
+                  (booleanSign S j * booleanSign S k) • blaschkeWronskianAtom c k) =
+                  (∑ S ∈ (Finset.univ : Finset (Finset (Fin n))),
+                    booleanSign S j * booleanSign S k) • blaschkeWronskianAtom c k
+              rw [← Finset.sum_smul]
+    _ = ∑ k : Fin n,
+          (if j = k then (((2^n : Nat) : ℚ)) else 0) •
+            blaschkeWronskianAtom c k := by
+              apply Fintype.sum_congr
+              intro k
+              rw [booleanSign_correlation j k]
+    _ = (((2^n : Nat) : ℚ)) • blaschkeWronskianAtom c j := by simp
 
 /-- The linear Wronskian map sends the singleton Walsh vector to `2^n` times
 the corresponding atom. -/
