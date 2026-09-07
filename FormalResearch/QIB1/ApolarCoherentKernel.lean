@@ -68,6 +68,7 @@ theorem apolarFullR_mulVec_row {d : Nat} (v : Fin (d + 1) → ℝ)
       subst x
       simp [apolarColThree]
   simp_rw [h1, h3]
+  push_cast
   have h13 : apolarColOne r ≠ apolarColThree r := by
     intro h
     have hv := congrArg Fin.val h
@@ -98,7 +99,7 @@ theorem apolarFullR_coherent_row {d : Nat} (hd : 3 ≤ d) (b : ℝ)
   unfold apolarPivot
   push_cast [Nat.cast_sub hr1, Nat.cast_sub hr2] at hchooseR ⊢
   linear_combination
-    ((r.val + 1 : Nat) : ℝ) * b ^ (r.val + 1) * b^2 * hchooseR
+    ((r.val : ℝ) + 1) * b ^ (r.val + 1) * b^2 * hchooseR
 
 /-- Therefore every valence root `b(3-b²)=0` gives a coherent kernel vector. -/
 theorem apolarCoherent_mem_kernel {d : Nat} (hd : 3 ≤ d) (b : ℝ)
