@@ -31,12 +31,10 @@ theorem selectedLocalWronskian_blaschke {n : Nat} (c : Fin n → ℂ)
       booleanSign S j • C (1 - conj (c j) * c j) := by
   by_cases hj : j ∈ S
   · simp [selectedLocalWronskian, selectedFactor, complementaryFactor,
-      booleanSign, hj]
-    rw [← blaschke_pair_wronskian (c j)]
+      booleanSign, hj, blaschkeA, blaschkeB]
     ring
   · simp [selectedLocalWronskian, selectedFactor, complementaryFactor,
-      booleanSign, hj]
-    rw [← blaschke_pair_wronskian (c j)]
+      booleanSign, hj, blaschkeA, blaschkeB]
     ring
 
 /-- Exact finite zero-flip Wronskian sign formula.  The full polynomial image
