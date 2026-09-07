@@ -77,6 +77,12 @@ theorem apolarFullR_mulVec_row {d : Nat} (v : Fin (d + 1) → ℝ)
   simp_rw [ite_mul, zero_mul]
   rw [Finset.sum_ite, Finset.filter_eq', ite_eq_left (Finset.mem_univ _),
     Finset.sum_singleton]
+  have hmem :
+      apolarColThree r ∈
+        Finset.univ.filter (fun x : Fin (d + 1) => ¬x = apolarColOne r) := by
+    simp [h31]
+  rw [Finset.sum_ite_eq', if_pos hmem]
+  simp only [apolarColThree, Nat.cast_add, Nat.cast_ofNat]
   ring
 
 /-- Exact coherent-state factorization of one apolar row. -/
