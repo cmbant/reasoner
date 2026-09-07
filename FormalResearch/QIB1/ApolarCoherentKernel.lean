@@ -50,8 +50,29 @@ theorem apolarFullR_mulVec_row {d : Nat} (v : Fin (d + 1) → ℝ)
         ((r.val + 3 : Nat) : ℝ) * ((r.val + 2 : Nat) : ℝ) *
           ((r.val + 1 : Nat) : ℝ) * v (apolarColThree r) := by
   classical
-  simp [apolarFullR, apolarFull, Matrix.mulVec, dotProduct,
-    apolarColOne, apolarColThree]
+  simp only [apolarFullR, apolarFull, Matrix.mulVec, dotProduct]
+  have h1 (x : Fin (d + 1)) : x.val = r.val + 1 ↔ x = apolarColOne r := by
+    constructor
+    · intro hx
+      apply Fin.ext
+      simpa [apolarColOne] using hx
+    · intro hx
+      subst x
+      simp [apolarColOne]
+  have h3 (x : Fin (d + 1)) : x.val = r.val + 3 ↔ x = apolarColThree r := by
+    constructor
+    · intro hx
+      apply Fin.ext
+      simpa [apolarColThree] using hx
+    · intro hx
+      subst x
+      simp [apolarColThree]
+  simp_rw [h1, h3]
+  have h13 : apolarColOne r ≠ apolarColThree r := by
+    intro h
+    have hv := congrArg Fin.val h
+    simp [apolarColOne, apolarColThree] at hv
+  simp [h13, apolarColOne, apolarColThree]
 
 /-- Exact coherent-state factorization of one apolar row. -/
 theorem apolarFullR_coherent_row {d : Nat} (hd : 3 ≤ d) (b : ℝ)
@@ -75,12 +96,9 @@ theorem apolarFullR_coherent_row {d : Nat} (hd : 3 ≤ d) (b : ℝ)
     exact_mod_cast hchoose
   rw [hp]
   unfold apolarPivot
-  push_cast [Nat.cast_sub hr1, Nat.cast_sub hr2]
-  rw [show
-      (d.choose (r.val + 3) : ℝ) * (r.val + 3) * (r.val + 2) =
-        (d.choose (r.val + 1) : ℝ) * (d - (r.val + 1)) *
-          (d - (r.val + 2)) by exact hchooseR.symm]
-  ring
+  push_cast [Nat.cast_sub hr1, Nat.cast_sub hr2] at hchooseR ⊢
+  linear_combination
+    ((r.val + 1 : Nat) : ℝ) * b ^ (r.val + 1) * b^2 * hchooseR
 
 /-- Therefore every valence root `b(3-b²)=0` gives a coherent kernel vector. -/
 theorem apolarCoherent_mem_kernel {d : Nat} (hd : 3 ≤ d) (b : ℝ)
@@ -88,6 +106,7 @@ theorem apolarCoherent_mem_kernel {d : Nat} (hd : 3 ≤ d) (b : ℝ)
     apolarCoherent d b ∈ LinearMap.ker (apolarFullR d).mulVecLin := by
   rw [LinearMap.mem_ker]
   ext r
+  change (apolarFullR d).mulVec (apolarCoherent d b) r = 0
   rw [apolarFullR_coherent_row hd b r]
   rcases hb with rfl | hb
   · simp
