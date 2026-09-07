@@ -77,7 +77,6 @@ theorem apolarFullR_mulVec_row {d : Nat} (v : Fin (d + 1) → ℝ)
   simp_rw [ite_mul, zero_mul]
   rw [Finset.sum_ite, Finset.filter_eq', ite_eq_left (Finset.mem_univ _),
     Finset.sum_singleton]
-  simp only [Finset.mem_filter, Finset.mem_univ, true_and, h31, if_true]
   ring
 
 /-- Exact coherent-state factorization of one apolar row. -/
