@@ -46,8 +46,11 @@ theorem blaschkeWalshCharacter_cast_eq_gauge_mul_qib2 {n : Nat}
           apply Finset.prod_congr rfl
           intro j hj
           rw [blaschkeBooleanSign_cast_eq_neg_qib2WalshSign]
+    _ = ∏ j ∈ T, ((-1 : ℂ) * QIB2.booleanWalshSign S j) := by
+          apply Finset.prod_congr rfl
+          intro j hj
+          ring
     _ = (-1 : ℂ) ^ T.card * QIB2.booleanWalshCharacter S T := by
-          simp_rw [neg_eq_neg_one_mul]
           rw [Finset.prod_mul_distrib]
           simp [QIB2.booleanWalshCharacter]
     _ = (-1 : ℂ) ^ T.card * QIB2.booleanWalshCharacter T S := by

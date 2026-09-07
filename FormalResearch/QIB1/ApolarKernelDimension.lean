@@ -28,12 +28,13 @@ theorem apolarSquareQ_upper (d : Nat) : (apolarSquareQ d).IsUpperTriangular := b
 /-- Its diagonal entries are the positive integer pivots. -/
 theorem apolarSquareQ_diag (d : Nat) (i : Fin (d - 2)) :
     apolarSquareQ d i i = (apolarPivot d i.val : ℚ) := by
-  exact_mod_cast apolarSquare_diag d i
+  change (apolarSquare d i i : ℚ) = (apolarPivot d i.val : ℚ)
+  rw [apolarSquare_diag]
 
 /-- Hence the rational pivot determinant is strictly positive. -/
 theorem apolarSquareQ_det_pos {d : Nat} (hd : 3 ≤ d) :
     0 < (apolarSquareQ d).det := by
-  rw [Matrix.det_of_isUpperTriangular (apolarSquareQ d) (apolarSquareQ_upper d)]
+  rw [Matrix.det_of_isUpperTriangular (apolarSquareQ_upper d)]
   apply Finset.prod_pos
   intro i hi
   rw [apolarSquareQ_diag]

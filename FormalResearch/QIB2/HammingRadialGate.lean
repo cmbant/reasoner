@@ -20,8 +20,8 @@ theorem homogenize_binary_generating {d m : Nat} (hm : m ≤ d)
   rw [hsub, hadd, div_pow, div_pow]
   have hpow : a^m * a^(d - m) = a^d := by
     rw [← pow_add, Nat.add_sub_of_le hm]
-  field_simp [ha, hpow]
-  ring
+  field_simp [ha]
+  rw [hpow]
 
 /-- The canonical gate coefficient `a=(1+i)/2` is nonzero. -/
 theorem gateA_ne_zero : gateA ≠ 0 := by
@@ -39,6 +39,7 @@ theorem canonical_gate_krawtchouk_phase {d m : Nat} (hm : m ≤ d) :
         (binaryKrawtchouk d m r : ℂ) * (gateB / gateA)^r) =
       I^m := by
   rw [binaryKrawtchouk_generating_eval_complex]
+  rw [← mul_assoc]
   rw [homogenize_binary_generating hm gateA gateB gateA_ne_zero]
   rw [canonical_gate_at_minus, gate_coeff_sum]
   simp
