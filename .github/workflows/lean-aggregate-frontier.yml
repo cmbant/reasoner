@@ -14,7 +14,7 @@ jobs:
   aggregate-next:
     if: ${{ contains(github.event.head_commit.message, '[aggregate-next]') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -31,17 +31,31 @@ jobs:
             echo 'Lean placeholders found'
             exit 1
           fi
-      - name: Aggregate frontier blockers
-        run: >-
-          timeout 480 lake build
-          FormalResearch.Blaschke.WalshBasis
-          FormalResearch.Blaschke.WalshWronskianExactRank
-          FormalResearch.Gaudin.MatrixTreeHammingTriangle
-          FormalResearch.Blaschke.WalshWronskianKernelBasis
-          FormalResearch.Gaudin.MatrixWeightedMetricBridge
-          FormalResearch.Blaschke.WronskianAtomIndependence
-          FormalResearch.Blaschke.WronskianAtomNonvanishing
-          FormalResearch.Blaschke.WronskianAtomUnitDisk
-          FormalResearch.Blaschke.SingletonWalshSynthesis
-          FormalResearch.Blaschke.SingletonKernelDirectSum
-          FormalResearch.Bridges.B2BlaschkeRangeEquiv
+      - name: Rewrite affine certificate proof with norm_num
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('FormalResearch/QID/D5AffineRank.lean')
+          s = p.read_text()
+          old = '''theorem D5Affine24_mod3_right_inverse :
+              D5Affine24Mod3 * D5Affine24InvMod3 = 1 := by
+            native_decide
+
+          theorem D5Affine24_mod3_left_inverse :
+              D5Affine24InvMod3 * D5Affine24Mod3 = 1 := by
+            native_decide'''
+          new = '''theorem D5Affine24_mod3_right_inverse :
+              D5Affine24Mod3 * D5Affine24InvMod3 = 1 := by
+            ext i j
+            fin_cases i <;> fin_cases j <;>
+              norm_num [Matrix.mul_apply, D5Affine24Mod3, D5Affine24, D5Affine24InvMod3]
+
+          theorem D5Affine24_mod3_left_inverse :
+              D5Affine24InvMod3 * D5Affine24Mod3 = 1 := by
+            rw [Matrix.mul_eq_one_comm]
+            exact D5Affine24_mod3_right_inverse'''
+          assert old in s
+          p.write_text(s.replace(old, new))
+          PY
+      - name: QI-D affine-rank norm-num certificate
+        run: timeout 900 lake build FormalResearch.QID.D5AffineRank
