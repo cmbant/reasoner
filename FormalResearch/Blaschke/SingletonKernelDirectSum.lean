@@ -37,10 +37,11 @@ theorem singletonWalshRange_sup_nonSingletonWalshSpan_eq_top (n : Nat) :
     rcases hv with ⟨T, rfl⟩
     by_cases hT : T.card = 1
     · obtain ⟨j, rfl⟩ := Finset.card_eq_one.mp hT
-      exact Submodule.mem_sup_left
-        (walshVector_singleton_mem_singletonWalshRange j)
+      exact Submodule.mem_sup_left (by
+        simpa [walshBasis] using
+          (walshVector_singleton_mem_singletonWalshRange (n := n) j))
     · exact Submodule.mem_sup_right
-        (Submodule.subset_span ⟨⟨T, hT⟩, rfl⟩)
+        (Submodule.subset_span ⟨⟨T, hT⟩, by simp [walshBasis]⟩)
 
 /-- Under distinct open-disk zeros, the singleton sector meets the exact
 Wronskian kernel only at zero. -/
