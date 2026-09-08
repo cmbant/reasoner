@@ -14,7 +14,7 @@ def singletonWalshSynthesis (n : Nat) :
     (fun j : Fin n => walshVector ({j} : Finset (Fin n)))
 
 /-- Synthesis from coefficients into the fixed Wronskian atom family. -/
-def wronskianAtomSynthesis {n : Nat} (c : Fin n → ℂ) :
+noncomputable def wronskianAtomSynthesis {n : Nat} (c : Fin n → ℂ) :
     (Fin n → ℚ) →ₗ[ℚ] ℂ[X] :=
   Fintype.linearCombination ℚ (blaschkeWronskianAtom c)
 
@@ -38,8 +38,7 @@ theorem wronskianAtomSynthesis_injective_of_unitDisk {n : Nat}
     (c : Fin n → ℂ) (hdisk : ∀ j, ‖c j‖ < 1)
     (hinj : Function.Injective c) :
     Function.Injective (wronskianAtomSynthesis c) :=
-  (blaschkeWronskianAtom_linearIndependent_of_unitDisk c hdisk hinj)
-    .fintypeLinearCombination_injective
+  (blaschkeWronskianAtom_linearIndependent_of_unitDisk c hdisk hinj).fintypeLinearCombination_injective
 
 /-- Exact commuting diagram: applying the zero-flip Wronskian map after
 singleton Walsh synthesis is `2^n` times atom synthesis. -/
@@ -49,7 +48,7 @@ theorem zeroFlipWronskianLin_singletonSynthesis {n : Nat}
       (((2^n : Nat) : ℚ)) • wronskianAtomSynthesis c a := by
   simp [singletonWalshSynthesis, wronskianAtomSynthesis,
     Fintype.linearCombination_apply, zeroFlipWronskianLin_walsh_singleton,
-    smul_smul, mul_comm]
+    Finset.smul_sum, smul_smul, mul_comm]
 
 /-- Under the ordinary finite-Blaschke hypotheses, the Wronskian transform is
 injective on the synthesized singleton Walsh sector.  Thus all surviving
@@ -62,6 +61,8 @@ theorem zeroFlipWronskianLin_singletonSynthesis_injective_of_unitDisk
       (fun a : Fin n → ℚ =>
         zeroFlipWronskianLin c (singletonWalshSynthesis n a)) := by
   intro a b hab
+  change zeroFlipWronskianLin c (singletonWalshSynthesis n a) =
+    zeroFlipWronskianLin c (singletonWalshSynthesis n b) at hab
   rw [zeroFlipWronskianLin_singletonSynthesis,
     zeroFlipWronskianLin_singletonSynthesis] at hab
   have hpow : (((2^n : Nat) : ℚ)) ≠ 0 := by positivity
