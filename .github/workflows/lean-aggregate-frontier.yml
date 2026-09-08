@@ -100,6 +100,9 @@ jobs:
 
           p = Path('FormalResearch/QID/D5SupportingFacet.lean')
           s = p.read_text()
+          ns = "namespace FormalResearch.QID\n"
+          assert ns in s
+          s = s.replace(ns, ns + "\nset_option maxRecDepth 10000\n", 1)
           old = "theorem D5_support_upper (ps : SignedPerm5) (hps : ps ∈ allD5) :\n    signedPermutationScore ps.1 ps.2 ≤ 5 := by\n  native_decide"
           new = "theorem D5_support_upper (ps : SignedPerm5) (hps : ps ∈ allD5) :\n    signedPermutationScore ps.1 ps.2 ≤ 5 := by\n  have h := supportUpperCheck_passes\n  change decide (∀ ps : SignedPerm5, ps ∈ allD5 →\n    signedPermutationScore ps.1 ps.2 ≤ 5) = true at h\n  exact (of_decide_eq_true h) ps hps"
           assert old in s
