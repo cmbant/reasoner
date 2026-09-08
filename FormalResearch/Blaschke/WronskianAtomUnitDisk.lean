@@ -11,7 +11,7 @@ theorem one_sub_conj_mul_self_ne_zero_of_norm_lt_one
     (z : ℂ) (hz : ‖z‖ < 1) :
     1 - conj z * z ≠ 0 := by
   intro h
-  have hprod : conj z * z = 1 := sub_eq_zero.mp h
+  have hprod : conj z * z = 1 := (sub_eq_zero.mp h).symm
   have hn := congrArg norm hprod
   have hz0 : 0 ≤ ‖z‖ := norm_nonneg z
   simp only [norm_mul, norm_conj, norm_one] at hn
@@ -23,7 +23,7 @@ theorem one_sub_conj_mul_ne_zero_of_norm_lt_one
     (z w : ℂ) (hz : ‖z‖ < 1) (hw : ‖w‖ < 1) :
     1 - conj z * w ≠ 0 := by
   intro h
-  have hprod : conj z * w = 1 := sub_eq_zero.mp h
+  have hprod : conj z * w = 1 := (sub_eq_zero.mp h).symm
   have hn := congrArg norm hprod
   have hz0 : 0 ≤ ‖z‖ := norm_nonneg z
   have hw0 : 0 ≤ ‖w‖ := norm_nonneg w
