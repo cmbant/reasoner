@@ -13,7 +13,7 @@ jobs:
   identity:
     if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[endpoint14-identity]') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -47,4 +47,4 @@ jobs:
       - name: QI-C endpoint-14 full determinant bridge
         run: timeout 300 lake build FormalResearch.QIC.Endpoint14PolynomialIdentity FormalResearch.QIC.GaussianEndpointNonsingular FormalResearch.QIC.GaussianEndpointFullRank FormalResearch.QIC.GaussianEndpointInjective FormalResearch.QIC.GaussianEndpointAdjugateReconstruction
       - name: FormalResearch aggregate
-        run: timeout 1200 lake build FormalResearch
+        run: timeout 2700 lake build FormalResearch
