@@ -42,3 +42,4 @@ jobs:
           FormalResearch.Blaschke.WronskianAtomIndependence
           FormalResearch.Blaschke.WronskianAtomNonvanishing
           FormalResearch.Blaschke.WronskianAtomUnitDisk
+          FormalResearch.Blaschke.SingletonWalshSynthesis
