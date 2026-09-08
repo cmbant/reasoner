@@ -41,3 +41,4 @@ jobs:
           FormalResearch.Gaudin.MatrixWeightedMetricBridge
           FormalResearch.Blaschke.WronskianAtomIndependence
           FormalResearch.Blaschke.WronskianAtomNonvanishing
+          FormalResearch.Blaschke.WronskianAtomUnitDisk
