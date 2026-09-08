@@ -72,6 +72,7 @@ theorem D5Affine24_mod3_right_inverse :
 
 theorem D5Affine24_mod3_left_inverse :
     D5Affine24InvMod3 * D5Affine24Mod3 = 1 := by
-  native_decide
+  rw [Matrix.mul_eq_one_comm]
+  exact D5Affine24_mod3_right_inverse
 
 end FormalResearch.QID
