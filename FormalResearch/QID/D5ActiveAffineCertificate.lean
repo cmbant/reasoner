@@ -131,7 +131,8 @@ theorem selectedD5Diff24_right_inverse :
 
 theorem selectedD5Diff24_left_inverse :
     selectedD5Diff24InvMod3 * selectedD5Diff24Mod3 = 1 := by
-  native_decide
+  rw [Matrix.mul_eq_one_comm]
+  exact selectedD5Diff24_right_inverse
 
 /-- A self-contained computational certificate for the geometric content:
 the score-five supporting hyperplane contains 25 explicitly specified Weyl
