@@ -7,29 +7,29 @@ This file supersedes only the restart/status portion of `PROJECT_UPDATES/HANDOFF
 - Research/source authority: `cmbant/QIprojects:main`
   - `afe15bdbe01b1c8c7b194695ae2991af49210bfd`
   - latest commit: `Log-reproduction audit before the main merge: two defects fixed`
-- Lean canonical branch after PR #3:
+- Lean canonical branch after PR #4:
   - `cmbant/reasoner:formal-research-lean`
-  - `302e6879d636cc5f722ad2aea8aa7f4c4eb22ec0`
+  - `9d745a4d7eb8d3a0d1b1be779082270e63300bdd`
 
-Since the previous late-update pin `eae4a5a48aa2b2e29303d18352a508efe3f35a38`, QIprojects advanced 103 commits. For this aggregate-maintenance lane, the compare contains no Gaudin changes and only one Blaschke path change, `Blaschke/verification/t09_transverse_counterfamily_exact.txt`; it does not revise the retained Walsh/Wronskian formal target.
+Since the prior source pin `eae4a5a48aa2b2e29303d18352a508efe3f35a38`, QIprojects advanced 103 commits. For this aggregate-maintenance lane, the compare contains no Gaudin changes and only one Blaschke path change, `Blaschke/verification/t09_transverse_counterfamily_exact.txt`; it does not revise the retained Walsh/Wronskian formal target.
 
 ## Aggregate-maintenance status
 
-Authoritative Endpoint14/full-corpus run `34160170929` at canonical head `4ea95301af7f7764fe602138eaa5ccdc3bf9ef74` passed:
+Authoritative Endpoint14/full-corpus run `34162318028` at canonical head `f01cc26b139a7f52fb275ace7fd13b6e591ac57d` passed:
 
 - placeholder rejection;
 - `FormalResearch.QIC.Endpoint14ReducedPolynomialIdentity`;
 - the full Endpoint14 determinant/adjugate bridge.
 
-The full `timeout 1200 lake build FormalResearch` then failed/timed out. The completed compiler log showed the prior six repaired modules building successfully, including `FormalResearch.Blaschke.WronskianAtomIndependence`, and exposed the next concrete blocker:
+The full `timeout 1200 lake build FormalResearch` then failed/timed out. Its completed compiler log showed all seven prior frontier modules building successfully, including `FormalResearch.Blaschke.WronskianAtomNonvanishing`, and exposed the next concrete blocker:
 
-- `FormalResearch/Blaschke/WronskianAtomNonvanishing.lean`
-  - bare `conj` was no longer in scope under Lean 4.34 / current mathlib;
-  - the downstream goals were elaboration fallout from that missing identifier.
+- `FormalResearch/Blaschke/WronskianAtomUnitDisk.lean`
+  - bare `conj` was not in scope under Lean 4.34/current mathlib;
+  - after opening `ComplexConjugate`, the two `sub_eq_zero` uses required reversing the resulting equality with `.symm`.
 
-The repair is compatibility-only: open the `ComplexConjugate` scope already used by the imported Blaschke modules. No theorem statement or research claim changed.
+These are compatibility/proof-elaboration repairs only. No theorem statement or research claim changed.
 
-The hard frontier gate is now seven modules:
+The hard frontier gate is now eight modules:
 
 - `FormalResearch.Blaschke.WalshBasis`
 - `FormalResearch.Blaschke.WalshWronskianExactRank`
@@ -38,10 +38,11 @@ The hard frontier gate is now seven modules:
 - `FormalResearch.Gaudin.MatrixWeightedMetricBridge`
 - `FormalResearch.Blaschke.WronskianAtomIndependence`
 - `FormalResearch.Blaschke.WronskianAtomNonvanishing`
+- `FormalResearch.Blaschke.WronskianAtomUnitDisk`
 
-Actions run `34162067032` passed at maintenance head `5802469924dd3231c13f8370af61230f2a74294a`, including placeholder rejection and all seven modules.
+Actions run `34190004169` passed at maintenance head `a5381f534cca75333aa8908b5abc392ab8a93e43`, including placeholder rejection and all eight modules.
 
-PR #3 merged that exact tested delta into canonical with merge commit `302e6879d636cc5f722ad2aea8aa7f4c4eb22ec0`.
+PR #4 merged that exact tested delta into canonical with merge commit `9d745a4d7eb8d3a0d1b1be779082270e63300bdd`.
 
 ## Current action
 
