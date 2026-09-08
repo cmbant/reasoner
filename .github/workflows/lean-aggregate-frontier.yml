@@ -35,47 +35,41 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          replacements = {
-            'FormalResearch/QID/D5AffineRank.lean': (
-              '''theorem D5Affine24_mod3_right_inverse :
-                  D5Affine24Mod3 * D5Affine24InvMod3 = 1 := by
-                native_decide
+          import re
 
-              theorem D5Affine24_mod3_left_inverse :
-                  D5Affine24InvMod3 * D5Affine24Mod3 = 1 := by
-                native_decide''',
-              '''theorem D5Affine24_mod3_right_inverse :
-                  D5Affine24Mod3 * D5Affine24InvMod3 = 1 := by
-                ext i j
-                fin_cases i <;> fin_cases j <;> decide
+          cases = [
+            (
+              Path('FormalResearch/QID/D5AffineRank.lean'),
+              'D5Affine24_mod3_right_inverse',
+              'D5Affine24_mod3_left_inverse',
+              'D5Affine24_mod3_right_inverse',
+            ),
+            (
+              Path('FormalResearch/QID/D5ActiveAffineCertificate.lean'),
+              'selectedD5Diff24_right_inverse',
+              'selectedD5Diff24_left_inverse',
+              'selectedD5Diff24_right_inverse',
+            ),
+          ]
 
-              theorem D5Affine24_mod3_left_inverse :
-                  D5Affine24InvMod3 * D5Affine24Mod3 = 1 := by
-                rw [mul_eq_one_comm]
-                exact D5Affine24_mod3_right_inverse'''),
-            'FormalResearch/QID/D5ActiveAffineCertificate.lean': (
-              '''theorem selectedD5Diff24_right_inverse :
-                  selectedD5Diff24Mod3 * selectedD5Diff24InvMod3 = 1 := by
-                native_decide
-
-              theorem selectedD5Diff24_left_inverse :
-                  selectedD5Diff24InvMod3 * selectedD5Diff24Mod3 = 1 := by
-                native_decide''',
-              '''theorem selectedD5Diff24_right_inverse :
-                  selectedD5Diff24Mod3 * selectedD5Diff24InvMod3 = 1 := by
-                ext i j
-                fin_cases i <;> fin_cases j <;> decide
-
-              theorem selectedD5Diff24_left_inverse :
-                  selectedD5Diff24InvMod3 * selectedD5Diff24Mod3 = 1 := by
-                rw [mul_eq_one_comm]
-                exact selectedD5Diff24_right_inverse''')
-          }
-          for filename, (old, new) in replacements.items():
-              p = Path(filename)
-              s = p.read_text()
-              assert old in s, filename
-              p.write_text(s.replace(old, new))
+          for path, right_name, left_name, right_ref in cases:
+              s = path.read_text()
+              right_pat = rf'(theorem {right_name} :\n(?:    .*\n)+?    .* := by)\n  native_decide'
+              s, n1 = re.subn(
+                  right_pat,
+                  rf'\1\n  ext i j\n  fin_cases i <;> fin_cases j <;> decide',
+                  s,
+                  count=1,
+              )
+              left_pat = rf'(theorem {left_name} :\n(?:    .*\n)+?    .* := by)\n  native_decide'
+              s, n2 = re.subn(
+                  left_pat,
+                  rf'\1\n  rw [mul_eq_one_comm]\n  exact {right_ref}',
+                  s,
+                  count=1,
+              )
+              assert (n1, n2) == (1, 1), (path, n1, n2)
+              path.write_text(s)
           PY
       - name: QI-D downstream certificate chain
         run: >-
