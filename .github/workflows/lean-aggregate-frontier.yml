@@ -82,8 +82,8 @@ jobs:
           p = Path('FormalResearch/QID/D5CharacteristicZeroCertificate.lean')
           s = p.read_text()
           s = s.replace(
-              'simpa [selectedD5Diff24Mod3, Matrix.mapMatrix_apply] using hmap',
-              'simpa [selectedD5Diff24Mod3, RingHom.mapMatrix_apply] using hmap',
+              '  simpa [selectedD5Diff24Mod3, Matrix.mapMatrix_apply] using hmap',
+              '  have hmatrix :\n      (Int.castRingHom (ZMod 3)).mapMatrix selectedD5Diff24 = selectedD5Diff24Mod3 := by\n    ext i j\n    rfl\n  rw [← hmatrix]\n  exact hmap',
           )
           s = s.replace(
               '  simpa [selectedD5Diff24Q, ← RingHom.map_det] using hcast',
