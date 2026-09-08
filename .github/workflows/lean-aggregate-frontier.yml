@@ -78,6 +78,18 @@ jobs:
               "  rw [mul_eq_one_comm]\n  exact selectedD5Diff24_right_inverse",
           )
           p.write_text(s)
+
+          p = Path('FormalResearch/QID/D5CharacteristicZeroCertificate.lean')
+          s = p.read_text()
+          s = s.replace(
+              'simpa [selectedD5Diff24Mod3, Matrix.mapMatrix_apply] using hmap',
+              'simpa [selectedD5Diff24Mod3, RingHom.mapMatrix_apply] using hmap',
+          )
+          s = s.replace(
+              '  simpa [selectedD5Diff24Q, ← RingHom.map_det] using hcast',
+              '  rw [selectedD5Diff24Q, ← RingHom.map_det]\n  exact hcast',
+          )
+          p.write_text(s)
           PY
       - name: QI-D downstream certificate chain
         run: >-
