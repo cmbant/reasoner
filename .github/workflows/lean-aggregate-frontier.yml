@@ -35,40 +35,44 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
+
+          def replace_native_proof(text, theorem_name, body):
+              marker = f"theorem {theorem_name} :"
+              start = text.index(marker)
+              suffix = " := by\n  native_decide"
+              proof = text.index(suffix, start)
+              next_theorem = text.find("\ntheorem ", start + len(marker))
+              if next_theorem != -1:
+                  assert proof < next_theorem, theorem_name
+              return text[:proof] + " := by\n" + body + text[proof + len(suffix):]
 
           cases = [
-            (
-              Path('FormalResearch/QID/D5AffineRank.lean'),
-              'D5Affine24_mod3_right_inverse',
-              'D5Affine24_mod3_left_inverse',
-              'D5Affine24_mod3_right_inverse',
-            ),
-            (
-              Path('FormalResearch/QID/D5ActiveAffineCertificate.lean'),
-              'selectedD5Diff24_right_inverse',
-              'selectedD5Diff24_left_inverse',
-              'selectedD5Diff24_right_inverse',
-            ),
+              (
+                  Path('FormalResearch/QID/D5AffineRank.lean'),
+                  'D5Affine24_mod3_right_inverse',
+                  'D5Affine24_mod3_left_inverse',
+                  'D5Affine24_mod3_right_inverse',
+              ),
+              (
+                  Path('FormalResearch/QID/D5ActiveAffineCertificate.lean'),
+                  'selectedD5Diff24_right_inverse',
+                  'selectedD5Diff24_left_inverse',
+                  'selectedD5Diff24_right_inverse',
+              ),
           ]
 
           for path, right_name, left_name, right_ref in cases:
               s = path.read_text()
-              right_pat = rf'(theorem {right_name} :\n(?:    .*\n)+?    .* := by)\n  native_decide'
-              s, n1 = re.subn(
-                  right_pat,
-                  rf'\1\n  ext i j\n  fin_cases i <;> fin_cases j <;> decide',
+              s = replace_native_proof(
                   s,
-                  count=1,
+                  right_name,
+                  "  ext i j\n  fin_cases i <;> fin_cases j <;> decide",
               )
-              left_pat = rf'(theorem {left_name} :\n(?:    .*\n)+?    .* := by)\n  native_decide'
-              s, n2 = re.subn(
-                  left_pat,
-                  rf'\1\n  rw [mul_eq_one_comm]\n  exact {right_ref}',
+              s = replace_native_proof(
                   s,
-                  count=1,
+                  left_name,
+                  f"  rw [mul_eq_one_comm]\n  exact {right_ref}",
               )
-              assert (n1, n2) == (1, 1), (path, n1, n2)
               path.write_text(s)
           PY
       - name: QI-D downstream certificate chain
