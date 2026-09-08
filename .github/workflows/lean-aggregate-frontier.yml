@@ -31,7 +31,7 @@ jobs:
             echo 'Lean placeholders found'
             exit 1
           fi
-      - name: Rewrite QI-D inverse certificates entrywise
+      - name: Rewrite QI-D finite certificates
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -46,34 +46,38 @@ jobs:
                   assert proof < next_theorem, theorem_name
               return text[:proof] + " := by\n" + body + text[proof + len(suffix):]
 
-          cases = [
-              (
-                  Path('FormalResearch/QID/D5AffineRank.lean'),
-                  'D5Affine24_mod3_right_inverse',
-                  'D5Affine24_mod3_left_inverse',
-                  'D5Affine24_mod3_right_inverse',
-              ),
-              (
-                  Path('FormalResearch/QID/D5ActiveAffineCertificate.lean'),
-                  'selectedD5Diff24_right_inverse',
-                  'selectedD5Diff24_left_inverse',
-                  'selectedD5Diff24_right_inverse',
-              ),
-          ]
+          p = Path('FormalResearch/QID/D5AffineRank.lean')
+          s = p.read_text()
+          s = replace_native_proof(
+              s,
+              'D5Affine24_mod3_right_inverse',
+              "  ext i j\n  fin_cases i <;> fin_cases j <;> decide",
+          )
+          s = replace_native_proof(
+              s,
+              'D5Affine24_mod3_left_inverse',
+              "  rw [mul_eq_one_comm]\n  exact D5Affine24_mod3_right_inverse",
+          )
+          p.write_text(s)
 
-          for path, right_name, left_name, right_ref in cases:
-              s = path.read_text()
-              s = replace_native_proof(
-                  s,
-                  right_name,
-                  "  ext i j\n  fin_cases i <;> fin_cases j <;> decide",
-              )
-              s = replace_native_proof(
-                  s,
-                  left_name,
-                  f"  rw [mul_eq_one_comm]\n  exact {right_ref}",
-              )
-              path.write_text(s)
+          p = Path('FormalResearch/QID/D5ActiveAffineCertificate.lean')
+          s = p.read_text()
+          s = replace_native_proof(
+              s,
+              'selectedD5_all_active',
+              "  letI : DecidablePred (fun k : Fin25V => selectedD5Valid k ∧ selectedD5Score k = 5) := fun k => by\n    unfold selectedD5Valid\n    letI : Decidable (∀ i : Fin5V, selectedD5Signs k i = 1 ∨ selectedD5Signs k i = -1) :=\n      Fintype.decidableForallFintype\n    infer_instance\n  letI : Decidable (∀ k : Fin25V, selectedD5Valid k ∧ selectedD5Score k = 5) :=\n    Fintype.decidableForallFintype\n  native_decide",
+          )
+          s = replace_native_proof(
+              s,
+              'selectedD5Diff24_right_inverse',
+              "  ext i j\n  fin_cases i <;> fin_cases j <;> decide",
+          )
+          s = replace_native_proof(
+              s,
+              'selectedD5Diff24_left_inverse',
+              "  rw [mul_eq_one_comm]\n  exact selectedD5Diff24_right_inverse",
+          )
+          p.write_text(s)
           PY
       - name: QI-D downstream certificate chain
         run: >-
