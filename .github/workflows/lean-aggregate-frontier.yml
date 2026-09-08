@@ -65,7 +65,7 @@ jobs:
           s = replace_native_proof(
               s,
               'selectedD5_all_active',
-              "  letI : DecidablePred (fun k : Fin25V => selectedD5Valid k ∧ selectedD5Score k = 5) := fun k => by\n    unfold selectedD5Valid\n    letI : Decidable (∀ i : Fin5V, selectedD5Signs k i = 1 ∨ selectedD5Signs k i = -1) :=\n      Fintype.decidableForallFintype\n    infer_instance\n  letI : Decidable (∀ k : Fin25V, selectedD5Valid k ∧ selectedD5Score k = 5) :=\n    Fintype.decidableForallFintype\n  native_decide",
+              "  letI : DecidablePred (fun k : Fin25V => selectedD5Valid k ∧ selectedD5Score k = 5) := fun k => by\n    unfold selectedD5Valid\n    letI : Decidable (∀ i : Fin5V, selectedD5Signs k i = 1 ∨ selectedD5Signs k i = -1) :=\n      Fintype.decidableForallFintype\n    infer_instance\n  letI : Decidable (∀ k : Fin25V, selectedD5Valid k ∧ selectedD5Score k = 5) :=\n    Fintype.decidableForallFintype\n  decide",
           )
           s = replace_native_proof(
               s,
