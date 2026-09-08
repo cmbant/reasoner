@@ -5,9 +5,11 @@ import FormalResearch.Bridges.B2BlaschkeWeightOneMultiplicity
 
 namespace FormalResearch.Bridges
 
+open Polynomial
+
 /-- The Wronskian transform restricted to the canonical singleton-Walsh
 coefficient coordinates. -/
-def singletonWronskianMap {n : Nat} (c : Fin n → ℂ) :
+noncomputable def singletonWronskianMap {n : Nat} (c : Fin n → ℂ) :
     (Fin n → ℚ) →ₗ[ℚ] ℂ[X] :=
   (Blaschke.zeroFlipWronskianLin c).comp (Blaschke.singletonWalshSynthesis n)
 
