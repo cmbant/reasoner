@@ -4,6 +4,7 @@ import FormalResearch.Blaschke.WronskianAtomNonvanishing
 namespace FormalResearch.Blaschke
 
 open Complex
+open scoped ComplexConjugate
 
 /-- A point strictly inside the unit disk cannot satisfy `conj z * z = 1`. -/
 theorem one_sub_conj_mul_self_ne_zero_of_norm_lt_one
