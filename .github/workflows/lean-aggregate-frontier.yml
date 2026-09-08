@@ -100,12 +100,10 @@ jobs:
 
           p = Path('FormalResearch/QID/D5SupportingFacet.lean')
           s = p.read_text()
-          s = replace_native_proof(
-              s,
-              'D5_support_upper',
-              "  native_decide +revert",
-          )
-          p.write_text(s)
+          old = "theorem D5_support_upper (ps : SignedPerm5) (hps : ps ∈ allD5) :\n    signedPermutationScore ps.1 ps.2 ≤ 5 := by\n  native_decide"
+          new = "theorem D5_support_upper (ps : SignedPerm5) (hps : ps ∈ allD5) :\n    signedPermutationScore ps.1 ps.2 ≤ 5 := by\n  native_decide +revert"
+          assert old in s
+          p.write_text(s.replace(old, new))
           PY
       - name: QI-D downstream certificate chain
         run: >-
