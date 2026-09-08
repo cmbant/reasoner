@@ -94,14 +94,14 @@ jobs:
           p = Path('FormalResearch/QID/D5AffineIndependence.lean')
           s = p.read_text()
           old = "  rw [affineIndependent_iff_linearIndependent_vsub ℚ selectedD5ProjectedQ\n    (0 : Fin25V)]\n  rw [← linearIndependent_equiv (finSuccAboveEquiv (0 : Fin25V))]\n  simpa [Function.comp_def, Fin.zero_succAbove,\n    selectedD5ProjectedQ_succ_sub_zero] using\n      selectedD5Diff24Q_cols_linearIndependent"
-          new = "  rw [affineIndependent_iff_linearIndependent_vsub ℚ selectedD5ProjectedQ\n    (0 : Fin25V)]\n  rw [← linearIndependent_equiv (finSuccAboveEquiv (0 : Fin25V))]\n  convert! selectedD5Diff24Q_cols_linearIndependent\n  ext j\n  rw [finSuccAboveEquiv_apply]\n  simpa only [Fin.zero_succAbove] using\n    selectedD5ProjectedQ_succ_sub_zero j"
+          new = "  rw [affineIndependent_iff_linearIndependent_vsub ℚ selectedD5ProjectedQ\n    (0 : Fin25V)]\n  rw [← linearIndependent_equiv (finSuccAboveEquiv (0 : Fin25V))]\n  simpa [Function.comp_def, finSuccAboveEquiv_apply, Fin.zero_succAbove,\n    selectedD5ProjectedQ_succ_sub_zero] using\n      selectedD5Diff24Q_cols_linearIndependent"
           assert old in s
           p.write_text(s.replace(old, new))
 
           p = Path('FormalResearch/QID/D5SupportingFacet.lean')
           s = p.read_text()
           old = "theorem D5_support_upper (ps : SignedPerm5) (hps : ps ∈ allD5) :\n    signedPermutationScore ps.1 ps.2 ≤ 5 := by\n  native_decide"
-          new = "theorem D5_support_upper (ps : SignedPerm5) (hps : ps ∈ allD5) :\n    signedPermutationScore ps.1 ps.2 ≤ 5 := by\n  native_decide +revert"
+          new = "theorem D5_support_upper (ps : SignedPerm5) (hps : ps ∈ allD5) :\n    signedPermutationScore ps.1 ps.2 ≤ 5 := by\n  have h := supportUpperCheck_passes\n  change decide (∀ ps : SignedPerm5, ps ∈ allD5 →\n    signedPermutationScore ps.1 ps.2 ≤ 5) = true at h\n  exact (of_decide_eq_true h) ps hps"
           assert old in s
           p.write_text(s.replace(old, new))
           PY
