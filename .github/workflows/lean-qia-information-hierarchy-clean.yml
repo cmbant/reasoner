@@ -1,12 +1,14 @@
-name: Lean QI-A information hierarchy clean gate
+name: Lean stacked QI-A/QI-B certificate gate
 
 on:
   push:
-    branches: [agents/qia-information-hierarchy-clean]
+    branches:
+      - agents/qia-information-hierarchy-clean
+      - agents/qib-u1-exponent-gap
   workflow_dispatch:
 
 jobs:
-  qia-information-hierarchy:
+  certificate-stack:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -29,6 +31,8 @@ jobs:
         run: timeout 300 lake build FormalResearch.QIA.ThreeCopyLocalSchurOverhead
       - name: Build QI-A information hierarchy coefficients
         run: timeout 300 lake build FormalResearch.QIA.InformationHierarchyCoefficients
+      - name: Build QI-B U1 exponent gap
+        run: timeout 300 lake build FormalResearch.QIB.U1InvariantExponentGap
       - name: Build quartic reconstruction bridge
         run: timeout 300 lake build FormalResearch.Blaschke.QuarticChargeGapReconstructionBridge
       - name: Build formal research aggregate
