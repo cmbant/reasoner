@@ -1,5 +1,6 @@
 name: Lean QI-D F4 exceptional fast core
 
+# Exact QIprojects F4 verifier blob: c0c3534128658bb18c5563e1815893e3272fa7e0
 on:
   push:
     branches: [agents/qid-f4-exceptional-fast]
