@@ -4,11 +4,16 @@ import FormalResearch.QID.D5CharacteristicZeroCertificate
 
 namespace FormalResearch.QID
 
+set_option maxRecDepth 10000
+
 /-- Proposition-level version of the exhaustive Type-D5 support audit: every
 one of the 1920 even signed permutations has support score at most five. -/
 theorem D5_support_upper (ps : SignedPerm5) (hps : ps ∈ allD5) :
     signedPermutationScore ps.1 ps.2 ≤ 5 := by
-  native_decide
+  have h := supportUpperCheck_passes
+  change decide (∀ ps : SignedPerm5, ps ∈ allD5 →
+    signedPermutationScore ps.1 ps.2 ≤ 5) = true at h
+  exact (of_decide_eq_true h) ps hps
 
 /-- The displayed signed identity permutation is an actual Type-D5 Weyl
 vertex attaining the support value five. -/
