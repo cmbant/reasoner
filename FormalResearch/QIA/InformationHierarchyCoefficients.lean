@@ -28,11 +28,11 @@ noncomputable def infoHelstromBitQ : ℝ := Real.sqrt (255 / 256)
 noncomputable def infoZYYXQ : ℝ := (44 + Real.sqrt 7) / 48
 
 /-- Optimal immediate-classicalization coefficient on the informative qutrit. -/
-def infoMeasuredConditionalQ : ℝ := 7 / 11
+noncomputable def infoMeasuredConditionalQ : ℝ := 7 / 11
 
 /-- Full immediate-classicalization coefficient after restoring the identical
 `7/8` complement. -/
-def infoMeasuredFullQ : ℝ := 7 / 8 + infoMeasuredConditionalQ / 8
+noncomputable def infoMeasuredFullQ : ℝ := 7 / 8 + infoMeasuredConditionalQ / 8
 
 /-- Coherent-qutrit Chernoff coefficient from the exact QI-A spectrum. -/
 noncomputable def infoCoherentQ : ℝ := (162 + Real.sqrt 33) / 176
