@@ -9,6 +9,7 @@ import FormalResearch.QIA.ThreeCopyCharacterClosedForms
 import FormalResearch.QIA.ThreeCopyMemoryBinomialBridge
 import FormalResearch.QIA.ThreeCopyAlgebraBinomialBridge
 import FormalResearch.QIA.ThreeCopyLocalSchurOverhead
+import FormalResearch.QIA.InformationHierarchyCoefficients
 import FormalResearch.QIA.ThreeCopyChiralityOnset
 import FormalResearch.QIA.ThreeCopyChiralityPersistence
 import FormalResearch.QIA.MultiplicityProfileDimensions
