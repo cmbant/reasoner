@@ -1,100 +1,153 @@
 # Theorem map and trust boundary
 
-> **Live-status warning (2026-09-04).** This file began as an early theorem map and is not a complete current index of `FormalResearch.lean`. Treat the code plus exact-head CI as authoritative. Author-facing paper/genealogy corrections are maintained under `PROJECT_UPDATES/`.
+> **Live status — 2026-09-09.** This file is a high-level trust map, not a complete index of every imported module. The authoritative maintained Lean branch is `formal-research-lean`; exact-head hard Lake builds and theorem-local source audits control promotion.
 >
-> **CI correction:** historical workflow-level green badges are not sufficient verification evidence. A decoded-log audit found that the old workflow's direct `lake env lean ...` calls could fail with `unknown module prefix 'FormalResearch'`, while `continue-on-error` masked the failures; the old QI-B2 Krawtchouk diagnostic also had a genuine tactic failure. Earlier `LEAN-CHECKED` labels based only on those badges are provisionally withdrawn until re-certified by the repaired hard Lake build.
+> Historical workflow-level green badges from before the repaired hard Lake gates are not verification evidence. Current promoted claims below cite exact module/aggregate runs recorded in `PROJECT_UPDATES/HANDOFF_2026-09-09.md` and QIprojects `docs/lean_status.md`.
+
+## Current maintained baseline
+
+Maintained reasoner head after PR #14:
+
+`29c4d5946f427dfdfd5b9adccca242f0118f6742`.
+
+Latest promoted Lean source verification head:
+
+`df4466a9e5b773db105bb1fcbd14945129d2a33b`.
+
+GitHub Actions run `34390385283` passed placeholder rejection, the three QI-D nested-upper modules and full `lake build FormalResearch` on that exact source tree before merge.
 
 ## Status vocabulary
 
-- `LEAN-CHECKED`: exact imported source passed the placeholder scan and the relevant hard Lake module/library build at the exact head.
-- `FORMALIZED-UNCOMPILED`: Lean source exists but has not passed the relevant hard kernel build.
-- `SPEC`: paper/source statement recorded, formal proof not yet written.
-- `EXTERNAL`: intentionally relies on a substantial theorem/input not currently formalized here.
+- `FORMALIZED`: Lean source exists.
+- `MODULE-GREEN`: the theorem-local hard Lake build passed at an exact source head.
+- `AGGREGATE-GREEN`: full `lake build FormalResearch` passed at an exact source head containing the theorem.
+- `MERGED`: reviewed source is on `formal-research-lean`.
+- `EXTERNAL`: a named mathematical/source premise remains intentionally outside current Lean coverage.
 
-Compilation is not by itself a specification audit: a checked theorem may still be narrower than, conditional relative to, or semantically different from the current paper claim.
+Compilation is not by itself a specification audit. A checked theorem may be narrower than, conditional relative to, or semantically different from the surrounding source theorem.
 
-## Current CI gate
+## Blaschke quartic charge gap
 
-The repaired trust path is:
+Lean files:
 
-1. reject `sorry`/`admit`;
-2. hard-build the new AUX-BV module with Lake;
-3. hard-build the `FormalResearch` library/aggregate with Lake;
-4. use direct source invocations only as secondary diagnostics.
+- `FormalResearch/Blaschke/QuarticChargeGapAlgebra.lean`;
+- `FormalResearch/Blaschke/QuarticChargeGapReconstructionBridge.lean`.
 
-Do not infer `LEAN-CHECKED` from a workflow-level conclusion if the relevant hard build did not pass.
+Current formal core includes the corrected quartic conic/factor algebra, sign chain, squared-gap defect, exact scalar reconstruction prefactor and final unsquaring to the `1/2` gap under explicit reconstruction/analytic hypotheses.
 
-## AUX-BV: quartic charge-gap algebra
+PR #8 hard verification: head `1dc24e93c1483782dd80b162c9b48cd26707fc41`, run `34336956345`, module and full aggregate green; merged.
 
-Current source archive: `Blaschke_Virasoro_Handoff_2026-09-03_v13.zip`.
+Status: **FORMALIZED / MODULE-GREEN / AGGREGATE-GREEN / MERGED** for the conditional scalar bridge.
 
-Paper correction found during formal audit: the sign-sensitive quartic variable used in the factorization is
+External boundary: raw CAS reconstruction derivation, Bessel/Gram input, Schur-domain theorem, Möbius normalization, residue/Hilbert-metric construction and confluent continuity. Do not describe the complete analytic quartic proof as internally Lean-derived.
 
-`U = (Re p)^2`, `V = (Im p)^2`,
+## QI-A
 
-not the v13 prose identification `U = (Re s)^2`. The critical and numerator coordinates are related by
+The maintained aggregate contains the older four-qubit/chirality/three-copy infrastructure plus the new exact certificate layers:
 
-`Re p = 2 q (1+t)/(t(q+3)) Re s`,
+### Three-copy local-Schur overhead
 
-`Im p = 2 q (1-t)/(t(3-q)) Im s`.
+Lean file: `FormalResearch/QIA/ThreeCopyLocalSchurOverhead.lean`.
 
-Lean file: `FormalResearch/Blaschke/QuarticChargeGapAlgebra.lean`.
+PR #9 verification head `2e15ff34467c5de1a2432c6d6bd7c5c7ddad19ed`, run `34339736666`, module and aggregate green; merged.
 
-Current formal core in that module:
+Lean proves the finite `S3` character identities `6K=L`, `6K=L+3`, and `6K=L+2` in the source regimes.
 
-- exact `epsilon`, `L_-`, `L_+`, `F1`, `F2`, `F3` polynomial definitions;
-- corrected denominator-free critical conic in `U=(Re p)^2`, `V=(Im p)^2`;
-- exact `L_±` epsilon identities and positivity from `0<t<1`, `epsilon>=0`;
-- arithmetic identity behind the Bessel/Gram scalar reduction;
-- `F1<=0`, Schur-ellipse `F2>0`, conic `F3>=0`;
-- nonnegative factor-product certificate;
-- exact squared-gap factorization;
-- final unsquaring from the degree-four Gate-A energy input.
+### Information hierarchy coefficients
 
-Trust boundary: the model-space Bessel inequality supplying `epsilon>=0`, the raw residue/Hilbert-metric construction of the charge singular values, and the raw-matrix-to-factorized-defect bridge are not formalized in this module. Do not describe the full analytic quartic theorem as Lean-checked solely from this algebra module.
+Lean file: `FormalResearch/QIA/InformationHierarchyCoefficients.lean`.
 
-Current status: `FORMALIZED-UNCOMPILED`. The first CI attempt failed before theorem elaboration because the old direct-source invocation could not resolve project imports. Promote only after the repaired hard Lake module and aggregate builds pass at the exact head.
+PR #10 verification head `3591192788ae917bb43c1f8e7102e95270258efb`, run `34347204321`, aggregate green; merged.
 
-See `PROJECT_UPDATES/AUX-BV_2026-09-04.md` for the manuscript edits and proof-status recommendation.
+Lean proves the exact scalar coefficient/exponent ordering including `Q_meas,full=21/22` and `xi_meas=log(22/21)`.
 
-## QI-C: finite-field certificate lift
+External QI-A boundary: operational POVM/recovery/data-processing statements, T07 coding/query architecture, reversible coherent-width Schmidt-number/recovery lower bound and other manuscript-level theorems not represented by these scalar/character modules.
 
-Source claim: exact computational statements are over F_101; a nonzero full-rank integer minor modulo 101 is a nonzero characteristic-zero integer minor.
+## QI-B
 
-Lean file: `FormalResearch/Certificates/FiniteField.lean`.
+### Symmetric U(1) exponent gap
 
-Current formal core: `int_ne_zero_of_zmod_ne_zero`.
+Lean file: `FormalResearch/QIB/U1InvariantExponentGap.lean`.
 
-Boundary: this does not yet verify that the large qutrit matrices emitted by the Python generators are the Jacobians claimed in the paper, nor the reported large ranks. Those require certificate extraction plus a formally specified matrix generator.
+PR #11 verification head `297231d4be4780b1d091092a7d841bbbe62edb85`, run `34348733331`, aggregate green; merged.
 
-Verification status: re-certification pending under the repaired hard aggregate build.
+Lean proves the exact scalar factor-two exponent relation for the source family; the twirl/binomial/operational Chernoff derivation remains external.
 
-## QI-A: four-qubit three-copy chirality block
+### B4 late source status
 
-Source claim: on the unique 3-dimensional noncommutative multiplicity block, the Hermitian chirality compression has eigenvalues -3/4, 0, 3/4.
+QIprojects T34 supplies an exact Fierz/Pluecker reformulation and an exact counterexample to a proposed stronger spectral route, but leaves the flagship B4 inequality/equality open. There is therefore no current Lean-completion claim for that flagship. Any B4 formalization must match a proved local identity/certificate and must not promote the open conjecture.
 
-After changing from the orthonormal paper basis back to the natural pairing-tensor basis, the matrix is similar to `(3 i / 8) K` with
+## QI-C
 
-```
-K = [-1 -1 -2
-      1  1  2
-      1 -1  0].
-```
+The maintained aggregate contains the finite-field, Gaussian and all-`L` qubit-tail chain, including:
 
-Lean file: `FormalResearch/QIA/FourQubitMatrix.lean`.
+- `FormalResearch/QIC/QubitTailDeterminants.lean`;
+- `FormalResearch/QIC/GaussianNonvanishing.lean`;
+- `FormalResearch/QIC/QubitTailAllLNonvanishing.lean`;
+- Endpoint14/Gaussian endpoint reconstruction modules.
 
-Current formal core: `K^3 = -4 K` and `K != 0`.
+The canonical QI-C all-`m` tail certificate has remained source-stable through the latest audit, and these modules compile in the current aggregate.
 
-This section is historical and incomplete relative to the much larger current QI-A aggregate. Verification status is being re-certified under the repaired hard aggregate build.
+Trust boundary: this is the determinant/nonvanishing/certificate layer. The full Jacobian/orbit-identifiability statement behind `d_loc=3` is a separate semantic theorem and must not be inferred merely from aggregate compilation.
 
-## QI-B2: Krawtchouk diagnostic
+## QI-D
 
-The 2026-09-04 CI audit found a genuine current-source tactic failure in `FormalResearch/QIB2/KrawtchoukEigenvalue.lean` at the antidiagonal-to-range rewrite. This is a compatibility/proof-maintenance issue to repair before QI-B2 can be re-certified. It does not by itself falsify the manuscript's coefficient identity.
+### D4 finite doubly-stochastic separation certificate
 
-## QI-D: explicit D5 exceptional facet
+Lean files:
 
-Source claim: the displayed integer numerator N5 has matrix rank 4; exact Weyl-group enumeration gives support 5 and affine active-vertex rank 24, so N5/5 is a facet normal of conv W(D5).
+- `FormalResearch/QID/D4DoublyStochasticCertificate.lean`;
+- `FormalResearch/QID/D4DoublyStochasticDualCertificate.lean`.
 
-Lean starts at `FormalResearch/QID/D5RankWitness.lean` and now includes later enumeration, affine-rank, supporting-face, and full-facet certificate modules imported by the aggregate.
+PR #12 clean verification head `8a95d5ba7fb0b200dfbfb2efb4c97e3710ead8be`, run `34374566836`, both modules and full aggregate green; merged.
 
-The old sentence that these later pieces were “still to formalize” is superseded. Verification status is being re-certified under the repaired hard aggregate build; do not reuse the old workflow badge as proof of compilation.
+Internally checked finite data include `|W(D4)|=192`, orbit sizes `(8,24,8,8)`, witness value `7/6`, Weyl support, exactly `2304` finite coweight constraints with zero violations, and the exact 14-term rational dual.
+
+External boundary: the finite-coweight characterization of semantic `DS(W(D4))` membership and the surrounding generalized-Birkhoff/convex-geometric theorem.
+
+### Nested all-rank lower witness
+
+Lean file: `FormalResearch/QID/NestedLowerWitness.lean`.
+
+PR #13 promoted head `a8d883584eb235fa2f1c4af0c01ec309cedfc0ac`, run `34378799353`, module and aggregate green; merged.
+
+For `n=k+4`, Lean defines the actual block witness and proves `<N_n,A_n>=n+2/3`.
+
+External boundary: generalized-Birkhoff nesting / semantic `A_n in DS(W(D_n))`.
+
+### Nested all-rank upper decomposition
+
+Lean files:
+
+- `FormalResearch/QID/NestedUpperAtomicCore.lean`;
+- `FormalResearch/QID/NestedUpperRankOneSums.lean`;
+- `FormalResearch/QID/NestedUpperSupportBridge.lean`.
+
+PR #14 module head `15ce8208c11f73b77fc2adbc4ad859f958cd031a`, run `34389943505`; promoted head `df4466a9e5b773db105bb1fcbd14945129d2a33b`, run `34390385283`; all modules and full aggregate green; merged.
+
+Lean proves the exact source identity
+
+`6N_n = 2R_n + 2C_n + sum_a s_a t_a^T`,
+
+its explicit individual row/column rank-one expansion, the four opposite-parity sign atoms and the implication `<N_n,T><=n+2/3` from the individual sharp support bounds.
+
+External boundary: the arbitrary-real type-D rearrangement / determinant-constrained Procrustes theorem supplying those sharp per-atom bounds. Together with the lower-witness boundary above, this is why the complete semantic `DS(W(D_n))` extremal theorem is not yet wholly internal Lean.
+
+### D5 certificate chain
+
+The maintained aggregate imports the D5 rank, enumeration, affine-rank, supporting-facet and full-facet certificate modules. The old theorem-map text saying these pieces were still pending is obsolete. For theorem semantics, consult the source-local QI-D certificate and module statements; aggregate compilation alone does not upgrade their external convex-geometric premises.
+
+## Gaudin, Racah and bridge modules
+
+The maintained aggregate also imports the current Gaudin metric/rank chain, Racah Weyl-cell modules and B2/Blaschke bridge modules. They are compiled as part of the current aggregate. This high-level map does not attempt to restate every theorem in those families; use the Lean source and theorem-local project updates for exact scope.
+
+## Next source-authorized finite targets
+
+At the current handoff, the cleanest exact candidates are:
+
+1. QI-D T33 exceptional F4 facet representative certificate;
+2. QI-D T33 E6/F4 A2 envelope-to-quartic reduction;
+3. QI-A T07 finite coding/guessing lemmas with faithful operational hypotheses;
+4. the general type-D support/Procrustes bridge if sufficient real-linear-algebra infrastructure is developed.
+
+QI-D T48 and the QI-B B4 flagship remain open research problems, not current theorem-completion targets.
