@@ -68,10 +68,12 @@ def D5Affine24Mod3 : Matrix Fin24 Fin24 (ZMod 3) :=
 invertible modulo 3, so in particular they are independent. -/
 theorem D5Affine24_mod3_right_inverse :
     D5Affine24Mod3 * D5Affine24InvMod3 = 1 := by
-  native_decide
+  ext i j
+  fin_cases i <;> fin_cases j <;> decide
 
 theorem D5Affine24_mod3_left_inverse :
     D5Affine24InvMod3 * D5Affine24Mod3 = 1 := by
-  native_decide
+  rw [mul_eq_one_comm]
+  exact D5Affine24_mod3_right_inverse
 
 end FormalResearch.QID
