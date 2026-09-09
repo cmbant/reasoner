@@ -125,13 +125,14 @@ theorem nestedUpper_scaled_identity (r : Nat) :
       nestedSignS1, nestedSignT1, nestedSignS2, nestedSignT2,
       nestedSignS3, nestedSignT3, nestedSignS4, nestedSignT4,
       nestedRowSign, nestedColSign]
+    norm_num
   · fin_cases j <;>
       simp [nestedNormal, nestedTopRight, nestedRowContribution,
         nestedColContribution, nestedSignContribution, nestedOuter,
         nestedSignS1, nestedSignT1, nestedSignS2, nestedSignT2,
         nestedSignS3, nestedSignT3, nestedSignS4, nestedSignT4,
         nestedRowSign, nestedColSign] <;>
-      split_ifs <;> norm_num
+      (try split_ifs) <;> norm_num
   · fin_cases i <;>
       simp [nestedNormal, nestedBottomLeft, nestedRowContribution,
         nestedColContribution, nestedSignContribution, nestedOuter,
@@ -186,7 +187,7 @@ def nestedSignAtomCount : Nat := 4
 
 theorem nestedRowAtomCount_eq_rank_add_one (r : Nat) :
     nestedRowAtomCount r = nestedUpperRank r + 1 := by
-  omega
+  simp [nestedRowAtomCount, nestedUpperRank]
 
 theorem nestedColAtomCount_eq_five : nestedColAtomCount = 5 := rfl
 theorem nestedSignAtomCount_eq_four : nestedSignAtomCount = 4 := rfl
@@ -203,7 +204,6 @@ theorem nestedAtomicSupportBudget_eq (r : Nat) :
     nestedAtomicSupportBudget r = (nestedUpperRank r : ℚ) + 2 / 3 := by
   simp [nestedAtomicSupportBudget, nestedRowAtomCount, nestedColAtomCount,
     nestedSignAtomCount, nestedUpperRank]
-  push_cast
   ring
 
 end FormalResearch.QID
