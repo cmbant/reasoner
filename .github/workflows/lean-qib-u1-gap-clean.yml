@@ -25,6 +25,8 @@ jobs:
             echo 'Lean placeholders found'
             exit 1
           fi
+      - name: Build QI-A local Schur overhead
+        run: timeout 300 lake build FormalResearch.QIA.ThreeCopyLocalSchurOverhead
       - name: Build QI-A information hierarchy coefficients
         run: timeout 300 lake build FormalResearch.QIA.InformationHierarchyCoefficients
       - name: Build QI-B U1 exponent gap
