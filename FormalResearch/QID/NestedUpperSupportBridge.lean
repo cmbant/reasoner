@@ -40,7 +40,28 @@ module can discharge these hypotheses directly.
 @[simp] theorem nestedFrob_smul_left {k : Nat}
     (c : ℚ) (X T : Matrix (NestedIdx k) (NestedIdx k) ℚ) :
     nestedFrob (c • X) T = c * nestedFrob X T := by
-  simp [nestedFrob, mul_assoc, Finset.mul_sum]
+  classical
+  change (∑ i : NestedIdx k, ∑ j : NestedIdx k,
+      (c * X i j) * T i j) =
+    c * (∑ i : NestedIdx k, ∑ j : NestedIdx k, X i j * T i j)
+  calc
+    (∑ i : NestedIdx k, ∑ j : NestedIdx k,
+        (c * X i j) * T i j) =
+      ∑ i : NestedIdx k, ∑ j : NestedIdx k,
+        c * (X i j * T i j) := by
+          apply Finset.sum_congr rfl
+          intro i _hi
+          apply Finset.sum_congr rfl
+          intro j _hj
+          ring
+    _ = ∑ i : NestedIdx k,
+        c * (∑ j : NestedIdx k, X i j * T i j) := by
+          apply Finset.sum_congr rfl
+          intro i _hi
+          rw [Finset.mul_sum]
+    _ = c * (∑ i : NestedIdx k, ∑ j : NestedIdx k,
+        X i j * T i j) := by
+          rw [Finset.mul_sum]
 
 /-- Frobenius pairing commutes with a finite sum in its first argument. -/
 theorem nestedFrob_sum_left {k : Nat} {α : Type} [Fintype α]
