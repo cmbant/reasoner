@@ -8,7 +8,7 @@ on:
 jobs:
   qid-e6-a2-envelope:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -27,3 +27,5 @@ jobs:
           fi
       - name: Build E6 A2 envelope quartic module
         run: timeout 600 lake build FormalResearch.QID.E6A2PhaseEnvelopeQuartic
+      - name: Build full FormalResearch aggregate
+        run: timeout 1200 lake build FormalResearch
