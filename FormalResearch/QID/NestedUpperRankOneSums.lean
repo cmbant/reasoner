@@ -96,6 +96,58 @@ def nestedExplicitColAtomSum (r : Nat) :
   nestedColAtom (nestedRowSign r 1 1 (-1) (-1) 1 1)
       (Sum.inr (3 : D4Fin) : NestedIdx (r + 1))
 
+private theorem nestedExplicitRowAtomSum_core0 (r : Nat)
+    (b : NestedIdx (r + 1)) :
+    nestedExplicitRowAtomSum r (Sum.inr (0 : D4Fin)) b =
+      nestedRowContribution r (Sum.inr (0 : D4Fin)) b := by
+  rcases b with b | b
+  · simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
+      nestedRowAtom, nestedBasisVec, nestedOuter,
+      nestedRowContribution, nestedColSign] <;> norm_num
+  · fin_cases b <;>
+      simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
+        nestedRowAtom, nestedBasisVec, nestedOuter,
+        nestedRowContribution, nestedColSign] <;> norm_num
+
+private theorem nestedExplicitRowAtomSum_core1 (r : Nat)
+    (b : NestedIdx (r + 1)) :
+    nestedExplicitRowAtomSum r (Sum.inr (1 : D4Fin)) b =
+      nestedRowContribution r (Sum.inr (1 : D4Fin)) b := by
+  rcases b with b | b
+  · simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
+      nestedRowAtom, nestedBasisVec, nestedOuter,
+      nestedRowContribution, nestedColSign] <;> norm_num
+  · fin_cases b <;>
+      simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
+        nestedRowAtom, nestedBasisVec, nestedOuter,
+        nestedRowContribution, nestedColSign] <;> norm_num
+
+private theorem nestedExplicitRowAtomSum_core2 (r : Nat)
+    (b : NestedIdx (r + 1)) :
+    nestedExplicitRowAtomSum r (Sum.inr (2 : D4Fin)) b =
+      nestedRowContribution r (Sum.inr (2 : D4Fin)) b := by
+  rcases b with b | b
+  · simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
+      nestedRowAtom, nestedBasisVec, nestedOuter,
+      nestedRowContribution, nestedColSign] <;> norm_num
+  · fin_cases b <;>
+      simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
+        nestedRowAtom, nestedBasisVec, nestedOuter,
+        nestedRowContribution, nestedColSign] <;> norm_num
+
+private theorem nestedExplicitRowAtomSum_core3 (r : Nat)
+    (b : NestedIdx (r + 1)) :
+    nestedExplicitRowAtomSum r (Sum.inr (3 : D4Fin)) b =
+      nestedRowContribution r (Sum.inr (3 : D4Fin)) b := by
+  rcases b with b | b
+  · simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
+      nestedRowAtom, nestedBasisVec, nestedOuter,
+      nestedRowContribution, nestedColSign] <;> norm_num
+  · fin_cases b <;>
+      simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
+        nestedRowAtom, nestedBasisVec, nestedOuter,
+        nestedRowContribution, nestedColSign] <;> norm_num
+
 /-- The explicit `n+1` row-sign rank-one atoms collect exactly to `R_n`. -/
 theorem nestedExplicitRowAtomSum_eq (r : Nat) :
     nestedExplicitRowAtomSum r = nestedRowContribution r := by
@@ -104,14 +156,11 @@ theorem nestedExplicitRowAtomSum_eq (r : Nat) :
   rcases a with a | a
   · simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
       nestedRowAtom, nestedBasisVec, nestedOuter, nestedRowContribution]
-  · fin_cases a <;> rcases b with b | b
-    · simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
-        nestedRowAtom, nestedBasisVec, nestedOuter,
-        nestedRowContribution, nestedColSign] <;> norm_num
-    · fin_cases b <;>
-        simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
-          nestedRowAtom, nestedBasisVec, nestedOuter,
-          nestedRowContribution, nestedColSign] <;> norm_num
+  · fin_cases a
+    · exact nestedExplicitRowAtomSum_core0 r b
+    · exact nestedExplicitRowAtomSum_core1 r b
+    · exact nestedExplicitRowAtomSum_core2 r b
+    · exact nestedExplicitRowAtomSum_core3 r b
 
 /-- The five explicit sign-column rank-one atoms collect exactly to `C_n`. -/
 theorem nestedExplicitColAtomSum_eq (r : Nat) :
