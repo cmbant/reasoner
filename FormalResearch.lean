@@ -48,6 +48,8 @@ import FormalResearch.QID.NestedLowerWitness
 import FormalResearch.QID.NestedUpperAtomicCore
 import FormalResearch.QID.NestedUpperRankOneSums
 import FormalResearch.QID.NestedUpperSupportBridge
+import FormalResearch.QID.F4ExceptionalFacetCertificate
+import FormalResearch.QID.F4ExceptionalFacetAffineWitness
 import FormalResearch.QID.D5RankWitness
 import FormalResearch.QID.D5WeylEnumeration
 import FormalResearch.QID.D5AffineRank
