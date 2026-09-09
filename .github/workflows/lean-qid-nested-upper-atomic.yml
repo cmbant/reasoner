@@ -27,3 +27,5 @@ jobs:
           fi
       - name: Build nested upper atomic core
         run: timeout 1200 lake build FormalResearch.QID.NestedUpperAtomicCore
+      - name: Build explicit rank-one sums
+        run: timeout 1200 lake build FormalResearch.QID.NestedUpperRankOneSums
