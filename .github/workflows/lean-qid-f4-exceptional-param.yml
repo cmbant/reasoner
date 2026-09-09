@@ -27,3 +27,5 @@ jobs:
           fi
       - name: Build parameterized F4 finite core
         run: timeout 900 lake build FormalResearch.QID.F4ExceptionalFacetCertificate
+      - name: Build F4 active affine-rank witness
+        run: timeout 600 lake build FormalResearch.QID.F4ExceptionalFacetAffineWitness
