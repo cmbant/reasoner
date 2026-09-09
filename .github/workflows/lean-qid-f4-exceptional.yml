@@ -1,5 +1,6 @@
 name: Lean QI-D F4 exceptional facet
 
+# Source verifier log blob audited on QIprojects main: 43be8688e2361921906e4e218806ecdc57ec8e94
 on:
   push:
     branches: [agents/qid-f4-exceptional-facet]
