@@ -7,14 +7,17 @@ namespace FormalResearch.QID
 
 This module matches the exact rational certificate in
 `cmbant/QIprojects:QI-D/code/certify_ds_strict_D4.py` and its committed
-verification log.  It formalizes the finite Type-D4 Weyl enumeration, the
-reported rational witness `A`, the separating functional `F`, and the finite
-coweight-orbit inequality audit.
+verification log, re-audited with QIprojects main at
+`34e5bdf5964e2ad5ae209cbaee0ce50b81db9379`.
+
+It formalizes the finite Type-D4 Weyl enumeration, the reported rational
+witness `A`, the separating functional `F`, and the finite coweight-orbit
+inequality audit.
 
 The source-side equivalence between these finitely many coweight inequalities
-and membership in `DS(W(D₄))` is intentionally **not** rederived here.  The
-finite certificate is exposed as its own predicate so later bridge theorems can
-state that semantic input explicitly rather than hiding it.
+and membership in `DS(W(D₄))` is intentionally **not** rederived here. The
+finite certificate is exposed separately so a later semantic bridge must state
+that input explicitly rather than hiding it.
 -/
 
 abbrev D4Fin := Fin 4
@@ -96,18 +99,20 @@ theorem d4Facet_witness_value :
 def d4WeylFacetScore (ps : D4SignedPerm) : ℚ :=
   d4Frob d4FacetNormal (d4SignedMatrix ps)
 
-/-- Exhaustive support upper-bound audit. -/
-def d4WeylSupportUpperCheck : Bool :=
-  allD4.toList.all (fun ps => decide (d4WeylFacetScore ps ≤ 1))
+/-- Number of Type-D4 Weyl matrices violating the support bound `≤ 1`. -/
+def d4WeylSupportViolationCount : Nat :=
+  (allD4.filter (fun ps => decide (1 < d4WeylFacetScore ps))).card
 
-/-- Exhaustive attainment audit, so the Weyl maximum is exactly one. -/
-def d4WeylSupportAttainedCheck : Bool :=
-  allD4.toList.any (fun ps => decide (d4WeylFacetScore ps = 1))
+/-- Number of Type-D4 Weyl matrices attaining support value exactly one. -/
+def d4WeylSupportAttainmentCount : Nat :=
+  (allD4.filter (fun ps => decide (d4WeylFacetScore ps = 1))).card
 
-theorem d4WeylSupportUpperCheck_passes : d4WeylSupportUpperCheck = true := by
+/-- Exhaustive support audit: no Weyl element exceeds one. -/
+theorem d4WeylSupportViolationCount_zero : d4WeylSupportViolationCount = 0 := by
   native_decide
 
-theorem d4WeylSupportAttainedCheck_passes : d4WeylSupportAttainedCheck = true := by
+/-- Exhaustive attainment audit: the support bound one is sharp. -/
+theorem d4WeylSupportAttainmentCount_pos : 0 < d4WeylSupportAttainmentCount := by
   native_decide
 
 /-- Rational dot product. -/
@@ -122,31 +127,38 @@ def d4Bilinear (u : D4Vec) (M : Matrix D4Fin D4Fin ℚ) (v : D4Vec) : ℚ :=
 def d4CoweightBound (k j : D4Fin) : ℚ :=
   d4Dot (d4Omega k) (d4Omega j)
 
-/-- Boolean finite certificate for all coweight-orbit inequalities.  Converting
-each finite set to a list keeps the audit explicitly finite even though
-rational vectors form an infinite ambient type. -/
-def d4FiniteDSCheck (M : Matrix D4Fin D4Fin ℚ) : Bool :=
-  (Finset.univ : Finset D4Fin).toList.all (fun k =>
-    (Finset.univ : Finset D4Fin).toList.all (fun j =>
-      (d4OmegaOrbit k).toList.all (fun u =>
-        (d4OmegaOrbit j).toList.all (fun v =>
-          decide (d4Bilinear u M v ≤ d4CoweightBound k j)))))
+/-- Total number of distinct coweight-orbit constraints checked by the source. -/
+def d4ConstraintCount : Nat :=
+  ∑ k : D4Fin, ∑ j : D4Fin,
+    ((d4OmegaOrbit k).product (d4OmegaOrbit j)).card
 
-/-- The exact witness satisfies every finite Type-D4 coweight inequality. -/
-theorem d4DSWitness_finite_check : d4FiniteDSCheck d4DSWitness = true := by
+/-- Exact number of violated finite coweight constraints for a matrix `M`. -/
+def d4ViolationCount (M : Matrix D4Fin D4Fin ℚ) : Nat :=
+  ∑ k : D4Fin, ∑ j : D4Fin,
+    (((d4OmegaOrbit k).product (d4OmegaOrbit j)).filter (fun uv =>
+      decide (d4CoweightBound k j < d4Bilinear uv.1 M uv.2))).card
+
+/-- The finite Type-D4 certificate predicate, kept distinct from semantic
+membership in `DS(W(D₄))`. -/
+def d4FiniteDSCertificate (M : Matrix D4Fin D4Fin ℚ) : Prop :=
+  d4ViolationCount M = 0
+
+/-- The exact source audit has 2304 constraints and zero violations. -/
+theorem d4DSWitness_finite_certificate :
+    d4ConstraintCount = 2304 ∧ d4FiniteDSCertificate d4DSWitness := by
   native_decide
 
-/-- Claim-boundary bridge.  If an external semantic layer identifies the
-finite coweight certificate with a predicate `DS`, and identifies membership
-in a candidate convex set `Conv` with the facet upper bound `≤ 1`, then the
-exact rational witness separates the two predicates. -/
+/-- Claim-boundary bridge. If an external semantic layer identifies the finite
+coweight certificate with a predicate `DS`, and identifies membership in a
+candidate convex set `Conv` with the facet upper bound `≤ 1`, then the exact
+rational witness separates the two predicates. -/
 theorem d4_strict_separation_of_certificate
     (DS Conv : Matrix D4Fin D4Fin ℚ → Prop)
-    (hDS : d4FiniteDSCheck d4DSWitness = true → DS d4DSWitness)
+    (hDS : d4FiniteDSCertificate d4DSWitness → DS d4DSWitness)
     (hConv : ∀ M, Conv M → d4Frob d4FacetNormal M ≤ 1) :
     DS d4DSWitness ∧ ¬ Conv d4DSWitness := by
   constructor
-  · exact hDS d4DSWitness_finite_check
+  · exact hDS d4DSWitness_finite_certificate.2
   · intro hA
     have hle := hConv d4DSWitness hA
     rw [d4Facet_witness_value] at hle
