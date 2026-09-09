@@ -29,3 +29,5 @@ jobs:
         run: timeout 300 lake build FormalResearch.QID.D5WeylEnumeration
       - name: Build D4 finite DS certificate
         run: timeout 600 lake build FormalResearch.QID.D4DoublyStochasticCertificate
+      - name: Build D4 exact dual certificate
+        run: timeout 600 lake build FormalResearch.QID.D4DoublyStochasticDualCertificate
