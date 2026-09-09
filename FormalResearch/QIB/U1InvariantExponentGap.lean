@@ -7,7 +7,8 @@ namespace FormalResearch.QIB
 
 This module matches the exact scalar identities in
 `cmbant/QIprojects:QI-B/B4-orbit-bergman/notes/NEW_RESULTS_THIS_TURN.md`,
-section 6.
+section 6, audited on current source head
+`1c643e4db3a6be0e8b7826a2f45df4e27dad06b4`.
 
 For the symmetric qubit family `q = 1-p`, the source analysis identifies the
 invariant Chernoff exponent with `-log (2 * sqrt (p(1-p)))` and the maximal
