@@ -103,11 +103,12 @@ theorem e6A2CircleDefect_clear_denominators
     (ar ai br bi cr ci d t : ℚ) :
     e6A2Den t ^ 2 * e6A2CircleDefect ar ai br bi cr ci d t =
       e6A2Quartic ar ai br bi cr ci d t := by
-  have h : (1 + t^2 : ℚ) ≠ 0 := by
-    nlinarith [sq_nonneg t]
-  field_simp [e6A2CircleDefect, e6A2Quartic, e6A2D, e6A2Den,
-    e6A2AReNum, e6A2CosNum, e6A2SinNum, e6A2Rnum, h]
-  <;> ring
+  have hden0 : e6A2Den t ≠ 0 := ne_of_gt (e6A2Den_pos t)
+  unfold e6A2Quartic
+  rw [e6A2D_from_trig_numerators]
+  unfold e6A2CircleDefect
+  field_simp [hden0]
+  ring_nf
 
 /-- Because the cleared denominator is positive, finite-`t` nonnegativity of
 the unit-circle defect is exactly quartic nonnegativity. -/
@@ -125,11 +126,13 @@ theorem e6A2CircleDefect_nonneg_iff_quartic_nonneg
     rw [← hclear]
     exact mul_nonneg (le_of_lt hden) hq
   · intro hQ
-    have hprod : 0 ≤ e6A2Den t ^ 2 *
-        e6A2CircleDefect ar ai br bi cr ci d t := by
-      rw [hclear]
-      exact hQ
-    exact (mul_le_mul_left hden).mp (by simpa using hprod)
+    by_contra hq
+    have hneg : e6A2CircleDefect ar ai br bi cr ci d t < 0 := lt_of_not_ge hq
+    have hprodneg : e6A2Den t ^ 2 *
+        e6A2CircleDefect ar ai br bi cr ci d t < 0 :=
+      mul_neg_of_pos_of_neg hden hneg
+    rw [hclear] at hprodneg
+    exact (not_lt_of_ge hQ) hprodneg
 
 /-- Constant quartic coefficient. -/
 def e6A2Q0 (ar ai br bi cr ci d : ℚ) : ℚ :=
@@ -180,7 +183,7 @@ theorem e6A2EqualityRegression (t : ℚ) :
     e6A2Quartic (1/4) 0 (1/6) 0 (1/12) 0 (1/2) t =
       t^2 * (20*t^2 + 11) / 36 := by
   norm_num [e6A2Quartic, e6A2D, e6A2Den, e6A2Rnum]
-  <;> ring
+  ring
 
 /-- The source equality regression is globally nonnegative for finite rational
 `t`. -/
