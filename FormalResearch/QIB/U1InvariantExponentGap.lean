@@ -39,9 +39,11 @@ theorem u1CompactOrbitFidelity_eq_coefficient_sq
   have hprod : 0 ≤ p * (1 - p) :=
     mul_nonneg hp0 (sub_nonneg.mpr hp1)
   unfold u1CompactOrbitFidelity u1InvariantCoefficient
-  rw [show (Real.sqrt (p * (1 - p))) ^ 2 = p * (1 - p) by
-    exact Real.sq_sqrt hprod]
-  ring
+  calc
+    4 * p * (1 - p) = 4 * (p * (1 - p)) := by ring
+    _ = 4 * (Real.sqrt (p * (1 - p))) ^ 2 := by
+      rw [Real.sq_sqrt hprod]
+    _ = (2 * Real.sqrt (p * (1 - p))) ^ 2 := by ring
 
 /-- Exact factor-two relation from the source counterexample:
 `-log F_K = 2 xi_inv` at the scalar-certificate level. -/
