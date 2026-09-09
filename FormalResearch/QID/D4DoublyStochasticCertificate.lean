@@ -98,11 +98,11 @@ def d4WeylFacetScore (ps : D4SignedPerm) : ℚ :=
 
 /-- Exhaustive support upper-bound audit. -/
 def d4WeylSupportUpperCheck : Bool :=
-  allD4.all (fun ps => decide (d4WeylFacetScore ps ≤ 1))
+  allD4.toList.all (fun ps => decide (d4WeylFacetScore ps ≤ 1))
 
 /-- Exhaustive attainment audit, so the Weyl maximum is exactly one. -/
 def d4WeylSupportAttainedCheck : Bool :=
-  allD4.any (fun ps => decide (d4WeylFacetScore ps = 1))
+  allD4.toList.any (fun ps => decide (d4WeylFacetScore ps = 1))
 
 theorem d4WeylSupportUpperCheck_passes : d4WeylSupportUpperCheck = true := by
   native_decide
@@ -122,14 +122,14 @@ def d4Bilinear (u : D4Vec) (M : Matrix D4Fin D4Fin ℚ) (v : D4Vec) : ℚ :=
 def d4CoweightBound (k j : D4Fin) : ℚ :=
   d4Dot (d4Omega k) (d4Omega j)
 
-/-- Boolean finite certificate for all coweight-orbit inequalities.  Using
-`Finset.all` keeps the audit genuinely finite even though rational vectors
-form an infinite ambient type. -/
+/-- Boolean finite certificate for all coweight-orbit inequalities.  Converting
+each finite set to a list keeps the audit explicitly finite even though
+rational vectors form an infinite ambient type. -/
 def d4FiniteDSCheck (M : Matrix D4Fin D4Fin ℚ) : Bool :=
-  (Finset.univ : Finset D4Fin).all (fun k =>
-    (Finset.univ : Finset D4Fin).all (fun j =>
-      (d4OmegaOrbit k).all (fun u =>
-        (d4OmegaOrbit j).all (fun v =>
+  (Finset.univ : Finset D4Fin).toList.all (fun k =>
+    (Finset.univ : Finset D4Fin).toList.all (fun j =>
+      (d4OmegaOrbit k).toList.all (fun u =>
+        (d4OmegaOrbit j).toList.all (fun v =>
           decide (d4Bilinear u M v ≤ d4CoweightBound k j)))))
 
 /-- The exact witness satisfies every finite Type-D4 coweight inequality. -/
