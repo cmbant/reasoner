@@ -26,7 +26,7 @@ theorem selectedD5ProjectedQ_affineIndependent :
   rw [affineIndependent_iff_linearIndependent_vsub ℚ selectedD5ProjectedQ
     (0 : Fin25V)]
   rw [← linearIndependent_equiv (finSuccAboveEquiv (0 : Fin25V))]
-  simpa [Function.comp_def, Fin.zero_succAbove,
+  simpa [Function.comp_def, finSuccAboveEquiv_apply, Fin.zero_succAbove,
     selectedD5ProjectedQ_succ_sub_zero] using
       selectedD5Diff24Q_cols_linearIndependent
 

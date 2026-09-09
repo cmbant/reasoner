@@ -14,7 +14,7 @@ jobs:
   aggregate-next:
     if: ${{ contains(github.event.head_commit.message, '[aggregate-next]') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -31,17 +31,13 @@ jobs:
             echo 'Lean placeholders found'
             exit 1
           fi
-      - name: Aggregate frontier blockers
+      - name: QI-D committed certificate chain
         run: >-
-          timeout 480 lake build
-          FormalResearch.Blaschke.WalshBasis
-          FormalResearch.Blaschke.WalshWronskianExactRank
-          FormalResearch.Gaudin.MatrixTreeHammingTriangle
-          FormalResearch.Blaschke.WalshWronskianKernelBasis
-          FormalResearch.Gaudin.MatrixWeightedMetricBridge
-          FormalResearch.Blaschke.WronskianAtomIndependence
-          FormalResearch.Blaschke.WronskianAtomNonvanishing
-          FormalResearch.Blaschke.WronskianAtomUnitDisk
-          FormalResearch.Blaschke.SingletonWalshSynthesis
-          FormalResearch.Blaschke.SingletonKernelDirectSum
-          FormalResearch.Bridges.B2BlaschkeRangeEquiv
+          timeout 900 lake build
+          FormalResearch.QID.D5AffineRank
+          FormalResearch.QID.D5ActiveAffineCertificate
+          FormalResearch.QID.D5FacetCertificate
+          FormalResearch.QID.D5CharacteristicZeroCertificate
+          FormalResearch.QID.D5AffineIndependence
+          FormalResearch.QID.D5SupportingFacet
+          FormalResearch.QID.D5FullFacetCertificate
