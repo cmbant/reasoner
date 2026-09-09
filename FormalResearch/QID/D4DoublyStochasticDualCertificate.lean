@@ -6,12 +6,12 @@ namespace FormalResearch.QID
 # Exact Type-D4 rational dual certificate
 
 The source verification log for `QI-D/code/certify_ds_strict_D4.py` records an
-exact LP dual with fourteen active coweight-orbit inequalities.  Every active
+exact LP dual with fourteen active coweight-orbit inequalities. Every active
 multiplier is `1/6`, every active inequality has dominant bound `1/2`, the
 weighted outer products sum to the exceptional facet normal `F`, and the dual
 objective is `7/6`.
 
-This module checks those finite rational data exactly.  As in the primal
+This module checks those finite rational data exactly. As in the primal
 certificate module, the general theorem identifying the coweight inequalities
 with `DS(W(D₄))` is an external semantic layer rather than being silently
 reintroduced here.
@@ -71,15 +71,20 @@ def d4DualObjective : ℚ :=
 theorem d4DualObjective_value : d4DualObjective = 7 / 6 := by
   native_decide
 
-/-- Check that a printed dual pair is an actual pair of coweight-orbit vectors
-for some fundamental-coweight indices whose dominance bound is `1/2`. -/
+/-- Number of fundamental-coweight index pairs `(k,j)` for which a printed
+`(u,v)` dual pair belongs to `orbit(ω_k) × orbit(ω_j)` and has bound `1/2`.
+This uses only computable `Finset.filter` operations. -/
+def d4DualPairMatchCount (uv : D4Vec × D4Vec) : Nat :=
+  (((Finset.univ : Finset D4Fin).product (Finset.univ : Finset D4Fin)).filter
+    (fun kj => decide (
+      uv.1 ∈ d4OmegaOrbit kj.1 ∧
+      uv.2 ∈ d4OmegaOrbit kj.2 ∧
+      d4CoweightBound kj.1 kj.2 = (1 : ℚ) / 2))).card
+
+/-- A printed dual pair is valid when at least one coweight-index pair realizes
+it as an active finite constraint with bound `1/2`. -/
 def d4DualPairValid (uv : D4Vec × D4Vec) : Bool :=
-  (Finset.univ : Finset D4Fin).toList.any (fun k =>
-    (Finset.univ : Finset D4Fin).toList.any (fun j =>
-      decide (
-        uv.1 ∈ d4OmegaOrbit k ∧
-        uv.2 ∈ d4OmegaOrbit j ∧
-        d4CoweightBound k j = (1 : ℚ) / 2)))
+  decide (0 < d4DualPairMatchCount uv)
 
 /-- All fourteen active dual pairs belong to the finite constraint family. -/
 def d4DualPairsValid : Bool :=
