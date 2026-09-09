@@ -80,7 +80,14 @@ def selectedD5Score (k : Fin25V) : Int :=
 and lies on the supporting hyperplane with score five. -/
 theorem selectedD5_all_active :
     ∀ k : Fin25V, selectedD5Valid k ∧ selectedD5Score k = 5 := by
-  native_decide
+  letI : DecidablePred (fun k : Fin25V => selectedD5Valid k ∧ selectedD5Score k = 5) := fun k => by
+    unfold selectedD5Valid
+    letI : Decidable (∀ i : Fin5V, selectedD5Signs k i = 1 ∨ selectedD5Signs k i = -1) :=
+      Fintype.decidableForallFintype
+    infer_instance
+  letI : Decidable (∀ k : Fin25V, selectedD5Valid k ∧ selectedD5Score k = 5) :=
+    Fintype.decidableForallFintype
+  decide
 
 /-- Coordinates 1,...,24 of a 5x5 matrix, dropping ambient coordinate (0,0). -/
 def selectedCoord24 (V : Matrix Fin5V Fin5V Int) (q : Fin24V) : Int :=
@@ -127,11 +134,13 @@ def selectedD5Diff24InvMod3 : Matrix Fin24V Fin24V (ZMod 3) :=
 has an explicit two-sided inverse. -/
 theorem selectedD5Diff24_right_inverse :
     selectedD5Diff24Mod3 * selectedD5Diff24InvMod3 = 1 := by
-  native_decide
+  ext i j
+  fin_cases i <;> fin_cases j <;> decide
 
 theorem selectedD5Diff24_left_inverse :
     selectedD5Diff24InvMod3 * selectedD5Diff24Mod3 = 1 := by
-  native_decide
+  rw [mul_eq_one_comm]
+  exact selectedD5Diff24_right_inverse
 
 /-- A self-contained computational certificate for the geometric content:
 the score-five supporting hyperplane contains 25 explicitly specified Weyl
