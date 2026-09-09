@@ -43,6 +43,25 @@ def nestedTopRowAtomSum (r : Nat) :
       (nestedColSign r 1
         (if i.1 + 1 = r + 1 then -1 else 1) 1 1 (-1))
 
+/-- The variable top-row sum selects the unique atom supported on a given
+stabilized row. -/
+@[simp] theorem nestedTopRowAtomSum_apply_inl (r : Nat)
+    (a : Fin (r + 1)) (b : NestedIdx (r + 1)) :
+    nestedTopRowAtomSum r (Sum.inl a) b =
+      nestedColSign r 1
+        (if a.1 + 1 = r + 1 then -1 else 1) 1 1 (-1) b := by
+  classical
+  simp [nestedTopRowAtomSum, Matrix.sum_apply, nestedRowAtom,
+    nestedOuter, nestedBasisVec]
+
+/-- No top-row atom has support on a D4-core row. -/
+@[simp] theorem nestedTopRowAtomSum_apply_inr (r : Nat)
+    (a : D4Fin) (b : NestedIdx (r + 1)) :
+    nestedTopRowAtomSum r (Sum.inr a) b = 0 := by
+  classical
+  simp [nestedTopRowAtomSum, Matrix.sum_apply, nestedRowAtom,
+    nestedOuter, nestedBasisVec]
+
 /-- The five fixed core-row atoms: two on `u`, two on `v`, one on `q_r`. -/
 def nestedSpecialRowAtomSum (r : Nat) :
     Matrix (NestedIdx (r + 1)) (NestedIdx (r + 1)) ℚ :=
@@ -83,19 +102,16 @@ theorem nestedExplicitRowAtomSum_eq (r : Nat) :
   classical
   ext a b
   rcases a with a | a
-  · simp [nestedExplicitRowAtomSum, nestedTopRowAtomSum,
-      nestedSpecialRowAtomSum, nestedRowAtom, nestedBasisVec, nestedOuter,
-      nestedRowContribution]
+  · simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
+      nestedRowAtom, nestedBasisVec, nestedOuter, nestedRowContribution]
   · fin_cases a <;> rcases b with b | b
-    · simp [nestedExplicitRowAtomSum, nestedTopRowAtomSum,
-        nestedSpecialRowAtomSum, nestedRowAtom, nestedBasisVec, nestedOuter,
-        nestedRowContribution, nestedColSign]
-      norm_num
+    · simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
+        nestedRowAtom, nestedBasisVec, nestedOuter,
+        nestedRowContribution, nestedColSign] <;> norm_num
     · fin_cases b <;>
-        simp [nestedExplicitRowAtomSum, nestedTopRowAtomSum,
-          nestedSpecialRowAtomSum, nestedRowAtom, nestedBasisVec, nestedOuter,
-          nestedRowContribution, nestedColSign] <;>
-        norm_num
+        simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
+          nestedRowAtom, nestedBasisVec, nestedOuter,
+          nestedRowContribution, nestedColSign] <;> norm_num
 
 /-- The five explicit sign-column rank-one atoms collect exactly to `C_n`. -/
 theorem nestedExplicitColAtomSum_eq (r : Nat) :
@@ -116,7 +132,7 @@ theorem nestedExplicitColAtomSum_eq (r : Nat) :
         nestedColContribution, nestedRowSign] <;>
       norm_num
 
-/-- The explicit row-atom count is `(r+1)+5 = n+1`. -/
+/-- The explicit `n+1` row-sign atom count is `(r+1)+5`. -/
 theorem nestedExplicitRowAtomCount (r : Nat) :
     Fintype.card (Fin (r + 1)) + 5 = nestedRowAtomCount r := by
   simp [nestedRowAtomCount]
