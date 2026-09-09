@@ -16,7 +16,7 @@ manuscript.
 
 At three copies, a qubit retains the trivial and standard `S₃` sectors, while
 a local dimension at least three retains the trivial, sign, and standard
-sectors.  Their classwise character sums are respectively `(3,1,0)` and
+sectors. Their classwise character sums are respectively `(3,1,0)` and
 `(4,0,1)` on identity, transpositions, and three-cycles.
 -/
 
@@ -41,7 +41,7 @@ def threeCopyLocalSchurRetainedDimension (m r : Nat) : Int :=
 
 /-- In a genuinely mixed architecture, both non-identity `S₃` classes are
 killed by one of the two site types, so the character numerator equals the
-local-Schur retained dimension exactly.  Equivalently, `L = 6 K`. -/
+local-Schur retained dimension exactly. Equivalently, `L = 6 K`. -/
 theorem threeCopyLocalSchur_mixed_numerator_eq_retained
     {m r : Nat} (hr0 : 1 ≤ r) (hrm : r < m) :
     threeCopyLocalSchurMemoryNumerator m r =
@@ -100,6 +100,7 @@ theorem threeCopyLocalSchur_allQubit_six_memory_eq_retained_add_three
       threeCopyLocalSchurRetainedDimensionQ m 0 + 3 := by
   unfold threeCopyLocalSchurMemoryQ threeCopyLocalSchurRetainedDimensionQ
   rw [threeCopyLocalSchur_allQubit_numerator_eq_retained_add_three hm]
+  push_cast
   ring
 
 /-- Exact all-high-dimensional endpoint relation `6 K = L + 2`. -/
@@ -109,6 +110,7 @@ theorem threeCopyLocalSchur_allFull_six_memory_eq_retained_add_two
       threeCopyLocalSchurRetainedDimensionQ m m + 2 := by
   unfold threeCopyLocalSchurMemoryQ threeCopyLocalSchurRetainedDimensionQ
   rw [threeCopyLocalSchur_allFull_numerator_eq_retained_add_two hm]
+  push_cast
   ring
 
 end FormalResearch.QIA
