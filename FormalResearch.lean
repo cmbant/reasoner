@@ -45,6 +45,9 @@ import FormalResearch.QIC.GaussianEndpointAdjugateReconstruction
 import FormalResearch.QID.D4DoublyStochasticCertificate
 import FormalResearch.QID.D4DoublyStochasticDualCertificate
 import FormalResearch.QID.NestedLowerWitness
+import FormalResearch.QID.NestedUpperAtomicCore
+import FormalResearch.QID.NestedUpperRankOneSums
+import FormalResearch.QID.NestedUpperSupportBridge
 import FormalResearch.QID.D5RankWitness
 import FormalResearch.QID.D5WeylEnumeration
 import FormalResearch.QID.D5AffineRank
