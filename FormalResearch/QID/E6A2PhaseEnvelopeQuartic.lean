@@ -108,7 +108,6 @@ theorem e6A2CircleDefect_clear_denominators
   rw [e6A2D_from_trig_numerators]
   unfold e6A2CircleDefect
   field_simp [hden0]
-  ring_nf
 
 /-- Because the cleared denominator is positive, finite-`t` nonnegativity of
 the unit-circle defect is exactly quartic nonnegativity. -/
