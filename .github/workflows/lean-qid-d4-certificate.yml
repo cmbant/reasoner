@@ -25,5 +25,7 @@ jobs:
             echo 'Lean placeholders found'
             exit 1
           fi
+      - name: Build existing D5 Weyl enumeration smoke
+        run: timeout 300 lake build FormalResearch.QID.D5WeylEnumeration
       - name: Build D4 finite DS certificate
         run: timeout 600 lake build FormalResearch.QID.D4DoublyStochasticCertificate
