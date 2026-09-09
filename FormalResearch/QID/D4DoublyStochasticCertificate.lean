@@ -8,7 +8,7 @@ namespace FormalResearch.QID
 This module matches the exact rational certificate in
 `cmbant/QIprojects:QI-D/code/certify_ds_strict_D4.py` and its committed
 verification log, re-audited with QIprojects main at
-`34e5bdf5964e2ad5ae209cbaee0ce50b81db9379`.
+`cf5bb7ea42362d9557172a1df96ff1d567da2fe5`.
 
 It formalizes the finite Type-D4 Weyl enumeration, the reported rational
 witness `A`, the separating functional `F`, and the finite coweight-orbit
@@ -143,10 +143,19 @@ membership in `DS(W(D₄))`. -/
 def d4FiniteDSCertificate (M : Matrix D4Fin D4Fin ℚ) : Prop :=
   d4ViolationCount M = 0
 
-/-- The exact source audit has 2304 constraints and zero violations. -/
+/-- The exact finite family contains 2304 constraints. -/
+theorem d4ConstraintCount_exact : d4ConstraintCount = 2304 := by
+  native_decide
+
+/-- The exact witness violates none of the 2304 coweight-orbit constraints. -/
+theorem d4DSWitness_no_violations : d4ViolationCount d4DSWitness = 0 := by
+  native_decide
+
+/-- Bundled form of the exact source audit. -/
 theorem d4DSWitness_finite_certificate :
     d4ConstraintCount = 2304 ∧ d4FiniteDSCertificate d4DSWitness := by
-  native_decide
+  refine ⟨d4ConstraintCount_exact, ?_⟩
+  simpa [d4FiniteDSCertificate] using d4DSWitness_no_violations
 
 /-- Claim-boundary bridge. If an external semantic layer identifies the finite
 coweight certificate with a predicate `DS`, and identifies membership in a
