@@ -118,7 +118,7 @@ theorem nestedFrob_fromBlocks_diag {k : Nat}
       = (∑ i : Fin k, A i i) +
         ∑ i : D4Fin, ∑ j : D4Fin, D i j * E i j := by
   classical
-  simp [nestedFrob]
+  simp [nestedFrob, Matrix.one_apply]
 
 /-- Exact source pairing in offset form: each stabilized coordinate contributes
 one, and the D4 core contributes `14/3`. -/
