@@ -23,13 +23,19 @@ theorem selectedD5Diff24_det_ne_zero : selectedD5Diff24.det ≠ 0 := by
   have hmap :
       ((Int.castRingHom (ZMod 3)).mapMatrix selectedD5Diff24).det = 0 := by
     rw [← RingHom.map_det, hdet, map_zero]
-  simpa [selectedD5Diff24Mod3, Matrix.mapMatrix_apply] using hmap
+  have hmatrix :
+      (Int.castRingHom (ZMod 3)).mapMatrix selectedD5Diff24 = selectedD5Diff24Mod3 := by
+    ext i j
+    rfl
+  rw [← hmatrix]
+  exact hmap
 
 /-- The rational difference matrix has nonzero determinant. -/
 theorem selectedD5Diff24Q_det_ne_zero : selectedD5Diff24Q.det ≠ 0 := by
   have hcast : (selectedD5Diff24.det : ℚ) ≠ 0 := by
     exact_mod_cast selectedD5Diff24_det_ne_zero
-  simpa [selectedD5Diff24Q, ← RingHom.map_det] using hcast
+  rw [selectedD5Diff24Q, ← RingHom.map_det]
+  exact hcast
 
 /-- Hence the selected active differences have full rational rank 24. -/
 theorem selectedD5Diff24Q_rank : selectedD5Diff24Q.rank = 24 := by
