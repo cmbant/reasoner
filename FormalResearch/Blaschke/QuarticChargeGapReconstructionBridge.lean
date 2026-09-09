@@ -33,7 +33,7 @@ def quarticDelta (t x y : ℝ) : ℝ :=
 The source identity is supplied only on its valid normalized simple-critical
 locus; in the bridge theorem below that identity is kept as an explicit
 hypothesis. -/
-def quarticRawPrefactor (t q x y : ℝ) : ℝ :=
+noncomputable def quarticRawPrefactor (t q x y : ℝ) : ℝ :=
   -(4 * t ^ 3 * (3 - q * t) ^ 2 * (quarticG t q) ^ 2 /
       (q ^ 6 * (1 + t) ^ 6 * (quarticLp t q) ^ 3 *
         (quarticDelta t x y) ^ 2))
