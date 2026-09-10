@@ -14,6 +14,7 @@ import FormalResearch.QIA.ThreeCopyChiralityOnset
 import FormalResearch.QIA.ThreeCopyChiralityPersistence
 import FormalResearch.QIA.MultiplicityProfileDimensions
 import FormalResearch.QIA.OperationalFingerprintDimensions
+import FormalResearch.QIA.SparseWitnessHaarSecondMoment
 import FormalResearch.QIA.MultiplicityProfileQuantumExcess
 import FormalResearch.QIA.SectorLabelOnlyCodeDimension
 import FormalResearch.QIA.PureCopyMemoryCore
