@@ -53,6 +53,8 @@ theorem coordinateProjector_posSemidef
     {J : Type*} [Fintype J] [DecidableEq J] :
     (∑ j : J, coordinateProjector j) = (1 : Matrix J J ℂ) := by
   ext i k
+  change (∑ j : J, (coordinateProjector j) i k) =
+    (1 : Matrix J J ℂ) i k
   by_cases hik : i = k
   · subst k
     simp [coordinateProjector, eq_comm]
