@@ -61,6 +61,42 @@ def multiplicityHermitianTraceBilinForm
             Matrix (Fin (g a)) (Fin (g a)) ℂ))) := by
   simp [multiplicityHermitianTraceBilinForm]
 
+/-- Pairing against a vector supported in one sector reduces to that sector's
+Hermitian trace pairing.  Kept as a small explicit lemma so dependent
+`Pi.single` normalization does not burden the main nondegeneracy proof. -/
+theorem multiplicityHermitianTraceBilinForm_single_right
+    {α : Type*} [Fintype α] (g : α → Nat)
+    (A : multiplicityHermitianSpace g) (a : α)
+    (X : hermitianMatrixSpace (Fin (g a))) :
+    multiplicityHermitianTraceBilinForm g A (Pi.single a X) =
+      hermitianTraceBilinForm (A a) X := by
+  classical
+  change (∑ b, hermitianTraceBilinForm (A b) ((Pi.single a X) b)) =
+    hermitianTraceBilinForm (A a) X
+  rw [Finset.sum_eq_single a]
+  · rw [Pi.single_eq_same]
+  · intro b _ hba
+    rw [Pi.single_eq_of_ne hba]
+    exact map_zero _
+  · simp
+
+/-- The analogous one-sector reduction in the first argument. -/
+theorem multiplicityHermitianTraceBilinForm_single_left
+    {α : Type*} [Fintype α] (g : α → Nat)
+    (A : multiplicityHermitianSpace g) (a : α)
+    (X : hermitianMatrixSpace (Fin (g a))) :
+    multiplicityHermitianTraceBilinForm g (Pi.single a X) A =
+      hermitianTraceBilinForm X (A a) := by
+  classical
+  change (∑ b, hermitianTraceBilinForm ((Pi.single a X) b) (A b)) =
+    hermitianTraceBilinForm X (A a)
+  rw [Finset.sum_eq_single a]
+  · rw [Pi.single_eq_same]
+  · intro b _ hba
+    rw [Pi.single_eq_of_ne hba]
+    exact LinearMap.zero_apply _
+  · simp
+
 /-- The summed trace form is nondegenerate on the full finite Hermitian
 multiplicity algebra.  A vector in either kernel is tested against a function
 supported only in one sector, reducing immediately to block nondegeneracy. -/
@@ -75,16 +111,7 @@ theorem multiplicityHermitianTraceBilinForm_nondegenerate
       (n := Fin (g a))).1
     intro X
     have h := hA (Pi.single a X)
-    change (∑ b, hermitianTraceBilinForm (A b) ((Pi.single a X) b)) = 0 at h
-    have hs :
-        (∑ b, hermitianTraceBilinForm (A b) ((Pi.single a X) b)) =
-          hermitianTraceBilinForm (A a) X := by
-      rw [Finset.sum_eq_single a]
-      · simp
-      · intro b _ hba
-        simp [Pi.single_eq_of_ne hba]
-      · simp
-    rw [hs] at h
+    rw [multiplicityHermitianTraceBilinForm_single_right] at h
     exact h
   · intro A hA
     funext a
@@ -92,16 +119,7 @@ theorem multiplicityHermitianTraceBilinForm_nondegenerate
       (n := Fin (g a))).2
     intro X
     have h := hA (Pi.single a X)
-    change (∑ b, hermitianTraceBilinForm ((Pi.single a X) b) (A b)) = 0 at h
-    have hs :
-        (∑ b, hermitianTraceBilinForm ((Pi.single a X) b) (A b)) =
-          hermitianTraceBilinForm X (A a) := by
-      rw [Finset.sum_eq_single a]
-      · simp
-      · intro b _ hba
-        simp [Pi.single_eq_of_ne hba]
-      · simp
-    rw [hs] at h
+    rw [multiplicityHermitianTraceBilinForm_single_left] at h
     exact h
 
 /-- In finite dimension the summed nondegenerate trace form identifies the
