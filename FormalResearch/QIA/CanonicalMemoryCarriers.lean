@@ -20,7 +20,7 @@ namespace FormalResearch.QIA
 
 /-- A finite basis carrier for the direct sum of all multiplicity spaces:
 one basis label `j : Fin (g a)` in each sector `a`. -/
-def multiplicityMemoryCarrier {α : Type*} [Fintype α] (g : α → Nat) : Type _ :=
+abbrev multiplicityMemoryCarrier {α : Type*} [Fintype α] (g : α → Nat) : Type _ :=
   Σ a, Fin (g a)
 
 instance multiplicityMemoryCarrierFintype
@@ -36,7 +36,7 @@ theorem multiplicityMemoryCarrier_card
 
 /-- The common coherent basis carrier used when the sector label is retained
 classically. -/
-def multiplicityCoherentCarrier {α : Type*} [Fintype α] (g : α → Nat) : Type :=
+abbrev multiplicityCoherentCarrier {α : Type*} [Fintype α] (g : α → Nat) : Type :=
   Fin (multiplicityCoherentWidth g)
 
 instance multiplicityCoherentCarrierFintype
@@ -59,11 +59,11 @@ def multiplicityBlockEmbedding
   inj' := by
     intro i j h
     apply Fin.ext
-    exact congrArg Fin.val h
+    exact congrArg (fun x : multiplicityCoherentCarrier g => x.val) h
 
 /-- A finite carrier making the free classical sector label explicit alongside
 the common coherent register. -/
-def multiplicityFlaggedCarrier {α : Type*} [Fintype α] (g : α → Nat) : Type _ :=
+abbrev multiplicityFlaggedCarrier {α : Type*} [Fintype α] (g : α → Nat) : Type _ :=
   α × multiplicityCoherentCarrier g
 
 instance multiplicityFlaggedCarrierFintype
