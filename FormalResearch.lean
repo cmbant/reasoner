@@ -14,6 +14,7 @@ import FormalResearch.QIA.ThreeCopyChiralityOnset
 import FormalResearch.QIA.ThreeCopyChiralityPersistence
 import FormalResearch.QIA.MultiplicityProfileDimensions
 import FormalResearch.QIA.MultiplicityProfileQuantumExcess
+import FormalResearch.QIA.SectorLabelOnlyCodeDimension
 import FormalResearch.QIB.U1InvariantExponentGap
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
