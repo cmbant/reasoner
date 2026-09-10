@@ -96,7 +96,7 @@ standard signed-permutation realization used by `allD4`. -/
 theorem t48D4Simple_conjugacy (k : Fin 4) :
     t48StandardD4Simple k * t48D4BasisChange =
       t48D4BasisChange * t48SourceD4Simple k := by
-  native_decide
+  fin_cases k <;> native_decide
 
 /-- Source `F_tt` blocks for the four certified E6 facets after the T48 `m+a`
 change of basis. -/
@@ -158,12 +158,12 @@ theorem t48FacetStandardNormal_changeOfBasis (k : Fin 4) :
     t48FacetStandardNormal k =
       t48D4BasisChangeInv.transpose * t48FacetTBlock k *
         t48D4BasisChange.transpose := by
-  native_decide
+  fin_cases k <;> native_decide
 
 /-- The `a`-block contributes exactly `1/3` for every certified facet. -/
 theorem t48FacetABlock_trace (k : Fin 4) :
     Matrix.trace (t48FacetABlock k) = 1/3 := by
-  native_decide
+  fin_cases k <;> native_decide
 
 /-- Frobenius score of a T48 centralizer normal on the existing exact D4 model. -/
 def t48D4Score (k : Fin 4) (ps : D4SignedPerm) : ℚ :=
@@ -181,7 +181,7 @@ def t48D4ActiveCount (k : Fin 4) : Nat :=
 T48 source normals. -/
 theorem t48D4SupportViolationCount_zero (k : Fin 4) :
     t48D4SupportViolationCount k = 0 := by
-  native_decide
+  fin_cases k <;> native_decide
 
 /-- Exact source active counts for the four facets. -/
 theorem t48D4ActiveCounts_exact :
@@ -208,7 +208,7 @@ theorem t48D4Score_le_twoThirds (k : Fin 4) (ps : D4SignedPerm)
 /-- Each of the four support values `2/3` is attained. -/
 theorem t48D4Score_twoThirds_attained (k : Fin 4) :
     ∃ ps ∈ allD4, t48D4Score k ps = (2/3 : ℚ) := by
-  native_decide
+  fin_cases k <;> native_decide
 
 /-- Total zero-sector boundary contribution for a source facet and D4 element. -/
 def t48ZeroSectorValue (k : Fin 4) (ps : D4SignedPerm) : ℚ :=
