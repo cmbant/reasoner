@@ -8,7 +8,7 @@ on:
 jobs:
   qia-t07-code-dimension:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -27,3 +27,5 @@ jobs:
           fi
       - name: Build T07 code-dimension module
         run: timeout 600 lake build FormalResearch.QIA.SectorLabelOnlyCodeDimension
+      - name: Build full FormalResearch aggregate
+        run: timeout 900 lake build FormalResearch
