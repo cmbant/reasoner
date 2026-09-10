@@ -76,6 +76,40 @@ theorem hermitianMatrix_eq_of_trace_eq_on_separating_family
   exact hermitianMatrix_eq_of_trace_eq_on_spanning_family
     s (hermitianMatrix_span_eq_top_of_trace_separation s hsep) A B hstats
 
+/-- Deferred-query operator-identity extension on a full finite source space.
+If the source-state family spans the Hermitian matrices, `Cstar` is trace
+adjoint to the encoding `C`, the pulled-back decoder effect and target effect
+are Hermitian, and their query statistics agree on the spanning family, then
+`Cstar F = P` as an operator identity. This is the exact linear extension used
+in the manuscript after coherent-copy spanning. -/
+theorem traceAdjoint_effect_eq_of_stats_eq_on_spanning_family
+    {h q : Type*} [Fintype h] [Fintype q]
+    (s : Set (hermitianMatrixSpace h))
+    (hspan : Submodule.span ℝ s = ⊤)
+    (C : Matrix h h ℂ →ₗ[ℂ] Matrix q q ℂ)
+    (Cstar : Matrix q q ℂ →ₗ[ℂ] Matrix h h ℂ)
+    (F : Matrix q q ℂ) (P : Matrix h h ℂ)
+    (hCstarF : IsSelfAdjoint (Cstar F))
+    (hP : IsSelfAdjoint P)
+    (hadjoint : ∀ (A : Matrix q q ℂ) (X : Matrix h h ℂ),
+      Matrix.trace (A * C X) = Matrix.trace (Cstar A * X))
+    (hstats : ∀ X ∈ s,
+      Complex.re (Matrix.trace (F * C (X : Matrix h h ℂ))) =
+        Complex.re (Matrix.trace (P * (X : Matrix h h ℂ)))) :
+    Cstar F = P := by
+  let A : hermitianMatrixSpace h := ⟨Cstar F, hCstarF⟩
+  let B : hermitianMatrixSpace h := ⟨P, hP⟩
+  have hpair : ∀ X ∈ s,
+      hermitianTraceBilinForm A X = hermitianTraceBilinForm B X := by
+    intro X hX
+    change Complex.re (Matrix.trace (Cstar F * (X : Matrix h h ℂ))) =
+      Complex.re (Matrix.trace (P * (X : Matrix h h ℂ)))
+    rw [← hadjoint F (X : Matrix h h ℂ)]
+    exact hstats X hX
+  have hAB := hermitianMatrix_eq_of_trace_eq_on_spanning_family
+    s hspan A B hpair
+  simpa [A, B] using congrArg Subtype.val hAB
+
 /-- Two Hermitian multiplicity-algebra elements with the same trace statistics
 on a spanning Hermitian family are equal. -/
 theorem multiplicityHermitian_eq_of_trace_eq_on_spanning_family
