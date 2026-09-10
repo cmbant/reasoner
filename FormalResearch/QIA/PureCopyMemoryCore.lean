@@ -5,6 +5,8 @@ import FormalResearch.QIA.SectorLabelOnlyCodeDimension
 namespace FormalResearch.QIA
 
 open Module
+open Matrix
+open scoped ComplexOrder MatrixOrder
 
 /-!
 # QI-A pure-copy exact-memory linear core
