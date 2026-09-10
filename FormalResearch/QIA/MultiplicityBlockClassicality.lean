@@ -54,9 +54,14 @@ theorem finMatrix_exists_noncommuting_iff (n : Nat) :
       simp [i, j] at hv
     refine ⟨Matrix.single i j (1 : ℂ), Matrix.single j j (1 : ℂ), ?_⟩
     intro h
+    have hprod :
+        Matrix.single i j (1 : ℂ) = (0 : Matrix (Fin n) (Fin n) ℂ) := by
+      simpa [hji] using h
     have hentry :=
-      congrArg (fun M : Matrix (Fin n) (Fin n) ℂ => M i j) h
-    simpa [Matrix.single, hji] using hentry
+      congrArg (fun M : Matrix (Fin n) (Fin n) ℂ => M i j) hprod
+    have hone : (1 : ℂ) = 0 := by
+      simpa [Matrix.single] using hentry
+    exact one_ne_zero hone
 
 /-- Equivalently, all square matrices of size `n` commute exactly when
 `n ≤ 1`. -/
