@@ -1,0 +1,29 @@
+name: Lean QI-A T07 code dimension
+
+on:
+  push:
+    branches: [agents/qia-t07-code-dimension]
+  workflow_dispatch:
+
+jobs:
+  qia-t07-code-dimension:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean toolchain via elan
+        run: |
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies
+        run: lake update
+      - name: Fetch mathlib cache
+        run: lake exe cache get
+      - name: Reject placeholders
+        run: |
+          if grep -R --line-number -E '\bsorry\b|\badmit\b' FormalResearch FormalResearch.lean; then
+            echo 'Lean placeholders found'
+            exit 1
+          fi
+      - name: Build T07 code-dimension module
+        run: timeout 600 lake build FormalResearch.QIA.SectorLabelOnlyCodeDimension
