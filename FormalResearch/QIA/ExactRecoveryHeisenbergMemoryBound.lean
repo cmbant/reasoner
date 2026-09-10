@@ -53,12 +53,11 @@ theorem coordinateProjector_posSemidef
     {J : Type*} [Fintype J] [DecidableEq J] :
     (∑ j : J, coordinateProjector j) = (1 : Matrix J J ℂ) := by
   ext i k
-  change (∑ j : J, (coordinateProjector j) i k) =
-    (1 : Matrix J J ℂ) i k
+  simp only [Finset.sum_apply, coordinateProjector, Matrix.one_apply]
   by_cases hik : i = k
   · subst k
-    simp [coordinateProjector, eq_comm]
-  · simp [coordinateProjector, hik]
+    simp [eq_comm]
+  · simp [hik]
 
 /-- Coordinate projectors are idempotent. -/
 @[simp] theorem coordinateProjector_mul_self
