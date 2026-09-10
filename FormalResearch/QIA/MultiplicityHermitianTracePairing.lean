@@ -47,7 +47,7 @@ def multiplicityHermitianTraceBilinForm
     (fun A X => ∑ a, hermitianTraceBilinForm (A a) (X a))
     (by intro A B X; simp [Finset.sum_add_distrib])
     (by intro c A X; simp [Finset.mul_sum])
-    (by intro A X Y; simp [Finset.sum_add_distrib])
+    (by intro A X Y; simp [mul_add, Finset.sum_add_distrib])
     (by intro c A X; simp [Finset.mul_sum])
 
 @[simp] theorem multiplicityHermitianTraceBilinForm_apply
@@ -75,14 +75,34 @@ theorem multiplicityHermitianTraceBilinForm_nondegenerate
       (n := Fin (g a))).1
     intro X
     have h := hA (Pi.single a X)
-    simpa [multiplicityHermitianTraceBilinForm] using h
+    change (∑ b, hermitianTraceBilinForm (A b) ((Pi.single a X) b)) = 0 at h
+    have hs :
+        (∑ b, hermitianTraceBilinForm (A b) ((Pi.single a X) b)) =
+          hermitianTraceBilinForm (A a) X := by
+      rw [Finset.sum_eq_single a]
+      · simp
+      · intro b _ hba
+        simp [Pi.single_eq_of_ne hba]
+      · simp
+    rw [hs] at h
+    exact h
   · intro A hA
     funext a
     apply (hermitianTraceBilinForm_nondegenerate
       (n := Fin (g a))).2
     intro X
     have h := hA (Pi.single a X)
-    simpa [multiplicityHermitianTraceBilinForm] using h
+    change (∑ b, hermitianTraceBilinForm ((Pi.single a X) b) (A b)) = 0 at h
+    have hs :
+        (∑ b, hermitianTraceBilinForm ((Pi.single a X) b) (A b)) =
+          hermitianTraceBilinForm X (A a) := by
+      rw [Finset.sum_eq_single a]
+      · simp
+      · intro b _ hba
+        simp [Pi.single_eq_of_ne hba]
+      · simp
+    rw [hs] at h
+    exact h
 
 /-- In finite dimension the summed nondegenerate trace form identifies the
 full Hermitian multiplicity algebra with its algebraic dual. -/
