@@ -51,6 +51,7 @@ import FormalResearch.QID.NestedUpperSupportBridge
 import FormalResearch.QID.F4ExceptionalFacetCertificate
 import FormalResearch.QID.F4ExceptionalFacetAffineWitness
 import FormalResearch.QID.E6A2PhaseEnvelopeQuartic
+import FormalResearch.QID.E6F4ZeroSectorBoundary
 import FormalResearch.QID.D5RankWitness
 import FormalResearch.QID.D5WeylEnumeration
 import FormalResearch.QID.D5AffineRank
