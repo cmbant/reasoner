@@ -53,28 +53,25 @@ theorem coordinateProjector_posSemidef {J : Type*} (j : J) :
 
 /-- The complete family of coordinate projectors resolves the identity. -/
 @[simp] theorem sum_coordinateProjector_eq_one
-    {J : Type*} [Fintype J] :
+    {J : Type*} [Fintype J] [DecidableEq J] :
     (∑ j : J, coordinateProjector j) = (1 : Matrix J J ℂ) := by
-  classical
   ext i k
-  by_cases hik : i = k
-  · subst k
-    simp [coordinateProjector]
-  · simp [coordinateProjector, hik]
+  simp [coordinateProjector, Matrix.one_apply]
 
 /-- Coordinate projectors are idempotent. -/
 @[simp] theorem coordinateProjector_mul_self
-    {J : Type*} [Fintype J] (j : J) :
+    {J : Type*} [Fintype J] [DecidableEq J] (j : J) :
     coordinateProjector j * coordinateProjector j = coordinateProjector j := by
-  classical
-  ext i k
-  simp [coordinateProjector, Matrix.mul_apply]
+  unfold coordinateProjector
+  rw [Matrix.diagonal_mul_diagonal]
+  congr 1
+  funext i
+  by_cases h : i = j <;> simp [h]
 
 /-- A rank-one coordinate projector has trace one. -/
 @[simp] theorem coordinateProjector_trace
-    {J : Type*} [Fintype J] (j : J) :
+    {J : Type*} [Fintype J] [DecidableEq J] (j : J) :
     Matrix.trace (coordinateProjector j) = (1 : ℂ) := by
-  classical
   simp [coordinateProjector, Matrix.trace]
 
 /-- Finite Heisenberg pullback form of the exact-recovery dimension bound.
@@ -85,7 +82,8 @@ coordinate-projector PVM back to a memory POVM.  Exact recovery on the encoded
 coordinate states then gives unit correct-message score for every basis label.
 -/
 theorem exactRecoveryAdjoint_card_le_memory
-    {J q : Type*} [Fintype J] [Fintype q]
+    {J q : Type*} [Fintype J] [DecidableEq J]
+    [Fintype q] [DecidableEq q]
     (omega : J → Matrix q q ℂ)
     (R : Matrix q q ℂ →ₗ[ℂ] Matrix J J ℂ)
     (Rstar : Matrix J J ℂ →ₗ[ℂ] Matrix q q ℂ)
@@ -97,7 +95,6 @@ theorem exactRecoveryAdjoint_card_le_memory
     (hrecover : ∀ j, R (omega j) = coordinateProjector j)
     (homega : ∀ j, omega j ≤ (1 : Matrix q q ℂ)) :
     Fintype.card J ≤ Fintype.card q := by
-  classical
   let B : J → Matrix q q ℂ := fun j => Rstar (coordinateProjector j)
   apply perfectIdentification_card_le_memory B omega
   · intro j
@@ -106,7 +103,9 @@ theorem exactRecoveryAdjoint_card_le_memory
   · change (∑ j : J, Rstar (coordinateProjector j)) = (1 : Matrix q q ℂ)
     calc
       (∑ j : J, Rstar (coordinateProjector j)) =
-          Rstar (∑ j : J, coordinateProjector j) := by simp
+          Rstar (∑ j : J, coordinateProjector j) := by
+            symm
+            exact LinearMap.map_sum Rstar _
       _ = Rstar (1 : Matrix J J ℂ) := by rw [sum_coordinateProjector_eq_one]
       _ = (1 : Matrix q q ℂ) := hRstarOne
   · intro j
@@ -122,7 +121,8 @@ state for every direct-sum multiplicity basis vector turns the generic
 Heisenberg recovery bound into the manuscript quantity
 `K_G = multiplicityMemoryDimension g`. -/
 theorem multiplicityMemoryDimension_le_of_exactRecoveryAdjoint
-    {α q : Type*} [Fintype α] [Fintype q]
+    {α q : Type*} [Fintype α] [DecidableEq α]
+    [Fintype q] [DecidableEq q]
     (g : α → Nat)
     (omega : multiplicityMemoryCarrier g → Matrix q q ℂ)
     (R : Matrix q q ℂ →ₗ[ℂ]
