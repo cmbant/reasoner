@@ -22,10 +22,15 @@ self-pairing zero; one-block rigidity then kills every component. This avoids
 any dependent-coordinate update machinery.
 
 The resulting span theorem has the same finite Hermitian target as the
-manuscript's pure-copy spanning theorem. What remains source-specific is to
-show that the reduced coherent-copy family separates every Hermitian direction
-under this summed trace pairing (the coherent-power polarization/separation
-bridge), together with the concrete symmetry-reduction/CPTP identification.
+manuscript's pure-copy spanning theorem. Combining it with the generic
+recovery-extension lemma also gives the manuscript's part-(ii) linear step:
+once the chosen family separates and is fixed by recovery after encoding, the
+recovery composite is the identity on the whole Hermitian multiplicity space.
+
+What remains source-specific is to show that the reduced coherent-copy family
+separates every Hermitian direction under this summed trace pairing (the
+coherent-power polarization/separation bridge), together with the concrete
+symmetry-reduction/CPTP identification.
 -/
 
 namespace FormalResearch.QIA
@@ -137,6 +142,32 @@ theorem multiplicityHermitian_span_eq_top_of_trace_separation
   apply hsep A
   intro X hX
   simpa using hA X hX
+
+/-- Manuscript part-(ii) linear consequence on the actual finite Hermitian
+multiplicity space. Trace separation makes the chosen family span; therefore
+any linear encoding/recovery pair that fixes that family has identity
+composite on the entire Hermitian multiplicity algebra. This theorem does not
+assert that `C` or `R` are physical quantum channels; the concrete CPTP bridge
+remains separate. -/
+theorem multiplicityHermitian_recovery_comp_encoding_eq_id_of_trace_separation
+    {α M : Type*} [Fintype α] (g : α → Nat)
+    [AddCommMonoid M] [Module ℝ M]
+    (s : Set (multiplicityHermitianSpace g))
+    (hsep : ∀ A : multiplicityHermitianSpace g,
+      (∀ X ∈ s,
+        ∑ a, Complex.re (Matrix.trace
+          (((A a : hermitianMatrixSpace (Fin (g a))) :
+              Matrix (Fin (g a)) (Fin (g a)) ℂ) *
+           ((X a : hermitianMatrixSpace (Fin (g a))) :
+              Matrix (Fin (g a)) (Fin (g a)) ℂ))) = 0) →
+      A = 0)
+    (C : multiplicityHermitianSpace g →ₗ[ℝ] M)
+    (R : M →ₗ[ℝ] multiplicityHermitianSpace g)
+    (hfix : ∀ X ∈ s, R (C X) = X) :
+    R.comp C = LinearMap.id := by
+  exact recovery_comp_encoding_eq_id_of_fix_spanning_family
+    s (multiplicityHermitian_span_eq_top_of_trace_separation g s hsep)
+      C R hfix
 
 end
 
