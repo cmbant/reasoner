@@ -57,7 +57,25 @@ def hermitianTraceBilinForm {n : Type*} [Fintype n] :
       Complex.re (Matrix.trace
         ((A : Matrix n n ℂ) * (X : Matrix n n ℂ))) := rfl
 
-private theorem hermitianTraceBilinForm_self_zero_imp
+/-- A Hermitian matrix has nonnegative self-pairing under the real trace form. -/
+theorem hermitianTraceBilinForm_self_nonneg
+    {n : Type*} [Fintype n]
+    (A : hermitianMatrixSpace n) :
+    0 ≤ hermitianTraceBilinForm A A := by
+  classical
+  let M : Matrix n n ℂ := A
+  have hstar : Mᴴ = M := by
+    simpa [M, Matrix.star_eq_conjTranspose] using A.2.star_eq
+  have hpsd : (M * M).PosSemidef := by
+    have h := Matrix.posSemidef_conjTranspose_mul_self M
+    simpa [hstar] using h
+  have htrace_nonneg : 0 ≤ Matrix.trace (M * M) := hpsd.trace_nonneg
+  have hre : 0 ≤ Complex.re (Matrix.trace (M * M)) :=
+    (RCLike.nonneg_iff.mp htrace_nonneg).1
+  simpa [M] using hre
+
+/-- Zero self-pairing is rigid on the Hermitian matrix space. -/
+theorem hermitianTraceBilinForm_self_zero_imp
     {n : Type*} [Fintype n]
     (A : hermitianMatrixSpace n)
     (hA : hermitianTraceBilinForm A A = 0) :
