@@ -22,6 +22,7 @@ import FormalResearch.QIA.CoherentWidthFactorization
 import FormalResearch.QIA.MultiplicityBlockClassicality
 import FormalResearch.QIA.CanonicalMemoryCarriers
 import FormalResearch.QIA.MatrixTracePairing
+import FormalResearch.QIA.HermitianInnerPairing
 import FormalResearch.QIB.U1InvariantExponentGap
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
