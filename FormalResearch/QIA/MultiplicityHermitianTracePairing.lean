@@ -65,12 +65,11 @@ def multiplicityHermitianTraceBilinForm
 Hermitian trace pairing.  Kept as a small explicit lemma so dependent
 `Pi.single` normalization does not burden the main nondegeneracy proof. -/
 theorem multiplicityHermitianTraceBilinForm_single_right
-    {α : Type*} [Fintype α] (g : α → Nat)
+    {α : Type*} [Fintype α] [DecidableEq α] (g : α → Nat)
     (A : multiplicityHermitianSpace g) (a : α)
     (X : hermitianMatrixSpace (Fin (g a))) :
     multiplicityHermitianTraceBilinForm g A (Pi.single a X) =
       hermitianTraceBilinForm (A a) X := by
-  classical
   change (∑ b, hermitianTraceBilinForm (A b) ((Pi.single a X) b)) =
     hermitianTraceBilinForm (A a) X
   rw [Finset.sum_eq_single a]
@@ -82,12 +81,11 @@ theorem multiplicityHermitianTraceBilinForm_single_right
 
 /-- The analogous one-sector reduction in the first argument. -/
 theorem multiplicityHermitianTraceBilinForm_single_left
-    {α : Type*} [Fintype α] (g : α → Nat)
+    {α : Type*} [Fintype α] [DecidableEq α] (g : α → Nat)
     (A : multiplicityHermitianSpace g) (a : α)
     (X : hermitianMatrixSpace (Fin (g a))) :
     multiplicityHermitianTraceBilinForm g (Pi.single a X) A =
       hermitianTraceBilinForm X (A a) := by
-  classical
   change (∑ b, hermitianTraceBilinForm ((Pi.single a X) b) (A b)) =
     hermitianTraceBilinForm X (A a)
   rw [Finset.sum_eq_single a]
@@ -111,7 +109,8 @@ theorem multiplicityHermitianTraceBilinForm_nondegenerate
       (n := Fin (g a))).1
     intro X
     have h := hA (Pi.single a X)
-    rw [multiplicityHermitianTraceBilinForm_single_right] at h
+    rw [multiplicityHermitianTraceBilinForm_single_right
+      (α := α) g A a X] at h
     exact h
   · intro A hA
     funext a
@@ -119,7 +118,8 @@ theorem multiplicityHermitianTraceBilinForm_nondegenerate
       (n := Fin (g a))).2
     intro X
     have h := hA (Pi.single a X)
-    rw [multiplicityHermitianTraceBilinForm_single_left] at h
+    rw [multiplicityHermitianTraceBilinForm_single_left
+      (α := α) g A a X] at h
     exact h
 
 /-- In finite dimension the summed nondegenerate trace form identifies the
@@ -131,7 +131,7 @@ theorem multiplicityHermitianTraceBilinForm_surjective
   intro f
   let B := multiplicityHermitianTraceBilinForm g
   have hB : B.Nondegenerate :=
-    multiplicityHermitianTraceBilinForm_nondegenerate g
+    multiplicityHermitianTraceBilinForm_nondegenerate (α := α) g
   refine ⟨(B.toDual hB).symm f, ?_⟩
   apply LinearMap.ext
   intro X
@@ -157,7 +157,7 @@ theorem multiplicityHermitian_span_eq_top_of_trace_separation
     Submodule.span ℝ s = ⊤ := by
   apply span_eq_top_of_surjective_pairing_separation
     s (multiplicityHermitianTraceBilinForm g)
-      (multiplicityHermitianTraceBilinForm_surjective g)
+      (multiplicityHermitianTraceBilinForm_surjective (α := α) g)
   intro A hA
   apply hsep A
   intro X hX
