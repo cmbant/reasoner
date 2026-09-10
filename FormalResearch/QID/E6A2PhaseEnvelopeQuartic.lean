@@ -6,8 +6,9 @@ namespace FormalResearch.QID
 # QI-D E6/F4 A2 phase-envelope quartic reduction
 
 Source authority:
-`cmbant/QIprojects:QI-D/code/certify_E6_A2_phase_envelope.py`, audited at
-QIprojects main `acfb127df5cc5998fb91cd00ea6e5311d1462e39`.
+`cmbant/QIprojects:QI-D/code/certify_E6_A2_phase_envelope.py`, current source
+re-audited at QIprojects main `6080f36ddd7a3c85015416b793e0562caf685e5a`
+with source blob `fad4403997347c90b8301cdf691d140253dd2935`.
 
 T33 reduces the fixed-endpoint middle `A2` phase problem to
 
@@ -17,20 +18,33 @@ After eliminating one phase, the remaining unit-circle defect is
 
 `q(u) = (d - Re(a*u))^2 - |b + c*u|^2`,
 
-with `d=(target-c0)/2`.  Under the tangent-half-angle parameter
-`u=(1+i*t)/(1-i*t)`, this module checks the exact rational algebra:
+with `d=(target-c0)/2`. The source-current exact criterion has two separate
+scalar pieces:
+
+* the linear/sign guard `d >= |a|`, represented over rational real/imaginary
+  components by `d >= 0` and `d^2 >= ar^2+ai^2`;
+* nonnegativity of `q` on the unit circle, represented after the
+  tangent-half-angle parameter by a real quartic plus the `t=infinity` value.
+
+Under `u=(1+i*t)/(1-i*t)`, this module checks the exact rational algebra:
 
 * the `A2` phase map has determinant `3` and the displayed inverse;
+* the source rational form of the linear guard;
 * the trigonometric numerators and source `D`, `Rnum` formulas agree exactly;
 * clearing the positive denominator `(1+t^2)^2` gives a quartic `Q(t)`;
 * `q(t) >= 0` is equivalent to `Q(t) >= 0` for every finite rational `t`;
 * the quartic coefficients and the separate `t=infinity` defect are exact;
-* the source's positive equality regression and negative regression are exact.
+* the source's positive equality regression and lowered-target negative
+  regression are exact;
+* the source-current degenerate and nondegenerate regressions prove that the
+  linear guard is not redundant: their quartics are globally nonnegative and
+  their infinity defects are nonnegative while the guard fails.
 
-The analytic maximization `max_v Re(z*v)=|z|`, the identification of the
-coefficient tuple `(c0,a,b,c)` from genuine compact-F4 endpoints, and the
-uniform positivity of the resulting quartics over that endpoint locus are not
-proved here. In particular this module does **not** prove compact-E6
+The analytic maximization `max_v Re(z*v)=|z|`, the derivation of the full
+`H <= target` iff criterion from that analytic maximization, the identification
+of the coefficient tuple `(c0,a,b,c)` from genuine compact-F4 endpoints, and
+the uniform positivity of the resulting quartics over that endpoint locus are
+not proved here. In particular this module does **not** prove compact-E6
 simultaneous Weyl convexity.
 -/
 
@@ -51,6 +65,22 @@ theorem e6A2PhaseMap_certificate :
       e6A2PhaseMap * e6A2PhaseMapInv = 1 ∧
       e6A2PhaseMapInv * e6A2PhaseMap = 1 := by
   native_decide
+
+/-- Rational source form of the load-bearing condition `d >= |a|` for
+`a = ar + i ai`: nonnegative `d` and squared magnitude at most `d^2`. -/
+def e6A2LinearGuard (ar ai d : ℚ) : Prop :=
+  0 ≤ d ∧ ar^2 + ai^2 ≤ d^2
+
+/-- The guard is exactly the boolean arithmetic tested by the source verifier. -/
+theorem e6A2LinearGuard_iff_source_check (ar ai d : ℚ) :
+    e6A2LinearGuard ar ai d ↔
+      0 ≤ d ∧ 0 ≤ d^2 - (ar^2 + ai^2) := by
+  unfold e6A2LinearGuard
+  constructor
+  · intro h
+    exact ⟨h.1, by linarith [h.2]⟩
+  · intro h
+    exact ⟨h.1, by linarith [h.2]⟩
 
 /-- Tangent-half-angle denominator. -/
 def e6A2Den (t : ℚ) : ℚ := 1 + t^2
@@ -184,6 +214,11 @@ theorem e6A2EqualityRegression (t : ℚ) :
   norm_num [e6A2Quartic, e6A2D, e6A2Den, e6A2Rnum]
   ring
 
+/-- The equality regression satisfies the source linear guard. -/
+theorem e6A2EqualityRegression_guard :
+    e6A2LinearGuard (1/4) 0 (1/2) := by
+  norm_num [e6A2LinearGuard]
+
 /-- The source equality regression is globally nonnegative for finite rational
 `t`. -/
 theorem e6A2EqualityRegression_nonneg (t : ℚ) :
@@ -207,5 +242,73 @@ theorem e6A2FailureRegression_negative :
     e6A2Quartic (1/4) 0 (1/6) 0 (1/12) 0 (9/20) 0 < 0 := by
   rw [e6A2FailureRegression_at_zero]
   norm_num
+
+/-- First source-current nonredundancy regression: with `a=b=c=0`, `d=-1`,
+the quartic is the positive square `(1+t^2)^2`. -/
+theorem e6A2GuardDegenerate_quartic (t : ℚ) :
+    e6A2Quartic 0 0 0 0 0 0 (-1) t = (1+t^2)^2 := by
+  norm_num [e6A2Quartic, e6A2D, e6A2Den, e6A2Rnum]
+  ring
+
+/-- The first nonredundancy regression has a globally nonnegative quartic. -/
+theorem e6A2GuardDegenerate_quartic_nonneg (t : ℚ) :
+    0 ≤ e6A2Quartic 0 0 0 0 0 0 (-1) t := by
+  rw [e6A2GuardDegenerate_quartic]
+  positivity
+
+/-- Its infinity defect is also nonnegative. -/
+theorem e6A2GuardDegenerate_infinity :
+    e6A2InfinityDefect 0 0 0 0 0 0 (-1) = 1 := by
+  norm_num [e6A2InfinityDefect]
+
+/-- Nevertheless the load-bearing linear guard fails because `d=-1`. -/
+theorem e6A2GuardDegenerate_false :
+    ¬ e6A2LinearGuard 0 0 (-1) := by
+  norm_num [e6A2LinearGuard]
+
+/-- Second source-current nonredundancy regression: with positive real
+`a=b=c=1/100` and `d=-1/2`, the quartic is explicitly positive. -/
+theorem e6A2GuardNondegenerate_quartic (t : ℚ) :
+    e6A2Quartic (1/100) 0 (1/100) 0 (1/100) 0 (-1/2) t =
+      (2401*t^4 + 4994*t^2 + 2597) / 10000 := by
+  norm_num [e6A2Quartic, e6A2D, e6A2Den, e6A2Rnum]
+  ring
+
+/-- The nondegenerate regression's quartic is globally strictly positive. -/
+theorem e6A2GuardNondegenerate_quartic_pos (t : ℚ) :
+    0 < e6A2Quartic (1/100) 0 (1/100) 0 (1/100) 0 (-1/2) t := by
+  rw [e6A2GuardNondegenerate_quartic]
+  have h2 : 0 ≤ t^2 := sq_nonneg t
+  have h4 : 0 ≤ t^4 := by positivity
+  norm_num
+  nlinarith
+
+/-- Its infinity defect is the positive leading coefficient `2401/10000`. -/
+theorem e6A2GuardNondegenerate_infinity :
+    e6A2InfinityDefect (1/100) 0 (1/100) 0 (1/100) 0 (-1/2) =
+      2401/10000 := by
+  norm_num [e6A2InfinityDefect]
+
+/-- But the nondegenerate source regression also fails the linear guard. -/
+theorem e6A2GuardNondegenerate_false :
+    ¬ e6A2LinearGuard (1/100) 0 (-1/2) := by
+  norm_num [e6A2LinearGuard]
+
+/-- Compact exact certificate that quartic/infinity nonnegativity alone cannot
+replace the source linear guard. -/
+theorem e6A2LinearGuard_not_redundant :
+    (∀ t : ℚ, 0 ≤ e6A2Quartic 0 0 0 0 0 0 (-1) t) ∧
+      0 ≤ e6A2InfinityDefect 0 0 0 0 0 0 (-1) ∧
+      ¬ e6A2LinearGuard 0 0 (-1) ∧
+      (∀ t : ℚ,
+        0 < e6A2Quartic (1/100) 0 (1/100) 0 (1/100) 0 (-1/2) t) ∧
+      0 < e6A2InfinityDefect (1/100) 0 (1/100) 0 (1/100) 0 (-1/2) ∧
+      ¬ e6A2LinearGuard (1/100) 0 (-1/2) := by
+  exact ⟨e6A2GuardDegenerate_quartic_nonneg,
+    by rw [e6A2GuardDegenerate_infinity]; norm_num,
+    e6A2GuardDegenerate_false,
+    e6A2GuardNondegenerate_quartic_pos,
+    by rw [e6A2GuardNondegenerate_infinity]; norm_num,
+    e6A2GuardNondegenerate_false⟩
 
 end FormalResearch.QID
