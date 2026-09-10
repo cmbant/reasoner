@@ -8,22 +8,22 @@ Source authority: `cmbant/QIprojects@d3e3d2e2a74201a178cd73ca7ef249b861c4f57e`,
 `QI-A/paper/finite_copy_quantum_memory.tex`.
 
 Part (iii) of the manuscript's pure-copy reversible-compression theorem chooses
-one orthonormal basis vector in each multiplicity block.  These give
+one orthonormal basis vector in each multiplicity block. These give
 `K_G = sum_alpha dim M_alpha` mutually perfectly distinguishable pure states.
 Exact recovery implies that their encoded memory states remain perfectly
 distinguishable, so a `q`-dimensional memory must satisfy `K_G <= q`.
 
 This module formalizes a finite Heisenberg-picture version of that semantic
-step.  A Schrödinger recovery map `R` is paired with a trace-adjoint pullback
-`Rstar`.  If `Rstar` is positive and unital, the coordinate projectors pull
-back to a memory POVM.  If recovery is exact on the coordinate projectors,
-trace-adjointness makes that POVM identify the encoded states perfectly.  The
+step. A Schrödinger recovery map `R` is paired with a trace-adjoint pullback
+`Rstar`. If `Rstar` is positive and unital, the coordinate projectors pull
+back to a memory POVM. If recovery is exact on the coordinate projectors,
+trace-adjointness makes that POVM identify the encoded states perfectly. The
 existing finite POVM trace-budget theorem then gives the Hilbert-dimension
 bound.
 
 This does not construct `Rstar` from an arbitrary CPTP map, nor prove that the
-maps arise from the QI-A symmetry reduction.  Those concrete channel bridges
-remain separate.  The encoded-state bound `omega <= I`, automatic for density
+maps arise from the QI-A symmetry reduction. Those concrete channel bridges
+remain separate. The encoded-state bound `omega <= I`, automatic for density
 operators, is retained as the same explicit finite-matrix hypothesis used by
 `PureCopyMemoryCore`.
 -/
@@ -35,17 +35,14 @@ open scoped ComplexOrder MatrixOrder BigOperators
 
 noncomputable section
 
-/-- Rank-one coordinate projector onto the basis vector `j`.  The definition
-uses a diagonal indicator so positivity is immediate from mathlib's diagonal
-PSD theorem. -/
-noncomputable def coordinateProjector {J : Type*} (j : J) : Matrix J J ℂ := by
-  classical
-  exact Matrix.diagonal (fun i => if i = j then 1 else 0)
+/-- Rank-one coordinate projector onto the basis vector `j`. -/
+def coordinateProjector {J : Type*} [DecidableEq J] (j : J) : Matrix J J ℂ :=
+  Matrix.diagonal (fun i => if i = j then 1 else 0)
 
 /-- Every coordinate projector is positive semidefinite. -/
-theorem coordinateProjector_posSemidef {J : Type*} (j : J) :
+theorem coordinateProjector_posSemidef
+    {J : Type*} [DecidableEq J] (j : J) :
     (coordinateProjector j).PosSemidef := by
-  classical
   unfold coordinateProjector
   apply Matrix.PosSemidef.diagonal
   intro i
@@ -56,7 +53,10 @@ theorem coordinateProjector_posSemidef {J : Type*} (j : J) :
     {J : Type*} [Fintype J] [DecidableEq J] :
     (∑ j : J, coordinateProjector j) = (1 : Matrix J J ℂ) := by
   ext i k
-  simp [coordinateProjector, Matrix.one_apply]
+  by_cases hik : i = k
+  · subst k
+    simp [coordinateProjector, eq_comm]
+  · simp [coordinateProjector, hik]
 
 /-- Coordinate projectors are idempotent. -/
 @[simp] theorem coordinateProjector_mul_self
@@ -72,13 +72,13 @@ theorem coordinateProjector_posSemidef {J : Type*} (j : J) :
 @[simp] theorem coordinateProjector_trace
     {J : Type*} [Fintype J] [DecidableEq J] (j : J) :
     Matrix.trace (coordinateProjector j) = (1 : ℂ) := by
-  simp [coordinateProjector, Matrix.trace]
+  simp [coordinateProjector, Matrix.trace, eq_comm]
 
 /-- Finite Heisenberg pullback form of the exact-recovery dimension bound.
 
 `R` is the Schrödinger recovery map and `Rstar` its assumed trace adjoint.
 Positivity and unitality of `Rstar` are exactly what is needed to pull the
-coordinate-projector PVM back to a memory POVM.  Exact recovery on the encoded
+coordinate-projector PVM back to a memory POVM. Exact recovery on the encoded
 coordinate states then gives unit correct-message score for every basis label.
 -/
 theorem exactRecoveryAdjoint_card_le_memory
@@ -104,8 +104,7 @@ theorem exactRecoveryAdjoint_card_le_memory
     calc
       (∑ j : J, Rstar (coordinateProjector j)) =
           Rstar (∑ j : J, coordinateProjector j) := by
-            symm
-            exact LinearMap.map_sum Rstar _
+            rw [map_sum]
       _ = Rstar (1 : Matrix J J ℂ) := by rw [sum_coordinateProjector_eq_one]
       _ = (1 : Matrix q q ℂ) := hRstarOne
   · intro j
@@ -116,7 +115,7 @@ theorem exactRecoveryAdjoint_card_le_memory
     rw [coordinateProjector_mul_self]
     simp
 
-/-- QI-A multiplicity-profile specialization.  Taking one coordinate basis
+/-- QI-A multiplicity-profile specialization. Taking one coordinate basis
 state for every direct-sum multiplicity basis vector turns the generic
 Heisenberg recovery bound into the manuscript quantity
 `K_G = multiplicityMemoryDimension g`. -/
