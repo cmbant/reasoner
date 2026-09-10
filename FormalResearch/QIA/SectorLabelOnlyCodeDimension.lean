@@ -42,7 +42,7 @@ unrestricted-physical block-curve converse.
 /-- Real part of the Born trace score.  For positive effects and states this is
 in fact real and nonnegative; using the real part keeps scalar inequalities in
 `ℝ` while retaining the exact complex matrix product. -/
-def sectorCodeTraceScore {q : Type*} [Fintype q]
+noncomputable def sectorCodeTraceScore {q : Type*} [Fintype q]
     (B omega : Matrix q q ℂ) : ℝ :=
   RCLike.re (Matrix.trace (B * omega))
 
@@ -72,7 +72,7 @@ theorem sectorCodeTraceScore_le_effectTrace
   have hnonneg := re_trace_mul_nonneg hB hdiff
   unfold sectorCodeTraceScore
   simp [mul_sub] at hnonneg
-  linarith
+  exact hnonneg
 
 /-- Exact POVM trace budget: summing the correct-message Born scores over all
 uniform messages cannot exceed the Hilbert-space dimension. -/
@@ -95,7 +95,7 @@ theorem sectorCode_totalSuccess_le_dimension
       simpa using htrace
 
 /-- Average correct-message success for a uniform finite message set. -/
-def sectorCodeAverageSuccess {J q : Type*} [Fintype J] [Fintype q]
+noncomputable def sectorCodeAverageSuccess {J q : Type*} [Fintype J] [Fintype q]
     (B omega : J → Matrix q q ℂ) : ℝ :=
   (∑ j, sectorCodeTraceScore (B j) (omega j)) / (Fintype.card J : ℝ)
 
