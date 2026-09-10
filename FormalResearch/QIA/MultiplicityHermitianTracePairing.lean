@@ -8,18 +8,21 @@ Source authority: `cmbant/QIprojects@d3e3d2e2a74201a178cd73ca7ef249b861c4f57e`,
 `QI-A/paper/finite_copy_quantum_memory.tex`.
 
 QI-A's reduced multiplicity algebra is a finite direct sum of full matrix
-blocks.  On Hermitian elements this is a finite real product of Hermitian
-matrix spaces.  `HermitianInnerPairing` proves that the real trace form
+blocks. On Hermitian elements this is a finite real product of Hermitian
+matrix spaces. `HermitianInnerPairing` proves that the real trace form
 
   `(A,X) ↦ Re (Tr (A X))`
 
-is nondegenerate on one Hermitian block.  This module lifts that statement to
-a finite multiplicity profile by summing the block trace forms.  The lift is
-proved one sector at a time using `Pi.single`, so no positivity or cancellation
-argument for the total sum is required.
+is nondegenerate on one Hermitian block. This module lifts that statement to
+a finite multiplicity profile by summing the block trace forms.
+
+The product nondegeneracy proof tests a direction against itself. Every block
+self-pairing is nonnegative, so a zero total self-pairing makes every block
+self-pairing zero; one-block rigidity then kills every component. This avoids
+any dependent-coordinate update machinery.
 
 The resulting span theorem has the same finite Hermitian target as the
-manuscript's pure-copy spanning theorem.  What remains source-specific is to
+manuscript's pure-copy spanning theorem. What remains source-specific is to
 show that the reduced coherent-copy family separates every Hermitian direction
 under this summed trace pairing (the coherent-power polarization/separation
 bridge), together with the concrete symmetry-reduction/CPTP identification.
@@ -33,8 +36,8 @@ open scoped ComplexOrder MatrixOrder BigOperators
 noncomputable section
 
 /-- The real Hermitian part of a finite multiplicity-block algebra with block
-sizes `g a`.  For finite sector labels this is the finite direct product, hence
-canonically the same vector-space object as the finite direct sum. -/
+sizes `g a`. For finite sector labels this finite product is canonically the
+same vector-space object as the finite direct sum. -/
 abbrev multiplicityHermitianSpace
     {α : Type*} [Fintype α] (g : α → Nat) : Type _ :=
   ∀ a, hermitianMatrixSpace (Fin (g a))
@@ -61,66 +64,38 @@ def multiplicityHermitianTraceBilinForm
             Matrix (Fin (g a)) (Fin (g a)) ℂ))) := by
   simp [multiplicityHermitianTraceBilinForm]
 
-/-- Pairing against a vector supported in one sector reduces to that sector's
-Hermitian trace pairing.  Kept as a small explicit lemma so dependent
-`Pi.single` normalization does not burden the main nondegeneracy proof. -/
-theorem multiplicityHermitianTraceBilinForm_single_right
-    {α : Type*} [Fintype α] [DecidableEq α] (g : α → Nat)
-    (A : multiplicityHermitianSpace g) (a : α)
-    (X : hermitianMatrixSpace (Fin (g a))) :
-    multiplicityHermitianTraceBilinForm g A (Pi.single a X) =
-      hermitianTraceBilinForm (A a) X := by
-  change (∑ b, hermitianTraceBilinForm (A b) ((Pi.single a X) b)) =
-    hermitianTraceBilinForm (A a) X
-  rw [Finset.sum_eq_single a]
-  · rw [Pi.single_eq_same]
-  · intro b _ hba
-    rw [Pi.single_eq_of_ne hba]
-    exact map_zero _
-  · simp
-
-/-- The analogous one-sector reduction in the first argument. -/
-theorem multiplicityHermitianTraceBilinForm_single_left
-    {α : Type*} [Fintype α] [DecidableEq α] (g : α → Nat)
-    (A : multiplicityHermitianSpace g) (a : α)
-    (X : hermitianMatrixSpace (Fin (g a))) :
-    multiplicityHermitianTraceBilinForm g (Pi.single a X) A =
-      hermitianTraceBilinForm X (A a) := by
-  change (∑ b, hermitianTraceBilinForm ((Pi.single a X) b) (A b)) =
-    hermitianTraceBilinForm X (A a)
-  rw [Finset.sum_eq_single a]
-  · rw [Pi.single_eq_same]
-  · intro b _ hba
-    rw [Pi.single_eq_of_ne hba]
-    exact LinearMap.zero_apply _
-  · simp
+/-- Zero total self-pairing is rigid on the finite Hermitian multiplicity
+algebra. Nonnegativity of every block turns the zero sum into blockwise zero
+self-pairings. -/
+theorem multiplicityHermitianTraceBilinForm_self_zero_imp
+    {α : Type*} [Fintype α] (g : α → Nat)
+    (A : multiplicityHermitianSpace g)
+    (hA : multiplicityHermitianTraceBilinForm g A A = 0) :
+    A = 0 := by
+  classical
+  change (∑ a, hermitianTraceBilinForm (A a) (A a)) = 0 at hA
+  have hnonneg :
+      ∀ a ∈ (Finset.univ : Finset α),
+        0 ≤ hermitianTraceBilinForm (A a) (A a) :=
+    fun a _ => hermitianTraceBilinForm_self_nonneg (A a)
+  have hzero :
+      ∀ a ∈ (Finset.univ : Finset α),
+        hermitianTraceBilinForm (A a) (A a) = 0 :=
+    (Finset.sum_eq_zero_iff_of_nonneg hnonneg).mp hA
+  funext a
+  exact hermitianTraceBilinForm_self_zero_imp
+    (A a) (hzero a (Finset.mem_univ a))
 
 /-- The summed trace form is nondegenerate on the full finite Hermitian
-multiplicity algebra.  A vector in either kernel is tested against a function
-supported only in one sector, reducing immediately to block nondegeneracy. -/
+multiplicity algebra. -/
 theorem multiplicityHermitianTraceBilinForm_nondegenerate
     {α : Type*} [Fintype α] (g : α → Nat) :
     (multiplicityHermitianTraceBilinForm g).Nondegenerate := by
-  classical
   constructor
   · intro A hA
-    funext a
-    apply (hermitianTraceBilinForm_nondegenerate
-      (n := Fin (g a))).1
-    intro X
-    have h := hA (Pi.single a X)
-    rw [multiplicityHermitianTraceBilinForm_single_right
-      (α := α) g A a X] at h
-    exact h
+    exact multiplicityHermitianTraceBilinForm_self_zero_imp g A (hA A)
   · intro A hA
-    funext a
-    apply (hermitianTraceBilinForm_nondegenerate
-      (n := Fin (g a))).2
-    intro X
-    have h := hA (Pi.single a X)
-    rw [multiplicityHermitianTraceBilinForm_single_left
-      (α := α) g A a X] at h
-    exact h
+    exact multiplicityHermitianTraceBilinForm_self_zero_imp g A (hA A)
 
 /-- In finite dimension the summed nondegenerate trace form identifies the
 full Hermitian multiplicity algebra with its algebraic dual. -/
@@ -140,9 +115,9 @@ theorem multiplicityHermitianTraceBilinForm_surjective
       (B := B) (hB := hB) f X)
 
 /-- QI-A finite multiplicity-algebra specialization of the pure-copy spanning
-core.  Once a Hermitian family separates all Hermitian directions under the
+core. Once a Hermitian family separates all Hermitian directions under the
 summed block trace pairing, it spans the entire real Hermitian multiplicity
-algebra.  Pairing nondegeneracy and dual-surjectivity are internal theorems. -/
+algebra. Pairing nondegeneracy and dual-surjectivity are internal theorems. -/
 theorem multiplicityHermitian_span_eq_top_of_trace_separation
     {α : Type*} [Fintype α] (g : α → Nat)
     (s : Set (multiplicityHermitianSpace g))
