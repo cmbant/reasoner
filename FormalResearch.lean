@@ -25,6 +25,7 @@ import FormalResearch.QIA.MatrixTracePairing
 import FormalResearch.QIA.HermitianInnerPairing
 import FormalResearch.QIA.MultiplicityHermitianTracePairing
 import FormalResearch.QIA.ExactRecoveryHeisenbergMemoryBound
+import FormalResearch.QIA.DeferredQueryPostSeparationMemoryBound
 import FormalResearch.QIB.U1InvariantExponentGap
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
