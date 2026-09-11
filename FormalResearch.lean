@@ -26,6 +26,8 @@ import FormalResearch.QIA.MatrixTraceAdjoint
 import FormalResearch.QIA.MatrixTraceAdjointUnital
 import FormalResearch.QIA.SymmetricMultilinearDiagonal
 import FormalResearch.QIA.CoherentPowerSymmetricSpan
+import FormalResearch.QIA.CoherentPhaseOrthogonality
+import FormalResearch.QIA.HermitianCoherentPowerSeparation
 import FormalResearch.QIA.HermitianInnerPairing
 import FormalResearch.QIA.MultiplicityHermitianTracePairing
 import FormalResearch.QIA.ExactRecoveryHeisenbergMemoryBound
