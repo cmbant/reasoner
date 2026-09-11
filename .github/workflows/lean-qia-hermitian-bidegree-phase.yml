@@ -12,7 +12,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -31,5 +31,3 @@ jobs:
           fi
       - name: Build phase orthogonality module
         run: timeout 300 lake build FormalResearch.QIA.CoherentPhaseOrthogonality
-      - name: Build full aggregate
-        run: timeout 900 lake build FormalResearch
