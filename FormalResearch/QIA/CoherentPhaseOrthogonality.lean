@@ -3,6 +3,8 @@ import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import Mathlib.Algebra.Ring.GeomSum
 import Mathlib.LinearAlgebra.Vandermonde
 import Mathlib.LinearAlgebra.Multilinear.Basic
+import Mathlib.Data.Fintype.Card
+import Mathlib.Tactic.Omega
 
 /-!
 # Finite phase orthogonality for coherent-power extraction
@@ -95,6 +97,76 @@ theorem multilinear_coherent_two_point_expansion
         by_cases hi : i ∈ s <;> simp [m, hi]
       rw [harg] at h
       simpa [m] using h
+
+/-- The exponent produced after multiplying a bidegree-`(n,n)` phase expansion by
+`z^n`.  The range is exactly contained in `0, ..., 2n`. -/
+def coherentPhaseExponent (n : ℕ) (s t : Finset (Fin n)) : Fin (2 * n + 1) :=
+  ⟨n - s.card + t.card, by
+    have hs : s.card ≤ n := by simpa using s.card_le_univ
+    have ht : t.card ≤ n := by simpa using t.card_le_univ
+    omega⟩
+
+/-- The top phase exponent is attained only by taking no `y` slots on the
+conjugate-linear side and every `y` slot on the linear side. -/
+theorem coherentPhaseExponent_eq_last_iff
+    {n : ℕ} (s t : Finset (Fin n)) :
+    coherentPhaseExponent n s t = Fin.last (2 * n) ↔
+      s = ∅ ∧ t = Finset.univ := by
+  constructor
+  · intro h
+    have hv : n - s.card + t.card = 2 * n := congrArg Fin.val h
+    have hs : s.card ≤ n := by simpa using s.card_le_univ
+    have ht : t.card ≤ n := by simpa using t.card_le_univ
+    have hs0 : s.card = 0 := by omega
+    have htn : t.card = n := by omega
+    exact ⟨Finset.card_eq_zero.mp hs0,
+      Finset.eq_univ_of_card t (by simpa using htn)⟩
+  · rintro ⟨rfl, rfl⟩
+    apply Fin.ext
+    simp [coherentPhaseExponent]
+
+/-- Group a double phase expansion by its ordinary polynomial exponent. -/
+def coherentPhaseCoefficients {n : ℕ}
+    (a : Finset (Fin n) → Finset (Fin n) → ℂ) : Fin (2 * n + 1) → ℂ :=
+  fun r => ∑ s : Finset (Fin n), ∑ t : Finset (Fin n),
+    if coherentPhaseExponent n s t = r then a s t else 0
+
+/-- Regrouping the subset-indexed bidegree expansion by phase exponent produces an
+ordinary polynomial of degree at most `2n`. -/
+theorem coherentPhaseCoefficients_eval {n : ℕ}
+    (a : Finset (Fin n) → Finset (Fin n) → ℂ) (z : ℂ) :
+    (∑ r : Fin (2 * n + 1), coherentPhaseCoefficients a r * z ^ (r : ℕ)) =
+      ∑ s : Finset (Fin n), ∑ t : Finset (Fin n),
+        a s t * z ^ (coherentPhaseExponent n s t : ℕ) := by
+  classical
+  simp [coherentPhaseCoefficients, Finset.sum_mul, Finset.sum_comm]
+
+/-- The top grouped coefficient is exactly the extreme coherent cross term. -/
+theorem coherentPhaseCoefficients_last {n : ℕ}
+    (a : Finset (Fin n) → Finset (Fin n) → ℂ) :
+    coherentPhaseCoefficients a (Fin.last (2 * n)) = a ∅ Finset.univ := by
+  classical
+  simp [coherentPhaseCoefficients, coherentPhaseExponent_eq_last_iff]
+
+/-- Finite phase extraction at order `2n+1`: if the bidegree phase polynomial
+vanishes around one primitive root cycle, its extreme coherent cross coefficient
+vanishes. -/
+theorem coherentPhase_extreme_coefficient_eq_zero
+    {n : ℕ} {ζ : ℂ} (hζ : IsPrimitiveRoot ζ (2 * n + 1))
+    (a : Finset (Fin n) → Finset (Fin n) → ℂ)
+    (hzero : ∀ k : Fin (2 * n + 1),
+      (∑ s : Finset (Fin n), ∑ t : Finset (Fin n),
+        a s t * (ζ ^ (k : ℕ)) ^ (coherentPhaseExponent n s t : ℕ)) = 0) :
+    a ∅ Finset.univ = 0 := by
+  let c := coherentPhaseCoefficients a
+  have hc : c = 0 := primitiveRoot_vandermonde_coefficients_eq_zero hζ c (by
+    intro k
+    rw [coherentPhaseCoefficients_eval]
+    exact hzero k)
+  have hlast := congrFun hc (Fin.last (2 * n))
+  rw [show c (Fin.last (2 * n)) = a ∅ Finset.univ by
+    simpa [c] using coherentPhaseCoefficients_last a] at hlast
+  exact hlast
 
 end
 
