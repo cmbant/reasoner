@@ -31,3 +31,5 @@ jobs:
           fi
       - name: Build direct-sum isotypic witness module
         run: timeout 300 lake build FormalResearch.QIA.IsotypicDirectSumAuxiliaryStates
+      - name: Build isotypic deferred-query composition
+        run: timeout 300 lake build FormalResearch.QIA.DeferredQueryIsotypicChannelMemoryBound
