@@ -30,7 +30,7 @@ theorem posSemidef_le_one_of_trace_eq_one
   let hH : A.IsHermitian := hA.isHermitian
   have hsum : ∑ i, hH.eigenvalues i = 1 := by
     have h := congrArg Complex.re hH.trace_eq_sum_eigenvalues
-    simpa [htrace] using h
+    simpa [htrace] using h.symm
   have hle : ∀ i, hH.eigenvalues i ≤ 1 := by
     intro i
     rw [← hsum]
@@ -43,17 +43,22 @@ theorem posSemidef_le_one_of_trace_eq_one
     by_cases hij : i = j
     · subst j
       simp
-    · simp [Matrix.diagonal_apply, hij]
+    · simp [hij]
   have hD :
       (Matrix.diagonal (fun i => ((1 - hH.eigenvalues i : ℝ) : ℂ))).PosSemidef := by
     rw [Matrix.posSemidef_diagonal_iff]
     intro i
     exact_mod_cast sub_nonneg.mpr (hle i)
-  rw [hH.spectral_theorem, Unitary.conjStarAlgAut_apply]
+  have hunit :
+      (hH.eigenvectorUnitary : Matrix n n ℂ) *
+          (hH.eigenvectorUnitary : Matrix n n ℂ)ᴴ = 1 := by
+    simpa [star_eq_conjTranspose] using
+      (Unitary.coe_mul_star_self hH.eigenvectorUnitary)
+  rw [hH.spectral_theorem, Unitary.conjStarAlgAut_apply, star_eq_conjTranspose]
   have hconj := hD.mul_mul_conjTranspose_same
     (hH.eigenvectorUnitary : Matrix n n ℂ)
   rw [hdiag] at hconj
-  simpa [Matrix.mul_sub, Matrix.sub_mul, Matrix.mul_assoc] using hconj
+  simpa [Matrix.mul_sub, Matrix.sub_mul, Matrix.mul_assoc, hunit] using hconj
 
 end
 
