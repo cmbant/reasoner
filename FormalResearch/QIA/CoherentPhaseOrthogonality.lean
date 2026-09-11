@@ -1,5 +1,6 @@
 import Mathlib.Analysis.Complex.Basic
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
+import Mathlib.RingTheory.RootsOfUnity.Complex
 import Mathlib.Algebra.Ring.GeomSum
 import Mathlib.LinearAlgebra.Vandermonde
 import Mathlib.LinearAlgebra.Multilinear.Basic
@@ -247,6 +248,34 @@ theorem coherentPhase_extreme_coefficient_eq_zero
   rw [show c (Fin.last (2 * n)) = a ∅ Finset.univ by
     simpa [c] using coherentPhaseCoefficients_last a] at hlast
   exact hlast
+
+/-- A conjugate-linear/linear form is already determined on pairs of coherent
+powers by its coherent diagonal.  Hermitian symmetry is not needed for this
+bidegree extraction step. -/
+theorem sesquilinear_coherent_cross_eq_zero_of_diagonal
+    {E W : Type*} [AddCommMonoid E] [Module ℂ E]
+    [AddCommMonoid W] [Module ℂ W]
+    {n : ℕ} (p : MultilinearMap ℂ (fun _ : Fin n => E) W)
+    (B : W →ₗ⋆[ℂ] W →ₗ[ℂ] ℂ)
+    (hdiag : ∀ v : E, B (p (fun _ => v)) (p (fun _ => v)) = 0)
+    (x y : E) :
+    B (p (fun _ => x)) (p (fun _ => y)) = 0 := by
+  let ζ : ℂ := Complex.exp (2 * Real.pi * Complex.I / (2 * n + 1 : ℕ))
+  have hm : 2 * n + 1 ≠ 0 := by omega
+  have hζ : IsPrimitiveRoot ζ (2 * n + 1) := by
+    simpa [ζ] using Complex.isPrimitiveRoot_exp (2 * n + 1) hm
+  let a : Finset (Fin n) → Finset (Fin n) → ℂ := fun s t =>
+    B (p (s.piecewise (fun _ => y) (fun _ => x)))
+      (p (t.piecewise (fun _ => y) (fun _ => x)))
+  have ha : a ∅ Finset.univ = 0 :=
+    coherentPhase_extreme_coefficient_eq_zero hζ a (by
+      intro k
+      have hz : ‖ζ ^ (k : ℕ)‖ = 1 := by
+        rw [norm_pow, hζ.norm'_eq_one hm, one_pow]
+      have hphase := sesquilinear_coherent_phase_expansion p B x y hz
+      rw [hdiag] at hphase
+      simpa [a] using hphase.symm)
+  simpa [a] using ha
 
 end
 
