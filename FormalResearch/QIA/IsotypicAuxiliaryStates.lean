@@ -95,13 +95,14 @@ theorem isotypicQueryProjector_sum_eq_one
     (∑ j : m, isotypicQueryProjector (v := v) j) =
       (1 : Matrix (v × m) (v × m) ℂ) := by
   ext ⟨a, i⟩ ⟨b, k⟩
+  simp_rw [Matrix.sum_apply, isotypicQueryProjector, Matrix.kronecker_apply]
   by_cases hab : a = b
   · subst b
     by_cases hik : i = k
     · subst k
-      simp [isotypicQueryProjector, multiplicityBasisProjector, Matrix.kronecker_apply]
-    · simp [isotypicQueryProjector, multiplicityBasisProjector, Matrix.kronecker_apply, hik]
-  · simp [isotypicQueryProjector, multiplicityBasisProjector, Matrix.kronecker_apply, hab]
+      simp [multiplicityBasisProjector]
+    · simp [multiplicityBasisProjector, hik]
+  · simp [multiplicityBasisProjector, hab]
 
 /-- Manuscript auxiliary state `I_V / dim(V) ⊗ |e_j><e_j|` in the chosen
 product basis.  A nonempty carrier is the finite-basis form of `dim V > 0`. -/
