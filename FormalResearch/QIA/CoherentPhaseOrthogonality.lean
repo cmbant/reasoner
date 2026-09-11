@@ -1,13 +1,14 @@
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import Mathlib.Algebra.Ring.GeomSum
+import Mathlib.LinearAlgebra.Vandermonde
 
 /-!
 # Finite phase orthogonality for coherent-power extraction
 
 The Hermitian coherent-copy separation step needs a finite Fourier extraction on the
 phase family `x + ζ^k y`.  This file isolates the root-of-unity orthogonality used by
-that extraction: every nonzero frequency strictly below the sampling order has zero
-average over a primitive root cycle.
+that extraction and then upgrades it to exact coefficient recovery through the
+Vandermonde matrix on one primitive-root cycle.
 -/
 
 namespace FormalResearch.QIA
@@ -43,6 +44,20 @@ theorem primitiveRoot_power_geom_sum
     simp
   · rw [if_neg hr0]
     exact primitiveRoot_power_geom_sum_eq_zero hζ hr0 hrlt
+
+/-- Evaluation at one full primitive-root cycle determines all coefficients of a
+polynomial of degree strictly below the cycle length.  This is the finite Fourier
+coefficient-recovery statement used by the bidegree phase extraction. -/
+theorem primitiveRoot_vandermonde_coefficients_eq_zero
+    {ζ : ℂ} {m : ℕ} (hζ : IsPrimitiveRoot ζ m) (c : Fin m → ℂ)
+    (hzero : ∀ k : Fin m,
+      (∑ r : Fin m, c r * (ζ ^ (k : ℕ)) ^ (r : ℕ)) = 0) :
+    c = 0 := by
+  apply Matrix.eq_zero_of_forall_index_sum_mul_pow_eq_zero
+      (f := fun k : Fin m => ζ ^ (k : ℕ))
+  · intro i j hij
+    exact Fin.ext (hζ.pow_inj i.isLt j.isLt hij)
+  · exact hzero
 
 end
 
