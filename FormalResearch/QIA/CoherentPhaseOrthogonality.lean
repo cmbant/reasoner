@@ -106,7 +106,7 @@ def coherentPhaseExponent (n : ℕ) (s t : Finset (Fin n)) : Fin (2 * n + 1) :=
     omega⟩
 
 /-- The top phase exponent is attained only by taking no `y` slots on the
-conjugate-linear side and every `y` slot on the linear side. -/
+conjugate-linear side and every `y` slots on the linear side. -/
 theorem coherentPhaseExponent_eq_last_iff
     {n : ℕ} (s t : Finset (Fin n)) :
     coherentPhaseExponent n s t = Fin.last (2 * n) ↔
@@ -145,7 +145,7 @@ theorem coherentPhaseCoefficients_eval {n : ℕ}
   rw [Finset.sum_comm]
   apply Finset.sum_congr rfl
   intro t ht
-  simp only [ite_mul, zero_mul, Finset.sum_ite_eq', Finset.mem_univ, ite_true]
+  simp only [ite_mul, zero_mul, Finset.sum_ite_eq, Finset.mem_univ, ite_true]
 
 /-- The top grouped coefficient is exactly the extreme coherent cross term. -/
 theorem coherentPhaseCoefficients_last {n : ℕ}
