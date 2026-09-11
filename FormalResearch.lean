@@ -23,6 +23,7 @@ import FormalResearch.QIA.MultiplicityBlockClassicality
 import FormalResearch.QIA.CanonicalMemoryCarriers
 import FormalResearch.QIA.MatrixTracePairing
 import FormalResearch.QIA.MatrixTraceAdjoint
+import FormalResearch.QIA.MatrixTraceAdjointPositivity
 import FormalResearch.QIA.MatrixTraceAdjointUnital
 import FormalResearch.QIA.SymmetricMultilinearDiagonal
 import FormalResearch.QIA.CoherentPowerSymmetricSpan
@@ -38,6 +39,7 @@ import FormalResearch.QIA.SpanningStatisticsEffectIdentity
 import FormalResearch.QIA.DeferredQuerySpanningMemoryBound
 import FormalResearch.QIA.DeferredQueryCanonicalAdjointMemoryBound
 import FormalResearch.QIA.DeferredQueryCoherentRankOneMemoryBound
+import FormalResearch.QIA.DeferredQueryCoherentPositiveMemoryBound
 import FormalResearch.QIB.U1InvariantExponentGap
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
