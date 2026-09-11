@@ -49,9 +49,9 @@ theorem trace_mul_coherentRankOneMatrix
     Matrix.trace (A * coherentRankOneMatrix v) =
       inner ℂ v (A.toEuclideanLin v) := by
   classical
-  rw [EuclideanSpace.inner_eq_star_dotProduct, Matrix.ofLp_toLpLin]
-  simp [coherentRankOneMatrix, Matrix.trace, Matrix.mul_apply,
-    Matrix.toLin'_apply, dotProduct, Matrix.mulVec, Finset.sum_mul, mul_assoc]
+  rw [coherentRankOneMatrix, Matrix.mul_vecMulVec, Matrix.trace_vecMulVec,
+    EuclideanSpace.inner_eq_star_dotProduct, Matrix.ofLp_toLpLin,
+    Matrix.toLin'_apply]
 
 /-- Coordinate-matrix form of coherent-copy separation with complex trace
 statistics.  The realization is still explicit; this theorem only identifies
@@ -133,13 +133,18 @@ theorem coherentRankOneHermitian_span_eq_top
     (ι : SymmetricPower ℂ (Fin n) E ≃ₗ[ℂ] EuclideanSpace ℂ h)
     (hreal : Continuous fun v : Fin n → E =>
       ι (SymmetricPower.tprod ℂ v)) :
-    Submodule.span ℝ (coherentRankOneHermitianFamily ι) = ⊤ := by
+    Submodule.span ℝ
+      (coherentRankOneHermitianFamily (E := E) (h := h) (n := n) ι) = ⊤ := by
   apply hermitianMatrix_span_eq_top_of_trace_separation
   intro A hA
   apply hermitianMatrix_eq_zero_of_coherent_rankOne_re_trace ι hreal A
   intro x
-  apply hA
-  exact ⟨x, rfl⟩
+  let X : hermitianMatrixSpace h :=
+    coherentRankOneHermitian
+      (ι (SymmetricPower.tprod ℂ (fun _ : Fin n => x)))
+  have hX : X ∈ coherentRankOneHermitianFamily (E := E) (h := h) (n := n) ι := by
+    exact ⟨x, rfl⟩
+  simpa [X, coherentRankOneHermitian] using hA X hX
 
 end
 
