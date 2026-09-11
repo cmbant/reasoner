@@ -29,5 +29,5 @@ jobs:
             echo 'Lean placeholders found'
             exit 1
           fi
-      - name: Build phase orthogonality module
-        run: timeout 300 lake build FormalResearch.QIA.CoherentPhaseOrthogonality
+      - name: Build Hermitian coherent-power separation module
+        run: timeout 300 lake build FormalResearch.QIA.HermitianCoherentPowerSeparation
