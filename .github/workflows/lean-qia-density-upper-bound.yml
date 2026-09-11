@@ -12,7 +12,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -31,3 +31,5 @@ jobs:
           fi
       - name: Build density upper-bound module
         run: timeout 300 lake build FormalResearch.QIA.MatrixDensityUpperBound
+      - name: Build coherent channel converse
+        run: timeout 300 lake build FormalResearch.QIA.DeferredQueryCoherentChannelMemoryBound
