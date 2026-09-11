@@ -1,4 +1,5 @@
 import FormalResearch.QIA.SymmetricMultilinearDiagonal
+import Mathlib.Analysis.Complex.Basic
 import Mathlib.LinearAlgebra.TensorPower.Symmetric
 
 /-!
