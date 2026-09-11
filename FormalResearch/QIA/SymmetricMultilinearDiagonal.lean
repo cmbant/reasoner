@@ -42,9 +42,12 @@ theorem continuousMultilinearMap_eq_zero_of_symmetric_diagonal
       (fun g : E [×n]→L[ℝ] F => g v) (hsymm σ)
     simpa [ContinuousMultilinearMap.domDomCongr_apply] using h
   simp_rw [hperm] at hz
-  have hfac : (Nat.factorial n : ℝ) • f v = 0 := by
+  have hnat : Nat.factorial n • f v = 0 := by
     simpa [Finset.sum_const, Fintype.card_perm, Fintype.card_fin] using hz
-  exact (smul_eq_zero.mp hfac).resolve_left (by positivity)
+  have hreal : (Nat.factorial n : ℝ) • f v = 0 := by
+    rw [Nat.cast_smul_eq_nsmul]
+    exact hnat
+  exact (smul_eq_zero.mp hreal).resolve_left (by positivity)
 
 end
 
