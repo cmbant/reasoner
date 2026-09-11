@@ -24,6 +24,7 @@ import FormalResearch.QIA.CanonicalMemoryCarriers
 import FormalResearch.QIA.MatrixTracePairing
 import FormalResearch.QIA.MatrixTraceAdjoint
 import FormalResearch.QIA.MatrixTraceAdjointUnital
+import FormalResearch.QIA.SymmetricMultilinearDiagonal
 import FormalResearch.QIA.HermitianInnerPairing
 import FormalResearch.QIA.MultiplicityHermitianTracePairing
 import FormalResearch.QIA.ExactRecoveryHeisenbergMemoryBound
