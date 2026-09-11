@@ -122,7 +122,7 @@ theorem coherentPhaseExponent_eq_last_iff
       Finset.eq_univ_of_card t (by simpa using htn)⟩
   · rintro ⟨rfl, rfl⟩
     apply Fin.ext
-    simp [coherentPhaseExponent]
+    simp [coherentPhaseExponent, two_mul]
 
 /-- Group a double phase expansion by its ordinary polynomial exponent. -/
 def coherentPhaseCoefficients {n : ℕ}
@@ -138,14 +138,33 @@ theorem coherentPhaseCoefficients_eval {n : ℕ}
       ∑ s : Finset (Fin n), ∑ t : Finset (Fin n),
         a s t * z ^ (coherentPhaseExponent n s t : ℕ) := by
   classical
-  simp [coherentPhaseCoefficients, Finset.sum_mul, Finset.sum_comm]
+  simp only [coherentPhaseCoefficients, Finset.sum_mul]
+  rw [Finset.sum_comm]
+  apply Finset.sum_congr rfl
+  intro s hs
+  rw [Finset.sum_comm]
+  apply Finset.sum_congr rfl
+  intro t ht
+  simp only [ite_mul, zero_mul, Finset.sum_ite_eq', Finset.mem_univ, ite_true]
 
 /-- The top grouped coefficient is exactly the extreme coherent cross term. -/
 theorem coherentPhaseCoefficients_last {n : ℕ}
     (a : Finset (Fin n) → Finset (Fin n) → ℂ) :
     coherentPhaseCoefficients a (Fin.last (2 * n)) = a ∅ Finset.univ := by
   classical
-  simp [coherentPhaseCoefficients, coherentPhaseExponent_eq_last_iff]
+  unfold coherentPhaseCoefficients
+  calc
+    (∑ s : Finset (Fin n), ∑ t : Finset (Fin n),
+        if coherentPhaseExponent n s t = Fin.last (2 * n) then a s t else 0) =
+        ∑ s : Finset (Fin n), if s = ∅ then a s Finset.univ else 0 := by
+      apply Finset.sum_congr rfl
+      intro s hs
+      by_cases hse : s = ∅
+      · subst s
+        simp [coherentPhaseExponent_eq_last_iff]
+      · simp [coherentPhaseExponent_eq_last_iff, hse]
+    _ = a ∅ Finset.univ := by
+      simp
 
 /-- Finite phase extraction at order `2n+1`: if the bidegree phase polynomial
 vanishes around one primitive root cycle, its extreme coherent cross coefficient
