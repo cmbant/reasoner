@@ -25,6 +25,7 @@ import FormalResearch.QIA.MatrixTracePairing
 import FormalResearch.QIA.MatrixTraceAdjoint
 import FormalResearch.QIA.MatrixTraceAdjointPositivity
 import FormalResearch.QIA.MatrixTraceAdjointUnital
+import FormalResearch.QIA.MatrixTraceAdjointPOVM
 import FormalResearch.QIA.SymmetricMultilinearDiagonal
 import FormalResearch.QIA.CoherentPowerSymmetricSpan
 import FormalResearch.QIA.CoherentPhaseOrthogonality
