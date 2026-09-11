@@ -31,3 +31,5 @@ jobs:
           fi
       - name: Build trace-adjoint positivity module
         run: timeout 300 lake build FormalResearch.QIA.MatrixTraceAdjointPositivity
+      - name: Build positive coherent deferred converse
+        run: timeout 300 lake build FormalResearch.QIA.DeferredQueryCoherentPositiveMemoryBound
