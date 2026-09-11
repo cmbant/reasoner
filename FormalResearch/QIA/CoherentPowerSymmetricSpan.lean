@@ -53,22 +53,15 @@ theorem symmetricPower_linear_eq_zero_of_coherent_power
       (f := f.restrictScalars ℝ) hsymm hdiag'
   have htprod : ∀ v : Fin n → E, L (SymmetricPower.tprod ℂ v) = 0 := by
     intro v
-    have h := congrArg (fun g : E [×n]→L[ℝ] ℂ => g v) hfR
-    simpa [f] using h
-  apply LinearMap.ext
-  intro x
-  have hx : x ∈ Submodule.span ℂ
-      (Set.range (SymmetricPower.tprod ℂ (ι := Fin n) (M := E))) := by
-    rw [SymmetricPower.span_tprod_eq_top]
-    exact Submodule.mem_top
-  refine Submodule.span_induction hx ?_ (by simp) ?_ ?_
-  · intro y hy
-    rcases hy with ⟨v, rfl⟩
-    exact htprod v
-  · intro y z hy hz
-    simp [hy, hz]
-  · intro a y hy
-    simp [hy]
+    have h : (f.restrictScalars ℝ) v = 0 := by
+      rw [hfR]
+      rfl
+    change L (SymmetricPower.tprod ℂ v) = 0 at h
+    exact h
+  refine (Submodule.linearMap_eq_zero_iff_of_span_eq_top L
+      (SymmetricPower.span_tprod_eq_top (R := ℂ) (ι := Fin n) (M := E))).2 ?_
+  rintro ⟨_, ⟨v, rfl⟩⟩
+  exact htprod v
 
 end
 
