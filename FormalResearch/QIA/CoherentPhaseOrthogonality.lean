@@ -1,14 +1,16 @@
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import Mathlib.Algebra.Ring.GeomSum
 import Mathlib.LinearAlgebra.Vandermonde
+import Mathlib.LinearAlgebra.Multilinear.Basic
 
 /-!
 # Finite phase orthogonality for coherent-power extraction
 
 The Hermitian coherent-copy separation step needs a finite Fourier extraction on the
 phase family `x + ζ^k y`.  This file isolates the root-of-unity orthogonality used by
-that extraction and then upgrades it to exact coefficient recovery through the
-Vandermonde matrix on one primitive-root cycle.
+that extraction, upgrades it to exact coefficient recovery through the Vandermonde
+matrix on one primitive-root cycle, and records the multilinear two-point expansion
+whose phase coefficients enter the Hermitian bidegree argument.
 -/
 
 namespace FormalResearch.QIA
@@ -58,6 +60,40 @@ theorem primitiveRoot_vandermonde_coefficients_eq_zero
   · intro i j hij
     exact Fin.ext (hζ.pow_inj i.isLt j.isLt hij)
   · exact hzero
+
+/-- Expand a diagonal value of a multilinear map along the phase line `x + z • y`.
+Each subset of slots carrying `y` contributes the corresponding power of `z`.
+No symmetry hypothesis is needed for this raw expansion. -/
+theorem multilinear_coherent_two_point_expansion
+    {E W : Type*} [AddCommMonoid E] [Module ℂ E]
+    [AddCommMonoid W] [Module ℂ W]
+    {n : ℕ} (p : MultilinearMap ℂ (fun _ : Fin n => E) W)
+    (x y : E) (z : ℂ) :
+    p (fun _ => x + z • y) =
+      ∑ s : Finset (Fin n),
+        z ^ s.card • p (s.piecewise (fun _ => y) (fun _ => x)) := by
+  calc
+    p (fun _ => x + z • y) =
+        p ((fun _ => z • y) + (fun _ => x)) := by
+      congr 1
+      funext i
+      simp [add_comm]
+    _ = ∑ s : Finset (Fin n),
+        p (s.piecewise (fun _ => z • y) (fun _ => x)) := by
+      exact p.map_add_univ (fun _ => z • y) (fun _ => x)
+    _ = ∑ s : Finset (Fin n),
+        z ^ s.card • p (s.piecewise (fun _ => y) (fun _ => x)) := by
+      apply Finset.sum_congr rfl
+      intro s hs
+      let m : Fin n → E := s.piecewise (fun _ => y) (fun _ => x)
+      have h := p.map_piecewise_smul (fun _ : Fin n => z) m s
+      have harg :
+          s.piecewise (fun i => z • m i) m =
+            s.piecewise (fun _ => z • y) (fun _ => x) := by
+        funext i
+        by_cases hi : i ∈ s <;> simp [m, hi]
+      rw [harg] at h
+      simpa [m] using h
 
 end
 
