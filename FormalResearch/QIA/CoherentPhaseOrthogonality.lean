@@ -1,3 +1,4 @@
+import Mathlib.Analysis.Complex.Basic
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import Mathlib.Algebra.Ring.GeomSum
 import Mathlib.LinearAlgebra.Vandermonde
