@@ -1,0 +1,29 @@
+name: Validate QIprojects September 11 status update
+
+on:
+  push:
+    branches:
+      - agents/validate-qiprojects-status-2026-09-11
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out validation host
+        uses: actions/checkout@v4
+      - name: Check out exact QIprojects status commit
+        uses: actions/checkout@v4
+        with:
+          repository: cmbant/QIprojects
+          ref: 098fb71065199fa4f683dfe3cc73ac3db752f6db
+          path: qiprojects
+      - name: Repository policy
+        working-directory: qiprojects
+        run: python3 tools/validation/check_repository_policy.py
+      - name: Task IDs
+        working-directory: qiprojects
+        run: python3 tools/validation/check_task_ids.py
+      - name: Duplicate scan
+        working-directory: qiprojects
+        run: python3 tools/dedup/check_working_tree_duplicates.py
