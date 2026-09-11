@@ -30,6 +30,7 @@ import FormalResearch.QIA.DeferredQueryPostSeparationMemoryBound
 import FormalResearch.QIA.SpanningStatisticsEffectIdentity
 import FormalResearch.QIA.DeferredQuerySpanningMemoryBound
 import FormalResearch.QIA.DeferredQueryCanonicalAdjointMemoryBound
+import FormalResearch.QIA.SymmetricMultilinearDiagonal
 import FormalResearch.QIB.U1InvariantExponentGap
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
@@ -112,7 +113,7 @@ import FormalResearch.Blaschke.WalshWronskianExactRank
 import FormalResearch.Blaschke.WalshWronskianKernelBasis
 import FormalResearch.Blaschke.WronskianAtomIndependence
 import FormalResearch.Blaschke.WronskianAtomNonvanishing
-import FormalResearch.Blaschke.WronskianAtomUnitDisk
+import FormalResearch.Blaschke.WronskianUnitDisk
 import FormalResearch.Blaschke.WronskianUnitDiskRank
 import FormalResearch.Blaschke.SingletonWalshSynthesis
 import FormalResearch.Blaschke.SingletonKernelDirectSum
