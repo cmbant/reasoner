@@ -55,7 +55,10 @@ def isotypicDirectSumQueryProjector
     (d g : α → Nat) (j : multiplicityMemoryCarrier g) :
     Matrix.trace (isotypicDirectSumQueryProjector d g j) = (d j.1 : ℂ) := by
   classical
-  simp [Matrix.trace, isotypicDirectSumQueryProjector, Fintype.sum_sigma]
+  change (∑ x : isotypicDirectSumCarrier d g,
+    isotypicDirectSumQueryProjector d g j x x) = (d j.1 : ℂ)
+  rw [Fintype.sum_sigma]
+  simp [isotypicDirectSumQueryProjector]
 
 @[simp] theorem isotypicDirectSumQueryProjector_mul_self
     {α : Type*} [Fintype α] [DecidableEq α]
