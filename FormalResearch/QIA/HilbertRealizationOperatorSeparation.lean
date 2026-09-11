@@ -57,8 +57,12 @@ theorem symmetricPowerOperatorForm_isSymm
   constructor
   intro u v
   change star (inner ℂ (ι u) (A (ι v))) = inner ℂ (ι v) (A (ι u))
-  rw [inner_conj_symm]
-  exact hA (ι v) (ι u)
+  calc
+    star (inner ℂ (ι u) (A (ι v))) =
+        inner ℂ (A (ι v)) (ι u) := by
+      simpa only [starRingEnd_apply] using
+        (inner_conj_symm (A (ι v)) (ι u))
+    _ = inner ℂ (ι v) (A (ι u)) := hA (ι v) (ι u)
 
 /-- Operator form of coherent-copy separation through an explicit Hilbert realization.
 
