@@ -4,7 +4,6 @@ import Mathlib.Algebra.Ring.GeomSum
 import Mathlib.LinearAlgebra.Vandermonde
 import Mathlib.LinearAlgebra.Multilinear.Basic
 import Mathlib.Data.Fintype.Card
-import Mathlib.Tactic.Omega
 
 /-!
 # Finite phase orthogonality for coherent-power extraction
