@@ -12,7 +12,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -31,3 +31,5 @@ jobs:
           fi
       - name: Build Hermitian coherent-power separation module
         run: timeout 300 lake build FormalResearch.QIA.HermitianCoherentPowerSeparation
+      - name: Build full aggregate
+        run: timeout 900 lake build FormalResearch
