@@ -78,7 +78,7 @@ theorem isotypicQueryProjector_isSelfAdjoint
     [Fintype m] [DecidableEq m] (j : m) :
     isotypicQueryProjector (v := v) j * isotypicQueryProjector (v := v) j =
       isotypicQueryProjector (v := v) j := by
-  rw [isotypicQueryProjector, Matrix.mul_kronecker_mul, one_mul,
+  rw [isotypicQueryProjector, ← Matrix.mul_kronecker_mul, one_mul,
     multiplicityBasisProjector_mul_self]
 
 @[simp] theorem isotypicQueryProjector_trace
@@ -99,9 +99,9 @@ theorem isotypicQueryProjector_sum_eq_one
   · subst b
     by_cases hik : i = k
     · subst k
-      simp [isotypicQueryProjector, multiplicityBasisProjector]
-    · simp [isotypicQueryProjector, multiplicityBasisProjector, hik]
-  · simp [isotypicQueryProjector, multiplicityBasisProjector, hab]
+      simp [isotypicQueryProjector, multiplicityBasisProjector, Matrix.kronecker_apply]
+    · simp [isotypicQueryProjector, multiplicityBasisProjector, Matrix.kronecker_apply, hik]
+  · simp [isotypicQueryProjector, multiplicityBasisProjector, Matrix.kronecker_apply, hab]
 
 /-- Manuscript auxiliary state `I_V / dim(V) ⊗ |e_j><e_j|` in the chosen
 product basis.  A nonempty carrier is the finite-basis form of `dim V > 0`. -/
