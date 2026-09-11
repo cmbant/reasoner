@@ -28,6 +28,7 @@ import FormalResearch.QIA.MatrixTraceAdjointUnital
 import FormalResearch.QIA.MatrixTraceAdjointPOVM
 import FormalResearch.QIA.MatrixDensityUpperBound
 import FormalResearch.QIA.IsotypicAuxiliaryStates
+import FormalResearch.QIA.IsotypicDirectSumAuxiliaryStates
 import FormalResearch.QIA.SymmetricMultilinearDiagonal
 import FormalResearch.QIA.CoherentPowerSymmetricSpan
 import FormalResearch.QIA.CoherentPhaseOrthogonality
@@ -44,6 +45,7 @@ import FormalResearch.QIA.DeferredQueryCanonicalAdjointMemoryBound
 import FormalResearch.QIA.DeferredQueryCoherentRankOneMemoryBound
 import FormalResearch.QIA.DeferredQueryCoherentPositiveMemoryBound
 import FormalResearch.QIA.DeferredQueryCoherentChannelMemoryBound
+import FormalResearch.QIA.DeferredQueryIsotypicChannelMemoryBound
 import FormalResearch.QIB.U1InvariantExponentGap
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
