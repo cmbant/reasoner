@@ -107,6 +107,27 @@ theorem symmetricPower_hilbert_realization_operator_eq_zero_of_coherent_diagonal
     simpa [B] using hv
   simpa using inner_self_eq_zero.mp hv'
 
+/-- On a complete Hilbert realization, Hellinger--Toeplitz makes the symmetric operator
+continuous automatically.  Therefore it suffices to know that the coherent realization
+itself is continuous. -/
+theorem symmetricPower_hilbert_realization_operator_eq_zero_of_coherent_diagonal_of_continuous_realization
+    {E H : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
+    {n : ℕ}
+    (ι : SymmetricPower ℂ (Fin n) E ≃ₗ[ℂ] H)
+    (A : H →ₗ[ℂ] H) (hA : A.IsSymmetric)
+    (hreal : Continuous fun v : Fin n → E =>
+      ι (SymmetricPower.tprod ℂ v))
+    (hdiag : ∀ x : E,
+      inner ℂ
+        (ι (SymmetricPower.tprod ℂ (fun _ : Fin n => x)))
+        (A (ι (SymmetricPower.tprod ℂ (fun _ : Fin n => x)))) = 0) :
+    A = 0 := by
+  apply symmetricPower_hilbert_realization_operator_eq_zero_of_coherent_diagonal
+    ι A hA ?_ hdiag
+  intro u
+  exact continuous_const.inner (hA.continuous.comp hreal)
+
 end
 
 end FormalResearch.QIA
