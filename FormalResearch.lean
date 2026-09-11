@@ -37,6 +37,7 @@ import FormalResearch.QIA.DeferredQueryPostSeparationMemoryBound
 import FormalResearch.QIA.SpanningStatisticsEffectIdentity
 import FormalResearch.QIA.DeferredQuerySpanningMemoryBound
 import FormalResearch.QIA.DeferredQueryCanonicalAdjointMemoryBound
+import FormalResearch.QIA.DeferredQueryCoherentRankOneMemoryBound
 import FormalResearch.QIB.U1InvariantExponentGap
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
