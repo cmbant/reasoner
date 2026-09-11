@@ -51,7 +51,8 @@ theorem matrixLinearMap_map_conjTranspose_of_posSemidef_preserving
     PositiveLinearMap.mk₀ C (by
       intro Y hY
       exact (hCpos Y hY.posSemidef).nonneg)
-  simpa [Cp, star_eq_conjTranspose] using (map_star Cp X)
+  change Cp Xᴴ = (Cp X)ᴴ
+  exact map_star Cp X
 
 /-- If `C` preserves positive-semidefinite matrices, then its canonical trace
 adjoint sends Hermitian matrices to Hermitian matrices. -/
@@ -105,7 +106,7 @@ theorem matrixTraceAdjoint_posSemidef_of_posSemidef_preserving
   have hnonneg : 0 ≤ Matrix.trace (A * C R) :=
     matrix_trace_mul_nonneg_of_posSemidef hA hCR
   rw [matrixTraceAdjoint_spec C A R] at hnonneg
-  simpa [R, Matrix.mul_vecMulVec, Matrix.trace_vecMulVec] using hnonneg
+  simpa [R, Matrix.mul_vecMulVec, Matrix.trace_vecMulVec, dotProduct_comm] using hnonneg
 
 end
 
