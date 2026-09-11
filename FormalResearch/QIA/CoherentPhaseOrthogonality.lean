@@ -135,7 +135,7 @@ theorem norm_one_star_power_phase
     intro h
     subst z
     simp at hz
-  rw [RCLike.star_def, map_pow, ← Complex.inv_eq_conj hz, ← inv_pow,
+  rw [RCLike.star_def, map_pow, ← Complex.inv_eq_conj hz, inv_pow,
     ← pow_sub₀ z hz0 ha, ← pow_add]
 
 /-- Normalize a finite bidegree-`(n,n)` expansion on the unit circle into an
@@ -178,7 +178,7 @@ theorem sesquilinear_coherent_phase_expansion
             (p (t.piecewise (fun _ => y) (fun _ => x))) *
           z ^ (coherentPhaseExponent n s t : ℕ) := by
   have hp := multilinear_coherent_two_point_expansion p x y z
-  rw [hp, hp]
+  rw [hp]
   simp_rw [LinearMap.map_sum₂, map_sum, LinearMap.map_smulₛₗ₂, map_smul,
     starRingEnd_apply, smul_eq_mul]
   exact coherentPhase_normalize_bidegree
