@@ -3,6 +3,7 @@ import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import Mathlib.Algebra.Ring.GeomSum
 import Mathlib.LinearAlgebra.Vandermonde
 import Mathlib.LinearAlgebra.Multilinear.Basic
+import Mathlib.LinearAlgebra.SesquilinearForm.Basic
 import Mathlib.Data.Fintype.Card
 
 /-!
@@ -106,7 +107,7 @@ def coherentPhaseExponent (n : ℕ) (s t : Finset (Fin n)) : Fin (2 * n + 1) :=
     omega⟩
 
 /-- The top phase exponent is attained only by taking no `y` slots on the
-conjugate-linear side and every `y` slots on the linear side. -/
+conjugate-linear side and every `y` slot on the linear side. -/
 theorem coherentPhaseExponent_eq_last_iff
     {n : ℕ} (s t : Finset (Fin n)) :
     coherentPhaseExponent n s t = Fin.last (2 * n) ↔
@@ -123,6 +124,67 @@ theorem coherentPhaseExponent_eq_last_iff
   · rintro ⟨rfl, rfl⟩
     apply Fin.ext
     simp [coherentPhaseExponent, two_mul]
+
+/-- On the unit circle, multiplying a conjugate phase of degree `a` by `z^n`
+turns it into the ordinary nonnegative exponent `n-a`; a second phase of degree
+`b` then contributes exponent `n-a+b`. -/
+theorem norm_one_star_power_phase
+    {z : ℂ} (hz : ‖z‖ = 1) {n a b : ℕ} (ha : a ≤ n) :
+    z ^ n * star (z ^ a) * z ^ b = z ^ (n - a + b) := by
+  have hz0 : z ≠ 0 := by
+    intro h
+    subst z
+    simp at hz
+  rw [RCLike.star_def, map_pow, ← Complex.inv_eq_conj hz, ← inv_pow,
+    ← pow_sub₀ z hz0 ha, ← pow_add]
+
+/-- Normalize a finite bidegree-`(n,n)` expansion on the unit circle into an
+ordinary polynomial with exponents recorded by `coherentPhaseExponent`. -/
+theorem coherentPhase_normalize_bidegree {n : ℕ}
+    (a : Finset (Fin n) → Finset (Fin n) → ℂ)
+    {z : ℂ} (hz : ‖z‖ = 1) :
+    z ^ n *
+        (∑ s : Finset (Fin n), ∑ t : Finset (Fin n),
+          star (z ^ s.card) * (z ^ t.card * a s t)) =
+      ∑ s : Finset (Fin n), ∑ t : Finset (Fin n),
+        a s t * z ^ (coherentPhaseExponent n s t : ℕ) := by
+  rw [Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro s hs
+  rw [Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro t ht
+  have hscard : s.card ≤ n := by simpa using s.card_le_univ
+  calc
+    z ^ n * (star (z ^ s.card) * (z ^ t.card * a s t)) =
+        (z ^ n * star (z ^ s.card) * z ^ t.card) * a s t := by
+      simp only [mul_assoc]
+    _ = z ^ (n - s.card + t.card) * a s t := by
+      rw [norm_one_star_power_phase hz hscard]
+    _ = a s t * z ^ (coherentPhaseExponent n s t : ℕ) := by
+      simp [coherentPhaseExponent, mul_comm]
+
+/-- A conjugate-linear/linear form evaluated on one coherent phase line becomes,
+after multiplication by `z^n`, the ordinary finite phase polynomial used by the
+coefficient extractor. -/
+theorem sesquilinear_coherent_phase_expansion
+    {E W : Type*} [AddCommMonoid E] [Module ℂ E]
+    [AddCommMonoid W] [Module ℂ W]
+    {n : ℕ} (p : MultilinearMap ℂ (fun _ : Fin n => E) W)
+    (B : W →ₗ⋆[ℂ] W →ₗ[ℂ] ℂ) (x y : E) {z : ℂ} (hz : ‖z‖ = 1) :
+    z ^ n * B (p (fun _ => x + z • y)) (p (fun _ => x + z • y)) =
+      ∑ s : Finset (Fin n), ∑ t : Finset (Fin n),
+        B (p (s.piecewise (fun _ => y) (fun _ => x)))
+            (p (t.piecewise (fun _ => y) (fun _ => x))) *
+          z ^ (coherentPhaseExponent n s t : ℕ) := by
+  have hp := multilinear_coherent_two_point_expansion p x y z
+  rw [hp, hp]
+  simp_rw [LinearMap.map_sum₂, map_sum, LinearMap.map_smulₛₗ₂, map_smul,
+    starRingEnd_apply, smul_eq_mul]
+  exact coherentPhase_normalize_bidegree
+    (fun s t =>
+      B (p (s.piecewise (fun _ => y) (fun _ => x)))
+        (p (t.piecewise (fun _ => y) (fun _ => x)))) hz
 
 /-- Group a double phase expansion by its ordinary polynomial exponent. -/
 def coherentPhaseCoefficients {n : ℕ}
