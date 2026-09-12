@@ -31,6 +31,20 @@ def cstarMatrixBlockFlatten
     Matrix (β × n) (β × n) ℂ :=
   Matrix.comp β β n n ℂ M
 
+@[simp] theorem cstarMatrixBlockFlatten_zero
+    {β n : Type*} :
+    cstarMatrixBlockFlatten
+        (0 : CStarMatrix β β (CStarMatrix n n ℂ)) =
+      (0 : Matrix (β × n) (β × n) ℂ) := by
+  rfl
+
+@[simp] theorem cstarMatrixBlockFlatten_add
+    {β n : Type*}
+    (X Y : CStarMatrix β β (CStarMatrix n n ℂ)) :
+    cstarMatrixBlockFlatten (X + Y) =
+      cstarMatrixBlockFlatten X + cstarMatrixBlockFlatten Y := by
+  rfl
+
 /-- Block flattening sends a nested star square to the ordinary conjugate-
 transpose square of the flattened scalar matrix. -/
 theorem cstarMatrixBlockFlatten_star_mul_self
@@ -65,10 +79,11 @@ theorem cstarMatrixBlockFlatten_posSemidef_of_nonneg
       rw [cstarMatrixBlockFlatten_star_mul_self]
       exact Matrix.posSemidef_conjTranspose_mul_self _
   | zero =>
-      simpa [cstarMatrixBlockFlatten] using
-        (Matrix.PosSemidef.zero : (0 : Matrix (β × n) (β × n) ℂ).PosSemidef)
+      rw [cstarMatrixBlockFlatten_zero]
+      exact Matrix.PosSemidef.zero
   | add X Y hX hY ihX ihY =>
-      simpa [cstarMatrixBlockFlatten, Matrix.comp] using ihX.add ihY
+      rw [cstarMatrixBlockFlatten_add]
+      exact ihX.add ihY
 
 end
 
