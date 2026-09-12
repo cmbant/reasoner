@@ -41,7 +41,17 @@ def isotypicMultiplicityReductionCompletelyPositive
       isotypicMultiplicityReduction_amplification_posSemidef
         (β := Fin k) d g hX
     apply cstarMatrixBlockFlatten_nonneg_of_posSemidef
-    simpa [cstarMatrixBlockFlatten] using hY
+    have heq :
+        cstarMatrixBlockFlatten (M.map ⇑(isotypicMultiplicityReduction d g)) =
+          (fun ir js : Fin k × multiplicityMemoryCarrier g =>
+            isotypicMultiplicityReduction d g
+              (fun p q =>
+                cstarMatrixBlockFlatten M (ir.1, p) (js.1, q))
+              ir.2 js.2) := by
+      ext ir js
+      rfl
+    rw [heq]
+    exact hY
 
 @[simp] theorem isotypicMultiplicityReductionCompletelyPositive_apply
     {α : Type*} [Fintype α] [DecidableEq α]
