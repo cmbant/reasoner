@@ -30,6 +30,7 @@ import FormalResearch.QIA.MatrixDensityUpperBound
 import FormalResearch.QIA.IsotypicAuxiliaryStates
 import FormalResearch.QIA.IsotypicDirectSumAuxiliaryStates
 import FormalResearch.QIA.IsotypicMultiplicityReduction
+import FormalResearch.QIA.IsotypicMultiplicityReductionPositivity
 import FormalResearch.QIA.SymmetricMultilinearDiagonal
 import FormalResearch.QIA.CoherentPowerSymmetricSpan
 import FormalResearch.QIA.CoherentPhaseOrthogonality
