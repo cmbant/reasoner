@@ -34,10 +34,10 @@ theorem isotypicMultiplicityBlockReduction_amplification_posSemidef
     {X : Matrix (β × isotypicDirectSumCarrier d g)
           (β × isotypicDirectSumCarrier d g) ℂ}
     (hX : X.PosSemidef) :
-    ((fun ir js : β × Fin (g a) =>
+    Matrix.PosSemidef
+      (fun ir js : β × Fin (g a) =>
         isotypicMultiplicityBlockReduction d g a
-          (fun p q => X (ir.1, p) (js.1, q)) ir.2 js.2) :
-      Matrix (β × Fin (g a)) (β × Fin (g a)) ℂ).PosSemidef := by
+          (fun p q => X (ir.1, p) (js.1, q)) ir.2 js.2) := by
   classical
   have hsum :
       (∑ c : Fin (d a),
