@@ -10,10 +10,11 @@ are themselves C-star-algebra elements.  For the QI-A finite matrix algebras,
 
 `M_β(M_n(ℂ)) ≃ M_{β × n}(ℂ)`.
 
-This module proves the input-side positivity bridge needed to feed a positive
-`CStarMatrix` amplification into the existing raw `Matrix.PosSemidef`
-amplification theorem.  It does not itself construct a `CompletelyPositiveMap`
-and makes no CPTP claim.
+This module proves the bidirectional positivity bridge between nested
+`CStarMatrix` spectral nonnegativity and raw `Matrix.PosSemidef` after canonical
+block flattening.  This is the order transport needed to connect Mathlib's CP
+amplification semantics to the existing raw finite-amplification theorem.  It
+does not itself construct a `CompletelyPositiveMap` and makes no CPTP claim.
 -/
 
 namespace FormalResearch.QIA
@@ -31,6 +32,26 @@ def cstarMatrixBlockFlatten
     Matrix (β × n) (β × n) ℂ :=
   Matrix.comp β β n n ℂ M
 
+/-- Canonically unflatten one raw complex matrix on a product index into a
+square C-star matrix whose entries are square complex C-star matrices. -/
+def cstarMatrixBlockUnflatten
+    {β n : Type*}
+    (M : Matrix (β × n) (β × n) ℂ) :
+    CStarMatrix β β (CStarMatrix n n ℂ) :=
+  (Matrix.comp β β n n ℂ).symm M
+
+@[simp] theorem cstarMatrixBlockFlatten_unflatten
+    {β n : Type*}
+    (M : Matrix (β × n) (β × n) ℂ) :
+    cstarMatrixBlockFlatten (cstarMatrixBlockUnflatten M) = M := by
+  exact (Matrix.comp β β n n ℂ).apply_symm_apply M
+
+@[simp] theorem cstarMatrixBlockUnflatten_flatten
+    {β n : Type*}
+    (M : CStarMatrix β β (CStarMatrix n n ℂ)) :
+    cstarMatrixBlockUnflatten (cstarMatrixBlockFlatten M) = M := by
+  exact (Matrix.comp β β n n ℂ).symm_apply_apply M
+
 @[simp] theorem cstarMatrixBlockFlatten_zero
     {β n : Type*} :
     cstarMatrixBlockFlatten
@@ -43,6 +64,20 @@ def cstarMatrixBlockFlatten
     (X Y : CStarMatrix β β (CStarMatrix n n ℂ)) :
     cstarMatrixBlockFlatten (X + Y) =
       cstarMatrixBlockFlatten X + cstarMatrixBlockFlatten Y := by
+  rfl
+
+@[simp] theorem cstarMatrixBlockUnflatten_zero
+    {β n : Type*} :
+    cstarMatrixBlockUnflatten
+        (0 : Matrix (β × n) (β × n) ℂ) =
+      (0 : CStarMatrix β β (CStarMatrix n n ℂ)) := by
+  rfl
+
+@[simp] theorem cstarMatrixBlockUnflatten_add
+    {β n : Type*}
+    (X Y : Matrix (β × n) (β × n) ℂ) :
+    cstarMatrixBlockUnflatten (X + Y) =
+      cstarMatrixBlockUnflatten X + cstarMatrixBlockUnflatten Y := by
   rfl
 
 /-- Block flattening sends a nested star square to the ordinary conjugate-
@@ -65,6 +100,24 @@ theorem cstarMatrixBlockFlatten_star_mul_self
       rw [hstar]
       rfl
 
+/-- Canonical block unflattening sends an ordinary raw star square to the
+nested C-star-matrix star square. -/
+theorem cstarMatrixBlockUnflatten_star_mul_self
+    {β n : Type*} [Fintype β] [Fintype n]
+    (M : Matrix (β × n) (β × n) ℂ) :
+    cstarMatrixBlockUnflatten (star M * M) =
+      star (cstarMatrixBlockUnflatten M) * cstarMatrixBlockUnflatten M := by
+  have hstar :
+      cstarMatrixBlockUnflatten (star M) =
+        star (cstarMatrixBlockUnflatten M) := by
+    rfl
+  calc
+    cstarMatrixBlockUnflatten (star M * M) =
+        cstarMatrixBlockUnflatten (star M) * cstarMatrixBlockUnflatten M := by
+      exact (Matrix.compRingEquiv β n ℂ).symm.map_mul (star M) M
+    _ = star (cstarMatrixBlockUnflatten M) * cstarMatrixBlockUnflatten M := by
+      rw [hstar]
+
 /-- Spectral nonnegativity of a nested finite complex `CStarMatrix` implies raw
 positive semidefiniteness after canonical block flattening. -/
 theorem cstarMatrixBlockFlatten_posSemidef_of_nonneg
@@ -84,6 +137,39 @@ theorem cstarMatrixBlockFlatten_posSemidef_of_nonneg
   | add X Y hX hY ihX ihY =>
       rw [cstarMatrixBlockFlatten_add]
       exact ihX.add ihY
+
+/-- Raw positive semidefiniteness after canonical block flattening implies
+spectral nonnegativity of the original nested finite complex `CStarMatrix`. -/
+theorem cstarMatrixBlockFlatten_nonneg_of_posSemidef
+    {β n : Type*} [Fintype β] [DecidableEq β] [Fintype n] [DecidableEq n]
+    {M : CStarMatrix β β (CStarMatrix n n ℂ)}
+    (hM : (cstarMatrixBlockFlatten M).PosSemidef) :
+    0 ≤ M := by
+  rw [StarOrderedRing.nonneg_iff]
+  rw [← cstarMatrixBlockUnflatten_flatten M]
+  rw [← Matrix.nonneg_iff_posSemidef] at hM
+  rw [StarOrderedRing.nonneg_iff] at hM
+  induction hM using AddSubmonoid.closure_induction with
+  | mem X hX =>
+      obtain ⟨S, rfl⟩ := hX
+      rw [cstarMatrixBlockUnflatten_star_mul_self]
+      exact AddSubmonoid.subset_closure (Set.mem_range_self _)
+  | zero =>
+      rw [cstarMatrixBlockUnflatten_zero]
+      exact AddSubmonoid.zero_mem _
+  | add X Y hX hY ihX ihY =>
+      rw [cstarMatrixBlockUnflatten_add]
+      exact AddSubmonoid.add_mem _ ihX ihY
+
+/-- For finite complex matrix blocks, nested `CStarMatrix` spectral
+nonnegativity is exactly raw positive semidefiniteness of the canonical
+product-index flattening. -/
+theorem cstarMatrixBlockFlatten_nonneg_iff_posSemidef
+    {β n : Type*} [Fintype β] [DecidableEq β] [Fintype n] [DecidableEq n]
+    (M : CStarMatrix β β (CStarMatrix n n ℂ)) :
+    0 ≤ M ↔ (cstarMatrixBlockFlatten M).PosSemidef :=
+  ⟨cstarMatrixBlockFlatten_posSemidef_of_nonneg,
+    cstarMatrixBlockFlatten_nonneg_of_posSemidef⟩
 
 end
 
