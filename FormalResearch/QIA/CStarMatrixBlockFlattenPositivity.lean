@@ -146,16 +146,17 @@ theorem cstarMatrixBlockFlatten_nonneg_of_posSemidef
     (hM : (cstarMatrixBlockFlatten M).PosSemidef) :
     0 ≤ M := by
   apply StarOrderedRing.nonneg_iff.mpr
-  have hraw :
-      (0 : Matrix (β × n) (β × n) ℂ) ≤ cstarMatrixBlockFlatten M :=
-    Matrix.nonneg_iff_posSemidef.mpr hM
+  let Z : Matrix (β × n) (β × n) ℂ := cstarMatrixBlockFlatten M
+  have hZpsd : Z.PosSemidef := by
+    simpa [Z] using hM
+  have hraw : (0 : Matrix (β × n) (β × n) ℂ) ≤ Z :=
+    Matrix.nonneg_iff_posSemidef.mpr hZpsd
   have hclosure :
-      cstarMatrixBlockFlatten M ∈
-        AddSubmonoid.closure
-          (Set.range fun S : Matrix (β × n) (β × n) ℂ => star S * S) :=
+      Z ∈ AddSubmonoid.closure
+        (Set.range fun S : Matrix (β × n) (β × n) ℂ => star S * S) :=
     StarOrderedRing.nonneg_iff.mp hraw
   have hflat :
-      cstarMatrixBlockUnflatten (cstarMatrixBlockFlatten M) ∈
+      cstarMatrixBlockUnflatten Z ∈
         AddSubmonoid.closure
           (Set.range fun S : CStarMatrix β β (CStarMatrix n n ℂ) => star S * S) := by
     induction hclosure using AddSubmonoid.closure_induction with
@@ -169,7 +170,7 @@ theorem cstarMatrixBlockFlatten_nonneg_of_posSemidef
     | add X Y hX hY ihX ihY =>
         rw [cstarMatrixBlockUnflatten_add]
         exact AddSubmonoid.add_mem _ ihX ihY
-  simpa using hflat
+  simpa [Z] using hflat
 
 /-- For finite complex matrix blocks, nested `CStarMatrix` spectral
 nonnegativity is exactly raw positive semidefiniteness of the canonical
