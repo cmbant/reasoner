@@ -118,6 +118,27 @@ theorem cstarMatrixBlockUnflatten_star_mul_self
     _ = star (cstarMatrixBlockUnflatten M) * cstarMatrixBlockUnflatten M := by
       rw [hstar]
 
+/-- Canonical block unflattening maps the additive closure of raw star squares
+into the additive closure of nested C-star-matrix star squares. -/
+theorem cstarMatrixBlockUnflatten_mem_starSquareClosure
+    {β n : Type*} [Fintype β] [Fintype n]
+    {M : Matrix (β × n) (β × n) ℂ}
+    (hM : M ∈ AddSubmonoid.closure
+      (Set.range fun S : Matrix (β × n) (β × n) ℂ => star S * S)) :
+    cstarMatrixBlockUnflatten M ∈ AddSubmonoid.closure
+      (Set.range fun S : CStarMatrix β β (CStarMatrix n n ℂ) => star S * S) := by
+  induction hM using AddSubmonoid.closure_induction with
+  | mem X hX =>
+      obtain ⟨S, rfl⟩ := hX
+      rw [cstarMatrixBlockUnflatten_star_mul_self]
+      exact AddSubmonoid.subset_closure (Set.mem_range_self _)
+  | zero =>
+      rw [cstarMatrixBlockUnflatten_zero]
+      exact AddSubmonoid.zero_mem _
+  | add X Y hX hY ihX ihY =>
+      rw [cstarMatrixBlockUnflatten_add]
+      exact AddSubmonoid.add_mem _ ihX ihY
+
 /-- Spectral nonnegativity of a nested finite complex `CStarMatrix` implies raw
 positive semidefiniteness after canonical block flattening. -/
 theorem cstarMatrixBlockFlatten_posSemidef_of_nonneg
@@ -155,21 +176,7 @@ theorem cstarMatrixBlockFlatten_nonneg_of_posSemidef
       Z ∈ AddSubmonoid.closure
         (Set.range fun S : Matrix (β × n) (β × n) ℂ => star S * S) :=
     StarOrderedRing.nonneg_iff.mp hraw
-  have hflat :
-      cstarMatrixBlockUnflatten Z ∈
-        AddSubmonoid.closure
-          (Set.range fun S : CStarMatrix β β (CStarMatrix n n ℂ) => star S * S) := by
-    induction hclosure using AddSubmonoid.closure_induction with
-    | mem X hX =>
-        obtain ⟨S, rfl⟩ := hX
-        rw [cstarMatrixBlockUnflatten_star_mul_self]
-        exact AddSubmonoid.subset_closure (Set.mem_range_self _)
-    | zero =>
-        rw [cstarMatrixBlockUnflatten_zero]
-        exact AddSubmonoid.zero_mem _
-    | add X Y hX hY ihX ihY =>
-        rw [cstarMatrixBlockUnflatten_add]
-        exact AddSubmonoid.add_mem _ ihX ihY
+  have hflat := cstarMatrixBlockUnflatten_mem_starSquareClosure hclosure
   simpa [Z] using hflat
 
 /-- For finite complex matrix blocks, nested `CStarMatrix` spectral
