@@ -26,6 +26,26 @@ open scoped CStarAlgebra ComplexOrder MatrixOrder
 
 noncomputable section
 
+/-- The raw finite isotypic multiplicity reduction transported across
+`CStarMatrix.ofMatrixₗ` to a linear map between the corresponding C-star matrix
+algebras. -/
+def isotypicMultiplicityReductionCStarLinearMap
+    {α : Type*} [Fintype α] [DecidableEq α]
+    (d g : α → Nat) :
+    CStarMatrix (isotypicDirectSumCarrier d g) (isotypicDirectSumCarrier d g) ℂ →ₗ[ℂ]
+      CStarMatrix (multiplicityMemoryCarrier g) (multiplicityMemoryCarrier g) ℂ :=
+  (CStarMatrix.ofMatrixₗ (R := ℂ)).toLinearMap.comp
+    ((isotypicMultiplicityReduction d g).comp
+      (CStarMatrix.ofMatrixₗ (R := ℂ)).symm.toLinearMap)
+
+@[simp] theorem isotypicMultiplicityReductionCStarLinearMap_apply
+    {α : Type*} [Fintype α] [DecidableEq α]
+    (d g : α → Nat)
+    (X : CStarMatrix (isotypicDirectSumCarrier d g) (isotypicDirectSumCarrier d g) ℂ) :
+    isotypicMultiplicityReductionCStarLinearMap d g X =
+      CStarMatrix.ofMatrix
+        (isotypicMultiplicityReduction d g (CStarMatrix.ofMatrix.symm X)) := rfl
+
 /-- The explicit finite isotypic multiplicity reduction, bundled as a Mathlib
 completely positive map between finite complex matrix C-star algebras. -/
 def isotypicMultiplicityReductionCompletelyPositive
@@ -33,7 +53,7 @@ def isotypicMultiplicityReductionCompletelyPositive
     (d g : α → Nat) :
     CStarMatrix (isotypicDirectSumCarrier d g) (isotypicDirectSumCarrier d g) ℂ →CP
       CStarMatrix (multiplicityMemoryCarrier g) (multiplicityMemoryCarrier g) ℂ where
-  toLinearMap := isotypicMultiplicityReduction d g
+  toLinearMap := isotypicMultiplicityReductionCStarLinearMap d g
   map_cstarMatrix_nonneg' k M hM := by
     have hX : (cstarMatrixBlockFlatten M).PosSemidef :=
       cstarMatrixBlockFlatten_posSemidef_of_nonneg hM
@@ -42,7 +62,8 @@ def isotypicMultiplicityReductionCompletelyPositive
         (β := Fin k) d g hX
     apply cstarMatrixBlockFlatten_nonneg_of_posSemidef
     have heq :
-        cstarMatrixBlockFlatten (M.map ⇑(isotypicMultiplicityReduction d g)) =
+        cstarMatrixBlockFlatten
+            (M.map ⇑(isotypicMultiplicityReductionCStarLinearMap d g)) =
           (fun ir js : Fin k × multiplicityMemoryCarrier g =>
             isotypicMultiplicityReduction d g
               (fun p q =>
@@ -58,7 +79,8 @@ def isotypicMultiplicityReductionCompletelyPositive
     (d g : α → Nat)
     (X : CStarMatrix (isotypicDirectSumCarrier d g) (isotypicDirectSumCarrier d g) ℂ) :
     isotypicMultiplicityReductionCompletelyPositive d g X =
-      isotypicMultiplicityReduction d g X := rfl
+      CStarMatrix.ofMatrix
+        (isotypicMultiplicityReduction d g (CStarMatrix.ofMatrix.symm X)) := rfl
 
 end
 
