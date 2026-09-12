@@ -146,20 +146,24 @@ theorem cstarMatrixBlockFlatten_nonneg_of_posSemidef
     (hM : (cstarMatrixBlockFlatten M).PosSemidef) :
     0 ≤ M := by
   rw [StarOrderedRing.nonneg_iff]
-  rw [← cstarMatrixBlockUnflatten_flatten M]
-  rw [← Matrix.nonneg_iff_posSemidef] at hM
-  rw [StarOrderedRing.nonneg_iff] at hM
-  induction hM using AddSubmonoid.closure_induction with
-  | mem X hX =>
-      obtain ⟨S, rfl⟩ := hX
-      rw [cstarMatrixBlockUnflatten_star_mul_self]
-      exact AddSubmonoid.subset_closure (Set.mem_range_self _)
-  | zero =>
-      rw [cstarMatrixBlockUnflatten_zero]
-      exact AddSubmonoid.zero_mem _
-  | add X Y hX hY ihX ihY =>
-      rw [cstarMatrixBlockUnflatten_add]
-      exact AddSubmonoid.add_mem _ ihX ihY
+  have hflat :
+      cstarMatrixBlockUnflatten (cstarMatrixBlockFlatten M) ∈
+        AddSubmonoid.closure
+          (Set.range fun S : CStarMatrix β β (CStarMatrix n n ℂ) => star S * S) := by
+    rw [← Matrix.nonneg_iff_posSemidef] at hM
+    rw [StarOrderedRing.nonneg_iff] at hM
+    induction hM using AddSubmonoid.closure_induction with
+    | mem X hX =>
+        obtain ⟨S, rfl⟩ := hX
+        rw [cstarMatrixBlockUnflatten_star_mul_self]
+        exact AddSubmonoid.subset_closure (Set.mem_range_self _)
+    | zero =>
+        rw [cstarMatrixBlockUnflatten_zero]
+        exact AddSubmonoid.zero_mem _
+    | add X Y hX hY ihX ihY =>
+        rw [cstarMatrixBlockUnflatten_add]
+        exact AddSubmonoid.add_mem _ ihX ihY
+  simpa using hflat
 
 /-- For finite complex matrix blocks, nested `CStarMatrix` spectral
 nonnegativity is exactly raw positive semidefiniteness of the canonical
