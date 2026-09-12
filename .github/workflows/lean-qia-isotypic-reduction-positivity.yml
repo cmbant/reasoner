@@ -31,3 +31,5 @@ jobs:
           fi
       - name: Build assembled reduction positivity
         run: timeout 300 lake build FormalResearch.QIA.IsotypicMultiplicityReductionPositive
+      - name: Build full FormalResearch aggregate
+        run: timeout 900 lake build FormalResearch
