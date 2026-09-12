@@ -67,6 +67,10 @@ theorem isotypicMultiplicityReduction_amplification_posSemidef
     rcases js with ⟨c, ⟨a', s⟩⟩
     by_cases h : a = a'
     · subst a'
+      change
+        isotypicMultiplicityReduction d g
+            (fun p q => X (b, p) (c, q)) ⟨a, r⟩ ⟨a, s⟩ =
+          Matrix.blockDiagonal' M ⟨a, (b, r)⟩ ⟨a, (c, s)⟩
       rw [isotypicMultiplicityReduction_sameSector_apply]
       rw [Matrix.blockDiagonal'_apply_eq]
       rfl
