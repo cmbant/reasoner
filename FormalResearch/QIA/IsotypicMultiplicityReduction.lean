@@ -126,6 +126,7 @@ theorem isotypicMultiplicityReduction_trace
       rfl
     _ = Matrix.trace X := by
       rw [Matrix.trace, Fintype.sum_sigma, Fintype.sum_sigma]
+      simp only [Matrix.diag_apply]
 
 /-- The existing source query projector reads exactly the corresponding
 multiplicity-basis diagonal of the reduced state.  This is the basis-effect
