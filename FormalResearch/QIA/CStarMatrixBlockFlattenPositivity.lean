@@ -145,16 +145,20 @@ theorem cstarMatrixBlockFlatten_nonneg_of_posSemidef
     {M : CStarMatrix β β (CStarMatrix n n ℂ)}
     (hM : (cstarMatrixBlockFlatten M).PosSemidef) :
     0 ≤ M := by
-  rw [StarOrderedRing.nonneg_iff]
+  apply StarOrderedRing.nonneg_iff.mpr
   have hraw :
       (0 : Matrix (β × n) (β × n) ℂ) ≤ cstarMatrixBlockFlatten M :=
     Matrix.nonneg_iff_posSemidef.mpr hM
-  rw [StarOrderedRing.nonneg_iff] at hraw
+  have hclosure :
+      cstarMatrixBlockFlatten M ∈
+        AddSubmonoid.closure
+          (Set.range fun S : Matrix (β × n) (β × n) ℂ => star S * S) :=
+    StarOrderedRing.nonneg_iff.mp hraw
   have hflat :
       cstarMatrixBlockUnflatten (cstarMatrixBlockFlatten M) ∈
         AddSubmonoid.closure
           (Set.range fun S : CStarMatrix β β (CStarMatrix n n ℂ) => star S * S) := by
-    induction hraw using AddSubmonoid.closure_induction with
+    induction hclosure using AddSubmonoid.closure_induction with
     | mem X hX =>
         obtain ⟨S, rfl⟩ := hX
         rw [cstarMatrixBlockUnflatten_star_mul_self]
