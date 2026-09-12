@@ -31,3 +31,5 @@ jobs:
           fi
       - name: Build assembled finite amplification
         run: timeout 300 lake build FormalResearch.QIA.IsotypicMultiplicityReductionAmplification
+      - name: Build full FormalResearch aggregate
+        run: timeout 900 lake build FormalResearch
