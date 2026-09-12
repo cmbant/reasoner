@@ -32,6 +32,7 @@ import FormalResearch.QIA.IsotypicDirectSumAuxiliaryStates
 import FormalResearch.QIA.IsotypicMultiplicityReduction
 import FormalResearch.QIA.IsotypicMultiplicityReductionPositivity
 import FormalResearch.QIA.IsotypicMultiplicityReductionPositive
+import FormalResearch.QIA.IsotypicMultiplicityBlockAmplification
 import FormalResearch.QIA.SymmetricMultilinearDiagonal
 import FormalResearch.QIA.CoherentPowerSymmetricSpan
 import FormalResearch.QIA.CoherentPhaseOrthogonality
