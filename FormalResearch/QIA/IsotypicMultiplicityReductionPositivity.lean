@@ -47,13 +47,8 @@ theorem isotypicMultiplicityBlockReduction_posSemidef
             (fun r : Fin (g a) => (⟨⟨a, r⟩, k⟩ : isotypicDirectSumCarrier d g))
             (fun r : Fin (g a) => (⟨⟨a, r⟩, k⟩ : isotypicDirectSumCarrier d g)) := by
     ext r s
-    change
-      (∑ k : Fin (d a), X ⟨⟨a, r⟩, k⟩ ⟨⟨a, s⟩, k⟩) =
-        (∑ k : Fin (d a),
-          X.submatrix
-            (fun r : Fin (g a) => (⟨⟨a, r⟩, k⟩ : isotypicDirectSumCarrier d g))
-            (fun r : Fin (g a) => (⟨⟨a, r⟩, k⟩ : isotypicDirectSumCarrier d g))) r s
-    simp
+    rw [Matrix.sum_apply]
+    rfl
   rw [heq]
   exact hsum
 
