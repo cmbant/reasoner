@@ -40,7 +40,16 @@ theorem isotypicMultiplicityBlockReduction_posSemidef
     apply Matrix.posSemidef_sum Finset.univ
     intro k hk
     exact hX.submatrix _
-  simpa [isotypicMultiplicityBlockReduction] using hsum
+  have heq :
+      isotypicMultiplicityBlockReduction d g a X =
+        ∑ k : Fin (d a),
+          X.submatrix
+            (fun r : Fin (g a) => (⟨⟨a, r⟩, k⟩ : isotypicDirectSumCarrier d g))
+            (fun r : Fin (g a) => (⟨⟨a, r⟩, k⟩ : isotypicDirectSumCarrier d g)) := by
+    ext r s
+    simp [isotypicMultiplicityBlockReduction]
+  rw [heq]
+  exact hsum
 
 end
 
