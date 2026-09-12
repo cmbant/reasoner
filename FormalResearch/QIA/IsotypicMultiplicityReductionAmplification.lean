@@ -67,7 +67,9 @@ theorem isotypicMultiplicityReduction_amplification_posSemidef
     rcases js with ⟨c, ⟨a', s⟩⟩
     by_cases h : a = a'
     · subst a'
-      simp [e, M, isotypicMultiplicityReduction_sameSector_apply]
+      rw [isotypicMultiplicityReduction_sameSector_apply]
+      rw [Matrix.blockDiagonal'_apply_eq]
+      rfl
     · simp [e, M, isotypicMultiplicityReduction, Matrix.blockDiagonal', h]
   rw [heq]
   exact hsub
