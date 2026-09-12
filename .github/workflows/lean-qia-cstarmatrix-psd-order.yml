@@ -31,3 +31,5 @@ jobs:
           fi
       - name: Build CStarMatrix PSD order bridge
         run: timeout 300 lake build FormalResearch.QIA.CStarMatrixPosSemidefOrder
+      - name: Build full FormalResearch aggregate
+        run: timeout 900 lake build FormalResearch
