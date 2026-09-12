@@ -41,10 +41,19 @@ def isotypicMultiplicityBlockReduction
     ∑ k : Fin (d a), X ⟨⟨a, r⟩, k⟩ ⟨⟨a, s⟩, k⟩
   map_add' X Y := by
     ext r s
-    simp [Finset.sum_add_distrib]
+    change
+      (∑ k : Fin (d a),
+        (X ⟨⟨a, r⟩, k⟩ ⟨⟨a, s⟩, k⟩ +
+          Y ⟨⟨a, r⟩, k⟩ ⟨⟨a, s⟩, k⟩)) =
+        (∑ k : Fin (d a), X ⟨⟨a, r⟩, k⟩ ⟨⟨a, s⟩, k⟩) +
+          ∑ k : Fin (d a), Y ⟨⟨a, r⟩, k⟩ ⟨⟨a, s⟩, k⟩
+    exact Finset.sum_add_distrib
   map_smul' c X := by
     ext r s
-    simp [Finset.mul_sum]
+    change
+      (∑ k : Fin (d a), c * X ⟨⟨a, r⟩, k⟩ ⟨⟨a, s⟩, k⟩) =
+        c * ∑ k : Fin (d a), X ⟨⟨a, r⟩, k⟩ ⟨⟨a, s⟩, k⟩
+    rw [Finset.mul_sum]
 
 /-- Assemble the sectorwise carrier partial traces into the manuscript's
 direct-sum multiplicity state.  Off-sector multiplicity matrix entries are
@@ -57,9 +66,27 @@ def isotypicMultiplicityReduction
   toFun X :=
     Matrix.blockDiagonal' (fun a => isotypicMultiplicityBlockReduction d g a X)
   map_add' X Y := by
-    simp [Matrix.blockDiagonal'_add]
+    change
+      Matrix.blockDiagonal'
+          (fun a => isotypicMultiplicityBlockReduction d g a (X + Y)) =
+        Matrix.blockDiagonal'
+            (fun a => isotypicMultiplicityBlockReduction d g a X) +
+          Matrix.blockDiagonal'
+            (fun a => isotypicMultiplicityBlockReduction d g a Y)
+    rw [← Matrix.blockDiagonal'_add]
+    congr 1
+    funext a
+    exact (isotypicMultiplicityBlockReduction d g a).map_add X Y
   map_smul' c X := by
-    simp [Matrix.blockDiagonal'_smul]
+    change
+      Matrix.blockDiagonal'
+          (fun a => isotypicMultiplicityBlockReduction d g a (c • X)) =
+        c • Matrix.blockDiagonal'
+          (fun a => isotypicMultiplicityBlockReduction d g a X)
+    rw [← Matrix.blockDiagonal'_smul]
+    congr 1
+    funext a
+    exact (isotypicMultiplicityBlockReduction d g a).map_smul c X
 
 @[simp] theorem isotypicMultiplicityReduction_sameSector_apply
     {α : Type*} [Fintype α] [DecidableEq α]
@@ -68,8 +95,12 @@ def isotypicMultiplicityReduction
     (a : α) (r s : Fin (g a)) :
     isotypicMultiplicityReduction d g X ⟨a, r⟩ ⟨a, s⟩ =
       ∑ k : Fin (d a), X ⟨⟨a, r⟩, k⟩ ⟨⟨a, s⟩, k⟩ := by
-  simp [isotypicMultiplicityReduction, isotypicMultiplicityBlockReduction,
-    Matrix.blockDiagonal'_apply]
+  change
+    Matrix.blockDiagonal'
+        (fun b => isotypicMultiplicityBlockReduction d g b X)
+        ⟨a, r⟩ ⟨a, s⟩ = _
+  rw [Matrix.blockDiagonal'_apply_eq]
+  rfl
 
 /-- The finite isotypic multiplicity reduction preserves the total trace. -/
 theorem isotypicMultiplicityReduction_trace
@@ -77,8 +108,24 @@ theorem isotypicMultiplicityReduction_trace
     (d g : α → Nat)
     (X : Matrix (isotypicDirectSumCarrier d g) (isotypicDirectSumCarrier d g) ℂ) :
     Matrix.trace (isotypicMultiplicityReduction d g X) = Matrix.trace X := by
-  simp [isotypicMultiplicityReduction, isotypicMultiplicityBlockReduction,
-    Matrix.trace_blockDiagonal', Matrix.trace, Fintype.sum_sigma]
+  calc
+    Matrix.trace (isotypicMultiplicityReduction d g X) =
+        ∑ a : α, Matrix.trace (isotypicMultiplicityBlockReduction d g a X) := by
+      change
+        Matrix.trace
+            (Matrix.blockDiagonal'
+              (fun a => isotypicMultiplicityBlockReduction d g a X)) = _
+      rw [Matrix.trace_blockDiagonal']
+    _ = ∑ a : α, ∑ r : Fin (g a), ∑ k : Fin (d a),
+        X ⟨⟨a, r⟩, k⟩ ⟨⟨a, r⟩, k⟩ := by
+      apply Finset.sum_congr rfl
+      intro a ha
+      rw [Matrix.trace]
+      apply Finset.sum_congr rfl
+      intro r hr
+      rfl
+    _ = Matrix.trace X := by
+      rw [Matrix.trace, Fintype.sum_sigma, Fintype.sum_sigma]
 
 /-- The existing source query projector reads exactly the corresponding
 multiplicity-basis diagonal of the reduced state.  This is the basis-effect
@@ -90,10 +137,21 @@ theorem isotypicDirectSumQueryProjector_trace_mul_eq_reduction_diagonal
     (j : multiplicityMemoryCarrier g) :
     Matrix.trace (isotypicDirectSumQueryProjector d g j * X) =
       isotypicMultiplicityReduction d g X j j := by
-  rcases j with ⟨a, r⟩
-  simp [isotypicDirectSumQueryProjector, isotypicMultiplicityReduction,
-    isotypicMultiplicityBlockReduction, Matrix.trace, Fintype.sum_sigma,
-    Matrix.blockDiagonal'_apply]
+  calc
+    Matrix.trace (isotypicDirectSumQueryProjector d g j * X) =
+        ∑ x : multiplicityMemoryCarrier g,
+          ∑ k : Fin (d x.1),
+            if x = j then X ⟨x, k⟩ ⟨x, k⟩ else 0 := by
+      rw [isotypicDirectSumQueryProjector, Matrix.trace, Fintype.sum_sigma]
+      apply Finset.sum_congr rfl
+      intro x hx
+      apply Finset.sum_congr rfl
+      intro k hk
+      simp
+    _ = ∑ k : Fin (d j.1), X ⟨j, k⟩ ⟨j, k⟩ := by simp
+    _ = isotypicMultiplicityReduction d g X j j := by
+      rcases j with ⟨a, r⟩
+      exact (isotypicMultiplicityReduction_sameSector_apply d g X a r r).symm
 
 end
 
