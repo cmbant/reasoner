@@ -31,3 +31,5 @@ jobs:
           fi
       - name: Build CStarMatrix block flatten iff
         run: timeout 300 lake build FormalResearch.QIA.CStarMatrixBlockFlattenPositivity
+      - name: Build full FormalResearch aggregate
+        run: timeout 900 lake build FormalResearch
