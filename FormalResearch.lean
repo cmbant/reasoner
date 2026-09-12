@@ -36,6 +36,7 @@ import FormalResearch.QIA.IsotypicMultiplicityBlockAmplification
 import FormalResearch.QIA.IsotypicMultiplicityReductionAmplification
 import FormalResearch.QIA.CStarMatrixPosSemidefOrder
 import FormalResearch.QIA.CStarMatrixBlockFlattenPositivity
+import FormalResearch.QIA.IsotypicMultiplicityReductionCompletelyPositive
 import FormalResearch.QIA.SymmetricMultilinearDiagonal
 import FormalResearch.QIA.CoherentPowerSymmetricSpan
 import FormalResearch.QIA.CoherentPhaseOrthogonality
