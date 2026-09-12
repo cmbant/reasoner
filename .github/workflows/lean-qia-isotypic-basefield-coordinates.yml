@@ -6,7 +6,7 @@ on:
       - agents/qia-isotypic-basefield-coordinates
 
 concurrency:
-  group: lean-qia-isotypic-basefield-coordinates-${{ github.ref }}
+  group: lean-qia-isotypic-basefield-coordinates-${{ github.sha }}
   cancel-in-progress: true
 
 jobs:
