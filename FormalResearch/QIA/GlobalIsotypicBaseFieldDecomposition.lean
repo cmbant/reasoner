@@ -40,7 +40,7 @@ theorem globalIsotypicBaseFieldDecomposition
       (sSupIndep_isotypicComponents A M)
   have htop :
       (⨆ c : isotypicComponents A M, c.1) = (⊤ : Submodule A M) := by
-    rw [← sSup_eq_iSup, sSup_isotypicComponents]
+    simpa only [sSup_eq_iSup'] using (sSup_isotypicComponents A M)
   exact ⟨((hind.linearEquiv htop).symm).restrictScalars F⟩
 
 end
