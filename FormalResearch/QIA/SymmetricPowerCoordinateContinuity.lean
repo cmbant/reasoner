@@ -116,8 +116,8 @@ theorem symmetricPower_tprod_linearEquiv_continuous
       ι (SymmetricPower.tprod ℂ v) := by
   let f : MultilinearMap ℂ (fun _ : Fin n => E) H :=
     ι.toLinearMap.compMultilinearMap (SymmetricPower.tprod ℂ)
-  simpa [f] using
-    (multilinearMap_continuous_of_finiteDimensional (f := f))
+  change Continuous (⇑ι ∘ ⇑(SymmetricPower.tprod ℂ))
+  exact multilinearMap_continuous_of_finiteDimensional (f := f)
 
 end
 
