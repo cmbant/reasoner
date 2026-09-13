@@ -24,6 +24,14 @@ namespace FormalResearch.QIA
 
 noncomputable section
 
+/-- A Noetherian module has only finitely many nonzero isotypic components, so
+we may choose the finite sector indexing needed by the explicit QI-A carrier. -/
+noncomputable instance isotypicComponentsFintypeOfNoetherian
+    {A M : Type*} [Ring A] [AddCommGroup M] [Module A M]
+    [IsNoetherian A M] :
+    Fintype (isotypicComponents A M) :=
+  Fintype.ofFinite _
+
 /-- A base-field finite semisimple `A`-module that is Noetherian as an
 `A`-module admits coordinates on the explicit finite carrier
 `isotypicDirectSumCarrier d g`.
@@ -42,7 +50,6 @@ theorem finiteIsotypicBaseFieldCarrierCoordinates
       Nonempty (M ≃ₗ[F]
         (isotypicDirectSumCarrier d g → F)) := by
   classical
-  letI : Fintype (isotypicComponents A M) := Fintype.ofFinite _
 
   have hblock : ∀ c : isotypicComponents A M,
       ∃ (g : ℕ) (_ : NeZero g) (S : Submodule A M),
@@ -88,7 +95,7 @@ theorem finiteIsotypicBaseFieldCarrierCoordinates
       ((j : multiplicityMemoryCarrier g) → Fin (d j.1) → F) ≃ₗ[F]
         (isotypicDirectSumCarrier d g → F) :=
     (LinearEquiv.piCurry (R := F)
-      (fun j (_k : Fin (d j.1)) => F)).symm
+      (fun (j : multiplicityMemoryCarrier g) (_k : Fin (d j.1)) => F)).symm
 
   exact ⟨d, g,
     ⟨eGlobal.trans eBlocks |>.trans eMultiplicityCurry |>.trans eCarrierCurry⟩⟩
