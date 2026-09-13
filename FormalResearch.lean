@@ -40,6 +40,7 @@ import FormalResearch.QIA.IsotypicMultiplicityReductionCompletelyPositive
 import FormalResearch.QIA.IsotypicBaseFieldCoordinates
 import FormalResearch.QIA.GlobalIsotypicBaseFieldDecomposition
 import FormalResearch.QIA.FiniteIsotypicCarrierCoordinates
+import FormalResearch.QIA.FiniteIsotypicEuclideanRealization
 import FormalResearch.QIA.SymmetricMultilinearDiagonal
 import FormalResearch.QIA.CoherentPowerSymmetricSpan
 import FormalResearch.QIA.CoherentPhaseOrthogonality
