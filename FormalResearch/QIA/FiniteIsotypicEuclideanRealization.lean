@@ -9,8 +9,8 @@ The finite isotypic carrier theorem produces algebraic coordinates in the
 function space `isotypicDirectSumCarrier d g → ℂ`.  The matrix-based QI-A
 converse is formulated instead on `EuclideanSpace ℂ` over that same finite
 carrier.  Since Euclidean space is the `PiLp 2` copy of the finite function
-space, Mathlib supplies a canonical continuous linear equivalence between the
-two.  This module records that final coordinate conversion.
+space, Mathlib supplies a canonical linear equivalence between the two.  This
+module records that final coordinate conversion.
 
 This is still only an algebraic realization theorem.  In particular, it does
 not construct the physical compact-group action on symmetric copy space, prove
@@ -40,8 +40,8 @@ theorem finiteIsotypicEuclideanCarrierCoordinates
     finiteIsotypicBaseFieldCarrierCoordinates (F := ℂ) (A := A) (M := M)
   refine ⟨d, g, ⟨e.trans ?_⟩⟩
   exact
-    (PiLp.continuousLinearEquiv 2 ℂ
-      (fun _ : isotypicDirectSumCarrier d g => ℂ)).symm.toLinearEquiv
+    (WithLp.linearEquiv 2 ℂ
+      (isotypicDirectSumCarrier d g → ℂ)).symm
 
 /-- Symmetric-power specialization of the finite Euclidean carrier theorem.
 
