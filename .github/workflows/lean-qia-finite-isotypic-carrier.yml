@@ -12,7 +12,7 @@ concurrency:
 jobs:
   focused:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - name: Install Lean toolchain via elan
@@ -31,3 +31,5 @@ jobs:
           fi
       - name: Build finite isotypic carrier coordinates
         run: timeout 600 lake build FormalResearch.QIA.FiniteIsotypicCarrierCoordinates
+      - name: Build FormalResearch aggregate
+        run: timeout 900 lake build FormalResearch
