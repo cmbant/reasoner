@@ -43,6 +43,7 @@ import FormalResearch.QIA.FiniteIsotypicCarrierCoordinates
 import FormalResearch.QIA.FiniteIsotypicEuclideanRealization
 import FormalResearch.QIA.FiniteSymmetricPowerIsotypicRealization
 import FormalResearch.QIA.SymmetricPowerFunctoriality
+import FormalResearch.QIA.SymmetricPowerRepresentation
 import FormalResearch.QIA.SymmetricPowerCoordinateContinuity
 import FormalResearch.QIA.SymmetricMultilinearDiagonal
 import FormalResearch.QIA.CoherentPowerSymmetricSpan
