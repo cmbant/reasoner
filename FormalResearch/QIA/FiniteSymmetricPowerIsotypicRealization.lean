@@ -7,10 +7,10 @@ import Mathlib.RingTheory.Noetherian.Basic
 
 The Euclidean isotypic realization theorem currently asks separately for
 finite-dimensionality and Noetherianity of the algebraic symmetric power.
-For a finite-dimensional one-copy space, both are consequences of standard
-algebraic facts already available in Mathlib: finite indexed tensor products
-of finite modules are finite, the symmetric power is a quotient of that tensor
-power, and Noetherianity ascends along a scalar tower.
+For a finite-dimensional one-copy complex space, both are consequences of
+standard algebraic facts already available in Mathlib: finite indexed tensor
+products of finite modules are finite, the symmetric power is a quotient of
+that tensor power, and Noetherianity ascends along a scalar tower.
 
 This module removes those two bookkeeping assumptions.  It still does not
 construct the physical representation algebra action, prove semisimplicity or
@@ -25,34 +25,51 @@ open scoped TensorProduct InnerProductSpace
 
 noncomputable section
 
-/-- Algebraic symmetric power of a finite module over a field is again finite.
+/-- Algebraic symmetric power of a finite complex vector space is again finite.
 
-This uses the surjection from the finite indexed tensor power onto symmetric
-power; no topological structure on `SymmetricPower` is asserted. -/
-theorem symmetricPower_moduleFinite
-    {F E : Type*} [Field F]
-    [AddCommGroup E] [Module F E] [Module.Finite F E]
+Pinned Mathlib places the scalar type and tensor-index type in the same
+universe, so this QI-A lemma is stated directly over `ℂ`, where `Fin n` has the
+required universe.  The proof uses the surjection from finite indexed tensor
+power onto symmetric power; no topology on `SymmetricPower` is asserted. -/
+theorem complexSymmetricPower_moduleFinite
+    {E : Type*} [AddCommGroup E] [Module ℂ E] [Module.Finite ℂ E]
     {n : ℕ} :
-    Module.Finite F (SymmetricPower F (Fin n) E) := by
-  apply Module.Finite.of_surjective (SymmetricPower.mk F (Fin n) E)
-  exact LinearMap.range_eq_top.mp (SymmetricPower.range_mk F (Fin n) E)
+    Module.Finite ℂ (SymmetricPower ℂ (Fin n) E) := by
+  exact Module.Finite.of_surjective
+    (SymmetricPower.mk ℂ (Fin n) E)
+    (LinearMap.range_eq_top.mp (SymmetricPower.range_mk ℂ (Fin n) E))
 
-/-- If algebraic symmetric power carries an action of a larger scalar algebra,
-its finite-dimensionality over the base field implies Noetherianity for that
-larger action through the scalar tower. -/
-theorem symmetricPower_isNoetherian_of_finite
-    {F A E : Type*} [Field F]
-    [Ring A] [Algebra F A]
-    [AddCommGroup E] [Module F E] [Module.Finite F E]
+/-- If complex algebraic symmetric power carries an action of a larger scalar
+algebra, finite-dimensionality of the one-copy space implies Noetherianity for
+that larger action through the scalar tower. -/
+theorem complexSymmetricPower_isNoetherian_of_finite
+    {A E : Type*}
+    [Ring A] [Algebra ℂ A]
+    [AddCommGroup E] [Module ℂ E] [Module.Finite ℂ E]
     {n : ℕ}
-    [Module A (SymmetricPower F (Fin n) E)]
-    [IsScalarTower F A (SymmetricPower F (Fin n) E)] :
-    IsNoetherian A (SymmetricPower F (Fin n) E) := by
-  letI : Module.Finite F (SymmetricPower F (Fin n) E) :=
-    symmetricPower_moduleFinite (F := F) (E := E) (n := n)
-  letI : IsNoetherian F (SymmetricPower F (Fin n) E) := inferInstance
-  exact isNoetherian_of_tower F
-    (inferInstance : IsNoetherian F (SymmetricPower F (Fin n) E))
+    [Module A (SymmetricPower ℂ (Fin n) E)]
+    [IsScalarTower ℂ A (SymmetricPower ℂ (Fin n) E)] :
+    IsNoetherian A (SymmetricPower ℂ (Fin n) E) := by
+  letI : Module.Finite ℂ (SymmetricPower ℂ (Fin n) E) :=
+    complexSymmetricPower_moduleFinite (E := E) (n := n)
+  letI : IsNoetherian ℂ (SymmetricPower ℂ (Fin n) E) := inferInstance
+  exact isNoetherian_of_tower ℂ
+    (inferInstance : IsNoetherian ℂ (SymmetricPower ℂ (Fin n) E))
+
+/-- Under the finite one-copy hypotheses, the finite sector-index instance used
+by the explicit QI-A carrier is available without separately assuming
+Noetherianity of symmetric power in the theorem statement. -/
+noncomputable instance symmetricPowerIsotypicComponentsFintypeOfFinite
+    {E A : Type*}
+    [NormedAddCommGroup E] [NormedSpace ℂ E] [Module.Finite ℂ E]
+    [Ring A] [Algebra ℂ A]
+    {n : ℕ}
+    [Module A (SymmetricPower ℂ (Fin n) E)]
+    [IsScalarTower ℂ A (SymmetricPower ℂ (Fin n) E)] :
+    Fintype (isotypicComponents A (SymmetricPower ℂ (Fin n) E)) := by
+  letI : IsNoetherian A (SymmetricPower ℂ (Fin n) E) :=
+    complexSymmetricPower_isNoetherian_of_finite (A := A) (E := E) (n := n)
+  exact Fintype.ofFinite _
 
 /-- Finite-dimensional one-copy specialization of the Euclidean isotypic
 carrier theorem.
@@ -74,9 +91,9 @@ theorem symmetricPower_finiteIsotypicEuclideanCarrierCoordinates_of_finite
       Nonempty (SymmetricPower ℂ (Fin n) E ≃ₗ[ℂ]
         EuclideanSpace ℂ (isotypicDirectSumCarrier d g)) := by
   letI : Module.Finite ℂ (SymmetricPower ℂ (Fin n) E) :=
-    symmetricPower_moduleFinite (F := ℂ) (E := E) (n := n)
+    complexSymmetricPower_moduleFinite (E := E) (n := n)
   letI : IsNoetherian A (SymmetricPower ℂ (Fin n) E) :=
-    symmetricPower_isNoetherian_of_finite (F := ℂ) (A := A) (E := E) (n := n)
+    complexSymmetricPower_isNoetherian_of_finite (A := A) (E := E) (n := n)
   exact symmetricPower_finiteIsotypicEuclideanCarrierCoordinates
     (E := E) (A := A) (n := n)
 
