@@ -27,7 +27,7 @@ theorem symmetricPowerMap_id
     {R ι : Type u} {M : Type v}
     [CommSemiring R]
     [AddCommMonoid M] [Module R M] :
-    symmetricPowerMap (LinearMap.id : M →ₗ[R] M) =
+    symmetricPowerMap (ι := ι) (LinearMap.id : M →ₗ[R] M) =
       (LinearMap.id : SymmetricPower R ι M →ₗ[R] SymmetricPower R ι M) := by
   apply LinearMap.ext_on
     (SymmetricPower.span_tprod_eq_top (R := R) (ι := ι) (M := M))
@@ -43,8 +43,8 @@ theorem symmetricPowerMap_comp
     [AddCommMonoid N] [Module R N]
     [AddCommMonoid P] [Module R P]
     (g : N →ₗ[R] P) (f : M →ₗ[R] N) :
-    symmetricPowerMap (g.comp f) =
-      (symmetricPowerMap g).comp (symmetricPowerMap f) := by
+    symmetricPowerMap (ι := ι) (g.comp f) =
+      (symmetricPowerMap (ι := ι) g).comp (symmetricPowerMap (ι := ι) f) := by
   apply LinearMap.ext_on
     (SymmetricPower.span_tprod_eq_top (R := R) (ι := ι) (M := M))
   rintro _ ⟨x, rfl⟩
@@ -59,7 +59,7 @@ noncomputable def symmetricPowerRepresentation
     [AddCommMonoid M] [Module R M]
     (ρ : Representation R G M) :
     Representation R G (SymmetricPower R ι M) where
-  toFun g := symmetricPowerMap (ρ g)
+  toFun g := symmetricPowerMap (ι := ι) (ρ g)
   map_one' := by
     rw [map_one]
     simpa only [Module.End.one_eq_id] using
