@@ -1,5 +1,6 @@
 import FormalResearch.QIA.IsotypicDirectSumAuxiliaryStates
 import FormalResearch.QIA.DeferredQueryCoherentChannelMemoryBound
+import FormalResearch.QIA.SymmetricPowerCoordinateContinuity
 
 /-!
 # QI-A deferred-query converse with explicit isotypic witnesses
@@ -79,6 +80,45 @@ theorem multiplicityMemoryDimension_le_of_deferredStatsOnIsotypicCoherentFamily
   · exact hstats
   · intro j
     simp [isotypicDirectSumQueryProjector_auxiliaryState_trace d g hd j]
+
+/-- Finite-dimensional specialization of the explicit isotypic deferred-query
+converse.  In the manuscript's finite one-copy setting, continuity of the
+coherent symmetric-power realization is automatic for every supplied linear
+Euclidean realization, so no separate `hreal` premise is needed. -/
+theorem multiplicityMemoryDimension_le_of_deferredStatsOnIsotypicCoherentFamily_of_finiteDimensional
+    {E α q : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    [FiniteDimensional ℂ E]
+    [Fintype α] [DecidableEq α]
+    [Fintype q] [DecidableEq q]
+    {n : ℕ}
+    (d g : α → Nat)
+    (hd : ∀ a, 0 < d a)
+    (ι : SymmetricPower ℂ (Fin n) E ≃ₗ[ℂ]
+      EuclideanSpace ℂ (isotypicDirectSumCarrier d g))
+    (C : Matrix (isotypicDirectSumCarrier d g)
+          (isotypicDirectSumCarrier d g) ℂ →ₗ[ℂ]
+        Matrix q q ℂ)
+    (F : multiplicityMemoryCarrier g → Matrix q q ℂ)
+    (hCpos : ∀ X : Matrix (isotypicDirectSumCarrier d g)
+        (isotypicDirectSumCarrier d g) ℂ,
+      X.PosSemidef → (C X).PosSemidef)
+    (hTP : ∀ X : Matrix (isotypicDirectSumCarrier d g)
+        (isotypicDirectSumCarrier d g) ℂ,
+      Matrix.trace (C X) = Matrix.trace X)
+    (hFpos : ∀ j, (F j).PosSemidef)
+    (hPOVM : (∑ j, F j) = (1 : Matrix q q ℂ))
+    (hstats : ∀ j x,
+      Complex.re (Matrix.trace
+        (F j * C (coherentRankOneMatrix
+          (ι (SymmetricPower.tprod ℂ (fun _ : Fin n => x)))))) =
+      Complex.re (Matrix.trace
+        (isotypicDirectSumQueryProjector d g j *
+          coherentRankOneMatrix
+            (ι (SymmetricPower.tprod ℂ (fun _ : Fin n => x)))))) :
+    multiplicityMemoryDimension g ≤ Fintype.card q := by
+  exact multiplicityMemoryDimension_le_of_deferredStatsOnIsotypicCoherentFamily
+    d g hd ι (symmetricPower_tprod_linearEquiv_continuous ι)
+    C F hCpos hTP hFpos hPOVM hstats
 
 end
 
