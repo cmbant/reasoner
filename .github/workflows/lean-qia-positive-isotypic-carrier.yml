@@ -29,5 +29,5 @@ jobs:
             echo 'Lean placeholders found'
             exit 1
           fi
-      - name: Build positive isotypic carrier
-        run: timeout 600 lake build FormalResearch.QIA.FiniteIsotypicCarrierCoordinates
+      - name: Build positive finite symmetric-power realization
+        run: timeout 600 lake build FormalResearch.QIA.FiniteSymmetricPowerIsotypicRealization
