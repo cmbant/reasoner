@@ -32,21 +32,21 @@ noncomputable instance isotypicComponentsFintypeOfNoetherian
     Fintype (isotypicComponents A M) :=
   Fintype.ofFinite _
 
-/-- A base-field finite semisimple `A`-module that is Noetherian as an
-`A`-module admits coordinates on the explicit finite carrier
-`isotypicDirectSumCarrier d g`.
+/-- Strengthened finite-carrier coordinates in which every irreducible carrier
+dimension is explicitly positive.
 
-The sector type is Mathlib's finite type of nonzero isotypic components.  For
-each sector, `g` is obtained from the finite isotypic multiplicity theorem and
-`d` is the base-field dimension of the chosen simple factor.  Thus the target
-coordinates have the manuscript-compatible shape `Σ (a,r), k` rather than an
-abstract assumed coordinate type. -/
-theorem finiteIsotypicBaseFieldCarrierCoordinates
+For each nonzero isotypic sector, `d` is the base-field finrank of a chosen
+simple factor.  Simplicity makes that factor nontrivial, so finite-dimensional
+freeness over the base field gives `0 < d c`.  This is exactly the positivity
+hypothesis used by the explicit normalized auxiliary states in the QI-A
+memory converse. -/
+theorem finiteIsotypicBaseFieldCarrierCoordinatesWithPositiveCarrier
     {F A M : Type*}
     [Field F] [Ring A] [Algebra F A]
     [AddCommGroup M] [Module F M] [Module A M] [IsScalarTower F A M]
     [IsSemisimpleModule A M] [IsNoetherian A M] [Module.Finite F M] :
     ∃ d g : isotypicComponents A M → ℕ,
+      (∀ c, 0 < d c) ∧
       Nonempty (M ≃ₗ[F]
         (isotypicDirectSumCarrier d g → F)) := by
   classical
@@ -66,6 +66,13 @@ theorem finiteIsotypicBaseFieldCarrierCoordinates
     intro c
     exact Module.Finite.of_injective
       ((S c).subtype.restrictScalars F) (S c).subtype_injective
+
+  have hd : ∀ c : isotypicComponents A M, 0 < d c := by
+    intro c
+    letI : Module.Finite F (S c) := hSfinite c
+    letI : IsSimpleModule A (S c) := hSsimple c
+    letI : Nontrivial (S c) := IsSimpleModule.nontrivial A (S c)
+    exact (Module.finrank_pos_iff_of_free (R := F) (M := S c)).2 inferInstance
 
   let eBlock : ∀ c : isotypicComponents A M,
       c.1 ≃ₗ[F] ((r : Fin (g c)) → Fin (d c) → F) := fun c => by
@@ -97,8 +104,30 @@ theorem finiteIsotypicBaseFieldCarrierCoordinates
     (LinearEquiv.piCurry (R := F)
       (fun (j : multiplicityMemoryCarrier g) (_k : Fin (d j.1)) => F)).symm
 
-  exact ⟨d, g,
+  exact ⟨d, g, hd,
     ⟨eGlobal.trans eBlocks |>.trans eMultiplicityCurry |>.trans eCarrierCurry⟩⟩
+
+/-- A base-field finite semisimple `A`-module that is Noetherian as an
+`A`-module admits coordinates on the explicit finite carrier
+`isotypicDirectSumCarrier d g`.
+
+The sector type is Mathlib's finite type of nonzero isotypic components.  For
+each sector, `g` is obtained from the finite isotypic multiplicity theorem and
+`d` is the base-field dimension of the chosen simple factor.  Thus the target
+coordinates have the manuscript-compatible shape `Σ (a,r), k` rather than an
+abstract assumed coordinate type. -/
+theorem finiteIsotypicBaseFieldCarrierCoordinates
+    {F A M : Type*}
+    [Field F] [Ring A] [Algebra F A]
+    [AddCommGroup M] [Module F M] [Module A M] [IsScalarTower F A M]
+    [IsSemisimpleModule A M] [IsNoetherian A M] [Module.Finite F M] :
+    ∃ d g : isotypicComponents A M → ℕ,
+      Nonempty (M ≃ₗ[F]
+        (isotypicDirectSumCarrier d g → F)) := by
+  obtain ⟨d, g, _hd, hcoord⟩ :=
+    finiteIsotypicBaseFieldCarrierCoordinatesWithPositiveCarrier
+      (F := F) (A := A) (M := M)
+  exact ⟨d, g, hcoord⟩
 
 end
 
