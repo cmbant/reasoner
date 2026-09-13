@@ -1,6 +1,7 @@
 import FormalResearch.QIA.IsotypicDirectSumAuxiliaryStates
 import FormalResearch.QIA.DeferredQueryCoherentChannelMemoryBound
 import FormalResearch.QIA.SymmetricPowerCoordinateContinuity
+import FormalResearch.QIA.FiniteSymmetricPowerIsotypicRealization
 
 /-!
 # QI-A deferred-query converse with explicit isotypic witnesses
@@ -119,6 +120,60 @@ theorem multiplicityMemoryDimension_le_of_deferredStatsOnIsotypicCoherentFamily_
   exact multiplicityMemoryDimension_le_of_deferredStatsOnIsotypicCoherentFamily
     d g hd ι (symmetricPower_tprod_linearEquiv_continuous ι)
     C F hCpos hTP hFpos hPOVM hstats
+
+/-- In the finite one-copy setting, the algebraic isotypic construction can be
+chosen once so that both positive carrier dimensions and a Euclidean
+symmetric-power realization are already available to the deferred-query
+converse.
+
+The channel, target POVM, and statistics-matching hypotheses remain explicit
+because they describe the actual simulation being ruled out.  Likewise, the
+representation algebra action and semisimplicity remain hypotheses: this
+statement does not construct the physical local-unitary representation, prove
+compact Schur--Weyl theory, or identify the chosen coordinates as a canonical
+unitary/isometric physical decomposition. -/
+theorem exists_isotypicCarrier_deferredStatsMemoryBound_of_finiteDimensional
+    {E A q : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    [FiniteDimensional ℂ E]
+    [Ring A] [Algebra ℂ A]
+    {n : ℕ}
+    [Module A (SymmetricPower ℂ (Fin n) E)]
+    [IsScalarTower ℂ A (SymmetricPower ℂ (Fin n) E)]
+    [IsSemisimpleModule A (SymmetricPower ℂ (Fin n) E)]
+    [DecidableEq (isotypicComponents A (SymmetricPower ℂ (Fin n) E))]
+    [Fintype q] [DecidableEq q] :
+    ∃ d g : isotypicComponents A (SymmetricPower ℂ (Fin n) E) → ℕ,
+      ∃ ι : SymmetricPower ℂ (Fin n) E ≃ₗ[ℂ]
+          EuclideanSpace ℂ (isotypicDirectSumCarrier d g),
+        ∀ (C : Matrix (isotypicDirectSumCarrier d g)
+              (isotypicDirectSumCarrier d g) ℂ →ₗ[ℂ]
+            Matrix q q ℂ)
+          (F : multiplicityMemoryCarrier g → Matrix q q ℂ),
+          (∀ X : Matrix (isotypicDirectSumCarrier d g)
+              (isotypicDirectSumCarrier d g) ℂ,
+            X.PosSemidef → (C X).PosSemidef) →
+          (∀ X : Matrix (isotypicDirectSumCarrier d g)
+              (isotypicDirectSumCarrier d g) ℂ,
+            Matrix.trace (C X) = Matrix.trace X) →
+          (∀ j, (F j).PosSemidef) →
+          ((∑ j, F j) = (1 : Matrix q q ℂ)) →
+          (∀ j x,
+            Complex.re (Matrix.trace
+              (F j * C (coherentRankOneMatrix
+                (ι (SymmetricPower.tprod ℂ (fun _ : Fin n => x)))))) =
+            Complex.re (Matrix.trace
+              (isotypicDirectSumQueryProjector d g j *
+                coherentRankOneMatrix
+                  (ι (SymmetricPower.tprod ℂ (fun _ : Fin n => x)))))) →
+          multiplicityMemoryDimension g ≤ Fintype.card q := by
+  obtain ⟨d, g, hd, ⟨ι⟩⟩ :=
+    symmetricPower_finiteIsotypicEuclideanCarrierCoordinatesWithPositiveCarrier_of_finite
+      (E := E) (A := A) (n := n)
+  refine ⟨d, g, ι, ?_⟩
+  intro C F hCpos hTP hFpos hPOVM hstats
+  exact
+    multiplicityMemoryDimension_le_of_deferredStatsOnIsotypicCoherentFamily_of_finiteDimensional
+      d g hd ι C F hCpos hTP hFpos hPOVM hstats
 
 end
 
