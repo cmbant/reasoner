@@ -18,11 +18,13 @@ open scoped TensorProduct
 
 noncomputable section
 
+universe u v w
+
 /-- A linear map on the one-copy space descends functorially to algebraic symmetric
 power by applying it in every tensor factor before passing to the permutation
 quotient. -/
 def symmetricPowerMap
-    {R ι M N : Type*}
+    {R ι : Type u} {M : Type v} {N : Type w}
     [CommSemiring R]
     [AddCommMonoid M] [Module R M]
     [AddCommMonoid N] [Module R N]
@@ -55,7 +57,7 @@ def symmetricPowerMap
 linear map in every slot. -/
 @[simp]
 theorem symmetricPowerMap_tprod
-    {R ι M N : Type*}
+    {R ι : Type u} {M : Type v} {N : Type w}
     [CommSemiring R]
     [AddCommMonoid M] [Module R M]
     [AddCommMonoid N] [Module R N]
