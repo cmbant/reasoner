@@ -1,3 +1,4 @@
+import Mathlib.Analysis.Complex.Basic
 import Mathlib.Analysis.Normed.Module.Multilinear.Curry
 import Mathlib.LinearAlgebra.TensorPower.Symmetric
 import Mathlib.Topology.Algebra.Module.FiniteDimension
@@ -51,23 +52,25 @@ theorem exists_continuousMultilinearMap_of_finiteDimensional
       have hchoose (h : MultilinearMap ℂ (fun _ : Fin n => E) F) :
           (chooseContinuous h).toMultilinearMap = h :=
         Classical.choose_spec (ih h)
-      let L : E →ₗ[ℂ] ContinuousMultilinearMap ℂ (fun _ : Fin n => E) F where
-        toFun x := chooseContinuous (f.curryLeft x)
-        map_add' x y := by
-          apply ContinuousMultilinearMap.toMultilinearMap_injective
-          change
-            (chooseContinuous (f.curryLeft (x + y))).toMultilinearMap =
-              (chooseContinuous (f.curryLeft x)).toMultilinearMap +
-                (chooseContinuous (f.curryLeft y)).toMultilinearMap
-          rw [hchoose, hchoose, hchoose]
-          exact (f.curryLeft).map_add x y
-        map_smul' c x := by
-          apply ContinuousMultilinearMap.toMultilinearMap_injective
-          change
-            (chooseContinuous (f.curryLeft (c • x))).toMultilinearMap =
-              c • (chooseContinuous (f.curryLeft x)).toMultilinearMap
-          rw [hchoose, hchoose]
-          exact (f.curryLeft).map_smul c x
+      let L : E →ₗ[ℂ] ContinuousMultilinearMap ℂ (fun _ : Fin n => E) F :=
+        { toFun := fun x => chooseContinuous (f.curryLeft x)
+          map_add' := by
+            intro x y
+            apply ContinuousMultilinearMap.toMultilinearMap_injective
+            change
+              (chooseContinuous (f.curryLeft (x + y))).toMultilinearMap =
+                (chooseContinuous (f.curryLeft x)).toMultilinearMap +
+                  (chooseContinuous (f.curryLeft y)).toMultilinearMap
+            rw [hchoose, hchoose, hchoose]
+            exact (f.curryLeft).map_add x y
+          map_smul' := by
+            intro c x
+            apply ContinuousMultilinearMap.toMultilinearMap_injective
+            change
+              (chooseContinuous (f.curryLeft (c • x))).toMultilinearMap =
+                c • (chooseContinuous (f.curryLeft x)).toMultilinearMap
+            rw [hchoose, hchoose]
+            exact (f.curryLeft).map_smul c x }
       let Lc : E →L[ℂ] ContinuousMultilinearMap ℂ (fun _ : Fin n => E) F :=
         L.toContinuousLinearMap
       let g : ContinuousMultilinearMap ℂ (fun _ : Fin (n + 1) => E) F :=
