@@ -25,6 +25,27 @@ open scoped TensorProduct InnerProductSpace
 
 noncomputable section
 
+/-- Euclidean carrier coordinates with the positivity of every irreducible
+carrier dimension retained from the algebraic construction. -/
+theorem finiteIsotypicEuclideanCarrierCoordinatesWithPositiveCarrier
+    {A M : Type*}
+    [Ring A] [Algebra ℂ A]
+    [AddCommGroup M] [Module ℂ M] [Module A M] [IsScalarTower ℂ A M]
+    [IsSemisimpleModule A M] [IsNoetherian A M] [Module.Finite ℂ M] :
+    ∃ d g : isotypicComponents A M → ℕ,
+      (∀ c, 0 < d c) ∧
+      Nonempty (M ≃ₗ[ℂ]
+        EuclideanSpace ℂ (isotypicDirectSumCarrier d g)) := by
+  obtain ⟨d, g, hd, ⟨e⟩⟩ :=
+    finiteIsotypicBaseFieldCarrierCoordinatesWithPositiveCarrier
+      (F := ℂ) (A := A) (M := M)
+  let eLp :
+      (isotypicDirectSumCarrier d g → ℂ) ≃ₗ[ℂ]
+        EuclideanSpace ℂ (isotypicDirectSumCarrier d g) :=
+    (WithLp.linearEquiv 2 ℂ
+      (isotypicDirectSumCarrier d g → ℂ)).symm
+  exact ⟨d, g, hd, ⟨e.trans eLp⟩⟩
+
 /-- A complex finite semisimple module satisfying the finiteness hypotheses of
 `finiteIsotypicBaseFieldCarrierCoordinates` admits coordinates in the exact
 Euclidean carrier used by the finite matrix QI-A formalization. -/
@@ -36,14 +57,29 @@ theorem finiteIsotypicEuclideanCarrierCoordinates
     ∃ d g : isotypicComponents A M → ℕ,
       Nonempty (M ≃ₗ[ℂ]
         EuclideanSpace ℂ (isotypicDirectSumCarrier d g)) := by
-  obtain ⟨d, g, ⟨e⟩⟩ :=
-    finiteIsotypicBaseFieldCarrierCoordinates (F := ℂ) (A := A) (M := M)
-  let eLp :
-      (isotypicDirectSumCarrier d g → ℂ) ≃ₗ[ℂ]
-        EuclideanSpace ℂ (isotypicDirectSumCarrier d g) :=
-    (WithLp.linearEquiv 2 ℂ
-      (isotypicDirectSumCarrier d g → ℂ)).symm
-  exact ⟨d, g, ⟨e.trans eLp⟩⟩
+  obtain ⟨d, g, _hd, hcoord⟩ :=
+    finiteIsotypicEuclideanCarrierCoordinatesWithPositiveCarrier
+      (A := A) (M := M)
+  exact ⟨d, g, hcoord⟩
+
+/-- Symmetric-power specialization retaining positivity of all irreducible
+carrier dimensions.  The representation algebra action and semisimplicity are
+still explicit hypotheses. -/
+theorem symmetricPower_finiteIsotypicEuclideanCarrierCoordinatesWithPositiveCarrier
+    {E A : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    [Ring A] [Algebra ℂ A]
+    {n : ℕ}
+    [Module A (SymmetricPower ℂ (Fin n) E)]
+    [IsScalarTower ℂ A (SymmetricPower ℂ (Fin n) E)]
+    [IsSemisimpleModule A (SymmetricPower ℂ (Fin n) E)]
+    [IsNoetherian A (SymmetricPower ℂ (Fin n) E)]
+    [Module.Finite ℂ (SymmetricPower ℂ (Fin n) E)] :
+    ∃ d g : isotypicComponents A (SymmetricPower ℂ (Fin n) E) → ℕ,
+      (∀ c, 0 < d c) ∧
+      Nonempty (SymmetricPower ℂ (Fin n) E ≃ₗ[ℂ]
+        EuclideanSpace ℂ (isotypicDirectSumCarrier d g)) := by
+  exact finiteIsotypicEuclideanCarrierCoordinatesWithPositiveCarrier
+    (A := A) (M := SymmetricPower ℂ (Fin n) E)
 
 /-- Symmetric-power specialization of the finite Euclidean carrier theorem.
 
@@ -65,8 +101,10 @@ theorem symmetricPower_finiteIsotypicEuclideanCarrierCoordinates
     ∃ d g : isotypicComponents A (SymmetricPower ℂ (Fin n) E) → ℕ,
       Nonempty (SymmetricPower ℂ (Fin n) E ≃ₗ[ℂ]
         EuclideanSpace ℂ (isotypicDirectSumCarrier d g)) := by
-  exact finiteIsotypicEuclideanCarrierCoordinates
-    (A := A) (M := SymmetricPower ℂ (Fin n) E)
+  obtain ⟨d, g, _hd, hcoord⟩ :=
+    symmetricPower_finiteIsotypicEuclideanCarrierCoordinatesWithPositiveCarrier
+      (E := E) (A := A) (n := n)
+  exact ⟨d, g, hcoord⟩
 
 end
 

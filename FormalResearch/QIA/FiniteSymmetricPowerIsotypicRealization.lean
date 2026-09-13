@@ -71,6 +71,27 @@ noncomputable instance symmetricPowerIsotypicComponentsFintypeOfFinite
     complexSymmetricPower_isNoetherian_of_finite (A := A) (E := E) (n := n)
   exact Fintype.ofFinite _
 
+/-- Finite-dimensional one-copy specialization retaining positivity of every
+irreducible carrier dimension produced by the isotypic construction. -/
+theorem symmetricPower_finiteIsotypicEuclideanCarrierCoordinatesWithPositiveCarrier_of_finite
+    {E A : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    [Module.Finite ℂ E]
+    [Ring A] [Algebra ℂ A]
+    {n : ℕ}
+    [Module A (SymmetricPower ℂ (Fin n) E)]
+    [IsScalarTower ℂ A (SymmetricPower ℂ (Fin n) E)]
+    [IsSemisimpleModule A (SymmetricPower ℂ (Fin n) E)] :
+    ∃ d g : isotypicComponents A (SymmetricPower ℂ (Fin n) E) → ℕ,
+      (∀ c, 0 < d c) ∧
+      Nonempty (SymmetricPower ℂ (Fin n) E ≃ₗ[ℂ]
+        EuclideanSpace ℂ (isotypicDirectSumCarrier d g)) := by
+  letI : Module.Finite ℂ (SymmetricPower ℂ (Fin n) E) :=
+    complexSymmetricPower_moduleFinite (E := E) (n := n)
+  letI : IsNoetherian A (SymmetricPower ℂ (Fin n) E) :=
+    complexSymmetricPower_isNoetherian_of_finite (A := A) (E := E) (n := n)
+  exact symmetricPower_finiteIsotypicEuclideanCarrierCoordinatesWithPositiveCarrier
+    (E := E) (A := A) (n := n)
+
 /-- Finite-dimensional one-copy specialization of the Euclidean isotypic
 carrier theorem.
 
@@ -90,12 +111,10 @@ theorem symmetricPower_finiteIsotypicEuclideanCarrierCoordinates_of_finite
     ∃ d g : isotypicComponents A (SymmetricPower ℂ (Fin n) E) → ℕ,
       Nonempty (SymmetricPower ℂ (Fin n) E ≃ₗ[ℂ]
         EuclideanSpace ℂ (isotypicDirectSumCarrier d g)) := by
-  letI : Module.Finite ℂ (SymmetricPower ℂ (Fin n) E) :=
-    complexSymmetricPower_moduleFinite (E := E) (n := n)
-  letI : IsNoetherian A (SymmetricPower ℂ (Fin n) E) :=
-    complexSymmetricPower_isNoetherian_of_finite (A := A) (E := E) (n := n)
-  exact symmetricPower_finiteIsotypicEuclideanCarrierCoordinates
-    (E := E) (A := A) (n := n)
+  obtain ⟨d, g, _hd, hcoord⟩ :=
+    symmetricPower_finiteIsotypicEuclideanCarrierCoordinatesWithPositiveCarrier_of_finite
+      (E := E) (A := A) (n := n)
+  exact ⟨d, g, hcoord⟩
 
 end
 
