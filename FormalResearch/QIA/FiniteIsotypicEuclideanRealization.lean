@@ -38,10 +38,12 @@ theorem finiteIsotypicEuclideanCarrierCoordinates
         EuclideanSpace ℂ (isotypicDirectSumCarrier d g)) := by
   obtain ⟨d, g, ⟨e⟩⟩ :=
     finiteIsotypicBaseFieldCarrierCoordinates (F := ℂ) (A := A) (M := M)
-  refine ⟨d, g, ⟨e.trans ?_⟩⟩
-  exact
+  let eLp :
+      (isotypicDirectSumCarrier d g → ℂ) ≃ₗ[ℂ]
+        EuclideanSpace ℂ (isotypicDirectSumCarrier d g) :=
     (WithLp.linearEquiv 2 ℂ
       (isotypicDirectSumCarrier d g → ℂ)).symm
+  exact ⟨d, g, ⟨e.trans eLp⟩⟩
 
 /-- Symmetric-power specialization of the finite Euclidean carrier theorem.
 
