@@ -31,3 +31,5 @@ jobs:
           fi
       - name: Build symmetric-power coordinate continuity
         run: timeout 600 lake build FormalResearch.QIA.SymmetricPowerCoordinateContinuity
+      - name: Build FormalResearch aggregate
+        run: timeout 900 lake build FormalResearch
