@@ -46,6 +46,7 @@ import FormalResearch.QIA.SymmetricPowerFunctoriality
 import FormalResearch.QIA.SymmetricPowerRepresentation
 import FormalResearch.QIA.UnitaryRepresentationSemisimplicity
 import FormalResearch.QIA.EquivariantUnitarySemisimplicityTransport
+import FormalResearch.QIA.SymmetricPowerInducedIsotypicRealization
 import FormalResearch.QIA.SymmetricPowerCoordinateContinuity
 import FormalResearch.QIA.SymmetricMultilinearDiagonal
 import FormalResearch.QIA.CoherentPowerSymmetricSpan
