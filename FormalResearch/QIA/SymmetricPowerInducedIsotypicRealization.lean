@@ -22,6 +22,18 @@ open scoped MonoidAlgebra InnerProductSpace
 
 noncomputable section
 
+/-- A named copy of the algebraic symmetric-power representation.
+
+Keeping this representation behind a named definition prevents dependent
+isotypic-component types from repeatedly unfolding the full quotient-level
+symmetric-power action during elaboration. -/
+noncomputable def inducedSymmetricPowerRepresentation
+    {G E : Type*} [Group G]
+    [AddCommGroup E] [Module ℂ E]
+    (n : ℕ) (ρ : Representation ℂ G E) :
+    Representation ℂ G (SymmetricPower ℂ (Fin n) E) :=
+  symmetricPowerRepresentation (ι := Fin n) ρ
+
 /-- If the algebraic symmetric-power representation admits an explicit
 equivariant finite-dimensional inner-product-preserving realization, then the
 canonical group-algebra module of that representation admits finite Euclidean
@@ -38,15 +50,15 @@ theorem symmetricPower_inducedIsotypicEuclideanCarrierCoordinatesWithPositiveCar
     {n : ℕ}
     (ρ : Representation ℂ G E)
     (σ : Representation ℂ G H)
-    (φ : (symmetricPowerRepresentation (ι := Fin n) ρ).Equiv σ)
+    (φ : (inducedSymmetricPowerRepresentation n ρ).Equiv σ)
     (hunitary : IsInnerPreservingRepresentation σ) :
     ∃ d g : isotypicComponents ℂ[G]
-        (symmetricPowerRepresentation (ι := Fin n) ρ).asModule → ℕ,
+        (inducedSymmetricPowerRepresentation n ρ).asModule → ℕ,
       (∀ c, 0 < d c) ∧
       Nonempty (SymmetricPower ℂ (Fin n) E ≃ₗ[ℂ]
         EuclideanSpace ℂ (isotypicDirectSumCarrier d g)) := by
   let π : Representation ℂ G (SymmetricPower ℂ (Fin n) E) :=
-    symmetricPowerRepresentation (ι := Fin n) ρ
+    inducedSymmetricPowerRepresentation n ρ
   letI : Module.Finite ℂ (SymmetricPower ℂ (Fin n) E) :=
     complexSymmetricPower_moduleFinite (E := E) (n := n)
   letI : IsSemisimpleModule ℂ[G] π.asModule := by
@@ -72,10 +84,10 @@ theorem symmetricPower_inducedIsotypicEuclideanCarrierCoordinates_of_equiv_inner
     {n : ℕ}
     (ρ : Representation ℂ G E)
     (σ : Representation ℂ G H)
-    (φ : (symmetricPowerRepresentation (ι := Fin n) ρ).Equiv σ)
+    (φ : (inducedSymmetricPowerRepresentation n ρ).Equiv σ)
     (hunitary : IsInnerPreservingRepresentation σ) :
     ∃ d g : isotypicComponents ℂ[G]
-        (symmetricPowerRepresentation (ι := Fin n) ρ).asModule → ℕ,
+        (inducedSymmetricPowerRepresentation n ρ).asModule → ℕ,
       Nonempty (SymmetricPower ℂ (Fin n) E ≃ₗ[ℂ]
         EuclideanSpace ℂ (isotypicDirectSumCarrier d g)) := by
   obtain ⟨d, g, _hd, hcoord⟩ :=
