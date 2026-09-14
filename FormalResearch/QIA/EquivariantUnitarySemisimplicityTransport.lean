@@ -26,21 +26,21 @@ noncomputable section
 associated group-algebra modules. -/
 def representationEquivAsModuleLinearEquiv
     {A G V W : Type*}
-    [Ring A] [Group G]
+    [CommRing A] [Group G]
     [AddCommGroup V] [Module A V]
     [AddCommGroup W] [Module A W]
     {ρ : Representation A G V} {σ : Representation A G W}
     (φ : ρ.Equiv σ) :
     ρ.asModule ≃ₗ[A[G]] σ.asModule := by
   apply LinearEquiv.ofBijective
-    (Representation.equivLinearMapAsModule ρ σ φ.toIntertwiningMap)
+    (Representation.IntertwiningMap.equivLinearMapAsModule ρ σ φ.toIntertwiningMap)
   exact φ.toLinearEquiv.bijective
 
 /-- Semisimplicity of the group-algebra module is invariant under equivalence of
 representations. -/
 theorem isSemisimpleModule_asModule_iff_of_equiv
     {A G V W : Type*}
-    [Ring A] [Group G]
+    [CommRing A] [Group G]
     [AddCommGroup V] [Module A V]
     [AddCommGroup W] [Module A W]
     {ρ : Representation A G V} {σ : Representation A G W}
