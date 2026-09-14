@@ -51,10 +51,12 @@ theorem isSemisimpleRepresentation_of_innerPreserving
   constructor
   · rw [disjoint_iff]
     apply Subrepresentation.toSubmodule_injective
-    simpa [q] using (p.toSubmodule.isCompl_orthogonal.disjoint.eq_bot)
+    change p.toSubmodule ⊓ p.toSubmoduleᗮ = (⊥ : Submodule ℂ E)
+    exact p.toSubmodule.isCompl_orthogonal.disjoint.eq_bot
   · rw [codisjoint_iff]
     apply Subrepresentation.toSubmodule_injective
-    simpa [q] using (p.toSubmodule.isCompl_orthogonal.codisjoint.eq_top)
+    change p.toSubmodule ⊔ p.toSubmoduleᗮ = (⊤ : Submodule ℂ E)
+    exact p.toSubmodule.isCompl_orthogonal.codisjoint.eq_top
 
 /-- The associated complex group-algebra module is semisimple under the same
 finite-dimensional inner-product-preservation hypothesis. -/
