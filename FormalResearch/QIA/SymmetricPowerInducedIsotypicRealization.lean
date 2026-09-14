@@ -26,13 +26,36 @@ noncomputable section
 
 Keeping this representation behind a named definition prevents dependent
 isotypic-component types from repeatedly unfolding the full quotient-level
-symmetric-power action during elaboration. -/
+symmetric-power action during elaboration.  Pinned Mathlib's symmetric-power map
+places the scalar, tensor-index, and acting-group types in the same universe, so
+this QI-A specialization uses a small group type. -/
 noncomputable def inducedSymmetricPowerRepresentation
-    {G E : Type*} [Group G]
+    {G : Type} {E : Type*} [Group G]
     [AddCommGroup E] [Module ℂ E]
     (n : ℕ) (ρ : Representation ℂ G E) :
     Representation ℂ G (SymmetricPower ℂ (Fin n) E) :=
   symmetricPowerRepresentation (ι := Fin n) ρ
+
+/-- Finite-dimensional one-copy input makes the isotypic-sector type of the
+canonical induced group-algebra module finite.  This is the `asModule` analogue
+of `symmetricPowerIsotypicComponentsFintypeOfFinite`; it uses only finiteness and
+the canonical scalar tower, not semisimplicity. -/
+noncomputable instance inducedSymmetricPowerIsotypicComponentsFintypeOfFinite
+    {G : Type} {E : Type*} [Group G]
+    [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
+    {n : ℕ} (ρ : Representation ℂ G E) :
+    Fintype (isotypicComponents ℂ[G]
+      (inducedSymmetricPowerRepresentation n ρ).asModule) := by
+  let π : Representation ℂ G (SymmetricPower ℂ (Fin n) E) :=
+    inducedSymmetricPowerRepresentation n ρ
+  letI : Module.Finite ℂ (SymmetricPower ℂ (Fin n) E) :=
+    complexSymmetricPower_moduleFinite (E := E) (n := n)
+  letI : Module.Finite ℂ π.asModule := inferInstance
+  letI : IsNoetherian ℂ π.asModule := inferInstance
+  letI : IsNoetherian ℂ[G] π.asModule :=
+    isNoetherian_of_tower ℂ
+      (inferInstance : IsNoetherian ℂ π.asModule)
+  exact Fintype.ofFinite _
 
 /-- If the algebraic symmetric-power representation admits an explicit
 equivariant finite-dimensional inner-product-preserving realization, then the
@@ -43,7 +66,7 @@ The coordinate equivalence is returned on raw algebraic `SymmetricPower` by
 precomposing the isotypic coordinates on `Representation.asModule` with the
 canonical `asModuleEquiv.symm` equivalence. -/
 theorem symmetricPower_inducedIsotypicEuclideanCarrierCoordinatesWithPositiveCarrier_of_equiv_innerPreserving
-    {G E H : Type*} [Group G]
+    {G : Type} {E H : Type*} [Group G]
     [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     [NormedAddCommGroup H] [InnerProductSpace ℂ H]
     [FiniteDimensional ℂ H]
@@ -61,12 +84,13 @@ theorem symmetricPower_inducedIsotypicEuclideanCarrierCoordinatesWithPositiveCar
     inducedSymmetricPowerRepresentation n ρ
   letI : Module.Finite ℂ (SymmetricPower ℂ (Fin n) E) :=
     complexSymmetricPower_moduleFinite (E := E) (n := n)
+  letI : Module.Finite ℂ π.asModule := inferInstance
   letI : IsSemisimpleModule ℂ[G] π.asModule := by
     exact isSemisimpleModule_asModule_of_equiv_innerPreserving
       π σ φ hunitary
-  letI : IsNoetherian ℂ[G] π.asModule := by
-    letI : IsNoetherian ℂ π.asModule := inferInstance
-    exact isNoetherian_of_tower ℂ
+  letI : IsNoetherian ℂ π.asModule := inferInstance
+  letI : IsNoetherian ℂ[G] π.asModule :=
+    isNoetherian_of_tower ℂ
       (inferInstance : IsNoetherian ℂ π.asModule)
   obtain ⟨d, g, hd, ⟨e⟩⟩ :=
     finiteIsotypicEuclideanCarrierCoordinatesWithPositiveCarrier
@@ -77,7 +101,7 @@ theorem symmetricPower_inducedIsotypicEuclideanCarrierCoordinatesWithPositiveCar
 /-- Positivity-erased wrapper for the induced symmetric-power isotypic
 Euclidean realization. -/
 theorem symmetricPower_inducedIsotypicEuclideanCarrierCoordinates_of_equiv_innerPreserving
-    {G E H : Type*} [Group G]
+    {G : Type} {E H : Type*} [Group G]
     [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     [NormedAddCommGroup H] [InnerProductSpace ℂ H]
     [FiniteDimensional ℂ H]
