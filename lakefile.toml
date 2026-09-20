@@ -1,0 +1,11 @@
+name = "formal_research"
+version = "0.1.0"
+defaultTargets = ["FormalResearch"]
+
+[[lean_lib]]
+name = "FormalResearch"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "5ed2965256430c3649e86755f9576b54eca72435"

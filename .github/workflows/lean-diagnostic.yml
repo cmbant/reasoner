@@ -1,0 +1,123 @@
+name: Lean frontier diagnostics
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: lean-frontier-diagnostics-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontier:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean toolchain via elan
+        run: |
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies
+        run: lake update
+      - name: Fetch mathlib cache
+        run: lake exe cache get
+      - name: Reject placeholders
+        run: |
+          if grep -R --line-number -E '\bsorry\b|\badmit\b' FormalResearch FormalResearch.lean; then
+            echo 'Lean placeholders found'
+            exit 1
+          fi
+
+      - name: AUX-BV quartic charge-gap module build
+        if: always()
+        run: timeout 300 lake build FormalResearch.Blaschke.QuarticChargeGapAlgebra
+
+      - name: Racah Weyl cell-width maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Racah.WeylCellWidth
+      - name: QI-B2 Krawtchouk maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.KrawtchoukEigenvalue
+      - name: Gaudin tree-space-rank maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Gaudin.TreeSpaceRank
+      - name: Blaschke cyclic-charge-energy maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Blaschke.CyclicChargeEnergy
+      - name: QI-A three-copy closed-forms maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIA.ThreeCopyCharacterClosedForms
+      - name: Gaudin cross-rank maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Gaudin.CrossRankLinearAlgebra
+
+      - name: QI-B2 Hamming gate maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.HammingGate
+      - name: Blaschke Wronskian-pair maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Blaschke.WronskianPair
+      - name: Blaschke Walsh-collapse maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Blaschke.WalshBooleanCollapse
+      - name: Gaudin exponent-bookkeeping maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Gaudin.ExponentBookkeeping
+      - name: QI-C Gaussian-integer-lift maintenance build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIC.GaussianIntegerLift
+
+      - name: QI-B2 Hamming subset-expansion frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.HammingSubsetExpansion
+      - name: QI-C qubit-tail determinant frontier build
+        if: always()
+        run: timeout 300 lake build FormalResearch.QIC.QubitTailDeterminants
+
+      - name: Racah Weyl lattice-span frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Racah.WeylLatticeSpan
+      - name: QI-A four-qubit matrix frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIA.FourQubitMatrix
+      - name: QI-B2 Hamming orbit-action frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.HammingOrbitAction
+      - name: Gaudin common-split component frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.Gaudin.CommonSplitComponentCount
+      - name: QI-B1 apolar triangular-rank frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB1.ApolarTriangularRank
+      - name: QI-B2 Hamming spectral-phase frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.HammingSpectralPhase
+      - name: QI-A three-copy binomial bridge frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIA.ThreeCopyMemoryBinomialBridge
+
+      - name: QI-D D5 Weyl enumeration frontier build
+        if: always()
+        run: timeout 240 lake build FormalResearch.QID.D5WeylEnumeration
+      - name: QI-B2 Krawtchouk generating frontier build
+        if: always()
+        run: timeout 180 lake build FormalResearch.QIB2.KrawtchoukGenerating
+      - name: QI-A printed chirality matrix frontier build
+        if: always()
+        run: timeout 240 lake build FormalResearch.QIA.PrintedChiralityMatrix
+      - name: QI-C endpoint-14 evaluation frontier build
+        if: always()
+        run: timeout 300 lake build FormalResearch.QIC.Endpoint14Evaluation
+      - name: QI-C all-L qubit-tail nonvanishing frontier build
+        if: always()
+        run: timeout 240 lake build FormalResearch.QIC.QubitTailAllLNonvanishing
+      - name: Gaudin Bernoulli inverse recurrence frontier build
+        if: always()
+        run: timeout 240 lake build FormalResearch.Gaudin.BernoulliInverseRecurrence
+
+      - name: FormalResearch aggregate build
+        if: always()
+        run: timeout 900 lake build FormalResearch
