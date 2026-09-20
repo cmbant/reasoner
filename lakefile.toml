@@ -8,4 +8,4 @@ name = "FormalResearch"
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-rev = "52b284ff128a523eca1f67c68d677861b95cc002"
+rev = "5ed2965256430c3649e86755f9576b54eca72435"
