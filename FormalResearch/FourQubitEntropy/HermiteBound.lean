@@ -215,6 +215,100 @@ theorem hermPhi_nonneg {x : ℝ} (hx : 0 < x) : 0 ≤ hermPhi x := by
     have := hm (Set.mem_Ici.2 (le_refl _)) (Set.mem_Ici.2 h3.le) h3.le
     linarith
 
+section StrictSigns
+
+variable {u v w : ℝ}
+
+theorem strict_neg3 (hu : u < 0) (hv : v < 0) (hw : w < 0) : 2 * hermA * u * v * w < 0 := by
+  have ha := hermA_pos
+  have e1 : 2 * hermA * u < 0 := by nlinarith
+  have e2 : 0 < 2 * hermA * u * v := mul_pos_of_neg_of_neg e1 hv
+  exact mul_neg_of_pos_of_neg e2 hw
+
+theorem strict_pos_neg_neg (hu : 0 < u) (hv : v < 0) (hw : w < 0) : 0 < 2 * hermA * u * v * w := by
+  have ha := hermA_pos
+  have e1 : 2 * hermA * u * v < 0 := mul_neg_of_pos_of_neg (by positivity) hv
+  exact mul_pos_of_neg_of_neg e1 hw
+
+theorem strict_pos_pos_neg (hu : 0 < u) (hv : 0 < v) (hw : w < 0) : 2 * hermA * u * v * w < 0 := by
+  have ha := hermA_pos
+  exact mul_neg_of_pos_of_neg (by positivity) hw
+
+theorem strict_pos3 (hu : 0 < u) (hv : 0 < v) (hw : 0 < w) : 0 < 2 * hermA * u * v * w := by
+  have ha := hermA_pos
+  positivity
+
+end StrictSigns
+
+/-- `φ > 0` on `(0, ∞)` away from the nodes `1/6` and `1/2`. -/
+theorem hermPhi_pos {x : ℝ} (hx : 0 < x) (h1 : x ≠ 1 / 6) (h2 : x ≠ 1 / 2) : 0 < hermPhi x := by
+  have hs1 := hermS_gt
+  have hs2 := hermS_lt
+  have hp := hermPhi_at_p
+  have hq := hermPhi_at_q
+  rcases lt_or_gt_of_ne h1 with h1 | h1
+  · have hm := strictAntiOn_of_deriv_neg (D := Set.Ioc 0 (1 / 6)) (convex_Ioc _ _)
+      (hermPhi_continuousOn (fun y hy => hy.1)) (by
+        intro y hy
+        rw [interior_Ioc] at hy
+        rw [(hermPhi_deriv hy.1).deriv]
+        exact div_neg_of_neg_of_pos
+          (strict_neg3 (by linarith [hy.2]) (by linarith [hy.2]) (by linarith [hy.2]))
+          (by have := hy.1; positivity))
+    have := hm ⟨hx, h1.le⟩ ⟨by norm_num, le_refl _⟩ h1
+    linarith
+  rcases le_or_gt x hermS with h3 | h3
+  · have hm := strictMonoOn_of_deriv_pos (D := Set.Icc (1 / 6) hermS) (convex_Icc _ _)
+      (hermPhi_continuousOn (fun y hy => lt_of_lt_of_le (by norm_num : (0 : ℝ) < 1 / 6) hy.1)) (by
+        intro y hy
+        rw [interior_Icc] at hy
+        rw [(hermPhi_deriv (by linarith [hy.1])).deriv]
+        exact div_pos
+          (strict_pos_neg_neg (by linarith [hy.1]) (by linarith [hy.2]) (by linarith [hy.2]))
+          (by have : 0 < y := by linarith [hy.1]
+              positivity))
+    have := hm ⟨le_refl _, hs1.le⟩ ⟨h1.le, h3⟩ h1
+    linarith
+  rcases lt_or_gt_of_ne h2 with h4 | h4
+  · have hm := strictAntiOn_of_deriv_neg (D := Set.Icc hermS (1 / 2)) (convex_Icc _ _)
+      (hermPhi_continuousOn (fun y hy => lt_of_lt_of_le (by linarith) hy.1)) (by
+        intro y hy
+        rw [interior_Icc] at hy
+        rw [(hermPhi_deriv (by linarith [hy.1])).deriv]
+        exact div_neg_of_neg_of_pos
+          (strict_pos_pos_neg (by linarith [hy.1]) (by linarith [hy.1]) (by linarith [hy.2]))
+          (by have : 0 < y := by linarith [hy.1]
+              positivity))
+    have := hm ⟨h3.le, h4.le⟩ ⟨hs2.le, le_refl _⟩ h4
+    linarith
+  · have hm := strictMonoOn_of_deriv_pos (D := Set.Ici (1 / 2)) (convex_Ici _)
+      (hermPhi_continuousOn (fun y hy => lt_of_lt_of_le (by norm_num : (0 : ℝ) < 1 / 2) hy)) (by
+        intro y hy
+        rw [interior_Ici] at hy
+        have hy' : 1 / 2 < y := hy
+        rw [(hermPhi_deriv (by linarith)).deriv]
+        exact div_pos (strict_pos3 (by linarith) (by linarith) (by linarith))
+          (by have : 0 < y := by linarith
+              positivity))
+    have := hm (Set.mem_Ici.2 (le_refl _)) (Set.mem_Ici.2 h4.le) h4
+    linarith
+
+/-- Equality in the cubic majorant holds exactly at the nodes. -/
+theorem negMulLog_eq_hermCubic {x : ℝ} (hx : 0 ≤ x) (h : Real.negMulLog x = hermCubic x) :
+    x = 1 / 6 ∨ x = 1 / 2 := by
+  by_contra hne
+  push_neg at hne
+  rcases hx.eq_or_lt with rfl | hx
+  · have := hermD_pos
+    simp [hermCubic] at h
+    linarith
+  · have hp := hermPhi_pos hx hne.1 hne.2
+    have e : hermCubic x - Real.negMulLog x = x * hermPhi x := by
+      unfold hermCubic Real.negMulLog hermPhi; field_simp; ring
+    rw [h] at e
+    have : 0 < x * hermPhi x := mul_pos hx hp
+    linarith
+
 /-- **Cubic majorant.** `-x ln x ≤ a x³ + b x² + c x + d` for `x ≥ 0`. -/
 theorem negMulLog_le_hermCubic {x : ℝ} (hx : 0 ≤ x) : Real.negMulLog x ≤ hermCubic x := by
   rcases hx.eq_or_lt with rfl | hx
