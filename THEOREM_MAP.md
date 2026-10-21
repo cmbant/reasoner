@@ -137,6 +137,38 @@ External boundary: the arbitrary-real type-D rearrangement / determinant-constra
 
 The maintained aggregate imports the D5 rank, enumeration, affine-rank, supporting-facet and full-facet certificate modules. The old theorem-map text saying these pieces were still pending is obsolete. For theorem semantics, consult the source-local QI-D certificate and module statements; aggregate compilation alone does not upgrade their external convex-geometric premises.
 
+## Four-qubit average-entropy maximum (QIprojects PR 193, task T59)
+
+Lean files: `FormalResearch/FourQubitEntropy/*.lean`; the source is
+`ResearchNotes/QI/four_qubit_entropy/` (theorems `thm:fqe-moment`, `lem:fqe-purity`, `thm:fqe-entropy-max`).
+
+Formalized, with no `sorry`:
+
+- `sexticF_ge`, `sexticF_nonneg` (`MomentInequality.lean`): for every `ψ ∈ (ℂ²)^{⊗4}`,
+  `F = 17nP − 12T − 12n³ ≥ (15/32) n W₁ ≥ 0`, with `P`, `T` the summed purities and cubic moments of the
+  three `1j` marginals (`Matrix.trace` of the reduced matrices) and `W₁` the squared Pauli expectations. The
+  proof is the identity `1152 F = 540 n W₁ + 3 Σᵢ 36‖Rᵢ‖²` for the residual tensors `Rᵢ = 2Vᵢ − 19Uᵢ` of the
+  swap derivation (`Generic.lean`), checked as an identity of 32-variable polynomials (`Identity.lean`) and
+  transported to all complex states (`Transfer.lean`, `Defect.lean`, `Bridge.lean`).
+- `purity_ge` (`Purity.lean`): `P ≥ n²` from `2P = 2n² + W₁ + τ`, `τ = |ψᵀ ε^{⊗4} ψ|²`.
+- `negMulLog_le_hermCubic` (`HermiteBound.lean`): `−x ln x ≤ a x³ + b x² + c x + d` for `x ≥ 0`.
+- `meanEntropy_le`, `meanEntropy_M4`, `meanEntropy_M4_max` (`Entropy.lean`, `Attainment.lean`): for a unit
+  vector the mean von Neumann entropy of the three `1j` marginals (from `Matrix.IsHermitian.eigenvalues`) is at
+  most `1 + log 3 / (2 log 2)`, and `M₄` attains it.
+
+- `meanEntropy_eq_max_iff` (`EqualityMain.lean`): for a unit vector, mean entropy `= 1 + log 3 / (2 log 2)` iff
+  `ψ` is a local-unitary image of `M₄` or of `conj M₄`. Forward: equality forces `P = 1` (`EqualityReduction.lean`),
+  hence `W₁ = 0` and `ψᵀ ε^{⊗4} ψ = 0`, and the cut-`12` quadratic `(R-1/6)(R-1/2)=0`; `classify`
+  (`ClassifyMain.lean`) then normalises `ψ` by explicit local unitaries (magic basis, block form, Euler
+  rotations; `Magic`…`Normalize`, `Classify`). Converse: `EqualityConverse.lean`. `LUEquiv` is `∃` unitary
+  `a,b,c,d` with `localApply a b c d ψ = φ` (`LocalUnitary.lean`).
+
+Trust boundary: the sextic polynomial identity `sexticDefect_check` is decided by `native_decide` (a
+kernel-only run needs more than 7 GB, so it rests on the compiler as well); the purity identity is a kernel
+`decide`. `#print axioms` of `meanEntropy_le` and `meanEntropy_eq_max_iff` lists only `propext`,
+`Classical.choice`, `Quot.sound` and that `native_decide` axiom. Not formalized: the zero-set classification
+of `F` and the Tsallis/Rényi/convex-roof corollaries.
+
 ## Gaudin, Racah and bridge modules
 
 The maintained aggregate also imports the current Gaudin metric/rank chain, Racah Weyl-cell modules and B2/Blaschke bridge modules. They are compiled as part of the current aggregate. This high-level map does not attempt to restate every theorem in those families; use the Lean source and theorem-local project updates for exact scope.
