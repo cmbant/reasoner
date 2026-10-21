@@ -156,10 +156,18 @@ Formalized, with no `sorry`:
   vector the mean von Neumann entropy of the three `1j` marginals (from `Matrix.IsHermitian.eigenvalues`) is at
   most `1 + log 3 / (2 log 2)`, and `M₄` attains it.
 
+- `meanEntropy_eq_max_iff` (`EqualityMain.lean`): for a unit vector, mean entropy `= 1 + log 3 / (2 log 2)` iff
+  `ψ` is a local-unitary image of `M₄` or of `conj M₄`. Forward: equality forces `P = 1` (`EqualityReduction.lean`),
+  hence `W₁ = 0` and `ψᵀ ε^{⊗4} ψ = 0`, and the cut-`12` quadratic `(R-1/6)(R-1/2)=0`; `classify`
+  (`ClassifyMain.lean`) then normalises `ψ` by explicit local unitaries (magic basis, block form, Euler
+  rotations; `Magic`…`Normalize`, `Classify`). Converse: `EqualityConverse.lean`. `LUEquiv` is `∃` unitary
+  `a,b,c,d` with `localApply a b c d ψ = φ` (`LocalUnitary.lean`).
+
 Trust boundary: the sextic polynomial identity `sexticDefect_check` is decided by `native_decide` (a
 kernel-only run needs more than 7 GB, so it rests on the compiler as well); the purity identity is a kernel
-`decide`. Not formalized: the equality case (maximisers are exactly the `M₄` and `conj M₄` local-unitary
-orbits), the zero-set classification of `F`, and the Tsallis/Rényi/convex-roof corollaries.
+`decide`. `#print axioms` of `meanEntropy_le` and `meanEntropy_eq_max_iff` lists only `propext`,
+`Classical.choice`, `Quot.sound` and that `native_decide` axiom. Not formalized: the zero-set classification
+of `F` and the Tsallis/Rényi/convex-roof corollaries.
 
 ## Gaudin, Racah and bridge modules
 
