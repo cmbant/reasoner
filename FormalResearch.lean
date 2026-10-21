@@ -161,3 +161,17 @@ import FormalResearch.Bridges.B2BlaschkeWeightOneMultiplicity
 import FormalResearch.Bridges.B2BlaschkeRangeEquiv
 import FormalResearch.Bridges.B2BlaschkeQuotientEquiv
 import FormalResearch.Bridges.B2BlaschkeMultiplicityRank
+import FormalResearch.FourQubitEntropy.RingOps
+import FormalResearch.FourQubitEntropy.SparsePoly
+import FormalResearch.FourQubitEntropy.Generic
+import FormalResearch.FourQubitEntropy.Transfer
+import FormalResearch.FourQubitEntropy.Identity
+import FormalResearch.FourQubitEntropy.Defect
+import FormalResearch.FourQubitEntropy.Statement
+import FormalResearch.FourQubitEntropy.Bridge
+import FormalResearch.FourQubitEntropy.MomentInequality
+import FormalResearch.FourQubitEntropy.Purity
+import FormalResearch.FourQubitEntropy.Spectral
+import FormalResearch.FourQubitEntropy.HermiteBound
+import FormalResearch.FourQubitEntropy.Entropy
+import FormalResearch.FourQubitEntropy.Attainment

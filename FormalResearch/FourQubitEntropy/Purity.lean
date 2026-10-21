@@ -31,7 +31,7 @@ def purityDefect (z w : State α) : α :=
 end Generic
 
 theorem purityDefect_check : purityDefect zSP wSP = [] := by
-  native_decide
+  decide +kernel
 
 section Transfer
 
