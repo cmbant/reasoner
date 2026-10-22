@@ -163,11 +163,25 @@ Formalized, with no `sorry`:
   rotations; `Magic`…`Normalize`, `Classify`). Converse: `EqualityConverse.lean`. `LUEquiv` is `∃` unitary
   `a,b,c,d` with `localApply a b c d ψ = φ` (`LocalUnitary.lean`).
 
-Trust boundary: the sextic polynomial identity `sexticDefect_check` is decided by `native_decide` (a
-kernel-only run needs more than 7 GB, so it rests on the compiler as well); the purity identity is a kernel
-`decide`. `#print axioms` of `meanEntropy_le` and `meanEntropy_eq_max_iff` lists only `propext`,
-`Classical.choice`, `Quot.sound` and that `native_decide` axiom. Not formalized: the zero-set classification
-of `F` and the Tsallis/Rényi/convex-roof corollaries.
+- `Checks.lean`: non-vacuity and corollaries. Concrete evaluations of `normSqPsi, P, T, W₁, F` on `|0000⟩`
+  (`3, 3, 4, F = 3`), the two-Bell-pair state (`P = 3/2, T = 9/8, W₁ = 0, F = 0`) and the cluster state
+  (`P = 1, T = 3/8, W₁ = 0, F = 1/2`); `purity_identity_exact` (`2P = 2n² + W₁ + |ψᵀ ε^{⊗4} ψ|²`, `τ` identified);
+  `purity_eq_one_iff` (unit: `P = 1 ↔ W₁ = 0 ∧ ψᵀ ε^{⊗4} ψ = 0`); `sexticF_zero_bloch` (unit and `F = 0` forces
+  `W₁ = 0`); `cubicMoment_le_line` (`T ≤ 5/12 + 17/12 (P − 1)`) with `bell2_on_line` (sharp at `(3/2, 9/8)`);
+  `tsallis2_le` and `cluster4_tsallis2_max` (mean Tsallis-2 entropy `≤ 2/3`, attained); `M4_invariants`
+  (`P = 1, T = 5/12, F = 0, W₁ = 0` for `M₄`); `one_cut_rigidity_12` (unit, `P = 1` and the quadratic on cut
+  `12` give `LUEquiv M₄ ψ ∨ LUEquiv (conj M₄) ψ`). `#guard_msgs` pins four of these to the standard axioms.
+
+Trust boundary: the sextic polynomial identity `sexticDefect_check` is decided by `native_decide`, so it rests
+on the compiler as well. A kernel-only run of the whole identity needs more than 7 GB: kernel memory grows
+with the number of reduction steps (about 50 KB per step, never evicted within one declaration), and `Fgen`
+alone peaks near 6 GB. The purity identity is a kernel `decide`. `#print axioms` of `meanEntropy_le`,
+`meanEntropy_eq_max_iff`, `sexticF_ge`, `cubicMoment_le_line` and `M4_invariants` lists only `propext`,
+`Classical.choice`, `Quot.sound` and that `native_decide` axiom; `purity_ge`, `purity_identity_exact`,
+`purity_eq_one_iff` and `one_cut_rigidity_12` use only the standard three. Compiled evaluation of the same
+identity takes about 0.5 GB. Not formalized: the zero-set classification of `F`, one-cut rigidity for cuts
+`13` and `14`, the spectral majorant proposition, κ-sharpness beyond the one data point, and the
+Tsallis (`q < 2`), Rényi and convex-roof corollaries.
 
 ## Gaudin, Racah and bridge modules
 

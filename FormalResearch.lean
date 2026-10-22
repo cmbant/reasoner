@@ -197,3 +197,4 @@ import FormalResearch.FourQubitEntropy.Normalize
 import FormalResearch.FourQubitEntropy.Classify
 import FormalResearch.FourQubitEntropy.ClassifyMain
 import FormalResearch.FourQubitEntropy.EqualityMain
+import FormalResearch.FourQubitEntropy.Checks
