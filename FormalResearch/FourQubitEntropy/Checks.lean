@@ -137,7 +137,7 @@ private theorem quad_sq {R : Mat4} (hq : (R - (1 / 6 : ℂ) • 1) * (R - (1 / 2
     rw [← sub_eq_zero, ← hq]; module
   rw [this]; norm_num
 
-private theorem quad_traces {R : Mat4} (hq : (R - (1 / 6 : ℂ) • 1) * (R - (1 / 2 : ℂ) • 1) = 0)
+theorem quad_traces {R : Mat4} (hq : (R - (1 / 6 : ℂ) • 1) * (R - (1 / 2 : ℂ) • 1) = 0)
     (ht : Matrix.trace R = 1) :
     (Matrix.trace (R * R)).re = 1 / 3 ∧ (Matrix.trace (R * R * R)).re = 5 / 36 := by
   have h2 := quad_sq hq

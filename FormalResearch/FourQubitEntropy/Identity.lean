@@ -2,10 +2,12 @@ import FormalResearch.FourQubitEntropy.Generic
 import FormalResearch.FourQubitEntropy.SparsePoly
 
 /-!
-# The sextic identity as a kernel-checked polynomial identity
+# The sextic identity as a polynomial identity
 
 `1152 F = 540 n W₁ + 3 Σᵢ 36 ‖Rᵢ‖²` as an identity of polynomials in the 32 variables
-`z_{abcd}`, `w_{abcd}`.
+`z_{abcd}`, `w_{abcd}`. The sparse-polynomial normal form is evaluated by `native_decide`
+(compiled code, trusted through the axiom `sexticDefect_check._native.native_decide.ax_1_1`),
+not by the kernel; everything downstream of this identity is kernel-checked.
 -/
 
 open scoped FormalResearch.FourQubitEntropy.GenericOps

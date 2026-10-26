@@ -142,6 +142,15 @@ The maintained aggregate imports the D5 rank, enumeration, affine-rank, supporti
 Lean files: `FormalResearch/FourQubitEntropy/*.lean`; the source is
 `ResearchNotes/QI/four_qubit_entropy/` (theorems `thm:fqe-moment`, `lem:fqe-purity`, `thm:fqe-entropy-max`).
 
+The development is the Lean companion of QIprojects Paper E (`ResearchNotes/QI/four_qubit_entropy/`) and is developed
+here; QIprojects holds no Lean source. Beyond the entropy maximum below it contains the equality case, one-cut rigidity,
+the cubic-majorant criterion, Tsallis/Rényi bounds with equality, the HS/cluster crossing, convex-roof ceilings,
+`Tradeoff.lean` (the `n = 4` purity–time-reversal tradeoff `π₂ ≥ 1/3 + τ/6`, optimal coefficient, three Bell-pairing zeros of
+`F`), and the seven-qubit icosahedral parts: `SevenQubitIco.lean` (scalar consequences of the supplied mean-purity polynomial,
+spectra and entropy-derivative sign checks, not derived from the state) and `SevenQubitIcoState.lean` (the coefficient tensor,
+unit norm, maximally mixed one-qubit marginals, and the reduced-matrix entries of one three-qubit cut of each type, derived
+from the tensor; eigenvalues and the sum over the 35 cuts are not formalized). Kernel `decide +kernel` only; no compiler axiom.
+
 Formalized, with no `sorry`:
 
 - `sexticF_ge`, `sexticF_nonneg` (`MomentInequality.lean`): for every `ψ ∈ (ℂ²)^{⊗4}`,
