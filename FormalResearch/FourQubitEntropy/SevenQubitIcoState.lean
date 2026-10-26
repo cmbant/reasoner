@@ -1,15 +1,23 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIco
+import Mathlib
 
 /-!
 # The seven-qubit icosahedral family's state and reduced matrices
 
 This defines the two integer coefficient tensors in `eq:ico` and checks their support counts and
-orthogonality. Together with the scalar parameterization, this proves unit norm. It also derives the
+orthogonality (`thm:ico` in `ResearchNotes/QI/seven_qubit_entanglement/icosahedral_state.tex`). Together with the scalar parameterization, this proves unit norm. It also derives the
 three-qubit reduced-matrix entries for one representative cut of each type, directly from the state
 tensor.
 -/
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco
+
+/-- The parameter `u = α²` in the icosahedral family. -/
+noncomputable def u (x : ℝ) : ℝ := (1 - 2 * x) / 30
+
+/-- The support counts `30` and `2` give the unit-norm coefficient identity. -/
+theorem coefficient_norm_identity (x : ℝ) : 30 * u x + 2 * x = 1 := by
+  unfold u
+  ring
 
 abbrev BitString := Fin 7 → Bool
 abbrev Tail := Fin 6 → Bool

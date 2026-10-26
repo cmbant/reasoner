@@ -146,10 +146,9 @@ The development is the Lean companion of QIprojects Paper E (`ResearchNotes/QI/f
 here; QIprojects holds no Lean source. Beyond the entropy maximum below it contains the equality case, one-cut rigidity,
 the cubic-majorant criterion, Tsallis/Rényi bounds with equality, the HS/cluster crossing, convex-roof ceilings,
 `Tradeoff.lean` (the `n = 4` purity–time-reversal tradeoff `π₂ ≥ 1/3 + τ/6`, optimal coefficient, three Bell-pairing zeros of
-`F`), and the seven-qubit icosahedral parts: `SevenQubitIco.lean` (scalar consequences of the supplied mean-purity polynomial,
-spectra and entropy-derivative sign checks, not derived from the state) and `SevenQubitIcoState.lean` (the coefficient tensor,
-unit norm, maximally mixed one-qubit marginals, and the reduced-matrix entries of one three-qubit cut of each type, derived
-from the tensor; eigenvalues and the sum over the 35 cuts are not formalized). Kernel `decide +kernel` only; no compiler axiom.
+`F`), and `SevenQubitIcoState.lean` (the seven-qubit icosahedral coefficient tensor of `thm:ico`: unit norm, maximally mixed
+one-qubit marginals, and the reduced-matrix entries of one three-qubit cut of each type, derived from the tensor; the
+eigenvalues, the purity polynomial and the sum over the 35 cuts are not formalized). Kernel `decide +kernel` only; no compiler axiom.
 
 Formalized, with no `sorry`:
 
