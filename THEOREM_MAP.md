@@ -149,7 +149,10 @@ the cubic-majorant criterion, Tsallis/Rényi bounds with equality, the HS/cluste
 `F`), and `SevenQubitIcoState.lean` and `SevenQubitIcoPurity.lean` (the seven-qubit icosahedral coefficient tensor of `thm:ico`:
 unit norm, maximally mixed one-qubit marginals, the purity polynomial of every three-qubit cut (35) and pair (21)
 derived from the tensor, the mean three-body purity `121/917 + (1048/525)(x−37/524)²` on the family with unique minimum at
-`x = 37/524`, and the cut and pair purities there; the eigenvalues and entropies are not formalized). Kernel `decide +kernel` only; no compiler axiom.
+`x = 37/524`, and the cut and pair purities there; `SevenQubitIcoCert.lean`/`SevenQubitIcoSpectrum.lean`: the spectrum of
+every three-qubit cut, `(4α²)⁶,(3α²+β²)²` avoiding the special site and `8α²,(4α²)⁵,(α²+β²)²` containing it;
+`SevenQubitIcoEntropy.lean`: the mean three-body entropy of the family is strictly concave with a unique maximiser strictly
+between `0` and `37/524`; the pair spectra and the numerical value of the maximiser are not formalized). Kernel `decide +kernel` only; no compiler axiom.
 
 Formalized, with no `sorry`:
 
