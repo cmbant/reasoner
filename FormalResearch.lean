@@ -210,6 +210,7 @@ import FormalResearch.FourQubitEntropy.RenyiSpec
 import FormalResearch.FourQubitEntropy.RenyiTwoUp
 import FormalResearch.FourQubitEntropy.RenyiTwoUpEq
 import FormalResearch.FourQubitEntropy.Rigidity
+import FormalResearch.FourQubitEntropy.SevenQubitIcoPurity
 import FormalResearch.FourQubitEntropy.SevenQubitIcoState
 import FormalResearch.FourQubitEntropy.Stability
 import FormalResearch.FourQubitEntropy.ThirdMoment
