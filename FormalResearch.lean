@@ -81,6 +81,7 @@ import FormalResearch.QIB.BlockAntiunitary
 import FormalResearch.QIB.BlockCoordinates
 import FormalResearch.QIB.BlockStructure
 import FormalResearch.FrameFree.PolyImageDischarge
+import FormalResearch.FrameFree.XiInvUnconditional
 import FormalResearch.FrameFree.PolyImageAll
 import FormalResearch.FrameFree.PolyImageMain
 import FormalResearch.FrameFree.PolyImageOpen
