@@ -237,3 +237,4 @@ import FormalResearch.FrameFree.Ceilings
 import FormalResearch.FrameFree.Sharing
 import FormalResearch.FrameFree.Unify
 import FormalResearch.FrameFree.CriticalLocus
+import FormalResearch.FrameFree.OneCopy
