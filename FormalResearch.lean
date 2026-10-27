@@ -71,6 +71,11 @@ import FormalResearch.QIA.DeferredQueryIsotypicChannelMemoryBound
 import FormalResearch.QIB.U1InvariantExponentGap
 import FormalResearch.QIB.KramersHalfFilling
 import FormalResearch.QIB.CriticalCounter
+import FormalResearch.QIB.BlockDecomp
+import FormalResearch.QIB.BlockTwirl
+import FormalResearch.QIB.BlockOps
+import FormalResearch.QIB.MatrixHelstrom
+import FormalResearch.QIB.FiniteOrbitExponent
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
 import FormalResearch.QIB1.ApolarFullRank
