@@ -88,6 +88,17 @@ import FormalResearch.QIB.RealCoordsStructure
 import FormalResearch.QIB.RealCoordsWeights
 import FormalResearch.QIB.RealCoordsCoord
 import FormalResearch.QIB.RealCoordsFrame
+import FormalResearch.QIB.EasyAbelianCarriers
+import FormalResearch.QIB.EasyCommutingBlocks
+import FormalResearch.QIB.EasyRankOneSandwich
+import FormalResearch.QIB.TwoQubitsSl2Kernel
+import FormalResearch.QIB.TwoQubitsSl2Rank
+import FormalResearch.QIB.TwoQubitsCollective
+import FormalResearch.QIB.TwoQubitsStabiliser
+import FormalResearch.QIB.TwoQubitsSectorIrr
+import FormalResearch.QIB.TwoQubitsGroup
+import FormalResearch.QIB.TwoQubitsDecomp
+import FormalResearch.QIB.TwoQubitsProp
 import FormalResearch.QIB.BlockStructure
 import FormalResearch.FrameFree.PolyImageDischarge
 import FormalResearch.FrameFree.XiInvUnconditional

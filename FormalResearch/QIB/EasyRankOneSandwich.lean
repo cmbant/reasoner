@@ -28,6 +28,7 @@ torus acting on `(⊕ V_i)^{⊗d}`, and the exponent consequence ("the rates of 
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
+set_option linter.unusedSimpArgs false
 open Matrix
 open scoped MatrixOrder ComplexOrder
 

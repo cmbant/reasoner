@@ -26,6 +26,7 @@ coordinates).
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
+set_option linter.unusedSimpArgs false
 open Matrix
 open scoped Kronecker
 

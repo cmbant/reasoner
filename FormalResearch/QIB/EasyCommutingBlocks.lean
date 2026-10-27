@@ -25,6 +25,7 @@ theorem) and the Chernoff-information half of `cor:framechirality` (needs `thm:f
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
+set_option linter.unusedSimpArgs false
 open Matrix
 open scoped MatrixOrder ComplexOrder
 
