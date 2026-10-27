@@ -246,3 +246,7 @@ import FormalResearch.FrameFree.OrbitCeilings
 import FormalResearch.FrameFree.PolarCert
 import FormalResearch.FrameFree.HelstromWindow
 import FormalResearch.FrameFree.HelstromSupport
+import FormalResearch.FrameFree.SupportRate
+import FormalResearch.FrameFree.SupportRateGelfand
+import FormalResearch.FrameFree.SupportRateApply
+import FormalResearch.FrameFree.SupportRateHelstrom
