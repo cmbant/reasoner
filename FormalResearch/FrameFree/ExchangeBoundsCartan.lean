@@ -33,6 +33,7 @@ theorem Pm12 : FTG.Pm 1 * FTG.Pm 2 = -FTG.Pm 0 := by
     simp [FTG.Pm, FTG.sig, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two,
       Matrix.kroneckerMap_apply]
 
+set_option linter.unusedSimpArgs false in
 /-- `XX + YY + ZZ = 2 SWAP - 1`. -/
 theorem Sw_eq : Sharing.Sw = (1 / 2 : ℂ) • (FTG.Pm 0 + FTG.Pm 1 + FTG.Pm 2 + 1) := by
   ext ⟨i, j⟩ ⟨k, l⟩
@@ -40,6 +41,7 @@ theorem Sw_eq : Sharing.Sw = (1 / 2 : ℂ) • (FTG.Pm 0 + FTG.Pm 1 + FTG.Pm 2 +
     simp [Sharing.Sw, FTG.Pm, FTG.sig, Matrix.add_apply, Matrix.one_apply,
       Matrix.kroneckerMap_apply] <;> norm_num
 
+set_option linter.unusedSimpArgs false in
 theorem FTG_Ug_iso (x : ℝ) :
     FTG.Ug (fun _ => x) = ((Real.cos x : ℂ) + Complex.I * (Real.sin x : ℂ)) •
       Sharing.Ug (Real.cos (2 * x) : ℝ) (-(Complex.I * (Real.sin (2 * x) : ℝ))) := by

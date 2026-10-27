@@ -82,6 +82,9 @@ import FormalResearch.QIB.BlockCoordinates
 import FormalResearch.QIB.BlockStructure
 import FormalResearch.FrameFree.PolyImageDischarge
 import FormalResearch.FrameFree.XiInvUnconditional
+import FormalResearch.FrameFree.ExchangeBoundsCartan
+import FormalResearch.FrameFree.ExchangeBounds
+import FormalResearch.FrameFree.ExchangeBoundsWrappers
 import FormalResearch.FrameFree.PolyImageAll
 import FormalResearch.FrameFree.PolyImageMain
 import FormalResearch.FrameFree.PolyImageOpen
