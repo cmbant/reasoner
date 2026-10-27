@@ -9,6 +9,8 @@ Namespace `FormalResearch.FrameFree.Helstrom`.  For unit vectors `a, b` of `ℂ^
 * `pure_helstrom`: `½(1 - √(1 - |⟨a|b⟩|²)) ≤ err E a b` (Helstrom's bound for pure states; the value is
   attained, but only the lower bound is needed and proved).
 * `quarter_le_err`: `|⟨a|b⟩|²/4 ≤ err E a b`.
+* `projMat W`: the matrix of the orthogonal projection onto a subspace `W` of `EuclideanSpace ℂ ι`, with
+  `projMat_isEffect`, `qf_projMat_self`, `qf_one_sub_projMat_of_mem`, `projMat_commute`.
 
 The proof is elementary (no trace norm, no spectral theorem): the two Cauchy-Schwarz inequalities
 `Re⟨a|E|b⟩² ≤ ⟨a|E|a⟩⟨b|E|b⟩` for `E` and for `1 - E` (`cs_re`), applied after aligning the phase of
@@ -17,7 +19,7 @@ The proof is elementary (no trace norm, no spectral theorem): the two Cauchy-Sch
 
 open scoped ComplexConjugate Matrix BigOperators
 open Matrix
-open scoped ComplexOrder
+open scoped ComplexOrder InnerProductSpace
 
 set_option linter.unusedSectionVars false
 
@@ -224,5 +226,118 @@ theorem quarter_le_err {E : Matrix ι ι ℂ} (hE : IsEffect E) {a b : ι → �
     · linarith
     · nlinarith [sq_nonneg F]
   linarith
+
+
+/-! ### Orthogonal projections as matrices (for support tests) -/
+
+
+noncomputable def projMat (W : Submodule ℂ (EuclideanSpace ℂ ι)) : Matrix ι ι ℂ :=
+  Matrix.toEuclideanLin.symm (W.starProjection : EuclideanSpace ℂ ι →ₗ[ℂ] EuclideanSpace ℂ ι)
+
+theorem projMat_apply (W : Submodule ℂ (EuclideanSpace ℂ ι)) (v : ι → ℂ) :
+    WithLp.toLp 2 (projMat W *ᵥ v) = W.starProjection (WithLp.toLp 2 v) := by
+  have h : Matrix.toEuclideanLin (projMat W) =
+      (W.starProjection : EuclideanSpace ℂ ι →ₗ[ℂ] EuclideanSpace ℂ ι) :=
+    LinearEquiv.apply_symm_apply _ _
+  have h2 := congrArg (fun f => f (WithLp.toLp 2 v)) h
+  simp only [Matrix.toEuclideanLin] at h2
+  have h3 : ((toLpLin 2 2) (projMat W)) (WithLp.toLp 2 v) = WithLp.toLp 2 (projMat W *ᵥ v) :=
+    WithLp.ofLp_injective 2 (by simp)
+  rw [← h3, h2]
+  rfl
+
+theorem qf_eq_inner (M : Matrix ι ι ℂ) (v w : ι → ℂ) :
+    qf M v w = ⟪WithLp.toLp 2 v, WithLp.toLp 2 (M *ᵥ w)⟫_ℂ := by
+  simp [qf, EuclideanSpace.inner_eq_star_dotProduct, dotProduct_comm]
+
+
+variable (W : Submodule ℂ (EuclideanSpace ℂ ι))
+
+theorem toLp_projMat_mulVec_mem (v : ι → ℂ) : WithLp.toLp 2 (projMat W *ᵥ v) ∈ W := by
+  rw [projMat_apply]; exact Submodule.starProjection_apply_mem W _
+
+theorem projMat_mulVec_of_mem {v : ι → ℂ} (hv : WithLp.toLp 2 v ∈ W) : projMat W *ᵥ v = v := by
+  have := projMat_apply W v
+  rw [Submodule.starProjection_eq_self_iff.2 hv] at this
+  exact (WithLp.toLp_injective 2) this
+
+theorem one_sub_projMat : 1 - projMat W = projMat Wᗮ := by
+  apply Matrix.toEuclideanLin.injective
+  have h1 : Matrix.toEuclideanLin (projMat W) =
+      (W.starProjection : EuclideanSpace ℂ ι →ₗ[ℂ] EuclideanSpace ℂ ι) :=
+    LinearEquiv.apply_symm_apply _ _
+  have h2 : Matrix.toEuclideanLin (projMat Wᗮ) =
+      (Wᗮ.starProjection : EuclideanSpace ℂ ι →ₗ[ℂ] EuclideanSpace ℂ ι) :=
+    LinearEquiv.apply_symm_apply _ _
+  rw [map_sub, h1, h2, Submodule.starProjection_orthogonal']
+  have : Matrix.toEuclideanLin (1 : Matrix ι ι ℂ) = LinearMap.id := Matrix.toLpLin_one 2
+  rw [this]
+  rfl
+
+theorem projMat_posSemidef : (projMat W).PosSemidef := by
+  rw [← Matrix.isPositive_toEuclideanLin_iff]
+  have h1 : Matrix.toEuclideanLin (projMat W) =
+      (W.starProjection : EuclideanSpace ℂ ι →ₗ[ℂ] EuclideanSpace ℂ ι) :=
+    LinearEquiv.apply_symm_apply _ _
+  rw [h1]
+  exact (ContinuousLinearMap.isPositive_toLinearMap_iff _).2
+    (ContinuousLinearMap.IsPositive.of_isStarProjection isStarProjection_starProjection)
+
+theorem projMat_isEffect : IsEffect (projMat W) :=
+  ⟨projMat_posSemidef W, by rw [one_sub_projMat]; exact projMat_posSemidef Wᗮ⟩
+
+/-- `⟨a|Π_W|a⟩ = ‖Π_W a‖²`. -/
+theorem qf_projMat_self (a : ι → ℂ) :
+    (qf (projMat W) a a).re = ‖W.starProjection (WithLp.toLp 2 a)‖ ^ 2 := by
+  rw [qf_eq_inner, projMat_apply]
+  set x : EuclideanSpace ℂ ι := WithLp.toLp 2 a
+  have h0 : ⟪x - W.starProjection x, W.starProjection x⟫_ℂ = 0 :=
+    Submodule.starProjection_inner_eq_zero x _ (Submodule.starProjection_apply_mem W x)
+  have : ⟪x, W.starProjection x⟫_ℂ = ⟪W.starProjection x, W.starProjection x⟫_ℂ := by
+    have := inner_sub_left x (W.starProjection x) (W.starProjection x) (𝕜 := ℂ)
+    rw [h0] at this
+    exact sub_eq_zero.1 this.symm
+  rw [this, inner_self_eq_norm_sq_to_K]
+  norm_cast
+
+/-- `⟨b|(1 - Π_W)|b⟩ = 0` for `b ∈ W`. -/
+theorem qf_one_sub_projMat_of_mem {b : ι → ℂ} (hb : WithLp.toLp 2 b ∈ W) :
+    qf (1 - projMat W) b b = 0 := by
+  rw [qf_sub_matrix, qf_one]
+  have : qf (projMat W) b b = star b ⬝ᵥ b := by
+    unfold qf; rw [projMat_mulVec_of_mem W hb]
+  rw [this]; ring
+
+theorem inner_toLp_mulVec (U : Matrix ι ι ℂ) (x w : ι → ℂ) :
+    ⟪WithLp.toLp 2 (U *ᵥ x), WithLp.toLp 2 w⟫_ℂ = ⟪WithLp.toLp 2 x, WithLp.toLp 2 (Uᴴ *ᵥ w)⟫_ℂ := by
+  simp only [EuclideanSpace.inner_eq_star_dotProduct, Matrix.star_mulVec]
+  rw [dotProduct_comm w, ← Matrix.dotProduct_mulVec, dotProduct_comm]
+
+/-- A unitary `U` such that `U` and `Uᴴ` preserve `W` commutes with `Π_W`. -/
+theorem projMat_commute {U : Matrix ι ι ℂ}
+    (hW : ∀ v : ι → ℂ, WithLp.toLp 2 v ∈ W → WithLp.toLp 2 (U *ᵥ v) ∈ W)
+    (hW' : ∀ v : ι → ℂ, WithLp.toLp 2 v ∈ W → WithLp.toLp 2 (Uᴴ *ᵥ v) ∈ W) :
+    U * projMat W = projMat W * U := by
+  rw [Matrix.ext_iff_mulVec]
+  intro v
+  rw [← Matrix.mulVec_mulVec, ← Matrix.mulVec_mulVec]
+  apply WithLp.toLp_injective 2
+  rw [projMat_apply]
+  symm
+  apply Submodule.eq_starProjection_of_mem_of_inner_eq_zero
+  · exact hW _ (toLp_projMat_mulVec_mem W v)
+  · intro w hw
+    have hw' := hW' (WithLp.ofLp w) (by simpa using hw)
+    have h0 := Submodule.starProjection_inner_eq_zero (WithLp.toLp 2 v) _ hw'
+    rw [← projMat_apply] at h0
+    have e : WithLp.toLp 2 (U *ᵥ v) - WithLp.toLp 2 (U *ᵥ projMat W *ᵥ v)
+        = WithLp.toLp 2 (U *ᵥ (v - projMat W *ᵥ v)) := by
+      rw [Matrix.mulVec_sub]; rfl
+    rw [e]
+    have := inner_toLp_mulVec U (v - projMat W *ᵥ v) (WithLp.ofLp w)
+    simp only [WithLp.toLp_ofLp] at this
+    rw [this]
+    exact h0
+
 
 end FormalResearch.FrameFree.Helstrom

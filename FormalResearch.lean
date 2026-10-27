@@ -244,3 +244,5 @@ import FormalResearch.FrameFree.WeylUpper
 import FormalResearch.FrameFree.Reversals
 import FormalResearch.FrameFree.OrbitCeilings
 import FormalResearch.FrameFree.PolarCert
+import FormalResearch.FrameFree.HelstromWindow
+import FormalResearch.FrameFree.HelstromSupport
