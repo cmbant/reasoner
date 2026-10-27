@@ -6,7 +6,17 @@ import FormalResearch.FrameFree.TwirlsSchurWeyl
 /-!
 # Haar-free twirls over `K_π` and the slot-permutation criterion (Paper P, `thm:copythreshold` (a))
 
-Namespace `FormalResearch.FrameFree.Twirls`.
+Namespace `FormalResearch.FrameFree.Twirls`.  Claim class: **proved**.
+
+`IsTwirl π R Z` says `Z` lies in every closed convex set containing the orbit `{U R U†}` and commutes
+with `K_π` (the Haar average without a Haar measure; existence from `Helstrom.twirl_exists`).
+
+* `IsTwirl.trace_eq`: `Tr(S Z) = Tr(S R)` for every `S` commuting with `K_π`; with Schur-Weyl
+  (`IsTwirl.mem_span`) this gives uniqueness `IsTwirl.unique` and the **criterion** `twirl_eq_iff`: twirls of
+  `R, R'` agree iff `Tr(P_σ R) = Tr(P_σ R')` for all block-preserving slot permutations `σ`.
+* `thm:copythreshold` (a): `twirl_thetaConj_eq_iff` (operator form, `R` against `E R̄ E†`),
+  `copy_twirl_eq_iff` (`R = ρ^{⊗k}`, slots `α × Fin k`, blocks `∏_B S_{|B|k}`), and the `|B|k ≤ 2` clause
+  `copy_twirl_eq_of_small` (twirls of `ρ^{⊗k}` and `(ΘρΘ⁻¹)^{⊗k}` coincide, `ρ` Hermitian).
 -/
 
 set_option autoImplicit false
@@ -95,6 +105,31 @@ theorem IsTwirl.trace_eq {R Z : OpS ι} (h : IsTwirl π R Z) (S : OpS ι)
     have e : S * (U * R * Uᴴ) = U * (S * R) * Uᴴ := by
       rw [← Matrix.mul_assoc, ← Matrix.mul_assoc, ← Matrix.mul_assoc, ← hS U hU]
     rw [e, Matrix.trace_mul_cycle, frameGroup_unitary π hU, Matrix.one_mul]
+
+/-- A real half-space `{W | c ≤ Re Tr(Q W)}` containing the orbit contains the twirl. -/
+theorem IsTwirl.le_re_trace {R Z : OpS ι} (h : IsTwirl π R Z) (Q : OpS ι) (c : ℝ)
+    (hc : ∀ U ∈ frameGroup π, c ≤ (Q * (U * R * Uᴴ)).trace.re) : c ≤ (Q * Z).trace.re := by
+  refine h.1 {W | c ≤ (Q * W).trace.re} ?_ ?_ hc
+  · exact isClosed_le continuous_const (Complex.continuous_re.comp
+      (Continuous.matrix_trace (continuous_const.matrix_mul continuous_id)))
+  · exact convex_halfSpace_ge (f := fun W : OpS ι => (Q * W).trace.re)
+      ⟨fun A B => by simp [Matrix.mul_add, Matrix.trace_add],
+       fun r A => by simp [Matrix.trace_smul]⟩ c
+
+/-- The twirl of a Hermitian operator is Hermitian. -/
+theorem IsTwirl.isHermitian {R Z : OpS ι} (h : IsTwirl π R Z) (hR : Rᴴ = R) : Zᴴ = Z := by
+  refine h.1 {W | Wᴴ = W} ?_ ?_ ?_
+  · exact isClosed_eq continuous_id.matrix_conjTranspose continuous_id
+  · intro A hA B hB a b _ _ _
+    have hA' : Aᴴ = A := hA
+    have hB' : Bᴴ = B := hB
+    show (a • A + b • B)ᴴ = a • A + b • B
+    rw [Matrix.conjTranspose_add, Matrix.conjTranspose_smul, Matrix.conjTranspose_smul, hA', hB',
+      star_trivial, star_trivial]
+  · intro U _
+    show (U * R * Uᴴ)ᴴ = U * R * Uᴴ
+    rw [Matrix.conjTranspose_mul, Matrix.conjTranspose_mul, Matrix.conjTranspose_conjTranspose, hR,
+      Matrix.mul_assoc]
 
 theorem IsTwirl.mem_span {R Z : OpS ι} (h : IsTwirl π R Z) : Z ∈ blockPermSpan π :=
   (commutant_eq_blockPermSpan π Z).1 (fun u hu => (h.2 _ ⟨u, hu, rfl⟩).symm)

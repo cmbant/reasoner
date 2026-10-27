@@ -6,7 +6,15 @@ import FormalResearch.FrameFree.TwirlsBicommutant
 /-!
 # Schur--Weyl duality for qubits with sharing patterns (Paper P, `thm:onecopy`, `thm:copythreshold`)
 
-Namespace `FormalResearch.FrameFree.Twirls`.
+Namespace `FormalResearch.FrameFree.Twirls`.  Claim class: **proved** (no hypothesis, no new axiom).
+
+**`commutant_eq_blockPermSpan`.**  For a sharing pattern `π : ι → κ`, the operators on `ι` qubits
+commuting with every `⊗_i u_{π i}`, `u_b ∈ SU(2)`, are exactly the span of the block-preserving slot
+permutation operators (`π ∘ σ = π`).  Route: `K_π` is a `*`-closed family, so its commutant is the
+commutant of the `*`-algebra `frameSpan` it spans; `blockPermAlg` is a `*`-algebra whose commutant is
+`frameSpan` (`mem_frameSpan_of_comm`: polarisation + the Zariski density of `SL₂^κ` of `Zariski.lean`,
+no representation theory); the double commutant theorem `TwirlsBicommutant.bicommutant_mem` closes it.
+Only the pattern of equal fibre cardinalities (`exists_perm_of_typ_eq`) is combinatorial.
 -/
 
 set_option autoImplicit false
