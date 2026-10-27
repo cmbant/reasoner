@@ -102,6 +102,21 @@ theorem finrank_skewAdjoint_matrix (g : ℕ) :
     Module.finrank ℝ (skewAdjoint (Matrix (Fin g) (Fin g) ℝ)) = g.choose 2 := by
   rw [(skewMatrixEquiv g).finrank_eq, Module.finrank_fintype_fun_eq_card, card_lt_pairs]
 
+/-- The inclusion of the skew-adjoint endomorphisms as a real linear map. -/
+def skewAdjointSubtype (E : Type*) [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    [FiniteDimensional ℝ E] : skewAdjoint (E →ₗ[ℝ] E) →ₗ[ℝ] (E →ₗ[ℝ] E) where
+  toFun x := x.1
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+
+instance finite_skewAdjoint_end (E : Type*) [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    [FiniteDimensional ℝ E] : Module.Finite ℝ (skewAdjoint (E →ₗ[ℝ] E)) :=
+  Module.Finite.of_injective (skewAdjointSubtype E) Subtype.val_injective
+
+instance free_skewAdjoint_end (E : Type*) [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    [FiniteDimensional ℝ E] : Module.Free ℝ (skewAdjoint (E →ₗ[ℝ] E)) :=
+  Module.Free.of_divisionRing ℝ _
+
 /-- **Counting step.**  For a finite-dimensional real inner product space `E`, the skew-adjoint
 endomorphisms form a real space of dimension `C(dim E, 2)`. -/
 theorem finrank_skewAdjoint_end (E : Type*) [NormedAddCommGroup E] [InnerProductSpace ℝ E]

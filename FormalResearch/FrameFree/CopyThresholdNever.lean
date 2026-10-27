@@ -14,6 +14,8 @@ and its inverse are conjugate, `Equiv.Perm.isConj_iff_cycleType_eq`), so the val
 all word values are real for every number `k` of copies.
 
 * `exists_fiberPerm`: a fibre-preserving permutation of `α × γ` is `prodCongrRight f`.
+* `wordVal_im_eq_zero_of_rev`: the general criterion (`w σ_a⁻¹ v = σ_a` for all `a`); `exists_wv` supplies it for
+  at most two spins.
 * `wordVal_im_eq_zero_of_card_le_two`: all block-preserving word values of a pure state are real.
 * `twirlsCoincide_of_card_le_two`: for every `k` and every pure `ψ` the twirls of `ψ^{⊗k}` and `(Θψ)^{⊗k}`
   agree, i.e. `k_*(ψ, π) = ∞` (the case `n ≤ 2` of the table of `thm:copythreshold`).
@@ -79,17 +81,20 @@ theorem exists_wv (f : α → Equiv.Perm γ) (hα : Fintype.card α ≤ 2) :
     obtain ⟨t, ht⟩ := exists_conj_inv ((f y)⁻¹ * f x)
     refine ⟨f x * t, f x * t⁻¹, fun a => ?_⟩
     rcases hall a with h | h <;> rw [h]
-    · simp [mul_assoc]
+    · simp
     · calc f x * t * (f y)⁻¹ * (f x * t⁻¹)
           = f x * (t * ((f y)⁻¹ * f x) * t⁻¹) := by simp [mul_assoc]
-        _ = f y := by rw [ht]; simp [mul_assoc]
+        _ = f y := by rw [ht]; simp
 
-/-- **All word values of a pure state are real for `n ≤ 2` independent frames.** -/
-theorem wordVal_im_eq_zero_of_card_le_two (π : α → κ) (hπ : Function.Injective π)
-    (hα : Fintype.card α ≤ 2) (s : Equiv.Perm (α × γ)) (hs : BlockPres π s) (ψ : (α → Fin 2) → ℂ) :
+/-- **Reality from reversibility.**  If for every family `f` of copy permutations there are `w, v` with
+`w σ_a⁻¹ v = σ_a` for all `a`, then every block-preserving word value of a pure state is real
+(independent frames). -/
+theorem wordVal_im_eq_zero_of_rev (π : α → κ) (hπ : Function.Injective π)
+    (hrev : ∀ f : α → Equiv.Perm γ, ∃ w v : Equiv.Perm γ, ∀ a, w * (f a)⁻¹ * v = f a)
+    (s : Equiv.Perm (α × γ)) (hs : BlockPres π s) (ψ : (α → Fin 2) → ℂ) :
     (wordVal γ s (pureOp ψ)).im = 0 := by
   obtain ⟨f, rfl⟩ := exists_fiberPerm s fun q => hπ (hs q)
-  obtain ⟨w, v, hwv⟩ := exists_wv f hα
+  obtain ⟨w, v, hwv⟩ := hrev f
   have h1 : wordVal γ (Equiv.prodCongrRight f)⁻¹ (pureOp ψ) = wordVal γ (Equiv.prodCongrRight f) (pureOp ψ) := by
     have : Equiv.prodCongrRight f =
         diagPerm α w * (Equiv.prodCongrRight f)⁻¹ * diagPerm α v := by
@@ -98,6 +103,12 @@ theorem wordVal_im_eq_zero_of_card_le_two (π : α → κ) (hπ : Function.Injec
     conv_rhs => rw [this]
     rw [wordVal_mul_diag, wordVal_diag_mul]
   rw [← Complex.conj_eq_iff_im, conj_wordVal _ (pureOp_isHermitian ψ), h1]
+
+/-- **All word values of a pure state are real for `n ≤ 2` independent frames.** -/
+theorem wordVal_im_eq_zero_of_card_le_two (π : α → κ) (hπ : Function.Injective π)
+    (hα : Fintype.card α ≤ 2) (s : Equiv.Perm (α × γ)) (hs : BlockPres π s) (ψ : (α → Fin 2) → ℂ) :
+    (wordVal γ s (pureOp ψ)).im = 0 :=
+  wordVal_im_eq_zero_of_rev π hπ (fun f => exists_wv f hα) s hs ψ
 
 /-- **`k_*(ψ, π) = ∞` for at most two independent frames**: for every number `k` of copies and every pure
 state, the twirls of `ψ^{⊗k}` and `(Θψ)^{⊗k}` over `K_π` coincide. -/
