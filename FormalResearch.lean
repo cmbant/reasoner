@@ -242,3 +242,4 @@ import FormalResearch.FrameFree.M4Support
 import FormalResearch.FrameFree.Zariski
 import FormalResearch.FrameFree.WeylUpper
 import FormalResearch.FrameFree.Reversals
+import FormalResearch.FrameFree.OrbitCeilings
