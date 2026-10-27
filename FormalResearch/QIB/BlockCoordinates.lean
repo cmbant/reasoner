@@ -28,8 +28,8 @@ for any `*`-closed algebra; this file transports it to a group of matrices and a
 
 What is **not** proved here: that `W` can be taken *real* (so that `Θ`, an entrywise conjugation up to
 the frame element `ε^{⊗n} ∈ SU(2)^n`, acts as entrywise conjugation of the multiplicity blocks).  The
-hypothesis `hconj` of `antiunitary_block` is therefore still a coordinate hypothesis; see the report /
-`Pe_antiunitary_of_conj` below.
+hypothesis `hconj` of `antiunitary_block` is therefore still a coordinate hypothesis (open: real
+isotypic coordinates for the permutation algebra).
 -/
 
 set_option autoImplicit false

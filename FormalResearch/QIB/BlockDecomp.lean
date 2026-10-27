@@ -18,10 +18,10 @@ Source: `QI-B/paper/invariant_discrimination_exponents.tex`, Lemma `lem:blockdec
 `⊕_λ V_λ ⊗ M_λ`.  The hypothesis `IsotypicInvariants A G` says that the matrices commuting with every
 `U ∈ G` are exactly the block operators `⊕_λ I_{V_λ} ⊗ X_λ`.  This is what Schur's lemma gives for
 `G` acting by `⊕ u_λ ⊗ I` on pairwise inequivalent irreducible carriers (the paper's "Schur's lemma ...
-orthogonality of the isotypic blocks"); it is *assumed* here, not derived.  Establishing it for a
-concrete `G` (collective `SU(2)` on `(ℂ²)^{⊗d}`, say) needs the Schur-Weyl isotypic coordinates, which
-the FrameFree files do not construct (they prove the commutant is the span of permutations,
-`TwirlsSchurWeyl.commutant_eq_blockPermSpan`, not its block form).
+orthogonality of the isotypic blocks"); it is a *hypothesis* in this file.  It is discharged, in unitary
+coordinates `W`, for every conjugate-transpose-closed `G` (in particular the frame group) by
+`BlockStructure.exists_isotypic_coordinates` and `BlockCoordinates.exists_isotypic_invariants` /
+`BlockCoordinates.Pe_blockdecomp` (structure theorem of the commutant `*`-algebra; no Schur-Weyl).
 
 * `invErr G a b`: the best equal-prior error of a `G`-invariant effect `0 ≤ E ≤ 1` between the vectors
   `a, b` (the paper's `P_e^K(d)` for `a = x^{⊗d}`, `b = y^{⊗d}`); `Helstrom.Pe` is the instance for
