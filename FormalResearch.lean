@@ -287,6 +287,10 @@ import FormalResearch.FrameFree.OddWordsSl2
 import FormalResearch.FrameFree.OddWordsSl2Basis
 import FormalResearch.FrameFree.OddWordsSl2Skew
 import FormalResearch.FrameFree.OddWordsStrata
+import FormalResearch.FrameFree.PsiPlusKramersRK2
+import FormalResearch.FrameFree.PsiPlusKramersAlg
+import FormalResearch.FrameFree.PsiPlusKramersCore
+import FormalResearch.FrameFree.PsiPlusKramers
 import FormalResearch.FrameFree.TwirlsBicommutant
 import FormalResearch.FrameFree.TwirlsOdd
 import FormalResearch.FrameFree.TwirlsOneCopy
