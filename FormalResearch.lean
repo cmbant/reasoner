@@ -243,3 +243,4 @@ import FormalResearch.FrameFree.Zariski
 import FormalResearch.FrameFree.WeylUpper
 import FormalResearch.FrameFree.Reversals
 import FormalResearch.FrameFree.OrbitCeilings
+import FormalResearch.FrameFree.PolarCert
