@@ -101,7 +101,8 @@ theorem Phi_mem_skewSpan {Y : EuclideanSpace ℝ (Cube n) →ₗ[ℝ] EuclideanS
   have hT : (cx X)ᵀ = - cx X := by
     ext x y
     have := congrFun (congrFun hY.2 x) y
-    simpa [cx] using this
+    simp only [Matrix.transpose_apply, Matrix.neg_apply] at this
+    simp [cx, this]
   have h4 : cx X = (1 / 2 : ℝ) • (cx X - (cx X)ᵀ) := by
     rw [hT]; ext x y; simp [Complex.real_smul]; ring
   rw [h4]
