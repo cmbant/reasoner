@@ -342,6 +342,7 @@ import FormalResearch.FrameFree.PsiPlusKramersRK2
 import FormalResearch.FrameFree.PsiPlusKramersAlg
 import FormalResearch.FrameFree.PsiPlusKramersCore
 import FormalResearch.FrameFree.PsiPlusKramers
+import FormalResearch.FrameFree.PsiPlusPaper
 import FormalResearch.FrameFree.FilteredGateBasic
 import FormalResearch.FrameFree.FilteredGateEcho
 import FormalResearch.FrameFree.FilteredGateReal
