@@ -1,6 +1,5 @@
 import FormalResearch.FrameFree.PolyImageDischarge
 import FormalResearch.FrameFree.PsiPlusKramers
-import FormalResearch.FrameFree.RealRep3Discharge
 import FormalResearch.FrameFree.Reversals
 
 set_option autoImplicit false
@@ -266,9 +265,9 @@ theorem m4_xi_inv' (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) (hhi : XiBarLE Ceilings.M
     HasXiInv Ceilings.M4v (Real.log 2) ∧ CK Ceilings.M4v = Real.log (9 / 4) ∧
       Real.log 2 < CK Ceilings.M4v ∧ CK Ceilings.M4v - Real.log 2 = Real.log (9 / 8) ∧
       0.1452 < 1 - Real.log 2 / CK Ceilings.M4v ∧ 1 - Real.log 2 / CK Ceilings.M4v < 0.1453 := by
-  have hx := critical_xi_inv' Ceilings.nsq_M4v RealRep3Discharge.FCΘ_M4v_eq' hhi
-  obtain ⟨-, h2, h3, h4, h5, h6⟩ := RealRep3Discharge.m4_exponent' h49 (Real.log 2)
-    (negLog_FC_le_of_hasXiInv Ceilings.nsq_M4v (by rw [RealRep3Discharge.FCΘ_M4v_eq']; norm_num) hx)
+  have hx := critical_xi_inv' Ceilings.nsq_M4v M4Support.FCΘ_M4v_eq hhi
+  obtain ⟨-, h2, h3, h4, h5, h6⟩ := Reversals.m4_exponent h49 (Real.log 2)
+    (negLog_FC_le_of_hasXiInv Ceilings.nsq_M4v (by rw [M4Support.FCΘ_M4v_eq]; norm_num) hx)
     le_rfl
   exact ⟨hx, h2, h3, h4, h5, h6⟩
 
@@ -279,8 +278,8 @@ theorem m4_exponent' (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {ξ : ℝ} (hξ : HasXi
     ξ = Real.log 2 ∧ CK Ceilings.M4v = Real.log (9 / 4) ∧ ξ < CK Ceilings.M4v ∧
       CK Ceilings.M4v - ξ = Real.log (9 / 8) ∧
       0.1452 < 1 - ξ / CK Ceilings.M4v ∧ 1 - ξ / CK Ceilings.M4v < 0.1453 :=
-  RealRep3Discharge.m4_exponent' h49 ξ
-    (negLog_FC_le_of_hasXiInv Ceilings.nsq_M4v (by rw [RealRep3Discharge.FCΘ_M4v_eq']; norm_num) hξ) hhi
+  Reversals.m4_exponent h49 ξ
+    (negLog_FC_le_of_hasXiInv Ceilings.nsq_M4v (by rw [M4Support.FCΘ_M4v_eq]; norm_num) hξ) hhi
 
 /-- **`cor:calgeom-spin1extensive` (a), exponent**: `ξ_inv(M₄^{⊗(m+1)}) = (m+1) log 2` and the gap to
 `C_K` is `(m+1) log (9/8)`, given `F_K(M₄) ≤ 4/9` and the tensorised converse
@@ -289,9 +288,9 @@ theorem blocks_xi_inv' (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) (m : ℕ)
     (hhi : XiBarLE (Ceilings.M4pow m) ((m + 1) * Real.log 2)) :
     HasXiInv (Ceilings.M4pow m) ((m + 1) * Real.log 2) ∧
       CK (Ceilings.M4pow m) - (m + 1) * Real.log 2 = (m + 1) * Real.log (9 / 8) := by
-  obtain ⟨hc, hw, hd⟩ := RealRep3Discharge.blocks_gap' h49 m
+  obtain ⟨hc, hw, hd⟩ := Reversals.blocks_gap h49 m
   have hpos : 0 < Ceilings.FCΘ (Ceilings.M4pow m) := by
-    rw [RealRep3Discharge.FCΘ_M4pow_eq_half_pow']; positivity
+    rw [M4Support.FCΘ_M4pow_eq_half_pow]; positivity
   refine ⟨hasXiInv_of_xiBarLE (Ceilings.nsq_M4pow m) hpos hw hhi, ?_⟩
   rw [← hw]; exact hd
 
@@ -300,8 +299,8 @@ theorem blocks_exponent' (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) (m : ℕ) {ξ : ℝ
     (hξ : HasXiInv (Ceilings.M4pow m) ξ) (hhi : ξ ≤ (m + 1) * Real.log 2) :
     ξ = (m + 1) * Real.log 2 ∧ CK (Ceilings.M4pow m) - ξ = (m + 1) * Real.log (9 / 8) := by
   have hpos : 0 < Ceilings.FCΘ (Ceilings.M4pow m) := by
-    rw [RealRep3Discharge.FCΘ_M4pow_eq_half_pow']; positivity
-  exact RealRep3Discharge.blocks_exponent' h49 m ξ
+    rw [M4Support.FCΘ_M4pow_eq_half_pow]; positivity
+  exact Reversals.blocks_exponent h49 m ξ
     (negLog_FC_le_of_hasXiInv (Ceilings.nsq_M4pow m) hpos hξ) hhi
 
 /-! ### Eight qubits -/
@@ -319,7 +318,7 @@ theorem eight_qubit_reversal_xi' (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ} 
       Reversals.StrictReversal (CK (Reversals.Psi8 θ)) ξ (CK Reversals.Phi8) (Real.log 4) := by
   obtain ⟨hrev, hck, hxi⟩ := PsiPlusKramers.eight_qubit_reversal'' h49 h0 h1 hK hC hs0 hs1
   obtain ⟨hp1, hp2⟩ := PsiPlusKramers.Phi8_values'
-  obtain ⟨-, hfc, -, -⟩ := RealRep3Discharge.Psi8_values' h49 h0 h1 hK hC
+  obtain ⟨-, hfc, -, -⟩ := Reversals.Psi8_values h49 h0 h1 hK hC
   have hpos : 0 < Ceilings.FCΘ (Reversals.Psi8 θ) := by
     rw [hfc]; have : 0 < Real.cos (2 * θ) := hs0
     positivity

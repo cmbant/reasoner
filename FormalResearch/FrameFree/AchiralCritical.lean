@@ -1,6 +1,5 @@
 import FormalResearch.FrameFree.AchiralThree
 import FormalResearch.FrameFree.ConverseXi
-import FormalResearch.FrameFree.RealRep3Discharge
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
@@ -107,7 +106,7 @@ theorem nsq_bra_le_FCΘ (ψ : Ψ 4) {e : Fin 2 → ℂ} (he : U2 e) : nsq (bra e
     funext y
     simp [bra, Ceilings.peel, sl, Fin.insertNth_zero']
   rw [hb, Ceilings.FCΘ_eq_FC_cj]
-  exact (RealRep3Discharge.FC_three_ge' _).trans (Ceilings.peel_le_FC 0 e (normSq_sum_of_unit he') ψ)
+  exact (Ceilings.FC_three_ge _).trans (Ceilings.peel_le_FC 0 e (normSq_sum_of_unit he') ψ)
 
 /-- A unit four-qubit state with `F_C = 1/2` has `ρ₀ = I/2`. -/
 theorem mixed_of_FCΘ_half (ψ : Ψ 4) (hψ : nsq ψ = 1) (hF : Ceilings.FCΘ ψ = 1 / 2) :
@@ -153,8 +152,8 @@ theorem critical_xi_inv'' (ψ : Ψ 4) (hψ : nsq ψ = 1) (hF : Ceilings.FCΘ ψ 
   critical_xi_inv' hψ hF (xiBarLE_log_two_of_mixed ψ (mixed_of_FCΘ_half ψ hψ hF))
 
 /-- Instance: `ξ_inv(M₄) = log 2`, with neither `h49` nor a converse hypothesis (the support half is
-`RealRep3Discharge.FCΘ_M4v_eq'`). -/
+`M4Support.FCΘ_M4v_eq`). -/
 theorem m4_hasXiInv_log_two : HasXiInv Ceilings.M4v (Real.log 2) :=
-  critical_xi_inv'' Ceilings.M4v Ceilings.nsq_M4v RealRep3Discharge.FCΘ_M4v_eq'
+  critical_xi_inv'' Ceilings.M4v Ceilings.nsq_M4v M4Support.FCΘ_M4v_eq
 
 end FormalResearch.FrameFree.XiInv

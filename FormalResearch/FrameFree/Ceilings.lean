@@ -1,4 +1,5 @@
 import FormalResearch.FrameFree.Foundations
+import FormalResearch.FrameFree.RealRep3
 import FormalResearch.FourQubitEntropy.Attainment
 
 /-!
@@ -361,15 +362,17 @@ theorem FCΘ_nonneg {n : ℕ} (ψ : Ψ n) : 0 ≤ FCΘ ψ := FC_nonneg _ _
 /-! ### Real representatives of three-qubit states (hypothesis) -/
 
 /-- Dür–Vidal–Cirac: every three-qubit vector lies in the `GL(2,ℂ)^3` orbit of a real vector
-(all six SLOCC classes have real representatives).  Standard input of `thm:ceiling`,
-`thm:entceiling`; a hypothesis in this file, proved as `RealRep3Discharge.realRep3`. -/
+(all six SLOCC classes have real representatives).  Standard input of `thm:ceiling`, `thm:entceiling`. -/
 def RealRep3 : Prop :=
   ∀ φ : Ψ 3, ∃ A : Fin 3 → Op1, (∀ i, (A i).det ≠ 0) ∧ ∃ r : Ψ 3, cj r = r ∧ φ = rot A r
 
-theorem FC_three_ge (hR : RealRep3) (φ : Ψ 3) : nsq φ ≤ FC φ (cj φ) := by
+/-- **`RealRep3`**, proved in `FrameFree/RealRep3.lean` by pencil normal forms (no SLOCC classification). -/
+theorem realRep3 : RealRep3 := FormalResearch.FrameFree.RealRep3.realRep3_core
+
+theorem FC_three_ge (φ : Ψ 3) : nsq φ ≤ FC φ (cj φ) := by
   by_cases h0 : nsq φ = 0
   · rw [h0]; exact FC_nonneg _ _
-  obtain ⟨A, hA, r, hr, rfl⟩ := hR φ
+  obtain ⟨A, hA, r, hr, rfl⟩ := realRep3 φ
   set φ := rot A r with hφ
   have hcj : cj φ = rot (fun i => (A i).map conj) r := by
     rw [hφ, conj_rot, hr]
@@ -411,10 +414,10 @@ theorem FC_contract_le {n m : ℕ} {ψ : Ψ n} {φ : Ψ m} (h : Contract ψ φ) 
   | step j e he ψ φ _ ih => exact ih.trans (peel_le_FC j e he ψ)
 
 
-theorem entceiling_contract (hR : RealRep3) {n : ℕ} {ψ : Ψ n} {φ : Ψ 3} (h : Contract ψ φ) :
+theorem entceiling_contract {n : ℕ} {ψ : Ψ n} {φ : Ψ 3} (h : Contract ψ φ) :
     nsq φ ≤ FCΘ ψ := by
   rw [FCΘ_eq_FC_cj]
-  exact (FC_three_ge hR φ).trans (FC_contract_le h)
+  exact (FC_three_ge φ).trans (FC_contract_le h)
 
 /-- The one-qubit marginal `ρ_j = tr_{≠j} |ψ⟩⟨ψ|` (unnormalised). -/
 def marg {n : ℕ} (j : Fin (n + 1)) (ψ : Ψ (n + 1)) : Matrix (Fin 2) (Fin 2) ℂ :=
@@ -446,11 +449,11 @@ theorem qf_marg_eq {n : ℕ} (j : Fin (n + 1)) (e : Fin 2 → ℂ) (ψ : Ψ (n +
 
 /-- **Theorem `thm:ceiling`, first inequality** (four qubits): `F_C(ψ) ≥ λ_max(ρ_j)` for every
 qubit `j`, given the real representatives of three-qubit states. -/
-theorem ceiling_lmax (hR : RealRep3) (j : Fin 4) (ψ : Ψ 4) : lmax j ψ ≤ FCΘ ψ := by
+theorem ceiling_lmax (j : Fin 4) (ψ : Ψ 4) : lmax j ψ ≤ FCΘ ψ := by
   refine Real.sSup_le ?_ (FCΘ_nonneg ψ)
   rintro r ⟨e, he, rfl⟩
   rw [qf_marg_eq, FCΘ_eq_FC_cj]
-  exact (FC_three_ge hR (peel j e ψ)).trans (peel_le_FC j e he ψ)
+  exact (FC_three_ge (peel j e ψ)).trans (peel_le_FC j e he ψ)
 
 theorem nsq_peel_delta {n : ℕ} (j : Fin (n + 1)) (ψ : Ψ (n + 1)) :
     nsq (peel j (fun a => if a = 0 then 1 else 0) ψ) + nsq (peel j (fun a => if a = 1 then 1 else 0) ψ)
@@ -468,11 +471,11 @@ theorem delta_unit : ∀ b : Fin 2, Complex.normSq ((fun a : Fin 2 => if a = b t
   intro b; fin_cases b <;> simp
 
 /-- **Theorem `thm:ceiling`, second inequality**: every four-qubit unit state has `F_C ≥ 1/2`. -/
-theorem ceiling_half (hR : RealRep3) (ψ : Ψ 4) (hψ : nsq ψ = 1) : 1 / 2 ≤ FCΘ ψ := by
+theorem ceiling_half (ψ : Ψ 4) (hψ : nsq ψ = 1) : 1 / 2 ≤ FCΘ ψ := by
   have hb : ∀ b : Fin 2, nsq (peel 0 (fun a : Fin 2 => if a = b then (1:ℂ) else 0) ψ) ≤ FCΘ ψ := by
     intro b
     rw [FCΘ_eq_FC_cj]
-    exact (FC_three_ge hR _).trans (peel_le_FC 0 _ (delta_unit b) ψ)
+    exact (FC_three_ge _).trans (peel_le_FC 0 _ (delta_unit b) ψ)
   have hsum := nsq_peel_delta (0 : Fin 4) ψ
   have h0 := hb 0
   have h1 := hb 1
@@ -480,19 +483,19 @@ theorem ceiling_half (hR : RealRep3) (ψ : Ψ 4) (hψ : nsq ψ = 1) : 1 / 2 ≤ 
   linarith
 
 
-theorem FCΘ_ge_three (hR : RealRep3) (ψ : Ψ 3) : nsq ψ ≤ FCΘ ψ := by
-  rw [FCΘ_eq_FC_cj]; exact FC_three_ge hR ψ
+theorem FCΘ_ge_three (ψ : Ψ 3) : nsq ψ ≤ FCΘ ψ := by
+  rw [FCΘ_eq_FC_cj]; exact FC_three_ge ψ
 
 /-- Contracting `m` qubits with the basis bras and keeping the heavier branch each time:
 `F_C(ψ) ≥ 2^{-m} ‖ψ‖²` on `m + 3` qubits. -/
-theorem FCΘ_ge_pow (hR : RealRep3) : ∀ (m : ℕ) (ψ : Ψ (m + 3)), (1 / 2 : ℝ) ^ m * nsq ψ ≤ FCΘ ψ
-  | 0, ψ => by simpa using FCΘ_ge_three hR ψ
+theorem FCΘ_ge_pow : ∀ (m : ℕ) (ψ : Ψ (m + 3)), (1 / 2 : ℝ) ^ m * nsq ψ ≤ FCΘ ψ
+  | 0, ψ => by simpa using FCΘ_ge_three ψ
   | m + 1, ψ => by
     have hb : ∀ b : Fin 2, (1 / 2 : ℝ) ^ m *
         nsq (peel (0 : Fin (m + 3 + 1)) (fun a : Fin 2 => if a = b then (1:ℂ) else 0) ψ)
           ≤ FCΘ ψ := by
       intro b
-      refine (FCΘ_ge_pow hR m _).trans ?_
+      refine (FCΘ_ge_pow m _).trans ?_
       rw [FCΘ_eq_FC_cj, FCΘ_eq_FC_cj]
       exact peel_le_FC _ _ (delta_unit b) ψ
     have hsum := nsq_peel_delta (0 : Fin (m + 3 + 1)) ψ
@@ -503,9 +506,9 @@ theorem FCΘ_ge_pow (hR : RealRep3) : ∀ (m : ℕ) (ψ : Ψ (m + 3)), (1 / 2 : 
     nlinarith
 
 /-- `F_C ≥ 8 · 2^{-n}` on `n ≥ 3` qubits (`thm:entceiling`, last claim). -/
-theorem FCΘ_ge_eight (hR : RealRep3) (m : ℕ) (ψ : Ψ (m + 3)) (hψ : nsq ψ = 1) :
+theorem FCΘ_ge_eight (m : ℕ) (ψ : Ψ (m + 3)) (hψ : nsq ψ = 1) :
     8 * (1 / 2 : ℝ) ^ (m + 3) ≤ FCΘ ψ := by
-  have := FCΘ_ge_pow hR m ψ
+  have := FCΘ_ge_pow m ψ
   rw [hψ] at this
   have e : 8 * (1 / 2 : ℝ) ^ (m + 3) = (1 / 2 : ℝ) ^ m := by
     rw [pow_add]; norm_num; ring
@@ -544,16 +547,16 @@ theorem ip_pv_peel {n : ℕ} (j : Fin (n + 1)) (e : Fin (n + 1) → Fin 2 → �
 
 /-- **`thm:entceiling`, product-vector form.** For every unit product vector `e`,
 `|⟨e|ψ⟩|² ≤ F_C(ψ)` on `m + 3` qubits; equivalently `-log F_C ≤ E_G`. -/
-theorem normSq_ip_pv_le_FCΘ (hR : RealRep3) : ∀ (m : ℕ) (ψ : Ψ (m + 3))
+theorem normSq_ip_pv_le_FCΘ : ∀ (m : ℕ) (ψ : Ψ (m + 3))
     (e : Fin (m + 3) → Fin 2 → ℂ), (∀ i, Complex.normSq (e i 0) + Complex.normSq (e i 1) = 1) →
     Complex.normSq (ip (pv e) ψ) ≤ FCΘ ψ
   | 0, ψ, e, he => by
     have h1 := normSq_ip_le (pv e) ψ
     rw [nsq_pv_unit e he, one_mul] at h1
-    exact h1.trans (FCΘ_ge_three hR ψ)
+    exact h1.trans (FCΘ_ge_three ψ)
   | m + 1, ψ, e, he => by
     have hstep := ip_pv_peel (0 : Fin (m + 3 + 1)) e ψ
-    have ih := normSq_ip_pv_le_FCΘ hR m (peel (0 : Fin (m + 3 + 1)) (e 0) ψ)
+    have ih := normSq_ip_pv_le_FCΘ m (peel (0 : Fin (m + 3 + 1)) (e 0) ψ)
       (fun i => e ((0 : Fin (m + 3 + 1)).succAbove i)) (fun i => he _)
     rw [hstep]
     refine ih.trans ?_
@@ -604,25 +607,25 @@ theorem Lam_pos {n : ℕ} (ψ : Ψ n) (hψ : nsq ψ = 1) : 0 < Lam ψ := by
       simp [ip]
   exact lt_of_lt_of_le (Complex.normSq_pos.mpr hx) (le_csSup (Lam_bddAbove ψ) hmem)
 
-theorem Lam_le_FCΘ (hR : RealRep3) (m : ℕ) (ψ : Ψ (m + 3)) : Lam ψ ≤ FCΘ ψ := by
+theorem Lam_le_FCΘ (m : ℕ) (ψ : Ψ (m + 3)) : Lam ψ ≤ FCΘ ψ := by
   refine Real.sSup_le ?_ (FCΘ_nonneg ψ)
   rintro r ⟨e, he, rfl⟩
-  exact normSq_ip_pv_le_FCΘ hR m ψ e he
+  exact normSq_ip_pv_le_FCΘ m ψ e he
 
-theorem FCΘ_pos (hR : RealRep3) (m : ℕ) (ψ : Ψ (m + 3)) (hψ : nsq ψ = 1) : 0 < FCΘ ψ :=
-  lt_of_lt_of_le (Lam_pos ψ hψ) (Lam_le_FCΘ hR m ψ)
+theorem FCΘ_pos (m : ℕ) (ψ : Ψ (m + 3)) (hψ : nsq ψ = 1) : 0 < FCΘ ψ :=
+  lt_of_lt_of_le (Lam_pos ψ hψ) (Lam_le_FCΘ m ψ)
 
 /-- **`thm:entceiling`**: for unit `ψ` on `m + 3` qubits, `-log F_C(ψ) ≤ E_G(ψ)` and
 `-log F_C(ψ) ≤ m log 2`. -/
-theorem negLog_FC_le_EG (hR : RealRep3) (m : ℕ) (ψ : Ψ (m + 3)) (hψ : nsq ψ = 1) :
+theorem negLog_FC_le_EG (m : ℕ) (ψ : Ψ (m + 3)) (hψ : nsq ψ = 1) :
     -Real.log (FCΘ ψ) ≤ EG ψ := by
   unfold EG
-  have := Real.log_le_log (Lam_pos ψ hψ) (Lam_le_FCΘ hR m ψ)
+  have := Real.log_le_log (Lam_pos ψ hψ) (Lam_le_FCΘ m ψ)
   linarith
 
-theorem negLog_FC_le_log2 (hR : RealRep3) (m : ℕ) (ψ : Ψ (m + 3)) (hψ : nsq ψ = 1) :
+theorem negLog_FC_le_log2 (m : ℕ) (ψ : Ψ (m + 3)) (hψ : nsq ψ = 1) :
     -Real.log (FCΘ ψ) ≤ m * Real.log 2 := by
-  have h := FCΘ_ge_eight hR m ψ hψ
+  have h := FCΘ_ge_eight m ψ hψ
   have hpos : (0 : ℝ) < 8 * (1 / 2 : ℝ) ^ (m + 3) := by positivity
   have := Real.log_le_log hpos h
   have e : Real.log (8 * (1 / 2 : ℝ) ^ (m + 3)) = -(m * Real.log 2) := by
@@ -697,24 +700,24 @@ theorem FCΘ_zeroVec (n : ℕ) : FCΘ (zeroVec n) = 1 := by
     simpa using this
 
 /-- For one, two or three qubits, `F_C = 1` (`thm:entceiling`, `n ≤ 3`; `thm:hierarchy`(i)). -/
-theorem FCΘ_eq_one_of_le_three (hR : RealRep3) {n : ℕ} (hn : n ≤ 3) (ψ : Ψ n) (hψ : nsq ψ = 1) :
+theorem FCΘ_eq_one_of_le_three {n : ℕ} (hn : n ≤ 3) (ψ : Ψ n) (hψ : nsq ψ = 1) :
     FCΘ ψ = 1 := by
   apply le_antisymm
   · have := FCΘ_le ψ; rwa [hψ] at this
   · interval_cases n
-    · have h := FCΘ_ge_three hR (tens ψ (zeroVec 3))
+    · have h := FCΘ_ge_three (tens ψ (zeroVec 3))
       rw [nsq_tens, hψ, nsq_zeroVec, one_mul, FCΘ_tens _ _ (by rw [hψ]; norm_num) (by rw [nsq_zeroVec]; norm_num),
         FCΘ_zeroVec, mul_one] at h
       exact h
-    · have h := FCΘ_ge_three hR (tens ψ (zeroVec 2))
+    · have h := FCΘ_ge_three (tens ψ (zeroVec 2))
       rw [nsq_tens, hψ, nsq_zeroVec, one_mul, FCΘ_tens _ _ (by rw [hψ]; norm_num) (by rw [nsq_zeroVec]; norm_num),
         FCΘ_zeroVec, mul_one] at h
       exact h
-    · have h := FCΘ_ge_three hR (tens ψ (zeroVec 1))
+    · have h := FCΘ_ge_three (tens ψ (zeroVec 1))
       rw [nsq_tens, hψ, nsq_zeroVec, one_mul, FCΘ_tens _ _ (by rw [hψ]; norm_num) (by rw [nsq_zeroVec]; norm_num),
         FCΘ_zeroVec, mul_one] at h
       exact h
-    · have h := FCΘ_ge_three hR ψ
+    · have h := FCΘ_ge_three ψ
       rwa [hψ] at h
 
 
@@ -734,22 +737,22 @@ theorem Producible.nsq_eq_one {m n : ℕ} {ψ : Ψ n} (h : Producible m ψ) : ns
   | cons hb1 hbm φ hφ χ _ ih => rw [nsq_tens, hφ, ih, one_mul]
 
 /-- A block of `b ≥ 1` qubits has `F_C ≥ 2^{-(b-3)_+}`. -/
-theorem block_FC_ge (hR : RealRep3) {b : ℕ} (hb : 1 ≤ b) (φ : Ψ b) (hφ : nsq φ = 1) :
+theorem block_FC_ge {b : ℕ} (hb : 1 ≤ b) (φ : Ψ b) (hφ : nsq φ = 1) :
     (1 / 2 : ℝ) ^ (b - 3) ≤ FCΘ φ := by
   by_cases h3 : b ≤ 3
-  · rw [Nat.sub_eq_zero_of_le h3, pow_zero, FCΘ_eq_one_of_le_three hR h3 φ hφ]
+  · rw [Nat.sub_eq_zero_of_le h3, pow_zero, FCΘ_eq_one_of_le_three h3 φ hφ]
   · obtain ⟨m, rfl⟩ : ∃ m, b = m + 3 := ⟨b - 3, by omega⟩
-    have := FCΘ_ge_pow hR m φ
+    have := FCΘ_ge_pow m φ
     rw [hφ, mul_one] at this
     simpa using this
 
-theorem block_FC_pos (hR : RealRep3) {b : ℕ} (hb : 1 ≤ b) (φ : Ψ b) (hφ : nsq φ = 1) :
+theorem block_FC_pos {b : ℕ} (hb : 1 ≤ b) (φ : Ψ b) (hφ : nsq φ = 1) :
     0 < FCΘ φ :=
-  lt_of_lt_of_le (by positivity) (block_FC_ge hR hb φ hφ)
+  lt_of_lt_of_le (by positivity) (block_FC_ge hb φ hφ)
 
 /-- **`prop:exponentdepth` (a)**: a pure `m`-producible state of `n` qubits, `m ≥ 3`, has
 `-log F_C ≤ n (1 - 3/m) log 2`. -/
-theorem negLog_FC_le_producible (hR : RealRep3) {m : ℕ} (hm : 3 ≤ m) {n : ℕ} {ψ : Ψ n}
+theorem negLog_FC_le_producible {m : ℕ} (hm : 3 ≤ m) {n : ℕ} {ψ : Ψ n}
     (h : Producible m ψ) :
     0 < FCΘ ψ ∧ -Real.log (FCΘ ψ) ≤ n * (1 - 3 / (m : ℝ)) * Real.log 2 := by
   have hm' : (3 : ℝ) ≤ m := by exact_mod_cast hm
@@ -759,8 +762,8 @@ theorem negLog_FC_le_producible (hR : RealRep3) {m : ℕ} (hm : 3 ≤ m) {n : �
   have blk : ∀ {b : ℕ} (hb1 : 1 ≤ b) (hbm : b ≤ m) (φ : Ψ b) (hφ : nsq φ = 1),
       0 < FCΘ φ ∧ -Real.log (FCΘ φ) ≤ b * (1 - 3 / (m : ℝ)) * Real.log 2 := by
     intro b hb1 hbm φ hφ
-    refine ⟨block_FC_pos hR hb1 φ hφ, ?_⟩
-    have hlow := block_FC_ge hR hb1 φ hφ
+    refine ⟨block_FC_pos hb1 φ hφ, ?_⟩
+    have hlow := block_FC_ge hb1 φ hφ
     have hl := Real.log_le_log (by positivity) hlow
     rw [Real.log_pow, one_div, Real.log_inv] at hl
     have hbm' : (b : ℝ) ≤ m := by exact_mod_cast hbm
@@ -1779,13 +1782,13 @@ theorem nsq_M4v : nsq M4v = 1 := by
   unfold M4v; rw [nsq_toN]; exact FormalResearch.FourQubitEntropy.M4_unit
 
 /-- **`thm:m4support`, lower half** (from `thm:ceiling`): `F_C(M₄) ≥ 1/2`. -/
-theorem half_le_FCΘ_M4 (hR : RealRep3) : 1 / 2 ≤ FCΘ M4v := ceiling_half hR M4v nsq_M4v
+theorem half_le_FCΘ_M4 : 1 / 2 ≤ FCΘ M4v := ceiling_half M4v nsq_M4v
 
 /-- `M₄` is uncalibrated: if `F_K(M₄) = 4/9` (its lower bound is proved in
 `FrameFree/PhysicalBridge.lean`, `four_ninths_le_rotOverlap_M4`; the upper bound is the
 recalled input R7), then `F_K(M₄) < 1/2 ≤ F_C(M₄)`. -/
-theorem M4_uncalibrated (hR : RealRep3) (h49 : FKΘ M4v = 4 / 9) : FKΘ M4v < FCΘ M4v := by
-  have := half_le_FCΘ_M4 hR
+theorem M4_uncalibrated (h49 : FKΘ M4v = 4 / 9) : FKΘ M4v < FCΘ M4v := by
+  have := half_le_FCΘ_M4
   rw [h49]; linarith
 
 /-- `m + 1` copies of `M₄`. -/
@@ -1815,19 +1818,19 @@ theorem CK_M4pow (h49 : FKΘ M4v = 4 / 9) (m : ℕ) :
 
 /-- **`thm:m4support`/`thm:m4exponent`, detectability side:** `F_C(M₄^{⊗(m+1)}) ≥ 2^{-(m+1)}`,
 so `-log F_C ≤ (m+1) log 2`. -/
-theorem FCΘ_M4pow_ge (hR : RealRep3) (m : ℕ) : (1 / 2 : ℝ) ^ (m + 1) ≤ FCΘ (M4pow m) := by
+theorem FCΘ_M4pow_ge (m : ℕ) : (1 / 2 : ℝ) ^ (m + 1) ≤ FCΘ (M4pow m) := by
   induction m with
-  | zero => show (1 / 2 : ℝ) ^ (0 + 1) ≤ FCΘ M4v; simpa using half_le_FCΘ_M4 hR
+  | zero => show (1 / 2 : ℝ) ^ (0 + 1) ≤ FCΘ M4v; simpa using half_le_FCΘ_M4
   | succ m ih =>
     show (1 / 2 : ℝ) ^ (m + 1 + 1) ≤ FCΘ (tens (M4pow m) M4v)
     rw [FCΘ_tens _ _ (by rw [nsq_M4pow]; norm_num) (by rw [nsq_M4v]; norm_num), pow_succ]
-    exact mul_le_mul ih (half_le_FCΘ_M4 hR) (by norm_num) (FC_nonneg _ _)
+    exact mul_le_mul ih (half_le_FCΘ_M4) (by norm_num) (FC_nonneg _ _)
 
 /-- Under `F_C(M₄) ≤ 1/2` (the heavy half of `thm:m4support`, proved as `M4Support.FCΘ_M4v_le`) the powers have
 `F_C(M₄^{⊗(m+1)}) = 2^{-(m+1)}` exactly, hence `-log F_C = (m+1) log 2 < C_K` when `F_K(M₄) = 4/9`. -/
-theorem FCΘ_M4pow_eq (hR : RealRep3) (hle : FCΘ M4v ≤ 1 / 2) (m : ℕ) :
+theorem FCΘ_M4pow_eq (hle : FCΘ M4v ≤ 1 / 2) (m : ℕ) :
     FCΘ (M4pow m) = (1 / 2 : ℝ) ^ (m + 1) := by
-  have h1 : FCΘ M4v = 1 / 2 := le_antisymm hle (half_le_FCΘ_M4 hR)
+  have h1 : FCΘ M4v = 1 / 2 := le_antisymm hle (half_le_FCΘ_M4)
   induction m with
   | zero => show FCΘ M4v = (1 / 2 : ℝ) ^ (0 + 1); rw [h1]; norm_num
   | succ m ih =>
@@ -1836,10 +1839,10 @@ theorem FCΘ_M4pow_eq (hR : RealRep3) (hle : FCΘ M4v ≤ 1 / 2) (m : ℕ) :
     ring
 
 /-- The exponent window for `M₄`-powers: `-log F_C = (m+1) log 2 < (m+1) log (9/4) = C_K`. -/
-theorem M4pow_window (hR : RealRep3) (hle : FCΘ M4v ≤ 1 / 2) (h49 : FKΘ M4v = 4 / 9) (m : ℕ) :
+theorem M4pow_window (hle : FCΘ M4v ≤ 1 / 2) (h49 : FKΘ M4v = 4 / 9) (m : ℕ) :
     -Real.log (FCΘ (M4pow m)) = (m + 1) * Real.log 2 ∧
       (m + 1) * Real.log 2 < CK (M4pow m) := by
-  have e := FCΘ_M4pow_eq hR hle m
+  have e := FCΘ_M4pow_eq hle m
   have hc := (CK_M4pow h49 m).2
   refine ⟨?_, ?_⟩
   · rw [e, Real.log_pow, one_div, Real.log_inv]; push_cast; ring

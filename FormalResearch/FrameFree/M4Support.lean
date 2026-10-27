@@ -847,18 +847,18 @@ theorem FCΘ_M4v_le : FCΘ M4v ≤ 1 / 2 := by
   exact main_ineq g hg
 
 /-- `thm:m4support`: `F_C(M₄) = 1/2`. -/
-theorem FCΘ_M4v_eq (hR : RealRep3) : FCΘ M4v = 1 / 2 :=
-  le_antisymm FCΘ_M4v_le (half_le_FCΘ_M4 hR)
+theorem FCΘ_M4v_eq : FCΘ M4v = 1 / 2 :=
+  le_antisymm FCΘ_M4v_le (half_le_FCΘ_M4)
 
 /-- `F_C(M₄^{⊗(m+1)}) = 2^{-(m+1)}` exactly. -/
-theorem FCΘ_M4pow_eq_half_pow (hR : RealRep3) (m : ℕ) : FCΘ (M4pow m) = (1 / 2 : ℝ) ^ (m + 1) :=
-  FCΘ_M4pow_eq hR FCΘ_M4v_le m
+theorem FCΘ_M4pow_eq_half_pow (m : ℕ) : FCΘ (M4pow m) = (1 / 2 : ℝ) ^ (m + 1) :=
+  FCΘ_M4pow_eq FCΘ_M4v_le m
 
 /-- The exponent window for `M₄`-powers, with the heavy half of `thm:m4support` discharged. -/
-theorem M4pow_window_of_h49 (hR : RealRep3) (h49 : FKΘ M4v = 4 / 9) (m : ℕ) :
+theorem M4pow_window_of_h49 (h49 : FKΘ M4v = 4 / 9) (m : ℕ) :
     -Real.log (FCΘ (M4pow m)) = (m + 1) * Real.log 2 ∧
       (m + 1) * Real.log 2 < CK (M4pow m) :=
-  M4pow_window hR FCΘ_M4v_le h49 m
+  M4pow_window FCΘ_M4v_le h49 m
 
 end Bookkeeping
 

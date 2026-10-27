@@ -63,7 +63,7 @@ theorem m4_xi_inv'' (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) :
 /-- **`ξ_inv(M₄^{⊗(m+1)}) = (m+1) log 2`**, unconditional: the support rate gives `≥` (`F_C = 2^{-(m+1)}`), the
 achiral branch of weight `2^{-(m+1)}` gives `≤`. -/
 theorem blocks_hasXiInv (m : ℕ) : HasXiInv (Ceilings.M4pow m) ((m + 1) * Real.log 2) := by
-  have hF := RealRep3Discharge.FCΘ_M4pow_eq_half_pow' m
+  have hF := M4Support.FCΘ_M4pow_eq_half_pow m
   have e : -Real.log ((1 / 2 : ℝ) ^ (m + 1)) = (m + 1) * Real.log 2 := by
     rw [Real.log_pow, one_div, Real.log_inv]; push_cast; ring
   refine hasXiInv_of_xiBarLE (Ceilings.nsq_M4pow m) (by rw [hF]; positivity) (by rw [hF, e]) ?_

@@ -304,7 +304,6 @@ import FormalResearch.FrameFree.Twirls
 import FormalResearch.FrameFree.WeylLink
 import FormalResearch.FrameFree.OddDimLink
 import FormalResearch.FrameFree.RealRep3
-import FormalResearch.FrameFree.RealRep3Discharge
 import FormalResearch.FrameFree.ZClosure
 import FormalResearch.FrameFree.ZClosureDischarge
 import FormalResearch.FrameFree.CopyThresholdWords

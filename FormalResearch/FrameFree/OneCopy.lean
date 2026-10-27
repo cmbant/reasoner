@@ -530,9 +530,9 @@ theorem FCΘs_id_eq_one_of_le_two {b : ℕ} (hb1 : 1 ≤ b) (hb2 : b ≤ 2) (ψ 
 
 /-- **`thm:hierarchy` (iii)**: four qubits; the support test certifies at most `log 2`
 (`F_C ≥ 1/2`, `Ceilings.ceiling_half`, under the `RealRep3` hypothesis of `Ceilings`). -/
-theorem negLog_FC_four_le_log_two (hR : Ceilings.RealRep3) (ψ : Ψ 4) (hψ : nsq ψ = 1) :
+theorem negLog_FC_four_le_log_two (ψ : Ψ 4) (hψ : nsq ψ = 1) :
     -Real.log (Ceilings.FCΘ ψ) ≤ Real.log 2 := by
-  have h := Ceilings.ceiling_half hR ψ hψ
+  have h := Ceilings.ceiling_half ψ hψ
   have := Real.log_le_log (by norm_num) h
   rw [one_div, Real.log_inv] at this
   linarith

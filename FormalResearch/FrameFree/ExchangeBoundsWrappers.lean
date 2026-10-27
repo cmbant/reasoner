@@ -81,31 +81,31 @@ theorem exchange_law' {θ : ℝ} (h0 : 0 ≤ θ) (h1 : θ ≤ π / 4) :
   Reversals.exchange_law h0 h1 (exchangeIndepBound θ h0 h1) (exchangeIndepBoundC θ h0 h1)
 
 /-- `Reversals.Psi8_values` (hypothesis `RealRep3` kept) without the exchange hypotheses. -/
-theorem Psi8_values' (hR : Ceilings.RealRep3) (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ}
+theorem Psi8_values' (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ}
     (h0 : 0 ≤ θ) (h1 : θ ≤ π / 4) :
     FKΘ (Reversals.Psi8 θ) = 4 / 9 * ((1 + Real.cos (2 * θ)) / 2) ∧
       Ceilings.FCΘ (Reversals.Psi8 θ) = 1 / 2 * ((1 + Real.cos (2 * θ)) / 2) ∧
       CK (Reversals.Psi8 θ) = CK8 (Real.cos (2 * θ)) ∧
       -Real.log (Ceilings.FCΘ (Reversals.Psi8 θ)) = xi8 (Real.cos (2 * θ)) :=
-  Reversals.Psi8_values hR h49 h0 h1 (exchangeIndepBound θ h0 h1) (exchangeIndepBoundC θ h0 h1)
+  Reversals.Psi8_values h49 h0 h1 (exchangeIndepBound θ h0 h1) (exchangeIndepBoundC θ h0 h1)
 
-/-- `RealRep3Discharge.Psi8_values'` without the exchange hypotheses: only `h49` remains. -/
+/-- `Reversals.Psi8_values` without the exchange hypotheses: only `h49` remains. -/
 theorem Psi8_values'' (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ} (h0 : 0 ≤ θ) (h1 : θ ≤ π / 4) :
     FKΘ (Reversals.Psi8 θ) = 4 / 9 * ((1 + Real.cos (2 * θ)) / 2) ∧
       Ceilings.FCΘ (Reversals.Psi8 θ) = 1 / 2 * ((1 + Real.cos (2 * θ)) / 2) ∧
       CK (Reversals.Psi8 θ) = CK8 (Real.cos (2 * θ)) ∧
       -Real.log (Ceilings.FCΘ (Reversals.Psi8 θ)) = xi8 (Real.cos (2 * θ)) :=
-  Psi8_values' RealRep3Discharge.realRep3 h49 h0 h1
+  Psi8_values' Ceilings.realRep3 h49 h0 h1
 
 /-- `Reversals.eight_qubit_reversal` (`RealRep3` kept) without the exchange hypotheses. -/
-theorem eight_qubit_reversal_of_RealRep3' (hR : Ceilings.RealRep3) (h49 : FKΘ Ceilings.M4v ≤ 4 / 9)
+theorem eight_qubit_reversal_of_RealRep3' (h49 : FKΘ Ceilings.M4v ≤ 4 / 9)
     {θ : ℝ} (h0 : 0 ≤ θ) (h1 : θ ≤ π / 4) (hs0 : 0 < Real.cos (2 * θ))
     (hs1 : Real.cos (2 * θ) < 1 / 8) :
     Reversals.StrictReversal (CK (Reversals.Psi8 θ)) (-Real.log (Ceilings.FCΘ (Reversals.Psi8 θ)))
         (CK Reversals.Phi8) (-Real.log (Ceilings.FCΘ Reversals.Phi8)) ∧
       CK (Reversals.Psi8 θ) = Real.log (9 / (2 * (1 + Real.cos (2 * θ)))) ∧
       -Real.log (Ceilings.FCΘ (Reversals.Psi8 θ)) = Real.log (4 / (1 + Real.cos (2 * θ))) :=
-  Reversals.eight_qubit_reversal hR h49 h0 h1 (exchangeIndepBound θ h0 h1)
+  Reversals.eight_qubit_reversal h49 h0 h1 (exchangeIndepBound θ h0 h1)
     (exchangeIndepBoundC θ h0 h1) (exchangeIndepBound _ (by positivity) le_rfl)
     (exchangeIndepBoundC _ (by positivity) le_rfl) hs0 hs1
 

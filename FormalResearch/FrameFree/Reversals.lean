@@ -815,7 +815,7 @@ noncomputable def Phi8 : Ψ (4 + 4) := tens (Sharing.psiEx (π / 4)) (Sharing.ps
 /-- **`cor:calgeom-spin1extensive` (b), values** (`0 ≤ θ ≤ π/4`, recalled inputs `RealRep3`,
 `F_K(M₄) ≤ 4/9` [R7 for `M₄`], and R7/R8 for the exchange probe at `θ`):
 `F_K(Ψ_θ) = (4/9)(1+s)/2`, `F_C(Ψ_θ) = (1/2)(1+s)/2`, `s = cos 2θ`. -/
-theorem Psi8_values (hR : Ceilings.RealRep3) (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ} (h0 : 0 ≤ θ)
+theorem Psi8_values (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ} (h0 : 0 ≤ θ)
     (h1 : θ ≤ π / 4) (hK : Sharing.ExchangeIndepBound θ) (hC : Sharing.ExchangeIndepBoundC θ) :
     FKΘ (Psi8 θ) = 4 / 9 * ((1 + cos (2 * θ)) / 2) ∧
       Ceilings.FCΘ (Psi8 θ) = 1 / 2 * ((1 + cos (2 * θ)) / 2) ∧
@@ -823,7 +823,7 @@ theorem Psi8_values (hR : Ceilings.RealRep3) (h49 : FKΘ Ceilings.M4v ≤ 4 / 9)
       -Real.log (Ceilings.FCΘ (Psi8 θ)) = xi8 (cos (2 * θ)) := by
   obtain ⟨hfc, hfk, -⟩ := exchange_law h0 h1 hK hC
   have e49 := Unify.FKΘ_M4v_eq_of_le h49
-  have e12 := M4Support.FCΘ_M4v_eq hR
+  have e12 := M4Support.FCΘ_M4v_eq
   have hK8 : FKΘ (Psi8 θ) = 4 / 9 * ((1 + cos (2 * θ)) / 2) := by
     unfold Psi8; rw [NQubit.FKΘ_tens, e49, hfk]
   have hC8 : Ceilings.FCΘ (Psi8 θ) = 1 / 2 * ((1 + cos (2 * θ)) / 2) := by
@@ -847,7 +847,7 @@ theorem Phi8_values (hK : Sharing.ExchangeIndepBound (π / 4)) (hC : Sharing.Exc
 /-- **`cor:calgeom-spin1extensive` (b)**: for `0 < s = cos 2θ < 1/8` the pair `(Ψ_θ, Φ)` is a strict
 reversal, with `C_K(Ψ) = log (9/(2(1+s)))`, `-log F_C(Ψ) = log (4/(1+s))`.  (Here `-log F_C` stands in
 for `ξ_inv`; the equality `ξ_inv = -log F_C` for both factors is the recalled `thm:expceiling` input.) -/
-theorem eight_qubit_reversal (hR : Ceilings.RealRep3) (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ}
+theorem eight_qubit_reversal (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ}
     (h0 : 0 ≤ θ) (h1 : θ ≤ π / 4) (hK : Sharing.ExchangeIndepBound θ)
     (hC : Sharing.ExchangeIndepBoundC θ) (hK4 : Sharing.ExchangeIndepBound (π / 4))
     (hC4 : Sharing.ExchangeIndepBoundC (π / 4)) (hs0 : 0 < cos (2 * θ)) (hs1 : cos (2 * θ) < 1 / 8) :
@@ -855,7 +855,7 @@ theorem eight_qubit_reversal (hR : Ceilings.RealRep3) (h49 : FKΘ Ceilings.M4v �
         (-Real.log (Ceilings.FCΘ Phi8)) ∧
       CK (Psi8 θ) = Real.log (9 / (2 * (1 + cos (2 * θ)))) ∧
       -Real.log (Ceilings.FCΘ (Psi8 θ)) = Real.log (4 / (1 + cos (2 * θ))) := by
-  obtain ⟨-, -, hck, hxi⟩ := Psi8_values hR h49 h0 h1 hK hC
+  obtain ⟨-, -, hck, hxi⟩ := Psi8_values h49 h0 h1 hK hC
   obtain ⟨hp1, hp2⟩ := Phi8_values hK4 hC4
   rw [hck, hxi, hp1, hp2]
   exact ⟨⟨(CK8_gt_iff _ hs0.le).2 hs1, (xi8_lt_iff _ hs0.le).2 hs0⟩, CK8_eq _ hs0.le,
@@ -868,14 +868,14 @@ theorem eight_qubit_budget {s : ℝ} (hs : 0 ≤ s) :
 /-- **`cor:calgeom-spin1extensive` (a), values** (`RealRep3`, `F_K(M₄) ≤ 4/9`): for `n = 4(m+1)` spins,
 `C_K(M₄^{⊗(m+1)}) = (m+1) log (9/4)`, `-log F_C(M₄^{⊗(m+1)}) = (m+1) log 2`, and the difference is
 `(m+1) log (9/8) = (n/4) log (9/8)`, growing linearly. -/
-theorem blocks_gap (hR : Ceilings.RealRep3) (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) (m : ℕ) :
+theorem blocks_gap (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) (m : ℕ) :
     CK (Ceilings.M4pow m) = (m + 1) * Real.log (9 / 4) ∧
       -Real.log (Ceilings.FCΘ (Ceilings.M4pow m)) = (m + 1) * Real.log 2 ∧
       CK (Ceilings.M4pow m) - -Real.log (Ceilings.FCΘ (Ceilings.M4pow m)) =
         (m + 1) * Real.log (9 / 8) := by
   have e49 := Unify.FKΘ_M4v_eq_of_le h49
   have hc := (Ceilings.CK_M4pow e49 m).2
-  have hw := (M4Support.M4pow_window_of_h49 hR e49 m).1
+  have hw := (M4Support.M4pow_window_of_h49 e49 m).1
   refine ⟨hc, hw, ?_⟩
   rw [hc, hw]
   have : Real.log (9 / 4) - Real.log 2 = Real.log (9 / 8) := by
@@ -979,10 +979,10 @@ theorem additive_of_tie {ι : Type*} (s : Finset ι) (L U : ι → ℝ) (ξ : �
 /-- **`cor:calgeom-spin1extensive` (a), exponent**: for `M₄^{⊗(m+1)}`, if `ξ` satisfies the support lower
 bound `-log F_C ≤ ξ` and the tensorised upper bound `ξ ≤ (m+1) log 2` (from `ξ̄_inv(M₄) ≤ log 2`),
 then `ξ = (m+1) log 2 < C_K`, so the gap is `(m+1) log (9/8) = (n/4) log (9/8)`. -/
-theorem blocks_exponent (hR : Ceilings.RealRep3) (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) (m : ℕ) (ξ : ℝ)
+theorem blocks_exponent (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) (m : ℕ) (ξ : ℝ)
     (hlo : -Real.log (Ceilings.FCΘ (Ceilings.M4pow m)) ≤ ξ) (hhi : ξ ≤ (m + 1) * Real.log 2) :
     ξ = (m + 1) * Real.log 2 ∧ CK (Ceilings.M4pow m) - ξ = (m + 1) * Real.log (9 / 8) := by
-  obtain ⟨hc, hw, hd⟩ := blocks_gap hR h49 m
+  obtain ⟨hc, hw, hd⟩ := blocks_gap h49 m
   have hξ : ξ = (m + 1) * Real.log 2 := le_antisymm hhi (by rw [← hw]; exact hlo)
   refine ⟨hξ, ?_⟩
   rw [hξ, ← hw]; exact hd
@@ -1008,7 +1008,7 @@ theorem log_9_4_bounds : (0.81093 : ℝ) < log (9 / 4) ∧ log (9 / 4) < 0.81094
 /-- **`thm:m4exponent`** (`RealRep3`, `F_K(M₄) ≤ 4/9`): if `-log F_C(M₄) ≤ ξ ≤ log 2` (the upper bound is
 `thm:expceiling` at the maximally mixed marginals), then `ξ = log 2 < C_K(M₄) = log (9/4)`,
 `C_K - ξ = log (9/8)`, and the fraction `1 - ξ/C_K` is in `(0.1452, 0.1453)`. -/
-theorem m4_exponent (hR : Ceilings.RealRep3) (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) (ξ : ℝ)
+theorem m4_exponent (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) (ξ : ℝ)
     (hlo : -Real.log (Ceilings.FCΘ Ceilings.M4v) ≤ ξ) (hhi : ξ ≤ Real.log 2) :
     ξ = Real.log 2 ∧ CK Ceilings.M4v = Real.log (9 / 4) ∧ ξ < CK Ceilings.M4v ∧
       CK Ceilings.M4v - ξ = Real.log (9 / 8) ∧
@@ -1018,7 +1018,7 @@ theorem m4_exponent (hR : Ceilings.RealRep3) (h49 : FKΘ Ceilings.M4v ≤ 4 / 9)
     have h : CK Ceilings.M4v = (((0 : ℕ) : ℝ) + 1) * Real.log (9 / 4) :=
       (Ceilings.CK_M4pow e49 0).2
     rw [h]; norm_num
-  have hF : Ceilings.FCΘ Ceilings.M4v = 1 / 2 := M4Support.FCΘ_M4v_eq hR
+  have hF : Ceilings.FCΘ Ceilings.M4v = 1 / 2 := M4Support.FCΘ_M4v_eq
   have hξ : ξ = Real.log 2 := by
     refine le_antisymm hhi ?_
     have : -Real.log (Ceilings.FCΘ Ceilings.M4v) = Real.log 2 := by

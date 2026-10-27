@@ -148,9 +148,9 @@ theorem FKΘ_M4v_eq_of_le (h : NQubit.FKΘ Ceilings.M4v ≤ 4 / 9) : NQubit.FKΘ
   FKΘ_M4v_eq_iff.2 h
 
 /-- `M₄` is uncalibrated given only the upper bound on `F_K(M₄)`. -/
-theorem M4_uncalibrated_of_le (hR : Ceilings.RealRep3) (h : NQubit.FKΘ Ceilings.M4v ≤ 4 / 9) :
+theorem M4_uncalibrated_of_le (h : NQubit.FKΘ Ceilings.M4v ≤ 4 / 9) :
     NQubit.FKΘ Ceilings.M4v < Ceilings.FCΘ Ceilings.M4v :=
-  Ceilings.M4_uncalibrated hR (FKΘ_M4v_eq_of_le h)
+  Ceilings.M4_uncalibrated (FKΘ_M4v_eq_of_le h)
 
 /-- `F_K(M₄^{⊗(m+1)}) ≥ (4/9)^{m+1}`, unconditionally. -/
 theorem FKΘ_M4pow_ge (m : ℕ) : (4 / 9 : ℝ) ^ (m + 1) ≤ NQubit.FKΘ (Ceilings.M4pow m) := by

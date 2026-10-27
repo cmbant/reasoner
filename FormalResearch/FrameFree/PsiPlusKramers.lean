@@ -1,7 +1,6 @@
 import FormalResearch.FrameFree.PsiPlusKramersCore
 import FormalResearch.FrameFree.Reversals
 import FormalResearch.FrameFree.HelstromSupport
-import FormalResearch.FrameFree.RealRep3Discharge
 
 /-!
 # `ψ₊` is calibrated: `F_C(ψ₊) = F_K(ψ₊) = 1/2` (Paper P, `thm:psipluskramers`)
@@ -19,7 +18,7 @@ spins `2` and `4`, a relabelling under which `F_K` and `F_C` are invariant.
 * `psiplus_xi_inv`: `ξ_inv(ψ₊) = log 2`, conditional on `Helstrom.SupportRateUpper`; that hypothesis is now
   a theorem (`PolyImageDischarge`), and `XiInv.psiplus_xi_inv'` (`XiInvUnconditional`) is the unconditional form.
 * `Phi8_values'`, `eight_qubit_reversal''`: `Reversals.Phi8_values` and
-  `RealRep3Discharge.eight_qubit_reversal'` with the `π/4` hypotheses discharged.
+  `Reversals.eight_qubit_reversal` with the `π/4` hypotheses discharged.
 
 Nothing in `Sharing`, `Reversals` or `RealRep3Discharge` is edited.
 -/
@@ -175,7 +174,7 @@ theorem Phi8_values' :
     CK Reversals.Phi8 = Real.log 4 ∧ -Real.log (Ceilings.FCΘ Reversals.Phi8) = Real.log 4 :=
   Reversals.Phi8_values exchangeIndepBound_pi4 exchangeIndepBoundC_pi4
 
-/-- `RealRep3Discharge.eight_qubit_reversal'` without the two `π/4` hypotheses (`hK4`, `hC4`). -/
+/-- `Reversals.eight_qubit_reversal` without the two `π/4` hypotheses (`hK4`, `hC4`). -/
 theorem eight_qubit_reversal'' (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ} (h0 : 0 ≤ θ) (h1 : θ ≤ π / 4)
     (hK : Sharing.ExchangeIndepBound θ) (hC : Sharing.ExchangeIndepBoundC θ)
     (hs0 : 0 < Real.cos (2 * θ)) (hs1 : Real.cos (2 * θ) < 1 / 8) :
@@ -183,7 +182,7 @@ theorem eight_qubit_reversal'' (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ} (h
         (CK Reversals.Phi8) (-Real.log (Ceilings.FCΘ Reversals.Phi8)) ∧
       CK (Reversals.Psi8 θ) = Real.log (9 / (2 * (1 + Real.cos (2 * θ)))) ∧
       -Real.log (Ceilings.FCΘ (Reversals.Psi8 θ)) = Real.log (4 / (1 + Real.cos (2 * θ))) :=
-  RealRep3Discharge.eight_qubit_reversal' h49 h0 h1 hK hC exchangeIndepBound_pi4
+  Reversals.eight_qubit_reversal h49 h0 h1 hK hC exchangeIndepBound_pi4
     exchangeIndepBoundC_pi4 hs0 hs1
 
 end FormalResearch.FrameFree.PsiPlusKramers
