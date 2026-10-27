@@ -139,7 +139,9 @@ end Blind
 /-- **`prop:blind` (multiplicity-one form) for `Helstrom.Pe`, unconditionally.**  In the isotypic
 coordinates `W` of the frame group, `P_e(k) ≥ ½ Σ_{l : dim M_l = 1} Tr τ_l(ψ^{⊗k})` (for every `ψ`,
 unit or not, with `τ_l(v) = Σ_α |v_{lα}⟩⟨v_{lα}|`), the sector masses of `ψ^{⊗k}` and `(Θψ)^{⊗k}` agree in
-every sector, and the exact block formula of `Pe_blockdecomp` holds. -/
+every sector, and the exact block formula of `Pe_blockdecomp` holds.  Here `dim M_l` is the multiplicity in
+the full `(ℂ^{2^n})^{⊗k}`, not in the symmetric subspace as in the paper, so sectors of multiplicity one only
+inside `Sym^k` are not included; `RealCoordsFrame.Pe_ge_blind_all` covers every sector with real `τ_l`. -/
 theorem Pe_blockdecomp_blind (n k : ℕ) :
     ∃ (r : ℕ) (a b : Fin r → ℕ)
       (W : Matrix (Copies n k) (Idx (fun l : Fin r => Fin (a l)) (fun l : Fin r => Fin (b l))) ℂ),

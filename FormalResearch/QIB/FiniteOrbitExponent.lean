@@ -30,6 +30,13 @@ estimate, done here with the cruder constant `s α^d ≤ 1/2`, which also holds 
 algebra and is not formalised there; `thm:finite` does not use it (only the elementary support space
 `span{(ky)^{⊗d}}`, which here is `suppB`).
 
+**Scope: the hypothesis is never met for `n ≥ 1`.**  `SU(2)` is connected and fixes no ray of `ℂ²`, so for
+`n ≥ 1` no nonzero `y` has a finite projective `SU(2)^n`-orbit (the orbit map into the finite set of rays
+would be constant, i.e. `SU(2)` would act by scalars on the column space of `y` viewed as a `2 × 2^{n-1}`
+matrix).  `FiniteOrbit y s b` therefore forces `y = 0`, where `F_K = 0`.  The theorems below check the proof
+of `thm:finite` with `K = SU(2)^n` as a stand-in group; they are not an instance of it.  The paper's examples
+(finite groups, stabiliser orbits) need the statement for an abstract compact group, which is not formalised.
+
 **Notes on the paper's statement.**  `F < 1` is not used by the proof (for `F = 1` both bounds are
 trivial and the limit is `0 = -log 1`); `0 < F` is automatic for unit `ψ` in the `Θ`-setting
 (`FKΘ_pos`) and is a hypothesis for a general pair.

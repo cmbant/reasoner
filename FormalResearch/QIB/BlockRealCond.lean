@@ -5,8 +5,9 @@ import FormalResearch.QIB.BlockRealPe
 # `prop:antiunitary` / `prop:blind` for `Helstrom.Pe` under real isotypic coordinates
 
 Namespace `FormalResearch.QIB`.  Claim class: **proved under the explicit hypothesis**
-`RealIsotypicCoords n k` (a *real* unitary `W` putting the frame group in isotypic form).  The
-unconditional multiplicity-one statement is `Pe_blockdecomp_blind` (`BlockRealPe.lean`); this file only
+`RealIsotypicCoords n k` (a *real* unitary `W` putting the frame group in isotypic form), which
+`RealCoordsFrame.realIsotypicCoords` proves; the unconditional forms are `Pe_antiunitary_all` and
+`Pe_ge_blind_all` there.  The unconditional multiplicity-one statement is `Pe_blockdecomp_blind` (`BlockRealPe.lean`); this file only
 derives the multiplicity-block conjugation `τ(Θψ) = conj τ(ψ)` needed for `antiunitary_block` and
 `sector_blind_iff` for *all* multiplicities.
 -/

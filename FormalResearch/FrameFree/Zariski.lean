@@ -10,7 +10,7 @@ Namespace `FormalResearch.FrameFree.Zariski`.  This closes the two gaps recorded
 and `Sharing.lean`: the converse `F_K^π = 0 ⟹ F_C^π = 0` of `thm:onecopy` (a), and the passage from
 `K_π`-invariance to invariance under the complexification in `prop:invariantstates` (filter part).
 
-## Proved here (no hypothesis, no `sorry`)
+## Proved here (no hypothesis)
 
 * **One factor** (`vanish_SL2`).  If `f : Op1 → ℂ` is entire along holomorphic matrix curves
   (`CurveEntire`; any polynomial in the four entries is, `slotEntire_mvPolynomial`) and vanishes on

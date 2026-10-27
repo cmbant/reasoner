@@ -13,7 +13,6 @@ In the coordinates of `IsotypicInvariants` (the commutant of `G` is `{⊕_λ I_{
 matrices of `G` pairwise commute (any torus, any abelian group) then every carrier `A λ` is a single
 point.  Consequently `τ_λ(v) = |v_λ⟩⟨v_λ|` has rank at most one for every vector `v`.
 
-* `blockOp_mul`: `(⊕ I⊗X)(⊕ I⊗Y) = ⊕ I⊗XY`.
 * `eq_diag_of_comm`: under `IsotypicInvariants` and pairwise commutativity every `U ∈ G` is diagonal,
   constant on sectors.
 * `subsingleton_carrier_of_comm`: `A λ` is a subsingleton whenever `B λ` is nonempty.
@@ -34,13 +33,6 @@ namespace FormalResearch.QIB
 
 variable {Λ : Type*} [Fintype Λ] [DecidableEq Λ] {A B : Λ → Type*}
   [∀ l, Fintype (A l)] [∀ l, DecidableEq (A l)] [∀ l, Fintype (B l)] [∀ l, DecidableEq (B l)]
-
-theorem blockOp_mul (X Y : ∀ l, Matrix (B l) (B l) ℂ) :
-    blockOp A X * blockOp A Y = blockOp A (fun l => X l * Y l) := by
-  unfold blockOp
-  rw [← Matrix.blockDiagonal'_mul]
-  congr 1; funext l
-  rw [← Matrix.mul_kronecker_mul, Matrix.one_mul]
 
 /-- Under the isotypic hypothesis, a set of pairwise commuting matrices consists of matrices that are
 scalar on each sector (diagonal in the coordinates). -/

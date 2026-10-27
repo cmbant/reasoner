@@ -64,6 +64,13 @@ theorem blockOp_sub (X Y : ∀ l, Matrix (B l) (B l) ℂ) :
   ext ⟨a, b⟩ ⟨a', b'⟩
   simp [mul_sub]
 
+theorem blockOp_mul (X Y : ∀ l, Matrix (B l) (B l) ℂ) :
+    blockOp A X * blockOp A Y = blockOp A (fun l => X l * Y l) := by
+  unfold blockOp
+  rw [← Matrix.blockDiagonal'_mul]
+  congr 1; funext l
+  rw [← Matrix.mul_kronecker_mul, Matrix.one_mul]
+
 theorem blockOp_one : blockOp A (fun l => (1 : Matrix (B l) (B l) ℂ)) = 1 := by
   unfold blockOp
   rw [show (fun l => (1 : Matrix (A l) (A l) ℂ) ⊗ₖ (1 : Matrix (B l) (B l) ℂ)) = fun _ => 1 from

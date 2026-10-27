@@ -19,7 +19,7 @@ Zariski-closure cone of a set `O ⊆ ℂ^N`:
 then it vanishes at `z` (a degree-`k` form is a linear functional of the `k`-th tensor power).
 `homogeneousComponent_eval_zero_of_smul`: if `p(c x) = 0` for all `c ∈ ℂ`, every homogeneous component of `p`
 vanishes at `x`.  Together (`eval_eq_zero_of_pw_mem`): if `z^{⊗k} ∈ W_k` for all `k` and `p` vanishes on `ℂ·O`
-then `p(z) = 0`.  No hypothesis, no `sorry`.
+then `p(z) = 0`.  No hypothesis.
 -/
 
 namespace FormalResearch.FrameFree.SupportRate

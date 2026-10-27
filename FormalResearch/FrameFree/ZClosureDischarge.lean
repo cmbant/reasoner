@@ -20,7 +20,7 @@ set equals its Zariski closure (Mumford, *Complex projective varieties*, 4.16). 
 `PolyImageClosure` below is exactly that statement for images of polynomial maps `ℂ^κ → ℂ^ι`, with no reference to
 `ψ`.
 
-Proved here, **given `PolyImageClosure`** (no `sorry`, no other hypothesis):
+Proved here, **given `PolyImageClosure`** (no other hypothesis):
 
 * `fid_le_FCΘ`: `|⟨ψ|rot A Θψ⟩|² ≤ F_C(ψ) ‖rot A Θψ‖²` for *every* `A ∈ M₂(ℂ)^n`, singular or not (density of
   invertible matrices and continuity);

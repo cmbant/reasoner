@@ -205,17 +205,20 @@ theorem Pe_antiunitary_all (n k : ℕ) :
           imNorm (tau (Wᴴ *ᵥ copies k ψ) l) = 0) :=
   (realIsotypicCoords n k).antiunitary
 
-/-- **Unconditional `prop:blind`** for `Helstrom.Pe`: any set `T` of sectors whose multiplicity blocks
-`τ_l(ψ^{⊗k})` are real is blind, `½ Σ_{l ∈ T} Tr τ_l ≤ P_e`. -/
+/-- **Unconditional `prop:blind`** for `Helstrom.Pe`: in real isotypic coordinates `W` for the frame group,
+any set `T` of sectors whose multiplicity blocks `τ_l(ψ^{⊗k})` are real is blind,
+`½ Σ_{l ∈ T} Tr τ_l ≤ P_e`. -/
 theorem Pe_ge_blind_all (n k : ℕ) :
     ∃ (r : ℕ) (a b : Fin r → ℕ)
       (W : Matrix (Copies n k) (Idx (fun l : Fin r => Fin (a l)) (fun l : Fin r => Fin (b l))) ℂ),
-      (∀ l, 0 < a l) ∧ Wᴴ * W = 1 ∧ W * Wᴴ = 1 ∧
+      (∀ l, 0 < a l) ∧ Wᴴ * W = 1 ∧ W * Wᴴ = 1 ∧ W.map conj = W ∧
+      IsotypicInvariants (fun l : Fin r => Fin (a l)) (B := fun l : Fin r => Fin (b l))
+        (transportSet W (frameGroup n k)) ∧
       ∀ (ψ : Ψ n) (T : Finset (Fin r)),
         (∀ l ∈ T, (tau (Wᴴ *ᵥ copies k ψ) l).map conj = tau (Wᴴ *ᵥ copies k ψ) l) →
         (1 / 2) * ∑ l ∈ T, (tau (Wᴴ *ᵥ copies k ψ) l).trace.re ≤ Pe k ψ := by
   obtain ⟨r, a, b, W, ha, hW1, hW2, hreal, hG⟩ := realIsotypicCoords n k
-  exact ⟨r, a, b, W, ha, hW1, hW2, fun ψ T hT => Pe_ge_blind ha hW1 hW2 hreal hG ψ T hT⟩
+  exact ⟨r, a, b, W, ha, hW1, hW2, hreal, hG, fun ψ T hT => Pe_ge_blind ha hW1 hW2 hreal hG ψ T hT⟩
 
 
 

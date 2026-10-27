@@ -26,10 +26,9 @@ for any `*`-closed algebra; this file transports it to a group of matrices and a
   `k` copies of `n` qubits), `P_e(k) = ½ Σ_l Tr min(τ_l(ψ^{⊗k}), τ_l((Θψ)^{⊗k}))` unconditionally, and
   for unit `ψ` the trace-norm form, in the coordinates `W`.
 
-What is **not** proved here: that `W` can be taken *real* (so that `Θ`, an entrywise conjugation up to
-the frame element `ε^{⊗n} ∈ SU(2)^n`, acts as entrywise conjugation of the multiplicity blocks).  The
-hypothesis `hconj` of `antiunitary_block` is therefore still a coordinate hypothesis (open: real
-isotypic coordinates for the permutation algebra).
+That `W` can be taken *real* (so that `Θ`, an entrywise conjugation up to the frame element
+`ε^{⊗n} ∈ SU(2)^n`, acts as entrywise conjugation of the multiplicity blocks) is not proved here; it is
+`RealCoordsFrame.realIsotypicCoords`, which discharges the hypothesis `hconj` of `antiunitary_block`.
 -/
 
 set_option autoImplicit false

@@ -16,7 +16,8 @@ Namespace `FormalResearch.QIB`.  Claim class: **proved** (finite linear algebra)
   take `K` the generator of the stabiliser of `x = x₁ + x_s` (the vector `a ≠ 0` of `x₁` is fixed by the
   rotation about `a`; its action on each spin-`j` carrier has a one-dimensional kernel); that the
   isotypic projectors commute with `K`, that `K` kills `x^{⊗d}`, and the kernel statement on `V_j` are
-  representation theory of `SL₂(ℂ)` that is **not** formalized here.
+  representation theory of `SL₂(ℂ)`, formalized in `TwoQubitsSl2Kernel`, `TwoQubitsStabiliser` and
+  `TwoQubitsProp`.
 -/
 
 set_option autoImplicit false

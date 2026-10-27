@@ -9,7 +9,7 @@ set_option linter.unusedSectionVars false
 
 Namespace `FormalResearch.FrameFree.PolyImage`.
 
-* `exists_forall_sum_ne_zero`: finitely many nonzero vectors admit a linear form not vanishing on any of them;
+* `exists_forall_sum_ne_zero`: finitely many nonzero vectors have a linear form not vanishing on any of them;
 * `continuous_eval_map`: `x ↦ (M.map (eval x)).eval b` is continuous for `M ∈ ℂ[σ][T]`;
 * `eventually_roots_bounded`: roots of the specialisations `M.map (eval x)` of a monic `M` are bounded for `x` near
   a point (Cauchy bound).

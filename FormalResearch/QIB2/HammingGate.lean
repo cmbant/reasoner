@@ -40,9 +40,9 @@ theorem gate_coeff_cross : 2 * gateA * gateB = 1 := by
   ring_nf
   norm_num [Complex.I_sq]
 
-/-- Algebraic core of the exact Hamming gate identity: for any commuting
-involution `τ`, the canonical phase gate squares to `τ`.  The full `d`-rung
-statement `U_d² = ∏ τ_i` follows by tensoring this one-rung identity. -/
+/-- Algebraic core of the exact Hamming gate identity, as a scalar identity: for
+`τ² = 1` (an eigenvalue of a swap), the canonical phase gate squares to `τ`.  The
+operator form and the `d`-rung statement `U_d² = ∏ τ_i` are not formalized. -/
 theorem canonical_gate_sq (τ : ℂ) (hτ : τ^2 = 1) :
     (gateA + gateB * τ)^2 = τ := by
   calc

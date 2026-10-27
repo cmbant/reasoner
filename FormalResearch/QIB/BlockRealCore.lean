@@ -134,13 +134,6 @@ variable {Λ : Type*} [Fintype Λ] [DecidableEq Λ] {A B : Λ → Type*}
   [∀ l, Fintype (A l)] [∀ l, DecidableEq (A l)] [∀ l, Fintype (B l)] [∀ l, DecidableEq (B l)]
   {ι : Type*} [Fintype ι] [DecidableEq ι]
 
-theorem blockOp_mul (X Y : ∀ l, Matrix (B l) (B l) ℂ) :
-    blockOp A X * blockOp A Y = blockOp A (fun l => X l * Y l) := by
-  unfold blockOp
-  rw [← Matrix.blockDiagonal'_mul]
-  congr 1; funext l
-  rw [← Matrix.mul_kronecker_mul, Matrix.one_mul]
-
 theorem blockOp_zero : blockOp A (fun l => (0 : Matrix (B l) (B l) ℂ)) = 0 := by
   unfold blockOp
   ext ⟨l, a, b⟩ ⟨l', a', b'⟩
