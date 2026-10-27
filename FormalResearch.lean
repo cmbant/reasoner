@@ -233,3 +233,4 @@ import FormalResearch.FrameFree.GateOverlap
 import FormalResearch.FrameFree.PhysicalBridge
 import FormalResearch.FrameFree.ScalarChirality
 import FormalResearch.FrameFree.PlanarSign
+import FormalResearch.FrameFree.Ceilings
