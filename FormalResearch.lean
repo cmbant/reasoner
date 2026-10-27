@@ -231,3 +231,4 @@ import FormalResearch.FrameFree.WeylRealisation
 import FormalResearch.FrameFree.Foundations
 import FormalResearch.FrameFree.GateOverlap
 import FormalResearch.FrameFree.PhysicalBridge
+import FormalResearch.FrameFree.ScalarChirality
