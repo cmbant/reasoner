@@ -88,6 +88,7 @@ import FormalResearch.QIB.RealCoordsStructure
 import FormalResearch.QIB.RealCoordsWeights
 import FormalResearch.QIB.RealCoordsCoord
 import FormalResearch.QIB.RealCoordsFrame
+import FormalResearch.QIB.BlockRealSym
 import FormalResearch.QIB.EasyAbelianCarriers
 import FormalResearch.QIB.EasyCommutingBlocks
 import FormalResearch.QIB.EasyRankOneSandwich
