@@ -78,6 +78,15 @@ import FormalResearch.QIB.MatrixHelstrom
 import FormalResearch.QIB.FiniteOrbitExponent
 import FormalResearch.QIB.BlockExamples
 import FormalResearch.QIB.BlockAntiunitary
+import FormalResearch.FrameFree.PolyImageDischarge
+import FormalResearch.FrameFree.PolyImageAll
+import FormalResearch.FrameFree.PolyImageMain
+import FormalResearch.FrameFree.PolyImageOpen
+import FormalResearch.FrameFree.PolyImagePointSet
+import FormalResearch.FrameFree.PolyImagePoints
+import FormalResearch.FrameFree.PolyImageLift
+import FormalResearch.FrameFree.PolyImageChevalley
+import FormalResearch.FrameFree.PolyImageBasic
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
 import FormalResearch.QIB1.ApolarFullRank
