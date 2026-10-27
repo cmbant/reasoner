@@ -222,3 +222,8 @@ import FormalResearch.FourQubitEntropy.Tsallis
 import FormalResearch.FourQubitEntropy.TsallisCoeff
 import FormalResearch.FourQubitEntropy.TsallisMajorant
 import FormalResearch.FourQubitEntropy.TsallisSharp
+import FormalResearch.FrameFree.WeylVertex
+import FormalResearch.FrameFree.Design
+import FormalResearch.FrameFree.MaxChiral
+import FormalResearch.FrameFree.Arithmetic
+import FormalResearch.FrameFree.TwoSpin
