@@ -11,7 +11,7 @@ only other import is `FourQubitEntropy.Attainment` (for the vector `M₄`).
 Claim classes follow `AGENTS.md`: everything below is **proved** (Lean, no admitted goals, no `ofReduceBool`-style tactics, no
 new axioms) unless a hypothesis is displayed in the statement; the hypotheses are:
 
-* `RealRep3` -- the Dur-Vidal-Cirac fact (recalled, not proved here): every three-qubit vector is in the
+* `RealRep3` -- the Dur-Vidal-Cirac fact (recalled here; proved in `RealRep3Discharge`): every three-qubit vector is in the
   `GL(2,C)^3` orbit of a real vector.
 * `h49 : FKΘ M4v = 4/9` -- `F_K(M₄) = 4/9`.  Its lower bound is proved in `FrameFree/PhysicalBridge.lean`
   (`four_ninths_le_rotOverlap_M4`); the upper bound is the recalled Weyl-vertex input R7 (`FKmag` is the
@@ -63,7 +63,8 @@ in a real parameter plus positivity).
 * `thm:chiraldepth` (b), (c): need the first copy number `k_*` with a conjugation-odd invariant for blocks
   of three parties (Kronecker multiplicities, Schur-Weyl, an `S_4` finite check) -- a separate project.
 * `cor:mixeddepth`: mixed states and trace-norm duality (`‖π^{⊗j} - π'^{⊗j}‖₁`), not set up here.
-* Everything involving `ξ_inv` and Helstrom errors (the window `ξ_inv ≥ C_K/2`, `E_G ≥ ξ_inv`,
+* (Partly superseded: `XiInvUnconditional` and `Converse*` prove the `ξ_inv` statements for `ψ₊`, `M₄` and its
+  powers, modulo `h49`.)  Formerly: everything involving `ξ_inv` and Helstrom errors (the window `ξ_inv ≥ C_K/2`, `E_G ≥ ξ_inv`,
   `thm:expceiling`, the equalities `ξ_inv(M₄) = log 2` in `thm:m4exponent`, `thm:calgeom-tensorisation`
   upper bound, `cor:calgeom-spin1extensive`).  Only the `F_C`/`F_K` halves are proved.
 * `F_C(M₄) ≤ 1/2` (the Cayley-Hamilton frame identities of `m4_support_proof.tex`) and

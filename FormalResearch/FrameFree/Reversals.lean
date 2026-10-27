@@ -11,11 +11,13 @@ Elementary, fully proved parts of `thm:ratefails`, `thm:ratefailregion`, `thm:ca
 `thm:calgeom-tensorisation`, `cor:calgeom-spin1extensive`, `thm:m4exponent`, `thm:expceiling` and
 `cor:fourdecoh`/`cor:fourgapfloor` (paper `ResearchNotes/QI/antiunitary_occupation/paper/long`).
 
-`ξ_inv` is **not** formalised in this repository.  Wherever the paper's argument uses it, `ξ` is a real
-number and the hypotheses are exactly the inequalities the paper uses: the support lower bound
+`ξ_inv` is **not** defined in this file (`HasXiInv`, the limit of `-(1/k) log P_e(k)`, is in
+`XiInvUnconditional`, which restates these results with exact `ξ_inv`).  Wherever the argument here uses it, `ξ`
+is a real number and the hypotheses are exactly the inequalities the paper uses: the support lower bound
 `-log F_C ≤ ξ`, the tensorised or ceiling upper bound, or the envelope converse `e^{-ξ} ≥ 𝒲(C₃,C₂)`
 (chain steps (1)-(3) of the paper, `EnvelopeAtStar`).  Recalled inputs appear as hypotheses:
-`Ceilings.RealRep3`, `FKΘ M₄ ≤ 4/9` (R7), and `Sharing.ExchangeIndepBound(C)` (R7/R8).
+`FKΘ M₄ ≤ 4/9` (R7); `Ceilings.RealRep3` and `Sharing.ExchangeIndepBound(C)` are now theorems
+(`RealRep3Discharge`, `ExchangeBounds`).
 
 **Proved here.**
 * Strict reversal against a calibrated ruler (`strictReversal_ruler_iff`, `reversal_of_gap_ruler`,

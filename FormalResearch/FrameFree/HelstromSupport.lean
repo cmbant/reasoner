@@ -12,9 +12,10 @@ filter orbit of `Θψ`; its Zariski closure has the same span) and `R_k = ‖Π_
 * `normalised_pow_le_Rk`, `FCΘ_pow_le_Rk`: `R_k ≥ (|⟨ψ|gΘψ⟩|²/‖gΘψ‖²)^k`, hence `R_k ≥ F_C(ψ)^k` (the
   elementary half of `thm:supportrate`).
 
-**Conditional on the hard half of `thm:supportrate`.**  The upper half `limsup R_k^{1/k} ≤ F_C`
-(`SupportRateUpper`, a hypothesis; the paper's proof uses the compressed-shift Banach-algebra spectral-radius
-argument) gives `xi_ge_of_support` (`ξ_inv ≥ -log F_C`) and, with `F_C = F_K`, `tendsto_of_calibrated`
+**The hard half of `thm:supportrate`.**  The upper half `limsup R_k^{1/k} ≤ F_C`
+(`SupportRateUpper`) is proved in `PolyImageDischarge` (`SupportRate.polyImageClosure`: density of a polynomial
+image in its Zariski closure); here it is a hypothesis of the lemmas below, which the unconditional
+versions in `PolyImageDischarge` and `XiInvUnconditional` specialise gives `xi_ge_of_support` (`ξ_inv ≥ -log F_C`) and, with `F_C = F_K`, `tendsto_of_calibrated`
 (`-(1/k) log P_e(k) → C_K`: `cor:calibrated`).
 -/
 

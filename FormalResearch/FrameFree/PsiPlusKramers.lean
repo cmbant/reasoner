@@ -16,8 +16,8 @@ spins `2` and `4`, a relabelling under which `F_K` and `F_C` are invariant.
 * `exchangeIndepBoundC_pi4`, `exchangeIndepBound_pi4`: the two recalled hypotheses
   `Sharing.ExchangeIndepBound(C) (π/4)` of `Reversals.exchange_pi4` are **proved**.
 * `psiplus_kramers`: `F_C(ψ₊) = F_K(ψ₊) = 1/2`; `psiplus_calibrated`; `psiplus_CK`: `C_K = log 2`.
-* `psiplus_xi_inv`: `ξ_inv(ψ₊) = log 2`, conditional only on `Helstrom.SupportRateUpper` (the recalled
-  upper half of `thm:supportrate`).
+* `psiplus_xi_inv`: `ξ_inv(ψ₊) = log 2`, conditional on `Helstrom.SupportRateUpper`; that hypothesis is now
+  a theorem (`PolyImageDischarge`), and `XiInv.psiplus_xi_inv'` (`XiInvUnconditional`) is the unconditional form.
 * `Phi8_values'`, `eight_qubit_reversal''`: `Reversals.Phi8_values` and
   `RealRep3Discharge.eight_qubit_reversal'` with the `π/4` hypotheses discharged.
 
@@ -163,7 +163,7 @@ theorem psiplus_CK : CK psiPlus = Real.log 2 := by
   simp
 
 /-- **`thm:psipluskramers`, rate** (given the upper half of the support rate, `thm:supportrate`, as a
-hypothesis): `-(1/k) log P_e(k) → log 2 = C_K(ψ₊) = -log F_C(ψ₊)`, i.e. `ξ_inv(ψ₊) = log 2`. -/
+hypothesis, now a theorem: see `XiInv.psiplus_xi_inv'` for the unconditional form): `-(1/k) log P_e(k) → log 2 = C_K(ψ₊) = -log F_C(ψ₊)`, i.e. `ξ_inv(ψ₊) = log 2`. -/
 theorem psiplus_xi_inv (hsr : Helstrom.SupportRateUpper psiPlus) :
     Filter.Tendsto (fun k : ℕ => -(1 / (k : ℝ)) * Real.log (Helstrom.Pe k psiPlus)) Filter.atTop
       (nhds (Real.log 2)) := by
