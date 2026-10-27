@@ -227,3 +227,6 @@ import FormalResearch.FrameFree.Design
 import FormalResearch.FrameFree.MaxChiral
 import FormalResearch.FrameFree.Arithmetic
 import FormalResearch.FrameFree.TwoSpin
+import FormalResearch.FrameFree.WeylRealisation
+import FormalResearch.FrameFree.Foundations
+import FormalResearch.FrameFree.GateOverlap
