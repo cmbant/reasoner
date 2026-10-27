@@ -4,6 +4,57 @@ import FormalResearch.FourQubitEntropy.Attainment
 
 open scoped ComplexConjugate Matrix BigOperators Kronecker
 
+/-!
+# Frame sharing (Paper P, `sec2_frames.tex`)
+
+A *sharing pattern* of `n` spins is a function `g : Fin n → β`: spins `i, j` share one `SU(2)` frame
+iff `g i = g j`.  `FKs g ψ φ` is the rotation overlap `F_K^π` (one frame per block), `FCs` the filter
+overlap `F_C^π` (one `SL(2,ℂ)` element per block, normalised by `‖gφ‖²`), `CKs = -log F_K^π`.
+`g = id` is the independent-frame case (`FKs_id : FKs id = FK`), `g = fun _ => ()` the common frame.
+
+## Proved here (no hypothesis beyond those named)
+
+* `prop:refine` (any `n`): `FKs_mono`, `FKΘs_mono`, `FCs_mono`, `CKs_mono` (finer pattern, larger value).
+* `prop:invariantstates` (any `n`): `FKΘs_of_invariant`, `CKs_of_invariant`; the filter version
+  `FCΘs_of_invariant(_unit)` takes invariance under the *complexified* group as hypothesis (the paper
+  derives it from `K_π`-invariance by Zariski density, which is not formalised).
+* `thm:exchangesharing` for the Choi probe `ψ_{U_θ}` (`psiEx θ`), `U_θ = cos θ − i sin θ SWAP`
+  (`pattern_trichotomy`: every pattern is in exactly one of the cases (i), (ii), (iii)):
+  - (i) (`g 0 = g 1 ∨ g 2 = g 3`), unconditional, all `θ`: `FKΘs_exchange_i`, `FCΘs_exchange_i`
+    (both `= κ θ`), `CKs_exchange_i` (`= log (4/(1+3cos²2θ))`);
+  - (ii), (iii): the lower bounds `cos² θ ≤ F_K^π` (inside `{13|24}`), `sin² θ ≤ F_K^π`
+    (inside `{14|23}`), `κ ≤ F_K^π` (all patterns) are unconditional (explicit rotations); the upper
+    bounds use the independent-frame exchange law as an **explicit hypothesis**
+    (`ExchangeIndepBound θ : FKΘ ψ_{U_θ} ≤ cos² θ`, `ExchangeIndepBoundC θ` for the filters).  The
+    paper obtains it from the Weyl-vertex formula (R7) / filtered-gate law (R8), neither of which is
+    formalised for the Choi probe (`exchange_closed_form` is the closed form on the Weyl side only;
+    `PhysicalBridge.FKmag_le_rotOverlap` goes in the wrong direction to discharge it).  The hypothesis is
+    meant for `0 ≤ θ ≤ π/4` (it is false for `θ = π/2`, where `κ = 1`).
+    `FKΘs_exchange_ii/iii`, `FCΘs_exchange_ii/iii`, `CKs_exchange_ii/iii`, `CKs_sqrtSwap`.
+* `thm:m4sharing` for `M₄` (`M4n`, the vector `M4` of `FourQubitEntropy/Attainment.lean`):
+  (a) three spins in a block: `FKΘs_M4_triple`, `FCΘs_M4_triple` (`= 0`);
+  (b) pairs and singletons with at least one pair (`PairNoTriple`): `FKΘs_M4_pair`, `FCΘs_M4_pair`
+  (`= 4/9`) and `CKs_M4_pair` (`= log (9/4)`), unconditionally.  The filter inequality is `key_FC`
+  (`|2tr(AD) − trA trD|² ≤ (8/3)(‖AD‖² + ‖A‖²‖D‖²)` for all `2×2` matrices, the paper's Cauchy--Schwarz
+  argument in the Pauli decomposition) with the exact overlap and norm formulas `ov_M4_kl`,
+  `nsq_M4_kl` (proved with `linear_combination` certificates found by Groebner reduction).
+
+## NOT proved here
+
+* Everything about `ξ_inv` (the Helstrom exponent of the frame-averaged hypotheses), including the
+  sentence "`ξ_inv^π = …` exactly": that needs the calibration corollary and the window theorem; only the
+  `F_K^π`, `F_C^π`, `C_K^π` values are stated.
+* `C_K^π = ∞` for `M₄` with a triple (`F_K^π = 0`): Lean's `log 0 = 0`, so only `F_K^π = F_C^π = 0` is stated.
+* The independent-frame exchange law (the hypotheses above); hence the exact values in cases (ii), (iii) of
+  `thm:exchangesharing` and the `√SWAP` row are conditional.  Case (iii) is open in the paper and only
+  the bounds are stated.
+* The pattern counts (eight, four, three; five, nine) are not formalised as cardinalities; the
+  classification is by the predicates `g 0 = g 1 ∨ g 2 = g 3`, `Refines g pat1324`, `Refines g pat1423`,
+  `HasTriple`, `PairNoTriple`.
+* `thm:copythreshold` (a) (twirls, Schur--Weyl duality, slot permutations) is not formalised.
+* `thm:m4sharing` (c) (independent frames, `ξ_inv = log 2`) is not part of this file.
+-/
+
 namespace FormalResearch.FrameFree.Sharing
 
 open FormalResearch.FrameFree.NQubit
@@ -1185,6 +1236,61 @@ theorem key_FC (A D : Op1) :
   nlinarith [core, hAD]
 
 
+/-- The Cauchy--Schwarz bound behind case (i) (`thm:exchangesharing`): for all `2×2` matrices,
+`|cos 2θ · tr A tr B + i sin 2θ · tr(AB)|² ≤ (1 + 3 cos² 2θ) ‖A‖²‖B‖²`. -/
+theorem exch_ineq (C2 S2 : ℝ) (hcs : C2 ^ 2 + S2 ^ 2 = 1) (A B : Op1) :
+    Complex.normSq ((C2 : ℂ) * (Matrix.trace A * Matrix.trace B) + Complex.I * S2 * Matrix.trace (A * B)) ≤
+      (1 + 3 * C2 ^ 2) * (fro A * fro B) := by
+  have hA : Matrix.trace A = 2 * ((A 0 0 + A 1 1) / 2) := by simp [Matrix.trace_fin_two]; ring
+  have hB : Matrix.trace B = 2 * ((B 0 0 + B 1 1) / 2) := by simp [Matrix.trace_fin_two]; ring
+  rw [tr_two_coeff, hA, hB, fro_two_coeff A, fro_two_coeff B]
+  generalize (A 0 0 + A 1 1) / 2 = a0 at *
+  generalize (A 0 1 + A 1 0) / 2 = a1 at *
+  generalize Complex.I * (A 0 1 - A 1 0) / 2 = a2 at *
+  generalize (A 0 0 - A 1 1) / 2 = a3 at *
+  generalize (B 0 0 + B 1 1) / 2 = b0 at *
+  generalize (B 0 1 + B 1 0) / 2 = b1 at *
+  generalize Complex.I * (B 0 1 - B 1 0) / 2 = b2 at *
+  generalize (B 0 0 - B 1 1) / 2 = b3 at *
+  obtain ⟨x, hx⟩ : ∃ x, x = a1 * b1 + a2 * b2 + a3 * b3 := ⟨_, rfl⟩
+  set z : ℂ := 2 * (C2 : ℂ) + Complex.I * S2 with hz
+  have hE : (C2 : ℂ) * (2 * a0 * (2 * b0)) + Complex.I * S2 * (2 * (a0 * b0 + a1 * b1 + a2 * b2 + a3 * b3)) =
+      (2 * z) * (a0 * b0) + (2 * Complex.I * S2) * x := by
+    rw [hx, hz]; ring
+  rw [hE]
+  have hm2 : ‖z‖ ^ 2 = 1 + 3 * C2 ^ 2 := by
+    rw [Complex.sq_norm, hz, Complex.normSq_apply]
+    simp
+    nlinarith
+  have hSm : |S2| ≤ ‖z‖ := by
+    by_contra hc
+    push Not at hc
+    nlinarith [norm_nonneg z, abs_nonneg S2, sq_abs S2]
+  have hxn : ‖x‖ ≤ ‖a1‖ * ‖b1‖ + ‖a2‖ * ‖b2‖ + ‖a3‖ * ‖b3‖ := by
+    rw [hx]
+    calc ‖a1 * b1 + a2 * b2 + a3 * b3‖ ≤ ‖a1 * b1 + a2 * b2‖ + ‖a3 * b3‖ := norm_add_le _ _
+      _ ≤ ‖a1 * b1‖ + ‖a2 * b2‖ + ‖a3 * b3‖ := by gcongr; exact norm_add_le _ _
+      _ = _ := by simp only [norm_mul]
+  have hEn : ‖(2 * z) * (a0 * b0) + (2 * Complex.I * S2) * x‖ ≤
+      2 * ‖z‖ * (‖a0‖ * ‖b0‖ + (‖a1‖ * ‖b1‖ + ‖a2‖ * ‖b2‖ + ‖a3‖ * ‖b3‖)) := by
+    calc ‖(2 * z) * (a0 * b0) + (2 * Complex.I * S2) * x‖
+        ≤ ‖(2 * z) * (a0 * b0)‖ + ‖(2 * Complex.I * S2) * x‖ := norm_add_le _ _
+      _ = 2 * ‖z‖ * (‖a0‖ * ‖b0‖) + 2 * |S2| * ‖x‖ := by
+        simp [norm_mul]
+      _ ≤ _ := by nlinarith [norm_nonneg z, norm_nonneg a0, norm_nonneg b0, norm_nonneg x, abs_nonneg S2]
+  have hsq := pow_le_pow_left₀ (norm_nonneg _) hEn 2
+  rw [Complex.sq_norm] at hsq
+  have hcs4 : (‖a0‖ * ‖b0‖ + (‖a1‖ * ‖b1‖ + ‖a2‖ * ‖b2‖ + ‖a3‖ * ‖b3‖)) ^ 2 ≤
+      (‖a0‖ ^ 2 + ‖a1‖ ^ 2 + ‖a2‖ ^ 2 + ‖a3‖ ^ 2) * (‖b0‖ ^ 2 + ‖b1‖ ^ 2 + ‖b2‖ ^ 2 + ‖b3‖ ^ 2) := by
+    nlinarith [sq_nonneg (‖a0‖ * ‖b1‖ - ‖a1‖ * ‖b0‖), sq_nonneg (‖a0‖ * ‖b2‖ - ‖a2‖ * ‖b0‖),
+      sq_nonneg (‖a0‖ * ‖b3‖ - ‖a3‖ * ‖b0‖), sq_nonneg (‖a1‖ * ‖b2‖ - ‖a2‖ * ‖b1‖),
+      sq_nonneg (‖a1‖ * ‖b3‖ - ‖a3‖ * ‖b1‖), sq_nonneg (‖a2‖ * ‖b3‖ - ‖a3‖ * ‖b2‖)]
+  simp only [Complex.sq_norm] at hcs4
+  rw [mul_pow, mul_pow, hm2] at hsq
+  have hm0 : 0 ≤ ‖z‖ ^ 2 := sq_nonneg _
+  rw [hm2] at hm0
+  nlinarith [mul_le_mul_of_nonneg_left hcs4 (show (0:ℝ) ≤ 1 + 3 * C2 ^ 2 by positivity)]
+
 /-! ### Frame-sharing reductions and the bounds -/
 
 theorem SU2_param {u : Op1} (h : SU2 u) :
@@ -1592,5 +1698,200 @@ theorem FCΘs_M4_pair (g : Fin 4 → β) (h : PairNoTriple g) : FCΘs g M4n = 4 
   exact FKs_le_FCs g M4n (Θ M4n) (by rw [nsq_Θ, nsq_M4n])
 
 end M4
+
+/-! ## Part 5. Filters for the exchange gates (`thm:exchangesharing`, filter part) -/
+
+section ExchangeFilters
+
+variable {β : Type*}
+
+theorem fro_eq_trace (M : Op1) : ((fro M : ℝ) : ℂ) = Matrix.trace (Mᴴ * M) := by
+  simp [fro, Matrix.trace_fin_two, Matrix.mul_apply, Matrix.conjTranspose_apply, Fin.sum_univ_two,
+    Complex.normSq_eq_conj_mul_self, Complex.ofReal_sum]
+  ring
+
+theorem trace_cyc4 (p q r s : Op1) : Matrix.trace (p * q * r * s) = Matrix.trace (s * p * q * r) := by
+  rw [Matrix.trace_mul_comm (p * q * r) s]
+  simp only [Matrix.mul_assoc]
+
+theorem trace_GK (w c : Op1) :
+    Matrix.trace (wᴴ * w * (c * cᴴ)) = Matrix.trace ((w * c)ᴴ * (w * c)) := by
+  rw [Matrix.conjTranspose_mul, Matrix.trace_mul_comm (cᴴ * wᴴ) (w * c)]
+  simp only [Matrix.mul_assoc]
+  rw [Matrix.trace_mul_comm wᴴ]
+  simp only [Matrix.mul_assoc]
+
+/-- The squared norm of a rotated gate probe, as a trace. -/
+theorem nsq_rot_psiEx_cast (θ : ℝ) (u : Fin 4 → Op1) :
+    ((nsq (rot u (psiEx (-θ))) : ℝ) : ℂ) =
+      (1 / 4 : ℂ) * Matrix.trace (Ug (Real.cos θ) (-(Complex.I * Real.sin θ)) *
+        (((((u 0)ᴴ * u 0) ⊗ₖ ((u 1)ᴴ * u 1))) * Ug (Real.cos θ) (Complex.I * Real.sin θ) *
+          ((((u 2).adjugate * (u 2).adjugateᴴ) ⊗ₖ ((u 3).adjugate * (u 3).adjugateᴴ))))) := by
+  rw [← ip_self]
+  unfold psiEx
+  rw [rot_choi, ip_choi]
+  congr 1
+  have hV : (Ug (Real.cos θ) (Complex.I * Real.sin θ))ᴴ =
+      Ug (Real.cos θ) (-(Complex.I * Real.sin θ)) := by
+    rw [Ug_conjT, Complex.conj_ofReal, map_mul, Complex.conj_I, Complex.conj_ofReal, neg_mul]
+  rw [Uex_neg, Matrix.conjTranspose_mul, Matrix.conjTranspose_mul, hV,
+    Matrix.conjTranspose_kronecker, Matrix.conjTranspose_kronecker]
+  have e1 : ((u 0)ᴴ ⊗ₖ (u 1)ᴴ) * ((u 0 ⊗ₖ u 1)) = ((u 0)ᴴ * u 0) ⊗ₖ ((u 1)ᴴ * u 1) := by
+    rw [← Matrix.mul_kronecker_mul]
+  have e2 : ((u 2).adjugate ⊗ₖ (u 3).adjugate) * ((u 2).adjugateᴴ ⊗ₖ (u 3).adjugateᴴ) =
+      ((u 2).adjugate * (u 2).adjugateᴴ) ⊗ₖ ((u 3).adjugate * (u 3).adjugateᴴ) := by
+    rw [← Matrix.mul_kronecker_mul]
+  rw [← e1, ← e2]
+  simp only [Matrix.mul_assoc]
+  rw [Matrix.trace_mul_comm ((u 2).adjugateᴴ ⊗ₖ (u 3).adjugateᴴ)]
+  simp only [Matrix.mul_assoc]
+
+/-- Case `u₀ = u₁`: the norm of the rotated probe is `‖A'‖²‖B'‖²/4`,
+`A' = u₀ u₂⁻¹`, `B' = u₀ u₃⁻¹`. -/
+theorem nsq_case1 (θ : ℝ) (u : Fin 4 → Op1) (h : u 0 = u 1) :
+    nsq (rot u (psiEx (-θ))) = fro (u 0 * (u 2).adjugate) * fro (u 0 * (u 3).adjugate) / 4 := by
+  apply Complex.ofReal_injective
+  rw [nsq_rot_psiEx_cast, ← h, trace_gate, trace_cyc4 ((u 2).adjugate * (u 2).adjugateᴴ)]
+  rw [Complex.ofReal_div, Complex.ofReal_mul, fro_eq_trace, fro_eq_trace,
+    ← trace_GK (u 0) (u 2).adjugate, ← trace_GK (u 0) (u 3).adjugate]
+  have hcs := Real.cos_sq_add_sin_sq θ
+  generalize Real.cos θ = c at *
+  generalize Real.sin θ = s at *
+  have hcs' : (c : ℂ) ^ 2 + (s : ℂ) ^ 2 = 1 := by exact_mod_cast hcs
+  generalize Matrix.trace ((u 0)ᴴ * u 0 * ((u 2).adjugate * (u 2).adjugateᴴ)) = T1
+  generalize Matrix.trace ((u 0)ᴴ * u 0 * ((u 3).adjugate * (u 3).adjugateᴴ)) = T2
+  generalize Matrix.trace ((u 0)ᴴ * u 0 * ((u 2).adjugate * (u 2).adjugateᴴ) * ((u 0)ᴴ * u 0) *
+    ((u 3).adjugate * (u 3).adjugateᴴ)) = X
+  push_cast
+  linear_combination (T1 * T2 / 4) * hcs' - (T1 * T2 / 4) * (s : ℂ) ^ 2 * Complex.I_sq
+
+/-- Case `u₂ = u₃`: the norm of the rotated probe is `‖A'‖²‖B'‖²/4`,
+`A' = u₀ u₂⁻¹`, `B' = u₁ u₂⁻¹`. -/
+theorem nsq_case2 (θ : ℝ) (u : Fin 4 → Op1) (h : u 2 = u 3) :
+    nsq (rot u (psiEx (-θ))) = fro (u 0 * (u 2).adjugate) * fro (u 1 * (u 2).adjugate) / 4 := by
+  apply Complex.ofReal_injective
+  rw [nsq_rot_psiEx_cast, ← h, trace_gate,
+    trace_cyc4 ((u 0)ᴴ * u 0) ((u 2).adjugate * (u 2).adjugateᴴ) ((u 1)ᴴ * u 1)]
+  rw [Complex.ofReal_div, Complex.ofReal_mul, fro_eq_trace, fro_eq_trace,
+    ← trace_GK (u 0) (u 2).adjugate, ← trace_GK (u 1) (u 2).adjugate]
+  have hcs := Real.cos_sq_add_sin_sq θ
+  generalize Real.cos θ = c at *
+  generalize Real.sin θ = s at *
+  have hcs' : (c : ℂ) ^ 2 + (s : ℂ) ^ 2 = 1 := by exact_mod_cast hcs
+  generalize Matrix.trace ((u 0)ᴴ * u 0 * ((u 2).adjugate * (u 2).adjugateᴴ)) = T1
+  generalize Matrix.trace ((u 1)ᴴ * u 1 * ((u 2).adjugate * (u 2).adjugateᴴ)) = T2
+  generalize Matrix.trace ((u 2).adjugate * (u 2).adjugateᴴ * ((u 0)ᴴ * u 0) *
+    ((u 2).adjugate * (u 2).adjugateᴴ) * ((u 1)ᴴ * u 1)) = X
+  push_cast
+  linear_combination (T1 * T2 / 4) * hcs' - (T1 * T2 / 4) * (s : ℂ) ^ 2 * Complex.I_sq
+
+/-- Case `u₀ = u₁`: the overlap is `¼[cos 2θ tr A' tr B' + i sin 2θ tr(A'B')]`. -/
+theorem ov_case1 (θ : ℝ) (u : Fin 4 → Op1) (h : u 0 = u 1) :
+    ip (psiEx θ) (rot u (psiEx (-θ))) =
+      (1 / 4 : ℂ) * ((Real.cos (2 * θ) : ℂ) *
+        (Matrix.trace (u 0 * (u 2).adjugate) * Matrix.trace (u 0 * (u 3).adjugate)) +
+        Complex.I * (Real.sin (2 * θ) : ℂ) *
+          Matrix.trace (u 0 * (u 2).adjugate * (u 0 * (u 3).adjugate))) := by
+  have t1 : Matrix.trace ((u 2).adjugate * u 0 * (u 3).adjugate * u 0) =
+      Matrix.trace (u 0 * (u 2).adjugate * u 0 * (u 3).adjugate) :=
+    trace_cyc4 ((u 2).adjugate) (u 0) ((u 3).adjugate) (u 0)
+  rw [ov_gate, ← h, t1]
+  simp only [Matrix.mul_assoc]
+  rw [Real.cos_two_mul', Real.sin_two_mul]
+  generalize Real.cos θ = c
+  generalize Real.sin θ = s
+  push_cast
+  linear_combination ((1 / 4 : ℂ) * (s : ℂ) ^ 2 *
+    (Matrix.trace (u 0 * (u 2).adjugate) * Matrix.trace (u 0 * (u 3).adjugate))) * Complex.I_sq
+
+/-- Case `u₂ = u₃`: the overlap is `¼[cos 2θ tr A' tr B' + i sin 2θ tr(A'B')]`. -/
+theorem ov_case2 (θ : ℝ) (u : Fin 4 → Op1) (h : u 2 = u 3) :
+    ip (psiEx θ) (rot u (psiEx (-θ))) =
+      (1 / 4 : ℂ) * ((Real.cos (2 * θ) : ℂ) *
+        (Matrix.trace (u 0 * (u 2).adjugate) * Matrix.trace (u 1 * (u 2).adjugate)) +
+        Complex.I * (Real.sin (2 * θ) : ℂ) *
+          Matrix.trace (u 0 * (u 2).adjugate * (u 1 * (u 2).adjugate))) := by
+  have t2 : Matrix.trace ((u 2).adjugate * u 0 * (u 2).adjugate * u 1) =
+      Matrix.trace (u 0 * (u 2).adjugate * u 1 * (u 2).adjugate) :=
+    (trace_cyc4 (u 0) ((u 2).adjugate) (u 1) ((u 2).adjugate)).symm
+  rw [ov_gate, ← h, t2]
+  simp only [Matrix.mul_assoc]
+  rw [Real.cos_two_mul', Real.sin_two_mul]
+  generalize Real.cos θ = c
+  generalize Real.sin θ = s
+  push_cast
+  linear_combination ((1 / 4 : ℂ) * (s : ℂ) ^ 2 *
+    (Matrix.trace (u 0 * (u 2).adjugate) * Matrix.trace (u 1 * (u 2).adjugate))) * Complex.I_sq
+
+/-- The filter ratio of one frame assignment with `u₀ = u₁` or `u₂ = u₃` is at most `κ`. -/
+theorem ratio_exch_le (θ : ℝ) (u : Fin 4 → Op1) (h : u 0 = u 1 ∨ u 2 = u 3) :
+    Complex.normSq (ip (psiEx θ) (rot u (psiEx (-θ)))) / nsq (rot u (psiEx (-θ))) ≤ kappa θ := by
+  have hcs := Real.cos_sq_add_sin_sq (2 * θ)
+  obtain ⟨A, B, hov, hn⟩ : ∃ A B : Op1,
+      ip (psiEx θ) (rot u (psiEx (-θ))) = (1 / 4 : ℂ) * ((Real.cos (2 * θ) : ℂ) *
+        (Matrix.trace A * Matrix.trace B) + Complex.I * (Real.sin (2 * θ) : ℂ) * Matrix.trace (A * B)) ∧
+      nsq (rot u (psiEx (-θ))) = fro A * fro B / 4 := by
+    rcases h with h | h
+    · exact ⟨_, _, ov_case1 θ u h, nsq_case1 θ u h⟩
+    · exact ⟨_, _, ov_case2 θ u h, nsq_case2 θ u h⟩
+  have hN : 0 ≤ fro A * fro B / 4 := by
+    have := fro_nonneg A; have := fro_nonneg B; positivity
+  have hE := exch_ineq (Real.cos (2 * θ)) (Real.sin (2 * θ)) hcs A B
+  rw [hov, hn]
+  rcases hN.eq_or_lt with h0 | hpos
+  · rw [← h0, div_zero]; exact (kappa_pos θ).le
+  · rw [div_le_iff₀ hpos, Complex.normSq_mul]
+    have h16 : Complex.normSq (1 / 4 : ℂ) = 1 / 16 := by
+      simp [Complex.normSq_apply]; norm_num
+    rw [h16]
+    have hk : kappa θ = (1 + 3 * Real.cos (2 * θ) ^ 2) / 4 := rfl
+    rw [hk]
+    nlinarith
+
+/-- **Theorem `thm:exchangesharing` (i)**, filter upper bound: `F_C^π ≤ κ` if spins `1,2` or spins
+`3,4` share a frame. -/
+theorem FCΘs_le_kappa (g : Fin 4 → β) (h : g 0 = g 1 ∨ g 2 = g 3) (θ : ℝ) :
+    FCΘs g (psiEx θ) ≤ kappa θ := by
+  unfold FCΘs FCs
+  rw [Θ_psiEx]
+  refine csSup_le (fiSet_nonempty g _ _) ?_
+  rintro r ⟨v, hv, rfl⟩
+  refine ratio_exch_le θ _ ?_
+  rcases h with h | h
+  · exact Or.inl (by simp [h])
+  · exact Or.inr (by simp [h])
+
+/-- **Theorem `thm:exchangesharing` (i)**, filters: `F_C^π(ψ_{U_θ}) = κ(θ)`. -/
+theorem FCΘs_exchange_i (g : Fin 4 → β) (h : g 0 = g 1 ∨ g 2 = g 3) (θ : ℝ) :
+    FCΘs g (psiEx θ) = kappa θ := by
+  refine le_antisymm (FCΘs_le_kappa g h θ) ?_
+  rw [← FKΘs_exchange_i g h θ]
+  exact FKs_le_FCs g (psiEx θ) (Θ (psiEx θ)) (by rw [nsq_Θ, nsq_psiEx])
+
+/-- Independent-frame exchange law (filter part), recalled (R8): `F_C^{1|2|3|4}(ψ_{U_θ}) ≤ cos² θ`.
+An explicit hypothesis, as `ExchangeIndepBound`. -/
+def ExchangeIndepBoundC (θ : ℝ) : Prop := FCΘs (id : Fin 4 → Fin 4) (psiEx θ) ≤ Real.cos θ ^ 2
+
+/-- **Theorem `thm:exchangesharing` (ii)**, filters, assuming the independent-frame filter bound:
+`F_C^π = cos² θ` for the four patterns inside `{13|24}`. -/
+theorem FCΘs_exchange_ii (g : Fin 4 → β) (h : Refines g pat1324) (θ : ℝ)
+    (hR : ExchangeIndepBoundC θ) : FCΘs g (psiEx θ) = Real.cos θ ^ 2 := by
+  refine le_antisymm ?_ ?_
+  · exact (FCs_mono (id_refines g) _ _).trans hR
+  · exact (cos_sq_le_FKΘs g h θ).trans
+      (FKs_le_FCs g (psiEx θ) (Θ (psiEx θ)) (by rw [nsq_Θ, nsq_psiEx]))
+
+/-- **Theorem `thm:exchangesharing` (iii)**, filters, assuming the independent-frame filter bound:
+`max(sin²θ, κ) ≤ F_C^π ≤ cos²θ` for the three cross patterns. -/
+theorem FCΘs_exchange_iii (g : Fin 4 → β) (h : Refines g pat1423) (θ : ℝ)
+    (hR : ExchangeIndepBoundC θ) :
+    max (Real.sin θ ^ 2) (kappa θ) ≤ FCΘs g (psiEx θ) ∧ FCΘs g (psiEx θ) ≤ Real.cos θ ^ 2 := by
+  have hle : FKΘs g (psiEx θ) ≤ FCΘs g (psiEx θ) :=
+    FKs_le_FCs g (psiEx θ) (Θ (psiEx θ)) (by rw [nsq_Θ, nsq_psiEx])
+  exact ⟨((max_le (sin_sq_le_FKΘs g h θ) (kappa_le_FKΘs g θ)).trans hle),
+    (FCs_mono (id_refines g) _ _).trans hR⟩
+
+end ExchangeFilters
+
 
 end FormalResearch.FrameFree.Sharing
