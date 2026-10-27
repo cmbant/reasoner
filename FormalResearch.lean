@@ -93,6 +93,8 @@ import FormalResearch.FrameFree.ConverseProjector
 import FormalResearch.FrameFree.ConverseBranch
 import FormalResearch.FrameFree.ConverseM4
 import FormalResearch.FrameFree.ConverseXi
+import FormalResearch.FrameFree.AchiralThree
+import FormalResearch.FrameFree.AchiralCritical
 import FormalResearch.FrameFree.PolyImageAll
 import FormalResearch.FrameFree.PolyImageMain
 import FormalResearch.FrameFree.PolyImageOpen
