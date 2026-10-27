@@ -79,6 +79,10 @@ import FormalResearch.QIB.FiniteOrbitExponent
 import FormalResearch.QIB.BlockExamples
 import FormalResearch.QIB.BlockAntiunitary
 import FormalResearch.QIB.BlockCoordinates
+import FormalResearch.QIB.BlockRealCore
+import FormalResearch.QIB.BlockRealFrame
+import FormalResearch.QIB.BlockRealPe
+import FormalResearch.QIB.BlockRealCond
 import FormalResearch.QIB.BlockStructure
 import FormalResearch.FrameFree.PolyImageDischarge
 import FormalResearch.FrameFree.XiInvUnconditional
