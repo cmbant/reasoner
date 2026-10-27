@@ -62,7 +62,7 @@ theorem blockOp_sub (X Y : ∀ l, Matrix (B l) (B l) ℂ) :
   rw [← Matrix.blockDiagonal'_sub]
   congr 1; funext l
   ext ⟨a, b⟩ ⟨a', b'⟩
-  simp [Matrix.kronecker_apply, mul_sub]
+  simp [mul_sub]
 
 theorem blockOp_one : blockOp A (fun l => (1 : Matrix (B l) (B l) ℂ)) = 1 := by
   unfold blockOp

@@ -27,8 +27,10 @@ the FrameFree files do not construct (they prove the commutant is the span of pe
   `a, b` (the paper's `P_e^K(d)` for `a = x^{⊗d}`, `b = y^{⊗d}`); `Helstrom.Pe` is the instance for
   `rotK` (`Pe_eq_invErr`).
 * `invErr_eq`: `invErr G a b = ½ Σ_λ trMin (τ_λ a) (τ_λ b)`, with `τ_λ v = tau v λ`.
-* `invErr_le_half_sum`, `exists_invariant_test`: the optimal test is `⊕ I ⊗ Π_λ^-`, `Π_λ^-` the negative
-  spectral projector of `τ_λ a - τ_λ b`.
+* `invErr_eq_one_sub`: for unit vectors, `P_e = ½ (1 - ½ Σ_λ ‖τ_λ a - τ_λ b‖₁)`
+  (paper eq. `eq:helstrom-twirls` read blockwise).  The optimal test (inside the proof of `invErr_eq`)
+  is `⊕ I ⊗ Π_λ^-`, `Π_λ^-` the negative spectral projector of `τ_λ a - τ_λ b`.
+* `sum_trace_tau`: `Σ_λ Tr τ_λ(v) = ⟨v|v⟩`.
 -/
 
 set_option autoImplicit false

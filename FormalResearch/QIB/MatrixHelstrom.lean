@@ -34,6 +34,11 @@ noncomputable def tnorm (D : Matrix n n ℂ) : ℝ :=
 theorem tnorm_eq {D : Matrix n n ℂ} (h : D.IsHermitian) : tnorm D = ∑ i, |h.eigenvalues i| := by
   simp [tnorm, h]
 
+theorem tnorm_eq_zero_iff {D : Matrix n n ℂ} (h : D.IsHermitian) : tnorm D = 0 ↔ D = 0 := by
+  rw [tnorm_eq h, ← h.eigenvalues_eq_zero_iff]
+  rw [Finset.sum_eq_zero_iff_of_nonneg fun _ _ => abs_nonneg _]
+  simp [funext_iff]
+
 theorem tnorm_nonneg (D : Matrix n n ℂ) : 0 ≤ tnorm D := by
   unfold tnorm
   split_ifs

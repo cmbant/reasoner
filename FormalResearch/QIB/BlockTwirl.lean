@@ -88,7 +88,8 @@ theorem twirl_blockForm [∀ l, Nonempty (A l)] {G : Set (Matrix (Idx A B) (Idx 
       simp only [Set.mem_ofPred_eq] at hx hy ⊢
       rw [Matrix.mul_add, Matrix.trace_add, Matrix.mul_smul, Matrix.mul_smul, Matrix.trace_smul,
         Matrix.trace_smul, hx, hy, ← add_smul]
-      simp only [Complex.real_smul, ← add_mul, ← Complex.ofReal_add, hab]
+      simp only [Complex.real_smul]
+      rw [hab]
       simp
     · intro U hUG
       simp only [Set.mem_ofPred_eq]
@@ -127,6 +128,18 @@ theorem twirl_blockForm [∀ l, Nonempty (A l)] {G : Set (Matrix (Idx A B) (Idx 
   rw [e (fun j i => X l j i), e (fun j i => ∑ α, ρ ⟨l, (α, j)⟩ ⟨l, (α, i)⟩)] at this
   rw [← this]
   field_simp
+
+/-- Existence and identification: for a multiplicatively closed nonempty set `G` of unitaries with the
+isotypic hypothesis, the twirl of `ρ` exists (`Helstrom.twirl_exists`) and is the block form. -/
+theorem exists_twirl_eq_blockForm [∀ l, Nonempty (A l)] {G : Set (Matrix (Idx A B) (Idx A B) ℂ)}
+    (hG : IsotypicInvariants A G) (hU : ∀ U ∈ G, Uᴴ * U = 1)
+    (hmul : ∀ U ∈ G, ∀ V ∈ G, U * V ∈ G) (hne : G.Nonempty) (ρ : Matrix (Idx A B) (Idx A B) ℂ) :
+    ∃ Z : Matrix (Idx A B) (Idx A B) ℂ,
+      (∀ C : Set (Matrix (Idx A B) (Idx A B) ℂ), IsClosed C → Convex ℝ C →
+        (∀ U ∈ G, U * ρ * Uᴴ ∈ C) → Z ∈ C) ∧ (∀ U ∈ G, U * Z = Z * U) ∧
+      Z = blockOp A (fun l => ((Fintype.card (A l) : ℂ)⁻¹) • ptrA ρ l) := by
+  obtain ⟨Z, h1, h2⟩ := FormalResearch.FrameFree.Helstrom.twirl_exists G hU hmul hne ρ
+  exact ⟨Z, h1, h2, twirl_blockForm hG hU ρ Z h1 h2⟩
 
 end Twirl
 
