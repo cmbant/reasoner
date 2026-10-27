@@ -69,6 +69,8 @@ import FormalResearch.QIA.DeferredQueryCoherentPositiveMemoryBound
 import FormalResearch.QIA.DeferredQueryCoherentChannelMemoryBound
 import FormalResearch.QIA.DeferredQueryIsotypicChannelMemoryBound
 import FormalResearch.QIB.U1InvariantExponentGap
+import FormalResearch.QIB.KramersHalfFilling
+import FormalResearch.QIB.CriticalCounter
 import FormalResearch.QIB1.ApolarPivot
 import FormalResearch.QIB1.ApolarTriangularRank
 import FormalResearch.QIB1.ApolarFullRank
