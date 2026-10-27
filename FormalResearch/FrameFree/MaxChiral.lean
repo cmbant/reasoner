@@ -1,5 +1,6 @@
 import FormalResearch.FrameFree.WeylVertex
 import FormalResearch.FrameFree.Design
+import FormalResearch.FrameFree.PlanarSign
 
 /-!
 # Maximal chirality on the critical locus: the bound
@@ -149,5 +150,17 @@ theorem FKmag_ge_four_ninths (hP : PlanarSign4) (q : Fin 4 → ℂ) (hq : nrm2 q
   have := FKmag_ge_maxchiral hP q hq
   have := Complex.normSq_nonneg (bdot q q)
   linarith
+
+/-- The planar sign inequality (`PlanarSign.lean`) discharges the hypothesis. -/
+theorem planarSign4_true : PlanarSign4 := fun v => planar_sign4 v
+
+/-- Maximal chirality on the critical locus, unconditional: `F_K ≥ 4/9 + |bdot|²/18`
+for every unit critical `q` (value of the Weyl-vertex side `FKmag`; see `PhysicalBridge.lean`). -/
+theorem FKmag_ge_maxchiral' (q : Fin 4 → ℂ) (hq : nrm2 q = 1) :
+    4 / 9 + Complex.normSq (bdot q q) / 18 ≤ FKmag q :=
+  FKmag_ge_maxchiral planarSign4_true q hq
+
+theorem FKmag_ge_four_ninths' (q : Fin 4 → ℂ) (hq : nrm2 q = 1) : 4 / 9 ≤ FKmag q :=
+  FKmag_ge_four_ninths planarSign4_true q hq
 
 end FormalResearch.FrameFree

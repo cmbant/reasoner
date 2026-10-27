@@ -1,5 +1,6 @@
 import FormalResearch.FrameFree.WeylRealisation
 import FormalResearch.FrameFree.WeylVertex
+import FormalResearch.FrameFree.MaxChiral
 
 /-!
 # The Weyl-vertex value is a lower bound for the physical rotation overlap
@@ -47,5 +48,11 @@ theorem four_ninths_le_rotOverlap_M4 :
   have hF : FKmag ![rt6, rt6, Complex.I * rt, rt6] = 4 / 9 := by
     rw [hd, FKmag_comp, FKmag_M4]
   exact hF ▸ FKmag_le_rotOverlap ![rt6, rt6, Complex.I * rt, rt6]
+
+/-- Maximal chirality, physical form (`thm:maxchiral`, the lower bound): every critical
+four-qubit state `ψ_q` with unit coefficient vector has `F_K(ψ_q) ≥ 4/9`. -/
+theorem four_ninths_le_rotOverlap (q : Fin 4 → ℂ) (hq : nrm2 q = 1) :
+    (4 / 9 : ℝ) ≤ rotOverlap (psiMag q) (Psi.conj (psiMag q)) :=
+  (FKmag_ge_four_ninths' q hq).trans (FKmag_le_rotOverlap q)
 
 end FormalResearch.FrameFree
