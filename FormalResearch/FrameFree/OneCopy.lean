@@ -48,9 +48,9 @@ Namespace `FormalResearch.FrameFree.OneCopy`.  `NQubit.ip`/`NQubit.SU2` are alwa
 
 * **`thm:onecopy` (a), the converse `F_K^π = 0 ⟹ F_C^π = 0`.**  The paper obtains it from Schur--Weyl
   duality: the complex span of `K_π` contains `𝒢_π`; equivalently, a polynomial vanishing on
-  `SU(2)^b` vanishes on `SL(2,ℂ)^b` (Zariski density).  Neither is in Mathlib in usable form; the same gap
-  is recorded in `Sharing.FCΘs_of_invariant`.  Only `F_C^π = 0 ⟹ F_K^π = 0` is proved in general; for the
-  chirality mechanism of (c) both vanish directly.
+  `SU(2)^b` vanishes on `SL(2,ℂ)^b` (Zariski density).  The density route is proved in `Zariski.lean`
+  (`Zariski.FKs_eq_zero_iff_FCs_eq_zero`); this file proves `F_C^π = 0 ⟹ F_K^π = 0` and the chirality
+  mechanism of (c).
 * **`thm:onecopy` (a), orthogonal supports of the one-copy twirls** and **(b)** (twirl equality and
   `F_K^π > 0` for blocks of at most two spins): these need the Haar twirl over `K_π` (or Schur--Weyl
   duality), which is not formalised.  `F_K^π > 0` for such patterns is not elementary either (the Pauli
@@ -280,8 +280,8 @@ theorem FCΘs_eq_zero_iff (g : Fin n → β) (ψ : Ψ n) :
       ∀ v : β → Op1, (∀ b, (v b).det = 1) → NQubit.ip ψ (rot (fun i => v (g i)) (Θ ψ)) = 0 :=
   FCs_eq_zero_iff g ψ (Θ ψ)
 
-/-- **`thm:onecopy` (a)**, the direction `F_C^π = 0 ⟹ F_K^π = 0` (unit `ψ`; the converse is the
-Zariski-density step, not formalised). -/
+/-- **`thm:onecopy` (a)**, the direction `F_C^π = 0 ⟹ F_K^π = 0` (unit `ψ`; the converse is
+`Zariski.FKΘs_eq_zero_iff_FCΘs_eq_zero`). -/
 theorem FKΘs_eq_zero_of_FCΘs_eq_zero (g : Fin n → β) (ψ : Ψ n) (hψ : nsq ψ = 1)
     (h : FCΘs g ψ = 0) : FKΘs g ψ = 0 := by
   have h1 : FKΘs g ψ ≤ FCΘs g ψ := Sharing.FKs_le_FCs g ψ (Θ ψ) (by rw [NQubit.nsq_Θ, hψ])

@@ -17,7 +17,8 @@ overlap `F_C^π` (one `SL(2,ℂ)` element per block, normalised by `‖gφ‖²`
 * `prop:refine` (any `n`): `FKs_mono`, `FKΘs_mono`, `FCs_mono`, `CKs_mono` (finer pattern, larger value).
 * `prop:invariantstates` (any `n`): `FKΘs_of_invariant`, `CKs_of_invariant`; the filter version
   `FCΘs_of_invariant(_unit)` takes invariance under the *complexified* group as hypothesis (the paper
-  derives it from `K_π`-invariance by Zariski density, which is not formalised).
+  derives it from `K_π`-invariance by Zariski density, proved in `Zariski.lean`:
+  `Zariski.FCΘs_of_SU2_invariant(_unit)` needs only `K_π`-invariance).
 * `thm:exchangesharing` for the Choi probe `ψ_{U_θ}` (`psiEx θ`), `U_θ = cos θ − i sin θ SWAP`
   (`pattern_trichotomy`: every pattern is in exactly one of the cases (i), (ii), (iii)):
   - (i) (`g 0 = g 1 ∨ g 2 = g 3`), unconditional, all `θ`: `FKΘs_exchange_i`, `FCΘs_exchange_i`
@@ -250,8 +251,8 @@ theorem CKs_of_invariant (g : Fin n → β) (ψ : Ψ n)
   unfold CKs; rw [FKΘs_of_invariant g ψ hψ]
 
 /-- **Proposition `prop:invariantstates`** (filter part).  If `ψ` is invariant under the
-complexification of `K_π` (the paper obtains this from `K_π`-invariance by Zariski density, not
-formalised here), then `F_C^π(ψ) = |⟨ψ|Θψ⟩|²/‖Θψ‖²`, which is `|⟨ψ|Θψ⟩|²` for a unit vector. -/
+complexification of `K_π` (the paper obtains this from `K_π`-invariance by Zariski density; see
+`Zariski.FCΘs_of_SU2_invariant`), then `F_C^π(ψ) = |⟨ψ|Θψ⟩|²/‖Θψ‖²`, which is `|⟨ψ|Θψ⟩|²` for a unit vector. -/
 theorem FCΘs_of_invariant (g : Fin n → β) (ψ : Ψ n)
     (hψ : ∀ v : β → Op1, (∀ b, (v b).det = 1) → rot (fun i => v (g i)) ψ = ψ) :
     FCΘs g ψ = Complex.normSq (ip ψ (Θ ψ)) / nsq (Θ ψ) := by
