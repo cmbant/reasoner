@@ -18,7 +18,7 @@ transfer to the paper's state.
 * `psiPlusPaper_eq : psiPlusPaper = (-i) • permΨ (swap 1 3) psiPlus` (exchange of spins `2` and `4`).
 * `psiPlusPaper_kramers : F_C = F_K = 1/2` and `psiPlusPaper_xi_inv : HasXiInv psiPlusPaper (log 2)`.
 
-Depends only on `FrameFree.PsiPlusKramers.psiPlus`, `FrameFree.PsiPlusKramers.psiplus_kramers` and `FrameFree.XiInv.psiplus_xi_inv'`.
+Depends only on `FrameFree.PsiPlusKramers.psiPlus`, `FrameFree.PsiPlusKramers.psiplus_kramers` and `FrameFree.XiInv.psiplus_xi_inv`.
 -/
 
 set_option autoImplicit false
@@ -341,7 +341,7 @@ theorem Pe_psiPlusPaper (k : ℕ) : Pe k psiPlusPaper = Pe k FrameFree.PsiPlusKr
 
 /-- **`ξ_inv(ψ₊) = log 2` for the paper's `ψ₊`.** -/
 theorem psiPlusPaper_xi_inv : FrameFree.XiInv.HasXiInv psiPlusPaper (Real.log 2) := by
-  have h := FrameFree.XiInv.psiplus_xi_inv'
+  have h := FrameFree.XiInv.psiplus_xi_inv
   unfold FrameFree.XiInv.HasXiInv at h ⊢
   simp only [Pe_psiPlusPaper]
   exact h
