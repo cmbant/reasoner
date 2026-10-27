@@ -52,9 +52,9 @@ Namespace `FormalResearch.FrameFree.OneCopy`.  `NQubit.ip`/`NQubit.SU2` are alwa
   (`Zariski.FKs_eq_zero_iff_FCs_eq_zero`); this file proves `F_C^π = 0 ⟹ F_K^π = 0` and the chirality
   mechanism of (c).
 * **`thm:onecopy` (a), orthogonal supports of the one-copy twirls** and **(b)** (twirl equality and
-  `F_K^π > 0` for blocks of at most two spins): these need the Haar twirl over `K_π` (or Schur--Weyl
-  duality), which is not formalised.  `F_K^π > 0` for such patterns is not elementary either (the Pauli
-  floor `2⁻ⁿ` of `Foundations.two_pow_neg_le_FKΘ` is for independent frames only).
+  `F_K^π > 0` for blocks of at most two spins): these use the Haar-free twirl and are proved in
+  `TwirlsOneCopy` (`FKΘs_eq_zero_iff_twirl_mul_eq_zero`, `onecopy_twirl_eq_of_small_blocks`,
+  `FKΘs_pos_of_small_blocks`).
 * The eigenvalue spectrum of `χ` (`±√3/4`, `0` on spin `3/2`) is `ScalarChirality.chi_cube`,
   `chi3_multiplicities`; it is not needed for (c).
 -/

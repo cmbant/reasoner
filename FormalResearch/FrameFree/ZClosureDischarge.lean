@@ -35,8 +35,8 @@ namespace FormalResearch.FrameFree.SupportRate
 
 open MvPolynomial
 
-/-- **Euclidean density of a polynomial image in its Zariski closure** (Chevalley + Mumford 4.16, not proved
-here): if every polynomial vanishing on the image of the polynomial map `Φ : ℂ^κ → ℂ^ι` vanishes at `z`, then
+/-- **Euclidean density of a polynomial image in its Zariski closure** (Chevalley + Mumford 4.16; a hypothesis
+here, proved as `SupportRate.polyImageClosure` in `PolyImageDischarge`): if every polynomial vanishing on the image of the polynomial map `Φ : ℂ^κ → ℂ^ι` vanishes at `z`, then
 `z` is a limit of points of the image. -/
 def PolyImageClosure : Prop :=
   ∀ (ι κ : Type) (Φ : ι → MvPolynomial κ ℂ) (z : ι → ℂ),

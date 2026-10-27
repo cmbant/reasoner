@@ -26,9 +26,11 @@ bounded below by `-log F_C` in `Reversals`, `RealRep3Discharge`, `PsiPlusKramers
   `m4_exponent'`, `blocks_exponent'`, `critical_exponent'` (`thm:expceiling`, `thm:m4exponent`, converse as hypothesis),
   `eight_qubit_reversal_xi'`, `gap_reversal_xi'`, `fourgate_*'`, `region_reversal'`, `tens_xi_inv'`.
 
-Hypotheses that remain are exactly those named in each docstring: the converse (`XiBarLE`, i.e. `thm:expceiling` /
-the Helstrom inequality `P_⊗ ≥ ½ ∏ P_i`, not formalised), `Sharing.ExchangeIndepBound(C) θ` for `θ ≠ π/4`
-(`cor:ftg`), `FKΘ M₄ ≤ 4/9` (R7 upper half) and the envelope bound at `U_*`.
+Hypotheses that remain are exactly those in each statement: a converse (`XiBarLE`, or `ξ ≤ …`), `Sharing.ExchangeIndepBound(C) θ`,
+`FKΘ M₄ ≤ 4/9` (R7 upper half), the Helstrom product inequality `P_⊗ ≥ ½ ∏ P_i` (not formalised) and the envelope
+bound at `U_*`.  Later files discharge some of them: the converse for `M₄`, its powers and every critical four-qubit
+state (`ConverseXi.blocks_hasXiInv`, `AchiralCritical.critical_xi_inv''`, `m4_hasXiInv_log_two`) and the exchange
+bounds for `0 ≤ θ ≤ π/4` (`ExchangeBounds`, `ExchangeBoundsWrappers`).
 -/
 
 namespace FormalResearch.FrameFree.XiInv

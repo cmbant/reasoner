@@ -151,9 +151,9 @@ theorem FCΘ_pow_le_Rk {n : ℕ} (ψ : Ψ n) {k : ℕ} (hk : k ≠ 0) :
   calc Ceilings.FCΘ ψ ^ k ≤ B ^ k := pow_le_pow_left₀ (Ceilings.FCΘ_nonneg ψ) h1 k
     _ = Rk k ψ := hBk
 
-/-- The upper half of `thm:supportrate` (`limsup R_k^{1/k} ≤ F_C`), recalled from QI-B and **not** proved
-here (its proof is a spectral-radius argument for compressed multiplication operators on the graded
-Bombieri space). -/
+/-- The upper half of `thm:supportrate` (`limsup R_k^{1/k} ≤ F_C`).  A hypothesis here; proved for every `ψ`
+as `SupportRate.supportRateUpper` (`PolyImageDischarge`), by a spectral-radius argument for compressed
+multiplication operators on the graded symmetric-power space. -/
 def SupportRateUpper {n : ℕ} (ψ : Ψ n) : Prop :=
   ∀ c : ℝ, Ceilings.FCΘ ψ < c → ∀ᶠ k : ℕ in Filter.atTop, Rk k ψ ≤ c ^ k
 

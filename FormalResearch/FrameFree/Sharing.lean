@@ -46,15 +46,13 @@ overlap `F_C^π` (one `SL(2,ℂ)` element per block, normalised by `‖gφ‖²`
   sentence "`ξ_inv^π = …` exactly": that needs the calibration corollary and the window theorem; only the
   `F_K^π`, `F_C^π`, `C_K^π` values are stated.
 * `C_K^π = ∞` for `M₄` with a triple (`F_K^π = 0`): Lean's `log 0 = 0`, so only `F_K^π = F_C^π = 0` is stated.
-* (Superseded: `ExchangeIndepBound(C)` is proved in `ExchangeBounds`, and `ExchangeBoundsWrappers` gives the
-  exact values in cases (ii), (iii) and the `√SWAP` row unconditionally.)  Formerly: the independent-frame
-  exchange law (the hypotheses above); hence the exact values in cases (ii), (iii) of
-  `thm:exchangesharing` and the `√SWAP` row were conditional.  Case (iii) is open in the paper and only
-  the bounds are stated.
+* The independent-frame exchange law `ExchangeIndepBound(C)` is a hypothesis here; it is proved for
+  `0 ≤ θ ≤ π/4` in `ExchangeBounds`, and `ExchangeBoundsWrappers` states the exact values in cases (ii),
+  (iii) of `thm:exchangesharing` and the `√SWAP` row without it.
 * The pattern counts (eight, four, three; five, nine) are not formalised as cardinalities; the
   classification is by the predicates `g 0 = g 1 ∨ g 2 = g 3`, `Refines g pat1324`, `Refines g pat1423`,
   `HasTriple`, `PairNoTriple`.
-* `thm:copythreshold` (a) (twirls, Schur--Weyl duality, slot permutations) is not formalised.
+* `thm:copythreshold` (a) (twirls, Schur--Weyl duality, slot permutations) is in `Twirls*` and `CopyThreshold*`.
 * `thm:m4sharing` (c) (independent frames, `ξ_inv = log 2`) is not part of this file.
 -/
 

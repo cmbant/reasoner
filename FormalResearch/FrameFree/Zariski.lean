@@ -36,10 +36,8 @@ and `Sharing.lean`: the converse `F_K^π = 0 ⟹ F_C^π = 0` of `thm:onecopy` (a
     `K_π`-invariance (`SU(2)` frames) as hypothesis, replacing the `SL(2,ℂ)`-invariance hypothesis of
     `Sharing.FCΘs_of_invariant`.
 
-## NOT proved here
-
-* Schur--Weyl duality / the Haar twirl, i.e. the *other* parts of `thm:onecopy` (a), (b)
-  (orthogonal supports of the one-copy twirls, `F_K^π > 0` for blocks of at most two spins).
+The other parts of `thm:onecopy` (a), (b) (orthogonal supports of the one-copy twirls, `F_K^π > 0` for
+blocks of at most two spins) use Schur--Weyl duality and the Haar-free twirl and are in `TwirlsOneCopy`.
 -/
 
 namespace FormalResearch.FrameFree.Zariski

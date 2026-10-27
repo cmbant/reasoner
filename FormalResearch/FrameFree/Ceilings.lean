@@ -16,7 +16,7 @@ new axioms) unless a hypothesis is displayed in the statement; the hypotheses ar
 * `h49 : FKΘ M4v = 4/9` -- `F_K(M₄) = 4/9`.  Its lower bound is proved in `FrameFree/PhysicalBridge.lean`
   (`four_ninths_le_rotOverlap_M4`); the upper bound is the recalled Weyl-vertex input R7 (`FKmag` is the
   rotation overlap).  It is not assumed silently: it is a hypothesis of each statement that uses it.
-* `hle : FCΘ M4v ≤ 1/2` -- the heavy half of `thm:m4support` (not formalised).
+* `hle : FCΘ M4v ≤ 1/2` -- the heavy half of `thm:m4support`; proved in `M4Support` (`FCΘ_M4v_le`).
 * `hc : CK β = c3` -- attainment of `c₃ = sup C_K` on three qubits (computer-assisted in the paper).
 
 ## Contents
@@ -63,12 +63,10 @@ in a real parameter plus positivity).
 * `thm:chiraldepth` (b), (c): need the first copy number `k_*` with a conjugation-odd invariant for blocks
   of three parties (Kronecker multiplicities, Schur-Weyl, an `S_4` finite check) -- a separate project.
 * `cor:mixeddepth`: mixed states and trace-norm duality (`‖π^{⊗j} - π'^{⊗j}‖₁`), not set up here.
-* (Partly superseded: `XiInvUnconditional` and `Converse*` prove the `ξ_inv` statements for `ψ₊`, `M₄` and its
-  powers, modulo `h49`.)  Formerly: everything involving `ξ_inv` and Helstrom errors (the window `ξ_inv ≥ C_K/2`, `E_G ≥ ξ_inv`,
-  `thm:expceiling`, the equalities `ξ_inv(M₄) = log 2` in `thm:m4exponent`, `thm:calgeom-tensorisation`
-  upper bound, `cor:calgeom-spin1extensive`).  Only the `F_C`/`F_K` halves are proved.
-* `F_C(M₄) ≤ 1/2` (the Cayley-Hamilton frame identities of `m4_support_proof.tex`) and
-  `thm:ceilinglocus` (computer-assisted).
+* `ξ_inv` and Helstrom errors are not in this file: the window is `HelstromWindow`, the support rate
+  `PolyImageDischarge`, and the exponents of `ψ₊`, `M₄`, its powers and critical four-qubit states are
+  `XiInvUnconditional`, `ConverseXi`, `AchiralCritical`.  `F_C(M₄) ≤ 1/2` is `M4Support`.
+* `thm:ceilinglocus` (computer-assisted).
 * The sharpness half of `thm:chiralEG` (Rudin-Shapiro vectors, the constant `(3-√5)/2` for three qubits)
   and the unconditional sharpness of `prop:exponentdepth` (b) (the three-qubit minimiser is
   computer-assisted).
@@ -364,7 +362,7 @@ theorem FCΘ_nonneg {n : ℕ} (ψ : Ψ n) : 0 ≤ FCΘ ψ := FC_nonneg _ _
 
 /-- Dür–Vidal–Cirac: every three-qubit vector lies in the `GL(2,ℂ)^3` orbit of a real vector
 (all six SLOCC classes have real representatives).  Standard input of `thm:ceiling`,
-`thm:entceiling`; taken as a hypothesis. -/
+`thm:entceiling`; a hypothesis in this file, proved as `RealRep3Discharge.realRep3`. -/
 def RealRep3 : Prop :=
   ∀ φ : Ψ 3, ∃ A : Fin 3 → Op1, (∀ i, (A i).det ≠ 0) ∧ ∃ r : Ψ 3, cj r = r ∧ φ = rot A r
 
@@ -1825,7 +1823,7 @@ theorem FCΘ_M4pow_ge (hR : RealRep3) (m : ℕ) : (1 / 2 : ℝ) ^ (m + 1) ≤ FC
     rw [FCΘ_tens _ _ (by rw [nsq_M4pow]; norm_num) (by rw [nsq_M4v]; norm_num), pow_succ]
     exact mul_le_mul ih (half_le_FCΘ_M4 hR) (by norm_num) (FC_nonneg _ _)
 
-/-- Under `F_C(M₄) ≤ 1/2` (the heavy half of `thm:m4support`, not formalised) the powers have
+/-- Under `F_C(M₄) ≤ 1/2` (the heavy half of `thm:m4support`, proved as `M4Support.FCΘ_M4v_le`) the powers have
 `F_C(M₄^{⊗(m+1)}) = 2^{-(m+1)}` exactly, hence `-log F_C = (m+1) log 2 < C_K` when `F_K(M₄) = 4/9`. -/
 theorem FCΘ_M4pow_eq (hR : RealRep3) (hle : FCΘ M4v ≤ 1 / 2) (m : ℕ) :
     FCΘ (M4pow m) = (1 / 2 : ℝ) ^ (m + 1) := by

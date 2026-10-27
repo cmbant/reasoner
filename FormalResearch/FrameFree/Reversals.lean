@@ -36,9 +36,13 @@ is a real number and the hypotheses are exactly the inequalities the paper uses:
 * `cor:fourdecoh`, `cor:fourgapfloor` glue and numerics (`fourdecoh_glue`, `fourdecoh_value`,
   `fourgapfloor_arith`), `thm:expceiling` arithmetic (`expceiling_arith`, `critical_exponent`).
 
-**Not formalised.** `ξ_inv`; chain steps (1)-(3) (torus reduction, split-filter converse, envelope);
-the 190-competitor condition (R1) and the wedge/volume statement of `thm:ratefailregion`; the Helstrom
-inequality `P_⊗ ≥ ½ ∏ P_i`; `thm:expceiling` itself; the interval-arithmetic constant `B_* = 0.42776639`.
+Here `ξ` is a free real variable bounded by the paper's inequalities.  The operational exponent `ξ_inv`
+(`XiInv.HasXiInv`) and the discharged forms of these statements are in `XiInvUnconditional`, `ConverseXi`
+and `AchiralCritical` (which proves `thm:expceiling` for critical four-qubit states).
+
+**Not formalised.** Chain steps (1)-(3) (torus reduction, split-filter converse, envelope); the
+190-competitor condition (R1) and the wedge/volume statement of `thm:ratefailregion`; the Helstrom
+inequality `P_⊗ ≥ ½ ∏ P_i`; the interval-arithmetic constant `B_* = 0.42776639`.
 -/
 
 open Real Filter Topology
@@ -217,7 +221,7 @@ theorem CKex_three_tenths : CKex (3 / 10) = log (20 / 13) := by
 
 /-- The chiral distance of `U_*` (`c = (9/20, 19/50, 8/25)`) is `0.4411…`, and it exceeds any
 `ξ ≤ B_* = 0.42776639` by more than `0.0132`.  (`thm:ratefails`, the `C_K` half and the comparison
-with the bound; `ξ_inv` itself is not formalised.) -/
+with the bound; `ξ` is a free variable here.) -/
 theorem ratefails_gap {ξ : ℝ} (hξ : ξ ≤ 0.42776639) :
     0.4410 < CKg cStar ∧ CKg cStar < 0.4411 ∧ 0.0132 < CKg cStar - ξ := by
   obtain ⟨hc1, hc2⟩ := cos_32_25_bounds
@@ -881,8 +885,7 @@ theorem blocks_gap (hR : Ceilings.RealRep3) (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) 
 
 /-! ### Tensorisation arithmetic, `thm:calgeom-tensorisation`
 
-The Helstrom-error inequality `P_⊗ ≥ ½ ∏ P_i` and the sequence of `k`-copy errors are not formalised
-(no `ξ_inv` in the repository).  What is formalised is what the proof of the paper uses after those
+The Helstrom-error inequality `P_⊗ ≥ ½ ∏ P_i` is not formalised.  What is formalised is what the proof of the paper uses after those
 inputs: the product inequality `∏(aᵢ + bᵢ) ≥ ∏ aᵢ + ∏ bᵢ`, the harmonic-product consequence, and the
 passage from `P_Ψ(k) ≥ ½ ∏ P_i(k)` to the sum of upper rates. -/
 
