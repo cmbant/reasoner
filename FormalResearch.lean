@@ -83,6 +83,11 @@ import FormalResearch.QIB.BlockRealCore
 import FormalResearch.QIB.BlockRealFrame
 import FormalResearch.QIB.BlockRealPe
 import FormalResearch.QIB.BlockRealCond
+import FormalResearch.QIB.RealCoordsOnb
+import FormalResearch.QIB.RealCoordsStructure
+import FormalResearch.QIB.RealCoordsWeights
+import FormalResearch.QIB.RealCoordsCoord
+import FormalResearch.QIB.RealCoordsFrame
 import FormalResearch.QIB.BlockStructure
 import FormalResearch.FrameFree.PolyImageDischarge
 import FormalResearch.FrameFree.XiInvUnconditional
