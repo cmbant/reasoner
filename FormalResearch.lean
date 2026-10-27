@@ -235,3 +235,5 @@ import FormalResearch.FrameFree.ScalarChirality
 import FormalResearch.FrameFree.PlanarSign
 import FormalResearch.FrameFree.Ceilings
 import FormalResearch.FrameFree.Sharing
+import FormalResearch.FrameFree.Unify
+import FormalResearch.FrameFree.CriticalLocus
