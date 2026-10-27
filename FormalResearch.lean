@@ -240,3 +240,4 @@ import FormalResearch.FrameFree.CriticalLocus
 import FormalResearch.FrameFree.OneCopy
 import FormalResearch.FrameFree.M4Support
 import FormalResearch.FrameFree.Zariski
+import FormalResearch.FrameFree.WeylUpper
