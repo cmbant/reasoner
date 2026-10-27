@@ -14,8 +14,8 @@ commuting with `K_π` (equivalently `A ∈ blockPermSpan π`, `commutant_eq_bloc
 `σ` block-preserving.  Route: split `A = X₁ + i X₂` with `X_j` in the real span of the permutations
 (`exists_real_split`), `Θ` acts as complex conjugation on real permutation combinations
 (`realPerm_theta`), so oddness kills the symmetric part `X₁` (`quad_zero`) and `X₂` is real antisymmetric
-(`realPerm_sub_transpose`).  Not formalised: `(i)`, `(ii)` (compressed symmetric-subspace algebras) and the
-real-type multiplicity-space dimension count `∑_j C(g_j, 2)` of `(iii)`.
+(`realPerm_sub_transpose`).  The count `∑_j C(g_j, 2)` of `(iii)` and parts `(i)` and `(ii)` ("if" half) are in `OddWordsCount`, `OddWordsOddIff` and
+`OddWordsCompressed`.
 -/
 
 set_option autoImplicit false
