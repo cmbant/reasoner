@@ -33,11 +33,16 @@ theorem apolar_selected_target_le {j r : Nat}
   · omega
 
 /-!
-The checkpoint-8 reconstructed `L=2` three-excitation rows are deliberately
-*not* represented by declarations in this module.  Until their analytic
-Wigner--Eckart/Hahn derivation is formalized, any downstream theorem depending
-on those rows belongs in a separate conditional layer with the row identities
-written out as explicit hypotheses.
+Source: `QI-B/B1-apolar/results/apolar_finite_defect_results.tex` (Context:
+`D_F = 3 d_x^2 d_y - d_y^3`) and the lane record
+`QI-B/B1-apolar/notes/STATUS_MATRIX.md` (`ker D_F = span{A^d, B^d, C^d}`).
+The `QIB1` modules formalize only this kernel/rank statement for the
+monomial-coefficient matrix of `D_F` (d >= 3; over `Q` and `R`).  They do not
+formalize the factorization `lambda_d I - E_d = D_F^dagger R_d D_F`, the
+positivity of `R_d`, or any three-excitation row identity; the checkpoint-8
+`L=2` rows are proved analytically in the source
+(`QI-B/B1-apolar/notes/ROW_IDENTITIES_PROOF.md`) and are not represented by
+declarations here.
 -/
 
 end FormalResearch.QIB1

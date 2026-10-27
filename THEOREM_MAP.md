@@ -71,11 +71,25 @@ Lean file: `FormalResearch/QIB/U1InvariantExponentGap.lean`.
 
 PR #11 verification head `297231d4be4780b1d091092a7d841bbbe62edb85`, run `34348733331`, aggregate green; merged.
 
+Source: `QI-B/paper/invariant_discrimination_exponents.tex` `prop:u1`.
+
 Lean proves the exact scalar factor-two exponent relation for the source family; the twirl/binomial/operational Chernoff derivation remains external.
+
+### B1 apolar kernel (`FormalResearch/QIB1`)
+
+Source: `QI-B/B1-apolar/results/apolar_finite_defect_results.tex` (`D_F = 3 d_x^2 d_y - d_y^3`), lane record `QI-B/B1-apolar/notes/STATUS_MATRIX.md`.
+
+Lean proves, for every `d >= 3`, that the monomial-coefficient matrix of `D_F` has full row rank `d-2` over `Q` and `R`, that its kernel has dimension 3, and that over `R` the kernel is spanned by the three coherent powers at `b = 0, +-sqrt 3`. The factorization `lambda_d I - E_d = D_F^dagger R_d D_F`, `R_d > 0` and all finite-defect/Hahn row identities remain external.
+
+### B2 Hamming/Krawtchouk phase algebra (`FormalResearch/QIB2`)
+
+Source: `QI-B/B2-hamming/results/three_band_hamming_heat_kernel.tex`, section "Exact Hamming/Krawtchouk phase algebra" (`eq:hammingU`).
+
+Lean proves the scalar/Boolean-cube content: Krawtchouk coefficient formula and generating function, the Bose--Mesner eigenaction on a Walsh character, the canonical gate phase `i^|T|` for every Walsh label, and the `choose d m` multiplicity of weight `m`. The two-qubit swap operators, the projectors `E_m` and the operator identity on `(C^4)^(tensor d)` remain external. `Bridges/B2BlaschkeMultiplicityRank.lean` uses `QIB2.card_WalshWeightIndex`.
 
 ### B4 late source status
 
-QIprojects T34 supplies an exact Fierz/Pluecker reformulation and an exact counterexample to a proposed stronger spectral route, but leaves the flagship B4 inequality/equality open. There is therefore no current Lean-completion claim for that flagship. Any B4 formalization must match a proved local identity/certificate and must not promote the open conjecture.
+QIprojects now proves the flagship (`thm:flagship` in `QI-B/paper/invariant_discrimination_exponents.tex`: `F_C = F_K = 1/2`, `xi_inv = log 2`), but the theorem itself is not formalized (QIprojects `docs/lean_status.md` records what the `QIB` modules cover). Any B4 formalization must match a proved source theorem (check `QI-B/B4-orbit-bergman/notes/CORRECTIONS.md` and `QI-B/paper/CORRECTIONS.md` first) and keep the class of each statement.
 
 ## QI-C
 

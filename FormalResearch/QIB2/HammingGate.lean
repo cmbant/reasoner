@@ -4,6 +4,23 @@ namespace FormalResearch.QIB2
 
 open Complex
 
+/-!
+# QI-B2 canonical Hamming/Krawtchouk phase algebra
+
+Source: `QI-B/B2-hamming/results/three_band_hamming_heat_kernel.tex`, section
+"Exact Hamming/Krawtchouk phase algebra" (`eq:hammingU`): `U = (1+i)/2 I +
+(1-i)/2 tau`, `U^(tensor d) = sum_m i^m E_m = sum_r ((1+i)/2)^(d-r)
+((1-i)/2)^r W_r`, `W_r E_m = K_r(m) E_m`, `K_r(m) = sum_l (-1)^l C(m,l)
+C(d-m,r-l)`.  The `QIB2` modules prove the scalar/combinatorial content on the
+Boolean-cube model of the swap eigenbasis: the Krawtchouk formula and
+generating function, the Bose--Mesner eigenaction of the radius-`r` orbit sum
+on a Walsh character, the phase `i^|T|` for every Walsh label, and the
+`choose d m` multiplicity of weight `m`.  They do not construct the two-qubit
+swap operators `tau_i`, the projectors `E_m` or the operator identity on
+`(C^4)^(tensor d)`, and `U_d^2 = prod tau_i` is formalized only for one rung
+(`canonical_gate_sq`).
+-/
+
 /-- Coefficients of the canonical triplet/singlet phase gate
 `U = a I + b τ`. -/
 noncomputable def gateA : ℂ := (1 + I) / 2

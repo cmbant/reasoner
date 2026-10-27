@@ -5,9 +5,13 @@ namespace FormalResearch.QIB
 /-!
 # QI-B finite-copy U(1) exponent-gap scalar certificate
 
-This module matches the exact scalar identities in
-`cmbant/QIprojects:QI-B/B4-orbit-bergman/notes/NEW_RESULTS_THIS_TURN.md`,
-section 6, audited on current source head
+This module matches the exact scalar content of the qubit `U(1)` example.
+Source home: `QI-B/paper/invariant_discrimination_exponents.tex`, `prop:u1`
+(proved: `xiinv(psi_p, psi_{1-p}) = -log(2 sqrt(p(1-p))) = C_K/2` for
+`p != 1/2`, with `F_K = 4p(1-p)`); the earlier statement is
+`QI-B/B4-orbit-bergman/notes/NEW_RESULTS_THIS_TURN.md`, section 6.  Both were
+re-read against the current QIprojects branch on 2026-10-27 (no correction line
+concerns them); the original audit pin was QIprojects
 `1c643e4db3a6be0e8b7826a2f45df4e27dad06b4`.
 
 For the symmetric qubit family `q = 1-p`, the source analysis identifies the
