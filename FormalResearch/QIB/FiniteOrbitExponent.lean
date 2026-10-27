@@ -1,50 +1,56 @@
 import Mathlib
-import FormalResearch.FrameFree.HelstromSupport
+import FormalResearch.FrameFree.Helstrom
 
 /-!
 # QI-B `thm:finite`: one finite projective orbit suffices
 
-Formalises `thm:finite` of `QI-B/paper/invariant_discrimination_exponents.tex` (label `thm:finite`):
-if at least one of the two projective `K`-orbits (`K = SU(2)^n`, acting by `rot u`) is finite, then
-`F_K(x,y)^d / 4 ≤ P_e^K(d) ≤ s F_K(x,y)^d` (the upper bound for all large `d`, with `s` the number of
-rays of the finite orbit), hence `-(1/d) log P_e^K(d) → -log F_K(x,y) = C_K(x,y)` whenever `F_K(x,y) > 0`.
+Namespace `FormalResearch.QIB`.  Claim class: **proved** (no hypothesis beyond the stated finiteness of an orbit).
 
-**Setting.**  The existing `FrameFree.Helstrom.Pe k ψ` is the invariant-test error for the pair
-`(ψ, Θψ)` only.  Nothing in its proof uses `Θ`, so here `PeP k x y` is the same definition for an
-arbitrary pair `(x, y)` (`Pe_eq_PeP : Pe k ψ = PeP k ψ (Θ ψ)` is `rfl`), and the theorem is proved for
-an arbitrary unit pair; `thm_finite_Theta` is the specialisation to `(ψ, Θψ)` stated with `Pe`, `FKΘ`, `CK`.
+Formalises `thm:finite` of `QI-B/paper/invariant_discrimination_exponents.tex` (label `thm:finite`) for an
+**arbitrary group of unitaries** `K = G ≤ U(ι)` acting diagonally on `k` copies (`u ↦ u^{⊗k}`): if at least
+one of the two projective `G`-orbits `{u y}`, `{u x}` of unit vectors `x, y ∈ ℂ^ι` is finite, then
+`F_G(x,y)^k / 4 ≤ P_e^G(k) ≤ s F_G(x,y)^k` (the upper bound for all large `k`, `s` the number of rays of the
+finite orbit), hence `-(1/k) log P_e^G(k) → -log F_G(x,y)` whenever `F_G(x,y) > 0`.
 
-**Finite-orbit hypothesis** (`FiniteOrbit y s b`): the rays of the orbit `{rot u y : u ∈ SU(2)^n}` are exactly
-the `s` pairwise non-proportional rays `b 0, …, b (s-1)`, each of which is an orbit point.
+**Definitions.**
+* `tp k v = v^{⊗k}` and `tm k u = u^{⊗k}` on the basis `Fin k → ι` (`tm_mulVec_tp`, `tm_mul`, `tm_unitary`).
+* `G : Subgroup (Matrix.unitaryGroup ι ℂ)`; `IsInvEff G k E`: `0 ≤ E ≤ 1` and `E` commutes with every `u^{⊗k}`,
+  `u ∈ G` (a `G`-invariant test); `PeG G k x y = inf_E err E x^{⊗k} y^{⊗k}` over invariant tests;
+  `FG G x y = sup_{u ∈ G} |⟨x|u y⟩|²`.
+* `FiniteOrbit G y s b`: the rays of the orbit `{u y : u ∈ G}` are exactly the `s` pairwise non-proportional
+  rays `b 0, …, b (s-1)`, each of which is an orbit point.
 
-**Proof, as in the paper.**  Lower bound: `Pe_ge_of_rot` (the closest-pair converse `F^d/4 ≤ P_e`), which
-needs `F_K` to be attained; for a finite orbit it is (`FK_attained`).  Upper bound: the test that accepts
-`x` on the orthogonal complement of the support space `span{b_j^{⊗d}}` is `K`-invariant
-(`suppB_isInv`), never errs on `y`, and `‖Π x^{⊗d}‖² ≤ 2 Σ_j |⟨b_j,x⟩|^{2d} ≤ 2 s F^d` once the Gram
-matrix of the `b_j^{⊗d}` is `⪰ I/2` (`proj_sq_le`: this is the paper's `‖G_d - I‖ ≤ (s-1) α^d`
-estimate, done here with the cruder constant `s α^d ≤ 1/2`, which also holds for large `d`).
+**Proof, as in the paper.**  Lower bound: `PeG_ge_of_act` (the closest-pair converse `|⟨x|u y⟩|^{2k}/4 ≤ P_e`),
+which needs `F_G` to be attained; for a finite orbit it is (`FG_attained`).  Upper bound: the test that accepts
+`x` on the orthogonal complement of the support space `span{b_j^{⊗k}}` is `G`-invariant (`suppB_isInv`), never
+errs on `y`, and `‖Π x^{⊗k}‖² ≤ 2 Σ_j |⟨b_j,x⟩|^{2k} ≤ 2 s F^k` once the Gram matrix of the `b_j^{⊗k}` is
+`⪰ I/2` (`proj_sq_le`: the paper's `‖G_k - I‖ ≤ (s-1) α^k` estimate, done with the cruder constant
+`s α^k ≤ 1/2`, which also holds for large `k`).
 
-**Cross-references (not re-proved).**  `prop:supportstruct`'s elementary parts `R_d ≥ F_C^d` is
-`FrameFree/HelstromSupport.lean: FCΘ_pow_le_Rk`; its spectral-radius half is
-`FrameFree/SupportRate*.lean`.  `prop:orbitideal` (`W_{y,d} = I_d(X_y)^⊥`) is Zariski/Bombieri-pairing
-algebra and is not formalised there; `thm:finite` does not use it (only the elementary support space
-`span{(ky)^{⊗d}}`, which here is `suppB`).
+**Non-vacuity.**
+* `exists_finiteOrbit_of_finite`: for a *finite* subgroup `G` and any unit `y`, the orbit hypothesis holds for
+  some `(s, b)`.  Hence `thm_finite_group`: for every finite group of unitaries, every unit `x, y` with
+  `F_G(x,y) > 0`, `-(1/k) log P_e^G(k) → -log F_G(x,y)`.
+* `permOrbit`: the symmetric group `S_d` acting on `ℂ^d` by permutation matrices has the finite orbit
+  `{e_j}` (`s = d`) of `y = e_i`; `thm_finite_perm` is the resulting theorem (here `F_G(x, e_i) = max_j |x_j|²`
+  by `FG_perm`).
 
-**Scope: the hypothesis is never met for `n ≥ 1`.**  `SU(2)` is connected and fixes no ray of `ℂ²`, so for
-`n ≥ 1` no nonzero `y` has a finite projective `SU(2)^n`-orbit (the orbit map into the finite set of rays
-would be constant, i.e. `SU(2)` would act by scalars on the column space of `y` viewed as a `2 × 2^{n-1}`
-matrix).  `FiniteOrbit y s b` therefore forces `y = 0`, where `F_K = 0`.  The theorems below check the proof
-of `thm:finite` with `K = SU(2)^n` as a stand-in group; they are not an instance of it.  The paper's examples
-(finite groups, stabiliser orbits) need the statement for an abstract compact group, which is not formalised.
+The hypothesis is not satisfiable for the connected group `SU(2)^n` (`SU(2)` fixes no ray of `ℂ²`), which is why
+the theorem is formulated for an abstract group of unitaries (finite groups, stabiliser-type groups); the earlier
+`SU(2)^n`-specific statements were vacuous and have been removed.
 
-**Notes on the paper's statement.**  `F < 1` is not used by the proof (for `F = 1` both bounds are
-trivial and the limit is `0 = -log 1`); `0 < F` is automatic for unit `ψ` in the `Θ`-setting
-(`FKΘ_pos`) and is a hypothesis for a general pair.
+**Cross-references (not re-proved).**  `prop:supportstruct`'s elementary part `R_k ≥ F_C^k` is
+`FrameFree/HelstromSupport.lean: FCΘ_pow_le_Rk`; its spectral-radius half is `FrameFree/SupportRate*.lean`.
+`prop:orbitideal` (`W_{y,k} = I_k(X_y)^⊥`) is Zariski/Bombieri-pairing algebra and is not formalised; `thm:finite`
+does not use it (only the elementary support space `span{(b_j)^{⊗k}}`, which here is `suppB`).
+
+**Notes on the paper's statement.**  `F < 1` is not used by the proof (for `F = 1` both bounds are trivial and the
+limit is `0 = -log 1`); `0 < F` is a hypothesis of the limit statement for a general pair.
 -/
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
-open scoped ComplexConjugate Matrix BigOperators InnerProductSpace
+open scoped ComplexConjugate Matrix BigOperators InnerProductSpace ComplexOrder
 open Matrix FormalResearch.FrameFree.NQubit FormalResearch.FrameFree.Helstrom
 open Filter
 
@@ -156,226 +162,289 @@ theorem proj_sq_le {ι : Type*} [Fintype ι] [DecidableEq ι] {s : ℕ} (v : Fin
     have : t * t ≤ t * (2 * S) := by nlinarith
     exact le_of_mul_le_mul_left this htpos
 
-/-! ### Small algebra of `ip`, `nsq`, `copies` -/
 
-theorem ip_conj_symm' {n : ℕ} (φ ψ : Ψ n) : ip φ ψ = conj (ip ψ φ) := by
-  unfold ip
-  rw [map_sum]
-  refine Finset.sum_congr rfl fun x _ => ?_
-  simp [mul_comm]
+/-! ### Tensor powers and the diagonal action of a unitary group -/
 
-theorem ip_smul_right {n : ℕ} (c : ℂ) (φ ψ : Ψ n) : ip φ (c • ψ) = c * ip φ ψ := by
-  unfold ip
-  rw [Finset.mul_sum]
-  refine Finset.sum_congr rfl fun x _ => ?_
-  simp [mul_left_comm]
+section Setting
 
-theorem ip_smul_left {n : ℕ} (c : ℂ) (φ ψ : Ψ n) : ip (c • φ) ψ = conj c * ip φ ψ := by
-  unfold ip
-  rw [Finset.mul_sum]
-  refine Finset.sum_congr rfl fun x _ => ?_
-  simp [mul_assoc]
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
-theorem ip_sub_left {n : ℕ} (φ φ' ψ : Ψ n) : ip (φ - φ') ψ = ip φ ψ - ip φ' ψ := by
-  simp [ip, sub_mul, Finset.sum_sub_distrib]
+/-- `v^{⊗k}` in the basis `Fin k → ι`. -/
+def tp (k : ℕ) (v : ι → ℂ) : (Fin k → ι) → ℂ := fun x => ∏ j, v (x j)
 
-theorem ip_sub_right {n : ℕ} (φ ψ ψ' : Ψ n) : ip φ (ψ - ψ') = ip φ ψ - ip φ ψ' := by
-  simp [ip, mul_sub, Finset.sum_sub_distrib]
+/-- `u^{⊗k}` in the basis `Fin k → ι`. -/
+def tm (k : ℕ) (u : Matrix ι ι ℂ) : Matrix (Fin k → ι) (Fin k → ι) ℂ :=
+  kron (fun _ : Fin k => u)
 
-theorem nsq_smul {n : ℕ} (c : ℂ) (φ : Ψ n) : nsq (c • φ) = Complex.normSq c * nsq φ := by
-  unfold nsq
-  rw [Finset.mul_sum]
-  refine Finset.sum_congr rfl fun x _ => ?_
-  simp [Complex.normSq_mul]
+theorem tm_mulVec_tp (k : ℕ) (u : Matrix ι ι ℂ) (v : ι → ℂ) :
+    tm k u *ᵥ tp k v = tp k (u *ᵥ v) :=
+  kron_mulVec_prod (fun _ : Fin k => u) (fun _ => v)
 
-theorem copies_smul {n : ℕ} (k : ℕ) (c : ℂ) (φ : Ψ n) : copies k (c • φ) = c ^ k • copies k φ := by
+theorem star_tp_dot (k : ℕ) (v w : ι → ℂ) : star (tp k v) ⬝ᵥ tp k w = (star v ⬝ᵥ w) ^ k := by
+  refine (star_dot_prod (fun _ : Fin k => v) (fun _ : Fin k => w)).trans ?_
+  simp
+
+theorem tp_smul (k : ℕ) (c : ℂ) (v : ι → ℂ) : tp k (c • v) = c ^ k • tp k v := by
   funext i
-  simp [copies, Finset.prod_mul_distrib]
+  simp [tp, Finset.prod_mul_distrib]
+
+theorem tm_mul (k : ℕ) (u v : Matrix ι ι ℂ) : tm k u * tm k v = tm k (u * v) := by
+  ext x z
+  simp only [Matrix.mul_apply, tm, kron]
+  simp_rw [← Finset.prod_mul_distrib]
+  rw [sum_prod_pi (fun i b => u (x i) b * v b (z i))]
+
+theorem tm_conjTranspose (k : ℕ) (u : Matrix ι ι ℂ) : (tm k u)ᴴ = tm k uᴴ := by
+  ext x y
+  simp [tm, kron, Matrix.conjTranspose_apply, star_prod]
+
+theorem tm_unitary (k : ℕ) {u : Matrix ι ι ℂ} (hu : uᴴ * u = 1) : (tm k u)ᴴ * tm k u = 1 :=
+  kron_unitary (fun _ : Fin k => u) (fun _ => hu)
+
+theorem star_mulVec_dot_unitary {U : Matrix ι ι ℂ} (hU : Uᴴ * U = 1) (v w : ι → ℂ) :
+    star (U *ᵥ v) ⬝ᵥ (U *ᵥ w) = star v ⬝ᵥ w := by
+  have := qf_frame (M := (1 : Matrix ι ι ℂ)) hU (by simp) v w
+  simpa only [qf_one] using this
+
+theorem dot_star_comm (x y : ι → ℂ) : star x ⬝ᵥ y = conj (star y ⬝ᵥ x) := by
+  simp [dotProduct, mul_comm]
+
+theorem dot_act_adj (A : Matrix ι ι ℂ) (x y : ι → ℂ) :
+    star x ⬝ᵥ (A *ᵥ y) = star (Aᴴ *ᵥ x) ⬝ᵥ y := by
+  rw [Matrix.star_mulVec, Matrix.conjTranspose_conjTranspose, Matrix.dotProduct_mulVec]
+
+theorem unit_smul {c : ℂ} {w : ι → ℂ} (hw : star w ⬝ᵥ w = 1) (h : star (c • w) ⬝ᵥ (c • w) = 1) :
+    Complex.normSq c = 1 := by
+  rw [star_smul, smul_dotProduct, dotProduct_smul, hw] at h
+  have h2 : ((Complex.normSq c : ℝ) : ℂ) = 1 := by
+    rw [Complex.normSq_eq_conj_mul_self]; simpa using h
+  exact_mod_cast h2
+
+theorem inner_toLp' (v w : ι → ℂ) :
+    ⟪WithLp.toLp 2 v, WithLp.toLp 2 w⟫_ℂ = star v ⬝ᵥ w := by
+  simp [EuclideanSpace.inner_eq_star_dotProduct, dotProduct_comm]
+
+theorem norm_toLp_unit {x : ι → ℂ} (hx : star x ⬝ᵥ x = 1) :
+    ‖(WithLp.toLp 2 x : EuclideanSpace ℂ ι)‖ = 1 := by
+  have h : ⟪(WithLp.toLp 2 x : EuclideanSpace ℂ ι), WithLp.toLp 2 x⟫_ℂ = 1 := by
+    rw [inner_toLp', hx]
+  rw [inner_self_eq_norm_sq_to_K] at h
+  have h3 : ((‖(WithLp.toLp 2 x : EuclideanSpace ℂ ι)‖ ^ 2 : ℝ) : ℂ) = ((1 : ℝ) : ℂ) := by
+    rw [Complex.ofReal_one, Complex.ofReal_pow]; exact h
+  have h2 := Complex.ofReal_injective h3
+  nlinarith [norm_nonneg (WithLp.toLp 2 x : EuclideanSpace ℂ ι)]
 
 /-- Two unit vectors that are not proportional have `|⟨φ,ψ⟩|² < 1` (strict Cauchy-Schwarz). -/
-theorem normSq_ip_lt_one {n : ℕ} {φ ψ : Ψ n} (hφ : nsq φ = 1) (hψ : nsq ψ = 1)
-    (h : ¬ ∃ c : ℂ, φ = c • ψ) : Complex.normSq (ip φ ψ) < 1 := by
-  obtain ⟨c, hc⟩ : ∃ c : ℂ, c = ip ψ φ := ⟨_, rfl⟩
-  obtain ⟨r, hr⟩ : ∃ r : Ψ n, r = φ - c • ψ := ⟨_, rfl⟩
-  have key : ip r r = 1 - (Complex.normSq c : ℂ) := by
-    have e1 : ip φ φ = 1 := by rw [ip_self, hφ]; simp
-    have e2 : ip ψ ψ = 1 := by rw [ip_self, hψ]; simp
-    have e3 : ip φ ψ = conj c := by rw [hc]; exact ip_conj_symm' φ ψ
-    rw [hr]
-    simp only [ip_sub_left, ip_sub_right, ip_smul_left, ip_smul_right, e1, e2, e3, ← hc]
-    rw [← Complex.mul_conj]
-    ring
-  have hrr : ip r r = (nsq r : ℂ) := ip_self r
-  have hnr : nsq r = 1 - Complex.normSq c := by
-    have := hrr.symm.trans key
-    exact_mod_cast this
-  have hr0 : nsq r ≠ 0 := by
-    intro h0
-    apply h
-    refine ⟨c, ?_⟩
-    have hz : ∀ x, r x = 0 := by
-      intro x
-      have := (Finset.sum_eq_zero_iff_of_nonneg (fun x _ => Complex.normSq_nonneg (r x))).1 h0 x
-        (Finset.mem_univ x)
-      exact Complex.normSq_eq_zero.1 this
-    funext x
-    have := hz x
-    rw [hr, Pi.sub_apply, sub_eq_zero] at this
-    exact this
-  have hpos : 0 < nsq r :=
-    lt_of_le_of_ne (Finset.sum_nonneg fun x _ => Complex.normSq_nonneg (r x)) (Ne.symm hr0)
-  have : Complex.normSq (ip φ ψ) = Complex.normSq c := by
-    rw [ip_conj_symm' φ ψ, Complex.normSq_conj, hc]
-  rw [this]
-  linarith
+theorem normSq_dot_lt_one {φ ψ : ι → ℂ} (hφ : star φ ⬝ᵥ φ = 1) (hψ : star ψ ⬝ᵥ ψ = 1)
+    (h : ¬ ∃ c : ℂ, φ = c • ψ) : Complex.normSq (star φ ⬝ᵥ ψ) < 1 := by
+  refine lt_of_le_of_ne (normSq_le_one hφ hψ) fun heq => h ?_
+  have hn : ‖⟪(WithLp.toLp 2 φ : EuclideanSpace ℂ ι), WithLp.toLp 2 ψ⟫_ℂ‖ =
+      ‖(WithLp.toLp 2 φ : EuclideanSpace ℂ ι)‖ * ‖(WithLp.toLp 2 ψ : EuclideanSpace ℂ ι)‖ := by
+    rw [norm_toLp_unit hφ, norm_toLp_unit hψ, inner_toLp', mul_one]
+    have : ‖star φ ⬝ᵥ ψ‖ ^ 2 = 1 := by rw [Complex.sq_norm]; exact heq
+    nlinarith [norm_nonneg (star φ ⬝ᵥ ψ)]
+  have hφ0 : (WithLp.toLp 2 φ : EuclideanSpace ℂ ι) ≠ 0 := by
+    intro h0; have := norm_toLp_unit hφ; rw [h0] at this; simp at this
+  have hψ0 : (WithLp.toLp 2 ψ : EuclideanSpace ℂ ι) ≠ 0 := by
+    intro h0; have := norm_toLp_unit hψ; rw [h0] at this; simp at this
+  obtain ⟨r, hr0, hr⟩ := (norm_inner_eq_norm_iff hφ0 hψ0).1 hn
+  refine ⟨r⁻¹, ?_⟩
+  have : ψ = r • φ := by
+    have := congrArg WithLp.ofLp hr
+    simpa using this
+  rw [this, smul_smul, inv_mul_cancel₀ hr0, one_smul]
 
-/-! ### The pair error `PeP` -/
+end Setting
 
-/-- The frame-free error for an arbitrary pair `(x, y)`: the best equal-prior error of a
-`K`-invariant test between `x^{⊗k}` and `y^{⊗k}`.  `PeP k ψ (Θ ψ) = Pe k ψ`. -/
-noncomputable def PeP {n : ℕ} (k : ℕ) (x y : Ψ n) : ℝ :=
-  sInf {r | ∃ E, IsInvEffect (n := n) k E ∧ r = err E (copies k x) (copies k y)}
+/-! ### Invariant tests, the pair error and `F_G` -/
 
-theorem Pe_eq_PeP {n : ℕ} (k : ℕ) (ψ : Ψ n) : Pe k ψ = PeP k ψ (Θ ψ) := rfl
+section Orbit
 
-theorem PeP_bdd {n : ℕ} (k : ℕ) (x y : Ψ n) :
-    BddBelow {r | ∃ E, IsInvEffect (n := n) k E ∧ r = err E (copies k x) (copies k y)} :=
-  ⟨0, by rintro r ⟨E, hE, rfl⟩; exact err_nonneg hE.1 _ _⟩
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
-theorem PeP_le_err {n : ℕ} {k : ℕ} {E : Matrix (Copies n k) (Copies n k) ℂ} (hE : IsInvEffect k E)
-    (x y : Ψ n) : PeP k x y ≤ err E (copies k x) (copies k y) :=
-  csInf_le (PeP_bdd k x y) ⟨E, hE, rfl⟩
+theorem ug_adj_mul (u : Matrix.unitaryGroup ι ℂ) :
+    (u : Matrix ι ι ℂ)ᴴ * (u : Matrix ι ι ℂ) = 1 :=
+  Matrix.UnitaryGroup.star_mul_self u
 
-/-- The closest-pair converse for any unit pair: `|⟨x|u y⟩|^{2k}/4 ≤ P_e(k)`. -/
-theorem PeP_ge_of_rot {n : ℕ} {x y : Ψ n} (hx : nsq x = 1) (hy : nsq y = 1) (u : Fin n → Op1)
-    (hu : ∀ i, SU2 (u i)) (k : ℕ) : Complex.normSq (ip x (rot u y)) ^ k / 4 ≤ PeP k x y := by
-  refine le_csInf ⟨_, 0, isInvEffect_zero k, rfl⟩ ?_
-  rintro r ⟨E, hE, rfl⟩
-  rw [← err_rot_right hE u hu, ← copies_rot]
-  have hrot : nsq (rot u y) = 1 := by rw [nsq_rot u hu, hy]
-  have h := quarter_le_err hE.1 (star_copies_self k x hx) (star_copies_self k (rot u y) hrot)
-  rw [star_copies_dot, ← ip_eq_dot, map_pow] at h
-  exact h
+theorem unit_act (u : Matrix.unitaryGroup ι ℂ) {y : ι → ℂ} (hy : star y ⬝ᵥ y = 1) :
+    star ((u : Matrix ι ι ℂ) *ᵥ y) ⬝ᵥ ((u : Matrix ι ι ℂ) *ᵥ y) = 1 := by
+  rw [star_mulVec_dot_unitary (ug_adj_mul u), hy]
 
-theorem isInvEffect_one_sub {n : ℕ} {k : ℕ} {E : Matrix (Copies n k) (Copies n k) ℂ}
-    (hE : IsInvEffect k E) : IsInvEffect k (1 - E) :=
+/-- A `G`-invariant test on `k` copies: an effect commuting with every `u^{⊗k}`, `u ∈ G`. -/
+def IsInvEff (G : Subgroup (Matrix.unitaryGroup ι ℂ)) (k : ℕ)
+    (E : Matrix (Fin k → ι) (Fin k → ι) ℂ) : Prop :=
+  IsEffect E ∧ ∀ u ∈ G, tm k (u : Matrix ι ι ℂ) * E = E * tm k (u : Matrix ι ι ℂ)
+
+/-- The best equal-prior error of a `G`-invariant test between `x^{⊗k}` and `y^{⊗k}`. -/
+noncomputable def PeG (G : Subgroup (Matrix.unitaryGroup ι ℂ)) (k : ℕ) (x y : ι → ℂ) : ℝ :=
+  sInf {r | ∃ E, IsInvEff G k E ∧ r = err E (tp k x) (tp k y)}
+
+/-- The overlap `F_G(x,y) = sup_{u ∈ G} |⟨x|u y⟩|²`. -/
+noncomputable def FG (G : Subgroup (Matrix.unitaryGroup ι ℂ)) (x y : ι → ℂ) : ℝ :=
+  sSup {r | ∃ u ∈ G, r = Complex.normSq (star x ⬝ᵥ ((u : Matrix ι ι ℂ) *ᵥ y))}
+
+variable {G : Subgroup (Matrix.unitaryGroup ι ℂ)}
+
+theorem isInvEff_zero (k : ℕ) : IsInvEff G k 0 :=
+  ⟨⟨Matrix.PosSemidef.zero, by simpa using Matrix.PosSemidef.one⟩, fun u _ => by simp⟩
+
+theorem isInvEff_one_sub {k : ℕ} {E : Matrix (Fin k → ι) (Fin k → ι) ℂ} (hE : IsInvEff G k E) :
+    IsInvEff G k (1 - E) :=
   ⟨⟨hE.1.2, by simpa using hE.1.1⟩, fun u hu => by
     rw [Matrix.mul_sub, Matrix.sub_mul, Matrix.mul_one, Matrix.one_mul, hE.2 u hu]⟩
 
-theorem err_one_sub {ι : Type*} [Fintype ι] [DecidableEq ι] (E : Matrix ι ι ℂ) (a b : ι → ℂ) :
+theorem PeG_bdd (k : ℕ) (x y : ι → ℂ) :
+    BddBelow {r | ∃ E, IsInvEff G k E ∧ r = err E (tp k x) (tp k y)} :=
+  ⟨0, by rintro r ⟨E, hE, rfl⟩; exact err_nonneg hE.1 _ _⟩
+
+theorem PeG_le_err {k : ℕ} {E : Matrix (Fin k → ι) (Fin k → ι) ℂ} (hE : IsInvEff G k E)
+    (x y : ι → ℂ) : PeG G k x y ≤ err E (tp k x) (tp k y) :=
+  csInf_le (PeG_bdd k x y) ⟨E, hE, rfl⟩
+
+theorem err_act_right {k : ℕ} {E : Matrix (Fin k → ι) (Fin k → ι) ℂ} (hE : IsInvEff G k E)
+    {u : Matrix.unitaryGroup ι ℂ} (hu : u ∈ G) (a b : (Fin k → ι) → ℂ) :
+    err E a (tm k (u : Matrix ι ι ℂ) *ᵥ b) = err E a b := by
+  have hU := tm_unitary k (ug_adj_mul u)
+  have hc : tm k (u : Matrix ι ι ℂ) * (1 - E) = (1 - E) * tm k (u : Matrix ι ι ℂ) := by
+    rw [Matrix.mul_sub, Matrix.sub_mul, Matrix.mul_one, Matrix.one_mul, hE.2 u hu]
+  unfold err
+  rw [qf_frame hU hc]
+
+/-- The closest-pair converse for any unit pair and any `u ∈ G`: `|⟨x|u y⟩|^{2k}/4 ≤ P_e^G(k)`. -/
+theorem PeG_ge_of_act {x y : ι → ℂ} (hx : star x ⬝ᵥ x = 1) (hy : star y ⬝ᵥ y = 1)
+    {u : Matrix.unitaryGroup ι ℂ} (hu : u ∈ G) (k : ℕ) :
+    Complex.normSq (star x ⬝ᵥ ((u : Matrix ι ι ℂ) *ᵥ y)) ^ k / 4 ≤ PeG G k x y := by
+  refine le_csInf ⟨_, 0, isInvEff_zero k, rfl⟩ ?_
+  rintro r ⟨E, hE, rfl⟩
+  rw [← err_act_right hE hu, tm_mulVec_tp]
+  have h := quarter_le_err hE.1 (a := tp k x) (b := tp k ((u : Matrix ι ι ℂ) *ᵥ y))
+    (by rw [star_tp_dot, hx, one_pow]) (by rw [star_tp_dot, unit_act u hy, one_pow])
+  rw [star_tp_dot, map_pow] at h
+  exact h
+
+theorem err_one_sub {κ : Type*} [Fintype κ] [DecidableEq κ] (E : Matrix κ κ ℂ) (a b : κ → ℂ) :
     err (1 - E) b a = err E a b := by
   unfold err
   rw [sub_sub_cancel]
   ring
 
-theorem PeP_le_swap {n : ℕ} (k : ℕ) (x y : Ψ n) : PeP k x y ≤ PeP k y x := by
-  refine le_csInf ⟨_, 0, isInvEffect_zero k, rfl⟩ ?_
+theorem PeG_le_swap (k : ℕ) (x y : ι → ℂ) : PeG G k x y ≤ PeG G k y x := by
+  refine le_csInf ⟨_, 0, isInvEff_zero k, rfl⟩ ?_
   rintro r ⟨E, hE, rfl⟩
-  have := PeP_le_err (isInvEffect_one_sub hE) x y
+  have := PeG_le_err (isInvEff_one_sub hE) x y
   rwa [err_one_sub] at this
 
 /-- Swapping the two hypotheses does not change the invariant error (replace `E` by `1 - E`). -/
-theorem PeP_comm {n : ℕ} (k : ℕ) (x y : Ψ n) : PeP k x y = PeP k y x :=
-  le_antisymm (PeP_le_swap k x y) (PeP_le_swap k y x)
+theorem PeG_comm (k : ℕ) (x y : ι → ℂ) : PeG G k x y = PeG G k y x :=
+  le_antisymm (PeG_le_swap k x y) (PeG_le_swap k y x)
 
-theorem rotSet_subset_swap {n : ℕ} (x y : Ψ n) : rotSet x y ⊆ rotSet y x := by
+theorem FG_bdd {x y : ι → ℂ} (hx : star x ⬝ᵥ x = 1) (hy : star y ⬝ᵥ y = 1) :
+    BddAbove {r | ∃ u ∈ G, r = Complex.normSq (star x ⬝ᵥ ((u : Matrix ι ι ℂ) *ᵥ y))} :=
+  ⟨1, by rintro r ⟨u, hu, rfl⟩; exact normSq_le_one hx (unit_act u hy)⟩
+
+theorem le_FG {x y : ι → ℂ} (hx : star x ⬝ᵥ x = 1) (hy : star y ⬝ᵥ y = 1)
+    {u : Matrix.unitaryGroup ι ℂ} (hu : u ∈ G) :
+    Complex.normSq (star x ⬝ᵥ ((u : Matrix ι ι ℂ) *ᵥ y)) ≤ FG G x y :=
+  le_csSup (FG_bdd hx hy) ⟨u, hu, rfl⟩
+
+theorem FG_le_swap {x y : ι → ℂ} (hx : star x ⬝ᵥ x = 1) (hy : star y ⬝ᵥ y = 1) :
+    FG G x y ≤ FG G y x := by
+  refine csSup_le ⟨_, 1, G.one_mem, rfl⟩ ?_
   rintro r ⟨u, hu, rfl⟩
-  refine ⟨fun i => (u i)ᴴ, fun i => SU2_adjoint (hu i), ?_⟩
-  have h1 : rot (fun i => (u i)ᴴ) (rot u y) = y := by
-    rw [rot_comp]
-    have : (fun i => (u i)ᴴ * u i) = fun _ => (1 : Op1) := funext fun i => (hu i).1
-    rw [this, rot_one]
-  have h2 := ip_rot (fun i => (u i)ᴴ) (fun i => (SU2_adjoint (hu i)).1) x (rot u y)
-  rw [h1] at h2
-  rw [← h2, ip_conj_symm' (rot _ x) y, Complex.normSq_conj]
+  have h := le_FG hy hx (G.inv_mem hu)
+  refine le_trans (le_of_eq ?_) h
+  rw [dot_act_adj, Matrix.UnitaryGroup.inv_val, dot_star_comm y, Complex.normSq_conj]
+  rfl
 
-theorem FK_comm {n : ℕ} (x y : Ψ n) : FK x y = FK y x := by
-  unfold FK
-  rw [Set.Subset.antisymm (rotSet_subset_swap x y) (rotSet_subset_swap y x)]
+theorem FG_comm {x y : ι → ℂ} (hx : star x ⬝ᵥ x = 1) (hy : star y ⬝ᵥ y = 1) :
+    FG G x y = FG G y x :=
+  le_antisymm (FG_le_swap hx hy) (FG_le_swap hy hx)
 
 /-! ### Finite projective orbits -/
 
-/-- `b 0, …, b (s-1)` are the `s` distinct rays of the orbit `{rot u y : u ∈ SU(2)^n}`: each is an
-orbit point, every orbit point is proportional to one of them, and they are pairwise non-proportional. -/
-structure FiniteOrbit {n : ℕ} (y : Ψ n) (s : ℕ) (b : Fin s → Ψ n) : Prop where
-  mem : ∀ j, ∃ u : Fin n → Op1, (∀ i, SU2 (u i)) ∧ b j = rot u y
-  cover : ∀ u : Fin n → Op1, (∀ i, SU2 (u i)) → ∃ j, ∃ c : ℂ, rot u y = c • b j
+/-- `b 0, …, b (s-1)` are the `s` distinct rays of the orbit `{u y : u ∈ G}`: each is an orbit point, every
+orbit point is proportional to one of them, and they are pairwise non-proportional. -/
+structure FiniteOrbit (G : Subgroup (Matrix.unitaryGroup ι ℂ)) (y : ι → ℂ) (s : ℕ)
+    (b : Fin s → ι → ℂ) : Prop where
+  mem : ∀ j, ∃ u ∈ G, b j = (u : Matrix ι ι ℂ) *ᵥ y
+  cover : ∀ u ∈ G, ∃ j, ∃ c : ℂ, (u : Matrix ι ι ℂ) *ᵥ y = c • b j
   sep : ∀ i j, i ≠ j → ¬ ∃ c : ℂ, b i = c • b j
 
 namespace FiniteOrbit
 
-variable {n : ℕ} {y : Ψ n} {s : ℕ} {b : Fin s → Ψ n}
+variable {y : ι → ℂ} {s : ℕ} {b : Fin s → ι → ℂ}
 
-theorem pos (hb : FiniteOrbit y s b) : 0 < s := by
-  obtain ⟨j, _⟩ := hb.cover (fun _ => 1) (fun _ => SU2_one)
+theorem pos (hb : FiniteOrbit G y s b) : 0 < s := by
+  obtain ⟨j, _⟩ := hb.cover 1 G.one_mem
   exact Fin.pos j
 
-theorem nsq_b (hb : FiniteOrbit y s b) (hy : nsq y = 1) (j : Fin s) : nsq (b j) = 1 := by
-  obtain ⟨v, hv, h⟩ := hb.mem j
-  rw [h, nsq_rot v hv, hy]
+theorem unit_b (hb : FiniteOrbit G y s b) (hy : star y ⬝ᵥ y = 1) (j : Fin s) :
+    star (b j) ⬝ᵥ b j = 1 := by
+  obtain ⟨v, _, h⟩ := hb.mem j
+  rw [h]; exact unit_act v hy
 
-theorem sep_lt (hb : FiniteOrbit y s b) (hy : nsq y = 1) (i j : Fin s) (hij : i ≠ j) :
-    Complex.normSq (ip (b i) (b j)) < 1 :=
-  normSq_ip_lt_one (hb.nsq_b hy i) (hb.nsq_b hy j) (hb.sep i j hij)
+theorem sep_lt (hb : FiniteOrbit G y s b) (hy : star y ⬝ᵥ y = 1) (i j : Fin s) (hij : i ≠ j) :
+    Complex.normSq (star (b i) ⬝ᵥ b j) < 1 :=
+  normSq_dot_lt_one (hb.unit_b hy i) (hb.unit_b hy j) (hb.sep i j hij)
 
 /-- The set of `s` rays is closed under the group action. -/
-theorem closed (hb : FiniteOrbit y s b) (u : Fin n → Op1) (hu : ∀ i, SU2 (u i)) (j : Fin s) :
-    ∃ i, ∃ c : ℂ, rot u (b j) = c • b i := by
+theorem closed (hb : FiniteOrbit G y s b) {u : Matrix.unitaryGroup ι ℂ} (hu : u ∈ G) (j : Fin s) :
+    ∃ i, ∃ c : ℂ, (u : Matrix ι ι ℂ) *ᵥ b j = c • b i := by
   obtain ⟨v, hv, hbj⟩ := hb.mem j
-  obtain ⟨i, c, hc⟩ := hb.cover (fun l => u l * v l) (fun l => SU2_mul (hu l) (hv l))
-  exact ⟨i, c, by rw [hbj, rot_comp, hc]⟩
+  obtain ⟨i, c, hc⟩ := hb.cover (u * v) (G.mul_mem hu hv)
+  refine ⟨i, c, ?_⟩
+  rw [hbj, Matrix.mulVec_mulVec]
+  exact hc
 
 end FiniteOrbit
 
-/-- If the orbit of `y` is finite, `F_K(x,y)` is attained (at an orbit point). -/
-theorem FK_attained {n : ℕ} {x y : Ψ n} {s : ℕ} {b : Fin s → Ψ n} (hy : nsq y = 1)
-    (hb : FiniteOrbit y s b) :
-    ∃ u : Fin n → Op1, (∀ i, SU2 (u i)) ∧ FK x y = Complex.normSq (ip x (rot u y)) := by
+/-- If the orbit of `y` is finite, `F_G(x,y)` is attained (at an orbit point). -/
+theorem FG_attained {x y : ι → ℂ} {s : ℕ} {b : Fin s → ι → ℂ} (hx : star x ⬝ᵥ x = 1)
+    (hy : star y ⬝ᵥ y = 1) (hb : FiniteOrbit G y s b) :
+    ∃ u ∈ G, FG G x y = Complex.normSq (star x ⬝ᵥ ((u : Matrix ι ι ℂ) *ᵥ y)) := by
   have : Nonempty (Fin s) := ⟨⟨0, hb.pos⟩⟩
-  obtain ⟨j0, hj0⟩ := Finite.exists_max (fun j : Fin s => Complex.normSq (ip x (b j)))
+  obtain ⟨j0, hj0⟩ := Finite.exists_max (fun j : Fin s => Complex.normSq (star x ⬝ᵥ b j))
   obtain ⟨u0, hu0, hb0⟩ := hb.mem j0
-  refine ⟨u0, hu0, le_antisymm ?_ (le_FK x y u0 hu0)⟩
-  show sSup (rotSet x y) ≤ _
-  apply csSup_le (rotSet_nonempty x y)
+  refine ⟨u0, hu0, le_antisymm ?_ (le_FG hx hy hu0)⟩
+  refine csSup_le ⟨_, 1, G.one_mem, rfl⟩ ?_
   rintro r ⟨u, hu, rfl⟩
   obtain ⟨j, c, hc⟩ := hb.cover u hu
-  have hc1 : Complex.normSq c = 1 := by
-    have h1 : nsq (rot u y) = 1 := by rw [nsq_rot u hu, hy]
-    rw [hc, nsq_smul, hb.nsq_b hy j, mul_one] at h1
-    exact h1
-  rw [hc, ip_smul_right, Complex.normSq_mul, hc1, one_mul, ← hb0]
+  have hc1 : Complex.normSq c = 1 := unit_smul (hb.unit_b hy j) (hc ▸ unit_act u hy)
+  rw [hc, dotProduct_smul, smul_eq_mul, Complex.normSq_mul, hc1, one_mul, ← hb0]
   exact hj0 j
 
-/-- **Lower bound** (all `k`): `F_K(x,y)^k / 4 ≤ P_e(k)` for a finite orbit. -/
-theorem PeP_ge_of_finiteOrbit {n : ℕ} {x y : Ψ n} {s : ℕ} {b : Fin s → Ψ n} (hx : nsq x = 1)
-    (hy : nsq y = 1) (hb : FiniteOrbit y s b) (k : ℕ) : FK x y ^ k / 4 ≤ PeP k x y := by
-  obtain ⟨u, hu, hF⟩ := FK_attained (x := x) hy hb
+/-- **Lower bound** (all `k`): `F_G(x,y)^k / 4 ≤ P_e^G(k)` for a finite orbit. -/
+theorem PeG_ge_of_finiteOrbit {x y : ι → ℂ} {s : ℕ} {b : Fin s → ι → ℂ} (hx : star x ⬝ᵥ x = 1)
+    (hy : star y ⬝ᵥ y = 1) (hb : FiniteOrbit G y s b) (k : ℕ) :
+    FG G x y ^ k / 4 ≤ PeG G k x y := by
+  obtain ⟨u, hu, hF⟩ := FG_attained hx hy hb
   rw [hF]
-  exact PeP_ge_of_rot hx hy u hu k
+  exact PeG_ge_of_act hx hy hu k
 
 /-! ### The support test -/
 
 /-- The `k`-th tensor powers of the rays `b j`, as vectors. -/
-def vecs {n s : ℕ} (k : ℕ) (b : Fin s → Ψ n) : Fin s → EuclideanSpace ℂ (Copies n k) :=
-  fun j => WithLp.toLp 2 (copies k (b j))
+def vecs {s : ℕ} (k : ℕ) (b : Fin s → ι → ℂ) : Fin s → EuclideanSpace ℂ (Fin k → ι) :=
+  fun j => WithLp.toLp 2 (tp k (b j))
 
 /-- The support space `span{b_j^{⊗k}}` of the finite orbit. -/
-def suppB {n s : ℕ} (k : ℕ) (b : Fin s → Ψ n) : Submodule ℂ (EuclideanSpace ℂ (Copies n k)) :=
+def suppB {s : ℕ} (k : ℕ) (b : Fin s → ι → ℂ) : Submodule ℂ (EuclideanSpace ℂ (Fin k → ι)) :=
   Submodule.span ℂ (Set.range (vecs k b))
 
-theorem suppB_invariant {n : ℕ} {y : Ψ n} {s : ℕ} {b : Fin s → Ψ n} (hb : FiniteOrbit y s b) (k : ℕ)
-    (u : Fin n → Op1) (hu : ∀ i, SU2 (u i)) :
-    ∀ v : Copies n k → ℂ, WithLp.toLp 2 v ∈ suppB k b →
-      WithLp.toLp 2 (rotK k u *ᵥ v) ∈ suppB k b := by
-  have key : ∀ x ∈ suppB k b, WithLp.toLp 2 (rotK k u *ᵥ WithLp.ofLp x) ∈ suppB k b := by
+theorem suppB_invariant {y : ι → ℂ} {s : ℕ} {b : Fin s → ι → ℂ} (hb : FiniteOrbit G y s b) (k : ℕ)
+    {u : Matrix.unitaryGroup ι ℂ} (hu : u ∈ G) :
+    ∀ v : (Fin k → ι) → ℂ, WithLp.toLp 2 v ∈ suppB k b →
+      WithLp.toLp 2 (tm k (u : Matrix ι ι ℂ) *ᵥ v) ∈ suppB k b := by
+  have key : ∀ x ∈ suppB k b,
+      WithLp.toLp 2 (tm k (u : Matrix ι ι ℂ) *ᵥ WithLp.ofLp x) ∈ suppB k b := by
     intro x hx
     induction hx using Submodule.span_induction with
     | mem x hx =>
       obtain ⟨j, rfl⟩ := hx
-      obtain ⟨i, c, hc⟩ := hb.closed u hu j
-      have h : rotK k u *ᵥ copies k (b j) = c ^ k • copies k (b i) := by
-        rw [← copies_rot, hc, copies_smul]
-      have e : WithLp.ofLp (vecs k b j) = copies k (b j) := rfl
+      obtain ⟨i, c, hc⟩ := hb.closed hu j
+      have h : tm k (u : Matrix ι ι ℂ) *ᵥ tp k (b j) = c ^ k • tp k (b i) := by
+        rw [tm_mulVec_tp, hc, tp_smul]
+      have e : WithLp.ofLp (vecs k b j) = tp k (b j) := rfl
       have hm : c ^ k • vecs k b i ∈ suppB k b :=
         Submodule.smul_mem _ _ (Submodule.subset_span ⟨i, rfl⟩)
       rw [e, h]
@@ -390,24 +459,26 @@ theorem suppB_invariant {n : ℕ} {y : Ψ n} {s : ℕ} {b : Fin s → Ψ n} (hb 
   intro v hv
   simpa using key _ hv
 
-/-- The orthogonal projector onto the support space is a `K`-invariant test. -/
-theorem suppB_isInv {n : ℕ} {y : Ψ n} {s : ℕ} {b : Fin s → Ψ n} (hb : FiniteOrbit y s b) (k : ℕ) :
-    IsInvEffect (n := n) k (projMat (suppB k b)) := by
+/-- The orthogonal projector onto the support space is a `G`-invariant test. -/
+theorem suppB_isInv {y : ι → ℂ} {s : ℕ} {b : Fin s → ι → ℂ} (hb : FiniteOrbit G y s b) (k : ℕ) :
+    IsInvEff G k (projMat (suppB k b)) := by
   refine ⟨projMat_isEffect _, fun u hu => ?_⟩
   refine projMat_commute _ (fun v hv => ?_) (fun v hv => ?_)
-  · exact suppB_invariant hb k u hu v hv
-  · rw [rotK_conjTranspose]
-    exact suppB_invariant hb k _ (fun i => SU2_adjoint (hu i)) v hv
+  · exact suppB_invariant hb k hu v hv
+  · rw [tm_conjTranspose]
+    have := suppB_invariant hb k (G.inv_mem hu) v hv
+    rw [Matrix.UnitaryGroup.inv_val] at this
+    exact this
 
 /-- The support test never errs on `y`, so `P_e(k) ≤ ½ ‖Π x^{⊗k}‖²`. -/
-theorem PeP_le_half_proj {n : ℕ} {x y : Ψ n} {s : ℕ} {b : Fin s → Ψ n} (hb : FiniteOrbit y s b)
+theorem PeG_le_half_proj {x y : ι → ℂ} {s : ℕ} {b : Fin s → ι → ℂ} (hb : FiniteOrbit G y s b)
     (k : ℕ) :
-    PeP k x y ≤ ‖(suppB k b).starProjection (WithLp.toLp 2 (copies k x))‖ ^ 2 / 2 := by
-  refine (PeP_le_err (suppB_isInv hb k) x y).trans (le_of_eq ?_)
-  have hy : WithLp.toLp 2 (copies k y) ∈ suppB k b := by
-    obtain ⟨j, c, hc⟩ := hb.cover (fun _ => 1) (fun _ => SU2_one)
-    rw [rot_one] at hc
-    rw [hc, copies_smul]
+    PeG G k x y ≤ ‖(suppB k b).starProjection (WithLp.toLp 2 (tp k x))‖ ^ 2 / 2 := by
+  refine (PeG_le_err (suppB_isInv hb k) x y).trans (le_of_eq ?_)
+  have hy : WithLp.toLp 2 (tp k y) ∈ suppB k b := by
+    obtain ⟨j, c, hc⟩ := hb.cover 1 G.one_mem
+    have hc' : y = c • b j := by simpa using hc
+    rw [hc', tp_smul]
     have hm : c ^ k • vecs k b j ∈ suppB k b :=
       Submodule.smul_mem _ _ (Submodule.subset_span ⟨j, rfl⟩)
     exact hm
@@ -415,16 +486,16 @@ theorem PeP_le_half_proj {n : ℕ} {x y : Ψ n} {s : ℕ} {b : Fin s → Ψ n} (
   rw [qf_one_sub_projMat_of_mem _ hy, qf_projMat_self]
   simp
 
-/-- **Upper bound** (all large `k`): `P_e(k) ≤ s F_K(x,y)^k` when the orbit of `y` has `s` rays. -/
-theorem PeP_eventually_le {n : ℕ} {x y : Ψ n} {s : ℕ} {b : Fin s → Ψ n} (hy : nsq y = 1)
-    (hb : FiniteOrbit y s b) :
-    ∀ᶠ k : ℕ in atTop, PeP k x y ≤ s * FK x y ^ k := by
+/-- **Upper bound** (all large `k`): `P_e(k) ≤ s F_G(x,y)^k` when the orbit of `y` has `s` rays. -/
+theorem PeG_eventually_le {x y : ι → ℂ} {s : ℕ} {b : Fin s → ι → ℂ} (hx : star x ⬝ᵥ x = 1)
+    (hy : star y ⬝ᵥ y = 1) (hb : FiniteOrbit G y s b) :
+    ∀ᶠ k : ℕ in atTop, PeG G k x y ≤ s * FG G x y ^ k := by
   classical
   -- a uniform separation constant α < 1
   obtain ⟨α, hα0, hα1, hα⟩ : ∃ α : ℝ, 0 ≤ α ∧ α < 1 ∧
-      ∀ i j, i ≠ j → ‖ip (b i) (b j)‖ ≤ α := by
+      ∀ i j, i ≠ j → ‖star (b i) ⬝ᵥ b j‖ ≤ α := by
     have hne : Nonempty (Fin s × Fin s) := ⟨(⟨0, hb.pos⟩, ⟨0, hb.pos⟩)⟩
-    let f : Fin s × Fin s → ℝ := fun p => if p.1 = p.2 then 0 else ‖ip (b p.1) (b p.2)‖
+    let f : Fin s × Fin s → ℝ := fun p => if p.1 = p.2 then 0 else ‖star (b p.1) ⬝ᵥ b p.2‖
     have hf0 : ∀ p, 0 ≤ f p := fun p => by
       by_cases h : p.1 = p.2
       · simp [f, h]
@@ -435,63 +506,56 @@ theorem PeP_eventually_le {n : ℕ} {x y : Ψ n} {s : ℕ} {b : Fin s → Ψ n} 
       · simp [f, h]
       · have h1 := hb.sep_lt hy p.1 p.2 h
         rw [Complex.normSq_eq_norm_sq] at h1
-        have e : f p = ‖ip (b p.1) (b p.2)‖ := by simp [f, h]
+        have e : f p = ‖star (b p.1) ⬝ᵥ b p.2‖ := by simp [f, h]
         rw [e]
-        rcases lt_or_ge ‖ip (b p.1) (b p.2)‖ 1 with h2 | h2
+        rcases lt_or_ge ‖star (b p.1) ⬝ᵥ b p.2‖ 1 with h2 | h2
         · exact h2
-        · nlinarith [norm_nonneg (ip (b p.1) (b p.2))]
+        · nlinarith [norm_nonneg (star (b p.1) ⬝ᵥ b p.2)]
     obtain ⟨p0, hp0⟩ := Finite.exists_max f
     refine ⟨f p0, hf0 p0, hf1 p0, fun i j hij => ?_⟩
-    have e : f (i, j) = ‖ip (b i) (b j)‖ := by simp [f, hij]
+    have e : f (i, j) = ‖star (b i) ⬝ᵥ b j‖ := by simp [f, hij]
     rw [← e]
     exact hp0 (i, j)
   have hlim : Tendsto (fun k : ℕ => (s : ℝ) * α ^ k) atTop (nhds 0) := by
     simpa using (tendsto_pow_atTop_nhds_zero_of_lt_one hα0 hα1).const_mul (s : ℝ)
   filter_upwards [hlim.eventually (Iic_mem_nhds (by norm_num : (0 : ℝ) < 1 / 2))] with k hk
   have hk' : (s : ℝ) * α ^ k ≤ 1 / 2 := hk
-  have hvip : ∀ i j, ⟪vecs k b i, vecs k b j⟫_ℂ = (ip (b i) (b j)) ^ k := by
+  have hvip : ∀ i j, ⟪vecs k b i, vecs k b j⟫_ℂ = (star (b i) ⬝ᵥ b j) ^ k := by
     intro i j
     simp only [vecs]
-    rw [inner_toLp, star_copies_dot, ← ip_eq_dot]
+    rw [inner_toLp', star_tp_dot]
   have hv1 : ∀ j, ‖vecs k b j‖ = 1 := by
     intro j
-    have h : ⟪vecs k b j, vecs k b j⟫_ℂ = 1 := by
-      rw [hvip, ip_self, hb.nsq_b hy j]; simp
-    rw [inner_self_eq_norm_sq_to_K] at h
-    have h2 : ‖vecs k b j‖ ^ 2 = 1 := by
-      have h3 : ((‖vecs k b j‖ ^ 2 : ℝ) : ℂ) = ((1 : ℝ) : ℂ) := by
-        rw [Complex.ofReal_one, Complex.ofReal_pow]; exact h
-      exact Complex.ofReal_injective h3
-    nlinarith [norm_nonneg (vecs k b j)]
+    exact norm_toLp_unit (by rw [star_tp_dot, hb.unit_b hy j, one_pow])
   have hε : ∀ i j, i ≠ j → ‖⟪vecs k b i, vecs k b j⟫_ℂ‖ ≤ α ^ k := by
     intro i j hij
     rw [hvip, norm_pow]
     exact pow_le_pow_left₀ (norm_nonneg _) (hα i j hij) k
   have hproj := proj_sq_le (vecs k b) hv1 (pow_nonneg hα0 k) hε hk'
-    (WithLp.toLp 2 (copies k x))
-  have hterm : ∀ j, ‖⟪vecs k b j, (WithLp.toLp 2 (copies k x) : EuclideanSpace ℂ (Copies n k))⟫_ℂ‖ ^ 2
-      ≤ FK x y ^ k := by
+    (WithLp.toLp 2 (tp k x))
+  have hterm : ∀ j, ‖⟪vecs k b j, (WithLp.toLp 2 (tp k x) : EuclideanSpace ℂ (Fin k → ι))⟫_ℂ‖ ^ 2
+      ≤ FG G x y ^ k := by
     intro j
-    have e : ⟪vecs k b j, (WithLp.toLp 2 (copies k x) : EuclideanSpace ℂ (Copies n k))⟫_ℂ
-        = (ip (b j) x) ^ k := by
+    have e : ⟪vecs k b j, (WithLp.toLp 2 (tp k x) : EuclideanSpace ℂ (Fin k → ι))⟫_ℂ
+        = (star (b j) ⬝ᵥ x) ^ k := by
       simp only [vecs]
-      rw [inner_toLp, star_copies_dot, ← ip_eq_dot]
-    rw [e, norm_pow, ← pow_mul, mul_comm, pow_mul, ← Complex.normSq_eq_norm_sq, ip_conj_symm' (b j) x,
-      Complex.normSq_conj]
+      rw [inner_toLp', star_tp_dot]
+    rw [e, norm_pow, ← pow_mul, mul_comm, pow_mul, ← Complex.normSq_eq_norm_sq,
+      dot_star_comm (b j) x, Complex.normSq_conj]
     obtain ⟨u, hu, hbj⟩ := hb.mem j
     refine pow_le_pow_left₀ (Complex.normSq_nonneg _) ?_ k
     rw [hbj]
-    exact le_FK x y u hu
-  calc PeP k x y
-      ≤ ‖(suppB k b).starProjection (WithLp.toLp 2 (copies k x))‖ ^ 2 / 2 := PeP_le_half_proj hb k
-    _ ≤ (2 * ∑ j, ‖⟪vecs k b j, (WithLp.toLp 2 (copies k x) : EuclideanSpace ℂ (Copies n k))⟫_ℂ‖ ^ 2) / 2 := by
-        have : ‖(suppB k b).starProjection (WithLp.toLp 2 (copies k x))‖ ^ 2 ≤
-            2 * ∑ j, ‖⟪vecs k b j, (WithLp.toLp 2 (copies k x) : EuclideanSpace ℂ (Copies n k))⟫_ℂ‖ ^ 2 :=
+    exact le_FG hx hy hu
+  calc PeG G k x y
+      ≤ ‖(suppB k b).starProjection (WithLp.toLp 2 (tp k x))‖ ^ 2 / 2 := PeG_le_half_proj hb k
+    _ ≤ (2 * ∑ j, ‖⟪vecs k b j, (WithLp.toLp 2 (tp k x) : EuclideanSpace ℂ (Fin k → ι))⟫_ℂ‖ ^ 2) / 2 := by
+        have : ‖(suppB k b).starProjection (WithLp.toLp 2 (tp k x))‖ ^ 2 ≤
+            2 * ∑ j, ‖⟪vecs k b j, (WithLp.toLp 2 (tp k x) : EuclideanSpace ℂ (Fin k → ι))⟫_ℂ‖ ^ 2 :=
           hproj
         linarith
-    _ = ∑ j, ‖⟪vecs k b j, (WithLp.toLp 2 (copies k x) : EuclideanSpace ℂ (Copies n k))⟫_ℂ‖ ^ 2 := by ring
-    _ ≤ ∑ j : Fin s, FK x y ^ k := Finset.sum_le_sum fun j _ => hterm j
-    _ = s * FK x y ^ k := by simp
+    _ = ∑ j, ‖⟪vecs k b j, (WithLp.toLp 2 (tp k x) : EuclideanSpace ℂ (Fin k → ι))⟫_ℂ‖ ^ 2 := by ring
+    _ ≤ ∑ j : Fin s, FG G x y ^ k := Finset.sum_le_sum fun j _ => hterm j
+    _ = s * FG G x y ^ k := by simp
 
 /-! ### The exponent -/
 
@@ -529,41 +593,167 @@ theorem tendsto_of_bounds {F : ℝ} {s : ℕ} {P : ℕ → ℝ} (hF : 0 < F) (hs
     field_simp
     ring
 
-/-- **`thm:finite`, quantitative form.**  If the `K`-orbit of `y` or of `x` has `s` rays `b`, then for
-unit `x, y`: `F^k/4 ≤ P_e^K(k)` for every `k` and `P_e^K(k) ≤ s F^k` for all large `k`
-(`F = F_K(x,y)`). -/
-theorem thm_finite_bounds {n : ℕ} {x y : Ψ n} (hx : nsq x = 1) (hy : nsq y = 1) {s : ℕ}
-    {b : Fin s → Ψ n} (hb : FiniteOrbit y s b ∨ FiniteOrbit x s b) :
-    (∀ k : ℕ, FK x y ^ k / 4 ≤ PeP k x y) ∧
-      ∀ᶠ k : ℕ in atTop, PeP k x y ≤ s * FK x y ^ k := by
-  rcases hb with hb | hb
-  · exact ⟨PeP_ge_of_finiteOrbit hx hy hb, PeP_eventually_le hy hb⟩
-  · refine ⟨fun k => ?_, ?_⟩
-    · rw [PeP_comm, FK_comm]
-      exact PeP_ge_of_finiteOrbit hy hx hb k
-    · filter_upwards [PeP_eventually_le (x := y) hx hb] with k hk
-      rwa [PeP_comm, FK_comm]
 
-/-- **`thm:finite`** (QI-B).  For unit `x, y`, if the projective `K`-orbit of `y` or of `x` is finite
-(`s` rays) and `0 < F_K(x,y)`, then `ξ_inv(x,y) = lim_k -(1/k) log P_e^K(k) = -log F_K(x,y) = C_K(x,y)`;
-the hypothesis `F_K < 1` of the paper is not needed. -/
-theorem thm_finite {n : ℕ} {x y : Ψ n} (hx : nsq x = 1) (hy : nsq y = 1) (hF : 0 < FK x y) {s : ℕ}
-    {b : Fin s → Ψ n} (hb : FiniteOrbit y s b ∨ FiniteOrbit x s b) :
-    Tendsto (fun k : ℕ => -(1 / (k : ℝ)) * Real.log (PeP k x y)) atTop (nhds (-Real.log (FK x y))) := by
+/-- **`thm:finite`, quantitative form.**  If the `G`-orbit of `y` or of `x` has `s` rays `b`, then for
+unit `x, y`: `F^k/4 ≤ P_e^G(k)` for every `k` and `P_e^G(k) ≤ s F^k` for all large `k`
+(`F = F_G(x,y)`). -/
+theorem thm_finite_bounds {x y : ι → ℂ} (hx : star x ⬝ᵥ x = 1) (hy : star y ⬝ᵥ y = 1) {s : ℕ}
+    {b : Fin s → ι → ℂ} (hb : FiniteOrbit G y s b ∨ FiniteOrbit G x s b) :
+    (∀ k : ℕ, FG G x y ^ k / 4 ≤ PeG G k x y) ∧
+      ∀ᶠ k : ℕ in atTop, PeG G k x y ≤ s * FG G x y ^ k := by
+  rcases hb with hb | hb
+  · exact ⟨PeG_ge_of_finiteOrbit hx hy hb, PeG_eventually_le hx hy hb⟩
+  · refine ⟨fun k => ?_, ?_⟩
+    · rw [PeG_comm, FG_comm hx hy]
+      exact PeG_ge_of_finiteOrbit hy hx hb k
+    · filter_upwards [PeG_eventually_le (G := G) (x := y) hy hx hb] with k hk
+      rwa [PeG_comm, FG_comm hx hy]
+
+/-- **`thm:finite`** (QI-B), for an arbitrary group of unitaries `G`.  For unit `x, y`, if the projective
+`G`-orbit of `y` or of `x` is finite (`s` rays) and `0 < F_G(x,y)`, then
+`ξ_inv(x,y) = lim_k -(1/k) log P_e^G(k) = -log F_G(x,y) = C_G(x,y)`; the hypothesis `F_G < 1` of the paper is
+not needed. -/
+theorem thm_finite {x y : ι → ℂ} (hx : star x ⬝ᵥ x = 1) (hy : star y ⬝ᵥ y = 1)
+    (hF : 0 < FG G x y) {s : ℕ} {b : Fin s → ι → ℂ}
+    (hb : FiniteOrbit G y s b ∨ FiniteOrbit G x s b) :
+    Tendsto (fun k : ℕ => -(1 / (k : ℝ)) * Real.log (PeG G k x y)) atTop
+      (nhds (-Real.log (FG G x y))) := by
   have hs : 0 < s := by rcases hb with hb | hb <;> exact hb.pos
   obtain ⟨hlow, hup⟩ := thm_finite_bounds hx hy hb
   exact tendsto_of_bounds hF hs hlow hup
 
-/-- `thm:finite` in the existing `(ψ, Θψ)` setting: `P_e = Pe`, `F_K = FKΘ`, `C_K = CK`.  Here `0 < F_K`
-is automatic (`FKΘ_pos`).  The finite orbit may be that of `Θψ` or of `ψ`. -/
-theorem thm_finite_Theta {n : ℕ} {ψ : Ψ n} (hψ : nsq ψ = 1) {s : ℕ} {b : Fin s → Ψ n}
-    (hb : FiniteOrbit (Θ ψ) s b ∨ FiniteOrbit ψ s b) :
-    (∀ k : ℕ, FKΘ ψ ^ k / 4 ≤ Pe k ψ) ∧
-      (∀ᶠ k : ℕ in atTop, Pe k ψ ≤ s * FKΘ ψ ^ k) ∧
-      Tendsto (fun k : ℕ => -(1 / (k : ℝ)) * Real.log (Pe k ψ)) atTop (nhds (CK ψ)) := by
-  have hΘ : nsq (Θ ψ) = 1 := by rw [nsq_Θ, hψ]
-  obtain ⟨hlow, hup⟩ := thm_finite_bounds hψ hΘ hb
-  have hs : 0 < s := by rcases hb with hb | hb <;> exact hb.pos
-  exact ⟨hlow, hup, tendsto_of_bounds (FKΘ_pos ψ hψ) hs hlow hup⟩
+/-! ### Non-vacuity: finite groups and permutation groups -/
+
+/-- For a finite group `G` the orbit hypothesis holds for every unit `y`. -/
+theorem exists_finiteOrbit_of_finite [Finite G] {y : ι → ℂ} (hy : star y ⬝ᵥ y = 1) :
+    ∃ (s : ℕ) (b : Fin s → ι → ℂ), FiniteOrbit G y s b := by
+  classical
+  let act : G → ι → ℂ := fun u => ((u : Matrix.unitaryGroup ι ℂ) : Matrix ι ι ℂ) *ᵥ y
+  have hne : ∀ u v : G, ∀ c : ℂ, act u = c • act v → c ≠ 0 := by
+    intro u v c h hc
+    have h1 := unit_act (u : Matrix.unitaryGroup ι ℂ) hy
+    change star (act u) ⬝ᵥ act u = 1 at h1
+    rw [h, hc] at h1
+    simp at h1
+  let r : Setoid G :=
+    { r := fun u v => ∃ c : ℂ, act u = c • act v
+      iseqv :=
+        { refl := fun u => ⟨1, by simp⟩
+          symm := by
+            rintro u v ⟨c, hc⟩
+            refine ⟨c⁻¹, ?_⟩
+            rw [hc, smul_smul, inv_mul_cancel₀ (hne u v c hc), one_smul]
+          trans := by
+            rintro u v w ⟨c, hc⟩ ⟨d, hd⟩
+            exact ⟨c * d, by rw [hc, hd, smul_smul]⟩ } }
+  have : Finite (Quotient r) := Finite.of_surjective (Quotient.mk r) Quotient.mk_surjective
+  let e : Quotient r ≃ Fin (Nat.card (Quotient r)) := Finite.equivFin _
+  refine ⟨Nat.card (Quotient r), fun j => act (Quotient.out (e.symm j)), ?_, ?_, ?_⟩
+  · intro j
+    exact ⟨_, (Quotient.out (e.symm j)).2, rfl⟩
+  · intro u hu
+    refine ⟨e (Quotient.mk r ⟨u, hu⟩), ?_⟩
+    have h : r (⟨u, hu⟩ : G) (Quotient.out (Quotient.mk r ⟨u, hu⟩)) :=
+      Quotient.exact (Quotient.out_eq (Quotient.mk r (⟨u, hu⟩ : G))).symm
+    simp only [Equiv.symm_apply_apply]
+    exact h
+  · intro i j hij ⟨c, hc⟩
+    apply hij
+    have : Quotient.mk r (Quotient.out (e.symm i)) = Quotient.mk r (Quotient.out (e.symm j)) :=
+      Quotient.sound ⟨c, hc⟩
+    rw [Quotient.out_eq, Quotient.out_eq] at this
+    exact e.symm.injective this
+
+/-- **`thm:finite` for every finite group of unitaries**: for unit `x, y` with `F_G(x,y) > 0`,
+`-(1/k) log P_e^G(k) → -log F_G(x,y)`, and `F_G^k/4 ≤ P_e^G(k) ≤ s F_G^k` eventually, `s` the number of rays. -/
+theorem thm_finite_group [Finite G] {x y : ι → ℂ} (hx : star x ⬝ᵥ x = 1) (hy : star y ⬝ᵥ y = 1)
+    (hF : 0 < FG G x y) :
+    (∃ s : ℕ, 0 < s ∧ (∀ k : ℕ, FG G x y ^ k / 4 ≤ PeG G k x y) ∧
+        ∀ᶠ k : ℕ in atTop, PeG G k x y ≤ s * FG G x y ^ k) ∧
+      Tendsto (fun k : ℕ => -(1 / (k : ℝ)) * Real.log (PeG G k x y)) atTop
+        (nhds (-Real.log (FG G x y))) := by
+  obtain ⟨s, b, hb⟩ := exists_finiteOrbit_of_finite (G := G) hy
+  exact ⟨⟨s, hb.pos, (thm_finite_bounds hx hy (Or.inl hb)).1,
+    (thm_finite_bounds hx hy (Or.inl hb)).2⟩, thm_finite hx hy hF (Or.inl hb)⟩
+
+end Orbit
+
+/-! ### The symmetric group acting on `ℂ^d` by permutation matrices -/
+
+section Perm
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+/-- The permutation matrices as a homomorphism into the unitary group (`σ ↦ P_{σ⁻¹}`, so that
+`permU σ e_i = e_{σ i}`). -/
+noncomputable def permU : Equiv.Perm ι →* Matrix.unitaryGroup ι ℂ where
+  toFun σ := ⟨Equiv.Perm.permMatrix ℂ σ⁻¹, by
+    rw [Matrix.mem_unitaryGroup_iff', Matrix.star_eq_conjTranspose, Matrix.conjTranspose_permMatrix,
+      inv_inv, ← Matrix.permMatrix_mul]
+    simp⟩
+  map_one' := Subtype.ext (by simp)
+  map_mul' σ τ := Subtype.ext (by
+    show Equiv.Perm.permMatrix ℂ (σ * τ)⁻¹ = Equiv.Perm.permMatrix ℂ σ⁻¹ * Equiv.Perm.permMatrix ℂ τ⁻¹
+    rw [_root_.mul_inv_rev, Matrix.permMatrix_mul])
+
+/-- The group `S_ι` of permutation matrices. -/
+noncomputable def permGroup (ι : Type*) [Fintype ι] [DecidableEq ι] :
+    Subgroup (Matrix.unitaryGroup ι ℂ) := (permU (ι := ι)).range
+
+theorem permU_mulVec_single (σ : Equiv.Perm ι) (i : ι) :
+    ((permU σ : Matrix.unitaryGroup ι ℂ) : Matrix ι ι ℂ) *ᵥ Pi.single i (1 : ℂ) =
+      Pi.single (σ i) (1 : ℂ) := by
+  show Equiv.Perm.permMatrix ℂ σ⁻¹ *ᵥ Pi.single i (1 : ℂ) = _
+  rw [Matrix.permMatrix_mulVec]
+  funext j
+  simp only [Function.comp_apply, Pi.single_apply, Equiv.Perm.inv_eq_iff_eq]
+
+/-- The orbit of the basis vector `e_i` under the permutation group is the `d = |ι|` rays `e_j`. -/
+theorem permOrbit (i : ι) :
+    FiniteOrbit (permGroup ι) (Pi.single i (1 : ℂ)) (Fintype.card ι)
+      (fun j => Pi.single ((Fintype.equivFin ι).symm j) (1 : ℂ)) := by
+  refine ⟨fun j => ?_, fun u hu => ?_, fun a c hac ⟨z, hz⟩ => ?_⟩
+  · refine ⟨permU (Equiv.swap i ((Fintype.equivFin ι).symm j)), ⟨_, rfl⟩, ?_⟩
+    rw [permU_mulVec_single, Equiv.swap_apply_left]
+  · obtain ⟨σ, rfl⟩ := hu
+    refine ⟨Fintype.equivFin ι (σ i), 1, ?_⟩
+    rw [permU_mulVec_single]
+    simp
+  · have := congrFun hz ((Fintype.equivFin ι).symm a)
+    have hne : (Fintype.equivFin ι).symm c ≠ (Fintype.equivFin ι).symm a := by
+      intro h; exact hac (((Fintype.equivFin ι).symm.injective h).symm)
+    simp [hne.symm] at this
+
+theorem FG_perm_ge (x : ι → ℂ) (hx : star x ⬝ᵥ x = 1) (i j : ι) :
+    Complex.normSq (x j) ≤ FG (permGroup ι) x (Pi.single i (1 : ℂ)) := by
+  have hy : star (Pi.single i (1 : ℂ) : ι → ℂ) ⬝ᵥ Pi.single i (1 : ℂ) = 1 := by simp
+  have := le_FG (G := permGroup ι) hx hy (u := permU (Equiv.swap i j)) ⟨_, rfl⟩
+  rw [permU_mulVec_single, Equiv.swap_apply_left] at this
+  simpa [dotProduct_single] using this
+
+/-- **`thm:finite` for the symmetric group** `S_d ≤ U(d)` acting on `ℂ^d` by permutation matrices, `y = e_i`:
+for every unit `x`, `F^k/4 ≤ P_e^{S_d}(k) ≤ d F^k` (large `k`) with `F = F_{S_d}(x, e_i) ≥ max_j |x_j|² > 0`,
+and `-(1/k) log P_e^{S_d}(k) → -log F`. -/
+theorem thm_finite_perm (x : ι → ℂ) (hx : star x ⬝ᵥ x = 1) (i : ι) :
+    (∀ k : ℕ, FG (permGroup ι) x (Pi.single i (1 : ℂ)) ^ k / 4 ≤
+        PeG (permGroup ι) k x (Pi.single i (1 : ℂ))) ∧
+      (∀ᶠ k : ℕ in atTop, PeG (permGroup ι) k x (Pi.single i (1 : ℂ)) ≤
+        Fintype.card ι * FG (permGroup ι) x (Pi.single i (1 : ℂ)) ^ k) ∧
+      Tendsto (fun k : ℕ => -(1 / (k : ℝ)) * Real.log (PeG (permGroup ι) k x (Pi.single i (1 : ℂ))))
+        atTop (nhds (-Real.log (FG (permGroup ι) x (Pi.single i (1 : ℂ))))) := by
+  have hy : star (Pi.single i (1 : ℂ) : ι → ℂ) ⬝ᵥ Pi.single i (1 : ℂ) = 1 := by simp
+  have hpos : 0 < FG (permGroup ι) x (Pi.single i (1 : ℂ)) := by
+    obtain ⟨j, hj⟩ : ∃ j, x j ≠ 0 := by
+      by_contra hcon
+      push Not at hcon
+      have : x = 0 := funext hcon
+      rw [this] at hx
+      simp at hx
+    exact lt_of_lt_of_le (Complex.normSq_pos.2 hj) (FG_perm_ge x hx i j)
+  have hb := permOrbit i
+  obtain ⟨hlow, hup⟩ := thm_finite_bounds hx hy (Or.inl hb)
+  exact ⟨hlow, hup, thm_finite hx hy hpos (Or.inl hb)⟩
+
+end Perm
 
 end FormalResearch.QIB

@@ -88,6 +88,7 @@ import FormalResearch.QIB.RealCoordsStructure
 import FormalResearch.QIB.RealCoordsWeights
 import FormalResearch.QIB.RealCoordsCoord
 import FormalResearch.QIB.RealCoordsFrame
+import FormalResearch.QIB.BlockRealSym
 import FormalResearch.QIB.EasyAbelianCarriers
 import FormalResearch.QIB.EasyCommutingBlocks
 import FormalResearch.QIB.EasyRankOneSandwich
@@ -337,6 +338,7 @@ import FormalResearch.FrameFree.OddWordsSl2Basis
 import FormalResearch.FrameFree.OddWordsSl2Skew
 import FormalResearch.FrameFree.OddWordsStrata
 import FormalResearch.FrameFree.PsiPlusKramers
+import FormalResearch.FrameFree.PsiPlusPaper
 import FormalResearch.FrameFree.FilteredGateBasic
 import FormalResearch.FrameFree.FilteredGateEcho
 import FormalResearch.FrameFree.FilteredGateReal
