@@ -78,6 +78,8 @@ import FormalResearch.QIB.MatrixHelstrom
 import FormalResearch.QIB.FiniteOrbitExponent
 import FormalResearch.QIB.BlockExamples
 import FormalResearch.QIB.BlockAntiunitary
+import FormalResearch.QIB.BlockCoordinates
+import FormalResearch.QIB.BlockStructure
 import FormalResearch.FrameFree.PolyImageDischarge
 import FormalResearch.FrameFree.PolyImageAll
 import FormalResearch.FrameFree.PolyImageMain
