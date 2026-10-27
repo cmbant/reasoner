@@ -291,6 +291,9 @@ import FormalResearch.FrameFree.PsiPlusKramersRK2
 import FormalResearch.FrameFree.PsiPlusKramersAlg
 import FormalResearch.FrameFree.PsiPlusKramersCore
 import FormalResearch.FrameFree.PsiPlusKramers
+import FormalResearch.FrameFree.FilteredGateBasic
+import FormalResearch.FrameFree.FilteredGateEcho
+import FormalResearch.FrameFree.FilteredGateReal
 import FormalResearch.FrameFree.TwirlsBicommutant
 import FormalResearch.FrameFree.TwirlsOdd
 import FormalResearch.FrameFree.TwirlsOneCopy
