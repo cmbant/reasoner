@@ -7,13 +7,12 @@ import FormalResearch.FourQubitEntropy.Attainment
 
 Namespace `FormalResearch.FrameFree.Ceilings`.  It builds on `FrameFree.Foundations` (`Ψ n`, `rot`, `ip`,
 `nsq`, `cj`, `Θ`, `FK`, `FKΘ`, `CK`, `tens`, `FKΘ_tens`, `CK_tens`, ...) and does not redefine them.  The
-only other import is `FourQubitEntropy.Attainment` (for the vector `M₄`).
+other imports are `FrameFree.RealRep3` (every three-qubit vector is in the `GL(2,ℂ)³` orbit of a real vector,
+Dür-Vidal-Cirac; `realRep3`) and `FourQubitEntropy.Attainment` (for the vector `M₄`).
 
 Claim classes follow `AGENTS.md`: everything below is **proved** (Lean, no admitted goals, no `ofReduceBool`-style tactics, no
 new axioms) unless a hypothesis is displayed in the statement; the hypotheses are:
 
-* `RealRep3` -- the Dur-Vidal-Cirac fact (recalled here; proved in `RealRep3Discharge`): every three-qubit vector is in the
-  `GL(2,C)^3` orbit of a real vector.
 * `h49 : FKΘ M4v = 4/9` -- `F_K(M₄) = 4/9`.  Its lower bound is proved in `FrameFree/PhysicalBridge.lean`
   (`four_ninths_le_rotOverlap_M4`); the upper bound is the recalled Weyl-vertex input R7 (`FKmag` is the
   rotation overlap).  It is not assumed silently: it is a hypothesis of each statement that uses it.
@@ -26,13 +25,13 @@ new axioms) unless a hypothesis is displayed in the statement; the hypotheses ar
 `le_FC_of_path` (limit principle), `peel_le_FC` (contracting one qubit with a unit bra cannot increase
 `F_C(ψ,ψ̄)`; the limit filter `e eᵀ + s e' e'ᵀ`, `s → 0`), `FC_tens`, `FCΘ_tens` (`prop:mult`, filter part).
 
-**`thm:ceiling` and `thm:entceiling`** (under `RealRep3`).  `FC_three_ge`, `entceiling_contract` (any
+**`thm:ceiling` and `thm:entceiling`**.  `FC_three_ge`, `entceiling_contract` (any
 contraction of any `n-3` parties by any unit vectors: `F_C(ψ,ψ̄) ≥ ‖ψ_{e_S}‖²`), `ceiling_lmax`
 (`F_C ≥ λmax(ρ_j)` on four qubits), `ceiling_half` (`F_C ≥ 1/2`), `FCΘ_eq_one_of_le_three`,
 `FCΘ_ge_pow`, `FCΘ_ge_eight` (`F_C ≥ 8·2^{-n}`), `normSq_ip_pv_le_FCΘ`, `negLog_FC_le_EG`,
 `negLog_FC_le_log2` (`-log F_C ≤ min(E_G, (n-3) log 2)`; the proved part of `prop:s3-geomconverse`).
 
-**`prop:exponentdepth`.** (a) `negLog_FC_le_producible` (under `RealRep3`).  (b) `CK_le_producible_three`
+**`prop:exponentdepth`.** (a) `negLog_FC_le_producible`.  (b) `CK_le_producible_three`
 (`C_K ≤ ⌊n/3⌋ c₃` for `3`-producible states, unconditional) and `exists_producible_three_attaining`
 (sharpness, given `hc`).  Producibility is the inductive predicate `Producible m` (tensor products of unit
 states on consecutive blocks of at most `m` qubits).
@@ -50,8 +49,7 @@ Hermitian spectral theorem), `FKΘ_eq_one_of_le_two` (`F_K = 1` for one or two q
 `Producible.FKΘ_eq_one`, `not_producible_two_of_FKΘ_lt_one`, `OddObs.FKΘ_lt_one`,
 `OddObs.not_producible_two` (`a(ψ) ≠ 0` implies `ψ` is not `2`-producible).
 
-**`M₄`** (`thm:m4support`, `thm:m4exponent`; `toN`, `M4v`, `M4pow`).  `half_le_FCΘ_M4` (`F_C(M₄) ≥ 1/2`,
-under `RealRep3`), `M4_uncalibrated` (`F_K < F_C`, given `h49`), `CK_M4pow` (`C_K(M₄^{⊗m}) = m log(9/4)`,
+**`M₄`** (`thm:m4support`, `thm:m4exponent`; `toN`, `M4v`, `M4pow`).  `half_le_FCΘ_M4` (`F_C(M₄) ≥ 1/2`), `M4_uncalibrated` (`F_K < F_C`, given `h49`), `CK_M4pow` (`C_K(M₄^{⊗m}) = m log(9/4)`,
 given `h49`), `FCΘ_M4pow_ge`, `FCΘ_M4pow_eq` (exactly `2^{-m}` given `hle`), `M4pow_window`
 (`-log F_C = m log 2 < C_K`, given `hle`, `h49`).
 

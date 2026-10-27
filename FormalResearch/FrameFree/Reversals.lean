@@ -1,5 +1,5 @@
 import FormalResearch.FrameFree.GateOverlap
-import FormalResearch.FrameFree.Sharing
+import FormalResearch.FrameFree.ExchangeSharing
 import FormalResearch.FrameFree.M4Support
 import FormalResearch.FrameFree.Unify
 import FormalResearch.FrameFree.Arithmetic
@@ -15,9 +15,8 @@ Elementary, fully proved parts of `thm:ratefails`, `thm:ratefailregion`, `thm:ca
 `XiInvUnconditional`, which restates these results with exact `ξ_inv`).  Wherever the argument here uses it, `ξ`
 is a real number and the hypotheses are exactly the inequalities the paper uses: the support lower bound
 `-log F_C ≤ ξ`, the tensorised or ceiling upper bound, or the envelope converse `e^{-ξ} ≥ 𝒲(C₃,C₂)`
-(chain steps (1)-(3) of the paper, `EnvelopeAtStar`).  Recalled inputs appear as hypotheses:
-`FKΘ M₄ ≤ 4/9` (R7); `Ceilings.RealRep3` and `Sharing.ExchangeIndepBound(C)` are now theorems
-(`RealRep3Discharge`, `ExchangeBounds`).
+(chain steps (1)-(3) of the paper, `EnvelopeAtStar`).  The one recalled input is a hypothesis:
+`FKΘ M₄ ≤ 4/9` (R7).
 
 **Proved here.**
 * Strict reversal against a calibrated ruler (`strictReversal_ruler_iff`, `reversal_of_gap_ruler`,
@@ -698,15 +697,15 @@ open FormalResearch.FrameFree.NQubit (Ψ FKΘ CK tens nsq Θ)
 
 /-! ### The exchange-gate Choi probes (`thm:heis`), in the repository's own objects -/
 
-/-- `F_K(ψ_{U_θ}) = cos² θ`, given the independent-frame bound (recalled R7/R8). -/
-theorem FKΘ_psiEx {θ : ℝ} (hK : Sharing.ExchangeIndepBound θ) :
+/-- `F_K(ψ_{U_θ}) = cos² θ` for `0 ≤ θ ≤ π/4` (independent frames). -/
+theorem FKΘ_psiEx {θ : ℝ} (h0 : 0 ≤ θ) (h1 : θ ≤ π / 4) :
     FKΘ (Sharing.psiEx θ) = Real.cos θ ^ 2 :=
-  Sharing.FKΘs_exchange_ii (id : Fin 4 → Fin 4) (Sharing.id_refines Sharing.pat1324) θ hK
+  Sharing.FKΘs_exchange_ii (id : Fin 4 → Fin 4) (Sharing.id_refines Sharing.pat1324) θ h0 h1
 
-/-- `F_C(ψ_{U_θ}) = cos² θ` (`Ceilings.FCΘ`), given the independent-frame filter bound (R8). -/
-theorem FCΘ_psiEx {θ : ℝ} (hC : Sharing.ExchangeIndepBoundC θ) :
+/-- `F_C(ψ_{U_θ}) = cos² θ` (`Ceilings.FCΘ`) for `0 ≤ θ ≤ π/4`. -/
+theorem FCΘ_psiEx {θ : ℝ} (h0 : 0 ≤ θ) (h1 : θ ≤ π / 4) :
     Ceilings.FCΘ (Sharing.psiEx θ) = Real.cos θ ^ 2 := by
-  have h := Sharing.FCΘs_exchange_ii (id : Fin 4 → Fin 4) (Sharing.id_refines Sharing.pat1324) θ hC
+  have h := Sharing.FCΘs_exchange_ii (id : Fin 4 → Fin 4) (Sharing.id_refines Sharing.pat1324) θ h0 h1
   have hn : nsq (Θ (Sharing.psiEx θ)) ≠ 0 := by
     rw [NQubit.nsq_Θ, Sharing.nsq_psiEx]; norm_num
   unfold Sharing.FCΘs at h
@@ -716,8 +715,7 @@ theorem FCΘ_psiEx {θ : ℝ} (hC : Sharing.ExchangeIndepBoundC θ) :
 /-- **`thm:heis`** for the Choi probe, `0 ≤ θ ≤ π/4`: `F_C = F_K = (1+cos 2θ)/2 = cos²θ`, which is the
 Weyl-side value `FKmag(dgate (θ/2,θ/2,θ/2))` of `thm:gatefk`, and
 `-log F_C = C_K = log(2/(1+cos 2θ))` (calibration). -/
-theorem exchange_law {θ : ℝ} (h0 : 0 ≤ θ) (h1 : θ ≤ π / 4) (hK : Sharing.ExchangeIndepBound θ)
-    (hC : Sharing.ExchangeIndepBoundC θ) :
+theorem exchange_law {θ : ℝ} (h0 : 0 ≤ θ) (h1 : θ ≤ π / 4) :
     Ceilings.FCΘ (Sharing.psiEx θ) = (1 + cos (2 * θ)) / 2 ∧
       FKΘ (Sharing.psiEx θ) = (1 + cos (2 * θ)) / 2 ∧
       FKmag (dgate (fun _ => θ / 2)) = (1 + cos (2 * θ)) / 2 ∧
@@ -734,9 +732,9 @@ theorem exchange_law {θ : ℝ} (h0 : 0 ≤ θ) (h1 : θ ≤ π / 4) (hK : Shari
     unfold CKex
     rw [hF', ← Real.log_inv, inv_div]
   have hfc : Ceilings.FCΘ (Sharing.psiEx θ) = (1 + cos (2 * θ)) / 2 := by
-    rw [FCΘ_psiEx hC, hcos]
+    rw [FCΘ_psiEx h0 h1, hcos]
   have hfk : FKΘ (Sharing.psiEx θ) = (1 + cos (2 * θ)) / 2 := by
-    rw [FKΘ_psiEx hK, hcos]
+    rw [FKΘ_psiEx h0 h1, hcos]
   exact ⟨hfc, hfk, hF, e _ hfc, e _ hfk⟩
 
 /-- The exchange gates form a calibrated ruler on `[0, log 2]` (`s4-reversals`): every
@@ -796,10 +794,11 @@ theorem region_reversal (c : Fin 3 → ℝ) (h0 : 0 < |c 2|) (h1 : |c 2| < c 1) 
 
 /-! ### Eight qubits and blocks of four, `cor:calgeom-spin1extensive` -/
 
-/-- Recalled: `F_K(ψ_{U_{π/4}}) = F_C(ψ_{U_{π/4}}) = 1/2`. -/
-theorem exchange_pi4 (hK : Sharing.ExchangeIndepBound (π / 4)) (hC : Sharing.ExchangeIndepBoundC (π / 4)) :
+/-- `F_K(ψ_{U_{π/4}}) = F_C(ψ_{U_{π/4}}) = 1/2` (`thm:psipluskramers`; `ψ_{U_{π/4}}` is `ψ₊` up to exchanging
+spins 2 and 4). -/
+theorem exchange_pi4 :
     Ceilings.FCΘ (Sharing.psiEx (π / 4)) = 1 / 2 ∧ FKΘ (Sharing.psiEx (π / 4)) = 1 / 2 := by
-  have h := exchange_law (θ := π / 4) (by positivity) le_rfl hK hC
+  have h := exchange_law (θ := π / 4) (by positivity) le_rfl
   have : cos (2 * (π / 4)) = 0 := by
     rw [show 2 * (π / 4) = π / 2 by ring]; exact Real.cos_pi_div_two
   rw [this] at h
@@ -812,16 +811,15 @@ noncomputable def Psi8 (θ : ℝ) : Ψ (4 + 4) := tens Ceilings.M4v (Sharing.psi
 is `ψ₊` after exchanging spins 2 and 4, and `F_K`, `F_C` are invariant under this relabelling). -/
 noncomputable def Phi8 : Ψ (4 + 4) := tens (Sharing.psiEx (π / 4)) (Sharing.psiEx (π / 4))
 
-/-- **`cor:calgeom-spin1extensive` (b), values** (`0 ≤ θ ≤ π/4`, recalled inputs `RealRep3`,
-`F_K(M₄) ≤ 4/9` [R7 for `M₄`], and R7/R8 for the exchange probe at `θ`):
+/-- **`cor:calgeom-spin1extensive` (b), values** (`0 ≤ θ ≤ π/4`, given `F_K(M₄) ≤ 4/9` [R7 for `M₄`]):
 `F_K(Ψ_θ) = (4/9)(1+s)/2`, `F_C(Ψ_θ) = (1/2)(1+s)/2`, `s = cos 2θ`. -/
 theorem Psi8_values (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ} (h0 : 0 ≤ θ)
-    (h1 : θ ≤ π / 4) (hK : Sharing.ExchangeIndepBound θ) (hC : Sharing.ExchangeIndepBoundC θ) :
+    (h1 : θ ≤ π / 4) :
     FKΘ (Psi8 θ) = 4 / 9 * ((1 + cos (2 * θ)) / 2) ∧
       Ceilings.FCΘ (Psi8 θ) = 1 / 2 * ((1 + cos (2 * θ)) / 2) ∧
       CK (Psi8 θ) = CK8 (cos (2 * θ)) ∧
       -Real.log (Ceilings.FCΘ (Psi8 θ)) = xi8 (cos (2 * θ)) := by
-  obtain ⟨hfc, hfk, -⟩ := exchange_law h0 h1 hK hC
+  obtain ⟨hfc, hfk, -⟩ := exchange_law h0 h1
   have e49 := Unify.FKΘ_M4v_eq_of_le h49
   have e12 := M4Support.FCΘ_M4v_eq
   have hK8 : FKΘ (Psi8 θ) = 4 / 9 * ((1 + cos (2 * θ)) / 2) := by
@@ -832,9 +830,9 @@ theorem Psi8_values (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ} (h0 : 0 ≤ �
       (by rw [Sharing.nsq_psiEx]; norm_num), e12, hfc]
   exact ⟨hK8, hC8, by unfold CK CK8; rw [hK8], by unfold xi8; rw [hC8]⟩
 
-theorem Phi8_values (hK : Sharing.ExchangeIndepBound (π / 4)) (hC : Sharing.ExchangeIndepBoundC (π / 4)) :
+theorem Phi8_values :
     CK Phi8 = Real.log 4 ∧ -Real.log (Ceilings.FCΘ Phi8) = Real.log 4 := by
-  obtain ⟨hc, hk⟩ := exchange_pi4 hK hC
+  obtain ⟨hc, hk⟩ := exchange_pi4
   have e : ∀ F : ℝ, F = 1 / 4 → -Real.log F = Real.log 4 := by
     intro F hF; rw [hF, ← Real.log_inv]; norm_num
   have hk8 : FKΘ Phi8 = 1 / 4 := by unfold Phi8; rw [NQubit.FKΘ_tens, hk]; norm_num
@@ -848,15 +846,13 @@ theorem Phi8_values (hK : Sharing.ExchangeIndepBound (π / 4)) (hC : Sharing.Exc
 reversal, with `C_K(Ψ) = log (9/(2(1+s)))`, `-log F_C(Ψ) = log (4/(1+s))`.  (Here `-log F_C` stands in
 for `ξ_inv`; the equality `ξ_inv = -log F_C` for both factors is the recalled `thm:expceiling` input.) -/
 theorem eight_qubit_reversal (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ}
-    (h0 : 0 ≤ θ) (h1 : θ ≤ π / 4) (hK : Sharing.ExchangeIndepBound θ)
-    (hC : Sharing.ExchangeIndepBoundC θ) (hK4 : Sharing.ExchangeIndepBound (π / 4))
-    (hC4 : Sharing.ExchangeIndepBoundC (π / 4)) (hs0 : 0 < cos (2 * θ)) (hs1 : cos (2 * θ) < 1 / 8) :
+    (h0 : 0 ≤ θ) (h1 : θ ≤ π / 4) (hs0 : 0 < cos (2 * θ)) (hs1 : cos (2 * θ) < 1 / 8) :
     StrictReversal (CK (Psi8 θ)) (-Real.log (Ceilings.FCΘ (Psi8 θ))) (CK Phi8)
         (-Real.log (Ceilings.FCΘ Phi8)) ∧
       CK (Psi8 θ) = Real.log (9 / (2 * (1 + cos (2 * θ)))) ∧
       -Real.log (Ceilings.FCΘ (Psi8 θ)) = Real.log (4 / (1 + cos (2 * θ))) := by
-  obtain ⟨-, -, hck, hxi⟩ := Psi8_values h49 h0 h1 hK hC
-  obtain ⟨hp1, hp2⟩ := Phi8_values hK4 hC4
+  obtain ⟨-, -, hck, hxi⟩ := Psi8_values h49 h0 h1
+  obtain ⟨hp1, hp2⟩ := Phi8_values
   rw [hck, hxi, hp1, hp2]
   exact ⟨⟨(CK8_gt_iff _ hs0.le).2 hs1, (xi8_lt_iff _ hs0.le).2 hs0⟩, CK8_eq _ hs0.le,
     xi8_eq _ hs0.le⟩
@@ -865,7 +861,7 @@ theorem eight_qubit_reversal (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) {θ : ℝ}
 theorem eight_qubit_budget {s : ℝ} (hs : 0 ≤ s) :
     (CK8 s - Real.log 4) + (Real.log 4 - xi8 s) = Real.log (9 / 8) := advantage_deficit s hs
 
-/-- **`cor:calgeom-spin1extensive` (a), values** (`RealRep3`, `F_K(M₄) ≤ 4/9`): for `n = 4(m+1)` spins,
+/-- **`cor:calgeom-spin1extensive` (a), values** (`F_K(M₄) ≤ 4/9`): for `n = 4(m+1)` spins,
 `C_K(M₄^{⊗(m+1)}) = (m+1) log (9/4)`, `-log F_C(M₄^{⊗(m+1)}) = (m+1) log 2`, and the difference is
 `(m+1) log (9/8) = (n/4) log (9/8)`, growing linearly. -/
 theorem blocks_gap (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) (m : ℕ) :
@@ -1005,7 +1001,7 @@ theorem log_9_4_bounds : (0.81093 : ℝ) < log (9 / 4) ∧ log (9 / 4) < 0.81094
   rw [h]
   constructor <;> linarith
 
-/-- **`thm:m4exponent`** (`RealRep3`, `F_K(M₄) ≤ 4/9`): if `-log F_C(M₄) ≤ ξ ≤ log 2` (the upper bound is
+/-- **`thm:m4exponent`** (`F_K(M₄) ≤ 4/9`): if `-log F_C(M₄) ≤ ξ ≤ log 2` (the upper bound is
 `thm:expceiling` at the maximally mixed marginals), then `ξ = log 2 < C_K(M₄) = log (9/4)`,
 `C_K - ξ = log (9/8)`, and the fraction `1 - ξ/C_K` is in `(0.1452, 0.1453)`. -/
 theorem m4_exponent (h49 : FKΘ Ceilings.M4v ≤ 4 / 9) (ξ : ℝ)

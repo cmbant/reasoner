@@ -104,7 +104,7 @@ import FormalResearch.FrameFree.PolyImageDischarge
 import FormalResearch.FrameFree.XiInvUnconditional
 import FormalResearch.FrameFree.ExchangeBoundsCartan
 import FormalResearch.FrameFree.ExchangeBounds
-import FormalResearch.FrameFree.ExchangeBoundsWrappers
+import FormalResearch.FrameFree.ExchangeSharing
 import FormalResearch.FrameFree.ConverseProjector
 import FormalResearch.FrameFree.ConverseBranch
 import FormalResearch.FrameFree.ConverseM4
@@ -336,9 +336,6 @@ import FormalResearch.FrameFree.OddWordsSl2
 import FormalResearch.FrameFree.OddWordsSl2Basis
 import FormalResearch.FrameFree.OddWordsSl2Skew
 import FormalResearch.FrameFree.OddWordsStrata
-import FormalResearch.FrameFree.PsiPlusKramersRK2
-import FormalResearch.FrameFree.PsiPlusKramersAlg
-import FormalResearch.FrameFree.PsiPlusKramersCore
 import FormalResearch.FrameFree.PsiPlusKramers
 import FormalResearch.FrameFree.FilteredGateBasic
 import FormalResearch.FrameFree.FilteredGateEcho

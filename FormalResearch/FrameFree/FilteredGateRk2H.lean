@@ -6,7 +6,7 @@ import FormalResearch.FrameFree.FilteredGateReal
 
 `rk2H`: for `R : ι × ι` complex, `q_R(e) = ‖Rᵀ e‖²`, and `N = x₁⊗y₁ + x₂⊗y₂` of rank at most two,
 `|Σ x₁ᵀ R y₁ + Σ x₂ᵀ R y₂|² ≤ D ‖N‖²_F` provided `q_R(e₁) + q_R(e₂) ≤ D` for every orthonormal pair
-`e₁, e₂`.  (Generalises the flat case `R Rᴴ = κ I`, `D = 2κ` of `PsiPlusKramersRK2`.)  Proof: Gram--Schmidt
+`e₁, e₂`.  (Includes the flat case `R Rᴴ = κ I`, `D = 2κ`.)  Proof: Gram--Schmidt
 on `x₁, x₂`, then Cauchy--Schwarz term by term (`rk2H_orth`).
 -/
 

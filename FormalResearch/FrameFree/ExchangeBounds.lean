@@ -1,5 +1,4 @@
 import FormalResearch.FrameFree.ExchangeBoundsCartan
-import FormalResearch.FrameFree.PsiPlusKramers
 
 /-!
 # The independent-frame exchange bounds (`thm:heis`, recalled (R8)): proved

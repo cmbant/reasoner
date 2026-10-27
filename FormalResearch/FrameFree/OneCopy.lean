@@ -42,7 +42,7 @@ Namespace `FormalResearch.FrameFree.OneCopy`.  `NQubit.ip`/`NQubit.SU2` are alwa
 * **`thm:hierarchy` (i)**: `FKΘ_eq_FCΘ_eq_one_of_le_two` (`F_K = F_C = 1` for one or two qubits, in the
   `Ceilings` form of `F_C`) and `FCΘs_id_eq_one_of_le_two` (the same in the `Sharing` form with
   independent frames).  **`thm:hierarchy` (iii)**: `negLog_FC_four_le_log_two`
-  (`-log F_C ≤ log 2` for four qubits, under the `RealRep3` hypothesis of `Ceilings`).
+  (`-log F_C ≤ log 2` for four qubits).
 
 ## NOT proved here
 
@@ -529,7 +529,7 @@ theorem FCΘs_id_eq_one_of_le_two {b : ℕ} (hb1 : 1 ≤ b) (hb2 : b ≤ 2) (ψ 
     exact hK ▸ this
 
 /-- **`thm:hierarchy` (iii)**: four qubits; the support test certifies at most `log 2`
-(`F_C ≥ 1/2`, `Ceilings.ceiling_half`, under the `RealRep3` hypothesis of `Ceilings`). -/
+(`F_C ≥ 1/2`, `Ceilings.ceiling_half`). -/
 theorem negLog_FC_four_le_log_two (ψ : Ψ 4) (hψ : nsq ψ = 1) :
     -Real.log (Ceilings.FCΘ ψ) ≤ Real.log 2 := by
   have h := Ceilings.ceiling_half ψ hψ

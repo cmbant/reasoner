@@ -25,13 +25,10 @@ overlap `F_C^π` (one `SL(2,ℂ)` element per block, normalised by `‖gφ‖²`
     (both `= κ θ`), `CKs_exchange_i` (`= log (4/(1+3cos²2θ))`);
   - (ii), (iii): the lower bounds `cos² θ ≤ F_K^π` (inside `{13|24}`), `sin² θ ≤ F_K^π`
     (inside `{14|23}`), `κ ≤ F_K^π` (all patterns) are unconditional (explicit rotations); the upper
-    bounds use the independent-frame exchange law as an **explicit hypothesis**
-    (`ExchangeIndepBound θ : FKΘ ψ_{U_θ} ≤ cos² θ`, `ExchangeIndepBoundC θ` for the filters).  The
-    paper obtains it from the Weyl-vertex formula (R7) / filtered-gate law (R8), neither of which is
-    formalised for the Choi probe (`exchange_closed_form` is the closed form on the Weyl side only;
-    `PhysicalBridge.FKmag_le_rotOverlap` goes in the wrong direction to discharge it).  The hypothesis is
-    meant for `0 ≤ θ ≤ π/4` (it is false for `θ = π/2`, where `κ = 1`).
-    `FKΘs_exchange_ii/iii`, `FCΘs_exchange_ii/iii`, `CKs_exchange_ii/iii`, `CKs_sqrtSwap`.
+    bounds need the independent-frame exchange law (`ExchangeIndepBound θ : FKΘ ψ_{U_θ} ≤ cos² θ`,
+    `ExchangeIndepBoundC θ` for the filters, true for `0 ≤ θ ≤ π/4`, false for `θ = π/2`), which is proved
+    from the filtered-gate law in `ExchangeBounds`; the exact values `FKΘs_exchange_ii/iii`,
+    `FCΘs_exchange_ii/iii`, `CKs_exchange_ii/iii`, `CKs_sqrtSwap` are in `ExchangeSharing`.
 * `thm:m4sharing` for `M₄` (`M4n`, the vector `M4` of `FourQubitEntropy/Attainment.lean`):
   (a) three spins in a block: `FKΘs_M4_triple`, `FCΘs_M4_triple` (`= 0`);
   (b) pairs and singletons with at least one pair (`PairNoTriple`): `FKΘs_M4_pair`, `FCΘs_M4_pair`
@@ -46,9 +43,6 @@ overlap `F_C^π` (one `SL(2,ℂ)` element per block, normalised by `‖gφ‖²`
   sentence "`ξ_inv^π = …` exactly": that needs the calibration corollary and the window theorem; only the
   `F_K^π`, `F_C^π`, `C_K^π` values are stated.
 * `C_K^π = ∞` for `M₄` with a triple (`F_K^π = 0`): Lean's `log 0 = 0`, so only `F_K^π = F_C^π = 0` is stated.
-* The independent-frame exchange law `ExchangeIndepBound(C)` is a hypothesis here; it is proved for
-  `0 ≤ θ ≤ π/4` in `ExchangeBounds`, and `ExchangeBoundsWrappers` states the exact values in cases (ii),
-  (iii) of `thm:exchangesharing` and the `√SWAP` row without it.
 * The pattern counts (eight, four, three; five, nine) are not formalised as cardinalities; the
   classification is by the predicates `g 0 = g 1 ∨ g 2 = g 3`, `Refines g pat1324`, `Refines g pat1423`,
   `HasTriple`, `PairNoTriple`.
@@ -275,7 +269,6 @@ theorem FCΘs_of_invariant_unit (g : Fin n → β) (ψ : Ψ n) (hψ1 : nsq ψ = 
     (hψ : ∀ v : β → Op1, (∀ b, (v b).det = 1) → rot (fun i => v (g i)) ψ = ψ) :
     FCΘs g ψ = Complex.normSq (ip ψ (Θ ψ)) := by
   rw [FCΘs_of_invariant g ψ hψ, nsq_Θ, hψ1, div_one]
-
 
 end Generic
 
@@ -791,66 +784,9 @@ theorem pattern_trichotomy (g : Fin 4 → β) :
     intro i j hij
     fin_cases i <;> fin_cases j <;> simp_all [pat1423]
 
-/-- Independent-frame exchange law (rotation part), recalled: `F_K(ψ_{U_θ}, ψ_{U_θ^{-1}}) ≤ cos² θ`
-for `0 ≤ θ ≤ π/4`.  The paper obtains it from the Weyl-vertex formula (R7) for the magic-diagonal
-form of `ψ_{U_θ}`, or from the filtered-gate law (R8).  Neither is formalised, so it is an explicit
-hypothesis below.  Its closed form is `exchange_closed_form`. -/
+/-- Independent-frame exchange law (rotation part): `F_K(ψ_{U_θ}, ψ_{U_θ^{-1}}) ≤ cos² θ`, true for
+`0 ≤ θ ≤ π/4` (`ExchangeBounds.exchangeIndepBound`).  Its Weyl-side closed form is `exchange_closed_form`. -/
 def ExchangeIndepBound (θ : ℝ) : Prop := FKΘ (psiEx θ) ≤ Real.cos θ ^ 2
-
-/-- **Theorem `thm:exchangesharing` (ii)**, rotation overlap, assuming the independent-frame bound.
-If only the pairs `{1,3},{2,4}` share (four patterns, independent frames among them),
-`F_K^π = cos² θ`. -/
-theorem FKΘs_exchange_ii (g : Fin 4 → β) (h : Refines g pat1324) (θ : ℝ)
-    (hR : ExchangeIndepBound θ) : FKΘs g (psiEx θ) = Real.cos θ ^ 2 := by
-  refine le_antisymm ?_ (cos_sq_le_FKΘs g h θ)
-  exact (FKs_le_FK g _ _).trans hR
-
-/-- **Theorem `thm:exchangesharing` (iii)**, rotation overlap, assuming the independent-frame bound.
-If only the cross pairs `{1,4},{2,3}` share (three patterns),
-`max(sin²θ, κ) ≤ F_K^π ≤ cos²θ`. -/
-theorem FKΘs_exchange_iii (g : Fin 4 → β) (h : Refines g pat1423) (θ : ℝ)
-    (hR : ExchangeIndepBound θ) :
-    max (Real.sin θ ^ 2) (kappa θ) ≤ FKΘs g (psiEx θ) ∧ FKΘs g (psiEx θ) ≤ Real.cos θ ^ 2 :=
-  ⟨max_le (sin_sq_le_FKΘs g h θ) (kappa_le_FKΘs g θ), (FKs_le_FK g _ _).trans hR⟩
-
-/-- **Theorem `thm:exchangesharing` (ii)**, chiral distance: `C_K^π = -log cos² θ
-= log (2/(1+cos 2θ))`. -/
-theorem CKs_exchange_ii (g : Fin 4 → β) (h : Refines g pat1324) (θ : ℝ)
-    (hR : ExchangeIndepBound θ) : CKs g (psiEx θ) = Real.log (2 / (1 + Real.cos (2 * θ))) := by
-  unfold CKs
-  rw [FKΘs_exchange_ii g h θ hR, ← Real.log_inv, Real.cos_two_mul]
-  congr 1
-  by_cases hc : Real.cos θ = 0
-  · simp [hc]
-  · field_simp
-    ring
-
-/-- **Theorem `thm:exchangesharing` (iii)**, chiral distance:
-`log (2/(1+cos 2θ)) ≤ C_K^π ≤ -log max(sin²θ, κ)`. -/
-theorem CKs_exchange_iii (g : Fin 4 → β) (h : Refines g pat1423) (θ : ℝ)
-    (hR : ExchangeIndepBound θ) :
-    Real.log (2 / (1 + Real.cos (2 * θ))) ≤ CKs g (psiEx θ) ∧
-      CKs g (psiEx θ) ≤ -Real.log (max (Real.sin θ ^ 2) (kappa θ)) := by
-  obtain ⟨h1, h2⟩ := FKΘs_exchange_iii g h θ hR
-  have hk := kappa_pos θ
-  have hpos : 0 < max (Real.sin θ ^ 2) (kappa θ) := lt_of_lt_of_le hk (le_max_right _ _)
-  have hF : 0 < FKΘs g (psiEx θ) := lt_of_lt_of_le hpos h1
-  have hcos : 0 < Real.cos θ ^ 2 := lt_of_lt_of_le hF h2
-  have hc : Real.cos θ ≠ 0 := by
-    intro h0; rw [h0] at hcos; simp at hcos
-  constructor
-  · have e : Real.log (2 / (1 + Real.cos (2 * θ))) = -Real.log (Real.cos θ ^ 2) := by
-      rw [← Real.log_inv, Real.cos_two_mul]
-      congr 1
-      field_simp
-      ring
-    rw [e]
-    unfold CKs
-    have := Real.log_le_log hF h2
-    linarith
-  · unfold CKs
-    have := Real.log_le_log hpos h1
-    linarith
 
 /-- The independent-frame bound has the closed form already proved in `GateOverlap.lean`: for
 `0 ≤ θ ≤ π/4`, `(1 + |cos 2θ|)/2 = cos² θ`, i.e. `FKmag (dgate (θ/2,θ/2,θ/2)) = cos² θ`. -/
@@ -868,36 +804,7 @@ theorem kappa_quarter : kappa (Real.pi / 4) = 1 / 4 := by
   rw [show 2 * (Real.pi / 4) = Real.pi / 2 by ring, Real.cos_pi_div_two]
   norm_num
 
-/-- **`√SWAP`, every pattern** (`thm:exchangesharing`, last sentence), rotation form, assuming the
-independent-frame bound at `π/4`: `C_K^π = log 4` if spins `1,2` or `3,4` share a frame and
-`log 2` for every other pattern. -/
-theorem CKs_sqrtSwap (g : Fin 4 → β) (hR : ExchangeIndepBound (Real.pi / 4)) :
-    ((g 0 = g 1 ∨ g 2 = g 3) → CKs g (psiEx (Real.pi / 4)) = Real.log 4) ∧
-    (¬ (g 0 = g 1 ∨ g 2 = g 3) → CKs g (psiEx (Real.pi / 4)) = Real.log 2) := by
-  have hcos : Real.cos (Real.pi / 4) ^ 2 = 1 / 2 := by
-    rw [Real.cos_pi_div_four, div_pow, Real.sq_sqrt (by norm_num)]; norm_num
-  have hsin : Real.sin (Real.pi / 4) ^ 2 = 1 / 2 := by
-    rw [Real.sin_pi_div_four, div_pow, Real.sq_sqrt (by norm_num)]; norm_num
-  constructor
-  · intro h
-    unfold CKs
-    rw [FKΘs_exchange_i g h, kappa_quarter, show (1 / 4 : ℝ) = (4 : ℝ)⁻¹ by norm_num,
-      Real.log_inv, neg_neg]
-  · intro h
-    have hF : FKΘs g (psiEx (Real.pi / 4)) = 1 / 2 := by
-      rcases pattern_trichotomy g with h' | h' | h'
-      · exact absurd h' h
-      · rw [FKΘs_exchange_ii g h' _ hR, hcos]
-      · obtain ⟨h1, h2⟩ := FKΘs_exchange_iii g h' _ hR
-        rw [hcos] at h2
-        have : (1 / 2 : ℝ) ≤ max (Real.sin (Real.pi / 4) ^ 2) (kappa (Real.pi / 4)) := by
-          rw [hsin]; exact le_max_left _ _
-        linarith
-    unfold CKs
-    rw [hF, show (1 / 2 : ℝ) = (2 : ℝ)⁻¹ by norm_num, Real.log_inv, neg_neg]
-
 end ExchangeSharing
-
 
 /-! ## Part 4. The Higuchi--Sudbery state `M₄` (Theorem `thm:m4sharing`) -/
 
@@ -1055,8 +962,6 @@ theorem ov_M4_zero3 (A : Op1) : ip M4n (rot ![(1 : Op1), (1 : Op1), (1 : Op1), A
   simp [Z4, Y1, EE, eps, Matrix.trace, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two,
       Matrix.kroneckerMap_apply, Matrix.transpose_apply, conj_r6, Matrix.conjTranspose_apply]
   linear_combination (r6^2*(2*(A 0 0) + 2*(A 1 1))) * conjω3_rel + (0) * r6_sq
-
-
 
 /-- Frobenius norm squared of a `2×2` matrix. -/
 def fro (M : Op1) : ℝ := ∑ i, ∑ j, Complex.normSq (M i j)
@@ -1235,7 +1140,6 @@ theorem key_FC (A D : Op1) :
     (norm_nonneg _) (norm_mul _ _) (by rw [Complex.sq_norm]; exact hx2) hW
   rw [Complex.sq_norm, Complex.sq_norm, Complex.sq_norm] at core
   nlinarith [core, hAD]
-
 
 /-- The Cauchy--Schwarz bound behind case (i) (`thm:exchangesharing`): for all `2×2` matrices,
 `|cos 2θ · tr A tr B + i sin 2θ · tr(AB)|² ≤ (1 + 3 cos² 2θ) ‖A‖²‖B‖²`. -/
@@ -1642,7 +1546,6 @@ theorem FCΘs_M4_triple (g : Fin 4 → β) (h : HasTriple g) : FCΘs g M4n = 0 :
     rintro r ⟨v, hv, rfl⟩
     exact div_nonneg (Complex.normSq_nonneg _) (nsq_nonneg _)
 
-
 /-! ### Filters: `F_C^π(M₄)` -/
 
 theorem fro_nonneg (M : Op1) : 0 ≤ fro M :=
@@ -1869,30 +1772,10 @@ theorem FCΘs_exchange_i (g : Fin 4 → β) (h : g 0 = g 1 ∨ g 2 = g 3) (θ : 
   rw [← FKΘs_exchange_i g h θ]
   exact FKs_le_FCs g (psiEx θ) (Θ (psiEx θ)) (by rw [nsq_Θ, nsq_psiEx])
 
-/-- Independent-frame exchange law (filter part), recalled (R8): `F_C^{1|2|3|4}(ψ_{U_θ}) ≤ cos² θ`.
-An explicit hypothesis, as `ExchangeIndepBound`. -/
+/-- Independent-frame exchange law (filter part): `F_C^{1|2|3|4}(ψ_{U_θ}) ≤ cos² θ`, true for `0 ≤ θ ≤ π/4`
+(`ExchangeBounds.exchangeIndepBoundC`). -/
 def ExchangeIndepBoundC (θ : ℝ) : Prop := FCΘs (id : Fin 4 → Fin 4) (psiEx θ) ≤ Real.cos θ ^ 2
 
-/-- **Theorem `thm:exchangesharing` (ii)**, filters, assuming the independent-frame filter bound:
-`F_C^π = cos² θ` for the four patterns inside `{13|24}`. -/
-theorem FCΘs_exchange_ii (g : Fin 4 → β) (h : Refines g pat1324) (θ : ℝ)
-    (hR : ExchangeIndepBoundC θ) : FCΘs g (psiEx θ) = Real.cos θ ^ 2 := by
-  refine le_antisymm ?_ ?_
-  · exact (FCs_mono (id_refines g) _ _).trans hR
-  · exact (cos_sq_le_FKΘs g h θ).trans
-      (FKs_le_FCs g (psiEx θ) (Θ (psiEx θ)) (by rw [nsq_Θ, nsq_psiEx]))
-
-/-- **Theorem `thm:exchangesharing` (iii)**, filters, assuming the independent-frame filter bound:
-`max(sin²θ, κ) ≤ F_C^π ≤ cos²θ` for the three cross patterns. -/
-theorem FCΘs_exchange_iii (g : Fin 4 → β) (h : Refines g pat1423) (θ : ℝ)
-    (hR : ExchangeIndepBoundC θ) :
-    max (Real.sin θ ^ 2) (kappa θ) ≤ FCΘs g (psiEx θ) ∧ FCΘs g (psiEx θ) ≤ Real.cos θ ^ 2 := by
-  have hle : FKΘs g (psiEx θ) ≤ FCΘs g (psiEx θ) :=
-    FKs_le_FCs g (psiEx θ) (Θ (psiEx θ)) (by rw [nsq_Θ, nsq_psiEx])
-  exact ⟨((max_le (sin_sq_le_FKΘs g h θ) (kappa_le_FKΘs g θ)).trans hle),
-    (FCs_mono (id_refines g) _ _).trans hR⟩
-
 end ExchangeFilters
-
 
 end FormalResearch.FrameFree.Sharing

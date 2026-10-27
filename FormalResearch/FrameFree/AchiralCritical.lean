@@ -19,8 +19,8 @@ state (`F_C = 1/2`) -- has an *achiral branch* of weight `1/2`, so `ξ̄_inv ≤
   (`exists_root_disc`), and `Ach3.of_disc` : `Det = 0 → Ach3`.
 * `Converse.achiralBranch_of_mixed` : if `‖⟨e|₀ψ‖² = 1/2` for every unit `e` (i.e. `ρ₀ = I/2`), `AchiralBranch ψ (1/2)`.
 * `Converse.mixed_of_FCΘ_half` : unit `ψ : Ψ 4` with `F_C(ψ) = 1/2` has `ρ₀ = I/2` (`ceiling_lmax`, unitary complement).
-* `XiInv.xiBarLE_log_two_of_mixed`, `XiInv.critical_xi_inv''` : the converse is discharged;
-  `XiInv.xiBarLE_of_marginal_floor` : `ρ₀ ≥ λ ⇒ ξ̄_inv ≤ -log λ`; `XiInv.m4_hasXiInv_log_two` : `ξ_inv(M₄) = log 2`.
+* `XiInv.xiBarLE_log_two_of_mixed`, `XiInv.critical_xi_inv` : `ξ_inv = log 2` for every unit critical four-qubit
+  state; `XiInv.xiBarLE_of_marginal_floor` : `ρ₀ ≥ λ ⇒ ξ̄_inv ≤ -log λ`.
 -/
 
 namespace FormalResearch.FrameFree.Converse
@@ -147,13 +147,8 @@ theorem xiBarLE_of_marginal_floor (ψ : Ψ 4) {l : ℝ} (hl : 0 < l)
 
 /-- **`thm:expceiling`, critical case, unconditional**: every unit four-qubit state with `F_C = 1/2` has
 `ξ_inv = log 2`. -/
-theorem critical_xi_inv'' (ψ : Ψ 4) (hψ : nsq ψ = 1) (hF : Ceilings.FCΘ ψ = 1 / 2) :
+theorem critical_xi_inv (ψ : Ψ 4) (hψ : nsq ψ = 1) (hF : Ceilings.FCΘ ψ = 1 / 2) :
     HasXiInv ψ (Real.log 2) :=
-  critical_xi_inv' hψ hF (xiBarLE_log_two_of_mixed ψ (mixed_of_FCΘ_half ψ hψ hF))
-
-/-- Instance: `ξ_inv(M₄) = log 2`, with neither `h49` nor a converse hypothesis (the support half is
-`M4Support.FCΘ_M4v_eq`). -/
-theorem m4_hasXiInv_log_two : HasXiInv Ceilings.M4v (Real.log 2) :=
-  critical_xi_inv'' Ceilings.M4v Ceilings.nsq_M4v M4Support.FCΘ_M4v_eq
+  critical_xi_inv_of_xiBarLE hψ hF (xiBarLE_log_two_of_mixed ψ (mixed_of_FCΘ_half ψ hψ hF))
 
 end FormalResearch.FrameFree.XiInv
