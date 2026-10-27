@@ -312,6 +312,15 @@ import FormalResearch.FrameFree.PsiPlusKramers
 import FormalResearch.FrameFree.FilteredGateBasic
 import FormalResearch.FrameFree.FilteredGateEcho
 import FormalResearch.FrameFree.FilteredGateReal
+import FormalResearch.FrameFree.FilteredGateLaw
+import FormalResearch.FrameFree.FilteredGateReduce
+import FormalResearch.FrameFree.FilteredGateCore
+import FormalResearch.FrameFree.FilteredGateGauge
+import FormalResearch.FrameFree.FilteredGateT1
+import FormalResearch.FrameFree.FilteredGateConj
+import FormalResearch.FrameFree.FilteredGateRot
+import FormalResearch.FrameFree.FilteredGateRk2H
+import FormalResearch.FrameFree.FilteredGateBiv
 import FormalResearch.FrameFree.TwirlsBicommutant
 import FormalResearch.FrameFree.TwirlsOdd
 import FormalResearch.FrameFree.TwirlsOneCopy
