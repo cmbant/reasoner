@@ -8,8 +8,8 @@ If `h` is convex on `[0, M]`, `0 < c < M`, and `e_i ∈ [0, M]` (`i ∈ s`) sum 
 
 Proof.  `h ≤ L` on `[0,M]` for the piecewise-linear interpolant
 `L(e) = h(0) + s₁ e + (s₂ - s₁)(e - c)₊` (`s₁ ≤ s₂` by convexity), and `∑ (e_i - c)₊ ≤ M - c`
-because at most one entry exceeds `M`... more precisely, either at most one `e_i > c` (each
-`(e_i - c)₊ ≤ M - c`) or at least two, whence `∑ (e_i-c)₊ ≤ (c+M) - 2c`.
+because either at most one `e_i > c` (each `(e_i - c)₊ ≤ M - c`) or at least two, whence
+`∑ (e_i-c)₊ ≤ (c+M) - 2c`.
 -/
 
 open Finset

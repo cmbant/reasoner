@@ -81,6 +81,7 @@ section Kramers
 
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [FiniteDimensional ℂ E]
 
+omit [FiniteDimensional ℂ E] in
 /-- `span{q, Θ q}` is a `Θ`-invariant plane for a unit vector `q` when `Θ² = -1`. -/
 theorem finrank_span_pair (Θ : E →ₛₗ[starRingEnd ℂ] E) (hΘ : IsAntiunitary (fun v => Θ v))
     (hK : IsKramers (fun v => Θ v)) {q : E} (hq : ‖q‖ = 1) :
@@ -160,7 +161,8 @@ theorem even_finrank_of_kramers (Θ : E →ₛₗ[starRingEnd ℂ] E) (hΘ : IsA
         have h0 : ⟪-Θ p, w⟫_ℂ = 0 := (Submodule.mem_orthogonal _ w).mp hw.1 _ hp'
         have := hΘ (-Θ p) w
         simp only at this
-        rw [map_neg, hK p, neg_neg, h0] at this
+        have hKp : Θ (Θ p) = -p := hK p
+        rw [map_neg, hKp, neg_neg, h0] at this
         simpa using this
       have hlt : Module.finrank ℂ ((Submodule.span ℂ {q, Θ q} : Submodule ℂ E)ᗮ ⊓ W : Submodule ℂ E) < d := by
         omega
