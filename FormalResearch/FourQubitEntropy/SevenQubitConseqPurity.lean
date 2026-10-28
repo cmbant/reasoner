@@ -1,12 +1,12 @@
 import FormalResearch.FourQubitEntropy.SevenQubitConseqPauli
 
 /-!
-# Consequences of the sharp seven-qubit purity bound: Pauli weights and cut compatibility
+# Consequences of the sharp seven-qubit purity bound: Pauli weights and the excess sum
 
 Conditional on `SevenPurityBound` (`π₃ ≥ 121/917` for every pure seven-qubit state, the content of
 `cor:seven-global-from-fivecopy`; its proof is a computer certificate and is **not** formalized), this
-file derives the elementary consequences `cor:sevenpauli` and `prop:seven-purity-cut-compatibility` of
-`ResearchNotes/QI/seven_qubit_entanglement/balanced_purity.tex` and `seven_qubit_entropy_global_upper.tex`.
+file derives the elementary consequence `cor:sevenpauli` of
+`ResearchNotes/QI/seven_qubit_entanglement/balanced_purity.tex`.
 
 A pure state is `ψ : BitString → ℂ` with `∑ |ψ z|² = 1`; the purity of a cut is computed from the reduced
 matrix `∑_r ψ(a,r) conj ψ(b,r)` exactly as in `SevenQubitIcoPurity` (same `Cut`, `encode`, `maskCut`).
@@ -131,37 +131,6 @@ theorem purity_sum {k l : ℕ} (c : Cut k l) (hc : Function.Bijective c) (ψ : B
   simp only [psq, pexp_ext c hc, sum_sq_trP, Fintype.card_fin]
   rfl
 
-/-- The sign `(-1)^{wt μ}` of a Pauli string. -/
-def psgn (μ : Fin 7 → Fin 4) : ℝ := ∏ i, (if μ i = 0 then (1 : ℝ) else -1)
-
-theorem psgn_ext {k l : ℕ} (c : Cut k l) (hc : Function.Bijective c) (ν : Fin k → Fin 4) :
-    psgn (extPauli c ν) = ∏ j, (if ν j = 0 then (1 : ℝ) else -1) := by
-  have h := Fintype.prod_bijective c hc
-    (fun i => if extPauli c ν i = 0 then (1 : ℝ) else -1)
-    (fun j => if Sum.elim ν (fun _ => (0 : Fin 4)) j = 0 then (1 : ℝ) else -1) (fun i => rfl)
-  unfold psgn
-  rw [h, Fintype.prod_sum_type]
-  simp
-  rfl
-
-theorem psgn_eq (μ : Fin 7 → Fin 4) : psgn μ = (-1) ^ pwt μ := by
-  unfold psgn pwt
-  rw [Finset.prod_ite, Finset.prod_const_one, one_mul, Finset.prod_const]
-
-/-- Shadow positivity (Rains): the sign-weighted sum over strings supported on a cut is `≥ 0`. -/
-theorem shadow_sum {k l : ℕ} (c : Cut k l) (hc : Function.Bijective c) (ψ : BitString → ℂ) :
-    0 ≤ ∑ ν : Fin k → Fin 4, psgn (extPauli c ν) * psq ψ (extPauli c ν) := by
-  have h := sum_sign_sq_trP (fun (a : Fin k → Bool) (r : Fin l → Bool) => ψ (encode c a r))
-  have e : ∑ ν : Fin k → Fin 4, psgn (extPauli c ν) * psq ψ (extPauli c ν) =
-      ∑ ν : Fin k → Fin 4, (∏ i, (if ν i = 0 then (1 : ℝ) else -1)) *
-        Complex.normSq (trP (fun a b => ∑ r, ψ (encode c a r) * conj (ψ (encode c b r))) ν) := by
-    refine Finset.sum_congr rfl fun ν _ => ?_
-    rw [psgn_ext c hc, psq, pexp_ext c hc]
-    rfl
-  rw [e, h]
-  exact mul_nonneg (by positivity)
-    (Finset.sum_nonneg fun r _ => Finset.sum_nonneg fun r' _ => Complex.normSq_nonneg _)
-
 /-! ### Strings supported on the cut of a mask -/
 
 /-- Pauli strings supported on the sites selected by the mask `m`. -/
@@ -214,11 +183,6 @@ theorem purity_mask (m : Fin 7 → Bool) (hm : weight m = 3) (ψ : BitString →
     ∑ μ ∈ suppSet m, psq ψ μ = 8 * cutPurity (maskCut 3 4 m) ψ := by
   rw [← sum_ext_mask m hm, purity_sum _ (maskCut_bijective_three m hm)]
   norm_num
-
-theorem shadow_mask (m : Fin 7 → Bool) (hm : weight m = 3) (ψ : BitString → ℂ) :
-    0 ≤ ∑ μ ∈ suppSet m, psgn μ * psq ψ μ := by
-  rw [← sum_ext_mask m hm (fun μ => psgn μ * psq ψ μ)]
-  exact shadow_sum _ (maskCut_bijective_three m hm) ψ
 
 /-! ### The Pauli weight enumerator and the counting of cuts -/
 
@@ -317,7 +281,7 @@ theorem cor_sevenpauli (h : SevenPurityBound) (ψ : BitString → ℂ) (hψ : Un
   rw [mean_purity_pauli ψ hψ] at h1
   linarith
 
-/-! ### `prop:seven-purity-cut-compatibility` -/
+/-! ### The Pauli excess of a cut -/
 
 /-- The Pauli excess `e_S = 8 tr ρ_S² - 1` of the three-site cut with mask `m`. -/
 def excess (m : Fin 7 → Bool) (ψ : BitString → ℂ) : ℝ := 8 * cutPurity (maskCut 3 4 m) ψ - 1
@@ -350,54 +314,6 @@ theorem excess_nonneg (m : Fin 7 → Bool) (hm : weight m = 3) (ψ : BitString �
   have h2 : psq ψ 0 ≤ ∑ μ ∈ suppSet m, psq ψ μ :=
     Finset.single_le_sum (f := psq ψ) (fun μ _ => Complex.normSq_nonneg _) (zero_mem_suppSet m)
   rw [psq_zero ψ hψ, h1] at h2
-  unfold excess
-  linarith
-
-/-- **`prop:seven-purity-cut-compatibility`.** For every unit seven-qubit state and three-site cut
-`S`: `3 e_S ≤ R + 2` (and `0 ≤ e_S`, `excess_nonneg`). -/
-theorem cut_compat (m : Fin 7 → Bool) (hm : weight m = 3) (ψ : BitString → ℂ) (hψ : UnitVec ψ) :
-    3 * excess m ψ ≤ excessSum ψ + 2 := by
-  have hI1 := purity_mask m hm ψ
-  have hI2 := shadow_mask m hm ψ
-  have hS : ∑ m' ∈ tripleMasks, ∑ μ ∈ suppSet m', psq ψ μ =
-      ∑ μ : Fin 7 → Fin 4, (cntN (pwt μ) : ℝ) * psq ψ μ := sum_cuts_pauli ψ
-  have hS' : ∑ m' ∈ tripleMasks, ∑ μ ∈ suppSet m', psq ψ μ =
-      8 * ∑ m' ∈ tripleMasks, cutPurity (maskCut 3 4 m') ψ := by
-    rw [Finset.mul_sum]
-    exact Finset.sum_congr rfl fun m' hm' => purity_mask m' (Finset.mem_filter.1 hm').2 ψ
-  set κ : (Fin 7 → Fin 4) → ℝ := fun μ =>
-    (cntN (pwt μ) : ℝ) - (if μ ∈ suppSet m then 3 + 2 * psgn μ else 0) with hκ
-  have hκnn : ∀ μ, 0 ≤ κ μ := by
-    intro μ
-    simp only [hκ]
-    by_cases hμ : μ ∈ suppSet m
-    · have h3 := pwt_le_of_mem_suppSet m hm hμ
-      rw [if_pos hμ, psgn_eq]
-      generalize pwt μ = j at h3
-      interval_cases j <;> simp [cntN] <;> norm_num
-    · rw [if_neg hμ]; simp
-  have hK : κ 0 * psq ψ 0 ≤ ∑ μ, κ μ * psq ψ μ :=
-    Finset.single_le_sum (f := fun μ => κ μ * psq ψ μ)
-      (fun μ _ => mul_nonneg (hκnn μ) (Complex.normSq_nonneg _)) (Finset.mem_univ _)
-  have hκ0 : κ 0 = 30 := by
-    simp only [hκ]
-    rw [if_pos (zero_mem_suppSet m), psgn_eq, pwt_zero]
-    simp [cntN]
-    norm_num
-  have hexp : ∑ μ, κ μ * psq ψ μ =
-      ∑ μ : Fin 7 → Fin 4, (cntN (pwt μ) : ℝ) * psq ψ μ -
-        (3 * ∑ μ ∈ suppSet m, psq ψ μ + 2 * ∑ μ ∈ suppSet m, psgn μ * psq ψ μ) := by
-    have : ∀ μ, κ μ * psq ψ μ = (cntN (pwt μ) : ℝ) * psq ψ μ -
-        (if μ ∈ suppSet m then 3 * psq ψ μ + 2 * (psgn μ * psq ψ μ) else 0) := by
-      intro μ
-      simp only [hκ]
-      split_ifs <;> ring
-    simp only [this, Finset.sum_sub_distrib]
-    rw [Finset.sum_ite_mem, Finset.univ_inter, Finset.sum_add_distrib, ← Finset.mul_sum,
-      ← Finset.mul_sum]
-  rw [hκ0, psq_zero ψ hψ, hexp, ← hS, hS', hI1] at hK
-  have hR := excessSum_eq ψ
-  unfold meanPurity3 at hR
   unfold excess
   linarith
 

@@ -4,17 +4,32 @@ import Mathlib.Algebra.Order.Rearrangement
 import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
 
 /-!
-# von Neumann trace rearrangement (part A of the spin-flip spectral pairing)
+# Spin-flip spectral pairing for three qubits (`prop:seven-spinflip-spectral-pair`, first assertion)
 
-Used by `prop:seven-spinflip-spectral-pair`
-(`ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_compatibility.tex`).
+Source: `ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_compatibility.tex`
+(QIprojects PR #200), `prop:seven-spinflip-spectral-pair`.  Claim class: **proved** (no hypothesis).
 
-* `rearr_fin`: for antitone `a b : Fin N → ℝ` and a doubly stochastic `D`,
-  `∑ᵢ aᵢ b_{N-1-i} ≤ ∑_{ij} aᵢ bⱼ D_{ij}` (Birkhoff + the rearrangement inequality).
-* `trace_form`: `tr(U diag(x) U* · V diag(y) V*) = ∑_{ij} xᵢ yⱼ |(U*V)_{ij}|²` for unitaries `U, V`.
-* `trace_rearrange`: for a Hermitian `ρ` with sorted eigenvalues `λ₀` and any unitary `V`, with
-  `σ = V diag(λ) V*` (so `σ` has the spectrum of `ρ`): `∑ᵢ λ₀ᵢ λ₀_{rev i} ≤ re tr(ρ σ)`.
-  This is **von Neumann's trace inequality** for same-spectrum Hermitian matrices (proved, no hypothesis).
+For a three-qubit matrix `ρ : Mat3` (rows and columns `Fin 3 → Bool`):
+* `e3 ρ = 8 tr ρ² - 1`; `b3 ρ = ∑_{wt ν = 2} |tr(ρ P_ν)|²` (the weight-two Pauli squares);
+* `lam3 ρ hρ : Fin 8 → ℝ` the eigenvalues in decreasing order `λ₁ ≥ ⋯ ≥ λ₈` and
+  `v3 ρ hρ = ∑_{i=1}^4 (λᵢ + λ_{9-i} - 1/4)²`;
+* `spinFlip3 ρ = Y^{⊗3} ρᵀ Y^{⊗3}`.
+
+Contents.
+* **Von Neumann trace rearrangement** (proved here, Mathlib has none): `rearr_fin` (Birkhoff's theorem
+  `doublyStochastic_eq_convexHull_permMatrix` + the rearrangement inequality), `trace_form`,
+  `trace_rearrange_aux`, `spectral_pairing_data`: for Hermitian `ρ` and any unitary `V`,
+  `∑ λ↓ᵢ λ↓_{rev i} ≤ re tr(ρ · V diag(λ) V*)`.
+* **Pauli identities** (`signed_sum`, `trace_flip_cast`, `flip_formula`): for Hermitian `ρ` with
+  `tr ρ = 1`, `8 tr(ρ ρ̃) = 1 - e + 2b`; `tr ρ² = (1+e)/8` is the definition of `e3`.
+* `flip_conj`: `ρ̃ = V diag(λ) V*` with `V = Y^{⊗3} · conj(U)` unitary (`U` the eigenvector unitary), so
+  the rearrangement bound applies to `tr(ρ ρ̃)`.
+* `vSpec_eq`, `spectral_pair_abstract`: the algebra on an abstract eight-point spectrum.
+* **Main results:** `b3_ge_four_v3` (Hermitian, trace one) and `spinflip_spectral_pair` (density matrices):
+  `4 v(ρ) ≤ b(ρ)`.
+
+The cross-cut inequality is in `SevenQubitSpectralPairCross.lean`, the equality family in
+`SevenQubitSpectralPairEq.lean`.
 -/
 
 open scoped ComplexConjugate Matrix ComplexOrder

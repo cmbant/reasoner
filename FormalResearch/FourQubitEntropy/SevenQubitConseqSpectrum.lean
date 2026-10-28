@@ -1,5 +1,5 @@
 import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
-import FormalResearch.FourQubitEntropy.SevenQubitConseqConvex
+import FormalResearch.FourQubitEntropy.SevenQubitConseqEnvelope
 
 /-!
 # Cut spectra of a pure seven-qubit state
@@ -86,6 +86,10 @@ theorem redMatPsi_trace_sq (c : Cut 3 4) (ψ : BitString → ℂ) :
 /-- The von Neumann entropy (nats) of the reduced state of the cut `c`. -/
 noncomputable def cutEntropy (c : Cut 3 4) (ψ : BitString → ℂ) : ℝ :=
   ∑ i, Real.negMulLog ((redMatPsi_isHermitian c ψ).eigenvalues i)
+
+/-- `E₃`: mean von Neumann entropy (nats) of the 35 three-qubit marginals. -/
+noncomputable def meanEntropy3 (ψ : BitString → ℂ) : ℝ :=
+  (∑ m ∈ tripleMasks, cutEntropy (maskCut 3 4 m) ψ) / 35
 
 theorem spec_nonneg (c : Cut 3 4) (ψ : BitString → ℂ) (i : Fin 3 → Bool) :
     0 ≤ (redMatPsi_isHermitian c ψ).eigenvalues i :=

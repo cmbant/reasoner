@@ -174,4 +174,129 @@ theorem rhoR_b3 (hg : IsUnit3 g) (r : ℝ) : b3 (rhoR r g) = 3 * r ^ 2 := by
 
 end Flip
 
+section Spectrum
+
+variable {g : Cfg3 → ℂ}
+
+/-- Every eigenvalue of `ρ_r` is `(1-r)/8` or `(1+7r)/8`, since `(ρ_r - c)(ρ_r - c - r) = 0`. -/
+theorem rhoR_eig (hg : IsUnit3 g) (r : ℝ) (hρ : (rhoR r g).IsHermitian) (j : Cfg3) :
+    hρ.eigenvalues j = (1 - r) / 8 ∨ hρ.eigenvalues j = (1 - r) / 8 + r := by
+  set c : ℝ := (1 - r) / 8 with hc
+  have hid : (rhoR r g - (c : ℂ) • (1 : Mat3)) * (rhoR r g - ((c : ℂ) + (r : ℂ)) • (1 : Mat3)) = 0 := by
+    unfold rhoR
+    simp only [sub_mul, mul_sub, add_mul, mul_add, Matrix.smul_mul, Matrix.mul_smul, Matrix.one_mul,
+      Matrix.mul_one, projP_mul hg, hc]
+    module
+  set u : Cfg3 → ℂ := ⇑(hρ.eigenvectorBasis j) with hu
+  have hune : u ≠ 0 := (WithLp.ofLp_eq_zero 2).ne.2 <| hρ.eigenvectorBasis.orthonormal.ne_zero j
+  have hev : rhoR r g *ᵥ u = ((hρ.eigenvalues j : ℝ) : ℂ) • u := by
+    have := hρ.mulVec_eigenvectorBasis j
+    rwa [RCLike.real_smul_eq_coe_smul (K := ℂ)] at this
+  set l : ℂ := ((hρ.eigenvalues j : ℝ) : ℂ) with hl
+  have h1 : (rhoR r g - ((c : ℂ) + (r : ℂ)) • (1 : Mat3)) *ᵥ u = (l - ((c : ℂ) + (r : ℂ))) • u := by
+    rw [Matrix.sub_mulVec, hev, Matrix.smul_mulVec, Matrix.one_mulVec, sub_smul]
+  have h2 : (rhoR r g - (c : ℂ) • (1 : Mat3)) *ᵥ ((l - ((c : ℂ) + (r : ℂ))) • u) =
+      ((l - ((c : ℂ) + (r : ℂ))) * (l - (c : ℂ))) • u := by
+    rw [Matrix.mulVec_smul, Matrix.sub_mulVec, hev, Matrix.smul_mulVec, Matrix.one_mulVec, ← sub_smul,
+      smul_smul]
+  have h3 : ((l - ((c : ℂ) + (r : ℂ))) * (l - (c : ℂ))) • u = 0 := by
+    rw [← h2, ← h1, Matrix.mulVec_mulVec, hid, Matrix.zero_mulVec]
+  have h4 : (l - ((c : ℂ) + (r : ℂ))) * (l - (c : ℂ)) = 0 := by
+    rcases smul_eq_zero.mp h3 with h | h
+    · exact h
+    · exact absurd h hune
+  have h5 : (hρ.eigenvalues j - (c + r)) * (hρ.eigenvalues j - c) = 0 := by
+    have : (((hρ.eigenvalues j - (c + r)) * (hρ.eigenvalues j - c) : ℝ) : ℂ) = 0 := by
+      push_cast; exact h4
+    exact_mod_cast this
+  rcases mul_eq_zero.mp h5 with h | h
+  · right; linarith
+  · left; linarith
+
+/-- Shape of a one-spike sorted spectrum. -/
+theorem spike_shape (l : Fin 8 → ℝ) (c r : ℝ) (hr : 0 < r) (hanti : Antitone l)
+    (hmem : ∀ i, l i = c ∨ l i = c + r) (hsum : ∑ i, l i = 8 * c + r) :
+    l 0 = c + r ∧ ∀ i, i ≠ 0 → l i = c := by
+  have hlow : ∀ i, c ≤ l i := fun i => by rcases hmem i with h | h <;> linarith
+  have h0 : l 0 = c + r := by
+    rcases hmem 0 with h | h
+    · exfalso
+      have hall : ∀ i, l i = c := fun i => by
+        have := hanti (Fin.zero_le i)
+        rcases hmem i with h' | h'
+        · exact h'
+        · linarith
+      have : ∑ i, l i = 8 * c := by
+        simp [hall]
+      linarith
+    · exact h
+  refine ⟨h0, fun i hi => ?_⟩
+  rcases hmem i with h | h
+  · exact h
+  · exfalso
+    have hpair := Finset.sum_le_sum_of_subset_of_nonneg (f := fun j => l j - c)
+      (Finset.subset_univ {0, i}) (fun j _ _ => sub_nonneg.2 (hlow j))
+    rw [Finset.sum_pair (Ne.symm hi)] at hpair
+    have htot : ∑ j, (l j - c) = r := by
+      rw [Finset.sum_sub_distrib, hsum]
+      simp
+    linarith
+
+theorem vSpec_spike (l : Fin 8 → ℝ) (c r : ℝ) (h0 : l 0 = c + r) (h : ∀ i, i ≠ 0 → l i = c)
+    (hl : ∑ i, l i = 1) : vSpec l = (2 * c + r) ^ 2 + 12 * c ^ 2 - 1 / 4 := by
+  rw [vSpec_eq l hl]
+  have r0 : Fin.rev (0 : Fin 8) = 7 := by decide
+  have r1 : Fin.rev (1 : Fin 8) = 6 := by decide
+  have r2 : Fin.rev (2 : Fin 8) = 5 := by decide
+  have r3 : Fin.rev (3 : Fin 8) = 4 := by decide
+  have r4 : Fin.rev (4 : Fin 8) = 3 := by decide
+  have r5 : Fin.rev (5 : Fin 8) = 2 := by decide
+  have r6 : Fin.rev (6 : Fin 8) = 1 := by decide
+  have r7 : Fin.rev (7 : Fin 8) = 0 := by decide
+  simp only [Fin.sum_univ_eight, r0, r1, r2, r3, r4, r5, r6, r7, h0, h 1 (by decide), h 2 (by decide),
+    h 3 (by decide), h 4 (by decide), h 5 (by decide), h 6 (by decide), h 7 (by decide)]
+  ring
+
+/-- `v(ρ_r) = 3 r² / 4`. -/
+theorem rhoR_v3 (hg : IsUnit3 g) (r : ℝ) (hr : 0 ≤ r) :
+    v3 (rhoR r g) (rhoR_herm r) = 3 * r ^ 2 / 4 := by
+  set hρ := rhoR_herm (g := g) r with hρdef
+  set c : ℝ := (1 - r) / 8 with hc
+  have hsum : ∑ i, lam3 (rhoR r g) hρ i = 1 := by
+    have := (spectral_pairing_data 8 card_cfg3 (rhoR r g) hρ 1 (by simp) (by simp)).1
+    rw [rhoR_trace hg r] at this
+    exact this.trans Complex.one_re
+  have hmem : ∀ i, lam3 (rhoR r g) hρ i = c ∨ lam3 (rhoR r g) hρ i = c + r := by
+    intro i
+    have h := rhoR_eig hg r hρ (Fintype.equivOfCardEq (Fintype.card_fin _) (Fin.cast card_cfg3.symm i))
+    have e : hρ.eigenvalues (Fintype.equivOfCardEq (Fintype.card_fin _) (Fin.cast card_cfg3.symm i)) =
+        lam3 (rhoR r g) hρ i := by
+      simp only [lam3, Matrix.IsHermitian.eigenvalues, Equiv.symm_apply_apply]
+    rw [e] at h
+    exact h
+  have hanti : Antitone (lam3 (rhoR r g) hρ) := fun i j hij =>
+    hρ.eigenvalues₀_antitone (Fin.le_def.2 (by simpa [Fin.coe_cast] using Fin.le_def.1 hij))
+  have hshape : lam3 (rhoR r g) hρ 0 = c + r ∧ ∀ i, i ≠ 0 → lam3 (rhoR r g) hρ i = c := by
+    rcases hr.eq_or_lt with h | h
+    · subst h
+      exact ⟨by rcases hmem 0 with h' | h' <;> linarith,
+        fun i _ => by rcases hmem i with h' | h' <;> linarith⟩
+    · exact spike_shape _ c r h hanti hmem (by rw [hsum, hc]; ring)
+  unfold v3
+  rw [vSpec_spike _ c r hshape.1 hshape.2 hsum, hc]
+  ring
+
+/-- **Equality family of `prop:seven-spinflip-spectral-pair`.** For every unit `g` and `r ≥ 0`
+(`r ∈ [0,1]` for density matrices), `ρ_r` satisfies `e = 7r²`, `b = 3r²`, `v = 3r²/4` and
+`b = 4v`. -/
+theorem rhoR_equality (hg : IsUnit3 g) (r : ℝ) (hr : 0 ≤ r) :
+    e3 (rhoR r g) = 7 * r ^ 2 ∧ b3 (rhoR r g) = 3 * r ^ 2 ∧
+      v3 (rhoR r g) (rhoR_herm r) = 3 * r ^ 2 / 4 ∧
+      b3 (rhoR r g) = 4 * v3 (rhoR r g) (rhoR_herm r) := by
+  have hv := rhoR_v3 hg r hr
+  refine ⟨rhoR_e3 hg r, rhoR_b3 hg r, hv, ?_⟩
+  rw [rhoR_b3 hg r, hv]; ring
+
+end Spectrum
+
 end FormalResearch.FourQubitEntropy.SevenQubitSpectralPair

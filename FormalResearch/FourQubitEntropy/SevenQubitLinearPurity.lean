@@ -1,4 +1,5 @@
-import FormalResearch.FourQubitEntropy.SevenQubitConseqCeiling
+import FormalResearch.FourQubitEntropy.SevenQubitConseqSpectrum
+import FormalResearch.FourQubitEntropy.SevenQubitConseqEnvelope
 
 /-!
 # `lem:seven-entropy-linear-purity`: the universal dimension-eight entropy-purity slope
