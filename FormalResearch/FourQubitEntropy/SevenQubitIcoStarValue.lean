@@ -224,7 +224,7 @@ theorem star_value : ∃ c : ℝ, (∀ y ∈ Icc (0 : ℝ) (1 / 2), y ≠ c → 
 
 /-- **The SC-2 lower witness, discharged for the maximiser.** The family maximum `E_* = E3 x_*` satisfies
 `E_* > (59307/20000) ln 2`, i.e. `E₃(ψ_{x_*}) > 2.96535` bits. This is the hypothesis `hwit` of
-`adaptive_purity_band` / `eigenCap_497` in `SevenQubitAdaptiveBand` / `SevenQubitEigenCap497` with
+`competitor_purity_band` / `eigenCap_497` in `SevenQubitCompetitorBand` / `SevenQubitEigenCap497` with
 `Estar := E3 x_*` (the paper's `E_*`), so it need not be assumed once `Estar` is taken to be the family
 maximum. -/
 theorem sc2_witness : ∃ c : ℝ, (∀ y ∈ Icc (0 : ℝ) (1 / 2), y ≠ c → E3 y < E3 c) ∧

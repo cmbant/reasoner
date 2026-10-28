@@ -1,5 +1,5 @@
 import FormalResearch.FourQubitEntropy.SevenQubitJointMajorant
-import FormalResearch.FourQubitEntropy.SevenQubitAdaptiveBand
+import FormalResearch.FourQubitEntropy.SevenQubitCompetitorBand
 
 /-!
 # `thm:seven-entropy-global-maximum`: the final reduction (conditional)
@@ -16,10 +16,10 @@ Entropies are in nats (`meanEntropy3`), so the paper's `E_* > 59307/20000` bits 
 
 **This is a reduction, not a proof of the maximum.**
 
-## Proved in Lean (this file, with `SevenQubitAdaptiveBand`, `SevenQubitEigenCap497Pure`)
+## Proved in Lean (this file, with `SevenQubitCompetitorBand`, `SevenQubitEigenCap497Pure`)
 
 * `contender_region`: every unit vector with `E₃(ψ) ≥ E_*` lies in the contender region, namely
-  `121/917 ≤ π₃ ≤ 8693/64000` (`adaptive_purity_band`: the upper bound is proved from the averaged
+  `121/917 ≤ π₃ ≤ 8693/64000` (`competitor_purity_band`: the upper bound is proved from the averaged
   linear purity bound; the lower bound is `SevenPurityBound`) and every eigenvalue of every
   three-qubit marginal is `≤ 497/1000` (`eigenCap_497_pure`: proved, using the spin-flip cross-cut
   inequality of `SevenQubitSpectralPair*`).
@@ -79,7 +79,7 @@ eigenvalues of all three-qubit marginals `≤ 497/1000`. -/
 theorem contender_region (hPB : SevenPurityBound) {Estar : ℝ}
     (hwit : (59307 / 20000) * log 2 < Estar) (ψ : BitString → ℂ) (hψ : UnitVec ψ)
     (hE : Estar ≤ meanEntropy3 ψ) : ContenderRegion ψ := by
-  obtain ⟨h1, h2⟩ := adaptive_purity_band hPB ψ hψ hwit hE
+  obtain ⟨h1, h2⟩ := competitor_purity_band hPB ψ hψ hwit hE
   exact ⟨hψ, h1, h2.le, fun m hm x => (EigCap.eigenCap_497_pure ψ hψ hwit hE m hm x).le⟩
 
 /-- **`thm:seven-entropy-global-maximum`, final reduction.**  Assume the sharp purity bound, the
