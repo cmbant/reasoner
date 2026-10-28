@@ -21,6 +21,13 @@ bound over that one ensemble gives a strict inequality.
 * `convexRoof_mean_lt`: the abstract strictness theorem.
 * `convexRoof_vn_lt`, `convexRoof_tsallis_lt`, `convexRoof_renyi_lt`: the three ceilings of
   `ConvexRoof.lean` are strict on non-pure states (Rényi in the Lean range `0 < q < 1`).
+* `ensemble_of_pure`, `convexRoof_pure`: the convex roof of a pure state is the value of the
+  functional (every ensemble of `|ψ⟩⟨ψ|` consists of phases of `ψ`).
+* `convexRoof_vn_eq_iff`, `convexRoof_tsallis_eq_iff`, `convexRoof_renyi_eq_iff`: the mean of the
+  three roofs equals the ceiling iff `ρ = |ψ⟩⟨ψ|` with `ψ` in an `M₄` local-unitary orbit.
+
+Trust: no `native_decide`, `sorry` or new axiom here.  The sextic axiom of `Identity.lean` is
+inherited exactly where `ConvexRoof.lean` already inherits it (through the pure-state ceilings).
 -/
 
 open scoped ComplexConjugate Matrix Kronecker ComplexOrder
@@ -415,13 +422,307 @@ theorem convexRoof_renyi_lt {q : ℝ} (h0 : 0 < q) (h1 : q < 1) {ρ : Mat16} (h�
     (fun ψ h hd => lt_of_le_of_ne (renyi_le h0 h1 ψ h) fun heq =>
       det_zmat_ne_zero_of_LU ((renyi_eq_iff h0 h1 ψ h).1 heq) hd) hρ htr hmixed
 
+/-! ### Pure states: the convex roof is the value -/
+
+/-- The inner product `⟨φ, χ⟩ = Σ_x conj (φ x) χ x`. -/
+def ip (φ χ : Psi) : ℂ := ∑ x, conj (vecOf φ x) * vecOf χ x
+
+theorem ip_comm (φ χ : Psi) : ip φ χ = conj (ip χ φ) := by
+  simp [ip, map_sum, mul_comm]
+
+theorem ip_self (φ : Psi) : ip φ φ = (normSqPsi φ : ℂ) := by
+  rw [normSqPsi_eq_sum, Complex.ofReal_sum]
+  exact Finset.sum_congr rfl fun x _ => Complex.normSq_eq_conj_mul_self.symm
+
+theorem ip_sub_smul_right (φ a b : Psi) (c : ℂ) : ip φ (a - c • b) = ip φ a - c * ip φ b := by
+  simp only [ip, vecOf, Pi.sub_apply, Pi.smul_apply, smul_eq_mul, mul_sub, Finset.sum_sub_distrib,
+    Finset.mul_sum]
+  congr 1
+  refine Finset.sum_congr rfl fun x _ => by ring
+
+theorem ip_sub_smul_left (a b χ : Psi) (c : ℂ) :
+    ip (a - c • b) χ = ip a χ - conj c * ip b χ := by
+  simp only [ip, vecOf, Pi.sub_apply, Pi.smul_apply, smul_eq_mul, map_sub, map_mul, sub_mul,
+    Finset.sum_sub_distrib, Finset.mul_sum]
+  congr 1
+  refine Finset.sum_congr rfl fun x _ => by ring
+
+/-- `⟨φ|M|φ⟩` for a matrix `M`. -/
+def quadForm (φ : Psi) (M : Mat16) : ℂ := ∑ x, ∑ y, conj (vecOf φ x) * M x y * vecOf φ y
+
+theorem quadForm_projPsi (φ χ : Psi) : quadForm φ (projPsi χ) = ip φ χ * conj (ip φ χ) := by
+  unfold quadForm ip
+  rw [map_sum, Finset.sum_mul_sum]
+  refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun y _ => ?_
+  simp only [projPsi, Matrix.of_apply, map_mul, Complex.conj_conj]
+  ring
+
+theorem quadForm_sum {n : ℕ} (φ : Psi) (c : Fin n → ℂ) (M : Fin n → Mat16) :
+    quadForm φ (∑ l, c l • M l) = ∑ l, c l * quadForm φ (M l) := by
+  simp only [quadForm, Matrix.sum_apply, Matrix.smul_apply, smul_eq_mul, Finset.mul_sum,
+    Finset.sum_mul]
+  symm
+  rw [Finset.sum_comm]
+  refine Finset.sum_congr rfl fun x _ => ?_
+  rw [Finset.sum_comm]
+  refine Finset.sum_congr rfl fun y _ => ?_
+  refine Finset.sum_congr rfl fun l _ => by ring
+
+theorem normSq_ip_ensemble {ψ : Psi} {n : ℕ} {p : Fin n → ℝ} {ψ' : Fin n → Psi}
+    (he : projPsi ψ = ∑ l, (p l : ℂ) • projPsi (ψ' l)) (φ : Psi) :
+    Complex.normSq (ip φ ψ) = ∑ l, p l * Complex.normSq (ip φ (ψ' l)) := by
+  have h := congrArg (quadForm φ) he
+  rw [quadForm_sum, quadForm_projPsi] at h
+  simp only [quadForm_projPsi] at h
+  rw [Complex.mul_conj] at h
+  have h' : ∀ l, (p l : ℂ) * (ip φ (ψ' l) * conj (ip φ (ψ' l))) = ((p l * Complex.normSq (ip φ (ψ' l)) : ℝ) : ℂ) := by
+    intro l; rw [Complex.mul_conj]; push_cast; ring
+  simp only [h'] at h
+  rw [← Complex.ofReal_sum] at h
+  exact_mod_cast h
+
+/-- Every member of positive weight of an ensemble of a pure state is a phase times that state. -/
+theorem ensemble_of_pure {ψ : Psi} (hψ : normSqPsi ψ = 1) {n : ℕ} {p : Fin n → ℝ}
+    {ψ' : Fin n → Psi} (hp : ∀ l, 0 ≤ p l) (hu : ∀ l, normSqPsi (ψ' l) = 1)
+    (he : projPsi ψ = ∑ l, (p l : ℂ) • projPsi (ψ' l)) {l : Fin n} (hl : 0 < p l) :
+    ∃ c : ℂ, Complex.normSq c = 1 ∧ ψ' l = c • ψ := by
+  set s : ℂ := ip ψ (ψ' l) with hs
+  set φ : Psi := ψ' l - s • ψ with hφ
+  have hψψ : ip ψ ψ = 1 := by rw [ip_self, hψ]; simp
+  have hll : ip (ψ' l) (ψ' l) = 1 := by rw [ip_self, hu]; simp
+  have hφψ : ip φ ψ = 0 := by
+    rw [hφ, ip_sub_smul_left, hψψ, ip_comm (ψ' l) ψ, ← hs]; ring
+  have hφl : ip φ (ψ' l) = 1 - (Complex.normSq s : ℂ) := by
+    rw [hφ, ip_sub_smul_left, hll, Complex.normSq_eq_conj_mul_self]
+  have hsum := normSq_ip_ensemble he φ
+  rw [hφψ, map_zero] at hsum
+  have hnn : ∀ k, 0 ≤ p k * Complex.normSq (ip φ (ψ' k)) := fun k =>
+    mul_nonneg (hp k) (Complex.normSq_nonneg _)
+  have hle : p l * Complex.normSq (ip φ (ψ' l)) ≤ 0 := by
+    rw [hsum]
+    exact Finset.single_le_sum (fun k _ => hnn k) (Finset.mem_univ l)
+  have h0 : Complex.normSq (ip φ (ψ' l)) = 0 := by
+    have := Complex.normSq_nonneg (ip φ (ψ' l))
+    by_contra hne
+    have hpos : 0 < Complex.normSq (ip φ (ψ' l)) := lt_of_le_of_ne this (Ne.symm hne)
+    nlinarith
+  have hs1 : Complex.normSq s = 1 := by
+    have := Complex.normSq_eq_zero.1 h0
+    rw [hφl] at this
+    have h2 : (Complex.normSq s : ℂ) = 1 := by linear_combination -this
+    exact_mod_cast h2
+  have hφφ : ip φ φ = 0 := by
+    have : φ = ψ' l - s • ψ := rfl
+    conv_lhs => rw [this, ip_sub_smul_right, hφψ, hφl]
+    rw [hs1]; simp
+  rw [ip_self] at hφφ
+  have hφ0 : φ = 0 := eq_zero_of_normSqPsi_eq_zero (by exact_mod_cast hφφ)
+  exact ⟨s, hs1, sub_eq_zero.1 hφ0⟩
+
+theorem convexRoof_pure {g : Psi → ℝ} (hg : ∀ ψ, normSqPsi ψ = 1 → 0 ≤ g ψ)
+    (hph : ∀ (ψ : Psi) (c : ℂ), normSqPsi ψ = 1 → Complex.normSq c = 1 → g (c • ψ) = g ψ)
+    {ψ : Psi} (hψ : normSqPsi ψ = 1) : convexRoof g (projPsi ψ) = g ψ := by
+  have h1 : (projPsi ψ) = ∑ l : Fin 1, ((fun _ => (1 : ℝ)) l : ℂ) • projPsi ((fun _ => ψ) l) := by
+    simp
+  apply le_antisymm
+  · have := convexRoof_le_ensemble (g := g) (ρ := projPsi ψ) (n := 1) (p := fun _ => 1)
+      (ψ := fun _ => ψ) hg (fun _ => zero_le_one) (by simp) (fun _ => hψ) h1
+    simpa using this
+  · refine le_csInf ⟨_, 1, fun _ => 1, fun _ => ψ, fun _ => zero_le_one, by simp, fun _ => hψ, h1,
+      rfl⟩ ?_
+    rintro v ⟨n, p, ψ', hp, hs, hu, he, rfl⟩
+    have : ∀ l, p l * g ψ ≤ p l * g (ψ' l) := by
+      intro l
+      rcases (hp l).eq_or_lt with h0 | hl
+      · rw [← h0]; simp
+      · obtain ⟨c, hc, hcl⟩ := ensemble_of_pure hψ hp hu he hl
+        rw [hcl, hph ψ c hψ hc]
+    calc g ψ = ∑ l, p l * g ψ := by rw [← Finset.sum_mul, hs, one_mul]
+      _ ≤ ∑ l, p l * g (ψ' l) := Finset.sum_le_sum fun l _ => this l
+
+/-- **Equality case, abstract form.** Under the hypotheses of `convexRoof_mean_lt` and phase
+invariance of the cut functionals, the mean of the three convex roofs equals `C` exactly at the pure
+states `|ψ⟩⟨ψ|` whose own mean equals `C`. -/
+theorem convexRoof_mean_eq_iff {g₂ g₃ g₄ : Psi → ℝ} (h₂ : ∀ ψ, normSqPsi ψ = 1 → 0 ≤ g₂ ψ)
+    (h₃ : ∀ ψ, normSqPsi ψ = 1 → 0 ≤ g₃ ψ) (h₄ : ∀ ψ, normSqPsi ψ = 1 → 0 ≤ g₄ ψ) {C : ℝ}
+    (hC : ∀ ψ, normSqPsi ψ = 1 → (g₂ ψ + g₃ ψ + g₄ ψ) / 3 ≤ C)
+    (hsing : ∀ ψ, normSqPsi ψ = 1 → (zmat ψ).det = 0 → (g₂ ψ + g₃ ψ + g₄ ψ) / 3 < C)
+    (hph₂ : ∀ (ψ : Psi) (c : ℂ), normSqPsi ψ = 1 → Complex.normSq c = 1 → g₂ (c • ψ) = g₂ ψ)
+    (hph₃ : ∀ (ψ : Psi) (c : ℂ), normSqPsi ψ = 1 → Complex.normSq c = 1 → g₃ (c • ψ) = g₃ ψ)
+    (hph₄ : ∀ (ψ : Psi) (c : ℂ), normSqPsi ψ = 1 → Complex.normSq c = 1 → g₄ (c • ψ) = g₄ ψ)
+    {ρ : Mat16} (hρ : ρ.PosSemidef) (htr : (Matrix.trace ρ).re = 1) :
+    (convexRoof g₂ ρ + convexRoof g₃ ρ + convexRoof g₄ ρ) / 3 = C ↔
+      ∃ ψ, normSqPsi ψ = 1 ∧ ρ = projPsi ψ ∧ (g₂ ψ + g₃ ψ + g₄ ψ) / 3 = C := by
+  constructor
+  · intro h
+    by_cases hmixed : ∃ φ, normSqPsi φ = 1 ∧ ρ = projPsi φ
+    · obtain ⟨φ, hφ, rfl⟩ := hmixed
+      refine ⟨φ, hφ, rfl, ?_⟩
+      rw [convexRoof_pure h₂ hph₂ hφ, convexRoof_pure h₃ hph₃ hφ, convexRoof_pure h₄ hph₄ hφ] at h
+      exact h
+    · exact absurd h (convexRoof_mean_lt h₂ h₃ h₄ hC hsing hρ htr hmixed).ne
+  · rintro ⟨φ, hφ, rfl, hv⟩
+    rw [convexRoof_pure h₂ hph₂ hφ, convexRoof_pure h₃ hph₃ hφ, convexRoof_pure h₄ hph₄ hφ]
+    exact hv
+
+/-! ### Phase invariance and the three equality statements -/
+
+theorem red12_phase {c : ℂ} (hc : Complex.normSq c = 1) (ψ : Psi) : red12 (c • ψ) = red12 ψ := by
+  have hc' : c * conj c = 1 := by rw [Complex.mul_conj, hc]; simp
+  ext i j
+  simp only [red12, Matrix.of_apply, Pi.smul_apply, smul_eq_mul, map_mul]
+  refine Finset.sum_congr rfl fun a _ => Finset.sum_congr rfl fun b _ => ?_
+  linear_combination (ψ i.1 i.2 a b * conj (ψ j.1 j.2 a b)) * hc'
+
+theorem red13_phase {c : ℂ} (hc : Complex.normSq c = 1) (ψ : Psi) : red13 (c • ψ) = red13 ψ := by
+  have hc' : c * conj c = 1 := by rw [Complex.mul_conj, hc]; simp
+  ext i j
+  simp only [red13, Matrix.of_apply, Pi.smul_apply, smul_eq_mul, map_mul]
+  refine Finset.sum_congr rfl fun a _ => Finset.sum_congr rfl fun b _ => ?_
+  linear_combination (ψ i.1 a i.2 b * conj (ψ j.1 a j.2 b)) * hc'
+
+theorem red14_phase {c : ℂ} (hc : Complex.normSq c = 1) (ψ : Psi) : red14 (c • ψ) = red14 ψ := by
+  have hc' : c * conj c = 1 := by rw [Complex.mul_conj, hc]; simp
+  ext i j
+  simp only [red14, Matrix.of_apply, Pi.smul_apply, smul_eq_mul, map_mul]
+  refine Finset.sum_congr rfl fun a _ => Finset.sum_congr rfl fun b _ => ?_
+  linear_combination (ψ i.1 a b i.2 * conj (ψ j.1 a b j.2)) * hc'
+
+theorem vnEntropy_congr {R S : Mat4} (h : R = S) (hR : R.IsHermitian) (hS : S.IsHermitian) :
+    vnEntropy hR = vnEntropy hS := by
+  subst h; rfl
+
+theorem tsallisCut_congr (q : ℝ) {R S : Mat4} (h : R = S) (hR : R.IsHermitian)
+    (hS : S.IsHermitian) : tsallisCut q hR = tsallisCut q hS := by
+  subst h; rfl
+
+theorem renyiCut_congr (q : ℝ) {R S : Mat4} (h : R = S) (hR : R.IsHermitian)
+    (hS : S.IsHermitian) : renyiCut q hR = renyiCut q hS := by
+  subst h; rfl
+
+/-- **No mixed maximiser, and the pure maximisers** (von Neumann case of `cor:fqe-convex-roof`): the
+mean of the three bipartite entanglements of formation of `ρ` equals `1 + ½ log₂ 3` if and only if
+`ρ = |ψ⟩⟨ψ|` for a unit vector `ψ` in one of the two `M₄` local-unitary orbits. -/
+theorem convexRoof_vn_eq_iff {ρ : Mat16} (hρ : ρ.PosSemidef) (htr : (Matrix.trace ρ).re = 1) :
+    (convexRoof (fun ψ => vnEntropy (red12_herm ψ)) ρ + convexRoof (fun ψ => vnEntropy (red13_herm ψ)) ρ
+      + convexRoof (fun ψ => vnEntropy (red14_herm ψ)) ρ) / 3 = 1 + Real.log 3 / (2 * Real.log 2) ↔
+    ∃ ψ, normSqPsi ψ = 1 ∧ ρ = projPsi ψ ∧ (LUEquiv M4 ψ ∨ LUEquiv (Psi.conj M4) ψ) := by
+  rw [convexRoof_mean_eq_iff (fun _ h => vnEntropy12_nonneg h) (fun _ h => vnEntropy13_nonneg h)
+    (fun _ h => vnEntropy14_nonneg h) (fun ψ h => meanEntropy_le ψ h)
+    (fun ψ h hd => lt_of_le_of_ne (meanEntropy_le ψ h) fun heq =>
+      det_zmat_ne_zero_of_LU ((meanEntropy_eq_max_iff ψ h).1 heq) hd)
+    (fun ψ c _ hc => vnEntropy_congr (red12_phase hc ψ) _ _)
+    (fun ψ c _ hc => vnEntropy_congr (red13_phase hc ψ) _ _)
+    (fun ψ c _ hc => vnEntropy_congr (red14_phase hc ψ) _ _) hρ htr]
+  constructor
+  · rintro ⟨ψ, h1, h2, h3⟩
+    exact ⟨ψ, h1, h2, (meanEntropy_eq_max_iff ψ h1).1 h3⟩
+  · rintro ⟨ψ, h1, h2, h3⟩
+    exact ⟨ψ, h1, h2, (meanEntropy_eq_max_iff ψ h1).2 h3⟩
+
+/-- **Tsallis case** of the equality classification (`0 < q < 2`, `q ≠ 1`). -/
+theorem convexRoof_tsallis_eq_iff {q : ℝ} (h0 : 0 < q) (h2 : q < 2) (h1 : q ≠ 1) {ρ : Mat16}
+    (hρ : ρ.PosSemidef) (htr : (Matrix.trace ρ).re = 1) :
+    (convexRoof (fun ψ => tsallisCut q (red12_herm ψ)) ρ + convexRoof (fun ψ => tsallisCut q (red13_herm ψ)) ρ
+      + convexRoof (fun ψ => tsallisCut q (red14_herm ψ)) ρ) / 3 = tsallisCeiling q ↔
+    ∃ ψ, normSqPsi ψ = 1 ∧ ρ = projPsi ψ ∧ (LUEquiv M4 ψ ∨ LUEquiv (Psi.conj M4) ψ) := by
+  rw [convexRoof_mean_eq_iff
+    (fun ψ h => tsallisCut_nonneg h0 h1 _ (red12_psd ψ) (by rw [trace_red12, h]; simp))
+    (fun ψ h => tsallisCut_nonneg h0 h1 _ (red13_psd ψ) (by rw [trace_red13, h]; simp))
+    (fun ψ h => tsallisCut_nonneg h0 h1 _ (red14_psd ψ) (by rw [trace_red14, h]; simp))
+    (fun ψ h => tsallis_le h0 h2 h1 ψ h)
+    (fun ψ h hd => lt_of_le_of_ne (tsallis_le h0 h2 h1 ψ h) fun heq =>
+      det_zmat_ne_zero_of_LU ((tsallis_eq_iff h0 h2 h1 ψ h).1 heq) hd)
+    (fun ψ c _ hc => tsallisCut_congr q (red12_phase hc ψ) _ _)
+    (fun ψ c _ hc => tsallisCut_congr q (red13_phase hc ψ) _ _)
+    (fun ψ c _ hc => tsallisCut_congr q (red14_phase hc ψ) _ _) hρ htr]
+  constructor
+  · rintro ⟨ψ, h1', h2', h3⟩
+    exact ⟨ψ, h1', h2', (tsallis_eq_iff h0 h2 h1 ψ h1').1 h3⟩
+  · rintro ⟨ψ, h1', h2', h3⟩
+    exact ⟨ψ, h1', h2', (tsallis_eq_iff h0 h2 h1 ψ h1').2 h3⟩
+
+/-- **Rényi case** of the equality classification (`0 < q < 1`). -/
+theorem convexRoof_renyi_eq_iff {q : ℝ} (h0 : 0 < q) (h1 : q < 1) {ρ : Mat16}
+    (hρ : ρ.PosSemidef) (htr : (Matrix.trace ρ).re = 1) :
+    (convexRoof (fun ψ => renyiCut q (red12_herm ψ)) ρ + convexRoof (fun ψ => renyiCut q (red13_herm ψ)) ρ
+      + convexRoof (fun ψ => renyiCut q (red14_herm ψ)) ρ) / 3 =
+      Real.logb 2 ((2 : ℝ) ^ (-q) + 3 * (6 : ℝ) ^ (-q)) / (1 - q) ↔
+    ∃ ψ, normSqPsi ψ = 1 ∧ ρ = projPsi ψ ∧ (LUEquiv M4 ψ ∨ LUEquiv (Psi.conj M4) ψ) := by
+  rw [convexRoof_mean_eq_iff
+    (fun ψ h => renyiCut_nonneg h0 h1 _ (red12_psd ψ) (by rw [trace_red12, h]; simp))
+    (fun ψ h => renyiCut_nonneg h0 h1 _ (red13_psd ψ) (by rw [trace_red13, h]; simp))
+    (fun ψ h => renyiCut_nonneg h0 h1 _ (red14_psd ψ) (by rw [trace_red14, h]; simp))
+    (fun ψ h => renyi_le h0 h1 ψ h)
+    (fun ψ h hd => lt_of_le_of_ne (renyi_le h0 h1 ψ h) fun heq =>
+      det_zmat_ne_zero_of_LU ((renyi_eq_iff h0 h1 ψ h).1 heq) hd)
+    (fun ψ c _ hc => renyiCut_congr q (red12_phase hc ψ) _ _)
+    (fun ψ c _ hc => renyiCut_congr q (red13_phase hc ψ) _ _)
+    (fun ψ c _ hc => renyiCut_congr q (red14_phase hc ψ) _ _) hρ htr]
+  constructor
+  · rintro ⟨ψ, h1', h2', h3⟩
+    exact ⟨ψ, h1', h2', (renyi_eq_iff h0 h1 ψ h1').1 h3⟩
+  · rintro ⟨ψ, h1', h2', h3⟩
+    exact ⟨ψ, h1', h2', (renyi_eq_iff h0 h1 ψ h1').2 h3⟩
+
 /-- info: 'FormalResearch.FourQubitEntropy.convexRoof_mean_lt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms convexRoof_mean_lt
 
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_vn_lt' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ sexticDefect_check._native.native_decide.ax_1_1] -/
+#guard_msgs in
 #print axioms convexRoof_vn_lt
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_tsallis_lt' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ sexticDefect_check._native.native_decide.ax_1_1] -/
+#guard_msgs in
 #print axioms convexRoof_tsallis_lt
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_renyi_lt' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ sexticDefect_check._native.native_decide.ax_1_1] -/
+#guard_msgs in
 #print axioms convexRoof_renyi_lt
+/-- info: 'FormalResearch.FourQubitEntropy.det_zmat_ne_zero_of_LU' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
 #print axioms det_zmat_ne_zero_of_LU
+
+/-- info: 'FormalResearch.FourQubitEntropy.exists_singular_pencil' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms exists_singular_pencil
+/-- info: 'FormalResearch.FourQubitEntropy.ensemble_with_singular' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms ensemble_with_singular
+/-- info: 'FormalResearch.FourQubitEntropy.ensemble_of_pure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms ensemble_of_pure
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_pure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms convexRoof_pure
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_mean_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms convexRoof_mean_eq_iff
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_vn_eq_iff' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ sexticDefect_check._native.native_decide.ax_1_1] -/
+#guard_msgs in
+#print axioms convexRoof_vn_eq_iff
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_tsallis_eq_iff' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ sexticDefect_check._native.native_decide.ax_1_1] -/
+#guard_msgs in
+#print axioms convexRoof_tsallis_eq_iff
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_renyi_eq_iff' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ sexticDefect_check._native.native_decide.ax_1_1] -/
+#guard_msgs in
+#print axioms convexRoof_renyi_eq_iff
 
 end FormalResearch.FourQubitEntropy
