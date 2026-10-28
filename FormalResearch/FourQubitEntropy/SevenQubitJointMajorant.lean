@@ -23,8 +23,8 @@ Entropies are in nats: `f = Real.negMulLog`.
   * `trace_pow_pow`: `∑_{ij} w_ij x_i^k y_j^l = Re tr(R^k S^l)` for `R = U diag(x) U*`,
     `S = V diag(y) V*` (no commutation of `R`, `S` is used).
   * `entropy_le_polyTrace`: for `H` a polynomial `∑ h_kl λ^k μ^l`,
-    `∑ f(x_i) ≤ ∑_{kl} h_kl Re tr(R^k S^l)` whenever `y` is a rearrangement-free "same entropy sum"
-    partner of `x` (`∑ f(y_j) = ∑ f(x_i)`), all entries in `[0,cap]`.
+    `∑ f(x_i) ≤ ∑_{kl} h_kl Re tr(R^k S^l)` whenever `y` has the same entropy sum as `x`
+    (`∑ f(y_j) = ∑ f(x_i)`) and all entries of `x`, `y` lie in `[0,cap]`.
   * `entropy_le_polyTrace_herm`: the same for Hermitian PSD `R, S` with the same eigenvalue multiset
     (the abstract form of "`S` is a unitary conjugate of `Rᵀ`"), eigenvalues of `R` at most `cap`
     (the operator-norm bound `‖R‖ ≤ cap` for PSD `R`).

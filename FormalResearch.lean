@@ -389,3 +389,4 @@ import FormalResearch.FrameFree.TwirlsSchurWeyl
 import FormalResearch.FrameFree.TwirlsTwirl
 import FormalResearch.FourQubitEntropy.SevenQubitMajorantDegree
 import FormalResearch.FourQubitEntropy.SevenQubitJointMajorant
+import FormalResearch.FourQubitEntropy.SevenQubitMaximumReduction
