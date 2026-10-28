@@ -297,6 +297,7 @@ import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
 import FormalResearch.FourQubitEntropy.SevenQubitIcoPurity
 import FormalResearch.FourQubitEntropy.SevenQubitIcoSpectrum
 import FormalResearch.FourQubitEntropy.SevenQubitIcoState
+import FormalResearch.FourQubitEntropy.SevenQubitAdaptiveSpinFlip
 import FormalResearch.FourQubitEntropy.Stability
 import FormalResearch.FourQubitEntropy.ThirdMoment
 import FormalResearch.FourQubitEntropy.Tradeoff
