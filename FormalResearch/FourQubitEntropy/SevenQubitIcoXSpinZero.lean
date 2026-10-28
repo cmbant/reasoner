@@ -316,16 +316,20 @@ noncomputable def P0rhoP0 (m : Fin 7 → Bool) (alpha beta : ℝ) (r r' : Quad) 
 noncomputable def trP0rho (m : Fin 7 → Bool) (alpha beta : ℝ) : ℝ :=
   (1 / 6) * ∑ s, ∑ t, (P6 s t : ℝ) * entryT m alpha beta t s
 
+/-- **IM-1, `P₀ V = 0`** on all 35 four-site sets (`P6 = 6 P₀`). -/
+theorem P0_V (m : Fin 7 → Bool) (hm : m ∈ tripleMasks) (r : Quad) (a : Triple) :
+    ∑ s, P6 r s * Vz m s a = 0 := by
+  obtain ⟨h0, h1⟩ := (cut_facts_all.1 m hm).1 a
+  rw [P6_mul]
+  have h0' : ∑ s, w1 s * Vz m s a = 0 := h0
+  have h1' : ∑ s, w2 s * Vz m s a = 0 := h1
+  rw [h0', h1']; ring
+
 /-- `P6 · ψ = α · P6 U`: the pattern `V` is annihilated (`P₀ V = 0`). -/
 theorem P6_psi (m : Fin 7 → Bool) (hm : m ∈ tripleMasks) (alpha beta : ℝ) (r : Quad) (a : Triple) :
     ∑ s, (P6 r s : ℝ) * icosahedralState alpha beta (encode (maskCut 3 4 m) a s) =
       alpha * ((∑ s, P6 r s * Uz m s a : ℤ) : ℝ) := by
-  have hV : ∑ s, P6 r s * Vz m s a = 0 := by
-    obtain ⟨h0, h1⟩ := (cut_facts_all.1 m hm).1 a
-    rw [P6_mul]
-    have h0' : ∑ s, w1 s * Vz m s a = 0 := h0
-    have h1' : ∑ s, w2 s * Vz m s a = 0 := h1
-    rw [h0', h1']; ring
+  have hV : ∑ s, P6 r s * Vz m s a = 0 := P0_V m hm r a
   have hV' : ∑ s, (P6 r s : ℝ) * (Vz m s a : ℝ) = 0 := by exact_mod_cast hV
   calc ∑ s, (P6 r s : ℝ) * icosahedralState alpha beta (encode (maskCut 3 4 m) a s)
       = alpha * ∑ s, (P6 r s : ℝ) * (Uz m s a : ℝ) + beta * ∑ s, (P6 r s : ℝ) * (Vz m s a : ℝ) := by
@@ -633,7 +637,7 @@ theorem sum_P6_rho_eq_fid (ρ : Quad → Quad → ℝ) (hρ : ∀ s t, ρ s t = 
   ring
 
 /-- **IM-1, equal chiral fidelities.** `⟨M₄, ρ_T M₄⟩ = ⟨M̄₄, ρ_T M̄₄⟩ = tr(P₀ ρ_T)/2`. -/
-theorem fidelity_M4 (m : Fin 7 → Bool) (hm : m ∈ tripleMasks) (alpha beta : ℝ) :
+theorem fidelity_M4 (m : Fin 7 → Bool) (alpha beta : ℝ) :
     fid m4 (entryT m alpha beta) = ((trP0rho m alpha beta / 2 : ℝ) : ℂ) ∧
     fid (fun r => conj (m4 r)) (entryT m alpha beta) = ((trP0rho m alpha beta / 2 : ℝ) : ℂ) := by
   have h := sum_P6_rho_eq_fid (entryT m alpha beta) (entryT_symm m alpha beta)
@@ -646,7 +650,6 @@ theorem fidelity_M4 (m : Fin 7 → Bool) (hm : m ∈ tripleMasks) (alpha beta : 
   have hc : fid (fun r => conj (m4 r)) (entryT m alpha beta) = conj (fid m4 (entryT m alpha beta)) := by
     unfold fid
     simp only [map_sum, map_mul, Complex.conj_ofReal, Complex.conj_conj]
-    exact Finset.sum_congr rfl fun s _ => Finset.sum_congr rfl fun t _ => by ring
   rw [hc, h1, Complex.conj_ofReal]
 
 /-- **IM-1, fidelity values.** For every `ψ_x` and every four-site set, the common chiral fidelity
@@ -654,7 +657,7 @@ lies in `{0, 4u/3, 4u}` with `u = α²`. -/
 theorem fidelity_values (m : Fin 7 → Bool) (hm : m ∈ tripleMasks) (alpha beta : ℝ) :
     fid m4 (entryT m alpha beta) = 0 ∨ fid m4 (entryT m alpha beta) = ((4 * alpha ^ 2 / 3 : ℝ) : ℂ) ∨
       fid m4 (entryT m alpha beta) = ((4 * alpha ^ 2 : ℝ) : ℂ) := by
-  rw [(fidelity_M4 m hm alpha beta).1]
+  rw [(fidelity_M4 m alpha beta).1]
   rcases trP0rho_values m hm alpha beta with h | h | h <;> rw [h]
   · left; simp
   · right; left; push_cast; ring
