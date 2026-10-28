@@ -9,8 +9,9 @@ mean three-qubit entropy `E₃` on the icosahedral family, `1/32 < x_* < 37/524`
 
 Here `x_*` is the unique maximiser of `E3` on `[0,1/2]` (`E3_unique_max`, which gives `0 < x_* < 37/524`).
 `maximiser_gt_one_thirtysecond` (`SevenQubitMajorantDegreeSeven`) gives `1/32 < x_*`. Proved here: the ratio
-statement. Not formalized: the closed equation `2³²(1-2x_*)¹⁵ = 3⁸(1+8x_*)⁸(1+28x_*)⁷` of the same
-proposition and its full-space stationarity (the integer contraction identities ES-1).
+statement. The closed equation `2³²(1-2x_*)¹⁵ = 3⁸(1+8x_*)⁸(1+28x_*)⁷` of the same proposition is
+`star_equation` (`SevenQubitIcoStationarity`), and the integer contraction identities ES-1 are in
+`SevenQubitIcoContraction`.
 -/
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco

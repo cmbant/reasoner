@@ -19,9 +19,9 @@ has `2k - 1` distinct zeros in `(0,1)`, and iterated Rolle gives a zero of `h^{(
 `t^{-(2k-2)}` (`negMulLogDeriv`), a contradiction.  Derivatives are tracked through an explicit
 sequence `g : ℕ → ℝ → ℝ` with `HasDerivAt (g n) (g (n+1)) x` on `(0,1)`, not `iteratedDeriv`.
 
-NOT formalized here: the converse half of the proposition (the degree-`(2k-1)` Hermite
-interpolant matching `f, f'` at all nodes majorizes `f`; it needs the Hermite remainder formula)
-and the seven-qubit application (four distinct nodes, degree `≥ 7`).  The `k = 2` (cubic) case of
+Not in this file: the converse half of the proposition (the degree-`(2k-1)` Hermite interpolant
+matching `f, f'` at all nodes majorizes `f`) is `SevenQubitMajorantDegreeConverse`, and the
+seven-qubit application (four distinct nodes, degree seven) is `SevenQubitMajorantDegreeSeven`.  The `k = 2` (cubic) case of
 the Hermite majorization is in `HermiteMajorant.lean`.
 -/
 
