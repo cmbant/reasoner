@@ -19,7 +19,7 @@ For the icosahedral family `ψ_x = α U + β V` and each of the 35 four-site set
 
 * `P0_V` : `P₀ V = 0` (all 35 cuts);
 * `P0rhoP0_rank_one` : `P₀ ρ_T P₀ = κ v vᵀ` has rank at most one;
-* `qform_values`, `qform_counts` : `6 tr(P₀ ρ_T) / α² ∈ {0, 16, 48}`, i.e.
+* `qformC_values`, `table_counts` : `6 tr(P₀ ρ_T) / α² ∈ {0, 16, 48}`, i.e.
   `tr(P₀ρ_T) ∈ {0, 8u/3, 8u}` with `u = α²`, with the table of counts
   `s∈T: 5, 15, 0` and `s∉T: 0, 10, 5`;
 * `weight48_product_singlet` : on the five cuts of weight `8u` the nonzero spin-zero column is
