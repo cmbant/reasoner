@@ -1,7 +1,7 @@
 import FormalResearch.FourQubitEntropy.SevenQubitLinearPurity
 
 /-!
-# `prop:seven-adaptive-purity-band` (conditional): the competitor purity band
+# `prop:seven-competitor-band` (conditional): the competitor purity band
 
 Every pure seven-qubit state with `E₃(z) ≥ E_*` obeys `121/917 ≤ π₃(z) < p_c := 8693/64000`
 (`seven_qubit_entropy_joint.tex`, AH-1).
@@ -45,7 +45,7 @@ theorem meanEntropy3_linear_purity (ψ : BitString → ℂ) (hψ : UnitVec ψ) :
   rw [e1, e3] at hsum
   nlinarith [hsum]
 
-/-- **`prop:seven-adaptive-purity-band` (conditional).**  Assume the sharp purity bound
+/-- **`prop:seven-competitor-band` (conditional).**  Assume the sharp purity bound
 `SevenPurityBound` and the SC-2 lower witness `Estar > (59307/20000) ln 2`.  Every unit vector with
 `E₃(ψ) ≥ Estar` has `121/917 ≤ π₃(ψ) < 8693/64000`.  The upper bound is proved from
 `entropy_linear_purity`; the lower bound is `SevenPurityBound`. -/

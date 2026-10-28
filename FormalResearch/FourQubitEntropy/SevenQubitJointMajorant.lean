@@ -35,7 +35,7 @@ Entropies are in nats: `f = Real.negMulLog`.
     triple cut with spectrum in `[0,cap]` satisfies `S(ρ_T) ≤ 𝒫(ρ_T)`, and
     `E₃(ψ) ≤ 𝒫₅(ψ) := (1/35) ∑_{|T|=3} 𝒫(ρ_T)`.
 * **Not formalized:** the homogenization to a permutation-invariant five-copy moment functional;
-  the equality `𝒫₅(φ_s) = E_*` on the seven candidates (`lem:seven-adaptive-joint-spinflip`
+  the equality `𝒫₅(φ_s) = E_*` on the seven candidates (`lem:seven-joint-spinflip`
   is only partly in `SevenQubitAdaptiveSpinFlip`).
 -/
 

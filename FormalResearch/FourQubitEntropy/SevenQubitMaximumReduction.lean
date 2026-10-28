@@ -6,7 +6,7 @@ import FormalResearch.FourQubitEntropy.SevenQubitAdaptiveBand
 
 Source: `ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_certificate.tex`, proof of
 `thm:seven-entropy-global-maximum` (`E₃(z) ≤ E_*`), which reads: it suffices to consider
-`E₃(z) ≥ E_*`; `prop:seven-adaptive-purity-band` and `cor:seven-entropy-eigen-cap-497` put such a
+`E₃(z) ≥ E_*`; `prop:seven-competitor-band` and `cor:seven-entropy-eigen-cap-497` put such a
 state in the region `p₀ ≤ π₃ ≤ p_c`, `R_S ⪯ κ I` (`p₀ = 121/917`, `p_c = 8693/64000`,
 `κ = 497/1000`); then `prop:seven-joint-entropy-target` and `thm:seven-entropy-localized-identity`
 give `E₃(z) ≤ 𝒫₅(z) ≤ E_*`.
