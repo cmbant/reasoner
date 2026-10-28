@@ -1,6 +1,14 @@
 import FormalResearch.FourQubitEntropy.SpinFlipOddQSum
 import FormalResearch.FourQubitEntropy.SpinFlipOddSector
 
+/-!
+# Engine of the odd-`n` tradeoff: `π_m + ((n-3)/2) O = 1/2 + Σ oddW_j A_j`
+
+The pointwise generating-function identity `odd_tradeoff_identity` for `n = 2m + 1` with the coefficient `(n-3)/2`,
+and the weights `oddW`.  The statement of `thm:odd-spinflip-tradeoff` (sharp coefficient `c_n`, positivity of the
+weights, equality case, GHZ) is `SpinFlipTradeoffOddSharp.lean`, which derives it from this identity and `Omean_eq`.
+-/
+
 open Polynomial Finset
 open FormalResearch.FrameFree.NQubit
 
@@ -305,167 +313,10 @@ theorem choose_le_choose_double (m k : ℕ) (hk : k ≤ m) (hk1 : 1 ≤ k) :
     exact Nat.le_add_left _ _
   exact h1.trans (hV.trans h2)
 
-theorem oddNum_pos (m i : ℕ) (hm : 3 ≤ m) (hi : i + 2 ≤ m) : 0 < oddNum m (2 * i + 1) := by
-  have e1 : 2 * m + 1 - (2 * i + 1) = 2 * (m - i) := by omega
-  have e2 : 2 * (m - i) / 2 = m - i := by omega
-  have hkey0 := Nat.choose_mul_succ_eq (2 * m) (2 * i + 1)
-  rw [e1] at hkey0
-  have hkey : ((2 * m).choose (2 * i + 1) : ℝ) * (2 * (m : ℝ) + 1)
-      = ((2 * m + 1).choose (2 * i + 1) : ℝ) * (2 * ((m : ℝ) - i)) := by
-    have h := congrArg (fun x : ℕ => (x : ℝ)) hkey0
-    simp only [Nat.cast_mul, Nat.cast_add, Nat.cast_ofNat, Nat.cast_one] at h
-    rw [Nat.cast_sub (by omega : i ≤ m)] at h
-    linarith
-  have hcsym : (2 * m + 1).choose (2 * (m - i)) = (2 * m + 1).choose (2 * i + 1) := by
-    rw [← e1]; exact Nat.choose_symm (by omega)
-  have hle : (m.choose (m - i) : ℝ) ≤ ((2 * m + 1).choose (2 * i + 1) : ℝ) := by
-    rw [← hcsym]
-    exact_mod_cast choose_le_choose_double m (m - i) (by omega) (by omega)
-  have hcpos : (0 : ℝ) < ((2 * m + 1).choose (2 * i + 1) : ℝ) := by
-    exact_mod_cast Nat.choose_pos (by omega)
-  have hk2 : (2 : ℝ) ≤ (m : ℝ) - i := by
-    have : (i : ℝ) + 2 ≤ m := by exact_mod_cast hi
-    linarith
-  have hm3 : (3 : ℝ) ≤ m := by exact_mod_cast hm
-  have hd : 2 * ((2 * m + 1).choose (2 * i + 1) : ℝ) < (2 * (m : ℝ) - 2) * ((2 * m).choose (2 * i + 1) : ℝ) := by
-    set c := ((2 * m + 1).choose (2 * i + 1) : ℝ)
-    set d := ((2 * m).choose (2 * i + 1) : ℝ)
-    have h : (2 * (m : ℝ) + 1) * ((2 * (m : ℝ) - 2) * d - 2 * c)
-        = 2 * c * ((2 * (m : ℝ) - 2) * ((m : ℝ) - i) - (2 * m + 1)) := by
-      linear_combination (2 * (m : ℝ) - 2) * hkey
-    have h2 : 0 < 2 * c * ((2 * (m : ℝ) - 2) * ((m : ℝ) - i) - (2 * m + 1)) := by
-      apply mul_pos (by positivity)
-      nlinarith
-    rw [← h] at h2
-    have := (mul_pos_iff_of_pos_left (by positivity : (0 : ℝ) < 2 * (m : ℝ) + 1)).mp h2
-    linarith
-  have hs : -(m.choose (m - i) : ℝ) ≤ (-1 : ℝ) ^ (m - i) * (m.choose (m - i) : ℝ) := by
-    rcases neg_one_pow_eq_or ℝ (m - i) with h | h <;> rw [h] <;> nlinarith [(Nat.cast_nonneg (m.choose (m - i)) : (0 : ℝ) ≤ _)]
-  have hF : 0 ≤ (2 : ℝ) ^ m * ((m.choose (2 * i + 1 - 1) : ℝ) + 3 * (m.choose (2 * i + 1) : ℝ)) := by
-    positivity
-  unfold oddNum
-  rw [e1, e2]
-  linarith
-
 /-- `oddW m (n) = 0` (the `j = n` term of the identity vanishes). -/
 theorem oddW_top (m : ℕ) (hm : 1 ≤ m) : oddW m (2 * m + 1) = 0 := by
   unfold oddW; rw [oddNum_top m hm]; simp
 
-theorem oddW_two_three : oddW 2 3 = 0 := by unfold oddW; rw [oddNum_two_three]; simp
-
-theorem oddW_three_five : oddW 3 5 = 0 := by
-  unfold oddW
-  have := oddNum_last 3 le_rfl
-  norm_num at this
-  norm_num [this]
-
-/-- The weights are positive on odd `j < n`, except for `j = n-2` when `n ∈ {5, 7}`, where they vanish. -/
-theorem oddW_pos (m : ℕ) (hm : 2 ≤ m) (j : ℕ) (hj : Odd j) (hjn : j < 2 * m + 1)
-    (hne : ¬ (j + 2 = 2 * m + 1 ∧ m ≤ 3)) : 0 < oddW m j := by
-  obtain ⟨i, rfl⟩ := hj
-  unfold oddW
-  have hden : (0 : ℝ) < 2 ^ (2 * m + 1) * ((2 * m + 1).choose (2 * i + 1) : ℝ) := by
-    have : 0 < (2 * m + 1).choose (2 * i + 1) := Nat.choose_pos (by omega)
-    positivity
-  apply div_pos _ hden
-  by_cases h1 : i + 2 ≤ m
-  · by_cases h3 : 3 ≤ m
-    · exact oddNum_pos m i h3 h1
-    · have hm2 : m = 2 := by omega
-      have hi0 : i = 0 := by omega
-      subst hm2; subst hi0
-      rw [show 2 * 0 + 1 = 1 by rfl, oddNum_two_one]; norm_num
-  · have hi : i + 1 = m := by omega
-    have hm4 : 4 ≤ m := by
-      by_contra hlt
-      exact hne ⟨by omega, by omega⟩
-    have : 2 * i + 1 = 2 * m - 1 := by omega
-    rw [this, oddNum_last m (by omega)]
-    have : (4 : ℝ) ≤ m := by exact_mod_cast hm4
-    nlinarith
-
-theorem oddW_nonneg (m : ℕ) (hm : 2 ≤ m) (j : ℕ) (hj : Odd j) (hjn : j < 2 * m + 1) :
-    0 ≤ oddW m j := by
-  by_cases hne : (j + 2 = 2 * m + 1 ∧ m ≤ 3)
-  · obtain ⟨h1, h2⟩ := hne
-    have : (m = 2 ∧ j = 3) ∨ (m = 3 ∧ j = 5) := by omega
-    rcases this with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
-    · rw [oddW_two_three]
-    · rw [oddW_three_five]
-  · exact (oddW_pos m hm j hj hjn hne).le
-
 end Positivity
-
-section Main
-
-variable {m : ℕ}
-
-/-- `thm:odd-spinflip-tradeoff` with the coefficient `(n-3)/2` (a weaker form: the paper's sharp coefficient `c_n`
-is `odd_tradeoff_sharp` in `SpinFlipTradeoffOddSharp.lean`, and `c_n ≤ (n-3)/2`). -/
-theorem odd_tradeoff (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) (hψ : nsq ψ = 1) :
-    purMean ψ m + ((((2 * m + 1 : ℕ) : ℝ) - 3) / 2) * Omean ψ
-      = 1 / 2 + ∑ j ∈ range (2 * m + 1), (if Odd j then oddW m j else 0) * A ψ j := by
-  rw [odd_tradeoff_identity ψ hψ, sum_range_succ]
-  have : (if Odd (2 * m + 1) then oddW m (2 * m + 1) else 0) * A ψ (2 * m + 1) = 0 := by
-    rw [oddW_top m (by omega)]; simp
-  rw [this, add_zero]
-
-/-- The inequality with coefficient `(n-3)/2`; a corollary of `odd_tradeoff_sharp_ge` in `SpinFlipTradeoffOddSharp.lean`. -/
-theorem odd_tradeoff_ge (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) (hψ : nsq ψ = 1) :
-    1 / 2 ≤ purMean ψ m + ((((2 * m + 1 : ℕ) : ℝ) - 3) / 2) * Omean ψ := by
-  rw [odd_tradeoff hm ψ hψ]
-  have : 0 ≤ ∑ j ∈ range (2 * m + 1), (if Odd j then oddW m j else 0) * A ψ j := by
-    refine sum_nonneg fun j hj => ?_
-    by_cases ho : Odd j
-    · simp only [ho, ite_true]
-      exact mul_nonneg (oddW_nonneg m hm j ho (mem_range.mp hj)) (A_nonneg ψ j)
-    · simp [ho]
-  linarith
-
-theorem odd_tradeoff_eq_iff (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) (hψ : nsq ψ = 1) :
-    purMean ψ m + ((((2 * m + 1 : ℕ) : ℝ) - 3) / 2) * Omean ψ = 1 / 2 ↔
-      ∀ j ∈ range (2 * m + 1), Odd j → ¬ (j + 2 = 2 * m + 1 ∧ m ≤ 3) → A ψ j = 0 := by
-  rw [odd_tradeoff hm ψ hψ]
-  have hnn : ∀ j ∈ range (2 * m + 1), 0 ≤ (if Odd j then oddW m j else 0) * A ψ j := by
-    intro j hj
-    by_cases ho : Odd j
-    · simp only [ho, ite_true]
-      exact mul_nonneg (oddW_nonneg m hm j ho (mem_range.mp hj)) (A_nonneg ψ j)
-    · simp [ho]
-  have h0 : 1 / 2 + ∑ j ∈ range (2 * m + 1), (if Odd j then oddW m j else 0) * A ψ j = 1 / 2
-      ↔ ∑ j ∈ range (2 * m + 1), (if Odd j then oddW m j else 0) * A ψ j = 0 := by
-    constructor <;> intro h <;> linarith
-  rw [h0, sum_eq_zero_iff_of_nonneg hnn]
-  refine forall_congr' fun j => forall_congr' fun hj => ?_
-  by_cases ho : Odd j
-  · simp only [ho, ite_true, true_implies]
-    by_cases hne : (j + 2 = 2 * m + 1 ∧ m ≤ 3)
-    · have hw : oddW m j = 0 := by
-        obtain ⟨h1, h2⟩ := hne
-        have : (m = 2 ∧ j = 3) ∨ (m = 3 ∧ j = 5) := by omega
-        rcases this with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
-        · exact oddW_two_three
-        · exact oddW_three_five
-      constructor
-      · intro _ h; exact absurd hne h
-      · intro _; rw [hw, zero_mul]
-    · simp only [hne, not_false_eq_true, true_implies]
-      have hp := oddW_pos m hm j ho (mem_range.mp hj) hne
-      constructor
-      · intro h; exact (mul_eq_zero.mp h).resolve_left hp.ne'
-      · intro h; rw [h, mul_zero]
-  · simp [ho]
-
-/-- For `n ≥ 9` the support of the weights is every odd `j < n`. -/
-theorem odd_tradeoff_eq_iff_large (hm : 4 ≤ m) (ψ : Ψ (2 * m + 1)) (hψ : nsq ψ = 1) :
-    purMean ψ m + ((((2 * m + 1 : ℕ) : ℝ) - 3) / 2) * Omean ψ = 1 / 2 ↔
-      ∀ j ∈ range (2 * m + 1), Odd j → A ψ j = 0 := by
-  rw [odd_tradeoff_eq_iff (by omega) ψ hψ]
-  refine forall_congr' fun j => forall_congr' fun hj => ?_
-  constructor
-  · intro h ho; exact h ho (fun ⟨_, h2⟩ => by omega)
-  · intro h ho _; exact h ho
-
-end Main
 
 end FormalResearch.FourQubitEntropy.SpinFlip
