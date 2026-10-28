@@ -400,6 +400,8 @@ section Main
 
 variable {m : ℕ}
 
+/-- `thm:odd-spinflip-tradeoff` with the coefficient `(n-3)/2` (a weaker form: the paper's sharp coefficient `c_n`
+is `odd_tradeoff_sharp` in `SpinFlipTradeoffOddSharp.lean`, and `c_n ≤ (n-3)/2`). -/
 theorem odd_tradeoff (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) (hψ : nsq ψ = 1) :
     purMean ψ m + ((((2 * m + 1 : ℕ) : ℝ) - 3) / 2) * Omean ψ
       = 1 / 2 + ∑ j ∈ range (2 * m + 1), (if Odd j then oddW m j else 0) * A ψ j := by
@@ -408,6 +410,7 @@ theorem odd_tradeoff (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) (hψ : nsq ψ = 1) :
     rw [oddW_top m (by omega)]; simp
   rw [this, add_zero]
 
+/-- The inequality with coefficient `(n-3)/2`; a corollary of `odd_tradeoff_sharp_ge` in `SpinFlipTradeoffOddSharp.lean`. -/
 theorem odd_tradeoff_ge (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) (hψ : nsq ψ = 1) :
     1 / 2 ≤ purMean ψ m + ((((2 * m + 1 : ℕ) : ℝ) - 3) / 2) * Omean ψ := by
   rw [odd_tradeoff hm ψ hψ]

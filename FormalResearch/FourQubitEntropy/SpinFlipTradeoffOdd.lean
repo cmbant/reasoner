@@ -16,7 +16,9 @@ the single-qubit complements, `SpinFlipOddSector.lean`), for a unit vector `ψ`:
 each proved by `linear_combination` of `Pur_eq`, `Pur_compl`, `A_zero` and `Omean_eq` (multipliers computed
 exactly offline).  `_ge` is `π_m + (n-3)/2 · O ≥ 1/2`; `_eq_iff` characterises equality by the vanishing of
 `A_j` on the (strictly positive) support of the weights.  Claim class: **proved**.  The general odd `n` is in
-`SpinFlipTradeoffOddGeneral.lean`; these concrete cases are independent of it.
+`SpinFlipTradeoffOddGeneral.lean`; these concrete cases are independent of it. The paper's sharp coefficient
+`c_n` (`c_5 = 1`, `c_n = (n+1)/4` for `n ≥ 7`; the statement of record) is formalized in `SpinFlipTradeoffOddSharp.lean`;
+the `(n-3)/2` forms here are weaker for `n ≥ 9` (the same at `n = 5, 7`).
 -/
 
 open FormalResearch.FrameFree.NQubit
