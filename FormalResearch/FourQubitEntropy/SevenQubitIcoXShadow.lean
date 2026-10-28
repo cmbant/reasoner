@@ -150,7 +150,7 @@ theorem That_ico_special (alpha beta : ℝ) (hα : alpha ^ 2 = u (37 / 524))
   rw [That_ico]
   by_cases hab : a = b
   · simp [hab]
-  · simp only [hab, if_false, if_true, hα, hβ]; unfold u; norm_num
+  · simp only [hab, ite_false, ite_true, hα, hβ]; unfold u; norm_num
 
 /-- At `Ψico`: `T̂^{(i)}` has off-diagonal entry `-56/131` at each ordinary site. -/
 theorem That_ico_ordinary (alpha beta : ℝ) (hα : alpha ^ 2 = u (37 / 524))
@@ -159,7 +159,7 @@ theorem That_ico_ordinary (alpha beta : ℝ) (hα : alpha ^ 2 = u (37 / 524))
   rw [That_ico]
   by_cases hab : a = b
   · simp [hab]
-  · simp only [hab, hq, if_false, hα, hβ]; unfold u; norm_num
+  · simp only [hab, hq, ite_false, hα, hβ]; unfold u; norm_num
 
 /-! ### The shadow overlaps -/
 
@@ -242,13 +242,13 @@ theorem shadowQ_ico (alpha beta : ℝ) (q : Fin 7) :
 theorem shadowQ_ico_special (alpha beta : ℝ) (hα : alpha ^ 2 = u (37 / 524))
     (hβ : beta ^ 2 = 37 / 524) :
     shadowQ (icosahedralState alpha beta) 0 = (94 / 131) ^ 2 := by
-  rw [shadowQ_ico]; simp only [if_true, hα, hβ]; unfold u; norm_num
+  rw [shadowQ_ico]; simp only [ite_true, hα, hβ]; unfold u; norm_num
 
 /-- At `Ψico`, `q_i = (56/131)²` at each ordinary site. -/
 theorem shadowQ_ico_ordinary (alpha beta : ℝ) (hα : alpha ^ 2 = u (37 / 524))
     (hβ : beta ^ 2 = 37 / 524) (q : Fin 7) (hq : q ≠ 0) :
     shadowQ (icosahedralState alpha beta) q = (56 / 131) ^ 2 := by
-  rw [shadowQ_ico]; simp only [hq, if_false, hα, hβ]; unfold u; norm_num
+  rw [shadowQ_ico]; simp only [hq, ite_false, hα, hβ]; unfold u; norm_num
 
 /-- At `Ψico`, `S₁ = ∑_q q_q = q_s + 6 q_i = 27652/17161`. -/
 theorem shadowQ_sum_ico (alpha beta : ℝ) (hα : alpha ^ 2 = u (37 / 524))
