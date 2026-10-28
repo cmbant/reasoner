@@ -263,6 +263,7 @@ import FormalResearch.FourQubitEntropy.RenyiTwoUpEq
 import FormalResearch.FourQubitEntropy.Rigidity
 import FormalResearch.FourQubitEntropy.SevenQubitIcoCert
 import FormalResearch.FourQubitEntropy.SevenQubitIcoEntropy
+import FormalResearch.FourQubitEntropy.SevenQubitIcoMoments
 import FormalResearch.FourQubitEntropy.PaperEGenConvexRoofEq
 import FormalResearch.FourQubitEntropy.PaperEGenDefect
 import FormalResearch.FourQubitEntropy.PaperEGenJointPurity
