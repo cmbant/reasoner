@@ -19,8 +19,6 @@ With `n = 2m + 1 ≥ 5`, `c_n = cn m` (`1` for `m = 2`, `(m+1)/2 = (n+1)/4` for 
   `j ≤ n - 4`; `ghz_odd_tradeoff_sharp_eq`: the GHZ state attains equality;
 * `sharp_five`, `sharp_seven`, `sharp_nine`: `π_2 + O = 1/2 + A_1/5`, `π_3 + 2O = 1/2 + (3/28) A_1 + (3/140) A_3`,
   `π_4 + (5/2) O = 1/2 + (5/96) A_1 + (5/448) A_3 + (11/4032) A_5`;
-* the earlier coefficient `(n-3)/2` is a weaker corollary: `cn_le` (`c_n ≤ (n-3)/2`, equality iff `n ∈ {5, 7}`),
-  `Omean_nonneg`, `odd_tradeoff_ge_of_sharp`.
 
 Claim class: **proved** (`nsq ψ = 1` is a hypothesis of the identity).  `O` is `Omean`, the Pauli-sector form of
 the mean T-odd purity; its identification with `½(tr ρ² - R_ρ)` is `oddPur_eq_half_sub_Rspin` in
@@ -51,16 +49,6 @@ theorem cn_two : cn 2 = 1 := by simp [cn]
 
 theorem cn_of_ge (hm : 3 ≤ m) : cn m = ((m : ℝ) + 1) / 2 := by
   unfold cn; simp only [show ¬ (m = 2) by omega, ↓reduceIte]
-
-/-- `c_n ≤ (n-3)/2`, with equality at `n = 5, 7`: the old coefficient is weaker. -/
-theorem cn_le (hm : 2 ≤ m) : cn m ≤ ((((2 * m + 1 : ℕ) : ℝ) - 3) / 2) := by
-  push_cast
-  rcases Nat.lt_or_ge m 3 with h | h
-  · have : m = 2 := by omega
-    subst this; rw [cn_two]; norm_num
-  · rw [cn_of_ge h]
-    have : (3 : ℝ) ≤ m := by exact_mod_cast h
-    linarith
 
 theorem sharpNum_eq (m j : ℕ) :
     sharpNum m j = oddNum m j + (2 * cn m - (2 * (m : ℝ) - 2)) * ((2 * m).choose j : ℝ) := by
@@ -296,17 +284,6 @@ theorem ghz_odd_tradeoff_sharp_eq (hm : 2 ≤ m) :
   rw [odd_tradeoff_sharp_eq_iff hm _ (nsq_ghz (by omega))]
   intro j hj ho _
   exact A_ghz_odd (by omega) ho (mem_range.mp hj)
-
-/-- The earlier coefficient `(n-3)/2` as a weaker corollary of the sharp inequality. -/
-theorem odd_tradeoff_ge_of_sharp (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) (hψ : nsq ψ = 1) :
-    1 / 2 ≤ purMean ψ m + ((((2 * m + 1 : ℕ) : ℝ) - 3) / 2) * Omean ψ := by
-  have h1 := odd_tradeoff_sharp_ge hm ψ hψ
-  have h2 := mul_le_mul_of_nonneg_right (cn_le hm) (Omean_nonneg (by omega) ψ)
-  linarith
-
-/-- Relation of the new and old weights (the old statements `odd_tradeoff`, `odd_tradeoff_eq_iff` remain valid). -/
-theorem sharpW_eq_oddW_of_two (j : ℕ) (hj : j ≤ 5) : sharpW 2 j = oddW 2 j := by
-  rw [sharpW_eq 2 j (by omega), cn_two]; norm_num
 
 end Main
 
