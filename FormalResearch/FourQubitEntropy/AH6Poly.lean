@@ -60,7 +60,8 @@ def dl : List α → α → List α × α
 /-- Taylor shift: the coefficients of `p(l + w)` in `w`. -/
 def taylorL : List α → α → List α
   | [], _ => []
-  | a :: p, l => addL [a] (mulL [l, ic 1] (taylorL p l))
+  | [a], _ => [a]
+  | a :: b :: p, l => addL [a] (mulL [l, ic 1] (taylorL (b :: p) l))
 
 /-- Multiply the `i`-th coefficient by `d^i` (the substitution `x ↦ d x`). -/
 def scalePow (d : α) : List α → List α
@@ -144,8 +145,11 @@ theorem taylorL_enc {p : List ℝ} {P : List Ball} (hp : EncL p P) {l : ℝ} {L 
   induction hp with
   | nil => exact EncL.nil
   | cons h hp ih =>
-    exact addL_enc (EncL.cons h EncL.nil)
-      (mulL_enc (EncL.cons hl (EncL.cons (Enc.ic 1) EncL.nil)) ih)
+    cases hp with
+    | nil => exact EncL.cons h EncL.nil
+    | cons h2 hp2 =>
+      exact addL_enc (EncL.cons h EncL.nil)
+        (mulL_enc (EncL.cons hl (EncL.cons (Enc.ic 1) EncL.nil)) ih)
 
 theorem scalePow_enc {d : ℝ} {D : Ball} (hd : Enc d D) {p : List ℝ} {P : List Ball} (hp : EncL p P) :
     EncL (scalePow d p) (scalePow D P) := by
@@ -250,8 +254,11 @@ theorem evalL_taylorL (p : List ℝ) (l w : ℝ) : evalL (taylorL p l) w = evalL
   induction p with
   | nil => simp [taylorL, evalL]
   | cons a p ih =>
-    simp only [taylorL, evalL_addL, evalL_mulL, ih, evalL, ic_real]
-    push_cast; ring
+    cases p with
+    | nil => simp [taylorL, evalL]
+    | cons b t =>
+      simp only [taylorL, evalL_addL, evalL_mulL, ih, evalL, ic_real]
+      push_cast; ring
 
 theorem evalL_scalePow (d : ℝ) (p : List ℝ) (t : ℝ) : evalL (scalePow d p) t = evalL p (d * t) := by
   induction p with
