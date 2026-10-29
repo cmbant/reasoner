@@ -26,7 +26,7 @@ bound over that one ensemble gives a strict inequality.
 * `convexRoof_vn_eq_iff`, `convexRoof_tsallis_eq_iff`, `convexRoof_renyi_eq_iff`: the mean of the
   three roofs equals the ceiling iff `ρ = |ψ⟩⟨ψ|` with `ψ` in an `M₄` local-unitary orbit.
 
-Trust: no `native_decide`, `sorry` or new axiom here.  The sextic axiom of `Identity.lean` is
+Trust: no `native_decide`, no placeholder proof and no new axiom here.  The sextic axiom of `Identity.lean` is
 inherited exactly where `ConvexRoof.lean` already inherits it (through the pure-state ceilings).
 -/
 
