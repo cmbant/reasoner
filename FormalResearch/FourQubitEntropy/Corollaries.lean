@@ -5,8 +5,9 @@ import FormalResearch.FourQubitEntropy.Stability
 
 * `e3_sum_le`: the third elementary symmetric functions of the cut spectra satisfy
   `Σ_j e₃(ρ_{1j}) = (6 - P - F)/36 ≤ (6-P)/36 - W₁/48 ≤ 5/36`
-  (`cor:fqe-e3`, replica_sectors.tex; the equality case is only proved in the direction
-  "`M₄`-orbits attain `5/36`": the converse needs the classification of `P = 1, F = 0`).
+  (`cor:fqe-e3`, replica_sectors.tex; the equality case is proved in the direction
+  "`M₄`-orbits attain `5/36`" here, and the converse (equality forces an `M₄` or `conj M₄` orbit, from the
+  classification of `P = 1, F = 0`) is `e3_sum_eq_iff` in `E3Converse.lean`).
   The `W₁/48` is `F/36 ≥ W₁/48`, from the sharp `F ≥ (3/4) W₁` (`sexticF_ge`).
 * `moment_line_slope_optimal`: the slope `17/12` of the moment line is the least possible
   (`thm:fqe-moment`, entropy_maximum.tex).

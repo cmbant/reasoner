@@ -16,12 +16,13 @@ Paper: `eq:fqe-spectral-plus` and the stability paragraphs of `spectral_proofs.t
 ("Tsallis stability", "Quantitative consequence for von Neumann entropy").
 
 **What is proved here, and what the paper now states.** The paper's stability estimates use the general
-envelope `F ≥ (3/4) W₁ + τ - τ^{3/2}` (`thm:fqe-general-envelope`, `sextic_identity.tex`), which is not
-formalized, and so carry the extra term `(a/12)(τ - τ^{3/2}) ≥ 0`. The unconditional theorems below
+envelope `F ≥ (3/4) W₁ + τ - τ^{3/2}` (`thm:fqe-general-envelope`, `sextic_identity.tex`), which is proved in
+`GeneralEnvelope.lean` (`envelope_weak`) after this file; `StabilityEnvelope.lean` states the paper's
+estimates unconditionally. They carry the extra term `(a/12)(τ - τ^{3/2}) ≥ 0`. The unconditional theorems below
 (`majorant_stability`, `entropy_stability`, `entropy_stability_joint`, `tsallis_stability`) use only
 `F ≥ (3/4) W₁` and are the `τ^{3/2}`-free corollaries (`τ - τ^{3/2} ≥ 0` for `τ ≤ 1`). The theorems
 `*_of_envelope` at the end of the file are the paper's strengthened estimates with the general envelope
-as an explicit hypothesis `henv`; they do not prove the envelope.
+as an explicit hypothesis `henv`; they do not prove the envelope (`StabilityEnvelope.lean` does).
 -/
 
 open scoped ComplexConjugate Matrix ComplexOrder
@@ -31,7 +32,8 @@ namespace FormalResearch.FourQubitEntropy
 open Real
 
 /-- **Stability for a cubic majorant** (`τ^{3/2}`-free form). The paper's estimate adds the term
-`(a/12)(τ - τ^{3/2})`, which needs the general envelope `thm:fqe-general-envelope` (not formalized);
+`(a/12)(τ - τ^{3/2})`, which needs the general envelope `thm:fqe-general-envelope` (`GeneralEnvelope.lean`; the unconditional
+estimate is `majorant_stability_env` in `StabilityEnvelope.lean`);
 see `majorant_stability_of_envelope` for that estimate conditional on the envelope. -/
 theorem majorant_stability {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a b c d) (ha : 0 ≤ a)
     (hb : b + 17 * a / 12 ≤ 0) (ψ : Psi) (hψ : normSqPsi ψ = 1) :
@@ -72,7 +74,7 @@ theorem meanEntropy_eq_meanSpec (ψ : Psi) :
 `δ = E(M₄) - E(ψ)` in bits, `3 ln 2 · δ ≥ ((21 - 15 ln 3)/8) W₁ + (15/4 - 3 ln 3) τ`.
 The paper's estimate is stronger:
 `3 ln 2 · δ ≥ ((21 - 15 ln 3)/8) W₁ + ((9 - 6 ln 3)/4) τ - (3/2)(ln 3 - 1) τ^{3/2}` (it adds
-`(3/2)(ln 3 - 1)(τ - τ^{3/2}) ≥ 0`), from `thm:fqe-general-envelope`, which is not formalized;
+`(3/2)(ln 3 - 1)(τ - τ^{3/2}) ≥ 0`), from `thm:fqe-general-envelope` (`GeneralEnvelope.lean`; unconditionally `entropy_stability_env`);
 `entropy_stability_of_envelope` proves it from the envelope as a hypothesis. -/
 theorem entropy_stability (ψ : Psi) (hψ : normSqPsi ψ = 1) :
     (21 - 15 * Real.log 3) / 8 * blochSq ψ
@@ -116,7 +118,7 @@ theorem entropy_stability_joint (ψ : Psi) (hψ : normSqPsi ψ = 1) :
 /-- **Tsallis stability** (`0 < q < 2`, `q ≠ 1`; `τ^{3/2}`-free corollary): with `a_q = tsA q` and
 `α_q = -b_q - 17a_q/12`, both coefficients below are strictly positive and
 `3 δ_q ≥ (α_q/2 + a_q/16) W₁ + (α_q/2) τ`, `δ_q = ceiling - mean Tsallis`. The paper's estimate adds
-`(a_q/12)(τ - τ^{3/2}) ≥ 0` via `thm:fqe-general-envelope` (not formalized);
+`(a_q/12)(τ - τ^{3/2}) ≥ 0` via `thm:fqe-general-envelope` (`GeneralEnvelope.lean`; unconditionally `tsallis_stability_env`);
 see `tsallis_stability_of_envelope`. -/
 theorem tsallis_stability {q : ℝ} (h0 : 0 < q) (h2 : q < 2) (h1 : q ≠ 1) (ψ : Psi)
     (hψ : normSqPsi ψ = 1) :
@@ -191,7 +193,8 @@ theorem tsallis_two_eq_iff (ψ : Psi) (hψ : normSqPsi ψ = 1) :
 /-! ### The paper's strengthened estimates, conditional on the general envelope
 
 `thm:fqe-general-envelope` gives, for unit `ψ` with `τ = |ψᵀ ε^{⊗4} ψ|²`,
-`F ≥ (3/4) W₁ + τ - τ^{3/2}` (and more: a further `7τ W₁/(8(1+√τ))`). It is **not formalized**. The
+`F ≥ (3/4) W₁ + τ - τ^{3/2}` (and more: a further `7τ W₁/(8(1+√τ))`); it is proved in
+`GeneralEnvelope.lean`, which imports this file. The
 theorems in this section take that weaker consequence as the hypothesis `henv`
 (`τ^{3/2}` written `τ √τ`), and derive the paper's strengthened stability estimates, which differ from
 the unconditional ones above by the added term `(a/12)(τ - τ^{3/2})`. They are conditional: nothing

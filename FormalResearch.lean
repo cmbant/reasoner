@@ -471,3 +471,5 @@ import FormalResearch.FourQubitEntropy.FlipGradientReal
 import FormalResearch.FourQubitEntropy.FlipSos
 import FormalResearch.FourQubitEntropy.GeneralEnvelope
 import FormalResearch.FourQubitEntropy.StabilityEnvelope
+import FormalResearch.FourQubitEntropy.E3Converse
+import FormalResearch.FourQubitEntropy.PaperECriticalRenyiEq

@@ -65,7 +65,7 @@ theorem prod_attains_sexticF_ge :
   rw [prod_F, h1, h4]; norm_num
 
 /-- **`3/4` is the best constant** in `c · n W₁ ≤ F`. (Product states have `τ = 0`, where the paper's
-stronger `thm:fqe-general-envelope`, not formalized, also reads `F ≥ (3/4) W₁`.) -/
+stronger `thm:fqe-general-envelope` (`GeneralEnvelope.lean`) also reads `F ≥ (3/4) W₁`.) -/
 theorem sexticF_ge_sharp (c : ℝ) (h : ∀ ψ : Psi, c * (normSqPsi ψ * blochSq ψ) ≤ sexticF ψ) :
     c ≤ 3 / 4 := by
   have := h prodState

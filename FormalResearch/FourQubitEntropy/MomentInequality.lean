@@ -7,7 +7,7 @@ For every `ψ ∈ (ℂ²)^{⊗4}`, with `n = ‖ψ‖²`, `P = Σ_j tr R_{1j}²`
 `W₁ = Σ_i |r_i|²` the squared unnormalised Bloch vectors,
 `F = 17 n P - 12 T - 12 n³ ≥ (3/4) n W₁ ≥ 0`, and `3/4` is the best constant (`sexticF_ge_sharp`
 in `Checks.lean`: every product state has `F = 3`, `n = 1`, `W₁ = 4`).
-This is `thm:fqe-moment`. The paper's `thm:fqe-general-envelope` (not formalized) is stronger for
+This is `thm:fqe-moment`. The paper's `thm:fqe-general-envelope` (`GeneralEnvelope.lean`) is stronger for
 unit states with spin-flip overlap `τ > 0`: `F ≥ (3/4 + 7τ/(8(1+√τ))) W₁ + τ - τ^{3/2}`. It reduces to
 `F ≥ (3/4) W₁` at `τ = 0`, so the constant `3/4` is still optimal for the `τ`-free bound proved here.
 
@@ -59,7 +59,7 @@ theorem normSqPsi_nonneg (ψ : Psi) : 0 ≤ normSqPsi ψ := by
     Finset.sum_nonneg fun _ _ => Complex.normSq_nonneg _
 
 /-- **Sharp sextic moment inequality** (`thm:fqe-moment`): `F ≥ (3/4) n W₁`. This is the `τ`-free
-bound; for unit states the paper's `thm:fqe-general-envelope` (not formalized) adds `τ - τ^{3/2}` and
+bound; for unit states the paper's `thm:fqe-general-envelope` (`GeneralEnvelope.lean`) adds `τ - τ^{3/2}` and
 `7τ W₁/(8(1+√τ))` to the right-hand side. -/
 theorem sexticF_ge (ψ : Psi) : 3 / 4 * (normSqPsi ψ * blochSq ψ) ≤ sexticF ψ := by
   obtain ⟨r, s, hr, hs, h⟩ := sextic_identity ψ
