@@ -17,9 +17,9 @@ zeros of `F = 17 n P - 12 T - 12 n³` on unit vectors:
 * `LU_M4_of_caseC` (case C): `|v_k|² ∈ {1/6, 1/2}`, `Σ v_k² = 0`; applies `classify`;
 * `moment_zeros_of_critical`: on `blochSq ψ = 0`, `F ψ = 0 ↔ ZeroOrbit ψ`. **Proved, axiom-free**
   (only `propext`, `Classical.choice`, `Quot.sound`);
-* `moment_zeros`: for every unit `ψ`, `F ψ = 0 ↔ ZeroOrbit ψ`. The direction `⇐` is axiom-free. The
-  direction `⇒` inherits the `native_decide` axiom of `sexticF_zero_bloch` (zeros of `F` have
-  vanishing Bloch vectors), used only to reach the critical locus.
+* `moment_zeros`: for every unit `ψ`, `F ψ = 0 ↔ ZeroOrbit ψ`. Both directions use only the standard
+  axioms; the direction `⇒` uses `sexticF_zero_bloch` (zeros of `F` have vanishing Bloch vectors),
+  whose polynomial identity is kernel-checked (`Identity.lean`), to reach the critical locus.
 
 The algebraic zero classification itself is `Gv_zero_cases` (`PaperECriticalZeroSet.lean`).
 -/
@@ -287,9 +287,8 @@ theorem moment_zeros_of_critical (ψ : Psi) (hn : normSqPsi ψ = 1) (hW : blochS
 `F ψ = 0` iff `ψ` is local-unitarily equivalent to `M₄`, `conj M₄`, or one of the three
 Bell-pair products `bell2 (12|34)`, `bell13`, `bell14`.
 
-The direction `⇐` is axiom-free; the direction `⇒` uses `sexticF_zero_bloch` (zeros of `F` are
-critical), which in this development depends on a `native_decide`-checked certificate; the
-remainder is proved. -/
+The direction `⇐` does not use the sextic identity; the direction `⇒` uses `sexticF_zero_bloch` (zeros
+of `F` are critical), whose polynomial identity is kernel-checked; the remainder is proved. -/
 theorem moment_zeros (ψ : Psi) (hn : normSqPsi ψ = 1) : sexticF ψ = 0 ↔ ZeroOrbit ψ :=
   ⟨fun hF => (moment_zeros_of_critical ψ hn (sexticF_zero_bloch ψ hn hF)).mp hF,
     sexticF_zero_of_orbit ψ⟩

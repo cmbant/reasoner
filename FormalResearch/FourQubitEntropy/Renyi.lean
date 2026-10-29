@@ -198,17 +198,11 @@ theorem renyi_eq_iff {q : ℝ} (h0 : 0 < q) (h1 : q < 1) (ψ : Psi) (hψ : normS
       = Real.logb 2 m / (1 - q)
     rw [e12, e13, e14]; ring
 
-/-- info: 'FormalResearch.FourQubitEntropy.renyi_le' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.renyi_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms renyi_le
 
-/-- info: 'FormalResearch.FourQubitEntropy.renyi_eq_iff' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.renyi_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms renyi_eq_iff
 

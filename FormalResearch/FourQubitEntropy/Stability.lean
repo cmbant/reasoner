@@ -168,31 +168,19 @@ theorem tsallis_two_eq_iff (ψ : Psi) (hψ : normSqPsi ψ = 1) :
     simp at h
     linarith
 
-/-- info: 'FormalResearch.FourQubitEntropy.majorant_stability' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.majorant_stability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms majorant_stability
 
-/-- info: 'FormalResearch.FourQubitEntropy.entropy_stability' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.entropy_stability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms entropy_stability
 
-/-- info: 'FormalResearch.FourQubitEntropy.entropy_stability_joint' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.entropy_stability_joint' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms entropy_stability_joint
 
-/-- info: 'FormalResearch.FourQubitEntropy.tsallis_stability' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.tsallis_stability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms tsallis_stability
 

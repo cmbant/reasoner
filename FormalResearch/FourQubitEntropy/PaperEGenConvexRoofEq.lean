@@ -26,8 +26,9 @@ bound over that one ensemble gives a strict inequality.
 * `convexRoof_vn_eq_iff`, `convexRoof_tsallis_eq_iff`, `convexRoof_renyi_eq_iff`: the mean of the
   three roofs equals the ceiling iff `ρ = |ψ⟩⟨ψ|` with `ψ` in an `M₄` local-unitary orbit.
 
-Trust: no `native_decide`, no placeholder proof and no new axiom here.  The sextic axiom of `Identity.lean` is
-inherited exactly where `ConvexRoof.lean` already inherits it (through the pure-state ceilings).
+Trust: no `native_decide`, no placeholder proof and no new axiom here; everything uses only
+`propext`, `Classical.choice`, `Quot.sound`. The kernel-checked sextic identity of `Identity.lean` is used
+exactly where `ConvexRoof.lean` already uses it (through the pure-state ceilings).
 -/
 
 open scoped ComplexConjugate Matrix Kronecker ComplexOrder
@@ -669,22 +670,13 @@ theorem convexRoof_renyi_eq_iff {q : ℝ} (h0 : 0 < q) (h1 : q < 1) {ρ : Mat16}
 #guard_msgs in
 #print axioms convexRoof_mean_lt
 
-/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_vn_lt' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_vn_lt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms convexRoof_vn_lt
-/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_tsallis_lt' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_tsallis_lt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms convexRoof_tsallis_lt
-/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_renyi_lt' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_renyi_lt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms convexRoof_renyi_lt
 /-- info: 'FormalResearch.FourQubitEntropy.det_zmat_ne_zero_of_LU' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -706,22 +698,13 @@ theorem convexRoof_renyi_eq_iff {q : ℝ} (h0 : 0 < q) (h1 : q < 1) {ρ : Mat16}
 /-- info: 'FormalResearch.FourQubitEntropy.convexRoof_mean_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms convexRoof_mean_eq_iff
-/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_vn_eq_iff' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_vn_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms convexRoof_vn_eq_iff
-/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_tsallis_eq_iff' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_tsallis_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms convexRoof_tsallis_eq_iff
-/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_renyi_eq_iff' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_renyi_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms convexRoof_renyi_eq_iff
 

@@ -63,43 +63,65 @@ theorem evK_prime (v : Fin 32 → ℂ) (j : Fin 32) : evK v (primeAt j) = v j :=
 noncomputable def evSP (v : Fin 32 → ℂ) (p : SP) : ℂ :=
   (p.map fun t => (t.2 : ℂ) * evK v t.1).sum
 
-/-! ### Operations -/
+/-! ### Operations
 
-/-- Merge two sorted polynomials; the fuel is the sum of the lengths. -/
-def addSPAux : Nat → SP → SP → SP
-  | 0, p, q => p ++ q
-  | _ + 1, [], q => q
-  | _ + 1, a :: p, [] => a :: p
-  | n + 1, (k₁, c₁) :: p, (k₂, c₂) :: q =>
-    if k₁ < k₂ then (k₁, c₁) :: addSPAux n p ((k₂, c₂) :: q)
-    else if k₂ < k₁ then (k₂, c₂) :: addSPAux n ((k₁, c₁) :: p) q
-    else if c₁ + c₂ = 0 then addSPAux n p q
-    else (k₁, c₁ + c₂) :: addSPAux n p q
+The operations are written directly with recursors (`List.rec`, `Nat.rec`) and `cond` on
+`Nat.blt`, without fuel, `ite`/`Decidable` or structural-recursion compilation, because that is
+the form the kernel evaluates fastest and with the least memory. They are `noncomputable`: they
+are only ever run by the kernel, never by compiled code. -/
 
-def addSP (p q : SP) : SP := addSPAux (p.length + q.length) p q
+/-- Merge two sorted polynomials, adding the coefficients of equal monomials and dropping zero
+coefficients. -/
+noncomputable def addSP : SP → SP → SP :=
+  @List.rec (Nat × Int) (fun _ => SP → SP) (fun q => q)
+    (fun a p ih q => @List.rec (Nat × Int) (fun _ => SP) (a :: p)
+      (fun b q' rec => cond (Nat.blt a.1 b.1) (a :: ih (b :: q'))
+        (cond (Nat.blt b.1 a.1) (b :: rec)
+          (let c := a.2 + b.2; cond (c == 0) (ih q') ((a.1, c) :: ih q')))) q)
 
-/-- Add neighbouring pairs of a list of polynomials. -/
-def pairUp : Nat → List SP → List SP
-  | 0, l => l
-  | n + 1, a :: b :: t => addSP a b :: pairUp n t
-  | _ + 1, l => l
+/-- Add neighbouring pairs of a list of polynomials (an unpaired last one is kept). -/
+noncomputable def pairUpAux : List SP → Option SP → List SP :=
+  @List.rec SP (fun _ => (Option SP → List SP)) (fun o => o.elim [] (fun x => [x]))
+    (fun a _ ih o => o.elim (ih (some a)) (fun x => addSP x a :: ih none))
 
-/-- Sum a list of polynomials by repeated pairwise addition. This keeps intermediate sizes small,
-which matters because the kernel evaluates lazily and retains what it computes. -/
-def treeSum : Nat → List SP → SP
-  | 0, l => l.foldr addSP []
-  | _ + 1, [] => []
-  | _ + 1, [a] => a
-  | n + 1, a :: b :: t => treeSum n (pairUp (t.length + 2) (a :: b :: t))
+noncomputable def pairUp (l : List SP) : List SP := pairUpAux l none
+
+/-- Sum a list of polynomials by repeated pairwise addition (`n` rounds, then a plain fold). This
+keeps intermediate sizes small, which matters because the kernel evaluates lazily and retains what
+it computes. -/
+noncomputable def treeSum : Nat → List SP → SP :=
+  fun n => @Nat.rec (fun _ => List SP → SP) (fun l => l.foldr addSP [])
+    (fun _ ih l => @List.rec SP (fun _ => SP) []
+      (fun a t _ => @List.rec SP (fun _ => SP) a (fun _ _ _ => ih (pairUp l)) t) l) n
 
 /-- The monomial times coefficient times polynomial `q`. -/
-def mulTerm (t : Nat × Int) (q : SP) : SP := q.map fun s => (t.1 * s.1, t.2 * s.2)
+noncomputable def mulTerm (t : Nat × Int) (q : SP) : SP :=
+  @List.rec (Nat × Int) (fun _ => SP) [] (fun s _ r => (t.1 * s.1, t.2 * s.2) :: r) q
 
-def mulSP (p q : SP) : SP := treeSum 24 (p.map fun t => mulTerm t q)
+noncomputable def mulSP (p q : SP) : SP :=
+  treeSum 24 (@List.rec (Nat × Int) (fun _ => List SP) [] (fun t _ r => mulTerm t q :: r) p)
 
-def negSP (p : SP) : SP := p.map fun t => (t.1, -t.2)
+noncomputable def negSP (p : SP) : SP :=
+  @List.rec (Nat × Int) (fun _ => SP) [] (fun t _ r => (t.1, -t.2) :: r) p
 
-def ofIntSP (k : Int) : SP := if k = 0 then [] else [(1, k)]
+noncomputable def ofIntSP (k : Int) : SP := cond (k == 0) [] [(1, k)]
+
+/-- Equality test. Written so that the kernel evaluates it iteratively: the recursive call is in
+tail position, whereas the `DecidableEq (List _)` instance nests one level per element and exceeds
+the kernel's recursion depth on lists of several thousand terms. -/
+noncomputable def eqSP : SP → SP → Bool :=
+  @List.rec (Nat × Int) (fun _ => SP → Bool)
+    (fun q => @List.rec (Nat × Int) (fun _ => Bool) true (fun _ _ _ => false) q)
+    (fun a _ ih q => @List.rec (Nat × Int) (fun _ => Bool) false
+      (fun b q' _ => cond (Nat.beq a.1 b.1) (cond (a.2 == b.2) (ih q') false) false) q)
+
+/-- Concatenation and concatenation of a list of polynomials, written with recursors for fast kernel
+evaluation. Only the certificate data of `IdentityCert*.lean` is assembled with them. -/
+noncomputable def appSP : SP → SP → SP :=
+  @List.rec (Nat × Int) (fun _ => SP → SP) (fun q => q) (fun a _ ih q => a :: ih q)
+
+noncomputable def catSP : List SP → SP :=
+  @List.rec SP (fun _ => SP) [] (fun c _ r => appSP c r)
 
 /-- The variable number `i`. -/
 def varSP (i : Fin 32) : SP := [(primeAt i, 1)]
@@ -110,105 +132,155 @@ theorem evSP_cons (v : Fin 32 → ℂ) (t : Nat × Int) (p : SP) :
     evSP v (t :: p) = (t.2 : ℂ) * evK v t.1 + evSP v p := by
   simp [evSP]
 
-theorem evSP_append (v : Fin 32 → ℂ) (p q : SP) : evSP v (p ++ q) = evSP v p + evSP v q := by
-  simp [evSP]
+theorem blt_false_of_not_lt {a b : Nat} (h : ¬ a < b) : Nat.blt a b = false := by
+  rw [Bool.eq_false_iff]; intro h'; exact h (by simpa using h')
 
-theorem evSP_addSPAux (v : Fin 32 → ℂ) (n : Nat) :
-    ∀ p q : SP, evSP v (addSPAux n p q) = evSP v p + evSP v q := by
-  induction n with
-  | zero => intro p q; exact evSP_append v p q
-  | succ n ih =>
-    intro p q
-    match p, q with
-    | [], q => simp [addSPAux, evSP_nil]
-    | a :: p, [] => simp [addSPAux, evSP_nil]
-    | (k₁, c₁) :: p, (k₂, c₂) :: q =>
-      simp only [addSPAux]
-      split_ifs with h1 h2 h3
-      · rw [evSP_cons, ih, evSP_cons, evSP_cons]; ring
-      · rw [evSP_cons, ih, evSP_cons, evSP_cons]; ring
-      · have : k₁ = k₂ := by omega
-        subst this
-        rw [ih, evSP_cons, evSP_cons]
-        have : (c₁ : ℂ) + c₂ = 0 := by exact_mod_cast h3
-        linear_combination (-(evK v k₁)) * this
-      · have : k₁ = k₂ := by omega
-        subst this
-        rw [evSP_cons, ih, evSP_cons, evSP_cons]
-        push_cast
-        ring
+theorem addSP_nil (q : SP) : addSP [] q = q := rfl
 
-theorem evSP_addSP (v : Fin 32 → ℂ) (p q : SP) : evSP v (addSP p q) = evSP v p + evSP v q :=
-  evSP_addSPAux v _ p q
+theorem addSP_cons_nil (a : Nat × Int) (p : SP) : addSP (a :: p) [] = a :: p := rfl
 
-theorem evSP_pairUp (v : Fin 32 → ℂ) (n : Nat) (l : List SP) :
-    ((pairUp n l).map (evSP v)).sum = (l.map (evSP v)).sum := by
-  induction n generalizing l with
-  | zero => rfl
-  | succ n ih =>
-    match l with
-    | [] => rfl
-    | [a] => rfl
-    | a :: b :: t =>
-      simp only [pairUp, List.map_cons, List.sum_cons, ih, evSP_addSP]
-      rw [add_assoc]
+theorem addSP_cons_cons (a b : Nat × Int) (p q : SP) :
+    addSP (a :: p) (b :: q) =
+      cond (Nat.blt a.1 b.1) (a :: addSP p (b :: q))
+        (cond (Nat.blt b.1 a.1) (b :: addSP (a :: p) q)
+          (cond (a.2 + b.2 == 0) (addSP p q) ((a.1, a.2 + b.2) :: addSP p q))) := rfl
+
+theorem evSP_addSP (v : Fin 32 → ℂ) (p q : SP) : evSP v (addSP p q) = evSP v p + evSP v q := by
+  induction p generalizing q with
+  | nil => rw [addSP_nil, evSP_nil, zero_add]
+  | cons a p ih =>
+    induction q with
+    | nil => rw [addSP_cons_nil, evSP_nil, add_zero]
+    | cons b q ih2 =>
+      rw [addSP_cons_cons]
+      by_cases h1 : a.1 < b.1
+      · have : Nat.blt a.1 b.1 = true := by simpa using h1
+        rw [this, Bool.cond_true, evSP_cons, ih, evSP_cons, evSP_cons]; ring
+      · have h1' : Nat.blt a.1 b.1 = false := blt_false_of_not_lt h1
+        rw [h1', Bool.cond_false]
+        by_cases h2 : b.1 < a.1
+        · have : Nat.blt b.1 a.1 = true := by simpa using h2
+          rw [this, Bool.cond_true, evSP_cons, ih2, evSP_cons, evSP_cons]; ring
+        · have h2' : Nat.blt b.1 a.1 = false := blt_false_of_not_lt h2
+          rw [h2', Bool.cond_false]
+          have hk : a.1 = b.1 := by omega
+          by_cases h3 : a.2 + b.2 = 0
+          · have : (a.2 + b.2 == 0) = true := by simpa using h3
+            rw [this, Bool.cond_true, ih, evSP_cons, evSP_cons, ← hk]
+            have : (a.2 : ℂ) + b.2 = 0 := by exact_mod_cast h3
+            linear_combination (-(evK v a.1)) * this
+          · have : (a.2 + b.2 == 0) = false := by simpa using h3
+            rw [this, Bool.cond_false, evSP_cons, ih, evSP_cons, evSP_cons, ← hk]
+            push_cast
+            ring
+
+theorem evSP_pairUpAux (v : Fin 32 → ℂ) (l : List SP) (o : Option SP) :
+    ((pairUpAux l o).map (evSP v)).sum = (o.elim 0 (evSP v)) + (l.map (evSP v)).sum := by
+  induction l generalizing o with
+  | nil => cases o <;> simp [pairUpAux]
+  | cons a t ih =>
+    cases o with
+    | none =>
+      have h : pairUpAux (a :: t) none = pairUpAux t (some a) := rfl
+      rw [h, ih]; simp
+    | some x =>
+      have h : pairUpAux (a :: t) (some x) = addSP x a :: pairUpAux t none := rfl
+      rw [h, List.map_cons, List.sum_cons, ih, evSP_addSP]; simp; ring
+
+theorem evSP_pairUp (v : Fin 32 → ℂ) (l : List SP) :
+    ((pairUp l).map (evSP v)).sum = (l.map (evSP v)).sum := by
+  have := evSP_pairUpAux v l none
+  simpa [pairUp] using this
+
+theorem treeSum_zero (l : List SP) : treeSum 0 l = l.foldr addSP [] := rfl
+
+theorem treeSum_succ_nil (n : Nat) : treeSum (n + 1) [] = [] := rfl
+
+theorem treeSum_succ_single (n : Nat) (a : SP) : treeSum (n + 1) [a] = a := rfl
+
+theorem treeSum_succ_cons2 (n : Nat) (a b : SP) (t : List SP) :
+    treeSum (n + 1) (a :: b :: t) = treeSum n (pairUp (a :: b :: t)) := rfl
 
 theorem evSP_treeSum (v : Fin 32 → ℂ) (n : Nat) (l : List SP) :
     evSP v (treeSum n l) = (l.map (evSP v)).sum := by
   induction n generalizing l with
   | zero =>
     induction l with
-    | nil => simp [treeSum, evSP_nil]
+    | nil => simp [treeSum_zero, evSP_nil]
     | cons a t ih =>
-      simp only [treeSum, List.foldr_cons, List.map_cons, List.sum_cons] at ih ⊢
-      rw [evSP_addSP, ih]
+      rw [treeSum_zero, List.foldr_cons, evSP_addSP, ← treeSum_zero, ih]; simp
   | succ n ih =>
     match l with
-    | [] => simp [treeSum, evSP_nil]
-    | [a] => simp [treeSum]
-    | a :: b :: t =>
-      simp only [treeSum]
-      rw [ih, evSP_pairUp]
+    | [] => rw [treeSum_succ_nil]; simp [evSP_nil]
+    | [a] => rw [treeSum_succ_single]; simp
+    | a :: b :: t => rw [treeSum_succ_cons2, ih, evSP_pairUp]
 
 theorem evSP_mulTerm (v : Fin 32 → ℂ) (t : Nat × Int) (q : SP) :
     evSP v (mulTerm t q) = (t.2 : ℂ) * evK v t.1 * evSP v q := by
   induction q with
   | nil => simp [mulTerm, evSP_nil]
   | cons s q ih =>
-    simp only [mulTerm, List.map_cons] at ih ⊢
-    rw [evSP_cons, ih, evSP_cons, evK_mul]
+    have h : mulTerm t (s :: q) = (t.1 * s.1, t.2 * s.2) :: mulTerm t q := rfl
+    rw [h, evSP_cons, ih, evSP_cons, evK_mul]
     push_cast
     ring
 
 theorem evSP_mulSP (v : Fin 32 → ℂ) (p q : SP) : evSP v (mulSP p q) = evSP v p * evSP v q := by
   unfold mulSP
-  rw [evSP_treeSum, List.map_map]
+  rw [evSP_treeSum]
   induction p with
   | nil => simp [evSP_nil]
   | cons t p ih =>
-    simp only [List.map_cons, List.sum_cons, Function.comp, evSP_mulTerm] at ih ⊢
-    rw [ih, evSP_cons]
+    have h : (@List.rec (Nat × Int) (fun _ => List SP) [] (fun t _ r => mulTerm t q :: r)
+        (t :: p) : List SP) = mulTerm t q :: @List.rec (Nat × Int) (fun _ => List SP) []
+          (fun t _ r => mulTerm t q :: r) p := rfl
+    rw [h, List.map_cons, List.sum_cons, ih, evSP_mulTerm, evSP_cons]
     ring
 
 theorem evSP_negSP (v : Fin 32 → ℂ) (p : SP) : evSP v (negSP p) = -evSP v p := by
   induction p with
   | nil => simp [negSP, evSP_nil]
   | cons t p ih =>
-    simp only [negSP, List.map_cons] at ih ⊢
-    rw [evSP_cons, ih, evSP_cons]
+    have h : negSP (t :: p) = (t.1, -t.2) :: negSP p := rfl
+    rw [h, evSP_cons, ih, evSP_cons]
     push_cast
     ring
 
 theorem evSP_ofIntSP (v : Fin 32 → ℂ) (k : Int) : evSP v (ofIntSP k) = k := by
-  unfold ofIntSP
-  split_ifs with h
-  · subst h; simp [evSP_nil]
-  · simp [evSP_cons, evSP_nil, evK_one]
+  by_cases h : k = 0
+  · have : (k == 0) = true := by simpa using h
+    have h2 : ofIntSP k = [] := by unfold ofIntSP; rw [this]; rfl
+    rw [h2, evSP_nil, h]; simp
+  · have : (k == 0) = false := by simpa using h
+    have h2 : ofIntSP k = [(1, k)] := by unfold ofIntSP; rw [this]; rfl
+    rw [h2, evSP_cons, evSP_nil, evK_one]; simp
+
+theorem eqSP_sound : ∀ p q : SP, eqSP p q = true → p = q := by
+  intro p
+  induction p with
+  | nil =>
+    intro q h
+    cases q with
+    | nil => rfl
+    | cons b q => exact absurd (show false = true from h) (by decide)
+  | cons a p ih =>
+    intro q h
+    cases q with
+    | nil => exact absurd (show false = true from h) (by decide)
+    | cons b q =>
+      have h' : cond (Nat.beq a.1 b.1) (cond (a.2 == b.2) (eqSP p q) false) false = true := h
+      cases h1 : Nat.beq a.1 b.1 <;> rw [h1] at h' <;> simp only [Bool.cond_true, Bool.cond_false] at h'
+      · exact absurd h' (by decide)
+      cases h2 : (a.2 == b.2) <;> rw [h2] at h' <;> simp only [Bool.cond_true, Bool.cond_false] at h'
+      · exact absurd h' (by decide)
+      have e1 : a.1 = b.1 := Nat.eq_of_beq_eq_true h1
+      have e2 : a.2 = b.2 := by simpa using h2
+      rw [ih q h', Prod.ext e1 e2]
 
 theorem evSP_varSP (v : Fin 32 → ℂ) (i : Fin 32) : evSP v (varSP i) = v i := by
   simp [varSP, evSP_cons, evSP_nil, evK_prime]
 
-instance : RingOps SP where
+noncomputable instance : RingOps SP where
   zero := []
   one := [(1, 1)]
   add := addSP

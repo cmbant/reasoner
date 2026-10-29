@@ -240,17 +240,11 @@ theorem majorant_eq_iff {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a b c
     · rw [meanSpec_of_LU f (by rw [normSqPsi_conj]; exact M4_unit) M4_cutQuadratics.conj h,
         meanSpec_M4]
 
-/-- info: 'FormalResearch.FourQubitEntropy.majorant_le' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.majorant_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms majorant_le
 
-/-- info: 'FormalResearch.FourQubitEntropy.majorant_eq_iff' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.majorant_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms majorant_eq_iff
 

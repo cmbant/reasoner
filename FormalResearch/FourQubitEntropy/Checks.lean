@@ -197,7 +197,7 @@ theorem one_cut_rigidity_12 (ψ : Psi) (hn : normSqPsi ψ = 1) (hP : purity ψ =
 
 end Rigidity
 
-/-! The following results do not rely on the `native_decide` step of `Identity.lean`. -/
+/-! The following results do not use the sextic identity of `Identity.lean`. -/
 
 /-- info: 'FormalResearch.FourQubitEntropy.purity_identity_exact' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in

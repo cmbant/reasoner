@@ -21,9 +21,9 @@ This file formalizes that derivation, i.e. the implication `(QK) ⇒ (JV)`:
 
 The equality classification of (JV) is not formalized.
 
-Trust: no `native_decide` here.  `joint_purity_real` uses only `propext`, `Classical.choice`,
-`Quot.sound`; `joint_purity_of_QK` additionally inherits the documented axiom of the merged
-`sexticF_nonneg` (`sexticDefect_check._native.native_decide.ax_1_1`), via `F ≥ 0`.
+Trust: no `native_decide` here.  `joint_purity_real` and `joint_purity_of_QK` use only `propext`,
+`Classical.choice`, `Quot.sound`; the latter uses the kernel-checked sextic identity of `Identity.lean` (via
+`sexticF_nonneg`, `F ≥ 0`).
 -/
 
 namespace FormalResearch.FourQubitEntropy
@@ -143,10 +143,7 @@ theorem joint_purity_of_QK (ψ : Psi) (hψ : normSqPsi ψ = 1)
 #guard_msgs in
 #print axioms joint_purity_real
 
-/-- info: 'FormalResearch.FourQubitEntropy.joint_purity_of_QK' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.joint_purity_of_QK' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms joint_purity_of_QK
 

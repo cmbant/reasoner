@@ -220,6 +220,14 @@ import FormalResearch.FourQubitEntropy.RingOps
 import FormalResearch.FourQubitEntropy.SparsePoly
 import FormalResearch.FourQubitEntropy.Generic
 import FormalResearch.FourQubitEntropy.Transfer
+import FormalResearch.FourQubitEntropy.IdentityVars
+import FormalResearch.FourQubitEntropy.IdentityCertF
+import FormalResearch.FourQubitEntropy.IdentityCertNW
+import FormalResearch.FourQubitEntropy.IdentityCertPair
+import FormalResearch.FourQubitEntropy.IdentityCertRes0
+import FormalResearch.FourQubitEntropy.IdentityCertRes1
+import FormalResearch.FourQubitEntropy.IdentityCertRes2
+import FormalResearch.FourQubitEntropy.IdentityCertRes3
 import FormalResearch.FourQubitEntropy.Identity
 import FormalResearch.FourQubitEntropy.Defect
 import FormalResearch.FourQubitEntropy.Statement

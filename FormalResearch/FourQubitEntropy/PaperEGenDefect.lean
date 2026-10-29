@@ -260,10 +260,7 @@ theorem entropy_gap_ge_Q (ψ : Psi) (hψ : normSqPsi ψ = 1) :
     linarith
   linarith
 
-/-- info: 'FormalResearch.FourQubitEntropy.entropy_gap_ge_Q' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.entropy_gap_ge_Q' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms entropy_gap_ge_Q
 
@@ -278,16 +275,10 @@ theorem entropy_gap_ge_Q (ψ : Psi) (hψ : normSqPsi ψ = 1) :
 /-- info: 'FormalResearch.FourQubitEntropy.sexticQ_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms sexticQ_eq
-/-- info: 'FormalResearch.FourQubitEntropy.sexticQ_nonneg' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.sexticQ_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms sexticQ_nonneg
-/-- info: 'FormalResearch.FourQubitEntropy.sexticQ_eq_zero_iff' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.sexticQ_eq_zero_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms sexticQ_eq_zero_iff
 /-- info: 'FormalResearch.FourQubitEntropy.defectD_eq_purity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -296,22 +287,13 @@ theorem entropy_gap_ge_Q (ψ : Psi) (hψ : normSqPsi ψ = 1) :
 /-- info: 'FormalResearch.FourQubitEntropy.defectD_eq_Q' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms defectD_eq_Q
-/-- info: 'FormalResearch.FourQubitEntropy.majorant_gap_ge_defect' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.majorant_gap_ge_defect' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms majorant_gap_ge_defect
-/-- info: 'FormalResearch.FourQubitEntropy.tsallis_gap_ge_defect' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.tsallis_gap_ge_defect' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms tsallis_gap_ge_defect
-/-- info: 'FormalResearch.FourQubitEntropy.entropy_gap_ge_defect' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.entropy_gap_ge_defect' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms entropy_gap_ge_defect
 /-- info: 'FormalResearch.FourQubitEntropy.entropy_alpha_gt_six_beta' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -433,10 +415,7 @@ theorem tsallis_gap_of_overlap {q : ℝ} (h0 : 0 < q) (h2 : q < 2) (h1 : q ≠ 1
   have := mul_le_mul_of_nonneg_left (le_trans hQ (sexticQ_le_defectD ψ hψ)) hpos.le
   linarith
 
-/-- info: 'FormalResearch.FourQubitEntropy.entropy_gap_orbit_stability' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.entropy_gap_orbit_stability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms entropy_gap_orbit_stability
 

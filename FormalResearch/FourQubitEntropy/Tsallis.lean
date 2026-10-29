@@ -122,17 +122,11 @@ theorem tsallis_eq_iff {q : ℝ} (h0 : 0 < q) (h2 : q < 2) (h1 : q ≠ 1) (ψ : 
   exact majorant_eq_iff (tsallis_majorant h0 h2 h1) ha.le (tsallis_coeff_neg h0 h2 h1)
     (fun x hx h6 h5 => hpos x hx.1 h6 h5) ψ hψ
 
-/-- info: 'FormalResearch.FourQubitEntropy.tsallis_le' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.tsallis_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms tsallis_le
 
-/-- info: 'FormalResearch.FourQubitEntropy.tsallis_eq_iff' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.tsallis_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms tsallis_eq_iff
 

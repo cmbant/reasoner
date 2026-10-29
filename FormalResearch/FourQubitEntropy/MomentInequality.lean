@@ -17,8 +17,10 @@ Here `Uᵢ = Sᵢ ∏_{j≠i} Lⱼ w` and `Vᵢ = Sᵢ ∏_{j≠i} (Lⱼ + Mⱼ)
 symmetriser of the three copies at qubit `i`, and `Rᵢ^{(i)}` the unnormalised one-qubit marginal
 acting on qubit `i` of `z`. The two sums are sums of squared norms, hence nonnegative.
 
-Trust: the polynomial identity `sexticDefect_check` in `Identity.lean` is decided by
-`native_decide`, so it rests on the Lean compiler as well as the kernel.
+Trust: the polynomial identity `sexticDefect_check` in `Identity.lean` is checked by the kernel alone
+(`decide +kernel`; no `native_decide`), so everything here uses only `propext`, `Classical.choice` and
+`Quot.sound`. Building `Identity.lean` and its `IdentityCert*.lean` pieces needs about 9 GB of RAM per file;
+see the *Machine requirements* paragraph of `Identity.lean`.
 -/
 
 open scoped ComplexConjugate

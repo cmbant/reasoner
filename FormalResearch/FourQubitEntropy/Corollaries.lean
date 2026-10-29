@@ -115,10 +115,7 @@ theorem swap23_M4 : swap23 M4 = fun a b c d => omega * Psi.conj M4 a b c d := by
     first | done | ring1 | linear_combination (-(((Real.sqrt 6 : ℝ) : ℂ))⁻¹) * hω |
       linear_combination (-(((Real.sqrt 6 : ℝ) : ℂ))⁻¹) * hω2
 
-/-- info: 'FormalResearch.FourQubitEntropy.e3_sum_le' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.e3_sum_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms e3_sum_le
 

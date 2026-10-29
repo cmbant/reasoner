@@ -198,24 +198,15 @@ theorem convexRoof_renyi_le {q : ℝ} (h0 : 0 < q) (h1 : q < 1) {ρ : Mat16} (h�
 #guard_msgs in
 #print axioms convexRoof_mean_le
 
-/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_vn_le' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_vn_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms convexRoof_vn_le
 
-/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_tsallis_le' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_tsallis_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms convexRoof_tsallis_le
 
-/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_renyi_le' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- sexticDefect_check._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.convexRoof_renyi_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms convexRoof_renyi_le
 
