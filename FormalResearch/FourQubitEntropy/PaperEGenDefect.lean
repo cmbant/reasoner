@@ -4,10 +4,14 @@ import FormalResearch.FourQubitEntropy.Checks
 /-!
 # The moment defect `𝒟`, the sextic `Q`, and entropy gaps in terms of them
 
-Paper E, `lu_orbit_stability.tex` (eq. `eq:fqe-orbit-surrogate`, `cor:fqe-orbit-spectral`) and
-`sextic_identity.tex` (the zero set of `Q`).  Everything here is at the level of the moments
-`n, P, T, F, W₁, τ`; the *distance* `d(ψ)` to the two `M₄` orbits, and the constants `c_D, c_C`
-relating `d²` to `𝒟`, rest on exact-rational certificates and are not formalized.
+Paper E, `lu_orbit_stability.tex` (eq. `eq:fqe-orbit-surrogate`, `thm:fqe-orbit-stability`,
+`thm:fqe-critical-orbit-sharp`, `cor:fqe-orbit-spectral`) and `sextic_identity.tex` (the zero set of
+`Q`).  Everything unconditional here is at the level of the moments `n, P, T, F, W₁, τ`.  The
+*distance* `d(ψ)` to the two `M₄` orbits is not defined in Lean, and the HS overlap stability
+`thm:fqe-global-overlap` (`Q ≥ 1 - Φ ≥ ((6+√(6(1+√τ)))/12) d² ≥ ((6+√6)/12) d² > (7/10) d²`, proved
+in the paper by the exact rational certificate GO-1–GO-3) is **not formalized**. The final section
+states the paper's distance estimates as *conditional* results: the comparison `c d² ≤ Q` is an explicit
+hypothesis, with `d²` an arbitrary real number `d2` standing for `d(ψ)²`, and nothing here proves it.
 
 * `sexticQ ψ = F + n (P - n²) = 18 n P - 12 T - 13 n³ ≥ 0`; for unit `ψ`, `Q = 0 ↔ F = 0 ∧ P = 1`,
   and `Q = 0` on both `M₄` orbits (the converse, that these are *all* the zeros of `Q`, is the
@@ -18,6 +22,11 @@ relating `d²` to `𝒟`, rest on exact-rational certificates and are not formal
   `entropy_alpha_gt_six_beta`).
 * `majorant_gap_ge_defect`, `tsallis_gap_ge_defect`: the moment form of
   `cor:fqe-orbit-spectral`, `3 (E_f(M₄) - E_f(ψ)) ≥ min(α/6, a/12) 𝒟`.
+* Conditional on `c · d2 ≤ Q` (hypothesis; `c = c_O = (6+√6)/12` is the global constant of
+  `thm:fqe-global-overlap`, `c = (2+√2)/4` the critical one of `thm:fqe-critical-orbit-sharp`):
+  `entropy_gap_ge_of_overlap`, `entropy_gap_orbit_stability` (`δ ≥ k c_O d2 > d2/20`),
+  `entropy_gap_critical` (unconditional, `W₁ = 0`: `δ ≥ k (Q + 5τ/2)`), `majorant_gap_of_overlap`,
+  `tsallis_gap_of_overlap` (`cor:fqe-orbit-spectral`).
 -/
 
 open scoped ComplexConjugate Matrix ComplexOrder
@@ -313,5 +322,122 @@ theorem entropy_gap_ge_Q (ψ : Psi) (hψ : normSqPsi ψ = 1) :
  Quot.sound] -/
 #guard_msgs in
 #print axioms one_add_log_two_lt_log_three
+
+/-! ### The paper's distance estimates, conditional on the overlap comparison `c d² ≤ Q`
+
+`d2` below stands for `d(ψ)²`, the squared distance to the two `M₄` orbits (not defined in Lean).
+The hypotheses `hQ : c * d2 ≤ sexticQ ψ` are `thm:fqe-global-overlap` (`c = (6+√6)/12`) or
+`eq:fqe-critical-distance` (critical `ψ`, `c = (2+√2)/4`), both exact-rational certificates in the
+paper and **not proved in Lean**. -/
+
+/-- `k = (ln 3 - 1)/(2 ln 2) > 0`. -/
+theorem entropy_coeff_pos : 0 < (Real.log 3 - 1) / (2 * Real.log 2) :=
+  lt_trans (by norm_num) entropy_coeff_gt
+
+/-- **Entropy gap from an overlap comparison** (hypothesis `hQ : c d2 ≤ Q`):
+`δ ≥ k 𝒟 ≥ k Q ≥ k c d2`, with `k = (ln 3 - 1)/(2 ln 2)`. -/
+theorem entropy_gap_ge_of_overlap (ψ : Psi) (hψ : normSqPsi ψ = 1) {c d2 : ℝ}
+    (hQ : c * d2 ≤ sexticQ ψ) :
+    (Real.log 3 - 1) / (2 * Real.log 2) * (c * d2) ≤ meanEntropy M4 - meanEntropy ψ := by
+  have h := entropy_gap_ge_defect ψ hψ
+  have hk := entropy_coeff_pos
+  have hD := sexticQ_le_defectD ψ hψ
+  have : (Real.log 3 - 1) / (2 * Real.log 2) * (c * d2)
+      ≤ (Real.log 3 - 1) / (2 * Real.log 2) * defectD ψ :=
+    mul_le_mul_of_nonneg_left (le_trans hQ hD) hk.le
+  linarith
+
+/-- `(6+√6)/12 > 7/10` (the last step of `eq:fqe-global-overlap-sharp`). -/
+theorem orbit_const_gt : 7 / 10 < (6 + Real.sqrt 6) / 12 := by
+  have : (12 / 5 : ℝ) < Real.sqrt 6 := by
+    rw [Real.lt_sqrt (by norm_num)]; norm_num
+  linarith
+
+/-- **Explicit global LU-orbit stability** (`thm:fqe-orbit-stability`), conditional on the overlap
+comparison `Q ≥ ((6+√6)/12) d2` of `thm:fqe-global-overlap` (hypothesis `hQ`): the entropy deficit
+satisfies `δ ≥ k ((6+√6)/12) d2`, and `k ((6+√6)/12) > 1/20`, so `δ ≥ d2/20` for `0 ≤ d2`
+(strictly for `0 < d2`). -/
+theorem entropy_gap_orbit_stability (ψ : Psi) (hψ : normSqPsi ψ = 1) {d2 : ℝ} (hd : 0 ≤ d2)
+    (hQ : (6 + Real.sqrt 6) / 12 * d2 ≤ sexticQ ψ) :
+    (Real.log 3 - 1) / (2 * Real.log 2) * ((6 + Real.sqrt 6) / 12 * d2)
+        ≤ meanEntropy M4 - meanEntropy ψ ∧
+      1 / 20 < (Real.log 3 - 1) / (2 * Real.log 2) * ((6 + Real.sqrt 6) / 12) ∧
+      1 / 20 * d2 ≤ meanEntropy M4 - meanEntropy ψ := by
+  have h1 := entropy_gap_ge_of_overlap ψ hψ hQ
+  have hk := entropy_coeff_gt
+  have h6 : (12 / 5 : ℝ) < Real.sqrt 6 := by
+    rw [Real.lt_sqrt (by norm_num)]; norm_num
+  have hc : 1 / 20 < (Real.log 3 - 1) / (2 * Real.log 2) * ((6 + Real.sqrt 6) / 12) := by
+    have e : (1 : ℝ) / 20 < 16 / 225 * ((6 + 12 / 5) / 12) := by norm_num
+    have h3 : (16 / 225 : ℝ) * ((6 + 12 / 5) / 12)
+        ≤ (Real.log 3 - 1) / (2 * Real.log 2) * ((6 + 12 / 5) / 12) :=
+      mul_le_mul_of_nonneg_right hk.le (by norm_num)
+    have h4 : (Real.log 3 - 1) / (2 * Real.log 2) * ((6 + 12 / 5) / 12)
+        ≤ (Real.log 3 - 1) / (2 * Real.log 2) * ((6 + Real.sqrt 6) / 12) :=
+      mul_le_mul_of_nonneg_left (by linarith) entropy_coeff_pos.le
+    linarith
+  refine ⟨h1, hc, ?_⟩
+  nlinarith [mul_le_mul_of_nonneg_right hc.le hd]
+
+/-- **Critical-state entropy stability** (`eq:fqe-critical-entropy`, moment form). For a unit state with
+all one-qubit marginals maximally mixed in the sense `W₁ = 0`, `δ ≥ k (Q + 5τ/2)`. Combined with
+`Q ≥ max{1 - Φ, 3/2 - 2Φ}` (`eq:fqe-critical-fidelity`, not formalized) this is the paper's
+`δ ≥ k (max{1-Φ, 3/2-2Φ} + 5τ/2)`; combined with `Q ≥ ((2+√2)/4) d2` (`eq:fqe-critical-distance`,
+hypothesis) it gives `entropy_gap_ge_of_overlap` with `c = (2+√2)/4`, since `τ ≥ 0`. -/
+theorem entropy_gap_critical (ψ : Psi) (hψ : normSqPsi ψ = 1) (hW : blochSq ψ = 0) :
+    (Real.log 3 - 1) / (2 * Real.log 2)
+        * (sexticQ ψ + 5 / 2 * Complex.normSq (spinFlipForm ψ))
+      ≤ meanEntropy M4 - meanEntropy ψ := by
+  have h := entropy_gap_ge_defect ψ hψ
+  rw [defectD_eq_Q ψ hψ, hW] at h
+  linarith
+
+/-- **Critical states, distance form** (`eq:fqe-critical-entropy`, last inequality), conditional on
+`eq:fqe-critical-distance` as the hypothesis `hQ : ((2+√2)/4) d2 ≤ Q`:
+`δ ≥ k ((2+√2)/4) d2 + (5k/2) τ`. -/
+theorem entropy_gap_critical_distance (ψ : Psi) (hψ : normSqPsi ψ = 1) (hW : blochSq ψ = 0)
+    {d2 : ℝ} (hQ : (2 + Real.sqrt 2) / 4 * d2 ≤ sexticQ ψ) :
+    (Real.log 3 - 1) / (2 * Real.log 2)
+        * ((2 + Real.sqrt 2) / 4 * d2 + 5 / 2 * Complex.normSq (spinFlipForm ψ))
+      ≤ meanEntropy M4 - meanEntropy ψ := by
+  have h := entropy_gap_critical ψ hψ hW
+  have hk := entropy_coeff_pos
+  have : (Real.log 3 - 1) / (2 * Real.log 2)
+        * ((2 + Real.sqrt 2) / 4 * d2 + 5 / 2 * Complex.normSq (spinFlipForm ψ))
+      ≤ (Real.log 3 - 1) / (2 * Real.log 2)
+        * (sexticQ ψ + 5 / 2 * Complex.normSq (spinFlipForm ψ)) :=
+    mul_le_mul_of_nonneg_left (by linarith) hk.le
+  linarith
+
+/-- **Spectral-majorant stability** (`cor:fqe-orbit-spectral`), conditional on `hQ : c d2 ≤ Q`
+(`c = c_O = (6+√6)/12` globally, `(2+√2)/4` for critical states): if `a ≥ 0` and `α = -b - 17a/12 ≥ 0`,
+`3 (E_f(M₄) - E_f(ψ)) ≥ min(α/6, a/12) · c d2`. -/
+theorem majorant_gap_of_overlap {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a b c d)
+    (ha : 0 ≤ a) (hα : 0 ≤ -b - 17 * a / 12) (ψ : Psi) (hψ : normSqPsi ψ = 1) {c₀ d2 : ℝ}
+    (hQ : c₀ * d2 ≤ sexticQ ψ) :
+    min ((-b - 17 * a / 12) / 6) (a / 12) * (c₀ * d2) ≤ 3 * (meanSpec f M4 - meanSpec f ψ) := by
+  have h := majorant_gap_ge_defect hM ψ hψ
+  have hm : 0 ≤ min ((-b - 17 * a / 12) / 6) (a / 12) := le_min (by linarith) (by linarith)
+  have := mul_le_mul_of_nonneg_left (le_trans hQ (sexticQ_le_defectD ψ hψ)) hm
+  linarith
+
+/-- The Tsallis case of `cor:fqe-orbit-spectral` (`0 < q < 2`, `q ≠ 1`), conditional on
+`hQ : c d2 ≤ Q`: `3 (ceiling - E_q) ≥ min(α_q/6, a_q/12) · c d2`, with `min(α_q/6, a_q/12) > 0`. -/
+theorem tsallis_gap_of_overlap {q : ℝ} (h0 : 0 < q) (h2 : q < 2) (h1 : q ≠ 1) (ψ : Psi)
+    (hψ : normSqPsi ψ = 1) {c₀ d2 : ℝ} (hQ : c₀ * d2 ≤ sexticQ ψ) :
+    0 < min ((-tsB q - 17 * tsA q / 12) / 6) (tsA q / 12) ∧
+    min ((-tsB q - 17 * tsA q / 12) / 6) (tsA q / 12) * (c₀ * d2)
+      ≤ 3 * (tsallisCeiling q - meanTsallis q ψ) := by
+  obtain ⟨hpos, h⟩ := tsallis_gap_ge_defect h0 h2 h1 ψ hψ
+  refine ⟨hpos, ?_⟩
+  have := mul_le_mul_of_nonneg_left (le_trans hQ (sexticQ_le_defectD ψ hψ)) hpos.le
+  linarith
+
+/-- info: 'FormalResearch.FourQubitEntropy.entropy_gap_orbit_stability' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ sexticDefect_check._native.native_decide.ax_1_1] -/
+#guard_msgs in
+#print axioms entropy_gap_orbit_stability
 
 end FormalResearch.FourQubitEntropy

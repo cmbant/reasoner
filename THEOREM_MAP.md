@@ -180,7 +180,18 @@ Formalized, with no `sorry`:
   `Bridge.lean`). `sexticF_ge_sharp` (`Checks.lean`): `3/4` is the best constant (every product state attains
   it). Consequences with the sharp constant: `majorant_stability` (`3 (E_f(M₄) − E_f(ψ)) ≥ (α/2 + a/16) W₁ +
   (α/2) τ`), `entropy_stability` (`3 ln 2 · δ ≥ ((21 − 15 ln 3)/8) W₁ + (15/4 − 3 ln 3) τ`), `tsallis_stability`
-  and `e3_sum_le` (`Σ_j e₃(ρ_{1j}) ≤ (6 − P)/36 − W₁/48 ≤ 5/36`).
+  and `e3_sum_le` (`Σ_j e₃(ρ_{1j}) ≤ (6 − P)/36 − W₁/48 ≤ 5/36`). These are the `τ^{3/2}`-free corollaries of the paper's
+  estimates; `majorant_stability_of_envelope`, `entropy_stability_of_envelope`, `tsallis_stability_of_envelope`
+  (`Stability.lean`) add the paper's term `(a/12)(τ − τ^{3/2})` with `(3/4) W₁ + τ − τ√τ ≤ F` (the weaker consequence of
+  `thm:fqe-general-envelope`, which is not formalized) as an explicit hypothesis `henv`.
+- Moment defect and distance stability (`PaperEGenDefect.lean`): `sexticQ`, `defectD`, `entropy_gap_ge_defect`
+  (`δ ≥ k 𝒟`, `k = (ln 3 − 1)/(2 ln 2) > 16/225`), `entropy_gap_ge_Q`, `majorant_gap_ge_defect`, `tsallis_gap_ge_defect`, and
+  `entropy_gap_critical` (`W₁ = 0`: `δ ≥ k (Q + 5τ/2)`) are unconditional. The distance `d` to the `M₄` orbits is not defined
+  in Lean and the HS overlap stability `thm:fqe-global-overlap` (`Q ≥ 1 − Φ ≥ ((6+√6)/12) d² > (7/10) d²`, exact rational
+  certificate) is not formalized. `entropy_gap_ge_of_overlap`, `entropy_gap_orbit_stability` (`thm:fqe-orbit-stability`:
+  `δ ≥ k ((6+√6)/12) d2 > d2/20`), `entropy_gap_critical_distance` (`eq:fqe-critical-entropy`, constant `(2+√2)/4`),
+  `majorant_gap_of_overlap` and `tsallis_gap_of_overlap` (`cor:fqe-orbit-spectral`) are *conditional*: the hypothesis
+  `c * d2 ≤ sexticQ ψ` (`d2` standing for `d(ψ)²`) is an explicit argument, never proved or assumed as an axiom.
 - `purity_ge` (`Purity.lean`): `P ≥ n²` from `2P = 2n² + W₁ + τ`, `τ = |ψᵀ ε^{⊗4} ψ|²`.
 - `negMulLog_le_hermCubic` (`HermiteBound.lean`): `−x ln x ≤ a x³ + b x² + c x + d` for `x ≥ 0`.
 - `meanEntropy_le`, `meanEntropy_M4`, `meanEntropy_M4_max` (`Entropy.lean`, `Attainment.lean`): for a unit
@@ -246,7 +257,7 @@ Statement scope against the current paper (`four_qubit_entropy.tex` and its supp
   (`rearr_ds`). Not formalized: unequal local dimensions (zero padding) and the attainment statement (sign-flipped Schmidt terms),
   and the general two-parameter sharpness family of the proposition.
 - Not formalized, new in the current paper:
-  `prop:fqe-critical-envelope`, `prop:seven-resolvent-majorant`, `cor:seven-resolvent-matrix`, `lem:seven-family-symmetric-criticality`,
+  `thm:fqe-global-overlap`, `thm:fqe-general-envelope`, `prop:fqe-critical-envelope`, `prop:seven-resolvent-majorant`, `cor:seven-resolvent-matrix`, `lem:seven-family-symmetric-criticality`,
   the exact transverse Hessian floor `(350 - 6√2005)/4585` of `thm:icolocal`, and the positive-kernel proof of AH-6.
 
 ## Gaudin, Racah and bridge modules
