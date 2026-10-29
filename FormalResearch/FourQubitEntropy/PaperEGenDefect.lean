@@ -349,7 +349,7 @@ theorem entropy_gap_ge_of_overlap (ψ : Psi) (hψ : normSqPsi ψ = 1) {c d2 : �
 
 /-- `(6+√6)/12 > 7/10` (the last step of `eq:fqe-global-overlap-sharp`). -/
 theorem orbit_const_gt : 7 / 10 < (6 + Real.sqrt 6) / 12 := by
-  have : (12 / 5 : ℝ) < Real.sqrt 6 := by
+  have : (61 / 25 : ℝ) < Real.sqrt 6 := by
     rw [Real.lt_sqrt (by norm_num)]; norm_num
   linarith
 
@@ -365,14 +365,14 @@ theorem entropy_gap_orbit_stability (ψ : Psi) (hψ : normSqPsi ψ = 1) {d2 : �
       1 / 20 * d2 ≤ meanEntropy M4 - meanEntropy ψ := by
   have h1 := entropy_gap_ge_of_overlap ψ hψ hQ
   have hk := entropy_coeff_gt
-  have h6 : (12 / 5 : ℝ) < Real.sqrt 6 := by
+  have h6 : (61 / 25 : ℝ) < Real.sqrt 6 := by
     rw [Real.lt_sqrt (by norm_num)]; norm_num
   have hc : 1 / 20 < (Real.log 3 - 1) / (2 * Real.log 2) * ((6 + Real.sqrt 6) / 12) := by
-    have e : (1 : ℝ) / 20 < 16 / 225 * ((6 + 12 / 5) / 12) := by norm_num
-    have h3 : (16 / 225 : ℝ) * ((6 + 12 / 5) / 12)
-        ≤ (Real.log 3 - 1) / (2 * Real.log 2) * ((6 + 12 / 5) / 12) :=
+    have e : (1 : ℝ) / 20 < 16 / 225 * ((6 + 61 / 25) / 12) := by norm_num
+    have h3 : (16 / 225 : ℝ) * ((6 + 61 / 25) / 12)
+        ≤ (Real.log 3 - 1) / (2 * Real.log 2) * ((6 + 61 / 25) / 12) :=
       mul_le_mul_of_nonneg_right hk.le (by norm_num)
-    have h4 : (Real.log 3 - 1) / (2 * Real.log 2) * ((6 + 12 / 5) / 12)
+    have h4 : (Real.log 3 - 1) / (2 * Real.log 2) * ((6 + 61 / 25) / 12)
         ≤ (Real.log 3 - 1) / (2 * Real.log 2) * ((6 + Real.sqrt 6) / 12) :=
       mul_le_mul_of_nonneg_left (by linarith) entropy_coeff_pos.le
     linarith

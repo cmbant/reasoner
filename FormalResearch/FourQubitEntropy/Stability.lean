@@ -285,15 +285,21 @@ theorem tsallis_stability_of_envelope {q : ℝ} (h0 : 0 < q) (h2 : q < 2) (h1 : 
   rw [meanTsallis_eq_meanSpec q ψ hψ, tsallisCeiling_eq, ← meanSpec_M4]
   exact this
 
-/-- info: 'FormalResearch.FourQubitEntropy.majorant_stability_of_envelope' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.FourQubitEntropy.majorant_stability_of_envelope' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
 #guard_msgs in
 #print axioms majorant_stability_of_envelope
 
-/-- info: 'FormalResearch.FourQubitEntropy.entropy_stability_of_envelope' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.FourQubitEntropy.entropy_stability_of_envelope' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
 #guard_msgs in
 #print axioms entropy_stability_of_envelope
 
-/-- info: 'FormalResearch.FourQubitEntropy.tsallis_stability_of_envelope' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.FourQubitEntropy.tsallis_stability_of_envelope' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
 #guard_msgs in
 #print axioms tsallis_stability_of_envelope
 
