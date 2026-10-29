@@ -1,10 +1,7 @@
 name: Lean aggregate frontier blockers
 
 on:
-  push:
-    branches:
-      - master
-      - 'agents/**'
+  workflow_dispatch:
 
 concurrency:
   group: lean-aggregate-frontier-${{ github.ref }}
@@ -12,7 +9,7 @@ concurrency:
 
 jobs:
   aggregate-next:
-    if: ${{ contains(github.event.head_commit.message, '[aggregate-next]') }}
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

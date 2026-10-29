@@ -1,8 +1,6 @@
 name: Lean QI-D nested upper atomic core
 
 on:
-  push:
-    branches: [agents/qid-nested-upper-decomposition]
   workflow_dispatch:
 
 jobs:
