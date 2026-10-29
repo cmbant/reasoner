@@ -16,7 +16,7 @@ open scoped ComplexConjugate
 namespace FormalResearch.FourQubitEntropy
 
 /-- The pencil point `φ + ρ φ̃`. -/
-noncomputable def xr (φ : Psi) (ρ : ℝ) : Psi := φ + ρ • flipPsi φ
+noncomputable def xr (φ : Psi) (ρ : ℝ) : Psi := φ + ρ • spinFlipPsi φ
 
 theorem Hval_smul (c : ℝ) (ψ : Psi) : Hval (c • ψ) = c ^ 6 * Hval ψ := by
   have h := Hval_smulC_aux (c : ℂ) ψ
@@ -25,17 +25,17 @@ theorem Hval_smul (c : ℝ) (ψ : Psi) : Hval (c • ψ) = c ^ 6 * Hval ψ := by
   rw [h, Complex.normSq_ofReal]
   ring
 
-theorem flipPsi_xr (φ : Psi) (ρ : ℝ) : flipPsi (xr φ ρ) = flipPsi φ + ρ • φ := by
+theorem spinFlipPsi_xr (φ : Psi) (ρ : ℝ) : spinFlipPsi (xr φ ρ) = spinFlipPsi φ + ρ • φ := by
   unfold xr
-  rw [flipPsi_add, flipPsi_smul_real, flipPsi_flipPsi]
+  rw [spinFlipPsi_add, spinFlipPsi_smul_real, spinFlipPsi_flipPsi]
 
 theorem xr_zero (φ : Psi) : xr φ 0 = φ := by
   unfold xr; simp
 
 /-- `xr φ ρ + s (xr φ ρ)~ = (1 + ρ s) xr φ ρ'`, `ρ' = (ρ + s)/(1 + ρ s)`. -/
 theorem xr_step (φ : Psi) (ρ s : ℝ) (h : 1 + ρ * s ≠ 0) :
-    xr φ ρ + s • flipPsi (xr φ ρ) = (1 + ρ * s) • xr φ ((ρ + s) / (1 + ρ * s)) := by
-  rw [flipPsi_xr]
+    xr φ ρ + s • spinFlipPsi (xr φ ρ) = (1 + ρ * s) • xr φ ((ρ + s) / (1 + ρ * s)) := by
+  rw [spinFlipPsi_xr]
   funext a b c d
   simp only [xr, Pi.add_apply, Pi.smul_apply, Complex.real_smul]
   push_cast
@@ -64,7 +64,7 @@ theorem blochSq_xr (ρ : ℝ) : blochSq (xr φ ρ) = (1 - ρ ^ 2) ^ 2 * blochSq 
 
 /-- The derivative of `Hval` at `xr φ ρ` along its own spin-flip pencil. -/
 theorem hasDerivAt_K (hφ : normSqPsi φ = 1) (hs : spinFlipForm φ = 0) (ρ : ℝ) :
-    HasDerivAt (fun s : ℝ => Hval (xr φ ρ + s • flipPsi (xr φ ρ)))
+    HasDerivAt (fun s : ℝ => Hval (xr φ ρ + s • spinFlipPsi (xr φ ρ)))
       ((Ysum (xr φ ρ) (xr φ ρ).conj).re / 4
         + 32 * ρ * (1 - ρ ^ 2) ^ 2 * (1 + 7 / 8 * blochSq φ)) 0 := by
   have h := flipGradient (xr φ ρ)
@@ -97,7 +97,7 @@ theorem hasDerivAt_h (hφ : normSqPsi φ = 1) (hs : spinFlipForm φ = 0) {ρ : �
     field_simp
     ring
   have hsf0 : (ρ - ρ) / (1 - ρ * ρ) = 0 := by simp
-  have hcomp : HasDerivAt (fun σ : ℝ => Hval (xr φ ρ + ((σ - ρ) / (1 - ρ * σ)) • flipPsi (xr φ ρ)))
+  have hcomp : HasDerivAt (fun σ : ℝ => Hval (xr φ ρ + ((σ - ρ) / (1 - ρ * σ)) • spinFlipPsi (xr φ ρ)))
       (((Ysum (xr φ ρ) (xr φ ρ).conj).re / 4
         + 32 * ρ * (1 - ρ ^ 2) ^ 2 * (1 + 7 / 8 * blochSq φ)) * (1 / (1 - ρ ^ 2))) ρ := by
     have := HasDerivAt.scomp_of_eq ρ hK hsf hsf0.symm
@@ -111,7 +111,7 @@ theorem hasDerivAt_h (hφ : normSqPsi φ = 1) (hs : spinFlipForm φ = 0) {ρ : �
     rw [h3] at this
     exact this
   have hmul := hcomp.mul hpow
-  have hK0 : Hval (xr φ ρ + ((ρ - ρ) / (1 - ρ * ρ)) • flipPsi (xr φ ρ)) = Hval (xr φ ρ) := by
+  have hK0 : Hval (xr φ ρ + ((ρ - ρ) / (1 - ρ * ρ)) • spinFlipPsi (xr φ ρ)) = Hval (xr φ ρ) := by
     rw [hsf0]; simp
   refine (hmul.congr_deriv ?_).congr_of_eventuallyEq ?_
   · rw [hK0, h3]; ring
@@ -133,7 +133,7 @@ theorem hasDerivAt_h (hφ : normSqPsi φ = 1) (hs : spinFlipForm φ = 0) {ρ : �
     have h3 : 1 + ρ * t ≠ 0 := by rw [h2]; exact div_ne_zero hρ2 h1
     have h4 : (ρ + t) / (1 + ρ * t) = σ := by
       rw [div_eq_iff h3]; linear_combination ht' 
-    show Hval (xr φ σ) = Hval (xr φ ρ + t • flipPsi (xr φ ρ)) * ((1 - ρ * σ) / (1 - ρ ^ 2)) ^ 6
+    show Hval (xr φ σ) = Hval (xr φ ρ + t • spinFlipPsi (xr φ ρ)) * ((1 - ρ * σ) / (1 - ρ ^ 2)) ^ 6
     rw [xr_step φ ρ t h3, h4, Hval_smul, h2]
     field_simp
 
@@ -242,11 +242,11 @@ theorem envelope_real (hψ : normSqPsi ψ = 1) {κ : ℝ} (hκ0 : 0 ≤ κ) (hκ
   obtain ⟨r, hr0, hr1, hκr⟩ := split_param κ hκ0 hκ1
   have hr2 : 0 < 1 - r ^ 2 := by nlinarith
   have hp : 0 < 1 + r ^ 2 := by positivity
-  have hng : normSqPsi (ψ + (-r) • flipPsi ψ) = (1 - r ^ 2) ^ 2 / (1 + r ^ 2) := by
+  have hng : normSqPsi (ψ + (-r) • spinFlipPsi ψ) = (1 - r ^ 2) ^ 2 / (1 + r ^ 2) := by
     rw [normSqPsi_pencil, hψ, hs]
     simp only [Complex.ofReal_re]
     rw [hκr]; field_simp; ring
-  have hsg : spinFlipForm (ψ + (-r) • flipPsi ψ) = 0 := by
+  have hsg : spinFlipForm (ψ + (-r) • spinFlipPsi ψ) = 0 := by
     rw [spinFlipForm_pencil, hs, hψ]
     simp only [Complex.conj_ofReal]
     have h0 : κ + (-r) ^ 2 * κ + 2 * (-r) * 1 = 0 := by rw [hκr]; field_simp; ring
@@ -258,14 +258,14 @@ theorem envelope_real (hψ : normSqPsi ψ = 1) {κ : ℝ} (hκ0 : 0 ≤ κ) (hκ
     rw [hc0, div_pow, Real.sq_sqrt hp.le]
   have hc1 : c₀ * (1 - r ^ 2) = Real.sqrt (1 + r ^ 2) := by
     rw [hc0]; field_simp
-  set φ : Psi := c₀ • (ψ + (-r) • flipPsi ψ) with hφdef
+  set φ : Psi := c₀ • (ψ + (-r) • spinFlipPsi ψ) with hφdef
   have hφ1 : normSqPsi φ = 1 := by
-    rw [hφdef, normSqPsi_smul, hng, hc0sq]; field_simp
+    rw [hφdef, normSqPsi_smulR, hng, hc0sq]; field_simp
   have hφs : spinFlipForm φ = 0 := by
     rw [hφdef, real_smul_eq, spinFlipForm_smulC, hsg]; simp
   have hxr : xr φ r = Real.sqrt (1 + r ^ 2) • ψ := by
     unfold xr
-    rw [hφdef, flipPsi_smul_real, flipPsi_add, flipPsi_smul_real, flipPsi_flipPsi]
+    rw [hφdef, spinFlipPsi_smul_real, spinFlipPsi_add, spinFlipPsi_smul_real, spinFlipPsi_flipPsi]
     funext a b c d
     simp only [Pi.add_apply, Pi.smul_apply, Complex.real_smul]
     rw [← hc1]
@@ -334,10 +334,10 @@ theorem psi_zero_of_normSqPsi_zero {g : Psi} (h : normSqPsi g = 0) : g = 0 := by
 /-- A unit vector with `s(ψ) = 1` is flip-invariant, hence has no Bloch vectors. -/
 theorem blochSq_eq_zero_of_spin_one {ψ : Psi} (hψ : normSqPsi ψ = 1) (hs : spinFlipForm ψ = 1) :
     blochSq ψ = 0 := by
-  have hng : normSqPsi (ψ + (-1 : ℝ) • flipPsi ψ) = 0 := by
+  have hng : normSqPsi (ψ + (-1 : ℝ) • spinFlipPsi ψ) = 0 := by
     rw [normSqPsi_pencil, hψ, hs]; norm_num
   have h0 := psi_zero_of_normSqPsi_zero hng
-  have hf : flipPsi ψ = ψ := by
+  have hf : spinFlipPsi ψ = ψ := by
     funext a b c d
     have := congrFun (congrFun (congrFun (congrFun h0 a) b) c) d
     simp only [Pi.add_apply, Pi.smul_apply, Complex.real_smul, Pi.zero_apply] at this
@@ -390,7 +390,7 @@ theorem general_envelope_unit (ψ : Psi) (hψ : normSqPsi ψ = 1) :
     unfold Hval; rw [hN', hW', hF']; ring
   -- κ ≤ 1
   have hκ1 : κ ≤ 1 := by
-    have := normSqPsi_nonneg (u • ψ + (-1 : ℝ) • flipPsi (u • ψ))
+    have := normSqPsi_nonneg (u • ψ + (-1 : ℝ) • spinFlipPsi (u • ψ))
     rw [normSqPsi_pencil, hN', hs'] at this
     simp only [Complex.ofReal_re] at this
     linarith

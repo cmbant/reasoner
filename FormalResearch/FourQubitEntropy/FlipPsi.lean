@@ -4,11 +4,11 @@ import FormalResearch.FourQubitEntropy.Purity
 /-!
 # The spin flip `ψ ↦ ε^{⊗4} ψ̄` and the spin-flip pencil `ψ + ρ ψ̃`
 
-`flipPsi ψ = ψ̃` is the antiunitary involution of `sextic_identity.tex`
+`spinFlipPsi ψ = ψ̃` is the antiunitary involution of `sextic_identity.tex`
 (`thm:fqe-general-envelope`, "spin-flip split"). Every statement here is an elementary identity of
 coordinates. For every `ψ`, with `s = ψᵀ ε^{⊗4} ψ = spinFlipForm ψ`, `n = ‖ψ‖²` and real `ρ`:
 
-* `flipPsi_flipPsi`: `ψ̃̃ = ψ`; additivity, real homogeneity, conjugate homogeneity;
+* `spinFlipPsi_flipPsi`: `ψ̃̃ = ψ`; additivity, real homogeneity, conjugate homogeneity;
 * `normSqPsi_pencil`: `‖ψ + ρ ψ̃‖² = (1 + ρ²) n + 2ρ Re s`;
 * `spinFlipForm_pencil`: `s(ψ + ρ ψ̃) = s + ρ² s̄ + 2ρ n`;
 * `expectation_pencil`, `blochSq_pencil`: the Bloch vectors of `ψ + ρ ψ̃` are `(1 - ρ²)` times
@@ -28,48 +28,48 @@ namespace FormalResearch.FourQubitEntropy
 @[simp] theorem sgn_one : sgn 1 = -1 := by simp [sgn]
 
 /-- The spin flip `ψ̃ = ε^{⊗4} ψ̄` (`ε = [[0,1],[-1,0]]`). -/
-noncomputable def flipPsi (ψ : Psi) : Psi := fun a b c d => ztil ψ.conj a b c d
+noncomputable def spinFlipPsi (ψ : Psi) : Psi := fun a b c d => ztil ψ.conj a b c d
 
-theorem flipPsi_apply (ψ : Psi) (a b c d : Fin 2) :
-    flipPsi ψ a b c d = ((sgn a * sgn b * sgn c * sgn d : ℤ) : ℂ)
+theorem spinFlipPsi_apply (ψ : Psi) (a b c d : Fin 2) :
+    spinFlipPsi ψ a b c d = ((sgn a * sgn b * sgn c * sgn d : ℤ) : ℂ)
       * conj (ψ (1 - a) (1 - b) (1 - c) (1 - d)) := by
-  simp [flipPsi, ztil, Psi.conj]
+  simp [spinFlipPsi, ztil, Psi.conj]
 
-theorem flipPsi_flipPsi (ψ : Psi) : flipPsi (flipPsi ψ) = ψ := by
+theorem spinFlipPsi_flipPsi (ψ : Psi) : spinFlipPsi (spinFlipPsi ψ) = ψ := by
   funext a b c d
   fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;>
-    simp [flipPsi_apply] <;> ring_nf <;> simp
+    simp [spinFlipPsi_apply] <;> ring_nf <;> simp
 
-theorem flipPsi_add (ψ φ : Psi) : flipPsi (ψ + φ) = flipPsi ψ + flipPsi φ := by
+theorem spinFlipPsi_add (ψ φ : Psi) : spinFlipPsi (ψ + φ) = spinFlipPsi ψ + spinFlipPsi φ := by
   funext a b c d
-  simp [flipPsi_apply, mul_add]
+  simp [spinFlipPsi_apply, mul_add]
 
-theorem flipPsi_smul_real (r : ℝ) (ψ : Psi) : flipPsi (r • ψ) = r • flipPsi ψ := by
+theorem spinFlipPsi_smul_real (r : ℝ) (ψ : Psi) : spinFlipPsi (r • ψ) = r • spinFlipPsi ψ := by
   funext a b c d
-  simp only [flipPsi_apply, Pi.smul_apply, Complex.real_smul, map_mul, Complex.conj_ofReal]
+  simp only [spinFlipPsi_apply, Pi.smul_apply, Complex.real_smul, map_mul, Complex.conj_ofReal]
   ring
 
-theorem flipPsi_neg (ψ : Psi) : flipPsi (-ψ) = -flipPsi ψ := by
+theorem spinFlipPsi_neg (ψ : Psi) : spinFlipPsi (-ψ) = -spinFlipPsi ψ := by
   funext a b c d
-  simp [flipPsi_apply]
+  simp [spinFlipPsi_apply]
 
 
 /-! ### The pencil `ψ + ρ ψ̃` -/
 
 theorem normSqPsi_pencil (ψ : Psi) (ρ : ℝ) :
-    normSqPsi (ψ + ρ • flipPsi ψ)
+    normSqPsi (ψ + ρ • spinFlipPsi ψ)
       = (1 + ρ ^ 2) * normSqPsi ψ + 2 * ρ * (spinFlipForm ψ).re := by
   simp only [normSqPsi, spinFlipForm, sum4, sum2, Fin.sum_univ_two, Pi.add_apply, Pi.smul_apply,
-    Complex.real_smul, flipPsi_apply, Complex.normSq_apply, toAdd_complex, toMul_complex, lit_complex]
+    Complex.real_smul, spinFlipPsi_apply, Complex.normSq_apply, toAdd_complex, toMul_complex, lit_complex]
   simp [Complex.add_re, Complex.add_im, Complex.mul_re, Complex.mul_im, Complex.conj_re,
     Complex.conj_im, sgn]
   ring
 
 theorem spinFlipForm_pencil (ψ : Psi) (ρ : ℝ) :
-    spinFlipForm (ψ + ρ • flipPsi ψ)
+    spinFlipForm (ψ + ρ • spinFlipPsi ψ)
       = spinFlipForm ψ + ρ ^ 2 * conj (spinFlipForm ψ) + 2 * ρ * normSqPsi ψ := by
   simp only [normSqPsi, spinFlipForm, sum4, sum2, Fin.sum_univ_two, Pi.add_apply, Pi.smul_apply,
-    Complex.real_smul, flipPsi_apply, toAdd_complex, toMul_complex, lit_complex,
+    Complex.real_smul, spinFlipPsi_apply, toAdd_complex, toMul_complex, lit_complex,
     map_add, map_mul, Complex.conj_conj, Complex.conj_ofReal, map_intCast]
   simp only [Complex.normSq_eq_conj_mul_self, Complex.ofReal_sum, Complex.ofReal_mul,
     Complex.ofReal_add]
@@ -79,10 +79,10 @@ theorem spinFlipForm_pencil (ψ : Psi) (ρ : ℝ) :
 
 theorem expectation_pencil (i : Fin 4) (σ : Matrix (Fin 2) (Fin 2) ℂ)
     (hσ : σ = pauliX ∨ σ = pauliY ∨ σ = pauliZ) (ψ : Psi) (ρ : ℝ) :
-    expectation i σ (ψ + ρ • flipPsi ψ) = ((1 - ρ ^ 2 : ℝ) : ℂ) * expectation i σ ψ := by
+    expectation i σ (ψ + ρ • spinFlipPsi ψ) = ((1 - ρ ^ 2 : ℝ) : ℂ) * expectation i σ ψ := by
   rcases hσ with rfl | rfl | rfl <;> fin_cases i <;>
   · simp only [expectation, actOn, Fin.sum_univ_two, Pi.add_apply, Pi.smul_apply,
-      Complex.real_smul, flipPsi_apply, map_add, map_mul, Complex.conj_conj, Complex.conj_ofReal,
+      Complex.real_smul, spinFlipPsi_apply, map_add, map_mul, Complex.conj_conj, Complex.conj_ofReal,
       map_intCast, pauliX, pauliY, pauliZ, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero,
       Matrix.cons_val_one, Matrix.empty_val', Matrix.cons_val_fin_one]
     simp [sgn]
@@ -90,7 +90,7 @@ theorem expectation_pencil (i : Fin 4) (σ : Matrix (Fin 2) (Fin 2) ℂ)
 
 
 theorem blochSq_pencil (ψ : Psi) (ρ : ℝ) :
-    blochSq (ψ + ρ • flipPsi ψ) = (1 - ρ ^ 2) ^ 2 * blochSq ψ := by
+    blochSq (ψ + ρ • spinFlipPsi ψ) = (1 - ρ ^ 2) ^ 2 * blochSq ψ := by
   unfold blochSq
   simp only [expectation_pencil _ _ (Or.inl rfl) ψ ρ,
     expectation_pencil _ _ (Or.inr (Or.inl rfl)) ψ ρ,
@@ -101,7 +101,7 @@ theorem blochSq_pencil (ψ : Psi) (ρ : ℝ) :
 
 /-! ### Real homogeneity -/
 
-theorem normSqPsi_smul (c : ℝ) (ψ : Psi) : normSqPsi (c • ψ) = c ^ 2 * normSqPsi ψ := by
+theorem normSqPsi_smulR (c : ℝ) (ψ : Psi) : normSqPsi (c • ψ) = c ^ 2 * normSqPsi ψ := by
   simp only [normSqPsi, Pi.smul_apply, Complex.real_smul, Complex.normSq_mul,
     Complex.normSq_ofReal, Finset.mul_sum]
   refine Finset.sum_congr rfl fun a _ => Finset.sum_congr rfl fun b _ =>
@@ -163,7 +163,7 @@ theorem cubicMoment_smul (c : ℝ) (ψ : Psi) : cubicMoment (c • ψ) = c ^ 6 *
 
 theorem sexticF_smul (c : ℝ) (ψ : Psi) : sexticF (c • ψ) = c ^ 6 * sexticF ψ := by
   unfold sexticF
-  rw [normSqPsi_smul, purity_smul, cubicMoment_smul]
+  rw [normSqPsi_smulR, purity_smul, cubicMoment_smul]
   ring
 
 
@@ -229,9 +229,9 @@ theorem spinFlipForm_smulC (c : ℂ) (ψ : Psi) : spinFlipForm (c • ψ) = c ^ 
     toMul_complex, lit_complex]
   ring
 
-theorem flipPsi_smulC (c : ℂ) (ψ : Psi) : flipPsi (c • ψ) = (conj c) • flipPsi ψ := by
+theorem spinFlipPsi_smulC (c : ℂ) (ψ : Psi) : spinFlipPsi (c • ψ) = (conj c) • spinFlipPsi ψ := by
   funext a b c' d
-  simp only [flipPsi_apply, Pi.smul_apply, smul_eq_mul, map_mul]
+  simp only [spinFlipPsi_apply, Pi.smul_apply, smul_eq_mul, map_mul]
   ring
 
 end FormalResearch.FourQubitEntropy

@@ -473,3 +473,4 @@ import FormalResearch.FourQubitEntropy.GeneralEnvelope
 import FormalResearch.FourQubitEntropy.StabilityEnvelope
 import FormalResearch.FourQubitEntropy.E3Converse
 import FormalResearch.FourQubitEntropy.PaperECriticalRenyiEq
+import FormalResearch.FourQubitEntropy.EnvelopeEquality

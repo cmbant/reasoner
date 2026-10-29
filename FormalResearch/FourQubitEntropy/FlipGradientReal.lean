@@ -39,13 +39,13 @@ theorem Rg_conj (ψ : Psi) : Rg ψ.conj ψ = conj (Rg ψ ψ.conj) := by
   exact h.symm
 
 theorem pencil_conj (x : Psi) (s : ℝ) :
-    (fun a b c d => x.conj a b c d + (s : ℂ) * ztilS x a b c d) = Psi.conj (x + s • flipPsi x) := by
+    (fun a b c d => x.conj a b c d + (s : ℂ) * ztilS x a b c d) = Psi.conj (x + s • spinFlipPsi x) := by
   funext a b c d
-  simp [Psi.conj, flipPsi_apply, ztilS, ztil, mul_comm]
+  simp [Psi.conj, spinFlipPsi_apply, ztilS, ztil, mul_comm]
 
 /-- The derivative of `Hval` along the pencil, before simplification. -/
 theorem hasDerivAt_Hval_pencil (x : Psi) :
-    HasDerivAt (fun s : ℝ => Hval (x + s • flipPsi x))
+    HasDerivAt (fun s : ℝ => Hval (x + s • spinFlipPsi x))
       (((8 : ℂ)⁻¹ * (Rg x x.conj + Rg x.conj x)).re) 0 := by
   have h := hasDerivAt_generic (fun {α} [RingOps α] z w => H4gen z w)
     (fun hf z w => hf.H4gen z w) x x.conj (ztilS x.conj) (ztilS x)
@@ -64,9 +64,9 @@ theorem hasDerivAt_Hval_pencil (x : Psi) :
       ((0 : ℝ) : ℂ) := by simpa using h
   have h'' := h'.real_of_complex
   refine h''.congr_of_eventuallyEq (Filter.Eventually.of_forall fun s => ?_)
-  have e1 : (fun a b c d => x a b c d + (s : ℂ) * ztilS x.conj a b c d) = x + s • flipPsi x := by
+  have e1 : (fun a b c d => x a b c d + (s : ℂ) * ztilS x.conj a b c d) = x + s • spinFlipPsi x := by
     funext a b c d
-    simp [flipPsi, ztilS, mul_comm]
+    simp [spinFlipPsi, ztilS, mul_comm]
   have e2 := pencil_conj x s
   beta_reduce
   rw [e1, e2, H4gen_conj, Complex.ofReal_re]
@@ -74,7 +74,7 @@ theorem hasDerivAt_Hval_pencil (x : Psi) :
 /-- **`lem:fqe-flip-gradient`, (FG)**: `d/ds Hval(ψ + s ψ̃)|₀
 = (1/4) Re Ysum + Re s · (16 n² + 14 W₁ - 16 |s|²)`. -/
 theorem flipGradient (x : Psi) :
-    HasDerivAt (fun s : ℝ => Hval (x + s • flipPsi x))
+    HasDerivAt (fun s : ℝ => Hval (x + s • spinFlipPsi x))
       ((Ysum x x.conj).re / 4 + (spinFlipForm x).re *
         (16 * normSqPsi x ^ 2 + 14 * blochSq x - 16 * Complex.normSq (spinFlipForm x))) 0 := by
   convert hasDerivAt_Hval_pencil x using 1
