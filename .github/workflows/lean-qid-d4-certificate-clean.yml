@@ -1,6 +1,8 @@
 name: Lean QI-D D4 certificate clean gate
 
 on:
+  push:
+    branches: [agents/qid-d4-ds-certificate-clean]
   workflow_dispatch:
 
 jobs:

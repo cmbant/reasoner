@@ -1,6 +1,8 @@
 name: Lean failure-only frontier
 
 on:
+  push:
+    branches: [master]
   workflow_dispatch:
 
 concurrency:

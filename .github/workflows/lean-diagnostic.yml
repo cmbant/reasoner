@@ -1,6 +1,8 @@
 name: Lean frontier diagnostics
 
 on:
+  push:
+    branches: [master]
   workflow_dispatch:
 
 concurrency:

@@ -1,6 +1,8 @@
 name: Endpoint14 identity and aggregate
 
 on:
+  push:
+    branches: [master]
   workflow_dispatch:
 
 concurrency:

@@ -1,6 +1,8 @@
 name: Lean QI-D nested lower witness
 
 on:
+  push:
+    branches: [agents/qid-nested-lower-witness]
   workflow_dispatch:
 
 jobs:
