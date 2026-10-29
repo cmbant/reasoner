@@ -468,3 +468,6 @@ import FormalResearch.FourQubitEntropy.FlipGradientCertSs
 import FormalResearch.FourQubitEntropy.FlipGradient
 import FormalResearch.FourQubitEntropy.FlipPsi
 import FormalResearch.FourQubitEntropy.FlipGradientReal
+import FormalResearch.FourQubitEntropy.FlipSos
+import FormalResearch.FourQubitEntropy.GeneralEnvelope
+import FormalResearch.FourQubitEntropy.StabilityEnvelope
