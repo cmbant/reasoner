@@ -4,14 +4,13 @@ import FormalResearch.FourQubitEntropy.Renyi
 # Spectral stability from the polarization and spin-flip remainders
 
 For a cubic majorant `h` with `a ≥ 0`, `α = -b - 17a/12 ≥ 0`, the gap identity (SF) of the paper
-together with `2(P - 1) = W₁ + τ` and `F ≥ (15/32) W₁` (a weaker consequence of the sharp `F ≥ (3/4) n W₁`, `sexticF_ge`) gives
+together with `2(P - 1) = W₁ + τ` and `F ≥ (3/4) n W₁` (`sexticF_ge`) gives
 
-`3 (E_f(M₄) - E_f(ψ)) ≥ (α/2 + 5a/128) W₁ + (α/2) τ`,
+`3 (E_f(M₄) - E_f(ψ)) ≥ (α/2 + a/16) W₁ + (α/2) τ`,
 
 where `W₁ = Σ_i |r_i|²` is the squared one-qubit polarization and `τ = |ψᵀ ε^{⊗4} ψ|²` the
 spin-flip overlap. (The paper's finer form `(SF+)` also keeps the nonnegative residual norms of
-`sextic_identity`; we drop them. The constant `5a/128` is the paper's stated one; the sharp
-`F ≥ (3/4) n W₁` would give `a/16` here.)
+`sextic_identity`; we drop them.)
 
 Paper: `eq:fqe-spectral-plus` and the stability paragraphs of spectral_corollaries.tex
 ("Tsallis stability", "Quantitative consequence for von Neumann entropy").
@@ -26,7 +25,7 @@ open Real
 /-- **Stability for a cubic majorant.** -/
 theorem majorant_stability {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a b c d) (ha : 0 ≤ a)
     (hb : b + 17 * a / 12 ≤ 0) (ψ : Psi) (hψ : normSqPsi ψ = 1) :
-    ((-b - 17 * a / 12) / 2 + 5 * a / 128) * blochSq ψ
+    ((-b - 17 * a / 12) / 2 + a / 16) * blochSq ψ
       + ((-b - 17 * a / 12) / 2) * Complex.normSq (spinFlipForm ψ)
     ≤ 3 * (meanSpec f M4 - meanSpec f ψ) := by
   have g := majorant_gap hM ψ hψ
@@ -38,8 +37,7 @@ theorem majorant_stability {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a 
   have hP1 : purity ψ - 1 = (blochSq ψ + Complex.normSq (spinFlipForm ψ)) / 2 := by
     nlinarith
   rw [hP1] at g
-  have hW := blochSq_nonneg ψ
-  have k2 : 0 ≤ a / 12 * (sexticF ψ - 15 / 32 * (1 * blochSq ψ)) :=
+  have k2 : 0 ≤ a / 12 * (sexticF ψ - 3 / 4 * (1 * blochSq ψ)) :=
     mul_nonneg (by linarith) (by linarith)
   nlinarith
 
@@ -61,9 +59,9 @@ theorem meanEntropy_eq_meanSpec (ψ : Psi) :
   ring
 
 /-- **Quantitative consequence for von Neumann entropy.** With `δ = E(M₄) - E(ψ)` in bits,
-`3 ln 2 · δ ≥ ((195 - 147 ln 3)/64) W₁ + (15/4 - 3 ln 3) τ`. -/
+`3 ln 2 · δ ≥ ((21 - 15 ln 3)/8) W₁ + (15/4 - 3 ln 3) τ`. -/
 theorem entropy_stability (ψ : Psi) (hψ : normSqPsi ψ = 1) :
-    (195 - 147 * Real.log 3) / 64 * blochSq ψ
+    (21 - 15 * Real.log 3) / 8 * blochSq ψ
       + (15 / 4 - 3 * Real.log 3) * Complex.normSq (spinFlipForm ψ)
     ≤ 3 * Real.log 2 * (meanEntropy M4 - meanEntropy ψ) := by
   have l3b := log_three_lt
@@ -76,7 +74,7 @@ theorem entropy_stability (ψ : Psi) (hψ : normSqPsi ψ = 1) :
     rw [meanEntropy_eq_meanSpec, meanEntropy_eq_meanSpec]
     field_simp
   rw [e]
-  have c1 : (-hermB - 17 * hermA / 12) / 2 + 5 * hermA / 128 = (195 - 147 * Real.log 3) / 64 := by
+  have c1 : (-hermB - 17 * hermA / 12) / 2 + hermA / 16 = (21 - 15 * Real.log 3) / 8 := by
     unfold hermA hermB; ring
   have c2 : (-hermB - 17 * hermA / 12) / 2 = 15 / 4 - 3 * Real.log 3 := by
     unfold hermA hermB; ring
@@ -85,7 +83,7 @@ theorem entropy_stability (ψ : Psi) (hψ : normSqPsi ψ = 1) :
 
 /-- Both stability coefficients are positive. -/
 theorem entropy_stability_coeffs_pos :
-    0 < 195 - 147 * Real.log 3 ∧ 0 < 15 / 4 - 3 * Real.log 3 := by
+    0 < 21 - 15 * Real.log 3 ∧ 0 < 15 / 4 - 3 * Real.log 3 := by
   have := log_three_lt
   constructor <;> linarith
 
@@ -97,17 +95,17 @@ theorem entropy_stability_joint (ψ : Psi) (hψ : normSqPsi ψ = 1) :
   have h := entropy_stability ψ hψ
   have l3b := lt_log_three
   have hW := blochSq_nonneg ψ
-  have : (15 / 4 - 3 * Real.log 3) * blochSq ψ ≤ (195 - 147 * Real.log 3) / 64 * blochSq ψ :=
+  have : (15 / 4 - 3 * Real.log 3) * blochSq ψ ≤ (21 - 15 * Real.log 3) / 8 * blochSq ψ :=
     mul_le_mul_of_nonneg_right (by linarith) hW
   nlinarith
 
 /-- **Tsallis stability** (`0 < q < 2`, `q ≠ 1`): with `a_q = tsA q` and
 `α_q = -b_q - 17a_q/12`, both coefficients below are strictly positive and
-`3 δ_q ≥ (α_q/2 + 5a_q/128) W₁ + (α_q/2) τ`, `δ_q = ceiling - mean Tsallis`. -/
+`3 δ_q ≥ (α_q/2 + a_q/16) W₁ + (α_q/2) τ`, `δ_q = ceiling - mean Tsallis`. -/
 theorem tsallis_stability {q : ℝ} (h0 : 0 < q) (h2 : q < 2) (h1 : q ≠ 1) (ψ : Psi)
     (hψ : normSqPsi ψ = 1) :
-    0 < (-tsB q - 17 * tsA q / 12) / 2 + 5 * tsA q / 128 ∧ 0 < (-tsB q - 17 * tsA q / 12) / 2 ∧
-    ((-tsB q - 17 * tsA q / 12) / 2 + 5 * tsA q / 128) * blochSq ψ
+    0 < (-tsB q - 17 * tsA q / 12) / 2 + tsA q / 16 ∧ 0 < (-tsB q - 17 * tsA q / 12) / 2 ∧
+    ((-tsB q - 17 * tsA q / 12) / 2 + tsA q / 16) * blochSq ψ
       + ((-tsB q - 17 * tsA q / 12) / 2) * Complex.normSq (spinFlipForm ψ)
     ≤ 3 * (tsallisCeiling q - meanTsallis q ψ) := by
   obtain ⟨-, ha⟩ := tsallis_hermite h0 h2 h1
