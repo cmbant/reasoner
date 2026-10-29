@@ -4,13 +4,14 @@ import FormalResearch.FourQubitEntropy.Renyi
 # Spectral stability from the polarization and spin-flip remainders
 
 For a cubic majorant `h` with `a ≥ 0`, `α = -b - 17a/12 ≥ 0`, the gap identity (SF) of the paper
-together with `2(P - 1) = W₁ + τ` and `F ≥ (15/32) W₁` gives
+together with `2(P - 1) = W₁ + τ` and `F ≥ (15/32) W₁` (a weaker consequence of the sharp `F ≥ (3/4) n W₁`, `sexticF_ge`) gives
 
 `3 (E_f(M₄) - E_f(ψ)) ≥ (α/2 + 5a/128) W₁ + (α/2) τ`,
 
 where `W₁ = Σ_i |r_i|²` is the squared one-qubit polarization and `τ = |ψᵀ ε^{⊗4} ψ|²` the
-spin-flip overlap. (The paper's finer form `(SF+)` also keeps the nonnegative residual norms
-`(a/128) Σ ‖R_i‖²`; we drop it, as `sextic_identity` exposes only their sum.)
+spin-flip overlap. (The paper's finer form `(SF+)` also keeps the nonnegative residual norms of
+`sextic_identity`; we drop them. The constant `5a/128` is the paper's stated one; the sharp
+`F ≥ (3/4) n W₁` would give `a/16` here.)
 
 Paper: `eq:fqe-spectral-plus` and the stability paragraphs of spectral_corollaries.tex
 ("Tsallis stability", "Quantitative consequence for von Neumann entropy").
@@ -37,6 +38,7 @@ theorem majorant_stability {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a 
   have hP1 : purity ψ - 1 = (blochSq ψ + Complex.normSq (spinFlipForm ψ)) / 2 := by
     nlinarith
   rw [hP1] at g
+  have hW := blochSq_nonneg ψ
   have k2 : 0 ≤ a / 12 * (sexticF ψ - 15 / 32 * (1 * blochSq ψ)) :=
     mul_nonneg (by linarith) (by linarith)
   nlinarith

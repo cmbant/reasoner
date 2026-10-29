@@ -105,9 +105,26 @@ theorem OpsHom.resSlot (x y t : Fin 2) :
 theorem OpsHom.resNorm0 : f (resNorm0 z w) = resNorm0 (z.map f) (w.map f) := by
   simp [FormalResearch.FourQubitEntropy.resNorm0, hf.add', hf.mul', hf.lit', hf.resSlot]
 
+theorem OpsHom.actSite (s : Fin 4) (a b c d : Fin 2) :
+    f (actSite s z w a b c d) = actSite s (z.map f) (w.map f) a b c d := by
+  fin_cases s <;>
+  simp [FormalResearch.FourQubitEntropy.actSite, hf.sum2, hf.mul', hf.rho0, ← hf.siteSwap,
+    State.map]
+
+theorem OpsHom.pairVec (i j : Fin 4) (a b c d : Fin 2) :
+    f (pairVec i j z w a b c d) = pairVec i j (z.map f) (w.map f) a b c d := by
+  simp [FormalResearch.FourQubitEntropy.pairVec, hf.sub', hf.actSite]
+
+theorem OpsHom.pairNorm (i j : Fin 4) :
+    f (pairNorm i j z w) = pairNorm i j (z.map f) (w.map f) := by
+  simp [FormalResearch.FourQubitEntropy.pairNorm, hf.sum4, hf.mul', hf.pairVec]
+
+theorem OpsHom.pairSum : f (pairSum z w) = pairSum (z.map f) (w.map f) := by
+  simp [FormalResearch.FourQubitEntropy.pairSum, hf.add', hf.pairNorm]
+
 theorem OpsHom.sexticDefect : f (sexticDefect z w) = sexticDefect (z.map f) (w.map f) := by
   simp only [FormalResearch.FourQubitEntropy.sexticDefect, FormalResearch.FourQubitEntropy.defectG,
-    hf.add', hf.sub', hf.mul', hf.lit', hf.Fgen, hf.normG, hf.W1gen, hf.resNorm0,
+    hf.add', hf.sub', hf.mul', hf.lit', hf.Fgen, hf.normG, hf.W1gen, hf.resNorm0, hf.pairSum,
     ← hf.siteSwap]
 
 end Transfer

@@ -1,7 +1,7 @@
 import FormalResearch.FourQubitEntropy.RingOps
 
 /-!
-# The sextic moment expression and its residual tensors, written generically
+# The sextic moment expression and its residual vectors, written generically
 
 Everything here is built from `RingOps` only, so that it can be evaluated in `ℂ` (statement) and
 in the reflected polynomial type (proof). `z` is a four-qubit vector and `w` its conjugate; they
@@ -113,24 +113,54 @@ def resSym (L : Bool) (z w : State α) (x y t o1 o2 o3 : Fin 2) : α :=
   resRaw L z w x y t o1 o2 o3 + resRaw L z w x t y o1 o2 o3 + resRaw L z w y x t o1 o2 o3
     + resRaw L z w y t x o1 o2 o3 + resRaw L z w t x y o1 o2 o3 + resRaw L z w t y x o1 o2 o3
 
-/-- Six times the residual tensor, `6 (2 V - 19 U)`. -/
+/-- Six times the residual tensor, `6 (V - 8 U)`, where `U = S ∏_{j≠i} L_j w` (`L` only) and
+`V = S ∏_{j≠i} (L_j + M_j) w`. -/
 def resTensor (z w : State α) (x y t o1 o2 o3 : Fin 2) : α :=
-  lit 2 * resSym false z w x y t o1 o2 o3 - lit 19 * resSym true z w x y t o1 o2 o3
+  resSym false z w x y t o1 o2 o3 - lit 8 * resSym true z w x y t o1 o2 o3
 
-/-- `Σ_{o} 36 |R_{xyt,o}|²` for one triple of slot values; the conjugate tensor is the one with
+/-- `Σ_{o} 36 |(V - 8U)_{xyt,o}|²` for one triple of slot values; the conjugate tensor is the one with
 `z` and `w` exchanged. -/
 def resSlot (z w : State α) (x y t : Fin 2) : α :=
   sum2 fun o1 => sum2 fun o2 => sum2 fun o3 =>
     resTensor z w x y t o1 o2 o3 * resTensor w z x y t o1 o2 o3
 
-/-- `36 ‖R‖²` for the focused qubit `0`. The tensor is symmetric in its three slots, so the eight
+/-- `36 ‖V - 8U‖²` for the focused qubit `0`. The tensor is symmetric in its three slots, so the eight
 slot triples fall into the classes `000`, `001`, `011`, `111` of sizes `1, 3, 3, 1`. -/
 def resNorm0 (z w : State α) : α :=
   resSlot z w 0 0 0 + lit 3 * resSlot z w 0 0 1 + lit 3 * resSlot z w 0 1 1 + resSlot z w 1 1 1
 
-/-- `1152 F - 540 n W₁ - 3 (n₀ + n₁ + n₂ + n₃)`, where `nᵢ = 36 ‖Rᵢ‖²`. -/
+/-! ### The pair vectors
+
+`actSite s z w` is the vector `R_s^{(s)} z`: the unnormalised one-qubit marginal `R_s` of qubit `s`
+acting on qubit `s` of `z`. The pair vectors are `(R_i^{(i)} - R_j^{(j)}) z`.
+-/
+
+/-- Component `(a, b, c, d)` of `R_s^{(s)} z`. -/
+def actSite (s : Fin 4) (z w : State α) (a b c d : Fin 2) : α :=
+  match s with
+  | 0 => sum2 fun t => rho0 z w a t * z t b c d
+  | 1 => sum2 fun t => rho0 (siteSwap 1 z) (siteSwap 1 w) b t * z a t c d
+  | 2 => sum2 fun t => rho0 (siteSwap 2 z) (siteSwap 2 w) c t * z a b t d
+  | 3 => sum2 fun t => rho0 (siteSwap 3 z) (siteSwap 3 w) d t * z a b c t
+
+/-- Component of `(R_i^{(i)} - R_j^{(j)}) z`. -/
+def pairVec (i j : Fin 4) (z w : State α) (a b c d : Fin 2) : α :=
+  actSite i z w a b c d - actSite j z w a b c d
+
+/-- `‖(R_i^{(i)} - R_j^{(j)}) z‖²`; the conjugate vector is the one with `z` and `w` exchanged. -/
+def pairNorm (i j : Fin 4) (z w : State α) : α :=
+  sum4 fun a b c d => pairVec i j z w a b c d * pairVec i j w z a b c d
+
+/-- `Σ_{i<j} ‖(R_i^{(i)} - R_j^{(j)}) z‖²`. -/
+def pairSum (z w : State α) : α :=
+  pairNorm 0 1 z w + pairNorm 0 2 z w + pairNorm 0 3 z w + pairNorm 1 2 z w + pairNorm 1 3 z w
+    + pairNorm 2 3 z w
+
+/-- `96 F - 72 n W₁ - (n₀ + n₁ + n₂ + n₃) - 144 Σ_{i<j} ‖(R_i^{(i)} - R_j^{(j)}) z‖²`, where
+`nᵢ = 36 ‖Vᵢ - 8Uᵢ‖²`; twelve times `8F - 6 n W₁ - 3 Σᵢ ‖Vᵢ - 8Uᵢ‖² - 12 Σ_{i<j} ‖…‖²`. -/
 def defectG (z w : State α) (n0 n1 n2 n3 : α) : α :=
-  lit 1152 * Fgen z w - lit 540 * (normG z w * W1gen z w) - lit 3 * (n0 + n1 + n2 + n3)
+  lit 96 * Fgen z w - lit 72 * (normG z w * W1gen z w) - (n0 + n1 + n2 + n3)
+    - lit 144 * pairSum z w
 
 /-- The defect with the residual norms of the four qubits. It is identically zero. -/
 def sexticDefect (z w : State α) : α :=

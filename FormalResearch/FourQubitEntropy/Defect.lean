@@ -31,7 +31,8 @@ theorem map_wSP (z w : State ℂ) : wSP.map (evSP (varValues z w)) = w := by
   simp only [State.map, wSP, evSP_varSP]
   fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;> rfl
 
-/-- The sextic identity `1152 F - 540 n W₁ - 3 Σᵢ 36‖Rᵢ‖² = 0`, for all complex `z`, `w`. -/
+/-- The sharp sextic identity `96 F - 72 n W₁ - Σᵢ 36‖Vᵢ - 8Uᵢ‖² - 144 Σ_{i<j} ‖(Rᵢ^{(i)} - Rⱼ^{(j)}) z‖² = 0`,
+for all complex `z`, `w`. -/
 theorem sexticDefect_zero (z w : State ℂ) : sexticDefect z w = 0 := by
   have h := (opsHom_evSP (varValues z w)).sexticDefect zSP wSP
   rw [map_zSP, map_wSP, sexticDefect_check] at h

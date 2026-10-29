@@ -4,7 +4,9 @@ import FormalResearch.FourQubitEntropy.SparsePoly
 /-!
 # The sextic identity as a polynomial identity
 
-`1152 F = 540 n W₁ + 3 Σᵢ 36 ‖Rᵢ‖²` as an identity of polynomials in the 32 variables
+`8F = 6 n W₁ + 3 Σᵢ ‖Vᵢ - 8Uᵢ‖² + 12 Σ_{i<j} ‖(Rᵢ^{(i)} - Rⱼ^{(j)}) z‖²`, stated as
+`96 F = 72 n W₁ + Σᵢ nᵢ + 144 Σ_{i<j} ‖…‖²` with `nᵢ = 36 ‖Vᵢ - 8Uᵢ‖²`, as an identity of
+polynomials in the 32 variables
 `z_{abcd}`, `w_{abcd}`. The sparse-polynomial normal form is evaluated by `native_decide`
 (compiled code, trusted through the axiom `sexticDefect_check._native.native_decide.ax_1_1`),
 not by the kernel; everything downstream of this identity is kernel-checked.

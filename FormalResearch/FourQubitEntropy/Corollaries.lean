@@ -7,6 +7,8 @@ import FormalResearch.FourQubitEntropy.Stability
   `Σ_j e₃(ρ_{1j}) = (6 - P - F)/36 ≤ (6-P)/36 - 15 W₁/1152 ≤ 5/36`
   (`cor:fqe-e3`, replica_sectors.tex; the equality case is only proved in the direction
   "`M₄`-orbits attain `5/36`": the converse needs the classification of `P = 1, F = 0`).
+  The `15 W₁/1152` is the paper's stated constant, from `F ≥ (15/32) W₁`, a weaker consequence of
+  the sharp `F ≥ (3/4) W₁` (`sexticF_ge`).
 * `moment_line_slope_optimal`: the slope `17/12` of the moment line is the least possible
   (`thm:fqe-moment`, entropy_maximum.tex).
 * `swap23_M4`: the transposition of qubits `2, 3` maps `M₄` to `ω · conj M₄`
@@ -61,7 +63,8 @@ theorem e3_sum_eq (ψ : Psi) (hψ : normSqPsi ψ = 1) :
   ring
 
 /-- **Third elementary symmetric functions** (`cor:fqe-e3`):
-`Σ_j e₃(ρ_{1j}) ≤ (6 - P)/36 - 15 W₁/1152 ≤ 5/36`. -/
+`Σ_j e₃(ρ_{1j}) ≤ (6 - P)/36 - 15 W₁/1152 ≤ 5/36`. This is the paper's stated form, using
+`F ≥ (15/32) W₁`, a weaker consequence of the sharp `F ≥ (3/4) W₁` (`sexticF_ge`). -/
 theorem e3_sum_le (ψ : Psi) (hψ : normSqPsi ψ = 1) :
     cutE3 (red12_herm ψ) + cutE3 (red13_herm ψ) + cutE3 (red14_herm ψ)
         ≤ (6 - purity ψ) / 36 - 15 * blochSq ψ / 1152 ∧

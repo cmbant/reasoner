@@ -171,11 +171,14 @@ between `0` and `37/524`; the pair spectra and the numerical value of the maximi
 Formalized, with no `sorry`:
 
 - `sexticF_ge`, `sexticF_nonneg` (`MomentInequality.lean`): for every `ψ ∈ (ℂ²)^{⊗4}`,
-  `F = 17nP − 12T − 12n³ ≥ (15/32) n W₁ ≥ 0`, with `P`, `T` the summed purities and cubic moments of the
+  `F = 17nP − 12T − 12n³ ≥ (3/4) n W₁ ≥ 0`, with `P`, `T` the summed purities and cubic moments of the
   three `1j` marginals (`Matrix.trace` of the reduced matrices) and `W₁` the squared Pauli expectations. The
-  proof is the identity `1152 F = 540 n W₁ + 3 Σᵢ 36‖Rᵢ‖²` for the residual tensors `Rᵢ = 2Vᵢ − 19Uᵢ` of the
-  swap derivation (`Generic.lean`), checked as an identity of 32-variable polynomials (`Identity.lean`) and
-  transported to all complex states (`Transfer.lean`, `Defect.lean`, `Bridge.lean`).
+  proof is the identity `8F = 6 n W₁ + 3 Σᵢ ‖Vᵢ − 8Uᵢ‖² + 12 Σ_{i<j} ‖(Rᵢ^{(i)} − Rⱼ^{(j)}) z‖²`
+  (`sextic_identity`; `Uᵢ = Sᵢ ∏_{j≠i} Lⱼ w`, `Vᵢ = Sᵢ ∏_{j≠i} (Lⱼ + Mⱼ) w`, `w = z ⊗ z ⊗ z̃`, `Rᵢ^{(i)}` the
+  one-qubit marginal acting on qubit `i` of `z`; `Generic.lean`), checked as an identity of 32-variable
+  polynomials (`Identity.lean`) and transported to all complex states (`Transfer.lean`, `Defect.lean`,
+  `Bridge.lean`). `sexticF_ge_sharp` (`Checks.lean`): `3/4` is the best constant (every product state attains
+  it). `majorant_stability` and `e3_sum_le` still state the paper's weaker `15/32`-based constants.
 - `purity_ge` (`Purity.lean`): `P ≥ n²` from `2P = 2n² + W₁ + τ`, `τ = |ψᵀ ε^{⊗4} ψ|²`.
 - `negMulLog_le_hermCubic` (`HermiteBound.lean`): `−x ln x ≤ a x³ + b x² + c x + d` for `x ≥ 0`.
 - `meanEntropy_le`, `meanEntropy_M4`, `meanEntropy_M4_max` (`Entropy.lean`, `Attainment.lean`): for a unit

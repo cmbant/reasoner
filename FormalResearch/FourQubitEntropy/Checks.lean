@@ -57,6 +57,22 @@ theorem cluster4_F : sexticF cluster4 = 1 / 2 := by
   obtain ⟨h1, h2, h3, -⟩ := cluster4_vals
   unfold sexticF; rw [h1, h2, h3]; norm_num
 
+/-- The moment inequality `F ≥ (3/4) n W₁` (`sexticF_ge`) holds with equality at every product state;
+here `|0000⟩` (`F = 3`, `n = 1`, `W₁ = 4`). -/
+theorem prod_attains_sexticF_ge :
+    sexticF prodState = 3 / 4 * (normSqPsi prodState * blochSq prodState) := by
+  obtain ⟨h1, -, -, h4⟩ := prod_vals
+  rw [prod_F, h1, h4]; norm_num
+
+/-- **`3/4` is the best constant** in `c · n W₁ ≤ F`. -/
+theorem sexticF_ge_sharp (c : ℝ) (h : ∀ ψ : Psi, c * (normSqPsi ψ * blochSq ψ) ≤ sexticF ψ) :
+    c ≤ 3 / 4 := by
+  have := h prodState
+  rw [prod_attains_sexticF_ge] at this
+  obtain ⟨h1, -, -, h4⟩ := prod_vals
+  rw [h1, h4] at this
+  linarith
+
 end Concrete
 
 section Identities

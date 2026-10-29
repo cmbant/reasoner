@@ -216,6 +216,30 @@ theorem resTensor_conj (ψ : Psi) (x y t o1 o2 o3 : Fin 2) :
     funext a b c d; simp [State.map, Psi.conj]
   rw [e1, e2]
 
+theorem pairVec_conj (i j : Fin 4) (ψ : Psi) (a b c d : Fin 2) :
+    pairVec i j ψ.conj ψ a b c d = (starRingEnd ℂ) (pairVec i j ψ ψ.conj a b c d) := by
+  have h := opsHom_conj.pairVec ψ ψ.conj i j a b c d
+  rw [h]
+  have e1 : State.map (starRingEnd ℂ) ψ = ψ.conj := rfl
+  have e2 : State.map (starRingEnd ℂ) ψ.conj = ψ := by
+    funext a b c d; simp [State.map, Psi.conj]
+  rw [e1, e2]
+
+theorem NonnegReal.sum4 {f : Fin 2 → Fin 2 → Fin 2 → Fin 2 → ℂ} (h : ∀ a b c d, NonnegReal (f a b c d)) :
+    NonnegReal (FormalResearch.FourQubitEntropy.sum4 f) :=
+  NonnegReal.sum2 fun a => NonnegReal.sum2 fun b => NonnegReal.sum2 fun c =>
+    NonnegReal.sum2 fun d => h a b c d
+
+theorem pairNorm_nonneg (i j : Fin 4) (ψ : Psi) : NonnegReal (pairNorm i j ψ ψ.conj) := by
+  refine NonnegReal.sum4 fun a b c d => ?_
+  simp only [pairVec_conj]
+  exact NonnegReal.mul_conj _
+
+theorem pairSum_nonneg (ψ : Psi) : NonnegReal (pairSum ψ ψ.conj) := by
+  simp only [pairSum, toAdd_complex]
+  exact (((((pairNorm_nonneg 0 1 ψ).add (pairNorm_nonneg 0 2 ψ)).add (pairNorm_nonneg 0 3 ψ)).add
+    (pairNorm_nonneg 1 2 ψ)).add (pairNorm_nonneg 1 3 ψ)).add (pairNorm_nonneg 2 3 ψ)
+
 theorem resNorm0_nonneg (ψ : Psi) : NonnegReal (resNorm0 ψ ψ.conj) := by
   have slot : ∀ x y t : Fin 2, NonnegReal (resSlot ψ ψ.conj x y t) := by
     intro x y t
