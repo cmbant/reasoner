@@ -347,6 +347,8 @@ import FormalResearch.FourQubitEntropy.SevenQubitSpectralPairCore
 import FormalResearch.FourQubitEntropy.Stability
 import FormalResearch.FourQubitEntropy.ThirdMoment
 import FormalResearch.FourQubitEntropy.Tradeoff
+import FormalResearch.FourQubitEntropy.IsospectralOverlap
+import FormalResearch.FourQubitEntropy.SpectralSpinFlip
 import FormalResearch.FourQubitEntropy.Tsallis
 import FormalResearch.FourQubitEntropy.TsallisCoeff
 import FormalResearch.FourQubitEntropy.TsallisMajorant
