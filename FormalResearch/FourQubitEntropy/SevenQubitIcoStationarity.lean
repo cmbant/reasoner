@@ -18,9 +18,10 @@ Proved here, from `E3d_eq_log` (the derivative of `E3` as a logarithm) and the m
   together with `1/32 < c < 37/524` (from `star_bounds`);
 * `star_enclosure`: `0.0698287 < c < 0.0698288` (exact integer comparison of `L - R` at the two endpoints).
 
-Not proved here: the full-space (`ℂP¹²⁷`) stationarity of `ψ_{x_*}` (the integer contraction identities ES-1
-and the gradient computation are not formalized; the file proves only the one-parameter, within-family
-stationarity). The decimal value of `E₃(ψ_{x_*})` is in `SevenQubitIcoStarValue`.
+Not proved here: the full-space (`ℂP¹²⁷`) stationarity of `ψ_{x_*}`.  The paper deduces it from the family
+stationary point by the symmetric-criticality lemma `lem:seven-family-symmetric-criticality`, which is not
+formalized (`SevenQubitIcoContraction` has the earlier integer contraction identities for the gradient plane,
+not the entropy-gradient step); the file proves only the one-parameter, within-family stationarity. The decimal value of `E₃(ψ_{x_*})` is in `SevenQubitIcoStarValue`.
 -/
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco

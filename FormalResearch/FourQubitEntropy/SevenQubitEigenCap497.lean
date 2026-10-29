@@ -25,6 +25,12 @@ Entropies are in nats (as in `SevenQubitConseq*`); the paper's bits statements a
    `lem:seven-entropy-linear-purity` on the other 34 cuts.  `eigenCap_497` is the corollary for
    a unit vector `ψ`: `E₃(ψ) > (59307/20000) ln 2` and `SpinFlipCrossCut ψ` imply every eigenvalue of every
    three-qubit marginal is `< 497/1000`.
+
+The paper's proof of the corollary now uses the rational slope `49/120` of the linear-purity lemma (the
+constant `392/45` in place of `128/15`) and a single tangent-inequality argument.  The statement is the
+same.  This file keeps its own proof with the slope `2/5` (the constants `128/15`, `32/5` above), which is
+the weakest slope of `lem:seven-entropy-linear-purity` (`LinPur.entropy_linear_purity_nats`); the sharper
+slopes are `LinPur.entropy_linear_purity_rat_nats` and `entropy_linear_purity_sharp_nats`.
 -/
 
 open Real Finset

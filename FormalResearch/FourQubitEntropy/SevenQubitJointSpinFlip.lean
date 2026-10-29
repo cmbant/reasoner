@@ -3,7 +3,7 @@ import FormalResearch.FourQubitEntropy.SevenQubitIcoCert
 /-!
 # Joint spin-flip relations for the triple marginals of the icosahedral family
 
-Formalizes `lem:seven-joint-spinflip` (exact AH-5) of
+Formalizes `lem:seven-joint-spinflip` (AH-5; the paper proves it from the block form of `thm:ico`, here it is an exact computation) of
 `ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_joint.tex`.
 -/
 
@@ -265,7 +265,7 @@ theorem containing_spinflip (cut : Cut 3 4) (hQ : matQ cut = 0) (h : ContainFlip
 
 /-! ### All 35 cuts -/
 
-/-- **`lem:seven-joint-spinflip`** (exact AH-5), for arbitrary real amplitudes
+/-- **`lem:seven-joint-spinflip`** (AH-5), for arbitrary real amplitudes
 `(alpha, beta)` (so `u = alpha²`, `x = beta²`, homogeneous form): for every three-qubit cut `m`
 (site `0` is the distinguished site), with `R` the triple marginal, `R̃ = ε^{⊗3} Rᵀ (ε^{⊗3})ᵀ`,
 `E = (R+R̃)/2`, `O = (R-R̃)/2`. -/

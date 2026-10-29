@@ -4,7 +4,11 @@ import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
 /-!
 # Two-flat rigidity on critical states (`prop:fqe-two-flat-rigidity`)
 
-Paper E, `renyi_uncapped_reduction.tex`. For a unit critical state `ψ` (`blochSq ψ = 0`) with
+Paper E, `renyi_uncapped_reduction.tex`. The paper states `(TF)` for every unit pure state, with an extra
+term `W₁/4` (`Δ_k ≥ W₁/4 + 2 e₂(other three entries) ≥ W₁/4 + (λ₃ + λ₄)²`, from
+`prop:fqe-spectral-spinflip`); this file proves the critical specialization `W₁ = 0` (`hW : blochSq ψ = 0`),
+which is the case with the normal form `G(v)`, and the Schmidt-rank-two consequence for every unit state.
+The `W₁/4` term for noncritical states is not formalized. For a unit critical state `ψ` (`blochSq ψ = 0`) with
 normal form `ψ ≃ G(v)` (`critical_iff_LU_Gv`), the three cut spectra are `|v_k|²`, `|(wp v)_k|²`,
 `|(wm v)_k|²` for the cuts `12|34`, `13|24`, `14|23` (`wp`, `wm` are the real Hadamard-type
 changes of coordinates of `PaperECriticalCuts.lean`), and the purity identity at criticality reads
@@ -110,7 +114,7 @@ theorem two_flat_Gv (v : Fin 2 × Fin 2 → ℂ) (hn : ∑ k, Complex.normSq (v 
     have := two_flat_core (wm v) hn' (purity (Gv v)) (by rw [wm_sq_sum]; exact hP) i hi
     unfold crossCost; rw [c14] at hsum; linarith
 
-/-- **`prop:fqe-two-flat-rigidity`, bound `(TF)` (first inequality)** for a unit critical state:
+/-- **`prop:fqe-two-flat-rigidity`, bound `(TF)` (first inequality) at `W₁ = 0`** for a unit critical state:
 in a normal form `ψ ≃ G(v)`, the cut spectra are `|v|²`, `|wp v|²`, `|wm v|²` and each cut whose top
 eigenvalue is `≥ 1/2` pays `2 e₂(other three eigenvalues)` in the other two cut purities. -/
 theorem two_flat_rigidity (ψ : Psi) (hn : normSqPsi ψ = 1) (hW : blochSq ψ = 0) :

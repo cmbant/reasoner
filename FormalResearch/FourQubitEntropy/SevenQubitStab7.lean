@@ -1,17 +1,20 @@
 import Mathlib
 
 /-!
-# Seven-qubit stabilizer states: reduction of `prop:stab7` (GS-4) to the finite enumeration
+# Seven-qubit stabilizer states: the witness `19/140` and a conditional reduction of `prop:stab7`
 
 `ResearchNotes/QI/seven_qubit_entanglement/icosahedral_state.tex`, `prop:stab7`: every seven-qubit
 stabilizer state has `π₃ ≥ 19/140`, hence the seven-qubit minimum `121/917` is not attained by a
-stabilizer state. The proof is: every stabilizer state is local-Clifford equivalent to a graph state;
-local unitaries preserve purities; GS-4 (`verify_balanced_purity_lp_graph_states.py`) evaluates `π₃`
-exactly for all `2^21` seven-vertex graphs and finds the minimum `19/140`; and `121/917 < 19/140`.
+stabilizer state. The paper's proof is analytic: `280 π₃ = 35 + 15A₁ + 5A₂ + A₃` and the Rains shadow
+identity `4 S₁ = 7 + A₁ + A₂ - A₃`, with the weight and shadow coefficients `A_w, S_w` nonnegative
+integers for a stabilizer state; GS-4 (`verify_balanced_purity_lp_graph_states.py`) checks the two
+identities and an explicit seven-vertex graph state with `π₃ = 19/140`. The earlier proof by an
+exhaustive evaluation of `π₃` on all `2^21` seven-vertex graph states is no longer part of the paper.
 
-**Status: partly formalized.** The `2^21`-graph enumeration is *not* run in Lean (a `decide +kernel`
-sweep of `2^21` graphs times `35` cuts is far beyond a routine build), and the Clifford-to-graph-state
-normal form is not formalized. What is proved here:
+**Status: partly formalized; the proposition itself is not.** The Pauli-enumerator and shadow-integrality
+argument is not formalized, nor is the Clifford-to-graph-state normal form, and the `2^21`-graph sweep is
+not run in Lean (a `decide +kernel` sweep of `2^21` graphs times `35` cuts is far beyond a routine build).
+What is proved here:
 
 * the data model: a graph on seven vertices is a `21`-bit number (lexicographic edge order, as in
   the verifier); `cutRank g T` is the `GF(2)` rank of the `3 × 4` off-diagonal block for a 3-subset
@@ -20,11 +23,11 @@ normal form is not formalized. What is proved here:
 * `pi3_empty`, `pi3_complete`, `pi3_witness`: exact values at the empty graph (`1`), the complete graph
   (`1/2`) and the Fano/wheel witness graph `0x00cf17` of SE-1 (`19/140`, with rank profile `3 × 2,
   32 × 3`), by `decide +kernel`; this is the sharpness half of GS-4;
-* `stab7_of_enumeration`, `stab7_not_attained`: the conditional reduction. IF the exhaustive GS-4
-  statement `∀ g < 2^21, 19/140 ≤ π₃(g)` holds (taken as a hypothesis, i.e. an unverified-in-Lean
-  input backed by the committed script and log), THEN no seven-vertex graph state attains
-  `121/917`, and likewise for any value `v < 19/140`. The arithmetic `121/917 < 19/140` is
-  `ico_lt_stab`.
+* `stab7_of_enumeration`, `stab7_not_attained`: the conditional reduction. IF the statement
+  `∀ g < 2^21, 19/140 ≤ π₃(g)` (the content of the former exhaustive sweep, which the analytic proof
+  of the paper now replaces) holds (taken as a hypothesis, not proved in Lean), THEN no seven-vertex
+  graph state attains `121/917`, and likewise for any value `v < 19/140`. The arithmetic
+  `121/917 < 19/140` is `ico_lt_stab`.
 -/
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitStab7
@@ -90,7 +93,7 @@ theorem witness_profile :
 
 theorem ico_lt_stab : (121 : ℚ) / 917 < 19 / 140 := by norm_num
 
-/-- `prop:stab7` modulo the enumeration GS-4 (hypothesis `hGS4`) and the graph-state normal form:
+/-- `prop:stab7` modulo the former enumeration (hypothesis `hGS4`, not proved in Lean) and the graph-state normal form:
 if every seven-vertex graph state has `π₃ ≥ 19/140`, then no graph state attains any value below
 `19/140`, in particular not `121/917`. -/
 theorem stab7_of_enumeration (hGS4 : ∀ g < 2 ^ 21, (19 : ℚ) / 140 ≤ pi3 g) :

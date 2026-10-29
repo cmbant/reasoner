@@ -210,9 +210,29 @@ alone peaks near 6 GB. The purity identity is a kernel `decide`. `#print axioms`
 `meanEntropy_eq_max_iff`, `sexticF_ge`, `cubicMoment_le_line` and `M4_invariants` lists only `propext`,
 `Classical.choice`, `Quot.sound` and that `native_decide` axiom; `purity_ge`, `purity_identity_exact`,
 `purity_eq_one_iff` and `one_cut_rigidity_12` use only the standard three. Compiled evaluation of the same
-identity takes about 0.5 GB. Not formalized: the zero-set classification of `F`, one-cut rigidity for cuts
-`13` and `14`, the spectral majorant proposition, κ-sharpness beyond the one data point, and the
-Tsallis (`q < 2`), Rényi and convex-roof corollaries.
+identity takes about 0.5 GB. The zero-set classification of `F` (`moment_zeros`), one-cut rigidity for cuts
+`13` and `14`, the spectral majorant proposition and the Tsallis, Rényi and convex-roof corollaries are
+formalized in the later modules named in QIprojects `docs/lean_status.md`, which also lists what is not formalized.
+
+Statement scope against the current paper (`four_qubit_entropy.tex` and its supplement, as of the audit of QIprojects PR 208):
+
+- `prop:fqe-two-flat-rigidity`: the paper states `(TF)` for every unit pure state with an extra term `W₁/4`
+  (from `prop:fqe-spectral-spinflip`, not formalized). `two_flat_rigidity` is the critical specialization
+  `W₁ = 0`; the Schmidt-rank-two consequence `two_flat_rank` holds for every unit state.
+- `lem:seven-entropy-linear-purity`: proved with the sharp slope, `3 - S ≥ (7 log₂ 7/48)(8 tr ρ² - 1) ≥ (49/120)(8 tr ρ² - 1)
+  ≥ (2/5)(8 tr ρ² - 1)` (`LinPur.entropy_linear_purity_sharp_nats`, `_rat_nats`, `entropy_linear_purity_nats`); the equality
+  cases are not formalized. The competitor band and the eigenvalue cap `497/1000` use the slope `2/5`.
+- `lem:seven-joint-scalar-majorant` (AH-6) holds in the paper on all of `[0,∞)²`; it remains the hypothesis `ScalarMajorant`
+  (not formalized). `meanEntropy3_le_jointP5_unit` gives `E₃ ≤ 𝒫₅` for every unit vector under `ScalarMajorant (polyH K h) 1`;
+  the `497/1000` versions are weaker consequences.
+- `prop:stab7`: not formalized. The paper's proof is analytic (Pauli and shadow enumerators with integer coefficients);
+  `SevenQubitStab7` has the witness `π₃ = 19/140` and a reduction conditional on a statement about all `2^21` graph states.
+- `SevenQubitIcoContraction` and `SevenQubitIcoContractGram` (`esG1_*`, `esG2_contain`) are not paper statements: the paper
+  proves `prop:entropy-seven-stationarity` from `lem:seven-family-symmetric-criticality` (not formalized) and no longer
+  displays these identities.
+- Not formalized, new in the current paper: `prop:fqe-spectral-spinflip`, `lem:fqe-isospectral-overlap`,
+  `prop:fqe-critical-envelope`, `prop:seven-resolvent-majorant`, `cor:seven-resolvent-matrix`, `lem:seven-family-symmetric-criticality`,
+  the exact transverse Hessian floor `(350 - 6√2005)/4585` of `thm:icolocal`, and the positive-kernel proof of AH-6.
 
 ## Gaudin, Racah and bridge modules
 

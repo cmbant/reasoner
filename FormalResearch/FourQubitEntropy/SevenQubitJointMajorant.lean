@@ -6,16 +6,20 @@ import FormalResearch.FourQubitEntropy.SevenQubitEigenCap497Pure
 Source: `ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_joint.tex`,
 `prop:seven-joint-entropy-target` (matrix inequality
 `tr f(R) ≤ ∑_{k+l≤5} h_{kl} tr(R^k R̃^l)`), together with the scalar input
-`lem:seven-joint-scalar-majorant` (verified interval certificate AH-6).
+`lem:seven-joint-scalar-majorant` (exact-rational coefficient certificate AH-6).
 
 Entropies are in nats: `f = Real.negMulLog`.
 
 ## What is proved and what is assumed
 
 * **Hypothesis (not proved here): `ScalarMajorant H cap`.**  `H(λ,μ) ≥ (f(λ)+f(μ))/2` on
-  `[0,cap]²`.  For the paper's explicit degree-five polynomial and `cap = 497/1000` this is the
-  interval-certified lemma AH-6 (Arb arithmetic, binary subdivision); it is **not** formalized, and
-  nothing in this file depends on the particular coefficients of `H`.
+  `[0,cap]²`.  For the paper's explicit degree-five polynomial the lemma
+  `lem:seven-joint-scalar-majorant` (AH-6) holds for all `λ, μ ≥ 0` (a positive Stieltjes-kernel bound,
+  a cubic Hermite minorant of the binary-entropy correction and the positivity of one univariate
+  polynomial of degree eighteen, checked by exact rational Bernstein coefficients); it is **not**
+  formalized, and nothing in this file depends on the particular coefficients of `H`.  Since every
+  marginal eigenvalue of a unit vector is at most `1`, `cap = 1` already covers all states
+  (`meanEntropy3_le_jointP5_unit`); the competitor cap `497/1000` is not needed for this step.
 * **Proved (no hypothesis beyond `ScalarMajorant`).**
   * `doubly_stochastic_majorant`: for a doubly stochastic `w`,
     `(∑ f(x_i) + ∑ f(y_j))/2 ≤ ∑_{ij} w_ij H(x_i, y_j)`.
@@ -31,9 +35,10 @@ Entropies are in nats: `f = Real.negMulLog`.
   * `entropy_le_polyTrace_spinFlip`: the concrete three-qubit statement, with `S = spinFlip3 R`
     (`Y^{⊗3} Rᵀ Y^{⊗3}`, `SevenQubitSpectralPair`).  The spin flip is a unitary conjugate of `Rᵀ`
     with the spectrum of `R` (proved in `SevenQubitSpectralPairCore.flip_conj`).
-  * `cutEntropy_le_polyTrace` and `meanEntropy3_le_jointP5`: for a seven-qubit unit vector, every
+  * `cutEntropy_le_jointP` and `meanEntropy3_le_jointP5`: for a seven-qubit unit vector, every
     triple cut with spectrum in `[0,cap]` satisfies `S(ρ_T) ≤ 𝒫(ρ_T)`, and
-    `E₃(ψ) ≤ 𝒫₅(ψ) := (1/35) ∑_{|T|=3} 𝒫(ρ_T)`.
+    `E₃(ψ) ≤ 𝒫₅(ψ) := (1/35) ∑_{|T|=3} 𝒫(ρ_T)`; `meanEntropy3_le_jointP5_unit` is the version for every
+    unit vector under `ScalarMajorant (polyH K h) 1` (the paper's statement, no competitor cap).
 * **Not formalized:** the homogenization to a permutation-invariant five-copy moment functional;
   the equality `𝒫₅(φ_s) = E_*` on the seven candidates (`lem:seven-joint-spinflip`
   is only partly in `SevenQubitJointSpinFlip`).
@@ -52,8 +57,8 @@ open FormalResearch.FourQubitEntropy.SevenQubitIco
 /-! ### The scalar hypothesis -/
 
 /-- **Scalar majorant (hypothesis).**  `H(λ,μ) ≥ (f(λ)+f(μ))/2` on `[0,cap]²`, `f = negMulLog`.
-For the paper's explicit degree-five `H` and `cap = 497/1000` this is AH-6, which is an interval
-certificate and is not proved in Lean. -/
+For the paper's explicit degree-five `H` this is AH-6 (`lem:seven-joint-scalar-majorant`, valid for all
+`λ, μ ≥ 0`, so for every `cap`); it is not proved in Lean. -/
 def ScalarMajorant (H : ℝ → ℝ → ℝ) (cap : ℝ) : Prop :=
   ∀ x y : ℝ, 0 ≤ x → x ≤ cap → 0 ≤ y → y ≤ cap →
     (Real.negMulLog x + Real.negMulLog y) / 2 ≤ H x y
@@ -324,6 +329,24 @@ theorem meanEntropy3_le_jointP5 (K : Finset (ℕ × ℕ)) (h : ℕ → ℕ → �
   unfold meanEntropy3 jointP5
   refine div_le_div_of_nonneg_right (Finset.sum_le_sum fun m hm => ?_) (by norm_num)
   exact cutEntropy_le_jointP K h cap hH _ ψ (hcap m hm)
+
+/-- Every eigenvalue of a three-qubit marginal of a unit vector is at most `1`. -/
+theorem eigenvalue_le_one (m : Fin 7 → Bool) (hm : m ∈ tripleMasks) (ψ : BitString → ℂ)
+    (hψ : UnitVec ψ) (x : Fin 3 → Bool) :
+    (redMatPsi_isHermitian (maskCut 3 4 m) ψ).eigenvalues x ≤ 1 := by
+  have hb := maskCut_bijective_three m (Finset.mem_filter.1 hm).2
+  rw [← spec_sum (maskCut 3 4 m) hb ψ hψ]
+  exact Finset.single_le_sum (f := fun i => (redMatPsi_isHermitian (maskCut 3 4 m) ψ).eigenvalues i)
+    (fun i _ => spec_nonneg _ ψ i) (Finset.mem_univ x)
+
+/-- **`prop:seven-joint-entropy-target`, entropy part, without an eigenvalue cap.**  The paper's
+scalar majorant `lem:seven-joint-scalar-majorant` holds for all `λ, μ ≥ 0`; every eigenvalue of a
+marginal of a unit vector is at most `1`, so the hypothesis `ScalarMajorant (polyH K h) 1` already gives
+`E₃(ψ) ≤ 𝒫₅(ψ)` for every unit vector `ψ`, with no competitor cap. -/
+theorem meanEntropy3_le_jointP5_unit (K : Finset (ℕ × ℕ)) (h : ℕ → ℕ → ℝ)
+    (hH : ScalarMajorant (polyH K h) 1) (ψ : BitString → ℂ) (hψ : UnitVec ψ) :
+    meanEntropy3 ψ ≤ jointP5 K h ψ :=
+  meanEntropy3_le_jointP5 K h 1 hH ψ fun m hm x => eigenvalue_le_one m hm ψ hψ x
 
 end JointMajorant
 

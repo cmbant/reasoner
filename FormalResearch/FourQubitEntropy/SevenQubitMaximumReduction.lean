@@ -39,8 +39,10 @@ Entropies are in nats (`meanEntropy3`), so the paper's `E_* > 59307/20000` bits 
 4. `JointMajorantBound P5`: the entropy inequality `E₃(z) ≤ 𝒫₅(z)` on the contender region
    (`prop:seven-joint-entropy-target`).  For the paper's `𝒫₅` it follows from the matrix part proved
    in `SevenQubitJointMajorant` plus the scalar majorant `H(λ,μ) ≥ (f(λ)+f(μ))/2` on
-   `[0,497/1000]²` (lemma AH-6, an interval certificate; **not** formalized), see the second
-   theorem.
+   `[0,497/1000]²` (lemma AH-6; **not** formalized: the paper proves it on all of `[0,∞)²`, by a
+   positive-kernel argument and exact-rational polynomial coefficients, so the cap is not needed for
+   this step, see `meanEntropy3_le_jointP5_unit`; the contender region is still used for the localized
+   identity E7-1), see the second theorem.
 
 Not formalized at all: that the explicit coefficients `h_{kl}` of the paper define a polynomial
 satisfying AH-6; that the candidate states `φ_s` give `𝒫₅(φ_s) = E_*`; that `E_*` equals
@@ -104,7 +106,8 @@ theorem jointMajorantBound_of_scalarMajorant (K : Finset (ℕ × ℕ)) (h : ℕ 
 
 /-- **Final reduction with the explicit joint functional.**  Same as `seven_entropy_max_reduction`
 with `𝒫₅ = jointP5 K h` and `JointMajorantBound` replaced by its source, the scalar majorant
-`ScalarMajorant (polyH K h) (497/1000)` (lemma AH-6, interval-certified, hypothesis).  The remaining
+`ScalarMajorant (polyH K h) (497/1000)` (lemma AH-6, hypothesis; the paper's version holds on all of
+`[0,∞)²`, which implies this one).  The remaining
 hypotheses are `SevenPurityBound`, the SC-2 witness and `LocalizedBound (jointP5 K h) E_*`
 (the localized identity E7-1). -/
 theorem seven_entropy_max_reduction_of_scalarMajorant (hPB : SevenPurityBound) {Estar : ℝ}
