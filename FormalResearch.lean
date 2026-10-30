@@ -494,3 +494,10 @@ import FormalResearch.FourQubitEntropy.AH6Contact
 import FormalResearch.FourQubitEntropy.AH6Joint
 import FormalResearch.FourQubitEntropy.AH6Coef
 import FormalResearch.FourQubitEntropy.AH6Final
+import FormalResearch.FourQubitEntropy.CriticalOrbitReal
+import FormalResearch.FourQubitEntropy.CriticalOrbitPr
+import FormalResearch.FourQubitEntropy.CriticalOrbitIdentity
+import FormalResearch.FourQubitEntropy.CriticalOrbitH
+import FormalResearch.FourQubitEntropy.CriticalOrbitNormal
+import FormalResearch.FourQubitEntropy.CriticalOrbitPhi
+import FormalResearch.FourQubitEntropy.CriticalOrbitMain
