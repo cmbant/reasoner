@@ -9,7 +9,7 @@ import FormalResearch.FourQubitEntropy.SevenQubitIcoStarValue
 proved (`StarValue.sc2_witness`), so it disappears from the statement.
 
 Remaining hypotheses (Prop arguments): `SevenPurityBound`, the joint majorant bound `JointMajorantBound P5`
-(from AH-6, the scalar majorant of `lem:seven-joint-scalar-majorant`) and the localized bound `LocalizedBound P5 (E₃ x_*)` (E7-1). **This is not a proof of the
+(from AH-6, the scalar majorant of `lem:seven-joint-scalar-majorant`, which is proved in `AH6Final` for the explicit coefficients) and the localized bound `LocalizedBound P5 (E₃ x_*)` (E7-1). **This is not a proof of the
 maximum**: it is the reduction to those three hypotheses. That `E_*` is the entropy of the seven-qubit
 state `ψ_{x_*}` itself (attainment) is also not formalized here; `E3` is the family entropy function.
 -/

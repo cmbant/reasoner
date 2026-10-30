@@ -1,7 +1,7 @@
 import FormalResearch.FourQubitEntropy.SevenQubitEigenCap497Pure
 
 /-!
-# `prop:seven-joint-entropy-target`, matrix part (conditional on the scalar majorant AH-6)
+# `prop:seven-joint-entropy-target`, matrix part (conditional on the scalar majorant; AH-6 is `AH6Final`)
 
 Source: `ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_joint.tex`,
 `prop:seven-joint-entropy-target` (matrix inequality
@@ -12,12 +12,13 @@ Entropies are in nats: `f = Real.negMulLog`.
 
 ## What is proved and what is assumed
 
-* **Hypothesis (not proved here): `ScalarMajorant H cap`.**  `H(λ,μ) ≥ (f(λ)+f(μ))/2` on
+* **Hypothesis of this file: `ScalarMajorant H cap`.**  `H(λ,μ) ≥ (f(λ)+f(μ))/2` on
   `[0,cap]²`.  For the paper's explicit degree-five polynomial the lemma
   `lem:seven-joint-scalar-majorant` (AH-6) holds for all `λ, μ ≥ 0` (a positive Stieltjes-kernel bound,
   a cubic Hermite minorant of the binary-entropy correction and the positivity of one univariate
-  polynomial of degree eighteen, checked by exact rational Bernstein coefficients); it is **not**
-  formalized, and nothing in this file depends on the particular coefficients of `H`.  Since every
+  polynomial of degree eighteen, checked by exact rational Bernstein coefficients); it is proved in
+  `AH6Final` (`joint_scalar_majorant`, for every `cap`), and nothing in this file depends on the particular
+  coefficients of `H`.  Since every
   marginal eigenvalue of a unit vector is at most `1`, `cap = 1` already covers all states
   (`meanEntropy3_le_jointP5_unit`); the competitor cap `497/1000` is not needed for this step.
 * **Proved (no hypothesis beyond `ScalarMajorant`).**
@@ -58,7 +59,7 @@ open FormalResearch.FourQubitEntropy.SevenQubitIco
 
 /-- **Scalar majorant (hypothesis).**  `H(λ,μ) ≥ (f(λ)+f(μ))/2` on `[0,cap]²`, `f = negMulLog`.
 For the paper's explicit degree-five `H` this is AH-6 (`lem:seven-joint-scalar-majorant`, valid for all
-`λ, μ ≥ 0`, so for every `cap`); it is not proved in Lean. -/
+`λ, μ ≥ 0`, so for every `cap`); it is proved in Lean in `AH6Final` (`joint_scalar_majorant`). -/
 def ScalarMajorant (H : ℝ → ℝ → ℝ) (cap : ℝ) : Prop :=
   ∀ x y : ℝ, 0 ≤ x → x ≤ cap → 0 ≤ y → y ≤ cap →
     (Real.negMulLog x + Real.negMulLog y) / 2 ≤ H x y

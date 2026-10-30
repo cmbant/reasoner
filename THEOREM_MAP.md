@@ -246,9 +246,9 @@ Statement scope against the current paper (`four_qubit_entropy.tex` and its supp
 - `lem:seven-entropy-linear-purity`: proved with the sharp slope, `3 - S ≥ (7 log₂ 7/48)(8 tr ρ² - 1) ≥ (49/120)(8 tr ρ² - 1)
   ≥ (2/5)(8 tr ρ² - 1)` (`LinPur.entropy_linear_purity_sharp_nats`, `_rat_nats`, `entropy_linear_purity_nats`); the equality
   cases are not formalized. The competitor band and the eigenvalue cap `497/1000` use the slope `2/5`.
-- `lem:seven-joint-scalar-majorant` (AH-6) holds in the paper on all of `[0,∞)²`; it remains the hypothesis `ScalarMajorant`
-  (not formalized). `meanEntropy3_le_jointP5_unit` gives `E₃ ≤ 𝒫₅` for every unit vector under `ScalarMajorant (polyH K h) 1`;
-  the `497/1000` versions are weaker consequences.
+- `lem:seven-joint-scalar-majorant` (AH-6) holds in the paper on all of `[0,∞)²`; it is proved in branch `paper-e-ah6` for the
+  explicit coefficients (`AH6.joint_scalar_majorant`, see "Branch `paper-e-ah6`" below). `meanEntropy3_le_jointP5_unit` gives
+  `E₃ ≤ 𝒫₅` for every unit vector under `ScalarMajorant (polyH K h) 1`; the `497/1000` versions are weaker consequences.
 - `prop:stab7`: not formalized. The paper's proof is analytic (Pauli and shadow enumerators with integer coefficients);
   `SevenQubitStab7` has the witness `π₃ = 19/140` and a reduction conditional on a statement about all `2^21` graph states.
 - `SevenQubitIcoContraction` and `SevenQubitIcoContractGram` (`esG1_*`, `esG2_contain`) are not paper statements: the paper
@@ -268,7 +268,7 @@ Statement scope against the current paper (`four_qubit_entropy.tex` and its supp
   and the general two-parameter sharpness family of the proposition.
 - Not formalized, new in the current paper:
   `thm:fqe-global-overlap`, `prop:seven-resolvent-majorant`, `cor:seven-resolvent-matrix`, `lem:seven-family-symmetric-criticality`,
-  the exact transverse Hessian floor `(350 - 6√2005)/4585` of `thm:icolocal`, and the positive-kernel proof of AH-6.
+  the exact transverse Hessian floor `(350 - 6√2005)/4585` of `thm:icolocal` (the positive-kernel proof of AH-6 is formalized in branch `paper-e-ah6`).
 
 ### Branch `paper-e-lean2`: flip gradient, general and critical envelope
 
@@ -315,11 +315,7 @@ one another in a chain so that `lake` builds them one at a time. Negative test: 
 `576 → 577` in `FlipGradientCertS.lean` makes `decide` fail (restored afterwards).
 
 Not done in this branch, with the obstruction:
-- `lem:seven-joint-scalar-majorant` (AH-6): not formalized. The paper's proof needs the Stieltjes remainder bound `K ≥ k₀/L`,
-  a cubic Hermite minorant of the binary correction, the discriminant of the cubic `F(e,·)` and a degree-18 polynomial `Π(e)`
-  positivity certificate, plus outward-rounded interval arithmetic on a box. Exact-fraction interval arithmetic in Python was already
-  too slow (aborted) for the box, so a Lean version needs fixed-point interval arithmetic with a verified soundness relation; this
-  is several modules of infrastructure and was not started. `ScalarMajorant` remains a hypothesis.
+- `lem:seven-joint-scalar-majorant` (AH-6): formalized in branch `paper-e-ah6` (below).
 - Equality cases of `thm:fqe-general-envelope` / `prop:fqe-critical-envelope`: only the sharpness family and the `W₁ = 0` forcing above.
   A degree-8 SOS search in the `v`-coordinates of `G(v)` (330x330 Gram) did not return a usable certificate within the session.
 - `prop:stab7` identities (Pauli/shadow enumerators) and the second inequality of `(TF)` in `prop:fqe-two-flat-rigidity`: not attempted.
@@ -339,3 +335,60 @@ At the current handoff, the cleanest exact candidates are:
 4. the general type-D support/Procrustes bridge if sufficient real-linear-algebra infrastructure is developed.
 
 QI-D T48 and the QI-B B4 flagship remain open research problems, not current theorem-completion targets.
+
+### Branch `paper-e-ah6`: the global joint scalar majorant (AH-6)
+
+`lem:seven-joint-scalar-majorant` (`joint_entropy_analytic_proof.tex`, `sec:seven-joint-analytic-proof`; verifier
+`verify_seven_entropy_joint_majorant.py`): for the explicit degree-five polynomial `H(λ,μ) = P(e) + v A(e) + v² B(e)`
+(`e = 4(λ+μ)`, `v = 16(λ-μ)²`; in nats, i.e. the paper's coefficients times `ln 2`) at `x = x_*`, `H ≥ (f(λ)+f(μ))/2` for all
+`λ, μ ≥ 0`. Kernel-only: `#print axioms` of every headline theorem is `[propext, Classical.choice, Quot.sound]`
+(`cert_ok`: `[propext]`); no `native_decide`, no `sorry`. All modules are `FormalResearch/FourQubitEntropy/AH6*.lean`, imported by
+`FormalResearch.lean`.
+
+Headline theorems (`AH6Final.lean`):
+- `AH6.joint_scalar_majorant (hb : InBracket x) (cap) : ScalarMajorant (polyH degFive (jointCoef x)) cap`: the lemma for every
+  `cap` (so the `497/1000` cap of the earlier reduction is not needed). `jointCoef x` is the explicit table `hcoef` of the 21
+  coefficients `h_{kl}` (`AH6Coef.lean`, `polyH_jointCoef` is the identity with `H`). `InBracket x` is
+  `XLO/10⁴⁵ ≤ x ≤ (XLO+1)/10⁴⁵`; `bracket_of_root` shows that every real root of `2³²(1-2x)¹⁵ = 3⁸(1+8x)⁸(1+28x)⁷` lies in it.
+- `AH6.seven_entropy_max_reduction_joint (hPB : SevenPurityBound)`: with `x_*` the maximiser of the family entropy `E3`, the
+  final reduction of `thm:seven-entropy-global-maximum` has `JointMajorantBound` for the explicit `jointP5 degFive (jointCoef x_*)`
+  discharged. Remaining hypotheses: `SevenPurityBound` (`π₃ ≥ 121/917`, the separate global purity hypothesis) and the localized
+  bound `LocalizedBound (jointP5 degFive (jointCoef x_*)) (E₃ x_*)` (E7-1, not formalized). The SC-2 witness is proved.
+
+Proof structure (paper labels):
+- Stieltjes remainder and Jensen (`eq:seven-joint-stieltjes`, `eq:seven-joint-kernel-jensen`): `AH6Newton` (Newton form of the
+  quintic Hermite interpolant `P` on the double nodes `8c, 8a, 8d`, divided-difference tableau and its remainder for `1/(ρt+σ)`),
+  `AH6Stieltjes` (`kap_remainder`), `AH6StieltjesInt` (`-t ln t = ∫₀¹ t(1-t)/(t+(1-t)r) dr`, a finite-interval form of the paper's
+  integral over `[0,∞)` after `s = 8r/(1-r)`; `hermite_stieltjes`: `P - g = q² K̃`), `AH6Jensen` (`jensen_kint`), `AH6Kmin`
+  (`kmin`: `k₀ q² ≤ (P - g) L`, with the mean `c` identified with `γ = -K'(e₀)/K(e₀)` by Fermat).
+- Binary correction (`eq:seven-joint-binary-minorant`): `AH6Binary` (`avg_identity`, `phiB_hasSum`, `phiB_minorant`: the tangent
+  inequality termwise on the power series of `Φ`, with the series values `Φ(1/9)`, `Φ'(1/9)`; for `|s| < 1`, the endpoint `z = 1` is
+  covered by continuity).
+- Cubic and discriminant (`eq:seven-joint-discriminant`): `AH6Cubic` (`cubic_nonneg`: negative discriminant, `a > 0`, `d ≥ 0` give
+  `p ≥ 0` on `[0,∞)`), `AH6Flat` (`R_flat`: `R(e₀) = R'(e₀) = 0` from the double root and `F_e = 0`), `AH6Contact`
+  (`contact_algebra`: the three contact identities as exact rational-function identities), `AH6Assembly` (`majorant_all`, including
+  the continuity argument for `e = e₀` and the closed quadrant).
+- Finite checks (AH-6a/b/c): `AH6Ball` (fixed-point ball arithmetic with a validity flag: `Enc.add/mul/neg/inv`), `AH6Poly`
+  (coefficient-list polynomials generic in the arithmetic: `evalL`, `derL`, synthetic division `dl`, Taylor shift, Möbius/Bernstein
+  transform `mob`; enclosure lemmas and the positivity lemmas `pos_on_interval`, `pos_on_tail`), `AH6Model` (the whole computation of
+  the verifier written once, in four stages), `AH6Enc` (enclosure of every stage), `AH6Logs` (`ln` by the `atanh` series with a
+  rigorous tail), `AH6Cert` (`cert_ok : finalCheck parB = true`, by `decide +kernel`), `AH6Sound` (`cert_sound`: the facts
+  `k₀ > 0`, `0 < γ`, `γ e₀ < 1`, `η₃ > 0`, distinct nodes and `Π(e) > 0` for all `e ≥ 0`), `AH6Joint` (`R_factor`,
+  `kmin_model`, `joint_majorant`).
+
+Differences from the paper: (i) the finite certificate is the paper's one (four rows: Bernstein coefficients on `[0,3/4]`, `[3/4,1]`,
+`[1,5/4]` and Taylor coefficients at `5/4`, all 19 positive) but evaluated in integer ball arithmetic (`SC = 2^192`, parameters
+`x` in a bracket of width `10⁻⁴⁵`, logs to about `10⁻⁵⁶`) instead of dyadic intervals with `x` bisected; the factor `(e-e₀)²` of `R` is
+proved exactly (`R_flat`) instead of being checked by a remainder that contains zero; (ii) the Stieltjes integral is over `[0,1]`
+(above); (iii) `Φ(z) ≥ cubic` is proved on `z ∈ [0,1)` (`|s| < 1`), and the endpoint is covered by continuity of the majorant;
+(iv) everything is in nats.
+
+Machine requirements (4 cores, 15 GB RAM; one `lake env lean` per file, wall time and peak resident size, which includes about
+6.3 GB of memory-mapped `.olean` files; measured with `getrusage`): the certificate `AH6Cert` (kernel evaluation of the whole
+computation, about 10⁵ big-integer operations) takes 11 s / 6.9 GB; `AH6Assembly` 22 s, `AH6Flat` 17 s, `AH6Cubic` 16 s,
+`AH6Joint` 13 s, `AH6Final` 19 s (each at most 6.9 GB); the remaining AH6 files take 7-12 s and 6.7-6.8 GB each. No piece needs
+splitting: the finite check is a single `decide +kernel` of a closed `Bool` (an earlier version with `rfl` on symbolic lists made
+the elaborator unfold the list operations; they are now `irreducible` for the elaborator, which the kernel ignores).
+Negative tests (a literal corrupted, then restored): reducing the number of `atanh` terms of `ln 2` from 60 to 6, or moving the bracket
+of `x` by `3·10⁻³`, makes `decide +kernel` fail. (The certificate is not sensitive to a shift of `x` below `10⁻⁵`; the exactness of
+the double root is proved symbolically, not by the numerical check.)

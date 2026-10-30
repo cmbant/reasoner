@@ -8,6 +8,9 @@ equation `2³²(1-2x)¹⁵ = 3⁸(1+8x)⁸(1+28x)⁷` and `ln 2, ln 3, ln c, ln 
 (`AH6Logs`).  `finalCheck parB = true` (`cert_ok`, by `decide +kernel`) runs the whole computation of AH-6a/b/c in ball
 arithmetic and checks the positivity of the constants and of the Bernstein/shifted-power coefficients of the degree-eighteen
 polynomial `Π`.  `cert_sound` turns it into the real statements about `stageA .. stageD3` evaluated at `ℝ`.
+
+Machine requirements (4 cores, 15 GB RAM, one `lake env lean`): this file takes 11 s and 6.9 GB peak resident size (about
+6.3 GB of which are the memory-mapped `.olean` files of `Mathlib`); the kernel evaluation itself is about 4 s.
 -/
 
 namespace FormalResearch.FourQubitEntropy.AH6
