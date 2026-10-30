@@ -7,11 +7,12 @@ import FormalResearch.FourQubitEntropy.Checks
 Paper E, `lu_orbit_stability.tex` (eq. `eq:fqe-orbit-surrogate`, `thm:fqe-orbit-stability`,
 `thm:fqe-critical-orbit-sharp`, `cor:fqe-orbit-spectral`) and `sextic_identity.tex` (the zero set of
 `Q`).  Everything unconditional here is at the level of the moments `n, P, T, F, W₁, τ`.  The
-*distance* `d(ψ)` to the two `M₄` orbits is not defined in Lean, and the HS overlap stability
-`thm:fqe-global-overlap` (`Q ≥ 1 - Φ ≥ ((6+√(6(1+√τ)))/12) d² ≥ ((6+√6)/12) d² > (7/10) d²`, proved
+*distance* `d(ψ)` to the two `M₄` orbits is not defined in this file (it is `dist2` of
+`CriticalOrbitPhi.lean`, which proves `eq:fqe-critical-distance` for critical states), and the HS
+overlap stability `thm:fqe-global-overlap` (`Q ≥ 1 - Φ ≥ ((6+√(6(1+√τ)))/12) d² ≥ ((6+√6)/12) d² > (7/10) d²`, proved
 in the paper by the exact rational certificate GO-1–GO-3) is **not formalized**. The final section
 states the paper's distance estimates as *conditional* results: the comparison `c d² ≤ Q` is an explicit
-hypothesis, with `d²` an arbitrary real number `d2` standing for `d(ψ)²`, and nothing here proves it.
+hypothesis, with `d²` an arbitrary real number `d2` standing for `d(ψ)²`, and nothing in this file proves it.
 
 * `sexticQ ψ = F + n (P - n²) = 18 n P - 12 T - 13 n³ ≥ 0`; for unit `ψ`, `Q = 0 ↔ F = 0 ∧ P = 1`,
   and `Q = 0` on both `M₄` orbits (the converse, that these are *all* the zeros of `Q`, is the
@@ -307,10 +308,11 @@ theorem entropy_gap_ge_Q (ψ : Psi) (hψ : normSqPsi ψ = 1) :
 
 /-! ### The paper's distance estimates, conditional on the overlap comparison `c d² ≤ Q`
 
-`d2` below stands for `d(ψ)²`, the squared distance to the two `M₄` orbits (not defined in Lean).
-The hypotheses `hQ : c * d2 ≤ sexticQ ψ` are `thm:fqe-global-overlap` (`c = (6+√6)/12`) or
-`eq:fqe-critical-distance` (critical `ψ`, `c = (2+√2)/4`), both exact-rational certificates in the
-paper and **not proved in Lean**. -/
+`d2` below stands for `d(ψ)²`, the squared distance to the two `M₄` orbits (`dist2` in
+`CriticalOrbitPhi.lean`). The hypotheses `hQ : c * d2 ≤ sexticQ ψ` are `thm:fqe-global-overlap`
+(`c = (6+√6)/12`, **not proved in Lean**) or `eq:fqe-critical-distance` (critical `ψ`,
+`c = (2+√2)/4`, **proved** in `CriticalOrbitMain.lean` as `critical_distance`, given `Q ≥ 1 - Φ` when
+`Φ ≥ 1/2`). -/
 
 /-- `k = (ln 3 - 1)/(2 ln 2) > 0`. -/
 theorem entropy_coeff_pos : 0 < (Real.log 3 - 1) / (2 * Real.log 2) :=

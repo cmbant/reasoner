@@ -501,3 +501,8 @@ import FormalResearch.FourQubitEntropy.CriticalOrbitH
 import FormalResearch.FourQubitEntropy.CriticalOrbitNormal
 import FormalResearch.FourQubitEntropy.CriticalOrbitPhi
 import FormalResearch.FourQubitEntropy.CriticalOrbitMain
+import FormalResearch.FourQubitEntropy.CriticalOrbitBirkhoff
+import FormalResearch.FourQubitEntropy.CriticalOrbitLocal
+import FormalResearch.FourQubitEntropy.CriticalOrbitConj
+import FormalResearch.FourQubitEntropy.CriticalOrbitUpper
+import FormalResearch.FourQubitEntropy.CriticalOrbitSharp
