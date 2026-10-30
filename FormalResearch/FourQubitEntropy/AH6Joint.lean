@@ -396,6 +396,27 @@ theorem R_factor (hb : InBracket x) :
   rw [hPi, hDe0]
   exact hfac e
 
+
+theorem continuous_evalL (l : List ℝ) : Continuous (evalL l) :=
+  continuous_iff_continuousAt.2 fun x => (hasDerivAt_evalL l x).continuousAt
+
+/-- **`lem:seven-joint-scalar-majorant`** for the real computation at `x` in the bracket of `x_*`:
+`(f(λ)+f(μ))/2 ≤ H(λ,μ)` for all `λ, μ ≥ 0`, `f = negMulLog`. -/
+theorem joint_majorant (hb : InBracket x) {l m : ℝ} (hl : 0 ≤ l) (hm : 0 ≤ m) :
+    (Real.negMulLog l + Real.negMulLog m) / 2 ≤ (majD (parR x)).H l m := by
+  have F := cert_sound (parR x) (parR_enc hb)
+  have hη3 := eta3_eq x
+  have heta : 0 < eta3R := by rw [← hη3]; exact F.eta3_pos
+  have hL : ∀ e : ℝ, 0 ≤ e → 0 < (majD (parR x)).L e := by
+    intro e he
+    have h1 := F.gam_pos
+    have h2 := F.gam_e0
+    show 0 < 1 + (rC2 (parR x)).gam * (e - (rC1 (parR x)).e0)
+    nlinarith
+  exact majorant_all (majD (parR x)) heta F.k0_pos hL (kmin_model hb) (R_factor hb)
+    (fun e he => F.Pi_pos e he) (continuous_evalL _) (continuous_evalL _) (continuous_evalL _)
+    (continuous_evalL _) hl hm
+
 end Concrete
 
 end FormalResearch.FourQubitEntropy.AH6
