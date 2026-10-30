@@ -199,6 +199,7 @@ def stageD3 (c : StC1 α) (R : List α) : StD3 α :=
   let Pi : List α := (dl (dl R c.e0).1 c.e0).1
   { Pi := Pi, cA := certA Pi, cB := certB Pi, cC := certC Pi, tail := certT Pi }
 
+theorem stageD3_Pi (c : StC1 α) (R : List α) : (stageD3 c R).Pi = (dl (dl R c.e0).1 c.e0).1 := rfl
 theorem stageD3_cA (c : StC1 α) (R : List α) : (stageD3 c R).cA = certA (stageD3 c R).Pi := rfl
 theorem stageD3_cB (c : StC1 α) (R : List α) : (stageD3 c R).cB = certB (stageD3 c R).Pi := rfl
 theorem stageD3_cC (c : StC1 α) (R : List α) : (stageD3 c R).cC = certC (stageD3 c R).Pi := rfl

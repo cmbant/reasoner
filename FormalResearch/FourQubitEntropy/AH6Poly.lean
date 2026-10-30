@@ -354,4 +354,8 @@ theorem pos_on_tail (p : List ℝ) (l : ℝ)
 
 end RealSemantics
 
+/-! The list operations are irreducible for the elaborator, so that unification never unfolds them on the
+symbolic lists of the real computation (the kernel certificate `decide +kernel` ignores this). -/
+attribute [irreducible] addL scaleL mulL powL evalL derL dl taylorL scalePow mob
+
 end FormalResearch.FourQubitEntropy.AH6
