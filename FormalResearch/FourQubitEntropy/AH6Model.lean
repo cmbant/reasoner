@@ -187,14 +187,22 @@ structure StD3 (α : Type) where
   cC : List α
   tail : List α
 
+/-- The certificate lists of a polynomial `Π`: Bernstein data on `[0,3/4]`, `[3/4,1]`, `[1,5/4]` and the Taylor
+coefficients at `5/4`. -/
+def certA (Pi : List α) : List α := mob (scalePow (rat 3 4 + -(ic 0)) (taylorL Pi (ic 0)))
+def certB (Pi : List α) : List α := mob (scalePow (ic 1 + -(rat 3 4)) (taylorL Pi (rat 3 4)))
+def certC (Pi : List α) : List α := mob (scalePow (rat 5 4 + -(ic 1)) (taylorL Pi (ic 1)))
+def certT (Pi : List α) : List α := taylorL Pi (rat 5 4)
+
 /-- `Π = R/(e-e₀)²` and the four certificate lists. -/
 def stageD3 (c : StC1 α) (R : List α) : StD3 α :=
   let Pi : List α := (dl (dl R c.e0).1 c.e0).1
-  { Pi := Pi,
-    cA := mob (scalePow (rat 3 4 + -(ic 0)) (taylorL Pi (ic 0))),
-    cB := mob (scalePow (ic 1 + -(rat 3 4)) (taylorL Pi (rat 3 4))),
-    cC := mob (scalePow (rat 5 4 + -(ic 1)) (taylorL Pi (ic 1))),
-    tail := taylorL Pi (rat 5 4) }
+  { Pi := Pi, cA := certA Pi, cB := certB Pi, cC := certC Pi, tail := certT Pi }
+
+theorem stageD3_cA (c : StC1 α) (R : List α) : (stageD3 c R).cA = certA (stageD3 c R).Pi := rfl
+theorem stageD3_cB (c : StC1 α) (R : List α) : (stageD3 c R).cB = certB (stageD3 c R).Pi := rfl
+theorem stageD3_cC (c : StC1 α) (R : List α) : (stageD3 c R).cC = certC (stageD3 c R).Pi := rfl
+theorem stageD3_tail (c : StC1 α) (R : List α) : (stageD3 c R).tail = certT (stageD3 c R).Pi := rfl
 
 end Model
 

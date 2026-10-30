@@ -103,6 +103,15 @@ def lnB (z : Ball) (N : ℕ) : Ball :=
   let t : Ball := ic 2 * powG zbar (2 * N + 1) * den⁻¹
   atanhLoop (z * z) N 0 z + ⟨0, t.m.natAbs + t.r, z.ok && t.ok && den.pos⟩
 
+theorem lnB_ok (Z : Ball) (N : ℕ) : (lnB Z N).ok =
+    ((atanhLoop (Z * Z) N 0 Z).ok &&
+      (Z.ok &&
+        (ic 2 * powG (⟨(Z.m.natAbs + Z.r : ℕ), 0, Z.ok⟩ : Ball) (2 * N + 1) *
+          (ic 1 + -((⟨(Z.m.natAbs + Z.r : ℕ), 0, Z.ok⟩ : Ball) * ⟨(Z.m.natAbs + Z.r : ℕ), 0, Z.ok⟩))⁻¹).ok &&
+        (ic 1 + -((⟨(Z.m.natAbs + Z.r : ℕ), 0, Z.ok⟩ : Ball) *
+          ⟨(Z.m.natAbs + Z.r : ℕ), 0, Z.ok⟩)).pos)) :=
+  Ball.add_ok _ _
+
 theorem lnB_enc {z : ℝ} {Z : Ball} (hz : Enc z Z) (N : ℕ) :
     Enc (Real.log ((1 + z) / (1 - z))) (lnB Z N) := by
   intro hok
@@ -114,7 +123,8 @@ theorem lnB_enc {z : ℝ} {Z : Ball} (hz : Enc z Z) (N : ℕ) :
   -- the ok flags
   have hok' : (atanhLoop (Z * Z) N 0 Z).ok = true ∧ (Z.ok && t.ok && den.pos) = true := by
     have h0 : ((atanhLoop (Z * Z) N 0 Z).ok &&
-        (Z.ok && t.ok && den.pos)) = true := hok
+        (Z.ok && t.ok && den.pos)) = true := by
+      rw [lnB_ok] at hok; exact hok
     exact Bool.and_eq_true_iff.mp h0
   obtain ⟨hokA, hok2⟩ := hok'
   have hok3 : (Z.ok && t.ok) = true ∧ den.pos = true := Bool.and_eq_true_iff.mp hok2

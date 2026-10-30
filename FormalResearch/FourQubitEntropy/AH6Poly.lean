@@ -338,6 +338,12 @@ theorem pos_on_interval (p : List ℝ) {l h : ℝ} (hlh : l < h)
     have : l + (h - l) * ((e - l) / (h - l)) = e := by field_simp; ring
     rwa [this] at hE
 
+theorem pos_on_interval' (p : List ℝ) {l h d : ℝ} (hlh : l < h) (hd : d = h - l)
+    (hpos : ∀ c ∈ mob (scalePow d (taylorL p l)), 0 < c)
+    (hne : mob (scalePow d (taylorL p l)) ≠ []) :
+    ∀ e, l ≤ e → e < h → 0 < evalL p e := by
+  subst hd; exact pos_on_interval p hlh hpos hne
+
 /-- Positive Taylor coefficients at `l` give positivity on `[l, ∞)`. -/
 theorem pos_on_tail (p : List ℝ) (l : ℝ)
     (hpos : ∀ c ∈ taylorL p l, 0 < c) (hne : taylorL p l ≠ []) :

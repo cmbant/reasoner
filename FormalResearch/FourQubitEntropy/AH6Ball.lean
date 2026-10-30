@@ -65,6 +65,9 @@ protected def inv (a : Ball) : Ball :=
 /-- Check that a ball is valid and encloses a strictly positive number. -/
 def pos (a : Ball) : Bool := a.ok && decide ((a.r : ℤ) < a.m)
 
+/-- Check that a ball is valid and excludes zero. -/
+def nz (a : Ball) : Bool := a.ok && (decide ((a.r : ℤ) < a.m) || decide (a.m < -(a.r : ℤ)))
+
 instance : Add Ball := ⟨Ball.add⟩
 instance : Neg Ball := ⟨Ball.neg⟩
 instance : Mul Ball := ⟨Ball.mul⟩
@@ -256,5 +259,28 @@ theorem Enc.pos {x : ℝ} {a : Ball} (hx : Enc x a) (h : a.pos = true) : 0 < x :
   rw [abs_le] at h1
   have : 0 < x * (SC : ℝ) := by linarith [h1.1]
   exact (pos_iff_pos_of_mul_pos this).2 SC_real_pos
+
+/-- A valid ball with `nz b = true` encloses a nonzero real number. -/
+theorem Enc.ne_zero {x : ℝ} {a : Ball} (hx : Enc x a) (h : a.nz = true) : x ≠ 0 := by
+  have h' : a.ok = true ∧ ((a.r : ℤ) < a.m ∨ a.m < -(a.r : ℤ)) := by
+    simpa [Ball.nz] using h
+  have h1 := hx h'.1
+  intro h0
+  rw [h0, zero_mul, zero_sub, abs_neg] at h1
+  rcases h'.2 with h2 | h2
+  · have : (a.r : ℝ) < a.m := by exact_mod_cast h2
+    have := le_abs_self (a.m : ℝ)
+    linarith
+  · have : (a.m : ℝ) < -(a.r : ℝ) := by exact_mod_cast h2
+    have := neg_abs_le (a.m : ℝ)
+    linarith
+
+theorem Ball.add_ok (a b : Ball) : (a + b).ok = (a.ok && b.ok) := rfl
+theorem Ball.mul_ok (a b : Ball) : (a * b).ok = (a.ok && b.ok) := rfl
+theorem Ball.neg_ok (a : Ball) : (-a).ok = a.ok := rfl
+
+/-! The arithmetic is irreducible for the elaborator (so that unification never evaluates ball arithmetic on
+numerals); the kernel certificate `decide +kernel` ignores this attribute. -/
+attribute [irreducible] SC Ball.ofInt Ball.add Ball.neg Ball.mul Ball.invPos Ball.inv
 
 end FormalResearch.FourQubitEntropy.AH6
