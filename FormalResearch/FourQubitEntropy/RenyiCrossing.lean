@@ -11,7 +11,7 @@ import FormalResearch.FourQubitEntropy.RenyiTwoUp
   `1 < q < q_*` and below it for `q > q_*`.
 
 Paper: `prop:fqe-renyi-crossing` (renyi_above_one.tex). The paper's finer enclosure
-`1587/1000 < q_* < 1589/1000` (CS-4) is also proved here, by exact rational enclosures of the rational
+`1587/1000 < q_* < 1589/1000` (RA-4) is also proved here, by exact rational enclosures of the rational
 powers (`crossing_fine`); the paper's analytic arguments (strict decrease, crossing in
 `(3/2, 8/5)`) are reproduced without numerical brackets other than these exact rational ones.
 -/

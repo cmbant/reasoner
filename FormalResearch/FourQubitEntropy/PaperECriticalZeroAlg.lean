@@ -7,6 +7,10 @@ The elementary part of `prop:fqe-moment-zeros` (`sextic_identity.tex`): classifi
 solutions of the twelve equations (`ZE`) `p_i (x_j - x_k) + 2 x_i (p_j - p_k) = 0` with
 `|x_i| = p_i ≥ 0`, `Σ p_i = 1` (here `x_i = v_i²`, `p_i = |v_i|²`). Pure algebra over `ℂ`; no
 hypotheses beyond those displayed, no `native_decide`.
+
+The equations (ZE) are those of the supplement's second proof of `prop:fqe-moment-zeros`
+(`sec:sup-sextic-zeros`, weighted-variance identity (Z)); the paper's own proof of the proposition
+now goes through the critical envelope (`critical_envelope`, `GeneralEnvelope.lean`).
 -/
 
 namespace FormalResearch.FourQubitEntropy.PaperECritical

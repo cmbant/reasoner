@@ -506,3 +506,6 @@ import FormalResearch.FourQubitEntropy.CriticalOrbitLocal
 import FormalResearch.FourQubitEntropy.CriticalOrbitConj
 import FormalResearch.FourQubitEntropy.CriticalOrbitUpper
 import FormalResearch.FourQubitEntropy.CriticalOrbitSharp
+import FormalResearch.FourQubitEntropy.EnvelopeCoefficientSharp
+import FormalResearch.FourQubitEntropy.RenyiSingleCrossingFamily
+import FormalResearch.FourQubitEntropy.RenyiOrderTransfer

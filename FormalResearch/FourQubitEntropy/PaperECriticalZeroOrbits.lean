@@ -22,6 +22,11 @@ zeros of `F = 17 n P - 12 T - 12 n³` on unit vectors:
   whose polynomial identity is kernel-checked (`Identity.lean`), to reach the critical locus.
 
 The algebraic zero classification itself is `Gv_zero_cases` (`PaperECriticalZeroSet.lean`).
+
+Relation to the paper: `moment_zeros` formalises the supplement's second proof of
+`prop:fqe-moment-zeros` (`sec:sup-sextic-zeros`: the weighted-variance identity (Z) and the equations
+(ZE)), not the paper's proof, which now goes through the critical envelope
+(`critical_envelope` in `GeneralEnvelope.lean`).
 -/
 
 open scoped ComplexConjugate Matrix Kronecker
@@ -288,7 +293,14 @@ theorem moment_zeros_of_critical (ψ : Psi) (hn : normSqPsi ψ = 1) (hW : blochS
 Bell-pair products `bell2 (12|34)`, `bell13`, `bell14`.
 
 The direction `⇐` does not use the sextic identity; the direction `⇒` uses `sexticF_zero_bloch` (zeros
-of `F` are critical), whose polynomial identity is kernel-checked; the remainder is proved. -/
+of `F` are critical), whose polynomial identity is kernel-checked; the remainder is proved.
+
+This formalises the supplement's second proof (`sec:sup-sextic-zeros`, `sup_sextic_zeros.tex`): the
+weighted-variance identity (Z) on the critical normal form (`sexticF_Gv`) and the classification of
+the solutions of the equations (ZE) (`Gv_zero_cases`, `PaperECriticalZeroAlg.lean`). The paper's own
+proof of `prop:fqe-moment-zeros` now goes through the critical envelope
+(`prop:fqe-critical-envelope`, `critical_envelope` in `GeneralEnvelope.lean`, which gives
+`τ ∈ {0, 1}` for a critical zero), and its envelope-based case analysis is not what is formalised here. -/
 theorem moment_zeros (ψ : Psi) (hn : normSqPsi ψ = 1) : sexticF ψ = 0 ↔ ZeroOrbit ψ :=
   ⟨fun hF => (moment_zeros_of_critical ψ hn (sexticF_zero_bloch ψ hn hF)).mp hF,
     sexticF_zero_of_orbit ψ⟩
