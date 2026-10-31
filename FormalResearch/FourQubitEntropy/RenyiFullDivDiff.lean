@@ -85,18 +85,18 @@ noncomputable def hAux (r m : ℝ) (y : ℝ) : ℝ :=
     r * (1 - r) * (2 - r) * m ^ (r - 3) * (y - m) ^ 3 / 6)
 
 theorem hAux_concave {r m : ℝ} (hr0 : 0 < r) (hr1 : r < 1) (hm : 0 < m) :
-    ConcaveOn ℝ (Ioi 0) (hAux r m) := by
-  have hint : interior (Ioi (0 : ℝ)) = Ioi 0 := interior_Ioi
-  refine concaveOn_of_hasDerivWithinAt2_nonpos (convex_Ioi 0)
+    ConcaveOn ℝ (Ici 0) (hAux r m) := by
+  have hint : interior (Ici (0 : ℝ)) = Ioi 0 := interior_Ici
+  refine concaveOn_of_hasDerivWithinAt2_nonpos (convex_Ici 0)
     (f' := fun y => r * y ^ (r - 1) - (-(r * (1 - r)) * m ^ (r - 2) * (y - m) +
       r * (1 - r) * (2 - r) * m ^ (r - 3) * (y - m) ^ 2 / 2))
     (f'' := fun y => -(r * (1 - r)) * y ^ (r - 2) - (-(r * (1 - r)) * m ^ (r - 2) +
       r * (1 - r) * (2 - r) * m ^ (r - 3) * (y - m)))
     ?_ ?_ ?_ ?_
   · intro y hy
-    have hy : (0 : ℝ) < y := hy
+    have hy : (0 : ℝ) ≤ y := hy
     unfold hAux
-    have hc : ContinuousAt (fun y : ℝ => y ^ r) y := Real.continuousAt_rpow_const _ _ (Or.inl hy.ne')
+    have hc : ContinuousAt (fun y : ℝ => y ^ r) y := Real.continuousAt_rpow_const _ _ (Or.inr hr0.le)
     exact (hc.sub (by fun_prop)).continuousWithinAt
   · intro y hy
     rw [hint] at hy ⊢
@@ -133,9 +133,9 @@ theorem hAux_concave {r m : ℝ} (hr0 : 0 < r) (hr1 : r < 1) (hm : 0 < m) :
     nlinarith [mul_nonneg hp (sub_nonneg.2 this)]
 
 /-- **Slope bound** (Hermite--Genocchi/Jensen step of `lem:fqe-low-tilt-reduction`):
-for `0 < c < b < a` and `0 < r < 1`,
+for `0 ≤ c < b < a` and `0 < r < 1`,
 `-[a,b,c] x^r ≥ (r(1-r)/2) ((a+b+c)/3)^{r-2}`. -/
-theorem neg_dd2_ge {r a b c : ℝ} (hr0 : 0 < r) (hr1 : r < 1) (hc : 0 < c) (hcb : c < b)
+theorem neg_dd2_ge {r a b c : ℝ} (hr0 : 0 < r) (hr1 : r < 1) (hc : 0 ≤ c) (hcb : c < b)
     (hba : b < a) :
     r * (1 - r) / 2 * ((a + b + c) / 3) ^ (r - 2) ≤ -dd2 r a b c := by
   set m := (a + b + c) / 3 with hm_def
@@ -153,8 +153,8 @@ theorem neg_dd2_ge {r a b c : ℝ} (hr0 : 0 < r) (hr1 : r < 1) (hc : 0 < c) (hcb
   have hl1 : lam ≤ 1 := by rw [hlam, div_le_one hac']; linarith
   have hbeq : lam • c + (1 - lam) • a = b := by
     simp only [smul_eq_mul, hlam]; field_simp; ring
-  have hcm : c ∈ Ioi (0 : ℝ) := hc
-  have ham : a ∈ Ioi (0 : ℝ) := hc.trans (hcb.trans hba)
+  have hcm : c ∈ Ici (0 : ℝ) := hc
+  have ham : a ∈ Ici (0 : ℝ) := hc.trans (hcb.trans hba).le
   have key := hconc.2 hcm ham hl0 (by linarith : 0 ≤ 1 - lam) (by ring)
   rw [hbeq] at key
   simp only [smul_eq_mul] at key
