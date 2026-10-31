@@ -293,4 +293,66 @@ theorem JX_deriv {x : ℝ} (hx : 1 ≤ x) :
   linear_combination (-(5 * x ^ 3 * (43 * x ^ 5 - 31) ^ 2 * (x ^ 8 + 3) ^ 3 *
     (x ^ 4 + x ^ 3 + x ^ 2 + x + 1) ^ 3)) * hW
 
+theorem Q_aux {y R : ℝ} (hy0 : 0 ≤ y) (hy1 : y ≤ 1) (hR0 : 0 ≤ R) (hR1 : R ≤ 31) :
+    0 < (225600 + 457600 * y + 471040 * y ^ 2 + 240000 * y ^ 3 + 48640 * y ^ 4)
+      + R * (582160 + 1108000 * y + 1118304 * y ^ 2 + 557584 * y ^ 3 + 110864 * y ^ 4)
+      + R ^ 2 * (690608 + 1195520 * y + 1018512 * y ^ 2 + 418768 * y ^ 3 + 68128 * y ^ 4)
+      + R ^ 3 * (756896 + 1304520 * y + 1151162 * y ^ 2 + 522393 * y ^ 3 + 96703 * y ^ 4)
+      + R ^ 4 * (516296 + 613195 * y + 462027 * y ^ 2 + 220948 * y ^ 3 + 46208 * y ^ 4)
+      + R ^ 5 * (181031 + 120245 * y + 477 * y ^ 2 - 23717 * y ^ 3 - 6797 * y ^ 4)
+      + R ^ 6 * (-259 + 2795 * y + 1978 * y ^ 2 + 774 * y ^ 3 + 129 * y ^ 4)
+      + R ^ 7 * 43 := by
+  have y2 : y ^ 3 ≤ 1 := pow_le_one₀ hy0 hy1
+  have y4 : y ^ 4 ≤ 1 := pow_le_one₀ hy0 hy1
+  have P0 : 0 < 225600 + 457600 * y + 471040 * y ^ 2 + 240000 * y ^ 3 + 48640 * y ^ 4 := by positivity
+  have P1 : 0 ≤ R * (582160 + 1108000 * y + 1118304 * y ^ 2 + 557584 * y ^ 3 + 110864 * y ^ 4) := by
+    positivity
+  have P2 : 0 ≤ R ^ 2 * (690608 + 1195520 * y + 1018512 * y ^ 2 + 418768 * y ^ 3 + 68128 * y ^ 4) := by
+    positivity
+  have P3 : 0 ≤ R ^ 3 * (756896 + 1304520 * y + 1151162 * y ^ 2 + 522393 * y ^ 3 + 96703 * y ^ 4) := by
+    positivity
+  have P4 : 0 ≤ R ^ 4 * (516296 + 613195 * y + 462027 * y ^ 2 + 220948 * y ^ 3 + 46208 * y ^ 4) := by
+    positivity
+  have P7 : 0 ≤ R ^ 7 * 43 := by positivity
+  have h5 : 150517 ≤ 181031 + 120245 * y + 477 * y ^ 2 - 23717 * y ^ 3 - 6797 * y ^ 4 := by
+    nlinarith [sq_nonneg y]
+  have h6 : -259 ≤ -259 + 2795 * y + 1978 * y ^ 2 + 774 * y ^ 3 + 129 * y ^ 4 := by
+    have : 0 ≤ 2795 * y + 1978 * y ^ 2 + 774 * y ^ 3 + 129 * y ^ 4 := by positivity
+    linarith
+  have h56 : 0 ≤ R ^ 5 * (181031 + 120245 * y + 477 * y ^ 2 - 23717 * y ^ 3 - 6797 * y ^ 4) +
+      R ^ 6 * (-259 + 2795 * y + 1978 * y ^ 2 + 774 * y ^ 3 + 129 * y ^ 4) := by
+    have hR5 : 0 ≤ R ^ 5 := by positivity
+    have : 0 ≤ (181031 + 120245 * y + 477 * y ^ 2 - 23717 * y ^ 3 - 6797 * y ^ 4) +
+        R * (-259 + 2795 * y + 1978 * y ^ 2 + 774 * y ^ 3 + 129 * y ^ 4) := by
+      nlinarith [mul_le_mul_of_nonneg_left h6 hR0]
+    have := mul_nonneg hR5 this
+    nlinarith
+  linarith
+
+theorem Q_pos {x : ℝ} (hx1 : 1 ≤ x) (hx2 : x ≤ 2) : 0 < Qpol x := by
+  have hR1 : x ^ 5 ≤ 32 := by
+    have := pow_le_pow_left₀ (by linarith : (0 : ℝ) ≤ x) hx2 5
+    norm_num at this
+    linarith
+  have hR0 : 1 ≤ x ^ 5 := one_le_pow₀ hx1
+  unfold Qpol
+  exact Q_aux (by linarith) (by linarith) (by linarith) (by linarith)
+
+theorem JX_anti : StrictAntiOn JX (Icc 1 2) := by
+  refine strictAntiOn_of_hasDerivAt_neg (f' := fun x => -8 * (x ^ 5 + 3) ^ 3 * Qpol x /
+      (5 * x ^ 3 * (43 * x ^ 5 - 31) ^ 2 * (x ^ 8 + 3) ^ 3 * (x ^ 4 + x ^ 3 + x ^ 2 + x + 1) ^ 3))
+    (fun x hx => (JX_deriv hx.1).continuousAt.continuousWithinAt)
+    (fun x hx => JX_deriv hx.1.le) (fun x hx => ?_)
+  have hx0 : 0 ≤ x := by linarith [hx.1]
+  have hQ := Q_pos hx.1.le hx.2.le
+  have hc := c43_pos hx.1.le
+  have hN := N_pos hx0
+  have hG := G_pos hx0
+  have hh := h4_pos hx0
+  have hx3 : 0 < x := by linarith [hx.1]
+  apply div_neg_of_neg_of_pos
+  · have : 0 < (x ^ 5 + 3) ^ 3 * Qpol x := by positivity
+    linarith
+  · positivity
+
 end FormalResearch.FourQubitEntropy.RenyiFull
