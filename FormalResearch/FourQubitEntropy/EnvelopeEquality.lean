@@ -11,8 +11,10 @@ import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlat
   critical envelope on a non-critical state never happens, and equality in the general envelope with
   `W₁ > 0` is the strictly stronger condition `F = (3/4 + 7τ/(8(1+√τ))) W₁ + τ - τ^{3/2}`.
 
-Not formalized: the full classification of the equality set (the `τ = 0` zero set of `H`, and the
-orbit description of the equality states for `τ > 0`); see `THEOREM_MAP.md`.
+The full classification of the equality set (the `τ = 0` zero set of `H`, and the critical equality
+family `Θ = O(κ I + (1-κ) s sᵀ)` for `τ > 0`) is `envelope_equality_iff` in `EnvelopeEqualityClass.lean`
+(with `critical_envelope_eq_iff`, `EnvelopeCriticalClass.lean`, and `H_zero_product`,
+`EnvelopeProductZero.lean`); see `THEOREM_MAP.md`.
 -/
 
 open scoped ComplexConjugate

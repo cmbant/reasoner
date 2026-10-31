@@ -14,8 +14,9 @@ Also here: `renyi_binary_bound` (`H_{q_b}(a,1-a) ≤ 4a(1-a)`) and `renyi_cubic_
 `H_q(λ) ≤ 10/3 - 6 Σλ² + (8/3) Σλ³`).
 
 Proved, axiom-free. Inequality parts only: the equality cases of the lemma (`a = 1/2` and `H(u) = H(v)`) and
-of `(CB)` (pure, uniform-two, uniform-four spectra) are in `PaperECriticalRenyiEq.lean`. NOT formalised are the
-necessity of the threshold `q_b`, the numerical bounds `3/2 < q_b < 313/200`, and `cor:fqe-renyi-high-f`.
+of `(CB)` (pure, uniform-two, uniform-four spectra) are in `PaperECriticalRenyiEq.lean`. The necessity of the
+threshold `q_b` and the bounds `3/2 < q_b < 313/200` are in `PaperECriticalRenyiThreshold.lean`
+(`renyi_binary_iff`, `renyi_cubic_iff`, `qb_bounds`). NOT formalised: `cor:fqe-renyi-high-f`.
 The analytic core `J ≥ 0` is `Jf_nonneg` (`PaperECriticalRenyiJ.lean`).
 -/
 

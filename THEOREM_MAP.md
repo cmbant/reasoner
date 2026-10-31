@@ -301,7 +301,7 @@ New modules (all `FormalResearch/FourQubitEntropy/`, imported by `FormalResearch
 - `EnvelopeEquality.lean`: `critical_envelope_attained`: for every `κ ∈ [0,1]` the state `G(a, ib, ib, ib)`,
   `a² = (1+κ)/2`, `b² = (1−κ)/6`, is a unit critical vector with `|s| = κ` and `F = τ − τ^{3/2}` (`Zsum = 6 b² (a² − 3b²)²`), so the
   critical envelope is sharp for every `τ`; `envelope_eq_forces_critical`: `F = τ − τ^{3/2}` for a unit vector forces `W₁ = 0`.
-  Not formalized: the full classification of the equality set (the `τ = 0` zero set of `H`, and the orbit description for `τ > 0`).
+  The full equality classification is in branch `paper-e-envelope-equality` (below).
 - `E3Converse.lean`, `e3_sum_eq_iff`: for unit `ψ`, `Σ_j e₃(ρ_{1j}) = 5/36` iff `ψ` is LU equivalent to `M₄` or its conjugate.
 - `PaperECriticalRenyiEq.lean`: `renyi_grouping_eq_iff` (`0<a<1`: equality iff `a = 1/2` and `H(u) = H(v)`),
   `renyi_binary_eq_iff` (`a ∈ {0, 1/2, 1}`), `renyi_cubic_eq_iff` (the cubic bound is attained iff the spectrum is pure or uniform on
@@ -318,10 +318,9 @@ one another in a chain so that `lake` builds them one at a time. Negative test: 
 
 Not done in this branch, with the obstruction:
 - `lem:seven-joint-scalar-majorant` (AH-6): formalized in branch `paper-e-ah6` (below).
-- Equality cases of `thm:fqe-general-envelope` / `prop:fqe-critical-envelope`: only the sharpness family and the `W₁ = 0` forcing above.
-  A degree-8 SOS search in the `v`-coordinates of `G(v)` (330x330 Gram) did not return a usable certificate within the session.
-- `prop:stab7` identities (Pauli/shadow enumerators) and the second inequality of `(TF)` in `prop:fqe-two-flat-rigidity`: not attempted.
-  The `W₁/4` term of `(TF)` was already covered by `two_flat_cross_cost_12/13/14`.
+- Equality cases of `thm:fqe-general-envelope` / `prop:fqe-critical-envelope` and the second inequality of `(TF)`: done in
+  branch `paper-e-envelope-equality` (below).
+- `prop:stab7` identities (Pauli/shadow enumerators): not attempted.
 
 ## Gaudin, Racah and bridge modules
 
@@ -497,3 +496,42 @@ New modules (all `FormalResearch/FourQubitEntropy/`, imported by `FormalResearch
 
 Machine requirements: each new module compiles by `lake build FormalResearch.FourQubitEntropy.<Module>` in 8-20 s (about 6.5 GB, mostly
 memory-mapped `.olean` files); `EnvelopeCoefficientSharp` 18 s.
+
+### Branch `paper-e-envelope-equality`: Paper E equality cases and remaining gaps
+
+All modules below build with no `sorry`, `native_decide` or new axiom; each headline has a `#print axioms` guard
+(`propext`, `Classical.choice`, `Quot.sound`).
+
+- `thm:fqe-general-envelope`, complete equality: `envelope_equality_iff` (`EnvelopeEqualityClass.lean`): for unit `ψ`,
+  `F = (3/4)W₁ + τ − τ^{3/2}` iff `IsProduct ψ ∨ CritEqFamily ψ` (`ψ ≃ G(v)` with `Θ = O(κI + (1−κ)ssᵀ)`, `κ = √τ`, `O` one of the
+  twelve signed cyclic permutations with sign product `−1`, `s ∈ {±1}³/√3`); `critical_envelope_eq_iff_vector`,
+  `critEqFamily_exists`, `critEqFamily_endpoints`. The `τ = 0`, `W₁ > 0` zero set of `H`: `H_zero_product`
+  (`EnvelopeProductZero.lean`); `product_values`. Homogeneous `(GE)` for every nonzero vector: `general_envelope_homog`
+  (`EnvelopeHomogeneous.lean`).
+- `prop:fqe-critical-envelope` in full (`EnvelopeCriticalClass.lean`, with `EnvelopeTheta`, `EnvelopePermCore/Real/Class`):
+  `critical_closed_form` (`F = 1/2 + 7τ/4 + 9 perm Θ/4`), `critical_envelope_perm`, `critical_envelope_eq_iff`,
+  `critical_purity` (`P = 1 + τ/2`), `critical_moment_envelope` and `critical_moment_envelope_attained` (every `P ∈ [1,3/2]`);
+  matrix core `perm_class`, `main_Os`.
+- `prop:fqe-majorant`, equality under the paper's hypotheses (`a > 0`, `b + 17a/12 < 0`, no strict majorisation):
+  `majorant_eq_iff_of_pos` (`MajorantEq.lean`).
+- `lem:fqe-renyi-grouping`, `prop:fqe-cubic-bound`, necessity of `q_b` (`PaperECriticalRenyiThreshold.lean`): `renyi_binary_iff`,
+  `renyi_cubic_iff` (`0 < q ≠ 1`: the bound holds on the whole simplex iff `q ≥ q_b`), `renyi_binary_eq_iff_ge` (equality cases
+  for every `q ≥ q_b`), `shannon_binary_violation` (`q = 1`), `qb_bounds` (`3/2 < q_b < 313/200`), `rb_bounds`, `qb_div`.
+- `prop:fqe-two-flat-rigidity` (`PaperETwoFlatTF.lean`, `PaperETwoFlatEq.lean`): `two_flat_TF_12/13/14` (both inequalities of
+  `(TF)` for an ordered spectrum with `λ₁ ≥ 1/2`), `two_flat_eq_iff_12/13/14` (critical-locus equality: opposite phases),
+  `two_flat_sharp_critical`, `two_flat_sharp_noncritical`, `tau_eq_iff`. Not formalised: the identification of states with two
+  maximally mixed cuts with the cluster-to-Bell family (QF).
+- `lem:fqe-real-gram`, rectangular `m × n` case: `real_gram_rect` (`PaperECriticalRealGramRect.lean`).
+- `lem:fqe-isospectral-overlap`, rectangular case and attainment: `isospectral_overlap_rect`, `isospectral_overlap_schmidt`,
+  `isospectral_overlap_attained` (`IsospectralOverlapRect.lean`).
+- Genuine orbit distance (`PaperEOrbitDistance.lean`, namespace `OD`): `InM` (the paper's set of LU images of `M₄`, `conj M₄`
+  with phase), `orbitDist` (infimum of Hilbert-space distances, attained: `orbitDist_attained`; `Phi_attained`),
+  `orbitDist_sq` (`d² = 2 − 2√Φ`), `orbitDist_sq_eq_dist2`, `critical_orbit_sharp_dist`, `entropy_gap_critical_orbit`.
+  `lem:fqe-hs-fidelity-floor`: `fidelity_floor` (`Φ ≥ (1+√τ)/6`, `PaperEFidelityFloor.lean`); hence, with
+  `thm:fqe-global-overlap` (`GlobalOverlap ψ : 1 − Φ ≤ Q`, certificate-based, not formalised) as the only hypothesis:
+  `entropy_gap_orbit_stability_dist_of_overlap` (`thm:fqe-orbit-stability`, global part), `majorant_gap_orbit_of_overlap`,
+  `tsallis_gap_orbit_of_overlap` (`cor:fqe-orbit-spectral`), `overlap_ge_dist_tau`, `orbitDist_sq_le_Q_tau`,
+  `entropy_gap_dist_tau`, `orbitDist_sq_le_tau`. Not formalised: the local-radius clauses (`d ≤ 1/20`, `d ≤ 2⁻¹⁰`), the GHZ
+  attainment of the fidelity floor.
+- `lem:seven-joint-scalar-majorant`, equality set: `joint_scalar_majorant_eq_iff`, `joint_scalar_majorant_full`,
+  `joint_majorant_contact` (`AH6Equality.lean`).
