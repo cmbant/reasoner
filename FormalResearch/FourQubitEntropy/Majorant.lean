@@ -186,8 +186,8 @@ theorem meanSpec_of_LU (f : ℝ → ℝ) {φ ψ : Psi} (hφ : normSqPsi φ = 1) 
 `b + 17a/12 < 0` and that `h > f` on `[0,1]` away from the two nodes. Then `E_f(ψ) = E_f(M₄)`
 exactly when `ψ` is local-unitarily equivalent to `M₄` or `conj M₄`.
 
-(The paper needs no strict majorization, using instead the classification of the vectors with
-`P = 1`, `F = 0`; that classification is not formalized.) -/
+(The paper needs no strict majorization; that version, under exactly the paper's hypotheses `a > 0`,
+`b + 17a/12 < 0`, is `majorant_eq_iff_of_pos` in `MajorantEq.lean`, via the zero set of `F`.) -/
 theorem majorant_eq_iff {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a b c d) (ha : 0 ≤ a)
     (hb : b + 17 * a / 12 < 0)
     (hstrict : ∀ x ∈ Set.Icc (0 : ℝ) 1, x ≠ 1 / 6 → x ≠ 1 / 2 → f x < cubicPoly a b c d x)

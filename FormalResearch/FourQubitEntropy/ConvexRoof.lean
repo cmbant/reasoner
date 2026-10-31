@@ -12,8 +12,8 @@ for all three infima and average.
 
 Paper: `cor:fqe-convex-roof` (spectral_corollaries.tex), the ceiling inequality for the von Neumann
 entropy (the three bipartite entanglements of formation), the Tsallis entropies `0 < q < 2` and the
-Rényi entropies `0 < q < 1`. The pure-only equality classification (singular-pencil argument) is not
-formalized here.
+Rényi entropies `0 < q < 1`. The pure-only equality classification is in
+`PaperEGenConvexRoofEq.lean`.
 -/
 
 open scoped ComplexConjugate Matrix ComplexOrder

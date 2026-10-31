@@ -12,7 +12,9 @@ Paper E, `lu_orbit_stability.tex` (eq. `eq:fqe-orbit-surrogate`, `thm:fqe-orbit-
 overlap stability `thm:fqe-global-overlap` (`Q ≥ 1 - Φ ≥ ((6+√(6(1+√τ)))/12) d² ≥ ((6+√6)/12) d² > (7/10) d²`, proved
 in the paper by the exact rational certificate GO-1–GO-3) is **not formalized**. The final section
 states the paper's distance estimates as *conditional* results: the comparison `c d² ≤ Q` is an explicit
-hypothesis, with `d²` an arbitrary real number `d2` standing for `d(ψ)²`, and nothing in this file proves it.
+hypothesis, with `d²` an arbitrary real number `d2` standing for `d(ψ)²`, and nothing in this file proves it. `PaperEOrbitDistance.lean` defines the genuine distance
+`orbitDist`, proves `d² = 2 − 2√Φ`, and restates these estimates for it; `PaperEFidelityFloor.lean` proves
+`lem:fqe-hs-fidelity-floor`, so they need only `thm:fqe-global-overlap` as a hypothesis.
 
 * `sexticQ ψ = F + n (P - n²) = 18 n P - 12 T - 13 n³ ≥ 0`; for unit `ψ`, `Q = 0 ↔ F = 0 ∧ P = 1`,
   and `Q = 0` on both `M₄` orbits (the converse, that these are *all* the zeros of `Q`, is the
