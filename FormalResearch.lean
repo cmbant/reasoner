@@ -509,3 +509,5 @@ import FormalResearch.FourQubitEntropy.CriticalOrbitSharp
 import FormalResearch.FourQubitEntropy.EnvelopeCoefficientSharp
 import FormalResearch.FourQubitEntropy.RenyiSingleCrossingFamily
 import FormalResearch.FourQubitEntropy.RenyiOrderTransfer
+import FormalResearch.FourQubitEntropy.RenyiSingleCrossingVar
+import FormalResearch.FourQubitEntropy.RenyiSingleCrossing

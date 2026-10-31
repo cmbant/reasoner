@@ -16,7 +16,7 @@ instantiates the theorems of this file without hypothesis. This file proves, fro
 * for three four-point spectra and `1 < q < q₁`: `E_{q₁} ≤ h_{q₁} → E_q ≤ h_q` with equality only if all
   three are permutations of `σ`, and `E_{q₁} < h_{q₁} → E_q < h_q` (`renyi_order_transfer`).
 
-`H_q(l) = log₂(Σ lᵢ^q)/(1-q)` (`renyiH`), `E_q` the mean of three `H_q`, `h_q = H_q(σ)`.
+`H_q(l) = log₂(Σ lᵢ^q)/(1-q)` (`renyiSpec` of `RenyiSpec.lean`), `E_q` the mean of three `H_q`, `h_q = H_q(σ)`.
 -/
 
 namespace FormalResearch.FourQubitEntropy
@@ -29,12 +29,9 @@ def SingleCrossingStatement : Prop :=
     sxV q l - sxV q hsSpec ≤ sxKappa q * (sxU q l - sxU q hsSpec) ∧
     (sxV q l - sxV q hsSpec = sxKappa q * (sxU q l - sxU q hsSpec) → IsHsPerm l)
 
-/-- The Rényi entropy in bits `H_q(l) = log₂(Σ lᵢ^q)/(1-q)`. -/
-noncomputable def renyiH (q : ℝ) (l : Fin 4 → ℝ) : ℝ := Real.logb 2 (sxZ q l) / (1 - q)
-
 /-- `G_l(q) = (q-1)(H_q(l) - H_q(σ)) / (q tanh((q-1) ln 3/2))`. -/
 noncomputable def renyiG (l : Fin 4 → ℝ) (q : ℝ) : ℝ :=
-  (q - 1) * (renyiH q l - renyiH q hsSpec) / (q * Real.tanh ((q - 1) * Real.log 3 / 2))
+  (q - 1) * (renyiSpec q l - renyiSpec q hsSpec) / (q * Real.tanh ((q - 1) * Real.log 3 / 2))
 
 /-- `m(q) = e^{K(q)} = q tanh((q-1) ln 3/2)`. -/
 noncomputable def renyiM (q : ℝ) : ℝ := q * Real.tanh ((q - 1) * Real.log 3 / 2)
@@ -184,11 +181,11 @@ theorem renyiN_strictAntiOn (hSX : SingleCrossingStatement) {l : Fin 4 → ℝ} 
 
 /-! ### The Rényi entropies -/
 
-theorem renyiH_sub {l : Fin 4 → ℝ} {q : ℝ} (hq : 1 < q) :
-    renyiH q hsSpec - renyiH q l = (sxU q l - sxU q hsSpec) / ((q - 1) * Real.log 2) := by
+theorem renyiSpec_sub {l : Fin 4 → ℝ} {q : ℝ} (hq : 1 < q) :
+    renyiSpec q hsSpec - renyiSpec q l = (sxU q l - sxU q hsSpec) / ((q - 1) * Real.log 2) := by
   have h1 : q - 1 ≠ 0 := by linarith
   have h2 : Real.log 2 ≠ 0 := (Real.log_pos (by norm_num)).ne'
-  unfold renyiH sxU Real.logb
+  unfold renyiSpec sxU sxZ Real.logb
   have h3 : 1 - q = -(q - 1) := by ring
   rw [h3]
   field_simp
@@ -200,9 +197,9 @@ theorem renyiG_eq {l : Fin 4 → ℝ} {q : ℝ} (hq : 1 < q) :
   have h1 : q - 1 ≠ 0 := by linarith
   have h2 : Real.log 2 ≠ 0 := (Real.log_pos (by norm_num)).ne'
   have h3 := (renyiM_pos hq).ne'
-  have h4 := renyiH_sub (l := l) hq
+  have h4 := renyiSpec_sub (l := l) hq
   unfold renyiG renyiN
-  rw [show renyiH q l - renyiH q hsSpec = -(renyiH q hsSpec - renyiH q l) by ring, h4]
+  rw [show renyiSpec q l - renyiSpec q hsSpec = -(renyiSpec q hsSpec - renyiSpec q l) by ring, h4]
   change _ / renyiM q = _
   field_simp
 
@@ -229,7 +226,7 @@ theorem renyiG_strictMonoOn (hSX : SingleCrossingStatement) {l : Fin 4 → ℝ} 
 
 /-- The mean of three Rényi entropies. -/
 noncomputable def renyiE (q : ℝ) (l₁ l₂ l₃ : Fin 4 → ℝ) : ℝ :=
-  (renyiH q l₁ + renyiH q l₂ + renyiH q l₃) / 3
+  (renyiSpec q l₁ + renyiSpec q l₂ + renyiSpec q l₃) / 3
 
 /-- **`cor:fqe-renyi-order-transfer`, the triple transfer** (from the hypothesis SX). For three
 four-point spectra and `1 < q < q₁`, with `E = renyiE`, `h_q = H_q(σ)`:
@@ -237,25 +234,25 @@ four-point spectra and `1 < q < q₁`, with `E = renyiE`, `h_q = H_q(σ)`:
 all three spectra are permutations of `σ`. -/
 theorem renyi_order_transfer (hSX : SingleCrossingStatement) {l₁ l₂ l₃ : Fin 4 → ℝ}
     (h₁ : IsProb4 l₁) (h₂ : IsProb4 l₂) (h₃ : IsProb4 l₃) {q q₁ : ℝ} (hq : 1 < q) (hqq : q < q₁) :
-    (renyiE q₁ l₁ l₂ l₃ ≤ renyiH q₁ hsSpec → renyiE q l₁ l₂ l₃ ≤ renyiH q hsSpec) ∧
-    (renyiE q₁ l₁ l₂ l₃ < renyiH q₁ hsSpec → renyiE q l₁ l₂ l₃ < renyiH q hsSpec) ∧
-    (renyiE q₁ l₁ l₂ l₃ ≤ renyiH q₁ hsSpec → renyiE q l₁ l₂ l₃ = renyiH q hsSpec →
+    (renyiE q₁ l₁ l₂ l₃ ≤ renyiSpec q₁ hsSpec → renyiE q l₁ l₂ l₃ ≤ renyiSpec q hsSpec) ∧
+    (renyiE q₁ l₁ l₂ l₃ < renyiSpec q₁ hsSpec → renyiE q l₁ l₂ l₃ < renyiSpec q hsSpec) ∧
+    (renyiE q₁ l₁ l₂ l₃ ≤ renyiSpec q₁ hsSpec → renyiE q l₁ l₂ l₃ = renyiSpec q hsSpec →
       IsHsPerm l₁ ∧ IsHsPerm l₂ ∧ IsHsPerm l₃) := by
   have hq1 : 1 < q₁ := lt_trans hq hqq
   set S : ℝ → ℝ := fun r => renyiN l₁ r + renyiN l₂ r + renyiN l₃ r with hS
   -- `h - E = (m / (3 (r - 1) ln 2)) S`
-  have key : ∀ r, 1 < r → renyiH r hsSpec - renyiE r l₁ l₂ l₃
+  have key : ∀ r, 1 < r → renyiSpec r hsSpec - renyiE r l₁ l₂ l₃
       = renyiM r / (3 * ((r - 1) * Real.log 2)) * S r := by
     intro r hr
     have h1 : r - 1 ≠ 0 := by linarith
     have h2 : Real.log 2 ≠ 0 := (Real.log_pos (by norm_num)).ne'
-    have e1 := renyiH_sub (l := l₁) hr
-    have e2 := renyiH_sub (l := l₂) hr
-    have e3 := renyiH_sub (l := l₃) hr
+    have e1 := renyiSpec_sub (l := l₁) hr
+    have e2 := renyiSpec_sub (l := l₂) hr
+    have e3 := renyiSpec_sub (l := l₃) hr
     have hm := (renyiM_pos hr).ne'
-    have : renyiH r hsSpec - renyiE r l₁ l₂ l₃
-        = ((renyiH r hsSpec - renyiH r l₁) + (renyiH r hsSpec - renyiH r l₂)
-            + (renyiH r hsSpec - renyiH r l₃)) / 3 := by unfold renyiE; ring
+    have : renyiSpec r hsSpec - renyiE r l₁ l₂ l₃
+        = ((renyiSpec r hsSpec - renyiSpec r l₁) + (renyiSpec r hsSpec - renyiSpec r l₂)
+            + (renyiSpec r hsSpec - renyiSpec r l₃)) / 3 := by unfold renyiE; ring
     rw [this, e1, e2, e3]
     simp only [hS, renyiN]
     field_simp
@@ -274,31 +271,31 @@ theorem renyi_order_transfer (hSX : SingleCrossingStatement) {l₁ l₂ l₃ : F
     have k1 := key q₁ hq1
     have k0 := key q hq
     have : 0 ≤ S q₁ := by
-      have h0 : 0 ≤ renyiH q₁ hsSpec - renyiE q₁ l₁ l₂ l₃ := by linarith
+      have h0 : 0 ≤ renyiSpec q₁ hsSpec - renyiE q₁ l₁ l₂ l₃ := by linarith
       rw [k1] at h0
       exact nonneg_of_mul_nonneg_right h0 (hc q₁ hq1)
-    have : 0 ≤ renyiH q hsSpec - renyiE q l₁ l₂ l₃ := by
+    have : 0 ≤ renyiSpec q hsSpec - renyiE q l₁ l₂ l₃ := by
       rw [k0]; exact mul_nonneg (hc q hq).le (by linarith)
     linarith
   · intro h
     have k1 := key q₁ hq1
     have k0 := key q hq
     have : 0 < S q₁ := by
-      have h0 : 0 < renyiH q₁ hsSpec - renyiE q₁ l₁ l₂ l₃ := by linarith
+      have h0 : 0 < renyiSpec q₁ hsSpec - renyiE q₁ l₁ l₂ l₃ := by linarith
       rw [k1] at h0
       exact pos_of_mul_pos_right h0 (hc q₁ hq1).le
-    have : 0 < renyiH q hsSpec - renyiE q l₁ l₂ l₃ := by
+    have : 0 < renyiSpec q hsSpec - renyiE q l₁ l₂ l₃ := by
       rw [k0]; exact mul_pos (hc q hq) (by linarith)
     linarith
   · intro h heq
     have k1 := key q₁ hq1
     have k0 := key q hq
     have hS1 : 0 ≤ S q₁ := by
-      have h0 : 0 ≤ renyiH q₁ hsSpec - renyiE q₁ l₁ l₂ l₃ := by linarith
+      have h0 : 0 ≤ renyiSpec q₁ hsSpec - renyiE q₁ l₁ l₂ l₃ := by linarith
       rw [k1] at h0
       exact nonneg_of_mul_nonneg_right h0 (hc q₁ hq1)
     have hS0 : S q = 0 := by
-      have h0 : renyiH q hsSpec - renyiE q l₁ l₂ l₃ = 0 := by linarith
+      have h0 : renyiSpec q hsSpec - renyiE q l₁ l₂ l₃ = 0 := by linarith
       rw [k0] at h0
       exact (mul_eq_zero.mp h0).resolve_left (hc q hq).ne'
     have s1 := fun hn => renyiN_strictAntiOn hSX h₁ hn (Set.mem_Ioi.mpr hq) (Set.mem_Ioi.mpr hq1) hqq

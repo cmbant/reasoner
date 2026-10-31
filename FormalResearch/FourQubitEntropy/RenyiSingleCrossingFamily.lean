@@ -1,4 +1,4 @@
-import Mathlib
+import FormalResearch.FourQubitEntropy.RenyiCrossing
 
 /-!
 # Single crossing of the Rényi entropies: the one-large-family lemma
@@ -14,7 +14,7 @@ On the one-large family `(a, b, b, b)`, `a = (1 + 3e^{-z})⁻¹`, `b = a e^{-z}`
 This file proves: `φ(a,b,b,b) = Φ(ln(a/b))` (`sxPhiVec_family`), the derivative formula
 `Φ' = zw(1-w)(q - βR(z))` with the hyperbolic identity (SR) for `R`, and that `Φ` strictly increases on
 `[0, L]` and strictly decreases on `[L, ∞)` (`sxPhi_le`, `sxPhi_eq_iff`), so
-`φ(a,b,b,b) ≤ φ(σ)`, `σ = (1/2, 1/6, 1/6, 1/6)`, with equality only for `a/b = 3` (`sxFamily_le`).
+`φ(a,b,b,b) ≤ φ(σ)`, `σ = (1/2, 1/6, 1/6, 1/6)` (`hsSpec` of `RenyiCrossing.lean`), with equality only for `a/b = 3` (`sxFamily_le`).
 Not in this file: the reduction of an arbitrary maximiser of `φ` on the simplex to the family
 (`RenyiSingleCrossing.lean`).
 -/
@@ -41,9 +41,6 @@ noncomputable def sxV (q : ℝ) (l : Fin 4 → ℝ) : ℝ :=
 
 /-- `φ = v_q - κ_q u_q`. -/
 noncomputable def sxPhiVec (q : ℝ) (l : Fin 4 → ℝ) : ℝ := sxV q l - sxKappa q * sxU q l
-
-/-- The HS spectrum `σ = (1/2, 1/6, 1/6, 1/6)`. -/
-noncomputable def hsSpec : Fin 4 → ℝ := ![1 / 2, 1 / 6, 1 / 6, 1 / 6]
 
 /-- A four-point probability vector. -/
 def IsProb4 (l : Fin 4 → ℝ) : Prop := (∀ i, 0 ≤ l i) ∧ ∑ i, l i = 1
