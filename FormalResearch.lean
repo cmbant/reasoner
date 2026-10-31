@@ -552,6 +552,16 @@ import FormalResearch.FourQubitEntropy.RenyiFullSliverEnt
 import FormalResearch.FourQubitEntropy.RenyiFullSliverCore
 import FormalResearch.FourQubitEntropy.RenyiFullSliverProof
 import FormalResearch.FourQubitEntropy.RenyiFullHeadlineSL
+import FormalResearch.FourQubitEntropy.RenyiFullDivDiff
+import FormalResearch.FourQubitEntropy.RenyiFullPath
+import FormalResearch.FourQubitEntropy.RenyiFullSlope
+import FormalResearch.FourQubitEntropy.RenyiFullLowTilt
+import FormalResearch.FourQubitEntropy.RenyiFullHsTilt
+import FormalResearch.FourQubitEntropy.RenyiFullTangent
+import FormalResearch.FourQubitEntropy.RenyiFullHsOne
+import FormalResearch.FourQubitEntropy.RenyiFullHsConst
+import FormalResearch.FourQubitEntropy.RenyiFullHsProof
+import FormalResearch.FourQubitEntropy.RenyiFullHeadlineHS
 import FormalResearch.FourQubitEntropy.RenyiFullBQOde
 import FormalResearch.FourQubitEntropy.RenyiFullBQG
 import FormalResearch.FourQubitEntropy.RenyiFullBQCells
@@ -565,3 +575,4 @@ import FormalResearch.FourQubitEntropy.RenyiFullCCBinary
 import FormalResearch.FourQubitEntropy.RenyiFullCCPairs
 import FormalResearch.FourQubitEntropy.RenyiFullCappedCubic
 import FormalResearch.FourQubitEntropy.RenyiFullHeadlineCC
+import FormalResearch.FourQubitEntropy.RenyiFullHeadlineRD
