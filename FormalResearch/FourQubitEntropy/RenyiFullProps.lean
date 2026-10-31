@@ -39,8 +39,8 @@ def DetReduction : Prop :=
 
 /-! ### Multiplier rows (Table `tab:fqe-dual-co` and `lem:fqe-hs-polynomial`) -/
 
-/-- Row `L` (CZ band): `θ = (3.98, 0.15, 1.59)`. -/
-noncomputable def aL : ℝ := 39800 / 10000
+/-- Row `L` (CZ band): `θ = (3.97, 0.15, 1.59)`. -/
+noncomputable def aL : ℝ := 39700 / 10000
 noncomputable def bL : ℝ := 1500 / 10000
 noncomputable def gL : ℝ := 15900 / 10000
 
