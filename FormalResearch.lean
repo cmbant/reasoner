@@ -546,3 +546,8 @@ import FormalResearch.FourQubitEntropy.RenyiFullHeadline
 import FormalResearch.FourQubitEntropy.RenyiFullTaylor
 import FormalResearch.FourQubitEntropy.RenyiFullNUCells
 import FormalResearch.FourQubitEntropy.RenyiFullNU
+import FormalResearch.FourQubitEntropy.RenyiFullRpow
+import FormalResearch.FourQubitEntropy.RenyiFullSliverCells
+import FormalResearch.FourQubitEntropy.RenyiFullSliverEnt
+import FormalResearch.FourQubitEntropy.RenyiFullSliverCore
+import FormalResearch.FourQubitEntropy.RenyiFullSliverProof
