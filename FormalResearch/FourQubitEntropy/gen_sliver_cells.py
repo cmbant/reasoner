@@ -180,7 +180,7 @@ theorem slA_{name} {{u v e k : ℝ}} (hu0 : 0 ≤ u) (hu1 : u ≤ 1 / 16) (hv0 :
       ({lpoly(D0, ['u', 'v'])}) + e * ({lpoly(D1, ['u', 'v'])}) +
       ({remtxt}) := by
     unfold slG slP slp slt
-    linear_combination ({c2.subs({}) if False else lpoly_expr(c2)}) * hk2
+    linear_combination ({lpoly_expr(c2)}) * hk2
   have hrem : 0 ≤ {remtxt} := by positivity
   have := mul_nonneg he0 h1
   nlinarith
