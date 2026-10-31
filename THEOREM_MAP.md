@@ -535,3 +535,23 @@ All modules below build with no `sorry`, `native_decide` or new axiom; each head
   attainment of the fidelity floor.
 - `lem:seven-joint-scalar-majorant`, equality set: `joint_scalar_majorant_eq_iff`, `joint_scalar_majorant_full`,
   `joint_majorant_contact` (`AH6Equality.lean`).
+
+### Branch `paper-e-renyi-full`: the Rényi envelope above one (`cor:fqe-renyi-gw`, `q > 1`), conditional
+
+New modules `FormalResearch/FourQubitEntropy/RenyiFull*.lean` (namespace `FormalResearch.FourQubitEntropy.RenyiFull`, imported by
+`FormalResearch.lean`; no `sorry`, `native_decide` or `axiom`; `#print axioms` of every headline is `[propext, Classical.choice, Quot.sound]`).
+
+- Headline (`RenyiFullHeadline.lean`): `renyi_envelope_above_one`: for a unit pure four-qubit vector and every `q > 1`,
+  `meanRenyi q ψ ≤ max (hsRenyi q) (5/3)`; equality with `h_q > 5/3` forces `ψ ≃_{LU} M₄` or `conj M₄`; equality with `h_q < 5/3`
+  forces the cut spectra to be the cluster triple `(c₁,c₂,c₂)` (spectral only: the (QF) identification with the cluster-to-Bell family is
+  not formalised). **Hypotheses (named `Prop`s, paper statements, no axioms):** `QuadraticVarianceBound` (`thm:fqe-quadratic-variance`, QK/QG),
+  `HsSupporting` (`lem:fqe-hs-polynomial`), `RationalDual` (`lem:fqe-rational-dual`, RQ), `CappedCubic` (`lem:fqe-capped-cubic`),
+  `ClusterSliver` (`lem:fqe-cluster-sliver`). Unconditional: `meanRenyi_cubic_envelope`, `meanRenyi_high_F` (`cor:fqe-renyi-high-f` for states).
+- `RenyiFullProps.lean`: statements of the per-spectrum certificates. `RenyiFullDual.lean`: `lem:fqe-dual` (`dual_bound`), corner lemma,
+  contact identity (DC), `cubic_envelope` and its equality case. `RenyiFullHZ/Cases/Sliver/Classical.lean`: the case analysis of
+  `thm:fqe-renyi-classical` (`classical_of_certificates`, from the six per-spectrum statements). `RenyiFullEnvelope/State/StateEq.lean`:
+  `envelope_triple` (from the order transfer), `meanRenyi_envelope`, `hs_triple_LU`.
+- Proved here: `lem:fqe-renyi-determinant` (`RenyiFullStieltjes/DetMono/DetChart.lean`: `Zmono`, `lift_det`, `det_reduction`; by a Stieltjes
+  representation `x^q·I = ∫ s^{q-2} x²/(x+s) ds`, under which `Σλᵢ^q` depends on the spectrum only through the determinant at fixed `p, t`,
+  and a quartic-lifting argument for the maximiser of the determinant), and `lem:fqe-near-uniform-dual` (NU: `RenyiFullTaylor.lean`,
+  `RenyiFullNUCells.lean` (5-box Bernstein certificate, about 2.5 min, 7.8 GB), `RenyiFullNU.lean` (about 2 min): `nearUniformDual`).

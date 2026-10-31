@@ -241,4 +241,33 @@ theorem nu_entropy_bound {l : Fin 4 → ℝ} (hl : IsProb4 l) (hx0 : 0 < pur l -
   rw [hyv]
   nlinarith [this]
 
+theorem Lam_c2_sub_Lam {l : Fin 4 → ℝ} :
+    Lam qS aH bH gH c2 - Lam qS aH bH gH l =
+      (2 - renyiSpec qS l) - (aH + 8 * bH - gH / 2) * (pur l - 1 / 4) +
+        12 * bH * (cub l - 1 / 16 - 3 / 4 * (pur l - 1 / 4)) + gH * (pur l - 1 / 4) ^ 2 := by
+  have h1 : qS ≠ 1 := by unfold qS; norm_num
+  rw [Lam_c2 (by unfold qS; norm_num) h1]
+  unfold Lam
+  ring
+
+/-- **`lem:fqe-near-uniform-dual` (NU), proved.** -/
+theorem nearUniformDual : NearUniformDual := by
+  intro l hl hp
+  have hq := pur_ge_quarter hl
+  rcases hq.eq_or_lt with h | h
+  · have hu := pur_eq_quarter hl h.symm
+    have : l = c2 := by funext i; rw [hu i]; unfold c2; fin_cases i <;> simp
+    subst this
+    rw [← h]; simp
+  · have hx1 : pur l - 1 / 4 ≤ 1 / 25 := by linarith
+    have := nu_entropy_bound hl (by linarith) hx1
+    rw [Lam_c2_sub_Lam]
+    have hd : (pur l - 1 / 4) / 125 = (1 / 125) * (pur l - 1 / 4) := by ring
+    rw [hd]
+    nlinarith [this]
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.nearUniformDual' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms nearUniformDual
+
 end FormalResearch.FourQubitEntropy.RenyiFull

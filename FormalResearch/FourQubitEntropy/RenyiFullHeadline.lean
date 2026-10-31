@@ -1,5 +1,6 @@
 import FormalResearch.FourQubitEntropy.RenyiFullStateEq
 import FormalResearch.FourQubitEntropy.RenyiFullDetChart
+import FormalResearch.FourQubitEntropy.RenyiFullNU
 
 /-!
 # Headline: the Rényi envelope above one (`cor:fqe-renyi-gw`, `q > 1`)
@@ -18,10 +19,9 @@ Then `meanRenyi q ψ ≤ max {hsRenyi q, 5/3}` (the HS--cluster envelope).  If `
 * `HsSupporting`: `lem:fqe-hs-polynomial` (HS supporting inequality at `q_u = 8/5`);
 * `RationalDual`: `lem:fqe-rational-dual` (the exact rational certificate RQ, band `L`);
 * `CappedCubic`: `lem:fqe-capped-cubic` (CG);
-* `NearUniformDual`: `lem:fqe-near-uniform-dual` (NU);
 * `ClusterSliver`: `lem:fqe-cluster-sliver` (SL).
 
-`lem:fqe-renyi-determinant` (`DetReduction`) is proved (`det_reduction`), as are the dual lemma
+`lem:fqe-renyi-determinant` (`DetReduction`, `det_reduction`) and `lem:fqe-near-uniform-dual` (NU, `nearUniformDual`) are proved, as are the dual lemma
 `lem:fqe-dual`, the case analysis of `thm:fqe-renyi-classical`, the analytic cubic envelope
 `cor:fqe-renyi-high-f` (the case `20ε + 2F ≥ 1`), the order transfer (`RenyiSingleCrossing.lean`) and the
 HS--cluster crossing (`RenyiCrossing.lean`).
@@ -31,15 +31,15 @@ namespace FormalResearch.FourQubitEntropy.RenyiFull
 
 open FormalResearch.FourQubitEntropy
 
-/-- `thm:fqe-renyi-classical` from the five remaining per-spectrum certificates
-(`DetReduction` is proved). -/
+/-- `thm:fqe-renyi-classical` from the four remaining per-spectrum certificates
+(`DetReduction` and `NearUniformDual` are proved). -/
 theorem classical_relaxation (hHZ : HsSupporting) (hL : RationalDual) (hC : CappedCubic)
-    (hNU : NearUniformDual) (hSL : ClusterSliver) : ClassicalRelaxation :=
-  classical_of_certificates det_reduction hHZ hL hC hNU hSL
+    (hSL : ClusterSliver) : ClassicalRelaxation :=
+  classical_of_certificates det_reduction hHZ hL hC nearUniformDual hSL
 
 /-- **`cor:fqe-renyi-gw` for `q > 1`** (conditional on the named certificates above). -/
 theorem renyi_envelope_above_one (hHZ : HsSupporting) (hL : RationalDual) (hC : CappedCubic)
-    (hNU : NearUniformDual) (hSL : ClusterSliver) (hQK : QuadraticVarianceBound)
+    (hSL : ClusterSliver) (hQK : QuadraticVarianceBound)
     {ψ : Psi} (hψ : normSqPsi ψ = 1) {q : ℝ} (hq : 1 < q) :
     meanRenyi q ψ ≤ max (hsRenyi q) (5 / 3) ∧
     (5 / 3 < hsRenyi q → meanRenyi q ψ = hsRenyi q → LUEquiv M4 ψ ∨ LUEquiv (Psi.conj M4) ψ) ∧
@@ -48,7 +48,7 @@ theorem renyi_envelope_above_one (hHZ : HsSupporting) (hL : RationalDual) (hC : 
     (hsRenyi q = 5 / 3 → meanRenyi q ψ = 5 / 3 →
       IsHsTriple (cutSpec₂ ψ) (cutSpec₃ ψ) (cutSpec₄ ψ) ∨
         IsClusterTriple (cutSpec₂ ψ) (cutSpec₃ ψ) (cutSpec₄ ψ)) := by
-  have hCl := classical_relaxation hHZ hL hC hNU hSL
+  have hCl := classical_relaxation hHZ hL hC hSL
   obtain ⟨h1, h2, h3, h4⟩ := meanRenyi_envelope hCl hQK hψ hq
   exact ⟨h1, fun hg he => hs_triple_LU hψ (h2 hg he), h3, h4⟩
 

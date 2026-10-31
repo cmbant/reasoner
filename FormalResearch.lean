@@ -543,3 +543,6 @@ import FormalResearch.FourQubitEntropy.RenyiFullStateEq
 import FormalResearch.FourQubitEntropy.RenyiFullDetMono
 import FormalResearch.FourQubitEntropy.RenyiFullDetChart
 import FormalResearch.FourQubitEntropy.RenyiFullHeadline
+import FormalResearch.FourQubitEntropy.RenyiFullTaylor
+import FormalResearch.FourQubitEntropy.RenyiFullNUCells
+import FormalResearch.FourQubitEntropy.RenyiFullNU
