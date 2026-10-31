@@ -302,4 +302,82 @@ theorem bqx_le_bqU {q s : ℝ} (h1 : 1 < q) (h2 : q < 2) (hs0 : 0 ≤ s) (hs1 : 
   rw [div_le_iff₀ hden]
   nlinarith
 
+
+/-! ### The rate `U - x = O(s⁷)` at `q = 1587/1000` -/
+
+theorem bqx_nonneg {q s : ℝ} (hq : 1 < q) (hs0 : 0 ≤ s) (hs1 : s < 1) : 0 ≤ bqx q s := by
+  rcases hs0.eq_or_lt with h | h
+  · subst h; simp [bqx_zero]
+  · exact (h.trans (bqx_gt hq h hs1)).le
+
+theorem bqQn_ge {s : ℝ} (hs0 : 0 ≤ s) (hs1 : s ≤ 1 / 2) : 13 ≤ bqQn (1587 / 1000) s := by
+  unfold bqQn
+  have h2 : s ^ 2 ≤ 1 / 4 := by nlinarith
+  have h4 : s ^ 4 ≤ 1 / 16 := by nlinarith [sq_nonneg s]
+  have h0 : 0 ≤ s ^ 2 := sq_nonneg s
+  have h40 : 0 ≤ s ^ 4 := by positivity
+  nlinarith
+
+theorem bqU_sub_x_le {s : ℝ} (hs0 : 0 ≤ s) (hs1 : s ≤ 1 / 2) :
+    bqU (1587 / 1000) s - bqx (1587 / 1000) s ≤ s ^ 7 / 70 := by
+  set q : ℝ := 1587 / 1000 with hqdef
+  have h1 : (1 : ℝ) < q := by rw [hqdef]; norm_num
+  have h2 : q < 2 := by rw [hqdef]; norm_num
+  set g : ℝ → ℝ := fun s => bqU q s - bqx q s - s ^ 7 / 70 with hg
+  have hder : ∀ s : ℝ, 0 ≤ s → s ≤ 1 / 2 →
+      HasDerivAt g (bqU' q s - q * (1 - bqx q s ^ 2) / (1 - s ^ 2) - 7 * s ^ 6 / 70) s := by
+    intro s a b
+    have hs : |s| < 1 := by rw [abs_lt]; constructor <;> linarith
+    have := ((hasDerivAt_bqU h1 h2 hs).sub (hasDerivAt_bqx (q := q) hs)).sub
+      ((hasDerivAt_pow 7 s).div_const 70)
+    refine this.congr_deriv ?_
+    norm_num
+  have hanti : AntitoneOn g (Set.Icc 0 (1 / 2)) := by
+    apply antitoneOn_of_hasDerivWithinAt_nonpos (convex_Icc 0 (1 / 2))
+      (f' := fun s => bqU' q s - q * (1 - bqx q s ^ 2) / (1 - s ^ 2) - 7 * s ^ 6 / 70)
+    · intro s hs
+      exact (hder s hs.1 hs.2).continuousAt.continuousWithinAt
+    · intro s hs
+      rw [interior_Icc] at hs
+      exact (hder s hs.1.le hs.2.le).hasDerivWithinAt
+    · intro s hs
+      rw [interior_Icc] at hs
+      obtain ⟨hs0', hs1'⟩ := hs
+      have hs : |s| < 1 := by rw [abs_lt]; constructor <;> linarith
+      have hres := bqU_residual h1 h2 hs
+      have hQ := bqQn_pos h1 h2 hs
+      have hQ13 := bqQn_ge hs0'.le hs1'.le
+      have hd : 0 ≤ bqU q s - bqx q s := sub_nonneg.2 (bqx_le_bqU h1 h2 hs0'.le (by linarith))
+      have hu0 := bqU_nonneg h1 h2 hs0'.le (by linarith)
+      have hx0 := bqx_nonneg h1 hs0'.le (show s < 1 by linarith)
+      have hs2 : 0 < 1 - s ^ 2 := by nlinarith
+      have hκ : bqKap q ≤ 12 := by rw [hqdef]; unfold bqKap; norm_num
+      have hκ0 := bqKap_pos h1 h2
+      -- U' = (q(1-U²) + κ s⁶(1-s²)²/Q²)/(1-s²)
+      have e : bqU' q s = (q * (1 - bqU q s ^ 2) + bqKap q * s ^ 6 * (1 - s ^ 2) ^ 2 / bqQn q s ^ 2)
+          / (1 - s ^ 2) := by
+        rw [eq_div_iff hs2.ne']; linarith
+      rw [e]
+      have key : (q * (1 - bqU q s ^ 2) + bqKap q * s ^ 6 * (1 - s ^ 2) ^ 2 / bqQn q s ^ 2) / (1 - s ^ 2)
+          - q * (1 - bqx q s ^ 2) / (1 - s ^ 2) - 7 * s ^ 6 / 70 =
+          bqKap q * s ^ 6 * (1 - s ^ 2) / bqQn q s ^ 2
+            - q * ((bqU q s - bqx q s) * (bqU q s + bqx q s)) / (1 - s ^ 2) - 7 * s ^ 6 / 70 := by
+        field_simp
+        ring
+      rw [key]
+      have t1 : q * ((bqU q s - bqx q s) * (bqU q s + bqx q s)) / (1 - s ^ 2) ≥ 0 := by
+        have : 0 ≤ q := by linarith
+        positivity
+      have t2 : bqKap q * s ^ 6 * (1 - s ^ 2) / bqQn q s ^ 2 ≤ s ^ 6 / 10 := by
+        rw [div_le_iff₀ (by positivity)]
+        have h6 : 0 ≤ s ^ 6 := by positivity
+        have hQ2 : (169 : ℝ) ≤ bqQn q s ^ 2 := by nlinarith
+        have : bqKap q * (1 - s ^ 2) ≤ 12 := by nlinarith
+        nlinarith [mul_nonneg h6 (sub_nonneg.2 hQ2), mul_nonneg h6 (sub_nonneg.2 this)]
+      nlinarith
+  have := hanti (Set.mem_Icc.2 ⟨le_rfl, by norm_num⟩) (Set.mem_Icc.2 ⟨hs0, hs1⟩) hs0
+  simp only [hg] at this
+  have h0 : bqU q 0 - bqx q 0 - 0 ^ 7 / 70 = 0 := by simp [bqU, bqPn, bqx_zero]
+  linarith
+
 end FormalResearch.FourQubitEntropy.RenyiFull
