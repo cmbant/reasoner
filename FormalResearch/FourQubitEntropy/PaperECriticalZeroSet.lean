@@ -9,6 +9,11 @@ For `v : ℂ^{2×2}` with `Σ |v_k|² = 1`, the twelve equations behind `Zsum v 
 (`sexticF_Gv`) are classified by `zero_classify`: (A) one nonzero coordinate, (B) `|v_k|² = 1/4`
 with all `v_k²` equal, (C) `|v_k|² ∈ {1/6, 1/2}` with `Σ v_k² = 0`.
 Proved, no `native_decide`.
+
+This is the classification step of the supplement's second proof of `prop:fqe-moment-zeros`
+(`sec:sup-sextic-zeros`: the weighted-variance identity (Z) is `sexticF_Gv`, and the twelve
+equations are (ZE)); the paper's own proof of the proposition goes through the critical envelope
+(`critical_envelope`, `GeneralEnvelope.lean`) and is not what is formalised here.
 -/
 
 open scoped ComplexConjugate Matrix Kronecker
