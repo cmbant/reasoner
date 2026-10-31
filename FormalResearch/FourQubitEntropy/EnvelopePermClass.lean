@@ -226,4 +226,8 @@ theorem perm_class (Θ : Matrix (Fin 3) (Fin 3) ℝ) (b : Fin 3 → ℝ) (κ : �
       exact perm_class_zero Θ b (by simpa using h2) h1'
   exact ⟨key.1, ⟨key.2, perm_of_CritForm⟩⟩
 
+/-- info: 'FormalResearch.FourQubitEntropy.perm_class' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms perm_class
+
 end FormalResearch.FourQubitEntropy

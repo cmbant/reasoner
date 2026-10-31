@@ -72,4 +72,8 @@ theorem general_envelope_homog (ψ : Psi) (hψ : ψ ≠ 0) :
   have := general_envelope_homog_aux ψ hN
   linarith
 
+/-- info: 'FormalResearch.FourQubitEntropy.general_envelope_homog' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms general_envelope_homog
+
 end FormalResearch.FourQubitEntropy

@@ -203,4 +203,12 @@ theorem critical_moment_envelope_attained (P : ℝ) (h1 : 1 ≤ P) (h2 : P ≤ 3
   rw [hψ, hPP, hs] at hF
   nlinarith [hF]
 
+/-- info: 'FormalResearch.FourQubitEntropy.critical_envelope_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms critical_envelope_eq_iff
+
+/-- info: 'FormalResearch.FourQubitEntropy.critical_closed_form' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms critical_closed_form
+
 end FormalResearch.FourQubitEntropy

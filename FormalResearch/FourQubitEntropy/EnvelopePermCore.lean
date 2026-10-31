@@ -18,7 +18,7 @@ Real `3 × 3` algebra used in the equality classification of `sextic_identity.te
   `∏ᵢ (O y)ᵢ = -∏ᵢ yᵢ` is one of the twelve signed cyclic permutation matrices whose three signs have
   product `-1`.
 
-No hypotheses beyond those stated; no `sorry`, no `native_decide`.
+No hypotheses beyond those stated, and no unproved steps.
 -/
 
 namespace FormalResearch.FourQubitEntropy
