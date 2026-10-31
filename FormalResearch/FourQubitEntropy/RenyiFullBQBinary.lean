@@ -263,7 +263,7 @@ theorem bqD_one : bqD qBQ 1 = 1 := by
   have hq : qBQ ≠ 0 := by unfold qBQ; norm_num
   unfold bqD bqf bqFs
   have h2 : Real.log ((2 : ℝ) ^ qBQ) = qBQ * Real.log 2 := Real.log_rpow (by norm_num) _
-  simp only [Real.sqrt_one, add_sub_cancel_left, sub_self, Real.zero_rpow hq, add_zero, one_add_one_eq_two]
+  simp only [Real.sqrt_one, sub_self, Real.zero_rpow hq, add_zero, one_add_one_eq_two]
   rw [h2]
   have := qBQ_sub_one_pos.ne'
   have := log_two_pos'.ne'
@@ -295,5 +295,48 @@ theorem bqA_strictMonoOn : StrictMonoOn bqA (Set.Ioo 0 (1 / 2)) := by
   rw [bqA_eq hu.1 hu.2, bqA_eq hu'.1 hu'.2]
   simp only at this ⊢
   linarith
+
+theorem binH_half : binH qBQ (1 / 2) = 1 := by
+  have h1 : (1 : ℝ) - 1 / 2 = 1 / 2 := by norm_num
+  unfold binH
+  rw [h1]
+  have e : (1 / 2 : ℝ) ^ qBQ + (1 / 2) ^ qBQ = (2 : ℝ) ^ (1 - qBQ) := by
+    rw [Real.rpow_sub (by norm_num), one_div, Real.inv_rpow (by norm_num)]
+    simp only [Real.rpow_one]
+    field_simp
+    ring
+  rw [e, Real.logb_rpow (by norm_num) (by norm_num)]
+  have : (1 - qBQ) ≠ 0 := by have := qBQ_sub_one_pos; intro h; linarith
+  field_simp
+
+/-- **The quartic bound from an endpoint value.** If `a ≤ A_q(u₀)` then
+`H_q(u,1-u) ≤ 4u(1-u) - a u(1-u)(1-2u)²` for all `u₀ ≤ u ≤ 1/2` (`q = q_s`). -/
+theorem binary_quartic_bound {u₀ u a : ℝ} (hu0 : 0 < u₀) (hu0h : u₀ < 1 / 2) (ha : a ≤ bqA u₀)
+    (h1 : u₀ ≤ u) (h2 : u ≤ 1 / 2) :
+    binH qBQ u ≤ 4 * u * (1 - u) - a * (u * (1 - u) * (1 - 2 * u) ^ 2) := by
+  rcases h2.eq_or_lt with h | h
+  · subst h
+    rw [binH_half]
+    norm_num
+  · have hA : bqA u₀ ≤ bqA u := by
+      rcases h1.eq_or_lt with e | e
+      · rw [e]
+      · exact (bqA_strictMonoOn ⟨hu0, hu0h⟩ ⟨hu0.trans_le h1, h⟩ e).le
+    have hd : 0 < u * (1 - u) * (1 - 2 * u) ^ 2 := by
+      have : 0 < 1 - 2 * u := by linarith
+      have : 0 < u := hu0.trans_le h1
+      have : 0 < 1 - u := by linarith
+      positivity
+    have hAu : bqA u * (u * (1 - u) * (1 - 2 * u) ^ 2) = 4 * u * (1 - u) - binH qBQ u := by
+      unfold bqA; exact div_mul_cancel₀ _ hd.ne'
+    nlinarith [mul_le_mul_of_nonneg_right (ha.trans hA) hd.le]
+
+/-- The same in terms of `renyiSpec` of the two-point spectrum, at `q = 1587/1000`. -/
+theorem binary_quartic_bound_spec {u₀ u a : ℝ} (hu0 : 0 < u₀) (hu0h : u₀ < 1 / 2) (ha : a ≤ bqA u₀)
+    (h1 : u₀ ≤ u) (h2 : u ≤ 1 / 2) :
+    renyiSpec (1587 / 1000 : ℝ) ![u, 1 - u] ≤ 4 * u * (1 - u) - a * (u * (1 - u) * (1 - 2 * u) ^ 2) := by
+  have := binary_quartic_bound hu0 hu0h ha h1 h2
+  rw [renyiSpec_binary]
+  exact this
 
 end FormalResearch.FourQubitEntropy.RenyiFull
