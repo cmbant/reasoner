@@ -25,6 +25,15 @@ Kq = sp.Poly(sp.expand(K.subs(q, qs)), s)
 assert Kq.degree() == 14
 kc = [Kq.coeff_monomial(s**j) for j in range(15)]
 
+# cancellation polynomial of G'(s) along U:  N1(s, P/Q) Q^3 = s^5 (q-1) (1-s^2)^2 NN(s)
+N1 = (2*q**2*s**2*x**3 - 2*q**2*s**2*x - 9*q*s**3*x**2 + 9*q*s**3 + 3*q*s*x**2 - 3*q*s - 8*s**5
+      + 15*s**4*x - 10*s**2*x + 3*x)
+N1h = sp.expand(sum(c*Pn**k*Qn**(3-k) for (k,), c in sp.Poly(N1, x).terms()))
+NN, rem2 = sp.div(N1h, sp.expand((q-1)*s**5*(1-s**2)**2), q, s)
+assert rem2 == 0
+NNq = sp.Poly(sp.expand(NN.subs(q, qs)), s)
+nnc = [NNq.coeff_monomial(s**j) for j in range(NNq.degree()+1)]
+
 
 def lit(v):
     v = R(v)
@@ -39,6 +48,7 @@ def bern1(cs, n):
 
 bK = bern1(kc, 14)
 assert all(b < 0 for b in bK)
+NNpoly = " + ".join(f"{lit(c)} * s ^ {j}" for j, c in enumerate(nnc))
 Kpoly = " + ".join(f"{lit(c)} * s ^ {j}" for j, c in enumerate(kc))
 Kmid = " +\n      ".join(f"{lit(-bK[i]*comb(14, i))} * (s ^ {i} * (1 - s) ^ {14-i})" for i in range(1, 14))
 
@@ -100,6 +110,9 @@ theorem bqK_neg {{s : ℝ}} (h0 : 0 ≤ s) (h1 : s ≤ 1) : bqK s < 0 := by
       have : 0 ≤ (1 - s) ^ 14 := by positivity
       nlinarith
   linarith
+
+/-- The cancellation polynomial: `N₁(s, P/Q) Q³ = s⁵ (q-1) (1-s²)² NN(s)` at `q_s`. -/
+noncomputable def bqNN (s : ℝ) : ℝ := {NNpoly}
 
 /-- `∂M/∂ξ` at `q = q_s`. -/
 noncomputable def bqdM (s xi : ℝ) : ℝ := {dMlean}
