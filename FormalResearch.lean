@@ -551,3 +551,4 @@ import FormalResearch.FourQubitEntropy.RenyiFullSliverCells
 import FormalResearch.FourQubitEntropy.RenyiFullSliverEnt
 import FormalResearch.FourQubitEntropy.RenyiFullSliverCore
 import FormalResearch.FourQubitEntropy.RenyiFullSliverProof
+import FormalResearch.FourQubitEntropy.RenyiFullHeadlineSL
