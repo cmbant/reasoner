@@ -339,4 +339,16 @@ theorem binary_quartic_bound_spec {u₀ u a : ℝ} (hu0 : 0 < u₀) (hu0h : u₀
   rw [renyiSpec_binary]
   exact this
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.bqD_third_pos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms bqD_third_pos
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.bqA_strictMonoOn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms bqA_strictMonoOn
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.binary_quartic_bound_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms binary_quartic_bound_spec
+
 end FormalResearch.FourQubitEntropy.RenyiFull
