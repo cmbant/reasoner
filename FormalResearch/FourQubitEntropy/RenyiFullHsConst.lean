@@ -247,4 +247,41 @@ theorem PhiX_one_lt : PhiX aU 1 < PhiX aU xs := by
     rw [this]; exact div_pos delta_log (by linarith)
   linarith
 
+/-! ### The one-variable supporting inequality -/
+
+theorem pdX_pos {x : ℝ} (hx : 1 < x) : 0 < pdX x := by
+  have hx0 : 0 < x := by linarith
+  have h5 : 1 < x ^ 5 := one_lt_pow₀ hx (by norm_num)
+  unfold pdX
+  have : 0 < x ^ 5 - 1 := by linarith
+  positivity
+
+theorem BX_pos {x : ℝ} (hx : 1 ≤ x) : 0 < BX x := by
+  have hx0 : 0 < x := by linarith
+  have := c43_pos hx
+  unfold BX
+  positivity
+
+/-- **`lem:fqe-hs-polynomial`, one-variable form**: on `[1,2]`, `Φ(x) ≤ Φ(x*)` with equality only at `x*`. -/
+theorem PhiX_lt {x : ℝ} (hx : x ∈ Icc (1 : ℝ) 2) (hne : x ≠ xs) : PhiX aU x < PhiX aU xs := by
+  have hL : 0 < Real.log 2 := Real.log_pos (by norm_num)
+  refine tangent_argument (Φ := PhiX aU) (E := EX aU) (P := pdX) (K := fun x => BX x / Real.log 2)
+    (J := JX) (L := Real.log 2) (a0 := 1) (a1 := 2) (xs := xs)
+    (fun y hy => (PhiX_deriv aU (by linarith [hy.1] : 0 ≤ y)).continuousAt.continuousWithinAt)
+    (fun y hy => (EX_deriv aU hy.1).continuousAt.continuousWithinAt)
+    (fun y hy => ?_) (fun y hy => pdX_pos hy.1) (fun y hy => ?_)
+    (fun y hy => div_pos (BX_pos hy.1.le) hL) JX_anti
+    (fun y hy => (JX_deriv hy.1).continuousAt.continuousWithinAt)
+    ⟨one_lt_xs, xs_lt_two⟩ EX_xs PhiX_one_lt x hx hne
+  · exact PhiX_deriv aU (by linarith [hy.1] : 0 ≤ y)
+  · refine (EX_deriv aU hy.1.le).congr_deriv ?_
+    field_simp
+
+theorem PhiX_le {x : ℝ} (hx : x ∈ Icc (1 : ℝ) 2) :
+    PhiX aU x ≤ PhiX aU xs ∧ (PhiX aU x = PhiX aU xs → x = xs) := by
+  by_cases h : x = xs
+  · subst h; exact ⟨le_rfl, fun _ => rfl⟩
+  · have := PhiX_lt hx h
+    exact ⟨this.le, fun h' => absurd h' this.ne⟩
+
 end FormalResearch.FourQubitEntropy.RenyiFull
