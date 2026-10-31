@@ -62,4 +62,8 @@ theorem sh_large_tail {u δ : ℝ} (hu1 : 1 / 4 ≤ u) (hu2 : u ≤ 1 / 2) (hδ0
     rw [Lam_c2_value] at this
     linarith
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.sh_large_tail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sh_large_tail
+
 end FormalResearch.FourQubitEntropy.RenyiFull

@@ -109,4 +109,8 @@ theorem sh_small_tail {u δ : ℝ} (hu0 : 0 ≤ u) (hu1 : u ≤ 1 / 4) (hδ0 : 0
     · exact hs _ _ (by norm_num) (by norm_num) sh_node_5 (by linarith) (shQ_le_6 (by linarith) c6)
     · exact hs _ _ (by norm_num) (by norm_num) sh_node_6 (by linarith) (shQ_le_7 (by linarith) hu1)
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.sh_small_tail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sh_small_tail
+
 end FormalResearch.FourQubitEntropy.RenyiFull

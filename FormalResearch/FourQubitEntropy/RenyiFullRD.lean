@@ -66,4 +66,8 @@ theorem rationalDual_of_heads (hS : SmallHeadDual) (hLg : LargeHeadDual) : Ratio
   · exact (hS a b c hc hcb hba h hs).trans (by norm_num)
   · exact (hLg a b c hc hcb hba h (purity_cap_head hc hcb hs (hpν.trans_le hp)) hs).le
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.rationalDual_of_heads' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms rationalDual_of_heads
+
 end FormalResearch.FourQubitEntropy.RenyiFull
