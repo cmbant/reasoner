@@ -156,6 +156,35 @@ theorem ccTay_cell{idx} {{v : ℝ}} (hv0 : {lit(lo)} ≤ v) (hv1 : v ≤ {lit(hi
   rw [key]
   positivity
 ''')
+# CC-3: u^2 ((1-u)(3-2u))^5 <= 1 on [0, 3/32] (weight bound for the chart B)
+uu = sp.symbols('uu')
+Pu = sp.expand(1 - uu**2*((1-uu)*(3-2*uu))**5)
+
+
+def bern1u(lo, hi):
+    Pw = sp.Poly(sp.expand(Pu.subs(uu, lo+(hi-lo)*w)), w)
+    n = Pw.degree()
+    cs = [Pw.coeff_monomial(w**j) for j in range(n+1)]
+    return [sum(R(comb(i, j), comb(n, j))*cs[j] for j in range(i+1)) for i in range(n+1)], n
+
+
+bu, nu_ = bern1u(R(0), R(3, 32))
+assert nu_ == 12 and all(c > 0 for c in bu)
+termsu = " +\n      ".join(f"{lit(bu[i]*comb(nu_, i))} * (w ^ {i} * (1 - w) ^ {nu_-i})" for i in range(nu_+1))
+out.append(f'''
+set_option maxHeartbeats 4000000 in
+/-- `u² ((1-u)(3-2u))⁵ ≤ 1` on `[0, 3/32]` (CC-3). -/
+theorem cc_wB_poly {{u : ℝ}} (h0 : 0 ≤ u) (h1 : u ≤ 3 / 32) : u ^ 2 * ((1 - u) * (3 - 2 * u)) ^ 5 ≤ 1 := by
+  obtain ⟨w, hw0, hw1, rfl⟩ : ∃ w : ℝ, 0 ≤ w ∧ w ≤ 1 ∧ u = (3 / 32 : ℝ) * w :=
+    ⟨u / (3 / 32), by positivity, by rw [div_le_one (by norm_num)]; exact h1, by field_simp⟩
+  have h2 : 0 ≤ 1 - w := by linarith
+  have key : 1 - ((3 / 32 : ℝ) * w) ^ 2 * ((1 - (3 / 32 : ℝ) * w) * (3 - 2 * ((3 / 32 : ℝ) * w))) ^ 5 =
+      {termsu} := by
+    ring
+  have : 0 ≤ 1 - ((3 / 32 : ℝ) * w) ^ 2 * ((1 - (3 / 32 : ℝ) * w) * (3 - 2 * ((3 / 32 : ℝ) * w))) ^ 5 := by
+    rw [key]; positivity
+  linarith
+''')
 out.append('''
 /-- `ccTay ≥ 0` for `|v| ≤ 6/25`. -/
 theorem ccTay_nonneg {v : ℝ} (hv0 : -(6 / 25 : ℝ) ≤ v) (hv1 : v ≤ 6 / 25) : 0 ≤ ccTay v := by
