@@ -198,4 +198,8 @@ theorem neg_dd2_ge {r a b c : ℝ} (hr0 : 0 < r) (hr1 : r < 1) (hc : 0 ≤ c) (h
   have hα2 : α / 2 = -(r * (1 - r) / 2 * m ^ (r - 2)) := by rw [hα]; ring
   linarith
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.neg_dd2_ge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms neg_dd2_ge
+
 end FormalResearch.FourQubitEntropy.RenyiFull

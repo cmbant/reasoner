@@ -252,4 +252,12 @@ theorem hsTilt_slope_numeric {p Z m : ℝ} (hp : p ≤ 9 / 16) (hp0 : 0 < p) (hZ
   norm_num
   nlinarith
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lowTilt_slope_numeric' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lowTilt_slope_numeric
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.hsTilt_slope_numeric' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hsTilt_slope_numeric
+
 end FormalResearch.FourQubitEntropy.RenyiFull
