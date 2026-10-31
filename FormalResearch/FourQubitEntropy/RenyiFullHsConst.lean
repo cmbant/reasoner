@@ -284,4 +284,20 @@ theorem PhiX_le {x : ℝ} (hx : x ∈ Icc (1 : ℝ) 2) :
   · have := PhiX_lt hx h
     exact ⟨this.le, fun h' => absurd h' this.ne⟩
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.delta_log' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms delta_log
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.PhiX_one_lt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms PhiX_one_lt
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.EX_xs' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms EX_xs
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.PhiX_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms PhiX_le
+
 end FormalResearch.FourQubitEntropy.RenyiFull

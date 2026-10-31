@@ -355,4 +355,20 @@ theorem JX_anti : StrictAntiOn JX (Icc 1 2) := by
     linarith
   · positivity
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.JX_deriv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms JX_deriv
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.JX_anti' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms JX_anti
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.EX_deriv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms EX_deriv
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.PhiX_deriv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms PhiX_deriv
+
 end FormalResearch.FourQubitEntropy.RenyiFull

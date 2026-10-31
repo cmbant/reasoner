@@ -1,5 +1,6 @@
 import FormalResearch.FourQubitEntropy.RenyiFullSlope
 import FormalResearch.FourQubitEntropy.RenyiFullProps
+import FormalResearch.FourQubitEntropy.RenyiFullDetChart
 
 /-!
 # `lem:fqe-low-tilt-reduction`: the repeated-largest chart `(a,a,b,c)`
@@ -418,5 +419,23 @@ theorem lowTilt_reduce {q β : ℝ} (α γ : ℝ) (hq1 : 3 / 2 ≤ q) (hq2 : q �
 /-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lowTilt_reduce' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms lowTilt_reduce
+
+/-- **`lem:fqe-low-tilt-reduction`, second claim** (for `RationalDual` at `q_s` with `θ_L`, `β = 3/20`):
+for `1 < q < 2`, `3/2 ≤ q ≤ 8/5`, `0 ≤ β ≤ 3/20`, every four-point probability vector `l` has a spectrum
+`(a,b,c,c)` (`a ≥ b ≥ c ≥ 0`) of the same purity with `Λ_{(α,β,γ)}(l) ≤ Λ_{(α,β,γ)}(a,b,c,c)`.
+Combines `det_reduction` with `lowTilt_reduce`. -/
+theorem lam_reduce_abcc {q β : ℝ} (α γ : ℝ) (hq1 : 3 / 2 ≤ q) (hq2 : q ≤ 8 / 5) (hβ0 : 0 ≤ β)
+    (hβ1 : β ≤ 3 / 20) {l : Fin 4 → ℝ} (hl : IsProb4 l) :
+    ∃ ν : Fin 4 → ℝ, IsProb4 ν ∧ (∃ a b c : ℝ, 0 ≤ c ∧ c ≤ b ∧ b ≤ a ∧ ν = ![a, b, c, c]) ∧
+      pur ν = pur l ∧ Lam q α β γ l ≤ Lam q α β γ ν := by
+  obtain ⟨μ, hμc, hpμ, hcμ, hHμ⟩ := det_reduction q (by linarith) (by linarith) l hl
+  have hL1 : Lam q α β γ l ≤ Lam q α β γ μ := by
+    unfold Lam; rw [hpμ, hcμ]; linarith
+  obtain ⟨ν, hνp, hνe, hpν, hL2, -⟩ := lowTilt_reduce α γ hq1 hq2 hβ0 hβ1 hμc
+  exact ⟨ν, hνp, hνe, hpν.trans hpμ, hL1.trans hL2⟩
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lam_reduce_abcc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lam_reduce_abcc
 
 end FormalResearch.FourQubitEntropy.RenyiFull
