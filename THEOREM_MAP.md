@@ -247,7 +247,7 @@ Statement scope against the current paper (`four_qubit_entropy.tex` and its supp
   `W₁ = 0`; the Schmidt-rank-two consequence `two_flat_rank` holds for every unit state.
 - `lem:seven-entropy-linear-purity`: proved with the sharp slope, `3 - S ≥ (7 log₂ 7/48)(8 tr ρ² - 1) ≥ (49/120)(8 tr ρ² - 1)
   ≥ (2/5)(8 tr ρ² - 1)` (`LinPur.entropy_linear_purity_sharp_nats`, `_rat_nats`, `entropy_linear_purity_nats`), now
-  corollaries of the all-dimension slope and its equality case (branch `paper-e-slope-d` below). The competitor band and the
+  corollaries of the all-dimension slope and its equality case (section on the entropy–purity slope below). The competitor band and the
   eigenvalue cap `497/1000` use the slope `2/5`.
 - `lem:seven-joint-scalar-majorant` (AH-6) holds in the paper on all of `[0,∞)²`; it is proved in branch `paper-e-ah6` for the
   explicit coefficients (`AH6.joint_scalar_majorant`, see "Branch `paper-e-ah6`" below). `meanEntropy3_le_jointP5_unit` gives
@@ -680,7 +680,7 @@ No hypothesis remains: the shadow inequalities are proved, not assumed.
 - No discrepancy was found in the paper's formulas or tables: every `A_j`, `a_s`, `S_j` formula, all 13 dual certificates and all
   13 rank multisets match the Lean definitions.
 
-### Branch `paper-e-slope-d`: the entropy–purity slope and envelope in every dimension; the ceilings of `tab:fqe-other-n`
+### The entropy–purity slope and envelope in every dimension; the ceilings of `tab:fqe-other-n`
 
 Source: `seven_qubit_entropy_compatibility.tex` (`lem:seven-entropy-linear-purity`, `eq:entropy-purity-general-slope`, SP7-5),
 `seven_qubit_entropy_global_upper.tex` (`lem:seven-fixed-purity-envelope`, all dimensions), `four_qubit_entropy.tex`
