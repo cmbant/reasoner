@@ -50,24 +50,4 @@ theorem piMean_gsn (adj : Fin n → ℕ) (hsym : ∀ i j : Fin n, (adj i).testBi
   congr 1
   exact_mod_cast h
 
-/-! ### Splitting the sum over cuts into blocks
-
-To keep kernel memory moderate (the kernel's cache grows with the number of ranks evaluated in one declaration),
-the sum over all `k`-subsets is split according to the intersection `S ∩ A` with a small fixed set `A` of vertices;
-each block is a separate `decide +kernel`. -/
-
-/-- The part of the rank sum over the `k`-subsets `S` with `S ∩ A = T`. -/
-def blk (adj : Fin n → ℕ) (k : ℕ) (A T : Finset (Fin n)) : ℕ :=
-  ∑ S ∈ ((Finset.univ : Finset (Fin n)).powersetCard k).filter (fun S => S ∩ A = T),
-    2 ^ (k - cutRankN adj S)
-
-theorem sum_blocks (adj : Fin n → ℕ) (k : ℕ) (A : Finset (Fin n)) :
-    ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, 2 ^ (k - cutRankN adj S)
-      = ∑ T ∈ A.powerset, blk adj k A T := by
-  unfold blk
-  rw [← Finset.sum_fiberwise_of_maps_to (s := (Finset.univ : Finset (Fin n)).powersetCard k)
-    (t := A.powerset) (g := fun S => S ∩ A)]
-  intro S _
-  exact Finset.mem_powerset.mpr Finset.inter_subset_right
-
 end FormalResearch.FourQubitEntropy.PurityLP
