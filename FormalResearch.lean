@@ -602,6 +602,7 @@ import FormalResearch.FourQubitEntropy.RenyiFullLHApprox
 import FormalResearch.FourQubitEntropy.RenyiFullLHFinalCells
 import FormalResearch.FourQubitEntropy.RenyiFullLargeHead
 import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQK
+import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQV
 import FormalResearch.FourQubitEntropy.PurityLPShadow
 import FormalResearch.FourQubitEntropy.PurityLPDefs
 import FormalResearch.FourQubitEntropy.PurityLPCert
