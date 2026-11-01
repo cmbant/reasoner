@@ -24,4 +24,9 @@ theorem lh_half_poly {z : ℝ} (h0 : 0 ≤ z) (h1 : z ≤ 1) :
   rw [e]
   positivity
 
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lh_half_poly' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lh_half_poly
+
 end FormalResearch.FourQubitEntropy.RenyiFull

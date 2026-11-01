@@ -96,4 +96,21 @@ theorem Hlt_enc : (6640929 / 5000000 : ℝ) ≤ Hlt ∧ Hlt ≤ (16602323 / 1250
   · rw [le_div_iff₀ hc]; nlinarith [h.1, h.2]
   · rw [div_le_iff₀ hc]; nlinarith [h.1, h.2]
 
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lhU_enc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lhU_enc
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lhR_enc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lhR_enc
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.H0t_enc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms H0t_enc
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.Hlt_enc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Hlt_enc
+
 end FormalResearch.FourQubitEntropy.RenyiFull

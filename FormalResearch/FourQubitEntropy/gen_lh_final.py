@@ -135,7 +135,10 @@ theorem lh_det_ge {{z : ℝ}} (h0 : 0 ≤ z) (h1 : z ≤ 1) :
   have : 0 ≤ {bern_cert(DET, 26, md)} := by positivity
   linarith
 
+""" + GUARD + """
 end FormalResearch.FourQubitEntropy.RenyiFull""")
+
+GUARD = "\n/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lhc2_ge' depends on axioms: [propext, Classical.choice, Quot.sound] -/\n#guard_msgs (whitespace := lax) in\n#print axioms lhc2_ge\n\n/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lh_det_ge' depends on axioms: [propext, Classical.choice, Quot.sound] -/\n#guard_msgs (whitespace := lax) in\n#print axioms lh_det_ge\n"
 
 if __name__ == '__main__':
     main()

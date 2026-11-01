@@ -114,4 +114,8 @@ theorem kap_le_kfun {z : ℝ} (hz0 : 0 ≤ z) (hz1 : z ≤ 1) : kap z ≤ kfun q
   unfold cubp at h
   linarith
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.kap_le_kfun' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms kap_le_kfun
+
 end FormalResearch.FourQubitEntropy.RenyiFull

@@ -208,4 +208,12 @@ theorem fS_le_Qh {z a : ℝ} (hz0 : 0 ≤ z) (hz1 : z ≤ 1) (ha : 1 / 2 ≤ a) 
   show fS z a ≤ f0 + D * (a - 127 / 200) + A * (a - 127 / 200) ^ 2
   linarith
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.fS3_nonpos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms fS3_nonpos
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.fS_le_Qh' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms fS_le_Qh
+
 end FormalResearch.FourQubitEntropy.RenyiFull

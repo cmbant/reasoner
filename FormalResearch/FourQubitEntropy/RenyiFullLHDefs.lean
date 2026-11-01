@@ -89,4 +89,12 @@ theorem kfun_le_A {z : ℝ} (hz0 : 0 ≤ z) (hz1 : z ≤ 1 / 2) : kfun qS z ≤ 
   have := K0_bounds
   nlinarith
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.Kstar_le_kfun' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Kstar_le_kfun
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.kfun_le_chord' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms kfun_le_chord
+
 end FormalResearch.FourQubitEntropy.RenyiFull

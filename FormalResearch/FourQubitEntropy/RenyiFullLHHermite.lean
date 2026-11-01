@@ -255,4 +255,12 @@ theorem hermite4_nonneg {A B l u : ℝ} (hAl : A ≤ l) (hlu : l < u) (huB : u �
       (fun w hw => s1d w ⟨by linarith [hw.1], by linarith [hw.2, hz.2]⟩)
     linarith
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.hermite3_nonpos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hermite3_nonpos
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.hermite4_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hermite4_nonneg
+
 end FormalResearch.FourQubitEntropy.RenyiFull

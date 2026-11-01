@@ -158,6 +158,7 @@ theorem log2_d9 : (6931471803 / 10000000000 : ℝ) < Real.log 2 ∧ Real.log 2 <
   · rw [le_div_iff₀ hc]; nlinarith [h.1, h.2]
   · rw [div_le_iff₀ hc]; nlinarith [h.1, h.2]
 """)
+    o.append("\n/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lhU_enc' depends on axioms: [propext, Classical.choice, Quot.sound] -/\n#guard_msgs (whitespace := lax) in\n#print axioms lhU_enc\n\n/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lhR_enc' depends on axioms: [propext, Classical.choice, Quot.sound] -/\n#guard_msgs (whitespace := lax) in\n#print axioms lhR_enc\n\n/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.H0t_enc' depends on axioms: [propext, Classical.choice, Quot.sound] -/\n#guard_msgs (whitespace := lax) in\n#print axioms H0t_enc\n\n/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.Hlt_enc' depends on axioms: [propext, Classical.choice, Quot.sound] -/\n#guard_msgs (whitespace := lax) in\n#print axioms Hlt_enc\n")
     o.append("end FormalResearch.FourQubitEntropy.RenyiFull")
     print("\n".join(o))
 

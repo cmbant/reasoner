@@ -202,4 +202,8 @@ theorem kfun_ge_Hh {q : ℝ} (hq1 : 1 < q) (hq2 : q < 2) :
   have := key z hz
   linarith
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.kfun_ge_Hh' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms kfun_ge_Hh
+
 end FormalResearch.FourQubitEntropy.RenyiFull

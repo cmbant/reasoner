@@ -228,4 +228,20 @@ theorem f4_neg_B {K a B : ℝ} (ha : 1 / 2 ≤ a) (ha' : a ≤ 4 / 5) (hK : 1 / 
   unfold Pg4 gL
   nlinarith
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lhJ_bound_A' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lhJ_bound_A
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lhJ_bound_B' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lhJ_bound_B
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.f4_neg_A' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms f4_neg_A
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.f4_neg_B' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms f4_neg_B
+
 end FormalResearch.FourQubitEntropy.RenyiFull

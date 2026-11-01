@@ -207,4 +207,8 @@ theorem Qh_eq_Qfun (z a : ℝ) :
   unfold Qh Qfun fS fS1
   ring
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.Qfun_anti' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Qfun_anti
+
 end FormalResearch.FourQubitEntropy.RenyiFull

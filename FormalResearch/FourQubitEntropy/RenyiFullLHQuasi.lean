@@ -77,4 +77,8 @@ theorem lhJ_hom (q x N D : ℝ) (hD : D ≠ 0) : lhJ q x (N / D) * D ^ 4 = lhJH 
   field_simp
   ring
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lhJ_quasi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lhJ_quasi
+
 end FormalResearch.FourQubitEntropy.RenyiFull

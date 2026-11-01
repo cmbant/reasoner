@@ -301,4 +301,16 @@ theorem Ha_approx {v : ℝ} (hv1 : 13 / 25 ≤ v) (hv2 : v ≤ 1) :
         mul_le_mul_of_nonneg_left this (by norm_num)
     _ ≤ 1 / 10 ^ 6 := by norm_num
 
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.H0_approx' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms H0_approx
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.Hl_approx' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Hl_approx
+
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.Ha_approx' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Ha_approx
+
 end FormalResearch.FourQubitEntropy.RenyiFull

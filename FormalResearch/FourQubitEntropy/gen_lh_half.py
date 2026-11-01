@@ -21,6 +21,7 @@ def lit(f):
     f = Q(f)
     return f"({f.p} / {f.q} : ℝ)" if f.q != 1 else f"({f.p} : ℝ)"
 
+GUARD = "\n/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.lh_half_poly' depends on axioms: [propext, Classical.choice, Quot.sound] -/\n#guard_msgs (whitespace := lax) in\n#print axioms lh_half_poly\n"
 poly = " + ".join(f"{lit(cj)} * z ^ {j}" for j, cj in enumerate(c))
 print(f"""import FormalResearch.FourQubitEntropy.RenyiFullLHDefs
 
@@ -48,4 +49,5 @@ theorem lh_half_poly {{z : ℝ}} (h0 : 0 ≤ z) (h1 : z ≤ 1) :
   rw [e]
   positivity
 
+""" + GUARD + """
 end FormalResearch.FourQubitEntropy.RenyiFull""")
