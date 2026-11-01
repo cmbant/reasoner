@@ -119,6 +119,18 @@ theorem tsallis_gap_orbit_all {q : ℝ} (h0 : 0 < q) (h2 : q < 2) (h1 : q ≠ 1)
         orbitDist ψ ^ 2 ≤ tsallisCeiling q - meanTsallis q ψ :=
   tsallis_gap_orbit_of_overlap h0 h2 h1 hψ (globalOverlap_all ψ hψ)
 
+/-- **`thm:fqe-critical-orbit-sharp`, unconditional** (the case `Φ ≥ 1/2` from `globalOverlap_all`). -/
+theorem critical_orbit_sharp_dist_all {ψ : Psi} (hψ : normSqPsi ψ = 1) (hW : blochSq ψ = 0) :
+    max (1 - Phi ψ) (3 / 2 - 2 * Phi ψ) ≤ sexticQ ψ ∧
+    (2 + Real.sqrt 2) / 4 * orbitDist ψ ^ 2 ≤ sexticQ ψ ∧
+    (Real.log 3 - 1) / (2 * Real.log 2) *
+        (max (1 - Phi ψ) (3 / 2 - 2 * Phi ψ) + 5 / 2 * Complex.normSq (spinFlipForm ψ))
+      ≤ 1 + Real.log 3 / (2 * Real.log 2) - meanEntropy ψ ∧
+    (Real.log 3 - 1) / (2 * Real.log 2) *
+        ((2 + Real.sqrt 2) / 4 * orbitDist ψ ^ 2 + 5 / 2 * Complex.normSq (spinFlipForm ψ))
+      ≤ 1 + Real.log 3 / (2 * Real.log 2) - meanEntropy ψ :=
+  OD.critical_orbit_sharp_dist hψ hW (fun _ => globalOverlap_all ψ hψ)
+
 /-! ### Axiom audit
 
 The three `native_decide` axioms are the data checks `consCheck_true`, `identCheck_true` and
@@ -155,5 +167,9 @@ The three `native_decide` axioms are the data checks `consCheck_true`, `identChe
 /-- info: 'FormalResearch.FourQubitEntropy.GO.tsallis_gap_orbit_all' depends on axioms: [propext, Classical.choice, Quot.sound, consCheck_true._native.native_decide.ax_1_1, identCheck_true._native.native_decide.ax_1_1, GOProbe.check_all._native.native_decide.ax_1_1] -/
 #guard_msgs (whitespace := lax) in
 #print axioms tsallis_gap_orbit_all
+
+/-- info: 'FormalResearch.FourQubitEntropy.GO.critical_orbit_sharp_dist_all' depends on axioms: [propext, Classical.choice, Quot.sound, consCheck_true._native.native_decide.ax_1_1, identCheck_true._native.native_decide.ax_1_1, GOProbe.check_all._native.native_decide.ax_1_1] -/
+#guard_msgs (whitespace := lax) in
+#print axioms critical_orbit_sharp_dist_all
 
 end FormalResearch.FourQubitEntropy.GO
