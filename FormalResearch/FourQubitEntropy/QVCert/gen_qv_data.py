@@ -15,7 +15,7 @@ DEFAULT = Path('/home/user/QIprojects/ResearchNotes/QI/four_qubit_entropy/code/q
 src = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT
 data = json.loads(src.read_text())
 assert data['format'] == 'qv-positive-norms-v1'
-assert int(data['denominator']) == 48 * 10**21
+assert int(data['denominator']) > 0
 
 
 def lst(xs):
@@ -35,7 +35,7 @@ Paper E, `sup_renyi.tex`, `sec:sup-qk`, verifier-map paragraph QVA.
 * `blocks`: the 14 blocks `k`. A `Block` stores `a_k` (copies of `z`), the spin tuple `p_k`, the positive integer
   weights `q_ki` and the sparse integer multiplicity vectors `v_ki` (lists of `(multiplicity index, coefficient)`).
   In total 96 covariants `Φ_ki = W_{a_k,p_k} v_ki`.
-* `certD = 48 * 10 ^ 21`, the constant `D` of `2 D 𝔇 = Σ_ki q_ki ‖Φ_ki‖²`.
+* `certD`, the constant `D` of `2 D 𝔇 = Σ_ki q_ki ‖Φ_ki‖²`.
 -/
 
 namespace FormalResearch.FourQubitEntropy.QVCert
@@ -64,8 +64,8 @@ for j in ('0', '2', '4', '6'):
 cases.append('  | _ => []')
 out.append('\n'.join(cases))
 out.append('')
-out.append('/-- The constant `D = 48 · 10²¹` of the certificate identity `2 D 𝔇 = Σ_ki q_ki ‖Φ_ki‖²`. -/')
-out.append('def certD : ℤ := 48 * 10 ^ 21')
+out.append('/-- The constant `D` of the certificate identity `2 D 𝔇 = Σ_ki q_ki ‖Φ_ki‖²`. -/')
+out.append(f'def certD : ℤ := {int(data["denominator"])}')
 out.append('')
 names = []
 for idx, b in enumerate(data['blocks']):

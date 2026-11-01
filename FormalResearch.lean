@@ -626,3 +626,5 @@ import FormalResearch.FourQubitEntropy.QVCert.Covariants
 import FormalResearch.FourQubitEntropy.QVCert.QVDefect
 import FormalResearch.FourQubitEntropy.QVCert.Reduction
 import FormalResearch.FourQubitEntropy.QVBlock.All
+import FormalResearch.FourQubitEntropy.QVFrame.All
+import FormalResearch.FourQubitEntropy.QVFrame.FinalQV

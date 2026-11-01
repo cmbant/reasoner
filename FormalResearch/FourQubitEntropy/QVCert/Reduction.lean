@@ -6,8 +6,8 @@ import FormalResearch.FourQubitEntropy.QVCert.Covariants
 # Reduction of (QV) to the certificate identity
 
 Paper E, `sup_renyi.tex`, `sec:sup-qk`: `thm:fqe-sharp-quadratic-variance` follows from the exact identity
-`eq:fqe-qv-allstate-sos`, `2 D 𝔇(z) = Σ_{k,i} q_ki ‖Φ_ki(z)‖²_{w_{p_k}}` with `D = 48 · 10²¹` and positive integer
-weights `q_ki` (96 covariants `Φ_ki = W_{a_k,p_k} v_ki`), because every summand is nonnegative.
+`eq:fqe-qv-allstate-sos`, `2 D 𝔇(z) = Σ_{k,i} q_ki ‖Φ_ki(z)‖²_{w_{p_k}}` with an integer `D > 0` and positive integer
+weights `q_ki` (95 covariants `Φ_ki = W_{a_k,p_k} v_ki`), because every summand is nonnegative.
 
 * `QVCertIdentity`: the polynomial identity, as a `Prop` (to be proved separately: it is the finite
   evaluation at the 83 determining states plus the dimension count of the paper, QVA-3, QG-1/QG-3).
@@ -18,7 +18,7 @@ weights `q_ki` (96 covariants `Φ_ki = W_{a_k,p_k} v_ki`), because every summand
 namespace FormalResearch.FourQubitEntropy.QVCert
 
 /-- **The certificate identity** `eq:fqe-qv-allstate-sos`: `2 D 𝔇(z) = Σ_{k,i} q_ki ‖Φ_ki(z)‖²_{w_{p_k}}`
-for all `z`, with `D = 48 · 10²¹`, `q_ki` the 96 integer weights of `Data.lean` and `Φ_ki` the covariants of
+for all `z`, with `D = certD`, `q_ki` the 95 integer weights of `Data.lean` and `Φ_ki` the covariants of
 `Covariants.lean`. -/
 def QVCertIdentity : Prop :=
   ∀ z : Psi, 2 * (certD : ℝ) * defectD z
