@@ -35,7 +35,7 @@ def SliceNormalForm : Prop :=
   ∀ ψ : Psi, normSqPsi ψ = 1 → ∃ (v : SV) (h : ℝ), IsFrame (sState v) h ∧
     sexticQ (sState v) = sexticQ ψ ∧ Phi ψ = h ^ 2
 
-theorem globalOverlap_of_slice (cert : GOSliceCertificate) (hQ : SliceQIdentity)
+theorem globalOverlap_of_slice_conditional (cert : GOSliceCertificate) (hQ : SliceQIdentity)
     (hNF : SliceNormalForm) (hH : FrameHess) :
     ∀ ψ : Psi, normSqPsi ψ = 1 → GlobalOverlap ψ := by
   intro ψ hψ
@@ -53,9 +53,9 @@ theorem globalOverlap_of_slice (cert : GOSliceCertificate) (hQ : SliceQIdentity)
 
 /-! ### Axiom audit -/
 
-/-- info: 'FormalResearch.FourQubitEntropy.GO.globalOverlap_of_slice' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.FourQubitEntropy.GO.globalOverlap_of_slice_conditional' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms globalOverlap_of_slice
+#print axioms globalOverlap_of_slice_conditional
 
 end
 

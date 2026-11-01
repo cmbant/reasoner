@@ -705,5 +705,11 @@ final polynomial certificate (`eq:fqe-global-overlap-sos`) is **not** proved her
   `(exp sL, exp sR, phase)` is maximal at `s = 0`; `max_second_order`, `hess_gen`, and the polynomial identity `−F''(0) = wᵀ H w`);
   `sHessExp`/`sHess_eq_exp`: the explicit `10×10` matrix of rational linear forms; `SliceConstraints.t_nonneg`, `.Y3` (`t ≥ 0`, `Y₃ ⪰ 0` from `K₀`). Final theorem
   `globalOverlap_of_slice_cert : GOSliceCertificate → SliceQIdentity → ∀ ψ, normSqPsi ψ = 1 → GlobalOverlap ψ`.
-- Open named hypotheses: `SliceQIdentity` (`sexticQ (sState v) = sliceQ v`, `eq:fqe-global-intrinsic` on the slice; numerically
-  checked) and the certificate `GOSliceCertificate` itself.
+- `PaperEGoSliceQId.lean`, `PaperEGoSliceQId2.lean`, `PaperEGoSliceQId3.lean`: **`SliceQIdentity` is proved** (`sliceQIdentity`).
+  `sexticQ_psiZ` is `eq:fqe-global-intrinsic` for the state `ψ_Z` with arbitrary magic matrix `Z`
+  (`Q = −4n³ + 27 n tr(ZZ†)² − 18 tr(ZZ†)³ − 18‖ZZᵀZ − (tr ZᵀZ/2)Z‖²`): adjugate route `Q = 5n³ − 36 Σ_cuts tr adj ρ`,
+  `tr adj(MM†) = ‖adj M‖²`, the entrywise cubic identities `adj13_eq`, `adj14_eq` (`adj M₁₃ = α₁₃(adj Z, N)`) and
+  `Σ|α₁₃|² + Σ|α₁₄|² = ½(‖adj Z‖² + ‖N‖²)` (`quad_identity`); then specialised to `Z = √3 X + iY` (`ZZH_slice`, `re_trace_sq`,
+  `re_trace_cube`, `Nf_slice`).
+- `PaperEGoSliceFinal.lean`: **`globalOverlap_of_slice : GOSliceCertificate → ∀ ψ, normSqPsi ψ = 1 → GlobalOverlap ψ`** (no other
+  hypothesis; axioms `propext`, `Classical.choice`, `Quot.sound`). Open: the certificate `GOSliceCertificate` itself.

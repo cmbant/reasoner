@@ -71,7 +71,7 @@ closest point and the fidelity floor are proved; what remains is the polynomial 
 (`GOSliceCertificate`) and the polynomial identity `SliceQIdentity`. -/
 theorem globalOverlap_of_slice_cert (cert : GOSliceCertificate) (hQ : SliceQIdentity) :
     ∀ ψ : Psi, normSqPsi ψ = 1 → GlobalOverlap ψ :=
-  globalOverlap_of_slice' cert hQ frameHess
+  globalOverlap_of_slice_hess cert hQ frameHess
 
 /-! ### Consequences of the constraints used by the certificate -/
 

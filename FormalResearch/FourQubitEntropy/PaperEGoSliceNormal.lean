@@ -291,9 +291,9 @@ theorem sliceNormalForm : SliceNormalForm := by
 
 /-- `GOSliceCertificate` and the two remaining hypotheses (`SliceQIdentity`, `FrameHess`) give
 `thm:fqe-global-overlap`; the normal-slice coverage is proved. -/
-theorem globalOverlap_of_slice' (cert : GOSliceCertificate) (hQ : SliceQIdentity)
+theorem globalOverlap_of_slice_hess (cert : GOSliceCertificate) (hQ : SliceQIdentity)
     (hH : FrameHess) : ∀ ψ : Psi, normSqPsi ψ = 1 → GlobalOverlap ψ :=
-  globalOverlap_of_slice cert hQ sliceNormalForm hH
+  globalOverlap_of_slice_conditional cert hQ sliceNormalForm hH
 
 /-! ### Axiom audit -/
 
@@ -301,9 +301,9 @@ theorem globalOverlap_of_slice' (cert : GOSliceCertificate) (hQ : SliceQIdentity
 #guard_msgs (whitespace := lax) in
 #print axioms sliceNormalForm
 
-/-- info: 'FormalResearch.FourQubitEntropy.GO.globalOverlap_of_slice'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.FourQubitEntropy.GO.globalOverlap_of_slice_hess' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms globalOverlap_of_slice'
+#print axioms globalOverlap_of_slice_hess
 
 end
 
