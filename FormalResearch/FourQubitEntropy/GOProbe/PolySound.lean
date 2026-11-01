@@ -424,4 +424,19 @@ theorem ev_actSP (g : List ℕ × List ℤ) (hg : ∀ i < 19, g.1.getD i 0 < 19)
     push_cast
     ring
 
+/-- The point `i ↦ f_i x_i`. -/
+noncomputable def flipPt (f : List ℤ) (x : ℕ → ℝ) : ℕ → ℝ := fun i => ((f.getD i 1 : ℤ) : ℝ) * x i
+
+theorem ev_flipSP (f : List ℤ) (x : ℕ → ℝ) : ∀ p : SP, ev x (flipSP f p) = ev (flipPt f x) p
+  | [] => by simp [flipSP]
+  | t :: p => by
+    have : flipSP f (t :: p) = (t.1, actCoef f t.1 * t.2) :: flipSP f p := rfl
+    rw [this, ev_cons, ev_cons, ev_flipSP f x p]
+    congr 1
+    unfold evK actCoef
+    rw [listProd_range 19 (fun i => f.getD i 1 ^ dig i t.1)]
+    simp only [flipPt, mul_pow, Finset.prod_mul_distrib]
+    push_cast
+    ring
+
 end FormalResearch.FourQubitEntropy.GOProbe

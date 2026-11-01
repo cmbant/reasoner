@@ -1,4 +1,5 @@
 import FormalResearch.FourQubitEntropy.GOProbe.Poly
+import FormalResearch.FourQubitEntropy.GOProbe.Types
 
 /-!
 # GO certificate: block data and the reflective checker (definitions, no Mathlib)
@@ -7,7 +8,7 @@ A block is a Gram matrix `G` positive semidefinite by the compact integer test o
 `eq:fqe-compact-gram-test`, a polynomial vector basis `p_i = ∑ atoms` and a constraint matrix `M_c`
 (`cons`).  The checker computes the polynomial `U = ∑_B ∑_{i,j} (W_ij) p_iᵀ M_{c(B)} p_j` (with the integer
 weights `W = grid·G` split into the base part `H + Δ` and the sparse correction `C/cd`), symmetrises it over
-the coordinate maps `acts` and compares with `|acts|·cd·lit`.  All lookups use `getD` with default `0`, so
+the 48 coordinate maps (`perms` times `flips`) and compares with `48·cd·lit`.  All lookups use `getD` with default `0`, so
 that the semantics is defined for arbitrary data (soundness needs no shape assumptions).
 Soundness: `BlockSound.lean`, `Final.lean`.
 -/
@@ -25,16 +26,6 @@ def dot : List Int → List Int → Int
 
 /-- `⌊(grid ⟨F_i, F_j⟩ + s2/2) / s2⌋` (the rounded Gram entry `H`). -/
 def hval (grid s2 : Int) (fi fj : List Int) : Int := (grid * dot fi fj + s2 / 2) / s2
-
-/-- One Gram block. `basis i` lists the atoms `(component, packed monomial, coefficient)` of the polynomial
-vector entry `p_i`; `factor` is the compact factor `A`, `resid` the columns `Δ` (column `j` has `j+1` entries,
-the upper triangle) and `corr` the sparse columns `C`. -/
-structure GBlock where
-  cid : Nat
-  basis : List (List (Nat × Nat × Int))
-  factor : List (List Int)
-  resid : List (List Int)
-  corr : List (List (Nat × Int))
 
 namespace GBlock
 
@@ -115,13 +106,19 @@ def uTotal (grid s2 cd : Int) (cons : List (List (List SP))) (blocks : List GBlo
 def consDg (d : Nat) (cons : List (List (List SP))) : Bool :=
   cons.all fun M => M.all fun row => row.all fun p => dgOK d p
 
+/-- `∑_{g ∈ perms} ∑_{f ∈ flips} U(g • (f • x))` as a polynomial: the coordinate maps are applied to `U` once
+per permutation (this sorts), the sign changes are cheap (keys unchanged). -/
+def symTotal (perms : List (List Nat × List Int)) (flips : List (List Int)) (u : SP) : SP :=
+  sumSP (perms.map fun g => let pg := actSP g u; sumSP (flips.map fun f => flipSP f pg))
+
 /-- The complete reflective check. -/
-def check (cons : List (List (List SP))) (acts : List (List Nat × List Int)) (lit : SP)
-    (grid s2 cd : Int) (blocks : List GBlock) : Bool :=
-  decide (0 < cd) && decide (0 < grid) && decide (0 < s2) && (s2 % 2 == 0) && decide (0 < acts.length) &&
-  acts.all (fun g => (List.range 19).all fun i => decide (g.1.getD i 0 < 19)) &&
+def check (cons : List (List (List SP))) (perms : List (List Nat × List Int)) (flips : List (List Int))
+    (lit : SP) (grid s2 cd : Int) (blocks : List GBlock) : Bool :=
+  decide (0 < cd) && decide (0 < grid) && decide (0 < s2) && (s2 % 2 == 0) &&
+  decide (0 < perms.length) && decide (0 < flips.length) &&
+  perms.all (fun g => (List.range 19).all fun i => decide (g.1.getD i 0 < 19)) &&
   consDg 16 cons && blocks.all (GBlock.atomsDg 16) && blocks.all (GBlock.gramOK cd) &&
-  eqSP (sumSP [sumSP (acts.map fun g => actSP g (uTotal grid s2 cd cons blocks)),
-               scaleSP (-((acts.length : Int) * cd)) lit]) []
+  eqSP (sumSP [symTotal perms flips (uTotal grid s2 cd cons blocks),
+               scaleSP (-((perms.length : Int) * (flips.length : Int) * cd)) lit]) []
 
 end FormalResearch.FourQubitEntropy.GOProbe

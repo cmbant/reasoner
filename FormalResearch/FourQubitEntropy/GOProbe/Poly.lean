@@ -1,3 +1,5 @@
+import FormalResearch.FourQubitEntropy.GOProbe.Types
+
 /-!
 # GO certificate: sparse polynomials in 19 variables with packed keys (definitions, no Mathlib)
 
@@ -9,8 +11,6 @@ the kernel and compiled (`native_decide`).  Semantics and soundness: `PolySound.
 -/
 
 namespace FormalResearch.FourQubitEntropy.GOProbe
-
-abbrev SP := List (Nat × Int)
 
 /-- Merge two sorted polynomials (tail recursive, reversed accumulator); fuel `p.length + q.length + 1`. -/
 def addGo : Nat → SP → SP → SP → SP
@@ -78,5 +78,8 @@ def actCoef (sg : List Int) (k : Nat) : Int :=
 /-- Substitute `x_i ↦ sg_i x_{mi i}`. -/
 def actSP (g : List Nat × List Int) (p : SP) : SP :=
   normSP (p.map fun t => (actKey g.1 t.1, actCoef g.2 t.1 * t.2))
+
+/-- Sign change `x_i ↦ f_i x_i` (keys unchanged, so sortedness is preserved). -/
+def flipSP (f : List Int) (p : SP) : SP := p.map fun t => (t.1, actCoef f t.1 * t.2)
 
 end FormalResearch.FourQubitEntropy.GOProbe

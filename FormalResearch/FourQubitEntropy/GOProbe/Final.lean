@@ -5,9 +5,9 @@ import FormalResearch.FourQubitEntropy.GOProbe.BlockSound
 /-!
 # GO certificate: soundness theorem of the reflective checker
 
-`go_sound`: if `check cons acts lit grid s2 cd blocks = true` and, at every point `g•x` of the orbit of `x`, every
+`go_sound`: if `check cons perms flips lit grid s2 cd blocks = true` and, at every point `g•(f•x)` of the orbit of `x`, every
 constraint matrix `cons[c]` (evaluated at that point) is positive semidefinite, then `ev x lit ≥ 0`.
-Here `cons`, `acts`, `lit` and `blocks` are arbitrary data; the generated data (`GOConst`, `GOData_*`) instantiate
+Here `cons`, `perms`, `flips`, `lit` and `blocks` are arbitrary data; the generated data (`GOConst`, `GOData_*`) instantiate
 them, the identification of `lit` with the paper's target polynomial and the positivity of the constraints at
 closest points are separate obligations.  Claim class: proved.
 -/
@@ -196,39 +196,52 @@ theorem uTotal_nonneg {cons : List (List (List SP))} {blocks : List GBlock} {gri
 
 /-! ### The soundness theorem -/
 
-theorem go_sound {cons : List (List (List SP))} {acts : List (List ℕ × List ℤ)} {lit : SP}
-    {grid s2 cd : ℤ} {blocks : List GBlock}
-    (hchk : check cons acts lit grid s2 cd blocks = true) (x : ℕ → ℝ)
-    (hpsd : ∀ g ∈ acts, ∀ c < cons.length, Psd (act g x) (cons.getD c [])) :
+theorem symTotal_ev (perms : List (List ℕ × List ℤ)) (flips : List (List ℤ)) (U : SP)
+    (hmi : ∀ g ∈ perms, ∀ i < 19, g.1.getD i 0 < 19) (hU : Dg 255 U) (x : ℕ → ℝ) :
+    ev x (symTotal perms flips U) =
+      (perms.map fun g => (flips.map fun f => ev (act g (flipPt f x)) U).sum).sum := by
+  unfold symTotal
+  rw [ev_sumSP, List.map_map]
+  refine congrArg List.sum (List.map_congr_left fun g hg => ?_)
+  simp only [Function.comp]
+  rw [ev_sumSP, List.map_map]
+  refine congrArg List.sum (List.map_congr_left fun f _ => ?_)
+  simp only [Function.comp]
+  rw [ev_flipSP, ev_actSP g (hmi g hg) _ U hU]
+
+theorem go_sound {cons : List (List (List SP))} {perms : List (List ℕ × List ℤ)} {flips : List (List ℤ)}
+    {lit : SP} {grid s2 cd : ℤ} {blocks : List GBlock}
+    (hchk : check cons perms flips lit grid s2 cd blocks = true) (x : ℕ → ℝ)
+    (hpsd : ∀ g ∈ perms, ∀ f ∈ flips, ∀ c < cons.length,
+      Psd (act g (flipPt f x)) (cons.getD c [])) :
     0 ≤ ev x lit := by
   unfold check at hchk
   simp only [Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq, List.all_eq_true] at hchk
-  obtain ⟨⟨⟨⟨⟨⟨⟨⟨⟨hcd, hg⟩, hs⟩, h2m⟩, ha0⟩, hacts⟩, hcdg⟩, hatoms⟩, hgram⟩, heq⟩ := hchk
+  obtain ⟨⟨⟨⟨⟨⟨⟨⟨⟨⟨hcd, hg⟩, hs⟩, h2m⟩, hp0⟩, hf0⟩, hperms⟩, hcdg⟩, hatoms⟩, hgram⟩, heq⟩ := hchk
   have h2 : (2 : ℤ) ∣ s2 := Int.dvd_of_emod_eq_zero h2m
   have hcons : ConsDg 16 cons := consDg_of hcdg
   have hbl : ∀ b ∈ blocks, AtomsDg 16 b := fun b hb => atomsDg_of (hatoms b hb)
   set U := uTotal grid s2 cd cons blocks with hU
   have hUd : Dg 255 U := Dg_mono (by norm_num) (uTotal_spec grid s2 cd hcons hbl).1
-  have hmi : ∀ g ∈ acts, ∀ i < 19, g.1.getD i 0 < 19 := by
-    intro g hg i hi
-    have := hacts g hg i (List.mem_range.2 hi)
-    exact this
+  have hmi : ∀ g ∈ perms, ∀ i < 19, g.1.getD i 0 < 19 := by
+    intro g hgm i hi
+    exact hperms g hgm i (List.mem_range.2 hi)
   have heq' := eqSP_sound _ _ heq
-  have h0 : ev x (sumSP [sumSP (acts.map fun g => actSP g U), scaleSP (-((acts.length : ℤ) * cd)) lit]) = 0 := by
+  have h0 : ev x (sumSP [symTotal perms flips U,
+      scaleSP (-((perms.length : ℤ) * (flips.length : ℤ) * cd)) lit]) = 0 := by
     rw [heq']; simp
   rw [ev_sumSP] at h0
-  simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero, ev_scaleSP, ev_sumSP,
-    List.map_map] at h0
-  have hl : ((acts.map ((ev x) ∘ fun g => actSP g U))).sum = (acts.map fun g => ev (act g x) U).sum := by
-    refine congrArg List.sum (List.map_congr_left fun g hg => ?_)
-    exact ev_actSP g (hmi g hg) x U hUd
-  rw [hl] at h0
-  have hnn : 0 ≤ (acts.map fun g => ev (act g x) U).sum := by
+  simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero, ev_scaleSP] at h0
+  rw [symTotal_ev perms flips U hmi hUd x] at h0
+  have hnn : 0 ≤ (perms.map fun g => (flips.map fun f => ev (act g (flipPt f x)) U).sum).sum := by
     refine List.sum_nonneg fun r hr => ?_
     obtain ⟨g, hgm, rfl⟩ := List.mem_map.1 hr
-    exact uTotal_nonneg hg hs h2 hcd hcons hbl (fun b hb => hgram b hb) (hpsd g hgm)
-  have hpos : (0 : ℝ) < (acts.length : ℝ) * cd := by
-    have : (0 : ℝ) < acts.length := by exact_mod_cast ha0
+    refine List.sum_nonneg fun r' hr' => ?_
+    obtain ⟨f, hfm, rfl⟩ := List.mem_map.1 hr'
+    exact uTotal_nonneg hg hs h2 hcd hcons hbl (fun b hb => hgram b hb) (hpsd g hgm f hfm)
+  have hpos : (0 : ℝ) < (perms.length : ℝ) * (flips.length : ℝ) * cd := by
+    have : (0 : ℝ) < perms.length := by exact_mod_cast hp0
+    have : (0 : ℝ) < flips.length := by exact_mod_cast hf0
     have : (0 : ℝ) < cd := by exact_mod_cast hcd
     positivity
   push_cast at h0

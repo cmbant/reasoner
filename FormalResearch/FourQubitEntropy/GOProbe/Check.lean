@@ -7,7 +7,8 @@ import FormalResearch.FourQubitEntropy.GOProbe.Remainders
 
 `check_all` is the single `native_decide` step of the formalisation (so `#print axioms` shows
 `Lean.ofReduceBool`): the reflective checker `check` of `Block.lean` returns `true` on the generated data
-(`cons`: the 64 constraint matrices, `acts`: the 48 signed lower permutations, `lit`: the target polynomial,
+(`cons`: the 64 constraint matrices, `perms`/`flips`: the 6 signed lower permutations and 8 sign changes
+(together the 48 coordinate maps), `lit`: the target polynomial,
 `allBlocks`: the 277 Gram blocks).  Everything else is proved: `go_sound` (`Final.lean`) turns it into
 `go_certificate_sound`.
 
@@ -34,20 +35,21 @@ set_option maxRecDepth 100000
 /-- `s² = 2^(2 · factorBits)`, the square of the factor scale. -/
 def goS2 : Int := (2 : Int) ^ (2 * factorBits)
 
-theorem check_all : check cons acts lit (gridC : Int) goS2 (corrDen : Int) allBlocks = true := by
+theorem check_all : check cons perms flips lit (gridC : Int) goS2 (corrDen : Int) allBlocks = true := by
   native_decide
 
 /-- **Soundness of the GO certificate.**  If every constraint matrix is positive semidefinite at every point
-`g • x` of the orbit of `x`, then the target polynomial `lit` is nonnegative at `x`. -/
+`g • (f • x)` of the orbit of `x`, then the target polynomial `lit` is nonnegative at `x`. -/
 theorem go_certificate_sound (x : ℕ → ℝ)
-    (hpsd : ∀ g ∈ acts, ∀ c < cons.length, Psd (act g x) (cons.getD c [])) : 0 ≤ ev x lit :=
+    (hpsd : ∀ g ∈ perms, ∀ f ∈ flips, ∀ c < cons.length, Psd (act g (flipPt f x)) (cons.getD c [])) :
+    0 ≤ ev x lit :=
   go_sound check_all x hpsd
 
 /-- The scale `mapDen · grid` of `lit`. -/
 def goK : ℝ := (mapDen : ℝ) * (gridC : ℝ)
 
 theorem go_target_nonneg (x : ℕ → ℝ)
-    (hpsd : ∀ g ∈ acts, ∀ c < cons.length, Psd (act g x) (cons.getD c []))
+    (hpsd : ∀ g ∈ perms, ∀ f ∈ flips, ∀ c < cons.length, Psd (act g (flipPt f x)) (cons.getD c []))
     (hh : 0 ≤ h0 x) (hL : ∀ v : ℕ → ℝ, 0 ≤ ∑ i ∈ Finset.range 3, ∑ j ∈ Finset.range 3, v i * Lstar x i j * v j) :
     0 ≤ ev x lit / goK + Rsq x + Rax x := by
   have h1 := go_certificate_sound x hpsd
