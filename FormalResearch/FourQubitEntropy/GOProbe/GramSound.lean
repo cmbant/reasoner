@@ -151,18 +151,16 @@ theorem sum_ite_ne {m : ℕ} (i : Fin m) (c : ℝ) :
   simp only [this, Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ, Fintype.card_fin,
     nsmul_eq_mul, Finset.sum_ite_eq, Finset.mem_univ, if_true]
 
-/-- **Soundness of the compact Gram test** (`eq:fqe-compact-gram-test`), matrix level.  For an integer factor
-`A`, integer symmetric `R` (= `Δ`) and `C`, and `G_ij = (H_ij + R_ij + C_ij/cd)/grid` with
-`H_ij = ⌊(grid (AAᵀ)_ij + s/2)/s⌋`, the integer test `m cd < 2 (D_ii - ∑_{j≠i} |D_ij|)`,
-`D = cd R + C`, makes `G` positive semidefinite. -/
-theorem gram_psd {m r : ℕ} (A : Fin m → Fin r → ℤ) (R C : Fin m → Fin m → ℤ)
+/-- Decomposition of the Gram matrix: `G = AAᵀ/s + E` with `E` symmetric and diagonally dominant. -/
+theorem gram_decomp {m r : ℕ} (A : Fin m → Fin r → ℤ) (R C : Fin m → Fin m → ℤ)
     (hR : ∀ i j, R i j = R j i) (hC : ∀ i j, C i j = C j i)
     (grid s cd : ℤ) (hg : 0 < grid) (hs : 0 < s) (h2 : (2 : ℤ) ∣ s) (hcd : 0 < cd)
     (hdd : ∀ i, (m : ℤ) * cd <
-      2 * ((cd * R i i + C i i) - ∑ j, if i = j then 0 else |cd * R i j + C i j|))
-    (x : Fin m → ℝ) :
-    0 ≤ ∑ i, ∑ j, x i * (((((grid * (∑ k, A i k * A j k) + s / 2) / s + R i j : ℤ) : ℝ)
-        + (C i j : ℝ) / cd) / grid) * x j := by
+      2 * ((cd * R i i + C i i) - ∑ j, if i = j then 0 else |cd * R i j + C i j|)) :
+    ∃ E : Fin m → Fin m → ℝ, (∀ i j, E i j = E j i) ∧
+      (∀ i, ∑ j, (if i = j then (0 : ℝ) else |E i j|) ≤ E i i) ∧
+      ∀ i j, (((((grid * (∑ k, A i k * A j k) + s / 2) / s + R i j : ℤ) : ℝ)
+        + (C i j : ℝ) / cd) / grid) = ((∑ k, A i k * A j k : ℤ) : ℝ) / s + E i j := by
   classical
   set dot : Fin m → Fin m → ℤ := fun i j => ∑ k, A i k * A j k with hdot
   have hdots : ∀ i j, dot i j = dot j i := fun i j => by
@@ -240,27 +238,168 @@ theorem gram_psd {m r : ℕ} (A : Fin m → Fin r → ℤ) (R C : Fin m → Fin 
       linarith
     convert key using 1
     field_simp
+  exact ⟨E, hEs, hdd', fun i j => by simp only [hE, hG, hP]; ring⟩
+
+/-- **Soundness of the compact Gram test** (`eq:fqe-compact-gram-test`), matrix level.  For an integer factor
+`A`, integer symmetric `R` (= `Δ`) and `C`, and `G_ij = (H_ij + R_ij + C_ij/cd)/grid` with
+`H_ij = ⌊(grid (AAᵀ)_ij + s/2)/s⌋`, the integer test `m cd < 2 (D_ii - ∑_{j≠i} |D_ij|)`,
+`D = cd R + C`, makes `G` positive semidefinite. -/
+theorem gram_psd {m r : ℕ} (A : Fin m → Fin r → ℤ) (R C : Fin m → Fin m → ℤ)
+    (hR : ∀ i j, R i j = R j i) (hC : ∀ i j, C i j = C j i)
+    (grid s cd : ℤ) (hg : 0 < grid) (hs : 0 < s) (h2 : (2 : ℤ) ∣ s) (hcd : 0 < cd)
+    (hdd : ∀ i, (m : ℤ) * cd <
+      2 * ((cd * R i i + C i i) - ∑ j, if i = j then 0 else |cd * R i j + C i j|))
+    (x : Fin m → ℝ) :
+    0 ≤ ∑ i, ∑ j, x i * (((((grid * (∑ k, A i k * A j k) + s / 2) / s + R i j : ℤ) : ℝ)
+        + (C i j : ℝ) / cd) / grid) * x j := by
+  obtain ⟨E, hEs, hdd', hG⟩ := gram_decomp A R C hR hC grid s cd hg hs h2 hcd hdd
+  have hsR : (0 : ℝ) < s := by exact_mod_cast hs
   have hEq := quad_nonneg_of_dd E hEs hdd' x
-  have hPq : 0 ≤ ∑ i, ∑ j, x i * P i j * x j := by
+  have hPq : 0 ≤ ∑ i, ∑ j, x i * (((∑ k, A i k * A j k : ℤ) : ℝ) / s) * x j := by
     have := gram_form_nonneg A x
-    have h' : ∑ i : Fin m, ∑ j : Fin m, x i * P i j * x j
+    have h' : ∑ i : Fin m, ∑ j : Fin m, x i * (((∑ k, A i k * A j k : ℤ) : ℝ) / s) * x j
         = (∑ i : Fin m, ∑ j : Fin m, x i * (((∑ k, A i k * A j k : ℤ) : ℝ)) * x j) / s := by
       rw [Finset.sum_div]
       refine Finset.sum_congr rfl fun i _ => ?_
       rw [Finset.sum_div]
       refine Finset.sum_congr rfl fun j _ => ?_
-      simp only [hP, hdot]
       ring
     rw [h']
     exact div_nonneg this hsR.le
-  have hsplit : ∀ i j, x i * G i j * x j = x i * P i j * x j + x i * E i j * x j := by
-    intro i j; simp only [hE]; ring
-  calc (0 : ℝ) ≤ (∑ i, ∑ j, x i * P i j * x j) + ∑ i, ∑ j, x i * E i j * x j := add_nonneg hPq hEq
-    _ = ∑ i, ∑ j, x i * G i j * x j := by
+  calc (0 : ℝ) ≤ (∑ i, ∑ j, x i * (((∑ k, A i k * A j k : ℤ) : ℝ) / s) * x j)
+        + ∑ i, ∑ j, x i * E i j * x j := add_nonneg hPq hEq
+    _ = _ := by
         rw [← Finset.sum_add_distrib]
         refine Finset.sum_congr rfl fun i _ => ?_
         rw [← Finset.sum_add_distrib]
-        exact Finset.sum_congr rfl fun j _ => (hsplit i j).symm
-    _ = _ := rfl
+        refine Finset.sum_congr rfl fun j _ => ?_
+        rw [hG i j]; ring
+
+/-- Diagonally dominant symmetric `E` against a matrix `Q` with `|Q_ij + Q_ji| ≤ Q_ii + Q_jj`, `Q_ii ≥ 0`. -/
+theorem dd_nonneg {m : ℕ} (E Q : Fin m → Fin m → ℝ) (hsym : ∀ i j, E i j = E j i)
+    (hdd : ∀ i, ∑ j, (if i = j then (0 : ℝ) else |E i j|) ≤ E i i)
+    (hQd : ∀ i, 0 ≤ Q i i) (hQ : ∀ i j, |Q i j + Q j i| ≤ Q i i + Q j j) :
+    0 ≤ ∑ i, ∑ j, E i j * Q i j := by
+  set g : Fin m → Fin m → ℝ := fun i j => if i = j then 0 else |E i j| with hg
+  have hgs : ∀ i j, g i j = g j i := by
+    intro i j
+    simp only [hg]
+    by_cases h : i = j
+    · subst h; rfl
+    · rw [if_neg h, if_neg (Ne.symm h), hsym]
+  have hpt : ∀ i j, (if i = j then 2 * E i i * Q i i else 0) - g i j * (Q i i + Q j j)
+      ≤ E i j * (Q i j + Q j i) := by
+    intro i j
+    by_cases h : i = j
+    · subst h
+      have h0 : g i i = 0 := by simp [hg]
+      rw [if_pos rfl, h0]
+      apply le_of_eq
+      ring
+    · simp only [hg, if_neg h]
+      have h2 : |E i j * (Q i j + Q j i)| ≤ |E i j| * (Q i i + Q j j) := by
+        rw [abs_mul]
+        exact mul_le_mul_of_nonneg_left (hQ i j) (abs_nonneg _)
+      have h3 := neg_abs_le (E i j * (Q i j + Q j i))
+      linarith
+  have hsum := Finset.sum_le_sum fun i (_ : i ∈ (Finset.univ : Finset (Fin m))) =>
+    Finset.sum_le_sum fun j (_ : j ∈ (Finset.univ : Finset (Fin m))) => hpt i j
+  have hd : ∑ i : Fin m, ∑ j : Fin m, (if i = j then 2 * E i i * Q i i else 0)
+      = ∑ i, 2 * E i i * Q i i := by
+    simp [Finset.sum_ite_eq]
+  have hswap : ∑ i : Fin m, ∑ j : Fin m, g i j * Q j j = ∑ i : Fin m, ∑ j : Fin m, g i j * Q i i := by
+    rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+    rw [hgs]
+  have hS : ∑ i : Fin m, ∑ j : Fin m, g i j * Q i i = ∑ i : Fin m, (∑ j, g i j) * Q i i := by
+    simp [Finset.sum_mul]
+  have hq : ∑ i : Fin m, ∑ j : Fin m, g i j * (Q i i + Q j j)
+      = (∑ i : Fin m, ∑ j : Fin m, g i j * Q i i) + ∑ i : Fin m, ∑ j : Fin m, g i j * Q j j := by
+    rw [← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl fun j _ => by ring
+  have hE2 : ∑ i : Fin m, ∑ j : Fin m, E i j * (Q i j + Q j i)
+      = 2 * ∑ i : Fin m, ∑ j : Fin m, E i j * Q i j := by
+    have : ∑ i : Fin m, ∑ j : Fin m, E i j * Q j i = ∑ i : Fin m, ∑ j : Fin m, E i j * Q i j := by
+      rw [Finset.sum_comm]
+      refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+      rw [hsym j i]
+    simp only [mul_add, Finset.sum_add_distrib, this]
+    ring
+  have hlhs : ∑ i : Fin m, ∑ j : Fin m,
+      ((if i = j then 2 * E i i * Q i i else 0) - g i j * (Q i i + Q j j))
+      = ∑ i, 2 * E i i * Q i i - ∑ i : Fin m, ∑ j : Fin m, g i j * (Q i i + Q j j) := by
+    rw [← hd, ← Finset.sum_sub_distrib]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [Finset.sum_sub_distrib]
+  rw [hlhs, hq, hswap, hS, hE2] at hsum
+  have key : 0 ≤ ∑ i : Fin m, (2 * E i i * Q i i - 2 * ((∑ j, g i j) * Q i i)) :=
+    Finset.sum_nonneg fun i _ => by
+      have := mul_nonneg (sub_nonneg.2 (hdd i)) (hQd i)
+      simp only [hg]
+      nlinarith [this]
+  rw [Finset.sum_sub_distrib, ← Finset.mul_sum] at key
+  linarith
+
+/-- The inner product `∑ G_ij B(u_i, u_j)` of a Gram matrix passing the compact test with a Gram family of a
+positive semidefinite bilinear form is nonnegative. -/
+theorem inner_nonneg {V : Type*} [AddCommGroup V] [Module ℝ V] (B : V →ₗ[ℝ] V →ₗ[ℝ] ℝ)
+    (hB : ∀ v, 0 ≤ B v v) {m r : ℕ} (u : Fin m → V) (A : Fin m → Fin r → ℤ) (R C : Fin m → Fin m → ℤ)
+    (hR : ∀ i j, R i j = R j i) (hC : ∀ i j, C i j = C j i)
+    (grid s cd : ℤ) (hg : 0 < grid) (hs : 0 < s) (h2 : (2 : ℤ) ∣ s) (hcd : 0 < cd)
+    (hdd : ∀ i, (m : ℤ) * cd <
+      2 * ((cd * R i i + C i i) - ∑ j, if i = j then 0 else |cd * R i j + C i j|)) :
+    0 ≤ ∑ i, ∑ j, (((((grid * (∑ k, A i k * A j k) + s / 2) / s + R i j : ℤ) : ℝ)
+        + (C i j : ℝ) / cd) / grid) * B (u i) (u j) := by
+  obtain ⟨E, hEs, hdd', hG⟩ := gram_decomp A R C hR hC grid s cd hg hs h2 hcd hdd
+  have hsR : (0 : ℝ) < s := by exact_mod_cast hs
+  have hEq : 0 ≤ ∑ i, ∑ j, E i j * B (u i) (u j) := by
+    apply dd_nonneg E (fun i j => B (u i) (u j)) hEs hdd' (fun i => hB _)
+    intro i j
+    have h1 := hB (u i + u j)
+    have h2 := hB (u i - u j)
+    simp only [map_add, map_sub, LinearMap.add_apply, LinearMap.sub_apply] at h1 h2
+    rw [abs_le]
+    constructor <;> linarith
+  have hPq : 0 ≤ ∑ i, ∑ j, (((∑ k, A i k * A j k : ℤ) : ℝ) / s) * B (u i) (u j) := by
+    have e1 : ∀ k : Fin r, B (∑ i, (A i k : ℝ) • u i) (∑ j, (A j k : ℝ) • u j)
+        = ∑ i : Fin m, ∑ j : Fin m, (A i k : ℝ) * (A j k : ℝ) * B (u i) (u j) := by
+      intro k
+      have f1 : ∀ w, B (∑ i, (A i k : ℝ) • u i) w = ∑ i, (A i k : ℝ) * B (u i) w := by
+        intro w
+        simp [map_sum, LinearMap.sum_apply, map_smul, LinearMap.smul_apply]
+      have f2 : ∀ v, B v (∑ j, (A j k : ℝ) • u j) = ∑ j, (A j k : ℝ) * B v (u j) := by
+        intro v
+        simp [map_sum, map_smul]
+      rw [f1]
+      refine Finset.sum_congr rfl fun i _ => ?_
+      rw [f2, Finset.mul_sum]
+      exact Finset.sum_congr rfl fun j _ => by ring
+    have e2 : ∑ k : Fin r, ∑ i : Fin m, ∑ j : Fin m, (A i k : ℝ) * (A j k : ℝ) * B (u i) (u j)
+        = ∑ i : Fin m, ∑ j : Fin m, ((∑ k, A i k * A j k : ℤ) : ℝ) * B (u i) (u j) := by
+      rw [Finset.sum_comm]
+      refine Finset.sum_congr rfl fun i _ => ?_
+      rw [Finset.sum_comm]
+      refine Finset.sum_congr rfl fun j _ => ?_
+      push_cast
+      rw [Finset.sum_mul]
+    have h' : ∑ i : Fin m, ∑ j : Fin m, (((∑ k, A i k * A j k : ℤ) : ℝ) / s) * B (u i) (u j)
+        = (∑ k : Fin r, B (∑ i, (A i k : ℝ) • u i) (∑ j, (A j k : ℝ) • u j)) / s := by
+      simp only [e1]
+      rw [e2, Finset.sum_div]
+      refine Finset.sum_congr rfl fun i _ => ?_
+      rw [Finset.sum_div]
+      exact Finset.sum_congr rfl fun j _ => by ring
+    rw [h']
+    exact div_nonneg (Finset.sum_nonneg fun k _ => hB _) hsR.le
+  calc (0 : ℝ) ≤ (∑ i, ∑ j, (((∑ k, A i k * A j k : ℤ) : ℝ) / s) * B (u i) (u j))
+        + ∑ i, ∑ j, E i j * B (u i) (u j) := add_nonneg hPq hEq
+    _ = _ := by
+        rw [← Finset.sum_add_distrib]
+        refine Finset.sum_congr rfl fun i _ => ?_
+        rw [← Finset.sum_add_distrib]
+        refine Finset.sum_congr rfl fun j _ => ?_
+        rw [hG i j]; ring
 
 end FormalResearch.FourQubitEntropy.GOProbe
