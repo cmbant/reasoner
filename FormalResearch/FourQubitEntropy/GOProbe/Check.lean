@@ -20,7 +20,7 @@ python3 FormalResearch/FourQubitEntropy/gen_go_cert.py
 lake build FormalResearch.FourQubitEntropy.GOProbe.Check
 ```
 
-(`QIPROJECTS` names the QIprojects checkout; the generator output is byte-reproducible; each data module
+(the generator reads the certificate file `code/data/m4_global_overlap.json`; its output is byte-reproducible; each data module
 elaborates in under 4 GB.)  `Smoke.lean` is a committed toy certificate that needs no generated data.
 
 Interface to the paper's objects: `GOGlue/Final.lean` (data-dependent, like this module) proves that `lit / (mapDen · gridC)`
