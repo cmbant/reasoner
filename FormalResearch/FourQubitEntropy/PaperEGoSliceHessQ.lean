@@ -73,6 +73,20 @@ theorem globalOverlap_of_slice_cert (cert : GOSliceCertificate) (hQ : SliceQIden
     ∀ ψ : Psi, normSqPsi ψ = 1 → GlobalOverlap ψ :=
   globalOverlap_of_slice' cert hQ frameHess
 
+/-! ### Consequences of the constraints used by the certificate -/
+
+/-- The principal `(0,0)` entry of `K₀` gives `t ≥ 0`. -/
+theorem SliceConstraints.t_nonneg {v : SV} (hc : SliceConstraints v) : 0 ≤ v 0 := by
+  have := hc.K0 (fun i => if i = 0 then 1 else 0)
+  simp [Fin.sum_univ_four, sK0, sX] at this
+  linarith
+
+/-- The lower principal block of `K₀` gives `Y₃ ⪰ 0`. -/
+theorem SliceConstraints.Y3 {v : SV} (hc : SliceConstraints v) : QF (sY3 v) := by
+  intro w
+  have := hc.K0 (fun i => if h : i = 0 then 0 else w (i.pred h))
+  simpa [Fin.sum_univ_four, Fin.sum_univ_three, sK0, sY3, sY] using this
+
 /-! ### Axiom audit -/
 
 /-- info: 'FormalResearch.FourQubitEntropy.GO.frameHess' depends on axioms: [propext, Classical.choice, Quot.sound] -/
