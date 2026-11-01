@@ -611,7 +611,8 @@ import FormalResearch.FourQubitEntropy.PurityLPRank
 import FormalResearch.FourQubitEntropy.PurityLPGraph
 import FormalResearch.FourQubitEntropy.PurityLPCutRank
 import FormalResearch.FourQubitEntropy.PurityLPGraphMean
-import FormalResearch.FourQubitEntropy.PurityLPBlocks
+import FormalResearch.FourQubitEntropy.PurityLPMaskSum
+import FormalResearch.FourQubitEntropy.PurityLPRankHist
 import FormalResearch.FourQubitEntropy.PurityLPShadowHom
 import FormalResearch.FourQubitEntropy.PurityLPGraphDataA
 import FormalResearch.FourQubitEntropy.PurityLPGraphDataB
