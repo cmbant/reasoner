@@ -320,6 +320,8 @@ import FormalResearch.FourQubitEntropy.SevenQubitEigenCap497Pure
 import FormalResearch.FourQubitEntropy.SevenQubitCompetitorBand
 import FormalResearch.FourQubitEntropy.SevenQubitConseqEnvelope
 import FormalResearch.FourQubitEntropy.SevenQubitConseqMajorant
+import FormalResearch.FourQubitEntropy.EntropyPurityEnvelope
+import FormalResearch.FourQubitEntropy.EntropyPuritySlope
 import FormalResearch.FourQubitEntropy.SevenQubitConseqSpectrum
 import FormalResearch.FourQubitEntropy.SevenQubitIcoXBlockPurity
 import FormalResearch.FourQubitEntropy.SevenQubitIcoXFlatPhase
@@ -620,3 +622,4 @@ import FormalResearch.FourQubitEntropy.PurityLPGraphData16
 import FormalResearch.FourQubitEntropy.PurityLPGraphData17
 import FormalResearch.FourQubitEntropy.PurityLPGraphData18
 import FormalResearch.FourQubitEntropy.PurityLPMain
+import FormalResearch.FourQubitEntropy.PurityLPEntropyCeiling

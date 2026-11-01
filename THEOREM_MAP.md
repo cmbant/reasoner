@@ -246,8 +246,9 @@ Statement scope against the current paper (`four_qubit_entropy.tex` and its supp
   the equality cases and sharpness are not formalized there. `two_flat_rigidity` is the critical specialization
   `W₁ = 0`; the Schmidt-rank-two consequence `two_flat_rank` holds for every unit state.
 - `lem:seven-entropy-linear-purity`: proved with the sharp slope, `3 - S ≥ (7 log₂ 7/48)(8 tr ρ² - 1) ≥ (49/120)(8 tr ρ² - 1)
-  ≥ (2/5)(8 tr ρ² - 1)` (`LinPur.entropy_linear_purity_sharp_nats`, `_rat_nats`, `entropy_linear_purity_nats`); the equality
-  cases are not formalized. The competitor band and the eigenvalue cap `497/1000` use the slope `2/5`.
+  ≥ (2/5)(8 tr ρ² - 1)` (`LinPur.entropy_linear_purity_sharp_nats`, `_rat_nats`, `entropy_linear_purity_nats`), now
+  corollaries of the all-dimension slope and its equality case (branch `paper-e-slope-d` below). The competitor band and the
+  eigenvalue cap `497/1000` use the slope `2/5`.
 - `lem:seven-joint-scalar-majorant` (AH-6) holds in the paper on all of `[0,∞)²`; it is proved in branch `paper-e-ah6` for the
   explicit coefficients (`AH6.joint_scalar_majorant`, see "Branch `paper-e-ah6`" below). `meanEntropy3_le_jointP5_unit` gives
   `E₃ ≤ 𝒫₅` for every unit vector under `ScalarMajorant (polyH K h) 1`; the `497/1000` versions are weaker consequences.
@@ -678,3 +679,31 @@ No hypothesis remains: the shadow inequalities are proved, not assumed.
   Rank histograms for **all** `n = 4,…,12,14,…,18` are now kernel-checked (before: only `n ≤ 15`).
 - No discrepancy was found in the paper's formulas or tables: every `A_j`, `a_s`, `S_j` formula, all 13 dual certificates and all
   13 rank multisets match the Lean definitions.
+
+### Branch `paper-e-slope-d`: the entropy–purity slope and envelope in every dimension; the ceilings of `tab:fqe-other-n`
+
+Source: `seven_qubit_entropy_compatibility.tex` (`lem:seven-entropy-linear-purity`, `eq:entropy-purity-general-slope`, SP7-5),
+`seven_qubit_entropy_global_upper.tex` (`lem:seven-fixed-purity-envelope`, all dimensions), `four_qubit_entropy.tex`
+(`tab:fqe-other-n`, verifier `verify_entropy_purity_upper_table.py`, EU-1/EU-2).  No `sorry`, `native_decide` or `axiom`;
+`#print axioms` of every theorem named here is `[propext, Classical.choice, Quot.sound]`.  Namespace
+`FormalResearch.FourQubitEntropy.EntropyPurity` unless stated.
+
+- `EntropyPurityEnvelope.lean` (`lem:seven-fixed-purity-envelope`, every `d ≥ 2`): `entropy_le_gEnv`: for a probability vector
+  `λ` on a `d`-point set, `∑ -λ ln λ ≤ gEnv d (∑ λ²)`, `gEnv d p` = entropy (nats) of `(t, ((1-t)/(d-1))^{d-1})`,
+  `t = spikeWt d p = (1 + √((d-1)(dp-1)))/d`; `entropy_eq_gEnv_iff`: equality iff `λ` is that one-spike spectrum (uniform and
+  pure ends included).  The equality case uses the strict Hermite majorant `majorant_strict` (proved here).
+- `EntropyPuritySlope.lean` (`lem:seven-entropy-linear-purity`, every `d ≥ 3`): `entropy_purity_slope_nats`
+  `(d-1) ln(d-1)/(d(d-2)) · (d ∑ λ² - 1) ≤ ln d - ∑ -λ ln λ`; `entropy_purity_slope_bits` `slopeBits d · (d ∑ λ² - 1) ≤
+  log₂ d - S`, `slopeBits d = (d-1) log₂(d-1)/(d(d-2))`; `entropy_purity_slope_eq_iff`: equality iff `λ` is uniform or
+  `((d-1)/d, (1/[d(d-1)])^{d-1})`.  The one-spike function: `Fm_ge_sharp` (`m² ln m/(m-1) · r² ≤ F_m(r)` on `[0,1]`, `m > 1`),
+  `Fm_eq_iff` (equality iff `r ∈ {0, (m-1)/m}`), `spikeEnt_eq`.
+- The `d = 8` theorems are corollaries with unchanged names and statements: `SevenQubitConseq.entropy_le_g8` (`g8_eq_gEnv`),
+  `LinPur.entropy_linear_purity_sharp_nats`, `LinPur.Fsp_ge_sharp` (`Fsp_eq_Fm`), `LinPur.Gsp_spike`.
+- `PurityLPEntropyCeiling.lean` (namespace `PurityLP`): `cutEntropyBits ψ S` (von Neumann entropy in bits of `rdm ψ S` from its
+  Hermitian eigenvalues), `meanEntropy ψ k = C(n,k)⁻¹ Σ_{|S|=k} cutEntropyBits ψ S`; `meanEntropy_le`: for every unit
+  `ψ : Ψ n` and `2 ≤ k ≤ n`, `E_k(ψ) ≤ k - c_{2^k}(2^k π_k(ψ) - 1)` (`π_k = piMean ψ k`).  With `minPurity<n>`:
+  `entropyCeiling<n>` for `n = 8,9,10,11,12,14,15,16,17,18` (`k = ⌊n/2⌋`) states, for every unit `ψ`,
+  `E_k(ψ) ≤ k - c_{2^k}(2^k L_n - 1)` and `E_k(ψ) <` the displayed decimal (`3.9029, 3.9627, 4.9163, 4.9772, 5.9594, 6.9702,
+  6.9874, 7.9800, 7.9928, 8.9901`, as exact rationals).  The decimal step bounds `log₂(2^k-1)` below by the `arctanh` series
+  (`LinPur.arctanhHi`) and `ln 2 > 0.6931471803`.  Not formalised: whether the table's ceilings are attained (they are upper
+  bounds only).
