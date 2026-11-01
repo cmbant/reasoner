@@ -189,4 +189,43 @@ theorem lhJ_bound_B {K a : ℝ} (ha : 1 / 2 ≤ a) (ha' : a ≤ 4 / 5) (hK : 1 /
   · have h2 : lhBd (1696 / 25) (2 * a - 1) ≤ lhBd (4293 / 50) (2 * a - 1) := lhBd_mono (by norm_num)
     exact (lh_poly_H h0 h1).trans h2
 
+
+/-- `h_aaaa < M` from the bound on `J`. -/
+theorem hd4_lt_of_J {K a M : ℝ} (ha : 1 / 2 ≤ a) (ha' : a ≤ 4 / 5) (hK : 0 < K)
+    (hJ : lhJ qS (2 * a - 1) (lhY qS K a) ≤ lhBd M (2 * a - 1)) (hM : 0 < M) : hd4 qS K a < M := by
+  have h0 : 0 ≤ 2 * a - 1 := by linarith
+  have h1 : 2 * a - 1 ≤ 3 / 5 := by linarith
+  have hx4 : 0 < (1 - (2 * a - 1) ^ 2) ^ 4 := by
+    have : 0 < 1 - (2 * a - 1) ^ 2 := by nlinarith
+    positivity
+  have hq : qS = 1587 / 1000 := rfl
+  have hL := log2_bounds
+  have hr : 0 < qS - 1 := by rw [hq]; norm_num
+  have hc : 0 < (qS - 1) * Real.log 2 := mul_pos hr (by linarith [hL.1])
+  have e : hd4 qS K a = 16 * qS * lhJ qS (2 * a - 1) (lhY qS K a) /
+      ((1 - (2 * a - 1) ^ 2) ^ 4 * ((qS - 1) * Real.log 2)) := by
+    have hx4' := hx4.ne'
+    have hc' := hc.ne'
+    unfold hd4 lhm4
+    field_simp
+  rw [e, div_lt_iff₀ (mul_pos hx4 hc)]
+  unfold lhBd at hJ
+  rw [le_div_iff₀ (by rw [hq]; norm_num)] at hJ
+  have hr' : qS - 1 = 587 / 1000 := by rw [hq]; norm_num
+  rw [hr']
+  rw [hr'] at hc
+  nlinarith [mul_pos (mul_pos hM hx4) (sub_pos.2 hL.1)]
+
+theorem f4_neg_A {K a B : ℝ} (ha : 1 / 2 ≤ a) (ha' : a ≤ 4 / 5) (hK : 1 / 2 ≤ K) (hK' : K ≤ 61 / 80)
+    (hB : 1 / 3 ≤ B) : hd4 qS K a + Pg4 gL B < 0 := by
+  have := hd4_lt_of_J ha ha' (by linarith) (lhJ_bound_A ha ha' hK hK') (by norm_num)
+  unfold Pg4 gL
+  nlinarith
+
+theorem f4_neg_B {K a B : ℝ} (ha : 1 / 2 ≤ a) (ha' : a ≤ 4 / 5) (hK : 1 / 2 ≤ K) (hK' : K ≤ 1)
+    (hB : 1 / 2 ≤ B) : hd4 qS K a + Pg4 gL B < 0 := by
+  have := hd4_lt_of_J ha ha' (by linarith) (lhJ_bound_B ha ha' hK hK') (by norm_num)
+  unfold Pg4 gL
+  nlinarith
+
 end FormalResearch.FourQubitEntropy.RenyiFull
