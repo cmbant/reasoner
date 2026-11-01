@@ -152,4 +152,60 @@ theorem fS3_nonpos {z a : ℝ} (hz0 : 0 ≤ z) (hz1 : z ≤ 1) (ha : 1 / 2 ≤ a
     (fun w hw => (fS4_neg hz0 hz1 (by linarith [hw.1]) (by linarith [hw.2])).le)
   linarith
 
+
+/-! ### The quadratic Hermite upper bound -/
+
+/-- The quadratic Hermite interpolant of `f(·, z)` at the single node `1/2` and the double node `127/200`. -/
+noncomputable def Qh (z a : ℝ) : ℝ :=
+  fS z (127 / 200) + fS1 z (127 / 200) * (a - 127 / 200) +
+    (fS z (1 / 2) - fS z (127 / 200) + 27 / 200 * fS1 z (127 / 200)) / (27 / 200) ^ 2 * (a - 127 / 200) ^ 2
+
+theorem fS_le_Qh {z a : ℝ} (hz0 : 0 ≤ z) (hz1 : z ≤ 1) (ha : 1 / 2 ≤ a) (ha' : a ≤ 4 / 5) :
+    fS z a ≤ Qh z a := by
+  set f0 := fS z (127 / 200) with hf0
+  set D := fS1 z (127 / 200) with hD
+  set A := (fS z (1 / 2) - f0 + 27 / 200 * D) / (27 / 200) ^ 2 with hA
+  have hI : ∀ w ∈ Icc (1 / 2 : ℝ) (4 / 5), 0 < w ∧ w < 1 := fun w hw =>
+    ⟨by linarith [hw.1], by linarith [hw.2]⟩
+  have key := hermite3_nonpos (A := 1 / 2) (B := 4 / 5) (m := 127 / 200) (by norm_num) (by norm_num)
+    (R := fun w => fS z w - (f0 + D * (w - 127 / 200) + A * (w - 127 / 200) ^ 2))
+    (R1 := fun w => fS1 z w - (D + 2 * A * (w - 127 / 200)))
+    (R2 := fun w => fS2 z w - 2 * A) (R3 := fun w => fS3 z w)
+    (fun w hw => by
+      have h1 := hasDerivAt_fS hz0 hz1 (hI w hw).1 (hI w hw).2
+      have h2 : HasDerivAt (fun w : ℝ => f0 + D * (w - 127 / 200) + A * (w - 127 / 200) ^ 2)
+          (D + 2 * A * (w - 127 / 200)) w := by
+        have := (((hasDerivAt_id w).sub_const (127 / 200 : ℝ)).const_mul D).const_add f0 |>.add
+          ((((hasDerivAt_id w).sub_const (127 / 200 : ℝ)).pow 2).const_mul A)
+        refine this.congr_deriv ?_
+        simp
+        ring
+      exact h1.sub h2)
+    (fun w hw => by
+      have h1 := hasDerivAt_fS1 hz0 hz1 (hI w hw).1 (hI w hw).2
+      have h2 : HasDerivAt (fun w : ℝ => D + 2 * A * (w - 127 / 200)) (2 * A) w := by
+        have := ((hasDerivAt_id w).sub_const (127 / 200 : ℝ)).const_mul (2 * A) |>.const_add D
+        refine this.congr_deriv ?_
+        simp
+      exact h1.sub h2)
+    (fun w hw => by
+      have h1 := hasDerivAt_fS2 hz0 hz1 (hI w hw).1 (hI w hw).2
+      have h2 : HasDerivAt (fun w : ℝ => 2 * A) 0 w := hasDerivAt_const w (2 * A)
+      exact (h1.sub h2).congr_deriv (by simp))
+    (fun w hw => fS3_nonpos hz0 hz1 hw.1 hw.2)
+    (by
+      show fS z (1 / 2) - (f0 + D * (1 / 2 - 127 / 200) + A * (1 / 2 - 127 / 200) ^ 2) = 0
+      have : f0 + D * (1 / 2 - 127 / 200) + A * (1 / 2 - 127 / 200) ^ 2 = fS z (1 / 2) := by
+        rw [hA]; field_simp; ring
+      rw [this]; ring)
+    (by
+      show fS z (127 / 200) - (f0 + D * (127 / 200 - 127 / 200) + A * (127 / 200 - 127 / 200) ^ 2) = 0
+      rw [← hf0]; ring)
+    (by
+      show fS1 z (127 / 200) - (D + 2 * A * (127 / 200 - 127 / 200)) = 0
+      rw [← hD]; ring)
+  have := key a ⟨ha, ha'⟩
+  show fS z a ≤ f0 + D * (a - 127 / 200) + A * (a - 127 / 200) ^ 2
+  linarith
+
 end FormalResearch.FourQubitEntropy.RenyiFull
