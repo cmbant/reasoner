@@ -13,6 +13,9 @@ Full check, `lake build ...GOProbe.Check` (one native_decide, interpreted IR):
     correction part of U                                                    8 s
     one coordinate map actSP on U (134,574 terms: 1.5 s sort + 6.9 s key transform)   8.4 s   (6 permutations)
     sign changes flipSP (48 per full check, keys unchanged, no sort)
+  Negative regression (one-off module, not committed because the repository allows `native_decide` only in
+  Check.lean): the same `check` with the first coefficient of `lit` increased by 1 evaluates to `false`
+  (`check cons perms flips badLit ... allBlocks = false` by `native_decide`, 325 s).
   `Smoke.lean` (toy certificate, kernel `decide +kernel`) builds in 7 s.
 
 Earlier kernel measurements with the first checker (commit 5b38d0f, structural recursion, Mathlib-free):
