@@ -551,7 +551,6 @@ import FormalResearch.FourQubitEntropy.RenyiFullSliverCells
 import FormalResearch.FourQubitEntropy.RenyiFullSliverEnt
 import FormalResearch.FourQubitEntropy.RenyiFullSliverCore
 import FormalResearch.FourQubitEntropy.RenyiFullSliverProof
-import FormalResearch.FourQubitEntropy.RenyiFullHeadlineSL
 import FormalResearch.FourQubitEntropy.RenyiFullDivDiff
 import FormalResearch.FourQubitEntropy.RenyiFullPath
 import FormalResearch.FourQubitEntropy.RenyiFullSlope
@@ -561,7 +560,6 @@ import FormalResearch.FourQubitEntropy.RenyiFullTangent
 import FormalResearch.FourQubitEntropy.RenyiFullHsOne
 import FormalResearch.FourQubitEntropy.RenyiFullHsConst
 import FormalResearch.FourQubitEntropy.RenyiFullHsProof
-import FormalResearch.FourQubitEntropy.RenyiFullHeadlineHS
 import FormalResearch.FourQubitEntropy.RenyiFullBQOde
 import FormalResearch.FourQubitEntropy.RenyiFullBQG
 import FormalResearch.FourQubitEntropy.RenyiFullBQCells
@@ -574,8 +572,6 @@ import FormalResearch.FourQubitEntropy.RenyiFullCCMoment
 import FormalResearch.FourQubitEntropy.RenyiFullCCBinary
 import FormalResearch.FourQubitEntropy.RenyiFullCCPairs
 import FormalResearch.FourQubitEntropy.RenyiFullCappedCubic
-import FormalResearch.FourQubitEntropy.RenyiFullHeadlineCC
-import FormalResearch.FourQubitEntropy.RenyiFullHeadlineRD
 import FormalResearch.FourQubitEntropy.RenyiFullRD
 import FormalResearch.FourQubitEntropy.RenyiFullSHJensen
 import FormalResearch.FourQubitEntropy.RenyiFullSHBin
@@ -588,7 +584,6 @@ import FormalResearch.FourQubitEntropy.RenyiFullSHLargeCells
 import FormalResearch.FourQubitEntropy.RenyiFullSHLarge
 import FormalResearch.FourQubitEntropy.RenyiFullSHLargeTail
 import FormalResearch.FourQubitEntropy.RenyiFullSmallHead
-import FormalResearch.FourQubitEntropy.RenyiFullHeadlineLH
 import FormalResearch.FourQubitEntropy.RenyiFullLHHermite
 import FormalResearch.FourQubitEntropy.RenyiFullLHChain
 import FormalResearch.FourQubitEntropy.RenyiFullLHQuasi

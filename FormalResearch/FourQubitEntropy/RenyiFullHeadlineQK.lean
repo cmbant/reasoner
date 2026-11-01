@@ -1,12 +1,22 @@
-import FormalResearch.FourQubitEntropy.RenyiFullHeadlineLH
+import FormalResearch.FourQubitEntropy.RenyiFullHeadline
+import FormalResearch.FourQubitEntropy.RenyiFullSliverProof
+import FormalResearch.FourQubitEntropy.RenyiFullHsProof
+import FormalResearch.FourQubitEntropy.RenyiFullCappedCubic
+import FormalResearch.FourQubitEntropy.RenyiFullSmallHead
 import FormalResearch.FourQubitEntropy.RenyiFullLargeHead
 
 /-!
-# Headline with only QK
+# The Rényi envelope above order one, assuming only QK
 
-`renyi_envelope_above_one_QK` is `renyi_envelope_above_one_RD` with `RationalDual` proved from its two chart bounds:
-`smallHeadDual` (`lem:fqe-small-head-dual`) and `largeHeadDual` (`lem:fqe-large-head-dual`).  The only remaining
-hypothesis is `QuadraticVarianceBound` (QK).
+`renyi_envelope_above_one_QK` is the conditional headline `renyi_envelope_above_one` with every per-spectrum
+certificate proved:
+* `hsSupporting` (`lem:fqe-hs-polynomial`),
+* `rationalDual_of_heads smallHeadDual largeHeadDual` (`lem:fqe-rational-dual`, from `lem:fqe-small-head-dual` and
+  `lem:fqe-large-head-dual`),
+* `cappedCubic` (`lem:fqe-capped-cubic`),
+* `clusterSliver` (`lem:fqe-cluster-sliver`).
+
+The only remaining hypothesis is `QuadraticVarianceBound` (QK, `thm:fqe-quadratic-variance`).
 -/
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
@@ -23,7 +33,8 @@ theorem renyi_envelope_above_one_QK (hQK : QuadraticVarianceBound)
     (hsRenyi q = 5 / 3 → meanRenyi q ψ = 5 / 3 →
       IsHsTriple (cutSpec₂ ψ) (cutSpec₃ ψ) (cutSpec₄ ψ) ∨
         IsClusterTriple (cutSpec₂ ψ) (cutSpec₃ ψ) (cutSpec₄ ψ)) :=
-  renyi_envelope_above_one_LH largeHeadDual hQK hψ hq
+  renyi_envelope_above_one hsSupporting (rationalDual_of_heads smallHeadDual largeHeadDual) cappedCubic
+    clusterSliver hQK hψ hq
 
 /-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.renyi_envelope_above_one_QK' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
