@@ -619,3 +619,8 @@ import FormalResearch.FourQubitEntropy.PurityLPGraphData16
 import FormalResearch.FourQubitEntropy.PurityLPGraphData17
 import FormalResearch.FourQubitEntropy.PurityLPGraphData18
 import FormalResearch.FourQubitEntropy.PurityLPMain
+import FormalResearch.FourQubitEntropy.QVCert.Data
+import FormalResearch.FourQubitEntropy.QVCert.Positivity
+import FormalResearch.FourQubitEntropy.QVCert.Covariants
+import FormalResearch.FourQubitEntropy.QVCert.QVDefect
+import FormalResearch.FourQubitEntropy.QVCert.Reduction
