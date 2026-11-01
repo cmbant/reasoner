@@ -1,0 +1,24 @@
+GO certificate: build measurements (Lean 4.34.0, 4 cores / 16 GB shared with other agents; times include
+waiting for the shared lock in some rows, so they are upper bounds)
+
+Data (python3 gen_go_cert.py; byte-identical across runs; not committed, 22 MB):
+  GOConst.lean 2.3 MB     elaboration 28 s, 1.5 GB
+  GOData_0..12 (13 parts, <= 1.8 MB each)   11-62 s each, peak 2.0 GB (GOData_7)
+
+Full check, `lake build ...GOProbe.Check` (one native_decide, interpreted IR):
+  330 s wall, RSS 7.5 GB (the RSS is dominated by the memory-mapped `import Mathlib`; the checker's own data and
+  intermediate polynomials stay below 1.5 GB: a standalone run of the same functions peaks at 1.4 GB).
+  Phase profile of the same functions (standalone `#eval`, total 2 min 34 s for the first four lines):
+    base part of U (0.73 M basis-atom products, 4.5 M Gamma*M products)   127 s
+    correction part of U                                                    8 s
+    one coordinate map actSP on U (134,574 terms: 1.5 s sort + 6.9 s key transform)   8.4 s   (6 permutations)
+    sign changes flipSP (48 per full check, keys unchanged, no sort)
+  Negative regression (one-off module, not committed because the repository allows `native_decide` only in
+  Check.lean): the same `check` with the first coefficient of `lit` increased by 1 evaluates to `false`
+  (`check cons perms flips badLit ... allBlocks = false` by `native_decide`, 325 s).
+  `Smoke.lean` (toy certificate, kernel `decide +kernel`) builds in 7 s.
+
+Earlier kernel measurements with the first checker (commit 5b38d0f, structural recursion, Mathlib-free):
+  Gram test, block 0 (8,646 entries) 31 s / 2.7 GB in the kernel; identity slice of block 0 killed at 10 GB after
+  107 s; Kronecker-packed dot products of block 0 17 s / 1.95 GB.  A pure-kernel check of all 277 blocks was
+  extrapolated at hours and is not attempted: the final step is `native_decide`.
