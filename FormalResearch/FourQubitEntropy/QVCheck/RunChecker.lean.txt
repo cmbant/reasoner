@@ -1,0 +1,30 @@
+import QV.Impl5
+import QV.RhsData
+open QVCheck
+def now : IO Nat := IO.monoMsNow
+def main1 : IO Unit := do
+  let t0 ← now
+  IO.println s!"chars {checkChars ()} slots {checkSlots ()} inv {checkInv ()} psi {checkPsi ()}"
+  let t1 ← now
+  IO.println s!"K1 time {t1 - t0} ms"
+  IO.println s!"invariant {checkInvariant ()} pivV {checkPivots true} pivW {checkPivots false} T {checkT ()} structure {checkStructure ()}"
+  let t2 ← now
+  IO.println s!"K2/K3 time {t2 - t1} ms"
+  IO.println s!"placements {checkPlacements ()}"
+  let t3 ← now
+  IO.println s!"K5 time {t3 - t2} ms"
+  let blocks := DataStr.blocksD.toArray
+  let mut acc : Array (Array Int) := Array.replicate 256 #[]
+  for bi in [0:blocks.size] do
+    let tb ← now
+    acc := runBlock (blocks.getD bi default) acc
+    let te ← now
+    IO.println s!"block {bi}: {te - tb} ms"
+  let t4 ← now
+  IO.println s!"K4 time {t4 - t3} ms"
+  let (Q, ok) := qtotAll acc
+  IO.println s!"qtot exact division: {ok}"
+  IO.println s!"final: {checkFinal Test.rhsTerms Q DataStr.certDen}"
+  let t5 ← now
+  IO.println s!"K6/K7 time {t5 - t4} ms"
+#eval main1

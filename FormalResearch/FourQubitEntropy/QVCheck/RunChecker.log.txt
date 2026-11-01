@@ -1,0 +1,10 @@
+chars true slots true inv true psi true
+K1 time 1187 ms
+invariant true pivV true pivW true T true structure true
+K2/K3 time 25659 ms
+placements true
+K5 time 97957 ms
+K4 time 282361 ms
+qtot exact division: true
+final: true
+K6/K7 time 43109 ms

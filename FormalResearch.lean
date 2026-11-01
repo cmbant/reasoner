@@ -628,3 +628,4 @@ import FormalResearch.FourQubitEntropy.QVCert.Reduction
 import FormalResearch.FourQubitEntropy.QVBlock.All
 import FormalResearch.FourQubitEntropy.QVFrame.All
 import FormalResearch.FourQubitEntropy.QVFrame.FinalQV
+import FormalResearch.FourQubitEntropy.QVCheck.All

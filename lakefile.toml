@@ -1,9 +1,15 @@
 name = "formal_research"
 version = "0.1.0"
-defaultTargets = ["FormalResearch"]
+defaultTargets = ["FormalResearch", "QVCheckImpl"]
 
 [[lean_lib]]
 name = "FormalResearch"
+
+# Mathlib-free computational checker of the QV certificate; precompiled so that `native_decide` runs native code.
+[[lean_lib]]
+name = "QVCheckImpl"
+globs = ["QVCheckImpl", "QVCheckImpl.+"]
+precompileModules = true
 
 [[require]]
 name = "mathlib"
