@@ -707,3 +707,81 @@ Source: `seven_qubit_entropy_compatibility.tex` (`lem:seven-entropy-linear-purit
   6.9874, 7.9800, 7.9928, 8.9901`, as exact rationals).  The decimal step bounds `log₂(2^k-1)` below by the `arctanh` series
   (`LinPur.arctanhHi`) and `ln 2 > 0.6931471803`.  Not formalised: whether the table's ceilings are attained (they are upper
   bounds only).
+### `thm:fqe-global-overlap` (`Q ≥ 1 − Φ`), the reduction to the 19-coordinate normal slice
+
+Source `global_overlap_certificate.tex` (coverage by the normal slice, positive constraints at a closest point). The
+final polynomial certificate (`eq:fqe-global-overlap-sos`) is **not** proved here; the interface it must discharge is
+`GO.GOSliceCertificate`. Namespace `FormalResearch.FourQubitEntropy.GO`; every headline theorem has an axiom guard.
+- `PaperEGoSlice.lean`: the slice objects, matching `orbit_certificate_polynomials.py` (`sX`, `sY` in the order
+  `t u₁u₂u₃ a₁a₂a₃ e₁₂e₁₃e₂₃ b₁₂b₁₃b₂₃ p₁p₂p₃ q₁q₂q₃`, `sN`, `sH0`, `sE`, `sliceQ` = `defects` of the checker, `sliceTarget =
+  (Q − n² e)/36`, `sK0`, `sK1`, `sL`, `sB0`, `sHess` = `height_hessian()`), `SliceConstraints`, **`GOSliceCertificate`**
+  (`∀ v, SliceConstraints v → 0 ≤ sliceTarget v`), `IsFrame` (a closest point of `𝓜` at `Z_*`), `IsFrame.Phi_eq`,
+  `normSqPsi_sState`.
+- `PaperEGoSliceOrbit.lean`: `orbit_mem4` (every `e · P Z_* Qᵀ`, `P, Q` real orthogonal of either determinant, is the magic
+  matrix of an element of `𝓜`; reflections via `diag(1,−1,−1,−1) Z_* = conj Z_*`), `IsFrame.re_le`, `ip_coord`.
+- `PaperEGoSliceGen.lean`: `height_ineqG` (the real height inequality `c(3A₀₀+ΣB_kk)+3s(B₀₀−ΣA_kk) ≤ 3X₀₀+ΣY_kk` at an
+  arbitrary frame), `IsFrame.hgt_eq`.
+- `PaperEGoSliceConstr.lean`: from `IsFrame (sState v) h`: `K0_psd`, `K1_psd` (Procrustes, `K₀, K₁ ⪰ 0`), `L_psd` (all
+  lower-frame matrices `L_{σ₀,σ,c,s} ⪰ 0`), `B0_psd` (from `fidelity_floor`), `IsFrame.e_nonneg`, `IsFrame.rays`,
+  `frame_constraints` (assembles `SliceConstraints` from the Hessian hypothesis `FrameHess`).
+- `PaperEGoSliceStat.lean`: `stationary_of_frame` (the ten relations of `eq:fqe-slice-stationary`), by rotations and `lin_zero_*`.
+- `PaperEGoSliceFrame.lean`: `exists_frame` (every unit state has a closest-point frame with the same `Q`, `Φ`;
+  `sexticQ_conj`, `Phi_conj`, `exists_same_class`).
+- `PaperEGoSliceMain.lean`, `PaperEGoSliceNormal.lean`: `SliceNormalForm` is **proved** (`sliceNormalForm`:
+  `exists_slice_frame`, spectral theorem `exists_so3_diag`, `frame_rotate`, `slice_of_rel`).
+- `PaperEGoSliceHess.lean`, `PaperEGoSliceHessQ.lean`: `FrameHess` is **proved** (`frameHess`: the height along the group curve
+  `(exp sL, exp sR, phase)` is maximal at `s = 0`; `max_second_order`, `hess_gen`, and the polynomial identity `−F''(0) = wᵀ H w`);
+  `sHessExp`/`sHess_eq_exp`: the explicit `10×10` matrix of rational linear forms; `SliceConstraints.t_nonneg`, `.Y3` (`t ≥ 0`, `Y₃ ⪰ 0` from `K₀`). Final theorem
+  `globalOverlap_of_slice_cert : GOSliceCertificate → SliceQIdentity → ∀ ψ, normSqPsi ψ = 1 → GlobalOverlap ψ`.
+- `PaperEGoSliceQId.lean`, `PaperEGoSliceQId2.lean`, `PaperEGoSliceQId3.lean`: **`SliceQIdentity` is proved** (`sliceQIdentity`).
+  `sexticQ_psiZ` is `eq:fqe-global-intrinsic` for the state `ψ_Z` with arbitrary magic matrix `Z`
+  (`Q = −4n³ + 27 n tr(ZZ†)² − 18 tr(ZZ†)³ − 18‖ZZᵀZ − (tr ZᵀZ/2)Z‖²`): adjugate route `Q = 5n³ − 36 Σ_cuts tr adj ρ`,
+  `tr adj(MM†) = ‖adj M‖²`, the entrywise cubic identities `adj13_eq`, `adj14_eq` (`adj M₁₃ = α₁₃(adj Z, N)`) and
+  `Σ|α₁₃|² + Σ|α₁₄|² = ½(‖adj Z‖² + ‖N‖²)` (`quad_identity`); then specialised to `Z = √3 X + iY` (`ZZH_slice`, `re_trace_sq`,
+  `re_trace_cube`, `Nf_slice`).
+- `PaperEGoSliceFinal.lean`: **`globalOverlap_of_slice : GOSliceCertificate → ∀ ψ, normSqPsi ψ = 1 → GlobalOverlap ψ`** (no other
+  hypothesis; axioms `propext`, `Classical.choice`, `Quot.sound`). The certificate itself is discharged, in the frame form
+  `GOFrameCertificate`, by the next section.
+
+### `thm:fqe-global-overlap` (`Q ≥ 1 − Φ`) for every unit state (reduction + certificate joined)
+
+Joins the reduction (`PaperEGoSlice*`, section above) and the certificate (`GOProbe/*` with the generated data
+`GOData/*`, `gen_go_cert.py`, `GOProbe/MEASUREMENTS.txt`). Namespace `FormalResearch.FourQubitEntropy.GO`.
+
+*Data-independent modules (in the aggregate `FormalResearch`):*
+- `GOGlue/PQ.lean`: `PQ d`, rational polynomials of degree `≤ d` (denominator + sparse integer polynomial with packed keys),
+  computable `add`, `mul`, `smul`, `sumF`, matrices (`pmul`, `padd`, ...) with `PQ.val` a ring-hom (`val_add`, `val_mul`, ...) and
+  `Rel` (entrywise value = a real matrix).
+- `GOGlue/Target.lean`: `pTarget` (= `sliceTarget`), `pRem` (= `R_sq + R_ax` of `GOProbe/Remainders.lean`), `pL` (= `sL`),
+  with `pTarget_val`, `pRem_val`, `pL_rel` (the slice-side real expressions transcribed in `PQ`).
+- `GOGlue/Hess.lean`: `pHess` (= `sHess`, the integer double actions of the generators), `pHess_rel`.
+- `GOGlue/Ray.lean`: `ray_exists` (`a = MΠ`, `Π` a rank-one projector ⇒ `a = P e₀e₀ᵀQᵀ`, `a + b = PQᵀ`, `P, Q` orthogonal),
+  `ray_mem` (the ray state is in `𝓜` and `|⟨χ, Z⟩|² = (re² + 3 im²)/6`).
+- `GOGlue/Cons.lean`: `CSpec` (the tags of the 64 constraints), `CSpec.mat`, `CSpec.psd` (each constraint matrix is PSD at a point with
+  `SliceConstraints`), `RayOK` (rational side conditions of a ray).
+- `GOGlue/Orbit.lean`: `orbit_coord` (every `χ ∈ 𝓜` has coordinates `e P diag(η₀) Qᵀ`, `P, Q` orthogonal of either determinant),
+  `frame_orth` (a closest-point frame at `v` gives one at `v'` when `sX v' = R sX v Rᵀ`, `sY v' = R sY v Rᵀ`, `R = diag(1, O)`).
+- `GOGlue/OrbitMaps.lean`: the 6 permutations and 8 sign changes of the certificate as such conjugations (`frame_perm`, `frame_flip`,
+  `frame_orbit`).
+- `GOGlue/FrameCert.lean`: `GOFrameCertificate` (`∀ v h, IsFrame (sState v) h → 0 ≤ sliceTarget v`; the certificate only needs the
+  constraints at closest-point frames, so no closure of `SliceConstraints` under the group is needed), `GOSliceCertificate.frame`,
+  `globalOverlap_of_frame_cert`.
+
+*Data-dependent modules (NOT in the aggregate; they import `GOData/*`, which is generated and not committed):*
+- `GOProbe/Check.lean`: the certificate: `check_all` (`native_decide`), `go_target_nonneg`.
+- `GOGlue/DataCheck.lean`: `identCheck_true` (`native_decide`: the generated `lit` equals `(mapDen·grid)(sliceTarget − R_sq − R_ax)`
+  as sorted sparse polynomials), `lit_ev`.
+- `GOGlue/ConsCheck.lean`: `consCheck_true` (`native_decide`: each generated `cons[c]` is a positive multiple of the slice-side matrix
+  `consSpec[c]` of `GOData/GOSpec.lean`, and the side conditions of the rays/lower frames), `cons_psd`.
+- `GOGlue/Final.lean`: `go_frame_certificate : GOFrameCertificate`; **`globalOverlap_all : ∀ ψ, normSqPsi ψ = 1 → GlobalOverlap ψ`**;
+  the unconditional downstream estimates `orbitDist_sq_le_Q_all`, `entropy_gap_orbit_stability_dist_all`,
+  `orbitDist_sq_le_Q_tau_all`, `entropy_gap_dist_tau_all`, `majorant_gap_orbit_all`, `tsallis_gap_orbit_all`, and `critical_orbit_sharp_dist_all` (`thm:fqe-critical-orbit-sharp` with no hypothesis).
+  Axioms: `propext`, `Classical.choice`, `Quot.sound` and `Lean.ofReduceBool` (the three data checks `check_all`, `identCheck_true`,
+  `consCheck_true`, each a decidable check of the generated data by ordinary computable list functions).
+
+*Commands* (from the checkout root; `QIPROJECTS` names the QIprojects checkout, `sympy` is needed):
+```
+lake build FormalResearch                                   # aggregate; needs no generated data
+QIPROJECTS=/path/to/QIprojects python3 FormalResearch/FourQubitEntropy/gen_go_cert.py   # writes the gitignored GOData/
+lake build FormalResearch.FourQubitEntropy.GOGlue.Final     # data check + final theorem (about 8.5 min wall, 7.6 GB RSS dominated by the memory-mapped Mathlib, 4 cores shared; the three `native_decide` checks take about 6 min of it)
+```
