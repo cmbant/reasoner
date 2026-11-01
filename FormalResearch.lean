@@ -625,3 +625,4 @@ import FormalResearch.FourQubitEntropy.QVCert.Positivity
 import FormalResearch.FourQubitEntropy.QVCert.Covariants
 import FormalResearch.FourQubitEntropy.QVCert.QVDefect
 import FormalResearch.FourQubitEntropy.QVCert.Reduction
+import FormalResearch.FourQubitEntropy.QVBlock.All
