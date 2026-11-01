@@ -25,6 +25,14 @@ def smokeLit : SP := [(2, 2)]
 theorem smoke_check : check smokeCons [smokeAct] [smokeFlip] smokeLit 1 2 1 [smokeBlock] = true := by
   decide +kernel
 
+/-- Negative regressions: a wrong target and a failing Gram test are rejected. -/
+theorem smoke_neg_lit : check smokeCons [smokeAct] [smokeFlip] [(2, 3)] 1 2 1 [smokeBlock] = false := by
+  decide +kernel
+
+theorem smoke_neg_gram :
+    check smokeCons [smokeAct] [smokeFlip] smokeLit 1 2 1 [⟨0, [[(0, 1, 1)]], [[1]], [[0]], [[]]⟩] = false := by
+  decide +kernel
+
 /-- The toy certificate is sound: `2 x₀² ≥ 0` whenever the constant constraint `1` is PSD (always). -/
 theorem smoke_sound (x : ℕ → ℝ)
     (h : ∀ g ∈ [smokeAct], ∀ f ∈ [smokeFlip], ∀ c < smokeCons.length,
