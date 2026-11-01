@@ -634,3 +634,14 @@ import FormalResearch.FourQubitEntropy.PaperEGoSliceQId
 import FormalResearch.FourQubitEntropy.PaperEGoSliceQId2
 import FormalResearch.FourQubitEntropy.PaperEGoSliceQId3
 import FormalResearch.FourQubitEntropy.PaperEGoSliceFinal
+import FormalResearch.FourQubitEntropy.GOProbe.Final
+import FormalResearch.FourQubitEntropy.GOProbe.Remainders
+import FormalResearch.FourQubitEntropy.GOProbe.Smoke
+import FormalResearch.FourQubitEntropy.GOGlue.PQ
+import FormalResearch.FourQubitEntropy.GOGlue.Target
+import FormalResearch.FourQubitEntropy.GOGlue.Hess
+import FormalResearch.FourQubitEntropy.GOGlue.Ray
+import FormalResearch.FourQubitEntropy.GOGlue.Cons
+import FormalResearch.FourQubitEntropy.GOGlue.Orbit
+import FormalResearch.FourQubitEntropy.GOGlue.OrbitMaps
+import FormalResearch.FourQubitEntropy.GOGlue.FrameCert

@@ -712,4 +712,48 @@ final polynomial certificate (`eq:fqe-global-overlap-sos`) is **not** proved her
   `Σ|α₁₃|² + Σ|α₁₄|² = ½(‖adj Z‖² + ‖N‖²)` (`quad_identity`); then specialised to `Z = √3 X + iY` (`ZZH_slice`, `re_trace_sq`,
   `re_trace_cube`, `Nf_slice`).
 - `PaperEGoSliceFinal.lean`: **`globalOverlap_of_slice : GOSliceCertificate → ∀ ψ, normSqPsi ψ = 1 → GlobalOverlap ψ`** (no other
-  hypothesis; axioms `propext`, `Classical.choice`, `Quot.sound`). Open: the certificate `GOSliceCertificate` itself.
+  hypothesis; axioms `propext`, `Classical.choice`, `Quot.sound`). The certificate itself is discharged, in the frame form
+  `GOFrameCertificate`, by the next section.
+
+### Branch `paper-e-go`: `thm:fqe-global-overlap` (`Q ≥ 1 − Φ`) for every unit state (reduction + certificate joined)
+
+Joins the reduction (`PaperEGoSlice*`, section above) and the certificate (`GOProbe/*` with the generated data
+`GOData/*`, `gen_go_cert.py`, `GOProbe/MEASUREMENTS.txt`). Namespace `FormalResearch.FourQubitEntropy.GO`.
+
+*Data-independent modules (in the aggregate `FormalResearch`):*
+- `GOGlue/PQ.lean`: `PQ d`, rational polynomials of degree `≤ d` (denominator + sparse integer polynomial with packed keys),
+  computable `add`, `mul`, `smul`, `sumF`, matrices (`pmul`, `padd`, ...) with `PQ.val` a ring-hom (`val_add`, `val_mul`, ...) and
+  `Rel` (entrywise value = a real matrix).
+- `GOGlue/Target.lean`: `pTarget` (= `sliceTarget`), `pRem` (= `R_sq + R_ax` of `GOProbe/Remainders.lean`), `pL` (= `sL`),
+  with `pTarget_val`, `pRem_val`, `pL_rel` (the slice-side real expressions transcribed in `PQ`).
+- `GOGlue/Hess.lean`: `pHess` (= `sHess`, the integer double actions of the generators), `pHess_rel`.
+- `GOGlue/Ray.lean`: `ray_exists` (`a = MΠ`, `Π` a rank-one projector ⇒ `a = P e₀e₀ᵀQᵀ`, `a + b = PQᵀ`, `P, Q` orthogonal),
+  `ray_mem` (the ray state is in `𝓜` and `|⟨χ, Z⟩|² = (re² + 3 im²)/6`).
+- `GOGlue/Cons.lean`: `CSpec` (the tags of the 64 constraints), `CSpec.mat`, `CSpec.psd` (each constraint matrix is PSD at a point with
+  `SliceConstraints`), `RayOK` (rational side conditions of a ray).
+- `GOGlue/Orbit.lean`: `orbit_coord` (every `χ ∈ 𝓜` has coordinates `e P diag(η₀) Qᵀ`, `P, Q` orthogonal of either determinant),
+  `frame_orth` (a closest-point frame at `v` gives one at `v'` when `sX v' = R sX v Rᵀ`, `sY v' = R sY v Rᵀ`, `R = diag(1, O)`).
+- `GOGlue/OrbitMaps.lean`: the 6 permutations and 8 sign changes of the certificate as such conjugations (`frame_perm`, `frame_flip`,
+  `frame_orbit`).
+- `GOGlue/FrameCert.lean`: `GOFrameCertificate` (`∀ v h, IsFrame (sState v) h → 0 ≤ sliceTarget v`; the certificate only needs the
+  constraints at closest-point frames, so no closure of `SliceConstraints` under the group is needed), `GOSliceCertificate.frame`,
+  `globalOverlap_of_frame_cert`.
+
+*Data-dependent modules (NOT in the aggregate; they import `GOData/*`, which is generated and not committed):*
+- `GOProbe/Check.lean`: the certificate: `check_all` (`native_decide`), `go_target_nonneg`.
+- `GOGlue/DataCheck.lean`: `identCheck_true` (`native_decide`: the generated `lit` equals `(mapDen·grid)(sliceTarget − R_sq − R_ax)`
+  as sorted sparse polynomials), `lit_ev`.
+- `GOGlue/ConsCheck.lean`: `consCheck_true` (`native_decide`: each generated `cons[c]` is a positive multiple of the slice-side matrix
+  `consSpec[c]` of `GOData/GOSpec.lean`, and the side conditions of the rays/lower frames), `cons_psd`.
+- `GOGlue/Final.lean`: `go_frame_certificate : GOFrameCertificate`; **`globalOverlap_all : ∀ ψ, normSqPsi ψ = 1 → GlobalOverlap ψ`**;
+  the unconditional downstream estimates `orbitDist_sq_le_Q_all`, `entropy_gap_orbit_stability_dist_all`,
+  `orbitDist_sq_le_Q_tau_all`, `entropy_gap_dist_tau_all`, `majorant_gap_orbit_all`, `tsallis_gap_orbit_all`.
+  Axioms: `propext`, `Classical.choice`, `Quot.sound` and `Lean.ofReduceBool` (the three data checks `check_all`, `identCheck_true`,
+  `consCheck_true`, each a decidable check of the generated data by ordinary computable list functions).
+
+*Commands* (from the checkout root; `QIPROJECTS` names the QIprojects checkout, `sympy` is needed):
+```
+lake build FormalResearch                                   # aggregate; needs no generated data
+QIPROJECTS=/path/to/QIprojects python3 FormalResearch/FourQubitEntropy/gen_go_cert.py   # writes the gitignored GOData/
+lake build FormalResearch.FourQubitEntropy.GOGlue.Final     # data check + final theorem (about 8.5 min wall, 7.6 GB RSS dominated by the memory-mapped Mathlib, 4 cores shared; the three `native_decide` checks take about 6 min of it)
+```

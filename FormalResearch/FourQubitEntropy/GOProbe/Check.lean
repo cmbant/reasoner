@@ -23,9 +23,10 @@ lake build FormalResearch.FourQubitEntropy.GOProbe.Check
 (`QIPROJECTS` names the QIprojects checkout; the generator output is byte-reproducible; each data module
 elaborates in under 4 GB.)  `Smoke.lean` is a committed toy certificate that needs no generated data.
 
-Remaining interface (other tasks): that `lit / (mapDen · gridC)` is the paper's `(Q − n²e)/36 − R_sq − R_ax`
-on the 19 slice coordinates (`Remainders.lean` has `Rsq`, `Rax`), that the literal constraint matrices
-`cons[c]` evaluated at `g • x` are positive semidefinite at a closest point, and `h0 ≥ 0`.
+Interface to the paper's objects: `GOGlue/Final.lean` (data-dependent, like this module) proves that `lit / (mapDen · gridC)`
+is the paper's `(Q − n²e)/36 − R_sq − R_ax` on the 19 slice coordinates (`GOGlue/DataCheck.lean`; `Remainders.lean` has `Rsq`,
+`Rax`), that the literal constraint matrices `cons[c]` evaluated at `g • (f • x)` are positive semidefinite at a closest point
+(`GOGlue/ConsCheck.lean`, `GOGlue/OrbitMaps.lean`), and `h0 ≥ 0`; it concludes `globalOverlap_all`.
 -/
 
 namespace FormalResearch.FourQubitEntropy.GOProbe

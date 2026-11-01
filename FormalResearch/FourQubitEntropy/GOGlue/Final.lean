@@ -119,10 +119,41 @@ theorem tsallis_gap_orbit_all {q : ℝ} (h0 : 0 < q) (h2 : q < 2) (h1 : q ≠ 1)
         orbitDist ψ ^ 2 ≤ tsallisCeiling q - meanTsallis q ψ :=
   tsallis_gap_orbit_of_overlap h0 h2 h1 hψ (globalOverlap_all ψ hψ)
 
-/-! ### Axiom audit -/
+/-! ### Axiom audit
 
+The three `native_decide` axioms are the data checks `consCheck_true`, `identCheck_true` and
+`GOProbe.check_all`. -/
+
+/-- info: 'FormalResearch.FourQubitEntropy.GO.go_frame_certificate' depends on axioms: [propext, Classical.choice, Quot.sound, consCheck_true._native.native_decide.ax_1_1, identCheck_true._native.native_decide.ax_1_1, GOProbe.check_all._native.native_decide.ax_1_1] -/
+#guard_msgs (whitespace := lax) in
 #print axioms go_frame_certificate
+
+/-- info: 'FormalResearch.FourQubitEntropy.GO.globalOverlap_all' depends on axioms: [propext, Classical.choice, Quot.sound, consCheck_true._native.native_decide.ax_1_1, identCheck_true._native.native_decide.ax_1_1, GOProbe.check_all._native.native_decide.ax_1_1] -/
+#guard_msgs (whitespace := lax) in
 #print axioms globalOverlap_all
+
+/-- info: 'FormalResearch.FourQubitEntropy.GO.orbitDist_sq_le_Q_all' depends on axioms: [propext, Classical.choice, Quot.sound, consCheck_true._native.native_decide.ax_1_1, identCheck_true._native.native_decide.ax_1_1, GOProbe.check_all._native.native_decide.ax_1_1] -/
+#guard_msgs (whitespace := lax) in
+#print axioms orbitDist_sq_le_Q_all
+
+/-- info: 'FormalResearch.FourQubitEntropy.GO.entropy_gap_orbit_stability_dist_all' depends on axioms: [propext, Classical.choice, Quot.sound, consCheck_true._native.native_decide.ax_1_1, identCheck_true._native.native_decide.ax_1_1, GOProbe.check_all._native.native_decide.ax_1_1] -/
+#guard_msgs (whitespace := lax) in
 #print axioms entropy_gap_orbit_stability_dist_all
+
+/-- info: 'FormalResearch.FourQubitEntropy.GO.orbitDist_sq_le_Q_tau_all' depends on axioms: [propext, Classical.choice, Quot.sound, consCheck_true._native.native_decide.ax_1_1, identCheck_true._native.native_decide.ax_1_1, GOProbe.check_all._native.native_decide.ax_1_1] -/
+#guard_msgs (whitespace := lax) in
+#print axioms orbitDist_sq_le_Q_tau_all
+
+/-- info: 'FormalResearch.FourQubitEntropy.GO.entropy_gap_dist_tau_all' depends on axioms: [propext, Classical.choice, Quot.sound, consCheck_true._native.native_decide.ax_1_1, identCheck_true._native.native_decide.ax_1_1, GOProbe.check_all._native.native_decide.ax_1_1] -/
+#guard_msgs (whitespace := lax) in
+#print axioms entropy_gap_dist_tau_all
+
+/-- info: 'FormalResearch.FourQubitEntropy.GO.majorant_gap_orbit_all' depends on axioms: [propext, Classical.choice, Quot.sound, consCheck_true._native.native_decide.ax_1_1, identCheck_true._native.native_decide.ax_1_1, GOProbe.check_all._native.native_decide.ax_1_1] -/
+#guard_msgs (whitespace := lax) in
+#print axioms majorant_gap_orbit_all
+
+/-- info: 'FormalResearch.FourQubitEntropy.GO.tsallis_gap_orbit_all' depends on axioms: [propext, Classical.choice, Quot.sound, consCheck_true._native.native_decide.ax_1_1, identCheck_true._native.native_decide.ax_1_1, GOProbe.check_all._native.native_decide.ax_1_1] -/
+#guard_msgs (whitespace := lax) in
+#print axioms tsallis_gap_orbit_all
 
 end FormalResearch.FourQubitEntropy.GO

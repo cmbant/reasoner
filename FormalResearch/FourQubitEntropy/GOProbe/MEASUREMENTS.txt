@@ -22,3 +22,10 @@ Earlier kernel measurements with the first checker (commit 5b38d0f, structural r
   Gram test, block 0 (8,646 entries) 31 s / 2.7 GB in the kernel; identity slice of block 0 killed at 10 GB after
   107 s; Kronecker-packed dot products of block 0 17 s / 1.95 GB.  A pure-kernel check of all 277 blocks was
   extrapolated at hours and is not attempted: the final step is `native_decide`.
+
+Glue (GOGlue/*, joined build `lake build ...GOGlue.Final` with the data and the aggregate prerequisites already built):
+  PQ 8 s, Target 10 s, Hess 10 s, Ray 11 s, Cons 11 s, Orbit ~8 s, OrbitMaps 65 s (6 permutation cases, 2 matrices each),
+  DataCheck 22 s (identCheck_true: native_decide, 17 s of which imports ~10 s), ConsCheck 16 s (consCheck_true: native_decide,
+  64 matrices, 14 s), Final 7 s.
+  Whole `lake build FormalResearch.FourQubitEntropy.GOGlue.Final` from the generated data (all 13 data parts, Check, glue):
+  511 s wall, max RSS 7.6 GB (Mathlib mmap), 869 s user, 4 cores shared.
