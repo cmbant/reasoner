@@ -1,24 +1,27 @@
 #!/usr/bin/env python3
-"""Generate the Lean data for the GO (global overlap) certificate probe.
+"""Generate the Lean data of the GO (global overlap) certificate.
 
 Run from the repository root:
 
-    python3 FormalResearch/FourQubitEntropy/gen_go_cert.py --all [--out DIR]          # GOConst + GOData_0..9
-    python3 FormalResearch/FourQubitEntropy/gen_go_cert.py [--blocks A:B] [--out DIR] [--ref] [--suffix S]
+    python3 FormalResearch/FourQubitEntropy/gen_go_cert.py [--out DIR] [--part-bytes N]
 
 Input (QIprojects, read only; set QIPROJECTS to its root, default /home/user/QIprojects):
   ResearchNotes/QI/four_qubit_entropy/code/data/m4_global_overlap.json
   ResearchNotes/QI/four_qubit_entropy/code/orbit_certificate_polynomials.py   (sympy)
 
-Output (default DIR = FormalResearch/FourQubitEntropy/GOProbe), byte-reproducible:
-  GOData<suffix>.lean  the blocks A:B as `GOProbe.dataBlocks<suffix> : List GBlock`, plus the constants
-  GOConst.lean    the constraint matrices `GOProbe.cons` (sparse integer polynomials, packed keys),
-                  the signed Reynolds table `GOProbe.orbitTable` and the expected target `GOProbe.expected`
-  GORef.lean      (with --ref) the reference projections of the chosen blocks, computed in Python with the
-                  semantics of `verify_m4_global_overlap.py`; used to time slices of the check.
+Output (default DIR = FormalResearch/FourQubitEntropy/GOData), byte-reproducible, not committed:
+  GOConst.lean     `cons` (the 64 constraint matrices M_c, sparse integer polynomials in packed keys, scaled
+                   by map_den), `acts` (the 48 signed coordinate maps: 6 permutations of the lower indices
+                   with their signs times the 8 sign changes of the lower coordinates), `lit` (the target
+                   polynomial (Q - n^2 e)/36 - R_sq - R_ax times map_den*36*grid, an integer polynomial) and
+                   the constants gridC, corrDen, factorBits
+  GOData_<k>.lean  consecutive blocks, `dataBlocks_<k> : List GBlock`, each at most --part-bytes of text so
+                   that elaboration stays below about 4 GB
+  GOAll.lean       imports everything and defines `allBlocks`
 
-Nothing here is trusted: a wrong literal makes the Lean check fail.  Monomial keys are the paper's base-eight
-exponent digits (variable i at bits 3i); total degree <= 6 makes products carry free.
+Nothing here is trusted: the Lean `check` recomputes everything from this data, so a wrong literal makes
+`check` false.  Monomial keys are base-256 exponent digits (variable i is digit i); the Lean checker verifies
+that all degrees are far below 255, so products are carry free.
 """
 import argparse
 import json
@@ -38,7 +41,7 @@ N = 19
 
 def pack(m):
     assert len(m) == N and sum(m) <= 6
-    return sum(a << (3 * i) for i, a in enumerate(m))
+    return sum(a << (8 * i) for i, a in enumerate(m))
 
 
 def terms(poly):
@@ -173,60 +176,39 @@ def build_acts():
 ACTS = build_acts()
 
 
-def transform(m, act):
-    mi, sg = act
-    out, sign = 0, 1
-    for i in range(N):
-        a = (m >> (3 * i)) & 7
-        out += a << (3 * mi[i])
-        if a & 1:
-            sign *= sg[i]
-    return out, sign
+def acts_list():
+    """The 48 signed coordinate maps `x_i -> sg_i x_{mi i}`: permutation part times the sign changes."""
+    out = []
+    for mi, sg in ACTS:
+        for d in range(8):
+            flip = [-1 if bin(d & CHARS[i]).count('1') % 2 else 1 for i in range(N)]
+            out.append((list(mi), [a * b for a, b in zip(sg, flip)]))
+    assert len({(tuple(a), tuple(b)) for a, b in out}) == 48
+    return out
 
 
-def orbit_of(m):
-    """(rep, sign) or None, exactly as in verify_m4_global_overlap.py."""
-    ch = 0
-    for i, c in enumerate(CHARS):
-        if (m >> (3 * i)) & 1:
-            ch ^= c
-    if ch:
-        return None
-    values = {}
-    for act in ACTS:
-        mm, sign = transform(m, act)
-        if mm in values and values[mm] != sign:
-            return None
-        values[mm] = sign
-    rep = min(values)
-    return {mm: (rep, sign * values[rep]) for mm, sign in values.items()}
+def lit_target(data, md):
+    """`(Q - n^2 e)/36 - R_sq - R_ax` times `md * grid` (integer coefficients), sorted by key."""
+    grid = data['grid']
+    sqsum = sum((z * z for z in XS[7:19]), ZERO)
+    differences = sum(((XS[i] - XS[j]) ** 2 + (XS[i + 3] - XS[j + 3]) ** 2
+                       for i, j in combinations(range(1, 4), 2)), ZERO)
+    floor_term = F(1, 10 ** 7) * n * h0 * h0 * (5 * sqsum + 2 * differences) / 27
+    axial = [XS[12], -XS[11], XS[10]]
+    Lstar = lower_frame(-1, -1, PR(F(-1, 2)), PR(F(1, 2)))
+    axial_term = F(794424, 10 ** 12) * n * h0 * sum(
+        (axial[i] * Lstar[i][j] * axial[j] for i in range(3) for j in range(3)), ZERO) / 216
+    target = terms((Q - n * n * e) / 36 - floor_term - axial_term)
+    lit = {}
+    for m, c in target.items():
+        c = c * md * grid
+        assert c.denominator == 1
+        if c:
+            lit[m] = c.numerator
+    return sorted(lit.items())
 
 
-def monomials(deg):
-    def rec(i, left):
-        if i == N - 1:
-            yield (left,)
-            return
-        for a in range(left + 1):
-            for rest in rec(i + 1, left - a):
-                yield (a,) + rest
-    return rec(0, deg)
-
-
-def orbit_table():
-    table = {}
-    for mono in monomials(6):
-        m = pack(mono)
-        if m in table:
-            continue
-        o = orbit_of(m)
-        if o:
-            table.update(o)
-    return table
-
-
-# ---------------------------------------------------------------- the blocks
-def block_lean(em, block, cid, ncomp, cd, bits, grid):
+def block_expr(em, block, cid):
     size = len(block['basis'])
     basis = []
     for row in block['basis']:
@@ -250,154 +232,82 @@ def block_lean(em, block, cid, ncomp, cd, bits, grid):
         offset += j + 1
     assert offset == len(block['residual_upper']) and len(cor) == len(block['corrections'])
     assert all(0 <= k < offset for k in cor)
-    return (f'GBlock.mk {lnat(cid)} {lnat(ncomp)} {lnat(size)}\n'
+    return (f'GBlock.mk {lnat(cid)}\n'
             f'  {em.lst(basis, "List (List (Nat × Nat × Int))", 1)}\n'
             f'  {em.lst(factor, "List (List Int)", 1)}\n'
             f'  {em.lst(resid, "List (List Int)", 1)}\n'
             f'  {em.lst(corcols, "List (List (Nat × Int))", 1)}')
 
 
-def reference(data, cons, order, md, sel):
-    """Python reference (semantics of verify_m4_global_overlap.py) for the blocks `sel`."""
-    grid, cd, bits = data['grid'], data['correction_den'], data['factor_bits']
-    accum, caccum = {}, {}
-    sq = 1 << (2 * bits)
-    for bi in sel:
-        block = data['blocks'][bi]
-        size = len(block['basis'])
-        factor = block['factor']
-        M = cons[json.dumps(block['constraint'])]
-        cor = {int(i): int(c) for i, c in block['corrections']}
-        basis = []
-        for row in block['basis']:
-            parsed = []
-            for comp, num, den, inds in row:
-                mm = [0] * N
-                for i in inds:
-                    mm[i] += 1
-                parsed.append((comp, pack(tuple(mm)), num * (6 // den)))
-            basis.append(parsed)
-        offset = 0
-        for j in range(size):
-            for i in range(j + 1):
-                dot = sum(a * b for a, b in zip(factor[i], factor[j]))
-                value = (grid * dot + sq // 2) // sq + block['residual_upper'][offset]
-                correction = cor.get(offset, 0)
-                offset += 1
-                value *= 1 if i == j else 2
-                correction *= 1 if i == j else 2
-                for ai, a, ca in basis[i]:
-                    for bj, b, cb in basis[j]:
-                        for m, c in M[ai][bj]:
-                            assert sum(((a + b + m) >> (3 * t)) & 7 for t in range(N)) == 6
-                            o = ORB.get(a + b + m)
-                            if o is None:
-                                continue
-                            rep, sign = o
-                            coeff = sign * c * ca * cb
-                            accum[rep] = accum.get(rep, 0) + value * coeff
-                            if correction:
-                                caccum[rep] = caccum.get(rep, 0) + correction * coeff
-    return ({k: v for k, v in accum.items() if v}, {k: v for k, v in caccum.items() if v})
-
-
-def expected_target(data, md):
-    grid = data['grid']
-    sqsum = sum((z * z for z in XS[7:19]), ZERO)
-    differences = sum(((XS[i] - XS[j]) ** 2 + (XS[i + 3] - XS[j + 3]) ** 2
-                       for i, j in combinations(range(1, 4), 2)), ZERO)
-    floor_term = F(1, 10 ** 7) * n * h0 * h0 * (5 * sqsum + 2 * differences) / 27
-    axial = [XS[12], -XS[11], XS[10]]
-    Lstar = lower_frame(-1, -1, PR(F(-1, 2)), PR(F(1, 2)))
-    axial_term = F(794424, 10 ** 12) * n * h0 * sum(
-        (axial[i] * Lstar[i][j] * axial[j] for i in range(3) for j in range(3)), ZERO) / 216
-    target = terms((Q - n * n * e) / 36 - floor_term - axial_term)
-    expected = {}
-    for m, c in target.items():
-        if not c:
-            continue
-        rep, sign = ORB[m]
-        coeff = c * md * grid
-        assert coeff.denominator == 1
-        expected[rep] = expected.get(rep, 0) + sign * coeff.numerator
-    return {k: v for k, v in expected.items() if v}
-
-
 def main():
-    global ORB
     ap = argparse.ArgumentParser()
-    ap.add_argument('--blocks', default='0:277')
-    ap.add_argument('--out', default='FormalResearch/FourQubitEntropy/GOProbe')
-    ap.add_argument('--all', action='store_true', help='GOConst.lean and GOData_0..9.lean (all 277 blocks)')
-    ap.add_argument('--ref', action='store_true')
-    ap.add_argument('--suffix', default='', help='GOData<suffix>.lean defines dataBlocks<suffix>')
-    ap.add_argument('--skip-const', action='store_true')
+    ap.add_argument('--out', default='FormalResearch/FourQubitEntropy/GOData')
+    ap.add_argument('--part-bytes', type=int, default=1800000)
     args = ap.parse_args()
     data = json.load(open(os.path.join(CODE, 'data/m4_global_overlap.json')))
     cons, order, md, rays = build_constraints(data)
     cid = {k: i for i, k in enumerate(order)}
-    ORB = orbit_table()
     os.makedirs(args.out, exist_ok=True)
     grid, cd, bits = data['grid'], data['correction_den'], data['factor_bits']
     hdr = '-- GENERATED by gen_go_cert.py; do not edit.\n'
-    ns0 = ('import FormalResearch.FourQubitEntropy.GOProbe.Core\n\n'
+    ns0 = ('import FormalResearch.FourQubitEntropy.GOProbe.Block\n\n'
            'namespace FormalResearch.FourQubitEntropy.GOProbe\n\nset_option maxRecDepth 100000\n\n')
     ns1 = '\nend FormalResearch.FourQubitEntropy.GOProbe\n'
 
-    def write(name, em, body):
+    def write(name, text, imports=None):
         with open(os.path.join(args.out, name), 'w') as f:
-            f.write(hdr + ns0 + '\n'.join(em.defs) + '\n' + body + ns1)
+            f.write(hdr + (imports or ns0) + text + ns1)
 
-    if not args.skip_const:
-        em = Emit('c')
-        mats = []
-        for key in order:
-            rows = []
-            for row in cons[key]:
-                ents = [em.lst([f'({lnat(m)}, {lint(c)})' for m, c in ent], 'SP') for ent in row]
-                rows.append(em.lst(ents, 'List SP', 1))
-            mats.append(em.helper(em.lst(rows, 'List (List SP)', 1), 'List (List SP)'))
-        body = ('/-- The constraint matrices `M_c`: sparse integer polynomials in packed keys, scaled by\n'
-                '`mapDen/36`. -/\ndef cons : List (List (List SP)) :=\n  ' + em.lst(mats, 'List (List (List SP))', 1) + '\n\n')
-        items = [f'({lnat(m)}, {lnat(r)}, {lint(sg)})' for m, (r, sg) in sorted(ORB.items())]
-        body += ('/-- Signed Reynolds table `(monomial, (orbit representative, sign))`, sorted by monomial, for the\n'
-                 'degree-six monomials with trivial character and consistent signs. -/\n'
-                 'def orbitTable : List (Nat × Nat × Int) :=\n  '
-                 + em.lst(items, 'List (Nat × Nat × Int)', 3) + '\n\n')
-        exp = expected_target(data, md)
-        items = [f'({lnat(m)}, {lint(c)})' for m, c in sorted(exp.items())]
-        body += ('/-- The expected projected target `(Q - n^2 e)/36 - R_sq - R_ax` times `mapDen * grid`. -/\n'
-                 'def expected : SP :=\n  ' + em.lst(items, 'SP', 4) + '\n\n')
-        body += (f'def gridC : Nat := {grid}\ndef corrDen : Nat := {cd}\ndef factorBits : Nat := {bits}\n'
-                 f'def mapDen : Nat := {md}\n')
-        write('GOConst.lean', em, body)
-        print('const:', len(order), 'constraints', len(ORB), 'orbit-table entries', len(exp), 'expected keys')
+    # constants
+    em = Emit('c')
+    mats = []
+    for key in order:
+        rows = []
+        for row in cons[key]:
+            ents = [em.lst([f'({lnat(m)}, {lint(c)})' for m, c in ent], 'SP') for ent in row]
+            rows.append(em.lst(ents, 'List SP', 1))
+        mats.append(em.helper(em.lst(rows, 'List (List SP)', 1), 'List (List SP)'))
+    body = ('/-- The constraint matrices `M_c`: sparse integer polynomials in packed keys, scaled by the map\n'
+            'denominator. -/\ndef cons : List (List (List SP)) :=\n  '
+            + em.lst(mats, 'List (List (List SP))', 1) + '\n\n')
+    acts = acts_list()
+    items = ['(' + '[' + ', '.join(lnat(v) for v in mi) + '], [' + ', '.join(lint(v) for v in sg) + '])'
+             for mi, sg in acts]
+    body += ('/-- The 48 signed coordinate maps `x_i -> sg_i x_{mi i}` (lower signed permutations). -/\n'
+             'def acts : List (List Nat × List Int) :=\n  ' + em.lst(items, 'List (List Nat × List Int)', 1) + '\n\n')
+    lit = lit_target(data, md)
+    items = [f'({lnat(m)}, {lint(c)})' for m, c in lit]
+    body += ('/-- The target `(Q - n^2 e)/36 - R_sq - R_ax` times `mapDen * 36 * grid`. -/\n'
+             'def lit : SP :=\n  ' + em.lst(items, 'SP', 4) + '\n\n')
+    body += (f'def gridC : Nat := {grid}\ndef corrDen : Nat := {cd}\ndef factorBits : Nat := {bits}\n'
+             f'def mapDen : Nat := {md}\n')
+    write('GOConst.lean', '\n'.join(em.defs) + '\n' + body)
+    print('const:', len(order), 'constraints', len(acts), 'acts', len(lit), 'lit terms')
 
-    CUTS = [0, 3, 6, 8, 50, 90, 130, 170, 210, 250, 277]
-    parts = ([(f'{a}:{b}', f'_{i}') for i, (a, b) in enumerate(zip(CUTS, CUTS[1:]))] if args.all
-             else [(args.blocks, args.suffix)])
-    for rng, suffix in parts:
-        lo, hi = map(int, rng.split(':'))
-        sel = list(range(lo, hi))
-        em = Emit('d')
-        bl = []
-        for bi in sel:
-            b = data['blocks'][bi]
-            k = cid[json.dumps(b['constraint'])]
-            bl.append(em.helper(block_lean(em, b, k, len(cons[json.dumps(b['constraint'])]), cd, bits, grid),
-                                'GBlock'))
-        body = (f'/-- Blocks {lo}:{hi} of the certificate. -/\ndef dataBlocks{suffix} : List GBlock :=\n  '
-                + em.lst(bl, 'List GBlock', 1) + '\n')
-        write(f'GOData{suffix}.lean', em, body)
-    if args.ref and not args.all:
-        base, corr = reference(data, cons, order, md, sel)
-        em = Emit('r')
-        body = ''
-        for name, d in (('refBase', base), ('refCorr', corr)):
-            items = [f'({lnat(m)}, {lint(c)})' for m, c in sorted(d.items())]
-            body += f'def {name} : SP :=\n  ' + em.lst(items, 'SP', 4) + '\n\n'
-        write('GORef.lean', em, body)
-        print('ref:', len(base), len(corr))
+    # blocks, packed into parts of bounded text size
+    parts, cur, cur_len = [], [], 0
+    for bi, b in enumerate(data['blocks']):
+        em = Emit(f'b{bi}')
+        name = em.helper(block_expr(em, b, cid[json.dumps(b['constraint'])]), 'GBlock')
+        text = '\n'.join(em.defs)
+        if cur and cur_len + len(text) > args.part_bytes:
+            parts.append(cur)
+            cur, cur_len = [], 0
+        cur.append((name, text))
+        cur_len += len(text)
+    parts.append(cur)
+    for k, part in enumerate(parts):
+        em = Emit('l')
+        lst = em.lst([nm for nm, _ in part], 'List GBlock', 1)
+        write(f'GOData_{k}.lean', '\n'.join(t for _, t in part) + '\n' + '\n'.join(em.defs) + '\n'
+              + f'def dataBlocks_{k} : List GBlock :=\n  {lst}\n')
+    imps = ('import FormalResearch.FourQubitEntropy.GOData.GOConst\n'
+            + ''.join(f'import FormalResearch.FourQubitEntropy.GOData.GOData_{k}\n' for k in range(len(parts)))
+            + '\nnamespace FormalResearch.FourQubitEntropy.GOProbe\n\n')
+    allb = ' ++ '.join(f'dataBlocks_{k}' for k in range(len(parts)))
+    write('GOAll.lean', f'/-- All {len(data["blocks"])} blocks. -/\ndef allBlocks : List GBlock :=\n  {allb}\n',
+          imports=imps)
+    print('parts:', len(parts), [len(p) for p in parts])
 
 
 if __name__ == '__main__':
