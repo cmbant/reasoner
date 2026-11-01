@@ -18,6 +18,9 @@ Output (default DIR = FormalResearch/FourQubitEntropy/GOData), byte-reproducible
   GOData_<k>.lean  consecutive blocks, `dataBlocks_<k> : List GBlock`, each at most --part-bytes of text so
                    that elaboration stays below about 4 GB
   GOAll.lean       imports everything and defines `allBlocks`
+  GOSpec.lean      `consSpec : List CSpec`, the 64 constraints named by tag and arguments (the fidelity rays as
+                   rational matrices), in the order of `cons`; `GOGlue/ConsCheck.lean` proves that `cons[c]` is a
+                   positive multiple of the slice-side matrix of `consSpec[c]`
 
 Nothing here is trusted: the Lean `check` recomputes everything from this data, so a wrong literal makes
 `check` false.  Monomial keys are base-256 exponent digits (variable i is digit i); the Lean checker verifies
@@ -237,6 +240,31 @@ def block_expr(em, block, cid):
             f'  {em.lst(corcols, "List (List (Nat × Int))", 1)}')
 
 
+def spec_expr(key, data):
+    """The Lean `CSpec` term for the constraint `key`."""
+    tag, *args = json.loads(key)
+
+    def rat(p):
+        n, d = p
+        return f'({n} : ℚ)' if d == 1 else f'({n} / {d} : ℚ)'
+
+    def mat(m):
+        return '![' + ', '.join('![' + ', '.join(rat(e) for e in row) + ']' for row in m) + ']'
+    simple = {'sos': 'sos', 'lead': 'lead', 'height': 'height', 'imaginary': 'imag', 'height_quadratic': 'hq',
+              'imaginary_quadratic': 'iq', 'fidelity_floor': 'ff', 'excess': 'excess'}
+    if tag in simple:
+        return f'CSpec.{simple[tag]}'
+    if tag == 'fidelity':
+        re, im = data['rays'][args[0]]
+        return f'CSpec.fid {mat(re)} {mat(im)}'
+    if tag == 'procrustes':
+        return f'CSpec.proc {args[0]}'
+    if tag == 'lower_quadratic':
+        a, b, c, s = args
+        return f'CSpec.lq ({a} : ℚ) ({b} : ℚ) {rat(c)} {rat(s)}'
+    raise ValueError(tag)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--out', default='FormalResearch/FourQubitEntropy/GOData')
@@ -285,6 +313,14 @@ def main():
              f'def mapDen : Nat := {md}\n')
     write('GOConst.lean', '\n'.join(em.defs) + '\n' + body)
     print('const:', len(order), 'constraints', len(perms), 'perms', len(flips), 'flips', len(lit), 'lit terms')
+
+    items = ',\n  '.join(spec_expr(k, data) for k in order)
+    with open(os.path.join(args.out, 'GOSpec.lean'), 'w') as f:
+        f.write(hdr + 'import FormalResearch.FourQubitEntropy.GOGlue.Cons\n\n'
+                'namespace FormalResearch.FourQubitEntropy.GO\n\nset_option maxRecDepth 100000\n\n'
+                '/-- The constraints, named by tag and arguments, in the order of `GOProbe.cons`. -/\n'
+                f'def consSpec : List CSpec := [\n  {items}]\n\n'
+                'end FormalResearch.FourQubitEntropy.GO\n')
 
     # blocks, packed into parts of bounded text size
     parts, cur, cur_len = [], [], 0
