@@ -628,3 +628,5 @@ import FormalResearch.FourQubitEntropy.PaperEGoSliceMain
 import FormalResearch.FourQubitEntropy.PaperEGoSliceStat
 import FormalResearch.FourQubitEntropy.PaperEGoSliceFrame
 import FormalResearch.FourQubitEntropy.PaperEGoSliceNormal
+import FormalResearch.FourQubitEntropy.PaperEGoSliceHess
+import FormalResearch.FourQubitEntropy.PaperEGoSliceHessQ

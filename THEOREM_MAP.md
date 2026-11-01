@@ -700,7 +700,10 @@ final polynomial certificate (`eq:fqe-global-overlap-sos`) is **not** proved her
 - `PaperEGoSliceFrame.lean`: `exists_frame` (every unit state has a closest-point frame with the same `Q`, `Φ`;
   `sexticQ_conj`, `Phi_conj`, `exists_same_class`).
 - `PaperEGoSliceMain.lean`, `PaperEGoSliceNormal.lean`: `SliceNormalForm` is **proved** (`sliceNormalForm`:
-  `exists_slice_frame`, spectral theorem `exists_so3_diag`, `frame_rotate`, `slice_of_rel`), and
-  `globalOverlap_of_slice'` : `GOSliceCertificate → SliceQIdentity → FrameHess → ∀ ψ, normSqPsi ψ = 1 → GlobalOverlap ψ`.
+  `exists_slice_frame`, spectral theorem `exists_so3_diag`, `frame_rotate`, `slice_of_rel`).
+- `PaperEGoSliceHess.lean`, `PaperEGoSliceHessQ.lean`: `FrameHess` is **proved** (`frameHess`: the height along the group curve
+  `(exp sL, exp sR, phase)` is maximal at `s = 0`; `max_second_order`, `hess_gen`, and the polynomial identity `−F''(0) = wᵀ H w`);
+  `sHessExp`/`sHess_eq_exp`: the explicit `10×10` matrix of rational linear forms. Final theorem
+  `globalOverlap_of_slice_cert : GOSliceCertificate → SliceQIdentity → ∀ ψ, normSqPsi ψ = 1 → GlobalOverlap ψ`.
 - Open named hypotheses: `SliceQIdentity` (`sexticQ (sState v) = sliceQ v`, `eq:fqe-global-intrinsic` on the slice; numerically
-  checked), `FrameHess` (the height Hessian `H ⪰ 0`, second-order condition), and the certificate `GOSliceCertificate` itself.
+  checked) and the certificate `GOSliceCertificate` itself.
