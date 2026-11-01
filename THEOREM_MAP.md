@@ -541,7 +541,11 @@ All modules below build with no `sorry`, `native_decide` or new axiom; each head
 **Final headline** (`RenyiFullHeadlineQK.lean`): `renyi_envelope_above_one_QK (hQK : QuadraticVarianceBound)` — `E_q ≤ max(h_q, 5/3)` for every unit
 pure four-qubit vector and every `q > 1`, with the equality cases below; it is `renyi_envelope_above_one` with all five per-spectrum certificates
 proved except QK (`hsSupporting`, `rationalDual_of_heads smallHeadDual largeHeadDual`, `cappedCubic`, `clusterSliver`).  The only hypothesis is
-`QuadraticVarianceBound` (`thm:fqe-quadratic-variance`; proved in the paper by the exact certificate QG, not formalised).
+`QuadraticVarianceBound` (QK, `thm:fqe-quadratic-variance`, a corollary in the paper of the certified sharp bound QV).
+**QV form** (`RenyiFullHeadlineQV.lean`): `quadraticVarianceBound_of_sharp : SharpQuadraticVarianceBound → QuadraticVarianceBound`
+(the corollary step of `thm:fqe-quadratic-variance`: on `P ≤ 3/2` the QK defect exceeds the QV defect by `3(P-1)(3/2-P)`, above `3/2` the
+purity box `p_j ∈ [1/4,1]` suffices; scalar core `qk_of_qv_scalar`), and `renyi_envelope_above_one_QV (hQV : SharpQuadraticVarianceBound)`,
+the same envelope assuming only QV (`thm:fqe-sharp-quadratic-variance`, exact certificate QVA in the paper, not formalised).
 
 New modules `FormalResearch/FourQubitEntropy/RenyiFull*.lean` (namespace `FormalResearch.FourQubitEntropy.RenyiFull`, imported by
 `FormalResearch.lean`; no `sorry`, `native_decide` or `axiom`; `#print axioms` of every headline is `[propext, Classical.choice, Quot.sound]`).
