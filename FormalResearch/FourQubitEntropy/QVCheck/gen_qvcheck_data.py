@@ -2,8 +2,10 @@
 
     python3 gen_qvcheck_data.py KCERT_DIR [OUT.lean]
 
-KCERT_DIR holds `cert.json` (the QV certificate) and `aux.json` (`routeD/qvk_gen.py`).  Everything emitted is untrusted
-data that the checker `QVCheckImpl` re-verifies; spins are indexed by `j/2 in {0,1,2,3}`.
+KCERT_DIR holds `cert.json` (the QV certificate) and `aux.json` (bases, pivots and coupling tables from the search that found
+the Route D certificate; that search is not part of this repository).  Everything emitted is untrusted data that the checker
+`QVCheckImpl` re-verifies, so the proof does not depend on how it was found; the committed `QVCheckImpl/DataStr.lean` is the
+data actually checked.  Spins are indexed by `j/2 in {0,1,2,3}`.
 """
 import json, sys, itertools
 from math import comb, lcm, gcd
@@ -12,7 +14,7 @@ import numpy as np
 from flint import fmpz_mat
 
 cdir = sys.argv[1]
-out = sys.argv[2] if len(sys.argv) > 2 else "/home/user/reasoner/QVCheckImpl/DataStr.lean"
+out = sys.argv[2] if len(sys.argv) > 2 else "QVCheckImpl/DataStr.lean"  # run from the repository root
 CERT = json.load(open(cdir + '/cert.json')); AUX = json.load(open(cdir + '/aux.json'))
 SP = (0, 2, 4, 6); MULT = {0: 5, 2: 9, 4: 5, 6: 1}
 I64 = object

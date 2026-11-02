@@ -546,15 +546,16 @@ proved except QK (`hsSupporting`, `rationalDual_of_heads smallHeadDual largeHead
 **QV form** (`RenyiFullHeadlineQV.lean`): `quadraticVarianceBound_of_sharp : SharpQuadraticVarianceBound → QuadraticVarianceBound`
 (the corollary step of `thm:fqe-quadratic-variance`: on `P ≤ 3/2` the QK defect exceeds the QV defect by `3(P-1)(3/2-P)`, above `3/2` the
 purity box `p_j ∈ [1/4,1]` suffices; scalar core `qk_of_qv_scalar`), and `renyi_envelope_above_one_QV (hQV : SharpQuadraticVarianceBound)`,
-the same envelope assuming only QV (`thm:fqe-sharp-quadratic-variance`, exact certificate QVA in the paper, not formalised).
+the same envelope assuming only QV (`thm:fqe-sharp-quadratic-variance`); QV itself is proved in `QVCheck/Unconditional.lean`
+(section *`thm:fqe-sharp-quadratic-variance` (QV)* below), giving `renyi_envelope_above_one_unconditional`.
 
 New modules `FormalResearch/FourQubitEntropy/RenyiFull*.lean` (namespace `FormalResearch.FourQubitEntropy.RenyiFull`, imported by
 `FormalResearch.lean`; no `sorry`, `native_decide` or `axiom`; `#print axioms` of every headline is `[propext, Classical.choice, Quot.sound]`).
 
 - Headline (`RenyiFullHeadline.lean`): `renyi_envelope_above_one`: for a unit pure four-qubit vector and every `q > 1`,
   `meanRenyi q ψ ≤ max (hsRenyi q) (5/3)`; equality with `h_q > 5/3` forces `ψ ≃_{LU} M₄` or `conj M₄`; equality with `h_q < 5/3`
-  forces the cut spectra to be the cluster triple `(c₁,c₂,c₂)` (spectral only: the (QF) identification with the cluster-to-Bell family is
-  not formalised). **Hypotheses (named `Prop`s, paper statements, no axioms):** `QuadraticVarianceBound` (`thm:fqe-quadratic-variance`, QK/QG),
+  forces the cut spectra to be the cluster triple `(c₁,c₂,c₂)` (spectral; the (QF) identification of states with two maximally mixed cuts is
+  `PaperECritical.two_flat_QF`, below). **Hypotheses (named `Prop`s, paper statements, no axioms):** `QuadraticVarianceBound` (`thm:fqe-quadratic-variance`, QK/QG),
   `HsSupporting` (`lem:fqe-hs-polynomial`), `RationalDual` (`lem:fqe-rational-dual`, RQ), `CappedCubic` (`lem:fqe-capped-cubic`),
   `ClusterSliver` (`lem:fqe-cluster-sliver`). Unconditional: `meanRenyi_cubic_envelope`, `meanRenyi_high_F` (`cor:fqe-renyi-high-f` for states).
 - `RenyiFullProps.lean`: statements of the per-spectrum certificates. `RenyiFullDual.lean`: `lem:fqe-dual` (`dual_bound`), corner lemma,
@@ -785,3 +786,39 @@ lake build FormalResearch                                   # aggregate; needs n
 QIPROJECTS=/path/to/QIprojects python3 FormalResearch/FourQubitEntropy/gen_go_cert.py   # writes the gitignored GOData/
 lake build FormalResearch.FourQubitEntropy.GOGlue.Final     # data check + final theorem (about 8.5 min wall, 7.6 GB RSS dominated by the memory-mapped Mathlib, 4 cores shared; the three `native_decide` checks take about 6 min of it)
 ```
+
+### `thm:fqe-sharp-quadratic-variance` (QV) and its corollaries, unconditionally
+
+The certificate identity `eq:fqe-qv-allstate-sos`, `2D·𝔇(z) = Σ_{k,i} q_ki ‖Φ_ki(z)‖²_w` (14 blocks, 95 covariant norms, data
+generated from QIprojects `quadratic_purity_variance_certificate.json` by `QVCert/gen_qv_data.py`), proved for every `z` without
+the paper's dimension count. Layers (module docstrings in `QVCheck/All.lean` describe the architecture):
+- `QVCert/*`: data, weights and positivity, the covariants `Φ_ki`, the homogenised defect `defectD`, and
+  `sharpQV_of_certIdentity : QVCertIdentity → SharpQuadraticVarianceBound`.
+- `QVFrame/*`: both sides as a sesquilinear form `conj(z^{⊗6})ᵀ K z^{⊗6}` (J-twisted partial transpose, 37 copy-permutation terms for `𝔇`),
+  `cert_diff_eq_qf`.
+- `QVBlock/*`: generic block calculus: `quad_eq_zero_of_int_certificate` (per-qubit block diagonalisation by an integer intertwiner,
+  certified invariant bases, sector identities `Wᵀ Y V = 0` ⇒ the form vanishes).
+- `QVCheckImpl/*` (Mathlib-free, `precompileModules`): the computable checker `checkAll`; `QVCheck/*`: its soundness, discharging every
+  hypothesis of the block calculus from `checkAll … = true` (`kfam_bilinear`).
+- `QVCheck/Certify.lean`: `checkAll_true` (`native_decide`; about 14 min of the build).
+- `QVCheck/Unconditional.lean`: **`QVCert.qvCertIdentity`**, **`RenyiFull.sharpQuadraticVarianceBound`** (QV),
+  `RenyiFull.quadraticVarianceBound` (QK, `thm:fqe-quadratic-variance`, inequality only), `RenyiFull.renyi_envelope_above_one_unconditional`
+  (`cor:fqe-renyi-gw`, `q > 1`), `RenyiFull.classicalRelaxation`, `meanRenyi_envelope_unconditional`, `meanRenyi_envelope_eq_hs_unconditional`,
+  `relaxTriple_of_state_unconditional`, `joint_purity_unconditional` (`thm:fqe-joint-purity`).
+  Axioms (guarded by `#guard_msgs`): `propext`, `Classical.choice`, `Quot.sound` and the `native_decide` axioms of `checkAll_true` and of
+  one table fact `cArr_rowC` (the checker's intertwiner table is `opaque`).
+
+### Further Paper E statements (`PaperEGap*.lean`; standard axioms, no `native_decide`)
+- `lem:fqe-hs-fidelity-floor` attained at GHZ: `OD.fidelity_floor_ghz_attained` (`Φ = 1/3 = (1+√τ)/6`).
+- `prop:fqe-two-flat-rigidity`, the (QF) identification: `PaperECritical.two_flat_QF` (a unit state with two cuts of purity 1/4 is LU-equivalent
+  to `quadFam x y`, after the qubit exchange moving the third cut to `12|34`), with `two_flat_renyi` (its Rényi and von Neumann values,
+  at most 5/3) and the converse `quadFam_two_flat`.
+- `eq:fqe-null-critical-sharp` of `thm:fqe-critical-orbit-sharp`: `CO.null_critical_sharp`, `null_critical_distance`,
+  `null_critical_sharp_of_purity`, sharp at the cluster state (`null_critical_attained`); no use of `thm:fqe-global-overlap`.
+- Not formalised: the local-radius clauses of `thm:fqe-orbit-stability`.
+
+### Seven-qubit five-copy layers (data-free)
+- `SevenFiveCopyDual.lean`: `sevenPurityBound_of_dual` (a five-copy dual identity with PSD weights gives `SevenQubitConseq.SevenPurityBound`,
+  `cor:seven-global-from-fivecopy`), `purity_gap_ge_of_dual`.
+- `SevenFiveCopyTangent.lean`: `equality_moment` (the tangent-line step of `thm:fivecopy-family-equality` with the invariant-square argument).
+  The certificate FP5-1 itself is not formalised.

@@ -8,6 +8,7 @@ Needs numpy; about 10 s.
 
     python3 explore_covariants_mirror.py [path/to/qv_all_state_certificate.json]
 """
+import os
 import itertools
 import json
 import sys
@@ -16,7 +17,7 @@ from pathlib import Path
 
 import numpy as np
 
-DEFAULT = Path('/home/user/QIprojects/ResearchNotes/QI/four_qubit_entropy/code/qv_all_state_certificate.json')  # format qv-positive-norms-v1
+DEFAULT = Path(os.environ.get('QIPROJECTS', '../QIprojects')) / 'ResearchNotes/QI/four_qubit_entropy/code/qv_all_state_certificate.json'  # format qv-positive-norms-v1
 DATA = json.loads((Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT).read_text())
 mult = {j: len(DATA['highest_weight_supports'][str(j)]) for j in (0, 2, 4, 6)}
 
