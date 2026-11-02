@@ -417,11 +417,11 @@ theorem entropy_gap_orbit_stability_dist {ψ : Psi} (hψ : normSqPsi ψ = 1) (hg
 
 /-- **`cor:fqe-orbit-spectral`** (global constant `c_O = (6+√6)/12`), genuine `d`:
 for `a ≥ 0`, `α = -b - 17a/12 ≥ 0`,
-`E_f(M₄) - E_f(ψ) ≥ (c_O/3) min(α/6, a/12) d(ψ)²`. -/
+`E_f(M₄) - E_f(ψ) ≥ (c_O/3) min(α, a/12) d(ψ)²`. -/
 theorem majorant_gap_orbit {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a b c d)
     (ha : 0 ≤ a) (hα : 0 ≤ -b - 17 * a / 12) {ψ : Psi} (hψ : normSqPsi ψ = 1)
     (hg : GlobalOverlap ψ) (hf : FidelityFloor ψ) :
-    (6 + Real.sqrt 6) / 12 / 3 * min ((-b - 17 * a / 12) / 6) (a / 12) * orbitDist ψ ^ 2 ≤
+    (6 + Real.sqrt 6) / 12 / 3 * min (-b - 17 * a / 12) (a / 12) * orbitDist ψ ^ 2 ≤
       meanSpec f M4 - meanSpec f ψ := by
   have h := majorant_gap_of_overlap hM ha hα ψ hψ (orbitDist_sq_le_Q hψ hg hf).1
   linarith
@@ -429,8 +429,8 @@ theorem majorant_gap_orbit {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a 
 /-- The Tsallis case of `cor:fqe-orbit-spectral`, `0 < q < 2`, `q ≠ 1`, genuine `d`. -/
 theorem tsallis_gap_orbit {q : ℝ} (h0 : 0 < q) (h2 : q < 2) (h1 : q ≠ 1) {ψ : Psi}
     (hψ : normSqPsi ψ = 1) (hg : GlobalOverlap ψ) (hf : FidelityFloor ψ) :
-    0 < min ((-tsB q - 17 * tsA q / 12) / 6) (tsA q / 12) ∧
-    (6 + Real.sqrt 6) / 12 / 3 * min ((-tsB q - 17 * tsA q / 12) / 6) (tsA q / 12) *
+    0 < min (-tsB q - 17 * tsA q / 12) (tsA q / 12) ∧
+    (6 + Real.sqrt 6) / 12 / 3 * min (-tsB q - 17 * tsA q / 12) (tsA q / 12) *
         orbitDist ψ ^ 2 ≤ tsallisCeiling q - meanTsallis q ψ := by
   obtain ⟨hp, h⟩ := tsallis_gap_of_overlap h0 h2 h1 ψ hψ (orbitDist_sq_le_Q hψ hg hf).1
   exact ⟨hp, by linarith⟩
@@ -459,7 +459,7 @@ theorem critical_orbit_sharp_dist {ψ : Psi} (hψ : normSqPsi ψ = 1) (hW : bloc
 theorem majorant_gap_orbit_critical {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a b c d)
     (ha : 0 ≤ a) (hα : 0 ≤ -b - 17 * a / 12) {ψ : Psi} (hψ : normSqPsi ψ = 1)
     (hW : blochSq ψ = 0) (hglob : 1 / 2 ≤ Phi ψ → 1 - Phi ψ ≤ sexticQ ψ) :
-    (2 + Real.sqrt 2) / 4 / 3 * min ((-b - 17 * a / 12) / 6) (a / 12) * orbitDist ψ ^ 2 ≤
+    (2 + Real.sqrt 2) / 4 / 3 * min (-b - 17 * a / 12) (a / 12) * orbitDist ψ ^ 2 ≤
       meanSpec f M4 - meanSpec f ψ := by
   have hQ : (2 + Real.sqrt 2) / 4 * orbitDist ψ ^ 2 ≤ sexticQ ψ := by
     rw [orbitDist_sq_eq_dist2 hψ]; exact critical_distance hψ hW hglob

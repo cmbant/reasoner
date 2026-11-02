@@ -28,7 +28,7 @@ hypothesis, with `d²` an arbitrary real number `d2` standing for `d(ψ)²`, and
 * Conditional on `c · d2 ≤ Q` (hypothesis; `c = c_O = (6+√6)/12` is the global constant of
   `thm:fqe-global-overlap`, `c = (2+√2)/4` the critical one of `thm:fqe-critical-orbit-sharp`):
   `entropy_gap_ge_of_overlap`, `entropy_gap_orbit_stability` (`δ ≥ k c_O d2 > d2/20`),
-  `entropy_gap_critical` (unconditional, `W₁ = 0`: `δ ≥ k (Q + 5τ/2)`), `majorant_gap_of_overlap`,
+  `entropy_gap_critical` (unconditional, `W₁ = 0`: `δ ≥ k (Q + 5τ/2)`), `majorant_gap_ge_Q`, `majorant_gap_of_overlap`,
   `tsallis_gap_of_overlap` (`cor:fqe-orbit-spectral`).
 -/
 
@@ -395,28 +395,52 @@ theorem entropy_gap_critical_distance (ψ : Psi) (hψ : normSqPsi ψ = 1) (hW : 
     mul_le_mul_of_nonneg_left (by linarith) hk.le
   linarith
 
+/-- **Spectral-majorant stability, `Q` form.** For a cubic majorant with `a ≥ 0`, `α = -b - 17a/12 ≥ 0`,
+`3 (E_f(M₄) - E_f(ψ)) ≥ min(α, a/12) · Q`, since `Q = F + P - 1` on unit states. -/
+theorem majorant_gap_ge_Q {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a b c d)
+    (ψ : Psi) (hψ : normSqPsi ψ = 1) :
+    min (-b - 17 * a / 12) (a / 12) * sexticQ ψ ≤ 3 * (meanSpec f M4 - meanSpec f ψ) := by
+  have g := majorant_gap hM ψ hψ
+  have hs := majorantSlack_nonneg hM ψ hψ
+  have hP : 0 ≤ purity ψ - 1 := by have := purity_ge ψ; rw [hψ] at this; linarith
+  have hF := sexticF_nonneg ψ
+  have hQ : sexticQ ψ = sexticF ψ + (purity ψ - 1) := by unfold sexticQ; rw [hψ]; ring
+  have m1 : min (-b - 17 * a / 12) (a / 12) ≤ -b - 17 * a / 12 := min_le_left _ _
+  have m2 : min (-b - 17 * a / 12) (a / 12) ≤ a / 12 := min_le_right _ _
+  rw [hQ]
+  set m := min (-b - 17 * a / 12) (a / 12)
+  have k1 : m * (purity ψ - 1) ≤ (-b - 17 * a / 12) * (purity ψ - 1) := by
+    nlinarith [mul_nonneg (sub_nonneg.2 m1) hP]
+  have k2 : m * sexticF ψ ≤ a / 12 * sexticF ψ := by
+    nlinarith [mul_nonneg (sub_nonneg.2 m2) hF]
+  nlinarith
+
 /-- **Spectral-majorant stability** (`cor:fqe-orbit-spectral`), conditional on `hQ : c d2 ≤ Q`
 (`c = c_O = (6+√6)/12` globally, `(2+√2)/4` for critical states): if `a ≥ 0` and `α = -b - 17a/12 ≥ 0`,
-`3 (E_f(M₄) - E_f(ψ)) ≥ min(α/6, a/12) · c d2`. -/
+`3 (E_f(M₄) - E_f(ψ)) ≥ min(α, a/12) · c d2`. -/
 theorem majorant_gap_of_overlap {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a b c d)
     (ha : 0 ≤ a) (hα : 0 ≤ -b - 17 * a / 12) (ψ : Psi) (hψ : normSqPsi ψ = 1) {c₀ d2 : ℝ}
     (hQ : c₀ * d2 ≤ sexticQ ψ) :
-    min ((-b - 17 * a / 12) / 6) (a / 12) * (c₀ * d2) ≤ 3 * (meanSpec f M4 - meanSpec f ψ) := by
-  have h := majorant_gap_ge_defect hM ψ hψ
-  have hm : 0 ≤ min ((-b - 17 * a / 12) / 6) (a / 12) := le_min (by linarith) (by linarith)
-  have := mul_le_mul_of_nonneg_left (le_trans hQ (sexticQ_le_defectD ψ hψ)) hm
+    min (-b - 17 * a / 12) (a / 12) * (c₀ * d2) ≤ 3 * (meanSpec f M4 - meanSpec f ψ) := by
+  have h := majorant_gap_ge_Q hM ψ hψ
+  have hm : 0 ≤ min (-b - 17 * a / 12) (a / 12) := le_min (by linarith) (by linarith)
+  have := mul_le_mul_of_nonneg_left hQ hm
   linarith
 
 /-- The Tsallis case of `cor:fqe-orbit-spectral` (`0 < q < 2`, `q ≠ 1`), conditional on
-`hQ : c d2 ≤ Q`: `3 (ceiling - E_q) ≥ min(α_q/6, a_q/12) · c d2`, with `min(α_q/6, a_q/12) > 0`. -/
+`hQ : c d2 ≤ Q`: `3 (ceiling - E_q) ≥ min(α_q, a_q/12) · c d2`, with `min(α_q, a_q/12) > 0`. -/
 theorem tsallis_gap_of_overlap {q : ℝ} (h0 : 0 < q) (h2 : q < 2) (h1 : q ≠ 1) (ψ : Psi)
     (hψ : normSqPsi ψ = 1) {c₀ d2 : ℝ} (hQ : c₀ * d2 ≤ sexticQ ψ) :
-    0 < min ((-tsB q - 17 * tsA q / 12) / 6) (tsA q / 12) ∧
-    min ((-tsB q - 17 * tsA q / 12) / 6) (tsA q / 12) * (c₀ * d2)
+    0 < min (-tsB q - 17 * tsA q / 12) (tsA q / 12) ∧
+    min (-tsB q - 17 * tsA q / 12) (tsA q / 12) * (c₀ * d2)
       ≤ 3 * (tsallisCeiling q - meanTsallis q ψ) := by
-  obtain ⟨hpos, h⟩ := tsallis_gap_ge_defect h0 h2 h1 ψ hψ
-  refine ⟨hpos, ?_⟩
-  have := mul_le_mul_of_nonneg_left (le_trans hQ (sexticQ_le_defectD ψ hψ)) hpos.le
+  obtain ⟨hpos, ha⟩ := tsallis_hermite h0 h2 h1
+  have hb := tsallis_coeff_neg h0 h2 h1
+  have hp : 0 < min (-tsB q - 17 * tsA q / 12) (tsA q / 12) := lt_min (by linarith) (by linarith)
+  refine ⟨hp, ?_⟩
+  have h := majorant_gap_ge_Q (tsallis_majorant h0 h2 h1) ψ hψ
+  rw [meanTsallis_eq_meanSpec q ψ hψ, tsallisCeiling_eq, ← meanSpec_M4]
+  have := mul_le_mul_of_nonneg_left hQ hp.le
   linarith
 
 /-- info: 'FormalResearch.FourQubitEntropy.entropy_gap_orbit_stability' depends on axioms: [propext, Classical.choice, Quot.sound] -/

@@ -531,14 +531,14 @@ theorem entropy_gap_orbit_stability_dist_of_overlap {ψ : Psi} (hψ : normSqPsi 
 theorem majorant_gap_orbit_of_overlap {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a b c d)
     (ha : 0 ≤ a) (hα : 0 ≤ -b - 17 * a / 12) {ψ : Psi} (hψ : normSqPsi ψ = 1)
     (hg : GlobalOverlap ψ) :
-    (6 + Real.sqrt 6) / 12 / 3 * min ((-b - 17 * a / 12) / 6) (a / 12) * orbitDist ψ ^ 2 ≤
+    (6 + Real.sqrt 6) / 12 / 3 * min (-b - 17 * a / 12) (a / 12) * orbitDist ψ ^ 2 ≤
       meanSpec f M4 - meanSpec f ψ :=
   majorant_gap_orbit hM ha hα hψ hg (fidelityFloor_all hψ)
 
 theorem tsallis_gap_orbit_of_overlap {q : ℝ} (h0 : 0 < q) (h2 : q < 2) (h1 : q ≠ 1) {ψ : Psi}
     (hψ : normSqPsi ψ = 1) (hg : GlobalOverlap ψ) :
-    0 < min ((-tsB q - 17 * tsA q / 12) / 6) (tsA q / 12) ∧
-    (6 + Real.sqrt 6) / 12 / 3 * min ((-tsB q - 17 * tsA q / 12) / 6) (tsA q / 12) *
+    0 < min (-tsB q - 17 * tsA q / 12) (tsA q / 12) ∧
+    (6 + Real.sqrt 6) / 12 / 3 * min (-tsB q - 17 * tsA q / 12) (tsA q / 12) *
         orbitDist ψ ^ 2 ≤ tsallisCeiling q - meanTsallis q ψ :=
   tsallis_gap_orbit h0 h2 h1 hψ hg (fidelityFloor_all hψ)
 
