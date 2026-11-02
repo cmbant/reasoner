@@ -53,13 +53,6 @@ theorem slotPerm_one :
   have h : slotAct (1 : Equiv.Perm (Fin n)) c = c := rfl
   simp [slotPerm_apply, h, Matrix.one_apply]
 
-/-- `slotPerm` as a monoid homomorphism. -/
-def slotPermHom (𝕜 : Type*) [Field 𝕜] (σ : Type*) [Fintype σ] [DecidableEq σ] (n : ℕ) :
-    Equiv.Perm (Fin n) →* Matrix (Fin n → σ) (Fin n → σ) 𝕜 where
-  toFun := slotPerm 𝕜
-  map_one' := slotPerm_one
-  map_mul' := slotPerm_mul
-
 /-- The diagonal slot permutation on all parties. -/
 def copyPerm (𝕜 : Type*) [Field 𝕜] (Q σ : Type*) [Fintype Q] [DecidableEq Q]
     [Fintype σ] [DecidableEq σ] {n : ℕ} (π : Equiv.Perm (Fin n)) :

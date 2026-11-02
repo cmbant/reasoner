@@ -34,7 +34,7 @@ Paper E, `sup_renyi.tex`, `sec:sup-qk`, verifier-map paragraph QVA.
   `(negative support, positive support)` of computational-basis indices (bit `k` = copy `k`).
 * `blocks`: the 14 blocks `k`. A `Block` stores `a_k` (copies of `z`), the spin tuple `p_k`, the positive integer
   weights `q_ki` and the sparse integer multiplicity vectors `v_ki` (lists of `(multiplicity index, coefficient)`).
-  In total 96 covariants `Φ_ki = W_{a_k,p_k} v_ki`.
+  In total 95 covariants `Φ_ki = W_{a_k,p_k} v_ki`.
 * `certD`, the constant `D` of `2 D 𝔇 = Σ_ki q_ki ‖Φ_ki‖²`.
 -/
 

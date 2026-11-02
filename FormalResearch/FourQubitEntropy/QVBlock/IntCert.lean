@@ -167,46 +167,4 @@ theorem quad_eq_zero_of_int_certificate (hdim : ∀ j, 0 < dim j)
 
 end
 
-section Star
-variable {σ : Type*} [Fintype σ] [DecidableEq σ] {n : ℕ} {Q : Type*} [Fintype Q] [DecidableEq Q]
-
-/-- `star (z^{⊗n}) = (star ∘ z)^{⊗n}`. -/
-theorem star_copyPower (z : (Q → σ) → ℂ) (n : ℕ) :
-    star (copyPower z n) = copyPower (star ∘ z) n := by
-  ext a
-  simp [copyPower, Pi.star_apply, star_prod]
-
-/-- **Star form of the top theorem** (`⟨ψ, Kψ⟩ = conj(ψ)ᵀ K ψ`), over `ℂ`, deduced from the
-two-vector statement with `z' = star ∘ z`. -/
-theorem star_quad_eq_zero_of_int_certificate
-    {J : Type*} [Fintype J] [DecidableEq J] (dim : J → ℕ) {mult : J → ℕ}
-    (hdim : ∀ j, 0 < dim j)
-    (C : Matrix (Idx dim mult) (Fin n → σ) ℤ) (Cinv : Matrix (Fin n → σ) (Idx dim mult) ℤ)
-    (D : ℤ) (hD : D ≠ 0) (hCi : Cinv * C = D • 1) (hiC : C * Cinv = D • 1)
-    {ι : Type*} (gens : ι → Equiv.Perm (Fin n)) (w : Equiv.Perm (Fin n) → List ι)
-    (hw : ∀ g, ((w g).map gens).prod = g)
-    (ρ0 : ι → ∀ j, Matrix (Fin (mult j)) (Fin (mult j)) ℤ)
-    (hρ0 : ∀ i, C * slotPerm ℤ (gens i) = blk dim (ρ0 i) * C)
-    {κ : Type*} [Fintype κ] (X : κ → Q → Matrix (Fin n → σ) (Fin n → σ) ℤ)
-    (Xh : κ → Q → ∀ j, Matrix (Fin (mult j)) (Fin (mult j)) ℤ)
-    (hX : ∀ k q, C * X k q = blk dim (Xh k q) * C)
-    (nn : (Q → J) → ℕ)
-    (V W : ∀ p : Q → J, Matrix (∀ q, Fin (mult (p q))) (Fin (nn p)) ℤ)
-    (hV : ∀ p i, kronPi (fun q => ρ0 i (p q)) * V p = V p)
-    (hW : ∀ p i, (kronPi (fun q => ρ0 i (p q)))ᵀ * W p = W p)
-    (pivV pivW : ∀ p : Q → J, Fin (nn p) → (∀ q, Fin (mult (p q))))
-    (hdetV : ∀ p, ((V p).submatrix (pivV p) id).det ≠ 0)
-    (hdetW : ∀ p, ((W p).submatrix (pivW p) id).det ≠ 0)
-    (hchar : ∀ p, (Fintype.card (Equiv.Perm (Fin n)) : ℤ) * nn p =
-      ∑ g : Equiv.Perm (Fin n), ∏ q, (((w g).map (fun i => ρ0 i (p q))).prod).trace)
-    (hcheck : ∀ p, (W p)ᵀ * (∑ k, kronPi (fun q => Xh k q (p q))) * V p = 0)
-    (z : (Q → σ) → ℂ) :
-    star (copyPower z n) ⬝ᵥ (((∑ k, kronPi (X k)).map (Int.cast : ℤ → ℂ)) *ᵥ copyPower z n)
-      = 0 := by
-  rw [star_copyPower]
-  exact quad_eq_zero_of_int_certificate dim hdim C Cinv D hD hCi hiC gens w hw ρ0 hρ0 X Xh hX nn
-    V W hV hW pivV pivW hdetV hdetW hchar hcheck (star ∘ z) z
-
-end Star
-
 end FormalResearch.FourQubitEntropy.QVBlock

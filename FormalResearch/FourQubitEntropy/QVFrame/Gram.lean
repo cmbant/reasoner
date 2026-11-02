@@ -34,12 +34,6 @@ theorem lsum_nil [AddCommMonoid M] (f : α → M) : lsum [] f = 0 := rfl
 theorem lsum_cons [AddCommMonoid M] (a : α) (L : List α) (f : α → M) :
     lsum (a :: L) f = f a + lsum L f := by simp [lsum]
 
-theorem lsum_add [AddCommMonoid M] (L : List α) (f g : α → M) :
-    lsum L (fun s => f s + g s) = lsum L f + lsum L g := by
-  induction L with
-  | nil => simp [lsum]
-  | cons a L ih => simp only [lsum_cons, ih]; abel
-
 theorem lsum_mul_left [NonUnitalNonAssocSemiring M] (L : List α) (c : M) (f : α → M) :
     c * lsum L f = lsum L (fun s => c * f s) := by
   induction L with
@@ -124,9 +118,9 @@ theorem sixCopy_eq (a : ℕ) (z : Psi) (b : Fin 4 → Fin 64) :
   refine Finset.prod_congr rfl fun k _ => ?_
   unfold QVCert.copyVec
   by_cases h : k.val < a
-  · simp only [h, if_true]
+  · simp only [h, ite_true]
     rfl
-  · simp only [h, if_false]
+  · simp only [h, ite_false]
     exact ztilde_eq z (fun q => QVCert.bitF (b q).val (5 - k.val))
 
 /-! ### `Φ` as a bilinear expression -/

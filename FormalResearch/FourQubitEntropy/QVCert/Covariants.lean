@@ -18,7 +18,7 @@ Paper E, `sup_renyi.tex`, `sec:sup-qk`, proof of `thm:fqe-sharp-quadratic-varian
   the high bits).
 * **Sector component** `sectorW a p σ m μ z`: apply `C6` in every slot, with spin `p_k`, lowering index `m_k`
   and multiplicity index `μ_k` placed in slot `σ k`. Stacking all `σ ∈ S₄` gives `W_{a,p}` of the paper.
-* **Weights** `wp p m = ∏_k (lcm_r C(p_k, r) / C(p_k, m_k))`, positive (`weight_pos`).
+* **Weights** `wp p m = ∏_k (lcm_r C(p_k, r) / C(p_k, m_k))` (`weight` is a positive integer; only `wp ≥ 0` is used).
 * **Covariants** `Block.Phi b z i`, `Φ_ki = W_{a_k,p_k} v_ki` for the integer multiplicity vector `v_ki`, and their
   weighted squared norms `Block.normSqPhi b z i = ‖Φ_ki(z)‖²_{w_{p_k}}`.
 -/
@@ -48,34 +48,9 @@ def rowC (j m μ : ℕ) (b : ℕ) : ℤ := (lowerOp^[m] (hwVec j μ) b) / (m.fac
 /-- Multiplicity of the spin-`j/2` sector in `(ℂ²)^{⊗6}`. -/
 def mult (j : ℕ) : ℕ := (hwSupport j).length
 
-/-- The raising operator `E` on six-copy vectors: `(E v)(c) = Σ_{k : bit k of c = 0} v(c with bit k set)`. -/
-def raiseOp (v : ℕ → ℤ) (c : ℕ) : ℤ :=
-  ∑ k ∈ range 6, if c.testBit k then 0 else v (c ^^^ 2 ^ k)
-
-/-- **QVA-1 (intertwiner part).** The rows `H_μ` are highest-weight vectors: `E H_μ = 0`
-(kernel-checked). -/
-theorem hwVec_killed : ∀ j ∈ [0, 2, 4, 6], ∀ μ < mult j, ∀ c < 64, raiseOp (hwVec j μ) c = 0 := by
-  decide +kernel
-
-/-- The spin multiplicities fill `(ℂ²)^{⊗6}`: `Σ_j (j + 1) · mult j = 64`. -/
-theorem mult_dim : (mult 0) * 1 + (mult 2) * 3 + (mult 4) * 5 + (mult 6) * 7 = 64 := by
-  decide +kernel
-
 /-- The invariant-inner-product weight of the magnetic row `m` of spin `j/2`:
 `lcm_r C(j, r) / C(j, m)`. -/
 def weight (j m : ℕ) : ℕ := (range (j + 1)).lcm (Nat.choose j) / Nat.choose j m
-
-theorem weight_pos {j m : ℕ} (hm : m ≤ j) : 0 < weight j m := by
-  unfold weight
-  have hmem : m ∈ range (j + 1) := mem_range.2 (Nat.lt_succ_of_le hm)
-  have hL : 0 < (range (j + 1)).lcm (Nat.choose j) := by
-    rcases Nat.eq_zero_or_pos ((range (j + 1)).lcm (Nat.choose j)) with h | h
-    · rw [Finset.lcm_eq_zero_iff] at h
-      obtain ⟨x, hx, hx0⟩ := h
-      have := Nat.choose_pos (mem_range.1 hx |> Nat.lt_succ_iff.1)
-      omega
-    · exact h
-  exact Nat.div_pos (Nat.le_of_dvd hL (Finset.dvd_lcm hmem)) (Nat.choose_pos hm)
 
 /-! ### The vectors `z^{⊗a} ⊗ z̃^{⊗(6-a)}` -/
 
@@ -112,19 +87,11 @@ def muDigit (p : Fin 4 → ℕ) (c : ℕ) (k : Fin 4) : ℕ :=
 /-- The positive weight `w_p(m) = ∏_k weight(p_k, m_k)` of the magnetic row `m`. -/
 noncomputable def wp (p : Fin 4 → ℕ) (m : Fin 4 → ℕ) : ℝ := ∏ k, (weight (p k) (m k) : ℝ)
 
-theorem wp_pos (p m : Fin 4 → ℕ) (hm : ∀ k, m k ≤ p k) : 0 < wp p m :=
-  Finset.prod_pos fun k _ => by exact_mod_cast weight_pos (hm k)
-
 theorem wp_nonneg (p m : Fin 4 → ℕ) : 0 ≤ wp p m := Finset.prod_nonneg fun _ _ => Nat.cast_nonneg _
 
 /-- The index set of the rows of `W_{a,p}`: a qubit permutation `σ` and magnetic indices `m_k ≤ p_k`. -/
 def rowIdx (p : Fin 4 → ℕ) : Finset (Equiv.Perm (Fin 4) × (Fin 4 → ℕ)) :=
   univ ×ˢ Fintype.piFinset (fun k => range (p k + 1))
-
-theorem rowIdx_le {p : Fin 4 → ℕ} {x : Equiv.Perm (Fin 4) × (Fin 4 → ℕ)} (hx : x ∈ rowIdx p) (k : Fin 4) :
-    x.2 k ≤ p k := by
-  have := (Fintype.mem_piFinset.1 (Finset.mem_product.1 hx).2) k
-  exact Nat.lt_succ_iff.1 (mem_range.1 this)
 
 namespace Block
 

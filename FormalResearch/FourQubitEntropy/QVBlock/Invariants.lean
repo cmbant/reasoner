@@ -40,13 +40,6 @@ theorem mul_repAvg (ρ : G →* Matrix M M 𝕜) (h : G) : ρ h * repAvg ρ = re
   simp_rw [← map_mul]
   exact Fintype.sum_equiv (Equiv.mulLeft h) (fun g => ρ (h * g)) (fun g => ρ g) (fun _ => rfl)
 
-theorem repAvg_mul (ρ : G →* Matrix M M 𝕜) (h : G) : repAvg ρ * ρ h = repAvg ρ := by
-  unfold repAvg
-  rw [Matrix.smul_mul, Matrix.sum_mul]
-  congr 1
-  simp_rw [← map_mul]
-  exact Fintype.sum_equiv (Equiv.mulRight h) (fun g => ρ (g * h)) (fun g => ρ g) (fun _ => rfl)
-
 theorem repAvg_mul_of_invariant (ρ : G →* Matrix M M 𝕜) {N : Type*} [Fintype N]
     (V : Matrix M N 𝕜) (hV : ∀ g, ρ g * V = V) : repAvg ρ * V = V := by
   have h1 : (∑ g, ρ g) * V = (Fintype.card G : 𝕜) • V := by

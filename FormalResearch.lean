@@ -627,5 +627,9 @@ import FormalResearch.FourQubitEntropy.QVCert.QVDefect
 import FormalResearch.FourQubitEntropy.QVCert.Reduction
 import FormalResearch.FourQubitEntropy.QVBlock.All
 import FormalResearch.FourQubitEntropy.QVFrame.All
-import FormalResearch.FourQubitEntropy.QVFrame.FinalQV
 import FormalResearch.FourQubitEntropy.QVCheck.All
+import FormalResearch.FourQubitEntropy.PaperEGapGHZ
+import FormalResearch.FourQubitEntropy.PaperEGapTwoFlatQF
+import FormalResearch.FourQubitEntropy.PaperEGapNullCritical
+import FormalResearch.FourQubitEntropy.SevenFiveCopyDual
+import FormalResearch.FourQubitEntropy.SevenFiveCopyTangent

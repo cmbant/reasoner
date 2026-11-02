@@ -9,8 +9,8 @@ Paper E, `sup_renyi.tex`, `sec:sup-qk`: `thm:fqe-sharp-quadratic-variance` follo
 `eq:fqe-qv-allstate-sos`, `2 D 𝔇(z) = Σ_{k,i} q_ki ‖Φ_ki(z)‖²_{w_{p_k}}` with an integer `D > 0` and positive integer
 weights `q_ki` (95 covariants `Φ_ki = W_{a_k,p_k} v_ki`), because every summand is nonnegative.
 
-* `QVCertIdentity`: the polynomial identity, as a `Prop` (to be proved separately: it is the finite
-  evaluation at the 83 determining states plus the dimension count of the paper, QVA-3, QG-1/QG-3).
+* `QVCertIdentity`: the polynomial identity, as a `Prop`; it is proved in `QVCheck.Unconditional`
+  (`QVCert.qvCertIdentity`) by an exact integer certificate check (layers `QVBlock`, `QVFrame`, `QVCheck`).
 * `defectD_nonneg_of_certIdentity`: the certificate identity implies `𝔇 ≥ 0`.
 * `sharpQV_of_certIdentity`: the certificate identity implies (QV).
 -/

@@ -1,19 +1,95 @@
-import FormalResearch.FourQubitEntropy.QVCheck.Lemmas
+import Mathlib
+import QVCheckImpl.Basic
 import QVCheckImpl.Impl2
 import FormalResearch.FourQubitEntropy.QVBlock.Kron
 
 /-!
-# Mode products on flat tensors (K2, K6 and the table stage)
+# Array semantics of the checker primitives
+
+`QVCheckImpl` is Mathlib-free executable code over flat `Array Int`s.  This module gives its primitives their meaning:
+
+* the loop combinators `sumTo`, `allTo`, `tab` are finite sums, bounded universal quantifiers and tabulations;
+* the mode products `modeProd`, composed along the four qubit axes (`kron4`), compute the Kronecker action `⊗_q M_q` on
+  flat tensors (`kron4_eq_sum`).
+-/
+
+open Finset
+
+namespace QVCheck
+
+/-!
+## Loop combinators (`QVCheckImpl.Basic`)
+
+* `sumTo n f = ∑ i < n, f i`, `allTo n p = true ↔ ∀ i < n, p i = true`,
+* `(tab n f).getD i 0 = if i < n then f i else 0`, `(tab n f).size = n`.
+-/
+
+theorem hide_eq (u : Unit) (n : Nat) : hide u n = n := rfl
+
+theorem sumAux_eq (f : Nat → Int) (n : Nat) (acc : Int) :
+    sumAux f n acc = acc + ∑ i ∈ range n, f i := by
+  induction n generalizing acc with
+  | zero => simp [sumAux]
+  | succ k ih => rw [sumAux, ih, Finset.sum_range_succ]; ring
+
+theorem sumTo_eq (n : Nat) (f : Nat → Int) : sumTo n f = ∑ i ∈ range n, f i := by
+  simp [sumTo, sumAux_eq]
+
+theorem allAux_iff (p : Nat → Bool) (n : Nat) : allAux p n = true ↔ ∀ i < n, p i = true := by
+  induction n with
+  | zero => simp [allAux]
+  | succ k ih =>
+    rw [allAux, Bool.and_eq_true, ih]
+    constructor
+    · rintro ⟨h1, h2⟩ i hi
+      rcases Nat.lt_succ_iff_lt_or_eq.1 hi with h | h
+      · exact h2 i h
+      · subst h; exact h1
+    · intro h; exact ⟨h k (Nat.lt_succ_self k), fun i hi => h i (Nat.lt_succ_of_lt hi)⟩
+
+theorem allTo_iff (n : Nat) (p : Nat → Bool) : allTo n p = true ↔ ∀ i < n, p i = true :=
+  allAux_iff p n
+
+theorem tabAux_eq (f : Nat → Int) (n : Nat) :
+    ∀ (k : Nat), k ≤ n → ∀ (acc : Array Int),
+      tabAux f n k acc = acc ++ ((List.range' (n - k) k).map f).toArray := by
+  intro k
+  induction k with
+  | zero => intro _ acc; simp [tabAux]
+  | succ k ih =>
+    intro hk acc
+    rw [tabAux, ih (by omega)]
+    have h1 : n - (k + 1) + 1 = n - k := by omega
+    have h2 : n - (k + 1) = n - 1 - k := by omega
+    rw [List.range'_succ, h1, h2]
+    simp
+
+theorem tab_toList (n : Nat) (f : Nat → Int) : tab n f = ((List.range n).map f).toArray := by
+  unfold tab
+  rw [tabAux_eq f n n le_rfl]
+  simp [List.range_eq_range']
+
+theorem tab_size (n : Nat) (f : Nat → Int) : (tab n f).size = n := by
+  rw [tab_toList]; simp
+
+theorem tab_getD (n : Nat) (f : Nat → Int) (i : Nat) :
+    (tab n f).getD i 0 = if i < n then f i else 0 := by
+  rw [tab_toList]
+  by_cases h : i < n
+  · simp [h, Array.getD]
+  · simp [h, Array.getD]
+
+theorem gt_tab (n : Nat) (f : Nat → Int) (i : Nat) : gt (tab n f) i = if i < n then f i else 0 :=
+  tab_getD n f i
+
+/-!
+## Mode products on flat tensors (K2, K6 and the table stage)
 
 `modeProd M m s tr X` applies the `m × m` matrix `M` (or its transpose) to the axis of radix `m` and stride `s` of the flat
 array `X`.  We prove `modeProd_apply` (the entry formula in the three-level decomposition `idx = (a m + r) s + b`) and, for four
 axes with radices `m q` and the mixed-radix flattening `flat`, that applying the four mode products is `⊗_q M_q`
 (`kronApply_eq`).
 -/
-
-open Finset
-
-namespace QVCheck
 
 theorem modeProd_apply (M : Array Int) (m s : Nat) (tr : Bool) (X : Array Int) (a r b : Nat)
     (hr : r < m) (hb : b < s) (hl : (a * m + r) * s + b < X.size) :
@@ -22,7 +98,7 @@ theorem modeProd_apply (M : Array Int) (m s : Nat) (tr : Bool) (X : Array Int) (
   have hs : 0 < s := by omega
   have hm : 0 < m := by omega
   unfold modeProd
-  rw [tab_getD, if_pos (by simpa using hl), sumTo_eq]
+  rw [tab_getD, ite_eq_left (by simpa using hl), sumTo_eq]
   have h1 : ((a * m + r) * s + b) / s % m = r := by
     have : ((a * m + r) * s + b) / s = a * m + r := by
       rw [Nat.mul_comm (a * m + r) s]
@@ -218,5 +294,3 @@ theorem kron4_eq_sum (m : Fin 4 → ℕ) (Ms : Fin 4 → Array Int) (tr : Bool) 
   ring
 
 end QVCheck
-
-#print axioms QVCheck.kron4_eq_sum

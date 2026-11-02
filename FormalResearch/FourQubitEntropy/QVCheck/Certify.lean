@@ -1,4 +1,4 @@
-import FormalResearch.FourQubitEntropy.QVCheck.Main
+import FormalResearch.FourQubitEntropy.QVCheck.Certificate
 
 /-!
 # The checker run on the certificate (`native_decide`)

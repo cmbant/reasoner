@@ -49,13 +49,8 @@ def Jv (y : Site → ℂ) : Site → ℂ := fun c => (eps c : ℂ) * y (rev' c)
 theorem rev'_rev' (c : Site) : rev' (rev' c) = c := by
   funext q; simp [rev']
 
-theorem revW_revW {n : ℕ} (α : Wd n) : revW (revW α) = α := by
-  funext t; simp [revW]
-
 theorem eps_rev' (c : Site) : eps (rev' c) = eps c := by
   revert c; decide
-
-theorem col_apply {n : ℕ} (β : Cfg n) (t : Fin n) (q : Fin 4) : col β t q = β q t := rfl
 
 /-- The four-qubit tensor power `u^{⊗n}` written qubit-major is `QVBlock.copyPower`. -/
 theorem copyPower_eq_prod {n : ℕ} (u : Site → ℂ) (β : Cfg n) :
@@ -83,8 +78,6 @@ def wordEquiv : Fin 64 ≃ Wd 6 where
   right_inv w := bitsOf_numOf w
 
 theorem wordEquiv_apply (n : Fin 64) : wordEquiv n = bitsOf n.val := rfl
-
-theorem wordEquiv_symm_val (w : Wd 6) : ((wordEquiv.symm w : Fin 64) : ℕ) = numOf w := rfl
 
 /-! ### Bilinear forms -/
 

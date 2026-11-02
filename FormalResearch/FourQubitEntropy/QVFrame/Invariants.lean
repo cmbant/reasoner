@@ -103,7 +103,7 @@ theorem qf_slot {n : ℕ} (s : Fin 4 → Equiv.Perm (Fin n)) (z : Site → ℂ) 
       (if β = (fun q => slotAct (s q) (α q)) then 1 else 0) * copyPower z n α =
       copyPower (fun c => conj (z c)) n (fun q => slotAct (s q) (α q)) * copyPower z n α := by
     intro α
-    simp only [mul_ite, mul_one, mul_zero, ite_mul, zero_mul, Finset.sum_ite_eq', Finset.mem_univ, if_true]
+    simp only [mul_ite, mul_one, mul_zero, ite_mul, zero_mul, Finset.sum_ite_eq', Finset.mem_univ, ite_true]
   rw [Finset.sum_comm]
   simp only [h1]
   unfold invG

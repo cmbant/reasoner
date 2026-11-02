@@ -102,13 +102,13 @@ theorem S4_single (i0 k0 : ιA) (j0 l0 : ιB) (w v : R) (P : Matrix ιA ιA R) (
     · rw [Finset.sum_eq_single k0]
       · rw [Finset.sum_eq_single l0]
         · simp
-        · intro l _ hl; simp [hl, Ne.symm hl]
+        · intro l _ hl; simp [Ne.symm hl]
         · simp
-      · intro k _ hk; simp [hk, Ne.symm hk]
+      · intro k _ hk; simp [Ne.symm hk]
       · simp
-    · intro j _ hj; simp [hj, Ne.symm hj]
+    · intro j _ hj; simp [Ne.symm hj]
     · simp
-  · intro i _ hi; simp [hi, Ne.symm hi]
+  · intro i _ hi; simp [Ne.symm hi]
   · simp
 
 theorem S4_zero_left (P : Matrix ιA ιA R) (V : Matrix ιA ιB R) (R' : Matrix ιB ιB R) :

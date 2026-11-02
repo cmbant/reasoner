@@ -1,34 +1,20 @@
-import QVCheckImpl.Impl5
-import FormalResearch.FourQubitEntropy.QVCheck.Lemmas
-import FormalResearch.FourQubitEntropy.QVCheck.Modes
-import FormalResearch.FourQubitEntropy.QVCheck.Invariance
-import FormalResearch.FourQubitEntropy.QVCheck.HypVW
-import FormalResearch.FourQubitEntropy.QVCheck.Coupling
-import FormalResearch.FourQubitEntropy.QVCheck.HypPiv
-import FormalResearch.FourQubitEntropy.QVCheck.CBlock
-import FormalResearch.FourQubitEntropy.QVCheck.PsiBlock
-import FormalResearch.FourQubitEntropy.QVCheck.Chars
-import FormalResearch.FourQubitEntropy.QVCheck.Contr
-import FormalResearch.FourQubitEntropy.QVCheck.Coupled
-import FormalResearch.FourQubitEntropy.QVCheck.Tables
-import FormalResearch.FourQubitEntropy.QVCheck.Coupled2
-import FormalResearch.FourQubitEntropy.QVCheck.Pair
-import FormalResearch.FourQubitEntropy.QVCheck.Pair2
-import FormalResearch.FourQubitEntropy.QVCheck.Pair3
-import FormalResearch.FourQubitEntropy.QVCheck.Term
-import FormalResearch.FourQubitEntropy.QVCheck.RunBlock
-import FormalResearch.FourQubitEntropy.QVCheck.Qtot
-import FormalResearch.FourQubitEntropy.QVCheck.Place
-import FormalResearch.FourQubitEntropy.QVCheck.Place2
-import FormalResearch.FourQubitEntropy.QVCheck.Rhs
-import FormalResearch.FourQubitEntropy.QVCheck.Sector
-import FormalResearch.FourQubitEntropy.QVCheck.Final
-import FormalResearch.FourQubitEntropy.QVCheck.Place3
-import FormalResearch.FourQubitEntropy.QVCheck.Bridge
-import FormalResearch.FourQubitEntropy.QVCheck.RhsWords
-import FormalResearch.FourQubitEntropy.QVCheck.Assemble
-import FormalResearch.FourQubitEntropy.QVCheck.Sector2
-import FormalResearch.FourQubitEntropy.QVCheck.Hcheck
-import FormalResearch.FourQubitEntropy.QVCheck.Main
-import FormalResearch.FourQubitEntropy.QVCheck.Certify
 import FormalResearch.FourQubitEntropy.QVCheck.Unconditional
+
+/-!
+# (QV), (QK) and the Rényi envelope above order one: aggregate
+
+The unconditional proof of the certificate identity `2 D 𝔇(z) = Σ q_ki ‖Φ_ki(z)‖²_w` (`QVCert.qvCertIdentity`), hence of
+(QV) `RenyiFull.sharpQuadraticVarianceBound`, (QK) `RenyiFull.quadraticVarianceBound` and
+`RenyiFull.renyi_envelope_above_one_unconditional`, is organised in layers; `QVCheck.Unconditional` is the entry point.
+
+* `QVCert` (statement): the certificate data, the covariants `Φ_ki`, weighted norms and the reduction of (QV) to the
+  identity (`QVCert.Reduction`).
+* `QVBlock` (generic, no data): from finitely many integer matrix identities to `⟨u^{⊗n}, K v^{⊗n}⟩ = 0`
+  (`QVBlock.quad_eq_zero_of_int_certificate`).
+* `QVFrame` (generic, no certificate data): the identity as a quadratic form in `z^{⊗6}`, `2 D 𝔇 - Σ q ‖Φ‖² = ⟨z^{⊗6}, K z^{⊗6}⟩`
+  (`QVFrame.cert_diff_eq_qf`).
+* `QVCheckImpl` (repository root, Mathlib-free, precompiled): the executable checker `checkAll` and its data.
+* `QVCheck` (this directory): the semantics of the checker, in the order `Arrays`, `Coupling`, `Invariants`, `Intertwiner`,
+  `Coupled`, `Terms`, `Placement`, `Sector`, `Bridge`, `Certificate` (`kfam_bilinear`: `checkAll … = true` implies the bilinear
+  form of `K` vanishes), then `Certify` (`checkAll_true`, by `native_decide`) and `Unconditional`.
+-/

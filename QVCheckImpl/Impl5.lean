@@ -1,4 +1,4 @@
-import QVCheckImpl.Impl4b
+import QVCheckImpl.Impl4
 
 /-!
 # The QV checker, part 5: quotient, placements, right-hand side, final comparison (K5, K6, K7)
@@ -20,8 +20,6 @@ def placeOff (code pi : Nat) : Nat := placeOffArr.getD code 0 + pi * (1 + 2 * nn
 def pden (code pi : Nat) : Int := gt placeArr (placeOff code pi)
 def pSW (code pi a a' : Nat) : Int := gt placeArr (placeOff code pi + 1 + a * nn code + a')
 def pSV (code pi a a' : Nat) : Int := gt placeArr (placeOff code pi + 1 + nn code * nn code + a * nn code + a')
-
-def spinCode (s : Array Nat) : Nat := ((s.getD 0 0 * 4 + s.getD 1 0) * 4 + s.getD 2 0) * 4 + s.getD 3 0
 
 /-- `qq = (pp[π[t]])_t` -/
 def placedCode (code : Nat) (pi : Array Nat) : Nat :=

@@ -5,5 +5,3 @@ import FormalResearch.FourQubitEntropy.QVFrame.Invariants
 import FormalResearch.FourQubitEntropy.QVFrame.Atoms
 import FormalResearch.FourQubitEntropy.QVFrame.Defect
 import FormalResearch.FourQubitEntropy.QVFrame.Assembly
-import FormalResearch.FourQubitEntropy.QVFrame.Flat
-import FormalResearch.FourQubitEntropy.QVFrame.Final

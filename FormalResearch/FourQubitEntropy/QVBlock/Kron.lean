@@ -43,10 +43,6 @@ theorem kronPi_one {m : Q → Type*} [∀ q, DecidableEq (m q)] :
     rw [Finset.prod_eq_zero (Finset.mem_univ q) (by simp [hq])]
     simp [h]
 
-theorem kronPi_transpose {m n : Q → Type*} (X : ∀ q, Matrix (m q) (n q) 𝕜) :
-    (kronPi X)ᵀ = kronPi (fun q => (X q)ᵀ) := by
-  ext a b; simp
-
 theorem trace_kronPi {m : Q → Type*} [∀ q, Fintype (m q)] (X : ∀ q, Matrix (m q) (m q) 𝕜) :
     (kronPi X).trace = ∏ q, (X q).trace := by
   simp only [Matrix.trace, Matrix.diag_apply, kronPi_apply]

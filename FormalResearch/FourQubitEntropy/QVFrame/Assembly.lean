@@ -30,7 +30,7 @@ theorem qf_lsum {ι α : Type*} [Fintype ι] (u : ι → ℂ) (L : List α) (A :
 theorem kronPi_map_int {n : ℕ} (X : Fin 4 → Matrix (Wd n) (Wd n) ℤ) :
     (kronPi X).map (Int.castRingHom ℂ) = kronPi (fun q => (X q).map (Int.castRingHom ℂ)) := by
   ext α β
-  simp [kronPi_apply, map_prod]
+  simp [kronPi_apply]
 
 /-- `gramOp` with `τ_a` applied to every per-qubit factor (the frame-6 operator). -/
 def tauGram (a : ℕ) (p : Fin 4 → ℕ) (v : List (ℕ × ℤ)) : Matrix (Cfg 6) (Cfg 6) ℤ :=

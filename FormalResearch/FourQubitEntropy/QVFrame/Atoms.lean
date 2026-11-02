@@ -9,7 +9,6 @@ import FormalResearch.FourQubitEntropy.QVCert.QVDefect
   `|c⟩ ↦ |c ∘ rot_k⟩` on the cut qubits of the `routeD/rhs.py` convention (`rot_k : t ↦ t+1`).
 * `invG_cut12`: the invariant of the cut `{0,1}` is `Σ_x ∏_t R_{12}(x_t, x_{t+1})`;
   `atom2`, `atom3`: `k = 2, 3` give `tr R²`, `tr R³` for the three cuts (`red12`, `red13`, `red14`).
-* `atom1`: `invG (Fin 1) 1 = N`.
 -/
 
 open scoped ComplexConjugate
@@ -92,19 +91,12 @@ theorem invG_cut12 (k : ℕ) (z : Psi) :
 
 /-! ### `k = 1, 2, 3` -/
 
-theorem atom1 (z : Psi) : invG (Fin 1) (fun _ => 1) (zf z) = (normSqPsi z : ℂ) := by
-  rw [invG_one, Fintype.card_fin, pow_one, sum_fin_four]
-  unfold normSqPsi
-  push_cast
-  simp only [zf, Complex.normSq_eq_conj_mul_self]
-  rfl
-
 theorem atom2_12 (z : Psi) :
     invG (Fin 2) (cutPerm 2 (cutMask 1)) (zf z) = Matrix.trace (red12 z * red12 z) := by
   rw [invG_cut12, sum_fin_two]
   simp only [Matrix.trace, Matrix.diag, Matrix.mul_apply, Fin.prod_univ_two]
   refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun y _ => ?_
-  simp [finRotate_succ_apply]
+  simp
 
 theorem atom3_12 (z : Psi) :
     invG (Fin 3) (cutPerm 3 (cutMask 1)) (zf z) = Matrix.trace (red12 z * red12 z * red12 z) := by

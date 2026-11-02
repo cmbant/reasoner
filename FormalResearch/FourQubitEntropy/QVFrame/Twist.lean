@@ -48,11 +48,6 @@ def tau {R : Type*} [CommRing R] (a : ℕ) (X : Matrix (Wd n) (Wd n) R) : Matrix
 theorem tau_apply {R : Type*} [CommRing R] (a : ℕ) (X : Matrix (Wd n) (Wd n) R) (β α : Wd n) :
     tau a X β α = (tauSgn a α β : R) * X (mixW a β (revW α)) (mixW a α (revW β)) := rfl
 
-theorem tauSgn_comm (a : ℕ) (α β : Wd n) : tauSgn a α β = tauSgn a β α := by
-  unfold tauSgn
-  refine Finset.prod_congr rfl fun t _ => ?_
-  rw [add_comm]
-
 /-- `τ_a` commutes with ring homomorphisms of the entries. -/
 theorem tau_map {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S) (a : ℕ)
     (X : Matrix (Wd n) (Wd n) R) : (tau a X).map f = tau a (X.map f) := by
