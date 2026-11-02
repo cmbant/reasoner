@@ -25,14 +25,13 @@ def spinCode (s : Array Nat) : Nat := ((s.getD 0 0 * 4 + s.getD 1 0) * 4 + s.get
 
 /-- `qq = (pp[π[t]])_t` -/
 def placedCode (code : Nat) (pi : Array Nat) : Nat :=
-  spinCode (pi.map fun t => spinDigit code t)
+  ((spinDigit code (pi.getD 0 0) * 4 + spinDigit code (pi.getD 1 0)) * 4 + spinDigit code (pi.getD 2 0)) * 4 +
+    spinDigit code (pi.getD 3 0)
 
-/-- `perm_π` of a flat tensor of sector `code`: new axis `q` is old axis `π[q]` -/
+/-- `perm_π` of a flat tensor of sector `code`: new axis `q` is old axis `π[q]`; the old flat index of the new flat index `f` -/
 def permFlatIdx (code : Nat) (pi : Array Nat) (f : Nat) : Nat :=
-  -- new index digits i_q in radices of qq; old index j_{pi[q]} = i_q
   let qq := placedCode code pi
-  let dig := fun q => f / stride qq q % mult (spinDigit qq q)
-  (List.range 4).foldl (fun acc q => acc + (List.range 4).foldl (fun a2 q' => if pi.getD q' 0 == q then a2 + dig q' * stride code q else a2) 0) 0
+  (List.range 4).foldl (fun acc q' => acc + (f / stride qq q' % mult (spinDigit qq q')) * stride code (pi.getD q' 0)) 0
 
 /-- K5: `den · perm_π(V_a(pp)) = Σ SV[a][a'] V_{a'}(qq)` and the same for `W` -/
 def checkPlacements (u : Unit) : Bool :=
@@ -57,42 +56,34 @@ def qtotOf (acc : Array (Array Int)) (code : Nat) : Array Int × Bool :=
   let Q := Qs.map fun x => x / Z
   (Q, Z != 0 && allTo (n * n) fun i => Z * gt Q i == gt Qs i)
 
+def qtotStep (acc : Array (Array Int)) (r : Array (Array Int) × Bool) (code : Nat) : Array (Array Int) × Bool :=
+  if nn code == 0 then (r.1.push #[], r.2) else (r.1.push (qtotOf acc code).1, r.2 && (qtotOf acc code).2)
+
 def qtotAll (acc : Array (Array Int)) : Array (Array Int) × Bool :=
-  (List.range 256).foldl (fun (r : Array (Array Int) × Bool) code =>
-    if nn code == 0 then (r.1.push #[], r.2) else
-    let (Q, ok) := qtotOf acc code
-    (r.1.push Q, r.2 && ok)) (#[], true)
+  (List.range 256).foldl (qtotStep acc) (#[], true)
 
 /-! ### Right-hand side (K6) -/
 
-def swIdx (i x : Nat) : Nat := if x == i then i + 1 else if x == i + 1 then i else x
-def wordImg (l : List Nat) : Array Nat :=
-  l.foldl (fun old i => (List.range 6).toArray.map fun x => old.getD (swIdx i x) 0) ((List.range 6).toArray)
-def wordImgs : Array (Array Nat) := words.toArray.map wordImg
-def repCache : Array (Array Int) := Id.run do
-  let mut r : Array (Array Int) := #[]
-  for j in [0:4] do
-    for l in words do
-      r := r.push (repProd j l)
-  return r
-def repOf (j : Nat) (img : Array Nat) : Array Int :=
-  match wordImgs.findIdx? (fun x => x == img) with
-  | some w => repCache.getD (j * 720 + w) #[]
-  | none => #[]
+/-- a term of the right-hand side: coefficient and the four slot permutations, each given as a word in the generators -/
+abbrev RhsTerm := Int × Array (List Nat)
 
-/-- a term of the right-hand side: coefficient and the four slot permutations (as image arrays) -/
-abbrev RhsTerm := Int × Array (Array Nat)
-
-def kronRep (code : Nat) (imgs : Array (Array Nat)) (X : Array Int) : Array Int :=
+/-- `⊗_q ρ_{p_q}(word_q)` applied to a flat tensor -/
+def kronRep (code : Nat) (ms : Array (Array Int)) (X : Array Int) : Array Int :=
   (List.range 4).foldl (fun acc q =>
-    modeProd (repOf (spinDigit code q) (imgs.getD q #[])) (mult (spinDigit code q)) (stride code q) false acc) X
+    modeProd (ms.getD q #[]) (mult (spinDigit code q)) (stride code q) false acc) X
+
+/-- the four `ρ`-matrices of a term in the sector `code` -/
+def repMats (code : Nat) (t : RhsTerm) : Array (Array Int) :=
+  (List.range 4).toArray.map fun q => repProd (spinDigit code q) (t.2.getD q [])
 
 def rhsCoords (terms : Array RhsTerm) (code : Nat) : Array Int :=
   let n := nn code; let D := sdim code
-  terms.foldl (fun (acc : Array Int) (t : RhsTerm) =>
-    let Xs := (List.range n).toArray.map fun b => kronRep code t.2 (slice vArr (vOff code + b * D) D)
-    tab (n * n) fun e => gt acc e + t.1 * sumTo D (fun x => wAt code (e / n) x * gt (Xs.getD (e % n) #[]) x))
-    (Array.replicate (n * n) 0)
+  let XS : Array (Array (Array Int)) := terms.map fun t =>
+    let ms := repMats code t
+    (List.range n).toArray.map fun b => kronRep code ms (slice vArr (vOff code + b * D) D)
+  tab (n * n) fun e =>
+    sumTo terms.size fun ti =>
+      (terms.getD ti default).1 * sumTo D fun x => wAt code (e / n) x * gt ((XS.getD ti #[]).getD (e % n) #[]) x
 
 /-! ### Final comparison (K7) -/
 
@@ -111,5 +102,14 @@ def checkFinal (rhs : Array RhsTerm) (Q : Array (Array Int)) (Dnum : Int) : Bool
          acc + (Dn / d2) * sumTo n (fun a' => sumTo n fun b' =>
            pSW code pii a a' * gt (Q.getD qq #[]) (a' * n + b') * pSV code pii b b')) 0
        == Dn * 2 * Dnum * gt R e)
+
+
+/-- the whole check -/
+def checkAll (blocks : List BlockD) (rhs : Array RhsTerm) (Dnum : Int) (u : Unit) : Bool :=
+  checkChars u && checkSlots u && checkInv u && checkPsi u && checkInvariant u &&
+  checkPivots true && checkPivots false && checkT u && checkU u && checkStructure u &&
+  checkPlacements u && blocks.all rowsOk &&
+  (let r := qtotAll (runAll blocks)
+   r.2 && checkFinal rhs r.1 Dnum)
 
 end QVCheck

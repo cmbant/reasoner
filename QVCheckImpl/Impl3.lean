@@ -101,16 +101,22 @@ def coupledW (code b : Nat) : Array Int :=
   let M1 := tab (DA * DB) fun idx => sumTo DA fun k => tiAt pa k (idx / DB) * wAt code b (k * DB + idx % DB)
   tab (DA * DB) fun idx => sumTo DB fun l => gt M1 (idx / DB * DB + l) * tiAt pb l (idx % DB)
 
-/-- `Σ_u c_u Ŵ_u[i][j]` with `Ŵ_u = Σ_x wc[λ][x] E_{(oA + x gA + s),(oB + x gB + t)}` (resp. `vc`) -/
-def reconEntry (isW : Bool) (code b : Nat) (coef : Array Int) (i j : Nat) : Int :=
-  sumTo (uInfo code).size fun u =>
-    let e := (uInfo code).getD u default
-    if e.oA ≤ i && i < e.oA + e.d * e.gA && e.oB ≤ j && j < e.oB + e.d * e.gB then
-      let x := (i - e.oA) / e.gA
-      if (j - e.oB) / e.gB == x && (i - e.oA) % e.gA == e.s && (j - e.oB) % e.gB == e.t then
-        gt coef u * (if isW then wc e.lab x else vc e.lab x)
-      else 0
-    else 0
+/-- `Ŵ_u[i][j] = Σ_x wc[λ][x] [i = oA + x gA + s ∧ j = oB + x gB + t]` (resp. `V̂_u` with `vc`) -/
+def hatEntry (isW : Bool) (code u i j : Nat) : Int :=
+  let e := (uInfo code).getD u default
+  sumTo e.d fun x =>
+    if i == e.oA + x * e.gA + e.s && j == e.oB + x * e.gB + e.t then (if isW then wc e.lab x else vc e.lab x) else 0
+
+/-- `Σ_u c_u Ŵ_u[i][j]` -/
+def reconEntry (isW : Bool) (code : Nat) (coef : Array Int) (i j : Nat) : Int :=
+  sumTo (uInfo code).size fun u => gt coef u * hatEntry isW code u i j
+
+/-- the index maps of the family `u` stay inside the pair spaces -/
+def checkU (u : Unit) : Bool :=
+  allTo (hide u 256) fun code => allTo (uInfo code).size fun k =>
+    let e := (uInfo code).getD k default
+    e.s < e.gA && e.t < e.gB &&
+    allTo e.d fun x => e.oA + x * e.gA + e.s < pairDim (pA code) && e.oB + x * e.gB + e.t < pairDim (pB code)
 
 def checkStructure (u : Unit) : Bool :=
   allTo (hide u 256) fun code => allTo (nn code) fun b =>
@@ -120,7 +126,7 @@ def checkStructure (u : Unit) : Bool :=
     let om := slice omArr (nnOff code + b * nn code) (nn code)
     let xi := slice xiArr (nnOff code + b * nn code) (nn code)
     allTo (DA * DB) fun idx =>
-      DataStr.lc * gt Wp idx == reconEntry true code b om (idx / DB) (idx % DB) &&
-      DataStr.lc * gt Vp idx == reconEntry false code b xi (idx / DB) (idx % DB)
+      DataStr.lc * gt Wp idx == reconEntry true code om (idx / DB) (idx % DB) &&
+      DataStr.lc * gt Vp idx == reconEntry false code xi (idx / DB) (idx % DB)
 
 end QVCheck

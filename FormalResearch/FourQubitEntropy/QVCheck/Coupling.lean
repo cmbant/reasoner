@@ -111,6 +111,28 @@ theorem S4_single (i0 k0 : ιA) (j0 l0 : ιB) (w v : R) (P : Matrix ιA ιA R) (
   · intro i _ hi; simp [hi, Ne.symm hi]
   · simp
 
+theorem S4_zero_left (P : Matrix ιA ιA R) (V : Matrix ιA ιB R) (R' : Matrix ιB ιB R) :
+    S4 (0 : Matrix ιA ιB R) P V R' = 0 := by
+  simp [S4]
+
+theorem S4_zero_right (W : Matrix ιA ιB R) (P : Matrix ιA ιA R) (R' : Matrix ιB ιB R) :
+    S4 W P (0 : Matrix ιA ιB R) R' = 0 := by
+  simp [S4]
+
+theorem S4_sum_left {κ : Type*} (s : Finset κ) (W : κ → Matrix ιA ιB R) (P : Matrix ιA ιA R) (V : Matrix ιA ιB R)
+    (R' : Matrix ιB ιB R) : S4 (∑ k ∈ s, W k) P V R' = ∑ k ∈ s, S4 (W k) P V R' := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simpa using S4_zero_left P V R'
+  | insert a s ha ih => rw [Finset.sum_insert ha, Finset.sum_insert ha, S4_add_left, ih]
+
+theorem S4_sum_right {κ : Type*} (s : Finset κ) (W : Matrix ιA ιB R) (P : Matrix ιA ιA R) (V : κ → Matrix ιA ιB R)
+    (R' : Matrix ιB ιB R) : S4 W P (∑ k ∈ s, V k) R' = ∑ k ∈ s, S4 W P (V k) R' := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simpa using S4_zero_right W P R'
+  | insert a s ha ih => rw [Finset.sum_insert ha, Finset.sum_insert ha, S4_add_right, ih]
+
 end S4
 
 end QVCheck
