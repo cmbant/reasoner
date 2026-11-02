@@ -4,8 +4,7 @@ import Mathlib
 # Equality step of the five-copy certificate: tangent line, then `t = 0` (abstract linear algebra)
 
 `lem:fivecopy-tangent-line` and the shortcut of `thm:fivecopy-family-equality`
-(`ResearchNotes/QI/seven_qubit_entanglement/moment_orbit_rigidity.tex`, branch
-`agents/T59-fivecopy-equality-shortcut`).  Nothing here mentions seven qubits, five copies or the
+(`ResearchNotes/QI/seven_qubit_entanglement/moment_orbit_rigidity.tex`).  Nothing here mentions seven qubits, five copies or the
 certificate data; the moment space `M`, the base point `X₀`, the tangent `X₀'`, the face maps `Γ_b` and the
 probes are arguments.  This is needed only for the *equality* statement (uniqueness of the icosahedral
 orbit), not for `SevenPurityBound`.
@@ -17,6 +16,10 @@ orbit), not for `SevenPurityBound`.
   `ν x = 1` then `x = X₀ + t X₀'`.
 * `tangent_coeff_zero`: if `H` and `H²` (a linear functional equal to the square on actual states) have
   `H X₀' ≠ 0` and `H₂ X₀' = 2 (H X₀)(H X₀')`, then `t = 0` (the shortcut `(h+96t)² = h² + 192 h t`).
+* `equality_moment`, `equality_moment_centred`: the moment-level equality step of `thm:fivecopy-family-equality`
+  (tangent line, then `t = 0` from a critical functional equal to `(H − H X₀)²`), for abstract `H` with `H X₀' ≠ 0`.
+  The family value `H(ψ_y) = 155 + 96y` that supplies `H X₀' ≠ 0`, and the passage from the moment to the orbit
+  (`thm:moment-orbit-rigidity`), are not formalised here.
 -/
 
 open Matrix
