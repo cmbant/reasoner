@@ -19,7 +19,7 @@ orthonormal families in `ℝ^m`, `ℝ^n`, which are completed to orthonormal bas
 * The orthogonal factors are in `O(m)`, `O(n)` as in the lemma; the `SO` refinement used for the
   square normal form is `real_gram_square_SO`.
 
-No hypotheses; no `sorry`.
+No hypotheses and no placeholder proofs.
 -/
 
 open scoped Matrix ComplexConjugate

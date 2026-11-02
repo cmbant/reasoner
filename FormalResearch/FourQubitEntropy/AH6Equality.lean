@@ -24,7 +24,7 @@ infinite slope of `f` at `0` (`pos_at_zero`, `H_boundary_strict`).  `⇐`: the d
 interpolation nodes (`H_nodes`, via `hermite_stieltjes`), and `H(b,c)` is the contact value fixed by the definitions of
 `β₀, α₀` (`H_contact`, the value part of `contact_algebra`).
 
-Nothing here is conditional: no `sorry`, no hypothesis beyond `InBracket x`.
+Nothing here is conditional: no placeholder proofs, no hypothesis beyond `InBracket x`.
 -/
 
 open Filter Topology
