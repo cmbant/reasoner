@@ -831,6 +831,15 @@ the paper's dimension count. Layers (module docstrings in `QVCheck/All.lean` des
   `null_critical_sharp_of_purity`, sharp at the cluster state (`null_critical_attained`); no use of `thm:fqe-global-overlap`.
 - Not formalised: the local-radius clauses of `thm:fqe-orbit-stability`.
 
+### Even-`n` purity–spin-flip tradeoff (`SpinFlipTradeoffEven*.lean`, namespace `PurityLP`; standard axioms, no `native_decide`)
+- `thm:purity-spinflip-tradeoff` (`seven_qubit_entanglement/spinflip_tradeoff.tex`) for `n ∈ {8,10,14,16,20}`:
+  `purity_spinflip_tradeoff_even` (`π_{n/2} ≥ L_n + c_n τ_n`; dual certificates ST-2–ST-6 checked by `decide +kernel` in
+  `SpinFlipTradeoffEvenCert.lean` through `lp_tradeoff`), sharpness `purity_spinflip_tradeoff_even_sharp` (one all-odd-degree graph
+  state per `n`, `tau_gsn_eq_one`, kernel-checked `piMean_graphT<n>`), `purity_spinflip_tradeoff_even_coeff_optimal`,
+  `cor:spinflip-rigidity` as `purity_spinflip_tradeoff_even_stability` / `_minimiser`, and `tau_eq_normSq_bilinear`
+  (`τ_n = |ψᵀσ_y^{⊗n}ψ|²`). The entry `n = 4` is `SpinFlip.tradeoff_four_ge`. Generator `gen_spinflip_tradeoff_even.py`;
+  `SpinFlipTradeoffEvenGraph20.lean` takes about 40 min to build.
+
 ### Seven-qubit five-copy layers (data-free)
 - `SevenFiveCopyDual.lean`: `sevenPurityBound_of_dual` (a five-copy dual identity with PSD weights gives `SevenQubitConseq.SevenPurityBound`,
   `cor:seven-global-from-fivecopy`), `purity_gap_ge_of_dual`.

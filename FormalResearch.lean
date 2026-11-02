@@ -338,6 +338,7 @@ import FormalResearch.FourQubitEntropy.SpinFlipPurity
 import FormalResearch.FourQubitEntropy.SpinFlipReduced
 import FormalResearch.FourQubitEntropy.SpinFlipTangent
 import FormalResearch.FourQubitEntropy.SpinFlipTradeoff
+import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEven
 import FormalResearch.FourQubitEntropy.SpinFlipOddSector
 import FormalResearch.FourQubitEntropy.SpinFlipOddQSum
 import FormalResearch.FourQubitEntropy.SpinFlipOddOverlap
