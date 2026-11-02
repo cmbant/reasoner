@@ -106,8 +106,31 @@ theorem equality_moment (Γ : ∀ b, M →ₗ[ℝ] Matrix (Fin (n b)) (Fin (n b)
   have := tangent_coeff_zero H H₂ X₀ X₀' x t ht hsq h0 h1 hd
   rw [ht, this, zero_smul, add_zero]
 
+/-- **Equality step, centred form** (`thm:fivecopy-family-equality`): `K` is a critical functional (`K X₀ = K X₀' = 0`)
+that equals `(H − H X₀)²` at `x`; with `H X₀' ≠ 0` this forces `x = X₀`. -/
+theorem equality_moment_centred (Γ : ∀ b, M →ₗ[ℝ] Matrix (Fin (n b)) (Fin (n b)) ℝ)
+    (W : ∀ b, Matrix (Fin (n b)) (Fin (m b)) ℝ) (ν H K : M →ₗ[ℝ] ℝ) (X₀ X₀' x : M)
+    (hspan : ∀ f : Module.Dual ℝ M, f X₀ = 0 → f X₀' = 0 →
+      ∃ S : ∀ b, Matrix (Fin (m b)) (Fin (m b)) ℝ,
+        ∀ y, f y = ∑ b, ((W b * S b * (W b)ᵀ) * Γ b y).trace)
+    (hx : ∀ b, (W b)ᵀ * Γ b x * W b = 0)
+    (hν0 : ν X₀ = 1) (hν1 : ν X₀' = 0) (hνx : ν x = 1)
+    (hK : K x = (H x - H X₀) ^ 2) (hK0 : K X₀ = 0) (hK1 : K X₀' = 0)
+    (hd : H X₀' ≠ 0) : x = X₀ := by
+  obtain ⟨t, ht⟩ := tangent_line_normalised ν X₀ X₀' x hν0 hν1 hνx
+    (tangent_line Γ W X₀ X₀' x hspan hx)
+  have hK' : K x = 0 := by rw [ht, map_add, map_smul, hK0, hK1, smul_zero, add_zero]
+  have hH : H x - H X₀ = t * H X₀' := by rw [ht, map_add, map_smul, smul_eq_mul]; ring
+  rw [hK, hH] at hK'
+  have ht0 : t = 0 := by
+    rcases mul_eq_zero.mp (pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hK') with h | h
+    · exact h
+    · exact absurd h hd
+  rw [ht, ht0, zero_smul, add_zero]
+
 end
 
 #print axioms equality_moment
+#print axioms equality_moment_centred
 
 end FormalResearch.FourQubitEntropy.SevenFiveCopy
