@@ -635,6 +635,7 @@ import FormalResearch.FourQubitEntropy.PaperEGapTwoFlatQF
 import FormalResearch.FourQubitEntropy.PaperEGapNullCritical
 import FormalResearch.FourQubitEntropy.SevenFiveCopyDual
 import FormalResearch.FourQubitEntropy.SevenFiveCopyTangent
+import FormalResearch.FourQubitEntropy.QVEqualityMain
 import FormalResearch.FourQubitEntropy.PurityLPEntropyCeiling
 import FormalResearch.FourQubitEntropy.PaperEGoSlice
 import FormalResearch.FourQubitEntropy.PaperEGoSliceOrbit

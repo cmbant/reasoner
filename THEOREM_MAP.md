@@ -808,6 +808,20 @@ the paper's dimension count. Layers (module docstrings in `QVCheck/All.lean` des
   Axioms (guarded by `#guard_msgs`): `propext`, `Classical.choice`, `Quot.sound` and the `native_decide` axioms of `checkAll_true` and of
   one table fact `cArr_rowC` (the checker's intertwiner table is `opaque`).
 
+### Equality statements of (QV) and (QK) (`QVEquality*.lean`, namespace `QVEquality`)
+- `thm:fqe-sharp-quadratic-variance`, equality: `quadFam_qv_equality` (equality along the cluster-to-Bell family; `quadFam_purity_eq`,
+  `quadFam_F_eq`, `quadFam_VP_eq`: `P = 1 + r²/2`, `F = (1−r²)/2`, `V_P = (1+2r²)²/24`), `quadFam_qv_ratio` (ratio exactly 3),
+  `qv_coefficient_optimal`, and `qv_coefficient_iff` (`F² + cP(P−1) ≥ 6V_P` for all unit states iff `3 ≤ c`).
+- `thm:fqe-quadratic-variance`, equality: `qk_equality_iff` (from `SharpQuadraticVarianceBound` as hypothesis),
+  `qk_equality_classification` / `qk_equality_classification_product` (unconditional: equality iff HS cut spectra, cluster cut
+  spectra, or `IsBellProduct ψ`, an LU image of one of the three Bell-pair products; `isBellTriple_iff_bellProduct`), converses
+  `hs_triple_eq`, `cluster_triple_eq`, `bell_triple_eq`, and `qk_coefficients_sharp` (9/2 cannot be decreased, 6 cannot be increased).
+- `prop:fqe-critical-variance` (RF): `critical_rf` (`P = 1` ⇒ `F ≥ (3/2)s² − s³`, `s⁴ = 24V_P`), its equality case
+  `critical_rf_equality_iff` (`0 < s < 1`), `critical_rf_equality_zero` / `_one` (HS / cluster spectra), attainment
+  `critical_rf_attained`, and `critical_F_ge_12V`. Proved from the critical normal form via the self-dual/anti-self-dual parts of
+  `a ∧ b`, not the paper's Bloch correlation matrix.
+  Axioms: the standard three, plus the two QV `native_decide` axioms for the theorems that use (QV) (`QVEqualityMain.lean`, guarded).
+
 ### Further Paper E statements (`PaperEGap*.lean`; standard axioms, no `native_decide`)
 - `lem:fqe-hs-fidelity-floor` attained at GHZ: `OD.fidelity_floor_ghz_attained` (`Φ = 1/3 = (1+√τ)/6`).
 - `prop:fqe-two-flat-rigidity`, the (QF) identification: `PaperECritical.two_flat_QF` (a unit state with two cuts of purity 1/4 is LU-equivalent
