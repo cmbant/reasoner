@@ -9,7 +9,7 @@ The certificate symmetrises over `perms × flips` (`gen_go_cert.py`): 6 permutat
 conjugation `(X, Y) ↦ (R X Rᵀ, R Y Rᵀ)` of the slice matrices by `R = diag(1, O)` with `O` a signed
 permutation matrix (determinant `±1`), so `frame_orth` shows that a closest-point frame at `x` gives one
 at every `act g (flipPt f x)` (`frame_orbit`).  The lists below are the generated data written out
-(`GOGlue/OrbitCheck.lean` checks `perms ⊆ permLists`, `flips ⊆ flipLists`).  Claim class: proved.
+(`perms_sub`, `flips_sub` in `GOGlue/Final.lean` check `perms ⊆ permLists`, `flips ⊆ flipLists`).  Claim class: proved.
 -/
 
 set_option linter.unusedSimpArgs false

@@ -4,7 +4,7 @@ import FormalResearch.FourQubitEntropy.QVFrame.Defect
 /-!
 # T1 + T2 + T3 assembled: the certificate identity as a quadratic form in `z^{⊗6}`
 
-For any finite family of blocks `B : κ → Block` (no data of `Data.lean` is used), counts `cnt`, integer weights `w`
+For any finite family of blocks `B : κ → Block` (no data of `QVCert/Data.lean` is used), counts `cnt`, integer weights `w`
 and constant `D`:
 
 `2 D 𝔇(z) - Σ_{k,i} w_{ki} ‖Φ_{ki}(z)‖²_w = ⟨z^{⊗6}, K z^{⊗6}⟩` (Hermitian form `qf (conj ψ) K ψ`, `ψ = z^{⊗6}`),

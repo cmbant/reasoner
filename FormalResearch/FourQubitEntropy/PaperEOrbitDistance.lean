@@ -18,17 +18,19 @@ Paper E, `lu_orbit_stability.tex`: `thm:fqe-orbit-stability`, `cor:fqe-orbit-spe
 * `one_sub_Phi_eq`: `1 - Φ = ((1+√Φ)/2) d²`.
 
 **Restated in terms of `d(ψ)²`, with two explicit named hypotheses.**
-`GlobalOverlap ψ` is the comparison `Q ≥ 1 - Φ` of `thm:fqe-global-overlap` (exact rational
-certificate in the paper, not proved in Lean).  `FidelityFloor ψ` is `Φ ≥ 1/6`, the weakened form of
-`lem:fqe-hs-fidelity-floor` (`Φ ≥ (1+√τ)/6`; real-SVD argument in the paper, not proved in Lean; for critical
-states it is discharged by `CO.Phi_ge_quarter`).  Under them: `orbitDist_sq_le_Q`
+`GlobalOverlap ψ` is the comparison `Q ≥ 1 - Φ` of `thm:fqe-global-overlap`, proved for every unit state in
+`GOGlue/Final.lean` (`globalOverlap_all`).  `FidelityFloor ψ` is `Φ ≥ 1/6`, the weakened form of
+`lem:fqe-hs-fidelity-floor` (`Φ ≥ (1+√τ)/6`, proved as `fidelity_floor` in `PaperEFidelityFloor.lean`; for critical
+states also by `CO.Phi_ge_quarter`).  This module proves the estimates under the two hypotheses; the unconditional
+forms are in `GOGlue/Final.lean`.  Under them: `orbitDist_sq_le_Q`
 (`Q ≥ ((6+√6)/12) d²`), `entropy_gap_orbit_stability_dist` (`δ ≥ k((6+√6)/12) d² > d²/20`),
 `majorant_gap_orbit`, `tsallis_gap_orbit` (`cor:fqe-orbit-spectral`).  For critical states
 (`blochSq ψ = 0`), `critical_orbit_sharp_dist`, `majorant_gap_orbit_critical`, `entropy_gap_critical_orbit`
 restate `thm:fqe-critical-orbit-sharp` with genuine `d`; their only hypothesis is the global comparison for
 `Φ ≥ 1/2`.
 
-**Not covered.** The sharper `τ`-dependent constant `(6+√(6(1+√τ)))/12` (needs `Φ ≥ (1+√τ)/6`), the local
+**Not covered here.** The sharper `τ`-dependent constant `(6+√(6(1+√τ)))/12` (unconditional in
+`GOGlue/Final.lean`, `orbitDist_sq_le_Q_tau_all`), the local
 radius statements (`d ≤ 1/20 ⟹ δ ≥ 3d²/10`, `d ≤ 2⁻¹⁰ ⟹ Q ≥ 3d²`), `thm:fqe-p1-sharp`, and the Rényi `1<q≤5/4`
 clause.
 -/
@@ -344,13 +346,13 @@ theorem orbitDist_nonneg (ψ : Psi) : 0 ≤ orbitDist ψ :=
 /-! ### The orbit-stability estimates in terms of the genuine `d(ψ)²` -/
 
 /-- **Named hypothesis: the global overlap comparison** `Q ≥ 1 - Φ`, the first inequality of
-`thm:fqe-global-overlap` (exact rational certificate GO-1--GO-3 in the paper; **not proved in
-Lean**). -/
+`thm:fqe-global-overlap` (exact rational certificate GO-1--GO-3 in the paper; proved for every unit state
+as `globalOverlap_all` in `GOGlue/Final.lean`). -/
 def GlobalOverlap (ψ : Psi) : Prop := 1 - Phi ψ ≤ sexticQ ψ
 
 /-- **Named hypothesis: the HS fidelity floor** `Φ ≥ 1/6` (`lem:fqe-hs-fidelity-floor`, the weakened
-form of `Φ ≥ (1+√τ)/6`; **not proved in Lean** for general states -- for critical states it follows
-from `Phi_ge_quarter`).  Equivalently `d² ≤ 2(1 - 1/√6)`. -/
+form of `Φ ≥ (1+√τ)/6`, which is `fidelity_floor` in `PaperEFidelityFloor.lean`; for critical states
+it also follows from `Phi_ge_quarter`).  Equivalently `d² ≤ 2(1 - 1/√6)`. -/
 def FidelityFloor (ψ : Psi) : Prop := 1 / 6 ≤ Phi ψ
 
 theorem fidelityFloor_of_critical {ψ : Psi} (hψ : normSqPsi ψ = 1) (hW : blochSq ψ = 0) :

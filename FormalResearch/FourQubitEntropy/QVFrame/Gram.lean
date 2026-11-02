@@ -9,7 +9,7 @@ For a block `b` and a covariant `i`, `‖Φ_{ki}(z)‖²_w = ⟨w_a(z), A_{ki} w
 `A = gramOp p v = Σ_{σ ∈ S₄} Σ_{(c,x),(c',x') ∈ v} x x' ⊗_q E^{p_{σ⁻¹q}}_{μ_c(σ⁻¹q), μ_{c'}(σ⁻¹q)}`
 and `E^j_{μμ'} = Σ_{m ≤ j} ω_{j,m} (C6 row (j,m,μ))ᵀ (C6 row (j,m,μ'))` (`Eop`).
 
-Nothing here refers to the numbers of `Data.lean`: `gramOp` takes a spin tuple and a sparse multiplicity vector,
+Nothing here refers to the numbers of `QVCert/Data.lean`: `gramOp` takes a spin tuple and a sparse multiplicity vector,
 and `normSqPhi_eq_qf` holds for every `QVCert.Block`.
 -/
 

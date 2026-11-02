@@ -166,7 +166,7 @@ derived from the tensor, the mean three-body purity `121/917 + (1048/525)(x−37
 `x = 37/524`, and the cut and pair purities there; `SevenQubitIcoCert.lean`/`SevenQubitIcoSpectrum.lean`: the spectrum of
 every three-qubit cut, `(4α²)⁶,(3α²+β²)²` avoiding the special site and `8α²,(4α²)⁵,(α²+β²)²` containing it;
 `SevenQubitIcoEntropy.lean`: the mean three-body entropy of the family is strictly concave with a unique maximiser strictly
-between `0` and `37/524`; the pair spectra and the numerical value of the maximiser are not formalized). Kernel `decide +kernel` only; no compiler axiom.
+between `0` and `37/524`; the pair spectra (`SevenQubitIcoPairSpectrum.lean`) and the enclosure of the maximiser (`star_enclosure`, `star_value`) are formalized in later modules). Kernel `decide +kernel` only; no compiler axiom.
 
 Formalized, with no `sorry`:
 
@@ -187,14 +187,16 @@ Formalized, with no `sorry`:
   `tsallis_stability_env` (`StabilityEnvelope.lean`) discharge `henv` with `envelope_weak`, so these are unconditional.
 - Moment defect and distance stability (`PaperEGenDefect.lean`): `sexticQ`, `defectD`, `entropy_gap_ge_defect`
   (`δ ≥ k 𝒟`, `k = (ln 3 − 1)/(2 ln 2) > 16/225`), `entropy_gap_ge_Q`, `majorant_gap_ge_defect`, `tsallis_gap_ge_defect`, and
-  `entropy_gap_critical` (`W₁ = 0`: `δ ≥ k (Q + 5τ/2)`) are unconditional. The distance `d` to the `M₄` orbits is not defined
-  in Lean and the HS overlap stability `thm:fqe-global-overlap` (`Q ≥ 1 − Φ ≥ ((6+√6)/12) d² > (7/10) d²`, exact rational
-  certificate) is not formalized. `entropy_gap_ge_of_overlap`, `entropy_gap_orbit_stability` (`thm:fqe-orbit-stability`:
+  `entropy_gap_critical` (`W₁ = 0`: `δ ≥ k (Q + 5τ/2)`) are unconditional. These moment-level estimates take
+  the overlap comparison as an explicit argument; the genuine distance `d` (`OD.orbitDist`, `PaperEOrbitDistance.lean`) and
+  `thm:fqe-global-overlap` (`GO.globalOverlap_all`, `GOGlue/Final.lean`) discharge it in the `_all` forms
+  (`entropy_gap_orbit_stability_dist_all`, `majorant_gap_orbit_all`, `tsallis_gap_orbit_all`, `critical_orbit_sharp_dist_all`).
+  `entropy_gap_ge_of_overlap`, `entropy_gap_orbit_stability` (`thm:fqe-orbit-stability`:
   `δ ≥ k ((6+√6)/12) d2 > d2/20`), `entropy_gap_critical_distance` (`eq:fqe-critical-entropy`, constant `(2+√2)/4`),
   `majorant_gap_of_overlap` and `tsallis_gap_of_overlap` (`cor:fqe-orbit-spectral`) are *conditional*: the hypothesis
   `c * d2 ≤ sexticQ ψ` (`d2` standing for `d(ψ)²`) is an explicit argument, never proved or assumed as an axiom.
   For critical states `d2` is the real `dist2` (`CriticalOrbitPhi.lean`) and the hypothesis is discharged except for the
-  all-state comparison `Q ≥ 1 - Φ` when `Φ ≥ 1/2`: see "Branch `paper-e-ah6`: sharp critical-state orbit stability" below.
+  all-state comparison `Q ≥ 1 - Φ` when `Φ ≥ 1/2`, discharged by `globalOverlap_all`.
 - `purity_ge` (`Purity.lean`): `P ≥ n²` from `2P = 2n² + W₁ + τ`, `τ = |ψᵀ ε^{⊗4} ψ|²`.
 - `negMulLog_le_hermCubic` (`HermiteBound.lean`): `−x ln x ≤ a x³ + b x² + c x + d` for `x ≥ 0`.
 - `meanEntropy_le`, `meanEntropy_M4`, `meanEntropy_M4_max` (`Entropy.lean`, `Attainment.lean`): for a unit
@@ -243,7 +245,8 @@ Statement scope against the current paper (`four_qubit_entropy.tex` and its supp
   The first inequality of `(TF)` for every unit state and each of the three cuts is `two_flat_cross_cost_12`,
   `_13`, `_14` (`SpectralSpinFlip.lean`: for an eigenvalue `λ_i ≥ 1/2` of the cut, `W₁/4 + (Σ_{j≠i} λ_j)² - Σ_{j≠i} λ_j²
   ≤ (sum of the other two cut purities) - 1/2`, which is `Δ_k ≥ W₁/4 + 2 e₂`); the second inequality (in terms of the ordered spectrum),
-  the equality cases and sharpness are not formalized there. `two_flat_rigidity` is the critical specialization
+  the equality cases and sharpness are not formalized there (they are
+  `two_flat_TF_*`, `two_flat_eq_iff_*`, `two_flat_sharp_*` in `PaperETwoFlatTF*.lean`, and (QF) is `two_flat_QF`). `two_flat_rigidity` is the critical specialization
   `W₁ = 0`; the Schmidt-rank-two consequence `two_flat_rank` holds for every unit state.
 - `lem:seven-entropy-linear-purity`: proved with the sharp slope, `3 - S ≥ (7 log₂ 7/48)(8 tr ρ² - 1) ≥ (49/120)(8 tr ρ² - 1)
   ≥ (2/5)(8 tr ρ² - 1)` (`LinPur.entropy_linear_purity_sharp_nats`, `_rat_nats`, `entropy_linear_purity_nats`), now
@@ -269,9 +272,9 @@ Statement scope against the current paper (`four_qubit_entropy.tex` and its supp
   `l ≤ 1/2` the right side is `0`); `antiunitary_overlap` is the instance `W = E M̄ F`. The proof uses Birkhoff's theorem
   (`rearr_ds`). Not formalized: unequal local dimensions (zero padding) and the attainment statement (sign-flipped Schmidt terms),
   and the general two-parameter sharpness family of the proposition.
-- Not formalized, new in the current paper:
-  `thm:fqe-global-overlap`, `prop:seven-resolvent-majorant`, `cor:seven-resolvent-matrix`, `lem:seven-family-symmetric-criticality`,
-  the exact transverse Hessian floor `(350 - 6√2005)/4585` of `thm:icolocal` (the positive-kernel proof of AH-6 is formalized in branch `paper-e-ah6`).
+- Not formalized, new in the current paper: `lem:seven-family-symmetric-criticality` and the exact transverse Hessian floor
+  `(350 - 6√2005)/4585` of `thm:icolocal` (`prop:seven-resolvent-majorant` and `cor:seven-resolvent-matrix` are not Paper E
+  statements; the positive-kernel proof of AH-6 is formalized).
 
 ### Branch `paper-e-lean2`: flip gradient, general and critical envelope
 
@@ -415,7 +418,7 @@ Headline theorems (`CriticalOrbitSharp.lean`, `CriticalOrbitMain.lean`):
   `Q ≥ ((2+√2)/4) d²` (`critical_distance`), `δ ≥ k (max{1-Φ,3/2-2Φ} + 5τ/2)` (`critical_entropy_fidelity`) and
   `δ ≥ k (((2+√2)/4) d² + 5τ/2)` (`critical_entropy_distance`, through the existing `entropy_gap_critical_distance`, whose `d2`
   hypothesis is thereby discharged for critical states). The only hypothesis is `hglob : Φ ≥ 1/2 → Q ≥ 1 - Φ`, the all-state
-  comparison `thm:fqe-global-overlap`, which is not formalized and is used only when `Φ ≥ 1/2` (there `3/2-2Φ ≤ 1-Φ`).
+  comparison `thm:fqe-global-overlap`, used only when `Φ ≥ 1/2` (there `3/2-2Φ ≤ 1-Φ`) and discharged by `GO.globalOverlap_all`.
 - `bell_product_sharp`: for the Bell-pair product `G(e₀)` (`Gv_e0_apply`: `|Φ⁺⟩₁₂ ⊗ |Φ⁺⟩₃₄`), `Q = Φ = 1/2`, `d² = 2 - √2`, so
   `Q = 1-Φ = 3/2-2Φ = ((2+√2)/4) d²`; both constants are optimal. This uses the upper bound `Phi_Gv_le`.
 - `Phi_eq_max` (`CriticalOrbitUpper.lean`): for a critical unit state `ψ ≃ G(v)`, `Φ(ψ) = max_a qH a v`, attained at a representative
@@ -446,8 +449,9 @@ the 32 representatives); (ii) `Q ≥ 1-Φ` is the explicit hypothesis `hglob` in
 `Φ = Φ_𝓗` (signed Birkhoff) is needed only for `bell_product_sharp` and for `Phi_eq_max`; (iv) `conj`-orbit handling: `exists_M4_conj` shows that
 both `M₄` and `conj M₄` are local unitary images of some `G(η)`, `η ∈ 𝓗`, by `conj G(η₀) = G(η₇)`.
 
-Not formalized: the null-critical refinement (`eq:fqe-null-critical-sharp`, `Φ ≥ (2+√3)/6`, `Q ≥ 3(1-Φ)/(4-√3)`), `thm:fqe-p1-sharp`
-(`C_*`), and `thm:fqe-global-overlap` itself.
+Formalized later: the null-critical refinement `eq:fqe-null-critical-sharp` (`CO.null_critical_sharp`,
+`PaperEGapNullCritical.lean`) and `thm:fqe-global-overlap` (`GO.globalOverlap_all`). Not formalized: `thm:fqe-p1-sharp` (`C_*`)
+and `thm:sup-null-family` for `θ > 0`.
 
 Machine requirements (one `lake env lean` per file, wall time and peak resident size, which includes about 6.7 GB of memory-mapped
 `.olean` files; measured with `getrusage`): `CriticalOrbitReal` 22-48 s / 6.9-7.0 GB (the real inequality, split into many lemmas to avoid
@@ -520,8 +524,8 @@ All modules below build with no `sorry`, `native_decide` or new axiom; each head
   for every `q ≥ q_b`), `shannon_binary_violation` (`q = 1`), `qb_bounds` (`3/2 < q_b < 313/200`), `rb_bounds`, `qb_div`.
 - `prop:fqe-two-flat-rigidity` (`PaperETwoFlatTF.lean`, `PaperETwoFlatEq.lean`): `two_flat_TF_12/13/14` (both inequalities of
   `(TF)` for an ordered spectrum with `λ₁ ≥ 1/2`), `two_flat_eq_iff_12/13/14` (critical-locus equality: opposite phases),
-  `two_flat_sharp_critical`, `two_flat_sharp_noncritical`, `tau_eq_iff`. Not formalised: the identification of states with two
-  maximally mixed cuts with the cluster-to-Bell family (QF).
+  `two_flat_sharp_critical`, `two_flat_sharp_noncritical`, `tau_eq_iff`. (QF) is `PaperECritical.two_flat_QF`
+  (`PaperEGapTwoFlatQF.lean`).
 - `lem:fqe-real-gram`, rectangular `m × n` case: `real_gram_rect` (`PaperECriticalRealGramRect.lean`).
 - `lem:fqe-isospectral-overlap`, rectangular case and attainment: `isospectral_overlap_rect`, `isospectral_overlap_schmidt`,
   `isospectral_overlap_attained` (`IsospectralOverlapRect.lean`).
@@ -529,11 +533,11 @@ All modules below build with no `sorry`, `native_decide` or new axiom; each head
   with phase), `orbitDist` (infimum of Hilbert-space distances, attained: `orbitDist_attained`; `Phi_attained`),
   `orbitDist_sq` (`d² = 2 − 2√Φ`), `orbitDist_sq_eq_dist2`, `critical_orbit_sharp_dist`, `entropy_gap_critical_orbit`.
   `lem:fqe-hs-fidelity-floor`: `fidelity_floor` (`Φ ≥ (1+√τ)/6`, `PaperEFidelityFloor.lean`); hence, with
-  `thm:fqe-global-overlap` (`GlobalOverlap ψ : 1 − Φ ≤ Q`, certificate-based, not formalised) as the only hypothesis:
+  `thm:fqe-global-overlap` (`GlobalOverlap ψ : 1 − Φ ≤ Q`, proved as `GO.globalOverlap_all`; the `_all` forms are unconditional) as the only hypothesis:
   `entropy_gap_orbit_stability_dist_of_overlap` (`thm:fqe-orbit-stability`, global part), `majorant_gap_orbit_of_overlap`,
   `tsallis_gap_orbit_of_overlap` (`cor:fqe-orbit-spectral`), `overlap_ge_dist_tau`, `orbitDist_sq_le_Q_tau`,
-  `entropy_gap_dist_tau`, `orbitDist_sq_le_tau`. Not formalised: the local-radius clauses (`d ≤ 1/20`, `d ≤ 2⁻¹⁰`), the GHZ
-  attainment of the fidelity floor.
+  `entropy_gap_dist_tau`, `orbitDist_sq_le_tau`. Not formalised: the local-radius clauses (`d ≤ 1/20`, `d ≤ 2⁻¹⁰`); the GHZ
+  attainment of the fidelity floor is `fidelity_floor_ghz_attained`.
 - `lem:seven-joint-scalar-majorant`, equality set: `joint_scalar_majorant_eq_iff`, `joint_scalar_majorant_full`,
   `joint_majorant_contact` (`AH6Equality.lean`).
 
@@ -829,7 +833,8 @@ the paper's dimension count. Layers (module docstrings in `QVCheck/All.lean` des
   at most 5/3) and the converse `quadFam_two_flat`.
 - `eq:fqe-null-critical-sharp` of `thm:fqe-critical-orbit-sharp`: `CO.null_critical_sharp`, `null_critical_distance`,
   `null_critical_sharp_of_purity`, sharp at the cluster state (`null_critical_attained`); no use of `thm:fqe-global-overlap`.
-- Not formalised: the local-radius clauses of `thm:fqe-orbit-stability`.
+- Not formalised: the local-radius clauses of `thm:fqe-orbit-stability`; the full list of unformalised Paper E results is in
+  QIprojects `docs/lean_status.md`.
 
 ### Even-`n` purity–spin-flip tradeoff (`SpinFlipTradeoffEven*.lean`, namespace `PurityLP`; standard axioms, no `native_decide`)
 - `thm:purity-spinflip-tradeoff` (`seven_qubit_entanglement/spinflip_tradeoff.tex`) for `n ∈ {8,10,14,16,20}`:

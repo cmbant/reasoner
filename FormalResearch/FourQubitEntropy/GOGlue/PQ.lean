@@ -5,7 +5,7 @@ import FormalResearch.FourQubitEntropy.GOProbe.PolySound
 # GO glue: graded rational polynomials and matrices of them (computable, with soundness)
 
 `PQ d` is a rational polynomial of total degree `≤ d` in the 19 slice coordinates: a denominator `den > 0`
-and a sparse integer polynomial `p` (packed keys, `Poly.lean`) with `Dg d p`; its value at `x : ℕ → ℝ` is
+and a sparse integer polynomial `p` (packed keys, `GOProbe/Poly.lean`) with `Dg d p`; its value at `x : ℕ → ℝ` is
 `ev x p / den` (`PQ.val`).  The operations `add`, `mul`, `smul`, `sumF` are ordinary computable list
 functions (so a `native_decide` can run them) and `PQ.val` is a ring homomorphism for them (`val_add`,
 `val_mul`, ...), which is what lets the slice-side real expressions of `PaperEGoSlice` be transcribed and

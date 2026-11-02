@@ -4,7 +4,7 @@ import FormalResearch.FourQubitEntropy.PurityLPShadow
 # `S(x,y)` is the homogeneous polynomial with coefficients `S_i`
 
 `shadowCoeff` of `PurityLPShadow.lean` is defined as a coefficient of the dehomogenised polynomial `S(1,y)`.
-`shadow_homogeneous` shows this is the same as the paper's definition: for all real `x, y`,
+`shadow_homogeneous` shows this is the same as the definition used for `thm:lptable`: for all real `x, y`,
 `Σ_j A_j ((x+3y)/2)^{n-j} ((y-x)/2)^j = Σ_{i ≤ n} S_i x^{n-i} y^i`.
 -/
 
