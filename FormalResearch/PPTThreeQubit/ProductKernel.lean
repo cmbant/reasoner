@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.GurvitsBarnum.Basic
+public import FormalResearch.PPTThreeQubit.PPTSeparable23
 
 /-!
 # The product-kernel lemma (`lem:ppt3-product-kernel`)
@@ -8,12 +8,10 @@ public import FormalResearch.GurvitsBarnum.Basic
 Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/appendix_moment_cone.tex`,
 `lem:ppt3-product-kernel`.
 
-**Hypothesis.**  The proof reduces a PPT operator on `ℂ² ⊗ ℂ⁴` with a product vector in its kernel to
-a PPT operator on `ℂ² ⊗ ℂ³`, and then uses that PPT operators on `ℂ² ⊗ ℂ³` are separable
-[Horodecki–Horodecki–Horodecki 1996].  Mathlib has no such theorem, so the lemma is stated with an explicit hypothesis
-`PPTSeparable23`, which is discharged in `PPTSeparable23.lean` by the vendored math-lab proof
-(`ThirdParty/math-lab/NOTICE.md`); the hypothesis-free statement is `ppt_product_kernel'`.  Nothing else
-is assumed.
+The proof reduces a PPT operator on `ℂ² ⊗ ℂ⁴` with a product vector in its kernel to a PPT operator
+on `ℂ² ⊗ ℂ³`, and then uses that PPT operators on `ℂ² ⊗ ℂ³` are separable
+[Horodecki–Horodecki–Horodecki 1996], `pptSeparable23` (`PPTSeparable23.lean`, from the vendored
+math-lab proof, `ThirdParty/math-lab/NOTICE.md`).
 
 Contents.  `ptFirst` is the partial transpose on the first factor of a bipartite matrix over `ι × κ`;
 `ptFirst_congr` is its compatibility with local congruences; `posSemidef_sub_schur` is the rank-one
@@ -35,13 +33,6 @@ set_option linter.unusedSectionVars false
 noncomputable section
 
 variable {ι κ : Type*} [Fintype ι] [DecidableEq ι] [Fintype κ] [DecidableEq κ]
-
-/-- The partial transpose on the first tensor factor: `(ρ^{T_1})_{(i,k),(j,l)} = ρ_{(j,k),(i,l)}`. -/
-def ptFirst (ρ : Matrix (ι × κ) (ι × κ) ℂ) : Matrix (ι × κ) (ι × κ) ℂ :=
-  Matrix.of fun p q => ρ (q.1, p.2) (p.1, q.2)
-
-theorem ptFirst_apply (ρ : Matrix (ι × κ) (ι × κ) ℂ) (i j : ι) (k l : κ) :
-    ptFirst ρ (i, k) (j, l) = ρ (j, k) (i, l) := rfl
 
 theorem ptFirst_ptFirst (ρ : Matrix (ι × κ) (ι × κ) ℂ) : ptFirst (ptFirst ρ) = ρ := by
   ext ⟨i, k⟩ ⟨j, l⟩; rfl
@@ -143,14 +134,6 @@ theorem isSeparable_congr (S : Matrix ι ι ℂ) (T : Matrix κ κ ℂ) {X : Mat
   simp only [prodRankOne, conjTranspose_kronecker, ← mul_kronecker_mul]
   congr 1 <;> rw [mul_vecMulVec, vecMulVec_mul, star_mulVec]
 
-/-- **Hypothesis** (Horodecki–Horodecki–Horodecki 1996; not in Mathlib, proved in `PPTSeparable23.lean`
-from the vendored math-lab development as `pptSeparable23`): every positive operator on
-`ℂ² ⊗ ℂ³` with positive semidefinite partial transpose is separable.  It is the only external input of
-`ppt_product_kernel`. -/
-def PPTSeparable23 : Prop :=
-  ∀ ρ : Matrix (Fin 2 × Fin 3) (Fin 2 × Fin 3) ℂ, ρ.PosSemidef → (ptFirst ρ).PosSemidef →
-    IsSeparable ρ
-
 theorem prodRankOne_apply (a : ι → ℂ) (b : κ → ℂ) (i j : ι) (k l : κ) :
     prodRankOne a b (i, k) (j, l) = a i * star (a j) * (b k * star (b l)) := by
   simp [prodRankOne, vecMulVec_apply]
@@ -169,8 +152,8 @@ theorem extZero_three (b : Fin 3 → ℂ) : extZero b 3 = 0 := by
   simp [extZero, Fin.snoc]
 
 /-- A PPT operator on `ℂ² ⊗ ℂ⁴` whose kernel contains `|j, 3⟩` for `j = 0, 1` lives on `ℂ² ⊗ ℂ³`, so
-it is separable under `PPTSeparable23`. -/
-theorem sep_of_supported (h : PPTSeparable23) (σ : Matrix (Fin 2 × Fin 4) (Fin 2 × Fin 4) ℂ)
+it is separable by `pptSeparable23`. -/
+theorem sep_of_supported (σ : Matrix (Fin 2 × Fin 4) (Fin 2 × Fin 4) ℂ)
     (hσ : σ.PosSemidef) (hT : (ptFirst σ).PosSemidef)
     (hz : ∀ j : Fin 2, σ *ᵥ Pi.single (j, (3 : Fin 4)) 1 = 0) : IsSeparable σ := by
   have hcol : ∀ (p : Fin 2 × Fin 4) (j : Fin 2), σ p (j, 3) = 0 := fun p j => by
@@ -183,7 +166,7 @@ theorem sep_of_supported (h : PPTSeparable23) (σ : Matrix (Fin 2 × Fin 4) (Fin
   have h2 : (ptFirst (σ.submatrix emb emb)).PosSemidef := by
     have : ptFirst (σ.submatrix emb emb) = (ptFirst σ).submatrix emb emb := rfl
     rw [this]; exact hT.submatrix emb
-  obtain ⟨N, a, b, hab⟩ := h _ h1 h2
+  obtain ⟨N, a, b, hab⟩ := pptSeparable23 _ h1 h2
   refine ⟨N, a, fun i => extZero (b i), ?_⟩
   ext ⟨i, k⟩ ⟨j, l⟩
   simp only [Matrix.sum_apply, prodRankOne_apply]
@@ -202,7 +185,7 @@ theorem mulVec_single_apply {n : Type*} [Fintype n] [DecidableEq n] (M : Matrix 
   simp
 
 /-- The product-kernel lemma with the kernel vector normalised to `|0, 3⟩`. -/
-theorem sep_of_kernel_basis (h : PPTSeparable23) (ρ : Matrix (Fin 2 × Fin 4) (Fin 2 × Fin 4) ℂ)
+theorem sep_of_kernel_basis (ρ : Matrix (Fin 2 × Fin 4) (Fin 2 × Fin 4) ℂ)
     (hρ : ρ.PosSemidef) (hT : (ptFirst ρ).PosSemidef)
     (hk : ρ *ᵥ Pi.single ((0 : Fin 2), (3 : Fin 4)) 1 = 0) : IsSeparable ρ := by
   have hcol0 : ∀ p, ρ p (0, 3) = 0 := fun p => by
@@ -261,7 +244,7 @@ theorem sep_of_kernel_basis (h : PPTSeparable23) (ρ : Matrix (Fin 2 × Fin 4) (
         rw [← hwp p, ← hcw, hcre]
         field_simp
         ring
-  have hsepρ' : IsSeparable ρ' := sep_of_supported h ρ' hρ'psd hT' hzero
+  have hsepρ' : IsSeparable ρ' := sep_of_supported ρ' hρ'psd hT' hzero
   have hsepW : IsSeparable (c⁻¹ • vecMulVec w (star w)) := by
     by_cases hc0 : c = 0
     · simp [hcz hc0, isSeparable_zero]
@@ -285,12 +268,10 @@ theorem sep_of_kernel_basis (h : PPTSeparable23) (ρ : Matrix (Fin 2 × Fin 4) (
 `appendix_moment_cone.tex`).  A positive operator `ρ` on `ℂ² ⊗ ℂ⁴` whose partial transpose is positive
 semidefinite and whose kernel contains a nonzero product vector `a ⊗ b` is separable.
 
-**Hypothesis:** `PPTSeparable23`, the Horodecki–Horodecki–Horodecki (1996) theorem that PPT operators on
-`ℂ² ⊗ ℂ³` are separable, which is not in Mathlib; it is proved from the vendored math-lab development as `pptSeparable23`,
-and `ppt_product_kernel'` is this statement without the hypothesis.  The paper's local-unitary
+The 2⊗3 input is `pptSeparable23` (Horodecki–Horodecki–Horodecki 1996).  The paper's local-unitary
 normalisation `a ⊗ b ↦ |0, 3⟩` is done here with local invertible congruences `(Vᴴ ⊗ Wᴴ) · (…)`.
 Not covered here: the three-qubit consequence (see `ProductKernelThree`). -/
-theorem ppt_product_kernel (h : PPTSeparable23) (ρ : Matrix (Fin 2 × Fin 4) (Fin 2 × Fin 4) ℂ)
+theorem ppt_product_kernel (ρ : Matrix (Fin 2 × Fin 4) (Fin 2 × Fin 4) ℂ)
     (hρ : ρ.PosSemidef) (hT : (ptFirst ρ).PosSemidef) (a : Fin 2 → ℂ) (b : Fin 4 → ℂ)
     (ha : a ≠ 0) (hb : b ≠ 0) (hk : ρ *ᵥ kroneckerVec a b = 0) : IsSeparable ρ := by
   obtain ⟨V, hV, hVa⟩ := exists_isUnit_mulVec_single a ha 0
@@ -315,7 +296,7 @@ theorem ppt_product_kernel (h : PPTSeparable23) (ρ : Matrix (Fin 2 × Fin 4) (F
     rw [kronecker_apply, hVi, hWk, kroneckerVec]
   have hker : (X * ρ * Xᴴ) *ᵥ Pi.single ((0 : Fin 2), (3 : Fin 4)) 1 = 0 := by
     rw [← mulVec_mulVec, ← mulVec_mulVec, hXe, hk, mulVec_zero]
-  have hsep := isSeparable_congr (V⁻¹)ᴴ (W⁻¹)ᴴ (sep_of_kernel_basis h _ hρ' hT' hker)
+  have hsep := isSeparable_congr (V⁻¹)ᴴ (W⁻¹)ᴴ (sep_of_kernel_basis _ hρ' hT' hker)
   have hρeq : Y * (X * ρ * Xᴴ) * Yᴴ = ρ := by
     calc Y * (X * ρ * Xᴴ) * Yᴴ = (Y * X) * ρ * (Xᴴ * Yᴴ) := by simp only [Matrix.mul_assoc]
       _ = ρ := by rw [← conjTranspose_mul, hYX, conjTranspose_one, Matrix.one_mul, Matrix.mul_one]

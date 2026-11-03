@@ -34,10 +34,9 @@ Lean companion of `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qu
 `ppt3_family_gme` (`thm:ppt3-family`, GME part).
 
 Moment-cone part (`relaxations_and_scope.tex`, `thm:ppt3-universal-moments`; `appendix_moment_cone.tex`,
-`lem:ppt3-product-kernel`): `ppt_product_kernel`, `kernel_free_of_gme` (hypothesis `PPTSeparable23`, the
-Horodecki 2⊗3 theorem, proved in `PPTSeparable23.lean` from the vendored math-lab development, which gives the
-hypothesis-free `pptSeparable23`, `ppt_product_kernel'`, `kernel_free_of_gme'`), `biseparable_iff_mem_cone`, `dual_iff`, `cofCoeff_indep`, `curve_cut`,
-`ppt3_universal_moments` (unconditional), `ppt3_universal_moments_of_gme` (and `ppt3_universal_moments_of_gme'`, unconditional).
+`lem:ppt3-product-kernel`): `pptSeparable23` (the Horodecki 2⊗3 theorem, transported in
+`PPTSeparable23.lean` from the vendored math-lab proof), `ppt_product_kernel`, `kernel_free_of_gme`, `biseparable_iff_mem_cone`, `dual_iff`, `cofCoeff_indep`, `curve_cut`,
+`ppt3_universal_moments` (unconditional), `ppt3_universal_moments_of_gme`; all unconditional.
 -/
 
 @[expose] public section

@@ -13,8 +13,7 @@ fully-PPT three-qubit state that is not biseparable contains no nonzero cut-prod
 
 Each of the three cuts `A|BC`, `B|AC`, `C|AB` is identified with `ℂ² ⊗ ℂ⁴` by an explicit
 reindexing `Fin 8 ≃ Fin 2 × Fin 4` under which `ptA`, `ptB`, `ptC` become `ptFirst`, and then
-`ppt_product_kernel` applies.  **Hypothesis:** `PPTSeparable23` (Horodecki–Horodecki–Horodecki 1996), discharged in
-`PPTSeparable23.lean`, which gives the hypothesis-free primed versions.
+`ppt_product_kernel` applies.
 -/
 
 @[expose] public section
@@ -46,7 +45,7 @@ theorem ptFirst_eqC (M : Matrix (Fin 8) (Fin 8) ℂ) :
 
 /-- Generic cut version: reindex by `e : Fin 8 ≃ Fin 2 × Fin 4`, apply `ppt_product_kernel`, and read
 the separable decomposition back as a sum of rank-ones of product vectors `a(e i) b(e i)`. -/
-theorem decomp_of_cut_kernel (h : PPTSeparable23) (e : Fin 8 ≃ Fin 2 × Fin 4)
+theorem decomp_of_cut_kernel (e : Fin 8 ≃ Fin 2 × Fin 4)
     (pt : Matrix (Fin 8) (Fin 8) ℂ → Matrix (Fin 8) (Fin 8) ℂ)
     (hpt : ∀ M, ptFirst (M.submatrix e.symm e.symm) = (pt M).submatrix e.symm e.symm)
     (ρ : Matrix (Fin 8) (Fin 8) ℂ) (hρ : ρ.PosSemidef) (hT : (pt ρ).PosSemidef)
@@ -67,7 +66,7 @@ theorem decomp_of_cut_kernel (h : PPTSeparable23) (e : Fin 8 ≃ Fin 2 × Fin 4)
     have : kroneckerVec α μ ∘ e.symm.symm = x := by
       ext i; simp [hxe, kroneckerVec]
     rw [this, hk]; rfl
-  obtain ⟨n, a, b, hab⟩ := ppt_product_kernel h _ hρ2 hT2 α μ hα hμ hk2
+  obtain ⟨n, a, b, hab⟩ := ppt_product_kernel _ hρ2 hT2 α μ hα hμ hk2
   refine ⟨n, a, b, ?_⟩
   ext i j
   have := congrFun (congrFun hab (e i)) (e j)
@@ -78,46 +77,45 @@ theorem decomp_of_cut_kernel (h : PPTSeparable23) (e : Fin 8 ≃ Fin 2 × Fin 4)
   ring
 
 /-- If `ρ` is positive with `ρ^{T_A} ⪰ 0` and its kernel contains a nonzero vector which is a product
-across `A|BC`, then `ρ` is biseparable (`lem:ppt3-product-kernel`, cut `A`).
-Hypothesis: `PPTSeparable23`. -/
-theorem biseparable_of_prodA_kernel (h : PPTSeparable23) (ρ : Matrix (Fin 8) (Fin 8) ℂ)
+across `A|BC`, then `ρ` is biseparable (`lem:ppt3-product-kernel`, cut `A`). -/
+theorem biseparable_of_prodA_kernel (ρ : Matrix (Fin 8) (Fin 8) ℂ)
     (hρ : ρ.PosSemidef) (hT : (ptA ρ).PosSemidef) (x : Fin 8 → ℂ) (hx : x ≠ 0) (hp : IsProdA x)
     (hk : ρ *ᵥ x = 0) : IsBiseparable ρ := by
   obtain ⟨α, μ, hxe⟩ := hp
-  obtain ⟨n, a, b, hd⟩ := decomp_of_cut_kernel h eqA ptA ptFirst_eqA ρ hρ hT x α μ hx
+  obtain ⟨n, a, b, hd⟩ := decomp_of_cut_kernel eqA ptA ptFirst_eqA ρ hρ hT x α μ hx
     (fun i => hxe i) hk
   exact ⟨n, fun i j => a i (eqA j).1 * b i (eqA j).2,
     fun i => Or.inl ⟨a i, b i, fun j => rfl⟩, hd⟩
 
 /-- Cut `B|AC` of `biseparable_of_prodA_kernel`. -/
-theorem biseparable_of_prodB_kernel (h : PPTSeparable23) (ρ : Matrix (Fin 8) (Fin 8) ℂ)
+theorem biseparable_of_prodB_kernel (ρ : Matrix (Fin 8) (Fin 8) ℂ)
     (hρ : ρ.PosSemidef) (hT : (ptB ρ).PosSemidef) (x : Fin 8 → ℂ) (hx : x ≠ 0) (hp : IsProdB x)
     (hk : ρ *ᵥ x = 0) : IsBiseparable ρ := by
   obtain ⟨α, μ, hxe⟩ := hp
-  obtain ⟨n, a, b, hd⟩ := decomp_of_cut_kernel h eqB ptB ptFirst_eqB ρ hρ hT x α μ hx
+  obtain ⟨n, a, b, hd⟩ := decomp_of_cut_kernel eqB ptB ptFirst_eqB ρ hρ hT x α μ hx
     (fun i => hxe i) hk
   exact ⟨n, fun i j => a i (eqB j).1 * b i (eqB j).2,
     fun i => Or.inr (Or.inl ⟨a i, b i, fun j => rfl⟩), hd⟩
 
 /-- Cut `C|AB` of `biseparable_of_prodA_kernel`. -/
-theorem biseparable_of_prodC_kernel (h : PPTSeparable23) (ρ : Matrix (Fin 8) (Fin 8) ℂ)
+theorem biseparable_of_prodC_kernel (ρ : Matrix (Fin 8) (Fin 8) ℂ)
     (hρ : ρ.PosSemidef) (hT : (ptC ρ).PosSemidef) (x : Fin 8 → ℂ) (hx : x ≠ 0) (hp : IsProdC x)
     (hk : ρ *ᵥ x = 0) : IsBiseparable ρ := by
   obtain ⟨α, μ, hxe⟩ := hp
-  obtain ⟨n, a, b, hd⟩ := decomp_of_cut_kernel h eqC ptC ptFirst_eqC ρ hρ hT x α μ hx
+  obtain ⟨n, a, b, hd⟩ := decomp_of_cut_kernel eqC ptC ptFirst_eqC ρ hρ hT x α μ hx
     (fun i => hxe i) hk
   exact ⟨n, fun i j => a i (eqC j).1 * b i (eqC j).2,
     fun i => Or.inr (Or.inr ⟨a i, b i, fun j => rfl⟩), hd⟩
 
 /-- **Second sentence of `lem:ppt3-product-kernel`.**  A fully-PPT three-qubit state which is not
-biseparable has no nonzero cut-product vector in its kernel.  Hypothesis: `PPTSeparable23`. -/
-theorem kernel_free_of_gme (h : PPTSeparable23) (ρ : Matrix (Fin 8) (Fin 8) ℂ) (hρ : ρ.PosSemidef)
+biseparable has no nonzero cut-product vector in its kernel. -/
+theorem kernel_free_of_gme (ρ : Matrix (Fin 8) (Fin 8) ℂ) (hρ : ρ.PosSemidef)
     (hA : (ptA ρ).PosSemidef) (hB : (ptB ρ).PosSemidef) (hC : (ptC ρ).PosSemidef)
     (hg : IsGME ρ) (x : Fin 8 → ℂ) (hx : x ≠ 0) (hk : ρ *ᵥ x = 0) : ¬ IsCutProduct x := by
   rintro (hp | hp | hp)
-  · exact hg (biseparable_of_prodA_kernel h ρ hρ hA x hx hp hk)
-  · exact hg (biseparable_of_prodB_kernel h ρ hρ hB x hx hp hk)
-  · exact hg (biseparable_of_prodC_kernel h ρ hρ hC x hx hp hk)
+  · exact hg (biseparable_of_prodA_kernel ρ hρ hA x hx hp hk)
+  · exact hg (biseparable_of_prodB_kernel ρ hρ hB x hx hp hk)
+  · exact hg (biseparable_of_prodC_kernel ρ hρ hC x hx hp hk)
 
 end
 end FormalResearch.PPTThreeQubit

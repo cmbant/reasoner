@@ -10,9 +10,6 @@ Combines `lem:ppt3-product-kernel` (`ProductKernelThree`) with `thm:ppt3-univers
 (`CurveParam`): for a fully-PPT three-qubit state `ρ` that is not biseparable, any basis matrix `K` of a
 subspace of its kernel has no nonzero cut-product vector in its range, so the universal moment-cone
 description holds for every `B` with `Kᴴ B = 0`.
-
-**Hypothesis:** `PPTSeparable23` (Horodecki–Horodecki–Horodecki 1996), used only through
-`kernel_free_of_gme`; discharged in `PPTSeparable23.lean` (`ppt3_universal_moments_of_gme'`).
 -/
 
 @[expose] public section
@@ -25,11 +22,10 @@ open scoped ComplexOrder
 
 noncomputable section
 
-/-- `thm:ppt3-universal-moments` for the support of a fully-PPT GME state (hypothesis
-`PPTSeparable23`).  `B` is a basis matrix of a five-dimensional `R` and `K` a basis matrix of an
-`8 × 3` block of the kernel of `ρ` with `Kᴴ B = 0` (for a rank-five `ρ`, `R = range ρ` and
+/-- `thm:ppt3-universal-moments` for the support of a fully-PPT GME state.  `B`
+is a basis matrix of a five-dimensional `R` and `K` a basis matrix of an `8 × 3` block of the kernel of `ρ` with `Kᴴ B = 0` (for a rank-five `ρ`, `R = range ρ` and
 `range K = ker ρ`). -/
-theorem ppt3_universal_moments_of_gme (h : PPTSeparable23) (ρ : Matrix (Fin 8) (Fin 8) ℂ)
+theorem ppt3_universal_moments_of_gme (ρ : Matrix (Fin 8) (Fin 8) ℂ)
     (hρ : ρ.PosSemidef) (hA : (ptA ρ).PosSemidef) (hB' : (ptB ρ).PosSemidef)
     (hC : (ptC ρ).PosSemidef) (hg : IsGME ρ)
     (B : Matrix (Fin 8) (Fin 5) ℂ) (K : Matrix (Fin 8) (Fin 3) ℂ)
@@ -42,7 +38,7 @@ theorem ppt3_universal_moments_of_gme (h : PPTSeparable23) (ρ : Matrix (Fin 8) 
           ∀ (c : Fin 3) (a : Fin 2 → ℂ),
             0 ≤ (star (nuVec a) ⬝ᵥ ((T c)ᴴ * H * T c) *ᵥ nuVec a).re) := by
   refine ppt3_universal_moments B K hB hKB fun y hy => ?_
-  refine kernel_free_of_gme h ρ hρ hA hB' hC hg (K *ᵥ y) ?_ ?_
+  refine kernel_free_of_gme ρ hρ hA hB' hC hg (K *ᵥ y) ?_ ?_
   · intro h0
     exact hy (hK (by rw [h0, mulVec_zero]))
   · rw [mulVec_mulVec, hKρ, zero_mulVec]
