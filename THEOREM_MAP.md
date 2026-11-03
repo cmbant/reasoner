@@ -347,6 +347,10 @@ negation. All headlines depend only on `[propext, Classical.choice, Quot.sound]`
 | `cor:ppt3-extreme5` (PPT, GME) | `sigma5_eq_member`, `sigma5_gme`, `sigma5_ppt_gme` | extremality, level-two noise bound not formalised |
 | flat states fully PPT (`sec:ppt3-flat`) | `Flat.flat_form`, `Flat.flat_pt_conj`, `Flat.flat_fully_ppt` | flatness defined by maximally mixed marginals |
 | local filters preserve biseparability | `isBiseparable_conj_localDiag_iff`, `isBiseparable_smul_pos` | diagonal product filters |
+| `lem:ppt3-product-kernel` | `ppt_product_kernel`, `kernel_free_of_gme` (via `decomp_of_cut_kernel`, `biseparable_of_prodA/B/C_kernel`) | **hypothesis `PPTSeparable23`** (Horodecki 2⊗3: PPT on `ℂ²⊗ℂ³` is separable; not in Mathlib, an explicit argument). Arbitrary nonzero product kernel vector `a⊗b` on `ℂ²⊗ℂ⁴`; local invertible congruences replace the paper's local unitaries |
+| `thm:ppt3-universal-moments` (cone equivalences) | `biseparable_iff_mem_cone`, `dual_iff`, `mem_range_of_sum_eq` | for any `B` of full column rank and `T_c` with the `CutCurve` property; no Hermiticity needed, `T_c` invertibility not used |
+| `thm:ppt3-universal-moments` (curve part) | `cofCoeff_indep`, `exists_smul_cof3_of_mulVec_eq_zero`, `rowsIndep_pencil`, `curveMat_injective`, `curve_cut`, `ppt3_universal_moments` | unconditional given `Kᴴ B = 0`, `B` injective and "`range K` has no nonzero cut-product vector"; the independence of the five quartic coefficient vectors is proved elementarily (Bezout in the chart `a = (1,t)` plus a degree count), no Kronecker form |
+| `thm:ppt3-universal-moments` for fully-PPT GME states | `ppt3_universal_moments_of_gme` | hypothesis `PPTSeparable23`; `B`, `K` full-rank with `Kᴴ B = 0`, `ρ K = 0`. The "at most 25 terms" bound and closedness of the cone are not formalised |
 
 Not formalised: rank profiles; extremality and moduli ranks; the level-two (DPS) noise certificates; the white-noise
 upper bounds (they need Gurvits--Barnum); the kernel-penalty lift; chirality; the symmetrisation corollary.

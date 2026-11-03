@@ -12,6 +12,13 @@ import FormalResearch.PPTThreeQubit.Surface
 import FormalResearch.PPTThreeQubit.SurfaceExtreme
 import FormalResearch.PPTThreeQubit.SurfacePPT
 import FormalResearch.PPTThreeQubit.CoexistencePPT
+import FormalResearch.PPTThreeQubit.ProductKernel
+import FormalResearch.PPTThreeQubit.CutEquiv
+import FormalResearch.PPTThreeQubit.ProductKernelThree
+import FormalResearch.PPTThreeQubit.PencilKernel
+import FormalResearch.PPTThreeQubit.MomentCone
+import FormalResearch.PPTThreeQubit.CurveParam
+import FormalResearch.PPTThreeQubit.MomentConeGME
 
 /-!
 # Fully-PPT three-qubit GME: the rank-five family
@@ -22,4 +29,9 @@ Lean companion of `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qu
 (`eq:ppt3-sos`), `formH_nonneg_of_cutProduct` (`prop:ppt3-witness`(b), all cuts),
 `trace_Hs_nonneg_of_biseparable` (support criterion), `trace_H5_Xt` (`eq:ppt3-h5-value`),
 `ppt3_family_gme` (`thm:ppt3-family`, GME part).
+
+Moment-cone part (`relaxations_and_scope.tex`, `thm:ppt3-universal-moments`; `appendix_moment_cone.tex`,
+`lem:ppt3-product-kernel`): `ppt_product_kernel`, `kernel_free_of_gme` (hypothesis `PPTSeparable23`, the
+Horodecki 2⊗3 theorem), `biseparable_iff_mem_cone`, `dual_iff`, `cofCoeff_indep`, `curve_cut`,
+`ppt3_universal_moments` (unconditional), `ppt3_universal_moments_of_gme`.
 -/
