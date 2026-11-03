@@ -10,6 +10,8 @@ import FormalResearch.PPTThreeQubit.Flat
 import FormalResearch.PPTThreeQubit.SurfaceWitness
 import FormalResearch.PPTThreeQubit.Surface
 import FormalResearch.PPTThreeQubit.SurfaceExtreme
+import FormalResearch.PPTThreeQubit.SurfacePPT
+import FormalResearch.PPTThreeQubit.CoexistencePPT
 
 /-!
 # Fully-PPT three-qubit GME: the rank-five family
