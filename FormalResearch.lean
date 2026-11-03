@@ -663,3 +663,4 @@ import FormalResearch.FourQubitEntropy.GOGlue.Cons
 import FormalResearch.FourQubitEntropy.GOGlue.Orbit
 import FormalResearch.FourQubitEntropy.GOGlue.OrbitMaps
 import FormalResearch.FourQubitEntropy.GOGlue.FrameCert
+import FormalResearch.PPTThreeQubit
