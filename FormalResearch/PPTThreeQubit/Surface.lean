@@ -1,5 +1,7 @@
-import FormalResearch.PPTThreeQubit.FamilyGME
-import FormalResearch.PPTThreeQubit.SurfaceWitness
+module
+
+public import FormalResearch.PPTThreeQubit.FamilyGME
+public import FormalResearch.PPTThreeQubit.SurfaceWitness
 
 /-!
 # The rank-five surface `ρ(α, W, A)`: definitions, local filter, GME
@@ -20,6 +22,9 @@ unnormalised, which does not affect biseparability).  The proof splits at `τ = 
 `Q = τ + √(1+τ²)`, then the local filter for general `a`.
 Not covered: positivity, rank profile and PPT of the family, and the rest of (a), (c).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

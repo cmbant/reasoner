@@ -1,4 +1,6 @@
-import FormalResearch.PPTThreeQubit.PartialTranspose
+module
+
+public import FormalResearch.PPTThreeQubit.PartialTranspose
 
 /-!
 # Flat three-qubit states: the Pauli identity `σ_y^{(c)} ρ^{T_c} σ_y^{(c)} = J ρ J⁻¹`
@@ -21,6 +23,9 @@ Not covered here: that flat states (all proper marginals maximally mixed) have t
 and the combined statement; see `Flat.lean`.  The partial transposes are those of
 `PartialTranspose.lean`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit.Flat
 

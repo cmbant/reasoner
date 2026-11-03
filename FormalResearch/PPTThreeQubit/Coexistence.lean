@@ -1,4 +1,6 @@
-import FormalResearch.PPTThreeQubit.FamilyGME
+module
+
+public import FormalResearch.PPTThreeQubit.FamilyGME
 
 /-!
 # One support, both phases: `thm:ppt3-phase-coexistence` and `prop:ppt3-exposed-transition`
@@ -29,6 +31,9 @@ of `X_BS`, `X_∂`, the rank-five / rank-profile statements, and the relative-in
 `thm:ppt3-phase-coexistence`.  Consequently only the biseparable/GME and the `tr(H_5 ·)` parts of
 the statements are formalised, not the clause that every state on the line is strictly PPT.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

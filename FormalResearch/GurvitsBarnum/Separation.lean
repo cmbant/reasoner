@@ -1,4 +1,6 @@
-import FormalResearch.GurvitsBarnum.Closed
+module
+
+public import FormalResearch.GurvitsBarnum.Closed
 
 /-!
 # Separation of a Hermitian non-separable matrix by a block-positive witness (plan lemma D2)
@@ -11,6 +13,9 @@ of matrices.  `ProperCone.hyperplane_separation_point` gives a continuous real f
 represented as `f Y = Re tr (W Y)` (`exists_matrix_of_functional`), and `W` is replaced by its Hermitian
 part (which does not change `Re tr (W S)` for Hermitian `S`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.GurvitsBarnum
 

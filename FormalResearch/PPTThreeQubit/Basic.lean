@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Three-qubit conventions for the rank-five fully-PPT family
@@ -18,6 +20,9 @@ cut-off qubit and a two-qubit vector on the other two.  `IsBiseparable ρ` is th
 finite-decomposition definition: `ρ` is a finite sum of rank-one operators `|φ⟩⟨φ|`, each `φ` a
 cut-product across some cut (positive weights are absorbed in `φ`).  GME is its negation.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

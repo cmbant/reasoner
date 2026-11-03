@@ -1,5 +1,7 @@
-import FormalResearch.GurvitsBarnum.Basic
-import FormalResearch.GurvitsBarnum.ClosedHull
+module
+
+public import FormalResearch.GurvitsBarnum.Basic
+public import FormalResearch.GurvitsBarnum.ClosedHull
 
 /-!
 # The separable cone is closed (plan lemma D1)
@@ -12,6 +14,9 @@ quantum state*, Phys. Rev. A 66, 062311 (2002); plan lemma D1.
 (`isCompact_convexHull_of_isCompact`), and the trace bounds `s`, whence closedness.
 The topology on `Matrix` is Mathlib's global (Pi) topology instance.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.GurvitsBarnum
 

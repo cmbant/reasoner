@@ -1,7 +1,9 @@
-import FormalResearch.PPTThreeQubit.ProductKernel
-import FormalResearch.PPTThreeQubit.PartialTranspose
-import FormalResearch.PPTThreeQubit.Basic
-import FormalResearch.PPTThreeQubit.CutEquiv
+module
+
+public import FormalResearch.PPTThreeQubit.ProductKernel
+public import FormalResearch.PPTThreeQubit.PartialTranspose
+public import FormalResearch.PPTThreeQubit.Basic
+public import FormalResearch.PPTThreeQubit.CutEquiv
 
 /-!
 # The three-qubit consequence of the product-kernel lemma
@@ -13,6 +15,9 @@ Each of the three cuts `A|BC`, `B|AC`, `C|AB` is identified with `ℂ² ⊗ ℂ�
 reindexing `Fin 8 ≃ Fin 2 × Fin 4` under which `ptA`, `ptB`, `ptC` become `ptFirst`, and then
 `ppt_product_kernel` applies.  **Hypothesis:** `PPTSeparable23` (Horodecki–Horodecki–Horodecki 1996).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

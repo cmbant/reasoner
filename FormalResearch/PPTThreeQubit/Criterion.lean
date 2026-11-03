@@ -1,4 +1,6 @@
-import FormalResearch.PPTThreeQubit.Witness
+module
+
+public import FormalResearch.PPTThreeQubit.Witness
 
 /-!
 # The support argument: a biseparable operator supported on `R_s` satisfies `tr(H_s X) ≥ 0`
@@ -11,6 +13,9 @@ If `ρ = B_s X B_s†` is biseparable, every vector `φᵢ` of a decomposition l
 `formH_nonneg_of_cutProduct`.  This covers every real `s > 0` and all three cuts, mixtures
 included, with no symmetry hypothesis on `X`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

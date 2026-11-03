@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Gurvits–Barnum: positive maps, vector bounds and the normal-contraction lemma (L1, L2)
@@ -11,6 +13,9 @@ quantum state*, Phys. Rev. A 66, 062311 (2002); plan lemmas L1, L2.
 * `Contr.bdd_map_of_decomp` (L2 core): a unital positive map sends `Σ zⱼ Pⱼ`
   (`Pⱼ ≥ 0`, `Σ Pⱼ = 1`, `|zⱼ| ≤ 1`) to a contraction.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.GurvitsBarnum
 

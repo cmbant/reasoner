@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Gurvits–Barnum separable ball: Choi map of a witness and `id ⊗ φ`
@@ -19,6 +21,9 @@ entangled vector `ω` (`star_omega_idTensor_choiMap`); `choiMap W 1` is the tran
 Block positivity is used in the vector form `0 ≤ Re (v† W v)` for product vectors
 `v = fun p => a p.1 * b p.2`, which is definitionally `FormalResearch.GurvitsBarnum.IsBlockPositive`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSectionVars false
 

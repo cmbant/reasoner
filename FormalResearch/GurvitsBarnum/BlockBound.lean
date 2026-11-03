@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.GurvitsBarnum.Choi
+module
+
+public import Mathlib
+public import FormalResearch.GurvitsBarnum.Choi
 
 /-!
 # Gurvits–Barnum separable ball: block Cauchy–Schwarz
@@ -14,6 +16,9 @@ The contraction bound (plan lemma L3, Russo–Dye for positive unital maps) is a
 (`√(∑ ‖u i‖²)`).  Given it, for Hermitian `Δ` of Frobenius norm at most one and a Hermitian-preserving
 unital `φ`, `(id ⊗ φ)(1 + Δ)` is positive semidefinite (`BlockBound.idTensor_one_add_posSemidef`).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSectionVars false
 

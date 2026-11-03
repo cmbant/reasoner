@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.GurvitsBarnum.Basic
-import FormalResearch.GurvitsBarnum.BlockBound
+module
+
+public import Mathlib
+public import FormalResearch.GurvitsBarnum.Basic
+public import FormalResearch.GurvitsBarnum.BlockBound
 
 /-!
 # Gurvits–Barnum separable ball: witnesses are non-negative on the ball
@@ -15,6 +17,9 @@ map `S φ Sᴴ` with `S = (yᴴ)⁻¹`, where `φ_{W+ε}(1) = yᴴ y`, applies `
 and the identity `⟨ω, (id ⊗ φ_W)(Y) ω⟩ = tr (W Y)`, and lets `ε → 0`.  The corollary
 `sum_norm_sq_le_trace_sq` is the inequality `‖W‖₂ ≤ tr W` (plan inequality (K)).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSectionVars false
 

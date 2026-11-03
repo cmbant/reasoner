@@ -1,4 +1,6 @@
-import FormalResearch.PPTThreeQubit.Criterion
+module
+
+public import FormalResearch.PPTThreeQubit.Criterion
 
 /-!
 # The `τ`-independent supported witness `H_0`, and local filters
@@ -20,6 +22,9 @@ Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/rank_f
   general form of the invertible-local-filter step in `thm:ppt3-orbit`(b); only diagonal filters
   are treated (the filters `diag(1, λ)^{⊗3}` of the paper are of this form).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

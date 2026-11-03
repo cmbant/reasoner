@@ -1,4 +1,6 @@
-import FormalResearch.GurvitsBarnum.Basic
+module
+
+public import FormalResearch.GurvitsBarnum.Basic
 
 /-!
 # The product-kernel lemma (`lem:ppt3-product-kernel`)
@@ -17,6 +19,9 @@ Schur-complement subtraction; `ppt_product_kernel` is the lemma, for an arbitrar
 `a ⊗ b` in the kernel (the paper's local-unitary normalisation is replaced by local invertible
 congruences, which preserve both separability and PPT-ness).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

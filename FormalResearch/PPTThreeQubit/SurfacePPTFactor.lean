@@ -1,5 +1,7 @@
-import FormalResearch.PPTThreeQubit.FamilyPPT
-import FormalResearch.PPTThreeQubit.Surface
+module
+
+public import FormalResearch.PPTThreeQubit.FamilyPPT
+public import FormalResearch.PPTThreeQubit.Surface
 
 /-!
 # The rank-five surface at `α = A = 1`: the `LDL*` factorization of `ρ_τ^{T_A}`
@@ -18,6 +20,9 @@ block `(000,011,101,110)`, two on the odd block `(001,010,100,111)`) and the piv
 `eq:ppt3-surface-minors` (`1, E, (Q²-3)(Q⁴+3)κ²/(4τ²)`) and the zero fourth even pivot is the
 singularity of the even block.  The positivity consequences are in `SurfacePPT.lean`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

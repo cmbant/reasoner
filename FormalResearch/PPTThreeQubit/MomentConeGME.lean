@@ -1,5 +1,7 @@
-import FormalResearch.PPTThreeQubit.CurveParam
-import FormalResearch.PPTThreeQubit.ProductKernelThree
+module
+
+public import FormalResearch.PPTThreeQubit.CurveParam
+public import FormalResearch.PPTThreeQubit.ProductKernelThree
 
 /-!
 # The universal moment cone for fully-PPT GME states
@@ -12,6 +14,9 @@ description holds for every `B` with `Kᴴ B = 0`.
 **Hypothesis:** `PPTSeparable23` (Horodecki–Horodecki–Horodecki 1996), used only through
 `kernel_free_of_gme`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

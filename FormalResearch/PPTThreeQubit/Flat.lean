@@ -1,4 +1,6 @@
-import FormalResearch.PPTThreeQubit.FlatPauli
+module
+
+public import FormalResearch.PPTThreeQubit.FlatPauli
 
 /-!
 # Flat three-qubit states are fully PPT with rank profile `(r, r, r, r)`
@@ -24,6 +26,9 @@ of three-body Pauli products"; Hermiticity of `ρ` forces them real, and for non
 identity `= J ρ J⁻¹` is false).  Not covered: the invariance "under invertible local filtering" of
 the profile (a separate remark in the paper), and `rem:ppt3-flat-profile`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit.Flat
 

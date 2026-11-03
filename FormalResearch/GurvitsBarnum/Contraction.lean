@@ -1,4 +1,6 @@
-import FormalResearch.GurvitsBarnum.ContractionPolar
+module
+
+public import FormalResearch.GurvitsBarnum.ContractionPolar
 
 /-!
 # Gurvits–Barnum: positive maps preserve the adjoint and contractions (L1, L3)
@@ -20,6 +22,9 @@ theorem for unitaries and Cauchy–Schwarz twice) gives the invertible case thro
 decomposition of an invertible contraction as an average of two unitaries; the general case
 follows since `X + t·1` is invertible for all but finitely many `t` and the bound is closed.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.GurvitsBarnum
 

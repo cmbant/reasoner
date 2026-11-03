@@ -1,4 +1,6 @@
-import FormalResearch.PPTThreeQubit.Criterion
+module
+
+public import FormalResearch.PPTThreeQubit.Criterion
 
 /-!
 # The rank-five family `ρ_t`: genuine multipartite entanglement
@@ -16,6 +18,9 @@ of the PPT interval) and `t = 10/3`.
 Not covered here: the PPT interval `[t_-, t_+]`, the rank profile, and minimality of rank five
 (these are the Sylvester-minor and low-rank-PPT parts of the theorem).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

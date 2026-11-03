@@ -1,6 +1,8 @@
-import FormalResearch.GurvitsBarnum.Contraction
-import FormalResearch.GurvitsBarnum.Witness
-import FormalResearch.GurvitsBarnum.Separation
+module
+
+public import FormalResearch.GurvitsBarnum.Contraction
+public import FormalResearch.GurvitsBarnum.Witness
+public import FormalResearch.GurvitsBarnum.Separation
 
 /-!
 # The Gurvits–Barnum separable ball
@@ -21,6 +23,9 @@ Headlines (all for finite index types `ι`, `κ`):
 * `GurvitsBarnum.sum_norm_sq_le_trace_sq_of_blockPositive`: every Hermitian block-positive `W` obeys
   `∑ ‖W p q‖² ≤ (Re tr W)²`, i.e. `‖W‖₂ ≤ tr W`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.GurvitsBarnum
 

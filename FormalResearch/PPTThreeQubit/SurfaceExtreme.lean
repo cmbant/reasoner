@@ -1,4 +1,6 @@
-import FormalResearch.PPTThreeQubit.Surface
+module
+
+public import FormalResearch.PPTThreeQubit.Surface
 
 /-!
 # The explicit rational member `σ = N / 16323219`: GME
@@ -17,6 +19,9 @@ Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/rank_f
 Not covered: rank, cyclic/parity invariance, PPT of the three cuts, extremality (exact-rank
 computation), the level-two witness and the white-noise threshold.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

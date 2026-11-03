@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Gurvits–Barnum separable ball: definitions
@@ -14,6 +16,9 @@ Bipartite operators are matrices over `ι × κ` with the Kronecker product `⊗
   on the real part of the quadratic form; `isBlockPositive_iff_trace` gives the trace form and
   `isBlockPositive_iff_forall_separable` the duality form.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.GurvitsBarnum
 

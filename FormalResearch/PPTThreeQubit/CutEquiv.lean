@@ -1,4 +1,6 @@
-import FormalResearch.PPTThreeQubit.Basic
+module
+
+public import FormalResearch.PPTThreeQubit.Basic
 
 /-!
 # The three cuts as `ℂ² ⊗ ℂ⁴`
@@ -7,6 +9,9 @@ Each single-qubit cut `A|BC`, `B|AC`, `C|AB` of a three-qubit vector `Fin 8 → 
 `Fin 8 ≃ Fin 2 × Fin 4` (qubit of the cut, remaining two qubits) matching `IsProdA`, `IsProdB`,
 `IsProdC` of `FormalResearch.PPTThreeQubit.Basic`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

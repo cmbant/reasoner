@@ -1,6 +1,8 @@
-import FormalResearch.PPTThreeQubit.Coexistence
-import FormalResearch.PPTThreeQubit.FamilyPPT
-import FormalResearch.PPTThreeQubit.CoexistencePPTData
+module
+
+public import FormalResearch.PPTThreeQubit.Coexistence
+public import FormalResearch.PPTThreeQubit.FamilyPPT
+public import FormalResearch.PPTThreeQubit.CoexistencePPTData
 
 /-!
 # Strict PPT for `thm:ppt3-phase-coexistence` and `prop:ppt3-exposed-transition`
@@ -40,6 +42,9 @@ not used.  The rank-five and rank-profile `(5,8,8,8)` statements and the "same c
 clause are not formalised (positive definiteness of the coefficient matrices, with `B†B = diag(4,1,3,3,3)`
 of `Coexistence.lean`, is the algebraic content of rank five, but a rank statement is not made).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

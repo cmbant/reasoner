@@ -1,4 +1,6 @@
-import FormalResearch.GurvitsBarnum.ContractionUnitary
+module
+
+public import FormalResearch.GurvitsBarnum.ContractionUnitary
 
 /-!
 # Gurvits–Barnum: an invertible contraction is an average of two unitaries
@@ -10,6 +12,9 @@ For an invertible contraction `X`, write `XᴴX = W diag(d) Wᴴ` with `0 < d �
 `V = X W diag(d^{-1/2}) Wᴴ` is unitary, `Z± = W diag(√d ± i √(1-d)) Wᴴ` are unitary and
 `X = V (Z₊ + Z₋) / 2`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.GurvitsBarnum
 namespace Contr

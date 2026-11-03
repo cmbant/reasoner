@@ -1,5 +1,7 @@
-import FormalResearch.PPTThreeQubit.SurfacePPTFactor
-import FormalResearch.PPTThreeQubit.SurfaceExtreme
+module
+
+public import FormalResearch.PPTThreeQubit.SurfacePPTFactor
+public import FormalResearch.PPTThreeQubit.SurfaceExtreme
 
 /-!
 # The rank-five surface: positivity and the fully-PPT property
@@ -24,6 +26,9 @@ Covered (proved, no numerical input):
 Not covered: the rank profile `(5,5,5,5)`, part (a) beyond cyclic invariance, part (c) of
 `thm:ppt3-orbit`, extremality of `σ`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

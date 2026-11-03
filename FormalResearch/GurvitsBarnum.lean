@@ -1,15 +1,17 @@
-import FormalResearch.GurvitsBarnum.Basic
-import FormalResearch.GurvitsBarnum.ClosedHull
-import FormalResearch.GurvitsBarnum.Closed
-import FormalResearch.GurvitsBarnum.Separation
-import FormalResearch.GurvitsBarnum.Choi
-import FormalResearch.GurvitsBarnum.BlockBound
-import FormalResearch.GurvitsBarnum.Witness
-import FormalResearch.GurvitsBarnum.ContractionBase
-import FormalResearch.GurvitsBarnum.ContractionUnitary
-import FormalResearch.GurvitsBarnum.ContractionPolar
-import FormalResearch.GurvitsBarnum.Contraction
-import FormalResearch.GurvitsBarnum.Ball
+module
+
+public import FormalResearch.GurvitsBarnum.Basic
+public import FormalResearch.GurvitsBarnum.ClosedHull
+public import FormalResearch.GurvitsBarnum.Closed
+public import FormalResearch.GurvitsBarnum.Separation
+public import FormalResearch.GurvitsBarnum.Choi
+public import FormalResearch.GurvitsBarnum.BlockBound
+public import FormalResearch.GurvitsBarnum.Witness
+public import FormalResearch.GurvitsBarnum.ContractionBase
+public import FormalResearch.GurvitsBarnum.ContractionUnitary
+public import FormalResearch.GurvitsBarnum.ContractionPolar
+public import FormalResearch.GurvitsBarnum.Contraction
+public import FormalResearch.GurvitsBarnum.Ball
 
 /-!
 # The Gurvits–Barnum separable ball
@@ -39,3 +41,6 @@ sum of product rank-one positive matrices.  Scaled form:
 4. *Assembly* (`Ball`): double-sum Cauchy–Schwarz turns the Hilbert–Schmidt bound into the contraction
    bound, and contradiction with the witness gives the ball.
 -/
+
+@[expose] public section
+

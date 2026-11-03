@@ -1,4 +1,6 @@
-import FormalResearch.GurvitsBarnum.ContractionBase
+module
+
+public import FormalResearch.GurvitsBarnum.ContractionBase
 
 /-!
 # Gurvits–Barnum: unitary diagonalisation and L2 for unitaries
@@ -11,6 +13,9 @@ Source: L. Gurvits and H. Barnum, PRA 66, 062311 (2002); plan lemma L2.
   eigenvalues (Cayley transform `H = i (z₀ + U)(z₀ - U)⁻¹`, `z₀` off the spectrum).
 * `bdd_map_unitary` (L2): a unital positive map sends a unitary to a contraction.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.GurvitsBarnum
 namespace Contr

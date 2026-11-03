@@ -1,4 +1,6 @@
-import FormalResearch.PPTThreeQubit.FamilyPPTFactor
+module
+
+public import FormalResearch.PPTThreeQubit.FamilyPPTFactor
 
 /-!
 # The rank-five family `ρ_t`: the fully-PPT interval
@@ -33,6 +35,9 @@ Not covered here: the rank profile `(5, 8, 8, 8)` / `(5, 7, 7, 7)`, rank five of
 minimality of rank five (low-rank PPT theorem).  The leading `1 × 1`, `2 × 2`, `3 × 3` minors of
 `eq:ppt3-minors` are not stated separately: they appear as the pivot ratios `dpiv`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

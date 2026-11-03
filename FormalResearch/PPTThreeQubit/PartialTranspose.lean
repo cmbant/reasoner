@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Partial transposes of three-qubit operators
@@ -13,6 +15,9 @@ and the column index: `(X^{T_A})_{(abc),(a'b'c')} = X_{(a'bc),(ab'c')}`, and sim
 Also the cyclic shift `σ` of the qubits and its relation to the three partial transposes, which
 reduces the three PPT tests for a cyclically invariant operator to one.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

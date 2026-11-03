@@ -1,5 +1,7 @@
-import FormalResearch.PPTThreeQubit.FamilyGME
-import FormalResearch.PPTThreeQubit.PartialTranspose
+module
+
+public import FormalResearch.PPTThreeQubit.FamilyGME
+public import FormalResearch.PPTThreeQubit.PartialTranspose
 
 /-!
 # The rank-five family `ρ_t`: cyclic symmetry and the `LDL*` factorization of `ρ_t^{T_A}`
@@ -13,6 +15,9 @@ Technical half of `FamilyPPT.lean`: `ρ_t` is invariant under the cyclic qubit s
 `eq:ppt3-minors`) and columns `lₖ` (`ptA_rhoT_eq`), checked entrywise.  The positivity of the pivots
 on the PPT interval and the converse are in `FamilyPPT.lean`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Compactness of the convex hull of a compact set (finite dimensions)
@@ -8,6 +10,9 @@ real topological vector space is proved from Carathéodory's theorem: the convex
 image of `stdSimplex × K^(D+1)`.  Used for plan lemma D1 of the Gurvits–Barnum separable ball
 (Phys. Rev. A 66, 062311 (2002)).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.GurvitsBarnum
 

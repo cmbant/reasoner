@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Kernels of `3 × 4` matrices and constant-rank pencils
@@ -9,6 +11,9 @@ by its cofactor vector, which is a cubic in `a`, and the five quartic coefficien
 are linearly independent.  The paper uses the Kronecker canonical form for the last point; here it is
 proved elementarily (Bezout for polynomials in one variable plus a degree count).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

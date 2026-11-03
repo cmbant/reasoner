@@ -1,4 +1,6 @@
-import FormalResearch.PPTThreeQubit.Basic
+module
+
+public import FormalResearch.PPTThreeQubit.Basic
 
 /-!
 # Supported witnesses: part (a) of `prop:ppt3-witness`
@@ -6,6 +8,9 @@ import FormalResearch.PPTThreeQubit.Basic
 Source: `family.tex`, `prop:ppt3-witness` (a).  The `A|BC`-product vectors of `R_s = ran B_s`
 are the rays of `B_s q_s(z)` and the ray of `v`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 

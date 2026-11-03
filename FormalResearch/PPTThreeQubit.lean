@@ -1,24 +1,26 @@
-import FormalResearch.PPTThreeQubit.Basic
-import FormalResearch.PPTThreeQubit.Witness
-import FormalResearch.PPTThreeQubit.Criterion
-import FormalResearch.PPTThreeQubit.FamilyGME
-import FormalResearch.PPTThreeQubit.PartialTranspose
-import FormalResearch.PPTThreeQubit.FamilyPPT
-import FormalResearch.PPTThreeQubit.Coexistence
-import FormalResearch.PPTThreeQubit.FlatPauli
-import FormalResearch.PPTThreeQubit.Flat
-import FormalResearch.PPTThreeQubit.SurfaceWitness
-import FormalResearch.PPTThreeQubit.Surface
-import FormalResearch.PPTThreeQubit.SurfaceExtreme
-import FormalResearch.PPTThreeQubit.SurfacePPT
-import FormalResearch.PPTThreeQubit.CoexistencePPT
-import FormalResearch.PPTThreeQubit.ProductKernel
-import FormalResearch.PPTThreeQubit.CutEquiv
-import FormalResearch.PPTThreeQubit.ProductKernelThree
-import FormalResearch.PPTThreeQubit.PencilKernel
-import FormalResearch.PPTThreeQubit.MomentCone
-import FormalResearch.PPTThreeQubit.CurveParam
-import FormalResearch.PPTThreeQubit.MomentConeGME
+module
+
+public import FormalResearch.PPTThreeQubit.Basic
+public import FormalResearch.PPTThreeQubit.Witness
+public import FormalResearch.PPTThreeQubit.Criterion
+public import FormalResearch.PPTThreeQubit.FamilyGME
+public import FormalResearch.PPTThreeQubit.PartialTranspose
+public import FormalResearch.PPTThreeQubit.FamilyPPT
+public import FormalResearch.PPTThreeQubit.Coexistence
+public import FormalResearch.PPTThreeQubit.FlatPauli
+public import FormalResearch.PPTThreeQubit.Flat
+public import FormalResearch.PPTThreeQubit.SurfaceWitness
+public import FormalResearch.PPTThreeQubit.Surface
+public import FormalResearch.PPTThreeQubit.SurfaceExtreme
+public import FormalResearch.PPTThreeQubit.SurfacePPT
+public import FormalResearch.PPTThreeQubit.CoexistencePPT
+public import FormalResearch.PPTThreeQubit.ProductKernel
+public import FormalResearch.PPTThreeQubit.CutEquiv
+public import FormalResearch.PPTThreeQubit.ProductKernelThree
+public import FormalResearch.PPTThreeQubit.PencilKernel
+public import FormalResearch.PPTThreeQubit.MomentCone
+public import FormalResearch.PPTThreeQubit.CurveParam
+public import FormalResearch.PPTThreeQubit.MomentConeGME
 
 /-!
 # Fully-PPT three-qubit GME: the rank-five family
@@ -35,3 +37,6 @@ Moment-cone part (`relaxations_and_scope.tex`, `thm:ppt3-universal-moments`; `ap
 Horodecki 2⊗3 theorem), `biseparable_iff_mem_cone`, `dual_iff`, `cofCoeff_indep`, `curve_cut`,
 `ppt3_universal_moments` (unconditional), `ppt3_universal_moments_of_gme`.
 -/
+
+@[expose] public section
+

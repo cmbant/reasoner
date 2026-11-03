@@ -1,6 +1,8 @@
-import FormalResearch.PPTThreeQubit.PencilKernel
-import FormalResearch.PPTThreeQubit.MomentCone
-import FormalResearch.PPTThreeQubit.CutEquiv
+module
+
+public import FormalResearch.PPTThreeQubit.PencilKernel
+public import FormalResearch.PPTThreeQubit.MomentCone
+public import FormalResearch.PPTThreeQubit.CutEquiv
 
 /-!
 # The cut curves of a product-free five-dimensional support
@@ -17,6 +19,9 @@ so `L = B T` with `T` invertible (`curve_cut`).  `ppt3_universal_moments` assemb
 the two cone statements of `MomentCone`.  Everything is unconditional linear algebra; the Horodecki
 hypothesis enters only in `MomentConeGME`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.PPTThreeQubit
 
