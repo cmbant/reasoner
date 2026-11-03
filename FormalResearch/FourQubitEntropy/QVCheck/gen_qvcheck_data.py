@@ -133,7 +133,7 @@ descriptions (choices of bases and normalisations are free, up to the checks).
 
 * `cS`, `cinvS`, `cDen`: the six-copy intertwiner `C` (`QVCert.rowC`): rows `(j, k, mu)`, `j in {0,2,4,6}` twice the
   spin, multiplicities `m = (5, 9, 5, 1)`; row `(j, 0, mu)` is the highest-weight vector given by the certificate's
-  supports, row `(j, k, mu)` is that row times `R^k / k!` (`R` the raising operator); `C * Cinv = cDen * 1`.
+  supports, row `(j, k, mu)` is that vector lowered `k` times and divided by `k!`; `C * Cinv = cDen * 1`.
 * `rhoS`: integer matrices `rho_j(s_i)` of the five adjacent transpositions of `S_6` on the multiplicity spaces, defined
   by `C Pi_{s_i} = (⊕_j rho_j(s_i) ⊗ 1) C`.
 * `psiS`: the frame tables `Psi^(a)`, `a in {3, 4}`, defined by `C tau_a(E^j_{mu mu'}) = (⊕ Psi ⊗ 1) C`, with `tau_a` the
