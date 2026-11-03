@@ -351,6 +351,25 @@ negation. All headlines depend only on `[propext, Classical.choice, Quot.sound]`
 Not formalised: rank profiles; extremality and moduli ranks; the level-two (DPS) noise certificates; the white-noise
 upper bounds (they need Gurvits--Barnum); the kernel-penalty lift; chirality; the symmetrisation corollary.
 
+## Gurvits–Barnum separable ball (general bipartite; used by the PPT THREE QUBIT paper)
+
+Lean files: `FormalResearch/GurvitsBarnum/*.lean`, aggregate `FormalResearch/GurvitsBarnum.lean` (imports Mathlib only).
+Source: L. Gurvits and H. Barnum, PRA 66, 062311 (2002). The development holds for any finite index types `ι`, `κ`.
+`IsSeparable X` means `X` is a finite sum of `(a a†) ⊗ (b b†)`, and `IsBlockPositive W` means `⟨a⊗b, W a⊗b⟩ ≥ 0` (real part).
+All headlines depend only on `[propext, Classical.choice, Quot.sound]` (pinned guards); there is no `native_decide`.
+
+| statement | declarations | notes |
+|---|---|---|
+| separable ball: `Δ` Hermitian, `‖Δ‖₂ ≤ 1` ⇒ `1 + Δ` separable | `gurvits_barnum`, `isSeparable_of_sum_norm_sq_sub_smul_one_le` (`‖Y − cI‖₂ ≤ c` ⇒ `Y` separable) | Frobenius norm as `∑ ‖Δ p q‖²` |
+| block-positive witness inequality `‖W‖₂ ≤ tr W` | `sum_norm_sq_le_trace_sq_of_blockPositive`, `Witness.trace_mul_one_add_nonneg` | equivalent to the ball by duality |
+| positive unital maps are contractive (finite-dimensional Russo–Dye) | `IsPositiveMap.contraction`, `IsPositiveMap.norm_dot_le`, `Contr.bdd_map_unitary`, `contractionBound_of_isPositiveMap` | Cayley-transform spectral theorem for unitaries; an invertible contraction is the average of two unitaries |
+| block Cauchy–Schwarz for `id ⊗ φ` | `BlockBound.idTensor_one_add_posSemidef` | |
+| Choi map of a witness | `choiMap`, `choiMap_posSemidef`, `star_omega_idTensor_choiMap` | `⟨ω, (id⊗φ_W)(Y) ω⟩ = tr(WY)` |
+| separable cone closed, separation | `isCompact_convexHull_of_isCompact`, `isClosed_isSeparable`, `exists_blockPositive_separating` | Carathéodory; `ProperCone.hyperplane_separation_point` |
+
+Not formalised: the multipartite version; the application to the PPT THREE QUBIT upper-bound certificates (those decompositions are checked
+by exact Python verifiers).
+
 ## Gaudin, Racah and bridge modules
 
 The maintained aggregate also imports the current Gaudin metric/rank chain, Racah Weyl-cell modules and B2/Blaschke bridge modules. They are compiled as part of the current aggregate. This high-level map does not attempt to restate every theorem in those families; use the Lean source and theorem-local project updates for exact scope.
