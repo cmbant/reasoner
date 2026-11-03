@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Gaudin.CrossRankLinearAlgebra
+module
+
+public import Mathlib
+public import FormalResearch.Gaudin.CrossRankLinearAlgebra
+
+
+@[expose] public section
 
 namespace FormalResearch.Gaudin
 

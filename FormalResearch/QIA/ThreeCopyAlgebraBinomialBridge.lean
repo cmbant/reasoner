@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIA.ThreeCopyMemoryBinomialBridge
+module
+
+public import Mathlib
+public import FormalResearch.QIA.ThreeCopyMemoryBinomialBridge
+
+
+@[expose] public section
 
 namespace FormalResearch.QIA
 

@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIB2.KrawtchoukEigenvalue
+module
+
+public import Mathlib
+public import FormalResearch.QIB2.KrawtchoukEigenvalue
+
+
+@[expose] public section
 
 namespace FormalResearch.QIB2
 

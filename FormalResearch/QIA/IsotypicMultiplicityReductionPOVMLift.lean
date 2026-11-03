@@ -1,6 +1,8 @@
-import FormalResearch.QIA.IsotypicMultiplicityReductionPositive
-import FormalResearch.QIA.MatrixTraceAdjointPositivity
-import FormalResearch.QIA.MatrixTraceAdjointUnital
+module
+
+public import FormalResearch.QIA.IsotypicMultiplicityReductionPositive
+public import FormalResearch.QIA.MatrixTraceAdjointPositivity
+public import FormalResearch.QIA.MatrixTraceAdjointUnital
 
 /-!
 # QI-A coordinate isotypic reduction lifts every multiplicity POVM
@@ -21,6 +23,9 @@ coordinates.  Identifying those coordinates with the physical compact-group
 representation and identifying the lifted effects with all and only invariant
 effects remain separate representation-theoretic steps.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

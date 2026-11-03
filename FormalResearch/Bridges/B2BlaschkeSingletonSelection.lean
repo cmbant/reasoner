@@ -1,8 +1,13 @@
-import Mathlib
-import FormalResearch.Bridges.B2BlaschkeGatePhase
-import FormalResearch.Blaschke.WronskianAtomUnitDisk
-import FormalResearch.Blaschke.WalshWronskianExactRank
-import FormalResearch.Blaschke.WalshWronskianKernelBasis
+module
+
+public import Mathlib
+public import FormalResearch.Bridges.B2BlaschkeGatePhase
+public import FormalResearch.Blaschke.WronskianAtomUnitDisk
+public import FormalResearch.Blaschke.WalshWronskianExactRank
+public import FormalResearch.Blaschke.WalshWronskianKernelBasis
+
+
+@[expose] public section
 
 namespace FormalResearch.Bridges
 

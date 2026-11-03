@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Blaschke.WalshWronskianLinearMap
+module
+
+public import Mathlib
+public import FormalResearch.Blaschke.WalshWronskianLinearMap
+
+
+@[expose] public section
 
 namespace FormalResearch.Blaschke
 

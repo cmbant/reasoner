@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Blaschke.WalshWronskianKernelBasis
+module
+
+public import Mathlib
+public import FormalResearch.Blaschke.WalshWronskianKernelBasis
+
+
+@[expose] public section
 
 namespace FormalResearch.Blaschke
 

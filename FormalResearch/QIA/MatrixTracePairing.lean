@@ -1,6 +1,8 @@
-import Mathlib.LinearAlgebra.BilinearForm.Properties
-import Mathlib.LinearAlgebra.Matrix.Trace
-import FormalResearch.QIA.PureCopyMemoryCore
+module
+
+public import Mathlib.LinearAlgebra.BilinearForm.Properties
+public import Mathlib.LinearAlgebra.Matrix.Trace
+public import FormalResearch.QIA.PureCopyMemoryCore
 
 /-!
 # QI-A matrix trace pairing core
@@ -20,6 +22,9 @@ pairing because `Aᴴ = A`.  The paper's actual spanning theorem is over the rea
 Hermitian multiplicity algebra; the restriction to that real subspace and,
 most importantly, coherent-power polarization/separation remain external.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

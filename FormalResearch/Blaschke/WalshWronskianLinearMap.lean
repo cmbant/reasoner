@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Blaschke.ZeroFlipWronskian
+module
+
+public import Mathlib
+public import FormalResearch.Blaschke.ZeroFlipWronskian
+
+
+@[expose] public section
 
 namespace FormalResearch.Blaschke
 

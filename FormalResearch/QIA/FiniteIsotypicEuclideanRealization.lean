@@ -1,6 +1,8 @@
-import FormalResearch.QIA.FiniteIsotypicCarrierCoordinates
-import Mathlib.Analysis.InnerProductSpace.PiL2
-import Mathlib.LinearAlgebra.TensorPower.Symmetric
+module
+
+public import FormalResearch.QIA.FiniteIsotypicCarrierCoordinates
+public import Mathlib.Analysis.InnerProductSpace.PiL2
+public import Mathlib.LinearAlgebra.TensorPower.Symmetric
 
 /-!
 # QI-A Euclidean realization of the finite isotypic carrier
@@ -18,6 +20,9 @@ Schur--Weyl theory, prove that the chosen isotypic coordinates are unitary, or
 discharge continuity of the coherent symmetric-power realization used by the
 deferred-query separation theorem.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

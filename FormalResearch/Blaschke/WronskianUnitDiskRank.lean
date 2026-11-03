@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Blaschke.WronskianAtomUnitDisk
+module
+
+public import Mathlib
+public import FormalResearch.Blaschke.WronskianAtomUnitDisk
+
+
+@[expose] public section
 
 namespace FormalResearch.Blaschke
 

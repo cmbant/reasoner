@@ -1,4 +1,9 @@
-import FormalResearch.QID.NestedUpperAtomicCore
+module
+
+public import FormalResearch.QID.NestedUpperAtomicCore
+
+
+@[expose] public section
 
 namespace FormalResearch.QID
 

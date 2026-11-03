@@ -1,6 +1,11 @@
-import Mathlib
-import FormalResearch.QID.D5WeylEnumeration
-import FormalResearch.QID.D5CharacteristicZeroCertificate
+module
+
+public import Mathlib
+public import FormalResearch.QID.D5WeylEnumeration
+public import FormalResearch.QID.D5CharacteristicZeroCertificate
+
+
+@[expose] public section
 
 namespace FormalResearch.QID
 

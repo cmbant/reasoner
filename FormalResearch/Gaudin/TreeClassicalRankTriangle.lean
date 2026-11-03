@@ -1,6 +1,11 @@
-import Mathlib
-import FormalResearch.Gaudin.TreeSpaceRank
-import FormalResearch.Gaudin.CommonSplitComponentCount
+module
+
+public import Mathlib
+public import FormalResearch.Gaudin.TreeSpaceRank
+public import FormalResearch.Gaudin.CommonSplitComponentCount
+
+
+@[expose] public section
 
 namespace FormalResearch.Gaudin
 

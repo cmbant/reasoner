@@ -1,6 +1,8 @@
-import FormalResearch.QIA.UnitaryRepresentationSemisimplicity
-import FormalResearch.QIA.SymmetricPowerRepresentation
-import Mathlib.RepresentationTheory.Intertwining
+module
+
+public import FormalResearch.QIA.UnitaryRepresentationSemisimplicity
+public import FormalResearch.QIA.SymmetricPowerRepresentation
+public import Mathlib.RepresentationTheory.Intertwining
 
 /-!
 # Transporting semisimplicity across equivariant unitary realizations
@@ -15,6 +17,9 @@ This file does not construct the manuscript's physical local-unitary action or
 an equivariant Hilbert realization of algebraic symmetric power.  Those remain
 explicit hypotheses.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

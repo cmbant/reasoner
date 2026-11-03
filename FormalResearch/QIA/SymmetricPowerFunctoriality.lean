@@ -1,4 +1,6 @@
-import Mathlib.LinearAlgebra.TensorPower.Symmetric
+module
+
+public import Mathlib.LinearAlgebra.TensorPower.Symmetric
 
 /-!
 # Functoriality of algebraic symmetric tensor power
@@ -11,6 +13,9 @@ This file supplies that quotient descent directly.  It is deliberately algebraic
 there is no topology, inner product, group action, semisimplicity, or Schur--Weyl
 claim here.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

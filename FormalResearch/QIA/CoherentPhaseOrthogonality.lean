@@ -1,11 +1,13 @@
-import Mathlib.Analysis.Complex.Basic
-import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
-import Mathlib.RingTheory.RootsOfUnity.Complex
-import Mathlib.Algebra.Ring.GeomSum
-import Mathlib.LinearAlgebra.Vandermonde
-import Mathlib.LinearAlgebra.Multilinear.Basic
-import Mathlib.LinearAlgebra.SesquilinearForm.Basic
-import Mathlib.Data.Fintype.Card
+module
+
+public import Mathlib.Analysis.Complex.Basic
+public import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
+public import Mathlib.RingTheory.RootsOfUnity.Complex
+public import Mathlib.Algebra.Ring.GeomSum
+public import Mathlib.LinearAlgebra.Vandermonde
+public import Mathlib.LinearAlgebra.Multilinear.Basic
+public import Mathlib.LinearAlgebra.SesquilinearForm.Basic
+public import Mathlib.Data.Fintype.Card
 
 /-!
 # Finite phase orthogonality for coherent-power extraction
@@ -16,6 +18,9 @@ that extraction, upgrades it to exact coefficient recovery through the Vandermon
 matrix on one primitive-root cycle, and records the multilinear two-point expansion
 whose phase coefficients enter the Hermitian bidegree argument.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

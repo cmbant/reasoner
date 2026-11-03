@@ -1,8 +1,10 @@
-import FormalResearch.QIA.GlobalIsotypicBaseFieldDecomposition
-import FormalResearch.QIA.IsotypicDirectSumAuxiliaryStates
-import Mathlib.LinearAlgebra.DirectSum.Finite
-import Mathlib.LinearAlgebra.Dimension.Free
-import Mathlib.LinearAlgebra.Pi
+module
+
+public import FormalResearch.QIA.GlobalIsotypicBaseFieldDecomposition
+public import FormalResearch.QIA.IsotypicDirectSumAuxiliaryStates
+public import Mathlib.LinearAlgebra.DirectSum.Finite
+public import Mathlib.LinearAlgebra.Dimension.Free
+public import Mathlib.LinearAlgebra.Pi
 
 /-!
 # QI-A explicit finite scalar carrier from algebraic isotypic coordinates
@@ -19,6 +21,9 @@ symmetric-copy Hilbert space with the semisimple module, does not prove compact
 Schur--Weyl theory, and does not assert that the resulting linear equivalence is
 unitary or isometric.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

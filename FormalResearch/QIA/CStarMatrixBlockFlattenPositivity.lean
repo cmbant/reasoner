@@ -1,5 +1,7 @@
-import FormalResearch.QIA.CStarMatrixPosSemidefOrder
-import Mathlib.Data.Matrix.Composition
+module
+
+public import FormalResearch.QIA.CStarMatrixPosSemidefOrder
+public import Mathlib.Data.Matrix.Composition
 
 /-!
 # QI-A nested C-star-matrix block flattening
@@ -16,6 +18,9 @@ block flattening.  This is the order transport needed to connect Mathlib's CP
 amplification semantics to the existing raw finite-amplification theorem.  It
 does not itself construct a `CompletelyPositiveMap` and makes no CPTP claim.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

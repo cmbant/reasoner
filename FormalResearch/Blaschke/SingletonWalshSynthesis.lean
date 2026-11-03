@@ -1,6 +1,11 @@
-import Mathlib
-import FormalResearch.Blaschke.WalshWronskianExactRank
-import FormalResearch.Blaschke.WronskianAtomUnitDisk
+module
+
+public import Mathlib
+public import FormalResearch.Blaschke.WalshWronskianExactRank
+public import FormalResearch.Blaschke.WronskianAtomUnitDisk
+
+
+@[expose] public section
 
 namespace FormalResearch.Blaschke
 

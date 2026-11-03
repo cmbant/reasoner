@@ -1,4 +1,6 @@
-import Mathlib.Analysis.Matrix.Order
+module
+
+public import Mathlib.Analysis.Matrix.Order
 
 /-!
 # QI-A normalized positive matrices are bounded by identity
@@ -9,6 +11,9 @@ fact is the missing state-side bridge needed to derive the encoded-state effect
 bound used by the deferred-query converse from ordinary density-matrix
 hypotheses.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

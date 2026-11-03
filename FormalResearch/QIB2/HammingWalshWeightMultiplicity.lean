@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIB2.HammingBooleanCubePhase
+module
+
+public import Mathlib
+public import FormalResearch.QIB2.HammingBooleanCubePhase
+
+
+@[expose] public section
 
 namespace FormalResearch.QIB2
 

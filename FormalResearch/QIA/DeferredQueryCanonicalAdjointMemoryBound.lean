@@ -1,5 +1,7 @@
-import FormalResearch.QIA.DeferredQuerySpanningMemoryBound
-import FormalResearch.QIA.MatrixTraceAdjoint
+module
+
+public import FormalResearch.QIA.DeferredQuerySpanningMemoryBound
+public import FormalResearch.QIA.MatrixTraceAdjoint
 
 /-!
 # QI-A deferred-query memory converse with the canonical trace adjoint
@@ -17,6 +19,9 @@ What remains source-specific is still the same: coherent-power spanning /
 polarization for the actual physical source family, concrete symmetry reduction
 and channel realization, and the manuscript's auxiliary projectors/states.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

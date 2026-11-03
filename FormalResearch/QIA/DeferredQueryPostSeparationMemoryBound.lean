@@ -1,5 +1,7 @@
-import FormalResearch.QIA.CanonicalMemoryCarriers
-import FormalResearch.QIA.PureCopyMemoryCore
+module
+
+public import FormalResearch.QIA.CanonicalMemoryCarriers
+public import FormalResearch.QIA.PureCopyMemoryCore
 
 /-!
 # QI-A deferred-query post-separation memory bound
@@ -26,6 +28,9 @@ power separation theorem that establishes the operator identity from physical
 query statistics, together with the concrete symmetry-reduction/channel
 identifications.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

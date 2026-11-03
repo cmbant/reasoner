@@ -1,4 +1,9 @@
-import FormalResearch.QID.NestedUpperRankOneSums
+module
+
+public import FormalResearch.QID.NestedUpperRankOneSums
+
+
+@[expose] public section
 
 namespace FormalResearch.QID
 

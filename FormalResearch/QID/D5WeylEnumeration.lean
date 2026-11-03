@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QID.D5RankWitness
+module
+
+public import Mathlib
+public import FormalResearch.QID.D5RankWitness
+
+
+@[expose] public section
 
 namespace FormalResearch.QID
 

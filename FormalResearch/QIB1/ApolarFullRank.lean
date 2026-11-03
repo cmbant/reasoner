@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIB1.ApolarTriangularRank
+module
+
+public import Mathlib
+public import FormalResearch.QIB1.ApolarTriangularRank
+
+
+@[expose] public section
 
 namespace FormalResearch.QIB1
 

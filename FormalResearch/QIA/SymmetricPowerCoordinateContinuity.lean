@@ -1,7 +1,9 @@
-import Mathlib.Analysis.Complex.Basic
-import Mathlib.Analysis.Normed.Module.Multilinear.Curry
-import Mathlib.LinearAlgebra.TensorPower.Symmetric
-import Mathlib.Topology.Algebra.Module.FiniteDimension
+module
+
+public import Mathlib.Analysis.Complex.Basic
+public import Mathlib.Analysis.Normed.Module.Multilinear.Curry
+public import Mathlib.LinearAlgebra.TensorPower.Symmetric
+public import Mathlib.Topology.Algebra.Module.FiniteDimension
 
 /-!
 # QI-A continuity of finite-dimensional symmetric-power coordinates
@@ -17,6 +19,9 @@ We prove this by currying one variable at a time.  At the induction step, the co
 of the lower-arity slices assemble to a linear map out of the finite-dimensional first factor,
 and such a linear map is automatically continuous.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

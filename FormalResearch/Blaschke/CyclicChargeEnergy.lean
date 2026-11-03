@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Blaschke.CompositionBaseline
+module
+
+public import Mathlib
+public import FormalResearch.Blaschke.CompositionBaseline
+
+
+@[expose] public section
 
 namespace FormalResearch.Blaschke
 

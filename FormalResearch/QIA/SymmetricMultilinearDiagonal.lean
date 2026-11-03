@@ -1,4 +1,6 @@
-import Mathlib.Analysis.Analytic.IteratedFDeriv
+module
+
+public import Mathlib.Analysis.Analytic.IteratedFDeriv
 
 /-!
 # Symmetric multilinear maps are determined by their diagonal
@@ -8,6 +10,9 @@ homogeneous polynomial obtained by evaluating it on the diagonal. This is the
 polarization principle needed to attack QI-A's coherent-copy separation lemma
 without first building a SymmetricPower-to-polynomial API.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

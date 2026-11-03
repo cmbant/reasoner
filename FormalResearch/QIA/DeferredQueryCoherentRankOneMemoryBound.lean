@@ -1,5 +1,7 @@
-import FormalResearch.QIA.CoherentRankOneMatrixSeparation
-import FormalResearch.QIA.DeferredQueryCanonicalAdjointMemoryBound
+module
+
+public import FormalResearch.QIA.CoherentRankOneMatrixSeparation
+public import FormalResearch.QIA.DeferredQueryCanonicalAdjointMemoryBound
 
 /-!
 # QI-A deferred-query converse for the coherent rank-one source family
@@ -15,6 +17,9 @@ the coherent pure-state rank-one matrices.  Constructing the concrete QI-A
 symmetric-subspace/Schur realization, the physical channel, and the manuscript's
 auxiliary query projectors and states remains model-specific.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

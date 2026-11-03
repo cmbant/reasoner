@@ -1,5 +1,7 @@
-import Mathlib.RingTheory.SimpleModule.Isotypic
-import Mathlib.Algebra.Algebra.RestrictScalars
+module
+
+public import Mathlib.RingTheory.SimpleModule.Isotypic
+public import Mathlib.Algebra.Algebra.RestrictScalars
 
 /-!
 # QI-A base-field coordinates for a finite isotypic block
@@ -16,6 +18,9 @@ It does not prove the compact-unitary Schur--Weyl decomposition of the physical
 symmetric-copy space and does not assert that the resulting coordinates are
 unitary/isometric.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

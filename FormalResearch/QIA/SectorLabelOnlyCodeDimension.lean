@@ -1,4 +1,9 @@
-import Mathlib.Analysis.Matrix.Order
+module
+
+public import Mathlib.Analysis.Matrix.Order
+
+
+@[expose] public section
 
 namespace FormalResearch.QIA
 

@@ -1,6 +1,8 @@
-import FormalResearch.QIA.MatrixTraceAdjoint
-import Mathlib.Analysis.Matrix.Order
-import Mathlib.LinearAlgebra.Complex.Module
+module
+
+public import FormalResearch.QIA.MatrixTraceAdjoint
+public import Mathlib.Analysis.Matrix.Order
+public import Mathlib.LinearAlgebra.Complex.Module
 
 /-!
 # QI-A positivity of the finite matrix trace adjoint
@@ -14,6 +16,9 @@ matrices.
 This is the finite-dimensional positivity bridge needed by the deferred-query
 memory converse.  It does not assert complete positivity.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

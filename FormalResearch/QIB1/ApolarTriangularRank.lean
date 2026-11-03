@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIB1.ApolarPivot
+module
+
+public import Mathlib
+public import FormalResearch.QIB1.ApolarPivot
+
+
+@[expose] public section
 
 namespace FormalResearch.QIB1
 

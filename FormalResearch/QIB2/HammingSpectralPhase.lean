@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIB2.HammingGate
+module
+
+public import Mathlib
+public import FormalResearch.QIB2.HammingGate
+
+
+@[expose] public section
 
 namespace FormalResearch.QIB2
 

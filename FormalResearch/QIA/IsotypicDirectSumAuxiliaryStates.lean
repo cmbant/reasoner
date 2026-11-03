@@ -1,5 +1,7 @@
-import FormalResearch.QIA.CanonicalMemoryCarriers
-import FormalResearch.QIA.IsotypicAuxiliaryStates
+module
+
+public import FormalResearch.QIA.CanonicalMemoryCarriers
+public import FormalResearch.QIA.IsotypicAuxiliaryStates
 
 /-!
 # QI-A direct-sum isotypic auxiliary states
@@ -19,6 +21,9 @@ This is a concrete finite direct-sum matrix model.  It still does not construct
 the physical Schur--Weyl decomposition or identify the physical symmetric-copy
 Hilbert space with this carrier.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

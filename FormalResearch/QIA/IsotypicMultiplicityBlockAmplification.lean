@@ -1,4 +1,6 @@
-import FormalResearch.QIA.IsotypicMultiplicityReductionPositivity
+module
+
+public import FormalResearch.QIA.IsotypicMultiplicityReductionPositivity
 
 /-!
 # QI-A finite amplification of an isotypic multiplicity block reduction
@@ -14,6 +16,9 @@ bundled as Mathlib's `CompletelyPositiveMap`: that API uses `CStarMatrix` and
 its spectral order, whose transport from the raw `Matrix.PosSemidef` statement
 is a separate bridge.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

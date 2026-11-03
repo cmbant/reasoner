@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIA.ThreeCopyAlgebraBinomialBridge
+module
+
+public import Mathlib
+public import FormalResearch.QIA.ThreeCopyAlgebraBinomialBridge
+
+
+@[expose] public section
 
 namespace FormalResearch.QIA
 

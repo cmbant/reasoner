@@ -1,4 +1,6 @@
-import FormalResearch.QIA.IsotypicMultiplicityReductionPOVMLift
+module
+
+public import FormalResearch.QIA.IsotypicMultiplicityReductionPOVMLift
 
 /-!
 # QI-A canonical lift of the multiplicity basis PVM
@@ -18,6 +20,9 @@ existence-of-a-lift assertion for this PVM: it pins down the canonical lift.
 It still does not identify the supplied coordinates with a physical
 compact-group isotypic decomposition.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

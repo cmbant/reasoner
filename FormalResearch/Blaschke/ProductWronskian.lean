@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Blaschke.WronskianPair
+module
+
+public import Mathlib
+public import FormalResearch.Blaschke.WronskianPair
+
+
+@[expose] public section
 
 namespace FormalResearch.Blaschke
 

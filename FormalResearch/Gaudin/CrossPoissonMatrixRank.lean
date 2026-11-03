@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Gaudin.RestrictedCrossRank
+module
+
+public import Mathlib
+public import FormalResearch.Gaudin.RestrictedCrossRank
+
+
+@[expose] public section
 
 namespace FormalResearch.Gaudin
 

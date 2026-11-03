@@ -1,4 +1,6 @@
-import FormalResearch.QIA.CoherentWidthFactorization
+module
+
+public import FormalResearch.QIA.CoherentWidthFactorization
 
 /-!
 # QI-A canonical finite memory carriers
@@ -15,6 +17,9 @@ This module formalizes the finite carrier/bookkeeping core of those upper-bound
 constructions.  It does not construct the symmetry-reduction CPTP channel,
 Hilbert direct sums, or sector-conditioned quantum channels.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIA.ThreeCopyCharacterClosedForms
+module
+
+public import Mathlib
+public import FormalResearch.QIA.ThreeCopyCharacterClosedForms
+
+
+@[expose] public section
 
 namespace FormalResearch.QIA
 

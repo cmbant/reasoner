@@ -1,5 +1,7 @@
-import FormalResearch.QIA.HermitianCoherentPowerSeparation
-import Mathlib.Analysis.InnerProductSpace.Symmetric
+module
+
+public import FormalResearch.QIA.HermitianCoherentPowerSeparation
+public import Mathlib.Analysis.InnerProductSpace.Symmetric
 
 /-!
 # Hilbert-realization operator separation for QI-A
@@ -13,6 +15,9 @@ vanishes is zero.  The only continuity hypothesis is the same pullback continuit
 used by the coherent-power spanning bridge; constructing the concrete physical realization
 and discharging this continuity hypothesis remain separate model-specific steps.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

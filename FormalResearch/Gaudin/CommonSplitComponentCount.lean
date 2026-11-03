@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Gaudin.TreeSpaceRank
+module
+
+public import Mathlib
+public import FormalResearch.Gaudin.TreeSpaceRank
+
+
+@[expose] public section
 
 namespace FormalResearch.Gaudin
 

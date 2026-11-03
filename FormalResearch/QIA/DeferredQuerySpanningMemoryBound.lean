@@ -1,5 +1,7 @@
-import FormalResearch.QIA.DeferredQueryPostSeparationMemoryBound
-import FormalResearch.QIA.SpanningStatisticsEffectIdentity
+module
+
+public import FormalResearch.QIA.DeferredQueryPostSeparationMemoryBound
+public import FormalResearch.QIA.SpanningStatisticsEffectIdentity
 
 /-!
 # QI-A deferred-query memory converse from a spanning source family
@@ -21,6 +23,9 @@ polarization/separation), together with the concrete symmetry-reduction/channel
 identifications and construction of the manuscript's auxiliary projectors and
 states.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

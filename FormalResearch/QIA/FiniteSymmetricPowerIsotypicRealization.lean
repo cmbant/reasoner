@@ -1,6 +1,8 @@
-import FormalResearch.QIA.FiniteIsotypicEuclideanRealization
-import Mathlib.LinearAlgebra.PiTensorProduct.Finite
-import Mathlib.RingTheory.Noetherian.Basic
+module
+
+public import FormalResearch.QIA.FiniteIsotypicEuclideanRealization
+public import Mathlib.LinearAlgebra.PiTensorProduct.Finite
+public import Mathlib.RingTheory.Noetherian.Basic
 
 /-!
 # QI-A finite symmetric-power isotypic realization
@@ -18,6 +20,9 @@ Schur--Weyl theory, identify the resulting coordinates with a unitary physical
 decomposition, or discharge continuity of the coherent symmetric-power
 realization.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

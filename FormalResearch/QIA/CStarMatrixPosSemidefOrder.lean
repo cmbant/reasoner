@@ -1,5 +1,7 @@
-import Mathlib.Analysis.CStarAlgebra.CStarMatrix
-import Mathlib.Analysis.Matrix.Order
+module
+
+public import Mathlib.Analysis.CStarAlgebra.CStarMatrix
+public import Mathlib.Analysis.Matrix.Order
 
 /-!
 # QI-A raw matrix PSD and C-star-matrix spectral order
@@ -13,6 +15,9 @@ map API.
 This is only an order-transport result.  It does not itself construct a
 `CompletelyPositiveMap` and makes no CPTP claim.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

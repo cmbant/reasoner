@@ -1,6 +1,11 @@
-import Mathlib.LinearAlgebra.Dual.Lemmas
-import FormalResearch.QIA.MultiplicityProfileDimensions
-import FormalResearch.QIA.SectorLabelOnlyCodeDimension
+module
+
+public import Mathlib.LinearAlgebra.Dual.Lemmas
+public import FormalResearch.QIA.MultiplicityProfileDimensions
+public import FormalResearch.QIA.SectorLabelOnlyCodeDimension
+
+
+@[expose] public section
 
 namespace FormalResearch.QIA
 

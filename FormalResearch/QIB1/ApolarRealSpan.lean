@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIB1.ApolarCoherentKernel
+module
+
+public import Mathlib
+public import FormalResearch.QIB1.ApolarCoherentKernel
+
+
+@[expose] public section
 
 namespace FormalResearch.QIB1
 

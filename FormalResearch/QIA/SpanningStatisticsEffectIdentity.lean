@@ -1,4 +1,6 @@
-import FormalResearch.QIA.MultiplicityHermitianTracePairing
+module
+
+public import FormalResearch.QIA.MultiplicityHermitianTracePairing
 
 /-!
 # QI-A spanning-statistics effect identity
@@ -18,6 +20,9 @@ identity) and on the finite Hermitian multiplicity algebra. It does not prove
 that the physical coherent-copy family spans; that remains the source-specific
 coherent-power polarization/separation bridge.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

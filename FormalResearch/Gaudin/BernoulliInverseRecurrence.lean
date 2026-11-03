@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Gaudin.BernoulliPathMatrix
+module
+
+public import Mathlib
+public import FormalResearch.Gaudin.BernoulliPathMatrix
+
+
+@[expose] public section
 
 namespace FormalResearch.Gaudin
 

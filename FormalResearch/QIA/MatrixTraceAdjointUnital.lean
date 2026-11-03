@@ -1,4 +1,6 @@
-import FormalResearch.QIA.MatrixTraceAdjoint
+module
+
+public import FormalResearch.QIA.MatrixTraceAdjoint
 
 /-!
 # QI-A trace preservation and Heisenberg unitality
@@ -9,6 +11,9 @@ finite algebraic part of the standard Schrödinger/Heisenberg channel bridge.
 
 No positivity or complete positivity statement is made here.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

@@ -1,6 +1,11 @@
-import Mathlib
-import FormalResearch.QIB2.HammingBooleanCubePhase
-import FormalResearch.Blaschke.WalshBooleanCollapse
+module
+
+public import Mathlib
+public import FormalResearch.QIB2.HammingBooleanCubePhase
+public import FormalResearch.Blaschke.WalshBooleanCollapse
+
+
+@[expose] public section
 
 namespace FormalResearch.Bridges
 

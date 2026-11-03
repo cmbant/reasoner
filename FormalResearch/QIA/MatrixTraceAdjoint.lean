@@ -1,4 +1,6 @@
-import FormalResearch.QIA.MatrixTracePairing
+module
+
+public import FormalResearch.QIA.MatrixTracePairing
 
 /-!
 # QI-A finite matrix trace adjoint
@@ -11,6 +13,9 @@ This is purely finite-dimensional linear algebra. It does not assert
 positivity, complete positivity, trace preservation, or unitality; those are
 the physical channel properties needed separately in QI-A.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

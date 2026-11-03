@@ -1,7 +1,9 @@
-import FormalResearch.QIA.ExactRecoveryHeisenbergMemoryBound
-import FormalResearch.QIA.MatrixDensityUpperBound
-import FormalResearch.QIA.MatrixTraceAdjointPositivity
-import FormalResearch.QIA.MatrixTraceAdjointUnital
+module
+
+public import FormalResearch.QIA.ExactRecoveryHeisenbergMemoryBound
+public import FormalResearch.QIA.MatrixDensityUpperBound
+public import FormalResearch.QIA.MatrixTraceAdjointPositivity
+public import FormalResearch.QIA.MatrixTraceAdjointUnital
 
 /-!
 # QI-A exact-recovery bound for a positive trace-preserving encoding
@@ -21,6 +23,9 @@ used here.
 As in the preceding module, this is the finite channel bridge only.  It does
 not construct the QI-A symmetry-reduction encoding or a recovery channel.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

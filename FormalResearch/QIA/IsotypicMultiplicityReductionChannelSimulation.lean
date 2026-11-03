@@ -1,5 +1,7 @@
-import FormalResearch.QIA.IsotypicMultiplicityReductionCompletelyPositive
-import FormalResearch.QIA.IsotypicMultiplicityReductionPOVMLift
+module
+
+public import FormalResearch.QIA.IsotypicMultiplicityReductionCompletelyPositive
+public import FormalResearch.QIA.IsotypicMultiplicityReductionPOVMLift
 
 /-!
 # QI-A coordinate symmetry reduction as an exact channel simulation
@@ -16,6 +18,9 @@ been supplied.  It does not identify the coordinates with a physical
 compact-group representation, nor prove that the lifted effects are all and
 only the physical invariant effects.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

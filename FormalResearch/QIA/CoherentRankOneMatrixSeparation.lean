@@ -1,6 +1,8 @@
-import FormalResearch.QIA.HilbertRealizationOperatorSeparation
-import FormalResearch.QIA.HermitianInnerPairing
-import Mathlib.Analysis.Matrix.Hermitian
+module
+
+public import FormalResearch.QIA.HilbertRealizationOperatorSeparation
+public import FormalResearch.QIA.HermitianInnerPairing
+public import Mathlib.Analysis.Matrix.Hermitian
 
 /-!
 # Coherent rank-one matrix separation for QI-A
@@ -16,6 +18,9 @@ Euclidean space, a coherent vector determines the rank-one Hermitian matrix
 form.  Consequently coherent rank-one matrices separate Hermitian directions,
 and hence span the full real Hermitian matrix space.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

@@ -1,4 +1,9 @@
-import FormalResearch.QID.F4ExceptionalFacetCertificate
+module
+
+public import FormalResearch.QID.F4ExceptionalFacetCertificate
+
+
+@[expose] public section
 
 namespace FormalResearch.QID
 

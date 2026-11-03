@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # QI-A T39 sparse-witness Haar second moment
@@ -21,6 +23,9 @@ identity that identifies the symmetrized trace with an expectation, and it
 does not promote the resulting `8^m` inverse-square scale to a minimax lower
 bound, settings count, observable count, or circuit-size statement.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

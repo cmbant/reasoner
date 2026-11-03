@@ -1,4 +1,9 @@
-import FormalResearch.QIC.Endpoint14EliminationCertificateBase
+module
+
+public import FormalResearch.QIC.Endpoint14EliminationCertificateBase
+
+
+@[expose] public section
 
 namespace FormalResearch.QIC
 

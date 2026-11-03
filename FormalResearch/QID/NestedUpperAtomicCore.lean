@@ -1,4 +1,9 @@
-import FormalResearch.QID.NestedLowerWitness
+module
+
+public import FormalResearch.QID.NestedLowerWitness
+
+
+@[expose] public section
 
 namespace FormalResearch.QID
 

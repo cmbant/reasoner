@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Racah.WeylLatticeSpan
+module
+
+public import Mathlib
+public import FormalResearch.Racah.WeylLatticeSpan
+
+
+@[expose] public section
 
 namespace FormalResearch.Racah
 

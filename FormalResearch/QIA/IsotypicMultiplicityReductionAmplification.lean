@@ -1,4 +1,6 @@
-import FormalResearch.QIA.IsotypicMultiplicityBlockAmplification
+module
+
+public import FormalResearch.QIA.IsotypicMultiplicityBlockAmplification
 
 /-!
 # QI-A finite amplification of the assembled isotypic multiplicity reduction
@@ -13,6 +15,9 @@ finite reduction after isotypic coordinates have been supplied.  It is not yet
 a bundled Mathlib `CompletelyPositiveMap`, whose statement uses `CStarMatrix`
 and spectral order, and it makes no CPTP claim.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

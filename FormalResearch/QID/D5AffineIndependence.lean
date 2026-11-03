@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QID.D5CharacteristicZeroCertificate
+module
+
+public import Mathlib
+public import FormalResearch.QID.D5CharacteristicZeroCertificate
+
+
+@[expose] public section
 
 namespace FormalResearch.QID
 

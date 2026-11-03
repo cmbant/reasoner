@@ -1,7 +1,12 @@
-import Mathlib
-import FormalResearch.Bridges.B2BlaschkeSingletonSelection
-import FormalResearch.Blaschke.WronskianUnitDiskRank
-import FormalResearch.QIB2.HammingWalshWeightMultiplicity
+module
+
+public import Mathlib
+public import FormalResearch.Bridges.B2BlaschkeSingletonSelection
+public import FormalResearch.Blaschke.WronskianUnitDiskRank
+public import FormalResearch.QIB2.HammingWalshWeightMultiplicity
+
+
+@[expose] public section
 
 namespace FormalResearch.Bridges
 

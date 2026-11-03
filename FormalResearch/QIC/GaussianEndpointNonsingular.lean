@@ -1,6 +1,11 @@
-import Mathlib
-import FormalResearch.QIC.Endpoint14PolynomialIdentity
-import FormalResearch.QIC.QubitTailAllLNonvanishing
+module
+
+public import Mathlib
+public import FormalResearch.QIC.Endpoint14PolynomialIdentity
+public import FormalResearch.QIC.QubitTailAllLNonvanishing
+
+
+@[expose] public section
 
 namespace FormalResearch.QIC
 

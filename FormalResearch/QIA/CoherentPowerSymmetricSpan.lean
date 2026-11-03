@@ -1,6 +1,8 @@
-import FormalResearch.QIA.SymmetricMultilinearDiagonal
-import Mathlib.Analysis.Complex.Basic
-import Mathlib.LinearAlgebra.TensorPower.Symmetric
+module
+
+public import FormalResearch.QIA.SymmetricMultilinearDiagonal
+public import Mathlib.Analysis.Complex.Basic
+public import Mathlib.LinearAlgebra.TensorPower.Symmetric
 
 /-!
 # Coherent powers separate scalar functionals on symmetric tensor power
@@ -14,6 +16,9 @@ The result intentionally stops short of QI-A's Hermitian coherent-copy separatio
 the remaining step is the genuinely bidegree-`(n,n)` passage from a Hermitian operator's
 quadratic statistic to scalar functionals of this kind.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

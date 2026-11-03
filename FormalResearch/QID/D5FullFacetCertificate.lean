@@ -1,6 +1,11 @@
-import Mathlib
-import FormalResearch.QID.D5SupportingFacet
-import FormalResearch.QID.D5AffineIndependence
+module
+
+public import Mathlib
+public import FormalResearch.QID.D5SupportingFacet
+public import FormalResearch.QID.D5AffineIndependence
+
+
+@[expose] public section
 
 namespace FormalResearch.QID
 
