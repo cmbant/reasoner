@@ -16,8 +16,8 @@ For a cut `e : Fin 8 ≃ Fin 2 × Fin 4`, a basis matrix `K` (`8 × 3`) of `R^�
 cofactor vector `b(a)` (`PencilKernel`), `a ⊗ b(a) = L ν(a)` with the `8 × 5` matrix `curveMat`, `L` has
 rank five (`curveMat_injective`, from `cofCoeff_indep`), its columns lie in `R` (`conjTranspose_mul_curveMat`),
 so `L = B T` with `T` invertible (`curve_cut`).  `ppt3_universal_moments` assembles the three cuts and
-the two cone statements of `MomentCone`.  Everything is unconditional linear algebra; the Horodecki
-hypothesis enters only in `MomentConeGME`.
+the two cone statements of `MomentCone`.  Everything is linear algebra; the 2⊗3 PPT criterion
+(`pptSeparable23`) enters only in `MomentConeGME`.
 -/
 
 @[expose] public section
