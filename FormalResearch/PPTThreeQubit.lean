@@ -2,6 +2,14 @@ import FormalResearch.PPTThreeQubit.Basic
 import FormalResearch.PPTThreeQubit.Witness
 import FormalResearch.PPTThreeQubit.Criterion
 import FormalResearch.PPTThreeQubit.FamilyGME
+import FormalResearch.PPTThreeQubit.PartialTranspose
+import FormalResearch.PPTThreeQubit.FamilyPPT
+import FormalResearch.PPTThreeQubit.Coexistence
+import FormalResearch.PPTThreeQubit.FlatPauli
+import FormalResearch.PPTThreeQubit.Flat
+import FormalResearch.PPTThreeQubit.SurfaceWitness
+import FormalResearch.PPTThreeQubit.Surface
+import FormalResearch.PPTThreeQubit.SurfaceExtreme
 
 /-!
 # Fully-PPT three-qubit GME: the rank-five family
