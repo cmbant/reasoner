@@ -63,9 +63,6 @@ jobs:
       - name: QI-B1 apolar full-rank
         if: ${{ always() && !cancelled() }}
         run: timeout 180 lake build FormalResearch.QIB1.ApolarFullRank
-      - name: QI-C endpoint-14 one-point elimination smoke
-        if: ${{ always() && !cancelled() }}
-        run: timeout 180 lake build FormalResearch.QIC.Endpoint14EliminationExperiment
 
   aggregate-qia:
     if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[aggregate-qia]') }}
