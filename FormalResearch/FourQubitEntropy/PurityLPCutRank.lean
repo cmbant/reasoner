@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PurityLPRank
-import FormalResearch.FourQubitEntropy.PurityLPGraph
+module
+
+public import FormalResearch.FourQubitEntropy.PurityLPRank
+public import FormalResearch.FourQubitEntropy.PurityLPGraph
 
 /-!
 # Kernel-computable cut ranks
@@ -11,6 +13,9 @@ Bridges `cutRank Γ S = rank_{𝔽₂} Γ[S,S^c]` (`PurityLPGraph.lean`, a `Matr
 * `cutRankN adj S = f2rank [adj i &&& notMask S | i ∈ S]` -- computable (`decide +kernel`);
 * `cutRank_eq`: `cutRank (adjGraph adj) S = cutRankN adj S`.
 -/
+
+@[expose] public section
+
 
 open scoped BigOperators
 

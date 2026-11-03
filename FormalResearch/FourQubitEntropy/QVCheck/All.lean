@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.QVCheck.Unconditional
+module
+
+public import FormalResearch.FourQubitEntropy.QVCheck.Unconditional
 
 /-!
 # (QV), (QK) and the Rényi envelope above order one: aggregate
@@ -18,3 +20,6 @@ The unconditional proof of the certificate identity `2 D 𝔇(z) = Σ q_ki ‖Φ
   `Coupled`, `Terms`, `Placement`, `Sector`, `Bridge`, `Certificate` (`kfam_bilinear`: `checkAll … = true` implies the bilinear
   form of `K` vanishes), then `Certify` (`checkAll_true`, by `native_decide`) and `Unconditional`.
 -/
+
+@[expose] public section
+

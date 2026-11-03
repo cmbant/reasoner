@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullLHChart
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullLHChart
 
 /-!
 # Large-head dual: the Hermite quadratic is decreasing in `K`
@@ -8,6 +10,9 @@ three `K`-dependent pieces are `h(a_0,K)`, `h(1/2,K)` and `h_a(a_0,K)`; their `K
 `-v_0/(Z_0 c)`, `-1/((1+K) c)` and `q u_0 v_0/(a_0 S c Z_0²)`, and `∂_K Q ≤ 0` on `K ∈ [13/25, 1]`,
 `-d ≤ a - a_0 ≤ 33/200`, because `R = (a_0/S)^q ∈ [12/5, 5/2]`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

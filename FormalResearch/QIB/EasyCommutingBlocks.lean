@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.QIB.BlockDecomp
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockDecomp
 
 /-!
 # Commuting blocks and symmetry reduction (`prop:collapseregimes` (ii), `cor:framechirality`)
@@ -22,6 +24,9 @@ cannot increase the error").
 Not formalized: item (iii) of `prop:collapseregimes` (i.i.d.-equivalent experiments, quantum Chernoff
 theorem) and the Chernoff-information half of `cor:framechirality` (needs `thm:frameloss`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

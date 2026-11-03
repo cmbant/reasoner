@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Two-flat rigidity: the scalar core (`prop:fqe-two-flat-rigidity`, bound `(TF)`)
@@ -11,6 +13,9 @@ and equality holds when every other `u_j²` has the phase opposite to `u_i²`.
 
 Pure algebra over `ℂ`: proved, axiom-free (`propext`, `Classical.choice`, `Quot.sound`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 

@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.FrameFree.Helstrom
-import FormalResearch.FrameFree.HelstromTwirlBound
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.Helstrom
+public import FormalResearch.FrameFree.HelstromTwirlBound
 
 /-!
 # `thm:window`: the Chernoff-side lower bound `ξ_inv ≥ ½ C_K`
@@ -15,6 +17,9 @@ Namespace `FormalResearch.FrameFree.Helstrom`.
 * `eventually_half_CK_le`, `half_CK_le_liminf`: `liminf_k -(1/k) log P_e(k) ≥ ½ C_K(ψ)`.
 * `window`: both halves of `thm:window` (the upper half is `Helstrom.limsup_neg_log_Pe_le_CK`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

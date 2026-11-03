@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.QVFrame.Invariants
-import FormalResearch.FourQubitEntropy.QVCert.QVDefect
+module
+
+public import FormalResearch.FourQubitEntropy.QVFrame.Invariants
+public import FormalResearch.FourQubitEntropy.QVCert.QVDefect
 
 /-!
 # T3, atoms: `N`, `tr R_cut²`, `tr R_cut³` as permutation invariants
@@ -10,6 +12,9 @@ import FormalResearch.FourQubitEntropy.QVCert.QVDefect
 * `invG_cut12`: the invariant of the cut `{0,1}` is `Σ_x ∏_t R_{12}(x_t, x_{t+1})`;
   `atom2`, `atom3`: `k = 2, 3` give `tr R²`, `tr R³` for the three cuts (`red12`, `red13`, `red14`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open scoped Matrix

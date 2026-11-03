@@ -1,5 +1,10 @@
-import FormalResearch.FrameFree.ConverseBranch
-import FormalResearch.FrameFree.Ceilings
+module
+
+public import FormalResearch.FrameFree.ConverseBranch
+public import FormalResearch.FrameFree.Ceilings
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

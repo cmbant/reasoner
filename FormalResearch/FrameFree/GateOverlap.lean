@@ -1,4 +1,6 @@
-import FormalResearch.FrameFree.WeylVertex
+module
+
+public import FormalResearch.FrameFree.WeylVertex
 
 /-!
 # The Weyl-vertex quantity of a two-qubit gate (gate law)
@@ -20,6 +22,9 @@ find `k` with `|cos 2 v_k| ≤ δ(c)`: `exists_small`, by the classification of 
 (`clsF`), transposition (`clsP`) and 3-cycle (`clsC`) type and the trigonometric lemma `SS`.
 The maximum is attained by the double transpositions (`low_attain`).
 -/
+
+@[expose] public section
+
 
 open Finset Real
 

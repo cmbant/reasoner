@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Tradeoff
-import FormalResearch.FourQubitEntropy.IsospectralOverlap
+module
+
+public import FormalResearch.FourQubitEntropy.Tradeoff
+public import FormalResearch.FourQubitEntropy.IsospectralOverlap
 
 /-!
 # The spectral spin-flip bound for four qubits
@@ -30,6 +32,9 @@ a polynomial identity closed by `ring`). Not formalized: the attainment statemen
 Schmidt terms), the general two-parameter family of the paper's sharpness proof, and unequal local
 dimensions in the lemma. The proposition is stated for pure unit four-qubit states only.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix
 open FormalResearch.FourQubitEntropy.Isospectral

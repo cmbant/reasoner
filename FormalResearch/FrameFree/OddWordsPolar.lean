@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.OddWordsCopies
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.OddWordsCopies
 
 /-!
 # Polarization on the symmetric subspace (Paper P, `prop:oddwords` (i))
@@ -16,6 +18,9 @@ it is a polynomial `Q` in `(a, b)` with `w = a - i b`, `z = a + i b`, which vani
 (`MvPolynomial.funext`), and its coefficient at the monomial of the type of `(x₀, y₀)` is
 `(#orbit x₀)(#orbit y₀) B x₀ y₀` by the invariance, so `B x₀ y₀ = 0`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

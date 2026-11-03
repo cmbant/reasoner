@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.FlipGradient
-import FormalResearch.FourQubitEntropy.FlipPsi
+module
+
+public import FormalResearch.FourQubitEntropy.FlipGradient
+public import FormalResearch.FourQubitEntropy.FlipPsi
 
 /-!
 # `lem:fqe-flip-gradient`: the derivative of `H` along the spin-flip pencil
@@ -15,6 +17,9 @@ The identity is the polynomial identity of `FlipGradient.lean` (`8 · H4dual = R
 kernel-checked in pieces), differentiated by `hasDerivAt_generic`; `Rg w z` is the complex conjugate
 of `Rg z w` at `w = z̄`, so the derivative is the real part.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open scoped FormalResearch.FourQubitEntropy.GenericOps

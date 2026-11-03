@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Double commutant for `*`-subalgebras of `M_n(ℂ)` (elementary, via the von Neumann trick)
@@ -18,6 +20,9 @@ of `B` on `M_n(ℂ)` (`n` copies of the standard module), the orthogonal project
    (`projB_apply_eq`, `Qm_comm`), so `P` commutes with left multiplication by every `T ∈ B''`;
 3. `T = T·1 = T·P(1) = P(T·1) ∈ B`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

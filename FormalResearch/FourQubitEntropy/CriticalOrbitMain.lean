@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.CriticalOrbitPhi
+module
+
+public import FormalResearch.FourQubitEntropy.CriticalOrbitPhi
 
 /-!
 # Sharp critical-orbit stability: `thm:fqe-critical-orbit-sharp`
@@ -15,6 +17,9 @@ The only input not proved here is the all-state comparison `Q ≥ 1 - Φ`
 (`thm:fqe-global-overlap`), taken as the hypothesis `hglob` and used only when `Φ ≥ 1/2`; the
 branch `Φ ≤ 1/2` is proved by `Q_lower` (the analytic argument of `critical_orbit_stability.tex`).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.SevenQubitEigenCap497
-import FormalResearch.FourQubitEntropy.SevenQubitSpectralPairCross
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitEigenCap497
+public import FormalResearch.FourQubitEntropy.SevenQubitSpectralPairCross
 
 /-!
 # `cor:seven-entropy-eigen-cap-497` for pure seven-qubit states, cross-cut inequality discharged
@@ -9,6 +11,9 @@ as a hypothesis.  `SevenQubitSpectralPair.cross_cut` proves it for every pure un
 the hypothesis is removed.  The only remaining hypothesis is the SC-2 lower witness for
 `E₃(ψ_{7/100})` (`hwit`), which is not formalized.
 -/
+
+@[expose] public section
+
 
 open Real Finset
 

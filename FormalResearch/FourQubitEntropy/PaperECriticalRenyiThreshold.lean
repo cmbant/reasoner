@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalRenyiEq
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalRenyiEq
 
 /-!
 # Necessity of the threshold `q_b` (`lem:fqe-renyi-grouping`, `prop:fqe-cubic-bound`)
@@ -21,6 +23,9 @@ Paper E, `renyi_cubic_bound.tex`. With `q_b = 4 ln 2/(4 ln 2 - 1)` (`qb`) and `H
   (`56/81 + 2/1215 < ln 2 < 1123/1620 < 3/4`; here from Mathlib's decimal bounds on `ln 2`, not from
   the atanh series the paper quotes).
 -/
+
+@[expose] public section
+
 
 open Real Filter Topology
 

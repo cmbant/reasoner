@@ -1,8 +1,13 @@
-import FormalResearch.FourQubitEntropy.TopVector
+module
+
+public import FormalResearch.FourQubitEntropy.TopVector
 
 /-!
 # A local unitary on qubits `1,2` sending the top vector to the singlet
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

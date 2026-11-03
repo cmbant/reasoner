@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Algebra of the zeros of the critical-slice sextic
@@ -12,6 +14,9 @@ The equations (ZE) are those of the supplement's second proof of `prop:fqe-momen
 (`sec:sup-sextic-zeros`, weighted-variance identity (Z)); the paper's own proof of the proposition
 now goes through the critical envelope (`critical_envelope`, `GeneralEnvelope.lean`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.PaperECritical
 

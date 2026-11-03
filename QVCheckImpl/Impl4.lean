@@ -1,6 +1,8 @@
-import QVCheckImpl.Impl3
-import Std.Data.HashMap
-import Std.Data.HashSet
+module
+
+public import QVCheckImpl.Impl3
+public import Std.Data.HashMap
+public import Std.Data.HashSet
 
 /-!
 # The QV checker, part 4: the coupled contraction and its accumulation over the blocks (K4)
@@ -8,6 +10,9 @@ import Std.Data.HashSet
 For a covariant `t = (a, p, q, v)` and a sector `code = (A, B)` the checker computes the integer matrix `Ctil_t[u][u']` of
 `Σ_{l01} Σ_{x,y} wc vc Π^A[l01] YR[l01]` and the weighted sum `Σ_t q_t Ctil_t`; then `Ω · (Σ q_t Ctil_t) · Ξ^T = Z · Qtot`.
 -/
+
+@[expose] public section
+
 namespace QVCheck
 
 abbrev Letter := Nat × Nat × Nat × Nat

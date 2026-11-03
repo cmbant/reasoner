@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
 
 /-!
 # Layer 0 of the sharp seven-qubit purity bound: from a five-copy dual identity to `SevenPurityBound`
@@ -21,6 +23,9 @@ maps `Φ b` and the weights `C b` are *arguments*, not data), and proves the ine
 Nothing here is a certificate: the *content* of FP5-1 is the construction of `Φ_b`, `C_b` and a proof of
 `FiveCopyDualIdentity`; this file isolates the interface the later layers must meet.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix ComplexConjugate ComplexOrder
 open Finset

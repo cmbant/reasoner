@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.QIB.BlockStructure
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockStructure
 
 /-!
 # Real orthonormal bases of conjugation-closed subspaces
@@ -9,6 +11,9 @@ Namespace `FormalResearch.QIB`.  Claim class: **proved** (no hypothesis, no new 
 `exists_real_onb`: a subspace `U ⊆ ℂ^ι` closed under entrywise conjugation has an orthonormal basis of
 *real* vectors (`star g = g`) for the standard Hermitian form.  Used by `RealCoordsStructure.lean`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

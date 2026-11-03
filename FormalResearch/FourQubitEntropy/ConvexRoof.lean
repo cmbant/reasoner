@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiRankTwo
-import FormalResearch.FourQubitEntropy.Renyi
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiRankTwo
+public import FormalResearch.FourQubitEntropy.Renyi
 
 /-!
 # Convex roofs: the mixed-state ceiling
@@ -15,6 +17,9 @@ entropy (the three bipartite entanglements of formation), the Tsallis entropies 
 Rényi entropies `0 < q < 1`. The pure-only equality classification is in
 `PaperEGenConvexRoofEq.lean`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

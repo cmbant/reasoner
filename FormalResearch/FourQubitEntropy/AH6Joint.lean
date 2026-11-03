@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.AH6Sound
-import FormalResearch.FourQubitEntropy.AH6Kmin
-import FormalResearch.FourQubitEntropy.AH6Flat
-import FormalResearch.FourQubitEntropy.AH6Contact
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Sound
+public import FormalResearch.FourQubitEntropy.AH6Kmin
+public import FormalResearch.FourQubitEntropy.AH6Flat
+public import FormalResearch.FourQubitEntropy.AH6Contact
 
 /-!
 # The joint scalar majorant `lem:seven-joint-scalar-majorant` (AH-6), for the explicit polynomial `H`
@@ -10,6 +12,9 @@ Connects the real computation `stageA .. stageD3` (`AH6Model`) to the analytic i
 (`AH6Kmin`), the binary minorant (`AH6Binary`), the double factor (`AH6Flat`, `AH6Contact`), the assembly
 (`AH6Assembly`) and the kernel certificate (`AH6Sound`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

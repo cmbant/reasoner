@@ -1,8 +1,10 @@
-import FormalResearch.FourQubitEntropy.QVCheck.Certify
-import FormalResearch.FourQubitEntropy.QVCert.Reduction
-import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQV
-import FormalResearch.FourQubitEntropy.RenyiFullStateEq
-import FormalResearch.FourQubitEntropy.PaperEGenJointPurity
+module
+
+public import FormalResearch.FourQubitEntropy.QVCheck.Certify
+public import FormalResearch.FourQubitEntropy.QVCert.Reduction
+public import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQV
+public import FormalResearch.FourQubitEntropy.RenyiFullStateEq
+public import FormalResearch.FourQubitEntropy.PaperEGenJointPurity
 
 /-!
 # (QV), (QK) and their consequences, unconditionally
@@ -20,6 +22,9 @@ Trust: the axioms of every theorem here are `propext`, `Classical.choice`, `Quot
 checker run `QVCheck.checkAll_true` and for the fact `QVCheck.cArr_rowC` (the checker's array `C` is the Lean-defined
 six-copy intertwiner `QVCert.rowC`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open scoped Matrix

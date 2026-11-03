@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Statement
-import FormalResearch.FourQubitEntropy.QVCert.Positivity
+module
+
+public import FormalResearch.FourQubitEntropy.Statement
+public import FormalResearch.FourQubitEntropy.QVCert.Positivity
 
 /-!
 # The covariants and weighted norms of the (QV) certificate
@@ -22,6 +24,9 @@ Paper E, `sup_renyi.tex`, `sec:sup-qk`, proof of `thm:fqe-sharp-quadratic-varian
 * **Covariants** `Block.Phi b z i`, `Φ_ki = W_{a_k,p_k} v_ki` for the integer multiplicity vector `v_ki`, and their
   weighted squared norms `Block.normSqPhi b z i = ‖Φ_ki(z)‖²_{w_{p_k}}`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open Finset

@@ -1,5 +1,7 @@
-import FormalResearch.FrameFree.Foundations
-import FormalResearch.FrameFree.HelstromPure
+module
+
+public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.FrameFree.HelstromPure
 
 /-!
 # The frame-free error `P_e(k)` and the upper bound `ξ_inv ≤ C_K` (Paper P, `thm:window`)
@@ -23,6 +25,9 @@ Namespace `FormalResearch.FrameFree.Helstrom`.  Builds on `FrameFree.NQubit` (`�
 * `neg_log_Pe_le`, `limsup_neg_log_Pe_le_CK`: `-(1/k) log P_e(k) ≤ C_K + (log 4)/k` (all `ε`-versions) and
   `limsup_k -(1/k) log P_e(k) ≤ C_K(ψ)`: the upper half of `thm:window`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix BigOperators
 open Matrix FormalResearch.FrameFree.NQubit

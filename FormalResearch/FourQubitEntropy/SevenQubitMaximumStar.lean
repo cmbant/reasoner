@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.SevenQubitMaximumReduction
-import FormalResearch.FourQubitEntropy.SevenQubitIcoStarValue
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitMaximumReduction
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoStarValue
 
 /-!
 # The final reduction of `thm:seven-entropy-global-maximum` with `E_* = E₃(ψ_{x_*})`
@@ -13,6 +15,9 @@ Remaining hypotheses (Prop arguments): `SevenPurityBound`, the joint majorant bo
 maximum**: it is the reduction to those three hypotheses. That `E_*` is the entropy of the seven-qubit
 state `ψ_{x_*}` itself (attainment) is also not formalized here; `E3` is the family entropy function.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitConseq
 

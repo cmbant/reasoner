@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Bernstein sign certificates of the binary quartic lemma at `q_s = 1587/1000`
@@ -11,6 +13,8 @@ Paper E, `lem:fqe-binary-quartic` (`renyi_binary_quartic.tex`), BQ-3 and BQ-4 at
 * `bqdM s ξ = ∂M/∂ξ` at `q_s`; on `0 ≤ s < 1`, `s ≤ ξ ≤ 1` it is nonnegative (`bqdM_nonneg`): with
   `ξ = s + τ(1-s)` its tensor Bernstein coefficients of bidegree `(6,3)` are nonnegative on four `s`-boxes.
 -/
+
+@[expose] public section
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

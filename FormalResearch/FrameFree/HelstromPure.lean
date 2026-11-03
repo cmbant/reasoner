@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Pure-state Helstrom bound (generic finite-dimensional statement)
@@ -16,6 +18,9 @@ The proof is elementary (no trace norm, no spectral theorem): the two Cauchy-Sch
 `Re⟨a|E|b⟩² ≤ ⟨a|E|a⟩⟨b|E|b⟩` for `E` and for `1 - E` (`cs_re`), applied after aligning the phase of
 `⟨a|b⟩`, give `(⟨b|E|b⟩ - ⟨a|E|a⟩)² ≤ 1 - |⟨a|b⟩|²` (`real_ineq`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix BigOperators
 open Matrix

@@ -1,5 +1,7 @@
-import FormalResearch.FrameFree.Helstrom
-import FormalResearch.FrameFree.Ceilings
+module
+
+public import FormalResearch.FrameFree.Helstrom
+public import FormalResearch.FrameFree.Ceilings
 
 /-!
 # The support test (Paper P, `thm:supportrate`, error half) and calibration
@@ -18,6 +20,9 @@ image in its Zariski closure); here it is a hypothesis of the lemmas below, whic
 versions in `PolyImageDischarge` and `XiInvUnconditional` specialise gives `xi_ge_of_support` (`ξ_inv ≥ -log F_C`) and, with `F_C = F_K`, `tendsto_of_calibrated`
 (`-(1/k) log P_e(k) → C_K`: `cor:calibrated`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix BigOperators InnerProductSpace ComplexOrder
 open Matrix FormalResearch.FrameFree.NQubit

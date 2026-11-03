@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PurityLPMaskSum
+module
+
+public import FormalResearch.FourQubitEntropy.PurityLPMaskSum
 
 /-!
 # Rank histograms from a packed rank sum
@@ -6,6 +8,9 @@ import FormalResearch.FourQubitEntropy.PurityLPMaskSum
 A single kernel computation of the packed sum `Σ_{|S| = k} B^{rk_2 Γ[S,S^c]}` (`B = 2^16 > C(n,k)`) determines the whole
 rank histogram (`hist_of_packed`: base-`B` digits are unique) and hence the rank sum `Σ 2^{k - rk}` (`rankSum_of_hist`).
 -/
+
+@[expose] public section
+
 
 open scoped BigOperators
 

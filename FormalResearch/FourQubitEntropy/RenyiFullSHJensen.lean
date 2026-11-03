@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullBQBinary
-import FormalResearch.FourQubitEntropy.RenyiFullSliverEnt
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullBQBinary
+public import FormalResearch.FourQubitEntropy.RenyiFullSliverEnt
 
 /-!
 # Small-head dual: the head/tail Jensen estimate
@@ -9,6 +11,9 @@ Paper E, `lem:fqe-small-head-dual` (`renyi_small_head_dual.tex`), first display.
 Jensen's inequality for the logarithm gives
 `H_q(λ) ≤ 1 + h(u) - (1-w) D_q(z)`, `w = u^q/((1-u)^q+u^q)`, `z = δ²/(1-u)²`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

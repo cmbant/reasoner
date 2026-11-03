@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.EnvelopePermReal
+module
+
+public import FormalResearch.FourQubitEntropy.EnvelopePermReal
 
 /-!
 # Equality in the permanent bound, from the Gram data of `Θ`
@@ -15,6 +17,9 @@ import FormalResearch.FourQubitEntropy.EnvelopePermReal
 The cases `κ > 0` (polar decomposition `Θ = O D`, `perm_class_pos`) and `κ = 0` (`Θ = r sᵀ`,
 AM–GM, `perm_class_zero`) are treated separately, as in the paper.
 -/
+
+@[expose] public section
+
 namespace FormalResearch.FourQubitEntropy
 open Matrix
 

@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Haar-free twirl (generic finite-dimensional statement)
@@ -12,6 +14,9 @@ measure or compactness of the group is used.  Invariance of `Z` follows from uni
 minimum-norm point (`exists_fixed_point_hull`, parallelogram law) and the fact that conjugation by a
 unitary is a linear isometry of the flattened matrix space (`conjLI`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

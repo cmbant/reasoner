@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitSpectralPairCore
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitSpectralPairCore
 
 /-!
 # The equality family `ρ_r = (1-r) I/8 + r |g⟩⟨g|` of the spin-flip spectral pairing
@@ -12,6 +14,9 @@ The independence of `b(|g⟩⟨g|) = 3` of `g` is proved through the spin-flip P
 `8 tr(ρ ρ̃) = 1 - e + 2b` of `SevenQubitSpectralPairCore` together with `tr(|g⟩⟨g| ρ̃) = 0`
 (`ρ̃ = Y^{⊗3} ρᵀ Y^{⊗3}`; `Y^{⊗3}` is antisymmetric for an odd number of qubits).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 open Finset

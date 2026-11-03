@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullLowTilt
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullLowTilt
 
 /-!
 # `lem:fqe-hs-tilt`: from `(a,b,c,c)` to the one-large spectrum
@@ -9,6 +11,9 @@ spectrum.  The path is `(1/4+u+d, 1/4+u-d, 1/4-u, 1/4-u)`, `d = √((x-4u²)/2)`
 `u₁ = 1/4 - c` to `u₀ = √(x/12)`; `dt/du = 3x - 36u² ≤ 0` and `dH/dt = η > 1`
 (`path_strictAntiOn` with `hsTilt_slope_numeric`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

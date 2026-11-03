@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Unique Rains equality faces at `n = 7, 13, 19, 20` (`prop:rains-faces`, EF-7/13/19/20)
@@ -34,6 +36,9 @@ about `n = 20` Type I additive `F₄` codes (`s`-extremal enumerators), and exis
 code with the putative profile (the paper asserts none). `ℕ → ℚ` functions are only constrained on
 `0 … n`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitRains
 

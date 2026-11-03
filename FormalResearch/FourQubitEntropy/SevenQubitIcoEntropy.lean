@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoSpectrum
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoSpectrum
 
 /-!
 # Mean entropy on the seven-qubit icosahedral family
@@ -10,6 +12,9 @@ three-qubit marginals of `ψ_x` is the function `E3 x` below (`cor:ico-entropy-s
 `E3 (37/524) < E3 c`, so the purity minimiser `x = 37/524` is not the entropy maximiser even within
 the family.
 -/
+
+@[expose] public section
+
 
 open Real
 

@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.QIB.BlockRealCore
-import FormalResearch.QIB.RealCoordsStructure
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockRealCore
+public import FormalResearch.QIB.RealCoordsStructure
 
 /-!
 # Pure vectors in an isotypic sector (coordinate lemmas)
@@ -17,6 +19,9 @@ supported on sector `l` is an `a_l × b_l` matrix `Φ` (`lift l Φ`).
   (The `a_l × a_l` carrier operators `⊕ M ⊗ 1` lie in `C'`; the relation
   `(u†u)(w†w) u = (u†u)(w†u) w` for two columns `u, w` of `Φ` follows from commutativity.)
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

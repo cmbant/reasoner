@@ -1,7 +1,9 @@
-import Mathlib
-import FormalResearch.FrameFree.Foundations
-import FormalResearch.FrameFree.OneCopy
-import FormalResearch.FrameFree.TwirlsTwirl
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.FrameFree.OneCopy
+public import FormalResearch.FrameFree.TwirlsTwirl
 
 /-!
 # Odd invariants of one copy (Paper P, `prop:oddwords` (iii))
@@ -17,6 +19,9 @@ commuting with `K_π` (equivalently `A ∈ blockPermSpan π`, `commutant_eq_bloc
 (`realPerm_sub_transpose`).  The count `∑_j C(g_j, 2)` of `(iii)` and parts `(i)` and `(ii)` ("if" half) are in `OddWordsCount`, `OddWordsOddIff` and
 `OddWordsCompressed`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

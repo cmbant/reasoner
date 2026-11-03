@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.SevenQubitConseqSpectrum
-import FormalResearch.FourQubitEntropy.SevenQubitConseqEnvelope
-import FormalResearch.FourQubitEntropy.EntropyPuritySlope
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitConseqSpectrum
+public import FormalResearch.FourQubitEntropy.SevenQubitConseqEnvelope
+public import FormalResearch.FourQubitEntropy.EntropyPuritySlope
 
 /-!
 # `lem:seven-entropy-linear-purity`: the universal dimension-eight entropy-purity slope
@@ -18,6 +20,9 @@ The comparisons `7 log₂ 7/48 ≥ 49/120 ≥ 2/5` use `7⁵ > 2¹⁴`.
 
 Everything is proved (no hypotheses, no `native_decide`).
 -/
+
+@[expose] public section
+
 
 open Real Finset
 

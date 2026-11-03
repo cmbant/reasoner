@@ -1,8 +1,13 @@
-import FormalResearch.FourQubitEntropy.ColumnSide
+module
+
+public import FormalResearch.FourQubitEntropy.ColumnSide
 
 /-!
 # Normalising both cut factors to the singlet
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

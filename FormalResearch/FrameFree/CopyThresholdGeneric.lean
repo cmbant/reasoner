@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.CopyThresholdMain
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.CopyThresholdMain
 
 /-!
 # The generic threshold: separation fails only on a closed nowhere dense set (Paper P, `thm:copythreshold` (b))
@@ -19,6 +21,9 @@ polynomial in `t` (`wordPoly`), which cannot vanish on an interval and yet be no
   `b = 2` (`k₀ = 2`) and independent frames with `n ≥ 4` (`k₀ = 3`).  The null-set statement ("measure zero")
   is not formalised.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

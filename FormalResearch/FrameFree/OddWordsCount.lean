@@ -1,9 +1,11 @@
-import Mathlib
-import FormalResearch.FrameFree.OddWordsSl2Skew
-import FormalResearch.FrameFree.OddWordsFockData
-import FormalResearch.FrameFree.OddWordsGroup
-import FormalResearch.FrameFree.TwirlsOdd
-import FormalResearch.FrameFree.ScalarChirality
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.OddWordsSl2Skew
+public import FormalResearch.FrameFree.OddWordsFockData
+public import FormalResearch.FrameFree.OddWordsGroup
+public import FormalResearch.FrameFree.TwirlsOdd
+public import FormalResearch.FrameFree.ScalarChirality
 
 /-!
 # The odd-space dimension for one copy (Paper P, `prop:oddwords` (iii))
@@ -20,6 +22,9 @@ conversely a real commutant element lies in `blockPermSpan` (`OddWordsGroup`, Sc
 in the real span of the permutations (`exists_real_split`).  The dimension of the skew commutant is
 `finrank_skewComm` applied to `fockData n`.  No Specht modules or Frobenius--Schur indicators are used.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

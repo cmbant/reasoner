@@ -1,8 +1,10 @@
-import Mathlib
-import FormalResearch.FrameFree.HelstromPure
-import FormalResearch.FrameFree.HelstromLinAlg
-import FormalResearch.FrameFree.HelstromTwirl
-import FormalResearch.FrameFree.HelstromPS
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.HelstromPure
+public import FormalResearch.FrameFree.HelstromLinAlg
+public import FormalResearch.FrameFree.HelstromTwirl
+public import FormalResearch.FrameFree.HelstromPS
 
 /-!
 # Twirled Powers-Stormer bound (generic finite-dimensional statement)
@@ -18,6 +20,9 @@ positive semidefinite matrices `Z_a, Z_b` supported in `W` (`HelstromTwirl.twirl
 `½ tr(√Z_b √Z_a) ≤ ½ √(dim W · tr(Z_b Z_a))` by the Hilbert-Schmidt Cauchy-Schwarz inequality
 (`HelstromLinAlg.hs_cs`) and `tr(projMat W) = dim W`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

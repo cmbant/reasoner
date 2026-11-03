@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceQId3
-import FormalResearch.FourQubitEntropy.PaperEGoSliceHessQ
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceQId3
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceHessQ
 
 /-!
 # `thm:fqe-global-overlap` from the slice certificate
@@ -10,6 +12,9 @@ Proved: the coverage by the normal slice (`sliceNormalForm`), the positive const
 (`sexticQ_psiZ`, `eq:fqe-global-intrinsic`).  The only input is the polynomial certificate
 `GOSliceCertificate`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.GO
 open CO OD

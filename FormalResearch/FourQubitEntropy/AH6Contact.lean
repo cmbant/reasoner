@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # The contact algebra of AH-6
@@ -11,6 +13,9 @@ both first derivatives at `(b,c)`", AH-6b).  Together with the exact values of t
 `F = F_v = F_e = 0` at `(e₀, v₀)` as a rational-function identity in the atoms
 `u, ln c, ln 2, ln 3, k₀, γ, q(e₀), q'(e₀)` (all other quantities are the model's definitions); no numerical input.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SpinFlipOmega
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipOmega
 
 /-!
 # Time-reversal overlap of graph states (`thm:parity-graph`, the `τ`-criterion)
@@ -24,6 +26,9 @@ the counting statement `2^{C(m,2)}` and the identification of `τ_n = 1` with `�
 state (a combination of `tau_gs_eq_iff` with `SpinFlipPauli.tau_eq_one_iff_odd_vanish`) are *not* formalised
 as separate theorems.  Claim class: **proved**.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate BigOperators
 open FormalResearch.FrameFree.NQubit

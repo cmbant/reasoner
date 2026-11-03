@@ -1,7 +1,9 @@
-import Mathlib
-import FormalResearch.FrameFree.HelstromPure
-import FormalResearch.FrameFree.HelstromTwirl
-import FormalResearch.FrameFree.HelstromPS
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.HelstromPure
+public import FormalResearch.FrameFree.HelstromTwirl
+public import FormalResearch.FrameFree.HelstromPS
 
 /-!
 # Linear-algebra lemmas for the Chernoff-side bound
@@ -10,6 +12,9 @@ Namespace `FormalResearch.FrameFree.Helstrom`.  Closed convex sets of matrices (
 cone), the Hilbert-Schmidt Cauchy-Schwarz inequality `hs_cs`, idempotence `projMat_mul_self` and the
 trace `tr(projMat W) = dim W` (`trace_projMat`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

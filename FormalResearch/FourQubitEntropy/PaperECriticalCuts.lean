@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalNormalForm
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalNormalForm
 
 /-!
 # The three cut matrices of `G(v)`
@@ -8,6 +10,9 @@ For `G(v)` with `zmat = B diag(v) Bᵀ`, the cut `13|24` (resp. `14|23`) has the
 matrices of `sextic_identity.tex` (`prop:fqe-moment-zeros`). Consequently the three cut spectra are
 `|v|²`, `|H₊ v|²`, `|H₋ v|²`. Proved, no hypotheses, no `native_decide`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.QVEqualityBell
+module
+
+public import FormalResearch.FourQubitEntropy.QVEqualityBell
 
 /-!
 # Equality classification in (QK), `thm:fqe-quadratic-variance`
@@ -21,6 +23,9 @@ The proof follows the paper: equality forces `P ∈ {1, 3/2}` ((QV) strictly giv
 and purities `(1, 1/4, 1/4)` up to order (`eq_three_two`), i.e. the Bell spectral triple; at `P = 1` the critical
 profile (RF) of `prop:fqe-critical-variance` (`critical_qk_equality`) leaves HS or cluster spectra.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.QVEquality
 

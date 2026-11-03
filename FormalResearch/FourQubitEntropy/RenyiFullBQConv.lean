@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullBQSign
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullBQSign
 
 /-!
 # Binary quartic lemma at `q_s`: `G' > 0` and `f''' > 0`
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.RenyiFullBQSign
 `x = U - O(s⁷)` (`bqU_sub_x_le`) and the exact cancellation `N₁(s,U)·Q³ = s⁵(q-1)(1-s²)² NN(s)`
 (`bqNN`, certified by `ring`), which replaces the analyticity argument of the paper.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

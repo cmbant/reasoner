@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.GeneralEnvelope
-import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlat
+module
+
+public import FormalResearch.FourQubitEntropy.GeneralEnvelope
+public import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlat
 
 /-!
 # Sharpness of the envelope (`prop:fqe-critical-envelope`, `thm:fqe-general-envelope`)
@@ -16,6 +18,9 @@ family `Θ = O(κ I + (1-κ) s sᵀ)` for `τ > 0`) is `envelope_equality_iff` i
 (with `critical_envelope_eq_iff`, `EnvelopeCriticalClass.lean`, and `H_zero_product`,
 `EnvelopeProductZero.lean`); see `THEOREM_MAP.md`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 

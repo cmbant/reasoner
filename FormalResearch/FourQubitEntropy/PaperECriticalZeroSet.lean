@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalSextic
-import FormalResearch.FourQubitEntropy.PaperECriticalZeroAlg
-import FormalResearch.FourQubitEntropy.PaperECriticalSexticLU
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalSextic
+public import FormalResearch.FourQubitEntropy.PaperECriticalZeroAlg
+public import FormalResearch.FourQubitEntropy.PaperECriticalSexticLU
 
 /-!
 # Zero set of `F` on the critical slice
@@ -15,6 +17,9 @@ This is the classification step of the supplement's second proof of `prop:fqe-mo
 equations are (ZE)); the paper's own proof of the proposition goes through the critical envelope
 (`critical_envelope`, `GeneralEnvelope.lean`) and is not what is formalised here.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

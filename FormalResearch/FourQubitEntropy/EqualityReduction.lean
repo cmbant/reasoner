@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Attainment
+module
+
+public import FormalResearch.FourQubitEntropy.Attainment
 
 /-!
 # The equality case, first half: what entropy equality forces
@@ -6,6 +8,9 @@ import FormalResearch.FourQubitEntropy.Attainment
 If a unit vector attains the entropy bound, then `P = 1` (so `W₁ = 0` and `τ = 0`), `F = 0`, and
 each cut's reduced matrix satisfies `(R - 1/6)(R - 1/2) = 0`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

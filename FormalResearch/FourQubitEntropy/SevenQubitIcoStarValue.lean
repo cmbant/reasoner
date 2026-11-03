@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoStationarity
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoStationarity
 
 /-!
 # The decimal value of the entropy maximum on the icosahedral family, and two logarithmic constants
@@ -22,6 +24,9 @@ Also: `joint_coeff_enclosure`: `4.5786 < 6 ln 2/(15/2 - 6 ln 3) < 4.5787`, the c
 
 Not proved: the digits beyond the twelfth.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco
 

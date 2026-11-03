@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
-import FormalResearch.FourQubitEntropy.SevenQubitConseqEnvelope
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
+public import FormalResearch.FourQubitEntropy.SevenQubitConseqEnvelope
 
 /-!
 # Cut spectra of a pure seven-qubit state
@@ -9,6 +11,9 @@ Hermitian positive semidefinite `8 × 8` matrix of trace `1` whose squared eigen
 `cutPurity c ψ`.  Hence its von Neumann entropy `cutEntropy c ψ` (nats) obeys the envelope bound
 `cutEntropy c ψ ≤ g₈(cutPurity c ψ)`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 open Finset

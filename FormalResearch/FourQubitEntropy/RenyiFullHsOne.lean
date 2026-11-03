@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullTangent
-import FormalResearch.FourQubitEntropy.RenyiFullHsTilt
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullTangent
+public import FormalResearch.FourQubitEntropy.RenyiFullHsTilt
 
 /-!
 # `lem:fqe-hs-polynomial`: the one-variable supporting inequality
@@ -8,6 +10,9 @@ Paper E, `renyi_hs_analytic.tex`.  Parametrise the one-large spectrum
 `((1+3s)/4, (1-s)/4, (1-s)/4, (1-s)/4)` by `x = ((1+3s)/(1-s))^{1/5}`, i.e. by
 `(x⁵/N, 1/N, 1/N, 1/N)`, `N = x⁵ + 3`; then `p, t` are rational in `x` and `H_{8/5} = (8/3 ln N - 5/3 ln(x⁸+3))/ln 2`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

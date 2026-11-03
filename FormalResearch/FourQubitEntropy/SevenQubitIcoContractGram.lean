@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicSwap
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicSwap
 
 /-!
 # Squared reduced matrix on the cuts containing the special site
@@ -16,6 +18,9 @@ the paper's proof of `prop:entropy-seven-stationarity` no longer displays it); t
 trilinear forms is in `SevenQubitIcoContraction`.
 Status: exact certificate (kernel-checked integer identities) plus elementary algebra.
 -/
+
+@[expose] public section
+
 
 open Matrix Finset
 

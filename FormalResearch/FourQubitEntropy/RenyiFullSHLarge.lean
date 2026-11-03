@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullSHLargeCells
-import FormalResearch.FourQubitEntropy.RenyiFullSHTail
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullSHLargeCells
+public import FormalResearch.FourQubitEntropy.RenyiFullSHTail
 
 /-!
 # Small-head dual: the large tail `1/4 ≤ u ≤ 1/2`
@@ -9,6 +11,9 @@ and the polynomial certificate `shG ≥ 0`.  Writing `x = p - 1/4`, `y = Σ(λ_i
 `2 - H_q ≥ x (35/8 - (9/5) v - (159/100) x)` for `0 < x ≤ 3/32`, `0 ≤ v ≤ 9/50`.  The paper's concavity-in-`x`
 and tangent-square argument is replaced here by a single Bernstein cell on the whole rectangle.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.GOProbe.Poly
-import FormalResearch.FourQubitEntropy.GOProbe.Types
+module
+
+public import FormalResearch.FourQubitEntropy.GOProbe.Poly
+public import FormalResearch.FourQubitEntropy.GOProbe.Types
 
 /-!
 # GO certificate: block data and the reflective checker (definitions, no Mathlib)
@@ -12,6 +14,9 @@ the 48 coordinate maps (`perms` times `flips`) and compares with `48·cd·lit`. 
 that the semantics is defined for arbitrary data (soundness needs no shape assumptions).
 Soundness: `BlockSound.lean`, `Final.lean`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.GOProbe
 

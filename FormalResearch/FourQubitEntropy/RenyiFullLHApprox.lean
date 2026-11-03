@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullLHConst
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullLHConst
 
 /-!
 # The rational approximations `(LH2)` of the three `K`-dependent entropy terms
@@ -13,6 +15,9 @@ with `ĥ₀ = H₀ - 2U (v-3/4)/(2ρ+v+3/4)`, `ĥ_l = H_l - 2U (v-3/4)/(v+11/4)`
 `ĥ_a = -2qU((ρ-v)/(ρ+v) - 27/100)/(9271/10000)` and the rounded constants
 `U = 2.45774282`, `ρ = 2.40792594`, `H₀ = 1.10489073`, `H_l = 1.32818582`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

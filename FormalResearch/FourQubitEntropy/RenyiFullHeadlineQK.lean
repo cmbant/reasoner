@@ -1,9 +1,11 @@
-import FormalResearch.FourQubitEntropy.RenyiFullHeadline
-import FormalResearch.FourQubitEntropy.RenyiFullSliverProof
-import FormalResearch.FourQubitEntropy.RenyiFullHsProof
-import FormalResearch.FourQubitEntropy.RenyiFullCappedCubic
-import FormalResearch.FourQubitEntropy.RenyiFullSmallHead
-import FormalResearch.FourQubitEntropy.RenyiFullLargeHead
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullHeadline
+public import FormalResearch.FourQubitEntropy.RenyiFullSliverProof
+public import FormalResearch.FourQubitEntropy.RenyiFullHsProof
+public import FormalResearch.FourQubitEntropy.RenyiFullCappedCubic
+public import FormalResearch.FourQubitEntropy.RenyiFullSmallHead
+public import FormalResearch.FourQubitEntropy.RenyiFullLargeHead
 
 /-!
 # The Rényi envelope above order one, assuming only QK
@@ -18,6 +20,9 @@ certificate proved:
 
 The only remaining hypothesis is `QuadraticVarianceBound` (QK, `thm:fqe-quadratic-variance`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.AH6Final
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Final
 
 /-!
 # `lem:seven-joint-scalar-majorant` (AH-6): the equality set
@@ -26,6 +28,9 @@ interpolation nodes (`H_nodes`, via `hermite_stieltjes`), and `H(b,c)` is the co
 
 Nothing here is conditional: no placeholder proofs, no hypothesis beyond `InBracket x`.
 -/
+
+@[expose] public section
+
 
 open Filter Topology
 open FormalResearch.FourQubitEntropy.SevenQubitConseq.JointMajorant

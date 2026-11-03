@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PurityLPShadow
-import FormalResearch.FourQubitEntropy.PurityLPDefs
+module
+
+public import FormalResearch.FourQubitEntropy.PurityLPShadow
+public import FormalResearch.FourQubitEntropy.PurityLPDefs
 
 /-!
 # The Rains-LP dual certificate lemma (Stage 3)
@@ -18,6 +20,9 @@ decidable test `y_i ≥ 0 ∧ w_j ≥ 0 ∀ j ≤ n`.
   facts `A_0 = 1`, `A_j ≥ 0` (`SpinFlip.A_nonneg`), `a_s = a_{n-s}` (`purMean_compl`) and the shadow inequalities
   (`shadow_nonneg`).  Claim class: proved.
 -/
+
+@[expose] public section
+
 
 open scoped BigOperators
 open FormalResearch.FrameFree.NQubit

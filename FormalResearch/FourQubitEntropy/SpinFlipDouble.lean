@@ -1,4 +1,9 @@
-import FormalResearch.FourQubitEntropy.SpinFlipOmega
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipOmega
+
+
+@[expose] public section
 
 open scoped ComplexConjugate BigOperators Matrix
 open FormalResearch.FrameFree.NQubit

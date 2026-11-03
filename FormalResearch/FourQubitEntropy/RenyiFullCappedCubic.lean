@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.RenyiFullCCMoment
-import FormalResearch.FourQubitEntropy.RenyiFullCCPairs
-import FormalResearch.FourQubitEntropy.RenyiFullDetChart
-import FormalResearch.FourQubitEntropy.RenyiFullProps
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullCCMoment
+public import FormalResearch.FourQubitEntropy.RenyiFullCCPairs
+public import FormalResearch.FourQubitEntropy.RenyiFullDetChart
+public import FormalResearch.FourQubitEntropy.RenyiFullProps
 
 /-!
 # `lem:fqe-capped-cubic` (CG): proved
@@ -16,6 +18,9 @@ without hypothesis, in the following steps (`q = q_s = 1587/1000`, `x = p - 1/4`
    `bin_quartic1`, `bin_quartic2` (`RenyiFullCCBinary.lean`), consequences of the binary quartic lemma
    (`RenyiFullBQBinary.lean`: `A_q` increasing at `q_s`), combined in `cc_final_ineq`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

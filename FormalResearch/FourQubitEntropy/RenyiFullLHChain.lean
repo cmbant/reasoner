@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullLHHermite
-import FormalResearch.FourQubitEntropy.RenyiFullProps
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullLHHermite
+public import FormalResearch.FourQubitEntropy.RenyiFullProps
 
 /-!
 # The derivative chain of `h(a,K) = -ln(a^q + K(1-a)^q)/((q-1) ln 2)`
@@ -8,6 +10,9 @@ Paper E, `lem:fqe-large-head-curvature`.  With `x = 2a - 1` and
 `y = (a^q - K(1-a)^q)/(a^q + K(1-a)^q)` one has `y' = 2q(1-y²)/(1-x²)`, and the successive
 derivatives of `ln Z`, `Z = a^q + K(1-a)^q`, are the explicit rational functions `lhm1 … lhm4` of `(x, y)`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

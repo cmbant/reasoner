@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.EnvelopePermClass
-import FormalResearch.FourQubitEntropy.EnvelopeEquality
+module
+
+public import FormalResearch.FourQubitEntropy.EnvelopePermClass
+public import FormalResearch.FourQubitEntropy.EnvelopeEquality
 
 /-!
 # The Bloch correlation matrix `Θ` of a critical normal vector (`prop:fqe-critical-envelope`)
@@ -14,6 +16,9 @@ all identities below are polynomial identities in the real and imaginary parts o
 * `sexticF_Gv_perm`: `F(G(v)) = n³/2 + (7/4) τ n + (9/4) perm Θ` — the closed form of
   `eq:fqe-critical-envelope` (`F = 1/2 + 7τ/4 + 9 perm Θ / 4` for unit `v`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

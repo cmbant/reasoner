@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullDefs
-import FormalResearch.FourQubitEntropy.RenyiFullHsProof
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullDefs
+public import FormalResearch.FourQubitEntropy.RenyiFullHsProof
 
 /-!
 # Critical-locus variance profile `prop:fqe-critical-variance`: the real-algebra core
@@ -22,6 +24,9 @@ normal form).  This file is the real algebra on `(m, n)`, with no quantum conten
 
 Everything here is proved (no hypotheses, no `native_decide`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.QVEquality
 

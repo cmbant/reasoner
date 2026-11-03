@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.QIB.BlockStructure
-import FormalResearch.QIB.RealCoordsOnb
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockStructure
+public import FormalResearch.QIB.RealCoordsOnb
 
 /-!
 # Real isotypic coordinates for a conjugation-closed `*`-algebra with a real minimal vector
@@ -19,6 +21,9 @@ vector `f₀` generating a minimal `C`-invariant subspace.  Under it:
 * `exists_real_isotypic_coordinates`: the gluing, a *real* unitary `W` (`W.map conj = W`) with
   `M ∈ C ↔ ∃ X, Wᴴ M W = blockOp (fun l => Fin (a l)) X`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

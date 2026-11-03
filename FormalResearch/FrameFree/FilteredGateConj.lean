@@ -1,4 +1,6 @@
-import FormalResearch.FrameFree.FilteredGateEcho
+module
+
+public import FormalResearch.FrameFree.FilteredGateEcho
 
 
 /-!
@@ -8,6 +10,9 @@ import FormalResearch.FrameFree.FilteredGateEcho
 with `C_k = cos 2c_k`, `S_k = sin 2c_k`.  `S_gauge`: for symmetric `K = a + bσ_x + dσ_z`,
 `U (ς ⊗ K) U = ς ⊗ m + m' ⊗ ς` with `ς = σ_y` (operator-Schmidt rank two).
 -/
+
+@[expose] public section
+
 
 open scoped Matrix Kronecker ComplexConjugate
 open Finset Complex

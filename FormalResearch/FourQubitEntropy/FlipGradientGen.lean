@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.DualJet
-import FormalResearch.FourQubitEntropy.Purity
+module
+
+public import FormalResearch.FourQubitEntropy.DualJet
+public import FormalResearch.FourQubitEntropy.Purity
 
 /-!
 # The spin-flip gradient identity, written generically
@@ -18,6 +20,9 @@ computes the normal form of the derivative).
 
 `flipGradDefect z w = 8 H4dual z w - (Rg z w + Rg w z)` is identically zero (`FlipGradient.lean`).
 -/
+
+@[expose] public section
+
 
 open scoped FormalResearch.FourQubitEntropy.GenericOps
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperEGapNullBloch
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGapNullBloch
 
 /-!
 # Null-critical states: existence of the product factorisation
@@ -7,6 +9,9 @@ A unit critical normal vector `v` with `Σ v_k² = 0` is `v = B†(a ⊗ b)` for
 auxiliary-qubit factorisation of `critical_orbit_stability.tex`: `w = B v` has coefficient matrix of
 determinant `Σ v_k²/2`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

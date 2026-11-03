@@ -169,7 +169,9 @@ def check_graph(n, adj, target):
     return N, leafval, dict(sorted(hist.items()))
 
 
-HEADER = """import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenGraphCore
+HEADER = """module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenGraphCore
 
 /-!
 # Sharpness witnesses of the even-`n` purity--spin-flip tradeoff: %s
@@ -184,6 +186,8 @@ odd degree**, so that `tau (gsn Γ) = 1` (`tau_gsn_eq_one`).  `rankSumT<n>` is t
 only, by complement symmetry, `sum_cuts_half`), and `piMean_graphT<n>` the resulting `π_k = L_n + c_n`.
 Claim class: exact finite certificate (`decide +kernel`).
 -/
+
+@[expose] public section
 
 open scoped BigOperators
 open FormalResearch.FrameFree.NQubit
@@ -259,7 +263,9 @@ def lean_list(d):
 
 
 def write_certs():
-    out = ["""import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenLP
+    out = ["""module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenLP
 
 /-!
 # Dual certificates of the even-`n` purity--spin-flip tradeoff (ST-2--ST-6)
@@ -274,6 +280,8 @@ by the exact coefficientwise identity `eq:tradeoff-dual` with rational multiplie
 `w_j ≥ 0`, checked by `decide +kernel` (`lpCheckT`); the rest is `lp_tradeoff`.  Claim class: proved
 (exact-rational certificate).
 -/
+
+@[expose] public section
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 

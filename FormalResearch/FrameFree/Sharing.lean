@@ -1,6 +1,11 @@
-import FormalResearch.FrameFree.Foundations
-import FormalResearch.FrameFree.GateOverlap
-import FormalResearch.FourQubitEntropy.Attainment
+module
+
+public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.FrameFree.GateOverlap
+public import FormalResearch.FourQubitEntropy.Attainment
+
+
+@[expose] public section
 
 open scoped ComplexConjugate Matrix BigOperators Kronecker
 

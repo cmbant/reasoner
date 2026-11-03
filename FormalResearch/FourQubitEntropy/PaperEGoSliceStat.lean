@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceGen
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceGen
 
 /-!
 # `thm:fqe-global-overlap`, layer (c): first-order stationarity at a closest point
@@ -12,6 +14,9 @@ along one-parameter families of plane rotations (`rotM`, with `c² + σ² = 1`) 
 
 Elementary: each rotation gives `σ a + (c - 1) b ≤ 0` for all `c² + σ² = 1`, and `lin_zero` forces `a = 0`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

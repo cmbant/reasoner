@@ -1,7 +1,9 @@
-import FormalResearch.FrameFree.FilteredGateConj
-import FormalResearch.FrameFree.FilteredGateRot
-import FormalResearch.FrameFree.FilteredGateReal
-import FormalResearch.FrameFree.FilteredGateBiv
+module
+
+public import FormalResearch.FrameFree.FilteredGateConj
+public import FormalResearch.FrameFree.FilteredGateRot
+public import FormalResearch.FrameFree.FilteredGateReal
+public import FormalResearch.FrameFree.FilteredGateBiv
 
 
 /-!
@@ -11,6 +13,9 @@ For `T = U† (φ ⊗ φ n̂) U` the Bloch block `h_{ab} = ¼ tr[(σ_a⊗1) T (�
 matrix of `Q = C ρ C + S ρ' S` (`hh_formula`), with `ρ = rot φ`, `ρ' = rot (φ n̂)`.  Hence for
 `sin 4c_k ≥ 0` the pair bound `q_T(X₁) + q_T(X₂) ≤ 2 + 2 δ` holds (`pair_le`).
 -/
+
+@[expose] public section
+
 
 open scoped Matrix Kronecker ComplexConjugate
 open Finset Complex

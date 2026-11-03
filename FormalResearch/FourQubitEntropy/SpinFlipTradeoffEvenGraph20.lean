@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenGraphCore
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenGraphCore
 
 /-!
 # Sharpness witnesses of the even-`n` purity--spin-flip tradeoff: n = 20
@@ -13,6 +15,8 @@ odd degree**, so that `tau (gsn Γ) = 1` (`tau_gsn_eq_one`).  `rankSumT<n>` is t
 only, by complement symmetry, `sum_cuts_half`), and `piMean_graphT<n>` the resulting `π_k = L_n + c_n`.
 Claim class: exact finite certificate (`decide +kernel`).
 -/
+
+@[expose] public section
 
 open scoped BigOperators
 open FormalResearch.FrameFree.NQubit

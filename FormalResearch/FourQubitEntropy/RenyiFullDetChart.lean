@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullDetMono
-import FormalResearch.FourQubitEntropy.RenyiFullProps
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullDetMono
+public import FormalResearch.FourQubitEntropy.RenyiFullProps
 
 /-!
 # `lem:fqe-renyi-determinant`: the chart reduction, proved
@@ -16,6 +18,9 @@ Paper E, `lem:fqe-renyi-determinant` (`sup_renyi.tex`, `sec:sup-determinant`).  
 * `det_reduction`: a maximiser of the determinant on the compact set of sorted spectra with the given
   `p, t` has `c = e` (pattern `(a,b,c,c)`) or `a = b` (pattern `(a,a,b,c)`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Bridge
-import FormalResearch.FourQubitEntropy.Purity
+module
+
+public import FormalResearch.FourQubitEntropy.Bridge
+public import FormalResearch.FourQubitEntropy.Purity
 
 /-!
 # The spin flip `ψ ↦ ε^{⊗4} ψ̄` and the spin-flip pencil `ψ + ρ ψ̃`
@@ -18,6 +20,9 @@ coordinates. For every `ψ`, with `s = ψᵀ ε^{⊗4} ψ = spinFlipForm ψ`, `n
 
 No `native_decide`; kernel/`ring` only.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open scoped FormalResearch.FourQubitEntropy.GenericOps

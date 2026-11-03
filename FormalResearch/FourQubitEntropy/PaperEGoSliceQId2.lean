@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceQId
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceQId
 
 /-!
 # `eq:fqe-global-intrinsic`: `Q` of the state with magic matrix `Z`
@@ -9,6 +11,9 @@ For every `Z : Mat4`, the state `ψ_Z` with magic coordinates `Z` has
 `e₃(M M†) = ‖adj M‖²`, and the entrywise cubic identities `adj M₁₃ = α₁₃(adj Z, N)`,
 `adj M₁₄ = α₁₄(adj Z, N)` (`adj13_eq`, `adj14_eq`) with `Σ|α₁₃|² + Σ|α₁₄|² = ½(‖adj Z‖² + ‖N‖²)`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

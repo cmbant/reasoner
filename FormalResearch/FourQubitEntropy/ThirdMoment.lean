@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Sharp third-moment bound at fixed purity
@@ -15,6 +17,9 @@ The paper optimises the cubic on a round two-sphere; here the same extremal valu
 the cubic identity `3r³ - Σ wᵢ³ = Σ (wᵢ + r/2)²(3r/2 - wᵢ)` (with `wᵢ = λᵢ - 1/4`, `x = 3r²`) together
 with the bound `wᵢ ≤ 3r/2`, whose equality set is exactly the one-large pattern.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

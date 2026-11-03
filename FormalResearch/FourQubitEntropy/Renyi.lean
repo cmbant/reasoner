@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Tsallis
+module
+
+public import FormalResearch.FourQubitEntropy.Tsallis
 
 /-!
 # Rényi entropies below one
@@ -9,6 +11,9 @@ For `0 < q < 1`, the mean Rényi-`q` entropy (in bits) of the three cuts is at m
 Paper: `cor:fqe-renyi` (spectral_corollaries.tex). Proof as in the paper: concavity of `log`
 and the Tsallis bound.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

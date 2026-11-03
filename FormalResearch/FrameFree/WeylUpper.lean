@@ -1,5 +1,10 @@
-import FormalResearch.FrameFree.WeylRealisation
-import FormalResearch.FrameFree.WeylVertex
+module
+
+public import FormalResearch.FrameFree.WeylRealisation
+public import FormalResearch.FrameFree.WeylVertex
+
+
+@[expose] public section
 
 open scoped ComplexConjugate Matrix Kronecker
 open FormalResearch.FourQubitEntropy

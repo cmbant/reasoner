@@ -1,6 +1,11 @@
-import FormalResearch.FrameFree.PolyImageDischarge
-import FormalResearch.FrameFree.PsiPlusKramers
-import FormalResearch.FrameFree.Reversals
+module
+
+public import FormalResearch.FrameFree.PolyImageDischarge
+public import FormalResearch.FrameFree.PsiPlusKramers
+public import FormalResearch.FrameFree.Reversals
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

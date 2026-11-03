@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicForm
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicForm
 
 /-!
 # From the mask sum to a weighted pair sum, and the integer tables of the icosahedral tensor
@@ -16,6 +18,9 @@ Generic, state-independent part of the cut-free evaluation of `V_r(ψ)` and its 
   `U = alphaReal`, `V = betaReal`): the cubic mask sums as combinations of the eight kernel-evaluated forms
   `cfK`, used by the class files `SevenQubitIcoCubicC2/C30/C31` and by `SevenQubitIcoContraction`.
 -/
+
+@[expose] public section
+
 
 open Finset
 

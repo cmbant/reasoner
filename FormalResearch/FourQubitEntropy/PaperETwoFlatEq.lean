@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlatCore
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlatCore
 
 /-!
 # Two-flat rigidity: equality in the reverse triangle inequality (scalar core)
@@ -10,6 +12,9 @@ amplitudes have a phase opposite to the square of the largest amplitude. The sca
 `|Σ u_k²|² = (2|u_i|² - 1)²` iff for every `j ≠ i` there is `t ≥ 0` with `u_j² = -t u_i²`
 (the `⇐` direction is `tau_equality` in `PaperECriticalTwoFlatCore.lean`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 

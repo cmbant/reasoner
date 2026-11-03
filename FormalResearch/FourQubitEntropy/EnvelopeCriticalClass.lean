@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.EnvelopeTheta
+module
+
+public import FormalResearch.FourQubitEntropy.EnvelopeTheta
 
 /-!
 # `prop:fqe-critical-envelope` in full: closed form and equality classification
@@ -23,6 +25,9 @@ product `-1` and `s ∈ {±1}³/√3` (`EnvelopePermClass.lean`).
 * `critical_purity` (`P = 1 + τ/2`), `critical_moment_envelope` (the moment form of `(CE)`),
   `critical_moment_envelope_attained` (attained for every `P ∈ [1, 3/2]`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

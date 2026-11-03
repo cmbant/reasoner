@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiTwoUp
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiTwoUp
 
 /-!
 # Equality in the high-order Rényi purity deficit for `q > 2`
@@ -9,6 +11,9 @@ pattern); equality in the ceiling `E_q ≤ 5/3` holds exactly for the cluster pa
 
 Paper: `cor:fqe-renyi-two-up` (renyi_above_one.tex), the clauses on `q > 2`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

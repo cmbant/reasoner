@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.BlockForm
+module
+
+public import FormalResearch.FourQubitEntropy.BlockForm
 
 /-!
 # The structure theorem for a critical coordinate matrix with singlet top vector
@@ -6,6 +8,9 @@ import FormalResearch.FourQubitEntropy.BlockForm
 `X Xᴴ = Xᴴ X = diag(1/6, 1/6, 1/2, 1/6)` and `tr(Xᵀ X) = 0` force
 `X = s (ε P + R/√6)` with `|s| = 1`, `ε = ± i/√2` and `R` real, `R Rᵀ = Rᵀ R = 1 - P`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix
 

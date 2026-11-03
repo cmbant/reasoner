@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.QVEqualityClassify
-import FormalResearch.FourQubitEntropy.QVEqualityRFMain
-import FormalResearch.FourQubitEntropy.QVCheck.Unconditional
+module
+
+public import FormalResearch.FourQubitEntropy.QVEqualityClassify
+public import FormalResearch.FourQubitEntropy.QVEqualityRFMain
+public import FormalResearch.FourQubitEntropy.QVCheck.Unconditional
 
 /-!
 # Equality in the quadratic variance bounds (Paper E): headline statements
@@ -18,6 +20,9 @@ The `native_decide` axioms in the axiom lists of the QV-dependent theorems come 
 certificate checker behind `RenyiFull.sharpQuadraticVarianceBound`; `qk_equality_iff` (in
 `QVEqualityClassify.lean`) takes (QV) as a hypothesis.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.QVEquality
 

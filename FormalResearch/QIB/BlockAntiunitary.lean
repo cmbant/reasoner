@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.QIB.BlockDecomp
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockDecomp
 
 /-!
 # Antiunitary block formula and the blind-sector converse (`prop:antiunitary`, `prop:blind`)
@@ -21,6 +23,9 @@ Source: `QI-B/paper/invariant_discrimination_exponents.tex`, Propositions `prop:
 * `invErr_ge_blind`, `invErr_ge_multiplicity_one`: `P_e ≥ ½ Σ_{λ blind} p_λ`, in particular
   `P_e ≥ ½ Σ_{dim M_λ = 1} p_λ` (this is `prop:blind`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Total-spin ladder operators on `(ℂ²)^{⊗n}`, real matrix form (Paper P, `prop:oddwords` (iii))
@@ -12,6 +14,9 @@ across sites and multiply within a site, which gives `[Rm, Lm] = Hm` (`Rm_mul_Lm
 `[Hm, Lm] = -2 Lm` (`Hm_mul_Lm_sub`).  `Lm x y` is the indicator that `x` is `y` with one more `1`
 (`Lm_apply`); the slot permutation matrices commute with `Lm` (`rperm_mul_Lm`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

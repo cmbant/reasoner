@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.MagicCoord
+module
+
+public import FormalResearch.FourQubitEntropy.MagicCoord
 
 /-!
 # Block form of a cut matrix with singlet top vector
@@ -6,6 +8,9 @@ import FormalResearch.FourQubitEntropy.MagicCoord
 In magic coordinates, `X Xᴴ = Xᴴ X = D = diag(1/6, 1/6, 1/2, 1/6)` (the `1/2` at the singlet index)
 forces `X` to be block diagonal, `X = x₀ P ⊕ Y`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix
 

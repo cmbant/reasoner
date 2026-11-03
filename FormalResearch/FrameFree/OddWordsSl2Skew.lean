@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.FrameFree.OddWordsSkew
-import FormalResearch.FrameFree.OddWordsSl2Basis
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.OddWordsSkew
+public import FormalResearch.FrameFree.OddWordsSl2Basis
 
 /-!
 # Skew part of the `sl₂` commutant (Paper P, `prop:oddwords` (iii))
@@ -14,6 +16,9 @@ commuting operator is determined by its restrictions (`eq_zero_of_res_eq_zero`),
 string basis construction `Ysys`, and compatible with adjoints because `HW_k` is an inner product
 subspace.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

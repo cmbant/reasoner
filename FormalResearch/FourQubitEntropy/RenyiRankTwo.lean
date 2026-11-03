@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiSpec
-import FormalResearch.FourQubitEntropy.Tsallis
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiSpec
+public import FormalResearch.FourQubitEntropy.Tsallis
 
 /-!
 # Rényi envelope on a rank-two cut
@@ -12,6 +14,9 @@ maximally mixed.
 Paper: `prop:fqe-renyi-rank-two` (renyi_above_one.tex). The proof is the paper's: each of the other
 two cuts has entropy at most `log₂ 4 = 2`, and a binary vector has entropy at most `1`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

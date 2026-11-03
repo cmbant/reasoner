@@ -1,4 +1,6 @@
-import FormalResearch.FrameFree.FilteredGateT1
+module
+
+public import FormalResearch.FrameFree.FilteredGateT1
 
 
 /-!
@@ -8,6 +10,9 @@ For `W` unitary and any `C` there is a real unit `n` with `K = C n̂ ς Wᵀ` sy
 `W ⊗ C = det W · (ς ⊗ K)(φ ⊗ φ n̂)` with `φ = W̄ ς` unitary (`kr_W_C`).  `tr_reduce` and
 `fro2_reduce` move the unitary `Φ = φ ⊗ φ n̂` onto the overlap side, `T = U† Φ U`.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix Kronecker ComplexConjugate
 open Finset Complex

@@ -1,4 +1,6 @@
-import FormalResearch.FrameFree.ExchangeBoundsCartan
+module
+
+public import FormalResearch.FrameFree.ExchangeBoundsCartan
 
 /-!
 # The independent-frame exchange bounds (`thm:heis`, recalled (R8)): proved
@@ -19,6 +21,9 @@ Proof (the paper's proof of `thm:heis`, route QI-B `cor:ftg`):
 Convention check: the paper's `Ũ = U^{-1}` is `Uex (-θ)` and the Cartan coordinates are `-(t,t,t)`, `θ = 2t`
 (up to the global phase `e^{ix}`, which drops out of ratios).  No mismatch was found.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix ComplexConjugate Kronecker Real
 open FormalResearch.FrameFree.Sharing FormalResearch.FrameFree.NQubit

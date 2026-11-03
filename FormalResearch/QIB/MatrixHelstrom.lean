@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.HelstromPure
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.HelstromPure
 
 /-!
 # Matrix Helstrom identity (trace norm of a Hermitian matrix as a sum of `|eigenvalues|`)
@@ -15,6 +17,9 @@ Source: `QI-B/paper/invariant_discrimination_exponents.tex`, the Helstrom reduct
 * `exists_effect_trace_mul_eq`: the bound is attained by an effect (the negative spectral projector).
 * `trMin A B = ½(Tr A + Tr B - ‖A - B‖₁)` (the paper's `Tr min(A,B)`), `trMin_comm`, `trMin_self`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

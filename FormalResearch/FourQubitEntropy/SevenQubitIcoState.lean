@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # The seven-qubit icosahedral family's state and reduced matrices
@@ -8,6 +10,9 @@ orthogonality (`thm:ico` in `ResearchNotes/QI/seven_qubit_entanglement/icosahedr
 three-qubit reduced-matrix entries for one representative cut of each type, directly from the state
 tensor.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco
 

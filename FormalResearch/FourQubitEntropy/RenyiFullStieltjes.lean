@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # A Stieltjes representation of `x^q`, `1 < q < 2`
@@ -13,6 +15,9 @@ Here the same monotonicity is obtained without roots, from the Stieltjes (Bernst
 for `1 < q < 2` and `x ≥ 0` (`stieltjes_rpow`): the kernel is a mixture of `x²/(x+s)`, whose sum over the
 four eigenvalues depends on the spectrum only through the determinant (`RenyiFullDetMono.lean`).
 -/
+
+@[expose] public section
+
 
 open MeasureTheory Set
 

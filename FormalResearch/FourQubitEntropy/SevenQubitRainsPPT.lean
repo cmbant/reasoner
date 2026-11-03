@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Two-copy PPT formulation of the Rains LP: the local-flip identity and the generating identity
@@ -32,6 +34,9 @@ of `T(F_S)` with `∏_{i∈S}(1 - F_i)` for `n > 2` (the tensor-factor property 
 conjugation; `hT` is a hypothesis of `generating_identity`), the shadow-coefficient identity `S_{n-r} = 2^n tr(X R_r)`,
 twirling, and the bijection between twirled operators and LP points.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitRainsPPT
 

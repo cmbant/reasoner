@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceOrbit
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceOrbit
 
 /-!
 # `thm:fqe-global-overlap`, layer (d): the positive constraints at a closest point
@@ -15,6 +17,9 @@ Proved from `IsFrame` (a closest point of `𝓜` at `Z_*`): the height inequalit
 The height Hessian `H ⪰ 0` is **not** proved here: `FrameHess` is the named hypothesis, and
 `frame_constraints` assembles `SliceConstraints` from it.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

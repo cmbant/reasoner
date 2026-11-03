@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceStat
-import FormalResearch.FourQubitEntropy.PaperEGoSliceFrame
-import FormalResearch.FourQubitEntropy.PaperEGoSliceMain
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceStat
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceFrame
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceMain
 
 /-!
 # `thm:fqe-global-overlap`, layer (b)/(c): the 19-coordinate normal slice
@@ -16,6 +18,9 @@ and phase, a representative `sState v` on the 19-coordinate slice at which `Z_*`
   `Z_*` (`frame_rotate`), after which the relations and the diagonality give the 19 coordinates
   (`slice_of_rel`).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

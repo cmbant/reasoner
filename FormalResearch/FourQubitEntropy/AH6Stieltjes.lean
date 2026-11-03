@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.AH6Newton
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Newton
 
 /-!
 # The Stieltjes remainder identity for `g(e) = negMulLog (e/8)`
@@ -10,6 +12,9 @@ For `r < 1`, `κ_r = 1/ρ² - e/(8ρ) - (8r/ρ²)/D_r` (`ρ = 1-r`) is affine pl
 `phi_remainder` its Newton interpolant on the three double nodes has the remainder
 `κ_r(e) - N_r(e) = -8 r ρ⁴ q(e)²/(D_r(e) D_r(n₁)² D_r(n₂)² D_r(n₃)²)` (`kap_remainder`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

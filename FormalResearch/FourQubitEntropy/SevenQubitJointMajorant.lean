@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitEigenCap497Pure
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitEigenCap497Pure
 
 /-!
 # `prop:seven-joint-entropy-target`, matrix part (conditional on the scalar majorant; AH-6 is `AH6Final`)
@@ -44,6 +46,9 @@ Entropies are in nats: `f = Real.negMulLog`.
   the equality `𝒫₅(φ_s) = E_*` on the seven candidates (`lem:seven-joint-spinflip`
   is only partly in `SevenQubitJointSpinFlip`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 open Finset Real

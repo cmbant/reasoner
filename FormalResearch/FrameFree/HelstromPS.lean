@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Powers-Stormer test (generic finite-dimensional statement)
@@ -9,6 +11,9 @@ Namespace `FormalResearch.FrameFree.Helstrom`.  For positive semidefinite `X, Y`
 with every `B` commuting with both `X` and `Y`.  With `X² = σ`, `Y² = ρ` this is the Powers-Stormer
 inequality `tr(ρ P) + tr(σ (1-P)) ≤ tr(√ρ √σ)` in the form used for the Chernoff-side lower bound.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

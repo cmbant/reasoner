@@ -1,4 +1,9 @@
-import FormalResearch.FrameFree.ConverseM4
+module
+
+public import FormalResearch.FrameFree.ConverseM4
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

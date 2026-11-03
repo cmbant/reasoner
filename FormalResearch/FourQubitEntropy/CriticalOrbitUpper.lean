@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.CriticalOrbitLocal
-import FormalResearch.FourQubitEntropy.CriticalOrbitConj
-import FormalResearch.FourQubitEntropy.CriticalOrbitBirkhoff
+module
+
+public import FormalResearch.FourQubitEntropy.CriticalOrbitLocal
+public import FormalResearch.FourQubitEntropy.CriticalOrbitConj
+public import FormalResearch.FourQubitEntropy.CriticalOrbitBirkhoff
 
 /-!
 # Critical-orbit stability: the upper bound `Φ(G(v)) ≤ max_a qH a v`
@@ -10,6 +12,9 @@ For a unit `v` and `B` with `qH a v ≤ B` for the 32 representatives, `Φ(G(v))
 `s ∑_{ik} conj(v_i) η_k O₁_{ik} O₂_{ik}` (`ip_Gv_localApply`), `sbirk` bounds it by the signed
 permutation sums, and each of those is a representative overlap (`signed_perm`).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.FilteredGateReal
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.FilteredGateReal
 
 /-!
 # Filtered-gate law: rank-two Cauchy--Schwarz for a Hermitian-form hypothesis
@@ -9,6 +11,9 @@ import FormalResearch.FrameFree.FilteredGateReal
 `e₁, e₂`.  (Includes the flat case `R Rᴴ = κ I`, `D = 2κ`.)  Proof: Gram--Schmidt
 on `x₁, x₂`, then Cauchy--Schwarz term by term (`rk2H_orth`).
 -/
+
+@[expose] public section
+
 
 open scoped Matrix ComplexConjugate BigOperators
 open Finset

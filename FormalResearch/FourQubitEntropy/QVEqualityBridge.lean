@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.QVEqualityCore
-import FormalResearch.FourQubitEntropy.PaperETwoFlatTF
-import FormalResearch.FourQubitEntropy.PaperEGapTwoFlatQF
+module
+
+public import FormalResearch.FourQubitEntropy.QVEqualityCore
+public import FormalResearch.FourQubitEntropy.PaperETwoFlatTF
+public import FormalResearch.FourQubitEntropy.PaperEGapTwoFlatQF
 
 /-!
 # The critical bridge: cut spectra of a critical unit state in `(m, n)` coordinates
@@ -14,6 +16,9 @@ unit vectors and the three cut spectra `|v|²`, `|H₊ v|²`, `|H₋ v|²` are `
 `Σ a² = Σ b² = 1/2`, `Σ a b = 0`, with explicit cofactors (found by linear algebra over `ℚ`, checked here
 by `linear_combination`).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

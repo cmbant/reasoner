@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.QIB.BlockDecomp
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockDecomp
 
 /-!
 # Block coordinates: a non-vacuity example and the rank-one reduction
@@ -19,6 +21,9 @@ Namespace `FormalResearch.QIB`.  Claim class: **proved** (finite linear algebra)
   representation theory of `SL₂(ℂ)`, formalized in `TwoQubitsSl2Kernel`, `TwoQubitsStabiliser` and
   `TwoQubitsProp`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

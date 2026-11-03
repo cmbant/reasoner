@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Stability
+module
+
+public import FormalResearch.FourQubitEntropy.Stability
 
 /-!
 # Sharpness of the Tsallis range
@@ -9,6 +11,9 @@ import FormalResearch.FourQubitEntropy.Stability
 Paper: "Sharpness of the Tsallis range" paragraph after `cor:fqe-tsallis`
 (spectral_corollaries.tex).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

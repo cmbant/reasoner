@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.RenyiFullNUCells
-import FormalResearch.FourQubitEntropy.RenyiFullTaylor
-import FormalResearch.FourQubitEntropy.RenyiFullHZ
-import FormalResearch.FourQubitEntropy.ThirdMoment
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullNUCells
+public import FormalResearch.FourQubitEntropy.RenyiFullTaylor
+public import FormalResearch.FourQubitEntropy.RenyiFullHZ
+public import FormalResearch.FourQubitEntropy.ThirdMoment
 
 /-!
 # `lem:fqe-near-uniform-dual` (NU): proved
@@ -19,6 +21,9 @@ Paper E, `lem:fqe-near-uniform-moment` and `lem:fqe-near-uniform-dual` (`sup_ren
    certificate `nuG_nonneg` (`RenyiFullNUCells.lean`) give `2 - H_q ≥ (c+d)x - b y - γx²`;
 5. `Λ_θ(c₂) - Λ_θ(λ) = 2 - H_q - c x + b y + γ x²` finishes (`d = 1/125`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

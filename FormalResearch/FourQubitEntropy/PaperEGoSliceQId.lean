@@ -1,10 +1,15 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceMain
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceMain
 
 /-!
 # `eq:fqe-global-intrinsic`: `Q` of a state from its magic matrix (general `Z`)
 
 The adjugate route to `sexticQ (ψ_Z) = 27 n tr[(ZZ†)²] - 18 tr[(ZZ†)³] - 18 ‖ZZᵀZ - sZ/2‖² - 4 n³`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

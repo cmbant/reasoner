@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Exact arithmetic of paper P's corollaries
@@ -9,6 +11,9 @@ the eight-qubit and extensive reversals (`cor:calgeom-spin1extensive`), the univ
 bound (`cor:fourdecoh`), the marginal region of `conj:maxchiral`, and the exact success probabilities
 of the three- and four-copy tests (Section 6).
 -/
+
+@[expose] public section
+
 
 open Real
 

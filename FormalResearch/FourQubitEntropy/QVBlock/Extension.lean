@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.QVBlock.Symmetriser
-import FormalResearch.FourQubitEntropy.QVBlock.Blk
+module
+
+public import FormalResearch.FourQubitEntropy.QVBlock.Symmetriser
+public import FormalResearch.FourQubitEntropy.QVBlock.Blk
 
 /-!
 # Extending the block representation from generators (QV block calculus, T5)
@@ -9,6 +11,9 @@ If an invertible `C` satisfies `C Π_s = Blk(ρ₀ s) C` for generators `s` of `
 `C Π_g = Blk(ρ g) C` for all `g` (`exists_blockRep`).  `kronRep ρ p` is the tensor-product
 representation `⊗_q ρ(·)(p q)` on the multiplicity space of the spin tuple `p`.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix BigOperators
 

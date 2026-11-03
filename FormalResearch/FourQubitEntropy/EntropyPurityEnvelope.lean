@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitConseqMajorant
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitConseqMajorant
 
 /-!
 # `lem:seven-fixed-purity-envelope`: the entropy envelope at fixed purity, every dimension `d ≥ 2`
@@ -23,6 +25,9 @@ equals its value `g_d(p)` on the spike.  For the equality case the majorant is s
 
 Everything is proved (no hypotheses).  The `d = 8` instance is `SevenQubitConseq.entropy_le_g8`.
 -/
+
+@[expose] public section
+
 
 open Real Finset
 

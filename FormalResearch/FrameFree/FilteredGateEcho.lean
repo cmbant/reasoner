@@ -1,4 +1,6 @@
-import FormalResearch.FrameFree.FilteredGateBasic
+module
+
+public import FormalResearch.FrameFree.FilteredGateBasic
 
 /-!
 # Filtered-gate law: the Pauli echoes
@@ -6,6 +8,9 @@ import FormalResearch.FrameFree.FilteredGateBasic
 For `U = U_c` the Pauli echoes `(A,B,C) = (1, σ_j, σ_j)` and `(σ_j, 1, σ_j)` at `W = 1` give
 `|Tr[U(A⊗B)U(W⊗C)]|² = (1 ± cos 4c_j) · 2‖(A⊗B)U(W⊗C)‖_F²`, with `‖·‖_F² = 4`.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix Kronecker ComplexConjugate
 open Finset Complex

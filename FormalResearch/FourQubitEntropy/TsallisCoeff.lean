@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.HermiteBound
+module
+
+public import FormalResearch.FourQubitEntropy.HermiteBound
 
 /-!
 # The Tsallis coefficient inequality (T)
@@ -12,6 +14,9 @@ bounds `16/15 < log 3 < 8/7`. On `[0, 10/21]`, `D ≥ 75`, so `ℓ' > 0`; on `[1
 `ℓ' < 0`; on `[10/21, 1]`, `ℓ'` is strictly decreasing so `ℓ` is concave, and
 `ℓ(10/21) > 0 = ℓ(1)`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

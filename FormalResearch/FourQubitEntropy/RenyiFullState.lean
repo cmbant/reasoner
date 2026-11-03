@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullEnvelope
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullEnvelope
 
 /-!
 # The Rényi envelope for pure four-qubit states, `q > 1`
@@ -14,6 +16,9 @@ norms, QG) that is **not** formalised; it enters as an explicit hypothesis, neve
 * `meanRenyi_envelope`: from `ClassicalRelaxation` and `QuadraticVarianceBound`, for every unit `ψ`
   and every `q > 1`, `meanRenyi q ψ ≤ max {hsRenyi q, 5/3}`, with the spectral equality clauses.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

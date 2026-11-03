@@ -1,6 +1,11 @@
+module
+
 /-!
 # Loop combinators and parsing for the QV checker (core Lean only)
 -/
+
+@[expose] public section
+
 namespace QVCheck
 
 /-- Identity that the compiler cannot see through: used to make top-level checks depend on their `Unit` argument, so that

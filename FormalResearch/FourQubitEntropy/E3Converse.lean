@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.Corollaries
-import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
-import FormalResearch.FourQubitEntropy.Renyi
+module
+
+public import FormalResearch.FourQubitEntropy.Corollaries
+public import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
+public import FormalResearch.FourQubitEntropy.Renyi
 
 /-!
 # `cor:fqe-e3`: the equality case, both directions
@@ -10,6 +12,9 @@ orbits attain `5/36`. Here the converse: for a unit vector, `Σ_j e₃(ρ_{1j}) 
 `F = 0`, and by the classification of the zeros of `F` (`moment_zeros`, three of whose five orbits have
 `P = 3/2`) the vector lies in an orbit of `M₄` or `conj M₄`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

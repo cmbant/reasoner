@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # The real inequality of the sharp critical-orbit stability (`CO-2`)
@@ -20,6 +22,9 @@ Everything here is a statement about real numbers.  The normalised critical vect
 polynomials `P₁, P₂` on `[3/5,16/25]`, `[16/25,19/25]` (`X_nonneg`).  No numerics beyond rational polynomial
 inequalities in one variable.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.CO
 

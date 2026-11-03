@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Transfer
+module
+
+public import FormalResearch.FourQubitEntropy.Transfer
 
 /-!
 # Dual numbers and jets: differentiating a generic polynomial expression
@@ -17,6 +19,9 @@ A generic expression `E` of `Generic.lean` is evaluated in any `RingOps` type. H
 `hasDerivAt_generic` is the only analytic statement; everything else is bookkeeping for `OpsHom`.
 No `native_decide`, no axioms.
 -/
+
+@[expose] public section
+
 
 open scoped FormalResearch.FourQubitEntropy.GenericOps
 

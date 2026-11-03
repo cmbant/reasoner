@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperEGapNullBloch
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGapNullBloch
 
 /-!
 # Null-critical states: the 32 overlaps in Bloch coordinates
@@ -8,6 +10,9 @@ of `v` with the `a`-th representative `η_a` of `𝓗` is
 `q_a = (1 + ε_a·r/√3)(1 + η'_a·s/√3)/4` (`qH_vOf`), where `(ε_a, η'_a)` are the cube vertices of opposite
 parity `epsT a, etaT a`.  Exact polynomial identities, checked per representative.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

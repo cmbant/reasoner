@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullSHLargeTail
-import FormalResearch.FourQubitEntropy.RenyiFullRD
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullSHLargeTail
+public import FormalResearch.FourQubitEntropy.RenyiFullRD
 
 /-!
 # `lem:fqe-small-head-dual`: proved
@@ -11,6 +13,9 @@ With `u = 2c`, `δ = a - b` the chart is `((1-u+δ)/2, (1-u-δ)/2, u/2, u/2)`, `
 the small tail `u ≤ 1/4` is `sh_small_tail` (head/tail Jensen, `D_q` bound, `A_q` staircase, quartic bounds) and the
 large tail `u ≥ 1/4` is `sh_large_tail` (near-uniform moment bound and one Bernstein cell).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

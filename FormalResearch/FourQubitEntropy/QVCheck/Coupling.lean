@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Generic linear algebra of the coupled contraction (K3, K4)
@@ -14,6 +16,9 @@ For matrices over a commutative ring `R` on finite index types `ιA`, `ιB`:
 * `S4` is bilinear in `(W, V)` and linear in `P`, `R'` (`S4_add_left`, ...), and evaluates on elementary matrices
   (`S4_single`).
 -/
+
+@[expose] public section
+
 
 open Finset
 open scoped Matrix

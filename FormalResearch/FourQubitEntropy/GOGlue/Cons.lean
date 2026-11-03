@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.GOGlue.Hess
-import FormalResearch.FourQubitEntropy.GOGlue.Ray
-import FormalResearch.FourQubitEntropy.GOProbe.Final
+module
+
+public import FormalResearch.FourQubitEntropy.GOGlue.Hess
+public import FormalResearch.FourQubitEntropy.GOGlue.Ray
+public import FormalResearch.FourQubitEntropy.GOProbe.Final
 
 /-!
 # GO glue: the 64 constraint matrices of the certificate and their positivity
@@ -14,6 +16,9 @@ that at a slice point with `SliceConstraints` the matrix `S(y)` is positive semi
 frames).  The generated `cons` equals `CSpec.mat` up to a positive factor: `GOGlue/DataCheck`.
 Claim class: proved.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

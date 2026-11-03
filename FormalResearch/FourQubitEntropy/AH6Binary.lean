@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # The binary entropy correction of AH-6: average identity and cubic Hermite minorant
@@ -14,6 +16,9 @@ Source: `ResearchNotes/QI/seven_qubit_entanglement/joint_entropy_analytic_proof.
   power series termwise at `z₀ = 1/9` (the paper's argument: `Φ⁗ > 0` and the Hermite error), with the two
   series values `Φ(1/3) = (5/3) ln 2 - ln 3` and `Φ'(1/9) = (3/4) ln 2`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

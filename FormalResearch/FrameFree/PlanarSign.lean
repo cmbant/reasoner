@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # The planar sign inequality
@@ -34,6 +36,9 @@ The proof is not the zonotope/variational argument of the paper but an elementar
   of three planar vectors (`gram_det`, `gram_aux`) forces `(2 Re (v_i v̄_j))² = ‖v‖⁴`.
   `planar_sign_equality_of` is the converse.
 -/
+
+@[expose] public section
+
 
 open Real
 

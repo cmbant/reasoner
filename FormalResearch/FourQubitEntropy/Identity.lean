@@ -1,11 +1,13 @@
-import FormalResearch.FourQubitEntropy.IdentityVars
-import FormalResearch.FourQubitEntropy.IdentityCertF
-import FormalResearch.FourQubitEntropy.IdentityCertNW
-import FormalResearch.FourQubitEntropy.IdentityCertPair
-import FormalResearch.FourQubitEntropy.IdentityCertRes0
-import FormalResearch.FourQubitEntropy.IdentityCertRes1
-import FormalResearch.FourQubitEntropy.IdentityCertRes2
-import FormalResearch.FourQubitEntropy.IdentityCertRes3
+module
+
+public import FormalResearch.FourQubitEntropy.IdentityVars
+public import FormalResearch.FourQubitEntropy.IdentityCertF
+public import FormalResearch.FourQubitEntropy.IdentityCertNW
+public import FormalResearch.FourQubitEntropy.IdentityCertPair
+public import FormalResearch.FourQubitEntropy.IdentityCertRes0
+public import FormalResearch.FourQubitEntropy.IdentityCertRes1
+public import FormalResearch.FourQubitEntropy.IdentityCertRes2
+public import FormalResearch.FourQubitEntropy.IdentityCertRes3
 
 /-!
 # The sextic identity as a polynomial identity
@@ -32,6 +34,9 @@ import one another in a chain, only so that `lake` builds them one at a time: do
 `lake build` runs them in parallel, each with its own kernel memory. A machine with 16 GB of RAM is
 comfortable; see `THEOREM_MAP.md` for the per-file measurements.
 -/
+
+@[expose] public section
+
 
 open scoped FormalResearch.FourQubitEntropy.GenericOps
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.QVEqualityCore
+module
+
+public import FormalResearch.FourQubitEntropy.QVEqualityCore
 
 /-!
 # Equality case of `prop:fqe-critical-variance` (RF): the real-algebra core
@@ -8,6 +10,9 @@ Paper E, `renyi_compatibility.tex`.  For `0 < s < 1` equality `F = (3/2)s² - s�
 (the upper sign of the cubic discriminant identity, `triple_structure`), and `κ > 0`
 (`rf_equality_core`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.QVEquality
 

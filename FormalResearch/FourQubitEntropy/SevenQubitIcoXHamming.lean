@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Hamming-ball Schmidt rank (`thm:hamming-ball-schmidt`, HB-0) and the `(7,3,2)` case (LE-5)
@@ -24,6 +26,9 @@ a matrix `M : (Fin k → Bool) → (Fin m → Bool) → ℝ`; it lies in the Ham
   `thm:low-excitation-exclusion` (the monotonicity step `robust_purity_mono` and the block
   Cauchy-Schwarz bound are in `SevenQubitIcoXBlockPurity`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco
 

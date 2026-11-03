@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.EqualityReduction
+module
+
+public import FormalResearch.FourQubitEntropy.EqualityReduction
 
 /-!
 # Local unitaries on a four-qubit vector
@@ -6,6 +8,9 @@ import FormalResearch.FourQubitEntropy.EqualityReduction
 A vector `ψ` is viewed as the `4×4` matrix `Z = zmat ψ`, with rows indexed by qubits `1,2` and
 columns by qubits `3,4`. A local unitary `a ⊗ b ⊗ c ⊗ d` acts as `Z ↦ (a ⊗ b) Z (c ⊗ d)ᵀ`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

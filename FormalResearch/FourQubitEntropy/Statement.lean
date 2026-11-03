@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Statements about a four-qubit vector
@@ -9,6 +11,9 @@ Definitions in ordinary Mathlib terms: reduced matrices, the moment quantities `
 A vector is `ψ : Fin 2 → Fin 2 → Fin 2 → Fin 2 → ℂ`, `ψ a b c d` being the amplitude of
 `|a b c d⟩` on qubits `1,2,3,4`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 

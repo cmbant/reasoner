@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.EqualityConverse
+module
+
+public import FormalResearch.FourQubitEntropy.EqualityConverse
 
 /-!
 # The magic basis
@@ -6,6 +8,9 @@ import FormalResearch.FourQubitEntropy.EqualityConverse
 `B` has the magic basis `m₁ … m₄` of two qubits as columns, indexed by pairs (the column `(1,0)` is the
 singlet). Coordinates of a cut matrix are `X = Bᴴ Z B̄`, so `Z = B X Bᵀ`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Stability
+module
+
+public import FormalResearch.FourQubitEntropy.Stability
 
 /-!
 # Further short corollaries of the moment inequality
@@ -14,6 +16,9 @@ import FormalResearch.FourQubitEntropy.Stability
 * `swap23_M4`: the transposition of qubits `2, 3` maps `M₄` to `ω · conj M₄`
   (`rem:fqe-single-orbit`, entropy_maximum.tex).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

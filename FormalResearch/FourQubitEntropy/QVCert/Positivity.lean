@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.QVCert.Data
+module
+
+public import FormalResearch.FourQubitEntropy.QVCert.Data
 
 /-!
 # The positivity layer of the (QV) certificate
@@ -11,6 +13,9 @@ QVA-2), so every summand is a positive multiple of a weighted squared norm.
 * `blk`, `Block.q`, `weights_pos`: the 95 concrete weights `q_ki` are positive (kernel-checked, `decide +kernel`;
   integers of up to 24 digits).
 -/
+
+@[expose] public section
+
 
 open Finset
 

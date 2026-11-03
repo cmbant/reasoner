@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullSHJensen
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullSHJensen
 
 /-!
 # Small-head dual: numerical bounds for the binary entropy and `A_q`
@@ -7,6 +9,9 @@ Paper E, `lem:fqe-small-head-dual`.  `binH_le_of_exp` turns a rational lower bou
 `u^q + (1-u)^q` and a Taylor bound of the exponential into `binH ≤ τ`; `bqA_ge_of_binH` converts it
 into `a ≤ A_q(u)`.  Also `A_q ≥ 0` near zero.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

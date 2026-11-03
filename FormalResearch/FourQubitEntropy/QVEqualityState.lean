@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.QVEqualityCritical
-import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQV
-import FormalResearch.FourQubitEntropy.PaperEGenJointPurity
+module
+
+public import FormalResearch.FourQubitEntropy.QVEqualityCritical
+public import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQV
+public import FormalResearch.FourQubitEntropy.PaperEGenJointPurity
 
 /-!
 # `prop:fqe-critical-variance` for states, and equality in (QK) at `P = 1`
@@ -12,6 +14,9 @@ Paper E, `renyi_compatibility.tex` (`prop:fqe-critical-variance`, (RF)) and `qua
 * `critical_rf`: `P = 1` gives `s ∈ [0,1]` with `s⁴ = 24 V_P` and `F ≥ (3/2)s² - s³` (RF);
 * `critical_qk_equality`: `P = 1` and `F² = 6 V_P` force HS or cluster cut spectra.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.QVEquality
 

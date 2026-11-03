@@ -1,4 +1,6 @@
-import FormalResearch.FrameFree.Foundations
+module
+
+public import FormalResearch.FrameFree.Foundations
 
 /-!
 # Real representatives of three-qubit vectors (`RealRep3`)
@@ -17,6 +19,9 @@ Every three-qubit vector lies in the `GL(2,ℂ)³`-orbit of a real vector (Dür-
 `Real3 ψ` says `rot ![A,B,C] ψ` is real for some invertible `A, B, C`; `realRep3_core` is the statement of
 `Ceilings.RealRep3`.  Everything is proved (no new axioms).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix BigOperators
 open FormalResearch.FrameFree.NQubit

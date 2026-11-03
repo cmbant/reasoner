@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullClassical
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullClassical
 
 /-!
 # The Rényi envelope above one for triples and states: `cor:fqe-renyi-gw`, `q > 1`
@@ -19,6 +21,9 @@ The identification of states with HS cut spectra with the LU orbits of `M₄`, `
 `PaperECritical.moment_zeros`; the identification of the cluster triple with the cluster-to-Bell
 family (`prop:fqe-two-flat-rigidity`, the (QF) step) is not formalised.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

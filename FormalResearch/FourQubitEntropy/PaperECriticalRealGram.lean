@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalGram
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalGram
 
 /-!
 # Simultaneous real singular values (`lem:fqe-real-gram`), square case
@@ -16,6 +18,9 @@ real vector; the real vectors are completed to a real orthonormal basis.
 
 All statements are proved (no hypotheses, no `native_decide`).
 -/
+
+@[expose] public section
+
 
 open scoped Matrix ComplexConjugate
 

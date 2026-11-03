@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SpinFlipOddSector
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipOddSector
 
 /-!
 # The GHZ state has vanishing odd-weight Pauli weights below full weight
@@ -14,6 +16,9 @@ expectation only if `j` is even; hence `A_j(GHZ_n) = 0` for odd `j < n`.
 
 Claim class: **proved**.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate BigOperators
 open FormalResearch.FrameFree.NQubit

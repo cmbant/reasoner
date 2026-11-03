@@ -1,7 +1,12 @@
-import FormalResearch.FourQubitEntropy.QVFrame.Basic
-import FormalResearch.FourQubitEntropy.QVFrame.Twist
-import FormalResearch.FourQubitEntropy.QVFrame.Gram
-import FormalResearch.FourQubitEntropy.QVFrame.Invariants
-import FormalResearch.FourQubitEntropy.QVFrame.Atoms
-import FormalResearch.FourQubitEntropy.QVFrame.Defect
-import FormalResearch.FourQubitEntropy.QVFrame.Assembly
+module
+
+public import FormalResearch.FourQubitEntropy.QVFrame.Basic
+public import FormalResearch.FourQubitEntropy.QVFrame.Twist
+public import FormalResearch.FourQubitEntropy.QVFrame.Gram
+public import FormalResearch.FourQubitEntropy.QVFrame.Invariants
+public import FormalResearch.FourQubitEntropy.QVFrame.Atoms
+public import FormalResearch.FourQubitEntropy.QVFrame.Defect
+public import FormalResearch.FourQubitEntropy.QVFrame.Assembly
+
+
+@[expose] public section

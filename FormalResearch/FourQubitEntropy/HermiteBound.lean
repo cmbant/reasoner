@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # The cubic majorant of `-x ln x`
@@ -11,6 +13,9 @@ Proof. For `x > 0` write `h(x) - f(x) = x φ(x)` with `φ(x) = ln x + a x² + b 
 `φ'(x) = 2a (x - 1/6)(x - s)(x - 1/2) / x²` with `1/6 < s < 1/2`, so `φ` decreases to `1/6`,
 increases to `s`, decreases to `1/2` and increases after it, and `φ(1/6) = φ(1/2) = 0`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

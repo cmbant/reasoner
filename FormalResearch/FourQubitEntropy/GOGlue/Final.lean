@@ -1,9 +1,11 @@
-import FormalResearch.FourQubitEntropy.GOProbe.Check
-import FormalResearch.FourQubitEntropy.GOGlue.DataCheck
-import FormalResearch.FourQubitEntropy.GOGlue.ConsCheck
-import FormalResearch.FourQubitEntropy.GOGlue.OrbitMaps
-import FormalResearch.FourQubitEntropy.GOGlue.FrameCert
-import FormalResearch.FourQubitEntropy.PaperEFidelityFloor
+module
+
+public import FormalResearch.FourQubitEntropy.GOProbe.Check
+public import FormalResearch.FourQubitEntropy.GOGlue.DataCheck
+public import FormalResearch.FourQubitEntropy.GOGlue.ConsCheck
+public import FormalResearch.FourQubitEntropy.GOGlue.OrbitMaps
+public import FormalResearch.FourQubitEntropy.GOGlue.FrameCert
+public import FormalResearch.FourQubitEntropy.PaperEFidelityFloor
 
 /-!
 # `thm:fqe-global-overlap` for every unit four-qubit state (Paper E, `Q ≥ 1 - Φ`)
@@ -30,6 +32,9 @@ This module imports the generated data (not committed) and is **not** part of th
 `FormalResearch` build; see `THEOREM_MAP.md` for the commands.  Claim class: proved
 (modulo the three data checks).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

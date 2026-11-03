@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiSingleCrossingVar
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiSingleCrossingVar
 
 /-!
 # Single crossing of the Rényi entropies: the lemma and the order transfer
@@ -31,6 +33,9 @@ in terms of `meanRenyi` and `hsRenyi` (`meanRenyi_order_transfer`): `G_l` is non
 `E_{q₁} ≤ h_{q₁} → E_q ≤ h_q` for `1 < q < q₁`, with the strict version and the equality case
 (`renyi_order_transfer_all`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

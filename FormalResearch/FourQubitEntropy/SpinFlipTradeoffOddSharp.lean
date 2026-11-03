@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SpinFlipTradeoffOddGHZ
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffOddGHZ
 
 /-!
 # The sharp odd-`n` tradeoff `π_m + c_n O ≥ 1/2` with `c_5 = 1`, `c_n = (n+1)/4`
@@ -24,6 +26,9 @@ Claim class: **proved** (`nsq ψ = 1` is a hypothesis of the identity).  `O` is 
 the mean T-odd purity; its identification with `½(tr ρ² - R_ρ)` is `oddPur_eq_half_sub_Rspin` in
 `SpinFlipOddOverlap.lean`.  That `c_n` is optimal over all pure states is open in the paper and not addressed.
 -/
+
+@[expose] public section
+
 
 open Finset
 open FormalResearch.FrameFree.NQubit

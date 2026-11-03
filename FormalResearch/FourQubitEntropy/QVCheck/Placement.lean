@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.QVCheck.Terms
+module
+
+public import FormalResearch.FourQubitEntropy.QVCheck.Terms
 
 /-!
 # Placements (K5)
@@ -7,6 +9,9 @@ The 24 permutations `π` of the four qubits act on the sector bases (`checkPlace
 placed bilinear form `bilPl` through the checker's `SW`, `SV` tables, and `bilN_kron_placed` its value on Kronecker
 products.
 -/
+
+@[expose] public section
+
 
 open Finset FormalResearch.FourQubitEntropy FormalResearch.FourQubitEntropy.QVBlock
 open scoped Matrix

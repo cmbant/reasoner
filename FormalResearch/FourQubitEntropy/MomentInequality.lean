@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Bridge
+module
+
+public import FormalResearch.FourQubitEntropy.Bridge
 
 /-!
 # The sharp sextic moment inequality for four qubits
@@ -22,6 +24,9 @@ Trust: the polynomial identity `sexticDefect_check` in `Identity.lean` is checke
 `Quot.sound`. Building `Identity.lean` and its `IdentityCert*.lean` pieces needs about 9 GB of RAM per file;
 see the *Machine requirements* paragraph of `Identity.lean`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open scoped FormalResearch.FourQubitEntropy.GenericOps

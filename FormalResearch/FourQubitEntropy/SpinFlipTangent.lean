@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # The abstract tangent-line lemma (`lem:fivecopy-tangent-line`)
@@ -22,6 +24,9 @@ The lemma uses no property of the copy number, the number of qubits or the targe
 finite dimensionality of `M` is not needed (a real vector space separates points by linear functionals).
 Claim class: **proved**.
 -/
+
+@[expose] public section
+
 
 open Matrix
 

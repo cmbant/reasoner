@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Purity
+module
+
+public import FormalResearch.FourQubitEntropy.Purity
 
 /-!
 # Spectral facts for the reduced matrices
@@ -6,6 +8,9 @@ import FormalResearch.FourQubitEntropy.Purity
 For a Hermitian matrix with eigenvalues `λᵢ`, `tr A^k = Σ λᵢ^k`; and the reduced matrices of a
 vector are positive semidefinite Gram matrices.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 

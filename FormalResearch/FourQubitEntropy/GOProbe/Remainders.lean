@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # GO certificate: the analytic remainders `R_sq` and `R_ax`
@@ -15,6 +17,9 @@ and
 factor `h0/216`).  Invariance of the remainders is not needed: the checker `check` verifies the identity for the
 symmetrised polynomial directly.  Claim class: proved.
 -/
+
+@[expose] public section
+
 
 open Finset
 

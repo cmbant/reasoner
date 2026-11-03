@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.SpinFlipTradeoffOddGeneral
-import FormalResearch.FourQubitEntropy.SpinFlipOddGHZ
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffOddGeneral
+public import FormalResearch.FourQubitEntropy.SpinFlipOddGHZ
 
 /-!
 # `O(GHZ_n) = 0` for odd `n`
@@ -10,6 +12,9 @@ Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIpro
 
 Claim class: **proved**.
 -/
+
+@[expose] public section
+
 
 open Finset
 open FormalResearch.FrameFree.NQubit

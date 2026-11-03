@@ -1,6 +1,8 @@
-import QVCheckImpl.Impl5
-import FormalResearch.FourQubitEntropy.QVCheck.Coupling
-import FormalResearch.FourQubitEntropy.QVCheck.Intertwiner
+module
+
+public import QVCheckImpl.Impl5
+public import FormalResearch.FourQubitEntropy.QVCheck.Coupling
+public import FormalResearch.FourQubitEntropy.QVCheck.Intertwiner
 
 /-!
 # The coupled contraction (K3, K4)
@@ -9,6 +11,9 @@ For a sector `p = (A, B)` and a pair of letters, the contraction `⟨W, (⊗_q Q
 and `S4` is transformed by the coupling matrices `T`, `Tinv` into the sparse family `Ŵ_u`, `V̂_u`.  The result is
 `pair_identity`, the semantics of `ctPair`/`ctil` for one pair of letters in a sector.
 -/
+
+@[expose] public section
+
 
 open Finset FormalResearch.FourQubitEntropy FormalResearch.FourQubitEntropy.QVBlock
 open scoped Matrix

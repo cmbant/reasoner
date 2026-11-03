@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # The second divided difference of `x ^ r`, `0 < r < 1`
@@ -17,6 +19,9 @@ inequality), while `[a,b,c] g = (x^r)''(m)/2` exactly (the cubic term has `[a,b,
 * `rpow_neg_tangent`: `y^{r-2} ≥ m^{r-2} + (r-2) m^{r-3} (y-m)`.
 * `neg_dd2_ge`: `-[a,b,c] x^r ≥ (r(1-r)/2) ((a+b+c)/3)^{r-2}`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

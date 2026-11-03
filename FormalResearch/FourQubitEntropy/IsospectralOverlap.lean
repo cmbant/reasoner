@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Isospectral overlap lemma (square bipartite case)
@@ -25,6 +27,9 @@ Proof (the paper's): the top singular pair of `M` is a pair of simple eigenvecto
 `tr(S WW†) + tr(S W†W)`, and the rearrangement inequality for doubly stochastic matrices (Birkhoff's
 theorem, `rearr_ds`) bounds the latter below (`kfa`).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false

@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceQId2
-import FormalResearch.FourQubitEntropy.PaperEGoSliceGen
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceQId2
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceGen
 
 /-!
 # `SliceQIdentity` from `sexticQ_psiZ`
@@ -8,6 +10,9 @@ Specialises `sexticQ_psiZ` to the slice matrix `Z = √3 X + i Y`: with `A = 3XX
 `Z Zᴴ = A + i√3 B`, `Re tr (ZZᴴ)² = tr A² - 3 tr B²`, `Re tr (ZZᴴ)³ = tr A³ - 9 tr A B²`, and
 `Z Zᵀ Z - (s/2) Z = √3 Nr + i Ni`, so `‖N‖² = 3‖Nr‖² + ‖Ni‖²`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.QVFrame.Basic
+module
+
+public import FormalResearch.FourQubitEntropy.QVFrame.Basic
 
 /-!
 # T2: the J-twisted partial transpose (frame change)
@@ -18,6 +20,9 @@ and `v` (standing for `z`), which is what the symmetriser argument needs.
 * `conj (sixCopy a z) = pw a z̄ z`, `sixCopy a z = pw a z z̄` (`pw_conj_left`, `pw_conj_right`).
 * `twist_pol`: the polarised identity; `twist_herm`: the Hermitian one.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open Finset

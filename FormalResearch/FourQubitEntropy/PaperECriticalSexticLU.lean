@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.Tradeoff
-import FormalResearch.FourQubitEntropy.Classify
-import FormalResearch.FourQubitEntropy.EqualityConverse
+module
+
+public import FormalResearch.FourQubitEntropy.Tradeoff
+public import FormalResearch.FourQubitEntropy.Classify
+public import FormalResearch.FourQubitEntropy.EqualityConverse
 
 /-!
 # The moments `n, P, T` and the sextic `F` are local-unitary invariant
@@ -8,6 +10,9 @@ import FormalResearch.FourQubitEntropy.EqualityConverse
 Used to transfer the critical-slice identity from `G(v)` to a general critical vector
 (`prop:fqe-moment-zeros`). Proved, no hypotheses, no `native_decide`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

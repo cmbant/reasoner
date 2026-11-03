@@ -1,7 +1,9 @@
-import FormalResearch.FrameFree.Unify
-import FormalResearch.FrameFree.MaxChiral
-import FormalResearch.FrameFree.PlanarSign
-import FormalResearch.FourQubitEntropy.ClassifyMain
+module
+
+public import FormalResearch.FrameFree.Unify
+public import FormalResearch.FrameFree.MaxChiral
+public import FormalResearch.FrameFree.PlanarSign
+public import FormalResearch.FourQubitEntropy.ClassifyMain
 
 /-!
 # The critical locus: equality in maximal chirality (Paper P, `app_c_critical.tex`)
@@ -40,6 +42,9 @@ subspace, twirl, integral over the Bloch sphere), the `n`-qubit consequence of t
 ceiling (`thm:ceiling` is in `Ceilings.lean`), the converse "LU-equivalent to `M₄` ⟹ `F_K = 4/9`" (needs R7)
 and the reduction "critical ⟹ LU-equivalent to a magic-diagonal state".
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix BigOperators
 open FormalResearch.FourQubitEntropy

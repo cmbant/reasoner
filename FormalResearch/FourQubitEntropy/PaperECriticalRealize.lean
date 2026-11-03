@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalMomentMap
-import FormalResearch.FourQubitEntropy.Classify
-import FormalResearch.FourQubitEntropy.Marginals
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalMomentMap
+public import FormalResearch.FourQubitEntropy.Classify
+public import FormalResearch.FourQubitEntropy.Marginals
 
 /-!
 # `SO(4)` is realised by local unitaries in the magic basis
@@ -13,6 +15,9 @@ is realised (`Real4.of_SO`). The surjectivity is proved from the Lie-algebra ide
 `SU(2)` act transitively on the unit sphere, and the stabiliser of the singlet coordinate is
 handled by the existing `euler4`. No hypotheses, no `native_decide`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

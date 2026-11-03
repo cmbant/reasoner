@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.CriticalOrbitPhi
-import FormalResearch.FourQubitEntropy.PaperECriticalRealGram
+module
+
+public import FormalResearch.FourQubitEntropy.CriticalOrbitPhi
+public import FormalResearch.FourQubitEntropy.PaperECriticalRealGram
 
 /-!
 # Critical-orbit stability: local unitaries in the magic basis
@@ -9,6 +11,9 @@ with `O₁, O₂` real orthogonal and `|s| = 1` (`coord_localApply`), so its ove
 `s ∑_{i,k} conj(v_i) w_k O₁_{ik} O₂_{ik}` (`ip_Gv_localApply`): the reduction of
 `eq:fqe-signed-diagonal-overlap`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

@@ -1,5 +1,7 @@
-import FormalResearch.FrameFree.FilteredGateReal
-import FormalResearch.FrameFree.FilteredGateBasic
+module
+
+public import FormalResearch.FrameFree.FilteredGateReal
+public import FormalResearch.FrameFree.FilteredGateBasic
 
 /-!
 # Filtered-gate law: the Bloch rotation of a unitary
@@ -9,6 +11,9 @@ For `φ ∈ U(2)`, `rot φ = (½ tr(σ_p φ σ_r φ†))_{p,r=1..3}` is a real `
 `ρ e_a × ρ e_b = ρ e_c`), and for a unit real vector `n` and `n̂ = Σ n_l σ_l`,
 `rot (φ n̂) = ρ (2 n nᵀ - 1)` (`rot_refl`).
 -/
+
+@[expose] public section
+
 
 open scoped Matrix ComplexConjugate
 open Finset Complex

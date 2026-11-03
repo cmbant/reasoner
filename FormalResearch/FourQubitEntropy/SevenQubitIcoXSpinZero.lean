@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoCert
-import FormalResearch.FourQubitEntropy.Attainment
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoCert
+public import FormalResearch.FourQubitEntropy.Attainment
 
 /-!
 # The four-qubit singlet sector of the icosahedral family (`prop:ico-m4-spinzero`, IM-1)
@@ -28,6 +30,9 @@ For the icosahedral family `ψ_x = α U + β V` and each of the 35 four-site set
 * `fidelity_M4`: `⟨M₄, ρ_T M₄⟩ = ⟨M̄₄, ρ_T M̄₄⟩ = tr(P₀ρ_T)/2`, so the fidelities lie in
   `{0, 4u/3, 4u}`, equal to `{0, 5/131, 15/131}` at `Ψico`.
 -/
+
+@[expose] public section
+
 
 open Finset
 

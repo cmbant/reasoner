@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.RenyiFullSliverEnt
-import FormalResearch.FourQubitEntropy.RenyiFullSliverCore
-import FormalResearch.FourQubitEntropy.RenyiFullProps
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullSliverEnt
+public import FormalResearch.FourQubitEntropy.RenyiFullSliverCore
+public import FormalResearch.FourQubitEntropy.RenyiFullProps
 
 /-!
 # `lem:fqe-cluster-sliver` (SL): proved
@@ -15,6 +17,9 @@ without hypothesis, following the paper's proof:
 4. removing `ε`, concavity in `v`, and the one-variable endpoint signs (`core_*`, `end_*`,
    `RenyiFullSliverCore.lean`).
 -/
+
+@[expose] public section
+
 
 set_option exponentiation.threshold 5000
 

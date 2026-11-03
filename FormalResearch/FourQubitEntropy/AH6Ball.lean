@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Fixed-point ball arithmetic for the AH-6 certificate (`lem:seven-joint-scalar-majorant`)
@@ -20,6 +22,9 @@ GMP-accelerated arithmetic (`decide +kernel`).
   `Enc.neg`, `Enc.inv`, `Enc.intCast`;
 * `Enc.pos`: a ball with `pos b = true` encloses a strictly positive real.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

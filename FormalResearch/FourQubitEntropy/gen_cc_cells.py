@@ -73,7 +73,9 @@ def split(lo, hi, depth=0):
 boxes = split(-R(6, 25), R(6, 25))
 assert len(boxes) == 2
 
-out = [f'''import Mathlib
+out = [f'''module
+
+public import Mathlib
 
 /-!
 # Bernstein certificates for the moment case of the capped cubic lemma
@@ -87,6 +89,8 @@ Paper E, `lem:fqe-capped-cubic`, the moment argument for `x = p - 1/4 ≤ 17/100
 * `ccTay_nonneg` (CC-2): at `x = 17/100`, the eight-term Taylor minorant of `ln N` beats `r L⁺ x (171/40 - (8/3) v - (11/10) x)`
   for `|v| ≤ 6/25`.
 -/
+
+@[expose] public section
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

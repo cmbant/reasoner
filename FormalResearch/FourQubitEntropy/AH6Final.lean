@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.AH6Coef
-import FormalResearch.FourQubitEntropy.SevenQubitMaximumStar
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Coef
+public import FormalResearch.FourQubitEntropy.SevenQubitMaximumStar
 
 /-!
 # `lem:seven-joint-scalar-majorant` (AH-6): the headline theorems
@@ -16,6 +18,9 @@ Home and proof: `ResearchNotes/QI/seven_qubit_entanglement/joint_entropy_analyti
   and the explicit `𝒫₅`: the only remaining hypotheses are `SevenPurityBound` and the localized bound `LocalizedBound`
   (E7-1).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

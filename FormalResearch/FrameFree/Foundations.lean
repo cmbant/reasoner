@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Foundations of the frame-free discrimination problem
@@ -20,6 +22,9 @@ Proved here (all unconditional):
   and the concatenation `tens` of states on `Fin m` and `Fin n` qubits;
 * `Θ_Θ` (`Θ² = (-1)^n`), `ip_Θ_Θ` (`⟨Θψ|Θφ⟩ = \overline{⟨ψ|φ⟩}`), `nsq_Θ`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix BigOperators
 

@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.OddWordsArith
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.OddWordsArith
 
 /-!
 # A real `sl₂`-type structure theory for the odd-word count (Paper P, `prop:oddwords`)
@@ -21,6 +23,9 @@ linear algebra (positivity of `⟨v, R L v⟩` and `⟨v, L R v⟩`): this file 
 * `V` is spanned by the strings `L^a h`, `h ∈ HW_k`, `k ≤ n/2`, `a ≤ n-2k` (`strings_top`), and
   `dim HW_k = C(n,k) - C(n,k-1)` for `k ≤ n/2` (`finrank_HW`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

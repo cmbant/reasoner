@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullProps
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullProps
 
 /-!
 # The HS zone `F < 3/20` of `thm:fqe-renyi-classical` (case (2))
@@ -12,6 +14,9 @@ Paper E: the outer dual of `lem:fqe-hs-polynomial` and the case (HZ) of the proo
 * `caseHZ`: assuming `HsSupporting`, a triple of the relaxation with `F < 3/20`, `20ε + 2F < 1`
   satisfies `E_{8/5} ≤ h_{8/5}`, with equality only when all three spectra are HS.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

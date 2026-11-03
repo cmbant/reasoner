@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoCert
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoCert
 
 /-!
 # Spectra of the reduced matrices of the seven-qubit icosahedral family
@@ -16,6 +18,9 @@ writes `ρ_S` as a polynomial in an integer matrix `T` whose cube relation `T(T-
 spectrum from the spectral theorem of `T`. Nothing here uses the numerical values at the
 icosahedral parameter.
 -/
+
+@[expose] public section
+
 
 open Matrix Polynomial Unitary
 

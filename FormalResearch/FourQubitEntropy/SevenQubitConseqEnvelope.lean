@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.EntropyPurityEnvelope
+module
+
+public import FormalResearch.FourQubitEntropy.EntropyPurityEnvelope
 
 /-!
 # `lem:seven-fixed-purity-envelope`: the entropy envelope at fixed eight-level purity
@@ -11,6 +13,9 @@ This is the `d = 8` instance of the all-dimension envelope `EntropyPurity.entrop
 (`EntropyPurityEnvelope.lean`, which also proves the equality case `entropy_eq_gEnv_iff`):
 `g8 = gEnv 8` (`g8_eq_gEnv`).
 -/
+
+@[expose] public section
+
 
 open Real Finset
 

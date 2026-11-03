@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.QVBlock.Kron
-import FormalResearch.FourQubitEntropy.QVCheck.Arrays
-import FormalResearch.FourQubitEntropy.QVCheck.Coupling
+module
+
+public import FormalResearch.FourQubitEntropy.QVBlock.Kron
+public import FormalResearch.FourQubitEntropy.QVCheck.Arrays
+public import FormalResearch.FourQubitEntropy.QVCheck.Coupling
 
 /-!
 # Invariant bases of the checker
@@ -9,6 +11,9 @@ The sectors of the checker as `QVBlock` data: `Spin`, `multF`, the generators `r
 as integer matrices.  From the array checks `checkInvariant` and `checkPivots` we get the invariance hypotheses `hV`, `hW`
 and the pivot-minor hypotheses `hdetV`, `hdetW` of `QVBlock.quad_eq_zero_of_int_certificate`.
 -/
+
+@[expose] public section
+
 
 open Finset FormalResearch.FourQubitEntropy.QVBlock
 open scoped Matrix

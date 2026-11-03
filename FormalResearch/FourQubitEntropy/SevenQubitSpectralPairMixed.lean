@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitSpectralPairCross
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitSpectralPairCross
 
 /-!
 # The cross-cut inequality `e_S + 16 v(ρ_S) ≤ R` for mixed seven-qubit states
@@ -22,6 +24,9 @@ The proof is the pure one with `ψ ψ†` replaced by `ρ`:
 
 `rhoSM_pure`, `cross_cut_mixed_pure` check that for `ρ = |ψ⟩⟨ψ|` this specialises to `cross_cut`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 open Finset

@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Signed Birkhoff bound for the diagonal overlap (`eq:fqe-signed-diagonal-overlap`)
@@ -9,6 +11,9 @@ The paper's proof: `|A_{ik} B_{ik}|` is doubly substochastic.  Here `|O₁_{ik} 
 (O₁_{ik}² + O₂_{ik}²)/2` and both `O_{ik}²` are doubly stochastic, so Birkhoff's theorem
 (`doublyStochastic_eq_convexHull_permMatrix`) applies directly to a linear functional.
 -/
+
+@[expose] public section
+
 
 open Matrix Finset
 

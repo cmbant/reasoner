@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.GOProbe.Final
+module
+
+public import FormalResearch.FourQubitEntropy.GOProbe.Final
 
 /-!
 # GO certificate: smoke test of the checker on a one-block toy certificate
@@ -8,6 +10,9 @@ One variable `x₀`, the constraint matrix `M = [[1]]`, one block with `p₀ = x
 `U = 2 x₀²` and the single coordinate map and sign change are the identity, so `lit = 2 x₀²`.  Kernel-checked
 (`decide +kernel`, no `native_decide`), and fed to `go_sound`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.GOProbe
 

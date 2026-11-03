@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # A cubic with negative discriminant, positive leading coefficient and nonnegative constant term is nonnegative on `[0,∞)`
@@ -8,6 +10,9 @@ for `e ≠ e₀` the discriminant of `F(e,·)` is negative, so the cubic has exa
 Here: if `p(v₁) < 0` for some `v₁ ≥ 0`, then `p` has a root in `[0,v₁)` (since `p(0) ≥ 0`) and one in `(v₁,∞)`, hence
 three real roots and a nonnegative discriminant (`disc_of_roots`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

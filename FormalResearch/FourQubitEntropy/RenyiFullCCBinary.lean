@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.RenyiFullBQBinary
-import FormalResearch.FourQubitEntropy.RenyiFullRpow
-import FormalResearch.FourQubitEntropy.RenyiFullSliverEnt
-import FormalResearch.FourQubitEntropy.PaperECriticalRenyiGrouping
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullBQBinary
+public import FormalResearch.FourQubitEntropy.RenyiFullRpow
+public import FormalResearch.FourQubitEntropy.RenyiFullSliverEnt
+public import FormalResearch.FourQubitEntropy.PaperECriticalRenyiGrouping
 
 /-!
 # Capped cubic lemma: the two binary quartic bounds and the binary cubic bound
@@ -17,6 +19,9 @@ explicit rational power bounds (`b ≤ x^{1587/1000}` from `b^{1000} ≤ x^{1587
 `-ln(1-z) ≤ z + z²/2 + z³/(3(1-z))`.  (The numerical constants differ slightly from the table of the paper: they are
 chosen with more room, `S ≥ 4783/5000` and `S ≥ 8903/10000`.)
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

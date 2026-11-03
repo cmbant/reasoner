@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.FrameFree.OddWordsSl2
-import FormalResearch.FrameFree.OddWordsFock
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.OddWordsSl2
+public import FormalResearch.FrameFree.OddWordsFock
 
 /-!
 # The Fock space as an `Sl2Data` (Paper P, `prop:oddwords` (iii))
@@ -11,6 +13,9 @@ Namespace `FormalResearch.FrameFree.OddWords`.  Claim class: **proved**.
 `L = Lm n`, `adjoint L = (Lm n)ᵀ`, `H = diag (n - 2 |x|)`, weight space `W_m` = functions supported
 on the Hamming sphere `|x| = m` (dimension `C(n,m)`, `card_wt`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

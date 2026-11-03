@@ -1,8 +1,13 @@
-import FormalResearch.FrameFree.Foundations
-import FormalResearch.FrameFree.Sharing
-import FormalResearch.FrameFree.ScalarChirality
-import FormalResearch.FrameFree.Unify
-import FormalResearch.FrameFree.Ceilings
+module
+
+public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.FrameFree.Sharing
+public import FormalResearch.FrameFree.ScalarChirality
+public import FormalResearch.FrameFree.Unify
+public import FormalResearch.FrameFree.Ceilings
+
+
+@[expose] public section
 
 open scoped ComplexConjugate Matrix BigOperators
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullLHHalfCells
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullLHHalfCells
 
 /-!
 # Large-head chart: the third derivative of `f` is nonpositive
@@ -7,6 +9,9 @@ Paper E, `lem:fqe-large-head-curvature`.  `f(a,z) = h(a, K(z)) + P(a; B(z), C(z)
 `1/2 ≤ a ≤ 4/5`, `0 ≤ z ≤ 1`.  `f_aaaa < 0` (`f4_neg_A`, `f4_neg_B`) and `f_aaa(1/2) ≤ 0`
 (`f3_half_nonpos`) give `f_aaa ≤ 0`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

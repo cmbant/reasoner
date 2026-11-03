@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.FourQubitEntropy.SevenQubitMajorantDegreeConverse
-import FormalResearch.FourQubitEntropy.SevenQubitIcoEntropy
+module
+
+public import Mathlib
+public import FormalResearch.FourQubitEntropy.SevenQubitMajorantDegreeConverse
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoEntropy
 
 /-!
 # Seven-qubit application of the sharp-majorant degree proposition
@@ -18,6 +20,9 @@ base-2 variant.  Not proved here: that the cut spectra of `ψ_x` are these four 
 `SevenQubitIcoSpectrum`, taken as the definition of `E3`), and the paper's contrasting statement
 that the joint degree-five majorant avoids this (`SevenQubitJointMajorant.lean`).
 -/
+
+@[expose] public section
+
 
 open Set Polynomial
 

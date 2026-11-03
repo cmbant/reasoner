@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RingOps
+module
+
+public import FormalResearch.FourQubitEntropy.RingOps
 
 /-!
 # The sextic moment expression and its residual vectors, written generically
@@ -7,6 +9,9 @@ Everything here is built from `RingOps` only, so that it can be evaluated in `â„
 in the reflected polynomial type (proof). `z` is a four-qubit vector and `w` its conjugate; they
 are independent variables here, since the identity is polynomial.
 -/
+
+@[expose] public section
+
 
 open scoped FormalResearch.FourQubitEntropy.GenericOps
 

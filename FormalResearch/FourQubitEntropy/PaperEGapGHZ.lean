@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PaperEFidelityFloor
-import FormalResearch.FourQubitEntropy.EnvelopeCoefficientSharp
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEFidelityFloor
+public import FormalResearch.FourQubitEntropy.EnvelopeCoefficientSharp
 
 /-!
 # `lem:fqe-hs-fidelity-floor`: attainment of the floor by GHZ
@@ -13,6 +15,9 @@ Proof (as in the paper): the magic diagonal of GHZ is `(1,0,0,-1)/√2`, i.e. `G
 `Phi_Gv_le` bounds `Φ` by the maximum of the 32 representative overlaps `qH a v`, each `≤ 1/3`
 (`qH_ghz_le`).  The matching lower bound is `OD.fidelity_floor` with `τ = 1`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

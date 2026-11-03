@@ -1,5 +1,7 @@
-import FormalResearch.FrameFree.FilteredGateGauge
-import FormalResearch.FrameFree.FilteredGateRk2H
+module
+
+public import FormalResearch.FrameFree.FilteredGateGauge
+public import FormalResearch.FrameFree.FilteredGateRk2H
 
 
 /-!
@@ -10,6 +12,9 @@ import FormalResearch.FrameFree.FilteredGateRk2H
 form `(A⊗B) U (ς⊗K) U = A ς ⊗ B m + A m' ⊗ B ς`, then the rank-two Cauchy--Schwarz `rk2H` with the
 pair bound `pair_le` for `T = U† Φ U`.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix Kronecker ComplexConjugate
 open Finset Complex

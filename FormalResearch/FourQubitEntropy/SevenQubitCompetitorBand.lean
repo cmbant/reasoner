@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitLinearPurity
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitLinearPurity
 
 /-!
 # `prop:seven-competitor-band` (conditional): the competitor purity band
@@ -16,6 +18,9 @@ Entropies are in nats (`meanEntropy3`), so `E_* > 59307/20000` bits reads
   `3 ln 2 - E₃ ≥ (2/5) ln 2 (8 π₃ - 1)`; with `E₃ ≥ E_* > (59307/20000) ln 2` (SC-2 lower witness,
   **hypothesis**) rearrangement gives `π₃ < (1 + (5/2)(3 - 59307/20000))/8 = 8693/64000`.
 -/
+
+@[expose] public section
+
 
 open Real Finset
 

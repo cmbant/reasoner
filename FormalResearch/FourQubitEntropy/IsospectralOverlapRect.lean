@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.IsospectralOverlap
+module
+
+public import FormalResearch.FourQubitEntropy.IsospectralOverlap
 
 /-!
 # Isospectral overlap lemma: rectangular coefficient matrices and attainment
@@ -28,6 +30,9 @@ This module proves it for an arbitrary pair of local dimensions `ι`, `κ` (coef
 
 All statements are proved, with no hypothesis assuming a conclusion.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false

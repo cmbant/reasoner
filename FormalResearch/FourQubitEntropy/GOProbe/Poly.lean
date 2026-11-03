@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.GOProbe.Types
+module
+
+public import FormalResearch.FourQubitEntropy.GOProbe.Types
 
 /-!
 # GO certificate: sparse polynomials in 19 variables with packed keys (definitions, no Mathlib)
@@ -9,6 +11,9 @@ A polynomial is a list of `(key, coefficient)`; sortedness is only needed for th
 for soundness.  Everything is ordinary structural recursion (or a `Nat` fuel), so the same definitions run in
 the kernel and compiled (`native_decide`).  Semantics and soundness: `PolySound.lean`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.GOProbe
 

@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Givens reduction of a real orthogonal `3×3` matrix
@@ -6,6 +8,9 @@ import Mathlib
 Every real orthogonal `3×3` matrix `Q` is brought to `1` or to `diag(1,1,-1)` by left multiplication
 with a rotation in the plane of coordinates `(2,3)`, one in `(1,2)`, and one in `(2,3)` again.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix
 

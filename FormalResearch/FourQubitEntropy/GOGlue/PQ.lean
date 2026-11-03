@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FourQubitEntropy.GOProbe.PolySound
+module
+
+public import Mathlib
+public import FormalResearch.FourQubitEntropy.GOProbe.PolySound
 
 /-!
 # GO glue: graded rational polynomials and matrices of them (computable, with soundness)
@@ -13,6 +15,9 @@ compared with the generated certificate data by a decidable equality of sorted s
 Matrices are `Fin m → Fin n → PQ d` (`pmul`, `padd`, ...), related to real matrices by `Rel`.
 Claim class: proved.
 -/
+
+@[expose] public section
+
 
 open Finset
 open scoped Matrix

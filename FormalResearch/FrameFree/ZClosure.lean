@@ -1,5 +1,10 @@
-import FormalResearch.FrameFree.SupportRate
-import Mathlib.RingTheory.MvPolynomial.Homogeneous
+module
+
+public import FormalResearch.FrameFree.SupportRate
+public import Mathlib.RingTheory.MvPolynomial.Homogeneous
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

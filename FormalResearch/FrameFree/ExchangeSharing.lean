@@ -1,4 +1,6 @@
-import FormalResearch.FrameFree.ExchangeBounds
+module
+
+public import FormalResearch.FrameFree.ExchangeBounds
 
 /-!
 # Exchange gates under frame sharing (`thm:exchangesharing` (ii), (iii) and the `âˆšSWAP` row)
@@ -7,6 +9,9 @@ Namespace `FormalResearch.FrameFree.Sharing`.  Claim class: **proved** for `0 â‰
 come from the independent-frame exchange bounds `ExchangeBounds.exchangeIndepBound(C)` (the filtered-gate law);
 the lower bounds and case (i) are in `Sharing`.  Case (iii) is open in the paper; only its bounds are stated.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix ComplexConjugate Kronecker Real
 open FormalResearch.FrameFree.NQubit

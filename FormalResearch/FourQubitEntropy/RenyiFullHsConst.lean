@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullHsOne
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullHsOne
 
 /-!
 # `lem:fqe-hs-polynomial`: the contact point `x* = 3^{1/5}` and the uniform gap
@@ -9,6 +11,9 @@ import FormalResearch.FourQubitEntropy.RenyiFullHsOne
   `olv x* = hsSpec`, `olv 1 = c₂`.
 * `delta_pos`: the uniform gap `Δ > 0` (`(HUC)`), by the atanh/log series (`n = 10` terms).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

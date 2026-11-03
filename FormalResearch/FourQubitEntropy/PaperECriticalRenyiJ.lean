@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # The one-variable inequality behind the binary-grouping bound (`lem:fqe-renyi-grouping`)
@@ -15,6 +17,9 @@ contradicting `J(1) = 0`.
 
 Proved, axiom-free (`propext`, `Classical.choice`, `Quot.sound`).
 -/
+
+@[expose] public section
+
 
 open Real
 

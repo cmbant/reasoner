@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.QVBlock.Assembly
+module
+
+public import FormalResearch.FourQubitEntropy.QVBlock.Assembly
 
 /-!
 # Integer-certificate form of the top theorem
@@ -8,6 +10,9 @@ import FormalResearch.FourQubitEntropy.QVBlock.Assembly
 any field of characteristic `0`, for the integer matrix `K = ∑_k ⊗_q X k q` mapped into `𝕜`.
 The inverse of `C` is given as `Cinv` with `Cinv C = C Cinv = D • 1`, `D ≠ 0`.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix BigOperators
 

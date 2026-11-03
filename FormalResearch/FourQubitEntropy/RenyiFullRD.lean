@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullLowTilt
-import FormalResearch.FourQubitEntropy.RenyiFullProps
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullLowTilt
+public import FormalResearch.FourQubitEntropy.RenyiFullProps
 
 /-!
 # `lem:fqe-rational-dual`: the assembly from the two chart bounds
@@ -12,6 +14,9 @@ low-tilt reduction + `lem:fqe-small-head-dual` + `lem:fqe-large-head-dual`.
 * `rationalDual_of_heads`: `RationalDual` follows (`lam_reduce_abcc` at `q = q_s`, `β = 3/20`, and
   the purity cap `p ≤ 49/75 ⇒ a ≤ 4/5`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

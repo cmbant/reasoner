@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceConstr
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceConstr
 
 /-!
 # `thm:fqe-global-overlap`: the reduction `GOSliceCertificate → Q ≥ 1 - Φ`
@@ -13,6 +15,9 @@ import FormalResearch.FourQubitEntropy.PaperEGoSliceConstr
 
 The positive constraints other than the Hessian are proved from `IsFrame` in `PaperEGoSliceConstr`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

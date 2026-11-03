@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.QVFrame.Atoms
+module
+
+public import FormalResearch.FourQubitEntropy.QVFrame.Atoms
 
 /-!
 # T3: the homogenised defect `𝔇` as a quadratic form in `z^{⊗6}`
@@ -17,6 +19,9 @@ The proof uses only: `tr R_c^k` is the invariant of a cyclic copy permutation on
 `N` is a spare copy (`invG_one`) and products of invariants are invariants of block sums (`invG_bsum`).
 It does not depend on the certificate data.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open scoped Matrix

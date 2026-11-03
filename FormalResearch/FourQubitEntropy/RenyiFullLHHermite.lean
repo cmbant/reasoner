@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Hermite-interpolation sign lemmas (real-variable, by Rolle)
@@ -15,6 +17,9 @@ Used by Paper E, `lem:fqe-large-head-dual` (`renyi_large_head_dual.tex`).
 Both are proved by Rolle's theorem and monotonicity of the successive derivatives; no remainder
 formula is used.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

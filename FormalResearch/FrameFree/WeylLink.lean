@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.FrameFree.WeylVertex
-import FormalResearch.QID.D4DoublyStochasticCertificate
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.WeylVertex
+public import FormalResearch.QID.D4DoublyStochasticCertificate
 
 /-!
 # Linking `weylSet` (FrameFree) with `allD4` (QID)
@@ -17,6 +19,9 @@ The bijection is the involution `linkSP (σ, e) = (σ⁻¹, e ∘ σ⁻¹)`; it 
 and `d4SignedMatrix (linkSP w) = weylMat w` entrywise.  Hence any QID fact about `allD4`
 (orbits, facet scores, doubly-stochastic certificate) transports to `weylSet` via `linkSP`.
 -/
+
+@[expose] public section
+
 
 open Finset
 

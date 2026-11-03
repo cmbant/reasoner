@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.QIB.BlockDecomp
-import FormalResearch.QIB.EasyAbelianCarriers
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockDecomp
+public import FormalResearch.QIB.EasyAbelianCarriers
 
 /-!
 # Rank-one blocks: the sandwich `¼ S ≤ P_e ≤ ½ S` (`thm:abelian`, `prop:collapseregimes` (i))
@@ -25,6 +27,9 @@ proof: "if `q ≤ p` and `F = |⟨u|v⟩|²`, the sector contribution lies in `[
 Not formalized: the identification of `u_λ, v_λ` with the weight projections of `x^{⊗d}, y^{⊗d}` for a
 torus acting on `(⊕ V_i)^{⊗d}`, and the exponent consequence ("the rates of `P_e^T` equal those of `S_d`").
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

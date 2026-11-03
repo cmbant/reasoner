@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.QIB.BlockRealCore
-import FormalResearch.FrameFree.TwirlsTwirl
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockRealCore
+public import FormalResearch.FrameFree.TwirlsTwirl
 
 /-!
 # The frame-group commutant is real-spanned and `σ ~ σ⁻¹` inside it
@@ -20,6 +22,9 @@ Bridge between the slot-permutation picture of `FrameFree/TwirlsSchurWeyl.lean` 
 * `frame_real_data`: hence the hypotheses `hSC, hCS, hreal, hconj` of `sectorProj_real` hold for the frame
   group, with `S` the set of reindexed block permutation matrices.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

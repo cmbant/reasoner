@@ -1,10 +1,12 @@
-import FormalResearch.FourQubitEntropy.PaperEGapNullBlochQH
-import FormalResearch.FourQubitEntropy.PaperEGapNullExists
-import FormalResearch.FourQubitEntropy.PaperEGapNullScalar
-import FormalResearch.FourQubitEntropy.CriticalOrbitMain
-import FormalResearch.FourQubitEntropy.CriticalOrbitUpper
-import FormalResearch.FourQubitEntropy.Checks
-import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlat
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGapNullBlochQH
+public import FormalResearch.FourQubitEntropy.PaperEGapNullExists
+public import FormalResearch.FourQubitEntropy.PaperEGapNullScalar
+public import FormalResearch.FourQubitEntropy.CriticalOrbitMain
+public import FormalResearch.FourQubitEntropy.CriticalOrbitUpper
+public import FormalResearch.FourQubitEntropy.Checks
+public import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlat
 
 /-!
 # `thm:fqe-critical-orbit-sharp`: the null-critical refinement `eq:fqe-null-critical-sharp`
@@ -18,6 +20,9 @@ a product `a ⊗ b` (`exists_vOf`); in the Bloch vectors `r, s` of `a, b` the 32
 `(1 + ε·r/√3)(1 + η·s/√3)/4` over the cube pairs of opposite parity (`qH_vOf`), and
 `Q = 1/2 + (27/2) r₁r₂r₃s₁s₂s₃` (`Qv_vOf`); the real inequalities are `null_exists_pair`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

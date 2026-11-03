@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Classify
+module
+
+public import FormalResearch.FourQubitEntropy.Classify
 
 /-!
 # Realising signed permutations by local rotations, and the easy direction of the Weyl-vertex formula
@@ -15,6 +17,9 @@ A *magic-diagonal* state `psiMag d` has cut matrix `B diag(d) Bᵀ` (`B = magicB
 
 Everything is a proof (no numerics, no `native_decide`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

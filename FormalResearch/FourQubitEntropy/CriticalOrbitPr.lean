@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
-import FormalResearch.FourQubitEntropy.PaperEGenDefect
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
+public import FormalResearch.FourQubitEntropy.PaperEGenDefect
 
 /-
 # Critical-orbit stability: the twelve cut probabilities (`thm:fqe-critical-orbit-sharp`)
@@ -10,6 +12,9 @@ For a vector `v` of the critical normal form (`Gv v`), the twelve cut probabilit
 (`Qv_three_term`) holds as a polynomial identity.  The symmetry lemmas show that coordinate swaps,
 coordinate sign flips, `H₊`, `H₋` and unit phases permute the twelve probabilities.
 -/
+
+
+@[expose] public section
 
 namespace FormalResearch.FourQubitEntropy.CO
 open PaperECritical

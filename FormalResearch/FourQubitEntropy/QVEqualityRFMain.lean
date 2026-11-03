@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.QVEqualityRFSpec
-import FormalResearch.FourQubitEntropy.QVEqualityState
-import FormalResearch.FourQubitEntropy.QVEqualityBell
+module
+
+public import FormalResearch.FourQubitEntropy.QVEqualityRFSpec
+public import FormalResearch.FourQubitEntropy.QVEqualityState
+public import FormalResearch.FourQubitEntropy.QVEqualityBell
 
 /-!
 # `prop:fqe-critical-variance` (RF): the equality case and its attainment
@@ -15,6 +17,9 @@ Paper E, `renyi_compatibility.tex`: for a pure four-qubit state with `P = 1` and
 * `critical_T_add_U_le`: the weaker bound `T + Σ_j p_j² ≤ 3/4` (`F ≥ 12 V_P`), with equality only at HS or
   cluster spectra.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.QVEquality
 

@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicC2
-import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicC30
-import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicC31
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicC2
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicC30
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicC31
 
 /-!
 # The plane hypothesis of `prop:zero-focus` is a theorem for `r = 2, 3`
@@ -20,6 +22,9 @@ This file only assembles: `PlaneHyp 2` from the class `|S| = 2`, `PlaneHyp 3` fr
 Status: proved (exact certificate: kernel-checked integer identities for all 128 points `z`, in the three
 class files; no numerical input).
 -/
+
+@[expose] public section
+
 
 open Finset
 

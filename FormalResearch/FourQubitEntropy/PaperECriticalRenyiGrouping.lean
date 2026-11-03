@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalRenyiJ
-import FormalResearch.FourQubitEntropy.RenyiSpec
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalRenyiJ
+public import FormalResearch.FourQubitEntropy.RenyiSpec
 
 /-!
 # Binary grouping for the Rényi entropy of order `q_b` (`lem:fqe-renyi-grouping`)
@@ -19,6 +21,9 @@ threshold `q_b` and the bounds `3/2 < q_b < 313/200` are in `PaperECriticalRenyi
 (`renyi_binary_iff`, `renyi_cubic_iff`, `qb_bounds`). NOT formalised: `cor:fqe-renyi-high-f`.
 The analytic core `J ≥ 0` is `Jf_nonneg` (`PaperECriticalRenyiJ.lean`).
 -/
+
+@[expose] public section
+
 
 open Real
 

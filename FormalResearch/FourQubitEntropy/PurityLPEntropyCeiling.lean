@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.PurityLPMain
-import FormalResearch.FourQubitEntropy.EntropyPuritySlope
-import FormalResearch.FourQubitEntropy.SevenQubitLinearPurity
+module
+
+public import FormalResearch.FourQubitEntropy.PurityLPMain
+public import FormalResearch.FourQubitEntropy.EntropyPuritySlope
+public import FormalResearch.FourQubitEntropy.SevenQubitLinearPurity
 
 /-!
 # Entropy ceilings from the purity minima (Paper E, `tab:fqe-other-n`)
@@ -25,6 +27,9 @@ and `ln 2 > 0.6931471803`.
 
 Everything is proved (no hypotheses).
 -/
+
+@[expose] public section
+
 
 open Real Finset
 open scoped ComplexConjugate Matrix ComplexOrder

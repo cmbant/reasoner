@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQK
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQK
 
 /-!
 # The Rényi envelope above order one, assuming the sharp bound QV
@@ -12,6 +14,9 @@ unit pure four-qubit state (an exact-rational certificate in the paper, QVA; a h
 * `quadraticVarianceBound_of_sharp`: (QV) ⇒ (QK) for states.
 * `renyi_envelope_above_one_QV`: `cor:fqe-renyi-gw` for `q > 1`, assuming only (QV).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoState
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoState
 
 /-!
 # Purities of the seven-qubit icosahedral family on every cut
@@ -19,6 +21,9 @@ The results (`thm:ico` of `icosahedral_state.tex`):
 
 The eigenvalues of the reduced matrices, and hence entropies, are not treated here.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco
 

@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.FlipGradientReal
-import FormalResearch.FourQubitEntropy.MomentInequality
-import FormalResearch.FourQubitEntropy.FlipPsi
+module
+
+public import FormalResearch.FourQubitEntropy.FlipGradientReal
+public import FormalResearch.FourQubitEntropy.MomentInequality
+public import FormalResearch.FourQubitEntropy.FlipPsi
 
 /-!
 # The two sums of squares behind the spin-flip calibration
@@ -11,6 +13,9 @@ pairing `Y = Σᵢ Σ_{idx} sgn(idx) Rᵢ(idx) Rᵢ(1 - idx)` of a site tensor w
 `Re Y + A = (1/2) Σ ‖R + R̃‖² ≥ 0` (`flip_sos`); this is the positivity behind the exact transport law
 `eq:fqe-spin-flip-calibration`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open scoped FormalResearch.FourQubitEntropy.GenericOps

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.EnvelopePermCore
+module
+
+public import FormalResearch.FourQubitEntropy.EnvelopePermCore
 
 /-!
 # The permanent bound for `Θ = O D`, `D = κ I + (1-κ) s sᵀ`
@@ -13,6 +15,9 @@ Real `3 × 3` algebra for the equality case of `prop:fqe-critical-envelope`
 * `perm_of_signedCyclic`: conversely `perm(O D) = -(2 + 3κ² + 4κ³)/9` for every signed cyclic `O` and
   every `s ∈ {±1}³/√3` (`CubeDiag`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 open Matrix

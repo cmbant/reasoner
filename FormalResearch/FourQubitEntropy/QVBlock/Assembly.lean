@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.QVBlock.Extension
-import FormalResearch.FourQubitEntropy.QVBlock.Invariants
+module
+
+public import FormalResearch.FourQubitEntropy.QVBlock.Extension
+public import FormalResearch.FourQubitEntropy.QVBlock.Invariants
 
 /-!
 # Assembly of the block calculus (QV block calculus, T4–T8)
@@ -11,6 +13,9 @@ import FormalResearch.FourQubitEntropy.QVBlock.Invariants
 * `quad_eq_zero_of_certificate`: the same with all data given by generators, words and finite
   matrix identities.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix BigOperators
 

@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.IsotypicBlind
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.IsotypicBlind
 
 /-!
 # Isotypic blindness: the local label projectors (Paper P `thm:isotypicblind`)
@@ -14,6 +16,9 @@ Continues `IsotypicBlind.lean` (read its header for the statement and for what i
 * `labelProb k m ψ = ⟨ψ^{⊗k}|Π_m|ψ^{⊗k}⟩` and the theorem `isotypic_blind`:
   `labelProb k m (Θψ) = labelProb k m ψ`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

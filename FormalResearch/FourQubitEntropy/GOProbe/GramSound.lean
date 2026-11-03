@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # GO certificate probe: soundness of the compact Gram positivity test
@@ -8,6 +10,9 @@ import Mathlib
 (that `gramOK` implies its hypotheses, via the rounding bound `|H - g (AAᵀ)/s²| ≤ 1/2` for
 `H = (g·dot + s²/2) / s²`) is the remaining obligation (see the probe report).  Claim class: proved.
 -/
+
+@[expose] public section
+
 
 open Finset
 

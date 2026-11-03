@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.CriticalOrbitPhi
+module
+
+public import FormalResearch.FourQubitEntropy.CriticalOrbitPhi
 
 /-!
 # Critical-orbit stability: complex conjugation
@@ -8,6 +10,9 @@ unitary equivalences to local unitary equivalences, and `conj η_0 = η_7` for t
 `η_0 = (1/√2, i/√6, i/√6, i/√6)`, `η_7 = (1/√2, -i/√6, -i/√6, -i/√6)`.  Hence both `M₄` and
 `conj M₄` are local-unitary images of some `G(η)`, `η ∈ 𝓗` (`exists_M4_conj`).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

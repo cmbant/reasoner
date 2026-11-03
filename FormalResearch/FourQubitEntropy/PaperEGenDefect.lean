@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Corollaries
-import FormalResearch.FourQubitEntropy.Checks
+module
+
+public import FormalResearch.FourQubitEntropy.Corollaries
+public import FormalResearch.FourQubitEntropy.Checks
 
 /-!
 # The moment defect `𝒟`, the sextic `Q`, and entropy gaps in terms of them
@@ -31,6 +33,9 @@ hypothesis, with `d²` an arbitrary real number `d2` standing for `d(ψ)²`, and
   `entropy_gap_critical` (unconditional, `W₁ = 0`: `δ ≥ k (Q + 5τ/2)`), `majorant_gap_ge_Q`, `majorant_gap_of_overlap`,
   `tsallis_gap_of_overlap` (`cor:fqe-orbit-spectral`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

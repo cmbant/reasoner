@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.FrameFree.Foundations
-import FormalResearch.FrameFree.TwirlsTwirl
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.FrameFree.TwirlsTwirl
 
 /-!
 # Isotypic blindness (Paper P `thm:isotypicblind`, recalled from QI-A `thm:isotypicblind`)
@@ -31,6 +33,9 @@ symmetric `ε`-commuting local projectors).  Not formalized: that `Σ_m Π_m = 1
 `spinSpec k` exhaust the spectrum of `casimirJ2 k` (so that `specProj` is literally the orthogonal
 projector onto total spin `j`), and the Dirac identity `J² = Σ J_i²`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

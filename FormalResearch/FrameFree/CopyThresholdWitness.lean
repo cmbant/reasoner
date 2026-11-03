@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.CopyThresholdPad
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.CopyThresholdPad
 
 /-!
 # Exact witnesses of non-real word values (Paper P, `thm:copythreshold` (b), CT-3)
@@ -18,6 +20,9 @@ imaginary part `≠ 0`:
 * `witness_indep4`: four independent spins, `k = 3`; `ψ_+` (the paper's two-singlet state) and the word
   `(e, (23), (12), (012))` per spin (value `80 + 24 i`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

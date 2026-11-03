@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalCuts
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalCuts
 
 /-!
 # The critical-slice identity (Z) for the sextic `F`
@@ -8,6 +10,9 @@ explicit, and `F = 17 n P - 12 T - 12 n³` is a sum of twelve squared moduli (`(
 `sextic_identity.tex`, proof of `prop:fqe-moment-zeros`). Proved as a polynomial identity; no
 hypotheses and no `native_decide`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

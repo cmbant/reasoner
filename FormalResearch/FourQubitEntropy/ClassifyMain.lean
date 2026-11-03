@@ -1,8 +1,13 @@
-import FormalResearch.FourQubitEntropy.Classify
+module
+
+public import FormalResearch.FourQubitEntropy.Classify
 
 /-!
 # The maximisers are the local-unitary images of `M₄` and `conj M₄`
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

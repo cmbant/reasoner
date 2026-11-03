@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.RenyiSingleCrossing
-import FormalResearch.FourQubitEntropy.PaperEGenJointPurity
-import FormalResearch.FourQubitEntropy.PaperECriticalRenyiEq
-import FormalResearch.FourQubitEntropy.PaperECriticalRenyiThreshold
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiSingleCrossing
+public import FormalResearch.FourQubitEntropy.PaperEGenJointPurity
+public import FormalResearch.FourQubitEntropy.PaperECriticalRenyiEq
+public import FormalResearch.FourQubitEntropy.PaperECriticalRenyiThreshold
 
 /-!
 # The classical relaxation of the Rényi envelope above one: definitions
@@ -17,6 +19,9 @@ The *relaxation* keeps only `P ≥ 1`, `F ≥ 0` and the quadratic variance boun
 This file only sets up the objects; the statements of the per-spectrum certificates and of the
 classical theorem are in `RenyiFullClassical.lean`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

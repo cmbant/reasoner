@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Generic
-import FormalResearch.FourQubitEntropy.SparsePoly
+module
+
+public import FormalResearch.FourQubitEntropy.Generic
+public import FormalResearch.FourQubitEntropy.SparsePoly
 
 /-!
 # Generic expressions commute with operation-preserving maps
@@ -8,6 +10,9 @@ If `f : α → β` preserves the `RingOps` operations, then each expression of `
 evaluated at `f ∘ z`, `f ∘ w` is `f` of the expression evaluated at `z`, `w`. With
 `f = evSP v` this carries the polynomial identity of `Identity.lean` to every complex `z`, `w`.
 -/
+
+@[expose] public section
+
 
 open scoped FormalResearch.FourQubitEntropy.GenericOps
 

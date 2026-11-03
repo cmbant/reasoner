@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.PaperEGapSignedPerm
-import FormalResearch.FourQubitEntropy.PaperETwoFlatEq
-import FormalResearch.FourQubitEntropy.RenyiRankTwoSharp
-import FormalResearch.FourQubitEntropy.PaperEGapCutLU
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGapSignedPerm
+public import FormalResearch.FourQubitEntropy.PaperETwoFlatEq
+public import FormalResearch.FourQubitEntropy.RenyiRankTwoSharp
+public import FormalResearch.FourQubitEntropy.PaperEGapCutLU
 
 /-!
 # `prop:fqe-two-flat-rigidity`: identification with the cluster-to-Bell family (QF)
@@ -20,6 +22,9 @@ H₋v}` satisfying `|Σ w_k²|² = 2 Σ|w_k|⁴ - 1`, the equality case `Δ_k = 
 * `renyi_of_QF`, `two_flat_renyi`: the exact Rényi envelope of `prop:fqe-renyi-rank-two` for all `q > 0`,
   `E_q = 4/3 + H_q(a,1-a)/3 ≤ 5/3`, `a = x²`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

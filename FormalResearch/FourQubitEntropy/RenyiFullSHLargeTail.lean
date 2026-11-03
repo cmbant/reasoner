@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullSHLarge
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullSHLarge
 
 /-!
 # Small-head dual: assembly of the large tail and of `lem:fqe-small-head-dual`
@@ -6,6 +8,9 @@ import FormalResearch.FourQubitEntropy.RenyiFullSHLarge
 `sh_large_tail`: `Λ_θ ≤ Λ_θ(c₂) = 8023/4800` on `((1-u+δ)/2, (1-u-δ)/2, u/2, u/2)`, `1/4 ≤ u ≤ 1/2`,
 `0 ≤ δ ≤ min(u, 1-2u)`.  `smallHeadDual : SmallHeadDual` combines it with `sh_small_tail`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

@@ -1,4 +1,6 @@
-import FormalResearch.FrameFree.Reversals
+module
+
+public import FormalResearch.FrameFree.Reversals
 
 /-!
 # `ψ₊` is calibrated: `F_C(ψ₊) = F_K(ψ₊) = 1/2` (Paper P, `thm:psipluskramers`)
@@ -9,6 +11,9 @@ exchanging spins `2` and `4`, up to a phase.  The values are the `θ = π/4` cas
 (`Reversals.exchange_pi4`), whose upper bounds are the filtered-gate law at `δ = cos 2θ = 0`
 (`ExchangeBounds`).  The rate `ξ_inv(ψ₊) = log 2` is `XiInv.psiplus_xi_inv`.
 -/
+
+@[expose] public section
+
 
 open scoped Real
 open FormalResearch.FrameFree.NQubit

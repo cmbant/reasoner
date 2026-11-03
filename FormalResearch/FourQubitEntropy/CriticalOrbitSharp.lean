@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.CriticalOrbitUpper
-import FormalResearch.FourQubitEntropy.CriticalOrbitMain
+module
+
+public import FormalResearch.FourQubitEntropy.CriticalOrbitUpper
+public import FormalResearch.FourQubitEntropy.CriticalOrbitMain
 
 /-!
 # Sharp critical-orbit stability: the theorem and its sharpness
@@ -10,6 +12,9 @@ import FormalResearch.FourQubitEntropy.CriticalOrbitMain
 are optimal: the product of two Bell pairs `G(e₀)` has `Q = Φ = 1/2`, `d² = 2 - √2`, so
 `Q = 1 - Φ = 3/2 - 2Φ = ((2+√2)/4) d²` (this uses the upper bound `Phi_Gv_le`).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

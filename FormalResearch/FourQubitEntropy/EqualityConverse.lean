@@ -1,8 +1,13 @@
-import FormalResearch.FourQubitEntropy.LocalUnitary
+module
+
+public import FormalResearch.FourQubitEntropy.LocalUnitary
 
 /-!
 # Local-unitary images of `M₄` and `conj M₄` attain the bound
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder Kronecker
 

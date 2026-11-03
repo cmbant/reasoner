@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Invariant bases and the group-average projection (QV block calculus, T7)
@@ -10,6 +12,9 @@ characteristic `0`, `repAvg ρ = (1/|G|) ∑_g ρ g` is an idempotent with `ρ h
 `n = tr R` (the character-average formula `n = (1/|G|) ∑ tr ρ g`), then `R = V Λ` for some `Λ`; with
 a similar `W` of left invariants, `R = V Λ Wᵀ`.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix BigOperators
 

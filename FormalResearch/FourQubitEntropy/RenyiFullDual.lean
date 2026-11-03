@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullDefs
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullDefs
 
 /-!
 # The Lagrangian dual bound and the analytic cubic envelope
@@ -17,6 +19,9 @@ Paper E: `lem:fqe-dual` (Lagrangian dual bound), the contact identities (DC), an
 
 Nothing here is hypothetical: `dual_bound` uses only (QK) for the triple (a hypothesis of the lemma).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

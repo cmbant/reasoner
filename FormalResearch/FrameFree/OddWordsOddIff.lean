@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.FrameFree.OddWordsCompressed
-import FormalResearch.FrameFree.OddWordsPolar
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.OddWordsCompressed
+public import FormalResearch.FrameFree.OddWordsPolar
 
 /-!
 # `prop:oddwords` (i): Hermitian `Θ`-odd elements of `𝒜_k` are the real combinations of compressed odd words
@@ -16,6 +18,9 @@ Hermiticity makes `Z₁` symmetric and `Z₂` antisymmetric; `Θ` acts as comple
 (`ev_permOp_thetaN`), so oddness forces `⟨ψ^{⊗k}|Z₁|ψ^{⊗k}⟩ = 0` for all `ψ`, hence `Z₁ = 0` by the
 polarization `eq_zero_of_ev_kronVec`; and `i Z₂ = ½ Π (i (Y₂ - Y₂ᵀ)) Π ∈ oddK`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.FrameFree.HelstromPure
-import FormalResearch.FrameFree.HelstromTwirlBound
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.HelstromPure
+public import FormalResearch.FrameFree.HelstromTwirlBound
 
 /-!
 # Isotypic block operators `⊕_λ I_{V_λ} ⊗ X_λ` (coordinates for `lem:blockdecomp`)
@@ -23,6 +25,9 @@ coordinates are the input (compare `QIA/IsotypicMultiplicityReduction.lean`, whi
   `⟨v| ⊕ I⊗X_λ |v⟩ = Σ_λ Tr(X_λ τ_λ(v))`;
 * `blockOp_isEffect_iff`: `0 ≤ ⊕ I⊗X_λ ≤ 1` iff every `0 ≤ X_λ ≤ 1` (carriers nonempty).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

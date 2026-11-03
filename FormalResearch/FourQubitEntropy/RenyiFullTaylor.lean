@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Taylor lower bounds used by the near-uniform entropy estimates
@@ -12,6 +14,9 @@ Paper E, `lem:fqe-near-uniform-moment` (`sup_renyi.tex`, `sec:sup-nu-moment`): "
 * `taylor_rpow`: for `1 < q < 2` and `u ≥ -1`, `(1+u)^q ≥ Σ_{k<6} C(q,k) u^k`;
 * `log_ge_taylor4`: `ln(1+z) ≥ z - z²/2 + z³/3 - z⁴/4` for `z ≥ 0`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Checks
+module
+
+public import FormalResearch.FourQubitEntropy.Checks
 
 /-!
 # The `n = 4` purity--time-reversal tradeoff, and the three Bell pairings
@@ -8,6 +10,9 @@ marginals and `τ = |ψᵀ σ_y^{⊗4} ψ|²`, every unit state has `π₂ ≥ 1
 largest possible, attained by a product of two Bell pairs (`τ = 1`). The same product states for the
 other two pairings of the qubits are zeros of `F` (Theorem `thm:fqe-moment`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix
 

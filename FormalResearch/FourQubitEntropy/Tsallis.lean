@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.TsallisMajorant
-import FormalResearch.FourQubitEntropy.TsallisCoeff
+module
+
+public import FormalResearch.FourQubitEntropy.TsallisMajorant
+public import FormalResearch.FourQubitEntropy.TsallisCoeff
 
 /-!
 # Tsallis entropies
@@ -12,6 +14,9 @@ Paper: `cor:fqe-tsallis` (spectral_corollaries.tex). The proof is that of the pa
 cubic-majorant criterion (`Majorant.lean`) to the Hermite cubic of `f_q` (`TsallisMajorant.lean`),
 whose coefficient condition (T) is `TsallisCoeff.lean`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

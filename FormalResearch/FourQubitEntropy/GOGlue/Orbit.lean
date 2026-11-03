@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceFinal
-import FormalResearch.FourQubitEntropy.GOProbe.PolySound
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceFinal
+public import FormalResearch.FourQubitEntropy.GOProbe.PolySound
 
 /-!
 # GO glue: closest-point frames are preserved by orthogonal lower conjugations
@@ -9,6 +11,9 @@ import FormalResearch.FourQubitEntropy.GOProbe.PolySound
 `O` real orthogonal, a closest-point frame at `v` gives one at `v'` (`frame_orth`): the overlaps of the
 slice states with `χ` are those with another point of `𝓜` (`ip_orbit`).  Claim class: proved.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

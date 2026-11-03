@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullSHBin
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullSHBin
 
 /-!
 # Small-head dual: `D_q(z) ≥ c z` on `[0, 1/9]`
@@ -7,6 +9,9 @@ Paper E, `lem:fqe-small-head-dual`: the paper uses `D_q(z) ≥ D_q'(0) z + D_q''
 Here `D_q` is concave on `[0, 1/9]` (because `D_q'' = G/(rL)` increases, `bqG_strictMonoOn`, and `G(1/3) ≤ 0`),
 so `D_q(z) ≥ 9 D_q(1/9) z`; and `D_q(1/9) = 1 - H_q(1/3, 2/3)`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

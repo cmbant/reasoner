@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.CopyThresholdWords
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.CopyThresholdWords
 
 /-!
 # Transfer of word values to more spins, scaling, and Gaussian-integer evaluation
@@ -16,6 +18,9 @@ Namespace `FormalResearch.FrameFree.Twirls`.  Claim class: **proved** (no hypoth
 * `giWord`, `wordVal_giVec`: for a state with Gaussian-integer amplitudes the word value is the image of an
   explicit sum in `ℤ[i]`, which `decide +kernel` evaluates (used for the witnesses in `CopyThresholdWitness`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

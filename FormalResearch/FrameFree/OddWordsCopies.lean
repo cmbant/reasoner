@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.OddWordsReal
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.OddWordsReal
 
 /-!
 # `k` copies: the symmetrizer, product vectors and time reversal (Paper P, `prop:oddwords` (i), (ii))
@@ -12,6 +14,9 @@ copy-symmetric subspace `Sym^k V` (a real symmetric element of `rPerm`), and `ev
 This file collects the elementary facts used by `OddWordsCompressed`, `OddWordsPolar` and `OddWordsOddIff`:
 `symmetrizer` fixes `ψ^{⊗γ}`, `Θ (ψ^{⊗γ}) = (Θψ)^{⊗γ}`, and `⟨Θv|P_σ Θv⟩ = conj ⟨v|P_σ v⟩`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

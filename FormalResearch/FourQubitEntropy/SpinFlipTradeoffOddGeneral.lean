@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.SpinFlipOddQSum
-import FormalResearch.FourQubitEntropy.SpinFlipOddSector
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipOddQSum
+public import FormalResearch.FourQubitEntropy.SpinFlipOddSector
 
 /-!
 # Engine of the odd-`n` tradeoff: `π_m + ((n-3)/2) O = 1/2 + Σ oddW_j A_j`
@@ -8,6 +10,9 @@ The pointwise generating-function identity `odd_tradeoff_identity` for `n = 2m +
 and the weights `oddW`.  The statement of `thm:odd-spinflip-tradeoff` (sharp coefficient `c_n`, positivity of the
 weights, equality case, GHZ) is `SpinFlipTradeoffOddSharp.lean`, which derives it from this identity and `Omean_eq`.
 -/
+
+@[expose] public section
+
 
 open Polynomial Finset
 open FormalResearch.FrameFree.NQubit

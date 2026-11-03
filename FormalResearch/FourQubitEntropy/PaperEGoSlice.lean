@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperEFidelityFloor
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEFidelityFloor
 
 /-!
 # `thm:fqe-global-overlap`: the normal-slice interface and the reduction to it
@@ -31,6 +33,9 @@ unit `ψ`.
 in real form).  Matrix constraints are stated as nonnegativity of the quadratic form
 (`QF K := ∀ w, 0 ≤ ∑ᵢⱼ wᵢ Kᵢⱼ wⱼ`), which is what the module `∑ G_ab v_aᵀ B v_b` needs.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

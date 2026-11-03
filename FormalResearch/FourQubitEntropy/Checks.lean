@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.EqualityMain
+module
+
+public import FormalResearch.FourQubitEntropy.EqualityMain
 
 /-!
 # Sanity checks and corollaries for the four-qubit entropy note
@@ -8,6 +10,9 @@ theorems are not vacuous), the exact form of the purity identity, the criticalit
 `F`, the moment line `T ≤ 5/12 + 17/12 (P - 1)` and its sharpness, the Tsallis-2 corollary, the
 invariants of `M₄`, and one-cut rigidity for the cut `12|34`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix
 

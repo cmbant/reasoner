@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.FrameFree.HelstromTwirl
-import FormalResearch.QIB.BlockDecomp
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.HelstromTwirl
+public import FormalResearch.QIB.BlockDecomp
 
 /-!
 # The twirl in isotypic coordinates (`lem:blockdecomp`, first formula)
@@ -17,6 +19,9 @@ multiplicatively closed set of unitaries).  `twirl_blockForm` shows that, under 
 hypothesis, every twirl of `ρ` equals `⊕_λ I ⊗ (Tr_{A λ} ρ_λλ)/|A λ|`; for `ρ = |v⟩⟨v|` the multiplicity
 block is `tau v λ` (`ptrA_vecMulVec`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

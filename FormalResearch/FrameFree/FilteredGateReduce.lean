@@ -1,4 +1,6 @@
-import FormalResearch.FrameFree.FilteredGateCore
+module
+
+public import FormalResearch.FrameFree.FilteredGateCore
 
 
 /-!
@@ -9,6 +11,9 @@ import FormalResearch.FrameFree.FilteredGateCore
 generate all sign changes `c_k ↦ ±c_k`, so every `c` reduces to one with `sin 4c_k ≥ 0` for all `k`,
 where `core_good` applies (`Law_all`).
 -/
+
+@[expose] public section
+
 
 open scoped Matrix Kronecker ComplexConjugate
 open Finset Complex

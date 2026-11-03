@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.QVBlock.Kron
+module
+
+public import FormalResearch.FourQubitEntropy.QVBlock.Kron
 
 /-!
 # Copy symmetriser and `z^{⊗n}` (QV block calculus, T4)
@@ -12,6 +14,9 @@ For `z : (Q → σ) → 𝕜`, `copyPower z a = ∏ t, z (fun q => a q t)` is th
 * `copySym_mulVec_copyPower`, `copyPower_vecMul_copySym`: `P ψ = ψ`, `ψᵀ P = ψᵀ`.
 * `copyPower_quad_eq_zero` (T4): `P K P = 0 → ψᵀ K ψ = 0`.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix BigOperators
 

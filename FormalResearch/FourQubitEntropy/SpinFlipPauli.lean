@@ -1,4 +1,6 @@
-import FormalResearch.FrameFree.Foundations
+module
+
+public import FormalResearch.FrameFree.Foundations
 
 /-!
 # Pauli weight distribution and the global parity identity (any number of qubits)
@@ -24,6 +26,9 @@ Main results (all **proved**, no hypotheses beyond `nsq ψ = 1` where stated):
 * `tau_eq_zero_of_odd`: `τ_n = 0` for odd `n`; `tau_le_one`;
 * `tau_eq_one_iff_odd_vanish` (even `n`): `τ_n = 1` iff every odd-weight Pauli expectation vanishes.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate BigOperators
 open FormalResearch.FrameFree.NQubit

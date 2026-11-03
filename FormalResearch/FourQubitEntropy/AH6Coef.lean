@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.AH6Joint
-import FormalResearch.FourQubitEntropy.SevenQubitJointMajorant
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Joint
+public import FormalResearch.FourQubitEntropy.SevenQubitJointMajorant
 
 /-!
 # The coefficients `h_{kl}` of `H` and the statement for `polyH`
@@ -9,6 +11,9 @@ explicit table of the 21 coefficients in terms of the coefficients `P₀..P₅` 
 `β₀, β₁` (computed by expanding the binomials); `polyH_jointCoef` is the identity
 `polyH degFive (jointCoef x) = H`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

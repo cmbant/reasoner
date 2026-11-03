@@ -1,7 +1,9 @@
-import Mathlib
-import FormalResearch.QIB.BlockDecomp
-import FormalResearch.QIB.BlockCoordinates
-import FormalResearch.QIB.BlockTwirl
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockDecomp
+public import FormalResearch.QIB.BlockCoordinates
+public import FormalResearch.QIB.BlockTwirl
 
 /-!
 # Real central projectors of a real-spanned commutant (core of the real-structure input)
@@ -24,6 +26,9 @@ for any commutant spanned by real matrices that are conjugate to their transpose
 * `tau_mulVec_of_mem`: `τ_l(U v) = τ_l(v)` for a unitary `U` of the group (frame rotations do not
   change the multiplicity blocks).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

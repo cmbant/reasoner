@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PurityLPGraphMean
-import FormalResearch.FourQubitEntropy.PurityLPMaskSum
+module
+
+public import FormalResearch.FourQubitEntropy.PurityLPGraphMean
+public import FormalResearch.FourQubitEntropy.PurityLPMaskSum
 
 /-!
 # Graph states with all vertices of odd degree have `τ_n = 1` (sharpness of `thm:purity-spinflip-tradeoff`)
@@ -9,6 +11,9 @@ Source: `spinflip_tradeoff.tex`, `thm:purity-spinflip-tradeoff` (sharpness claus
 normalisation `gsn Γ = 2^{-n/2} gs Γ`.  `gK k r = 2^{k - r}` is the summand of the rank sum of `piMean_gsn`.
 Claim class: proved.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate BigOperators
 open FormalResearch.FrameFree.NQubit

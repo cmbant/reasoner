@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Kernels of nonzero `sl₂` elements on irreducible modules are at most one-dimensional
@@ -24,6 +26,9 @@ vanishes and `v₀,…,v_N` are independent and (irreducibility) span; (3) if th
 (`H ↦ H + 2tF`, `E ↦ E - tH - t²F`, `F ↦ F`), which preserves the relations and irreducibility.
 The matrix form and the bridge to `QIB.rank_tau_le_one_of_kernel` are in `TwoQubitsSl2Rank.lean`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

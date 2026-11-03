@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicSwap
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicSwap
 
 /-!
 # Kernel evaluation of the cubic forms of the icosahedral tensor, mask class `C31`
@@ -10,6 +12,9 @@ out to lie in `span{cfA, cfB}` with explicit integer coefficients, and concludes
 `cubicMaskSum_C31`: the cubic mask sum of `icosahedralState α β` over the class is
 `s · cfA + t · cfB` (`s`, `t` cubic polynomials in `α`, `β`).
 -/
+
+@[expose] public section
+
 
 open Finset
 

@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.RenyiFullState
-import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
-import FormalResearch.FourQubitEntropy.Tradeoff
-import FormalResearch.FourQubitEntropy.CriticalOrbitPhi
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullState
+public import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
+public import FormalResearch.FourQubitEntropy.Tradeoff
+public import FormalResearch.FourQubitEntropy.CriticalOrbitPhi
 
 /-!
 # Equality classes of the Rényi envelope below the crossing, as local-unitary orbits
@@ -16,6 +18,9 @@ LU-equivalent to `M₄` or `conj M₄` (under `ClassicalRelaxation` and (QK)); c
 (`meanRenyi_M4`).  The cluster clause for `q > q_*` is spectral only (the (QF) identification of
 two-flat states with the cluster-to-Bell family is not formalised).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

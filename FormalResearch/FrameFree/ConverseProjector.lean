@@ -1,7 +1,12 @@
-import FormalResearch.FrameFree.Helstrom
-import FormalResearch.FrameFree.HelstromSupport
-import FormalResearch.FrameFree.HelstromWindow
-import FormalResearch.FrameFree.TwirlsSchurWeyl
+module
+
+public import FormalResearch.FrameFree.Helstrom
+public import FormalResearch.FrameFree.HelstromSupport
+public import FormalResearch.FrameFree.HelstromWindow
+public import FormalResearch.FrameFree.TwirlsSchurWeyl
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

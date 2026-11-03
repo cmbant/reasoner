@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.RenyiFullBQConv
-import FormalResearch.FourQubitEntropy.RenyiFullBQRolle
-import FormalResearch.FourQubitEntropy.RenyiSpec
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullBQConv
+public import FormalResearch.FourQubitEntropy.RenyiFullBQRolle
+public import FormalResearch.FourQubitEntropy.RenyiSpec
 
 /-!
 # The binary quartic lemma at `q_s = 1587/1000`
@@ -17,6 +19,9 @@ The proof is the paper's real-variable proof (Riccati equation for `x = tanh(qφ
 two exact Bernstein sign certificates at `q_s`, `G'' > 0` hence `G' > 0`), with a Rolle argument
 (`RenyiFullBQRolle.lean`) in place of the Hermite--Genocchi formula for monotonicity.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

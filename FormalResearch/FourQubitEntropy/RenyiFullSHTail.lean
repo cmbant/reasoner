@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullSHSmall
-import FormalResearch.FourQubitEntropy.RenyiFullSHPoly
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullSHSmall
+public import FormalResearch.FourQubitEntropy.RenyiFullSHPoly
 
 /-!
 # Small-head dual: the small tail `0 ≤ u ≤ 1/4`
@@ -8,6 +10,9 @@ Paper E, `lem:fqe-small-head-dual`, "Small tail".  With `h(u) = H_q(u,1-u)`, `A_
 (`bqA_strictMonoOn`; the paper's concavity is replaced by a finer staircase of node values
 `sh_node_i`, `RenyiFullSHNodes.lean`) and the deficit (SHD), `Λ_θ ≤ shQ a u ≤ 8023/4800` on each interval.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

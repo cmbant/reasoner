@@ -1,4 +1,9 @@
-import FormalResearch.FrameFree.SupportRateGelfand
+module
+
+public import FormalResearch.FrameFree.SupportRateGelfand
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

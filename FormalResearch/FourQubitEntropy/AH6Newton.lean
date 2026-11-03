@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Newton form of the quintic Hermite interpolant on three double nodes, and its remainder for `1/(ρ t + σ)`
@@ -12,6 +14,9 @@ For the function `φ(t) = 1/(ρ t + σ)` the divided differences are `(-ρ)^{j-i
 This is the Hermite remainder identity of the Stieltjes representation in
 `joint_entropy_analytic_proof.tex` (eq. `seven-joint-stieltjes`), proved by an elementary induction.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

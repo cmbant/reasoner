@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.TwirlsTwirl
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.TwirlsTwirl
 
 /-!
 # Word values of pure-state copies and the reality criterion (Paper P, `thm:copythreshold`)
@@ -18,6 +20,9 @@ slot permutation `s ∈ Perm (α × γ)` of the `k = |γ|` copies, and its *valu
   value of a pure state is unchanged under multiplying `s` by a permutation of the copies (`id × w`) on
   either side.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

@@ -1,6 +1,8 @@
-import FormalResearch.FrameFree.WeylVertex
-import FormalResearch.FrameFree.Design
-import FormalResearch.FrameFree.PlanarSign
+module
+
+public import FormalResearch.FrameFree.WeylVertex
+public import FormalResearch.FrameFree.Design
+public import FormalResearch.FrameFree.PlanarSign
 
 /-!
 # Maximal chirality on the critical locus: the bound
@@ -13,6 +15,9 @@ Paper P, Lemma `lem:polarisedlongroot` and the bound part of Theorem `thm:maxchi
 The analytic input is the planar sign inequality for four complex numbers (`PlanarSign4`,
 `planar_sign_inequality.tex`), taken here as a hypothesis; `FrameFree/PlanarSign.lean` proves it.
 -/
+
+@[expose] public section
+
 
 open Finset
 

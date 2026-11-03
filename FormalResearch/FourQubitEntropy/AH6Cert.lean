@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.AH6Logs
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Logs
 
 /-!
 # The AH-6 kernel certificate and its soundness
@@ -12,6 +14,9 @@ polynomial `Π`.  `cert_sound` turns it into the real statements about `stageA .
 Machine requirements (4 cores, 15 GB RAM, one `lake env lean`): this file takes 11 s and 6.9 GB peak resident size (about
 6.3 GB of which are the memory-mapped `.olean` files of `Mathlib`); the kernel evaluation itself is about 4 s.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

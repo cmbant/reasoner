@@ -1,4 +1,9 @@
-import FormalResearch.FrameFree.WeylUpper
+module
+
+public import FormalResearch.FrameFree.WeylUpper
+
+
+@[expose] public section
 
 open scoped ComplexConjugate Matrix
 open FormalResearch.FourQubitEntropy FormalResearch.FrameFree.WeylUpper

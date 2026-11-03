@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Checks
+module
+
+public import FormalResearch.FourQubitEntropy.Checks
 
 /-!
 # One-cut rigidity for every cut
@@ -9,6 +11,9 @@ with the fact that `M₄` itself satisfies the cut condition on every cut.
 
 Paper: `prop:fqe-onecut` (entropy_maximum.tex).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix
 

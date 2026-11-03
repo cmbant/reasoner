@@ -173,7 +173,9 @@ def spec_stmt(n, name, spec):
     return ""
 
 
-HEADER = """import FormalResearch.FourQubitEntropy.PurityLPRankHist
+HEADER = """module
+
+public import FormalResearch.FourQubitEntropy.PurityLPRankHist
 
 /-!
 # Graph-state witnesses of the purity minima: %s
@@ -189,6 +191,8 @@ cuts containing the last vertex only, by complement symmetry), `rankHist<n>` the
 `rankSum<n>` the sum `Σ_{|S| = k} 2^{k - rk_2 Γ[S,S^c]}` and `piMean_graph<n>` the resulting value of `π_k` of the
 (normalised) graph state `gsn`, which equals the Rains-LP value.  Claim class: exact finite certificate (`decide +kernel`).
 -/
+
+@[expose] public section
 
 open scoped BigOperators
 open FormalResearch.FrameFree.NQubit
@@ -279,12 +283,14 @@ for n in (16, 17, 18):
 
 
 # ---- main theorems
-main = ["""import FormalResearch.FourQubitEntropy.PurityLPCertData
-import FormalResearch.FourQubitEntropy.PurityLPGraphDataA
-import FormalResearch.FourQubitEntropy.PurityLPGraphDataB
-import FormalResearch.FourQubitEntropy.PurityLPGraphData16
-import FormalResearch.FourQubitEntropy.PurityLPGraphData17
-import FormalResearch.FourQubitEntropy.PurityLPGraphData18
+main = ["""module
+
+public import FormalResearch.FourQubitEntropy.PurityLPCertData
+public import FormalResearch.FourQubitEntropy.PurityLPGraphDataA
+public import FormalResearch.FourQubitEntropy.PurityLPGraphDataB
+public import FormalResearch.FourQubitEntropy.PurityLPGraphData16
+public import FormalResearch.FourQubitEntropy.PurityLPGraphData17
+public import FormalResearch.FourQubitEntropy.PurityLPGraphData18
 
 /-!
 # Exact minima of the mean balanced-cut purity of `n`-qubit pure states (Paper E, Rains LP tables)
@@ -300,6 +306,8 @@ The lower bound is `lpBound<n>` (shadow inequalities `shadow_nonneg`, `a_s = a_{
 certificate); the attaining state is the normalised graph state `gsn (adjGraph adj<n>)` (`piMean_graph<n>`, from
 `purity_gsn : tr ρ_S² = 2^{-rk_2 Γ[S,S^c]}` and the kernel-checked cut ranks).  `n = 7, 13` are out of scope.
 -/
+
+@[expose] public section
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 

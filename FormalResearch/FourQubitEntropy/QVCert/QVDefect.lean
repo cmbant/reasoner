@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperEGenJointPurity
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGenJointPurity
 
 /-!
 # The homogenised (QV) defect `𝔇`
@@ -12,6 +14,9 @@ Then `𝔇 (z / √N) · N⁶ = 𝔇 z`, and on unit vectors `𝔇 = F² + 3P(P-
 * `defectD_unit`: for `normSqPsi ψ = 1`, `𝔇 ψ = F² + 3P(P-1) - 6 Σ_j (p_j - P/3)²`, with `p_j = cutPurity1j ψ`
   the cut purities (sums of squared eigenvalues) used in `RenyiFull.SharpQuadraticVarianceBound`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.QVCert
 

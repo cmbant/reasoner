@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # A Rolle argument for the second divided difference at `0, v, 1`
@@ -8,6 +10,9 @@ increasing.  Then `v ↦ g(v)/(v(1-v))` is strictly decreasing on `(0,1)`.  (For
 the monotonicity of `A_q`, `lem:fqe-binary-quartic`: `g/(v(1-v)) = [0,v,1]g`, and the third divided
 difference at `0, v, v', 1` is positive when `g'' ` is increasing; no Hermite--Genocchi formula is needed.)
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

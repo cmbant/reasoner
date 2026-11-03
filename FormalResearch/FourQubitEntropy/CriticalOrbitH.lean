@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.CriticalOrbitPr
+module
+
+public import FormalResearch.FourQubitEntropy.CriticalOrbitPr
 
 /-!
 # Critical-orbit stability: the 32 representatives `𝓗` and their overlaps
@@ -9,6 +11,9 @@ For `η ∈ 𝓗` (`η_i = 1/√2`, `η_j = ε_j i/√6`, `j ≠ i`; index `a = 
 `ring`), which is the closure `𝓗 -> 𝓗` used in the symmetry reduction of
 `critical_orbit_stability.tex`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

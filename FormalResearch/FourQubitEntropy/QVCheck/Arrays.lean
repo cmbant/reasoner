@@ -1,7 +1,9 @@
-import Mathlib
-import QVCheckImpl.Basic
-import QVCheckImpl.Impl2
-import FormalResearch.FourQubitEntropy.QVBlock.Kron
+module
+
+public import Mathlib
+public import QVCheckImpl.Basic
+public import QVCheckImpl.Impl2
+public import FormalResearch.FourQubitEntropy.QVBlock.Kron
 
 /-!
 # Array semantics of the checker primitives
@@ -12,6 +14,9 @@ import FormalResearch.FourQubitEntropy.QVBlock.Kron
 * the mode products `modeProd`, composed along the four qubit axes (`kron4`), compute the Kronecker action `⊗_q M_q` on
   flat tensors (`kron4_eq_sum`).
 -/
+
+@[expose] public section
+
 
 open Finset
 

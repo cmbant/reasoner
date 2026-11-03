@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalRenyiGrouping
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalRenyiGrouping
 
 /-!
 # Equality cases of the binary-grouping lemma and of the cubic Rényi bound
@@ -14,6 +16,9 @@ Paper E, `renyi_cubic_bound.tex`.
 
 Proved, axiom-free.
 -/
+
+@[expose] public section
+
 
 open Real
 

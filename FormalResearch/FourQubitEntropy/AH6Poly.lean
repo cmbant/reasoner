@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.AH6Ball
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Ball
 
 /-!
 # Coefficient-list polynomials over an arbitrary arithmetic, with enclosure lemmas
@@ -17,6 +19,9 @@ Positivity certificates (`pos_on_interval`, `pos_on_tail`): `mob (scalePow (h-l)
 Bernstein coefficients of `p` on `[l,h]` times binomial coefficients; if all of them are positive then `p > 0` on
 `[l,h)` (the endpoint `h` is covered by the next interval).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 
