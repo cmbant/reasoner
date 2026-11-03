@@ -11,6 +11,17 @@ name = "QVCheckImpl"
 globs = ["QVCheckImpl", "QVCheckImpl.+"]
 precompileModules = true
 
+# Vendored third-party proof of the 2 x 3 PPT criterion (see ThirdParty/math-lab/NOTICE.md); built via imports.
+[[lean_lib]]
+name = "MathLab"
+srcDir = "ThirdParty/math-lab"
+globs = ["MathLab.+"]
+
+[[lean_lib]]
+name = "ThreeCopyQutritWerner"
+srcDir = "ThirdParty/math-lab/ThirdParty/PSI"
+globs = ["ThreeCopyQutritWerner.+"]
+
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"

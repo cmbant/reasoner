@@ -13,7 +13,8 @@ fully-PPT three-qubit state that is not biseparable contains no nonzero cut-prod
 
 Each of the three cuts `A|BC`, `B|AC`, `C|AB` is identified with `ℂ² ⊗ ℂ⁴` by an explicit
 reindexing `Fin 8 ≃ Fin 2 × Fin 4` under which `ptA`, `ptB`, `ptC` become `ptFirst`, and then
-`ppt_product_kernel` applies.  **Hypothesis:** `PPTSeparable23` (Horodecki–Horodecki–Horodecki 1996).
+`ppt_product_kernel` applies.  **Hypothesis:** `PPTSeparable23` (Horodecki–Horodecki–Horodecki 1996), discharged in
+`PPTSeparable23.lean`, which gives the hypothesis-free primed versions.
 -/
 
 @[expose] public section

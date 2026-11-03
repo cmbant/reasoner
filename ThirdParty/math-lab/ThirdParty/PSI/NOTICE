@@ -1,0 +1,50 @@
+Three-copy nondistillability of the qutrit Werner state: Lean 4 formalization
+Copyright 2026 Physical Superintelligence PBC
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This repository is a release snapshot of a Lean 4 formalization of the qutrit, three-copy part of
+Theorem 2.1 and Corollary 2.2 of the PSI manuscript "Three-copy nondistillability of qutrit and
+ququart Werner states" (version of 21 October 2026). The Lean files ThreeCopyQutritWerner.lean,
+Solution.lean and those under
+ThreeCopyQutritWerner/ (except Audit/FinalCheck.lean), and the certificate data under
+verification/matrix-literals/ and verification/finite-integer-literals/, are taken from PSI's
+development repository. The data files are unchanged. The Lean files are changed only as follows:
+- Module system: every file starts with `module`, its imports are `public import`, and its body is
+  in an `@[expose] public section` (definition bodies visible to importing modules) or, in the 12
+  files that hold the metaprograms (the elaborators that read the data files and the commands that
+  generate data definitions), in a `public meta section`; in those 12 files, 20 imports are
+  repeated as `public meta import`. Mathlib imports are added so that each file
+  sees the same Mathlib modules as before.
+- In ThreeCopyQutritWerner/CertificateX2PackedLiteral.lean, the helper that adds each generated data
+  definition calls `addDecl (forceExpose := true)` instead of `addDecl`, so that importing modules
+  see the values of these definitions; the definitions are still checked by Lean's kernel.
+- In ThreeCopyQutritWerner/CertificateLocalFramesData.lean, the line
+  `set_option maxHeartbeats 400000 in` is added before each of the definitions
+  certificateLocalFrameEntries0_6, certificateLocalFrameEntries1_6 and
+  certificateLocalFrameEntries2_6 (a larger elaboration time budget; the definitions are unchanged).
+- Solution.lean gets one new theorem, minimum_formula_unequal_dims (Theorem 2.1, unequal local
+  dimensions, the case 2 <= d_i <= 3), which applies minimum_formula_of_card_of_endpoint to
+  qutritEndpointInequality.
+- Comments and docstrings are edited, among them those that named the manuscript's title or its
+  ququart seed (in Basic.lean, NoisyFamily.lean and NoisyFamilyReduction.lean);
+  ThreeCopyQutritWerner.lean and Solution.lean get new docstrings.
+The files Challenge.lean and ThreeCopyQutritWerner/Audit/FinalCheck.lean are written for this
+release.
+
+The checks that passed on this commit are recorded in verification/RECEIPTS.md.
+
+Provenance and use of AI. This result was released by Physical Superintelligence (PSI). The
+mathematics was developed by PSI researchers working with AI models (Anthropic's Claude Fable 5.1
+and Claude Opus 4.8, and OpenAI's GPT-5.6 and GPT-6-Astra) in automated research workflows at PSI. The
+Lean formalization was written by AI agents (OpenAI's GPT-6-Astra in Codex) under PSI's direction.
+Ian MacCormack and Ning Bao are responsible for the correctness of the paper. The paper's AI
+disclosure has the details; formalization.yaml records which agent did which part.
+
+Third-party material:
+- The files scripts/check-lean-sources.py, scripts/validate-formalization.rb,
+  scripts/verify-comparator.sh, test/validate_formalization_test.rb, .github/workflows/ci.yml,
+  Gemfile and Gemfile.lock are adapted from the Palomar template
+  (https://github.com/PalomarRegistry/PalomarTemplate).
+- Mathlib (https://github.com/leanprover-community/mathlib4, Apache License 2.0) is a dependency
+  fetched at build time; it is not redistributed here.

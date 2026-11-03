@@ -12,7 +12,7 @@ subspace of its kernel has no nonzero cut-product vector in its range, so the un
 description holds for every `B` with `Kᴴ B = 0`.
 
 **Hypothesis:** `PPTSeparable23` (Horodecki–Horodecki–Horodecki 1996), used only through
-`kernel_free_of_gme`.
+`kernel_free_of_gme`; discharged in `PPTSeparable23.lean` (`ppt3_universal_moments_of_gme'`).
 -/
 
 @[expose] public section

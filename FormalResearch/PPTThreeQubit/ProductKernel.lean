@@ -10,8 +10,10 @@ Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/append
 
 **Hypothesis.**  The proof reduces a PPT operator on `ℂ² ⊗ ℂ⁴` with a product vector in its kernel to
 a PPT operator on `ℂ² ⊗ ℂ³`, and then uses that PPT operators on `ℂ² ⊗ ℂ³` are separable
-[Horodecki–Horodecki–Horodecki 1996].  Mathlib has no such theorem, so it is an explicit hypothesis here:
-`PPTSeparable23`.  Nothing else is assumed.
+[Horodecki–Horodecki–Horodecki 1996].  Mathlib has no such theorem, so the lemma is stated with an explicit hypothesis
+`PPTSeparable23`, which is discharged in `PPTSeparable23.lean` by the vendored math-lab proof
+(`ThirdParty/math-lab/NOTICE.md`); the hypothesis-free statement is `ppt_product_kernel'`.  Nothing else
+is assumed.
 
 Contents.  `ptFirst` is the partial transpose on the first factor of a bipartite matrix over `ι × κ`;
 `ptFirst_congr` is its compatibility with local congruences; `posSemidef_sub_schur` is the rank-one
@@ -141,7 +143,8 @@ theorem isSeparable_congr (S : Matrix ι ι ℂ) (T : Matrix κ κ ℂ) {X : Mat
   simp only [prodRankOne, conjTranspose_kronecker, ← mul_kronecker_mul]
   congr 1 <;> rw [mul_vecMulVec, vecMulVec_mul, star_mulVec]
 
-/-- **Hypothesis** (Horodecki–Horodecki–Horodecki 1996, not in Mathlib): every positive operator on
+/-- **Hypothesis** (Horodecki–Horodecki–Horodecki 1996; not in Mathlib, proved in `PPTSeparable23.lean`
+from the vendored math-lab development as `pptSeparable23`): every positive operator on
 `ℂ² ⊗ ℂ³` with positive semidefinite partial transpose is separable.  It is the only external input of
 `ppt_product_kernel`. -/
 def PPTSeparable23 : Prop :=
@@ -283,7 +286,8 @@ theorem sep_of_kernel_basis (h : PPTSeparable23) (ρ : Matrix (Fin 2 × Fin 4) (
 semidefinite and whose kernel contains a nonzero product vector `a ⊗ b` is separable.
 
 **Hypothesis:** `PPTSeparable23`, the Horodecki–Horodecki–Horodecki (1996) theorem that PPT operators on
-`ℂ² ⊗ ℂ³` are separable, which is not in Mathlib and is assumed, not proved.  The paper's local-unitary
+`ℂ² ⊗ ℂ³` are separable, which is not in Mathlib; it is proved from the vendored math-lab development as `pptSeparable23`,
+and `ppt_product_kernel'` is this statement without the hypothesis.  The paper's local-unitary
 normalisation `a ⊗ b ↦ |0, 3⟩` is done here with local invertible congruences `(Vᴴ ⊗ Wᴴ) · (…)`.
 Not covered here: the three-qubit consequence (see `ProductKernelThree`). -/
 theorem ppt_product_kernel (h : PPTSeparable23) (ρ : Matrix (Fin 2 × Fin 4) (Fin 2 × Fin 4) ℂ)
