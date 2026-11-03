@@ -1,8 +1,13 @@
-import Mathlib
-import FormalResearch.FrameFree.PolyImageBasic
-import FormalResearch.FrameFree.PolyImageLift
-import FormalResearch.FrameFree.PolyImagePoints
-import FormalResearch.FrameFree.PolyImagePointSet
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.PolyImageBasic
+public import FormalResearch.FrameFree.PolyImageLift
+public import FormalResearch.FrameFree.PolyImagePoints
+public import FormalResearch.FrameFree.PolyImagePointSet
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

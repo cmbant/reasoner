@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # The Weyl-vertex quantity of a magic-diagonal state
@@ -11,6 +13,9 @@ its finite consequences used in the paper: the singlet-sphere formula (`eq:s4-si
 values `4/9` for `M₄` and `1/2` for `ψ₊`.  The Weyl-vertex formula itself (that `FKmag` is the rotation
 overlap) is the recalled input and is not proved here.
 -/
+
+@[expose] public section
+
 
 open Finset
 

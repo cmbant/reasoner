@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Renyi
+module
+
+public import FormalResearch.FourQubitEntropy.Renyi
 
 /-!
 # Spectral stability from the polarization and spin-flip remainders
@@ -24,6 +26,9 @@ estimates unconditionally. They carry the extra term `(a/12)(τ - τ^{3/2}) ≥ 
 `*_of_envelope` at the end of the file are the paper's strengthened estimates with the general envelope
 as an explicit hypothesis `henv`; they do not prove the envelope (`StabilityEnvelope.lean` does).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitSpectralPairCore
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitSpectralPairCore
 
 /-!
 # The cross-cut inequality `e_S + 16 v(ρ_S) ≤ R` for a pure seven-qubit state
@@ -18,6 +20,9 @@ For a unit vector `ψ` of seven qubits and a three-site mask `m`, `rhoS m ψ` is
 Only pure global states on seven qubits are treated; the closing sentence of the proposition ("also
 for mixed global states") is not formalized.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix
 open Finset

@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.GOGlue.Orbit
-import FormalResearch.FourQubitEntropy.GOGlue.Target
+module
+
+public import FormalResearch.FourQubitEntropy.GOGlue.Orbit
+public import FormalResearch.FourQubitEntropy.GOGlue.Target
 
 /-!
 # GO glue: the 48 signed lower permutations preserve closest-point frames
@@ -11,6 +13,9 @@ permutation matrix (determinant `±1`), so `frame_orth` shows that a closest-poi
 at every `act g (flipPt f x)` (`frame_orbit`).  The lists below are the generated data written out
 (`perms_sub`, `flips_sub` in `GOGlue/Final.lean` check `perms ⊆ permLists`, `flips ⊆ flipLists`).  Claim class: proved.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

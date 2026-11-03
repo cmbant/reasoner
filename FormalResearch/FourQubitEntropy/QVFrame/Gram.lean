@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.QVFrame.Twist
-import FormalResearch.FourQubitEntropy.QVCert.Positivity
+module
+
+public import FormalResearch.FourQubitEntropy.QVFrame.Twist
+public import FormalResearch.FourQubitEntropy.QVCert.Positivity
 
 /-!
 # T1: the weighted covariant norm as a quadratic form in the six-copy vector
@@ -12,6 +14,9 @@ and `E^j_{μμ'} = Σ_{m ≤ j} ω_{j,m} (C6 row (j,m,μ))ᵀ (C6 row (j,m,μ'))
 Nothing here refers to the numbers of `QVCert/Data.lean`: `gramOp` takes a spin tuple and a sparse multiplicity vector,
 and `normSqPhi_eq_qf` holds for every `QVCert.Block`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open scoped Matrix

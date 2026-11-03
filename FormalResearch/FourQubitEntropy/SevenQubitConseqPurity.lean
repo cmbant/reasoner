@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitConseqPauli
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitConseqPauli
 
 /-!
 # Consequences of the sharp seven-qubit purity bound: Pauli weights and the excess sum
@@ -11,6 +13,9 @@ file derives the elementary consequence `cor:sevenpauli` of
 A pure state is `ψ : BitString → ℂ` with `∑ |ψ z|² = 1`; the purity of a cut is computed from the reduced
 matrix `∑_r ψ(a,r) conj ψ(b,r)` exactly as in `SevenQubitIcoPurity` (same `Cut`, `encode`, `maskCut`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open Finset

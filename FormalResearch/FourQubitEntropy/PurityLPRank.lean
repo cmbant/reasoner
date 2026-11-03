@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Rank over `𝔽₂` by bitmask elimination (Stage 4 infrastructure)
@@ -13,6 +15,9 @@ A kernel-evaluable Gaussian elimination on rows stored as natural-number bitmask
   pivot bit is set)`, one rank per non-zero pivot row;
 * `f2rank_eq`: if every row is `< 2^c` then `f2rank rows = finrank (span (toVec c '' rows))`.
 -/
+
+@[expose] public section
+
 
 open Module
 

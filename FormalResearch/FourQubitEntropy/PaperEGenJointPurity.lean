@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.RenyiTwoUp
-import FormalResearch.FourQubitEntropy.RenyiRankTwo
-import FormalResearch.FourQubitEntropy.Corollaries
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiTwoUp
+public import FormalResearch.FourQubitEntropy.RenyiRankTwo
+public import FormalResearch.FourQubitEntropy.Corollaries
 
 /-!
 # The joint purity bound (JV) from the quadratic variance bound (QK)
@@ -25,6 +27,9 @@ Trust: no `native_decide` here.  `joint_purity_real` and `joint_purity_of_QK` us
 `Classical.choice`, `Quot.sound`; the latter uses the kernel-checked sextic identity of `Identity.lean` (via
 `sexticF_nonneg`, `F ≥ 0`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

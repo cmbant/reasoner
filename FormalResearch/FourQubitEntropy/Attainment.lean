@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Entropy
+module
+
+public import FormalResearch.FourQubitEntropy.Entropy
 
 /-!
 # `M₄` attains the entropy bound
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.Entropy
 three marginals `R` satisfies `(R - 1/6)(R - 1/2) = 0` and has trace `1`, so its spectrum is
 `{1/2, 1/6, 1/6, 1/6}` and `-λ ln λ` is affine on it.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.ConvexRoof
-import FormalResearch.FourQubitEntropy.EqualityMain
-import FormalResearch.FourQubitEntropy.Tsallis
-import FormalResearch.FourQubitEntropy.Renyi
+module
+
+public import FormalResearch.FourQubitEntropy.ConvexRoof
+public import FormalResearch.FourQubitEntropy.EqualityMain
+public import FormalResearch.FourQubitEntropy.Tsallis
+public import FormalResearch.FourQubitEntropy.Renyi
 
 /-!
 # Pure-only equality for the mixed-state ceiling (`cor:fqe-convex-roof`)
@@ -30,6 +32,9 @@ Trust: no `native_decide`, no placeholder proof and no new axiom here; everythin
 `propext`, `Classical.choice`, `Quot.sound`. The kernel-checked sextic identity of `Identity.lean` is used
 exactly where `ConvexRoof.lean` already uses it (through the pure-state ceilings).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker ComplexOrder
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalRealGram
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalRealGram
 
 /-!
 # Simultaneous real singular values, rectangular case (`lem:fqe-real-gram`)
@@ -21,6 +23,9 @@ orthonormal families in `ℝ^m`, `ℝ^n`, which are completed to orthonormal bas
 
 No hypotheses and no placeholder proofs.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix ComplexConjugate
 

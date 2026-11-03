@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.EnvelopeProductZero
+module
+
+public import FormalResearch.FourQubitEntropy.EnvelopeProductZero
 
 /-!
 # `thm:fqe-general-envelope`: the equality classification
@@ -24,6 +26,9 @@ case: the permanent classification (`EnvelopeCriticalClass.lean`, `EnvelopePermC
 `W₁ > 0`: product states (`H_zero_product`, `EnvelopeProductZero.lean`); conversely product states
 (`product_values`) and the family attain equality.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

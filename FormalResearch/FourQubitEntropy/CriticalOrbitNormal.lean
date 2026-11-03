@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.CriticalOrbitH
-import FormalResearch.FourQubitEntropy.CriticalOrbitIdentity
-import FormalResearch.FourQubitEntropy.CriticalOrbitReal
+module
+
+public import FormalResearch.FourQubitEntropy.CriticalOrbitH
+public import FormalResearch.FourQubitEntropy.CriticalOrbitIdentity
+public import FormalResearch.FourQubitEntropy.CriticalOrbitReal
 
 /-!
 # Critical-orbit stability: the symmetry reduction and `Q ≥ 3/2 - 2Φ`
@@ -12,6 +14,9 @@ permuted, and every overlap with a representative of `𝓗` of `u` is an overlap
 the twelve probabilities; `Q_lower` is the first inequality of `eq:fqe-critical-fidelity`
 (`Q ≥ 3/2 - 2Φ` for `Φ ≤ 1/2`), by the real inequality `core_real`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

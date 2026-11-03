@@ -1,4 +1,8 @@
-import FormalResearch.FourQubitEntropy.QVCheck.Certificate
+module
+
+public import FormalResearch.FourQubitEntropy.QVCheck.Certificate
+meta import QVCheckImpl.Impl5
+meta import FormalResearch.FourQubitEntropy.QVCheck.Bridge
 
 /-!
 # The checker run on the certificate (`native_decide`)
@@ -7,6 +11,9 @@ import FormalResearch.FourQubitEntropy.QVCheck.Certificate
 heavy computation of the whole certificate; its semantics is `QVCheck.kfam_bilinear` (all hypotheses of
 `QVBlock.quad_eq_zero_of_int_certificate` are discharged from the `true`).
 -/
+
+@[expose] public section
+
 
 namespace QVCheck
 

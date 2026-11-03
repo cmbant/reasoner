@@ -1,7 +1,9 @@
-import Mathlib
-import FormalResearch.QIB.BlockRealCond
-import FormalResearch.QIB.RealCoordsCoord
-import FormalResearch.QIB.RealCoordsWeights
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockRealCond
+public import FormalResearch.QIB.RealCoordsCoord
+public import FormalResearch.QIB.RealCoordsWeights
 
 /-!
 # Real isotypic coordinates for the frame group (unconditional)
@@ -18,6 +20,9 @@ Namespace `FormalResearch.QIB`.  Claim class: **proved** (no hypothesis, no new 
 * `Pe_antiunitary_all`, `Pe_ge_blind_all`: the unconditional `prop:antiunitary`, `prop:blind` for
   `Helstrom.Pe`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

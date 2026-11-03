@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RingOps
+module
+
+public import FormalResearch.FourQubitEntropy.RingOps
 
 /-!
 # Sparse polynomials in 32 variables with prime-product monomials
@@ -12,6 +14,9 @@ A polynomial is a list of `(monomial, coefficient)` pairs, sorted by monomial. S
 needed for soundness (`evSP_add` etc. hold for any lists); it makes the zero polynomial the empty
 list, so that a polynomial identity can be checked by `== []`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

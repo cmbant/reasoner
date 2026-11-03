@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.QVEqualityFamily
-import FormalResearch.FourQubitEntropy.RenyiFullStateEq
-import FormalResearch.FourQubitEntropy.PaperEGapTwoFlatQF
+module
+
+public import FormalResearch.FourQubitEntropy.QVEqualityFamily
+public import FormalResearch.FourQubitEntropy.RenyiFullStateEq
+public import FormalResearch.FourQubitEntropy.PaperEGapTwoFlatQF
 
 /-!
 # Equality in (QK) away from `P = 1`: the purity box, Bell-pair products, and the converses
@@ -15,6 +17,9 @@ Paper E, `sup_renyi.tex` (`sec:sup-qk`), proof of `thm:fqe-quadratic-variance`.
   (`bell2`, `bell13`, `bell14`), via `prop:fqe-two-flat-rigidity`.
 * `hs_triple_eq`, `cluster_triple_eq`, `bell_triple_eq`: all three spectral types attain equality in (QK).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenCert
-import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenGraphA
-import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenGraph16
-import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenGraph20
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenCert
+public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenGraphA
+public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenGraph16
+public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenGraph20
 
 /-!
 # The even-`n` purity--spin-flip tradeoff (`thm:purity-spinflip-tradeoff`, ST-2--ST-6)
@@ -27,6 +29,9 @@ with `(n : L_n, c_n) = 8 : 3/35, 1/70; 10 : 1/21, 1/168; 14 : 331/27456, 5/6864;
 
 Claim class: proved (exact-rational certificates and exact finite computations checked in the kernel).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate BigOperators
 open FormalResearch.FrameFree.NQubit

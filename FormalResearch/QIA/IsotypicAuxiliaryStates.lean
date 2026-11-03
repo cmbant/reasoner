@@ -1,5 +1,7 @@
-import Mathlib.Analysis.Matrix.Order
-import Mathlib.LinearAlgebra.Matrix.Kronecker
+module
+
+public import Mathlib.Analysis.Matrix.Order
+public import Mathlib.LinearAlgebra.Matrix.Kronecker
 
 /-!
 # QI-A isotypic query projectors and auxiliary states
@@ -19,6 +21,9 @@ representation-independent: the carrier type `v` models one irreducible carrier
 basis and `m` one multiplicity basis.  It does not construct a Schur--Weyl or
 isotypic decomposition of the physical symmetric-copy Hilbert space.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

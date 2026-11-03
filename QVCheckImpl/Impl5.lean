@@ -1,8 +1,13 @@
-import QVCheckImpl.Impl4
+module
+
+public import QVCheckImpl.Impl4
 
 /-!
 # The QV checker, part 5: quotient, placements, right-hand side, final comparison (K5, K6, K7)
 -/
+
+@[expose] public section
+
 namespace QVCheck
 
 opaque placeArr : Array Int := parseInts DataStr.placeS

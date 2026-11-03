@@ -1,5 +1,10 @@
-import FormalResearch.FrameFree.SupportRateApply
-import FormalResearch.FrameFree.HelstromSupport
+module
+
+public import FormalResearch.FrameFree.SupportRateApply
+public import FormalResearch.FrameFree.HelstromSupport
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

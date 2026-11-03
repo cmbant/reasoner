@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.EnvelopeCriticalClass
+module
+
+public import FormalResearch.FourQubitEntropy.EnvelopeCriticalClass
 
 /-!
 # Fully product states: `F = 3 N³`, `W₁ = 4 N²`, `τ = 0`
@@ -10,6 +12,9 @@ vanishes (`spinFlip_product`), and the purity identity gives `W₁ = 4N²`. Henc
 `F = 3 = (3/4) W₁` and `τ = 0` (`product_values`): the product-state sharpness case of
 `thm:fqe-general-envelope`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix
 

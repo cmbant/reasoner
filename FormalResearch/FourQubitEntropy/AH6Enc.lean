@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.AH6Model
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Model
 
 /-!
 # Enclosure of the AH-6 computation stage by stage
@@ -7,6 +9,9 @@ If the parameters of `Par` are enclosed by the balls of a `Par Ball`, then every
 (evaluated at `ℝ`) is enclosed by the corresponding output at `Ball` (`stageD_enc`).  The proofs are mechanical
 applications of the enclosure lemmas of `AH6Ball` and `AH6Poly`, collected in the tactic `enc`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

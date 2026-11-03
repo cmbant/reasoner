@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Filtered-gate law: the real-algebra core
@@ -13,6 +15,9 @@ QI-B `thm:ftg`).  Vectors are `V3 = Fin 3 → ℝ`, matrices are `Fin 3 → Fin 
 * `tau_bound`: for `Q = CρC + Sρ'S` with `ρ' = ρ(2nnᵀ - 1)`, every `xᵀ cof(Q) y` with unit `x, y`
   is at most `d`.
 -/
+
+@[expose] public section
+
 
 open Finset
 

@@ -1,8 +1,10 @@
-import FormalResearch.FrameFree.GateOverlap
-import FormalResearch.FrameFree.ExchangeSharing
-import FormalResearch.FrameFree.M4Support
-import FormalResearch.FrameFree.Unify
-import FormalResearch.FrameFree.Arithmetic
+module
+
+public import FormalResearch.FrameFree.GateOverlap
+public import FormalResearch.FrameFree.ExchangeSharing
+public import FormalResearch.FrameFree.M4Support
+public import FormalResearch.FrameFree.Unify
+public import FormalResearch.FrameFree.Arithmetic
 
 /-!
 # Paper P: reversals, gate gaps and tensorisation arithmetic
@@ -43,6 +45,9 @@ and `AchiralCritical` (which proves `thm:expceiling` for critical four-qubit sta
 190-competitor condition (R1) and the wedge/volume statement of `thm:ratefailregion`; the Helstrom
 inequality `P_⊗ ≥ ½ ∏ P_i`; the interval-arithmetic constant `B_* = 0.42776639`.
 -/
+
+@[expose] public section
+
 
 open Real Filter Topology
 namespace FormalResearch.FrameFree.Reversals

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullDual
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullDual
 
 /-!
 # The per-spectrum certificates behind `thm:fqe-renyi-classical`
@@ -20,6 +22,9 @@ lemma; the case analysis (`RenyiFullClassical.lean`) is proved from them.  The s
 
 None of these is an axiom; they are hypotheses of the downstream theorems.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

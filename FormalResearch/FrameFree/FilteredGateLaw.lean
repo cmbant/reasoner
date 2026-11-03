@@ -1,6 +1,8 @@
-import FormalResearch.FrameFree.FilteredGateReduce
-import FormalResearch.FrameFree.FilteredGateEcho
-import FormalResearch.FrameFree.FilteredGateReal
+module
+
+public import FormalResearch.FrameFree.FilteredGateReduce
+public import FormalResearch.FrameFree.FilteredGateEcho
+public import FormalResearch.FrameFree.FilteredGateReal
 
 /-!
 # Filtered-gate law with a unitary spectator (`cor:ftg`)
@@ -10,6 +12,9 @@ Paper P `cor:ftg` (recalled from QI-B `thm:ftg`).  For `U = U_c` the Cartan gate
 `|Tr[U (A ⊗ B) U (W ⊗ C)]|² ≤ 2 (1 + δ) ‖(A ⊗ B) U (W ⊗ C)‖_F²`, `δ = max_j |cos 4c_j|`,
 i.e. `R_W(A,B,C) ≤ 1 + δ`.  The bound is attained by a Pauli echo at `W = 1` (`echo_attain`).
 -/
+
+@[expose] public section
+
 
 open scoped Matrix Kronecker ComplexConjugate
 

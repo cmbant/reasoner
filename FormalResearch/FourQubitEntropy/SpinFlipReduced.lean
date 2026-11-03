@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SpinFlipPurity
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipPurity
 
 /-!
 # The swap-form purity equals `tr ρ_S²` for the explicit partial trace
@@ -9,6 +11,9 @@ configurations of the qubits in `S`), and `purC_eq_trace`/`purity_eq_trace` show
 `purC ψ S = tr (ρ_S²)`.  Hence every purity statement of `SpinFlipPurity`, `SpinFlipOmega` and
 `SpinFlipDouble` is a statement about the honest reduced states.  Claim class: **proved**.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate BigOperators
 open FormalResearch.FrameFree.NQubit

@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.RenyiFullRpow
-import FormalResearch.FourQubitEntropy.RenyiFullDefs
-import FormalResearch.FourQubitEntropy.RenyiFullDual
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullRpow
+public import FormalResearch.FourQubitEntropy.RenyiFullDefs
+public import FormalResearch.FourQubitEntropy.RenyiFullDual
 
 /-!
 # Entropy estimates for the cluster sliver (`lem:fqe-cluster-sliver`)
@@ -13,6 +15,9 @@ Paper E, `sup_renyi.tex`, proof of `lem:fqe-cluster-sliver`, paragraph *Entropy 
 * `entS`, `entB` (SH): head/tail estimates for the two charts
   `((1-u+δ)/2, (1-u-δ)/2, u/2, u/2)` and `((1-u)/2, (1-u)/2, (u+δ)/2, (u-δ)/2)`.
 -/
+
+@[expose] public section
+
 
 set_option exponentiation.threshold 5000
 

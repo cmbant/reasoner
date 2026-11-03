@@ -1,5 +1,11 @@
-import Mathlib
-import FormalResearch.QIC.Endpoint14Data
+module
+
+public import Mathlib
+public import FormalResearch.QIC.Endpoint14Data
+meta import FormalResearch.QIC.Endpoint14Data
+
+
+@[expose] public section
 
 namespace FormalResearch.QIC
 

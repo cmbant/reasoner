@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.CriticalOrbitPr
+module
+
+public import FormalResearch.FourQubitEntropy.CriticalOrbitPr
 
 /-!
 # Critical-orbit stability: the three-term identity
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.CriticalOrbitPr
 quadratic in `p_i = |v_i|²` and `c_{ij} = Re (conj v_i v_j)` (`pr_pc`), and the identity holds modulo
 the four `3 × 3` Gram minors (`gram3`), which vanish because the `v_i` are vectors of `ℝ²`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.CO
 open PaperECritical

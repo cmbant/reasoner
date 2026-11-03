@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.QVCheck.Coupled
+module
+
+public import FormalResearch.FourQubitEntropy.QVCheck.Coupled
 
 /-!
 # One covariant term, the accumulation and `Qtot` (K4)
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.QVCheck.Coupled
 `runAll_spec`: the accumulation loops of `runBlock`/`runAll` sum the terms of all blocks; `qtotAll_spec`: the quotient
 by `Z` is exact and gives `Qtot`.
 -/
+
+@[expose] public section
+
 
 open Finset FormalResearch.FourQubitEntropy FormalResearch.FourQubitEntropy.QVBlock
 open scoped Matrix

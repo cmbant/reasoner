@@ -1,5 +1,7 @@
-import FormalResearch.QIA.MatrixTraceAdjointPositivity
-import FormalResearch.QIA.DeferredQueryCoherentRankOneMemoryBound
+module
+
+public import FormalResearch.QIA.MatrixTraceAdjointPositivity
+public import FormalResearch.QIA.DeferredQueryCoherentRankOneMemoryBound
 
 /-!
 # QI-A deferred-query converse from source-channel positivity
@@ -17,6 +19,9 @@ direct source-channel positivity assumption on the encoding, with no separate
 This is positivity only, not complete positivity or a concrete CPTP channel
 construction.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

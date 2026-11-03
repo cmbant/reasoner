@@ -1,7 +1,9 @@
-import Mathlib
-import FormalResearch.FrameFree.Foundations
-import FormalResearch.FrameFree.Zariski
-import FormalResearch.FrameFree.TwirlsBicommutant
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.FrameFree.Zariski
+public import FormalResearch.FrameFree.TwirlsBicommutant
 
 /-!
 # Schur--Weyl duality for qubits with sharing patterns (Paper P, `thm:onecopy`, `thm:copythreshold`)
@@ -16,6 +18,9 @@ commutant of the `*`-algebra `frameSpan` it spans; `blockPermAlg` is a `*`-algeb
 no representation theory); the double commutant theorem `TwirlsBicommutant.bicommutant_mem` closes it.
 Only the pattern of equal fibre cardinalities (`exists_perm_of_typ_eq`) is combinatorial.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

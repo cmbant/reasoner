@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Minimum degree of a sharp scalar entropy majorant
@@ -24,6 +26,9 @@ matching `f, f'` at all nodes majorizes `f`) is `SevenQubitMajorantDegreeConvers
 seven-qubit application (four distinct nodes, degree seven) is `SevenQubitMajorantDegreeSeven`.  The `k = 2` (cubic) case of
 the Hermite majorization is in `HermiteMajorant.lean`.
 -/
+
+@[expose] public section
+
 
 open Set Polynomial
 

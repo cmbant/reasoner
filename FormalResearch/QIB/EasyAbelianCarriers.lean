@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.QIB.BlockDecomp
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockDecomp
 
 /-!
 # Abelian groups have one-dimensional carriers (the "rank-one blocks" half of `thm:abelian`)
@@ -22,6 +24,9 @@ Not formalized here: the identification of the sectors with the total-weight spa
 `U(1)^r` acting on `(⊕_i V_i)^{⊗d}` (the Lean statement is for any abelian set `G` in isotypic
 coordinates).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Gaudin.WeightedTreeMetric
+module
+
+public import Mathlib
+public import FormalResearch.Gaudin.WeightedTreeMetric
+
+
+@[expose] public section
 
 namespace FormalResearch.Gaudin
 

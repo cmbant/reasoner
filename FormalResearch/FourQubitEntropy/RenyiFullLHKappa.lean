@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullLHKappaData
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullLHKappaData
 
 /-!
 # `K ≥ κ` on `[0,1]` (`(LH1)` of `lem:fqe-large-head-dual`)
@@ -7,6 +9,9 @@ The cubic Hermite interpolant of `K` at the double nodes `3/20` and `17/20` is a
 `K'''' > 0` (`hermite4_nonneg`); `κ` is its coefficientwise rational lower rounding
 (`kap_le_hc`, generated).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

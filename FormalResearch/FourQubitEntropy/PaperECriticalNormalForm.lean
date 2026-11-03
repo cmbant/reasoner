@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalBloch
-import FormalResearch.FourQubitEntropy.PaperECriticalRealGram
-import FormalResearch.FourQubitEntropy.PaperECriticalRealize
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalBloch
+public import FormalResearch.FourQubitEntropy.PaperECriticalRealGram
+public import FormalResearch.FourQubitEntropy.PaperECriticalRealize
 
 /-!
 # Critical normal form, (1) ⇔ (2) ⇔ (3) of `thm:fqe-critical-normal-form`
@@ -18,6 +20,9 @@ All three are proved equivalent with no hypotheses and no `native_decide`:
 The equivalence with (4), local-unitary equivalence to `G(v)`, needs the realisation of `SO(4)` by
 `SU(2) × SU(2)` and is not part of this file.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

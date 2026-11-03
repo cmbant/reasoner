@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Rigidity
+module
+
+public import FormalResearch.FourQubitEntropy.Rigidity
 
 /-!
 # `M₄` and `conj M₄` are not related by any local operators (even filters)
@@ -24,6 +26,9 @@ For `M₄`: `D₁₂ = (ω - ω²)/36` and `D₁₃ = (1 - ω²)/36`, the ratio 
 Proved, no hypothesis; `#print axioms` lists `propext`, `Classical.choice`, `Quot.sound` only
 (nothing here uses the sextic identity).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

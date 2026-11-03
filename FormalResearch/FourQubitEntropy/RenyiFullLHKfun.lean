@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullLHCurv
-import FormalResearch.FourQubitEntropy.RenyiFullSHD
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullLHCurv
+public import FormalResearch.FourQubitEntropy.RenyiFullSHD
 
 /-!
 # The tail power sum `K(z) = ((1+2z)^q + 2(1-z)^q)/3^q` of the chart `(a, b, c, c)`
@@ -8,6 +10,9 @@ Paper E, `lem:fqe-large-head-curvature`, `lem:fqe-large-head-dual`: `K = Σ (λ_
 The derivatives up to order four are explicit; `K'''' > 0` on `(-1/2, 1)` gives the cubic Hermite
 minorants (`hermite4_nonneg`); convexity gives the chord upper bound.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

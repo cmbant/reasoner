@@ -1,7 +1,9 @@
-import Mathlib
-import FormalResearch.FrameFree.CopyThresholdNever
-import FormalResearch.FrameFree.CopyThresholdWitness
-import FormalResearch.FrameFree.TwirlsOneCopy
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.CopyThresholdNever
+public import FormalResearch.FrameFree.CopyThresholdWitness
+public import FormalResearch.FrameFree.TwirlsOneCopy
 
 /-!
 # The copy thresholds of Paper P, `thm:copythreshold` (b): `k_*(π) = 1, 2, 3, ∞`
@@ -28,6 +30,9 @@ a non-real word value of an explicit Gaussian-integer state, transferred to the 
 F_K^π(ψ) < 1`) is not formalised here (it needs real-algebraic geometry and the separation of orbits by
 invariants of a compact group, neither of which is in Mathlib).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

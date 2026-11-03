@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FourQubitEntropy.GOProbe.Poly
+module
+
+public import Mathlib
+public import FormalResearch.FourQubitEntropy.GOProbe.Poly
 
 /-!
 # GO certificate: semantics and soundness of the sparse polynomial operations
@@ -9,6 +11,9 @@ import FormalResearch.FourQubitEntropy.GOProbe.Poly
 most `255` (so that no base-256 digit carries).  `Dg d p` ("all keys have total degree `≤ d`") is propagated
 through every operation.  `actSP` substitutes `x_i ↦ sg_i x_{mi i}`.  Claim class: proved.
 -/
+
+@[expose] public section
+
 
 open Finset
 

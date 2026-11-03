@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.QIB.BlockRealPe
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockRealPe
 
 /-!
 # `prop:antiunitary` / `prop:blind` for `Helstrom.Pe` under real isotypic coordinates
@@ -11,6 +13,9 @@ Namespace `FormalResearch.QIB`.  Claim class: **proved under the explicit hypoth
 derives the multiplicity-block conjugation `τ(Θψ) = conj τ(ψ)` needed for `antiunitary_block` and
 `sector_blind_iff` for *all* multiplicities.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

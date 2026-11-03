@@ -1,4 +1,10 @@
-import Mathlib
+module
+
+public import Mathlib
+meta import Mathlib
+
+
+@[expose] public section
 
 namespace FormalResearch.QIC
 

@@ -1,5 +1,7 @@
-import FormalResearch.QIA.FourQubitD3BlockCensus
-import FormalResearch.QIA.MultiplicityProfileDimensions
+module
+
+public import FormalResearch.QIA.FourQubitD3BlockCensus
+public import FormalResearch.QIA.MultiplicityProfileDimensions
 
 /-!
 # QI-A T39 operational fingerprint dimensions
@@ -15,6 +17,9 @@ three-copy operational fingerprint counts.  It does not formalize tomography
 sample complexity, measurement sufficiency, gate synthesis, or the later Haar
 second-moment statement.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Checks
-import FormalResearch.FourQubitEntropy.GeneralEnvelope
+module
+
+public import FormalResearch.FourQubitEntropy.Checks
+public import FormalResearch.FourQubitEntropy.GeneralEnvelope
 
 /-!
 # Optimality of the coefficient `7/8` in the general envelope
@@ -14,6 +16,9 @@ definitions of `Statement.lean`), so the envelope inequality with `7/8` replaced
 slack `(7/2 - 4C) τ + (1 + 4C) τ^{3/2}` (`ghz_slack`), negative for small `τ > 0` as soon as `C > 7/8`
 (`general_envelope_coeff_sharp`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix
 

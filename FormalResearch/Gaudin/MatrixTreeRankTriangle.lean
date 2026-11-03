@@ -1,6 +1,11 @@
-import Mathlib
-import FormalResearch.Gaudin.CrossPoissonMatrixRank
-import FormalResearch.Gaudin.TreeClassicalRankTriangle
+module
+
+public import Mathlib
+public import FormalResearch.Gaudin.CrossPoissonMatrixRank
+public import FormalResearch.Gaudin.TreeClassicalRankTriangle
+
+
+@[expose] public section
 
 namespace FormalResearch.Gaudin
 

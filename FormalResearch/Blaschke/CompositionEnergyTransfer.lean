@@ -1,6 +1,11 @@
-import Mathlib
-import FormalResearch.Blaschke.CompositionStability
-import FormalResearch.Blaschke.CyclicChargeEnergy
+module
+
+public import Mathlib
+public import FormalResearch.Blaschke.CompositionStability
+public import FormalResearch.Blaschke.CyclicChargeEnergy
+
+
+@[expose] public section
 
 namespace FormalResearch.Blaschke
 

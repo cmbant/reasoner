@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIC.GaussianEndpointNonsingular
+module
+
+public import Mathlib
+public import FormalResearch.QIC.GaussianEndpointNonsingular
+
+
+@[expose] public section
 
 namespace FormalResearch.QIC
 

@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIA.FourQubitD3BlockCensus
+module
+
+public import Mathlib
+public import FormalResearch.QIA.FourQubitD3BlockCensus
+
+
+@[expose] public section
 
 namespace FormalResearch.QIA
 

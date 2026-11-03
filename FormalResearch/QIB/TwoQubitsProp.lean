@@ -1,9 +1,11 @@
-import Mathlib
-import FormalResearch.QIB.TwoQubitsDecomp
-import FormalResearch.QIB.TwoQubitsSectorIrr
-import FormalResearch.QIB.TwoQubitsStabiliser
-import FormalResearch.QIB.BlockCoordinates
-import FormalResearch.QIB.EasyRankOneSandwich
+module
+
+public import Mathlib
+public import FormalResearch.QIB.TwoQubitsDecomp
+public import FormalResearch.QIB.TwoQubitsSectorIrr
+public import FormalResearch.QIB.TwoQubitsStabiliser
+public import FormalResearch.QIB.BlockCoordinates
+public import FormalResearch.QIB.EasyRankOneSandwich
 
 /-!
 # `prop:twoqubits`: two qubits under collective `SU(2)` have multiplicity blocks of rank at most one
@@ -27,6 +29,9 @@ an irreducible `sl₂`-module (`TwoQubitsSectorIrr`).  Every two-qubit vector ha
 kernel on an irreducible module is at most one-dimensional (`Sl2Kernel.kernel_sl2`, with no
 semisimple/nilpotent case split), so `τ_l` has rank at most one (`rank_tau_le_one_of_stabiliser`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

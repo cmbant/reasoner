@@ -1,8 +1,13 @@
-import QVCheckImpl.Impl1
+module
+
+public import QVCheckImpl.Impl1
 
 /-!
 # The QV checker, part 2: `S_6` representations, characters, sector dimensions, invariant bases (K2)
 -/
+
+@[expose] public section
+
 namespace QVCheck
 
 /-- Coset representatives `[k-1, k-2, ..., k-l]`. -/

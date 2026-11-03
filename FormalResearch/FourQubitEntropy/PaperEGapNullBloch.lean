@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.CriticalOrbitIdentity
-import FormalResearch.FourQubitEntropy.CriticalOrbitPhi
+module
+
+public import FormalResearch.FourQubitEntropy.CriticalOrbitIdentity
+public import FormalResearch.FourQubitEntropy.CriticalOrbitPhi
 
 /-!
 # Null-critical states: the two auxiliary Bloch spheres (`eq:fqe-null-critical-bloch`)
@@ -17,6 +19,9 @@ vectors `r, s` of `a, b` give the closed forms of the paper:
 All identities are exact polynomial identities (`ring`); the existence of the factorisation is
 `exists_vOf`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

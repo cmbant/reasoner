@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiRankTwoSharp
-import FormalResearch.FourQubitEntropy.Purity
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiRankTwoSharp
+public import FormalResearch.FourQubitEntropy.Purity
 
 /-!
 # High-order Rényi purity deficit (`q ≥ 2`)
@@ -13,6 +15,9 @@ Paper: `cor:fqe-renyi-two-up` (renyi_above_one.tex). The proof is the paper's el
 `E_2 = -⅓ log₂ ∏ p_j`, the product inequality `∏(1 + x_j) ≥ 1 + Σ x_j` with `x_j = 4p_j - 1 ≥ 0`, and
 monotonicity of Rényi entropy in the order.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

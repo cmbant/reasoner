@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.CriticalOrbitSharp
-import FormalResearch.FourQubitEntropy.PaperEGenDefect
+module
+
+public import FormalResearch.FourQubitEntropy.CriticalOrbitSharp
+public import FormalResearch.FourQubitEntropy.PaperEGenDefect
 
 /-!
 # The genuine orbit distance `d(ψ)` and the orbit-stability estimates
@@ -34,6 +36,9 @@ restate `thm:fqe-critical-orbit-sharp` with genuine `d`; their only hypothesis i
 radius statements (`d ≤ 1/20 ⟹ δ ≥ 3d²/10`, `d ≤ 2⁻¹⁰ ⟹ Q ≥ 3d²`), `thm:fqe-p1-sharp`, and the Rényi `1<q≤5/4`
 clause.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

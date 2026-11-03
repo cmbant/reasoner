@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.GeneralEnvelope
-import FormalResearch.FourQubitEntropy.Stability
+module
+
+public import FormalResearch.FourQubitEntropy.GeneralEnvelope
+public import FormalResearch.FourQubitEntropy.Stability
 
 /-!
 # Spectral stability with the general envelope, unconditionally
@@ -9,6 +11,9 @@ import FormalResearch.FourQubitEntropy.Stability
 inequality as a hypothesis `henv`; here it is discharged, so the paper's estimates (with the extra term
 `(a/12)(τ - τ^{3/2})`) hold outright.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

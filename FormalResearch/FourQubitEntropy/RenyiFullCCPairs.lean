@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.RenyiFullCCBinary
-import FormalResearch.FourQubitEntropy.RenyiFullSliverProof
-import FormalResearch.FourQubitEntropy.RenyiFullCCCells
-import FormalResearch.FourQubitEntropy.RenyiFullNU
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullCCBinary
+public import FormalResearch.FourQubitEntropy.RenyiFullSliverProof
+public import FormalResearch.FourQubitEntropy.RenyiFullCCCells
+public import FormalResearch.FourQubitEntropy.RenyiFullNU
 
 /-!
 # Capped cubic lemma: the two pair charts `21/50 ≤ p ≤ 47/100`
@@ -13,6 +15,9 @@ Paper E, `lem:fqe-capped-cubic`, paragraph *The two pairs*.  For the ordered cha
   `H_q((1-u)a, u b) ≤ h(u) + (1-w) H_q(a) + w H_q(b)`, `w = u^q/((1-u)^q + u^q)`;
 * `entS_cc`: `H_{q_s}(λ_S) ≤ 1 + h(u) - (1+2u) v`; `entB_cc`: `H_{q_s}(λ_B) ≤ 1 + h(u) - (3-2u) v` (CG3).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

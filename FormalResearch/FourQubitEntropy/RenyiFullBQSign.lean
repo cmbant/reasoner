@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullBQG
-import FormalResearch.FourQubitEntropy.RenyiFullBQCells
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullBQG
+public import FormalResearch.FourQubitEntropy.RenyiFullBQCells
 
 /-!
 # Binary quartic lemma at `q_s`: `M(x(s), s) < 0` and `G'' > 0`
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.RenyiFullBQCells
 Combines the Riccati comparison `x ≤ U`, the monotonicity `∂M/∂ξ ≥ 0` (BQ-4) and the sign of
 `M(U(s), s)` (BQ-3): `M(x,s) ≤ M(U,s) < 0` on `0 < s < 1`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

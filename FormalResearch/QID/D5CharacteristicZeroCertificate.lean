@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QID.D5ActiveAffineCertificate
+module
+
+public import Mathlib
+public import FormalResearch.QID.D5ActiveAffineCertificate
+
+
+@[expose] public section
 
 namespace FormalResearch.QID
 

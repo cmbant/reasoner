@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Null-critical states: the scalar inequalities (`eq:fqe-null-critical-sharp`)
@@ -12,6 +14,9 @@ qubits).  With `c = √3`, `B = 1 + 1/√3`, `f₀ = B²/4 = (2+√3)/6`:
 * `null_exists_pair` : there is a cube pair `(ε, η)` of opposite parity with
   `F(ε,η) = (1 + ε·r/√3)(1 + η·s/√3)/4 ≥ f₀` and `3/(4-√3) (1 - F) ≤ 1/2 + (27/2) r₁r₂r₃ s₁s₂s₃`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

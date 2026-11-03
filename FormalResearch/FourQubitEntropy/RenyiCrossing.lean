@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiRankTwoSharp
-import FormalResearch.FourQubitEntropy.RenyiTwoUp
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiRankTwoSharp
+public import FormalResearch.FourQubitEntropy.RenyiTwoUp
 
 /-!
 # The HS–cluster crossing of the mean Rényi entropies
@@ -15,6 +17,9 @@ Paper: `prop:fqe-renyi-crossing` (renyi_above_one.tex). The paper's finer enclos
 powers (`crossing_fine`); the paper's analytic arguments (strict decrease, crossing in
 `(3/2, 8/5)`) are reproduced without numerical brackets other than these exact rational ones.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

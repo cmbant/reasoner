@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullBQOde
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullBQOde
 
 /-!
 # Binary quartic lemma: the derivative formulas (BQ-1)
@@ -7,6 +9,9 @@ With `s = tanh φ`, `x = tanh(qφ)`, `f = ln m_q`, `v = s²`: `f' = q(x-s)/(2s(1
 and `G'(s)`, `G''(s) = -q M(x,s) / (2 s⁵ (1-s²)⁴)` as rational functions of `(s, x(s))` along the
 Riccati equation.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

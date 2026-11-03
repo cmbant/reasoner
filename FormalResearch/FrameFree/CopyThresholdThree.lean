@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.FrameFree.CopyThresholdNever
-import FormalResearch.FrameFree.CopyThresholdMain
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.CopyThresholdNever
+public import FormalResearch.FrameFree.CopyThresholdMain
 
 /-!
 # Three independent spins: no separation at `k ≤ 4` (Paper P, `thm:copythreshold` (b), `n = 3`)
@@ -19,6 +21,9 @@ the `k = 5` count and is not formalised.
 * `exists_wv_three`: three fibres, simultaneous reversibility `⟹ ∃ w v`.
 * `not_mem_visibleCopies_independent_three`: `k ≤ 4 ⟹ k ∉ VisibleCopies π` (three independent spins).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

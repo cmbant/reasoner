@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoPurity
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoPurity
 
 /-!
 # Pauli expansion of cut purities (part A: the algebra)
@@ -11,6 +13,9 @@ Parseval-type identities are proved for `M = ∑_r |Ψ(·,r)⟩⟨Ψ(·,r)|` (a 
 * `sum_sign_sq_trP`: `∑_ν (-1)^{wt ν} |tr(M P_ν)|² = 2^{|κ|} ∑_{r,r'} |A_{rr'}|² ≥ 0`
   with `A_{rr'} = ∑_{x,y} Ψ(x,r) ε(x,y) Ψ(y,r')` (the spin-flip / shadow positivity of Rains).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open Finset

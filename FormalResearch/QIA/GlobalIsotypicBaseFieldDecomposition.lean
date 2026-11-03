@@ -1,5 +1,7 @@
-import FormalResearch.QIA.IsotypicBaseFieldCoordinates
-import Mathlib.LinearAlgebra.DFinsupp
+module
+
+public import FormalResearch.QIA.IsotypicBaseFieldCoordinates
+public import Mathlib.LinearAlgebra.DFinsupp
 
 /-!
 # QI-A global isotypic base-field decomposition
@@ -15,6 +17,9 @@ physical symmetric-copy representation is semisimple/isotypically decomposed,
 does not construct Schur--Weyl theory, and does not assert that the resulting
 coordinates are unitary or isometric.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

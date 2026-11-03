@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.OddWordsFock
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.OddWordsFock
 
 /-!
 # Powers of the total lowering operator (Paper P, `prop:oddwords` (iii))
@@ -12,6 +14,9 @@ For `x z : Cube n` let `z ≤ x` (`Below x z`) mean that `z` is `x` with some `1
 `Lm_pow_eq : Lm n ^ k = k! • Strat k`: the exponential `exp (t Lm)` has the explicit entries
 `t^{dd x z}` (this is the `n`-fold tensor power of the unipotent `(1 0; t 1)`, see `OddWordsGroup`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

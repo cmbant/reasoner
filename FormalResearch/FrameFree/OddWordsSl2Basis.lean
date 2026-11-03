@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.OddWordsSl2
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.OddWordsSl2
 
 /-!
 # The string basis and the commutant of `{L, R}` (Paper P, `prop:oddwords` (iii))
@@ -13,6 +15,9 @@ For an `Sl2Data n V` the strings `L^a h_{k,i}` (`h_{k,i}` a basis of `HW_k`, `k 
 family of endomorphisms `B_k` of `HW_k` is the restriction of such a `Y` (`exists_comm_of_res`):
 the commutant of `{L, R}` is `⊕_k End(HW_k)`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

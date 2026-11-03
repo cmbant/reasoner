@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullSliver
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullSliver
 
 /-!
 # `thm:fqe-renyi-classical`: the classical relaxation at the two anchor orders
@@ -14,6 +16,9 @@ and (QK) satisfies one of
 `classical_of_certificates` proves it from the six per-spectrum statements of `RenyiFullProps.lean`.
 The high-`F` case `20ε + 2F ≥ 1` is unconditional (`cubic_envelope_le_five_thirds`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

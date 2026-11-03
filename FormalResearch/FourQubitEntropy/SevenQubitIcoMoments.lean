@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoSpectrum
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoSpectrum
 
 /-!
 # Mean marginal moments of the seven-qubit icosahedral family
@@ -18,6 +20,9 @@ prefers a larger third moment and the purity minimiser is not a stationary point
 The cube sum is read off the proved spectra of all 35 three-qubit cuts (`tripleCut_spectrum` with
 `g t = t³`); the pair mean uses the integer pair-purity coefficients of `SevenQubitIcoPurity`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco
 

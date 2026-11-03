@@ -1,5 +1,11 @@
-import Mathlib
-import FormalResearch.QIC.GaussianIntegerLift
+module
+
+public import Mathlib
+public import FormalResearch.QIC.GaussianIntegerLift
+meta import FormalResearch.QIC.GaussianIntegerLift
+
+
+@[expose] public section
 
 namespace FormalResearch.QIC
 

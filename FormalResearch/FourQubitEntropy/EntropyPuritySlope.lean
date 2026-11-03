@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.EntropyPurityEnvelope
+module
+
+public import FormalResearch.FourQubitEntropy.EntropyPurityEnvelope
 
 /-!
 # `lem:seven-entropy-linear-purity`: the sharp entropy–purity slope in every dimension `d ≥ 3`
@@ -25,6 +27,9 @@ Equality in the slope forces equality in the envelope (`entropy_eq_gEnv_iff`) an
 Everything is proved (no hypotheses).  The `d = 8` instances are
 `SevenQubitConseq.LinPur.entropy_linear_purity_*`.
 -/
+
+@[expose] public section
+
 
 open Real Finset
 

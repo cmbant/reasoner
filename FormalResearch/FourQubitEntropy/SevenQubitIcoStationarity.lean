@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoStarBounds
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoStarBounds
 
 /-!
 # The closed equation for the family maximiser `x_*`
@@ -23,6 +25,9 @@ stationary point by the symmetric-criticality lemma `lem:seven-family-symmetric-
 formalized (`SevenQubitIcoContraction` has the earlier integer contraction identities for the gradient plane,
 not the entropy-gradient step); the file proves only the one-parameter, within-family stationarity. The decimal value of `E₃(ψ_{x_*})` is in `SevenQubitIcoStarValue`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco
 

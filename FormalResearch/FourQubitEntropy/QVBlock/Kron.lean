@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Kronecker products over a finite family (QV block calculus, T6 ingredient)
@@ -7,6 +9,9 @@ import Mathlib
 typed) index types, with entries `∏ q, X q (a q) (b q)`.  It is multiplicative, unital, additive,
 and its trace is the product of traces.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix BigOperators
 

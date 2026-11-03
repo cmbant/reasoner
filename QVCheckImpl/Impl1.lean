@@ -1,11 +1,16 @@
-import QVCheckImpl.Basic
-import QVCheckImpl.DataStr
+module
+
+public import QVCheckImpl.Basic
+public import QVCheckImpl.DataStr
 
 /-!
 # The QV checker, part 1: constants, `C`, the representations of `S_6`, block-form checks (K0, K1)
 
 Spins are indexed by `j/2 ∈ {0,1,2,3}`; `mult = (5, 9, 5, 1)`; the row of `C` for `(j, k, μ)` is `off j + k * mult j + μ`.
 -/
+
+@[expose] public section
+
 namespace QVCheck
 
 def mult (j : Nat) : Nat := if j == 0 then 5 else if j == 1 then 9 else if j == 2 then 5 else if j == 3 then 1 else 0

@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullCCCells
-import FormalResearch.FourQubitEntropy.RenyiFullNU
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullCCCells
+public import FormalResearch.FourQubitEntropy.RenyiFullNU
 
 /-!
 # Capped cubic lemma: the moment case `x = p - 1/4 ≤ 17/100`
@@ -10,6 +12,9 @@ Paper E, `lem:fqe-capped-cubic`, paragraph *The moment argument*.  With `N = 1 +
 (`(ln N)_xx ≤ -1`, certificate CC-1) and nonnegative at `x = 17/100` (certificate CC-2).  This replaces
 the paper's monotonicity in `x` of `Φ = ln N/(rLx) + …` by the equivalent concavity.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

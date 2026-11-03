@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.FrameFree.PolyImageMain
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.PolyImageMain
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

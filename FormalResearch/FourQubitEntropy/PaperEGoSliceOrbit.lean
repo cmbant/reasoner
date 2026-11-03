@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSlice
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSlice
 
 /-!
 # `thm:fqe-global-overlap`, layer (b)/(d): orbit membership and the real height inequality
@@ -14,6 +16,9 @@ union `𝓜` (`orbit_mem4`; the reflections use `diag(1,-1,-1,-1) Z_* = conj Z_*
 Every first-order, Procrustes and lower-frame constraint of the normal slice is an instance of it.
 No hypotheses (kernel-checked, standard axioms only).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

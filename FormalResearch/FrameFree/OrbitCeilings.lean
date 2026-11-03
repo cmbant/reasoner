@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.GateOverlap
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.GateOverlap
 
 /-!
 # Orbit ceilings, gate reflections and the geodesic separator (Paper P, appendices B and E)
@@ -35,6 +37,9 @@ Every theorem here is **proved** (kernel-checked, using only the standard Lean a
 `lem:e-sqrt` (no short complete argument found); the existence/stationarity analysis of the orbit
 maximiser in `lem:t34k-bell-orbit` (orbit closedness, real SVD, first-order conditions).
 -/
+
+@[expose] public section
+
 
 open scoped InnerProductSpace ComplexConjugate Matrix
 

@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Gaudin.RobinsonFouldsHammingBridge
+module
+
+public import Mathlib
+public import FormalResearch.Gaudin.RobinsonFouldsHammingBridge
+
+
+@[expose] public section
 
 namespace FormalResearch.Gaudin
 

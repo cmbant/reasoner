@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiSingleCrossingFamily
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiSingleCrossingFamily
 
 /-!
 # Order transfer for the Rényi entropies above one
@@ -18,6 +20,9 @@ instantiates the theorems of this file without hypothesis. This file proves, fro
 
 `H_q(l) = log₂(Σ lᵢ^q)/(1-q)` (`renyiSpec` of `RenyiSpec.lean`), `E_q` the mean of three `H_q`, `h_q = H_q(σ)`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

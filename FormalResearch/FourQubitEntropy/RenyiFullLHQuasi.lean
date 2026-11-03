@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullLHChain
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullLHChain
 
 /-!
 # Quasi-convexity of the fourth-derivative numerator `J` in `y`
@@ -7,6 +9,9 @@ Paper E, `lem:fqe-large-head-curvature`: on `0 ≤ x ≤ 3/5` the quartic `J(y)`
 `J''' = 144 q² (q y - x) ≥ 0` on `[x, 1]`, so `J'` is convex there and starts nonpositive: `J` first
 decreases and then increases, and its maximum over a subinterval of `[x, 1]` is at an endpoint.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

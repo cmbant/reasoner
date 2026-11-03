@@ -1,10 +1,15 @@
-import FormalResearch.FourQubitEntropy.Normalize
-import FormalResearch.FourQubitEntropy.BlockStructure
-import FormalResearch.FourQubitEntropy.Realize
+module
+
+public import FormalResearch.FourQubitEntropy.Normalize
+public import FormalResearch.FourQubitEntropy.BlockStructure
+public import FormalResearch.FourQubitEntropy.Realize
 
 /-!
 # Classification of the maximisers
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

@@ -1,4 +1,10 @@
-import FormalResearch.QID.D4DoublyStochasticCertificate
+module
+
+public import FormalResearch.QID.D4DoublyStochasticCertificate
+meta import FormalResearch.QID.D4DoublyStochasticCertificate
+
+
+@[expose] public section
 
 namespace FormalResearch.QID
 

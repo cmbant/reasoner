@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQV
-import FormalResearch.FourQubitEntropy.QVCert.QVDefect
-import FormalResearch.FourQubitEntropy.QVCert.Covariants
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQV
+public import FormalResearch.FourQubitEntropy.QVCert.QVDefect
+public import FormalResearch.FourQubitEntropy.QVCert.Covariants
 
 /-!
 # Reduction of (QV) to the certificate identity
@@ -14,6 +16,9 @@ weights `q_ki` (95 covariants `Φ_ki = W_{a_k,p_k} v_ki`), because every summand
 * `defectD_nonneg_of_certIdentity`: the certificate identity implies `𝔇 ≥ 0`.
 * `sharpQV_of_certIdentity`: the certificate identity implies (QV).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.QVCert
 

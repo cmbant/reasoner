@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIC.Endpoint14EliminationData
+module
+
+public import Mathlib
+public import FormalResearch.QIC.Endpoint14EliminationData
+
+
+@[expose] public section
 
 namespace FormalResearch.QIC
 

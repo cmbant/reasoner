@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.CriticalOrbitNormal
-import FormalResearch.FourQubitEntropy.PaperEGenConvexRoofEq
-import FormalResearch.FourQubitEntropy.PaperECriticalSexticLU
+module
+
+public import FormalResearch.FourQubitEntropy.CriticalOrbitNormal
+public import FormalResearch.FourQubitEntropy.PaperEGenConvexRoofEq
+public import FormalResearch.FourQubitEntropy.PaperECriticalSexticLU
 
 /-!
 # Critical-orbit stability: the HS fidelity `Φ` and the distance `d`
@@ -14,6 +16,9 @@ For `η_a` among the 32 representatives `𝓗` (`etaV`), `G(η_a)` lies in `𝓜
 every `ψ` locally unitarily equivalent to `G(v)` (`qH_le_Phi`), and `1/4 ≤ Φ(ψ)` by the frame identity
 `∑_a qH a v = 8 ‖v‖²` (`sum_qH`).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

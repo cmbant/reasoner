@@ -1,8 +1,10 @@
-import Mathlib
-import FormalResearch.FrameFree.HelstromPure
-import FormalResearch.FrameFree.Helstrom
-import FormalResearch.QIB.MatrixHelstrom
-import FormalResearch.QIB.BlockOps
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.HelstromPure
+public import FormalResearch.FrameFree.Helstrom
+public import FormalResearch.QIB.MatrixHelstrom
+public import FormalResearch.QIB.BlockOps
 
 /-!
 # Exact sector decomposition of the invariant error (`lem:blockdecomp`, second formula)
@@ -32,6 +34,9 @@ coordinates `W`, for every conjugate-transpose-closed `G` (in particular the fra
   is `⊕ I ⊗ Π_λ^-`, `Π_λ^-` the negative spectral projector of `τ_λ a - τ_λ b`.
 * `sum_trace_tau`: `Σ_λ Tr τ_λ(v) = ⟨v|v⟩`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

@@ -1,6 +1,11 @@
-import Mathlib.Analysis.InnerProductSpace.PiL2
-import Mathlib.Analysis.InnerProductSpace.Projection.Basic
-import Mathlib.Analysis.Normed.Lp.lpSpace
+module
+
+public import Mathlib.Analysis.InnerProductSpace.PiL2
+public import Mathlib.Analysis.InnerProductSpace.Projection.Basic
+public import Mathlib.Analysis.Normed.Lp.lpSpace
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

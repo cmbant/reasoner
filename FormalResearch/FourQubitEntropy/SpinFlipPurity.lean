@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SpinFlipPauli
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipPauli
 
 /-!
 # Subsystem purities in Pauli coordinates, complementarity, and the rank-two reduction (any `n`)
@@ -18,6 +20,9 @@ trace of the square of the explicit partial trace.
   `Σ_{|T|=k} tr ρ_T² = Q_k + Q_{n-k}` with `Q_r = Σ_{|S|=r, s∉S} tr ρ_S²`,
 * `two_pow_mul_Q` (`Q_r(ρ) = 2^{-r} Σ_j C(m-j,r-j) B_j(ρ)` with `m = n - 1`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate BigOperators
 open FormalResearch.FrameFree.NQubit

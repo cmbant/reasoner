@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Dimension of the skew-adjoint endomorphisms of a real inner product space
@@ -13,6 +15,9 @@ pairs `i < j` is `C(g, 2)` (`card_lt_pairs`).  This is the `Σ C(g_j, 2)` counti
 `prop:oddwords` (iii): odd invariants are `i ·` (real antisymmetric matrices on each real-type
 multiplicity space).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

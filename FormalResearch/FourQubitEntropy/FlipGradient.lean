@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.FlipGradientCertSs
-import FormalResearch.FourQubitEntropy.Defect
+module
+
+public import FormalResearch.FourQubitEntropy.FlipGradientCertSs
+public import FormalResearch.FourQubitEntropy.Defect
 
 /-!
 # The spin-flip gradient identity (`lem:fqe-flip-gradient`, FGI/FG)
@@ -22,6 +24,9 @@ identity is the exact complex form `(4,2)` / `(2,4)` of FGI. It is transferred t
 Machine requirements: see `THEOREM_MAP.md` (the `FlipGradientCert*.lean` files take 20-61 s each, at most
 8.3 GB resident including 6.3 GB of mapped `.olean` files).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open scoped FormalResearch.FourQubitEntropy.GenericOps

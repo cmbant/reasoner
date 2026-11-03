@@ -1,3 +1,5 @@
+module
+
 /-!
 # Auxiliary data of the QV checker
 
@@ -29,6 +31,8 @@ descriptions (choices of bases and normalisations are free, up to the checks).
   `den · pi(W(p)) = SW · W(pi p)` and the same for `V`.
 * `certDen`: the certificate denominator `D`.
 -/
+
+@[expose] public section
 
 namespace QVCheck.DataStr
 

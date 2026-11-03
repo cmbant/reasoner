@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitLinearPurity
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitLinearPurity
 
 /-!
 # `cor:seven-entropy-eigen-cap-497` (conditional): `λ_max < 497/1000` on every three-qubit cut
@@ -32,6 +34,9 @@ same.  This file keeps its own proof with the slope `2/5` (the constants `128/15
 the weakest slope of `lem:seven-entropy-linear-purity` (`LinPur.entropy_linear_purity_nats`); the sharper
 slopes are `LinPur.entropy_linear_purity_rat_nats` and `entropy_linear_purity_sharp_nats`.
 -/
+
+@[expose] public section
+
 
 open Real Finset
 

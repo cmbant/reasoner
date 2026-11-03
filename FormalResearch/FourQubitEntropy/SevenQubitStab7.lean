@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Seven-qubit stabilizer states: the witness `19/140` and a conditional reduction of `prop:stab7`
@@ -29,6 +31,9 @@ What is proved here:
   graph state attains `121/917`, and likewise for any value `v < 19/140`. The arithmetic
   `121/917 < 19/140` is `ico_lt_stab`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitStab7
 

@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIB1.ApolarFullRank
+module
+
+public import Mathlib
+public import FormalResearch.QIB1.ApolarFullRank
+
+
+@[expose] public section
 
 namespace FormalResearch.QIB1
 

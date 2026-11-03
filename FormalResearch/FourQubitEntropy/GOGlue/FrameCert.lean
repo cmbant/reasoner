@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceFinal
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceFinal
 
 /-!
 # GO glue: `thm:fqe-global-overlap` from the polynomial certificate at closest-point frames
@@ -10,6 +12,9 @@ set under the group is required.  `globalOverlap_of_frame_cert` is `globalOverla
 with the Hessian, normal form and `Q`-identity discharged and the interface weakened from
 `GOSliceCertificate` to `GOFrameCertificate`.  Claim class: proved.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

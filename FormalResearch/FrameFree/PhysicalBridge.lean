@@ -1,6 +1,8 @@
-import FormalResearch.FrameFree.WeylRealisation
-import FormalResearch.FrameFree.WeylVertex
-import FormalResearch.FrameFree.MaxChiral
+module
+
+public import FormalResearch.FrameFree.WeylRealisation
+public import FormalResearch.FrameFree.WeylVertex
+public import FormalResearch.FrameFree.MaxChiral
 
 /-!
 # The Weyl-vertex value is a lower bound for the physical rotation overlap
@@ -11,6 +13,9 @@ permutations.  `WeylRealisation.lean` realises each of them by local `SU(2)⁴` 
 Weyl-vertex input R7 of the paper) is **not** formalised here.  Combined with the exact values of
 `FKmag` this gives the lower bounds `F_K(M₄) ≥ 4/9`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open FormalResearch.FourQubitEntropy

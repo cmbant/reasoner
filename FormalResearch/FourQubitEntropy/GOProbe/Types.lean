@@ -1,3 +1,5 @@
+module
+
 /-!
 # GO certificate: data types
 
@@ -5,6 +7,9 @@
 block of the certificate (see `Block.lean`).  This module is kept minimal so that the generated data modules,
 which only import it, are not rebuilt when the checker changes.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.GOProbe
 

@@ -1,5 +1,11 @@
-import Mathlib
-import FormalResearch.QIC.Endpoint14ReducedPolynomialIdentity
+module
+
+public import Mathlib
+public import FormalResearch.QIC.Endpoint14ReducedPolynomialIdentity
+meta import FormalResearch.QIC.Endpoint14ReducedPolynomialIdentity
+
+
+@[expose] public section
 
 namespace FormalResearch.QIC
 

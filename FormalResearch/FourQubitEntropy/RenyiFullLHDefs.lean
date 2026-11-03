@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullLHKfun
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullLHKfun
 
 /-!
 # Large-head chart: the polynomials `B, C`, the cubic minorant `K_*` and the range of `K`
@@ -7,6 +9,9 @@ Paper E, `lem:fqe-large-head-curvature`: `B = (1+2z²)/3`, `C = (1+6z²+2z³)/9`
 `K_*(z) = k + (3-3k-2q/3) z² + (2q/3-2+2k) z³`, `k = 5247/10000 < K(0)`, is the cubic Hermite
 minorant of `K` at `0, 1`; the chord of the convex `K` gives `K ≤ 61/80` for `z ≤ 1/2`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

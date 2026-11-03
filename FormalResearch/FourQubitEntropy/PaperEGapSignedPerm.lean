@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlat
-import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlat
+public import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
 
 /-!
 # Signed permutations of the magic diagonal are local unitaries
@@ -10,6 +12,9 @@ basis a local unitary on qubits `1,2` and one on qubits `3,4` act by `X ↦ O₁
 determinant `sgn σ · ∏ ε_l`, hence in `SO(4)` when that is `1`.  Taking `O₁ = sp σ a`, `O₂ = sp σ b`
 gives `LUEquiv (Gv v) (Gv v')` for `v'_{σ l} = a_l b_l v_l`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

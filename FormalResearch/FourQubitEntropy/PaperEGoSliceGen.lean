@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceOrbit
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceOrbit
 
 /-!
 # `thm:fqe-global-overlap`, layer (b): the height inequality for an arbitrary frame
@@ -11,6 +13,9 @@ matrices, so that it can be applied before the slice normal form is reached:
 * `IsFrame.hgt_eq`: `3 X₀₀ + Σ_{k≥1} Y_kk = √6 h`;
 * `height_ineqG`: `c (3 A₀₀ + Σ B_kk) + 3 s (B₀₀ - Σ A_kk) ≤ 3 X₀₀ + Σ Y_kk`, `A = Pᵀ X Q`, `B = Pᵀ Y Q`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.QIB.BlockRealFrame
-import FormalResearch.QIB.BlockAntiunitary
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockRealFrame
+public import FormalResearch.QIB.BlockAntiunitary
 
 /-!
 # Unconditional sector-mass equality and the multiplicity-one blind bound for `Helstrom.Pe`
@@ -15,6 +17,9 @@ In the unitary isotypic coordinates `W` of `Pe_blockdecomp` (`BlockCoordinates.l
 * `Pe_ge_multiplicity_one`: `P_e(k) ≥ ½ Σ_{l : dim M_l = 1} Tr τ_l(ψ^{⊗k})`, i.e. `prop:blind`
   (multiplicity-one form) for `Helstrom.Pe`, in the coordinates `W` of `Pe_blockdecomp`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

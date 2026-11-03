@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.GOData.GOConst
-import FormalResearch.FourQubitEntropy.GOData.GOSpec
-import FormalResearch.FourQubitEntropy.GOGlue.Cons
+module
+
+public import FormalResearch.FourQubitEntropy.GOData.GOConst
+public import FormalResearch.FourQubitEntropy.GOData.GOSpec
+public import FormalResearch.FourQubitEntropy.GOGlue.Cons
 
 /-!
 # GO glue: the generated constraint matrices are the slice-side ones (data check)
@@ -12,6 +14,9 @@ where `(k_c, L_c, S_c) = (consSpec[c]).mat` is the transcription of the slice-si
 `cons_psd`: at a slice point with `SliceConstraints`, every `cons[c]` is positive semidefinite.
 Claim class: proved, modulo the single `native_decide` (`Lean.ofReduceBool`) of `consCheck_true`.
 -/
+
+@[expose] public section
+
 
 open Finset
 

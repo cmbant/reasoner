@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # A Hermite-interpolation positivity lemma
@@ -11,6 +13,9 @@ double zeros at two nodes `0 < p < r` (`φ p = φ' p = φ r = φ' r = 0`). Then 
 This is the Hermite remainder argument "`f⁗ < 0 ⟹ f ≤` its cubic Hermite interpolant" in a form
 that needs no divided-difference formalism: only Rolle's theorem and monotonicity.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

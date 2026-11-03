@@ -1,7 +1,9 @@
-import Mathlib
-import FormalResearch.FourQubitEntropy.SevenQubitIcoXHamming
-import FormalResearch.FourQubitEntropy.SevenQubitHammingBlockPurityC
-import FormalResearch.FourQubitEntropy.SpinFlipReduced
+module
+
+public import Mathlib
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoXHamming
+public import FormalResearch.FourQubitEntropy.SevenQubitHammingBlockPurityC
+public import FormalResearch.FourQubitEntropy.SpinFlipReduced
 
 /-!
 # Hamming-ball block purity: state-level glue (`thm:hamming-ball-schmidt`, `thm:low-excitation-exclusion`)
@@ -20,6 +22,9 @@ over cuts). Seven-qubit specializations: `low_excitation_cut`, `low_excitation_e
 obtained by applying these theorems to the rotated vector, not stated; the lower bound of the exact rank
 formula for general `(n, k, r)`; the entropy inequality `eq:hamming-ball-robust-entropy`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco.HammingGlue
 

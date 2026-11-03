@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Statement
-import FormalResearch.FourQubitEntropy.Defect
+module
+
+public import FormalResearch.FourQubitEntropy.Statement
+public import FormalResearch.FourQubitEntropy.Defect
 
 /-!
 # Generic expressions at `ℂ` are the Mathlib quantities
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.Defect
 For `w = conj ψ`, the generic expressions of `Generic.lean` evaluated in `ℂ` are the quantities of
 `Statement.lean`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open scoped FormalResearch.FourQubitEntropy.GenericOps

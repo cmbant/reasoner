@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullDefs
-import FormalResearch.FourQubitEntropy.RenyiFullStieltjes
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullDefs
+public import FormalResearch.FourQubitEntropy.RenyiFullStieltjes
 
 /-!
 # Monotonicity of `Σ λᵢ^q` in the determinant at fixed `p` and `t`
@@ -14,6 +16,9 @@ depends on `(p, t)` only and `P_λ(s) = s⁴ + s³ + ((1-p)/2)s² + ((1-3p+2t)/6
 `(p, t)` the sum is a decreasing function of `d`, for every `s`.  Integrating against `s^{q-2}`
 (`stieltjes_rpow`) gives `Zmono`: larger determinant, smaller `Σ λᵢ^q`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

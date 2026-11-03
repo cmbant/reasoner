@@ -1,4 +1,6 @@
-import FormalResearch.FrameFree.XiInvUnconditional
+module
+
+public import FormalResearch.FrameFree.XiInvUnconditional
 
 /-!
 # The paper's `ψ₊`: `F_C = F_K = 1/2` and `ξ_inv = log 2` (Paper P, `eq:psiplus`)
@@ -20,6 +22,9 @@ transfer to the paper's state.
 
 Depends only on `FrameFree.PsiPlusKramers.psiPlus`, `FrameFree.PsiPlusKramers.psiplus_kramers` and `FrameFree.XiInv.psiplus_xi_inv`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.FrameFree.TwirlsBicommutant
-import FormalResearch.QIB.BlockOps
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.TwirlsBicommutant
+public import FormalResearch.QIB.BlockOps
 
 /-!
 # Isotypic coordinates for a `*`-closed algebra of matrices (structure theorem behind `lem:blockdecomp`)
@@ -33,6 +35,9 @@ commutant (again `*`-closed).
 
 The vector spaces are `ι → ℂ` with the standard Hermitian form `star v ⬝ᵥ w`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.FlipGradientGen
-import FormalResearch.FourQubitEntropy.IdentityVars
+module
+
+public import FormalResearch.FourQubitEntropy.FlipGradientGen
+public import FormalResearch.FourQubitEntropy.IdentityVars
 
 /-!
 # Normal forms for the spin-flip gradient identity: Na, Nb, Pa, Pb, Wa, Wb
@@ -9,11 +11,13 @@ listed expression evaluates to its list; see `FlipGradient.lean`. The `FlipGradi
 one another in a chain, only so that `lake` builds them one at a time: each needs several GB of kernel memory.
 -/
 
+@[expose] public section
+
 open scoped FormalResearch.FourQubitEntropy.GenericOps
 
 namespace FormalResearch.FourQubitEntropy
 
-private noncomputable def chunkFGNa_0 : SP :=
+noncomputable def chunkFGNa_0 : SP :=
   [ (nat_lit 118, Int.ofNat (nat_lit 1)), (nat_lit 183, Int.ofNat (nat_lit 1)),
     (nat_lit 335, Int.ofNat (nat_lit 1)), (nat_lit 497, Int.ofNat (nat_lit 1)),
     (nat_lit 803, Int.ofNat (nat_lit 1)), (nat_lit 1027, Int.ofNat (nat_lit 1)),
@@ -32,7 +36,7 @@ noncomputable def flipCertNa : SP :=
 theorem flipCertNa_eq : (normG (dualZ zSP wSP) (dualW zSP wSP)).a = flipCertNa :=
   eqSP_sound _ _ (by decide +kernel)
 
-private noncomputable def chunkFGNb_0 : SP :=
+noncomputable def chunkFGNb_0 : SP :=
   [ (nat_lit 106, Int.ofNat (nat_lit 2)), (nat_lit 141, Int.negSucc (nat_lit 1)),
     (nat_lit 215, Int.negSucc (nat_lit 1)), (nat_lit 287, Int.ofNat (nat_lit 2)),
     (nat_lit 403, Int.ofNat (nat_lit 2)), (nat_lit 407, Int.negSucc (nat_lit 1)),
@@ -51,7 +55,7 @@ noncomputable def flipCertNb : SP :=
 theorem flipCertNb_eq : (normG (dualZ zSP wSP) (dualW zSP wSP)).b = flipCertNb :=
   eqSP_sound _ _ (by decide +kernel)
 
-private noncomputable def chunkFGPa_0 : SP :=
+noncomputable def chunkFGPa_0 : SP :=
   [ (nat_lit 13924, Int.ofNat (nat_lit 3)), (nat_lit 21594, Int.ofNat (nat_lit 6)),
     (nat_lit 33489, Int.ofNat (nat_lit 3)), (nat_lit 39530, Int.ofNat (nat_lit 6)),
     (nat_lit 57218, Int.ofNat (nat_lit 4)), (nat_lit 58646, Int.ofNat (nat_lit 2)),
@@ -85,7 +89,7 @@ private noncomputable def chunkFGPa_0 : SP :=
     (nat_lit 659018, Int.ofNat (nat_lit 2)), (nat_lit 686482, Int.ofNat (nat_lit 2)),
     (nat_lit 698855, Int.ofNat (nat_lit 4)), (nat_lit 701267, Int.ofNat (nat_lit 2)) ]
 
-private noncomputable def chunkFGPa_1 : SP :=
+noncomputable def chunkFGPa_1 : SP :=
   [ (nat_lit 706786, Int.ofNat (nat_lit 2)), (nat_lit 709597, Int.ofNat (nat_lit 4)),
     (nat_lit 724497, Int.ofNat (nat_lit 2)), (nat_lit 747385, Int.ofNat (nat_lit 2)),
     (nat_lit 756794, Int.ofNat (nat_lit 2)), (nat_lit 795981, Int.ofNat (nat_lit 4)),
@@ -119,7 +123,7 @@ private noncomputable def chunkFGPa_1 : SP :=
     (nat_lit 2335319, Int.ofNat (nat_lit 2)), (nat_lit 2353465, Int.ofNat (nat_lit 2)),
     (nat_lit 2386001, Int.ofNat (nat_lit 6)), (nat_lit 2389505, Int.ofNat (nat_lit 2)) ]
 
-private noncomputable def chunkFGPa_2 : SP :=
+noncomputable def chunkFGPa_2 : SP :=
   [ (nat_lit 2405291, Int.ofNat (nat_lit 2)), (nat_lit 2405921, Int.ofNat (nat_lit 2)),
     (nat_lit 2429255, Int.ofNat (nat_lit 2)), (nat_lit 2444497, Int.ofNat (nat_lit 2)),
     (nat_lit 2490323, Int.ofNat (nat_lit 2)), (nat_lit 2544353, Int.ofNat (nat_lit 2)),
@@ -153,7 +157,7 @@ private noncomputable def chunkFGPa_2 : SP :=
     (nat_lit 5927311, Int.ofNat (nat_lit 2)), (nat_lit 6305759, Int.ofNat (nat_lit 2)),
     (nat_lit 6461887, Int.ofNat (nat_lit 4)), (nat_lit 6534599, Int.ofNat (nat_lit 6)) ]
 
-private noncomputable def chunkFGPa_3 : SP :=
+noncomputable def chunkFGPa_3 : SP :=
   [ (nat_lit 6538603, Int.ofNat (nat_lit 4)), (nat_lit 6694669, Int.ofNat (nat_lit 2)),
     (nat_lit 6929273, Int.ofNat (nat_lit 4)), (nat_lit 6990553, Int.ofNat (nat_lit 2)),
     (nat_lit 7091431, Int.ofNat (nat_lit 2)), (nat_lit 7123583, Int.ofNat (nat_lit 6)),
@@ -187,7 +191,7 @@ private noncomputable def chunkFGPa_3 : SP :=
     (nat_lit 23609881, Int.ofNat (nat_lit 3)), (nat_lit 23631271, Int.ofNat (nat_lit 2)),
     (nat_lit 26675461, Int.ofNat (nat_lit 6)), (nat_lit 27487337, Int.ofNat (nat_lit 6)) ]
 
-private noncomputable def chunkFGPa_4 : SP :=
+noncomputable def chunkFGPa_4 : SP :=
   [ (nat_lit 28857859, Int.ofNat (nat_lit 4)), (nat_lit 29003371, Int.ofNat (nat_lit 2)),
     (nat_lit 31028267, Int.ofNat (nat_lit 2)), (nat_lit 31184723, Int.ofNat (nat_lit 4)),
     (nat_lit 33736037, Int.ofNat (nat_lit 6)), (nat_lit 35628961, Int.ofNat (nat_lit 3)),
@@ -203,7 +207,7 @@ noncomputable def flipCertPa : SP :=
 theorem flipCertPa_eq : (Pgen (dualZ zSP wSP) (dualW zSP wSP)).a = flipCertPa :=
   eqSP_sound _ _ (by decide +kernel)
 
-private noncomputable def chunkFGPb_0 : SP :=
+noncomputable def chunkFGPb_0 : SP :=
   [ (nat_lit 12508, Int.ofNat (nat_lit 6)), (nat_lit 16638, Int.negSucc (nat_lit 5)),
     (nat_lit 19398, Int.ofNat (nat_lit 6)), (nat_lit 25370, Int.negSucc (nat_lit 5)),
     (nat_lit 25803, Int.negSucc (nat_lit 5)), (nat_lit 33866, Int.ofNat (nat_lit 6)),
@@ -237,7 +241,7 @@ private noncomputable def chunkFGPb_0 : SP :=
     (nat_lit 450213, Int.negSucc (nat_lit 5)), (nat_lit 473714, Int.ofNat (nat_lit 6)),
     (nat_lit 479665, Int.negSucc (nat_lit 5)), (nat_lit 485317, Int.ofNat (nat_lit 6)) ]
 
-private noncomputable def chunkFGPb_1 : SP :=
+noncomputable def chunkFGPb_1 : SP :=
   [ (nat_lit 506311, Int.ofNat (nat_lit 6)), (nat_lit 515054, Int.ofNat (nat_lit 6)),
     (nat_lit 558219, Int.negSucc (nat_lit 5)), (nat_lit 568633, Int.ofNat (nat_lit 6)),
     (nat_lit 574277, Int.negSucc (nat_lit 5)), (nat_lit 616607, Int.negSucc (nat_lit 5)),
@@ -271,7 +275,7 @@ private noncomputable def chunkFGPb_1 : SP :=
     (nat_lit 1713103, Int.ofNat (nat_lit 6)), (nat_lit 1730083, Int.negSucc (nat_lit 5)),
     (nat_lit 1801007, Int.ofNat (nat_lit 6)), (nat_lit 1818883, Int.negSucc (nat_lit 5)) ]
 
-private noncomputable def chunkFGPb_2 : SP :=
+noncomputable def chunkFGPb_2 : SP :=
   [ (nat_lit 1951787, Int.ofNat (nat_lit 6)), (nat_lit 1952953, Int.negSucc (nat_lit 5)),
     (nat_lit 1958177, Int.ofNat (nat_lit 6)), (nat_lit 1977613, Int.negSucc (nat_lit 5)),
     (nat_lit 1992641, Int.ofNat (nat_lit 6)), (nat_lit 2123383, Int.negSucc (nat_lit 5)),
@@ -305,7 +309,7 @@ private noncomputable def chunkFGPb_2 : SP :=
     (nat_lit 13208401, Int.negSucc (nat_lit 5)), (nat_lit 13759667, Int.ofNat (nat_lit 6)),
     (nat_lit 14175653, Int.ofNat (nat_lit 6)), (nat_lit 14598403, Int.negSucc (nat_lit 5)) ]
 
-private noncomputable def chunkFGPb_3 : SP :=
+noncomputable def chunkFGPb_3 : SP :=
   [ (nat_lit 16890901, Int.negSucc (nat_lit 5)), (nat_lit 17243399, Int.ofNat (nat_lit 6)),
     (nat_lit 17265709, Int.ofNat (nat_lit 6)), (nat_lit 17283557, Int.negSucc (nat_lit 5)),
     (nat_lit 17426341, Int.negSucc (nat_lit 5)), (nat_lit 18153647, Int.ofNat (nat_lit 6)),
@@ -348,7 +352,7 @@ noncomputable def flipCertPb : SP :=
 theorem flipCertPb_eq : (Pgen (dualZ zSP wSP) (dualW zSP wSP)).b = flipCertPb :=
   eqSP_sound _ _ (by decide +kernel)
 
-private noncomputable def chunkFGWa_0 : SP :=
+noncomputable def chunkFGWa_0 : SP :=
   [ (nat_lit 13924, Int.ofNat (nat_lit 4)), (nat_lit 21594, Int.ofNat (nat_lit 8)),
     (nat_lit 33489, Int.ofNat (nat_lit 4)), (nat_lit 39530, Int.ofNat (nat_lit 8)),
     (nat_lit 57218, Int.ofNat (nat_lit 8)), (nat_lit 62835, Int.ofNat (nat_lit 8)),
@@ -382,7 +386,7 @@ private noncomputable def chunkFGWa_0 : SP :=
     (nat_lit 756794, Int.ofNat (nat_lit 4)), (nat_lit 795981, Int.ofNat (nat_lit 8)),
     (nat_lit 802526, Int.ofNat (nat_lit 4)), (nat_lit 817827, Int.negSucc (nat_lit 3)) ]
 
-private noncomputable def chunkFGWa_1 : SP :=
+noncomputable def chunkFGWa_1 : SP :=
   [ (nat_lit 819274, Int.negSucc (nat_lit 7)), (nat_lit 820041, Int.ofNat (nat_lit 4)),
     (nat_lit 821182, Int.ofNat (nat_lit 4)), (nat_lit 824681, Int.ofNat (nat_lit 8)),
     (nat_lit 827966, Int.ofNat (nat_lit 4)), (nat_lit 840427, Int.ofNat (nat_lit 8)),
@@ -416,7 +420,7 @@ private noncomputable def chunkFGWa_1 : SP :=
     (nat_lit 2351987, Int.negSucc (nat_lit 3)), (nat_lit 2353465, Int.ofNat (nat_lit 4)),
     (nat_lit 2386001, Int.ofNat (nat_lit 8)), (nat_lit 2389505, Int.ofNat (nat_lit 4)) ]
 
-private noncomputable def chunkFGWa_2 : SP :=
+noncomputable def chunkFGWa_2 : SP :=
   [ (nat_lit 2405291, Int.ofNat (nat_lit 4)), (nat_lit 2414923, Int.negSucc (nat_lit 3)),
     (nat_lit 2429255, Int.ofNat (nat_lit 4)), (nat_lit 2444497, Int.ofNat (nat_lit 4)),
     (nat_lit 2477671, Int.ofNat (nat_lit 4)), (nat_lit 2490323, Int.ofNat (nat_lit 4)),
@@ -450,7 +454,7 @@ private noncomputable def chunkFGWa_2 : SP :=
     (nat_lit 5399363, Int.negSucc (nat_lit 3)), (nat_lit 5467957, Int.ofNat (nat_lit 4)),
     (nat_lit 5520733, Int.ofNat (nat_lit 4)), (nat_lit 5575229, Int.negSucc (nat_lit 3)) ]
 
-private noncomputable def chunkFGWa_3 : SP :=
+noncomputable def chunkFGWa_3 : SP :=
   [ (nat_lit 5586149, Int.negSucc (nat_lit 3)), (nat_lit 5655683, Int.ofNat (nat_lit 4)),
     (nat_lit 5671693, Int.ofNat (nat_lit 4)), (nat_lit 5730569, Int.ofNat (nat_lit 4)),
     (nat_lit 5766043, Int.ofNat (nat_lit 4)), (nat_lit 5842993, Int.ofNat (nat_lit 4)),
@@ -484,7 +488,7 @@ private noncomputable def chunkFGWa_3 : SP :=
     (nat_lit 21714871, Int.ofNat (nat_lit 8)), (nat_lit 22326727, Int.ofNat (nat_lit 8)),
     (nat_lit 23464327, Int.ofNat (nat_lit 8)), (nat_lit 23609881, Int.ofNat (nat_lit 4)) ]
 
-private noncomputable def chunkFGWa_4 : SP :=
+noncomputable def chunkFGWa_4 : SP :=
   [ (nat_lit 26675461, Int.ofNat (nat_lit 8)), (nat_lit 27487337, Int.ofNat (nat_lit 8)),
     (nat_lit 28857859, Int.ofNat (nat_lit 8)), (nat_lit 31184723, Int.ofNat (nat_lit 8)),
     (nat_lit 33736037, Int.ofNat (nat_lit 8)), (nat_lit 35628961, Int.ofNat (nat_lit 4)),

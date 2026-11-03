@@ -1,7 +1,9 @@
-import FormalResearch.QIA.CoherentPowerSymmetricSpan
-import FormalResearch.QIA.CoherentPhaseOrthogonality
-import Mathlib.LinearAlgebra.SesquilinearForm.Basic
-import Mathlib.LinearAlgebra.TensorPower.Symmetric
+module
+
+public import FormalResearch.QIA.CoherentPowerSymmetricSpan
+public import FormalResearch.QIA.CoherentPhaseOrthogonality
+public import Mathlib.LinearAlgebra.SesquilinearForm.Basic
+public import Mathlib.LinearAlgebra.TensorPower.Symmetric
 
 /-!
 # Hermitian coherent-power separation on symmetric tensor power
@@ -13,6 +15,9 @@ the actual symmetric tensor power is zero when its quadratic statistic vanishes 
 coherent power, under the continuity hypothesis needed by the existing polarization
 bridge.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

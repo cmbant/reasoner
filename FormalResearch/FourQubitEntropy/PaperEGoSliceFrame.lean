@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceGen
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceGen
 
 /-!
 # `thm:fqe-global-overlap`, layer (a): existence of a closest-point frame
@@ -10,6 +12,9 @@ Proof: `Phi_attained` gives a closest point `χ₀ ∈ 𝓜`; it lies in the LU 
 G(η₇)` (`exists_same_class`); in the second case replace `ψ` by `conj ψ` (`Q`, `Φ` conjugation invariant:
 `sexticQ_conj`, `Phi_conj`); apply the LU map taking `χ₀` to `Z_*` (`ip_localApply`), and a global phase.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

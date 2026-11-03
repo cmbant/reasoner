@@ -72,7 +72,9 @@ dMlean = pol_to_lean(dM)
 dMt = sp.expand(dM.subs(q, qs).subs(x, s+tau*(1-s)))
 boxes = [(R(0), R(1, 2)), (R(1, 2), R(3, 4)), (R(3, 4), R(7, 8)), (R(7, 8), R(1))]
 
-out = [f'''import Mathlib
+out = [f'''module
+
+public import Mathlib
 
 /-!
 # Bernstein sign certificates of the binary quartic lemma at `q_s = 1587/1000`
@@ -85,6 +87,8 @@ Paper E, `lem:fqe-binary-quartic` (`renyi_binary_quartic.tex`), BQ-3 and BQ-4 at
 * `bqdM s ξ = ∂M/∂ξ` at `q_s`; on `0 ≤ s < 1`, `s ≤ ξ ≤ 1` it is nonnegative (`bqdM_nonneg`): with
   `ξ = s + τ(1-s)` its tensor Bernstein coefficients of bidegree `(6,3)` are nonnegative on four `s`-boxes.
 -/
+
+@[expose] public section
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

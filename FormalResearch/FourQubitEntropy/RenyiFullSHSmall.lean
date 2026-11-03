@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullSHNodes
-import FormalResearch.FourQubitEntropy.RenyiFullNU
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullSHNodes
+public import FormalResearch.FourQubitEntropy.RenyiFullNU
 
 /-!
 # Small-head dual: the small-tail deficit (SHD)
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.RenyiFullNU
 Paper E, `lem:fqe-small-head-dual`, equation (SHD): for `0 < u ≤ 1/4`, `0 ≤ δ ≤ u`,
 `H_q(λ) ≤ 1 + h(u) - (11/10)(1+2u) δ²` on `λ = ((1-u+δ)/2, (1-u-δ)/2, u/2, u/2)`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

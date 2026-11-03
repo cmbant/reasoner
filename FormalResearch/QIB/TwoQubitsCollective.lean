@@ -1,7 +1,9 @@
-import Mathlib
-import FormalResearch.FrameFree.HelstromWindow
-import FormalResearch.FrameFree.HelstromSupport
-import FormalResearch.QIB.TwoQubitsSl2Rank
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.HelstromWindow
+public import FormalResearch.FrameFree.HelstromSupport
+public import FormalResearch.QIB.TwoQubitsSl2Rank
 
 /-!
 # Collective `sl₂` generators on `d` copies of two qubits
@@ -20,6 +22,9 @@ two-level collective operator `Lc X = coll (coll X)` (first over the two qubits 
 
 The two-qubit stabiliser and the Leibniz rule on `d` copies are in `TwoQubitsStabiliser.lean`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

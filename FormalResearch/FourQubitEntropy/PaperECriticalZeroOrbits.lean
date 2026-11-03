@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalZeroSet
-import FormalResearch.FourQubitEntropy.ClassifyMain
-import FormalResearch.FourQubitEntropy.Tradeoff
-import FormalResearch.FourQubitEntropy.Checks
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalZeroSet
+public import FormalResearch.FourQubitEntropy.ClassifyMain
+public import FormalResearch.FourQubitEntropy.Tradeoff
+public import FormalResearch.FourQubitEntropy.Checks
 
 /-!
 # Zero set of the sextic `F` (`prop:fqe-moment-zeros`)
@@ -28,6 +30,9 @@ Relation to the paper: `moment_zeros` formalises the supplement's second proof o
 (ZE)), not the paper's proof, which now goes through the critical envelope
 (`critical_envelope` in `GeneralEnvelope.lean`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

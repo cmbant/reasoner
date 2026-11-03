@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # A quadratic majorant of `-x ln x` (Hermite, double contact at `b`)
@@ -12,6 +14,9 @@ and `u ≥ 0` on `[b,∞)`; hence `c ≥ -1/(2b)` and `f x ≤ T x - (x-b)²/(2b
 `x ≤ b`.  For `x ∈ (b,a]` the second divided difference `ρ(y) = (f y - T y)/(y-b)²` is increasing
 on `(b,∞)`: `ρ' = N/(y-b)³` with `N = (y+b) ln(y/b) - 2(y-b)` and `N' = ln(y/b) + b/y - 1 ≥ 0`.
 -/
+
+@[expose] public section
+
 
 open Real
 

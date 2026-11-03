@@ -1,6 +1,11 @@
-import Mathlib
-import FormalResearch.QIB2.HammingGate
-import FormalResearch.QIB2.KrawtchoukGenerating
+module
+
+public import Mathlib
+public import FormalResearch.QIB2.HammingGate
+public import FormalResearch.QIB2.KrawtchoukGenerating
+
+
+@[expose] public section
 
 namespace FormalResearch.QIB2
 

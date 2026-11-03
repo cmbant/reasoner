@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiCrossing
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiCrossing
 
 /-!
 # Single crossing of the Rényi entropies: the one-large-family lemma
@@ -18,6 +20,9 @@ This file proves: `φ(a,b,b,b) = Φ(ln(a/b))` (`sxPhiVec_family`), the derivativ
 Not in this file: the reduction of an arbitrary maximiser of `φ` on the simplex to the family
 (`RenyiSingleCrossing.lean`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

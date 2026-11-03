@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Rigidity
+module
+
+public import FormalResearch.FourQubitEntropy.Rigidity
 
 /-!
 # Cubic spectral majorants
@@ -18,6 +20,9 @@ the equality case under the additional hypothesis that `h > f` off the two nodes
 situation for every Hermite majorant with `f⁗ < 0`, e.g. the entropy and Tsallis cases):
 `majorant_eq_iff`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

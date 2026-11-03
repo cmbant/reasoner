@@ -1,11 +1,16 @@
-import FormalResearch.FourQubitEntropy.QVEqualityBridge
-import FormalResearch.FourQubitEntropy.RenyiFullState
+module
+
+public import FormalResearch.FourQubitEntropy.QVEqualityBridge
+public import FormalResearch.FourQubitEntropy.RenyiFullState
 
 /-!
 # Critical states: cut spectra in `(m, n)` coordinates and the profile `prop:fqe-critical-variance`
 
 Paper E, `renyi_compatibility.tex`, `prop:fqe-critical-variance` (RF) for pure four-qubit states with `P = 1`.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

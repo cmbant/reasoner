@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceHess
-import FormalResearch.FourQubitEntropy.PaperEGoSliceNormal
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceHess
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceNormal
 
 /-!
 # `thm:fqe-global-overlap`: `FrameHess` is a theorem
@@ -8,6 +10,9 @@ import FormalResearch.FourQubitEntropy.PaperEGoSliceNormal
 real height along the group curve of `w` (`quad_identity`, a polynomial identity), which is `≤ 0` at a
 closest point (`hess_gen`).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

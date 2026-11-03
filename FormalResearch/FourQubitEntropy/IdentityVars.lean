@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Generic
-import FormalResearch.FourQubitEntropy.SparsePoly
+module
+
+public import FormalResearch.FourQubitEntropy.Generic
+public import FormalResearch.FourQubitEntropy.SparsePoly
 
 /-!
 # The 32 variables of the sextic identity
@@ -8,6 +10,9 @@ import FormalResearch.FourQubitEntropy.SparsePoly
 normal-form files `IdentityCert*.lean` can state their checks about `zSP` and `wSP` and be built in
 parallel.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

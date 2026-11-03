@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIA.ThreeCopyChiralityOnset
+module
+
+public import Mathlib
+public import FormalResearch.QIA.ThreeCopyChiralityOnset
+
+
+@[expose] public section
 
 namespace FormalResearch.QIA
 

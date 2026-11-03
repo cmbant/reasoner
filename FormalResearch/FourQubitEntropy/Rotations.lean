@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.BlockStructure
+module
+
+public import FormalResearch.FourQubitEntropy.BlockStructure
 
 /-!
 # Rotations of the magic basis by local unitaries
@@ -7,6 +9,9 @@ For `c ∈ SU(2)`, `c ⊗ c` fixes the singlet `m₃` and acts on `m₁, m₂, m
 rotations about the three axes are the coordinate rotations in the planes `(m₁,m₂)`, `(m₂,m₄)`,
 `(m₁,m₄)`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.TwirlsOdd
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.TwirlsOdd
 
 /-!
 # Real permutation spans on a general slot set (Paper P, `prop:oddwords` (i), (ii))
@@ -11,6 +13,9 @@ arbitrary finite slot type `ι` with block pattern `π : ι → κ`, the element
 `rPerm π` of the block-preserving slot permutations and its antisymmetric part `sSkew π`
 (real, closed under transposition and products, `X - Xᵀ ∈ sSkew π`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

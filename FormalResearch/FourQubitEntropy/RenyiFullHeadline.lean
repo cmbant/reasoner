@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.RenyiFullStateEq
-import FormalResearch.FourQubitEntropy.RenyiFullDetChart
-import FormalResearch.FourQubitEntropy.RenyiFullNU
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullStateEq
+public import FormalResearch.FourQubitEntropy.RenyiFullDetChart
+public import FormalResearch.FourQubitEntropy.RenyiFullNU
 
 /-!
 # Headline: the Rényi envelope above one (`cor:fqe-renyi-gw`, `q > 1`)
@@ -26,6 +28,9 @@ Then `meanRenyi q ψ ≤ max {hsRenyi q, 5/3}` (the HS--cluster envelope).  If `
 `cor:fqe-renyi-high-f` (the case `20ε + 2F ≥ 1`), the order transfer (`RenyiSingleCrossing.lean`) and the
 HS--cluster crossing (`RenyiCrossing.lean`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

@@ -1,5 +1,7 @@
-import FormalResearch.QIA.MatrixTraceAdjointPositivity
-import FormalResearch.QIA.MatrixTraceAdjointUnital
+module
+
+public import FormalResearch.QIA.MatrixTraceAdjointPositivity
+public import FormalResearch.QIA.MatrixTraceAdjointUnital
 
 /-!
 # QI-A POVM transport through the finite matrix trace adjoint
@@ -13,6 +15,9 @@ the identity.
 This is the finite-dimensional Heisenberg-picture POVM bridge. It does not
 assert complete positivity or construct the concrete QI-A channel.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

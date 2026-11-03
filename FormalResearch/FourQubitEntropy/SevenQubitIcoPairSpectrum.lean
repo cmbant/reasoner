@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoSpectrum
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoSpectrum
 
 /-!
 # Spectra of the two-qubit (pair) marginals of the seven-qubit icosahedral family
@@ -24,6 +26,9 @@ What is proved: all statements below, for all real `alpha beta` (exact kernel ce
 spectral-theorem argument for diagonal Hermitian matrices). Not proved here: any extremality
 statement for the mean pair entropy (the paper makes none).
 -/
+
+@[expose] public section
+
 
 open Matrix
 

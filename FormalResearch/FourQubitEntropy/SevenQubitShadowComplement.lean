@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Local shadow and complement asymmetry for odd `n` (`prop:shadow-complement`)
@@ -28,6 +30,9 @@ Proved here (all statements are Lean theorems about the abstract model):
   `q_s = (t₁² + t₂²)/2`. Existence of the Takagi factorization and the basis independence of the `t_i`
   are not formalized.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitShadowComplement
 

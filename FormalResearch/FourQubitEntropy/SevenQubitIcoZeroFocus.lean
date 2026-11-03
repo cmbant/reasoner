@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoPairSpectrum
-import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoPairSpectrum
+public import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
 
 /-!
 # Zero-focus covariants of the icosahedral family (`prop:zero-focus`, partial)
@@ -31,6 +33,9 @@ This is the paper's "A₅ switching symmetry keeps `V_r(ψ_x)` in the real plane
   of the pair and triple cuts, so the constants are derived, not assumed);
 * `zeroFocus_three_ico`: at `x = 37/524`, `V_3 = (605/131) V_0`.
 -/
+
+@[expose] public section
+
 
 open Finset
 

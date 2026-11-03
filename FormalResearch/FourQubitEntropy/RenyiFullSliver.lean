@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullCases
-import FormalResearch.FourQubitEntropy.ThirdMoment
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullCases
+public import FormalResearch.FourQubitEntropy.ThirdMoment
 
 /-!
 # The cluster sliver of `thm:fqe-renyi-classical`
@@ -14,6 +16,9 @@ Paper E, proof of `thm:fqe-renyi-classical`, paragraph *The sliver* (`sup_renyi.
   `E_{q_s} < 5/3`.  (Equality is excluded because the equality case of `ClusterSliver` forces `λ = c₁`,
   `ε = 0` and then `20ε + 2F = 1`.)
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

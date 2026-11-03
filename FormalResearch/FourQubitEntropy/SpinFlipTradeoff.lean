@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SpinFlipOmega
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipOmega
 
 /-!
 # The four-qubit purity--time-reversal identity and its stability corollary
@@ -8,6 +10,9 @@ Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIpro
 `cor:spinflip-rigidity` at `n = 4`.  The entries `n = 8, 10, 14, 16, 20` rest on Rains' shadow inequalities
 and rational certificates (`ST-1--ST-6`) and are *not* formalised here.  Claim class: **proved**.
 -/
+
+@[expose] public section
+
 
 open FormalResearch.FrameFree.NQubit
 

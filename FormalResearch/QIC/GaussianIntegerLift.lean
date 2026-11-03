@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIC.GaussianNonvanishing
+module
+
+public import Mathlib
+public import FormalResearch.QIC.GaussianNonvanishing
+
+
+@[expose] public section
 
 namespace FormalResearch.QIC
 

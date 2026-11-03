@@ -1,6 +1,11 @@
-import Mathlib
-import FormalResearch.QIA.FourQubitMatrix
-import FormalResearch.QIA.PrintedChiralityMatrix
+module
+
+public import Mathlib
+public import FormalResearch.QIA.FourQubitMatrix
+public import FormalResearch.QIA.PrintedChiralityMatrix
+
+
+@[expose] public section
 
 namespace FormalResearch.QIA
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.AH6Cert
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Cert
 
 /-!
 # Soundness of the AH-6 certificate for the real parameters
@@ -8,6 +10,9 @@ For a real `x` in the bracket `[XLO/10^45, (XLO+1)/10^45]`, the parameters `parR
 `stageA .. stageD3` satisfies the facts of `CertFacts` (positivity of the constants, distinct nodes, and
 `Π(e) > 0` for all `e ≥ 0`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

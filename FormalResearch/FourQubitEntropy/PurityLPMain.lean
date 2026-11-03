@@ -1,9 +1,11 @@
-import FormalResearch.FourQubitEntropy.PurityLPCertData
-import FormalResearch.FourQubitEntropy.PurityLPGraphDataA
-import FormalResearch.FourQubitEntropy.PurityLPGraphDataB
-import FormalResearch.FourQubitEntropy.PurityLPGraphData16
-import FormalResearch.FourQubitEntropy.PurityLPGraphData17
-import FormalResearch.FourQubitEntropy.PurityLPGraphData18
+module
+
+public import FormalResearch.FourQubitEntropy.PurityLPCertData
+public import FormalResearch.FourQubitEntropy.PurityLPGraphDataA
+public import FormalResearch.FourQubitEntropy.PurityLPGraphDataB
+public import FormalResearch.FourQubitEntropy.PurityLPGraphData16
+public import FormalResearch.FourQubitEntropy.PurityLPGraphData17
+public import FormalResearch.FourQubitEntropy.PurityLPGraphData18
 
 /-!
 # Exact minima of the mean balanced-cut purity of `n`-qubit pure states (Paper E, Rains LP tables)
@@ -19,6 +21,8 @@ The lower bound is `lpBound<n>` (shadow inequalities `shadow_nonneg`, `a_s = a_{
 certificate); the attaining state is the normalised graph state `gsn (adjGraph adj<n>)` (`piMean_graph<n>`, from
 `purity_gsn : tr ρ_S² = 2^{-rk_2 Γ[S,S^c]}` and the kernel-checked cut ranks).  `n = 7, 13` are out of scope.
 -/
+
+@[expose] public section
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 

@@ -1,8 +1,10 @@
-import Mathlib
-import FormalResearch.QIB.BlockStructure
-import FormalResearch.QIB.BlockDecomp
-import FormalResearch.QIB.BlockAntiunitary
-import FormalResearch.FrameFree.HelstromSupport
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockStructure
+public import FormalResearch.QIB.BlockDecomp
+public import FormalResearch.QIB.BlockAntiunitary
+public import FormalResearch.FrameFree.HelstromSupport
 
 /-!
 # Discharging `IsotypicInvariants`: unitary isotypic coordinates for the frame group
@@ -30,6 +32,9 @@ That `W` can be taken *real* (so that `Θ`, an entrywise conjugation up to the f
 `ε^{⊗n} ∈ SU(2)^n`, acts as entrywise conjugation of the multiplicity blocks) is not proved here; it is
 `RealCoordsFrame.realIsotypicCoords`, which discharges the hypothesis `hconj` of `antiunitary_block`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

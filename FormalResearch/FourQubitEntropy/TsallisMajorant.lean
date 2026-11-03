@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Majorant
-import FormalResearch.FourQubitEntropy.HermiteMajorant
+module
+
+public import FormalResearch.FourQubitEntropy.Majorant
+public import FormalResearch.FourQubitEntropy.HermiteMajorant
 
 /-!
 # The Hermite cubic of the Tsallis function majorizes it
@@ -12,6 +14,9 @@ paper's divided-difference computation.
 
 Paper: proof of `cor:fqe-tsallis` (spectral_corollaries.tex).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

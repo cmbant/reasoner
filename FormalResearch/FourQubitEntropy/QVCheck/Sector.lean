@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.QVCheck.Placement
-import FormalResearch.FourQubitEntropy.QVCheck.Terms
+module
+
+public import FormalResearch.FourQubitEntropy.QVCheck.Placement
+public import FormalResearch.FourQubitEntropy.QVCheck.Terms
 
 /-!
 # Right-hand side, `Qtot` and the final comparison (K6, K7)
@@ -8,6 +10,9 @@ import FormalResearch.FourQubitEntropy.QVCheck.Terms
 the covariants; `checkFinal_spec`: the final comparison `checkFinal` is the sector identity up to the placement
 denominators.
 -/
+
+@[expose] public section
+
 
 open Finset FormalResearch.FourQubitEntropy FormalResearch.FourQubitEntropy.QVBlock
 open scoped Matrix

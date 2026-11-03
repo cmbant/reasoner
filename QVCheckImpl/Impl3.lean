@@ -1,4 +1,6 @@
-import QVCheckImpl.Impl2
+module
+
+public import QVCheckImpl.Impl2
 
 /-!
 # The QV checker, part 3: pair transforms and the coupled structure of the invariants (K3)
@@ -8,6 +10,9 @@ For a pair of spins `(j0, j1)` the matrices `T`, `Tinv` (`T Tinv = δ I`) are th
 `W' = Tinv_A^T W Tinv_B` are expressed in the sparse family `Ŵ_u`, `V̂_u`, `u = (λ, s, t)`, by the coordinate arrays
 `Ω`, `Ξ` (`n × n`).
 -/
+
+@[expose] public section
+
 namespace QVCheck
 
 opaque tArr : Array Int := parseInts DataStr.tS

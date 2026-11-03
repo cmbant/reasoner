@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.AH6Jensen
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Jensen
 
 /-!
 # The kernel minorant `K(e) ≥ k₀/L(e)` (`eq:seven-joint-kernel-jensen`)
@@ -10,6 +12,9 @@ Then `k₀ > 0`, `0 ≤ γ e₀ ≤ 1` and `k₀ q(e)² ≤ (P(e) - g(e)) L(e)` 
 `c = γ` because `e ↦ K̃(e)(1 + c(e-e₀)) - K̃(e₀)` is nonnegative with a zero at `e₀` (Fermat), so its derivative
 `K̃'(e₀) + c K̃(e₀)` vanishes; `K̃'(e₀)` is computed from `K̃ = (P - g)/q²` near `e₀`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

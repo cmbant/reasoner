@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.FourQubitEntropy.GOProbe.PolySound
-import FormalResearch.FourQubitEntropy.GOProbe.Block
+module
+
+public import Mathlib
+public import FormalResearch.FourQubitEntropy.GOProbe.PolySound
+public import FormalResearch.FourQubitEntropy.GOProbe.Block
 
 /-!
 # GO certificate: soundness of the block expansion
@@ -10,6 +12,9 @@ and `Q_ij = ∑_{a,c} u_i[a] M[a][c](y) u_j[c]`.  Then `ev y (uPart W cons block
 `∑_c ∑_{B : cid B = c} ∑_{i,j < m_B} W_B i j · Q^{B}_ij`, provided all atoms and constraint entries have total degree
 `≤ 16` (so that every product is carry free).  Claim class: proved.
 -/
+
+@[expose] public section
+
 
 open Finset
 

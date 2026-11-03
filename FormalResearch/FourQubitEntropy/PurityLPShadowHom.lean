@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PurityLPShadow
+module
+
+public import FormalResearch.FourQubitEntropy.PurityLPShadow
 
 /-!
 # `S(x,y)` is the homogeneous polynomial with coefficients `S_i`
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.PurityLPShadow
 `shadow_homogeneous` shows this is the same as the definition used for `thm:lptable`: for all real `x, y`,
 `Σ_j A_j ((x+3y)/2)^{n-j} ((y-x)/2)^j = Σ_{i ≤ n} S_i x^{n-i} y^i`.
 -/
+
+@[expose] public section
+
 
 open scoped BigOperators
 open FormalResearch.FrameFree.NQubit

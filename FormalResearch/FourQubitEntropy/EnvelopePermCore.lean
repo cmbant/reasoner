@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Permanent algebra for the critical envelope (`prop:fqe-critical-envelope`, equality case)
@@ -20,6 +22,9 @@ Real `3 × 3` algebra used in the equality classification of `sextic_identity.te
 
 No hypotheses beyond those stated, and no unproved steps.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 open Matrix

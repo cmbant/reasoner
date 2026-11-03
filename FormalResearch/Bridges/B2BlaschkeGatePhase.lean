@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Bridges.B2BlaschkeWalshGauge
+module
+
+public import Mathlib
+public import FormalResearch.Bridges.B2BlaschkeWalshGauge
+
+
+@[expose] public section
 
 namespace FormalResearch.Bridges
 

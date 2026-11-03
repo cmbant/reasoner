@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoContractGram
-import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicC30
-import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicC31
-import FormalResearch.FourQubitEntropy.SevenQubitIcoZeroFocusPlane
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoContractGram
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicC30
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoCubicC31
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoZeroFocusPlane
 
 /-!
 # The integer contraction identities `G_{1,0}`, `G_{1,1}`, `G_{2,1}`
@@ -33,6 +35,9 @@ Status: exact certificate (kernel-checked integer identities) plus elementary al
 has this form (the logarithm of `ρ_S` on its support is a polynomial of that degree, since `ρ_S` has two
 resp. three distinct nonzero eigenvalues, `SevenQubitIcoSpectrum`) is NOT formalised here.
 -/
+
+@[expose] public section
+
 
 open Finset
 

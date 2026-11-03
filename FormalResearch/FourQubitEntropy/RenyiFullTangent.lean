@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # The convex-then-concave tangent argument (`lem:fqe-hs-polynomial`)
@@ -11,6 +13,9 @@ for every `x ∈ [a₀, a₁]`, `x ≠ x*`.
 (`J > L` first and then `J < L`: `E` is first increasing then decreasing, so `Φ' = EP` changes sign at
 most twice; since `Φ(a₀) < Φ(x*)`, `Φ` is first quasi-convex, then unimodal with maximum at `x*`.)
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

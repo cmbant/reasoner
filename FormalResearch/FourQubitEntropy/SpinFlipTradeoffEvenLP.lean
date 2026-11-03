@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PurityLPCert
+module
+
+public import FormalResearch.FourQubitEntropy.PurityLPCert
 
 /-!
 # The Rains-LP step with the time-reversal term (`eq:tradeoff-dual`)
@@ -19,6 +21,9 @@ distribution `A` of the exact coefficientwise identity
   `L + c τ_n(ψ) ≤ π_{n/2}(ψ)`**, using `A_0 = 1`, `A_j ≥ 0`, `Σ_j (-1)^j A_j = 2^n τ_n` (`sum_signed_A`),
   `a_s = a_{n-s}` (`purMean_compl`) and the shadow inequalities (`shadow_nonneg`).  Claim class: proved.
 -/
+
+@[expose] public section
+
 
 open scoped BigOperators
 open FormalResearch.FrameFree.NQubit

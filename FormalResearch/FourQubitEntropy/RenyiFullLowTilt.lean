@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.RenyiFullSlope
-import FormalResearch.FourQubitEntropy.RenyiFullProps
-import FormalResearch.FourQubitEntropy.RenyiFullDetChart
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullSlope
+public import FormalResearch.FourQubitEntropy.RenyiFullProps
+public import FormalResearch.FourQubitEntropy.RenyiFullDetChart
 
 /-!
 # `lem:fqe-low-tilt-reduction`: the repeated-largest chart `(a,a,b,c)`
@@ -16,6 +18,9 @@ The path of the paper is
 * `sqrtPath_hasDerivAt`: derivative of `u ↦ √((x-4u²)/2)`.
 * `lowTilt_chart`: the statement, in terms of the real numbers `a, b, c` (strict if `c < b`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

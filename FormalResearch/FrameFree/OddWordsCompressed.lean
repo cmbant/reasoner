@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.OddWordsCopies
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.OddWordsCopies
 
 /-!
 # Compressed odd words on `k` copies (Paper P, `prop:oddwords` (i), (ii))
@@ -19,6 +21,9 @@ Setting: slots `α × γ` (spin, copy), block pattern `P : α × γ → κ` pres
 `exists_odd_of_noncomm` is the "if" half of (ii): if `𝒜_k` is noncommutative then there is a nonzero
 Hermitian `Θ`-odd element of `𝒜_k` (the "only if" half and the dimension count are R4, not formalised).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

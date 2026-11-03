@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Filtered-gate law: Pauli and Cartan-gate basics
@@ -8,6 +10,9 @@ matrices (`M4` indexed by `Fin 2 × Fin 2`); `kr A B = A ⊗ₖ B`; `sig μ` are
 `σ_0 = 1, σ_1 = X, σ_2 = Y, σ_3 = Z`; `Pm j = σ_{j+1} ⊗ σ_{j+1}`; `Ug c` is the Cartan gate
 `exp(-i ∑ c_j σ_j ⊗ σ_j) = ∏_j (cos c_j - i sin c_j P_j)`.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix Kronecker ComplexConjugate
 open Finset Complex

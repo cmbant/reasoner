@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SpinFlipPauli
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipPauli
 
 /-!
 # Rains' shadow inequalities for pure `n`-qubit states
@@ -19,6 +21,9 @@ this is the Pauli-completeness computation with a modified sign pattern.  Summin
 over all `t` the weights multiply to `(1+3y)^{n-wt P} (y-1)^{wt P}` (`sum_over_types`), which is
 `2^n S(1,y)`; hence `S_i = Σ_{t : #nonflip = i} |β_t|² ≥ 0` (`shadow_nonneg`, **proved**, for every vector).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate BigOperators
 open FormalResearch.FrameFree.NQubit

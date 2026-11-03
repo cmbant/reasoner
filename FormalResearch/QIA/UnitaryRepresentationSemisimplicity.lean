@@ -1,5 +1,7 @@
-import Mathlib.RepresentationTheory.Semisimple
-import Mathlib.Analysis.InnerProductSpace.Projection.FiniteDimensional
+module
+
+public import Mathlib.RepresentationTheory.Semisimple
+public import Mathlib.Analysis.InnerProductSpace.Projection.FiniteDimensional
 
 /-!
 # Semisimplicity of finite-dimensional unitary representations
@@ -14,6 +16,9 @@ This file does not construct any particular physical local-unitary action, nor
 does it identify symmetric-power Schur--Weyl sectors.  It only discharges
 semisimplicity once an inner-product-preserving representation has been supplied.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

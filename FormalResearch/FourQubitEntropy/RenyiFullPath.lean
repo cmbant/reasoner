@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullDivDiff
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullDivDiff
 
 /-!
 # Fixed-purity paths through three distinct entries: the monotonicity engine
@@ -13,6 +15,9 @@ purity, `dZ = (q/3) [e₁,e₂,e₃] x^r dt`, hence `d(H_q - ωt)/du = κ (η - 
 * `path_strictMonoOn`, `path_strictAntiOn`: strict monotonicity on a closed interval from a strict
   slope bound at interior points (continuity covers coalescing/vanishing entries at the ends).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

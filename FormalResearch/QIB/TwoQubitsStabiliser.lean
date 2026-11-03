@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.QIB.TwoQubitsCollective
+module
+
+public import Mathlib
+public import FormalResearch.QIB.TwoQubitsCollective
 
 /-!
 # Every two-qubit vector has a nonzero `sl₂` stabiliser; Leibniz rule on `d` copies
@@ -11,6 +13,9 @@ Namespace `FormalResearch.QIB.TwoQubits`.  Claim class: **proved** (finite linea
   determinant zero);
 * `Lc_mulVec_copies`: hence `Lc d A` kills `x^{⊗d}` (Leibniz rule).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

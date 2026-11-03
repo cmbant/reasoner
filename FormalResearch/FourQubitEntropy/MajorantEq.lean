@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Majorant
-import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
+module
+
+public import FormalResearch.FourQubitEntropy.Majorant
+public import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
 
 /-!
 # Cubic spectral majorants: the equality clause under the paper's hypotheses
@@ -19,6 +21,9 @@ orbits have `P = 3/2 ≠ 1`.
 `a = 0`, which the paper's clause excludes, and `Majorant.lean` cannot import the zero-set
 classification without a rebuild of its many dependents); the two statements are independent.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

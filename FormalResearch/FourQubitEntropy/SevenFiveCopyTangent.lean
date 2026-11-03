@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Equality step of the five-copy certificate: tangent line, then `t = 0` (abstract linear algebra)
@@ -21,6 +23,9 @@ orbit), not for `SevenPurityBound`.
   The family value `H(ψ_y) = 155 + 96y` that supplies `H X₀' ≠ 0`, and the passage from the moment to the orbit
   (`thm:moment-orbit-rigidity`), are not formalised here.
 -/
+
+@[expose] public section
+
 
 open Matrix
 

@@ -1,10 +1,15 @@
-import FormalResearch.FourQubitEntropy.Realize
-import FormalResearch.FourQubitEntropy.MagicCoord
-import FormalResearch.FourQubitEntropy.EqualityReduction
+module
+
+public import FormalResearch.FourQubitEntropy.Realize
+public import FormalResearch.FourQubitEntropy.MagicCoord
+public import FormalResearch.FourQubitEntropy.EqualityReduction
 
 /-!
 # Maximally mixed marginals and local-unitary laws
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

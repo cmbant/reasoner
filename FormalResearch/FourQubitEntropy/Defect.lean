@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Transfer
-import FormalResearch.FourQubitEntropy.Identity
+module
+
+public import FormalResearch.FourQubitEntropy.Transfer
+public import FormalResearch.FourQubitEntropy.Identity
 
 /-!
 # The sextic identity for every complex vector
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.Identity
 `sexticDefect z w = 0` for all `z w : State ℂ`: the polynomial identity of `Identity.lean`,
 evaluated at arbitrary complex values of the 32 variables.
 -/
+
+@[expose] public section
+
 
 open scoped FormalResearch.FourQubitEntropy.GenericOps
 

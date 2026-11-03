@@ -1,12 +1,17 @@
-import Mathlib
-import FormalResearch.QIB.TwoQubitsStabiliser
-import FormalResearch.QIB.BlockCoordinates
+module
+
+public import Mathlib
+public import FormalResearch.QIB.TwoQubitsStabiliser
+public import FormalResearch.QIB.BlockCoordinates
 
 /-!
 # Collective `SU(2)` on `d` copies of two qubits: weights and the commutant of the group
 
 Namespace `FormalResearch.QIB.TwoQubits`.  Claim class: **proved** (finite linear algebra).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

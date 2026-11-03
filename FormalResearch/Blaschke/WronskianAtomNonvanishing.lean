@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Blaschke.WronskianAtomIndependence
+module
+
+public import Mathlib
+public import FormalResearch.Blaschke.WronskianAtomIndependence
+
+
+@[expose] public section
 
 namespace FormalResearch.Blaschke
 

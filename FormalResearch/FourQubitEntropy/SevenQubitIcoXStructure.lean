@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoSpectrum
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoSpectrum
 
 /-!
 # Structure of the icosahedral state (`eq:ico`, `thm:ico` remarks)
@@ -18,6 +20,9 @@ import FormalResearch.FourQubitEntropy.SevenQubitIcoSpectrum
   `(41/262)², (15/131)⁶` on the `20` cuts avoiding `s`, `(30/131), (15/131)⁵, (13/131)²` on the `15`
   cuts containing it.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco
 

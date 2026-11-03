@@ -1,6 +1,11 @@
-import Mathlib
-import FormalResearch.Gaudin.MatrixTreeHammingTriangle
-import FormalResearch.Gaudin.SU2WeightedMetricSpecialization
+module
+
+public import Mathlib
+public import FormalResearch.Gaudin.MatrixTreeHammingTriangle
+public import FormalResearch.Gaudin.SU2WeightedMetricSpecialization
+
+
+@[expose] public section
 
 namespace FormalResearch.Gaudin
 

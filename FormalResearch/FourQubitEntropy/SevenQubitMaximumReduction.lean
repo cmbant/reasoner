@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.SevenQubitJointMajorant
-import FormalResearch.FourQubitEntropy.SevenQubitCompetitorBand
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitJointMajorant
+public import FormalResearch.FourQubitEntropy.SevenQubitCompetitorBand
 
 /-!
 # `thm:seven-entropy-global-maximum`: the final reduction (conditional)
@@ -48,6 +50,9 @@ Entropies are in nats (`meanEntropy3`), so the paper's `E_* > 59307/20000` bits 
 Not formalized at all: that the candidate states `φ_s` give `𝒫₅(φ_s) = E_*`; that `E_*` equals
 `(39 f(c) + 8 f(a) + 6 f(d) + 3 f(b))/7` at the root `x_*`; attainment.
 -/
+
+@[expose] public section
+
 
 open Real Finset
 

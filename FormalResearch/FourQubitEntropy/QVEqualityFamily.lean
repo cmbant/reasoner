@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.RenyiTwoUp
-import FormalResearch.FourQubitEntropy.PaperEGenJointPurity
-import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQV
-import FormalResearch.FourQubitEntropy.QVEqualityState
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiTwoUp
+public import FormalResearch.FourQubitEntropy.PaperEGenJointPurity
+public import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQV
+public import FormalResearch.FourQubitEntropy.QVEqualityState
 
 /-!
 # Equality in (QV) along the cluster-to-Bell family; sharpness of the coefficient `3`
@@ -17,6 +19,9 @@ whole family (`quadFam_qv_equality`) and, off the cluster state, `(6V_P - F²)/(
 (`quadFam_qv_ratio`).  So the coefficient `3` cannot be decreased (`qv_coefficient_optimal`: for every `c < 3` the
 Bell-pair product violates `F² + c P(P-1) ≥ 6 V_P`).  Everything here is unconditional and does not use (QV).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.QVEquality
 

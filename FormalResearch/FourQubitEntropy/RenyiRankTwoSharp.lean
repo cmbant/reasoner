@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiRankTwo
-import FormalResearch.FourQubitEntropy.TsallisSharp
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiRankTwo
+public import FormalResearch.FourQubitEntropy.TsallisSharp
 
 /-!
 # Sharpness of the rank-two Rényi envelope: the cluster-to-Bell family
@@ -10,6 +12,9 @@ spectra `(x², y², 0, 0)`, `(1/4)⁴`, `(1/4)⁴`; this family joins the cluste
 the product of two Bell pairs (`x = 1`). They attain the bound of `prop:fqe-renyi-rank-two`
 (renyi_above_one.tex, `eq:fqe-quadratic-family`) for every `a ∈ [0,1]` and every order `q > 0`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoPurity
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoPurity
 
 /-!
 # Integer certificates for the spectra of the three-qubit cuts
@@ -7,6 +9,9 @@ For every three-qubit cut of the seven-qubit icosahedral family the Gram matrice
 (of `αα`, `αβ+βα`, `ββ`, see `SevenQubitIcoPurity`) satisfy a few integer matrix identities, checked
 in the kernel for all 35 cuts. `SevenQubitIcoSpectrum` derives the spectra from them.
 -/
+
+@[expose] public section
+
 
 open Matrix
 

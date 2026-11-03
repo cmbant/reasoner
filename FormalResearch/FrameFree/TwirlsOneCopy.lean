@@ -1,9 +1,11 @@
-import Mathlib
-import FormalResearch.FrameFree.Foundations
-import FormalResearch.FrameFree.Sharing
-import FormalResearch.FrameFree.OneCopy
-import FormalResearch.FrameFree.Zariski
-import FormalResearch.FrameFree.TwirlsTwirl
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.FrameFree.Sharing
+public import FormalResearch.FrameFree.OneCopy
+public import FormalResearch.FrameFree.Zariski
+public import FormalResearch.FrameFree.TwirlsTwirl
 
 /-!
 # What one copy sees (Paper P, `thm:onecopy` (a), (b)) via the Haar-free twirl
@@ -18,6 +20,9 @@ Namespace `FormalResearch.FrameFree.Twirls`.  Claim class: **proved**.
   the slot-permutation criterion of `TwirlsTwirl`) and `FKΘs_pos_of_small_blocks` (`F_K^π > 0` for `ψ ≠ 0`).
 * `thm:onecopy` (c) is `OneCopy.FKΘs_eq_zero_of_odd` and `FKΘs_eq_zero_of_chiN`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

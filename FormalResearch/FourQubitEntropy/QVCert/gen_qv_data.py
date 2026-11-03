@@ -23,7 +23,9 @@ def lst(xs):
     return '[' + ', '.join(str(x) for x in xs) + ']'
 
 
-HEADER = '''import Mathlib
+HEADER = '''module
+
+public import Mathlib
 
 /-!
 # The positive-norm certificate for (QV): data
@@ -38,6 +40,8 @@ Paper E, `sup_renyi.tex`, `sec:sup-qk`, verifier-map paragraph QVA.
   In total 95 covariants `Φ_ki = W_{a_k,p_k} v_ki`.
 * `certD`, the constant `D` of `2 D 𝔇 = Σ_ki q_ki ‖Φ_ki‖²`.
 -/
+
+@[expose] public section
 
 namespace FormalResearch.FourQubitEntropy.QVCert
 

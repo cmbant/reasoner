@@ -1,8 +1,12 @@
-import FormalResearch.FourQubitEntropy.QVBlock.Blk
-import FormalResearch.FourQubitEntropy.QVCheck.Invariants
-import FormalResearch.FourQubitEntropy.QVFrame.Basic
-import FormalResearch.FourQubitEntropy.QVFrame.Gram
-import FormalResearch.FourQubitEntropy.QVFrame.Twist
+module
+
+public import FormalResearch.FourQubitEntropy.QVBlock.Blk
+public import FormalResearch.FourQubitEntropy.QVCheck.Invariants
+meta import QVCheckImpl.Impl1
+meta import FormalResearch.FourQubitEntropy.QVCert.Covariants
+public import FormalResearch.FourQubitEntropy.QVFrame.Basic
+public import FormalResearch.FourQubitEntropy.QVFrame.Gram
+public import FormalResearch.FourQubitEntropy.QVFrame.Twist
 
 /-!
 # The intertwiner `C`, the characters and the frame tables
@@ -12,6 +16,9 @@ The checker's `C`, `Cinv`, slot generators, character counts and `Ψ` tables as 
 Facts relating the data array `cArr` to the Lean definition `QVCert.rowC` use `native_decide` (`cArr_rowC`, the only
 `native_decide` besides `checkAll_true`).
 -/
+
+@[expose] public section
+
 
 open Finset FormalResearch.FourQubitEntropy FormalResearch.FourQubitEntropy.QVBlock FormalResearch.FourQubitEntropy.QVFrame
 open scoped Matrix

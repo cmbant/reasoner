@@ -1,7 +1,9 @@
-import FormalResearch.QIA.IsotypicDirectSumAuxiliaryStates
-import FormalResearch.QIA.DeferredQueryCoherentChannelMemoryBound
-import FormalResearch.QIA.SymmetricPowerCoordinateContinuity
-import FormalResearch.QIA.FiniteSymmetricPowerIsotypicRealization
+module
+
+public import FormalResearch.QIA.IsotypicDirectSumAuxiliaryStates
+public import FormalResearch.QIA.DeferredQueryCoherentChannelMemoryBound
+public import FormalResearch.QIA.SymmetricPowerCoordinateContinuity
+public import FormalResearch.QIA.FiniteSymmetricPowerIsotypicRealization
 
 /-!
 # QI-A deferred-query converse with explicit isotypic witnesses
@@ -17,6 +19,9 @@ inputs.  The witness-state positivity, normalization, source-effect
 self-adjointness, and unit diagonal score are all discharged by the finite
 isotypic construction.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

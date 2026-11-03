@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.MomentInequality
+module
+
+public import FormalResearch.FourQubitEntropy.MomentInequality
 
 /-!
 # The purity identity
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.MomentInequality
 states. Here `σ_y^{⊗4} = ε^{⊗4}` since `σ_y = -i ε`, and `ψᵀ ε^{⊗4} ψ` is written with integer
 coefficients so that the identity is a polynomial identity.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open scoped FormalResearch.FourQubitEntropy.GenericOps

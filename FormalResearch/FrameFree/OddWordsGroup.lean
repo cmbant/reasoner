@@ -1,7 +1,9 @@
-import Mathlib
-import FormalResearch.FrameFree.OddWordsStrata
-import FormalResearch.FrameFree.OddWordsFockData
-import FormalResearch.FrameFree.TwirlsOdd
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.OddWordsStrata
+public import FormalResearch.FrameFree.OddWordsFockData
+public import FormalResearch.FrameFree.TwirlsOdd
 
 /-!
 # Real matrices commuting with the total spin operators commute with `SU(2)^{⊗n}`
@@ -18,6 +20,9 @@ are functions of the Hamming weight, hence commute with any `X` commuting with `
 Together with `Twirls.commutant_eq_blockPermSpan` this gives `X ∈ blockPermSpan`
 (`mem_blockPermSpan_of_comm`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

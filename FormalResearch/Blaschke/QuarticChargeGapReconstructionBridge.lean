@@ -1,4 +1,9 @@
-import FormalResearch.Blaschke.QuarticChargeGapAlgebra
+module
+
+public import FormalResearch.Blaschke.QuarticChargeGapAlgebra
+
+
+@[expose] public section
 
 namespace FormalResearch.Blaschke
 

@@ -1,9 +1,14 @@
-import FormalResearch.FourQubitEntropy.Magic
-import FormalResearch.FourQubitEntropy.Purity
+module
+
+public import FormalResearch.FourQubitEntropy.Magic
+public import FormalResearch.FourQubitEntropy.Purity
 
 /-!
 # Magic-basis coordinates of a vector
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

@@ -1,6 +1,11 @@
-import FormalResearch.FourQubitEntropy.MagicCoord
-import FormalResearch.FourQubitEntropy.LocalUnitary
-import FormalResearch.FourQubitEntropy.Rotations
+module
+
+public import FormalResearch.FourQubitEntropy.MagicCoord
+public import FormalResearch.FourQubitEntropy.LocalUnitary
+public import FormalResearch.FourQubitEntropy.Rotations
+
+@[expose] public section
+
 open scoped ComplexConjugate Matrix Kronecker
 namespace FormalResearch.FourQubitEntropy.PaperECritical
 open FormalResearch.FourQubitEntropy

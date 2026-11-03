@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Gaudin.BernoulliInverseRecurrence
+module
+
+public import Mathlib
+public import FormalResearch.Gaudin.BernoulliInverseRecurrence
+
+
+@[expose] public section
 
 namespace FormalResearch.Gaudin
 

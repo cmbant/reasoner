@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.QIB.RealCoordsFrame
-import FormalResearch.FrameFree.HelstromWindow
+module
+
+public import Mathlib
+public import FormalResearch.QIB.RealCoordsFrame
+public import FormalResearch.FrameFree.HelstromWindow
 
 /-!
 # `prop:blind` with multiplicity counted inside `Sym^k`
@@ -23,6 +25,9 @@ is smaller, so more sectors qualify.  Here:
 * `Pe_ge_blind_sym`: in real isotypic coordinates of the frame group, for every set `T` of sectors of
   multiplicity `≤ 1` in `Sym^k` (`symSub n k`), `P_e(k) ≥ ½ Σ_{l ∈ T} Tr τ_l(ψ^{⊗k})`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

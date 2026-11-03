@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # A binomial-sum identity behind the odd-`n` purity tradeoff (pure algebra)
@@ -13,6 +15,9 @@ Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIpro
  - (-1)^m (2T-1) T^m (1-T)^m`.
 Claim class: **proved** (pure algebra, no hypotheses).
 -/
+
+@[expose] public section
+
 
 open Finset
 

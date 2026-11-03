@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Racah.WeylCellWidth
+module
+
+public import Mathlib
+public import FormalResearch.Racah.WeylCellWidth
+
+
+@[expose] public section
 
 namespace FormalResearch.Racah
 

@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.QIB.TwoQubitsGroup
+module
+
+public import Mathlib
+public import FormalResearch.QIB.TwoQubitsGroup
 
 /-!
 # Direction `L2`: the algebra of `Lc H₁, Lc E₁, Lc F₁` contains the collective `SU(2)` in its bicommutant
@@ -13,6 +15,9 @@ Namespace `FormalResearch.QIB.TwoQubits`.  Claim class: **proved** (finite linea
   matrix commuting with a diagonal operator commutes with every function of it, in particular with
   `rotK d (diag(z, z⁻¹))`.  No exponentials or analysis.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

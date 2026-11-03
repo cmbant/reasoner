@@ -1,8 +1,10 @@
-import FormalResearch.FourQubitEntropy.QVCert.Reduction
-import FormalResearch.FourQubitEntropy.QVCheck.Placement
-import FormalResearch.FourQubitEntropy.QVCheck.Sector
-import FormalResearch.FourQubitEntropy.QVFrame.Assembly
-import FormalResearch.FourQubitEntropy.QVFrame.Defect
+module
+
+public import FormalResearch.FourQubitEntropy.QVCert.Reduction
+public import FormalResearch.FourQubitEntropy.QVCheck.Placement
+public import FormalResearch.FourQubitEntropy.QVCheck.Sector
+public import FormalResearch.FourQubitEntropy.QVFrame.Assembly
+public import FormalResearch.FourQubitEntropy.QVFrame.Defect
 
 /-!
 # Bridge to the `QVCert` blocks
@@ -11,6 +13,9 @@ The checker handles `BlockD`/`RhsTerm` arrays; this module identifies them with 
 right-hand-side permutations of `QVFrame.Defect` (`blocksQ`, `rhsTermsQ`, `wordOf`), and assembles the families
 `Xk`, `Xhk` of the block calculus (`Xsum`: `∑ κ ⊗_q Xk κ q = K`).
 -/
+
+@[expose] public section
+
 
 open Finset FormalResearch.FourQubitEntropy FormalResearch.FourQubitEntropy.QVBlock FormalResearch.FourQubitEntropy.QVFrame
 open scoped Matrix

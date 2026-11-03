@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullPath
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullPath
 
 /-!
 # The slope bound `η > ω` of `lem:fqe-low-tilt-reduction` and `lem:fqe-hs-tilt`: numerics
@@ -10,6 +12,9 @@ import FormalResearch.FourQubitEntropy.RenyiFullPath
 * `lowTilt_slope_numeric`, `hsTilt_slope_numeric`: the two numerical comparisons
   `6 ω ln2 · Z < q(1-r) m^{r-2}` (`η > 64/35 > 9/5` and `η > 1`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

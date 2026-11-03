@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SpinFlipOmega
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipOmega
 
 /-!
 # The T-odd purity of single-qubit complements, in Pauli coordinates
@@ -17,6 +19,9 @@ Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIpro
 
 Claim class: **proved** (no hypotheses beyond those displayed).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate BigOperators
 open FormalResearch.FrameFree.NQubit

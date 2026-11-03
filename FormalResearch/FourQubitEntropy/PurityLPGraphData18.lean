@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PurityLPRankHist
+module
+
+public import FormalResearch.FourQubitEntropy.PurityLPRankHist
 
 /-!
 # Graph-state witnesses of the purity minima: n = 18
@@ -14,6 +16,8 @@ cuts containing the last vertex only, by complement symmetry), `rankHist<n>` the
 `rankSum<n>` the sum `Σ_{|S| = k} 2^{k - rk_2 Γ[S,S^c]}` and `piMean_graph<n>` the resulting value of `π_k` of the
 (normalised) graph state `gsn`, which equals the Rains-LP value.  Claim class: exact finite certificate (`decide +kernel`).
 -/
+
+@[expose] public section
 
 open scoped BigOperators
 open FormalResearch.FrameFree.NQubit

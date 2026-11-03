@@ -1,5 +1,10 @@
-import FormalResearch.FrameFree.AchiralThree
-import FormalResearch.FrameFree.ConverseXi
+module
+
+public import FormalResearch.FrameFree.AchiralThree
+public import FormalResearch.FrameFree.ConverseXi
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

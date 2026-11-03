@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Block Cauchy-Schwarz purity bound (core of `eq:hamming-ball-robust-purity`)
@@ -16,6 +18,9 @@ not formalized) and `Q` a real orthogonal projector (`Qᵀ = Q`, `Q² = Q`) with
   The existence of a rank-`R` projector `Q` whose range contains the Schmidt support of the ball
   component (from `hamming_rank_le`) is not formalized here.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco
 

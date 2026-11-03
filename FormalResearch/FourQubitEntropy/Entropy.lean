@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Spectral
-import FormalResearch.FourQubitEntropy.HermiteBound
+module
+
+public import FormalResearch.FourQubitEntropy.Spectral
+public import FormalResearch.FourQubitEntropy.HermiteBound
 
 /-!
 # The four-qubit entropy bound
@@ -10,6 +12,9 @@ qubit `1` is at most `1 + ½ log₂ 3`.
 Proof: majorise `-λ ln λ` on each cut's spectrum by the Hermite cubic, sum, and use `P ≥ 1`
 (purity identity) and `F ≥ 0` (sextic inequality).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

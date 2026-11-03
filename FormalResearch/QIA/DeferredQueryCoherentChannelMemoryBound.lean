@@ -1,5 +1,7 @@
-import FormalResearch.QIA.MatrixDensityUpperBound
-import FormalResearch.QIA.DeferredQueryCoherentPositiveMemoryBound
+module
+
+public import FormalResearch.QIA.MatrixDensityUpperBound
+public import FormalResearch.QIA.DeferredQueryCoherentPositiveMemoryBound
 
 /-!
 # QI-A deferred-query converse from normalized states and a positive TP encoding
@@ -15,6 +17,9 @@ This module performs exactly that composition.  It still assumes only ordinary
 positivity, not complete positivity, and it does not construct the concrete
 QI-A Schur/symmetric-subspace channel.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

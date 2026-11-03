@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.QIB.TwoQubitsSl2Kernel
-import FormalResearch.QIB.BlockExamples
+module
+
+public import Mathlib
+public import FormalResearch.QIB.TwoQubitsSl2Kernel
+public import FormalResearch.QIB.BlockExamples
 
 /-!
 # The stabiliser reduction of `prop:twoqubits`, up to representation-theoretic data
@@ -23,6 +25,9 @@ into the stabiliser argument of the paper, in the isotypic coordinates of `QIB.B
 
 The concrete statement (collective `SU(2)` on `(ℂ²⊗ℂ²)^{⊗d}`) is assembled in `TwoQubitsProp.lean`.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

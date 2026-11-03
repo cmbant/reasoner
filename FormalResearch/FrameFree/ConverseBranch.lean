@@ -1,5 +1,10 @@
-import FormalResearch.FrameFree.ConverseProjector
-import FormalResearch.FrameFree.RealRep3
+module
+
+public import FormalResearch.FrameFree.ConverseProjector
+public import FormalResearch.FrameFree.RealRep3
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

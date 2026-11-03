@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlatCore
-import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlatCore
+public import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
 
 /-!
 # Two-flat rigidity on critical states (`prop:fqe-two-flat-rigidity`)
@@ -26,6 +28,9 @@ of the first (opposite phases) is `tau_equality` (both in `PaperECriticalTwoFlat
 formalised: the identification of the rank-two critical states with the cluster-to-Bell family
 `(eq:fqe-quadratic-family)` and the resulting Rényi-envelope statement.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

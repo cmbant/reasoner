@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.AH6Stieltjes
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Stieltjes
 
 /-!
 # Integral representation of `g` and its derivative
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.AH6Stieltjes
 (fundamental theorem of calculus in `r`, with the antiderivatives `(e/8) ln D_r(e)` and
 `(1/8) ln D_r(e) + (e/8)(1-r)/D_r(e)`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

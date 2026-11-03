@@ -1,5 +1,7 @@
-import Mathlib.LinearAlgebra.Pi
-import FormalResearch.QIA.HermitianInnerPairing
+module
+
+public import Mathlib.LinearAlgebra.Pi
+public import FormalResearch.QIA.HermitianInnerPairing
 
 /-!
 # QI-A finite multiplicity Hermitian trace-pairing core
@@ -32,6 +34,9 @@ separates every Hermitian direction under this summed trace pairing (the
 coherent-power polarization/separation bridge), together with the concrete
 symmetry-reduction/CPTP identification.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

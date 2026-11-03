@@ -1,5 +1,10 @@
-import FormalResearch.FrameFree.ZClosureDischarge
-import FormalResearch.FrameFree.PolyImageAll
+module
+
+public import FormalResearch.FrameFree.ZClosureDischarge
+public import FormalResearch.FrameFree.PolyImageAll
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

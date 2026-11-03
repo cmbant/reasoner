@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.Blaschke.WronskianAtomNonvanishing
+module
+
+public import Mathlib
+public import FormalResearch.Blaschke.WronskianAtomNonvanishing
+
+
+@[expose] public section
 
 namespace FormalResearch.Blaschke
 

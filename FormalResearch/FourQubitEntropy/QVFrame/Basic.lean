@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.QVBlock.Symmetriser
-import FormalResearch.FourQubitEntropy.QVCert.Covariants
+module
+
+public import FormalResearch.FourQubitEntropy.QVBlock.Symmetriser
+public import FormalResearch.FourQubitEntropy.QVCert.Covariants
 
 /-!
 # Conventions of the frame calculus (QV, Route D, T1–T3)
@@ -12,6 +14,9 @@ import FormalResearch.FourQubitEntropy.QVCert.Covariants
 * `eps c = (-1)^{Σ c_q}`, `rev' c = 1 - c`, `Jv y = J^{⊗4} y` (`J = ((0,1),(-1,0))`).
 * `bitsOf n : Wd 6` and `numOf w : ℕ`: the bit convention of `sixCopy` (copy `k` is bit `5 - k`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open Finset

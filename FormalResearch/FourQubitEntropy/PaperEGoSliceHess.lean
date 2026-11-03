@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceConstr
-import FormalResearch.FourQubitEntropy.PaperEGoSliceGen
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceConstr
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceGen
 
 /-!
 # `thm:fqe-global-overlap`, layer (c): the height Hessian `H ⪰ 0`
@@ -14,6 +16,9 @@ the real height `F(s) = cos(θ s) u(s) + √3 sin(θ s) v(s)`, `θ = √3 p`, is
 `F''(0) ≤ 0` (`max_second_order`, from Mathlib's second-derivative test) and `-F''(0) = wᵀ H w` is a
 polynomial identity (`frameHess`).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

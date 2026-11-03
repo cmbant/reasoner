@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalSexticLU
-import FormalResearch.FourQubitEntropy.Rigidity
-import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlat
-import FormalResearch.FourQubitEntropy.RenyiRankTwoSharp
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalSexticLU
+public import FormalResearch.FourQubitEntropy.Rigidity
+public import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlat
+public import FormalResearch.FourQubitEntropy.RenyiRankTwoSharp
 
 /-!
 # Invariance of the cut spectra under local unitaries and qubit exchanges
@@ -12,6 +14,9 @@ every spectral sum `cutSum f` agrees.  Consequently `meanRenyi q` and `meanEntro
 `LUEquiv` and under the exchanges `swap23`, `swap24` of qubits (which permute the three cuts through
 qubit `1`).
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.GeneralEnvelope
+module
+
+public import FormalResearch.FourQubitEntropy.GeneralEnvelope
 
 /-!
 # `thm:fqe-general-envelope`, the homogeneous form (GE) for every nonzero vector
@@ -9,6 +11,9 @@ import FormalResearch.FourQubitEntropy.GeneralEnvelope
 `general_envelope_unit` (`GeneralEnvelope.lean`) by `(√N)⁻¹`, using the homogeneity of `F` (degree 6), `N`
 (degree 2), `W₁` (degree 4) and `s` (degree 2).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 

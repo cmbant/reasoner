@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.Renyi
+module
+
+public import FormalResearch.FourQubitEntropy.Renyi
 
 /-!
 # Rényi entropies of a probability vector
@@ -10,6 +12,9 @@ General facts used by the Rényi corollaries of the paper:
 * `sum_rpow_le_sum_rpow`, `sum_rpow_lt_sum_rpow`: order monotonicity of `H_q` for `q > 1`, weak and
   strict (`cor:fqe-renyi-two-up`, `prop:fqe-renyi-crossing`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

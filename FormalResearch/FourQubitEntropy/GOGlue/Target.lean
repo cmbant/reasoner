@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSlice
-import FormalResearch.FourQubitEntropy.GOProbe.Remainders
-import FormalResearch.FourQubitEntropy.GOGlue.PQ
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSlice
+public import FormalResearch.FourQubitEntropy.GOProbe.Remainders
+public import FormalResearch.FourQubitEntropy.GOGlue.PQ
 
 /-!
 # GO glue: the slice target as a sparse polynomial
@@ -11,6 +13,9 @@ import FormalResearch.FourQubitEntropy.GOGlue.PQ
 are `sliceTarget (restr x)` and `Rsq x + Rax x`.  The comparison of these polynomials with the generated
 `lit` is the decidable check of `GOGlue/DataCheck.lean`.  Claim class: proved.
 -/
+
+@[expose] public section
+
 
 open Finset
 open scoped Matrix

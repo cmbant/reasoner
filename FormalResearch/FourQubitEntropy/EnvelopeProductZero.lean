@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.EnvelopeProduct
+module
+
+public import FormalResearch.FourQubitEntropy.EnvelopeProduct
 
 /-!
 # Zeros of the sharp polarisation remainder at `τ = 0` (`lem:fqe-polarization-remainder-zeros`)
@@ -20,6 +22,9 @@ Route (the paper's, with the local frames made explicit):
   of `ψ` is at most two complementary computational strings (`dich`), and `s = 0` leaves one
   (`product_of_support`): `ψ` is a basis state in the diagonal frame, hence a product state.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 open scoped FormalResearch.FourQubitEntropy.GenericOps

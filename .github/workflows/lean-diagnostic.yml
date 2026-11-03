@@ -108,9 +108,6 @@ jobs:
       - name: QI-A printed chirality matrix frontier build
         if: always()
         run: timeout 240 lake build FormalResearch.QIA.PrintedChiralityMatrix
-      - name: QI-C endpoint-14 evaluation frontier build
-        if: always()
-        run: timeout 300 lake build FormalResearch.QIC.Endpoint14Evaluation
       - name: QI-C all-L qubit-tail nonvanishing frontier build
         if: always()
         run: timeout 240 lake build FormalResearch.QIC.QubitTailAllLNonvanishing

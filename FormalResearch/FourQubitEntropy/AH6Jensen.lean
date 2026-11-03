@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.AH6StieltjesInt
+module
+
+public import FormalResearch.FourQubitEntropy.AH6StieltjesInt
 
 /-!
 # The Jensen lower bound for the Stieltjes kernel
@@ -10,6 +12,9 @@ of `y`) the tangent line inequality for the convex function `y ↦ 1/(1+δy)` gi
 (`K(e) ≥ k₀/L(e)`).  The paper normalises the integrand to a probability measure; here the same argument is
 integrated directly.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.AH6Binary
-import FormalResearch.FourQubitEntropy.AH6Cubic
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Binary
+public import FormalResearch.FourQubitEntropy.AH6Cubic
 
 /-!
 # Assembly of the joint scalar majorant from its ingredients
@@ -16,6 +18,9 @@ real functions of `e`; the hypotheses are exactly the ingredients proved elsewhe
 The conclusion is `(f(λ) + f(μ))/2 ≤ H(λ,μ)` for all `λ, μ ≥ 0`, `H(λ,μ) = P(e) + v A(e) + v² B(e)`,
 `e = 4(λ+μ)`, `v = 16(λ-μ)²` (`majorant_of_data`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

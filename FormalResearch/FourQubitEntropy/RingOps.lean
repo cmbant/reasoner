@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Generic ring expressions
@@ -10,6 +12,9 @@ type, where the kernel computes the normal form. `OpsHom` is what lets the norma
 carried back: an operation-preserving map commutes with every expression built from the
 operations.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

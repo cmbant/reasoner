@@ -1,5 +1,10 @@
-import Mathlib
-import FormalResearch.QIA.MultiplicityProfileDimensions
+module
+
+public import Mathlib
+public import FormalResearch.QIA.MultiplicityProfileDimensions
+
+
+@[expose] public section
 
 namespace FormalResearch.QIA
 

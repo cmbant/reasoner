@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.QIB.BlockRealFrame
-import FormalResearch.QIB.RealCoordsStructure
+module
+
+public import Mathlib
+public import FormalResearch.QIB.BlockRealFrame
+public import FormalResearch.QIB.RealCoordsStructure
 
 /-!
 # Weight projectors of the frame commutant are multiplicity-free
@@ -18,6 +20,9 @@ with exactly `m a` ones in block `a` (a weight space of the diagonal torus of `S
 * `weightProj_sym`: every `P Z P`, `Z ∈ D`, is a *symmetric* matrix;
 * `weightProj_comm`: hence `P D P` is commutative (`(PZP)(PZ'P)` is again of the form `P Z'' P`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

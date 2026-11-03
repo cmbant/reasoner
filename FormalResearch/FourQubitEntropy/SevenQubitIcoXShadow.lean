@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoState
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoState
 
 /-!
 # Local time-reversal shadows of the icosahedral state (`prop:ico-shadow-geometry`, TR-1, TR-2)
@@ -23,6 +25,9 @@ Results, for the whole family `icosahedralState α β` and then at `Ψico` (`α�
 
 The Pauli weight distributions `B^{(s)}`, `B^{(i)}`, `A`, `S` of the proposition are not treated here.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco
 

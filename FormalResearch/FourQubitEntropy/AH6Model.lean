@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.AH6Poly
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Poly
 
 /-!
 # The AH-6 computation, written once for any arithmetic
@@ -20,6 +22,9 @@ arithmetic (`ℝ` for the analytic proof, `Ball` for the kernel certificate):
 * `stageD1`, `stageD2`, `stageD3`: the coefficient lists `AA, BB, CC, EL, L`, the degree-twenty polynomial `R`, its
   quotient `Π = R/(e-e₀)²` and the four certificate lists.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

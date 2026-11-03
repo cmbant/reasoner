@@ -1,8 +1,13 @@
-import FormalResearch.FourQubitEntropy.Marginals
+module
+
+public import FormalResearch.FourQubitEntropy.Marginals
 
 /-!
 # The top eigenvector of a cut matrix with spectrum `{1/2, 1/6, 1/6, 1/6}`
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

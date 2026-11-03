@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FourQubitEntropy.SevenQubitIcoXBlockPurity
+module
+
+public import Mathlib
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoXBlockPurity
 
 /-!
 # Block Cauchy-Schwarz purity bound for complex Hermitian `ρ` (closes the real-only gap of `block_purity`)
@@ -19,6 +21,9 @@ Hermitian-type products are real, and the statements are about their real parts.
 
 The monotonicity step is the real-variable lemma `robust_purity_mono` of `SevenQubitIcoXBlockPurity`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco.Hermitian
 

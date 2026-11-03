@@ -1,7 +1,9 @@
-import Mathlib
-import FormalResearch.FrameFree.Foundations
-import FormalResearch.FrameFree.HelstromTwirl
-import FormalResearch.FrameFree.TwirlsSchurWeyl
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.FrameFree.HelstromTwirl
+public import FormalResearch.FrameFree.TwirlsSchurWeyl
 
 /-!
 # Haar-free twirls over `K_π` and the slot-permutation criterion (Paper P, `thm:copythreshold` (a))
@@ -18,6 +20,9 @@ with `K_π` (the Haar average without a Haar measure; existence from `Helstrom.t
   `copy_twirl_eq_iff` (`R = ρ^{⊗k}`, slots `α × Fin k`, blocks `∏_B S_{|B|k}`), and the `|B|k ≤ 2` clause
   `copy_twirl_eq_of_small` (twirls of `ρ^{⊗k}` and `(ΘρΘ⁻¹)^{⊗k}` coincide, `ρ` Hermitian).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

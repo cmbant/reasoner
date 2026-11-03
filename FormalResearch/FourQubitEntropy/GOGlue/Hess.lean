@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.GOGlue.Target
+module
+
+public import FormalResearch.FourQubitEntropy.GOGlue.Target
 
 /-!
 # GO glue: the height Hessian as a polynomial matrix
@@ -8,6 +10,9 @@ pair `cStar` by integer matrices (`GenZ`, computed by Lean), and `sHess v l m` i
 `-3/2 ⟨X, hx_{lm}⟩ - 1/2 ⟨Y, hy_{lm}⟩` with `hx, hy` the (integer) symmetrised double actions.
 `pHess_rel : Rel x pHess (sHess (restr x))`.  Claim class: proved.
 -/
+
+@[expose] public section
+
 
 open Finset
 open scoped Matrix

@@ -1,4 +1,6 @@
-import FormalResearch.QIA.IsotypicMultiplicityReductionPositivity
+module
+
+public import FormalResearch.QIA.IsotypicMultiplicityReductionPositivity
 
 /-!
 # QI-A positivity of the assembled isotypic multiplicity reduction
@@ -11,6 +13,9 @@ The result is ordinary positivity of the manuscript's explicit finite
 multiplicity reduction after isotypic coordinates have been supplied.  It does
 not assert complete positivity or CPTP semantics.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

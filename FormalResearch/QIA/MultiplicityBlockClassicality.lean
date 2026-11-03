@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.QIA.MultiplicityProfileQuantumExcess
+module
+
+public import Mathlib
+public import FormalResearch.QIA.MultiplicityProfileQuantumExcess
 
 /-!
 # QI-A multiplicity-block classicality core
@@ -20,6 +22,9 @@ particular, the operational bridge from a universal classical master POVM to
 joint measurability of the compressed invariant PVMs, and the pure-copy
 coherent-separation step used there, remain external.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

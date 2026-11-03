@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.QVFrame.Twist
+module
+
+public import FormalResearch.FourQubitEntropy.QVFrame.Twist
 
 /-!
 # Permutation invariants (T3, generic part)
@@ -12,6 +14,9 @@ It is invariant under relabelling the slots (`invG_equiv`), multiplicative over 
 (`invG_sum`, `invG_bsum`), equals `N^{|ι|}` for the identity (`invG_one`) and transforms under a relabelling
 of the qubits (`invG_qperm`).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open scoped Matrix

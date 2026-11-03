@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoState
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoState
 
 /-!
 # Sectors of the icosahedral state and the flat-phase companions (`prop:flatphaseLU`)
@@ -16,6 +18,9 @@ Everything is proved for the whole real family `icosahedralState α β` (not onl
   specialises it to diagonal matrices;
 * `flatPhase_companion_LU`: the proposition, pointwise on all 128 basis amplitudes.
 -/
+
+@[expose] public section
+
 
 open Complex
 

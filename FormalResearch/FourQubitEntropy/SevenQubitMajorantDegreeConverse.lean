@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FourQubitEntropy.SevenQubitMajorantDegree
+module
+
+public import Mathlib
+public import FormalResearch.FourQubitEntropy.SevenQubitMajorantDegree
 
 /-!
 # Hermite converse for the degree of a sharp scalar entropy majorant
@@ -23,6 +25,9 @@ that `SevenQubitMajorantDegree.lean` left out.
 All proved; no hypotheses beyond `0 < a < 1` for the nodes.  The seven-qubit application is in
 `SevenQubitMajorantDegreeSeven.lean`.
 -/
+
+@[expose] public section
+
 
 open Set Polynomial
 

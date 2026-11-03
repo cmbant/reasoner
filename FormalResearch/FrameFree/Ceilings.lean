@@ -1,6 +1,8 @@
-import FormalResearch.FrameFree.Foundations
-import FormalResearch.FrameFree.RealRep3
-import FormalResearch.FourQubitEntropy.Attainment
+module
+
+public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.FrameFree.RealRep3
+public import FormalResearch.FourQubitEntropy.Attainment
 
 /-!
 # Ceilings on frame-free chirality (Paper P: `sec3_many_spins`, `sec7_outlook`, `app_a_toolkit`, `app_c_critical`, `app_f_depth_codes`)
@@ -75,6 +77,9 @@ in a real parameter plus positivity).
   `NQubit` ones inside this namespace.  The identification `rotOverlap M₄ = F_K(M4v)` is therefore not
   made here, and `h49` is a hypothesis.
 -/
+
+@[expose] public section
+
 
 
 open scoped ComplexConjugate Matrix BigOperators

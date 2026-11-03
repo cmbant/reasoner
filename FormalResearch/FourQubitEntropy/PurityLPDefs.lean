@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.SpinFlipReduced
-import FormalResearch.FourQubitEntropy.SpinFlipOddSector
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipReduced
+public import FormalResearch.FourQubitEntropy.SpinFlipOddSector
 
 /-!
 # The quantities of the Rains LP, for `n`-qubit pure states (Stage 1)
@@ -17,6 +19,9 @@ and `SpinFlipOddSector.lean`; this file only checks that the quantities there ar
 * `purMean_eq_lin`: `a_s = Σ_j aQ n s j · A_j`, `aQ n s j = C(n-j,s-j)/(2^s C(n,s))` for `j ≤ s` (`eq:as`);
 * `purMean_compl`: `a_s = a_{n-s}` for a pure state.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate BigOperators
 open FormalResearch.FrameFree.NQubit

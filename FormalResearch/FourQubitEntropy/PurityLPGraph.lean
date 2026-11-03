@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PurityLPDefs
-import FormalResearch.FourQubitEntropy.SpinFlipGraph
+module
+
+public import FormalResearch.FourQubitEntropy.PurityLPDefs
+public import FormalResearch.FourQubitEntropy.SpinFlipGraph
 
 /-!
 # Cut purities of graph states: `tr ρ_S² = 2^{-rk_2 Γ[S,S^c]}`
@@ -15,6 +17,9 @@ is the bilinear form `Σ_{i ∈ S, j ∉ S} Γ_ij u_i u_j` (`qf_four`), so
 * `cutRank Γ S = (cutMat Γ S).rank`;
 * `purity_gsn`: for the normalised graph state `gsn Γ`, `purity (gsn Γ) S = (1/2)^{cutRank Γ S}`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate BigOperators
 open FormalResearch.FrameFree.NQubit

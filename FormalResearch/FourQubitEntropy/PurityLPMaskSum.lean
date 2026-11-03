@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PurityLPGraphMean
+module
+
+public import FormalResearch.FourQubitEntropy.PurityLPGraphMean
 
 /-!
 # Fast rank sums over bitmask cuts
@@ -13,6 +15,9 @@ cuts are natural numbers `m` (bit `i` set iff `i ∈ S`), `rowsM` are the rows o
 * `sum_cuts_half`: for `n = 2k` the sum over all `k`-cuts is twice the sum over those containing the last vertex;
 * `maskSum_split`: one step of the recursion, used to split a sum into separate `decide +kernel` declarations.
 -/
+
+@[expose] public section
+
 
 open scoped BigOperators
 

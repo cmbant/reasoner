@@ -1,6 +1,11 @@
-import Mathlib
-import FormalResearch.FrameFree.PolyImageOpen
-import FormalResearch.FrameFree.PolyImageChevalley
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.PolyImageOpen
+public import FormalResearch.FrameFree.PolyImageChevalley
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.AH6Assembly
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Assembly
 
 /-!
 # The double factor `(e - e₀)²` of the discriminant polynomial
@@ -9,6 +11,9 @@ import FormalResearch.FourQubitEntropy.AH6Assembly
 `disc = 0` and `dF·δp(r)` is a multiple of `δp(r)` (`disc3_double`, `disc3_deriv_zero`), combined with the chain rule
 for the explicit polynomial `disc3`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

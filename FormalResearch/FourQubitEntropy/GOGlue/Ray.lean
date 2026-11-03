@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperEGoSliceFinal
+module
+
+public import FormalResearch.FourQubitEntropy.PaperEGoSliceFinal
 
 /-!
 # GO glue: rays of the certificate
@@ -9,6 +11,9 @@ A certificate ray is a pair of real `4×4` matrices `(a, b)` with `a + b` orthog
 `|⟨χ, Z⟩|² = (re² + 3 im²)/6` with `re = 3⟨a,X⟩ + ⟨b,Y⟩`, `im = ⟨a,Y⟩ - ⟨b,X⟩` (`ray_normSq`).
 Claim class: proved.
 -/
+
+@[expose] public section
+
 
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false

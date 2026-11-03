@@ -1,5 +1,7 @@
-import Mathlib.LinearAlgebra.Matrix.Rank
-import FormalResearch.QIA.MultiplicityProfileDimensions
+module
+
+public import Mathlib.LinearAlgebra.Matrix.Rank
+public import FormalResearch.QIA.MultiplicityProfileDimensions
 
 /-!
 # QI-A exact reversible coherent-width factorization core
@@ -24,6 +26,9 @@ formalized here.  Likewise the classically flagged multiplicity-register upper
 bound is represented only by the elementary fact that every sector dimension
 is bounded by the finite maximum; no CPTP/channel construction is claimed.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

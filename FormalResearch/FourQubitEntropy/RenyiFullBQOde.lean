@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Binary quartic lemma: the hyperbolic coordinate `x(s)` and its Riccati equation
@@ -7,6 +9,9 @@ Paper E, `lem:fqe-binary-quartic` (`renyi_binary_quartic.tex`), real-variable pr
 and `x = tanh(qφ)` one has `x(s) = ((1+s)^q - (1-s)^q)/((1+s)^q + (1-s)^q)`; this file proves
 `x' = q(1-x²)/(1-s²)` and `s < x < 1` for `0 < s < 1`, `q > 1`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.QIB.KramersHalfFilling
+module
+
+public import Mathlib
+public import FormalResearch.QIB.KramersHalfFilling
 
 /-!
 # Antiunitary spin-flip purification, abstract form (`prop:antiunitary-purification`)
@@ -23,6 +25,9 @@ qubit, carried out concretely for qubits in `SpinFlipOmega.lean`).
 Claim class: **proved**.  Only the structural (`Θ² = ±1`, `Θ` antiunitary) hypotheses are used, so the
 statement is dimension-independent as in the paper.
 -/
+
+@[expose] public section
+
 
 open scoped InnerProductSpace ComplexConjugate
 open FormalResearch.QIB

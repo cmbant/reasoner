@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.QVFrame.Gram
-import FormalResearch.FourQubitEntropy.QVFrame.Defect
+module
+
+public import FormalResearch.FourQubitEntropy.QVFrame.Gram
+public import FormalResearch.FourQubitEntropy.QVFrame.Defect
 
 /-!
 # T1 + T2 + T3 assembled: the certificate identity as a quadratic form in `z^{⊗6}`
@@ -12,6 +14,9 @@ and constant `D`:
 `K = 2 D · K_RHS - Σ_{k,i} w_{ki} · tauGram a_k p_k v_{ki}`, where `tauGram a p v = Σ_σ Σ_{s,s'} x x' ⊗_q τ_a(E…)`
 is `gramOp` with the J-twisted partial transpose `τ_a` applied to every per-qubit factor.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open scoped Matrix

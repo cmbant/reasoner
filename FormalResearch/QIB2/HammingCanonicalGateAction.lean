@@ -1,6 +1,11 @@
-import Mathlib
-import FormalResearch.QIB2.HammingOrbitAction
-import FormalResearch.QIB2.HammingRadialGate
+module
+
+public import Mathlib
+public import FormalResearch.QIB2.HammingOrbitAction
+public import FormalResearch.QIB2.HammingRadialGate
+
+
+@[expose] public section
 
 namespace FormalResearch.QIB2
 

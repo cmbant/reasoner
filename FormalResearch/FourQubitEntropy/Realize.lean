@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Rotations
-import FormalResearch.FourQubitEntropy.Euler3
+module
+
+public import FormalResearch.FourQubitEntropy.Rotations
+public import FormalResearch.FourQubitEntropy.Euler3
 
 /-!
 # Realising rotations of the magic basis by local unitaries
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.Euler3
 A real orthogonal matrix fixing the singlet coordinate is brought to `1` or to `diag(1,1,1,-1)` by
 rotations that are realised by `c ⊗ c`, `c ∈ SU(2)`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

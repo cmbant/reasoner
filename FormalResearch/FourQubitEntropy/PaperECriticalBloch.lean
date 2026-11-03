@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalMomentMap
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalMomentMap
 
 /-!
 # Marginals are moment maps (`lem:fqe-moment-map`)
@@ -13,6 +15,9 @@ All statements are proved (no hypotheses, no `native_decide`). The magic-basis i
 `Bᴴ (σ ⊗ 1) B = i A` for real antisymmetric `A` are `L_x1 … L_z2` in
 `PaperECriticalMomentMap.lean` (CN-1 of the paper).
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 

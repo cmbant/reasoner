@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.RenyiFullHsConst
-import FormalResearch.FourQubitEntropy.RenyiFullDetChart
-import FormalResearch.FourQubitEntropy.ThirdMoment
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullHsConst
+public import FormalResearch.FourQubitEntropy.RenyiFullDetChart
+public import FormalResearch.FourQubitEntropy.ThirdMoment
 
 /-!
 # `lem:fqe-hs-polynomial` (`HsSupporting`), proved
@@ -16,6 +18,9 @@ tangent argument, uniform gap).  Equality: all steps are strict unless trivial, 
 are those of HS; the sharp third-moment bound (`third_moment`) forces `λ` to be one-large with
 `s = 1/3`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

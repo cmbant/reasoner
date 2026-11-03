@@ -1,5 +1,7 @@
-import FormalResearch.FrameFree.FilteredGateReal
-import FormalResearch.FrameFree.FilteredGateBasic
+module
+
+public import FormalResearch.FrameFree.FilteredGateReal
+public import FormalResearch.FrameFree.FilteredGateBasic
 
 /-!
 # Filtered-gate law: the Fierz expansion and the bivector bound
@@ -11,6 +13,9 @@ vectorisation, `qf`).  `fierz`: `q_T(X) = Σ_{μν} h_{μν} tr(X σ_μ X† σ_
 `u, v` with `‖u‖²+‖v‖² = 2` (`biv_gen`, `biv_norm`); hence (`qf_pair_le`)
 `q_T(X₁) + q_T(X₂) ≤ 2 + 2d` whenever the real `3×3` block `H = (h_{ab})` has `‖H‖ ≤ d`.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix ComplexConjugate
 open Finset Complex

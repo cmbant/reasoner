@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenLP
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenLP
 
 /-!
 # Dual certificates of the even-`n` purity--spin-flip tradeoff (ST-2--ST-6)
@@ -13,6 +15,8 @@ by the exact coefficientwise identity `eq:tradeoff-dual` with rational multiplie
 `w_j ≥ 0`, checked by `decide +kernel` (`lpCheckT`); the rest is `lp_tradeoff`.  Claim class: proved
 (exact-rational certificate).
 -/
+
+@[expose] public section
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 

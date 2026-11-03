@@ -1,5 +1,7 @@
-import FormalResearch.FrameFree.FilteredGateLaw
-import FormalResearch.FrameFree.Sharing
+module
+
+public import FormalResearch.FrameFree.FilteredGateLaw
+public import FormalResearch.FrameFree.Sharing
 
 /-!
 # Exchange gates as Cartan gates (`thm:heis`, translation part)
@@ -8,6 +10,9 @@ The repository carries two gate conventions: `FTG.Ug c = exp(-i ∑ c_j σ_j ⊗
 `Sharing.Ug C S = C·1 + S·SWAP` (exchange gates).  Since `XX + YY + ZZ = 2 SWAP - 1`,
 `FTG.Ug (x,x,x) = e^{ix} (cos 2x - i sin 2x SWAP)` (`FTG_Ug_iso`).
 -/
+
+@[expose] public section
+
 
 open scoped Matrix Kronecker ComplexConjugate
 

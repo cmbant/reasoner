@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.PurityLPCutRank
-import FormalResearch.FourQubitEntropy.PurityLPCert
+module
+
+public import FormalResearch.FourQubitEntropy.PurityLPCutRank
+public import FormalResearch.FourQubitEntropy.PurityLPCert
 
 /-!
 # Mean balanced purity of a graph state from a kernel-checked rank sum
@@ -10,6 +12,9 @@ equals `N`, then `π_k = N / (2^k C(n,k))`.  (`rk_2 Γ[S,S^c] ≤ |S| = k` alway
 Source: `even_qubit_purity_minima.tex`, `thm:lptable`(2), `thm:fourteenfifteen`, `thm:sixteenseventeen`,
 `balanced_purity_18.tex` `thm:eighteen`.
 -/
+
+@[expose] public section
+
 
 open scoped BigOperators
 open FormalResearch.FrameFree.NQubit

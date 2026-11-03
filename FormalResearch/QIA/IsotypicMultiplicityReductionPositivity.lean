@@ -1,5 +1,7 @@
-import FormalResearch.QIA.IsotypicMultiplicityReduction
-import Mathlib.Analysis.Matrix.Order
+module
+
+public import FormalResearch.QIA.IsotypicMultiplicityReduction
+public import Mathlib.Analysis.Matrix.Order
 
 /-!
 # QI-A positivity of finite isotypic multiplicity blocks
@@ -11,6 +13,9 @@ The statement is intentionally only about ordinary positivity.  It does not
 assert complete positivity or CPTP semantics; those require a separate
 amplification/channel argument.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

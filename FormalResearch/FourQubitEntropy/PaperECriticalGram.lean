@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Simultaneous diagonalisation of commuting real symmetric matrices
@@ -7,6 +9,9 @@ Linear-algebra input for `lem:fqe-real-gram` of Paper E: a finite commuting fami
 matrices over a finite index type is diagonalised by one real orthogonal matrix. Proved from the joint
 eigenspace decomposition `LinearMap.IsSymmetric.directSum_isInternal_of_pairwise_commute`.
 -/
+
+@[expose] public section
+
 
 open Module
 open scoped Matrix

@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.ClassifyMain
-import FormalResearch.FourQubitEntropy.EqualityConverse
+module
+
+public import FormalResearch.FourQubitEntropy.ClassifyMain
+public import FormalResearch.FourQubitEntropy.EqualityConverse
 
 /-!
 # The equality case of the four-qubit entropy bound
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.EqualityConverse
 For a unit vector `ψ`, the mean entropy of the three marginals containing qubit `1` equals
 `1 + ½ log₂ 3` exactly when `ψ` is a local-unitary image of `M₄` or of `conj M₄`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix
 

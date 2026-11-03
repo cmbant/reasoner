@@ -1,5 +1,10 @@
-import FormalResearch.QID.D5WeylEnumeration
-import FormalResearch.QID.D5ActiveAffineCertificate
+module
+
+public import FormalResearch.QID.D5WeylEnumeration
+public import FormalResearch.QID.D5ActiveAffineCertificate
+
+
+@[expose] public section
 
 namespace FormalResearch.QID
 

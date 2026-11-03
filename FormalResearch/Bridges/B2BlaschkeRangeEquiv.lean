@@ -1,7 +1,12 @@
-import Mathlib
-import FormalResearch.Blaschke.SingletonWalshSynthesis
-import FormalResearch.Blaschke.WronskianUnitDiskRank
-import FormalResearch.Bridges.B2BlaschkeWeightOneMultiplicity
+module
+
+public import Mathlib
+public import FormalResearch.Blaschke.SingletonWalshSynthesis
+public import FormalResearch.Blaschke.WronskianUnitDiskRank
+public import FormalResearch.Bridges.B2BlaschkeWeightOneMultiplicity
+
+
+@[expose] public section
 
 namespace FormalResearch.Bridges
 

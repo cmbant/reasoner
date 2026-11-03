@@ -1,5 +1,7 @@
-import FormalResearch.QIA.CanonicalMemoryCarriers
-import FormalResearch.QIA.PureCopyMemoryCore
+module
+
+public import FormalResearch.QIA.CanonicalMemoryCarriers
+public import FormalResearch.QIA.PureCopyMemoryCore
 
 /-!
 # QI-A exact-recovery Heisenberg memory bridge
@@ -27,6 +29,9 @@ remain separate. The encoded-state bound `omega <= I`, automatic for density
 operators, is retained as the same explicit finite-matrix hypothesis used by
 `PureCopyMemoryCore`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

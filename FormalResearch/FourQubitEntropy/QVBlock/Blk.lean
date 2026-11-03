@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.QVBlock.Kron
+module
+
+public import FormalResearch.FourQubitEntropy.QVBlock.Kron
 
 /-!
 # Block form `Blk` and the spin-sector decomposition of `⊗_q Blk` (QV block calculus, T5/T6)
@@ -13,6 +15,9 @@ Per qubit the row index of the intertwiner `C` is `Idx = Σ j, Fin (dim j) × Fi
   It is additive and multiplicative (`blkSpin_mul`).
 * `kronPi_blk` (T6): `⊗_q blk (X̂ q) = blkSpin (p ↦ ⊗_q X̂ q (p q))`.
 -/
+
+@[expose] public section
+
 
 open scoped Matrix BigOperators Kronecker
 

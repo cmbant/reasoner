@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitIcoZeroFocus
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitIcoZeroFocus
 
 /-!
 # A cut-free cubic formula for the reduced-matrix action `(R_S ⊗ I) ψ`
@@ -15,6 +17,9 @@ the icosahedral state is used); the icosahedral evaluation is in `SevenQubitIcoC
 The trilinear version `redApplyT` (Gram slots `f`, `h`, acted vector `g`) is used for the contraction identities of
 `SevenQubitIcoContraction`.
 -/
+
+@[expose] public section
+
 
 open Finset
 

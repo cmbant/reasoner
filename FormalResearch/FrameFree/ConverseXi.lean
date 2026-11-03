@@ -1,5 +1,10 @@
-import FormalResearch.FrameFree.ConverseM4
-import FormalResearch.FrameFree.XiInvUnconditional
+module
+
+public import FormalResearch.FrameFree.ConverseM4
+public import FormalResearch.FrameFree.XiInvUnconditional
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

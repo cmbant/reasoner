@@ -1,6 +1,8 @@
-import FormalResearch.QIA.CStarMatrixBlockFlattenPositivity
-import FormalResearch.QIA.IsotypicMultiplicityReductionAmplification
-import Mathlib.Analysis.CStarAlgebra.CompletelyPositiveMap
+module
+
+public import FormalResearch.QIA.CStarMatrixBlockFlattenPositivity
+public import FormalResearch.QIA.IsotypicMultiplicityReductionAmplification
+public import Mathlib.Analysis.CStarAlgebra.CompletelyPositiveMap
 
 /-!
 # QI-A complete positivity of the finite isotypic multiplicity reduction
@@ -20,6 +22,9 @@ that result with the already proved raw-matrix trace identity into a finite
 matrix CPTP certificate.  It does not construct the physical Schur--Weyl
 coordinate equivalence.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

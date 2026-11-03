@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullHZ
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullHZ
 
 /-!
 # The cases of `thm:fqe-renyi-classical` at the lower anchor `q_s`
@@ -13,6 +15,9 @@ Paper E, proof of `thm:fqe-renyi-classical` (`sup_renyi.tex`, `sec:sup-renyi-cla
 
 All three give `E_{q_s} < 5/3`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

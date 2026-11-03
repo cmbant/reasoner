@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullLHFinalCells
-import FormalResearch.FourQubitEntropy.RenyiFullRD
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullLHFinalCells
+public import FormalResearch.FourQubitEntropy.RenyiFullRD
 
 /-!
 # `lem:fqe-large-head-dual`: `LargeHeadDual`
@@ -13,6 +15,9 @@ Paper E, `renyi_large_head_dual.tex`.  For `z ∈ [0,1]`, `1/2 ≤ a ≤ 4/5`:
    (`H0_approx`, `Hl_approx`, `Ha_approx`), and the resulting quadratic in `t = (a-a_0)/d` is positive by the exact
    rational certificate of `RenyiFullLHFinalCells`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

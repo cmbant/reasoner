@@ -1,7 +1,12 @@
-import Mathlib
-import FormalResearch.Blaschke.WronskianAtomUnitDisk
-import FormalResearch.Blaschke.WronskianUnitDiskRank
-import FormalResearch.Bridges.B2BlaschkeSingletonSelection
+module
+
+public import Mathlib
+public import FormalResearch.Blaschke.WronskianAtomUnitDisk
+public import FormalResearch.Blaschke.WronskianUnitDiskRank
+public import FormalResearch.Bridges.B2BlaschkeSingletonSelection
+
+
+@[expose] public section
 
 namespace FormalResearch.Bridges
 

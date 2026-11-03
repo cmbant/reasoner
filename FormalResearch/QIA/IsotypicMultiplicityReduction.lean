@@ -1,4 +1,6 @@
-import FormalResearch.QIA.IsotypicDirectSumAuxiliaryStates
+module
+
+public import FormalResearch.QIA.IsotypicDirectSumAuxiliaryStates
 
 /-!
 # QI-A finite isotypic multiplicity reduction
@@ -21,6 +23,9 @@ isotypic coordinates.  It therefore does not claim to construct the physical
 Schur--Weyl decomposition, and it does not add a Hilbert structure to
 Mathlib's algebraic `SymmetricPower`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

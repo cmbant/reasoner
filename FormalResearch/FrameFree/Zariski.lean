@@ -1,5 +1,10 @@
-import FormalResearch.FrameFree.Sharing
-import FormalResearch.FrameFree.OneCopy
+module
+
+public import FormalResearch.FrameFree.Sharing
+public import FormalResearch.FrameFree.OneCopy
+
+
+@[expose] public section
 
 open scoped ComplexConjugate Matrix BigOperators
 

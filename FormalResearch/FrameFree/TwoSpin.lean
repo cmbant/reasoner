@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Two spins are chiral exactly from spin 1: the algebraic core
@@ -23,6 +25,9 @@ NOT formalized: (i) that the spin-`j` representation of `SU(2)` satisfies `Dᵀ 
 chiral states form an open dense set (real-analyticity of `Im I` on `{det M ≠ 0}` and the identity
 theorem). Only the algebraic core is proved here.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix
 open Matrix

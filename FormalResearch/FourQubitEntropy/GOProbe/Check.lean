@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.GOData.GOAll
-import FormalResearch.FourQubitEntropy.GOProbe.Final
-import FormalResearch.FourQubitEntropy.GOProbe.Remainders
+module
+
+public import FormalResearch.FourQubitEntropy.GOData.GOAll
+public import FormalResearch.FourQubitEntropy.GOProbe.Final
+public import FormalResearch.FourQubitEntropy.GOProbe.Remainders
 
 /-!
 # GO certificate: the full check and the soundness theorem for the generated data
@@ -28,6 +30,9 @@ is the paper's `(Q − n²e)/36 − R_sq − R_ax` on the 19 slice coordinates (
 `Rax`), that the literal constraint matrices `cons[c]` evaluated at `g • (f • x)` are positive semidefinite at a closest point
 (`GOGlue/ConsCheck.lean`, `GOGlue/OrbitMaps.lean`), and `h0 ≥ 0`; it concludes `globalOverlap_all`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.GOProbe
 

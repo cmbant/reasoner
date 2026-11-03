@@ -1,7 +1,9 @@
-import Mathlib.Analysis.Convex.Birkhoff
-import Mathlib.Analysis.Matrix.Spectrum
-import Mathlib.Algebra.Order.Rearrangement
-import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
+module
+
+public import Mathlib.Analysis.Convex.Birkhoff
+public import Mathlib.Analysis.Matrix.Spectrum
+public import Mathlib.Algebra.Order.Rearrangement
+public import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
 
 /-!
 # Spin-flip spectral pairing for three qubits (`prop:seven-spinflip-spectral-pair`, first assertion)
@@ -31,6 +33,9 @@ Contents.
 The cross-cut inequality is in `SevenQubitSpectralPairCross.lean`, the equality family in
 `SevenQubitSpectralPairEq.lean`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 open Finset

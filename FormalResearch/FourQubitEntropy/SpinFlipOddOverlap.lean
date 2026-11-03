@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.SpinFlipReduced
-import FormalResearch.FourQubitEntropy.SpinFlipOddSector
+module
+
+public import FormalResearch.FourQubitEntropy.SpinFlipReduced
+public import FormalResearch.FourQubitEntropy.SpinFlipOddSector
 
 /-!
 # The spin-flip overlap `R_ρ` of a reduced state in Pauli coordinates
@@ -17,6 +19,9 @@ Here `ρ_S = rdm ψ S` is the explicit partial trace of `SpinFlipReduced.lean`, 
   `SpinFlipOddSector.lean` is `½(tr ρ_S² - R_{ρ_S})` (`lem:odd-sector`, second formula).
 Claim class: **proved**.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate BigOperators
 open FormalResearch.FrameFree.NQubit

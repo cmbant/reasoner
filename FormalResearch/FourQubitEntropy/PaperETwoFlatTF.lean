@@ -1,6 +1,8 @@
-import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlat
-import FormalResearch.FourQubitEntropy.PaperETwoFlatEq
-import FormalResearch.FourQubitEntropy.SpectralSpinFlip
+module
+
+public import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlat
+public import FormalResearch.FourQubitEntropy.PaperETwoFlatEq
+public import FormalResearch.FourQubitEntropy.SpectralSpinFlip
 
 /-!
 # Two-flat rigidity (TF) in the paper's ordered-spectrum form, for every unit state
@@ -33,6 +35,9 @@ identification of every state with two maximally mixed balanced cuts with the cl
 `(eq:fqe-quadratic-family)` up to local unitaries and a permutation of the cuts, and hence the Rényi
 envelope consequence.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix ComplexOrder
 

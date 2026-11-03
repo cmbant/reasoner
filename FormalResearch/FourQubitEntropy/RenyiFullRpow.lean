@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullTaylor
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullTaylor
 
 /-!
 # Elementary rpow and logarithm estimates for the Rényi certificates
@@ -7,6 +9,9 @@ Paper E, `renyi_*` supplements.  Numerical rpow comparisons `b ≤ x^{m/n}` redu
 (`le_rpow_of_pow_le`, `rpow_le_of_le_pow`); the logarithm estimates are the one-variable bounds used
 for the binary entropy and head/tail estimates (`ln(1-z) ≥ -z - z²/(2(1-z))`, `ln(1+z) ≥ z - z²/2`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

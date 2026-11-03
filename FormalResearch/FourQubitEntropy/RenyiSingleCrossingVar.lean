@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiOrderTransfer
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiOrderTransfer
 
 /-!
 # Single crossing of the Rényi entropies: first variations of `φ = v_q - κ_q u_q`
@@ -16,6 +18,9 @@ Mass transfer between two coordinates of a four-point vector `![x, y, r, s]` is 
 * the right derivative at `x = 0 < y`, equal to `-g(y)/Z` (`sxPF_hasDerivWithinAt_zero`), and its
   consequence that a positive right derivative contradicts maximality (`exists_gt_of_hasDerivWithinAt`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy
 

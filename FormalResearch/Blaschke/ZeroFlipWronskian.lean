@@ -1,7 +1,12 @@
-import Mathlib
-import FormalResearch.Blaschke.WronskianPair
-import FormalResearch.Blaschke.ProductWronskian
-import FormalResearch.Blaschke.WalshBooleanCollapse
+module
+
+public import Mathlib
+public import FormalResearch.Blaschke.WronskianPair
+public import FormalResearch.Blaschke.ProductWronskian
+public import FormalResearch.Blaschke.WalshBooleanCollapse
+
+
+@[expose] public section
 
 namespace FormalResearch.Blaschke
 

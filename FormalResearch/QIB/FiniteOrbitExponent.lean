@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.Helstrom
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.Helstrom
 
 /-!
 # QI-B `thm:finite`: one finite projective orbit suffices
@@ -47,6 +49,9 @@ does not use it (only the elementary support space `span{(b_j)^{⊗k}}`, which h
 **Notes on the paper's statement.**  `F < 1` is not used by the proof (for `F = 1` both bounds are trivial and the
 limit is `0 = -log 1`); `0 < F` is a hypothesis of the limit statement for a general pair.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

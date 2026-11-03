@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.QVEqualityRFEq
-import FormalResearch.FourQubitEntropy.QVEqualityCritical
+module
+
+public import FormalResearch.FourQubitEntropy.QVEqualityRFEq
+public import FormalResearch.FourQubitEntropy.QVEqualityCritical
 
 /-!
 # Spectra `(RF-eq)` of `prop:fqe-critical-variance`: symmetries of `specG` and the extremal spectra
@@ -12,6 +14,9 @@ This file proves the spectral bookkeeping: `specG` is symmetric under coordinate
 two signs (`SpecEquiv`), so for `g₁g₂g₃ < 0` its spectrum is that of `(-|g₁|, -|g₂|, -|g₃|)`
 (`specEquiv_canon`), and `(RF-eq)` spectra are the canonical spectra of `(a, b, b)` and `(√(ab), √(ab), b)`.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.QVEquality
 

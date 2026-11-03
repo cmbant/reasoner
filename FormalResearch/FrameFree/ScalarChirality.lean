@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.Bridge
-import FormalResearch.FourQubitEntropy.Attainment
+module
+
+public import FormalResearch.FourQubitEntropy.Bridge
+public import FormalResearch.FourQubitEntropy.Attainment
 
 /-!
 # Scalar spin chirality on three and four qubits
@@ -30,6 +32,9 @@ Contents.
 * `oddDim_values`, `totalDim_values`: the dimensions `0, 1, 4, 16, 56` of the odd-invariant spaces for
   one copy of `n = 2, …, 6` spins with a common frame, and the check `Σ (2j+1) g_j = 2ⁿ`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 open FormalResearch.FourQubitEntropy

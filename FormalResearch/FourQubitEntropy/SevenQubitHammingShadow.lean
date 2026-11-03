@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.SevenQubitHammingGlue
-import FormalResearch.FourQubitEntropy.SpinFlipOmega
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitHammingGlue
+public import FormalResearch.FourQubitEntropy.SpinFlipOmega
 
 /-!
 # Seven qubits: the `11/49` bound on Hamming-ball states (`cor:seven-hamming-ball-shadow`)
@@ -26,6 +28,9 @@ formalized here. Instead:
 **Not proved here.** The equality characterization of the corollary, and any statement for
 other `(n, r)`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate BigOperators
 open FormalResearch.FrameFree.NQubit

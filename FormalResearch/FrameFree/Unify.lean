@@ -1,8 +1,10 @@
-import FormalResearch.FrameFree.Foundations
-import FormalResearch.FrameFree.WeylRealisation
-import FormalResearch.FrameFree.PhysicalBridge
-import FormalResearch.FrameFree.Ceilings
-import FormalResearch.FourQubitEntropy.Checks
+module
+
+public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.FrameFree.WeylRealisation
+public import FormalResearch.FrameFree.PhysicalBridge
+public import FormalResearch.FrameFree.Ceilings
+public import FormalResearch.FourQubitEntropy.Checks
 
 /-!
 # Linking the three frame-free set-ups (and Paper E's time-reversal quantity)
@@ -35,6 +37,9 @@ identity, `two_mul_purity_sub_le_FKΘ` (`2(P-1) - W₁ ≤ F_K(ψ)` for unit `ψ
 
 Name hygiene: `FrameFree.ip`/`SU2` (four-qubit) and `NQubit.ip`/`SU2` are both used, always qualified.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix BigOperators
 

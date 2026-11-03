@@ -1,5 +1,7 @@
-import FormalResearch.FourQubitEntropy.RenyiFullLHCurvCells
-import FormalResearch.FourQubitEntropy.RenyiFullSliverEnt
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullLHCurvCells
+public import FormalResearch.FourQubitEntropy.RenyiFullSliverEnt
 
 /-!
 # Large-head curvature: the bound on `h_aaaa` and the sign of `f_aaaa`
@@ -9,6 +11,9 @@ quasi-convexity of `J(·)` in `y` (`lhJ_quasi`) between two rational envelopes o
 envelopes come from the elementary estimates `ρ² ≤ ρ^q ≤ ρ (1+ρ)/2`, `ρ = (1-a)/a ∈ [1/4, 1]`
 (a real-variable replacement of the paper's endpoint bounds by Cauchy's formula).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

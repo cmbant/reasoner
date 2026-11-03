@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.AH6Enc
+module
+
+public import FormalResearch.FourQubitEntropy.AH6Enc
 
 /-!
 # Enclosures of logarithms by the `atanh` series
@@ -7,6 +9,9 @@ import FormalResearch.FourQubitEntropy.AH6Enc
 (`log_atanh_err`).  `lnB Z N` is the corresponding ball: the partial sum computed in ball arithmetic plus a ball of
 radius `2 w^{2N+1}/(1-w²)` with `w` an upper bound of `|z|` read off `Z`; `lnB_enc` is its soundness.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.AH6
 

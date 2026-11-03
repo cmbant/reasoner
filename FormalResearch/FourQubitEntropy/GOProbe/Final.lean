@@ -1,6 +1,8 @@
-import Mathlib
-import FormalResearch.FourQubitEntropy.GOProbe.GramSound
-import FormalResearch.FourQubitEntropy.GOProbe.BlockSound
+module
+
+public import Mathlib
+public import FormalResearch.FourQubitEntropy.GOProbe.GramSound
+public import FormalResearch.FourQubitEntropy.GOProbe.BlockSound
 
 /-!
 # GO certificate: soundness theorem of the reflective checker
@@ -11,6 +13,9 @@ Here `cons`, `perms`, `flips`, `lit` and `blocks` are arbitrary data; the genera
 them, the identification of `lit` with the paper's target polynomial and the positivity of the constraints at
 closest points are separate obligations.  Claim class: proved.
 -/
+
+@[expose] public section
+
 
 open Finset
 

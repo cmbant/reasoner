@@ -1,5 +1,10 @@
-import Mathlib.Data.Matrix.ColumnRowPartitioned
-import Mathlib.Analysis.Matrix.PosDef
+module
+
+public import Mathlib.Data.Matrix.ColumnRowPartitioned
+public import Mathlib.Analysis.Matrix.PosDef
+
+
+@[expose] public section
 
 namespace FormalResearch.QID
 

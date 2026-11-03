@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.FrameFree.CopyThresholdWords
+module
+
+public import Mathlib
+public import FormalResearch.FrameFree.CopyThresholdWords
 
 /-!
 # At most two independent frames: the twirls never separate (Paper P, `thm:copythreshold` (b), `k_* = ∞`)
@@ -20,6 +22,9 @@ all word values are real for every number `k` of copies.
 * `twirlsCoincide_of_card_le_two`: for every `k` and every pure `ψ` the twirls of `ψ^{⊗k}` and `(Θψ)^{⊗k}`
   agree, i.e. `k_*(ψ, π) = ∞` (the case `n ≤ 2` of the table of `thm:copythreshold`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

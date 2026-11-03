@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.RenyiFullLHKappa
+module
+
+public import FormalResearch.FourQubitEntropy.RenyiFullLHKappa
 
 /-!
 # Elementary logarithm estimates for the large-head dual
@@ -8,6 +10,9 @@ import FormalResearch.FourQubitEntropy.RenyiFullLHKappa
 upper bound.  With `N = 1` this is the paper's `|E| ≤ 2|y|³/(3(1-y²))`; with larger `N` it gives
 the rational enclosures of the constants.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 

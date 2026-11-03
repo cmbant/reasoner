@@ -1,5 +1,7 @@
-import FormalResearch.QIA.SymmetricPowerFunctoriality
-import Mathlib.RepresentationTheory.Basic
+module
+
+public import FormalResearch.QIA.SymmetricPowerFunctoriality
+public import Mathlib.RepresentationTheory.Basic
 
 /-!
 # Algebraic representations on symmetric power
@@ -14,6 +16,9 @@ does not construct the manuscript's physical local-unitary action, add a Hilbert
 space structure to `SymmetricPower`, prove unitarity or isometry, prove
 semisimplicity, or identify Schur--Weyl sectors.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

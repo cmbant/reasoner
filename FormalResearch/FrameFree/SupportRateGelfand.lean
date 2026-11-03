@@ -1,8 +1,13 @@
-import FormalResearch.FrameFree.SupportRate
-import Mathlib.Analysis.CStarAlgebra.GelfandDuality
-import Mathlib.Analysis.Normed.Algebra.GelfandFormula
-import Mathlib.Topology.Algebra.Algebra
-import Mathlib.Analysis.Normed.Ring.Lemmas
+module
+
+public import FormalResearch.FrameFree.SupportRate
+public import Mathlib.Analysis.CStarAlgebra.GelfandDuality
+public import Mathlib.Analysis.Normed.Algebra.GelfandFormula
+public import Mathlib.Topology.Algebra.Algebra
+public import Mathlib.Analysis.Normed.Ring.Lemmas
+
+
+@[expose] public section
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

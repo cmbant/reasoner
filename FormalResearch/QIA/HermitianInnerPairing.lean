@@ -1,7 +1,9 @@
-import Mathlib.Algebra.Star.Module
-import Mathlib.Analysis.Matrix.PosDef
-import Mathlib.LinearAlgebra.BilinearForm.Properties
-import FormalResearch.QIA.PureCopyMemoryCore
+module
+
+public import Mathlib.Algebra.Star.Module
+public import Mathlib.Analysis.Matrix.PosDef
+public import Mathlib.LinearAlgebra.BilinearForm.Properties
+public import FormalResearch.QIA.PureCopyMemoryCore
 
 /-!
 # QI-A real Hermitian trace-pairing core
@@ -27,6 +29,9 @@ polarization/separation and its concrete identification with reduced copy
 states; the symmetry-reduction/CPTP channel construction also remains outside
 this module.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.QIA
 

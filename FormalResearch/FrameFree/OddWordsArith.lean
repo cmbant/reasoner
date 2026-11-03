@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # Binomial arithmetic for the string decomposition (Paper P, `prop:oddwords` (iii))
@@ -8,6 +10,9 @@ Namespace `FormalResearch.FrameFree.OddWords`.  Claim class: **proved**.
 `hwDim n k = C(n,k) - C(n,k-1)` and `sum_string_dim`: `Σ_{k ≤ n/2} (n-2k+1) hwDim n k = 2^n`, the
 dimension count of the `sl₂` string decomposition of `(ℂ²)^{⊗n}` (`Σ_j (2j+1) g_j = 2^n`).
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 

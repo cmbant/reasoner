@@ -1,4 +1,6 @@
-import Mathlib
+module
+
+public import Mathlib
 
 /-!
 # The degree-4 design identity over the twelve long-root lines of `D₄`
@@ -8,6 +10,9 @@ Paper P (`critical_chirality_design.tex`, Lemma `lem:design`): for the twelve un
 `∑_u |u·q|² |u·x|² = ½(‖q‖²‖x‖² + |x†q|² + |x·q|²)`.
 Here `u·q = (q_a ± q_b)/√2` (no complex conjugation).
 -/
+
+@[expose] public section
+
 
 open Finset
 

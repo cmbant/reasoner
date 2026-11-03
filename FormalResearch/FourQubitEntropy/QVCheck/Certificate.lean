@@ -1,7 +1,9 @@
-import FormalResearch.FourQubitEntropy.QVBlock.IntCert
-import FormalResearch.FourQubitEntropy.QVCert.Reduction
-import FormalResearch.FourQubitEntropy.QVCheck.Bridge
-import FormalResearch.FourQubitEntropy.QVFrame.Assembly
+module
+
+public import FormalResearch.FourQubitEntropy.QVBlock.IntCert
+public import FormalResearch.FourQubitEntropy.QVCert.Reduction
+public import FormalResearch.FourQubitEntropy.QVCheck.Bridge
+public import FormalResearch.FourQubitEntropy.QVFrame.Assembly
 
 /-!
 # The certificate from `checkAll`
@@ -10,6 +12,9 @@ import FormalResearch.FourQubitEntropy.QVFrame.Assembly
 `Wᵀ K̂ V = 0`; `kfam_bilinear`: every hypothesis of `QVBlock.quad_eq_zero_of_int_certificate` follows from
 `checkAll blocksQ rhsTermsQ certDen () = true`, whence the bilinear form of `Kfam` vanishes on all `u^{⊗6}, v^{⊗6}`.
 -/
+
+@[expose] public section
+
 
 open Finset FormalResearch.FourQubitEntropy FormalResearch.FourQubitEntropy.QVBlock FormalResearch.FourQubitEntropy.QVFrame
 open scoped Matrix

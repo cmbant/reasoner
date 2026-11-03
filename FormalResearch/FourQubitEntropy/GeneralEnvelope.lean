@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.FlipSos
+module
+
+public import FormalResearch.FourQubitEntropy.FlipSos
 
 /-!
 # The spin-flip pencil of a flip-orthogonal unit vector
@@ -10,6 +12,9 @@ the derivative of `h` is determined by the flip-gradient identity (FG) of `FlipG
 because `xr φ ρ + s (xr φ ρ)~ = (1 + ρ s) xr φ ρ'` and `Hval` is homogeneous of degree six:
 `(1 - ρ²) h'(ρ) = D(ρ) - 6ρ h(ρ)`, `D = (1/4) Re Y + 32 ρ (1 - ρ²)² (1 + (7/8) W₁(φ))`.
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate
 

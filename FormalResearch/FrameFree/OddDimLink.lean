@@ -1,5 +1,7 @@
-import FormalResearch.FrameFree.ScalarChirality
-import FormalResearch.QIA.MultiplicityProfileDimensions
+module
+
+public import FormalResearch.FrameFree.ScalarChirality
+public import FormalResearch.QIA.MultiplicityProfileDimensions
 
 /-!
 # The odd-invariant dimension of Paper P is the QI-A multiplicity odd dimension
@@ -8,6 +10,9 @@ import FormalResearch.QIA.MultiplicityProfileDimensions
 multiplicity of spin `j'` in `(ℂ²)^{⊗n}`.  This is `QIA.multiplicityOddDimension` applied to the
 multiplicity profile, so `prop:oddwords` (iii) and the QI-A memory-rate statements count the same space.
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FrameFree
 

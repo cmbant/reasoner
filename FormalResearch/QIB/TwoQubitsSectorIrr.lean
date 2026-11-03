@@ -1,5 +1,7 @@
-import Mathlib
-import FormalResearch.QIB.TwoQubitsSl2Rank
+module
+
+public import Mathlib
+public import FormalResearch.QIB.TwoQubitsSl2Rank
 
 /-!
 # Irreducibility of a `*`-closed `sl₂` triple with trivial commutant; the sector bridge
@@ -16,6 +18,9 @@ Namespace `FormalResearch.QIB`.  Claim class: **proved** (finite linear algebra)
   (`L2`) every matrix commuting with `𝓗, 𝓔, 𝓕` commutes with `G'`.
   If a nonzero `α𝓗 + β𝓔 + γ𝓕` kills `v` then every multiplicity block `τ_l(v)` has rank at most one.
 -/
+
+@[expose] public section
+
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false

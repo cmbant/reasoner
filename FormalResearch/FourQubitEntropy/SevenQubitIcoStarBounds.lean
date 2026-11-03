@@ -1,4 +1,6 @@
-import FormalResearch.FourQubitEntropy.SevenQubitMajorantDegreeSeven
+module
+
+public import FormalResearch.FourQubitEntropy.SevenQubitMajorantDegreeSeven
 
 /-!
 # The bound `1/32 < x_* < 37/524` of `prop:entropy-seven-stationarity`
@@ -12,6 +14,9 @@ Here `x_*` is the unique maximiser of `E3` on `[0,1/2]` (`E3_unique_max`, which 
 statement. The closed equation `2³²(1-2x_*)¹⁵ = 3⁸(1+8x_*)⁸(1+28x_*)⁷` of the same proposition is
 `star_equation` (`SevenQubitIcoStationarity`).
 -/
+
+@[expose] public section
+
 
 namespace FormalResearch.FourQubitEntropy.SevenQubitIco
 

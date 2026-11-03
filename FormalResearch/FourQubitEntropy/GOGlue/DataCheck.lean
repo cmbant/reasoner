@@ -1,5 +1,10 @@
-import FormalResearch.FourQubitEntropy.GOData.GOConst
-import FormalResearch.FourQubitEntropy.GOGlue.Target
+module
+
+public import FormalResearch.FourQubitEntropy.GOData.GOConst
+public import FormalResearch.FourQubitEntropy.GOGlue.Target
+
+
+@[expose] public section
 
 open Finset
 

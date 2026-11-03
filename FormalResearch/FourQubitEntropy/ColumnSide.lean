@@ -1,8 +1,13 @@
-import FormalResearch.FourQubitEntropy.NormalizeRows
+module
+
+public import FormalResearch.FourQubitEntropy.NormalizeRows
 
 /-!
 # The column side: exchanging the two halves of a vector
 -/
+
+@[expose] public section
+
 
 open scoped ComplexConjugate Matrix Kronecker
 
