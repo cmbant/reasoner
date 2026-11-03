@@ -1,7 +1,13 @@
 name: Lean verification
 
+# Builds named targets only: the full `lake build` recompiles every paper (about an hour) and is not run in CI.
+# Example targets: `FormalResearch.PPTThreeQubit` (a paper's aggregate module) or individual modules.
 on:
   workflow_dispatch:
+    inputs:
+      targets:
+        description: Space-separated Lake targets to build (e.g. FormalResearch.PPTThreeQubit)
+        required: true
 
 jobs:
   build:
@@ -22,5 +28,7 @@ jobs:
             echo 'Lean placeholders found'
             exit 1
           fi
-      - name: Build formal verification library
-        run: lake build
+      - name: Build the requested targets
+        env:
+          TARGETS: ${{ inputs.targets }}
+        run: lake build $TARGETS
