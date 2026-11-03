@@ -3,6 +3,7 @@ module
 public import FormalResearch.FourQubitEntropy.QVBlock.Blk
 public import FormalResearch.FourQubitEntropy.QVCheck.Invariants
 meta import QVCheckImpl.Impl1
+meta import FormalResearch.FourQubitEntropy.QVCert.Covariants
 public import FormalResearch.FourQubitEntropy.QVFrame.Basic
 public import FormalResearch.FourQubitEntropy.QVFrame.Gram
 public import FormalResearch.FourQubitEntropy.QVFrame.Twist

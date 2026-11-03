@@ -117,23 +117,43 @@ end FormalResearch.FourQubitEntropy
 The only axioms beyond `propext`, `Classical.choice`, `Quot.sound` are the two `native_decide` facts `QVCheck.checkAll_true` (the
 checker run) and `QVCheck.cArr_rowC` (the checker's `C` is `QVCert.rowC`). -/
 
-/-- info: 'FormalResearch.FourQubitEntropy.QVCert.qvCertIdentity' depends on axioms: [propext, Classical.choice, Quot.sound, QVCheck.cArr_rowC._native.native_decide.ax_1_1, QVCheck.checkAll_true._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.QVCert.qvCertIdentity' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Certify.0.QVCheck.checkAll_true._native.native_decide.ax_1_1,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Intertwiner.0.QVCheck.cArr_rowC._native.native_decide.ax_1_1] -/
 #guard_msgs (whitespace := lax) in
 #print axioms QVCert.qvCertIdentity
 
-/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.sharpQuadraticVarianceBound' depends on axioms: [propext, Classical.choice, Quot.sound, QVCheck.cArr_rowC._native.native_decide.ax_1_1, QVCheck.checkAll_true._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.sharpQuadraticVarianceBound' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Certify.0.QVCheck.checkAll_true._native.native_decide.ax_1_1,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Intertwiner.0.QVCheck.cArr_rowC._native.native_decide.ax_1_1] -/
 #guard_msgs (whitespace := lax) in
 #print axioms RenyiFull.sharpQuadraticVarianceBound
 
-/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.quadraticVarianceBound' depends on axioms: [propext, Classical.choice, Quot.sound, QVCheck.cArr_rowC._native.native_decide.ax_1_1, QVCheck.checkAll_true._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.quadraticVarianceBound' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Certify.0.QVCheck.checkAll_true._native.native_decide.ax_1_1,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Intertwiner.0.QVCheck.cArr_rowC._native.native_decide.ax_1_1] -/
 #guard_msgs (whitespace := lax) in
 #print axioms RenyiFull.quadraticVarianceBound
 
-/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.renyi_envelope_above_one_unconditional' depends on axioms: [propext, Classical.choice, Quot.sound, QVCheck.cArr_rowC._native.native_decide.ax_1_1, QVCheck.checkAll_true._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.renyi_envelope_above_one_unconditional' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Certify.0.QVCheck.checkAll_true._native.native_decide.ax_1_1,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Intertwiner.0.QVCheck.cArr_rowC._native.native_decide.ax_1_1] -/
 #guard_msgs (whitespace := lax) in
 #print axioms RenyiFull.renyi_envelope_above_one_unconditional
 
-/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.relaxTriple_of_state_unconditional' depends on axioms: [propext, Classical.choice, Quot.sound, QVCheck.cArr_rowC._native.native_decide.ax_1_1, QVCheck.checkAll_true._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.relaxTriple_of_state_unconditional' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Certify.0.QVCheck.checkAll_true._native.native_decide.ax_1_1,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Intertwiner.0.QVCheck.cArr_rowC._native.native_decide.ax_1_1] -/
 #guard_msgs (whitespace := lax) in
 #print axioms RenyiFull.relaxTriple_of_state_unconditional
 
@@ -141,22 +161,40 @@ checker run) and `QVCheck.cArr_rowC` (the checker's `C` is `QVCert.rowC`). -/
 #guard_msgs (whitespace := lax) in
 #print axioms RenyiFull.classicalRelaxation
 
-/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.meanRenyi_envelope_unconditional' depends on axioms: [propext, Classical.choice, Quot.sound, QVCheck.cArr_rowC._native.native_decide.ax_1_1, QVCheck.checkAll_true._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.meanRenyi_envelope_unconditional' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Certify.0.QVCheck.checkAll_true._native.native_decide.ax_1_1,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Intertwiner.0.QVCheck.cArr_rowC._native.native_decide.ax_1_1] -/
 #guard_msgs (whitespace := lax) in
 #print axioms RenyiFull.meanRenyi_envelope_unconditional
 
-/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.meanRenyi_envelope_eq_hs_unconditional' depends on axioms: [propext, Classical.choice, Quot.sound, QVCheck.cArr_rowC._native.native_decide.ax_1_1, QVCheck.checkAll_true._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.RenyiFull.meanRenyi_envelope_eq_hs_unconditional' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Certify.0.QVCheck.checkAll_true._native.native_decide.ax_1_1,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Intertwiner.0.QVCheck.cArr_rowC._native.native_decide.ax_1_1] -/
 #guard_msgs (whitespace := lax) in
 #print axioms RenyiFull.meanRenyi_envelope_eq_hs_unconditional
 
-/-- info: 'FormalResearch.FourQubitEntropy.joint_purity_unconditional' depends on axioms: [propext, Classical.choice, Quot.sound, QVCheck.cArr_rowC._native.native_decide.ax_1_1, QVCheck.checkAll_true._native.native_decide.ax_1_1] -/
+/-- info: 'FormalResearch.FourQubitEntropy.joint_purity_unconditional' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Certify.0.QVCheck.checkAll_true._native.native_decide.ax_1_1,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Intertwiner.0.QVCheck.cArr_rowC._native.native_decide.ax_1_1] -/
 #guard_msgs (whitespace := lax) in
 #print axioms joint_purity_unconditional
 
-/-- info: 'QVCheck.checkAll_true' depends on axioms: [propext, Classical.choice, Quot.sound, QVCheck.checkAll_true._native.native_decide.ax_1_1] -/
+/-- info: 'QVCheck.checkAll_true' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Certify.0.QVCheck.checkAll_true._native.native_decide.ax_1_1] -/
 #guard_msgs (whitespace := lax) in
 #print axioms QVCheck.checkAll_true
 
-/-- info: 'QVCheck.cArr_rowC' depends on axioms: [propext, Classical.choice, Quot.sound, QVCheck.cArr_rowC._native.native_decide.ax_1_1] -/
+/-- info: 'QVCheck.cArr_rowC' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ _private.FormalResearch.FourQubitEntropy.QVCheck.Intertwiner.0.QVCheck.cArr_rowC._native.native_decide.ax_1_1] -/
 #guard_msgs (whitespace := lax) in
 #print axioms QVCheck.cArr_rowC

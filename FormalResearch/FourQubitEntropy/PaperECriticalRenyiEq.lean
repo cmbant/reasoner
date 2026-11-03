@@ -81,7 +81,7 @@ theorem log_add_eq_iff {A B w : ℝ} (hA : 0 < A) (hB : 0 < B) (hw0 : 0 < w) (hw
       A * (1 - w) = B * w := by
   have h1w : 0 < 1 - w := by linarith
   have hb : Real.binEntropy w = -(w * Real.log w) - (1 - w) * Real.log (1 - w) := by
-    unfold Real.binEntropy; rw [Real.log_inv, Real.log_inv]; ring
+    simp only [Real.binEntropy_eq_negMulLog_add_negMulLog_one_sub, Real.negMulLog_def]; ring
   have e : w * (A / w) + (1 - w) * (B / (1 - w)) = A + B := by field_simp
   have hx : A / w ∈ Set.Ioi (0 : ℝ) := div_pos hA hw0
   have hy : B / (1 - w) ∈ Set.Ioi (0 : ℝ) := div_pos hB h1w

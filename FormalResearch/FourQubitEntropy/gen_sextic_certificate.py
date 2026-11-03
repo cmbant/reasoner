@@ -235,7 +235,7 @@ def lean_defs(name, nf):
                 cur = '    '
             cur += tok + ' '
         lines.append(cur.rstrip())
-        out.append(f'private noncomputable def {name}_{j} : SP :=\n' + '\n'.join(lines) + '\n')
+        out.append(f'noncomputable def {name}_{j} : SP :=\n' + '\n'.join(lines) + '\n')
     names = [f'{name}_{j}' for j in range(len(chunks))]
     cat = 'catSP\n    [ ' + ',\n      '.join(', '.join(names[i:i + 4]) for i in range(0, len(names), 4)) + ' ]'
     return '\n'.join(out), cat
@@ -292,7 +292,7 @@ namespace FormalResearch.FourQubitEntropy
 
 {defs}
 /-- Normal form of `{expr}`, as `(monomial key, coefficient)` pairs sorted by key. -/
-@[no_expose] noncomputable def sexticCert{name} : SP :=
+noncomputable def sexticCert{name} : SP :=
   {cat}
 
 /-- Kernel-checked: `{expr}` has the normal form `sexticCert{name}`. -/

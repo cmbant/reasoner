@@ -339,7 +339,7 @@ def main():
             defs, cat = lean_defs(f'chunkFG{name}', nf)
             body += f'''{defs}
 /-- Normal form of `{expr}`, as `(monomial key, coefficient)` pairs sorted by key. -/
-@[no_expose] noncomputable def flipCert{name} : SP :=
+noncomputable def flipCert{name} : SP :=
   {cat}
 
 /-- Kernel-checked: `{expr}` has the normal form `flipCert{name}`. -/

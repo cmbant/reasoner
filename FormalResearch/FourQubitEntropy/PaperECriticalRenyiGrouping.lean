@@ -40,7 +40,7 @@ theorem log_add_ge {A B w : ℝ} (hA : 0 < A) (hB : 0 < B) (hw0 : 0 < w) (hw1 : 
   have e : w * (A / w) + (1 - w) * (B / (1 - w)) = A + B := by field_simp
   rw [e, Real.log_div hA.ne' hw0.ne', Real.log_div hB.ne' h1w.ne'] at hc
   have hb : Real.binEntropy w = -(w * Real.log w) - (1 - w) * Real.log (1 - w) := by
-    unfold Real.binEntropy; rw [Real.log_inv, Real.log_inv]; ring
+    simp only [Real.binEntropy_eq_negMulLog_add_negMulLog_one_sub, Real.negMulLog_def]; ring
   rw [hb]
   linarith
 

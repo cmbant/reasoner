@@ -16,7 +16,7 @@ open scoped FormalResearch.FourQubitEntropy.GenericOps
 
 namespace FormalResearch.FourQubitEntropy
 
-private noncomputable def chunkRes2_0 : SP :=
+noncomputable def chunkRes2_0 : SP :=
   [ (nat_lit 13661804, Int.negSucc (nat_lit 191)), (nat_lit 14299948, Int.ofNat (nat_lit 192)),
     (nat_lit 17339982, Int.ofNat (nat_lit 192)), (nat_lit 18149934, Int.negSucc (nat_lit 191)),
     (nat_lit 21187374, Int.negSucc (nat_lit 191)), (nat_lit 22177038, Int.ofNat (nat_lit 192)),
@@ -50,7 +50,7 @@ private noncomputable def chunkRes2_0 : SP :=
     (nat_lit 68949642, Int.ofNat (nat_lit 192)), (nat_lit 69278862, Int.negSucc (nat_lit 191)),
     (nat_lit 73033653, Int.ofNat (nat_lit 384)), (nat_lit 73737654, Int.negSucc (nat_lit 191)) ]
 
-private noncomputable def chunkRes2_1 : SP :=
+noncomputable def chunkRes2_1 : SP :=
   [ (nat_lit 74293852, Int.ofNat (nat_lit 288)), (nat_lit 74713959, Int.ofNat (nat_lit 192)),
     (nat_lit 74821204, Int.negSucc (nat_lit 239)), (nat_lit 75244293, Int.negSucc (nat_lit 191)),
     (nat_lit 75577938, Int.ofNat (nat_lit 192)), (nat_lit 76445061, Int.negSucc (nat_lit 383)),
@@ -84,7 +84,7 @@ private noncomputable def chunkRes2_1 : SP :=
     (nat_lit 114967310, Int.negSucc (nat_lit 383)), (nat_lit 115167573, Int.negSucc (nat_lit 191)),
     (nat_lit 115255075, Int.ofNat (nat_lit 192)), (nat_lit 115783370, Int.ofNat (nat_lit 384)) ]
 
-private noncomputable def chunkRes2_2 : SP :=
+noncomputable def chunkRes2_2 : SP :=
   [ (nat_lit 116036274, Int.ofNat (nat_lit 48)), (nat_lit 118000047, Int.ofNat (nat_lit 192)),
     (nat_lit 118041831, Int.ofNat (nat_lit 192)), (nat_lit 118904006, Int.negSucc (nat_lit 191)),
     (nat_lit 119364434, Int.ofNat (nat_lit 192)), (nat_lit 119934374, Int.negSucc (nat_lit 191)),
@@ -118,7 +118,7 @@ private noncomputable def chunkRes2_2 : SP :=
     (nat_lit 166467594, Int.ofNat (nat_lit 144)), (nat_lit 166719405, Int.negSucc (nat_lit 191)),
     (nat_lit 167234678, Int.ofNat (nat_lit 192)), (nat_lit 167436815, Int.negSucc (nat_lit 191)) ]
 
-private noncomputable def chunkRes2_3 : SP :=
+noncomputable def chunkRes2_3 : SP :=
   [ (nat_lit 167462934, Int.negSucc (nat_lit 143)), (nat_lit 167515455, Int.ofNat (nat_lit 192)),
     (nat_lit 167591522, Int.negSucc (nat_lit 191)), (nat_lit 168651618, Int.negSucc (nat_lit 287)),
     (nat_lit 169428766, Int.negSucc (nat_lit 191)), (nat_lit 169633555, Int.ofNat (nat_lit 192)),
@@ -152,7 +152,7 @@ private noncomputable def chunkRes2_3 : SP :=
     (nat_lit 220771030, Int.negSucc (nat_lit 287)), (nat_lit 221433309, Int.ofNat (nat_lit 48)),
     (nat_lit 222757299, Int.negSucc (nat_lit 47)), (nat_lit 224338473, Int.ofNat (nat_lit 96)) ]
 
-private noncomputable def chunkRes2_4 : SP :=
+noncomputable def chunkRes2_4 : SP :=
   [ (nat_lit 226132839, Int.ofNat (nat_lit 96)), (nat_lit 226526062, Int.negSucc (nat_lit 191)),
     (nat_lit 230142879, Int.ofNat (nat_lit 48)), (nat_lit 232179514, Int.ofNat (nat_lit 192)),
     (nat_lit 232514127, Int.ofNat (nat_lit 192)), (nat_lit 234590018, Int.ofNat (nat_lit 48)),
@@ -186,7 +186,7 @@ private noncomputable def chunkRes2_4 : SP :=
     (nat_lit 280809615, Int.ofNat (nat_lit 1104)), (nat_lit 281099895, Int.negSucc (nat_lit 47)),
     (nat_lit 281203154, Int.negSucc (nat_lit 191)), (nat_lit 281543045, Int.ofNat (nat_lit 192)) ]
 
-private noncomputable def chunkRes2_5 : SP :=
+noncomputable def chunkRes2_5 : SP :=
   [ (nat_lit 281548118, Int.ofNat (nat_lit 192)), (nat_lit 281897714, Int.negSucc (nat_lit 671)),
     (nat_lit 281961590, Int.negSucc (nat_lit 287)), (nat_lit 282075285, Int.ofNat (nat_lit 480)),
     (nat_lit 282939970, Int.ofNat (nat_lit 192)), (nat_lit 283422135, Int.ofNat (nat_lit 144)),
@@ -221,7 +221,7 @@ private noncomputable def chunkRes2_5 : SP :=
     (nat_lit 327672961, Int.ofNat (nat_lit 192)), (nat_lit 327843219, Int.ofNat (nat_lit 1152)),
     (nat_lit 328707025, Int.ofNat (nat_lit 192)), (nat_lit 329829135, Int.negSucc (nat_lit 143)) ]
 
-private noncomputable def chunkRes2_6 : SP :=
+noncomputable def chunkRes2_6 : SP :=
   [ (nat_lit 330170313, Int.negSucc (nat_lit 479)), (nat_lit 333049214, Int.negSucc (nat_lit 191)),
     (nat_lit 333775106, Int.ofNat (nat_lit 48)), (nat_lit 334536025, Int.negSucc (nat_lit 191)),
     (nat_lit 334887865, Int.ofNat (nat_lit 192)), (nat_lit 336124934, Int.ofNat (nat_lit 192)),
@@ -256,7 +256,7 @@ private noncomputable def chunkRes2_6 : SP :=
     (nat_lit 373348426, Int.negSucc (nat_lit 287)), (nat_lit 375062115, Int.ofNat (nat_lit 1104)),
     (nat_lit 375131086, Int.ofNat (nat_lit 624)) ]
 
-private noncomputable def chunkRes2_7 : SP :=
+noncomputable def chunkRes2_7 : SP :=
   [ (nat_lit 376126618, Int.ofNat (nat_lit 480)), (nat_lit 376363545, Int.negSucc (nat_lit 671)),
     (nat_lit 377404233, Int.ofNat (nat_lit 192)), (nat_lit 377867211, Int.negSucc (nat_lit 191)),
     (nat_lit 380594438, Int.negSucc (nat_lit 623)), (nat_lit 380889573, Int.negSucc (nat_lit 191)),
@@ -290,7 +290,7 @@ private noncomputable def chunkRes2_7 : SP :=
     (nat_lit 429403947, Int.ofNat (nat_lit 192)), (nat_lit 430413621, Int.ofNat (nat_lit 624)),
     (nat_lit 430684095, Int.ofNat (nat_lit 528)), (nat_lit 431748134, Int.ofNat (nat_lit 144)) ]
 
-private noncomputable def chunkRes2_8 : SP :=
+noncomputable def chunkRes2_8 : SP :=
   [ (nat_lit 432277778, Int.negSucc (nat_lit 143)), (nat_lit 436263405, Int.ofNat (nat_lit 1104)),
     (nat_lit 436638183, Int.ofNat (nat_lit 192)), (nat_lit 436827855, Int.ofNat (nat_lit 48)),
     (nat_lit 437279415, Int.negSucc (nat_lit 287)), (nat_lit 439139305, Int.ofNat (nat_lit 192)),
@@ -325,7 +325,7 @@ private noncomputable def chunkRes2_8 : SP :=
     (nat_lit 475554963, Int.negSucc (nat_lit 191)),
     (nat_lit 477495434, Int.negSucc (nat_lit 287)) ]
 
-private noncomputable def chunkRes2_9 : SP :=
+noncomputable def chunkRes2_9 : SP :=
   [ (nat_lit 478799085, Int.ofNat (nat_lit 480)), (nat_lit 479775374, Int.negSucc (nat_lit 383)),
     (nat_lit 480614354, Int.negSucc (nat_lit 479)), (nat_lit 481005395, Int.negSucc (nat_lit 191)),
     (nat_lit 481595465, Int.ofNat (nat_lit 192)), (nat_lit 484235446, Int.ofNat (nat_lit 864)),
@@ -360,7 +360,7 @@ private noncomputable def chunkRes2_9 : SP :=
     (nat_lit 541625133, Int.negSucc (nat_lit 191)), (nat_lit 542886519, Int.ofNat (nat_lit 864)),
     (nat_lit 545059405, Int.negSucc (nat_lit 383)) ]
 
-private noncomputable def chunkRes2_10 : SP :=
+noncomputable def chunkRes2_10 : SP :=
   [ (nat_lit 545301275, Int.ofNat (nat_lit 432)), (nat_lit 546985414, Int.ofNat (nat_lit 96)),
     (nat_lit 549597154, Int.ofNat (nat_lit 768)), (nat_lit 550479189, Int.ofNat (nat_lit 192)),
     (nat_lit 551077079, Int.ofNat (nat_lit 192)), (nat_lit 551245046, Int.ofNat (nat_lit 192)),
@@ -395,7 +395,7 @@ private noncomputable def chunkRes2_10 : SP :=
     (nat_lit 600095613, Int.ofNat (nat_lit 624)), (nat_lit 600150155, Int.ofNat (nat_lit 576)),
     (nat_lit 600886385, Int.negSucc (nat_lit 191)) ]
 
-private noncomputable def chunkRes2_11 : SP :=
+noncomputable def chunkRes2_11 : SP :=
   [ (nat_lit 602242833, Int.ofNat (nat_lit 480)), (nat_lit 602960943, Int.negSucc (nat_lit 287)),
     (nat_lit 603785575, Int.negSucc (nat_lit 239)), (nat_lit 605460441, Int.ofNat (nat_lit 816)),
     (nat_lit 606051897, Int.negSucc (nat_lit 143)), (nat_lit 608945667, Int.ofNat (nat_lit 864)),
@@ -429,7 +429,7 @@ private noncomputable def chunkRes2_11 : SP :=
     (nat_lit 667370594, Int.negSucc (nat_lit 287)), (nat_lit 667800055, Int.negSucc (nat_lit 287)),
     (nat_lit 669259774, Int.ofNat (nat_lit 528)), (nat_lit 669871025, Int.ofNat (nat_lit 192)) ]
 
-private noncomputable def chunkRes2_12 : SP :=
+noncomputable def chunkRes2_12 : SP :=
   [ (nat_lit 670396893, Int.negSucc (nat_lit 143)),
     (nat_lit 671582042, Int.negSucc (nat_lit 1439)),
     (nat_lit 672393785, Int.negSucc (nat_lit 191)), (nat_lit 672708542, Int.ofNat (nat_lit 96)),
@@ -466,7 +466,7 @@ private noncomputable def chunkRes2_12 : SP :=
     (nat_lit 734112003, Int.ofNat (nat_lit 48)), (nat_lit 734210945, Int.ofNat (nat_lit 480)),
     (nat_lit 734823694, Int.negSucc (nat_lit 143)) ]
 
-private noncomputable def chunkRes2_13 : SP :=
+noncomputable def chunkRes2_13 : SP :=
   [ (nat_lit 735054155, Int.negSucc (nat_lit 47)), (nat_lit 737617233, Int.ofNat (nat_lit 96)),
     (nat_lit 738516545, Int.ofNat (nat_lit 528)), (nat_lit 739422515, Int.negSucc (nat_lit 623)),
     (nat_lit 741609814, Int.ofNat (nat_lit 144)), (nat_lit 743167886, Int.negSucc (nat_lit 191)),
@@ -500,7 +500,7 @@ private noncomputable def chunkRes2_13 : SP :=
     (nat_lit 801887845, Int.ofNat (nat_lit 480)), (nat_lit 801973317, Int.ofNat (nat_lit 96)),
     (nat_lit 803846654, Int.ofNat (nat_lit 864)), (nat_lit 804247175, Int.ofNat (nat_lit 288)) ]
 
-private noncomputable def chunkRes2_14 : SP :=
+noncomputable def chunkRes2_14 : SP :=
   [ (nat_lit 804599211, Int.negSucc (nat_lit 479)), (nat_lit 804683967, Int.ofNat (nat_lit 144)),
     (nat_lit 805756503, Int.negSucc (nat_lit 191)), (nat_lit 805772485, Int.negSucc (nat_lit 47)),
     (nat_lit 805983535, Int.ofNat (nat_lit 48)), (nat_lit 806829554, Int.ofNat (nat_lit 528)),
@@ -535,7 +535,7 @@ private noncomputable def chunkRes2_14 : SP :=
     (nat_lit 857211333, Int.ofNat (nat_lit 816)), (nat_lit 858262911, Int.negSucc (nat_lit 623)),
     (nat_lit 858932965, Int.ofNat (nat_lit 192)) ]
 
-private noncomputable def chunkRes2_15 : SP :=
+noncomputable def chunkRes2_15 : SP :=
   [ (nat_lit 859029963, Int.ofNat (nat_lit 288)), (nat_lit 859808786, Int.ofNat (nat_lit 480)),
     (nat_lit 859986655, Int.negSucc (nat_lit 191)), (nat_lit 861080114, Int.negSucc (nat_lit 671)),
     (nat_lit 861797858, Int.negSucc (nat_lit 287)), (nat_lit 861927999, Int.negSucc (nat_lit 287)),
@@ -570,7 +570,7 @@ private noncomputable def chunkRes2_15 : SP :=
     (nat_lit 946046499, Int.ofNat (nat_lit 528)), (nat_lit 946680985, Int.negSucc (nat_lit 191)),
     (nat_lit 949148409, Int.negSucc (nat_lit 191)) ]
 
-private noncomputable def chunkRes2_16 : SP :=
+noncomputable def chunkRes2_16 : SP :=
   [ (nat_lit 949834947, Int.ofNat (nat_lit 144)), (nat_lit 953182462, Int.negSucc (nat_lit 1439)),
     (nat_lit 953432122, Int.ofNat (nat_lit 192)), (nat_lit 956583455, Int.negSucc (nat_lit 191)),
     (nat_lit 956999486, Int.ofNat (nat_lit 480)), (nat_lit 957256347, Int.ofNat (nat_lit 528)),
@@ -608,7 +608,7 @@ private noncomputable def chunkRes2_16 : SP :=
     (nat_lit 1032267995, Int.negSucc (nat_lit 47)), (nat_lit 1034989989, Int.ofNat (nat_lit 480)),
     (nat_lit 1035508233, Int.negSucc (nat_lit 623)) ]
 
-private noncomputable def chunkRes2_17 : SP :=
+noncomputable def chunkRes2_17 : SP :=
   [ (nat_lit 1036848003, Int.ofNat (nat_lit 48)), (nat_lit 1037791887, Int.negSucc (nat_lit 1439)),
     (nat_lit 1037919819, Int.negSucc (nat_lit 287)),
     (nat_lit 1038875201, Int.negSucc (nat_lit 47)), (nat_lit 1042238422, Int.ofNat (nat_lit 192)),
@@ -649,7 +649,7 @@ private noncomputable def chunkRes2_17 : SP :=
     (nat_lit 1102201009, Int.ofNat (nat_lit 1104)),
     (nat_lit 1102456831, Int.negSucc (nat_lit 47)) ]
 
-private noncomputable def chunkRes2_18 : SP :=
+noncomputable def chunkRes2_18 : SP :=
   [ (nat_lit 1103571046, Int.ofNat (nat_lit 576)), (nat_lit 1103883221, Int.ofNat (nat_lit 432)),
     (nat_lit 1108356545, Int.negSucc (nat_lit 47)), (nat_lit 1108365181, Int.ofNat (nat_lit 144)),
     (nat_lit 1109439265, Int.negSucc (nat_lit 143)),
@@ -692,7 +692,7 @@ private noncomputable def chunkRes2_18 : SP :=
     (nat_lit 1175926829, Int.negSucc (nat_lit 623)),
     (nat_lit 1176500002, Int.ofNat (nat_lit 192)) ]
 
-private noncomputable def chunkRes2_19 : SP :=
+noncomputable def chunkRes2_19 : SP :=
   [ (nat_lit 1177066385, Int.ofNat (nat_lit 816)), (nat_lit 1178294559, Int.negSucc (nat_lit 239)),
     (nat_lit 1179777747, Int.ofNat (nat_lit 144)), (nat_lit 1180205402, Int.negSucc (nat_lit 191)),
     (nat_lit 1181304177, Int.negSucc (nat_lit 47)), (nat_lit 1181763805, Int.ofNat (nat_lit 1104)),
@@ -733,7 +733,7 @@ private noncomputable def chunkRes2_19 : SP :=
     (nat_lit 1264543441, Int.negSucc (nat_lit 191)),
     (nat_lit 1265743767, Int.negSucc (nat_lit 191)) ]
 
-private noncomputable def chunkRes2_20 : SP :=
+noncomputable def chunkRes2_20 : SP :=
   [ (nat_lit 1268056959, Int.negSucc (nat_lit 191)), (nat_lit 1269891161, Int.ofNat (nat_lit 480)),
     (nat_lit 1274297563, Int.negSucc (nat_lit 383)), (nat_lit 1275717034, Int.ofNat (nat_lit 48)),
     (nat_lit 1278134545, Int.ofNat (nat_lit 48)), (nat_lit 1279170622, Int.ofNat (nat_lit 624)),
@@ -772,7 +772,7 @@ private noncomputable def chunkRes2_20 : SP :=
     (nat_lit 1353232317, Int.ofNat (nat_lit 96)), (nat_lit 1353629035, Int.negSucc (nat_lit 671)),
     (nat_lit 1357071466, Int.ofNat (nat_lit 48)), (nat_lit 1358673374, Int.negSucc (nat_lit 383)) ]
 
-private noncomputable def chunkRes2_21 : SP :=
+noncomputable def chunkRes2_21 : SP :=
   [ (nat_lit 1360755487, Int.negSucc (nat_lit 191)),
     (nat_lit 1362074155, Int.negSucc (nat_lit 383)), (nat_lit 1363272591, Int.ofNat (nat_lit 480)),
     (nat_lit 1364456005, Int.ofNat (nat_lit 864)), (nat_lit 1364459327, Int.ofNat (nat_lit 768)),
@@ -815,7 +815,7 @@ private noncomputable def chunkRes2_21 : SP :=
     (nat_lit 1484559806, Int.negSucc (nat_lit 191)), (nat_lit 1490444285, Int.ofNat (nat_lit 816)),
     (nat_lit 1491648266, Int.ofNat (nat_lit 192)) ]
 
-private noncomputable def chunkRes2_22 : SP :=
+noncomputable def chunkRes2_22 : SP :=
   [ (nat_lit 1492154923, Int.ofNat (nat_lit 96)), (nat_lit 1492496455, Int.negSucc (nat_lit 1439)),
     (nat_lit 1495017251, Int.ofNat (nat_lit 576)), (nat_lit 1495641351, Int.ofNat (nat_lit 192)),
     (nat_lit 1498923671, Int.negSucc (nat_lit 239)),
@@ -856,7 +856,7 @@ private noncomputable def chunkRes2_22 : SP :=
     (nat_lit 1591637885, Int.negSucc (nat_lit 671)),
     (nat_lit 1593123763, Int.ofNat (nat_lit 144)) ]
 
-private noncomputable def chunkRes2_23 : SP :=
+noncomputable def chunkRes2_23 : SP :=
   [ (nat_lit 1593850359, Int.negSucc (nat_lit 287)),
     (nat_lit 1595231542, Int.negSucc (nat_lit 191)), (nat_lit 1596404953, Int.ofNat (nat_lit 48)),
     (nat_lit 1597676171, Int.ofNat (nat_lit 864)), (nat_lit 1598504169, Int.negSucc (nat_lit 287)),
@@ -898,7 +898,7 @@ private noncomputable def chunkRes2_23 : SP :=
     (nat_lit 1711470351, Int.ofNat (nat_lit 192)), (nat_lit 1714983487, Int.ofNat (nat_lit 192)),
     (nat_lit 1715847287, Int.ofNat (nat_lit 96)), (nat_lit 1717543983, Int.ofNat (nat_lit 48)) ]
 
-private noncomputable def chunkRes2_24 : SP :=
+noncomputable def chunkRes2_24 : SP :=
   [ (nat_lit 1718720563, Int.negSucc (nat_lit 287)), (nat_lit 1724707855, Int.ofNat (nat_lit 48)),
     (nat_lit 1727382305, Int.ofNat (nat_lit 192)), (nat_lit 1729112203, Int.ofNat (nat_lit 48)),
     (nat_lit 1731833755, Int.negSucc (nat_lit 239)), (nat_lit 1732467709, Int.ofNat (nat_lit 96)),
@@ -941,7 +941,7 @@ private noncomputable def chunkRes2_24 : SP :=
     (nat_lit 1847655047, Int.negSucc (nat_lit 623)),
     (nat_lit 1849445555, Int.negSucc (nat_lit 239)) ]
 
-private noncomputable def chunkRes2_25 : SP :=
+noncomputable def chunkRes2_25 : SP :=
   [ (nat_lit 1849494358, Int.ofNat (nat_lit 192)), (nat_lit 1851008315, Int.negSucc (nat_lit 143)),
     (nat_lit 1851463522, Int.ofNat (nat_lit 144)), (nat_lit 1853989906, Int.negSucc (nat_lit 383)),
     (nat_lit 1855053991, Int.negSucc (nat_lit 143)),
@@ -983,7 +983,7 @@ private noncomputable def chunkRes2_25 : SP :=
     (nat_lit 1959495065, Int.ofNat (nat_lit 480)), (nat_lit 1959803885, Int.negSucc (nat_lit 671)),
     (nat_lit 1962339535, Int.negSucc (nat_lit 671)) ]
 
-private noncomputable def chunkRes2_26 : SP :=
+noncomputable def chunkRes2_26 : SP :=
   [ (nat_lit 1962931091, Int.negSucc (nat_lit 239)),
     (nat_lit 1964368055, Int.negSucc (nat_lit 287)), (nat_lit 1964624893, Int.ofNat (nat_lit 480)),
     (nat_lit 1966449598, Int.negSucc (nat_lit 1439)),
@@ -1025,7 +1025,7 @@ private noncomputable def chunkRes2_26 : SP :=
     (nat_lit 2078409613, Int.ofNat (nat_lit 864)), (nat_lit 2083450834, Int.ofNat (nat_lit 480)),
     (nat_lit 2086724783, Int.negSucc (nat_lit 479)) ]
 
-private noncomputable def chunkRes2_27 : SP :=
+noncomputable def chunkRes2_27 : SP :=
   [ (nat_lit 2087746978, Int.negSucc (nat_lit 383)), (nat_lit 2088711185, Int.ofNat (nat_lit 144)),
     (nat_lit 2102826819, Int.negSucc (nat_lit 239)),
     (nat_lit 2104244474, Int.negSucc (nat_lit 287)), (nat_lit 2112429265, Int.ofNat (nat_lit 192)),
@@ -1068,7 +1068,7 @@ private noncomputable def chunkRes2_27 : SP :=
     (nat_lit 2274154267, Int.ofNat (nat_lit 144)), (nat_lit 2274629242, Int.negSucc (nat_lit 287)),
     (nat_lit 2277572222, Int.negSucc (nat_lit 287)) ]
 
-private noncomputable def chunkRes2_28 : SP :=
+noncomputable def chunkRes2_28 : SP :=
   [ (nat_lit 2278115021, Int.ofNat (nat_lit 816)), (nat_lit 2279926606, Int.negSucc (nat_lit 671)),
     (nat_lit 2281062511, Int.negSucc (nat_lit 527)), (nat_lit 2282755126, Int.ofNat (nat_lit 96)),
     (nat_lit 2283420503, Int.ofNat (nat_lit 48)), (nat_lit 2284906585, Int.ofNat (nat_lit 480)),
@@ -1109,7 +1109,7 @@ private noncomputable def chunkRes2_28 : SP :=
     (nat_lit 2430645497, Int.negSucc (nat_lit 191)),
     (nat_lit 2431319259, Int.negSucc (nat_lit 143)) ]
 
-private noncomputable def chunkRes2_29 : SP :=
+noncomputable def chunkRes2_29 : SP :=
   [ (nat_lit 2432731609, Int.ofNat (nat_lit 480)), (nat_lit 2433183122, Int.negSucc (nat_lit 47)),
     (nat_lit 2434464969, Int.ofNat (nat_lit 48)), (nat_lit 2436981537, Int.negSucc (nat_lit 527)),
     (nat_lit 2437435435, Int.ofNat (nat_lit 96)), (nat_lit 2444167649, Int.negSucc (nat_lit 623)),
@@ -1148,7 +1148,7 @@ private noncomputable def chunkRes2_29 : SP :=
     (nat_lit 2559664227, Int.negSucc (nat_lit 191)), (nat_lit 2562354778, Int.ofNat (nat_lit 624)),
     (nat_lit 2562451243, Int.ofNat (nat_lit 96)) ]
 
-private noncomputable def chunkRes2_30 : SP :=
+noncomputable def chunkRes2_30 : SP :=
   [ (nat_lit 2562465518, Int.ofNat (nat_lit 48)), (nat_lit 2563848695, Int.negSucc (nat_lit 1439)),
     (nat_lit 2567749406, Int.negSucc (nat_lit 671)), (nat_lit 2569317541, Int.ofNat (nat_lit 48)),
     (nat_lit 2570269715, Int.ofNat (nat_lit 144)), (nat_lit 2582946949, Int.ofNat (nat_lit 96)),
@@ -1188,7 +1188,7 @@ private noncomputable def chunkRes2_30 : SP :=
     (nat_lit 2751329713, Int.ofNat (nat_lit 864)),
     (nat_lit 2752550615, Int.negSucc (nat_lit 527)) ]
 
-private noncomputable def chunkRes2_31 : SP :=
+noncomputable def chunkRes2_31 : SP :=
   [ (nat_lit 2753618995, Int.ofNat (nat_lit 192)), (nat_lit 2754032746, Int.negSucc (nat_lit 47)),
     (nat_lit 2760726021, Int.ofNat (nat_lit 48)), (nat_lit 2766766945, Int.negSucc (nat_lit 191)),
     (nat_lit 2768790586, Int.ofNat (nat_lit 864)), (nat_lit 2770888813, Int.negSucc (nat_lit 383)),
@@ -1230,7 +1230,7 @@ private noncomputable def chunkRes2_31 : SP :=
     (nat_lit 2863225519, Int.negSucc (nat_lit 1439)),
     (nat_lit 2865313167, Int.ofNat (nat_lit 1104)), (nat_lit 2865723371, Int.ofNat (nat_lit 48)) ]
 
-private noncomputable def chunkRes2_32 : SP :=
+noncomputable def chunkRes2_32 : SP :=
   [ (nat_lit 2866031915, Int.negSucc (nat_lit 623)), (nat_lit 2867915011, Int.ofNat (nat_lit 144)),
     (nat_lit 2871625601, Int.ofNat (nat_lit 144)), (nat_lit 2873978735, Int.ofNat (nat_lit 192)),
     (nat_lit 2874096614, Int.negSucc (nat_lit 623)),
@@ -1272,7 +1272,7 @@ private noncomputable def chunkRes2_32 : SP :=
     (nat_lit 3057919329, Int.negSucc (nat_lit 287)),
     (nat_lit 3065929447, Int.negSucc (nat_lit 143)) ]
 
-private noncomputable def chunkRes2_33 : SP :=
+noncomputable def chunkRes2_33 : SP :=
   [ (nat_lit 3066874613, Int.negSucc (nat_lit 191)), (nat_lit 3068372281, Int.ofNat (nat_lit 96)),
     (nat_lit 3080985002, Int.negSucc (nat_lit 239)),
     (nat_lit 3086467813, Int.negSucc (nat_lit 287)), (nat_lit 3089301241, Int.ofNat (nat_lit 192)),
@@ -1312,7 +1312,7 @@ private noncomputable def chunkRes2_33 : SP :=
     (nat_lit 3234816871, Int.negSucc (nat_lit 143)),
     (nat_lit 3237777093, Int.negSucc (nat_lit 431)) ]
 
-private noncomputable def chunkRes2_34 : SP :=
+noncomputable def chunkRes2_34 : SP :=
   [ (nat_lit 3238160783, Int.ofNat (nat_lit 48)), (nat_lit 3241019218, Int.ofNat (nat_lit 96)),
     (nat_lit 3243505766, Int.ofNat (nat_lit 624)), (nat_lit 3246542319, Int.ofNat (nat_lit 528)),
     (nat_lit 3247695703, Int.ofNat (nat_lit 192)), (nat_lit 3247702306, Int.ofNat (nat_lit 48)),
@@ -1352,7 +1352,7 @@ private noncomputable def chunkRes2_34 : SP :=
     (nat_lit 3441354758, Int.ofNat (nat_lit 144)), (nat_lit 3443848681, Int.negSucc (nat_lit 191)),
     (nat_lit 3447931823, Int.ofNat (nat_lit 864)) ]
 
-private noncomputable def chunkRes2_35 : SP :=
+noncomputable def chunkRes2_35 : SP :=
   [ (nat_lit 3449185267, Int.negSucc (nat_lit 287)),
     (nat_lit 3462086787, Int.negSucc (nat_lit 239)),
     (nat_lit 3465852098, Int.negSucc (nat_lit 383)),
@@ -1395,7 +1395,7 @@ private noncomputable def chunkRes2_35 : SP :=
     (nat_lit 3666072646, Int.negSucc (nat_lit 47)), (nat_lit 3666710671, Int.ofNat (nat_lit 864)),
     (nat_lit 3669862358, Int.negSucc (nat_lit 191)) ]
 
-private noncomputable def chunkRes2_36 : SP :=
+noncomputable def chunkRes2_36 : SP :=
   [ (nat_lit 3674335007, Int.negSucc (nat_lit 143)), (nat_lit 3677262046, Int.ofNat (nat_lit 480)),
     (nat_lit 3679797314, Int.ofNat (nat_lit 1104)),
     (nat_lit 3682165105, Int.negSucc (nat_lit 191)), (nat_lit 3685499389, Int.ofNat (nat_lit 192)),
@@ -1435,7 +1435,7 @@ private noncomputable def chunkRes2_36 : SP :=
     (nat_lit 3931580429, Int.ofNat (nat_lit 96)), (nat_lit 3933105355, Int.ofNat (nat_lit 624)),
     (nat_lit 3933678442, Int.ofNat (nat_lit 528)) ]
 
-private noncomputable def chunkRes2_37 : SP :=
+noncomputable def chunkRes2_37 : SP :=
   [ (nat_lit 3947450117, Int.negSucc (nat_lit 191)),
     (nat_lit 3953829998, Int.negSucc (nat_lit 671)), (nat_lit 3954795221, Int.ofNat (nat_lit 48)),
     (nat_lit 3962658745, Int.negSucc (nat_lit 383)),
@@ -1477,7 +1477,7 @@ private noncomputable def chunkRes2_37 : SP :=
     (nat_lit 4185940085, Int.ofNat (nat_lit 192)), (nat_lit 4186276179, Int.negSucc (nat_lit 191)),
     (nat_lit 4189741661, Int.negSucc (nat_lit 239)) ]
 
-private noncomputable def chunkRes2_38 : SP :=
+noncomputable def chunkRes2_38 : SP :=
   [ (nat_lit 4199636366, Int.ofNat (nat_lit 192)), (nat_lit 4200419927, Int.negSucc (nat_lit 287)),
     (nat_lit 4202201101, Int.negSucc (nat_lit 191)), (nat_lit 4204217398, Int.ofNat (nat_lit 192)),
     (nat_lit 4205566573, Int.ofNat (nat_lit 1104)), (nat_lit 4211136193, Int.ofNat (nat_lit 480)),
@@ -1519,7 +1519,7 @@ private noncomputable def chunkRes2_38 : SP :=
     (nat_lit 4461141065, Int.ofNat (nat_lit 576)), (nat_lit 4462810435, Int.negSucc (nat_lit 287)),
     (nat_lit 4465932958, Int.ofNat (nat_lit 192)), (nat_lit 4466824687, Int.ofNat (nat_lit 288)) ]
 
-private noncomputable def chunkRes2_39 : SP :=
+noncomputable def chunkRes2_39 : SP :=
   [ (nat_lit 4467423755, Int.negSucc (nat_lit 671)), (nat_lit 4476908887, Int.ofNat (nat_lit 192)),
     (nat_lit 4482112465, Int.negSucc (nat_lit 383)), (nat_lit 4485677647, Int.ofNat (nat_lit 864)),
     (nat_lit 4488924093, Int.negSucc (nat_lit 1439)),
@@ -1562,7 +1562,7 @@ private noncomputable def chunkRes2_39 : SP :=
     (nat_lit 4776854429, Int.ofNat (nat_lit 48)), (nat_lit 4780288195, Int.ofNat (nat_lit 192)),
     (nat_lit 4790277694, Int.ofNat (nat_lit 48)), (nat_lit 4803586073, Int.negSucc (nat_lit 191)) ]
 
-private noncomputable def chunkRes2_40 : SP :=
+noncomputable def chunkRes2_40 : SP :=
   [ (nat_lit 4812796334, Int.ofNat (nat_lit 96)), (nat_lit 4819104627, Int.ofNat (nat_lit 816)),
     (nat_lit 4822720478, Int.ofNat (nat_lit 144)), (nat_lit 4825665733, Int.negSucc (nat_lit 479)),
     (nat_lit 4828604843, Int.negSucc (nat_lit 287)),
@@ -1603,7 +1603,7 @@ private noncomputable def chunkRes2_40 : SP :=
     (nat_lit 5098865213, Int.ofNat (nat_lit 192)),
     (nat_lit 5099959613, Int.negSucc (nat_lit 239)) ]
 
-private noncomputable def chunkRes2_41 : SP :=
+noncomputable def chunkRes2_41 : SP :=
   [ (nat_lit 5108286545, Int.ofNat (nat_lit 48)), (nat_lit 5111749747, Int.ofNat (nat_lit 432)),
     (nat_lit 5112332135, Int.ofNat (nat_lit 144)), (nat_lit 5124153695, Int.negSucc (nat_lit 143)),
     (nat_lit 5127359673, Int.negSucc (nat_lit 191)),
@@ -1647,7 +1647,7 @@ private noncomputable def chunkRes2_41 : SP :=
     (nat_lit 5376470167, Int.negSucc (nat_lit 47)), (nat_lit 5383426397, Int.negSucc (nat_lit 47)),
     (nat_lit 5387693213, Int.negSucc (nat_lit 383)) ]
 
-private noncomputable def chunkRes2_42 : SP :=
+noncomputable def chunkRes2_42 : SP :=
   [ (nat_lit 5388991381, Int.negSucc (nat_lit 239)),
     (nat_lit 5404294567, Int.negSucc (nat_lit 671)), (nat_lit 5411286797, Int.ofNat (nat_lit 864)),
     (nat_lit 5413160751, Int.negSucc (nat_lit 287)), (nat_lit 5416880581, Int.ofNat (nat_lit 96)),
@@ -1689,7 +1689,7 @@ private noncomputable def chunkRes2_42 : SP :=
     (nat_lit 5718865613, Int.negSucc (nat_lit 239)),
     (nat_lit 5720237149, Int.ofNat (nat_lit 384)) ]
 
-private noncomputable def chunkRes2_43 : SP :=
+noncomputable def chunkRes2_43 : SP :=
   [ (nat_lit 5724298178, Int.ofNat (nat_lit 48)), (nat_lit 5724777349, Int.negSucc (nat_lit 47)),
     (nat_lit 5725760183, Int.ofNat (nat_lit 192)), (nat_lit 5727960985, Int.negSucc (nat_lit 287)),
     (nat_lit 5736975023, Int.negSucc (nat_lit 431)), (nat_lit 5741610905, Int.ofNat (nat_lit 144)),
@@ -1732,7 +1732,7 @@ private noncomputable def chunkRes2_43 : SP :=
     (nat_lit 6052382485, Int.ofNat (nat_lit 96)), (nat_lit 6059891185, Int.ofNat (nat_lit 192)),
     (nat_lit 6066849817, Int.ofNat (nat_lit 480)) ]
 
-private noncomputable def chunkRes2_44 : SP :=
+noncomputable def chunkRes2_44 : SP :=
   [ (nat_lit 6068334437, Int.ofNat (nat_lit 192)), (nat_lit 6081281335, Int.ofNat (nat_lit 768)),
     (nat_lit 6086360739, Int.negSucc (nat_lit 623)), (nat_lit 6087901211, Int.ofNat (nat_lit 144)),
     (nat_lit 6100753399, Int.negSucc (nat_lit 47)),
@@ -1775,7 +1775,7 @@ private noncomputable def chunkRes2_44 : SP :=
     (nat_lit 6444321635, Int.negSucc (nat_lit 527)),
     (nat_lit 6451382021, Int.negSucc (nat_lit 671)), (nat_lit 6451717957, Int.ofNat (nat_lit 48)) ]
 
-private noncomputable def chunkRes2_45 : SP :=
+noncomputable def chunkRes2_45 : SP :=
   [ (nat_lit 6457059583, Int.negSucc (nat_lit 239)), (nat_lit 6457633865, Int.ofNat (nat_lit 480)),
     (nat_lit 6458387261, Int.negSucc (nat_lit 143)), (nat_lit 6476014493, Int.ofNat (nat_lit 576)),
     (nat_lit 6477216613, Int.ofNat (nat_lit 864)), (nat_lit 6494918561, Int.ofNat (nat_lit 144)),
@@ -1816,7 +1816,7 @@ private noncomputable def chunkRes2_45 : SP :=
     (nat_lit 6904701683, Int.negSucc (nat_lit 671)),
     (nat_lit 6912557701, Int.negSucc (nat_lit 671)) ]
 
-private noncomputable def chunkRes2_46 : SP :=
+noncomputable def chunkRes2_46 : SP :=
   [ (nat_lit 6916263967, Int.ofNat (nat_lit 96)), (nat_lit 6926092345, Int.negSucc (nat_lit 143)),
     (nat_lit 6933383945, Int.ofNat (nat_lit 480)), (nat_lit 6937996261, Int.negSucc (nat_lit 143)),
     (nat_lit 6952302637, Int.ofNat (nat_lit 864)), (nat_lit 6965273471, Int.negSucc (nat_lit 191)),
@@ -1860,7 +1860,7 @@ private noncomputable def chunkRes2_46 : SP :=
     (nat_lit 7388534329, Int.negSucc (nat_lit 191)), (nat_lit 7413647753, Int.ofNat (nat_lit 96)),
     (nat_lit 7413911857, Int.ofNat (nat_lit 144)), (nat_lit 7423504187, Int.ofNat (nat_lit 144)) ]
 
-private noncomputable def chunkRes2_47 : SP :=
+noncomputable def chunkRes2_47 : SP :=
   [ (nat_lit 7426293715, Int.ofNat (nat_lit 48)), (nat_lit 7426614665, Int.ofNat (nat_lit 624)),
     (nat_lit 7429333247, Int.ofNat (nat_lit 96)), (nat_lit 7431178051, Int.negSucc (nat_lit 623)),
     (nat_lit 7434848447, Int.negSucc (nat_lit 383)),
@@ -1900,7 +1900,7 @@ private noncomputable def chunkRes2_47 : SP :=
     (nat_lit 7786502639, Int.ofNat (nat_lit 144)), (nat_lit 7789754263, Int.negSucc (nat_lit 239)),
     (nat_lit 7796799967, Int.negSucc (nat_lit 383)), (nat_lit 7798635187, Int.ofNat (nat_lit 96)) ]
 
-private noncomputable def chunkRes2_48 : SP :=
+noncomputable def chunkRes2_48 : SP :=
   [ (nat_lit 7802558663, Int.ofNat (nat_lit 96)), (nat_lit 7805278921, Int.negSucc (nat_lit 287)),
     (nat_lit 7818314395, Int.negSucc (nat_lit 143)),
     (nat_lit 7838910761, Int.negSucc (nat_lit 47)),
@@ -1948,7 +1948,7 @@ private noncomputable def chunkRes2_48 : SP :=
     (nat_lit 8363680417, Int.negSucc (nat_lit 287)),
     (nat_lit 8369729711, Int.ofNat (nat_lit 192)) ]
 
-private noncomputable def chunkRes2_49 : SP :=
+noncomputable def chunkRes2_49 : SP :=
   [ (nat_lit 8375419849, Int.ofNat (nat_lit 192)), (nat_lit 8379882137, Int.ofNat (nat_lit 192)),
     (nat_lit 8397161729, Int.negSucc (nat_lit 287)), (nat_lit 8416717451, Int.ofNat (nat_lit 432)),
     (nat_lit 8418400207, Int.ofNat (nat_lit 768)), (nat_lit 8419894307, Int.negSucc (nat_lit 287)),
@@ -1989,7 +1989,7 @@ private noncomputable def chunkRes2_49 : SP :=
     (nat_lit 9040525337, Int.ofNat (nat_lit 144)), (nat_lit 9058260245, Int.ofNat (nat_lit 96)),
     (nat_lit 9058909249, Int.negSucc (nat_lit 671)) ]
 
-private noncomputable def chunkRes2_50 : SP :=
+noncomputable def chunkRes2_50 : SP :=
   [ (nat_lit 9068286273, Int.ofNat (nat_lit 192)), (nat_lit 9071007283, Int.negSucc (nat_lit 431)),
     (nat_lit 9086869693, Int.negSucc (nat_lit 479)),
     (nat_lit 9091982731, Int.ofNat (nat_lit 1104)),
@@ -2028,7 +2028,7 @@ private noncomputable def chunkRes2_50 : SP :=
     (nat_lit 9716129285, Int.negSucc (nat_lit 527)),
     (nat_lit 9731203489, Int.ofNat (nat_lit 192)) ]
 
-private noncomputable def chunkRes2_51 : SP :=
+noncomputable def chunkRes2_51 : SP :=
   [ (nat_lit 9742203809, Int.negSucc (nat_lit 239)),
     (nat_lit 9745518761, Int.negSucc (nat_lit 191)),
     (nat_lit 9750378713, Int.negSucc (nat_lit 239)), (nat_lit 9761803885, Int.ofNat (nat_lit 864)),
@@ -2079,7 +2079,7 @@ private noncomputable def chunkRes2_51 : SP :=
     (nat_lit 10366105633, Int.ofNat (nat_lit 384)),
     (nat_lit 10391112293, Int.negSucc (nat_lit 47)) ]
 
-private noncomputable def chunkRes2_52 : SP :=
+noncomputable def chunkRes2_52 : SP :=
   [ (nat_lit 10394469445, Int.negSucc (nat_lit 431)),
     (nat_lit 10415140301, Int.ofNat (nat_lit 48)),
     (nat_lit 10435054069, Int.negSucc (nat_lit 191)),
@@ -2133,7 +2133,7 @@ private noncomputable def chunkRes2_52 : SP :=
     (nat_lit 11096383319, Int.negSucc (nat_lit 479)),
     (nat_lit 11126368607, Int.ofNat (nat_lit 96)) ]
 
-private noncomputable def chunkRes2_53 : SP :=
+noncomputable def chunkRes2_53 : SP :=
   [ (nat_lit 11129253487, Int.negSucc (nat_lit 191)),
     (nat_lit 11133120583, Int.ofNat (nat_lit 624)),
     (nat_lit 11160652813, Int.negSucc (nat_lit 47)),
@@ -2188,7 +2188,7 @@ private noncomputable def chunkRes2_53 : SP :=
     (nat_lit 11917882079, Int.negSucc (nat_lit 143)),
     (nat_lit 11919715283, Int.ofNat (nat_lit 144)) ]
 
-private noncomputable def chunkRes2_54 : SP :=
+noncomputable def chunkRes2_54 : SP :=
   [ (nat_lit 11929825787, Int.negSucc (nat_lit 479)),
     (nat_lit 11930192663, Int.negSucc (nat_lit 191)),
     (nat_lit 11935701935, Int.ofNat (nat_lit 192)),
@@ -2246,7 +2246,7 @@ private noncomputable def chunkRes2_54 : SP :=
     (nat_lit 12626893799, Int.negSucc (nat_lit 191)),
     (nat_lit 12631017773, Int.negSucc (nat_lit 623)) ]
 
-private noncomputable def chunkRes2_55 : SP :=
+noncomputable def chunkRes2_55 : SP :=
   [ (nat_lit 12647360143, Int.ofNat (nat_lit 48)), (nat_lit 12653547083, Int.ofNat (nat_lit 528)),
     (nat_lit 12660434039, Int.negSucc (nat_lit 287)),
     (nat_lit 12694708037, Int.ofNat (nat_lit 528)), (nat_lit 12713570567, Int.ofNat (nat_lit 192)),
@@ -2301,7 +2301,7 @@ private noncomputable def chunkRes2_55 : SP :=
     (nat_lit 13661206489, Int.ofNat (nat_lit 192)),
     (nat_lit 13676393653, Int.negSucc (nat_lit 431)) ]
 
-private noncomputable def chunkRes2_56 : SP :=
+noncomputable def chunkRes2_56 : SP :=
   [ (nat_lit 13699808771, Int.ofNat (nat_lit 1104)),
     (nat_lit 13700230079, Int.negSucc (nat_lit 191)),
     (nat_lit 13714487303, Int.ofNat (nat_lit 48)), (nat_lit 13730007973, Int.ofNat (nat_lit 480)),
@@ -2355,7 +2355,7 @@ private noncomputable def chunkRes2_56 : SP :=
     (nat_lit 14385496339, Int.ofNat (nat_lit 192)),
     (nat_lit 14414675387, Int.negSucc (nat_lit 431)) ]
 
-private noncomputable def chunkRes2_57 : SP :=
+noncomputable def chunkRes2_57 : SP :=
   [ (nat_lit 14416469897, Int.negSucc (nat_lit 191)),
     (nat_lit 14464327361, Int.ofNat (nat_lit 48)), (nat_lit 14475790427, Int.ofNat (nat_lit 144)),
     (nat_lit 14500223095, Int.ofNat (nat_lit 48)),
@@ -2414,7 +2414,7 @@ private noncomputable def chunkRes2_57 : SP :=
     (nat_lit 15306030961, Int.ofNat (nat_lit 528)),
     (nat_lit 15320567911, Int.ofNat (nat_lit 816)) ]
 
-private noncomputable def chunkRes2_58 : SP :=
+noncomputable def chunkRes2_58 : SP :=
   [ (nat_lit 15321332461, Int.negSucc (nat_lit 287)),
     (nat_lit 15326916553, Int.negSucc (nat_lit 671)),
     (nat_lit 15362828311, Int.ofNat (nat_lit 864)),
@@ -2474,7 +2474,7 @@ private noncomputable def chunkRes2_58 : SP :=
     (nat_lit 16415397791, Int.ofNat (nat_lit 48)),
     (nat_lit 16418914999, Int.negSucc (nat_lit 191)) ]
 
-private noncomputable def chunkRes2_59 : SP :=
+noncomputable def chunkRes2_59 : SP :=
   [ (nat_lit 16432861037, Int.negSucc (nat_lit 143)),
     (nat_lit 16449848101, Int.ofNat (nat_lit 816)), (nat_lit 16456975477, Int.ofNat (nat_lit 192)),
     (nat_lit 16493268803, Int.negSucc (nat_lit 623)),
@@ -2530,7 +2530,7 @@ private noncomputable def chunkRes2_59 : SP :=
     (nat_lit 17406602603, Int.ofNat (nat_lit 864)),
     (nat_lit 17436842317, Int.negSucc (nat_lit 47)) ]
 
-private noncomputable def chunkRes2_60 : SP :=
+noncomputable def chunkRes2_60 : SP :=
   [ (nat_lit 17437041413, Int.ofNat (nat_lit 192)),
     (nat_lit 17440516681, Int.negSucc (nat_lit 239)),
     (nat_lit 17459186701, Int.ofNat (nat_lit 768)),
@@ -2587,7 +2587,7 @@ private noncomputable def chunkRes2_60 : SP :=
     (nat_lit 18863401723, Int.ofNat (nat_lit 1104)),
     (nat_lit 18925904023, Int.negSucc (nat_lit 47)) ]
 
-private noncomputable def chunkRes2_61 : SP :=
+noncomputable def chunkRes2_61 : SP :=
   [ (nat_lit 18926867023, Int.ofNat (nat_lit 1104)),
     (nat_lit 18958734443, Int.ofNat (nat_lit 192)),
     (nat_lit 18975910613, Int.negSucc (nat_lit 527)),
@@ -2644,7 +2644,7 @@ private noncomputable def chunkRes2_61 : SP :=
     (nat_lit 20557153831, Int.negSucc (nat_lit 671)),
     (nat_lit 20561458877, Int.ofNat (nat_lit 192)) ]
 
-private noncomputable def chunkRes2_62 : SP :=
+noncomputable def chunkRes2_62 : SP :=
   [ (nat_lit 20597055199, Int.ofNat (nat_lit 624)),
     (nat_lit 20632805191, Int.negSucc (nat_lit 191)),
     (nat_lit 20680239271, Int.negSucc (nat_lit 143)),
@@ -2699,7 +2699,7 @@ private noncomputable def chunkRes2_62 : SP :=
     (nat_lit 22344773341, Int.ofNat (nat_lit 144)),
     (nat_lit 22384043327, Int.negSucc (nat_lit 287)) ]
 
-private noncomputable def chunkRes2_63 : SP :=
+noncomputable def chunkRes2_63 : SP :=
   [ (nat_lit 22390848997, Int.negSucc (nat_lit 287)),
     (nat_lit 22421645207, Int.ofNat (nat_lit 192)),
     (nat_lit 22430199959, Int.negSucc (nat_lit 47)),
@@ -2751,7 +2751,7 @@ private noncomputable def chunkRes2_63 : SP :=
     (nat_lit 24269315317, Int.negSucc (nat_lit 383)),
     (nat_lit 24290907131, Int.negSucc (nat_lit 191)) ]
 
-private noncomputable def chunkRes2_64 : SP :=
+noncomputable def chunkRes2_64 : SP :=
   [ (nat_lit 24311754907, Int.negSucc (nat_lit 383)),
     (nat_lit 24383498477, Int.negSucc (nat_lit 671)),
     (nat_lit 24395140033, Int.ofNat (nat_lit 48)), (nat_lit 24436299833, Int.ofNat (nat_lit 192)),
@@ -2806,7 +2806,7 @@ private noncomputable def chunkRes2_64 : SP :=
     (nat_lit 26686607753, Int.negSucc (nat_lit 191)),
     (nat_lit 26736264089, Int.ofNat (nat_lit 48)) ]
 
-private noncomputable def chunkRes2_65 : SP :=
+noncomputable def chunkRes2_65 : SP :=
   [ (nat_lit 26766446467, Int.negSucc (nat_lit 191)),
     (nat_lit 26825241647, Int.negSucc (nat_lit 287)),
     (nat_lit 26825951287, Int.ofNat (nat_lit 480)), (nat_lit 26881267279, Int.ofNat (nat_lit 768)),
@@ -2861,7 +2861,7 @@ private noncomputable def chunkRes2_65 : SP :=
     (nat_lit 30723790381, Int.negSucc (nat_lit 671)),
     (nat_lit 30857658757, Int.ofNat (nat_lit 48)) ]
 
-private noncomputable def chunkRes2_66 : SP :=
+noncomputable def chunkRes2_66 : SP :=
   [ (nat_lit 30876936341, Int.negSucc (nat_lit 1439)),
     (nat_lit 30942384013, Int.ofNat (nat_lit 768)),
     (nat_lit 30966921037, Int.negSucc (nat_lit 191)),
@@ -2917,7 +2917,7 @@ private noncomputable def chunkRes2_66 : SP :=
     (nat_lit 36318201187, Int.ofNat (nat_lit 48)), (nat_lit 36590942947, Int.ofNat (nat_lit 192)),
     (nat_lit 36719846861, Int.ofNat (nat_lit 192)), (nat_lit 36874363259, Int.ofNat (nat_lit 48)) ]
 
-private noncomputable def chunkRes2_67 : SP :=
+noncomputable def chunkRes2_67 : SP :=
   [ (nat_lit 37487777309, Int.ofNat (nat_lit 624)),
     (nat_lit 37754495357, Int.negSucc (nat_lit 479)),
     (nat_lit 37785989377, Int.negSucc (nat_lit 191)),
@@ -2974,7 +2974,7 @@ private noncomputable def chunkRes2_67 : SP :=
     (nat_lit 47407219511, Int.ofNat (nat_lit 192)), (nat_lit 47601548207, Int.ofNat (nat_lit 384)),
     (nat_lit 47949083549, Int.ofNat (nat_lit 192)) ]
 
-private noncomputable def chunkRes2_68 : SP :=
+noncomputable def chunkRes2_68 : SP :=
   [ (nat_lit 48047956133, Int.negSucc (nat_lit 191)),
     (nat_lit 48104462447, Int.ofNat (nat_lit 192)), (nat_lit 48445877201, Int.ofNat (nat_lit 192)),
     (nat_lit 48658029569, Int.negSucc (nat_lit 191)),
@@ -3030,7 +3030,7 @@ private noncomputable def chunkRes2_68 : SP :=
     (nat_lit 65394983383, Int.negSucc (nat_lit 383)),
     (nat_lit 67059248329, Int.ofNat (nat_lit 192)) ]
 
-private noncomputable def chunkRes2_69 : SP :=
+noncomputable def chunkRes2_69 : SP :=
   [ (nat_lit 67214313553, Int.negSucc (nat_lit 191)),
     (nat_lit 67413676427, Int.negSucc (nat_lit 191)),
     (nat_lit 68017606339, Int.ofNat (nat_lit 192)),
@@ -3087,7 +3087,7 @@ private noncomputable def chunkRes2_69 : SP :=
     (nat_lit 99778142963, Int.negSucc (nat_lit 383)),
     (nat_lit 101105494639, Int.ofNat (nat_lit 192)) ]
 
-private noncomputable def chunkRes2_70 : SP :=
+noncomputable def chunkRes2_70 : SP :=
   [ (nat_lit 102060295879, Int.negSucc (nat_lit 191)),
     (nat_lit 103380937129, Int.negSucc (nat_lit 191)),
     (nat_lit 104357226769, Int.ofNat (nat_lit 192)),
@@ -3122,7 +3122,7 @@ private noncomputable def chunkRes2_70 : SP :=
     (nat_lit 164071914553, Int.ofNat (nat_lit 192)) ]
 
 /-- Normal form of `resNorm0 (siteSwap 2 zSP) (siteSwap 2 wSP)`, as `(monomial key, coefficient)` pairs sorted by key. -/
-@[no_expose] noncomputable def sexticCertRes2 : SP :=
+noncomputable def sexticCertRes2 : SP :=
   catSP
     [ chunkRes2_0, chunkRes2_1, chunkRes2_2, chunkRes2_3,
       chunkRes2_4, chunkRes2_5, chunkRes2_6, chunkRes2_7,
