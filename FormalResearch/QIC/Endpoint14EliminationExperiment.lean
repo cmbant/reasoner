@@ -2,6 +2,7 @@ module
 
 public import Mathlib
 public import FormalResearch.QIC.Endpoint14ReducedData
+meta import FormalResearch.QIC.Endpoint14ReducedData
 
 
 @[expose] public section

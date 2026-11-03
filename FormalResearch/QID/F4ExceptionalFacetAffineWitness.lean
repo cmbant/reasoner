@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.QID.F4ExceptionalFacetCertificate
+meta import FormalResearch.QID.F4ExceptionalFacetCertificate
 
 
 @[expose] public section

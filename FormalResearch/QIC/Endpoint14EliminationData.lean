@@ -2,12 +2,19 @@ module
 
 public import Mathlib
 public import FormalResearch.QIC.Endpoint14EliminationData0
+meta import FormalResearch.QIC.Endpoint14EliminationData0
 public import FormalResearch.QIC.Endpoint14EliminationData1
+meta import FormalResearch.QIC.Endpoint14EliminationData1
 public import FormalResearch.QIC.Endpoint14EliminationData2
+meta import FormalResearch.QIC.Endpoint14EliminationData2
 public import FormalResearch.QIC.Endpoint14EliminationData3
+meta import FormalResearch.QIC.Endpoint14EliminationData3
 public import FormalResearch.QIC.Endpoint14EliminationData4
+meta import FormalResearch.QIC.Endpoint14EliminationData4
 public import FormalResearch.QIC.Endpoint14EliminationData5
+meta import FormalResearch.QIC.Endpoint14EliminationData5
 public import FormalResearch.QIC.Endpoint14EliminationDataNegativeTail
+meta import FormalResearch.QIC.Endpoint14EliminationDataNegativeTail
 
 
 @[expose] public section

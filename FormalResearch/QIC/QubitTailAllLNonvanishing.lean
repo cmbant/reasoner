@@ -2,6 +2,7 @@ module
 
 public import Mathlib
 public import FormalResearch.QIC.GaussianIntegerLift
+meta import FormalResearch.QIC.GaussianIntegerLift
 
 
 @[expose] public section

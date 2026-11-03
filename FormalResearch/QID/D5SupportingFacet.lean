@@ -2,7 +2,9 @@ module
 
 public import Mathlib
 public import FormalResearch.QID.D5WeylEnumeration
+meta import FormalResearch.QID.D5WeylEnumeration
 public import FormalResearch.QID.D5CharacteristicZeroCertificate
+meta import FormalResearch.QID.D5CharacteristicZeroCertificate
 
 
 @[expose] public section

@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.QID.D4DoublyStochasticCertificate
+meta import FormalResearch.QID.D4DoublyStochasticCertificate
 
 
 @[expose] public section

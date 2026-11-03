@@ -1,6 +1,7 @@
 module
 
 public import Mathlib
+meta import Mathlib
 
 
 @[expose] public section
