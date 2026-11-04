@@ -1,7 +1,8 @@
 module
 
-public import FormalResearch.FourQubitEntropy.PurityLPShadow
-public import FormalResearch.FourQubitEntropy.PurityLPDefs
+public import FormalResearch.NQubit.Shadow.Basic
+public import FormalResearch.NQubit.Pauli.Hermitian
+public import FormalResearch.NQubit.Reduced.MeanPurity
 
 /-!
 # The Rains-LP dual certificate lemma (Stage 3)
@@ -16,8 +17,8 @@ A *certificate* for `n` is `(L, es, ys)` with `es = [(s, e_s)]` (`e_s ∈ ℚ`, 
 decidable test `y_i ≥ 0 ∧ w_j ≥ 0 ∀ j ≤ n`.
 
 * `lp_bound`: if `lpCheck n L es ys = true` then **for every unit vector `ψ` of `n` qubits `L ≤ π_k(ψ)`**
-  (`SpinFlip.purMean`; `piMean_eq_purMean` identifies it with the mean of the `tr ρ_S²`), using only the proved
-  facts `A_0 = 1`, `A_j ≥ 0` (`SpinFlip.A_nonneg`), `a_s = a_{n-s}` (`purMean_compl`) and the shadow inequalities
+  (`FormalResearch.NQubit.TimeReversal.meanPurity`; `meanRdmPurity_eq_meanPurity` identifies it with the mean of the `tr ρ_S²`), using only the proved
+  facts `A_0 = 1`, `A_j ≥ 0` (`FormalResearch.NQubit.Pauli.weightEnum_nonneg`), `a_s = a_{n-s}` (`meanPurity_compl`) and the shadow inequalities
   (`shadow_nonneg`).  Claim class: proved.
 -/
 
@@ -29,7 +30,7 @@ open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.FourQubitEntropy.SpinFlip
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
 
 /-- The linear form `A ↦ Σ_{j ≤ n} c_j A_j`. -/
 def lin (n : ℕ) (A : ℕ → ℝ) (c : ℕ → ℚ) : ℝ := ∑ j ∈ Finset.range (n + 1), (c j : ℝ) * A j
@@ -99,16 +100,16 @@ theorem lin_wCoef (n : ℕ) (A : ℕ → ℝ) (L : ℚ) (es ys : List (ℕ × �
 
 /-- **The LP step.** A passing certificate bounds the mean balanced purity of every unit `n`-qubit vector. -/
 theorem lp_bound (n : ℕ) (L : ℚ) (es ys : List (ℕ × ℚ)) (h : lpCheck n L es ys = true)
-    (ψ : Ψ n) (hψ : nsq ψ = 1) : (L : ℝ) ≤ purMean ψ (n / 2) := by
+    (ψ : Ψ n) (hψ : nsq ψ = 1) : (L : ℝ) ≤ meanPurity ψ (n / 2) := by
   simp only [lpCheck, Bool.and_eq_true, List.all_eq_true, decide_eq_true_eq, List.mem_range] at h
   obtain ⟨⟨hes, hys⟩, hw⟩ := h
-  set A' : ℕ → ℝ := fun j => A ψ j with hA'
+  set A' : ℕ → ℝ := fun j => weightEnum ψ j with hA'
   have hk : n / 2 ≤ n := Nat.div_le_self n 2
-  have hlin : ∀ s, s ≤ n → lin n A' (aQ n s) = purMean ψ s := fun s hs =>
-    (purMean_eq_lin ψ hs).symm
+  have hlin : ∀ s, s ≤ n → lin n A' (aQ n s) = meanPurity ψ s := fun s hs =>
+    (meanPurity_eq_lin ψ hs).symm
   have hw' : 0 ≤ lin n A' (wCoef n L es ys) := by
     unfold lin
-    refine Finset.sum_nonneg fun j hj => mul_nonneg ?_ (A_nonneg ψ j)
+    refine Finset.sum_nonneg fun j hj => mul_nonneg ?_ (weightEnum_nonneg ψ j)
     exact_mod_cast hw j (Finset.mem_range.mp hj)
   rw [lin_wCoef] at hw'
   have hes0 : (es.map fun p => (p.2 : ℝ) * (lin n A' (aQ n p.1) - lin n A' (aQ n (n - p.1)))).sum
@@ -117,7 +118,7 @@ theorem lp_bound (n : ℕ) (L : ℚ) (es ys : List (ℕ × ℚ)) (h : lpCheck n 
     intro x hx
     obtain ⟨p, hp, rfl⟩ := List.mem_map.mp hx
     have hp1 := hes p hp
-    rw [hlin p.1 hp1, hlin (n - p.1) (Nat.sub_le _ _), purMean_compl ψ hp1]
+    rw [hlin p.1 hp1, hlin (n - p.1) (Nat.sub_le _ _), meanPurity_compl ψ hp1]
     ring
   have hys0 : 0 ≤ (ys.map fun p => (p.2 : ℝ) * lin n A' (shQ n p.1)).sum := by
     apply List.sum_nonneg
@@ -128,7 +129,7 @@ theorem lp_bound (n : ℕ) (L : ℚ) (es ys : List (ℕ × ℚ)) (h : lpCheck n 
     rw [this]
     exact mul_nonneg (by exact_mod_cast hys p hp) (shadow_nonneg ψ p.1)
   rw [hes0, hlin (n / 2) hk] at hw'
-  have hA0 : A' 0 = 1 := A_zero ψ hψ
+  have hA0 : A' 0 = 1 := weightEnum_zero_of_unit ψ hψ
   rw [hA0] at hw'
   linarith
 

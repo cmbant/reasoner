@@ -1,7 +1,8 @@
 module
 
 public import FormalResearch.FourQubitEntropy.SpinFlipOddQSum
-public import FormalResearch.FourQubitEntropy.SpinFlipOddSector
+public import FormalResearch.NQubit.TimeReversal.OddSector
+public import FormalResearch.NQubit.Pauli.Conjugation
 
 /-!
 # Engine of the odd-`n` tradeoff: `π_m + ((n-3)/2) O = 1/2 + Σ oddW_j A_j`
@@ -19,6 +20,7 @@ open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
 section PolyToolkit
 
 /-- `p ↦ p(-X)`. -/
@@ -176,19 +178,19 @@ variable {m : ℕ}
 
 /-- `Λ g = Σ_{j ≤ n} [X^j] g · B_j`, `B_j = A_j / C(n,j)` (`n = 2m+1`). -/
 noncomputable def Lam (ψ : Ψ (2 * m + 1)) : ℝ[X] →ₗ[ℝ] ℝ :=
-  ∑ j ∈ range (2 * m + 1 + 1), (A ψ j / ((2 * m + 1).choose j : ℝ)) • Polynomial.lcoeff ℝ j
+  ∑ j ∈ range (2 * m + 1 + 1), (weightEnum ψ j / ((2 * m + 1).choose j : ℝ)) • Polynomial.lcoeff ℝ j
 
 theorem Lam_apply (ψ : Ψ (2 * m + 1)) (g : ℝ[X]) :
-    Lam ψ g = ∑ j ∈ range (2 * m + 1 + 1), g.coeff j * (A ψ j / ((2 * m + 1).choose j : ℝ)) := by
+    Lam ψ g = ∑ j ∈ range (2 * m + 1 + 1), g.coeff j * (weightEnum ψ j / ((2 * m + 1).choose j : ℝ)) := by
   unfold Lam
   simp [LinearMap.sum_apply, mul_comm]
 
 theorem Lam_xp_pow (ψ : Ψ (2 * m + 1)) {s : ℕ} (hs : s ≤ 2 * m + 1) :
-    Lam ψ (xp ^ s) = purMean ψ s := by
-  rw [Lam_apply, PurAvg_eq ψ hs]
+    Lam ψ (xp ^ s) = meanPurity ψ s := by
+  rw [Lam_apply, meanPurity_eq_sum_weightEnum ψ hs]
   exact sum_congr rfl fun j _ => by rw [coeff_xp_pow]
 
-theorem Lam_C (ψ : Ψ (2 * m + 1)) (c : ℝ) : Lam ψ (C c) = c * A ψ 0 := by
+theorem Lam_C (ψ : Ψ (2 * m + 1)) (c : ℝ) : Lam ψ (C c) = c * weightEnum ψ 0 := by
   rw [Lam_apply, sum_range_succ']
   simp [coeff_C]
 
@@ -212,13 +214,13 @@ theorem Lam_POp (ψ : Ψ (2 * m + 1)) : Lam ψ (POp m) = Omean ψ := by
     simp only [hj2, ite_true, Nat.add_sub_cancel]
     field_simp
     have hp : (1 / 2 : ℝ) ^ (2 * m) * 2 ^ (2 * m) = 1 := by rw [← mul_pow]; norm_num
-    linear_combination (2 * A ψ j * ((2 * m).choose j : ℝ) * ((2 * m + 1 : ℕ) : ℝ)) * hp
-      + 2 * A ψ j * key
+    linear_combination (2 * weightEnum ψ j * ((2 * m).choose j : ℝ) * ((2 * m + 1 : ℕ) : ℝ)) * hp
+      + 2 * weightEnum ψ j * key
   · have : (-1 : ℝ) ^ j = 1 := (Nat.not_odd_iff_even.mp hj2).neg_one_pow
     rw [this]; simp [hj2]
 
 theorem Lam_Wcl (ψ : Ψ (2 * m + 1)) :
-    Lam ψ (Wcl m) = ∑ j ∈ range (2 * m + 1 + 1), (if Odd j then oddW m j else 0) * A ψ j := by
+    Lam ψ (Wcl m) = ∑ j ∈ range (2 * m + 1 + 1), (if Odd j then oddW m j else 0) * weightEnum ψ j := by
   rw [Lam_apply]
   refine sum_congr rfl fun j hj => ?_
   have hjn : j ≤ 2 * m + 1 := Nat.lt_succ_iff.mp (mem_range.mp hj)
@@ -236,26 +238,26 @@ theorem Lam_Wcl (ψ : Ψ (2 * m + 1)) :
     rw [coeff_C_mul, coeff_sub, coeff_sgm, this]
     simp
 
-theorem purMean_compl (ψ : Ψ (2 * m + 1)) {s : ℕ} (hs : s ≤ 2 * m + 1) :
-    purMean ψ (2 * m + 1 - s) = purMean ψ s := by
-  unfold purMean
-  rw [← Pur_compl ψ s hs, Nat.choose_symm hs]
+theorem meanPurity_compl (ψ : Ψ (2 * m + 1)) {s : ℕ} (hs : s ≤ 2 * m + 1) :
+    meanPurity ψ (2 * m + 1 - s) = meanPurity ψ s := by
+  unfold meanPurity
+  rw [← cutPuritySum_compl ψ s hs, Nat.choose_symm hs]
 
 /-- **`thm:odd-spinflip-tradeoff`, the identity, for every odd `n = 2m+1`.**
 `π_m + (n-3)/2 · O = 1/2 + Σ_{j odd} w_j^{(n)} A_j` (the `j = n` term has `w_n = 0`). -/
 theorem odd_tradeoff_identity (ψ : Ψ (2 * m + 1)) (hψ : nsq ψ = 1) :
-    purMean ψ m + ((((2 * m + 1 : ℕ) : ℝ) - 3) / 2) * Omean ψ
-      = 1 / 2 + ∑ j ∈ range (2 * m + 1 + 1), (if Odd j then oddW m j else 0) * A ψ j := by
+    meanPurity ψ m + ((((2 * m + 1 : ℕ) : ℝ) - 3) / 2) * Omean ψ
+      = 1 / 2 + ∑ j ∈ range (2 * m + 1 + 1), (if Odd j then oddW m j else 0) * weightEnum ψ j := by
   have h := congrArg (Lam ψ) (LHSp_eq_Wcl m)
   rw [Lam_Wcl] at h
-  have hA0 := A_zero ψ
+  have hA0 := weightEnum_zero ψ
   rw [hψ] at hA0
   have hs : ∀ s ∈ range (m + 1),
       Lam ψ (C (qc ℝ m s / 2) * (xp ^ s - xp ^ (2 * m + 1 - s))) = 0 := by
     intro s hs
     have hsm : s ≤ m := Nat.lt_succ_iff.mp (mem_range.mp hs)
     rw [← smul_eq_C_mul, map_smul, map_sub, Lam_xp_pow ψ (by omega), Lam_xp_pow ψ (by omega),
-      purMean_compl ψ (by omega)]
+      meanPurity_compl ψ (by omega)]
     simp
   unfold LHSp at h
   rw [map_sub, map_sub, map_add, ← smul_eq_C_mul (a := (2 * (m : ℝ) - 2) / 2), map_smul,

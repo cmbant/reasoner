@@ -28,6 +28,7 @@ set_option Elab.async false
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
 /-- Neighbourhood bitmasks of `C_17(1,3,4,5)` on 17 vertices (hexadecimal / list form). -/
 def adj17L : List ℕ := [94266, 57461, 114922, 98773, 66475, 1879, 3758, 7516, 15032, 30064, 60128, 120256, 109441, 87811, 44551, 89102, 47133]
 
@@ -104,7 +105,7 @@ theorem rankSum17 : ∑ S ∈ ((Finset.univ : Finset (Fin 17)).powersetCard 8), 
   decide +kernel
 
 /-- The graph state of `C_17(1,3,4,5)` has `π_8 = 1/208`. -/
-theorem piMean_graph17 : piMean (gsn (adjGraph adj17)) 8 = 1 / 208 := by
+theorem piMean_graph17 : meanRdmPurity (gsn (adjGraph adj17)) 8 = 1 / 208 := by
   rw [piMean_gsn adj17 adj17_symm 8 29920 (by norm_num) rankSum17]
   norm_num [Nat.choose]
 

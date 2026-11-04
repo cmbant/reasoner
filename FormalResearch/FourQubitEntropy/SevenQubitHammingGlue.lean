@@ -3,7 +3,7 @@ module
 public import Mathlib
 public import FormalResearch.FourQubitEntropy.SevenQubitIcoXHamming
 public import FormalResearch.FourQubitEntropy.SevenQubitHammingBlockPurityC
-public import FormalResearch.FourQubitEntropy.SpinFlipReduced
+public import FormalResearch.NQubit.Reduced.PartialTrace
 
 /-!
 # Hamming-ball block purity: state-level glue (`thm:hamming-ball-schmidt`, `thm:low-excitation-exclusion`)
@@ -295,24 +295,24 @@ end MatrixLevel
 section StateLevel
 
 open FormalResearch.NQubit (Ψ nsq)
-open FormalResearch.FourQubitEntropy.SpinFlip (CfgOn CfgOff)
+open FormalResearch.NQubit.Reduced (CfgOn CfgOff)
 
 variable {n : ℕ}
 
 theorem wf_glue (S : Finset (Fin n)) (x : CfgOn S) (t : CfgOff S) :
-    wf (SpinFlip.glue S x t) = wf x + wf t := by
+    wf (FormalResearch.NQubit.Reduced.glue S x t) = wf x + wf t := by
   unfold wf
   simp only [Finset.card_filter]
   rw [← Fintype.sum_subtype_add_sum_subtype (fun i : Fin n => i ∈ S)]
   congr 1
   · refine Finset.sum_congr (by ext; simp) fun i _ => ?_
-    simp [SpinFlip.glue, i.2]
+    simp [FormalResearch.NQubit.Reduced.glue, i.2]
   · refine Finset.sum_congr (by ext; simp) fun i _ => ?_
-    simp [SpinFlip.glue, i.2]
+    simp [FormalResearch.NQubit.Reduced.glue, i.2]
 
 theorem sum_glue_real (S : Finset (Fin n)) (F : (Fin n → Fin 2) → ℝ) :
-    ∑ X, F X = ∑ x : CfgOn S, ∑ t : CfgOff S, F (SpinFlip.glue S x t) := by
-  rw [← (SpinFlip.glueEquiv S).sum_comp, Fintype.sum_prod_type]; rfl
+    ∑ X, F X = ∑ x : CfgOn S, ∑ t : CfgOff S, F (FormalResearch.NQubit.Reduced.glue S x t) := by
+  rw [← (FormalResearch.NQubit.Reduced.glueEquiv S).sum_comp, Fintype.sum_prod_type]; rfl
 
 theorem card_cfgOn (S : Finset (Fin n)) : Fintype.card (CfgOn S) = 2 ^ S.card := by
   simp [CfgOn]
@@ -324,13 +324,13 @@ theorem card_site_off (S : Finset (Fin n)) : Fintype.card {i // i ∉ S} = n - S
 /-- The `2^{|S|} × 2^{n-|S|}` coefficient matrix of `ψ` across the cut `S | Sᶜ`
 (`ψ` on the configuration obtained by gluing a row configuration on `S` to a column configuration off `S`). -/
 def cutM (ψ : Ψ n) (S : Finset (Fin n)) :
-    Matrix (SpinFlip.CfgOn S) (SpinFlip.CfgOff S) ℂ := fun x t => ψ (SpinFlip.glue S x t)
+    Matrix (FormalResearch.NQubit.Reduced.CfgOn S) (FormalResearch.NQubit.Reduced.CfgOff S) ℂ := fun x t => ψ (FormalResearch.NQubit.Reduced.glue S x t)
 
-/-- The reduced density matrix `ρ_S` of `SpinFlip.rdm` is `M Mᴴ` for the cut matrix `M`. -/
+/-- The reduced density matrix `ρ_S` of `FormalResearch.NQubit.Reduced.rdm` is `M Mᴴ` for the cut matrix `M`. -/
 theorem rdm_eq_cutM (ψ : Ψ n) (S : Finset (Fin n)) :
-    SpinFlip.rdm ψ S = cutM ψ S * (cutM ψ S)ᴴ := by
+    FormalResearch.NQubit.Reduced.rdm ψ S = cutM ψ S * (cutM ψ S)ᴴ := by
   ext x y
-  simp [SpinFlip.rdm, cutM, Matrix.mul_apply, Matrix.conjTranspose_apply]
+  simp [FormalResearch.NQubit.Reduced.rdm, cutM, Matrix.mul_apply, Matrix.conjTranspose_apply]
 
 /-- `η_B`: the squared weight of `ψ` on computational-basis strings of Hamming weight `> r`, i.e.
 `‖(I - P_{≤ r}) ψ‖²`. -/
@@ -346,7 +346,7 @@ squared weight on strings of excitation weight `> r` (computational basis). With
 `R = hammingRank k (n-k) r` (the rank bound `R_{n,k,r}` of `eq:hamming-ball-rank`),
 `1 ≤ R < 2^k` and `η ≤ 1 - R/2^k`,
 `tr ρ_S(ψ)² ≥ (1-η)²/R + η²/(2^k - R)`.
-Proved for complex `ψ` and the honest reduced density matrix `SpinFlip.rdm`; the ingredients are the
+Proved for complex `ψ` and the honest reduced density matrix `FormalResearch.NQubit.Reduced.rdm`; the ingredients are the
 cover rank bound `hamming_rank_le_C`, the projector `exists_projector` onto the column space of the ball
 component, and the block bound `robust_purity_bound_herm`.
 Not included: the equality statement `R_{n,k,r}` = maximal rank for general `(n,k,r)` (lower bound),
@@ -357,23 +357,23 @@ theorem hamming_ball_cut_purity (ψ : Ψ n) (hψ : nsq ψ = 1) (S : Finset (Fin 
     (hR1 : 1 ≤ hammingRank k m r) (hRd : hammingRank k m r < 2 ^ k)
     (hle : leak ψ r ≤ 1 - (hammingRank k m r : ℝ) / 2 ^ k) :
     (1 - leak ψ r) ^ 2 / (hammingRank k m r : ℝ) +
-        leak ψ r ^ 2 / ((2 : ℝ) ^ k - hammingRank k m r) ≤ SpinFlip.purity ψ S := by
+        leak ψ r ^ 2 / ((2 : ℝ) ^ k - hammingRank k m r) ≤ FormalResearch.NQubit.Reduced.cutPurity ψ S := by
   have hα : Fintype.card {i // i ∈ S} = k := by simp [hk]
   have hβ : Fintype.card {i // i ∉ S} = m := by rw [card_site_off, hk, hm]
-  have hnorm : ∑ x : SpinFlip.CfgOn S, ∑ t : SpinFlip.CfgOff S,
+  have hnorm : ∑ x : FormalResearch.NQubit.Reduced.CfgOn S, ∑ t : FormalResearch.NQubit.Reduced.CfgOff S,
       Complex.normSq (cutM ψ S x t) = 1 := by
     rw [← hψ, nsq, sum_glue_real S (fun X => Complex.normSq (ψ X))]
     rfl
-  have hη : leak ψ r = ∑ x : SpinFlip.CfgOn S, ∑ t : SpinFlip.CfgOff S,
+  have hη : leak ψ r = ∑ x : FormalResearch.NQubit.Reduced.CfgOn S, ∑ t : FormalResearch.NQubit.Reduced.CfgOff S,
       if r < wf x + wf t then Complex.normSq (cutM ψ S x t) else 0 := by
     rw [leak, sum_glue_real S]
     refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun t _ => ?_
     rw [wf_glue]; rfl
   have h := purity_bound_matrix (α := {i // i ∈ S}) (β := {i // i ∉ S}) r k m hα hβ (cutM ψ S)
     hnorm (leak ψ r) hη hR1 hRd hle
-  have e : SpinFlip.purity ψ S = ((cutM ψ S * (cutM ψ S)ᴴ) * (cutM ψ S * (cutM ψ S)ᴴ)).trace.re := by
+  have e : FormalResearch.NQubit.Reduced.cutPurity ψ S = ((cutM ψ S * (cutM ψ S)ᴴ) * (cutM ψ S * (cutM ψ S)ᴴ)).trace.re := by
     rw [← rdm_eq_cutM]
-    have := congrArg Complex.re (SpinFlip.purity_eq_trace ψ S)
+    have := congrArg Complex.re (FormalResearch.NQubit.Reduced.cutPurity_eq_trace ψ S)
     simpa using this
   rw [e]
   exact h
@@ -386,7 +386,7 @@ whenever `1 ≤ R < 2^k`. -/
 theorem hamming_ball_support_purity (ψ : Ψ n) (hψ : nsq ψ = 1) (S : Finset (Fin n)) (r k m : ℕ)
     (hk : S.card = k) (hm : n - k = m) (hsupp : ∀ X : Fin n → Fin 2, r < wf X → ψ X = 0)
     (hR1 : 1 ≤ hammingRank k m r) (hRd : hammingRank k m r < 2 ^ k) :
-    1 / (hammingRank k m r : ℝ) ≤ SpinFlip.purity ψ S := by
+    1 / (hammingRank k m r : ℝ) ≤ FormalResearch.NQubit.Reduced.cutPurity ψ S := by
   have h0 : leak ψ r = 0 := by
     refine Finset.sum_eq_zero fun X _ => ?_
     by_cases h : r < wf X
@@ -409,14 +409,14 @@ theorem hamming_ball_mean_purity (ψ : Ψ n) (hψ : nsq ψ = 1) (r k : ℕ) (hkn
     (hle : leak ψ r ≤ 1 - (hammingRank k (n - k) r : ℝ) / 2 ^ k) :
     (1 - leak ψ r) ^ 2 / (hammingRank k (n - k) r : ℝ) +
         leak ψ r ^ 2 / ((2 : ℝ) ^ k - hammingRank k (n - k) r) ≤
-      SpinFlip.Pur ψ k / (n.choose k : ℝ) := by
+      FormalResearch.NQubit.Reduced.cutPuritySum ψ k / (n.choose k : ℝ) := by
   have hc : 0 < (n.choose k : ℝ) := by exact_mod_cast Nat.choose_pos hkn
   rw [le_div_iff₀ hc]
-  unfold SpinFlip.Pur SpinFlip.PurU
+  unfold FormalResearch.NQubit.Reduced.cutPuritySum FormalResearch.NQubit.Reduced.cutPuritySumOn
   have hcard : (Finset.univ.powersetCard k : Finset (Finset (Fin n))).card = n.choose k := by
     rw [Finset.card_powersetCard, Finset.card_univ, Fintype.card_fin]
   have := Finset.card_nsmul_le_sum (Finset.univ.powersetCard k : Finset (Finset (Fin n)))
-    (fun S => SpinFlip.purity ψ S)
+    (fun S => FormalResearch.NQubit.Reduced.cutPurity ψ S)
     ((1 - leak ψ r) ^ 2 / (hammingRank k (n - k) r : ℝ) +
         leak ψ r ^ 2 / ((2 : ℝ) ^ k - hammingRank k (n - k) r)) (by
       intro S hS
@@ -438,7 +438,7 @@ vector `ψ` with squared weight `η = leak ψ 2 ≤ 3/8` on strings of excitatio
 `3 | 4` cut has `tr ρ_S² ≥ (1-η)²/5 + η²/3`. (`R_{7,3,2} = 5` is `hammingRank_732`.) -/
 theorem low_excitation_cut (ψ : Ψ 7) (hψ : nsq ψ = 1) (S : Finset (Fin 7)) (hS : S.card = 3)
     (hη : leak ψ 2 ≤ 3 / 8) :
-    (1 - leak ψ 2) ^ 2 / 5 + leak ψ 2 ^ 2 / 3 ≤ SpinFlip.purity ψ S := by
+    (1 - leak ψ 2) ^ 2 / 5 + leak ψ 2 ^ 2 / 3 ≤ FormalResearch.NQubit.Reduced.cutPurity ψ S := by
   have h := hamming_ball_cut_purity ψ hψ S 2 3 4 hS rfl (by rw [hammingRank_732]; norm_num)
     (by rw [hammingRank_732]; norm_num) (by rw [hammingRank_732]; norm_num; linarith)
   rw [hammingRank_732] at h
@@ -452,7 +452,7 @@ This is the statement in the fixed computational basis; the paper's "every local
 statement applied to the locally rotated vector (invariance of the cut purities under local unitaries
 is not proved here). -/
 theorem low_excitation_exclusion (ψ : Ψ 7) (hψ : nsq ψ = 1) (hη : leak ψ 2 ≤ 3 / 8) :
-    (1 - leak ψ 2) ^ 2 / 5 + leak ψ 2 ^ 2 / 3 ≤ SpinFlip.Pur ψ 3 / 35 := by
+    (1 - leak ψ 2) ^ 2 / 5 + leak ψ 2 ^ 2 / 3 ≤ FormalResearch.NQubit.Reduced.cutPuritySum ψ 3 / 35 := by
   have hrk : hammingRank 3 (7 - 3) 2 = 5 := hammingRank_732
   have h := hamming_ball_mean_purity ψ hψ 2 3 (by norm_num) (by rw [hrk]; norm_num)
     (by rw [hrk]; norm_num) (by rw [hrk]; norm_num; linarith)
@@ -462,13 +462,13 @@ theorem low_excitation_exclusion (ψ : Ψ 7) (hψ : nsq ψ = 1) (hη : leak ψ 2
 
 /-- The closed form of the lower bound: `(1-η)²/5 + η²/3 = 1/8 + (8/15)(η - 3/8)²`. -/
 theorem low_excitation_exclusion_form (ψ : Ψ 7) (hψ : nsq ψ = 1) (hη : leak ψ 2 ≤ 3 / 8) :
-    1 / 8 + 8 / 15 * (leak ψ 2 - 3 / 8) ^ 2 ≤ SpinFlip.Pur ψ 3 / 35 := by
+    1 / 8 + 8 / 15 * (leak ψ 2 - 3 / 8) ^ 2 ≤ FormalResearch.NQubit.Reduced.cutPuritySum ψ 3 / 35 := by
   have := low_excitation_exclusion ψ hψ hη
   rwa [robust_quadratic] at this
 
 /-- `η_B ≤ 1/4` forces `π₃ ≥ 2/15` (`thm:low-excitation-exclusion`). -/
 theorem low_excitation_two_fifteenths (ψ : Ψ 7) (hψ : nsq ψ = 1) (hη : leak ψ 2 ≤ 1 / 4) :
-    2 / 15 ≤ SpinFlip.Pur ψ 3 / 35 :=
+    2 / 15 ≤ FormalResearch.NQubit.Reduced.cutPuritySum ψ 3 / 35 :=
   (robust_quadratic_ge_two_fifteenths _ hη).trans (low_excitation_exclusion ψ hψ (by linarith))
 
 end SevenQubit

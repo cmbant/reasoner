@@ -1,32 +1,30 @@
 module
 
-public import FormalResearch.FourQubitEntropy.SpinFlipReduced
-public import FormalResearch.FourQubitEntropy.SpinFlipOddSector
+public import FormalResearch.NQubit.Reduced.PartialTrace
+public import FormalResearch.NQubit.TimeReversal.OddSector
 
 /-!
 # The spin-flip overlap `R_ρ` of a reduced state in Pauli coordinates
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIprojects PR #200),
-`lem:odd-sector`, first part: for a `k`-qubit state `ρ_S`, `R_{ρ_S} = tr(ρ_S ρ̃_S)`,
-`ρ̃_S = σ_y^{⊗k} ρ̄_S σ_y^{⊗k}`, satisfies `R_{ρ_S} = 2^{-k} Σ_{supp P ⊆ S} (-1)^{wt P} ⟨P⟩²`.
+For a `k`-qubit state `ρ_S`, `R_{ρ_S} = tr(ρ_S ρ̃_S)`, `ρ̃_S = σ_y^{⊗k} ρ̄_S σ_y^{⊗k}`, satisfies
+`R_{ρ_S} = 2^{-k} Σ_{supp P ⊆ S} (-1)^{wt P} ⟨P⟩²`.
 
-Here `ρ_S = rdm ψ S` is the explicit partial trace of `SpinFlipReduced.lean`, `sigY` the Pauli matrix `σ_y`,
+Here `ρ_S = rdm ψ S` is the explicit partial trace of `Reduced/PartialTrace.lean`, `sigY` the Pauli matrix `σ_y`,
 `rdmTilde ψ S = σ_y^{⊗k} ρ̄_S σ_y^{⊗k}` and `Rspin ψ S = tr(ρ_S ρ̃_S)`.
 
 * `kernel_signed_supp`: the signed completeness kernel on words supported in `S`;
-* `two_pow_mul_Rspin`: `2^{|S|} R_{ρ_S} = Σ_{a ∈ wsupp S} (-1)^{wt a} ⟨P_a⟩²`  (proved for every `S`);
-* `oddPur_eq`: `oddPur ψ S = ½(tr ρ_S² - Re R_{ρ_S})`, i.e. the Pauli-sector definition of
-  `SpinFlipOddSector.lean` is `½(tr ρ_S² - R_{ρ_S})` (`lem:odd-sector`, second formula).
-Claim class: **proved**.
+* `two_pow_mul_Rspin`: `2^{|S|} R_{ρ_S} = Σ_{a ∈ wsupp S} (-1)^{wt a} ⟨P_a⟩²`  (for every `S`);
+* `oddPur_eq_half_sub_Rspin`: `oddPur ψ S = ½(tr ρ_S² - Re R_{ρ_S})`.
 -/
 
 @[expose] public section
 
 
 open scoped ComplexConjugate BigOperators
-open FormalResearch.NQubit
+open FormalResearch.NQubit.Pauli
+open FormalResearch.NQubit.Reduced
 
-namespace FormalResearch.FourQubitEntropy.SpinFlip
+namespace FormalResearch.NQubit.TimeReversal
 
 variable {n : ℕ}
 
@@ -149,10 +147,10 @@ theorem sum_move4 {α β γ δ : Type*} [Fintype α] [Fintype β] [Fintype γ] [
     _ = ∑ b, ∑ c, ∑ d, ∑ a, f a b c d :=
         Finset.sum_congr rfl fun _ _ => Finset.sum_congr rfl fun _ _ => Finset.sum_comm
 
-/-- **`lem:odd-sector`, first part (signed form).**
-`2^{|S|} R_{ρ_S} = Σ_{a ∈ wsupp S} (-1)^{wt a} ⟨P_a⟩²`. -/
+/-- **Signed form of the spin-flip overlap.**
+`2^{|S|} R_{ρ_S} = Σ_{a ∈ wsupp S} (-1)^{pauliWeight a} ⟨P_a⟩²`. -/
 theorem two_pow_mul_Rspin (ψ : Ψ n) (S : Finset (Fin n)) :
-    (2 : ℂ) ^ S.card * Rspin ψ S = ∑ a ∈ wsupp S, (((-1 : ℝ) ^ wt a * pw ψ a : ℝ) : ℂ) := by
+    (2 : ℂ) ^ S.card * Rspin ψ S = ∑ a ∈ wsupp S, (((-1 : ℝ) ^ pauliWeight a * pauliSq ψ a : ℝ) : ℂ) := by
   have h := wavg_aux (wsupp S)
     (fun (a : Fin n → Fin 4) (x y : Cfg n) => ∏ i, pauliSU (a i) (x i) (y i))
     (fun a => ∏ i, (if a i = 0 then (1 : ℂ) else -1))
@@ -161,7 +159,7 @@ theorem two_pow_mul_Rspin (ψ : Ψ n) (S : Finset (Fin n)) :
     (fun x y x' y' => by rw [kernel_signed_supp, kernel_factor]) ψ ψ
   have hL : ∑ a ∈ wsupp S, (∏ i, (if a i = 0 then (1 : ℂ) else -1)) *
       ((Complex.normSq (∑ x, conj (ψ x) * ∑ y, (∏ i, pauliSU (a i) (x i) (y i)) * ψ y) : ℝ) : ℂ)
-      = ∑ a ∈ wsupp S, (((-1 : ℝ) ^ wt a * pw ψ a : ℝ) : ℂ) := by
+      = ∑ a ∈ wsupp S, (((-1 : ℝ) ^ pauliWeight a * pauliSq ψ a : ℝ) : ℂ) := by
     refine Finset.sum_congr rfl fun a _ => ?_
     rw [signprod_eq]
     push_cast
@@ -227,27 +225,27 @@ theorem two_pow_mul_Rspin (ψ : Ψ n) (S : Finset (Fin n)) :
       (ψ (glue S q t') * conj (ψ (glue S p t'))) * (spinFlipMat S v p * spinFlipMat S q i)) := by ring
     _ = _ := by rw [this]
 
-/-- **`lem:odd-sector`, second part.**  The Pauli-sector quantity `oddPur ψ S` equals
+/-- **The Pauli-sector form of the T-odd purity.**  The Pauli-sector quantity `oddPur ψ S` equals
 `½ (tr ρ_S² - R_{ρ_S})` with `R_{ρ_S} = tr(ρ_S ρ̃_S)` for the explicit spin-flip `ρ̃_S = σ_y^{⊗|S|} ρ̄_S σ_y^{⊗|S|}`. -/
 theorem oddPur_eq_half_sub_Rspin (ψ : Ψ n) (S : Finset (Fin n)) :
     ((oddPur ψ S : ℝ) : ℂ) = (((rdm ψ S) * (rdm ψ S)).trace - Rspin ψ S) / 2 := by
   have h2 : (2 : ℂ) ^ S.card ≠ 0 := pow_ne_zero _ two_ne_zero
   rw [trace_rdm_sq]
-  have hR : Rspin ψ S = (2 : ℂ)⁻¹ ^ S.card * ∑ a ∈ wsupp S, (((-1 : ℝ) ^ wt a * pw ψ a : ℝ) : ℂ) := by
+  have hR : Rspin ψ S = (2 : ℂ)⁻¹ ^ S.card * ∑ a ∈ wsupp S, (((-1 : ℝ) ^ pauliWeight a * pauliSq ψ a : ℝ) : ℂ) := by
     rw [← two_pow_mul_Rspin, ← mul_assoc, inv_pow, inv_mul_cancel₀ h2, one_mul]
   rw [hR]
   unfold oddPur
-  have hsplit : ∑ a ∈ wsupp S, pw ψ a - ∑ a ∈ wsupp S, (-1 : ℝ) ^ wt a * pw ψ a
-      = 2 * ∑ a ∈ (wsupp S).filter (fun a => Odd (wt a)), pw ψ a := by
+  have hsplit : ∑ a ∈ wsupp S, pauliSq ψ a - ∑ a ∈ wsupp S, (-1 : ℝ) ^ pauliWeight a * pauliSq ψ a
+      = 2 * ∑ a ∈ (wsupp S).filter (fun a => Odd (pauliWeight a)), pauliSq ψ a := by
     rw [← Finset.sum_sub_distrib, Finset.mul_sum, Finset.sum_filter]
     refine Finset.sum_congr rfl fun a _ => ?_
-    by_cases ho : Odd (wt a)
+    by_cases ho : Odd (pauliWeight a)
     · rw [ite_t_of ho, ho.neg_one_pow]; ring
-    · have he : Even (wt a) := Nat.not_odd_iff_even.mp ho
+    · have he : Even (pauliWeight a) := Nat.not_odd_iff_even.mp ho
       rw [ite_f_of ho, he.neg_one_pow]; ring
-  have hc : (((∑ a ∈ wsupp S, pw ψ a) / 2 ^ S.card : ℝ) : ℂ) - (2 : ℂ)⁻¹ ^ S.card *
-      ∑ a ∈ wsupp S, (((-1 : ℝ) ^ wt a * pw ψ a : ℝ) : ℂ)
-      = (((∑ a ∈ wsupp S, pw ψ a - ∑ a ∈ wsupp S, (-1 : ℝ) ^ wt a * pw ψ a) / 2 ^ S.card : ℝ) : ℂ) := by
+  have hc : (((∑ a ∈ wsupp S, pauliSq ψ a) / 2 ^ S.card : ℝ) : ℂ) - (2 : ℂ)⁻¹ ^ S.card *
+      ∑ a ∈ wsupp S, (((-1 : ℝ) ^ pauliWeight a * pauliSq ψ a : ℝ) : ℂ)
+      = (((∑ a ∈ wsupp S, pauliSq ψ a - ∑ a ∈ wsupp S, (-1 : ℝ) ^ pauliWeight a * pauliSq ψ a) / 2 ^ S.card : ℝ) : ℂ) := by
     push_cast
     rw [inv_pow]
     field_simp
@@ -255,4 +253,4 @@ theorem oddPur_eq_half_sub_Rspin (ψ : Ψ n) (S : Finset (Fin n)) :
   push_cast
   ring
 
-end FormalResearch.FourQubitEntropy.SpinFlip
+end FormalResearch.NQubit.TimeReversal

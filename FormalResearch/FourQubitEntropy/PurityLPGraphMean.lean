@@ -21,6 +21,7 @@ open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
 open FormalResearch.FourQubitEntropy.SpinFlip
 
 variable {n : ℕ}
@@ -34,13 +35,13 @@ theorem cutRankN_le (adj : Fin n → ℕ) (S : Finset (Fin n)) : cutRankN adj S 
 theorem piMean_gsn (adj : Fin n → ℕ) (hsym : ∀ i j : Fin n, (adj i).testBit j = (adj j).testBit i)
     (k N : ℕ) (hk : k ≤ n)
     (h : ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, 2 ^ (k - cutRankN adj S) = N) :
-    piMean (gsn (adjGraph adj)) k = (N : ℝ) / (2 ^ k * (Nat.choose n k : ℝ)) := by
-  rw [piMean_eq_purMean]
-  unfold purMean Pur PurU
+    meanRdmPurity (gsn (adjGraph adj)) k = (N : ℝ) / (2 ^ k * (Nat.choose n k : ℝ)) := by
+  rw [meanRdmPurity_eq_meanPurity]
+  unfold meanPurity cutPuritySum cutPuritySumOn
   have hC : (Nat.choose n k : ℝ) ≠ 0 := by exact_mod_cast (Nat.choose_pos hk).ne'
   have h2 : (2 : ℝ) ^ k ≠ 0 := by positivity
   have hterm : ∀ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k,
-      purity (gsn (adjGraph adj)) S = ((2 : ℝ) ^ (k - cutRankN adj S)) / 2 ^ k := by
+      cutPurity (gsn (adjGraph adj)) S = ((2 : ℝ) ^ (k - cutRankN adj S)) / 2 ^ k := by
     intro S hS
     have hcard : S.card = k := (Finset.mem_powersetCard.mp hS).2
     have hle : cutRankN adj S ≤ k := hcard ▸ cutRankN_le adj S

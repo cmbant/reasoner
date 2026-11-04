@@ -1,7 +1,7 @@
 module
 
 public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffOddGeneral
-public import FormalResearch.FourQubitEntropy.SpinFlipOddGHZ
+public import FormalResearch.NQubit.Pauli.GHZ
 
 /-!
 # `O(GHZ_n) = 0` for odd `n`
@@ -21,6 +21,7 @@ open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
 variable {m : ℕ}
 
 theorem Omean_ghz (hm : 1 ≤ m) : Omean (ghz (2 * m + 1)) = 0 := by
@@ -29,7 +30,7 @@ theorem Omean_ghz (hm : 1 ≤ m) : Omean (ghz (2 * m + 1)) = 0 := by
   have hjn : j ≤ 2 * m + 1 := Nat.lt_succ_iff.mp (mem_range.mp hj)
   by_cases ho : Odd j
   · rcases hjn.lt_or_eq with h | h
-    · rw [A_ghz_odd (by omega) ho h, mul_zero]
+    · rw [weightEnum_ghz_odd (by omega) ho h, mul_zero]
     · subst h
       simp
   · simp [ho]

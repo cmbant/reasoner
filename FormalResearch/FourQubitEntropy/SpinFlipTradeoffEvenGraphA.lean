@@ -26,6 +26,7 @@ set_option Elab.async false
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
 open FormalResearch.FourQubitEntropy.SpinFlip
 
 /-- Neighbourhood bitmasks of the spin-flip extension of the cycle `C_7` (the wheel `W_7`) on 8 vertices (all degrees odd). -/
@@ -49,7 +50,7 @@ theorem rankSumT8 : ∑ S ∈ ((Finset.univ : Finset (Fin 8)).powersetCard 4), g
   decide +kernel
 
 /-- The graph state of the spin-flip extension of the cycle `C_7` (the wheel `W_7`) has `π_4 = L_8 + c_8 = 1/10` (rank histogram of the cuts, checked by the generator: rank 3 on 42 cuts, rank 4 on 28 cuts). -/
-theorem piMean_graphT8 : piMean (gsn (adjGraph adjT8)) 4 = 1 / 10 := by
+theorem piMean_graphT8 : meanRdmPurity (gsn (adjGraph adjT8)) 4 = 1 / 10 := by
   rw [piMean_gsn adjT8 adjT8_symm 4 112 (by norm_num) rankSumT8]
   norm_num [Nat.choose]
 
@@ -74,7 +75,7 @@ theorem rankSumT10 : ∑ S ∈ ((Finset.univ : Finset (Fin 10)).powersetCard 5),
   decide +kernel
 
 /-- The graph state of the spin-flip extension of the cycle `C_9` (the wheel `W_9`) has `π_5 = L_10 + c_10 = 3/56` (rank histogram of the cuts, checked by the generator: rank 3 on 18 cuts, rank 4 on 126 cuts, rank 5 on 108 cuts). -/
-theorem piMean_graphT10 : piMean (gsn (adjGraph adjT10)) 5 = 3 / 56 := by
+theorem piMean_graphT10 : meanRdmPurity (gsn (adjGraph adjT10)) 5 = 3 / 56 := by
   rw [piMean_gsn adjT10 adjT10_symm 5 432 (by norm_num) rankSumT10]
   norm_num [Nat.choose]
 
@@ -102,7 +103,7 @@ theorem rankSumT14 : ∑ S ∈ ((Finset.univ : Finset (Fin 14)).powersetCard 7),
   rw [leafT14_0]
 
 /-- The graph state of the spin-flip extension of the 13-vertex graph of `verify_spinflip_tradeoff.py` (hexadecimal rows) has `π_7 = L_14 + c_14 = 9/704` (rank histogram of the cuts, checked by the generator: rank 5 on 144 cuts, rank 6 on 1752 cuts, rank 7 on 1536 cuts). -/
-theorem piMean_graphT14 : piMean (gsn (adjGraph adjT14)) 7 = 9 / 704 := by
+theorem piMean_graphT14 : meanRdmPurity (gsn (adjGraph adjT14)) 7 = 9 / 704 := by
   rw [piMean_gsn adjT14 adjT14_symm 7 5616 (by norm_num) rankSumT14]
   norm_num [Nat.choose]
 

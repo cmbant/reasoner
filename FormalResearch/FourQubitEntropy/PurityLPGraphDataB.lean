@@ -28,6 +28,7 @@ set_option Elab.async false
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
 /-- Neighbourhood bitmasks of the 47-edge graph of `thm:fourteenfifteen` (hexadecimal rows) on 14 vertices (hexadecimal / list form). -/
 def adj14L : List ℕ := [14568, 7152, 3432, 14421, 14858, 1159, 12687, 9571, 10950, 5394, 12964, 287, 9819, 5593]
 
@@ -57,7 +58,7 @@ theorem rankSum14 : ∑ S ∈ ((Finset.univ : Finset (Fin 14)).powersetCard 7), 
   decide +kernel
 
 /-- The graph state of the 47-edge graph of `thm:fourteenfifteen` (hexadecimal rows) has `π_7 = 331/27456`. -/
-theorem piMean_graph14 : piMean (gsn (adjGraph adj14)) 7 = 331 / 27456 := by
+theorem piMean_graph14 : meanRdmPurity (gsn (adjGraph adj14)) 7 = 331 / 27456 := by
   rw [piMean_gsn adj14 adj14_symm 7 5296 (by norm_num) rankSum14]
   norm_num [Nat.choose]
 
@@ -98,7 +99,7 @@ theorem rankSum15 : ∑ S ∈ ((Finset.univ : Finset (Fin 15)).powersetCard 7), 
   decide +kernel
 
 /-- The graph state of the 56-edge graph of `thm:fourteenfifteen` (hexadecimal rows) has `π_7 = 1/104`. -/
-theorem piMean_graph15 : piMean (gsn (adjGraph adj15)) 7 = 1 / 104 := by
+theorem piMean_graph15 : meanRdmPurity (gsn (adjGraph adj15)) 7 = 1 / 104 := by
   rw [piMean_gsn adj15 adj15_symm 7 7920 (by norm_num) rankSum15]
   norm_num [Nat.choose]
 

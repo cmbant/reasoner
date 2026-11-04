@@ -35,6 +35,7 @@ open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
 variable {n : ℕ}
 
 /-- The sign character `ZMod 2 → ±1`. -/
@@ -297,14 +298,14 @@ theorem qf_extG {m : ℕ} (Γ : Fin m → Fin m → Bool) (x0 : Fin 2) (x' : Cfg
 `Ω_G(x₀,x') = 2^{-1/2} (-1)^{|E| x₀} H(x₀,x')`, where `H = gs (extG Γ)`. -/
 theorem omega_gs {m : ℕ} (Γ : Fin m → Fin m → Bool) (hsym : ∀ i j, Γ i j = Γ j i)
     (hirr : ∀ i, Γ i i = false) (x0 : Fin 2) (x' : Cfg m) :
-    omega (gs Γ) (Fin.cons x0 x' : Cfg (m + 1)) =
+    omegaState (gs Γ) (Fin.cons x0 x' : Cfg (m + 1)) =
       (((Real.sqrt 2)⁻¹ : ℝ) : ℂ) * chi (nedge Γ * zx x0) * gs (extG Γ) (Fin.cons x0 x') := by
   have hext : gs (extG Γ) (Fin.cons x0 x' : Cfg (m + 1)) =
       chi (qf Γ x' + zx x0 * ∑ j, (1 + deg2 Γ j) * zx (x' j)) := by
     unfold gs; rw [qf_extG]
   rw [hext]
-  unfold omega
-  simp only [Pi.smul_apply, smul_eq_mul, branch_cons]
+  unfold omegaState
+  simp only [Pi.smul_apply, smul_eq_mul, branchState_cons]
   fin_cases x0
   · simp [zx, chi_zero, gs]
   · have h1 : zx ((1 : Fin 2)) = 1 := by decide

@@ -24,7 +24,7 @@ With `n = 2m + 1 ≥ 5`, `c_n = cn m` (`1` for `m = 2`, `(m+1)/2 = (n+1)/4` for 
 
 Claim class: **proved** (`nsq ψ = 1` is a hypothesis of the identity).  `O` is `Omean`, the Pauli-sector form of
 the mean T-odd purity; its identification with `½(tr ρ² - R_ρ)` is `oddPur_eq_half_sub_Rspin` in
-`SpinFlipOddOverlap.lean`.  That `c_n` is optimal over all pure states is open in the paper and not addressed.
+`NQubit/TimeReversal/OddOverlap.lean`.  That `c_n` is optimal over all pure states is open in the paper and not addressed.
 -/
 
 @[expose] public section
@@ -35,6 +35,7 @@ open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
 variable {m : ℕ}
 
 /-- `c_n` of `thm:odd-spinflip-tradeoff`, `n = 2m+1`: `c_5 = 1`, `c_n = (n+1)/4 = (m+1)/2` for `n ≥ 7`. -/
@@ -96,7 +97,7 @@ theorem Omean_nonneg (hm : 1 ≤ m) (ψ : Ψ (2 * m + 1)) : 0 ≤ Omean ψ := by
   have hjn : j ≤ 2 * m + 1 := Nat.lt_succ_iff.mp (mem_range.mp hj)
   by_cases ho : Odd j
   · simp only [ho, ↓reduceIte]
-    apply mul_nonneg _ (A_nonneg ψ j)
+    apply mul_nonneg _ (weightEnum_nonneg ψ j)
     have : (j : ℝ) ≤ ((2 * m + 1 : ℕ) : ℝ) := by exact_mod_cast hjn
     apply div_nonneg (by linarith) (by positivity)
   · simp [ho]
@@ -104,16 +105,16 @@ theorem Omean_nonneg (hm : 1 ≤ m) (ψ : Ψ (2 * m + 1)) : 0 ≤ Omean ψ := by
 section Identity
 
 theorem odd_tradeoff_sharp_identity (ψ : Ψ (2 * m + 1)) (hψ : nsq ψ = 1) :
-    purMean ψ m + cn m * Omean ψ
-      = 1 / 2 + ∑ j ∈ range (2 * m + 1 + 1), (if Odd j then sharpW m j else 0) * A ψ j := by
+    meanPurity ψ m + cn m * Omean ψ
+      = 1 / 2 + ∑ j ∈ range (2 * m + 1 + 1), (if Odd j then sharpW m j else 0) * weightEnum ψ j := by
   have h1 := odd_tradeoff_identity ψ hψ
   have hO := Omean_eq (n := 2 * m + 1) (by omega) ψ
   have hterm : ∀ j ∈ range (2 * m + 1 + 1),
-      (if Odd j then sharpW m j else 0) * A ψ j
-        = (if Odd j then oddW m j else 0) * A ψ j
+      (if Odd j then sharpW m j else 0) * weightEnum ψ j
+        = (if Odd j then oddW m j else 0) * weightEnum ψ j
           + (cn m - ((((2 * m + 1 : ℕ) : ℝ) - 3) / 2)) *
             ((if Odd j then ((((2 * m + 1 : ℕ) : ℝ)) - j) / ((((2 * m + 1 : ℕ) : ℝ)) * 2 ^ (2 * m + 1 - 1))
-              else 0) * A ψ j) := by
+              else 0) * weightEnum ψ j) := by
     intro j hj
     have hjn : j ≤ 2 * m + 1 := Nat.lt_succ_iff.mp (mem_range.mp hj)
     by_cases ho : Odd j
@@ -213,12 +214,12 @@ end Positivity
 section Main
 
 theorem sharp_sum_nonneg (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) :
-    0 ≤ ∑ j ∈ range (2 * m + 1), (if Odd j then sharpW m j else 0) * A ψ j := by
+    0 ≤ ∑ j ∈ range (2 * m + 1), (if Odd j then sharpW m j else 0) * weightEnum ψ j := by
   refine sum_nonneg fun j hj => ?_
   by_cases ho : Odd j
   · simp only [ho, ↓reduceIte]
     have hjn := mem_range.mp hj
-    apply mul_nonneg _ (A_nonneg ψ j)
+    apply mul_nonneg _ (weightEnum_nonneg ψ j)
     by_cases h4 : j + 4 ≤ 2 * m + 1
     · exact (sharpW_pos hm j ho h4).le
     · have : j + 2 = 2 * m + 1 := by
@@ -230,30 +231,30 @@ theorem sharp_sum_nonneg (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) :
 /-- **`thm:odd-spinflip-tradeoff`, identity.** For `n = 2m+1 ≥ 5` and a unit vector,
 `π_m + c_n O = 1/2 + Σ_{j odd < n} w_j^{(n)} A_j`. -/
 theorem odd_tradeoff_sharp (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) (hψ : nsq ψ = 1) :
-    purMean ψ m + cn m * Omean ψ
-      = 1 / 2 + ∑ j ∈ range (2 * m + 1), (if Odd j then sharpW m j else 0) * A ψ j := by
+    meanPurity ψ m + cn m * Omean ψ
+      = 1 / 2 + ∑ j ∈ range (2 * m + 1), (if Odd j then sharpW m j else 0) * weightEnum ψ j := by
   rw [odd_tradeoff_sharp_identity ψ hψ, sum_range_succ]
-  have : (if Odd (2 * m + 1) then sharpW m (2 * m + 1) else 0) * A ψ (2 * m + 1) = 0 := by
+  have : (if Odd (2 * m + 1) then sharpW m (2 * m + 1) else 0) * weightEnum ψ (2 * m + 1) = 0 := by
     rw [sharpW_top (by omega)]; simp
   rw [this, add_zero]
 
 /-- **`thm:odd-spinflip-tradeoff`, inequality.** `π_m + c_n O ≥ 1/2`. -/
 theorem odd_tradeoff_sharp_ge (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) (hψ : nsq ψ = 1) :
-    1 / 2 ≤ purMean ψ m + cn m * Omean ψ := by
+    1 / 2 ≤ meanPurity ψ m + cn m * Omean ψ := by
   rw [odd_tradeoff_sharp hm ψ hψ]
   linarith [sharp_sum_nonneg hm ψ]
 
 /-- **`thm:odd-spinflip-tradeoff`, equality.** `π_m + c_n O = 1/2` iff `A_j = 0` for every odd `j ≤ n - 4`. -/
 theorem odd_tradeoff_sharp_eq_iff (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) (hψ : nsq ψ = 1) :
-    purMean ψ m + cn m * Omean ψ = 1 / 2 ↔
-      ∀ j ∈ range (2 * m + 1), Odd j → j + 4 ≤ 2 * m + 1 → A ψ j = 0 := by
+    meanPurity ψ m + cn m * Omean ψ = 1 / 2 ↔
+      ∀ j ∈ range (2 * m + 1), Odd j → j + 4 ≤ 2 * m + 1 → weightEnum ψ j = 0 := by
   rw [odd_tradeoff_sharp hm ψ hψ]
-  have hnn : ∀ j ∈ range (2 * m + 1), 0 ≤ (if Odd j then sharpW m j else 0) * A ψ j := by
+  have hnn : ∀ j ∈ range (2 * m + 1), 0 ≤ (if Odd j then sharpW m j else 0) * weightEnum ψ j := by
     intro j hj
     by_cases ho : Odd j
     · simp only [ho, ↓reduceIte]
       have hjn := mem_range.mp hj
-      apply mul_nonneg _ (A_nonneg ψ j)
+      apply mul_nonneg _ (weightEnum_nonneg ψ j)
       by_cases h4 : j + 4 ≤ 2 * m + 1
       · exact (sharpW_pos hm j ho h4).le
       · have : j + 2 = 2 * m + 1 := by
@@ -261,8 +262,8 @@ theorem odd_tradeoff_sharp_eq_iff (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) (hψ : ns
         have hj' : j = 2 * m - 1 := by omega
         rw [hj', sharpW_pred hm]
     · simp [ho]
-  have h0 : 1 / 2 + ∑ j ∈ range (2 * m + 1), (if Odd j then sharpW m j else 0) * A ψ j = 1 / 2
-      ↔ ∑ j ∈ range (2 * m + 1), (if Odd j then sharpW m j else 0) * A ψ j = 0 := by
+  have h0 : 1 / 2 + ∑ j ∈ range (2 * m + 1), (if Odd j then sharpW m j else 0) * weightEnum ψ j = 1 / 2
+      ↔ ∑ j ∈ range (2 * m + 1), (if Odd j then sharpW m j else 0) * weightEnum ψ j = 0 := by
     constructor <;> intro h <;> linarith
   rw [h0, sum_eq_zero_iff_of_nonneg hnn]
   refine forall_congr' fun j => forall_congr' fun hj => ?_
@@ -285,10 +286,10 @@ theorem odd_tradeoff_sharp_eq_iff (hm : 2 ≤ m) (ψ : Ψ (2 * m + 1)) (hψ : ns
 
 /-- The GHZ state attains `π_m + c_n O = 1/2` for every odd `n = 2m + 1 ≥ 5`. -/
 theorem ghz_odd_tradeoff_sharp_eq (hm : 2 ≤ m) :
-    purMean (ghz (2 * m + 1)) m + cn m * Omean (ghz (2 * m + 1)) = 1 / 2 := by
+    meanPurity (ghz (2 * m + 1)) m + cn m * Omean (ghz (2 * m + 1)) = 1 / 2 := by
   rw [odd_tradeoff_sharp_eq_iff hm _ (nsq_ghz (by omega))]
   intro j hj ho _
-  exact A_ghz_odd (by omega) ho (mem_range.mp hj)
+  exact weightEnum_ghz_odd (by omega) ho (mem_range.mp hj)
 
 end Main
 
@@ -314,7 +315,7 @@ theorem sharpW_nine_five : sharpW 4 5 = 11 / 4032 := by
 
 /-- `n = 5`: `π_2 + O = 1/2 + A_1/5`. -/
 theorem sharp_five (ψ : Ψ 5) (hψ : nsq ψ = 1) :
-    purMean ψ 2 + Omean ψ = 1 / 2 + (1 / 5) * A ψ 1 := by
+    meanPurity ψ 2 + Omean ψ = 1 / 2 + (1 / 5) * weightEnum ψ 1 := by
   have h := odd_tradeoff_sharp (m := 2) le_rfl ψ hψ
   rw [cn_two] at h
   simp only [sum_range_succ, sum_range_zero] at h
@@ -325,7 +326,7 @@ theorem sharp_five (ψ : Ψ 5) (hψ : nsq ψ = 1) :
 
 /-- `n = 7`: `π_3 + 2 O = 1/2 + (3/28) A_1 + (3/140) A_3`. -/
 theorem sharp_seven (ψ : Ψ 7) (hψ : nsq ψ = 1) :
-    purMean ψ 3 + 2 * Omean ψ = 1 / 2 + (3 / 28) * A ψ 1 + (3 / 140) * A ψ 3 := by
+    meanPurity ψ 3 + 2 * Omean ψ = 1 / 2 + (3 / 28) * weightEnum ψ 1 + (3 / 140) * weightEnum ψ 3 := by
   have h := odd_tradeoff_sharp (m := 3) (by norm_num) ψ hψ
   rw [cn_of_ge le_rfl] at h
   simp only [sum_range_succ, sum_range_zero] at h
@@ -336,8 +337,8 @@ theorem sharp_seven (ψ : Ψ 7) (hψ : nsq ψ = 1) :
 
 /-- `n = 9`: `π_4 + (5/2) O = 1/2 + (5/96) A_1 + (5/448) A_3 + (11/4032) A_5`. -/
 theorem sharp_nine (ψ : Ψ 9) (hψ : nsq ψ = 1) :
-    purMean ψ 4 + (5 / 2) * Omean ψ
-      = 1 / 2 + (5 / 96) * A ψ 1 + (5 / 448) * A ψ 3 + (11 / 4032) * A ψ 5 := by
+    meanPurity ψ 4 + (5 / 2) * Omean ψ
+      = 1 / 2 + (5 / 96) * weightEnum ψ 1 + (5 / 448) * weightEnum ψ 3 + (11 / 4032) * weightEnum ψ 5 := by
   have h := odd_tradeoff_sharp (m := 4) (by norm_num) ψ hψ
   rw [cn_of_ge (by norm_num)] at h
   simp only [sum_range_succ, sum_range_zero] at h

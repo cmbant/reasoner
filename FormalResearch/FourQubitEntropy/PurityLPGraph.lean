@@ -1,6 +1,7 @@
 module
 
-public import FormalResearch.FourQubitEntropy.PurityLPDefs
+public import FormalResearch.NQubit.Pauli.Hermitian
+public import FormalResearch.NQubit.Reduced.MeanPurity
 public import FormalResearch.FourQubitEntropy.SpinFlipGraph
 
 /-!
@@ -8,14 +9,14 @@ public import FormalResearch.FourQubitEntropy.SpinFlipGraph
 
 Source: `even_qubit_purity_minima.tex`, proof of `thm:lptable`(2) (`tr ρ_S² = 2^{-rk_2 Γ[S,S^c]}`, Hein--Eisert--Briegel).
 
-Here the statement is **proved** from the swap form of the purity (`SpinFlip.purC`), not by stabiliser counting.
+Here the statement is **proved** from the swap form of the purity (`FormalResearch.NQubit.Reduced.swapPurity`), not by stabiliser counting.
 For the unnormalised graph state `gs Γ` and `u = x + y` (mod 2), `q(x) + q(y) + q(sw_S x y) + q(sw_S y x)`
 is the bilinear form `Σ_{i ∈ S, j ∉ S} Γ_ij u_i u_j` (`qf_four`), so
-`purC (gs Γ) S = 2^n Σ_u (-1)^{u_S^T B u_{S^c}} = 2^n 2^{|S|} #ker B = 2^{2n - rk B}`, with `B = Γ[S,S^c]`.
+`swapPurity (gs Γ) S = 2^n Σ_u (-1)^{u_S^T B u_{S^c}} = 2^n 2^{|S|} #ker B = 2^{2n - rk B}`, with `B = Γ[S,S^c]`.
 
 * `cutMat Γ S : Matrix {i // i ∈ S} {j // j ∉ S} (ZMod 2)`: the biadjacency matrix `Γ[S,S^c]`;
 * `cutRank Γ S = (cutMat Γ S).rank`;
-* `purity_gsn`: for the normalised graph state `gsn Γ`, `purity (gsn Γ) S = (1/2)^{cutRank Γ S}`.
+* `purity_gsn`: for the normalised graph state `gsn Γ`, `cutPurity (gsn Γ) S = (1/2)^{cutRank Γ S}`.
 -/
 
 @[expose] public section
@@ -26,14 +27,15 @@ open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
 open FormalResearch.FourQubitEntropy.SpinFlip
 
 variable {n : ℕ}
 
 theorem purC_gs (Γ : Fin n → Fin n → Bool) (S : Finset (Fin n)) :
-    purC (gs Γ) S = ∑ x : Cfg n, ∑ y : Cfg n,
-      chi (qf Γ x + qf Γ y + qf Γ (sw S x y) + qf Γ (sw S y x)) := by
-  unfold purC
+    swapPurity (gs Γ) S = ∑ x : Cfg n, ∑ y : Cfg n,
+      chi (qf Γ x + qf Γ y + qf Γ (swapOn S x y) + qf Γ (swapOn S y x)) := by
+  unfold swapPurity
   refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun y _ => ?_
   unfold gs
   rw [conj_chi, conj_chi, chi_add, chi_add, chi_add]
@@ -45,8 +47,8 @@ def cross (Γ : Fin n → Fin n → Bool) (S : Finset (Fin n)) (u : Fin n → ZM
   ∑ i, ∑ j, if i ∈ S ∧ j ∉ S ∧ Γ i j = true then u i * u j else 0
 
 theorem zx_sw (S : Finset (Fin n)) (x y : Cfg n) (i : Fin n) :
-    zx (sw S x y i) = if i ∈ S then zx (y i) else zx (x i) := by
-  unfold sw; split_ifs <;> rfl
+    zx (swapOn S x y i) = if i ∈ S then zx (y i) else zx (x i) := by
+  unfold swapOn; split_ifs <;> rfl
 
 theorem two_eq_zero_zmod : (2 : ZMod 2) = 0 := rfl
 
@@ -102,7 +104,7 @@ theorem cross_eq (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j 
 
 theorem qf_four (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j i) (S : Finset (Fin n))
     (x y : Cfg n) :
-    qf Γ x + qf Γ y + qf Γ (sw S x y) + qf Γ (sw S y x)
+    qf Γ x + qf Γ y + qf Γ (swapOn S x y) + qf Γ (swapOn S y x)
       = cross Γ S (fun i => zx (x i) + zx (y i)) := by
   rw [cross_eq Γ hsym]
   unfold qf
@@ -247,9 +249,9 @@ theorem card_ker_mul (Γ : Fin n → Fin n → Bool) (S : Finset (Fin n)) :
   rw [add_comm, h3, h4]
 
 
-/-- `purC (gs Γ) S · 2^{rk Γ[S,S^c]} = 2^{2n}` for the unnormalised graph state. -/
+/-- `swapPurity (gs Γ) S · 2^{rk Γ[S,S^c]} = 2^{2n}` for the unnormalised graph state. -/
 theorem purC_gs_mul (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j i) (S : Finset (Fin n)) :
-    purC (gs Γ) S * 2 ^ cutRank Γ S = (2 : ℂ) ^ (2 * n) := by
+    swapPurity (gs Γ) S * 2 ^ cutRank Γ S = (2 : ℂ) ^ (2 * n) := by
   rw [purC_gs]
   simp_rw [qf_four Γ hsym]
   rw [sum_xy (fun u => chi (cross Γ S u)), sum_chi_cross]
@@ -270,9 +272,9 @@ theorem purC_gs_mul (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ
 noncomputable def gsn (Γ : Fin n → Fin n → Bool) : Ψ n :=
   fun x => (((Real.sqrt ((2 : ℝ) ^ n))⁻¹ : ℝ) : ℂ) * gs Γ x
 
-theorem purC_smul (c : ℝ) (ψ : Ψ n) (S : Finset (Fin n)) :
-    purC (fun x => (c : ℂ) * ψ x) S = ((c ^ 4 : ℝ) : ℂ) * purC ψ S := by
-  unfold purC
+theorem swapPurity_smul (c : ℝ) (ψ : Ψ n) (S : Finset (Fin n)) :
+    swapPurity (fun x => (c : ℂ) * ψ x) S = ((c ^ 4 : ℝ) : ℂ) * swapPurity ψ S := by
+  unfold swapPurity
   rw [Finset.mul_sum]
   refine Finset.sum_congr rfl fun x _ => ?_
   rw [Finset.mul_sum]
@@ -295,13 +297,13 @@ theorem nsq_gsn (Γ : Fin n → Fin n → Bool) : nsq (gsn Γ) = 1 := by
 
 /-- **`tr ρ_S² = 2^{-rk_2 Γ[S,S^c]}`** for the normalised graph state. -/
 theorem purity_gsn (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j i) (S : Finset (Fin n)) :
-    purity (gsn Γ) S = (1 / 2 : ℝ) ^ cutRank Γ S := by
+    cutPurity (gsn Γ) S = (1 / 2 : ℝ) ^ cutRank Γ S := by
   have h1 : gsn Γ = fun x => (((Real.sqrt ((2 : ℝ) ^ n))⁻¹ : ℝ) : ℂ) * gs Γ x := rfl
-  have h2 : purC (gsn Γ) S = (((1 / 2 : ℝ) ^ cutRank Γ S : ℝ) : ℂ) := by
-    rw [h1, purC_smul]
+  have h2 : swapPurity (gsn Γ) S = (((1 / 2 : ℝ) ^ cutRank Γ S : ℝ) : ℂ) := by
+    rw [h1, swapPurity_smul]
     have h := purC_gs_mul Γ hsym S
     have hpos : ((2 : ℂ)) ^ cutRank Γ S ≠ 0 := pow_ne_zero _ two_ne_zero
-    have h3 : purC (gs Γ) S = (2 : ℂ) ^ (2 * n) / 2 ^ cutRank Γ S := by
+    have h3 : swapPurity (gs Γ) S = (2 : ℂ) ^ (2 * n) / 2 ^ cutRank Γ S := by
       rw [eq_div_iff hpos]; exact h
     rw [h3]
     have h4 : ((Real.sqrt ((2 : ℝ) ^ n))⁻¹) ^ 4 = ((2 : ℝ) ^ n)⁻¹ ^ 2 := by
@@ -311,7 +313,7 @@ theorem purity_gsn (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ 
     simp only [one_div, inv_pow]
     field_simp
     rw [← pow_mul, mul_comm]
-  unfold purity
+  unfold cutPurity
   rw [h2]
   exact Complex.ofReal_re _
 

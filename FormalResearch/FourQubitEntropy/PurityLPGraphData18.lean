@@ -28,6 +28,7 @@ set_option Elab.async false
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
 /-- Neighbourhood bitmasks of the graph of `thm:eighteen` (hexadecimal rows) on 18 vertices (hexadecimal / list form). -/
 def adj18L : List ℕ := [224882, 64381, 112650, 51926, 155147, 198019, 114955, 176680, 107106, 235931, 159793, 205343, 173718, 122247, 173147, 160718, 142181, 122545]
 
@@ -102,7 +103,7 @@ theorem rankSum18 : ∑ S ∈ ((Finset.univ : Finset (Fin 18)).powersetCard 9), 
   decide +kernel
 
 /-- The graph state of the graph of `thm:eighteen` (hexadecimal rows) has `π_9 = 7/2288`. -/
-theorem piMean_graph18 : piMean (gsn (adjGraph adj18)) 9 = 7 / 2288 := by
+theorem piMean_graph18 : meanRdmPurity (gsn (adjGraph adj18)) 9 = 7 / 2288 := by
   rw [piMean_gsn adj18 adj18_symm 9 76160 (by norm_num) rankSum18]
   norm_num [Nat.choose]
 

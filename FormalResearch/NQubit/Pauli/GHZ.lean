@@ -1,29 +1,25 @@
 module
 
-public import FormalResearch.FourQubitEntropy.SpinFlipOddSector
+public import FormalResearch.NQubit.Pauli.Weight
 
 /-!
 # The GHZ state has vanishing odd-weight Pauli weights below full weight
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIprojects PR #200), last paragraph
-of the proof of `thm:odd-spinflip-tradeoff`: for `GHZ_n = (|0⟩^{⊗n} + |1⟩^{⊗n})/√2` a Pauli word with an `X` or
-`Y` on some but not all sites has zero expectation, and a `Z`-word of weight `j < n` has nonzero
-expectation only if `j` is even; hence `A_j(GHZ_n) = 0` for odd `j < n`.
+For `GHZ_n = (|0⟩^{⊗n} + |1⟩^{⊗n})/√2` a Pauli word with an `X` or `Y` on some but not all sites has zero
+expectation, and a `Z`-word of weight `j < n` has nonzero expectation only if `j` is even; hence
+`A_j(GHZ_n) = 0` for odd `j < n`.
 
 * `ghz n`, `nsq_ghz`: the state and its norm (`n ≥ 1`);
 * `pexp_ghz_eq_zero`: `⟨P_a⟩ = 0` for every word of odd weight `< n` (`n ≥ 1`);
-* `A_ghz_odd`: `A_j(GHZ_n) = 0` for odd `j < n`.
-
-Claim class: **proved**.
+* `weightEnum_ghz_odd`: `A_j(GHZ_n) = 0` for odd `j < n`.
 -/
 
 @[expose] public section
 
 
 open scoped ComplexConjugate BigOperators
-open FormalResearch.NQubit
 
-namespace FormalResearch.FourQubitEntropy.SpinFlip
+namespace FormalResearch.NQubit.Pauli
 
 variable {n : ℕ}
 
@@ -99,17 +95,17 @@ theorem pU10 (b : Fin 4) :
     pauliSU b 1 0 = if b = 1 then -Complex.I else if b = 2 then 1 else 0 := by
   fin_cases b <;> simp [pauliSU]
 
-theorem exists_id_of_wt_lt (a : Fin n → Fin 4) (h : wt a < n) : ∃ i, a i = 0 := by
+theorem exists_id_of_wt_lt (a : Fin n → Fin 4) (h : pauliWeight a < n) : ∃ i, a i = 0 := by
   by_contra hne
   push Not at hne
-  have : wt a = n := by
-    unfold wt
+  have : pauliWeight a = n := by
+    unfold pauliWeight
     rw [Finset.filter_true_of_mem (fun i _ => hne i)]
     simp
   omega
 
 /-- **A Pauli word of odd weight `< n` has zero GHZ expectation.** -/
-theorem pexp_ghz_eq_zero (hn : 1 ≤ n) (a : Fin n → Fin 4) (hodd : Odd (wt a)) (hlt : wt a < n) :
+theorem pexp_ghz_eq_zero (hn : 1 ≤ n) (a : Fin n → Fin 4) (hodd : Odd (pauliWeight a)) (hlt : pauliWeight a < n) :
     pexp (ghz n) a = 0 := by
   rw [pexp_ghz hn]
   obtain ⟨i0, hi0⟩ := exists_id_of_wt_lt a hlt
@@ -133,27 +129,27 @@ theorem pexp_ghz_eq_zero (hn : 1 ≤ n) (a : Fin n → Fin 4) (hodd : Odd (wt a)
       revert h1 h2
       generalize a i = b
       revert b; decide
-    have h00 : ∏ i, pauliSU (a i) 0 0 = (-Complex.I) ^ wt a := by
+    have h00 : ∏ i, pauliSU (a i) 0 0 = (-Complex.I) ^ pauliWeight a := by
       calc ∏ i, pauliSU (a i) 0 0 = ∏ i, (if a i = 0 then (1 : ℂ) else -Complex.I) :=
             Finset.prod_congr rfl fun i _ => by
               rw [pU00]; rcases hz i with h | h <;> simp [h]
         _ = _ := by
-            unfold wt; rw [Finset.prod_ite, Finset.prod_const_one, one_mul, Finset.prod_const]
-    have h11 : ∏ i, pauliSU (a i) 1 1 = Complex.I ^ wt a := by
+            unfold pauliWeight; rw [Finset.prod_ite, Finset.prod_const_one, one_mul, Finset.prod_const]
+    have h11 : ∏ i, pauliSU (a i) 1 1 = Complex.I ^ pauliWeight a := by
       calc ∏ i, pauliSU (a i) 1 1 = ∏ i, (if a i = 0 then (1 : ℂ) else Complex.I) :=
             Finset.prod_congr rfl fun i _ => by
               rw [pU11]; rcases hz i with h | h <;> simp [h]
         _ = _ := by
-            unfold wt; rw [Finset.prod_ite, Finset.prod_const_one, one_mul, Finset.prod_const]
+            unfold pauliWeight; rw [Finset.prod_ite, Finset.prod_const_one, one_mul, Finset.prod_const]
     rw [h00, h11, hodd.neg_pow]; ring
 
 /-- **`A_j(GHZ_n) = 0` for odd `j < n`.** -/
-theorem A_ghz_odd (hn : 1 ≤ n) {j : ℕ} (hj : Odd j) (hjn : j < n) : A (ghz n) j = 0 := by
-  unfold A
+theorem weightEnum_ghz_odd (hn : 1 ≤ n) {j : ℕ} (hj : Odd j) (hjn : j < n) : weightEnum (ghz n) j = 0 := by
+  unfold weightEnum
   refine Finset.sum_eq_zero fun a ha => ?_
   have h := (Finset.mem_filter.mp ha).2
-  unfold pw
+  unfold pauliSq
   rw [pexp_ghz_eq_zero hn a (h ▸ hj) (h ▸ hjn)]
   simp
 
-end FormalResearch.FourQubitEntropy.SpinFlip
+end FormalResearch.NQubit.Pauli

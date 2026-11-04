@@ -20,6 +20,7 @@ open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
 open FormalResearch.FourQubitEntropy.SpinFlip
 
 /-- The summand `2^{k - r}` of the rank sum `Σ_{|S|=k} 2^{k - rk_2 Γ[S,S^c]}`. -/

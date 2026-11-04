@@ -329,19 +329,12 @@ public import FormalResearch.FourQubitEntropy.SevenQubitIcoXShadow
 public import FormalResearch.FourQubitEntropy.SevenQubitIcoXSpinZero
 public import FormalResearch.FourQubitEntropy.SevenQubitIcoXStructure
 public import FormalResearch.FourQubitEntropy.SpinFlipAntiunitary
-public import FormalResearch.FourQubitEntropy.SpinFlipDouble
 public import FormalResearch.FourQubitEntropy.SpinFlipGraph
 public import FormalResearch.FourQubitEntropy.SpinFlipOmega
-public import FormalResearch.FourQubitEntropy.SpinFlipPauli
-public import FormalResearch.FourQubitEntropy.SpinFlipPurity
-public import FormalResearch.FourQubitEntropy.SpinFlipReduced
 public import FormalResearch.FourQubitEntropy.SpinFlipTangent
 public import FormalResearch.FourQubitEntropy.SpinFlipTradeoff
 public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEven
-public import FormalResearch.FourQubitEntropy.SpinFlipOddSector
 public import FormalResearch.FourQubitEntropy.SpinFlipOddQSum
-public import FormalResearch.FourQubitEntropy.SpinFlipOddOverlap
-public import FormalResearch.FourQubitEntropy.SpinFlipOddGHZ
 public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffOddGeneral
 public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffOddGHZ
 public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffOddSharp
@@ -606,8 +599,6 @@ public import FormalResearch.FourQubitEntropy.RenyiFullLHFinalCells
 public import FormalResearch.FourQubitEntropy.RenyiFullLargeHead
 public import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQK
 public import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQV
-public import FormalResearch.FourQubitEntropy.PurityLPShadow
-public import FormalResearch.FourQubitEntropy.PurityLPDefs
 public import FormalResearch.FourQubitEntropy.PurityLPCert
 public import FormalResearch.FourQubitEntropy.PurityLPCertData
 public import FormalResearch.FourQubitEntropy.PurityLPRank
@@ -616,7 +607,6 @@ public import FormalResearch.FourQubitEntropy.PurityLPCutRank
 public import FormalResearch.FourQubitEntropy.PurityLPGraphMean
 public import FormalResearch.FourQubitEntropy.PurityLPMaskSum
 public import FormalResearch.FourQubitEntropy.PurityLPRankHist
-public import FormalResearch.FourQubitEntropy.PurityLPShadowHom
 public import FormalResearch.FourQubitEntropy.PurityLPGraphDataA
 public import FormalResearch.FourQubitEntropy.PurityLPGraphDataB
 public import FormalResearch.FourQubitEntropy.PurityLPGraphData16

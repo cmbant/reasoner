@@ -1,12 +1,12 @@
 module
 
-public import FormalResearch.FourQubitEntropy.PurityLPShadow
+public import FormalResearch.NQubit.Shadow.Basic
 
 /-!
 # `S(x,y)` is the homogeneous polynomial with coefficients `S_i`
 
-`shadowCoeff` of `PurityLPShadow.lean` is defined as a coefficient of the dehomogenised polynomial `S(1,y)`.
-`shadow_homogeneous` shows this is the same as the definition used for `thm:lptable`: for all real `x, y`,
+`shadowCoeff` of `Shadow/Basic.lean` is defined as a coefficient of the dehomogenised polynomial `S(1,y)`.
+`shadow_homogeneous` shows that for all real `x, y`,
 `Σ_j A_j ((x+3y)/2)^{n-j} ((y-x)/2)^j = Σ_{i ≤ n} S_i x^{n-i} y^i`.
 -/
 
@@ -14,12 +14,10 @@ public import FormalResearch.FourQubitEntropy.PurityLPShadow
 
 
 open scoped BigOperators
-open FormalResearch.NQubit
 open Polynomial
+open FormalResearch.NQubit.Pauli
 
-namespace FormalResearch.FourQubitEntropy.PurityLP
-
-open FormalResearch.FourQubitEntropy.SpinFlip
+namespace FormalResearch.NQubit.Shadow
 
 variable {n : ℕ}
 
@@ -39,23 +37,23 @@ theorem natDegree_shadowPoly_le (ψ : Ψ n) : (shadowPoly ψ).natDegree ≤ n :=
   omega
 
 theorem shadow_homogeneous_ne (ψ : Ψ n) (x y : ℝ) (hx : x ≠ 0) :
-    ∑ j ∈ Finset.range (n + 1), A ψ j * (((x + 3 * y) / 2) ^ (n - j) * ((y - x) / 2) ^ j)
+    ∑ j ∈ Finset.range (n + 1), weightEnum ψ j * (((x + 3 * y) / 2) ^ (n - j) * ((y - x) / 2) ^ j)
       = ∑ i ∈ Finset.range (n + 1), shadowCoeff ψ i * x ^ (n - i) * y ^ i := by
   set t := y / x with ht
   have hy : y = x * t := by rw [ht]; field_simp
   have h1 := eval_eq_sum_range' (Nat.lt_succ_of_le (natDegree_shadowPoly_le ψ)) t
   have h2 : (shadowPoly ψ).eval t = ∑ j ∈ Finset.range (n + 1),
-      A ψ j * (((1 + 3 * t) / 2) ^ (n - j) * ((t - 1) / 2) ^ j) := by
+      weightEnum ψ j * (((1 + 3 * t) / 2) ^ (n - j) * ((t - 1) / 2) ^ j) := by
     unfold shadowPoly
     simp only [eval_finsetSum, eval_mul, eval_C, eval_pow, eval_add, eval_X, eval_one, eval_sub,
       eval_ofNat]
     refine Finset.sum_congr rfl fun j _ => ?_
     ring
-  have h3 : ∑ j ∈ Finset.range (n + 1), A ψ j * (((1 + 3 * t) / 2) ^ (n - j) * ((t - 1) / 2) ^ j)
+  have h3 : ∑ j ∈ Finset.range (n + 1), weightEnum ψ j * (((1 + 3 * t) / 2) ^ (n - j) * ((t - 1) / 2) ^ j)
       = ∑ i ∈ Finset.range (n + 1), shadowCoeff ψ i * t ^ i := by
     rw [← h2, h1]; rfl
-  have h4 : ∀ j ∈ Finset.range (n + 1), A ψ j * (((x + 3 * y) / 2) ^ (n - j) * ((y - x) / 2) ^ j)
-      = x ^ n * (A ψ j * (((1 + 3 * t) / 2) ^ (n - j) * ((t - 1) / 2) ^ j)) := by
+  have h4 : ∀ j ∈ Finset.range (n + 1), weightEnum ψ j * (((x + 3 * y) / 2) ^ (n - j) * ((y - x) / 2) ^ j)
+      = x ^ n * (weightEnum ψ j * (((1 + 3 * t) / 2) ^ (n - j) * ((t - 1) / 2) ^ j)) := by
     intro j hj
     have hj' : j ≤ n := Nat.lt_succ_iff.mp (Finset.mem_range.mp hj)
     have e1 : (x + 3 * y) / 2 = x * ((1 + 3 * t) / 2) := by rw [hy]; ring
@@ -73,14 +71,14 @@ theorem shadow_homogeneous_ne (ψ : Ψ n) (x y : ℝ) (hx : x ≠ 0) :
 
 /-- **`S(x,y)` has the coefficients `S_i`**: `Σ_j A_j ((x+3y)/2)^{n-j} ((y-x)/2)^j = Σ_i S_i x^{n-i} y^i`. -/
 theorem shadow_homogeneous (ψ : Ψ n) (x y : ℝ) :
-    ∑ j ∈ Finset.range (n + 1), A ψ j * (((x + 3 * y) / 2) ^ (n - j) * ((y - x) / 2) ^ j)
+    ∑ j ∈ Finset.range (n + 1), weightEnum ψ j * (((x + 3 * y) / 2) ^ (n - j) * ((y - x) / 2) ^ j)
       = ∑ i ∈ Finset.range (n + 1), shadowCoeff ψ i * x ^ (n - i) * y ^ i := by
   have hc : Continuous (fun x : ℝ => ∑ j ∈ Finset.range (n + 1),
-      A ψ j * (((x + 3 * y) / 2) ^ (n - j) * ((y - x) / 2) ^ j)) := by fun_prop
+      weightEnum ψ j * (((x + 3 * y) / 2) ^ (n - j) * ((y - x) / 2) ^ j)) := by fun_prop
   have hc' : Continuous (fun x : ℝ => ∑ i ∈ Finset.range (n + 1),
       shadowCoeff ψ i * x ^ (n - i) * y ^ i) := by fun_prop
   have := Continuous.ext_on (dense_compl_singleton (0 : ℝ)) hc hc'
     (fun x hx => shadow_homogeneous_ne ψ x y hx)
   exact congrFun this x
 
-end FormalResearch.FourQubitEntropy.PurityLP
+end FormalResearch.NQubit.Shadow

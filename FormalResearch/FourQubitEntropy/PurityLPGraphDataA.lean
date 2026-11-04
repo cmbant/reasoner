@@ -28,6 +28,7 @@ set_option Elab.async false
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
 /-- Neighbourhood bitmasks of path `P_4` (linear cluster) on 4 vertices (hexadecimal / list form). -/
 def adj4L : List ℕ := [2, 5, 10, 4]
 
@@ -57,7 +58,7 @@ theorem rankSum4 : ∑ S ∈ ((Finset.univ : Finset (Fin 4)).powersetCard 2), 2 
   decide +kernel
 
 /-- The graph state of path `P_4` (linear cluster) has `π_2 = 1/3`. -/
-theorem piMean_graph4 : piMean (gsn (adjGraph adj4)) 2 = 1 / 3 := by
+theorem piMean_graph4 : meanRdmPurity (gsn (adjGraph adj4)) 2 = 1 / 3 := by
   rw [piMean_gsn adj4 adj4_symm 2 8 (by norm_num) rankSum4]
   norm_num [Nat.choose]
 
@@ -90,7 +91,7 @@ theorem rankSum5 : ∑ S ∈ ((Finset.univ : Finset (Fin 5)).powersetCard 2), 2 
   decide +kernel
 
 /-- The graph state of `C_5(1)` has `π_2 = 1/4`. -/
-theorem piMean_graph5 : piMean (gsn (adjGraph adj5)) 2 = 1 / 4 := by
+theorem piMean_graph5 : meanRdmPurity (gsn (adjGraph adj5)) 2 = 1 / 4 := by
   rw [piMean_gsn adj5 adj5_symm 2 10 (by norm_num) rankSum5]
   norm_num [Nat.choose]
 
@@ -123,7 +124,7 @@ theorem rankSum6 : ∑ S ∈ ((Finset.univ : Finset (Fin 6)).powersetCard 3), 2 
   decide +kernel
 
 /-- The graph state of `C_6(2,3)` has `π_3 = 1/8`. -/
-theorem piMean_graph6 : piMean (gsn (adjGraph adj6)) 3 = 1 / 8 := by
+theorem piMean_graph6 : meanRdmPurity (gsn (adjGraph adj6)) 3 = 1 / 8 := by
   rw [piMean_gsn adj6 adj6_symm 3 20 (by norm_num) rankSum6]
   norm_num [Nat.choose]
 
@@ -156,7 +157,7 @@ theorem rankSum8 : ∑ S ∈ ((Finset.univ : Finset (Fin 8)).powersetCard 4), 2 
   decide +kernel
 
 /-- The graph state of the 17-edge graph of `tab:graphs` has `π_4 = 3/35`. -/
-theorem piMean_graph8 : piMean (gsn (adjGraph adj8)) 4 = 3 / 35 := by
+theorem piMean_graph8 : meanRdmPurity (gsn (adjGraph adj8)) 4 = 3 / 35 := by
   rw [piMean_gsn adj8 adj8_symm 4 96 (by norm_num) rankSum8]
   norm_num [Nat.choose]
 
@@ -189,7 +190,7 @@ theorem rankSum9 : ∑ S ∈ ((Finset.univ : Finset (Fin 9)).powersetCard 4), 2 
   decide +kernel
 
 /-- The graph state of `C_9(3,4)` has `π_4 = 1/14`. -/
-theorem piMean_graph9 : piMean (gsn (adjGraph adj9)) 4 = 1 / 14 := by
+theorem piMean_graph9 : meanRdmPurity (gsn (adjGraph adj9)) 4 = 1 / 14 := by
   rw [piMean_gsn adj9 adj9_symm 4 144 (by norm_num) rankSum9]
   norm_num [Nat.choose]
 
@@ -222,7 +223,7 @@ theorem rankSum10 : ∑ S ∈ ((Finset.univ : Finset (Fin 10)).powersetCard 5), 
   decide +kernel
 
 /-- The graph state of `C_10(1,2,4)` has `π_5 = 1/21`. -/
-theorem piMean_graph10 : piMean (gsn (adjGraph adj10)) 5 = 1 / 21 := by
+theorem piMean_graph10 : meanRdmPurity (gsn (adjGraph adj10)) 5 = 1 / 21 := by
   rw [piMean_gsn adj10 adj10_symm 5 384 (by norm_num) rankSum10]
   norm_num [Nat.choose]
 
@@ -255,7 +256,7 @@ theorem rankSum11 : ∑ S ∈ ((Finset.univ : Finset (Fin 11)).powersetCard 5), 
   decide +kernel
 
 /-- The graph state of the 34-edge graph of `tab:graphs` has `π_5 = 1/28`. -/
-theorem piMean_graph11 : piMean (gsn (adjGraph adj11)) 5 = 1 / 28 := by
+theorem piMean_graph11 : meanRdmPurity (gsn (adjGraph adj11)) 5 = 1 / 28 := by
   rw [piMean_gsn adj11 adj11_symm 5 528 (by norm_num) rankSum11]
   norm_num [Nat.choose]
 
@@ -288,7 +289,7 @@ theorem rankSum12 : ∑ S ∈ ((Finset.univ : Finset (Fin 12)).powersetCard 6), 
   decide +kernel
 
 /-- The graph state of `C_12(3,5,6)` has `π_6 = 5/224`. -/
-theorem piMean_graph12 : piMean (gsn (adjGraph adj12)) 6 = 5 / 224 := by
+theorem piMean_graph12 : meanRdmPurity (gsn (adjGraph adj12)) 6 = 5 / 224 := by
   rw [piMean_gsn adj12 adj12_symm 6 1320 (by norm_num) rankSum12]
   norm_num [Nat.choose]
 

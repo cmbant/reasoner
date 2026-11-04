@@ -11,8 +11,8 @@ Source: `ResearchNotes/QI/seven_qubit_entanglement/hamming_ball_schmidt.tex`,
 
 **Proved here (complex states, all axioms standard).**
 `ball_purity_11_49`: for `ψ : Ψ 7` with `nsq ψ = 1` supported on Hamming weight `≤ 2`,
-`11/49 + (58 W₀ + 28 W₁)/245 ≤ Pur ψ 3 / 35`, where `W_j` is the `|ψ|²`-mass on weight `j`;
-`ball_purity_11_49_bound` is the bound `11/49 ≤ Pur ψ 3 / 35`.
+`11/49 + (58 W₀ + 28 W₁)/245 ≤ cutPuritySum ψ 3 / 35`, where `W_j` is the `|ψ|²`-mass on weight `j`;
+`ball_purity_11_49_bound` is the bound `11/49 ≤ cutPuritySum ψ 3 / 35`.
 
 **Route (differs from the paper).** The paper uses the Rains shadow identity. That identity is *not*
 formalized here. Instead:
@@ -50,6 +50,7 @@ theorem chi2_seven : ∀ x : Fin 7 → Fin 2,
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
 variable {n : ℕ}
 
 /-- Signed completeness kernel on words supported in `S`. -/
@@ -79,11 +80,11 @@ noncomputable def gK (S : Finset (Fin n)) (x y x' y' : Cfg n) (i : Fin n) : ℂ 
 
 /-- **Signed Pauli sum on a site set, as a four-fold configuration sum.** -/
 theorem signed_wsupp_eq (ψ : Ψ n) (S : Finset (Fin n)) :
-    ((∑ a ∈ wsupp S, (-1 : ℝ) ^ wt a * pw ψ a : ℝ) : ℂ) =
+    ((∑ a ∈ wsupp S, (-1 : ℝ) ^ pauliWeight a * pauliSq ψ a : ℝ) : ℂ) =
       ∑ x, ∑ y, ∑ x', ∑ y', (conj (ψ x) * ψ y * (ψ x' * conj (ψ y'))) *
         ∏ i, gK S x y x' y' i := by
   push_cast
-  simp_rw [← signprod_eq, pw_cast]
+  simp_rw [← signprod_eq, pauliSq_cast]
   exact wavg_aux (wsupp S) (fun (a : Fin n → Fin 4) (x y : Cfg n) => ∏ i, pauliSU (a i) (x i) (y i))
     (fun a => ∏ i, (if a i = 0 then (1 : ℂ) else -1))
     (fun x y x' y' => ∏ i, gK S x y x' y' i)
@@ -103,11 +104,11 @@ theorem card_le_wf_add (S : Finset (Fin n)) (x y : Cfg n) (h : ∀ i ∈ S, x i 
     _ ≤ _ := Finset.card_union_le _ _
 
 /-- **Vanishing of the signed Pauli sum for ball-supported vectors.** If `ψ` is supported on strings of
-weight `≤ r` and `2r < |S|`, then `Σ_{supp a ⊆ S} (-1)^{wt a} ⟨P_a⟩² = 0`. (Each term of the kernel
-expansion contains `ψ x · conj ψ y'` with `x_i ≠ y'_i` on all of `S`, forcing `wt x + wt y' ≥ |S|`.) -/
+weight `≤ r` and `2r < |S|`, then `Σ_{supp a ⊆ S} (-1)^{pauliWeight a} ⟨P_a⟩² = 0`. (Each term of the kernel
+expansion contains `ψ x · conj ψ y'` with `x_i ≠ y'_i` on all of `S`, forcing `pauliWeight x + pauliWeight y' ≥ |S|`.) -/
 theorem signed_wsupp_ball_zero (ψ : Ψ n) (r : ℕ) (hsupp : ∀ x, r < wf x → ψ x = 0)
     (S : Finset (Fin n)) (hS : 2 * r < S.card) :
-    ∑ a ∈ wsupp S, (-1 : ℝ) ^ wt a * pw ψ a = 0 := by
+    ∑ a ∈ wsupp S, (-1 : ℝ) ^ pauliWeight a * pauliSq ψ a = 0 := by
   apply Complex.ofReal_injective
   rw [signed_wsupp_eq]
   push_cast
@@ -143,18 +144,18 @@ theorem wsupp_erase (i : Fin n) (a : Fin n → Fin 4) :
     rw [this]; exact h
 
 theorem card_zero_sites (a : Fin n → Fin 4) :
-    (Finset.univ.filter fun i => a i = 0).card = n - wt a := by
+    (Finset.univ.filter fun i => a i = 0).card = n - pauliWeight a := by
   have h := Finset.card_filter_add_card_filter_not (s := (Finset.univ : Finset (Fin n)))
     (fun i => a i = 0)
   rw [Finset.card_univ, Fintype.card_fin] at h
-  unfold wt
+  unfold pauliWeight
   simp only [ne_eq]
   omega
 
-/-- `Σ_i Σ_{supp a ∌ i} f(a) = Σ_a (n - wt a) f(a)`. -/
+/-- `Σ_i Σ_{supp a ∌ i} f(a) = Σ_a (n - pauliWeight a) f(a)`. -/
 theorem sum_erase_sites (f : (Fin n → Fin 4) → ℝ) :
     ∑ i : Fin n, ∑ a ∈ wsupp (Finset.univ.erase i), f a =
-      ∑ a : Fin n → Fin 4, ((n : ℝ) - wt a) * f a := by
+      ∑ a : Fin n → Fin 4, ((n : ℝ) - pauliWeight a) * f a := by
   have h1 : ∀ i : Fin n, ∑ a ∈ wsupp (Finset.univ.erase i), f a =
       ∑ a : Fin n → Fin 4, if a i = 0 then f a else 0 := by
     intro i
@@ -165,23 +166,23 @@ theorem sum_erase_sites (f : (Fin n → Fin 4) → ℝ) :
   rw [Finset.sum_comm]
   refine Finset.sum_congr rfl fun a _ => ?_
   rw [← Finset.sum_filter, Finset.sum_const, nsmul_eq_mul, card_zero_sites]
-  have : wt a ≤ n := wt_le a
+  have : pauliWeight a ≤ n := pauliWeight_le a
   rw [Nat.cast_sub this]
 
 /-- **Vanishing of the shadow-type weight sum** `Σ_j (-1)^j (n - j) A_j` for vectors supported on strings of
 weight `≤ r` with `2r < n - 1`. (This is `32 S_1` of the paper at `n = 7, r = 2`, with `τ_7 = 0`.) -/
 theorem signed_weighted_A_ball_zero (ψ : Ψ n) (r : ℕ) (hsupp : ∀ x, r < wf x → ψ x = 0)
     (hr : 2 * r < n - 1) :
-    ∑ j ∈ Finset.range (n + 1), (-1 : ℝ) ^ j * ((n : ℝ) - j) * A ψ j = 0 := by
-  have h := sum_erase_sites (n := n) (fun a => (-1 : ℝ) ^ wt a * pw ψ a)
-  have h0 : ∀ i : Fin n, ∑ a ∈ wsupp (Finset.univ.erase i), (-1 : ℝ) ^ wt a * pw ψ a = 0 := by
+    ∑ j ∈ Finset.range (n + 1), (-1 : ℝ) ^ j * ((n : ℝ) - j) * weightEnum ψ j = 0 := by
+  have h := sum_erase_sites (n := n) (fun a => (-1 : ℝ) ^ pauliWeight a * pauliSq ψ a)
+  have h0 : ∀ i : Fin n, ∑ a ∈ wsupp (Finset.univ.erase i), (-1 : ℝ) ^ pauliWeight a * pauliSq ψ a = 0 := by
     intro i
     refine signed_wsupp_ball_zero ψ r hsupp _ ?_
     rw [Finset.card_erase_of_mem (Finset.mem_univ i), Finset.card_univ, Fintype.card_fin]
     omega
   simp only [h0, Finset.sum_const_zero] at h
-  have h2 := sum_A_eq ψ (fun j => (-1 : ℝ) ^ j * ((n : ℝ) - j))
-  calc _ = ∑ a : Fin n → Fin 4, ((n : ℝ) - wt a) * ((-1 : ℝ) ^ wt a * pw ψ a) := by
+  have h2 := sum_weightEnum_eq ψ (fun j => (-1 : ℝ) ^ j * ((n : ℝ) - j))
+  calc _ = ∑ a : Fin n → Fin 4, ((n : ℝ) - pauliWeight a) * ((-1 : ℝ) ^ pauliWeight a * pauliSq ψ a) := by
         rw [h2]; exact Finset.sum_congr rfl fun a _ => by ring
     _ = 0 := h.symm
 
@@ -189,8 +190,8 @@ theorem signed_weighted_A_ball_zero (ψ : Ψ n) (r : ℕ) (hsupp : ∀ x, r < wf
 /-- The `Z`-type Pauli word with `σ_z` (as `-iσ_z`) exactly on `S`. -/
 def zword (S : Finset (Fin n)) : Fin n → Fin 4 := fun j => if j ∈ S then 3 else 0
 
-theorem wt_zword (S : Finset (Fin n)) : wt (zword S) = S.card := by
-  unfold wt zword
+theorem wt_zword (S : Finset (Fin n)) : pauliWeight (zword S) = S.card := by
+  unfold pauliWeight zword
   congr 1
   ext j
   by_cases h : j ∈ S <;> simp [h]
@@ -259,28 +260,28 @@ theorem pexp_zword (ψ : Ψ n) (S : Finset (Fin n)) :
 
 /-- `⟨P_{zword S}⟩² = (Σ_x |ψ_x|² χ_S(x))²`. -/
 theorem pw_zword (ψ : Ψ n) (S : Finset (Fin n)) :
-    pw ψ (zword S) = (∑ x, Complex.normSq (ψ x) * zchi S x) ^ 2 := by
-  unfold pw
+    pauliSq ψ (zword S) = (∑ x, Complex.normSq (ψ x) * zchi S x) ^ 2 := by
+  unfold pauliSq
   rw [pexp_zword, map_mul, map_pow, Complex.normSq_ofReal]
   have : Complex.normSq (-Complex.I) = 1 := by simp [Complex.normSq_apply]
   rw [this]; simp [sq]
 
 
 theorem A_ge_zwords (ψ : Ψ n) (k : ℕ) :
-    ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, pw ψ (zword S) ≤ A ψ k := by
-  unfold A
-  rw [← Finset.sum_image (f := fun a => pw ψ a) (g := zword) (fun S _ T _ h => zword_injective h)]
+    ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, pauliSq ψ (zword S) ≤ weightEnum ψ k := by
+  unfold weightEnum
+  rw [← Finset.sum_image (f := fun a => pauliSq ψ a) (g := zword) (fun S _ T _ h => zword_injective h)]
   apply Finset.sum_le_sum_of_subset_of_nonneg
   · intro a ha
     obtain ⟨S, hS, rfl⟩ := Finset.mem_image.mp ha
     simp [wt_zword, (Finset.mem_powersetCard.mp hS).2]
-  · intro a _ _; exact pw_nonneg ψ a
+  · intro a _ _; exact pauliSq_nonneg ψ a
 
 /-- Cauchy-Schwarz over the `Z`-type words of weight `k`:
 `(Σ_{|S|=k} Σ_x |ψ_x|² χ_S(x))² ≤ C(n,k) A_k`. -/
 theorem sq_zsum_le_A (ψ : Ψ n) (k : ℕ) :
     (∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k,
-        ∑ x, Complex.normSq (ψ x) * zchi S x) ^ 2 ≤ (n.choose k : ℝ) * A ψ k := by
+        ∑ x, Complex.normSq (ψ x) * zchi S x) ^ 2 ≤ (n.choose k : ℝ) * weightEnum ψ k := by
   have h1 := sq_sum_le_card_mul_sum_sq (s := (Finset.univ : Finset (Fin n)).powersetCard k)
     (f := fun S => ∑ x, Complex.normSq (ψ x) * zchi S x)
   rw [Finset.card_powersetCard, Finset.card_univ, Fintype.card_fin] at h1
@@ -341,7 +342,7 @@ For a unit vector supported on strings of Hamming weight `≤ 2` (the Hamming ba
 three-qubit purity is at least `11/49`, with the explicit excess above in the masses `W₀, W₁` on weights
 `0, 1`. -/
 theorem ball_purity_11_49 (ψ : Ψ 7) (hn : nsq ψ = 1) (hsupp : ∀ x, 2 < wf x → ψ x = 0) :
-    11 / 49 + 58 / 245 * Wmass ψ 0 + 28 / 245 * Wmass ψ 1 ≤ Pur ψ 3 / 35 := by
+    11 / 49 + 58 / 245 * Wmass ψ 0 + 28 / 245 * Wmass ψ 1 ≤ cutPuritySum ψ 3 / 35 := by
   have hW : Wmass ψ 0 + Wmass ψ 1 + Wmass ψ 2 = 1 := by
     have h := sum_normSq_weight ψ hsupp (fun _ => 1)
     simp only [mul_one, one_mul] at h
@@ -375,21 +376,21 @@ theorem ball_purity_11_49 (ψ : Ψ 7) (hn : nsq ψ = 1) (hsupp : ∀ x, 2 < wf x
   rw [c2] at h2
   -- linear relations among the `A_j` and the purities
   have hV := signed_weighted_A_ball_zero ψ 2 (fun x hx => hsupp x hx) (by norm_num)
-  have hA0 := A_zero ψ
-  have hS := sum_A ψ
-  have hT := sum_signed_A ψ
+  have hA0 := weightEnum_zero ψ
+  have hS := sum_weightEnum ψ
+  have hT := sum_signed_weightEnum ψ
   have hτ := tau_eq_zero_of_odd (by decide : Odd 7) ψ
   rw [hτ] at hT
   rw [hn] at hA0 hS
-  have p1 := Pur_eq ψ 1
-  have p2 := Pur_eq ψ 2
-  have p3 := Pur_eq ψ 3
-  have p4 := Pur_eq ψ 4
-  have p5 := Pur_eq ψ 5
-  have p6 := Pur_eq ψ 6
-  have q1 := Pur_compl ψ 1 (by norm_num)
-  have q2 := Pur_compl ψ 2 (by norm_num)
-  have q3 := Pur_compl ψ 3 (by norm_num)
+  have p1 := cutPuritySum_eq ψ 1
+  have p2 := cutPuritySum_eq ψ 2
+  have p3 := cutPuritySum_eq ψ 3
+  have p4 := cutPuritySum_eq ψ 4
+  have p5 := cutPuritySum_eq ψ 5
+  have p6 := cutPuritySum_eq ψ 6
+  have q1 := cutPuritySum_compl ψ 1 (by norm_num)
+  have q2 := cutPuritySum_compl ψ 2 (by norm_num)
+  have q3 := cutPuritySum_compl ψ 3 (by norm_num)
   simp only [Finset.sum_range_succ, Finset.sum_range_zero] at hV hS hT p1 p2 p3 p4 p5 p6
   norm_num [Nat.choose] at hV hS hT p1 p2 p3 p4 p5 p6 q1 q2 q3 hA0
   nlinarith [mul_nonneg hW0 hW0, mul_nonneg hW0 hW1, mul_nonneg hW1 hW1]
@@ -397,7 +398,7 @@ theorem ball_purity_11_49 (ψ : Ψ 7) (hn : nsq ψ = 1) (hsupp : ∀ x, 2 < wf x
 /-- Corollary: `Pur₃ ≥ 35 · 11/49 = 55/7` for ball states (`cor:seven-hamming-ball-shadow`, the bound
 `11/49` on the mean three-qubit purity). -/
 theorem ball_purity_11_49_bound (ψ : Ψ 7) (hn : nsq ψ = 1) (hsupp : ∀ x, 2 < wf x → ψ x = 0) :
-    11 / 49 ≤ Pur ψ 3 / 35 := by
+    11 / 49 ≤ cutPuritySum ψ 3 / 35 := by
   have := ball_purity_11_49 ψ hn hsupp
   have h0 := Wmass_nonneg ψ 0
   have h1 := Wmass_nonneg ψ 1

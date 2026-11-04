@@ -16,6 +16,7 @@ open scoped BigOperators
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
 /-- The packing weight `B^r`, `B = 2^16 > C(n, ⌊n/2⌋)` for every `n ≤ 18`. -/
 def packG (r : ℕ) : ℕ := 65536 ^ r
 

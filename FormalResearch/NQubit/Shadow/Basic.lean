@@ -1,37 +1,35 @@
 module
 
-public import FormalResearch.FourQubitEntropy.SpinFlipPauli
+public import FormalResearch.NQubit.Pauli.Weight
 
 /-!
 # Rains' shadow inequalities for pure `n`-qubit states
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/even_qubit_purity_minima.tex` (the sentence after `eq:as`:
-the coefficients `S_j` of `S(x,y) = Σ_j A_j ((x+3y)/2)^{n-j} ((y-x)/2)^j` are non-negative; Rains,
-*Quantum shadow enumerators*, quant-ph/9611001).
+The coefficients `S_j` of `S(x,y) = Σ_j A_j ((x+3y)/2)^{n-j} ((y-x)/2)^j` are non-negative (Rains, *Quantum shadow
+enumerators*, quant-ph/9611001).
 
-`A ψ j` is the Pauli weight distribution of `SpinFlipPauli.lean`.  `S(x,y)` is homogeneous of degree `n`, so its
-coefficient `S_i` of `x^{n-i} y^i` is the coefficient of `y^i` in `S(1,y)`; `shadowPoly ψ` is `S(1,y)`
-(a `Polynomial ℝ`) and `shadowCoeff ψ i` is `S_i`.
+`weightEnum ψ j` is the Pauli weight distribution of `Pauli/Weight.lean`.  `S(x,y)` is homogeneous of degree `n`,
+so its coefficient `S_i` of `x^{n-i} y^i` is the coefficient of `y^i` in `S(1,y)`; `shadowPoly ψ` is `S(1,y)` (a
+`Polynomial ℝ`) and `shadowCoeff ψ i` is `S_i`.
 
 **Proof used here (self-contained, not Rains' original).**  Give each qubit a *type* `τ ∈ {0,1,2,3}`.
 Type `0` flips the qubit (kernel `ε`, weight `+1` on `I`, `-1` on `X,Y,Z`); type `c ∈ {1,2,3}` marks the axis `c`
 (kernel `Z`, `1`, `X` for `c = 1,2,3`, weight `-1` on `c` and `+1` on the other two axes).  For every
-type vector `t`, `Σ_P (∏ᵢ w_{tᵢ}(Pᵢ)) ⟨P⟩² = 2^n |β_t|²` (`sum_wloc_pw`) with `β_t = Σ_{x,y} ψ_x ψ_y ∏ κ_{tᵢ}(xᵢ,yᵢ)`;
-this is the Pauli-completeness computation with a modified sign pattern.  Summing `y^{#{i : tᵢ ≠ 0}}`
-over all `t` the weights multiply to `(1+3y)^{n-wt P} (y-1)^{wt P}` (`sum_over_types`), which is
-`2^n S(1,y)`; hence `S_i = Σ_{t : #nonflip = i} |β_t|² ≥ 0` (`shadow_nonneg`, **proved**, for every vector).
+type vector `t`, `Σ_P (∏ᵢ w_{tᵢ}(Pᵢ)) ⟨P⟩² = 2^n |β_t|²` (`sum_wloc_pauliSq`) with
+`β_t = Σ_{x,y} ψ_x ψ_y ∏ κ_{tᵢ}(xᵢ,yᵢ)`; this is the Pauli-completeness computation with a modified sign pattern.
+Summing `y^{#{i : tᵢ ≠ 0}}` over all `t` the weights multiply to `(1+3y)^{n-wt P} (y-1)^{wt P}`
+(`sum_over_types`), which is `2^n S(1,y)`; hence `S_i = Σ_{t : #nonflip = i} |β_t|² ≥ 0` (`shadow_nonneg`,
+**proved**, for every vector).
 -/
 
 @[expose] public section
 
 
 open scoped ComplexConjugate BigOperators
-open FormalResearch.NQubit
 open Polynomial
+open FormalResearch.NQubit.Pauli
 
-namespace FormalResearch.FourQubitEntropy.PurityLP
-
-open FormalResearch.FourQubitEntropy.SpinFlip
+namespace FormalResearch.NQubit.Shadow
 
 /-- Per-qubit sign pattern of type `τ` on the letter `b` (`0 = I`, `1,2,3 = X,Y,Z`). -/
 def wloc (τ b : Fin 4) : ℝ :=
@@ -65,12 +63,12 @@ noncomputable def bil {n : ℕ} (ψ : Ψ n) (t : Fin n → Fin 4) : ℂ :=
   ∑ x, ∑ y, ψ x * ψ y * ∏ i, kap (t i) (x i) (y i)
 
 /-- `Σ_P (∏ᵢ w_{tᵢ}(Pᵢ)) ⟨P⟩² = 2^n |β_t|²`. -/
-theorem sum_wloc_pw {n : ℕ} (ψ : Ψ n) (t : Fin n → Fin 4) :
-    ∑ a : Fin n → Fin 4, (∏ i, wloc (t i) (a i)) * pw ψ a
+theorem sum_wloc_pauliSq {n : ℕ} (ψ : Ψ n) (t : Fin n → Fin 4) :
+    ∑ a : Fin n → Fin 4, (∏ i, wloc (t i) (a i)) * pauliSq ψ a
       = (2 : ℝ) ^ n * Complex.normSq (bil ψ t) := by
   apply Complex.ofReal_injective
   push_cast
-  simp_rw [pw_cast]
+  simp_rw [pauliSq_cast]
   rw [wavg_aux Finset.univ (fun (a : Fin n → Fin 4) (x y : Cfg n) => ∏ i, pauliSU (a i) (x i) (y i))
     (fun a => ∏ i, (wloc (t i) (a i) : ℂ))
     (fun x y x' y' => (2 : ℂ) ^ n * ∏ i, (kap (t i) (x i) (y' i) * kap (t i) (y i) (x' i)))
@@ -96,14 +94,14 @@ theorem sum_wloc_pw {n : ℕ} (ψ : Ψ n) (t : Fin n → Fin 4) :
 def nzc {n : ℕ} (t : Fin n → Fin 4) : ℕ := (Finset.univ.filter fun i => t i ≠ 0).card
 
 /-- Regrouping a sum over Pauli words by weight (polynomial-valued version of `SpinFlip.sum_A_eq`). -/
-theorem sum_A_poly {n : ℕ} (ψ : Ψ n) (g : ℕ → ℝ[X]) :
-    ∑ a : Fin n → Fin 4, C (pw ψ a) * g (wt a)
-      = ∑ j ∈ Finset.range (n + 1), C (A ψ j) * g j := by
-  unfold A
+theorem sum_weightEnum_poly {n : ℕ} (ψ : Ψ n) (g : ℕ → ℝ[X]) :
+    ∑ a : Fin n → Fin 4, C (pauliSq ψ a) * g (pauliWeight a)
+      = ∑ j ∈ Finset.range (n + 1), C (weightEnum ψ j) * g j := by
+  unfold weightEnum
   simp_rw [map_sum, Finset.sum_mul]
   rw [← Finset.sum_fiberwise_of_maps_to (s := (Finset.univ : Finset (Fin n → Fin 4)))
-    (t := Finset.range (n + 1)) (g := wt)
-    (fun a _ => Finset.mem_range.mpr (Nat.lt_succ_of_le (wt_le a)))]
+    (t := Finset.range (n + 1)) (g := pauliWeight)
+    (fun a _ => Finset.mem_range.mpr (Nat.lt_succ_of_le (pauliWeight_le a)))]
   refine Finset.sum_congr rfl fun j _ => ?_
   refine Finset.sum_congr rfl fun a ha => ?_
   rw [(Finset.mem_filter.mp ha).2]
@@ -115,12 +113,12 @@ theorem local_factor (b : Fin 4) :
 
 theorem prod_local {n : ℕ} (a : Fin n → Fin 4) :
     ∏ i, (if a i = 0 then (1 + 3 * X : ℝ[X]) else X - 1)
-      = (1 + 3 * X) ^ (n - wt a) * (X - 1) ^ wt a := by
+      = (1 + 3 * X) ^ (n - pauliWeight a) * (X - 1) ^ pauliWeight a := by
   rw [Finset.prod_ite, Finset.prod_const, Finset.prod_const]
-  have h1 : (Finset.univ.filter fun i => ¬ a i = 0).card = wt a := rfl
+  have h1 : (Finset.univ.filter fun i => ¬ a i = 0).card = pauliWeight a := rfl
   have h2 := Finset.card_filter_add_card_filter_not (s := (Finset.univ : Finset (Fin n)))
     (fun i => a i = 0)
-  have h3 : (Finset.univ.filter fun i => a i = 0).card = n - wt a := by
+  have h3 : (Finset.univ.filter fun i => a i = 0).card = n - pauliWeight a := by
     rw [Finset.card_univ, Fintype.card_fin] at h2
     omega
   rw [h1, h3]
@@ -128,18 +126,18 @@ theorem prod_local {n : ℕ} (a : Fin n → Fin 4) :
 /-- `Σ_t y^{#nonflip t} · 2^n |β_t|² = 2^n S(1,y)·` (before the factor `2^{-n}`). -/
 theorem sum_over_types {n : ℕ} (ψ : Ψ n) :
     ∑ t : Fin n → Fin 4, (X : ℝ[X]) ^ nzc t * C ((2 : ℝ) ^ n * Complex.normSq (bil ψ t))
-      = ∑ j ∈ Finset.range (n + 1), C (A ψ j) * ((1 + 3 * X) ^ (n - j) * (X - 1) ^ j) := by
-  rw [← sum_A_poly ψ (fun j => (1 + 3 * X) ^ (n - j) * (X - 1) ^ j)]
+      = ∑ j ∈ Finset.range (n + 1), C (weightEnum ψ j) * ((1 + 3 * X) ^ (n - j) * (X - 1) ^ j) := by
+  rw [← sum_weightEnum_poly ψ (fun j => (1 + 3 * X) ^ (n - j) * (X - 1) ^ j)]
   have h1 : ∀ t : Fin n → Fin 4, C ((2 : ℝ) ^ n * Complex.normSq (bil ψ t))
-      = ∑ a : Fin n → Fin 4, C (∏ i, wloc (t i) (a i)) * C (pw ψ a) := by
+      = ∑ a : Fin n → Fin 4, C (∏ i, wloc (t i) (a i)) * C (pauliSq ψ a) := by
     intro t
-    rw [← sum_wloc_pw, map_sum]
+    rw [← sum_wloc_pauliSq, map_sum]
     simp only [map_mul]
   simp_rw [h1, Finset.mul_sum]
   rw [Finset.sum_comm]
   refine Finset.sum_congr rfl fun a _ => ?_
-  have h2 : ∀ t : Fin n → Fin 4, (X : ℝ[X]) ^ nzc t * (C (∏ i, wloc (t i) (a i)) * C (pw ψ a))
-      = C (pw ψ a) * ∏ i, ((if t i ≠ 0 then (X : ℝ[X]) else 1) * C (wloc (t i) (a i))) := by
+  have h2 : ∀ t : Fin n → Fin 4, (X : ℝ[X]) ^ nzc t * (C (∏ i, wloc (t i) (a i)) * C (pauliSq ψ a))
+      = C (pauliSq ψ a) * ∏ i, ((if t i ≠ 0 then (X : ℝ[X]) else 1) * C (wloc (t i) (a i))) := by
     intro t
     rw [Finset.prod_mul_distrib, map_prod]
     have : (∏ i, (if t i ≠ 0 then (X : ℝ[X]) else 1)) = X ^ nzc t := by
@@ -163,14 +161,14 @@ theorem sum_over_types {n : ℕ} (ψ : Ψ n) :
 /-- `S(1,y) = Σ_j A_j ((1+3y)/2)^{n-j} ((y-1)/2)^j`, i.e. `S(x,y)` at `x = 1`. -/
 noncomputable def shadowPoly {n : ℕ} (ψ : Ψ n) : ℝ[X] :=
   ∑ j ∈ Finset.range (n + 1),
-    C (A ψ j) * ((C (1 / 2) * (1 + 3 * X)) ^ (n - j) * (C (1 / 2) * (X - 1)) ^ j)
+    C (weightEnum ψ j) * ((C (1 / 2) * (1 + 3 * X)) ^ (n - j) * (C (1 / 2) * (X - 1)) ^ j)
 
 /-- The shadow coefficient `S_i`: the coefficient of `x^{n-i} y^i` in `S(x,y)`. -/
 noncomputable def shadowCoeff {n : ℕ} (ψ : Ψ n) (i : ℕ) : ℝ := (shadowPoly ψ).coeff i
 
 theorem shadowPoly_eq {n : ℕ} (ψ : Ψ n) :
     shadowPoly ψ = C ((1 / 2 : ℝ) ^ n) *
-      ∑ j ∈ Finset.range (n + 1), C (A ψ j) * ((1 + 3 * X) ^ (n - j) * (X - 1) ^ j) := by
+      ∑ j ∈ Finset.range (n + 1), C (weightEnum ψ j) * ((1 + 3 * X) ^ (n - j) * (X - 1) ^ j) := by
   unfold shadowPoly
   rw [Finset.mul_sum]
   refine Finset.sum_congr rfl fun j hj => ?_
@@ -178,13 +176,13 @@ theorem shadowPoly_eq {n : ℕ} (ψ : Ψ n) :
   rw [mul_pow, mul_pow]
   have : (C (1 / 2 : ℝ) : ℝ[X]) ^ (n - j) * C (1 / 2 : ℝ) ^ j = C ((1 / 2 : ℝ) ^ n) := by
     rw [← map_pow, ← map_pow, ← map_mul, ← pow_add, Nat.sub_add_cancel hj']
-  calc C (A ψ j) * (C (1 / 2 : ℝ) ^ (n - j) * (1 + 3 * X) ^ (n - j) *
+  calc C (weightEnum ψ j) * (C (1 / 2 : ℝ) ^ (n - j) * (1 + 3 * X) ^ (n - j) *
         (C (1 / 2 : ℝ) ^ j * (X - 1) ^ j))
-      = C (A ψ j) * ((C (1 / 2 : ℝ) ^ (n - j) * C (1 / 2 : ℝ) ^ j) *
+      = C (weightEnum ψ j) * ((C (1 / 2 : ℝ) ^ (n - j) * C (1 / 2 : ℝ) ^ j) *
         ((1 + 3 * X) ^ (n - j) * (X - 1) ^ j)) := by ring
     _ = _ := by rw [this]; ring
 
-/-- **Rains' shadow inequalities** (`even_qubit_purity_minima.tex`, after `eq:as`): every coefficient `S_i`
+/-- **Rains' shadow inequalities** (Rains): every coefficient `S_i`
 of `S(x,y) = Σ_j A_j ((x+3y)/2)^{n-j}((y-x)/2)^j` is non-negative, for every `n`-qubit vector (in particular
 every pure state).  `S_i = Σ_{t : #nonflip(t) = i} |β_t|² ≥ 0`. -/
 theorem shadow_nonneg {n : ℕ} (ψ : Ψ n) (i : ℕ) : 0 ≤ shadowCoeff ψ i := by
@@ -255,11 +253,15 @@ theorem coeff_shadow_term (n i j : ℕ) (hj : j ≤ n) :
 
 /-- `S_i = Σ_j shQ n i j · A_j`. -/
 theorem shadowCoeff_eq_lin {n : ℕ} (ψ : Ψ n) (i : ℕ) :
-    shadowCoeff ψ i = ∑ j ∈ Finset.range (n + 1), (shQ n i j : ℝ) * A ψ j := by
+    shadowCoeff ψ i = ∑ j ∈ Finset.range (n + 1), (shQ n i j : ℝ) * weightEnum ψ j := by
   unfold shadowCoeff shadowPoly
   rw [finsetSum_coeff]
   refine Finset.sum_congr rfl fun j hj => ?_
   rw [coeff_C_mul, coeff_shadow_term n i j (Nat.lt_succ_iff.mp (Finset.mem_range.mp hj))]
   ring
 
-end FormalResearch.FourQubitEntropy.PurityLP
+/-- info: 'FormalResearch.NQubit.Shadow.shadow_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms shadow_nonneg
+
+end FormalResearch.NQubit.Shadow

@@ -26,6 +26,7 @@ set_option Elab.async false
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
 open FormalResearch.FourQubitEntropy.SpinFlip
 
 /-- Neighbourhood bitmasks of the circulant `C_16(2, 3, 4, 8)` on 16 vertices (all degrees odd). -/
@@ -61,7 +62,7 @@ theorem rankSumT16 : ∑ S ∈ ((Finset.univ : Finset (Fin 16)).powersetCard 8),
   rw [maskSum_split (gK 8) 16 adjT16L (2 ^ 16 - 1) 14 15 7 6 (2 ^ 15) rfl rfl, maskSum_split (gK 8) 16 adjT16L (2 ^ 16 - 1) 13 14 7 6 (2 ^ 15) rfl rfl, maskSum_split (gK 8) 16 adjT16L (2 ^ 16 - 1) 13 14 6 5 (2 ^ 15 + 2 ^ 14) rfl rfl, leafT16_0, leafT16_1, leafT16_2, leafT16_3]
 
 /-- The graph state of the circulant `C_16(2, 3, 4, 8)` has `π_8 = L_16 + c_16 = 1/143` (rank histogram of the cuts, checked by the generator: rank 6 on 1096 cuts, rank 7 on 6882 cuts, rank 8 on 4892 cuts). -/
-theorem piMean_graphT16 : piMean (gsn (adjGraph adjT16)) 8 = 1 / 143 := by
+theorem piMean_graphT16 : meanRdmPurity (gsn (adjGraph adjT16)) 8 = 1 / 143 := by
   rw [piMean_gsn adjT16 adjT16_symm 8 23040 (by norm_num) rankSumT16]
   norm_num [Nat.choose]
 

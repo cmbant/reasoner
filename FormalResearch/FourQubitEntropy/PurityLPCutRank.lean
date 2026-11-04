@@ -21,6 +21,7 @@ open scoped BigOperators
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
 open FormalResearch.FourQubitEntropy.SpinFlip
 
 variable {n : ℕ}

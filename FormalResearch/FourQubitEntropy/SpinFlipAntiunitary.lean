@@ -14,7 +14,7 @@ inner-product identity `⟪Θ u, Θ v⟫ = conj ⟪u, v⟫` (`FormalResearch.QIB
 (for the tensor product of local antiunitaries `Θ = ⊗ Θ_i`, `η = ∏ η_i`).  For a unit `z` the
 ordinary-site reduction of `Ω_z = (|0⟩ z + |1⟩ Θ z)/√2` is `ρ = ½(|z⟩⟨z| + |Θz⟩⟨Θz|)` (the statement of the
 paper; that the reduction of `Ω_z` *is* this operator is the trivial partial trace over the distinguished
-qubit, carried out concretely for qubits in `SpinFlipOmega.lean`).
+qubit, carried out concretely for qubits in `NQubit/TimeReversal/Omega.lean`).
 
 * `rhoOrd_comm`: `Θ ρ Θ⁻¹ = ρ`, i.e. `Θ (ρ x) = ρ (Θ x)`;
 * `expect_odd`: a symmetric observable with `Θ O Θ⁻¹ = -O` has `tr(ρ O) = ½(⟪z,Oz⟫ + ⟪Θz,OΘz⟫) = 0`;

@@ -23,6 +23,7 @@ open scoped BigOperators
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
 open FormalResearch.FourQubitEntropy.SpinFlip
 
 /-- `∑_{t ∈ T} 2^t`: the bitmask of a finite set of naturals. -/
