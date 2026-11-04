@@ -8,7 +8,7 @@ public import Mathlib
 `eq:fqe-compact-gram-test` of `global_overlap_certificate.tex`: if `G - A Aᵀ/s²` is diagonally dominant then
 `G` is positive semidefinite.  This file proves the real-analysis half (`quad_nonneg_of_dd`); the integer half
 (that `gramOK` implies its hypotheses, via the rounding bound `|H - g (AAᵀ)/s²| ≤ 1/2` for
-`H = (g·dot + s²/2) / s²`) is the remaining obligation (see the probe report).  Claim class: proved.
+`H = (g·dot + s²/2) / s²`) is proved in `GOProbe/Final.lean` (`gramOK_dd` and the rounding argument there).  Claim class: proved.
 -/
 
 @[expose] public section

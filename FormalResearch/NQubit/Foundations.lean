@@ -208,7 +208,7 @@ theorem ip_Θ_Θ {n : ℕ} (ψ φ : Ψ n) : ip (Θ ψ) (Θ φ) = conj (ip ψ φ)
   rw [Θ_eq_rot, Θ_eq_rot, ip_rot _ (fun _ => SU2_unitary SU2_eps)]
   simp [ip, cj, map_sum]
 
-/-! ### Proposition `prop:framecost` (i): odd `n` -/
+/-! ### Odd `n`: the time-reversal overlap vanishes -/
 
 theorem eps_swap (a b : Fin 2) : eps b a = - eps a b := by
   fin_cases a <;> fin_cases b <;> simp [eps]
@@ -221,7 +221,7 @@ theorem eps_prod_swap {n : ℕ} (x y : Fin n → Fin 2) :
   rw [Finset.prod_mul_distrib]
   simp
 
-/-- **Prop `prop:framecost` (i).** For odd `n`, `⟨ψ|Θψ⟩ = 0` for every `ψ`. -/
+/-- **Odd `n`.** For odd `n`, `⟨ψ|Θψ⟩ = 0` for every `ψ`. -/
 theorem ip_Θ_self_odd {n : ℕ} (hn : Odd n) (ψ : Ψ n) : ip ψ (Θ ψ) = 0 := by
   set S := ∑ x, ∑ y, (∏ i, eps (x i) (y i)) * (conj (ψ x) * conj (ψ y)) with hS
   have h : ip ψ (Θ ψ) = S := by

@@ -11,7 +11,7 @@ explicit partial trace.
 
 * `two_pow_mul_cutPurity`: `tr ρ_S² = 2^{-|S|} Σ_{supp P ⊆ S} ⟨P⟩²`,
 * `cutPurity_compl`: `tr ρ_S² = tr ρ_{Sᶜ}²` for a pure state (a one-line consequence of the swap form),
-* `two_pow_mul_cutPuritySum` (via `PurU`): `2^s Σ_{|S|=s} tr ρ_S² = Σ_{j ≤ s} C(n-j, s-j) A_j`,
+* `cutPuritySum_eq` (via `two_pow_mul_cutPuritySumOn`): `2^s Σ_{|S|=s} tr ρ_S² = Σ_{j ≤ s} C(n-j, s-j) A_j`,
 * `cutPuritySum_compl`: `Σ_{|S|=s} = Σ_{|S|=n-s}`,
 * `cutPuritySum_split`: for a distinguished site `s`, `Σ_{|T|=k} tr ρ_T² = Q_k + Q_{n-k}` with
   `Q_r = Σ_{|S|=r, s∉S} tr ρ_S²`,

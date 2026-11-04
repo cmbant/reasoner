@@ -8,7 +8,7 @@ public import FormalResearch.FourQubitEntropy.QVBlock.Invariants
 
 * `kron_C_mul_copySym`: `C^{⊗Q} P = Blk_spin(R_p) C^{⊗Q}` with `R_p = repAvg (⊗_q ρ(·)(p q))`.
 * `kron_C_mul_sum`: `C^{⊗Q} K = Blk_spin(Y_p) C^{⊗Q}` for `K = ∑_k ⊗_q X k q`.
-* `copySym_mul_mul_copySym_eq_zero`: `R_p Y_p R_p = 0 ∀ p ⇒ P K P = 0`.
+* `copySym_mul_sum_mul_copySym_eq_zero`: `R_p Y_p R_p = 0 ∀ p ⇒ P K P = 0`.
 * `quad_eq_zero_of_blockData`: the abstract top theorem (T4 + T6 + T7 + T8).
 * `quad_eq_zero_of_certificate`: the same with all data given by generators, words and finite
   matrix identities.

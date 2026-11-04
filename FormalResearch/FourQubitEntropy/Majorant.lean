@@ -15,10 +15,12 @@ and `1/2`, and `a ≥ 0`, `b + 17a/12 ≤ 0`, then `E_f(ψ) ≤ E_f(M₄)` for e
 Paper: `prop:fqe-majorant` (spectral_corollaries.tex).
 
 **Equality.** The paper obtains the equality classification (for `a, α > 0`) from the equality
-classification `P = 1 ∧ F = 0` of the sextic inequality, which is not formalized here. We prove
+classification `P = 1 ∧ F = 0` of the sextic inequality, which needs the zero set of `F`
+(`PaperECritical.moment_zeros`, not importable here).  In this file we prove
 the equality case under the additional hypothesis that `h > f` off the two nodes (this is the
 situation for every Hermite majorant with `f⁗ < 0`, e.g. the entropy and Tsallis cases):
-`majorant_eq_iff`.
+`majorant_eq_iff`.  The equality clause under exactly the paper's hypotheses is
+`majorant_eq_iff_of_pos` in `MajorantEq.lean`.
 -/
 
 @[expose] public section

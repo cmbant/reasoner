@@ -10,7 +10,7 @@ public import FormalResearch.FourQubitEntropy.Corollaries
 Paper E, `purity_variance_certificate.tex`, `thm:fqe-joint-purity`: for every pure four-qubit state
 `T + Σ_j p_j² ≤ 3P - 9/4` (`p_j = tr ρ_{1j}²`).  The paper derives it from the quadratic variance
 inequality (QK) `F² + (9/2)(P-1) ≥ 6 V_P`, `V_P = Σ_j (p_j - P/3)²` (an exact-rational certificate,
-`thm:fqe-quadratic-variance`, **not** formalized), together with `F ≥ 0` (formalized),
+`thm:fqe-quadratic-variance`, not formalized in this file), together with `F ≥ 0` (formalized),
 `p_j ∈ [1/4, 1]` and `P ≥ 1`.
 
 This file formalizes that derivation, i.e. the implication `(QK) ⇒ (JV)`:
@@ -21,7 +21,9 @@ This file formalizes that derivation, i.e. the implication `(QK) ⇒ (JV)`:
 * `joint_purity_of_QK`: the statement about a unit four-qubit vector, with (QK) as an explicit
   hypothesis (stated with the cut purities `p_j = Σ_i λ_i²`).
 
-The equality classification of (JV) is not formalized.
+The equality classification of (JV) is not formalized.  (QK) is proved as `RenyiFull.quadraticVarianceBound`
+in `QVCheck/Unconditional.lean` (data-dependent: it uses the compiled checker), which also gives the unconditional
+`joint_purity_unconditional`.
 
 Trust: no `native_decide` here.  `joint_purity_real` and `joint_purity_of_QK` use only `propext`,
 `Classical.choice`, `Quot.sound`; the latter uses the kernel-checked sextic identity of `Identity.lean` (via
@@ -122,7 +124,8 @@ theorem cutPurity_le_one {l : Fin 2 × Fin 2 → ℝ} (hl : ∀ i, 0 ≤ l i) (h
 /-- **(QK) ⇒ (JV)** (`thm:fqe-joint-purity`, the derivation from `thm:fqe-quadratic-variance`).
 For a unit four-qubit vector satisfying the quadratic purity-variance inequality
 `F² + (9/2)(P-1) ≥ 6 V_P`, one has `T + Σ_j p_j² ≤ 3P - 9/4`.  The hypothesis (QK) is the
-exact-rational certificate of the paper and is not proved here. -/
+exact-rational certificate of the paper and is not proved in this file; it is discharged by
+`RenyiFull.quadraticVarianceBound` (`QVCheck/Unconditional.lean`). -/
 theorem joint_purity_of_QK (ψ : Psi) (hψ : normSqPsi ψ = 1)
     (hQK : 6 * ((cutPurity12 ψ - purity ψ / 3) ^ 2 + (cutPurity13 ψ - purity ψ / 3) ^ 2
         + (cutPurity14 ψ - purity ψ / 3) ^ 2) ≤ sexticF ψ ^ 2 + 9 / 2 * (purity ψ - 1)) :

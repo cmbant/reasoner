@@ -13,7 +13,7 @@ Paper E: `lem:fqe-dual` (Lagrangian dual bound), the contact identities (DC), an
   `Σ_j H_q(λ^{(j)}) ≤ Σ_j Λ_θ(λ^{(j)}) - ℓ_θ(ε, F)`.
 * `ell_ge_min_corner`: `ℓ_θ` is concave, so on a rectangle its minimum is at a corner.
 * `contact_identity`: `Λ_θ(c₁) + 2 Λ_θ(c₂) - ℓ_θ(0, 1/2) = 5` for every `θ`.
-* `cubic_envelope`, `cubic_envelope_le_five_thirds`, `cubic_envelope_eq`: for every triple of
+* `cubic_envelope`, `cubic_envelope_le_five_thirds` (with its equality clause): for every triple of
   probability vectors and `q ≥ q_b`, `E_q ≤ 22/9 - 20P/27 - 2F/27`; hence `E_q ≤ 5/3` when
   `20(P-1) + 2F ≥ 1`, with equality only at the cluster triple.
 

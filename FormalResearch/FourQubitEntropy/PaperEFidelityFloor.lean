@@ -24,7 +24,8 @@ for every unit pure four-qubit state, `Φ(ψ) ≥ (1+√τ(ψ))/6 ≥ 1/6`.
 
 Not formalised: the local-radius clauses (`d ≤ 1/20 ⇒ δ ≥ 3d²/10` needs the matrix-logarithm Hessian estimate of
 `entropy_orbit_hessian.tex`; `d ≤ 2⁻¹⁰ ⇒ Q ≥ 3d²` needs the transverse quadratic form of `Q`).  No hypothesis other
-than `GlobalOverlap` (`thm:fqe-global-overlap`) remains in the global estimates.
+than `GlobalOverlap` (`thm:fqe-global-overlap`) remains in the global estimates; it is discharged by
+`GO.globalOverlap_all` in `GOGlue/Final.lean`.
 -/
 
 @[expose] public section

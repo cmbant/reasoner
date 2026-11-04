@@ -17,7 +17,7 @@ spin-flip overlap. (The paper's finer form `(SF+)` also keeps the nonnegative re
 Paper: `eq:fqe-spectral-plus` and the stability paragraphs of `spectral_proofs.tex`
 ("Tsallis stability", "Quantitative consequence for von Neumann entropy").
 
-**What is proved here, and what the paper now states.** The paper's stability estimates use the general
+**What is proved here, and what the paper states.** The paper's stability estimates use the general
 envelope `F ≥ (3/4) W₁ + τ - τ^{3/2}` (`thm:fqe-general-envelope`, `sextic_identity.tex`), which is proved in
 `GeneralEnvelope.lean` (`envelope_weak`) after this file; `StabilityEnvelope.lean` states the paper's
 estimates unconditionally. They carry the extra term `(a/12)(τ - τ^{3/2}) ≥ 0`. The unconditional theorems below

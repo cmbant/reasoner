@@ -6,8 +6,8 @@ public import FormalResearch.FourQubitEntropy.RenyiFullBQCells
 /-!
 # Binary quartic lemma at `q_s`: `M(x(s), s) < 0` and `G'' > 0`
 
-Combines the Riccati comparison `x ≤ U`, the monotonicity `∂M/∂ξ ≥ 0` (BQ-4) and the sign of
-`M(U(s), s)` (BQ-3): `M(x,s) ≤ M(U,s) < 0` on `0 < s < 1`.
+Combines the Riccati comparison `x ≤ U`, the monotonicity `∂M/∂ξ ≥ 0` (monotonicity cell) and the sign of
+`M(U(s), s)` (sign cell): `M(x,s) ≤ M(U,s) < 0` on `0 < s < 1`.
 -/
 
 @[expose] public section
@@ -15,7 +15,7 @@ Combines the Riccati comparison `x ≤ U`, the monotonicity `∂M/∂ξ ≥ 0` (
 
 namespace FormalResearch.FourQubitEntropy.RenyiFull
 
-/-- BQ-3: `(15Q)⁴ M(P/Q, s) = (q-1) s⁵ (1-s²)² K(q_s, s)` at `q = 1587/1000`. -/
+/-- Sign cell: `(15Q)⁴ M(P/Q, s) = (q-1) s⁵ (1-s²)² K(q_s, s)` at `q = 1587/1000`. -/
 theorem bqM_U_identity {s : ℝ} (hs : |s| < 1) :
     bqQn (1587 / 1000) s ^ 4 * bqM (1587 / 1000) s (bqU (1587 / 1000) s) =
       (1587 / 1000 - 1) * s ^ 5 * (1 - s ^ 2) ^ 2 * bqK s := by
@@ -52,7 +52,7 @@ theorem hasDerivAt_bqM_xi (s xi : ℝ) :
   simp (disch := fun_prop)
   ring
 
-/-- BQ-4 consequence: `ξ ↦ M(ξ, s)` is monotone on `[s, 1]`. -/
+/-- Consequence of the monotonicity cell: `ξ ↦ M(ξ, s)` is monotone on `[s, 1]`. -/
 theorem bqM_mono {s : ℝ} (hs0 : 0 ≤ s) (hs1 : s < 1) :
     MonotoneOn (fun xi => bqM (1587 / 1000) s xi) (Set.Icc s 1) := by
   apply monotoneOn_of_hasDerivWithinAt_nonneg (convex_Icc s 1) (f' := fun xi => bqdM s xi)

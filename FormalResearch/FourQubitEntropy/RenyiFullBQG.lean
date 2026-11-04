@@ -3,7 +3,7 @@ module
 public import FormalResearch.FourQubitEntropy.RenyiFullBQOde
 
 /-!
-# Binary quartic lemma: the derivative formulas (BQ-1)
+# Binary quartic lemma: the derivative formulas
 
 With `s = tanh φ`, `x = tanh(qφ)`, `f = ln m_q`, `v = s²`: `f' = q(x-s)/(2s(1-s²))`, `G = f''`,
 and `G'(s)`, `G''(s) = -q M(x,s) / (2 s⁵ (1-s²)⁴)` as rational functions of `(s, x(s))` along the
@@ -32,7 +32,7 @@ noncomputable def bqN1 (q s x : ℝ) : ℝ :=
 noncomputable def bqG1 (q s : ℝ) : ℝ :=
   q * bqN1 q s (bqx q s) / (4 * s ^ 4 * (1 - s ^ 2) ^ 3)
 
-/-- The numerator `M(x,s)` of `G''` (BQ-1). -/
+/-- The numerator `M(x,s)` of `G''`. -/
 noncomputable def bqM (q s x : ℝ) : ℝ :=
   3 * q ^ 3 * s ^ 3 * x ^ 4 + q ^ 2 * s ^ 2 * (5 - 17 * s ^ 2) * x ^ 3
     + q * s * (6 - 23 * s ^ 2 - 4 * q ^ 2 * s ^ 2 + 39 * s ^ 4) * x ^ 2

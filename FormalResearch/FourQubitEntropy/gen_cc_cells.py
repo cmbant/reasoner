@@ -1,9 +1,9 @@
 """Generate RenyiFullCCCells.lean: the two Bernstein certificates of the moment case of lem:fqe-capped-cubic (Paper E).
 
-  CC-1 (curvature): on 0 <= x <= 17/100, |v| <= 6/25,  N^2 + N N_xx - N_x^2 <= 0  (bidegree (4,4), one box), where
+  curvature cell: on 0 <= x <= 17/100, |v| <= 6/25,  N^2 + N N_xx - N_x^2 <= 0  (bidegree (4,4), one box), where
        N = 1 + x V + x^2 W, V = A + B v + C v^2, W = C/4 + T v   (A,B,C,T: order q_s = 1587/1000 coefficients of
        lem:fqe-near-uniform-moment);  hence (ln N)_xx <= -1.
-  CC-2 (endpoint): at x = X = 17/100, the eight-term Taylor minorant of ln(1+z), z = X (V + X W), satisfies
+  endpoint cell: at x = X = 17/100, the eight-term Taylor minorant of ln(1+z), z = X (V + X W), satisfies
        sum_{j<=8} (-1)^(j+1) z^j / j  >=  r L+ X (171/40 - (8/3) v - (11/10) X)   for |v| <= 6/25
        (L+ = 6931471808/10^10 > ln 2, r = q_s - 1); univariate, degree 16, two Bernstein boxes.
 
@@ -48,7 +48,7 @@ for a in range(n1+1):
         terms.append(f"{lit(val*comb(n1, a)*comb(n2, b))} * (s ^ {a} * (1 - s) ^ {n1-a}) * (w ^ {b} * (1 - w) ^ {n2-b})")
 Ebern = " +\n      ".join(terms)
 
-# CC-2
+# endpoint cell
 z = sp.expand(X*(V + X*W))
 P8 = sum((-1)**(j+1)*z**j/j for j in range(1, 9))
 P = sp.expand(P8 - K*X*(R(171, 40) - R(8, 3)*v - R(11, 10)*X))
@@ -85,8 +85,8 @@ Paper E, `lem:fqe-capped-cubic`, the moment argument for `x = p - 1/4 ≤ 17/100
 
 `N = 1 + x V + x² W` with `V = A + B v + C v²`, `W = C/4 + T v`, `(A,B,C,T)` the order-`q_s` coefficients.
 
-* `ccE_nonpos` (CC-1): `N² + N N_xx - N_x² ≤ 0` on `0 ≤ x ≤ 17/100`, `|v| ≤ 6/25` (so `(ln N)_xx ≤ -1`);
-* `ccTay_nonneg` (CC-2): at `x = 17/100`, the eight-term Taylor minorant of `ln N` beats `r L⁺ x (171/40 - (8/3) v - (11/10) x)`
+* `ccE_nonpos` (curvature cell): `N² + N N_xx - N_x² ≤ 0` on `0 ≤ x ≤ 17/100`, `|v| ≤ 6/25` (so `(ln N)_xx ≤ -1`);
+* `ccTay_nonneg` (endpoint cell): at `x = 17/100`, the eight-term Taylor minorant of `ln N` beats `r L⁺ x (171/40 - (8/3) v - (11/10) x)`
   for `|v| ≤ 6/25`.
 -/
 
@@ -160,7 +160,7 @@ theorem ccTay_cell{idx} {{v : ℝ}} (hv0 : {lit(lo)} ≤ v) (hv1 : v ≤ {lit(hi
   rw [key]
   positivity
 ''')
-# CC-3: u^2 ((1-u)(3-2u))^5 <= 1 on [0, 3/32] (weight bound for the chart B)
+# weight-bound cell: u^2 ((1-u)(3-2u))^5 <= 1 on [0, 3/32] (weight bound for the chart B)
 uu = sp.symbols('uu')
 Pu = sp.expand(1 - uu**2*((1-uu)*(3-2*uu))**5)
 
@@ -177,7 +177,7 @@ assert nu_ == 12 and all(c > 0 for c in bu)
 termsu = " +\n      ".join(f"{lit(bu[i]*comb(nu_, i))} * (w ^ {i} * (1 - w) ^ {nu_-i})" for i in range(nu_+1))
 out.append(f'''
 set_option maxHeartbeats 4000000 in
-/-- `u² ((1-u)(3-2u))⁵ ≤ 1` on `[0, 3/32]` (CC-3). -/
+/-- `u² ((1-u)(3-2u))⁵ ≤ 1` on `[0, 3/32]` (weight-bound cell). -/
 theorem cc_wB_poly {{u : ℝ}} (h0 : 0 ≤ u) (h1 : u ≤ 3 / 32) : u ^ 2 * ((1 - u) * (3 - 2 * u)) ^ 5 ≤ 1 := by
   obtain ⟨w, hw0, hw1, rfl⟩ : ∃ w : ℝ, 0 ≤ w ∧ w ≤ 1 ∧ u = (3 / 32 : ℝ) * w :=
     ⟨u / (3 / 32), by positivity, by rw [div_le_one (by norm_num)]; exact h1, by field_simp⟩

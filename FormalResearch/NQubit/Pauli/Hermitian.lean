@@ -65,7 +65,7 @@ theorem pauliExp_im {n : ℕ} (ψ : Ψ n) (a : Fin n → Fin 4) : (pauliExp ψ a
   simp at this
   linarith
 
-/-- **`SpinFlip.pw` is `⟨ψ|P|ψ⟩²`** for the genuine Hermitian Pauli string. -/
+/-- **`pauliSq` is `⟨ψ|P|ψ⟩²`** for the genuine Hermitian Pauli string. -/
 theorem pauliSq_eq_pauliExp_sq {n : ℕ} (ψ : Ψ n) (a : Fin n → Fin 4) :
     pauliSq ψ a = (pauliExp ψ a).re ^ 2 := by
   unfold pauliSq

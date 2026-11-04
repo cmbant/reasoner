@@ -17,7 +17,7 @@ then `E_f(ψ) = E_f(M₄)` holds precisely on the two Hilbert-Schmidt LU orbits 
 of `F` (`PaperECritical.moment_zeros`) puts `ψ` in one of five LU orbits, and the three Bell-pair
 orbits have `P = 3/2 ≠ 1`.
 
-`majorant_eq_iff_of_pos` is the new theorem. `majorant_eq_iff` is not derived from it (it allows
+`majorant_eq_iff_of_pos` is the theorem under the paper's hypotheses. `majorant_eq_iff` is not derived from it (it allows
 `a = 0`, which the paper's clause excludes, and `Majorant.lean` cannot import the zero-set
 classification without a rebuild of its many dependents); the two statements are independent.
 -/

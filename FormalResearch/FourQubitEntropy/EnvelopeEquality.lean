@@ -16,7 +16,7 @@ public import FormalResearch.FourQubitEntropy.PaperECriticalTwoFlat
 The full classification of the equality set (the `τ = 0` zero set of `H`, and the critical equality
 family `Θ = O(κ I + (1-κ) s sᵀ)` for `τ > 0`) is `envelope_equality_iff` in `EnvelopeEqualityClass.lean`
 (with `critical_envelope_eq_iff`, `EnvelopeCriticalClass.lean`, and `H_zero_product`,
-`EnvelopeProductZero.lean`); see `THEOREM_MAP.md`.
+`EnvelopeProductZero.lean`).
 -/
 
 @[expose] public section

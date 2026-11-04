@@ -10,8 +10,8 @@ Paper E, `lem:fqe-capped-cubic`, the moment argument for `x = p - 1/4 ≤ 17/100
 
 `N = 1 + x V + x² W` with `V = A + B v + C v²`, `W = C/4 + T v`, `(A,B,C,T)` the order-`q_s` coefficients.
 
-* `ccE_nonpos` (CC-1): `N² + N N_xx - N_x² ≤ 0` on `0 ≤ x ≤ 17/100`, `|v| ≤ 6/25` (so `(ln N)_xx ≤ -1`);
-* `ccTay_nonneg` (CC-2): at `x = 17/100`, the eight-term Taylor minorant of `ln N` beats `r L⁺ x (171/40 - (8/3) v - (11/10) x)`
+* `ccE_nonpos` (curvature cell): `N² + N N_xx - N_x² ≤ 0` on `0 ≤ x ≤ 17/100`, `|v| ≤ 6/25` (so `(ln N)_xx ≤ -1`);
+* `ccTay_nonneg` (endpoint cell): at `x = 17/100`, the eight-term Taylor minorant of `ln N` beats `r L⁺ x (171/40 - (8/3) v - (11/10) x)`
   for `|v| ≤ 6/25`.
 -/
 
@@ -145,7 +145,7 @@ theorem ccTay_cell1 {v : ℝ} (hv0 : (0 : ℝ) ≤ v) (hv1 : v ≤ (6 / 25 : ℝ
   positivity
 
 set_option maxHeartbeats 4000000 in
-/-- `u² ((1-u)(3-2u))⁵ ≤ 1` on `[0, 3/32]` (CC-3). -/
+/-- `u² ((1-u)(3-2u))⁵ ≤ 1` on `[0, 3/32]` (weight-bound cell). -/
 theorem cc_wB_poly {u : ℝ} (h0 : 0 ≤ u) (h1 : u ≤ 3 / 32) : u ^ 2 * ((1 - u) * (3 - 2 * u)) ^ 5 ≤ 1 := by
   obtain ⟨w, hw0, hw1, rfl⟩ : ∃ w : ℝ, 0 ≤ w ∧ w ≤ 1 ∧ u = (3 / 32 : ℝ) * w :=
     ⟨u / (3 / 32), by positivity, by rw [div_le_one (by norm_num)]; exact h1, by field_simp⟩

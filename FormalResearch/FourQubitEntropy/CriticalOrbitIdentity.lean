@@ -6,7 +6,7 @@ public import FormalResearch.FourQubitEntropy.CriticalOrbitPr
 # Critical-orbit stability: the three-term identity
 
 `eq:fqe-critical-three-term` of `critical_orbit_stability.tex`.  The twelve cut probabilities are
-quadratic in `p_i = |v_i|²` and `c_{ij} = Re (conj v_i v_j)` (`pr_pc`), and the identity holds modulo
+quadratic in `p_i = |v_i|²` and `c_{ij} = Re (conj v_i v_j)` (`prPC`), and the identity holds modulo
 the four `3 × 3` Gram minors (`gram3`), which vanish because the `v_i` are vectors of `ℝ²`.
 -/
 

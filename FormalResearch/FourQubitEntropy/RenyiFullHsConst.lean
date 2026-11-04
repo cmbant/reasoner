@@ -9,7 +9,7 @@ public import FormalResearch.FourQubitEntropy.RenyiFullHsOne
 * `EX_xs`: `E(x*) = 0` (the tangency condition that fixes `α = (3/2)k + 65/36`).
 * `olv x` is the one-large spectrum `(x⁵/N, 1/N, 1/N, 1/N)`; `Lam qU aU bU gU (olv x) = PhiX aU x`,
   `olv x* = hsSpec`, `olv 1 = c₂`.
-* `delta_pos`: the uniform gap `Δ > 0` (`(HUC)`), by the atanh/log series (`n = 10` terms).
+* `delta_log`: the uniform gap `Δ > 0` (`(HUC)`), by the atanh/log series (`n = 10` terms).
 -/
 
 @[expose] public section

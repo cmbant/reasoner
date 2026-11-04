@@ -10,12 +10,13 @@ stabilizer state has `π₃ ≥ 19/140`, hence the seven-qubit minimum `121/917`
 stabilizer state. The paper's proof is analytic: `280 π₃ = 35 + 15A₁ + 5A₂ + A₃` and the Rains shadow
 identity `4 S₁ = 7 + A₁ + A₂ - A₃`, with the weight and shadow coefficients `A_w, S_w` nonnegative
 integers for a stabilizer state; GS-4 (`verify_balanced_purity_lp_graph_states.py`) checks the two
-identities and an explicit seven-vertex graph state with `π₃ = 19/140`. The earlier proof by an
-exhaustive evaluation of `π₃` on all `2^21` seven-vertex graph states is no longer part of the paper.
+identities and an explicit seven-vertex graph state with `π₃ = 19/140`.  The paper's proof does not
+enumerate graph states.
 
 **Status: partly formalized; the proposition itself is not.** The Pauli-enumerator and shadow-integrality
-argument is not formalized, nor is the Clifford-to-graph-state normal form, and the `2^21`-graph sweep is
-not run in Lean (a `decide +kernel` sweep of `2^21` graphs times `35` cuts is far beyond a routine build).
+argument is not formalized, nor is the Clifford-to-graph-state normal form, and an exhaustive evaluation of `π₃` on all
+`2^21` seven-vertex graphs is not run in Lean (a `decide +kernel` sweep of `2^21` graphs times `35` cuts is far
+beyond a routine build).
 What is proved here:
 
 * the data model: a graph on seven vertices is a `21`-bit number (lexicographic edge order, as in
@@ -23,11 +24,11 @@ What is proved here:
   `T` (computed as `log₂` of the size of the row span), and for a graph state
   `π₃(g) = (1/35) ∑_T 2^{-cutRank}` (`pi3`), a standard formula that is *recalled, not proved* here;
 * `pi3_empty`, `pi3_complete`, `pi3_witness`: exact values at the empty graph (`1`), the complete graph
-  (`1/2`) and the Fano/wheel witness graph `0x00cf17` of SE-1 (`19/140`, with rank profile `3 × 2,
+  (`1/2`) and the Fano/wheel witness graph `0x00cf17` of GS-4 (`19/140`, with rank profile `3 × 2,
   32 × 3`), by `decide +kernel`; this is the sharpness half of GS-4;
 * `stab7_of_enumeration`, `stab7_not_attained`: the conditional reduction. IF the statement
-  `∀ g < 2^21, 19/140 ≤ π₃(g)` (the content of the former exhaustive sweep, which the analytic proof
-  of the paper now replaces) holds (taken as a hypothesis, not proved in Lean), THEN no seven-vertex
+  `∀ g < 2^21, 19/140 ≤ π₃(g)` (the graph-state case of `prop:stab7`, which the paper proves
+  analytically) holds (taken as a hypothesis, not proved in Lean), THEN no seven-vertex
   graph state attains `121/917`, and likewise for any value `v < 19/140`. The arithmetic
   `121/917 < 19/140` is `ico_lt_stab`.
 -/
@@ -82,7 +83,7 @@ theorem pi3_complete : pi3 (2 ^ 21 - 1) = 1 / 2 := by
   unfold pi3
   rw [this]; norm_num
 
-/-- The SE-1 witness: Fano/wheel graph (`graph_bits = 0x00cf17`). -/
+/-- The GS-4 witness: Fano/wheel graph (`graph_bits = 0x00cf17`). -/
 def witnessGraph : ℕ := 0x00cf17
 
 theorem pi3_witness : pi3 witnessGraph = 19 / 140 := by
@@ -98,7 +99,7 @@ theorem witness_profile :
 
 theorem ico_lt_stab : (121 : ℚ) / 917 < 19 / 140 := by norm_num
 
-/-- `prop:stab7` modulo the former enumeration (hypothesis `hGS4`, not proved in Lean) and the graph-state normal form:
+/-- `prop:stab7` modulo the graph-state bound (hypothesis `hGS4`, not proved in Lean) and the graph-state normal form:
 if every seven-vertex graph state has `π₃ ≥ 19/140`, then no graph state attains any value below
 `19/140`, in particular not `121/917`. -/
 theorem stab7_of_enumeration (hGS4 : ∀ g < 2 ^ 21, (19 : ℚ) / 140 ≤ pi3 g) :

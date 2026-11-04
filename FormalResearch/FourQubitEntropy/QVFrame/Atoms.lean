@@ -8,7 +8,7 @@ public import FormalResearch.FourQubitEntropy.QVCert.QVDefect
 
 * `cutMask j` is the cut `{0, j}`, `cutPerm k m` the per-qubit cyclic slot permutation of `k` copies on the qubits
   of the mask `m` (identity on the others), written so that `⊗_q slotPerm (cutPerm k m q)` is the matrix
-  `|c⟩ ↦ |c ∘ rot_k⟩` on the cut qubits of the `routeD/rhs.py` convention (`rot_k : t ↦ t+1`).
+  `|c⟩ ↦ |c ∘ rot_k⟩` on the cut qubits (`rot_k : t ↦ t+1`).
 * `invG_cut12`: the invariant of the cut `{0,1}` is `Σ_x ∏_t R_{12}(x_t, x_{t+1})`;
   `atom2`, `atom3`: `k = 2, 3` give `tr R²`, `tr R³` for the three cuts (`red12`, `red13`, `red14`).
 -/

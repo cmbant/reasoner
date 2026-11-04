@@ -16,7 +16,7 @@ real functions of `e`; the hypotheses are exactly the ingredients proved elsewhe
 * positivity of `L`, `k₀`.
 
 The conclusion is `(f(λ) + f(μ))/2 ≤ H(λ,μ)` for all `λ, μ ≥ 0`, `H(λ,μ) = P(e) + v A(e) + v² B(e)`,
-`e = 4(λ+μ)`, `v = 16(λ-μ)²` (`majorant_of_data`).
+`e = 4(λ+μ)`, `v = 16(λ-μ)²` (`majorant_all`).
 -/
 
 @[expose] public section

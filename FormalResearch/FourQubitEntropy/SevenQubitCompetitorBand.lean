@@ -53,7 +53,7 @@ theorem meanEntropy3_linear_purity (ψ : BitString → ℂ) (hψ : UnitVec ψ) :
 /-- **`prop:seven-competitor-band` (conditional).**  Assume the sharp purity bound
 `SevenPurityBound` and the SC-2 lower witness `Estar > (59307/20000) ln 2`.  Every unit vector with
 `E₃(ψ) ≥ Estar` has `121/917 ≤ π₃(ψ) < 8693/64000`.  The upper bound is proved from
-`entropy_linear_purity`; the lower bound is `SevenPurityBound`. -/
+`entropy_linear_purity_bits`; the lower bound is `SevenPurityBound`. -/
 theorem competitor_purity_band (hPB : SevenPurityBound) (ψ : BitString → ℂ) (hψ : UnitVec ψ)
     {Estar : ℝ} (hwit : (59307 / 20000) * log 2 < Estar) (hE : Estar ≤ meanEntropy3 ψ) :
     121 / 917 ≤ meanPurity3 ψ ∧ meanPurity3 ψ < 8693 / 64000 := by

@@ -13,9 +13,11 @@ For a critical unit state `ψ` (`blochSq ψ = 0`), with `Φ`, `d² = dist2` of `
 * `critical_entropy_fidelity`, `critical_entropy_distance`: the entropy bounds
   (`eq:fqe-critical-entropy`), through the existing `entropy_gap_critical`.
 
-The only input not proved here is the all-state comparison `Q ≥ 1 - Φ`
+The only input not proved in this file is the all-state comparison `Q ≥ 1 - Φ`
 (`thm:fqe-global-overlap`), taken as the hypothesis `hglob` and used only when `Φ ≥ 1/2`; the
 branch `Φ ≤ 1/2` is proved by `Q_lower` (the analytic argument of `critical_orbit_stability.tex`).
+The hypothesis is discharged by `GO.globalOverlap_all`, and the unconditional statement is
+`GO.critical_orbit_sharp_dist_all`, both in `GOGlue/Final.lean`.
 -/
 
 @[expose] public section

@@ -10,9 +10,9 @@ public import FormalResearch.FourQubitEntropy.GOProbe.Final
 `CSpec` names a constraint (the tags of `gen_go_cert.py`: `sos`, `fidelity` (a ray `(a,b)`), `lead`,
 `height`, `imaginary`, `height_quadratic`, `imaginary_quadratic`, `procrustes`, `fidelity_floor`, `excess`,
 `lower_quadratic`).  `CSpec.mat cs = (k, L, S)` is the corresponding `k × k` matrix of polynomials
-(the slice-side expression of `PaperEGoSlice.lean`, transcribed in `PQ`, times `L`), and `spec_psd` shows
+(the slice-side expression of `PaperEGoSlice.lean`, transcribed in `PQ`, times `L`), and `CSpec.psd` shows
 that at a slice point with `SliceConstraints` the matrix `S(y)` is positive semidefinite
-(`CSpec.okB`: the rational ray conditions of `RayOK`, and `c² + 3 s² = 1`, `σ₀, σ = ±1` for the lower
+(`CSpec.ok`: the rational ray conditions of `RayOK`, and `c² + 3 s² = 1`, `σ₀, σ = ±1` for the lower
 frames).  The generated `cons` equals `CSpec.mat` up to a positive factor: `GOGlue/DataCheck`.
 Claim class: proved.
 -/
@@ -155,7 +155,7 @@ def CSpec.mat : CSpec → ℕ × ℕ × List (List SP)
   | .excess => specOf excessMat
   | .lq σ₀ σ c s => specOf (lqMat σ₀ σ c s)
 
-/-! ### Soundness of `toSP` -/
+/-! ### Soundness of `pmToSP` -/
 
 theorem dvd_foldr_lcm : ∀ (l : List ℕ) (a : ℕ), a ∈ l → a ∣ l.foldr Nat.lcm 1
   | [], a, h => by simp at h

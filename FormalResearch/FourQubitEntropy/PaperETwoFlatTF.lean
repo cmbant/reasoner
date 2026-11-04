@@ -30,10 +30,10 @@ a balanced cut `k` with ordered spectrum `λ₁ ≥ λ₂ ≥ λ₃ ≥ λ₄ �
 
 Together with `PaperECriticalTwoFlat.lean` (`two_flat_rank`: two maximally mixed cuts force Schmidt rank
 at most two on the third) and `tau_eq_iff` (`PaperETwoFlatEq.lean`), this formalises the inequalities, the
-equality classification and the sharpness of `prop:fqe-two-flat-rigidity`. NOT formalised: the final
-identification of every state with two maximally mixed balanced cuts with the cluster-to-Bell family
-`(eq:fqe-quadratic-family)` up to local unitaries and a permutation of the cuts, and hence the Rényi
-envelope consequence.
+equality classification and the sharpness of `prop:fqe-two-flat-rigidity`.  The final identification of every
+state with two maximally mixed balanced cuts with the cluster-to-Bell family `(eq:fqe-quadratic-family)` up to
+local unitaries and a permutation of the cuts (`two_flat_QF`), and hence the Rényi envelope consequence
+(`two_flat_renyi`), are in `PaperEGapTwoFlatQF.lean`.
 -/
 
 @[expose] public section

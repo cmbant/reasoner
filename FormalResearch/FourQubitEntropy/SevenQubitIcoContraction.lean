@@ -8,12 +8,11 @@ public import FormalResearch.FourQubitEntropy.SevenQubitIcoZeroFocusPlane
 /-!
 # The integer contraction identities `G_{1,0}`, `G_{1,1}`, `G_{2,1}`
 
-**Not a paper statement.**  The paper (`seven_qubit_entropy_local.tex`) no longer displays these identities:
-it now proves `prop:entropy-seven-stationarity` from the family stationary point by the symmetric-criticality
-lemma `lem:seven-family-symmetric-criticality` (not formalized), and ES-1 now names the exact checks of that
-lemma.  The identities below are true, kernel-checked and independent of it; they showed, in the earlier
-form of the proof, that the entropy gradient of the family lies in `span{U, V}`, and are kept as that
-exact computation.
+**Not a paper statement.**  The paper (`seven_qubit_entropy_local.tex`) does not display these identities:
+it proves `prop:entropy-seven-stationarity` from the family stationary point by the symmetric-criticality
+lemma `lem:seven-family-symmetric-criticality` (not formalized), and ES-1 names the exact checks of that
+lemma.  The identities below are true, kernel-checked and independent of it; they are an exact computation
+showing that the entropy gradient of the family lies in `span{U, V}`.
 
 For `ψ = a U + b V`
 (`U = alphaReal`, `V = betaReal`, here `ψ = icosahedralState a b`) and `ε ∈ {0, 1}`,

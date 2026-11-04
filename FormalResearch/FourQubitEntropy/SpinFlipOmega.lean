@@ -7,7 +7,7 @@ public import FormalResearch.NQubit.Reduced.Purity
 /-!
 # Balanced-cut purities of `Ω_z` for `m = 3, 4, 5, 6`, and the seven-qubit spin-flip gap
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_graph_parity.tex` and `spinflip_purification.tex`.
+An auxiliary result, not stated in the paper.
 For a normalised `m`-qubit `z`, the time-reversal purification `Ω_z` (`FormalResearch.NQubit.TimeReversal.omegaState`) is a unit
 `(m+1)`-qubit state whose purity enumerator is given by that of `z`; `balanced_m3`–`balanced_m6` evaluate the
 balanced-cut purity for `m = 3, …, 6` by linear algebra from the identities of `NQubit/Reduced/Purity.lean`.
@@ -97,7 +97,7 @@ theorem balanced_m6 (z : Ψ 6) (hz : nsq z = 1) :
   norm_num [Finset.sum_range_succ, Nat.choose] at hQk hQn hsum hsgn hA0 hE1 hE2 hE3 hE4 hE5 hC1 hC2 ⊢
   linear_combination (5/28) * hA0 + (-3/4480) * hsum + (3/4480) * hsgn + (3/140) * hE1 + (-1/280) * hE2 + (1/1120) * hE4 + (-3/2240) * hE5 + (-3/70) * hC1 + (1/70) * hC2 + (1/280) * hQk + (1/560) * hQn
 
-/-- **Seven-qubit spin-flip gap** (`eq:seven-spinflip-gap`): for a normalised six-qubit `z`,
+/-- **Seven-qubit spin-flip gap** (auxiliary, not stated in the paper): for a normalised six-qubit `z`,
 `Ω_z` is a unit seven-qubit state and its balanced-cut purity (average over the 35 three-qubit
 subsets) is `19/140 + (A₁ + 3A₂ + 6τ₆)/140 ≥ 19/140`. -/
 theorem seven_spinflip_gap (z : Ψ 6) (hz : nsq z = 1) :

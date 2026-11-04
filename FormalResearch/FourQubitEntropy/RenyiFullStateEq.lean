@@ -15,8 +15,10 @@ zero orbits of `F`, and `P = 1` excludes the three Bell-pair products (purity `3
 
 `meanRenyi_envelope_eq_hs`: for `1 < q` with `h_q > 5/3`, equality `E_q(ψ) = h_q` forces `ψ` to be
 LU-equivalent to `M₄` or `conj M₄` (under `ClassicalRelaxation` and (QK)); conversely `M₄` attains it
-(`meanRenyi_M4`).  The cluster clause for `q > q_*` is spectral only (the (QF) identification of
-two-flat states with the cluster-to-Bell family is not formalised).
+(`meanRenyi_M4`).  The cluster clause for `q > q_*` is spectral only; the (QF) identification of
+two-flat states with the cluster-to-Bell family is `PaperECritical.two_flat_QF` (`PaperEGapTwoFlatQF.lean`), not
+used here.  The hypotheses `ClassicalRelaxation` and (QK) are discharged in `QVCheck/Unconditional.lean`
+(`meanRenyi_envelope_eq_hs_unconditional`).
 -/
 
 @[expose] public section

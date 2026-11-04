@@ -15,8 +15,8 @@ This module joins the two halves of the formalisation:
 * the **reduction** (`PaperEGoSlice*`, `GOGlue/FrameCert.lean`): every unit state has a closest-point
   frame in the 19-coordinate normal slice, the positive constraints hold there, and
   `GOFrameCertificate` (`(Q - n²e)/36 ≥ 0` at frames) gives `Q ≥ 1 - Φ`;
-* the **certificate** (`GOProbe/*`, generated data `GOData/*`): `go_target_nonneg`, from the single
-  `native_decide` `GOProbe.check_all`.
+* the **certificate** (`GOProbe/*`, generated data `GOData/*`): `go_target_nonneg`, from the
+  `native_decide` step `GOProbe.check_all`.
 
 Glue proved here: `lit_ev` (the generated target polynomial is `(mapDen·grid)(sliceTarget - R_sq - R_ax)`,
 `identCheck_true`, `native_decide`), `cons_psd` (the 64 generated constraint matrices are positive
@@ -24,12 +24,13 @@ semidefinite at every constraint-satisfying point, `consCheck_true`, `native_dec
 (the 48 coordinate maps preserve closest-point frames, `GOGlue/OrbitMaps.lean`).
 
 **Axioms.**  The three `native_decide` steps (`GOProbe.check_all`, `identCheck_true`, `consCheck_true`) are
-the only uses of `Lean.ofReduceBool`; each is a decidable check of the generated data by ordinary
-computable list functions.  The headline theorems depend on
-`[propext, Classical.choice, Quot.sound, Lean.ofReduceBool]` (see the `#print axioms` audits below).
+the only sources of axioms beyond the standard three; each is a decidable check of the generated data by
+ordinary computable list functions, and `native_decide` records it as an extra axiom named
+`<decl>._native.native_decide.ax_1_1`.  The headline theorems depend on
+`[propext, Classical.choice, Quot.sound]` and these three axioms (see the `#print axioms` audits below).
 
-This module imports the generated data (not committed) and is **not** part of the aggregate
-`FormalResearch` build; see `THEOREM_MAP.md` for the commands.  Claim class: proved
+This module imports the generated data (not committed) and is **not** imported by the root module
+`FourQubitEntropy`; build it with its own target (see the README for the commands).  Claim class: proved
 (modulo the three data checks).
 -/
 

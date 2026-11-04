@@ -27,7 +27,7 @@ The algebraic zero classification itself is `Gv_zero_cases` (`PaperECriticalZero
 
 Relation to the paper: `moment_zeros` formalises the supplement's second proof of
 `prop:fqe-moment-zeros` (`sec:sup-sextic-zeros`: the weighted-variance identity (Z) and the equations
-(ZE)), not the paper's proof, which now goes through the critical envelope
+(ZE)), not the paper's proof, which goes through the critical envelope
 (`critical_envelope` in `GeneralEnvelope.lean`).
 -/
 
@@ -303,7 +303,7 @@ of `F` are critical), whose polynomial identity is kernel-checked; the remainder
 This formalises the supplement's second proof (`sec:sup-sextic-zeros`, `sup_sextic_zeros.tex`): the
 weighted-variance identity (Z) on the critical normal form (`sexticF_Gv`) and the classification of
 the solutions of the equations (ZE) (`Gv_zero_cases`, `PaperECriticalZeroAlg.lean`). The paper's own
-proof of `prop:fqe-moment-zeros` now goes through the critical envelope
+proof of `prop:fqe-moment-zeros` goes through the critical envelope
 (`prop:fqe-critical-envelope`, `critical_envelope` in `GeneralEnvelope.lean`, which gives
 `τ ∈ {0, 1}` for a critical zero), and its envelope-based case analysis is not what is formalised here. -/
 theorem moment_zeros (ψ : Psi) (hn : normSqPsi ψ = 1) : sexticF ψ = 0 ↔ ZeroOrbit ψ :=

@@ -12,7 +12,8 @@ generated matrices `cons[c]`, that `36 L_c · cons[c] = mapDen · S_c` entrywise
 where `(k_c, L_c, S_c) = (consSpec[c]).mat` is the transcription of the slice-side matrix
 (`GOGlue/Cons.lean`), and the rational side conditions `CSpec.ok` of the rays and lower frames.
 `cons_psd`: at a slice point with `SliceConstraints`, every `cons[c]` is positive semidefinite.
-Claim class: proved, modulo the single `native_decide` (`Lean.ofReduceBool`) of `consCheck_true`.
+Claim class: proved, modulo the `native_decide` step `consCheck_true` (one of the three data checks of the
+global-overlap certificate: `GOProbe.check_all`, `identCheck_true`, `consCheck_true`).
 -/
 
 @[expose] public section

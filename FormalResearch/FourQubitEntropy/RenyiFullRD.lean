@@ -6,7 +6,7 @@ public import FormalResearch.FourQubitEntropy.RenyiFullProps
 /-!
 # `lem:fqe-rational-dual`: the assembly from the two chart bounds
 
-Paper E, `sup_renyi.tex` `lem:fqe-rational-dual`, whose proof is now the analytic assembly
+Paper E, `sup_renyi.tex` `lem:fqe-rational-dual`, whose proof is the analytic assembly
 low-tilt reduction + `lem:fqe-small-head-dual` + `lem:fqe-large-head-dual`.
 
 * `SmallHeadDual`: every ordered `(a,b,c,c)` with `a ≤ 1/2` has `Λ_θ ≤ 8023/4800` (band `L`, `q_s`).

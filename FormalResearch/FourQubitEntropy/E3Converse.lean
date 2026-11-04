@@ -5,7 +5,7 @@ public import FormalResearch.FourQubitEntropy.PaperECriticalZeroOrbits
 public import FormalResearch.FourQubitEntropy.Renyi
 
 /-!
-# `cor:fqe-e3`: the equality case, both directions
+# Equality in `Σ_j e₃(ρ_{1j}) ≤ 5/36`, both directions
 
 `Corollaries.lean` proves `Σ_j e₃(ρ_{1j}) = (6 - P - F)/36 ≤ 5/36` and that the vectors of the two `M₄`
 orbits attain `5/36`. Here the converse: for a unit vector, `Σ_j e₃(ρ_{1j}) = 5/36` forces `P = 1` and
@@ -20,7 +20,7 @@ namespace FormalResearch.FourQubitEntropy
 
 open PaperECritical
 
-/-- **Equality case of `cor:fqe-e3`**: for a unit vector, `Σ_j e₃(ρ_{1j}) = 5/36` iff `ψ` is a
+/-- **Equality case of `Σ_j e₃(ρ_{1j}) ≤ 5/36`** (`eq:fqe-bell-cubic` of `bell_frame_stability.tex`, with `Q = 0`): for a unit vector, `Σ_j e₃(ρ_{1j}) = 5/36` iff `ψ` is a
 local-unitary image of `M₄` or of `conj M₄`. -/
 theorem e3_sum_eq_iff (ψ : Psi) (hψ : normSqPsi ψ = 1) :
     cutE3 (red12_herm ψ) + cutE3 (red13_herm ψ) + cutE3 (red14_herm ψ) = 5 / 36 ↔

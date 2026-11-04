@@ -13,7 +13,8 @@ Home and proof: `ResearchNotes/QI/seven_qubit_entanglement/joint_entropy_analyti
   bracket of the root of `2³²(1-2x)¹⁵ = 3⁸(1+8x)⁸(1+28x)⁷`, `ScalarMajorant (polyH degFive (jointCoef x)) cap`
   for **every** `cap` (the paper's statement on all of `[0,∞)²`).
 * `bracket_of_root`: any real root of that equation lies in the bracket `[XLO/10⁴⁵, (XLO+1)/10⁴⁵]`.
-* `joint_majorant_bound_star`: the hypothesis `JointMajorantBound` for the explicit functional at `x_*`, unconditionally.
+* `jointMajorantBound_of_scalarMajorant` (`SevenQubitMaximumReduction.lean`) turns `joint_scalar_majorant` into the
+  hypothesis `JointMajorantBound` for the explicit functional, unconditionally.
 * `seven_entropy_max_reduction_joint`: the final reduction of `thm:seven-entropy-global-maximum` with `E_* = E₃(x_*)`
   and the explicit `𝒫₅`: the only remaining hypotheses are `SevenPurityBound` and the localized bound `LocalizedBound`
   (E7-1).

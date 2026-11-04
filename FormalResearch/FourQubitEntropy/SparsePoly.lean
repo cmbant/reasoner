@@ -11,7 +11,7 @@ are fast in the kernel, which is the point: the kernel evaluates these polynomia
 identity of `Identity.lean` is checked by that evaluation.
 
 A polynomial is a list of `(monomial, coefficient)` pairs, sorted by monomial. Sortedness is not
-needed for soundness (`evSP_add` etc. hold for any lists); it makes the zero polynomial the empty
+needed for soundness (`evSP_addSP` etc. hold for any lists); it makes the zero polynomial the empty
 list, so that a polynomial identity can be checked by `== []`.
 -/
 

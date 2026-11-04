@@ -16,7 +16,7 @@ The path of the paper is
 (`path_strictMonoOn` with `lowTilt_slope_numeric`).
 
 * `sqrtPath_hasDerivAt`: derivative of `u ↦ √((x-4u²)/2)`.
-* `lowTilt_chart`: the statement, in terms of the real numbers `a, b, c` (strict if `c < b`).
+* `lowTilt_chart_strict`: the statement, in terms of the real numbers `a, b, c` (strict if `c < b`).
 -/
 
 @[expose] public section

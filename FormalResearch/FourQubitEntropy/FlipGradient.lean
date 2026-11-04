@@ -21,7 +21,7 @@ of the identity (`DualJet.lean`), assembled from its blocks `n`, `P`, `T₁₂`,
 identity is the exact complex form `(4,2)` / `(2,4)` of FGI. It is transferred to every complex state by
 `OpsHom`, and `hasDerivAt_generic` turns `H4dual` into the derivative.
 
-Machine requirements: see `THEOREM_MAP.md` (the `FlipGradientCert*.lean` files take 20-61 s each, at most
+Machine requirements: see the README (the `FlipGradientCert*.lean` files take 20-61 s each, at most
 8.3 GB resident including 6.3 GB of mapped `.olean` files).
 -/
 

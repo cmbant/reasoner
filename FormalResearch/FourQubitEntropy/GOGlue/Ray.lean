@@ -8,7 +8,7 @@ public import FormalResearch.FourQubitEntropy.PaperEGoSliceFinal
 A certificate ray is a pair of real `4×4` matrices `(a, b)` with `a + b` orthogonal and `a = M Π`,
 `Π` a rank-one orthogonal projector: then `a = P e₀ e₀ᵀ Qᵀ`, `b = P (1 - e₀ e₀ᵀ) Qᵀ` for orthogonal `P, Q`
 (`ray_exists`), the state `χ` with magic coordinates `P diag(η₀) Qᵀ` is in `𝓜` (`orbit_mem4`), and
-`|⟨χ, Z⟩|² = (re² + 3 im²)/6` with `re = 3⟨a,X⟩ + ⟨b,Y⟩`, `im = ⟨a,Y⟩ - ⟨b,X⟩` (`ray_normSq`).
+`|⟨χ, Z⟩|² = (re² + 3 im²)/6` with `re = 3⟨a,X⟩ + ⟨b,Y⟩`, `im = ⟨a,Y⟩ - ⟨b,X⟩` (`normSq_ip_orbit`, `ray_mem`).
 Claim class: proved.
 -/
 

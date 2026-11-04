@@ -93,7 +93,7 @@ theorem sum_wloc_pauliSq {n : ℕ} (ψ : Ψ n) (t : Fin n → Fin 4) :
 /-- The number of non-flip positions of a type vector. -/
 def nzc {n : ℕ} (t : Fin n → Fin 4) : ℕ := (Finset.univ.filter fun i => t i ≠ 0).card
 
-/-- Regrouping a sum over Pauli words by weight (polynomial-valued version of `SpinFlip.sum_A_eq`). -/
+/-- Regrouping a sum over Pauli words by weight (polynomial-valued version of `Pauli.sum_weightEnum_eq`). -/
 theorem sum_weightEnum_poly {n : ℕ} (ψ : Ψ n) (g : ℕ → ℝ[X]) :
     ∑ a : Fin n → Fin 4, C (pauliSq ψ a) * g (pauliWeight a)
       = ∑ j ∈ Finset.range (n + 1), C (weightEnum ψ j) * g j := by

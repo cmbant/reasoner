@@ -14,11 +14,11 @@ certificate*, so that a kernel check needs only the cut ranks of the representat
 * Masks: `cutMask S` is the bitmask of `S`, `unmask n m` its inverse, `maskCard`, and
   `imageMask n q m` the mask of the image of `m` under a permutation whose *inverse* is the list `q`.
 * The group is `Subgroup.closure gens` for a list `gens` of permutations of `Fin n`; its elements are listed (as the
-  lists `q = lst g⁻¹`) by a certificate `Q'` checked by `chainOK` (every listed element is a word in the generators) and
-  by closure under the generators (so the list is the whole group).
-* `sum_cuts_eq_reps`: for representatives `R = [(m_r, w_r)]` (masks in increasing order, each the minimum of its orbit, `w_r` the
-  orbit size, `Σ w_r = C(n,k)`), `Σ_{|S| = k} F(S) = Σ_r w_r F(unmask m_r)` for every automorphism-invariant `F`
-  (`sum_rankFn_eq_reps` for `F = g ∘ graphCutRankBits`).
+  lists `q = lst g⁻¹`) along a derivation `D` (`derivQ`; every listed element is a word in the generators, `goQ_sound`)
+  and the list is closed under the generator lists (so it is the whole group, `closure_mem_Q`).
+* `sum_rankFn_eq_reps`: for representatives `R = [(m_r, w_r)]` (masks in increasing order, each the minimum of its orbit,
+  checked by `repOK`; `w_r` the orbit size, `Σ w_r = C(n,k)`), `Σ_{|S| = k} F(S) = Σ_r w_r F(unmask m_r)` for every
+  automorphism-invariant `F` of the form `g ∘ graphCutRankBits`.
 
 Everything here is general and carries no data; the data-specific checks are `decide +kernel` calls in the users.
 -/

@@ -10,7 +10,7 @@ Paper E, `renyi_uncapped_reduction.tex`. The paper states `(TF)` for every unit 
 term `W₁/4` (`Δ_k ≥ W₁/4 + 2 e₂(other three entries) ≥ W₁/4 + (λ₃ + λ₄)²`, from
 `prop:fqe-spectral-spinflip`); this file proves the critical specialization `W₁ = 0` (`hW : blochSq ψ = 0`),
 which is the case with the normal form `G(v)`, and the Schmidt-rank-two consequence for every unit state.
-The `W₁/4` term for noncritical states is not formalized. For a unit critical state `ψ` (`blochSq ψ = 0`) with
+The `W₁/4` term for noncritical states is proved in `PaperETwoFlatTF.lean` (`two_flat_TF_12/13/14`). For a unit critical state `ψ` (`blochSq ψ = 0`) with
 normal form `ψ ≃ G(v)` (`critical_iff_LU_Gv`), the three cut spectra are `|v_k|²`, `|(wp v)_k|²`,
 `|(wm v)_k|²` for the cuts `12|34`, `13|24`, `14|23` (`wp`, `wm` are the real Hadamard-type
 changes of coordinates of `PaperECriticalCuts.lean`), and the purity identity at criticality reads
@@ -24,9 +24,10 @@ changes of coordinates of `PaperECriticalCuts.lean`), and the purity identity at
   maximally mixed cut forces criticality is `blochSq_zero_of_cutPurity12`.
 
 Proved, axiom-free. The second inequality of `(TF)` is the scalar `two_flat_second` and the sharpness
-of the first (opposite phases) is `tau_equality` (both in `PaperECriticalTwoFlatCore.lean`). NOT
-formalised: the identification of the rank-two critical states with the cluster-to-Bell family
-`(eq:fqe-quadratic-family)` and the resulting Rényi-envelope statement.
+of the first (opposite phases) is `tau_equality` (both in `PaperECriticalTwoFlatCore.lean`). The identification
+of the states with two maximally mixed cuts with the cluster-to-Bell family `(eq:fqe-quadratic-family)` and the
+resulting Rényi-envelope statement are not in this file; they are `two_flat_QF` and `two_flat_renyi` in
+`PaperEGapTwoFlatQF.lean`.
 -/
 
 @[expose] public section

@@ -15,7 +15,7 @@ On the one-large family `(a, b, b, b)`, `a = (1 + 3e^{-z})⁻¹`, `b = a e^{-z}`
 `Φ(z) = β ln(1 + 3e^{-z}) - κ ln(1 + 3e^{-qz}) - z w`, `w = 3e^{-qz}/(1 + 3e^{-qz})`.
 This file proves: `φ(a,b,b,b) = Φ(ln(a/b))` (`sxPhiVec_family`), the derivative formula
 `Φ' = zw(1-w)(q - βR(z))` with the hyperbolic identity (SR) for `R`, and that `Φ` strictly increases on
-`[0, L]` and strictly decreases on `[L, ∞)` (`sxPhi_le`, `sxPhi_eq_iff`), so
+`[0, L]` and strictly decreases on `[L, ∞)` (`sxPhi_le`, `sxPhi_lt`, `sxPhi_strictMonoOn`, `sxPhi_strictAntiOn`), so
 `φ(a,b,b,b) ≤ φ(σ)`, `σ = (1/2, 1/6, 1/6, 1/6)` (`hsSpec` of `RenyiCrossing.lean`), with equality only for `a/b = 3` (`sxFamily_le`).
 Not in this file: the reduction of an arbitrary maximiser of `φ` on the simplex to the family
 (`RenyiSingleCrossing.lean`).

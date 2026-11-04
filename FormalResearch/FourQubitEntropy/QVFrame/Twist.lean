@@ -11,14 +11,15 @@ where `τ_a(A) = ⊗_q τ_a(X_q)` and `τ_a` is the signed permutation of matrix
 
 `τ_a(X)[β, α] = (-1)^{Σ_{t ≥ a} (α_t + β_t)} X[(β_{<a}, ᾱ_{≥a}), (α_{<a}, β̄_{≥a})]`.
 
-This is the exact index formula of `routeD/REPORT.md` §1,
+In Lean `tau` is defined by this signed permutation; the equivalent expanded form is
 `τ_a(X)[β,α] = Σ_{i,j} X[(β_{<a}, i_{≥a}), (α_{<a}, j_{≥a})] ∏_{t ≥ a} J[i_t,α_t] J[j_t,β_t]`
-(`tau_eq_sum`).  The statement is proved in a polarised form with independent vectors `u` (standing for `z̄`)
+(`J` the real antisymmetric `2 × 2` matrix; not used below).  The statement is proved in a polarised form with independent vectors `u` (standing for `z̄`)
 and `v` (standing for `z`), which is what the symmetriser argument needs.
 
 * `pw a x y β = ∏_t (x or J y)(col β t)`: `x^{⊗a} ⊗ (J y)^{⊗(n-a)}`.
-* `conj (sixCopy a z) = pw a z̄ z`, `sixCopy a z = pw a z z̄` (`pw_conj_left`, `pw_conj_right`).
-* `twist_pol`: the polarised identity; `twist_herm`: the Hermitian one.
+* `conj_pw`: conjugating `pw a x y` conjugates `x` and `y`; for the six-copy vector `w_a(z) = pw a z z̄`
+  one gets `conj w_a(z) = pw a z̄ z` (`conj_wvec`, `sixCopy_eq` in `QVFrame/Gram.lean`).
+* `twist_pol`: the polarised identity; `twist_qf`: the same as a statement about `qf` (the Hermitian form).
 -/
 
 @[expose] public section

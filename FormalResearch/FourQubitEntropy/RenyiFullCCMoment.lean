@@ -9,7 +9,7 @@ public import FormalResearch.FourQubitEntropy.RenyiFullNU
 Paper E, `lem:fqe-capped-cubic`, paragraph *The moment argument*.  With `N = 1 + xV + x²W`
 (`ccN`), `2 - H_{q_s} ≥ ln N/(rL)`; we show `ln N ≥ r L⁺ x (171/40 - (8/3) v - (11/10) x)` on
 `0 ≤ x ≤ 17/100`, `|v| ≤ 6/25`:  the function `F(x) = ln N - r L⁺ x(...)` vanishes at `0`, is concave
-(`(ln N)_xx ≤ -1`, certificate CC-1) and nonnegative at `x = 17/100` (certificate CC-2).  This replaces
+(`(ln N)_xx ≤ -1`, curvature cell of `RenyiFullCCCells.lean`) and nonnegative at `x = 17/100` (endpoint cell of `RenyiFullCCCells.lean`).  This replaces
 the paper's monotonicity in `x` of `Φ = ln N/(rLx) + …` by the equivalent concavity.
 -/
 

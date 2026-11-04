@@ -10,7 +10,7 @@ public import FormalResearch.FourQubitEntropy.QVFrame.Atoms
 `c` over the cuts `{01|23}, {02|13}, {03|12}`.
 
 `rhsOp` is the integer operator `K_RHS = Σ_i coef_i ⊗_q Π_{σ_{i,q}}` over the 37 permutation invariants of
-`routeD/rhs.py` (the index set `RhsIdx = Fin 7 × Fin 3 × Fin 3` carries the shapes
+the expansion of `𝔇` (the index set `RhsIdx = Fin 7 × Fin 3 × Fin 3` carries the shapes
 `N⁶, N⁴P, N³T, N²U, N²P², T², NPT` and the cuts; entries with coefficient `0` are padding), and
 
 `defectD_eq_qf : 𝔇(z) = ⟨z^{⊗6}, K_RHS z^{⊗6}⟩`.
@@ -50,7 +50,7 @@ def cutM (c : Fin 3) : Fin 4 → Bool := cutMask (cutIdx c)
 `0: N⁶, 1: N⁴P, 2: N³T, 3: N²U, 4: N²P², 5: T², 6: NPT` (unused `(c,c')` have coefficient `0`). -/
 abbrev RhsIdx := Fin 7 × Fin 3 × Fin 3
 
-/-- The slot permutation of the qubits for each invariant (`routeD/rhs.py`: cycles `(0 1)`, `(0 1 2)` etc. acting on the
+/-- The slot permutation of the qubits for each invariant (cycles `(0 1)`, `(0 1 2)` etc. acting on the
 qubits of the cut, in consecutive blocks of slots). -/
 def rhsPerm (i : RhsIdx) : Fin 4 → Equiv.Perm (Fin 6) :=
   ![(fun _ => 1),

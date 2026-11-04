@@ -12,15 +12,18 @@ Paper E, `lu_orbit_stability.tex` (eq. `eq:fqe-orbit-surrogate`, `thm:fqe-orbit-
 *distance* `d(ψ)` to the two `M₄` orbits is not defined in this file (it is `dist2` of
 `CriticalOrbitPhi.lean`, which proves `eq:fqe-critical-distance` for critical states), and the HS
 overlap stability `thm:fqe-global-overlap` (`Q ≥ 1 - Φ ≥ ((6+√(6(1+√τ)))/12) d² ≥ ((6+√6)/12) d² > (7/10) d²`, proved
-in the paper by the exact rational certificate GO-1–GO-3) is **not formalized**. The final section
+in the paper by the exact rational certificate GO-1–GO-3) is not proved in this file.  The final section
 states the paper's distance estimates as *conditional* results: the comparison `c d² ≤ Q` is an explicit
 hypothesis, with `d²` an arbitrary real number `d2` standing for `d(ψ)²`, and nothing in this file proves it. `PaperEOrbitDistance.lean` defines the genuine distance
 `orbitDist`, proves `d² = 2 − 2√Φ`, and restates these estimates for it; `PaperEFidelityFloor.lean` proves
-`lem:fqe-hs-fidelity-floor`, so they need only `thm:fqe-global-overlap` as a hypothesis.
+`lem:fqe-hs-fidelity-floor`, so they need only `thm:fqe-global-overlap` as a hypothesis.  That hypothesis is
+discharged for every unit state by `GO.globalOverlap_all` in `GOGlue/Final.lean` (data-dependent: it uses the
+generated certificate data; see the header of that file), which also restates the downstream estimates
+unconditionally.
 
 * `sexticQ ψ = F + n (P - n²) = 18 n P - 12 T - 13 n³ ≥ 0`; for unit `ψ`, `Q = 0 ↔ F = 0 ∧ P = 1`,
   and `Q = 0` on both `M₄` orbits (the converse, that these are *all* the zeros of `Q`, is the
-  zero-set classification of `F`, not formalized).
+  zero-set classification of `F`, `PaperECritical.moment_zeros` in `PaperECriticalZeroOrbits.lean`, not used here).
 * `defectD ψ = F + 3 (W₁ + τ) = F + 6 (P - 1) = Q + (5/2)(W₁ + τ)` for unit `ψ`.
 * `entropy_gap_ge_defect`: `δ ≥ k 𝒟` with `k = (ln 3 - 1)/(2 ln 2) > 16/225`, so `δ ≥ (16/225) Q`
   (the paper's `δ ≥ k 𝒟 ≥ k Q`, `eq:fqe-orbit-surrogate`; the intermediate `α > 6β` is
@@ -317,7 +320,7 @@ theorem entropy_gap_ge_Q (ψ : Psi) (hψ : normSqPsi ψ = 1) :
 
 `d2` below stands for `d(ψ)²`, the squared distance to the two `M₄` orbits (`dist2` in
 `CriticalOrbitPhi.lean`). The hypotheses `hQ : c * d2 ≤ sexticQ ψ` are `thm:fqe-global-overlap`
-(`c = (6+√6)/12`, **not proved in Lean**) or `eq:fqe-critical-distance` (critical `ψ`,
+(`c = (6+√6)/12`, proved for all unit states by `GO.globalOverlap_all` in `GOGlue/Final.lean`, not in this file) or `eq:fqe-critical-distance` (critical `ψ`,
 `c = (2+√2)/4`, **proved** in `CriticalOrbitMain.lean` as `critical_distance`, given `Q ≥ 1 - Φ` when
 `Φ ≥ 1/2`). -/
 
@@ -372,7 +375,7 @@ theorem entropy_gap_orbit_stability (ψ : Psi) (hψ : normSqPsi ψ = 1) {d2 : �
 
 /-- **Critical-state entropy stability** (`eq:fqe-critical-entropy`, moment form). For a unit state with
 all one-qubit marginals maximally mixed in the sense `W₁ = 0`, `δ ≥ k (Q + 5τ/2)`. Combined with
-`Q ≥ max{1 - Φ, 3/2 - 2Φ}` (`eq:fqe-critical-fidelity`, not formalized) this is the paper's
+`Q ≥ max{1 - Φ, 3/2 - 2Φ}` (`eq:fqe-critical-fidelity`, `CO.critical_fidelity` in `CriticalOrbitMain.lean`) this is the paper's
 `δ ≥ k (max{1-Φ, 3/2-2Φ} + 5τ/2)`; combined with `Q ≥ ((2+√2)/4) d2` (`eq:fqe-critical-distance`,
 hypothesis) it gives `entropy_gap_ge_of_overlap` with `c = (2+√2)/4`, since `τ ≥ 0`. -/
 theorem entropy_gap_critical (ψ : Psi) (hψ : normSqPsi ψ = 1) (hW : blochSq ψ = 0) :

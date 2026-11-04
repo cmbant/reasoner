@@ -7,7 +7,9 @@ public import FormalResearch.FourQubitEntropy.Stability
 
 * `e3_sum_le`: the third elementary symmetric functions of the cut spectra satisfy
   `Σ_j e₃(ρ_{1j}) = (6 - P - F)/36 ≤ (6-P)/36 - W₁/48 ≤ 5/36`
-  (`cor:fqe-e3`, replica_sectors.tex; the equality case is proved in the direction
+  (the paper has `Σ_j e₃(ρ_{1j}) = (5 - Q)/36`, `eq:fqe-bell-cubic` in `bell_frame_stability.tex`, whence `≤ 5/36`
+  since `Q ≥ 0`; the intermediate bound with `W₁/48` is an auxiliary refinement, not stated in the paper.
+  The equality case is proved in the direction
   "`M₄`-orbits attain `5/36`" here, and the converse (equality forces an `M₄` or `conj M₄` orbit, from the
   classification of `P = 1, F = 0`) is `e3_sum_eq_iff` in `E3Converse.lean`).
   The `W₁/48` is `F/36 ≥ W₁/48`, from the sharp `F ≥ (3/4) W₁` (`sexticF_ge`).
@@ -67,7 +69,7 @@ theorem e3_sum_eq (ψ : Psi) (hψ : normSqPsi ψ = 1) :
   rw [hψ]
   ring
 
-/-- **Third elementary symmetric functions** (`cor:fqe-e3`):
+/-- **Third elementary symmetric functions** (auxiliary refinement of `eq:fqe-bell-cubic`):
 `Σ_j e₃(ρ_{1j}) ≤ (6 - P)/36 - W₁/48 ≤ 5/36`. Uses the sharp
 `F ≥ (3/4) W₁` (`sexticF_ge`). -/
 theorem e3_sum_le (ψ : Psi) (hψ : normSqPsi ψ = 1) :

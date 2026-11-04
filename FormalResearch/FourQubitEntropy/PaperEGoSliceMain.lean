@@ -6,12 +6,13 @@ public import FormalResearch.FourQubitEntropy.PaperEGoSliceConstr
 # `thm:fqe-global-overlap`: the reduction `GOSliceCertificate → Q ≥ 1 - Φ`
 
 `globalOverlap_of_slice`: the polynomial certificate on the 19-coordinate normal slice
-(`GOSliceCertificate`, **not proved here**) implies `GlobalOverlap ψ` (`1 - Φ ≤ Q`) for every unit
+(`GOSliceCertificate`, not proved in this file; its frame form is `go_frame_certificate` of `GOGlue/Final.lean`) implies `GlobalOverlap ψ` (`1 - Φ ≤ Q`) for every unit
 `ψ`, given the three named reduction hypotheses
 
-* `SliceQIdentity` (the polynomial identity `Q(Z(v)) = sliceQ v`, `eq:fqe-global-intrinsic` on the slice),
-* `SliceNormalForm` (every unit state has a closest-point frame in slice form),
-* `FrameHess` (the height Hessian is positive semidefinite at a closest point).
+* `SliceQIdentity` (the polynomial identity `Q(Z(v)) = sliceQ v`, `eq:fqe-global-intrinsic` on the slice;
+  proved as `sliceQIdentity`),
+* `SliceNormalForm` (every unit state has a closest-point frame in slice form; proved as `sliceNormalForm`),
+* `FrameHess` (the height Hessian is positive semidefinite at a closest point; proved as `frameHess`).
 
 The positive constraints other than the Hessian are proved from `IsFrame` in `PaperEGoSliceConstr`.
 -/

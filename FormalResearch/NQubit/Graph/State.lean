@@ -286,7 +286,7 @@ theorem qf_extG {m : ℕ} (Γ : Fin m → Fin m → Bool) (x0 : Fin 2) (x' : Cfg
   simp only [true_and]
   rw [key, add_comm]
 
-/-- **`Ω_G = H` up to a phase on the added qubit** (`thm:parity-graph`): on `|x₀, x'⟩`,
+/-- **`Ω_G = H` up to a phase on the added qubit**: on `|x₀, x'⟩`,
 `Ω_G(x₀,x') = 2^{-1/2} (-1)^{|E| x₀} H(x₀,x')`, where `H = graphState (extG Γ)`. -/
 theorem omegaState_graphState {m : ℕ} (Γ : Fin m → Fin m → Bool) (hsym : ∀ i j, Γ i j = Γ j i)
     (hirr : ∀ i, Γ i i = false) (x0 : Fin 2) (x' : Cfg m) :

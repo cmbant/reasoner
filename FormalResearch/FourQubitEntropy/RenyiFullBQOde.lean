@@ -221,7 +221,7 @@ theorem bqU_nonneg {q s : ℝ} (h1 : 1 < q) (h2 : q < 2) (hs0 : 0 ≤ s) (hs1 : 
   have : 0 ≤ q := by linarith
   positivity
 
-/-- The comparison `x ≤ U` (BQ-2): monotonicity of `Ψ = ln((1+U)/(1-U)) - q ln((1+s)/(1-s))`. -/
+/-- The comparison `x ≤ U` (Riccati comparison): monotonicity of `Ψ = ln((1+U)/(1-U)) - q ln((1+s)/(1-s))`. -/
 theorem bqx_le_bqU {q s : ℝ} (h1 : 1 < q) (h2 : q < 2) (hs0 : 0 ≤ s) (hs1 : s < 1) :
     bqx q s ≤ bqU q s := by
   set Ψ : ℝ → ℝ := fun s => Real.log (1 + bqU q s) - Real.log (1 - bqU q s)

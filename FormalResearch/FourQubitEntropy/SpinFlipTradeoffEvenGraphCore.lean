@@ -6,8 +6,8 @@ public import FormalResearch.FourQubitEntropy.PurityLPMaskSum
 /-!
 # Graph states with all vertices of odd degree have `τ_n = 1` (sharpness of `thm:purity-spinflip-tradeoff`)
 
-Source: `spinflip_tradeoff.tex`, `thm:purity-spinflip-tradeoff` (sharpness clause), with `spinflip_graph_parity.tex`
-`thm:parity-graph`.  `tau_gsn_eq_one` combines `SpinFlip.tau_gs` (`τ(graphState Γ) = ‖graphState Γ‖⁴` when every degree is odd) with the
+Source: `spinflip_tradeoff.tex`, `thm:purity-spinflip-tradeoff` (sharpness clause, which uses that a graph state
+with every degree odd is an eigenvector of `σ_y^{⊗n}`).  `tau_gsn_eq_one` combines `tau_graphState` (`τ(graphState Γ) = ‖graphState Γ‖⁴` when every degree is odd) with the
 normalisation `graphStateNorm Γ = 2^{-n/2} graphState Γ`.  `gK k r = 2^{k - r}` is the summand of the rank sum of `meanRdmPurity_graphStateNorm`.
 Claim class: proved.
 -/

@@ -14,8 +14,9 @@ Proved from `IsFrame` (a closest point of `𝓜` at `Z_*`): the height inequalit
 * `h₀ ≥ 0`, `e ≥ 0`, the rays `g_η ≥ 0` (`SliceConstraints.rays`),
 * `B₀ ⪰ 0` from the fidelity floor `fidelity_floor` (`B0_psd`).
 
-The height Hessian `H ⪰ 0` is **not** proved here: `FrameHess` is the named hypothesis, and
-`frame_constraints` assembles `SliceConstraints` from it.
+The height Hessian `H ⪰ 0` is not proved in this file: `FrameHess` is the named hypothesis, and
+`frame_constraints` assembles `SliceConstraints` from it.  `FrameHess` is proved as `frameHess` in
+`PaperEGoSliceHessQ.lean`.
 -/
 
 @[expose] public section

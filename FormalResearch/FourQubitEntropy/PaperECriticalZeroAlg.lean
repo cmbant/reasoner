@@ -12,7 +12,7 @@ hypotheses beyond those displayed, no `native_decide`.
 
 The equations (ZE) are those of the supplement's second proof of `prop:fqe-moment-zeros`
 (`sec:sup-sextic-zeros`, weighted-variance identity (Z)); the paper's own proof of the proposition
-now goes through the critical envelope (`critical_envelope`, `GeneralEnvelope.lean`).
+goes through the critical envelope (`critical_envelope`, `GeneralEnvelope.lean`).
 -/
 
 @[expose] public section

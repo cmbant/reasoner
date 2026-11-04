@@ -12,7 +12,7 @@ Paper E, `lem:fqe-capped-cubic` (`renyi_capped_cubic.tex`).  `CappedCubic` (`Ren
 without hypothesis, in the following steps (`q = q_s = 1587/1000`, `x = p - 1/4`):
 
 1. `p ≤ 21/50` (`x ≤ 17/100`): the moment argument `cc_moment` (`RenyiFullCCMoment.lean`: Taylor through degree five,
-   `ln N` concave in `x`, certificates CC-1/CC-2 of `gen_cc_cells.py`);
+   `ln N` concave in `x`, the curvature and endpoint cells of `gen_cc_cells.py`);
 2. `21/50 < p ≤ 47/100`: `det_reduction` to the two ordered charts `S`, `B`; Jensen grouping and the weight estimates
    (`entS_cc`, `entB_cc`, CG3, `RenyiFullCCPairs.lean`); and the two binary quartic bounds
    `bin_quartic1`, `bin_quartic2` (`RenyiFullCCBinary.lean`), consequences of the binary quartic lemma

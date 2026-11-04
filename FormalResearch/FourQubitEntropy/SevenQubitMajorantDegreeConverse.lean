@@ -13,9 +13,9 @@ that `SevenQubitMajorantDegree.lean` left out.
 * `hermite_exists`: Hermite interpolation of degree `< 2|A|` for any values and slopes at the
   finite node set `A` (injectivity from `eq_zero_of_double_roots`, then a dimension count).
 * `hermite_remainder_neg`: the sign of the Hermite remainder, `f t ≤ H t` for `f = -t log t`,
-  `t ∈ (0,1) \ A`.  Proved as in the note by the auxiliary polynomial `H + c ∏ (X-a)^2` and
+  `t ∈ (0,1) \ A`.  Proved by the auxiliary polynomial `H + c ∏ (X-a)^2` and
   iterated Rolle (`exists_zero_iter`), which yields `c (2k)! = f^{(2k)}(ξ) < 0`; this avoids
-  quoting a Hermite remainder formula from Mathlib.
+  quoting a Hermite remainder formula (the paper's proof quotes it).
 * `hermite_majorizes` / `hermite_majorant_exists`: the interpolant majorizes `f` on all of `[0,1]`
   (nodes by equality, endpoints by continuity).
 * `majorant_degree_isLeast` (and `_logb_two` for `-t log₂ t`, the paper's `f`): for `k ≥ 2`
@@ -136,7 +136,7 @@ theorem eval_iterate_derivative_top (q : ℝ[X]) (n : ℕ) (hq : q.natDegree ≤
 
 /-- **Hermite remainder inequality** (interior, off-node form).  Let `H` have degree `< 2|A|`
 and match `f = -t log t` and `f'` at every node of the nonempty node set `A ⊂ (0,1)`.  Then
-`f t ≤ H t` for every `t ∈ (0,1) \ A`.  Proof as in the note: with `c` chosen so that
+`f t ≤ H t` for every `t ∈ (0,1) \ A`.  Proof: with `c` chosen so that
 `q = H + c ∏ (X - a)^2` also interpolates at `t`, `q - f` has `2|A|` distinct zeros of its
 derivative (the nodes and the Rolle points), hence `(q - f)^{(2|A|)}` vanishes at some `ξ`; this
 gives `c (2|A|)! = f^{(2|A|)}(ξ) < 0`. -/

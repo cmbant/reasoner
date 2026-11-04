@@ -19,7 +19,7 @@ paper's covariant `Φ_{∅,r}` is `(-1)^n V_r` (first assertion of the propositi
 `β² = x`):
 * `zfV_inner_three`, `zfV_inner_two`, `zfV_inner_one`: `⟨ψ, V_r ψ⟩ = Q_r(ψ) = ∑_{|S|=r} tr ρ_S²`
   (the Euler identity `⟨z, V_r(z)⟩ = Q_r`);
-* `zfV_hasDerivAt`: the directional derivative of `tr ρ_S²` at `ψ` in direction `φ` is `4⟨φ, V_S ψ⟩`
+* `hasDerivAt_purity_dir`: the directional derivative of `tr ρ_S²` at `ψ` in direction `φ` is `4⟨φ, V_S ψ⟩`
   (the real form of `∂Q_r/∂z̄ = 2 V_r`);
 * `zeroFocus_one`: `V_1(ψ_x) = (7/2) V_0(ψ_x)`, i.e. the first relation of `eq:zero-focus-family`.
 

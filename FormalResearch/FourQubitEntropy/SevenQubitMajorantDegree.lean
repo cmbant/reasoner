@@ -14,7 +14,7 @@ nodes `0 < a < 1` and a real polynomial `q` satisfies `q ≥ f` on `[0,1]` and `
 (`majorant_degree_lower_bound`; the base-2 entropy `-t log₂ t` is
 `majorant_degree_lower_bound_logb_two`).
 
-Proof, as in the note: `h = q - f ≥ 0` has an interior minimum at each node, so `h'` vanishes
+Proof (the paper's argument, in more detail): `h = q - f ≥ 0` has an interior minimum at each node, so `h'` vanishes
 there; Rolle's theorem gives `k - 1` further zeros of `h'` strictly between the nodes, so `h'`
 has `2k - 1` distinct zeros in `(0,1)`, and iterated Rolle gives a zero of `h^{(2k-1)}`.  If
 `natDegree q < 2k - 1` then `h^{(2k-1)} = -f^{(2k-1)}`, which is a nonzero multiple of

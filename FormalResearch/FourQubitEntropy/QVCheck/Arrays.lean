@@ -93,7 +93,7 @@ theorem gt_tab (n : Nat) (f : Nat → Int) (i : Nat) : gt (tab n f) i = if i < n
 `modeProd M m s tr X` applies the `m × m` matrix `M` (or its transpose) to the axis of radix `m` and stride `s` of the flat
 array `X`.  We prove `modeProd_apply` (the entry formula in the three-level decomposition `idx = (a m + r) s + b`) and, for four
 axes with radices `m q` and the mixed-radix flattening `flat`, that applying the four mode products is `⊗_q M_q`
-(`kronApply_eq`).
+(`kron4_entry`, `kron4_eq_sum`).
 -/
 
 theorem modeProd_apply (M : Array Int) (m s : Nat) (tr : Bool) (X : Array Int) (a r b : Nat)

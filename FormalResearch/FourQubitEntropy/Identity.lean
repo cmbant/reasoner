@@ -32,7 +32,7 @@ the identity is split into pieces. Building the group `IdentityCert*.lean` + `Id
 `.olean` files of `Mathlib` and the earlier modules, shared and evictable. The `IdentityCert*.lean` files
 import one another in a chain, only so that `lake` builds them one at a time: do not remove the chain, or
 `lake build` runs them in parallel, each with its own kernel memory. A machine with 16 GB of RAM is
-comfortable; see `THEOREM_MAP.md` for the per-file measurements.
+comfortable; see the README for the build requirements.
 -/
 
 @[expose] public section

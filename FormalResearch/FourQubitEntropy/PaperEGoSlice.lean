@@ -21,11 +21,12 @@ constraint matrices, and the Prop
 
 * `GOSliceCertificate : ∀ v, SliceConstraints v → 0 ≤ sliceTarget v`
 
-that the polynomial certificate has to discharge (**not proved here**).  The theorem
+that the polynomial certificate has to discharge (not proved in this file).  The theorem
 `globalOverlap_of_slice` shows that `GOSliceCertificate`, together with the two reduction
-hypotheses `SliceQIdentity` and `SliceNormalForm` (statements below; each is proved or reduced in
-the later `PaperEGoSlice*` modules, see the `THEOREM_MAP.md` rows), gives `GlobalOverlap ψ` for every
-unit `ψ`.
+hypotheses `SliceQIdentity` and `SliceNormalForm` (statements below; each is proved in
+the later `PaperEGoSlice*` modules: `sliceQIdentity`, `sliceNormalForm`), gives `GlobalOverlap ψ` for every
+unit `ψ`.  The certificate itself is checked from the generated data in `GOGlue/Final.lean`
+(`go_frame_certificate`, the frame form `GOFrameCertificate`), which gives `GO.globalOverlap_all`.
 
 **Conventions (all polynomial, rational coefficients in the 19 reals).**
 `sliceTarget v = (sliceQ v - n(v)² e(v))/36` with `n = 3‖X‖² + ‖Y‖²`, `h₀ = 6t + a₁+a₂+a₃`,

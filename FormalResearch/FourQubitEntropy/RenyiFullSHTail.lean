@@ -8,7 +8,7 @@ public import FormalResearch.FourQubitEntropy.RenyiFullSHPoly
 
 Paper E, `lem:fqe-small-head-dual`, "Small tail".  With `h(u) = H_q(u,1-u)`, `A_q` increasing
 (`bqA_strictMonoOn`; the paper's concavity is replaced by a finer staircase of node values
-`sh_node_i`, `RenyiFullSHNodes.lean`) and the deficit (SHD), `Λ_θ ≤ shQ a u ≤ 8023/4800` on each interval.
+`sh_node_0`, …, `sh_node_6`, `RenyiFullSHNodes.lean`) and the deficit (SHD), `Λ_θ ≤ shQ a u ≤ 8023/4800` on each interval.
 -/
 
 @[expose] public section

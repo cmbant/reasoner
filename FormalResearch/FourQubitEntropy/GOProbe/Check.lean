@@ -7,8 +7,10 @@ public import FormalResearch.FourQubitEntropy.GOProbe.Remainders
 /-!
 # GO certificate: the full check and the soundness theorem for the generated data
 
-`check_all` is the single `native_decide` step of the formalisation (so `#print axioms` shows
-`Lean.ofReduceBool`): the reflective checker `check` of `Block.lean` returns `true` on the generated data
+`check_all` is a `native_decide` step (so `#print axioms` shows the extra axiom
+`GOProbe.check_all._native.native_decide.ax_1_1`; the global-overlap certificate uses three such steps in all:
+`check_all`, `identCheck_true` in `GOGlue/DataCheck.lean` and `consCheck_true` in `GOGlue/ConsCheck.lean`):
+the reflective checker `check` of `Block.lean` returns `true` on the generated data
 (`cons`: the 64 constraint matrices, `perms`/`flips`: the 6 signed lower permutations and 8 sign changes
 (together the 48 coordinate maps), `lit`: the target polynomial,
 `allBlocks`: the 277 Gram blocks).  Everything else is proved: `go_sound` (`Final.lean`) turns it into

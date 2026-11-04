@@ -7,8 +7,9 @@ public import FormalResearch.FourQubitEntropy.SevenQubitConseqPauli
 
 Conditional on `SevenPurityBound` (`π₃ ≥ 121/917` for every pure seven-qubit state, the content of
 `cor:seven-global-from-fivecopy`; its proof is a computer certificate and is **not** formalized), this
-file derives the elementary consequence `cor:sevenpauli` of
-`ResearchNotes/QI/seven_qubit_entanglement/balanced_purity.tex`.
+file derives an elementary consequence, an auxiliary result not stated in the paper: with the identity
+`280 π₃ = 35 + 15A₁ + 5A₂ + A₃` (`icosahedral_state.tex`, proof of `prop:stab7`) the bound `π₃ ≥ 121/917` is equivalent to
+`15A₁ + 5A₂ + A₃ ≥ 255/131` (`cor_sevenpauli`).
 
 A pure state is `ψ : BitString → ℂ` with `∑ |ψ z|² = 1`; the purity of a cut is computed from the reduced
 matrix `∑_r ψ(a,r) conj ψ(b,r)` exactly as in `SevenQubitIcoPurity` (same `Cut`, `encode`, `maskCut`).
@@ -276,9 +277,9 @@ theorem mean_purity_pauli (ψ : BitString → ℂ) (hψ : UnitVec ψ) :
   rw [hA0] at h2
   linarith
 
-/-! ### `cor:sevenpauli` -/
+/-! ### The Pauli-weight bound -/
 
-/-- **`cor:sevenpauli` (conditional).** Under the sharp purity bound, every unit seven-qubit state has
+/-- **Pauli-weight bound (conditional; auxiliary, not stated in the paper).** Under the sharp purity bound, every unit seven-qubit state has
 `15A₁ + 5A₂ + A₃ ≥ 255/131`. -/
 theorem cor_sevenpauli (h : SevenPurityBound) (ψ : BitString → ℂ) (hψ : UnitVec ψ) :
     255 / 131 ≤ 15 * pauliA ψ 1 + 5 * pauliA ψ 2 + pauliA ψ 3 := by

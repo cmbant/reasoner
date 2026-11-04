@@ -13,13 +13,15 @@ Paper E, `cor:fqe-renyi-gw` (`spectral_corollaries.tex`) and the coverage table 
   clauses (three HS spectra when `h_q > 5/3`, the cluster triple when `h_q < 5/3`, either at
   `h_q = 5/3`, i.e. `q = q_*`).
 * `meanRenyi_envelope`: for every unit four-qubit vector satisfying (QK) (taken as a hypothesis;
-  `thm:fqe-quadratic-variance` is an exact-rational certificate not formalised here),
+  `thm:fqe-quadratic-variance` is an exact-rational certificate, checked in `QVCheck/` and applied in
+  `QVCheck/Unconditional.lean`, which gives `meanRenyi_envelope_unconditional`),
   `meanRenyi q ψ ≤ max {hsRenyi q, 5/3}` for every `q > 1`, with the spectral equality clauses.
 
 The equality statement is spectral: equality at `h_q > 5/3` means three HS cut spectra.
 The identification of states with HS cut spectra with the LU orbits of `M₄`, `conj M₄` is
 `PaperECritical.moment_zeros`; the identification of the cluster triple with the cluster-to-Bell
-family (`prop:fqe-two-flat-rigidity`, the (QF) step) is not formalised.
+family (`prop:fqe-two-flat-rigidity`, the (QF) step) is `PaperECritical.two_flat_QF` in
+`PaperEGapTwoFlatQF.lean`, not used here.
 -/
 
 @[expose] public section

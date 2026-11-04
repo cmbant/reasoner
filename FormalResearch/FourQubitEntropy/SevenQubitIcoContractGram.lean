@@ -14,7 +14,7 @@ kernel: `gramCert`). Hence, for `ρ_S = α² P + β² R` the reduced matrix of `
 two trilinear forms `redApplyT c U ψ U`, `redApplyT c V ψ V` (`redApplySq_contain`).
 
 This is the algebraic half of the identity `G_{2,1}` of `SevenQubitIcoContraction` (not a paper statement:
-the paper's proof of `prop:entropy-seven-stationarity` no longer displays it); the evaluation of the
+the paper's proof of `prop:entropy-seven-stationarity` does not display it); the evaluation of the
 trilinear forms is in `SevenQubitIcoContraction`.
 Status: exact certificate (kernel-checked integer identities) plus elementary algebra.
 -/
