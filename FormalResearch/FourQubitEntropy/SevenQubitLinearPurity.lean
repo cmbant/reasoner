@@ -12,10 +12,10 @@ For every probability vector `λ` on eight points (entropy `S` in bits),
 `(7/48) ln 7 (8 ∑ λ² - 1) ≤ 3 ln 2 - ∑ -λ ln λ`.
 
 Proof (`seven_qubit_entropy_compatibility.tex`, SP7-5).  The sharp first inequality is the case
-`d = 8` of the all-dimension slope `NQubit.Entropy.entropy_purity_slope_nats` (`NQubit/Entropy/PuritySlope.lean`,
+`d = 8` of the all-dimension slope `FormalResearch.NQubit.Entropy.entropy_purity_slope_nats` (`NQubit/Entropy/PuritySlope.lean`,
 `c_d = (d-1) log₂(d-1)/(d(d-2))`, `c_8 = 7 log₂ 7/48`), whose equality case
-`NQubit.Entropy.entropy_purity_slope_eq_iff` (uniform, or `(7/8, (1/56)^7)`) is proved there.
-`Fsp_ge_sharp` and `Gsp_spike` are the `m = 7` cases of `NQubit.Entropy.spikeDeficit_ge_sharp` and `NQubit.Entropy.spikeEnt_eq`.
+`FormalResearch.NQubit.Entropy.entropy_purity_slope_eq_iff` (uniform, or `(7/8, (1/56)^7)`) is proved there.
+`Fsp_ge_sharp` and `Gsp_spike` are the `m = 7` cases of `FormalResearch.NQubit.Entropy.spikeDeficit_ge_sharp` and `FormalResearch.NQubit.Entropy.spikeEnt_eq`.
 The comparisons `7 log₂ 7/48 ≥ 49/120 ≥ 2/5` use `7⁵ > 2¹⁴`.
 
 Everything is proved (no hypotheses, no `native_decide`).
@@ -109,13 +109,13 @@ theorem xlogx_tangent {x y : ℝ} (hx : 0 ≤ x) (hy : 0 < y) :
 /-- `F(r) = (1+7r) ln(1+7r) + 7(1-r) ln(1-r)`. -/
 noncomputable def Fsp (r : ℝ) : ℝ := (1 + 7 * r) * log (1 + 7 * r) + 7 * (1 - r) * log (1 - r)
 
-theorem Fsp_eq_spikeDeficit (r : ℝ) : Fsp r = NQubit.Entropy.spikeDeficit 7 r := by
-  unfold Fsp NQubit.Entropy.spikeDeficit; simp only [negMulLog]; ring
+theorem Fsp_eq_spikeDeficit (r : ℝ) : Fsp r = FormalResearch.NQubit.Entropy.spikeDeficit 7 r := by
+  unfold Fsp FormalResearch.NQubit.Entropy.spikeDeficit; simp only [negMulLog]; ring
 
 /-- **Sharp bound**: `F(r) ≥ (49/6) ln 7 · r²` on `[0,1]`, with equality at `r = 0` and `r = 6/7`
-(the case `m = 7` of `NQubit.Entropy.spikeDeficit_ge_sharp` / `spikeDeficit_eq_iff`). -/
+(the case `m = 7` of `FormalResearch.NQubit.Entropy.spikeDeficit_ge_sharp` / `spikeDeficit_eq_iff`). -/
 theorem Fsp_ge_sharp {r : ℝ} (h0 : 0 ≤ r) (h1 : r ≤ 1) : (49 / 6) * log 7 * r ^ 2 ≤ Fsp r := by
-  have h := NQubit.Entropy.spikeDeficit_ge_sharp (m := 7) (by norm_num) h0 h1
+  have h := FormalResearch.NQubit.Entropy.spikeDeficit_ge_sharp (m := 7) (by norm_num) h0 h1
   rw [Fsp_eq_spikeDeficit]; norm_num at h ⊢; linarith
 
 
@@ -125,7 +125,7 @@ theorem Gsp_spike {r : ℝ} (_h0 : 0 ≤ r) (_h1 : r ≤ 1) :
     Gsp ((1 + 7 * r) / 8) = 3 * log 2 - Fsp r / 8 := by
   have h8 : log 8 = 3 * log 2 := by
     rw [show (8 : ℝ) = 2 ^ 3 by norm_num, Real.log_pow]; norm_num
-  have h := NQubit.Entropy.spikeEnt_eq (d := 8) (r := r) (by norm_num)
+  have h := FormalResearch.NQubit.Entropy.spikeEnt_eq (d := 8) (r := r) (by norm_num)
   rw [Gsp_eq_spikeEnt, Fsp_eq_spikeDeficit, ← h8]
   norm_num at h ⊢; exact h
 
@@ -146,7 +146,7 @@ vector on an eight-point set, `(7/48) ln 7 · (8 ∑ λ² - 1) ≤ 3 ln 2 - ∑ 
 theorem entropy_linear_purity_sharp_nats {ι : Type*} [Fintype ι] (hcard : Fintype.card ι = 8)
     (lam : ι → ℝ) (h0 : ∀ i, 0 ≤ lam i) (h1 : ∑ i, lam i = 1) :
     (7 / 48) * log 7 * (8 * ∑ i, lam i ^ 2 - 1) ≤ 3 * log 2 - ∑ i, negMulLog (lam i) := by
-  have h := NQubit.Entropy.entropy_purity_slope_nats (d := 8) (by norm_num) hcard lam h0 h1
+  have h := FormalResearch.NQubit.Entropy.entropy_purity_slope_nats (d := 8) (by norm_num) hcard lam h0 h1
   have h8 : log 8 = 3 * log 2 := by
     rw [show (8 : ℝ) = 2 ^ 3 by norm_num, Real.log_pow]; norm_num
   norm_num [h8] at h

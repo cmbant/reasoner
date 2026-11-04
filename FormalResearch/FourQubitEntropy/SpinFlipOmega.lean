@@ -8,7 +8,7 @@ public import FormalResearch.NQubit.Reduced.Purity
 # Balanced-cut purities of `Ω_z` for `m = 3, 4, 5, 6`, and the seven-qubit spin-flip gap
 
 Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_graph_parity.tex` and `spinflip_purification.tex`.
-For a normalised `m`-qubit `z`, the time-reversal purification `Ω_z` (`NQubit.TimeReversal.omegaState`) is a unit
+For a normalised `m`-qubit `z`, the time-reversal purification `Ω_z` (`FormalResearch.NQubit.TimeReversal.omegaState`) is a unit
 `(m+1)`-qubit state whose purity enumerator is given by that of `z`; `balanced_m3`–`balanced_m6` evaluate the
 balanced-cut purity for `m = 3, …, 6` by linear algebra from the identities of `NQubit/Reduced/Purity.lean`.
 
