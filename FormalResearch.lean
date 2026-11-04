@@ -321,9 +321,6 @@ public import FormalResearch.FourQubitEntropy.SevenQubitEigenCap497
 public import FormalResearch.FourQubitEntropy.SevenQubitEigenCap497Pure
 public import FormalResearch.FourQubitEntropy.SevenQubitCompetitorBand
 public import FormalResearch.FourQubitEntropy.SevenQubitConseqEnvelope
-public import FormalResearch.FourQubitEntropy.SevenQubitConseqMajorant
-public import FormalResearch.FourQubitEntropy.EntropyPurityEnvelope
-public import FormalResearch.FourQubitEntropy.EntropyPuritySlope
 public import FormalResearch.FourQubitEntropy.SevenQubitConseqSpectrum
 public import FormalResearch.FourQubitEntropy.SevenQubitIcoXBlockPurity
 public import FormalResearch.FourQubitEntropy.SevenQubitIcoXFlatPhase
@@ -372,7 +369,7 @@ public import FormalResearch.FrameFree.MaxChiral
 public import FormalResearch.FrameFree.Arithmetic
 public import FormalResearch.FrameFree.TwoSpin
 public import FormalResearch.FrameFree.WeylRealisation
-public import FormalResearch.NQubit.Foundations
+public import FormalResearch.NQubit
 public import FormalResearch.FrameFree.RotationOverlap
 public import FormalResearch.FrameFree.GateOverlap
 public import FormalResearch.FrameFree.PhysicalBridge

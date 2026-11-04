@@ -1,13 +1,9 @@
 module
 
-public import FormalResearch.FourQubitEntropy.SevenQubitConseqMajorant
+public import FormalResearch.NQubit.Entropy.QuadraticMajorant
 
 /-!
-# `lem:seven-fixed-purity-envelope`: the entropy envelope at fixed purity, every dimension `d ≥ 2`
-
-Source: `ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_global_upper.tex`,
-`lem:seven-fixed-purity-envelope` (all dimensions) and the dimension-independent quadratic majorant
-before it.
+# The entropy envelope at fixed purity, every dimension `d ≥ 2`
 
 For a probability vector `λ` on `d` points with `∑ λ² = p` put
 `t_d(p) = (1 + √((d-1)(dp-1)))/d` (`spikeWt`) and let `g_d(p)` (`gEnv`, nats) be the entropy of the
@@ -17,13 +13,12 @@ one-spike spectrum `(t_d(p), ((1-t_d(p))/(d-1))^{d-1})` (`spikeEnt`).  Then
 * `entropy_eq_gEnv_iff`: equality holds exactly when `λ` is that one-spike spectrum (one entry
   `t_d(p)`, all others `(1-t_d(p))/(d-1)`), including the uniform (`p = 1/d`) and pure (`p = 1`) ends.
 
-Proof (as in the paper): `λ_max ≤ t_d(p)` by Cauchy–Schwarz on the other `d-1` entries; the Hermite
-quadratic majorant `Q` of `-x ln x` with double contact at `b = (1-a)/(d-1)` and contact at `a = t_d(p)`
-(`SevenQubitConseq.majorant`) is valid on `[0,a]`, and `∑ Q(λ_i)` depends only on `∑ λ` and `∑ λ²`, so it
-equals its value `g_d(p)` on the spike.  For the equality case the majorant is strict off `{a, b}`
-(`majorant_strict`, proved here), so every `λ_i ∈ {a,b}`, and the trace forces exactly one `a`.
-
-Everything is proved (no hypotheses).  The `d = 8` instance is `SevenQubitConseq.entropy_le_g8`.
+Proof.  `λ_max ≤ t_d(p)` by Cauchy–Schwarz on the other `d-1` entries; the Hermite quadratic
+majorant `Q` of `-x ln x` with double contact at `b = (1-a)/(d-1)` and contact at `a = t_d(p)`
+(`negMulLog_le_hermiteMajorant`) is valid on `[0,a]`, and `∑ Q(λ_i)` depends only on `∑ λ` and
+`∑ λ²`, so it equals its value `g_d(p)` on the spike.  For the equality case the majorant is strict
+off `{a, b}` (`negMulLog_lt_hermiteMajorant`), so every `λ_i ∈ {a,b}`, and the trace forces exactly
+one `a`.
 -/
 
 @[expose] public section
@@ -31,28 +26,27 @@ Everything is proved (no hypotheses).  The `d = 8` instance is `SevenQubitConseq
 
 open Real Finset
 
-namespace FormalResearch.FourQubitEntropy.EntropyPurity
+namespace FormalResearch.NQubit.Entropy
 
-open FormalResearch.FourQubitEntropy.SevenQubitConseq
 
 /-! ### Strict version of the Hermite majorant -/
 
-theorem hc_mul {a b : ℝ} : hc a b * (a - b) ^ 2 = rem b a := by
-  unfold hc
+theorem secondDivDiff_mul {a b : ℝ} : secondDivDiff a b * (a - b) ^ 2 = tangentRemainder b a := by
+  unfold secondDivDiff
   rcases eq_or_ne a b with h | h
-  · subst h; simp [rem_at]
+  · subst h; simp [tangentRemainder_self]
   · have : (a - b) ^ 2 ≠ 0 := pow_ne_zero 2 (sub_ne_zero.2 h)
     field_simp
 
-theorem uf_strictMonoOn {b : ℝ} (hb : 0 < b) : StrictMonoOn (uf b) (Set.Ici b) := by
+theorem shiftedRemainder_strictMonoOn {b : ℝ} (hb : 0 < b) : StrictMonoOn (shiftedRemainder b) (Set.Ici b) := by
   apply strictMonoOn_of_deriv_pos (convex_Ici b)
   · apply Continuous.continuousOn
-    unfold uf rem tang
+    unfold shiftedRemainder tangentRemainder negMulLogTangent
     fun_prop
   · intro y hy
     rw [interior_Ici] at hy
     have hy0 : (0 : ℝ) < y := hb.trans hy
-    rw [(hasDerivAt_uf hb hy0.ne').deriv]
+    rw [(hasDerivAt_shiftedRemainder hb hy0.ne').deriv]
     have hne : y / b ≠ 1 := by
       rw [Ne, div_eq_one_iff_eq hb.ne']; exact ne_of_gt hy
     have := Real.log_lt_sub_one_of_pos (div_pos hy0 hb) hne
@@ -60,19 +54,19 @@ theorem uf_strictMonoOn {b : ℝ} (hb : 0 < b) : StrictMonoOn (uf b) (Set.Ici b)
     linarith
 
 /-- `c > -1/(2b)` when `a > b`. -/
-theorem hc_gt {a b : ℝ} (hb : 0 < b) (hba : b < a) : -(1 / (2 * b)) < hc a b := by
-  have h := uf_strictMonoOn hb (Set.mem_Ici.2 le_rfl) (Set.mem_Ici.2 hba.le) hba
-  have h0 : rem b b = 0 := rem_at b
-  simp only [uf, h0, sub_self] at h
+theorem secondDivDiff_gt {a b : ℝ} (hb : 0 < b) (hba : b < a) : -(1 / (2 * b)) < secondDivDiff a b := by
+  have h := shiftedRemainder_strictMonoOn hb (Set.mem_Ici.2 le_rfl) (Set.mem_Ici.2 hba.le) hba
+  have h0 : tangentRemainder b b = 0 := tangentRemainder_self b
+  simp only [shiftedRemainder, h0, sub_self] at h
   have hp : 0 < (a - b) ^ 2 := by have := sub_pos.2 hba; positivity
-  unfold hc
+  unfold secondDivDiff
   rw [lt_div_iff₀ hp]
   have : -(1 / (2 * b)) * (a - b) ^ 2 = -((a - b) ^ 2 / (2 * b)) := by field_simp
   simp at h
   linarith
 
-theorem Nn_pos {b y : ℝ} (hb : 0 < b) (hy : b < y) : 0 < Nn b y := by
-  have hmono : StrictMonoOn (Nn b) (Set.Ici b) := by
+theorem divDiffNumerator_pos {b y : ℝ} (hb : 0 < b) (hy : b < y) : 0 < divDiffNumerator b y := by
+  have hmono : StrictMonoOn (divDiffNumerator b) (Set.Ici b) := by
     apply strictMonoOn_of_deriv_pos (convex_Ici b)
     · apply ContinuousOn.sub
       · apply ContinuousOn.mul (by fun_prop)
@@ -86,8 +80,8 @@ theorem Nn_pos {b y : ℝ} (hb : 0 < b) (hy : b < y) : 0 < Nn b y := by
       have hd := (((hasDerivAt_id y).add_const b).mul
         (((Real.hasDerivAt_log hy0.ne').sub_const (log b)))).sub
         (((hasDerivAt_id y).sub_const b).const_mul 2)
-      have hd' : HasDerivAt (Nn b) (1 * (log y - log b) + (id y + b) * y⁻¹ - 2 * 1) y := by
-        unfold Nn; exact hd
+      have hd' : HasDerivAt (divDiffNumerator b) (1 * (log y - log b) + (id y + b) * y⁻¹ - 2 * 1) y := by
+        unfold divDiffNumerator; exact hd
       rw [hd'.deriv]
       have hne : b / y ≠ 1 := by
         rw [Ne, div_eq_one_iff_eq hy0.ne']; exact ne_of_lt hy
@@ -97,14 +91,14 @@ theorem Nn_pos {b y : ℝ} (hb : 0 < b) (hy : b < y) : 0 < Nn b y := by
         simp only [id]; field_simp; ring
       rw [e]
       linarith
-  have h0 : Nn b b = 0 := by simp [Nn]
+  have h0 : divDiffNumerator b b = 0 := by simp [divDiffNumerator]
   have := hmono (Set.mem_Ici.2 le_rfl) (Set.mem_Ici.2 hy.le) hy
   rwa [h0] at this
 
-theorem rho_strictMonoOn {b : ℝ} (hb : 0 < b) :
-    StrictMonoOn (fun y => rem b y / (y - b) ^ 2) (Set.Ioi b) := by
-  have hd : ∀ y ∈ Set.Ioi b, HasDerivAt (fun y => rem b y / (y - b) ^ 2)
-      (((log b - log y) * (y - b) ^ 2 - rem b y * (2 * (y - b))) / ((y - b) ^ 2) ^ 2) y := by
+theorem secondDivDiff_strictMonoOn {b : ℝ} (hb : 0 < b) :
+    StrictMonoOn (fun y => tangentRemainder b y / (y - b) ^ 2) (Set.Ioi b) := by
+  have hd : ∀ y ∈ Set.Ioi b, HasDerivAt (fun y => tangentRemainder b y / (y - b) ^ 2)
+      (((log b - log y) * (y - b) ^ 2 - tangentRemainder b y * (2 * (y - b))) / ((y - b) ^ 2) ^ 2) y := by
     intro y hy
     have hy0 : (0 : ℝ) < y := hb.trans hy
     have hyb : y - b ≠ 0 := sub_ne_zero.2 (ne_of_gt hy)
@@ -112,7 +106,7 @@ theorem rho_strictMonoOn {b : ℝ} (hb : 0 < b) :
       have := ((hasDerivAt_id y).sub_const b).pow 2
       refine this.congr_deriv ?_
       simp
-    exact (hasDerivAt_rem hy0.ne').div h2 (pow_ne_zero 2 hyb)
+    exact (hasDerivAt_tangentRemainder hy0.ne').div h2 (pow_ne_zero 2 hyb)
   apply strictMonoOn_of_deriv_pos (convex_Ioi b)
   · intro y hy
     exact (hd y hy).continuousAt.continuousWithinAt
@@ -120,34 +114,34 @@ theorem rho_strictMonoOn {b : ℝ} (hb : 0 < b) :
     rw [interior_Ioi] at hy
     rw [(hd y hy).deriv]
     have hyb : 0 < y - b := sub_pos.2 hy
-    have hN := Nn_pos hb hy
+    have hN := divDiffNumerator_pos hb hy
     apply div_pos _ (by positivity)
-    have e : (log b - log y) * (y - b) ^ 2 - rem b y * (2 * (y - b)) = (y - b) * Nn b y := by
-      simp only [rem, tang, Nn, negMulLog]
+    have e : (log b - log y) * (y - b) ^ 2 - tangentRemainder b y * (2 * (y - b)) = (y - b) * divDiffNumerator b y := by
+      simp only [tangentRemainder, negMulLogTangent, divDiffNumerator, negMulLog]
       ring
     rw [e]
     exact mul_pos hyb hN
 
 /-- **Strict Hermite majorant**: for `0 < b < a` and `x ∈ [0,a] \ {a, b}`,
-`-x ln x < T_b(x) + c (x-b)²` (the paper's strictness remark before
-`lem:seven-fixed-purity-envelope`). -/
-theorem majorant_strict {a b x : ℝ} (hb : 0 < b) (hba : b < a) (hx0 : 0 ≤ x) (hxa : x < a)
-    (hxb : x ≠ b) : negMulLog x < tang b x + hc a b * (x - b) ^ 2 := by
-  have key : rem b x < hc a b * (x - b) ^ 2 := by
+`-x ln x < T_b(x) + c (x-b)²` (strictness of the majorant bound used
+in the envelope proof). -/
+theorem negMulLog_lt_hermiteMajorant {a b x : ℝ} (hb : 0 < b) (hba : b < a) (hx0 : 0 ≤ x) (hxa : x < a)
+    (hxb : x ≠ b) : negMulLog x < negMulLogTangent b x + secondDivDiff a b * (x - b) ^ 2 := by
+  have key : tangentRemainder b x < secondDivDiff a b * (x - b) ^ 2 := by
     rcases lt_or_gt_of_ne hxb with hxb | hxb
-    · have h1 := rem_le_of_le hb hx0 hxb.le
-      have h2 := hc_gt hb hba
+    · have h1 := tangentRemainder_le_of_le hb hx0 hxb.le
+      have h2 := secondDivDiff_gt hb hba
       have hp : 0 < (x - b) ^ 2 := by have := sub_neg.2 hxb; positivity
-      have : -(1 / (2 * b)) * (x - b) ^ 2 < hc a b * (x - b) ^ 2 :=
+      have : -(1 / (2 * b)) * (x - b) ^ 2 < secondDivDiff a b * (x - b) ^ 2 :=
         mul_lt_mul_of_pos_right h2 hp
       have e : -(1 / (2 * b)) * (x - b) ^ 2 = -((x - b) ^ 2 / (2 * b)) := by field_simp
       linarith
-    · have hmono := rho_strictMonoOn hb (Set.mem_Ioi.2 hxb) (Set.mem_Ioi.2 (hxb.trans hxa)) hxa
+    · have hmono := secondDivDiff_strictMonoOn hb (Set.mem_Ioi.2 hxb) (Set.mem_Ioi.2 (hxb.trans hxa)) hxa
       have hp : 0 < (x - b) ^ 2 := by have := sub_pos.2 hxb; positivity
-      have : rem b x / (x - b) ^ 2 < hc a b := hmono
+      have : tangentRemainder b x / (x - b) ^ 2 < secondDivDiff a b := hmono
       rw [div_lt_iff₀ hp] at this
       exact this
-  unfold rem at key
+  unfold tangentRemainder at key
   linarith
 
 /-! ### Definitions -/
@@ -247,20 +241,20 @@ theorem envelope_core {ι : Type*} [Fintype ι] {d : ℕ} (hcard : Fintype.card 
     (b < a → ∑ i, negMulLog (lam i) = negMulLog a + ((d : ℝ) - 1) * negMulLog b →
       ∀ i, lam i = a ∨ lam i = b) := by
   have hle := le_spike hcard lam h1 hab hba hp
-  set c := hc a b with hcdef
+  set c := secondDivDiff a b with hcdef
   set α : ℝ := negMulLog b + (-log b - 1) * (-b) + c * b ^ 2 with hα
   set β : ℝ := (-log b - 1) - 2 * c * b with hβ
   set Q : ℝ → ℝ := fun x => α + β * x + c * x ^ 2 with hQ
-  have hQe : ∀ x, tang b x + c * (x - b) ^ 2 = Q x := by
-    intro x; simp only [tang, hQ, hα, hβ]; ring
+  have hQe : ∀ x, negMulLogTangent b x + c * (x - b) ^ 2 = Q x := by
+    intro x; simp only [negMulLogTangent, hQ, hα, hβ]; ring
   have hmaj : ∀ i, negMulLog (lam i) ≤ Q (lam i) := fun i => by
-    rw [← hQe]; exact majorant hb hba (h0 i) (hle i)
+    rw [← hQe]; exact negMulLog_le_hermiteMajorant hb hba (h0 i) (hle i)
   have hQa : negMulLog a = Q a := by
-    have := hc_mul (a := a) (b := b)
-    have e : rem b a = negMulLog a - tang b a := rfl
+    have := secondDivDiff_mul (a := a) (b := b)
+    have e : tangentRemainder b a = negMulLog a - negMulLogTangent b a := rfl
     rw [← hQe]; rw [← hcdef] at this; linarith
   have hQb : negMulLog b = Q b := by
-    rw [← hQe]; simp [tang]
+    rw [← hQe]; simp [negMulLogTangent]
   have hsumQ : ∑ i, Q (lam i) = negMulLog a + ((d : ℝ) - 1) * negMulLog b := by
     calc ∑ i, Q (lam i) = (d : ℝ) * α + β * 1 + c * (a ^ 2 + ((d : ℝ) - 1) * b ^ 2) := by
           simp only [hQ]
@@ -278,7 +272,7 @@ theorem envelope_core {ι : Type*} [Fintype ι] {d : ℕ} (hcard : Fintype.card 
   push Not at hne
   have hstrict : negMulLog (lam i) < Q (lam i) := by
     rw [← hQe]
-    exact majorant_strict hb hlt (h0 i) (lt_of_le_of_ne (hle i) hne.1) hne.2
+    exact negMulLog_lt_hermiteMajorant hb hlt (h0 i) (lt_of_le_of_ne (hle i) hne.1) hne.2
   have : ∑ j, negMulLog (lam j) < ∑ j, Q (lam j) :=
     Finset.sum_lt_sum (fun j _ => hmaj j) ⟨i, mem_univ i, hstrict⟩
   linarith
@@ -343,7 +337,7 @@ theorem spike_data {d p : ℝ} (hd : 1 < d) (hp1 : 1 / d ≤ p) (hp2 : p ≤ 1) 
     linear_combination d * hs2
   · rw [ht]; field_simp; ring
 
-/-- **`lem:seven-fixed-purity-envelope` (entropy bound, every `d ≥ 2`).**  For every probability vector
+/-- **Entropy bound, every `d ≥ 2`.**  For every probability vector
 `λ` on a `d`-point set: `∑ -λ ln λ ≤ g_d(∑ λ²)`. -/
 theorem entropy_le_gEnv {ι : Type*} [Fintype ι] {d : ℕ} (hd : 2 ≤ d)
     (hcard : Fintype.card ι = d) (lam : ι → ℝ) (h0 : ∀ i, 0 ≤ lam i) (h1 : ∑ i, lam i = 1) :
@@ -386,7 +380,7 @@ theorem entropy_le_gEnv {ι : Type*} [Fintype ι] {d : ℕ} (hd : 2 ≤ d)
     have : (1 + ((d : ℝ) - 1)) / d = 1 := by field_simp; ring
     rw [this]; simp
 
-/-- **`lem:seven-fixed-purity-envelope`, equality case.**  For a probability vector `λ` on a `d`-point
+/-- **Equality case of the envelope.**  For a probability vector `λ` on a `d`-point
 set (`d ≥ 2`) with `p = ∑ λ²`, `∑ -λ ln λ = g_d(p)` if and only if `λ` is the one-spike spectrum:
 one entry `t_d(p)` and all others `(1 - t_d(p))/(d-1)`. -/
 theorem entropy_eq_gEnv_iff {ι : Type*} [Fintype ι] {d : ℕ} (hd : 2 ≤ d)
@@ -458,12 +452,12 @@ theorem entropy_eq_gEnv_iff {ι : Type*} [Fintype ι] {d : ℕ} (hd : 2 ≤ d)
       · left; rw [ha1]; linarith
     exact spike_of_two_values hcard lam h1 hab (by rw [ha1, hb0]; norm_num) h2
 
-/-- info: 'FormalResearch.FourQubitEntropy.EntropyPurity.entropy_le_gEnv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.NQubit.Entropy.entropy_le_gEnv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms entropy_le_gEnv
 
-/-- info: 'FormalResearch.FourQubitEntropy.EntropyPurity.entropy_eq_gEnv_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.NQubit.Entropy.entropy_eq_gEnv_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms entropy_eq_gEnv_iff
 
-end FormalResearch.FourQubitEntropy.EntropyPurity
+end FormalResearch.NQubit.Entropy

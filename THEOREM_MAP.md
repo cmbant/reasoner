@@ -739,19 +739,19 @@ Source: `seven_qubit_entropy_compatibility.tex` (`lem:seven-entropy-linear-purit
 `seven_qubit_entropy_global_upper.tex` (`lem:seven-fixed-purity-envelope`, all dimensions), `four_qubit_entropy.tex`
 (`tab:fqe-other-n`, verifier `verify_entropy_purity_upper_table.py`, EU-1/EU-2).  No `sorry`, `native_decide` or `axiom`;
 `#print axioms` of every theorem named here is `[propext, Classical.choice, Quot.sound]`.  Namespace
-`FormalResearch.FourQubitEntropy.EntropyPurity` unless stated.
+`FormalResearch.NQubit.Entropy` unless stated (the shared library `FormalResearch/NQubit/Entropy/`).
 
-- `EntropyPurityEnvelope.lean` (`lem:seven-fixed-purity-envelope`, every `d ≥ 2`): `entropy_le_gEnv`: for a probability vector
+- `NQubit/Entropy/PurityEnvelope.lean` (`lem:seven-fixed-purity-envelope`, every `d ≥ 2`): `entropy_le_gEnv`: for a probability vector
   `λ` on a `d`-point set, `∑ -λ ln λ ≤ gEnv d (∑ λ²)`, `gEnv d p` = entropy (nats) of `(t, ((1-t)/(d-1))^{d-1})`,
   `t = spikeWt d p = (1 + √((d-1)(dp-1)))/d`; `entropy_eq_gEnv_iff`: equality iff `λ` is that one-spike spectrum (uniform and
-  pure ends included).  The equality case uses the strict Hermite majorant `majorant_strict` (proved here).
-- `EntropyPuritySlope.lean` (`lem:seven-entropy-linear-purity`, every `d ≥ 3`): `entropy_purity_slope_nats`
+  pure ends included).  The equality case uses the strict Hermite majorant `negMulLog_lt_hermiteMajorant` (proved here; the non-strict Hermite majorant `negMulLog_le_hermiteMajorant` is in `NQubit/Entropy/QuadraticMajorant.lean`).
+- `NQubit/Entropy/PuritySlope.lean` (`lem:seven-entropy-linear-purity`, every `d ≥ 3`): `entropy_purity_slope_nats`
   `(d-1) ln(d-1)/(d(d-2)) · (d ∑ λ² - 1) ≤ ln d - ∑ -λ ln λ`; `entropy_purity_slope_bits` `slopeBits d · (d ∑ λ² - 1) ≤
   log₂ d - S`, `slopeBits d = (d-1) log₂(d-1)/(d(d-2))`; `entropy_purity_slope_eq_iff`: equality iff `λ` is uniform or
-  `((d-1)/d, (1/[d(d-1)])^{d-1})`.  The one-spike function: `Fm_ge_sharp` (`m² ln m/(m-1) · r² ≤ F_m(r)` on `[0,1]`, `m > 1`),
-  `Fm_eq_iff` (equality iff `r ∈ {0, (m-1)/m}`), `spikeEnt_eq`.
+  `((d-1)/d, (1/[d(d-1)])^{d-1})`.  The one-spike function: `spikeDeficit_ge_sharp` (`m² ln m/(m-1) · r² ≤ F_m(r)` on `[0,1]`, `m > 1`),
+  `spikeDeficit_eq_iff` (equality iff `r ∈ {0, (m-1)/m}`), `spikeEnt_eq`.
 - The `d = 8` theorems are corollaries with unchanged names and statements: `SevenQubitConseq.entropy_le_g8` (`g8_eq_gEnv`),
-  `LinPur.entropy_linear_purity_sharp_nats`, `LinPur.Fsp_ge_sharp` (`Fsp_eq_Fm`), `LinPur.Gsp_spike`.
+  `LinPur.entropy_linear_purity_sharp_nats`, `LinPur.Fsp_ge_sharp` (`Fsp_eq_spikeDeficit`), `LinPur.Gsp_spike`.
 - `PurityLPEntropyCeiling.lean` (namespace `PurityLP`): `cutEntropyBits ψ S` (von Neumann entropy in bits of `rdm ψ S` from its
   Hermitian eigenvalues), `meanEntropy ψ k = C(n,k)⁻¹ Σ_{|S|=k} cutEntropyBits ψ S`; `meanEntropy_le`: for every unit
   `ψ : Ψ n` and `2 ≤ k ≤ n`, `E_k(ψ) ≤ k - c_{2^k}(2^k π_k(ψ) - 1)` (`π_k = piMean ψ k`).  With `minPurity<n>`:

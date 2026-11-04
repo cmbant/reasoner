@@ -1,7 +1,7 @@
 module
 
 public import FormalResearch.FourQubitEntropy.PurityLPMain
-public import FormalResearch.FourQubitEntropy.EntropyPuritySlope
+public import FormalResearch.NQubit.Entropy.PuritySlope
 public import FormalResearch.FourQubitEntropy.SevenQubitLinearPurity
 
 /-!
@@ -15,7 +15,7 @@ For a pure `n`-qubit state `ψ` and `k ≥ 2`, the balanced-cut mean entropy is
 `E_k(ψ) = C(n,k)⁻¹ Σ_{|S|=k} S(ρ_S)` (`meanEntropy`), with `S(ρ_S)` the von Neumann entropy in bits
 of the explicit partial trace `ρ_S = rdm ψ S`, computed from its Hermitian eigenvalues (`cutEntropyBits`).
 Since `ρ_S` is a `2^k`-dimensional density matrix with `tr ρ_S² = Σ λ²`, the sharp slope
-(`EntropyPurity.entropy_purity_slope_bits`, `d = 2^k`) and averaging give
+(`NQubit.Entropy.entropy_purity_slope_bits`, `d = 2^k`) and averaging give
 
   `E_k(ψ) ≤ k - c_{2^k} (2^k π_k(ψ) - 1)`   (`meanEntropy_le`),
 
@@ -118,8 +118,8 @@ noncomputable def cutEntropyBits (ψ : Ψ n) (S : Finset (Fin n)) : ℝ :=
 noncomputable def meanEntropy (ψ : Ψ n) (k : ℕ) : ℝ :=
   (∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, cutEntropyBits ψ S) / (Nat.choose n k : ℝ)
 
-theorem slopeBits_nonneg {d : ℝ} (hd : 3 ≤ d) : 0 ≤ EntropyPurity.slopeBits d := by
-  unfold EntropyPurity.slopeBits
+theorem slopeBits_nonneg {d : ℝ} (hd : 3 ≤ d) : 0 ≤ NQubit.Entropy.slopeBits d := by
+  unfold NQubit.Entropy.slopeBits
   have : 0 ≤ Real.logb 2 (d - 1) := Real.logb_nonneg (by norm_num) (by linarith)
   apply div_nonneg (mul_nonneg (by linarith) this) (mul_nonneg (by linarith) (by linarith))
 
@@ -127,13 +127,13 @@ theorem slopeBits_nonneg {d : ℝ} (hd : 3 ≤ d) : 0 ≤ EntropyPurity.slopeBit
 `S(ρ_S) ≤ k - c_{2^k} (2^k tr ρ_S² - 1)`. -/
 theorem cutEntropyBits_le (ψ : Ψ n) (hψ : nsq ψ = 1) (S : Finset (Fin n)) {k : ℕ}
     (hS : S.card = k) (hk : 2 ≤ k) :
-    cutEntropyBits ψ S ≤ k - EntropyPurity.slopeBits ((2 : ℝ) ^ k) *
+    cutEntropyBits ψ S ≤ k - NQubit.Entropy.slopeBits ((2 : ℝ) ^ k) *
       ((2 : ℝ) ^ k * (Matrix.trace (rdm ψ S * rdm ψ S)).re - 1) := by
   have hcard : Fintype.card (CfgOn S) = 2 ^ k := by rw [card_cfgOn', hS]
   have hd : 3 ≤ 2 ^ k := by
     calc 3 ≤ 2 ^ 2 := by norm_num
       _ ≤ 2 ^ k := Nat.pow_le_pow_right (by norm_num) hk
-  have h := EntropyPurity.entropy_purity_slope_bits hd hcard _ (rdm_eig_nonneg ψ S)
+  have h := NQubit.Entropy.entropy_purity_slope_bits hd hcard _ (rdm_eig_nonneg ψ S)
     (rdm_eig_sum ψ hψ S)
   rw [rdm_eig_sq] at h
   push_cast at h
@@ -144,12 +144,12 @@ theorem cutEntropyBits_le (ψ : Ψ n) (hψ : nsq ψ = 1) (S : Finset (Fin n)) {k
 /-- **`E_k ≤ k - c_{2^k}(2^k π_k - 1)`** for every unit vector `ψ` of `n` qubits and `2 ≤ k ≤ n`
 (`tab:fqe-other-n`, from `lem:seven-entropy-linear-purity`). -/
 theorem meanEntropy_le (ψ : Ψ n) (hψ : nsq ψ = 1) {k : ℕ} (hk : 2 ≤ k) (hkn : k ≤ n) :
-    meanEntropy ψ k ≤ k - EntropyPurity.slopeBits ((2 : ℝ) ^ k) * ((2 : ℝ) ^ k * piMean ψ k - 1) := by
+    meanEntropy ψ k ≤ k - NQubit.Entropy.slopeBits ((2 : ℝ) ^ k) * ((2 : ℝ) ^ k * piMean ψ k - 1) := by
   set T := (Finset.univ : Finset (Fin n)).powersetCard k
   have hC : (0 : ℝ) < Nat.choose n k := by exact_mod_cast Nat.choose_pos hkn
   have hT : (T.card : ℝ) = Nat.choose n k := by
     simp [T, Finset.card_powersetCard]
-  set c := EntropyPurity.slopeBits ((2 : ℝ) ^ k)
+  set c := NQubit.Entropy.slopeBits ((2 : ℝ) ^ k)
   have hsum : ∑ S ∈ T, cutEntropyBits ψ S ≤
       ∑ S ∈ T, ((k : ℝ) - c * ((2 : ℝ) ^ k * (Matrix.trace (rdm ψ S * rdm ψ S)).re - 1)) :=
     Finset.sum_le_sum fun S hS => cutEntropyBits_le ψ hψ S (Finset.mem_powersetCard.1 hS).2 hk
@@ -203,24 +203,24 @@ theorem meanEntropy_lt_of (ψ : Ψ n) (hψ : nsq ψ = 1) {k : ℕ} (hk : 2 ≤ k
     (hL : L ≤ piMean ψ k) (hL1 : 1 ≤ (2 : ℝ) ^ k * L)
     (hD : (k : ℝ) - ((2 : ℝ) ^ k - 1) * ((2 : ℝ) ^ k * L - 1) / ((2 : ℝ) ^ k * ((2 : ℝ) ^ k - 2)) *
       ((k : ℝ) - SevenQubitConseq.LinPur.arctanhHi ((2 : ℝ) ^ k / ((2 : ℝ) ^ k - 1)) / (6931471803 / 10000000000)) < D) :
-    meanEntropy ψ k ≤ k - EntropyPurity.slopeBits ((2 : ℝ) ^ k) * ((2 : ℝ) ^ k * L - 1) ∧
+    meanEntropy ψ k ≤ k - NQubit.Entropy.slopeBits ((2 : ℝ) ^ k) * ((2 : ℝ) ^ k * L - 1) ∧
       meanEntropy ψ k < D := by
   have hd4 : (4 : ℝ) ≤ 2 ^ k := by
     calc (4 : ℝ) = 2 ^ 2 := by norm_num
       _ ≤ 2 ^ k := pow_le_pow_right₀ (by norm_num) hk
   have hc := slopeBits_nonneg (d := (2 : ℝ) ^ k) (by linarith)
   have h := meanEntropy_le ψ hψ hk hkn
-  have hmono : EntropyPurity.slopeBits ((2 : ℝ) ^ k) * ((2 : ℝ) ^ k * L - 1) ≤
-      EntropyPurity.slopeBits ((2 : ℝ) ^ k) * ((2 : ℝ) ^ k * piMean ψ k - 1) :=
+  have hmono : NQubit.Entropy.slopeBits ((2 : ℝ) ^ k) * ((2 : ℝ) ^ k * L - 1) ≤
+      NQubit.Entropy.slopeBits ((2 : ℝ) ^ k) * ((2 : ℝ) ^ k * piMean ψ k - 1) :=
     mul_le_mul_of_nonneg_left (by nlinarith) hc
   refine ⟨by linarith, ?_⟩
   have hlog := logb_pred_ge k (by omega)
   have hA : 0 ≤ ((2 : ℝ) ^ k - 1) * ((2 : ℝ) ^ k * L - 1) / ((2 : ℝ) ^ k * ((2 : ℝ) ^ k - 2)) :=
     div_nonneg (mul_nonneg (by linarith) (by linarith)) (mul_nonneg (by linarith) (by linarith))
-  have e : EntropyPurity.slopeBits ((2 : ℝ) ^ k) * ((2 : ℝ) ^ k * L - 1) =
+  have e : NQubit.Entropy.slopeBits ((2 : ℝ) ^ k) * ((2 : ℝ) ^ k * L - 1) =
       ((2 : ℝ) ^ k - 1) * ((2 : ℝ) ^ k * L - 1) / ((2 : ℝ) ^ k * ((2 : ℝ) ^ k - 2)) *
         Real.logb 2 ((2 : ℝ) ^ k - 1) := by
-    unfold EntropyPurity.slopeBits; ring
+    unfold NQubit.Entropy.slopeBits; ring
   have := mul_le_mul_of_nonneg_left hlog hA
   linarith
 
@@ -229,7 +229,7 @@ theorem meanEntropy_lt_of (ψ : Ψ n) (hψ : nsq ψ = 1) {k : ℕ} (hk : 2 ≤ k
 /-- **`tab:fqe-other-n`, `n = 8`**: every pure 8-qubit state has
 `E_4 ≤ 4 - c_16(16 · (3/35) - 1) < 3.9029` (`min π_4 = 3/35`, `minPurity8`). -/
 theorem entropyCeiling8 (ψ : Ψ 8) (hψ : nsq ψ = 1) :
-    meanEntropy ψ 4 ≤ 4 - EntropyPurity.slopeBits 16 * (16 * (3 / 35) - 1) ∧
+    meanEntropy ψ 4 ≤ 4 - NQubit.Entropy.slopeBits 16 * (16 * (3 / 35) - 1) ∧
       meanEntropy ψ 4 < 39029 / 10000 := by
   have h := meanEntropy_lt_of (k := 4) (L := 3 / 35) (D := 39029 / 10000) ψ hψ (by norm_num) (by norm_num)
     (minPurity8.2 ⟨ψ, hψ, rfl⟩) (by norm_num)
@@ -244,7 +244,7 @@ theorem entropyCeiling8 (ψ : Ψ 8) (hψ : nsq ψ = 1) :
 /-- **`tab:fqe-other-n`, `n = 9`**: every pure 9-qubit state has
 `E_4 ≤ 4 - c_16(16 · (1/14) - 1) < 3.9627` (`min π_4 = 1/14`, `minPurity9`). -/
 theorem entropyCeiling9 (ψ : Ψ 9) (hψ : nsq ψ = 1) :
-    meanEntropy ψ 4 ≤ 4 - EntropyPurity.slopeBits 16 * (16 * (1 / 14) - 1) ∧
+    meanEntropy ψ 4 ≤ 4 - NQubit.Entropy.slopeBits 16 * (16 * (1 / 14) - 1) ∧
       meanEntropy ψ 4 < 39627 / 10000 := by
   have h := meanEntropy_lt_of (k := 4) (L := 1 / 14) (D := 39627 / 10000) ψ hψ (by norm_num) (by norm_num)
     (minPurity9.2 ⟨ψ, hψ, rfl⟩) (by norm_num)
@@ -259,7 +259,7 @@ theorem entropyCeiling9 (ψ : Ψ 9) (hψ : nsq ψ = 1) :
 /-- **`tab:fqe-other-n`, `n = 10`**: every pure 10-qubit state has
 `E_5 ≤ 5 - c_32(32 · (1/21) - 1) < 4.9163` (`min π_5 = 1/21`, `minPurity10`). -/
 theorem entropyCeiling10 (ψ : Ψ 10) (hψ : nsq ψ = 1) :
-    meanEntropy ψ 5 ≤ 5 - EntropyPurity.slopeBits 32 * (32 * (1 / 21) - 1) ∧
+    meanEntropy ψ 5 ≤ 5 - NQubit.Entropy.slopeBits 32 * (32 * (1 / 21) - 1) ∧
       meanEntropy ψ 5 < 49163 / 10000 := by
   have h := meanEntropy_lt_of (k := 5) (L := 1 / 21) (D := 49163 / 10000) ψ hψ (by norm_num) (by norm_num)
     (minPurity10.2 ⟨ψ, hψ, rfl⟩) (by norm_num)
@@ -274,7 +274,7 @@ theorem entropyCeiling10 (ψ : Ψ 10) (hψ : nsq ψ = 1) :
 /-- **`tab:fqe-other-n`, `n = 11`**: every pure 11-qubit state has
 `E_5 ≤ 5 - c_32(32 · (1/28) - 1) < 4.9772` (`min π_5 = 1/28`, `minPurity11`). -/
 theorem entropyCeiling11 (ψ : Ψ 11) (hψ : nsq ψ = 1) :
-    meanEntropy ψ 5 ≤ 5 - EntropyPurity.slopeBits 32 * (32 * (1 / 28) - 1) ∧
+    meanEntropy ψ 5 ≤ 5 - NQubit.Entropy.slopeBits 32 * (32 * (1 / 28) - 1) ∧
       meanEntropy ψ 5 < 49772 / 10000 := by
   have h := meanEntropy_lt_of (k := 5) (L := 1 / 28) (D := 49772 / 10000) ψ hψ (by norm_num) (by norm_num)
     (minPurity11.2 ⟨ψ, hψ, rfl⟩) (by norm_num)
@@ -289,7 +289,7 @@ theorem entropyCeiling11 (ψ : Ψ 11) (hψ : nsq ψ = 1) :
 /-- **`tab:fqe-other-n`, `n = 12`**: every pure 12-qubit state has
 `E_6 ≤ 6 - c_64(64 · (5/224) - 1) < 5.9594` (`min π_6 = 5/224`, `minPurity12`). -/
 theorem entropyCeiling12 (ψ : Ψ 12) (hψ : nsq ψ = 1) :
-    meanEntropy ψ 6 ≤ 6 - EntropyPurity.slopeBits 64 * (64 * (5 / 224) - 1) ∧
+    meanEntropy ψ 6 ≤ 6 - NQubit.Entropy.slopeBits 64 * (64 * (5 / 224) - 1) ∧
       meanEntropy ψ 6 < 59594 / 10000 := by
   have h := meanEntropy_lt_of (k := 6) (L := 5 / 224) (D := 59594 / 10000) ψ hψ (by norm_num) (by norm_num)
     (minPurity12.2 ⟨ψ, hψ, rfl⟩) (by norm_num)
@@ -304,7 +304,7 @@ theorem entropyCeiling12 (ψ : Ψ 12) (hψ : nsq ψ = 1) :
 /-- **`tab:fqe-other-n`, `n = 14`**: every pure 14-qubit state has
 `E_7 ≤ 7 - c_128(128 · (331/27456) - 1) < 6.9702` (`min π_7 = 331/27456`, `minPurity14`). -/
 theorem entropyCeiling14 (ψ : Ψ 14) (hψ : nsq ψ = 1) :
-    meanEntropy ψ 7 ≤ 7 - EntropyPurity.slopeBits 128 * (128 * (331 / 27456) - 1) ∧
+    meanEntropy ψ 7 ≤ 7 - NQubit.Entropy.slopeBits 128 * (128 * (331 / 27456) - 1) ∧
       meanEntropy ψ 7 < 69702 / 10000 := by
   have h := meanEntropy_lt_of (k := 7) (L := 331 / 27456) (D := 69702 / 10000) ψ hψ (by norm_num) (by norm_num)
     (minPurity14.2 ⟨ψ, hψ, rfl⟩) (by norm_num)
@@ -319,7 +319,7 @@ theorem entropyCeiling14 (ψ : Ψ 14) (hψ : nsq ψ = 1) :
 /-- **`tab:fqe-other-n`, `n = 15`**: every pure 15-qubit state has
 `E_7 ≤ 7 - c_128(128 · (1/104) - 1) < 6.9874` (`min π_7 = 1/104`, `minPurity15`). -/
 theorem entropyCeiling15 (ψ : Ψ 15) (hψ : nsq ψ = 1) :
-    meanEntropy ψ 7 ≤ 7 - EntropyPurity.slopeBits 128 * (128 * (1 / 104) - 1) ∧
+    meanEntropy ψ 7 ≤ 7 - NQubit.Entropy.slopeBits 128 * (128 * (1 / 104) - 1) ∧
       meanEntropy ψ 7 < 69874 / 10000 := by
   have h := meanEntropy_lt_of (k := 7) (L := 1 / 104) (D := 69874 / 10000) ψ hψ (by norm_num) (by norm_num)
     (minPurity15.2 ⟨ψ, hψ, rfl⟩) (by norm_num)
@@ -334,7 +334,7 @@ theorem entropyCeiling15 (ψ : Ψ 15) (hψ : nsq ψ = 1) :
 /-- **`tab:fqe-other-n`, `n = 16`**: every pure 16-qubit state has
 `E_8 ≤ 8 - c_256(256 · (1/156) - 1) < 7.9800` (`min π_8 = 1/156`, `minPurity16`). -/
 theorem entropyCeiling16 (ψ : Ψ 16) (hψ : nsq ψ = 1) :
-    meanEntropy ψ 8 ≤ 8 - EntropyPurity.slopeBits 256 * (256 * (1 / 156) - 1) ∧
+    meanEntropy ψ 8 ≤ 8 - NQubit.Entropy.slopeBits 256 * (256 * (1 / 156) - 1) ∧
       meanEntropy ψ 8 < 79800 / 10000 := by
   have h := meanEntropy_lt_of (k := 8) (L := 1 / 156) (D := 79800 / 10000) ψ hψ (by norm_num) (by norm_num)
     (minPurity16.2 ⟨ψ, hψ, rfl⟩) (by norm_num)
@@ -349,7 +349,7 @@ theorem entropyCeiling16 (ψ : Ψ 16) (hψ : nsq ψ = 1) :
 /-- **`tab:fqe-other-n`, `n = 17`**: every pure 17-qubit state has
 `E_8 ≤ 8 - c_256(256 · (1/208) - 1) < 7.9928` (`min π_8 = 1/208`, `minPurity17`). -/
 theorem entropyCeiling17 (ψ : Ψ 17) (hψ : nsq ψ = 1) :
-    meanEntropy ψ 8 ≤ 8 - EntropyPurity.slopeBits 256 * (256 * (1 / 208) - 1) ∧
+    meanEntropy ψ 8 ≤ 8 - NQubit.Entropy.slopeBits 256 * (256 * (1 / 208) - 1) ∧
       meanEntropy ψ 8 < 79928 / 10000 := by
   have h := meanEntropy_lt_of (k := 8) (L := 1 / 208) (D := 79928 / 10000) ψ hψ (by norm_num) (by norm_num)
     (minPurity17.2 ⟨ψ, hψ, rfl⟩) (by norm_num)
@@ -364,7 +364,7 @@ theorem entropyCeiling17 (ψ : Ψ 17) (hψ : nsq ψ = 1) :
 /-- **`tab:fqe-other-n`, `n = 18`**: every pure 18-qubit state has
 `E_9 ≤ 9 - c_512(512 · (7/2288) - 1) < 8.9901` (`min π_9 = 7/2288`, `minPurity18`). -/
 theorem entropyCeiling18 (ψ : Ψ 18) (hψ : nsq ψ = 1) :
-    meanEntropy ψ 9 ≤ 9 - EntropyPurity.slopeBits 512 * (512 * (7 / 2288) - 1) ∧
+    meanEntropy ψ 9 ≤ 9 - NQubit.Entropy.slopeBits 512 * (512 * (7 / 2288) - 1) ∧
       meanEntropy ψ 9 < 89901 / 10000 := by
   have h := meanEntropy_lt_of (k := 9) (L := 7 / 2288) (D := 89901 / 10000) ψ hψ (by norm_num) (by norm_num)
     (minPurity18.2 ⟨ψ, hψ, rfl⟩) (by norm_num)
