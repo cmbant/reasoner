@@ -1,7 +1,8 @@
 module
 
 public import Mathlib
-public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.NQubit.Foundations
+public import FormalResearch.FrameFree.RotationOverlap
 public import FormalResearch.FrameFree.OneCopy
 public import FormalResearch.FrameFree.TwirlsTwirl
 
@@ -26,7 +27,7 @@ commuting with `K_π` (equivalently `A ∈ blockPermSpan π`, `commutant_eq_bloc
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
 open Matrix ComplexConjugate
-open FormalResearch.FrameFree.NQubit (Ψ Θ)
+open FormalResearch.NQubit (Ψ Θ)
 
 namespace FormalResearch.FrameFree.Twirls
 

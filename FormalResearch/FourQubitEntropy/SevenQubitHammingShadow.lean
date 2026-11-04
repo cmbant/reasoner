@@ -33,7 +33,7 @@ other `(n, r)`.
 
 
 open scoped ComplexConjugate BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 open FormalResearch.FourQubitEntropy.SevenQubitIco.HammingGlue (wf)
 

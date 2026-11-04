@@ -25,6 +25,7 @@ set_option autoImplicit false
 set_option linter.unusedSectionVars false
 open scoped ComplexConjugate Matrix BigOperators
 open Matrix FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 open scoped ComplexOrder InnerProductSpace
 
 namespace FormalResearch.FrameFree.Helstrom

@@ -294,7 +294,7 @@ end MatrixLevel
 
 section StateLevel
 
-open FormalResearch.FrameFree.NQubit (Ψ nsq)
+open FormalResearch.NQubit (Ψ nsq)
 open FormalResearch.FourQubitEntropy.SpinFlip (CfgOn CfgOff)
 
 variable {n : ℕ}
@@ -431,7 +431,7 @@ end StateLevel
 
 section SevenQubit
 
-open FormalResearch.FrameFree.NQubit (Ψ nsq)
+open FormalResearch.NQubit (Ψ nsq)
 
 /-- **`thm:low-excitation-exclusion`, one cut, computational basis.** For every normalized seven-qubit
 vector `ψ` with squared weight `η = leak ψ 2 ≤ 3/8` on strings of excitation weight `≥ 3`, every

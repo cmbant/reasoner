@@ -31,7 +31,7 @@ the mean T-odd purity; its identification with `½(tr ρ² - R_ρ)` is `oddPur_e
 
 
 open Finset
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 

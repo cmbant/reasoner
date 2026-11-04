@@ -10,7 +10,7 @@ set_option autoImplicit false
 set_option linter.unusedSectionVars false
 
 open scoped ComplexConjugate Matrix BigOperators ComplexOrder
-open Matrix FormalResearch.FrameFree.NQubit FormalResearch.FrameFree.Helstrom
+open Matrix FormalResearch.FrameFree.NQubit FormalResearch.NQubit FormalResearch.FrameFree.Helstrom
 
 namespace FormalResearch.FrameFree.Converse
 

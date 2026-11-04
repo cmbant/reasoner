@@ -158,7 +158,7 @@ end Blocks
 /-! ### The existing `Helstrom.Pe` is the instance `G = {rotK k u}` -/
 
 open FormalResearch.FrameFree.Helstrom (Pe rotK copies IsInvEffect)
-open FormalResearch.FrameFree.NQubit (Ψ Θ SU2 Op1)
+open FormalResearch.NQubit (Ψ Θ SU2 Op1)
 
 /-- The frame group `{⊗_a u_a^{⊗k} : u ∈ SU(2)^n}` on `k` copies of `n` qubits. -/
 def frameGroup (n k : ℕ) : Set (Matrix (Fin k → Fin n → Fin 2) (Fin k → Fin n → Fin 2) ℂ) :=

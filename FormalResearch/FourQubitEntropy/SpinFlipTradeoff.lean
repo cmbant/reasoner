@@ -14,7 +14,7 @@ and rational certificates (`ST-1--ST-6`) and are *not* formalised here.  Claim c
 @[expose] public section
 
 
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 

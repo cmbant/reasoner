@@ -17,7 +17,7 @@ Source: `even_qubit_purity_minima.tex`, `thm:lptable`(2), `thm:fourteenfifteen`,
 
 
 open scoped BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 

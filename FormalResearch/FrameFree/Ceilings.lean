@@ -1,13 +1,14 @@
 module
 
-public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.NQubit.Foundations
+public import FormalResearch.FrameFree.RotationOverlap
 public import FormalResearch.FrameFree.RealRep3
 public import FormalResearch.FourQubitEntropy.Attainment
 
 /-!
 # Ceilings on frame-free chirality (Paper P: `sec3_many_spins`, `sec7_outlook`, `app_a_toolkit`, `app_c_critical`, `app_f_depth_codes`)
 
-Namespace `FormalResearch.FrameFree.Ceilings`.  It builds on `FrameFree.Foundations` (`Ψ n`, `rot`, `ip`,
+Namespace `FormalResearch.FrameFree.Ceilings`.  It builds on `NQubit.Foundations` (`Ψ n`, `rot`, `ip`,
 `nsq`, `cj`, `Θ`, `FK`, `FKΘ`, `CK`, `tens`, `FKΘ_tens`, `CK_tens`, ...) and does not redefine them.  The
 other imports are `FrameFree.RealRep3` (every three-qubit vector is in the `GL(2,ℂ)³` orbit of a real vector,
 Dür-Vidal-Cirac; `realRep3`) and `FourQubitEntropy.Attainment` (for the vector `M₄`).
@@ -84,6 +85,7 @@ in a real parameter plus positivity).
 
 open scoped ComplexConjugate Matrix BigOperators
 open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FrameFree.Ceilings
 

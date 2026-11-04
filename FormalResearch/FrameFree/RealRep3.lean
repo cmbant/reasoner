@@ -1,6 +1,7 @@
 module
 
-public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.NQubit.Foundations
+public import FormalResearch.FrameFree.RotationOverlap
 
 /-!
 # Real representatives of three-qubit vectors (`RealRep3`)
@@ -25,6 +26,7 @@ Every three-qubit vector lies in the `GL(2,ℂ)³`-orbit of a real vector (Dür-
 
 open scoped ComplexConjugate Matrix BigOperators
 open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FrameFree.RealRep3
 

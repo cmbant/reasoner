@@ -26,7 +26,7 @@ certificate); the attaining state is the normalised graph state `gsn (adjGraph a
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 /-- **Exact minimum of `π_2` for `n = 4` qubits**: `min π_2 = 1/3`, attained by path `P_4` (linear cluster). -/
 theorem minPurity4 :

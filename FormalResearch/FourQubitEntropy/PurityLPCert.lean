@@ -25,7 +25,7 @@ decidable test `y_i ≥ 0 ∧ w_j ≥ 0 ∀ j ≤ n`.
 
 
 open scoped BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 

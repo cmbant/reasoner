@@ -22,7 +22,7 @@ is the bilinear form `Σ_{i ∈ S, j ∉ S} Γ_ij u_i u_j` (`qf_four`), so
 
 
 open scoped ComplexConjugate BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 

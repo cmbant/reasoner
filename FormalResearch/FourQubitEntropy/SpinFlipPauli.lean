@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.NQubit.Foundations
 
 /-!
 # Pauli weight distribution and the global parity identity (any number of qubits)
@@ -9,7 +9,7 @@ Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_graph_parity.tex` (Q
 `prop:global-pauli-parity`; `spinflip_tradeoff.tex`, the identity `τ_n = 2^{-n} Σ_j (-1)^j A_j`.
 
 Everything is for an arbitrary number `n` of qubits, with `Ψ n = (Fin n → Fin 2) → ℂ` and the time reversal
-`Θ ψ = ε^{⊗n} ψ̄` of `FrameFree/Foundations.lean` (`Θ`, `ip`, `nsq`, `rot`, `pauliSU`).
+`Θ ψ = ε^{⊗n} ψ̄` of `NQubit/Foundations.lean` (`Θ`, `ip`, `nsq`, `rot`, `pauliSU`).
 
 * `pexp ψ a = ⟨ψ | ⊗ᵢ pauliSU (aᵢ) ψ⟩` where `pauliSU = {1, -iσₓ, -iσ_y, -iσ_z}`; so
   `pw ψ a = |pexp ψ a|² = ⟨ψ|P_a|ψ⟩²` is the squared Pauli expectation of the Hermitian word `P_a`
@@ -31,7 +31,7 @@ Main results (all **proved**, no hypotheses beyond `nsq ψ = 1` where stated):
 
 
 open scoped ComplexConjugate BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 

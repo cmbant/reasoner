@@ -20,7 +20,7 @@ by the exact coefficientwise identity `eq:tradeoff-dual` with rational multiplie
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 open FormalResearch.FourQubitEntropy.SpinFlip
 
 /-- `thm:purity-spinflip-tradeoff` at `n = 8` (certificate ST-2): `π_4(ψ) ≥ 3/35 + (1/70) τ_8(ψ)` for every unit vector.  Residual `w_j = ['0', '11/280', '1/70', '1/280', '0', '0', '0', '0', '0']`. -/

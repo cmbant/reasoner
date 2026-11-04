@@ -35,7 +35,7 @@ namespace FormalResearch.QIB
 open FormalResearch.FrameFree.Twirls (OpS tensOp permOp blockPermSpan permOp_mul permOp_one
   permOp_conjTranspose permOp_map_conj commutant_eq_blockPermSpan tensOp_commute permOp_mem_blockPermSpan)
 open FormalResearch.FrameFree.Helstrom (Copies rotK copies)
-open FormalResearch.FrameFree.NQubit (Op1 SU2)
+open FormalResearch.NQubit (Op1 SU2)
 
 section Slots
 

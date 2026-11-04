@@ -17,6 +17,7 @@ exchanging spins `2` and `4`, up to a phase.  The values are the `θ = π/4` cas
 
 open scoped Real
 open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FrameFree.PsiPlusKramers
 

@@ -29,7 +29,7 @@ open scoped MatrixOrder ComplexOrder
 namespace FormalResearch.QIB
 
 open FormalResearch.FrameFree.Helstrom (qf Pe rotK copies Copies)
-open FormalResearch.FrameFree.NQubit (Ψ Θ SU2 SU2_eps eps cj nsq)
+open FormalResearch.NQubit (Ψ Θ SU2 SU2_eps eps cj nsq)
 
 section Frame
 
@@ -41,7 +41,7 @@ theorem copies_cj {n : ℕ} (k : ℕ) (ψ : Ψ n) :
 /-- `(Θψ)^{⊗k} = R ψ̄^{⊗k}` with `R = rotK k (ε,…,ε)`. -/
 theorem copies_theta {n : ℕ} (k : ℕ) (ψ : Ψ n) :
     copies k (Θ ψ) = rotK k (fun _ : Fin n => eps) *ᵥ star (copies k ψ) := by
-  rw [FormalResearch.FrameFree.NQubit.Θ_eq_rot, FormalResearch.FrameFree.Helstrom.copies_rot, copies_cj]
+  rw [FormalResearch.NQubit.Θ_eq_rot, FormalResearch.FrameFree.Helstrom.copies_rot, copies_cj]
 
 theorem rotEps_mem (n k : ℕ) : rotK k (fun _ : Fin n => eps) ∈ frameGroup n k :=
   ⟨fun _ => eps, fun _ => SU2_eps, rfl⟩

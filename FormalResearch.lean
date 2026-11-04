@@ -372,7 +372,8 @@ public import FormalResearch.FrameFree.MaxChiral
 public import FormalResearch.FrameFree.Arithmetic
 public import FormalResearch.FrameFree.TwoSpin
 public import FormalResearch.FrameFree.WeylRealisation
-public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.NQubit.Foundations
+public import FormalResearch.FrameFree.RotationOverlap
 public import FormalResearch.FrameFree.GateOverlap
 public import FormalResearch.FrameFree.PhysicalBridge
 public import FormalResearch.FrameFree.ScalarChirality

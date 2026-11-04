@@ -22,7 +22,7 @@ set_option linter.unusedSectionVars false
 namespace FormalResearch.FrameFree.XiInv
 
 open Filter Topology
-open FormalResearch.FrameFree.NQubit FormalResearch.FrameFree.Helstrom
+open FormalResearch.FrameFree.NQubit FormalResearch.NQubit FormalResearch.FrameFree.Helstrom
 open FormalResearch.FrameFree FormalResearch.FrameFree.Converse
 
 theorem xiBarLE_of_achiral {n : ℕ} {ψ : Ψ n} {N : ℝ} (h : AchiralBranch ψ N) : XiBarLE ψ (-Real.log N) := by

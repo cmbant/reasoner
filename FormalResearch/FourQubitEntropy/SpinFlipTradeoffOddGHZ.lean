@@ -17,7 +17,7 @@ Claim class: **proved**.
 
 
 open Finset
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 

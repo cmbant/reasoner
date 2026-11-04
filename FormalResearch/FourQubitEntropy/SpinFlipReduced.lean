@@ -16,7 +16,7 @@ configurations of the qubits in `S`), and `purC_eq_trace`/`purity_eq_trace` show
 
 
 open scoped ComplexConjugate BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 

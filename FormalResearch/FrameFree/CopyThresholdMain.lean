@@ -44,14 +44,14 @@ variable {α β κ : Type*} [Fintype α] [DecidableEq α] [Fintype β] [Decidabl
   [Fintype κ] [DecidableEq κ]
 
 /-- For `n` qubits `TwirlsCoincide` is the statement of the paper: the `K_π`-twirls of `ψ^{⊗k}` and
-`(Θψ)^{⊗k}` agree, with `Θψ = ε^{⊗n} ψ̄` of `Foundations`. -/
+`(Θψ)^{⊗k}` agree, with `Θψ = ε^{⊗n} ψ̄` of `NQubit.Foundations`. -/
 theorem twirlsCoincide_iff_theta {n : ℕ} (π : Fin n → κ) (γ : Type*) [Fintype γ] [DecidableEq γ]
-    (ψ : FormalResearch.FrameFree.NQubit.Ψ n) :
+    (ψ : FormalResearch.NQubit.Ψ n) :
     TwirlsCoincide π γ (pureOp ψ) ↔ ∀ Z Z' : OpS (Fin n × γ),
       IsTwirl (copyPattern γ π) (kronPow γ (pureOp ψ)) Z →
-      IsTwirl (copyPattern γ π) (kronPow γ (pureOp (FormalResearch.FrameFree.NQubit.Θ ψ))) Z' → Z = Z' := by
+      IsTwirl (copyPattern γ π) (kronPow γ (pureOp (FormalResearch.NQubit.Θ ψ))) Z' → Z = Z' := by
   unfold TwirlsCoincide
-  rw [show thetaConj (pureOp ψ) = pureOp (FormalResearch.FrameFree.NQubit.Θ ψ) from thetaConj_proj ψ]
+  rw [show thetaConj (pureOp ψ) = pureOp (FormalResearch.NQubit.Θ ψ) from thetaConj_proj ψ]
 
 /-- The number of spins sharing the frame `b`. -/
 def blockSize (π : α → κ) (b : κ) : ℕ := (Finset.univ.filter fun a => π a = b).card

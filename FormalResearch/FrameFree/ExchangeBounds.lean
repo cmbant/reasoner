@@ -26,7 +26,7 @@ Convention check: the paper's `Ũ = U^{-1}` is `Uex (-θ)` and the Cartan coordi
 
 
 open scoped Matrix ComplexConjugate Kronecker Real
-open FormalResearch.FrameFree.Sharing FormalResearch.FrameFree.NQubit
+open FormalResearch.FrameFree.Sharing FormalResearch.FrameFree.NQubit FormalResearch.NQubit
 
 namespace FormalResearch.FrameFree.ExchangeBounds
 

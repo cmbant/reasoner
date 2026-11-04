@@ -18,7 +18,7 @@ set_option linter.unusedSectionVars false
 set_option linter.unusedSimpArgs false
 open Matrix
 open FormalResearch.FrameFree.Helstrom
-open FormalResearch.FrameFree.NQubit (SU2 Op1)
+open FormalResearch.NQubit (SU2 Op1)
 
 namespace FormalResearch.QIB.TwoQubits
 
@@ -177,7 +177,7 @@ def Gcoll (d : ℕ) : Set (Matrix (Copies 2 d) (Copies 2 d) ℂ) :=
 
 theorem Gcoll_star_closed (d : ℕ) : ∀ U ∈ Gcoll d, Uᴴ ∈ Gcoll d := by
   rintro _ ⟨u, hu, rfl⟩
-  exact ⟨uᴴ, FormalResearch.FrameFree.NQubit.SU2_adjoint hu, rotK_conjTranspose d _⟩
+  exact ⟨uᴴ, FormalResearch.NQubit.SU2_adjoint hu, rotK_conjTranspose d _⟩
 
 theorem SU2_Dz {z : ℂ} (hz : z * (starRingEnd ℂ) z = 1) : SU2 (Dz z) := by
   have hz0 : z ≠ 0 := by rintro rfl; simp at hz
@@ -260,7 +260,7 @@ theorem commute_Lc_of_commGroup {M : Matrix (Copies 2 d) (Copies 2 d) ℂ} (hM :
     exact_mod_cast sub_eq_zero.1 this
   -- the sum `E₁ + F₁`
   have hS : Commute M (Lc d (E1 + F1)) := by
-    have hR := hM.conj SU2_Rot (FormalResearch.FrameFree.NQubit.SU2_adjoint SU2_Rot) Rot_mul_adj hH
+    have hR := hM.conj SU2_Rot (FormalResearch.NQubit.SU2_adjoint SU2_Rot) Rot_mul_adj hH
     rw [Rot_conj_H1, Lc_add, Lc_smul, Lc_smul] at hR
     have e : Lc d (E1 + F1) = (-25 / 24 : ℂ) • ((-7 / 25 : ℂ) • Lc d H1 + (-24 / 25 : ℂ) • Lc d (E1 + F1))
         - (7 / 24 : ℂ) • Lc d H1 := by

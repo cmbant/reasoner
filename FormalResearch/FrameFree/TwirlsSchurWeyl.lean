@@ -1,7 +1,8 @@
 module
 
 public import Mathlib
-public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.NQubit.Foundations
+public import FormalResearch.FrameFree.RotationOverlap
 public import FormalResearch.FrameFree.Zariski
 public import FormalResearch.FrameFree.TwirlsBicommutant
 
@@ -25,7 +26,7 @@ Only the pattern of equal fibre cardinalities (`exists_perm_of_typ_eq`) is combi
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
 open Matrix ComplexConjugate
-open FormalResearch.FrameFree.NQubit (Op1 SU2)
+open FormalResearch.NQubit (Op1 SU2)
 
 namespace FormalResearch.FrameFree.Twirls
 

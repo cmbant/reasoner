@@ -24,7 +24,7 @@ set_option autoImplicit false
 set_option linter.unusedSectionVars false
 open Matrix ComplexConjugate
 open FormalResearch.FrameFree.Twirls
-open FormalResearch.FrameFree.NQubit (Ψ Θ eps)
+open FormalResearch.NQubit (Ψ Θ eps)
 
 namespace FormalResearch.FrameFree.IsotypicBlind
 

@@ -10,7 +10,7 @@ set_option linter.unusedSectionVars false
 set_option linter.unusedSimpArgs false
 
 open scoped ComplexConjugate Matrix BigOperators
-open Matrix FormalResearch.FrameFree.NQubit FormalResearch.FrameFree.Helstrom
+open Matrix FormalResearch.FrameFree.NQubit FormalResearch.NQubit FormalResearch.FrameFree.Helstrom
 
 /-!
 # Three-qubit vectors with vanishing hyperdeterminant are locally-unitarily real

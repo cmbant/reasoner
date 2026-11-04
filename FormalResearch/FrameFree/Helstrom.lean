@@ -1,6 +1,7 @@
 module
 
-public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.NQubit.Foundations
+public import FormalResearch.FrameFree.RotationOverlap
 public import FormalResearch.FrameFree.HelstromPure
 
 /-!
@@ -31,6 +32,7 @@ Namespace `FormalResearch.FrameFree.Helstrom`.  Builds on `FrameFree.NQubit` (`Î
 
 open scoped ComplexConjugate Matrix BigOperators
 open Matrix FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 open scoped ComplexOrder
 
 set_option linter.unusedSectionVars false
