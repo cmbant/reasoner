@@ -11,12 +11,15 @@ the multiset of ranks of all k-subset cuts, asserts it equals the paper's rank h
 purity equals the Rains-LP value L.  The Lean modules re-check the packed rank sums (hence the histograms and the rank sums) by `decide +kernel`.
 Run from anywhere: python3 gen_lp_graphs.py"""
 import os
+import sys
 from fractions import Fraction as F
 from itertools import combinations
 from math import comb
 from collections import Counter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from gen_spinflip_tradeoff_even import emit_sym     # orbit-representative proofs of the rank sums (dihedral symmetry)
 
 
 def circ(n, D, mod=None):
@@ -74,6 +77,7 @@ G = {
     18: (F(7, 2288), "the graph of `thm:eighteen` (hexadecimal rows)", from_hex(HEX18), ("hex",),
          {7: 9180, 9: 39440}),
 }
+SYM_N = (17,)  # the full circulant: `pack<n>` over orbit representatives of its dihedral group (`sum_cuts_reps`)
 PACK = 65536   # B = 2^16 > C(n, n/2) for every n <= 18 (the packed rank sum is sum_S B^rank(S))
 LEAF = 2000    # target number of cuts per `decide +kernel` declaration (kernel memory grows with the cuts evaluated)
 MIN_SPLIT_N = 14   # smaller n are evaluated in one declaration
@@ -175,7 +179,7 @@ def spec_stmt(n, name, spec):
 
 HEADER = """module
 
-public import FormalResearch.FourQubitEntropy.PurityLPRankHist
+public import FormalResearch.FourQubitEntropy.PurityLPRankHist%s
 
 /-!
 # Graph-state witnesses of the purity minima: %s
@@ -187,7 +191,7 @@ For each `n` the graph is given by its neighbourhood bitmasks `adj<n>` (bit `j` 
 `adj<n>_spec` checks that they are the stated circulant / edge list (where the paper gives one),
 `adj<n>_symm`, `adj<n>_irrefl` that the graph is simple.  `pack<n>` is the kernel-checked packed sum
 `Σ_{|S| = k} 65536^{rk_2 Γ[S,S^c]}` (bitmask recursion `maskSum`, `PurityLPMaskSum.lean`; for even `n >= 16` over the
-cuts containing the last vertex only, by complement symmetry), `rankHist<n>` the full rank histogram read off from it,
+cuts containing the last vertex only, by complement symmetry%s), `rankHist<n>` the full rank histogram read off from it,
 `rankSum<n>` the sum `Σ_{|S| = k} 2^{k - rk_2 Γ[S,S^c]}` and `meanRdmPurity_graph<n>` the resulting value of `π_k` of the
 (normalised) graph state `graphStateNorm`, which equals the Rains-LP value.  Claim class: exact finite certificate (`decide +kernel`).
 -/
@@ -228,6 +232,10 @@ def emit_graph(n, rec, out):
     out.append(f"theorem adj{n}_irrefl : ∀ i : Fin {n}, (adj{n} i).testBit i = false := by\n  decide +kernel\n")
     P = f"((Finset.univ : Finset (Fin {n})).powersetCard {k})"
     full = f"(2 ^ {n} - 1)"
+    if n in SYM_N:
+        emit_sym(n, adj, total, out, adjn=f"adj{n}", g="packG", wfun=lambda r: PACK ** r, thm=f"pack{n}")
+        emit_rest(n, k, P, hist, cl, total, N, L, name, out)
+        return
     mode, depth = plan(n)
     ms = lambda i, kk, m: f"maskSum packG {n} adj{n}L {full} {i} {kk} ({m})"
     head = f"theorem pack{n} : ∑ S ∈ {P}, packG (graphCutRankBits adj{n} S) = {total} := by\n"
@@ -251,6 +259,10 @@ def emit_graph(n, rec, out):
         out.append(head +
                    f"  rw [sum_cuts_eq_maskSum packG {n} adj{n}L adj{n} (fun i => rfl) {full} rfl {k}]\n"
                    f"  decide +kernel\n")
+    emit_rest(n, k, P, hist, cl, total, N, L, name, out)
+
+
+def emit_rest(n, k, P, hist, cl, total, N, L, name, out):
     cls = "[" + ", ".join(map(str, cl)) + "]"
     out.append(f"/-- The rank histogram of `tab:graphs` / the theorem: "
                f"{', '.join(f'rank {r} on {hist[r]} cuts' for r in sorted(hist))} (and no other rank). "
@@ -269,7 +281,14 @@ def emit_graph(n, rec, out):
 
 
 def write(fname, title, ns):
-    out = [HEADER % title]
+    if any(n in SYM_N for n in ns):
+        imp = "\npublic import FormalResearch.FourQubitEntropy.PurityLPSymmetry"
+        how = ("; for `n = 17` over one representative of each orbit of the\n"
+               "dihedral automorphism group of the circulant, weighted by the orbit size: `sum_cuts_reps`, `NQubit/Graph/Symmetry.lean`;\n"
+               "`symQ<n>` lists the group, `symR<n>` the representatives with their orbit sizes")
+    else:
+        imp, how = "", ""
+    out = [HEADER % (imp, title, how)]
     for n in ns:
         emit_graph(n, G[n], out)
     out.append(FOOT)

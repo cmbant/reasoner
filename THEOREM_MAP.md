@@ -699,8 +699,9 @@ General `n`-qubit material used by more than one development, with no generated 
 - `TimeReversal/{Omega,OddSector,OddOverlap,Doubling}`: the branch states and `omegaState`, `oddPur`/`Omean`, the spin-flip overlap `Rspin`, odd-weight selection
   for doubled states and triple purities.
 - `Shadow/{Basic,Homogeneous}`: Rains' shadow inequalities `shadow_nonneg` and `shadow_homogeneous`.
-- `Graph/{State,CutPurity,F2Rank,CutRankBitmask,MeanPurity}`: `graphState`/`graphStateNorm`, `tau_graphState`, `purity_gsn`, `graphCutRank`, the bitmask rank
-  `graphCutRankBits`.
+- `Graph/{State,CutPurity,F2Rank,CutRankBitmask,MeanPurity,Symmetry}`: `graphState`/`graphStateNorm`, `tau_graphState`, `purity_gsn`, `graphCutRank`, the bitmask rank
+  `graphCutRankBits`; `Symmetry`: `graphCutBits_image` (cut ranks are invariant under graph automorphisms) and `sum_rankFn_eq_reps` (a sum over all `k`-subsets of an
+  automorphism-invariant function equals the sum over orbit representatives weighted by the orbit sizes, with a data-light list certificate; no data in the library).
 
 The Paper E modules `SpinFlip*`, `PurityLP*` in `FourQubitEntropy/` import this library; see the sections below for their statements.
 
@@ -913,7 +914,8 @@ the paper's dimension count. Layers (module docstrings in `QVCheck/All.lean` des
   state per `n`, `tau_gsn_eq_one`, kernel-checked `meanRdmPurity_graphT<n>`), `purity_spinflip_tradeoff_even_coeff_optimal`,
   `cor:spinflip-rigidity` as `purity_spinflip_tradeoff_even_stability` / `_minimiser`, and `tau_eq_normSq_bilinear`
   (`τ_n = |ψᵀσ_y^{⊗n}ψ|²`). The entry `n = 4` is `SpinFlip.tradeoff_four_ge`. Generator `gen_spinflip_tradeoff_even.py`;
-  `SpinFlipTradeoffEvenGraph20.lean` takes about 40 min to build.
+  The rank sums of the circulant witnesses `n = 16, 20` (and `PurityLPGraphData17`, `n = 17`) are evaluated over one representative of each orbit of the dihedral
+  automorphism group (`NQubit/Graph/Symmetry.lean`, `PurityLPSymmetry.lean`: `sum_cuts_reps`), so `SpinFlipTradeoffEvenGraph20.lean` builds in about 5 min.
 
 ### Seven-qubit five-copy layers (data-free)
 - `SevenFiveCopyDual.lean`: `sevenPurityBound_of_dual` (a five-copy dual identity with PSD weights gives `SevenQubitConseq.SevenPurityBound`,

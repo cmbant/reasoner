@@ -601,6 +601,7 @@ public import FormalResearch.FourQubitEntropy.RenyiFullHeadlineQV
 public import FormalResearch.FourQubitEntropy.PurityLPCert
 public import FormalResearch.FourQubitEntropy.PurityLPCertData
 public import FormalResearch.FourQubitEntropy.PurityLPMaskSum
+public import FormalResearch.FourQubitEntropy.PurityLPSymmetry
 public import FormalResearch.FourQubitEntropy.PurityLPRankHist
 public import FormalResearch.FourQubitEntropy.PurityLPGraphDataA
 public import FormalResearch.FourQubitEntropy.PurityLPGraphDataB
