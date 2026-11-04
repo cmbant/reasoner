@@ -36,7 +36,7 @@ open scoped ComplexConjugate Matrix ComplexOrder
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 open FormalResearch.FourQubitEntropy.SpinFlip
 
 variable {n : ℕ}

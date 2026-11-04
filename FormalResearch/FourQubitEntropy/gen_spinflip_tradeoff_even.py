@@ -190,7 +190,7 @@ Claim class: exact finite certificate (`decide +kernel`).
 @[expose] public section
 
 open scoped BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 -- one kernel evaluation at a time: the kernel's cache grows with the number of cuts evaluated
 set_option Elab.async false
@@ -285,7 +285,7 @@ by the exact coefficientwise identity `eq:tradeoff-dual` with rational multiplie
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 open FormalResearch.FourQubitEntropy.SpinFlip
 """]
     for n in CASES:

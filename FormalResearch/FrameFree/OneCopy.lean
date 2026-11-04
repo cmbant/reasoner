@@ -1,6 +1,7 @@
 module
 
-public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.NQubit.Foundations
+public import FormalResearch.FrameFree.RotationOverlap
 public import FormalResearch.FrameFree.Sharing
 public import FormalResearch.FrameFree.ScalarChirality
 public import FormalResearch.FrameFree.Unify
@@ -66,7 +67,7 @@ Namespace `FormalResearch.FrameFree.OneCopy`.  `NQubit.ip`/`NQubit.SU2` are alwa
 
 namespace FormalResearch.FrameFree.OneCopy
 
-open FormalResearch.FrameFree.NQubit (Ψ Op1 rot Θ cj nsq)
+open FormalResearch.NQubit (Ψ Op1 rot Θ cj nsq)
 open FormalResearch.FrameFree.Sharing (FKs FCs FKΘs FCΘs)
 
 /-! ## Part 1. Permutation operators and linearity -/

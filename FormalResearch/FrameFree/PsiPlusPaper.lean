@@ -29,7 +29,7 @@ Depends only on `FrameFree.PsiPlusKramers.psiPlus`, `FrameFree.PsiPlusKramers.ps
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
 open scoped ComplexConjugate Matrix BigOperators Real ComplexOrder
-open Matrix FormalResearch.FrameFree.NQubit FormalResearch.FrameFree.Helstrom
+open Matrix FormalResearch.FrameFree.NQubit FormalResearch.NQubit FormalResearch.FrameFree.Helstrom
 open FormalResearch.FrameFree.Sharing (eq_four)
 
 namespace FormalResearch.PsiPlusPaper

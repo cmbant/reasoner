@@ -682,7 +682,7 @@ theorem fourgate_reversal_certified {ξ s : ℝ} (h : EnvelopeAtStar ξ) (h1 : 0
     (CKex_strictAnti hs h2)
 
 
-open FormalResearch.FrameFree.NQubit in
+open FormalResearch.FrameFree.NQubit FormalResearch.NQubit in
 /-- Independent frames: `F_C^{id}` of `Sharing` is `F_C` of `Ceilings` (the two definitions differ
 only in the harmless side condition `‖gφ‖² ≠ 0`). -/
 theorem FCs_id_eq {n : ℕ} (ψ φ : Ψ n) (h : nsq φ ≠ 0) :
@@ -698,7 +698,8 @@ theorem FCs_id_eq {n : ℕ} (ψ φ : Ψ n) (h : nsq φ ≠ 0) :
     rintro r ⟨g, hg, -, rfl⟩
     exact ⟨g, hg, rfl⟩
 
-open FormalResearch.FrameFree.NQubit (Ψ FKΘ CK tens nsq Θ)
+open FormalResearch.NQubit (Ψ nsq Θ)
+open FormalResearch.FrameFree.NQubit (FKΘ CK tens)
 
 /-! ### The exchange-gate Choi probes (`thm:heis`), in the repository's own objects -/
 

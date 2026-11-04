@@ -1,7 +1,8 @@
 module
 
 public import Mathlib
-public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.NQubit.Foundations
+public import FormalResearch.FrameFree.RotationOverlap
 public import FormalResearch.FrameFree.HelstromTwirl
 public import FormalResearch.FrameFree.TwirlsSchurWeyl
 
@@ -28,7 +29,7 @@ set_option autoImplicit false
 set_option linter.unusedSectionVars false
 open Matrix ComplexConjugate
 open scoped ComplexOrder
-open FormalResearch.FrameFree.NQubit (Op1 SU2)
+open FormalResearch.NQubit (Op1 SU2)
 
 namespace FormalResearch.FrameFree.Twirls
 
@@ -41,7 +42,7 @@ theorem tensOp_mul (π : ι → κ) (u v : κ → Op1) :
   ext x z
   simp only [Matrix.mul_apply, tensOp, Matrix.of_apply]
   simp_rw [← Finset.prod_mul_distrib]
-  rw [FormalResearch.FrameFree.NQubit.sum_prod_pi (fun i b => u (π i) (x i) b * v (π i) b (z i))]
+  rw [FormalResearch.NQubit.sum_prod_pi (fun i b => u (π i) (x i) b * v (π i) b (z i))]
 
 theorem tensOp_conjTranspose (π : ι → κ) (u : κ → Op1) :
     (tensOp π u)ᴴ = tensOp π (fun b => (u b)ᴴ) := by
@@ -73,14 +74,14 @@ theorem frameGroup_mul {U V : OpS ι} (hU : U ∈ frameGroup π) (hV : V ∈ fra
     U * V ∈ frameGroup π := by
   obtain ⟨u, hu, rfl⟩ := hU
   obtain ⟨v, hv, rfl⟩ := hV
-  exact ⟨_, fun b => FormalResearch.FrameFree.NQubit.SU2_mul (hu b) (hv b), tensOp_mul π u v⟩
+  exact ⟨_, fun b => FormalResearch.NQubit.SU2_mul (hu b) (hv b), tensOp_mul π u v⟩
 
 theorem frameGroup_one : (1 : OpS ι) ∈ frameGroup π :=
-  ⟨fun _ => 1, fun _ => FormalResearch.FrameFree.NQubit.SU2_one, (tensOp_one π).symm⟩
+  ⟨fun _ => 1, fun _ => FormalResearch.NQubit.SU2_one, (tensOp_one π).symm⟩
 
 theorem frameGroup_conjTranspose {U : OpS ι} (hU : U ∈ frameGroup π) : Uᴴ ∈ frameGroup π := by
   obtain ⟨u, hu, rfl⟩ := hU
-  exact ⟨_, fun b => FormalResearch.FrameFree.NQubit.SU2_adjoint (hu b), tensOp_conjTranspose π u⟩
+  exact ⟨_, fun b => FormalResearch.NQubit.SU2_adjoint (hu b), tensOp_conjTranspose π u⟩
 
 /-- `Z` is **a twirl of `R` over `K_π`**: it commutes with `K_π` and lies in every closed convex set
 containing the orbit `{U R U†}` (so it is the Haar average, with no Haar measure). -/
@@ -185,13 +186,13 @@ end Twirl
 
 /-- `E = ε^{⊗ι}`. -/
 noncomputable def epsOp (ι : Type*) [Fintype ι] [DecidableEq ι] : OpS ι :=
-  tensOp (fun _ : ι => ()) (fun _ => FormalResearch.FrameFree.NQubit.eps)
+  tensOp (fun _ : ι => ()) (fun _ => FormalResearch.NQubit.eps)
 
 /-- Time reversal of an operator, `Θ R Θ⁻¹ = E R̄ E†`. -/
 noncomputable def thetaConj (R : OpS ι) : OpS ι := epsOp ι * R.map conj * (epsOp ι)ᴴ
 
 theorem epsOp_unitary : (epsOp ι)ᴴ * epsOp ι = 1 :=
-  tensOp_unitary _ _ fun _ => FormalResearch.FrameFree.NQubit.SU2_eps.1
+  tensOp_unitary _ _ fun _ => FormalResearch.NQubit.SU2_eps.1
 
 theorem epsOp_commute_permOp (σ : Equiv.Perm ι) : epsOp ι * permOp σ = permOp σ * epsOp ι :=
   tensOp_commute _ _ σ fun _ => rfl
@@ -278,7 +279,7 @@ def copyEquiv : (α × γ → Fin 2) ≃ (γ → α → Fin 2) where
 theorem sum_copies (f : γ → (α → Fin 2) → ℂ) :
     ∑ y : α × γ → Fin 2, ∏ c, f c (fun a => y (a, c)) = ∏ c, ∑ b : α → Fin 2, f c b := by
   rw [← Equiv.sum_comp (copyEquiv (α := α) (γ := γ)).symm]
-  rw [← FormalResearch.FrameFree.NQubit.sum_prod_pi f]
+  rw [← FormalResearch.NQubit.sum_prod_pi f]
   refine Finset.sum_congr rfl fun w _ => Finset.prod_congr rfl fun c _ => ?_
   rfl
 

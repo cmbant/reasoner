@@ -1,7 +1,8 @@
 module
 
 public import Mathlib
-public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.NQubit.Foundations
+public import FormalResearch.FrameFree.RotationOverlap
 public import FormalResearch.FrameFree.TwirlsTwirl
 
 /-!
@@ -41,7 +42,7 @@ set_option autoImplicit false
 set_option linter.unusedSectionVars false
 open Matrix ComplexConjugate
 open FormalResearch.FrameFree.Twirls
-open FormalResearch.FrameFree.NQubit (Ψ Θ eps)
+open FormalResearch.NQubit (Ψ Θ eps)
 
 namespace FormalResearch.FrameFree.IsotypicBlind
 

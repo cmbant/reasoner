@@ -1,6 +1,7 @@
 module
 
-public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.NQubit.Foundations
+public import FormalResearch.FrameFree.RotationOverlap
 public import FormalResearch.FrameFree.GateOverlap
 public import FormalResearch.FourQubitEntropy.Attainment
 
@@ -58,6 +59,7 @@ overlap `F_C^π` (one `SL(2,ℂ)` element per block, normalised by `‖gφ‖²`
 namespace FormalResearch.FrameFree.Sharing
 
 open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 /-! ## Part 1. Sharing patterns, refinement (Proposition `prop:refine`) -/
 

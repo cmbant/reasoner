@@ -24,7 +24,7 @@ Claim class: **proved** (no hypotheses beyond those displayed).
 
 
 open scoped ComplexConjugate BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 

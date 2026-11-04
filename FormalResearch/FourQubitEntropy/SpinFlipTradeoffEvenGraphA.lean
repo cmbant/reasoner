@@ -19,7 +19,7 @@ Claim class: exact finite certificate (`decide +kernel`).
 @[expose] public section
 
 open scoped BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 -- one kernel evaluation at a time: the kernel's cache grows with the number of cuts evaluated
 set_option Elab.async false

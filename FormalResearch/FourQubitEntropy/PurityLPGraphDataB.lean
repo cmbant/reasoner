@@ -20,7 +20,7 @@ cuts containing the last vertex only, by complement symmetry), `rankHist<n>` the
 @[expose] public section
 
 open scoped BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 -- one kernel evaluation at a time: the kernel's cache grows with the number of cuts evaluated, so concurrent
 -- `decide +kernel` declarations (the default asynchronous elaboration) multiply the peak memory

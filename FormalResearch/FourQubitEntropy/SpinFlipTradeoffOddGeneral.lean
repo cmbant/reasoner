@@ -15,7 +15,7 @@ weights, equality case, GHZ) is `SpinFlipTradeoffOddSharp.lean`, which derives i
 
 
 open Polynomial Finset
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 

@@ -31,7 +31,7 @@ open Finset Matrix
 
 namespace FormalResearch.FrameFree.OddWords
 
-open FormalResearch.FrameFree.NQubit (Op1 SU2)
+open FormalResearch.NQubit (Op1 SU2)
 open FormalResearch.FrameFree.Twirls (tensOp tensOp_mul)
 
 variable {n : ℕ}

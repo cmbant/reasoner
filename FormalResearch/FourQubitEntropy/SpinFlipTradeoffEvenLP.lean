@@ -26,7 +26,7 @@ distribution `A` of the exact coefficientwise identity
 
 
 open scoped BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 

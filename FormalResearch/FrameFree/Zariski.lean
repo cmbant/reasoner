@@ -47,7 +47,7 @@ blocks of at most two spins) use Schur--Weyl duality and the Haar-free twirl and
 
 namespace FormalResearch.FrameFree.Zariski
 
-open FormalResearch.FrameFree.NQubit (Op1)
+open FormalResearch.NQubit (Op1)
 
 /-- An entire function vanishing on `ℝ` vanishes. -/
 theorem entire_eq_zero_of_real {φ : ℂ → ℂ} (hφ : Differentiable ℂ φ)
@@ -79,7 +79,7 @@ theorem det_Mc (α : ℝ) (β c s : ℂ) (h : (α : ℂ) ^ 2 + β * conj β = 1)
   linear_combination s ^ 2 * h + (-(α : ℂ) ^ 2 * s ^ 2) * Complex.I_sq
 
 theorem SU2_Mc (α : ℝ) (β : ℂ) (x y : ℝ) (h : (α : ℂ) ^ 2 + β * conj β = 1)
-    (hxy : x ^ 2 + y ^ 2 = 1) : FormalResearch.FrameFree.NQubit.SU2 (Mc α β x y) := by
+    (hxy : x ^ 2 + y ^ 2 = 1) : FormalResearch.NQubit.SU2 (Mc α β x y) := by
   have hxy' : (x : ℂ) ^ 2 + (y : ℂ) ^ 2 = 1 := by exact_mod_cast hxy
   refine ⟨?_, by rw [det_Mc α β _ _ h]; exact hxy'⟩
   ext i j
@@ -152,7 +152,7 @@ theorem herm_eq_Mc (x y : ℝ) (w : ℂ) (hx : 0 < x) (hy : 0 < y)
 
 /-- Polar decomposition `g = k p` of an `SL(2,ℂ)` element: `k ∈ SU(2)`, `p` positive Hermitian. -/
 theorem polar (g : Op1) (hg : g.det = 1) :
-    ∃ (k : Op1) (x y : ℝ) (w : ℂ), FormalResearch.FrameFree.NQubit.SU2 k ∧ 0 < x ∧ 0 < y ∧
+    ∃ (k : Op1) (x y : ℝ) (w : ℂ), FormalResearch.NQubit.SU2 k ∧ 0 < x ∧ 0 < y ∧
       (x : ℂ) * y - w * conj w = 1 ∧ g = k * !![(x : ℂ), w; conj w, (y : ℂ)] := by
   have hg' : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by rw [← Matrix.det_fin_two]; exact hg
   set a := g 0 0 with ha
@@ -256,7 +256,7 @@ holomorphic matrix curves (e.g. a polynomial in the entries) and vanishes on `SU
 `SL(2,ℂ)`.  Proof: polar decomposition `g = k·exp(iτ Y)` with `k ∈ SU(2)`, `Y ∈ su(2)`, and the
 identity theorem on `t ↦ f (k·exp(tY))`, which vanishes for real `t`. -/
 theorem vanish_SL2 {f : Op1 → ℂ} (hf : CurveEntire f)
-    (h0 : ∀ u, FormalResearch.FrameFree.NQubit.SU2 u → f u = 0) (g : Op1) (hg : g.det = 1) :
+    (h0 : ∀ u, FormalResearch.NQubit.SU2 u → f u = 0) (g : Op1) (hg : g.det = 1) :
     f g = 0 := by
   obtain ⟨k, x, y, w, hk, hx, hy, hxy, hgk⟩ := polar g hg
   obtain ⟨α, β, τ, hαβ, hM⟩ := herm_eq_Mc x y w hx hy hxy
@@ -272,7 +272,7 @@ theorem vanish_SL2 {f : Op1 → ℂ} (hf : CurveEntire f)
     have : γ t = k * Mc α β (Real.cos t : ℝ) (Real.sin t : ℝ) := by
       simp only [hγ, Complex.ofReal_cos, Complex.ofReal_sin]
     rw [this]
-    exact FormalResearch.FrameFree.NQubit.SU2_mul hk
+    exact FormalResearch.NQubit.SU2_mul hk
       (SU2_Mc α β _ _ hαβ (by rw [add_comm]; exact Real.sin_sq_add_cos_sq t))
   have := entire_eq_zero_of_real hφ hreal (τ * Complex.I)
   have hgγ : g = γ (τ * Complex.I) := by
@@ -295,17 +295,17 @@ def SlotEntire (F : (ι → Op1) → ℂ) : Prop :=
 /-- Slot by slot: if `F` is slot-entire and vanishes on `SU(2)^ι`, it vanishes at every `v` which is
 `SL(2,ℂ)` on a finite set `s` of slots and `SU(2)` elsewhere. -/
 theorem vanish_slots {F : (ι → Op1) → ℂ} (hF : SlotEntire F)
-    (h0 : ∀ v : ι → Op1, (∀ b, FormalResearch.FrameFree.NQubit.SU2 (v b)) → F v = 0)
+    (h0 : ∀ v : ι → Op1, (∀ b, FormalResearch.NQubit.SU2 (v b)) → F v = 0)
     (s : Finset ι) :
     ∀ v : ι → Op1, (∀ b ∈ s, (v b).det = 1) →
-      (∀ b ∉ s, FormalResearch.FrameFree.NQubit.SU2 (v b)) → F v = 0 := by
+      (∀ b ∉ s, FormalResearch.NQubit.SU2 (v b)) → F v = 0 := by
   induction s using Finset.induction_on with
   | empty =>
     intro v _ hn
     exact h0 v fun b => hn b (Finset.notMem_empty b)
   | insert a s ha ih =>
     intro v hs hn
-    have key : ∀ u : Op1, FormalResearch.FrameFree.NQubit.SU2 u →
+    have key : ∀ u : Op1, FormalResearch.NQubit.SU2 u →
         F (Function.update v a u) = 0 := by
       intro u hu
       apply ih
@@ -324,21 +324,21 @@ theorem vanish_slots {F : (ι → Op1) → ℂ} (hF : SlotEntire F)
 
 /-- Finitely many slots: a slot-entire function vanishing on `SU(2)^ι` vanishes on `SL(2,ℂ)^ι`. -/
 theorem vanish_SL2_pi [Fintype ι] {F : (ι → Op1) → ℂ} (hF : SlotEntire F)
-    (h0 : ∀ v : ι → Op1, (∀ b, FormalResearch.FrameFree.NQubit.SU2 (v b)) → F v = 0)
+    (h0 : ∀ v : ι → Op1, (∀ b, FormalResearch.NQubit.SU2 (v b)) → F v = 0)
     (v : ι → Op1) (hv : ∀ b, (v b).det = 1) : F v = 0 :=
   vanish_slots hF h0 Finset.univ v (fun b _ => hv b) (fun b hb => absurd (Finset.mem_univ b) hb)
 
 /-- A function of `v` which only reads the slots in `s`: vanishing on `SU(2)^ι` suffices. -/
 theorem vanish_SL2_of_support {F : (ι → Op1) → ℂ} (hF : SlotEntire F) (s : Finset ι)
     (hdep : ∀ v v' : ι → Op1, (∀ b ∈ s, v b = v' b) → F v = F v')
-    (h0 : ∀ v : ι → Op1, (∀ b, FormalResearch.FrameFree.NQubit.SU2 (v b)) → F v = 0)
+    (h0 : ∀ v : ι → Op1, (∀ b, FormalResearch.NQubit.SU2 (v b)) → F v = 0)
     (v : ι → Op1) (hv : ∀ b ∈ s, (v b).det = 1) : F v = 0 := by
   classical
   set v' : ι → Op1 := fun b => if b ∈ s then v b else 1 with hv'
   have h1 : F v' = 0 := by
     refine vanish_slots hF h0 s v' (fun b hb => ?_) (fun b hb => ?_)
     · simp [hv', hb, hv b hb]
-    · simp only [hv', hb, ite_false]; exact FormalResearch.FrameFree.NQubit.SU2_one
+    · simp only [hv', hb, ite_false]; exact FormalResearch.NQubit.SU2_one
   rw [hdep v v' (fun b hb => by simp [hv', hb])]
   exact h1
 
@@ -364,7 +364,7 @@ theorem slotEntire_mvPolynomial (p : MvPolynomial (ι × Fin 2 × Fin 2) ℂ) :
 /-- **Zariski density of `SU(2)^ι` in `SL(2,ℂ)^ι`** (polynomial form): a polynomial in the `4|ι|`
 matrix entries which vanishes on `SU(2)^ι` vanishes on `SL(2,ℂ)^ι`. -/
 theorem mvPolynomial_vanish_SL2 [Fintype ι] (p : MvPolynomial (ι × Fin 2 × Fin 2) ℂ)
-    (h0 : ∀ v : ι → Op1, (∀ b, FormalResearch.FrameFree.NQubit.SU2 (v b)) →
+    (h0 : ∀ v : ι → Op1, (∀ b, FormalResearch.NQubit.SU2 (v b)) →
       MvPolynomial.eval (fun q => v q.1 q.2.1 q.2.2) p = 0)
     (v : ι → Op1) (hv : ∀ b, (v b).det = 1) :
     MvPolynomial.eval (fun q => v q.1 q.2.1 q.2.2) p = 0 :=
@@ -377,7 +377,7 @@ end Slots
 
 section Application
 
-open FormalResearch.FrameFree.NQubit (Ψ rot Θ nsq)
+open FormalResearch.NQubit (Ψ rot Θ nsq)
 open FormalResearch.FrameFree.Sharing (FKs FCs FKΘs FCΘs)
 
 variable {n : ℕ} {β : Type*} [DecidableEq β]
@@ -393,19 +393,19 @@ theorem slotEntire_rot (g : Fin n → β) (φ : Ψ n) (x : Fin n → Fin 2) :
     update_entry_differentiable v a hγ (g i) (x i) (y i)
 
 theorem slotEntire_ip (g : Fin n → β) (ψ φ : Ψ n) :
-    SlotEntire (fun v : β → Op1 => FormalResearch.FrameFree.NQubit.ip ψ (rot (fun i => v (g i)) φ)) := by
+    SlotEntire (fun v : β → Op1 => FormalResearch.NQubit.ip ψ (rot (fun i => v (g i)) φ)) := by
   intro v a γ hγ
-  simp only [FormalResearch.FrameFree.NQubit.ip]
+  simp only [FormalResearch.NQubit.ip]
   exact Differentiable.fun_sum fun x _ =>
     Differentiable.mul (differentiable_const _) (slotEntire_rot g φ x v a γ hγ)
 
 /-- The overlap `⟨ψ|(⊗ v_{g i}) φ⟩` vanishes on all `SL(2,ℂ)` frames once it vanishes on all
 `SU(2)` frames. -/
 theorem ip_eq_zero_of_SU2 (g : Fin n → β) (ψ φ : Ψ n)
-    (h : ∀ v : β → Op1, (∀ b, FormalResearch.FrameFree.NQubit.SU2 (v b)) →
-      FormalResearch.FrameFree.NQubit.ip ψ (rot (fun i => v (g i)) φ) = 0)
+    (h : ∀ v : β → Op1, (∀ b, FormalResearch.NQubit.SU2 (v b)) →
+      FormalResearch.NQubit.ip ψ (rot (fun i => v (g i)) φ) = 0)
     (v : β → Op1) (hv : ∀ b, (v b).det = 1) :
-    FormalResearch.FrameFree.NQubit.ip ψ (rot (fun i => v (g i)) φ) = 0 := by
+    FormalResearch.NQubit.ip ψ (rot (fun i => v (g i)) φ) = 0 := by
   classical
   refine vanish_SL2_of_support (slotEntire_ip g ψ φ) (Finset.univ.image g) ?_ h v
     (fun b _ => hv b)
@@ -436,9 +436,9 @@ theorem FKΘs_eq_zero_iff_FCΘs_eq_zero (g : Fin n → β) (ψ : Ψ n) :
 /-- **`prop:invariantstates`, filter part, from `SU(2)`-invariance only.**  If `ψ` is invariant under
 `K_π` (all `SU(2)` frames), then `F_C^π(ψ) = |⟨ψ|Θψ⟩|²/‖Θψ‖²`. -/
 theorem FCΘs_of_SU2_invariant (g : Fin n → β) (ψ : Ψ n)
-    (hψ : ∀ v : β → Op1, (∀ b, FormalResearch.FrameFree.NQubit.SU2 (v b)) →
+    (hψ : ∀ v : β → Op1, (∀ b, FormalResearch.NQubit.SU2 (v b)) →
       rot (fun i => v (g i)) ψ = ψ) :
-    FCΘs g ψ = Complex.normSq (FormalResearch.FrameFree.NQubit.ip ψ (Θ ψ)) / nsq (Θ ψ) := by
+    FCΘs g ψ = Complex.normSq (FormalResearch.NQubit.ip ψ (Θ ψ)) / nsq (Θ ψ) := by
   refine FormalResearch.FrameFree.Sharing.FCΘs_of_invariant g ψ fun v hv => ?_
   funext x
   have hF : SlotEntire (fun v : β → Op1 => rot (fun i => v (g i)) ψ x - ψ x) :=
@@ -453,10 +453,10 @@ theorem FCΘs_of_SU2_invariant (g : Fin n → β) (ψ : Ψ n)
   exact sub_eq_zero.1 this
 
 theorem FCΘs_of_SU2_invariant_unit (g : Fin n → β) (ψ : Ψ n) (hψ1 : nsq ψ = 1)
-    (hψ : ∀ v : β → Op1, (∀ b, FormalResearch.FrameFree.NQubit.SU2 (v b)) →
+    (hψ : ∀ v : β → Op1, (∀ b, FormalResearch.NQubit.SU2 (v b)) →
       rot (fun i => v (g i)) ψ = ψ) :
-    FCΘs g ψ = Complex.normSq (FormalResearch.FrameFree.NQubit.ip ψ (Θ ψ)) := by
-  rw [FCΘs_of_SU2_invariant g ψ hψ, FormalResearch.FrameFree.NQubit.nsq_Θ, hψ1, div_one]
+    FCΘs g ψ = Complex.normSq (FormalResearch.NQubit.ip ψ (Θ ψ)) := by
+  rw [FCΘs_of_SU2_invariant g ψ hψ, FormalResearch.NQubit.nsq_Θ, hψ1, div_one]
 
 end Application
 

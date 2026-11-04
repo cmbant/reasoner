@@ -199,11 +199,11 @@ end Main
 section FrameGroup
 
 open FormalResearch.FrameFree.Helstrom (Pe rotK copies Copies)
-open FormalResearch.FrameFree.NQubit (Ψ Θ SU2 Op1 nsq)
+open FormalResearch.NQubit (Ψ Θ SU2 Op1 nsq)
 
 theorem frameGroup_star_closed (n k : ℕ) : ∀ U ∈ frameGroup n k, Uᴴ ∈ frameGroup n k := by
   rintro _ ⟨u, hu, rfl⟩
-  exact ⟨fun i => (u i)ᴴ, fun i => FormalResearch.FrameFree.NQubit.SU2_adjoint (hu i),
+  exact ⟨fun i => (u i)ᴴ, fun i => FormalResearch.NQubit.SU2_adjoint (hu i),
     FormalResearch.FrameFree.Helstrom.rotK_conjTranspose k u⟩
 
 /-- **Unconditional sector decomposition of the frame-group error** (`lem:blockdecomp`, second formula,
@@ -237,7 +237,7 @@ theorem Pe_blockdecomp (n k : ℕ) :
     FormalResearch.FrameFree.Helstrom.star_copies_self k ψ hψ
   have h2 : star (copies k (Θ ψ)) ⬝ᵥ copies k (Θ ψ) = 1 :=
     FormalResearch.FrameFree.Helstrom.star_copies_self k (Θ ψ)
-      (by rw [FormalResearch.FrameFree.NQubit.nsq_Θ]; exact hψ)
+      (by rw [FormalResearch.NQubit.nsq_Θ]; exact hψ)
   rw [hPe, invErr_eq_one_sub hG (star_dot_transport hW2 h1) (star_dot_transport hW2 h2)]
 
 end FrameGroup

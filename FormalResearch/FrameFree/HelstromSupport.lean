@@ -26,6 +26,7 @@ versions in `PolyImageDischarge` and `XiInvUnconditional` specialise gives `xi_g
 
 open scoped ComplexConjugate Matrix BigOperators InnerProductSpace ComplexOrder
 open Matrix FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 set_option linter.unusedSectionVars false
 

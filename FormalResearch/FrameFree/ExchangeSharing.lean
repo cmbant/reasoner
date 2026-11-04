@@ -15,6 +15,7 @@ the lower bounds and case (i) are in `Sharing`.  Case (iii) is open in the paper
 
 open scoped Matrix ComplexConjugate Kronecker Real
 open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FrameFree.Sharing
 

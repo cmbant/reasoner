@@ -14,7 +14,7 @@ public import FormalResearch.FourQubitEntropy.PurityLPShadow
 
 
 open scoped BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 open Polynomial
 
 namespace FormalResearch.FourQubitEntropy.PurityLP

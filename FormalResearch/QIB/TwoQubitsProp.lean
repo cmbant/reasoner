@@ -37,7 +37,7 @@ set_option autoImplicit false
 set_option linter.unusedSectionVars false
 set_option linter.unusedSimpArgs false
 open Matrix
-open FormalResearch.FrameFree.NQubit (SU2 Op1 Ψ)
+open FormalResearch.NQubit (SU2 Op1 Ψ)
 open FormalResearch.FrameFree.Helstrom
 
 namespace FormalResearch.QIB.TwoQubits

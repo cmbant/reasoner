@@ -26,7 +26,7 @@ over all `t` the weights multiply to `(1+3y)^{n-wt P} (y-1)^{wt P}` (`sum_over_t
 
 
 open scoped ComplexConjugate BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 open Polynomial
 
 namespace FormalResearch.FourQubitEntropy.PurityLP

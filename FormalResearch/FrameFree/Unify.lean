@@ -1,6 +1,7 @@
 module
 
-public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.NQubit.Foundations
+public import FormalResearch.FrameFree.RotationOverlap
 public import FormalResearch.FrameFree.WeylRealisation
 public import FormalResearch.FrameFree.PhysicalBridge
 public import FormalResearch.FrameFree.Ceilings
@@ -11,7 +12,7 @@ public import FormalResearch.FourQubitEntropy.Checks
 
 The repository carries three parallel descriptions of the four-qubit rotation overlap of Paper P:
 
-* `FrameFree/Foundations.lean`  (namespace `FrameFree.NQubit`): `Ψ n`, `rot`, `SU2`, `FK`, `FKΘ`, `Θ`;
+* `NQubit/Foundations.lean`, `FrameFree/RotationOverlap.lean`: `Ψ n`, `rot`, `SU2`, `FK`, `FKΘ`, `Θ`;
 * `FrameFree/WeylRealisation.lean`, `PhysicalBridge.lean` (namespace `FrameFree`): `rotOverlap` on
   `FourQubitEntropy.Psi`, `psiMag`, `weyl_le_rotOverlap_conj`, `four_ninths_le_rotOverlap`,
   `FKmag_le_rotOverlap`;

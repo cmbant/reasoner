@@ -51,7 +51,7 @@ open scoped ComplexConjugate Matrix
 
 namespace FormalResearch.FrameFree.M4Support
 
-open FormalResearch.FourQubitEntropy FormalResearch.FrameFree.NQubit
+open FormalResearch.FourQubitEntropy FormalResearch.FrameFree.NQubit FormalResearch.NQubit
 
 noncomputable section
 

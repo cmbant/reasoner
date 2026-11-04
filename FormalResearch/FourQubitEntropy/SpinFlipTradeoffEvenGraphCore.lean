@@ -16,7 +16,7 @@ Claim class: proved.
 
 
 open scoped ComplexConjugate BigOperators
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 

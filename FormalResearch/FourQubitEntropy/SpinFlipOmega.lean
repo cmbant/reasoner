@@ -6,7 +6,7 @@ public import FormalResearch.FourQubitEntropy.SpinFlipPurity
 @[expose] public section
 
 open scoped ComplexConjugate BigOperators Matrix
-open FormalResearch.FrameFree.NQubit
+open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 

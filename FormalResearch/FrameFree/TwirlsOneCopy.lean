@@ -1,7 +1,8 @@
 module
 
 public import Mathlib
-public import FormalResearch.FrameFree.Foundations
+public import FormalResearch.NQubit.Foundations
+public import FormalResearch.FrameFree.RotationOverlap
 public import FormalResearch.FrameFree.Sharing
 public import FormalResearch.FrameFree.OneCopy
 public import FormalResearch.FrameFree.Zariski
@@ -28,7 +29,7 @@ set_option autoImplicit false
 set_option linter.unusedSectionVars false
 open Matrix ComplexConjugate
 open scoped ComplexOrder
-open FormalResearch.FrameFree.NQubit (Op1 Ψ rot Θ nsq)
+open FormalResearch.NQubit (Op1 Ψ rot Θ nsq)
 open FormalResearch.FrameFree.Sharing (FKs FKΘs)
 
 namespace FormalResearch.FrameFree.Twirls
@@ -68,7 +69,7 @@ theorem trace_mul_proj (Z : OpS (Fin n)) (x : Ψ n) : (Z * proj x).trace = star 
 
 /-- If `⟨ψ|(⊗ v_{g i}) x⟩ = 0` for all `SU(2)` frames, the twirl of `|ψ⟩⟨ψ|` annihilates `x`. -/
 theorem IsTwirl.mulVec_eq_zero {ψ x : Ψ n} {Z : OpS (Fin n)} (hZ : IsTwirl g (proj ψ) Z)
-    (h : ∀ v : β → Op1, (∀ b, FormalResearch.FrameFree.NQubit.SU2 (v b)) →
+    (h : ∀ v : β → Op1, (∀ b, FormalResearch.NQubit.SU2 (v b)) →
       NQubit.ip ψ (rot (fun i => v (g i)) x) = 0) : Z *ᵥ x = 0 := by
   refine hZ.1 {W | W *ᵥ x = 0} ?_ ?_ ?_
   · exact isClosed_eq (Continuous.matrix_mulVec continuous_id continuous_const) continuous_const
@@ -82,13 +83,13 @@ theorem IsTwirl.mulVec_eq_zero {ψ x : Ψ n} {Z : OpS (Fin n)} (hZ : IsTwirl g (
     show (tensOp g u * proj ψ * (tensOp g u)ᴴ) *ᵥ x = 0
     rw [conj_proj, proj, Matrix.vecMulVec_mulVec, Matrix.star_mulVec, ← Matrix.dotProduct_mulVec,
       tensOp_conjTranspose, tensOp_mulVec, ← ip_eq_dotProduct,
-      h _ fun b => FormalResearch.FrameFree.NQubit.SU2_adjoint (hu b)]
+      h _ fun b => FormalResearch.NQubit.SU2_adjoint (hu b)]
     simp
 
 /-- `F_K^π(ψ) = 0 ⟹` the one-copy twirls of `ψ` and `Θψ` have orthogonal supports (`Z Z' = 0`). -/
 theorem twirl_mul_eq_zero_of_forall {ψ x : Ψ n} {Z Z' : OpS (Fin n)} (hZ : IsTwirl g (proj ψ) Z)
     (hZ' : IsTwirl g (proj x) Z')
-    (h : ∀ v : β → Op1, (∀ b, FormalResearch.FrameFree.NQubit.SU2 (v b)) →
+    (h : ∀ v : β → Op1, (∀ b, FormalResearch.NQubit.SU2 (v b)) →
       NQubit.ip ψ (rot (fun i => v (g i)) x) = 0) : Z * Z' = 0 := by
   have hx : Z *ᵥ x = 0 := hZ.mulVec_eq_zero g h
   have hZx : Z * proj x = 0 := by
@@ -108,7 +109,7 @@ theorem twirl_mul_eq_zero_of_forall {ψ x : Ψ n} {Z Z' : OpS (Fin n)} (hZ : IsT
 
 /-! ### The converse: a vanishing pairing with the twirl forces `⟨x|Uψ⟩ = 0` on all frames -/
 
-theorem SU2_entry_le {u : Op1} (h : FormalResearch.FrameFree.NQubit.SU2 u) (i j : Fin 2) :
+theorem SU2_entry_le {u : Op1} (h : FormalResearch.NQubit.SU2 u) (i j : Fin 2) :
     ‖u i j‖ ≤ 1 := by
   have h1 := congrFun (congrFun h.1 j) j
   simp only [Matrix.mul_apply, Matrix.conjTranspose_apply, Matrix.one_apply_eq, Fin.sum_univ_two] at h1
@@ -123,8 +124,8 @@ theorem SU2_entry_le {u : Op1} (h : FormalResearch.FrameFree.NQubit.SU2 u) (i j 
   nlinarith [norm_nonneg (u i j)]
 
 /-- `SU(2)` is compact (closed and bounded in the entries). -/
-theorem isCompact_SU2 : IsCompact {u : Op1 | FormalResearch.FrameFree.NQubit.SU2 u} := by
-  have hc : IsClosed {u : Op1 | FormalResearch.FrameFree.NQubit.SU2 u} := by
+theorem isCompact_SU2 : IsCompact {u : Op1 | FormalResearch.NQubit.SU2 u} := by
+  have hc : IsClosed {u : Op1 | FormalResearch.NQubit.SU2 u} := by
     have h1 : IsClosed {u : Op1 | uᴴ * u = 1} :=
       isClosed_eq (continuous_id.matrix_conjTranspose.matrix_mul continuous_id) continuous_const
     have h2 : IsClosed {u : Op1 | u.det = 1} :=
@@ -138,7 +139,7 @@ theorem isCompact_SU2 : IsCompact {u : Op1 | FormalResearch.FrameFree.NQubit.SU2
   simpa using SU2_entry_le hu i j
 
 theorem isCompact_frames :
-    IsCompact {u : β → Op1 | ∀ b, FormalResearch.FrameFree.NQubit.SU2 (u b)} := by
+    IsCompact {u : β → Op1 | ∀ b, FormalResearch.NQubit.SU2 (u b)} := by
   have := isCompact_univ_pi (fun _ : β => isCompact_SU2)
   convert this using 1
   ext u; simp
@@ -175,7 +176,7 @@ theorem re_trace_proj_mul_proj (x y : Ψ n) :
 frame space by finitely many translates of the open set where the overlap is at least half its
 value at a putative nonvanishing frame, and applies the half-space `Re Tr(QW) ≥ c/2`. -/
 theorem ip_eq_zero_of_twirl_pairing_zero {ψ x : Ψ n} {Z : OpS (Fin n)} (hZ : IsTwirl g (proj ψ) Z)
-    (h0 : star x ⬝ᵥ Z *ᵥ x = 0) (u0 : β → Op1) (hu0 : ∀ b, FormalResearch.FrameFree.NQubit.SU2 (u0 b)) :
+    (h0 : star x ⬝ᵥ Z *ᵥ x = 0) (u0 : β → Op1) (hu0 : ∀ b, FormalResearch.NQubit.SU2 (u0 b)) :
     NQubit.ip x (rot (fun i => u0 (g i)) ψ) = 0 := by
   by_contra hne
   set F : (β → Op1) → ℂ := fun u => star x ⬝ᵥ (tensOp g u *ᵥ ψ) with hFdef
@@ -184,7 +185,7 @@ theorem ip_eq_zero_of_twirl_pairing_zero {ψ x : Ψ n} {Z : OpS (Fin n)} (hZ : I
     rw [hFdef]; simp only [tensOp_mulVec]; rw [ip_eq_dotProduct]
   set c : ℝ := Complex.normSq (F u0) with hc
   have hcpos : 0 < c := Complex.normSq_pos.2 (by rw [hFu0]; exact hne)
-  set 𝔽 : Set (β → Op1) := {u | ∀ b, FormalResearch.FrameFree.NQubit.SU2 (u b)} with h𝔽
+  set 𝔽 : Set (β → Op1) := {u | ∀ b, FormalResearch.NQubit.SU2 (u b)} with h𝔽
   have hcomp : IsCompact 𝔽 := isCompact_frames
   set O : 𝔽 → Set (β → Op1) := fun w =>
     {u | c / 2 < Complex.normSq (F (fun b => (w : β → Op1) b * u b))} with hO
@@ -194,7 +195,7 @@ theorem ip_eq_zero_of_twirl_pairing_zero {ψ x : Ψ n} {Z : OpS (Fin n)} (hZ : I
   have hcover : 𝔽 ⊆ ⋃ w, O w := by
     intro u hu
     have hw : (fun b => u0 b * (u b)ᴴ) ∈ 𝔽 := fun b =>
-      FormalResearch.FrameFree.NQubit.SU2_mul (hu0 b) (FormalResearch.FrameFree.NQubit.SU2_adjoint (hu b))
+      FormalResearch.NQubit.SU2_mul (hu0 b) (FormalResearch.NQubit.SU2_adjoint (hu b))
     refine Set.mem_iUnion.2 ⟨⟨_, hw⟩, ?_⟩
     show c / 2 < Complex.normSq (F fun b => (u0 b * (u b)ᴴ) * u b)
     have : (fun b => (u0 b * (u b)ᴴ) * u b) = u0 := by
@@ -253,14 +254,14 @@ theorem ip_rot_adjoint (v : β → Op1) (ψ x : Ψ n) :
 
 theorem forall_ip_eq_zero_of_trace_eq_zero (ψ : Ψ n) {Z Z' : OpS (Fin n)}
     (hZ : IsTwirl g (proj ψ) Z) (hZ' : IsTwirl g (proj (Θ ψ)) Z') (h : (Z * Z').trace = 0) :
-    ∀ v : β → Op1, (∀ b, FormalResearch.FrameFree.NQubit.SU2 (v b)) →
+    ∀ v : β → Op1, (∀ b, FormalResearch.NQubit.SU2 (v b)) →
       NQubit.ip ψ (rot (fun i => v (g i)) (Θ ψ)) = 0 := by
   intro u hu
   have h1 : (Z * Z').trace = (Z * proj (Θ ψ)).trace :=
     hZ'.trace_eq g Z fun U hU => (hZ.2 U hU).symm
   rw [h, trace_mul_proj] at h1
   have h2 := ip_eq_zero_of_twirl_pairing_zero g hZ h1.symm
-  rw [ip_rot_adjoint, h2 _ fun b => FormalResearch.FrameFree.NQubit.SU2_adjoint (hu b)]
+  rw [ip_rot_adjoint, h2 _ fun b => FormalResearch.NQubit.SU2_adjoint (hu b)]
   simp
 
 /-- **`thm:onecopy` (a).**  `F_K^π(ψ) = 0` iff the one-copy twirls of `ψ` and `Θψ` have orthogonal
@@ -298,7 +299,7 @@ theorem trace_twirl_eq_nsq {ψ : Ψ n} {Z : OpS (Fin n)} (hZ : IsTwirl g (proj �
   rw [Matrix.one_mul, Matrix.one_mul, proj] at h
   have : (Matrix.vecMulVec ψ (star ψ)).trace = star ψ ⬝ᵥ ψ := by
     simp [Matrix.trace, dotProduct, Matrix.vecMulVec_apply, mul_comm]
-  rw [h, this, ← ip_eq_dotProduct, FormalResearch.FrameFree.NQubit.ip_self]
+  rw [h, this, ← ip_eq_dotProduct, FormalResearch.NQubit.ip_self]
 
 /-- **`thm:onecopy` (b), positivity.**  If every block has at most two spins, `F_K^π(ψ) > 0` for every
 nonzero `ψ`. -/
