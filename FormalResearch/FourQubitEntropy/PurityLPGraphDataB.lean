@@ -13,8 +13,8 @@ For each `n` the graph is given by its neighbourhood bitmasks `adj<n>` (bit `j` 
 `adj<n>_symm`, `adj<n>_irrefl` that the graph is simple.  `pack<n>` is the kernel-checked packed sum
 `Σ_{|S| = k} 65536^{rk_2 Γ[S,S^c]}` (bitmask recursion `maskSum`, `PurityLPMaskSum.lean`; for even `n >= 16` over the
 cuts containing the last vertex only, by complement symmetry), `rankHist<n>` the full rank histogram read off from it,
-`rankSum<n>` the sum `Σ_{|S| = k} 2^{k - rk_2 Γ[S,S^c]}` and `piMean_graph<n>` the resulting value of `π_k` of the
-(normalised) graph state `gsn`, which equals the Rains-LP value.  Claim class: exact finite certificate (`decide +kernel`).
+`rankSum<n>` the sum `Σ_{|S| = k} 2^{k - rk_2 Γ[S,S^c]}` and `meanRdmPurity_graph<n>` the resulting value of `π_k` of the
+(normalised) graph state `graphStateNorm`, which equals the Rains-LP value.  Claim class: exact finite certificate (`decide +kernel`).
 -/
 
 @[expose] public section
@@ -28,7 +28,8 @@ set_option Elab.async false
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Graph
+
 /-- Neighbourhood bitmasks of the 47-edge graph of `thm:fourteenfifteen` (hexadecimal rows) on 14 vertices (hexadecimal / list form). -/
 def adj14L : List ℕ := [14568, 7152, 3432, 14421, 14858, 1159, 12687, 9571, 10950, 5394, 12964, 287, 9819, 5593]
 
@@ -44,22 +45,22 @@ theorem adj14_irrefl : ∀ i : Fin 14, (adj14 i).testBit i = false := by
 theorem pack14_0 : maskSum packG 14 adj14L (2 ^ 14 - 1) 13 6 (2 ^ 13) = 4382365258752499303640431541109129216 := by
   decide +kernel
 
-theorem pack14 : ∑ S ∈ ((Finset.univ : Finset (Fin 14)).powersetCard 7), packG (cutRankN adj14 S) = 8764730517504998607280863082218258432 := by
+theorem pack14 : ∑ S ∈ ((Finset.univ : Finset (Fin 14)).powersetCard 7), packG (graphCutRankBits adj14 S) = 8764730517504998607280863082218258432 := by
   refine (sum_cuts_half packG 14 7 13 6 rfl rfl rfl adj14L adj14 (fun i => rfl) adj14_symm (2 ^ 14 - 1) rfl).trans ?_
   rw [pack14_0]
 
 /-- The rank histogram of `tab:graphs` / the theorem: rank 5 on 60 cuts, rank 6 on 1684 cuts, rank 7 on 1688 cuts (and no other rank). Kernel-checked from the packed sum `pack14` (`hist_of_packed`). -/
-theorem rankHist14 : ∀ r, (((Finset.univ : Finset (Fin 14)).powersetCard 7).filter fun S => cutRankN adj14 S = r).card = ([0, 0, 0, 0, 0, 60, 1684, 1688] : List ℕ).getD r 0 :=
+theorem rankHist14 : ∀ r, (((Finset.univ : Finset (Fin 14)).powersetCard 7).filter fun S => graphCutRankBits adj14 S = r).card = ([0, 0, 0, 0, 0, 60, 1684, 1688] : List ℕ).getD r 0 :=
   hist_of_packed adj14 7 65536 (by norm_num [Nat.choose]) [0, 0, 0, 0, 0, 60, 1684, 1688] (by decide) rfl
     (pack14.trans (by decide +kernel))
 
-theorem rankSum14 : ∑ S ∈ ((Finset.univ : Finset (Fin 14)).powersetCard 7), 2 ^ (7 - cutRankN adj14 S) = 5296 := by
+theorem rankSum14 : ∑ S ∈ ((Finset.univ : Finset (Fin 14)).powersetCard 7), 2 ^ (7 - graphCutRankBits adj14 S) = 5296 := by
   rw [rankSum_of_hist adj14 7 [0, 0, 0, 0, 0, 60, 1684, 1688] rankHist14]
   decide +kernel
 
 /-- The graph state of the 47-edge graph of `thm:fourteenfifteen` (hexadecimal rows) has `π_7 = 331/27456`. -/
-theorem piMean_graph14 : meanRdmPurity (gsn (adjGraph adj14)) 7 = 331 / 27456 := by
-  rw [piMean_gsn adj14 adj14_symm 7 5296 (by norm_num) rankSum14]
+theorem meanRdmPurity_graph14 : meanRdmPurity (graphStateNorm (adjGraph adj14)) 7 = 331 / 27456 := by
+  rw [meanRdmPurity_graphStateNorm adj14 adj14_symm 7 5296 (by norm_num) rankSum14]
   norm_num [Nat.choose]
 
 /-- Neighbourhood bitmasks of the 56-edge graph of `thm:fourteenfifteen` (hexadecimal rows) on 15 vertices (hexadecimal / list form). -/
@@ -86,21 +87,21 @@ theorem pack15_2 : maskSum packG 15 adj15L (2 ^ 15 - 1) 13 6 (0 + 2 ^ 14) = 6957
 theorem pack15_3 : maskSum packG 15 adj15L (2 ^ 15 - 1) 13 5 (0 + 2 ^ 14 + 2 ^ 13) = 5233856625017865433306422219292803072 := by
   decide +kernel
 
-theorem pack15 : ∑ S ∈ ((Finset.univ : Finset (Fin 15)).powersetCard 7), packG (cutRankN adj15 S) = 26065439564751416783695482684451061760 := by
+theorem pack15 : ∑ S ∈ ((Finset.univ : Finset (Fin 15)).powersetCard 7), packG (graphCutRankBits adj15 S) = 26065439564751416783695482684451061760 := by
   rw [sum_cuts_eq_maskSum packG 15 adj15L adj15 (fun i => rfl) (2 ^ 15 - 1) rfl 7, maskSum_split packG 15 adj15L (2 ^ 15 - 1) 14 15 7 6 (0) rfl rfl, maskSum_split packG 15 adj15L (2 ^ 15 - 1) 13 14 7 6 (0) rfl rfl, maskSum_split packG 15 adj15L (2 ^ 15 - 1) 13 14 6 5 (0 + 2 ^ 14) rfl rfl, pack15_0, pack15_1, pack15_2, pack15_3]
 
 /-- The rank histogram of `tab:graphs` / the theorem: rank 5 on 35 cuts, rank 6 on 1380 cuts, rank 7 on 5020 cuts (and no other rank). Kernel-checked from the packed sum `pack15` (`hist_of_packed`). -/
-theorem rankHist15 : ∀ r, (((Finset.univ : Finset (Fin 15)).powersetCard 7).filter fun S => cutRankN adj15 S = r).card = ([0, 0, 0, 0, 0, 35, 1380, 5020] : List ℕ).getD r 0 :=
+theorem rankHist15 : ∀ r, (((Finset.univ : Finset (Fin 15)).powersetCard 7).filter fun S => graphCutRankBits adj15 S = r).card = ([0, 0, 0, 0, 0, 35, 1380, 5020] : List ℕ).getD r 0 :=
   hist_of_packed adj15 7 65536 (by norm_num [Nat.choose]) [0, 0, 0, 0, 0, 35, 1380, 5020] (by decide) rfl
     (pack15.trans (by decide +kernel))
 
-theorem rankSum15 : ∑ S ∈ ((Finset.univ : Finset (Fin 15)).powersetCard 7), 2 ^ (7 - cutRankN adj15 S) = 7920 := by
+theorem rankSum15 : ∑ S ∈ ((Finset.univ : Finset (Fin 15)).powersetCard 7), 2 ^ (7 - graphCutRankBits adj15 S) = 7920 := by
   rw [rankSum_of_hist adj15 7 [0, 0, 0, 0, 0, 35, 1380, 5020] rankHist15]
   decide +kernel
 
 /-- The graph state of the 56-edge graph of `thm:fourteenfifteen` (hexadecimal rows) has `π_7 = 1/104`. -/
-theorem piMean_graph15 : meanRdmPurity (gsn (adjGraph adj15)) 7 = 1 / 104 := by
-  rw [piMean_gsn adj15 adj15_symm 7 7920 (by norm_num) rankSum15]
+theorem meanRdmPurity_graph15 : meanRdmPurity (graphStateNorm (adjGraph adj15)) 7 = 1 / 104 := by
+  rw [meanRdmPurity_graphStateNorm adj15 adj15_symm 7 7920 (by norm_num) rankSum15]
   norm_num [Nat.choose]
 
 

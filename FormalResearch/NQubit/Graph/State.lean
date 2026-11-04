@@ -1,41 +1,33 @@
 module
 
-public import FormalResearch.FourQubitEntropy.SpinFlipOmega
+public import FormalResearch.NQubit.TimeReversal.Omega
+public import FormalResearch.NQubit.Pauli.Conjugation
 
 /-!
-# Time-reversal overlap of graph states (`thm:parity-graph`, the `τ`-criterion)
-
-Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_graph_parity.tex`, `thm:parity-graph`
-(QIprojects PR #200).
+# Graph states and their time-reversal overlap
 
 `G` is a simple graph on `n` vertices given by a symmetric loop-free Boolean adjacency function `Γ`.  The
-(unnormalised) graph state is `|G⟩ = Σ_x (-1)^{Σ_{i<j} Γ_{ij} x_i x_j} |x⟩`.
+(unnormalised) graph state is `graphState Γ = Σ_x (-1)^{Σ_{i<j} Γ_{ij} x_i x_j} |x⟩`.
 
-* `Θ_gs`: `Θ|G⟩ = (-1)^{|E|} · Σ_x (-1)^{Σ_i (1 + deg_i) x_i} (-1)^{Σ_{i<j}Γ_{ij}x_i x_j}|x⟩`
-  (`J_n|G⟩` is `Z^{1 + Γ 1}|G⟩` up to the phase `(-1)^{|E|}`);
-* `tau_gs`: `τ_n(G) = |⟨G,ΘG⟩|² = ‖G‖⁴` if every vertex has odd degree and `0` otherwise; hence, normalised,
-  `τ_n(G) ∈ {0,1}` and `τ_n(G) = 1` iff all degrees are odd (the all-odd-degree criterion of the theorem).
-
-* `extG Γ` is the extension graph `H` (new vertex `0` attached to the old vertices of even degree, i.e. along
-  `d = 1 + Γ1`); `omega_gs`: `Ω_G(x₀,x') = 2^{-1/2} (-1)^{|E| x₀} H(x₀,x')`, i.e. `Ω_G = H` up to the phase
-  `Z^{|E|}` on the added qubit; `deg2_extG_succ`: every old vertex of `H` has odd degree;
+* `Θ_graphState`: `Θ|G⟩ = (-1)^{|E|} · Σ_x (-1)^{Σ_i (1 + deg_i) x_i} (-1)^{Σ_{i<j}Γ_{ij}x_i x_j}|x⟩`;
+* `tau_graphState`: `τ(G) = |⟨G,ΘG⟩|² = ‖G‖⁴` if every vertex has odd degree and `0` otherwise; hence, normalised,
+  `τ(G) ∈ {0,1}` and `τ(G) = 1` iff all degrees are odd (`tau_graphState_eq_iff`);
+* `extG Γ` is the extension graph `H` (a new vertex `0` attached to the old vertices of even degree, i.e. along
+  `d = 1 + Γ1`); `omegaState_graphState`: `Ω_G(x₀,x') = 2^{-1/2} (-1)^{|E| x₀} H(x₀,x')`, i.e. `Ω_G = H` up to the
+  phase `Z^{|E|}` on the added qubit; `deg2_extG_succ`: every old vertex of `H` has odd degree;
   `deg2_extG_zero`: the new vertex has degree parity `m`.
-
-The converse (deleting the distinguished vertex of any such graph recovers `G`: the extension is a bijection),
-the counting statement `2^{C(m,2)}` and the identification of `τ_n = 1` with `Σ_{j odd} A_j = 0` for the graph
-state (a combination of `tau_gs_eq_iff` with `SpinFlipPauli.tau_eq_one_iff_odd_vanish`) are *not* formalised
-as separate theorems.  Claim class: **proved**.
 -/
 
 @[expose] public section
 
 
 open scoped ComplexConjugate BigOperators
-open FormalResearch.NQubit
+open FormalResearch.NQubit.Pauli
+open FormalResearch.NQubit.Reduced
+open FormalResearch.NQubit.TimeReversal
 
-namespace FormalResearch.FourQubitEntropy.SpinFlip
+namespace FormalResearch.NQubit.Graph
 
-open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
 variable {n : ℕ}
 
 /-- The sign character `ZMod 2 → ±1`. -/
@@ -65,7 +57,7 @@ def nedge (Γ : Fin n → Fin n → Bool) : ZMod 2 :=
 def deg2 (Γ : Fin n → Fin n → Bool) (i : Fin n) : ZMod 2 := ∑ j, if Γ i j = true then 1 else 0
 
 /-- The (unnormalised) graph state. -/
-def gs (Γ : Fin n → Fin n → Bool) : Ψ n := fun x => chi (qf Γ x)
+def graphState (Γ : Fin n → Fin n → Bool) : Ψ n := fun x => chi (qf Γ x)
 
 theorem chi_zero : chi 0 = 1 := rfl
 theorem chi_one : chi 1 = -1 := rfl
@@ -157,11 +149,11 @@ theorem qf_flip (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j i
   rfl
 
 /-- `J_n |G⟩ = (-1)^{|E|} Z^{1 + Γ1} |G⟩`, pointwise. -/
-theorem Θ_gs (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j i) (hirr : ∀ i, Γ i i = false)
+theorem Θ_graphState (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j i) (hirr : ∀ i, Γ i i = false)
     (x : Cfg n) :
-    Θ (gs Γ) x = chi (nedge Γ) * chi (∑ i, (1 + deg2 Γ i) * zx (x i)) * gs Γ x := by
+    Θ (graphState Γ) x = chi (nedge Γ) * chi (∑ i, (1 + deg2 Γ i) * zx (x i)) * graphState Γ x := by
   rw [Θ_cfg]
-  unfold gs
+  unfold graphState
   rw [conj_chi, qf_flip Γ hsym hirr, ← chi_add, ← chi_add, ← chi_add]
   congr 1
   simp only [add_mul, one_mul, Finset.sum_add_distrib]
@@ -175,14 +167,14 @@ theorem sum_chi_lin (c : Fin n → ZMod 2) :
   refine Finset.prod_congr rfl fun i _ => ?_
   simp [Fin.sum_univ_two, zx, chi_zero]
 
-theorem ip_gs_Θ (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j i) (hirr : ∀ i, Γ i i = false) :
-    ip (gs Γ) (Θ (gs Γ)) = chi (nedge Γ) * ∏ i, (1 + chi (1 + deg2 Γ i)) := by
+theorem ip_graphState_Θ (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j i) (hirr : ∀ i, Γ i i = false) :
+    ip (graphState Γ) (Θ (graphState Γ)) = chi (nedge Γ) * ∏ i, (1 + chi (1 + deg2 Γ i)) := by
   unfold ip
-  have h : ∀ x : Cfg n, conj (gs Γ x) * Θ (gs Γ) x
+  have h : ∀ x : Cfg n, conj (graphState Γ x) * Θ (graphState Γ) x
       = chi (nedge Γ) * chi (∑ i, (1 + deg2 Γ i) * zx (x i)) := by
     intro x
-    rw [Θ_gs Γ hsym hirr]
-    unfold gs
+    rw [Θ_graphState Γ hsym hirr]
+    unfold graphState
     rw [conj_chi]
     have := chi_mul_self (qf Γ x)
     linear_combination (chi (nedge Γ) * chi (∑ i, (1 + deg2 Γ i) * zx (x i))) * this
@@ -199,17 +191,17 @@ theorem deg2_eq (Γ : Fin n → Fin n → Bool) (i : Fin n) :
 theorem chi_normSq (a : ZMod 2) : Complex.normSq (chi a) = 1 := by
   fin_cases a <;> simp [chi]
 
-theorem nsq_gs (Γ : Fin n → Fin n → Bool) : nsq (gs Γ) = 2 ^ n := by
-  unfold nsq gs
+theorem nsq_graphState (Γ : Fin n → Fin n → Bool) : nsq (graphState Γ) = 2 ^ n := by
+  unfold nsq graphState
   simp [chi_normSq]
 
 /-- **`τ_n` of a graph state**: `τ = ‖G‖⁴` if all degrees are odd, and `τ = 0` otherwise. -/
-theorem tau_gs (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j i)
+theorem tau_graphState (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j i)
     (hirr : ∀ i, Γ i i = false) :
-    tau (gs Γ) = if (∀ i, Odd (Finset.univ.filter fun j => Γ i j = true).card)
-      then nsq (gs Γ) * nsq (gs Γ) else 0 := by
+    tau (graphState Γ) = if (∀ i, Odd (Finset.univ.filter fun j => Γ i j = true).card)
+      then nsq (graphState Γ) * nsq (graphState Γ) else 0 := by
   unfold tau
-  rw [ip_gs_Θ Γ hsym hirr, Complex.normSq_mul, chi_normSq, one_mul, nsq_gs]
+  rw [ip_graphState_Θ Γ hsym hirr, Complex.normSq_mul, chi_normSq, one_mul, nsq_graphState]
   have hfac : ∀ i, (1 + chi (1 + deg2 Γ i)) =
       if Odd (Finset.univ.filter fun j => Γ i j = true).card then (2 : ℂ) else 0 := by
     intro i
@@ -295,23 +287,23 @@ theorem qf_extG {m : ℕ} (Γ : Fin m → Fin m → Bool) (x0 : Fin 2) (x' : Cfg
   rw [key, add_comm]
 
 /-- **`Ω_G = H` up to a phase on the added qubit** (`thm:parity-graph`): on `|x₀, x'⟩`,
-`Ω_G(x₀,x') = 2^{-1/2} (-1)^{|E| x₀} H(x₀,x')`, where `H = gs (extG Γ)`. -/
-theorem omega_gs {m : ℕ} (Γ : Fin m → Fin m → Bool) (hsym : ∀ i j, Γ i j = Γ j i)
+`Ω_G(x₀,x') = 2^{-1/2} (-1)^{|E| x₀} H(x₀,x')`, where `H = graphState (extG Γ)`. -/
+theorem omegaState_graphState {m : ℕ} (Γ : Fin m → Fin m → Bool) (hsym : ∀ i j, Γ i j = Γ j i)
     (hirr : ∀ i, Γ i i = false) (x0 : Fin 2) (x' : Cfg m) :
-    omegaState (gs Γ) (Fin.cons x0 x' : Cfg (m + 1)) =
-      (((Real.sqrt 2)⁻¹ : ℝ) : ℂ) * chi (nedge Γ * zx x0) * gs (extG Γ) (Fin.cons x0 x') := by
-  have hext : gs (extG Γ) (Fin.cons x0 x' : Cfg (m + 1)) =
+    omegaState (graphState Γ) (Fin.cons x0 x' : Cfg (m + 1)) =
+      (((Real.sqrt 2)⁻¹ : ℝ) : ℂ) * chi (nedge Γ * zx x0) * graphState (extG Γ) (Fin.cons x0 x') := by
+  have hext : graphState (extG Γ) (Fin.cons x0 x' : Cfg (m + 1)) =
       chi (qf Γ x' + zx x0 * ∑ j, (1 + deg2 Γ j) * zx (x' j)) := by
-    unfold gs; rw [qf_extG]
+    unfold graphState; rw [qf_extG]
   rw [hext]
   unfold omegaState
   simp only [Pi.smul_apply, smul_eq_mul, branchState_cons]
   fin_cases x0
-  · simp [zx, chi_zero, gs]
+  · simp [zx, chi_zero, graphState]
   · have h1 : zx ((1 : Fin 2)) = 1 := by decide
     simp only [Fin.isValue, Fin.mk_one, one_ne_zero, ite_false, h1, mul_one, one_mul]
-    rw [Θ_gs Γ hsym hirr, chi_add]
-    simp only [gs]
+    rw [Θ_graphState Γ hsym hirr, chi_add]
+    simp only [graphState]
     ring
 
 /-- The vertex-degree parities in `H`: every old vertex has odd degree. -/
@@ -353,14 +345,14 @@ theorem deg2_extG_zero {m : ℕ} (Γ : Fin m → Fin m → Bool) (hsym : ∀ i j
   simp
 
 /-- `τ_n(G) = 1` (normalised) iff every vertex has odd degree. -/
-theorem tau_gs_eq_iff (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j i)
+theorem tau_graphState_eq_iff (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j i)
     (hirr : ∀ i, Γ i i = false) :
-    tau (gs Γ) = nsq (gs Γ) * nsq (gs Γ) ↔ ∀ i, Odd (Finset.univ.filter fun j => Γ i j = true).card := by
-  have hpos : 0 < nsq (gs Γ) * nsq (gs Γ) := by rw [nsq_gs]; positivity
-  rw [tau_gs Γ hsym hirr]
+    tau (graphState Γ) = nsq (graphState Γ) * nsq (graphState Γ) ↔ ∀ i, Odd (Finset.univ.filter fun j => Γ i j = true).card := by
+  have hpos : 0 < nsq (graphState Γ) * nsq (graphState Γ) := by rw [nsq_graphState]; positivity
+  rw [tau_graphState Γ hsym hirr]
   by_cases h : ∀ i, Odd (Finset.univ.filter fun j => Γ i j = true).card
   · simp [h]
   · simp only [h, ite_false, iff_false]
     exact fun h0 => absurd h0.symm (ne_of_gt hpos)
 
-end FormalResearch.FourQubitEntropy.SpinFlip
+end FormalResearch.NQubit.Graph

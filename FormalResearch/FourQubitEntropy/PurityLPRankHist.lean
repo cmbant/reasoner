@@ -16,7 +16,8 @@ open scoped BigOperators
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Graph
+
 /-- The packing weight `B^r`, `B = 2^16 > C(n, ⌊n/2⌋)` for every `n ≤ 18`. -/
 def packG (r : ℕ) : ℕ := 65536 ^ r
 
@@ -49,27 +50,27 @@ theorem digits_unique (B : ℕ) (hB : 0 < B) : ∀ (R : ℕ) (a b : ℕ → ℕ)
 variable {n : ℕ}
 
 theorem sum_by_rank (adj : Fin n → ℕ) (k : ℕ) (f : ℕ → ℕ) :
-    ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, f (cutRankN adj S)
+    ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, f (graphCutRankBits adj S)
       = ∑ r ∈ Finset.range (k + 1),
-          (((Finset.univ : Finset (Fin n)).powersetCard k).filter fun S => cutRankN adj S = r).card * f r := by
-  rw [← Finset.sum_fiberwise_of_maps_to (g := cutRankN adj) (t := Finset.range (k + 1))]
+          (((Finset.univ : Finset (Fin n)).powersetCard k).filter fun S => graphCutRankBits adj S = r).card * f r := by
+  rw [← Finset.sum_fiberwise_of_maps_to (g := graphCutRankBits adj) (t := Finset.range (k + 1))]
   · refine Finset.sum_congr rfl fun r _ => ?_
     rw [Finset.sum_congr rfl (g := fun _ => f r) (fun S hS => by rw [(Finset.mem_filter.mp hS).2])]
     simp
   · intro S hS
-    have := cutRankN_le adj S
+    have := graphCutRankBits_le adj S
     rw [(Finset.mem_powersetCard.mp hS).2] at this
     exact Finset.mem_range.mpr (Nat.lt_succ_of_le this)
 
 /-- A packed rank sum `Σ B^{rk} = Σ_r c_r B^r` (`c_r < B`) is the rank histogram `c`. -/
 theorem hist_of_packed (adj : Fin n → ℕ) (k B : ℕ) (hC : n.choose k < B) (cl : List ℕ) (hcl : ∀ c ∈ cl, c < B)
     (hlen : cl.length = k + 1)
-    (h : ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, B ^ cutRankN adj S
+    (h : ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, B ^ graphCutRankBits adj S
       = ∑ r ∈ Finset.range (k + 1), cl.getD r 0 * B ^ r) :
-    ∀ r, ((((Finset.univ : Finset (Fin n)).powersetCard k).filter fun S => cutRankN adj S = r).card)
+    ∀ r, ((((Finset.univ : Finset (Fin n)).powersetCard k).filter fun S => graphCutRankBits adj S = r).card)
       = cl.getD r 0 := by
   have hB : 0 < B := lt_of_le_of_lt (Nat.zero_le _) hC
-  have hcard : ∀ r, ((((Finset.univ : Finset (Fin n)).powersetCard k).filter fun S => cutRankN adj S = r).card) < B := by
+  have hcard : ∀ r, ((((Finset.univ : Finset (Fin n)).powersetCard k).filter fun S => graphCutRankBits adj S = r).card) < B := by
     intro r
     refine lt_of_le_of_lt (Finset.card_filter_le _ _) ?_
     simpa [Finset.card_powersetCard] using hC
@@ -85,14 +86,14 @@ theorem hist_of_packed (adj : Fin n → ℕ) (k B : ℕ) (hC : n.choose k < B) (
   · rw [List.getD_eq_default _ _ (by omega)]
     rw [Finset.card_eq_zero, Finset.filter_eq_empty_iff]
     intro S hS hSr
-    have := cutRankN_le adj S
+    have := graphCutRankBits_le adj S
     rw [(Finset.mem_powersetCard.mp hS).2] at this
     omega
 
 theorem rankSum_of_hist (adj : Fin n → ℕ) (k : ℕ) (cl : List ℕ)
-    (hist : ∀ r, ((((Finset.univ : Finset (Fin n)).powersetCard k).filter fun S => cutRankN adj S = r).card)
+    (hist : ∀ r, ((((Finset.univ : Finset (Fin n)).powersetCard k).filter fun S => graphCutRankBits adj S = r).card)
       = cl.getD r 0) :
-    ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, 2 ^ (k - cutRankN adj S)
+    ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, 2 ^ (k - graphCutRankBits adj S)
       = ∑ r ∈ Finset.range (k + 1), cl.getD r 0 * 2 ^ (k - r) := by
   rw [sum_by_rank adj k (fun r => 2 ^ (k - r))]
   exact Finset.sum_congr rfl fun r _ => by rw [hist r]

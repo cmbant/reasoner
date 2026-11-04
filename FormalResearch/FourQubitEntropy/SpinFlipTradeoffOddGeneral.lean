@@ -21,6 +21,7 @@ open FormalResearch.NQubit
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 
 open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
+
 section PolyToolkit
 
 /-- `p ↦ p(-X)`. -/

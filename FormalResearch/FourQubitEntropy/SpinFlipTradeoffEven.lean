@@ -21,7 +21,7 @@ with `(n : L_n, c_n) = 8 : 3/35, 1/70; 10 : 1/21, 1/168; 14 : 331/27456, 5/6864;
   `SpinFlipTradeoffEvenCert.lean`: the exact linear identity `eq:tradeoff-dual` in the Pauli weight enumerator `A_j` and the
   shadow enumerator `S_i`, checked by `decide +kernel`, then `lp_tradeoff`);
 * `purity_spinflip_tradeoff_even_sharp` : the sharpness clause, for one explicit graph state per `n` all of whose vertices have
-  odd degree (`tau_gsn_eq_one` is the general `τ_n = 1` statement; `piMean_graphT<n>` the kernel-checked purities
+  odd degree (`tau_gsn_eq_one` is the general `τ_n = 1` statement; `meanRdmPurity_graphT<n>` the kernel-checked purities
   `π_{n/2} = L_n + c_n`);
 * `purity_spinflip_tradeoff_even_coeff_optimal` : `c_n` is the largest coefficient compatible with `L_n`;
 * `purity_spinflip_tradeoff_even_stability` : `cor:spinflip-rigidity`;
@@ -38,8 +38,7 @@ open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
-open FormalResearch.FourQubitEntropy.SpinFlip
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow FormalResearch.NQubit.Graph
 
 /-- The table `L_n` of `thm:purity-spinflip-tradeoff` (`n ∈ {8, 10, 14, 16, 20}`; `0` elsewhere). -/
 def tradeoffL (n : ℕ) : ℚ :=
@@ -87,16 +86,16 @@ vertices of odd degree) with `τ_n = 1` and `π_{n/2} = L_n + c_n`. -/
 theorem purity_spinflip_tradeoff_even_sharp {n : ℕ} (hn : TradeoffEvenSize n) :
     ∃ ψ : Ψ n, nsq ψ = 1 ∧ tau ψ = 1 ∧ meanRdmPurity ψ (n / 2) = (tradeoffL n : ℝ) + (tradeoffC n : ℝ) := by
   rcases hn with rfl | rfl | rfl | rfl | rfl
-  · refine ⟨gsn (adjGraph adjT8), nsq_gsn _, tau_gsn_eq_one _ adjT8_symm adjT8_irrefl adjT8_odd, ?_⟩
-    rw [show (8 : ℕ) / 2 = 4 from rfl, piMean_graphT8]; norm_num [tradeoffL, tradeoffC]
-  · refine ⟨gsn (adjGraph adjT10), nsq_gsn _, tau_gsn_eq_one _ adjT10_symm adjT10_irrefl adjT10_odd, ?_⟩
-    rw [show (10 : ℕ) / 2 = 5 from rfl, piMean_graphT10]; norm_num [tradeoffL, tradeoffC]
-  · refine ⟨gsn (adjGraph adjT14), nsq_gsn _, tau_gsn_eq_one _ adjT14_symm adjT14_irrefl adjT14_odd, ?_⟩
-    rw [show (14 : ℕ) / 2 = 7 from rfl, piMean_graphT14]; norm_num [tradeoffL, tradeoffC]
-  · refine ⟨gsn (adjGraph adjT16), nsq_gsn _, tau_gsn_eq_one _ adjT16_symm adjT16_irrefl adjT16_odd, ?_⟩
-    rw [show (16 : ℕ) / 2 = 8 from rfl, piMean_graphT16]; norm_num [tradeoffL, tradeoffC]
-  · refine ⟨gsn (adjGraph adjT20), nsq_gsn _, tau_gsn_eq_one _ adjT20_symm adjT20_irrefl adjT20_odd, ?_⟩
-    rw [show (20 : ℕ) / 2 = 10 from rfl, piMean_graphT20]; norm_num [tradeoffL, tradeoffC]
+  · refine ⟨graphStateNorm (adjGraph adjT8), nsq_graphStateNorm _, tau_gsn_eq_one _ adjT8_symm adjT8_irrefl adjT8_odd, ?_⟩
+    rw [show (8 : ℕ) / 2 = 4 from rfl, meanRdmPurity_graphT8]; norm_num [tradeoffL, tradeoffC]
+  · refine ⟨graphStateNorm (adjGraph adjT10), nsq_graphStateNorm _, tau_gsn_eq_one _ adjT10_symm adjT10_irrefl adjT10_odd, ?_⟩
+    rw [show (10 : ℕ) / 2 = 5 from rfl, meanRdmPurity_graphT10]; norm_num [tradeoffL, tradeoffC]
+  · refine ⟨graphStateNorm (adjGraph adjT14), nsq_graphStateNorm _, tau_gsn_eq_one _ adjT14_symm adjT14_irrefl adjT14_odd, ?_⟩
+    rw [show (14 : ℕ) / 2 = 7 from rfl, meanRdmPurity_graphT14]; norm_num [tradeoffL, tradeoffC]
+  · refine ⟨graphStateNorm (adjGraph adjT16), nsq_graphStateNorm _, tau_gsn_eq_one _ adjT16_symm adjT16_irrefl adjT16_odd, ?_⟩
+    rw [show (16 : ℕ) / 2 = 8 from rfl, meanRdmPurity_graphT16]; norm_num [tradeoffL, tradeoffC]
+  · refine ⟨graphStateNorm (adjGraph adjT20), nsq_graphStateNorm _, tau_gsn_eq_one _ adjT20_symm adjT20_irrefl adjT20_odd, ?_⟩
+    rw [show (20 : ℕ) / 2 = 10 from rfl, meanRdmPurity_graphT20]; norm_num [tradeoffL, tradeoffC]
 
 /-- info: 'FormalResearch.FourQubitEntropy.PurityLP.purity_spinflip_tradeoff_even_sharp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

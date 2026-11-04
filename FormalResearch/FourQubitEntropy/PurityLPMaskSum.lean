@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.FourQubitEntropy.PurityLPGraphMean
+public import FormalResearch.NQubit.Graph.MeanPurity
 
 /-!
 # Fast rank sums over bitmask cuts
@@ -9,9 +9,9 @@ The sums `Σ_{|S| = k} g(rk_2 Γ[S,S^c])` of the graph-state data modules are ev
 recursion on bitmasks (`maskSum`), not by unfolding `Finset.powersetCard (Fin n)`:
 cuts are natural numbers `m` (bit `i` set iff `i ∈ S`), `rowsM` are the rows of the cut and `f2rank` their rank.
 
-* `sum_cuts_eq_maskSum`: for every `n`, `adj`, `Σ_{S ∈ powersetCard k univ} g (cutRankN adj S) = maskSum g L full n k 0`
+* `sum_cuts_eq_maskSum`: for every `n`, `adj`, `Σ_{S ∈ powersetCard k univ} g (graphCutRankBits adj S) = maskSum g L full n k 0`
   (`adj i = L.getD i 0`, `full = 2^n - 1`);
-* `cutRankN_compl`: `rk_2 Γ[S^c,S] = rk_2 Γ[S,S^c]` for a symmetric graph (transpose);
+* `graphCutRankBits_compl`: `rk_2 Γ[S^c,S] = rk_2 Γ[S,S^c]` for a symmetric graph (transpose);
 * `sum_cuts_half`: for `n = 2k` the sum over all `k`-cuts is twice the sum over those containing the last vertex;
 * `maskSum_split`: one step of the recursion, used to split a sum into separate `decide +kernel` declarations.
 -/
@@ -23,8 +23,7 @@ open scoped BigOperators
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
-open FormalResearch.FourQubitEntropy.SpinFlip
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Graph
 
 /-- `∑_{t ∈ T} 2^t`: the bitmask of a finite set of naturals. -/
 def twoPow (T : Finset ℕ) : ℕ := ∑ t ∈ T, 2 ^ t
@@ -116,7 +115,7 @@ theorem maskSum_eq (g : ℕ → ℕ) (n : ℕ) (L : List ℕ) (full : ℕ) :
         have := (Finset.mem_powersetCard.mp hT).1 (Finset.mem_insert_self i T')
         simp at this
 
-/-! ### Bridge to `cutRankN` -/
+/-! ### Bridge to `graphCutRankBits` -/
 
 theorem rowsM_eq (n : ℕ) (L : List ℕ) (adj : Fin n → ℕ) (hadj : ∀ i, adj i = L.getD i.1 0)
     (full : ℕ) (hf : full = 2 ^ n - 1) (T : Finset ℕ) (hT : T ⊆ Finset.range n) :
@@ -145,14 +144,14 @@ theorem rowsM_eq (n : ℕ) (L : List ℕ) (adj : Fin n → ℕ) (hadj : ∀ i, a
 
 theorem maskVal_twoPow (g : ℕ → ℕ) (n : ℕ) (L : List ℕ) (adj : Fin n → ℕ) (hadj : ∀ i, adj i = L.getD i.1 0)
     (full : ℕ) (hf : full = 2 ^ n - 1) (T : Finset ℕ) (hT : T ⊆ Finset.range n) :
-    maskVal g n L full (twoPow T) = g (cutRankN adj (Finset.univ.filter fun i : Fin n => i.val ∈ T)) := by
-  unfold maskVal cutRankN
+    maskVal g n L full (twoPow T) = g (graphCutRankBits adj (Finset.univ.filter fun i : Fin n => i.val ∈ T)) := by
+  unfold maskVal graphCutRankBits
   rw [rowsM_eq n L adj hadj full hf T hT]
 
 /-- **Bridge**: the kernel recursion `maskSum` computes the sum over all `k`-subsets of `Fin n`. -/
 theorem sum_cuts_eq_maskSum (g : ℕ → ℕ) (n : ℕ) (L : List ℕ) (adj : Fin n → ℕ)
     (hadj : ∀ i, adj i = L.getD i.1 0) (full : ℕ) (hf : full = 2 ^ n - 1) (k : ℕ) :
-    ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, g (cutRankN adj S)
+    ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, g (graphCutRankBits adj S)
       = maskSum g n L full n k 0 := by
   have h0 : (0 : ℕ) = twoPow ∅ := by simp [twoPow]
   rw [h0, maskSum_eq g n L full n k ∅ (by simp)]
@@ -199,10 +198,10 @@ theorem sum_cuts_eq_maskSum (g : ℕ → ℕ) (n : ℕ) (L : List ℕ) (adj : Fi
 /-! ### Complement symmetry and halving -/
 
 /-- `rk_2 Γ[S^c, S] = rk_2 Γ[S, S^c]` for a symmetric graph. -/
-theorem cutRankN_compl {n : ℕ} (adj : Fin n → ℕ) (hsym : ∀ i j : Fin n, (adj i).testBit j = (adj j).testBit i)
-    (S : Finset (Fin n)) : cutRankN adj Sᶜ = cutRankN adj S := by
-  rw [← cutRank_eq, ← cutRank_eq]
-  unfold cutRank
+theorem graphCutRankBits_compl {n : ℕ} (adj : Fin n → ℕ) (hsym : ∀ i j : Fin n, (adj i).testBit j = (adj j).testBit i)
+    (S : Finset (Fin n)) : graphCutRankBits adj Sᶜ = graphCutRankBits adj S := by
+  rw [← graphCutRank_eq_bits, ← graphCutRank_eq_bits]
+  unfold graphCutRank
   let e1 : {i // i ∈ Sᶜ} ≃ {j // j ∉ S} := Equiv.subtypeEquivRight (fun x => by simp)
   let e2 : {j // j ∉ Sᶜ} ≃ {i // i ∈ S} := Equiv.subtypeEquivRight (fun x => by simp)
   have h : cutMat (adjGraph adj) Sᶜ = ((cutMat (adjGraph adj) S).transpose).submatrix e1 e2 := by
@@ -214,7 +213,7 @@ theorem cutRankN_compl {n : ℕ} (adj : Fin n → ℕ) (hsym : ∀ i j : Fin n, 
 theorem sum_cuts_half_aux (g : ℕ → ℕ) (p j : ℕ) (hp : p = 2 * j + 1) (L : List ℕ) (adj : Fin (p + 1) → ℕ)
     (hadj : ∀ i, adj i = L.getD i.1 0) (hsym : ∀ i j : Fin (p + 1), (adj i).testBit j = (adj j).testBit i)
     (full : ℕ) (hf : full = 2 ^ (p + 1) - 1) :
-    ∑ S ∈ (Finset.univ : Finset (Fin (p + 1))).powersetCard (j + 1), g (cutRankN adj S)
+    ∑ S ∈ (Finset.univ : Finset (Fin (p + 1))).powersetCard (j + 1), g (graphCutRankBits adj S)
       = 2 * maskSum g (p + 1) L full p j (2 ^ p) := by
   rw [sum_cuts_eq_maskSum g (p + 1) L adj hadj full hf, maskSum_split g (p + 1) L full p (p + 1) (j + 1) j 0 rfl rfl]
   have e0 : maskSum g (p + 1) L full p (j + 1) 0
@@ -255,7 +254,7 @@ theorem sum_cuts_half_aux (g : ℕ → ℕ) (p j : ℕ) (hp : p = 2 * j + 1) (L 
           exact Finset.mem_range.mpr (Nat.lt_succ_of_lt (Finset.mem_range.mp this))
       rw [maskVal_twoPow g (p + 1) L adj hadj full hf _ hT1, maskVal_twoPow g (p + 1) L adj hadj full hf _ hT2]
       congr 1
-      rw [← cutRankN_compl adj hsym]
+      rw [← graphCutRankBits_compl adj hsym]
       congr 1
       ext i
       simp only [Finset.mem_compl, Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_insert,
@@ -277,7 +276,7 @@ the sum over the cuts containing the last vertex `p` (stated with `n`, `k` free 
 theorem sum_cuts_half (g : ℕ → ℕ) (n k p j : ℕ) (hn : n = p + 1) (hk : k = j + 1) (hp : p = 2 * j + 1)
     (L : List ℕ) (adj : Fin n → ℕ) (hadj : ∀ i, adj i = L.getD i.1 0)
     (hsym : ∀ i j : Fin n, (adj i).testBit j = (adj j).testBit i) (full : ℕ) (hf : full = 2 ^ n - 1) :
-    ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, g (cutRankN adj S)
+    ∑ S ∈ (Finset.univ : Finset (Fin n)).powersetCard k, g (graphCutRankBits adj S)
       = 2 * maskSum g n L full p j (2 ^ p) := by
   subst hn hk
   exact sum_cuts_half_aux g p j hp L adj hadj hsym full hf

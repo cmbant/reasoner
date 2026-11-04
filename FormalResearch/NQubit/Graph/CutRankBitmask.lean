@@ -1,28 +1,27 @@
 module
 
-public import FormalResearch.FourQubitEntropy.PurityLPRank
-public import FormalResearch.FourQubitEntropy.PurityLPGraph
+public import FormalResearch.NQubit.Graph.F2Rank
+public import FormalResearch.NQubit.Graph.CutPurity
 
 /-!
-# Kernel-computable cut ranks
+# Bitmask form of the cut rank
 
-Bridges `cutRank Γ S = rank_{𝔽₂} Γ[S,S^c]` (`PurityLPGraph.lean`, a `Matrix.rank`) to the bitmask elimination
-`f2rank` of `PurityLPRank.lean`.  A graph is given by `adj : Fin n → ℕ` (the neighbourhood bitmasks, bit `j` of
-`adj i` set iff `i ~ j`; this is the hexadecimal row format of the paper's scripts).
+Bridges `graphCutRank Γ S = rank_{𝔽₂} Γ[S,S^c]` (`Graph/CutPurity.lean`, a `Matrix.rank`) to the bitmask elimination
+`f2rank` of `Graph/F2Rank.lean`.  A graph is given by `adj : Fin n → ℕ` (the neighbourhood bitmasks, bit `j` of
+`adj i` set iff `i ~ j`).
 
-* `cutRankN adj S = f2rank [adj i &&& notMask S | i ∈ S]` -- computable (`decide +kernel`);
-* `cutRank_eq`: `cutRank (adjGraph adj) S = cutRankN adj S`.
+* `graphCutRankBits adj S = f2rank [adj i &&& notMask S | i ∈ S]`;
+* `graphCutRank_eq_bits`: `graphCutRank (adjGraph adj) S = graphCutRankBits adj S`.
 -/
 
 @[expose] public section
 
 
 open scoped BigOperators
+open FormalResearch.NQubit.Pauli
+open FormalResearch.NQubit.Reduced
 
-namespace FormalResearch.FourQubitEntropy.PurityLP
-
-open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
-open FormalResearch.FourQubitEntropy.SpinFlip
+namespace FormalResearch.NQubit.Graph
 
 variable {n : ℕ}
 
@@ -79,7 +78,7 @@ def cutRows (adj : Fin n → ℕ) (S : Finset (Fin n)) : List ℕ :=
   ((List.finRange n).filter fun i => decide (i ∈ S)).map fun i => adj i &&& notMask S
 
 /-- The cut rank computed by bitmask elimination. -/
-def cutRankN (adj : Fin n → ℕ) (S : Finset (Fin n)) : ℕ := f2rank (cutRows adj S)
+def graphCutRankBits (adj : Fin n → ℕ) (S : Finset (Fin n)) : ℕ := f2rank (cutRows adj S)
 
 /-- Extension by zero from the columns outside `S`. -/
 def pad (S : Finset (Fin n)) : ({j // j ∉ S} → ZMod 2) →ₗ[ZMod 2] (Fin n → ZMod 2) where
@@ -103,14 +102,14 @@ theorem pad_row (adj : Fin n → ℕ) (S : Finset (Fin n)) (i : {i // i ∈ S}) 
   · simp [hj, cutMat, adjGraph]
     rfl
 
-theorem cutRank_eq (adj : Fin n → ℕ) (S : Finset (Fin n)) :
-    cutRank (adjGraph adj) S = cutRankN adj S := by
+theorem graphCutRank_eq_bits (adj : Fin n → ℕ) (S : Finset (Fin n)) :
+    graphCutRank (adjGraph adj) S = graphCutRankBits adj S := by
   have hb : ∀ r ∈ cutRows adj S, r < 2 ^ n := by
     intro r hr
     obtain ⟨i, _, rfl⟩ := List.mem_map.mp hr
     exact Nat.and_lt_two_pow _ (notMask_lt S)
-  unfold cutRankN
-  rw [f2rank_eq n _ hb, cutRank, Matrix.rank_eq_finrank_span_row]
+  unfold graphCutRankBits
+  rw [f2rank_eq n _ hb, graphCutRank, Matrix.rank_eq_finrank_span_row]
   have hset : {v | v ∈ (cutRows adj S).map (toVec n)}
       = pad S '' Set.range (cutMat (adjGraph adj) S).row := by
     ext v
@@ -125,4 +124,4 @@ theorem cutRank_eq (adj : Fin n → ℕ) (S : Finset (Fin n)) :
   rw [hset, ← Submodule.map_span]
   exact (Submodule.equivMapOfInjective (pad S) (pad_injective S) _).finrank_eq
 
-end FormalResearch.FourQubitEntropy.PurityLP
+end FormalResearch.NQubit.Graph

@@ -401,7 +401,7 @@ theorem hamming_ball_support_purity (ψ : Ψ n) (hψ : nsq ψ = 1) (S : Finset (
   rw [h0] at this
   simpa using this
 
-/-- **Mean over all `k`-subsets** (`π_k(ψ) = Pur ψ k / C(n,k)`; "the same bounds apply to the averages"
+/-- **Mean over all `k`-subsets** (`π_k(ψ) = cutPuritySum ψ k / C(n,k)`; "the same bounds apply to the averages"
 of `thm:hamming-ball-schmidt`, purity half): under the hypotheses of `hamming_ball_cut_purity`,
 `π_k(ψ) ≥ (1-η)²/R + η²/(2^k - R)`. -/
 theorem hamming_ball_mean_purity (ψ : Ψ n) (hψ : nsq ψ = 1) (r k : ℕ) (hkn : k ≤ n)
@@ -447,7 +447,7 @@ theorem low_excitation_cut (ψ : Ψ 7) (hψ : nsq ψ = 1) (S : Finset (Fin 7)) (
 
 /-- **`thm:low-excitation-exclusion` (`eq:low-excitation-robust`).** For every normalized seven-qubit
 vector `ψ` and `0 ≤ η = leak ψ 2 ≤ 3/8`, the mean three-body purity
-`π₃(ψ) = Pur ψ 3 / 35` satisfies `π₃ ≥ (1-η)²/5 + η²/3 = 1/8 + (8/15)(η - 3/8)²`.
+`π₃(ψ) = cutPuritySum ψ 3 / 35` satisfies `π₃ ≥ (1-η)²/5 + η²/3 = 1/8 + (8/15)(η - 3/8)²`.
 This is the statement in the fixed computational basis; the paper's "every local product basis" is this
 statement applied to the locally rotated vector (invariance of the cut purities under local unitaries
 is not proved here). -/

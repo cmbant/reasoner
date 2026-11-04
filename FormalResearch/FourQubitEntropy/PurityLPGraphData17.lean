@@ -13,8 +13,8 @@ For each `n` the graph is given by its neighbourhood bitmasks `adj<n>` (bit `j` 
 `adj<n>_symm`, `adj<n>_irrefl` that the graph is simple.  `pack<n>` is the kernel-checked packed sum
 `Σ_{|S| = k} 65536^{rk_2 Γ[S,S^c]}` (bitmask recursion `maskSum`, `PurityLPMaskSum.lean`; for even `n >= 16` over the
 cuts containing the last vertex only, by complement symmetry), `rankHist<n>` the full rank histogram read off from it,
-`rankSum<n>` the sum `Σ_{|S| = k} 2^{k - rk_2 Γ[S,S^c]}` and `piMean_graph<n>` the resulting value of `π_k` of the
-(normalised) graph state `gsn`, which equals the Rains-LP value.  Claim class: exact finite certificate (`decide +kernel`).
+`rankSum<n>` the sum `Σ_{|S| = k} 2^{k - rk_2 Γ[S,S^c]}` and `meanRdmPurity_graph<n>` the resulting value of `π_k` of the
+(normalised) graph state `graphStateNorm`, which equals the Rains-LP value.  Claim class: exact finite certificate (`decide +kernel`).
 -/
 
 @[expose] public section
@@ -28,7 +28,8 @@ set_option Elab.async false
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Graph
+
 /-- Neighbourhood bitmasks of `C_17(1,3,4,5)` on 17 vertices (hexadecimal / list form). -/
 def adj17L : List ℕ := [94266, 57461, 114922, 98773, 66475, 1879, 3758, 7516, 15032, 30064, 60128, 120256, 109441, 87811, 44551, 89102, 47133]
 
@@ -92,21 +93,21 @@ theorem pack17_14 : maskSum packG 17 adj17L (2 ^ 17 - 1) 13 5 (0 + 2 ^ 16 + 2 ^ 
 theorem pack17_15 : maskSum packG 17 adj17L (2 ^ 17 - 1) 13 4 (0 + 2 ^ 16 + 2 ^ 15 + 2 ^ 14 + 2 ^ 13) = 197364395890955755425786661033888228311040 := by
   decide +kernel
 
-theorem pack17 : ∑ S ∈ ((Finset.univ : Finset (Fin 17)).powersetCard 8), packG (cutRankN adj17 S) = 6710389460292495684476746475152199762575360 := by
+theorem pack17 : ∑ S ∈ ((Finset.univ : Finset (Fin 17)).powersetCard 8), packG (graphCutRankBits adj17 S) = 6710389460292495684476746475152199762575360 := by
   rw [sum_cuts_eq_maskSum packG 17 adj17L adj17 (fun i => rfl) (2 ^ 17 - 1) rfl 8, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 16 17 8 7 (0) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 15 16 8 7 (0) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 14 15 8 7 (0) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 13 14 8 7 (0) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 13 14 7 6 (0 + 2 ^ 14) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 14 15 7 6 (0 + 2 ^ 15) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 13 14 7 6 (0 + 2 ^ 15) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 13 14 6 5 (0 + 2 ^ 15 + 2 ^ 14) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 15 16 7 6 (0 + 2 ^ 16) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 14 15 7 6 (0 + 2 ^ 16) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 13 14 7 6 (0 + 2 ^ 16) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 13 14 6 5 (0 + 2 ^ 16 + 2 ^ 14) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 14 15 6 5 (0 + 2 ^ 16 + 2 ^ 15) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 13 14 6 5 (0 + 2 ^ 16 + 2 ^ 15) rfl rfl, maskSum_split packG 17 adj17L (2 ^ 17 - 1) 13 14 5 4 (0 + 2 ^ 16 + 2 ^ 15 + 2 ^ 14) rfl rfl, pack17_0, pack17_1, pack17_2, pack17_3, pack17_4, pack17_5, pack17_6, pack17_7, pack17_8, pack17_9, pack17_10, pack17_11, pack17_12, pack17_13, pack17_14, pack17_15]
 
 /-- The rank histogram of `tab:graphs` / the theorem: rank 6 on 510 cuts, rank 7 on 4080 cuts, rank 8 on 19720 cuts (and no other rank). Kernel-checked from the packed sum `pack17` (`hist_of_packed`). -/
-theorem rankHist17 : ∀ r, (((Finset.univ : Finset (Fin 17)).powersetCard 8).filter fun S => cutRankN adj17 S = r).card = ([0, 0, 0, 0, 0, 0, 510, 4080, 19720] : List ℕ).getD r 0 :=
+theorem rankHist17 : ∀ r, (((Finset.univ : Finset (Fin 17)).powersetCard 8).filter fun S => graphCutRankBits adj17 S = r).card = ([0, 0, 0, 0, 0, 0, 510, 4080, 19720] : List ℕ).getD r 0 :=
   hist_of_packed adj17 8 65536 (by norm_num [Nat.choose]) [0, 0, 0, 0, 0, 0, 510, 4080, 19720] (by decide) rfl
     (pack17.trans (by decide +kernel))
 
-theorem rankSum17 : ∑ S ∈ ((Finset.univ : Finset (Fin 17)).powersetCard 8), 2 ^ (8 - cutRankN adj17 S) = 29920 := by
+theorem rankSum17 : ∑ S ∈ ((Finset.univ : Finset (Fin 17)).powersetCard 8), 2 ^ (8 - graphCutRankBits adj17 S) = 29920 := by
   rw [rankSum_of_hist adj17 8 [0, 0, 0, 0, 0, 0, 510, 4080, 19720] rankHist17]
   decide +kernel
 
 /-- The graph state of `C_17(1,3,4,5)` has `π_8 = 1/208`. -/
-theorem piMean_graph17 : meanRdmPurity (gsn (adjGraph adj17)) 8 = 1 / 208 := by
-  rw [piMean_gsn adj17 adj17_symm 8 29920 (by norm_num) rankSum17]
+theorem meanRdmPurity_graph17 : meanRdmPurity (graphStateNorm (adjGraph adj17)) 8 = 1 / 208 := by
+  rw [meanRdmPurity_graphStateNorm adj17 adj17_symm 8 29920 (by norm_num) rankSum17]
   norm_num [Nat.choose]
 
 

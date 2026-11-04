@@ -51,6 +51,7 @@ theorem chi2_seven : ∀ x : Fin 7 → Fin 2,
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 
 open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
+
 variable {n : ℕ}
 
 /-- Signed completeness kernel on words supported in `S`. -/

@@ -1,14 +1,14 @@
 module
 
-public import FormalResearch.FourQubitEntropy.PurityLPGraphMean
+public import FormalResearch.NQubit.Graph.MeanPurity
 public import FormalResearch.FourQubitEntropy.PurityLPMaskSum
 
 /-!
 # Graph states with all vertices of odd degree have `τ_n = 1` (sharpness of `thm:purity-spinflip-tradeoff`)
 
 Source: `spinflip_tradeoff.tex`, `thm:purity-spinflip-tradeoff` (sharpness clause), with `spinflip_graph_parity.tex`
-`thm:parity-graph`.  `tau_gsn_eq_one` combines `SpinFlip.tau_gs` (`τ(gs Γ) = ‖gs Γ‖⁴` when every degree is odd) with the
-normalisation `gsn Γ = 2^{-n/2} gs Γ`.  `gK k r = 2^{k - r}` is the summand of the rank sum of `piMean_gsn`.
+`thm:parity-graph`.  `tau_gsn_eq_one` combines `SpinFlip.tau_gs` (`τ(graphState Γ) = ‖graphState Γ‖⁴` when every degree is odd) with the
+normalisation `graphStateNorm Γ = 2^{-n/2} graphState Γ`.  `gK k r = 2^{k - r}` is the summand of the rank sum of `meanRdmPurity_graphStateNorm`.
 Claim class: proved.
 -/
 
@@ -20,8 +20,7 @@ open FormalResearch.NQubit
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
-open FormalResearch.FourQubitEntropy.SpinFlip
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Graph
 
 /-- The summand `2^{k - r}` of the rank sum `Σ_{|S|=k} 2^{k - rk_2 Γ[S,S^c]}`. -/
 def gK (k r : ℕ) : ℕ := 2 ^ (k - r)
@@ -50,10 +49,10 @@ theorem tau_smul_real {n : ℕ} (c : ℝ) (ψ : Ψ n) :
 vertices have odd degree has `τ_n = 1`. -/
 theorem tau_gsn_eq_one {n : ℕ} (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j = Γ j i)
     (hirr : ∀ i, Γ i i = false)
-    (hodd : ∀ i, Odd (Finset.univ.filter fun j => Γ i j = true).card) : tau (gsn Γ) = 1 := by
-  have h1 : gsn Γ = fun x => (((Real.sqrt ((2 : ℝ) ^ n))⁻¹ : ℝ) : ℂ) * gs Γ x := rfl
-  rw [h1, tau_smul_real, tau_gs Γ hsym hirr]
-  simp only [hodd, implies_true, ↓reduceIte, nsq_gs]
+    (hodd : ∀ i, Odd (Finset.univ.filter fun j => Γ i j = true).card) : tau (graphStateNorm Γ) = 1 := by
+  have h1 : graphStateNorm Γ = fun x => (((Real.sqrt ((2 : ℝ) ^ n))⁻¹ : ℝ) : ℂ) * graphState Γ x := rfl
+  rw [h1, tau_smul_real, tau_graphState Γ hsym hirr]
+  simp only [hodd, implies_true, ↓reduceIte, nsq_graphState]
   have hpos : (0 : ℝ) < 2 ^ n := by positivity
   have h4 : ((Real.sqrt ((2 : ℝ) ^ n))⁻¹) ^ 4 = (((2 : ℝ) ^ n)⁻¹) ^ 2 := by
     rw [show (4 : ℕ) = 2 * 2 from rfl, pow_mul, inv_pow, Real.sq_sqrt hpos.le]

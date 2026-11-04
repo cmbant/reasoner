@@ -36,9 +36,8 @@ open scoped ComplexConjugate Matrix ComplexOrder
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow FormalResearch.NQubit.Graph
 open FormalResearch.NQubit
-open FormalResearch.FourQubitEntropy.SpinFlip
 
 /-! ### From the purity minimum to a rational ceiling -/
 

@@ -13,8 +13,8 @@ For each `n` the graph is given by its neighbourhood bitmasks `adj<n>` (bit `j` 
 `adj<n>_symm`, `adj<n>_irrefl` that the graph is simple.  `pack<n>` is the kernel-checked packed sum
 `Σ_{|S| = k} 65536^{rk_2 Γ[S,S^c]}` (bitmask recursion `maskSum`, `PurityLPMaskSum.lean`; for even `n >= 16` over the
 cuts containing the last vertex only, by complement symmetry), `rankHist<n>` the full rank histogram read off from it,
-`rankSum<n>` the sum `Σ_{|S| = k} 2^{k - rk_2 Γ[S,S^c]}` and `piMean_graph<n>` the resulting value of `π_k` of the
-(normalised) graph state `gsn`, which equals the Rains-LP value.  Claim class: exact finite certificate (`decide +kernel`).
+`rankSum<n>` the sum `Σ_{|S| = k} 2^{k - rk_2 Γ[S,S^c]}` and `meanRdmPurity_graph<n>` the resulting value of `π_k` of the
+(normalised) graph state `graphStateNorm`, which equals the Rains-LP value.  Claim class: exact finite certificate (`decide +kernel`).
 -/
 
 @[expose] public section
@@ -28,7 +28,8 @@ set_option Elab.async false
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Graph
+
 /-- Neighbourhood bitmasks of path `P_4` (linear cluster) on 4 vertices (hexadecimal / list form). -/
 def adj4L : List ℕ := [2, 5, 10, 4]
 
@@ -44,22 +45,22 @@ theorem adj4_symm : ∀ i j : Fin 4, (adj4 i).testBit j = (adj4 j).testBit i := 
 theorem adj4_irrefl : ∀ i : Fin 4, (adj4 i).testBit i = false := by
   decide +kernel
 
-theorem pack4 : ∑ S ∈ ((Finset.univ : Finset (Fin 4)).powersetCard 2), packG (cutRankN adj4 S) = 17180000256 := by
+theorem pack4 : ∑ S ∈ ((Finset.univ : Finset (Fin 4)).powersetCard 2), packG (graphCutRankBits adj4 S) = 17180000256 := by
   rw [sum_cuts_eq_maskSum packG 4 adj4L adj4 (fun i => rfl) (2 ^ 4 - 1) rfl 2]
   decide +kernel
 
 /-- The rank histogram of `tab:graphs` / the theorem: rank 1 on 2 cuts, rank 2 on 4 cuts (and no other rank). Kernel-checked from the packed sum `pack4` (`hist_of_packed`). -/
-theorem rankHist4 : ∀ r, (((Finset.univ : Finset (Fin 4)).powersetCard 2).filter fun S => cutRankN adj4 S = r).card = ([0, 2, 4] : List ℕ).getD r 0 :=
+theorem rankHist4 : ∀ r, (((Finset.univ : Finset (Fin 4)).powersetCard 2).filter fun S => graphCutRankBits adj4 S = r).card = ([0, 2, 4] : List ℕ).getD r 0 :=
   hist_of_packed adj4 2 65536 (by norm_num [Nat.choose]) [0, 2, 4] (by decide) rfl
     (pack4.trans (by decide +kernel))
 
-theorem rankSum4 : ∑ S ∈ ((Finset.univ : Finset (Fin 4)).powersetCard 2), 2 ^ (2 - cutRankN adj4 S) = 8 := by
+theorem rankSum4 : ∑ S ∈ ((Finset.univ : Finset (Fin 4)).powersetCard 2), 2 ^ (2 - graphCutRankBits adj4 S) = 8 := by
   rw [rankSum_of_hist adj4 2 [0, 2, 4] rankHist4]
   decide +kernel
 
 /-- The graph state of path `P_4` (linear cluster) has `π_2 = 1/3`. -/
-theorem piMean_graph4 : meanRdmPurity (gsn (adjGraph adj4)) 2 = 1 / 3 := by
-  rw [piMean_gsn adj4 adj4_symm 2 8 (by norm_num) rankSum4]
+theorem meanRdmPurity_graph4 : meanRdmPurity (graphStateNorm (adjGraph adj4)) 2 = 1 / 3 := by
+  rw [meanRdmPurity_graphStateNorm adj4 adj4_symm 2 8 (by norm_num) rankSum4]
   norm_num [Nat.choose]
 
 /-- Neighbourhood bitmasks of `C_5(1)` on 5 vertices (hexadecimal / list form). -/
@@ -77,22 +78,22 @@ theorem adj5_symm : ∀ i j : Fin 5, (adj5 i).testBit j = (adj5 j).testBit i := 
 theorem adj5_irrefl : ∀ i : Fin 5, (adj5 i).testBit i = false := by
   decide +kernel
 
-theorem pack5 : ∑ S ∈ ((Finset.univ : Finset (Fin 5)).powersetCard 2), packG (cutRankN adj5 S) = 42949672960 := by
+theorem pack5 : ∑ S ∈ ((Finset.univ : Finset (Fin 5)).powersetCard 2), packG (graphCutRankBits adj5 S) = 42949672960 := by
   rw [sum_cuts_eq_maskSum packG 5 adj5L adj5 (fun i => rfl) (2 ^ 5 - 1) rfl 2]
   decide +kernel
 
 /-- The rank histogram of `tab:graphs` / the theorem: rank 2 on 10 cuts (and no other rank). Kernel-checked from the packed sum `pack5` (`hist_of_packed`). -/
-theorem rankHist5 : ∀ r, (((Finset.univ : Finset (Fin 5)).powersetCard 2).filter fun S => cutRankN adj5 S = r).card = ([0, 0, 10] : List ℕ).getD r 0 :=
+theorem rankHist5 : ∀ r, (((Finset.univ : Finset (Fin 5)).powersetCard 2).filter fun S => graphCutRankBits adj5 S = r).card = ([0, 0, 10] : List ℕ).getD r 0 :=
   hist_of_packed adj5 2 65536 (by norm_num [Nat.choose]) [0, 0, 10] (by decide) rfl
     (pack5.trans (by decide +kernel))
 
-theorem rankSum5 : ∑ S ∈ ((Finset.univ : Finset (Fin 5)).powersetCard 2), 2 ^ (2 - cutRankN adj5 S) = 10 := by
+theorem rankSum5 : ∑ S ∈ ((Finset.univ : Finset (Fin 5)).powersetCard 2), 2 ^ (2 - graphCutRankBits adj5 S) = 10 := by
   rw [rankSum_of_hist adj5 2 [0, 0, 10] rankHist5]
   decide +kernel
 
 /-- The graph state of `C_5(1)` has `π_2 = 1/4`. -/
-theorem piMean_graph5 : meanRdmPurity (gsn (adjGraph adj5)) 2 = 1 / 4 := by
-  rw [piMean_gsn adj5 adj5_symm 2 10 (by norm_num) rankSum5]
+theorem meanRdmPurity_graph5 : meanRdmPurity (graphStateNorm (adjGraph adj5)) 2 = 1 / 4 := by
+  rw [meanRdmPurity_graphStateNorm adj5 adj5_symm 2 10 (by norm_num) rankSum5]
   norm_num [Nat.choose]
 
 /-- Neighbourhood bitmasks of `C_6(2,3)` on 6 vertices (hexadecimal / list form). -/
@@ -110,22 +111,22 @@ theorem adj6_symm : ∀ i j : Fin 6, (adj6 i).testBit j = (adj6 j).testBit i := 
 theorem adj6_irrefl : ∀ i : Fin 6, (adj6 i).testBit i = false := by
   decide +kernel
 
-theorem pack6 : ∑ S ∈ ((Finset.univ : Finset (Fin 6)).powersetCard 3), packG (cutRankN adj6 S) = 5629499534213120 := by
+theorem pack6 : ∑ S ∈ ((Finset.univ : Finset (Fin 6)).powersetCard 3), packG (graphCutRankBits adj6 S) = 5629499534213120 := by
   rw [sum_cuts_eq_maskSum packG 6 adj6L adj6 (fun i => rfl) (2 ^ 6 - 1) rfl 3]
   decide +kernel
 
 /-- The rank histogram of `tab:graphs` / the theorem: rank 3 on 20 cuts (and no other rank). Kernel-checked from the packed sum `pack6` (`hist_of_packed`). -/
-theorem rankHist6 : ∀ r, (((Finset.univ : Finset (Fin 6)).powersetCard 3).filter fun S => cutRankN adj6 S = r).card = ([0, 0, 0, 20] : List ℕ).getD r 0 :=
+theorem rankHist6 : ∀ r, (((Finset.univ : Finset (Fin 6)).powersetCard 3).filter fun S => graphCutRankBits adj6 S = r).card = ([0, 0, 0, 20] : List ℕ).getD r 0 :=
   hist_of_packed adj6 3 65536 (by norm_num [Nat.choose]) [0, 0, 0, 20] (by decide) rfl
     (pack6.trans (by decide +kernel))
 
-theorem rankSum6 : ∑ S ∈ ((Finset.univ : Finset (Fin 6)).powersetCard 3), 2 ^ (3 - cutRankN adj6 S) = 20 := by
+theorem rankSum6 : ∑ S ∈ ((Finset.univ : Finset (Fin 6)).powersetCard 3), 2 ^ (3 - graphCutRankBits adj6 S) = 20 := by
   rw [rankSum_of_hist adj6 3 [0, 0, 0, 20] rankHist6]
   decide +kernel
 
 /-- The graph state of `C_6(2,3)` has `π_3 = 1/8`. -/
-theorem piMean_graph6 : meanRdmPurity (gsn (adjGraph adj6)) 3 = 1 / 8 := by
-  rw [piMean_gsn adj6 adj6_symm 3 20 (by norm_num) rankSum6]
+theorem meanRdmPurity_graph6 : meanRdmPurity (graphStateNorm (adjGraph adj6)) 3 = 1 / 8 := by
+  rw [meanRdmPurity_graphStateNorm adj6 adj6_symm 3 20 (by norm_num) rankSum6]
   norm_num [Nat.choose]
 
 /-- Neighbourhood bitmasks of the 17-edge graph of `tab:graphs` on 8 vertices (hexadecimal / list form). -/
@@ -143,22 +144,22 @@ theorem adj8_symm : ∀ i j : Fin 8, (adj8 i).testBit j = (adj8 j).testBit i := 
 theorem adj8_irrefl : ∀ i : Fin 8, (adj8 i).testBit i = false := by
   decide +kernel
 
-theorem pack8 : ∑ S ∈ ((Finset.univ : Finset (Fin 8)).powersetCard 4), packG (cutRankN adj8 S) = 1033019919953318379520 := by
+theorem pack8 : ∑ S ∈ ((Finset.univ : Finset (Fin 8)).powersetCard 4), packG (graphCutRankBits adj8 S) = 1033019919953318379520 := by
   rw [sum_cuts_eq_maskSum packG 8 adj8L adj8 (fun i => rfl) (2 ^ 8 - 1) rfl 4]
   decide +kernel
 
 /-- The rank histogram of `tab:graphs` / the theorem: rank 2 on 6 cuts, rank 3 on 8 cuts, rank 4 on 56 cuts (and no other rank). Kernel-checked from the packed sum `pack8` (`hist_of_packed`). -/
-theorem rankHist8 : ∀ r, (((Finset.univ : Finset (Fin 8)).powersetCard 4).filter fun S => cutRankN adj8 S = r).card = ([0, 0, 6, 8, 56] : List ℕ).getD r 0 :=
+theorem rankHist8 : ∀ r, (((Finset.univ : Finset (Fin 8)).powersetCard 4).filter fun S => graphCutRankBits adj8 S = r).card = ([0, 0, 6, 8, 56] : List ℕ).getD r 0 :=
   hist_of_packed adj8 4 65536 (by norm_num [Nat.choose]) [0, 0, 6, 8, 56] (by decide) rfl
     (pack8.trans (by decide +kernel))
 
-theorem rankSum8 : ∑ S ∈ ((Finset.univ : Finset (Fin 8)).powersetCard 4), 2 ^ (4 - cutRankN adj8 S) = 96 := by
+theorem rankSum8 : ∑ S ∈ ((Finset.univ : Finset (Fin 8)).powersetCard 4), 2 ^ (4 - graphCutRankBits adj8 S) = 96 := by
   rw [rankSum_of_hist adj8 4 [0, 0, 6, 8, 56] rankHist8]
   decide +kernel
 
 /-- The graph state of the 17-edge graph of `tab:graphs` has `π_4 = 3/35`. -/
-theorem piMean_graph8 : meanRdmPurity (gsn (adjGraph adj8)) 4 = 3 / 35 := by
-  rw [piMean_gsn adj8 adj8_symm 4 96 (by norm_num) rankSum8]
+theorem meanRdmPurity_graph8 : meanRdmPurity (graphStateNorm (adjGraph adj8)) 4 = 3 / 35 := by
+  rw [meanRdmPurity_graphStateNorm adj8 adj8_symm 4 96 (by norm_num) rankSum8]
   norm_num [Nat.choose]
 
 /-- Neighbourhood bitmasks of `C_9(3,4)` on 9 vertices (hexadecimal / list form). -/
@@ -176,22 +177,22 @@ theorem adj9_symm : ∀ i j : Fin 9, (adj9 i).testBit j = (adj9 j).testBit i := 
 theorem adj9_irrefl : ∀ i : Fin 9, (adj9 i).testBit i = false := by
   decide +kernel
 
-theorem pack9 : ∑ S ∈ ((Finset.univ : Finset (Fin 9)).powersetCard 4), packG (cutRankN adj9 S) = 1992253426510212366336 := by
+theorem pack9 : ∑ S ∈ ((Finset.univ : Finset (Fin 9)).powersetCard 4), packG (graphCutRankBits adj9 S) = 1992253426510212366336 := by
   rw [sum_cuts_eq_maskSum packG 9 adj9L adj9 (fun i => rfl) (2 ^ 9 - 1) rfl 4]
   decide +kernel
 
 /-- The rank histogram of `tab:graphs` / the theorem: rank 3 on 18 cuts, rank 4 on 108 cuts (and no other rank). Kernel-checked from the packed sum `pack9` (`hist_of_packed`). -/
-theorem rankHist9 : ∀ r, (((Finset.univ : Finset (Fin 9)).powersetCard 4).filter fun S => cutRankN adj9 S = r).card = ([0, 0, 0, 18, 108] : List ℕ).getD r 0 :=
+theorem rankHist9 : ∀ r, (((Finset.univ : Finset (Fin 9)).powersetCard 4).filter fun S => graphCutRankBits adj9 S = r).card = ([0, 0, 0, 18, 108] : List ℕ).getD r 0 :=
   hist_of_packed adj9 4 65536 (by norm_num [Nat.choose]) [0, 0, 0, 18, 108] (by decide) rfl
     (pack9.trans (by decide +kernel))
 
-theorem rankSum9 : ∑ S ∈ ((Finset.univ : Finset (Fin 9)).powersetCard 4), 2 ^ (4 - cutRankN adj9 S) = 144 := by
+theorem rankSum9 : ∑ S ∈ ((Finset.univ : Finset (Fin 9)).powersetCard 4), 2 ^ (4 - graphCutRankBits adj9 S) = 144 := by
   rw [rankSum_of_hist adj9 4 [0, 0, 0, 18, 108] rankHist9]
   decide +kernel
 
 /-- The graph state of `C_9(3,4)` has `π_4 = 1/14`. -/
-theorem piMean_graph9 : meanRdmPurity (gsn (adjGraph adj9)) 4 = 1 / 14 := by
-  rw [piMean_gsn adj9 adj9_symm 4 144 (by norm_num) rankSum9]
+theorem meanRdmPurity_graph9 : meanRdmPurity (graphStateNorm (adjGraph adj9)) 4 = 1 / 14 := by
+  rw [meanRdmPurity_graphStateNorm adj9 adj9_symm 4 144 (by norm_num) rankSum9]
   norm_num [Nat.choose]
 
 /-- Neighbourhood bitmasks of `C_10(1,2,4)` on 10 vertices (hexadecimal / list form). -/
@@ -209,22 +210,22 @@ theorem adj10_symm : ∀ i j : Fin 10, (adj10 i).testBit j = (adj10 j).testBit i
 theorem adj10_irrefl : ∀ i : Fin 10, (adj10 i).testBit i = false := by
   decide +kernel
 
-theorem pack10 : ∑ S ∈ ((Finset.univ : Finset (Fin 10)).powersetCard 5), packG (cutRankN adj10 S) = 145073533323973230625554432 := by
+theorem pack10 : ∑ S ∈ ((Finset.univ : Finset (Fin 10)).powersetCard 5), packG (graphCutRankBits adj10 S) = 145073533323973230625554432 := by
   rw [sum_cuts_eq_maskSum packG 10 adj10L adj10 (fun i => rfl) (2 ^ 10 - 1) rfl 5]
   decide +kernel
 
 /-- The rank histogram of `tab:graphs` / the theorem: rank 4 on 132 cuts, rank 5 on 120 cuts (and no other rank). Kernel-checked from the packed sum `pack10` (`hist_of_packed`). -/
-theorem rankHist10 : ∀ r, (((Finset.univ : Finset (Fin 10)).powersetCard 5).filter fun S => cutRankN adj10 S = r).card = ([0, 0, 0, 0, 132, 120] : List ℕ).getD r 0 :=
+theorem rankHist10 : ∀ r, (((Finset.univ : Finset (Fin 10)).powersetCard 5).filter fun S => graphCutRankBits adj10 S = r).card = ([0, 0, 0, 0, 132, 120] : List ℕ).getD r 0 :=
   hist_of_packed adj10 5 65536 (by norm_num [Nat.choose]) [0, 0, 0, 0, 132, 120] (by decide) rfl
     (pack10.trans (by decide +kernel))
 
-theorem rankSum10 : ∑ S ∈ ((Finset.univ : Finset (Fin 10)).powersetCard 5), 2 ^ (5 - cutRankN adj10 S) = 384 := by
+theorem rankSum10 : ∑ S ∈ ((Finset.univ : Finset (Fin 10)).powersetCard 5), 2 ^ (5 - graphCutRankBits adj10 S) = 384 := by
   rw [rankSum_of_hist adj10 5 [0, 0, 0, 0, 132, 120] rankHist10]
   decide +kernel
 
 /-- The graph state of `C_10(1,2,4)` has `π_5 = 1/21`. -/
-theorem piMean_graph10 : meanRdmPurity (gsn (adjGraph adj10)) 5 = 1 / 21 := by
-  rw [piMean_gsn adj10 adj10_symm 5 384 (by norm_num) rankSum10]
+theorem meanRdmPurity_graph10 : meanRdmPurity (graphStateNorm (adjGraph adj10)) 5 = 1 / 21 := by
+  rw [meanRdmPurity_graphStateNorm adj10 adj10_symm 5 384 (by norm_num) rankSum10]
   norm_num [Nat.choose]
 
 /-- Neighbourhood bitmasks of the 34-edge graph of `tab:graphs` on 11 vertices (hexadecimal / list form). -/
@@ -242,22 +243,22 @@ theorem adj11_symm : ∀ i j : Fin 11, (adj11 i).testBit j = (adj11 j).testBit i
 theorem adj11_irrefl : ∀ i : Fin 11, (adj11 i).testBit i = false := by
   decide +kernel
 
-theorem pack11 : ∑ S ∈ ((Finset.univ : Finset (Fin 11)).powersetCard 5), packG (cutRankN adj11 S) = 478735842052502018014052352 := by
+theorem pack11 : ∑ S ∈ ((Finset.univ : Finset (Fin 11)).powersetCard 5), packG (graphCutRankBits adj11 S) = 478735842052502018014052352 := by
   rw [sum_cuts_eq_maskSum packG 11 adj11L adj11 (fun i => rfl) (2 ^ 11 - 1) rfl 5]
   decide +kernel
 
 /-- The rank histogram of `tab:graphs` / the theorem: rank 4 on 66 cuts, rank 5 on 396 cuts (and no other rank). Kernel-checked from the packed sum `pack11` (`hist_of_packed`). -/
-theorem rankHist11 : ∀ r, (((Finset.univ : Finset (Fin 11)).powersetCard 5).filter fun S => cutRankN adj11 S = r).card = ([0, 0, 0, 0, 66, 396] : List ℕ).getD r 0 :=
+theorem rankHist11 : ∀ r, (((Finset.univ : Finset (Fin 11)).powersetCard 5).filter fun S => graphCutRankBits adj11 S = r).card = ([0, 0, 0, 0, 66, 396] : List ℕ).getD r 0 :=
   hist_of_packed adj11 5 65536 (by norm_num [Nat.choose]) [0, 0, 0, 0, 66, 396] (by decide) rfl
     (pack11.trans (by decide +kernel))
 
-theorem rankSum11 : ∑ S ∈ ((Finset.univ : Finset (Fin 11)).powersetCard 5), 2 ^ (5 - cutRankN adj11 S) = 528 := by
+theorem rankSum11 : ∑ S ∈ ((Finset.univ : Finset (Fin 11)).powersetCard 5), 2 ^ (5 - graphCutRankBits adj11 S) = 528 := by
   rw [rankSum_of_hist adj11 5 [0, 0, 0, 0, 66, 396] rankHist11]
   decide +kernel
 
 /-- The graph state of the 34-edge graph of `tab:graphs` has `π_5 = 1/28`. -/
-theorem piMean_graph11 : meanRdmPurity (gsn (adjGraph adj11)) 5 = 1 / 28 := by
-  rw [piMean_gsn adj11 adj11_symm 5 528 (by norm_num) rankSum11]
+theorem meanRdmPurity_graph11 : meanRdmPurity (graphStateNorm (adjGraph adj11)) 5 = 1 / 28 := by
+  rw [meanRdmPurity_graphStateNorm adj11 adj11_symm 5 528 (by norm_num) rankSum11]
   norm_num [Nat.choose]
 
 /-- Neighbourhood bitmasks of `C_12(3,5,6)` on 12 vertices (hexadecimal / list form). -/
@@ -275,22 +276,22 @@ theorem adj12_symm : ∀ i j : Fin 12, (adj12 i).testBit j = (adj12 j).testBit i
 theorem adj12_irrefl : ∀ i : Fin 12, (adj12 i).testBit i = false := by
   decide +kernel
 
-theorem pack12 : ∑ S ∈ ((Finset.univ : Finset (Fin 12)).powersetCard 6), packG (cutRankN adj12 S) = 42783664731773237094784029425664 := by
+theorem pack12 : ∑ S ∈ ((Finset.univ : Finset (Fin 12)).powersetCard 6), packG (graphCutRankBits adj12 S) = 42783664731773237094784029425664 := by
   rw [sum_cuts_eq_maskSum packG 12 adj12L adj12 (fun i => rfl) (2 ^ 12 - 1) rfl 6]
   decide +kernel
 
 /-- The rank histogram of `tab:graphs` / the theorem: rank 4 on 6 cuts, rank 5 on 378 cuts, rank 6 on 540 cuts (and no other rank). Kernel-checked from the packed sum `pack12` (`hist_of_packed`). -/
-theorem rankHist12 : ∀ r, (((Finset.univ : Finset (Fin 12)).powersetCard 6).filter fun S => cutRankN adj12 S = r).card = ([0, 0, 0, 0, 6, 378, 540] : List ℕ).getD r 0 :=
+theorem rankHist12 : ∀ r, (((Finset.univ : Finset (Fin 12)).powersetCard 6).filter fun S => graphCutRankBits adj12 S = r).card = ([0, 0, 0, 0, 6, 378, 540] : List ℕ).getD r 0 :=
   hist_of_packed adj12 6 65536 (by norm_num [Nat.choose]) [0, 0, 0, 0, 6, 378, 540] (by decide) rfl
     (pack12.trans (by decide +kernel))
 
-theorem rankSum12 : ∑ S ∈ ((Finset.univ : Finset (Fin 12)).powersetCard 6), 2 ^ (6 - cutRankN adj12 S) = 1320 := by
+theorem rankSum12 : ∑ S ∈ ((Finset.univ : Finset (Fin 12)).powersetCard 6), 2 ^ (6 - graphCutRankBits adj12 S) = 1320 := by
   rw [rankSum_of_hist adj12 6 [0, 0, 0, 0, 6, 378, 540] rankHist12]
   decide +kernel
 
 /-- The graph state of `C_12(3,5,6)` has `π_6 = 5/224`. -/
-theorem piMean_graph12 : meanRdmPurity (gsn (adjGraph adj12)) 6 = 5 / 224 := by
-  rw [piMean_gsn adj12 adj12_symm 6 1320 (by norm_num) rankSum12]
+theorem meanRdmPurity_graph12 : meanRdmPurity (graphStateNorm (adjGraph adj12)) 6 = 5 / 224 := by
+  rw [meanRdmPurity_graphStateNorm adj12 adj12_symm 6 1320 (by norm_num) rankSum12]
   norm_num [Nat.choose]
 
 

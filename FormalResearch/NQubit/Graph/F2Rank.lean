@@ -3,12 +3,10 @@ module
 public import Mathlib
 
 /-!
-# Rank over `𝔽₂` by bitmask elimination (Stage 4 infrastructure)
+# Rank over `𝔽₂` by bitmask elimination
 
-A kernel-evaluable Gaussian elimination on rows stored as natural-number bitmasks, with a proof that it computes
-`finrank_{𝔽₂}` of the row space.  Used (via `PurityLPGraph.lean`) to compute the ranks `rk_2 Γ[S,S^c]` of
-`even_qubit_purity_minima.tex`, `thm:lptable`(2), `thm:fourteenfifteen`, `thm:sixteenseventeen`,
-`thm:eighteen` for every balanced cut by `decide +kernel`.
+A computable Gaussian elimination on rows stored as natural-number bitmasks, with a proof that it computes
+`finrank_{𝔽₂}` of the row space.
 
 * `toVec c r`: the first `c` bits of `r` as a vector in `𝔽₂^c`;
 * `f2rank rows`: eliminate with pivot `= r.log2` (highest set bit): `rows ↦ rows.map (xor with pivot row where the
@@ -21,7 +19,7 @@ A kernel-evaluable Gaussian elimination on rows stored as natural-number bitmask
 
 open Module
 
-namespace FormalResearch.FourQubitEntropy.PurityLP
+namespace FormalResearch.NQubit.Graph
 
 /-- The first `c` bits of `r`, as a vector over `𝔽₂`. -/
 def toVec (c r : ℕ) : Fin c → ZMod 2 := fun j => if r.testBit j then 1 else 0
@@ -187,4 +185,4 @@ theorem f2rank_eq (c : ℕ) (rows : List ℕ) (hb : ∀ r ∈ rows, r < 2 ^ c) :
     f2rank rows = finrank (ZMod 2) (rowSpan c rows) :=
   rkF_eq c rows.length rows le_rfl hb
 
-end FormalResearch.FourQubitEntropy.PurityLP
+end FormalResearch.NQubit.Graph

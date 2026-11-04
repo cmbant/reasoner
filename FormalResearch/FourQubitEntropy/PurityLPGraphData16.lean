@@ -13,8 +13,8 @@ For each `n` the graph is given by its neighbourhood bitmasks `adj<n>` (bit `j` 
 `adj<n>_symm`, `adj<n>_irrefl` that the graph is simple.  `pack<n>` is the kernel-checked packed sum
 `Σ_{|S| = k} 65536^{rk_2 Γ[S,S^c]}` (bitmask recursion `maskSum`, `PurityLPMaskSum.lean`; for even `n >= 16` over the
 cuts containing the last vertex only, by complement symmetry), `rankHist<n>` the full rank histogram read off from it,
-`rankSum<n>` the sum `Σ_{|S| = k} 2^{k - rk_2 Γ[S,S^c]}` and `piMean_graph<n>` the resulting value of `π_k` of the
-(normalised) graph state `gsn`, which equals the Rains-LP value.  Claim class: exact finite certificate (`decide +kernel`).
+`rankSum<n>` the sum `Σ_{|S| = k} 2^{k - rk_2 Γ[S,S^c]}` and `meanRdmPurity_graph<n>` the resulting value of `π_k` of the
+(normalised) graph state `graphStateNorm`, which equals the Rains-LP value.  Claim class: exact finite certificate (`decide +kernel`).
 -/
 
 @[expose] public section
@@ -28,7 +28,8 @@ set_option Elab.async false
 
 namespace FormalResearch.FourQubitEntropy.PurityLP
 
-open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Shadow
+open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal FormalResearch.NQubit.Graph
+
 /-- Neighbourhood bitmasks of `C_17(1,3,4,5)` induced on the vertices `0..15` on 16 vertices (hexadecimal / list form). -/
 def adj16L : List ℕ := [28730, 57461, 49386, 33237, 939, 1879, 3758, 7516, 15032, 30064, 60128, 54720, 43905, 22275, 44551, 23566]
 
@@ -56,22 +57,22 @@ theorem pack16_2 : maskSum packG 16 adj16L (2 ^ 16 - 1) 13 6 (2 ^ 15 + 2 ^ 14) =
 theorem pack16_3 : maskSum packG 16 adj16L (2 ^ 16 - 1) 13 5 (2 ^ 15 + 2 ^ 14 + 2 ^ 13) = 193283852869355957846691671887098635354112 := by
   decide +kernel
 
-theorem pack16 : ∑ S ∈ ((Finset.univ : Finset (Fin 16)).powersetCard 8), packG (cutRankN adj16 S) = 1932838528693559578466916718870986353541120 := by
+theorem pack16 : ∑ S ∈ ((Finset.univ : Finset (Fin 16)).powersetCard 8), packG (graphCutRankBits adj16 S) = 1932838528693559578466916718870986353541120 := by
   refine (sum_cuts_half packG 16 8 15 7 rfl rfl rfl adj16L adj16 (fun i => rfl) adj16_symm (2 ^ 16 - 1) rfl).trans ?_
   rw [maskSum_split packG 16 adj16L (2 ^ 16 - 1) 14 15 7 6 (2 ^ 15) rfl rfl, maskSum_split packG 16 adj16L (2 ^ 16 - 1) 13 14 7 6 (2 ^ 15) rfl rfl, maskSum_split packG 16 adj16L (2 ^ 16 - 1) 13 14 6 5 (2 ^ 15 + 2 ^ 14) rfl rfl, pack16_0, pack16_1, pack16_2, pack16_3]
 
 /-- The rank histogram of `tab:graphs` / the theorem: rank 5 on 10 cuts, rank 6 on 500 cuts, rank 7 on 6680 cuts, rank 8 on 5680 cuts (and no other rank). Kernel-checked from the packed sum `pack16` (`hist_of_packed`). -/
-theorem rankHist16 : ∀ r, (((Finset.univ : Finset (Fin 16)).powersetCard 8).filter fun S => cutRankN adj16 S = r).card = ([0, 0, 0, 0, 0, 10, 500, 6680, 5680] : List ℕ).getD r 0 :=
+theorem rankHist16 : ∀ r, (((Finset.univ : Finset (Fin 16)).powersetCard 8).filter fun S => graphCutRankBits adj16 S = r).card = ([0, 0, 0, 0, 0, 10, 500, 6680, 5680] : List ℕ).getD r 0 :=
   hist_of_packed adj16 8 65536 (by norm_num [Nat.choose]) [0, 0, 0, 0, 0, 10, 500, 6680, 5680] (by decide) rfl
     (pack16.trans (by decide +kernel))
 
-theorem rankSum16 : ∑ S ∈ ((Finset.univ : Finset (Fin 16)).powersetCard 8), 2 ^ (8 - cutRankN adj16 S) = 21120 := by
+theorem rankSum16 : ∑ S ∈ ((Finset.univ : Finset (Fin 16)).powersetCard 8), 2 ^ (8 - graphCutRankBits adj16 S) = 21120 := by
   rw [rankSum_of_hist adj16 8 [0, 0, 0, 0, 0, 10, 500, 6680, 5680] rankHist16]
   decide +kernel
 
 /-- The graph state of `C_17(1,3,4,5)` induced on the vertices `0..15` has `π_8 = 1/156`. -/
-theorem piMean_graph16 : meanRdmPurity (gsn (adjGraph adj16)) 8 = 1 / 156 := by
-  rw [piMean_gsn adj16 adj16_symm 8 21120 (by norm_num) rankSum16]
+theorem meanRdmPurity_graph16 : meanRdmPurity (graphStateNorm (adjGraph adj16)) 8 = 1 / 156 := by
+  rw [meanRdmPurity_graphStateNorm adj16 adj16_symm 8 21120 (by norm_num) rankSum16]
   norm_num [Nat.choose]
 
 

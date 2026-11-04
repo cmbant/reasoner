@@ -22,6 +22,7 @@ open FormalResearch.NQubit
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 
 open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
+
 variable {m : ℕ}
 
 theorem Omean_ghz (hm : 1 ≤ m) : Omean (ghz (2 * m + 1)) = 0 := by

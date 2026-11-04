@@ -19,6 +19,7 @@ open FormalResearch.NQubit
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 
 open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
+
 theorem tradeoff_four (ψ : Ψ 4) (hψ : nsq ψ = 1) :
     cutPuritySum ψ 2 / 6 = 1 / 3 + (weightEnum ψ 1 + tau ψ) / 6 := by
   have hsum := sum_weightEnum ψ

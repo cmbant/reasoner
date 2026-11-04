@@ -36,6 +36,7 @@ open FormalResearch.NQubit
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 
 open FormalResearch.NQubit.Pauli FormalResearch.NQubit.Reduced FormalResearch.NQubit.TimeReversal
+
 variable {m : ℕ}
 
 /-- `c_n` of `thm:odd-spinflip-tradeoff`, `n = 2m+1`: `c_5 = 1`, `c_n = (n+1)/4 = (m+1)/2` for `n ≥ 7`. -/
