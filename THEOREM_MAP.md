@@ -920,5 +920,5 @@ the paper's dimension count. Layers (module docstrings in `QVCheck/All.lean` des
 ### Seven-qubit five-copy layers (data-free)
 - `SevenFiveCopyDual.lean`: `sevenPurityBound_of_dual` (a five-copy dual identity with PSD weights gives `SevenQubitConseq.SevenPurityBound`,
   `cor:seven-global-from-fivecopy`), `purity_gap_ge_of_dual`.
-- `SevenFiveCopyTangent.lean`: `equality_moment` (the tangent-line step of `thm:fivecopy-family-equality` with the invariant-square argument).
+- `SevenFiveCopyTangent.lean`: `lem:fivecopy-tangent-line` in abstract form (`tangent_line`, `tangent_line_normalised`; equality assertion `tangent_line_eq`), and `equality_moment`, `equality_moment_centred` (the tangent-line step of `thm:fivecopy-family-equality` with the invariant-square argument).
   The certificate FP5-1 itself is not formalised.

@@ -330,7 +330,6 @@ public import FormalResearch.FourQubitEntropy.SevenQubitIcoXSpinZero
 public import FormalResearch.FourQubitEntropy.SevenQubitIcoXStructure
 public import FormalResearch.FourQubitEntropy.SpinFlipAntiunitary
 public import FormalResearch.FourQubitEntropy.SpinFlipOmega
-public import FormalResearch.FourQubitEntropy.SpinFlipTangent
 public import FormalResearch.FourQubitEntropy.SpinFlipTradeoff
 public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEven
 public import FormalResearch.FourQubitEntropy.SpinFlipOddQSum

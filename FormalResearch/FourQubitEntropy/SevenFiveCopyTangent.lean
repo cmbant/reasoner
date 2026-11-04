@@ -16,6 +16,10 @@ orbit), not for `SevenPurityBound`.
 * `tangent_line`: if the critical functionals are the combinations `x ↦ ∑_b tr[W_b S_b W_bᵀ Γ_b(x)]` and a point
   `x` has `W_bᵀ Γ_b(x) W_b = 0` for every `b`, then `x ∈ span{X₀,X₀'}`; if `ν X₀ = 1`, `ν X₀' = 0`,
   `ν x = 1` then `x = X₀ + t X₀'`.
+  The `S_b` are arbitrary (the paper takes them symmetric, a stronger hypothesis); the lemma holds for any copy
+  number and any number of qubits.
+* `tangent_line_eq` (`lem:fivecopy-tangent-line`, second assertion): if moreover `Γ_b(x) ⪰ 0`, `Γ_b(X₀) W_b = 0` for
+  every `b` and `Γ_{b₀}(X₀') W_{b₀} ≠ 0` for one `b₀`, then `x = X₀` (via `psd_mul_eq_zero`).
 * `tangent_coeff_zero`: if `H` and `H²` (a linear functional equal to the square on actual states) have
   `H X₀' ≠ 0` and `H₂ X₀' = 2 (H X₀)(H X₀')`, then `t = 0` (the shortcut `(h+96t)² = h² + 192 h t`).
 * `equality_moment`, `equality_moment_centred`: the moment-level equality step of `thm:fivecopy-family-equality`
@@ -86,6 +90,43 @@ theorem tangent_line_normalised (ν : M →ₗ[ℝ] ℝ) (X₀ X₀' x : M) (h0 
     linarith
   exact ⟨t, by rw [e, this, one_smul]⟩
 
+/-- If `A ⪰ 0` and `Wᵀ A W = 0` then `A W = 0`. -/
+theorem psd_mul_eq_zero {κ r : Type*} [Fintype κ] [DecidableEq κ] [Fintype r] [DecidableEq r]
+    {A : Matrix κ κ ℝ} (hA : A.PosSemidef) {W : Matrix κ r ℝ} (h : Wᵀ * A * W = 0) :
+    A * W = 0 := by
+  ext i j
+  have hcol : A *ᵥ (fun k => W k j) = 0 := by
+    apply (hA.dotProduct_mulVec_zero_iff).mp
+    have h1 := congrFun (congrFun h j) j
+    have h2 : (Wᵀ * A * W) j j = star (fun k => W k j) ⬝ᵥ A *ᵥ (fun k => W k j) := by
+      rw [Matrix.mul_assoc]
+      simp [Matrix.mul_apply, dotProduct, Matrix.mulVec]
+    rw [← h2]; exact h1
+  have := congrFun hcol i
+  simpa [mulVec, dotProduct, Matrix.mul_apply] using this
+
+/-- **`lem:fivecopy-tangent-line`, second assertion.**  If moreover every `Γ_b(x)` is positive semidefinite,
+`Γ_b(X₀) W_b = 0` for all `b` and `Γ_{b₀}(X₀') W_{b₀} ≠ 0` for one `b₀`, then `x = X₀`. -/
+theorem tangent_line_eq (Γ : ∀ b, M →ₗ[ℝ] Matrix (Fin (n b)) (Fin (n b)) ℝ)
+    (W : ∀ b, Matrix (Fin (n b)) (Fin (m b)) ℝ) (ν : M →ₗ[ℝ] ℝ) (X₀ X₀' x : M)
+    (hspan : ∀ f : Module.Dual ℝ M, f X₀ = 0 → f X₀' = 0 →
+      ∃ S : ∀ b, Matrix (Fin (m b)) (Fin (m b)) ℝ,
+        ∀ y, f y = ∑ b, ((W b * S b * (W b)ᵀ) * Γ b y).trace)
+    (hx : ∀ b, (W b)ᵀ * Γ b x * W b = 0)
+    (hν0 : ν X₀ = 1) (hν1 : ν X₀' = 0) (hνx : ν x = 1)
+    (hpsd : ∀ b, (Γ b x).PosSemidef) (hGs : ∀ b, Γ b X₀ * W b = 0)
+    (b₀ : ι) (hb₀ : Γ b₀ X₀' * W b₀ ≠ 0) : x = X₀ := by
+  obtain ⟨t, ht⟩ := tangent_line_normalised ν X₀ X₀' x hν0 hν1 hνx
+    (tangent_line Γ W X₀ X₀' x hspan hx)
+  have h0 : Γ b₀ x * W b₀ = 0 := psd_mul_eq_zero (hpsd b₀) (hx b₀)
+  rw [ht, map_add, map_smul, Matrix.add_mul, Matrix.smul_mul, hGs b₀, zero_add] at h0
+  have : t = 0 := by
+    by_contra htz
+    exact hb₀ (by
+      have := congrArg (fun m => t⁻¹ • m) h0
+      simpa [smul_smul, inv_mul_cancel₀ htz] using this)
+  rw [ht, this, zero_smul, add_zero]
+
 /-- **The shortcut.**  If `x = X₀ + t X₀'`, `H₂ x = (H x)²`, `H₂ X₀ = (H X₀)²`, `H₂ X₀' = 2 (H X₀)(H X₀')`
 and `H X₀' ≠ 0` (in the paper `H = 104 S₁ − 25 ℰ₂`, `H(ψ_x) = 155 + 96 x`), then `t = 0`. -/
 theorem tangent_coeff_zero (H H₂ : M →ₗ[ℝ] ℝ) (X₀ X₀' x : M) (t : ℝ) (hx : x = X₀ + t • X₀')
@@ -140,5 +181,6 @@ end
 
 #print axioms equality_moment
 #print axioms equality_moment_centred
+#print axioms tangent_line_eq
 
 end FormalResearch.FourQubitEntropy.SevenFiveCopy
