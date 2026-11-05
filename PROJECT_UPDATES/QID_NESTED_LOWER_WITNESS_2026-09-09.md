@@ -4,9 +4,9 @@ Source authority was re-audited against `cmbant/QIprojects:main` at `d9c4c3f4f0f
 
 The source theorem is recorded in:
 
-- `QI-D/notes/HADAMARD_NESTED_DS_ALL_N.md`;
-- `QI-D/code/verify_hadamard_nested_ds_all_n.py`;
-- `QI-D/verification/verify_hadamard_nested_ds_all_n.txt`.
+- `QI/weyl_convexity/notes/history/HADAMARD_NESTED_DS_ALL_N.md`;
+- `QI/weyl_convexity/code/verify_hadamard_nested_ds_all_n.py`;
+- `QI/weyl_convexity/verification/verify_hadamard_nested_ds_all_n.txt`.
 
 ## Lean scope
 

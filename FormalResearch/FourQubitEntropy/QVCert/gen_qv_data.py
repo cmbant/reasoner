@@ -1,7 +1,7 @@
 """Generate Data.lean: the positive-norm all-state QV certificate (paper E, QVA) as Lean data.
 
 Reads `qv_all_state_certificate.json` (format `qv-positive-norms-v1`, produced and checked by
-`verify_qv_all_state_certificate.py` in ResearchNotes/QI/four_qubit_entropy/code) and writes `Data.lean`
+`verify_qv_all_state_certificate.py` in QI/multiqubit_entanglement/four_qubit_entropy/code) and writes `Data.lean`
 next to this file.
 
     python3 gen_qv_data.py [path/to/qv_all_state_certificate.json]
@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).parent
-DEFAULT = Path(os.environ.get('QIPROJECTS', '../QIprojects')) / 'ResearchNotes/QI/four_qubit_entropy/code/qv_all_state_certificate.json'
+DEFAULT = Path(os.environ.get('QIPROJECTS', '../QIprojects')) / 'QI/multiqubit_entanglement/four_qubit_entropy/code/qv_all_state_certificate.json'
 src = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT
 data = json.loads(src.read_text())
 assert data['format'] == 'qv-positive-norms-v1'

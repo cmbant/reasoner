@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # Partial transposes of three-qubit operators
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/family.tex`
+Source: `QI/hidden_entanglement/ppt_three_qubit/family.tex`
 (proof of `thm:ppt3-family`, "PPT and rank claims", where `X^{T_c}` is the partial transpose on
 qubit `c ∈ {A, B, C}`).
 

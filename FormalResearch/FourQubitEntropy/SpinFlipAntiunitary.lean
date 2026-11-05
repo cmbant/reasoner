@@ -6,7 +6,7 @@ public import FormalResearch.QIB.KramersHalfFilling
 /-!
 # Antiunitary spin-flip purification, abstract form (`prop:antiunitary-purification`)
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_graph_parity.tex`,
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/spinflip_graph_parity.tex`,
 `prop:antiunitary-purification` (QIprojects PR #200).
 
 `E` is a complex inner-product space and `Θ : E →ₛₗ[conj] E` an antilinear map with the antiunitary

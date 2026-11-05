@@ -12,7 +12,7 @@ namespace FormalResearch.QID
 
 This module expands the collected `R_n` and `C_n` from
 `NestedUpperAtomicCore` into the individual source atoms from
-`QI-D/notes/HADAMARD_NESTED_DS_ALL_N.md`.
+`QI/weyl_convexity/notes/history/HADAMARD_NESTED_DS_ALL_N.md`.
 
 For `n=r+5`, the row contribution consists of one basis-row/sign atom for each
 of the `r+1` stabilized rows plus five fixed D4-core row atoms, for `n+1`

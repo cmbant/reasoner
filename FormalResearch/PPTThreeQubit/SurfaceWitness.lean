@@ -5,7 +5,7 @@ public import FormalResearch.PPTThreeQubit.Criterion
 /-!
 # The `τ`-independent supported witness `H_0`, and local filters
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/rank_five_surface.tex`,
+Source: `QI/hidden_entanglement/ppt_three_qubit/rank_five_surface.tex`,
 `lem:ppt3-h0` (with `eq:ppt3-h0`), and the filter reduction of `thm:ppt3-orbit`(b).
 
 `H_0` is the Hermitian form on `ℂ⁵` in the basis `(u, v, w, e, o)` with diagonal

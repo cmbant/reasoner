@@ -7,7 +7,7 @@ public import FormalResearch.QIA.PureCopyMemoryCore
 # QI-A exact-recovery Heisenberg memory bridge
 
 Source authority: `cmbant/QIprojects@d3e3d2e2a74201a178cd73ca7ef249b861c4f57e`,
-`QI-A/paper/finite_copy_quantum_memory.tex`.
+`QI/finite_copy_memory/paper/finite_copy_quantum_memory.tex`.
 
 Part (iii) of the manuscript's pure-copy reversible-compression theorem chooses
 one orthonormal basis vector in each multiplicity block. These give

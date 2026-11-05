@@ -11,7 +11,7 @@ namespace FormalResearch.QID
 /-!
 # Exact Type-D4 rational dual certificate
 
-The source verification log for `QI-D/code/certify_ds_strict_D4.py` records an
+The source verification log for `QI/weyl_convexity/code/certify_ds_strict_D4.py` records an
 exact LP dual with fourteen active coweight-orbit inequalities. Every active
 multiplier is `1/6`, every active inequality has dominant bound `1/2`, the
 weighted outer products sum to the exceptional facet normal `F`, and the dual

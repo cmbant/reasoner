@@ -5,7 +5,7 @@ public import FormalResearch.FourQubitEntropy.SpinFlipOmega
 /-!
 # The four-qubit purity--time-reversal identity and its stability corollary
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIprojects PR #200),
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIprojects PR #200),
 `thm:purity-spinflip-tradeoff` at `n = 4` (the identity `π_2 = 1/3 + (W_1 + τ_4)/6` with `W_1 = A_1`) and
 `cor:spinflip-rigidity` at `n = 4`.  The entries `n = 8, 10, 14, 16, 20` rest on Rains' shadow inequalities
 and rational certificates (`ST-1--ST-6`) and are *not* formalised here.  Claim class: **proved**.

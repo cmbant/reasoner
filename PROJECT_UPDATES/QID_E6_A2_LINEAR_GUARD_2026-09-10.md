@@ -2,7 +2,7 @@
 
 ## Why this follow-up exists
 
-Reasoner PR #18 formalized the exact tangent-half-angle / quartic algebra from the then-current T33 source. QIprojects later strengthened `QI-D/code/certify_E6_A2_phase_envelope.py` by adding exact regressions showing that the linear/sign condition `d >= |a|` is load-bearing: quartic nonnegativity alone is not equivalent to the original phase-envelope bound.
+Reasoner PR #18 formalized the exact tangent-half-angle / quartic algebra from the then-current T33 source. QIprojects later strengthened `QI/weyl_convexity/code/certify_E6_A2_phase_envelope.py` by adding exact regressions showing that the linear/sign condition `d >= |a|` is load-bearing: quartic nonnegativity alone is not equivalent to the original phase-envelope bound.
 
 This follow-up makes the Lean certificate source-current without changing the earlier theorem boundary.
 
@@ -14,7 +14,7 @@ QIprojects audit pin:
 
 Canonical verifier:
 
-`QI-D/code/certify_E6_A2_phase_envelope.py`
+`QI/weyl_convexity/code/certify_E6_A2_phase_envelope.py`
 
 Source blob:
 

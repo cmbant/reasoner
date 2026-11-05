@@ -6,7 +6,7 @@ public import Mathlib
 # Minimum degree of a sharp scalar entropy majorant
 
 Formalizes the lower-bound half of `prop:seven-entropy-majorant-degree`
-(`ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_joint.tex`).
+(`QI/multiqubit_entanglement/seven_qubit_entanglement/seven_qubit_entropy_joint.tex`).
 
 Let `f(t) = -t log t` (`Real.negMulLog`) on `[0,1]`.  If `A` is a finite set of `k ≥ 2` interior
 nodes `0 < a < 1` and a real polynomial `q` satisfies `q ≥ f` on `[0,1]` and `q a = f a` for all

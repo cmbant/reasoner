@@ -6,7 +6,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitIcoCert
 # Joint spin-flip relations for the triple marginals of the icosahedral family
 
 Formalizes `lem:seven-joint-spinflip` (AH-5; the paper proves it from the block form of `thm:ico`, here it is an exact computation) of
-`ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_joint.tex`.
+`QI/multiqubit_entanglement/seven_qubit_entanglement/seven_qubit_entropy_joint.tex`.
 -/
 
 @[expose] public section

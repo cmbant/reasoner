@@ -7,9 +7,9 @@ public import FormalResearch.PPTThreeQubit.CoexistencePPTData
 /-!
 # Strict PPT for `thm:ppt3-phase-coexistence` and `prop:ppt3-exposed-transition`
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/phase_coexistence.tex`
+Source: `QI/hidden_entanglement/ppt_three_qubit/phase_coexistence.tex`
 (`thm:ppt3-phase-coexistence`, `prop:ppt3-exposed-transition`; the exact data are those of
-`ResearchNotes/QI/finite_copy_invariant_inference/code/verify_ppt3_support_geometry.py`, PG-2, PG-4).
+`QI/hidden_entanglement/code/verify_ppt3_support_geometry.py`, PG-2, PG-4).
 Complements `Coexistence.lean`, which has the biseparable/GME clauses.
 
 Method (exact algebra, no numerics, no Sylvester minors).  Elements `a + bω` of `ℚ(ω)` are the pairs

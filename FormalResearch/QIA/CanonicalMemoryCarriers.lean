@@ -6,7 +6,7 @@ public import FormalResearch.QIA.CoherentWidthFactorization
 # QI-A canonical finite memory carriers
 
 Source authority: `cmbant/QIprojects@b06a104c594b029aeb0fc2c8f401f8d4c55b901b`,
-`QI-A/paper/finite_copy_quantum_memory.tex`.
+`QI/finite_copy_memory/paper/finite_copy_quantum_memory.tex`.
 
 The QI-A manuscript's canonical invariant reduction uses the direct-sum
 multiplicity Hilbert space `⊕_α M_α`, of total dimension `K = ∑_α g α`.  With

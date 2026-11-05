@@ -11,10 +11,10 @@ namespace FormalResearch.QID
 # QI-D nested all-rank upper atomic core
 
 This module formalizes the exact symbolic core of the positive decomposition in
-`cmbant/QIprojects:QI-D/notes/HADAMARD_NESTED_DS_ALL_N.md`, re-audited at
+`cmbant/QIprojects:QI/weyl_convexity/notes/history/HADAMARD_NESTED_DS_ALL_N.md`, re-audited at
 QIprojects main `6ed6ec977206b9c1874939289fadd942c651bd3c`.
 
-The canonical verifier `QI-D/code/verify_hadamard_nested_ds_all_n.py` is
+The canonical verifier `QI/weyl_convexity/code/verify_hadamard_nested_ds_all_n.py` is
 byte-unchanged in the later source wave.  For rank `n >= 5`, write
 `n = r + 5`, so the stabilized top block has size `r+1` and its last row is the
 distinguished row.

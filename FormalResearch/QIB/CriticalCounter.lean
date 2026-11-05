@@ -10,7 +10,7 @@ namespace FormalResearch.QIB
 /-!
 # Kempf--Ness criticality does not force `F_C = F_K` (`prop:criticalcounter`)
 
-Source: `QI-B/paper/invariant_discrimination_exponents.tex`, `prop:criticalcounter`.
+Source: `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`, `prop:criticalcounter`.
 
 Torus weights `(-2,-1,1,2)` on `ℂ⁴`, with
 `x = (1, √3, √3, 1)/√8` and `y = (1, √3, √3, -1)/√8`.  We prove, with no numerics:

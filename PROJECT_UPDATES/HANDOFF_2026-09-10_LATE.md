@@ -147,10 +147,10 @@ A new source result has appeared since the previous Lean plan: **T39 operational
 
 Canonical files:
 
-- `QI-A/notes/OPERATIONAL_INVARIANT_FINGERPRINT.md`;
-- `QI-A/notes/T39_REPORT.md`;
-- `QI-A/scripts/verify_operational_fingerprint.py`;
-- `QI-A/verification/verify_operational_fingerprint.txt`.
+- `QI/finite_copy_memory/notes/OPERATIONAL_INVARIANT_FINGERPRINT.md`;
+- `QI/finite_copy_memory/notes/T39_REPORT.md`;
+- `QI/finite_copy_memory/scripts/verify_operational_fingerprint.py`;
+- `QI/finite_copy_memory/verification/verify_operational_fingerprint.txt`.
 
 Exact verifier blob at QIprojects `1835b62...`:
 

@@ -8,11 +8,11 @@ Audited against `cmbant/QIprojects:main` at
 
 The exact source certificate is
 
-`QI-A/scripts/verify_local_schur_d3_overhead.py`
+`QI/finite_copy_memory/scripts/verify_local_schur_d3_overhead.py`
 
 with committed output
 
-`QI-A/verification/verify_local_schur_d3_overhead.txt`.
+`QI/finite_copy_memory/verification/verify_local_schur_d3_overhead.txt`.
 
 The source character sums are `(3,1,0)` for a qubit site and `(4,0,1)` for a local dimension at least three. If `r` of `m` parties have local dimension at least three, the locally retained dimension is
 
@@ -64,4 +64,4 @@ A later branch commit removes the temporary validation workflow and adds this st
 
 The live QI-A paper now contains several additional strengthened results. In particular, the exact reversible coherent-width theorem `w_min=max_alpha dim M_alpha` has a recovery/Schmidt-number lower-bound argument and should be treated as a separate, higher-level formalization problem rather than as arithmetic fallout from this module.
 
-The QI-C restructuring does not change the canonical all-`m` tail source used by the existing Endpoint14 chain: `QI-C/code/verify_qubit_ci_tail_proof.py` remains Git blob `e5d44a1733ce0520bebd37a9172348b1476f7463`.
+The QI-C restructuring does not change the canonical all-`m` tail source used by the existing Endpoint14 chain: `QI/copy_complexity/code/verify_qubit_ci_tail_proof.py` remains Git blob `e5d44a1733ce0520bebd37a9172348b1476f7463`.

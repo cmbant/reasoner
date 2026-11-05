@@ -2,7 +2,7 @@
 
 Source authority was re-audited against `cmbant/QIprojects:main` at `cf5bb7ea42362d9557172a1df96ff1d567da2fe5`.
 
-The source certificate remains `QI-D/code/certify_ds_strict_D4.py` with its committed verification log. The theorem-relevant source bytes were unchanged across the recent QIprojects planning/research wave.
+The source certificate remains `QI/weyl_convexity/code/certify_ds_strict_D4.py` with its committed verification log. The theorem-relevant source bytes were unchanged across the recent QIprojects planning/research wave.
 
 ## Lean scope
 

@@ -7,7 +7,7 @@ public import FormalResearch.FourQubitEntropy.Attainment
 # Scalar spin chirality on three and four qubits
 
 Exact identities behind the "scalar chirality" statements of the antiunitary-occupation programme
-(`ResearchNotes/QI/antiunitary_occupation`, Theorem *What one copy sees* (c), Proposition *Odd
+(`QI/time_reversal/antiunitary_occupation`, Theorem *What one copy sees* (c), Proposition *Odd
 invariants* (iii), and the notation of `M₄`).  Everything lives in the namespace
 `FormalResearch.FrameFree.ScalarChirality`.
 

@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # Two spins are chiral exactly from spin 1: the algebraic core
 
-Theorem `thm:spinj` of `ResearchNotes/QI/antiunitary_occupation/paper/long/app_c_critical.tex`
+Theorem `thm:spinj` of `QI/time_reversal/antiunitary_occupation/paper/long/app_c_critical.tex`
 (section *Two spins*). With `d = 2j + 1`, a two-spin state is a `d × d` complex matrix `M`, with
 `J_{a,b} = (-1)^a` if `a + b = d - 1` and `0` otherwise, frames `M ↦ D₁ M D₂ᵀ` (here `Dᵀ J D = J`,
 `det D = 1`, the complexified spin representation) and time reversal `Θ(M) = J M̄ Jᵀ`. The ratio

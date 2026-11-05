@@ -5,7 +5,7 @@ public import FormalResearch.FourQubitEntropy.AH6Poly
 /-!
 # The AH-6 computation, written once for any arithmetic
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/joint_entropy_analytic_proof.tex` and the verifier
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/joint_entropy_analytic_proof.tex` and the verifier
 `code/verify_seven_entropy_joint_majorant.py` (AH-6a/b/c).  Everything is in nats (`f = negMulLog`), so
 the paper's `8 ln 2 · k₀` is `8 k₀` here and the coefficients `α₂, α₃, β₁` of the paper carry a factor `ln 2`.
 

@@ -10,7 +10,7 @@ public import FormalResearch.FrameFree.HelstromTwirlBound
 Namespace `FormalResearch.QIB`.  Claim class: **proved** (pure finite-dimensional linear algebra; no
 hypothesis on any group appears in this file).
 
-Source: `QI-B/paper/invariant_discrimination_exponents.tex`, Section "Finite-copy blocks",
+Source: `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`, Section "Finite-copy blocks",
 Lemma `lem:blockdecomp`.  The space carrying the sector decomposition `⊕_λ V_λ ⊗ M_λ` is realised in
 coordinates by the index type `Idx A B = Σ λ, A λ × B λ` (carrier index `A λ`, multiplicity index
 `B λ`).  Nothing here constructs the Schur-Weyl decomposition of a physical representation; the

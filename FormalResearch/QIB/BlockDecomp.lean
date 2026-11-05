@@ -13,7 +13,7 @@ Namespace `FormalResearch.QIB`.  Claim class: **proved under explicit hypothesis
 (`IsotypicInvariants`, the isotypic structure of the invariants: see below).  No new axiom, no Haar
 measure, no characters.
 
-Source: `QI-B/paper/invariant_discrimination_exponents.tex`, Lemma `lem:blockdecomp`:
+Source: `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`, Lemma `lem:blockdecomp`:
 `P_e^K(d) = Σ_λ ½ Tr min(τ_λ^x, τ_λ^y)`, with `Tr min(A,B) = ½(Tr A + Tr B - ‖A-B‖₁)`.
 
 **Setting.**  `G` is any set of matrices on the coordinates `Idx A B = Σ λ, A λ × B λ` of

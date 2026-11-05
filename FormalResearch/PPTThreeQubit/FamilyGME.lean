@@ -5,7 +5,7 @@ public import FormalResearch.PPTThreeQubit.Criterion
 /-!
 # The rank-five family `ρ_t`: genuine multipartite entanglement
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/family.tex`,
+Source: `QI/hidden_entanglement/ppt_three_qubit/family.tex`,
 `thm:ppt3-family` (GME part), with `eq:ppt3-rho`, `eq:ppt3-h5-value`, `eq:ppt3-interval` and the
 explicit member at `t = 10/3`.
 

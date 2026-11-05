@@ -7,7 +7,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitLinearPurity
 /-!
 # Entropy ceilings from the purity minima (Paper E, `tab:fqe-other-n`)
 
-Source: `ResearchNotes/QI/four_qubit_entropy/four_qubit_entropy.tex`, table `tab:fqe-other-n` and the
+Source: `QI/multiqubit_entanglement/four_qubit_entropy/four_qubit_entropy.tex`, table `tab:fqe-other-n` and the
 paragraph "Purity and entropy at other sizes" (verifier `code/verify_entropy_purity_upper_table.py`,
 EU-1/EU-2); the slope is `lem:seven-entropy-linear-purity` (`eq:entropy-purity-general-slope`).
 

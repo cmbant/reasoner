@@ -8,7 +8,7 @@ public import FormalResearch.FrameFree.HelstromPure
 
 Namespace `FormalResearch.QIB`.  Claim class: **proved** (no hypothesis, no new axiom).
 
-Source: `QI-B/paper/invariant_discrimination_exponents.tex`, the Helstrom reduction behind Eq.
+Source: `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`, the Helstrom reduction behind Eq.
 `eq:helstrom-twirls` and Lemma `lem:blockdecomp`, in the form needed blockwise.
 
 * `tnorm D` is the trace norm `‖D‖₁ = Σ_i |λ_i(D)|` of a Hermitian matrix (and `0` off the Hermitian

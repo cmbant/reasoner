@@ -7,7 +7,7 @@ public import FormalResearch.QIA.MultiplicityProfileQuantumExcess
 # QI-A multiplicity-block classicality core
 
 Source authority: `cmbant/QIprojects@b06a104c594b029aeb0fc2c8f401f8d4c55b901b`,
-`QI-A/paper/finite_copy_quantum_memory.tex`.
+`QI/finite_copy_memory/paper/finite_copy_quantum_memory.tex`.
 
 The paper's pure-copy classicalization criterion identifies commutativity of the
 invariant algebra with multiplicity-freeness.  This module formalizes the finite

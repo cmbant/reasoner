@@ -8,7 +8,7 @@ public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffEvenGraph20
 /-!
 # The even-`n` purity--spin-flip tradeoff (`thm:purity-spinflip-tradeoff`, ST-2--ST-6)
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_tradeoff.tex`, `thm:purity-spinflip-tradeoff` and
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/spinflip_tradeoff.tex`, `thm:purity-spinflip-tradeoff` and
 `cor:spinflip-rigidity`, for `n ∈ {8, 10, 14, 16, 20}` (the entry `n = 4` is `SpinFlip.tradeoff_four_ge` /
 `purity_tradeoff`).  Every normalised pure `n`-qubit state satisfies
 

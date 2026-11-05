@@ -26,7 +26,7 @@ public import FormalResearch.PPTThreeQubit.PPTSeparable23
 /-!
 # Fully-PPT three-qubit GME: the rank-five family
 
-Lean companion of `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/family.tex`
+Lean companion of `QI/hidden_entanglement/ppt_three_qubit/family.tex`
 (`prop:ppt3-witness`, `thm:ppt3-family` GME part).  Headlines:
 `prodA_classification` / `prodA_of_qs` (`prop:ppt3-witness`(a)), `formH_qs`
 (`eq:ppt3-sos`), `formH_nonneg_of_cutProduct` (`prop:ppt3-witness`(b), all cuts),

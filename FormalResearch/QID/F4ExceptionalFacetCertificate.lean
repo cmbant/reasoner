@@ -11,7 +11,7 @@ namespace FormalResearch.QID
 # QI-D exceptional F4 facet: parameterized exact finite certificate
 
 Source authority:
-`cmbant/QIprojects:QI-D/code/certify_F4_exceptional_facet.py`, audited at
+`cmbant/QIprojects:QI/weyl_convexity/code/certify_F4_exceptional_facet.py`, audited at
 QIprojects main `acfb127df5cc5998fb91cd00ea6e5311d1462e39`.
 
 The source verifier generates `W(F4)` from two displayed rational `4 x 4`

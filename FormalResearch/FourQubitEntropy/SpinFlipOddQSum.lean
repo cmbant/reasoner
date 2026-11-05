@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # A binomial-sum identity behind the odd-`n` purity tradeoff (pure algebra)
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIprojects PR #200), proof of
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIprojects PR #200), proof of
 `thm:odd-spinflip-tradeoff`: the polynomial `Q(x)` of that proof is the antisymmetrisation
 `Σ_{s ≤ m} q_s (x^s - x^{n-s})` of its lower half, `n = 2m+1`, with
 `q_s = (-1)^s [2 C(m,s) + C(m,s-1) - C(n,s)] - δ_{s0} + (1 + (-1)^m) δ_{sm}`.

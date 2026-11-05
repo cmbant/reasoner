@@ -6,7 +6,7 @@ public import FormalResearch.PPTThreeQubit.SurfaceWitness
 /-!
 # The rank-five surface `ρ(α, W, A)`: definitions, local filter, GME
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/rank_five_surface.tex`
+Source: `QI/hidden_entanglement/ppt_three_qubit/rank_five_surface.tex`
 (`eq:ppt3-weights`, `eq:ppt3-rho-surface`, `thm:ppt3-orbit`(b) and the GME part, in the file
 `Surface.lean`; `cor:ppt3-extreme5` GME part is in `SurfaceExtreme.lean`).
 

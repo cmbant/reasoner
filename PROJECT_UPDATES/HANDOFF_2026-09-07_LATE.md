@@ -11,7 +11,7 @@ This file supersedes only the restart/status portion of `PROJECT_UPDATES/HANDOFF
   - `cmbant/reasoner:formal-research-lean`
   - `9ee07a8a57783b112297f539865a88362a831421`
 
-Since the prior source pin `afe15bdbe01b1c8c7b194695ae2991af49210bfd`, QIprojects advanced 23 commits. That compare touches QI-B/B4 and QI-D only, with no Blaschke or Gaudin paths, so it does not revise the retained Walsh/Wronskian or Gaudin formal targets in this maintenance lane.
+Since the prior source pin `afe15bdbe01b1c8c7b194695ae2991af49210bfd`, QIprojects advanced 23 commits. That compare touches QI/invariant_discrimination/B4-orbit-bergman and QI-D only, with no Blaschke or Gaudin paths, so it does not revise the retained Walsh/Wronskian or Gaudin formal targets in this maintenance lane.
 
 ## Aggregate-maintenance status
 

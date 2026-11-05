@@ -6,7 +6,7 @@ public import FormalResearch.PPTThreeQubit.Surface
 /-!
 # The rank-five surface at `α = A = 1`: the `LDL*` factorization of `ρ_τ^{T_A}`
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/rank_five_surface.tex`,
+Source: `QI/hidden_entanglement/ppt_three_qubit/rank_five_surface.tex`,
 proof of `thm:ppt3-orbit`, "Rank and PPT" (`eq:ppt3-surface-simpledet`,
 `eq:ppt3-surface-minors`).
 

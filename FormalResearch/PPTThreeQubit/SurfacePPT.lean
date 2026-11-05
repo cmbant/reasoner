@@ -6,7 +6,7 @@ public import FormalResearch.PPTThreeQubit.SurfaceExtreme
 /-!
 # The rank-five surface: positivity and the fully-PPT property
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/rank_five_surface.tex`,
+Source: `QI/hidden_entanglement/ppt_three_qubit/rank_five_surface.tex`,
 `thm:ppt3-orbit` (proof, "Rank and PPT": `eq:ppt3-surface-simpledet`, `eq:ppt3-surface-minors`)
 and `cor:ppt3-extreme5` (PPT part).
 

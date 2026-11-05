@@ -5,7 +5,7 @@ public import FormalResearch.PPTThreeQubit.PartialTranspose
 /-!
 # Flat three-qubit states: the Pauli identity `σ_y^{(c)} ρ^{T_c} σ_y^{(c)} = J ρ J⁻¹`
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/relaxations_and_scope.tex`,
+Source: `QI/hidden_entanglement/ppt_three_qubit/relaxations_and_scope.tex`,
 `sec:ppt3-flat` (the paragraph before `rem:ppt3-flat-profile`): *every flat three-qubit state is
 fully PPT with rank profile `(r, r, r, r)`*.
 

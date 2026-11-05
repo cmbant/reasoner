@@ -5,7 +5,7 @@ public import FormalResearch.FourQubitEntropy.EnvelopeProductZero
 /-!
 # `thm:fqe-general-envelope`: the equality classification
 
-Paper: `ResearchNotes/QI/four_qubit_entropy/sextic_identity.tex`, `thm:fqe-general-envelope`
+Paper: `QI/multiqubit_entanglement/four_qubit_entropy/sextic_identity.tex`, `thm:fqe-general-envelope`
 ("Equality in `F ≥ (3/4) W₁ + τ - τ^{3/2}` holds exactly on fully product states and on the critical
 equality family of Proposition `prop:fqe-critical-envelope`, including its HS endpoint at `τ = 0` and
 Bell-pair-product endpoint at `τ = 1`").

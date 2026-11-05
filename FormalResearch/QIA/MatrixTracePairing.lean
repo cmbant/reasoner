@@ -8,7 +8,7 @@ public import FormalResearch.QIA.PureCopyMemoryCore
 # QI-A matrix trace pairing core
 
 Source authority: `cmbant/QIprojects@b06a104c594b029aeb0fc2c8f401f8d4c55b901b`,
-`QI-A/paper/finite_copy_quantum_memory.tex`.
+`QI/finite_copy_memory/paper/finite_copy_quantum_memory.tex`.
 
 The pure-copy spanning argument ultimately uses the nondegenerate trace pairing
 on multiplicity-matrix directions.  `PureCopyMemoryCore` kept surjectivity of

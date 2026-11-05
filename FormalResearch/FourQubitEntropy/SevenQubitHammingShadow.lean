@@ -6,7 +6,7 @@ public import FormalResearch.FourQubitEntropy.SpinFlipOmega
 /-!
 # Seven qubits: the `11/49` bound on Hamming-ball states (`cor:seven-hamming-ball-shadow`)
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/hamming_ball_schmidt.tex`,
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/hamming_ball_schmidt.tex`,
 `cor:seven-hamming-ball-shadow`.
 
 **Proved here (complex states, all axioms standard).**

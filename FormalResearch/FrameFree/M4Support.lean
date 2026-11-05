@@ -6,7 +6,7 @@ public import FormalResearch.FrameFree.Ceilings
 # The upper half of `thm:m4support`: `F_C(M₄) ≤ 1/2`
 
 Paper P (`Detecting time reversal without reference frames`), `thm:m4support`, via the hand proof
-`ResearchNotes/QI/antiunitary_occupation/m4_support_proof.tex` and the identities of
+`QI/time_reversal/antiunitary_occupation/m4_support_proof.tex` and the identities of
 `m4_support_identities.tex`.  This discharges the hypothesis `hle : FCΘ M4v ≤ 1/2` of
 `FrameFree/Ceilings.lean` (`FCΘ_M4pow_eq`, `M4pow_window`).
 

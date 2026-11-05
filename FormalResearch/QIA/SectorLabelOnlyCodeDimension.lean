@@ -15,8 +15,8 @@ open scoped ComplexOrder MatrixOrder
 
 Source authority:
 
-* `cmbant/QIprojects:QI-A/notes/SECTOR_LABEL_ONLY_MEMORY.md`, Lemmas 2.1–2.2;
-* `cmbant/QIprojects:QI-A/scripts/verify_sector_label_only_memory.py`;
+* `cmbant/QIprojects:QI/finite_copy_memory/notes/history/SECTOR_LABEL_ONLY_MEMORY.md`, Lemmas 2.1–2.2;
+* `cmbant/QIprojects:QI/finite_copy_memory/scripts/verify_sector_label_only_memory.py`;
 * audited at QIprojects main `6080f36ddd7a3c85015416b793e0562caf685e5a`.
 
 For uniformly distributed messages stored in a `q`-dimensional quantum branch,

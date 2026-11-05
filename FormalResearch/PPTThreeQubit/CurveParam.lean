@@ -7,7 +7,7 @@ public import FormalResearch.PPTThreeQubit.CutEquiv
 /-!
 # The cut curves of a product-free five-dimensional support
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/appendix_moment_cone.tex`
+Source: `QI/hidden_entanglement/ppt_three_qubit/appendix_moment_cone.tex`
 (proof of `thm:ppt3-universal-moments`) and `relaxations_and_scope.tex`.
 
 For a cut `e : Fin 8 ≃ Fin 2 × Fin 4`, a basis matrix `K` (`8 × 3`) of `R^⊥` gives the `3 × 4` pencil

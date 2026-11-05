@@ -6,7 +6,7 @@ public import FormalResearch.QIA.IsotypicDirectSumAuxiliaryStates
 # QI-A finite isotypic multiplicity reduction
 
 Source authority: `cmbant/QIprojects@a3960aa4542eeed8ae785fceac78aaf8c0319031`,
-`QI-A/paper/finite_copy_quantum_memory.tex`, Theorem `thm:symmetryReduction` and
+`QI/finite_copy_memory/paper/finite_copy_quantum_memory.tex`, Theorem `thm:symmetryReduction` and
 Eq. `eq:sigmaalpha`.
 
 This module realizes the manuscript's blockwise reduction

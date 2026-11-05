@@ -6,7 +6,7 @@ public import FormalResearch.NQubit.Pauli.GHZ
 /-!
 # `O(GHZ_n) = 0` for odd `n`
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIprojects PR #200),
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIprojects PR #200),
 `thm:odd-spinflip-tradeoff`: the GHZ state attains the bound (`ghz_odd_tradeoff_sharp_eq` in
 `SpinFlipTradeoffOddSharp.lean`).  `Omean_ghz` is `O(GHZ_n) = 0`.
 

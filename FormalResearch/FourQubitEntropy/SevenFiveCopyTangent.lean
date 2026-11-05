@@ -6,7 +6,7 @@ public import Mathlib
 # Equality step of the five-copy certificate: tangent line, then `t = 0` (abstract linear algebra)
 
 `lem:fivecopy-tangent-line` and the shortcut of `thm:fivecopy-family-equality`
-(`ResearchNotes/QI/seven_qubit_entanglement/moment_orbit_rigidity.tex`).  Nothing here mentions seven qubits, five copies or the
+(`QI/multiqubit_entanglement/seven_qubit_entanglement/moment_orbit_rigidity.tex`).  Nothing here mentions seven qubits, five copies or the
 certificate data; the moment space `M`, the base point `X₀`, the tangent `X₀'`, the face maps `Γ_b` and the
 probes are arguments.  This is needed only for the *equality* statement (uniqueness of the icosahedral
 orbit), not for `SevenPurityBound`.

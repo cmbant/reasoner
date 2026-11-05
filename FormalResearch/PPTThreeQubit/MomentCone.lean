@@ -5,7 +5,7 @@ public import FormalResearch.PPTThreeQubit.Basic
 /-!
 # The quartic moment cone of a five-dimensional support (general part)
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/relaxations_and_scope.tex`,
+Source: `QI/hidden_entanglement/ppt_three_qubit/relaxations_and_scope.tex`,
 `thm:ppt3-universal-moments` and its proof in `appendix_moment_cone.tex`.
 
 This file formalises the part of the theorem that is independent of how the matrices `T_c` arise:

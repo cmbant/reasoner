@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # Block Cauchy-Schwarz purity bound (core of `eq:hamming-ball-robust-purity`)
 
-`ResearchNotes/QI/seven_qubit_entanglement/hamming_ball_schmidt.tex`, proof of `thm:hamming-ball-schmidt`:
+`QI/multiqubit_entanglement/seven_qubit_entanglement/hamming_ball_schmidt.tex`, proof of `thm:hamming-ball-schmidt`:
 "Hilbert-Schmidt Cauchy-Schwarz, applied to the two diagonal blocks, gives
 `tr ρ² ≥ q²/R + (1-q)²/(d-R)`", where `Q` is a rank-`R` projector and `q = tr(Qρ)`.
 

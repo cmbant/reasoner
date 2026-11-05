@@ -5,7 +5,7 @@ public import FormalResearch.FourQubitEntropy.PurityLPCert
 /-!
 # The Rains-LP step with the time-reversal term (`eq:tradeoff-dual`)
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_tradeoff.tex`, proof of
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/spinflip_tradeoff.tex`, proof of
 `thm:purity-spinflip-tradeoff` (certificates ST-1--ST-6).
 
 A *tradeoff certificate* for `n` is `(L, c, es, ys)`: rational `L`, `c`, multipliers `es = [(s, e_s)]`

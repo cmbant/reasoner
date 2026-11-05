@@ -5,7 +5,7 @@ public import FormalResearch.PPTThreeQubit.FlatPauli
 /-!
 # Flat three-qubit states are fully PPT with rank profile `(r, r, r, r)`
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/relaxations_and_scope.tex`,
+Source: `QI/hidden_entanglement/ppt_three_qubit/relaxations_and_scope.tex`,
 `sec:ppt3-flat` (the paragraph before `rem:ppt3-flat-profile`).
 
 A three-qubit state `ρ` is *flat* (`IsFlat3`) if it is PSD of trace one and every proper marginal is

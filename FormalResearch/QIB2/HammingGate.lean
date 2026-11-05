@@ -12,7 +12,7 @@ open Complex
 /-!
 # QI-B2 canonical Hamming/Krawtchouk phase algebra
 
-Source: `QI-B/B2-hamming/results/three_band_hamming_heat_kernel.tex`, section
+Source: `QI/invariant_discrimination/B2-hamming/results/three_band_hamming_heat_kernel.tex`, section
 "Exact Hamming/Krawtchouk phase algebra" (`eq:hammingU`): `U = (1+i)/2 I +
 (1-i)/2 tau`, `U^(tensor d) = sum_m i^m E_m = sum_r ((1+i)/2)^(d-r)
 ((1-i)/2)^r W_r`, `W_r E_m = K_r(m) E_m`, `K_r(m) = sum_l (-1)^l C(m,l)

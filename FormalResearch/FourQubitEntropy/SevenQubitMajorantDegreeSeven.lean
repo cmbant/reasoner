@@ -8,7 +8,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitIcoEntropy
 # Seven-qubit application of the sharp-majorant degree proposition
 
 The seven-qubit half of `prop:seven-entropy-majorant-degree`
-(`ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_joint.tex`): at the entropy
+(`QI/multiqubit_entanglement/seven_qubit_entanglement/seven_qubit_entropy_joint.tex`): at the entropy
 maximiser `ψ_{x_*}` of the icosahedral family a *single* scalar majorant of `-t log t` that is
 sharp at every cut eigenvalue needs degree `≥ 7` (exactly `7`), because the cut spectra carry four
 distinct nodes `u+x < 4u < 3u+x < 8u`.

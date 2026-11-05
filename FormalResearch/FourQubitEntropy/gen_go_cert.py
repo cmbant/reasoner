@@ -6,8 +6,8 @@ Run from the repository root:
     python3 FormalResearch/FourQubitEntropy/gen_go_cert.py [--out DIR] [--part-bytes N]
 
 Input (QIprojects, read only; set QIPROJECTS to its root, default /home/user/QIprojects):
-  ResearchNotes/QI/four_qubit_entropy/code/data/m4_global_overlap.json
-  ResearchNotes/QI/four_qubit_entropy/code/orbit_certificate_polynomials.py   (sympy)
+  QI/multiqubit_entanglement/four_qubit_entropy/code/data/m4_global_overlap.json
+  QI/multiqubit_entanglement/four_qubit_entropy/code/orbit_certificate_polynomials.py   (sympy)
 
 Output (default DIR = FormalResearch/FourQubitEntropy/GOData), byte-reproducible, not committed:
   GOConst.lean     `cons` (the 64 constraint matrices M_c, sparse integer polynomials in packed keys, scaled
@@ -34,7 +34,7 @@ from fractions import Fraction as F
 from itertools import combinations, permutations
 
 ROOT = os.environ.get('QIPROJECTS', '/home/user/QIprojects')
-CODE = os.path.join(ROOT, 'ResearchNotes/QI/four_qubit_entropy/code')
+CODE = os.path.join(ROOT, 'QI/multiqubit_entanglement/four_qubit_entropy/code')
 sys.path.insert(0, CODE)
 from orbit_certificate_polynomials import (  # noqa: E402
     PR, XS, ZERO, X, Y, n, Q, h0, e, defects, height_hessian, lower_frame, CHARS)

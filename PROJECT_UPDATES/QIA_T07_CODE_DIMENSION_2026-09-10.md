@@ -8,9 +8,9 @@ Research/certificate authority was rechecked at `cmbant/QIprojects:main` commit
 
 Canonical T07 inputs:
 
-- `QI-A/notes/SECTOR_LABEL_ONLY_MEMORY.md`, blob `0cea876048473063a59fcbde4c8f030a740ae049`;
-- `QI-A/scripts/verify_sector_label_only_memory.py`, blob `6fdee802f3d0eb55c0381083e40b09e465f7e01a`;
-- `QI-A/notes/T07_REPORT.md`.
+- `QI/finite_copy_memory/notes/history/SECTOR_LABEL_ONLY_MEMORY.md`, blob `0cea876048473063a59fcbde4c8f030a740ae049`;
+- `QI/finite_copy_memory/scripts/verify_sector_label_only_memory.py`, blob `6fdee802f3d0eb55c0381083e40b09e465f7e01a`;
+- `QI/finite_copy_memory/notes/T07_REPORT.md`.
 
 The current QIprojects delta through this pin contains no later QI-A source change. The source correction is preserved: the unrestricted physical block-curve converse is false. The statements formalized here are only for the narrower sector-label-only architecture with their identifying-query/guessing hypotheses kept explicit.
 

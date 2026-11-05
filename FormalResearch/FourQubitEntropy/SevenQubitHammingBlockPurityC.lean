@@ -6,7 +6,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitIcoXBlockPurity
 /-!
 # Block Cauchy-Schwarz purity bound for complex Hermitian `ρ` (closes the real-only gap of `block_purity`)
 
-`ResearchNotes/QI/seven_qubit_entanglement/hamming_ball_schmidt.tex`, proof of `thm:hamming-ball-schmidt`:
+`QI/multiqubit_entanglement/seven_qubit_entanglement/hamming_ball_schmidt.tex`, proof of `thm:hamming-ball-schmidt`:
 `tr ρ² ≥ q²/R + (1-q)²/(d-R)` for `q = tr(Qρ)`, `Q` a rank-`R` orthogonal projector.
 
 `SevenQubitIcoXBlockPurity.block_purity` is for real symmetric `ρ`. Here `ρ` is an arbitrary complex

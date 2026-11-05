@@ -10,7 +10,7 @@ public import FormalResearch.QIB.BlockDecomp
 Namespace `FormalResearch.QIB`.  Claim class: **proved under explicit hypothesis**
 (`IsotypicInvariants`, see `BlockDecomp.lean`); no Haar measure.
 
-Source: `QI-B/paper/invariant_discrimination_exponents.tex`, Lemma `lem:blockdecomp`:
+Source: `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`, Lemma `lem:blockdecomp`:
 `Ω_x = ⊕_λ (I_{V_λ}/dim V_λ) ⊗ τ_λ^x`.
 
 A *twirl* of `ρ` is a matrix `Z` commuting with `G` that lies in every closed convex set containing the

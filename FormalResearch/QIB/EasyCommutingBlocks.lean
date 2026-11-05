@@ -8,7 +8,7 @@ public import FormalResearch.QIB.BlockDecomp
 
 Namespace `FormalResearch.QIB`.  Claim class: **proved** (finite linear algebra; no new axiom).
 
-Source: `QI-B/paper/invariant_discrimination_exponents.tex`, `prop:collapseregimes` (ii)
+Source: `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`, `prop:collapseregimes` (ii)
 ("commuting blocks: `Tr min(A,B) = Σ_a min(a_a, b_a)` in a joint eigenbasis") and the monotonicity
 step of `cor:framechirality` ("every `U(n)`-invariant test is `H`-invariant, so reducing the symmetry
 cannot increase the error").

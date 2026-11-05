@@ -5,7 +5,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitIcoState
 /-!
 # Sectors of the icosahedral state and the flat-phase companions (`prop:flatphaseLU`)
 
-`ResearchNotes/QI/seven_qubit_entanglement/balanced_purity.tex`, `prop:flatphaseLU` (QB-3): write
+`QI/multiqubit_entanglement/seven_qubit_entanglement/balanced_purity.tex`, `prop:flatphaseLU` (QB-3): write
 `Ψico = A + B` with `A` supported on the sectors `(s, w) = (0, 2), (1, 0)` and `B` on `(0, 6), (1, 4)`,
 where `s` is the special bit and `w` the Hamming weight of the six ordinary bits. For every real `θ`
 the "flat-phase companion" `e^{iθ} A + e^{-iθ} B` is the image of `Ψico` under the *diagonal* local

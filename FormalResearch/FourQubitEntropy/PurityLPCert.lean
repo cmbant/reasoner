@@ -7,7 +7,7 @@ public import FormalResearch.NQubit.Reduced.MeanPurity
 /-!
 # The Rains-LP dual certificate lemma (Stage 3)
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/even_qubit_purity_minima.tex`, proof of `thm:lptable`(1),
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/even_qubit_purity_minima.tex`, proof of `thm:lptable`(1),
 `thm:fourteenfifteen`, `thm:sixteenseventeen`, `balanced_purity_18.tex` `thm:eighteen`.
 
 A *certificate* for `n` is `(L, es, ys)` with `es = [(s, e_s)]` (`e_s ∈ ℚ`, `s ≤ n`) and `ys = [(i, y_i)]`

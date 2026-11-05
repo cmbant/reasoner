@@ -13,8 +13,8 @@ namespace FormalResearch.QIA
 This module matches the exact scalar certificate in `cmbant/QIprojects`,
 current source pin `f15afef701b769e5a4f1ec83c549ec4506f77af4`, with QI-A bytes unchanged
 from the earlier theorem audit at `a32a35809edd12b7d7cb7c23b332edad36efa5bc`.
-The source scripts are `QI-A/scripts/verify_information_hierarchy.py` and
-`QI-A/scripts/verify_measured_chernoff_qutrit.py`.
+The source scripts are `QI/finite_copy_memory/scripts/verify_information_hierarchy.py` and
+`QI/finite_copy_memory/scripts/verify_measured_chernoff_qutrit.py`.
 
 The theorem scope here is deliberately scalar.  We formalize the exact
 Chernoff-coefficient constants reported by the source certificate, their

@@ -5,7 +5,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitIcoState
 /-!
 # Local time-reversal shadows of the icosahedral state (`prop:ico-shadow-geometry`, TR-1, TR-2)
 
-`ResearchNotes/QI/seven_qubit_entanglement/shadow_equality_geometry.tex`. For a seven-qubit tensor
+`QI/multiqubit_entanglement/seven_qubit_entanglement/shadow_equality_geometry.tex`. For a seven-qubit tensor
 `F` (real, which is all that is needed for `icosahedralState`) and a site `q`:
 
 * `That F q a b = ⟨e_a, J₆ e_b⟩` is the normalized Schmidt spin-flip overlap matrix at `q`, where

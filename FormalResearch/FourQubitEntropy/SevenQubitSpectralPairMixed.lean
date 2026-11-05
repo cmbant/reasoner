@@ -6,7 +6,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitSpectralPairCross
 # The cross-cut inequality `e_S + 16 v(ρ_S) ≤ R` for mixed seven-qubit states
 
 Last sentence of `prop:seven-spinflip-spectral-pair`
-(`ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_compatibility.tex`): the joint spectral
+(`QI/multiqubit_entanglement/seven_qubit_entanglement/seven_qubit_entropy_compatibility.tex`): the joint spectral
 compatibility inequality `e_S + 16 v(ρ_S) ≤ R = ∑_{|T|=3} e_T` "also holds for mixed global states".
 `SevenQubitSpectralPairCross` proves it for a pure global state `ψ`; here the global state is any
 seven-qubit matrix `ρ : Mat7` (`ρ a b`, ket `a`, bra `b`, the convention of `redEntry`) that is

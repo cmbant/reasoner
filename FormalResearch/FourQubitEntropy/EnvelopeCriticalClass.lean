@@ -5,7 +5,7 @@ public import FormalResearch.FourQubitEntropy.EnvelopeTheta
 /-!
 # `prop:fqe-critical-envelope` in full: closed form and equality classification
 
-Paper: `ResearchNotes/QI/four_qubit_entropy/sextic_identity.tex`, `prop:fqe-critical-envelope` (the
+Paper: `QI/multiqubit_entanglement/four_qubit_entropy/sextic_identity.tex`, `prop:fqe-critical-envelope` (the
 critical envelope `F = 1/2 + 7τ/4 + 9 perm Θ/4 ≥ τ - τ^{3/2}`, its equality family
 `Θ = O(κ I + (1-κ) s sᵀ)`, and the moment form on the critical locus).
 

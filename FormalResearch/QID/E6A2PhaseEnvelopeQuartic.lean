@@ -11,7 +11,7 @@ namespace FormalResearch.QID
 # QI-D E6/F4 A2 phase-envelope quartic reduction
 
 Source authority:
-`cmbant/QIprojects:QI-D/code/certify_E6_A2_phase_envelope.py`, current source
+`cmbant/QIprojects:QI/weyl_convexity/code/certify_E6_A2_phase_envelope.py`, current source
 re-audited at QIprojects main `6080f36ddd7a3c85015416b793e0562caf685e5a`
 with source blob `fad4403997347c90b8301cdf691d140253dd2935`.
 

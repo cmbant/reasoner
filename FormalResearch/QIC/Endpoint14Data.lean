@@ -15,7 +15,7 @@ def p4 (a0 a1 a2 a3 a4 : Int) : P5 := ![a0,a1,a2,a3,a4]
 /-- The fixed 14×14 endpoint minor from the QI-C exact symbolic certificate.
 Rows correspond to `0,...,11,13,15` and columns to `0,...,13` of the
 16×16 tail-symmetric endpoint block in
-`QIprojects/QI-C/code/verify_qubit_ci_tail_proof.py`. -/
+`QIprojects/QI/copy_complexity/code/verify_qubit_ci_tail_proof.py`. -/
 def endpoint14 : Matrix Fin14 Fin14 P5 :=
   !![      p4 0 0 0 0 0, p4 0 0 0 0 0, p4 0 0 8 (-4) 0, p4 0 0 (-4) 4 0, p4 0 0 (-4) 8 0, p4 0 0 2 (-8) 0, p4 0 0 (-18) 0 0, p4 0 0 18 0 0, p4 0 0 0 0 0, p4 0 0 0 0 0, p4 0 0 (-8) 8 0, p4 0 0 8 (-8) 0, p4 0 0 22 (-22) 0, p4 0 0 (-22) 22 0;
       p4 0 0 4 (-4) 0, p4 0 0 4 (-8) 4, p4 0 0 4 (-4) 0, p4 0 0 0 0 0, p4 0 0 (-16) 8 0, p4 0 0 (-16) 8 0, p4 0 0 (-24) 16 0, p4 0 0 (-8) 32 (-16), p4 0 0 0 0 0, p4 0 0 0 0 0, p4 0 0 (-8) 4 0, p4 0 0 8 (-12) 4, p4 0 0 6 (-6) 0, p4 0 0 (-38) 54 (-16);

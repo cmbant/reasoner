@@ -4,7 +4,7 @@
 
 Research/certificate authority is `cmbant/QIprojects:main`.
 
-The Lean module was implemented from `QI-D/code/certify_E6_A2_phase_envelope.py` at source pin `acfb127df5cc5998fb91cd00ea6e5311d1462e39` and re-audited after QIprojects advanced to `82bfb80d717c4ab0282b4e1573db24c915ac3aad`. The intervening source delta does not change `certify_E6_A2_phase_envelope.py` or `certify_E6_F4_endpoint_locus_reduction.py`, so the exact algebraic source match remains valid.
+The Lean module was implemented from `QI/weyl_convexity/code/certify_E6_A2_phase_envelope.py` at source pin `acfb127df5cc5998fb91cd00ea6e5311d1462e39` and re-audited after QIprojects advanced to `82bfb80d717c4ab0282b4e1573db24c915ac3aad`. The intervening source delta does not change `certify_E6_A2_phase_envelope.py` or `certify_E6_F4_endpoint_locus_reduction.py`, so the exact algebraic source match remains valid.
 
 ## Lean result
 

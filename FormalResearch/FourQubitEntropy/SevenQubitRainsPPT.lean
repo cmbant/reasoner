@@ -6,7 +6,7 @@ public import Mathlib
 # Two-copy PPT formulation of the Rains LP: the local-flip identity and the generating identity
 (`prop:rainsppt`, `replica_hierarchy.tex`)
 
-`ResearchNotes/QI/seven_qubit_entanglement/replica_hierarchy.tex`, `prop:rainsppt`. The proposition
+`QI/multiqubit_entanglement/seven_qubit_entanglement/replica_hierarchy.tex`, `prop:rainsppt`. The proposition
 says that after local-unitary and site twirling the Rains LP is the two-copy PPT relaxation on the
 globally symmetric subspace. Its proof is representation-theoretic (twirling is without loss of
 generality, the commutative algebra spanned by the projectors `R_r`, shadow moments reconstruct a

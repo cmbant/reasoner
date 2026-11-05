@@ -2,7 +2,7 @@
   SpinFlipTradeoffEvenCert.lean     the dual certificates `tradeoffBound<n>` (n = 8, 10, 14, 16, 20)
   SpinFlipTradeoffEvenGraphA.lean   sharp graph states, n = 8, 10, 14
   SpinFlipTradeoffEvenGraph16.lean, SpinFlipTradeoffEvenGraph20.lean   sharp graph states, n = 16, 20
-Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_tradeoff.tex` and `code/verify_spinflip_tradeoff.py`
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/spinflip_tradeoff.tex` and `code/verify_spinflip_tradeoff.py`
 (the `CASES` table: L_n, c_n, multipliers e_s (listed by s = 0, 1, ...), y_i, and the sharpness witnesses).
 
 Certificates: a_{n/2} - L A_0 - c 2^{-n} sum_j (-1)^j A_j = sum_{s<n/2} e_s (a_s - a_{n-s}) + sum_i y_i S_i + sum_j w_j A_j

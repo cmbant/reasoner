@@ -10,7 +10,7 @@ namespace FormalResearch.QIB
 /-!
 # Kramers half-filling (`lem:halffilling`)
 
-Source: `QI-B/paper/invariant_discrimination_exponents.tex`, `lem:halffilling`.
+Source: `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`, `lem:halffilling`.
 
 Let `Θ` be an antiunitary map on a finite-dimensional Hermitian space `E` with `Θ² = -1`,
 let `Q` be a two-plane with `Θ Q ⊆ Q`, and let `V` be a subspace with `Θ V ⊥ V`.

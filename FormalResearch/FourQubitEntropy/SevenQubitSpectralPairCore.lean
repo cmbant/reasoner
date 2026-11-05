@@ -8,7 +8,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
 /-!
 # Spin-flip spectral pairing for three qubits (`prop:seven-spinflip-spectral-pair`, first assertion)
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_compatibility.tex`
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/seven_qubit_entropy_compatibility.tex`
 (QIprojects PR #200), `prop:seven-spinflip-spectral-pair`.  Claim class: **proved** (no hypothesis).
 
 For a three-qubit matrix `ρ : Mat3` (rows and columns `Fin 3 → Bool`):

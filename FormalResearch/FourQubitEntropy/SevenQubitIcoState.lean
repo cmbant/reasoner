@@ -6,7 +6,7 @@ public import Mathlib
 # The seven-qubit icosahedral family's state and reduced matrices
 
 This defines the two integer coefficient tensors in `eq:ico` and checks their support counts and
-orthogonality (`thm:ico` in `ResearchNotes/QI/seven_qubit_entanglement/icosahedral_state.tex`). Together with the scalar parameterization, this proves unit norm. It also derives the
+orthogonality (`thm:ico` in `QI/multiqubit_entanglement/seven_qubit_entanglement/icosahedral_state.tex`). Together with the scalar parameterization, this proves unit norm. It also derives the
 three-qubit reduced-matrix entries for one representative cut of each type, directly from the state
 tensor.
 -/

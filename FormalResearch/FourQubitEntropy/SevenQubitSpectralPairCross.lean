@@ -6,7 +6,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitSpectralPairCore
 # The cross-cut inequality `e_S + 16 v(ρ_S) ≤ R` for a pure seven-qubit state
 
 Second half of `prop:seven-spinflip-spectral-pair`
-(`ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_compatibility.tex`).
+(`QI/multiqubit_entanglement/seven_qubit_entanglement/seven_qubit_entropy_compatibility.tex`).
 
 For a unit vector `ψ` of seven qubits and a three-site mask `m`, `rhoS m ψ` is the reduced matrix
 `ρ_S = Tr_{Sᶜ}|ψ⟩⟨ψ|` (`redEntry` of `SevenQubitConseqPurity`).  The module proves

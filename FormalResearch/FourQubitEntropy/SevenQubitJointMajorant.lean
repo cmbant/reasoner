@@ -5,7 +5,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitEigenCap497Pure
 /-!
 # `prop:seven-joint-entropy-target`, matrix part (conditional on the scalar majorant; AH-6 is `AH6Final`)
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_joint.tex`,
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/seven_qubit_entropy_joint.tex`,
 `prop:seven-joint-entropy-target` (matrix inequality
 `tr f(R) ≤ ∑_{k+l≤5} h_{kl} tr(R^k R̃^l)`), together with the scalar input
 `lem:seven-joint-scalar-majorant` (exact-rational coefficient certificate AH-6).

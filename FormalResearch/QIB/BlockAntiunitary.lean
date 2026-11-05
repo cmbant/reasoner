@@ -11,7 +11,7 @@ Namespace `FormalResearch.QIB`.  Claim class: **proved under explicit hypothesis
 vector's multiplicity blocks are the entrywise conjugates of the first's (`hconj`), which holds when
 the second vector is the entrywise conjugate of the first in real Schur-Weyl coordinates (`tau_star`).
 
-Source: `QI-B/paper/invariant_discrimination_exponents.tex`, Propositions `prop:antiunitary` and
+Source: `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`, Propositions `prop:antiunitary` and
 `prop:blind`.
 
 * `imNorm τ = ½ ‖τ - τ̄‖₁`.  Since `τ - τ̄ = 2i Im τ` and multiplication by `i` does not change the

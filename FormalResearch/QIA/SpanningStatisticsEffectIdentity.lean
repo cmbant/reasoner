@@ -6,7 +6,7 @@ public import FormalResearch.QIA.MultiplicityHermitianTracePairing
 # QI-A spanning-statistics effect identity
 
 Source authority: `cmbant/QIprojects@f96b5b0be457867f068fc40461853048e346239d`,
-`QI-A/paper/finite_copy_quantum_memory.tex`, manuscript blob
+`QI/finite_copy_memory/paper/finite_copy_quantum_memory.tex`, manuscript blob
 `6f4af839cc7c13b0cb2b3704fcefdeb1d88e9195`.
 
 In the deferred-query proof, exact agreement of physical query statistics is

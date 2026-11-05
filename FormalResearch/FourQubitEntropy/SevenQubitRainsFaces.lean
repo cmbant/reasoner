@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # Unique Rains equality faces at `n = 7, 13, 19, 20` (`prop:rains-faces`, EF-7/13/19/20)
 
-`ResearchNotes/QI/seven_qubit_entanglement/shadow_equality_geometry.tex`, `prop:rains-faces`;
+`QI/multiqubit_entanglement/seven_qubit_entanglement/shadow_equality_geometry.tex`, `prop:rains-faces`;
 checker `code/verify_rains_equality_faces.py` (log `verification/verify_rains_equality_faces.txt`).
 
 For each `n ∈ {7, 13, 19, 20}` the active zero Pauli weights `A_j = 0` (`j ∈ zA`) and zero Rains

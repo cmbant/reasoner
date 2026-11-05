@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # The planar sign inequality
 
-Lemma `lem:planarsign` of `ResearchNotes/QI/antiunitary_occupation/planar_sign_inequality.tex`:
+Lemma `lem:planarsign` of `QI/time_reversal/antiunitary_occupation/planar_sign_inequality.tex`:
 for `v₁, …, v_m ∈ ℂ` there are signs `s_i = ±1` with
 `‖∑ s_i v_i‖² ≥ (1/3) ((∑ ‖v_i‖)² + ∑ ‖v_i‖²)`
 (`planar_sign`; `planar_sign4` is the case `m = 4`), and the equality case

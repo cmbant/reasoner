@@ -7,7 +7,7 @@ public import FormalResearch.QIA.HermitianInnerPairing
 # QI-A finite multiplicity Hermitian trace-pairing core
 
 Source authority: `cmbant/QIprojects@d3e3d2e2a74201a178cd73ca7ef249b861c4f57e`,
-`QI-A/paper/finite_copy_quantum_memory.tex`.
+`QI/finite_copy_memory/paper/finite_copy_quantum_memory.tex`.
 
 QI-A's reduced multiplicity algebra is a finite direct sum of full matrix
 blocks. On Hermitian elements this is a finite real product of Hermitian

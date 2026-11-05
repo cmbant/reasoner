@@ -6,7 +6,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
 /-!
 # Zero-focus covariants of the icosahedral family (`prop:zero-focus`, partial)
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/sextic_covariant_generalizations.tex`,
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/sextic_covariant_generalizations.tex`,
 `prop:zero-focus`.
 
 **Definition used.** For a real seven-qubit vector `ψ` and `r ≤ 3` put

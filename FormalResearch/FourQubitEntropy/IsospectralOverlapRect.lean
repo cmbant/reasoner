@@ -5,7 +5,7 @@ public import FormalResearch.FourQubitEntropy.IsospectralOverlap
 /-!
 # Isospectral overlap lemma: rectangular coefficient matrices and attainment
 
-Source: `ResearchNotes/QI/four_qubit_entropy/spectral_spinflip_bound.tex`, Lemma
+Source: `QI/multiqubit_entanglement/four_qubit_entropy/spectral_spinflip_bound.tex`, Lemma
 `lem:fqe-isospectral-overlap`.
 
 `IsospectralOverlap.lean` proves the lemma for square coefficient matrices (equal local dimensions).

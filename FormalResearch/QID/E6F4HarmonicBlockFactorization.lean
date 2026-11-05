@@ -16,8 +16,8 @@ open scoped ComplexOrder
 
 Source authority:
 
-* `cmbant/QIprojects:QI-D/code/certify_E6_F4_endpoint_locus_reduction.py`;
-* `cmbant/QIprojects:QI-D/notes/T48_REPORT.md`;
+* `cmbant/QIprojects:QI/weyl_convexity/code/certify_E6_F4_endpoint_locus_reduction.py`;
+* `cmbant/QIprojects:QI/weyl_convexity/notes/T48_REPORT.md`;
 * audited at QIprojects main `6080f36ddd7a3c85015416b793e0562caf685e5a`.
 
 For one multiplicity-eight triality sector, T48 writes the endpoint projection

@@ -5,7 +5,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitConseqPurity
 /-!
 # Layer 0 of the sharp seven-qubit purity bound: from a five-copy dual identity to `SevenPurityBound`
 
-`cor:seven-global-from-fivecopy` (`ResearchNotes/QI/seven_qubit_entanglement/moment_orbit_rigidity.tex`)
+`cor:seven-global-from-fivecopy` (`QI/multiqubit_entanglement/seven_qubit_entanglement/moment_orbit_rigidity.tex`)
 rests on `thm:fivecopy-sharp-certificate` (FP5-1): rational positive-definite `C_b` on twelve physical
 faces with `q(G) = ∑_b tr[C_b W_bᵀ Γ_b(G) Wᵦ]`.  On a pure state, `W_bᵀ Γ_b(X₅⁺(ψ)) W_b` is a Gram matrix of
 covariants of `ψ`, so the right-hand side is `∑_b Φ_b(ψ)^† C_b Φ_b(ψ)` with `Φ_b` polynomial maps of bidegree

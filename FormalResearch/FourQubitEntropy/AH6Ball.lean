@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # Fixed-point ball arithmetic for the AH-6 certificate (`lem:seven-joint-scalar-majorant`)
 
-Source of the finite checks: `ResearchNotes/QI/seven_qubit_entanglement/joint_entropy_analytic_proof.tex`
+Source of the finite checks: `QI/multiqubit_entanglement/seven_qubit_entanglement/joint_entropy_analytic_proof.tex`
 (`sec:seven-joint-analytic-proof`), verifier `code/verify_seven_entropy_joint_majorant.py`.
 
 The Python verifier uses outward-rounded dyadic interval arithmetic.  Here the same arithmetic is a kernel

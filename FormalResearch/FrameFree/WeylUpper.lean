@@ -13,7 +13,7 @@ open FormalResearch.FourQubitEntropy
 # The Weyl-vertex upper bound (R7, `thm:weyl` of Paper P), reduced to one polytope input
 
 **Target.**  For `d : Fin 4 → ℂ`: `rotOverlap (psiMag d) (Psi.conj (psiMag d)) ≤ FKmag d`
-(the lower bound `≥` is `WeylVertex`).  Maths source: `QI-A/paper/finite_copy_quantum_memory.tex`
+(the lower bound `≥` is `WeylVertex`).  Maths source: `QI/finite_copy_memory/paper/finite_copy_quantum_memory.tex`
 (`thm:D4hadamard`, `cor:D4weylvertex`, `lem:fourprodvol`), which uses the polar description of
 `conv W(D₄)` of Brandman–Fowler–Lins–Spitkovsky–Zobin (BFLSZ), Thm 7.1.
 

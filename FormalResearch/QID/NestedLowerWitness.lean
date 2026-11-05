@@ -12,7 +12,7 @@ namespace FormalResearch.QID
 # QI-D nested all-rank lower witness
 
 This module formalizes the exact lower-witness construction used in
-`cmbant/QIprojects:QI-D/notes/HADAMARD_NESTED_DS_ALL_N.md`, re-audited through
+`cmbant/QIprojects:QI/weyl_convexity/notes/history/HADAMARD_NESTED_DS_ALL_N.md`, re-audited through
 QIprojects main at `d9c4c3f4f0fd948daaefe186394dc3921c15dafe`.
 
 For rank `n = k + 4`, the source witness is

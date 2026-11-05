@@ -8,8 +8,8 @@ The implementation was audited against QIprojects `6080f36ddd7a3c85015416b793e05
 
 Canonical source:
 
-- `QI-D/code/certify_E6_F4_endpoint_locus_reduction.py`;
-- `QI-D/notes/T48_REPORT.md`.
+- `QI/weyl_convexity/code/certify_E6_F4_endpoint_locus_reduction.py`;
+- `QI/weyl_convexity/notes/T48_REPORT.md`.
 
 The exact source statement formalized is the one-sector harmonic factorization with
 

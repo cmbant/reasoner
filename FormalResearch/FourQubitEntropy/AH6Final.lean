@@ -6,7 +6,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitMaximumStar
 /-!
 # `lem:seven-joint-scalar-majorant` (AH-6): the headline theorems
 
-Home and proof: `ResearchNotes/QI/seven_qubit_entanglement/joint_entropy_analytic_proof.tex`
+Home and proof: `QI/multiqubit_entanglement/seven_qubit_entanglement/joint_entropy_analytic_proof.tex`
 (`sec:seven-joint-analytic-proof`), lemma `lem:seven-joint-scalar-majorant` of `seven_qubit_entropy_joint.tex`.
 
 * `joint_scalar_majorant`: for the explicit coefficients `jointCoef x` (the paper's `h_{kl}` in nats) and `x` in the

@@ -5,7 +5,7 @@ public import FormalResearch.FourQubitEntropy.SpinFlipTradeoffOddGHZ
 /-!
 # The sharp odd-`n` tradeoff `π_m + c_n O ≥ 1/2` with `c_5 = 1`, `c_n = (n+1)/4`
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIprojects PR #200),
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/spinflip_tradeoff.tex` (QIprojects PR #200),
 `thm:odd-spinflip-tradeoff` (current form) and the interpretation remark.
 
 With `n = 2m + 1 ≥ 5`, `c_n = cn m` (`1` for `m = 2`, `(m+1)/2 = (n+1)/4` for `m ≥ 3`) and the weights

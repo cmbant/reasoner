@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # The binary entropy correction of AH-6: average identity and cubic Hermite minorant
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/joint_entropy_analytic_proof.tex`,
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/joint_entropy_analytic_proof.tex`,
 `sec:seven-joint-analytic-proof`, equation `eq:seven-joint-binary-minorant`.
 
 * `avg_identity`: `(f(λ)+f(μ))/2 = f(M) - M Φ(s)` with `f = negMulLog`, `M = (λ+μ)/2`, `s = (λ-μ)/(λ+μ)` and

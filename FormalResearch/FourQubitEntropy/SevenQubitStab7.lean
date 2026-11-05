@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # Seven-qubit stabilizer states: the witness `19/140` and a conditional reduction of `prop:stab7`
 
-`ResearchNotes/QI/seven_qubit_entanglement/icosahedral_state.tex`, `prop:stab7`: every seven-qubit
+`QI/multiqubit_entanglement/seven_qubit_entanglement/icosahedral_state.tex`, `prop:stab7`: every seven-qubit
 stabilizer state has `π₃ ≥ 19/140`, hence the seven-qubit minimum `121/917` is not attained by a
 stabilizer state. The paper's proof is analytic: `280 π₃ = 35 + 15A₁ + 5A₂ + A₃` and the Rains shadow
 identity `4 S₁ = 7 + A₁ + A₂ - A₃`, with the weight and shadow coefficients `A_w, S_w` nonnegative

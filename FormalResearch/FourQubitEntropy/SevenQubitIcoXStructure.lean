@@ -5,7 +5,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitIcoSpectrum
 /-!
 # Structure of the icosahedral state (`eq:ico`, `thm:ico` remarks)
 
-`ResearchNotes/QI/seven_qubit_entanglement/icosahedral_state.tex`.
+`QI/multiqubit_entanglement/seven_qubit_entanglement/icosahedral_state.tex`.
 
 * `alphaCoefficient_eq_pairs`, `betaCoefficient_eq`, `icosahedralState_eq_ico`: the coefficient tensors
   of `SevenQubitIcoState` are exactly the two sums of `eq:ico`:

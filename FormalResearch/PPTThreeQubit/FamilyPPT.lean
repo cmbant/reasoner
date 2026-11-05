@@ -5,7 +5,7 @@ public import FormalResearch.PPTThreeQubit.FamilyPPTFactor
 /-!
 # The rank-five family `ρ_t`: the fully-PPT interval
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/family.tex`,
+Source: `QI/hidden_entanglement/ppt_three_qubit/family.tex`,
 `thm:ppt3-family` (proof "PPT and rank claims"), with `eq:ppt3-interval` and `eq:ppt3-minors`.
 
 Setting (conventions of `Basic.lean`, `FamilyGME.lean`): `ρ_t = B X_t B†` is `rhoT t`, the partial

@@ -4,9 +4,9 @@ Source authority: `cmbant/QIprojects` main at `acfb127df5cc5998fb91cd00ea6e5311d
 
 Canonical source files:
 
-- `QI-D/code/certify_F4_exceptional_facet.py`
-- `QI-D/verification/certify_F4_exceptional_facet.txt`
-- `QI-D/notes/T33_REPORT.md`
+- `QI/weyl_convexity/code/certify_F4_exceptional_facet.py`
+- `QI/weyl_convexity/verification/certify_F4_exceptional_facet.txt`
+- `QI/weyl_convexity/notes/T33_REPORT.md`
 
 Lean modules:
 

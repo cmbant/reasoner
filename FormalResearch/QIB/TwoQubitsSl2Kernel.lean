@@ -9,7 +9,7 @@ Namespace `FormalResearch.QIB.Sl2Kernel`.  Claim class: **proved** (finite-dimen
 over `ℂ`; no analytic or group-theoretic input).
 
 This is the representation-theoretic step of the stabiliser proof of `prop:twoqubits`
-(`QI-B/paper/invariant_discrimination_exponents.tex`): "`L_a` acts on the irreducible spin-`j` carrier with
+(`QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`): "`L_a` acts on the irreducible spin-`j` carrier with
 a kernel of dimension at most one".  Here the statement is proved directly for an arbitrary finite-dimensional
 irreducible module of an `sl₂` triple, with no semisimple/nilpotent case split:
 

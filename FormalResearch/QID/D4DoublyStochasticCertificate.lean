@@ -11,7 +11,7 @@ namespace FormalResearch.QID
 # Type-D4 doubly-stochastic separation certificate
 
 This module matches the exact rational certificate in
-`cmbant/QIprojects:QI-D/code/certify_ds_strict_D4.py` and its committed
+`cmbant/QIprojects:QI/weyl_convexity/code/certify_ds_strict_D4.py` and its committed
 verification log, re-audited with QIprojects main at
 `cf5bb7ea42362d9557172a1df96ff1d567da2fe5`.
 

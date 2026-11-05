@@ -16,7 +16,7 @@ open scoped BigOperators
 This module matches the exact character calculation in
 `cmbant/QIprojects` at source commit
 `a32a35809edd12b7d7cb7c23b332edad36efa5bc`, specifically
-`QI-A/scripts/verify_local_schur_d3_overhead.py` and the consolidated QI-A
+`QI/finite_copy_memory/scripts/verify_local_schur_d3_overhead.py` and the consolidated QI-A
 manuscript.
 
 At three copies, a qubit retains the trivial and standard `S₃` sectors, while

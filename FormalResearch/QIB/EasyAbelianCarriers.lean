@@ -8,7 +8,7 @@ public import FormalResearch.QIB.BlockDecomp
 
 Namespace `FormalResearch.QIB`.  Claim class: **proved** (finite linear algebra, no new axiom).
 
-Source: `QI-B/paper/invariant_discrimination_exponents.tex`, `thm:abelian` ("every total-weight block of
+Source: `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`, `thm:abelian` ("every total-weight block of
 a pure-state twirl has rank one") and `prop:collapseregimes` (i).
 
 In the coordinates of `IsotypicInvariants` (the commutant of `G` is `{⊕_λ I_{A λ} ⊗ X_λ}`), if the

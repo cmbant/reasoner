@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # Three-qubit conventions for the rank-five fully-PPT family
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/family.tex`
+Source: `QI/hidden_entanglement/ppt_three_qubit/family.tex`
 (`eq:ppt3-vectors`, `eq:ppt3-curve`, `sec:ppt3-witness`) and
 `fully_ppt_three_qubit_gme.tex` in the QIprojects repository.
 

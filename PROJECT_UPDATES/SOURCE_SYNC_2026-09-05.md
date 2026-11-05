@@ -13,9 +13,9 @@ The research source corpus has moved to `cmbant/QIprojects`. From this point for
 
 - **Weyl/P3:** QIprojects current source is Paper III **v7.9.0**, provenance archive `paper3_v7_9_0_complete_handoff.zip`, main `Weyl/P3/paper/weyl_midpoint_semiclassics.tex`. The old v7.8.4 Lean-side update is genealogy only.
 - **q-Weyl:** QIprojects `Weyl/q-Weyl`, cumulative turn-8 handoff. Candidate global C2/six-edge claims remain mixed proof/evidence and are not dedicated-Lean-checked.
-- **Balanced Laguerre:** current repository classification is `ResearchNotes/Weyl/all_ratios_laguerre_balanced_pair.md`; v23 material is preserved under `ResearchNotes/Weyl/history/uniform_laguerre_balanced_pair/`. Do not retain `AUX-L` as a live project identity from archive filenames alone.
+- **Balanced Laguerre:** current repository classification is `Weyl/notes/uniform_laguerre_balanced_pair/README.md`; v23 material is preserved under `Weyl/notes/history/uniform_laguerre_balanced_pair/`. Do not retain `AUX-L` as a live project identity from archive filenames alone.
 - **Blaschke:** QIprojects `Blaschke/`, v13 provenance. Canonical paper source is `Blaschke/tex/paper/blaschke_virasoro.tex`. The quartic `U=(Re s)^2` coordinate issue is recorded in the project-local author update.
-- **QI-C:** QIprojects `QI-C/`; the semantic Endpoint14 determinant certificate is `QI-C/code/verify_qubit_ci_tail_proof.py` with the fixed 14x14 minor and exact factorization.
+- **QI-C:** QIprojects `QI/copy_complexity/`; the semantic Endpoint14 determinant certificate is `QI/copy_complexity/code/verify_qubit_ci_tail_proof.py` with the fixed 14x14 minor and exact factorization.
 
 ## Lean status at migration reconciliation
 

@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # The real inequality of the sharp critical-orbit stability (`CO-2`)
 
-Source: `ResearchNotes/QI/four_qubit_entropy/critical_orbit_stability.tex`, proof of
+Source: `QI/multiqubit_entanglement/four_qubit_entropy/critical_orbit_stability.tex`, proof of
 `thm:fqe-critical-orbit-sharp`, from "Assume henceforth that `Φ(v) ≤ 1/2`" to the decoupled bound
 `Q(v) + 2Φ_im(v) - 3/2 ≥ 𝒴(r₀,y) + 𝒳(p;x²) ≥ 0`.
 

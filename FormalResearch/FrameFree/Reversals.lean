@@ -11,7 +11,7 @@ public import FormalResearch.FrameFree.Arithmetic
 
 Elementary, fully proved parts of `thm:ratefails`, `thm:ratefailregion`, `thm:calgeom-fourgate`,
 `thm:calgeom-tensorisation`, `cor:calgeom-spin1extensive`, `thm:m4exponent`, `thm:expceiling` and
-`cor:fourdecoh`/`cor:fourgapfloor` (paper `ResearchNotes/QI/antiunitary_occupation/paper/long`).
+`cor:fourdecoh`/`cor:fourgapfloor` (paper `QI/time_reversal/antiunitary_occupation/paper/long`).
 
 `ξ_inv` is **not** defined in this file (`HasXiInv`, the limit of `-(1/k) log P_e(k)`, is in
 `XiInvUnconditional`, which restates these results with exact `ξ_inv`).  Wherever the argument here uses it, `ξ`

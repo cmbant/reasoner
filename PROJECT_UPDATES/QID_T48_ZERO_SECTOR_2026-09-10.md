@@ -8,7 +8,7 @@ Current QIprojects head at final promotion audit:
 
 Canonical source:
 
-`QI-D/code/certify_E6_F4_endpoint_locus_reduction.py`
+`QI/weyl_convexity/code/certify_E6_F4_endpoint_locus_reduction.py`
 
 Current source blob:
 
@@ -65,4 +65,4 @@ In particular it does **not** prove compact-E6 simultaneous Weyl convexity. The 
 
 ## Concurrent source drift note
 
-During this validation QIprojects also strengthened `QI-D/code/certify_E6_A2_phase_envelope.py` beyond the source version used for reasoner PR #18 by adding explicit regressions showing that the linear guard `d>=|a|` is not redundant. This does not invalidate the T48 module above, whose source blob is unchanged, but the E6 quartic Lean status should be reconciled separately before claiming full source-current coverage of that reduction.
+During this validation QIprojects also strengthened `QI/weyl_convexity/code/certify_E6_A2_phase_envelope.py` beyond the source version used for reasoner PR #18 by adding explicit regressions showing that the linear guard `d>=|a|` is not redundant. This does not invalidate the T48 module above, whose source blob is unchanged, but the E6 quartic Lean status should be reconciled separately before claiming full source-current coverage of that reduction.

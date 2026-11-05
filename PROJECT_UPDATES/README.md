@@ -33,14 +33,14 @@ A green workflow badge alone is never sufficient if relevant proof steps were di
 Useful current source-side entry points include:
 
 - `AGENTS.md` — source layout and Lean cross-repository rules;
-- `QI-A/notes/EXTENSION_PROJECTS.md` — current cross-QI theorem/extension priorities;
-- `QI-B/HANDOFF_2026-09-06.md` and `QI-B/B4-orbit-bergman/README_HANDOFF.md` — active B4 complex-orbit program and open flagship inequality;
-- `QI-B/B2-hamming/HANDOFF_MANIFEST.md` — canonical Hamming source layout;
-- `QI-C/code/verify_qubit_ci_tail_proof.py` — canonical Endpoint14/all-n qubit-tail semantic certificate;
+- `QI/finite_copy_memory/notes/history/EXTENSION_PROJECTS.md` — current cross-QI theorem/extension priorities;
+- `QI/invariant_discrimination/history/HANDOFF_2026-09-06.md` and `QI/invariant_discrimination/B4-orbit-bergman/history/README_HANDOFF.md` — active B4 complex-orbit program and open flagship inequality;
+- `QI/invariant_discrimination/B2-hamming/history/HANDOFF_MANIFEST.md` — canonical Hamming source layout;
+- `QI/copy_complexity/code/verify_qubit_ci_tail_proof.py` — canonical Endpoint14/all-n qubit-tail semantic certificate;
 - `Blaschke/HANDOFF.md` — current v13 target-free/Van-Vleck/transvectant direction and claim status;
 - `docs/agent_tasks/T20_lean_small_targets.md` — five small post-Endpoint Lean targets;
-- `QI-D/notes/operator_kostant/DS_STRICTLY_CONTAINS_CONV_D4.md` — exact-rational D4 strengthening certificate;
-- `ResearchNotes/README.md` — standalone new Weyl T2 and antiunitary-odd-invariant notes.
+- `QI/weyl_convexity/notes/history/DS_STRICTLY_CONTAINS_CONV_D4.md` — exact-rational D4 strengthening certificate;
+- `QI/README.md` — standalone new Weyl T2 and antiunitary-odd-invariant notes.
 
 Do **not** assume `QIprojects/docs/lean_status.md` is current on main: as of the 2026-09-07 audit it is not present on main, and the old copy exists only on a stale formalization branch. Likewise `QIprojects/docs/reasoner_head.txt` is an audit snapshot, not the live reasoner head.
 

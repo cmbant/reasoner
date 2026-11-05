@@ -13,7 +13,7 @@ public import FormalResearch.QIB.EasyRankOneSandwich
 Namespace `FormalResearch.QIB.TwoQubits`.  Claim class: **proved** (finite linear algebra; no
 exponentials, no analysis, no Lean-external input).
 
-Source: `QI-B/paper/invariant_discrimination_exponents.tex`, `prop:twoqubits`.
+Source: `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`, `prop:twoqubits`.
 
 The collective group is `Gcoll d = {u^{⊗ 2d} : u ∈ SU(2)}` on `(ℂ²⊗ℂ²)^{⊗ d}` (`Copies 2 d`).  For *any*
 isotypic coordinates `W` of it (`IsotypicInvariants A (transportSet W (Gcoll d))`, `Wᴴ W = 1 = W Wᴴ`), and

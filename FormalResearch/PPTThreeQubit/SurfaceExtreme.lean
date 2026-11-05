@@ -5,7 +5,7 @@ public import FormalResearch.PPTThreeQubit.Surface
 /-!
 # The explicit rational member `σ = N / 16323219`: GME
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/rank_five_surface.tex`,
+Source: `QI/hidden_entanglement/ppt_three_qubit/rank_five_surface.tex`,
 `cor:ppt3-extreme5` (`eq:ppt3-sigma5`), GME part.
 
 `σ = N / 16323219` with `N = 825000 ũũ† + 1440000 ww† + 2021184 vv† + 145200 (wv† + vw†)

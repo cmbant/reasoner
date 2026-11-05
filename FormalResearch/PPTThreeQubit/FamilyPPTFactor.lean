@@ -6,7 +6,7 @@ public import FormalResearch.PPTThreeQubit.PartialTranspose
 /-!
 # The rank-five family `ρ_t`: cyclic symmetry and the `LDL*` factorization of `ρ_t^{T_A}`
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/family.tex`,
+Source: `QI/hidden_entanglement/ppt_three_qubit/family.tex`,
 `thm:ppt3-family`, proof "PPT and rank claims" (cyclic symmetry, `eq:ppt3-minors`).
 
 Technical half of `FamilyPPT.lean`: `ρ_t` is invariant under the cyclic qubit shift

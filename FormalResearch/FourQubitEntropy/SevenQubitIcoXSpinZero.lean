@@ -6,7 +6,7 @@ public import FormalResearch.FourQubitEntropy.Attainment
 /-!
 # The four-qubit singlet sector of the icosahedral family (`prop:ico-m4-spinzero`, IM-1)
 
-`ResearchNotes/QI/seven_qubit_entanglement/balanced_purity.tex`, `prop:ico-m4-spinzero`.
+`QI/multiqubit_entanglement/seven_qubit_entanglement/balanced_purity.tex`, `prop:ico-m4-spinzero`.
 
 On four qubits (a four-site set `T`, ordered as the `l = 4` side of `maskCut 3 4 m`) the total-spin-zero
 subspace of `(ℝ²)^{⊗4}` is two-dimensional. `SpinZero v` is the real-linear condition

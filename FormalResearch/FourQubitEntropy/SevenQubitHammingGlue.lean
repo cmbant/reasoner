@@ -8,7 +8,7 @@ public import FormalResearch.NQubit.Reduced.PartialTrace
 /-!
 # Hamming-ball block purity: state-level glue (`thm:hamming-ball-schmidt`, `thm:low-excitation-exclusion`)
 
-Source: `ResearchNotes/QI/seven_qubit_entanglement/hamming_ball_schmidt.tex`.
+Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/hamming_ball_schmidt.tex`.
 
 **Proved here.** `hamming_rank_le_C` (complex version of the vertex-cover rank bound by `hammingRank`),
 `purity_bound_matrix` (matrix-level robust purity bound), and the state-level statements for

@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # Local shadow and complement asymmetry for odd `n` (`prop:shadow-complement`)
 
-`ResearchNotes/QI/seven_qubit_entanglement/shadow_equality_geometry.tex`, `prop:shadow-complement`.
+`QI/multiqubit_entanglement/seven_qubit_entanglement/shadow_equality_geometry.tex`, `prop:shadow-complement`.
 Setting: `z = |0⟩ u₀ + |1⟩ u₁` with `u_a` vectors of the (arbitrary finite-dimensional) complement
 space `E`, which carries the antiunitary involution `J = J_m` (`IsSpinFlip`: conjugate-linear,
 `⟨Jx, Jy⟩ = conj ⟨x, y⟩`, `J² = 1`; the case `J_m = ε^{⊗m} K` with `m` even is an instance, but

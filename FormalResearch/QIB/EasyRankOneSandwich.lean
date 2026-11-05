@@ -9,7 +9,7 @@ public import FormalResearch.QIB.EasyAbelianCarriers
 
 Namespace `FormalResearch.QIB`.  Claim class: **proved** (finite linear algebra; no new axiom).
 
-Source: `QI-B/paper/invariant_discrimination_exponents.tex`, `thm:abelian` (the Helstrom part of its
+Source: `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`, `thm:abelian` (the Helstrom part of its
 proof: "if `q ≤ p` and `F = |⟨u|v⟩|²`, the sector contribution lies in `[qF/4, qF/2]`") and
 `prop:collapseregimes` (i) (rank-one blocks).
 

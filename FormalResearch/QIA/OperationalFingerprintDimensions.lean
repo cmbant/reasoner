@@ -9,7 +9,7 @@ public import FormalResearch.QIA.MultiplicityProfileDimensions
 Source pin: `cmbant/QIprojects@1835b62a5ea6577c0ca685101276419cab04e671`.
 Exact external verifier blob:
 `d058c7650a6a75466eb47945c3948685d13f0533`
-(`QI-A/scripts/verify_operational_fingerprint.py`).
+(`QI/finite_copy_memory/scripts/verify_operational_fingerprint.py`).
 
 This module packages the finite dimension layer requested by T39.  It proves
 only the arithmetic/block-census certificate behind the four-qubit,

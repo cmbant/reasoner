@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # Hamming-ball Schmidt rank (`thm:hamming-ball-schmidt`, HB-0) and the `(7,3,2)` case (LE-5)
 
-`ResearchNotes/QI/seven_qubit_entanglement/hamming_ball_schmidt.tex`.
+`QI/multiqubit_entanglement/seven_qubit_entanglement/hamming_ball_schmidt.tex`.
 
 Everything is for real coefficient matrices. A pure `n`-qubit vector across a `k | m` cut (`n = k + m`) is
 a matrix `M : (Fin k → Bool) → (Fin m → Bool) → ℝ`; it lies in the Hamming ball `H_{≤ r}` when

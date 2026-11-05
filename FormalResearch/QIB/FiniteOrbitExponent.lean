@@ -8,7 +8,7 @@ public import FormalResearch.FrameFree.Helstrom
 
 Namespace `FormalResearch.QIB`.  Claim class: **proved** (no hypothesis beyond the stated finiteness of an orbit).
 
-Formalises `thm:finite` of `QI-B/paper/invariant_discrimination_exponents.tex` (label `thm:finite`) for an
+Formalises `thm:finite` of `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex` (label `thm:finite`) for an
 **arbitrary group of unitaries** `K = G ≤ U(ι)` acting diagonally on `k` copies (`u ↦ u^{⊗k}`): if at least
 one of the two projective `G`-orbits `{u y}`, `{u x}` of unit vectors `x, y ∈ ℂ^ι` is finite, then
 `F_G(x,y)^k / 4 ≤ P_e^G(k) ≤ s F_G(x,y)^k` (the upper bound for all large `k`, `s` the number of rays of the

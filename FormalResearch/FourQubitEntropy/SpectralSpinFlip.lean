@@ -6,7 +6,7 @@ public import FormalResearch.FourQubitEntropy.IsospectralOverlap
 /-!
 # The spectral spin-flip bound for four qubits
 
-Source: `ResearchNotes/QI/four_qubit_entropy/spectral_spinflip_bound.tex` (QIprojects PR 208),
+Source: `QI/multiqubit_entanglement/four_qubit_entropy/spectral_spinflip_bound.tex` (QIprojects PR 208),
 Proposition `prop:fqe-spectral-spinflip` and, through `IsospectralOverlap.lean`, Lemma
 `lem:fqe-isospectral-overlap`.
 

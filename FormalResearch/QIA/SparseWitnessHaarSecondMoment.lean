@@ -8,7 +8,7 @@ public import Mathlib
 Source authority: `cmbant/QIprojects@ec8d5c5210e6837992ace8fcf63da77c5f8a557e`.
 The QI-A T39 verifier is unchanged at blob
 `d058c7650a6a75466eb47945c3948685d13f0533`:
-`QI-A/scripts/verify_operational_fingerprint.py`.
+`QI/finite_copy_memory/scripts/verify_operational_fingerprint.py`.
 
 This module isolates the finite `S₆` cycle enumeration used by the canonical
 three-copy sparse chirality witness and the exact rational/binomial closed

@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # Isospectral overlap lemma (square bipartite case)
 
-Source: `ResearchNotes/QI/four_qubit_entropy/spectral_spinflip_bound.tex`, Lemma
+Source: `QI/multiqubit_entanglement/four_qubit_entropy/spectral_spinflip_bound.tex`, Lemma
 `lem:fqe-isospectral-overlap` (QIprojects PR 208).
 
 A bipartite pure state with `n × n` coefficient matrix `M` has marginals `ρ_A = M M†` and

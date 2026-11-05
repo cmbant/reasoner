@@ -5,7 +5,7 @@ public import FormalResearch.PPTThreeQubit.FamilyGME
 /-!
 # One support, both phases: `thm:ppt3-phase-coexistence` and `prop:ppt3-exposed-transition`
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/phase_coexistence.tex`
+Source: `QI/hidden_entanglement/ppt_three_qubit/phase_coexistence.tex`
 (`thm:ppt3-phase-coexistence`, `eq:ppt3-bs-same-support`, `prop:ppt3-exposed-transition`,
 `eq:ppt3-exposed-state`, `eq:ppt3-exact-phase-line`), with `B = B_1`, `q_1`, `H_5` of `family.tex`.
 

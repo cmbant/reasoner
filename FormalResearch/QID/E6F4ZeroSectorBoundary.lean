@@ -12,7 +12,7 @@ namespace FormalResearch.QID
 # QI-D T48 E6/F4 zero-sector boundary certificate
 
 Source authority:
-`cmbant/QIprojects:QI-D/code/certify_E6_F4_endpoint_locus_reduction.py`
+`cmbant/QIprojects:QI/weyl_convexity/code/certify_E6_F4_endpoint_locus_reduction.py`
 and its committed verification log, audited at QIprojects main
 `e2b93eda6ca2d1a9d9bf5ed280946c6b5cc71b25`.
 

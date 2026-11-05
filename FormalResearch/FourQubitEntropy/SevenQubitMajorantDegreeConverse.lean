@@ -7,7 +7,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitMajorantDegree
 # Hermite converse for the degree of a sharp scalar entropy majorant
 
 Completes `prop:seven-entropy-majorant-degree`
-(`ResearchNotes/QI/seven_qubit_entanglement/seven_qubit_entropy_joint.tex`) by the converse half
+(`QI/multiqubit_entanglement/seven_qubit_entanglement/seven_qubit_entropy_joint.tex`) by the converse half
 that `SevenQubitMajorantDegree.lean` left out.
 
 * `hermite_exists`: Hermite interpolation of degree `< 2|A|` for any values and slopes at the

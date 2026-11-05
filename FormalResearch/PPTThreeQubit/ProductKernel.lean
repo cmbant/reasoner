@@ -5,7 +5,7 @@ public import FormalResearch.PPTThreeQubit.PPTSeparable23
 /-!
 # The product-kernel lemma (`lem:ppt3-product-kernel`)
 
-Source: `ResearchNotes/QI/finite_copy_invariant_inference/ppt_three_qubit/appendix_moment_cone.tex`,
+Source: `QI/hidden_entanglement/ppt_three_qubit/appendix_moment_cone.tex`,
 `lem:ppt3-product-kernel`.
 
 The proof reduces a PPT operator on `ℂ² ⊗ ℂ⁴` with a product vector in its kernel to a PPT operator

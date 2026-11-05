@@ -9,7 +9,7 @@ public import FormalResearch.QIB.BlockExamples
 
 Namespace `FormalResearch.QIB`.  Claim class: **proved** (finite linear algebra).
 
-Source: `QI-B/paper/invariant_discrimination_exponents.tex`, `prop:twoqubits` (two qubits under collective
+Source: `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`, `prop:twoqubits` (two qubits under collective
 `SU(2)`: every multiplicity block has rank at most one).
 
 `TwoQubitsSl2Kernel.lean` proves the kernel lemma for an irreducible `sl₂` module.  This file packages it
