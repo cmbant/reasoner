@@ -33,6 +33,11 @@ public import FormalResearch.PPTThreeQubit.ChiralityBasics
 public import FormalResearch.PPTThreeQubit.ChiralityRays
 public import FormalResearch.PPTThreeQubit.Chirality
 public import FormalResearch.PPTThreeQubit.ChiralityStabiliser
+public import FormalResearch.PPTThreeQubit.ChiralityUnitary
+public import FormalResearch.PPTThreeQubit.RankProfile
+public import FormalResearch.PPTThreeQubit.WClass
+public import FormalResearch.PPTThreeQubit.WClassStates
+public import FormalResearch.PPTThreeQubit.WClassTilde
 
 /-!
 # Fully-PPT three-qubit GME: the rank-five family
@@ -76,6 +81,13 @@ Chirality (`ChiralityBasics.lean`, `ChiralityRays.lean`, `Chirality.lean`, `Chir
 (`R_s` contains exactly three fully product rays), `eq_smul_one_of_eigen` (Möbius maps are determined by
 three points), `no_local_filter_conj`, `no_local_filter_conj_onto`, `no_local_filter_state`,
 `stabiliser_iff`, `exists_filter_perm`, `eq_smul_of_perm`.
+
+Local-unitary chirality, ranks and the mixed `W` class: `ChiralityUnitary.lean` (`ppt3_chirality_conj`,
+`ppt3_chirality_timeReverse`: no local unitary relates `ρ_t` to `ρ̄_t` or to its spin time reversal;
+`cor:ppt3-chirality` (a)), `RankProfile.lean` (`rankProfile_rhoT_interior` `(5,8,8,8)`,
+`rankProfile_rhoT_tMinus`/`tPlus` `(5,7,7,7)`, `rankProfile_rhoSurface` `(5,5,5,5)`, `rankProfile_sigma6`
+`(5,6,6,6)`), `WClass.lean`, `WClassStates.lean`, `WClassTilde.lean` (`IsWClass`, `ppt3_w_class`,
+`isWClass_rhoTilde`; `thm:ppt3-w-class`).
 -/
 
 @[expose] public section

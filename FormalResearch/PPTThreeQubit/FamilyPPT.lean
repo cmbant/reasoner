@@ -31,8 +31,8 @@ positive semidefinite principal block together with the two fourth minors
 `3(8t² - 15t - 36)` and `-3(t - 3)(3t² + 4t - 48)` of `eq:ppt3-minors`
 (`det_blockEven`, `det_blockOdd`).
 
-Not covered here: the rank profile `(5, 8, 8, 8)` / `(5, 7, 7, 7)`, rank five of `ρ_t`, and
-minimality of rank five (low-rank PPT theorem).  The leading `1 × 1`, `2 × 2`, `3 × 3` minors of
+Not covered here: the rank profile `(5, 8, 8, 8)` / `(5, 7, 7, 7)` and rank five of `ρ_t`
+(see `RankProfile.lean`), and minimality of rank five (low-rank PPT theorem).  The leading `1 × 1`, `2 × 2`, `3 × 3` minors of
 `eq:ppt3-minors` are not stated separately: they appear as the pivot ratios `dpiv`.
 -/
 
