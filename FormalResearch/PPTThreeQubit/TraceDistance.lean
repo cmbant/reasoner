@@ -16,14 +16,17 @@ Source: `QI/hidden_entanglement/ppt_three_qubit/family.tex` (`cor:ppt3-symmetris
   `tr(Wρ) = -g`, `tr(Wσ) ≥ 0` (the `eq:ppt3-stability`-type bound used in `eq:ppt3-dist-lift`);
 * `kernel_lift_distance`: `eq:ppt3-dist-lift`, for the lifted witness `W = W₀ + λ K†K`
   with `-L ≤ W₀ ≤ L` and `K†K ≤ β`;
+* `kernel_quant_form`: the conditional quadratic form of `prop:ppt3-kernel-quant` for an abstract compressed
+  witness `Ω` and kernel-penalty map `M` (`⟨b,Ωb⟩ + λ‖Mb‖² ≥ 0` for `λ = (L + L²/α)/μ`);
+* `bsDist_le_cyclic`: the cyclic form `¼‖ρ - SρS‖₁` for the transpositions `S_AC`, `S_AB`;
 * `kernel_quant_core`: the scalar inequality behind `eq:ppt3-lambda`
   (`α a² - 2 L a b + (λμ - L) b² ≥ 0` for `λ = (L + L²/α)/μ`);
 * `bsDist_le_permAvg`: `eq:ppt3-asymmetry-upper`; `bsDist_le_swap_average`: the pinching bound of
   `eq:ppt3-pinch` in the Hermitian form `¼‖ρ - S_BC ρ S_BC‖₁`.
 
 Not formalised: the identification of `¼‖ρ - S_BC ρ S_BC‖₁` with the non-Hermitian trace norm
-`‖P₃ ρ P₁‖₁` of `eq:ppt3-pinch`, the cyclic form for a general transposition, and the cut-product
-geometry (`M_c(a)`, `Ω_c(a)`) that discharges the hypotheses of `prop:ppt3-kernel-quant`.
+`‖P₃ ρ P₁‖₁` of `eq:ppt3-pinch`, and the instantiation of `kernel_quant_form` with the cut-product
+maps `M_c(a)`, `Ω_c(a)` of `prop:ppt3-kernel-quant` (the constants `α`, `μ` for a given witness).
 -/
 
 @[expose] public section
@@ -255,6 +258,87 @@ theorem bsDist_le_swap_average {ρ : Matrix (Fin 8) (Fin 8) ℂ} (hρ : ρ.PosSe
 /-- info: 'FormalResearch.PPTThreeQubit.bsDist_le_swap_average' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms bsDist_le_swap_average
+
+/-- For a cyclically invariant `ρ`, the conjugations by the three transpositions agree. -/
+theorem submatrix_swapAC_of_cyclic {ρ : Matrix (Fin 8) (Fin 8) ℂ}
+    (hc : ∀ i j, ρ (cycShift i) (cycShift j) = ρ i j) :
+    ρ.submatrix swapAC swapAC = ρ.submatrix swapBC swapBC := by
+  have e : ∀ i, swapAC i = cycShift (swapBC i) := by decide
+  ext i j
+  simp only [submatrix_apply, e, hc]
+
+theorem submatrix_swapAB_of_cyclic {ρ : Matrix (Fin 8) (Fin 8) ℂ}
+    (hc : ∀ i j, ρ (cycShift i) (cycShift j) = ρ i j) :
+    ρ.submatrix swapAB swapAB = ρ.submatrix swapBC swapBC := by
+  have e : ∀ i, swapAB i = cycShift (cycShift (swapBC i)) := by decide
+  ext i j
+  simp only [submatrix_apply, e, hc]
+
+/-- **`eq:ppt3-asymmetry-upper`, cyclic case.**  If `ρ` is cyclically invariant and PPT at `A|BC`, then
+for the transposition `S = S_BC` (equally `S_AC`, `S_AB`, by `submatrix_swapAC_of_cyclic`,
+`submatrix_swapAB_of_cyclic`), `D(ρ, BS) ≤ ¼‖ρ - S ρ S‖₁`.  This is `bsDist_le_swap_average`. -/
+theorem bsDist_le_cyclic {ρ : Matrix (Fin 8) (Fin 8) ℂ} (hρ : ρ.PosSemidef)
+    (hT : (ptA ρ).PosSemidef) (ht : ρ.trace = 1) :
+    (∀ i j, ρ (cycShift i) (cycShift j) = ρ i j) →
+      bsDist ρ ≤ (1 / 4) * tnorm (ρ - ρ.submatrix swapAC swapAC) ∧
+      bsDist ρ ≤ (1 / 4) * tnorm (ρ - ρ.submatrix swapAB swapAB) := by
+  intro hc
+  rw [submatrix_swapAC_of_cyclic hc, submatrix_swapAB_of_cyclic hc]
+  exact ⟨bsDist_le_swap_average hρ hT ht, bsDist_le_swap_average hρ hT ht⟩
+
+/-- info: 'FormalResearch.PPTThreeQubit.bsDist_le_cyclic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms bsDist_le_cyclic
+
+/-! ### The conditional quadratic form of `prop:ppt3-kernel-quant` -/
+
+section KernelQuant
+open scoped InnerProductSpace
+
+variable {E F : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E] [FiniteDimensional ℂ E]
+  [NormedAddCommGroup F] [InnerProductSpace ℂ F]
+
+/-- **`prop:ppt3-kernel-quant`, the conditional quadratic form** (abstract form).  `T` is the compressed
+witness `Ω = (a† ⊗ I) W₀ (a ⊗ I)` (self-adjoint, `|⟨x, Ωy⟩| ≤ L‖x‖‖y‖` from `‖W₀‖ ≤ L`, `Ω ≥ α` on
+`ker M`) and `M = M_c(a)` the kernel-penalty map with `‖Mv‖² ≥ μ‖v‖²` on `(ker M)^⊥`.  Then for
+`λ = (L + L²/α)/μ` the form `⟨b, Ωb⟩ + λ‖Mb‖²` is non-negative on all of `E`. -/
+theorem kernel_quant_form (T : E →ₗ[ℂ] E) (M : E →ₗ[ℂ] F) {α L μ lam : ℝ} (hα : 0 < α) (hL0 : 0 ≤ L) (hμ : 0 < μ)
+    (hlam : lam = (L + L ^ 2 / α) / μ)
+    (hT : ∀ x y, ⟪x, T y⟫_ℂ = ⟪T x, y⟫_ℂ)
+    (hL : ∀ x y, |(⟪x, T y⟫_ℂ).re| ≤ L * ‖x‖ * ‖y‖)
+    (hker : ∀ u, M u = 0 → α * ‖u‖ ^ 2 ≤ (⟪u, T u⟫_ℂ).re)
+    (hperp : ∀ v ∈ (LinearMap.ker M)ᗮ, μ * ‖v‖ ^ 2 ≤ ‖M v‖ ^ 2) (b : E) :
+    0 ≤ (⟪b, T b⟫_ℂ).re + lam * ‖M b‖ ^ 2 := by
+  set K : Submodule ℂ E := LinearMap.ker M with hK
+  set u : E := K.starProjection b with hu
+  set v : E := b - u with hv
+  have hu_mem : u ∈ K := K.starProjection_apply_mem b
+  have hv_mem : v ∈ Kᗮ := K.sub_starProjection_mem_orthogonal b
+  have hMu : M u = 0 := hu_mem
+  have hb : b = u + v := by simp [hv]
+  have hMb : M b = M v := by rw [hb, map_add, hMu, zero_add]
+  have e1 : (⟪b, T b⟫_ℂ).re = (⟪u, T u⟫_ℂ).re + 2 * (⟪u, T v⟫_ℂ).re + (⟪v, T v⟫_ℂ).re := by
+    have h1 : (⟪v, T u⟫_ℂ).re = (⟪u, T v⟫_ℂ).re := by
+      rw [hT v u]; exact inner_re_symm (𝕜 := ℂ) (T v) u
+    conv_lhs => rw [hb]
+    simp only [map_add, inner_add_left, inner_add_right, Complex.add_re]
+    rw [h1]; ring
+  have h1 := hker u hMu
+  have h2 := (abs_le.mp (hL u v)).1
+  have h3 := (abs_le.mp (hL v v)).1
+  have h4 := hperp v hv_mem
+  have hcore := kernel_quant_core (a := ‖u‖) (b := ‖v‖) (L := L) hα hμ hlam
+  rw [e1, hMb]
+  have hlm : 0 ≤ lam := by
+    rw [hlam]
+    positivity
+  nlinarith [norm_nonneg u, norm_nonneg v, mul_le_mul_of_nonneg_left h4 hlm]
+
+/-- info: 'FormalResearch.PPTThreeQubit.kernel_quant_form' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms kernel_quant_form
+
+end KernelQuant
 
 end
 
