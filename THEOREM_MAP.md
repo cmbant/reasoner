@@ -268,7 +268,8 @@ Statement scope against the current paper (`four_qubit_entropy.tex` and its supp
   distinguished qubit `s`, `odd_weight_identities` proves both boxed identities, `∑_{j odd} B_j = 2^m/2 · tr ρ_s² - 2^m/4 · q_s`
   and `2^m ‖ρ̄ - Jρ̄J⁻¹‖₂² = 4 ∑_{j odd} B_j`, with no hypothesis other than `Even m` (`B_j = weightEnumExcl ψ s j`,
   `tr ρ_s² = cutPurity ψ {s}`, `q_s = shadowQ (spinFlipOp (univ.erase s)) (branchVec ψ s)`, `‖A‖₂² = hsNormSq A = Re tr(A†A)`,
-  `J = spinFlipOp = ε^{⊗m} K`, `ρ̄ = rho (branchVec ψ s)` which `rdm_eq_sum` identifies with the library's `rdm`). The Pauli
+  `J = spinFlipOp = ε^{⊗m} K`, `ρ̄ = rho (branchVec ψ s)` whose matrix is the library's `rdm` (`rho_branchVec_single`, `rdm_eq_sum`); `weightEnumExcl_eq_sum_trace_sq`:
+  `B_j = ∑_{wt P = j} (tr ρ̄ P)²` via `trace_rdm_pauli`). The Pauli
   expansions are discharged from `Reduced/Purity` and `TimeReversal/OddOverlap`: `two_pow_mul_cutPurity_erase`
   (`2^m tr ρ̄² = ∑ B_j`), `two_pow_mul_sum_Tm` (`2^m tr(ρ̄ J ρ̄ J⁻¹) = ∑ (-1)^j B_j`, via `Rspin_eq` and `two_pow_mul_Rspin`),
   `cutPurity_erase` (`tr ρ̄² = tr ρ_s²`), `isSpinFlip_spinFlipOp`; the abstract model gives `shadowQ_eq` (`q_s = 2‖T‖_F²`),

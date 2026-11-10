@@ -18,8 +18,8 @@ qubit `s`; no hypothesis other than `Even m` is assumed.
   (`ψ = |0⟩_s u₀ + |1⟩_s u₁`); `rdm_eq_sum` identifies it with the explicit partial trace `rdm`.
 * `J = J_m = ε^{⊗m} K` is `spinFlipOp (univ.erase s)`; it is an antiunitary involution for `m` even
   (`isSpinFlip_spinFlipOp`).
-* `B_j = weightEnumExcl ψ s j = ∑_{wt P = j} ⟨ψ|P_{\bar s} ⊗ I_s|ψ⟩²`, the Pauli weight coefficients of `ρ̄`
-  (`tr(ρ̄ P) = ⟨ψ|P ⊗ I_s|ψ⟩`).
+* `B_j = weightEnumExcl ψ s j = ∑_{wt P = j} (tr ρ̄ P)²`, the Pauli weight coefficients of `ρ̄`, `P` ranging over the
+  Hermitian Pauli strings on the other `m` qubits (`weightEnumExcl_eq_sum_trace_sq`).
 * `q_s = shadowQ J z` with `z = branchVec ψ s`.
 
 Headline results (proved, no hypotheses beyond `Even m`):
@@ -34,12 +34,10 @@ Headline results (proved, no hypotheses beyond `Even m`):
   `odd_weight_arith`.
 * `takagi_frobenius`, `shadowQ_takagi`, `odd_weight_takagi`: if the normalized overlap matrix `T̂ = 2T` has a
   Takagi factorization `T̂ = U diag(t) Uᵀ` (`U` unitary, `t` real), then `q_s = (t₁² + t₂²)/2`, and for
-  `tr ρ_s² = 1/2` (`ρ_s = I/2`) `∑_{j odd} B_j = 2^{n-3}(1 - (t₁² + t₂²)/2)`. Existence of the Takagi
-  factorization and the basis independence of the `t_i` are not formalized.
+  `tr ρ_s² = 1/2` (`ρ_s = I/2`) `∑_{j odd} B_j = 2^{n-3}(1 - (t₁² + t₂²)/2)`.
 
-Not covered: `B_j` is the library's `weightEnumExcl` (squared Pauli expectations of the Hermitian words
-supported off `s`); the identification of `⟨ψ|P ⊗ I_s|ψ⟩` with `tr(ρ̄ P)` is the definition of the reduced state
-and is not restated here.
+Not covered: existence of the Takagi factorization and the basis independence of the `t_i`; the distinguished qubit
+`s` is an arbitrary `Fin (m + 1)`, and `n = 1` (`m = 0`) is included.
 -/
 
 @[expose] public section

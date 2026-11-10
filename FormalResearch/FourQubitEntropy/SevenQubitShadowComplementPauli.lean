@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.FourQubitEntropy.SevenQubitShadowComplementModel
 public import FormalResearch.NQubit.TimeReversal.OddOverlap
+public import FormalResearch.NQubit.Pauli.Hermitian
 
 /-!
 # Concrete model for `prop:shadow-complement`: `J = ε^{⊗m} K` and the Pauli expansions of `ρ̄`
@@ -19,6 +20,9 @@ qubit `s`, put `S = univ.erase s` (the other `m = n - 1` qubits):
   complementary reductions of a pure state have equal purity).
 * `Rspin_eq`: the library's spin-flip overlap `R_{ρ̄} = tr(ρ̄ ρ̃)` (`ρ̃ = σ_y^{⊗m} ρ̄* σ_y^{⊗m}`, the matrix of
   `J ρ̄ J⁻¹`) equals `∑_{a,b} |T_{ab}|² = tr(ρ̄ J ρ̄ J⁻¹)`, `T_{ab} = ⟨u_a, J u_b⟩` (`Tm_eq`).
+* `rho_branchVec_single`: the matrix of the abstract `ρ̄ = rho (branchVec ψ s)` is `rdm ψ S`;
+  `trace_rdm_pauli`: `tr(ρ̄ P_a) = ⟨ψ|P_a ⊗ I_s|ψ⟩` for the Hermitian Pauli string `P_a = pauliOn S a`, and
+  `weightEnumExcl_eq_sum_trace_sq`: `B_j = weightEnumExcl ψ s j = ∑_{wt P = j} (tr ρ̄ P)²`.
 * `two_pow_mul_cutPurity_erase`: `2^m tr ρ̄² = ∑_j B_j` and `two_pow_mul_sum_Tm`: `2^m tr(ρ̄ J ρ̄ J⁻¹) = ∑_j (-1)^j B_j`,
   with `B_j = weightEnumExcl ψ s j`, from the library's `two_pow_mul_cutPurity` and `two_pow_mul_Rspin`
   (Pauli completeness and its signed form), regrouped by weight (`sum_wsupp_fiber`).
@@ -305,6 +309,72 @@ theorem trace_rho_rho_eq {m : ℕ} (ψ : Ψ (m + 1)) (s : Fin (m + 1)) :
   rw [trace_rho_rho, ← cutPurity_erase, ← Complex.ofReal_re (cutPurity ψ _), cutPurity_eq_trace,
     trace_rdm_sq_eq]
 
+/-! ### `B_j = ∑_{wt P = j} (tr ρ̄ P)²` -/
+
+/-- The Hermitian Pauli string `P_a` of the qubits in `S` (the letters of `a` on `S`), as a matrix. -/
+noncomputable def pauliOn (S : Finset (Fin n)) (a : Fin n → Fin 4) : Matrix (CfgOn S) (CfgOn S) ℂ :=
+  fun x y => ∏ i : {i // i ∈ S}, pauliMat (a i) (x i) (y i)
+
+theorem glue_prod (S : Finset (Fin n)) {a : Fin n → Fin 4} (ha : a ∈ wsupp S) (y x : CfgOn S)
+    (t t' : CfgOff S) :
+    ∏ i, pauliMat (a i) (glue S y t i) (glue S x t' i) =
+      pauliOn S a y x * (if t = t' then 1 else 0) := by
+  have h1 : ∏ i : {i // i ∈ S}, pauliMat (a i) (glue S y t i) (glue S x t' i) = pauliOn S a y x := by
+    refine Finset.prod_congr rfl fun i _ => ?_
+    simp [glue, i.2]
+  have h2 : ∏ i : {i // i ∉ S}, pauliMat (a i) (glue S y t i) (glue S x t' i) = if t = t' then 1 else 0 := by
+    have h0 : ∀ i : {i // i ∉ S}, a i = 0 := fun i => mem_wsupp.mp ha i.1 i.2
+    have h3 : ∀ i : {i // i ∉ S}, pauliMat (a i) (glue S y t i) (glue S x t' i) =
+        if t i = t' i then 1 else 0 := by
+      intro i
+      simp [h0 i, glue, i.2, pauliMat, Matrix.one_apply]
+    simp_rw [h3]
+    rw [Finset.prod_boole]
+    simp [funext_iff]
+  have e1 : ∏ i ∈ S, pauliMat (a i) (glue S y t i) (glue S x t' i) =
+      ∏ i : {i // i ∈ S}, pauliMat (a i) (glue S y t i) (glue S x t' i) :=
+    Finset.prod_subtype S (fun _ => Iff.rfl) _
+  have e2 : ∏ i ∈ Sᶜ, pauliMat (a i) (glue S y t i) (glue S x t' i) =
+      ∏ i : {i // i ∉ S}, pauliMat (a i) (glue S y t i) (glue S x t' i) :=
+    Finset.prod_subtype Sᶜ (fun x => Finset.mem_compl) _
+  rw [← Finset.prod_mul_prod_compl S, e1, e2, h1, h2]
+
+/-- **`⟨ψ|P_a ⊗ I|ψ⟩ = tr(ρ̄ P_a)`** for a Hermitian Pauli word supported in `S`. -/
+theorem trace_rdm_pauli (ψ : Ψ n) (S : Finset (Fin n)) {a : Fin n → Fin 4} (ha : a ∈ wsupp S) :
+    ((rdm ψ S) * pauliOn S a).trace = pauliExp ψ a := by
+  unfold pauliExp FormalResearch.NQubit.ip FormalResearch.NQubit.rot
+  simp only [sum_cfg_glue S, glue_prod S ha]
+  have hcol : ∀ (y : CfgOn S) (t : CfgOff S),
+      ∑ x : CfgOn S, ∑ t' : CfgOff S, pauliOn S a y x * (if t = t' then 1 else 0) * ψ (glue S x t')
+        = ∑ x : CfgOn S, pauliOn S a y x * ψ (glue S x t) := by
+    intro y t
+    refine Finset.sum_congr rfl fun x _ => ?_
+    simp [mul_ite, Finset.sum_ite_eq]
+  simp only [hcol]
+  simp only [Matrix.trace, Matrix.diag, Matrix.mul_apply, rdm, Finset.sum_mul, Finset.mul_sum]
+  rw [Finset.sum_comm]
+  refine Finset.sum_congr rfl fun y _ => ?_
+  rw [Finset.sum_comm]
+  refine Finset.sum_congr rfl fun t _ => Finset.sum_congr rfl fun x _ => ?_
+  ring
+
+/-- **`B_j = ∑_{wt P = j} (tr ρ̄ P)²`**: the library's `weightEnumExcl` is the Pauli weight enumerator of the
+explicit reduced matrix `ρ̄ = rdm ψ (univ.erase s)`, summed over Hermitian Pauli strings `P` on the other qubits. -/
+theorem weightEnumExcl_eq_sum_trace_sq (ψ : Ψ n) (s : Fin n) (j : ℕ) :
+    weightEnumExcl ψ s j = ∑ a ∈ (wsupp (Finset.univ.erase s)).filter (fun a => pauliWeight a = j),
+      ((rdm ψ (Finset.univ.erase s) * pauliOn (Finset.univ.erase s) a).trace.re) ^ 2 := by
+  unfold weightEnumExcl
+  refine Finset.sum_congr rfl fun a ha => ?_
+  rw [trace_rdm_pauli ψ _ (Finset.mem_filter.mp ha).1, pauliSq_eq_pauliExp_sq]
+
+/-- **The abstract `ρ̄ = ∑_a |u_a⟩⟨u_a|` has the matrix `rdm ψ S`:** its `(x, y)` entry, `⟨e_x| ρ̄ |e_y⟩`, is
+the explicit partial trace. -/
+theorem rho_branchVec_single (ψ : Ψ n) (s : Fin n) (x y : CfgOn (Finset.univ.erase s)) :
+    rho (branchVec ψ s) (EuclideanSpace.single y 1) x = rdm ψ (Finset.univ.erase s) x y := by
+  rw [rdm_eq_sum]
+  simp [rho, rank1, EuclideanSpace.inner_single_right]
+  ring
+
 end FormalResearch.FourQubitEntropy.SevenQubitShadowComplement
 
 /-- info: 'FormalResearch.FourQubitEntropy.SevenQubitShadowComplement.isSpinFlip_spinFlipOp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -318,3 +388,7 @@ end FormalResearch.FourQubitEntropy.SevenQubitShadowComplement
 /-- info: 'FormalResearch.FourQubitEntropy.SevenQubitShadowComplement.two_pow_mul_sum_Tm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.FourQubitEntropy.SevenQubitShadowComplement.two_pow_mul_sum_Tm
+
+/-- info: 'FormalResearch.FourQubitEntropy.SevenQubitShadowComplement.weightEnumExcl_eq_sum_trace_sq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.FourQubitEntropy.SevenQubitShadowComplement.weightEnumExcl_eq_sum_trace_sq
