@@ -160,7 +160,7 @@ theorem IsSeparable.exists_smul_mem_hull [Nonempty ι] [Nonempty κ]
 theorem isClosed_isSeparable_of_nonempty [Nonempty ι] [Nonempty κ] :
     IsClosed {X : Matrix (ι × κ) (ι × κ) ℂ | IsSeparable X} := by
   set H := convexHull ℝ (unitProd ι κ) with hHdef
-  have hH : IsCompact H := ConvexGeometry.isCompact_convexHull_of_isCompact isCompact_unitProd
+  have hH : IsCompact H := FormalResearch.ConvexGeometry.isCompact_convexHull_of_isCompact isCompact_unitProd
   set Q : ℝ → Set (Matrix (ι × κ) (ι × κ) ℂ) :=
     fun T => (fun p : ℝ × Matrix (ι × κ) (ι × κ) ℂ => p.1 • p.2) '' (Icc 0 T ×ˢ H) with hQdef
   have hQ : ∀ T, IsCompact (Q T) := fun T =>
