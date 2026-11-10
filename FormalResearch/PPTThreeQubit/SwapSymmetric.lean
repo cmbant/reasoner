@@ -26,9 +26,9 @@ positive on `ℂ² ⊗ ℂ¹`.  Hence:
 * `isBiseparable_permAvg`: for a fully-PPT `ρ`, the permutation average `(1/6) ∑_π U_π ρ U_π†`
   (`permAvg`, over the six qubit permutations) is biseparable (`cor:ppt3-symmetrisation` (b), the
   biseparability of `𝒮(ρ)`).
-Not formalised: the trace-distance bounds `eq:ppt3-asymmetry-upper`, `eq:ppt3-pinch` (they need the
-trace norm and the biseparable distance), the identification of the swap average with the
-`P₃, P₁` pinching, and the statement that `𝒮(ρ)` is separable across each cut separately.
+The trace-distance bounds `eq:ppt3-asymmetry-upper`, `eq:ppt3-pinch` are in `TraceDistance.lean`.
+Not formalised: the identification of the swap average with the `P₃, P₁` pinching, and the statement
+that `𝒮(ρ)` is separable across each cut separately.
 -/
 
 @[expose] public section
@@ -357,8 +357,8 @@ theorem permAvg_ptA {ρ : Matrix (Fin 8) (Fin 8) ℂ} (hA : (ptA ρ).PosSemidef)
 
 /-- **`cor:ppt3-symmetrisation` (b), biseparability.**  For every fully-PPT three-qubit operator
 `ρ`, the permutation average `(1/6) ∑_π U_π ρ U_π†` is biseparable (it is fully PPT and invariant
-under every transposition, so `isBiseparable_of_swapBC` applies).  Not formalised: the distance
-bound `eq:ppt3-asymmetry-upper`. -/
+under every transposition, so `isBiseparable_of_swapBC` applies).  The distance bound
+`eq:ppt3-asymmetry-upper` is `bsDist_le_permAvg` in `TraceDistance.lean`. -/
 theorem isBiseparable_permAvg {ρ : Matrix (Fin 8) (Fin 8) ℂ} (hρ : ρ.PosSemidef)
     (hA : (ptA ρ).PosSemidef) (hB : (ptB ρ).PosSemidef) (hC : (ptC ρ).PosSemidef) :
     IsBiseparable (permAvg ρ) :=
