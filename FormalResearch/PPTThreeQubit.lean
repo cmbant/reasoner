@@ -28,6 +28,7 @@ public import FormalResearch.PPTThreeQubit.SwapSymmetric
 public import FormalResearch.PPTThreeQubit.PPTSeparable23
 public import FormalResearch.PPTThreeQubit.ExtremeCriterion
 public import FormalResearch.PPTThreeQubit.SigmaExtreme
+public import FormalResearch.PPTThreeQubit.TraceDistance
 public import FormalResearch.PPTThreeQubit.ChiralityBasics
 public import FormalResearch.PPTThreeQubit.ChiralityRays
 public import FormalResearch.PPTThreeQubit.Chirality
