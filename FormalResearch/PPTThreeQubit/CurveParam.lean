@@ -315,8 +315,8 @@ product across any of the three cuts.  Then there are invertible `T_c` (`c = A, 
   (`eq:ppt3-universal-dual`).
 
 No hypothesis beyond those stated; in particular nothing from the Horodecki 2⊗3 theorem is used here.
-Not formalised: the Carathéodory bound "at most 25 cut-product projectors" and closedness of the cone;
-`H`, `X` are not required to be Hermitian (the statements hold without). -/
+The Carathéodory bound "at most 25 cut-product projectors" and closedness of the cone are in
+`MomentConeCaratheodory.lean`; `H`, `X` are not required to be Hermitian (the statements hold without). -/
 theorem ppt3_universal_moments (B : Matrix (Fin 8) (Fin 5) ℂ) (K : Matrix (Fin 8) (Fin 3) ℂ)
     (hB : Function.Injective B.mulVec) (hKB : Kᴴ * B = 0)
     (hfree : ∀ y : Fin 3 → ℂ, y ≠ 0 → ¬ IsCutProduct (K *ᵥ y)) :

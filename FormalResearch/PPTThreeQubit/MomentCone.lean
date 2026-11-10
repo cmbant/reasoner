@@ -19,7 +19,8 @@ product vectors of `range B` are exactly the multiples of `B T_c ν(a)` (hypothe
 
 `mem_range_of_sum_eq` is the paper's remark that a positive decomposition of an operator supported on
 `range B` uses only vectors of `range B`.  Invertibility of `T_c` is not needed for these equivalences.
-Not formalised here: the Carathéodory bound "at most 25 terms" and closedness of the cone.
+The Carathéodory bound "at most 25 terms" and closedness of the cone are in
+`MomentConeCaratheodory.lean` (`biseparable_card_le_25`, `isClosed_inMomentCone`).
 -/
 
 @[expose] public section
