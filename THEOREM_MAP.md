@@ -263,6 +263,15 @@ Statement scope against the current paper (`four_qubit_entropy.tex` and its supp
   Pauli words (closed under letterwise product) having `⟨P⟩² = 1`. Axioms `[propext, Classical.choice, Quot.sound]`.
   Sharpness: `SevenQubitStab7` has the witness graph with `π₃ = 19/140` (recalled graph-state formula; graph states are not
   yet shown to be `IsStabilizerState`).
+- `prop:rains-faces` (`n = 7, 13, 19, 20`), for every unit vector, not only stabilizer states (`SevenQubitRainsEquality`): the Rains bound
+  `L_n ≤ π_{⌊n/2⌋}` (`rains_bound_<n>`, exact dual certificates `es<n>`, `ys<n>` checked by `decide +kernel`; `L_n = 1/8, 25/1408,
+  93/38896, 1193/739024`); a state attaining it has the unique Pauli weight distribution `tgtL<n>` and shadow distribution `sh<n>`
+  (`rains_equality_profile_<n>`, `rains_equality_shadow_<n>`), because the certificates are strictly complementary on the listed
+  zero weights and zero shadow coefficients (`lp_slack`, `lp_equality_zero`, `faceR_of_equality`) and the face has one point
+  (`faceR_unique_of_data`, the integer left inverses of `SevenQubitRainsFaces`). For `n = 7, 13` the profile has `S_1 = 7/4`,
+  `S_3 = 39/4`, so **no stabilizer state attains the bound** (`stabilizer_ne_rains_7`, `stabilizer_ne_rains_13`). Not covered:
+  existence of a state with these profiles, and the `n = 20` Type I additive `F₄` code reading. Axioms
+  `[propext, Classical.choice, Quot.sound]`.
 - `SevenQubitIcoContraction` and `SevenQubitIcoContractGram` (`esG1_*`, `esG2_contain`) are not paper statements: the paper
   proves `prop:entropy-seven-stationarity` from `lem:seven-family-symmetric-criticality` (not formalized) and no longer
   displays these identities.
