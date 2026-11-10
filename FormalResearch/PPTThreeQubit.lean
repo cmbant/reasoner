@@ -31,6 +31,7 @@ public import FormalResearch.PPTThreeQubit.ChiralityBasics
 public import FormalResearch.PPTThreeQubit.ChiralityRays
 public import FormalResearch.PPTThreeQubit.Chirality
 public import FormalResearch.PPTThreeQubit.ChiralityStabiliser
+public import FormalResearch.PPTThreeQubit.ChiralityUnitary
 
 /-!
 # Fully-PPT three-qubit GME: the rank-five family
