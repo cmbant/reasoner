@@ -27,6 +27,7 @@ public import FormalResearch.PPTThreeQubit.KernelPenalty
 public import FormalResearch.PPTThreeQubit.SwapSymmetric
 public import FormalResearch.PPTThreeQubit.PPTSeparable23
 public import FormalResearch.PPTThreeQubit.ExtremeCriterion
+public import FormalResearch.PPTThreeQubit.SigmaExtreme
 public import FormalResearch.PPTThreeQubit.ChiralityBasics
 public import FormalResearch.PPTThreeQubit.ChiralityRays
 public import FormalResearch.PPTThreeQubit.Chirality
@@ -52,7 +53,8 @@ criterion of Garberg--Irgens--Myrheim used for `cor:ppt3-extreme6` and `cor:ppt3
 `ExtremeCriterion.mem_extremePoints_iff_faceDirection` (generic: a state of the unit-trace set cut out by
 finitely many real-linear cut maps is extreme iff every face direction is a multiple of it),
 `ExtremeCriterion.mem_extremePoints_of_sandwich` (`σ = B X B†` form), and the three-qubit forms
-`ExtremeCriterion.ppt3_extreme_iff`, `ExtremeCriterion.ppt3_extreme_of_sandwich`.
+`ExtremeCriterion.ppt3_extreme_iff`, `ExtremeCriterion.ppt3_extreme_of_sandwich`; `SigmaExtreme.lean` applies it to
+the rational surface state (`sigma5_extreme`) with an exact `ℚ(ω)` rank certificate (`SigmaExtremeData.lean`).
 
 Moment cone, Carathéodory and closedness (`ConeCaratheodory.lean`, `MomentConeCaratheodory.lean`;
 `thm:ppt3-universal-moments`): `ConeCar.exists_coneRep_card_le` (conic Carathéodory), `ConeCar.isClosed_cone_of_isCompact`,
