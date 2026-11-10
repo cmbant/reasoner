@@ -21,6 +21,8 @@ public import FormalResearch.PPTThreeQubit.PencilKernel
 public import FormalResearch.PPTThreeQubit.MomentCone
 public import FormalResearch.PPTThreeQubit.CurveParam
 public import FormalResearch.PPTThreeQubit.MomentConeGME
+public import FormalResearch.PPTThreeQubit.ConeCaratheodory
+public import FormalResearch.PPTThreeQubit.MomentConeCaratheodory
 public import FormalResearch.PPTThreeQubit.PPTSeparable23
 public import FormalResearch.PPTThreeQubit.ExtremeCriterion
 public import FormalResearch.PPTThreeQubit.ChiralityBasics
@@ -49,6 +51,11 @@ criterion of Garberg--Irgens--Myrheim used for `cor:ppt3-extreme6` and `cor:ppt3
 finitely many real-linear cut maps is extreme iff every face direction is a multiple of it),
 `ExtremeCriterion.mem_extremePoints_of_sandwich` (`σ = B X B†` form), and the three-qubit forms
 `ExtremeCriterion.ppt3_extreme_iff`, `ExtremeCriterion.ppt3_extreme_of_sandwich`.
+
+Moment cone, Carathéodory and closedness (`ConeCaratheodory.lean`, `MomentConeCaratheodory.lean`;
+`thm:ppt3-universal-moments`): `ConeCar.exists_coneRep_card_le` (conic Carathéodory), `ConeCar.isClosed_cone_of_isCompact`,
+`biseparable_card_le_25`, `isClosed_inMomentCone`, and for all three-qubit operators `isClosed_isBiseparable`,
+`isBiseparable_card_le_64`.
 
 Chirality (`ChiralityBasics.lean`, `ChiralityRays.lean`, `Chirality.lean`, `ChiralityStabiliser.lean`;
 `family.tex` `cor:ppt3-chirality` (b), proof in `appendix_family.tex`): `det_phiS`, `fullProd_mem_Rs_iff`
