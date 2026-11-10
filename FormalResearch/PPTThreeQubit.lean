@@ -23,6 +23,10 @@ public import FormalResearch.PPTThreeQubit.CurveParam
 public import FormalResearch.PPTThreeQubit.MomentConeGME
 public import FormalResearch.PPTThreeQubit.PPTSeparable23
 public import FormalResearch.PPTThreeQubit.ExtremeCriterion
+public import FormalResearch.PPTThreeQubit.ChiralityBasics
+public import FormalResearch.PPTThreeQubit.ChiralityRays
+public import FormalResearch.PPTThreeQubit.Chirality
+public import FormalResearch.PPTThreeQubit.ChiralityStabiliser
 
 /-!
 # Fully-PPT three-qubit GME: the rank-five family
@@ -45,6 +49,12 @@ criterion of Garberg--Irgens--Myrheim used for `cor:ppt3-extreme6` and `cor:ppt3
 finitely many real-linear cut maps is extreme iff every face direction is a multiple of it),
 `ExtremeCriterion.mem_extremePoints_of_sandwich` (`σ = B X B†` form), and the three-qubit forms
 `ExtremeCriterion.ppt3_extreme_iff`, `ExtremeCriterion.ppt3_extreme_of_sandwich`.
+
+Chirality (`ChiralityBasics.lean`, `ChiralityRays.lean`, `Chirality.lean`, `ChiralityStabiliser.lean`;
+`family.tex` `cor:ppt3-chirality` (b), proof in `appendix_family.tex`): `det_phiS`, `fullProd_mem_Rs_iff`
+(`R_s` contains exactly three fully product rays), `eq_smul_one_of_eigen` (Möbius maps are determined by
+three points), `no_local_filter_conj`, `no_local_filter_conj_onto`, `no_local_filter_state`,
+`stabiliser_iff`, `exists_filter_perm`, `eq_smul_of_perm`.
 -/
 
 @[expose] public section
