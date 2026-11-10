@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.PPTThreeQubit.Surface
 public import FormalResearch.PPTThreeQubit.FamilyPPTFactor
+public import FormalResearch.PPTThreeQubit.MomentCone
 
 /-!
 # The mixed `W` class (`thm:ppt3-w-class`): definitions and atoms
@@ -269,14 +270,6 @@ theorem isWClass_triple {x y : Fin 8 → ℂ} (h0 : hyperdet (x + y) = 0)
   rw [e]
   exact ((isWClass_rankOne_smul h0 (by norm_num)).add (isWClass_rankOne_smul h1 (by norm_num))).add
     (isWClass_rankOne_smul h2 (by norm_num))
-
-theorem vecMulVec_smul_star (c : ℂ) (x : Fin 8 → ℂ) :
-    vecMulVec (c • x) (star (c • x)) = ((Complex.normSq c : ℝ) : ℂ) • vecMulVec x (star x) := by
-  ext i j
-  simp only [vecMulVec_apply, Pi.smul_apply, Pi.star_apply, star_smul, smul_eq_mul,
-    Matrix.smul_apply, Complex.star_def]
-  rw [Complex.normSq_eq_conj_mul_self]
-  ring
 
 /-- `eq:ppt3-w-atoms`, `C([u + e]) = [u] + [e]`. -/
 theorem isWClass_u_e :

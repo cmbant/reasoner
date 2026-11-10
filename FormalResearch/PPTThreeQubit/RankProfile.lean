@@ -470,7 +470,7 @@ theorem ptA_vecMulVec_vVec :
   ext i j
   fin_cases i <;> fin_cases j <;> simp [ptA, vecMulVec_apply, vVec]
 
-theorem ptA_add_mat (M N : Matrix (Fin 8) (Fin 8) ℂ) : ptA (M + N) = ptA M + ptA N := by
+theorem ptA_add_matrix (M N : Matrix (Fin 8) (Fin 8) ℂ) : ptA (M + N) = ptA M + ptA N := by
   ext i j; simp [ptA]
 
 theorem lvec_seven (t : ℝ) : lvec t 7 = vVec := by
@@ -500,7 +500,7 @@ theorem ptA_sigma6_eq_mul :
     have := tPlus_facts tMinus h3' (tMinus_lt_ten_thirds.trans ten_thirds_lt_tPlus).le
     show tMinus ^ 2 ≠ 12
     intro h; nlinarith
-  rw [← sum_vecMulVec_eq_mul, sigma6_eq hN, ptA_add_mat, ptA_smul, ptA_smul, ptA_vecMulVec_vVec,
+  rw [← sum_vecMulVec_eq_mul, sigma6_eq hN, ptA_add_matrix, ptA_smul, ptA_smul, ptA_vecMulVec_vVec,
     ptA_rhoT_eq sigma6A h3 h12]
   have hpiv : ∀ k, (pivot6 k : ℂ) = ((1 / sigma6N : ℝ) : ℂ) * (dpiv sigma6A k : ℂ) +
       (if k = 7 then (((sigma6B - 3 * sigma6A) / sigma6N : ℝ) : ℂ) else 0) := by
