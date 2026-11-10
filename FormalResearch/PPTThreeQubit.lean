@@ -24,6 +24,7 @@ public import FormalResearch.PPTThreeQubit.MomentConeGME
 public import FormalResearch.PPTThreeQubit.ConeCaratheodory
 public import FormalResearch.PPTThreeQubit.MomentConeCaratheodory
 public import FormalResearch.PPTThreeQubit.KernelPenalty
+public import FormalResearch.PPTThreeQubit.SwapSymmetric
 public import FormalResearch.PPTThreeQubit.PPTSeparable23
 public import FormalResearch.PPTThreeQubit.ExtremeCriterion
 public import FormalResearch.PPTThreeQubit.ChiralityBasics
@@ -57,6 +58,11 @@ Moment cone, Carathéodory and closedness (`ConeCaratheodory.lean`, `MomentConeC
 `thm:ppt3-universal-moments`): `ConeCar.exists_coneRep_card_le` (conic Carathéodory), `ConeCar.isClosed_cone_of_isCompact`,
 `biseparable_card_le_25`, `isClosed_inMomentCone`, and for all three-qubit operators `isClosed_isBiseparable`,
 `isBiseparable_card_le_64`.
+
+Swap symmetry (`SwapSymmetric.lean`; `family.tex`, `cor:ppt3-symmetrisation`): `isSeparable_of_swap` (PPT and
+swap-invariant on `ℂ² ⊗ ℂ⁴` implies separable), `isBiseparable_of_swapBC/AC/AB`, `no_gme_of_swap_invariant` (no
+fully-PPT GME state is invariant under the exchange of two qubits), `isBiseparable_swap_average` (pinching),
+`isBiseparable_permAvg` (permutation average of a fully-PPT state).
 
 Kernel-penalty lift (`KernelPenalty.lean`; `kernel_penalty_lemma.tex`, `lem:ppt3-kernel-penalty`):
 `exists_kernel_penalty` (any compact free set), `exists_kernel_penalty_cutProduct`, `kernel_penalty_witness`
