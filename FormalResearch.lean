@@ -291,6 +291,7 @@ public import FormalResearch.FourQubitEntropy.SevenQubitRainsPPT
 public import FormalResearch.FourQubitEntropy.SevenQubitStab7
 public import FormalResearch.FourQubitEntropy.SevenQubitStabilizer
 public import FormalResearch.FourQubitEntropy.SevenQubitRainsEquality
+public import FormalResearch.FourQubitEntropy.SevenQubitStabilizerSharp
 public import FormalResearch.FourQubitEntropy.SevenQubitHammingBlockPurityC
 public import FormalResearch.FourQubitEntropy.SevenQubitHammingGlue
 public import FormalResearch.FourQubitEntropy.SevenQubitHammingShadow

@@ -261,8 +261,13 @@ Statement scope against the current paper (`four_qubit_entropy.tex` and its supp
   (`NQubit/Shadow/Stabilizer`: `IsStabilizerState`, `weightEnum_nat`, `shadowCoeff_nat`, via the character
   `φ_t(PQ) = φ_t(P) φ_t(Q)` on commuting words). A stabilizer state here is `nsq ψ = 1` with a group of `2^n` commuting
   Pauli words (closed under letterwise product) having `⟨P⟩² = 1`. Axioms `[propext, Classical.choice, Quot.sound]`.
-  Sharpness: `SevenQubitStab7` has the witness graph with `π₃ = 19/140` (recalled graph-state formula; graph states are not
-  yet shown to be `IsStabilizerState`).
+  Sharpness: `SevenQubitStabilizerSharp` (`stab7_sharp : IsLeast {x | ∃ ψ, IsStabilizerState ψ ∧ meanPurity ψ 3 = x} (19/140)`):
+  the witness graph `0x00cf17` of `SevenQubitStab7` is given by seven bitmask rows `adjW` (`adjW_spec` links them to the
+  `21`-bit encoding), `rankSumW` (`Σ_{|S|=3} 2^{3-rk_2} = 38`, `decide +kernel` on `graphCutRankBits`) and
+  `meanRdmPurity_graphStateNorm` give `meanPurity_graphW : π₃ = 19/140` for the library's `graphStateNorm`, which is a
+  stabilizer state by `NQubit/Graph/Stabilizer` (`graphStateNorm_isStabilizerState`, `isStabilizerState_graphW`).
+  Axioms `[propext, Classical.choice, Quot.sound]`. `SevenQubitStab7`'s `pi3_witness` (recalled formula) is no longer needed
+  for sharpness.
 - `prop:rains-faces` (`n = 7, 13, 19, 20`), for every unit vector, not only stabilizer states (`SevenQubitRainsEquality`): the Rains bound
   `L_n ≤ π_{⌊n/2⌋}` (`rains_bound_<n>`, exact dual certificates `es<n>`, `ys<n>` checked by `decide +kernel`; `L_n = 1/8, 25/1408,
   93/38896, 1193/739024`); a state attaining it has the unique Pauli weight distribution `tgtL<n>` and shadow distribution `sh<n>`
@@ -717,6 +722,12 @@ General `n`-qubit material used by more than one development, with no generated 
 - `Graph/{State,CutPurity,F2Rank,CutRankBitmask,MeanPurity,Symmetry}`: `graphState`/`graphStateNorm`, `tau_graphState`, `purity_gsn`, `graphCutRank`, the bitmask rank
   `graphCutRankBits`; `Symmetry`: `graphCutBits_image` (cut ranks are invariant under graph automorphisms) and `sum_rankFn_eq_reps` (a sum over all `k`-subsets of an
   automorphism-invariant function equals the sum over orbit representatives weighted by the orbit sizes, with a data-light list certificate; no data in the library).
+
+- `Graph/Stabilizer`: graph states are stabilizer states. `graphStateNorm_isStabilizerState` (every simple graph, symmetric loop-free `Γ`): `IsStabilizerState (graphStateNorm Γ)`
+  with the group `graphStabWords Γ = {pword s (nbr Γ s) | s : Fin n → ZMod 2}` (the words `P_S = ∏_{i∈S} K_i`, `K_i = X_i ∏_{j~i} Z_j`; `graphStabWords_isStabilizerGroup`:
+  `2^n` words by injectivity, closure via `pmulW_pword` and `nbr_add`, commutation via the vanishing symplectic form `sum_symp_nbr`), `⟨P⟩² = 1` from `rot_pword_graph`
+  (`P_s |G⟩ = c_s |G⟩`, `|c_s| = 1`; entrywise form `pauliSU_letter`) in `pauliSq_graphStateNorm`. Corollaries `weightEnum_graphStateNorm_nat`, `shadowCoeff_graphStateNorm_nat`.
+  Axioms `[propext, Classical.choice, Quot.sound]`.
 
 The Paper E modules `SpinFlip*`, `PurityLP*` in `FourQubitEntropy/` import this library; see the sections below for their statements.
 

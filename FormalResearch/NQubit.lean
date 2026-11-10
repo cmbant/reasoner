@@ -25,3 +25,4 @@ public import FormalResearch.NQubit.Graph.F2Rank
 public import FormalResearch.NQubit.Graph.CutRankBitmask
 public import FormalResearch.NQubit.Graph.MeanPurity
 public import FormalResearch.NQubit.Graph.Symmetry
+public import FormalResearch.NQubit.Graph.Stabilizer
