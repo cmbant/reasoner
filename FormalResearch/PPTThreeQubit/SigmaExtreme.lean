@@ -4,6 +4,7 @@ public import FormalResearch.PPTThreeQubit.SigmaExtremeData
 public import FormalResearch.PPTThreeQubit.ExtremeCriterion
 public import FormalResearch.PPTThreeQubit.SurfaceExtreme
 public import FormalResearch.PPTThreeQubit.SurfacePPT
+public import FormalResearch.PPTThreeQubit.Chirality
 
 /-!
 # `σ` is an extreme fully-PPT state (`cor:ppt3-extreme5`, the rational member)
@@ -93,12 +94,6 @@ theorem face_solve (Y : Matrix (Fin 5) (Fin 5) ℂ)
   rw [h2, e1, e2] at h1
   exact sub_eq_zero.mp h1
 
-theorem ω_ne_one : ω ≠ 1 := by
-  intro h
-  have := ω_sq_add_ω_add_one
-  rw [h] at this
-  norm_num at this
-
 theorem Bs_ker_zero (c : Fin 5 → ℂ) (h : Bs (1 / 2) *ᵥ c = 0) : c = 0 := by
   rw [Bs_mulVec] at h
   have h0 := congrFun h 0
@@ -110,7 +105,7 @@ theorem Bs_ker_zero (c : Fin 5 → ℂ) (h : Bs (1 / 2) *ᵥ c = 0) : c = 0 := b
   have hc4 : c 4 = 0 := by
     have : (ω - 1) * c 4 = 0 := by linear_combination h2 - h4
     rcases mul_eq_zero.mp this with h' | h'
-    · exact absurd (sub_eq_zero.mp h') ω_ne_one
+    · exact absurd h' ω_ne_one
     · exact h'
   have hc2 : c 2 = 0 := by rw [hc4] at h4; simpa using h4
   have hc3 : c 3 = 0 := by rw [h0] at h3; simpa using h3
