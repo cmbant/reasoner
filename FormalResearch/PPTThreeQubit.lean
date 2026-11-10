@@ -33,6 +33,8 @@ public import FormalResearch.PPTThreeQubit.Chirality
 public import FormalResearch.PPTThreeQubit.ChiralityStabiliser
 public import FormalResearch.PPTThreeQubit.ChiralityUnitary
 public import FormalResearch.PPTThreeQubit.RankProfile
+public import FormalResearch.PPTThreeQubit.WClass
+public import FormalResearch.PPTThreeQubit.WClassStates
 
 /-!
 # Fully-PPT three-qubit GME: the rank-five family
