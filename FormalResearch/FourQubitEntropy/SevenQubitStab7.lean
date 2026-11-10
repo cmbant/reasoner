@@ -3,34 +3,23 @@ module
 public import Mathlib
 
 /-!
-# Seven-qubit stabilizer states: the witness `19/140` and a conditional reduction of `prop:stab7`
+# Seven-qubit stabilizer states: the sharpness witness `19/140` (`prop:stab7`)
 
 `QI/multiqubit_entanglement/seven_qubit_entanglement/icosahedral_state.tex`, `prop:stab7`: every seven-qubit
-stabilizer state has `π₃ ≥ 19/140`, hence the seven-qubit minimum `121/917` is not attained by a
-stabilizer state. The paper's proof is analytic: `280 π₃ = 35 + 15A₁ + 5A₂ + A₃` and the Rains shadow
-identity `4 S₁ = 7 + A₁ + A₂ - A₃`, with the weight and shadow coefficients `A_w, S_w` nonnegative
-integers for a stabilizer state; GS-4 (`verify_balanced_purity_lp_graph_states.py`) checks the two
-identities and an explicit seven-vertex graph state with `π₃ = 19/140`.  The paper's proof does not
-enumerate graph states.
+stabilizer state has `π₃ ≥ 19/140`, hence the seven-qubit minimum `121/917` is not attained by a stabilizer state.
+The lower bound, for every stabilizer state, is proved in `SevenQubitStabilizer` (`stab7`, `stab7_ne_ico`). This
+module holds the sharpness half, GS-4 (`verify_balanced_purity_lp_graph_states.py`): an explicit seven-vertex
+graph state with `π₃ = 19/140`.
 
-**Status: partly formalized; the proposition itself is not.** The Pauli-enumerator and shadow-integrality
-argument is not formalized, nor is the Clifford-to-graph-state normal form, and an exhaustive evaluation of `π₃` on all
-`2^21` seven-vertex graphs is not run in Lean (a `decide +kernel` sweep of `2^21` graphs times `35` cuts is far
-beyond a routine build).
-What is proved here:
+The data model: a graph on seven vertices is a `21`-bit number (lexicographic edge order, as in the verifier);
+`cutRank g T` is the `GF(2)` rank of the `3 × 4` off-diagonal block for a 3-subset `T` (computed as `log₂` of the
+size of the row span), and for a graph state `π₃(g) = (1/35) ∑_T 2^{-cutRank}` (`pi3`), a standard formula that is
+*recalled, not proved* here (the library proves it for graph states in `NQubit/Graph/MeanPurity`; this module's bit
+encoding is not yet linked to it, and graph states are not yet shown to be `IsStabilizerState`).
 
-* the data model: a graph on seven vertices is a `21`-bit number (lexicographic edge order, as in
-  the verifier); `cutRank g T` is the `GF(2)` rank of the `3 × 4` off-diagonal block for a 3-subset
-  `T` (computed as `log₂` of the size of the row span), and for a graph state
-  `π₃(g) = (1/35) ∑_T 2^{-cutRank}` (`pi3`), a standard formula that is *recalled, not proved* here;
 * `pi3_empty`, `pi3_complete`, `pi3_witness`: exact values at the empty graph (`1`), the complete graph
   (`1/2`) and the Fano/wheel witness graph `0x00cf17` of GS-4 (`19/140`, with rank profile `3 × 2,
-  32 × 3`), by `decide +kernel`; this is the sharpness half of GS-4;
-* `stab7_of_enumeration`, `stab7_not_attained`: the conditional reduction. IF the statement
-  `∀ g < 2^21, 19/140 ≤ π₃(g)` (the graph-state case of `prop:stab7`, which the paper proves
-  analytically) holds (taken as a hypothesis, not proved in Lean), THEN no seven-vertex
-  graph state attains `121/917`, and likewise for any value `v < 19/140`. The arithmetic
-  `121/917 < 19/140` is `ico_lt_stab`.
+  32 × 3`), by `decide +kernel`.
 -/
 
 @[expose] public section
@@ -96,24 +85,5 @@ theorem witness_profile :
     (triples.filter fun t => cutRank witnessGraph t.1 t.2.1 t.2.2 = 2).length = 3 ∧
     (triples.filter fun t => cutRank witnessGraph t.1 t.2.1 t.2.2 = 3).length = 32 := by
   constructor <;> decide +kernel
-
-theorem ico_lt_stab : (121 : ℚ) / 917 < 19 / 140 := by norm_num
-
-/-- `prop:stab7` modulo the graph-state bound (hypothesis `hGS4`, not proved in Lean) and the graph-state normal form:
-if every seven-vertex graph state has `π₃ ≥ 19/140`, then no graph state attains any value below
-`19/140`, in particular not `121/917`. -/
-theorem stab7_of_enumeration (hGS4 : ∀ g < 2 ^ 21, (19 : ℚ) / 140 ≤ pi3 g) :
-    ∀ g < 2 ^ 21, pi3 g ≠ 121 / 917 := by
-  intro g hg h
-  have := hGS4 g hg
-  rw [h] at this
-  exact absurd this (not_le.2 ico_lt_stab)
-
-theorem stab7_not_attained (hGS4 : ∀ g < 2 ^ 21, (19 : ℚ) / 140 ≤ pi3 g) (v : ℚ)
-    (hv : v < 19 / 140) : ∀ g < 2 ^ 21, pi3 g ≠ v := by
-  intro g hg h
-  have := hGS4 g hg
-  rw [h] at this
-  exact absurd this (not_le.2 hv)
 
 end FormalResearch.FourQubitEntropy.SevenQubitStab7

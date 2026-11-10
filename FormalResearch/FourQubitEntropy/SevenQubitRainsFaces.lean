@@ -27,9 +27,10 @@ Proved here (exact, over `ℚ`, for each `n`, with the face data produced by the
   tables), `∑ S_i = 2^n`, and nonnegativity of all `A_j` and `S_i`;
 * `rains_face7_no_integral_shadow`, `rains_face13_no_integral_shadow`: no `A` satisfying the face
   system has all shadow coefficients integers (`S_1 = 7/4` at `n = 7`, `S_3 = 39/4` at `n = 13`). The
-  paper's remark that stabilizer states have integer shadow coefficients is **not** formalized; the
-  integrality is the hypothesis `hS`, so this is the arithmetic half of "the Rains bound cannot be
-  attained by a stabilizer state" at `n = 7, 13`.
+  integrality of the weight and shadow coefficients of every stabilizer state is proved in
+  `NQubit/Shadow/Stabilizer` (`IsStabilizerState.weightEnum_nat`, `shadowCoeff_nat`); here it is the hypothesis `hS`,
+  so this is the arithmetic half of "the Rains bound cannot be attained by a stabilizer state" at `n = 7, 13`
+  (that a state attaining the bound has the face profile is not formalized).
 
 Not proved here: that these `zA`, `zS` are what the dual certificates force at equality, the claims
 about `n = 20` Type I additive `F₄` codes (`s`-extremal enumerators), and existence of any state or

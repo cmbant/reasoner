@@ -255,8 +255,14 @@ Statement scope against the current paper (`four_qubit_entropy.tex` and its supp
 - `lem:seven-joint-scalar-majorant` (AH-6) holds in the paper on all of `[0,∞)²`; it is proved in branch `paper-e-ah6` for the
   explicit coefficients (`AH6.joint_scalar_majorant`, see "Branch `paper-e-ah6`" below). `meanEntropy3_le_jointP5_unit` gives
   `E₃ ≤ 𝒫₅` for every unit vector under `ScalarMajorant (polyH K h) 1`; the `497/1000` versions are weaker consequences.
-- `prop:stab7`: not formalized. The paper's proof is analytic (Pauli and shadow enumerators with integer coefficients);
-  `SevenQubitStab7` has the witness `π₃ = 19/140` and a reduction conditional on a statement about all `2^21` graph states.
+- `prop:stab7`: the lower bound `π₃ ≥ 19/140` is proved for every seven-qubit stabilizer state (`SevenQubitStabilizer.stab7`,
+  `stab7_ne_ico`), following the paper's analytic proof: `pi3_identity` and `shadow_identity` (the two identities, from
+  `meanPurity_eq_lin`, complementarity and `Σ A_j = 2^7`) and integrality of `A_j` and `S_1` for stabilizer states
+  (`NQubit/Shadow/Stabilizer`: `IsStabilizerState`, `weightEnum_nat`, `shadowCoeff_nat`, via the character
+  `φ_t(PQ) = φ_t(P) φ_t(Q)` on commuting words). A stabilizer state here is `nsq ψ = 1` with a group of `2^n` commuting
+  Pauli words (closed under letterwise product) having `⟨P⟩² = 1`. Axioms `[propext, Classical.choice, Quot.sound]`.
+  Sharpness: `SevenQubitStab7` has the witness graph with `π₃ = 19/140` (recalled graph-state formula; graph states are not
+  yet shown to be `IsStabilizerState`).
 - `SevenQubitIcoContraction` and `SevenQubitIcoContractGram` (`esG1_*`, `esG2_contain`) are not paper statements: the paper
   proves `prop:entropy-seven-stationarity` from `lem:seven-family-symmetric-criticality` (not formalized) and no longer
   displays these identities.
