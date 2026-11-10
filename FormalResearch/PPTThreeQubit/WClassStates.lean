@@ -23,7 +23,7 @@ Covered: `ρ_t` for every `0 < t ≤ 12` (the PPT window is inside), `σ_6`, `ρ
 `1/√3 < τ < 1` and `a > 0` (the cases `E ≥ 1` and `E < 1` of the proof), the phase-coexistence line
 `σ(t)` for `-1/200 ≤ t ≤ 1`, and their images under the diagonal local filters and mixtures with
 biseparable noise.
-Not covered: the full-rank state `ρ̃`, and general (non-diagonal) local filters.
+The full-rank state `ρ̃` is in `WClassTilde.lean`.  Not covered: general (non-diagonal) local filters.
 -/
 
 @[expose] public section
