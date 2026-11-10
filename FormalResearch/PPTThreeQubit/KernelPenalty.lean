@@ -18,9 +18,8 @@ does not change the expectation on a state supported on `ker K`
 (`trace_penalty`).  For biseparability, `C` is the set of normalised cut-product vectors:
 `exists_kernel_penalty_cutProduct` is the statement for all cut-product vectors, via the compactness of
 `C₈` (the Euclidean-unit cut-product vectors of the three cuts).
-The distance bound `eq:ppt3-dist-lift` and the scalar core of `eq:ppt3-lambda` are in `TraceDistance.lean`.
-Not formalised: the cut-product geometry of `prop:ppt3-kernel-quant` (`M_c(a)`, `Ω_c(a)`, the constants
-`α`, `μ`).
+The quantitative form `prop:ppt3-kernel-quant` is `kernel_quant_cutProduct` and `kernel_quant_distance`
+(`KernelQuantCuts.lean`).
 -/
 
 @[expose] public section

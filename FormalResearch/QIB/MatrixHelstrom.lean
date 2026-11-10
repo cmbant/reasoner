@@ -154,9 +154,8 @@ theorem negProj_isEffect {D : Matrix n n ℂ} (hD : D.IsHermitian) : IsEffect (n
       split_ifs <;> simp
     exact hd2.mul_mul_conjTranspose_same U
 
-theorem exists_effect_trace_mul_eq {D : Matrix n n ℂ} (hD : D.IsHermitian) :
-    ∃ E : Matrix n n ℂ, IsEffect E ∧ (E * D).trace.re = (1 / 2) * (D.trace.re - tnorm D) := by
-  refine ⟨negProj D hD, negProj_isEffect hD, ?_⟩
+theorem negProj_trace_mul_eq {D : Matrix n n ℂ} (hD : D.IsHermitian) :
+    (negProj D hD * D).trace.re = (1 / 2) * (D.trace.re - tnorm D) := by
   rw [tnorm_eq hD, trace_mul_spectral hD, hD.trace_eq_sum_eigenvalues]
   set U : Matrix n n ℂ := (hD.eigenvectorUnitary : Matrix n n ℂ) with hU
   have hUU : star U * U = 1 := star_mul_self_U hD
@@ -177,6 +176,10 @@ theorem exists_effect_trace_mul_eq {D : Matrix n n ℂ} (hD : D.IsHermitian) :
   · simp [hl, abs_of_neg hl]; ring
   · push Not at hl
     simp [not_lt.2 hl, abs_of_nonneg hl]
+
+theorem exists_effect_trace_mul_eq {D : Matrix n n ℂ} (hD : D.IsHermitian) :
+    ∃ E : Matrix n n ℂ, IsEffect E ∧ (E * D).trace.re = (1 / 2) * (D.trace.re - tnorm D) :=
+  ⟨negProj D hD, negProj_isEffect hD, negProj_trace_mul_eq hD⟩
 
 /-! ### `Tr min` -/
 

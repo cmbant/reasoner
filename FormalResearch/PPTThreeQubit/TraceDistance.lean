@@ -24,9 +24,9 @@ Source: `QI/hidden_entanglement/ppt_three_qubit/family.tex` (`cor:ppt3-symmetris
 * `bsDist_le_permAvg`: `eq:ppt3-asymmetry-upper`; `bsDist_le_swap_average`: the pinching bound of
   `eq:ppt3-pinch` in the Hermitian form `¼‖ρ - S_BC ρ S_BC‖₁`.
 
-Not formalised: the identification of `¼‖ρ - S_BC ρ S_BC‖₁` with the non-Hermitian trace norm
-`‖P₃ ρ P₁‖₁` of `eq:ppt3-pinch`, and the instantiation of `kernel_quant_form` with the cut-product
-maps `M_c(a)`, `Ω_c(a)` of `prop:ppt3-kernel-quant` (the constants `α`, `μ` for a given witness).
+`TraceNormGeneral.lean` proves `eq:ppt3-pinch` with the paper's non-Hermitian `‖P₃ρP₁‖₁`;
+`KernelQuantMatrix.lean`, `KernelQuantCuts.lean` instantiate `kernel_quant_form` with the cut-product maps
+(`kernel_quant_cutProduct`, `kernel_quant_distance`).
 -/
 
 @[expose] public section
