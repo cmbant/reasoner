@@ -1,7 +1,7 @@
 module
 
-public import FormalResearch.PPTThreeQubit.KernelQuantMatrix
-public import FormalResearch.PPTThreeQubit.Basic
+public import FormalResearch.MatrixAnalysis.KernelQuant
+public import FormalResearch.PPTThreeQubit.TraceDistance
 
 /-!
 # `prop:ppt3-kernel-quant` for the cut-product vectors
@@ -18,7 +18,7 @@ on every cut-product vector, under the hypotheses of `prop:ppt3-kernel-quant` (u
 
 namespace FormalResearch.PPTThreeQubit
 
-open Matrix
+open Matrix FormalResearch.MatrixAnalysis
 open scoped ComplexOrder
 
 noncomputable section
@@ -49,44 +49,16 @@ theorem cutEmb_mulVec (c : Fin 3) (a : Fin 2 → ℂ) (b : Fin 4 → ℂ) (i : F
   · intro k _ hk; rw [if_neg (Ne.symm hk)]; simp
   · simp
 
-theorem star_dotProduct_self_real' {ι : Type*} [Fintype ι] (a : ι → ℂ) :
-    star a ⬝ᵥ a = ((nsq a : ℝ) : ℂ) := by
-  apply Complex.ext
-  · rfl
-  · simp only [dotProduct, Complex.im_sum, Pi.star_apply, Complex.star_def, Complex.mul_im,
-      Complex.conj_re, Complex.conj_im, Complex.ofReal_im]
-    refine Finset.sum_eq_zero fun i _ => ?_
-    ring
-
 theorem star_dotProduct_self_real (a : Fin 2 → ℂ) :
-    star a ⬝ᵥ a = ((nsq a : ℝ) : ℂ) := star_dotProduct_self_real' a
+    star a ⬝ᵥ a = ((normSqVec a : ℝ) : ℂ) := star_dotProduct_self_real' a
 
-theorem cutEmb_isometry (c : Fin 3) {a : Fin 2 → ℂ} (ha : nsq a = 1) : (cutEmb c a)ᴴ * cutEmb c a = 1 := by
+theorem cutEmb_isometry (c : Fin 3) {a : Fin 2 → ℂ} (ha : normSqVec a = 1) : (cutEmb c a)ᴴ * cutEmb c a = 1 := by
   have h : star a ⬝ᵥ a = 1 := by rw [star_dotProduct_self_real, ha]; simp
   simp only [dotProduct, Fin.sum_univ_two, Pi.star_apply, Complex.star_def] at h
   ext k l
   fin_cases c <;> fin_cases k <;> fin_cases l <;>
     simp [cutEmb, bitOf, restOf, Matrix.mul_apply, Fin.sum_univ_succ, Complex.star_def,
       Matrix.one_apply] <;> exact h
-
-theorem nsq_eq_sum {ι : Type*} [Fintype ι] (v : ι → ℂ) : nsq v = ∑ i, Complex.normSq (v i) := by
-  unfold nsq
-  simp only [dotProduct, Complex.re_sum, Pi.star_apply, Complex.star_def, Complex.normSq_apply,
-    Complex.mul_re, Complex.conj_re, Complex.conj_im]
-  refine Finset.sum_congr rfl fun i _ => ?_
-  ring
-
-theorem eq_zero_of_nsq_eq_zero {ι : Type*} [Fintype ι] {v : ι → ℂ} (h : nsq v = 0) : v = 0 := by
-  rw [nsq_eq_sum] at h
-  have := (Finset.sum_eq_zero_iff_of_nonneg (fun i _ => Complex.normSq_nonneg (v i))).1 h
-  ext i
-  simpa using this i (Finset.mem_univ i)
-
-theorem nsq_real_smul {ι : Type*} [Fintype ι] (s : ℝ) (v : ι → ℂ) :
-    nsq ((s : ℂ) • v) = s ^ 2 * nsq v := by
-  simp only [nsq_eq_sum, Pi.smul_apply, smul_eq_mul, map_mul, Complex.normSq_ofReal, Finset.mul_sum]
-  refine Finset.sum_congr rfl fun i _ => ?_
-  ring
 
 theorem cutEmb_smul (c : Fin 3) (s : ℂ) (a : Fin 2 → ℂ) : cutEmb c (s • a) = s • cutEmb c a := by
   ext i k
@@ -107,28 +79,28 @@ and the unit `a ∈ ℂ²`, with `M = K ∘ cutEmb c a` and `Ω = (a† ⊗ I) W
 theorem kernel_quant_cutProduct {ν : Type*} [Fintype ν] [DecidableEq ν]
     (W₀ : Matrix (Fin 8) (Fin 8) ℂ) (K : Matrix ν (Fin 8) ℂ) (hW : W₀.IsHermitian)
     {α L μ lam : ℝ} (hα : 0 < α) (hL0 : 0 ≤ L) (hμ : 0 < μ) (hlam : lam = (L + L ^ 2 / α) / μ)
-    (hL : ∀ p q : Fin 8 → ℂ, |(star p ⬝ᵥ W₀ *ᵥ q).re| ≤ L * Real.sqrt (nsq p) * Real.sqrt (nsq q))
-    (hker : ∀ (c : Fin 3) (a : Fin 2 → ℂ), nsq a = 1 → ∀ u : Fin 4 → ℂ,
+    (hL : ∀ p q : Fin 8 → ℂ, |(star p ⬝ᵥ W₀ *ᵥ q).re| ≤ L * Real.sqrt (normSqVec p) * Real.sqrt (normSqVec q))
+    (hker : ∀ (c : Fin 3) (a : Fin 2 → ℂ), normSqVec a = 1 → ∀ u : Fin 4 → ℂ,
       K *ᵥ (cutEmb c a *ᵥ u) = 0 →
-        α * nsq u ≤ (star (cutEmb c a *ᵥ u) ⬝ᵥ W₀ *ᵥ (cutEmb c a *ᵥ u)).re)
-    (hperp : ∀ (c : Fin 3) (a : Fin 2 → ℂ), nsq a = 1 → ∀ v : Fin 4 → ℂ,
+        α * normSqVec u ≤ (star (cutEmb c a *ᵥ u) ⬝ᵥ W₀ *ᵥ (cutEmb c a *ᵥ u)).re)
+    (hperp : ∀ (c : Fin 3) (a : Fin 2 → ℂ), normSqVec a = 1 → ∀ v : Fin 4 → ℂ,
       (∀ u, K *ᵥ (cutEmb c a *ᵥ u) = 0 → star u ⬝ᵥ v = 0) →
-        μ * nsq v ≤ nsq (K *ᵥ (cutEmb c a *ᵥ v)))
+        μ * normSqVec v ≤ normSqVec (K *ᵥ (cutEmb c a *ᵥ v)))
     {x : Fin 8 → ℂ} (hx : IsCutProduct x) :
     0 ≤ (star x ⬝ᵥ (W₀ + (lam : ℂ) • (Kᴴ * K)) *ᵥ x).re := by
   obtain ⟨c, a, b, rfl⟩ := exists_cutEmb hx
-  by_cases h0 : nsq a = 0
-  · have : a = 0 := eq_zero_of_nsq_eq_zero h0
+  by_cases h0 : normSqVec a = 0
+  · have : a = 0 := eq_zero_of_normSqVec_eq_zero h0
     subst this
     have : cutEmb c 0 = 0 := by ext i k; simp [cutEmb]
     simp [this]
-  · have hpos : 0 < nsq a := lt_of_le_of_ne (nsq_nonneg a) (Ne.symm h0)
-    set r : ℝ := Real.sqrt (nsq a) with hr
+  · have hpos : 0 < normSqVec a := lt_of_le_of_ne (normSqVec_nonneg a) (Ne.symm h0)
+    set r : ℝ := Real.sqrt (normSqVec a) with hr
     have hrpos : 0 < r := Real.sqrt_pos.2 hpos
-    have hr2 : r ^ 2 = nsq a := Real.sq_sqrt hpos.le
+    have hr2 : r ^ 2 = normSqVec a := Real.sq_sqrt hpos.le
     set a' : Fin 2 → ℂ := ((r⁻¹ : ℝ) : ℂ) • a with ha'
-    have hna' : nsq a' = 1 := by
-      rw [ha', nsq_real_smul, ← hr2]; field_simp
+    have hna' : normSqVec a' = 1 := by
+      rw [ha', normSqVec_real_smul, ← hr2]; field_simp
     have hJ : cutEmb c a = (r : ℂ) • cutEmb c a' := by
       rw [ha', cutEmb_smul, smul_smul]
       have : (r : ℂ) * ((r⁻¹ : ℝ) : ℂ) = 1 := by
@@ -155,16 +127,16 @@ theorem kernel_quant_cutProduct {ν : Type*} [Fintype ν] [DecidableEq ν]
 
 /-- `‖W₀‖∞ ≤ L` in the form `|⟨p, W₀ q⟩| ≤ L‖p‖‖q‖` gives `-L ≤ W₀ ≤ L`. -/
 theorem psd_of_bound {W₀ : Matrix (Fin 8) (Fin 8) ℂ} (hW : W₀.IsHermitian) {L : ℝ}
-    (hL : ∀ p q : Fin 8 → ℂ, |(star p ⬝ᵥ W₀ *ᵥ q).re| ≤ L * Real.sqrt (nsq p) * Real.sqrt (nsq q)) :
+    (hL : ∀ p q : Fin 8 → ℂ, |(star p ⬝ᵥ W₀ *ᵥ q).re| ≤ L * Real.sqrt (normSqVec p) * Real.sqrt (normSqVec q)) :
     (W₀ + (L : ℂ) • (1 : Matrix (Fin 8) (Fin 8) ℂ)).PosSemidef ∧
       ((L : ℂ) • (1 : Matrix (Fin 8) (Fin 8) ℂ) - W₀).PosSemidef := by
   have hLh : ((L : ℂ) • (1 : Matrix (Fin 8) (Fin 8) ℂ)).IsHermitian := by
     unfold Matrix.IsHermitian
     rw [conjTranspose_smul, conjTranspose_one]; simp
-  have hsq : ∀ x : Fin 8 → ℂ, Real.sqrt (nsq x) * Real.sqrt (nsq x) = nsq x := fun x =>
-    Real.mul_self_sqrt (nsq_nonneg x)
+  have hsq : ∀ x : Fin 8 → ℂ, Real.sqrt (normSqVec x) * Real.sqrt (normSqVec x) = normSqVec x := fun x =>
+    Real.mul_self_sqrt (normSqVec_nonneg x)
   have hx : ∀ x : Fin 8 → ℂ, star x ⬝ᵥ ((L : ℂ) • (1 : Matrix (Fin 8) (Fin 8) ℂ)) *ᵥ x =
-      ((L * nsq x : ℝ) : ℂ) := by
+      ((L * normSqVec x : ℝ) : ℂ) := by
     intro x
     rw [Matrix.smul_mulVec, Matrix.one_mulVec, dotProduct_smul, star_dotProduct_self_real' x]
     simp
@@ -210,13 +182,13 @@ theorem isHermitian_of_biseparable {σ : Matrix (Fin 8) (Fin 8) ℂ} (hσ : IsBi
 theorem kernel_quant_distance {ν : Type*} [Fintype ν] [DecidableEq ν]
     (W₀ : Matrix (Fin 8) (Fin 8) ℂ) (K : Matrix ν (Fin 8) ℂ) (hW : W₀.IsHermitian)
     {α L μ lam β g : ℝ} (hα : 0 < α) (hL0 : 0 ≤ L) (hμ : 0 < μ) (hlam : lam = (L + L ^ 2 / α) / μ)
-    (hL : ∀ p q : Fin 8 → ℂ, |(star p ⬝ᵥ W₀ *ᵥ q).re| ≤ L * Real.sqrt (nsq p) * Real.sqrt (nsq q))
-    (hker : ∀ (c : Fin 3) (a : Fin 2 → ℂ), nsq a = 1 → ∀ u : Fin 4 → ℂ,
+    (hL : ∀ p q : Fin 8 → ℂ, |(star p ⬝ᵥ W₀ *ᵥ q).re| ≤ L * Real.sqrt (normSqVec p) * Real.sqrt (normSqVec q))
+    (hker : ∀ (c : Fin 3) (a : Fin 2 → ℂ), normSqVec a = 1 → ∀ u : Fin 4 → ℂ,
       K *ᵥ (cutEmb c a *ᵥ u) = 0 →
-        α * nsq u ≤ (star (cutEmb c a *ᵥ u) ⬝ᵥ W₀ *ᵥ (cutEmb c a *ᵥ u)).re)
-    (hperp : ∀ (c : Fin 3) (a : Fin 2 → ℂ), nsq a = 1 → ∀ v : Fin 4 → ℂ,
+        α * normSqVec u ≤ (star (cutEmb c a *ᵥ u) ⬝ᵥ W₀ *ᵥ (cutEmb c a *ᵥ u)).re)
+    (hperp : ∀ (c : Fin 3) (a : Fin 2 → ℂ), normSqVec a = 1 → ∀ v : Fin 4 → ℂ,
       (∀ u, K *ᵥ (cutEmb c a *ᵥ u) = 0 → star u ⬝ᵥ v = 0) →
-        μ * nsq v ≤ nsq (K *ᵥ (cutEmb c a *ᵥ v)))
+        μ * normSqVec v ≤ normSqVec (K *ᵥ (cutEmb c a *ᵥ v)))
     (hβ : 0 ≤ β) (hK : ((β : ℂ) • (1 : Matrix (Fin 8) (Fin 8) ℂ) - Kᴴ * K).PosSemidef)
     (hLβ : 0 < 2 * L + lam * β)
     {ρ : Matrix (Fin 8) (Fin 8) ℂ} (hρ : ρ.IsHermitian) (hρt : ρ.trace.re = 1) (hKρ : K * ρ = 0)

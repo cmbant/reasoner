@@ -1,9 +1,9 @@
 module
 
 public import Mathlib
-public import FormalResearch.FrameFree.HelstromPure
+public import FormalResearch.MatrixAnalysis.HelstromPure
 public import FormalResearch.FrameFree.Helstrom
-public import FormalResearch.QIB.MatrixHelstrom
+public import FormalResearch.MatrixAnalysis.TraceNorm
 public import FormalResearch.QIB.BlockOps
 
 /-!
@@ -45,7 +45,7 @@ open scoped MatrixOrder ComplexOrder
 
 namespace FormalResearch.QIB
 
-open FormalResearch.FrameFree.Helstrom (IsEffect qf err)
+open FormalResearch.MatrixAnalysis
 
 /-- Best equal-prior error of a `G`-invariant effect between `a` and `b`. -/
 noncomputable def invErr {ι : Type*} [Fintype ι] [DecidableEq ι] (G : Set (Matrix ι ι ℂ))
@@ -135,7 +135,7 @@ theorem invErr_eq [∀ l, Nonempty (A l)] {G : Set (Matrix (Idx A B) (Idx A B) �
 /-- The sector masses sum to the squared norm: `Σ_λ Tr τ_λ(v) = ⟨v|v⟩`. -/
 theorem sum_trace_tau (v : Idx A B → ℂ) : ∑ l, (tau v l).trace = star v ⬝ᵥ v := by
   have h := qf_blockOp_self (A := A) (fun l => (1 : Matrix (B l) (B l) ℂ)) v
-  rw [blockOp_one, FormalResearch.FrameFree.Helstrom.qf_one] at h
+  rw [blockOp_one, FormalResearch.MatrixAnalysis.qf_one] at h
   simpa using h.symm
 
 /-- **`lem:blockdecomp`, `‖·‖₁` form** (paper eq. `eq:helstrom-twirls` read blockwise): for unit vectors,

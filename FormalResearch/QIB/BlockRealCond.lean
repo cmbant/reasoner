@@ -24,7 +24,8 @@ open scoped MatrixOrder ComplexOrder
 
 namespace FormalResearch.QIB
 
-open FormalResearch.FrameFree.Helstrom (qf Pe rotK copies Copies)
+open FormalResearch.FrameFree.Helstrom (Pe rotK copies Copies)
+open FormalResearch.MatrixAnalysis
 open FormalResearch.NQubit (Ψ Θ eps cj)
 
 /-- **Hypothesis.** The frame group has isotypic coordinates by a unitary `W` with real entries. -/

@@ -71,12 +71,17 @@ public import FormalResearch.QIA.DeferredQueryCoherentPositiveMemoryBound
 public import FormalResearch.QIA.DeferredQueryCoherentChannelMemoryBound
 public import FormalResearch.QIA.DeferredQueryIsotypicChannelMemoryBound
 public import FormalResearch.QIB.U1InvariantExponentGap
-public import FormalResearch.QIB.KramersHalfFilling
+public import FormalResearch.NQubit.TimeReversal.KramersHalfFilling
 public import FormalResearch.QIB.CriticalCounter
 public import FormalResearch.QIB.BlockDecomp
 public import FormalResearch.QIB.BlockTwirl
 public import FormalResearch.QIB.BlockOps
-public import FormalResearch.QIB.MatrixHelstrom
+public import FormalResearch.MatrixAnalysis.TraceNorm
+public import FormalResearch.MatrixAnalysis.VectorNorm
+public import FormalResearch.MatrixAnalysis.TraceNormGeneral
+public import FormalResearch.MatrixAnalysis.TraceDistance
+public import FormalResearch.MatrixAnalysis.KernelQuant
+public import FormalResearch.MatrixAnalysis.ExtremeCriterion
 public import FormalResearch.QIB.FiniteOrbitExponent
 public import FormalResearch.QIB.BlockExamples
 public import FormalResearch.QIB.BlockAntiunitary
@@ -405,7 +410,7 @@ public import FormalResearch.FrameFree.CopyThresholdWitness
 public import FormalResearch.FrameFree.Helstrom
 public import FormalResearch.FrameFree.HelstromLinAlg
 public import FormalResearch.FrameFree.HelstromPS
-public import FormalResearch.FrameFree.HelstromPure
+public import FormalResearch.MatrixAnalysis.HelstromPure
 public import FormalResearch.FrameFree.HelstromTwirl
 public import FormalResearch.FrameFree.HelstromTwirlBound
 public import FormalResearch.FrameFree.IsotypicBlind
@@ -653,6 +658,8 @@ public import FormalResearch.FourQubitEntropy.GOGlue.Cons
 public import FormalResearch.FourQubitEntropy.GOGlue.Orbit
 public import FormalResearch.FourQubitEntropy.GOGlue.OrbitMaps
 public import FormalResearch.FourQubitEntropy.GOGlue.FrameCert
+public import FormalResearch.ConvexGeometry
+public import FormalResearch.MatrixAnalysis
 public import FormalResearch.PPTThreeQubit
 public import FormalResearch.GurvitsBarnum
 

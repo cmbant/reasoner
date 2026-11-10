@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import FormalResearch.FrameFree.HelstromPure
+public import FormalResearch.MatrixAnalysis.HelstromPure
 public import FormalResearch.FrameFree.HelstromTwirlBound
 
 /-!
@@ -36,7 +36,8 @@ open scoped Kronecker MatrixOrder ComplexOrder
 
 namespace FormalResearch.QIB
 
-open FormalResearch.FrameFree.Helstrom (IsEffect qf tr_mul_vecMulVec)
+open FormalResearch.FrameFree.Helstrom (tr_mul_vecMulVec)
+open FormalResearch.MatrixAnalysis
 
 section Blocks
 

@@ -23,7 +23,6 @@ set_option linter.unusedSectionVars false
 open Matrix
 
 namespace FormalResearch.FrameFree.Helstrom
-
 theorem exists_fixed_point_hull {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V]
     [FiniteDimensional ℝ V] (O : Set V) (hO : O.Nonempty) (Φ : Set (V →ₗᵢ[ℝ] V))
     (hinv : ∀ φ ∈ Φ, ∀ x ∈ O, φ x ∈ O) :

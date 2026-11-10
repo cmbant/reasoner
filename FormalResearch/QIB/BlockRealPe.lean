@@ -28,7 +28,8 @@ open scoped MatrixOrder ComplexOrder
 
 namespace FormalResearch.QIB
 
-open FormalResearch.FrameFree.Helstrom (qf Pe rotK copies Copies)
+open FormalResearch.FrameFree.Helstrom (Pe rotK copies Copies)
+open FormalResearch.MatrixAnalysis
 open FormalResearch.NQubit (Ψ Θ SU2 SU2_eps eps cj nsq)
 
 section Frame

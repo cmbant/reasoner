@@ -133,7 +133,7 @@ end Abstract
 section Coordinates
 
 open scoped Kronecker
-open FormalResearch.FrameFree.Helstrom (qf)
+open FormalResearch.MatrixAnalysis
 
 variable {Λ : Type*} [Fintype Λ] [DecidableEq Λ] {A B : Λ → Type*}
   [∀ l, Fintype (A l)] [∀ l, DecidableEq (A l)] [∀ l, Fintype (B l)] [∀ l, DecidableEq (B l)]

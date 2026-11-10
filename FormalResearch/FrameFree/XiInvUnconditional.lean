@@ -12,7 +12,7 @@ set_option linter.unusedSectionVars false
 
 open Filter Topology
 open scoped Real
-open FormalResearch.FrameFree.NQubit FormalResearch.NQubit FormalResearch.FrameFree.Helstrom
+open FormalResearch.FrameFree.NQubit FormalResearch.NQubit FormalResearch.FrameFree.Helstrom FormalResearch.MatrixAnalysis
 open FormalResearch.FrameFree
 
 /-!

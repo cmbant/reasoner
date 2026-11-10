@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import FormalResearch.GurvitsBarnum.ClosedHull
+public import FormalResearch.ConvexGeometry.ClosedHull
 
 /-!
 # Conic Carathéodory bound and closedness of a cone over a compact set
@@ -23,7 +23,7 @@ functional that is positive on `S`.  Write `ConeRep S n x` for "`x` is a sum of 
 
 @[expose] public section
 
-namespace FormalResearch.PPTThreeQubit
+namespace FormalResearch.ConvexGeometry
 
 open Set Finset
 
@@ -170,7 +170,7 @@ theorem isClosed_cone_of_isCompact {S : Set E} (hS : IsCompact S) (ℓ : E →�
     exact ContinuousOn.smul (ContinuousOn.inv₀ hℓc.continuousOn fun s hs => (hℓ s hs).ne')
       continuousOn_id
   set H := convexHull ℝ Z with hH
-  have hHc : IsCompact H := GurvitsBarnum.isCompact_convexHull_of_isCompact hZc
+  have hHc : IsCompact H := isCompact_convexHull_of_isCompact hZc
   have hcone_convex : Convex ℝ {x : E | ∃ n, ConeRep S n x} := by
     intro x hx y hy a b ha hb _
     obtain ⟨n, hn⟩ := hx
@@ -241,12 +241,12 @@ end ConeCar
 
 end
 
-/-- info: 'FormalResearch.PPTThreeQubit.ConeCar.exists_coneRep_card_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ConvexGeometry.ConeCar.exists_coneRep_card_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.PPTThreeQubit.ConeCar.exists_coneRep_card_le
+#print axioms FormalResearch.ConvexGeometry.ConeCar.exists_coneRep_card_le
 
-/-- info: 'FormalResearch.PPTThreeQubit.ConeCar.isClosed_cone_of_isCompact' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ConvexGeometry.ConeCar.isClosed_cone_of_isCompact' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.PPTThreeQubit.ConeCar.isClosed_cone_of_isCompact
+#print axioms FormalResearch.ConvexGeometry.ConeCar.isClosed_cone_of_isCompact
 
-end FormalResearch.PPTThreeQubit
+end FormalResearch.ConvexGeometry

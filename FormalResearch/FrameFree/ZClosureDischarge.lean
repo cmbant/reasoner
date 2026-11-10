@@ -10,7 +10,7 @@ set_option autoImplicit false
 set_option linter.unusedSectionVars false
 
 open scoped ComplexConjugate InnerProductSpace BigOperators
-open FormalResearch.FrameFree.NQubit FormalResearch.NQubit FormalResearch.FrameFree.Helstrom
+open FormalResearch.FrameFree.NQubit FormalResearch.NQubit FormalResearch.FrameFree.Helstrom FormalResearch.MatrixAnalysis
 
 /-!
 # `ZClosureSup`, reduced to the Euclidean density of polynomial images

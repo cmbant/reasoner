@@ -56,7 +56,7 @@ limit is `0 = -log 1`); `0 < F` is a hypothesis of the limit statement for a gen
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
 open scoped ComplexConjugate Matrix BigOperators InnerProductSpace ComplexOrder
-open Matrix FormalResearch.FrameFree.NQubit FormalResearch.NQubit FormalResearch.FrameFree.Helstrom
+open Matrix FormalResearch.FrameFree.NQubit FormalResearch.NQubit FormalResearch.FrameFree.Helstrom FormalResearch.MatrixAnalysis
 open Filter
 
 namespace FormalResearch.QIB

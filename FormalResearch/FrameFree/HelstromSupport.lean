@@ -31,7 +31,7 @@ open FormalResearch.NQubit
 set_option linter.unusedSectionVars false
 
 namespace FormalResearch.FrameFree.Helstrom
-
+open FormalResearch.MatrixAnalysis
 theorem kron_conjTranspose {I α : Type*} [Fintype I] (M : I → Matrix α α ℂ) :
     (kron M)ᴴ = kron (fun i => (M i)ᴴ) := by
   ext x y

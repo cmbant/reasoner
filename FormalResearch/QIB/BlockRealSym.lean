@@ -36,7 +36,8 @@ open scoped ComplexOrder
 
 namespace FormalResearch.QIB
 
-open FormalResearch.FrameFree.Helstrom (qf Pe rotK copies Copies symSpace copies_mem_symSpace cnt)
+open FormalResearch.FrameFree.Helstrom (Pe rotK copies Copies symSpace copies_mem_symSpace cnt)
+open FormalResearch.MatrixAnalysis
 open FormalResearch.NQubit (Ψ Θ eps cj)
 
 section Generic

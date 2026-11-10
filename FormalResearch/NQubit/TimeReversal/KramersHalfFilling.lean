@@ -5,7 +5,7 @@ public import Mathlib
 
 @[expose] public section
 
-namespace FormalResearch.QIB
+namespace FormalResearch.NQubit.TimeReversal
 
 /-!
 # Kramers half-filling (`lem:halffilling`)
@@ -275,4 +275,4 @@ theorem kramers_halffilling_matrix (J : Matrix (Fin n) (Fin n) ℂ) (hJ : Jᴴ *
 
 end MatrixForm
 
-end FormalResearch.QIB
+end FormalResearch.NQubit.TimeReversal

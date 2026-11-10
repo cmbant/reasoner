@@ -10,7 +10,7 @@ public import FormalResearch.PPTThreeQubit.Chirality
 # `σ` is an extreme fully-PPT state (`cor:ppt3-extreme5`, the rational member)
 
 Transfer of the exact `ℚ(ω)` certificate of `SigmaExtremeData` to `ℂ` and the extremality theorem
-`sigma5_extreme : sigma5 ∈ fullyPPT3.extremePoints ℝ` (supported-face criterion, `ExtremeCriterion`).
+`sigma5_extreme : sigma5 ∈ fullyPPT3.extremePoints ℝ` (supported-face criterion, `MatrixAnalysis.ExtremeCriterion`).
 -/
 
 @[expose] public section
@@ -209,14 +209,14 @@ theorem sigma5_null (Y : Matrix (Fin 5) (Fin 5) ℂ) (hH : Y.IsHermitian)
 
 /-- **`cor:ppt3-extreme5`, the rational member**: the state `σ` of `eq:ppt3-sigma5` (`τ = 48/55`, `Q = 11/5`)
 is an extreme point of the set of fully-PPT three-qubit states, by the supported-face criterion
-(`ExtremeCriterion.ppt3_extreme_of_sandwich`): the 24 real-linear face equations from three kernel vectors
+(`ppt3_extreme_of_sandwich`): the 24 real-linear face equations from three kernel vectors
 of each partial transpose force `Y ∝ X_σ`, certified in exact arithmetic over `ℚ(ω)`
 (`SigmaExtremeData.cert`, `decide +kernel`). -/
-theorem sigma5_extreme : sigma5 ∈ ExtremeCriterion.fullyPPT3.extremePoints ℝ := by
+theorem sigma5_extreme : sigma5 ∈ fullyPPT3.extremePoints ℝ := by
   obtain ⟨hps, hppt, -⟩ := sigma5_ppt_gme
-  have hσ : sigma5 ∈ ExtremeCriterion.fullyPPT3 :=
-    (ExtremeCriterion.mem_fullyPPT3_iff sigma5).mpr ⟨hps, trace_sigma5, hppt.1, hppt.2.1, hppt.2.2⟩
-  refine ExtremeCriterion.ppt3_extreme_of_sandwich hσ (Bs (1 / 2)) Xsigma sigma5_eq Bs_injective
+  have hσ : sigma5 ∈ fullyPPT3 :=
+    (mem_fullyPPT3_iff sigma5).mpr ⟨hps, trace_sigma5, hppt.1, hppt.2.1, hppt.2.2⟩
+  refine ppt3_extreme_of_sandwich hσ (Bs (1 / 2)) Xsigma sigma5_eq Bs_injective
     (Set.range (kC 0)) (Set.range (kC 1)) (Set.range (kC 2)) ?_ ?_ ?_ ?_
   · rintro _ ⟨κ, rfl⟩; exact kernel_sigma5 0 κ
   · rintro _ ⟨κ, rfl⟩; exact kernel_sigma5 1 κ

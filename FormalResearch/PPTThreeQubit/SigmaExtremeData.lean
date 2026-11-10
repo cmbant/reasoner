@@ -8,7 +8,7 @@ public import FormalResearch.PPTThreeQubit.SigmaExtremeAlg
 Source: `QI/hidden_entanglement/ppt_three_qubit/rank_five_surface.tex`, `cor:ppt3-extreme5`, and
 `appendix_surface.tex` (extremality). The state is `σ = B_{1/2} X_σ B_{1/2}†` (`sigma5`), `τ = 48/55`, `Q = 11/5`.
 
-The supported-face criterion (`ExtremeCriterion.ppt3_extreme_of_sandwich`) needs: for Hermitian `Y`, the equations
+The supported-face criterion (`ppt3_extreme_of_sandwich`) needs: for Hermitian `Y`, the equations
 `(B Y B†)^{T_c} k = 0` for a basis `k` of `ker σ^{T_c}` force `Y ∝ X_σ`.  These are complex-linear in `Y`; with the
 adjoint equations (from Hermiticity) the system has rank `24` over `ℚ(ω)`.  The coefficients, a basis of each
 kernel, and an exact certificate `Λ` (each `x₀₀ e_t - x_t e₀` is a combination of 24 selected rows) are computed

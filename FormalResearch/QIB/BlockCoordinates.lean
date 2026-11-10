@@ -43,7 +43,7 @@ open scoped MatrixOrder ComplexOrder Kronecker
 
 namespace FormalResearch.QIB
 
-open FormalResearch.FrameFree.Helstrom (IsEffect qf err)
+open FormalResearch.MatrixAnalysis
 
 section Transport
 

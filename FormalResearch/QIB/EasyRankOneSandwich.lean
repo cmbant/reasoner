@@ -39,9 +39,8 @@ open scoped MatrixOrder ComplexOrder
 
 namespace FormalResearch.QIB
 
-open FormalResearch.FrameFree.Helstrom (IsEffect qf err quarter_le_err tr_mul_vecMulVec projMat
-  projMat_isEffect projMat_posSemidef qf_projMat_self qf_one_sub_projMat_of_mem one_sub_projMat
-  qf_re_nonneg qf_smul_left qf_smul_right)
+open FormalResearch.FrameFree.Helstrom (tr_mul_vecMulVec)
+open FormalResearch.MatrixAnalysis
 
 section RankOne
 

@@ -34,7 +34,7 @@ open scoped MatrixOrder ComplexOrder
 
 namespace FormalResearch.QIB
 
-open FormalResearch.FrameFree.Helstrom (IsEffect)
+open FormalResearch.MatrixAnalysis
 
 section Antiunitary
 

@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import FormalResearch.FrameFree.HelstromPure
+public import FormalResearch.MatrixAnalysis.HelstromPure
 public import FormalResearch.FrameFree.HelstromLinAlg
 public import FormalResearch.FrameFree.HelstromTwirl
 public import FormalResearch.FrameFree.HelstromPS
@@ -30,7 +30,7 @@ open scoped MatrixOrder ComplexOrder InnerProductSpace
 open Matrix
 
 namespace FormalResearch.FrameFree.Helstrom
-
+open FormalResearch.MatrixAnalysis
 variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
 theorem tr_mul_vecMulVec (A : Matrix ι ι ℂ) (c : ι → ℂ) :

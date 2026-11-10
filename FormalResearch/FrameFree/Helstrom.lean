@@ -2,7 +2,7 @@ module
 
 public import FormalResearch.NQubit.Foundations
 public import FormalResearch.FrameFree.RotationOverlap
-public import FormalResearch.FrameFree.HelstromPure
+public import FormalResearch.MatrixAnalysis.HelstromPure
 
 /-!
 # The frame-free error `P_e(k)` and the upper bound `ξ_inv ≤ C_K` (Paper P, `thm:window`)
@@ -38,7 +38,7 @@ open scoped ComplexOrder
 set_option linter.unusedSectionVars false
 
 namespace FormalResearch.FrameFree.Helstrom
-
+open FormalResearch.MatrixAnalysis
 /-! ### Kronecker products and copies -/
 
 /-- Kronecker product of local matrices. -/

@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import FormalResearch.FrameFree.HelstromPure
+public import FormalResearch.MatrixAnalysis.HelstromPure
 public import FormalResearch.FrameFree.HelstromTwirl
 public import FormalResearch.FrameFree.HelstromPS
 
@@ -22,7 +22,7 @@ open scoped MatrixOrder ComplexOrder InnerProductSpace
 open Matrix
 
 namespace FormalResearch.FrameFree.Helstrom
-
+open FormalResearch.MatrixAnalysis
 variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
 theorem continuous_qf (x y : ι → ℂ) : Continuous fun M : Matrix ι ι ℂ => star x ⬝ᵥ (M *ᵥ y) := by

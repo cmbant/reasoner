@@ -21,7 +21,7 @@ public import FormalResearch.PPTThreeQubit.PencilKernel
 public import FormalResearch.PPTThreeQubit.MomentCone
 public import FormalResearch.PPTThreeQubit.CurveParam
 public import FormalResearch.PPTThreeQubit.MomentConeGME
-public import FormalResearch.PPTThreeQubit.ConeCaratheodory
+public import FormalResearch.ConvexGeometry.ConeCaratheodory
 public import FormalResearch.PPTThreeQubit.MomentConeCaratheodory
 public import FormalResearch.PPTThreeQubit.KernelPenalty
 public import FormalResearch.PPTThreeQubit.SwapSymmetric
@@ -29,8 +29,7 @@ public import FormalResearch.PPTThreeQubit.PPTSeparable23
 public import FormalResearch.PPTThreeQubit.ExtremeCriterion
 public import FormalResearch.PPTThreeQubit.SigmaExtreme
 public import FormalResearch.PPTThreeQubit.TraceDistance
-public import FormalResearch.PPTThreeQubit.TraceNormGeneral
-public import FormalResearch.PPTThreeQubit.KernelQuantMatrix
+public import FormalResearch.PPTThreeQubit.Pinching
 public import FormalResearch.PPTThreeQubit.KernelQuantCuts
 public import FormalResearch.PPTThreeQubit.ChiralityBasics
 public import FormalResearch.PPTThreeQubit.ChiralityRays
@@ -65,8 +64,8 @@ finitely many real-linear cut maps is extreme iff every face direction is a mult
 `ExtremeCriterion.ppt3_extreme_iff`, `ExtremeCriterion.ppt3_extreme_of_sandwich`; `SigmaExtreme.lean` applies it to
 the rational surface state (`sigma5_extreme`) with an exact `ℚ(ω)` rank certificate (`SigmaExtremeData.lean`).
 
-Moment cone, Carathéodory and closedness (`ConeCaratheodory.lean`, `MomentConeCaratheodory.lean`;
-`thm:ppt3-universal-moments`): `ConeCar.exists_coneRep_card_le` (conic Carathéodory), `ConeCar.isClosed_cone_of_isCompact`,
+Moment cone, Carathéodory and closedness (`ConvexGeometry/ConeCaratheodory.lean`, `MomentConeCaratheodory.lean`;
+`thm:ppt3-universal-moments`): `ConvexGeometry.ConeCar.exists_coneRep_card_le` (conic Carathéodory), `ConvexGeometry.ConeCar.isClosed_cone_of_isCompact`,
 `biseparable_card_le_25`, `isClosed_inMomentCone`, and for all three-qubit operators `isClosed_isBiseparable`,
 `isBiseparable_card_le_64`.
 

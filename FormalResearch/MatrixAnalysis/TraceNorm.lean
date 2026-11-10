@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import FormalResearch.FrameFree.HelstromPure
+public import FormalResearch.MatrixAnalysis.HelstromPure
 
 /-!
 # Matrix Helstrom identity (trace norm of a Hermitian matrix as a sum of `|eigenvalues|`)
@@ -26,9 +26,8 @@ set_option linter.unusedSectionVars false
 open Matrix
 open scoped MatrixOrder ComplexOrder
 
-namespace FormalResearch.QIB
+namespace FormalResearch.MatrixAnalysis
 
-open FormalResearch.FrameFree.Helstrom (IsEffect)
 
 variable {n : Type*} [Fintype n] [DecidableEq n]
 
@@ -186,4 +185,4 @@ theorem exists_effect_trace_mul_eq {D : Matrix n n ℂ} (hD : D.IsHermitian) :
 /-- The paper's `Tr min(A,B) := ½(Tr A + Tr B - ‖A-B‖₁)` (real parts of the traces). -/
 noncomputable def trMin (A B : Matrix n n ℂ) : ℝ := (1 / 2) * (A.trace.re + B.trace.re - tnorm (A - B))
 
-end FormalResearch.QIB
+end FormalResearch.MatrixAnalysis

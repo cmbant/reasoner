@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import FormalResearch.QIB.KramersHalfFilling
+public import FormalResearch.NQubit.TimeReversal.KramersHalfFilling
 
 /-!
 # Antiunitary spin-flip purification, abstract form (`prop:antiunitary-purification`)
@@ -10,7 +10,7 @@ Source: `QI/multiqubit_entanglement/seven_qubit_entanglement/spinflip_graph_pari
 `prop:antiunitary-purification` (QIprojects PR #200).
 
 `E` is a complex inner-product space and `Θ : E →ₛₗ[conj] E` an antilinear map with the antiunitary
-inner-product identity `⟪Θ u, Θ v⟫ = conj ⟪u, v⟫` (`FormalResearch.QIB.IsAntiunitary`), `Θ² = η`, `η = ±1`
+inner-product identity `⟪Θ u, Θ v⟫ = conj ⟪u, v⟫` (`FormalResearch.NQubit.TimeReversal.IsAntiunitary`), `Θ² = η`, `η = ±1`
 (for the tensor product of local antiunitaries `Θ = ⊗ Θ_i`, `η = ∏ η_i`).  For a unit `z` the
 ordinary-site reduction of `Ω_z = (|0⟩ z + |1⟩ Θ z)/√2` is `ρ = ½(|z⟩⟨z| + |Θz⟩⟨Θz|)` (the statement of the
 paper; that the reduction of `Ω_z` *is* this operator is the trivial partial trace over the distinguished
@@ -30,7 +30,7 @@ statement is dimension-independent as in the paper.
 
 
 open scoped InnerProductSpace ComplexConjugate
-open FormalResearch.QIB
+open FormalResearch.NQubit.TimeReversal
 
 namespace FormalResearch.FourQubitEntropy.SpinFlip
 

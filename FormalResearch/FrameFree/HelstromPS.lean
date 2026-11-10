@@ -21,7 +21,6 @@ open scoped MatrixOrder ComplexOrder
 open Matrix
 
 namespace FormalResearch.FrameFree.Helstrom
-
 variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
 theorem cont_spec {D : Matrix ι ι ℂ} (hD : D.IsHermitian) (f : ℝ → ℝ) :

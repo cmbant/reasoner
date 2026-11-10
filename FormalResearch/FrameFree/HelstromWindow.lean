@@ -29,7 +29,7 @@ open FormalResearch.NQubit
 open scoped ComplexOrder InnerProductSpace
 
 namespace FormalResearch.FrameFree.Helstrom
-
+open FormalResearch.MatrixAnalysis
 section kron
 variable {I α : Type*} [Fintype I] [DecidableEq I] [Fintype α] [DecidableEq α]
 

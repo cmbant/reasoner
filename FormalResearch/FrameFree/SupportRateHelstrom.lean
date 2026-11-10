@@ -10,7 +10,7 @@ set_option autoImplicit false
 set_option linter.unusedSectionVars false
 
 open scoped ComplexConjugate Matrix BigOperators InnerProductSpace
-open FormalResearch.FrameFree.NQubit FormalResearch.NQubit FormalResearch.FrameFree.Helstrom
+open FormalResearch.FrameFree.NQubit FormalResearch.NQubit FormalResearch.FrameFree.Helstrom FormalResearch.MatrixAnalysis
 
 /-!
 # Support rate for the Helstrom support test, conditional on the Zariski-closure supremum

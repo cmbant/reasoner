@@ -38,7 +38,7 @@ set_option linter.unusedSectionVars false
 set_option linter.unusedSimpArgs false
 open Matrix
 open FormalResearch.NQubit (SU2 Op1 Ψ)
-open FormalResearch.FrameFree.Helstrom
+open FormalResearch.FrameFree.Helstrom FormalResearch.MatrixAnalysis
 
 namespace FormalResearch.QIB.TwoQubits
 

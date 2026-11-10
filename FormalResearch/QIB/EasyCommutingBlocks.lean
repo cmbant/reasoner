@@ -36,7 +36,7 @@ open scoped MatrixOrder ComplexOrder
 
 namespace FormalResearch.QIB
 
-open FormalResearch.FrameFree.Helstrom (IsEffect qf err qf_re_nonneg)
+open FormalResearch.MatrixAnalysis
 
 section Diagonal
 
@@ -203,9 +203,9 @@ constraints on the test give a smaller error. -/
 theorem invErr_mono {G₁ G₂ : Set (Matrix ι ι ℂ)} (h : G₁ ⊆ G₂) (a b : ι → ℂ) :
     invErr G₁ a b ≤ invErr G₂ a b := by
   unfold invErr
-  have hnn : ∀ E : Matrix ι ι ℂ, IsEffect E → 0 ≤ FormalResearch.FrameFree.Helstrom.err E a b := by
+  have hnn : ∀ E : Matrix ι ι ℂ, IsEffect E → 0 ≤ FormalResearch.MatrixAnalysis.err E a b := by
     intro E hE
-    unfold FormalResearch.FrameFree.Helstrom.err
+    unfold FormalResearch.MatrixAnalysis.err
     have := qf_re_nonneg hE.1 a
     have := qf_re_nonneg hE.2 b
     linarith

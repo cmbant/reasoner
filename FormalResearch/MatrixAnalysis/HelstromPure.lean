@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # Pure-state Helstrom bound (generic finite-dimensional statement)
 
-Namespace `FormalResearch.FrameFree.Helstrom`.  For unit vectors `a, b` of `ℂ^ι` and a two-outcome test
+Namespace `FormalResearch.MatrixAnalysis`.  For unit vectors `a, b` of `ℂ^ι` and a two-outcome test
 (effect) `0 ≤ E ≤ 1` the equal-prior error is `err E a b = ½(⟨a|E|a⟩ + ⟨b|(1-E)|b⟩)`.
 
 * `pure_helstrom`: `½(1 - √(1 - |⟨a|b⟩|²)) ≤ err E a b` (Helstrom's bound for pure states; the value is
@@ -28,7 +28,7 @@ open scoped ComplexOrder InnerProductSpace
 
 set_option linter.unusedSectionVars false
 
-namespace FormalResearch.FrameFree.Helstrom
+namespace FormalResearch.MatrixAnalysis
 
 variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
@@ -345,4 +345,4 @@ theorem projMat_commute {U : Matrix ι ι ℂ}
     exact h0
 
 
-end FormalResearch.FrameFree.Helstrom
+end FormalResearch.MatrixAnalysis
