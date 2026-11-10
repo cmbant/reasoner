@@ -20,8 +20,8 @@ Proved here, for every stabilizer state:
   is multiplicative, `φ_t(PQ) = φ_t(P) φ_t(Q)` (`wloc_pmul`, the defect is `-1` exactly at positions where the
   letters anticommute), so `P ↦ φ_t(P)` is a character of `G` and its average over `G` is `0` or `1`.
 
-This is the integrality step of the paper's proof of `prop:stab7` (QIprojects
-`QI/multiqubit_entanglement/seven_qubit_entanglement/icosahedral_state.tex`), for the shadow
+This is the integrality step of the paper's proof of `prop:stab7`
+(`QI/multiqubit_entanglement/seven_qubit_entanglement/icosahedral_state.tex`), for the shadow
 enumerator as Rains' transform of `A_j`, which is how `shadowCoeff` is defined.
 -/
 

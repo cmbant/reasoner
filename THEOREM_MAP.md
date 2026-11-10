@@ -358,7 +358,7 @@ Not done in this branch, with the obstruction:
 - `lem:seven-joint-scalar-majorant` (AH-6): formalized in branch `paper-e-ah6` (below).
 - Equality cases of `thm:fqe-general-envelope` / `prop:fqe-critical-envelope` and the second inequality of `(TF)`: done in
   branch `paper-e-envelope-equality` (below).
-- `prop:stab7` identities (Pauli/shadow enumerators): not attempted.
+- `prop:stab7` identities (Pauli/shadow enumerators): not attempted in this branch; formalised later (see `prop:stab7` above).
 
 ## Fully-PPT three-qubit GME (QIprojects PPT THREE QUBIT paper, lane T57)
 
