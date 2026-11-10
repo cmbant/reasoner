@@ -22,6 +22,7 @@ public import FormalResearch.PPTThreeQubit.MomentCone
 public import FormalResearch.PPTThreeQubit.CurveParam
 public import FormalResearch.PPTThreeQubit.MomentConeGME
 public import FormalResearch.PPTThreeQubit.PPTSeparable23
+public import FormalResearch.PPTThreeQubit.ExtremeCriterion
 
 /-!
 # Fully-PPT three-qubit GME: the rank-five family
@@ -37,6 +38,13 @@ Moment-cone part (`relaxations_and_scope.tex`, `thm:ppt3-universal-moments`; `ap
 `lem:ppt3-product-kernel`): `pptSeparable23` (the Horodecki 2⊗3 theorem, transported in
 `PPTSeparable23.lean` from the vendored math-lab proof), `ppt_product_kernel`, `kernel_free_of_gme`, `biseparable_iff_mem_cone`, `dual_iff`, `cofCoeff_indep`, `curve_cut`,
 `ppt3_universal_moments` (unconditional), `ppt3_universal_moments_of_gme`; all unconditional.
+
+Extremality (`ExtremeCriterion.lean`; `appendix_family.tex`, `appendix_surface.tex`, the supported-face
+criterion of Garberg--Irgens--Myrheim used for `cor:ppt3-extreme6` and `cor:ppt3-extreme5`):
+`ExtremeCriterion.mem_extremePoints_iff_faceDirection` (generic: a state of the unit-trace set cut out by
+finitely many real-linear cut maps is extreme iff every face direction is a multiple of it),
+`ExtremeCriterion.mem_extremePoints_of_sandwich` (`σ = B X B†` form), and the three-qubit forms
+`ExtremeCriterion.ppt3_extreme_iff`, `ExtremeCriterion.ppt3_extreme_of_sandwich`.
 -/
 
 @[expose] public section
