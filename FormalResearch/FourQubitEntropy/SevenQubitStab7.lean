@@ -14,8 +14,9 @@ graph state with `π₃ = 19/140`.
 The data model: a graph on seven vertices is a `21`-bit number (lexicographic edge order, as in the verifier);
 `cutRank g T` is the `GF(2)` rank of the `3 × 4` off-diagonal block for a 3-subset `T` (computed as `log₂` of the
 size of the row span), and for a graph state `π₃(g) = (1/35) ∑_T 2^{-cutRank}` (`pi3`), a standard formula that is
-*recalled, not proved* here (the library proves it for graph states in `NQubit/Graph/MeanPurity`; this module's bit
-encoding is not yet linked to it, and graph states are not yet shown to be `IsStabilizerState`).
+*recalled, not proved* here; `SevenQubitStabilizerSharp` proves `π₃ = 19/140` for the witness graph from the library's
+`NQubit/Graph/MeanPurity` (bitmask rows linked to this encoding by `adjW_spec`) and that the graph state is a stabilizer
+state (`NQubit/Graph/Stabilizer`), concluding `stab7_sharp`.
 
 * `pi3_empty`, `pi3_complete`, `pi3_witness`: exact values at the empty graph (`1`), the complete graph
   (`1/2`) and the Fano/wheel witness graph `0x00cf17` of GS-4 (`19/140`, with rank profile `3 × 2,
