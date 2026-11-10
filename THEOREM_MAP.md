@@ -709,6 +709,12 @@ General `n`-qubit material used by more than one development, with no generated 
   `graphCutRankBits`; `Symmetry`: `graphCutBits_image` (cut ranks are invariant under graph automorphisms) and `sum_rankFn_eq_reps` (a sum over all `k`-subsets of an
   automorphism-invariant function equals the sum over orbit representatives weighted by the orbit sizes, with a data-light list certificate; no data in the library).
 
+- `Graph/Stabilizer`: graph states are stabilizer states. `graphStateNorm_isStabilizerState` (every simple graph, symmetric loop-free `Γ`): `IsStabilizerState (graphStateNorm Γ)`
+  with the group `graphStabWords Γ = {pword s (nbr Γ s) | s : Fin n → ZMod 2}` (the words `P_S = ∏_{i∈S} K_i`, `K_i = X_i ∏_{j~i} Z_j`; `graphStabWords_isStabilizerGroup`:
+  `2^n` words by injectivity, closure via `pmulW_pword` and `nbr_add`, commutation via the vanishing symplectic form `sum_symp_nbr`), `⟨P⟩² = 1` from `rot_pword_graph`
+  (`P_s |G⟩ = c_s |G⟩`, `|c_s| = 1`; entrywise form `pauliSU_letter`) in `pauliSq_graphStateNorm`. Corollaries `weightEnum_graphStateNorm_nat`, `shadowCoeff_graphStateNorm_nat`.
+  Axioms `[propext, Classical.choice, Quot.sound]`.
+
 The Paper E modules `SpinFlip*`, `PurityLP*` in `FourQubitEntropy/` import this library; see the sections below for their statements.
 
 ### Branch `paper-e-lp`: exact minima of the mean balanced-cut purity (the Rains LP tables), `n ∈ {4,5,6,8,…,12,14,…,18}`
