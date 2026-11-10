@@ -263,6 +263,19 @@ Statement scope against the current paper (`four_qubit_entropy.tex` and its supp
   Pauli words (closed under letterwise product) having `⟨P⟩² = 1`. Axioms `[propext, Classical.choice, Quot.sound]`.
   Sharpness: `SevenQubitStab7` has the witness graph with `π₃ = 19/140` (recalled graph-state formula; graph states are not
   yet shown to be `IsStabilizerState`).
+- `prop:shadow-complement` (`SevenQubitShadowComplement.lean`, with `SevenQubitShadowComplementModel.lean` and
+  `SevenQubitShadowComplementPauli.lean`): for every (not necessarily normalized) `ψ : Ψ (m+1)` with `m` even and every
+  distinguished qubit `s`, `odd_weight_identities` proves both boxed identities, `∑_{j odd} B_j = 2^m/2 · tr ρ_s² - 2^m/4 · q_s`
+  and `2^m ‖ρ̄ - Jρ̄J⁻¹‖₂² = 4 ∑_{j odd} B_j`, with no hypothesis other than `Even m` (`B_j = weightEnumExcl ψ s j`,
+  `tr ρ_s² = cutPurity ψ {s}`, `q_s = shadowQ (spinFlipOp (univ.erase s)) (branchVec ψ s)`, `‖A‖₂² = hsNormSq A = Re tr(A†A)`,
+  `J = spinFlipOp = ε^{⊗m} K`, `ρ̄ = rho (branchVec ψ s)` which `rdm_eq_sum` identifies with the library's `rdm`). The Pauli
+  expansions are discharged from `Reduced/Purity` and `TimeReversal/OddOverlap`: `two_pow_mul_cutPurity_erase`
+  (`2^m tr ρ̄² = ∑ B_j`), `two_pow_mul_sum_Tm` (`2^m tr(ρ̄ J ρ̄ J⁻¹) = ∑ (-1)^j B_j`, via `Rspin_eq` and `two_pow_mul_Rspin`),
+  `cutPurity_erase` (`tr ρ̄² = tr ρ_s²`), `isSpinFlip_spinFlipOp`; the abstract model gives `shadowQ_eq` (`q_s = 2‖T‖_F²`),
+  `shadowQ_eq_trace` (`q_s = 2 tr(ρ̄ J ρ̄ J⁻¹)`) and `hsNormSq_rho_sub_rhoFlip`. `odd_weight_takagi` (`shadowQ_takagi`,
+  `takagi_frobenius`): for `tr ρ_s² = 1/2` and a Takagi factorization `T̂ = U diag(t) Uᵀ` of `T̂ = 2T`, `q_s = (t₁² + t₂²)/2` and
+  `∑_{j odd} B_j = 2^m/4 (1 - (t₁² + t₂²)/2)`. Axioms `[propext, Classical.choice, Quot.sound]`. Not formalized: existence of the
+  Takagi factorization and the basis independence of the `t_i`; the distinguished qubit enters as an arbitrary `s : Fin (m+1)`.
 - `SevenQubitIcoContraction` and `SevenQubitIcoContractGram` (`esG1_*`, `esG2_contain`) are not paper statements: the paper
   proves `prop:entropy-seven-stationarity` from `lem:seven-family-symmetric-criticality` (not formalized) and no longer
   displays these identities.
