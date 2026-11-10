@@ -358,7 +358,7 @@ negation. All headlines depend only on `[propext, Classical.choice, Quot.sound]`
 | `thm:ppt3-universal-moments` for fully-PPT GME states | `ppt3_universal_moments_of_gme` | unconditional (via `pptSeparable23`); `B`, `K` full-rank with `Kᴴ B = 0`, `ρ K = 0`. The conclusion's `CutCurve` with invertible `T c` feeds `biseparable_card_le_25` and `isClosed_inMomentCone` |
 
 Not formalised: rank profiles; the exact rank computations for extremality and the moduli ranks (the criterion itself is formalised, `ExtremeCriterion.lean`); the level-two (DPS) noise certificates; the white-noise
-upper bounds (they need Gurvits--Barnum); the quantitative kernel-penalty bound; chirality part (a).
+upper bounds (they need Gurvits--Barnum); the quantitative kernel-penalty bound; chirality part (a); the trace-distance bounds of the symmetrisation corollary.
 
 ## Gurvits–Barnum separable ball (general bipartite; used by the PPT THREE QUBIT paper)
 

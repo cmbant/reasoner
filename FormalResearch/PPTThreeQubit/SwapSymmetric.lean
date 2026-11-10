@@ -293,10 +293,10 @@ theorem ptA_submatrix_swapBC (M : Matrix (Fin 8) (Fin 8) ℂ) :
   ext i j
   fin_cases i <;> fin_cases j <;> rfl
 
-theorem ptA_add (M N : Matrix (Fin 8) (Fin 8) ℂ) : ptA (M + N) = ptA M + ptA N := by
+theorem ptA_add_mat (M N : Matrix (Fin 8) (Fin 8) ℂ) : ptA (M + N) = ptA M + ptA N := by
   ext i j; rfl
 
-theorem ptA_smul (r : ℝ) (M : Matrix (Fin 8) (Fin 8) ℂ) : ptA (r • M) = r • ptA M := by
+theorem ptA_real_smul (r : ℝ) (M : Matrix (Fin 8) (Fin 8) ℂ) : ptA (r • M) = r • ptA M := by
   ext i j; rfl
 
 /-- **`cor:ppt3-symmetrisation` (c), separability part.**  For every operator `ρ ≥ 0` that is PPT at
@@ -308,7 +308,7 @@ theorem isBiseparable_swap_average {ρ : Matrix (Fin 8) (Fin 8) ℂ} (hρ : ρ.P
   have hpsd : ((1 / 2 : ℝ) • (ρ + ρ.submatrix swapBC swapBC)).PosSemidef :=
     (hρ.add (hρ.submatrix _)).smul (by norm_num)
   refine isBiseparable_of_swapBC hpsd ?_ ?_
-  · rw [ptA_smul, ptA_add, ptA_submatrix_swapBC]
+  · rw [ptA_real_smul, ptA_add_mat, ptA_submatrix_swapBC]
     exact (hT.add (hT.submatrix _)).smul (by norm_num)
   · intro i j
     simp only [Matrix.smul_apply, Matrix.add_apply, submatrix_apply, swapBC_swapBC]
@@ -349,7 +349,7 @@ theorem permAvg_posSemidef {ρ : Matrix (Fin 8) (Fin 8) ℂ} (hρ : ρ.PosSemide
 theorem permAvg_ptA {ρ : Matrix (Fin 8) (Fin 8) ℂ} (hA : (ptA ρ).PosSemidef)
     (hB : (ptB ρ).PosSemidef) (hC : (ptC ρ).PosSemidef) : (ptA (permAvg ρ)).PosSemidef := by
   unfold permAvg
-  rw [ptA_smul, ptA_add, ptA_add, ptA_add, ptA_add, ptA_add, ptA_submatrix_shift,
+  rw [ptA_real_smul, ptA_add_mat, ptA_add_mat, ptA_add_mat, ptA_add_mat, ptA_add_mat, ptA_submatrix_shift,
     ptA_submatrix_shift_shift, ptA_submatrix_swapBC, ptA_submatrix_swapAC, ptA_submatrix_swapAB]
   refine PosSemidef.smul ?_ (by norm_num)
   exact ((((hA.add (hC.submatrix _)).add (hB.submatrix _)).add (hA.submatrix _)).add
