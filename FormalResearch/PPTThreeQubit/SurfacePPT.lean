@@ -23,7 +23,7 @@ Covered (proved, no numerical input):
 * `ppt3_orbit_ppt` / `ppt3_orbit_ppt_gme`: for `1/√3 < τ < 1` and every `a > 0`, `ρ_{τ,a}` is
   positive semidefinite and fully PPT (and GME);
 * `sigma5_ppt_gme`: the same for `σ` of `cor:ppt3-extreme5` (`τ = 48/55`, `a = 2`).
-Not covered: the rank profile `(5,5,5,5)`, part (a) beyond cyclic invariance, part (c) of
+Not covered: the rank profile `(5,5,5,5)` (see `RankProfile.lean`), part (a) beyond cyclic invariance, part (c) of
 `thm:ppt3-orbit`, extremality of `σ`.
 -/
 
