@@ -6,7 +6,7 @@ public import FormalResearch.MatrixAnalysis.HelstromPure
 /-!
 # Matrix Helstrom identity (trace norm of a Hermitian matrix as a sum of `|eigenvalues|`)
 
-Namespace `FormalResearch.QIB`.  Claim class: **proved** (no hypothesis, no new axiom).
+Namespace `FormalResearch.MatrixAnalysis`.  Claim class: **proved** (no hypothesis, no new axiom).
 
 Source: `QI/invariant_discrimination/paper/invariant_discrimination_exponents.tex`, the Helstrom reduction behind Eq.
 `eq:helstrom-twirls` and Lemma `lem:blockdecomp`, in the form needed blockwise.

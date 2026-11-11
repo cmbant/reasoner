@@ -8,8 +8,8 @@ public import FormalResearch.PPTThreeQubit.TraceDistance
 
 For the cut `c` and a unit `a ∈ ℂ²` let `cutEmb c a : ℂ⁴ → ℂ⁸` be `b ↦ U_c†(a ⊗ b)`, i.e.
 `(cutEmb c a b)(i) = a(bit_c i) · b(rest_c i)` with the index maps of `IsProdA`, `IsProdB`, `IsProdC`.
-It is an isometry (`cutEmb_isometry`), its range over unit `a` and all `b` is the set of normalised
-cut-product vectors (`isCutProduct_iff`), and so `kernel_quant_matrix` gives
+It is an isometry (`cutEmb_isometry`), and every normalised cut-product vector is of the form
+`cutEmb c a b` with unit `a`, `b` (`exists_cutEmb`), and so `kernel_quant_matrix` gives
 `kernel_quant_cutProduct`: for `λ = (L + L²/α)/μ` the lifted witness `W = W₀ + λ KᴴK` is non-negative
 on every cut-product vector, under the hypotheses of `prop:ppt3-kernel-quant` (uniform in `a`, `c`).
 -/

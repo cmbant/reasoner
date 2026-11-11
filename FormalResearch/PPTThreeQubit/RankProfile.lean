@@ -16,7 +16,7 @@ The rank profile is `(rank ρ, rank ρ^{T_A}, rank ρ^{T_B}, rank ρ^{T_C})` (`r
 `Matrix.rank` over `ℂ`.
 
 Method.  `rank_sandwich_of_leftInv`: `rank (B X B†) = rank X` for `B` with a left inverse.
-`rank_unitriangular_diag`: `rank (L D L†) = #{k | d_k ≠ 0}` for `D = diag d ≥ 0` and `L` with a
+`rank_factor_diag`: `rank (L D L†) = #{k | d_k ≠ 0}` for `D = diag d ≥ 0` and `L` with a
 unit-determinant square submatrix of rows (the `LDL*` factors of `FamilyPPTFactor.lean` and
 `SurfacePPTFactor.lean` are unitriangular in a suitable row order).  The cyclic symmetry
 (`rhoT_cycShift`, `rhoSurface_cycShift`) transfers the rank of `ρ^{T_A}` to `ρ^{T_B}`, `ρ^{T_C}`; the
