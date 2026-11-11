@@ -196,14 +196,14 @@ theorem ptA_conj_filterDiag (lam : ℝ) (M : Matrix (Fin 8) (Fin 8) ℂ) :
   simp only [ptA, of_apply, diagonal_conjTranspose, diagonal_mul, mul_diagonal, Pi.star_apply, hs]
   fin_cases i <;> fin_cases j <;> simp [filterDiag] <;> ring
 
-/-! ### Cyclic invariance of `ρ(α, W, A)` -/
+/-! ### Cyclic invariance of `ρ(α, β, γ)` -/
 
 theorem uVec_cycShift_s (s : ℝ) : uVec s ∘ cycShift = uVec s := by
   funext i; fin_cases i <;> simp [cycShift, uVec]
 
-/-- `ρ(α, W, A)` is invariant under the cyclic shift of the qubits (`thm:ppt3-orbit`(a)). -/
-theorem rhoSurface_cycShift (α W A : ℝ) :
-    (rhoSurface α W A).submatrix cycShift cycShift = rhoSurface α W A := by
+/-- `ρ(α, β, γ)` is invariant under the cyclic shift of the qubits (`thm:ppt3-orbit`(a)). -/
+theorem rhoSurface_cycShift (α β γ : ℝ) :
+    (rhoSurface α β γ).submatrix cycShift cycShift = rhoSurface α β γ := by
   ext i j
   rw [submatrix_apply, rhoSurface_eq]
   simp only [Matrix.add_apply, Matrix.smul_apply, smul_eq_mul]

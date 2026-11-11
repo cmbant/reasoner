@@ -11,12 +11,13 @@ Source: `QI/hidden_entanglement/ppt_three_qubit/w_class_decompositions.tex`, `th
 using the definition and the atoms of `WClass.lean`.
 
 All operators of the library are unnormalised, and membership in the cone `IsWClass` is the statement
-for the normalised state (divide by the trace).  Writing `surfXw A V G W E O` for the coefficient
-matrix with diagonal `(A, V, W, E, O)` and `vw` entry `G` in the basis `(u, v, w, e, o)`, the
+for the normalised state (divide by the trace).  Writing `surfXw γ V G β E O` for the coefficient
+matrix with diagonal `(γ, V, β, E, O)` and `vw` entry `G` in the basis `(u, v, w, e, o)` (the paper's
+`(d_u, d_v, d_w, d_e, d_o)` in the diagonal case, and `γ = 1`, `β = τ` on the surface), the
 sandwich `B surfXw B†` is `wForm`; the two decomposition lemmas of the proof are
-* `isWClass_wForm_nonpos`: `G = -μ ≤ 0`, diagonal remainder `(A - μ, V - μ, W - μ, E, O)` with
-  `A - μ ≤ E + (V - μ)/4` (subtract `μ ([u] + [w - v])`, then the diagonal case `isWClass_wForm_diag`);
-* `isWClass_wForm_pos`: `V > 0`, `A ≤ E`, `G² ≤ VW`, `G² ≤ VO` (subtract `A([u] + [e])` and
+* `isWClass_wForm_nonpos`: `G = -μ ≤ 0`, diagonal remainder `(γ - μ, V - μ, β - μ, E, O)` with
+  `γ - μ ≤ E + (V - μ)/4` (subtract `μ ([u] + [w - v])`, then the diagonal case `isWClass_wForm_diag`);
+* `isWClass_wForm_pos`: `V > 0`, `γ ≤ E`, `G² ≤ Vβ`, `G² ≤ VO` (subtract `γ([u] + [e])` and
   `V([v + (G/V)w] + (G/V)²[o])`).
 
 Covered: `ρ_t` for every `0 < t ≤ 12` (the PPT window is inside), `σ_6`, `ρ_{τ,a}` for
@@ -34,63 +35,63 @@ open Matrix
 
 noncomputable section
 
-/-- `B_1 X B_1†` for the coefficient matrix `surfXw A V G W E O`. -/
-def wForm (A V G W E O : ℝ) : Matrix (Fin 8) (Fin 8) ℂ :=
-  Bs 1 * surfXw A V G W E O * (Bs 1)ᴴ
+/-- `B_1 X B_1†` for the coefficient matrix `surfXw γ V G β E O`. -/
+def wForm (γ V G β E O : ℝ) : Matrix (Fin 8) (Fin 8) ℂ :=
+  Bs 1 * surfXw γ V G β E O * (Bs 1)ᴴ
 
-theorem wForm_eq (A V G W E O : ℝ) :
-    wForm A V G W E O =
-      (A : ℂ) • vecMulVec (uVec 1) (star (uVec 1)) + (W : ℂ) • vecMulVec wVec (star wVec) +
+theorem wForm_eq (γ V G β E O : ℝ) :
+    wForm γ V G β E O =
+      (γ : ℂ) • vecMulVec (uVec 1) (star (uVec 1)) + (β : ℂ) • vecMulVec wVec (star wVec) +
       (V : ℂ) • vecMulVec vVec (star vVec) +
       (G : ℂ) • (vecMulVec wVec (star vVec) + vecMulVec vVec (star wVec)) +
       (E : ℂ) • vecMulVec eVec (star eVec) + (O : ℂ) • vecMulVec oVec (star oVec) :=
-  Bs_surfXw_Bs 1 A V G W E O
+  Bs_surfXw_Bs 1 γ V G β E O
 
 theorem isWClass_v : IsWClass (vecMulVec vVec (star vVec)) := isWClass_rankOne hyperdet_vVec
 theorem isWClass_w : IsWClass (vecMulVec wVec (star wVec)) := isWClass_rankOne hyperdet_wVec
 theorem isWClass_e : IsWClass (vecMulVec eVec (star eVec)) := isWClass_rankOne hyperdet_eVec
 theorem isWClass_o : IsWClass (vecMulVec oVec (star oVec)) := isWClass_rankOne hyperdet_oVec
 
-/-- A diagonal coefficient matrix with nonnegative weights and `A ≤ E + V/4`. -/
-theorem isWClass_wForm_diag {A V W E O : ℝ} (hA : 0 ≤ A) (hV : 0 ≤ V) (hW : 0 ≤ W) (hE : 0 ≤ E)
-    (hO : 0 ≤ O) (h : A ≤ E + V / 4) : IsWClass (wForm A V 0 W E O) := by
+/-- A diagonal coefficient matrix with nonnegative weights and `γ ≤ E + V/4`. -/
+theorem isWClass_wForm_diag {γ V β E O : ℝ} (hγ : 0 ≤ γ) (hV : 0 ≤ V) (hβ : 0 ≤ β) (hE : 0 ≤ E)
+    (hO : 0 ≤ O) (h : γ ≤ E + V / 4) : IsWClass (wForm γ V 0 β E O) := by
   rw [wForm_eq]
-  by_cases hAE : A ≤ E
-  · have key : (A : ℂ) • vecMulVec (uVec 1) (star (uVec 1)) + (W : ℂ) • vecMulVec wVec (star wVec) +
+  by_cases hAE : γ ≤ E
+  · have key : (γ : ℂ) • vecMulVec (uVec 1) (star (uVec 1)) + (β : ℂ) • vecMulVec wVec (star wVec) +
         (V : ℂ) • vecMulVec vVec (star vVec) +
         (((0 : ℝ)) : ℂ) • (vecMulVec wVec (star vVec) + vecMulVec vVec (star wVec)) +
         (E : ℂ) • vecMulVec eVec (star eVec) + (O : ℂ) • vecMulVec oVec (star oVec) =
-        (A : ℂ) • (vecMulVec (uVec 1) (star (uVec 1)) + vecMulVec eVec (star eVec)) +
-          ((V : ℂ) • vecMulVec vVec (star vVec) + (W : ℂ) • vecMulVec wVec (star wVec)) +
-          ((E - A : ℝ) : ℂ) • vecMulVec eVec (star eVec) + (O : ℂ) • vecMulVec oVec (star oVec) := by
+        (γ : ℂ) • (vecMulVec (uVec 1) (star (uVec 1)) + vecMulVec eVec (star eVec)) +
+          ((V : ℂ) • vecMulVec vVec (star vVec) + (β : ℂ) • vecMulVec wVec (star wVec)) +
+          ((E - γ : ℝ) : ℂ) • vecMulVec eVec (star eVec) + (O : ℂ) • vecMulVec oVec (star oVec) := by
       push_cast
       module
     rw [key]
-    exact ((((isWClass_u_e.smul hA).add ((isWClass_v.smul hV).add (isWClass_w.smul hW))).add
+    exact ((((isWClass_u_e.smul hγ).add ((isWClass_v.smul hV).add (isWClass_w.smul hβ))).add
       (isWClass_e.smul (by linarith))).add (isWClass_o.smul hO))
   · replace hAE := not_le.mp hAE
-    have key : (A : ℂ) • vecMulVec (uVec 1) (star (uVec 1)) + (W : ℂ) • vecMulVec wVec (star wVec) +
+    have key : (γ : ℂ) • vecMulVec (uVec 1) (star (uVec 1)) + (β : ℂ) • vecMulVec wVec (star wVec) +
         (V : ℂ) • vecMulVec vVec (star vVec) +
         (((0 : ℝ)) : ℂ) • (vecMulVec wVec (star vVec) + vecMulVec vVec (star wVec)) +
         (E : ℂ) • vecMulVec eVec (star eVec) + (O : ℂ) • vecMulVec oVec (star oVec) =
         (E : ℂ) • (vecMulVec (uVec 1) (star (uVec 1)) + vecMulVec eVec (star eVec)) +
-          ((A - E : ℝ) : ℂ) • (vecMulVec (uVec 1) (star (uVec 1)) +
+          ((γ - E : ℝ) : ℂ) • (vecMulVec (uVec 1) (star (uVec 1)) +
             (4 : ℂ) • vecMulVec vVec (star vVec)) +
-          ((V - 4 * (A - E) : ℝ) : ℂ) • vecMulVec vVec (star vVec) +
-          (W : ℂ) • vecMulVec wVec (star wVec) + (O : ℂ) • vecMulVec oVec (star oVec) := by
+          ((V - 4 * (γ - E) : ℝ) : ℂ) • vecMulVec vVec (star vVec) +
+          (β : ℂ) • vecMulVec wVec (star wVec) + (O : ℂ) • vecMulVec oVec (star oVec) := by
       push_cast
       module
     rw [key]
     exact ((((isWClass_u_e.smul hE).add (isWClass_u_v.smul (by linarith))).add
-      (isWClass_v.smul (by linarith))).add (isWClass_w.smul hW)).add (isWClass_o.smul hO)
+      (isWClass_v.smul (by linarith))).add (isWClass_w.smul hβ)).add (isWClass_o.smul hO)
 
 /-- Negative cross term `G = -μ`: subtract `μ([u] + [w - v])` (`P([u + i(w - v)])`) and apply the
-diagonal case to the remainder `(A - μ, V - μ, W - μ, E, O)`. -/
-theorem isWClass_wForm_nonpos {A V W E O μ : ℝ} (hμ : 0 ≤ μ) (hA : μ ≤ A) (hV : μ ≤ V) (hW : μ ≤ W)
-    (hE : 0 ≤ E) (hO : 0 ≤ O) (h : A - μ ≤ E + (V - μ) / 4) : IsWClass (wForm A V (-μ) W E O) := by
-  have key : wForm A V (-μ) W E O =
+diagonal case to the remainder `(γ - μ, V - μ, β - μ, E, O)`. -/
+theorem isWClass_wForm_nonpos {γ V β E O μ : ℝ} (hμ : 0 ≤ μ) (hγ : μ ≤ γ) (hV : μ ≤ V) (hβ : μ ≤ β)
+    (hE : 0 ≤ E) (hO : 0 ≤ O) (h : γ - μ ≤ E + (V - μ) / 4) : IsWClass (wForm γ V (-μ) β E O) := by
+  have key : wForm γ V (-μ) β E O =
       (μ : ℂ) • (vecMulVec (uVec 1) (star (uVec 1)) + vecMulVec (wVec - vVec) (star (wVec - vVec))) +
-        wForm (A - μ) (V - μ) 0 (W - μ) E O := by
+        wForm (γ - μ) (V - μ) 0 (β - μ) E O := by
     rw [wForm_eq, wForm_eq, vecMulVec_sub_star]
     push_cast
     module
@@ -108,29 +109,29 @@ theorem vecMulVec_vbw (b : ℝ) :
   push_cast
   ring
 
-/-- Cross term `G = V b` with `V > 0`: `A([u] + [e]) + V([v + b w] + b²[o])` plus nonnegative
-diagonal remainders (`W - V b²`, `E - A`, `O - V b²`). -/
-theorem isWClass_wForm_pos' {A V W E O b : ℝ} (hA : 0 ≤ A) (hV : 0 ≤ V) (hAE : A ≤ E)
-    (hW : V * b ^ 2 ≤ W) (hO : V * b ^ 2 ≤ O) : IsWClass (wForm A V (V * b) W E O) := by
-  have key : wForm A V (V * b) W E O =
-      (A : ℂ) • (vecMulVec (uVec 1) (star (uVec 1)) + vecMulVec eVec (star eVec)) +
+/-- Cross term `G = V b` with `V > 0`: `γ([u] + [e]) + V([v + b w] + b²[o])` plus nonnegative
+diagonal remainders (`β - V b²`, `E - γ`, `O - V b²`). -/
+theorem isWClass_wForm_pos' {γ V β E O b : ℝ} (hγ : 0 ≤ γ) (hV : 0 ≤ V) (hAE : γ ≤ E)
+    (hβ : V * b ^ 2 ≤ β) (hO : V * b ^ 2 ≤ O) : IsWClass (wForm γ V (V * b) β E O) := by
+  have key : wForm γ V (V * b) β E O =
+      (γ : ℂ) • (vecMulVec (uVec 1) (star (uVec 1)) + vecMulVec eVec (star eVec)) +
         (V : ℂ) • (vecMulVec (vVec + (b : ℂ) • wVec) (star (vVec + (b : ℂ) • wVec)) +
           ((b ^ 2 : ℝ) : ℂ) • vecMulVec oVec (star oVec)) +
-        ((W - V * b ^ 2 : ℝ) : ℂ) • vecMulVec wVec (star wVec) +
-        ((E - A : ℝ) : ℂ) • vecMulVec eVec (star eVec) +
+        ((β - V * b ^ 2 : ℝ) : ℂ) • vecMulVec wVec (star wVec) +
+        ((E - γ : ℝ) : ℂ) • vecMulVec eVec (star eVec) +
         ((O - V * b ^ 2 : ℝ) : ℂ) • vecMulVec oVec (star oVec) := by
     rw [wForm_eq, vecMulVec_vbw]
     push_cast
     module
   rw [key]
-  exact ((((isWClass_u_e.smul hA).add ((isWClass_v_bw b).smul hV)).add (isWClass_w.smul (by linarith))).add
+  exact ((((isWClass_u_e.smul hγ).add ((isWClass_v_bw b).smul hV)).add (isWClass_w.smul (by linarith))).add
     (isWClass_e.smul (by linarith))).add (isWClass_o.smul (by linarith))
 
 /-- `isWClass_wForm_pos'` in terms of the cross entry `G`. -/
-theorem isWClass_wForm_pos {A V G W E O : ℝ} (hA : 0 ≤ A) (hV : 0 < V) (hAE : A ≤ E)
-    (hW : G ^ 2 ≤ V * W) (hO : G ^ 2 ≤ V * O) : IsWClass (wForm A V G W E O) := by
+theorem isWClass_wForm_pos {γ V G β E O : ℝ} (hγ : 0 ≤ γ) (hV : 0 < V) (hAE : γ ≤ E)
+    (hβ : G ^ 2 ≤ V * β) (hO : G ^ 2 ≤ V * O) : IsWClass (wForm γ V G β E O) := by
   obtain ⟨b, rfl⟩ : ∃ b, G = V * b := ⟨G / V, by field_simp⟩
-  refine isWClass_wForm_pos' hA hV.le hAE ?_ ?_
+  refine isWClass_wForm_pos' hγ hV.le hAE ?_ ?_
   · refine le_of_mul_le_mul_left ?_ hV
     nlinarith
   · refine le_of_mul_le_mul_left ?_ hV
@@ -174,7 +175,7 @@ theorem X6_eq_surfXw :
 
 /-- **`thm:ppt3-w-class`, the extreme state `σ_6`.** -/
 theorem isWClass_sigma6 : IsWClass sigma6 := by
-  obtain ⟨hN, hA, hB⟩ := sigma6_pos
+  obtain ⟨hN, hγ, hB⟩ := sigma6_pos
   have h1 := tMinus_lt_ten_thirds
   have : sigma6 = wForm (sigma6A / sigma6N) (sigma6B / sigma6N) 0 (3 / sigma6N) (3 / sigma6N)
       (1 / sigma6N) := by
@@ -256,7 +257,7 @@ theorem isWClass_rhoQ {Q : ℝ} (hQ : 1 < Q) (h3 : 3 < Q ^ 2) (hk : qk Q < 0) :
       have : 0 ≤ (Q ^ 2 - 5) * (-(Q ^ 2 - 2 * Q - 1)) :=
         mul_nonneg (by linarith) (by linarith)
       linarith
-    have := isWClass_wForm_nonpos (A := 1) (V := qV Q) (W := qT Q) (E := qE Q) (O := qO Q)
+    have := isWClass_wForm_nonpos (γ := 1) (V := qV Q) (β := qT Q) (E := qE Q) (O := qO Q)
       (μ := -qG Q) (by linarith) hμA hμV hμW hE0 hO0 (by linarith)
     rwa [neg_neg] at this
 
@@ -291,7 +292,7 @@ theorem Xline_neg_eq : Xline (-1 / 200) =
 /-- **`thm:ppt3-w-class`, the phase-coexistence line.**  `σ(t) = (1-t)σ_∂ + tσ_BS` is in the mixed
 `W` class for `-1/200 ≤ t ≤ 1`: biseparable for `t ≥ 0`, and at `t = -1/200` the coefficient matrix has
 `(v, w)` entry `-μ`, `μ = 10930399/348000000`, and the remainder is diagonal with
-`A - μ - E = 7/31250 ≤ (V - μ)/4` (`isWClass_wForm_nonpos`); the interval follows by convexity. -/
+`γ - μ - E = 7/31250 ≤ (V - μ)/4` (`isWClass_wForm_nonpos`); the interval follows by convexity. -/
 theorem isWClass_sigmaLine {t : ℝ} (h1 : -1 / 200 ≤ t) (h2 : t ≤ 1) : IsWClass (sigmaLine t) := by
   by_cases h0 : 0 ≤ t
   · exact (ppt3_exposed_transition.2.1 t h0 h2).isWClass

@@ -14,7 +14,7 @@ Source: `QI/hidden_entanglement/ppt_three_qubit/rank_five_surface.tex`,
 * `sigma5_gme`: `tr(H_{1/2} X_σ) = -493577/32646438 < 0` and hence `σ` is GME, by the support
   criterion `trace_Hs_nonneg_of_biseparable` at `s = 1/2`
   (`H_{1/2} = diag(-3/2, 1, 11/4, -3, 7/2)`);
-* `sigma5_eq_member`: `N = 30000 ρ(55, 48, 110)`, the member `(α, W, A) = (55, 48, 110)`
+* `sigma5_eq_member`: `N = 30000 ρ(55, 48, 110)`, the member `(α, β, γ) = (55, 48, 110)`
   of the surface (`τ = 48/55`, `s = 1/2`, `h = 73`).
 Not covered: rank, cyclic/parity invariance, PPT of the three cuts, extremality (exact-rank
 computation), the level-two witness and the white-noise threshold.
@@ -74,7 +74,7 @@ theorem sigma5_gme : IsGME sigma5 := by
   rw [trace_H_half_Xsigma, Complex.ofReal_re] at h
   norm_num at h
 
-/-- `N = 30000 ρ(55, 48, 110)`: `σ` is the member `(α, W, A) = (55, 48, 110)` of the surface
+/-- `N = 30000 ρ(55, 48, 110)`: `σ` is the member `(α, β, γ) = (55, 48, 110)` of the surface
 (`τ = 48/55`, in the window of `thm:ppt3-orbit`). -/
 theorem sigma5_eq_member :
     sigma5 = ((30000 / 16323219 : ℝ) : ℂ) • rhoSurface 55 48 110 := by

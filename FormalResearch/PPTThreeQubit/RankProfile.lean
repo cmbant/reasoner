@@ -406,13 +406,13 @@ theorem rankProfile_sigma5 : rankProfile sigma5 = (5, 5, 5, 5) := by
 
 /-! ### The extreme state `σ_6` of profile `(5, 6, 6, 6)` -/
 
-/-- `a = t_-` in `eq:ppt3-sigma6`. -/
+/-- The weight `t = t_-` of `u` in `eq:ppt3-sigma6`. -/
 def sigma6A : ℝ := tMinus
 
-/-- `b = 8(9 - a)/5` in `eq:ppt3-sigma6`. -/
+/-- `b = 8(9 - t)/5` in `eq:ppt3-sigma6`. -/
 def sigma6B : ℝ := 8 * (9 - tMinus) / 5
 
-/-- The normalising denominator `4a + b + 21` of `eq:ppt3-sigma6`. -/
+/-- The normalising denominator `4t + b + 21` of `eq:ppt3-sigma6`. -/
 def sigma6N : ℝ := 4 * sigma6A + sigma6B + 21
 
 /-- The coefficient matrix `X_6 = diag(a, b, 3, 3, 1)/(4a + b + 21)` of `σ_6` in the basis

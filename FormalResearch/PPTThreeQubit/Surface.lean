@@ -4,17 +4,17 @@ public import FormalResearch.PPTThreeQubit.FamilyGME
 public import FormalResearch.PPTThreeQubit.SurfaceWitness
 
 /-!
-# The rank-five surface `ρ(α, W, A)`: definitions, local filter, GME
+# The rank-five surface `ρ(α, β, γ)`: definitions, local filter, GME
 
 Source: `QI/hidden_entanglement/ppt_three_qubit/rank_five_surface.tex`
 (`eq:ppt3-weights`, `eq:ppt3-rho-surface`, `thm:ppt3-orbit`(b) and the GME part, in the file
 `Surface.lean`; `cor:ppt3-extreme5` GME part is in `SurfaceExtreme.lean`).
 
 The weights `O, E, G, V` of `eq:ppt3-weights` are `wO, wE, wG, wV`; the operator is
-`rhoSurface α W A = B_s X B_s†` with `s = α/A` and `X` the `5 × 5` coefficient matrix `surfX`
+`rhoSurface α β γ = B_s X B_s†` with `s = α/γ` and `X` the `5 × 5` coefficient matrix `surfX`
 (`rhoSurface_eq` is `eq:ppt3-rho-surface`).  `ρ_{τ,a} = rhoSurface 1 τ a`.
 
-Covered here: the filter identity `ρ(α, W, aα) = a F_λ ρ(α, W, α) F_λ†` for `λ² = 1/a`
+Covered here: the filter identity `ρ(α, β, aα) = a F_λ ρ(α, β, α) F_λ†` for `λ² = 1/a`
 (`rhoSurface_filter`, `thm:ppt3-orbit`(b)), and the GME part of `thm:ppt3-orbit`: for
 `1/√3 < τ < 1` and every `a > 0`, `ρ_{τ,a}` is GME (`ppt3_orbit_gme`; the operators are
 unnormalised, which does not affect biseparability).  The proof splits at `τ = 3/4` (`Q = 2`):
@@ -32,42 +32,42 @@ open Matrix
 
 noncomputable section
 
-/-! ### The surface weights and the operator `ρ(α, W, A)` -/
+/-! ### The surface weights and the operator `ρ(α, β, γ)` -/
 
-/-- `h = √(α² + W²)`. -/
-def surfH (α W : ℝ) : ℝ := Real.sqrt (α ^ 2 + W ^ 2)
+/-- `h = √(α² + β²)`. -/
+def surfH (α β : ℝ) : ℝ := Real.sqrt (α ^ 2 + β ^ 2)
 
-/-- `O = κ / W`, `κ = α² - W²` (`eq:ppt3-weights`). -/
-def wO (α W : ℝ) : ℝ := (α ^ 2 - W ^ 2) / W
+/-- `O = κ / β`, `κ = α² - β²` (`eq:ppt3-weights`). -/
+def wO (α β : ℝ) : ℝ := (α ^ 2 - β ^ 2) / β
 
-/-- `E = κ (h + W)² / (α² A)`. -/
-def wE (α W A : ℝ) : ℝ := (α ^ 2 - W ^ 2) * (surfH α W + W) ^ 2 / (α ^ 2 * A)
+/-- `E = κ (h + β)² / (α² γ)`. -/
+def wE (α β γ : ℝ) : ℝ := (α ^ 2 - β ^ 2) * (surfH α β + β) ^ 2 / (α ^ 2 * γ)
 
-/-- `G = α (E - α s) / W`, `s = α / A`. -/
-def wG (α W A : ℝ) : ℝ := α * (wE α W A - α * (α / A)) / W
+/-- `G = α (E - α s) / β`, `s = α / γ`. -/
+def wG (α β γ : ℝ) : ℝ := α * (wE α β γ - α * (α / γ)) / β
 
-/-- `V = (α² E² - 2 α s κ E + (α s)² κ) / (W κ)`, `s = α / A`. -/
-def wV (α W A : ℝ) : ℝ :=
-  (α ^ 2 * wE α W A ^ 2 - 2 * α * (α / A) * (α ^ 2 - W ^ 2) * wE α W A +
-    (α * (α / A)) ^ 2 * (α ^ 2 - W ^ 2)) / (W * (α ^ 2 - W ^ 2))
+/-- `V = (α² E² - 2 α s κ E + (α s)² κ) / (β κ)`, `s = α / γ`. -/
+def wV (α β γ : ℝ) : ℝ :=
+  (α ^ 2 * wE α β γ ^ 2 - 2 * α * (α / γ) * (α ^ 2 - β ^ 2) * wE α β γ +
+    (α * (α / γ)) ^ 2 * (α ^ 2 - β ^ 2)) / (β * (α ^ 2 - β ^ 2))
 
-/-- The `5 × 5` coefficient matrix in the basis `(u_s, v, w, e, o)`: diagonal `(A, V, W, E, O)`
+/-- The `5 × 5` coefficient matrix in the basis `(u_s, v, w, e, o)`: diagonal `(γ, V, β, E, O)`
 and `vw` entry `G`. -/
-def surfXw (A V G W E O : ℝ) : Matrix (Fin 5) (Fin 5) ℂ :=
-  Matrix.of fun i j => ((![![A, 0, 0, 0, 0], ![0, V, G, 0, 0], ![0, G, W, 0, 0],
+def surfXw (γ V G β E O : ℝ) : Matrix (Fin 5) (Fin 5) ℂ :=
+  Matrix.of fun i j => ((![![γ, 0, 0, 0, 0], ![0, V, G, 0, 0], ![0, G, β, 0, 0],
     ![0, 0, 0, E, 0], ![0, 0, 0, 0, O]] i j : ℝ) : ℂ)
 
-/-- The coefficient matrix of `ρ(α, W, A)`. -/
-def surfX (α W A : ℝ) : Matrix (Fin 5) (Fin 5) ℂ :=
-  surfXw A (wV α W A) (wG α W A) W (wE α W A) (wO α W)
+/-- The coefficient matrix of `ρ(α, β, γ)`. -/
+def surfX (α β γ : ℝ) : Matrix (Fin 5) (Fin 5) ℂ :=
+  surfXw γ (wV α β γ) (wG α β γ) β (wE α β γ) (wO α β)
 
-/-- `ρ(α, W, A) = B_s X B_s†`, `s = α/A` (`eq:ppt3-rho-surface`); unnormalised. -/
-def rhoSurface (α W A : ℝ) : Matrix (Fin 8) (Fin 8) ℂ :=
-  Bs (α / A) * surfX α W A * (Bs (α / A))ᴴ
+/-- `ρ(α, β, γ) = B_s X B_s†`, `s = α/γ` (`eq:ppt3-rho-surface`); unnormalised. -/
+def rhoSurface (α β γ : ℝ) : Matrix (Fin 8) (Fin 8) ℂ :=
+  Bs (α / γ) * surfX α β γ * (Bs (α / γ))ᴴ
 
-theorem Bs_surfXw_Bs (s A V G W E O : ℝ) :
-    Bs s * surfXw A V G W E O * (Bs s)ᴴ =
-      (A : ℂ) • vecMulVec (uVec s) (star (uVec s)) + (W : ℂ) • vecMulVec wVec (star wVec) +
+theorem Bs_surfXw_Bs (s γ V G β E O : ℝ) :
+    Bs s * surfXw γ V G β E O * (Bs s)ᴴ =
+      (γ : ℂ) • vecMulVec (uVec s) (star (uVec s)) + (β : ℂ) • vecMulVec wVec (star wVec) +
       (V : ℂ) • vecMulVec vVec (star vVec) +
       (G : ℂ) • (vecMulVec wVec (star vVec) + vecMulVec vVec (star wVec)) +
       (E : ℂ) • vecMulVec eVec (star eVec) + (O : ℂ) • vecMulVec oVec (star oVec) := by
@@ -78,14 +78,14 @@ theorem Bs_surfXw_Bs (s A V G W E O : ℝ) :
   ring
 
 /-- **`eq:ppt3-rho-surface`**:
-`ρ(α,W,A) = A u_s u_s† + W ww† + V vv† + G (wv† + vw†) + E ee† + O oo†`, `s = α/A`. -/
-theorem rhoSurface_eq (α W A : ℝ) :
-    rhoSurface α W A =
-      (A : ℂ) • vecMulVec (uVec (α / A)) (star (uVec (α / A))) +
-      (W : ℂ) • vecMulVec wVec (star wVec) +
-      (wV α W A : ℂ) • vecMulVec vVec (star vVec) +
-      (wG α W A : ℂ) • (vecMulVec wVec (star vVec) + vecMulVec vVec (star wVec)) +
-      (wE α W A : ℂ) • vecMulVec eVec (star eVec) + (wO α W : ℂ) • vecMulVec oVec (star oVec) :=
+`ρ(α,β,γ) = γ u_s u_s† + β ww† + V vv† + G (wv† + vw†) + E ee† + O oo†`, `s = α/γ`. -/
+theorem rhoSurface_eq (α β γ : ℝ) :
+    rhoSurface α β γ =
+      (γ : ℂ) • vecMulVec (uVec (α / γ)) (star (uVec (α / γ))) +
+      (β : ℂ) • vecMulVec wVec (star wVec) +
+      (wV α β γ : ℂ) • vecMulVec vVec (star vVec) +
+      (wG α β γ : ℂ) • (vecMulVec wVec (star vVec) + vecMulVec vVec (star wVec)) +
+      (wE α β γ : ℂ) • vecMulVec eVec (star eVec) + (wO α β : ℂ) • vecMulVec oVec (star oVec) :=
   Bs_surfXw_Bs _ _ _ _ _ _ _
 
 /-! ### The local filter `F_λ = diag(1, λ)^{⊗3}` (`thm:ppt3-orbit`(b)) -/
@@ -130,26 +130,26 @@ theorem isBiseparable_smul_pos {c : ℝ} (hc : 0 < c) (M : Matrix (Fin 8) (Fin 8
     rw [Complex.star_def, Complex.conj_ofReal, ← Complex.ofReal_mul, Real.mul_self_sqrt hc.le]
   rwa [e] at this
 
-/-! ### Relations between the weights at `A = aα` and `A = α` -/
+/-! ### Relations between the weights at `γ = aα` and `γ = α` -/
 
 section filterWeights
 
-variable {α W a : ℝ}
+variable {α β a : ℝ}
 
-theorem wE_filter (hα : 0 < α) (ha : 0 < a) : wE α W (a * α) = wE α W α / a := by
+theorem wE_filter (hα : 0 < α) (ha : 0 < a) : wE α β (a * α) = wE α β α / a := by
   unfold wE; field_simp
 
-theorem wG_filter (hα : 0 < α) (hW : 0 < W) (ha : 0 < a) :
-    wG α W (a * α) = wG α W α / a := by
+theorem wG_filter (hα : 0 < α) (hβ : 0 < β) (ha : 0 < a) :
+    wG α β (a * α) = wG α β α / a := by
   unfold wG
   rw [wE_filter hα ha]
   have : α / (a * α) = a⁻¹ := by field_simp
   rw [this, div_self hα.ne']
   field_simp
 
-theorem wV_filter (hα : 0 < α) (hW : 0 < W) (hWα : W < α) (ha : 0 < a) :
-    wV α W (a * α) = wV α W α / a ^ 2 := by
-  have hκ : α ^ 2 - W ^ 2 ≠ 0 := by nlinarith
+theorem wV_filter (hα : 0 < α) (hβ : 0 < β) (hβα : β < α) (ha : 0 < a) :
+    wV α β (a * α) = wV α β α / a ^ 2 := by
+  have hκ : α ^ 2 - β ^ 2 ≠ 0 := by nlinarith
   unfold wV
   rw [wE_filter hα ha]
   have : α / (a * α) = a⁻¹ := by field_simp
@@ -158,12 +158,12 @@ theorem wV_filter (hα : 0 < α) (hW : 0 < W) (hWα : W < α) (ha : 0 < a) :
 
 end filterWeights
 
-/-- **`thm:ppt3-orbit`(b)** (filter identity): for `0 < W < α`, `a > 0` and `λ² = 1/a`,
-`ρ(α, W, aα) = a F_λ ρ(α, W, α) F_λ†`, `F_λ = diag(1, λ)^{⊗3}`. -/
-theorem rhoSurface_filter {α W a lam : ℝ} (hα : 0 < α) (hW : 0 < W) (hWα : W < α) (ha : 0 < a)
+/-- **`thm:ppt3-orbit`(b)** (filter identity): for `0 < β < α`, `a > 0` and `λ² = 1/a`,
+`ρ(α, β, aα) = a F_λ ρ(α, β, α) F_λ†`, `F_λ = diag(1, λ)^{⊗3}`. -/
+theorem rhoSurface_filter {α β a lam : ℝ} (hα : 0 < α) (hβ : 0 < β) (hβα : β < α) (ha : 0 < a)
     (hl : lam ^ 2 = a⁻¹) :
-    rhoSurface α W (a * α) =
-      (a : ℂ) • (diagonal (filterDiag lam) * rhoSurface α W α * (diagonal (filterDiag lam))ᴴ) := by
+    rhoSurface α β (a * α) =
+      (a : ℂ) • (diagonal (filterDiag lam) * rhoSurface α β α * (diagonal (filterDiag lam))ᴴ) := by
   have hs : α / (a * α) = lam ^ 2 := by rw [hl]; field_simp
   have hs1 : α / α = 1 := div_self hα.ne'
   have hl0 : lam ≠ 0 := by
@@ -176,10 +176,10 @@ theorem rhoSurface_filter {α W a lam : ℝ} (hα : 0 < α) (hW : 0 < W) (hWα :
     rw [this]; push_cast; rfl
   set D : Matrix (Fin 5) (Fin 5) ℂ :=
     diagonal (fun b => ((![1, lam ^ 3, lam, lam ^ 2, lam] b : ℝ) : ℂ)) with hD
-  have hX : (a : ℂ) • (D * surfX α W α * Dᴴ) = surfX α W (a * α) := by
-    have hE := wE_filter (W := W) hα ha
-    have hG := wG_filter hα hW ha
-    have hV := wV_filter hα hW hWα ha
+  have hX : (a : ℂ) • (D * surfX α β α * Dᴴ) = surfX α β (a * α) := by
+    have hE := wE_filter (β := β) hα ha
+    have hG := wG_filter hα hβ ha
+    have hV := wV_filter hα hβ hβα ha
     unfold surfX
     rw [hE, hG, hV]
     ext i j
@@ -190,24 +190,24 @@ theorem rhoSurface_filter {α W a lam : ℝ} (hα : 0 < α) (hW : 0 < W) (hWα :
   have hF : diagonal (filterDiag lam) * Bs 1 = Bs (lam ^ 2) * D := filter_mul_Bs lam
   unfold rhoSurface
   rw [hs, hs1]
-  calc Bs (lam ^ 2) * surfX α W (a * α) * (Bs (lam ^ 2))ᴴ
-      = Bs (lam ^ 2) * ((a : ℂ) • (D * surfX α W α * Dᴴ)) * (Bs (lam ^ 2))ᴴ := by rw [hX]
-    _ = (a : ℂ) • ((Bs (lam ^ 2) * D) * surfX α W α * (Bs (lam ^ 2) * D)ᴴ) := by
+  calc Bs (lam ^ 2) * surfX α β (a * α) * (Bs (lam ^ 2))ᴴ
+      = Bs (lam ^ 2) * ((a : ℂ) • (D * surfX α β α * Dᴴ)) * (Bs (lam ^ 2))ᴴ := by rw [hX]
+    _ = (a : ℂ) • ((Bs (lam ^ 2) * D) * surfX α β α * (Bs (lam ^ 2) * D)ᴴ) := by
         simp [Matrix.mul_assoc, conjTranspose_mul, Matrix.mul_smul, Matrix.smul_mul]
-    _ = (a : ℂ) • ((diagonal (filterDiag lam) * Bs 1) * surfX α W α *
+    _ = (a : ℂ) • ((diagonal (filterDiag lam) * Bs 1) * surfX α β α *
           (diagonal (filterDiag lam) * Bs 1)ᴴ) := by rw [hF]
     _ = _ := by simp [Matrix.mul_assoc, conjTranspose_mul]
 
 /-! ### Traces of the witnesses on `X(1, t, 1)` in the coordinate `Q = t + √(1+t²)` -/
 
-theorem trace_Hs_surfXw (s A V G W E O : ℝ) :
-    (Hs s * surfXw A V G W E O).trace =
-      ((hDiag s 0 * A + hDiag s 1 * V + hDiag s 2 * W + hDiag s 3 * E + hDiag s 4 * O : ℝ) : ℂ) := by
+theorem trace_Hs_surfXw (s γ V G β E O : ℝ) :
+    (Hs s * surfXw γ V G β E O).trace =
+      ((hDiag s 0 * γ + hDiag s 1 * V + hDiag s 2 * β + hDiag s 3 * E + hDiag s 4 * O : ℝ) : ℂ) := by
   simp [Hs, surfXw, trace, diag, mul_apply, Fin.sum_univ_five, diagonal_apply]
 
-theorem trace_H0_surfXw (A V G W E O : ℝ) :
-    (H0 * surfXw A V G W E O).trace =
-      ((h0Diag 0 * A + h0Diag 1 * V + h0Diag 2 * W + h0Diag 3 * E + h0Diag 4 * O -
+theorem trace_H0_surfXw (γ V G β E O : ℝ) :
+    (H0 * surfXw γ V G β E O).trace =
+      ((h0Diag 0 * γ + h0Diag 1 * V + h0Diag 2 * β + h0Diag 3 * E + h0Diag 4 * O -
         2 * nuH * G : ℝ) : ℂ) := by
   simp [H0, surfXw, trace, diag, mul_apply, Fin.sum_univ_five, h0Diag]
   ring
