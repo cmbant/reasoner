@@ -422,6 +422,24 @@ by exact Python verifiers).
 
 The maintained aggregate also imports the current Gaudin metric/rank chain, Racah Weyl-cell modules and B2/Blaschke bridge modules. They are compiled as part of the current aggregate. This high-level map does not attempt to restate every theorem in those families; use the Lean source and theorem-local project updates for exact scope.
 
+## Wigner 3j/6j recurrences (`FormalResearch/Wigner`)
+
+General, reusable Racah-sum infrastructure (no dependency on Weyl-specific objects), intended for later upstreaming to Physlib.
+Spins are rational (`j = 2j/2` allowed), admissibility is `IsNat`/`IsTri`; `√` prefactors are real square roots.
+All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (pinned by `#print axioms`).
+
+| statement | Lean | note |
+|---|---|---|
+| Racah 3j and 6j sums, `threeJ`, `sixJ` | `Defs`, `ThreeJ` (`racahSum3`, `racahSum6`, `sixJ`, `threeJ`) | DLMF 34.2.4–5, 34.4.2; zero-extended inverse factorial `ifa` |
+| 3j sum `j₁`-recurrence for all rational arguments | `Rec3j.racahSum3_recurrence` | telescoping certificate, key identity `Rec3jKey.rec3_key` |
+| 3j sum `m`-recurrence | `Rec3m.racahSum3_m_recurrence` | constant telescoping certificate |
+| 6j sum first-argument recurrence | `Rec6jSum.racahSum6_recurrence` | key identity `Rec6jKey.rec6_key` (slow build, ~5 min) |
+| **DLMF 34.3.14, 34.3.15** (3j recurrences with √ prefactors) | `ThreeJ.threeJ_recurrence_m`, `threeJ_recurrence` | |
+| **DLMF 34.5.11–13** (6j recurrence with √ prefactors) | `SixJRecurrence.sixJ_recurrence` | `IsTri` hypotheses; vanishes when fixed triads fail |
+
+Not formalised: special values (DLMF 34.3.1–2, 34.5.1–2, 34.5.7), orthogonality 34.5.14, Regge symmetry 34.5.9,
+relation to Physlib's abstract `sixJ`. Certificate search scripts: `scripts/wigner_certificates/` (provenance only).
+
 ## Next source-authorized finite targets
 
 At the current handoff, the cleanest exact candidates are:
