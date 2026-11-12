@@ -440,9 +440,13 @@ All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (
 | tetrahedral symmetries: column swaps `(12)`, `(23)`, upper/lower exchange in columns 1, 2 | `Symmetry.sixJ_swap12`, `sixJ_swap23`, `sixJ_exch12` | termwise permutation of the seven inverse factorials |
 | stretched `3j` (`j₃ = j₁+j₂`), DLMF 34.3.3 | `Stretched3j.threeJ_stretched` | one-term sum; the extremal seed of the minimal-rank `3j` recurrence |
 | Regge symmetries, DLMF 34.5.9 and 34.5.10 (all rational arguments, no admissibility hypothesis); the form used by Weyl/P2 `eq:6jRegge` | `Regge.sixJ_regge1`, `sixJ_regge2`, `sixJ_regge1_shifted` | the Racah sum depends only on the triad/quad sums, symmetrically; each Regge move permutes them, so it is a termwise permutation of the seven inverse factorials with the product of the four `Δ²` unchanged (no Whipple 4F3 needed) |
+| `3j` symmetries, DLMF 34.3.8–10 (all rational arguments; `sgn J` = `(-1)^J` for integer `J`, `0` otherwise): column swaps (even permutations invariant, odd ones give `(-1)^J`), `m ↦ -m` | `ThreeJSym.threeJ_swap12`, `threeJ_swap23`, `threeJ_swap13`, `threeJ_cyc`, `threeJ_cyc'`, `threeJ_neg`, `threeJ_eq_zero_of_not_int` | termwise: reflect the Racah index (`s ↦ j₁+j₂-j₃-s`, or `s ↦ j₁-m₁-s`) and track the sign with `sgn` |
+| DLMF 34.3.1 (`(j₁ j₂ 0; m₁ m₂ 0)`) | `Special3j.threeJ_zero_right`, `threeJ_zero_right_of_ne` | one-term sum |
+| DLMF 34.3.2 (`(j₁ j₂ j₃; 0 0 0)`): odd `J` vanishes, even `J` closed form | `Special3j.threeJ_zero_of_odd`; `Special3jEven.threeJ_zero_zero_zero_even`, `threeJ_zero_zero_zero`, `racahSum3_dixon` | odd: from `threeJ_neg`. Even: for `m₁=m₂=0` the `racahSum3` recurrence degenerates to a two-term one, run from the one-term stretched value |
+| DLMF 34.5.2 (`{j₁ j₂ j₃; ½ j₃-½ j₂+½}`) | `Special6j.sixJ_half_a` | one-term sum |
 | **DLMF 34.5.11–13** (6j recurrence with √ prefactors) | `SixJRecurrence.sixJ_recurrence` | `IsTri` hypotheses; vanishes when fixed triads fail |
 
-Not formalised: other special values (DLMF 34.3.1–2, 34.5.2), the 3j symmetries, orthogonality 34.5.14,
+Not formalised: DLMF 34.5.3, Regge symmetries of the 3j, orthogonality 34.5.14,
 relation to Physlib's abstract `sixJ`. Certificate search scripts: `scripts/wigner_certificates/` (provenance only).
 
 ## Next source-authorized finite targets
