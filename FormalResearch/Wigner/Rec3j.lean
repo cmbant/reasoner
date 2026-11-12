@@ -169,4 +169,8 @@ theorem racahSum3_recurrence (j₁ j₂ j₃ m₁ m₂ : ℚ) :
           exact H3_eq_zero _ (by have : (N : ℚ) ≤ N := le_rfl
                                  linarith)
 
+/-- info: 'FormalResearch.Wigner.racahSum3_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms racahSum3_recurrence
+
 end FormalResearch.Wigner

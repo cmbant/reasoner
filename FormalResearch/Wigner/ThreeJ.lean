@@ -328,4 +328,12 @@ theorem threeJ_recurrence_m (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) (hm : m₁ + m
     + (sgn (j₁ - j₂ - m₃) * (Real.sqrt (triSq j₁ j₂ j₃) * Real.sqrt (fq (j₁ + m₁) * fq (j₁ - m₁))) *
       racahSum3 j₁ j₂ j₃ m₁ (m₂ - 1)) * emn
 
+/-- info: 'FormalResearch.Wigner.threeJ_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms threeJ_recurrence
+
+/-- info: 'FormalResearch.Wigner.threeJ_recurrence_m' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms threeJ_recurrence_m
+
 end FormalResearch.Wigner

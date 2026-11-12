@@ -91,4 +91,8 @@ theorem racahSum6_recurrence (j₁ j₂ j₃ l₁ l₂ l₃ : ℚ) (hw : 0 ≤ l
           exact H6_eq_zero _ _ (by have : (N : ℚ) ≤ N := le_rfl
                                    linarith)
 
+/-- info: 'FormalResearch.Wigner.racahSum6_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms racahSum6_recurrence
+
 end FormalResearch.Wigner

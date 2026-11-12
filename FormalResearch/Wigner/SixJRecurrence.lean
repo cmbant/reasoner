@@ -202,4 +202,8 @@ theorem sixJ_recurrence (j₁ j₂ j₃ l₁ l₂ l₃ : ℚ)
       · rw [triSq_eq_zero_of_not_isTri h]; simp
     simp [hz]
 
+/-- info: 'FormalResearch.Wigner.sixJ_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sixJ_recurrence
+
 end FormalResearch.Wigner

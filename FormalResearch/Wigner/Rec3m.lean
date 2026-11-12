@@ -144,4 +144,8 @@ theorem racahSum3_m_recurrence (j₁ j₂ j₃ m₁ m₂ : ℚ) :
         · simp only [hHn]
           exact H3m_eq_zero _ (by linarith)
 
+/-- info: 'FormalResearch.Wigner.racahSum3_m_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms racahSum3_m_recurrence
+
 end FormalResearch.Wigner
