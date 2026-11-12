@@ -3,7 +3,7 @@ module
 public import FormalResearch.Wigner.Special3j
 
 /-!
-# `(j₁ j₂ j₃; 0 0 0)` for even `J` (DLMF 34.3.2)
+# `(j₁ j₂ j₃; 0 0 0)` for even `J` (DLMF 34.3.5)
 
 Racah's sum with `m₁ = m₂ = 0` and `j₁ = v+w`, `j₂ = k+w`, `j₃ = k+v` is evaluated in closed form
 (a Dixon-type sum).  The `j₁`-recurrence `racahSum3_recurrence` degenerates for `m = 0` to a two-term
@@ -114,7 +114,7 @@ lemma triSq_even (u v w : ℕ) :
     (by push_cast; ring) (by push_cast; ring),
     show 2 * w + 2 * v + 2 * u + 1 = 2 * (u + v + w) + 1 by ring]
 
-/-- **DLMF 34.3.2** (even `J = 2(u+v+w)`), in the variables `u = J/2 - j₁`, `v = J/2 - j₂`,
+/-- **DLMF 34.3.5** (even `J = 2(u+v+w)`), in the variables `u = J/2 - j₁`, `v = J/2 - j₂`,
 `w = J/2 - j₃`, i.e. `j₁ = v+w`, `j₂ = u+w`, `j₃ = u+v`:
 `(j₁ j₂ j₃; 0 0 0) = (-1)^(J/2) √((J-2j₁)!(J-2j₂)!(J-2j₃)!/(J+1)!) · (J/2)!/((J/2-j₁)!(J/2-j₂)!(J/2-j₃)!)`.
 Proved: Racah's sum is evaluated by `racahSum3_dixon`. -/
@@ -151,7 +151,7 @@ theorem threeJ_zero_zero_zero (u v w : ℕ) :
   field_simp
   ring
 
-/-- **DLMF 34.3.2** (even `J = 2g`), in the form `(-1)^g Δ(j₁j₂j₃) g!/((g-j₁)!(g-j₂)!(g-j₃)!)`
+/-- **DLMF 34.3.5** (even `J = 2g`), in the form `(-1)^g Δ(j₁j₂j₃) g!/((g-j₁)!(g-j₂)!(g-j₃)!)`
 (`Δ² = triSq`, `(J-2jᵢ)!` are the three factorials of `triSq`), under the integrality hypotheses
 that `g - jᵢ` are natural numbers (then `jᵢ` are natural numbers). -/
 theorem threeJ_zero_zero_zero_even {j₁ j₂ j₃ : ℚ} {g : ℕ} (hg : j₁ + j₂ + j₃ = 2 * g)

@@ -3,7 +3,7 @@ module
 public import FormalResearch.Wigner.ThreeJSym
 
 /-!
-# Special values of the Wigner `3j` symbol (DLMF 34.3.1, 34.3.2)
+# Special values of the Wigner `3j` symbol (DLMF 34.3.1, 34.3.5)
 -/
 
 @[expose] public section
@@ -77,7 +77,7 @@ lemma sgn_of_not_int {x : ℚ} (h : ¬ ∃ n : ℤ, x = n) : sgn x = 0 := by
   unfold sgn
   rw [dif_neg h]
 
-/-- **DLMF 34.3.1**, the other cases: `(j₁ j₂ 0; m₁ m₂ 0) = 0` for `j₁ ≠ j₂`. -/
+/-- the other cases (a consequence of the triangle conditions; not a separate DLMF equation): `(j₁ j₂ 0; m₁ m₂ 0) = 0` for `j₁ ≠ j₂`. -/
 theorem threeJ_zero_right_of_ne {j₁ j₂ : ℚ} (h : j₁ ≠ j₂) (m₁ m₂ : ℚ) :
     threeJ j₁ j₂ 0 m₁ m₂ 0 = 0 := by
   unfold threeJ
@@ -103,7 +103,7 @@ theorem threeJ_zero_right_of_ne {j₁ j₂ : ℚ} (h : j₁ ≠ j₂) (m₁ m₂
     rw [this]; simp
   · rfl
 
-/-- **DLMF 34.3.2**, odd `J`: the symbol `(j₁ j₂ j₃; 0 0 0)` vanishes unless `j₁+j₂+j₃` is an even
+/-- **DLMF 34.3.5**, odd `J`: the symbol `(j₁ j₂ j₃; 0 0 0)` vanishes unless `j₁+j₂+j₃` is an even
 integer.  (Consequence of `threeJ_neg`.) -/
 theorem threeJ_zero_of_odd {j₁ j₂ j₃ : ℚ} (h : ¬ ∃ g : ℤ, j₁ + j₂ + j₃ = 2 * g) :
     threeJ j₁ j₂ j₃ 0 0 0 = 0 := by

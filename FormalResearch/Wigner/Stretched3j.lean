@@ -6,7 +6,7 @@ public import FormalResearch.Wigner.ThreeJ
 /-!
 # The stretched `3j` symbol
 
-For `j₃ = j₁ + j₂` Racah's sum has the single term `σ = 0` (DLMF 34.3.3), which gives the extremal
+For `j₃ = j₁ + j₂` Racah's sum has the single term `σ = 0` (DLMF 34.3.6), which gives the extremal
 seed used for the minimal-rank `3j` recurrence.
 -/
 
@@ -20,7 +20,7 @@ lemma P6_vec (a0 a1 a2 a3 a4 a5 : ℚ) :
   rw [Fin.prod_univ_six]
   simp
 
-/-- **Stretched `3j` symbol** (DLMF 34.3.3): for `j₃ = j₁ + j₂`, with
+/-- **Stretched `3j` symbol** (DLMF 34.3.6): for `j₃ = j₁ + j₂`, with
 `A = j₁+m₁`, `B = j₁-m₁`, `C = j₂+m₂`, `D = j₂-m₂`. -/
 theorem threeJ_stretched {A B C D : ℕ} {j₁ j₂ m₁ m₂ m₃ : ℚ} (hm : m₁ + m₂ + m₃ = 0)
     (hA : j₁ + m₁ = A) (hB : j₁ - m₁ = B) (hC : j₂ + m₂ = C) (hD : j₂ - m₂ = D) :

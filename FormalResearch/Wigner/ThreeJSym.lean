@@ -284,7 +284,7 @@ lemma prefactor_isNat {j₁ j₂ j₃ m₁ m₂ m₃ : ℚ}
 
 /-! ### The symmetries -/
 
-/-- **DLMF 34.3.8** (swap of columns 1 and 2): odd permutations multiply the `3j` symbol by
+/-- **DLMF 34.3.9** (swap of columns 1 and 2): odd permutations multiply the `3j` symbol by
 `(-1)^(j₁+j₂+j₃)`; `sgn` is the zero-extended sign, and the symbol vanishes unless `j₁+j₂+j₃` is
 an integer. -/
 theorem threeJ_swap12 (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
@@ -306,7 +306,7 @@ theorem threeJ_swap12 (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
           racahSum3 j₁ j₂ j₃ m₁ m₂) * key
   · rw [if_neg (by intro h; apply hm; linarith), if_neg hm]; simp
 
-/-- **DLMF 34.3.8** (swap of columns 2 and 3). -/
+/-- **DLMF 34.3.9** (swap of columns 2 and 3). -/
 theorem threeJ_swap23 (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
     threeJ j₁ j₃ j₂ m₁ m₃ m₂ = sgn (j₁ + j₂ + j₃) * threeJ j₁ j₂ j₃ m₁ m₂ m₃ := by
   unfold threeJ
@@ -371,21 +371,21 @@ lemma sgn_sum_sq (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
   · rw [h]; ring
   · rw [sgn_mul_self_of_int (isInt_sum_of_ne_zero h)]; ring
 
-/-- **DLMF 34.3.9** (cyclic permutation of the columns). -/
+/-- **DLMF 34.3.8** (cyclic permutation of the columns). -/
 theorem threeJ_cyc (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
     threeJ j₂ j₃ j₁ m₂ m₃ m₁ = threeJ j₁ j₂ j₃ m₁ m₂ m₃ := by
   rw [show threeJ j₂ j₃ j₁ m₂ m₃ m₁ = sgn (j₂ + j₁ + j₃) * threeJ j₂ j₁ j₃ m₂ m₁ m₃ from
     threeJ_swap23 j₂ j₁ j₃ m₂ m₁ m₃, threeJ_swap12, ← mul_assoc,
     show j₂ + j₁ + j₃ = j₁ + j₂ + j₃ by ring, sgn_sum_sq]
 
-/-- **DLMF 34.3.9** (cyclic permutation of the columns, other direction). -/
+/-- **DLMF 34.3.8** (cyclic permutation of the columns, other direction). -/
 theorem threeJ_cyc' (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
     threeJ j₃ j₁ j₂ m₃ m₁ m₂ = threeJ j₁ j₂ j₃ m₁ m₂ m₃ := by
   rw [show threeJ j₃ j₁ j₂ m₃ m₁ m₂ = sgn (j₁ + j₃ + j₂) * threeJ j₁ j₃ j₂ m₁ m₃ m₂ from
     threeJ_swap12 j₁ j₃ j₂ m₁ m₃ m₂, threeJ_swap23, ← mul_assoc,
     show j₁ + j₃ + j₂ = j₁ + j₂ + j₃ by ring, sgn_sum_sq]
 
-/-- **DLMF 34.3.8** (swap of columns 1 and 3). -/
+/-- **DLMF 34.3.9** (swap of columns 1 and 3). -/
 theorem threeJ_swap13 (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
     threeJ j₃ j₂ j₁ m₃ m₂ m₁ = sgn (j₁ + j₂ + j₃) * threeJ j₁ j₂ j₃ m₁ m₂ m₃ := by
   rw [show threeJ j₃ j₂ j₁ m₃ m₂ m₁ = sgn (j₃ + j₁ + j₂) * threeJ j₃ j₁ j₂ m₃ m₁ m₂ from
