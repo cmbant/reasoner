@@ -436,9 +436,12 @@ All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (
 | 6j sum first-argument recurrence | `Rec6jSum.racahSum6_recurrence` | key identity `Rec6jKey.rec6_key` (slow build, ~5 min) |
 | **DLMF 34.3.14, 34.3.15** (3j recurrences with √ prefactors) | `ThreeJ.threeJ_recurrence_m`, `threeJ_recurrence` | |
 | **DLMF 34.5.1** `{j₁ j₂ j₃; 0 j₃ j₂} = (-1)^{j₁+j₂+j₃}/√((2j₂+1)(2j₃+1))` | `SpecialValues.sixJ_zero_left` | single-term Racah sum; checks the normalisation and sign of `sixJ` |
+| **DLMF 34.5.7** `{a b c; 1 c b}` (`2b, 2c ≥ 1`) | `SpecialValues.sixJ_one_left` | two-term Racah sum, `t ∈ {N, N+1}` |
+| tetrahedral symmetries: column swaps `(12)`, `(23)`, upper/lower exchange in columns 1, 2 | `Symmetry.sixJ_swap12`, `sixJ_swap23`, `sixJ_exch12` | termwise permutation of the seven inverse factorials |
+| stretched `3j` (`j₃ = j₁+j₂`), DLMF 34.3.3 | `Stretched3j.threeJ_stretched` | one-term sum; the extremal seed of the minimal-rank `3j` recurrence |
 | **DLMF 34.5.11–13** (6j recurrence with √ prefactors) | `SixJRecurrence.sixJ_recurrence` | `IsTri` hypotheses; vanishes when fixed triads fail |
 
-Not formalised: other special values (DLMF 34.3.1–2, 34.5.2, 34.5.7), orthogonality 34.5.14, Regge symmetry 34.5.9,
+Not formalised: other special values (DLMF 34.3.1–2, 34.5.2), the 3j symmetries, orthogonality 34.5.14, Regge symmetry 34.5.9,
 relation to Physlib's abstract `sixJ`. Certificate search scripts: `scripts/wigner_certificates/` (provenance only).
 
 ## Next source-authorized finite targets
