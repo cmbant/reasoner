@@ -9,3 +9,4 @@ public import FormalResearch.Wigner.Rec6j
 public import FormalResearch.Wigner.Rec6jSum
 public import FormalResearch.Wigner.SixJRecurrence
 public import FormalResearch.Wigner.ThreeJ
+public import FormalResearch.Wigner.SpecialValues

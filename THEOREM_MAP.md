@@ -435,9 +435,10 @@ All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (
 | 3j sum `m`-recurrence | `Rec3m.racahSum3_m_recurrence` | constant telescoping certificate |
 | 6j sum first-argument recurrence | `Rec6jSum.racahSum6_recurrence` | key identity `Rec6jKey.rec6_key` (slow build, ~5 min) |
 | **DLMF 34.3.14, 34.3.15** (3j recurrences with √ prefactors) | `ThreeJ.threeJ_recurrence_m`, `threeJ_recurrence` | |
+| **DLMF 34.5.1** `{j₁ j₂ j₃; 0 j₃ j₂} = (-1)^{j₁+j₂+j₃}/√((2j₂+1)(2j₃+1))` | `SpecialValues.sixJ_zero_left` | single-term Racah sum; checks the normalisation and sign of `sixJ` |
 | **DLMF 34.5.11–13** (6j recurrence with √ prefactors) | `SixJRecurrence.sixJ_recurrence` | `IsTri` hypotheses; vanishes when fixed triads fail |
 
-Not formalised: special values (DLMF 34.3.1–2, 34.5.1–2, 34.5.7), orthogonality 34.5.14, Regge symmetry 34.5.9,
+Not formalised: other special values (DLMF 34.3.1–2, 34.5.2, 34.5.7), orthogonality 34.5.14, Regge symmetry 34.5.9,
 relation to Physlib's abstract `sixJ`. Certificate search scripts: `scripts/wigner_certificates/` (provenance only).
 
 ## Next source-authorized finite targets
