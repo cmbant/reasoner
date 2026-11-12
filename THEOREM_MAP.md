@@ -439,9 +439,10 @@ All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (
 | **DLMF 34.5.7** `{a b c; 1 c b}` (`2b, 2c ≥ 1`) | `SpecialValues.sixJ_one_left` | two-term Racah sum, `t ∈ {N, N+1}` |
 | tetrahedral symmetries: column swaps `(12)`, `(23)`, upper/lower exchange in columns 1, 2 | `Symmetry.sixJ_swap12`, `sixJ_swap23`, `sixJ_exch12` | termwise permutation of the seven inverse factorials |
 | stretched `3j` (`j₃ = j₁+j₂`), DLMF 34.3.3 | `Stretched3j.threeJ_stretched` | one-term sum; the extremal seed of the minimal-rank `3j` recurrence |
+| Regge symmetries, DLMF 34.5.9 and 34.5.10 (all rational arguments, no admissibility hypothesis); the form used by Weyl/P2 `eq:6jRegge` | `Regge.sixJ_regge1`, `sixJ_regge2`, `sixJ_regge1_shifted` | the Racah sum depends only on the triad/quad sums, symmetrically; each Regge move permutes them, so it is a termwise permutation of the seven inverse factorials with the product of the four `Δ²` unchanged (no Whipple 4F3 needed) |
 | **DLMF 34.5.11–13** (6j recurrence with √ prefactors) | `SixJRecurrence.sixJ_recurrence` | `IsTri` hypotheses; vanishes when fixed triads fail |
 
-Not formalised: other special values (DLMF 34.3.1–2, 34.5.2), the 3j symmetries, orthogonality 34.5.14, Regge symmetry 34.5.9,
+Not formalised: other special values (DLMF 34.3.1–2, 34.5.2), the 3j symmetries, orthogonality 34.5.14,
 relation to Physlib's abstract `sixJ`. Certificate search scripts: `scripts/wigner_certificates/` (provenance only).
 
 ## Next source-authorized finite targets
