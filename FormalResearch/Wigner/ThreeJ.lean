@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.Wigner.SixJRecurrence
 public import FormalResearch.Wigner.Rec3j
+public import FormalResearch.Wigner.Rec3m
 
 /-!
 # The Wigner `3j` symbol and its recurrence in `j₁` (DLMF 34.3.15)
@@ -197,5 +198,134 @@ theorem threeJ_recurrence (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) (hm : m₁ + m�
     + ((j₁ : ℝ) * sgn (j₁ - j₂ - m₃) *
       Real.sqrt (fq (j₂ + m₂) * fq (j₂ - m₂) * fq (j₃ + m₃) * fq (j₃ - m₃)) *
       racahSum3 (j₁ + 1) j₂ j₃ m₁ m₂) * ep
+
+
+lemma sqrt_mul_sq_eq1 {E A A' ρ : ℝ} (hE : 0 ≤ E) (hρ : 0 ≤ ρ) (hA : 0 ≤ A) (hA' : 0 ≤ A')
+    (h : E ^ 2 * A = ρ ^ 2 * A') : E * Real.sqrt A = ρ * Real.sqrt A' := by
+  have h1 : (E * Real.sqrt A) ^ 2 = (ρ * Real.sqrt A') ^ 2 := by
+    rw [mul_pow, mul_pow, Real.sq_sqrt hA, Real.sq_sqrt hA']
+    exact h
+  exact (pow_left_inj₀ (by positivity) (by positivity) two_ne_zero).mp h1
+
+/-- The `m`-dependent square root in the `3j` prefactor. -/
+noncomputable def Rm (j₂ j₃ m₂ m₃ : ℚ) : ℝ :=
+  Real.sqrt (fq (j₂ + m₂) * fq (j₂ - m₂) * fq (j₃ + m₃) * fq (j₃ - m₃))
+
+lemma Rm_plus {j₂ j₃ m₂ m₃ : ℚ} (h1 : IsNat (j₂ + m₂)) (h2 : IsNat (j₂ - (m₂ + 1)))
+    (h3 : IsNat (j₃ + (m₃ - 1))) (h4 : IsNat (j₃ - m₃)) :
+    Real.sqrt (((j₂ : ℝ) - m₂) * ((j₂ : ℝ) + m₂ + 1) * ((j₃ : ℝ) - m₃ + 1) * ((j₃ : ℝ) + m₃)) *
+        Rm j₂ j₃ (m₂ + 1) (m₃ - 1) =
+      (((j₂ : ℝ) + m₂ + 1) * ((j₃ : ℝ) - m₃ + 1)) * Rm j₂ j₃ m₂ m₃ := by
+  have f1 : fq (j₂ + (m₂ + 1)) = ((j₂ : ℝ) + m₂ + 1) * fq (j₂ + m₂) := by
+    have := fq_succ' h1 (y := j₂ + (m₂ + 1)) (by ring)
+    rw [this]; push_cast; ring
+  have f2 : fq (j₂ - m₂) = ((j₂ : ℝ) - m₂) * fq (j₂ - (m₂ + 1)) := by
+    have := fq_succ' h2 (y := j₂ - m₂) (by ring)
+    rw [this]; push_cast; ring
+  have f3 : fq (j₃ + m₃) = ((j₃ : ℝ) + m₃) * fq (j₃ + (m₃ - 1)) := by
+    have := fq_succ' h3 (y := j₃ + m₃) (by ring)
+    rw [this]; push_cast; ring
+  have f4 : fq (j₃ - (m₃ - 1)) = ((j₃ : ℝ) - m₃ + 1) * fq (j₃ - m₃) := by
+    have := fq_succ' h4 (y := j₃ - (m₃ - 1)) (by ring)
+    rw [this]; push_cast; ring
+  have a1 := h1.nonneg_real
+  have a2 := h2.nonneg_real
+  have a3 := h3.nonneg_real
+  have a4 := h4.nonneg_real
+  push_cast at a1 a2 a3 a4
+  unfold Rm
+  apply sqrt_mul_sq_eq1 (Real.sqrt_nonneg _) _ _ _ _
+  · have : 0 ≤ (j₂ : ℝ) + m₂ + 1 := by linarith
+    have : 0 ≤ (j₃ : ℝ) - m₃ + 1 := by linarith
+    positivity
+  · exact mul_nonneg (mul_nonneg (mul_nonneg (fq_nonneg _) (fq_nonneg _)) (fq_nonneg _))
+      (fq_nonneg _)
+  · exact mul_nonneg (mul_nonneg (mul_nonneg (fq_nonneg _) (fq_nonneg _)) (fq_nonneg _))
+      (fq_nonneg _)
+  · have hP : 0 ≤ ((j₂ : ℝ) - m₂) * ((j₂ : ℝ) + m₂ + 1) * ((j₃ : ℝ) - m₃ + 1) * ((j₃ : ℝ) + m₃) := by
+      have : 0 ≤ (j₂ : ℝ) - m₂ := by linarith
+      have : 0 ≤ (j₂ : ℝ) + m₂ + 1 := by linarith
+      have : 0 ≤ (j₃ : ℝ) - m₃ + 1 := by linarith
+      have : 0 ≤ (j₃ : ℝ) + m₃ := by linarith
+      positivity
+    rw [Real.sq_sqrt hP, f1, f4, f2, f3]
+    ring
+
+lemma Rm_minus {j₂ j₃ m₂ m₃ : ℚ} (h1 : IsNat (j₂ - m₂)) (h2 : IsNat (j₂ + (m₂ - 1)))
+    (h3 : IsNat (j₃ + m₃)) (h4 : IsNat (j₃ - (m₃ + 1))) :
+    Real.sqrt (((j₂ : ℝ) - m₂ + 1) * ((j₂ : ℝ) + m₂) * ((j₃ : ℝ) - m₃) * ((j₃ : ℝ) + m₃ + 1)) *
+        Rm j₂ j₃ (m₂ - 1) (m₃ + 1) =
+      (((j₂ : ℝ) - m₂ + 1) * ((j₃ : ℝ) + m₃ + 1)) * Rm j₂ j₃ m₂ m₃ := by
+  have f1 : fq (j₂ + m₂) = ((j₂ : ℝ) + m₂) * fq (j₂ + (m₂ - 1)) := by
+    have := fq_succ' h2 (y := j₂ + m₂) (by ring)
+    rw [this]; push_cast; ring
+  have f2 : fq (j₂ - (m₂ - 1)) = ((j₂ : ℝ) - m₂ + 1) * fq (j₂ - m₂) := by
+    have := fq_succ' h1 (y := j₂ - (m₂ - 1)) (by ring)
+    rw [this]; push_cast; ring
+  have f3 : fq (j₃ + (m₃ + 1)) = ((j₃ : ℝ) + m₃ + 1) * fq (j₃ + m₃) := by
+    have := fq_succ' h3 (y := j₃ + (m₃ + 1)) (by ring)
+    rw [this]; push_cast; ring
+  have f4 : fq (j₃ - m₃) = ((j₃ : ℝ) - m₃) * fq (j₃ - (m₃ + 1)) := by
+    have := fq_succ' h4 (y := j₃ - m₃) (by ring)
+    rw [this]; push_cast; ring
+  have a1 := h1.nonneg_real
+  have a2 := h2.nonneg_real
+  have a3 := h3.nonneg_real
+  have a4 := h4.nonneg_real
+  push_cast at a1 a2 a3 a4
+  unfold Rm
+  apply sqrt_mul_sq_eq1 (Real.sqrt_nonneg _) _ _ _ _
+  · have : 0 ≤ (j₂ : ℝ) - m₂ + 1 := by linarith
+    have : 0 ≤ (j₃ : ℝ) + m₃ + 1 := by linarith
+    positivity
+  · exact mul_nonneg (mul_nonneg (mul_nonneg (fq_nonneg _) (fq_nonneg _)) (fq_nonneg _))
+      (fq_nonneg _)
+  · exact mul_nonneg (mul_nonneg (mul_nonneg (fq_nonneg _) (fq_nonneg _)) (fq_nonneg _))
+      (fq_nonneg _)
+  · have hP : 0 ≤ ((j₂ : ℝ) - m₂ + 1) * ((j₂ : ℝ) + m₂) * ((j₃ : ℝ) - m₃) * ((j₃ : ℝ) + m₃ + 1) := by
+      have : 0 ≤ (j₂ : ℝ) - m₂ + 1 := by linarith
+      have : 0 ≤ (j₂ : ℝ) + m₂ := by linarith
+      have : 0 ≤ (j₃ : ℝ) - m₃ := by linarith
+      have : 0 ≤ (j₃ : ℝ) + m₃ + 1 := by linarith
+      positivity
+    rw [Real.sq_sqrt hP, f2, f3, f1, f4]
+    ring
+
+/-- **DLMF 34.3.14** (three-term recurrence of the `3j` symbol in `m₂, m₃`), under the
+projection conditions that DLMF assumes for the three symbols involved. -/
+theorem threeJ_recurrence_m (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) (hm : m₁ + m₂ + m₃ = 0)
+    (a1 : IsNat (j₂ + m₂)) (a2 : IsNat (j₂ - (m₂ + 1))) (a3 : IsNat (j₃ + (m₃ - 1)))
+    (a4 : IsNat (j₃ - m₃)) (b1 : IsNat (j₂ - m₂)) (b2 : IsNat (j₂ + (m₂ - 1)))
+    (b3 : IsNat (j₃ + m₃)) (b4 : IsNat (j₃ - (m₃ + 1))) :
+    (((j₁ : ℝ) * (j₁ + 1) - j₂ * (j₂ + 1) - j₃ * (j₃ + 1)) - 2 * (m₂ : ℝ) * m₃) *
+        threeJ j₁ j₂ j₃ m₁ m₂ m₃ =
+      Real.sqrt (((j₂ : ℝ) - m₂) * ((j₂ : ℝ) + m₂ + 1) * ((j₃ : ℝ) - m₃ + 1) * ((j₃ : ℝ) + m₃)) *
+          threeJ j₁ j₂ j₃ m₁ (m₂ + 1) (m₃ - 1)
+        + Real.sqrt (((j₂ : ℝ) - m₂ + 1) * ((j₂ : ℝ) + m₂) * ((j₃ : ℝ) - m₃) *
+            ((j₃ : ℝ) + m₃ + 1)) * threeJ j₁ j₂ j₃ m₁ (m₂ - 1) (m₃ + 1) := by
+  have hrec := racahSum3_m_recurrence j₁ j₂ j₃ m₁ m₂
+  have em3 : (m₃ : ℝ) = -(m₁ : ℝ) - m₂ := by
+    have : (m₃ : ℚ) = -m₁ - m₂ := by linarith
+    rw [this]; push_cast; ring
+  have ep := Rm_plus a1 a2 a3 a4
+  have emn := Rm_minus b1 b2 b3 b4
+  have hmp : m₁ + (m₂ + 1) + (m₃ - 1) = 0 := by linarith
+  have hmm : m₁ + (m₂ - 1) + (m₃ + 1) = 0 := by linarith
+  rw [threeJ_factor hm, threeJ_factor hmp, threeJ_factor hmm,
+    show j₁ - j₂ - (m₃ - 1) = (j₁ - j₂ - m₃) + 1 by ring,
+    show j₁ - j₂ - (m₃ + 1) = (j₁ - j₂ - m₃) - 1 by ring, sgn_add_one, sgn_sub_one]
+  unfold Rm at ep emn
+  have hrec' : (((j₁ : ℝ) * (j₁ + 1) - j₂ * (j₂ + 1) - j₃ * (j₃ + 1)) - 2 * (m₂ : ℝ) * m₃) *
+        racahSum3 j₁ j₂ j₃ m₁ m₂ +
+      ((j₂ : ℝ) + m₂ + 1) * ((j₃ : ℝ) - m₃ + 1) * racahSum3 j₁ j₂ j₃ m₁ (m₂ + 1) +
+      ((j₂ : ℝ) - m₂ + 1) * ((j₃ : ℝ) + m₃ + 1) * racahSum3 j₁ j₂ j₃ m₁ (m₂ - 1) = 0 := by
+    rw [em3]; linear_combination hrec
+  linear_combination
+    (sgn (j₁ - j₂ - m₃) * (Real.sqrt (triSq j₁ j₂ j₃) * Real.sqrt (fq (j₁ + m₁) * fq (j₁ - m₁))) *
+      Real.sqrt (fq (j₂ + m₂) * fq (j₂ - m₂) * fq (j₃ + m₃) * fq (j₃ - m₃))) * hrec'
+    + (sgn (j₁ - j₂ - m₃) * (Real.sqrt (triSq j₁ j₂ j₃) * Real.sqrt (fq (j₁ + m₁) * fq (j₁ - m₁))) *
+      racahSum3 j₁ j₂ j₃ m₁ (m₂ + 1)) * ep
+    + (sgn (j₁ - j₂ - m₃) * (Real.sqrt (triSq j₁ j₂ j₃) * Real.sqrt (fq (j₁ + m₁) * fq (j₁ - m₁))) *
+      racahSum3 j₁ j₂ j₃ m₁ (m₂ - 1)) * emn
 
 end FormalResearch.Wigner
