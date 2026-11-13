@@ -68,7 +68,7 @@ lemma Ct_step {M σ : ℚ} {α β : ℕ} (hα : |M - σ| = α) (hβ : |M + σ| =
   rw [e]; ring
 
 /-- The central product `Ct r 1 (1/N²)` is positive while its largest factor is. -/
-lemma Ct_pos (N : ℝ) (hN : 0 < N) : ∀ r : ℕ, ((r : ℝ) - 1) / 2 < N → 0 < Ct r 1 (1 / N ^ 2) := by
+lemma Ct_one_pos_inv_sq (N : ℝ) (hN : 0 < N) : ∀ r : ℕ, ((r : ℝ) - 1) / 2 < N → 0 < Ct r 1 (1 / N ^ 2) := by
   intro r
   induction r using Nat.strong_induction_on with
   | _ r ih =>
@@ -156,7 +156,7 @@ lemma glue_succ {M σ N μ : ℚ} {α β : ℕ} (hα : |M - σ| = α) (hβ : |M 
     exact_mod_cast this
   have hLN' : (L : ℝ) < N := by linarith
   have hPi : 0 < Ct (α + β + 2 * k + 1) 1 (1 / (N : ℝ) ^ 2) := by
-    apply Ct_pos N hNr
+    apply Ct_one_pos_inv_sq N hNr
     have hc := ab_cast hα hβ
     push_cast
     have : ((max |M| |σ| : ℚ) : ℝ) + k < N := by
@@ -230,7 +230,7 @@ lemma back_eq {M σ N : ℚ} {α β : ℕ} (hα : |M - σ| = α) (hβ : |M + σ|
     rw [sub_pos, div_lt_one (by positivity)]
     nlinarith
   have hPi : 0 < Ct (α + β + 2 * k + 1) 1 (1 / (N : ℝ) ^ 2) := by
-    apply Ct_pos N hNr
+    apply Ct_one_pos_inv_sq N hNr
     have hc := ab_cast hα hβ
     push_cast
     have h2 : ((L : ℚ) : ℝ) = ((max |M| |σ| : ℚ) : ℝ) + k + 1 := hLr.symm

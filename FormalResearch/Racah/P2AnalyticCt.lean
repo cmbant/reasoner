@@ -40,4 +40,13 @@ theorem Cprod_eq_Ct (r : ℕ) (u h : ℝ) : Cprod r u h = Ct r u (h ^ 2) := by
       rw [Cprod_succ_succ, Ct_succ_succ, ih r (by omega)]
       ring
 
+/-- At `t = 0` the central product is the plain power: `Ct r u 0 = u ^ r`. -/
+theorem Ct_zero_t (r : ℕ) (u : ℝ) : Ct r u 0 = u ^ r := by
+  induction r using Nat.strong_induction_on with
+  | _ r ih =>
+    match r, ih with
+    | 0, _ => simp [Ct_zero]
+    | 1, _ => simp [Ct_one]
+    | r + 2, ih => rw [Ct_succ_succ, ih r (by omega)]; ring
+
 end FormalResearch.Racah

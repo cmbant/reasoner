@@ -33,16 +33,6 @@ namespace FormalResearch.Racah
 
 open FormalResearch.Wigner FormalResearch.Racah.SixJ
 
-lemma Ct_zero_t (r : ℕ) (u : ℝ) : Ct r u 0 = u ^ r := by
-  induction r using Nat.strong_induction_on with
-  | _ r ih =>
-    match r, ih with
-    | 0, _ => simp [Ct_zero]
-    | 1, _ => simp [Ct_one]
-    | r + 2, ih =>
-      rw [Ct_succ_succ, ih r (by omega)]
-      ring
-
 /-- Scaling of a central product: `𝔠_r(Sξ) = S^r · Ct r ξ (S⁻²)` (`lem:centeredshift`). -/
 lemma cenProd_scale (r : ℕ) (S ξ : ℝ) (hS : S ≠ 0) :
     cenProd r (S * ξ) = S ^ r * Ct r ξ (1 / S ^ 2) := by

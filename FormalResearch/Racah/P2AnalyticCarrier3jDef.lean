@@ -33,7 +33,7 @@ Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `lem:sqrtfreecarrier`
 * `ptilde3Poly`, `ptilde3_eq_evalP`: `P̃_{L₀+k}` is `evalP` of an explicit polynomial in `τ` with
   coefficients polynomial in `t` (an element of `Polynomial (Polynomial ℝ)`, outer variable `τ`,
   inner variable `t`); `natDegree_ptilde3Poly_le`: degree `≤ k` in `τ`.
-* `Ct_zero_t`: `Ct r u 0 = u ^ r`.
+* `Ct_zero_t` (in `P2AnalyticCt`): `Ct r u 0 = u ^ r`.
 -/
 
 @[expose] public section
@@ -91,18 +91,6 @@ lemma ptilde3_succ_succ (M σ : ℚ) (k : ℕ) (τ t : ℝ) :
         (ptilde3 M σ k τ t) := rfl
 
 /-! ### `Ct` at `t = 0` -/
-
-/-- At zero scale the central product is the power: `𝔠_r(u,0) = u^r`. -/
-theorem Ct_zero_t (r : ℕ) (u : ℝ) : Ct r u 0 = u ^ r := by
-  induction r using Nat.strong_induction_on with
-  | _ r ih =>
-    match r, ih with
-    | 0, _ => simp [Ct_zero]
-    | 1, _ => simp [Ct_one]
-    | r + 2, ih =>
-      rw [Ct_succ_succ, ih r (by omega)]
-      ring
-
 /-! ### Polynomiality -/
 
 /-- Evaluation `Polynomial (Polynomial ℝ) → ℝ`, `P ↦ P(τ; t)`: the outer variable is `τ`, the inner
@@ -235,8 +223,5 @@ theorem ptilde3_polynomial (M σ : ℚ) (k : ℕ) :
 #guard_msgs (whitespace := lax) in
 #print axioms ptilde3_polynomial
 
-/-- info: 'FormalResearch.Racah.Ct_zero_t' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms Ct_zero_t
 
 end FormalResearch.Racah

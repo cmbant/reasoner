@@ -14,7 +14,7 @@ the central-binomial convolution `∑_{i+j=r} C(2i,i) C(2j,j) = 4^r` (T1.4).
 
 * `CtPoly r`, `eval_CtPoly`: `Ct r u t` is the evaluation of an explicit `MvPolynomial (Fin 2) ℝ`.
 * `analyticAt_Ct_comp`, `analyticAt_Ct`, `contDiff_Ct`: analytic / smooth everywhere.
-* `Ct_zero_t`: `Ct r u 0 = u ^ r`.
+* `Ct_zero_t` (in `P2AnalyticCt`): `Ct r u 0 = u ^ r`.
 * `Ct_pos`: `0 < Ct r u t` for `u > 0`, `t ≥ 0`, `r² t < 4u²`.
 * `abs_log_Ct_sub_le`, `abs_log_Ct_sub_le_of_le`: the log estimate
   `|log (Ct r S t) - (r log S - r(r²-1)/24 · t/S²)| ≤ (r⁵/8)(t/S²)²` (explicit constant,
@@ -83,16 +83,6 @@ theorem analyticAt_Ct (r : ℕ) (p : ℝ × ℝ) :
 /-- `(u,t) ↦ Ct r u t` is `C^∞`. -/
 theorem contDiff_Ct (r : ℕ) : ContDiff ℝ ∞ (fun q : ℝ × ℝ => Ct r q.1 q.2) :=
   contDiff_iff_contDiffAt.mpr fun p => (analyticAt_Ct r p).contDiffAt
-
-/-- At `t = 0` (`h = 0`) the central product is the power `u ^ r`. -/
-theorem Ct_zero_t (r : ℕ) (u : ℝ) : Ct r u 0 = u ^ r := by
-  induction r using Nat.strong_induction_on with
-  | _ r ih =>
-    match r, ih with
-    | 0, _ => simp [Ct_zero]
-    | 1, _ => simp [Ct_one]
-    | r + 2, ih => rw [Ct_succ_succ, ih r (by omega)]; ring
-
 /-- Positivity of the central product in the small-`t` range `r² t < 4u²`. -/
 theorem Ct_pos (r : ℕ) {u t : ℝ} (hu : 0 < u) (ht : 0 ≤ t)
     (hr : (r : ℝ) ^ 2 * t < 4 * u ^ 2) : 0 < Ct r u t := by
