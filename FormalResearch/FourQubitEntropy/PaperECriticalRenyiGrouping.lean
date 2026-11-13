@@ -48,7 +48,7 @@ section Grouping
 
 variable {ι κ : Type*} [Fintype ι] [Fintype κ]
 
-theorem sum_rpow_pos_of_prob {u : ι → ℝ} (hu : ∀ i, 0 ≤ u i) (hs : ∑ i, u i = 1) {q : ℝ} (hq : 0 < q) :
+theorem sum_rpow_pos_of_prob {u : ι → ℝ} (hu : ∀ i, 0 ≤ u i) (hs : ∑ i, u i = 1) {q : ℝ} (_hq : 0 < q) :
     0 < ∑ i, u i ^ q := by
   have : ∃ i, 0 < u i := by
     by_contra h

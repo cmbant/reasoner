@@ -120,7 +120,6 @@ theorem Gv_zero_cases (v : Fin 2 × Fin 2 → ℂ) (hn : ∑ k, Complex.normSq (
       intro i j k hij hik hjk
       have e := hE i j k hij hik hjk
       have hmc := (Complex.mul_conj (v (e4 i))).symm
-      beta_reduce
       linear_combination (v (e4 i)) * e + ((v (e4 j)) ^ 2 - (v (e4 k)) ^ 2) * hmc)
   rcases key with ⟨i, hi⟩ | hB | ⟨hC1, hC2⟩
   · left

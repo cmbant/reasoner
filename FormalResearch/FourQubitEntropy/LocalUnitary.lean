@@ -143,7 +143,6 @@ theorem swap24_localApply (a b c d : Op1) (ψ : Psi) :
 theorem red13_eq_swap (ψ : Psi) : red13 ψ = red12 (swap23 ψ) := by
   ext ⟨a, c⟩ ⟨a', c'⟩
   simp [red13, red12, swap23, Fin.sum_univ_two]
-  try ring
 
 theorem red14_eq_swap (ψ : Psi) : red14 ψ = red12 (swap24 ψ) := by
   ext ⟨a, d⟩ ⟨a', d'⟩

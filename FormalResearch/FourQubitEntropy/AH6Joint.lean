@@ -108,7 +108,7 @@ theorem ln6_eq (hb : InBracket x) :
   rw [h1, Real.log_div (by positivity) (by norm_num), Real.log_mul hc.ne' (by norm_num)]
   simp only [parR]; ring
 
-theorem G_eq (hb : InBracket x) :
+theorem G_eq (_hb : InBracket x) :
     (rA (parR x)).G1 = Real.negMulLog ((rA (parR x)).n1 / 8) ∧
     (rA (parR x)).G2 = Real.negMulLog ((rA (parR x)).n2 / 8) ∧
     (rA (parR x)).G3 = Real.negMulLog ((rA (parR x)).n3 / 8) ∧

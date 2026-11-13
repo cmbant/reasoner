@@ -237,7 +237,7 @@ theorem blochSq_zero_of_LU_Gv (v : Fin 2 × Fin 2 → ℂ) (ψ : Psi) (h : LUEqu
       rc O1 * Matrix.diagonal (fun k => s1 * s2 * v k) * (rc O2)ᵀ := by
     rw [hX, hU1e, hU2e, Matrix.transpose_smul]
     have : Matrix.diagonal (fun k => s1 * s2 * v k) = (s1 * s2) • Matrix.diagonal v := by
-      ext i j; by_cases hij : i = j <;> simp [Matrix.diagonal_apply, hij]
+      ext i j; by_cases hij : i = j <;> simp [hij]
     rw [this]
     simp only [Matrix.smul_mul, Matrix.mul_smul]
     rw [smul_smul, mul_comm]

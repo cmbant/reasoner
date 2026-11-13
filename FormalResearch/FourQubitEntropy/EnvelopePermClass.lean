@@ -92,7 +92,7 @@ theorem perm_class_zero (Θ : Matrix (Fin 3) (Fin 3) ℝ) (b : Fin 3 → ℝ) (h
   have e : ∀ j, (r 0 ^ 2 + r 1 ^ 2 + r 2 ^ 2) * b j ^ 2 = b j ^ 2 := by
     intro j
     have := congrFun (congrFun h j) j
-    simp [Matrix.mul_apply, Matrix.transpose_apply, Matrix.vecMulVec_apply, Fin.sum_univ_three] at this
+    simp [Matrix.mul_apply, Matrix.vecMulVec_apply, Fin.sum_univ_three] at this
     linear_combination this
   have hr' : r 0 ^ 2 + r 1 ^ 2 + r 2 ^ 2 = 1 := by
     linear_combination e 0 + e 1 + e 2 - (r 0 ^ 2 + r 1 ^ 2 + r 2 ^ 2 - 1) * hb'

@@ -122,7 +122,7 @@ theorem cfC2_BBB : ∀ z < 128, cubW (cfWt cfWP2) (cfSupp true) (cfSupp true) (c
 theorem cfC2_hP : ∀ M < 128, (weight (maskOfNat M) = 2) ↔ cfC2 M := by
   decide +kernel
 
-theorem cfK_C2 (z : ℕ) (hz : z < 128) (x y w : Bool) (p q : ℤ)
+theorem cfK_C2 (z : ℕ) (_hz : z < 128) (x y w : Bool) (p q : ℤ)
     (h : cubW (cfWt cfWP2) (cfSupp x) (cfSupp y) (cfTab x) (cfTab y) (cfTab w) z = p * cfA z + q * cfB z) :
     cfK cfWP2 z x y w = (p : ℝ) * (cfA z : ℝ) + (q : ℝ) * (cfB z : ℝ) := by
   unfold cfK

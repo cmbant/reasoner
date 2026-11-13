@@ -122,7 +122,7 @@ theorem cfC30_BBB : ∀ z < 128, cubW (cfWt cfWP30) (cfSupp true) (cfSupp true) 
 theorem cfC30_hP : ∀ M < 128, (weight (maskOfNat M) = 3 ∧ maskOfNat M 0 = false) ↔ cfC30 M := by
   decide +kernel
 
-theorem cfK_C30 (z : ℕ) (hz : z < 128) (x y w : Bool) (p q : ℤ)
+theorem cfK_C30 (z : ℕ) (_hz : z < 128) (x y w : Bool) (p q : ℤ)
     (h : cubW (cfWt cfWP30) (cfSupp x) (cfSupp y) (cfTab x) (cfTab y) (cfTab w) z = p * cfA z + q * cfB z) :
     cfK cfWP30 z x y w = (p : ℝ) * (cfA z : ℝ) + (q : ℝ) * (cfB z : ℝ) := by
   unfold cfK

@@ -60,7 +60,7 @@ theorem ell_one : ell 1 = 0 := by
 theorem ell_hasDerivAt' {q : ℝ} (h0 : 0 ≤ q) (h2 : q ≤ 2) : HasDerivAt ell (ell' q) q :=
   ell_hasDerivAt (by linarith) (by linarith)
 
-theorem ell_continuousOn : ContinuousOn ell (Set.Icc 0 2) := fun x hx =>
+theorem ell_continuousOn : ContinuousOn ell (Set.Icc 0 2) := fun _x hx =>
   (ell_hasDerivAt' hx.1 hx.2).continuousAt.continuousWithinAt
 
 /-- On `[1, 2)`, `ℓ' < 0`. -/

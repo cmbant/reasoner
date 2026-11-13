@@ -302,7 +302,7 @@ theorem hermPhi_pos {x : ℝ} (hx : 0 < x) (h1 : x ≠ 1 / 6) (h2 : x ≠ 1 / 2)
 theorem negMulLog_eq_hermCubic {x : ℝ} (hx : 0 ≤ x) (h : Real.negMulLog x = hermCubic x) :
     x = 1 / 6 ∨ x = 1 / 2 := by
   by_contra hne
-  push_neg at hne
+  push Not at hne
   rcases hx.eq_or_lt with rfl | hx
   · have := hermD_pos
     simp [hermCubic] at h
