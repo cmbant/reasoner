@@ -271,6 +271,7 @@ public import FormalResearch.Racah.P2AnalyticNLO3jUniform
 public import FormalResearch.Racah.P2AnalyticHeadline
 public import FormalResearch.Racah.P2AnalyticHeadline6j
 public import FormalResearch.Racah.P2AnalyticLeading
+public import FormalResearch.Racah.P2AnalyticLeading6jChambers
 public import FormalResearch.Racah.P2AnalyticL2Transmutation
 public import FormalResearch.Racah.P2AnalyticL2Singular
 public import FormalResearch.Racah.P2AnalyticNLO6j
