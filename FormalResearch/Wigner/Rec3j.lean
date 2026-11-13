@@ -36,7 +36,63 @@ lemma rec3_assemble (C ρm ρp ε U P R0 R1 R2 X Y : ℝ) (key : C * R0 + ρm * 
       (-ε) * (P * X) * U - ε * (P * Y) * U := by
   linear_combination (ε * P * U) * key
 
-set_option maxRecDepth 10000 in
+
+lemma rec3_ifa0 (x r : ℚ) (h : r = x) : ifa x = ifa r := by rw [h]
+
+lemma rec3_ifa1 (x r : ℚ) (h : r = x + 1) : ifa x = ((x : ℝ) + 1) * ifa r := by
+  rw [h]; exact (ifa_shift x).symm
+
+lemma rec3_ifa2 (x r : ℚ) (h : r = x + 2) : ifa x = ((x : ℝ) + 1) * (((x : ℝ) + 2) * ifa r) := by
+  have h1 := ifa_shift x
+  have h2 := ifa_shift (x + 1)
+  rw [h, show x + 2 = x + 1 + 1 by ring, ← h1, ← h2]
+  push_cast; ring
+
+lemma rec3_P6_mk (x₀ x₁ x₂ x₃ x₄ x₅ : ℚ) :
+    P6 ![x₀, x₁, x₂, x₃, x₄, x₅] = ifa x₀ * ifa x₁ * ifa x₂ * ifa x₃ * ifa x₄ * ifa x₅ := by
+  simp [P6, Fin.prod_univ_six]
+
+lemma rec3_P6_t0 (x₀ x₁ x₂ x₃ x₄ x₅ r₀ r₁ r₂ r₃ r₄ r₅ : ℚ) (c₀ c₁ c₂ c₃ c₄ c₅ : ℝ)
+    (h0 : r₀ = x₀ + 1) (h1 : r₁ = x₁ + 1) (h2 : r₂ = x₂ + 1) (h3 : r₃ = x₃ + 1) (h4 : r₄ = x₄ + 1) (h5 : r₅ = x₅ + 1)
+    (hc0 : (x₀ : ℝ) + 1 = c₀) (hc1 : (x₁ : ℝ) + 1 = c₁) (hc2 : (x₂ : ℝ) + 1 = c₂) (hc3 : (x₃ : ℝ) + 1 = c₃) (hc4 : (x₄ : ℝ) + 1 = c₄) (hc5 : (x₅ : ℝ) + 1 = c₅) :
+    P6 ![x₀, x₁, x₂, x₃, x₄, x₅] = (c₀ * c₁ * c₂ * c₃ * c₄ * c₅) * P6 ![r₀, r₁, r₂, r₃, r₄, r₅] := by
+  subst hc0 hc1 hc2 hc3 hc4 hc5
+  rw [rec3_P6_mk, rec3_P6_mk, rec3_ifa1 x₀ r₀ h0, rec3_ifa1 x₁ r₁ h1, rec3_ifa1 x₂ r₂ h2, rec3_ifa1 x₃ r₃ h3, rec3_ifa1 x₄ r₄ h4, rec3_ifa1 x₅ r₅ h5]
+  ring
+
+lemma rec3_P6_t1 (x₀ x₁ x₂ x₃ x₄ x₅ r₀ r₁ r₂ r₃ r₄ r₅ : ℚ) (c₀ c₁ c₂ c₃ c₄ : ℝ)
+    (h0 : r₀ = x₀ + 1) (h1 : r₁ = x₁ + 2) (h2 : r₂ = x₂ + 2) (h3 : r₃ = x₃ + 1) (h4 : r₄ = x₄ + 1) (h5 : r₅ = x₅)
+    (hc0 : (x₀ : ℝ) + 1 = c₀) (hc1 : (x₁ : ℝ) + 1 = c₁) (hc2 : (x₂ : ℝ) + 1 = c₂) (hc3 : (x₃ : ℝ) + 1 = c₃) (hc4 : (x₄ : ℝ) + 1 = c₄) :
+    P6 ![x₀, x₁, x₂, x₃, x₄, x₅] = (c₀ * (c₁ * (c₁ + 1)) * (c₂ * (c₂ + 1)) * c₃ * c₄) * P6 ![r₀, r₁, r₂, r₃, r₄, r₅] := by
+  subst hc0 hc1 hc2 hc3 hc4
+  rw [rec3_P6_mk, rec3_P6_mk, rec3_ifa1 x₀ r₀ h0, rec3_ifa2 x₁ r₁ h1, rec3_ifa2 x₂ r₂ h2, rec3_ifa1 x₃ r₃ h3, rec3_ifa1 x₄ r₄ h4, rec3_ifa0 x₅ r₅ h5]
+  ring
+
+lemma rec3_P6_t2 (x₀ x₁ x₂ x₃ x₄ x₅ r₀ r₁ r₂ r₃ r₄ r₅ : ℚ) (c₀ c₃ c₄ c₅ : ℝ)
+    (h0 : r₀ = x₀ + 1) (h1 : r₁ = x₁) (h2 : r₂ = x₂) (h3 : r₃ = x₃ + 1) (h4 : r₄ = x₄ + 1) (h5 : r₅ = x₅ + 2)
+    (hc0 : (x₀ : ℝ) + 1 = c₀) (hc3 : (x₃ : ℝ) + 1 = c₃) (hc4 : (x₄ : ℝ) + 1 = c₄) (hc5 : (x₅ : ℝ) + 1 = c₅) :
+    P6 ![x₀, x₁, x₂, x₃, x₄, x₅] = (c₀ * c₃ * c₄ * (c₅ * (c₅ + 1))) * P6 ![r₀, r₁, r₂, r₃, r₄, r₅] := by
+  subst hc0 hc3 hc4 hc5
+  rw [rec3_P6_mk, rec3_P6_mk, rec3_ifa1 x₀ r₀ h0, rec3_ifa0 x₁ r₁ h1, rec3_ifa0 x₂ r₂ h2, rec3_ifa1 x₃ r₃ h3, rec3_ifa1 x₄ r₄ h4, rec3_ifa2 x₅ r₅ h5]
+  ring
+
+lemma rec3_P6_tH0 (x₀ x₁ x₂ x₃ x₄ x₅ r₀ r₁ r₂ r₃ r₄ r₅ : ℚ) (c₀ c₃ c₄ c₅ : ℝ)
+    (h0 : r₀ = x₀ + 1) (h1 : r₁ = x₁) (h2 : r₂ = x₂) (h3 : r₃ = x₃ + 1) (h4 : r₄ = x₄ + 1) (h5 : r₅ = x₅ + 1)
+    (hc0 : (x₀ : ℝ) + 1 = c₀) (hc3 : (x₃ : ℝ) + 1 = c₃) (hc4 : (x₄ : ℝ) + 1 = c₄) (hc5 : (x₅ : ℝ) + 1 = c₅) :
+    P6 ![x₀, x₁, x₂, x₃, x₄, x₅] = (c₀ * c₃ * c₄ * c₅) * P6 ![r₀, r₁, r₂, r₃, r₄, r₅] := by
+  subst hc0 hc3 hc4 hc5
+  rw [rec3_P6_mk, rec3_P6_mk, rec3_ifa1 x₀ r₀ h0, rec3_ifa0 x₁ r₁ h1, rec3_ifa0 x₂ r₂ h2, rec3_ifa1 x₃ r₃ h3, rec3_ifa1 x₄ r₄ h4, rec3_ifa1 x₅ r₅ h5]
+  ring
+
+lemma rec3_P6_tH1 (x₀ x₁ x₂ x₃ x₄ x₅ r₀ r₁ r₂ r₃ r₄ r₅ : ℚ) (c₁ c₂ c₃ : ℝ)
+    (h0 : r₀ = x₀) (h1 : r₁ = x₁ + 1) (h2 : r₂ = x₂ + 1) (h3 : r₃ = x₃ + 2) (h4 : r₄ = x₄) (h5 : r₅ = x₅)
+    (hc1 : (x₁ : ℝ) + 1 = c₁) (hc2 : (x₂ : ℝ) + 1 = c₂) (hc3 : (x₃ : ℝ) + 1 = c₃) :
+    P6 ![x₀, x₁, x₂, x₃, x₄, x₅] = (c₁ * c₂ * (c₃ * (c₃ + 1))) * P6 ![r₀, r₁, r₂, r₃, r₄, r₅] := by
+  subst hc1 hc2 hc3
+  rw [rec3_P6_mk, rec3_P6_mk, rec3_ifa0 x₀ r₀ h0, rec3_ifa1 x₁ r₁ h1, rec3_ifa1 x₂ r₂ h2, rec3_ifa2 x₃ r₃ h3, rec3_ifa0 x₄ r₄ h4, rec3_ifa0 x₅ r₅ h5]
+  ring
+
+
 /-- The pointwise telescoping identity behind the `j₁`-recurrence of the `3j` Racah sum. -/
 lemma rec3_pointwise (j₁ j₂ j₃ m₁ m₂ σ : ℚ) (ε : ℝ) :
     (2 * (j₁ : ℝ) + 1) * (((j₂ : ℝ) * (j₂ + 1) - j₃ * (j₃ + 1)) * m₁ -
@@ -46,68 +102,42 @@ lemma rec3_pointwise (j₁ j₂ j₃ m₁ m₂ σ : ℚ) (ε : ℝ) :
       + (j₁ : ℝ) * (((j₁ : ℝ) + 1 + j₂ - j₃) * (j₁ + 1 - j₂ + j₃) * (j₁ + 1 + m₁) * (j₁ + 1 - m₁)) *
           term3 (j₁ + 1) j₂ j₃ m₁ m₂ σ ε
     = H3 j₁ j₂ j₃ m₁ m₂ (σ + 1) (-ε) - H3 j₁ j₂ j₃ m₁ m₂ σ ε := by
-  have hR : ∀ (x : Fin 6 → ℚ) (k : Fin 6 → ℕ),
-      (∀ i, ![σ + 1, j₁ + j₂ - j₃ - σ + 1, j₁ - m₁ - σ + 1, j₂ + m₂ - σ + 1,
-        j₃ - j₂ + m₁ + σ + 1, j₃ - j₁ - m₂ + σ + 1] i = x i + k i) →
-      P6 x = (∏ i, ∏ j ∈ Finset.range (k i), ((x i : ℝ) + (j + 1))) *
-        P6 ![σ + 1, j₁ + j₂ - j₃ - σ + 1, j₁ - m₁ - σ + 1, j₂ + m₂ - σ + 1,
-          j₃ - j₂ + m₁ + σ + 1, j₃ - j₁ - m₂ + σ + 1] :=
-    fun x k h => P6_rel h
-  generalize P6 ![σ + 1, j₁ + j₂ - j₃ - σ + 1, j₁ - m₁ - σ + 1, j₂ + m₂ - σ + 1,
-    j₃ - j₂ + m₁ + σ + 1, j₃ - j₁ - m₂ + σ + 1] = U at hR
+  obtain ⟨U, hU⟩ : ∃ U, P6 ![σ + 1, j₁ + j₂ - j₃ - σ + 1, j₁ - m₁ - σ + 1, j₂ + m₂ - σ + 1, j₃ - j₂ + m₁ + σ + 1, j₃ - j₁ - m₂ + σ + 1] = U := ⟨_, rfl⟩
   have t0 : term3 j₁ j₂ j₃ m₁ m₂ σ ε = ε * (((σ + 1 : ℝ) * ((j₃ : ℝ) - j₂ + m₁ + σ + 1) *
       ((j₂ : ℝ) + m₂ - σ + 1)) * (((j₃ : ℝ) - j₁ - m₂ + σ + 1) * ((j₁ : ℝ) + j₂ - j₃ - σ + 1) *
       ((j₁ : ℝ) - m₁ - σ + 1))) * U := by
     unfold term3
-    rw [hR ![σ, j₁ + j₂ - j₃ - σ, j₁ - m₁ - σ, j₂ + m₂ - σ, j₃ - j₂ + m₁ + σ, j₃ - j₁ - m₂ + σ]
-      ![1, 1, 1, 1, 1, 1] (by intro i; fin_cases i <;> simp)]
-    simp only [Fin.prod_univ_six]
-    try simp
-    try simp only [Finset.prod_range_succ, Finset.prod_range_zero]
-    push_cast
-    ring
+    rw [rec3_P6_t0 (σ) (j₁ + j₂ - j₃ - σ) (j₁ - m₁ - σ) (j₂ + m₂ - σ) (j₃ - j₂ + m₁ + σ) (j₃ - j₁ - m₂ + σ) (σ + 1) (j₁ + j₂ - j₃ - σ + 1) (j₁ - m₁ - σ + 1) (j₂ + m₂ - σ + 1) (j₃ - j₂ + m₁ + σ + 1) (j₃ - j₁ - m₂ + σ + 1) (σ + 1 : ℝ) ((j₁ : ℝ) + j₂ - j₃ - σ + 1) ((j₁ : ℝ) - m₁ - σ + 1) ((j₂ : ℝ) + m₂ - σ + 1) ((j₃ : ℝ) - j₂ + m₁ + σ + 1) ((j₃ : ℝ) - j₁ - m₂ + σ + 1)
+      (by ring) (by ring) (by ring) (by ring) (by ring) (by ring) rfl (by push_cast; ring) (by push_cast; ring) (by push_cast; ring) (by push_cast; ring) (by push_cast; ring), hU]
+    ac_rfl
   have t1 : term3 (j₁ - 1) j₂ j₃ m₁ m₂ σ ε = ε * (((σ + 1 : ℝ) * ((j₃ : ℝ) - j₂ + m₁ + σ + 1) *
       ((j₂ : ℝ) + m₂ - σ + 1)) * (((j₁ : ℝ) + j₂ - j₃ - σ) * ((j₁ : ℝ) + j₂ - j₃ - σ + 1) *
       ((j₁ : ℝ) - m₁ - σ) * ((j₁ : ℝ) - m₁ - σ + 1))) * U := by
     unfold term3
-    rw [hR ![σ, j₁ - 1 + j₂ - j₃ - σ, j₁ - 1 - m₁ - σ, j₂ + m₂ - σ, j₃ - j₂ + m₁ + σ,
-      j₃ - (j₁ - 1) - m₂ + σ] ![1, 2, 2, 1, 1, 0] (by intro i; fin_cases i <;> simp <;> ring)]
-    simp only [Fin.prod_univ_six]
-    try simp
-    try simp only [Finset.prod_range_succ, Finset.prod_range_zero]
-    push_cast
-    ring
+    rw [rec3_P6_t1 (σ) (j₁ - 1 + j₂ - j₃ - σ) (j₁ - 1 - m₁ - σ) (j₂ + m₂ - σ) (j₃ - j₂ + m₁ + σ) (j₃ - (j₁ - 1) - m₂ + σ) (σ + 1) (j₁ + j₂ - j₃ - σ + 1) (j₁ - m₁ - σ + 1) (j₂ + m₂ - σ + 1) (j₃ - j₂ + m₁ + σ + 1) (j₃ - j₁ - m₂ + σ + 1) (σ + 1 : ℝ) ((j₁ : ℝ) + j₂ - j₃ - σ) ((j₁ : ℝ) - m₁ - σ) ((j₂ : ℝ) + m₂ - σ + 1) ((j₃ : ℝ) - j₂ + m₁ + σ + 1)
+      (by ring) (by ring) (by ring) (by ring) (by ring) (by ring) rfl (by push_cast; ring) (by push_cast; ring) (by push_cast; ring) (by push_cast; ring), hU]
+    ac_rfl
   have t2 : term3 (j₁ + 1) j₂ j₃ m₁ m₂ σ ε = ε * (((σ + 1 : ℝ) * ((j₃ : ℝ) - j₂ + m₁ + σ + 1) *
       ((j₂ : ℝ) + m₂ - σ + 1)) * (((j₃ : ℝ) - j₁ - m₂ + σ) * ((j₃ : ℝ) - j₁ - m₂ + σ + 1))) * U := by
     unfold term3
-    rw [hR ![σ, j₁ + 1 + j₂ - j₃ - σ, j₁ + 1 - m₁ - σ, j₂ + m₂ - σ, j₃ - j₂ + m₁ + σ,
-      j₃ - (j₁ + 1) - m₂ + σ] ![1, 0, 0, 1, 1, 2] (by intro i; fin_cases i <;> simp <;> ring)]
-    simp only [Fin.prod_univ_six]
-    try simp
-    try simp only [Finset.prod_range_succ, Finset.prod_range_zero]
-    push_cast
-    ring
+    rw [rec3_P6_t2 (σ) (j₁ + 1 + j₂ - j₃ - σ) (j₁ + 1 - m₁ - σ) (j₂ + m₂ - σ) (j₃ - j₂ + m₁ + σ) (j₃ - (j₁ + 1) - m₂ + σ) (σ + 1) (j₁ + j₂ - j₃ - σ + 1) (j₁ - m₁ - σ + 1) (j₂ + m₂ - σ + 1) (j₃ - j₂ + m₁ + σ + 1) (j₃ - j₁ - m₂ + σ + 1) (σ + 1 : ℝ) ((j₂ : ℝ) + m₂ - σ + 1) ((j₃ : ℝ) - j₂ + m₁ + σ + 1) ((j₃ : ℝ) - j₁ - m₂ + σ)
+      (by ring) (by ring) (by ring) (by ring) (by ring) (by ring) rfl (by push_cast; ring) (by push_cast; ring) (by push_cast; ring), hU]
+    ac_rfl
   have tH0 : H3 j₁ j₂ j₃ m₁ m₂ σ ε = ε * (((σ + 1 : ℝ) * ((j₃ : ℝ) - j₂ + m₁ + σ + 1) *
       ((j₂ : ℝ) + m₂ - σ + 1)) * ((σ : ℝ) * ((j₃ : ℝ) - j₂ + m₁ + σ) *
       ((j₃ : ℝ) - j₁ - m₂ + σ + 1) * Q3 j₁ j₂ j₃ m₁ m₂ σ)) * U := by
     unfold H3
-    rw [hR ![σ, j₁ + j₂ - j₃ - σ + 1, j₁ - m₁ - σ + 1, j₂ + m₂ - σ, j₃ - j₂ + m₁ + σ,
-      j₃ - j₁ - m₂ + σ] ![1, 0, 0, 1, 1, 1] (by intro i; fin_cases i <;> simp)]
-    simp only [Fin.prod_univ_six]
-    try simp
-    try simp only [Finset.prod_range_succ, Finset.prod_range_zero]
-    push_cast
-    ring
+    rw [rec3_P6_tH0 (σ) (j₁ + j₂ - j₃ - σ + 1) (j₁ - m₁ - σ + 1) (j₂ + m₂ - σ) (j₃ - j₂ + m₁ + σ) (j₃ - j₁ - m₂ + σ) (σ + 1) (j₁ + j₂ - j₃ - σ + 1) (j₁ - m₁ - σ + 1) (j₂ + m₂ - σ + 1) (j₃ - j₂ + m₁ + σ + 1) (j₃ - j₁ - m₂ + σ + 1) (σ + 1 : ℝ) ((j₂ : ℝ) + m₂ - σ + 1) ((j₃ : ℝ) - j₂ + m₁ + σ + 1) ((j₃ : ℝ) - j₁ - m₂ + σ + 1)
+      (by ring) (by ring) (by ring) (by ring) (by ring) (by ring) rfl (by push_cast; ring) (by push_cast; ring) (by push_cast; ring), hU]
+    ac_rfl
   have tH1 : H3 j₁ j₂ j₃ m₁ m₂ (σ + 1) (-ε) = (-ε) * (((σ + 1 : ℝ) * ((j₃ : ℝ) - j₂ + m₁ + σ + 1) *
       ((j₂ : ℝ) + m₂ - σ + 1)) * (Q3 j₁ j₂ j₃ m₁ m₂ ((σ : ℝ) + 1) *
       (((j₁ : ℝ) + j₂ - j₃ - σ + 1) * ((j₁ : ℝ) - m₁ - σ + 1) * ((j₂ : ℝ) + m₂ - σ)))) * U := by
+    have e1 : (((j₃ : ℝ) - j₂ + m₁ + ((σ + 1 : ℚ) : ℝ))) = (j₃ : ℝ) - j₂ + m₁ + σ + 1 := by push_cast; ring
     unfold H3
-    rw [hR ![σ + 1, j₁ + j₂ - j₃ - (σ + 1) + 1, j₁ - m₁ - (σ + 1) + 1, j₂ + m₂ - (σ + 1),
-      j₃ - j₂ + m₁ + (σ + 1), j₃ - j₁ - m₂ + (σ + 1)] ![0, 1, 1, 2, 0, 0]
-      (by intro i; fin_cases i <;> simp <;> ring)]
-    simp only [Fin.prod_univ_six]
-    try simp
-    try simp only [Finset.prod_range_succ, Finset.prod_range_zero]
+    rw [e1]
+    rw [rec3_P6_tH1 (σ + 1) (j₁ + j₂ - j₃ - (σ + 1) + 1) (j₁ - m₁ - (σ + 1) + 1) (j₂ + m₂ - (σ + 1)) (j₃ - j₂ + m₁ + (σ + 1)) (j₃ - j₁ - m₂ + (σ + 1)) (σ + 1) (j₁ + j₂ - j₃ - σ + 1) (j₁ - m₁ - σ + 1) (j₂ + m₂ - σ + 1) (j₃ - j₂ + m₁ + σ + 1) (j₃ - j₁ - m₂ + σ + 1) ((j₁ : ℝ) + j₂ - j₃ - σ + 1) ((j₁ : ℝ) - m₁ - σ + 1) ((j₂ : ℝ) + m₂ - σ)
+      (by ring) (by ring) (by ring) (by ring) (by ring) (by ring) (by push_cast; ring) (by push_cast; ring) (by push_cast; ring), hU]
     push_cast
     ring
   rw [t0, t1, t2, tH1, tH0]
