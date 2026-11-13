@@ -231,6 +231,14 @@ public import FormalResearch.Racah.P2ThreeJSym
 public import FormalResearch.Racah.P2ThreeJRegge
 public import FormalResearch.Racah.P2ThreeJUnique
 public import FormalResearch.Racah.P2ThreeJHahn
+public import FormalResearch.Racah.P2ThreeJSystem
+public import FormalResearch.Racah.P2ThreeJSystemSpec
+public import FormalResearch.Racah.P2RacahSystemLattice
+public import FormalResearch.Racah.P2RacahSystemOp
+public import FormalResearch.Racah.P2RacahSystemOrth
+public import FormalResearch.Racah.P2RacahSystemSpec
+public import FormalResearch.Racah.P2RacahSystem
+public import FormalResearch.Racah.P2RacahSystemWigner
 public import FormalResearch.Wigner
 public import FormalResearch.Bridges.B2BlaschkeWalshGauge
 public import FormalResearch.Bridges.B2BlaschkeGatePhase

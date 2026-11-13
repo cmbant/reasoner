@@ -440,6 +440,8 @@ All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (
 | tetrahedral symmetries: column swaps `(12)`, `(23)`, upper/lower exchange in columns 1, 2 | `Symmetry.sixJ_swap12`, `sixJ_swap23`, `sixJ_exch12` | termwise permutation of the seven inverse factorials |
 | stretched `3j` (`j₃ = j₁+j₂`), DLMF 34.3.6 | `Stretched3j.threeJ_stretched` | one-term sum; the extremal seed of the minimal-rank `3j` recurrence |
 | Regge symmetries, DLMF 34.5.9 and 34.5.10 (all rational arguments, no admissibility hypothesis); the form used by Weyl/P2 `eq:6jRegge` | `Regge.sixJ_regge1`, `sixJ_regge2`, `sixJ_regge1_shifted` | the Racah sum depends only on the triad/quad sums, symmetrically; each Regge move permutes them, so it is a termwise permutation of the seven inverse factorials with the product of the four `Δ²` unchanged (no Whipple 4F3 needed) |
+| **DLMF 34.3.17** (3j orthogonality, off-diagonal and norm): for fixed `j₂ j₃ M`, `∑ₘ₂ (L j₂ j₃; M m₂ m₃)(L' j₂ j₃; M m₂ m₃) = δ_{LL'}/(2L+1)`, `m₂+m₃=-M` (finsum over the lattice `m₂ = j₂-k`) | `ThreeJOrth.threeJ_orthogonality` (`tt_norm`, `tt_orth_offdiag`, `tt_norm_ratio`) | same architecture as 34.5.14: Green identity for the `m`-recurrence, ratio chain in `L` from the stretched top rank `L=j₂+j₃` (Chu–Vandermonde, `threeJ_stretched`), `L=0` from `threeJ_zero_right` |
+| **DLMF 34.3.16** (3j completeness) on the explicit admissible lattices (`2j₂, 2j₃, j₂+j₃±M` natural) | `ThreeJOrthComplete.threeJ_completeness` | number of admissible ranks = number of admissible projections, so the matrix `√(2L+1)·3j` is square with orthonormal rows, hence columns |
 | **DLMF 34.5.14** (orthogonality, both off-diagonal and norm): `∑ (2j₃+1)(2l₃+1){j₁ j₂ j₃; l₁ l₂ l₃}{j₁ j₂ j₃; l₁ l₂ l₃'} = δ_{l₃ l₃'}`, sum over the lattice `j₃ = j₁+j₂-k` (finsum; the zero extension restricts it to the admissible range), hypotheses `IsTri j₁ l₂ l₃`, `IsTri l₁ j₂ l₃` and the same for `l₃'` | `Orthog.OrthogMain.sixJ_orthogonality` (`orth_norm`; off-diagonal `OrthogOff.sixJ_orth_offdiag`; `OrthogRec.sixJ_recurrence_ext`) | Off-diagonal: discrete Green identity for the three-term recurrence in the weight `2j₃+1` (`OrthogAbs.green_lsum`). Norm: ratio chain along the `μ` lattice (`OrthogRatio`) from the minimal case, where the sum is a Dougall terminating very-well-poised `₅F₄` sum (`OrthogDougall.dougall_sum`, creative-telescoping certificate) via `OrthogBase`; the `μ=0→1` step is separate (`orth_norm_step_zero`). New symmetries `sixJ_exch23`, `sixJ_swap13` |
 | `3j` symmetries, DLMF 34.3.8–10 (all rational arguments; `sgn J` = `(-1)^J` for integer `J`, `0` otherwise): column swaps (even permutations invariant, odd ones give `(-1)^J`), `m ↦ -m` | `ThreeJSym.threeJ_swap12`, `threeJ_swap23`, `threeJ_swap13`, `threeJ_cyc`, `threeJ_cyc'`, `threeJ_neg`, `threeJ_eq_zero_of_not_int` | termwise: reflect the Racah index (`s ↦ j₁+j₂-j₃-s`, or `s ↦ j₁-m₁-s`) and track the sign with `sgn` |
 | DLMF 34.3.1 (`(j₁ j₂ 0; m₁ m₂ 0)`) | `Special3j.threeJ_zero_right` (and `threeJ_zero_right_of_ne`, a triangle-condition consequence) | one-term sum |
@@ -468,12 +470,18 @@ holomorphy, centered Racah–Edmonds theorem, hard edges, the expansion half of 
 | `eq:Racahdiagzero` (the `c=0` row), `Φ_f(0)`, `Φ_f(1)` | `Phi6_lattice_row_zero`, `Phi6_zero_value`, `Phi6_one_value` | `P2RacahLatticeEnd` | via 34.5.1, 34.5.7 |
 | **`lem:6jseed`** (positive stretched seed, integer and half-integer `m`), `eq:6jseed`, `eq:6jexceptionalseed` | `Phi6_seed`, `Phi6_seed_sq`, `Phi6_exceptional_zero`, `Phi6_exceptional_one` | `P2RacahSeed` | holomorphy in `Λ⁻²` not formalised |
 | `prop:unique` (exact algebraic core) | `unique_affine_core`, `driftX1_eq_zero_iff`, `prop_unique_algebra` | `P2RacahUnique` | asymptotic claims of the proposition not formalised |
+| physical `c`- and `f`-lattices are `{c_min..c_max}`, `{f_min..f_max}` (iff statements under `RacahLabels`: `2a, 2b, 2m, m-n ∈ ℤ`), equal cardinality `eq:Racahdimension` | `physC`, `physF`, `mem_physC_iff`, `mem_physF_iff`, `ncard_physC_eq_ncard_physF` | `P2RacahSystemLattice` | |
+| `eq:RacahHamiltonian` as a concrete matrix; self-adjointness in the weight `ω_c` | `HR`, `wgtR`, `HR_selfadjoint_entries`, `HR_selfadjoint`, `HRsym_isHermitian` | `P2RacahSystemOp` | |
+| `eq:RacahPhiOrthogonality` (from 34.5.14) | `sixJ_orth_physical`, `weight_Phi_mul`, `Phi6_orthogonality` | `P2RacahSystemOrth` | |
+| orthonormal eigenbasis `v_f`, `eq:RacahPhiCompleteness`, spectrum `{f(f+1)}`, simplicity, characteristic polynomial | `vR_eigen`, `vR_orthonormal`, `Phi6_completeness`, `vR_expansion`, `HR_spectrum`, `HR_eigenspace`, `HR_charpoly` | `P2RacahSystemSpec` | completeness by the dimension identity (square matrix with orthonormal rows) |
+| **`thm:6jfiniteRacah`** (exact finite self-adjoint Racah–Wigner system) | `thm_6jfiniteRacah` (hypothesis `RacahSystem a b m n D`, satisfiable iff the lattice is non-empty) | `P2RacahSystem` | conjunction of the lattice, detailed-balance, eigen, orthonormality, completeness, spectrum, simplicity and charpoly statements |
+| Racah-to-Wigner spectral map (`prop:6jRacahTransmutation`) | `SRmap`, `SRmap_u`, `SRmap_isometry`, `SRmap_SRinv`, `SRinv_SRmap`, `SRmap_intertwine` | `P2RacahSystemWigner` | **reformulation**: abstract orthonormal family in a real inner-product space; the identification with `L²(-1,1)` and Wigner `d`-functions and the integral kernel form are not formalised |
 
 ### Weyl P2: exact finite 3j statements (`FormalResearch/Racah/P2ThreeJ*.lean`)
 
 Notation as in the paper's `eq:3jPhi`: `Phi3j L M σ N μ = sgn(2L+j₊+m₊)·√N·threeJ L j₋ j₊ M m₋ m₊` with `j∓ = (N-1∓σ)/2`, `m₋ = μ-M/2`,
 `m₊ = -μ-M/2`; zero off the integer domain. Only the exact finite algebra is formalised (not the Λ-expansions, holomorphy, `thm:3jeven`, or the
-orthogonality/completeness of `thm:3jspectral`, which needs 3j orthogonality).
+orthogonality/completeness of `thm:3jspectral` are in the last rows).
 
 | paper statement | Lean | file | note |
 |---|---|---|---|
@@ -486,6 +494,8 @@ orthogonality/completeness of `thm:3jspectral`, which needs 3j orthogonality).
 | **`eq:3jRegge`** (Regge symmetry of the 3j kernel, finite `N`), `eq:coeffRegge`; edge-chamber seeds | `threeJ_regge_mid`, `Phi3j_regge`, `Phi3j_edge_sigma_neg`, `Phi3j_edge_M_neg`, `Phi3j_edge_sigma_pos` | `P2ThreeJRegge` | by descent in `L` from the stretched seed using the rank recurrence (no Racah-sum transformation) |
 | `prop:3junique` (exact algebraic core) | `affine_center_eq`, `wigner_principal_affine`, `principal_coeffs`, `affine_midpoint_unique` | `P2ThreeJUnique` | the continuum-expansion step is a hypothesis |
 | Hahn dictionary, `eq:ExactHahnKernel` for `n = 0` | `hahnW_sum`, `hahn_x_of_u`, `Phi3j_hahn_zero` | `P2ThreeJHahn` | `n ≥ 1` needs a terminating `₃F₂` transformation and the Hahn norm |
+| `eq:3jdiscorth`, `eq:3jdisccomplete` (hypothesis `SpecAdm M σ N` encodes the paper's integrality assumptions) | `Phi_discorth`, `Phi_disccomplete` | `P2ThreeJSystem` | from 34.3.17 / 34.3.16 |
+| spectrum of `𝖧_h` is `{L(L+1)}`, simple; eigenvectors multiples of `Φ_L` (`thm:3jspectral`, the finite part) | `Hh_spectrum_iff`, `Phi_latEigen`, `rankEig_strictMono`, `Hh_eigen_simple` | `P2ThreeJSystemSpec` | symmetry from `Hh_lattice_symmetric` |
 
 
 

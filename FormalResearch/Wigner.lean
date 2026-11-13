@@ -18,3 +18,5 @@ public import FormalResearch.Wigner.Special3j
 public import FormalResearch.Wigner.Special3jEven
 public import FormalResearch.Wigner.Special6j
 public import FormalResearch.Wigner.Orthog
+public import FormalResearch.Wigner.ThreeJOrth
+public import FormalResearch.Wigner.ThreeJOrthComplete
