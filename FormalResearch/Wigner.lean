@@ -20,3 +20,8 @@ public import FormalResearch.Wigner.Special6j
 public import FormalResearch.Wigner.Orthog
 public import FormalResearch.Wigner.ThreeJOrth
 public import FormalResearch.Wigner.ThreeJOrthComplete
+public import FormalResearch.Wigner.WignerD
+public import FormalResearch.Wigner.WignerDJacobi
+public import FormalResearch.Wigner.WignerDOrth
+public import FormalResearch.Wigner.WignerDODE
+public import FormalResearch.Wigner.WignerDLadder

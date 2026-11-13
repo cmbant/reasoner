@@ -254,6 +254,15 @@ public import FormalResearch.Racah.P2HahnChambers
 public import FormalResearch.Racah.P2HahnAlgebra
 public import FormalResearch.Racah.P2HahnPolar
 public import FormalResearch.Racah.P2HahnBeta
+public import FormalResearch.Racah.P2AnalyticCt
+public import FormalResearch.Racah.P2AnalyticCore
+public import FormalResearch.Racah.P2AnalyticTaylor
+public import FormalResearch.Racah.P2AnalyticCarrier3j
+public import FormalResearch.Racah.P2AnalyticCarrier6jPoly
+public import FormalResearch.Racah.P2AnalyticCarrier6jShape
+public import FormalResearch.Racah.P2AnalyticBulk3j
+public import FormalResearch.Racah.P2AnalyticUniform3j
+public import FormalResearch.Special
 public import FormalResearch.Wigner
 public import FormalResearch.Bridges.B2BlaschkeWalshGauge
 public import FormalResearch.Bridges.B2BlaschkeGatePhase
