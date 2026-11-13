@@ -246,6 +246,14 @@ public import FormalResearch.Racah.P2RacahPolyMain
 public import FormalResearch.Racah.P2RacahPolyIdent
 public import FormalResearch.Racah.P2RacahPolyOrth
 public import FormalResearch.Racah.P2RacahPolyGround
+public import FormalResearch.Racah.P2HahnRec
+public import FormalResearch.Racah.P2HahnL1
+public import FormalResearch.Racah.P2HahnKernel
+public import FormalResearch.Racah.P2HahnReflect
+public import FormalResearch.Racah.P2HahnChambers
+public import FormalResearch.Racah.P2HahnAlgebra
+public import FormalResearch.Racah.P2HahnPolar
+public import FormalResearch.Racah.P2HahnBeta
 public import FormalResearch.Wigner
 public import FormalResearch.Bridges.B2BlaschkeWalshGauge
 public import FormalResearch.Bridges.B2BlaschkeGatePhase
