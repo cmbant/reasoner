@@ -449,7 +449,7 @@ All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (
 | DLMF 34.5.2 (`{j₁ j₂ j₃; ½ j₃-½ j₂+½}`) | `Special6j.sixJ_half_a` | one-term sum |
 | **DLMF 34.5.11–13** (6j recurrence with √ prefactors) | `SixJRecurrence.sixJ_recurrence` | `IsTri` hypotheses; vanishes when fixed triads fail |
 
-Not formalised: DLMF 34.5.3, and the relation to Physlib's abstract `sixJ` (Racah's formula for the operator-defined `sixJ`; partial work, `sixJ = Cconst · Xs` with `Xs` a balanced terminating `₄F₃`, is on a local fork branch `bridge-sixj` of Physlib, compiled under Lean 4.34 only). Certificate search scripts: `scripts/wigner_certificates/` (provenance only).
+Not formalised: DLMF 34.5.3, and the bridge theorem is proved on the Physlib fork branch `cmbant/physlib` `bridge-sixj` (not upstream): `sixJ_eq_racah6j`, Racah's closed formula for Physlib's operator-defined `sixJ` for `0 < a`, `0 < c` and `ValidA`/`ValidB` (via `sixJ = Cconst · Xs`, a balanced terminating `₄F₃`, and one Sears transformation), axioms `[propext, Classical.choice, Quot.sound]`, compiled on Lean 4.35 / Mathlib `56a0058`. Not covered there: `a = 0` or `c = 0`, vanishing for inadmissible labels, and the operator-side three-term recurrence (`casMat_eq` is `sorry`). Certificate search scripts: `scripts/wigner_certificates/` (provenance only).
 
 ### Jacobi polynomials (`FormalResearch/Special/Jacobi*.lean`, namespace `FormalResearch.Special`)
 
