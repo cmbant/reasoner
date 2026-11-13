@@ -452,10 +452,45 @@ All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (
 Not formalised: DLMF 34.5.3,
 relation to Physlib's abstract `sixJ`. Certificate search scripts: `scripts/wigner_certificates/` (provenance only).
 
+### Jacobi polynomials (`FormalResearch/Special/Jacobi*.lean`, namespace `FormalResearch.Special`)
+
+DLMF chapter 18, for the real polynomial `jacobi α β n` (`P_n^{(α,β)}`, arbitrary real `α β` unless stated). All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (pinned by `#print axioms`).
+
+| statement | Lean | file | note |
+|---|---|---|---|
+| definition, DLMF 18.5.7 (explicit sum in `((x-1)/2)^ℓ`, valid at the exceptional parameters) | `jacobi` | `JacobiDef` | |
+| values at `±1` and reflection, DLMF 18.6.1; derivative 18.9.15; ODE 18.8.1 (and its self-adjoint form) | `jacobi_eval_one`, `jacobi_eval_neg_one`, `jacobi_comp_neg`, `derivative_jacobi`, `jacobi_ode`, `jacobi_sturmLiouville`, `jacobiSL_all` | `JacobiBasic` | all real `α β` (the Sturm–Liouville form for natural `α β`); proved in the basis `(X-1)^ℓ` by the coefficient ratio recurrence |
+| three-term recurrence DLMF 18.9.1 (denominator-free, and normalised for `α+β+2 > 0`) | `jacobi_three_term`, `jacobi_one`, `jacobi_X_mul_succ`, `jacobi_X_mul_zero` | `JacobiRec` | all real `α β`, including `α+β+n ∈ ℤ_{≤0}` |
+| degree and leading coefficient (DLMF 18.3); abstract Sturm–Liouville orthogonality; orthogonality to lower degrees; `∫_0^π f(cos θ) sin θ dθ = ∫_{-1}^1 f` | `natDegree_jacobi_le`, `jacobi_coeff_self`, `sturm_liouville_orth`, `jacobi_orth_lowerDegree`, `beta_nat`, `integral_cos_substitution` | `JacobiInt` | natural parameters (polynomial weight) |
+| orthogonality and norm for natural `α=a`, `β=b` (DLMF 18.3, table 18.3.1); the `cos θ` form used for Wigner `d` | `jacobi_orthogonal`, `jacobi_orthogonal_lowerDegree`, `jacobi_norm`, `jacobi_norm_cos` | `JacobiOrth` | norm from `⟨x P_n, P_{n+1}⟩` computed twice, base case the Beta integral |
+| the Jacobi weight and Beta integral for real `α, β > -1` (via `Γ`) | `jacobiW_intervalIntegrable`, `real_betaIntegral`, `jacobi_beta_integral` | `JacobiBeta` | |
+| orthogonality and norm for real `α, β > -1` (`2^{α+β+1}/(2n+α+β+1) · Γ(n+α+1)Γ(n+β+1)/(Γ(n+α+β+1) n!)`) | `jacobi_orthogonal_real`, `jacobi_orthogonal_lowerDegree_real`, `jacobi_norm_real_zero`, `jacobi_norm_real` | `JacobiOrthReal` | `jacobi_norm_real` excludes `n = 0`, `α+β+1 = 0` (closed form `0/0`); that case is `jacobi_norm_real_zero` |
+| zeros: `n` simple real zeros, all in `(-1,1)`, `P_n` splits and is separable | `roots_of_orth`, `jacobi_roots_nodup`, `jacobi_roots_card`, `jacobi_roots_mem`, `jacobi_splits`, `jacobi_separable`, `jacobi_natDegree` | `JacobiZeros` | natural `a b` only (sign-change argument through the factorisation of `P`); real `α, β` not formalised |
+| Christoffel–Darboux DLMF 18.2.12, confluent form 18.2.13 | `jacobi_christoffel_darboux`, `jacobi_christoffel_darboux_coeff`, `jacobi_christoffel_darboux_confluent`, `jacAlpha_mul_jacNorm`, `jacAlpha_eq_coeff_div` | `JacobiCD` | natural `a b` |
+| link to the `₂F₁` of `bernstein_hahn_jacobi`: `∑_k (-n)_k (n+α+β+1)_k/((α+1)_k k!) t^k = n!/(α+1)_n · P_n^{(α,β)}(1-2t)` | `hypergeometric_eq_jacobi` | `JacobiCD` | identifies the Jacobi side of `P2HahnBeta` with `jacobi` |
+| Rodrigues' formula DLMF 18.5.5; two-sided sum 18.5.8 (as a polynomial identity) | `jacobi_rodrigues`, `jacobi_twoSided_poly` | `JacobiSpecial` | natural `a b` |
+| Mathlib links: Legendre (`shiftedLegendre`, DLMF 18.7.9, with Mathlib's `P̃_n(x) = P_n(1-2x)` convention), Chebyshev `T` (18.7.3) and `U` (18.7.4), Gegenbauer (18.7.1) | `jacobi_zero_zero_eq_shiftedLegendre`, `jacobi_chebyshevT`, `chebyshevT_eq_jacobi`, `jacobi_chebyshevU`, `chebyshevU_eq_jacobi`, `gegenbauer`, `gegenbauer_comp_neg`, `gegenbauer_three_term` | `JacobiSpecial` | |
+
+### Wigner small `d`-function (`FormalResearch/Wigner/WignerD*.lean`)
+
+`wignerSmallD j m' m θ = d^j_{m'm}(θ) = ⟨j m'| exp(-iθJ_y) |j m⟩` (Condon–Shortley; checked against `sympy.physics.quantum.spin.Rotation.d` for `j ≤ 3`), spins rational,
+zero-extended factorials as in `threeJ`. All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (pinned by `#print axioms`).
+Real-variable form `wignerSmallDx j m' m x = d(arccos x)`.
+
+| statement | Lean | file | note |
+|---|---|---|---|
+| definition (Edmonds 4.1.15), textbook-exponent form, vanishing unless `m'-m ∈ ℤ`; sanity values (`j = 1/2` table, `d^1_{00}`, `d^1_{10}`, `d^1_{11}`, `θ = 0`) | `wignerSmallD`, `wignerSmallD_eq_textbook`, `wignerSmallD_eq_zero_of_not_int`, `wignerSmallD_zero`, `wignerSmallD_half_pp/pm/mp/mm`, `wignerSmallD_one_zero_zero`, `wignerSmallD_one_one_zero`, `wignerSmallD_one_one_one` | `WignerD` | |
+| symmetries (Varshalovich 4.4.1): `d^j_{m'm} = (-1)^{m'-m} d^j_{mm'} = d^j_{-m,-m'}`, `d(-θ) = d^T` | `wignerSmallD_swap`, `wignerSmallD_neg`, `wignerSmallD_neg_theta` | `WignerD` | termwise reindexing |
+| Jacobi form in all four chambers: `d^j_{m'm} = (-1)^μ √(k!(k+μ+ν)!/((k+μ)!(k+ν)!)) sin(θ/2)^μ cos(θ/2)^ν P_k^{(μ,ν)}(cos θ)` (`μ = m'-m`, `ν = m'+m`, `k = j-m'` in chamber A; the other three by the symmetries) | `wignerSmallD_eq_jacobi`, `wignerSmallD_chamber_A`, `_B`, `_C`, `_D`, `jacobi_eval_nat_twoSided` | `WignerDJacobi` | uses the two-sided sum 18.5.8 for natural `μ, ν` (Vandermonde) |
+| orthogonality and norm in the rank: `∫_0^π d^j_{m'm} d^{j'}_{m'm} sin θ dθ = 2/(2j+1) δ_{jj'}` (Varshalovich 4.10.1(1)) | `wignerSmallD_orthogonal`, `wignerSmallD_norm`, `wignerJacobiForm_orth` | `WignerDOrth` | from `jacobi_orthogonal`, `jacobi_norm_cos`; hypotheses `j ± m`, `j ± m'` natural |
+| Wigner differential equation, `eq:dODE`: `D² d + (j(j+1) sin²θ - (m²+m'²-2mm' cos θ)) d = 0`, `D = sin θ ∂_θ` (all rational `j m' m`, all `θ`); `cot` form on `(0,π)`; `x`-form on `(-1,1)` | `wignerSmallD_ode`, `wignerSmallD_ode_cot`, `wignerSmallDx_ode` | `WignerDODE` | via `jacobi_ode` and `wigG_deriv` |
+| rank ladders `eq:dranklower`, `eq:drankupper` and the rank recurrence (`eq:3jrank` at `t = 0`, Varshalovich 4.8.1) | `wignerSmallD_rank_lower`, `wignerSmallD_rank_upper`, `wignerSmallD_rank_rec`, `wignerSmallDx_rank_lower`, `wignerSmallDx_rank_upper` | `WignerDLadder` | all rational `f m' m`, no admissibility hypothesis (`R_f = 0` exactly where the neighbouring rank is undefined) |
+| Jacobi contiguous relations (Szegő §4.5, DLMF §18.9(iii)) | `jacobi_ladder_lower`, `jacobi_ladder_upper` | `WignerDLadder` | `α+β+1 > 0`; from the coefficient recurrence and `jacobi_three_term` |
+
 ### Weyl P2: exact finite 6j/Racah statements (`FormalResearch/Racah/P2Racah*.lean`, namespace `Racah.SixJ`)
 
-Paper: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`. Only the exact finite algebraic statements are formalised; the analytic/asymptotic ones (Λ-expansions,
-holomorphy, centered Racah–Edmonds theorem, hard edges, the expansion half of `prop:unique`) are not.
+Paper: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`. This section is the exact finite algebraic part; the analytic half (Λ-expansions, `thm:6jeven`, Wigner `d`,
+the `L²(-1,1)` realisations) is in *Weyl P2: analytic half* below.
 
 | paper statement | Lean | file | note |
 |---|---|---|---|
@@ -468,14 +503,14 @@ holomorphy, centered Racah–Edmonds theorem, hard edges, the expansion half of 
 | `eq:RacahDetailedBalance`, `eq:Racahcellwidth`, `eq:RacahD0factor` | `omegaW_aPlus`, `omegaW_succ_aMinus`, `omegaW_eq_cell_width`, `cosA_eq_lawCosinesX`, `D0_factor` | `P2RacahLattice` | |
 | `H_R Φ_f = f(f+1)Φ_f` on every row (without orthogonality) | `Phi6_lattice_eigen` | `P2RacahLattice` | |
 | `eq:Racahdiagzero` (the `c=0` row), `Φ_f(0)`, `Φ_f(1)` | `Phi6_lattice_row_zero`, `Phi6_zero_value`, `Phi6_one_value` | `P2RacahLatticeEnd` | via 34.5.1, 34.5.7 |
-| **`lem:6jseed`** (positive stretched seed, integer and half-integer `m`), `eq:6jseed`, `eq:6jexceptionalseed` | `Phi6_seed`, `Phi6_seed_sq`, `Phi6_exceptional_zero`, `Phi6_exceptional_one` | `P2RacahSeed` | holomorphy in `Λ⁻²` not formalised |
-| `prop:unique` (exact algebraic core) | `unique_affine_core`, `driftX1_eq_zero_iff`, `prop_unique_algebra` | `P2RacahUnique` | asymptotic claims of the proposition not formalised |
+| **`lem:6jseed`** (positive stretched seed, integer and half-integer `m`), `eq:6jseed`, `eq:6jexceptionalseed` | `Phi6_seed`, `Phi6_seed_sq`, `Phi6_exceptional_zero`, `Phi6_exceptional_one` | `P2RacahSeed` | real analyticity of the carrier in `Λ⁻²`: `analyticAt_ptilde6` (`P2AnalyticBulk6j`); rationality in `δ` of the coefficients not formalised |
+| `prop:unique` (exact algebraic core) | `unique_affine_core`, `driftX1_eq_zero_iff`, `prop_unique_algebra` | `P2RacahUnique` | expansion half of the proposition not formalised (the expansion theorem it would use is `thm_6jeven`, below) |
 | physical `c`- and `f`-lattices are `{c_min..c_max}`, `{f_min..f_max}` (iff statements under `RacahLabels`: `2a, 2b, 2m, m-n ∈ ℤ`), equal cardinality `eq:Racahdimension` | `physC`, `physF`, `mem_physC_iff`, `mem_physF_iff`, `ncard_physC_eq_ncard_physF` | `P2RacahSystemLattice` | |
 | `eq:RacahHamiltonian` as a concrete matrix; self-adjointness in the weight `ω_c` | `HR`, `wgtR`, `HR_selfadjoint_entries`, `HR_selfadjoint`, `HRsym_isHermitian` | `P2RacahSystemOp` | |
 | `eq:RacahPhiOrthogonality` (from 34.5.14) | `sixJ_orth_physical`, `weight_Phi_mul`, `Phi6_orthogonality` | `P2RacahSystemOrth` | |
 | orthonormal eigenbasis `v_f`, `eq:RacahPhiCompleteness`, spectrum `{f(f+1)}`, simplicity, characteristic polynomial | `vR_eigen`, `vR_orthonormal`, `Phi6_completeness`, `vR_expansion`, `HR_spectrum`, `HR_eigenspace`, `HR_charpoly` | `P2RacahSystemSpec` | completeness by the dimension identity (square matrix with orthonormal rows) |
 | **`thm:6jfiniteRacah`** (exact finite self-adjoint Racah–Wigner system) | `thm_6jfiniteRacah` (hypothesis `RacahSystem a b m n D`, satisfiable iff the lattice is non-empty) | `P2RacahSystem` | conjunction of the lattice, detailed-balance, eigen, orthonormality, completeness, spectrum, simplicity and charpoly statements |
-| Racah-to-Wigner spectral map (`prop:6jRacahTransmutation`) | `SRmap`, `SRmap_u`, `SRmap_isometry`, `SRmap_SRinv`, `SRinv_SRmap`, `SRmap_intertwine` | `P2RacahSystemWigner` | **reformulation**: abstract orthonormal family in a real inner-product space; the identification with `L²(-1,1)` and Wigner `d`-functions and the integral kernel form are not formalised |
+| Racah-to-Wigner spectral map (`prop:6jRacahTransmutation`) | `SRmap`, `SRmap_u`, `SRmap_isometry`, `SRmap_SRinv`, `SRinv_SRmap`, `SRmap_intertwine` | `P2RacahSystemWigner` | **abstract form**: orthonormal family in a real inner-product space. The realisation in `L²(-1,1)` with Wigner `d`-functions and the kernel `eq:6jRacahKernel` is `prop_6jRacahTransmutation`, `SR_kernel`, `SR_intertwine_diff` (`P2AnalyticL2Transmutation`) |
 | **Racah-polynomial realization** (`eq:physicalRacah4F3`, `eq:physicalRacahParameters`): `Φ_{m+r}(c_min+y)/Φ_m(c_min+y)` is the terminating `₄F₃(-r, r+2m+1, -y, y+2c_min+1; m-n+1, m+n+c_min+c_max+2, -D; 1)` | `ppR_eq_racahPoly`, `physQ`, `racahPoly`, `racahPoly_diff` | `P2RacahPolyIdent`, `P2RacahPolyDiff` | proved by uniqueness of the solution of the three-term difference equation (6j side: `ppR_row`; polynomial side: `racahPoly_diff`), not by a rearrangement of sums |
 | `eq:physicalRacahExplicit`, `eq:physicalRacahweight`, **`eq:physicalRacahPolyOrth`** (Racah weight `π_c = ω_c(2m+1)Φ_m²/2` positive; orthonormality; `∑π_c = 1`) | `physR_eq`, `physPi_eq`, `physPi_pos`, `physR_orthonormal`, `physPi_sum` | `P2RacahPolyOrth` | orthonormality from `Phi6_orthogonality_fin` (34.5.14) |
 | `eq:RacahGroundTransform`, `eq:RacahPolyEigenvalue` (ground-state transform is the standard Racah difference operator, eigenvalue `r(r+2m+1)`) | `groundTransform_eq`, `groundTransform_physR` | `P2RacahPolyGround` | |
@@ -483,8 +518,8 @@ holomorphy, centered Racah–Edmonds theorem, hard edges, the expansion half of 
 ### Weyl P2: exact finite 3j statements (`FormalResearch/Racah/P2ThreeJ*.lean`)
 
 Notation as in the paper's `eq:3jPhi`: `Phi3j L M σ N μ = sgn(2L+j₊+m₊)·√N·threeJ L j₋ j₊ M m₋ m₊` with `j∓ = (N-1∓σ)/2`, `m₋ = μ-M/2`,
-`m₊ = -μ-M/2`; zero off the integer domain. Only the exact finite algebra is formalised (not the Λ-expansions, holomorphy, `thm:3jeven`, or the
-orthogonality/completeness of `thm:3jspectral` are in the last rows).
+`m₊ = -μ-M/2`; zero off the integer domain. This section is the exact finite algebra, including the finite spectral statements of `thm:3jspectral`
+(orthogonality and completeness in the last rows); the analytic half (`thm:3jeven`, Wigner `d`, `L²(-1,1)`) is in *Weyl P2: analytic half* below.
 
 | paper statement | Lean | file | note |
 |---|---|---|---|
@@ -495,17 +530,46 @@ orthogonality/completeness of `thm:3jspectral` are in the last rows).
 | `eq:3jseed`, `eq:3jPiL`, evenness of `𝔠_r` | `Phi3j_seed`, `Cprod_neg`, `Cprod_one_odd`, `Cprod_one_even` | `P2ThreeJSeed` | from Racah's one-term sum |
 | `rem:spinhalf` (all four chambers), `M ↦ -M` | `Phi3j_half_pp/pm/mp/mm`, `Phi3j_neg_M` | `P2ThreeJSym` | `d^{1/2}` written as `√((1±x)/2)` |
 | **`eq:3jRegge`** (Regge symmetry of the 3j kernel, finite `N`), `eq:coeffRegge`; edge-chamber seeds | `threeJ_regge_mid`, `Phi3j_regge`, `Phi3j_edge_sigma_neg`, `Phi3j_edge_M_neg`, `Phi3j_edge_sigma_pos` | `P2ThreeJRegge` | by descent in `L` from the stretched seed using the rank recurrence (no Racah-sum transformation) |
-| `prop:3junique` (exact algebraic core) | `affine_center_eq`, `wigner_principal_affine`, `principal_coeffs`, `affine_midpoint_unique` | `P2ThreeJUnique` | the continuum-expansion step is a hypothesis |
+| `prop:3junique` (exact algebraic core) | `affine_center_eq`, `wigner_principal_affine`, `principal_coeffs`, `affine_midpoint_unique` | `P2ThreeJUnique` | the continuum-expansion step is a hypothesis; the expansion half is not formalised |
 | Hahn dictionary, `eq:ExactHahnKernel` for `n = 0` | `hahnW_sum`, `hahn_x_of_u`, `Phi3j_hahn_zero` | `P2ThreeJHahn` | the general `n` is in the next rows |
 | **`eq:ExactHahnKernel`, all `0 ≤ n ≤ D`**: `Φ_{M+n}` is `(-1)^α √(N/(2L+1)) √(w_H/h_n) Q_n(u)` | `Phi3j_hahn`, `hahnQ_rec` (Hahn three-term recurrence as a finite identity), `kernel_ind`, `kernel_norm`, `Phi3j_L1_M0` | `P2HahnKernel`, `P2HahnRec`, `P2HahnL1` | by induction in `n` from `Phi3j_hahn_zero` using the rank recurrence (no `₃F₂` transformation); the Hahn norm is identified from `Phi_discorth` |
 | **`eq:HahnAllChamberPhase`** (all four chambers, phase `ε`), `eq:HahnInvariantParameters`, `eq:DualHahnSpectralCoordinate` | `Phi3j_hahn_all_chambers`, `hahnQ_reflect`, `hahnNorm_reflect`, `hahn_normalized_reflect`, `hahn_alpha_add_beta`, `dualHahn_spectral` | `P2HahnChambers`, `P2HahnReflect` | chambers via `Phi3j_regge`, `Phi3j_neg_M` and the finite Hahn reflection `Q_n(D-u; β, α, D) = (-1)^n ((α+1)_n/(β+1)_n) Q_n(u; α, β, D)` |
 | `prop:HahnJacobi` (exact finite Hahn algebra: `[C,X] = 2(X²-1)+4h²(H-(Σ-1)/2)`, `[H,C] = 2{H,X}-4Mσ`) | `Cop`, `finiteHahn1`, `finiteHahn2`, `finiteHahn2_lattice` | `P2HahnAlgebra` | the second relation needs the edge conditions on `x` (or the four `IsNat` conditions) |
 | `lem:polarintertwiner` (polar unitary of a finite intertwiner, finite-dimensional complex Hilbert spaces) | `gram_commute`, `polarU_unitary`, `polarU_intertwines` | `P2HahnPolar` | over `ℂ` (Mathlib functional calculus); the real case follows by complexification |
-| beta–binomial realization, finite part: Bernstein–Hahn–Jacobi identity `eq:BernsteinHahnJacobi` (Jacobi side as the terminating `₂F₁`), singular values `eq:singularvaluesgeneral`, `eq:physicalsingularvalues` | `bernstein_moment`, `bernstein_hahn_jacobi`, `singularSq`, `singularSq_pos`, `singularSq_physical` | `P2HahnBeta` | the unitary `S_N` from `V_N` to `ℓ²(X_N)` (`prop:SN`) and the singular-pair relation need `L²(-1,1)`, Wigner `d`-functions and Jacobi norms; not formalised |
+| beta–binomial realization, finite part: Bernstein–Hahn–Jacobi identity `eq:BernsteinHahnJacobi` (Jacobi side as the terminating `₂F₁`), singular values `eq:singularvaluesgeneral`, `eq:physicalsingularvalues` | `bernstein_moment`, `bernstein_hahn_jacobi`, `singularSq`, `singularSq_pos`, `singularSq_physical` | `P2HahnBeta` | `prop:SN` is `prop_SN` (`P2AnalyticL2Transmutation`) and the singular-pair relation is `singular_pair` (`P2AnalyticL2Singular`); the Jacobi side is identified with `jacobi` by `hypergeometric_eq_jacobi` |
 | `eq:3jdiscorth`, `eq:3jdisccomplete` (hypothesis `SpecAdm M σ N` encodes the paper's integrality assumptions) | `Phi_discorth`, `Phi_disccomplete` | `P2ThreeJSystem` | from 34.3.17 / 34.3.16 |
 | spectrum of `𝖧_h` is `{L(L+1)}`, simple; eigenvectors multiples of `Φ_L` (`thm:3jspectral`, the finite part) | `Hh_spectrum_iff`, `Phi_latEigen`, `rankEig_strictMono`, `Hh_eigen_simple` | `P2ThreeJSystemSpec` | symmetry from `Hh_lattice_symmetric` |
 
 
+
+### Weyl P2: analytic half (`FormalResearch/Racah/P2Analytic*.lean`)
+
+Paper: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`. Reasoner branch `wigner-3j6j` (not yet on `master`). All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (pinned by `#print axioms`).
+Conventions: `Phi3j L M σ N μ` at `x = 2μ/N`, `t = h² = N⁻²`; `Phi6 … f m n` at `A = wA a n`, `B = wB b m`, `C = wC c`, `S = A+B+C`; the paper's `d^L_{Mσ}(arccos x)` is
+`wignerSmallDx L M σ x`; `Lat4`/`SpecAdm` (3j) and the four integrality facts `f ± m`, `f ± n ∈ ℕ` (6j) encode the physical lattice.
+
+| paper statement | Lean | file | note |
+|---|---|---|---|
+| `lem:centeredshift` (central products `𝔠_r(u,h)` as `Ct r u t`, `t = h²`; analyticity, positivity, log estimate, `Γ`-ratio form); uniform Taylor remainder of a jointly smooth `G(z,t)` in `t` | `Ct`, `Cprod_eq_Ct`, `Ct_zero_t`, `analyticAt_Ct`, `Ct_pos`, `abs_log_Ct_sub_le`, `Ct_Gamma`; `taylor_mean_remainder_bound`, `taylorCoeff` | `P2AnalyticCt`, `P2AnalyticCore`, `P2AnalyticTaylor` | generic analytic input of every expansion below; scalar analytic propagation `analyticAt_recurrence_two`, central-binomial convolution `sum_centralBinom_mul` |
+| **`lem:sqrtfreecarrier`**, 3j (`eq:sqrtfreecarrier`, `eq:3jrankpoly`; all four chambers, all ranks `L ≤ N-1`) | `ptilde3`, `ptilde3Poly`, `Phi3j_carrier`, `Phi3j_eq_Gc3`, `ptilde3_rank_poly`, `natDegree_ptilde3Poly_le`, `dZero3_rank_rec` | `P2AnalyticCarrier3j{,Def,Seed,Rec}` | closed-form germ `Gc3 M σ k x t`; polynomial in `τ` of degree `≤ k`, constant leading coefficient `lead3` |
+| **`lem:sqrtfreecarrier`**, 6j (`eq:6jrankpoly`, `eq:6jEdgeProducts`, `lem:6jseed`, `eq:6jexceptionalseed`; all chambers) | `ptilde6`, `ptPoly`, `piSix`, `Phi6_seed_carrier`, `Phi6_carrier_canonical`, `edgeSq_eq_EW_sq` | `P2AnalyticCarrier6j{,Induction,Chambers,Shape,Poly}` | germ `G6 f m n α β γ t` |
+| `t = 0` carrier is Wigner `d` (`G(x,0) = d^L_{Mσ}(arccos x)`, 3j; `G_{f,0} = d^f_{nm}(arccos x)`, 6j including the transposition phase `(-1)^{m-n}` of chambers II/III) | `dZero3_eq_wignerD`, `Gc3_zero_eq_wignerD`; `dZero6c_eq_wignerD`, `dZero6_eq_wignerD`, `G6_zero_eq_wignerD` | `P2AnalyticBridge3j`, `P2AnalyticBridge6j` | induction in the rank against `wignerSmallDx_rank_rec` |
+| `eq:WignerJacobiMonic` (`d = k W P̂^{(p₊,p₋)}`, `k_{3j} = lead3`, `k_{6j} = kLead`) | `lead3_eq_jacobi`, `lead3_eq_closed`, `wignerD3_eq_lead_mul_monic`; `kLead_eq_jacobi`, `kLead_eq_closed`, `wignerD6_eq_kLead_mul_monic` | `P2AnalyticLeading` | constants identified by comparing top coefficients; 3j all chambers, **6j in the canonical chamber only** (`m ∓ n` natural) |
+| **`thm:3jeven`** (`eq:3jevenexp`): analytic germ `G` on `U × (-ρ,ρ)`, `Φ = G(x,N⁻²)`, `f_0 = d`, expansion in `N⁻²` to every order with remainder `O_K(N^{-2R})`, `f_{2r}` analytic on `(-1,1)` | `thm_3jeven`, `thm_3jeven_noOdd`, `thm_3jeven_leading`, `Phi3j_even_expansion`, `Gc3_analytic_box`, `analyticOnNhd_f3even`, `analyticOnNhd_wignerSmallDx_of_labels` | `P2AnalyticHeadline`, `P2AnalyticBulk3j` | |
+| `cor:3jcoeffsym` (`eq:coeffRegge`, `eq:coeffSign`, `eq:coeffTranspose`), `rem:spinhalf`, `rem:movingpoint` | `f3even_regge`, `f3even_negMσ`, `f3even_swap`; `Phi3j_half_exact`, `Phi3j_half_expansion`; `Phi3j_moving_point`, `rem_movingpoint` | `P2AnalyticBulk3j`, `P2AnalyticHeadline` | coefficientwise from the exact symmetries of `Gc3` |
+| **`thm:6jeven`** (`eq:6jleading`, `eq:6jevenexp`): `G_{f,2r}` analytic and homogeneous of degree `-2r` on the strict-triangle cone, `G_{f,0} = d^f_{nm}(arccos x)`, germ in `S⁻²` with uniform radius over compact shape sets, `Φ_f = ∑_{r<R} G_{f,2r} + O(H^{-2R})` on `T_δ` | `thm_6jeven`, `Phi6_even_expansion`, `Phi6_even_expansion_cone`, `G6even`, `G6even_homogeneous`, `analyticOnNhd_G6even`, `Phi6_eq_G6` | `P2AnalyticHeadline6j`, `P2AnalyticBulk6j` | holomorphy paragraph of `lem:6jseed` in its real-analytic form (`analyticAt_ptilde6`); `StrictTri`, `TriDelta` |
+| **`thm:uniformedge`** (a) (`eq:3juniformedge`) and (b) (`eq:6juniformedge`), `W s_0 = d`; edge-factor bounds `0 < c ≤ E ≤ 1` and `eq:edgefactoroverlap`, `eq:universalEdgeFactor` | `thm_uniformedge_3j`, `Phi3j_uniform_edge`, `edgeS3`, `natDegree_edgeS3_le`; `thm_uniformedge_6j`, `Phi6_uniform_edge`, `Phi6_edge_factor`, `edgeE_bounds`, `edgeR_pos_le_one`, `edgeR_expansion`, `analyticOnNhd_cKc` | `P2AnalyticHeadline`, `P2AnalyticHeadline6j`, `P2AnalyticUniform3j`, `P2AnalyticUniform6j` | uniform on the whole physical lattice; the 6j coefficients `s_r` are analytic in `δ ∈ (-1,1)` (rationality in `δ` with poles at `±1` not formalised); `0 < c ≤ E ≤ 1` is for the 6j edge factor (the 3j edge-factor bounds alone are not stated) |
+| **`thm:3jNLO`** (`eq:3jimproved`, `eq:3jf2`, `eq:3jf2seednorm`), Gaunt remark to `N⁻²` | `f3even_one_eq_nloF2`, `Phi3j_nlo_expansion`, `Phi3j_gaunt_nlo`, `nloH_rec`, `nlo_seed_alg`, `nlo_e_eq`, `qt3_rank`, `f3even_one_eq` | `P2AnalyticNLO3j{,Alg,Deriv}` | remainder `C N⁻⁴`; inhomogeneous rank recurrence for `f_2 - (2L+1)L(L+1)d_L/12` from the ladders differentiated once and the ODE. The Gaunt `N⁻⁴` coefficient `J(5J-4)/32` needs `thm:3jNNLO` and is not formalised |
+| **`cor:uniformNLO`**, 3j half (`eq:3juniformNLO`) | `Phi3j_uniform_nlo` | `P2AnalyticNLO3jUniform` | explicit polynomial form of `N⁻²f_2 - e_2 d` not formalised; 6j half not formalised |
+| **`thm:6jclosedcorrection`** (`eq:6jclosedg`, `eq:6jPf`, `eq:6jQf`, `eq:grec`, `eq:kappaClosedMatch`), all four chambers | `a6_one_closed`, `G6even_one_eq_closed`, `Phi6_nlo_expansion`, `Phi6_nlo_expansion_cone`, `nlo6_e_eq`, `nlo6H_rec`, `nlo6_seed_alg`, `nlo6P`, `nlo6Q` | `P2AnalyticNLO6j{,Alg,Deriv}` | remainder `C S⁻⁴` on compact shape sets, `C H⁻⁴` on `T_δ`; no `6j` degree `-4` term |
+| `eq:continuummass` (`rem:normmatch`): `∫_{-1}^1 d^L_{Mσ} d^{L'}_{Mσ} dx = 2/(2L+1) δ_{LL'}`; Wigner modes `u_L` orthonormal in `L²(-1,1)`; `𝖧₀ u_L = L(L+1) u_L` (`eq:H0`) | `integral_wignerSmallDx_mul`, `integral_wignerSmallDx_sq`, `uWig`, `integral_uWig_mul`, `L2uWig_orthonormal`, `H0diff`, `H0diff_uWig`, `H0diff_sum` | `P2AnalyticL2Wigner` | `L2cont` is the class in `Lp ℝ 2 (volume.restrict (Icc (-1) 1))` |
+| **`prop:SN`** (`eq:SNspectral`–`eq:SNintertwine`): `S_N u_L = v_L`, isometry, unitary from `span{u_L}` onto `ℓ²(𝒳_N,2h)`, `𝖧_h S_N = S_N 𝖧₀`; kernel `eq:SNkernel` | `vN_orthonormal`, `vN_expansion`, `SNmap_u`, `SNmap_isometry`, `SNmap_intertwine` (abstract, `P2AnalyticL2ThreeJ`); `uN_orthonormal`, `prop_SN`, `SN_kernel`, `SN_intertwine_diff` | `P2AnalyticL2ThreeJ`, `P2AnalyticL2Transmutation` | `𝒱_N` is the finite span, as in the paper; `S_N` on all of `L²` and `L²` completeness of `{u_L}` not formalised |
+| **`prop:6jRacahTransmutation`** (`eq:6jRacahSpectralMap`–`eq:6jRacahIntertwine`), kernel `eq:6jRacahKernel` | `uR_orthonormal`, `prop_6jRacahTransmutation`, `SR_kernel`, `SR_intertwine_diff` | `P2AnalyticL2Transmutation` | exactly parallel to `prop_SN`, under `RacahSystem a b m n D` |
+| **`prop:betabinomialpolar`**, singular-pair relation `T_D J_n = s_n H_n` (`eq:singularvaluesgeneral`, `eq:betameasure`–`eq:conditionalC`, `eq:BernsteinAdjoint`) | `singular_pair`, `norm_relation`, `Cop_jT`, `ipP_Cop`, `ipJ_jT_orth`, `hahn_orth`, `hahn_determined`, `pD_eq_hahnW`, `beta01` | `P2AnalyticL2Singular` | Jacobi orthogonality in `L²(ν_H)`, Hahn orthogonality in `ℓ²(p_D)`; the polar factor `U_D = T_D(T_D^*T_D)^{-1/2}`, the gauges `G_c`, `G_d` and `eq:SNpolar` (`S_N = G_d U_D G_c⁻¹`) with the whitening formula are **not** formalised |
+
+Not formalised in the analytic half: `eq:SNpolar`; `L²` completeness of the Wigner modes; rationality in `δ` of `s_r` and the convergence domains and exact radii (`rem:exactradii`);
+`thm:3jNNLO` and the `6j` degree `-4` term, the Gaunt `N⁻⁴` term, the 6j half of `cor:uniformNLO`; the all-order local calculus (`thm:3jallorderlocal`, `thm:6jallorderlocal`);
+the expansion halves of `prop:3junique` and `prop:unique`; the 6j leading constant `k_{6j}` outside the canonical chamber; DLMF 34.5.3; the bridge to Physlib's abstract `sixJ`.
 
 ## Next source-authorized finite targets
 
