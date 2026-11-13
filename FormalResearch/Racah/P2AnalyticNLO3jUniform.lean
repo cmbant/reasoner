@@ -17,7 +17,7 @@ coefficients are `W S₀ = d` and `W S₁ = f_2 + μ d` (`μ = nloMu`, so `-N⁻
   physical lattice `μ`,
   `|Φ - E_N [d + N⁻² f_2 - e_2^{3j} d]| ≤ C N⁻⁴ E_N W_{3j}`.
 
-Not covered: the `6j` half of `cor:uniformNLO`, and the statement that `N⁻²f_2 - e_2 d` is `W` times
+Not covered: the statement that `N⁻²f_2 - e_2 d` is `W` times
 a polynomial (the explicit polynomial form).
 -/
 
