@@ -81,7 +81,7 @@ theorem norm_hdot_le (P : Fin 3) (x q : Fin 4 → ℂ) : ‖hdot x q‖ ≤ ∑ 
   rw [hdot_cx P]
   refine (norm_sum_le _ _).trans (le_of_eq ?_)
   refine Finset.sum_congr rfl fun i _ => ?_
-  simp [vP, norm_div, norm_mul]
+  simp [vP]
 
 theorem sum_vP_sq (x q : Fin 4 → ℂ) :
     ∑ P : Fin 3, ∑ i, Complex.normSq (vP P x q i) = longSum q x := by
@@ -89,7 +89,7 @@ theorem sum_vP_sq (x q : Fin 4 → ℂ) :
       {(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)} := by decide
   unfold longSum
   rw [hf]
-  have h2 : Complex.normSq (2 : ℂ) = 4 := by simp [Complex.normSq_apply]; norm_num
+  have h2 : Complex.normSq (2 : ℂ) = 4 := by simp; norm_num
   simp only [vP, cx, Fin.sum_univ_three, Fin.sum_univ_four, pairing, map_mul, map_div₀, h2]
   simp [Finset.sum_insert]
   ring

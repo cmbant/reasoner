@@ -207,7 +207,7 @@ theorem real3 (ψ : Ψ 3) : Real3 ψ := by
   have h1 : (1 : Op1).det ≠ 0 := by simp
   by_cases hd0 : ψ ![0, 0, 0] * ψ ![0, 1, 1] - ψ ![0, 0, 1] * ψ ![0, 1, 0] = 0
   · exact sing_case (sub_eq_zero.mp hd0)
-  obtain ⟨w, hw⟩ := IsAlgClosed.exists_eq_mul_self
+  obtain ⟨w, hw⟩ := IsAlgClosed.isSquare
     ((ψ ![0, 0, 0] * ψ ![1, 1, 1] + ψ ![0, 1, 1] * ψ ![1, 0, 0] - ψ ![0, 0, 1] * ψ ![1, 1, 0]
         - ψ ![0, 1, 0] * ψ ![1, 0, 1]) ^ 2 -
       4 * (ψ ![0, 0, 0] * ψ ![0, 1, 1] - ψ ![0, 0, 1] * ψ ![0, 1, 0]) *

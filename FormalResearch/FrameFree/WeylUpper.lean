@@ -194,7 +194,7 @@ def lap (x : Fin 4 → Fin 4 → ℝ) : ℝ :=
 
 theorem lap_eq_det (x : Fin 4 → Fin 4 → ℝ) : lap x = (Matrix.of fun k j => x j k).det := by
   simp only [Matrix.det_succ_row_zero, Fin.sum_univ_succ, lap]
-  simp [Matrix.det_fin_three, Fin.succAbove, Matrix.submatrix]
+  simp [Fin.succAbove, Matrix.submatrix]
   ring
 
 theorem amgm4 (r : Fin 4 → ℝ) (hr : ∀ j, 0 ≤ r j) :
@@ -331,7 +331,7 @@ theorem magic_ofQ (q p : Fin 4 → ℝ) :
   fin_cases i1 <;> fin_cases i2 <;> fin_cases j1 <;> fin_cases j2 <;>
   simp [kron, magicB, cmat, PqP, Pq, ofQ, pairEquiv_00, pairEquiv_01, pairEquiv_10, pairEquiv_11, Matrix.mul_apply,
     Fintype.sum_prod_type, Fin.sum_univ_two, Matrix.kroneckerMap_apply] <;>
-  (try ring_nf) <;> (try simp only [Complex.I_sq, hI3, hrt2, hrt3, hrt4]) <;> (try ring_nf)
+  (try ring_nf) <;> (try simp only [Complex.I_sq, hI3]) <;> (try ring_nf)
 
 
 /-- The trilinear pairing `∑ᵢⱼ Nᵢⱼ Aᵢⱼ Bᵢⱼ = ⟨N, A∘B⟩`. -/
@@ -389,11 +389,11 @@ theorem wmat_transpose (w : SP) :
   by_cases h : w.1 i = k
   · have : w.1⁻¹ k = i := by rw [← h]; simp
     show (if w.1 i = k then (sg (w.2 i) : ℝ) else 0) = if w.1⁻¹ k = i then (sg (w.2 (w.1⁻¹ k)) : ℝ) else 0
-    rw [if_pos h, if_pos this, this]
+    rw [ite_eq_left h, ite_eq_left this, this]
   · have : ¬ w.1⁻¹ k = i := by
       intro hh; apply h; rw [← hh]; simp
     show (if w.1 i = k then (sg (w.2 i) : ℝ) else 0) = if w.1⁻¹ k = i then (sg (w.2 (w.1⁻¹ k)) : ℝ) else 0
-    rw [if_neg h, if_neg this]
+    rw [ite_eq_right h, ite_eq_right this]
 
 theorem det_wmat (w : SP) : (wmat w).det = ((Equiv.Perm.sign w.1 : ℤˣ) : ℝ) * ∏ k, (sg (w.2 k) : ℝ) := by
   have : wmat w = Matrix.diagonal (fun i => (sg (w.2 i) : ℝ)) *
@@ -473,10 +473,10 @@ theorem real4_wmat (w : SP) (hdet : (wmat w).det = 1) : Real4 (wmat w) := by
     by_cases h : w.1 (pairEquiv i) = pairEquiv j
     · have : (pairEquiv.trans (w.1.trans pairEquiv.symm)) i = j := by
         simp [h]
-      rw [if_pos h, if_pos this]
+      rw [ite_eq_left h, ite_eq_left this]
     · have : ¬ (pairEquiv.trans (w.1.trans pairEquiv.symm)) i = j := by
         intro hh; apply h; simpa using congrArg pairEquiv hh
-      rw [if_neg h, if_neg this]
+      rw [ite_eq_right h, ite_eq_right this]
   have hdetP : (sp σP t).det = 1 := by
     rw [← hE]; unfold toPair; rw [Matrix.det_submatrix_equiv_self]; exact hdet
   have htpm : ∀ k, t k = 1 ∨ t k = -1 := by
@@ -502,7 +502,7 @@ theorem S2_kron (a b : Op1) : S2 * kron a b * S2 = kron b a := by
 theorem S2_S2 : S2 * S2 = 1 := by
   ext ⟨i1, i2⟩ ⟨j1, j2⟩
   fin_cases i1 <;> fin_cases i2 <;> fin_cases j1 <;> fin_cases j2 <;>
-    simp [S2, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two, Matrix.one_apply]
+    simp [S2, Matrix.mul_apply]
 
 theorem S2_magicB : S2 * magicB = magicB * cmat (toPair Dm) := by
   ext ⟨i1, i2⟩ ⟨j1, j2⟩
@@ -513,7 +513,7 @@ theorem S2_magicB : S2 * magicB = magicB * cmat (toPair Dm) := by
 theorem Dm_mul_Dm : Dm * Dm = 1 := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [Dm, wmat, sg, Matrix.mul_apply, Fin.sum_univ_four, Matrix.one_apply]
+    simp [Dm, wmat, sg, Matrix.mul_apply]
 
 theorem real4_conj_Dm {M : Matrix (Fin 4) (Fin 4) ℝ} (hM : Real4 M) : Real4 (Dm * M * Dm) := by
   obtain ⟨a, b, ha, hb, h⟩ := hM
@@ -721,14 +721,14 @@ theorem tri_parN_le {A B : Matrix (Fin 4) (Fin 4) ℝ} (hA : SO4 A) (hB : SO4 B)
     rw [hDs, Matrix.diagonal_mul_diagonal]
     ext i j
     by_cases h : i = j
-    · subst h; simp [Matrix.one_apply, ← sq, hs.sq]
-    · simp [Matrix.diagonal_apply, Matrix.one_apply, h]
+    · subst h; simp [← sq, hs.sq]
+    · simp [h]
   have hDtDt : Dt * Dt = 1 := by
     rw [hDt, Matrix.diagonal_mul_diagonal]
     ext i j
     by_cases h : i = j
-    · subst h; simp [Matrix.one_apply, ← sq, ht.sq]
-    · simp [Matrix.diagonal_apply, Matrix.one_apply, h]
+    · subst h; simp [← sq, ht.sq]
+    · simp [h]
   have hDsT : Dsᵀ = Ds := Matrix.diagonal_transpose _
   have hDtT : Dtᵀ = Dt := Matrix.diagonal_transpose _
   set R : Matrix (Fin 4) (Fin 4) ℝ := Dt * Aᵀ * Ds * B with hR
@@ -784,15 +784,15 @@ theorem SPm_Dm : SPm Dm := ⟨_, rfl⟩
 
 theorem det_Dm : Dm.det = -1 := by
   rw [Dm, det_wmat]
-  simp [Fin.prod_univ_four, sg]
+  simp [sg]
 
 theorem Dm_mul_apply (X : Matrix (Fin 4) (Fin 4) ℝ) (k l : Fin 4) :
     (Dm * X) k l = (if k = 2 then -1 else 1) * X k l := by
-  fin_cases k <;> simp [Dm, wmat, sg, Matrix.mul_apply, Fin.sum_univ_four]
+  fin_cases k <;> simp [Dm, wmat, sg, Matrix.mul_apply]
 
 theorem mul_Dm_apply (X : Matrix (Fin 4) (Fin 4) ℝ) (k l : Fin 4) :
     (X * Dm) k l = X k l * (if l = 2 then -1 else 1) := by
-  fin_cases l <;> simp [Dm, wmat, sg, Matrix.mul_apply, Fin.sum_univ_four]
+  fin_cases l <;> simp [Dm, wmat, sg, Matrix.mul_apply]
 
 theorem tri_Dm_left (N X Y : Matrix (Fin 4) (Fin 4) ℝ) : tri N (Dm * X) (Dm * Y) = tri N X Y := by
   unfold tri
@@ -1052,7 +1052,7 @@ theorem exists_phase (z : ℂ) : ∃ c : ℂ, ‖c‖ = 1 ∧ (c * z).re = ‖z�
     · have : conj z / (‖z‖ : ℂ) * z = (‖z‖ : ℂ) := by
         have h2 : (‖z‖ : ℂ) ≠ 0 := by exact_mod_cast hn
         rw [div_mul_eq_mul_div, mul_comm, Complex.mul_conj', div_eq_iff h2]
-        push_cast; ring
+        ring
       rw [this]; simp
 
 /-- **The upper bound from the polar input.**  `PolarExtremeHyp` (a statement about the polytope

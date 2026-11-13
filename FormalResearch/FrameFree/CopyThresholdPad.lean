@@ -41,12 +41,12 @@ noncomputable def padVec (e : β ↪ α) (φ : (β → Fin 2) → ℂ) : (α →
 theorem padVec_of (e : β ↪ α) (φ : (β → Fin 2) → ℂ) {x : α → Fin 2}
     (hx : ∀ a, a ∉ Set.range e → x a = 0) : padVec e φ x = φ (x ∘ e) := by
   unfold padVec
-  rw [if_pos hx]
+  rw [ite_eq_left hx]
 
 theorem forall_of_padVec_ne_zero (e : β ↪ α) (φ : (β → Fin 2) → ℂ) {x : α → Fin 2}
     (h : padVec e φ x ≠ 0) : ∀ a, a ∉ Set.range e → x a = 0 := by
   by_contra hc
-  exact h (by unfold padVec; rw [if_neg hc])
+  exact h (by unfold padVec; rw [ite_eq_right hc])
 
 /-- The slots `β × γ` inside `α × γ`. -/
 def slotEmb (e : β ↪ α) (γ : Type*) : β × γ ↪ α × γ := e.prodMap (Function.Embedding.refl γ)

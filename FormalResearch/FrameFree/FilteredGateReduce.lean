@@ -70,7 +70,7 @@ theorem Law_flip (j : Fin 3) (c : Fin 3 → ℝ) (h : Law c) : Law (fun k => esg
         Lm j * (Ug c * (Lm j * kr A B * Lm j) * Ug c * (Lm j * kr W C)) := by
       simp only [Matrix.mul_assoc]
     rw [this, Matrix.trace_mul_comm]
-    simp only [Matrix.mul_assoc, hL, Matrix.mul_one]
+    simp only [Matrix.mul_assoc]
   have e2 : fro2 (kr A B * Ug (fun k => esg j k * c k) * kr W C) =
       fro2 (kr A (σ * B * σ) * Ug c * kr W (σ * C * σ)) := by
     rw [← hF, ← hG, hU]
@@ -85,7 +85,7 @@ theorem Pm_conj (j : Fin 3) : (Pm j).map conj = Pm j := by
   unfold Pm
   rw [kr_conj]
   fin_cases j <;> ext ⟨i, k⟩ ⟨i', k'⟩ <;> fin_cases i <;> fin_cases k <;> fin_cases i' <;>
-    fin_cases k' <;> simp [kr_apply, sig]
+    fin_cases k' <;> simp [sig]
 
 theorem Uk_conj (θ : ℝ) (j : Fin 3) : (Uk θ j).map conj = Uk (-θ) j := by
   unfold Uk

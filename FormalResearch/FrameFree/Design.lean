@@ -41,9 +41,9 @@ theorem design_identity (q x : Fin 4 → ℂ) :
       {(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)} := by decide
   unfold longSum nrm2 hdot bdot
   rw [hf]
-  simp only [Finset.sum_insert, Finset.mem_insert, Finset.mem_singleton, Fin.sum_univ_four,
+  simp only [Fin.sum_univ_four,
     Complex.normSq_apply, Complex.add_re, Complex.add_im, Complex.sub_re, Complex.sub_im,
-    Complex.mul_re, Complex.mul_im, Complex.conj_re, Complex.conj_im, Finset.sum_singleton]
+    Complex.mul_re, Complex.mul_im, Complex.conj_re, Complex.conj_im]
   simp
   ring
 

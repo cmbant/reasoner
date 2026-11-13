@@ -62,7 +62,7 @@ theorem closed_fixed (Q : Matrix ι ι ℂ) : IsClosed {M : Matrix ι ι ℂ | Q
 
 theorem convex_fixed (Q : Matrix ι ι ℂ) : Convex ℝ {M : Matrix ι ι ℂ | Q * M * Q = M} := by
   intro A hA B hB a b ha hb hab
-  simp only [Set.mem_setOf_eq] at *
+  simp only [Set.mem_ofPred_eq] at *
   rw [Matrix.mul_add, Matrix.add_mul, Matrix.mul_smul, Matrix.mul_smul, Matrix.smul_mul,
     Matrix.smul_mul, hA, hB]
 
@@ -72,7 +72,7 @@ theorem closed_trace (A : Matrix ι ι ℂ) (c : ℂ) :
 
 theorem convex_trace (A : Matrix ι ι ℂ) (c : ℂ) : Convex ℝ {M : Matrix ι ι ℂ | (A * M).trace = c} := by
   intro P hP Q hQ a b ha hb hab
-  simp only [Set.mem_setOf_eq] at *
+  simp only [Set.mem_ofPred_eq] at *
   rw [Matrix.mul_add, Matrix.mul_smul, Matrix.mul_smul, Matrix.trace_add, Matrix.trace_smul,
     Matrix.trace_smul, hP, hQ, ← add_smul, hab, one_smul]
 
@@ -83,7 +83,7 @@ theorem closed_qf_le (x : ι → ℂ) (F : ℝ) :
 theorem convex_qf_le (x : ι → ℂ) (F : ℝ) :
     Convex ℝ {M : Matrix ι ι ℂ | (star x ⬝ᵥ (M *ᵥ x)).re ≤ F} := by
   intro P hP Q hQ a b ha hb hab
-  simp only [Set.mem_setOf_eq] at *
+  simp only [Set.mem_ofPred_eq] at *
   rw [Matrix.add_mulVec, Matrix.smul_mulVec, Matrix.smul_mulVec, dotProduct_add, dotProduct_smul,
     dotProduct_smul]
   simp only [Complex.add_re, Complex.real_smul, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im,
@@ -130,7 +130,7 @@ theorem twirl_props (G : Set (Matrix ι ι ℂ)) (hG1 : ∀ U ∈ G, Uᴴ * U = 
         _ = _ := by rw [hG1 U hU, Matrix.one_mul]
   · intro x F hF
     exact hZ {M | (star x ⬝ᵥ (M *ᵥ x)).re ≤ F} (closed_qf_le x F) (convex_qf_le x F)
-      (fun U hU => by rw [Set.mem_setOf_eq, conj_vecMulVec]; exact hF U hU)
+      (fun U hU => by rw [Set.mem_ofPred_eq, conj_vecMulVec]; exact hF U hU)
 
 /-- **Twirled Powers-Stormer bound** (generic).  Let `G` be a set of unitaries closed under products, `W` a
 subspace containing all `U a` and `U b` (`U ∈ G`), and `F` a bound for `|⟨a|U b⟩|²`.  Then there is a

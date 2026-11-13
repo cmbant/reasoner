@@ -201,7 +201,7 @@ theorem schur_bil (C S : V3) (hCS : ∀ i, C i ^ 2 + S i ^ 2 = 1) (hpos : ∀ i,
       _ = d ^ 2 * (sq3 u * sq3 v) := by ring
 
 
-theorem sq3_nonneg (w : V3) : 0 ≤ sq3 w := Finset.sum_nonneg (fun i _ => sq_nonneg _)
+theorem sq3_nonneg (w : V3) : 0 ≤ sq3 w := Finset.sum_nonneg (fun _i _ => sq_nonneg _)
 
 theorem schur_vec (C S : V3) (hCS : ∀ i, C i ^ 2 + S i ^ 2 = 1) (hpos : ∀ i, 0 ≤ C i * S i)
     (d : ℝ) (hd1 : d ≤ 1) (hd : ∀ i, |C i ^ 2 - S i ^ 2| ≤ d) {ρ : Fin 3 → Fin 3 → ℝ}
@@ -229,12 +229,12 @@ theorem orth_reflect {ρ : Fin 3 → Fin 3 → ℝ} (hρ : Orth ρ) (n : V3) (hn
     intro i
     simp only [mv, hxj, mul_sub, Finset.sum_sub_distrib, Finset.mul_sum]
     simp [Fin.sum_univ_three, Fin.ext_iff]
-    fin_cases j <;> simp [Fin.sum_univ_three] <;> ring
+    fin_cases j <;> simp <;> ring
   have e2 : ∀ i, (2 * mv ρ n i * n k - ρ i k) = mv ρ xk i := by
     intro i
     simp only [mv, hxk, mul_sub, Finset.sum_sub_distrib, Finset.mul_sum]
     simp [Fin.sum_univ_three, Fin.ext_iff]
-    fin_cases k <;> simp [Fin.sum_univ_three] <;> ring
+    fin_cases k <;> simp <;> ring
   have := dot_mv_orth hρ xj xk
   simp only [dot3] at this
   simp only [e1, e2]

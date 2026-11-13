@@ -261,14 +261,14 @@ theorem base (t : Pair → ℤ) (ht : ∀ k, t k = 1 ∨ t k = -1) (hp : ∏ k, 
   rcases ht (1, 0) with h10 | h10 <;> rcases ht (1, 1) with h11 | h11 <;>
   rw [h00, h01, h10, h11] at hp <;> norm_num at hp <;>
   first
-  | (refine key _ (fun i j => ?_) d1; fin_cases i <;> fin_cases j <;> simp [dd2, h00, h01, h10, h11]; done)
+  | (refine key _ (fun i j => ?_) d1; fin_cases i <;> fin_cases j <;> simp [h00, h01, h10, h11]; done)
   | (refine key _ (fun i j => ?_) d01; fin_cases i <;> fin_cases j <;> simp [dd2, h00, h01, h10, h11]; done)
   | (refine key _ (fun i j => ?_) d02; fin_cases i <;> fin_cases j <;> simp [dd2, h00, h01, h10, h11]; done)
   | (refine key _ (fun i j => ?_) d03; fin_cases i <;> fin_cases j <;> simp [dd2, h00, h01, h10, h11]; done)
   | (refine key _ (fun i j => ?_) d12; fin_cases i <;> fin_cases j <;> simp [dd2, h00, h01, h10, h11]; done)
   | (refine key _ (fun i j => ?_) d13; fin_cases i <;> fin_cases j <;> simp [dd2, h00, h01, h10, h11]; done)
   | (refine key _ (fun i j => ?_) d23; fin_cases i <;> fin_cases j <;> simp [dd2, h00, h01, h10, h11]; done)
-  | (refine key _ (fun i j => ?_) d0123; fin_cases i <;> fin_cases j <;> simp [dd2, h00, h01, h10, h11]; done)
+  | (refine key _ (fun i j => ?_) d0123; fin_cases i <;> fin_cases j <;> simp [dd2, h00, h01, h10, h11])
 
 /-- The set of `(σ, t)` realised. -/
 def Good (σ : Equiv.Perm Pair) : Prop :=
@@ -535,7 +535,7 @@ theorem weyl_le_rotOverlap_conj (σ : Equiv.Perm (Fin 4)) (s : Fin 4 → ℤ)
   refine le_trans (le_of_eq ?_) this
   rw [← Complex.normSq_conj]
   congr 1
-  simp only [map_sum, map_mul, Complex.conj_conj, map_intCast]
+  simp only [map_sum, map_mul, map_intCast]
   refine Finset.sum_congr rfl fun k _ => ?_
   ring
 
@@ -545,9 +545,9 @@ theorem Xtarget_diag (ε : ℂ) :
     Xtarget ε = Matrix.diagonal (fun p => if p = sing then ε else rt6) := by
   ext i j
   by_cases hij : i = j
-  · subst hij; by_cases hi : i = sing <;> simp [Xtarget, Pm_apply, Matrix.one_apply, hi]
+  · subst hij; by_cases hi : i = sing <;> simp [Xtarget, Pm_apply, hi]
   · have : ¬ (i = sing ∧ j = sing) := fun h => hij (h.1.trans h.2.symm)
-    simp [Xtarget, Pm_apply, Matrix.one_apply, hij, Matrix.diagonal_apply, this]
+    simp [Xtarget, Pm_apply, hij, this]
 
 /-- `M₄ = ψ_d` with `d = (1/√6, 1/√6, i/√2, 1/√6)`. -/
 theorem M4_eq_psiMag : M4 = psiMag ![rt6, rt6, Complex.I * rt, rt6] := by

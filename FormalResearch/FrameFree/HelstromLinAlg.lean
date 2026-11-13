@@ -27,14 +27,14 @@ variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
 theorem continuous_qf (x y : ι → ℂ) : Continuous fun M : Matrix ι ι ℂ => star x ⬝ᵥ (M *ᵥ y) := by
   simp only [dotProduct, Matrix.mulVec]
-  refine continuous_finset_sum _ fun i _ => continuous_const.mul (continuous_finset_sum _ fun j _ => ?_)
+  refine continuous_finsetSum _ fun i _ => continuous_const.mul (continuous_finsetSum _ fun j _ => ?_)
   exact (continuous_id.matrix_elem i j).mul continuous_const
 
 theorem isClosed_posSemidef : IsClosed {M : Matrix ι ι ℂ | M.PosSemidef} := by
   have : {M : Matrix ι ι ℂ | M.PosSemidef} =
       {M | Mᴴ = M} ∩ ⋂ x : ι → ℂ, {M | 0 ≤ star x ⬝ᵥ (M *ᵥ x)} := by
     ext M
-    simp only [Set.mem_setOf_eq, Set.mem_inter_iff, Set.mem_iInter]
+    simp only [Set.mem_ofPred_eq, Set.mem_inter_iff, Set.mem_iInter]
     rw [Matrix.posSemidef_iff_dotProduct_mulVec]
     rfl
   rw [this]

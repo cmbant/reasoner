@@ -49,10 +49,10 @@ theorem exists_wv_three (f : α → Equiv.Perm γ) (hα : Fintype.card α = 3)
   · simp
   · calc f x * t * (f y)⁻¹ * (f x * t⁻¹)
         = f x * (t * ((f y)⁻¹ * f x) * t⁻¹) := by simp [mul_assoc]
-      _ = f y := by rw [ht1]; simp [mul_assoc]
+      _ = f y := by rw [ht1]; simp
   · calc f x * t * (f z)⁻¹ * (f x * t⁻¹)
         = f x * (t * ((f z)⁻¹ * f x) * t⁻¹) := by simp [mul_assoc]
-      _ = f z := by rw [ht2]; simp [mul_assoc]
+      _ = f z := by rw [ht2]; simp
 
 set_option maxRecDepth 100000 in
 /-- Every pair of permutations of `3` copies is simultaneously conjugate to its inverse pair. -/

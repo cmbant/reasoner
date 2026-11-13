@@ -126,7 +126,7 @@ theorem exists_real_split_cmp {A : OpS (α × γ)} (hA : A ∈ Acal P) :
     refine ⟨c.re • a1 - c.im • a2, sub_mem (Submodule.smul_mem _ _ ha1) (Submodule.smul_mem _ _ ha2),
       c.im • a1 + c.re • a2, add_mem (Submodule.smul_mem _ _ ha1) (Submodule.smul_mem _ _ ha2), ?_⟩
     simp only [Matrix.mul_sub, Matrix.sub_mul, Matrix.mul_add, Matrix.add_mul, Matrix.mul_smul,
-      Matrix.smul_mul, real_smul_eq', smul_sub, smul_add, smul_smul]
+      Matrix.smul_mul, real_smul_eq', smul_add, smul_smul]
     ext a b
     simp only [Matrix.add_apply, Matrix.sub_apply, Matrix.smul_apply, smul_eq_mul]
     apply Complex.ext <;> simp <;> ring

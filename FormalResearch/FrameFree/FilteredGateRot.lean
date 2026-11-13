@@ -33,7 +33,7 @@ theorem tr3 (r p q : Fin 3) : (sig r.succ * sig p.succ * sig q.succ).trace =
     if p = r + 1 ∧ q = r + 2 then 2 * Complex.I
     else if p = r + 2 ∧ q = r + 1 then -(2 * Complex.I) else 0 := by
   fin_cases r <;> fin_cases p <;> fin_cases q <;>
-    simp [sig, Matrix.trace, Matrix.mul_apply, Fin.sum_univ_two] <;> ring
+    simp [sig, Matrix.trace, Fin.sum_univ_two] <;> ring
 
 theorem sig_prod_cyc (j : Fin 3) : sig j.succ * sig (j + 1).succ = Complex.I • sig (j + 2).succ := by
   fin_cases j <;> ext i k <;> fin_cases i <;> fin_cases k <;>
@@ -139,7 +139,7 @@ theorem rot_cross (φ : M2) (hU : φᴴ * φ = 1) (r j : Fin 3) :
       calc _ = φ * (sig j.succ * sig (j + 1).succ) * φᴴ := by
             calc _ = φ * sig j.succ * (φᴴ * φ) * sig (j + 1).succ * φᴴ := by simp only [Matrix.mul_assoc]
               _ = _ := by rw [hU, Matrix.mul_one]; simp only [Matrix.mul_assoc]
-        _ = _ := by rw [sig_prod_cyc]; simp [Matrix.mul_smul, Matrix.smul_mul]
+        _ = _ := by rw [sig_prod_cyc]; simp
     rw [Matrix.mul_assoc, e1, Matrix.mul_smul, Matrix.trace_smul]
     have : (sig r.succ * (φ * sig (j + 2).succ * φᴴ)).trace = 2 * rb φ r.succ (j + 2).succ := by
       unfold rb; simp only [Matrix.mul_assoc]; ring
@@ -171,7 +171,7 @@ theorem nh_anti (n : V3) (j : Fin 3) :
   unfold nh
   ext a b
   fin_cases j <;> fin_cases a <;> fin_cases b <;>
-    simp [sig, Fin.sum_univ_three, Matrix.mul_apply, Fin.sum_univ_two] <;> ring_nf <;>
+    simp [sig, Fin.sum_univ_three] <;> ring_nf <;>
     simp only [Complex.I_sq] <;> ring
 
 theorem nh_sq (n : V3) (hn : sq3 n = 1) : nh n * nh n = 1 := by
@@ -194,7 +194,7 @@ theorem nh_conj (n : V3) (hn : sq3 n = 1) (j : Fin 3) :
 theorem trace_nh (φ : M2) (n : V3) (p : Fin 3) :
     (sig p.succ * φ * nh n * φᴴ).trace = 2 * ∑ l : Fin 3, (n l : ℂ) * rb φ p.succ l.succ := by
   unfold nh rb
-  simp only [Matrix.mul_sum, Matrix.sum_mul, Matrix.trace_sum, Matrix.mul_smul, Matrix.smul_mul,
+  simp only [Matrix.sum_mul, Matrix.trace_sum, Matrix.mul_smul, Matrix.smul_mul,
     Matrix.trace_smul, smul_eq_mul, Finset.mul_sum]
   refine Finset.sum_congr rfl fun l _ => ?_
   simp only [Matrix.mul_assoc]

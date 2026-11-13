@@ -101,7 +101,7 @@ theorem finrank_symSpace_le (n k : ℕ) : Module.finrank ℂ (symSpace n k) ≤ 
     ext i
     have hex : ∃ i', cnt k i' = cnt k i := ⟨i, rfl⟩
     show (if h : ∃ i', cnt k i' = cnt k i then w h.choose else 0) = w i
-    rw [dif_pos hex]
+    rw [dite_eq_left hex]
     exact hw' _ _ hex.choose_spec
   calc Module.finrank ℂ (symSpace n k) ≤ Module.finrank ℂ (LinearMap.range Lg) :=
         Submodule.finrank_mono hle

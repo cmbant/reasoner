@@ -50,7 +50,7 @@ theorem isClosed_badSet (π : α → κ) (k : ℕ) : IsClosed (BadSet π k) := b
   have : BadSet π k = ⋂ s : Equiv.Perm (α × Fin k), ⋂ (_ : BlockPres π s),
       {ψ | (wordVal (Fin k) s (pureOp ψ)).im = 0} := by
     ext ψ
-    simp only [BadSet, Set.mem_setOf_eq, twirlsCoincide_iff, Set.mem_iInter]
+    simp only [BadSet, Set.mem_ofPred_eq, twirlsCoincide_iff, Set.mem_iInter]
   rw [this]
   exact isClosed_iInter fun s => isClosed_iInter fun _ =>
     isClosed_eq (Complex.continuous_im.comp (continuous_wordVal s)) continuous_const
@@ -65,11 +65,11 @@ noncomputable def wordPoly (s : Equiv.Perm (α × γ)) (ψ₀ Δ : (α → Fin 2
 
 theorem eval_wordPoly (s : Equiv.Perm (α × γ)) (ψ₀ Δ : (α → Fin 2) → ℂ) (t : ℝ) :
     (wordPoly s ψ₀ Δ).eval (t : ℂ) = wordVal γ s (pureOp fun x => ψ₀ x + (t : ℂ) * Δ x) := by
-  rw [wordVal_pure, wordPoly, eval_finset_sum]
+  rw [wordVal_pure, wordPoly, eval_finsetSum]
   refine Finset.sum_congr rfl fun Y _ => ?_
   rw [eval_prod]
   refine Finset.prod_congr rfl fun c _ => ?_
-  simp [col, Complex.conj_ofReal]
+  simp [Complex.conj_ofReal]
   ring
 
 theorem interior_badSet_eq_empty (π : α → κ) (k : ℕ) {ψ₁ : (α → Fin 2) → ℂ} (h : ψ₁ ∉ BadSet π k) :

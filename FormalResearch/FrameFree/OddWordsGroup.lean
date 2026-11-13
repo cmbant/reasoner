@@ -166,7 +166,7 @@ theorem tpow_diagM (s : ℂ) :
   rw [tpow_apply, Matrix.diagonal_apply]
   by_cases hxz : x = z
   · subst hxz
-    rw [if_pos rfl]
+    rw [ite_eq_left rfl]
     have hf : ∀ i, diagM s (x i) (x i) = if x i = 1 then s⁻¹ else s := by
       intro i
       rcases Fin.exists_fin_two.1 ⟨x i, rfl⟩ with h1 | h1 <;> simp [diagM, h1]
@@ -178,7 +178,7 @@ theorem tpow_diagM (s : ℂ) :
     rw [← wt_eq_card] at this
     simp at this
     omega
-  · rw [if_neg hxz]
+  · rw [ite_eq_right hxz]
     obtain ⟨j, hj⟩ : ∃ j, x j ≠ z j := by
       by_contra h; push Not at h; exact hxz (funext h)
     exact Finset.prod_eq_zero (Finset.mem_univ j) (by simp [diagM, hj])
@@ -202,7 +202,7 @@ theorem gauss (u : Op1) (ha : u 0 0 ≠ 0) (hdet : u.det = 1) :
   rw [Matrix.det_fin_two] at hdet
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [lowM, diagM, upM, Matrix.mul_apply, Fin.sum_univ_two] <;> field_simp <;> linear_combination hdet
+    simp [lowM, diagM, upM, Matrix.mul_apply, Fin.sum_univ_two] <;> field_simp; linear_combination hdet
 
 theorem CommR.commute_of_a_ne {X : Matrix (Cube n) (Cube n) ℝ} (h : CommR X) {u : Op1}
     (ha : u 0 0 ≠ 0) (hdet : u.det = 1) : cx X * tpow n u = tpow n u * cx X := by

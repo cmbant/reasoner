@@ -147,14 +147,14 @@ theorem isCompact_frames :
 theorem continuous_tensOp : Continuous (fun u : β → Op1 => tensOp g u) := by
   refine continuous_matrix fun x y => ?_
   simp only [tensOp, Matrix.of_apply]
-  exact continuous_finset_prod _ fun i _ =>
+  exact continuous_finsetProd _ fun i _ =>
     (continuous_apply (y i)).comp ((continuous_apply (x i)).comp (continuous_apply (g i)))
 
 theorem continuous_pairing (x ψ : Ψ n) :
     Continuous (fun u : β → Op1 => star x ⬝ᵥ (tensOp g u *ᵥ ψ)) := by
   have := (continuous_tensOp g).matrix_mulVec (continuous_const (y := ψ))
   unfold dotProduct
-  exact continuous_finset_sum _ fun i _ => continuous_const.mul ((continuous_apply i).comp this)
+  exact continuous_finsetSum _ fun i _ => continuous_const.mul ((continuous_apply i).comp this)
 
 theorem trace_proj_mul_proj (x y : Ψ n) :
     (proj x * proj y).trace = (star y ⬝ᵥ x) * (star x ⬝ᵥ y) := by
