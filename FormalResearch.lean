@@ -268,6 +268,11 @@ public import FormalResearch.Racah.P2AnalyticBulk6j
 public import FormalResearch.Racah.P2AnalyticUniform6j
 public import FormalResearch.Racah.P2AnalyticNLO3j
 public import FormalResearch.Racah.P2AnalyticNLO3jUniform
+public import FormalResearch.Racah.P2AnalyticHeadline
+public import FormalResearch.Racah.P2AnalyticHeadline6j
+public import FormalResearch.Racah.P2AnalyticLeading
+public import FormalResearch.Racah.P2AnalyticL2Transmutation
+public import FormalResearch.Racah.P2AnalyticL2Singular
 public import FormalResearch.Special
 public import FormalResearch.Wigner
 public import FormalResearch.Bridges.B2BlaschkeWalshGauge

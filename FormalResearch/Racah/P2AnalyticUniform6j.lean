@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.Racah.P2AnalyticBulk6j
+public import FormalResearch.Racah.P2AnalyticBridge6j
 public import FormalResearch.Racah.P2AnalyticCore
 
 /-!
@@ -581,9 +582,6 @@ theorem s6c_eq_sum (m n : ℚ) (d r : ℕ) (τ : ℝ) {δ : ℝ} (hδ : |δ| < 1
   ring
 
 /-! ### The exact identity `Phi6 = E W · Hall` in every chamber -/
-
-lemma cosA_comm' (A B C : ℝ) : cosA B A C = cosA A B C := by
-  unfold cosA; ring
 
 /-- The carrier with the edge factor extracted, shape variables `(τ, δ, t)`, `δ = (A-B)/(A+B)`,
 `t = (A+B)⁻²`. -/

@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.Racah.P2AnalyticBridge3j
 public import FormalResearch.Racah.P2AnalyticCarrier6jShape
+public import FormalResearch.Racah.P2AnalyticBulk6j
 
 /-!
 # The `6j` `t = 0` carrier is Wigner's small `d`-function (Weyl P2, `thm:6jeven`)
@@ -219,42 +220,13 @@ theorem dZero6_eq_wignerD (f m n : ℚ) (n1 : IsNat (f + m)) (n2 : IsNat (f - m)
 lemma cosA_comm' (A B C : ℝ) : cosA B A C = cosA A B C := by
   unfold cosA; ring
 
-/-- `t = 0` of the closed-form germ in every chamber: `G6 f m n α β γ 0 = dZero6 f m n (cosA α β γ)`. -/
-theorem G6_zero_eq_dZero6 (f m n : ℚ) (n1 : IsNat (f + m)) (n2 : IsNat (f - m))
-    (n3 : IsNat (f + n)) (n4 : IsNat (f - n)) (α β γ : ℝ) (hα : α ≠ 0) (hβ : β ≠ 0) :
-    G6 f m n α β γ 0 = dZero6 f m n (cosA α β γ) := by
-  unfold G6 dZero6
-  by_cases c1 : |n| ≤ m
-  · simp only [c1, ↓reduceIte]
-    obtain ⟨⟨p, q, hp, hq⟩, -⟩ := canon_labels c1 n2 n3 n4
-    exact G6c_zero m n p q hp hq _ α β γ hα hβ
-  by_cases c2 : |n| ≤ -m
-  · simp only [c1, c2, ↓reduceIte]
-    obtain ⟨⟨p, q, hp, hq⟩, -⟩ := canon_labels (f := f) (m := -m) (n := -n) (by simpa using c2)
-      (by simpa using n1) (by simpa [sub_eq_add_neg] using n4) (by simpa using n3)
-    rw [G6c_zero (-m) (-n) p q hp hq _ α β γ hα hβ]
-  by_cases c3 : |m| ≤ n
-  · simp only [c1, c2, c3, ↓reduceIte]
-    obtain ⟨⟨p, q, hp, hq⟩, -⟩ := canon_labels (f := f) (m := n) (n := m) c3 n4 n1 n2
-    rw [G6c_zero n m p q hp hq _ β α γ hβ hα, cosA_comm']
-  have c4 : |m| ≤ -n := by
-    rcases le_total 0 n with hn | hn
-    · rw [abs_of_nonneg hn] at c1 c2
-      exfalso; apply c3; rw [abs_le]; constructor <;> push Not at c1 c2 <;> linarith
-    · rw [abs_of_nonpos hn] at c1 c2
-      rw [abs_le]; push Not at c1 c2; constructor <;> linarith
-  simp only [c1, c2, c3, ↓reduceIte]
-  obtain ⟨⟨p, q, hp, hq⟩, -⟩ := canon_labels (f := f) (m := -n) (n := -m) (by simpa using c4)
-    (by simpa using n3) (by simpa [sub_eq_add_neg] using n2) (by simpa using n1)
-  rw [G6c_zero (-n) (-m) p q hp hq _ β α γ hβ hα, cosA_comm']
-
 /-- **`thm:6jeven`, germ form**: `G_{f,0} = d^f_{nm}(arccos x)`, `x = cosA α β γ`
 (`f ± m`, `f ± n` natural, `x ∈ [-1,1]`). -/
 theorem G6_zero_eq_wignerD (f m n : ℚ) (n1 : IsNat (f + m)) (n2 : IsNat (f - m))
     (n3 : IsNat (f + n)) (n4 : IsNat (f - n)) (α β γ : ℝ) (hα : α ≠ 0) (hβ : β ≠ 0)
     (hx : cosA α β γ ∈ Set.Icc (-1 : ℝ) 1) :
     G6 f m n α β γ 0 = wignerSmallDx f n m (cosA α β γ) := by
-  rw [G6_zero_eq_dZero6 f m n n1 n2 n3 n4 α β γ hα hβ, dZero6_eq_wignerD f m n n1 n2 n3 n4 hx]
+  rw [G6_zero_eq_dZero6 f m n ⟨n1, n2, n3, n4⟩ α β γ hα hβ, dZero6_eq_wignerD f m n n1 n2 n3 n4 hx]
 
 /-- The cosine of a triangle lies in `[-1,1]`. -/
 theorem cosA_mem_Icc (A B C : ℝ) (hA : 0 < A) (hB : 0 < B) (h1 : |A - B| ≤ C) (h2 : C ≤ A + B) :
