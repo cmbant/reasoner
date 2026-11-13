@@ -17,6 +17,13 @@ name = "MathLab"
 srcDir = "ThirdParty/math-lab"
 globs = ["MathLab.+"]
 
+# Vendored Euler-Maclaurin formula and Stirling series for log Gamma from girving/interval (see ThirdParty/interval/NOTICE.md).
+[[lean_lib]]
+name = "Interval"
+srcDir = "ThirdParty/interval"
+globs = ["Interval.EulerMaclaurin.+"]
+leanOptions = {autoImplicit = false, relaxedAutoImplicit = false}
+
 [[lean_lib]]
 name = "ThreeCopyQutritWerner"
 srcDir = "ThirdParty/math-lab/ThirdParty/PSI"
