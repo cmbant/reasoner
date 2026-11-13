@@ -262,6 +262,8 @@ public import FormalResearch.Racah.P2AnalyticCarrier6jPoly
 public import FormalResearch.Racah.P2AnalyticCarrier6jShape
 public import FormalResearch.Racah.P2AnalyticBulk3j
 public import FormalResearch.Racah.P2AnalyticUniform3j
+public import FormalResearch.Racah.P2AnalyticBridge3j
+public import FormalResearch.Racah.P2AnalyticBridge6j
 public import FormalResearch.Special
 public import FormalResearch.Wigner
 public import FormalResearch.Bridges.B2BlaschkeWalshGauge
