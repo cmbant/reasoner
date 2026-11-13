@@ -239,6 +239,13 @@ public import FormalResearch.Racah.P2RacahSystemOrth
 public import FormalResearch.Racah.P2RacahSystemSpec
 public import FormalResearch.Racah.P2RacahSystem
 public import FormalResearch.Racah.P2RacahSystemWigner
+public import FormalResearch.Racah.P2RacahPolyDiff
+public import FormalResearch.Racah.P2RacahPolyShift
+public import FormalResearch.Racah.P2RacahPolyRatio
+public import FormalResearch.Racah.P2RacahPolyMain
+public import FormalResearch.Racah.P2RacahPolyIdent
+public import FormalResearch.Racah.P2RacahPolyOrth
+public import FormalResearch.Racah.P2RacahPolyGround
 public import FormalResearch.Wigner
 public import FormalResearch.Bridges.B2BlaschkeWalshGauge
 public import FormalResearch.Bridges.B2BlaschkeGatePhase
