@@ -60,7 +60,7 @@ theorem cof3_ne_zero {M : Matrix (Fin 3) (Fin 4) ℂ} (hM : RowsIndep M) : cof3 
     exact fun i => congrFun this i
   obtain ⟨z, hz⟩ := exists_linearIndependent_cons_of_lt_finrank hli (by simp)
   have hu : IsUnit (consRow z M) := by
-    rw [← linearIndependent_rows_iff_isUnit]
+    rw [← linearIndependent_row_iff_isUnit]
     exact hz
   have hd : (consRow z M).det ≠ 0 := ((isUnit_iff_isUnit_det _).1 hu).ne_zero
   rw [det_consRow] at hd

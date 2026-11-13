@@ -32,11 +32,11 @@ noncomputable section
 def hermSub (n : ℕ) : Submodule ℝ (Matrix (Fin n) (Fin n) ℂ) where
   carrier := {M | Mᴴ = M}
   add_mem' := fun {a b} ha hb => by
-    simp only [Set.mem_setOf_eq] at *
+    simp only [Set.mem_ofPred_eq] at *
     rw [conjTranspose_add, ha, hb]
   zero_mem' := by simp
   smul_mem' := fun r {a} ha => by
-    simp only [Set.mem_setOf_eq] at *
+    simp only [Set.mem_ofPred_eq] at *
     rw [conjTranspose_smul, ha]; simp
 
 /-- The real space of Hermitian `n × n` matrices has dimension at most `n²`. -/
@@ -61,15 +61,15 @@ theorem finrank_hermitian_le (n : ℕ) : Module.finrank ℝ (hermSub n) ≤ n ^ 
       rcases lt_trichotomy i j with h | h | h
       · have r := h0 i j
         have im := h0 j i
-        rw [if_pos h.le] at r
-        rw [if_neg (not_le.2 h)] at im
+        rw [ite_eq_left h.le] at r
+        rw [ite_eq_right (not_le.2 h)] at im
         have h1 : (M.1 j i).im = -(M.1 i j).im := by rw [hent i j]; simp
         apply Complex.ext
         · simpa using r
         · simp only [Complex.zero_im]; linarith
       · subst h
         have r := h0 i i
-        rw [if_pos le_rfl] at r
+        rw [ite_eq_left le_rfl] at r
         have h1 : (M.1 i i).im = -(M.1 i i).im := by
           conv_lhs => rw [hent i i]
           simp
@@ -78,8 +78,8 @@ theorem finrank_hermitian_le (n : ℕ) : Module.finrank ℝ (hermSub n) ≤ n ^ 
         · simp only [Complex.zero_im]; linarith
       · have r := h0 i j
         have re := h0 j i
-        rw [if_neg (not_le.2 h)] at r
-        rw [if_pos h.le] at re
+        rw [ite_eq_right (not_le.2 h)] at r
+        rw [ite_eq_left h.le] at re
         have h1 : (M.1 i j).re = (M.1 j i).re := by rw [hent j i]; simp
         apply Complex.ext
         · simp only [Complex.zero_re]; linarith
@@ -164,7 +164,7 @@ theorem biseparable_card_le_25 (B : Matrix (Fin 8) (Fin 5) ℂ) (T : Fin 3 → M
     · by_cases h : a i = 0 <;> simp [h, hw i]
     · by_cases h : a i = 0
       · simp [h, hs₀S]
-      · simp only [h, if_false]; exact ⟨c i, a i, h, rfl⟩
+      · simp only [h, ite_false]; exact ⟨c i, a i, h, rfl⟩
     · rw [hXe]
       refine Finset.sum_congr rfl fun i _ => ?_
       by_cases h : a i = 0
@@ -198,11 +198,11 @@ theorem continuous_submatrix_equiv (e : Fin 8 ≃ Fin 2 × Fin 4) :
   continuous_matrix fun i j => continuous_id.matrix_elem (e i) (e j)
 
 theorem isCompact_S8 : IsCompact S8 :=
-  isCompact_iUnion fun c => isCompact_unitProd.image (continuous_submatrix_equiv _)
+  isCompact_iUnion fun _c => isCompact_unitProd.image (continuous_submatrix_equiv _)
 
 theorem continuous_reTrace : Continuous (reTrace (Fin 8)) := by
   show Continuous fun X : Matrix (Fin 8) (Fin 8) ℂ => (trace X).re
-  exact Complex.continuous_re.comp (continuous_finset_sum _ fun i _ => continuous_id.matrix_elem i i)
+  exact Complex.continuous_re.comp (continuous_finsetSum _ fun i _ => continuous_id.matrix_elem i i)
 
 theorem reTrace_S8 {M : Matrix (Fin 8) (Fin 8) ℂ} (hM : M ∈ S8) : reTrace (Fin 8) M = 1 := by
   obtain ⟨c, h⟩ := Set.mem_iUnion.1 hM

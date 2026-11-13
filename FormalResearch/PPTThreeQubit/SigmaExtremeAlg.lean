@@ -57,6 +57,7 @@ theorem ptG_apply (c : Fin 3) (M : Matrix (Fin 8) (Fin 8) R) (i j : Fin 8) :
       | 2 => ⟨2 * (j.val / 2) + i.val % 2, by omega⟩) := by
   fin_cases c <;> rfl
 
+omit [StarRing R] in
 theorem sum3_reorder {ι κ ℓ : Type*} [Fintype ι] [Fintype κ] [Fintype ℓ] (f : ι → κ → ℓ → R) :
     ∑ i, ∑ k, ∑ l, f i k l = ∑ l, ∑ k, ∑ i, f i k l := by
   rw [Finset.sum_comm]
@@ -92,8 +93,7 @@ abbrev Kω := QuadraticAlgebra ℚ (-1) (-1)
 noncomputable def φω : Kω →ₐ[ℚ] ℂ :=
   QuadraticAlgebra.lift ⟨ω, by
     have := ω_sq_add_ω_add_one
-    simp only [neg_smul, one_smul, Algebra.algebraMap_eq_smul_one, Rat.smul_def]
-    push_cast
+    simp only [neg_smul, one_smul]
     linear_combination this⟩
 
 end FormalResearch.PPTThreeQubit

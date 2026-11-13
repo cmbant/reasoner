@@ -39,7 +39,7 @@ theorem reduced_classical_rank_triangle
 theorem reduced_classical_rank_eq_common_split_defect
     {α ι : Type*} [DecidableEq α] [Fintype ι]
     (b : ι → Nat) (m k redRank : Nat) (s t : Finset α)
-    (hcommon : (s ∩ t).card = k)
+    (_hcommon : (s ∩ t).card = k)
     (hcard : Fintype.card ι = k + 1)
     (hlegs : (∑ C : ι, b C) = m + 2 * k)
     (htri : ∀ C : ι, 3 ≤ b C)

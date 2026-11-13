@@ -169,7 +169,7 @@ theorem e6A2CircleDefect_nonneg_iff_quartic_nonneg
     exact (not_lt_of_ge hQ) hprodneg
 
 /-- Constant quartic coefficient. -/
-def e6A2Q0 (ar ai br bi cr ci d : ℚ) : ℚ :=
+def e6A2Q0 (ar _ai br bi cr ci d : ℚ) : ℚ :=
   ar^2 - 2*ar*d - bi^2 - 2*bi*ci - br^2 - 2*br*cr - ci^2 - cr^2 + d^2
 
 /-- Linear quartic coefficient. -/
@@ -185,7 +185,7 @@ def e6A2Q3 (ar ai br bi cr ci d : ℚ) : ℚ :=
   4*(ai*ar + ai*d - bi*cr + br*ci)
 
 /-- Quartic leading coefficient. -/
-def e6A2Q4 (ar ai br bi cr ci d : ℚ) : ℚ :=
+def e6A2Q4 (ar _ai br bi cr ci d : ℚ) : ℚ :=
   ar^2 + 2*ar*d - bi^2 + 2*bi*ci - br^2 + 2*br*cr - ci^2 - cr^2 + d^2
 
 /-- Exact coefficient expansion of the cleared defect. -/
@@ -202,7 +202,7 @@ theorem e6A2Quartic_coefficient_expansion
   ring
 
 /-- Separate `t=infinity` / `u=-1` defect from the source verifier. -/
-def e6A2InfinityDefect (ar ai br bi cr ci d : ℚ) : ℚ :=
+def e6A2InfinityDefect (ar _ai br bi cr ci d : ℚ) : ℚ :=
   (d+ar)^2 - ((br-cr)^2 + (bi-ci)^2)
 
 /-- The infinity defect is exactly the quartic leading coefficient. -/

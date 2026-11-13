@@ -69,14 +69,14 @@ theorem Utrip_mul_conjTranspose : Utrip * Utripᴴ = 1 := by
   ext i j
   have := rr_mul_rr
   fin_cases i <;> fin_cases j <;>
-    simp [Utrip, mul_apply, Fin.sum_univ_four, conjTranspose_apply, conj_rr, Matrix.one_apply] <;>
+    simp [Utrip, mul_apply, Fin.sum_univ_four, conjTranspose_apply, conj_rr] <;>
     linear_combination (2 : ℂ) * this
 
 theorem conjTranspose_Utrip_mul : Utripᴴ * Utrip = 1 := by
   ext i j
   have := rr_mul_rr
   fin_cases i <;> fin_cases j <;>
-    simp [Utrip, mul_apply, Fin.sum_univ_four, conjTranspose_apply, conj_rr, Matrix.one_apply] <;>
+    simp [Utrip, mul_apply, Fin.sum_univ_four, conjTranspose_apply, conj_rr] <;>
     linear_combination (2 : ℂ) * this
 
 section Block
@@ -89,8 +89,8 @@ def rotate : Matrix (Fin 2 × Fin 4) (Fin 2 × Fin 4) ℂ :=
 
 theorem rotate_apply (i j : Fin 2) (k l : Fin 4) :
     rotate ρ (i, k) (j, l) = ∑ p, ∑ q, star (Utrip p k) * ρ (i, p) (j, q) * Utrip q l := by
-  simp [rotate, mul_apply, kronecker_apply, conjTranspose_apply, Fintype.sum_prod_type,
-    Matrix.one_apply, Finset.sum_mul, Finset.mul_sum]
+  simp [rotate, mul_apply, conjTranspose_apply, Fintype.sum_prod_type,
+    Matrix.one_apply, Finset.sum_mul]
   fin_cases j <;> simp <;> exact Finset.sum_comm
 
 /-- Swap invariance kills the triplet-singlet coherences `ρ'_{(i,k),(j,3)}`, `k ≠ 3`. -/

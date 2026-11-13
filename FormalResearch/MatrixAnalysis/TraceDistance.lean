@@ -50,7 +50,7 @@ variable {n : Type*} [Fintype n] [DecidableEq n]
 
 /-- **Witness distance bound** (`eq:ppt3-stability`, used in `eq:ppt3-dist-lift`).  If `-L ≤ W ≤ L + Λ`,
 `tr(Wρ) = -g` and `tr(Wσ) ≥ 0` for density matrices `ρ, σ`, then `½‖ρ - σ‖₁ ≥ g / (2L + Λ)`. -/
-theorem distance_lower_bound {W ρ σ : Matrix n n ℂ} {L Λ g : ℝ} (hL : 0 ≤ L) (hΛ : 0 ≤ Λ)
+theorem distance_lower_bound {W ρ σ : Matrix n n ℂ} {L Λ g : ℝ} (_hL : 0 ≤ L) (_hΛ : 0 ≤ Λ)
     (hLΛ : 0 < 2 * L + Λ) (hlo : (W + (L : ℂ) • (1 : Matrix n n ℂ)).PosSemidef)
     (hhi : (((L + Λ : ℝ) : ℂ) • (1 : Matrix n n ℂ) - W).PosSemidef)
     (hρ : ρ.IsHermitian) (hσ : σ.IsHermitian) (hρt : ρ.trace.re = 1) (hσt : σ.trace.re = 1)

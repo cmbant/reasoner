@@ -38,7 +38,7 @@ theorem swapMat_mul (M : Matrix (Fin 8) (Fin 8) ℂ) : swapMat * M = M.submatrix
   rw [Finset.sum_eq_single (swapBC i)]
   · simp [swapBC_swapBC]
   · intro k _ hk
-    rw [if_neg, zero_mul]
+    rw [ite_eq_right, zero_mul]
     intro h; exact hk ((swapBC_eq_iff i k).1 h)
   · simp
 
@@ -46,9 +46,9 @@ theorem mul_swapMat (M : Matrix (Fin 8) (Fin 8) ℂ) : M * swapMat = M.submatrix
   ext i j
   simp only [swapMat, Matrix.mul_apply, Matrix.of_apply, submatrix_apply, id]
   rw [Finset.sum_eq_single (swapBC j)]
-  · simp [swapBC_swapBC]
+  · simp
   · intro k _ hk
-    rw [if_neg, mul_zero]
+    rw [ite_eq_right, mul_zero]
     intro h; exact hk h
   · simp
 
@@ -60,8 +60,8 @@ theorem swapMat_herm : swapMatᴴ = swapMat := by
   ext i j
   simp only [swapMat, conjTranspose_apply, Matrix.of_apply]
   by_cases h : j = swapBC i
-  · rw [if_pos h, if_pos ((swapBC_eq_iff i j).2 h)]; simp
-  · rw [if_neg h, if_neg (fun h' => h ((swapBC_eq_iff i j).1 h'))]; simp
+  · rw [ite_eq_left h, ite_eq_left ((swapBC_eq_iff i j).2 h)]; simp
+  · rw [ite_eq_right h, ite_eq_right (fun h' => h ((swapBC_eq_iff i j).1 h'))]; simp
 
 /-- The triplet projector of `BC`: `P₃ = (1 + S_BC)/2`. -/
 def P3 : Matrix (Fin 8) (Fin 8) ℂ := (1 / 2 : ℝ) • (1 + swapMat)
@@ -74,8 +74,8 @@ theorem pinch_offdiag {ρ : Matrix (Fin 8) (Fin 8) ℂ} (hρ : ρ.IsHermitian) :
   rw [← swapMat_conj]
   have hS := swapMat_herm
   simp only [P3, P1, conjTranspose_mul, conjTranspose_smul, conjTranspose_add, conjTranspose_sub,
-    conjTranspose_one, hS, hρ.eq, Matrix.smul_mul, Matrix.mul_smul, Matrix.mul_add, Matrix.add_mul,
-    Matrix.mul_sub, Matrix.sub_mul, Matrix.mul_one, Matrix.one_mul, smul_add, smul_sub, smul_smul,
+    hS, hρ.eq, Matrix.smul_mul, Matrix.mul_smul, Matrix.add_mul,
+    Matrix.mul_sub, Matrix.mul_one, Matrix.one_mul, smul_add, smul_sub, smul_smul,
     Matrix.mul_assoc]
   simp only [star_trivial]
   module

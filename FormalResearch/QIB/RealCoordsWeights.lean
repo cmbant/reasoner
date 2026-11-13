@@ -59,7 +59,7 @@ theorem map_conj_mem_span {ι : Type*} [Fintype ι] [DecidableEq ι] (S : Set (M
     X.map conj ∈ Submodule.span ℂ S := by
   induction hX using Submodule.span_induction with
   | mem x hx => rw [hreal x hx]; exact Submodule.subset_span hx
-  | zero => simpa using Submodule.zero_mem _
+  | zero => simp
   | add x y _ _ hx hy => rw [Matrix.map_add _ (by simp)]; exact Submodule.add_mem _ hx hy
   | smul c x _ hx =>
     have : (c • x).map conj = (conj c) • x.map conj := by ext i j; simp
@@ -195,14 +195,14 @@ theorem exists_involution_fin (f g : Fin k → Fin 2)
     if hc : c ∈ A \ B then ((e ⟨c, hc⟩ : {c // c ∈ B \ A}) : Fin k)
     else if hc' : c ∈ B \ A then ((e.symm ⟨c, hc'⟩ : {c // c ∈ A \ B}) : Fin k) else c
   have hF1 : ∀ c (hc : c ∈ A \ B), F c = ((e ⟨c, hc⟩ : {c // c ∈ B \ A}) : Fin k) := by
-    intro c hc; simp only [F, dif_pos hc]
+    intro c hc; simp only [F, dite_eq_left hc]
   have hF2 : ∀ c (hc : c ∈ B \ A), F c = ((e.symm ⟨c, hc⟩ : {c // c ∈ A \ B}) : Fin k) := by
     intro c hc
     have : c ∉ A \ B := by
       intro h'; exact (Finset.mem_sdiff.1 hc).2 (Finset.mem_sdiff.1 h').1
-    simp only [F, dif_neg this, dif_pos hc]
+    simp only [F, dite_eq_right this, dite_eq_left hc]
   have hF3 : ∀ c, c ∉ A \ B → c ∉ B \ A → F c = c := by
-    intro c h1 h2; simp only [F, dif_neg h1, dif_neg h2]
+    intro c h1 h2; simp only [F, dite_eq_right h1, dite_eq_right h2]
   have hinv : Function.Involutive F := by
     intro c
     by_cases h1 : c ∈ A \ B
@@ -280,7 +280,7 @@ theorem exists_block_involution (x y : Fin n × Fin k → Fin 2)
     have := congrFun (hπ2 p.1) p.2
     simpa using this
 
-theorem Z_swap {m : Fin n → ℕ} {Z : Matrix (Copies n k) (Copies n k) ℂ} (hZ : Z ∈ frameDual n k)
+theorem Z_swap {_m : Fin n → ℕ} {Z : Matrix (Copies n k) (Copies n k) ℂ} (hZ : Z ∈ frameDual n k)
     (x y : Copies n k) (hw : wtc x = wtc y) : Z y x = Z x y := by
   obtain ⟨σ, hσ, hσ2, hxy⟩ := exists_block_involution (slotEquiv n k |>.symm x) ((slotEquiv n k).symm y)
     (fun a => by
@@ -320,7 +320,7 @@ theorem weightProj_sym (m : Fin n → ℕ) {Z : Matrix (Copies n k) (Copies n k)
   rw [Matrix.transpose_apply, weightProj_mul_apply, weightProj_mul_apply]
   by_cases hx : wtc x = m
   · by_cases hy : wtc y = m
-    · rw [Z_swap (m := m) hZ x y (hx.trans hy.symm)]; ring
+    · rw [Z_swap (_m := m) hZ x y (hx.trans hy.symm)]; ring
     · simp [hy]
   · simp [hx]
 

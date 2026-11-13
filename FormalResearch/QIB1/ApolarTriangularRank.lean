@@ -25,10 +25,10 @@ theorem apolarSquare_upper (d : Nat) : (apolarSquare d).IsUpperTriangular := by
     intro h
     subst j
     exact (lt_irrefl i) hij
-  rw [if_neg hne]
+  rw [ite_eq_right hne]
   have hijv : j.val < i.val := hij
   have h2 : i.val + 2 ≠ j.val := by omega
-  rw [if_neg h2]
+  rw [ite_eq_right h2]
 
 /-- Its diagonal entries are exactly the pivots isolated in `ApolarPivot.lean`. -/
 theorem apolarSquare_diag (d : Nat) (i : Fin (d - 2)) :

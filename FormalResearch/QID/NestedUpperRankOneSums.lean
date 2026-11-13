@@ -108,7 +108,7 @@ private theorem nestedExplicitRowAtomSum_core0 (r : Nat)
   rcases b with b | b
   · simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
       nestedRowAtom, nestedBasisVec, nestedOuter,
-      nestedRowContribution, nestedColSign] <;> norm_num
+      nestedRowContribution, nestedColSign]
   · fin_cases b <;>
       simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
         nestedRowAtom, nestedBasisVec, nestedOuter,
@@ -121,7 +121,7 @@ private theorem nestedExplicitRowAtomSum_core1 (r : Nat)
   rcases b with b | b
   · simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
       nestedRowAtom, nestedBasisVec, nestedOuter,
-      nestedRowContribution, nestedColSign] <;> norm_num
+      nestedRowContribution, nestedColSign]
   · fin_cases b <;>
       simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
         nestedRowAtom, nestedBasisVec, nestedOuter,
@@ -134,11 +134,11 @@ private theorem nestedExplicitRowAtomSum_core2 (r : Nat)
   rcases b with b | b
   · simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
       nestedRowAtom, nestedBasisVec, nestedOuter,
-      nestedRowContribution, nestedColSign] <;> norm_num
+      nestedRowContribution, nestedColSign]
   · fin_cases b <;>
       simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
         nestedRowAtom, nestedBasisVec, nestedOuter,
-        nestedRowContribution, nestedColSign] <;> norm_num
+        nestedRowContribution, nestedColSign]
 
 private theorem nestedExplicitRowAtomSum_core3 (r : Nat)
     (b : NestedIdx (r + 1)) :
@@ -147,11 +147,11 @@ private theorem nestedExplicitRowAtomSum_core3 (r : Nat)
   rcases b with b | b
   · simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
       nestedRowAtom, nestedBasisVec, nestedOuter,
-      nestedRowContribution, nestedColSign] <;> norm_num
+      nestedRowContribution, nestedColSign]
   · fin_cases b <;>
       simp [nestedExplicitRowAtomSum, nestedSpecialRowAtomSum,
         nestedRowAtom, nestedBasisVec, nestedOuter,
-        nestedRowContribution, nestedColSign] <;> norm_num
+        nestedRowContribution, nestedColSign]
 
 /-- The explicit `n+1` row-sign rank-one atoms collect exactly to `R_n`. -/
 theorem nestedExplicitRowAtomSum_eq (r : Nat) :

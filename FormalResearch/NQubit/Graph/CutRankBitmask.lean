@@ -40,7 +40,7 @@ theorem testBit_ofBitsL (l : List Bool) (j : ℕ) : (ofBitsL l).testBit j = l.ge
     | succ j =>
       rw [Nat.testBit_succ]
       have : (ofBitsL (b :: bs)) / 2 = ofBitsL bs := by
-        cases b <;> simp [ofBitsL] <;> omega
+        cases b <;> simp [ofBitsL]; omega
       rw [this, ih]
       simp
 

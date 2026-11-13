@@ -52,9 +52,9 @@ theorem exists_biseparable_state : ∃ σ : Matrix (Fin 8) (Fin 8) ℂ, IsBisepa
   · intro _
     left
     refine ⟨Pi.single 0 1, Pi.single 0 1, fun i => ?_⟩
-    fin_cases i <;> simp [Pi.single_apply, Fin.ext_iff]
+    fin_cases i <;> simp [Fin.ext_iff]
   · simp
-  · simp [Matrix.trace, vecMulVec_apply, Pi.single_apply, Fin.sum_univ_succ]
+  · simp [Matrix.trace, vecMulVec_apply, Pi.single_apply]
 
 /-- A lower bound on every `traceDist ρ σ` with `σ` biseparable of unit trace bounds `bsDist`. -/
 theorem le_bsDist {ρ : Matrix (Fin 8) (Fin 8) ℂ} {c : ℝ}

@@ -91,7 +91,7 @@ theorem tnorm_le_two_tnormG (X : Matrix n n ℂ) : tnorm (X + Xᴴ) ≤ 2 * tnor
   have hMM : Mᴴ * M = 1 := by
     rw [hMh, hM]
     simp only [Matrix.sub_mul, Matrix.mul_sub, Matrix.one_mul, Matrix.mul_one, Matrix.smul_mul,
-      Matrix.mul_smul, hE2, smul_smul]
+      Matrix.mul_smul, hE2]
     ext i j
     simp only [Matrix.sub_apply, Matrix.smul_apply, smul_eq_mul]
     ring

@@ -35,7 +35,7 @@ theorem normSqVec_nonneg (v : ι → ℂ) : 0 ≤ normSqVec v := by
   unfold normSqVec
   simp only [dotProduct, Complex.re_sum]
   refine Finset.sum_nonneg fun i _ => ?_
-  simp [Complex.star_def, Complex.mul_re]
+  simp [Complex.mul_re]
   nlinarith [sq_nonneg (v i).re, sq_nonneg (v i).im]
 
 theorem eq_zero_of_normSqVec_eq_zero {ι : Type*} [Fintype ι] {v : ι → ℂ} (h : normSqVec v = 0) : v = 0 := by

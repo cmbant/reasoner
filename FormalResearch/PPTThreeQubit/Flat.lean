@@ -87,7 +87,7 @@ lemma comp8 (l k i j : Fin 8) :
   rw [this, pauli_comp, pauli_comp, pauli_comp]
   rw [if_congr hiff rfl rfl]
   by_cases hA : bA l = bA j ∧ bA k = bA i <;> by_cases hB : bB l = bB j ∧ bB k = bB i <;>
-    by_cases hC : bC l = bC j ∧ bC k = bC i <;> simp [hA, hB, hC] <;> norm_num
+    by_cases hC : bC l = bC j ∧ bC k = bC i <;> simp [hA, hB, hC]; norm_num
 
 /-- `sec:ppt3-flat` (completeness of the Pauli basis): `M = (1/8) ∑_{pqr} tr(P_pqr M) P_pqr`
 for every `8 × 8` matrix.  (Proved.) -/

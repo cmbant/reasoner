@@ -60,7 +60,7 @@ theorem triple3_sum_id (a b c : Fin 8 → ℂ) :
   simp only [vecMulVec_apply, Pi.add_apply, Pi.smul_apply, Pi.star_apply, star_add, star_smul,
     star_ω, hstar, Matrix.add_apply, Matrix.smul_apply, smul_eq_mul]
   ring_nf
-  simp only [ω_cube, ω_pow4, ω_pow5, ω_pow6, hω2]
+  simp only [ω_cube, ω_pow4, hω2]
   ring_nf
 
 theorem det_A1_zero (x y : ℝ) :

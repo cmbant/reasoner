@@ -37,7 +37,7 @@ section Frame
 theorem copies_cj {n : ℕ} (k : ℕ) (ψ : Ψ n) :
     copies k (cj ψ) = star (copies k ψ) := by
   funext x
-  simp [copies, cj, Pi.star_apply, star_prod, Complex.star_def, map_prod]
+  simp [copies, cj, Pi.star_apply, star_prod]
 
 /-- `(Θψ)^{⊗k} = R ψ̄^{⊗k}` with `R = rotK k (ε,…,ε)`. -/
 theorem copies_theta {n : ℕ} (k : ℕ) (ψ : Ψ n) :
@@ -63,7 +63,7 @@ theorem qf_mulVec_mulVec (M U : Matrix ι ι ℂ) (v w : ι → ℂ) :
 
 theorem qf_star_star (M : Matrix ι ι ℂ) (c : ι → ℂ) :
     qf M (star c) (star c) = conj (qf (M.map conj) c c) := by
-  simp [qf, dotProduct, Matrix.mulVec, map_sum, Pi.star_apply, mul_comm, mul_left_comm]
+  simp [qf, dotProduct, Matrix.mulVec, map_sum, Pi.star_apply, mul_comm]
 
 theorem qf_real_of_psd {M : Matrix ι ι ℂ} (hM : M.PosSemidef) (c : ι → ℂ) :
     conj (qf M c c) = qf M c c := by
@@ -86,8 +86,8 @@ theorem sector_mass_theta (ha : ∀ l, 0 < a l) (hW1 : Wᴴ * W = 1) (hW2 : W * 
     (hG : IsotypicInvariants (fun l : Fin r => Fin (a l)) (B := fun l : Fin r => Fin (b l))
       (transportSet W (frameGroup n k))) (ψ : Ψ n) (l : Fin r) (hb : 0 < b l) :
     (tau (Wᴴ *ᵥ copies k (Θ ψ)) l).trace = (tau (Wᴴ *ᵥ copies k ψ) l).trace := by
-  haveI : ∀ l, Nonempty (Fin (a l)) := fun l => ⟨⟨0, ha l⟩⟩
-  haveI : Nonempty (Fin (b l)) := ⟨⟨0, hb⟩⟩
+  have : ∀ l, Nonempty (Fin (a l)) := fun l => ⟨⟨0, ha l⟩⟩
+  have : Nonempty (Fin (b l)) := ⟨⟨0, hb⟩⟩
   obtain ⟨hSC, hCS, hreal, hconj⟩ := frame_real_data n k
   have hZreal := sectorProj_real hW1 hW2 hG l (frameS n k) hSC hCS hreal hconj
   have hZC := sectorProj_mem hW1 hW2 hG l
@@ -162,14 +162,14 @@ theorem Pe_blockdecomp_blind (n k : ℕ) :
           (tau (Wᴴ *ᵥ copies k ψ) l).trace.re ≤ Pe k ψ := by
   obtain ⟨r, a, b, W, ha, hW1, hW2, hG⟩ :=
     exists_isotypic_invariants (frameGroup n k) (frameGroup_star_closed n k)
-  haveI : ∀ l, Nonempty (Fin (a l)) := fun l => ⟨⟨0, ha l⟩⟩
+  have : ∀ l, Nonempty (Fin (a l)) := fun l => ⟨⟨0, ha l⟩⟩
   refine ⟨r, a, b, W, ha, hW1, hW2, hG, fun ψ => ⟨?_, ?_, ?_⟩⟩
   · rw [Pe_eq_invErr_coords hW1 hW2, invErr_eq hG]
   · exact fun l hb => sector_mass_theta ha hW1 hW2 hG ψ l hb
   · rw [Pe_eq_invErr_coords hW1 hW2]
     refine invErr_ge_of_eq hG _ _ _ fun l hl => ?_
     have hb1 : b l = 1 := (Finset.mem_filter.1 hl).2
-    haveI : Subsingleton (Fin (b l)) := by rw [hb1]; infer_instance
+    have : Subsingleton (Fin (b l)) := by rw [hb1]; infer_instance
     exact tau_eq_of_trace_eq _ _ l
       (sector_mass_theta ha hW1 hW2 hG ψ l (by omega)).symm
 

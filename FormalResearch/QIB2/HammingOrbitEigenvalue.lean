@@ -12,9 +12,9 @@ open scoped BigOperators
 
 /-- Sum of a constant over the k-subsets of an n-element coordinate block. -/
 lemma sum_powersetCard_const (n k : Nat) (c : Int) :
-    (∑ s ∈ (Finset.univ : Finset (Fin n)).powersetCard k, c) =
+    (∑ _s ∈ (Finset.univ : Finset (Fin n)).powersetCard k, c) =
       (n.choose k : Int) * c := by
-  simp [nsmul_eq_mul]
+  simp
 
 /-- The signed radius-r Hamming orbit count after splitting the d coordinates
 into an m-coordinate `-1` character block and a `(d-m)`-coordinate `+1`
@@ -23,7 +23,7 @@ sign `(-1)^l`; the two inner sums enumerate the actual subsets. -/
 def signedHammingOrbitCount (d m r : Nat) : Int :=
   ∑ l ∈ Finset.range (r + 1),
     ∑ A ∈ (Finset.univ : Finset (Fin m)).powersetCard l,
-      ∑ B ∈ (Finset.univ : Finset (Fin (d - m))).powersetCard (r - l),
+      ∑ _B ∈ (Finset.univ : Finset (Fin (d - m))).powersetCard (r - l),
         (-1 : Int) ^ A.card
 
 /-- The signed Hamming orbit count is exactly the binary Krawtchouk eigenvalue.

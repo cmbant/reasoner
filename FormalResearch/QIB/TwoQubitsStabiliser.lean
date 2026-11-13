@@ -52,8 +52,8 @@ def E1 : Matrix (Fin 2) (Fin 2) ℂ := !![0, 1; 0, 0]
 def F1 : Matrix (Fin 2) (Fin 2) ℂ := !![0, 0; 1, 0]
 
 theorem matTriple_H1E1F1 : FormalResearch.QIB.Sl2Kernel.MatTriple H1 E1 F1 where
-  HE := by ext i j; fin_cases i <;> fin_cases j <;> simp [H1, E1] <;> norm_num
-  HF := by ext i j; fin_cases i <;> fin_cases j <;> simp [H1, F1] <;> norm_num
+  HE := by ext i j; fin_cases i <;> fin_cases j <;> simp [H1, E1]; norm_num
+  HF := by ext i j; fin_cases i <;> fin_cases j <;> simp [H1, F1]; norm_num
   EF := by ext i j; fin_cases i <;> fin_cases j <;> simp [H1, E1, F1]
 
 /-- Every two-qubit vector is killed by a nonzero element of `sl₂(ℂ)` acting collectively. -/

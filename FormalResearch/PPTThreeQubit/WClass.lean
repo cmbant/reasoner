@@ -288,7 +288,7 @@ theorem isWClass_u_v :
       rw [hyperdet_u_add_v]; norm_num) (by
       rw [sub_eq_add_neg, ← neg_smul, hyperdet_u_add_v]; norm_num)
   have h4 : ((Complex.normSq (2 : ℂ) : ℝ) : ℂ) = 4 := by
-    simp [Complex.normSq_apply]; norm_num
+    simp; norm_num
   rwa [vecMulVec_smul_star, h4] at h
 
 /-- `eq:ppt3-w-atoms`, `P([u + i(w - v)]) = [u] + [w - v]`: `u ± i(w - v)` are the product vectors
@@ -297,11 +297,9 @@ theorem isWClass_u_wv :
     IsWClass (vecMulVec (uVec 1) (star (uVec 1)) + vecMulVec (wVec - vVec) (star (wVec - vVec))) := by
   have h := isWClass_pair (x := uVec 1) (y := Complex.I • (wVec - vVec)) (by
       simp [hyperdet, uVec, wVec, vVec]
-      try ring_nf
-      try simp [Complex.I_sq]) (by
+      try ring_nf) (by
       simp [hyperdet, uVec, wVec, vVec]
-      try ring_nf
-      try simp [Complex.I_sq])
+      try ring_nf)
   rwa [vecMulVec_smul_star, Complex.normSq_I, Complex.ofReal_one, one_smul] at h
 
 /-- `eq:ppt3-w-atoms`, `C([v + b(w - o)]) = [v + b w] + b² [o]` for real `b`. -/

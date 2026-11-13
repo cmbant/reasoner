@@ -57,7 +57,7 @@ theorem tau_theta_conj (ha : ∀ l, 0 < a l) (hW1 : Wᴴ * W = 1) (hW2 : W * W�
     (hG : IsotypicInvariants (fun l : Fin r => Fin (a l)) (B := fun l : Fin r => Fin (b l))
       (transportSet W (frameGroup n k))) (ψ : Ψ n) (l : Fin r) :
     tau (Wᴴ *ᵥ copies k (Θ ψ)) l = (tau (Wᴴ *ᵥ copies k ψ) l).map conj := by
-  haveI : ∀ l, Nonempty (Fin (a l)) := fun l => ⟨⟨0, ha l⟩⟩
+  have : ∀ l, Nonempty (Fin (a l)) := fun l => ⟨⟨0, ha l⟩⟩
   set R := rotK k (fun _ : Fin n => eps) with hR
   have h1 : Wᴴ *ᵥ copies k (Θ ψ) = (Wᴴ * R * W) *ᵥ (star (Wᴴ *ᵥ copies k ψ)) := by
     rw [copies_theta, ← hR, ← mulVec_star_of_real hreal, Matrix.mulVec_mulVec, Matrix.mulVec_mulVec,
@@ -83,7 +83,7 @@ theorem Pe_antiunitary (ha : ∀ l, 0 < a l) (hW1 : Wᴴ * W = 1) (hW2 : W * W�
       (transportSet W (frameGroup n k))) (ψ : Ψ n)
     (hψ : star (copies k ψ) ⬝ᵥ copies k ψ = 1) :
     1 - 2 * Pe k ψ = ∑ l, imNorm (tau (Wᴴ *ᵥ copies k ψ) l) := by
-  haveI : ∀ l, Nonempty (Fin (a l)) := fun l => ⟨⟨0, ha l⟩⟩
+  have : ∀ l, Nonempty (Fin (a l)) := fun l => ⟨⟨0, ha l⟩⟩
   have hWn : (Wᴴ)ᴴ * Wᴴ = 1 := by rw [Matrix.conjTranspose_conjTranspose]; exact hW2
   have h1 : star (Wᴴ *ᵥ copies k ψ) ⬝ᵥ (Wᴴ *ᵥ copies k ψ) = 1 := by
     rw [norm_mulVec_of_unitary _ hWn]; exact hψ
@@ -113,7 +113,7 @@ theorem Pe_ge_blind (ha : ∀ l, 0 < a l) (hW1 : Wᴴ * W = 1) (hW2 : W * Wᴴ =
       (transportSet W (frameGroup n k))) (ψ : Ψ n) (T : Finset (Fin r))
     (hT : ∀ l ∈ T, (tau (Wᴴ *ᵥ copies k ψ) l).map conj = tau (Wᴴ *ᵥ copies k ψ) l) :
     (1 / 2) * ∑ l ∈ T, (tau (Wᴴ *ᵥ copies k ψ) l).trace.re ≤ Pe k ψ := by
-  haveI : ∀ l, Nonempty (Fin (a l)) := fun l => ⟨⟨0, ha l⟩⟩
+  have : ∀ l, Nonempty (Fin (a l)) := fun l => ⟨⟨0, ha l⟩⟩
   rw [Pe_eq_invErr_coords hW1 hW2]
   exact invErr_ge_blind hG (fun l => tau_theta_conj ha hW1 hW2 hreal hG ψ l) T hT
 
