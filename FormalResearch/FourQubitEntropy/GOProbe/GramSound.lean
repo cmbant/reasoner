@@ -28,7 +28,7 @@ theorem quad_nonneg_of_dd {m : ℕ} (E : Fin m → Fin m → ℝ) (hsym : ∀ i 
     simp only [hg]
     by_cases h : i = j
     · subst h; rfl
-    · rw [if_neg h, if_neg (Ne.symm h), hsym]
+    · rw [ite_eq_right h, ite_eq_right (Ne.symm h), hsym]
   have hg0 : ∀ i j, 0 ≤ g i j := by
     intro i j; simp only [hg]; split_ifs <;> positivity
   -- pointwise bound
@@ -38,10 +38,10 @@ theorem quad_nonneg_of_dd {m : ℕ} (E : Fin m → Fin m → ℝ) (hsym : ∀ i 
     by_cases h : i = j
     · subst h
       have h0 : g i i = 0 := by simp [hg]
-      rw [if_pos rfl, h0]
+      rw [ite_eq_left rfl, h0]
       apply le_of_eq
       ring
-    · simp only [hg, if_neg h]
+    · simp only [hg, ite_eq_right h]
       have h2 : |E i j * (x i * x j)| ≤ |E i j| * ((x i) ^ 2 + (x j) ^ 2) / 2 := by
         rw [abs_mul]
         have h4 : |x i * x j| ≤ ((x i) ^ 2 + (x j) ^ 2) / 2 := by
@@ -154,7 +154,7 @@ theorem sum_ite_ne {m : ℕ} (i : Fin m) (c : ℝ) :
   have : ∀ j : Fin m, (if i = j then (0 : ℝ) else c) = c - (if i = j then c else 0) := by
     intro j; split_ifs <;> ring
   simp only [this, Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ, Fintype.card_fin,
-    nsmul_eq_mul, Finset.sum_ite_eq, Finset.mem_univ, if_true]
+    nsmul_eq_mul, Finset.sum_ite_eq, Finset.mem_univ, ite_true]
 
 /-- Decomposition of the Gram matrix: `G = AAᵀ/s + E` with `E` symmetric and diagonally dominant. -/
 theorem gram_decomp {m r : ℕ} (A : Fin m → Fin r → ℤ) (R C : Fin m → Fin m → ℤ)
@@ -200,7 +200,7 @@ theorem gram_decomp {m r : ℕ} (A : Fin m → Fin r → ℤ) (R C : Fin m → F
       intro j
       by_cases hij : i = j
       · simp [hij]
-      · simp only [if_neg hij]
+      · simp only [ite_eq_right hij]
         rw [hEij, abs_div, abs_of_pos hgR, ← add_div]
         apply div_le_div_of_nonneg_right _ hgR.le
         have e1 : (R i j : ℝ) + (C i j : ℝ) / cd = ((cd * R i j + C i j : ℤ) : ℝ) / cd := by
@@ -291,17 +291,17 @@ theorem dd_nonneg {m : ℕ} (E Q : Fin m → Fin m → ℝ) (hsym : ∀ i j, E i
     simp only [hg]
     by_cases h : i = j
     · subst h; rfl
-    · rw [if_neg h, if_neg (Ne.symm h), hsym]
+    · rw [ite_eq_right h, ite_eq_right (Ne.symm h), hsym]
   have hpt : ∀ i j, (if i = j then 2 * E i i * Q i i else 0) - g i j * (Q i i + Q j j)
       ≤ E i j * (Q i j + Q j i) := by
     intro i j
     by_cases h : i = j
     · subst h
       have h0 : g i i = 0 := by simp [hg]
-      rw [if_pos rfl, h0]
+      rw [ite_eq_left rfl, h0]
       apply le_of_eq
       ring
-    · simp only [hg, if_neg h]
+    · simp only [hg, ite_eq_right h]
       have h2 : |E i j * (Q i j + Q j i)| ≤ |E i j| * (Q i i + Q j j) := by
         rw [abs_mul]
         exact mul_le_mul_of_nonneg_left (hQ i j) (abs_nonneg _)

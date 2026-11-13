@@ -59,7 +59,7 @@ theorem encode_xor_left {k l : ℕ} (c : Cut k l) (a0 b' : Fin k → Bool) (r0 :
 
 theorem encode_xor_both {k l : ℕ} (c : Cut k l) (a0 b' : Fin k → Bool) (r0 r' : Fin l → Bool) :
     encode c (cfXor a0 b') (cfXor r0 r') = cfXor (encode c a0 r0) (encode c b' r') := by
-  funext i; rcases h : c i with j | j <;> simp [encode, cfXor, cfZero, h]
+  funext i; rcases h : c i with j | j <;> simp [encode, cfXor, h]
 
 /-! ### The cubic formula for one bijective cut -/
 
@@ -181,7 +181,7 @@ theorem sum_encode_right {k l : ℕ} (c : Cut k l) (hc : Function.Bijective c) (
 theorem isLeft_maskCut (k l : ℕ) [NeZero k] [NeZero l] (m : Fin 7 → Bool) (i : Fin 7) :
     (maskCut k l m i).isLeft = m i := by
   unfold maskCut
-  cases h : m i <;> simp [h]
+  cases h : m i <;> simp
 
 /-- **The cubic formula** for one bijective mask cut. -/
 theorem redApplyT_mask {k l : ℕ} [NeZero k] [NeZero l] (m : Fin 7 → Bool)
@@ -316,7 +316,7 @@ def cfPc (n : ℕ) : ℕ := (cfPcTab >>> (3 * n)) % 8
 
 theorem weight_maskOfNat : ∀ n < 128, weight (maskOfNat n) = cfPc n := by decide +kernel
 
-theorem sub_maskOfNat {D M : ℕ} (hD : D < 128) (hM : M < 128) :
+theorem sub_maskOfNat {D M : ℕ} (hD : D < 128) (_hM : M < 128) :
     (∀ i, maskOfNat D i = true → maskOfNat M i = true) ↔ D &&& M = D := by
   constructor
   · intro h
@@ -337,7 +337,7 @@ theorem sub_maskOfNat {D M : ℕ} (hD : D < 128) (hM : M < 128) :
     rw [hi] at this
     simpa using this
 
-theorem disj_maskOfNat {E M : ℕ} (hE : E < 128) (hM : M < 128) :
+theorem disj_maskOfNat {E M : ℕ} (hE : E < 128) (_hM : M < 128) :
     (∀ i, maskOfNat E i = true → maskOfNat M i = false) ↔ E &&& M = 0 := by
   constructor
   · intro h
@@ -370,7 +370,7 @@ def cubNat (pN : ℕ → Prop) [DecidablePred pN] (ψ : ℕ → ℝ) (z : ℕ) :
 
 theorem cubicMaskSumT_nat (P : (Fin 7 → Bool) → Prop) [DecidablePred P]
     (pN : ℕ → Prop) [DecidablePred pN] (hP : ∀ M < 128, P (maskOfNat M) ↔ pN M)
-    (f g h : BitString → ℝ) (z : ℕ) (hz : z < 128) :
+    (f g h : BitString → ℝ) (z : ℕ) (_hz : z < 128) :
     cubicMaskSumT f g h (maskOfNat z) P =
       cubNatT pN (fun n => f (maskOfNat n)) (fun n => g (maskOfNat n)) (fun n => h (maskOfNat n)) z := by
   unfold cubicMaskSumT cubNatT
@@ -378,19 +378,19 @@ theorem cubicMaskSumT_nat (P : (Fin 7 → Bool) → Prop) [DecidablePred P]
   refine Finset.sum_congr rfl fun M hM => ?_
   have hM' := Finset.mem_range.1 hM
   by_cases hpN : pN M
-  · rw [if_pos ((hP M hM').2 hpN), if_pos hpN, sum_maskOfNat]
+  · rw [ite_eq_left ((hP M hM').2 hpN), ite_eq_left hpN, sum_maskOfNat]
     refine Finset.sum_congr rfl fun D hD => ?_
     have hD' := Finset.mem_range.1 hD
     by_cases hsub : D &&& M = D
-    · rw [if_pos ((sub_maskOfNat hD' hM').2 hsub), if_pos hsub, sum_maskOfNat]
+    · rw [ite_eq_left ((sub_maskOfNat hD' hM').2 hsub), ite_eq_left hsub, sum_maskOfNat]
       refine Finset.sum_congr rfl fun E hE => ?_
       have hE' := Finset.mem_range.1 hE
       by_cases hdis : E &&& M = 0
-      · rw [if_pos ((disj_maskOfNat hE' hM').2 hdis), if_pos hdis, ← maskOfNat_xor, ← maskOfNat_xor,
+      · rw [ite_eq_left ((disj_maskOfNat hE' hM').2 hdis), ite_eq_left hdis, ← maskOfNat_xor, ← maskOfNat_xor,
           ← maskOfNat_xor, ← maskOfNat_xor]
-      · rw [if_neg (fun h => hdis ((disj_maskOfNat hE' hM').1 h)), if_neg hdis]
-    · rw [if_neg (fun h => hsub ((sub_maskOfNat hD' hM').1 h)), if_neg hsub]
-  · rw [if_neg (fun h => hpN ((hP M hM').1 h)), if_neg hpN]
+      · rw [ite_eq_right (fun h => hdis ((disj_maskOfNat hE' hM').1 h)), ite_eq_right hdis]
+    · rw [ite_eq_right (fun h => hsub ((sub_maskOfNat hD' hM').1 h)), ite_eq_right hsub]
+  · rw [ite_eq_right (fun h => hpN ((hP M hM').1 h)), ite_eq_right hpN]
 
 theorem cubicMaskSum_nat (P : (Fin 7 → Bool) → Prop) [DecidablePred P]
     (pN : ℕ → Prop) [DecidablePred pN] (hP : ∀ M < 128, P (maskOfNat M) ↔ pN M)

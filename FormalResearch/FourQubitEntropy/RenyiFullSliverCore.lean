@@ -191,7 +191,7 @@ theorem end_Sp {u v y : ℝ} (hu0 : 0 ≤ u) (hu1 : u ≤ 1 / 16) (hv0 : 0 ≤ v
     exact ⟨hpos.le, fun _ => hpos⟩
 
 /-- Removing `ε` for the row `Sp`: if `v - v₀ ≤ 21ε/10`, then `P(u,v) + ε (A + B v) ≥ P(u,v₀) + 9ε/10`. -/
-theorem core_Sp {u v v0 e : ℝ} (hu0 : 0 ≤ u) (hu1 : u ≤ 1 / 16) (hv0 : 0 ≤ v0) (hv : v0 ≤ v)
+theorem core_Sp {u v v0 e : ℝ} (hu0 : 0 ≤ u) (_hu1 : u ≤ 1 / 16) (hv0 : 0 ≤ v0) (hv : v0 ≤ v)
     (hv1 : v ≤ 1 / 20) (he0 : 0 ≤ e) (hd : v - v0 ≤ 21 / 10 * e) :
     slP (2 / 125 : ℝ) (7 / 500 : ℝ) (-6 : ℝ) (69 / 50 : ℝ) (-(103 / 20) : ℝ) (0 : ℝ) u v0 + 9 / 10 * e ≤ slP (2 / 125 : ℝ) (7 / 500 : ℝ) (-6 : ℝ) (69 / 50 : ℝ) (-(103 / 20) : ℝ) (0 : ℝ) u v + e * ((147 / 100 : ℝ) + (16 : ℝ) * v) := by
   have hΔ0 : 0 ≤ v - v0 := by linarith

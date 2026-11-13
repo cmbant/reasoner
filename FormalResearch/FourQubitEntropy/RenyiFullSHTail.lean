@@ -91,7 +91,7 @@ theorem sh_small_tail {u δ : ℝ} (hu0 : 0 ≤ u) (hu1 : u ≤ 1 / 4) (hδ0 : 0
     have hδ : δ = 0 := le_antisymm hδu hδ0
     subst hδ
     have e : (![(1 - 0 + 0) / 2, (1 - 0 - 0) / 2, 0 / 2, 0 / 2] : Fin 4 → ℝ) = c1 := by
-      unfold c1; ext i; fin_cases i <;> simp <;> norm_num
+      unfold c1; ext i; fin_cases i <;> simp
     rw [e, Lam_c1 (by unfold qS; norm_num) (by unfold qS; norm_num)]
     unfold aL bL gL; norm_num
   · have hs : ∀ (a lo : ℝ), 0 < lo → lo < 1 / 2 → a ≤ bqA lo → lo ≤ u → shQ a u ≤ 8023 / 4800 →

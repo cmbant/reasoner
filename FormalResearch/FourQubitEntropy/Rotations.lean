@@ -52,7 +52,7 @@ theorem cx_unitary {a b : ℝ} (h : a ^ 2 + b ^ 2 = 1) : (cx a b)ᴴ * cx a b = 
   have hI : Complex.I ^ 2 = -1 := Complex.I_sq
   ext i j
   fin_cases i <;> fin_cases j <;>
-  simp [cx, Matrix.mul_apply, Matrix.conjTranspose_apply, Fin.sum_univ_two, Matrix.one_apply,
+  simp [cx, Matrix.mul_apply, Matrix.conjTranspose_apply, Fin.sum_univ_two,
     Complex.conj_ofReal] <;>
   first | linear_combination h' | linear_combination h' + (-(b : ℂ) ^ 2) * hI | ring_nf
 
@@ -60,7 +60,7 @@ theorem cy_unitary {a b : ℝ} (h : a ^ 2 + b ^ 2 = 1) : (cy a b)ᴴ * cy a b = 
   have h' : (a : ℂ) ^ 2 + (b : ℂ) ^ 2 = 1 := by exact_mod_cast h
   ext i j
   fin_cases i <;> fin_cases j <;>
-  simp [cy, Matrix.mul_apply, Matrix.conjTranspose_apply, Fin.sum_univ_two, Matrix.one_apply,
+  simp [cy, Matrix.mul_apply, Matrix.conjTranspose_apply, Fin.sum_univ_two,
     Complex.conj_ofReal] <;>
   first | linear_combination h' | ring_nf
 
@@ -76,10 +76,9 @@ theorem magic_cx {a b : ℝ} (h : a ^ 2 + b ^ 2 = 1) :
   ext ⟨i1, i2⟩ ⟨j1, j2⟩
   fin_cases i1 <;> fin_cases i2 <;> fin_cases j1 <;> fin_cases j2 <;>
   simp [Matrix.mul_apply, Matrix.conjTranspose_apply, magicB, kron, cx, rotX,
-    Matrix.kroneckerMap_apply, Fintype.sum_prod_type, Fin.sum_univ_two, rt_conj,
-    Complex.conj_ofReal] <;>
+    Matrix.kroneckerMap_apply, Fintype.sum_prod_type, Fin.sum_univ_two, rt_conj] <;>
   all_goals (try ring_nf)
-  all_goals (try simp only [Complex.I_sq, hI4, hrt2, hrt4])
+  all_goals (try simp only [Complex.I_sq, hI4, hrt2])
   all_goals (try ring_nf)
   all_goals (try linear_combination h')
 
@@ -97,7 +96,7 @@ theorem magic_cy {a b : ℝ} (h : a ^ 2 + b ^ 2 = 1) :
   simp [Matrix.mul_apply, Matrix.conjTranspose_apply, magicB, kron, cy, rotY,
     Matrix.kroneckerMap_apply, Fintype.sum_prod_type, Fin.sum_univ_two, rt_conj]
   all_goals (try ring_nf)
-  all_goals (try simp only [Complex.I_sq, hI4, hrt2, hrt4])
+  all_goals (try simp only [Complex.I_sq, hrt2])
   all_goals (try ring_nf)
   all_goals (try linear_combination h')
 

@@ -40,7 +40,7 @@ theorem dig_add_aux (a b : ℕ) : ∀ n : ℕ, (∀ i < n, dig i a + dig i b ≤
     have hlt : a % 256 ^ n + b % 256 ^ n < 256 ^ n := by
       rw [← hlow]; exact Nat.mod_lt _ hpos
     have hdiv : (a + b) / 256 ^ n = a / 256 ^ n + b / 256 ^ n := by
-      rw [Nat.add_div hpos, if_neg (by omega)]; simp
+      rw [Nat.add_div hpos, ite_eq_right (by omega)]; simp
     have hn := h n (Nat.lt_succ_self n)
     have hdn : dig n (a + b) = dig n a + dig n b := by
       unfold dig at hn ⊢
@@ -149,22 +149,22 @@ theorem addGo_spec (x : ℕ → ℝ) (d : ℕ) : ∀ (f : ℕ) (acc p q : SP),
       | cons b q =>
         simp only [addGo]
         by_cases h1 : a.1 < b.1
-        · rw [if_pos h1]
+        · rw [ite_eq_left h1]
           obtain ⟨e, dg⟩ := ih (a :: acc) p (b :: q)
           refine ⟨by rw [e, ev_cons, ev_cons, ev_cons]; ring, fun ha hp hq => ?_⟩
           rw [Dg_cons] at hp hq
           exact dg (Dg_cons.2 ⟨hp.1, ha⟩) hp.2 (Dg_cons.2 hq)
-        · rw [if_neg h1]
+        · rw [ite_eq_right h1]
           by_cases h2 : b.1 < a.1
-          · rw [if_pos h2]
+          · rw [ite_eq_left h2]
             obtain ⟨e, dg⟩ := ih (b :: acc) (a :: p) q
             refine ⟨by rw [e, ev_cons, ev_cons, ev_cons]; ring, fun ha hp hq => ?_⟩
             rw [Dg_cons] at hp hq
             exact dg (Dg_cons.2 ⟨hq.1, ha⟩) (Dg_cons.2 hp) hq.2
-          · rw [if_neg h2]
+          · rw [ite_eq_right h2]
             have hk : a.1 = b.1 := by omega
             by_cases h3 : a.2 + b.2 = 0
-            · rw [if_pos h3]
+            · rw [ite_eq_left h3]
               obtain ⟨e, dg⟩ := ih acc p q
               refine ⟨?_, fun ha hp hq => ?_⟩
               · rw [e, ev_cons, ev_cons, ← hk]
@@ -172,7 +172,7 @@ theorem addGo_spec (x : ℕ → ℝ) (d : ℕ) : ∀ (f : ℕ) (acc p q : SP),
                 linear_combination (-(evK x a.1)) * this
               · rw [Dg_cons] at hp hq
                 exact dg ha hp.2 hq.2
-            · rw [if_neg h3]
+            · rw [ite_eq_right h3]
               obtain ⟨e, dg⟩ := ih ((a.1, a.2 + b.2) :: acc) p q
               refine ⟨?_, fun ha hp hq => ?_⟩
               · rw [e, ev_cons, ev_cons, ev_cons, ← hk]
@@ -285,7 +285,7 @@ theorem ev_scaleSP (x : ℕ → ℝ) (c : ℤ) (p : SP) : ev x (scaleSP c p) = c
   unfold scaleSP
   by_cases hc : c = 0
   · simp [hc]
-  · rw [if_neg hc]
+  · rw [ite_eq_right hc]
     induction p with
     | nil => simp
     | cons t p ih =>
@@ -341,15 +341,15 @@ theorem dig_shift (d m j : ℕ) (hd : d < 256) : dig j (d * 256 ^ m) = if j = m 
   rcases lt_trichotomy j m with h | h | h
   · obtain ⟨t, rfl⟩ : ∃ t, m = j + t + 1 := ⟨m - j - 1, by omega⟩
     have e : d * 256 ^ (j + t + 1) = (d * 256 ^ t * 256) * 256 ^ j := by ring
-    rw [e, Nat.mul_div_cancel _ (by positivity), if_neg (by omega)]
+    rw [e, Nat.mul_div_cancel _ (by positivity), ite_eq_right (by omega)]
     generalize d * 256 ^ t = y
     omega
   · subst h
-    rw [Nat.mul_div_cancel _ (by positivity), if_pos rfl]
+    rw [Nat.mul_div_cancel _ (by positivity), ite_eq_left rfl]
     exact Nat.mod_eq_of_lt hd
   · obtain ⟨t, rfl⟩ : ∃ t, j = m + t + 1 := ⟨j - m - 1, by omega⟩
     have e : (256 : ℕ) ^ (m + t + 1) = 256 ^ m * 256 ^ (t + 1) := by ring
-    rw [if_neg (by omega), e, mul_comm d (256 ^ m), Nat.mul_div_mul_left _ _ (by positivity)]
+    rw [ite_eq_right (by omega), e, mul_comm d (256 ^ m), Nat.mul_div_mul_left _ _ (by positivity)]
     have : d / 256 ^ (t + 1) = 0 := by
       apply Nat.div_eq_of_lt
       calc d < 256 := hd

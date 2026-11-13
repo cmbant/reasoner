@@ -112,7 +112,7 @@ theorem hasDerivAt_lhY {q K a : ℝ} (hK : 0 < K) (ha : 0 < a) (ha1 : a < 1) :
   have hu := Real.rpow_pos_of_pos ha q
   have hv := Real.rpow_pos_of_pos h1a q
   unfold lhZ at hZ ⊢
-  simp only [Pi.add_apply, Pi.sub_apply, Pi.mul_apply]
+  simp only [Pi.add_apply, Pi.sub_apply]
   field_simp
   ring
 
@@ -236,7 +236,7 @@ noncomputable def Pg2 (α β γ B C a : ℝ) : ℝ :=
   (α + 17 * β) * (2 + 2 * B) - 12 * β * (6 * a + 6 * C * (1 - a))
     - 2 * γ * ((2 * a - 2 * B * (1 - a)) ^ 2 + (a ^ 2 + B * (1 - a) ^ 2) * (2 + 2 * B))
 
-noncomputable def Pg3 (α β γ B C a : ℝ) : ℝ :=
+noncomputable def Pg3 (_α β γ B C a : ℝ) : ℝ :=
   -12 * β * (6 - 6 * C) - 6 * γ * (2 * a - 2 * B * (1 - a)) * (2 + 2 * B)
 
 noncomputable def Pg4 (γ B : ℝ) : ℝ := -6 * γ * (2 + 2 * B) ^ 2

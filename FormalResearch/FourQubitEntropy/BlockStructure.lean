@@ -16,7 +16,7 @@ open scoped ComplexConjugate Matrix
 
 namespace FormalResearch.FourQubitEntropy
 
-theorem S6_gram (Y : Mat4) (hPY : Pm * Y = 0) (hYP : Y * Pm = 0)
+theorem S6_gram (Y : Mat4) (_hPY : Pm * Y = 0) (hYP : Y * Pm = 0)
     (hYY : Y * Yᴴ = (1 / 6 : ℂ) • (1 - Pm)) (hYtY : Yᴴ * Y = (1 / 6 : ℂ) • (1 - Pm)) :
     ((6 : ℂ) • (Y * Yᵀ)) * ((6 : ℂ) • (Y * Yᵀ))ᴴ = 1 - Pm := by
   rw [Matrix.conjTranspose_smul, Matrix.conjTranspose_mul, transpose_conjTranspose]
@@ -118,7 +118,7 @@ theorem block_structure (X : Mat4) (h1 : X * Xᴴ = Dm) (h2 : Xᴴ * X = Dm)
     have := congrFun (congrFun h j) k
     simpa using this
   have hPm : (1 - Pm : Mat4) = (1 - Prm).map Complex.ofReal := by
-    rw [Pm_eq_map]; ext j k; by_cases h : j = k <;> simp [Matrix.one_apply, h]
+    rw [Pm_eq_map]; ext j k; by_cases h : j = k <;> simp [h]
   have hRRt : R * Rᵀ = 1 - Prm := by
     apply hinj
     have e : (R * Rᵀ).map Complex.ofReal = R.map Complex.ofReal * (R.map Complex.ofReal)ᵀ := by

@@ -71,7 +71,7 @@ theorem kmin (hn1 : 0 < n1) (hn2 : 0 < n2) (hn3 : 0 < n3)
     have := hd.div hp (pow_ne_zero 2 hqe)
     refine HasDerivAt.congr_deriv this ?_
     simp only [Pi.pow_apply, Pi.sub_apply, Nat.cast_ofNat, show (2 : ℕ) - 1 = 1 from rfl, pow_one]
-    first | rfl | ring
+    rfl
   have hev : (fun e => (Pfun n1 n2 n3 i21 i31 i32 e - Real.negMulLog (e / 8)) / (q e) ^ 2) =ᶠ[𝓝 e0]
       Kint n1 n2 n3 := by
     have h1 : ∀ᶠ e in 𝓝 e0, 0 < e := Ioi_mem_nhds he0

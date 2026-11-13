@@ -104,14 +104,14 @@ theorem Zmono {q : ℝ} (h1 : 1 < q) (h2 : q < 2) {l l' : Fin 4 → ℝ} (hl : I
   have int_l' : ∀ i, IntegrableOn (stInt q (l' i)) (Ioi 0) := fun i =>
     stInt_integrableOn_nonneg h1 h2 (hl'.1 i)
   have eq_l : ∫ s in Ioi (0 : ℝ), ∑ i, stInt q (l i) s = (∑ i, l i ^ q) * stI q := by
-    rw [integral_finset_sum _ (fun i _ => int_l i), Finset.sum_mul]
+    rw [integral_finsetSum _ (fun i _ => int_l i), Finset.sum_mul]
     exact Finset.sum_congr rfl (fun i _ => stieltjes_rpow_nonneg h1 h2 (hl.1 i))
   have eq_l' : ∫ s in Ioi (0 : ℝ), ∑ i, stInt q (l' i) s = (∑ i, l' i ^ q) * stI q := by
-    rw [integral_finset_sum _ (fun i _ => int_l' i), Finset.sum_mul]
+    rw [integral_finsetSum _ (fun i _ => int_l' i), Finset.sum_mul]
     exact Finset.sum_congr rfl (fun i _ => stieltjes_rpow_nonneg h1 h2 (hl'.1 i))
   have hmono : ∫ s in Ioi (0 : ℝ), ∑ i, stInt q (l' i) s ≤ ∫ s in Ioi (0 : ℝ), ∑ i, stInt q (l i) s := by
-    apply setIntegral_mono_on (integrable_finset_sum _ (fun i _ => int_l' i))
-      (integrable_finset_sum _ (fun i _ => int_l i)) measurableSet_Ioi
+    apply setIntegral_mono_on (integrable_finsetSum _ (fun i _ => int_l' i))
+      (integrable_finsetSum _ (fun i _ => int_l i)) measurableSet_Ioi
     intro s hs
     exact stInt_sum_mono hl hl' hp ht hd hs
   rw [eq_l, eq_l'] at hmono

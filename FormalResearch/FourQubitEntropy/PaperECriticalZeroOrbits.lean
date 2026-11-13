@@ -48,8 +48,8 @@ theorem Gv_single_zero : Gv (single (0, 0) 1) = bell2 := by
   funext a b c d
   fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;>
   simp [Gv, ofZmat, single, bell2, Matrix.mul_apply, Matrix.diagonal_apply, Matrix.transpose_apply,
-    magicB, Fintype.sum_prod_type, Fin.sum_univ_two] <;>
-  first | done | (rw [← pow_two, hrt2]; norm_num) | (ring_nf; simp only [hrt2]; ring_nf)
+    magicB] <;>
+  first | done | (rw [← pow_two, hrt2]; norm_num)
 
 theorem exists_real4_map (p q : Fin 2 × Fin 2) :
     ∃ R : RMat4, Real4 R ∧ ∀ i, R i p = if i = q then 1 else 0 := by
@@ -70,9 +70,9 @@ theorem exists_real4_map (p q : Fin 2 × Fin 2) :
 theorem Gv_smul (c : ℂ) (v : Fin 2 × Fin 2 → ℂ) :
     Gv (fun j => c * v j) = fun a b c' d => c * Gv v a b c' d := by
   have : Matrix.diagonal (fun j => c * v j) = c • Matrix.diagonal v := by
-    ext i j; by_cases h : i = j <;> simp [Matrix.diagonal_apply, h]
+    ext i j; by_cases h : i = j <;> simp [h]
   funext a b c' d
-  simp [Gv, ofZmat, this, Matrix.mul_smul, Matrix.smul_mul]
+  simp [Gv, ofZmat, this]
 
 theorem LU_single (p q : Fin 2 × Fin 2) (c : ℂ) :
     LUEquiv (Gv (single p c)) (Gv (single q c)) := by
@@ -83,8 +83,8 @@ theorem LU_single (p q : Fin 2 × Fin 2) (c : ℂ) :
   simp [rc, single, Matrix.mul_apply, Matrix.diagonal_apply, Matrix.transpose_apply, hRe]
   by_cases hi : i = q <;> by_cases hj : j = q
   · subst hi; subst hj; simp
-  · simp [hi, hj] <;> (intro h; simp_all)
-  · simp [hi, hj] <;> (intro h; simp_all)
+  · simp [hi, hj] ; (intro h; simp_all)
+  · simp [hi, hj]
   · simp [hi, hj]
 
 
@@ -149,7 +149,7 @@ theorem LU_bell14_of_wm (v : Fin 2 × Fin 2 → ℂ) (hn : ∑ k, Complex.normSq
 
 
 theorem normSq_two_mul (z : ℂ) (h : Complex.normSq z = 1 / 4) : Complex.normSq (2 * z) = 1 := by
-  rw [map_mul, h]; simp [Complex.normSq_apply]; norm_num
+  rw [map_mul, h]; simp; norm_num
 
 theorem sum_normSq_single (w : Fin 2 × Fin 2 → ℂ) (k : Fin 2 × Fin 2) (hz : ∀ j, j ≠ k → w j = 0)
     (hk : Complex.normSq (w k) = 1) : ∑ j, Complex.normSq (w j) = 1 := by
@@ -179,28 +179,28 @@ theorem LU_bell_of_caseB (v : Fin 2 × Fin 2 → ℂ) (h1 : ∀ k, Complex.normS
   have s : ∀ k, v k = v (0, 0) ∨ v k = -v (0, 0) := fun k => sq_eq_sq_iff_eq_or_eq_neg.mp (h2 k)
   rcases s (0, 1) with e1 | e1 <;> rcases s (1, 0) with e2 | e2 <;> rcases s (1, 1) with e3 | e3
   · exact Or.inl (wp_case v (1, 0)
-      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wp] <;> ring)
+      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wp])
       (Or.inl (by simp [wp, e1, e2, e3]; ring)) h00)
   · exact Or.inr (wm_case v (1, 1)
-      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wm] <;> ring)
+      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wm])
       (Or.inr (by simp [wm, e1, e2, e3]; ring)) h00)
   · exact Or.inr (wm_case v (1, 0)
-      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wm] <;> ring)
+      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wm])
       (Or.inr (by simp [wm, e1, e2, e3]; ring)) h00)
   · exact Or.inl (wp_case v (1, 1)
-      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wp] <;> ring)
+      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wp])
       (Or.inr (by simp [wp, e1, e2, e3]; ring)) h00)
   · exact Or.inr (wm_case v (0, 1)
-      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wm] <;> ring)
+      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wm])
       (Or.inr (by simp [wm, e1, e2, e3]; ring)) h00)
   · exact Or.inl (wp_case v (0, 0)
-      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wp] <;> ring)
+      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wp])
       (Or.inl (by simp [wp, e1, e2, e3]; ring)) h00)
   · exact Or.inl (wp_case v (0, 1)
-      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wp] <;> ring)
+      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wp])
       (Or.inr (by simp [wp, e1, e2, e3]; ring)) h00)
   · exact Or.inr (wm_case v (0, 0)
-      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wm] <;> ring)
+      (by rintro ⟨j1, j2⟩ hj; fin_cases j1 <;> fin_cases j2 <;> simp_all [wm])
       (Or.inl (by simp [wm, e1, e2, e3]; ring)) h00)
 
 
@@ -225,7 +225,7 @@ theorem LU_M4_of_caseC (v : Fin 2 × Fin 2 → ℂ) (hn : ∑ k, Complex.normSq 
     rw [red12_of_diag (Gv v) v (zmat_Gv v), magic_conj_sub, magic_conj_sub, magic_conj_mul]
     have hd : ∀ c : ℂ, Matrix.diagonal (fun k => v k * (starRingEnd ℂ) (v k)) - c • (1 : Mat4)
         = Matrix.diagonal (fun k => v k * (starRingEnd ℂ) (v k) - c) := by
-      intro c; ext i j; by_cases h : i = j <;> simp [Matrix.diagonal_apply, h, Matrix.one_apply]
+      intro c; ext i j; by_cases h : i = j <;> simp [h]
     rw [hd, hd, Matrix.diagonal_mul_diagonal]
     have : (fun k => (v k * (starRingEnd ℂ) (v k) - 1 / 6) * (v k * (starRingEnd ℂ) (v k) - 1 / 2))
         = fun _ => 0 := by

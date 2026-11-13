@@ -115,7 +115,7 @@ theorem trace_form (U V : Matrix ι ι ℂ) (x y : ι → ℝ) :
   rw [h1, Matrix.trace_mul_comm]
   have h2 : Matrix.diagonal (fun i => (x i : ℂ)) * W * Matrix.diagonal (fun i => (y i : ℂ)) * star V * U =
       Matrix.diagonal (fun i => (x i : ℂ)) * W * Matrix.diagonal (fun i => (y i : ℂ)) * star W := by
-    simp only [hW, Matrix.star_mul, star_star, Matrix.mul_assoc]
+    simp only [hW, StarMul.star_mul, star_star, Matrix.mul_assoc]
   rw [h2]
   set A : Matrix ι ι ℂ := Matrix.diagonal (fun i => (x i : ℂ)) * W * Matrix.diagonal (fun i => (y i : ℂ))
     with hA
@@ -158,10 +158,10 @@ theorem trace_rearrange_aux (ρ : Matrix ι ι ℂ) (hρ : ρ.IsHermitian) (V : 
     simp
   set W : Matrix ι ι ℂ := star U * V with hW
   have hW1 : W * star W = 1 := by
-    simp only [hW, Matrix.star_mul, star_star, Matrix.mul_assoc]
+    simp only [hW, StarMul.star_mul, star_star, Matrix.mul_assoc]
     rw [← Matrix.mul_assoc V, hV', Matrix.one_mul, hU]
   have hW2 : star W * W = 1 := by
-    simp only [hW, Matrix.star_mul, star_star, Matrix.mul_assoc]
+    simp only [hW, StarMul.star_mul, star_star, Matrix.mul_assoc]
     rw [← Matrix.mul_assoc U, hU', Matrix.one_mul, hV]
   set e : Fin (Fintype.card ι) ≃ ι := Fintype.equivOfCardEq (Fintype.card_fin _) with he
   set a : Fin (Fintype.card ι) → ℝ := hρ.eigenvalues₀ with ha
@@ -177,7 +177,7 @@ theorem trace_rearrange_aux (ρ : Matrix ι ι ℂ) (hρ : ρ.IsHermitian) (V : 
         push_cast
         simp only [← Complex.mul_conj]
         rw [← h]
-        simp [Matrix.star_apply]
+        simp
       simp only [hD, Matrix.of_apply]
       rw [Equiv.sum_comp e (fun j => Complex.normSq (W (e k) j))]
       exact h'
@@ -189,7 +189,7 @@ theorem trace_rearrange_aux (ρ : Matrix ι ι ℂ) (hρ : ρ.IsHermitian) (V : 
         rw [← h]
         refine Finset.sum_congr rfl fun i _ => ?_
         rw [Complex.normSq_eq_conj_mul_self]
-        simp [Complex.star_def]
+        simp
       simp only [hD, Matrix.of_apply]
       rw [Equiv.sum_comp e (fun i => Complex.normSq (W i (e l)))]
       exact h'
@@ -234,7 +234,7 @@ theorem spectral_data (ρ : Matrix ι ι ℂ) (hρ : ρ.IsHermitian) :
     rw [← Equiv.sum_comp e.symm]
     refine Finset.sum_congr rfl fun i _ => ?_
     rw [Finset.sum_eq_single i]
-    · simp [Matrix.one_apply, hev, sq]
+    · simp [hev, sq]
     · intro j _ hj
       have : (1 : Matrix ι ι ℂ) i j = 0 := Matrix.one_apply_ne (Ne.symm hj)
       simp [this]
@@ -403,7 +403,7 @@ theorem Y3_mul_Y3 : Y3 * Y3 = 1 := by
       (fun i x => eps (a i) x * eps x (b i)), Fintype.piFinset_univ]
   have h3 : ∀ x y : Bool, ∑ c, eps x c * eps c y = if x = y then -1 else 0 := by
     intro x y
-    cases x <;> cases y <;> simp [eps, Fintype.sum_bool]
+    cases x <;> cases y <;> simp [eps]
   rw [h, h2]
   simp only [h3]
   rw [Finset.prod_ite_zero]
@@ -411,7 +411,7 @@ theorem Y3_mul_Y3 : Y3 * Y3 = 1 := by
   · subst hab; simp; norm_num
   · have : ¬ ∀ i ∈ (Finset.univ : Finset (Fin 3)), a i = b i := by
       intro hh; exact hab (funext fun i => hh i (Finset.mem_univ i))
-    rw [if_neg this, Matrix.one_apply_ne hab]
+    rw [ite_eq_right this, Matrix.one_apply_ne hab]
     simp
 
 theorem Y3_star : star Y3 = Y3 := by
@@ -486,7 +486,7 @@ theorem sum_sgn_normSq (ρ : Mat3) (htr : ρ.trace = 1) :
     rw [Finset.sum_eq_single 0]
     · simp [hf, trP_zero, htr, (wt3_eq_zero_iff 0).2 rfl]
     · intro ν _ hν
-      rw [if_neg]
+      rw [ite_eq_right]
       rwa [wt3_eq_zero_iff]
     · simp
   have h2 : ∑ ν, (if wt3 ν = 2 then f ν else 0) = b3 ρ := by
@@ -529,7 +529,7 @@ theorem flip_conj (ρ : Mat3) (hρ : ρ.IsHermitian) :
         rw [Matrix.transpose_mul, Matrix.transpose_mul, Matrix.diagonal_transpose, transpose_star',
           Matrix.mul_assoc]
   unfold spinFlip3
-  rw [hT, Matrix.star_mul, star_map_conj, Y3_star]
+  rw [hT, StarMul.star_mul, star_map_conj, Y3_star]
   simp only [Matrix.mul_assoc]
 
 theorem unitary_conj (ρ : Mat3) (hρ : ρ.IsHermitian) :
@@ -549,11 +549,11 @@ theorem unitary_conj (ρ : Mat3) (hρ : ρ.IsHermitian) :
     rw [Matrix.transpose_mul, transpose_star', Matrix.transpose_one] at this
     exact this
   constructor
-  · rw [Matrix.star_mul, Y3_star]
+  · rw [StarMul.star_mul, Y3_star]
     calc star (U.map conj) * Y3 * (Y3 * U.map conj) = star (U.map conj) * (Y3 * Y3) * U.map conj := by
           simp only [Matrix.mul_assoc]
       _ = 1 := by rw [Y3_mul_Y3, Matrix.mul_one, hc1]
-  · rw [Matrix.star_mul, Y3_star]
+  · rw [StarMul.star_mul, Y3_star]
     calc Y3 * U.map conj * (star (U.map conj) * Y3) = Y3 * (U.map conj * star (U.map conj)) * Y3 := by
           simp only [Matrix.mul_assoc]
       _ = 1 := by rw [hc2, Matrix.mul_one, Y3_mul_Y3]

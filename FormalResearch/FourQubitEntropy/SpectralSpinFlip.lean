@@ -70,23 +70,20 @@ theorem epsEps_unitary : epsEps ∈ Matrix.unitaryGroup (Fin 2 × Fin 2) ℂ := 
   rw [Matrix.mem_unitaryGroup_iff]
   ext ⟨a, b⟩ ⟨c, d⟩
   fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;>
-    simp [epsEps, Matrix.mul_apply, Matrix.star_apply, Fintype.sum_prod_type, Fin.sum_univ_two, sgn]
+    simp [epsEps, Matrix.mul_apply, Matrix.star_apply, sgn]
 
 
 theorem red12_coef (ψ : Psi) : red12 ψ = coef12 ψ * (coef12 ψ)ᴴ := by
   ext i j
-  simp [red12, coef12, Matrix.mul_apply, Matrix.conjTranspose_apply, Fintype.sum_prod_type,
-    Complex.star_def]
+  simp [red12, coef12, Matrix.mul_apply, Matrix.conjTranspose_apply, Fintype.sum_prod_type]
 
 theorem red13_coef (ψ : Psi) : red13 ψ = coef13 ψ * (coef13 ψ)ᴴ := by
   ext i j
-  simp [red13, coef13, Matrix.mul_apply, Matrix.conjTranspose_apply, Fintype.sum_prod_type,
-    Complex.star_def]
+  simp [red13, coef13, Matrix.mul_apply, Matrix.conjTranspose_apply, Fintype.sum_prod_type]
 
 theorem red14_coef (ψ : Psi) : red14 ψ = coef14 ψ * (coef14 ψ)ᴴ := by
   ext i j
-  simp [red14, coef14, Matrix.mul_apply, Matrix.conjTranspose_apply, Fintype.sum_prod_type,
-    Complex.star_def]
+  simp [red14, coef14, Matrix.mul_apply, Matrix.conjTranspose_apply, Fintype.sum_prod_type]
 
 theorem fn2_coef12 (ψ : Psi) : fn2 (coef12 ψ) = normSqPsi ψ := by
   simp [fn2, coef12, normSqPsi, Fintype.sum_prod_type]
@@ -129,8 +126,8 @@ theorem trace_coef12 (ψ : Psi) :
     Matrix.trace ((coef12 ψ)ᴴ * coef12 (flipPsi ψ)) = (starRingEnd ℂ) (spinFlipForm ψ) := by
   simp only [Matrix.trace, Matrix.diag_apply, Matrix.mul_apply, Matrix.conjTranspose_apply,
     coef12, flipPsi, Matrix.of_apply, Fintype.sum_prod_type, Fin.sum_univ_two, spinFlipForm, sum4, sum2,
-    lit_complex, sgn, map_add, map_mul, Complex.conj_conj, Complex.star_def, map_intCast,
-    fin2_one_sub_zero, fin2_one_sub_one, fin2_one_ne_zero, eq_self_iff_true, ite_true, ite_false,
+    lit_complex, sgn, map_add, map_mul, Complex.star_def, map_intCast,
+    fin2_one_sub_zero, fin2_one_sub_one, fin2_one_ne_zero, ite_true, ite_false,
     Fin.isValue]
   push_cast
   ring
@@ -139,8 +136,8 @@ theorem trace_coef13 (ψ : Psi) :
     Matrix.trace ((coef13 ψ)ᴴ * coef13 (flipPsi ψ)) = (starRingEnd ℂ) (spinFlipForm ψ) := by
   simp only [Matrix.trace, Matrix.diag_apply, Matrix.mul_apply, Matrix.conjTranspose_apply,
     coef13, flipPsi, Matrix.of_apply, Fintype.sum_prod_type, Fin.sum_univ_two, spinFlipForm, sum4, sum2,
-    lit_complex, sgn, map_add, map_mul, Complex.conj_conj, Complex.star_def, map_intCast,
-    fin2_one_sub_zero, fin2_one_sub_one, fin2_one_ne_zero, eq_self_iff_true, ite_true, ite_false,
+    lit_complex, sgn, map_add, map_mul, Complex.star_def, map_intCast,
+    fin2_one_sub_zero, fin2_one_sub_one, fin2_one_ne_zero, ite_true, ite_false,
     Fin.isValue]
   push_cast
   ring
@@ -149,8 +146,8 @@ theorem trace_coef14 (ψ : Psi) :
     Matrix.trace ((coef14 ψ)ᴴ * coef14 (flipPsi ψ)) = (starRingEnd ℂ) (spinFlipForm ψ) := by
   simp only [Matrix.trace, Matrix.diag_apply, Matrix.mul_apply, Matrix.conjTranspose_apply,
     coef14, flipPsi, Matrix.of_apply, Fintype.sum_prod_type, Fin.sum_univ_two, spinFlipForm, sum4, sum2,
-    lit_complex, sgn, map_add, map_mul, Complex.conj_conj, Complex.star_def, map_intCast,
-    fin2_one_sub_zero, fin2_one_sub_one, fin2_one_ne_zero, eq_self_iff_true, ite_true, ite_false,
+    lit_complex, sgn, map_add, map_mul, Complex.star_def, map_intCast,
+    fin2_one_sub_zero, fin2_one_sub_one, fin2_one_ne_zero, ite_true, ite_false,
     Fin.isValue]
   push_cast
   ring
@@ -172,12 +169,12 @@ theorem mismatch_eq_blochSq12 (ψ : Psi) :
     simp only [fn2, Complex.ofReal_add, Complex.ofReal_sum, e]
     simp only [Matrix.sub_apply, Matrix.mul_apply, Matrix.conjTranspose_apply, coef12, Matrix.of_apply,
       Fintype.sum_prod_type, Fin.sum_univ_two]
-    simp only [map_sum, map_mul, map_sub, Complex.conj_conj, map_intCast, flipPsi, Complex.star_def]
+    simp only [map_mul, map_sub, Complex.conj_conj, map_intCast, flipPsi, Complex.star_def]
     simp only [W1gen, trRho2, rho0, siteSwap, sum2, normG, sum4, Psi.conj, sgn, toAdd_complex,
       toMul_complex, toSub_complex, lit_complex]
-    simp only [fin2_one_sub_zero, fin2_one_sub_one, fin2_one_ne_zero, sub_zero, ite_true, ite_false,
-      eq_self_iff_true, Fin.isValue, Complex.ofReal_one, one_mul, mul_one, mul_neg, neg_mul, neg_neg,
-      Int.cast_one, Int.cast_neg, map_neg, map_one, map_add, map_mul, Complex.conj_conj]
+    simp only [fin2_one_sub_one, fin2_one_ne_zero, sub_zero, ite_true, ite_false,
+      Fin.isValue, one_mul, mul_one, mul_neg, neg_mul, neg_neg,
+      Int.cast_one, Int.cast_neg, map_neg, map_add, map_mul, Complex.conj_conj]
     ring
   exact_mod_cast key
 
@@ -197,12 +194,12 @@ theorem mismatch_eq_blochSq13 (ψ : Psi) :
     simp only [fn2, Complex.ofReal_add, Complex.ofReal_sum, e]
     simp only [Matrix.sub_apply, Matrix.mul_apply, Matrix.conjTranspose_apply, coef13, Matrix.of_apply,
       Fintype.sum_prod_type, Fin.sum_univ_two]
-    simp only [map_sum, map_mul, map_sub, Complex.conj_conj, map_intCast, flipPsi, Complex.star_def]
+    simp only [map_mul, map_sub, Complex.conj_conj, map_intCast, flipPsi, Complex.star_def]
     simp only [W1gen, trRho2, rho0, siteSwap, sum2, normG, sum4, Psi.conj, sgn, toAdd_complex,
       toMul_complex, toSub_complex, lit_complex]
-    simp only [fin2_one_sub_zero, fin2_one_sub_one, fin2_one_ne_zero, sub_zero, ite_true, ite_false,
-      eq_self_iff_true, Fin.isValue, Complex.ofReal_one, one_mul, mul_one, mul_neg, neg_mul, neg_neg,
-      Int.cast_one, Int.cast_neg, map_neg, map_one, map_add, map_mul, Complex.conj_conj]
+    simp only [fin2_one_sub_one, fin2_one_ne_zero, sub_zero, ite_true, ite_false,
+      Fin.isValue, one_mul, mul_one, mul_neg, neg_mul, neg_neg,
+      Int.cast_one, Int.cast_neg, map_neg, map_add, map_mul, Complex.conj_conj]
     ring
   exact_mod_cast key
 
@@ -222,12 +219,12 @@ theorem mismatch_eq_blochSq14 (ψ : Psi) :
     simp only [fn2, Complex.ofReal_add, Complex.ofReal_sum, e]
     simp only [Matrix.sub_apply, Matrix.mul_apply, Matrix.conjTranspose_apply, coef14, Matrix.of_apply,
       Fintype.sum_prod_type, Fin.sum_univ_two]
-    simp only [map_sum, map_mul, map_sub, Complex.conj_conj, map_intCast, flipPsi, Complex.star_def]
+    simp only [map_mul, map_sub, Complex.conj_conj, map_intCast, flipPsi, Complex.star_def]
     simp only [W1gen, trRho2, rho0, siteSwap, sum2, normG, sum4, Psi.conj, sgn, toAdd_complex,
       toMul_complex, toSub_complex, lit_complex]
-    simp only [fin2_one_sub_zero, fin2_one_sub_one, fin2_one_ne_zero, sub_zero, ite_true, ite_false,
-      eq_self_iff_true, Fin.isValue, Complex.ofReal_one, one_mul, mul_one, mul_neg, neg_mul, neg_neg,
-      Int.cast_one, Int.cast_neg, map_neg, map_one, map_add, map_mul, Complex.conj_conj]
+    simp only [fin2_one_sub_one, fin2_one_ne_zero, sub_zero, ite_true, ite_false,
+      Fin.isValue, one_mul, mul_one, mul_neg, neg_mul, neg_neg,
+      Int.cast_one, Int.cast_neg, map_neg, map_add, map_mul, Complex.conj_conj]
     ring
   exact_mod_cast key
 
@@ -429,7 +426,7 @@ theorem pairHad_eig_one : ∃ i, (red12_herm pairHad).eigenvalues i = 1 := by
   · ext ⟨a, b⟩
     fin_cases a <;> fin_cases b <;>
       simp [red12, pairHad, Matrix.mulVec, dotProduct, Fin.sum_univ_two, map_ofNat, map_neg, map_div₀, map_one]
-    <;> norm_num
+    ; norm_num
 
 /-- Optimality of the coefficients in `prop:fqe-spectral-spinflip`: if
 `(2λ - 1)₊² ≤ c₁ τ + c₂ W₁` holds for every eigenvalue of `red12` of every unit state, then

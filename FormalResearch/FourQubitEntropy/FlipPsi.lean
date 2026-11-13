@@ -43,7 +43,7 @@ theorem spinFlipPsi_apply (ψ : Psi) (a b c d : Fin 2) :
 theorem spinFlipPsi_flipPsi (ψ : Psi) : spinFlipPsi (spinFlipPsi ψ) = ψ := by
   funext a b c d
   fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;>
-    simp [spinFlipPsi_apply] <;> ring_nf <;> simp
+    simp [spinFlipPsi_apply]
 
 theorem spinFlipPsi_add (ψ φ : Psi) : spinFlipPsi (ψ + φ) = spinFlipPsi ψ + spinFlipPsi φ := by
   funext a b c d
@@ -75,8 +75,8 @@ theorem spinFlipForm_pencil (ψ : Psi) (ρ : ℝ) :
       = spinFlipForm ψ + ρ ^ 2 * conj (spinFlipForm ψ) + 2 * ρ * normSqPsi ψ := by
   simp only [normSqPsi, spinFlipForm, sum4, sum2, Fin.sum_univ_two, Pi.add_apply, Pi.smul_apply,
     Complex.real_smul, spinFlipPsi_apply, toAdd_complex, toMul_complex, lit_complex,
-    map_add, map_mul, Complex.conj_conj, Complex.conj_ofReal, map_intCast]
-  simp only [Complex.normSq_eq_conj_mul_self, Complex.ofReal_sum, Complex.ofReal_mul,
+    map_add, map_mul, map_intCast]
+  simp only [Complex.normSq_eq_conj_mul_self,
     Complex.ofReal_add]
   simp [sgn]
   ring
@@ -230,7 +230,7 @@ theorem Hval_smulC_aux (c : ℂ) (ψ : Psi) :
   ring
 
 theorem spinFlipForm_smulC (c : ℂ) (ψ : Psi) : spinFlipForm (c • ψ) = c ^ 2 * spinFlipForm ψ := by
-  simp only [spinFlipForm, sum4, sum2, Fin.sum_univ_two, Pi.smul_apply, smul_eq_mul, toAdd_complex,
+  simp only [spinFlipForm, sum4, sum2, Pi.smul_apply, smul_eq_mul, toAdd_complex,
     toMul_complex, lit_complex]
   ring
 

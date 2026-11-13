@@ -93,7 +93,7 @@ theorem OpsHom.resRaw (L : Bool) (x0 y0 t0 o1 o2 o3 : Fin 2) :
     f (resRaw L z w x0 y0 t0 o1 o2 o3) = resRaw L (z.map f) (w.map f) x0 y0 t0 o1 o2 o3 := by
   cases L <;>
   simp [FormalResearch.FourQubitEntropy.resRaw, hf.add', hf.mul', hf.epsSum, hf.ztil, State.map,
-    hf.map_zero, hf.lit']
+    hf.lit']
 
 theorem OpsHom.resSym (L : Bool) (x y t o1 o2 o3 : Fin 2) :
     f (resSym L z w x y t o1 o2 o3) = resSym L (z.map f) (w.map f) x y t o1 o2 o3 := by

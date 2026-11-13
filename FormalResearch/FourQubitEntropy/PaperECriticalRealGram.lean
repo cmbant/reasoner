@@ -134,7 +134,7 @@ theorem rc_transpose (M : Matrix ι ι ℝ) : (rc M)ᵀ = rc Mᵀ := by
 theorem decomp (Z : Matrix ι ι ℂ) :
     Z = rc (Z.map Complex.re) + Complex.I • rc (Z.map Complex.im) := by
   ext i j
-  apply Complex.ext <;> simp [rc_apply]
+  apply Complex.ext <;> simp
 
 theorem gram1 (X Y : Matrix ι ι ℝ) (P2 : Xᵀ * Y = Yᵀ * X) :
     (rc X + Complex.I • rc Y)ᴴ * (rc X + Complex.I • rc Y) = rc (Xᵀ * X + Yᵀ * Y) := by
@@ -154,10 +154,10 @@ theorem gram2 (X Y : Matrix ι ι ℝ) (P2 : Xᵀ * Y = Yᵀ * X) :
   have e1 : (rc X + Complex.I • rc Y)ᵀ = rc Xᵀ + Complex.I • rc Yᵀ := by
     rw [Matrix.transpose_add, Matrix.transpose_smul, rc_transpose, rc_transpose]
   rw [map_sub, map_add, map_mul, map_mul, map_mul, e1]
-  simp only [Matrix.add_mul, Matrix.mul_add, Matrix.smul_mul, Matrix.mul_smul, smul_sub, smul_smul,
-    ← hP, Complex.I_mul_I]
+  simp only [Matrix.add_mul, Matrix.mul_add, Matrix.smul_mul, Matrix.mul_smul,
+    ← hP]
   match_scalars
-  all_goals (ring_nf; try simp only [Complex.I_sq]; try ring_nf)
+  all_goals (ring_nf; try simp only [Complex.I_sq])
 
 /-- Real orthogonal matrices (`Oᵀ O = 1`) are also `O Oᵀ = 1`. -/
 theorem orth_mul_transpose {O : Matrix ι ι ℝ} (h : Oᵀ * O = 1) : O * Oᵀ = 1 :=
@@ -170,8 +170,8 @@ theorem real_gram_square (Z : Matrix ι ι ℂ)
   classical
   obtain ⟨X, Y, hZ⟩ : ∃ X Y : Matrix ι ι ℝ, Z = rc X + Complex.I • rc Y :=
     ⟨Z.map Complex.re, Z.map Complex.im, decomp Z⟩
-  have hX : Z.map Complex.re = X := by rw [hZ]; ext i j; simp [rc_apply]
-  have hY : Z.map Complex.im = Y := by rw [hZ]; ext i j; simp [rc_apply]
+  have hX : Z.map Complex.re = X := by rw [hZ]; ext i j; simp
+  have hY : Z.map Complex.im = Y := by rw [hZ]; ext i j; simp
   have P1 : X * Yᵀ = Y * Xᵀ := by
     ext i j
     have := h1 i j
@@ -244,7 +244,7 @@ theorem real_gram_square (Z : Matrix ι ι ℂ)
   have hF1 : ∀ k l, k ≠ l → (Wᴴ * W) k l = 0 := fun k l hkl => by
     rw [hW1]; simp [rc_apply, Matrix.diagonal_apply_ne _ hkl]
   have hF2 : ∀ k l, k ≠ l → (Wᵀ * W) k l = 0 := fun k l hkl => by
-    rw [hW2]; simp [rc_apply, Matrix.diagonal_apply_ne _ hkl]
+    rw [hW2]; simp [Matrix.diagonal_apply_ne _ hkl]
   -- reality of `Z Zᴴ` gives the key relation between the columns of `W`
   have hQc2 : rc Q * (rc Q)ᴴ = 1 := by rw [rc_conjTranspose, ← map_mul, hQ', map_one]
   have hK : W * Wᴴ = Z * Zᴴ := by
@@ -335,7 +335,7 @@ theorem real_gram_square (Z : Matrix ι ι ℂ)
 
 theorem rc_diagonal (d : ι → ℝ) :
     rc (Matrix.diagonal d) = Matrix.diagonal (fun k => (d k : ℂ)) := by
-  ext i j; by_cases h : i = j <;> simp [rc_apply, Matrix.diagonal_apply, h]
+  ext i j; by_cases h : i = j <;> simp [rc_apply, h]
 
 /-- Converse of `real_gram_square`: the Gram matrices of `O₁ diag(v) O₂ᵀ` are real. -/
 theorem real_gram_of_normal_form (O₁ O₂ : Matrix ι ι ℝ) (v : ι → ℂ) (h1 : O₁ᵀ * O₁ = 1)
@@ -390,6 +390,7 @@ theorem det_orth {O : Matrix ι ι ℝ} (h : Oᵀ * O = 1) : O.det = 1 ∨ O.det
 /-- The sign function `-1` at `i₀`, `1` elsewhere. -/
 def sgn (i₀ : ι) (k : ι) : ℝ := if k = i₀ then -1 else 1
 
+omit [Fintype ι] in
 theorem sgn_mul_self (i₀ k : ι) : sgn i₀ k * sgn i₀ k = 1 := by
   unfold sgn; split_ifs <;> norm_num
 

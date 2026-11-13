@@ -28,11 +28,11 @@ theorem list_sum_range {α : Type*} [AddCommMonoid α] (n : ℕ) (f : ℕ → α
 
 theorem entry_mapmap {k : ℕ} (F : ℕ → ℕ → SP) {a c : ℕ} (ha : a < k) (hc : c < k) :
     entry ((List.range k).map fun a => (List.range k).map fun c => F a c) a c = F a c := by
-  simp [entry, List.getD_eq_getElem?_getD, List.getElem?_range, ha, hc]
+  simp [entry, List.getD_eq_getElem?_getD, ha, hc]
 
-theorem entry_map_range {n : ℕ} (F : ℕ → SP) {j : ℕ} (hj : j < n) (l : ℕ → List SP) :
+theorem entry_map_range {n : ℕ} (_F : ℕ → SP) {j : ℕ} (hj : j < n) (l : ℕ → List SP) :
     (((List.range n).map l).getD j []) = l j := by
-  simp [List.getD_eq_getElem?_getD, List.getElem?_range, hj]
+  simp [List.getD_eq_getElem?_getD, hj]
 
 theorem getD_mem {α : Type*} (l : List α) (i : ℕ) (d : α) : l.getD i d ∈ l ∨ l.getD i d = d := by
   by_cases h : i < l.length
@@ -143,7 +143,7 @@ theorem blockSlots_spec (y : ℕ → ℝ) (W : ℕ → ℕ → ℤ) (k : ℕ) {b
     have hE : entry Ls j a = lcomb W b.m pre j a := by
       simp only [entry, hLs]
       rw [entry_map_range (n := b.m) (fun _ => []) hj' (fun j => (List.range k).map fun a => lcomb W b.m pre j a)]
-      simp [List.getD_eq_getElem?_getD, List.getElem?_range, ha]
+      simp [List.getD_eq_getElem?_getD, ha]
     simp only [Function.comp]
     rw [ev_mulSP y (hLsDg j a) (hpre j c) (by norm_num), hE, ev_lcomb y W b.m hpre j a]
     rfl

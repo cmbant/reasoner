@@ -212,7 +212,7 @@ theorem purity_quadFam {x y : ℝ} (hxy : x ^ 2 + y ^ 2 = 1) :
   have h13 : red13 (quadFam x y) = (((1 / 4 : ℝ)) : ℂ) • (1 : Mat4) := by rw [red13_quadFam, hxy]
   have h14 : red14 (quadFam x y) = (((1 / 4 : ℝ)) : ℂ) • (1 : Mat4) := by rw [red14_quadFam, hxy]
   rw [trace_sq_red12_quadFam, h13, h14]
-  simp [Matrix.trace, Matrix.smul_mul, Matrix.mul_smul, Fintype.sum_prod_type, Fin.sum_univ_two]
+  simp [Matrix.trace]
   ring
 
 /-- At `q = 2` the family `ψ_{x,y}` attains the bound of `cor:fqe-renyi-two-up`. -/
@@ -241,8 +241,8 @@ theorem renyi_two_sharp {P : ℝ} (h1 : 1 ≤ P) (h2 : P ≤ 3 / 2) :
 
 theorem renyiBin_half {q : ℝ} (hq0 : 0 < q) (hq1 : q ≠ 1) : renyiBin q (1 / 2) = 1 := by
   have := (renyiSpec_eq_iff hq0 hq1 (l := ![(1 / 2 : ℝ), 1 - 1 / 2]) (by
-    intro i; fin_cases i <;> simp <;> norm_num) (by simp [Fin.sum_univ_two])).2 (by
-    intro i; fin_cases i <;> simp <;> norm_num)
+    intro i; fin_cases i <;> simp ; norm_num) (by simp [Fin.sum_univ_two])).2 (by
+    intro i; fin_cases i <;> simp ; norm_num)
   simpa [renyiBin] using this
 
 theorem renyiBin_one {q : ℝ} (hq0 : 0 < q) : renyiBin q 1 = 0 := by

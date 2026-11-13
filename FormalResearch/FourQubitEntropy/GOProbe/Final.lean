@@ -59,9 +59,9 @@ theorem Rs_symm (b : GBlock) (i j : ℕ) : b.Rs i j = b.Rs j i := by
   · by_cases h' : j ≤ i
     · have : i = j := le_antisymm h h'
       subst this; rfl
-    · rw [if_pos h, if_neg h']
+    · rw [ite_eq_left h, ite_eq_right h']
   · have h' : j ≤ i := by omega
-    rw [if_neg h, if_pos h']
+    rw [ite_eq_right h, ite_eq_left h']
 
 theorem Cs_symm (b : GBlock) (i j : ℕ) : b.Cs i j = b.Cs j i := by
   unfold GBlock.Cs
@@ -69,9 +69,9 @@ theorem Cs_symm (b : GBlock) (i j : ℕ) : b.Cs i j = b.Cs j i := by
   · by_cases h' : j ≤ i
     · have : i = j := le_antisymm h h'
       subst this; rfl
-    · rw [if_pos h, if_neg h']
+    · rw [ite_eq_left h, ite_eq_right h']
   · have h' : j ≤ i := by omega
-    rw [if_neg h, if_pos h']
+    rw [ite_eq_right h, ite_eq_left h']
 
 theorem gramOK_dd {cd : ℤ} {b : GBlock} (h : b.gramOK cd = true) :
     ∀ i : Fin b.m, (b.m : ℤ) * cd <
@@ -86,8 +86,8 @@ theorem gramOK_dd {cd : ℤ} {b : GBlock} (h : b.gramOK cd = true) :
     rw [← Fin.sum_univ_eq_sum_range (fun j => if (i : ℕ) = j then (0 : ℤ) else ((b.Dm cd i j).natAbs : ℤ)) b.m]
     refine Finset.sum_congr rfl fun j _ => ?_
     by_cases hij : i = j
-    · rw [if_pos hij, if_pos (by rw [hij])]
-    · rw [if_neg hij, if_neg (fun h' => hij (Fin.ext h'))]
+    · rw [ite_eq_left hij, ite_eq_left (by rw [hij])]
+    · rw [ite_eq_right hij, ite_eq_right (fun h' => hij (Fin.ext h'))]
       exact Int.abs_eq_natAbs _
   rw [e]
   exact hi

@@ -59,7 +59,7 @@ theorem aU_gt : 7 / 2 + 65 / 36 < aU := by
   linarith
 
 /-- The outer dual of the HS zone: `ℓ ≥ 0` on `[0,1/9] × [0,3/20]`. -/
-theorem ell_hz_ge {ε F : ℝ} (he0 : 0 ≤ ε) (he1 : ε ≤ 1 / 9) (hF0 : 0 ≤ F) (hF1 : F ≤ 3 / 20) :
+theorem ell_hz_ge {ε F : ℝ} (he0 : 0 ≤ ε) (he1 : ε ≤ 1 / 9) (_hF0 : 0 ≤ F) (_hF1 : F ≤ 3 / 20) :
     149 / 324 * ε + F * (1 / 12 - 5 / 9 * F) ≤ ell aU bU gU ε F := by
   have ha := aU_gt
   unfold ell bU gU

@@ -73,12 +73,12 @@ theorem Prm_transpose : Prmᵀ = Prm := by
 theorem Prm_mul_Prm : Prm * Prm = Prm := by
   unfold Prm; rw [Matrix.diagonal_mul_diagonal]; congr 1; funext i; split_ifs <;> simp
 
-theorem rotX_neg_one_mul (M : RMat4) (hM : M * Prm = 0) :
+theorem rotX_neg_one_mul (M : RMat4) (_hM : M * Prm = 0) :
     rotX (-1) 0 * (Fd - Prm) = -(1 - Prm) := by
   ext ⟨i1, i2⟩ ⟨j1, j2⟩
   fin_cases i1 <;> fin_cases i2 <;> fin_cases j1 <;> fin_cases j2 <;>
   simp [rotX, Fd, Prm, sing, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two,
-    Matrix.one_apply, Matrix.diagonal_apply]
+    Matrix.diagonal_apply]
 
 /-- A real orthogonal block with trivial singlet row and column is rotated to `±(1 - P)`. -/
 theorem reduce_R (R : RMat4) (h1 : R * Rᵀ = 1 - Prm) (h2 : Rᵀ * R = 1 - Prm) :

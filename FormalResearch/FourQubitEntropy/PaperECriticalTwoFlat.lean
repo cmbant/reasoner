@@ -182,8 +182,8 @@ theorem blochSq_zero_of_cutPurity12 (ψ : Psi) (hn : normSqPsi ψ = 1) (h : cutP
       rw [smul_smul]; norm_num
     rw [this, h2]
   refine (blochSq_eq_zero_iff ψ).mpr ⟨fun j k => ?_, fun j k => ?_⟩
-  · rw [hHl]; by_cases hjk : j = k <;> simp [Matrix.one_apply, hjk]
-  · rw [hHr]; by_cases hjk : j = k <;> simp [Matrix.one_apply, hjk]
+  · rw [hHl]; by_cases hjk : j = k <;> simp [hjk]
+  · rw [hHr]; by_cases hjk : j = k <;> simp [hjk]
 
 /-- Existence of a maximal entry: some `i` with `λ_i ≥ 1/2` when the purity `Σ λ² ≥ 1/2`. -/
 theorem exists_big_entry (w : Fin 2 × Fin 2 → ℂ) (hn : ∑ k, Complex.normSq (w k) = 1)

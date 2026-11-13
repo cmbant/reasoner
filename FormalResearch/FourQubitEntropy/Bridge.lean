@@ -124,7 +124,7 @@ noncomputable def rhoSite (i : Fin 4) (ψ : Psi) (a a' : Fin 2) : ℂ :=
 
 theorem rhoSite_conj (i : Fin 4) (ψ : Psi) (a a' : Fin 2) :
     (starRingEnd ℂ) (rhoSite i ψ a a') = rhoSite i ψ a' a := by
-  simp [rhoSite, rho0, sum2, Psi.conj, Fin.sum_univ_two, mul_comm]
+  simp [rhoSite, rho0, sum2, Psi.conj, mul_comm]
 
 theorem expectation_eq (i : Fin 4) (σ : Matrix (Fin 2) (Fin 2) ℂ) (ψ : Psi) :
     expectation i σ ψ = ∑ a, ∑ t, σ a t * rhoSite i ψ t a := by
@@ -134,7 +134,7 @@ theorem expectation_eq (i : Fin 4) (σ : Matrix (Fin 2) (Fin 2) ℂ) (ψ : Psi) 
 theorem normG_siteSwap (i : Fin 4) (ψ : Psi) :
     normG (siteSwap i ψ) (Psi.conj (siteSwap i ψ)) = normG ψ ψ.conj := by
   fin_cases i <;>
-  simp [normG, sum4, sum2, siteSwap, Psi.conj, Fin.sum_univ_two] <;> ring
+  simp [normG, sum4, sum2, siteSwap, Psi.conj] <;> ring
 
 theorem normG_rho (i : Fin 4) (ψ : Psi) :
     normG ψ ψ.conj = rhoSite i ψ 0 0 + rhoSite i ψ 1 1 := by
@@ -153,7 +153,7 @@ theorem bloch_aux (r : Fin 2 → Fin 2 → ℂ) (h : ∀ a a', (starRingEnd ℂ)
   generalize r 0 1 = x
   generalize (r 0 0).re = p
   generalize (r 1 1).re = q
-  apply Complex.ext <;> simp [Complex.ext_iff, pow_two] <;> ring
+  apply Complex.ext <;> simp [pow_two] <;> ring
 
 theorem bloch_site (i : Fin 4) (ψ : Psi) :
     (((expectation i pauliX ψ).re ^ 2 + (expectation i pauliY ψ).re ^ 2

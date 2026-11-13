@@ -240,7 +240,7 @@ theorem real_gram_rect_exists {m n : ℕ} (Z : Matrix (Fin m) (Fin n) ℂ)
     intro i i'
     by_cases hi : i.val < m
     · by_cases hi' : i'.val < m
-      · rw [dif_pos ⟨hi, hi'⟩]
+      · rw [dite_eq_left ⟨hi, hi'⟩]
         simp only [Matrix.mul_apply, Matrix.conjTranspose_apply]
         symm
         refine Fintype.sum_of_injective (Fin.castLE hn) (Fin.castLE_injective hn) _ _ ?_ ?_
@@ -249,10 +249,10 @@ theorem real_gram_rect_exists {m n : ℕ} (Z : Matrix (Fin m) (Fin n) ℂ)
           simp [Z', this]
         · intro j'
           simp [Z', hi, hi', j'.2]
-      · rw [dif_neg (fun h => hi' h.2)]
+      · rw [dite_eq_right (fun h => hi' h.2)]
         simp only [Matrix.mul_apply, Matrix.conjTranspose_apply]
         exact Finset.sum_eq_zero fun j _ => by simp [Z', hi']
-    · rw [dif_neg (fun h => hi h.1)]
+    · rw [dite_eq_right (fun h => hi h.1)]
       simp only [Matrix.mul_apply, Matrix.conjTranspose_apply]
       exact Finset.sum_eq_zero fun j _ => by simp [Z', hi]
   have g2 : ∀ j j', (Z'ᴴ * Z') j j' =
@@ -260,7 +260,7 @@ theorem real_gram_rect_exists {m n : ℕ} (Z : Matrix (Fin m) (Fin n) ℂ)
     intro j j'
     by_cases hj : j.val < n
     · by_cases hj' : j'.val < n
-      · rw [dif_pos ⟨hj, hj'⟩]
+      · rw [dite_eq_left ⟨hj, hj'⟩]
         simp only [Matrix.mul_apply, Matrix.conjTranspose_apply]
         symm
         refine Fintype.sum_of_injective (Fin.castLE hm) (Fin.castLE_injective hm) _ _ ?_ ?_
@@ -269,10 +269,10 @@ theorem real_gram_rect_exists {m n : ℕ} (Z : Matrix (Fin m) (Fin n) ℂ)
           simp [Z', this]
         · intro i'
           simp [Z', hj, hj', i'.2]
-      · rw [dif_neg (fun h => hj' h.2)]
+      · rw [dite_eq_right (fun h => hj' h.2)]
         simp only [Matrix.mul_apply, Matrix.conjTranspose_apply]
         exact Finset.sum_eq_zero fun i _ => by simp [Z', hj']
-    · rw [dif_neg (fun h => hj h.1)]
+    · rw [dite_eq_right (fun h => hj h.1)]
       simp only [Matrix.mul_apply, Matrix.conjTranspose_apply]
       exact Finset.sum_eq_zero fun i _ => by simp [Z', hj]
   have h1' : ∀ i i', ((Z' * Z'ᴴ) i i').im = 0 := by

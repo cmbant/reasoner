@@ -23,7 +23,7 @@ open Set
 theorem rpow_eq_mul {x r : ℝ} (hx : 0 ≤ x) (hr : 0 < r) : x ^ (r + 1) = x * x ^ r := by
   rw [Real.rpow_add' hx (by linarith), Real.rpow_one, mul_comm]
 
-theorem Z_le_E1 {q n1 n2 n3 E1 E2 E3 : ℝ} (hq : 1 < q) (hn1 : 0 ≤ n1) (hn2 : 0 ≤ n2)
+theorem Z_le_E1 {q n1 n2 n3 E1 E2 E3 : ℝ} (hq : 1 < q) (_hn1 : 0 ≤ n1) (hn2 : 0 ≤ n2)
     (hn3 : 0 ≤ n3) (h3 : 0 ≤ E3) (h32 : E3 ≤ E2) (h21 : E2 ≤ E1)
     (hs : n1 * E1 + n2 * E2 + n3 * E3 = 1) :
     n1 * E1 ^ q + n2 * E2 ^ q + n3 * E3 ^ q ≤ E1 ^ (q - 1) := by
@@ -189,7 +189,7 @@ theorem mean_pow_mul {a r : ℝ} (ha : a < 1) :
 
 /-- **Low-tilt numerics.** `q ∈ [3/2, 8/5]`, `ω ≤ 9/5`, `1/4 ≤ a ≤ 1/2`, `Z ≤ a^{q-1}`:
 `6 ω ln2 · Z < q (2-q) ((1-a)/3)^{q-3}` (the paper's `η > 64/35 > 9/5`). -/
-theorem lowTilt_slope_numeric {q ω a Z : ℝ} (hq1 : 3 / 2 ≤ q) (hq2 : q ≤ 8 / 5) (hω0 : 0 ≤ ω)
+theorem lowTilt_slope_numeric {q ω a Z : ℝ} (hq1 : 3 / 2 ≤ q) (hq2 : q ≤ 8 / 5) (_hω0 : 0 ≤ ω)
     (hω1 : ω ≤ 9 / 5) (ha1 : 1 / 4 ≤ a) (ha2 : a ≤ 1 / 2) (hZ : 0 < Z) (hZa : Z ≤ a ^ (q - 1)) :
     6 * ω * Real.log 2 * Z < q * (1 - (q - 1)) * ((1 - a) / 3) ^ (q - 1 - 2) := by
   set r := q - 1 with hr

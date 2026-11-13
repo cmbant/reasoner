@@ -52,7 +52,7 @@ theorem bqD_mul_eq {s : ℝ} (hs0 : 0 ≤ s) (hs1 : s < 1) :
   have hq1 : qS - 1 ≠ 0 := by have := qS_gt_one; intro h; linarith
   field_simp
 
-theorem binH_mul_eq {u : ℝ} (hu0 : 0 < u) (hu1 : u < 1) :
+theorem binH_mul_eq {u : ℝ} (_hu0 : 0 < u) (_hu1 : u < 1) :
     binH qBQ u * ((qS - 1) * Real.log 2) = -Real.log ((1 - u) ^ qS + u ^ qS) := by
   have hq := qS_gt_one
   have hL := log_two_pos'

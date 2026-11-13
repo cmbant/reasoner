@@ -195,7 +195,7 @@ def TwoUpPattern (a : ℝ) (l₂ l₃ l₄ : Fin 2 × Fin 2 → ℝ) : Prop :=
   (UniformFour l₃ ∧ UniformFour l₄ ∧ RankTwoSpec l₂ a)
 
 theorem sum_sq_uniformFour {l : Fin 2 × Fin 2 → ℝ} (h : UniformFour l) : ∑ i, l i ^ 2 = 1 / 4 := by
-  simp [h _, Fin.sum_univ_two, Fintype.sum_prod_type]; norm_num
+  simp [h _]; norm_num
 
 theorem RankTwoSpec.sum_sq {l : Fin 2 × Fin 2 → ℝ} {a : ℝ} (h : RankTwoSpec l a) :
     ∑ i, l i ^ 2 = a ^ 2 + (1 - a) ^ 2 := by

@@ -106,8 +106,8 @@ noncomputable def Qfun (p0 pl pa x K : ℝ) : ℝ :=
     (hfun qS K (1 / 2) + pl) * (x ^ 2 / (27 / 200) ^ 2) +
     (hd1 qS K (127 / 200) + pa) * (x + x ^ 2 / (27 / 200))
 
-theorem Qfun_deriv_nonpos {p0 pl pa x K : ℝ} (hK1 : 13 / 25 ≤ K) (hK2 : K ≤ 1)
-    (hx1 : -(27 / 200) ≤ x) (hx2 : x ≤ 33 / 200) :
+theorem Qfun_deriv_nonpos {p0 pl pa x K : ℝ} (hK1 : 13 / 25 ≤ K) (_hK2 : K ≤ 1)
+    (_hx1 : -(27 / 200) ≤ x) (_hx2 : x ≤ 33 / 200) :
     HasDerivAt (Qfun p0 pl pa x)
       ((1 - x ^ 2 / (27 / 200) ^ 2) * (-((1 - 127 / 200 : ℝ) ^ qS) / (lhZ qS K (127 / 200) * ((qS - 1) * Real.log 2))) +
         x ^ 2 / (27 / 200) ^ 2 * (-((1 - 1 / 2 : ℝ) ^ qS) / (lhZ qS K (1 / 2) * ((qS - 1) * Real.log 2))) +
@@ -169,7 +169,7 @@ theorem QD_nonpos_abs {q u0 v0 vl K x c : ℝ} (hq : q = 1587 / 1000) (hv0 : 0 <
   rw [neg_div]
   exact neg_nonpos.2 (div_nonneg hE hden.le)
 
-theorem QD_nonpos {x K : ℝ} (hK1 : 13 / 25 ≤ K) (hK2 : K ≤ 1) (hx1 : -(27 / 200) ≤ x) (hx2 : x ≤ 33 / 200) :
+theorem QD_nonpos {x K : ℝ} (hK1 : 13 / 25 ≤ K) (hK2 : K ≤ 1) (_hx1 : -(27 / 200) ≤ x) (hx2 : x ≤ 33 / 200) :
     (1 - x ^ 2 / (27 / 200) ^ 2) * (-((1 - 127 / 200 : ℝ) ^ qS) / (lhZ qS K (127 / 200) * ((qS - 1) * Real.log 2))) +
         x ^ 2 / (27 / 200) ^ 2 * (-((1 - 1 / 2 : ℝ) ^ qS) / (lhZ qS K (1 / 2) * ((qS - 1) * Real.log 2))) +
         (x + x ^ 2 / (27 / 200)) * (qS * (127 / 200 : ℝ) ^ qS * (1 - 127 / 200 : ℝ) ^ qS /

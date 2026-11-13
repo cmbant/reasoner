@@ -217,9 +217,9 @@ theorem det_Fd : Fd.det = -1 := by
   have : Fd = Matrix.diagonal (fun i => if i = ((1 : Fin 2), (1 : Fin 2)) then (-1 : ℝ) else 1) := by
     ext ⟨i1, i2⟩ ⟨j1, j2⟩
     fin_cases i1 <;> fin_cases i2 <;> fin_cases j1 <;> fin_cases j2 <;>
-    simp [Fd, Matrix.diagonal_apply]
+    simp [Fd]
   rw [this, Matrix.det_diagonal]
-  simp [Fintype.prod_prod_type, Fin.prod_univ_two]
+  simp
 
 /-- **`SO(4)` is realised by `SU(2) × SU(2)`**: every `O ∈ SO(4)` is the magic-basis matrix
 `Bᴴ (a ⊗ b) B` of a local unitary `a ⊗ b` (proved). -/

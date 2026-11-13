@@ -56,7 +56,7 @@ theorem renyi_group2 {q a0 a1 b0 b1 u : ℝ} (hq : 1 < q) (hu0 : 0 < u) (hu1 : u
     ring
   rw [renyiSpec_eq_neg hq, hsum, renyiSpec_eq_neg hq (l := ![a0, a1]),
     renyiSpec_eq_neg hq (l := ![b0, b1])]
-  simp only [Fin.sum_univ_two, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+  simp only [Fin.sum_univ_two, Matrix.cons_val_zero, Matrix.cons_val_one]
   rw [← hA, ← hB]
   -- Jensen: log (w' A + w B) ≥ w' log A + w log B
   have hw1 : 0 ≤ (1 - u) ^ q / M := by positivity
@@ -170,13 +170,13 @@ theorem binH_symm (q u : ℝ) : binH q (1 - u) = binH q u := by
 /-- Entropy of an imbalanced pair, deficit form: `H(((1+ρ)/2,(1-ρ)/2)) = binH ((1-ρ)/2)`. -/
 theorem renyiSpec_pair {ρ : ℝ} : renyiSpec qBQ ![(1 + ρ) / 2, (1 - ρ) / 2] = binH qBQ ((1 - ρ) / 2) := by
   have e : (![(1 + ρ) / 2, (1 - ρ) / 2] : Fin 2 → ℝ) = ![(1 + ρ) / 2, 1 - (1 + ρ) / 2] := by
-    congr 1; ext i; fin_cases i <;> simp <;> ring
+    congr 1; ext i; fin_cases i ; simp ; ring
   rw [e, renyiSpec_binary, ← binH_symm]
   congr 1; ring
 
 theorem renyiSpec_half : renyiSpec qBQ ![(1 / 2 : ℝ), 1 / 2] = 1 := by
   have e : (![(1 / 2 : ℝ), 1 / 2] : Fin 2 → ℝ) = ![1 / 2, 1 - 1 / 2] := by
-    congr 1; ext i; fin_cases i <;> simp <;> norm_num
+    congr 1; ext i; fin_cases i ; simp ; norm_num
   rw [e, renyiSpec_binary, binH_half]
 
 theorem binH_eq_neg_log' (u : ℝ) :

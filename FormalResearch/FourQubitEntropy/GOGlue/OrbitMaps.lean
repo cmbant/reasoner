@@ -82,14 +82,14 @@ theorem pX0_eq (x : ℕ → ℝ) : sX (restr (act (([0, 1, 2, 3, 4, 5, 6, 7, 8, 
     lift4 pO0 * sX (restr x) * (lift4 pO0)ᵀ := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [sX, restr, act, lift4, pO0, Matrix.mul_apply, Fin.sum_univ_four] <;> ring
+    simp [sX, restr, act, lift4, pO0, Matrix.mul_apply, Fin.sum_univ_four]
 
 theorem pY0_eq (x : ℕ → ℝ) : sY (restr (act (([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) : List ℕ × List ℤ) x)) =
     lift4 pO0 * sY (restr x) * (lift4 pO0)ᵀ := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [sY, restr, act, lift4, pO0, Matrix.mul_apply, Fin.sum_univ_four] <;> ring
+    simp [sY, restr, act, lift4, pO0, Matrix.mul_apply, Fin.sum_univ_four]
 
 def pO1 : M3R := !![1, 0, 0; 0, 0, 1; 0, 1, 0]
 
@@ -101,14 +101,14 @@ theorem pX1_eq (x : ℕ → ℝ) : sX (restr (act (([0, 1, 3, 2, 4, 6, 5, 8, 7, 
     lift4 pO1 * sX (restr x) * (lift4 pO1)ᵀ := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [sX, restr, act, lift4, pO1, Matrix.mul_apply, Fin.sum_univ_four] <;> ring
+    simp [sX, restr, act, lift4, pO1, Matrix.mul_apply, Fin.sum_univ_four] ; ring
 
 theorem pY1_eq (x : ℕ → ℝ) : sY (restr (act (([0, 1, 3, 2, 4, 6, 5, 8, 7, 9, 11, 10, 12, 13, 15, 14, 16, 18, 17],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1]) : List ℕ × List ℤ) x)) =
     lift4 pO1 * sY (restr x) * (lift4 pO1)ᵀ := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [sY, restr, act, lift4, pO1, Matrix.mul_apply, Fin.sum_univ_four] <;> ring
+    simp [sY, restr, act, lift4, pO1, Matrix.mul_apply, Fin.sum_univ_four] ; ring
 
 def pO2 : M3R := !![0, 1, 0; 1, 0, 0; 0, 0, 1]
 
@@ -120,14 +120,14 @@ theorem pX2_eq (x : ℕ → ℝ) : sX (restr (act (([0, 2, 1, 3, 5, 4, 6, 7, 9, 
     lift4 pO2 * sX (restr x) * (lift4 pO2)ᵀ := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [sX, restr, act, lift4, pO2, Matrix.mul_apply, Fin.sum_univ_four] <;> ring
+    simp [sX, restr, act, lift4, pO2, Matrix.mul_apply, Fin.sum_univ_four] ; ring
 
 theorem pY2_eq (x : ℕ → ℝ) : sY (restr (act (([0, 2, 1, 3, 5, 4, 6, 7, 9, 8, 10, 12, 11, 14, 13, 15, 17, 16, 18],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1]) : List ℕ × List ℤ) x)) =
     lift4 pO2 * sY (restr x) * (lift4 pO2)ᵀ := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [sY, restr, act, lift4, pO2, Matrix.mul_apply, Fin.sum_univ_four] <;> ring
+    simp [sY, restr, act, lift4, pO2, Matrix.mul_apply, Fin.sum_univ_four] ; ring
 
 def pO3 : M3R := !![0, 1, 0; 0, 0, 1; 1, 0, 0]
 
@@ -146,7 +146,7 @@ theorem pY3_eq (x : ℕ → ℝ) : sY (restr (act (([0, 2, 3, 1, 5, 6, 4, 9, 7, 
     lift4 pO3 * sY (restr x) * (lift4 pO3)ᵀ := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [sY, restr, act, lift4, pO3, Matrix.mul_apply, Fin.sum_univ_four] <;> ring
+    simp [sY, restr, act, lift4, pO3, Matrix.mul_apply, Fin.sum_univ_four] ; ring
 
 def pO4 : M3R := !![0, 0, 1; 1, 0, 0; 0, 1, 0]
 
@@ -165,7 +165,7 @@ theorem pY4_eq (x : ℕ → ℝ) : sY (restr (act (([0, 3, 1, 2, 6, 4, 5, 8, 9, 
     lift4 pO4 * sY (restr x) * (lift4 pO4)ᵀ := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [sY, restr, act, lift4, pO4, Matrix.mul_apply, Fin.sum_univ_four] <;> ring
+    simp [sY, restr, act, lift4, pO4, Matrix.mul_apply, Fin.sum_univ_four] ; ring
 
 def pO5 : M3R := !![0, 0, 1; 0, 1, 0; 1, 0, 0]
 
@@ -184,7 +184,7 @@ theorem pY5_eq (x : ℕ → ℝ) : sY (restr (act (([0, 3, 2, 1, 6, 5, 4, 9, 8, 
     lift4 pO5 * sY (restr x) * (lift4 pO5)ᵀ := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [sY, restr, act, lift4, pO5, Matrix.mul_apply, Fin.sum_univ_four] <;> ring
+    simp [sY, restr, act, lift4, pO5, Matrix.mul_apply, Fin.sum_univ_four] ; ring
 
 def permLists : List (List ℕ × List ℤ) := [
   ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],

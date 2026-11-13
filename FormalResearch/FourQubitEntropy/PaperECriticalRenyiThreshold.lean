@@ -275,8 +275,8 @@ theorem renyi_binary_eq_iff_ge {q : ℝ} (hq : qb ≤ q) {a : ℝ} (ha0 : 0 ≤ 
     rcases h with rfl | rfl | rfl
     · simpa using renyiSpec_pure_pair hq0
     · have := (renyiSpec_eq_iff hq0 hq1 (l := (![1 / 2, 1 - 1 / 2] : Fin 2 → ℝ))
-        (by intro i; fin_cases i <;> simp <;> norm_num) (by simp [Fin.sum_univ_two])).2
-        (by intro i; fin_cases i <;> simp <;> norm_num)
+        (by intro i; fin_cases i <;> simp ; norm_num) (by simp [Fin.sum_univ_two])).2
+        (by intro i; fin_cases i <;> simp ; norm_num)
       rw [this]; norm_num
     · simpa using renyiSpec_pure_pair' hq0
 

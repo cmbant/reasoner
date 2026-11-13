@@ -40,8 +40,8 @@ theorem rhoS_apply (m : Fin 7 → Bool) (ψ : BitString → ℂ) (a b : Cfg3) :
 
 theorem rhoS_hermitian (m : Fin 7 → Bool) (ψ : BitString → ℂ) : (rhoS m ψ).IsHermitian := by
   ext a b
-  simp only [Matrix.conjTranspose_apply, rhoS_apply, redEntry, Matrix.star_apply]
-  simp [map_sum, mul_comm]
+  simp only [Matrix.conjTranspose_apply, rhoS_apply, redEntry]
+  simp [mul_comm]
 
 theorem rhoS_trace (m : Fin 7 → Bool) (hm : weight m = 3) (ψ : BitString → ℂ) (hψ : UnitVec ψ) :
     (rhoS m ψ).trace = 1 := by
@@ -70,7 +70,7 @@ theorem pwt_extPauli (c : Cut 3 4) (hc : Function.Bijective c) (ν : Fin 3 → F
   have h := Fintype.sum_bijective c hc (fun i => if extPauli c ν i ≠ 0 then 1 else 0)
     (fun s => if Sum.elim ν (fun _ => (0 : Fin 4)) s ≠ 0 then 1 else 0) (fun i => rfl)
   rw [h, Fintype.sum_sum_type]
-  simp only [Sum.elim_inl, Sum.elim_inr, ne_eq, not_true_eq_false, if_false, Finset.sum_const_zero,
+  simp only [Sum.elim_inl, Sum.elim_inr, ne_eq, not_true_eq_false, ite_false, Finset.sum_const_zero,
     add_zero]
   exact Finset.sum_congr rfl fun x _ => by by_cases hx : ν x = 0 <;> simp [hx]
 
@@ -103,16 +103,16 @@ theorem four_b_le (m : Fin 7 → Bool) (hm : weight m = 3) (ψ : BitString → �
     simp only [hκ]
     by_cases hμ : μ ∈ suppSet m
     · have h3 := pwt_le_of_mem_suppSet m hm hμ
-      rw [if_pos hμ]
+      rw [ite_eq_left hμ]
       generalize pwt μ = j at h3
-      interval_cases j <;> simp [cntN] <;> norm_num
-    · rw [if_neg hμ]; simp
+      interval_cases j <;> simp [cntN] ; norm_num
+    · rw [ite_eq_right hμ]; simp
   have hK : κ 0 * psq ψ 0 ≤ ∑ μ, κ μ * psq ψ μ :=
     Finset.single_le_sum (f := fun μ => κ μ * psq ψ μ)
       (fun μ _ => mul_nonneg (hκnn μ) (Complex.normSq_nonneg _)) (Finset.mem_univ _)
   have hκ0 : κ 0 = 34 := by
     simp only [hκ]
-    rw [if_pos (zero_mem_suppSet m), pwt_zero]
+    rw [ite_eq_left (zero_mem_suppSet m), pwt_zero]
     simp [cntN]
     norm_num
   have hexp : ∑ μ, κ μ * psq ψ μ =

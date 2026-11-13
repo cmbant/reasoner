@@ -264,8 +264,7 @@ theorem rfVec_normSq (α β c : ℝ) (hc : c ^ 2 = 1 / 2) (k : Fin 4) :
 theorem rfVec_wp (α β c : ℝ) (hc : c ^ 2 = 1 / 2) (k : Fin 4) :
     Complex.normSq (PaperECritical.wp (rfVec α β c) (eqv k)) =
       ![(1 + α ^ 2) / 8, (1 + α ^ 2) / 8, (1 + (α + 2 * β) ^ 2) / 8, (1 + (2 * β - α) ^ 2) / 8] k := by
-  fin_cases k <;> simp [rfVec, eqv, PaperECritical.wp, Complex.normSq_apply, Complex.div_ofNat_re,
-    Complex.div_ofNat_im]
+  fin_cases k <;> simp [rfVec, eqv, PaperECritical.wp, Complex.normSq_apply]
   · linear_combination (1 + α ^ 2) / 4 * hc
   · linear_combination (1 + α ^ 2) / 4 * hc
   · linear_combination (1 + (α + 2 * β) ^ 2) / 4 * hc
@@ -274,8 +273,7 @@ theorem rfVec_wp (α β c : ℝ) (hc : c ^ 2 = 1 / 2) (k : Fin 4) :
 theorem rfVec_wm (α β c : ℝ) (hc : c ^ 2 = 1 / 2) (k : Fin 4) :
     Complex.normSq (PaperECritical.wm (rfVec α β c) (eqv k)) =
       ![(1 + (α + 2 * β) ^ 2) / 8, (1 + (α - 2 * β) ^ 2) / 8, (1 + α ^ 2) / 8, (1 + α ^ 2) / 8] k := by
-  fin_cases k <;> simp [rfVec, eqv, PaperECritical.wm, Complex.normSq_apply, Complex.div_ofNat_re,
-    Complex.div_ofNat_im]
+  fin_cases k <;> simp [rfVec, eqv, PaperECritical.wm, Complex.normSq_apply]
   · linear_combination (1 + (α + 2 * β) ^ 2) / 4 * hc
   · linear_combination (1 + (α - 2 * β) ^ 2) / 4 * hc
   · linear_combination (1 + α ^ 2) / 4 * hc

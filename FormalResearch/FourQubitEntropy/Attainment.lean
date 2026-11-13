@@ -101,8 +101,8 @@ theorem red13_M4 : (red13 M4 - (1 / 6 : ℂ) • 1) * (red13 M4 - (1 / 2 : ℂ) 
   simp [Matrix.mul_apply, Matrix.sub_apply, Matrix.one_apply, red13, M4, Fintype.sum_prod_type,
     Fin.sum_univ_two, conj_omega] <;>
   ring_nf <;>
-  simp only [h2, h4, omega_pow_red 3, omega_pow_red 4, omega_pow_red 5, omega_pow_red 6,
-    omega_pow_red 7, omega_pow_red 8, omega_pow_red 9, omega_pow_red 10, omega_pow_red 11,
+  simp only [h2, h4, omega_pow_red 3, omega_pow_red 4, omega_pow_red 6,
+    omega_pow_red 8, omega_pow_red 10,
     omega_pow_red 12, Nat.reduceMod, pow_zero, pow_one, p2] <;>
   ring_nf
   all_goals simp
@@ -123,8 +123,7 @@ theorem red14_M4 : (red14 M4 - (1 / 6 : ℂ) • 1) * (red14 M4 - (1 / 2 : ℂ) 
     Fin.sum_univ_two, conj_omega] <;>
   ring_nf <;>
   simp only [h2, h4, omega_pow_red 3, omega_pow_red 4, omega_pow_red 5, omega_pow_red 6,
-    omega_pow_red 7, omega_pow_red 8, omega_pow_red 9, omega_pow_red 10, omega_pow_red 11,
-    omega_pow_red 12, Nat.reduceMod, pow_zero, pow_one, p2] <;>
+    Nat.reduceMod, pow_zero, pow_one, p2] <;>
   ring_nf
   all_goals simp
 

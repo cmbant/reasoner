@@ -67,15 +67,15 @@ theorem meanEntropy_of_quadratics (ψ : Psi) (hψ : normSqPsi ψ = 1)
 
 theorem red12_conj (ψ : Psi) : red12 ψ.conj = (red12 ψ).map (starRingEnd ℂ) := by
   ext i j
-  simp [red12, Psi.conj, map_sum, mul_comm]
+  simp [red12, Psi.conj, mul_comm]
 
 theorem red13_conj (ψ : Psi) : red13 ψ.conj = (red13 ψ).map (starRingEnd ℂ) := by
   ext i j
-  simp [red13, Psi.conj, map_sum, mul_comm]
+  simp [red13, Psi.conj, mul_comm]
 
 theorem red14_conj (ψ : Psi) : red14 ψ.conj = (red14 ψ).map (starRingEnd ℂ) := by
   ext i j
-  simp [red14, Psi.conj, map_sum, mul_comm]
+  simp [red14, Psi.conj, mul_comm]
 
 theorem quadratic_map_star {R : Mat4}
     (h : (R - (1 / 6 : ℂ) • 1) * (R - (1 / 2 : ℂ) • 1) = 0) :

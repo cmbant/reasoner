@@ -36,7 +36,7 @@ theorem quadratic_of_eigenvalues {R : Mat4} (hR : R.IsHermitian)
     ext i j
     by_cases hij : i = j
     · subst hij; simp [D]
-    · simp [D, hij, Matrix.one_apply, Matrix.diagonal_apply]
+    · simp [D, hij]
   rw [hshift, hshift, hdiag, hdiag]
   calc U * Matrix.diagonal (fun i => ((hR.eigenvalues i : ℝ) : ℂ) - 1 / 6) * star U *
         (U * Matrix.diagonal (fun i => ((hR.eigenvalues i : ℝ) : ℂ) - 1 / 2) * star U)
@@ -48,7 +48,7 @@ theorem quadratic_of_eigenvalues {R : Mat4} (hR : R.IsHermitian)
         have : (fun i => (((hR.eigenvalues i : ℝ) : ℂ) - 1 / 6) * (((hR.eigenvalues i : ℝ) : ℂ) - 1 / 2))
             = fun _ => (0 : ℂ) := by
           funext i
-          rcases h i with h | h <;> simp [h] <;> norm_num
+          rcases h i with h | h <;> simp [h]
         rw [this]; simp
 
 /-- The Hermite cubic summed over a cut's spectrum. -/

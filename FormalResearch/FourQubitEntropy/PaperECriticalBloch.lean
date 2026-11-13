@@ -152,9 +152,9 @@ theorem blochSq_eq_zero_iff (ψ : Psi) :
     · exact zero_of_six (fun j k => (Hl ψ j k).im) (fun j k => herm_im (Hl_herm ψ) j k)
         (by linarith) (by linarith) (by linarith) (by linarith) (by linarith) (by linarith)
     · have := zero_of_six (fun j k => (Hr ψ k j).im)
-        (fun j k => (herm_im (Hr_herm ψ) k j)) (by beta_reduce; linarith) (by beta_reduce; linarith)
-        (by beta_reduce; linarith) (by beta_reduce; linarith) (by beta_reduce; linarith)
-        (by beta_reduce; linarith)
+        (fun j k => (herm_im (Hr_herm ψ) k j)) (by linarith) (by linarith)
+        (by linarith) (by linarith) (by linarith)
+        (by linarith)
       intro j k; exact this k j
   · rintro ⟨hl, hr⟩
     unfold blochSq
