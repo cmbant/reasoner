@@ -4,7 +4,7 @@ The `master` branch contains the maintained Lean/mathlib formalizations for exac
 
 The former `formal-research-lean` development branch was squash-merged into `master` on 2026-09-20. New Lean work should branch from `master` and target `master`.
 
-A claim is marked kernel-checked only after GitHub Actions compiles it without `sorry`.
+A claim is marked kernel-checked only after GitHub Actions compiles the relevant target without `sorry`. A successful run of the push-triggered **Lean failure-only frontier** workflow checks selected targets, not the full `FormalResearch` aggregate. Full aggregate builds reported from local runs in commit or PR descriptions do not themselves establish an independent CI build. For reproducible CI evidence, dispatch the **Lean verification** workflow with `FormalResearch` as a target and retain the successful run.
 
 Initial targets:
 
