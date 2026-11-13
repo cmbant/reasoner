@@ -273,6 +273,7 @@ public import FormalResearch.Racah.P2AnalyticHeadline6j
 public import FormalResearch.Racah.P2AnalyticLeading
 public import FormalResearch.Racah.P2AnalyticL2Transmutation
 public import FormalResearch.Racah.P2AnalyticL2Singular
+public import FormalResearch.Racah.P2AnalyticNLO6j
 public import FormalResearch.Special
 public import FormalResearch.Wigner
 public import FormalResearch.Bridges.B2BlaschkeWalshGauge

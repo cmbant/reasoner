@@ -13,7 +13,7 @@ Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `prop:betabinomialpolar`
 (`eq:BernsteinAdjoint`, `eq:BernsteinHahnJacobi`).
 
 Notation (`α β D n : ℕ`, `n ≤ D`): `ν_H = t^α(1-t)^β/B dt` on `[0,1]` (`wtJ`, `betaB`, `ipJ`),
-`p_D` (`pD`, `eq:betabinomialmass`), `C_D` (`Cop`, `eq:conditionalC`), `C_D^*` (`Cstar`,
+`p_D` (`pD`, `eq:betabinomialmass`), `C_D` (`CopBeta`, `eq:conditionalC`), `C_D^*` (`Cstar`,
 `eq:BernsteinAdjoint`), Jacobi mode `jT` (`= n!/(α+1)_n P_n^{(α,β)}(1-2t)`), Hahn polynomial `hahnQ`.
 
 ## Proved here
@@ -178,7 +178,7 @@ noncomputable def ipP (α β D : ℕ) (f g : ℕ → ℝ) : ℝ :=
 
 /-- The conditional expectation `(C_D f)(u) = p_D(u)⁻¹ ∫_0^1 b_u^D f dν_H` (`eq:conditionalC`),
 `dν_H = t^α (1-t)^β/B dt`. -/
-noncomputable def Cop (α β D : ℕ) (f : ℝ → ℝ) (u : ℕ) : ℝ :=
+noncomputable def CopBeta (α β D : ℕ) (f : ℝ → ℝ) (u : ℕ) : ℝ :=
   (1 / pD α β D u) * ((1 / betaB α β) * ∫ t in (0 : ℝ)..1, bern D u t * f t * wtJ α β t)
 
 /-- The Bernstein averaging operator `(C_D^* g)(t) = ∑_u b_u^D(t) g(u)` (`eq:BernsteinAdjoint`). -/
@@ -190,14 +190,14 @@ lemma bern_continuous (D u : ℕ) : Continuous (bern D u) := by
 
 /-- **Adjointness**: `⟨C_D f, g⟩_{p_D} = (1/B) ∫ f (C_D^* g) t^α(1-t)^β dt = ⟨f, C_D^* g⟩_{ν_H}`. -/
 theorem ipP_Cop (α β D : ℕ) {f : ℝ → ℝ} (hf : Continuous f) (g : ℕ → ℝ) :
-    ipP α β D (Cop α β D f) g =
+    ipP α β D (CopBeta α β D f) g =
       (1 / betaB α β) * ∫ t in (0 : ℝ)..1, wtJ α β t * (f t * Cstar D g t) := by
   unfold ipP
-  have h1 : ∀ u ∈ Finset.range (D + 1), pD α β D u * (Cop α β D f u * g u) =
+  have h1 : ∀ u ∈ Finset.range (D + 1), pD α β D u * (CopBeta α β D f u * g u) =
       (1 / betaB α β) * ∫ t in (0 : ℝ)..1, wtJ α β t * (f t * (bern D u t * g u)) := by
     intro u hu
     have hp := (pD_pos α β D u (by simpa [Nat.lt_succ_iff] using hu)).ne'
-    unfold Cop
+    unfold CopBeta
     have e : ∀ t : ℝ, wtJ α β t * (f t * (bern D u t * g u)) =
         g u * (bern D u t * f t * wtJ α β t) := fun t => by ring
     simp only [e]
@@ -536,7 +536,7 @@ lemma jT_eq_sum (α β n : ℕ) (t : ℝ) :
 
 /-- The posterior moments at `u = 0`: `E[T^k | U = 0] = (α+1)_k/(D+α+β+2)_k`. -/
 lemma Cop0_pow (α β D k : ℕ) :
-    Cop α β D (fun t => t ^ k) 0 =
+    CopBeta α β D (fun t => t ^ k) 0 =
       (ascPochhammer ℝ k).eval ((α : ℝ) + 1) /
         (ascPochhammer ℝ k).eval ((D : ℝ) + α + β + 2) := by
   have hB := betaB_pos α β
@@ -552,7 +552,7 @@ lemma Cop0_pow (α β D k : ℕ) :
       intro t; rw [hbern]; unfold wtJ; rw [pow_add]; ring
     simp only [e]; exact beta01 _ _
   have hp0 := pD_eq_integral α β D 0
-  unfold Cop
+  unfold CopBeta
   rw [hnum]
   rw [hp0, hden]
   have h1 : ((α + k + (D + β) + 1).factorial : ℝ) =
@@ -598,8 +598,8 @@ lemma ipP_Q_pos (α β D n : ℕ) : 0 < ipP α β D (hahnQ α β D n) (hahnQ α 
 /-- Linearity of `C_D` over finite combinations of continuous functions. -/
 lemma Cop_sum (α β D : ℕ) (s : Finset ℕ) (c : ℕ → ℝ) (f : ℕ → ℝ → ℝ) (hf : ∀ k, Continuous (f k))
     (u : ℕ) :
-    Cop α β D (fun t => ∑ k ∈ s, c k * f k t) u = ∑ k ∈ s, c k * Cop α β D (f k) u := by
-  unfold Cop
+    CopBeta α β D (fun t => ∑ k ∈ s, c k * f k t) u = ∑ k ∈ s, c k * CopBeta α β D (f k) u := by
+  unfold CopBeta
   have e : ∀ t : ℝ, bern D u t * (∑ k ∈ s, c k * f k t) * wtJ α β t =
       ∑ k ∈ s, c k * (bern D u t * f k t * wtJ α β t) := by
     intro t
@@ -623,15 +623,15 @@ lemma ascPoch_desc (n D : ℕ) :
   ring
 
 /-- The value at `u = 0`: `(C_D jT_n)(0) = s_n²` (Chu--Vandermonde). -/
-theorem Cop0_jT (α β D n : ℕ) : Cop α β D (jT α β n) 0 = singularSq α β D n := by
-  have h1 : Cop α β D (jT α β n) 0 = ∑ k ∈ Finset.range (n + 1), jcoef α β n k *
-      Cop α β D (fun t => t ^ k) 0 :=
+theorem Cop0_jT (α β D n : ℕ) : CopBeta α β D (jT α β n) 0 = singularSq α β D n := by
+  have h1 : CopBeta α β D (jT α β n) 0 = ∑ k ∈ Finset.range (n + 1), jcoef α β n k *
+      CopBeta α β D (fun t => t ^ k) 0 :=
     Cop_sum α β D (Finset.range (n + 1)) (jcoef α β n) (fun k t => t ^ k)
       (fun k => continuous_pow k) 0
-  have h1' : Cop α β D (jT α β n) 0 = _ := h1
+  have h1' : CopBeta α β D (jT α β n) 0 = _ := h1
   rw [h1']
   have hc : (0 : ℝ) < (D : ℝ) + α + β + 2 := by positivity
-  have h2 : ∀ k ∈ Finset.range (n + 1), jcoef α β n k * Cop α β D (fun t => t ^ k) 0 =
+  have h2 : ∀ k ∈ Finset.range (n + 1), jcoef α β n k * CopBeta α β D (fun t => t ^ k) 0 =
       (-1 : ℝ) ^ k * (n.choose k : ℝ) * ((ascPochhammer ℝ k).eval ((n : ℝ) + α + β + 1) /
         (ascPochhammer ℝ k).eval ((D : ℝ) + α + β + 2)) := by
     intro k _
@@ -658,25 +658,25 @@ adjointness, `C_D^* Q_m = jT_m`, orthogonality of `jT` in `L²(ν_H)` and of `Q`
 completeness of `{Q_m}` in `ℓ²(p_D)` (`hahn_determined`), and the value at `u = 0`
 (Chu--Vandermonde, `Cop0_jT`). -/
 theorem Cop_jT (α β D n : ℕ) (hn : n ≤ D) {u : ℕ} (hu : u ≤ D) :
-    Cop α β D (jT α β n) u = singularSq α β D n * hahnQ α β D n u := by
+    CopBeta α β D (jT α β n) u = singularSq α β D n * hahnQ α β D n u := by
   have hB := betaB_pos α β
   set Gn := ipJ α β (jT α β n) (jT α β n) with hGn
   set Pn := ipP α β D (hahnQ α β D n) (hahnQ α β D n) with hPn
   have hPpos : 0 < Pn := ipP_Q_pos α β D n
   set κ := Gn / (betaB α β * Pn) with hκ
-  have key : ∀ u ≤ D, Cop α β D (jT α β n) u = κ * hahnQ α β D n u := by
-    have := hahn_determined α β D (fun u => Cop α β D (jT α β n) u - κ * hahnQ α β D n u) ?_
+  have key : ∀ u ≤ D, CopBeta α β D (jT α β n) u = κ * hahnQ α β D n u := by
+    have := hahn_determined α β D (fun u => CopBeta α β D (jT α β n) u - κ * hahnQ α β D n u) ?_
     · intro u hu; linarith [this u hu]
     intro m hm
-    have hF : ipP α β D (Cop α β D (jT α β n)) (hahnQ α β D m) =
+    have hF : ipP α β D (CopBeta α β D (jT α β n)) (hahnQ α β D m) =
         (1 / betaB α β) * ipJ α β (jT α β n) (jT α β m) := by
       rw [ipP_Cop α β D (jT_continuous α β n)]
       unfold ipJ
       congr 1
       refine intervalIntegral.integral_congr fun t _ => ?_
       simp only [Cstar_hahnQ α β D m hm]
-    have hlin : ipP α β D (fun u => Cop α β D (jT α β n) u - κ * hahnQ α β D n u)
-        (hahnQ α β D m) = ipP α β D (Cop α β D (jT α β n)) (hahnQ α β D m) -
+    have hlin : ipP α β D (fun u => CopBeta α β D (jT α β n) u - κ * hahnQ α β D n u)
+        (hahnQ α β D m) = ipP α β D (CopBeta α β D (jT α β n)) (hahnQ α β D m) -
         κ * ipP α β D (hahnQ α β D n) (hahnQ α β D m) := by
       unfold ipP
       rw [Finset.mul_sum, ← Finset.sum_sub_distrib]
@@ -701,7 +701,7 @@ theorem norm_relation (α β D n : ℕ) (hn : n ≤ D) :
       singularSq α β D n * ipP α β D (hahnQ α β D n) (hahnQ α β D n) := by
   have hB := betaB_pos α β
   have hF := ipP_Cop α β D (jT_continuous α β n) (hahnQ α β D n)
-  have e1 : ipP α β D (Cop α β D (jT α β n)) (hahnQ α β D n) =
+  have e1 : ipP α β D (CopBeta α β D (jT α β n)) (hahnQ α β D n) =
       singularSq α β D n * ipP α β D (hahnQ α β D n) (hahnQ α β D n) := by
     unfold ipP
     rw [Finset.mul_sum]
@@ -714,8 +714,8 @@ theorem norm_relation (α β D n : ℕ) (hn : n ≤ D) :
   simp only [Cstar_hahnQ α β D n hn]
 
 lemma Cop_const_mul (α β D : ℕ) (c : ℝ) (f : ℝ → ℝ) (u : ℕ) :
-    Cop α β D (fun t => c * f t) u = c * Cop α β D f u := by
-  unfold Cop
+    CopBeta α β D (fun t => c * f t) u = c * CopBeta α β D f u := by
+  unfold CopBeta
   have e : ∀ t : ℝ, bern D u t * (c * f t) * wtJ α β t = c * (bern D u t * f t * wtJ α β t) :=
     fun t => by ring
   simp only [e]
@@ -733,7 +733,7 @@ noncomputable def Hmode (α β D n : ℕ) (u : ℕ) : ℝ :=
 `T_D J_n = s_n H_n` on `{0,…,D}`, `s_n = √(D^{\underline n}/(D+α+β+2)_n) > 0`, where `J_n` and `H_n`
 are the unit-normalised Jacobi and Hahn modes in `L²(ν_H)` and `ℓ²(p_D)`. -/
 theorem singular_pair (α β D n : ℕ) (hn : n ≤ D) {u : ℕ} (hu : u ≤ D) :
-    Cop α β D (Jmode α β n) u = Real.sqrt (singularSq α β D n) * Hmode α β D n u := by
+    CopBeta α β D (Jmode α β n) u = Real.sqrt (singularSq α β D n) * Hmode α β D n u := by
   have hs := singularSq_pos α β D n hn
   have hP := ipP_Q_pos α β D n
   have hnr := norm_relation α β D n hn

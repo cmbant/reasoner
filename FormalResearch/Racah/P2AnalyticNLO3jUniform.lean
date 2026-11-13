@@ -76,7 +76,7 @@ lemma Gc3_eq_E_W_S (M σ : ℚ) (k : ℕ) {x t : ℝ} (hx : x ∈ Ioo (-1 : ℝ)
 /-- `∂_t S(τ,t)|_{t=0} = (c_n/2) P̃(τ;0) + q_k(τ)` and `S(τ,0) = P̃(τ;0)`. -/
 lemma hasDerivAt_Scarrier3 (M σ : ℚ) (k : ℕ) (τ : ℝ) :
     HasDerivAt (fun t => Scarrier3 M σ k (τ, t))
-      (cc (pPlus3 M σ + pMinus3 M σ + 2 * k + 1) / 2 * ptilde3 M σ k τ 0 + qt3 M σ k τ) 0 := by
+      (ccCent (pPlus3 M σ + pMinus3 M σ + 2 * k + 1) / 2 * ptilde3 M σ k τ 0 + qt3 M σ k τ) 0 := by
   set n := pPlus3 M σ + pMinus3 M σ + 2 * k + 1
   have hT := hasDerivAt_Ct n (one_ne_zero (α := ℝ))
   have hsT := hT.sqrt (by show Ct n 1 0 ≠ 0; simp [Ct_zero_t])
@@ -154,7 +154,7 @@ theorem Phi3j_uniform_nlo (M σ L : ℚ) (k : ℕ) (hL : L = max |M| |σ| + k) :
       ptilde3 M σ k ((1 - x) / 2) 0 := by
     simp [taylorCoeff, Scarrier3, Ct_zero_t]
   have hc1 : taylorCoeff (fun z t => Scarrier3 M σ k (z, t)) 1 ((1 - x) / 2) =
-      cc (pPlus3 M σ + pMinus3 M σ + 2 * k + 1) / 2 * ptilde3 M σ k ((1 - x) / 2) 0 +
+      ccCent (pPlus3 M σ + pMinus3 M σ + 2 * k + 1) / 2 * ptilde3 M σ k ((1 - x) / 2) 0 +
         qt3 M σ k ((1 - x) / 2) := by
     unfold taylorCoeff
     rw [iteratedDeriv_one, Nat.factorial_one, Nat.cast_one, div_one]
@@ -185,7 +185,7 @@ theorem Phi3j_uniform_nlo (M σ L : ℚ) (k : ℕ) (hL : L = max |M| |σ| + k) :
     have h1 : 1 - x ≠ 0 := by linarith [hx.2]
     have h2 : 1 + x ≠ 0 := by linarith [hx.1]
     have hN : (N : ℝ) ≠ 0 := hNpos.ne'
-    unfold e2three nloMu cc
+    unfold e2three nloMu ccCent
     rw [htdef]
     field_simp
     ring
@@ -196,7 +196,7 @@ theorem Phi3j_uniform_nlo (M σ L : ℚ) (k : ℕ) (hL : L = max |M| |σ| + k) :
   set S := Scarrier3 M σ k ((1 - x) / 2, t)
   set p0 := ptilde3 M σ k ((1 - x) / 2) 0
   set q1 := qt3 M σ k ((1 - x) / 2)
-  set c := cc (pPlus3 M σ + pMinus3 M σ + 2 * k + 1) / 2
+  set c := ccCent (pPlus3 M σ + pMinus3 M σ + 2 * k + 1) / 2
   have hdZ := dZero3_eq_wignerD M σ α β hα hβ hxI k
   have hK : nloF2 (max |M| |σ| + (k : ℚ)) M σ x +
       nloMu (pPlus3 M σ) (pMinus3 M σ) x * wignerSmallDx (max |M| |σ| + (k : ℚ)) M σ x -

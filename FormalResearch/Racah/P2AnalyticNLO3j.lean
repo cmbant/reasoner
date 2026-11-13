@@ -122,7 +122,7 @@ theorem nlo_e_eq (M σ : ℚ) (α β : ℕ) (hα : |M - σ| = α) (hβ : |M + σ
       subst hM hs0
       simp only [abs_zero, max_self]
       have : μ = 0 := by
-        rw [hμ]; unfold nloMu pPlus3 pMinus3; simp [cc]
+        rw [hμ]; unfold nloMu pPlus3 pMinus3; simp [ccCent]
       rw [this, nloH_zero_zero hx]; simp
     · have hLpos : (0 : ℝ) < ((α : ℝ) + β) / 2 := by
         rw [← hL0r]; exact_mod_cast lt_of_le_of_ne hL0 (Ne.symm h0)
@@ -135,7 +135,7 @@ theorem nlo_e_eq (M σ : ℚ) (α β : ℕ) (hα : |M - σ| = α) (hβ : |M + σ
           rw [hL0r, e] at hlad
           linear_combination -hlad)
       rw [nloH_eq, hμ, br3_pPlus hα, br3_pMinus hβ]
-      unfold nloMu cc
+      unfold nloMu ccCent
       rw [← hL0r, ← hSr, ← hmr] at hseed
       exact hseed
   have hst1 : nloH (max |M| |σ| + ((1 : ℕ) : ℚ)) M σ x +
@@ -146,7 +146,7 @@ theorem nlo_e_eq (M σ : ℚ) (α β : ℕ) (hα : |M - σ| = α) (hβ : |M + σ
       subst hM hs0
       simp only [abs_zero, max_self, Nat.cast_one, zero_add]
       have : μ = 0 := by
-        rw [hμ]; unfold nloMu pPlus3 pMinus3; simp [cc]
+        rw [hμ]; unfold nloMu pPlus3 pMinus3; simp [ccCent]
       rw [this, nloH_one_zero_zero hx]; simp
     · have hLpos : (0 : ℚ) < max |M| |σ| := lt_of_le_of_ne hL0 (Ne.symm h0)
       have hLr : ((max |M| |σ| : ℚ) : ℝ) ≠ 0 := by exact_mod_cast hLpos.ne'
@@ -239,11 +239,11 @@ theorem f3even_one_eq_nloF2 (M σ L : ℚ) (k : ℕ) (hL : L = max |M| |σ| + k)
   rw [f3even_one_eq M σ k hx, nlo_e_eq M σ α β hα hβ hx k,
     dZero3_eq_wignerD M σ α β hα hβ hxI k]
   obtain ⟨hL0r, -, -⟩ := nlo_real_facts M σ α β hα hβ
-  have hc : cc (pPlus3 M σ + pMinus3 M σ + 2 * k + 1) / 2 =
+  have hc : ccCent (pPlus3 M σ + pMinus3 M σ + 2 * k + 1) / 2 =
       (2 * (((max |M| |σ| + (k : ℚ) : ℚ)) : ℝ) + 1) *
         ((((max |M| |σ| + (k : ℚ) : ℚ)) : ℝ) * ((((max |M| |σ| + (k : ℚ) : ℚ)) : ℝ) + 1)) / 12 := by
     rw [br3_pPlus hα, br3_pMinus hβ]
-    unfold cc
+    unfold ccCent
     have hL0r' : max |(M : ℝ)| |(σ : ℝ)| = ((α : ℝ) + β) / 2 := by
       have := hL0r; push_cast at this; exact this
     push_cast

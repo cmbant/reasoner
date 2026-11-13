@@ -24,23 +24,23 @@ namespace FormalResearch.Racah
 open FormalResearch.Wigner Set
 
 /-- `c_r = r(r²-1)/24`: `𝔠_r(u;t) = u^r - c_r u^{r-2} t + O(t²)`. -/
-noncomputable def cc (r : ℕ) : ℝ := (r : ℝ) * ((r : ℝ) ^ 2 - 1) / 24
+noncomputable def ccCent (r : ℕ) : ℝ := (r : ℝ) * ((r : ℝ) ^ 2 - 1) / 24
 
-lemma cc_add_two (r : ℕ) : cc (r + 2) = cc r + ((r : ℝ) + 1) ^ 2 / 4 := by
-  unfold cc; push_cast; ring
+lemma cc_add_two (r : ℕ) : ccCent (r + 2) = ccCent r + ((r : ℝ) + 1) ^ 2 / 4 := by
+  unfold ccCent; push_cast; ring
 
 /-- **`∂_t 𝔠_r(u;t)` at `t = 0`**: `-c_r u^r / u²`. -/
 lemma hasDerivAt_Ct (r : ℕ) {u : ℝ} (hu : u ≠ 0) :
-    HasDerivAt (fun t => Ct r u t) (-(cc r) * u ^ r / u ^ 2) 0 := by
+    HasDerivAt (fun t => Ct r u t) (-(ccCent r) * u ^ r / u ^ 2) 0 := by
   induction r using Nat.strong_induction_on with
   | _ r ih =>
     match r, ih with
     | 0, _ =>
       have : (fun t => Ct 0 u t) = fun _ => (1 : ℝ) := by funext t; rfl
-      rw [this]; simpa [cc] using hasDerivAt_const (0 : ℝ) (1 : ℝ)
+      rw [this]; simpa [ccCent] using hasDerivAt_const (0 : ℝ) (1 : ℝ)
     | 1, _ =>
       have : (fun t => Ct 1 u t) = fun _ => u := by funext t; rfl
-      rw [this]; simpa [cc] using hasDerivAt_const (0 : ℝ) u
+      rw [this]; simpa [ccCent] using hasDerivAt_const (0 : ℝ) u
     | r + 2, ih =>
       have h0 := ih r (by omega)
       have h1 : HasDerivAt (fun t : ℝ => u ^ 2 - ((r : ℝ) + 1) ^ 2 / 4 * t)
@@ -130,13 +130,13 @@ theorem qt3_rank (M σ : ℚ) (k : ℕ) (τ : ℝ) :
 
 /-- `μ = (c_α/τ² + c_β/τ'²)/2`, the `L`-independent part of the seed derivative. -/
 noncomputable def nloMu (α β : ℕ) (x : ℝ) : ℝ :=
-  (cc α / ((1 - x) / 2) ^ 2 + cc β / ((1 + x) / 2) ^ 2) / 2
+  (ccCent α / ((1 - x) / 2) ^ 2 + ccCent β / ((1 + x) / 2) ^ 2) / 2
 
 /-- **The seed derivative** (`eq:3jf2seednorm`): for `x ∈ (-1,1)`,
 `∂_t G(x,t)|_{t=0} = (c_n/2 - μ) · dZero3 + √(τ^α τ'^β) · q_k(τ)`, `n = α+β+2k+1`. -/
 theorem hasDerivAt_Gc3_t (M σ : ℚ) (k : ℕ) {x : ℝ} (hx : x ∈ Ioo (-1 : ℝ) 1) :
     HasDerivAt (fun t => Gc3 M σ k x t)
-      ((cc (pPlus3 M σ + pMinus3 M σ + 2 * k + 1) / 2 - nloMu (pPlus3 M σ) (pMinus3 M σ) x) *
+      ((ccCent (pPlus3 M σ + pMinus3 M σ + 2 * k + 1) / 2 - nloMu (pPlus3 M σ) (pMinus3 M σ) x) *
           dZero3 M σ k x +
         Real.sqrt (((1 - x) / 2) ^ pPlus3 M σ * ((1 + x) / 2) ^ pMinus3 M σ) *
           qt3 M σ k ((1 - x) / 2)) 0 := by
@@ -178,7 +178,7 @@ theorem hasDerivAt_Gc3_t (M σ : ℚ) (k : ℕ) {x : ℝ} (hx : x ∈ Ioo (-1 : 
 `f_2 = (c_n/2 - μ) · dZero3 + √(τ^α τ'^β) · q_k(τ)`. -/
 theorem f3even_one_eq (M σ : ℚ) (k : ℕ) {x : ℝ} (hx : x ∈ Ioo (-1 : ℝ) 1) :
     f3even M σ k 1 x =
-      (cc (pPlus3 M σ + pMinus3 M σ + 2 * k + 1) / 2 - nloMu (pPlus3 M σ) (pMinus3 M σ) x) *
+      (ccCent (pPlus3 M σ + pMinus3 M σ + 2 * k + 1) / 2 - nloMu (pPlus3 M σ) (pMinus3 M σ) x) *
           dZero3 M σ k x +
         Real.sqrt (((1 - x) / 2) ^ pPlus3 M σ * ((1 + x) / 2) ^ pMinus3 M σ) *
           qt3 M σ k ((1 - x) / 2) := by
