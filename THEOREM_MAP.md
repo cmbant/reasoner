@@ -450,6 +450,26 @@ All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (
 Not formalised: DLMF 34.5.3, Regge symmetries of the 3j,
 relation to Physlib's abstract `sixJ`. Certificate search scripts: `scripts/wigner_certificates/` (provenance only).
 
+### Weyl P2: exact finite 6j/Racah statements (`FormalResearch/Racah/P2Racah*.lean`, namespace `Racah.SixJ`)
+
+Paper: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`. Only the exact finite algebraic statements are formalised; the analytic/asymptotic ones (Λ-expansions,
+holomorphy, centered Racah–Edmonds theorem, hard edges, the expansion half of `prop:unique`) are not.
+
+| paper statement | Lean | file | note |
+|---|---|---|---|
+| `eq:6jfamily`, `eq:6jPhi` (definitions of the family and the normalised kernel `Φ_f(c)`) | `W6`, `Phi6`, `qf`, `rootR`, `etaK`, `W6_eq_regge_form`, `W6_eq_rank_form` | `P2RacahMidpoint` | `Phi6` uses the zero-extended `sgn`, equal to `(-1)^ξ` on every admissible point |
+| `eq:6jRegge`, `eq:symmetricpairs` | `W6_regge_midpoint`, `weyl_shift_pairs` | `P2RacahMidpoint` | `sixJ_regge1_shifted` plus the column-permutation bridge |
+| `eq:Ek`, `eq:diagidentity` | `E6_midpoint`, `diag_identity` | `P2RacahMidpoint` | |
+| **`lem:6jrec`** (exact midpoint Racah recurrence, `eq:6jrec`) | `Phi6_midpoint_recurrence` | `P2RacahMidpoint` | slightly stronger than the paper: holds on the whole `f` range including boundary rows (`sixJ_recurrence_of_tri` in `P2RacahRec`: 34.5.11 with only the two triads through `j₁`) |
+| canonical-sector reductions (swap, upper/lower exchange, phase `(-1)^(m-n)`) | `W6_swap_ab`, `W6_exch_ab`, `Phi6_swap_ab`, `Phi6_exch_ab` | `P2RacahMidpoint` | |
+| `eq:cminRacah`–`eq:Racahdimension`; closure `𝒜(c_min)=0=𝒜(c_max+1)` | `cMin`, `cMax`, `fMin`, `fMax`, `cMin_centered`, `cMax_sub_cMin`, `edgeA_cMin`, `edgeA_cMax_succ`, `E6_edgeA` | `P2RacahLattice` | numeric identities only; the "physical lattice = `{c_min..c_max}`" iff statements are not formalised here |
+| `eq:RacahDetailedBalance`, `eq:Racahcellwidth`, `eq:RacahD0factor` | `omegaW_aPlus`, `omegaW_succ_aMinus`, `omegaW_eq_cell_width`, `cosA_eq_lawCosinesX`, `D0_factor` | `P2RacahLattice` | |
+| `H_R Φ_f = f(f+1)Φ_f` on every row (without orthogonality) | `Phi6_lattice_eigen` | `P2RacahLattice` | |
+| `eq:Racahdiagzero` (the `c=0` row), `Φ_f(0)`, `Φ_f(1)` | `Phi6_lattice_row_zero`, `Phi6_zero_value`, `Phi6_one_value` | `P2RacahLatticeEnd` | via 34.5.1, 34.5.7 |
+| **`lem:6jseed`** (positive stretched seed, integer and half-integer `m`), `eq:6jseed`, `eq:6jexceptionalseed` | `Phi6_seed`, `Phi6_seed_sq`, `Phi6_exceptional_zero`, `Phi6_exceptional_one` | `P2RacahSeed` | holomorphy in `Λ⁻²` not formalised |
+| `prop:unique` (exact algebraic core) | `unique_affine_core`, `driftX1_eq_zero_iff`, `prop_unique_algebra` | `P2RacahUnique` | asymptotic claims of the proposition not formalised |
+
+
 ## Next source-authorized finite targets
 
 At the current handoff, the cleanest exact candidates are:

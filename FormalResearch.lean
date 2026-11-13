@@ -216,6 +216,12 @@ public import FormalResearch.Racah.WeylCellWidth
 public import FormalResearch.Racah.WeylLatticeSpan
 public import FormalResearch.Racah.WeylCellTelescoping
 public import FormalResearch.Racah.AbsLatticeIdentity
+public import FormalResearch.Racah.P2RacahRec
+public import FormalResearch.Racah.P2RacahMidpoint
+public import FormalResearch.Racah.P2RacahLattice
+public import FormalResearch.Racah.P2RacahLatticeEnd
+public import FormalResearch.Racah.P2RacahSeed
+public import FormalResearch.Racah.P2RacahUnique
 public import FormalResearch.Wigner
 public import FormalResearch.Bridges.B2BlaschkeWalshGauge
 public import FormalResearch.Bridges.B2BlaschkeGatePhase
