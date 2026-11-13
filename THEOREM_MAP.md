@@ -447,7 +447,7 @@ All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (
 | DLMF 34.5.2 (`{j₁ j₂ j₃; ½ j₃-½ j₂+½}`) | `Special6j.sixJ_half_a` | one-term sum |
 | **DLMF 34.5.11–13** (6j recurrence with √ prefactors) | `SixJRecurrence.sixJ_recurrence` | `IsTri` hypotheses; vanishes when fixed triads fail |
 
-Not formalised: DLMF 34.5.3, Regge symmetries of the 3j,
+Not formalised: DLMF 34.5.3,
 relation to Physlib's abstract `sixJ`. Certificate search scripts: `scripts/wigner_certificates/` (provenance only).
 
 ### Weyl P2: exact finite 6j/Racah statements (`FormalResearch/Racah/P2Racah*.lean`, namespace `Racah.SixJ`)
@@ -468,6 +468,25 @@ holomorphy, centered Racah–Edmonds theorem, hard edges, the expansion half of 
 | `eq:Racahdiagzero` (the `c=0` row), `Φ_f(0)`, `Φ_f(1)` | `Phi6_lattice_row_zero`, `Phi6_zero_value`, `Phi6_one_value` | `P2RacahLatticeEnd` | via 34.5.1, 34.5.7 |
 | **`lem:6jseed`** (positive stretched seed, integer and half-integer `m`), `eq:6jseed`, `eq:6jexceptionalseed` | `Phi6_seed`, `Phi6_seed_sq`, `Phi6_exceptional_zero`, `Phi6_exceptional_one` | `P2RacahSeed` | holomorphy in `Λ⁻²` not formalised |
 | `prop:unique` (exact algebraic core) | `unique_affine_core`, `driftX1_eq_zero_iff`, `prop_unique_algebra` | `P2RacahUnique` | asymptotic claims of the proposition not formalised |
+
+### Weyl P2: exact finite 3j statements (`FormalResearch/Racah/P2ThreeJ*.lean`)
+
+Notation as in the paper's `eq:3jPhi`: `Phi3j L M σ N μ = sgn(2L+j₊+m₊)·√N·threeJ L j₋ j₊ M m₋ m₊` with `j∓ = (N-1∓σ)/2`, `m₋ = μ-M/2`,
+`m₊ = -μ-M/2`; zero off the integer domain. Only the exact finite algebra is formalised (not the Λ-expansions, holomorphy, `thm:3jeven`, or the
+orthogonality/completeness of `thm:3jspectral`, which needs 3j orthogonality).
+
+| paper statement | Lean | file | note |
+|---|---|---|---|
+| 34.3.14, 34.3.15 without hypotheses on the neighbouring symbols (closes the boundary rows) | `threeJ_recurrence_all`, `threeJ_recurrence_m_all`, `racahSum3_zero_of_not_isNat` | `P2ThreeJRecAll`, `P2ThreeJVanish` | |
+| `eq:3jrank`, `eq:rankJacobiForm` (exact rank recurrence of the normalised kernel) | `Phi3j_rank_recurrence`, `Phi3j_rank_jacobi` | `P2ThreeJRec` | verbatim, including boundary ranks |
+| `eq:3jdiff` (exact finite-difference equation in `x`) | `PhiX_midpoint_diff`, `aMid_neg_N`, `aMid_zero_top`, `aMid_zero_bottom` | `P2ThreeJRec` | |
+| operator even in `h`; `𝖧_h Φ_L = L(L+1)Φ_L`; symmetric on the lattice | `Dop_neg_h`, `Hh_Phi`, `Hh_lattice_symmetric` | `P2ThreeJOperator` | |
+| `eq:3jseed`, `eq:3jPiL`, evenness of `𝔠_r` | `Phi3j_seed`, `Cprod_neg`, `Cprod_one_odd`, `Cprod_one_even` | `P2ThreeJSeed` | from Racah's one-term sum |
+| `rem:spinhalf` (all four chambers), `M ↦ -M` | `Phi3j_half_pp/pm/mp/mm`, `Phi3j_neg_M` | `P2ThreeJSym` | `d^{1/2}` written as `√((1±x)/2)` |
+| **`eq:3jRegge`** (Regge symmetry of the 3j kernel, finite `N`), `eq:coeffRegge`; edge-chamber seeds | `threeJ_regge_mid`, `Phi3j_regge`, `Phi3j_edge_sigma_neg`, `Phi3j_edge_M_neg`, `Phi3j_edge_sigma_pos` | `P2ThreeJRegge` | by descent in `L` from the stretched seed using the rank recurrence (no Racah-sum transformation) |
+| `prop:3junique` (exact algebraic core) | `affine_center_eq`, `wigner_principal_affine`, `principal_coeffs`, `affine_midpoint_unique` | `P2ThreeJUnique` | the continuum-expansion step is a hypothesis |
+| Hahn dictionary, `eq:ExactHahnKernel` for `n = 0` | `hahnW_sum`, `hahn_x_of_u`, `Phi3j_hahn_zero` | `P2ThreeJHahn` | `n ≥ 1` needs a terminating `₃F₂` transformation and the Hahn norm |
+
 
 
 ## Next source-authorized finite targets

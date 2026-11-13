@@ -222,6 +222,15 @@ public import FormalResearch.Racah.P2RacahLattice
 public import FormalResearch.Racah.P2RacahLatticeEnd
 public import FormalResearch.Racah.P2RacahSeed
 public import FormalResearch.Racah.P2RacahUnique
+public import FormalResearch.Racah.P2ThreeJVanish
+public import FormalResearch.Racah.P2ThreeJRecAll
+public import FormalResearch.Racah.P2ThreeJRec
+public import FormalResearch.Racah.P2ThreeJOperator
+public import FormalResearch.Racah.P2ThreeJSeed
+public import FormalResearch.Racah.P2ThreeJSym
+public import FormalResearch.Racah.P2ThreeJRegge
+public import FormalResearch.Racah.P2ThreeJUnique
+public import FormalResearch.Racah.P2ThreeJHahn
 public import FormalResearch.Wigner
 public import FormalResearch.Bridges.B2BlaschkeWalshGauge
 public import FormalResearch.Bridges.B2BlaschkeGatePhase
