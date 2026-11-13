@@ -30,7 +30,7 @@ def splitWalshCharacter {m n : Nat}
 lemma all_bitSign_product {m : Nat} (s : Finset (Fin m)) :
     (∏ i : Fin m, bitSign s i) = (-1 : Int) ^ s.card := by
   classical
-  simp [bitSign, Finset.prod_ite, Finset.prod_const]
+  simp [bitSign, Finset.prod_const]
 
 lemma splitWalshCharacter_symmDiff {m n : Nat}
     (x : Finset (Fin m)) (y : Finset (Fin n))

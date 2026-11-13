@@ -57,7 +57,7 @@ theorem pair_four (a b c d : ZMod 2) (hi hj : Prop) [Decidable hi] [Decidable hj
       + (if hi then a else c) * (if hj then b else d))
       = if hi ∧ ¬ hj ∨ ¬ hi ∧ hj then (a + c) * (b + d) else 0 := by
   by_cases h1 : hi <;> by_cases h2 : hj <;> simp only [h1, h2, and_true,
-    not_true, not_false_eq_true, or_true, and_false, or_false, false_or, ite_true,
+    not_true, not_false_eq_true, or_true, and_false, or_false, ite_true,
     ite_false]
   · linear_combination (a * b + c * d) * two_eq_zero_zmod
   · ring
@@ -93,11 +93,11 @@ theorem cutCrossForm_eq (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j 
     have hs' : Γ j i = true := by rw [hsym j i]; exact h.2
     by_cases h2 : i ∈ S ∧ j ∉ S
     · have : ¬ (i ∉ S ∧ j ∈ S) := fun h' => h'.1 h2.1
-      simp [h2, this, h.1, hs']
+      simp [h2, hs']
     · by_cases h3 : i ∉ S ∧ j ∈ S
-      · simp [h2, h3, h.1, hs', mul_comm]
+      · simp [h3, hs', mul_comm]
       · have h4 : ¬ (j ∈ S ∧ i ∉ S) := fun h' => h3 ⟨h'.2, h'.1⟩
-        simp [h2, h3, h4, h.1, hs']
+        simp [h2, h3, h4, hs']
   · have h' : ¬ (i < j ∧ Γ j i = true) := by rw [hsym j i]; exact h
     simp [h, h']
 

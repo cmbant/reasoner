@@ -34,8 +34,7 @@ theorem hamming_finsetBoolIndicator_eq_symmDiff_card
   classical
   unfold hamming
   simp_rw [bitMismatch_finsetBoolIndicator]
-  simpa using
-    (Finset.sum_boole (R := Nat) (fun i : α => i ∈ s ∆ t) Finset.univ)
+  simp
 
 /-- The symmetric-difference cardinality is exactly the usual
 Robinson--Foulds split distance. -/

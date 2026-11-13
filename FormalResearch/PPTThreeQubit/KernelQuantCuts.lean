@@ -46,7 +46,7 @@ theorem cutEmb_mulVec (c : Fin 3) (a : Fin 2 → ℂ) (b : Fin 4 → ℂ) (i : F
   simp only [cutEmb, Matrix.mulVec, dotProduct, Matrix.of_apply]
   rw [Finset.sum_eq_single (restOf c i)]
   · simp
-  · intro k _ hk; rw [if_neg (Ne.symm hk)]; simp
+  · intro k _ hk; rw [ite_eq_right (Ne.symm hk)]; simp
   · simp
 
 theorem star_dotProduct_self_real (a : Fin 2 → ℂ) :
@@ -57,12 +57,11 @@ theorem cutEmb_isometry (c : Fin 3) {a : Fin 2 → ℂ} (ha : normSqVec a = 1) :
   simp only [dotProduct, Fin.sum_univ_two, Pi.star_apply, Complex.star_def] at h
   ext k l
   fin_cases c <;> fin_cases k <;> fin_cases l <;>
-    simp [cutEmb, bitOf, restOf, Matrix.mul_apply, Fin.sum_univ_succ, Complex.star_def,
-      Matrix.one_apply] <;> exact h
+    simp [cutEmb, bitOf, restOf, Matrix.mul_apply, Fin.sum_univ_succ] <;> exact h
 
 theorem cutEmb_smul (c : Fin 3) (s : ℂ) (a : Fin 2 → ℂ) : cutEmb c (s • a) = s • cutEmb c a := by
   ext i k
-  simp [cutEmb, mul_assoc]
+  simp [cutEmb]
 
 theorem exists_cutEmb {x : Fin 8 → ℂ} (hx : IsCutProduct x) :
     ∃ (c : Fin 3) (a : Fin 2 → ℂ) (b : Fin 4 → ℂ), x = cutEmb c a *ᵥ b := by
@@ -116,7 +115,7 @@ theorem kernel_quant_cutProduct {ν : Type*} [Fintype ν] [DecidableEq ν]
       simp only [smul_eq_mul]
       have : star (r : ℂ) * (r * (star y ⬝ᵥ (W₀ + (lam : ℂ) • (Kᴴ * K)) *ᵥ y)) =
           ((r ^ 2 : ℝ) : ℂ) * (star y ⬝ᵥ (W₀ + (lam : ℂ) • (Kᴴ * K)) *ᵥ y) := by
-        simp [Complex.star_def, pow_two, mul_assoc]
+        simp [pow_two, mul_assoc]
       rw [this, Complex.re_ofReal_mul]
     rw [e]
     exact mul_nonneg (sq_nonneg r) key

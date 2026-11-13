@@ -29,12 +29,12 @@ def toggleEquiv {n : Nat} (k : Fin n) : Finset (Fin n) ≃ Finset (Fin n) where
     intro S
     ext i
     by_cases hik : i = k <;> subst_vars <;>
-      simp [toggleSubset, Finset.mem_symmDiff]
+      simp [toggleSubset]
   right_inv := by
     intro S
     ext i
     by_cases hik : i = k <;> subst_vars <;>
-      simp [toggleSubset, Finset.mem_symmDiff]
+      simp [toggleSubset]
 
 lemma booleanSign_toggle_same {n : Nat} (S : Finset (Fin n)) (k : Fin n) :
     booleanSign (toggleSubset k S) k = - booleanSign S k := by
@@ -95,7 +95,7 @@ from any prescribed coordinate. -/
 lemma exists_mem_ne_of_one_lt_card {n : Nat} (T : Finset (Fin n))
     (hT : 1 < T.card) (j : Fin n) : ∃ k ∈ T, k ≠ j := by
   by_contra h
-  push_neg at h
+  push Not at h
   have hsub : T ⊆ {j} := by
     intro k hk
     simp [h k hk]

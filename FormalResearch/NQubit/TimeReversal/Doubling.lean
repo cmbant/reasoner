@@ -171,7 +171,7 @@ theorem powersetCard_two_triple {n : ℕ} (i j k : Fin n) (hij : i ≠ j) (hik :
     have hy := hsub (by simp : y ∈ ({x, y} : Finset (Fin n)))
     simp only [Finset.mem_insert, Finset.mem_singleton] at hx hy
     rcases hx with rfl | rfl | rfl <;> rcases hy with rfl | rfl | rfl <;>
-      first | exact absurd rfl hxy | skip
+      try exact absurd rfl hxy
     all_goals first
       | (left; rfl) | (right; left; rfl) | (right; right; rfl)
       | (left; exact Finset.pair_comm _ _) | (right; left; exact Finset.pair_comm _ _)

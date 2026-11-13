@@ -25,7 +25,7 @@ namespace FormalResearch.Wigner
 lemma sgn_intCast (n : ℤ) : sgn (n : ℚ) = (-1 : ℝ) ^ n := by
   unfold sgn
   have h : ∃ m : ℤ, (n : ℚ) = m := ⟨n, rfl⟩
-  rw [dif_pos h]
+  rw [dite_eq_left h]
   have : h.choose = n := by exact_mod_cast h.choose_spec.symm
   rw [this]
 
@@ -40,7 +40,7 @@ lemma sgn_add_int (x : ℚ) (n : ℤ) : sgn (x + n) = (-1 : ℝ) ^ n * sgn x := 
   · have h' : ¬ ∃ m : ℤ, x + n = m := by
       rintro ⟨m, hm⟩; exact h ⟨m - n, by push_cast; linarith⟩
     unfold sgn
-    rw [dif_neg h, dif_neg h']; simp
+    rw [dite_eq_right h, dite_eq_right h']; simp
 
 lemma sgn_neg' (x : ℚ) : sgn (-x) = sgn x := by
   by_cases h : ∃ m : ℤ, x = m
@@ -49,7 +49,7 @@ lemma sgn_neg' (x : ℚ) : sgn (-x) = sgn x := by
   · have h' : ¬ ∃ m : ℤ, -x = m := by
       rintro ⟨m, hm⟩; exact h ⟨-m, by push_cast; linarith⟩
     unfold sgn
-    rw [dif_neg h, dif_neg h']
+    rw [dite_eq_right h, dite_eq_right h']
 
 lemma neg_one_zpow_add_two_mul (n k : ℤ) : (-1 : ℝ) ^ (n + 2 * k) = (-1 : ℝ) ^ n := by
   rw [zpow_add₀ (by norm_num), zpow_mul]; norm_num
@@ -291,7 +291,7 @@ theorem threeJ_swap12 (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
     threeJ j₂ j₁ j₃ m₂ m₁ m₃ = sgn (j₁ + j₂ + j₃) * threeJ j₁ j₂ j₃ m₁ m₂ m₃ := by
   unfold threeJ
   by_cases hm : m₁ + m₂ + m₃ = 0
-  · rw [if_pos (by linarith : m₂ + m₁ + m₃ = 0), if_pos hm, triSq_comm12 j₂ j₁ j₃,
+  · rw [ite_eq_left (by linarith : m₂ + m₁ + m₃ = 0), ite_eq_left hm, triSq_comm12 j₂ j₁ j₃,
       racahSum3_swap12,
       show fq (j₂ + m₂) * fq (j₂ - m₂) * fq (j₁ + m₁) * fq (j₁ - m₁) * fq (j₃ + m₃) *
         fq (j₃ - m₃) = fq (j₁ + m₁) * fq (j₁ - m₁) * fq (j₂ + m₂) * fq (j₂ - m₂) *
@@ -304,14 +304,14 @@ theorem threeJ_swap12 (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
       linear_combination (Real.sqrt (triSq j₁ j₂ j₃) * Real.sqrt (fq (j₁ + m₁) * fq (j₁ - m₁) *
         fq (j₂ + m₂) * fq (j₂ - m₂) * fq (j₃ + m₃) * fq (j₃ - m₃)) *
           racahSum3 j₁ j₂ j₃ m₁ m₂) * key
-  · rw [if_neg (by intro h; apply hm; linarith), if_neg hm]; simp
+  · rw [ite_eq_right (by intro h; apply hm; linarith), ite_eq_right hm]; simp
 
 /-- **DLMF 34.3.9** (swap of columns 2 and 3). -/
 theorem threeJ_swap23 (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
     threeJ j₁ j₃ j₂ m₁ m₃ m₂ = sgn (j₁ + j₂ + j₃) * threeJ j₁ j₂ j₃ m₁ m₂ m₃ := by
   unfold threeJ
   by_cases hm : m₁ + m₂ + m₃ = 0
-  · rw [if_pos (by linarith : m₁ + m₃ + m₂ = 0), if_pos hm, triSq_comm23 j₁ j₃ j₂,
+  · rw [ite_eq_left (by linarith : m₁ + m₃ + m₂ = 0), ite_eq_left hm, triSq_comm23 j₁ j₃ j₂,
       racahSum3_swap23 j₁ j₂ j₃ m₁ m₂ m₃ hm,
       show fq (j₁ + m₁) * fq (j₁ - m₁) * fq (j₃ + m₃) * fq (j₃ - m₃) * fq (j₂ + m₂) *
         fq (j₂ - m₂) = fq (j₁ + m₁) * fq (j₁ - m₁) * fq (j₂ + m₂) * fq (j₂ - m₂) *
@@ -324,14 +324,14 @@ theorem threeJ_swap23 (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
       linear_combination (Real.sqrt (triSq j₁ j₂ j₃) * Real.sqrt (fq (j₁ + m₁) * fq (j₁ - m₁) *
         fq (j₂ + m₂) * fq (j₂ - m₂) * fq (j₃ + m₃) * fq (j₃ - m₃)) *
           racahSum3 j₁ j₂ j₃ m₁ m₂) * key
-  · rw [if_neg (by intro h; apply hm; linarith), if_neg hm]; simp
+  · rw [ite_eq_right (by intro h; apply hm; linarith), ite_eq_right hm]; simp
 
 /-- **DLMF 34.3.10** (negation of all projections). -/
 theorem threeJ_neg (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
     threeJ j₁ j₂ j₃ (-m₁) (-m₂) (-m₃) = sgn (j₁ + j₂ + j₃) * threeJ j₁ j₂ j₃ m₁ m₂ m₃ := by
   unfold threeJ
   by_cases hm : m₁ + m₂ + m₃ = 0
-  · rw [if_pos (by linarith : -m₁ + -m₂ + -m₃ = 0), if_pos hm, racahSum3_neg,
+  · rw [ite_eq_left (by linarith : -m₁ + -m₂ + -m₃ = 0), ite_eq_left hm, racahSum3_neg,
       show fq (j₁ + -m₁) * fq (j₁ - -m₁) * fq (j₂ + -m₂) * fq (j₂ - -m₂) * fq (j₃ + -m₃) *
         fq (j₃ - -m₃) = fq (j₁ + m₁) * fq (j₁ - m₁) * fq (j₂ + m₂) * fq (j₂ - m₂) *
           fq (j₃ + m₃) * fq (j₃ - m₃) by
@@ -345,13 +345,13 @@ theorem threeJ_neg (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
       linear_combination (Real.sqrt (triSq j₁ j₂ j₃) * Real.sqrt (fq (j₁ + m₁) * fq (j₁ - m₁) *
         fq (j₂ + m₂) * fq (j₂ - m₂) * fq (j₃ + m₃) * fq (j₃ - m₃)) *
           racahSum3 j₁ j₂ j₃ m₁ m₂) * key
-  · rw [if_neg (by intro h; apply hm; linarith), if_neg hm]; simp
+  · rw [ite_eq_right (by intro h; apply hm; linarith), ite_eq_right hm]; simp
 
 lemma isInt_sum_of_ne_zero {j₁ j₂ j₃ m₁ m₂ m₃ : ℚ} (h : threeJ j₁ j₂ j₃ m₁ m₂ m₃ ≠ 0) :
     ∃ n : ℤ, j₁ + j₂ + j₃ = n := by
   unfold threeJ at h
   by_cases hm : m₁ + m₂ + m₃ = 0
-  · rw [if_pos hm] at h
+  · rw [ite_eq_left hm] at h
     have h1 := left_ne_zero_of_mul (left_ne_zero_of_mul h)
     have h2 := left_ne_zero_of_mul h1
     have h3 := right_ne_zero_of_mul h1
@@ -362,7 +362,7 @@ lemma isInt_sum_of_ne_zero {j₁ j₂ j₃ m₁ m₂ m₃ : ℚ} (h : threeJ j�
     obtain ⟨⟨x, hx⟩, ⟨y, hy⟩, ⟨z, hz⟩⟩ : IsTri j₁ j₂ j₃ :=
       ⟨isNat_of_fq_ne a, isNat_of_fq_ne b, isNat_of_fq_ne c⟩
     exact ⟨(x : ℤ) + y + z, by push_cast; linarith⟩
-  · rw [if_neg hm] at h; exact absurd rfl h
+  · rw [ite_eq_right hm] at h; exact absurd rfl h
 
 lemma sgn_sum_sq (j₁ j₂ j₃ m₁ m₂ m₃ : ℚ) :
     sgn (j₁ + j₂ + j₃) * sgn (j₁ + j₂ + j₃) * threeJ j₁ j₂ j₃ m₁ m₂ m₃ =

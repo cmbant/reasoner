@@ -78,11 +78,11 @@ theorem d4SignedMatrix_linkSP (w : SP) :
   by_cases h : r = (linkSP (σ, e)).1 c
   · have h' : r = σ⁻¹ c := by rwa [h1] at h
     have hc : c = σ r := by rw [h']; simp
-    rw [if_pos h, if_pos hc, ← h']
+    rw [ite_eq_left h, ite_eq_left hc, ← h']
     split_ifs <;> simp
   · have h' : ¬ r = σ⁻¹ c := by rwa [h1] at h
     have hc : ¬ c = σ r := fun hc => h' (by rw [hc]; simp)
-    rw [if_neg h, if_neg hc]; simp
+    rw [ite_eq_right h, ite_eq_right hc]; simp
 
 /-- The QID action on rational vectors is `W v` for FrameFree's matrix. -/
 theorem d4Act_linkSP (w : SP) (v : D4Vec) :

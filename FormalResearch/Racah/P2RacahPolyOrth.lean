@@ -110,7 +110,7 @@ theorem physR_orthonormal {a b m n : ℚ} {D : ℕ} (h : RacahSystem a b m n D) 
   rw [orth]
   by_cases hrs : r = s
   · subst hrs
-    simp only [if_true]
+    simp only [ite_true]
     have hq : qr * qr = (2 * ((m : ℝ) + (r : ℕ)) + 1) / (2 * (m : ℝ) + 1) :=
       Real.mul_self_sqrt (by positivity)
     rw [hf r, hq]

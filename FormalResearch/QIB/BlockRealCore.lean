@@ -52,7 +52,7 @@ theorem transpose_eq_map_conj_of_hermitian {Z : Matrix ι ι ℂ} (h : Zᴴ = Z)
   have h2 : star (Z j i) = Z i j := by
     simpa [Matrix.conjTranspose_apply] using congrArg (fun M : Matrix ι ι ℂ => M i j) h
   simp only [Matrix.transpose_apply, Matrix.map_apply]
-  rw [← h2]; simp [Complex.star_def]
+  rw [← h2]; simp
 
 /-- **Real primitive central idempotents.**  See the module docstring. -/
 theorem real_of_primitive_central (C : Submodule ℂ (Matrix ι ι ℂ)) (S : Set (Matrix ι ι ℂ))
@@ -68,7 +68,7 @@ theorem real_of_primitive_central (C : Submodule ℂ (Matrix ι ι ℂ)) (S : Se
     intro X hX
     induction hX using Submodule.span_induction with
     | mem x hx => rw [hreal x hx]; exact Submodule.subset_span hx
-    | zero => simpa using Submodule.zero_mem _
+    | zero => simp
     | add x y _ _ hx hy => rw [Matrix.map_add _ (by simp)]; exact Submodule.add_mem _ hx hy
     | smul c x _ hx =>
       have : (c • x).map conj = (conj c) • x.map conj := by ext i j; simp
@@ -242,7 +242,7 @@ theorem sectorProj_ne_zero [∀ l, Nonempty (A l)] (hW1 : Wᴴ * W = 1) (l : Λ)
     simpa using this
   rw [← blockOp_zero (A := A) (B := B)] at h1
   have := congrFun (blockOp_inj h1) l
-  simp only [sectorDelta, if_true] at this
+  simp only [sectorDelta, ite_true] at this
   exact one_ne_zero this
 
 theorem sectorProj_primitive [∀ l, Nonempty (A l)] {G : Set (Matrix ι ι ℂ)} (hW1 : Wᴴ * W = 1)
@@ -319,7 +319,7 @@ theorem trace_tau_eq (hW1 : Wᴴ * W = 1) (hW2 : W * Wᴴ = 1) (a : ι → ℂ) 
     (tau (Wᴴ *ᵥ a) l).trace = qf (sectorProj A W l) a a := by
   have h1 := qf_blockOp_self (A := A) (sectorDelta B l) (Wᴴ *ᵥ a)
   rw [Finset.sum_eq_single l] at h1
-  · simp only [sectorDelta, if_true, Matrix.one_mul] at h1
+  · simp only [sectorDelta, ite_true, Matrix.one_mul] at h1
     rw [← h1]
     have := qf_conj hW2 (W * blockOp A (sectorDelta B l) * Wᴴ) a a
     rw [conj_back hW1] at this

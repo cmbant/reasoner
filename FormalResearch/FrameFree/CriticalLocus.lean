@@ -468,8 +468,8 @@ theorem red12_psiMag_quadratic (q : Fin 4 → ℂ)
           intro c
           ext x y
           by_cases hxy : x = y
-          · subst hxy; simp [hE, Matrix.diagonal_apply]
-          · simp [hE, Matrix.diagonal_apply, Matrix.one_apply, hxy]
+          · subst hxy; simp [hE]
+          · simp [hE, hxy]
         have : (E - (1 / 6 : ℂ) • 1) * (E - (1 / 2 : ℂ) • 1) = 0 := by
           rw [hsub, hsub, Matrix.diagonal_mul_diagonal]
           ext x y
@@ -481,7 +481,7 @@ theorem red12_psiMag_quadratic (q : Fin 4 → ℂ)
               (Complex.normSq_eq_conj_mul_self).symm
             rw [hm]
             rcases hk with hk | hk <;> rw [hk] <;> push_cast <;> ring
-          · simp [Matrix.diagonal_apply, hxy]
+          · simp [hxy]
         rw [this]; simp
 
 
@@ -542,6 +542,7 @@ theorem planeSpace_eq (y : Fin m → H) (T : H →ₗ[ℂ] H) :
   rw [Submodule.map_span, ← Set.range_comp]
   rfl
 
+omit [FiniteDimensional ℂ H] in
 theorem act_mem (g : Matrix (Fin m) (Fin m) ℂ) (T : H →ₗ[ℂ] H) (y : Fin m → H) (a : Fin m) :
     act g T y a ∈ planeSpace y T := by
   rw [planeSpace_eq]
@@ -573,11 +574,13 @@ theorem plane_upper (x y : Fin m → H) (T : H →ₗ[ℂ] H) (g : Matrix (Fin m
     _ ≤ _ := h3
 
 
-theorem nsqA_nonneg (w : Fin m → H) : 0 ≤ nsqA w := Finset.sum_nonneg fun a _ => sq_nonneg _
+omit [InnerProductSpace ℂ H] [FiniteDimensional ℂ H] in
+theorem nsqA_nonneg (w : Fin m → H) : 0 ≤ nsqA w := Finset.sum_nonneg fun _a _ => sq_nonneg _
 
 theorem planeWeight_nonneg (x : Fin m → H) (K : Submodule ℂ H) : 0 ≤ planeWeight x K :=
-  Finset.sum_nonneg fun a _ => sq_nonneg _
+  Finset.sum_nonneg fun _a _ => sq_nonneg _
 
+omit [FiniteDimensional ℂ H] in
 theorem exists_act_eq (y : Fin m → H) (T : H →ₗ[ℂ] H) (W : Fin m → H)
     (hW : ∀ a, W a ∈ planeSpace y T) : ∃ g : Matrix (Fin m) (Fin m) ℂ, act g T y = W := by
   have : ∀ a, ∃ c : Fin m → ℂ, ∑ i, c i • T (y i) = W a := fun a => by
@@ -587,6 +590,7 @@ theorem exists_act_eq (y : Fin m → H) (T : H →ₗ[ℂ] H) (W : Fin m → H)
   choose g hg using this
   exact ⟨Matrix.of g, funext fun a => hg a⟩
 
+omit [FiniteDimensional ℂ H] in
 theorem act_add_smul_one (g : Matrix (Fin m) (Fin m) ℂ) (T : H →ₗ[ℂ] H) (y : Fin m → H) (t : ℂ)
     (a : Fin m) : act (g + t • 1) T y a = act g T y a + t • T (y a) := by
   simp [act, add_smul, Finset.sum_add_distrib, Matrix.one_apply]
@@ -708,7 +712,7 @@ The analytic core of Lemma `c-lem-branch` (symmetric subspace of `k` copies of q
 the two real-arithmetic steps that turn its inputs into the stated bound. -/
 
 /-- `s - √(s² - 4c) ≥ 2c/s`, hence `Pe ≥ ¼(s - √(s²-4c))` implies `Pe ≥ c/(2s)`. -/
-theorem helstrom_arith {s c Pe : ℝ} (hs : 0 < s) (hc : 0 ≤ c) (h4 : 4 * c ≤ s ^ 2)
+theorem helstrom_arith {s c Pe : ℝ} (hs : 0 < s) (_hc : 0 ≤ c) (h4 : 4 * c ≤ s ^ 2)
     (hPe : (s - Real.sqrt (s ^ 2 - 4 * c)) / 4 ≤ Pe) : c / (2 * s) ≤ Pe := by
   have hsq : Real.sqrt (s ^ 2 - 4 * c) ≤ s - 2 * c / s := by
     apply Real.sqrt_le_iff.2
@@ -724,8 +728,8 @@ theorem helstrom_arith {s c Pe : ℝ} (hs : 0 < s) (hc : 0 ≤ c) (h4 : 4 * c �
 
 /-- The chain of `c-lem-branch`: `|⟨a,b⟩|² ≥ ‖M‖^{2k}` and `‖a‖² + ‖b‖² ≤ (k+1)(p^k + p'^k)` give
 `Pe ≥ ‖M‖^{2k} / (2 (k+1) (p^k + p'^k))`. -/
-theorem branch_converse_arith {k : ℕ} {nM p p' a2 b2 c Pe : ℝ} (hnM : 0 ≤ nM) (hp : 0 ≤ p) (hp' : 0 ≤ p')
-    (hden : 0 < p ^ k + p' ^ k) (ha : 0 ≤ a2) (hb : 0 ≤ b2) (hab : 0 < a2 + b2)
+theorem branch_converse_arith {k : ℕ} {nM p p' a2 b2 c Pe : ℝ} (hnM : 0 ≤ nM) (_hp : 0 ≤ p) (_hp' : 0 ≤ p')
+    (hden : 0 < p ^ k + p' ^ k) (_ha : 0 ≤ a2) (_hb : 0 ≤ b2) (hab : 0 < a2 + b2)
     (ha2 : a2 ≤ (k + 1) * p ^ k) (hb2 : b2 ≤ (k + 1) * p' ^ k) (hc : nM ^ (2 * k) ≤ c)
     (hc4 : 4 * c ≤ (a2 + b2) ^ 2)
     (hPe : ((a2 + b2) - Real.sqrt ((a2 + b2) ^ 2 - 4 * c)) / 4 ≤ Pe) :

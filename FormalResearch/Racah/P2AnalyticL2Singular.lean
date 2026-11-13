@@ -296,12 +296,12 @@ theorem hahn_orth (α β D n m : ℕ) (hn : n ≤ D) (hm : m ≤ D) (hnm : n ≠
     refine ⟨⟨α + k, ?_⟩, ⟨β + k, ?_⟩, ⟨D - k, ?_⟩⟩
     · unfold jMinus jPlus; push_cast; linarith
     · unfold jMinus jPlus; push_cast; linarith
-    · unfold jMinus jPlus; rw [Nat.cast_sub hk]; push_cast; linarith
+    · unfold jMinus jPlus; rw [Nat.cast_sub hk]; linarith
   have h1 : ∀ k : ℕ, IsNat (M + k + M) := fun k => ⟨α + β + k, by push_cast; linarith⟩
-  have h2 : ∀ k : ℕ, IsNat (M + k - M) := fun k => ⟨k, by push_cast; ring⟩
+  have h2 : ∀ k : ℕ, IsNat (M + k - M) := fun k => ⟨k, by ring⟩
   have hdo := Phi_discorth hA hNq hK (hT n hn) (h1 n) (h2 n) (hT m hm) (h1 m) (h2 m)
   have hne : ¬ (M + n = M + m) := fun e => hnm (by exact_mod_cast (by linarith : (n : ℚ) = m))
-  rw [if_neg hne] at hdo
+  rw [ite_eq_right hne] at hdo
   set hn_ := hahnNorm α β D n with hhn
   set hm_ := hahnNorm α β D m with hhm
   have hhnp : 0 < hn_ := hahnNorm_pos α β D n

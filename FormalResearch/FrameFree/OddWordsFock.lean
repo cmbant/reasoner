@@ -114,10 +114,10 @@ theorem Lm_transpose : (Lm n)ᵀ = ∑ i : Fin n, E i sMᵀ := by
   rw [Lm, Matrix.transpose_sum]; simp [E_transpose]
 
 theorem sMt_mul_sM_sub : sMᵀ * sM - sM * sMᵀ = zM := by
-  ext a b; fin_cases a <;> fin_cases b <;> simp [sM, zM, Matrix.mul_apply, Fin.sum_univ_two]
+  ext a b; fin_cases a <;> fin_cases b <;> simp [sM, zM, Matrix.mul_apply]
 
 theorem zM_mul_sM_sub : zM * sM - sM * zM = (-2 : ℝ) • sM := by
-  ext a b; fin_cases a <;> fin_cases b <;> simp [sM, zM, Matrix.mul_apply] <;> norm_num
+  ext a b; fin_cases a <;> fin_cases b <;> simp [sM, zM, Matrix.mul_apply]; norm_num
 
 /-- `[Rm, Lm] = Hm`. -/
 theorem Rm_mul_Lm_sub : (Lm n)ᵀ * Lm n - Lm n * (Lm n)ᵀ = Hm n := by
@@ -159,16 +159,16 @@ theorem Lm_apply (x y : Cube n) :
     have h4 : ∀ j ∈ univ.erase i, x j = y j := by
       intro j hj; rw [h2, Function.update_of_ne (Finset.ne_of_mem_erase hj)]
     have e : sM (x i) (y i) = 1 := by simp [sM, h1, h3]
-    rw [if_pos h4, e, if_pos ⟨h1, h2⟩, one_mul]
-  · rw [if_neg h]
+    rw [ite_eq_left h4, e, ite_eq_left ⟨h1, h2⟩, one_mul]
+  · rw [ite_eq_right h]
     by_cases h1 : x i = 1 ∧ y i = 0
     · have : ¬ ∀ j ∈ univ.erase i, x j = y j := by
         intro h4; apply h; refine ⟨h1.1, funext fun j => ?_⟩
         by_cases hj : j = i
         · subst hj; simpa using h1.2
         · rw [Function.update_of_ne hj]; exact (h4 j (Finset.mem_erase.2 ⟨hj, Finset.mem_univ _⟩)).symm
-      rw [if_neg this, mul_zero]
-    · have e : sM (x i) (y i) = 0 := by simp only [sM, Matrix.of_apply]; exact if_neg h1
+      rw [ite_eq_right this, mul_zero]
+    · have e : sM (x i) (y i) = 0 := by simp only [sM, Matrix.of_apply]; exact ite_eq_right h1
       rw [e, zero_mul]
 
 theorem wt_le (x : Cube n) : wt x ≤ n := by
@@ -181,16 +181,16 @@ theorem Hm_eq_diagonal : Hm n = Matrix.diagonal (fun x : Cube n => (n : ℝ) - 2
   rw [Hm, Matrix.sum_apply, Matrix.diagonal_apply]
   by_cases hxy : x = y
   · subst hxy
-    rw [if_pos rfl]
+    rw [ite_eq_left rfl]
     have : ∀ i ∈ (Finset.univ : Finset (Fin n)), E i zM x x = 1 - 2 * ((x i : ℕ) : ℝ) := by
       intro i _
       rw [E_apply]
-      simp only [if_true, Finset.prod_const_one, mul_one]
+      simp only [ite_true, Finset.prod_const_one, mul_one]
       generalize x i = a
-      fin_cases a <;> simp [zM] <;> norm_num
+      fin_cases a <;> simp [zM]; norm_num
     rw [Finset.sum_congr rfl this, Finset.sum_sub_distrib, ← Finset.mul_sum]
     simp [wt]
-  · rw [if_neg hxy]
+  · rw [ite_eq_right hxy]
     refine Finset.sum_eq_zero fun i _ => ?_
     rw [E_apply]
     obtain ⟨j, hj⟩ : ∃ j, x j ≠ y j := by
@@ -215,9 +215,9 @@ theorem mul_rperm_apply (σ : Equiv.Perm (Fin n)) (A : Matrix (Cube n) (Cube n) 
   simp only [rperm, Matrix.mul_apply, Matrix.of_apply, mul_ite, mul_one, mul_zero]
   rw [Finset.sum_eq_single (z ∘ ⇑(σ⁻¹))]
   · have : z = (z ∘ ⇑(σ⁻¹)) ∘ ⇑σ := by ext i; simp
-    rw [if_pos this]
+    rw [ite_eq_left this]
   · intro y _ hy
-    rw [if_neg]
+    rw [ite_eq_right]
     intro h; apply hy; rw [h]; ext i; simp
   · simp
 
@@ -231,10 +231,10 @@ theorem Lm_perm (σ : Equiv.Perm (Fin n)) (x z : Cube n) :
     · intro h; subst h
       funext k
       by_cases hk : k = σ i
-      · simp [Function.update_apply, hk]
+      · simp [hk]
       · have : ¬ (i = σ.symm k) := fun h' => hk (by rw [h']; simp)
         have this' : ¬ (σ.symm k = i) := fun h' => this h'.symm
-        simp [Function.update_apply, hk, this, this']
+        simp [hk, this']
     · intro h; funext m
       have := congrFun h (σ m)
       have h' : σ⁻¹ (σ m) = m := by simp
@@ -243,7 +243,7 @@ theorem Lm_perm (σ : Equiv.Perm (Fin n)) (x z : Cube n) :
       by_cases hm : m = i
       · subst hm; simp
       · have : σ m ≠ σ i := fun h'' => hm (σ.injective h'')
-        simp [Function.update_apply, this, hm]
+        simp [this, hm]
   simp only [Function.comp_apply, e]
 
 /-- The slot permutations commute with the total lowering operator. -/

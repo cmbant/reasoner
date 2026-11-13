@@ -123,10 +123,10 @@ theorem tw_inl (x : α × γ → Fin 2) (d : α → Fin 2) :
   simp [tw, Finsupp.finsetSum_apply, Finsupp.single_apply, Finset.sum_boole]
 
 theorem tw_inr (x : α × γ → Fin 2) (d : α → Fin 2) : tw x (Sum.inr d) = 0 := by
-  simp [tw, Finsupp.finsetSum_apply, Finsupp.single_apply]
+  simp [tw, Finsupp.finsetSum_apply]
 
 theorem tz_inl (x : α × γ → Fin 2) (d : α → Fin 2) : tz x (Sum.inl d) = 0 := by
-  simp [tz, Finsupp.finsetSum_apply, Finsupp.single_apply]
+  simp [tz, Finsupp.finsetSum_apply]
 
 theorem tz_inr (x : α × γ → Fin 2) (d : α → Fin 2) :
     tz x (Sum.inr d) = (Finset.univ.filter fun g => col x g = d).card := by
@@ -189,11 +189,11 @@ theorem eq_zero_of_ev_kronVec (B : OpS (α × γ))
     intro x y
     simp only [add_eq_iff]
     by_cases hxy : tw x = tw x0 ∧ tz y = tz y0
-    · rw [if_pos hxy, if_pos hxy, one_mul]
+    · rw [ite_eq_left hxy, ite_eq_left hxy, one_mul]
       obtain ⟨c, rfl⟩ := exists_copyPerm_of_tw_eq hxy.1
       obtain ⟨c', rfl⟩ := exists_copyPerm_of_tz_eq hxy.2
       rw [hrow, hcol]
-    · rw [if_neg hxy, if_neg hxy, zero_mul]
+    · rw [ite_eq_right hxy, ite_eq_right hxy, zero_mul]
   rw [Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun y _ => hterm x y] at hc
   simp_rw [← Finset.sum_mul] at hc
   have hN : (∑ x : α × γ → Fin 2, ∑ y : α × γ → Fin 2,

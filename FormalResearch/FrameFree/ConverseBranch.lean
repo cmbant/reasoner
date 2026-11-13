@@ -67,7 +67,7 @@ theorem SU2_Ug {g : Fin 2 → ℂ} (hg : conj (g 0) * g 0 + conj (g 1) * g 1 = 1
       first | exact hg | linear_combination hg | ring
   · rw [Matrix.det_fin_two]
     simp only [Ug, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-      Matrix.empty_val', Matrix.cons_val_fin_one, Matrix.head_cons]
+      Matrix.empty_val', Matrix.cons_val_fin_one]
     linear_combination hg
 
 /-! ### The branch criterion -/
@@ -125,22 +125,18 @@ theorem achiralBranch_of_branch {m : ℕ} (ψ : Ψ (m + 1)) {e : Fin 2 → ℂ}
     AchiralBranch ψ (nsq (bra e ψ)) := by
   set f : Fin 2 → ℂ := ![conj (e 1), -conj (e 0)] with hfdef
   have hf : conj (f 0) * f 0 + conj (f 1) * f 1 = 1 := by
-    simp only [hfdef, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, map_neg,
+    simp only [hfdef, Matrix.cons_val_zero, Matrix.cons_val_one, map_neg,
       Complex.conj_conj]
     linear_combination he
   set v₀ : Op1 := Ug e * (Ug f)ᴴ with hv₀
   have hv₀su : SU2 v₀ := SU2_mul (SU2_Ug he) (SU2_adjoint (SU2_Ug hf))
   have hg0 : ∑ c, conj (e c) * v₀ c 0 = e 1 := by
     simp only [hv₀, hfdef, Ug, Fin.sum_univ_two, Matrix.mul_apply, Matrix.conjTranspose_apply,
-      Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
-      Matrix.empty_val', Matrix.cons_val_fin_one, map_neg, Complex.conj_conj, star_neg,
-      Complex.star_def, neg_neg, neg_mul]
+      Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.empty_val', Matrix.cons_val_fin_one, map_neg, Complex.conj_conj, Complex.star_def, neg_neg, neg_mul]
     linear_combination (e 1) * he
   have hg1 : ∑ c, conj (e c) * v₀ c 1 = -e 0 := by
     simp only [hv₀, hfdef, Ug, Fin.sum_univ_two, Matrix.mul_apply, Matrix.conjTranspose_apply,
-      Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
-      Matrix.empty_val', Matrix.cons_val_fin_one, map_neg, Complex.conj_conj, star_neg,
-      Complex.star_def, neg_neg, neg_mul]
+      Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.empty_val', Matrix.cons_val_fin_one, map_neg, Complex.conj_conj, Complex.star_def, neg_neg, neg_mul]
     linear_combination (-e 0) * he
   refine ⟨hpos, Fin.cons (Pr e) (fun _ : Fin m => (1 : Op1)), Fin.cons v₀ v, c,
     isLocalProj_cons_Pr he, ?_, hc, nsq_rot_Pr he ψ, ?_⟩

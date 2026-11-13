@@ -88,7 +88,7 @@ theorem normSq_product : normSqPsi ψ = (∑ a, Complex.normSq (α a)) * (∑ b,
   ring
 
 theorem spinFlip_product : spinFlipForm ψ = 0 := by
-  simp only [spinFlipForm, sum4, sum2, Fin.sum_univ_two, toAdd_complex, toMul_complex, lit_complex, hψ]
+  simp only [spinFlipForm, sum4, sum2, toAdd_complex, toMul_complex, lit_complex, hψ]
   simp [sgn]
   ring
 

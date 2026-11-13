@@ -47,7 +47,7 @@ theorem apolarFull_selected (d : Nat) :
       have hk3 : (apolarSelectedCol c).val = r.val + 3 := by
         simp [apolarSelectedCol]
         omega
-      simp [apolarFull, apolarSquare, apolarSelectedCol, hrc, hcr, h2, hk1, hk3]
+      simp [apolarFull, apolarSquare, apolarSelectedCol, hrc, hcr, h2]
       ring_nf
       simp
     · have h2' : c.val ≠ r.val + 2 := fun h => h2 h.symm
@@ -62,7 +62,7 @@ theorem apolarFull_selected (d : Nat) :
         intro h
         apply h2
         omega
-      simp [apolarFull, apolarSquare, apolarSelectedCol, hrc, hcr, h2, h2', hk1, hk3]
+      simp [apolarFull, apolarSquare, apolarSelectedCol, hrc, hcr, h2, h2']
 
 /-- The *full* apolar differential matrix has maximal possible row rank in
 every degree `d≥3`.  Thus the earlier nonzero minor is promoted to a theorem

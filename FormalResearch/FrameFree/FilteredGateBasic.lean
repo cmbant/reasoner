@@ -111,7 +111,7 @@ theorem Uk_conjTranspose (θ : ℝ) (j : Fin 3) : (Uk θ j)ᴴ = Uk (-θ) j := b
   rw [Matrix.conjTranspose_sub, Matrix.conjTranspose_smul, Matrix.conjTranspose_smul,
     Matrix.conjTranspose_one, Pm_herm]
   simp only [Complex.star_def, Complex.conj_ofReal, map_mul, Complex.conj_I, Real.cos_neg, Real.sin_neg,
-    Complex.ofReal_neg, sub_eq_add_neg, neg_smul, smul_neg, mul_neg, neg_neg, neg_mul]
+    Complex.ofReal_neg, sub_eq_add_neg, neg_smul, mul_neg, neg_neg, neg_mul]
 
 theorem Uk_mul (θ φ : ℝ) (j : Fin 3) : Uk θ j * Uk φ j = Uk (θ + φ) j := by
   unfold Uk
@@ -192,7 +192,7 @@ theorem fro2_mul_unitary_left (M R : M4) (h : Rᴴ * R = 1) : fro2 (R * M) = fro
 
 theorem fro2_one : fro2 (1 : M4) = 4 := by
   unfold fro2
-  simp [Matrix.trace, Fintype.sum_prod_type]
+  simp [Matrix.trace]
 
 /-- Reordering a product of three pairwise-commuting-across factors. -/
 theorem prod3 (x₀ x₁ x₂ y₀ y₁ y₂ : M4) (h10 : Commute x₁ y₀) (h20 : Commute x₂ y₀)

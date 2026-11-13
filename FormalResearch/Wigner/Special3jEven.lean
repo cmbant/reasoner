@@ -125,7 +125,7 @@ theorem threeJ_zero_zero_zero (u v w : ℕ) :
           ((2 * (u + v + w) + 1).factorial : ℝ)) *
         (((u + v + w).factorial : ℝ) / ((u.factorial : ℝ) * v.factorial * w.factorial)) := by
   unfold threeJ
-  rw [if_pos (by ring), racahSum3_dixon u v w]
+  rw [ite_eq_left (by ring), racahSum3_dixon u v w]
   have hS : sgn (((v + w : ℕ) : ℚ) - ((u + w : ℕ) : ℚ) - 0) = (-1 : ℝ) ^ (u + v) := by
     rw [show ((v + w : ℕ) : ℚ) - ((u + w : ℕ) : ℚ) - 0 = (((v : ℤ) - u : ℤ) : ℚ) by
       push_cast; ring, sgn_intCast,

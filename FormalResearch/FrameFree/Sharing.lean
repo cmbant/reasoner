@@ -427,7 +427,7 @@ def Ug (C S : ℂ) : Mat4 := C • (1 : Mat4) + S • Sw
 theorem Ug_conjT (C S : ℂ) : (Ug C S)ᴴ = Ug (conj C) (conj S) := by
   ext ⟨i, j⟩ ⟨k, l⟩
   fin_cases i <;> fin_cases j <;> fin_cases k <;> fin_cases l <;>
-    simp [Ug, Sw, Matrix.conjTranspose_apply, Matrix.one_apply]
+    simp [Ug, Sw, Matrix.conjTranspose_apply]
 
 /-- **Master formula.**  `tr[(C₁+S₁ SWAP)(a⊗b)(C₂+S₂ SWAP)(c⊗e)]`, for arbitrary `2×2` matrices. -/
 theorem trace_gate (C₁ S₁ C₂ S₂ : ℂ) (a b c e : Op1) :
@@ -527,7 +527,7 @@ theorem SU2_entry11 {u : Op1} (h : SU2 u) : u 1 1 = conj (u 0 0) := by
 
 theorem SU2_normSq_le {u : Op1} (h : SU2 u) : Complex.normSq (u 0 0) ≤ 1 := by
   have e := congrFun (congrFun h.1 0) 0
-  simp [Matrix.mul_apply, Matrix.conjTranspose_apply, Fin.sum_univ_two, Matrix.one_apply] at e
+  simp [Matrix.mul_apply, Matrix.conjTranspose_apply, Fin.sum_univ_two] at e
   have e' : Complex.normSq (u 0 0) + Complex.normSq (u 1 0) = 1 := by
     have := congrArg Complex.re e
     simp [Complex.normSq_apply] at this ⊢
@@ -539,7 +539,7 @@ theorem SU2_trace {u : Op1} (h : SU2 u) :
     ∃ r : ℝ, Matrix.trace u = r ∧ r ^ 2 ≤ 4 := by
   refine ⟨2 * (u 0 0).re, ?_, ?_⟩
   · rw [Matrix.trace_fin_two, SU2_entry11 h]
-    apply Complex.ext <;> simp <;> ring
+    apply Complex.ext <;> simp; ring
   · have h1 := SU2_normSq_le h
     have h2 : (u 0 0).re ^ 2 ≤ Complex.normSq (u 0 0) := by
       rw [Complex.normSq_apply]; nlinarith [sq_nonneg (u 0 0).im]
@@ -648,7 +648,7 @@ theorem ov_13_24_eq (θ : ℝ) :
     ip (psiEx θ) (rot ![pz, eps, pz, eps] (psiEx (-θ))) =
       (Real.cos θ : ℂ) * ((Real.cos θ : ℂ) + Complex.I * Real.sin θ) := by
   rw [ov_gate]
-  simp [pz, eps, Matrix.trace, Matrix.mul_apply, Fin.sum_univ_two, Matrix.adjugate_fin_two]
+  simp [pz, eps, Matrix.trace, Fin.sum_univ_two, Matrix.adjugate_fin_two]
   ring
 
 /-- The explicit rotation `(iσ_z, iσ_y, iσ_y, iσ_z) ∈ K_{14|23}`: overlap `i sin θ · e^{iθ}`. -/
@@ -656,7 +656,7 @@ theorem ov_14_23_eq (θ : ℝ) :
     ip (psiEx θ) (rot ![pz, eps, eps, pz] (psiEx (-θ))) =
       Complex.I * (Real.sin θ : ℂ) * ((Real.cos θ : ℂ) + Complex.I * Real.sin θ) := by
   rw [ov_gate]
-  simp [pz, eps, Matrix.trace, Matrix.mul_apply, Fin.sum_univ_two, Matrix.adjugate_fin_two]
+  simp [pz, eps, Matrix.trace, Fin.sum_univ_two, Matrix.adjugate_fin_two]
   ring
 
 /-- The identity rotation: overlap `cos 2θ + (i/2) sin 2θ`. -/
@@ -666,7 +666,7 @@ theorem ov_id_eq (θ : ℝ) :
   have h := ov_gate θ (fun _ => (1 : Op1))
   rw [rot_one] at h
   rw [h]
-  simp [Matrix.trace, Fin.sum_univ_two, Matrix.adjugate_one]
+  simp [Matrix.trace, Matrix.adjugate_one]
   rw [Complex.cos_two_mul', Complex.sin_two_mul]
   linear_combination (Complex.sin (θ : ℂ)) ^ 2 * Complex.I_sq
 
@@ -897,7 +897,7 @@ theorem ov_M4_01 (A B : Op1) :
       -(1 / 6 : ℂ) * (2 * Matrix.trace (A * B.adjugate) - Matrix.trace A * Matrix.trace B.adjugate) := by
   rw [Θ_M4n, M4n_eq, rot_ofMat, ip_ofMat]
   simp [Z4, Y1, EE, eps, Matrix.trace, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two,
-      Matrix.kroneckerMap_apply, Matrix.transpose_apply, conj_r6, Matrix.conjTranspose_apply,
+      Matrix.kroneckerMap_apply, conj_r6, Matrix.conjTranspose_apply,
       Matrix.adjugate_fin_two]
   linear_combination (r6^2*(2*(A 0 0)*(B 1 1) - 2*(A 0 1)*(B 1 0) - 2*(A 1 0)*(B 0 1) + 2*(A 1 1)*(B 0 0))) * conjω3_rel + (1*(A 0 0)*(B 0 0) - 1*(A 0 0)*(B 1 1) + 2*(A 0 1)*(B 1 0) + 2*(A 1 0)*(B 0 1) - 1*(A 1 1)*(B 0 0) + 1*(A 1 1)*(B 1 1)) * r6_sq
 
@@ -949,13 +949,13 @@ theorem ov_M4_23 (A B : Op1) :
 theorem ov_M4_zero0 (A : Op1) : ip M4n (rot ![A, (1 : Op1), (1 : Op1), (1 : Op1)] (Θ M4n)) = 0 := by
   rw [Θ_M4n, M4n_eq, rot_ofMat, ip_ofMat]
   simp [Z4, Y1, EE, eps, Matrix.trace, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two,
-      Matrix.kroneckerMap_apply, Matrix.transpose_apply, conj_r6, Matrix.conjTranspose_apply]
+      Matrix.kroneckerMap_apply, conj_r6, Matrix.conjTranspose_apply]
   linear_combination (r6^2*(2*(A 0 0) + 2*(A 1 1))) * conjω3_rel + (0) * r6_sq
 
 theorem ov_M4_zero1 (A : Op1) : ip M4n (rot ![(1 : Op1), A, (1 : Op1), (1 : Op1)] (Θ M4n)) = 0 := by
   rw [Θ_M4n, M4n_eq, rot_ofMat, ip_ofMat]
   simp [Z4, Y1, EE, eps, Matrix.trace, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two,
-      Matrix.kroneckerMap_apply, Matrix.transpose_apply, conj_r6, Matrix.conjTranspose_apply]
+      Matrix.kroneckerMap_apply, conj_r6, Matrix.conjTranspose_apply]
   linear_combination (r6^2*(2*(A 0 0) + 2*(A 1 1))) * conjω3_rel + (0) * r6_sq
 
 theorem ov_M4_zero2 (A : Op1) : ip M4n (rot ![(1 : Op1), (1 : Op1), A, (1 : Op1)] (Θ M4n)) = 0 := by
@@ -974,7 +974,7 @@ theorem ov_M4_zero3 (A : Op1) : ip M4n (rot ![(1 : Op1), (1 : Op1), (1 : Op1), A
 def fro (M : Op1) : ℝ := ∑ i, ∑ j, Complex.normSq (M i j)
 
 theorem fro_cast (M : Op1) : ((fro M : ℝ) : ℂ) = ∑ i, ∑ j, conj (M i j) * M i j := by
-  simp [fro, Complex.normSq_eq_conj_mul_self, Complex.ofReal_sum]
+  simp [fro, Complex.normSq_eq_conj_mul_self]
 
 /-! Norms of the rotated state: `‖(A⊗B)ΘM₄‖² = (‖A B⁻¹‖² + ‖A‖²‖B‖²)/6` at every position. -/
 
@@ -985,7 +985,7 @@ theorem nsq_M4_01 (A B : Op1) :
   push_cast
   simp only [fro_cast]
   simp [Z4, Y1, EE, eps, Matrix.trace, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two,
-      Matrix.kroneckerMap_apply, Matrix.transpose_apply, conj_r6, Matrix.conjTranspose_apply,
+      Matrix.kroneckerMap_apply, conj_r6, Matrix.conjTranspose_apply,
       Matrix.adjugate_fin_two]
   linear_combination (r6^2*((starRingEnd ℂ) ω3)*(2*(A 0 0)*(B 0 1)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 0 1)) - 2*(A 0 0)*(B 0 1)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 0 0)) + 2*(A 0 0)*(B 1 1)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 1 1)) - 2*(A 0 0)*(B 1 1)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 1 0)) - 2*(A 0 1)*(B 0 0)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 0 1)) + 2*(A 0 1)*(B 0 0)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 0 0)) - 2*(A 0 1)*(B 1 0)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 1 1)) + 2*(A 0 1)*(B 1 0)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 1 0)) + 2*(A 1 0)*(B 0 1)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 0 1)) - 2*(A 1 0)*(B 0 1)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 0 0)) + 2*(A 1 0)*(B 1 1)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 1 1)) - 2*(A 1 0)*(B 1 1)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 1 0)) - 2*(A 1 1)*(B 0 0)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 0 1)) + 2*(A 1 1)*(B 0 0)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 0 0)) - 2*(A 1 1)*(B 1 0)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 1 1)) + 2*(A 1 1)*(B 1 0)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 1 0))) + r6^2*((A 0 0)*(B 0 1)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 0 1)) - (A 0 0)*(B 0 1)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 0 0)) + (A 0 0)*(B 1 1)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 1 1)) - (A 0 0)*(B 1 1)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 1 0)) - (A 0 1)*(B 0 0)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 0 1)) + (A 0 1)*(B 0 0)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 0 0)) - (A 0 1)*(B 1 0)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 1 1)) + (A 0 1)*(B 1 0)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 1 0)) + (A 1 0)*(B 0 1)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 0 1)) - (A 1 0)*(B 0 1)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 0 0)) + (A 1 0)*(B 1 1)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 1 1)) - (A 1 0)*(B 1 1)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 1 0)) - (A 1 1)*(B 0 0)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 0 1)) + (A 1 1)*(B 0 0)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 0 0)) - (A 1 1)*(B 1 0)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 1 1)) + (A 1 1)*(B 1 0)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 1 0)))) * conjω3_eq + (r6^2*(-2*(A 0 0)*(B 0 1)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 0 1)) + 2*(A 0 0)*(B 0 1)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 0 0)) - 2*(A 0 0)*(B 1 1)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 1 1)) + 2*(A 0 0)*(B 1 1)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 1 0)) + 2*(A 0 1)*(B 0 0)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 0 1)) - 2*(A 0 1)*(B 0 0)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 0 0)) + 2*(A 0 1)*(B 1 0)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 1 1)) - 2*(A 0 1)*(B 1 0)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 1 0)) - 2*(A 1 0)*(B 0 1)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 0 1)) + 2*(A 1 0)*(B 0 1)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 0 0)) - 2*(A 1 0)*(B 1 1)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 1 1)) + 2*(A 1 0)*(B 1 1)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 1 0)) + 2*(A 1 1)*(B 0 0)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 0 1)) - 2*(A 1 1)*(B 0 0)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 0 0)) + 2*(A 1 1)*(B 1 0)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 1 1)) - 2*(A 1 1)*(B 1 0)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 1 0)))) * conjω3_rel + ((A 0 0)*(B 0 0)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 0 0)) + 2*(A 0 0)*(B 0 1)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 0 1)) - (A 0 0)*(B 0 1)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 0 0)) + (A 0 0)*(B 1 0)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 1 0)) + 2*(A 0 0)*(B 1 1)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 1 1)) - (A 0 0)*(B 1 1)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 1 0)) - (A 0 1)*(B 0 0)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 0 1)) + 2*(A 0 1)*(B 0 0)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 0 0)) + (A 0 1)*(B 0 1)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 0 1)) - (A 0 1)*(B 1 0)*((starRingEnd ℂ) (A 0 0))*((starRingEnd ℂ) (B 1 1)) + 2*(A 0 1)*(B 1 0)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 1 0)) + (A 0 1)*(B 1 1)*((starRingEnd ℂ) (A 0 1))*((starRingEnd ℂ) (B 1 1)) + (A 1 0)*(B 0 0)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 0 0)) + 2*(A 1 0)*(B 0 1)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 0 1)) - (A 1 0)*(B 0 1)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 0 0)) + (A 1 0)*(B 1 0)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 1 0)) + 2*(A 1 0)*(B 1 1)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 1 1)) - (A 1 0)*(B 1 1)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 1 0)) - (A 1 1)*(B 0 0)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 0 1)) + 2*(A 1 1)*(B 0 0)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 0 0)) + (A 1 1)*(B 0 1)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 0 1)) - (A 1 1)*(B 1 0)*((starRingEnd ℂ) (A 1 0))*((starRingEnd ℂ) (B 1 1)) + 2*(A 1 1)*(B 1 0)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 1 0)) + (A 1 1)*(B 1 1)*((starRingEnd ℂ) (A 1 1))*((starRingEnd ℂ) (B 1 1))) * r6_sq
 
@@ -1050,7 +1050,7 @@ theorem nsq_M4_23 (A B : Op1) :
 Cauchy--Schwarz argument, in the Pauli decomposition `A = a₀ + a·σ`). -/
 
 theorem core_real (p q S T u v W : ℝ) (hp : 0 ≤ p) (hq : 0 ≤ q) (hS : 0 ≤ S) (hT : 0 ≤ T)
-    (hu : 0 ≤ u) (hv : v = p * q) (hu2 : u ^ 2 ≤ S * T) (hW : (u - v) ^ 2 ≤ W) :
+    (_hu : 0 ≤ u) (hv : v = p * q) (hu2 : u ^ 2 ≤ S * T) (hW : (u - v) ^ 2 ≤ W) :
     3 * u ^ 2 ≤ W + 2 * ((p ^ 2 + S) * (q ^ 2 + T)) := by
   have h0 : 0 ≤ p ^ 2 * T + S * q ^ 2 := by positivity
   have h1 : 2 * p * q * u ≤ p ^ 2 * T + S * q ^ 2 := by
@@ -1087,10 +1087,10 @@ theorem fro_ge_tr (M : Op1) : Complex.normSq (Matrix.trace M) ≤ 2 * fro M := b
     mul_self_nonneg (M 1 0).im]
 
 theorem normSq_two : Complex.normSq (2 : ℂ) = 4 := by
-  simp [Complex.normSq_apply]; norm_num
+  simp; norm_num
 
 theorem normSq_four : Complex.normSq (4 : ℂ) = 16 := by
-  simp [Complex.normSq_apply]; norm_num
+  simp; norm_num
 
 theorem key_FC (A D : Op1) :
     Complex.normSq (2 * Matrix.trace (A * D) - Matrix.trace A * Matrix.trace D) ≤
@@ -1188,7 +1188,7 @@ theorem exch_ineq (C2 S2 : ℝ) (hcs : C2 ^ 2 + S2 ^ 2 = 1) (A B : Op1) :
     calc ‖(2 * z) * (a0 * b0) + (2 * Complex.I * S2) * x‖
         ≤ ‖(2 * z) * (a0 * b0)‖ + ‖(2 * Complex.I * S2) * x‖ := norm_add_le _ _
       _ = 2 * ‖z‖ * (‖a0‖ * ‖b0‖) + 2 * |S2| * ‖x‖ := by
-        simp [norm_mul]
+        simp
       _ ≤ _ := by nlinarith [norm_nonneg z, norm_nonneg a0, norm_nonneg b0, norm_nonneg x, abs_nonneg S2]
   have hsq := pow_le_pow_left₀ (norm_nonneg _) hEn 2
   rw [Complex.sq_norm] at hsq
@@ -1428,7 +1428,7 @@ theorem FKΘs_M4_le (g : Fin 4 → β)
   rcases h with h | h | h | h | h | h <;> simp [h]
 
 theorem X_px : 2 * Matrix.trace (px * px.adjugate) - Matrix.trace px * Matrix.trace px.adjugate = 4 := by
-  simp [px, Matrix.trace, Fin.sum_univ_two, Matrix.mul_apply, Matrix.adjugate_fin_two]
+  simp [px, Matrix.trace, Fin.sum_univ_two, Matrix.adjugate_fin_two]
   norm_num
 
 theorem normSq_phase4 (c : ℂ) (hc : Complex.normSq c = 1) :
@@ -1618,7 +1618,7 @@ variable {β : Type*}
 
 theorem fro_eq_trace (M : Op1) : ((fro M : ℝ) : ℂ) = Matrix.trace (Mᴴ * M) := by
   simp [fro, Matrix.trace_fin_two, Matrix.mul_apply, Matrix.conjTranspose_apply, Fin.sum_univ_two,
-    Complex.normSq_eq_conj_mul_self, Complex.ofReal_sum]
+    Complex.normSq_eq_conj_mul_self]
   ring
 
 theorem trace_cyc4 (p q r s : Op1) : Matrix.trace (p * q * r * s) = Matrix.trace (s * p * q * r) := by
@@ -1753,7 +1753,7 @@ theorem ratio_exch_le (θ : ℝ) (u : Fin 4 → Op1) (h : u 0 = u 1 ∨ u 2 = u 
   · rw [← h0, div_zero]; exact (kappa_pos θ).le
   · rw [div_le_iff₀ hpos, Complex.normSq_mul]
     have h16 : Complex.normSq (1 / 4 : ℂ) = 1 / 16 := by
-      simp [Complex.normSq_apply]; norm_num
+      simp; norm_num
     rw [h16]
     have hk : kappa θ = (1 + 3 * Real.cos (2 * θ) ^ 2) / 4 := rfl
     rw [hk]

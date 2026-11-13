@@ -186,7 +186,7 @@ theorem SU2_Sm {g : Fin 2 → ℂ} (hg : U2 g) : SU2 (Sm g) := by
   · ext i j
     fin_cases i <;> fin_cases j <;>
       simp [Sm, Matrix.mul_apply, Fin.sum_univ_two, Matrix.conjTranspose_apply] <;>
-      first | exact hg | linear_combination hg | ring
+      first | linear_combination hg | ring
   · rw [Matrix.det_fin_two]
     simp only [Sm, Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
       Matrix.empty_val', Matrix.cons_val_fin_one, Matrix.head_cons]

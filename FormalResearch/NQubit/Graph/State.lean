@@ -221,7 +221,7 @@ theorem tau_graphState (Γ : Fin n → Fin n → Bool) (hsym : ∀ i j, Γ i j =
   by_cases hall : ∀ i, Odd (Finset.univ.filter fun j => Γ i j = true).card
   · simp only [hall, ite_true]
     rw [Finset.prod_const, Finset.card_univ, Fintype.card_fin]
-    have h4 : Complex.normSq (2 : ℂ) = 4 := by simp [Complex.normSq_apply]; norm_num
+    have h4 : Complex.normSq (2 : ℂ) = 4 := by simp; norm_num
     rw [map_pow, h4, ← mul_pow]
     norm_num
   · simp only [hall, ite_false]
@@ -274,15 +274,14 @@ theorem qf_extG {m : ℕ} (Γ : Fin m → Fin m → Bool) (x0 : Fin 2) (x' : Cfg
         revert h; generalize deg2 Γ j = a
         fin_cases a <;> first | (intro h; exact absurd rfl h) | (intro _; rfl)
       have h11 : (1 + 1 : ZMod 2) = 0 := by decide
-      simp only [h, ite_false, h1, h11]; simp
+      simp only [h1, h11]; simp
   have key : (∑ j, if deg2 Γ j = 0 then zx x0 * zx (x' j) else 0)
       = zx x0 * ∑ j, (1 + deg2 Γ j) * zx (x' j) := by
     rw [Finset.mul_sum]; exact Finset.sum_congr rfl fun j _ => hd2 j
   unfold qf
   simp only [Fin.sum_univ_succ, extG_00, extG_0s, extG_s0, extG_ss, Fin.cons_zero, Fin.cons_succ,
     Fin.succ_lt_succ_iff, Fin.succ_pos, not_lt_zero]
-  simp only [lt_irrefl, false_and, ite_false, Finset.sum_const_zero, zero_add, decide_eq_true_eq,
-    and_true, Fin.succ_ne_zero, Fin.pos_iff_ne_zero]
+  simp only [false_and, ite_false, zero_add, decide_eq_true_eq]
   simp only [true_and]
   rw [key, add_comm]
 

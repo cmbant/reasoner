@@ -46,7 +46,7 @@ lemma gPow_period_multiple {p P : Nat} (z : GMod p)
   | succ k ih =>
       rw [Nat.mul_succ, gPow_add, ih, hP, gMul_one]
 
-lemma gPow_mod_period {p P : Nat} (z : GMod p) (hPpos : 0 < P)
+lemma gPow_mod_period {p P : Nat} (z : GMod p) (_hPpos : 0 < P)
     (hP : gPow z P = gOne) (n : Nat) :
     gPow z n = gPow z (n % P) := by
   calc

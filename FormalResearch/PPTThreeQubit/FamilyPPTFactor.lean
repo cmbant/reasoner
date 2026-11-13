@@ -144,8 +144,6 @@ theorem ptA_rhoT_entry (t : ℝ) (ht : 3 < t) (h12 : t ^ 2 ≠ 12) (i j : Fin 8)
     try simp only [or_true]
     try field_simp
     try ring_nf
-    try simp only [ω_cube, ω_pow4, ω_pow5, ω_pow6, h2]
-    try ring_nf
 
 
 /-- `ρ_t^{T_A}` as a sum of rank-one operators with the pivots `dpiv` as weights. -/

@@ -20,7 +20,7 @@ both first derivatives at `(b,c)`", AH-6b).  Together with the exact values of t
 namespace FormalResearch.FourQubitEntropy.AH6
 
 theorem contact_algebra {u lc l2 l3 k0 gam q0 q1 Pe0 Pd0 e0 v0 hh he hv a2 a3 b1 g0 g1 b0 a1 a0 eta2 eta3 : ℝ}
-    (hu : u ≠ 0) (hq0 : q0 ≠ 0)
+    (hu : u ≠ 0) (_hq0 : q0 ≠ 0)
     (he0 : e0 = 48 * u) (hv0 : v0 = e0 * e0 / 9)
     (hhh : hh = (-(8 * u * (lc + l2)) + -(4 * u * lc)) / 2)
     (hhe : he = (-((lc + l2) + 1) + -(lc + 1)) / 16)

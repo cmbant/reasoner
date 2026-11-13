@@ -92,7 +92,7 @@ theorem core_good (c : Fin 3 → ℝ) (hgood : ∀ k, 0 ≤ Real.sin (4 * c k)) 
       x₁ (c', a') * y₁ (d', b') + x₂ (c', a') * y₂ (d', b') := by
     intro c' d' a' b'
     rw [hFS]
-    simp [kr_apply, x₁, y₁, x₂, y₂]
+    simp [x₁, y₁, x₂, y₂]
   have htr := tr_reduce c (kr A B) (kr (sig 2) K) Φ (kr W C) W.det hG
   have hfro := fro2_reduce c (kr A B) (kr (sig 2) K) Φ (kr W C) W.det hG hΦu hD
   have hpair : ∀ e₁ e₂ : Fin 2 × Fin 2 → ℂ, nrm2 e₁ = 1 → nrm2 e₂ = 1 →

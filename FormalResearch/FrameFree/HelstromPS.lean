@@ -39,11 +39,11 @@ theorem posProj_sq {D : Matrix ι ι ℂ} (hD : D.IsHermitian) : posProj D * pos
   funext x
   by_cases h : 0 < x <;> simp [h]
 
-theorem posProj_nonneg {D : Matrix ι ι ℂ} (hD : D.IsHermitian) : 0 ≤ posProj D := by
+theorem posProj_nonneg {D : Matrix ι ι ℂ} (_hD : D.IsHermitian) : 0 ≤ posProj D := by
   unfold posProj
   exact cfc_nonneg (fun x _ => by by_cases h : 0 < x <;> simp [h])
 
-theorem posPart'_nonneg {D : Matrix ι ι ℂ} (hD : D.IsHermitian) : 0 ≤ posPart' D := by
+theorem posPart'_nonneg {D : Matrix ι ι ℂ} (_hD : D.IsHermitian) : 0 ≤ posPart' D := by
   unfold posPart'
   exact cfc_nonneg (fun x _ => le_max_right _ _)
 
@@ -68,7 +68,7 @@ theorem trace_mul_nonneg_re {A B : Matrix ι ι ℂ} (hA : A.PosSemidef) (hB : B
   rw [h1]
   exact (Complex.nonneg_iff.1 (Matrix.PosSemidef.trace_nonneg (hA.conjTranspose_mul_mul_same C))).1
 
-theorem negPart'_nonneg {D : Matrix ι ι ℂ} (hD : D.IsHermitian) : 0 ≤ negPart' D := by
+theorem negPart'_nonneg {D : Matrix ι ι ℂ} (_hD : D.IsHermitian) : 0 ≤ negPart' D := by
   unfold negPart'
   exact cfc_nonneg (fun x _ => le_max_right _ _)
 
@@ -81,7 +81,7 @@ theorem pp_sub_np {D : Matrix ι ι ℂ} (hD : D.IsHermitian) : posPart' D - neg
   by_cases h : 0 ≤ x
   · simp [h]
   · have h' : x ≤ 0 := (not_le.1 h).le
-    simp [h, h']
+    simp [h']
 
 theorem pp_mul_np {D : Matrix ι ι ℂ} (hD : D.IsHermitian) : posPart' D * negPart' D = 0 := by
   unfold posPart' negPart'
@@ -94,7 +94,7 @@ theorem pp_mul_np {D : Matrix ι ι ℂ} (hD : D.IsHermitian) : posPart' D * neg
   · have h' : x ≤ 0 := (not_le.1 h).le
     simp [h']
 
-theorem posProj_herm {D : Matrix ι ι ℂ} (hD : D.IsHermitian) : (posProj D).IsHermitian := by
+theorem posProj_herm {D : Matrix ι ι ℂ} (_hD : D.IsHermitian) : (posProj D).IsHermitian := by
   have := cfc_predicate (R := ℝ) (p := IsSelfAdjoint) (fun x : ℝ => if 0 < x then (1:ℝ) else 0) D
   exact this
 
@@ -103,7 +103,7 @@ theorem projector_posSemidef {Q : Matrix ι ι ℂ} (h1 : Q.IsHermitian) (h2 : Q
   rw [h1.eq, h2] at this
   exact this
 
-theorem posProj_commute {D B : Matrix ι ι ℂ} (hD : D.IsHermitian) (hB : Commute D B) :
+theorem posProj_commute {D B : Matrix ι ι ℂ} (_hD : D.IsHermitian) (hB : Commute D B) :
     Commute (posProj D) B := Commute.cfc_real hB _
 
 /-- Purely algebraic part of the Powers-Stormer argument. -/

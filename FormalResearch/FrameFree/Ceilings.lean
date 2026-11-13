@@ -921,7 +921,7 @@ theorem sum_sgn_mul {n : ℕ} (x y : Fin n → Fin 2) :
     intro i
     rcases (by decide : ∀ c : Fin 2, c = 0 ∨ c = 1) (x i) with hx | hx <;>
       rcases (by decide : ∀ c : Fin 2, c = 0 ∨ c = 1) (y i) with hy | hy <;>
-      simp [Fin.sum_univ_two, hx, hy] <;> norm_num
+      simp [Fin.sum_univ_two, hx, hy]; norm_num
   simp_rw [h2]
   by_cases hxy : x = y
   · subst hxy; simp

@@ -186,7 +186,7 @@ theorem ω_ne_one : ω - 1 ≠ 0 := by
 theorem shiftVec_eVec : shiftVec eVec = ω ^ 2 • eVec := by
   ext i
   fin_cases i <;> simp [shiftVec, cycShift, eVec] <;>
-    first | ring1 | linear_combination ω_cube | linear_combination (-1 : ℂ) * ω_cube |
+    first | linear_combination ω_cube | linear_combination (-1 : ℂ) * ω_cube |
       linear_combination ω * ω_cube | linear_combination (-ω) * ω_cube
 
 theorem eVec_mem_Rs (s : ℝ) : eVec ∈ Rs s := by

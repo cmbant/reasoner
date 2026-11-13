@@ -48,7 +48,7 @@ theorem reQF_penalty_eq (K : Matrix m ι ℂ) (v : ι → ℂ) :
 theorem reQF_penalty_nonneg (K : Matrix m ι ℂ) (v : ι → ℂ) : 0 ≤ reQF (Kᴴ * K) v := by
   rw [reQF_penalty_eq]
   have := (Matrix.posSemidef_conjTranspose_mul_self K).dotProduct_mulVec_nonneg v
-  simp only [← mulVec_mulVec, dotProduct_mulVec, star_mulVec] at this
+  simp only [← mulVec_mulVec, dotProduct_mulVec] at this
   exact (Complex.nonneg_iff.mp (by simpa [dotProduct_mulVec, star_mulVec] using this)).1
 
 theorem mulVec_eq_zero_of_qf_penalty {K : Matrix m ι ℂ} {v : ι → ℂ} (h : reQF (Kᴴ * K) v = 0) :
@@ -130,8 +130,8 @@ def C8 : Set (Fin 8 → ℂ) :=
     (Metric.sphere 0 1 ×ˢ Metric.sphere 0 1)
 
 theorem isCompact_C8 : IsCompact C8 :=
-  isCompact_iUnion fun c => ((isCompact_sphere _ _).prod (isCompact_sphere _ _)).image
-    (continuous_pi fun i =>
+  isCompact_iUnion fun _c => ((isCompact_sphere _ _).prod (isCompact_sphere _ _)).image
+    (continuous_pi fun _i =>
       ((continuous_apply _).comp ((PiLp.continuous_ofLp 2 _).comp continuous_fst)).mul
         ((continuous_apply _).comp ((PiLp.continuous_ofLp 2 _).comp continuous_snd)))
 
@@ -182,7 +182,7 @@ theorem cutProduct_eq_smul {x : Fin 8 → ℂ} (h : IsCutProduct x) :
     have hB : ∀ j, (‖b‖⁻¹ • b).ofLp j = ‖b‖⁻¹ * μ j := fun j => by simp [hb, Complex.real_smul]
     have h1 : (‖a‖ : ℂ) ≠ 0 := by exact_mod_cast hna.ne'
     have h2 : (‖b‖ : ℂ) ≠ 0 := by exact_mod_cast hnb.ne'
-    simp only [hxe, Pi.smul_apply, smul_eq_mul, hA, hB, Complex.real_smul]
+    simp only [hxe, Pi.smul_apply, hA, hB, Complex.real_smul]
     push_cast
     field_simp
 

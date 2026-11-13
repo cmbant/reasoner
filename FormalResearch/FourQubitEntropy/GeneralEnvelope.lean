@@ -204,7 +204,7 @@ theorem envelope_pencil (hφ : normSqPsi φ = 1) (hs : spinFlipForm φ = 0) {r :
   have h1 : 0 < 1 - r := by linarith
   unfold calM at h
   rw [xr_zero] at h
-  simp only [sub_zero, one_pow, div_one, zero_pow (two_ne_zero), mul_zero, zero_div] at h
+  simp only [sub_zero, one_pow, div_one, zero_pow (two_ne_zero), mul_zero] at h
   have h6 : 0 < (1 - r) ^ 6 := by positivity
   have key : Hval (xr φ r) / (1 - r) ^ 6 - 16 * (1 + 7 / 8 * blochSq φ) * r ^ 2 / (1 - r) ^ 4
       = (Hval (xr φ r) - 16 * (1 + 7 / 8 * blochSq φ) * r ^ 2 * (1 - r) ^ 2) / (1 - r) ^ 6 := by

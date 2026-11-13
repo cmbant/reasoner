@@ -64,12 +64,12 @@ lemma threeJ_one_zero (j m : ℚ) (a b : ℕ) (ha : j + m = a) (hb : j - m = b) 
         Real.sqrt (((a + b : ℕ) : ℝ) * ((a + b : ℕ) + 1) * ((a + b : ℕ) + 2)) := by
   obtain ⟨t, ht⟩ : ∃ t, a + b = t + 1 := ⟨a + b - 1, by omega⟩
   unfold threeJ
-  rw [if_pos (by ring), racahSum3_one_zero j m a b ha hb]
+  rw [ite_eq_left (by ring), racahSum3_one_zero j m a b ha hb]
   have hs : sgn (1 - j - -m) = (-1 : ℝ) ^ (1 - (b : ℤ)) := by
     rw [show (1 : ℚ) - j - -m = (((1 - (b : ℤ) : ℤ)) : ℚ) by push_cast; rw [← hb]; ring, sgn_intCast]
   have hT : triSq 1 j j = (t.factorial : ℝ) / ((t + 3).factorial : ℝ) := by
     rw [triSq_of_nat (p := 1) (q := 1) (r := t) (by ring) (by ring)
-      (by push_cast; have : (a : ℚ) + b = t + 1 := by exact_mod_cast ht
+      (by have : (a : ℚ) + b = t + 1 := by exact_mod_cast ht
           linarith)]
     simp only [Nat.factorial_one, Nat.cast_one, one_mul]
     rw [show 1 + 1 + t + 1 = t + 3 by ring]

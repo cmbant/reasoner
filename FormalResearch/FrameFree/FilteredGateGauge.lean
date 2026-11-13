@@ -28,7 +28,7 @@ theorem unit_entries (W : M2) (h : Wᴴ * W = 1) :
   have h01 := congrFun (congrFun h 0) 1
   have h10 := congrFun (congrFun h 1) 0
   have h11 := congrFun (congrFun h 1) 1
-  simp [Matrix.mul_apply, Fin.sum_univ_two, Matrix.conjTranspose_apply, Complex.star_def] at h00 h01 h10 h11
+  simp [Matrix.mul_apply, Fin.sum_univ_two, Matrix.conjTranspose_apply] at h00 h01 h10 h11
   exact ⟨h00, h01, h10, h11⟩
 
 theorem unit_entries' (W : M2) (h : Wᴴ * W = 1) :
@@ -41,7 +41,7 @@ theorem unit_entries' (W : M2) (h : Wᴴ * W = 1) :
   have h01 := congrFun (congrFun h' 0) 1
   have h10 := congrFun (congrFun h' 1) 0
   have h11 := congrFun (congrFun h' 1) 1
-  simp [Matrix.mul_apply, Fin.sum_univ_two, Matrix.conjTranspose_apply, Complex.star_def] at h00 h01 h10 h11
+  simp [Matrix.mul_apply, Fin.sum_univ_two, Matrix.conjTranspose_apply] at h00 h01 h10 h11
   exact ⟨h00, h01, h10, h11⟩
 
 theorem W_det_rel (W : M2) (h : Wᴴ * W = 1) :
@@ -78,8 +78,7 @@ theorem Wb_unit (W : M2) (h : Wᴴ * W = 1) :
   obtain ⟨u00, u01, u10, u11⟩ := unit_entries W h
   obtain ⟨v00, v01, v10, v11⟩ := unit_entries' W h
   refine ⟨?_, ?_, ?_⟩ <;> ext i j <;> fin_cases i <;> fin_cases j <;>
-    simp [Wb, Matrix.mul_apply, Fin.sum_univ_two, Matrix.conjTranspose_apply, Complex.star_def,
-      Matrix.one_apply] <;> grind
+    simp [Wb, Matrix.mul_apply, Fin.sum_univ_two, Matrix.conjTranspose_apply] <;> grind
 
 theorem phi_unit (W : M2) (h : Wᴴ * W = 1) :
     (Wb W * sig 2) * (Wb W * sig 2)ᴴ = 1 ∧ (Wb W * sig 2)ᴴ * (Wb W * sig 2) = 1 := by
@@ -187,7 +186,7 @@ theorem fro2_reduce (c : Fin 3 → ℝ) (F S0 Φ G : M4) (D : ℂ) (hG : G = D �
   have hDu : (D • (1 : M4)) * (D • (1 : M4))ᴴ = 1 := by
     rw [Matrix.conjTranspose_smul, Matrix.conjTranspose_one, Matrix.smul_mul, Matrix.mul_smul,
       Matrix.mul_one, smul_smul]
-    simp [Complex.star_def, hD]
+    simp [hD]
   have e : F * Ug c * G = (F * Ug c * S0 * Φ) * (D • (1 : M4)) := by
     rw [hG, Matrix.mul_smul, Matrix.mul_smul, Matrix.mul_one]; simp only [Matrix.mul_assoc]
   rw [e, fro2_mul_unitary_right _ _ hDu, fro2_mul_unitary_right _ _ hΦ]

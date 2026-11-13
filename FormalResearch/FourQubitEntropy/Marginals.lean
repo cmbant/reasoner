@@ -87,7 +87,7 @@ theorem spinFlip_colLU (c d : Op1) (ψ : Psi) :
   rw [e, Matrix.trace_mul_comm, ← Matrix.mul_assoc, E4_transpose, ← Matrix.mul_assoc]
   have h : (kron c d)ᵀ * E4 * kron c d = (c.det * d.det) • E4 := E4_conj c d
   rw [Matrix.mul_assoc, h]
-  simp only [Matrix.mul_smul, Matrix.smul_mul, Matrix.trace_smul, smul_eq_mul]
+  simp only [Matrix.smul_mul, Matrix.trace_smul, smul_eq_mul]
   rw [Matrix.trace_mul_comm E4]
 
 theorem spinFlip_localApply (a b c d : Op1) (ψ : Psi) :

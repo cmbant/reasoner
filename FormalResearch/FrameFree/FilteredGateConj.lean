@@ -32,8 +32,7 @@ theorem A_formula (a : Fin 3) (θ φ : ℝ) :
       ((Real.sin θ * Real.cos φ : ℝ) : ℂ) • kr (sig (a + 2).succ) (sig (a + 1).succ) +
       ((Real.cos θ * Real.sin φ : ℝ) : ℂ) • kr (sig (a + 1).succ) (sig (a + 2).succ) := by
   fin_cases a <;> ext ⟨i, k⟩ ⟨j, l⟩ <;> fin_cases i <;> fin_cases k <;> fin_cases j <;> fin_cases l <;>
-    simp [Uk, Pm, sig, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two, kr_apply,
-      Matrix.one_apply] <;> ring_nf <;> simp only [Complex.I_sq, I_cube, I_four] <;> ring
+    simp [Uk, Pm, sig, Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two, Matrix.one_apply] <;> ring_nf <;> simp only [Complex.I_sq, I_cube] <;> ring
 
 theorem conj_Uk_gen (X : M4) (hX : X * X = 1) (s : ℝ) (hs1 : s = 1 ∨ s = -1) (j : Fin 3)
     (hs : X * Pm j * X = (s : ℂ) • Pm j) (θ : ℝ) : X * Uk θ j * X = Uk (s * θ) j := by
@@ -43,7 +42,7 @@ theorem conj_Uk_gen (X : M4) (hX : X * X = 1) (s : ℝ) (hs1 : s = 1 ∨ s = -1)
     simp only [Matrix.mul_sub, Matrix.sub_mul, Matrix.mul_smul, Matrix.smul_mul, Matrix.mul_one,
       Matrix.mul_assoc]
   rw [e, hX, hs]
-  rcases hs1 with h | h <;> rw [h] <;> simp [smul_smul]
+  rcases hs1 with h | h <;> rw [h] <;> simp
 
 theorem Ug_neg (c : Fin 3 → ℝ) : (Ug c)ᴴ = Ug (fun k => -c k) := by
   rw [Ug_conjTranspose]
@@ -162,7 +161,7 @@ theorem S_x (c : Fin 3 → ℝ) :
     show kr (sig 3 * sig 2) (sig 3 * sig 1) = _
     ext ⟨i, k⟩ ⟨j, l⟩
     fin_cases i <;> fin_cases k <;> fin_cases j <;> fin_cases l <;>
-      simp [kr_apply, sig, Matrix.mul_apply, Fin.sum_univ_two]
+      simp [sig]
   rw [this]
 
 theorem S_z (c : Fin 3 → ℝ) :
@@ -187,7 +186,7 @@ theorem S_z (c : Fin 3 → ℝ) :
     show kr (sig 1 * sig 2) (sig 1 * sig 3) = _
     ext ⟨i, k⟩ ⟨j, l⟩
     fin_cases i <;> fin_cases k <;> fin_cases j <;> fin_cases l <;>
-      simp [kr_apply, sig, Matrix.mul_apply, Fin.sum_univ_two]
+      simp [sig]
   rw [this]
 
 /-- Symmetric `K = a 1 + b σ_x + d σ_z`. -/

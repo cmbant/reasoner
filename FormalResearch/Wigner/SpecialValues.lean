@@ -147,7 +147,8 @@ theorem sixJ_one_left {a b c : ℚ} (h : IsTri a b c) (N : ℕ) (hN : (N : ℚ) 
       Nat.factorial_succ, show v + 3 = v + 2 + 1 by ring]
     have : (v.factorial : ℝ) ≠ 0 := by positivity
     push_cast
-    field_simp <;> ring
+    field_simp
+    ring
   have hC : triSq 1 c c = ((z + 1 : ℕ) : ℝ)⁻¹ * ((z + 2 : ℕ) : ℝ)⁻¹ * ((z + 3 : ℕ) : ℝ)⁻¹ := by
     rw [triSq_of_nat (p := 1) (q := 1) (r := z) (by simp) (by simp)
       (by have : (q : ℚ) + r = z + 1 := by exact_mod_cast hz
@@ -157,7 +158,8 @@ theorem sixJ_one_left {a b c : ℚ} (h : IsTri a b c) (N : ℕ) (hN : (N : ℚ) 
       Nat.factorial_succ, show z + 3 = z + 2 + 1 by ring]
     have : (z.factorial : ℝ) ≠ 0 := by positivity
     push_cast
-    field_simp <;> ring
+    field_simp
+    ring
   have hsum : racahSum6 a b c 1 c b =
       (-1 : ℝ) ^ N * ((N + 1).factorial : ℝ) * (q : ℝ) * p *
           (((p.factorial : ℝ) * q.factorial * r.factorial)⁻¹) +

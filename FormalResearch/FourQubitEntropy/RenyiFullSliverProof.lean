@@ -77,7 +77,7 @@ theorem domain_S {u v ε κ : ℝ} (hu0 : 0 ≤ u) (hu2 : 2 * u ≤ 1) (_hv0 : 0
   nlinarith [mul_nonneg (sub_nonneg.2 hκ1) hX]
 
 /-- Domain reduction, chart `B`. -/
-theorem domain_B {u v : ℝ} (hu0 : 0 ≤ u) (hu2 : 2 * u ≤ 1) (hv0 : 0 ≤ v) (hvu : v ≤ u ^ 2)
+theorem domain_B {u v : ℝ} (hu0 : 0 ≤ u) (hu2 : 2 * u ≤ 1) (_hv0 : 0 ≤ v) (hvu : v ≤ u ^ 2)
     (hp : 47 / 100 ≤ 1 / 2 - u + u ^ 2 + v / 2) : u ≤ 1 / 30 := by
   nlinarith
 

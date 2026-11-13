@@ -22,7 +22,7 @@ namespace FormalResearch.FourQubitEntropy.QVEquality
 
 open FormalResearch.FourQubitEntropy FormalResearch.FourQubitEntropy.RenyiFull
 
-theorem SpecEquiv.refl' (l : Fin 4 → ℝ) : SpecEquiv l l := ⟨1, fun i => rfl⟩
+theorem SpecEquiv.refl' (l : Fin 4 → ℝ) : SpecEquiv l l := ⟨1, fun _i => rfl⟩
 
 theorem SpecEquiv.trans' {l l' l'' : Fin 4 → ℝ} (h : SpecEquiv l l') (h' : SpecEquiv l' l'') :
     SpecEquiv l l'' := by

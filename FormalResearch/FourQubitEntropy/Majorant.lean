@@ -238,7 +238,7 @@ theorem majorant_eq_iff {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a b c
         sub_nonneg.2 (hM.ge _ (eigenvalue_mem_Icc _ (red12_psd ψ) t12 j))
       have hi := (Finset.sum_eq_zero_iff_of_nonneg hterm).1 z12 i (Finset.mem_univ i)
       by_contra hne
-      push_neg at hne
+      push Not at hne
       have := hstrict _ (eigenvalue_mem_Icc _ (red12_psd ψ) t12 i) hne.1 hne.2
       linarith
     exact one_cut_rigidity_12 ψ hψ hP1 hq

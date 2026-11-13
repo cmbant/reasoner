@@ -29,7 +29,7 @@ theorem vSpec_eq_pair (l : Fin 8 → ℝ) (hl : ∑ i, l i = 1) :
   rw [SevenQubitSpectralPair.vSpec_eq l hl]
   simp only [vSpec, Fin.sum_univ_eight, Fin.rev]
   simp only [Fin.sum_univ_eight] at hl
-  simp [Fin.val_zero]
+  simp
   nlinarith [hl]
 
 /-- The eigenvalue list of the cut matrix is the same in both developments. -/

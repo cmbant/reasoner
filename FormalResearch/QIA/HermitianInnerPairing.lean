@@ -128,9 +128,7 @@ theorem hermitianTraceBilinForm_surjective
   refine ⟨(B.toDual hB).symm f, ?_⟩
   apply LinearMap.ext
   intro X
-  simpa [B] using
-    (LinearMap.BilinForm.apply_toDual_symm_apply
-      (B := B) (hB := hB) f X)
+  simp [B]
 
 /-- QI-A Hermitian-matrix specialization of the pure-copy spanning core.
 Once the chosen Hermitian family separates Hermitian directions under

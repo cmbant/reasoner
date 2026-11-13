@@ -25,7 +25,7 @@ def toGaussian (z : GInt) : GaussianInt := ⟨z.1, z.2⟩
 
 @[simp] lemma toGaussian_mul (z w : GInt) :
     toGaussian (giMul z w) = toGaussian z * toGaussian w := by
-  ext <;> simp [toGaussian, giMul, Zsqrtd.re_mul, Zsqrtd.im_mul] <;> ring
+  ext <;> simp [toGaussian, giMul, Zsqrtd.re_mul, Zsqrtd.im_mul]; ring
 
 @[simp] lemma toGaussian_sub (z w : GInt) :
     toGaussian (giSub z w) = toGaussian z - toGaussian w := by

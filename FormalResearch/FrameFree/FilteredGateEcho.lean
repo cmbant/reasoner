@@ -42,7 +42,7 @@ theorem Lm_conj_Uk (j k : Fin 3) (θ : ℝ) : Lm j * Uk θ k * Lm j = Uk (esg j 
       Matrix.mul_assoc]
   rw [e, hL, Lm_conj_Pm]
   have hs : esg j k = 1 ∨ esg j k = -1 := by unfold esg; split_ifs <;> simp
-  rcases hs with h | h <;> rw [h] <;> simp [smul_smul]
+  rcases hs with h | h <;> rw [h] <;> simp
 
 theorem conj3 (L X Y Z : M4) (hL : L * L = 1) :
     L * (X * Y * Z) * L = (L * X * L) * (L * Y * L) * (L * Z * L) := by
@@ -88,7 +88,7 @@ theorem Pm_Uk_trace (θ : ℝ) (j : Fin 3) :
 theorem fro2_unitary (M : M4) (h : Mᴴ * M = 1) : fro2 M = 4 := by
   have := fro2_one
   unfold fro2 at this ⊢
-  simpa [h] using this
+  simp [h]
 
 theorem Lm_herm (j : Fin 3) : (Lm j)ᴴ = Lm j := by
   unfold Lm; rw [kr_conjTranspose, Matrix.conjTranspose_one, sig_herm]

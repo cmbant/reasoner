@@ -139,11 +139,11 @@ theorem isWClass_wForm_pos {γ V G β E O : ℝ} (hγ : 0 ≤ γ) (hV : 0 < V) (
 
 /-! ### The first family and `σ_6` -/
 
-theorem Xt_eq_surfXw (t : ℝ) (ht : 0 < t) :
+theorem Xt_eq_surfXw (t : ℝ) (_ht : 0 < t) :
     Xt t = surfXw (t / (7 * (t + 3))) (3 * t / (7 * (t + 3))) 0 (3 / (7 * (t + 3)))
       (3 / (7 * (t + 3))) (1 / (7 * (t + 3))) := by
   ext i j
-  fin_cases i <;> fin_cases j <;> simp [Xt, surfXw, diagonal_apply]
+  fin_cases i <;> fin_cases j <;> simp [Xt, surfXw]
 
 /-- **`thm:ppt3-w-class`, the first family.**  `ρ_t` lies in the mixed `W` class for `0 < t ≤ 12`,
 in particular throughout the PPT interval `[t_-, t_+]`. -/
@@ -171,7 +171,7 @@ theorem X6_eq_surfXw :
     X6 = surfXw (sigma6A / sigma6N) (sigma6B / sigma6N) 0 (3 / sigma6N) (3 / sigma6N)
       (1 / sigma6N) := by
   ext i j
-  fin_cases i <;> fin_cases j <;> simp [X6, surfXw, diagonal_apply]
+  fin_cases i <;> fin_cases j <;> simp [X6, surfXw]
 
 /-- **`thm:ppt3-w-class`, the extreme state `σ_6`.** -/
 theorem isWClass_sigma6 : IsWClass sigma6 := by

@@ -211,7 +211,7 @@ theorem isCompact_sortedK (p t : ℝ) : IsCompact (sortedK p t) := by
   apply isCompact_simplex4.of_isClosed_subset
   · have : sortedK p t = {m | IsProb4 m} ∩ ({m : Fin 4 → ℝ | m 1 ≤ m 0} ∩ {m | m 2 ≤ m 1} ∩
         {m | m 3 ≤ m 2} ∩ {m | pur m = p} ∩ {m | cub m = t}) := by
-      ext m; simp only [sortedK, Sorted4, Set.mem_setOf_eq, Set.mem_inter_iff]; tauto
+      ext m; simp only [sortedK, Sorted4, Set.mem_ofPred_eq, Set.mem_inter_iff]; tauto
     rw [this]
     have hs : IsClosed {m : Fin 4 → ℝ | IsProb4 m} := by
       have : {m : Fin 4 → ℝ | IsProb4 m} = simplex4 := rfl

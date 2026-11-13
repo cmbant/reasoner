@@ -41,7 +41,7 @@ def ZE (p : Fin 4 → ℝ) (u : Fin 4 → ℂ) : Prop :=
     (p j : ℂ) * u j - p k * u k + 2 * u i * ((p j : ℂ) - p k) = 0
 
 theorem step_eq {p : Fin 4 → ℝ} {u : Fin 4 → ℂ} (h : ZE p u) {a b c d : Fin 4}
-    (hab : a ≠ b) (hac : a ≠ c) (had : a ≠ d) (hbc : b ≠ c) (hbd : b ≠ d) (hcd : c ≠ d)
+    (hab : a ≠ b) (hac : a ≠ c) (had : a ≠ d) (hbc : b ≠ c) (hbd : b ≠ d) (_hcd : c ≠ d)
     (hp : p a ≠ p b) : u c = u d := by
   have h1 := h c a b hac.symm hbc.symm hab
   have h2 := h d a b had.symm hbd.symm hab

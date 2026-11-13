@@ -49,7 +49,6 @@ theorem red14_psd (ψ : Psi) : (red14 ψ).PosSemidef := by
 
 theorem trace_red12 (ψ : Psi) : Matrix.trace (red12 ψ) = (normSqPsi ψ : ℂ) := by
   simp [Matrix.trace, red12, normSqPsi, Fintype.sum_prod_type, Complex.mul_conj, Fin.sum_univ_two]
-  try ring
 theorem trace_red13 (ψ : Psi) : Matrix.trace (red13 ψ) = (normSqPsi ψ : ℂ) := by
   simp [Matrix.trace, red13, normSqPsi, Fintype.sum_prod_type, Complex.mul_conj, Fin.sum_univ_two]
   try ring

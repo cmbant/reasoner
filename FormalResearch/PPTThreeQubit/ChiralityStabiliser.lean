@@ -30,7 +30,7 @@ theorem shiftVec_smul (l : ℂ) (x : Fin 8 → ℂ) : shiftVec (l • x) = l •
 theorem shiftVec_oVec : shiftVec oVec = ω ^ 2 • oVec := by
   ext i
   fin_cases i <;> simp [shiftVec, cycShift, oVec] <;>
-    first | ring1 | linear_combination ω_cube | linear_combination (-1 : ℂ) * ω_cube |
+    first | linear_combination ω_cube | linear_combination (-1 : ℂ) * ω_cube |
       linear_combination ω * ω_cube | linear_combination (-ω) * ω_cube
 
 theorem oVec_mem_Rs (s : ℝ) : oVec ∈ Rs s := by

@@ -91,7 +91,7 @@ theorem selectedProductWronskian_expansion (I S : Finset ι) (a b : ι → ℂ[X
           subst j
           exact hk hj
         rw [Finset.erase_insert_of_ne hkj]
-        simp [allPairProduct, hk, mul_assoc, mul_left_comm, mul_comm]
+        simp [allPairProduct, hk, mul_assoc, mul_left_comm]
 
 end ProductWronskian
 

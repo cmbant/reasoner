@@ -35,7 +35,7 @@ theorem star_mulVec_map (c : Matrix ι ι ℂ) (v : ι → ℂ) :
 
 theorem star_smul_vec (a : ℂ) (v : ι → ℂ) : star (a • v) = conj a • star v := by
   funext i
-  simp [Pi.star_apply, mul_comm]
+  simp [Pi.star_apply]
 
 /-- The coercion `ℝ^ι → ℂ^ι`. -/
 noncomputable def realToComplex : EuclideanSpace ℝ ι →ₗ[ℝ] (ι → ℂ) where
@@ -79,11 +79,11 @@ theorem exists_real_onb (U : Submodule ℂ (ι → ℂ)) (hU : ConjClosed U) :
     let vi : EuclideanSpace ℝ ι := WithLp.toLp 2 (fun i => (v i).im)
     have hvr : realToComplex vr = (1 / 2 : ℂ) • (v + star v) := by
       funext i
-      simp [realToComplex, vr, Pi.star_apply, Complex.star_def]
+      simp [realToComplex, vr, Pi.star_apply]
       rw [Complex.add_conj]; push_cast; ring
     have hvi : realToComplex vi = (1 / (2 * Complex.I)) • (v - star v) := by
       funext i
-      simp [realToComplex, vi, Pi.star_apply, Complex.star_def]
+      simp [realToComplex, vi, Pi.star_apply]
       rw [Complex.sub_conj]; push_cast
       field_simp
       rw [Complex.I_sq]; ring
@@ -97,7 +97,7 @@ theorem exists_real_onb (U : Submodule ℂ (ι → ℂ)) (hU : ConjClosed U) :
       exact U.smul_mem _ (U.sub_mem hv (hU v hv))
     have hv_eq : v = realToComplex vr + Complex.I • realToComplex vi := by
       funext i
-      simp [realToComplex, vr, vi, Complex.re_add_im]
+      simp [realToComplex, vr, vi]
       rw [mul_comm]; exact (Complex.re_add_im _).symm.trans (by ring)
     have h1 := b.sum_repr' (⟨vr, hvr_mem⟩ : Ur)
     have h2 := b.sum_repr' (⟨vi, hvi_mem⟩ : Ur)

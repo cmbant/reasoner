@@ -209,7 +209,7 @@ here proves `henv`. -/
 `(3/4) W₁ + τ - τ √τ ≤ F` (`thm:fqe-general-envelope`, hypothesis `henv`), then the estimate of
 `majorant_stability` gains the term `(a/12)(τ - τ^{3/2})`. -/
 theorem majorant_stability_of_envelope {f : ℝ → ℝ} {a b c d : ℝ} (hM : Majorant f a b c d)
-    (ha : 0 ≤ a) (hb : b + 17 * a / 12 ≤ 0) (ψ : Psi) (hψ : normSqPsi ψ = 1)
+    (ha : 0 ≤ a) (_hb : b + 17 * a / 12 ≤ 0) (ψ : Psi) (hψ : normSqPsi ψ = 1)
     (henv : 3 / 4 * blochSq ψ + Complex.normSq (spinFlipForm ψ)
         - Complex.normSq (spinFlipForm ψ) * Real.sqrt (Complex.normSq (spinFlipForm ψ))
       ≤ sexticF ψ) :

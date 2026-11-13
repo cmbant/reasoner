@@ -47,7 +47,7 @@ theorem SU2_va {a : ℂ} (ha : conj a * a = 1) : SU2 (va a) := by
 
 theorem va_mul_eps (a : ℂ) : va a * eps = Matrix.diagonal ![-a, -conj a] := by
   ext i j
-  fin_cases i <;> fin_cases j <;> simp [va, eps, Matrix.mul_apply, Fin.sum_univ_two, Matrix.diagonal_apply]
+  fin_cases i <;> fin_cases j <;> simp [va, eps, Matrix.mul_apply, Fin.sum_univ_two]
 
 /-- The phases `a = (ω, ω², 1)` of the frame of the branch `⟨0|₀ M₄`. -/
 noncomputable def m4a : Fin 3 → ℂ := ![ωω, conj ωω, 1]

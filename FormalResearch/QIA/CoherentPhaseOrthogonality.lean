@@ -53,7 +53,7 @@ theorem primitiveRoot_power_geom_sum
   by_cases hr0 : r = 0
   · subst r
     simp
-  · rw [if_neg hr0]
+  · rw [ite_eq_right hr0]
     exact primitiveRoot_power_geom_sum_eq_zero hζ hr0 hrlt
 
 /-- Evaluation at one full primitive-root cycle determines all coefficients of a

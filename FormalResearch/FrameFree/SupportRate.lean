@@ -288,7 +288,7 @@ theorem proj_swap (a b : V N) (d : ℕ) (u : Eg N d) :
 /-- The compressed creation map `W_d → W_{d+1}`, `u ↦ P_{d+1} (a ⊗ u)`. -/
 noncomputable def gmap (a : V N) (d : ℕ) : ↥(W O d) →L[ℂ] ↥(W O (d + 1)) :=
   (((W O (d + 1)).starProjection ∘L (Cc a d) ∘L (W O d).subtypeL)).codRestrict (W O (d + 1))
-    (fun u => Submodule.starProjection_apply_mem _ _)
+    (fun _u => Submodule.starProjection_apply_mem _ _)
 
 theorem gmap_coe (a : V N) (d : ℕ) (u : ↥(W O d)) :
     (gmap O a d u : Eg N (d + 1)) = (W O (d + 1)).starProjection (Cc a d (u : Eg N d)) := rfl
@@ -352,7 +352,7 @@ theorem Th_apply_lt : ∀ (k : ℕ) (r : Eg N k) (ξ : H O) (d : ℕ), d < k →
   | zero => intro r ξ d hd; exact absurd hd (Nat.not_lt_zero _)
   | succ k ih =>
     intro r ξ d hd
-    simp only [Th, sum_apply, ContinuousLinearMap.mul_apply]
+    simp only [Th, sum_apply, mul_apply_eq_comp]
     rw [lp.coeFn_sum]
     simp only [Finset.sum_apply]
     cases d with
@@ -368,13 +368,13 @@ theorem Th_apply : ∀ (k : ℕ) (r : Eg N k) (ξ : H O) (m : ℕ),
   induction k with
   | zero =>
     intro r ξ m
-    simp only [Th, Cr, smul_apply, ContinuousLinearMap.one_apply, lp.coeFn_smul, Pi.smul_apply, Submodule.coe_smul,
+    simp only [Th, Cr, smul_apply, one_apply_eq_self, lp.coeFn_smul, Pi.smul_apply, Submodule.coe_smul,
       map_smul]
     congr 1
     exact (Submodule.starProjection_eq_self_iff.2 (ξ m).2).symm
   | succ k ih =>
     intro r ξ m
-    simp only [Th, Cr, sum_apply, ContinuousLinearMap.mul_apply]
+    simp only [Th, Cr, sum_apply, mul_apply_eq_comp]
     rw [lp.coeFn_sum]
     simp only [Finset.sum_apply, Submodule.coe_sum, map_sum, ContinuousLinearMap.comp_apply]
     refine Finset.sum_congr rfl fun j _ => ?_
@@ -411,11 +411,11 @@ theorem vac (x : V N) {z0 : V N} (hz0 : z0 ∈ O) : ∀ d : ℕ,
     (((((T O x) ^ d) (one O hz0)) d : ↥(W O d)) : Eg N d) =
       (W O d).starProjection (pw x d)
   | 0 => by
-    simp only [pow_zero, ContinuousLinearMap.one_apply, one, lp.single_apply_self]
+    simp only [pow_zero, one_apply_eq_self, one, lp.single_apply_self]
     rw [pw_zero_eq x z0]
     exact (Submodule.starProjection_eq_self_iff.2 (pw_mem_W hz0 0)).symm
   | d + 1 => by
-    rw [pow_succ', ContinuousLinearMap.mul_apply, T_succ, gmap_coe, vac x hz0 d, proj_Cc_proj,
+    rw [pow_succ', mul_apply_eq_comp, T_succ, gmap_coe, vac x hz0 d, proj_Cc_proj,
       Cc_pw]
 
 theorem Rk_le_norm_pow (x : V N) {z0 : V N} (hz0 : z0 ∈ O) (d : ℕ) :

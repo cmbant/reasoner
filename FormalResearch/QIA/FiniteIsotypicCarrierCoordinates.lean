@@ -74,9 +74,9 @@ theorem finiteIsotypicBaseFieldCarrierCoordinatesWithPositiveCarrier
 
   have hd : ∀ c : isotypicComponents A M, 0 < d c := by
     intro c
-    letI : Module.Finite F (S c) := hSfinite c
-    letI : IsSimpleModule A (S c) := hSsimple c
-    letI : Nontrivial (S c) := IsSimpleModule.nontrivial A (S c)
+    let : Module.Finite F (S c) := hSfinite c
+    let : IsSimpleModule A (S c) := hSsimple c
+    let : Nontrivial (S c) := IsSimpleModule.nontrivial A (S c)
     exact (Module.finrank_pos_iff_of_free (R := F) (M := S c)).2 inferInstance
 
   let eBlock : ∀ c : isotypicComponents A M,

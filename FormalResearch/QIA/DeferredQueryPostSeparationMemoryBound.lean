@@ -73,7 +73,6 @@ theorem deferredAdjointOperatorIdentity_card_le_memory
   · exact hPOVM
   · intro j
     unfold sectorCodeTraceScore
-    change RCLike.re (Matrix.trace (F j * C (omega j))) = 1
     rw [hadjoint (F j) (omega j), hoperator j]
     exact hdiag j
 

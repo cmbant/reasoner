@@ -57,9 +57,9 @@ theorem mul_permOp_apply (A : OpS ι) (σ : Equiv.Perm ι) (x z : ι → Fin 2) 
     (A * permOp σ) x z = A x (z ∘ ⇑(σ⁻¹)) := by
   simp only [Matrix.mul_apply, permOp, Matrix.of_apply, mul_ite, mul_one, mul_zero]
   rw [Finset.sum_eq_single (z ∘ ⇑(σ⁻¹))]
-  · rw [if_pos ((eq_comp_iff σ z _).2 rfl)]
+  · rw [ite_eq_left ((eq_comp_iff σ z _).2 rfl)]
   · intro y _ hy
-    rw [if_neg]
+    rw [ite_eq_right]
     intro h; exact hy ((eq_comp_iff σ z y).1 h)
   · simp
 
@@ -82,8 +82,8 @@ theorem permOp_conjTranspose (σ : Equiv.Perm ι) : (permOp σ)ᴴ = permOp σ�
   ext x z
   simp only [Matrix.conjTranspose_apply, permOp, Matrix.of_apply]
   by_cases h : x = z ∘ ⇑σ
-  · rw [if_pos h, if_pos ((eq_comp_iff σ⁻¹ z x).2 (by rw [inv_inv]; exact h))]; simp
-  · rw [if_neg h, if_neg (fun h' => h ((eq_comp_iff σ⁻¹ z x).1 h' |>.trans (by rw [inv_inv])))]; simp
+  · rw [ite_eq_left h, ite_eq_left ((eq_comp_iff σ⁻¹ z x).2 (by rw [inv_inv]; exact h))]; simp
+  · rw [ite_eq_right h, ite_eq_right (fun h' => h ((eq_comp_iff σ⁻¹ z x).1 h' |>.trans (by rw [inv_inv])))]; simp
 
 theorem tensOp_commute (π : ι → κ) (v : κ → Op1) (σ : Equiv.Perm ι) (hσ : ∀ i, π (σ i) = π i) :
     tensOp π v * permOp σ = permOp σ * tensOp π v := by
@@ -114,7 +114,7 @@ noncomputable def typ (π : ι → κ) (x y : ι → Fin 2) : (κ × Fin 2 × Fi
 
 theorem typ_apply (π : ι → κ) (x y : ι → Fin 2) (b : κ × Fin 2 × Fin 2) :
     typ π x y b = (Finset.univ.filter fun i => (π i, x i, y i) = b).card := by
-  simp [typ, Finsupp.finset_sum_apply, Finsupp.single_apply, Finset.sum_boole]
+  simp [typ, Finsupp.finsetSum_apply, Finsupp.single_apply, Finset.sum_boole]
 
 theorem exists_perm_of_typ_eq (π : ι → κ) {x y x' y' : ι → Fin 2} (h : typ π x' y' = typ π x y) :
     ∃ σ : Equiv.Perm ι, (∀ i, π (σ i) = π i) ∧ x' = x ∘ ⇑σ ∧ y' = y ∘ ⇑σ := by

@@ -48,8 +48,7 @@ theorem isSemisimpleRepresentation_of_innerPreserving
   let q : Subrepresentation ρ :=
     { toSubmodule := p.toSubmoduleᗮ
       apply_mem_toSubmodule := by
-        intro g v hv
-        intro w hw
+        intro g v hv w hw
         rw [← Representation.self_inv_apply ρ g w, hunitary g]
         exact hv _ (p.apply_mem_toSubmodule g⁻¹ hw) }
   refine ⟨q, ?_⟩

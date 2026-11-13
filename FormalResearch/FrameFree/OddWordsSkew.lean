@@ -98,7 +98,7 @@ noncomputable def skewMatrixEquiv (g : ℕ) :
       · have : i = j := le_antisymm (not_lt.1 h') (not_lt.1 h)
         subst this
         have := hs i i
-        simp [h, h']; linarith
+        simp; linarith
   right_inv c := by
     ext p
     simp [p.2]

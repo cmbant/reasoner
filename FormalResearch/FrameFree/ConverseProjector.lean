@@ -77,7 +77,7 @@ theorem qf_re_proj_le {F Q : Matrix ι ι ℂ} (hF : F.PosSemidef) (hQ : Qᴴ = 
     have h1 : Q * F * Q = F * Q := by rw [hc, Matrix.mul_assoc, hQ2]
     rw [hQ, Matrix.conjTranspose_sub, Matrix.conjTranspose_one, hQ]
     have h2 : F * Q * Q = F * Q := by rw [Matrix.mul_assoc, hQ2]
-    simp only [Matrix.sub_mul, Matrix.mul_sub, Matrix.one_mul, Matrix.mul_one, h1, hc, h2]
+    simp only [Matrix.sub_mul, Matrix.mul_sub, Matrix.one_mul, Matrix.mul_one, hc, h2]
     abel
   have h0 := qf_re_nonneg (hF.conjTranspose_mul_mul_same (1 - Q)) a
   rw [← key, qf_sub_matrix, Complex.sub_re] at h0

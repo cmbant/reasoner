@@ -116,6 +116,7 @@ variable {ι κ ν : Type*} [Fintype ι] [DecidableEq ι] [Fintype κ] [Decidabl
 variable (W₀ : Matrix ι ι ℂ) (K : Matrix ν ι ℂ) (J : Matrix ι κ ℂ)
 
 
+omit [DecidableEq ι] [DecidableEq κ] in
 theorem star_J_mul (x : κ → ℂ) (A : Matrix ι ι ℂ) (y : κ → ℂ) :
     star x ⬝ᵥ (Jᴴ * A * J) *ᵥ y = star (J *ᵥ x) ⬝ᵥ A *ᵥ (J *ᵥ y) := by
   rw [star_mulVec, ← Matrix.mulVec_mulVec, ← Matrix.mulVec_mulVec, dotProduct_mulVec]
@@ -126,6 +127,7 @@ theorem normSqVec_J (hJ : Jᴴ * J = 1) (x : κ → ℂ) : normSqVec (J *ᵥ x) 
   rw [Matrix.mul_one, hJ, Matrix.one_mulVec, Matrix.one_mulVec] at this
   rw [this]
 
+omit [DecidableEq κ] in
 theorem norm_eq_sqrt_normSqVec (x : EuclideanSpace ℂ κ) : ‖x‖ = Real.sqrt (normSqVec x.ofLp) := by
   rw [normSqVec_eq_norm_sq, Real.sqrt_sq (norm_nonneg _)]
 
@@ -134,6 +136,7 @@ theorem inner_toEuclideanLin (A : Matrix κ κ ℂ) (x y : EuclideanSpace ℂ κ
   rw [EuclideanSpace.inner_eq_star_dotProduct, dotProduct_comm]
   rfl
 
+omit [DecidableEq ν] in
 /-- **`prop:ppt3-kernel-quant` (matrix form).**  `J` isometric (`Jᴴ J = 1`), `W₀` Hermitian with
 `|⟨p, W₀ q⟩| ≤ L ‖p‖‖q‖`, `W₀ ≥ α` on `{J u : K J u = 0}` (in the compressed sense), and
 `‖K J v‖² ≥ μ‖v‖²` for `v` orthogonal to `{u : K J u = 0}`.  Then for

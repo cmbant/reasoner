@@ -52,7 +52,7 @@ theorem Kstar_le_kfun {z : ℝ} (hz0 : 0 ≤ z) (hz1 : z ≤ 1) : Kstar z ≤ kf
     apply mul_nonneg (by linarith [hK.1]) (by positivity)
   nlinarith
 
-theorem Kstar_ge_k {z : ℝ} (hz0 : 0 ≤ z) (hz1 : z ≤ 1) : 5247 / 10000 ≤ Kstar z := by
+theorem Kstar_ge_k {z : ℝ} (hz0 : 0 ≤ z) (_hz1 : z ≤ 1) : 5247 / 10000 ≤ Kstar z := by
   unfold Kstar qS
   nlinarith [pow_nonneg hz0 2, pow_nonneg hz0 3]
 

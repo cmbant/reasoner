@@ -143,8 +143,8 @@ theorem nestedUpper_scaled_identity (r : Nat) :
         nestedColContribution, nestedSignContribution, nestedOuter,
         nestedSignS1, nestedSignT1, nestedSignS2, nestedSignT2,
         nestedSignS3, nestedSignT3, nestedSignS4, nestedSignT4,
-        nestedRowSign, nestedColSign] <;>
-      norm_num
+        nestedRowSign, nestedColSign]
+    norm_num
   · fin_cases i <;> fin_cases j <;>
       simp [nestedNormal, d4NestedNormal, d4FacetNormal,
         nestedRowContribution, nestedColContribution,

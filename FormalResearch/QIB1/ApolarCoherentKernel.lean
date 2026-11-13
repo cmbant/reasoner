@@ -86,7 +86,7 @@ theorem apolarFullR_mulVec_row {d : Nat} (v : Fin (d + 1) → ℝ)
       apolarColThree r ∈
         Finset.univ.filter (fun x : Fin (d + 1) => ¬x = apolarColOne r) := by
     simp [h31]
-  rw [Finset.sum_ite_eq', if_pos hmem]
+  rw [Finset.sum_ite_eq', ite_eq_left hmem]
   simp only [apolarColThree, Nat.cast_add, Nat.cast_ofNat]
   ring
 

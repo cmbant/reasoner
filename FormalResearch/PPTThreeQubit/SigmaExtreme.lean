@@ -37,12 +37,12 @@ theorem Bω_map : Bω.map φω = Bs (1 / 2) := by
   ext i a
   fin_cases i <;> fin_cases a <;>
     simp [Bω, Bs, bCols, uVec, vVec, wVec, eVec, oVec, φω_mk] <;>
-    first | rfl | (push_cast; linear_combination ω_sq_add_ω_add_one) |
-      (push_cast; linear_combination (-1 : ℂ) * ω_sq_add_ω_add_one) | (push_cast; ring)
+    first | linear_combination ω_sq_add_ω_add_one |
+      linear_combination (-1 : ℂ) * ω_sq_add_ω_add_one | ring
 
 theorem Xω_map : Xω.map φω = Xsigma := by
   ext i j
-  fin_cases i <;> fin_cases j <;> simp [Xω, Xsigma, surfXw, φω_mk] <;> norm_num
+  fin_cases i <;> fin_cases j <;> simp [Xω, Xsigma, surfXw] <;> norm_num
 
 /-! ### Solving the face system -/
 

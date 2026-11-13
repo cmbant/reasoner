@@ -120,14 +120,14 @@ theorem homogeneousComponent_eval_zero_of_smul (p : MvPolynomial N ℂ) (x : N �
     intro c
     have := h c
     rw [← sum_homogeneousComponent p, map_sum] at this
-    rw [hQ, Polynomial.eval_finset_sum]
+    rw [hQ, Polynomial.eval_finsetSum]
     simp only [hsm] at this
     rw [← this]
     refine Finset.sum_congr rfl fun i _ => ?_
     rw [Polynomial.eval_mul, Polynomial.eval_C, Polynomial.eval_pow, Polynomial.eval_X, mul_comm]
   have hQ0 : Q = 0 := Polynomial.funext fun c => by simp [hQe c]
   have hk := congrArg (fun q : Polynomial ℂ => q.coeff k) hQ0
-  simp only [hQ, Polynomial.finset_sum_coeff, Polynomial.coeff_C_mul_X_pow, Polynomial.coeff_zero] at hk
+  simp only [hQ, Polynomial.finsetSum_coeff, Polynomial.coeff_C_mul_X_pow, Polynomial.coeff_zero] at hk
   by_cases hkD : k ∈ Finset.range (D + 1)
   · simpa [hkD] using hk
   · have : D < k := by simpa [Finset.mem_range, not_lt, Nat.lt_succ_iff] using hkD
