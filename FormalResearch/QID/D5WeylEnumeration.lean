@@ -31,6 +31,12 @@ def supportUpperCheck : Bool :=
 theorem supportUpperCheck_passes : supportUpperCheck = true := by
   native_decide
 
+/-- Proposition-level form of `supportUpperCheck_passes`, checked directly (the `Decidable` instance
+is elaborated here, where `supportUpperCheck` is defined). -/
+theorem supportUpper_prop :
+    ∀ ps : SignedPerm5, ps ∈ allD5 → signedPermutationScore ps.1 ps.2 ≤ 5 := by
+  native_decide
+
 def supportWitnessSigns : Fin5 → Bool :=
   ![false, true, true, false, false]
 

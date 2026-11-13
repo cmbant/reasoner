@@ -8,6 +8,8 @@ module
 public import Interval.EulerMaclaurin.Bernoulli
 public import Interval.EulerMaclaurin.Formula
 public import Mathlib.Analysis.Real.Pi.Bounds
+-- PATCH (reasoner, Lean 4.35 / Mathlib v4.35.0): explicit import; `Real.summable_one_div_nat_pow` is no longer in the transitive imports above.
+public import Mathlib.Analysis.PSeries
 
 /-!
 # Bounds for the remainder of the Euler-Maclaurin formula
