@@ -275,6 +275,7 @@ public import FormalResearch.Racah.P2AnalyticL2Transmutation
 public import FormalResearch.Racah.P2AnalyticL2Singular
 public import FormalResearch.Racah.P2AnalyticNLO6j
 public import FormalResearch.Special
+public import FormalResearch.Asymptotics
 public import FormalResearch.Wigner
 public import FormalResearch.Bridges.B2BlaschkeWalshGauge
 public import FormalResearch.Bridges.B2BlaschkeGatePhase
