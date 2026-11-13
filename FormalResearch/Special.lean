@@ -10,6 +10,7 @@ public import FormalResearch.Special.JacobiOrthReal
 public import FormalResearch.Special.JacobiSpecial
 public import FormalResearch.Special.JacobiZeros
 public import FormalResearch.Special.JacobiCD
+public import FormalResearch.Special.GammaRatio
 
 /-!
 # Special functions: Jacobi polynomials
