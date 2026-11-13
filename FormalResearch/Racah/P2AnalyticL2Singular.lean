@@ -29,8 +29,7 @@ Notation (`α β D n : ℕ`, `n ≤ D`): `ν_H = t^α(1-t)^β/B dt` on `[0,1]` (
   (`= D^{\underline n}/(D+α+β+2)_n`, positive for `n ≤ D`, `singularSq_pos`), which with
   `singularSq_physical` is `eq:physicalsingularvalues`.
 
-Not formalised: the polar factor `U_D = T_D (T_D^* T_D)^{-1/2}` identification `U_D J_n = H_n`, the gauges
-`G_c`, `G_d` and `eq:SNpolar` `S_N = G_d U_D G_c^{-1}` (see the report), and the whitening formula.
+The polar factor `U_D`, the gauges `G_c`, `G_d`, `eq:SNpolar` and the whitening formula are in `P2AnalyticL2PolarAbs`, `P2AnalyticL2Polar`, `Polar2`, `Polar3`, `Polar4`.
 -/
 
 @[expose] public section

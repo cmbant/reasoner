@@ -275,6 +275,11 @@ public import FormalResearch.Racah.P2AnalyticLeading
 public import FormalResearch.Racah.P2AnalyticLeading6jChambers
 public import FormalResearch.Racah.P2AnalyticL2Transmutation
 public import FormalResearch.Racah.P2AnalyticL2Singular
+public import FormalResearch.Racah.P2AnalyticL2PolarAbs
+public import FormalResearch.Racah.P2AnalyticL2Polar
+public import FormalResearch.Racah.P2AnalyticL2Polar2
+public import FormalResearch.Racah.P2AnalyticL2Polar3
+public import FormalResearch.Racah.P2AnalyticL2Polar4
 public import FormalResearch.Racah.P2AnalyticNLO6j
 public import FormalResearch.Special
 public import FormalResearch.Asymptotics
