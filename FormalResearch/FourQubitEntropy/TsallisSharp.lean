@@ -27,17 +27,17 @@ theorem red12_cluster4 : red12 cluster4 = Matrix.diagonal (fun i : Fin 2 × Fin 
     if i = (0, 0) ∨ i = (1, 1) then (1 / 2 : ℂ) else 0) := by
   ext ⟨a, b⟩ ⟨a', b'⟩
   fin_cases a <;> fin_cases b <;> fin_cases a' <;> fin_cases b' <;>
-    simp [red12, cluster4, Fin.sum_univ_two, Matrix.diagonal_apply, map_ofNat, map_neg, map_div₀, map_one] <;> norm_num
+    simp [red12, cluster4, Fin.sum_univ_two, map_ofNat, map_neg, map_div₀, map_one] <;> norm_num
 
 theorem red13_cluster4 : red13 cluster4 = (1 / 4 : ℂ) • (1 : Mat4) := by
   ext ⟨a, c⟩ ⟨a', c'⟩
   fin_cases a <;> fin_cases c <;> fin_cases a' <;> fin_cases c' <;>
-    simp [red13, cluster4, Fin.sum_univ_two, Matrix.one_apply, map_ofNat, map_neg, map_div₀, map_one] <;> norm_num
+    simp [red13, cluster4, Fin.sum_univ_two, map_ofNat, map_neg, map_div₀, map_one] <;> norm_num
 
 theorem red14_cluster4 : red14 cluster4 = (1 / 4 : ℂ) • (1 : Mat4) := by
   ext ⟨a, d⟩ ⟨a', d'⟩
   fin_cases a <;> fin_cases d <;> fin_cases a' <;> fin_cases d' <;>
-    simp [red14, cluster4, Fin.sum_univ_two, Matrix.one_apply, map_ofNat, map_neg, map_div₀, map_one] <;> norm_num
+    simp [red14, cluster4, Fin.sum_univ_two, map_ofNat, map_neg, map_div₀, map_one] <;> norm_num
 
 /-! ### Cut moments of the cluster state -/
 
@@ -76,8 +76,8 @@ theorem cutMoment_cluster12 {q : ℝ} (h0 : 0 < q) :
     rw [red12_cluster4]
     ext i j
     fin_cases i <;> fin_cases j <;>
-      simp [Matrix.mul_apply, Fintype.sum_prod_type, Fin.sum_univ_two, Matrix.diagonal_apply,
-        Matrix.one_apply] <;> norm_num
+      simp [Matrix.mul_apply, Matrix.diagonal_apply,
+        Matrix.one_apply]
   have htr : (Matrix.trace (red12 cluster4)).re = 1 := by
     rw [trace_red12, cluster4_vals.1]; simp
   have hf : ∀ i, (red12_herm cluster4).eigenvalues i ^ q

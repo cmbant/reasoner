@@ -40,7 +40,7 @@ theorem rpow_div_le {a c : ℝ} (ha : 0 ≤ a) (hc : 0 ≤ c) (k n : ℕ) (hn : 
       Real.rpow_natCast]
   exact le_of_pow_le_pow_left₀ hn hc (by rw [h1]; exact h)
 
-theorem le_rpow_div {a c : ℝ} (ha : 0 ≤ a) (hc : 0 ≤ c) (k n : ℕ) (hn : n ≠ 0)
+theorem le_rpow_div {a c : ℝ} (ha : 0 ≤ a) (_hc : 0 ≤ c) (k n : ℕ) (hn : n ≠ 0)
     (h : c ^ n ≤ a ^ k) : c ≤ a ^ ((k : ℝ) / n) := by
   have h1 : (a ^ ((k : ℝ) / n)) ^ n = a ^ k := by
     rw [← Real.rpow_natCast, ← Real.rpow_mul ha, div_mul_cancel₀ _ (by exact_mod_cast hn),
@@ -82,13 +82,12 @@ theorem meanEntropy_cluster4 : meanEntropy cluster4 = 5 / 3 := by
     rw [hR]
     ext i j
     fin_cases i <;> fin_cases j <;>
-      simp [Matrix.mul_apply, Matrix.diagonal_apply, Matrix.one_apply, Fintype.sum_prod_type,
-        Fin.sum_univ_two] <;> norm_num
+      simp [Matrix.mul_apply, Matrix.diagonal_apply, Matrix.one_apply]
   have htr : (Matrix.trace (red12 cluster4)).re = 1 := by
     rw [trace_red12, cluster4_vals.1]; simp
   have htr2 : (Matrix.trace (red12 cluster4 * red12 cluster4)).re = (1 / 2 : ℝ) ^ 2 + (1 / 2 : ℝ) ^ 2 := by
     rw [hR]
-    simp [Matrix.trace, Matrix.mul_apply, Matrix.diagonal_apply, Fintype.sum_prod_type,
+    simp [Matrix.trace, Fintype.sum_prod_type,
       Fin.sum_univ_two]
     norm_num
   have h12 := cutSum_rank_two (red12_herm cluster4) (by norm_num) (by norm_num) (by norm_num) hcub htr
@@ -149,7 +148,7 @@ theorem hsRenyi_strictAntiOn : StrictAntiOn hsRenyi (Set.Ioi 1) := by
   intro q hq q' hq' hlt
   rw [hsRenyi_eq, hsRenyi_eq]
   refine renyiSpec_strictAnti hq hlt ?_ ?_ ⟨0, 1, by simp [hsSpec]⟩
-  · intro i; fin_cases i <;> simp [hsSpec] <;> norm_num
+  · intro i; fin_cases i <;> simp [hsSpec]
   · simp [hsSpec, Fin.sum_univ_four]; norm_num
 
 /-- The mean Rényi entropy of `M₄` is `h_q` (every order). -/

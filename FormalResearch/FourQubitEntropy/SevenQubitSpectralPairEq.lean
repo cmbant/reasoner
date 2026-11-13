@@ -63,7 +63,7 @@ theorem projP_herm : (projP g).IsHermitian := by
 theorem rhoR_herm (r : ℝ) : (rhoR r g).IsHermitian := by
   ext a b
   simp only [rhoR, Matrix.conjTranspose_apply, Matrix.add_apply, Matrix.smul_apply, Matrix.one_apply,
-    projP, Matrix.of_apply, star_add, star_mul', Complex.star_def, Complex.conj_ofReal, map_mul,
+    projP, Matrix.of_apply, star_add, star_mul', Complex.star_def, Complex.conj_ofReal,
     Complex.conj_conj, smul_eq_mul]
   by_cases h : a = b
   · subst h; simp [mul_comm]
@@ -153,7 +153,7 @@ theorem spinFlip_rhoR (r : ℝ) :
     spinFlip3 (rhoR r g) = (((1 - r) / 8 : ℝ) : ℂ) • (1 : Mat3) + (r : ℂ) • spinFlip3 (projP g) := by
   unfold rhoR spinFlip3
   simp only [Matrix.transpose_add, Matrix.transpose_smul, Matrix.transpose_one, mul_add, add_mul,
-    Matrix.mul_smul, Matrix.smul_mul, Matrix.mul_one, Matrix.one_mul, Y3_mul_Y3]
+    Matrix.mul_smul, Matrix.smul_mul, Matrix.mul_one, Y3_mul_Y3]
 
 theorem rhoR_flip_trace (hg : IsUnit3 g) (r : ℝ) :
     (rhoR r g * spinFlip3 (rhoR r g)).trace = (((1 - r ^ 2) / 8 : ℝ) : ℂ) := by
@@ -280,7 +280,7 @@ theorem rhoR_v3 (hg : IsUnit3 g) (r : ℝ) (hr : 0 ≤ r) :
     rw [e] at h
     exact h
   have hanti : Antitone (lam3 (rhoR r g) hρ) := fun i j hij =>
-    hρ.eigenvalues₀_antitone (Fin.le_def.2 (by simpa [Fin.coe_cast] using Fin.le_def.1 hij))
+    hρ.eigenvalues₀_antitone (Fin.le_def.2 (by simpa [Fin.val_cast] using Fin.le_def.1 hij))
   have hshape : lam3 (rhoR r g) hρ 0 = c + r ∧ ∀ i, i ≠ 0 → lam3 (rhoR r g) hρ i = c := by
     rcases hr.eq_or_lt with h | h
     · subst h

@@ -30,7 +30,7 @@ namespace FormalResearch.FourQubitEntropy
 noncomputable def Hval (ψ : Psi) : ℝ := 4 * sexticF ψ - 3 * (normSqPsi ψ * blochSq ψ)
 
 theorem H4gen_conj (ψ : Psi) : H4gen ψ ψ.conj = (Hval ψ : ℂ) := by
-  simp only [H4gen, toAdd_complex, toMul_complex, toSub_complex, lit_complex, Fgen_eq, normG_eq,
+  simp only [H4gen, toMul_complex, toSub_complex, lit_complex, Fgen_eq, normG_eq,
     W1gen_eq, Hval]
   push_cast
   ring
@@ -71,7 +71,7 @@ theorem hasDerivAt_Hval_pencil (x : Psi) :
   refine h''.congr_of_eventuallyEq (Filter.Eventually.of_forall fun s => ?_)
   have e1 : (fun a b c d => x a b c d + (s : ℂ) * ztilS x.conj a b c d) = x + s • spinFlipPsi x := by
     funext a b c d
-    simp [spinFlipPsi, ztilS, mul_comm]
+    simp [spinFlipPsi, ztilS]
   have e2 := pencil_conj x s
   beta_reduce
   rw [e1, e2, H4gen_conj, Complex.ofReal_re]
@@ -94,9 +94,9 @@ theorem flipGradient (x : Psi) :
       ((64 * normSqPsi x ^ 2 + 56 * blochSq x - 64 * Complex.normSq (spinFlipForm x) : ℝ) : ℂ) := by
     rw [← hS]; rfl
   rw [hR]
-  simp only [Complex.re_ofReal_mul, Complex.mul_re, Complex.add_re, Complex.conj_re, Complex.add_im,
+  simp only [Complex.mul_re, Complex.add_re, Complex.conj_re, Complex.add_im,
     Complex.mul_im, Complex.conj_im, Complex.inv_re, Complex.ofReal_re, Complex.ofReal_im,
-    Complex.re_ofNat, Complex.im_ofNat]
+    Complex.re_ofNat]
   norm_num
   ring
 

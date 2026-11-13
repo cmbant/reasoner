@@ -158,7 +158,7 @@ theorem x_le_ylB {x : ℝ} (h0 : 0 ≤ x) (h1 : x ≤ 3 / 5) :
   rw [le_div_iff₀ hD]
   nlinarith [mul_nonneg (mul_nonneg h0 (by linarith : (0 : ℝ) ≤ 1 - x)) (by linarith : (0 : ℝ) ≤ 1 + x)]
 
-theorem yh_le_one {x : ℝ} (h0 : 0 ≤ x) (h1 : x ≤ 3 / 5) :
+theorem yh_le_one {x : ℝ} (h0 : 0 ≤ x) (_h1 : x ≤ 3 / 5) :
     ((1 + x) ^ 2 - (1 - x) ^ 2 / 2) / ((1 + x) ^ 2 + (1 - x) ^ 2 / 2) ≤ 1 := by
   have hD : 0 < (1 + x) ^ 2 + (1 - x) ^ 2 / 2 := by nlinarith
   rw [div_le_one hD]
@@ -196,7 +196,7 @@ theorem lhJ_bound_B {K a : ℝ} (ha : 1 / 2 ≤ a) (ha' : a ≤ 4 / 5) (hK : 1 /
 
 
 /-- `h_aaaa < M` from the bound on `J`. -/
-theorem hd4_lt_of_J {K a M : ℝ} (ha : 1 / 2 ≤ a) (ha' : a ≤ 4 / 5) (hK : 0 < K)
+theorem hd4_lt_of_J {K a M : ℝ} (ha : 1 / 2 ≤ a) (ha' : a ≤ 4 / 5) (_hK : 0 < K)
     (hJ : lhJ qS (2 * a - 1) (lhY qS K a) ≤ lhBd M (2 * a - 1)) (hM : 0 < M) : hd4 qS K a < M := by
   have h0 : 0 ≤ 2 * a - 1 := by linarith
   have h1 : 2 * a - 1 ≤ 3 / 5 := by linarith

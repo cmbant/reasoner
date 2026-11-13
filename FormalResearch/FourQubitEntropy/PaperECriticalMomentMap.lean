@@ -109,7 +109,7 @@ theorem L_x1 : magicBᴴ * kron pauliX 1 * magicB = Complex.I • A_x1.map Compl
   simp [Matrix.mul_apply, Matrix.conjTranspose_apply, magicB, kron, pauliX, A_x1, Eu,
     Matrix.kroneckerMap_apply, Fintype.sum_prod_type, Fin.sum_univ_two, rt_conj, Matrix.one_apply] <;>
   first | ring_nf | skip
-  all_goals (try simp only [Complex.I_sq, hI3, hrt2])
+  all_goals (try simp only [hrt2])
   all_goals (try ring_nf)
 
 /-- `Bᴴ (1 σX) B` is `i` times a real antisymmetric matrix. -/
@@ -126,7 +126,7 @@ theorem L_x2 : magicBᴴ * kron 1 pauliX * magicB = Complex.I • A_x2.map Compl
   simp [Matrix.mul_apply, Matrix.conjTranspose_apply, magicB, kron, pauliX, A_x2, Eu,
     Matrix.kroneckerMap_apply, Fintype.sum_prod_type, Fin.sum_univ_two, rt_conj, Matrix.one_apply] <;>
   first | ring_nf | skip
-  all_goals (try simp only [Complex.I_sq, hI3, hrt2])
+  all_goals (try simp only [hrt2])
   all_goals (try ring_nf)
 
 /-- `Bᴴ (σY 1) B` is `i` times a real antisymmetric matrix. -/
@@ -143,7 +143,7 @@ theorem L_y1 : magicBᴴ * kron pauliY 1 * magicB = Complex.I • A_y1.map Compl
   simp [Matrix.mul_apply, Matrix.conjTranspose_apply, magicB, kron, pauliY, A_y1, Eu,
     Matrix.kroneckerMap_apply, Fintype.sum_prod_type, Fin.sum_univ_two, rt_conj, Matrix.one_apply] <;>
   first | ring_nf | skip
-  all_goals (try simp only [Complex.I_sq, hI3, hrt2])
+  all_goals (try simp only [hI3, hrt2])
   all_goals (try ring_nf)
 
 /-- `Bᴴ (1 σY) B` is `i` times a real antisymmetric matrix. -/
@@ -160,7 +160,7 @@ theorem L_y2 : magicBᴴ * kron 1 pauliY * magicB = Complex.I • A_y2.map Compl
   simp [Matrix.mul_apply, Matrix.conjTranspose_apply, magicB, kron, pauliY, A_y2, Eu,
     Matrix.kroneckerMap_apply, Fintype.sum_prod_type, Fin.sum_univ_two, rt_conj, Matrix.one_apply] <;>
   first | ring_nf | skip
-  all_goals (try simp only [Complex.I_sq, hI3, hrt2])
+  all_goals (try simp only [hI3, hrt2])
   all_goals (try ring_nf)
 
 /-- `Bᴴ (σZ 1) B` is `i` times a real antisymmetric matrix. -/
@@ -177,7 +177,7 @@ theorem L_z1 : magicBᴴ * kron pauliZ 1 * magicB = Complex.I • A_z1.map Compl
   simp [Matrix.mul_apply, Matrix.conjTranspose_apply, magicB, kron, pauliZ, A_z1, Eu,
     Matrix.kroneckerMap_apply, Fintype.sum_prod_type, Fin.sum_univ_two, rt_conj, Matrix.one_apply] <;>
   first | ring_nf | skip
-  all_goals (try simp only [Complex.I_sq, hI3, hrt2])
+  all_goals (try simp only [hrt2])
   all_goals (try ring_nf)
 
 /-- `Bᴴ (1 σZ) B` is `i` times a real antisymmetric matrix. -/
@@ -194,7 +194,7 @@ theorem L_z2 : magicBᴴ * kron 1 pauliZ * magicB = Complex.I • A_z2.map Compl
   simp [Matrix.mul_apply, Matrix.conjTranspose_apply, magicB, kron, pauliZ, A_z2, Eu,
     Matrix.kroneckerMap_apply, Fintype.sum_prod_type, Fin.sum_univ_two, rt_conj, Matrix.one_apply] <;>
   first | ring_nf | skip
-  all_goals (try simp only [Complex.I_sq, hI3, hrt2])
+  all_goals (try simp only [hrt2])
   all_goals (try ring_nf)
 
 end FormalResearch.FourQubitEntropy.PaperECritical

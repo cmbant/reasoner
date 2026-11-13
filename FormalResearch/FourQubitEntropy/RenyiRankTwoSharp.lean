@@ -130,13 +130,13 @@ theorem red13_quadFam (x y : ℝ) :
     red13 (quadFam x y) = ((((x ^ 2 + y ^ 2) / 4 : ℝ)) : ℂ) • (1 : Mat4) := by
   ext ⟨a, c⟩ ⟨a', c'⟩
   fin_cases a <;> fin_cases c <;> fin_cases a' <;> fin_cases c' <;>
-    simp [red13, quadFam, Fin.sum_univ_two, Matrix.one_apply, map_ofNat, map_neg, map_div₀] <;> (try ring_nf) <;> (try simp) <;> (try ring)
+    simp [red13, quadFam, Fin.sum_univ_two, map_ofNat, map_neg, map_div₀] <;> (try ring_nf) <;> (try simp) <;> (try ring)
 
 theorem red14_quadFam (x y : ℝ) :
     red14 (quadFam x y) = ((((x ^ 2 + y ^ 2) / 4 : ℝ)) : ℂ) • (1 : Mat4) := by
   ext ⟨a, d⟩ ⟨a', d'⟩
   fin_cases a <;> fin_cases d <;> fin_cases a' <;> fin_cases d' <;>
-    simp [red14, quadFam, Fin.sum_univ_two, Matrix.one_apply, map_ofNat, map_neg, map_div₀] <;> (try ring_nf) <;> (try simp) <;> (try ring)
+    simp [red14, quadFam, Fin.sum_univ_two, map_ofNat, map_neg, map_div₀] <;> (try ring_nf) <;> (try simp) <;> (try ring)
 
 theorem red12_quadFam_cubic (x y : ℝ) :
     red12 (quadFam x y) * (red12 (quadFam x y) - ((x ^ 2 : ℝ) : ℂ) • 1)
@@ -145,7 +145,7 @@ theorem red12_quadFam_cubic (x y : ℝ) :
   ext ⟨a, b⟩ ⟨a', b'⟩
   fin_cases a <;> fin_cases b <;> fin_cases a' <;> fin_cases b' <;>
     simp [Matrix.mul_apply, Matrix.sub_apply, Matrix.smul_apply, Matrix.one_apply,
-      Fintype.sum_prod_type, Fin.sum_univ_two] <;> (try ring_nf) <;> (try simp) <;> (try ring)
+      Fintype.sum_prod_type, Fin.sum_univ_two] <;> (try ring_nf)
 
 theorem trace_red12_quadFam (x y : ℝ) : Matrix.trace (red12 (quadFam x y)) = ((x ^ 2 + y ^ 2 : ℝ) : ℂ) := by
   rw [trace_red12, normSqPsi_quadFam]

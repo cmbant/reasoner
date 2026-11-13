@@ -28,7 +28,7 @@ open FormalResearch.FourQubitEntropy
 
 /-- The last step of the pair charts: `h(u) ≤ 4u(1-u) - (11/10) d (1/4 - d)` with `d = u - u² - v/2`. -/
 theorem cc_final_ineq {u v : ℝ} (hu1 : 3 / 100 ≤ u) (hu2 : u ≤ 4 / 15) (hv0 : 0 ≤ v)
-    (hd1 : 3 / 100 ≤ u - u ^ 2 - v / 2) (hd2 : u - u ^ 2 - v / 2 ≤ 2 / 25) :
+    (_hd1 : 3 / 100 ≤ u - u ^ 2 - v / 2) (hd2 : u - u ^ 2 - v / 2 ≤ 2 / 25) :
     binH qBQ u ≤ 4 * u * (1 - u) - 11 / 10 * ((u - u ^ 2 - v / 2) * (1 / 4 - (u - u ^ 2 - v / 2))) := by
   set d := u - u ^ 2 - v / 2 with hd
   have hd0 : d ≤ u * (1 - u) := by rw [hd]; nlinarith
@@ -59,7 +59,7 @@ noncomputable def ccTarget (p t : ℝ) : ℝ :=
   10 / 3 - 6 * p + 8 / 3 * t - 11 / 10 * (p - 1 / 4) * (1 / 2 - p)
 
 /-- Pair chart `S`. -/
-theorem cc_pairS {u δ : ℝ} (hu0 : 0 ≤ u) (hδ0 : 0 ≤ δ) (hδ2 : δ ≤ 1 - 2 * u)
+theorem cc_pairS {u δ : ℝ} (_hu0 : 0 ≤ u) (hδ0 : 0 ≤ δ) (hδ2 : δ ≤ 1 - 2 * u)
     (hp1 : 21 / 50 ≤ slp u (δ ^ 2)) (hp2 : slp u (δ ^ 2) ≤ 47 / 100) :
     renyiSpec qS (muS u δ) ≤ ccTarget (slp u (δ ^ 2)) (slt (1 - u) u (δ ^ 2)) := by
   unfold slp at hp1 hp2

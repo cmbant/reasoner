@@ -105,7 +105,7 @@ theorem zmat_M4 : zmat M4 = magicB * Xtarget (Complex.I * rt) * magicBᵀ := by
   ext ⟨i1, i2⟩ ⟨j1, j2⟩
   fin_cases i1 <;> fin_cases i2 <;> fin_cases j1 <;> fin_cases j2 <;>
   simp [zmat, M4_apply, Xtarget, Pm_apply, sing, magicB, Matrix.mul_apply, Matrix.transpose_apply,
-    Fintype.sum_prod_type, Fin.sum_univ_two, omega_eq, omega_conj_eq, map_ofNat]
+    Fintype.sum_prod_type, Fin.sum_univ_two, omega_eq, map_ofNat]
   all_goals (try ring_nf)
   all_goals (try simp only [Complex.I_sq, hrt2])
   all_goals (try ring_nf)
@@ -133,7 +133,7 @@ theorem zmat_M4_conj : zmat (Psi.conj M4) = magicB * Xtarget (-(Complex.I * rt))
   ext ⟨i1, i2⟩ ⟨j1, j2⟩
   fin_cases i1 <;> fin_cases i2 <;> fin_cases j1 <;> fin_cases j2 <;>
   simp [zmat, M4_conj_apply, Xtarget, Pm_apply, sing, magicB, Matrix.mul_apply, Matrix.transpose_apply,
-    Fintype.sum_prod_type, Fin.sum_univ_two, omega_eq, omega_conj_eq, map_ofNat]
+    Fintype.sum_prod_type, Fin.sum_univ_two, omega_eq, map_ofNat]
   all_goals (try ring_nf)
   all_goals (try simp only [Complex.I_sq, hrt2])
   all_goals (try ring_nf)

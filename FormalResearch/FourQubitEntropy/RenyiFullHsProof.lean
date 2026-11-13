@@ -44,7 +44,7 @@ theorem isHsPerm_of_pattern {l : Fin 4 → ℝ} (i : Fin 4) (h0 : l i = 1 / 2)
     rw [h1 k hk, hsSpec_ne_zero hne]
 
 theorem hsSpec_nonneg (i : Fin 4) : 0 ≤ hsSpec i := by
-  fin_cases i <;> simp [hsSpec] <;> norm_num
+  fin_cases i <;> simp [hsSpec]
 
 theorem hsSpec_sum : ∑ i, hsSpec i = 1 := by
   simp [hsSpec, Fin.sum_univ_four]; norm_num
@@ -108,7 +108,7 @@ theorem exists_x_of_oneLarge {a b : ℝ} (hb : 0 < b) (hab : b ≤ a) (hs : a + 
   funext i
   unfold olv
   rw [hx5, hden]
-  fin_cases i <;> simp <;> field_simp
+  fin_cases i <;> simp ; field_simp
 
 /-- **`lem:fqe-hs-polynomial`**: `HsSupporting`, proved. -/
 theorem hsSupporting : HsSupporting := by

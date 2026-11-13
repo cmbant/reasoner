@@ -82,13 +82,13 @@ theorem X3_orth {p q : ℝ} (h : p ^ 2 + q ^ 2 = 1) : X3 p q * (X3 p q)ᵀ = 1 �
   constructor <;>
   · ext i j
     fin_cases i <;> fin_cases j <;>
-    simp [X3, Matrix.mul_apply, Fin.sum_univ_three, Matrix.one_apply] <;> nlinarith
+    simp [X3, Matrix.mul_apply, Fin.sum_univ_three] <;> nlinarith
 
 theorem Y3_orth {p q : ℝ} (h : p ^ 2 + q ^ 2 = 1) : Y3 p q * (Y3 p q)ᵀ = 1 ∧ (Y3 p q)ᵀ * Y3 p q = 1 := by
   constructor <;>
   · ext i j
     fin_cases i <;> fin_cases j <;>
-    simp [Y3, Matrix.mul_apply, Fin.sum_univ_three, Matrix.one_apply] <;> nlinarith
+    simp [Y3, Matrix.mul_apply, Fin.sum_univ_three] <;> nlinarith
 
 theorem orth_mul {A B : Matrix (Fin 3) (Fin 3) ℝ} (hA : A * Aᵀ = 1 ∧ Aᵀ * A = 1)
     (hB : B * Bᵀ = 1 ∧ Bᵀ * B = 1) : (A * B) * (A * B)ᵀ = 1 ∧ (A * B)ᵀ * (A * B) = 1 := by
@@ -116,7 +116,7 @@ theorem euler3 (Q : Matrix (Fin 3) (Fin 3) ℝ) (h1 : Q * Qᵀ = 1) (h2 : Qᵀ *
       (Y3 p3 q3 * X3 p2 q2 * Y3 p1 q1 * Q = 1 ∨ Y3 p3 q3 * X3 p2 q2 * Y3 p1 q1 * Q = F3) := by
   have hc0 : Q 0 0 ^ 2 + Q 1 0 ^ 2 + Q 2 0 ^ 2 = 1 := by
     have := congrFun (congrFun h2 0) 0
-    simp [Matrix.mul_apply, Fin.sum_univ_three, Matrix.one_apply] at this
+    simp [Matrix.mul_apply, Fin.sum_univ_three] at this
     nlinarith
   obtain ⟨p1, q1, r1, hn1, hr1, e1, e1', hr1sq⟩ := polar_pair (Q 1 0) (Q 2 0)
   obtain ⟨p2, q2, ρ, hn2, hρ, e2, e2', hρsq⟩ := polar_pair (Q 0 0) r1
@@ -194,8 +194,8 @@ theorem euler3 (Q : Matrix (Fin 3) (Fin 3) ℝ) (h1 : Q * Qᵀ = 1) (h2 : Qᵀ *
     ext a b
     rw [hent]
     fin_cases a <;> fin_cases b <;>
-    simp [hrow0, hcol0, Matrix.one_apply, hQ21, hQ22, hQ31, hQ32, hh1, hi1] <;>
-    first | linarith | nlinarith only [hef]
+    simp [hrow0, hcol0, hQ21, hQ22, hQ31, hQ32, hh1, hi1] <;>
+    linarith
   · have hh1 : h = f := by rw [hl] at hh'; linarith
     have hi1 : i = -e := by rw [hl] at hi'; linarith
     refine ⟨e, f, hn1, hn2, by linear_combination hef, Or.inr ?_⟩
@@ -204,6 +204,6 @@ theorem euler3 (Q : Matrix (Fin 3) (Fin 3) ℝ) (h1 : Q * Qᵀ = 1) (h2 : Qᵀ *
     rw [hent]
     fin_cases a <;> fin_cases b <;>
     simp [hrow0, hcol0, F3, hQ21, hQ22, hQ31, hQ32, hh1, hi1] <;>
-    first | linarith | nlinarith only [hef]
+    linarith
 
 end FormalResearch.FourQubitEntropy

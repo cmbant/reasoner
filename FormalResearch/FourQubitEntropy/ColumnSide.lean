@@ -43,7 +43,7 @@ theorem quadratic_gram {Z : Mat4}
     have e : (A - (1 / 6 : ℂ) • 1) * (A - (1 / 2 : ℂ) • 1)
         = A * A - (2 / 3 : ℂ) • A + (1 / 12 : ℂ) • 1 := by
       simp only [Matrix.sub_mul, Matrix.mul_sub, Matrix.smul_mul, Matrix.mul_smul, Matrix.mul_one,
-        Matrix.one_mul, smul_smul]
+        Matrix.one_mul]
       module
     rw [e] at hq
     calc A * A = (A * A - (2 / 3 : ℂ) • A + (1 / 12 : ℂ) • 1) + ((2 / 3 : ℂ) • A - (1 / 12 : ℂ) • 1) := by
@@ -73,11 +73,11 @@ theorem quadratic_gram {Z : Mat4}
       rw [hBdef, hA]; simp only [Matrix.mul_assoc]
     rw [this, hA2]
     simp only [Matrix.mul_sub, Matrix.sub_mul, Matrix.mul_smul, Matrix.smul_mul, Matrix.mul_one,
-      Matrix.one_mul, hBdef, hA, Matrix.mul_assoc]
+      hBdef, hA, Matrix.mul_assoc]
   have e : (B - (1 / 6 : ℂ) • 1) * (B - (1 / 2 : ℂ) • 1)
       = B * B - (2 / 3 : ℂ) • B + (1 / 12 : ℂ) • 1 := by
     simp only [Matrix.sub_mul, Matrix.mul_sub, Matrix.smul_mul, Matrix.mul_smul, Matrix.mul_one,
-      Matrix.one_mul, smul_smul]
+      Matrix.one_mul]
     module
   rw [e]
   have hq0 : B * (B * B - (2 / 3 : ℂ) • B + (1 / 12 : ℂ) • 1) = 0 := by

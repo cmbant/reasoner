@@ -26,7 +26,7 @@ theorem sv_apply (a b : Fin 2) : sv (a, b) = rt * eps2 a b := by
   fin_cases a <;> fin_cases b <;> simp [sv, magicB, sing, eps2]
 
 theorem eps2_mul_transpose : eps2 * eps2ᵀ = 1 := by
-  ext i j; fin_cases i <;> fin_cases j <;> simp [eps2, Matrix.mul_apply, Fin.sum_univ_two, Matrix.one_apply]
+  ext i j; fin_cases i <;> fin_cases j <;> simp [eps2, Matrix.mul_apply, Fin.sum_univ_two]
 
 theorem eps2_transpose_conj : (eps2ᵀ)ᴴ = eps2 := by
   ext i j; fin_cases i <;> fin_cases j <;> simp [eps2, Matrix.conjTranspose_apply]
@@ -50,7 +50,7 @@ theorem normalize_rows (φ : Psi)
     have := hmarg a a'
     simp only [hRu, Fin.sum_univ_two] at this
     simp only [hU, Matrix.mul_apply, Matrix.conjTranspose_apply, Matrix.of_apply, Fin.sum_univ_two,
-      Matrix.smul_apply, Matrix.one_apply, Matrix.star_eq_conjTranspose]
+      Matrix.smul_apply, Matrix.one_apply]
     by_cases h : a = a'
     · subst h; simp at this ⊢; linear_combination 3 * this
     · simp [h] at this ⊢; linear_combination 3 * this

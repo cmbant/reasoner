@@ -70,10 +70,10 @@ theorem cubNatT_eq_cubR (pN : ℕ → Prop) [DecidablePred pN] (f g h : ℕ → 
     unfold cubNatT
     refine Finset.sum_congr rfl fun M _ => ?_
     by_cases h : pN M
-    · rw [if_pos h]
+    · rw [ite_eq_left h]
       refine Finset.sum_congr rfl fun D _ => ?_
       by_cases h' : D &&& M = D
-      · rw [if_pos h']
+      · rw [ite_eq_left h']
         refine Finset.sum_congr rfl fun E _ => ?_
         by_cases h'' : E &&& M = 0
         · simp [h, h', h'']

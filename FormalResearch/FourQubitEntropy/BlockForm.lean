@@ -31,7 +31,7 @@ theorem Pm_apply (j k : Fin 2 × Fin 2) : Pm j k = if j = sing ∧ k = sing then
   unfold Pm
   by_cases hjk : j = k
   · subst hjk; simp
-  · simp [Matrix.diagonal_apply, hjk]
+  · simp [hjk]
     intro h1 h2; exact hjk (h1.trans h2.symm)
 
 theorem Pm_mul_apply (X : Mat4) (j k : Fin 2 × Fin 2) :
@@ -60,7 +60,7 @@ theorem block_zero {j k : Fin 2 × Fin 2} (hjk : (j = sing) ≠ (k = sing)) : X 
   simp only [Dm, Matrix.mul_diagonal, Matrix.diagonal_mul] at h
   have hd : dvec k - dvec j ≠ 0 := by
     unfold dvec
-    by_cases hj : j = sing <;> by_cases hk : k = sing <;> simp [hj, hk] at hjk ⊢ <;> norm_num
+    by_cases hj : j = sing <;> by_cases hk : k = sing <;> simp [hj, hk] at hjk ⊢
   have : X j k * (dvec k - dvec j) = 0 := by linear_combination h
   exact (mul_eq_zero.mp this).resolve_right hd
 
@@ -122,13 +122,13 @@ theorem diag_of_trace (S : Mat4) (hS : S * Sᴴ = 1 - Pm) (lam : ℂ)
   have le1 : ∀ j, j ≠ sing → Complex.normSq (S j j) ≤ 1 := by
     intro j hj
     have := hrow j
-    rw [if_neg hj] at this
+    rw [ite_eq_right hj] at this
     rw [← this]
     exact Finset.single_le_sum (f := fun k => Complex.normSq (S j k))
       (fun k _ => Complex.normSq_nonneg _) (Finset.mem_univ j)
   have hss : S sing sing = 0 := by
     have := hrow sing
-    rw [if_pos rfl] at this
+    rw [ite_eq_left rfl] at this
     have h0 : Complex.normSq (S sing sing) = 0 := by
       have := (Finset.sum_eq_zero_iff_of_nonneg (fun k _ => Complex.normSq_nonneg (S sing k))).1
         this sing (Finset.mem_univ _)
@@ -137,7 +137,7 @@ theorem diag_of_trace (S : Mat4) (hS : S * Sᴴ = 1 - Pm) (lam : ℂ)
   have hrow0 : ∀ k, S sing k = 0 := by
     intro k
     have := hrow sing
-    rw [if_pos rfl] at this
+    rw [ite_eq_left rfl] at this
     have := (Finset.sum_eq_zero_iff_of_nonneg (fun k _ => Complex.normSq_nonneg (S sing k))).1
       this k (Finset.mem_univ _)
     exact Complex.normSq_eq_zero.1 this
@@ -160,7 +160,7 @@ theorem diag_of_trace (S : Mat4) (hS : S * Sᴴ = 1 - Pm) (lam : ℂ)
     have hs : S (1, 0) (1, 0) = 0 := hss
     rw [hs] at h2
     have := congrArg Complex.re h2
-    simp only [mul_add, Complex.add_re, add_zero, mul_zero, Complex.zero_re] at this
+    simp only [mul_add, Complex.add_re, add_zero] at this
     simpa using this
   have k0 := key (0, 0) (by simp [sing])
   have k1 := key (0, 1) (by simp [sing])
@@ -187,7 +187,7 @@ theorem diag_of_trace (S : Mat4) (hS : S * Sᴴ = 1 - Pm) (lam : ℂ)
   have off : ∀ j k, j ≠ sing → k ≠ j → S j k = 0 := by
     intro j k hj hkj
     have h1 := hrow j
-    rw [if_neg hj] at h1
+    rw [ite_eq_right hj] at h1
     have hd : Complex.normSq (S j j) = 1 := by rw [diag j hj, hl]
     have h2 : ∑ k', Complex.normSq (S j k') = Complex.normSq (S j j) +
         ∑ k' ∈ Finset.univ.erase j, Complex.normSq (S j k') :=
@@ -225,10 +225,10 @@ theorem Dm_eq : Dm = (1 / 2 : ℂ) • Pm + (1 / 6 : ℂ) • (1 - Pm) := by
   by_cases hjk : j = k
   · subst hjk
     by_cases hj : j = sing
-    · simp [Dm, dvec, Pm_apply, Matrix.one_apply, hj]; norm_num
-    · simp [Dm, dvec, Pm_apply, Matrix.one_apply, hj]
+    · simp [Dm, dvec, Pm_apply, hj]; norm_num
+    · simp [Dm, dvec, Pm_apply, hj]
   · have h' : ¬(j = sing ∧ k = sing) := fun ⟨a, b⟩ => hjk (a.trans b.symm)
-    simp [Dm, dvec, Matrix.diagonal_apply, Pm_apply, Matrix.one_apply, hjk, h']
+    simp [Dm, Pm_apply, hjk, h']
 
 section Y
 
@@ -311,10 +311,9 @@ theorem Y_trace (h3 : Matrix.trace ((x0 • Pm + Y)ᵀ * (x0 • Pm + Y)) = 0) :
     simp only [Matrix.add_mul, Matrix.mul_add, Matrix.smul_mul, Matrix.mul_smul]
     module
   rw [e, hY1, hPY, Pm_mul_Pm] at h3
-  have htp : Matrix.trace Pm = 1 := by simp [Matrix.trace, Pm_apply, Fintype.sum_prod_type,
-    Fin.sum_univ_two, sing]
-  simp only [smul_zero, add_zero, Matrix.trace_add, Matrix.trace_smul, htp, smul_eq_mul, mul_one,
-    Matrix.trace_zero] at h3
+  have htp : Matrix.trace Pm = 1 := by simp [Matrix.trace, Pm_apply,
+    sing]
+  simp only [smul_zero, add_zero, Matrix.trace_add, Matrix.trace_smul, htp, smul_eq_mul, mul_one] at h3
   rw [Matrix.trace_mul_comm] at h3
   linear_combination h3
 
@@ -329,8 +328,8 @@ theorem transpose_mul_map_conj (Y : Mat4) : Yᵀ * Y.map (starRingEnd ℂ) = (Y�
 theorem map_conj_one_sub_Pm : (1 - Pm : Mat4).map (starRingEnd ℂ) = 1 - Pm := by
   ext i j
   by_cases h : i = j
-  · subst h; by_cases hi : i = sing <;> simp [Pm_apply, Matrix.one_apply, hi]
-  · simp [Pm_apply, Matrix.one_apply, h]
+  · subst h; by_cases hi : i = sing <;> simp [Pm_apply, hi]
+  · simp [Pm_apply, h]
 
 theorem map_conj_smul_one_sub_Pm : ((1 / 6 : ℂ) • (1 - Pm : Mat4)).map (starRingEnd ℂ) = (1 / 6 : ℂ) • (1 - Pm) := by
   ext i j
@@ -366,7 +365,7 @@ theorem Pm_eq_map : Pm = Prm.map (Complex.ofReal) := by
   ext i j
   by_cases h : i = j
   · subst h; by_cases hi : i = sing <;> simp [Pm, Prm, hi]
-  · simp [Pm, Prm, Matrix.diagonal_apply, h]
+  · simp [Pm, Prm, h]
 
 /-- `1/√6`. -/
 noncomputable def rt6 : ℂ := ((Real.sqrt 6 : ℝ) : ℂ)⁻¹

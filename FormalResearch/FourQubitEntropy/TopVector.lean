@@ -50,7 +50,7 @@ theorem exists_top_vec {R : Mat4} (hR : R.IsHermitian)
     exact this
   refine ⟨fun i => eigU hR i i0, ?_, ?_⟩
   · have := congrFun (congrFun h1 i0) i0
-    simp only [Matrix.mul_apply, Matrix.star_apply, Matrix.one_apply, if_true] at this
+    simp only [Matrix.mul_apply, Matrix.star_apply, Matrix.one_apply, ite_true] at this
     have e : ∀ i, ((Complex.normSq (eigU hR i i0) : ℝ) : ℂ) = star (eigU hR i i0) * eigU hR i i0 := by
       intro i; rw [mul_comm]; exact (Complex.mul_conj _).symm
     have : (((∑ i, Complex.normSq (eigU hR i i0) : ℝ)) : ℂ) = 1 := by
@@ -74,8 +74,8 @@ theorem exists_top_vec {R : Mat4} (hR : R.IsHermitian)
       · have h2 : hR.eigenvalues k = 1 / 2 := (hk k).2 hk'
         rw [h2]; simp [hk']; norm_num
       · have h2 : hR.eigenvalues k ≠ 1 / 2 := fun h => hk' ((hk k).1 h)
-        rw [if_neg h2] at this
-        rw [this, if_neg hk']; push_cast; ring
+        rw [ite_eq_right h2] at this
+        rw [this, ite_eq_right hk']; push_cast; ring
     simp only [hl]
     have : ∀ k, eigU hR i k * (1 / 6 + if k = i0 then (1 / 3 : ℂ) else 0) * star (eigU hR j k)
         = (1 / 6 : ℂ) * (eigU hR i k * star (eigU hR j k))

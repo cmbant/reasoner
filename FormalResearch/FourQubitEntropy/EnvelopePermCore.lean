@@ -57,7 +57,7 @@ theorem perm3_pair (X Y : Matrix (Fin 3) (Fin 3) ℝ) :
 
 theorem cprod_eval (X : Matrix (Fin 3) (Fin 3) ℝ) (x : Fin 3 → ℝ) :
     (X.mulVec x) 0 * (X.mulVec x) 1 * (X.mulVec x) 2 = ∑ i, cf X i * cmon x i := by
-  simp only [Matrix.mulVec, dotProduct, Fin.sum_univ_three, cf, cmon, Fin.sum_univ_succ]
+  simp only [Matrix.mulVec, dotProduct, cf, cmon, Fin.sum_univ_succ]
   simp
   ring
 
@@ -69,7 +69,7 @@ theorem perm3_sq_sum (X Y : Matrix (Fin 3) (Fin 3) ℝ) :
   refine Finset.sum_congr rfl fun i _ => by ring
 
 theorem cw_pos (i : Fin 10) : 0 < cw i := by
-  fin_cases i <;> simp [cw] <;> norm_num
+  fin_cases i <;> simp [cw]
 
 theorem perm3_sq_sum_nonneg (X Y : Matrix (Fin 3) (Fin 3) ℝ) :
     0 ≤ perm3 (X * Xᵀ) + perm3 (Y * Yᵀ) + 2 * perm3 (X * Yᵀ) := by
@@ -93,7 +93,7 @@ theorem perm3_scalar_rank1 (κ c : ℝ) (u : Fin 3 → ℝ) :
       = κ ^ 3 + κ ^ 2 * c * (u 0 ^ 2 + u 1 ^ 2 + u 2 ^ 2)
         + 2 * κ * c ^ 2 * (u 0 ^ 2 * u 1 ^ 2 + u 0 ^ 2 * u 2 ^ 2 + u 1 ^ 2 * u 2 ^ 2)
         + 6 * c ^ 3 * (u 0 ^ 2 * u 1 ^ 2 * u 2 ^ 2) := by
-  simp [perm3, Matrix.one_apply, Matrix.vecMulVec_apply]
+  simp [perm3, Matrix.vecMulVec_apply]
   ring
 
 theorem amgm3 {a b c : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c) (h : a + b + c = 1) :
@@ -207,7 +207,7 @@ theorem lin3_zero (a b : Fin 3 → ℝ)
   have E2 := h 0 1
   have E3 := h 1 1
   have E4 := h 1 (-1)
-  simp only [mul_one, mul_zero, add_zero, zero_add, mul_neg, one_mul, zero_mul] at E1 E2 E3 E4
+  simp only [mul_one, mul_zero, add_zero, zero_add, mul_neg] at E1 E2 E3 E4
   have c1 : a 0 * a 1 * b 2 + a 0 * a 2 * b 1 + a 1 * a 2 * b 0 = 0 := by
     linear_combination (E3 - E4) / 2 - E2
   have c2 : a 0 * b 1 * b 2 + a 1 * b 0 * b 2 + a 2 * b 0 * b 1 = 0 := by
@@ -233,7 +233,7 @@ theorem lin3_zero (a b : Fin 3 → ℝ)
 theorem rows_norm (O : Matrix (Fin 3) (Fin 3) ℝ) (hO : O * Oᵀ = 1) (i : Fin 3) :
     O i 0 ^ 2 + O i 1 ^ 2 + O i 2 ^ 2 = 1 := by
   have := congrFun (congrFun hO i) i
-  simp [Matrix.mul_apply, Fin.sum_univ_three, Matrix.one_apply] at this
+  simp [Matrix.mul_apply, Fin.sum_univ_three] at this
   nlinarith [this]
 
 theorem cprod_plane (O : Matrix (Fin 3) (Fin 3) ℝ)
@@ -250,13 +250,13 @@ theorem cprod_plane (O : Matrix (Fin 3) (Fin 3) ℝ)
     have := hcub ![p, 0, q]
     simp only [Matrix.mulVec, dotProduct, Fin.sum_univ_three, Matrix.cons_val_zero,
       Matrix.cons_val_one, Matrix.cons_val_two, Matrix.head_cons, Matrix.tail_cons, mul_zero,
-      zero_mul, neg_zero, add_zero, zero_add] at this
+      zero_mul, neg_zero, add_zero] at this
     linear_combination this
   · refine lin3_zero (fun i => O i 0) (fun i => O i 1) fun p q => ?_
     have := hcub ![p, q, 0]
     simp only [Matrix.mulVec, dotProduct, Fin.sum_univ_three, Matrix.cons_val_zero,
       Matrix.cons_val_one, Matrix.cons_val_two, Matrix.head_cons, Matrix.tail_cons, mul_zero,
-      zero_mul, neg_zero, add_zero] at this
+      neg_zero, add_zero] at this
     linear_combination this
 
 

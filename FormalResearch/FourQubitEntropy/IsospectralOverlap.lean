@@ -657,7 +657,7 @@ theorem rdiag_map_conj (μ : ι → ℝ) : (rdiag μ).map (starRingEnd ℂ) = rd
   ext i j
   by_cases h : i = j
   · subst h; simp [rdiag]
-  · simp [rdiag, Matrix.diagonal_apply, h]
+  · simp [rdiag, h]
 
 theorem conjT_map_conj (U : Matrix ι ι ℂ) : Uᴴ.map (starRingEnd ℂ) = (U.map (starRingEnd ℂ))ᴴ := by
   ext i j
@@ -712,7 +712,7 @@ theorem antiunitary_overlap (M E F : Matrix ι ι ℂ) (hM : fn2 M = 1)
     have : (M * Mᴴ).map (starRingEnd ℂ) = M.map (starRingEnd ℂ) * (M.map (starRingEnd ℂ))ᴴ := by
       rw [Matrix.map_mul, conjT_map_conj]
     rw [this]
-    simp only [Matrix.conjTranspose_mul, Matrix.conjTranspose_conjTranspose, Matrix.mul_assoc]
+    simp only [Matrix.conjTranspose_mul, Matrix.mul_assoc]
     rw [← Matrix.mul_assoc F, hF1, Matrix.one_mul]
   · rw [← Matrix.conjTranspose_conjTranspose F] at hQe
     rw [Matrix.conjTranspose_conjTranspose] at hQe

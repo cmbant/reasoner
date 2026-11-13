@@ -19,7 +19,7 @@ theorem spinFlip_eq_trace (ψ : Psi) :
     spinFlipForm ψ = Matrix.trace ((zmat ψ)ᵀ * E4 * zmat ψ * E4ᵀ) := by
   simp [spinFlipForm, sum4, sum2, lit, zmat, E4, kron, eps2, sgn, Matrix.trace, Matrix.mul_apply,
     Matrix.kroneckerMap_apply, Fintype.sum_prod_type, Fin.sum_univ_two, Matrix.transpose_apply,
-    RingOps.ofInt, RingOps.add, RingOps.mul]
+    RingOps.ofInt]
   ring
 
 theorem zmat_eq_coord (Z : Mat4) : Z = magicB * magicCoord Z * magicBᵀ := by

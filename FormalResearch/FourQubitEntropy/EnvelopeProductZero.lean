@@ -125,7 +125,7 @@ theorem actSite_eq (s : Fin 4) (a b c d : Fin 2) :
       | 1 => rhoSite 1 ψ b 0 * ψ a 0 c d + rhoSite 1 ψ b 1 * ψ a 1 c d
       | 2 => rhoSite 2 ψ c 0 * ψ a b 0 d + rhoSite 2 ψ c 1 * ψ a b 1 d
       | 3 => rhoSite 3 ψ d 0 * ψ a b c 0 + rhoSite 3 ψ d 1 * ψ a b c 1 := by
-  fin_cases s <;> simp [actSite, rhoSite, siteSwap_conj, sum2] <;> rfl
+  fin_cases s <;> simp [actSite, rhoSite, siteSwap_conj, sum2] ; rfl
 
 end DiagGauge
 
@@ -142,7 +142,7 @@ theorem diag_E (ψ : Psi) (hn : normSqPsi ψ = 1) (hF : sexticF ψ = 3 / 4 * blo
   simp only [pairVec, actSite_eq] at this
   rcases hj3 with rfl | rfl | rfl <;> fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;>
     simp only [hdiag 0, h10 0, hdiag 1, h10 1, hdiag 2, h10 2, hdiag 3, h10 3, zero_mul, add_zero,
-      zero_add, mul_zero, Fin.zero_eta, Fin.mk_one, Matrix.cons_val_zero, Matrix.cons_val_one,
+      zero_add, Fin.zero_eta, Fin.mk_one, Matrix.cons_val_zero, Matrix.cons_val_one,
       Matrix.cons_val_two, Matrix.head_cons, Matrix.tail_cons, Matrix.cons_val_three] at this ⊢ <;>
     linear_combination this
 
@@ -172,7 +172,7 @@ theorem Fin2_one_sub (a : Fin 2) : 1 - (1 - a) = a := by fin_cases a <;> decide
 theorem Str.flip_flip (y : Str) : y.flip.flip = y := by
   obtain ⟨a, b, c, d⟩ := y
   simp only [Str.flip]
-  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ ?_)) <;> simp [Fin2_one_sub]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ ?_)) <;> simp
 
 theorem Str.flip_ne (y : Str) : y.flip ≠ y := by
   intro h
@@ -198,7 +198,7 @@ theorem isProduct_of_single (ψ : Psi) (x : Str) (h : ∀ y, y ≠ x → psiS ψ
   by_cases hx : a = x.1 ∧ b = x.2.1 ∧ c = x.2.2.1 ∧ d = x.2.2.2
   · obtain ⟨h1, h2, h3, h4⟩ := hx
     have : ψ a b c d = psiS ψ x := by subst h1 h2 h3 h4; rfl
-    simp [this, h1, h2, h3, h4]
+    simp [h1, h2, h3, h4]
     rfl
   · have hne : ((a, b, c, d) : Str) ≠ x := by
       intro hh
@@ -483,7 +483,7 @@ theorem exists_diag_unitary (R : Fin 2 → Fin 2 → ℂ) (hR : ∀ a a', (starR
     exact hUU'
   · have := congrFun (congrFun hdiag 0) 1
     simp [Matrix.mul_apply, Fin.sum_univ_two, hAdef] at this
-    simp [Matrix.star_eq_conjTranspose, Matrix.conjTranspose_apply]
+    simp
     linear_combination this
 
 theorem localApply_eq_actOn (a b c d : Op1) (ψ : Psi) :

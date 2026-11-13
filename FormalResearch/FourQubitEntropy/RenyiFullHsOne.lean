@@ -39,7 +39,7 @@ noncomputable def JX (x : ℝ) : ℝ :=
     (15 * x ^ 2 * (43 * x ^ 5 - 31) * (x ^ 8 + 3) ^ 2 * (x ^ 4 + x ^ 3 + x ^ 2 + x + 1) ^ 2)
 
 theorem N_pos {x : ℝ} (hx : 0 ≤ x) : 0 < x ^ 5 + 3 := by positivity
-theorem G_pos {x : ℝ} (hx : 0 ≤ x) : 0 < x ^ 8 + 3 := by positivity
+theorem G_pos {x : ℝ} (_hx : 0 ≤ x) : 0 < x ^ 8 + 3 := by positivity
 theorem h4_pos {x : ℝ} (hx : 0 ≤ x) : 0 < x ^ 4 + x ^ 3 + x ^ 2 + x + 1 := by positivity
 theorem c43_pos {x : ℝ} (hx : 1 ≤ x) : 0 < 43 * x ^ 5 - 31 := by
   have : 1 ≤ x ^ 5 := one_le_pow₀ hx
@@ -51,7 +51,7 @@ theorem pX_deriv {x : ℝ} (hx : 0 ≤ x) : HasDerivAt pX (pdX x) x := by
     simpa using (hasDerivAt_pow 10 x).add_const 3
   have h2 : HasDerivAt (fun x : ℝ => (x ^ 5 + 3) ^ 2) (2 * (x ^ 5 + 3) * (5 * x ^ 4)) x := by
     have := ((hasDerivAt_pow 5 x).add_const 3).pow 2
-    convert this using 1 <;> simp
+    convert this using 1 ; simp
   have := h1.div h2 (by positivity)
   unfold pX pdX
   convert this using 1
@@ -64,7 +64,7 @@ theorem tX_deriv {x : ℝ} (hx : 0 ≤ x) : HasDerivAt tX (45 * x ^ 4 * (x ^ 10 
     simpa using (hasDerivAt_pow 15 x).add_const 3
   have h2 : HasDerivAt (fun x : ℝ => (x ^ 5 + 3) ^ 3) (3 * (x ^ 5 + 3) ^ 2 * (5 * x ^ 4)) x := by
     have := ((hasDerivAt_pow 5 x).add_const 3).pow 3
-    convert this using 1 <;> simp
+    convert this using 1
   have := h1.div h2 (by positivity)
   unfold tX
   convert this using 1
@@ -117,7 +117,7 @@ theorem MX_deriv {x : ℝ} (hx : 0 ≤ x) : HasDerivAt MX (x ^ 2 * (x ^ 5 + 3) *
       simpa using ((hasDerivAt_pow 2 x).add (hasDerivAt_id x)).add_const 1
     have h2 : HasDerivAt (fun x : ℝ => (x ^ 5 + 3) ^ 2) (2 * (x ^ 5 + 3) * (5 * x ^ 4)) x := by
       have := ((hasDerivAt_pow 5 x).add_const 3).pow 2
-      convert this using 1 <;> simp
+      convert this using 1 ; simp
     exact h1.mul h2
   have hd : HasDerivAt (fun x : ℝ => (x ^ 4 + x ^ 3 + x ^ 2 + x + 1) * (x ^ 8 + 3))
       ((4 * x ^ 3 + 3 * x ^ 2 + 2 * x + 1) * (x ^ 8 + 3) +
@@ -244,7 +244,7 @@ theorem JX_deriv {x : ℝ} (hx : 1 ≤ x) :
     ring
   have hN5 : HasDerivAt (fun x : ℝ => (x ^ 5 + 3) ^ 4) (4 * (x ^ 5 + 3) ^ 3 * (5 * x ^ 4)) x := by
     have := ((hasDerivAt_pow 5 x).add_const 3).pow 4
-    convert this using 1 <;> simp
+    convert this using 1
   have hn : HasDerivAt (fun x : ℝ => -4 * (x ^ 5 + 3) ^ 4 * P13 x)
       (-4 * (4 * (x ^ 5 + 3) ^ 3 * (5 * x ^ 4)) * P13 x + (-4 * (x ^ 5 + 3) ^ 4) *
         (39 * x ^ 12 + 72 * x ^ 11 - 286 * x ^ 10 - 580 * x ^ 9 - 810 * x ^ 8 - 456 * x ^ 7 -
@@ -257,7 +257,7 @@ theorem JX_deriv {x : ℝ} (hx : 1 ≤ x) :
     ring
   have hG2 : HasDerivAt (fun x : ℝ => (x ^ 8 + 3) ^ 2) (2 * (x ^ 8 + 3) * (8 * x ^ 7)) x := by
     have := ((hasDerivAt_pow 8 x).add_const 3).pow 2
-    convert this using 1 <;> simp
+    convert this using 1 ; simp
   have hh1 : HasDerivAt (fun x : ℝ => x ^ 4 + x ^ 3 + x ^ 2 + x + 1)
       (4 * x ^ 3 + 3 * x ^ 2 + 2 * x + 1) x := by
     simpa using ((((hasDerivAt_pow 4 x).add (hasDerivAt_pow 3 x)).add (hasDerivAt_pow 2 x)).add
@@ -265,7 +265,7 @@ theorem JX_deriv {x : ℝ} (hx : 1 ≤ x) :
   have hh2 : HasDerivAt (fun x : ℝ => (x ^ 4 + x ^ 3 + x ^ 2 + x + 1) ^ 2)
       (2 * (x ^ 4 + x ^ 3 + x ^ 2 + x + 1) * (4 * x ^ 3 + 3 * x ^ 2 + 2 * x + 1)) x := by
     have := hh1.pow 2
-    convert this using 1 <;> simp
+    convert this using 1 ; simp
   have hd : HasDerivAt (fun x : ℝ => 15 * x ^ 2 * (43 * x ^ 5 - 31) * (x ^ 8 + 3) ^ 2 *
       (x ^ 4 + x ^ 3 + x ^ 2 + x + 1) ^ 2)
       (15 * (2 * x) * (43 * x ^ 5 - 31) * (x ^ 8 + 3) ^ 2 * (x ^ 4 + x ^ 3 + x ^ 2 + x + 1) ^ 2 +

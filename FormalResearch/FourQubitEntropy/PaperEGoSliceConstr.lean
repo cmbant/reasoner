@@ -212,7 +212,7 @@ theorem sum_sq_zero {m : ℕ} {w : Fin m → ℝ} (h : ∑ k, w k ^ 2 = 0) : ∀
 
 theorem nonneg_of_pos_mul {N S : ℝ} (hN : 0 < N) (h : 0 ≤ 2 / N * S) : 0 ≤ S := by
   by_contra hneg
-  push_neg at hneg
+  push Not at hneg
   have : 2 / N * S < 0 := mul_neg_of_pos_of_neg (by positivity) hneg
   linarith
 
@@ -302,7 +302,7 @@ theorem exists_frame_G (u : Fin 3 → ℝ) (hu : ∑ k, u k ^ 2 = 1) :
     refine ⟨reflMat ![0, 1 - u 0, -u 1, -u 2], reflMat_orth (by rw [hN2]; exact hne),
       fun a => ?_, fun a => ?_⟩
     · fin_cases a <;> simp [reflMat]
-    · fin_cases a <;> simp [reflMat, hN2] <;> field_simp <;> ring
+    · fin_cases a <;> simp [reflMat, hN2] <;> field_simp ; ring
 
 theorem psd2 {a b c x y : ℝ} (ha : 0 ≤ a) (hc : 0 ≤ c) (hb : b ^ 2 ≤ a * c) :
     0 ≤ a * x ^ 2 + 2 * b * x * y + c * y ^ 2 := by
@@ -313,7 +313,7 @@ theorem psd2 {a b c x y : ℝ} (ha : 0 ≤ a) (hc : 0 ≤ c) (hb : b ^ 2 ≤ a *
     nlinarith [sq_nonneg y]
   · have hapos : 0 < a := lt_of_le_of_ne ha (Ne.symm ha0)
     by_contra hneg
-    push_neg at hneg
+    push Not at hneg
     nlinarith [sq_nonneg (a * x + b * y), sq_nonneg y, mul_nonneg ha (sq_nonneg y)]
 
 theorem L_unit_psd {v : SV} {h : ℝ} (hf : IsFrame (sState v) h) {σ₀ σ c s : ℝ}

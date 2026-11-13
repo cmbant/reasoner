@@ -47,7 +47,7 @@ theorem evK_mul (v : Fin 32 → ℂ) (a b : Nat) : evK v (a * b) = evK v a * evK
   · simp [evK, ha]
   by_cases hb : b = 0
   · simp [evK, hb]
-  simp only [evK, ha, hb, Nat.mul_eq_zero, or_self, if_false]
+  simp only [evK, ha, hb, Nat.mul_eq_zero, or_self, ite_false]
   rw [Nat.factorization_mul ha hb, ← Finset.prod_mul_distrib]
   refine Finset.prod_congr rfl fun i _ => ?_
   rw [Finsupp.add_apply, pow_add]
@@ -56,7 +56,7 @@ theorem evK_one (v : Fin 32 → ℂ) : evK v 1 = 1 := by simp [evK]
 
 theorem evK_prime (v : Fin 32 → ℂ) (j : Fin 32) : evK v (primeAt j) = v j := by
   have hp := primeAt_prime j
-  simp only [evK, hp.ne_zero, if_false, hp.factorization, Finsupp.single_apply]
+  simp only [evK, hp.ne_zero, ite_false, hp.factorization, Finsupp.single_apply]
   rw [Finset.prod_eq_single j]
   · simp
   · intro i _ hij

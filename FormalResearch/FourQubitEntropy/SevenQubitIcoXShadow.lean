@@ -111,7 +111,7 @@ theorem That_eq_formR (F : BitString → ℝ) (q : Fin 7) (a b : Bool) :
   unfold That formR thatC thatPi
   rw [Finset.mul_sum, Finset.sum_filter]
   refine Finset.sum_congr rfl fun y _ => ?_
-  by_cases h : y q = a <;> simp [h] <;> ring
+  by_cases h : y q = a <;> simp [h] ; ring
 
 /-- Diagonal entries of `T̂`: all four integer forms vanish. -/
 theorem that_diag : ∀ (q : Fin 7) (a : Bool),
@@ -261,7 +261,7 @@ theorem shadowQ_sum_ico (alpha beta : ℝ) (hα : alpha ^ 2 = u (37 / 524))
     ∑ q : Fin 7, shadowQ (icosahedralState alpha beta) q = 27652 / 17161 := by
   rw [Fin.sum_univ_succ]
   simp only [shadowQ_ico_ordinary alpha beta hα hβ _ (Fin.succ_ne_zero _), shadowQ_ico_special alpha beta hα hβ]
-  simp [Fin.sum_const]
+  simp
   norm_num
 
 /-- Each branch of `T̂` has `|T̂_{01}| = √q`: `q_q = (T̂^{(q)}_{01})²`
@@ -270,6 +270,6 @@ theorem shadowQ_eq_That_sq (alpha beta : ℝ) (q : Fin 7) :
     shadowQ (icosahedralState alpha beta) q =
       (That (icosahedralState alpha beta) q false true) ^ 2 := by
   rw [shadowQ_ico, That_ico]
-  by_cases hq : q = 0 <;> simp [hq] <;> ring
+  by_cases hq : q = 0 <;> simp [hq] ; ring
 
 end FormalResearch.FourQubitEntropy.SevenQubitIco

@@ -63,7 +63,7 @@ theorem cubic_d0 (a b c d x : ℝ) :
   refine h.congr_deriv ?_
   simp; ring
 
-theorem cubic_d1 (a b c d x : ℝ) :
+theorem cubic_d1 (a b c _d x : ℝ) :
     HasDerivAt (fun x => 3 * a * x ^ 2 + 2 * b * x + c) (6 * a * x + 2 * b) x := by
   have h := ((((hasDerivAt_pow 2 x).const_mul (3 * a)).add ((hasDerivAt_id x).const_mul (2 * b)))).add_const c
   refine h.congr_deriv ?_
@@ -140,8 +140,7 @@ theorem tsallis_hermite {q : ℝ} (h0 : 0 < q) (h2 : q < 2) (h1 : q ≠ 1) :
   · have := hpos x hx h6 h2'
     beta_reduce at this
     linarith
-  · beta_reduce at hu0
-    have hxu : 0 < u ^ (q - 3) := Real.rpow_pos_of_pos hu _
+  · have hxu : 0 < u ^ (q - 3) := Real.rpow_pos_of_pos hu _
     have hq2 : q * (q - 2) < 0 := mul_neg_of_pos_of_neg h0 (by linarith)
     nlinarith
 

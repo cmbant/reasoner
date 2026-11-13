@@ -51,7 +51,7 @@ theorem magicB_unitary : magicBᴴ * magicB = 1 := by
   ext ⟨a, b⟩ ⟨c, d⟩
   fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;>
   simp [Matrix.mul_apply, Matrix.conjTranspose_apply, magicB, Fintype.sum_prod_type,
-    Fin.sum_univ_two, rt_conj, Complex.I_mul_I] <;>
+    Fin.sum_univ_two, rt_conj] <;>
   first
     | linear_combination h
     | linear_combination 2 * h
@@ -60,7 +60,7 @@ theorem magicB_unitary : magicBᴴ * magicB = 1 := by
     | linear_combination (-4) * h + (2 * rt ^ 2) * hI
     | linear_combination 2 * h + (-rt ^ 2) * hI
     | linear_combination 2 * h + (rt ^ 2) * hI
-    | (ring_nf; simp only [Complex.I_sq, hrt2, hrt4]; ring_nf)
+    | (ring_nf; simp only [Complex.I_sq, hrt2]; ring_nf)
 
 theorem magicB_unitary' : magicB * magicBᴴ = 1 := mul_eq_one_comm.mp magicB_unitary
 
@@ -87,11 +87,11 @@ theorem magicB_E4 : magicBᵀ * E4 * magicB = 1 := by
   ext ⟨a, b⟩ ⟨c, d⟩
   fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;>
   simp [Matrix.mul_apply, Matrix.transpose_apply, magicB, E4, kron, eps2, Matrix.kroneckerMap_apply,
-    Fintype.sum_prod_type, Fin.sum_univ_two, Matrix.one_apply] <;>
+    Fintype.sum_prod_type, Fin.sum_univ_two] <;>
   first
     | linear_combination h
     | linear_combination 2 * h
     | linear_combination (-2) * h
-    | (ring_nf; simp only [Complex.I_sq, hrt2, hrt4]; ring_nf)
+    | (ring_nf; simp only [Complex.I_sq, hrt2]; ring_nf)
 
 end FormalResearch.FourQubitEntropy

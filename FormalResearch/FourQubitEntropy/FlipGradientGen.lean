@@ -91,7 +91,7 @@ variable {α β : Type} [RingOps α] [RingOps β] {f : α → β}
 
 theorem OpsHom.H4gen (hf : OpsHom f) (z w : State α) :
     f (H4gen z w) = H4gen (z.map f) (w.map f) := by
-  simp only [FormalResearch.FourQubitEntropy.H4gen, hf.add', hf.sub', hf.mul', hf.lit', hf.Fgen,
+  simp only [FormalResearch.FourQubitEntropy.H4gen, hf.sub', hf.mul', hf.lit', hf.Fgen,
     hf.normG, hf.W1gen]
 
 theorem OpsHom.sgnlit (hf : OpsHom f) (k : ℤ) : f (lit k : α) = (lit k : β) := hf.map_ofInt k
@@ -103,7 +103,7 @@ theorem OpsHom.ztilS (hf : OpsHom f) (w : State α) :
 
 theorem OpsHom.Ysite0 (hf : OpsHom f) (z w : State α) :
     f (Ysite0 z w) = Ysite0 (z.map f) (w.map f) := by
-  simp only [FormalResearch.FourQubitEntropy.Ysite0, hf.sum2, hf.add', hf.sub', hf.mul', hf.lit',
+  simp only [FormalResearch.FourQubitEntropy.Ysite0, hf.sum2, hf.sub', hf.mul', hf.lit',
     hf.resTensor]
 
 theorem OpsHom.Ysum (hf : OpsHom f) (z w : State α) :
@@ -128,13 +128,13 @@ theorem OpsHom.H4dual (hf : OpsHom f) (z w : State α) :
     funext a b c d
     have := congrFun (congrFun (congrFun (congrFun (hf.ztilS w) a) b) c) d
     simp only [State.map] at this
-    simp [State.map, FormalResearch.FourQubitEntropy.dualZ, FormalResearch.FourQubitEntropy.dualW, dualState, Dual.map, this]
+    simp [State.map, FormalResearch.FourQubitEntropy.dualZ, dualState, Dual.map, this]
   have e2 : (FormalResearch.FourQubitEntropy.dualW z w).map (Dual.map f)
       = FormalResearch.FourQubitEntropy.dualW (z.map f) (w.map f) := by
     funext a b c d
     have := congrFun (congrFun (congrFun (congrFun (hf.ztilS z) a) b) c) d
     simp only [State.map] at this
-    simp [State.map, FormalResearch.FourQubitEntropy.dualZ, FormalResearch.FourQubitEntropy.dualW, dualState, Dual.map, this]
+    simp [State.map, FormalResearch.FourQubitEntropy.dualW, dualState, Dual.map, this]
   rw [e1, e2] at hd
   unfold FormalResearch.FourQubitEntropy.H4dual
   exact congrArg Dual.b hd

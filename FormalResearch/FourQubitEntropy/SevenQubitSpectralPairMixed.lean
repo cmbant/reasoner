@@ -198,7 +198,7 @@ theorem four_b_leM (m : Fin 7 → Bool) (hm : weight m = 3) (ρ : Mat7) (htr : �
     · have h3 := pwt_le_of_mem_suppSet m hm hμ
       simp only [hμ, ↓reduceIte]
       generalize pwt μ = j at h3
-      interval_cases j <;> simp [cntN] <;> norm_num
+      interval_cases j <;> simp [cntN] ; norm_num
     · simp only [hμ, ↓reduceIte]; simp
   have hK : κ 0 * psqM ρ 0 ≤ ∑ μ, κ μ * psqM ρ μ :=
     Finset.single_le_sum (f := fun μ => κ μ * psqM ρ μ)

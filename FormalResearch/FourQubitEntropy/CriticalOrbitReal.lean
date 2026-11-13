@@ -84,7 +84,7 @@ theorem xj_le {r x1 x2 x3 y1 y2 y3 : ℝ}
 
 
 /-- `2 s₂ ≤ (2r-1)²` and `q₄ ≤ ¼ (2r-1)⁴` (the `q₄` bound of `CO-2`). -/
-theorem q4_bound {r A1 A2 A3 : ℝ} (hr : 3 / 5 ≤ r) (hr1 : r ≤ 1) (h1 : 0 ≤ A1) (h2 : 0 ≤ A2) (h3 : 0 ≤ A3)
+theorem q4_bound {r A1 A2 A3 : ℝ} (hr : 3 / 5 ≤ r) (_hr1 : r ≤ 1) (h1 : 0 ≤ A1) (h2 : 0 ≤ A2) (h3 : 0 ≤ A3)
     (hSx : A1 + A2 + A3 ≤ r)
     (hS7 : (r + (A1 + A2 + A3)) ^ 2 ≤ (3 * r - 1) ^ 2 + 2 * (A1 ^ 2 + A2 ^ 2 + A3 ^ 2)) :
     A1 ^ 2 * A2 ^ 2 + A1 ^ 2 * A3 ^ 2 + A2 ^ 2 * A3 ^ 2 ≤ (2 * r - 1) ^ 4 / 4 := by
@@ -238,7 +238,7 @@ theorem prod_le {a b c : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c) : a *
 
 theorem Y_nonneg {t r y1 y2 y3 w1 w2 w3 : ℝ} (ht : t ^ 2 = 3) (ht0 : 0 < t) (hr : 3 / 5 ≤ r) (hr1 : r ≤ 1)
     (h1 : 0 ≤ y1) (h2 : 0 ≤ y2) (h3 : 0 ≤ y3) (hSy : y1 + y2 + y3 ≤ t * (1 - r))
-    (hw1 : 0 ≤ w1) (hw2 : 0 ≤ w2) (hw3 : 0 ≤ w3)
+    (_hw1 : 0 ≤ w1) (_hw2 : 0 ≤ w2) (_hw3 : 0 ≤ w3)
     (hw1' : w1 ≤ 4 * r ^ 2 - 1) (hw2' : w2 ≤ 4 * r ^ 2 - 1) (hw3' : w3 ≤ 4 * r ^ 2 - 1) :
     0 ≤ 2 / 3 * (t * r * (y1 + y2 + y3) - (y1 ^ 2 + y2 ^ 2 + y3 ^ 2) + (y1 * y2 + y1 * y3 + y2 * y3))
       - 36 * (w1 * (y2 ^ 2 * y3 ^ 2) + w2 * (y1 ^ 2 * y3 ^ 2) + w3 * (y1 ^ 2 * y2 ^ 2)) := by
@@ -464,7 +464,7 @@ theorem X_caseB2 {r a1 a2 a3 e1 e2 e3 w1 w2 w3 : ℝ} (hr : 16 / 25 ≤ r) (hr1 
 
 
 /-- **`X ≥ 0`** (the `x`-part of the decoupled bound, `CO-2`). -/
-theorem X_nonneg {r a1 a2 a3 e1 e2 e3 : ℝ} (hr : 3 / 5 ≤ r) (hr1 : r ≤ 1)
+theorem X_nonneg {r a1 a2 a3 e1 e2 e3 : ℝ} (hr : 3 / 5 ≤ r) (_hr1 : r ≤ 1)
     (ha1 : 0 ≤ a1) (ha2 : 0 ≤ a2) (ha3 : 0 ≤ a3) (he1 : 0 ≤ e1) (he2 : 0 ≤ e2) (he3 : 0 ≤ e3)
     (hN : r ^ 2 + (a1 + e1) + (a2 + e2) + (a3 + e3) = 1)
     (hp1 : a1 + e1 ≤ r ^ 2) (hp2 : a2 + e2 ≤ r ^ 2) (hp3 : a3 + e3 ≤ r ^ 2)

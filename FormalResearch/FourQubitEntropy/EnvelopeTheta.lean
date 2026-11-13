@@ -112,7 +112,7 @@ theorem critTheta_gram (v : Fin 2 × Fin 2 → ℂ) :
   rw [critTheta_eq, critBloch_eq, tauV_expand]
   ext i j
   fin_cases i <;> fin_cases j <;>
-  · simp [Matrix.mul_apply, Fin.sum_univ_three, Matrix.vecMulVec_apply, Matrix.one_apply, pq, qq]
+  · simp [Matrix.mul_apply, Fin.sum_univ_three, pq, qq]
     ring
 
 theorem critBloch_dot (v : Fin 2 × Fin 2 → ℂ) : critBloch v ⬝ᵥ critBloch v = nV v ^ 2 - tauV v := by

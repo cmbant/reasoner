@@ -142,7 +142,7 @@ theorem eq_lift3 (Q : RMat4) (hs1 : Q * Prm = Prm) (hs2 : Prm * Q = Prm) :
     · simpa [Prm, Matrix.diagonal_mul, Matrix.diagonal_apply, hj, Ne.symm hj] using this
   ext ⟨i1, i2⟩ ⟨j1, j2⟩
   fin_cases i1 <;> fin_cases i2 <;> fin_cases j1 <;> fin_cases j2 <;>
-  simp [lift3, κ3, ι3, sing] <;> first | exact c1 _ | exact c2 _ | skip
+  simp [lift3, κ3, ι3, sing] <;> first | exact c1 _ | exact c2 _
 
 theorem lift3_injective {M N : Matrix (Fin 3) (Fin 3) ℝ} (h : lift3 M = lift3 N) : M = N := by
   ext a b
