@@ -449,8 +449,7 @@ All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (
 | DLMF 34.5.2 (`{j₁ j₂ j₃; ½ j₃-½ j₂+½}`) | `Special6j.sixJ_half_a` | one-term sum |
 | **DLMF 34.5.11–13** (6j recurrence with √ prefactors) | `SixJRecurrence.sixJ_recurrence` | `IsTri` hypotheses; vanishes when fixed triads fail |
 
-Not formalised: DLMF 34.5.3,
-relation to Physlib's abstract `sixJ`. Certificate search scripts: `scripts/wigner_certificates/` (provenance only).
+Not formalised: DLMF 34.5.3, and the relation to Physlib's abstract `sixJ` (Racah's formula for the operator-defined `sixJ`; partial work, `sixJ = Cconst · Xs` with `Xs` a balanced terminating `₄F₃`, is on a local fork branch `bridge-sixj` of Physlib, compiled under Lean 4.34 only). Certificate search scripts: `scripts/wigner_certificates/` (provenance only).
 
 ### Jacobi polynomials (`FormalResearch/Special/Jacobi*.lean`, namespace `FormalResearch.Special`)
 
@@ -544,7 +543,7 @@ Notation as in the paper's `eq:3jPhi`: `Phi3j L M σ N μ = sgn(2L+j₊+m₊)·�
 
 ### Weyl P2: analytic half (`FormalResearch/Racah/P2Analytic*.lean`)
 
-Paper: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`. Reasoner branch `wigner-3j6j` (not yet on `master`). All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (pinned by `#print axioms`).
+Paper: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`. Merged to `master` from branch `wigner-3j6j` (PR #81). All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (pinned by `#print axioms`).
 Conventions: `Phi3j L M σ N μ` at `x = 2μ/N`, `t = h² = N⁻²`; `Phi6 … f m n` at `A = wA a n`, `B = wB b m`, `C = wC c`, `S = A+B+C`; the paper's `d^L_{Mσ}(arccos x)` is
 `wignerSmallDx L M σ x`; `Lat4`/`SpecAdm` (3j) and the four integrality facts `f ± m`, `f ± n ∈ ℕ` (6j) encode the physical lattice.
 
