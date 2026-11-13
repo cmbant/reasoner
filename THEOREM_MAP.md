@@ -571,6 +571,22 @@ Not formalised in the analytic half: `eq:SNpolar`; `L²` completeness of the Wig
 `thm:3jNNLO` and the `6j` degree `-4` term, the Gaunt `N⁻⁴` term, the 6j half of `cor:uniformNLO`; the all-order local calculus (`thm:3jallorderlocal`, `thm:6jallorderlocal`);
 the expansion halves of `prop:3junique` and `prop:unique`; the 6j leading constant `k_{6j}` outside the canonical chamber; DLMF 34.5.3; the bridge to Physlib's abstract `sixJ`.
 
+## Asymptotics and Gamma ratios (`FormalResearch/Asymptotics/`, `FormalResearch/Special/GammaRatio.lean`)
+
+All theorems depend only on `propext`, `Classical.choice` and `Quot.sound`.
+
+| Statement | Lean |
+|---|---|
+| Uniform asymptotic expansion, uniform in `z ∈ K` (`IsBigO` over `𝓟 K ×ˢ l`); lattice version | `HasUniformExpansion`, `HasUniformExpansionOn`, `hasUniformExpansion_iff` |
+| Algebra: sums, scalars, Cauchy products, restriction, composition, even expansions, coefficient uniqueness, leading term `~` | `HasExpansionAlong.add/smul/mul`, `.of_sq`, `.comp_left`, `.comp_index`, `.eq_of_tendsto`, `.isEquivalent_leading` |
+| Analytic or smooth germ `G(z,t)` near `K × {0}` gives a uniform expansion with Taylor coefficients | `hasUniformExpansion_of_analytic`, `hasUniformExpansionOn_of_contDiffOn`, `taylor_uniform` (in `Asymptotics/TaylorUniform.lean`) |
+| P2 `thm:3jeven` as a `HasUniformExpansionOn` statement on the physical grid | `Phi3j_hasUniformExpansionOn` |
+| `log Γ(x+a) − log Γ(x+b) = (a−b) log x + Σ_{k≤K} c_k x^{-k} + O(x^{-K-1})`, with `c_k` from Bernoulli polynomials (DLMF 5.11.13) | `logGamma_sub_expansion`, `gammaRatioCoeff` |
+| `Γ(x+a)/Γ(x+b) ~ x^{a−b}`, plus the two-term form | `gamma_ratio_isEquivalent`, `gamma_ratio_two_term` |
+| Expansion of the P2 central products `Ct` | `Ct_log_expansion`, `Ct_log_expansion_two` |
+
+Third-party input: the Euler–Maclaurin formula and the Stirling series for `log Γ` (`log_gamma_em`), vendored without modification from `girving/interval` (Apache-2.0). Location: `ThirdParty/interval/`; see its `NOTICE.md`.
+
 ## Next source-authorized finite targets
 
 At the current handoff, the cleanest exact candidates are:
