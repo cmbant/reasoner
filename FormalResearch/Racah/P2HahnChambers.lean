@@ -109,7 +109,7 @@ theorem Phi3j_hahn_all_chambers (M σ N μ : ℚ) (α β D n u : ℕ) (hα : |M 
     rw [hmax] at hD ⊢
     rw [h1] at hα hu
     rw [h2] at hβ
-    rw [if_pos hσM]
+    rw [ite_eq_left hσM]
     exact Phi3j_hahn hα hβ hD n u hn (by unfold jPlus mPlus; linarith [hu]) huD
   by_cases hDd : σ ≤ M
   · have hσneg : σ < 0 := by
@@ -127,13 +127,13 @@ theorem Phi3j_hahn_all_chambers (M σ N μ : ℚ) (α β D n u : ℕ) (hα : |M 
     rw [hmax] at hD ⊢
     rw [h1] at hα hu
     rw [h2] at hβ
-    rw [if_pos hDd]
+    rw [ite_eq_left hDd]
     exact chamber_D M σ N μ α β D n u hα hβ (by linarith) hn
       (by unfold jPlus mPlus; linarith [hu]) huD
   have hσM : M < σ := not_le.mp hDd
   have h1 : |M - σ| = σ - M := by rw [abs_sub_comm]; exact abs_of_nonneg (by linarith)
   rw [h1] at hα hu
-  rw [if_neg hDd]
+  rw [ite_eq_right hDd]
   have hDq : (D : ℚ) = N - max |M| |σ| - 1 := by exact_mod_cast hD.symm
   by_cases hB : |M| < σ
   · have hσpos : 0 < σ := lt_of_le_of_lt (abs_nonneg M) hB

@@ -34,14 +34,14 @@ lemma sgn_add_one (x : ℚ) : sgn (x + 1) = - sgn x := by
   by_cases h : ∃ n : ℤ, x = n
   · obtain ⟨n, rfl⟩ := h
     have h' : ∃ m : ℤ, ((n : ℚ) + 1) = m := ⟨n + 1, by push_cast; ring⟩
-    rw [dif_pos h', dif_pos ⟨n, rfl⟩]
+    rw [dite_eq_left h', dite_eq_left ⟨n, rfl⟩]
     have e1 : h'.choose = n + 1 := by exact_mod_cast h'.choose_spec.symm
     have e2 : (⟨n, rfl⟩ : ∃ m : ℤ, (n : ℚ) = m).choose = n := by
       exact_mod_cast (Exists.choose_spec (⟨n, rfl⟩ : ∃ m : ℤ, (n : ℚ) = m)).symm
     rw [e1, e2, zpow_add_one₀ (by norm_num)]; ring
   · have h' : ¬ ∃ m : ℤ, x + 1 = m := by
       rintro ⟨m, hm⟩; exact h ⟨m - 1, by push_cast; linarith⟩
-    rw [dif_neg h', dif_neg h]; simp
+    rw [dite_eq_right h', dite_eq_right h]; simp
 
 lemma sgn_sub_one (x : ℚ) : sgn (x - 1) = - sgn x := by
   have := sgn_add_one (x - 1)
@@ -163,7 +163,7 @@ lemma threeJ_factor {j₁ j₂ j₃ m₁ m₂ m₃ : ℚ} (hm : m₁ + m₂ + m�
         Real.sqrt (fq (j₂ + m₂) * fq (j₂ - m₂) * fq (j₃ + m₃) * fq (j₃ - m₃)) *
         racahSum3 j₁ j₂ j₃ m₁ m₂ := by
   unfold threeJ
-  rw [if_pos hm, show fq (j₁ + m₁) * fq (j₁ - m₁) * fq (j₂ + m₂) * fq (j₂ - m₂) *
+  rw [ite_eq_left hm, show fq (j₁ + m₁) * fq (j₁ - m₁) * fq (j₂ + m₂) * fq (j₂ - m₂) *
       fq (j₃ + m₃) * fq (j₃ - m₃) = (fq (j₁ + m₁) * fq (j₁ - m₁)) *
       (fq (j₂ + m₂) * fq (j₂ - m₂) * fq (j₃ + m₃) * fq (j₃ - m₃)) by ring,
     Real.sqrt_mul (mul_nonneg (fq_nonneg _) (fq_nonneg _))]

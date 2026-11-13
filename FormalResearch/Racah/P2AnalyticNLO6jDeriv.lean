@@ -159,23 +159,23 @@ lemma hasDerivAt_piSixT_t (F : ℚ) (hF : IsNat (2 * F)) (α β : ℝ) (hα : α
 /-! ### Triangle-pair identities (`eq:trianglePairIdentities`) -/
 
 lemma nlo6_pair12 (α β γ : ℝ) (hα : α ≠ 0) (hβ : β ≠ 0) (h1 : α - β + γ ≠ 0) (h2 : -α + β + γ ≠ 0)
-    (hx : 1 - cosA α β γ ≠ 0) :
+    (_hx : 1 - cosA α β γ ≠ 0) :
     ((α - β + γ) ^ 2)⁻¹ + ((-α + β + γ) ^ 2)⁻¹ =
       (((α ^ 2)⁻¹ + (β ^ 2)⁻¹) - (1 + cosA α β γ) * (1 / (α * β))) / (1 - cosA α β γ) ^ 2 := by
   have e : 1 - cosA α β γ = (α - β + γ) * (-α + β + γ) / (2 * α * β) := by
     unfold cosA; field_simp; ring
-  rw [e] at hx ⊢
+  rw [e]
   unfold cosA
   field_simp
   ring
 
 lemma nlo6_pair34 (α β γ : ℝ) (hα : α ≠ 0) (hβ : β ≠ 0) (h3 : α + β - γ ≠ 0) (h4 : α + β + γ ≠ 0)
-    (hx : 1 + cosA α β γ ≠ 0) :
+    (_hx : 1 + cosA α β γ ≠ 0) :
     ((α + β - γ) ^ 2)⁻¹ + ((α + β + γ) ^ 2)⁻¹ =
       (((α ^ 2)⁻¹ + (β ^ 2)⁻¹) + (1 - cosA α β γ) * (1 / (α * β))) / (1 + cosA α β γ) ^ 2 := by
   have e : 1 + cosA α β γ = (α + β - γ) * (α + β + γ) / (2 * α * β) := by
     unfold cosA; field_simp; ring
-  rw [e] at hx ⊢
+  rw [e]
   unfold cosA
   field_simp
   ring

@@ -101,11 +101,6 @@ theorem walshVector_linearIndependent {n : Nat} :
         (a U * walshCharacter U S) * walshCharacter T S) =
         a U * (∑ S : Finset (Fin n),
           walshCharacter U S * walshCharacter T S) := by
-    change
-      (∑ S ∈ (Finset.univ : Finset (Finset (Fin n))),
-        (a U * walshCharacter U S) * walshCharacter T S) =
-        a U * (∑ S ∈ (Finset.univ : Finset (Finset (Fin n))),
-          walshCharacter U S * walshCharacter T S)
     rw [Finset.mul_sum]
     simp only [mul_assoc]
   have hdistrib (S : Finset (Fin n)) :
@@ -113,11 +108,6 @@ theorem walshVector_linearIndependent {n : Nat} :
           walshCharacter T S =
         ∑ U : Finset (Fin n),
           (a U * walshCharacter U S) * walshCharacter T S := by
-    change
-      (∑ U ∈ (Finset.univ : Finset (Finset (Fin n))),
-        a U * walshCharacter U S) * walshCharacter T S =
-        ∑ U ∈ (Finset.univ : Finset (Finset (Fin n))),
-          (a U * walshCharacter U S) * walshCharacter T S
     rw [Finset.sum_mul]
   have hcorr' :
       (∑ U : Finset (Fin n), a U *

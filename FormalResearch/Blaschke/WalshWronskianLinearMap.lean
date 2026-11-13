@@ -59,7 +59,7 @@ theorem zeroFlipWronskianLin_range_le_atomSpan {n : Nat} (c : Fin n → ℂ) :
 Wronskian transform has rank at most the number `n` of Blaschke factors. -/
 theorem zeroFlipWronskianLin_range_finrank_le {n : Nat} (c : Fin n → ℂ) :
     Module.finrank ℚ (LinearMap.range (zeroFlipWronskianLin c)) ≤ n := by
-  letI : Module.Finite ℚ (blaschkeWronskianAtomSpan c) := by
+  let : Module.Finite ℚ (blaschkeWronskianAtomSpan c) := by
     unfold blaschkeWronskianAtomSpan
     exact Module.Finite.span_of_finite ℚ (Set.finite_range _)
   calc

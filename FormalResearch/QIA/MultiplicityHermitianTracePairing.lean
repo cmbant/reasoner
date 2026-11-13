@@ -120,9 +120,7 @@ theorem multiplicityHermitianTraceBilinForm_surjective
   refine ⟨(B.toDual hB).symm f, ?_⟩
   apply LinearMap.ext
   intro X
-  simpa [B] using
-    (LinearMap.BilinForm.apply_toDual_symm_apply
-      (B := B) (hB := hB) f X)
+  simp [B]
 
 /-- QI-A finite multiplicity-algebra specialization of the pure-copy spanning
 core. Once a Hermitian family separates all Hermitian directions under the

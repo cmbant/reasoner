@@ -31,7 +31,7 @@ theorem threeJ_stretched {A B C D : ℕ} {j₁ j₂ m₁ m₂ m₃ : ℚ} (hm : 
             (((A + B + C + D + 1).factorial : ℝ) * (A.factorial : ℝ) * B.factorial *
               C.factorial * D.factorial)) := by
   unfold threeJ
-  rw [if_pos hm]
+  rw [ite_eq_left hm]
   have hX : triSq j₁ j₂ (j₁ + j₂) =
       ((A + B).factorial : ℝ) * ((C + D).factorial : ℝ) / ((A + B + C + D + 1).factorial : ℝ) := by
     have := triSq_of_nat (a := j₁) (b := j₂) (c := j₁ + j₂) (p := 0) (q := A + B) (r := C + D)

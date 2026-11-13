@@ -49,11 +49,6 @@ theorem zeroFlipWronskian_singleton_walsh {n : Nat} (c : Fin n → ℂ) (j : Fin
             blaschkeWronskianAtom c k := by
               apply Fintype.sum_congr
               intro k
-              change
-                (∑ S ∈ (Finset.univ : Finset (Finset (Fin n))),
-                  (booleanSign S j * booleanSign S k) • blaschkeWronskianAtom c k) =
-                  (∑ S ∈ (Finset.univ : Finset (Finset (Fin n))),
-                    booleanSign S j * booleanSign S k) • blaschkeWronskianAtom c k
               rw [← Finset.sum_smul]
     _ = ∑ k : Fin n,
           (if j = k then (((2^n : Nat) : ℚ)) else 0) •

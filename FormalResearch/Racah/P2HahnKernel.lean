@@ -198,9 +198,9 @@ lemma kernel_rec {M σ N μ : ℚ} {α β D : ℕ} (hα : M - σ = α) (hβ : M 
     refine ⟨⟨α + n, ?_⟩, ⟨β + n, ?_⟩, ⟨D - n, ?_⟩⟩
     · unfold jMinus jPlus; push_cast; linarith
     · unfold jMinus jPlus; push_cast; linarith
-    · unfold jMinus jPlus; rw [Nat.cast_sub hn]; push_cast; linarith
+    · unfold jMinus jPlus; rw [Nat.cast_sub hn]; linarith
   have h1 : IsNat (M + n + M) := ⟨α + β + n, by push_cast; linarith⟩
-  have h2 : IsNat (M + n - M) := ⟨n, by push_cast; ring⟩
+  have h2 : IsNat (M + n - M) := ⟨n, by ring⟩
   have hrec := Phi3j_rank_recurrence (M + n) M σ N (2 * μ / N) hNq hT h1 h2
   have hx : (((2 * μ / N : ℚ)) : ℝ) = 1 - ((α : ℝ) + 1 + 2 * u) / ((D : ℝ) + (α + β) / 2 + 1) := by
     have h := hahn_x_of_u M σ N μ u hNq.ne' hu
@@ -306,13 +306,13 @@ lemma chamber_specAdm {M σ N : ℚ} {α β D : ℕ} (hα : M - σ = α) (hβ : 
     (hD : N - M - 1 = D) : SpecAdm M σ N := by
   rw [SpecAdm, chamber_max hα hβ]
   refine ⟨⟨⟨α, ?_⟩, ⟨β, ?_⟩, ⟨D, ?_⟩⟩, ⟨α + β, ?_⟩, ⟨0, ?_⟩⟩
-  · unfold jMinus jPlus; push_cast; linarith
-  · unfold jMinus jPlus; push_cast; linarith
-  · unfold jMinus jPlus; push_cast; linarith
+  · unfold jMinus jPlus; linarith
+  · unfold jMinus jPlus; linarith
+  · unfold jMinus jPlus; linarith
   · push_cast; linarith
   · push_cast; ring
 
-lemma lat_u {M σ N : ℚ} {α β D : ℕ} (hα : M - σ = α) (hβ : M + σ = β)
+lemma lat_u {M σ N : ℚ} {α β D : ℕ} (_hα : M - σ = α) (hβ : M + σ = β)
     (hD : N - M - 1 = D) (n' : ℕ) (hn' : n' ≤ D) :
     jPlus N σ + mPlus M ((-N + 1 + |M + σ|) / 2 + n') = ((D - n' : ℕ) : ℚ) := by
   rw [abs_of_nonneg (by rw [hβ]; exact Nat.cast_nonneg β), Nat.cast_sub hn']
@@ -335,11 +335,11 @@ lemma kernel_norm {M σ N : ℚ} {α β D : ℕ} (hα : M - σ = α) (hβ : M + 
     refine ⟨⟨α + n, ?_⟩, ⟨β + n, ?_⟩, ⟨D - n, ?_⟩⟩
     · unfold jMinus jPlus; push_cast; linarith
     · unfold jMinus jPlus; push_cast; linarith
-    · unfold jMinus jPlus; rw [Nat.cast_sub hn]; push_cast; linarith
+    · unfold jMinus jPlus; rw [Nat.cast_sub hn]; linarith
   have h1 : IsNat (M + n + M) := ⟨α + β + n, by push_cast; linarith⟩
-  have h2 : IsNat (M + n - M) := ⟨n, by push_cast; ring⟩
+  have h2 : IsNat (M + n - M) := ⟨n, by ring⟩
   have hdo := Phi_discorth hA hNq hK hT h1 h2 hT h1 h2
-  rw [if_pos rfl] at hdo
+  rw [ite_eq_left rfl] at hdo
   have hterm : ∀ n' ∈ Finset.range (D + 1),
       PhiX (M + n) M σ N (xLat M σ N n') * PhiX (M + n) M σ N (xLat M σ N n') =
         c ^ 2 * ((hahnW α β D (D - n') : ℝ) * hahnQ α β D n (D - n') ^ 2) := by

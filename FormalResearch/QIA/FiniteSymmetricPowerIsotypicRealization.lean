@@ -55,9 +55,9 @@ theorem complexSymmetricPower_isNoetherian_of_finite
     [Module A (SymmetricPower ℂ (Fin n) E)]
     [IsScalarTower ℂ A (SymmetricPower ℂ (Fin n) E)] :
     IsNoetherian A (SymmetricPower ℂ (Fin n) E) := by
-  letI : Module.Finite ℂ (SymmetricPower ℂ (Fin n) E) :=
+  let : Module.Finite ℂ (SymmetricPower ℂ (Fin n) E) :=
     complexSymmetricPower_moduleFinite (E := E) (n := n)
-  letI : IsNoetherian ℂ (SymmetricPower ℂ (Fin n) E) := inferInstance
+  let : IsNoetherian ℂ (SymmetricPower ℂ (Fin n) E) := inferInstance
   exact isNoetherian_of_tower ℂ
     (inferInstance : IsNoetherian ℂ (SymmetricPower ℂ (Fin n) E))
 
@@ -90,9 +90,9 @@ theorem symmetricPower_finiteIsotypicEuclideanCarrierCoordinatesWithPositiveCarr
       (∀ c, 0 < d c) ∧
       Nonempty (SymmetricPower ℂ (Fin n) E ≃ₗ[ℂ]
         EuclideanSpace ℂ (isotypicDirectSumCarrier d g)) := by
-  letI : Module.Finite ℂ (SymmetricPower ℂ (Fin n) E) :=
+  let : Module.Finite ℂ (SymmetricPower ℂ (Fin n) E) :=
     complexSymmetricPower_moduleFinite (E := E) (n := n)
-  letI : IsNoetherian A (SymmetricPower ℂ (Fin n) E) :=
+  let : IsNoetherian A (SymmetricPower ℂ (Fin n) E) :=
     complexSymmetricPower_isNoetherian_of_finite (A := A) (E := E) (n := n)
   exact symmetricPower_finiteIsotypicEuclideanCarrierCoordinatesWithPositiveCarrier
     (E := E) (A := A) (n := n)

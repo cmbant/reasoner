@@ -30,7 +30,7 @@ theorem zeroFlipWronskianLin_walsh_of_card_ne_one {n : Nat}
     apply hT
     rw [h]
     simp
-  rw [walshCharacter_orthogonal T {j}, if_neg hne, zero_smul]
+  rw [walshCharacter_orthogonal T {j}, ite_eq_right hne, zero_smul]
 
 /-- Index type for all Boolean Walsh modes except the singleton level. -/
 abbrev NonSingletonWalshIndex (n : Nat) :=

@@ -84,9 +84,7 @@ theorem matrixTraceBilinForm_surjective
   refine ⟨(B.toDual hB).symm f, ?_⟩
   apply LinearMap.ext
   intro X
-  simpa [B] using
-    (LinearMap.BilinForm.apply_toDual_symm_apply
-      (B := B) (hB := hB) f X)
+  simp [B]
 
 /-- Concrete full-matrix specialization of the abstract pure-copy spanning
 core: once trace pairing with every member of `s` separates matrices, `s`

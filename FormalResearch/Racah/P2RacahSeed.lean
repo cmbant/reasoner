@@ -102,7 +102,7 @@ lemma dProd_mul (m : ℚ) (μ u : ℕ) (hμ : (μ : ℚ) = 2 * m) (X : ℝ)
       have : ((2 * M : ℕ) : ℚ) = 2 * m := by rw [← hM]; exact hμ
       push_cast at this; linarith
     have hnat : IsNat m := ⟨M, hmM⟩
-    rw [if_pos hnat]
+    rw [ite_eq_left hnat]
     have hc : ⌈m⌉₊ = M := by rw [hmM, Nat.ceil_natCast]
     unfold dProd
     rw [hc, eq_div_iff hu, show u + μ + 1 = u + (2 * M + 1) by omega, fact_ratio u (2 * M + 1),
@@ -127,7 +127,7 @@ lemma dProd_mul (m : ℚ) (μ u : ℕ) (hμ : (μ : ℚ) = 2 * m) (X : ℝ)
       have : (2 * n : ℚ) = 2 * M + 1 := by rw [← hn, hmM]; ring
       have : 2 * n = 2 * M + 1 := by exact_mod_cast this
       omega
-    rw [if_neg hnat]
+    rw [ite_eq_right hnat]
     have hc : ⌈m⌉₊ = M + 1 := by
       rw [Nat.ceil_eq_iff (by omega), hmM]
       constructor <;> push_cast <;> linarith
@@ -218,8 +218,8 @@ lemma chi_dProd (m : ℚ) (μ u ν : ℕ) (hμ : (μ : ℚ) = 2 * m) (A B : ℝ)
   rw [eq_div_iff hv] at hDB
   by_cases hn : IsNat m
   · unfold chiM
-    rw [if_pos hn]
-    rw [if_pos hn] at hDA hDB
+    rw [ite_eq_left hn]
+    rw [ite_eq_left hn] at hDA hDB
     have eA : dProd m A = (((u + μ + 1).factorial : ℕ) : ℝ) / u.factorial / (2 * A) := by
       field_simp; linarith
     have eB : dProd m B = (((ν + μ + 1).factorial : ℕ) : ℝ) / ν.factorial / (2 * B) := by
@@ -228,8 +228,8 @@ lemma chi_dProd (m : ℚ) (μ u ν : ℕ) (hμ : (μ : ℚ) = 2 * m) (A B : ℝ)
     field_simp
     norm_num
   · unfold chiM
-    rw [if_neg hn]
-    rw [if_neg hn] at hDA hDB
+    rw [ite_eq_right hn]
+    rw [ite_eq_right hn] at hDA hDB
     have eA : dProd m A = (((u + μ + 1).factorial : ℕ) : ℝ) / u.factorial := by
       field_simp; linarith
     have eB : dProd m B = (((ν + μ + 1).factorial : ℕ) : ℝ) / ν.factorial := by

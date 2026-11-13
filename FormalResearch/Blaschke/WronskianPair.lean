@@ -37,6 +37,6 @@ theorem blaschke_pair_wronskian_normSq (c : ℂ) :
         C ((1 - Complex.normSq c : ℝ) : ℂ) := by
   rw [blaschke_pair_wronskian]
   congr 1
-  simpa [Complex.normSq_eq_conj_mul_self]
+  simp [Complex.normSq_eq_conj_mul_self]
 
 end FormalResearch.Blaschke

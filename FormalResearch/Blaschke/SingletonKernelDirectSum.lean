@@ -27,7 +27,7 @@ theorem walshVector_singleton_mem_singletonWalshRange
     {n : Nat} (j : Fin n) :
     walshVector ({j} : Finset (Fin n)) ∈ singletonWalshRange n := by
   refine ⟨Pi.single j 1, ?_⟩
-  simp [singletonWalshRange, singletonWalshSynthesis,
+  simp [singletonWalshSynthesis,
     Fintype.linearCombination_apply_single]
 
 /-- Singleton Walsh modes together with all non-singleton Walsh modes span the

@@ -21,7 +21,7 @@ theorem threeJ_zero_right {j m : ℚ} (ha : IsNat (j + m)) (hb : IsNat (j - m)) 
     have : (2 * j + 1 : ℚ) = ((a + b + 1 : ℕ) : ℚ) := by push_cast; linarith
     exact_mod_cast this
   unfold threeJ
-  rw [if_pos (by ring)]
+  rw [ite_eq_left (by ring)]
   have hS : sgn (j - j - 0) = 1 := by
     rw [show j - j - 0 = ((0 : ℤ) : ℚ) by simp, sgn_intCast]; simp
   have hT : triSq j j 0 = ((a + b + 1 : ℕ) : ℝ)⁻¹ := by
@@ -75,7 +75,7 @@ theorem threeJ_zero_right {j m : ℚ} (ha : IsNat (j + m)) (hb : IsNat (j - m)) 
 
 lemma sgn_of_not_int {x : ℚ} (h : ¬ ∃ n : ℤ, x = n) : sgn x = 0 := by
   unfold sgn
-  rw [dif_neg h]
+  rw [dite_eq_right h]
 
 /-- the other cases (a consequence of the triangle conditions; not a separate DLMF equation): `(j₁ j₂ 0; m₁ m₂ 0) = 0` for `j₁ ≠ j₂`. -/
 theorem threeJ_zero_right_of_ne {j₁ j₂ : ℚ} (h : j₁ ≠ j₂) (m₁ m₂ : ℚ) :

@@ -45,7 +45,7 @@ lemma fq_pos_of_isNat {x : ℚ} (h : IsNat x) : 0 < fq x := by
 
 lemma fq_of_not_isNat {x : ℚ} (h : ¬ IsNat x) : fq x = 0 := by
   unfold fq
-  rw [if_neg]
+  rw [ite_eq_right]
   rintro ⟨h1, h2⟩
   apply h
   refine ⟨x.num.toNat, ?_⟩
