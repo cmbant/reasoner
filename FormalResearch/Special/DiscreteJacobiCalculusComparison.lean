@@ -22,7 +22,7 @@ Airy-free abstract lemmas, all **proved** with explicit constants.
   supersolution `w` (`zop w > 0`): `|zop e| ≤ K zop w` on the interior and `|e| ≤ K w` at the two ends imply
   `|e| ≤ K w` everywhere.  This is the discrete maximum principle; it is a two-sided inhomogeneous
   comparison, whereas `backward_ratio` is a one-sided ratio bound for solutions of the homogeneous equation
-  from a hard edge (both are consequences of the same minimum-of-`y/w` argument; no dependence between them).
+  from a hard edge (unrelated statements and proofs: `backward_ratio` is a downward ratio induction; no dependence between them).
 
 **Not formalised:** the weak-supersolution version (`zop w ≥ 0`, which needs `a > 0`-propagation of the
 minimum), and any Airy-specific supersolution (`g Ai(x - θ)`).
@@ -80,8 +80,10 @@ theorem recessive_selection_general (f1 f2 Y : ℤ → ℝ) (κ μ lam : ℝ) (k
   have := mul_le_mul_of_nonneg_left hgrow (abs_nonneg μ)
   nlinarith
 
-/-- **Recessive selection** (abstract `lem:recessive`, est:291): in addition `|f1 k1| ≤ |f1 k0|` and
-`|f2 k0| > 0`, `λ > 1`: `|μ| ≤ (2/(λ-1)) |κ| (|f1 k0|/|f2 k0|)`. -/
+/-- **Recessive selection** (abstract `lem:recessive`, est:291) for an *exactly recessive* `f1`: in addition
+`|f1 k1| ≤ |f1 k0|` (which holds for the exact recessive solution of the chain, not for GBVA's `f1`, whose
+weight is Bi-sized on the forbidden side; for that `f1` use `recessive_selection_general`, whose bound is
+`|f1 k0| + |f1 k1|`) and `|f2 k0| > 0`, `λ > 1`: `|μ| ≤ (2/(λ-1)) |κ| (|f1 k0|/|f2 k0|)`. -/
 theorem recessive_selection (f1 f2 Y : ℤ → ℝ) (κ μ lam : ℝ) (k0 k1 : ℤ)
     (h0 : Y k0 = κ * f1 k0 + μ * f2 k0) (h1 : Y k1 = κ * f1 k1 + μ * f2 k1)
     (hmono : |Y k1| ≤ |Y k0|) (hlam : 1 < lam) (hgrow : lam * |f2 k0| ≤ |f2 k1|)

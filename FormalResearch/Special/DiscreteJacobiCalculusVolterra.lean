@@ -24,7 +24,8 @@ With `D k = a (k+1) ψ k ψ (k+1) (σ (k+1) - σ k)`:
   `|K| ≤ C h^{5/3}(1+X⁺)^{-1/2}` giving `q ≤ C h` are Airy-specific and live elsewhere).
 
 **Not formalised** here: the existence direction (a solution `σ` of the Volterra equation gives a solution
-`y`; it is not needed since the exact solution `y` is built by the backward recursion), and every Airy-specific
+`y`; it is not needed for the bound; note that the existence of the exact final-value solution `y` by backward
+recursion, given `a ≠ 0`, is not stated here either), and every Airy-specific
 bound on `K`.
 -/
 
