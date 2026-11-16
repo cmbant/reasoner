@@ -215,4 +215,12 @@ theorem langerAmp_eq_rel {u A : ℝ → ℝ} {c ρ1 : ℝ} (hρ1 : 0 < ρ1) (hu3
     rw [this]
     field_simp
 
+/-- info: 'FormalResearch.Special.dun_amp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dun_amp
+
+/-- info: 'FormalResearch.Special.langerAmp_eq_rel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.langerAmp_eq_rel
+
 end FormalResearch.Special

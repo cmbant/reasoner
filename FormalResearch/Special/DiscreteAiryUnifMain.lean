@@ -185,4 +185,12 @@ lemma dun_P_jets {u : ℝ → ℝ} {c ρ0 Ku ε1 B0 B1 B2 : ℝ} (hε1 : ε1 ≤
   · simp
   · simp
 
+/-- info: 'FormalResearch.Special.dun_phi_abs' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dun_phi_abs
+
+/-- info: 'FormalResearch.Special.dun_P_jets' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dun_P_jets
+
 end FormalResearch.Special
