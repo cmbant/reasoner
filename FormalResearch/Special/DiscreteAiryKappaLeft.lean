@@ -13,11 +13,12 @@ adiabatic invariant of `DiscreteAiryKappaInvariant` then varies by the factor `e
 `K ≤ k ≤ k₁` (`|Δa| + |Δc| ≲ β/k² + 9h/(4x)`, whose sum is `≤ β + 2|Mσ| + 9/(4x)`), and the finitely many sites
 `max(|M|,|σ|) ≤ k < K` are controlled by the backward recursion (`a_k ≥ x/(2K²)` there).
 
-* `kl_hahn_left`: **for every solution `Y` of the rows `1 ≤ k ≤ k₁ - 1` with `Y_k = 0` for `k < max(|M|,|σ|)` and
-  `(k₁ h)² ≤ 1 - e²`: `Y_k² ≤ C (Y_{k₁}² + Y_{k₁-1}²)` for every `k ≤ k₁`**, with `K, C` depending on `(M, σ, x, e)` only
-  (not on `h`, `k₁`, `Y`).
+* the coefficient facts for the band (`kl_coef_facts`, here) feed `kl_band` (`DiscreteAiryKappaLeftBand`: comparison of the invariant
+  over `K ≤ k₀ ≤ k₁`), and `kl_hahn_left` (`DiscreteAiryKappaEdge`) adds the finitely many sites below `K` by backward recursion:
+  **for every solution `Y` of the rows `max(|M|,|σ|) < k < k₁` vanishing below `max(|M|,|σ|)`, with `((k₁+1)h)² ≤ 1 - e²`:
+  `Y_k² ≤ C (Y_{k₁}² + Y_{k₁-1}²)` for every `k ≤ k₁`**, `C` depending on `(M, σ, x, e)` only (not on `h`, `k₁`, `Y`).
 
-**Claim class: proved**, explicit constants (`kl_const`).  This is the a priori bound for the part of the `3j` chain to the
+**Claim class: proved**, explicit constants (`kl_Cband`, `ke_C`).  This is the a priori bound for the part of the `3j` chain to the
 left of the macroscopic Airy window (`DiscreteAiryOsc*`): it holds on the entire band including `k = O(1)` (the left
 Hahn edge), with no WKB phase or amplitude input.  Mpmath check of the invariant on the actual chain: see
 `DiscreteAiryKappaInvariant`.

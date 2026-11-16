@@ -24,8 +24,6 @@ and the identity gives `|F_{k+1} - F_k| ≤ ε_k F_k` with `ε_k ≍ |Δa| + |Δ
   `E = Σ ε`: `F_{k₀+n} ≤ e^{E} F_{k₀}` and `F_{k₀} ≤ e^{2E} F_{k₀+n}`.  No oscillatory averaging and no turning-point
   input is used: `E` is `Σ(|Δa| + |Δc|)` over the band, which is `O(1)` whenever the coefficients vary on the
   macroscopic scale (`O(h)` per step) plus a summable `O(k⁻²)` part (the Hahn left end, `DiscreteAiryKappaLeft`).
-* `ki_pair_le`, `ki_pair_ge`: the two-sided pair bounds `S_k ≤ (2 a_{k₁}/(m₀/2)) e^{2E}`-type consequences stated for
-  one pair of endpoints (used for the a priori bound on the left of the Airy window).
 
 **Claim class: proved.**  Pure real algebra plus an induction; no numerical constant.  Numerics (mpmath 30 digits, scratch,
 not a Lean claim): identity residual `< 10⁻³⁰` on the actual Hahn `3j` chain (`M = σ = 1, N = 342, x = 1/2`; `M = 2, σ = 1,
