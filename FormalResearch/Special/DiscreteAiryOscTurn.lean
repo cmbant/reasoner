@@ -34,8 +34,9 @@ and every `X` sampled (also with `±3h²` perturbations of `a, c`).
 `discrete_airy_limit` (both are the exact solution with prescribed values at `N, N+1`, up to normalisation); the comparison of `F₂`
 and `Y` with the parametrix at the site `N+1` (the decomposition `Y = κ f + μ F₂` holds on `[J, N+1]`, the parametrix bounds on
 `[J, N]`); explicit constants and uniformity in families of data; the `h²` phase coefficient `ϖ`; and the application to the
-physical Hahn/Racah chains (their `Eδ⁶` coefficient closeness is established in `discrete_airy_hahn_racah` only on the window
-`X ≥ -A₀` and is not re-derived on the whole window `[c₀ - r, c₀]`).
+physical Hahn/Racah chains.  For the closed-form Hahn chain the required `Eδ⁶` closeness is available on a macroscopic window
+(`hr_perturb` of `DiscreteAiryLimitHahn`, `|q_k - q_*| ≤ r ≤ q_*/4`), so `dao_turn_conclusion` with `r₀ ≤ q_*/4` applies to it
+after the same bookkeeping as `discrete_airy_hahn_racah`; that instantiation, and the Racah analogue, are not carried out here.
 -/
 
 @[expose] public section
