@@ -504,4 +504,16 @@ theorem airyAi'_neg_sq_asymptotic {r : ℝ} (hr : 0 < r) :
     _ ≤ 2 * (1 / (5 * (√r * r ^ 2))) := by gcongr
     _ = 2 / (5 * (√r * r ^ 2)) := by ring
 
+/-- info: 'FormalResearch.Special.airyAi_neg_sq_asymptotic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAi_neg_sq_asymptotic
+
+/-- info: 'FormalResearch.Special.airyAi'_neg_sq_asymptotic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAi'_neg_sq_asymptotic
+
+/-- info: 'FormalResearch.Special.airyBi_neg_sq_asymptotic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyBi_neg_sq_asymptotic
+
 end FormalResearch.Special

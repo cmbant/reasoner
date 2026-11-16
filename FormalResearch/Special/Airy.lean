@@ -13,6 +13,11 @@ public import FormalResearch.Special.AiryKernelOpOperator
 public import FormalResearch.Special.AiryKernelOpComplex
 public import FormalResearch.Special.AiryBridge
 public import FormalResearch.Special.AiryNodes
+public import FormalResearch.Special.AiryAsymSaddle
+public import FormalResearch.Special.AiryAsymNeg
+public import FormalResearch.Special.AiryAsymReal
+public import FormalResearch.Special.AiryAsymPos
+public import FormalResearch.Special.AiryAsymZeros
 
 /-!
 # The Airy function: aggregate and design note
@@ -26,10 +31,15 @@ solution of `y'' = x y`, ODE uniqueness; independent of the definition), `AiryId
 limits), `AiryPositive` (two-sided bounds, `Ai > 0`, `Ai' < 0` on `[0,∞)`), `AiryZeros` (zeros are real and
 negative), `AiryRotation` (`Ai(z) + ω Ai(ωz) + ω² Ai(ω²z) = 0`, `Bi`, Wronskian constant), `AiryKernelOp{Formula,Bounds,Operator,Complex}`
 (the Airy kernel as a Gram integral `∫_0^∞ Ai(x+t)Ai(y+t)dt` for real and complex `x,y`, diagonal bounds, `∫_u^∞ K(s,s)ds`,
-Hilbert–Schmidt/trace finiteness and positivity of the quadratic form).
+Hilbert–Schmidt/trace finiteness and positivity of the quadratic form), `AiryAsym{Saddle,Neg,Real,Pos,Zeros}` (exact
+saddle-point formula `Ai(w²) = (e^{-(2/3)w³}/2π) ∫ exp(-w s² - i s³/3) ds`, `Re w > 0`, with the second-order
+estimate; hence `Ai, Ai', Bi` on the negative axis with explicit `O(y^{-3/2})` relative error, the amplitude and the
+kernel diagonal `K(-y,-y) = √y/π (1+O(y^{-3/2}))`, sharp positive-axis asymptotics, and the location of the zeros
+`y ≥ 4`; no Olver theory).
 
 **Not formalised:** `Ai(0) = 3^{-2/3}/Γ(2/3)`, `Ai'(0)`, the value `W(Ai, Bi) = 1/π` (only `-2√3 Ai(0)Ai'(0) > 0`
-is proved), `Bi` asymptotics, `Ai` for `x < 0` (oscillation, `|x|^{-1/4}` envelope, zero asymptotics), sector
+is proved), `Bi` on the positive axis, `Bi'` on the negative axis, the full asymptotic series (only the first
+term with explicit remainder, `AiryAsym*`), the labelling of the far zeros against the ordered zeros `a_n`, sector
 bounds `|Ai(z)| ≲ |z|^{-1/4} e^{-(2/3) Re z^{3/2}}` and Olver-type uniform expansions, `∫_0^∞ Ai = 1/3`.
 
 Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and the free-fermion edge
