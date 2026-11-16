@@ -13,7 +13,9 @@ ODE argument on `[m, 0]` where `Bi ≥ 0` (`Bi'' = x Bi ≤ 0`): `Bi' ≥ Bi'(0)
 `Bi'' ≥ x(Bi(0) + Bi'(0) x)` and `Bi'(x) ≤ Bi'(0) + Bi(0) x²/2 + Bi'(0) x³/3`; hence
 `Bi(x) ≥ ℓ(x) := Bi(0) + Bi'(0) x + Bi(0) x³/6 + Bi'(0) x⁴/12`.  `ℓ > 0` on `[-11/10, 0]` for the above numerical values
 (`ℓ(-11/10) ≥ 0.013`), so a continuity argument gives `Bi > 0` on `[-11/10, 0]`.
-The first zero of `Bi` is `≈ -1.1737`; this file only gets to `-1.1`.
+Combined with `Bi' > 0` on `[0, ∞)` and the monotonicity of `Bi` this gives `Bi' > 0` and `Bi ≥ 1/100` on
+`[-11/10, ∞)` (`airyBi_ge_one_hundredth`; numerically `Bi(-11/10) ≈ 0.0443`).
+The first zero of `Bi` is `≈ -1.1737`; this file only gets to `-1.1`.  Not formalised: the location of the first zero.
 -/
 
 @[expose] public section
