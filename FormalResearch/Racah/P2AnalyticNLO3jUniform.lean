@@ -11,14 +11,16 @@ Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `cor:uniformNLO` (`eq:3jun
 On the physical lattice `Φ = E_N W_{3j} S(τ,t)`, `S = P̃_{L₀+k}(τ;t) / √Ct(2L+1,1,t)`, with
 `W_{3j} = √(τ^{p_+} τ'^{p_-})` (`W3`), `E_N² = 𝔠_{p_+}(τ,h) 𝔠_{p_-}(τ',h) / (τ^{p_+} τ'^{p_-})`
 (`edgeE3`), `t = N⁻²`.  `S` is analytic near `t = 0`, uniformly for `τ ∈ [0,1]`; its Taylor
-coefficients are `W S₀ = d` and `W S₁ = f_2 + μ d` (`μ = nloMu`, so `-N⁻²μ = e_2^{3j}`), which gives
+coefficients are `W S₀ = d` and `W S₁ = f_2 + μ d` (`μ = nloMu`, so `-μ = e_2^{3j}(x)`, the paper's `N`-free
+`e_2^{3j}`; Lean's `e2three M σ N x = N⁻² e_2^{3j}(x)` carries the factor `N⁻²`), which gives
 
 * `Phi3j_uniform_nlo` (**`eq:3juniformNLO`**): uniformly over all admissible `N` and the whole
   physical lattice `μ`,
-  `|Φ - E_N [d + N⁻² f_2 - e_2^{3j} d]| ≤ C N⁻⁴ E_N W_{3j}`.
+  `|Φ - E_N [d + N⁻² f_2 - e2three · d]| ≤ C N⁻⁴ E_N W_{3j}`, i.e.
+  `Φ = E_N [d + N⁻² (f_2 - e_2^{3j} d)] + O(N⁻⁴) E_N W_{3j}` as in `eq:3juniformNLO`.
 
-Not covered: the statement that `N⁻²f_2 - e_2 d` is `W` times
-a polynomial (the explicit polynomial form).
+Not covered: the statement that `f_2 - e_2^{3j} d` is `W` times
+a polynomial of degree at most `L - L₀` with exactly cancelling endpoint poles (the explicit polynomial form).
 -/
 
 @[expose] public section
@@ -37,7 +39,8 @@ noncomputable def edgeE3 (M σ : ℚ) (x t : ℝ) : ℝ :=
   Real.sqrt (Ct (pPlus3 M σ) ((1 - x) / 2) t * Ct (pMinus3 M σ) ((1 + x) / 2) t /
     (((1 - x) / 2) ^ pPlus3 M σ * ((1 + x) / 2) ^ pMinus3 M σ))
 
-/-- The paper's `e_2^{3j}(x) = -p_+(p_+²-1)/(12N²(1-x)²) - p_-(p_-²-1)/(12N²(1+x)²)`. -/
+/-- `N⁻² e_2^{3j}(x) = -p_+(p_+²-1)/(12N²(1-x)²) - p_-(p_-²-1)/(12N²(1+x)²)`, where the paper's
+`e_2^{3j}(x)` (`cor:uniformNLO`) omits the factor `N⁻²`. -/
 noncomputable def e2three (M σ : ℚ) (N x : ℝ) : ℝ :=
   -((pPlus3 M σ : ℝ) * ((pPlus3 M σ : ℝ) ^ 2 - 1)) / (12 * N ^ 2 * (1 - x) ^ 2) -
     ((pMinus3 M σ : ℝ) * ((pMinus3 M σ : ℝ) ^ 2 - 1)) / (12 * N ^ 2 * (1 + x) ^ 2)
@@ -95,7 +98,7 @@ lemma hasDerivAt_Scarrier3 (M σ : ℚ) (k : ℕ) (τ : ℝ) :
 /-- **Uniform next-to-leading form, `3j`** (`cor:uniformNLO`, `eq:3juniformNLO`; proved): for fixed
 `L = L₀ + k`, `M`, `σ` there are `C, N₀` such that for every admissible `N ≥ N₀` and every point `μ`
 of the physical lattice (`x = 2μ/N`, no restriction to a compact subset of `(-1,1)`),
-`|Φ - E_N [d + N⁻² f_2 - e_2^{3j} d]| ≤ C N⁻⁴ E_N W_{3j}`,
+`|Φ - E_N [d + N⁻² f_2 - e2three · d]| ≤ C N⁻⁴ E_N W_{3j}` (`e2three = N⁻² e_2^{3j}`),
 with `d = d^L_{Mσ}(arccos x)`, `f_2 = (A_2 d' + B_2 d)/(12(x²-1))` (`thm:3jNLO`). -/
 theorem Phi3j_uniform_nlo (M σ L : ℚ) (k : ℕ) (hL : L = max |M| |σ| + k) :
     ∃ C N₀ : ℝ, ∀ N μ : ℚ, SpecAdm M σ N → Lat4 M σ N μ → N₀ ≤ (N : ℝ) →

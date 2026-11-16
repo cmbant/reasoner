@@ -9,8 +9,8 @@ public import FormalResearch.Special.JacobiOrth
 # The singular-pair relation of the beta-binomial channel in `L²(ν_H)` (Weyl P2)
 
 Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `prop:betabinomialpolar`
-(`eq:singularvaluesgeneral`, `eq:betameasure`-`eq:conditionalC`) and Appendix `app:beta-polar`
-(`eq:BernsteinAdjoint`, `eq:BernsteinHahnJacobi`).
+(`eq:singularvaluesgeneral`, `eq:betameasure`-`eq:conditionalC`) and Appendices `app:beta-polar`,
+`app:beta-polar-sv` (`eq:BernsteinAdjoint`, `eq:BernsteinHahnJacobi`).
 
 Notation (`α β D n : ℕ`, `n ≤ D`): `ν_H = t^α(1-t)^β/B dt` on `[0,1]` (`wtJ`, `betaB`, `ipJ`),
 `p_D` (`pD`, `eq:betabinomialmass`), `C_D` (`CopBeta`, `eq:conditionalC`), `C_D^*` (`Cstar`,

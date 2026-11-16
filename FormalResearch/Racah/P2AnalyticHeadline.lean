@@ -31,6 +31,7 @@ the Wigner function, exactly as in the paper.
   admissible `f, m, n`: `f ± m`, `f ± n` natural numbers; `G_{f,2r}` = `G6even f m n r`; the open
   strict-triangle cone = `StrictTri` (on normalised shapes, scale invariant); `𝒯_δ` = `TriDelta δ`, in
   homogeneous form `δ H ≤ min(A,B,C,A+B-C,A+C-B,B+C-A)` (`Tmin`), `H = max (A,B,C)` (`Hscale`).
+* The homogeneous scale `Λ = A+B+C` of `thm:6jeven` is written `S` in the Lean files (`S⁻² = t`).
 * `W(x) = ((1-x)/2)^{p/2} ((1+x)/2)^{q/2}` = `Wedge p q x`; `E_N W_{3j}` = `edgeEnv3 M σ x N⁻²`;
   `E_{A,B}(C) W_{6j}(x)` = `edgeEW`.
 
@@ -47,14 +48,16 @@ the Wigner function, exactly as in the paper.
   `d(arccos x_N) = d(π/2) + x_N d'(0) + O(N⁻²)` and `Φ` has the same expansion.
 * `thm_6jeven` (**`thm:6jeven`**, proved): `G_{f,2r}` real analytic on the whole open strict-triangle
   cone, homogeneous of degree `-2r`, `G_{f,0} = d^f_{nm}(arccos x)`, `x = (A²+B²-C²)/(2AB)`, the germ
-  in `S⁻²` (`G_{f,2r} = S^{-2r} a_{f,r}`) with a uniform radius over compact shape sets, and the
+  in `Λ⁻²` (Lean `S⁻²`; `G_{f,2r} = Λ^{-2r} a_{f,r}`) with a uniform radius over compact shape sets, and the
   expansion `Φ_f = ∑_{r<R} G_{f,2r} + O(H^{-2R})` on `𝒯_δ`.
 * `thm_uniformedge_3j` (**`thm:uniformedge`(a)**) and `thm_uniformedge_6j` (**`thm:uniformedge`(b)**):
   the uniform edge-factorised expansions with `W s_0 = d^L_{Mσ}(arccos x)`, resp.
   `d^f_{nm}(arccos x)`.
 
 Not covered: that the coefficients of `s_r` in (b) are rational in `δ` with poles only at `δ = ±1`
-(`P2AnalyticUniform6j` proves analyticity in `δ ∈ (-1,1)`), the convergence-domain statements.
+(`P2AnalyticUniform6j` proves analyticity in `δ ∈ (-1,1)`, and `P2AnalyticSymm6j` that they are even in `δ`), and the
+last sentence of `thm:uniformedge` (convergence of the `s_r` series for `N > L`, respectively `2 min(A,B) > f`,
+and that these are the exact domains).  The explicit radii of `rem:exactradii` are not formalised either.
 -/
 
 @[expose] public section

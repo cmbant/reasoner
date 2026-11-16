@@ -642,7 +642,7 @@ noncomputable def s6 (f m n : ℚ) (r : ℕ) (τ δ : ℝ) : ℝ :=
   else if |m| ≤ n then (-1 : ℝ) ^ ⌊m - n⌋ * s6c n m ⌊f - n⌋₊ r τ (-δ)
   else s6c (-n) (-m) ⌊f + n⌋₊ r τ (-δ)
 
-/-- **Edge-factorised exact identity** (`lem:sqrtfreecarrier` + `eq:6jEdgeFactors`): at every
+/-- **Edge-factorised exact identity** (`lem:sqrtfreecarrier6j` + `eq:6jEdgeFactors`): at every
 physical point and in every chamber,
 `Φ_f = E_{A,B}(C) W_{6j}(x) · Hall f m n τ δ t`, with `p_min = ⌊|m-n|⌋₊`, `p_max = ⌊|m+n|⌋₊`,
 `τ = (1-x)/2`, `δ = (A-B)/(A+B)`, `t = (A+B)⁻²`. -/

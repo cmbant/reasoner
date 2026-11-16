@@ -18,7 +18,7 @@ dictionary); this half is a separate module because it needs `P2AnalyticBridge6j
 * `thm_6jeven` (**`thm:6jeven`**, proved): the functions `G_{f,2r} = G6even f m n r` are real analytic
   on the whole open strict-triangle cone `StrictTri`, homogeneous of degree `-2r`, with
   `G_{f,0}(A,B,C) = d^f_{nm}(arccos x)`, `x = (A²+B²-C²)/(2AB)` (`wignerSmallDx f n m (cosA A B C)`);
-  they are `S^{-2r} a_{f,r}((A,B,C)/S)`, `S = A+B+C`, where `a_{f,r}` is the `t^r` Taylor coefficient
+  they are `Λ^{-2r} a_{f,r}((A,B,C)/Λ)`, `Λ = A+B+C` (written `S` in the Lean files), where `a_{f,r}` is the `t^r` Taylor coefficient
   of the germ `t ↦ G6 f m n (α,β,γ) t`, real analytic jointly in shape and `t` on `Dom6 f m n`, with a
   positive uniform radius `ρ` over every compact set of strict-triangle shapes; `Φ_f` is the germ at
   `t = S⁻²` exactly (`Phi6_eq_G6`); and
@@ -27,7 +27,9 @@ dictionary); this half is a separate module because it needs `P2AnalyticBridge6j
   edge-factorised expansion `Φ = E W [∑ s_r (A+B)^{-2r} + O((A+B)^{-2R})]`; `0 < c ≤ E ≤ 1`.
 
 Not covered: that the coefficients of `s_r` are rational in `δ` with poles only at `δ = ±1`
-(`analyticOnNhd_cKc` gives analyticity on `(-1,1)` for the canonical sector), the convergence domain.
+(`analyticOnNhd_cKc` gives analyticity on `(-1,1)` for the canonical sector; evenness in `δ` is
+`s6_neg_delta`), and the convergence domain `2 min(A,B) > f` with its exactness (last sentence of
+`thm:uniformedge`).
 -/
 
 @[expose] public section

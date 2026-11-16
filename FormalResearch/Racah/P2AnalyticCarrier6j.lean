@@ -4,10 +4,15 @@ public import FormalResearch.Racah.P2RacahSeed
 public import FormalResearch.Racah.P2AnalyticCt
 
 /-!
-# The square-root-free carrier of the one-small `6j` family (Weyl P2, `lem:sqrtfreecarrier`)
+# The square-root-free carrier of the one-small `6j` family (Weyl P2, `lem:sqrtfreecarrier6j`)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `lem:sqrtfreecarrier` (`eq:sqrtfreecarrier`,
-`eq:6jrankpoly`) together with `lem:6jseed`, `eq:6jexceptionalseed` and `eq:6jEdgeProducts`.
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `lem:sqrtfreecarrier6j` (`eq:sqrtfreecarrier6j`,
+`eq:6jrankpoly`; `sec:6jcarrier`) together with `lem:6jseed`, `eq:6jexceptionalseed`, `eq:6jEdgeFactors` and
+`eq:6jEdgeProducts`.  (The paper's `3j` half is `lem:sqrtfreecarrier`.)  Lean's `τ = (1-x)/2` is the paper's
+`ς`; the paper's `τ` is `mn`.  The identification `P̃_f = k_{6j} q_{f-m}(ς; S⁻¹, δ)` with the even Racah
+deformation (`eq:carrierRacah6j`, `lem:evendeformation6j`) is not formalised: the Lean route defines `P̃` by
+the recurrence, identifies its zero-scale value with the Wigner `d` (`P2AnalyticBridge6j`) and its leading
+coefficient (`P2AnalyticLeading`, `P2AnalyticLeading6jChambers`).
 
 ## Dictionary (paper symbol -> Lean symbol)
 
@@ -341,7 +346,7 @@ lemma piSix_pos (f : ℚ) (A B : ℝ) (hA : 0 < A) (hB : 0 < B)
   exact mul_pos (by linarith) (by linarith)
 
 /-- The seed `Φ_m` in carrier form: `Φ_m = E W Π_m^{-1/2} √C(2m, m+n)`
-(`lem:6jseed` + `eq:6jEdgeProducts`, as used in the proof of `lem:sqrtfreecarrier`). -/
+(`lem:6jseed` + `eq:6jEdgeProducts`, as used in the proof of `lem:sqrtfreecarrier6j`). -/
 theorem Phi6_seed_carrier (a b c m n : ℚ) (h1 : IsTri m (b + m) b) (h2 : IsTri m a (a + n))
     (h3 : IsTri c a b) (h4 : IsTri c (b + m) (a + n)) :
     Phi6 a b c m m n =

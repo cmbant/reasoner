@@ -7,8 +7,9 @@ public import FormalResearch.Wigner.WignerDODE
 # First `6j` correction: the Wigner-`d` algebra (Weyl P2, `thm:6jclosedcorrection`)
 
 Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `thm:6jclosedcorrection` (`eq:6jclosedg`,
-`eq:6jPf`, `eq:6jQf`, `eq:6jforcingconstants`), the rank ladders `eq:dranklower`, `eq:drankupper` and
-the Wigner equation.
+`eq:6jPf`, `eq:6jQf`, `eq:6jforcingconstants`), the Wigner rank ladders (standard identities, Varshalovich 4.8;
+`wignerSmallD_rank_lower/upper` in `Wigner/WignerDLadder`, no longer labelled equations of the paper) and the
+Wigner equation.
 
 This file is the pure Wigner-`d` half of the induction in `P2AnalyticNLO6j`: it knows nothing about
 the `6j` carrier.  In the *shape-homogeneous* variables `ρ = (α⁻²+β⁻²)/8`, `w = 1/(αβ)` (for a

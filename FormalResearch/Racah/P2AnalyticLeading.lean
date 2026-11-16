@@ -8,17 +8,17 @@ public import FormalResearch.Special.JacobiInt
 public import FormalResearch.Special.JacobiZeros
 
 /-!
-# Weyl P2: the leading coefficients of the carriers (`eq:WignerJacobiMonic`, `lem:sqrtfreecarrier`)
+# Weyl P2: the leading coefficients of the carriers (`eq:WignerJacobiMonic`, `eq:WignerJacobiMonic6j`)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `eq:WignerJacobiMonic`,
-`lem:sqrtfreecarrier` ("their leading coefficients are the constants `k_{3j}`, `k_{6j}` of
-`eq:WignerJacobiMonic`"), and the end of its proof ("the leading coefficient obeys a recursion
-independent of the large scale, so it equals its zero-scale value, at which `eq:sqrtfreecarrier` is
-`eq:WignerJacobiMonic`").
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `eq:WignerJacobiMonic` (`3j`, with `eq:kconstants`),
+`eq:WignerJacobiMonic6j` (`6j`, `k_{6j} = ε(n,m) κ`), `lem:sqrtfreecarrier` (`3j`: leading coefficient `k_{3j}`)
+and `lem:sqrtfreecarrier6j` (`6j`: leading coefficient `ε_{mn} k_{6j}`), and the end of their proofs ("the leading
+coefficient obeys a recursion independent of the large scale, so it equals its zero-scale value, at which
+`eq:sqrtfreecarrier` (`eq:sqrtfreecarrier6j`) is `eq:WignerJacobiMonic` (`eq:WignerJacobiMonic6j`)").
 
 The paper's statement is
 `d^L_{Mσ}(arccos x) = k_{3j} W_{3j}(x) P̂^{(p_+,p_-)}_{L-L₀}((1-x)/2)`, `P̂` the monic Jacobi polynomial in
-`τ = (1-x)/2`, and likewise for `6j`.  Here the constants are *identified*: `k_{3j} = lead3 M σ k`,
+`ς = (1-x)/2` (Lean `τ`), and likewise for `6j`.  Here the constants are *identified*: `k_{3j} = lead3 M σ k`,
 `k_{6j} = kLead m n d` (the `τ^k`-coefficients of the carriers), and
 
 `k = sign · √(k!(k+μ+ν)!/((k+μ)!(k+ν)!)) · (-2)^k · [X^k] P_k^{(μ,ν)} = sign · (-1)^k
@@ -319,7 +319,7 @@ lemma abs_le_of_labels {m n : ℚ} {p q : ℕ} (hp : m - n = p) (hq : m + n = q)
   have h2 : (0 : ℚ) ≤ q := Nat.cast_nonneg q
   exact abs_le.mpr ⟨by linarith, by linarith⟩
 
-/-- **Leading coefficient of the `6j` carrier** (`lem:sqrtfreecarrier`, `eq:WignerJacobiMonic`):
+/-- **Leading coefficient of the `6j` carrier** (`lem:sqrtfreecarrier6j`, `eq:WignerJacobiMonic6j`):
 `k_{6j} = kLead m n d = c_d · (-2)^d · [X^d] P_d^{(m-n,m+n)}`, `c_d = √(d!(d+2m)!/((d+m-n)!(d+m+n)!))`
 (canonical sector `m ∓ n` natural; no sign). -/
 theorem kLead_eq_jacobi (m n : ℚ) (p q : ℕ) (hp : m - n = p) (hq : m + n = q) (d : ℕ) :

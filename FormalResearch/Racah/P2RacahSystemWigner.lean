@@ -4,7 +4,7 @@ public import FormalResearch.Racah.P2RacahSystem
 
 /-!
 # The exact finite Racah-to-Wigner spectral map, abstract form
-(Weyl P2, `prop:6jRacahTransmutation`)
+(Weyl P2, `prop:6jRacahTransmutation`, a corollary in the current paper)
 
 Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, *Exact Racah-to-Wigner transmutation*,
 `eq:6jRacahSpectralMap`-`eq:6jRacahIntertwine`.

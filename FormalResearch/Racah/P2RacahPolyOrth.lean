@@ -12,7 +12,8 @@ realization*.  Canonical sector `|n| ≤ m`, lattice `c_i = c_min + i`, `0 ≤ i
 
 * `physPi`: `π_c = ω_c (2m+1)/2 · Φ_m(c)²`; `physPi_eq`: `= (2c+1)(2m+1)/(4AB) 𝒮_m(A,B,c+1/2)`;
   `physPi_pos`.
-* `physR`: `ℛ_r(c) = √((2(m+r)+1)/(2m+1)) Φ_{m+r}(c)/Φ_m(c)`.
+* `physR`: `ℛ_r(c) = √((2(m+r)+1)/(2m+1)) Φ_{m+r}(c)/Φ_m(c)` (the paper's `𝒰_r(c)` of
+  `eq:physicalRacahPolynomial`; `ℛ_r` in this file, not the edge factor `ℛ_p` of `eq:universalEdgeFactor`).
 * `physR_eq`: `ℛ_r(c_min+y) = ℛ_r(c_min) Q^R_r(y)` (`eq:physicalRacahExplicit`).
 * `physR_orthonormal`: `∑_c π_c ℛ_r(c) ℛ_s(c) = δ_{rs}` (`eq:physicalRacahPolyOrth`);
   `physPi_sum`: `∑_c π_c = 1`.

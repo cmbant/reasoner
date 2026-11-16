@@ -8,7 +8,7 @@ public import FormalResearch.Racah.P2HahnKernel
 # The physical gauges and `eq:SNpolar` (Weyl P2, `prop:betabinomialpolar`)
 
 Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `prop:betabinomialpolar` (`eq:SNpolar`),
-Appendix `app:beta-polar` (`eq:GcGauge`-`eq:physicalGaugeModes`).
+Appendix `app:beta-polar-sv` (`eq:GcGauge`-`eq:physicalGaugeModes`).
 
 * `Gd`: the gauge `G_d` (`eq:GdGauge`), `Gd_ipN` its isometry into `ℓ²(𝒳_N, 2h)`;
 * `vN_eq_Gd`: `v_L = (-1)^α G_d H_n` (`eq:physicalGaugeModes`, discrete half), from `eq:ExactHahnKernel`

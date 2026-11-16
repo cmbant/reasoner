@@ -7,8 +7,9 @@ public import FormalResearch.Wigner.ThreeJSym
 /-!
 # The Weyl-midpoint `6j` family and its exact rank recurrence (Weyl P2, `lem:6jrec`)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, sections *Setup and the canonical midpoint*,
-*Regge plus Weyl shift explains the midpoint*, *Exact centered Racah recurrence*.
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `sec:6jsetup` (*The one-small `6j` symbol: centering and
+recurrence*: the setup, the subsections *Regge symmetry and the Weyl shift explain the midpoint* and *Exact
+centered Racah recurrence*).
 
 ## Dictionary (paper symbol -> Lean symbol)
 

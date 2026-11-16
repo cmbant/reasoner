@@ -7,7 +7,7 @@ public import FormalResearch.Racah.WeylCellWidth
 /-!
 # The finite Racah system on the physical `c`-lattice: the exact algebra (Weyl P2, `thm:6jfiniteRacah`)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, section *Exact finite Racah spectral system on
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, subsection *Exact finite Racah spectral system on
 the physical `c`-lattice* (`sec:6jcspectral`).  This file contains the parts of the proof of
 `thm:6jfiniteRacah` that do not use the orthogonality DLMF 34.5.14: the finite lattice
 (`eq:cminRacah`-`eq:Racahdimension`), the edge factor and its closure at the two ends, the

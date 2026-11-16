@@ -6,7 +6,10 @@ public import FormalResearch.Racah.P2AnalyticCarrier3jRec
 # The `3j` square-root-free carrier (Weyl P2, `lem:sqrtfreecarrier`): summary and consequences
 
 Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `lem:sqrtfreecarrier` (`eq:sqrtfreecarrier`,
-`eq:3jrankpoly`), Appendix G.  Modules: `P2AnalyticCarrier3jDef` (definitions, polynomiality),
+`eq:3jrankpoly`, `eq:3jcarrierstart`; `sec:3jcarrier`).  Lean's `τ = (1-x)/2` is the paper's `ς`.  The identification
+`P̃_L = k_{3j} q_{L-L₀}` with the even Hahn deformation (`eq:carrierHahnRacah`, `lem:evendeformation`) is not
+formalised: the Lean route defines `P̃` by the recurrence and identifies its `t = 0` value with the Wigner `d`
+(`P2AnalyticBridge3j`) and its leading coefficient (`P2AnalyticLeading`).  Modules: `P2AnalyticCarrier3jDef` (definitions, polynomiality),
 `P2AnalyticCarrier3jSeed` (the starts in every chamber), `P2AnalyticCarrier3jRec` (the induction,
 `Phi3j_carrier`); this file collects the results and adds the closed-form germ `Gc3`, the
 `t = 0` carrier `dZero3`, the rank recurrence of `ptilde3` and its leading coefficient.
