@@ -18,8 +18,8 @@ Statement formalised (Weierstrass 1876; e.g. Conway, *Functions of one complex v
 * `Hadamard.logDeriv_canonProd`: off the range of `a`, `Φ'/Φ (z) = Σ_i (z/a_i)^p / (z - a_i)`
   (`Hadamard.logDeriv_E_comp`: the individual factor).
 
-All of these are **proved**.  Not formalised in this module: the order of vanishing of the canonical product at each
-`a_i` (it follows, for the entire functions treated in `HadamardFactorization`, from the factorization itself).
+All of these are **proved**.  The order of vanishing of the canonical product at each `a_i` is not treated in this
+module; it is `Hadamard.analyticOrderNatAt_canonProd` in `HadamardProductOrder`.
 -/
 
 @[expose] public section

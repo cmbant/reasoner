@@ -10,8 +10,9 @@ public import FormalResearch.Special.AiryPositive
 /-!
 # The Hadamard product of the Airy function (milestone H5)
 
-Statement formalised (DLMF 9.9.? / Olver, *Asymptotics and Special Functions*, Ch. 11 §§; the Hadamard product of an
-entire function of order `3/2` and genus `1`): with `a_n = airyZero (n+1) < 0` the zeros of `Ai` (simple, real, negative),
+Statement formalised (an application of `Hadamard.hadamard` to the entire function `Ai` of order `3/2`, genus `1`; the
+zeros are as in DLMF §9.9(i); the product form itself is the classical consequence of Hadamard's theorem, cf. Boas,
+*Entire functions*, Ch. 2, not a numbered DLMF formula): with `a_n = airyZero (n+1) < 0` the zeros of `Ai` (simple, real, negative),
 `Σ_n |a_n|^{-2} < ∞` and for all `z ∈ ℂ`
 
 `Ai(z) = Ai(0) · exp (z Ai'(0)/Ai(0)) · ∏_{n ≥ 1} (1 - z/a_n) exp (z/a_n)`

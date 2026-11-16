@@ -5,7 +5,7 @@ public import Mathlib
 /-!
 # Analytic utilities for the Hadamard factorization (Cauchy estimates, logarithms, polynomials)
 
-All **proved**; generic statements used by `HadamardBlaschke` and `HadamardFactorization`.
+All **proved**; generic statements used by `HadamardBlaschke` and `HadamardMain`.
 
 * `Hadamard.norm_iteratedDeriv_le_ball`: Cauchy estimate `‖h^{(n)}(z)‖ ≤ n! A (4/R)^n` for `‖z‖ < R/4`
   if `‖h‖ ≤ A` on `‖w‖ < R/2` (from Mathlib's `norm_iteratedDeriv_le_of_forall_mem_sphere_norm_le`).
