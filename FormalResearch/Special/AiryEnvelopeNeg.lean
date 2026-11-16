@@ -153,4 +153,8 @@ theorem airyAi_pos_of_neg_one_le {x : ℝ} (hx : -1 ≤ x) : 0 < airyAi x := by
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyAi_pos_of_neg_one_le
 
+/-- info: 'FormalResearch.Special.airyAi_pos_Icc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAi_pos_Icc
+
 end FormalResearch.Special

@@ -118,4 +118,12 @@ theorem airy_deriv_norm_le_free_param {c : ℝ} (hc : 0 < c) (z : ℂ) :
           (integrable_abs_gauss_shift hc s₀), integral_const_mul, integral_gauss_shift,
           integral_abs_gauss_shift hc, hs₀']
 
+/-- info: 'FormalResearch.Special.airy_norm_le_free_param' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airy_norm_le_free_param
+
+/-- info: 'FormalResearch.Special.airy_deriv_norm_le_free_param' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airy_deriv_norm_le_free_param
+
 end FormalResearch.Special

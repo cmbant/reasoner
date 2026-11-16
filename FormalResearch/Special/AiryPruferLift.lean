@@ -23,7 +23,7 @@ differentiable **Prüfer angle** `θ` (`cot θ = y'/y`).  It satisfies
   (`IsPruferLift.hasDerivAt_eq_one_of_zero`).
 * `IsPruferLift.contDiff_one`: `θ` is `C¹` (its derivative is continuous).
 
-Not formalised: uniqueness of the lift up to an additive `2πℤ` (not needed downstream), the
+Uniqueness of the lift up to an additive `2πℤ` is in `SturmAiryPruferUnique`.  Not formalised: the
 complex (Herglotz) form of the log-derivative.
 -/
 
