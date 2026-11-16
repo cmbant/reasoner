@@ -13,7 +13,7 @@ residue classes of the exponent mod 3 (`Nat.sumByResidueClasses`) gives, for eve
 
 * `airyAiC_eq_taylor`: `Ai(z) = Ai(0) F(z) + Ai'(0) G(z)`, where
   `F(z) = Σ_j A_j z^{3j}/(3j)!` and `G(z) = Σ_j B_j z^{3j+1}/(3j+1)!` (`airyTaylorF`, `airyTaylorG`;
-  classically `0F1(; 2/3; z³/9)` and `z · 0F1(; 4/3; z³/9)`, which is not formalised here);
+  classically `0F1(; 2/3; z³/9)` and `z · 0F1(; 4/3; z³/9)`, identified in `AiryHypergeometric`);
 * `hasSum_airyTaylorF`, `hasSum_airyTaylorG`: both series converge for every `z` (they are the
   residue-class subseries of the absolutely convergent Taylor series of `Ai`, whose first two
   coefficients `Ai(0), Ai'(0)` are nonzero), so `F, G` are entire;

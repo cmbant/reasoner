@@ -24,6 +24,9 @@ public import FormalResearch.Special.AiryPruferZeros
 public import FormalResearch.Special.SturmAiryLevels
 public import FormalResearch.Special.SturmAiryPruferUnique
 public import FormalResearch.Special.SturmAiryNodes
+public import FormalResearch.Special.DiscreteJacobiCalculus
+public import FormalResearch.Special.DiscreteJacobiCalculusVolterra
+public import FormalResearch.Special.DiscreteJacobiCalculusComparison
 
 /-!
 # Special functions: Jacobi polynomials

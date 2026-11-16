@@ -20,8 +20,9 @@ nothing more:
   particular for `f` continuous with compact support, restricted to `(u,∞)`
   (`airyKer_quadForm_nonneg_Ioi`).
 
-**Not formalised:** `K_u` as a bounded operator on `L²(u,∞)` (the quadratic-form bound is not stated as an
-operator norm), the factorisation `K_u = A_u A_u^*` as operators, the spectral statements (trace-class norm
+The bound `∫(K_u f)² ≤ N_Ai(u)² ∫f²` and positivity on all of `L²` are in `AiryKernelOpL2` (function level).
+
+**Not formalised:** `K_u` as an element of `Lp ℝ 2 →L[ℝ] Lp ℝ 2`, the factorisation `K_u = A_u A_u^*` as operators, the spectral statements (trace-class norm
 equal to the trace, eigenvalue decay, Fredholm determinant).
 -/
 

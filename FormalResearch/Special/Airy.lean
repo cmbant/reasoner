@@ -19,6 +19,17 @@ public import FormalResearch.Special.AiryBridge
 public import FormalResearch.Special.AiryNodes
 public import FormalResearch.Special.AiryEnvelope
 public import FormalResearch.Special.AiryEnvelopeReal
+public import FormalResearch.Special.AiryAbel
+public import FormalResearch.Special.AiryIntegralArc
+public import FormalResearch.Special.AiryIntegral
+public import FormalResearch.Special.AiryHypergeometric
+public import FormalResearch.Special.AiryKernelOpL2
+public import FormalResearch.Special.AiryGram
+public import FormalResearch.Special.AiryEnvCalculus
+public import FormalResearch.Special.AiryAsymSector
+public import FormalResearch.Special.AiryAsymNegComplex
+public import FormalResearch.Special.AiryGoodCircles
+public import FormalResearch.Special.AiryRatioBounds
 public import FormalResearch.Special.AiryAsymSaddle
 public import FormalResearch.Special.AiryAsymNeg
 public import FormalResearch.Special.AiryAsymReal
@@ -43,6 +54,12 @@ the rays `arg t = ±π/3`), `AiryTaylor` (`Ai = Ai(0) F + Ai'(0) G` with the exp
 complex `x,y`, diagonal bounds, `∫_u^∞ K(s,s)ds`, Hilbert–Schmidt/trace finiteness and positivity of the quadratic form),
 `AiryEnvelope*` (free-parameter bound for every `c > 0`; the complex envelope `|Ai(z)| ≲ (1+|z|)^{-1/4} e^{-(2/3) Re z^{3/2}}`
 on all of `ℂ`, the same for `Ai'`, order `3/2`; `Ai > 0` on `[-1, ∞)` and the two-sided real-axis envelope there),
+`AiryIntegral*`, `AiryAbel` (`∫_0^∞ Ai = 1/3`, `∫_{-T}^0 Ai → 2/3`, `∫_{-S}^T Ai → 1` by an entire primitive, the rotation identity and
+an Abelian theorem), `AiryHypergeometric` (`Ai` through Mathlib's regularized `₀F₁`), `AiryKernelOpL2` (`K_u` on `L²(u,∞)` at function
+level: `∫(K_u f)² ≤ N_Ai(u)² ∫f²`, symmetric, positive), `AiryGram` (Abel-regularised orthogonality of translates),
+`AiryEnvCalculus`, `AiryAsymSector`, `AiryAsymNegComplex`, `AiryGoodCircles`, `AiryRatioBounds` (envelope calculus `e(u+τ) ≤ e(u)e^{-2τ Re√u}`,
+sector asymptotics with relative remainder, `Ai` near the negative axis for complex phase, zero-free good circles with
+`‖Ai‖² ≥ c(1+r)^{-1/2} e` for the pure-`Ai` case of (E2), and `|(Bi ∓ iAi)/Ai| e ≤ C` there),
 `AiryAsym{Saddle,Neg,Real,Pos,Zeros}` (exact
 saddle-point formula `Ai(w²) = (e^{-(2/3)w³}/2π) ∫ exp(-w s² - i s³/3) ds`, `Re w > 0`, with the second-order
 estimate; hence `Ai, Ai', Bi` on the negative axis with explicit `O(y^{-3/2})` relative error, the amplitude
@@ -51,9 +68,8 @@ location of the zeros `y ≥ 4`; no Olver theory).
 
 **Not formalised:** `Bi` on the positive axis, `Bi'` on the negative axis, the full asymptotic series (only the first
 term with explicit remainder, `AiryAsym*`), the labelling of the far zeros against the ordered zeros `a_n` and the
-Prüfer-angle asymptotics, lower bounds for `|Ai(z)|` off the real axis, Olver-type uniform expansions, the
-conditionally convergent improper integrals `∫_{-∞}^∞ Ai = 1` and `∫_0^∞ Ai = 1/3` (only their Abel-regularised forms
-`∫ Ai(x) e^{εx} dx = e^{ε³/3}` are proved).
+Prüfer-angle asymptotics, Olver-type uniform expansions, the Mellin moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`, the `Lp`-level
+operator `K_u`, and the `Ai'` and `P Ai + Q Ai'` versions of (E2).
 
 Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and the free-fermion edge
 (`Weyl/free_fermion`, `thm:edge`) need next, and what is now reachable.

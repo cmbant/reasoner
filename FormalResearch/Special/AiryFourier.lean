@@ -18,8 +18,9 @@ integrable on `(-∞, 0)` (it oscillates with envelope `|x|^{-1/4}`), so the for
 * `integral_airyAi_mul_exp`: the real case `∫ Ai(x) e^{a x} dx = e^{a³/3}`, `a > 0`;
 * `tendsto_integral_airyAi_fourier`: `∫ Ai(x) e^{εx - iωx} dx = e^{(ε-iω)³/3} → e^{iω³/3}` as `ε → 0⁺`.
 
-**Not formalised:** the conditionally convergent improper integrals `∫_{-∞}^{∞} Ai = 1` and
-`∫_0^∞ Ai = 1/3`, and the Fourier transform of `Ai` as an `L²` / tempered-distribution identity.
+The conditionally convergent improper integrals `∫_{-∞}^{∞} Ai = 1` and `∫_0^∞ Ai = 1/3` are in `AiryIntegral`.
+
+**Not formalised:** the Fourier transform of `Ai` as an `L²` / tempered-distribution identity.
 -/
 
 @[expose] public section
