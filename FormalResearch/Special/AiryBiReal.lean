@@ -72,4 +72,16 @@ theorem airyWronskian_real (x : ℝ) : airyAi x * airyBiDeriv x - airyAi' x * ai
   rw [airyAiC_ofReal, deriv_airyAiC_ofReal, airyBiC_ofReal, airyBiC'_ofReal] at h
   exact_mod_cast h
 
+/-- info: 'FormalResearch.Special.hasDerivAt_airyBi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.hasDerivAt_airyBi
+
+/-- info: 'FormalResearch.Special.hasDerivAt_airyBiDeriv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.hasDerivAt_airyBiDeriv
+
+/-- info: 'FormalResearch.Special.airyWronskian_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyWronskian_real
+
 end FormalResearch.Special

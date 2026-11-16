@@ -324,7 +324,7 @@ lemma rpow_neg_thirteen_quarter {y : ℝ} (hy : 0 < y) :
     ← Real.rpow_add hy]
   norm_num
 
-/-- **`χ = Ai + iBi` with the `u₁ = 5/72` correction** (DLMF 9.7.9–9.7.11 combined, 9.7.15 for `u₁`): for every `y > 0`,
+/-- **`χ = Ai + iBi` with the `u₁ = 5/72` correction** (DLMF 9.7.9–9.7.11 combined, 9.7.3 for `u₁`): for every `y > 0`,
 with `ξ = (2/3) y^{3/2}` and `θ = ξ - π/4`,
 `‖Ai(-y) + i Bi(-y) - π^{-1/2} y^{-1/4} e^{-iθ} (1 + i (5/72)/ξ)‖ ≤ (1/5) y^{-13/4}`,
 i.e. relative error `O(y^{-3}) = O(ξ^{-2})` (the order of `u₂`). -/
