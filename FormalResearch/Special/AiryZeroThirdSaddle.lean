@@ -19,7 +19,7 @@ and the Gaussian moments `∫ s^{2k} e^{-w s²} = ((2k-1)!!/(2w)^k)(π/w)^{1/2}`
 * **`norm_airyAiC_sq_general_le`**: the same for `Ai(w²)` with the prefactor `e^{-(2/3)w³}/(2π)`;
   `norm_saddleJ0_fifth_le`: the case `N = 5` with explicit coefficients, used by `AiryZeroThirdChi`.
 
-Proved here: everything stated; the exact values `c_3`, `c_4` agree with `-u_3 (9/4)^{3}...`-type scaling of DLMF 9.7.2.
+Proved here: everything stated; the exact values `c_1, …, c_4` agree with `(-3/2)^j u_j` for the DLMF 9.7.2 coefficients `u_j` (`ξ = (2/3) w³`).
 **Not formalised:** sector-uniform versions, and the expansion of `Ai'`.
 -/
 

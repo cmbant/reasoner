@@ -9,14 +9,14 @@ Short consequences of `airyZero_second_order` (`AiryZeroSecondOrder`, DLMF 9.9.1
 with `t_n = (3π/2)(n - 1/4)` and `T₂(t) = t^{2/3}(1 + 5/(48 t²))`:
 
 * `airyZero_nat_div_shift`, `airyZero_nat_div_T_tendsto`: `n / t_n → 2/(3π)`;
-* **`airyZero_delta_tendsto`**: `n^{4/3} (a_n + t_n^{2/3}) → -(5/48) (3π/2)^{-4/3}` (the sharp limit, `= -0.01319…`);
+* **`airyZero_delta_tendsto`**: `n^{4/3} (a_n + t_n^{2/3}) → -(5/48) (3π/2)^{-4/3}` (the sharp limit, `= -0.013185…`);
 * `airyZero_abs_div_tendsto`: `|a_n| / n^{2/3} → (3π/2)^{2/3}`;
 * **`airyZero_gap_second`**: for `n ≥ 2`, `|(a_n - a_{n+1}) - (T₂(t_{n+1}) - T₂(t_n))| ≤ 4 t_n^{-10/3}` (the second-order
   spacing: error `O(n^{-10/3})` against the gap `≍ n^{-1/3}`);
 * **`airyZero_gap_tendsto`**: `n^{1/3} (a_n - a_{n+1}) → (2/3)(3π/2)^{2/3}` (`= 1.8739…`, the limit quoted in `AiryZeroSpacing`).
 
 Proved here: everything stated; no numerics enter the proofs.  The limit constants were checked against mpmath (30 digits) in
-`AiryZeroSecondOrder` (`n^{4/3} δ_n = -0.01786, -0.01547, … → -0.01319`).  **Not formalised:** rates of convergence of the
+`AiryZeroSecondOrder` (`n^{4/3} δ_n = -0.01786, -0.01547, … → -0.013185`).  **Not formalised:** rates of convergence of the
 limits (they follow from the explicit second-order bound with `O(1/n)` corrections but are not written).
 -/
 

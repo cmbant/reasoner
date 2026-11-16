@@ -27,7 +27,7 @@ hence `|s - ŝ| ≲ 31 t^{-5}`.  The cube `ĝ³` of `ĝ = g (1 + (5/96) u - (145
 * **`airyT3_invert`**: `|r² - g² - 5/(48 g⁴) + 5/(36 g^{10})| ≤ 32/g^{16}` from the cube-level hypotheses;
 * **`airyZero_third_order`**: the statement above; `airyZero_third_order_exists`: `∃ C ∀ n ≥ 1`;
 * **`airyZero_delta_third`**: `|a_n + t^{2/3} + (5/48) t^{-4/3} - (5/36) t^{-10/3}| ≤ 32 t^{-16/3}`;
-  `airyZero_delta_tendsto_third`: `t_n^{10/3}(a_n + t^{2/3} + (5/48) t^{-4/3}) → -5/36`.
+  `airyZero_delta_tendsto_third`: `t_n^{10/3}(a_n + t^{2/3} + (5/48) t^{-4/3}) → 5/36`.
 
 Proved here: everything stated; no numerics enter the proofs.  **Not formalised:** the coefficient `77125/82944` of `t^{-6}`
 (needs `u₅, u₆`-level saddle terms), the zeros of `Ai'` (DLMF 9.9.19).
