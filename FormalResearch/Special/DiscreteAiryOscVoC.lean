@@ -270,27 +270,53 @@ theorem voc_march_up {a c Y φ ψ ω lam : ℤ → ℝ} {m K : ℤ} {γ Λ : ℝ
   exact ⟨a1.trans (mul_le_mul_of_nonneg_left hle hn00),
     a2.trans (mul_le_mul_of_nonneg_left (by linarith) hn00)⟩
 
-/-- **Downward Grönwall march** (weight `ω ≡ 1`): from the bond `m` down to the bond `J`. -/
-theorem voc_march_down {a c Y φ ψ lam : ℤ → ℝ} {J m : ℤ} {γ Λ : ℝ} (hγ : 0 < γ)
+/-- One weighted downward step: `|Δα| + ω' |Δβ| ≤ λ (|α'| + ω |β'|)` from the step hypotheses. -/
+lemma voc_step_bound_down {ω ω' γ lam ψk φk ε ε' D α' β' : ℝ} (hγ : 0 < γ) (hD : γ ≤ |D|) (hlam : 0 ≤ lam)
+    (hω : 0 ≤ ω) (hω' : 0 ≤ ω')
+    (h1 : (|ψk| + ω' * |φk|) * |ε| ≤ lam * γ) (h2 : (|ψk| + ω' * |φk|) * |ε'| ≤ lam * γ * ω) :
+    |-(ψk * (α' * ε + β' * ε')) / D| + ω' * |φk * (α' * ε + β' * ε') / D| ≤
+      lam * (|α'| + ω * |β'|) := by
+  have hD0 : 0 < |D| := hγ.trans_le hD
+  have e : |-(ψk * (α' * ε + β' * ε')) / D| + ω' * |φk * (α' * ε + β' * ε') / D| =
+      (|ψk| + ω' * |φk|) * |α' * ε + β' * ε'| / |D| := by
+    simp only [abs_div, abs_neg, abs_mul]; field_simp
+  rw [e, div_le_iff₀ hD0]
+  have hR : |α' * ε + β' * ε'| ≤ |α'| * |ε| + |β'| * |ε'| := by
+    refine (abs_add_le _ _).trans ?_; rw [abs_mul, abs_mul]
+  have hT : 0 ≤ |ψk| + ω' * |φk| := by positivity
+  calc (|ψk| + ω' * |φk|) * |α' * ε + β' * ε'| ≤ (|ψk| + ω' * |φk|) * (|α'| * |ε| + |β'| * |ε'|) :=
+        mul_le_mul_of_nonneg_left hR hT
+    _ = |α'| * ((|ψk| + ω' * |φk|) * |ε|) + |β'| * ((|ψk| + ω' * |φk|) * |ε'|) := by ring
+    _ ≤ |α'| * (lam * γ) + |β'| * (lam * γ * ω) :=
+        add_le_add (mul_le_mul_of_nonneg_left h1 (abs_nonneg _)) (mul_le_mul_of_nonneg_left h2 (abs_nonneg _))
+    _ = lam * (|α'| + ω * |β'|) * γ := by ring
+    _ ≤ lam * (|α'| + ω * |β'|) * |D| := by
+        apply mul_le_mul_of_nonneg_left hD
+        positivity
+
+/-- **Downward Grönwall march** in the weighted norm `|α| + ω |β|`, `ω` non-decreasing in the index
+(non-increasing in the direction of the march): from the bond `m` down to the bond `J`. -/
+theorem voc_march_down {a c Y φ ψ ω lam : ℤ → ℝ} {J m : ℤ} {γ Λ : ℝ} (hγ : 0 < γ)
     (hY : ∀ k ∈ Icc (J + 1) m, jac a c Y k = 0) (hD : ∀ k ∈ Icc J m, γ ≤ |cas a φ ψ k|)
+    (hω0 : 0 < ω m) (hω : ∀ k ∈ Icc (J + 1) m, 0 < ω (k - 1) ∧ ω (k - 1) ≤ ω k)
     (hlam : ∀ k ∈ Icc (J + 1) m, 0 ≤ lam k)
-    (h1 : ∀ k ∈ Icc (J + 1) m, (|ψ k| + |φ k|) * |jac a c φ k| ≤ lam k * γ)
-    (h2 : ∀ k ∈ Icc (J + 1) m, (|ψ k| + |φ k|) * |jac a c ψ k| ≤ lam k * γ)
+    (h1 : ∀ k ∈ Icc (J + 1) m, (|ψ k| + ω (k - 1) * |φ k|) * |jac a c φ k| ≤ lam k * γ)
+    (h2 : ∀ k ∈ Icc (J + 1) m, (|ψ k| + ω (k - 1) * |φ k|) * |jac a c ψ k| ≤ lam k * γ * ω k)
     (hΛ : ∀ k ∈ Icc J m, ∑ i ∈ Icc (k + 1) m, lam i ≤ Λ) :
-    ∀ k ∈ Icc J m, |vocA a Y φ ψ k| + |vocB a Y φ ψ k| ≤
-        (|vocA a Y φ ψ m| + |vocB a Y φ ψ m|) * Real.exp Λ ∧
-      |vocA a Y φ ψ k - vocA a Y φ ψ m| + |vocB a Y φ ψ k - vocB a Y φ ψ m| ≤
-        (|vocA a Y φ ψ m| + |vocB a Y φ ψ m|) * (Real.exp Λ - 1) := by
-  set n0 : ℝ := |vocA a Y φ ψ m| + |vocB a Y φ ψ m| with hn0
+    ∀ k ∈ Icc J m, |vocA a Y φ ψ k| + ω k * |vocB a Y φ ψ k| ≤
+        (|vocA a Y φ ψ m| + ω m * |vocB a Y φ ψ m|) * Real.exp Λ ∧
+      |vocA a Y φ ψ k - vocA a Y φ ψ m| + ω k * |vocB a Y φ ψ k - vocB a Y φ ψ m| ≤
+        (|vocA a Y φ ψ m| + ω m * |vocB a Y φ ψ m|) * (Real.exp Λ - 1) := by
+  set n0 : ℝ := |vocA a Y φ ψ m| + ω m * |vocB a Y φ ψ m| with hn0
   have hn00 : 0 ≤ n0 := by positivity
   have main : ∀ k : ℤ, k ≤ m → J ≤ k →
-      |vocA a Y φ ψ k| + |vocB a Y φ ψ k| ≤ n0 * Real.exp (∑ i ∈ Icc (k + 1) m, lam i) ∧
-      |vocA a Y φ ψ k - vocA a Y φ ψ m| + |vocB a Y φ ψ k - vocB a Y φ ψ m| ≤
+      |vocA a Y φ ψ k| + ω k * |vocB a Y φ ψ k| ≤ n0 * Real.exp (∑ i ∈ Icc (k + 1) m, lam i) ∧
+      |vocA a Y φ ψ k - vocA a Y φ ψ m| + ω k * |vocB a Y φ ψ k - vocB a Y φ ψ m| ≤
         n0 * (Real.exp (∑ i ∈ Icc (k + 1) m, lam i) - 1) := by
     intro k hk
     refine voc_int_down_induction (P := fun k => J ≤ k →
-      |vocA a Y φ ψ k| + |vocB a Y φ ψ k| ≤ n0 * Real.exp (∑ i ∈ Icc (k + 1) m, lam i) ∧
-      |vocA a Y φ ψ k - vocA a Y φ ψ m| + |vocB a Y φ ψ k - vocB a Y φ ψ m| ≤
+      |vocA a Y φ ψ k| + ω k * |vocB a Y φ ψ k| ≤ n0 * Real.exp (∑ i ∈ Icc (k + 1) m, lam i) ∧
+      |vocA a Y φ ψ k - vocA a Y φ ψ m| + ω k * |vocB a Y φ ψ k - vocB a Y φ ψ m| ≤
         n0 * (Real.exp (∑ i ∈ Icc (k + 1) m, lam i) - 1)) m ?_ ?_ k hk
     · intro _
       simp [hn0]
@@ -302,17 +328,19 @@ theorem voc_march_down {a c Y φ ψ lam : ℤ → ℝ} {J m : ℤ} {γ Λ : ℝ}
       have hne : cas a φ ψ k ≠ 0 := fun h => by rw [h, abs_zero] at hDk; linarith
       have hne1 : cas a φ ψ (k - 1) ≠ 0 := fun h => by rw [h, abs_zero] at hDk1; linarith
       obtain ⟨hA, hB⟩ := voc_step_down a c Y φ ψ k (hY _ hkmem) hne1 hne
-      have hb := voc_step_bound (ω := 1) (ω' := 1) hγ hDk1 (hlam _ hkmem) zero_le_one zero_le_one
-        (by simpa using h1 _ hkmem) (by simpa using h2 _ hkmem)
+      obtain ⟨hωk1, hωle⟩ := hω k hkmem
+      have hωk : 0 < ω k := lt_of_lt_of_le hωk1 hωle
+      have hb := voc_step_bound_down (ω := ω k) (ω' := ω (k - 1)) hγ hDk1 (hlam _ hkmem) hωk.le hωk1.le
+        (h1 _ hkmem) (h2 _ hkmem)
         (ψk := ψ k) (φk := φ k) (ε := jac a c φ k) (ε' := jac a c ψ k)
         (α' := vocA a Y φ ψ k) (β' := vocB a Y φ ψ k)
       have e1 : |vocA a Y φ ψ (k - 1) - vocA a Y φ ψ k| =
-          |ψ k * (vocA a Y φ ψ k * jac a c φ k + vocB a Y φ ψ k * jac a c ψ k) / cas a φ ψ (k - 1)| := by
-        rw [hA, neg_div, abs_neg]
+          |-(ψ k * (vocA a Y φ ψ k * jac a c φ k + vocB a Y φ ψ k * jac a c ψ k)) / cas a φ ψ (k - 1)| := by
+        rw [hA]
       have e2 : |vocB a Y φ ψ (k - 1) - vocB a Y φ ψ k| =
-          |-(φ k * (vocA a Y φ ψ k * jac a c φ k + vocB a Y φ ψ k * jac a c ψ k)) / cas a φ ψ (k - 1)| := by
-        rw [hB, neg_div, abs_neg]
-      rw [← e1, ← e2, one_mul, one_mul] at hb
+          |φ k * (vocA a Y φ ψ k * jac a c φ k + vocB a Y φ ψ k * jac a c ψ k) / cas a φ ψ (k - 1)| := by
+        rw [hB]
+      rw [← e1, ← e2] at hb
       have hsum : ∑ i ∈ Icc (k - 1 + 1) m, lam i = lam k + ∑ i ∈ Icc (k + 1) m, lam i := by
         have hI : Icc (k - 1 + 1) m = insert k (Icc (k + 1) m) := by
           ext i; simp only [mem_Icc, mem_insert]; omega
@@ -332,20 +360,27 @@ theorem voc_march_down {a c Y φ ψ lam : ℤ → ℝ} {J m : ℤ} {γ Λ : ℝ}
       have hES : 0 < Real.exp S := Real.exp_pos S
       have t1 : |αk1| ≤ |αk| + |αk1 - αk| := by
         have := abs_add_le αk (αk1 - αk); simpa using this
-      have t2 : |βk1| ≤ |βk| + |βk1 - βk| := by
-        have := abs_add_le βk (βk1 - βk); simpa using this
+      have t2 : ω (k - 1) * |βk1| ≤ ω (k - 1) * |βk| + ω (k - 1) * |βk1 - βk| := by
+        have : |βk1| ≤ |βk| + |βk1 - βk| := by
+          have := abs_add_le βk (βk1 - βk); simpa using this
+        nlinarith [hωk1]
+      have t3 : ω (k - 1) * |βk| ≤ ω k * |βk| := mul_le_mul_of_nonneg_right hωle (abs_nonneg _)
       have u1 : |αk1 - α0| ≤ |αk - α0| + |αk1 - αk| := by
         have := abs_add_le (αk - α0) (αk1 - αk); simpa using this
-      have u2 : |βk1 - β0| ≤ |βk - β0| + |βk1 - βk| := by
-        have := abs_add_le (βk - β0) (βk1 - βk); simpa using this
+      have u2 : ω (k - 1) * |βk1 - β0| ≤ ω (k - 1) * |βk - β0| + ω (k - 1) * |βk1 - βk| := by
+        have : |βk1 - β0| ≤ |βk - β0| + |βk1 - βk| := by
+          have := abs_add_le (βk - β0) (βk1 - βk); simpa using this
+        nlinarith [hωk1]
+      have u3 : ω (k - 1) * |βk - β0| ≤ ω k * |βk - β0| := mul_le_mul_of_nonneg_right hωle (abs_nonneg _)
       constructor
-      · calc |αk1| + |βk1| ≤ (|αk| + |βk|) + l * (|αk| + |βk|) := by linarith
-          _ = (|αk| + |βk|) * (1 + l) := by ring
+      · calc |αk1| + ω (k - 1) * |βk1| ≤ (|αk| + ω k * |βk|) + l * (|αk| + ω k * |βk|) := by linarith
+          _ = (|αk| + ω k * |βk|) * (1 + l) := by ring
           _ ≤ (n0 * Real.exp S) * Real.exp l :=
               mul_le_mul ih1 hel (by linarith) (by positivity)
           _ = n0 * (Real.exp S * Real.exp l) := by ring
           _ = _ := by rw [hexp]
-      · calc |αk1 - α0| + |βk1 - β0| ≤ (|αk - α0| + |βk - β0|) + l * (|αk| + |βk|) := by linarith
+      · calc |αk1 - α0| + ω (k - 1) * |βk1 - β0|
+            ≤ (|αk - α0| + ω k * |βk - β0|) + l * (|αk| + ω k * |βk|) := by linarith
           _ ≤ n0 * (Real.exp S - 1) + l * (n0 * Real.exp S) := by
               have := mul_le_mul_of_nonneg_left ih1 hl0
               linarith
