@@ -229,4 +229,16 @@ lemma integral_airyPoly_succ_succ {c : ℝ} (hc : 0 < c) (k : ℕ) (z : ℂ) :
   · exact absurd h hI
   · exact sub_eq_zero.mp h
 
+/-- info: 'FormalResearch.Special.integral_airyPoly_succ_succ' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.integral_airyPoly_succ_succ
+
+/-- info: 'FormalResearch.Special.norm_airyPoly_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.norm_airyPoly_le
+
+/-- info: 'FormalResearch.Special.integrable_airyPoly' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.integrable_airyPoly
+
 end FormalResearch.Special

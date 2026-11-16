@@ -159,4 +159,28 @@ theorem airy_eq_of_initial (y y' w w' : ℝ → ℂ)
     (by simp [h0]) (by simp [h0']) x
   exact sub_eq_zero.mp this
 
+/-- info: 'FormalResearch.Special.IsAirySol.wronskian_const' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.IsAirySol.wronskian_const
+
+/-- info: 'FormalResearch.Special.IsAirySol.hasDerivAt_energy' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.IsAirySol.hasDerivAt_energy
+
+/-- info: 'FormalResearch.Special.IsAirySol.tendsto_airyKernelXY_diag' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.IsAirySol.tendsto_airyKernelXY_diag
+
+/-- info: 'FormalResearch.Special.IsAirySol.hasDerivAt_airyKernelXY_shift' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.IsAirySol.hasDerivAt_airyKernelXY_shift
+
+/-- info: 'FormalResearch.Special.airy_unique_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airy_unique_real
+
+/-- info: 'FormalResearch.Special.airy_eq_of_initial' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airy_eq_of_initial
+
 end FormalResearch.Special

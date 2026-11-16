@@ -269,4 +269,8 @@ theorem airyAiC_zero_real_neg {z₀ : ℂ} (h0 : airyAiC z₀ = 0) : z₀.im = 0
     rw [h0] at h00
     exact this.ne' (by exact_mod_cast h00.symm)
 
+/-- info: 'FormalResearch.Special.airyAiC_zero_real_neg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAiC_zero_real_neg
+
 end FormalResearch.Special

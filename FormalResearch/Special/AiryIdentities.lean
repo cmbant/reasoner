@@ -130,4 +130,40 @@ theorem integrableOn_Ioi_airyAi_sq (a : ℝ) : IntegrableOn (fun t => airyAi t ^
     (fun x _ => isAirySol_airyAi.hasDerivAt_energy x) (fun _ _ => sq_nonneg _)
     tendsto_airyAi_energy
 
+/-- info: 'FormalResearch.Special.isAirySol_airyAi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.isAirySol_airyAi
+
+/-- info: 'FormalResearch.Special.isAirySol_airyAiC' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.isAirySol_airyAiC
+
+/-- info: 'FormalResearch.Special.airyKernelAi_diag' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyKernelAi_diag
+
+/-- info: 'FormalResearch.Special.airyKernelAi_shift' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyKernelAi_shift
+
+/-- info: 'FormalResearch.Special.tendsto_airyAi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.tendsto_airyAi
+
+/-- info: 'FormalResearch.Special.tendsto_airyAi'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.tendsto_airyAi'
+
+/-- info: 'FormalResearch.Special.tendsto_airyAi_energy' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.tendsto_airyAi_energy
+
+/-- info: 'FormalResearch.Special.integral_Ioi_airyAi_sq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.integral_Ioi_airyAi_sq
+
+/-- info: 'FormalResearch.Special.integrableOn_Ioi_airyAi_sq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.integrableOn_Ioi_airyAi_sq
+
 end FormalResearch.Special

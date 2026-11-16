@@ -283,4 +283,24 @@ theorem strictAntiOn_airyAi : StrictAntiOn airyAi (Ici 0) := by
   rw [deriv_airyAi]
   exact airyAi'_neg (le_of_lt hy)
 
+/-- info: 'FormalResearch.Special.airyAi_lower_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAi_lower_bound
+
+/-- info: 'FormalResearch.Special.airyAi_asymptotic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAi_asymptotic
+
+/-- info: 'FormalResearch.Special.airyAi_pos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAi_pos
+
+/-- info: 'FormalResearch.Special.airyAi'_neg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAi'_neg
+
+/-- info: 'FormalResearch.Special.strictAntiOn_airyAi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.strictAntiOn_airyAi
+
 end FormalResearch.Special

@@ -10,7 +10,7 @@ real `x > 0`, the explicit bounds
 `|Ai(x)| ≤ (1/(2√π)) x^{-1/4} exp(-(2/3) x^{3/2})` (`airyAi_abs_le`) and
 `|Ai'(x)| ≤ (1/(2π)) (√π x^{1/4} + x^{-1/2}) exp(-(2/3) x^{3/2})` (`airyAi'_abs_le`).
 (For `Ai'` the true leading constant is `1/(2√π)`; the extra term `x^{-1/2}` comes from the
-crude bound `|t| ≤ c + |s|`.)  Also the general-`c` forms `airyMom_norm_le_real`.
+crude bound `|t| ≤ c + |s|`.)  The general-`c` forms are `norm_airyMom_zero_le`, `norm_airyMom_one_le`.
 -/
 
 @[expose] public section
@@ -134,5 +134,13 @@ theorem airyAi'_abs_le {x : ℝ} (hx : 0 < x) :
   have e2 : 1 / √x = x ^ (-(1 / 2) : ℝ) := by
     rw [Real.sqrt_eq_rpow, Real.rpow_neg hx.le, one_div]
   rw [e1, e2]; ring
+
+/-- info: 'FormalResearch.Special.airyAi_abs_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAi_abs_le
+
+/-- info: 'FormalResearch.Special.airyAi'_abs_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAi'_abs_le
 
 end FormalResearch.Special

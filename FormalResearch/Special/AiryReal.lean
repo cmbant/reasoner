@@ -110,4 +110,28 @@ theorem contDiff_airyAi : ContDiff ℝ ⊤ airyAi := by
     (h.restrict_scalars ℝ).comp Complex.ofRealCLM.contDiff
   exact (Complex.reCLM.contDiff.comp h2 : ContDiff ℝ ⊤ fun x : ℝ => (airyAiC (x : ℂ)).re)
 
+/-- info: 'FormalResearch.Special.conj_airyAiC' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.conj_airyAiC
+
+/-- info: 'FormalResearch.Special.airyAiC_ofReal' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAiC_ofReal
+
+/-- info: 'FormalResearch.Special.hasDerivAt_airyAi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.hasDerivAt_airyAi
+
+/-- info: 'FormalResearch.Special.hasDerivAt_airyAi'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.hasDerivAt_airyAi'
+
+/-- info: 'FormalResearch.Special.iteratedDeriv_two_airyAi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.iteratedDeriv_two_airyAi
+
+/-- info: 'FormalResearch.Special.contDiff_airyAi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.contDiff_airyAi
+
 end FormalResearch.Special

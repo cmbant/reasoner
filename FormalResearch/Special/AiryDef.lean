@@ -203,4 +203,63 @@ theorem iteratedDeriv_two_airyAiC (z : ℂ) : iteratedDeriv 2 airyAiC z = z * ai
   rw [iteratedDeriv_succ, iteratedDeriv_one]
   exact (hasDerivAt_deriv_airyAiC z).deriv
 
+/-- The derivatives of `Ai` are the moments: `Ai^{(k)}(z) = M_k(1, z)`. -/
+theorem iteratedDeriv_airyAiC (k : ℕ) (z : ℂ) : iteratedDeriv k airyAiC z = airyMom k 1 z := by
+  induction k generalizing z with
+  | zero => simp [airyAiC]
+  | succ k ih =>
+    have h : iteratedDeriv k airyAiC = airyMom k 1 := funext ih
+    rw [iteratedDeriv_succ, h]
+    exact (hasDerivAt_airyMom one_pos k z).deriv
+
+/-- Recurrence for all derivatives (the Leibniz-differentiated Airy equation):
+`Ai^{(k+3)}(z) = z Ai^{(k+1)}(z) + (k+1) Ai^{(k)}(z)`; at `z = 0` it gives
+`Ai^{(k+3)}(0) = (k+1) Ai^{(k)}(0)`, the recurrence for the Taylor coefficients. -/
+theorem iteratedDeriv_airyAiC_succ_succ_succ (k : ℕ) (z : ℂ) :
+    iteratedDeriv (k + 3) airyAiC z =
+      z * iteratedDeriv (k + 1) airyAiC z + (k + 1) * iteratedDeriv k airyAiC z := by
+  rw [iteratedDeriv_airyAiC, iteratedDeriv_airyAiC, iteratedDeriv_airyAiC,
+    show k + 3 = (k + 1) + 2 by ring, airyMom_succ_succ one_pos]
+  simp
+
+theorem iteratedDeriv_airyAiC_zero_succ_succ_succ (k : ℕ) :
+    iteratedDeriv (k + 3) airyAiC 0 = (k + 1) * iteratedDeriv k airyAiC 0 := by
+  rw [iteratedDeriv_airyAiC_succ_succ_succ]; simp
+
+/-- info: 'FormalResearch.Special.hasDerivAt_airyMom' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.hasDerivAt_airyMom
+
+/-- info: 'FormalResearch.Special.airyMom_succ_succ' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyMom_succ_succ
+
+/-- info: 'FormalResearch.Special.airyMom_indep' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyMom_indep
+
+/-- info: 'FormalResearch.Special.differentiable_airyAiC' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.differentiable_airyAiC
+
+/-- info: 'FormalResearch.Special.deriv_airyAiC' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.deriv_airyAiC
+
+/-- info: 'FormalResearch.Special.hasDerivAt_deriv_airyAiC' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.hasDerivAt_deriv_airyAiC
+
+/-- info: 'FormalResearch.Special.iteratedDeriv_two_airyAiC' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.iteratedDeriv_two_airyAiC
+
+/-- info: 'FormalResearch.Special.iteratedDeriv_airyAiC' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.iteratedDeriv_airyAiC
+
+/-- info: 'FormalResearch.Special.iteratedDeriv_airyAiC_succ_succ_succ' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.iteratedDeriv_airyAiC_succ_succ_succ
+
 end FormalResearch.Special

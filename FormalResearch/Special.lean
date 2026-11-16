@@ -15,6 +15,7 @@ public import FormalResearch.Special.JacobiMehlerHeine
 public import FormalResearch.Special.JacobiMehlerHeineRate
 public import FormalResearch.Special.JacobiBessel
 public import FormalResearch.Special.LaguerreHardEdge
+public import FormalResearch.Special.Airy
 
 /-!
 # Special functions: Jacobi polynomials
@@ -24,5 +25,7 @@ derivative, reflection, three-term recurrence, orthogonality and norm (natural a
 parameters `α, β > -1`), zeros, Christoffel–Darboux, Rodrigues, and the Legendre, Chebyshev and
 Gegenbauer special cases; the Mehler–Heine formula `n^{-α} P_n^{(α,β)}(cos(z/n)) → (z/2)^{-α} J_α(z)`
 (`JacobiMehlerHeine`, `JacobiBessel`); the Laguerre recurrence of the hard-edge factor
-(`LaguerreHardEdge`).
+(`LaguerreHardEdge`); the Airy function on `ℂ` and `ℝ`: definition by an absolutely convergent
+contour integral, entire, `Ai'' = z Ai`, explicit decay, positivity on `[0,∞)`, real negative zeros, rotation
+identity and `Bi` (`Airy`).
 -/
