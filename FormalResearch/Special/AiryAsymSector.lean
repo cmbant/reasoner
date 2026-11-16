@@ -50,7 +50,7 @@ lemma norm_airyLead {w : ℂ} :
     rw [norm_div, Complex.norm_real, Real.norm_eq_abs, abs_of_pos Real.pi_pos]
   rw [norm_mul, norm_mul, norm_cpow_half, h1, h2]
 
-lemma sector_rem_aux {s R ρ : ℝ} (hs : 0 < s) (hR : 0 < R) (hρ : s * R ≤ ρ) (k : ℕ) :
+lemma airySector_rem_aux {s R ρ : ℝ} (hs : 0 < s) (hR : 0 < R) (hρ : s * R ≤ ρ) (k : ℕ) :
     √(π / ρ) / ρ ^ k ≤ √(π / R) / (s ^ k * √s * R ^ k) := by
   have hρ0 : 0 < ρ := lt_of_lt_of_le (by positivity) hρ
   rw [Real.sqrt_div Real.pi_pos.le, Real.sqrt_div Real.pi_pos.le, div_div, div_div]
@@ -68,7 +68,7 @@ theorem norm_airyAiC_sq_sub_lead_le {w : ℂ} {s : ℝ} (hs : 0 < s) (hw : s * �
     ‖airyAiC (w ^ 2) - airyLead w‖ ≤ 5 / 48 / (s ^ 3 * √s * ‖w‖ ^ 3) * ‖airyLead w‖ := by
   have hR : 0 < ‖w‖ := norm_pos_iff.mpr (fun h => by simp [h] at hw0)
   have h := norm_airyAiC_sq_sub_le hw0
-  have h2 := sector_rem_aux hs hR hw 3
+  have h2 := airySector_rem_aux hs hR hw 3
   refine h.trans ?_
   rw [norm_airyLead]
   have e : 5 / 48 / (s ^ 3 * √s * ‖w‖ ^ 3) * (1 / (2 * π) * ‖cexp (-(2 / 3) * w ^ 3)‖ * √(π / ‖w‖)) =
@@ -85,8 +85,8 @@ theorem norm_deriv_airyAiC_sq_add_lead_le {w : ℂ} {s : ℝ} (hs : 0 < s) (hs1 
       17 / 48 / (s ^ 3 * √s * ‖w‖ ^ 3) * ‖w * airyLead w‖ := by
   have hR : 0 < ‖w‖ := norm_pos_iff.mpr (fun h => by simp [h] at hw0)
   have h := norm_deriv_airyAiC_sq_add_le hw0
-  have h3 := sector_rem_aux hs hR hw 3
-  have h2 := sector_rem_aux hs hR hw 2
+  have h3 := airySector_rem_aux hs hR hw 3
+  have h2 := airySector_rem_aux hs hR hw 2
   have e0 : deriv airyAiC (w ^ 2) + w * airyLead w =
       deriv airyAiC (w ^ 2) +
         (1 / (2 * (π : ℂ))) * cexp (-(2 / 3) * w ^ 3) * (w * (π / w) ^ (1 / 2 : ℂ)) := by
@@ -126,7 +126,7 @@ noncomputable def airyAiLead (z : ℂ) : ℂ := airyLead (z ^ (1 / 2 : ℂ))
 /-- The leading term `-z^{1/2} Λ(z)` of `Ai'(z)`. -/
 noncomputable def airyAiDerivLead (z : ℂ) : ℂ := -(z ^ (1 / 2 : ℂ) * airyAiLead z)
 
-lemma norm_cpow_half_pow_three (z : ℂ) : ‖z ^ (1 / 2 : ℂ)‖ ^ 3 = ‖z‖ ^ (3 / 2 : ℝ) := by
+lemma airyNorm_cpow_half_pow_three (z : ℂ) : ‖z ^ (1 / 2 : ℂ)‖ ^ 3 = ‖z‖ ^ (3 / 2 : ℝ) := by
   rw [norm_cpow_half, Real.sqrt_eq_rpow, ← Real.rpow_natCast, ← Real.rpow_mul (norm_nonneg _)]
   norm_num
 
@@ -172,7 +172,7 @@ theorem airyAiC_sector_asymptotic {z : ℂ} {s : ℝ} (hs : 0 < s) (hz : 0 < ‖
     have : 0 < ‖z ^ (1 / 2 : ℂ)‖ := by rw [norm_cpow_half]; exact Real.sqrt_pos.mpr hz
     nlinarith
   have := norm_airyAiC_sq_sub_lead_le hs hw hw0
-  rw [cpow_half_sq, norm_cpow_half_pow_three] at this
+  rw [cpow_half_sq, airyNorm_cpow_half_pow_three] at this
   exact this
 
 /-- The shared sector hypotheses give `s‖w‖ ≤ Re w` and `0 < Re w` for `w = z^{1/2}`. -/
@@ -201,7 +201,7 @@ theorem deriv_airyAiC_sector_asymptotic {z : ℂ} {s : ℝ} (hs : 0 < s) (hs1 : 
       17 / 48 / (s ^ 3 * √s * ‖z‖ ^ (3 / 2 : ℝ)) * ‖airyAiDerivLead z‖ := by
   obtain ⟨hw, hw0⟩ := sector_root_facts hs hz hre
   have := norm_deriv_airyAiC_sq_add_lead_le hs hs1 hw hw0
-  rw [cpow_half_sq, norm_cpow_half_pow_three] at this
+  rw [cpow_half_sq, airyNorm_cpow_half_pow_three] at this
   unfold airyAiDerivLead airyAiLead
   rw [norm_neg, sub_neg_eq_add]
   exact this

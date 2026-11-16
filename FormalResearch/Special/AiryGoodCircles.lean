@@ -22,8 +22,9 @@ Numerical check (mpmath, 20 digits; `k ∈ {10,…,59, 80, 120, 160, 200}`, 721 
 `min_k min_{|u|=r_k} ‖Ai(u)‖²/((1+r)^{-1/2} e(u)) = 0.0798 ≈ 1/(4π)` (attained near the positive axis), so the proved
 constant `1/(25π) = 0.0127` is conservative.
 
-Not formalised: the `P·Ai + Q·Ai'` version (`GENERAL_THEOREMS.md` Lemma 1.0′), the residue-defect formula
-(Theorem D) and its `|R_±| ≤ C/e` bound, the uniform-in-`α` version of Lemma 1.0; radii `k < 10`.
+The `|R_±| ≤ C/e` consequence is in `AiryRatioBounds`.  Not formalised: the `P·Ai + Q·Ai'` version
+(`GENERAL_THEOREMS.md` Lemma 1.0′) and the `ψ_α = cos α Ai - sin α Ai'` version (Lemma 1.0, `α ≠ 0`), which need the
+derivative analogue of `AiryAsymNegComplex`; the residue-defect formula (Theorem D) itself; radii `k < 10`.
 -/
 
 @[expose] public section
@@ -35,18 +36,18 @@ namespace FormalResearch.Special
 
 /-! ### A lower bound for `|cos(ξ - π/4)|` at the good phases -/
 
-lemma re_cos_eq (w : ℂ) : (Complex.cos w).re = Real.cos w.re * Real.cosh w.im := by
+lemma airyRe_cos_eq (w : ℂ) : (Complex.cos w).re = Real.cos w.re * Real.cosh w.im := by
   rw [Complex.cos_eq]
   simp [Complex.cos_ofReal_re, Complex.cosh_ofReal_re]
 
-lemma cosh_ge_half_exp_abs (y : ℝ) : Real.exp |y| / 2 ≤ Real.cosh y := by
+lemma airyCosh_ge_half_exp_abs (y : ℝ) : Real.exp |y| / 2 ≤ Real.cosh y := by
   rw [Real.cosh_eq]
   rcases abs_cases y with ⟨h, _⟩ | ⟨h, _⟩
   · rw [h]; have := Real.exp_pos (-y); linarith
   · rw [h]; have := Real.exp_pos y; linarith
 
 /-- Large imaginary part: `|cos w| ≥ e^{|Im w|}/4` once `|Im w| ≥ 1`. -/
-lemma norm_cos_ge_of_abs_im_ge {w : ℂ} (h : 1 ≤ |w.im|) :
+lemma airyNorm_cos_ge_of_abs_im_ge {w : ℂ} (h : 1 ≤ |w.im|) :
     Real.exp |w.im| / 4 ≤ ‖Complex.cos w‖ := by
   have h2 : 2 * Complex.cos w = cexp (w * I) + cexp (-w * I) := Complex.two_cos w
   have nA : ‖cexp (w * I)‖ = Real.exp (-w.im) := by
@@ -82,18 +83,18 @@ lemma norm_cos_ge_of_abs_im_ge {w : ℂ} (h : 1 ≤ |w.im|) :
 
 /-- **The cosine at a good phase.** If `Re ξ ≥ 0`, `‖ξ‖ = π/4 + mπ` (`m ∈ ℕ`) and `‖ξ‖ ≥ 1`, then
 `‖cos(ξ - π/4)‖ ≥ e^{|Im ξ|}/4`. -/
-lemma norm_cos_good {ξ : ℂ} (hre : 0 ≤ ξ.re) (m : ℕ) (hm : ‖ξ‖ = π / 4 + m * π) (h1 : 1 ≤ ‖ξ‖) :
+lemma airyNorm_cos_good {ξ : ℂ} (hre : 0 ≤ ξ.re) (m : ℕ) (hm : ‖ξ‖ = π / 4 + m * π) (h1 : 1 ≤ ‖ξ‖) :
     Real.exp |ξ.im| / 4 ≤ ‖Complex.cos (ξ - (π / 4 : ℂ))‖ := by
   set w : ℂ := ξ - (π / 4 : ℂ) with hw
   have hwr : w.re = ξ.re - π / 4 := by simp [hw]
   have hwi : w.im = ξ.im := by simp [hw]
   by_cases hy : 1 ≤ |ξ.im|
-  · have := norm_cos_ge_of_abs_im_ge (w := w) (by rw [hwi]; exact hy)
+  · have := airyNorm_cos_ge_of_abs_im_ge (w := w) (by rw [hwi]; exact hy)
     rw [hwi] at this
     exact this
   replace hy := not_le.mp hy
-  have hre' : (Complex.cos w).re = Real.cos w.re * Real.cosh w.im := re_cos_eq w
-  have hcosh := cosh_ge_half_exp_abs ξ.im
+  have hre' : (Complex.cos w).re = Real.cos w.re * Real.cosh w.im := airyRe_cos_eq w
+  have hcosh := airyCosh_ge_half_exp_abs ξ.im
   -- d = ‖ξ‖ - Re ξ
   set d := ‖ξ‖ - ξ.re with hd
   have hd0 : 0 ≤ d := by
@@ -120,21 +121,21 @@ lemma norm_cos_good {ξ : ℂ} (hre : 0 ≤ ξ.re) (m : ℕ) (hm : ‖ξ‖ = π
 
 /-! ### The good radii -/
 
-lemma rpow_three_halves_eq {x : ℝ} (hx : 0 < x) : x ^ (3 / 2 : ℝ) = x * √x := by
+lemma airyRpow_three_halves_eq {x : ℝ} (hx : 0 < x) : x ^ (3 / 2 : ℝ) = x * √x := by
   rw [show (3 / 2 : ℝ) = 1 + 1 / 2 by norm_num, Real.rpow_add hx, Real.rpow_one, Real.sqrt_eq_rpow]
 
-lemma three_le_sqrt {x : ℝ} (hx : 10 ≤ x) : 3 ≤ √x :=
+lemma airyGC_three_le_sqrt {x : ℝ} (hx : 10 ≤ x) : 3 ≤ √x :=
   Real.le_sqrt_of_sq_le (by nlinarith)
 
 /-- `(x+1)^{3/2} ≥ x^{3/2} + (3/2) √x` (Bernoulli). -/
-lemma rpow_three_halves_succ_ge {x : ℝ} (hx : 0 < x) :
+lemma airyRpow_three_halves_succ_ge {x : ℝ} (hx : 0 < x) :
     x ^ (3 / 2 : ℝ) + 3 / 2 * √x ≤ (x + 1) ^ (3 / 2 : ℝ) := by
   have h1x : -1 ≤ 1 / x := by
     have : 0 < 1 / x := by positivity
     linarith
   have hb := one_add_mul_self_le_rpow_one_add h1x (p := 3 / 2) (by norm_num)
   have e1 : x + 1 = x * (1 + 1 / x) := by field_simp
-  rw [e1, Real.mul_rpow hx.le (by positivity), rpow_three_halves_eq hx]
+  rw [e1, Real.mul_rpow hx.le (by positivity), airyRpow_three_halves_eq hx]
   have e2 : x * √x * (1 + 3 / 2 * (1 / x)) = x * √x + 3 / 2 * √x := by field_simp
   rw [← e2]
   exact mul_le_mul_of_nonneg_left hb (by positivity)
@@ -145,8 +146,8 @@ lemma good_radius_exists (k : ℕ) (hk : 10 ≤ k) :
   have hk' : (10 : ℝ) ≤ k := by exact_mod_cast hk
   have hkpos : (0 : ℝ) < k := by linarith
   set G : ℝ := 2 / 3 * (k : ℝ) ^ (3 / 2 : ℝ) with hG
-  have hk32 := rpow_three_halves_eq hkpos
-  have hs3 := three_le_sqrt hk'
+  have hk32 := airyRpow_three_halves_eq hkpos
+  have hs3 := airyGC_three_le_sqrt hk'
   have hG20 : 20 ≤ G := by rw [hG, hk32]; nlinarith
   have hpi := Real.pi_lt_d2
   have hpipos := Real.pi_pos
@@ -171,7 +172,7 @@ lemma good_radius_exists (k : ℕ) (hk : 10 ≤ k) :
   · rw [← Real.rpow_le_rpow_iff hkpos.le hr0 (by norm_num : (0 : ℝ) < 3 / 2), hr32]
     rw [hG] at hmπ1
     nlinarith
-  · have hsucc := rpow_three_halves_succ_ge hkpos
+  · have hsucc := airyRpow_three_halves_succ_ge hkpos
     have hs3' : π ≤ √(k : ℝ) :=
       le_trans hpi.le (Real.le_sqrt_of_sq_le (by norm_num; linarith))
     rw [← Real.rpow_le_rpow_iff hr0 (by positivity) (by norm_num : (0 : ℝ) < 3 / 2), hr32]
@@ -181,7 +182,7 @@ lemma good_radius_exists (k : ℕ) (hk : 10 ≤ k) :
 
 /-! ### The sector `Re u < -|u|/2`: `u = -q²` -/
 
-lemma im_cube' (w : ℂ) : (w ^ 3).im = 3 * w.re ^ 2 * w.im - w.im ^ 3 := by
+lemma airyIm_cube (w : ℂ) : (w ^ 3).im = 3 * w.re ^ 2 * w.im - w.im ^ 3 := by
   simp [pow_succ, Complex.mul_re, Complex.mul_im]; ring
 
 lemma NegSector.re_sq_ge {q : ℂ} (h : NegSector q) : 3 * q.im ^ 2 ≤ q.re ^ 2 := by
@@ -195,7 +196,7 @@ lemma NegSector.re_sq_ge {q : ℂ} (h : NegSector q) : 3 * q.im ^ 2 ≤ q.re ^ 2
 lemma NegSector.im_cube_sign {q : ℂ} (h : NegSector q) :
     (q.im ≤ 0 → (q ^ 3).im ≤ 0) ∧ (0 ≤ q.im → 0 ≤ (q ^ 3).im) := by
   have h1 := h.re_sq_ge
-  have e : (q ^ 3).im = q.im * (3 * q.re ^ 2 - q.im ^ 2) := by rw [im_cube']; ring
+  have e : (q ^ 3).im = q.im * (3 * q.re ^ 2 - q.im ^ 2) := by rw [airyIm_cube]; ring
   have h2 : 0 ≤ 3 * q.re ^ 2 - q.im ^ 2 := by nlinarith [sq_nonneg q.im]
   rw [e]
   exact ⟨fun hb => mul_nonpos_of_nonpos_of_nonneg hb h2, fun hb => mul_nonneg hb h2⟩
@@ -249,7 +250,7 @@ theorem airyAiC_neg_sq_ge {q : ℂ} (hq : NegSector q) (m : ℕ) (hm : 2 / 3 * �
     rw [this]
     have : 0 ≤ q.re * (q.re ^ 2 - 3 * q.im ^ 2) := mul_nonneg h0 (by linarith)
     positivity
-  have hcos := norm_cos_good hξre m (by rw [hnξ]; exact hm) hξ1
+  have hcos := airyNorm_cos_good hξre m (by rw [hnξ]; exact hm) hξ1
   set Y := |ξ.im| with hY
   have hmain := airyAiC_neg_complex hq hq0
   set M : ℂ := (1 / (π : ℂ)) * ((π : ℂ) / q) ^ (1 / 2 : ℂ) * Complex.cos (ξ - (π / 4 : ℂ)) with hM
@@ -289,7 +290,7 @@ theorem airyAiC_neg_sq_ge {q : ℂ} (hq : NegSector q) (m : ℕ) (hm : 2 / 3 * �
 
 /-! ### The good-circle theorem -/
 
-lemma onePlus_rpow_le {r : ℝ} (hr : 0 < r) : (1 + r) ^ (-(1 / 2) : ℝ) ≤ 1 / √r := by
+lemma airyOnePlus_rpow_le {r : ℝ} (hr : 0 < r) : (1 + r) ^ (-(1 / 2) : ℝ) ≤ 1 / √r := by
   rw [Real.rpow_neg (by positivity), ← Real.sqrt_eq_rpow, one_div]
   apply inv_anti₀ (Real.sqrt_pos.mpr hr)
   exact Real.sqrt_le_sqrt (by linarith)
@@ -320,12 +321,12 @@ theorem good_circle_exists (k : ℕ) (hk : 10 ≤ k) :
   have hr10 : 10 ≤ r := by linarith
   have hrpos : 0 < r := by linarith
   refine ⟨r, hr1, hr2, fun u hu => ?_⟩
-  have hs3 := three_le_sqrt hr10
+  have hs3 := airyGC_three_le_sqrt hr10
   have hpi := Real.pi_pos
-  have hr32 : r ^ (3 / 2 : ℝ) = r * √r := rpow_three_halves_eq hrpos
+  have hr32 : r ^ (3 / 2 : ℝ) = r * √r := airyRpow_three_halves_eq hrpos
   have henv := airyEnv_pos u
   have hsqrt_pos : 0 < √r := by linarith
-  have hw := onePlus_rpow_le hrpos
+  have hw := airyOnePlus_rpow_le hrpos
   -- common target: ≤ e(u)/(c π √r)
   by_cases hcase : -(‖u‖ / 2) ≤ u.re
   · -- sector |arg u| ≤ 2π/3
@@ -356,7 +357,7 @@ theorem good_circle_exists (k : ℕ) (hk : 10 ≤ k) :
     have hq2 : q ^ 2 = -u := cpow_half_sq _
     have hqn : ‖q‖ ^ 2 = r := by rw [hqdef, norm_cpow_half_sq, norm_neg, hu]
     have hq3 : ‖q‖ ^ 3 = r ^ (3 / 2 : ℝ) := by
-      rw [hqdef, norm_cpow_half_pow_three, norm_neg, hu]
+      rw [hqdef, airyNorm_cpow_half_pow_three, norm_neg, hu]
     have hqs : ‖q‖ = √r := by
       rw [← hqn, Real.sqrt_sq (norm_nonneg _)]
     have := airyAiC_neg_sq_ge hq m (by rw [hq3]; exact hm) (by rw [hqs]; exact hs3)
