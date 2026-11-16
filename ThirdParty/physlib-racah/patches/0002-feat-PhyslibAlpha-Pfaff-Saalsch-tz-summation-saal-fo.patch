@@ -1,0 +1,248 @@
+From 6ab5ea3b01122c27a617376b8ad8661c78efec6d Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 13 Nov 2026 17:03:20 +0000
+Subject: [PATCH 02/20] =?UTF-8?q?feat(PhyslibAlpha):=20Pfaff=E2=80=93Saals?=
+ =?UTF-8?q?ch=C3=BCtz=20summation=20`saal`=20for=20terminating=20balanced?=
+ =?UTF-8?q?=203F2(1)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01CoYoSnPzLFW27jyKntrTVS
+---
+ PhyslibAlpha.lean                             |   1 +
+ .../Hypergeometric/Saalschutz.lean            | 209 ++++++++++++++++++
+ 2 files changed, 210 insertions(+)
+ create mode 100644 PhyslibAlpha/Mathematics/SpecialFunctions/Hypergeometric/Saalschutz.lean
+
+diff --git a/PhyslibAlpha.lean b/PhyslibAlpha.lean
+index e601532..1cd8e00 100644
+--- a/PhyslibAlpha.lean
++++ b/PhyslibAlpha.lean
+@@ -328,6 +328,7 @@ public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.TensorHighestWei
+ public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.TensorIntertwiner
+ public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.Weights
+ public import PhyslibAlpha.Mathematics.SpecialFunctions.Hypergeometric.RisingFactorial
++public import PhyslibAlpha.Mathematics.SpecialFunctions.Hypergeometric.Saalschutz
+ public import PhyslibAlpha.Mathematics.SpecialFunctions.Laguerre
+ public import PhyslibAlpha.Mathematics.SpecialFunctions.SincPropagator.Basic
+ public import PhyslibAlpha.Mathematics.SpecialFunctions.SincPropagator.Bessel
+diff --git a/PhyslibAlpha/Mathematics/SpecialFunctions/Hypergeometric/Saalschutz.lean b/PhyslibAlpha/Mathematics/SpecialFunctions/Hypergeometric/Saalschutz.lean
+new file mode 100644
+index 0000000..377f349
+--- /dev/null
++++ b/PhyslibAlpha/Mathematics/SpecialFunctions/Hypergeometric/Saalschutz.lean
+@@ -0,0 +1,209 @@
++/-
++Copyright (c) 2026 Antony Lewis. All rights reserved.
++Released under Apache 2.0 license as described in the file LICENSE.
++Authors: Antony Lewis
++-/
++module
++
++public import Mathlib.Tactic.LinearCombination
++public import PhyslibAlpha.Mathematics.SpecialFunctions.Hypergeometric.RisingFactorial
++
++/-!
++
++# The Pfaff–Saalschütz summation
++
++The evaluation of a terminating balanced `₃F₂(1)` with real parameters.
++
++## i. Overview
++
++With the rising factorial `rf x k = x (x + 1) ⋯ (x + k - 1)` and
++`saalTerm n a b c e k = (-n)_k (a)_k (b)_k / (k! (c)_k (e)_k)`, the Pfaff–Saalschütz sum is
++`Σ_{k ≤ n} saalTerm n a b c e k = (c - a)_n (c - b)_n / ((c)_n (c - a - b)_n)` for the balanced
++parameter `e = 1 + a + b - c - n`. It is proved by induction on `n`: the terms for `n + 1` and
++`e - 1` satisfy a three-term relation in the terms for `n` and `e` with polynomial coefficients
++(`saalTerm_rel`), which sums to a relation between the two total sums (`saal_step`).
++
++The hypotheses are the non-vanishing of the Pochhammer symbols in the denominators, so that no
++case distinction on the parameters is needed.
++
++## ii. Key results
++
++- `saalTerm`: the summand `(-n)_k (a)_k (b)_k / (k! (c)_k (e)_k)`.
++- `saal_step`: the relation between the sums of length `n` and `n + 1`.
++- `saal`: the Pfaff–Saalschütz sum, with `(-1) ^ n (c - a)_n (c - b)_n / ((c)_n (e)_n)` on the
++  right-hand side, `(e)_n = (-1) ^ n (c - a - b)_n`.
++
++## iii. Table of contents
++
++- A. The summand and its recursion
++- B. The summation
++
++## iv. References
++
++- W. N. Bailey, *Generalized Hypergeometric Series*, Cambridge University Press (1935),
++  Chapter 4.
++
++-/
++
++@[expose] public section
++
++noncomputable section
++
++namespace PhyslibAlpha.Hypergeometric
++
++open Finset
++
++/-!
++
++## A. The summand and its recursion
++
++-/
++
++/-- The summand of the terminating Saalschütz sum. -/
++def saalTerm (n : ℕ) (a b c e : ℝ) (k : ℕ) : ℝ :=
++  rf (-n) k * rf a k * rf b k / ((k.factorial : ℝ) * rf c k * rf e k)
++
++lemma saalTerm_zero (n : ℕ) (a b c e : ℝ) : saalTerm n a b c e 0 = 1 := by simp [saalTerm]
++
++lemma saalTerm_succ_self (n : ℕ) (a b c e : ℝ) : saalTerm n a b c e (n + 1) = 0 := by
++  have : rf (-(n : ℝ)) (n + 1) = 0 := by
++    rw [rf_succ]; simp
++  simp [saalTerm, this]
++
++/-- The three-term relation between the terms of the sums of length `n + 1` and `n`. -/
++lemma saalTerm_rel (n k : ℕ) (a b c e : ℝ) (he : e = 1 + a + b - c - n)
++    (hc : rf c (k + 1) ≠ 0) (he1 : rf e (k + 1) ≠ 0) (he2 : e - 1 ≠ 0) :
++    (c + n) * (c - a - b + n) * saalTerm (n + 1) a b c (e - 1) (k + 1) =
++      ((c - a + n) * (c - b + n) - (a + k + 1) * (b + k + 1)) * saalTerm n a b c e (k + 1) +
++        (a + k) * (b + k) * saalTerm n a b c e k := by
++  have hck : rf c k ≠ 0 := rf_ne_zero_of_le hc (Nat.le_succ k)
++  have hek : rf e k ≠ 0 := rf_ne_zero_of_le he1 (Nat.le_succ k)
++  have hc' : c + k ≠ 0 := by
++    rw [rf_succ] at hc; exact right_ne_zero_of_mul hc
++  have he' : e + k ≠ 0 := by
++    rw [rf_succ] at he1; exact right_ne_zero_of_mul he1
++  have h1 : (-(((n + 1 : ℕ)) : ℝ)) + 1 = -(n : ℝ) := by push_cast; ring
++  simp only [saalTerm]
++  rw [rf_succ' (-(((n + 1 : ℕ)) : ℝ)) k, h1, rf_succ' (e - 1) k, sub_add_cancel,
++    rf_succ (-(n : ℝ)) k, rf_succ e k, rf_succ c k, rf_succ a k, rf_succ b k,
++    Nat.factorial_succ]
++  have hk0 : ((k.factorial : ℕ) : ℝ) ≠ 0 := by exact_mod_cast Nat.factorial_ne_zero k
++  push_cast
++  field_simp
++  subst he
++  ring
++
++
++/-!
++
++## B. The summation
++
++-/
++
++/-- The last case of `saalTerm_rel`, where the term `saalTerm n a b c e (n + 1)` vanishes. -/
++lemma saalTerm_rel_last (n : ℕ) (a b c e : ℝ) (he : e = 1 + a + b - c - n)
++    (hc : rf c (n + 1) ≠ 0) (he1 : rf e n ≠ 0) (he2 : e - 1 ≠ 0) :
++    (c + n) * (c - a - b + n) * saalTerm (n + 1) a b c (e - 1) (n + 1) =
++      (a + n) * (b + n) * saalTerm n a b c e n := by
++  have hcn : rf c n ≠ 0 := rf_ne_zero_of_le hc (Nat.le_succ n)
++  have hc' : c + n ≠ 0 := by
++    rw [rf_succ] at hc; exact right_ne_zero_of_mul hc
++  have h1 : (-(((n + 1 : ℕ)) : ℝ)) + 1 = -(n : ℝ) := by push_cast; ring
++  have hn0 : ((n.factorial : ℕ) : ℝ) ≠ 0 := by exact_mod_cast Nat.factorial_ne_zero n
++  simp only [saalTerm]
++  rw [rf_neg_self n, rf_succ' (-(((n + 1 : ℕ)) : ℝ)) n, h1, rf_neg_self n, rf_succ' (e - 1) n,
++    sub_add_cancel, rf_succ c n, rf_succ a n, rf_succ b n, Nat.factorial_succ]
++  push_cast
++  field_simp
++  subst he
++  ring
++
++/-- Summing `saalTerm_rel` over `k`: the sum of length `n + 1` is a multiple of the sum of
++length `n`. -/
++lemma saal_step (n : ℕ) (a b c e : ℝ) (he : e = 1 + a + b - c - n)
++    (hc : ∀ k, k ≤ n → rf c k ≠ 0) (he1 : ∀ k, k ≤ n → rf e k ≠ 0) (hc1 : rf c (n + 1) ≠ 0)
++    (he2 : e - 1 ≠ 0) :
++    (c + n) * (c - a - b + n) * ∑ k ∈ range (n + 2), saalTerm (n + 1) a b c (e - 1) k =
++      (c - a + n) * (c - b + n) * ∑ k ∈ range (n + 1), saalTerm n a b c e k := by
++  have key : ∀ k, k < n + 1 → (c + n) * (c - a - b + n) * saalTerm (n + 1) a b c (e - 1) (k + 1) =
++      ((c - a + n) * (c - b + n) - (a + k + 1) * (b + k + 1)) * saalTerm n a b c e (k + 1) +
++        (a + k) * (b + k) * saalTerm n a b c e k := by
++    intro k hk
++    rcases Nat.lt_succ_iff_lt_or_eq.mp hk with hk | rfl
++    · exact saalTerm_rel n k a b c e he (by
++        have := hc (k + 1) (by omega); exact this) (he1 (k + 1) (by omega)) he2
++    · rw [saalTerm_succ_self, mul_zero, zero_add]
++      exact saalTerm_rel_last k a b c e he hc1 (he1 k le_rfl) he2
++  set ρ := (c + n) * (c - a - b + n) with hρ
++  set σ := (c - a + n) * (c - b + n) with hσ
++  have hρσ : ρ + a * b = σ := by rw [hρ, hσ]; ring
++  have h0 : ρ * ∑ k ∈ range (n + 2), saalTerm (n + 1) a b c (e - 1) k =
++      ρ + ∑ k ∈ range (n + 1), ((σ - (a + k + 1) * (b + k + 1)) * saalTerm n a b c e (k + 1) +
++        (a + k) * (b + k) * saalTerm n a b c e k) := by
++    rw [Finset.sum_range_succ', mul_add, saalTerm_zero, mul_one, Finset.mul_sum]
++    rw [add_comm]
++    congr 1
++    exact Finset.sum_congr rfl fun k hk => key k (Finset.mem_range.mp hk)
++  have e1 : ∑ k ∈ range (n + 1), ((σ - (a + k + 1) * (b + k + 1)) * saalTerm n a b c e (k + 1) +
++        (a + k) * (b + k) * saalTerm n a b c e k) =
++      ∑ k ∈ range n, (σ - (a + k + 1) * (b + k + 1)) * saalTerm n a b c e (k + 1) +
++        ((a * b) +
++          ∑ k ∈ range n, (a + (k + 1 : ℕ)) * (b + (k + 1 : ℕ)) * saalTerm n a b c e (k + 1)) := by
++    rw [Finset.sum_add_distrib, Finset.sum_range_succ, saalTerm_succ_self, mul_zero, add_zero,
++      Finset.sum_range_succ' (fun k => (a + k) * (b + k) * saalTerm n a b c e k)]
++    simp [saalTerm_zero, add_comm]
++  have e2 : ∑ k ∈ range n, (σ - (a + k + 1) * (b + k + 1)) * saalTerm n a b c e (k + 1) +
++        ∑ k ∈ range n, (a + (k + 1 : ℕ)) * (b + (k + 1 : ℕ)) * saalTerm n a b c e (k + 1) =
++      σ * ∑ k ∈ range n, saalTerm n a b c e (k + 1) := by
++    rw [← Finset.sum_add_distrib, Finset.mul_sum]
++    refine Finset.sum_congr rfl fun k _ => ?_
++    push_cast; ring
++  have e3 : ∑ k ∈ range (n + 1), saalTerm n a b c e k =
++      1 + ∑ k ∈ range n, saalTerm n a b c e (k + 1) := by
++    rw [Finset.sum_range_succ', saalTerm_zero, add_comm]
++  rw [h0, e1, e3]
++  linear_combination e2 + hρσ
++
++
++/-- **Pfaff–Saalschütz** for the terminating balanced `₃F₂(1)`. -/
++lemma saal (a b c : ℝ) : ∀ n : ℕ, rf c n ≠ 0 → rf (1 + a + b - c - n) n ≠ 0 →
++    ∑ k ∈ range (n + 1), saalTerm n a b c (1 + a + b - c - n) k =
++      (-1) ^ n * rf (c - a) n * rf (c - b) n / (rf c n * rf (1 + a + b - c - n) n) := by
++  intro n
++  induction n with
++  | zero => intro _ _; simp [saalTerm_zero]
++  | succ n ih =>
++    intro hc he
++    set e : ℝ := 1 + a + b - c - n with hedef
++    have he1 : (1 + a + b - c - ((n + 1 : ℕ) : ℝ)) = e - 1 := by rw [hedef]; push_cast; ring
++    rw [he1] at he ⊢
++    have hcn : rf c n ≠ 0 := rf_ne_zero_of_le hc (Nat.le_succ n)
++    have he' : e - 1 ≠ 0 ∧ rf e n ≠ 0 := by
++      rw [rf_succ', sub_add_cancel] at he
++      exact ⟨left_ne_zero_of_mul he, right_ne_zero_of_mul he⟩
++    have hc' : c + n ≠ 0 := by rw [rf_succ] at hc; exact right_ne_zero_of_mul hc
++    have ihn := ih hcn he'.2
++    have hstep := saal_step n a b c e hedef (fun k hk => rf_ne_zero_of_le hcn hk)
++      (fun k hk => rf_ne_zero_of_le he'.2 hk) hc he'.1
++    have hρ : (c + n) * (c - a - b + n) ≠ 0 := by
++      refine mul_ne_zero hc' ?_
++      have : c - a - b + n = -(e - 1) := by rw [hedef]; ring
++      rw [this]; exact neg_ne_zero.mpr he'.1
++    have hσ : ∑ k ∈ range (n + 2), saalTerm (n + 1) a b c (e - 1) k =
++        (c - a + n) * (c - b + n) / ((c + n) * (c - a - b + n)) *
++          ∑ k ∈ range (n + 1), saalTerm n a b c e k := by
++      have hc2 : c - a - b + n ≠ 0 := right_ne_zero_of_mul hρ
++      field_simp
++      linear_combination hstep
++    rw [hσ, ihn, rf_succ (c - a) n, rf_succ (c - b) n, rf_succ c n, rf_succ' (e - 1) n,
++      sub_add_cancel]
++    have h2 : c - a - b + n = -(e - 1) := by rw [hedef]; ring
++    rw [h2]
++    have h3 := he'.1
++    have h4 := he'.2
++    have h5 : (c + n) ≠ 0 := hc'
++    field_simp
++    ring
++
++
++end PhyslibAlpha.Hypergeometric
+-- 
+2.43.0
+

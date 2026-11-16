@@ -1,0 +1,160 @@
+/-
+Copyright (c) 2026 Antony Lewis. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Antony Lewis
+-/
+module
+
+public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSumInner
+public import PhyslibAlpha.QuantumMechanics.AngularMomentum.XsSearsInstance
+
+/-!
+
+# The single sum `Xs` as a balanced `₄F₃(1)`
+
+In the region `k₁ + k₃ ≤ min b K`, the single sum `Xs` is the series `XsSeries` times an explicit
+product of factorials.
+
+## i. Overview
+
+With the six free natural parameters `k₁ k₃ u v w z` of `XsSearsInstance`
+(`a = v + w + k₁`, `b = z + k₁ + k₃`, `c = u + w + k₃`, `K = w + k₁ + k₃`), the summand of `Xs` is
+
+`(-1)^x C(k₃, x) C(N-k₃+1, k₁-x) (u+w+x)! (b-x)! (v+w+x)! / (w+x)!`,  `N = u + v + w + z + k₁ + k₃`,
+
+and the term ratio of `XsSeries` is the rational function in `x` of its Pochhammer symbols. Writing
+`k₁ = x + i`, `k₃ = x + j`, the factorials become rising factorials at integer arguments
+(`rf_pos_dec`, `rf_neg_dec`), which gives the identity of each term with the corresponding term of
+`XsSeries` times the constant `XsSeriesConst` (`termX`, from `term_Xs`). Terms with `x > k₁` vanish
+on both sides, since `C(N-k₃+1, k₁-x)` and `(-k₁)_x` vanish there. Summing,
+`Xs = XsSeriesConst * XsSeries` (`Xs_eq_XsSeries`).
+
+## ii. Key results
+
+- `XsSeriesConst`: the constant relating `Xs` and `XsSeries`.
+- `termX`: the identity of the terms.
+- `Xs_eq_XsSeries`: `Xs = XsSeriesConst * XsSeries`.
+
+## iii. Table of contents
+
+- A. The constant and the identity of terms
+- B. The sums
+
+## iv. References
+
+- G. Racah, *Theory of complex spectra. II*, Phys. Rev. 62, 438 (1942).
+
+-/
+
+@[expose] public section
+
+noncomputable section
+
+namespace PhyslibAlpha.Sl2
+
+open Finset PhyslibAlpha.Hypergeometric
+
+/-!
+
+## A. The constant and the identity of terms
+
+-/
+
+/-- The constant relating `Xs` and its `₄F₃` form. -/
+def XsSeriesConst (k1 k3 u v w z : ℕ) : ℝ :=
+  (((u + v + w + z + k1 + 1).factorial : ℝ) * ((u + w).factorial : ℝ) * ((v + w).factorial : ℝ) *
+    ((z + k1 + k3).factorial : ℝ)) /
+  ((k1.factorial : ℝ) * (w.factorial : ℝ) * ((u + v + w + z + 1).factorial : ℝ))
+
+/-- The summand of `Xs` at `k₁ = x + i`, `k₃ = x + j`, in terms of natural-number factorials and
+binomials, is `XsSeriesConst` times the summand of `XsSeries`. -/
+lemma term_Xs (x i j u v w z : ℕ) :
+    (-1 : ℝ) ^ x * (((x + j).choose x : ℕ) : ℝ) *
+        (((u + v + w + z + (x + i) + 1).choose i : ℕ) : ℝ) * ((u + w + x).factorial : ℝ) *
+        ((z + x + i + j).factorial : ℝ) * ((v + w + x).factorial : ℝ) / ((w + x).factorial : ℝ) =
+      XsSeriesConst (x + i) (x + j) u v w z *
+        (rf (-(((x + j : ℕ)) : ℝ)) x * rf (-(((x + i : ℕ)) : ℝ)) x * rf ((u : ℝ) + w + 1) x *
+          rf ((v : ℝ) + w + 1) x /
+          ((x.factorial : ℝ) * rf ((w : ℝ) + 1) x *
+            rf (-((z : ℝ) + ((x + i : ℕ) : ℝ) + ((x + j : ℕ) : ℝ))) x *
+            rf ((u : ℝ) + v + w + z + 2) x)) := by
+  have hb : (z : ℝ) + ((x + i : ℕ) : ℝ) + ((x + j : ℕ) : ℝ) = ((x + (z + i + x + j) : ℕ) : ℝ) := by
+    push_cast; ring
+  have h1 : (u : ℝ) + w + 1 = ((u + w : ℕ) : ℝ) + 1 := by push_cast; ring
+  have h2 : (v : ℝ) + w + 1 = ((v + w : ℕ) : ℝ) + 1 := by push_cast; ring
+  have h3 : (u : ℝ) + v + w + z + 2 = ((u + v + w + z + 1 : ℕ) : ℝ) + 1 := by push_cast; ring
+  rw [hb, h1, h2, h3, rf_neg_dec x j, rf_neg_dec x i, rf_neg_dec x (z + i + x + j),
+    rf_pos_dec (u + w) x, rf_pos_dec (v + w) x, rf_pos_dec w x, rf_pos_dec (u + v + w + z + 1) x]
+  have hc1 : (((x + j).choose x : ℕ) : ℝ) =
+      ((x + j).factorial : ℝ) / ((x.factorial : ℝ) * (j.factorial : ℝ)) := by
+    rw [Nat.cast_choose ℝ (by omega : x ≤ x + j)]; simp
+  have hc2 : (((u + v + w + z + (x + i) + 1).choose i : ℕ) : ℝ) =
+      ((u + v + w + z + (x + i) + 1).factorial : ℝ) /
+        ((i.factorial : ℝ) * ((u + v + w + z + x + 1).factorial : ℝ)) := by
+    rw [Nat.cast_choose ℝ (by omega : i ≤ u + v + w + z + (x + i) + 1),
+      show u + v + w + z + (x + i) + 1 - i = u + v + w + z + x + 1 by omega]
+  rw [hc1, hc2]
+  simp only [XsSeriesConst]
+  have e1 : z + x + i + j = z + i + x + j := by ring
+  have e2 : x + (z + i + x + j) = z + (x + i) + (x + j) := by ring
+  have e3 : u + v + w + z + 1 + x = u + v + w + z + x + 1 := by ring
+  rw [e1, e2, e3]
+  have hf : ∀ n : ℕ, (n.factorial : ℝ) ≠ 0 := fun n => by exact_mod_cast Nat.factorial_ne_zero n
+  rcases neg_one_pow_eq_or ℝ x with h | h <;> simp only [h] <;> field_simp
+
+
+/-- `term_Xs`, for the summand of `Xs` written with `zbinom` and `factZ` and `x ≤ k₁`, `x ≤ k₃`. -/
+lemma termX (x k1 k3 u v w z : ℕ) (hx1 : x ≤ k1) (hx3 : x ≤ k3) :
+    (-1 : ℝ) ^ (x : ℤ) * zbinom (k3 : ℤ) (x : ℤ) *
+        zbinom (((v + w + k1 : ℕ) : ℤ) + (((z + k1 + k3 : ℕ) : ℤ) + ((u + w + k3 : ℕ) : ℤ) - k3 -
+          ((w + k1 + k3 : ℕ) : ℤ)) + 1) ((k1 : ℤ) - x) *
+        factZ (((u + w + k3 : ℕ) : ℤ) - k3 + x) * factZ (((z + k1 + k3 : ℕ) : ℤ) - x) *
+        factZ (((v + w + k1 : ℕ) : ℤ) - k1 + x) *
+        invFact (((w + k1 + k3 : ℕ) : ℤ) - k1 - k3 + x) =
+      XsSeriesConst k1 k3 u v w z *
+        (rf (-(k3 : ℝ)) x * rf (-(k1 : ℝ)) x * rf ((u : ℝ) + w + 1) x * rf ((v : ℝ) + w + 1) x /
+          ((x.factorial : ℝ) * rf ((w : ℝ) + 1) x * rf (-((z : ℝ) + k1 + k3)) x *
+            rf ((u : ℝ) + v + w + z + 2) x)) := by
+  obtain ⟨i, rfl⟩ := Nat.exists_eq_add_of_le hx1
+  obtain ⟨j, rfl⟩ := Nat.exists_eq_add_of_le hx3
+  have key := term_Xs x i j u v w z
+  have e1 : (((v + w + (x + i) : ℕ) : ℤ) + (((z + (x + i) + (x + j) : ℕ) : ℤ) +
+      ((u + w + (x + j) : ℕ) : ℤ) - ((x + j : ℕ) : ℤ) - ((w + (x + i) + (x + j) : ℕ) : ℤ)) + 1) =
+      ((u + v + w + z + (x + i) + 1 : ℕ) : ℤ) := by push_cast; ring
+  have e2 : (((x + i : ℕ) : ℤ) - (x : ℤ)) = ((i : ℕ) : ℤ) := by push_cast; ring
+  have e3 : ((u + w + (x + j) : ℕ) : ℤ) - ((x + j : ℕ) : ℤ) + (x : ℤ) = ((u + w + x : ℕ) : ℤ) := by
+    push_cast; ring
+  have e4 : ((z + (x + i) + (x + j) : ℕ) : ℤ) - (x : ℤ) = ((z + x + i + j : ℕ) : ℤ) := by
+    push_cast; ring
+  have e5 : ((v + w + (x + i) : ℕ) : ℤ) - ((x + i : ℕ) : ℤ) + (x : ℤ) = ((v + w + x : ℕ) : ℤ) := by
+    push_cast; ring
+  have e6 : ((w + (x + i) + (x + j) : ℕ) : ℤ) - ((x + i : ℕ) : ℤ) - ((x + j : ℕ) : ℤ) + (x : ℤ) =
+      ((w + x : ℕ) : ℤ) := by push_cast; ring
+  rw [e1, e2, e3, e4, e5, e6, ← natCast_choose_eq (x + j) x, ← natCast_choose_eq,
+    factZ_natCast, factZ_natCast, factZ_natCast, invFact_natCast,
+    zpow_natCast]
+  rw [← key]; ring
+
+/-!
+
+## B. The sums
+
+-/
+
+lemma Xs_eq_XsSeries (k1 k3 u v w z : ℕ) :
+    Xs ((v + w + k1 : ℕ) : ℤ) ((z + k1 + k3 : ℕ) : ℤ) ((u + w + k3 : ℕ) : ℤ) ((w + k1 + k3 : ℕ) : ℤ)
+      k1 k3 = XsSeriesConst k1 k3 u v w z * XsSeries k1 k3 u v w z := by
+  unfold Xs
+  rw [finsum_int_eq_sum_range _ k3 (fun x hx => by
+    rw [zbinom_zero_of (by omega : ¬(0 ≤ x ∧ x ≤ (k3 : ℤ)))]; ring)]
+  unfold XsSeries
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun x hx => ?_
+  have hx3 : x ≤ k3 := Nat.lt_succ_iff.mp (Finset.mem_range.mp hx)
+  by_cases hx1 : x ≤ k1
+  · exact termX x k1 k3 u v w z hx1 hx3
+  · rw [zbinom_zero_of (by omega : ¬(0 ≤ (k1 : ℤ) - x ∧ (k1 : ℤ) - x ≤ _)),
+      rf_neg_zero k1 x (by omega)]
+    simp
+
+end PhyslibAlpha.Sl2

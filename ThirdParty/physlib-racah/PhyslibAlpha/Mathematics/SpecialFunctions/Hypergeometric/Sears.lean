@@ -1,0 +1,173 @@
+/-
+Copyright (c) 2026 Antony Lewis. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Antony Lewis
+-/
+module
+
+public import PhyslibAlpha.Mathematics.SpecialFunctions.Hypergeometric.SearsTerms
+
+/-!
+
+# The Sears transformation
+
+The Sears (Whipple) transformation of a terminating balanced `₄F₃(1)` with real parameters.
+
+## i. Overview
+
+For `d + e + f = A + B + C - n + 1`, the terminating balanced series
+`₄F₃(-n, A, B, C; d, e, f)` at argument `1` equals
+
+`(e - A)_n (f - A)_n / ((e)_n (f)_n) · ₄F₃(-n, A, d - B, d - C; d, A - e - n + 1, A - f - n + 1)`
+
+where `(x)_k` is the rising factorial `rf x k`. The proof follows Andrews–Askey–Roy: the ratio
+`(d - B)_k (d - C)_k / (d)_k` in the transformed series is expanded by the Pfaff–Saalschütz sum
+(`sears_expand`), the resulting double sum is exchanged, and the inner sum over `i` is again a
+Pfaff–Saalschütz sum (`sears_inner_sum`); its value is a multiple of the summand of the original
+series (`final_pt`). The statement is given in the multiplied form, with the non-vanishing of the
+Pochhammer symbols in the denominators as hypotheses.
+
+## ii. Key results
+
+- `sears_expand`: the Saalschütz expansion of one summand.
+- `sears_inner_sum`: the inner sum of the exchanged double sum.
+- `sears`: the Sears transformation.
+
+## iii. Table of contents
+
+- A. Expanding one ratio of Pochhammer symbols
+- B. The Sears transformation
+
+## iv. References
+
+- G. E. Andrews, R. Askey, R. Roy, *Special Functions*, Cambridge University Press (1999),
+  §3.3.
+- W. N. Bailey, *Generalized Hypergeometric Series*, Cambridge University Press (1935),
+  Chapter 4.
+
+-/
+
+@[expose] public section
+
+noncomputable section
+
+namespace PhyslibAlpha.Hypergeometric
+
+open Finset
+
+/-!
+
+## A. Expanding one ratio of Pochhammer symbols
+
+-/
+
+/-- Each summand of the transformed series is a sum over `j ≤ k` of
+`searsOuter * searsInner`, by the Pfaff–Saalschütz sum. -/
+lemma sears_expand (n k : ℕ) (hkn : k ≤ n) (A B C d A2 A3 : ℝ) (hd : rf d n ≠ 0)
+    (hA2 : rf A2 n ≠ 0) (hA3 : rf A3 n ≠ 0) (h1 : ∀ k, k ≤ n → rf (1 + B + C - d - k) k ≠ 0) :
+    rf (-(n : ℝ)) k * rf A k * rf (d - B) k * rf (d - C) k /
+        ((k.factorial : ℝ) * rf d k * rf A2 k * rf A3 k) =
+      ∑ j ∈ range (k + 1),
+        searsOuter n A B C d A2 A3 j * searsInner n A (d - B - C) A2 A3 j (k - j) := by
+  have hdk := rf_ne_zero_of_le hd hkn
+  have hEk := h1 k hkn
+  have hsaal := saal B C d k hdk hEk
+  have hE : rf (1 + B + C - d - (k : ℝ)) k = (-1) ^ k * rf (d - B - C) k :=
+    rf_reflect' _ _ _ (by ring)
+  have hDk : rf (d - B - C) k ≠ 0 := by
+    intro h0; apply hEk; rw [hE, h0, mul_zero]
+  have hA2k := rf_ne_zero_of_le hA2 hkn
+  have hA3k := rf_ne_zero_of_le hA3 hkn
+  have hfk : (k.factorial : ℝ) ≠ 0 := by exact_mod_cast Nat.factorial_ne_zero k
+  have hratio : rf (d - B) k * rf (d - C) k / rf d k =
+      (-1) ^ k * rf (1 + B + C - d - (k : ℝ)) k *
+        ∑ j ∈ range (k + 1), saalTerm k B C d (1 + B + C - d - (k : ℝ)) j := by
+    rw [hsaal]
+    rcases neg_one_pow_eq_or ℝ k with h | h <;> simp only [h] <;> field_simp
+  have e1 : rf (-(n : ℝ)) k * rf A k * rf (d - B) k * rf (d - C) k /
+      ((k.factorial : ℝ) * rf d k * rf A2 k * rf A3 k) =
+      rf (-(n : ℝ)) k * rf A k / ((k.factorial : ℝ) * rf A2 k * rf A3 k) *
+        (rf (d - B) k * rf (d - C) k / rf d k) := by field_simp
+  rw [e1, hratio, ← mul_assoc, Finset.mul_sum]
+  refine Finset.sum_congr rfl fun j hj => ?_
+  have hjk : j ≤ k := Nat.lt_succ_iff.mp (Finset.mem_range.mp hj)
+  exact term_split' n k j hjk A B C d A2 A3 hDk hA2k hA3k (rf_ne_zero_of_le hdk hjk)
+
+/-- For fixed `j`, the sum over `i` of `searsInner` is a Pfaff–Saalschütz sum. -/
+lemma sears_inner_sum (n j : ℕ) (hjn : j ≤ n) (A B C d A2 A3 : ℝ) (hA2 : rf A2 n ≠ 0)
+    (hA3 : rf A3 n ≠ 0) (hbal : 1 + A + (d - B - C) - A2 - n = A3) :
+    ∑ i ∈ range (n + 1 - j), searsOuter n A B C d A2 A3 j * searsInner n A (d - B - C) A2 A3 j i =
+      searsOuter n A B C d A2 A3 j * ((-1) ^ (n - j) * rf (A2 + j - (A + j)) (n - j) *
+        rf (A2 + j - (d - B - C)) (n - j) / (rf (A2 + j) (n - j) * rf (A3 + j) (n - j))) := by
+  rw [← Finset.mul_sum]
+  congr 1
+  have hc0 : rf (A2 + j) (n - j) ≠ 0 := rf_ne_zero_shift hA2 hjn
+  have he0eq : (1 + (A + j) + (d - B - C) - (A2 + j) - ((n - j : ℕ) : ℝ)) = A3 + j := by
+    rw [Nat.cast_sub hjn]; linarith [hbal]
+  have he0 : rf (1 + (A + j) + (d - B - C) - (A2 + j) - ((n - j : ℕ) : ℝ)) (n - j) ≠ 0 := by
+    rw [he0eq]; exact rf_ne_zero_shift hA3 hjn
+  have hs := saal (A + j) (d - B - C) (A2 + j) (n - j) hc0 he0
+  rw [he0eq] at hs
+  have : n + 1 - j = n - j + 1 := by omega
+  rw [this]
+  have hT : ∀ i : ℕ, searsInner n A (d - B - C) A2 A3 j i =
+      saalTerm (n - j) (A + j) (d - B - C) (A2 + j) (A3 + j) i := by
+    intro i
+    simp only [searsInner, saalTerm]
+    rw [Nat.cast_sub hjn]; ring_nf
+  rw [Finset.sum_congr rfl (fun i _ => hT i), hs]
+
+/-!
+
+## B. The Sears transformation
+
+-/
+
+/-- **The Sears transformation** of a terminating balanced `₄F₃(1)`, in multiplied form:
+`₄F₃(-n, A, d - B, d - C; d, A - e - n + 1, A - f - n + 1) · (e - A)_n (f - A)_n / ((e)_n (f)_n)
+ = ₄F₃(-n, A, B, C; d, e, f)` for `d + e + f = A + B + C - n + 1`, under the non-vanishing of
+the Pochhammer symbols in the denominators. -/
+lemma sears (n : ℕ) (A B C d e f : ℝ) (hbal : d + e + f = A + B + C - n + 1)
+    (hd : rf d n ≠ 0) (he : rf e n ≠ 0) (hf : rf f n ≠ 0)
+    (hA2 : rf (A - e - n + 1) n ≠ 0) (hA3 : rf (A - f - n + 1) n ≠ 0)
+    (h1 : ∀ k, k ≤ n → rf (1 + B + C - d - k) k ≠ 0) :
+    (∑ k ∈ range (n + 1), rf (-(n : ℝ)) k * rf A k * rf (d - B) k * rf (d - C) k /
+        ((k.factorial : ℝ) * rf d k * rf (A - e - n + 1) k * rf (A - f - n + 1) k)) *
+      (rf (e - A) n * rf (f - A) n / (rf e n * rf f n)) =
+    ∑ k ∈ range (n + 1), rf (-(n : ℝ)) k * rf A k * rf B k * rf C k /
+        ((k.factorial : ℝ) * rf d k * rf e k * rf f k) := by
+  set A2 : ℝ := A - e - n + 1 with hA2d
+  set A3 : ℝ := A - f - n + 1 with hA3d
+  have hbal' : 1 + A + (d - B - C) - A2 - n = A3 := by rw [hA2d, hA3d]; linarith
+  -- expand each term, exchange the two summations and evaluate the inner sums
+  have step2 : ∑ k ∈ range (n + 1), rf (-(n : ℝ)) k * rf A k * rf (d - B) k * rf (d - C) k /
+        ((k.factorial : ℝ) * rf d k * rf A2 k * rf A3 k) =
+      ∑ j ∈ range (n + 1), ∑ i ∈ range (n + 1 - j),
+        searsOuter n A B C d A2 A3 j * searsInner n A (d - B - C) A2 A3 j i := by
+    rw [Finset.sum_congr rfl fun k hk =>
+      sears_expand n k (Nat.lt_succ_iff.mp (Finset.mem_range.mp hk)) A B C d A2 A3 hd hA2 hA3 h1]
+    exact Finset.sum_range_diag_flip (n + 1) fun j i =>
+      searsOuter n A B C d A2 A3 j * searsInner n A (d - B - C) A2 A3 j i
+  -- each term is a multiple of the term of the series on the right
+  have step4 : ∀ j ∈ range (n + 1), searsOuter n A B C d A2 A3 j *
+      ((-1) ^ (n - j) * rf (A2 + j - (A + j)) (n - j) * rf (A2 + j - (d - B - C)) (n - j) /
+        (rf (A2 + j) (n - j) * rf (A3 + j) (n - j))) =
+      rf e n * rf f n / (rf A2 n * rf A3 n) *
+        (rf (-(n : ℝ)) j * rf A j * rf B j * rf C j /
+          ((j.factorial : ℝ) * rf d j * rf e j * rf f j)) := by
+    intro j hj
+    obtain ⟨m, rfl⟩ := Nat.exists_eq_add_of_le (Nat.lt_succ_iff.mp (Finset.mem_range.mp hj))
+    exact final_pt j m A B C d e f hbal he hf hA2 hA3 hd
+  rw [step2, Finset.sum_congr rfl fun j hj => sears_inner_sum n j
+    (Nat.lt_succ_iff.mp (Finset.mem_range.mp hj)) A B C d A2 A3 hA2 hA3 hbal',
+    Finset.sum_congr rfl step4, ← Finset.mul_sum]
+  have hA2n : rf A2 n = (-1) ^ n * rf (e - A) n := rf_reflect' _ _ _ (by rw [hA2d]; ring)
+  have hA3n : rf A3 n = (-1) ^ n * rf (f - A) n := rf_reflect' _ _ _ (by rw [hA3d]; ring)
+  have hn2 : rf (e - A) n ≠ 0 := by
+    intro h0; apply hA2; rw [hA2n, h0, mul_zero]
+  have hn3 : rf (f - A) n ≠ 0 := by
+    intro h0; apply hA3; rw [hA3n, h0, mul_zero]
+  rw [hA2n, hA3n]
+  rcases neg_one_pow_eq_or ℝ n with h | h <;> simp only [h] <;> field_simp
+
+end PhyslibAlpha.Hypergeometric

@@ -1,0 +1,136 @@
+/-
+Copyright (c) 2026 Antony Lewis. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Antony Lewis
+-/
+module
+
+public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSum
+
+/-!
+
+# Racah's double sum and its single-sum form
+
+The double sum `collapseSum` produced by the highest-weight reduction of the recoupling coefficient,
+the single sum `Xs`, and the zero-extended binomial coefficient and finite-sum lemmas needed to
+relate them.
+
+## i. Overview
+
+In doubled units (`a = 2 j₁`, `b = 2 j₂`, `c = 2 j₃`, `J = (a + b + c)/2 - K`,
+`j₁₂ = (a + b)/2 - k₁`, `j₂₃ = (b + c)/2 - k₃`) put `X = b + c - k₃ - K`. All sums are
+zero-extended over `ℤ`, through `factZ` (`n!`, zero for `n < 0`), `invFact` (`1/n!`, zero for
+`n < 0`) and `zbinom` (`C(n, j)`, zero unless `0 ≤ j ≤ n`). The two sums are
+
+`collapseSum a b c K k₁ k₃ = Σ_α Σ_z (-1)^z (a-α)! (b-k₁+α)! (X+α)! /
+  (α! z! (k₃-z)! (k₁-α-z)! (c-K+k₁-z)! (b-k₁-k₃+z+α)! (K-k₁-k₃+z)!)`,
+
+`Xs a b c K k₁ k₃ = Σ_x (-1)^x C(k₃, x) C(a+X+1, k₁-x) (c-k₃+x)! (b-x)! (a-k₁+x)! / (K-k₁-k₃+x)!`.
+
+This file only has the definitions and the elementary lemmas on `zbinom` and on sums over `ℤ`
+supported on a finite interval. The later files prove that `collapseSum` is `Xs` times explicit
+factorials, and that the recoupling coefficient of `SixJ` is a constant times `collapseSum`.
+
+## ii. Key results
+
+- `zbinom`, `zbinom_eq`: the zero-extended binomial coefficient and its factorial form.
+- `Tterm`, `collapseSum`: the summand and the double sum.
+- `Xs`: the single sum.
+- `finsum_int_eq_sum_range`: a sum over `ℤ` supported in `[0, k]` is a sum over `range (k + 1)`.
+
+## iii. Table of contents
+
+- A. The two sums
+- B. Zero-extended binomials and finite sums
+
+## iv. References
+
+- G. Racah, *Theory of complex spectra. II*, Phys. Rev. 62, 438 (1942).
+
+-/
+
+@[expose] public section
+
+noncomputable section
+
+namespace PhyslibAlpha.Sl2
+
+/-!
+
+## A. The two sums
+
+-/
+
+/-- `C(n, j)` for integers `n, j`, and `0` unless `0 ≤ j ≤ n`. -/
+def zbinom (n j : ℤ) : ℝ := if 0 ≤ j ∧ j ≤ n then ((n.toNat.choose j.toNat : ℕ) : ℝ) else 0
+
+/-- The summand of the double sum `collapseSum`, with `X = b + c - k₃ - K`:
+`(-1)^z (a-α)! (b-k₁+α)! (X+α)! / (α! z! (k₃-z)! (k₁-α-z)! (c-K+k₁-z)! (b-k₁-k₃+z+α)!
+(K-k₁-k₃+z)!)`, zero unless every factorial argument is nonnegative. -/
+def Tterm (a b c K k₁ k₃ α z : ℤ) : ℝ :=
+  (-1) ^ z * factZ (a - α) * factZ (b - k₁ + α) * factZ (b + c - k₃ - K + α) * invFact α *
+    invFact z * invFact (k₃ - z) * invFact (k₁ - α - z) * invFact (c - K + k₁ - z) *
+    invFact (b - k₁ - k₃ + z + α) * invFact (K - k₁ - k₃ + z)
+
+/-- The double sum `Σ_α Σ_z Tterm`, zero-extended over `ℤ`. By `sixJ_eq_const_mul_collapseSum`,
+the recoupling coefficient at `M = J` is a constant times this sum. -/
+def collapseSum (a b c K k₁ k₃ : ℤ) : ℝ := ∑ᶠ α : ℤ, ∑ᶠ z : ℤ, Tterm a b c K k₁ k₃ α z
+
+/-- The single sum `Xs` obtained from `collapseSum` by the Vandermonde evaluation of the `α`-sum;
+a balanced terminating `₄F₃(1)`. -/
+def Xs (a b c K k₁ k₃ : ℤ) : ℝ :=
+  ∑ᶠ x : ℤ, (-1 : ℝ) ^ x * zbinom k₃ x * zbinom (a + (b + c - k₃ - K) + 1) (k₁ - x) *
+    factZ (c - k₃ + x) * factZ (b - x) * factZ (a - k₁ + x) * invFact (K - k₁ - k₃ + x)
+
+/-!
+
+## B. Zero-extended binomials and finite sums
+
+-/
+
+/-- The factorial form `C(n, j) = n! / (j! (n - j)!)` of the zero-extended binomial coefficient. -/
+lemma zbinom_eq (n j : ℤ) : zbinom n j = factZ n * invFact j * invFact (n - j) := by
+  by_cases h : 0 ≤ j ∧ j ≤ n
+  · obtain ⟨N, rfl⟩ := Int.eq_ofNat_of_zero_le (by omega : 0 ≤ n)
+    obtain ⟨J, rfl⟩ := Int.eq_ofNat_of_zero_le h.1
+    have hJN : J ≤ N := by omega
+    have e : ((N : ℤ) - J) = ((N - J : ℕ) : ℤ) := by omega
+    rw [zbinom, ite_eq_left h, e, factZ_natCast, invFact_natCast, invFact_natCast]
+    simp only [Int.toNat_natCast]
+    have := Nat.choose_mul_factorial_mul_factorial hJN
+    have h2 : ((N.choose J : ℕ) : ℝ) * J.factorial * (N - J).factorial = N.factorial := by
+      exact_mod_cast this
+    field_simp
+    linarith
+  · rw [zbinom, ite_eq_right h]
+    by_cases h1 : n < 0
+    · rw [factZ_of_neg h1]; ring
+    · by_cases h2 : j < 0
+      · rw [invFact_of_neg h2]; ring
+      · rw [invFact_of_neg (by omega : n - j < 0)]; ring
+
+lemma zbinom_zero_of {n j : ℤ} (h : ¬(0 ≤ j ∧ j ≤ n)) : zbinom n j = 0 := by
+  rw [zbinom, ite_eq_right h]
+
+/-- A sum over `ℤ` supported in `[0, k]` is a sum over `range (k + 1)`. -/
+lemma finsum_int_eq_sum_range (f : ℤ → ℝ) (k : ℕ) (h : ∀ z : ℤ, (z < 0 ∨ (k : ℤ) < z) → f z = 0) :
+    ∑ᶠ z : ℤ, f z = ∑ n ∈ Finset.range (k + 1), f n := by
+  rw [finsum_eq_sum_of_support_subset f (s := (Finset.range (k + 1)).map Nat.castEmbedding)]
+  · rw [Finset.sum_map]; rfl
+  · intro z hz
+    rw [Function.mem_support] at hz
+    by_contra hcon
+    apply hz
+    apply h
+    by_contra h2
+    have h3 : 0 ≤ z := by omega
+    obtain ⟨n, rfl⟩ := Int.eq_ofNat_of_zero_le h3
+    apply hcon
+    rw [Finset.mem_coe, Finset.mem_map]
+    exact ⟨n, by simp only [Finset.mem_range]; omega, rfl⟩
+
+lemma invFact_congr {u v : ℤ} (h : u = v) : invFact u = invFact v := by rw [h]
+
+lemma factZ_congr {u v : ℤ} (h : u = v) : factZ u = factZ v := by rw [h]
+
+end PhyslibAlpha.Sl2

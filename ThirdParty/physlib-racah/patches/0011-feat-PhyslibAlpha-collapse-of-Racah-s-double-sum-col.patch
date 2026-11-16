@@ -1,0 +1,247 @@
+From e412eab1d583bf4b4b8dab225443c9e8b0ad2d17 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 13 Nov 2026 17:11:59 +0000
+Subject: [PATCH 11/20] feat(PhyslibAlpha): collapse of Racah's double sum
+ `collapseSum_eq_Xs` via the Vandermonde convolution
+
+Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01CoYoSnPzLFW27jyKntrTVS
+---
+ PhyslibAlpha.lean                             |   1 +
+ .../RacahDoubleSumCollapse.lean               | 212 ++++++++++++++++++
+ 2 files changed, 213 insertions(+)
+ create mode 100644 PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahDoubleSumCollapse.lean
+
+diff --git a/PhyslibAlpha.lean b/PhyslibAlpha.lean
+index 352c885..468d843 100644
+--- a/PhyslibAlpha.lean
++++ b/PhyslibAlpha.lean
+@@ -773,6 +773,7 @@ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.NineJ
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.NormalizedBasis
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.ProjectionTheorem
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSum
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSumCollapse
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSumInner
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSum
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSumSymmetry
+diff --git a/PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahDoubleSumCollapse.lean b/PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahDoubleSumCollapse.lean
+new file mode 100644
+index 0000000..21c66ed
+--- /dev/null
++++ b/PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahDoubleSumCollapse.lean
+@@ -0,0 +1,212 @@
++/-
++Copyright (c) 2026 Antony Lewis. All rights reserved.
++Released under Apache 2.0 license as described in the file LICENSE.
++Authors: Antony Lewis
++-/
++module
++
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJ
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSumInner
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahVandermonde
++
++/-!
++
++# The collapse of Racah's double sum to a single sum
++
++The purely combinatorial half of the proof of Racah's closed formula for the operator-defined
++`sixJ`: the double sum `collapseSum` equals the single sum `Xs` times explicit factorials. Nothing
++here involves operators or the Clebsch–Gordan structure of Physlib beyond the integer form of the
++Clebsch–Gordan sum.
++
++## i. Overview
++
++In doubled units (`a = 2 j₁`, `b = 2 j₂`, `c = 2 j₃`, `J = (a + b + c)/2 - K`,
++`j₁₂ = (a + b)/2 - k₁`, `j₂₃ = (b + c)/2 - k₃`) put `X = b + c - k₃ - K`. The identity proved is
++
++`collapseSum = Xs · X! / ((c-K+k₁)! k₃! (b-k₃)! (c-k₃)!)`        (`collapseSum_eq_Xs`).
++
++The proof has three steps.
++
++* For fixed `α`, the `z`-sum is Racah's form `racahR` of the Clebsch–Gordan sum, which equals the
++  `x`-form `racahL` (`RacahDoubleSumInner`). Hence it is a sum over `x` of terms
++  `xCoeff * alphaWeight` (`finsum_Tterm_eq_sum`).
++* After exchanging the finite sums, the sum over `α` of `alphaWeight` is the upper-index
++  Vandermonde convolution (`sum_Icc_alphaWeight`, from `RacahVandermonde`).
++* The remaining sum over `x` is `Xs`.
++
++## ii. Key results
++
++- `finsum_Tterm_eq_sum`: the `z`-sum as a sum over `x`.
++- `sum_Icc_alphaWeight`: the Vandermonde evaluation of the sum over `α`.
++- `collapseSum_eq_Xs_invFact`, `collapseSum_eq_Xs`, `collapseSum_eq_Xs_of_valid`: the collapse, in
++  the form with inverse factorials, in the division form, and under the hypotheses `ValidA`,
++  `ValidB` of `SixJ`.
++
++## iii. Table of contents
++
++- A. The inner sum
++- B. The sum over `α`
++- C. The collapse
++
++## iv. References
++
++- G. Racah, *Theory of complex spectra. II*, Phys. Rev. 62, 438 (1942).
++
++-/
++
++@[expose] public section
++
++noncomputable section
++
++namespace PhyslibAlpha.Sl2
++
++/-!
++
++## A. The inner sum
++
++-/
++
++/-- The weight of `x` in the expansion of the `z`-sum of `collapseSum` for fixed `α`: the factors
++that do not depend on `α`. -/
++def xCoeff (b c K k₁ k₃ x : ℤ) : ℝ :=
++  (-1 : ℝ) ^ x * zbinom k₃ x * factZ (b - x) * factZ (c - k₃ + x) * invFact (K - k₁ - k₃ + x)
++
++/-- The factors depending on `α` of the term of index `x` in the expansion of the `z`-sum, with
++`X = b + c - k₃ - K`. Its sum over `α` is a Vandermonde convolution. -/
++def alphaWeight (a X k₁ x α : ℤ) : ℝ :=
++  factZ (a - α) * factZ (X + α) * invFact α * invFact (k₁ - x - α)
++
++/-- The `z`-sum of `collapseSum`, at fixed `α`, is a sum over `x` of `xCoeff * alphaWeight`. -/
++lemma finsum_Tterm_eq_sum {a b c K k₁ k₃ X : ℕ} (hk₁b : k₁ ≤ b) (hb : k₃ ≤ b) (hc : k₃ ≤ c)
++    (hXd : (X : ℤ) = (b : ℤ) + c - k₃ - K) (α : ℤ) :
++    ∑ᶠ z : ℤ, Tterm a b c K k₁ k₃ α z =
++      (invFact (k₃ : ℤ) * invFact ((b : ℤ) - k₃) * invFact ((c : ℤ) - k₃)) *
++        invFact ((c : ℤ) - K + k₁) * ∑ x ∈ Finset.range (k₃ + 1),
++          xCoeff b c K k₁ k₃ x * alphaWeight a X k₁ x α := by
++  have e1 : (∑ᶠ z : ℤ, Tterm a b c K k₁ k₃ α z) =
++      (factZ ((a : ℤ) - α) * factZ ((b : ℤ) - k₁ + α) * factZ ((X : ℤ) + α) * invFact α) *
++      ∑ᶠ z : ℤ, (-1 : ℝ) ^ z * invFact z * invFact ((k₃ : ℤ) - z) *
++        invFact ((k₁ : ℤ) - α - z) * invFact ((c : ℤ) - K + k₁ - z) *
++        invFact ((b : ℤ) - k₁ - k₃ + z + α) * invFact ((K : ℤ) - k₁ - k₃ + z) := by
++    simp only [Tterm, ← hXd]
++    rw [finsum_int_eq_sum_range _ k₃ (fun z hz => ?_),
++      finsum_int_eq_sum_range _ k₃ (fun z hz => ?_), Finset.mul_sum]
++    · refine Finset.sum_congr rfl fun z _ => ?_
++      ring
++    · rcases hz with hz | hz
++      · rw [invFact_of_neg hz]; ring
++      · rw [invFact_of_neg (by omega : (k₃ : ℤ) - z < 0)]; ring
++    · rcases hz with hz | hz
++      · rw [invFact_of_neg hz]; ring
++      · rw [invFact_of_neg (by omega : (k₃ : ℤ) - z < 0)]; ring
++  rw [e1, z_sum_eq_racahR b c k₃ hb hc, ← Int.cast_inj (α := ℝ) |>.symm.mp
++    (racahL_eq_racahR (b - k₃) (c - k₃) k₃ ((k₁ : ℤ) - α) ((K : ℤ) - k₁ - k₃)),
++    racahL_eq_x_sum b c k₃ hb hc, Finset.mul_sum, Finset.mul_sum, Finset.mul_sum]
++  refine Finset.sum_congr rfl fun x _ => ?_
++  rw [invFact_congr (show (k₁ : ℤ) - α - x = k₁ - x - α by ring)]
++  simp only [xCoeff, alphaWeight, zpow_natCast]
++  by_cases hα : 0 ≤ α
++  · have f4 : factZ ((b : ℤ) - k₁ + α) * invFact ((b : ℤ) - k₁ + α) = 1 :=
++      factZ_mul_invFact (by omega)
++    linear_combination
++      ((invFact (k₃ : ℤ) * invFact ((b : ℤ) - k₃) * invFact ((c : ℤ) - k₃)) *
++        invFact ((c : ℤ) - K + k₁) *
++        (((-1 : ℝ) ^ x * zbinom k₃ x * factZ ((b : ℤ) - x) * factZ ((c : ℤ) - k₃ + x) *
++          invFact ((K : ℤ) - k₁ - k₃ + x)) *
++        (factZ ((a : ℤ) - α) * factZ ((X : ℤ) + α) * invFact α *
++          invFact ((k₁ : ℤ) - x - α)))) * f4
++  · rw [invFact_of_neg (by omega : α < 0)]; ring
++
++/-!
++
++## B. The sum over `α`
++
++-/
++
++lemma alphaWeight_eq_zero (a X k₁ x : ℕ) {α : ℤ} (hα : α < 0 ∨ (k₁ : ℤ) < α) :
++    alphaWeight a X k₁ x α = 0 := by
++  rcases hα with hα | hα
++  · rw [alphaWeight, invFact_of_neg hα]; ring
++  · rw [alphaWeight, invFact_of_neg (by omega : (k₁ : ℤ) - x - α < 0)]; ring
++
++/-- The sum over `α` of `alphaWeight` is the upper-index Vandermonde convolution. -/
++lemma sum_Icc_alphaWeight (a X k₁ x : ℕ) (hk₁a : k₁ ≤ a) :
++    ∑ α ∈ Finset.Icc (0 : ℤ) k₁, alphaWeight a X k₁ x α =
++      factZ ((a : ℤ) - ((k₁ : ℤ) - x)) * factZ X * zbinom ((a : ℤ) + X + 1) ((k₁ : ℤ) - x) := by
++  rw [← upper_vandermonde a X ((k₁ : ℤ) - x) (by omega)]
++  symm
++  refine finsum_eq_sum_of_support_subset _ fun α hα => ?_
++  rw [Function.mem_support] at hα
++  simp only [Finset.coe_Icc, Set.mem_Icc]
++  by_contra hcon
++  exact hα (alphaWeight_eq_zero a X k₁ x (by omega))
++
++/-!
++
++## C. The collapse
++
++-/
++
++/-- The double sum `collapseSum` as a finite sum over `α ∈ [0, k₁]` of the expanded `z`-sums. -/
++lemma collapseSum_eq_sum_Icc {a b c K k₁ k₃ X : ℕ} (hk₁b : k₁ ≤ b) (hb : k₃ ≤ b)
++    (hc : k₃ ≤ c) (hXd : (X : ℤ) = (b : ℤ) + c - k₃ - K) :
++    collapseSum a b c K k₁ k₃ =
++      (invFact (k₃ : ℤ) * invFact ((b : ℤ) - k₃) * invFact ((c : ℤ) - k₃)) *
++        invFact ((c : ℤ) - K + k₁) * ∑ α ∈ Finset.Icc (0 : ℤ) k₁,
++          ∑ x ∈ Finset.range (k₃ + 1), xCoeff b c K k₁ k₃ x * alphaWeight a X k₁ x α := by
++  rw [collapseSum, finsum_congr (finsum_Tterm_eq_sum hk₁b hb hc hXd)]
++  rw [finsum_eq_sum_of_support_subset _ (s := Finset.Icc (0 : ℤ) k₁)]
++  · rw [Finset.mul_sum]
++  · intro α hα
++    rw [Function.mem_support] at hα
++    simp only [Finset.coe_Icc, Set.mem_Icc]
++    by_contra hcon
++    apply hα
++    rw [Finset.sum_eq_zero fun x _ => by rw [alphaWeight_eq_zero a X k₁ x (by omega), mul_zero],
++      mul_zero]
++
++/-- **The collapse of the double sum**, `collapseSum = Xs · X! / ((c - K + k₁)! k₃! (b - k₃)!
++(c - k₃)!)` with `X = b + c - k₃ - K`, in the form with inverse factorials. -/
++lemma collapseSum_eq_Xs_invFact (a b c K k₁ k₃ : ℕ) (h1a : k₁ ≤ a) (h1b : k₁ ≤ b)
++    (h3b : k₃ ≤ b) (h3c : k₃ ≤ c) (hX : K + k₃ ≤ b + c) :
++    collapseSum a b c K k₁ k₃ = Xs a b c K k₁ k₃ * factZ ((b : ℤ) + c - k₃ - K) *
++      (invFact k₃ * invFact ((b : ℤ) - k₃) * invFact ((c : ℤ) - k₃) *
++        invFact ((c : ℤ) - K + k₁)) := by
++  obtain ⟨X, hXd⟩ : ∃ X : ℕ, (X : ℤ) = (b : ℤ) + c - k₃ - K := ⟨b + c - (k₃ + K), by omega⟩
++  rw [collapseSum_eq_sum_Icc h1b h3b h3c hXd, Finset.sum_comm]
++  simp_rw [← Finset.mul_sum, sum_Icc_alphaWeight a X k₁ _ h1a]
++  rw [Xs, ← hXd, finsum_int_eq_sum_range _ k₃ (fun z hz => ?_)]
++  · rw [Finset.sum_mul, Finset.sum_mul, Finset.mul_sum]
++    refine Finset.sum_congr rfl fun x _ => ?_
++    rw [xCoeff, factZ_congr (show (a : ℤ) - ((k₁ : ℤ) - x) = a - k₁ + x by ring), zpow_natCast]
++    ring
++  · rw [zbinom_eq]
++    rcases hz with hz | hz
++    · rw [invFact_of_neg hz]; ring
++    · rw [invFact_of_neg (by omega : (k₃ : ℤ) - z < 0)]; ring
++
++/-- `collapseSum = Xs · X! / ((c - K + k₁)! k₃! (b - k₃)! (c - k₃)!)`, `X = b + c - k₃ - K`. -/
++lemma collapseSum_eq_Xs (a b c K k₁ k₃ : ℕ) (h1a : k₁ ≤ a) (h1b : k₁ ≤ b) (h3b : k₃ ≤ b)
++    (h3c : k₃ ≤ c) (hKc : K ≤ c + k₁) (hX : K + k₃ ≤ b + c) :
++    collapseSum a b c K k₁ k₃ = Xs a b c K k₁ k₃ * factZ ((b : ℤ) + c - k₃ - K) /
++      (factZ ((c : ℤ) - K + k₁) * factZ k₃ * factZ ((b : ℤ) - k₃) * factZ ((c : ℤ) - k₃)) := by
++  rw [collapseSum_eq_Xs_invFact a b c K k₁ k₃ h1a h1b h3b h3c hX,
++    invFact_eq_inv (by omega : (0 : ℤ) ≤ k₃),
++    invFact_eq_inv (by omega : (0 : ℤ) ≤ (b : ℤ) - k₃),
++    invFact_eq_inv (by omega : (0 : ℤ) ≤ (c : ℤ) - k₃),
++    invFact_eq_inv (by omega : (0 : ℤ) ≤ (c : ℤ) - K + k₁)]
++  rw [div_eq_mul_inv, mul_inv, mul_inv, mul_inv]
++  ring
++
++/-- `collapseSum_eq_Xs` under the admissibility hypotheses of `SixJ` (`ValidA`, `ValidB`, and
++`k₁ ≤ min a b`, `k₃ ≤ min b c`, as for the `Fin` indices there). -/
++lemma collapseSum_eq_Xs_of_valid {a b c K k₁ k₃ : ℕ} (hk₁ : k₁ < min a b + 1)
++    (hk₃ : k₃ < min b c + 1) (hA : ValidA a b c K k₁) (hB : ValidB a b c K k₃) :
++    collapseSum a b c K k₁ k₃ = Xs a b c K k₁ k₃ * factZ ((b : ℤ) + c - k₃ - K) /
++      (factZ ((c : ℤ) - K + k₁) * factZ k₃ * factZ ((b : ℤ) - k₃) * factZ ((c : ℤ) - k₃)) := by
++  obtain ⟨hA1, hA2, hA3⟩ := hA
++  obtain ⟨hB1, hB2, hB3⟩ := hB
++  exact collapseSum_eq_Xs a b c K k₁ k₃ (by omega) (by omega) (by omega) (by omega) (by omega)
++    (by omega)
++
++end PhyslibAlpha.Sl2
+-- 
+2.43.0
+

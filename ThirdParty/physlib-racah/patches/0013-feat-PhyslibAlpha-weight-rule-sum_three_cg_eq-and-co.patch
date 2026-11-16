@@ -1,0 +1,197 @@
+From ae94c3ba2c85914e6b57bc2d917a24f3c23e379e Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 13 Nov 2026 17:14:35 +0000
+Subject: [PATCH 13/20] feat(PhyslibAlpha): weight rule `sum_three_cg_eq` and
+ `collapseSum_eq_sum_collapseTerm`
+
+Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01CoYoSnPzLFW27jyKntrTVS
+---
+ PhyslibAlpha.lean                             |   1 +
+ .../AngularMomentum/SixJWeightRule.lean       | 162 ++++++++++++++++++
+ 2 files changed, 163 insertions(+)
+ create mode 100644 PhyslibAlpha/QuantumMechanics/AngularMomentum/SixJWeightRule.lean
+
+diff --git a/PhyslibAlpha.lean b/PhyslibAlpha.lean
+index 06f4bf8..0940d35 100644
+--- a/PhyslibAlpha.lean
++++ b/PhyslibAlpha.lean
+@@ -783,6 +783,7 @@ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJ
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJProjection
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJSymmetry
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJTopWeight
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJWeightRule
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SpinOrbit
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.Wigner3j
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.WignerEckart
+diff --git a/PhyslibAlpha/QuantumMechanics/AngularMomentum/SixJWeightRule.lean b/PhyslibAlpha/QuantumMechanics/AngularMomentum/SixJWeightRule.lean
+new file mode 100644
+index 0000000..4817fc2
+--- /dev/null
++++ b/PhyslibAlpha/QuantumMechanics/AngularMomentum/SixJWeightRule.lean
+@@ -0,0 +1,162 @@
++/-
++Copyright (c) 2026 Antony Lewis. All rights reserved.
++Released under Apache 2.0 license as described in the file LICENSE.
++Authors: Antony Lewis
++-/
++module
++
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSum
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJTopWeight
++
++/-!
++
++# The weight rule and the double sum as a finite sum
++
++At weight `μ = 0` the weight rule collapses the triple sum over Clebsch–Gordan coefficients to a
++single sum over `α`, and the zero-extended double sum `collapseSum` is a finite sum of the same
++summands.
++
++## i. Overview
++
++The projection identity of `SixJProjection` at `μ = 0`, `γ = K - k₁` has the triple sum
++`Σ_{α β ν} ⟨j₁ α j₂ β | j₁₂ 0⟩ ⟨j₁ α j₂₃ ν | J J⟩ ⟨j₂ β j₃ (K - k₁) | j₂₃ ν⟩` on the left. The
++weight rule (`cgCoefficient_eq_zero_of_ne`) forces `β = k₁ - α` in the first coefficient and
++`ν = K - k₃ - α` in the second, so that only the sum over `α ≤ k₁` remains (`sum_three_cg_eq`).
++Its summands are `collapseConst * collapseTerm` by `cg_three_eq` (`SixJTopWeight`), where
++`collapseTerm` still contains the Racah sum `racahSum b c k₃ (k₁ - α) (K - k₁)` of the third
++coefficient. On the other side, the zero-extended double sum `collapseSum` of
++`RacahDoubleSum` equals the finite sum of the `collapseTerm` over `α ≤ k₁`
++(`collapseSum_eq_sum_collapseTerm`), because the inner sum over `z` is `racahSum` after the
++conditions of its summands are matched to the nonnegativity of the factorial arguments
++(`Tterm_eq`).
++
++## ii. Key results
++
++- `sum_three_cg_eq`: the triple sum collapses to a sum over `α ≤ k₁`.
++- `Tterm_eq`: the summand `Tterm` in the form of the summand of `racahSum`.
++- `collapseSum_eq_sum_collapseTerm`: `collapseSum` as a finite sum of `collapseTerm`.
++
++## iii. Table of contents
++
++- A. The weight rule
++- B. The double sum as a finite sum
++
++## iv. References
++
++- G. Racah, *Theory of complex spectra. II*, Phys. Rev. 62, 438 (1942).
++
++-/
++
++@[expose] public section
++
++noncomputable section
++
++namespace PhyslibAlpha.Sl2
++
++/-!
++
++## A. The weight rule
++
++-/
++
++/-- The weight rule collapses the triple sum over `(α, β, ν)` at `μ = 0`, `γ = K - k₁` to a single
++sum over `α ≤ k₁`. -/
++lemma sum_three_cg_eq {a b c K k₁ k₃ : ℕ} (ha : 0 < a) (hb : 0 < a + b) (hk₁a : k₁ ≤ a)
++    (hk₁b : k₁ ≤ b) (hB₂ : K - k₃ ≤ a) (hB₃ : K - k₃ ≤ b + c - 2 * k₃) :
++    ∑ α ∈ Finset.range (a + 1), ∑ β ∈ Finset.range (b + 1),
++      cgCoefficient a b k₁ 0 α β *
++        ∑ ν ∈ Finset.range (b + c - 2 * k₃ + 1),
++          cgCoefficient a (b + c - 2 * k₃) (K - k₃) 0 α ν * cgCoefficient b c k₃ ν β (K - k₁) =
++    ∑ α ∈ Finset.range (k₁ + 1), cgCoefficient a b k₁ 0 α (k₁ - α) *
++      (cgCoefficient a (b + c - 2 * k₃) (K - k₃) 0 α (K - k₃ - α) *
++        cgCoefficient b c k₃ (K - k₃ - α) (k₁ - α) (K - k₁)) := by
++  have hstep : ∀ α ∈ Finset.range (a + 1), ∑ β ∈ Finset.range (b + 1),
++      cgCoefficient a b k₁ 0 α β *
++        ∑ ν ∈ Finset.range (b + c - 2 * k₃ + 1),
++          cgCoefficient a (b + c - 2 * k₃) (K - k₃) 0 α ν * cgCoefficient b c k₃ ν β (K - k₁) =
++    cgCoefficient a b k₁ 0 α (k₁ - α) *
++      (cgCoefficient a (b + c - 2 * k₃) (K - k₃) 0 α (K - k₃ - α) *
++        cgCoefficient b c k₃ (K - k₃ - α) (k₁ - α) (K - k₁)) := fun α _ => by
++    rw [Finset.sum_eq_single (k₁ - α)]
++    · congr 1
++      rw [Finset.sum_eq_single (K - k₃ - α)]
++      · intro ν _ hν
++        rw [cgCoefficient_eq_zero_of_ne (by omega) hB₂ hB₃ (by omega), zero_mul]
++      · intro h
++        exact absurd (Finset.mem_range.mpr (by omega)) h
++    · intro β _ hβ
++      rw [cgCoefficient_eq_zero_of_ne hb hk₁a hk₁b (by omega), zero_mul]
++    · intro h
++      exact absurd (Finset.mem_range.mpr (by omega)) h
++  rw [Finset.sum_congr rfl hstep]
++  symm
++  refine Finset.sum_subset (fun α hα => ?_) fun α _ hα => ?_
++  · rw [Finset.mem_range] at hα ⊢
++    omega
++  · rw [cgCoefficient_eq_zero_of_ne hb hk₁a hk₁b (by simp at hα; omega), zero_mul]
++
++/-!
++
++## B. The double sum as a finite sum
++
++-/
++
++/-- For `α ≤ k₁` and `z ≤ k₃`, `Tterm` is the prefactor of `collapseTerm` times the summand of
++`racahSum b c k₃ (k₁ - α) (K - k₁)`. -/
++lemma Tterm_eq {a b c K k₁ k₃ α z : ℕ} (hk₁a : k₁ ≤ a) (hk₁b : k₁ ≤ b) (hk₃b : k₃ ≤ b)
++    (hk₁K : k₁ ≤ K) (hk₃K : k₃ ≤ K) (hB₃ : K - k₃ ≤ b + c - 2 * k₃) (hα : α ≤ k₁)
++    (hz : z ≤ k₃) :
++    Tterm a b c K k₁ k₃ α z =
++      (((a - α).factorial * (b - k₁ + α).factorial * (b + c - k₃ - K + α).factorial : ℕ) : ℝ) /
++        (α.factorial : ℝ) *
++      (if z ≤ k₁ - α ∧ k₁ - α ≤ b - k₃ + z ∧ k₃ ≤ K - k₁ + z ∧ K - k₁ + z ≤ c then
++        (-1) ^ z / ((z.factorial * (k₃ - z).factorial * (k₁ - α - z).factorial *
++          (c - (K - k₁) - z).factorial * (b - k₃ + z - (k₁ - α)).factorial *
++          (K - k₁ + z - k₃).factorial : ℕ) : ℝ) else 0) := by
++  by_cases hc : z ≤ k₁ - α ∧ k₁ - α ≤ b - k₃ + z ∧ k₃ ≤ K - k₁ + z ∧ K - k₁ + z ≤ c
++  · rw [ite_eq_left hc, Tterm, factZ_eq_factorial (t := a - α) (by omega),
++      factZ_eq_factorial (t := b - k₁ + α) (by omega),
++      factZ_eq_factorial (t := b + c - k₃ - K + α) (by omega),
++      invFact_eq (t := α) (by omega), invFact_eq (t := z) (by omega),
++      invFact_eq (t := k₃ - z) (by omega), invFact_eq (t := k₁ - α - z) (by omega),
++      invFact_eq (t := c - (K - k₁) - z) (by omega),
++      invFact_eq (t := b - k₃ + z - (k₁ - α)) (by omega),
++      invFact_eq (t := K - k₁ + z - k₃) (by omega), zpow_natCast]
++    simp only [Nat.cast_mul, div_eq_mul_inv, mul_inv]
++    ring
++  · rw [ite_eq_right hc, mul_zero, Tterm]
++    have h : ((k₁ : ℤ) - α - z < 0) ∨ ((b : ℤ) - k₁ - k₃ + z + α < 0) ∨
++        ((K : ℤ) - k₁ - k₃ + z < 0) ∨ ((c : ℤ) - K + k₁ - z < 0) := by omega
++    rcases h with h | h | h | h
++    · rw [invFact_of_neg h]; ring
++    · rw [invFact_of_neg h]; ring
++    · rw [invFact_of_neg h]; ring
++    · rw [invFact_of_neg h]; ring
++
++/-- The double sum is the finite sum of the `collapseTerm`. -/
++lemma collapseSum_eq_sum_collapseTerm {a b c K k₁ k₃ : ℕ} (hk₁a : k₁ ≤ a) (hk₁b : k₁ ≤ b)
++    (hk₃b : k₃ ≤ b) (hk₁K : k₁ ≤ K) (hk₃K : k₃ ≤ K) (hB₃ : K - k₃ ≤ b + c - 2 * k₃) :
++    collapseSum a b c K k₁ k₃ =
++      ∑ α ∈ Finset.range (k₁ + 1), collapseTerm a b c K k₁ k₃ α := by
++  have hin : ∀ α : ℤ, ∑ᶠ z : ℤ, Tterm a b c K k₁ k₃ α z =
++      ∑ z ∈ Finset.range (k₃ + 1), Tterm a b c K k₁ k₃ α z := fun α => by
++    refine finsum_int_eq_sum_range _ k₃ fun z hz => ?_
++    rw [Tterm]
++    rcases hz with h | h
++    · rw [invFact_of_neg h]; ring
++    · rw [invFact_of_neg (by omega : (k₃ : ℤ) - z < 0)]; ring
++  rw [collapseSum, finsum_congr hin]
++  rw [finsum_int_eq_sum_range _ k₁ fun α hα => ?_]
++  · refine Finset.sum_congr rfl fun α hα => ?_
++    have hα' : α ≤ k₁ := Nat.lt_succ_iff.mp (Finset.mem_range.mp hα)
++    rw [collapseTerm, racahSum, Finset.mul_sum]
++    refine Finset.sum_congr rfl fun z hz => ?_
++    exact Tterm_eq hk₁a hk₁b hk₃b hk₁K hk₃K hB₃ hα' (Nat.lt_succ_iff.mp (Finset.mem_range.mp hz))
++  · refine Finset.sum_eq_zero fun z hz => ?_
++    rw [Tterm]
++    rcases hα with h | h
++    · rw [invFact_of_neg h]; ring
++    · have hz' : (z : ℤ) ≥ 0 := by simp
++      rw [invFact_of_neg (by omega : (k₁ : ℤ) - α - z < 0)]; ring
++
++end PhyslibAlpha.Sl2
+-- 
+2.43.0
+
