@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.Special.JacobiMehlerHeine
+public import FormalResearch.Racah.P2ThreeJOperator
 
 /-!
 # The Laguerre recurrence behind the hard-edge factor (Weyl P2, `rem:Laguerre`)
@@ -8,14 +9,16 @@ public import FormalResearch.Special.JacobiMehlerHeine
 Two exact statements, both elementary.
 
 * `laguerre_recurrence`: the orthonormal Laguerre Jacobi recurrence at spectral parameter zero,
-  `√(n(n+p)) Ξ_{n-1} + √((n+1)(n+p+1)) Ξ_{n+1} = (2n+p+1) Ξ_n`, has the regular solution
-  `Ξ_n = √((n+1)_p) = √(Γ(n+p+1)/n!)` (`laguerreRegular`), for every real `p > -1`; for natural `p`
+  `√(n(n+p)) Ξ_{n-1} + √((n+1)(n+p+1)) Ξ_{n+1} = (2n+p+1) Ξ_n`, has the solution
+  `Ξ_n = √((n+1)_p) = √(Γ(n+p+1)/n!)` (`laguerreRegular`), including its `n = 0` row (the first coefficient
+  vanishes), for every real `p > -1`; this solution is unique up to scale by the forward recurrence
+  (positive coefficients), which is not formalised; for natural `p`
   this is `√` of the Pochhammer symbol (`laguerreRegular_nat`).
 * `ah3_*_tendsto`: the leading part, as `h → 0⁺`, of the exact magnetic difference equation
   `eq:3jdiff` near the upper edge at the grid point `x = 1 - h (p+1+2n)`: with
   `a_h(y) = √([(1-y)²-h²p²][(1+y)²-h²q²])` (`eq:ah3`, `p = |M-σ|`, `q = |M+σ|`) the rescaled
   coefficients `a_h(x±h)/(4h)` and `2(1-x²)/(4h)` tend to `√(n(n+p))`, `√((n+1)(n+p+1))` and
-  `2n+p+1`, the Laguerre coefficients (and the term `2h²[…]Φ` is `O(h²)`, so it drops).
+  `2n+p+1`, the Laguerre coefficients (and the term `2h²[…]Φ`, which is `O(h)` after division by `4h`, drops).
 
 Not formalised: the identification of `Φ(1 - h y) = h^{p/2} Ξ(y; h)` with the physical `3j` symbol,
 the passage from the coefficient limits to the asymptotics of the solution, the `6j` (Racah
@@ -29,7 +32,7 @@ open Filter Topology
 
 namespace FormalResearch.Special
 
-/-- The regular solution `Ξ_n = √((n+1)_p) = √(Γ(n+p+1)/Γ(n+1))` of the Laguerre recurrence. -/
+/-- The solution `Ξ_n = √((n+1)_p) = √(Γ(n+p+1)/Γ(n+1))` of the Laguerre recurrence (including its `n = 0` row). -/
 noncomputable def laguerreRegular (p : ℝ) (n : ℕ) : ℝ :=
   Real.sqrt (Real.Gamma ((n : ℝ) + p + 1) / Real.Gamma ((n : ℝ) + 1))
 
@@ -131,10 +134,18 @@ theorem laguerre_recurrence (p : ℝ) (hp : -1 < p) (n : ℕ) :
 noncomputable def ah3 (p q h y : ℝ) : ℝ :=
   Real.sqrt (((1 - y) ^ 2 - h ^ 2 * p ^ 2) * ((1 + y) ^ 2 - h ^ 2 * q ^ 2))
 
+/-- `ah3` is the `aH` of `FormalResearch.Racah` (the coefficient of the exact difference equation
+`eq:3jdiff`, `Dop`) for `p = |M-σ|`, `q = |M+σ|`. -/
+theorem ah3_eq_aH (M σ h y : ℝ) :
+    ah3 |M - σ| |M + σ| h y = FormalResearch.Racah.aH M σ h y := by
+  unfold ah3 FormalResearch.Racah.aH
+  rw [sq_abs, sq_abs]
+  congr 2 <;> ring
+
 /-- The `n`-th grid point from the upper edge, `x = 1 - h (p + 1 + 2n)`. -/
 def edgePoint (p h : ℝ) (n : ℕ) : ℝ := 1 - h * (p + 1 + 2 * n)
 
-/-- Lower neighbour coefficient: `a_h(x_n + h)/(4h) → √(n(n+p))` as `h → 0⁺`. -/
+/-- Coefficient of `Ξ_{n-1}` (the neighbour `x_n + h`): `a_h(x_n + h)/(4h) → √(n(n+p))` as `h → 0⁺`. -/
 theorem ah3_upper_tendsto (p q : ℝ) (n : ℕ) :
     Tendsto (fun h : ℝ => ah3 p q h (edgePoint p h n + h) / (4 * h)) (𝓝[>] 0)
       (𝓝 (Real.sqrt ((n : ℝ) * (n + p)))) := by
@@ -165,7 +176,7 @@ theorem ah3_upper_tendsto (p q : ℝ) (n : ℕ) :
   field_simp
   ring
 
-/-- Upper neighbour coefficient: `a_h(x_n - h)/(4h) → √((n+1)(n+p+1))` as `h → 0⁺` (`p ≥ -1`). -/
+/-- Coefficient of `Ξ_{n+1}` (the neighbour `x_n - h`): `a_h(x_n - h)/(4h) → √((n+1)(n+p+1))` as `h → 0⁺` (`p ≥ -1`). -/
 theorem ah3_lower_tendsto (p q : ℝ) (hp : -1 ≤ p) (n : ℕ) :
     Tendsto (fun h : ℝ => ah3 p q h (edgePoint p h n - h) / (4 * h)) (𝓝[>] 0)
       (𝓝 (Real.sqrt (((n : ℝ) + 1) * (n + p + 1)))) := by
@@ -218,7 +229,7 @@ theorem diag_tendsto (p : ℝ) (n : ℕ) :
   ring
 
 /-- **Laguerre limit of the edge difference equation.** Along the edge points `x_n = 1 - h(p+1+2n)`,
-the leading part of `eq:3jdiff` divided by `4h`, applied to the regular solution
+the leading part of `eq:3jdiff` divided by `4h`, applied to the solution
 `Ξ_n = √((n+1)_p)` (`p > -1`), tends to `0` as `h → 0⁺`:
 `a_h(x_n+h)/(4h) Ξ_{n-1} + a_h(x_n-h)/(4h) Ξ_{n+1} - 2(1-x_n²)/(4h) Ξ_n → 0`
 (the term `2h²[2L(L+1)-M²-σ²+1]Φ/(4h) = O(h)` is dropped; `n - 1` is truncated at `n = 0`,
@@ -247,5 +258,21 @@ theorem laguerre_limit_edge_equation (p q : ℝ) (hp : -1 < p) (n : ℕ) :
 /-- info: 'FormalResearch.Special.laguerreRegular_nat' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.laguerreRegular_nat
+
+/-- info: 'FormalResearch.Special.ah3_eq_aH' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ah3_eq_aH
+
+/-- info: 'FormalResearch.Special.ah3_upper_tendsto' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ah3_upper_tendsto
+
+/-- info: 'FormalResearch.Special.ah3_lower_tendsto' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ah3_lower_tendsto
+
+/-- info: 'FormalResearch.Special.diag_tendsto' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.diag_tendsto
 
 end FormalResearch.Special

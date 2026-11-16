@@ -50,7 +50,7 @@ lemma mhLimit_eq_regularizedHGFun (α : ℝ) (z : ℂ) :
   ring
 
 /-- **Link to Mathlib's `Complex.besselJ`**: `J_α(z) = (z/2)^α ∑_ℓ (-1)^ℓ (z/2)^{2ℓ}/(ℓ! Γ(α+ℓ+1))`
-(any real `α`; for `α` a negative integer the series is `J_α = (-1)^α J_{-α}` of Mathlib). -/
+(any real `α`). -/
 theorem besselJ_eq_cpow_mul_mhLimit (α : ℝ) (z : ℂ) :
     Complex.besselJ α z = (z / 2) ^ (α : ℂ) * mhLimit α z := by
   rw [mhLimit_eq_regularizedHGFun, Complex.besselJ_def]
@@ -174,5 +174,17 @@ theorem mhLimitReal_eq_rpow_mul_besselJ_re (α : ℝ) {x : ℝ} (hx : 0 < x) :
 /-- info: 'FormalResearch.Special.mehlerHeine_real_rate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.mehlerHeine_real_rate
+
+/-- info: 'FormalResearch.Special.mhLimit_eq_regularizedHGFun' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.mhLimit_eq_regularizedHGFun
+
+/-- info: 'FormalResearch.Special.mhLimit_eq_cpow_neg_mul_besselJ' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.mhLimit_eq_cpow_neg_mul_besselJ
+
+/-- info: 'FormalResearch.Special.mehlerHeine_uniformOn_bounded' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.mehlerHeine_uniformOn_bounded
 
 end FormalResearch.Special
