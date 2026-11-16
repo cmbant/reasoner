@@ -46,6 +46,10 @@ lemma deriv_deriv_of_hasDerivAt {h h1 : ℝ → ℝ} {h2 : ℝ} {S : Set ℝ} (h
 theorem J2.mono {f : ℝ → ℝ} {S S' : Set ℝ} {b0 b1 b2 : ℝ} (hf : J2 f S b0 b1 b2) (h : S' ⊆ S) :
     J2 f S' b0 b1 b2 := ⟨hf.1.mono h, fun x hx => hf.2 x (h hx)⟩
 
+theorem J2.weaken {f : ℝ → ℝ} {S : Set ℝ} {b0 b1 b2 c0 c1 c2 : ℝ} (hf : J2 f S b0 b1 b2) (h0 : b0 ≤ c0)
+    (h1 : b1 ≤ c1) (h2 : b2 ≤ c2) : J2 f S c0 c1 c2 :=
+  ⟨hf.1, fun x hx => ⟨(hf.2 x hx).1.trans h0, (hf.2 x hx).2.1.trans h1, (hf.2 x hx).2.2.trans h2⟩⟩
+
 theorem J2.mul {f g : ℝ → ℝ} {S : Set ℝ} {b0 b1 b2 c0 c1 c2 : ℝ} (hS : IsOpen S) (hf : J2 f S b0 b1 b2)
     (hg : J2 g S c0 c1 c2) :
     J2 (fun x => f x * g x) S (b0 * c0) (b1 * c0 + b0 * c1) (b2 * c0 + 2 * (b1 * c1) + b0 * c2) := by
