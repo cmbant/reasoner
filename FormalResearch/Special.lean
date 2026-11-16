@@ -20,6 +20,9 @@ public import FormalResearch.Special.SturmAiryComparison
 public import FormalResearch.Special.SturmAiryInterlace
 public import FormalResearch.Special.AiryPruferLift
 public import FormalResearch.Special.AiryPruferZeros
+public import FormalResearch.Special.SturmAiryLevels
+public import FormalResearch.Special.SturmAiryPruferUnique
+public import FormalResearch.Special.SturmAiryNodes
 
 /-!
 # Special functions: Jacobi polynomials
