@@ -82,6 +82,7 @@ public import FormalResearch.Special.DiscreteAiryLimitChains2HalfAiry
 public import FormalResearch.Special.DiscreteAiryLimitChains2Half3j
 public import FormalResearch.Special.DiscreteAiryLimitChains2Half6j
 public import FormalResearch.Special.DiscreteAiryLimitChains2Half6jFam
+public import FormalResearch.Special.DiscreteAiryOscTurn
 public import FormalResearch.Special.AiryCft2DerivHadamard
 
 /-!
