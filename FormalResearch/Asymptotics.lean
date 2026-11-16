@@ -4,6 +4,7 @@ public import FormalResearch.Asymptotics.UniformExpansion
 public import FormalResearch.Asymptotics.TaylorUniform
 public import FormalResearch.Asymptotics.AnalyticGerm
 public import FormalResearch.Asymptotics.Examples
+public import FormalResearch.Asymptotics.DominatedSeries
 
 /-!
 # Uniform asymptotic expansions in a parameter
@@ -16,5 +17,7 @@ Aggregate module for `FormalResearch/Asymptotics/`:
 * `TaylorUniform`: uniform Taylor remainder of a jointly smooth `G : E × ℝ → F`;
 * `AnalyticGerm`: the bridge `f z i = G (z, ε i)` with `G` smooth/analytic implies
   `HasUniformExpansion f (taylorCoeff G) ε l K`;
-* `Examples`: the `3j` even expansion of Weyl P2 (`thm:3jeven`) as a corollary.
+* `Examples`: the `3j` even expansion of Weyl P2 (`thm:3jeven`) as a corollary;
+* `DominatedSeries`: uniform Tannery theorem for finite sums with varying index sets (used by the
+  Mehler–Heine formula, `FormalResearch/Special/JacobiMehlerHeine.lean`).
 -/
