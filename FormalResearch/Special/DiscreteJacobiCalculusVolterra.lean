@@ -21,12 +21,13 @@ With `D k = a (k+1) ψ k ψ (k+1) (σ (k+1) - σ k)`:
   `≤ q < 1` ⇒ `|σ| ≤ R/(1-q)`).
 * `reduction_of_order_bound`: combined, `Σ_i |K k i| ≤ q < 1` for all `k` ⇒ `|σ| ≤ q/(1-q)`, i.e.
   `|y k - ψ k| ≤ q/(1-q) |ψ k|` (the abstract content of `lem:airy2-recessive`(i); the estimates
-  `|K| ≤ C h^{5/3}(1+X⁺)^{-1/2}` giving `q ≤ C h` are Airy-specific and live elsewhere).
+  `|K| ≤ C h^{5/3}(1+X⁺)^{-1/2}` giving `q ≤ C h` are Airy-specific: the row sums `Σ_i |K k i| ≤ Q h` are `volterraK_row_sum_le` in
+  `AiryRecessiveKernel`; the pointwise `h^{5/3}(1+X⁺)^{-1/2}` form is not stated).
 
 **Not formalised** here: the existence direction (a solution `σ` of the Volterra equation gives a solution
 `y`; it is not needed for the bound; note that the existence of the exact final-value solution `y` by backward
 recursion, given `a ≠ 0`, is not stated here either: it is `exists_final_solution` in `DiscreteJacobiExtras`), and every Airy-specific
-bound on `K`.
+bound on `K` (the row sums for `ψ ≍ airyWt` are `AiryRecessiveKernel`).
 -/
 
 @[expose] public section

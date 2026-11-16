@@ -34,7 +34,9 @@ mpmath check (30 digits, scripts and logs `m5_numerics/num1.py`, `num1.log` in t
 holds uniformly in the window length.
 
 **Not formalised:** the hypothesis `hdef` itself (parametrix defect `O(h²)`: the module M4), and `ψ ≍ airyWt`
-for the actual `ψ = g Ai` (needs `g ≍ 1`, supplied with the parametrix).
+for the actual `ψ = g Ai` (needs `g ≍ 1`, supplied with the parametrix).  The parametrix defect is
+`airyParametrix_defect` (`AiryParametrixDefect`), in window form `K h²(1+|X|)³ airyWt` under an assumed amplitude relation:
+it gives `hdef` for bounded `|X|` only; the oscillatory side `X < -1` is `discrete_airy_window` (`AiryWindowMain`).
 -/
 
 @[expose] public section

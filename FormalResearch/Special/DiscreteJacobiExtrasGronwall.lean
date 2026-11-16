@@ -45,8 +45,10 @@ for a statement quantified over `A0`, but not the `e^{C A0}` of the plan.
 `n ~ δ^{-1}` steps of the window.  The theorem needs the near-hyperbolic structure `c_k - a_k - a_{k+1} = O(δ²)`
 (i.e. `σ = O(δ²)`), which holds precisely in a bounded `X`-window.
 
-**Not formalised** here: the application (the Taylor defect bound of M4, the sizes of `ψ`, the verification of the
-defect hypotheses for the Hahn/Racah or W1 coefficients), the sharper form with `exp (L δ (n - i))` inside the
+The application is `discrete_airy_window` (`AiryWindowMain`), with `hdef`, `hdefW` as hypotheses.
+
+**Not formalised** here: the verification of those hypotheses (the defect bound on the whole window, the sizes of `ψ`, the
+near-hyperbolic constants for the Hahn/Racah or W1 coefficients), the sharper form with `exp (L δ (n - i))` inside the
 sum (the stated form has `exp (L δ n)` outside the sum, weaker by the factor `exp (L δ i)` on the `i`-th
 perturbation; the same order for the window), and a lower bound (reverse Grönwall).
 -/

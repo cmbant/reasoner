@@ -8,7 +8,11 @@ public import FormalResearch.Special.AiryEnvelopeReal
 `airyWt X = (2+|X|)^{-1/4} exp(-(2/3) max(X,0)^{3/2})` (with `airyXi X = (2/3) max(X,0)^{3/2}`), a
 single explicit stand-in for Olver's `M/E` on all of `ℝ`: it is the envelope of `Ai` on `[-1, ∞)` and
 the (modulus) envelope `|X|^{-1/4}` of the oscillatory side.  The discrete-to-Airy arguments of the Weyl
-papers (P3 appendices `A:1105-1135`, W1 `EC:74-113`) only use it through three facts, proved here.
+papers (P3 appendices `A:1105-1135`, W1 `EC:74-113`) only use it through three facts, proved here.  It is the
+weight of the downstream modules `AiryParametrix*` (defect bound `K h²(1+|X|)³ airyWt`), `AiryRecessive*` (the ratio lemma
+`airyWt_le_exp_mul` replaces `ψ_i ≤ Ce^{-(ξ_i-ξ_j)}ψ_j`) and `AiryWindow*`; of the lattice sums below only the scaled bound
+`airyWt_sq_lattice_sum_scaled` is a candidate input there, `AiryRecessiveSums` carries its own `ℤ`-window sums
+(the kernel needs sums of `e^{-2(ξ_i-ξ_p)}`, not of `airyWt²`).
 
 * **Comparison with `Ai` on `X ≥ -1`** (from `airyAi_envelope_real`, `abs_airyAi'_le_mul_airyAi`):
   `airyWt/20 ≤ Ai ≤ 6 airyWt` (`airyWt_div_twenty_le_airyAi`, `airyAi_le_six_airyWt`) and

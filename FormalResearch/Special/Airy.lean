@@ -100,8 +100,9 @@ the ordered zeros `a_n` of `Ai`: `AiryGammaBounds`, `AiryZeroTaylor`, `AiryFirst
 `AiryPruferAsym` (the Prüfer angle of `Ai`, zeros of `Ai'`), `AiryClarkMid` (one zero of `Ai'` per gap, asymptotically the
 midpoint); and the Airy side of the discrete-to-Airy limit: `AiryWt` (an explicit envelope weight `(2+|X|)^{-1/4} e^{-ξ}` with
 local constancy and lattice sums), `AiryShift` (the shift identity `y(X+s) = y(X) C + y'(X) S`), `AiryShiftTaylor` (Taylor
-expansions of `Ai`, `C`, `S` against the weight).  The Langer coordinate (`Langer*`) and the discrete Jacobi calculus
-(`DiscreteJacobi*`) are separate modules of `FormalResearch.Special`.  (Overlapping Gamma enclosures: `AiryBiNeg` and
+expansions of `Ai`, `C`, `S` against the weight).  The Langer coordinate (`Langer*`), the discrete Jacobi calculus
+(`DiscreteJacobi*`) and the discrete-to-Airy comparison built on it (`AiryParametrix*`, `AiryRecessive*`, `AiryWindow*`)
+are separate modules of `FormalResearch.Special`, not imported by this aggregate.  (Overlapping Gamma enclosures: `AiryBiNeg` and
 `AiryGammaBounds` each carry their own, with different constants.)
 
 **Not formalised:** the full asymptotic series (the `AiryAsym*` files give the first term, or `u_1` in `AiryAsymChi`, with explicit
@@ -110,8 +111,8 @@ DLMF 9.9.18 for the zeros and sharp constants anywhere; the asymptotics of the g
 (existence and uniqueness are `airy_node_exists_unique`); Olver's own `N` and the value of the crossing point `c = -0.366…`
 (`airyCross > -1`); Olver-type uniform expansions; the Mellin moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the `Lp`-level
 operator `K_u`; the `Ai'` and `P Ai + Q Ai'` versions of the good-circle bound (E2); the first zero of `Bi` and `Bi > 0`
-beyond `-11/10`; the parametrix defect, the recessive-solution comparison and the discrete-to-Airy window estimates (modules
-M4–M6 of the discrete-to-Airy plan).
+beyond `-11/10`; the uniform (whole turn neighbourhood) parametrix defect, the derivation of its amplitude relation from the
+Langer coordinate, and the concrete Hahn/Racah/W1 wiring of the discrete-to-Airy modules (see the design note).
 
 Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and the free-fermion edge
 (`Weyl/free_fermion`, `thm:edge`) need next, and what is now reachable.
@@ -125,11 +126,18 @@ Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and
   the DLMF 9.8 modulus are in place on the real axis (`AiryOlver`, `AiryOlverBounds`, with `Bi` on all of `ℝ` via
   `AiryAsymBi*`, `AiryBi*`), as is the explicit stand-in `airyWt` for `M/E` (`AiryWt`); the uniform-in-`x` bracket with
   the `N^{-4/3}` correction (Olver's uniform expansions) remains open.
-* *Discrete recurrence → Airy ODE limit*: Gronwall/uniqueness (`airy_unique_real`), the wronskian/energy identities, the
-  Airy shift identity and the Taylor expansions at the turn (`AiryShift`, `AiryShiftTaylor`, mesoscopic hypothesis
-  `|s|√(1+|X|) ≤ Λ`), the Langer coordinate (`Langer*`, module M3) and the discrete calculus with final-value existence,
-  hard-edge bridge and Grönwall bounds (`DiscreteJacobi*`, modules M1, M1b) exist; the parametrix defect, the recessive
-  selection with the Airy inputs and the window estimates (M4–M6, `h^{4/3}`-scaling) are open.
+* *Discrete recurrence → Airy ODE limit*: Gronwall/uniqueness (`airy_unique_real`), the wronskian/energy identities, then, in
+  `FormalResearch.Special` and not in this aggregate: M1/M1b the generic recurrence calculus (`DiscreteJacobi*`: Casoratian,
+  Green function, reduction of order, final-value existence, hard-edge bridge, discrete Grönwall bounds); M2 the Airy shift
+  identity and Taylor expansions at the turn (`AiryShift`, `AiryShiftTaylor`, mesoscopic hypothesis `|s|√(1+|X|) ≤ Λ`); M3 the
+  Langer coordinate (`Langer*`); M4 the parametrix defect in window form (`airyParametrix_defect`: `K h²(1+|X|)³ airyWt`,
+  with the amplitude relation `g²Aζ'Sh(ζζ'²) = 1` *assumed*, and *not* uniform on the whole turn neighbourhood, where the
+  factor `(1+|X|)³` is not small); M5 the recessive discrete solution and second solution under the relative defect hypothesis
+  `|jac ψ| ≤ C₀h²ψ` (`AiryRecessive*`); M6 the bounded oscillatory window by a discrete Grönwall march
+  (`discrete_airy_window`, asymptotic regime `δ ≤ δ₀`, `δ³ = h`; the constant is pessimistic, `e^{O(A0²)}`).  Open: deriving
+  the amplitude relation from M3 (in progress), the uniform defect bound (`O(h²)ψ` on `X ~ h^{-2/3}`), the concrete
+  Hahn/Racah/W1 wiring (verifying the hypotheses `hdef`, `hdefW`, the junction data and the near-hyperbolic constants for the
+  actual chains), and the Darboux normalisation `κ`.
 * *Free-fermion edge*: the Airy kernel `K(x,y)`, `K(x,x) = Ai'² - x Ai²`, `(∂_x + ∂_y)K = -Ai(x)Ai(y)` and
   `∫_x^∞ Ai² = K(x,x)` are in place, and `K(x,y) = ∫_0^∞ Ai(x+s)Ai(y+s) ds` (hence positivity of `K`) is
   `airyKer_eq_integral` (real `x,y`) and `airyKerC_eq_integral` (complex `x,y`) in `AiryKernelOp*`.

@@ -25,7 +25,8 @@ For `Ai`, with `u = 1 + |X|` and `Λ ≥ |s| √u`, `|s| ≤ 1`, `X ≥ -1` (`ai
 
 (`u² √u = (1+|X|)^{5/2}`).  This is the Taylor lemma of `lem:ec-defect` of
 `Weyl/free_fermion/notes/edge_crossover.tex` (`EC:78-86`, with `airyWt` in place of the envelope `𝓔`; it covers
-the base points `X ≥ -1` only, whereas EC also uses `y` down to about `-2` and a window to `-L^{1/10}`).  The P3
+the base points `X ≥ -1` only, whereas EC also uses `y` down to about `-2` and a window to `-L^{1/10}`; the base points
+`-A0 ≤ X ≤ -1` are covered by `airy_taylor4_window`, `airy_taylor5_window` in `AiryWindowTaylor`, with constants polynomial in `A0`).  The P3
 expansion `lem:airy2-shift-parity` (appendices `A:1068-1104`) uses the exact shift identity (`AiryShift`) with
 analytic dependence of `C, S` on the parameters, not an `Ai` Taylor remainder; the bound here for large `u` does
 not give the uniform `C h² airyWt` on the whole turn neighbourhood (`h² u³` is `O(1)` there).

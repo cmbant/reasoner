@@ -34,6 +34,21 @@ public import FormalResearch.Special.LangerPhi
 public import FormalResearch.Special.LangerHadamard
 public import FormalResearch.Special.LangerJets
 public import FormalResearch.Special.LangerCoordinate
+public import FormalResearch.Special.AiryParametrixPoly
+public import FormalResearch.Special.AiryParametrixShift
+public import FormalResearch.Special.AiryParametrixTaylor
+public import FormalResearch.Special.AiryParametrixSkeleton
+public import FormalResearch.Special.AiryParametrixPointwise
+public import FormalResearch.Special.AiryParametrixJets
+public import FormalResearch.Special.AiryParametrixDefect
+public import FormalResearch.Special.AiryParametrixLattice
+public import FormalResearch.Special.AiryRecessiveSums
+public import FormalResearch.Special.AiryRecessiveKernel
+public import FormalResearch.Special.AiryRecessive
+public import FormalResearch.Special.AiryRecessiveSelection
+public import FormalResearch.Special.AiryWindow
+public import FormalResearch.Special.AiryWindowMain
+public import FormalResearch.Special.AiryWindowTaylor
 
 /-!
 # Special functions: Jacobi polynomials
@@ -49,7 +64,12 @@ identity and `Bi` (`Airy`); Sturm and Prüfer theory of `y'' = q y` (`q` continu
 equation `q x = x`): simple zeros, Sturm separation and comparison, zero counts, Prüfer angle
 (`SturmAiry*`, `AiryPrufer*`); the Airy side of the discrete-to-Airy limit (`Airy` aggregate: shift identity, Taylor
 expansions, envelope weight); the Langer coordinate at a simple turning point (`LangerPhi`, `LangerHadamard`,
-`LangerJets`, `LangerCoordinate`); and the discrete Jacobi calculus for three-term recurrences (`DiscreteJacobiCalculus*`,
+`LangerJets`, `LangerCoordinate`); the discrete Jacobi calculus for three-term recurrences (`DiscreteJacobiCalculus*`,
 `DiscreteJacobiExtras*`: Lagrange/Casoratian identities, Green function, reduction of order, Volterra form, recessive
-selection, final-value existence, hard-edge bridge, discrete Grönwall bounds).
+selection, final-value existence, hard-edge bridge, discrete Grönwall bounds); and the discrete-to-Airy comparison built on
+it: the parametrix defect `|A(q+h/2)ψ(q+h) + A(q-h/2)ψ(q-h) - cψ(q)| ≤ K h²(1+|X|)³ airyWt X` for `ψ = g·Ai(h^{-2/3}ζ)`
+under an assumed amplitude relation (`AiryParametrix*`: shift Taylor bounds, parity skeleton, pointwise and jet estimates,
+lattice form), the recessive solution and second solution under a relative defect hypothesis (`AiryRecessive*`: kernel row
+sums, exact solution `f` with `|f-ψ| ≤ Cδ³ψ`, selection `Y = κf + μ f₂`), and the bounded oscillatory window by a discrete
+Grönwall march (`AiryWindow*`: `discrete_airy_window`, Taylor remainders of `Ai` on `[-A0,-1]`).
 -/
