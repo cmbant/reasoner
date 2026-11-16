@@ -222,6 +222,8 @@ public import FormalResearch.Racah.P2RacahLattice
 public import FormalResearch.Racah.P2RacahLatticeEnd
 public import FormalResearch.Racah.P2RacahSeed
 public import FormalResearch.Racah.P2RacahUnique
+public import FormalResearch.Racah.P2MomentPolynomial
+public import FormalResearch.Racah.P2LocalCalculus
 public import FormalResearch.Racah.P2ThreeJVanish
 public import FormalResearch.Racah.P2ThreeJRecAll
 public import FormalResearch.Racah.P2ThreeJRec
@@ -271,6 +273,9 @@ public import FormalResearch.Racah.P2AnalyticNLO3j
 public import FormalResearch.Racah.P2AnalyticNLO3jUniform
 public import FormalResearch.Racah.P2AnalyticNLO6jUniform
 public import FormalResearch.Racah.P2AnalyticHeadline
+public import FormalResearch.Racah.P2AnalyticFludeDefect
+public import FormalResearch.Racah.P2AnalyticCarrierHahn
+public import FormalResearch.Racah.P2AnalyticCarrierRacah
 public import FormalResearch.Racah.P2AnalyticHeadline6j
 public import FormalResearch.Racah.P2AnalyticLeading
 public import FormalResearch.Racah.P2AnalyticLeading6jChambers
