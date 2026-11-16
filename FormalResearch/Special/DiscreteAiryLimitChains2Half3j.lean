@@ -19,8 +19,8 @@ Source: `Weyl/P3/paper/weyl_midpoint_semiclassics.tex`, `prop:hahn-class`, `thm:
   (the shifted closed forms of `DiscreteAiryLimitChains2HalfAiry`), with end rows `A_{lo} = 0`
   (`hahn_end_lower_half`), `A_{N} = 0` (`hahn_end_upper_half`) and the support lemma `hahn_chain_support_half`.
 * `hahn_chain_abs_le_half`: `(R)`, `|Ŷ_k| ≤ √N_` for all `k`, from `gaussWeight_3j`.
-* `hahn_node_exists_half`, `hahn_node_obstruction_half`: nodes `x_n = p/q` of the half-integer lattice exist for infinitely
-  many `N` iff `p, q` are odd and `w = (p+q)/2 ≡ 1 + |M+σ+1| (mod 2)` (`N_ = (2N+1)/2`, `N = q(2u+1)/2 - 1/2`).
+* `hahn_node_exists_half`, `hahn_node_obstruction_half`: nodes `x_n = p/q` (`gcd(p,q) = 1` for the necessity) of the
+  half-integer lattice exist for infinitely many `N` iff `p, q` are odd and `w = (p+q)/2 ≡ 1 + |M+σ+1| (mod 2)` (`N_ = (2N+1)/2`, `N = q(2u+1)/2 - 1/2`).
 * `hahn_chain_airy_half`, `hahn_chain_airy_half_infinite`: the Airy limit for the actual half-integer `3j` chain at the nodes
   `x_n = x ∈ (0,1)` (`AiryOutHalf`) and along an infinite sequence of `N`.
 

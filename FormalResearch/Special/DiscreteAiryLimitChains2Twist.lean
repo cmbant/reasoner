@@ -29,7 +29,8 @@ Claim class: **proved**.
 
 ## Not formalised
 
-`κ` (unidentified), `κ ≠ 0`; the non-recessive `Ai`/`Bi` pair; uniformity over compact families of `x`; half-integer data.
+`κ` (unidentified), `κ ≠ 0`; the non-recessive `Ai`/`Bi` pair; uniformity over compact families of `x`; half-integer data (the shifted-lattice versions are in
+`DiscreteAiryLimitChains2Half*`; there the Hahn Airy limit is for `x ∈ (0,1)` only, the `x < 0` twist is not done).
 -/
 
 @[expose] public section

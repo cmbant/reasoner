@@ -18,8 +18,9 @@ Half-integer data `m_ = m + ½`, `n_ = n + ½` (`m, n ∈ ℤ`), integer `a, b, 
   `cosA A B C = (P²+Q²-R²)/(2PQ)`: `a = (tP-2n-3)/4`, `b = (tQ-2m-3)/4`, `c = (tR-2)/4`, `h = 4α/(tP)`.
 * `racah_chain_airy_family_half_pos/_neg`: composition with `racah_chain_airy_geom_half_pos/_neg`: the half-integer Airy
   conclusion `AiryOutHalf` holds for every realisation with the same constants; `τ = +1` iff `R² < |P²-Q²|`.
-  Example: `(P,Q,R) = (11,3,10)`, `m = n = 0`, `t₀ = 1`: `(a,b,c) = (2,0,2)` for `t = 1`, `τ = +1`
-  (`R² = 100 < 112 = |P²-Q²|`); `(5,3,6)`, `m = 0`, `n = 1`: `τ = -1`.
+  Example: `(P,Q,R) = (11,3,10)`, `m = n = 0`, `t₀ = 1`: `(a,b,c) = (13,3,12), …` for `t = 5, 9, …` (`τ = +1`,
+  `R² = 100 < 112 = |P²-Q²|`; the size hypothesis `hu` of `racah_family_ints_half` needs `t ≥ 5` here, though `t = 1` gives
+  `(a,b,c) = (2,0,2)` of the same parametrisation); `(5,3,6)`, `m = 0`, `n = 1`: `τ = -1`.
 
 Claim class: **proved**.  Not formalised: `κ`, uniformity, mixed-parity labels.
 -/
