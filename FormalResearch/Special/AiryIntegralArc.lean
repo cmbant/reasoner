@@ -17,7 +17,7 @@ public import FormalResearch.Special.AiryRotation
   `Re (ρ e^{iφ})^{3/2} = ρ^{3/2} cos(3φ/2)` and Jordan's inequality `cos φ ≥ 1 - 2φ/π`
   (`φ ∈ [0, π/2]`): the exponential gain `exp(-(2/3) ρ^{3/2} cos(3θ/2))` degenerates to `1` only at the
   end point `θ = π/3`, on a `θ`-set of size `O(ρ^{-3/2})`.
-* `airyPrim_neg_eq`: for real `y`, `P(-y) = -P(y e^{iπ/3}) - P(y e^{-iπ/3})`.
+(The identity `P(-y) = -P(y e^{iπ/3}) - P(y e^{-iπ/3})` is `airyPrim_neg_eq` in `AiryIntegral`.)
 
 These are the inputs of `AiryIntegral` (`∫_0^∞ Ai = 1/3`, `∫_{-∞}^0 Ai = 2/3`).
 -/
@@ -204,5 +204,13 @@ theorem norm_airyPrim_ray_sub_le {ρ σ : ℝ} (hρ : 0 < ρ) (hσ : σ = 1 ∨ 
     _ = 3 * π / (2 * √ρ) := by
       rw [ha_def, hr]
       field_simp
+
+/-- info: 'FormalResearch.Special.airyPrim_rotation' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyPrim_rotation
+
+/-- info: 'FormalResearch.Special.norm_airyPrim_ray_sub_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.norm_airyPrim_ray_sub_le
 
 end FormalResearch.Special

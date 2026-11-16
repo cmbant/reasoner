@@ -140,4 +140,8 @@ theorem tendsto_integral_mul_exp_neg_of_tendsto {f : ℝ → ℝ} (hf : Continuo
   filter_upwards [self_mem_nhdsWithin] with ε hε
   rw [hibp ε hε, hscale ε hε]
 
+/-- info: 'FormalResearch.Special.tendsto_integral_mul_exp_neg_of_tendsto' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.tendsto_integral_mul_exp_neg_of_tendsto
+
 end FormalResearch.Special
