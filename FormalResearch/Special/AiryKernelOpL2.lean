@@ -34,7 +34,7 @@ namespace FormalResearch.Special
 
 /-! ### Cauchy–Schwarz on a general measure space -/
 
-lemma airyCS {α : Type*} [MeasurableSpace α] {μ : Measure α} {g f : α → ℝ} (hg : Measurable g)
+lemma airyKerOp_cs {α : Type*} [MeasurableSpace α] {μ : Measure α} {g f : α → ℝ} (hg : Measurable g)
     (hf : Measurable f) (hg2 : Integrable (fun x => g x ^ 2) μ) (hf2 : Integrable (fun x => f x ^ 2) μ) :
     Integrable (fun x => g x * f x) μ ∧
       (∫ x, g x * f x ∂μ) ^ 2 ≤ (∫ x, g x ^ 2 ∂μ) * ∫ x, f x ^ 2 ∂μ := by
@@ -84,7 +84,7 @@ lemma integrableOn_airyKer_sq_left (u x : ℝ) :
 theorem airyKerOp_sq_le (u : ℝ) {f : ℝ → ℝ} (hf : Measurable f)
     (hf2 : IntegrableOn (fun y => f y ^ 2) (Ioi u)) (x : ℝ) :
     airyKerOp u f x ^ 2 ≤ (∫ y in Ioi u, airyKer x y ^ 2) * ∫ y in Ioi u, f y ^ 2 :=
-  (airyCS (μ := volume.restrict (Ioi u)) (measurable_airyKer_left x) hf
+  (airyKerOp_cs (μ := volume.restrict (Ioi u)) (measurable_airyKer_left x) hf
     (integrableOn_airyKer_sq_left u x) hf2).2
 
 lemma measurable_airyKerOp (u : ℝ) {f : ℝ → ℝ} (hf : Measurable f) : Measurable (airyKerOp u f) := by
@@ -123,30 +123,30 @@ noncomputable def airyKerForm (u : ℝ) (g f : ℝ → ℝ) : ℝ :=
   ∫ x in Ioi u, ∫ y in Ioi u, g x * airyKer x y * f y
 
 /-- `a(x) = √K(x,x)`, so that `|K(x,y)| ≤ a(x) a(y)`. -/
-noncomputable def airyDiagRoot (x : ℝ) : ℝ := √(airyKer x x)
+noncomputable def airyKerOp_diagRoot (x : ℝ) : ℝ := √(airyKer x x)
 
-lemma measurable_airyDiagRoot : Measurable airyDiagRoot :=
+lemma measurable_airyDiagRoot : Measurable airyKerOp_diagRoot :=
   (measurable_airyKer.comp (measurable_id.prodMk measurable_id)).sqrt
 
-lemma airyDiagRoot_sq (x : ℝ) : airyDiagRoot x ^ 2 = airyKer x x :=
+lemma airyDiagRoot_sq (x : ℝ) : airyKerOp_diagRoot x ^ 2 = airyKer x x :=
   Real.sq_sqrt (airyKer_diag_nonneg x)
 
-lemma abs_airyKer_le_root (x y : ℝ) : |airyKer x y| ≤ airyDiagRoot x * airyDiagRoot y := by
-  refine abs_le_of_sq_le_sq ?_ (by unfold airyDiagRoot; positivity)
+lemma abs_airyKer_le_root (x y : ℝ) : |airyKer x y| ≤ airyKerOp_diagRoot x * airyKerOp_diagRoot y := by
+  refine abs_le_of_sq_le_sq ?_ (by unfold airyKerOp_diagRoot; positivity)
   rw [mul_pow, airyDiagRoot_sq, airyDiagRoot_sq]
   exact airyKer_sq_le x y
 
 /-- `|g| a` is integrable on `(u,∞)` for `g ∈ L²(u,∞)`. -/
 lemma integrableOn_abs_mul_root (u : ℝ) {g : ℝ → ℝ} (hg : Measurable g)
     (hg2 : IntegrableOn (fun y => g y ^ 2) (Ioi u)) :
-    IntegrableOn (fun x => |g x| * airyDiagRoot x) (Ioi u) := by
+    IntegrableOn (fun x => |g x| * airyKerOp_diagRoot x) (Ioi u) := by
   have hd := (hg2.add (integrableOn_Ioi_airyKer_diag u)).div_const 2
   refine hd.mono' (hg.abs.mul measurable_airyDiagRoot).aestronglyMeasurable
     (Eventually.of_forall fun x => ?_)
-  rw [Real.norm_eq_abs, abs_of_nonneg (by unfold airyDiagRoot; positivity)]
+  rw [Real.norm_eq_abs, abs_of_nonneg (by unfold airyKerOp_diagRoot; positivity)]
   have := airyDiagRoot_sq x
   simp only [Pi.add_apply]
-  nlinarith [sq_nonneg (|g x| - airyDiagRoot x), sq_abs (g x)]
+  nlinarith [sq_nonneg (|g x| - airyKerOp_diagRoot x), sq_abs (g x)]
 
 lemma integrable_airyKerForm (u : ℝ) {g f : ℝ → ℝ} (hg : Measurable g) (hf : Measurable f)
     (hg2 : IntegrableOn (fun y => g y ^ 2) (Ioi u)) (hf2 : IntegrableOn (fun y => f y ^ 2) (Ioi u)) :
@@ -161,7 +161,7 @@ lemma integrable_airyKerForm (u : ℝ) {g f : ℝ → ℝ} (hg : Measurable g) (
     have h1 := abs_nonneg (g p.1)
     have h2 := abs_nonneg (f p.2)
     calc |g p.1| * |airyKer p.1 p.2| * |f p.2|
-        ≤ |g p.1| * (airyDiagRoot p.1 * airyDiagRoot p.2) * |f p.2| := by gcongr
+        ≤ |g p.1| * (airyKerOp_diagRoot p.1 * airyKerOp_diagRoot p.2) * |f p.2| := by gcongr
       _ = _ := by ring
 
 lemma airyKerForm_eq_prod (u : ℝ) {g f : ℝ → ℝ} (hg : Measurable g) (hf : Measurable f)
@@ -176,17 +176,17 @@ theorem airyKerForm_sq_le (u : ℝ) {g f : ℝ → ℝ} (hg : Measurable g) (hf 
     airyKerForm u g f ^ 2 ≤ airyN u ^ 2 * (∫ y in Ioi u, g y ^ 2) * ∫ y in Ioi u, f y ^ 2 := by
   have hG := integrableOn_abs_mul_root u hg hg2
   have hF := integrableOn_abs_mul_root u hf hf2
-  set P := ∫ x in Ioi u, |g x| * airyDiagRoot x with hP
-  set Q := ∫ x in Ioi u, |f x| * airyDiagRoot x with hQ
-  have hP0 : 0 ≤ P := integral_nonneg fun x => by unfold airyDiagRoot; positivity
-  have hQ0 : 0 ≤ Q := integral_nonneg fun x => by unfold airyDiagRoot; positivity
+  set P := ∫ x in Ioi u, |g x| * airyKerOp_diagRoot x with hP
+  set Q := ∫ x in Ioi u, |f x| * airyKerOp_diagRoot x with hQ
+  have hP0 : 0 ≤ P := integral_nonneg fun x => by unfold airyKerOp_diagRoot; positivity
+  have hQ0 : 0 ≤ Q := integral_nonneg fun x => by unfold airyKerOp_diagRoot; positivity
   have hB : |airyKerForm u g f| ≤ P * Q := by
     rw [airyKerForm_eq_prod u hg hf hg2 hf2, ← Real.norm_eq_abs]
     refine (norm_integral_le_integral_norm _).trans ?_
-    have hm : ∫ p : ℝ × ℝ, |g p.1| * airyDiagRoot p.1 * (|f p.2| * airyDiagRoot p.2)
+    have hm : ∫ p : ℝ × ℝ, |g p.1| * airyKerOp_diagRoot p.1 * (|f p.2| * airyKerOp_diagRoot p.2)
         ∂((volume.restrict (Ioi u)).prod (volume.restrict (Ioi u))) = P * Q :=
       integral_prod_mul (μ := volume.restrict (Ioi u)) (ν := volume.restrict (Ioi u))
-        (fun x => |g x| * airyDiagRoot x) (fun x => |f x| * airyDiagRoot x)
+        (fun x => |g x| * airyKerOp_diagRoot x) (fun x => |f x| * airyKerOp_diagRoot x)
     rw [← hm]
     refine integral_mono (integrable_airyKerForm u hg hf hg2 hf2).norm (hG.mul_prod hF) fun p => ?_
     simp only [Real.norm_eq_abs, abs_mul]
@@ -194,19 +194,19 @@ theorem airyKerForm_sq_le (u : ℝ) {g f : ℝ → ℝ} (hg : Measurable g) (hf 
     have h1 := abs_nonneg (g p.1)
     have h2 := abs_nonneg (f p.2)
     calc |g p.1| * |airyKer p.1 p.2| * |f p.2|
-        ≤ |g p.1| * (airyDiagRoot p.1 * airyDiagRoot p.2) * |f p.2| := by gcongr
+        ≤ |g p.1| * (airyKerOp_diagRoot p.1 * airyKerOp_diagRoot p.2) * |f p.2| := by gcongr
       _ = _ := by ring
   have hPsq : P ^ 2 ≤ (∫ y in Ioi u, g y ^ 2) * airyN u := by
-    have := (airyCS (μ := volume.restrict (Ioi u)) hg.abs measurable_airyDiagRoot
+    have := (airyKerOp_cs (μ := volume.restrict (Ioi u)) hg.abs measurable_airyDiagRoot
       (by simp only [sq_abs]; exact hg2 : Integrable (fun x => |g x| ^ 2) (volume.restrict (Ioi u)))
       (by simp only [airyDiagRoot_sq]; exact integrableOn_Ioi_airyKer_diag u :
-        Integrable (fun x => airyDiagRoot x ^ 2) (volume.restrict (Ioi u)))).2
+        Integrable (fun x => airyKerOp_diagRoot x ^ 2) (volume.restrict (Ioi u)))).2
     simpa [sq_abs, airyDiagRoot_sq, integral_Ioi_airyKer_diag] using this
   have hQsq : Q ^ 2 ≤ (∫ y in Ioi u, f y ^ 2) * airyN u := by
-    have := (airyCS (μ := volume.restrict (Ioi u)) hf.abs measurable_airyDiagRoot
+    have := (airyKerOp_cs (μ := volume.restrict (Ioi u)) hf.abs measurable_airyDiagRoot
       (by simp only [sq_abs]; exact hf2 : Integrable (fun x => |f x| ^ 2) (volume.restrict (Ioi u)))
       (by simp only [airyDiagRoot_sq]; exact integrableOn_Ioi_airyKer_diag u :
-        Integrable (fun x => airyDiagRoot x ^ 2) (volume.restrict (Ioi u)))).2
+        Integrable (fun x => airyKerOp_diagRoot x ^ 2) (volume.restrict (Ioi u)))).2
     simpa [sq_abs, airyDiagRoot_sq, integral_Ioi_airyKer_diag] using this
   have h1 : airyKerForm u g f ^ 2 ≤ (P * Q) ^ 2 := by
     rw [← sq_abs (airyKerForm u g f)]
@@ -251,7 +251,7 @@ lemma airyKerForm_sub_right (u : ℝ) {g f₁ f₂ : ℝ → ℝ} (hg : Measurab
   refine integral_congr_ae (Eventually.of_forall fun p => ?_)
   simp only; ring
 
-lemma airyL2_sub_sq {u : ℝ} {g f : ℝ → ℝ} (hg : Measurable g) (hf : Measurable f)
+lemma airyKerOp_sub_sq {u : ℝ} {g f : ℝ → ℝ} (hg : Measurable g) (hf : Measurable f)
     (hg2 : IntegrableOn (fun y => g y ^ 2) (Ioi u)) (hf2 : IntegrableOn (fun y => f y ^ 2) (Ioi u)) :
     IntegrableOn (fun y => (f y - g y) ^ 2) (Ioi u) := by
   refine ((hf2.const_mul 2).add (hg2.const_mul 2)).mono' ((hf.sub hg).pow_const 2).aestronglyMeasurable
@@ -345,7 +345,7 @@ theorem airyKerForm_self_nonneg (u : ℝ) {f : ℝ → ℝ} (hf : Measurable f)
   have hbound : ∀ n, (c - airyKerForm u (g n) (g n)) ^ 2 ≤
       4 * airyN u ^ 2 * A * ∫ y in Ioi u, (f y - g n y) ^ 2 := by
     intro n
-    have hd := airyL2_sub_sq (hgm n) hf (hg2 n) hf2
+    have hd := airyKerOp_sub_sq (hgm n) hf (hg2 n) hf2
     have hsplit : c - airyKerForm u (g n) (g n) =
         airyKerForm u (fun x => f x - g n x) f + airyKerForm u (g n) (fun x => f x - g n x) := by
       rw [airyKerForm_sub_left u hf (hgm n) hf hf2 (hg2 n) hf2 hd,

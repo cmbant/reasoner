@@ -17,10 +17,10 @@ negative half and the total are improper (conditionally convergent) integrals.  
 * `tendsto_integral_airyAi_bot_zero`: `∫_{-T}^0 Ai → 2/3`;
 * `tendsto_integral_airyAi_interval`: `∫_{-S}^{T} Ai → 1` as `S, T → ∞` independently.
 
-**Proof.**  Let `L = ∫_{(0,∞)} Ai` and `P(z) = ∫_0^z Ai` (`airyPrim`, an entire primitive).
-(i) Integrating the rotation identity (`airyPrim_rotation`) at `z = -y` gives
+**Proof.**  Let `L = ∫_{(0,∞)} Ai` and `P(z) = ∫_0^z Ai` (`airyAiPrim`, an entire primitive).
+(i) Integrating the rotation identity (`airyAiPrim_rotation`) at `z = -y` gives
 `P(-y) = -P(y e^{iπ/3}) - P(y e^{-iπ/3})`.  (ii) By Cauchy in the sector (the arc estimate
-`norm_airyPrim_ray_sub_le`, which uses only the complex envelope `airyAiC_envelope`) both
+`norm_airyAiPrim_ray_sub_le`, which uses only the complex envelope `airyAiC_envelope`) both
 `P(y e^{±iπ/3}) → L`.  Hence `∫_{-y}^0 Ai = -P(-y) → 2L`, with no asymptotics of `Ai` on the negative
 axis.  (iii) The Abel-regularised identity `∫_ℝ Ai(x) e^{εx} dx = e^{ε³/3} → 1` (`AiryFourier`) splits into the
 positive half (`→ L` by dominated convergence) and the negative half (`→ 2L` by the Abelian theorem
@@ -57,15 +57,15 @@ lemma tendsto_airyInt_pos :
     Tendsto (fun T : ℝ => ∫ x in (0 : ℝ)..T, airyAi x) atTop (𝓝 airyIntPos) :=
   intervalIntegral_tendsto_integral_Ioi 0 integrableOn_airyAi_Ioi tendsto_id
 
-lemma tendsto_airyPrim_ray {σ : ℝ} (hσ : σ = 1 ∨ σ = -1) :
-    Tendsto (fun ρ : ℝ => airyPrim ((ρ : ℂ) * cexp (((σ * (π / 3) : ℝ) : ℂ) * I))) atTop
+lemma tendsto_airyAiPrim_ray {σ : ℝ} (hσ : σ = 1 ∨ σ = -1) :
+    Tendsto (fun ρ : ℝ => airyAiPrim ((ρ : ℂ) * cexp (((σ * (π / 3) : ℝ) : ℂ) * I))) atTop
       (𝓝 (airyIntPos : ℂ)) := by
-  have h1 : Tendsto (fun ρ : ℝ => airyPrim (ρ : ℂ)) atTop (𝓝 (airyIntPos : ℂ)) := by
+  have h1 : Tendsto (fun ρ : ℝ => airyAiPrim (ρ : ℂ)) atTop (𝓝 (airyIntPos : ℂ)) := by
     have := (Complex.continuous_ofReal.tendsto _).comp tendsto_airyInt_pos
     refine this.congr fun T => ?_
-    simp [airyPrim_real]
-  have h2 : Tendsto (fun ρ : ℝ => airyPrim ((ρ : ℂ) * cexp (((σ * (π / 3) : ℝ) : ℂ) * I)) -
-      airyPrim (ρ : ℂ)) atTop (𝓝 0) := by
+    simp [airyAiPrim_real]
+  have h2 : Tendsto (fun ρ : ℝ => airyAiPrim ((ρ : ℂ) * cexp (((σ * (π / 3) : ℝ) : ℂ) * I)) -
+      airyAiPrim (ρ : ℂ)) atTop (𝓝 0) := by
     rw [tendsto_zero_iff_norm_tendsto_zero]
     have hb : Tendsto (fun ρ : ℝ => 3 * π / (2 * √ρ)) atTop (𝓝 0) := by
       have : Tendsto (fun ρ : ℝ => 2 * √ρ) atTop atTop :=
@@ -73,7 +73,7 @@ lemma tendsto_airyPrim_ray {σ : ℝ} (hσ : σ = 1 ∨ σ = -1) :
       exact this.const_div_atTop _
     refine squeeze_zero' (Eventually.of_forall fun _ => norm_nonneg _) ?_ hb
     filter_upwards [eventually_gt_atTop (0 : ℝ)] with ρ hρ
-    exact norm_airyPrim_ray_sub_le hρ hσ
+    exact norm_airyAiPrim_ray_sub_le hρ hσ
   have := h2.add h1
   rw [zero_add] at this
   exact this.congr fun ρ => sub_add_cancel _ _
@@ -81,10 +81,10 @@ lemma tendsto_airyPrim_ray {σ : ℝ} (hσ : σ = 1 ∨ σ = -1) :
 lemma airyInt_neg_one_eq : (-1 : ℂ) = cexp (-(π * I)) := by
   rw [Complex.exp_neg, Complex.exp_pi_mul_I]; norm_num
 
-lemma airyPrim_neg_eq (y : ℝ) :
-    airyPrim (-(y : ℂ)) = -(airyPrim ((y : ℂ) * cexp (((1 * (π / 3) : ℝ) : ℂ) * I)) +
-      airyPrim ((y : ℂ) * cexp ((((-1 : ℝ) * (π / 3) : ℝ) : ℂ) * I))) := by
-  have h := airyPrim_rotation (-(y : ℂ))
+lemma airyAiPrim_neg_eq (y : ℝ) :
+    airyAiPrim (-(y : ℂ)) = -(airyAiPrim ((y : ℂ) * cexp (((1 * (π / 3) : ℝ) : ℂ) * I)) +
+      airyAiPrim ((y : ℂ) * cexp ((((-1 : ℝ) * (π / 3) : ℝ) : ℂ) * I))) := by
+  have h := airyAiPrim_rotation (-(y : ℂ))
   have e1 : airyOmega * (-(y : ℂ)) = (y : ℂ) * cexp ((((-1 : ℝ) * (π / 3) : ℝ) : ℂ) * I) := by
     rw [airyOmega_eq_exp, neg_eq_neg_one_mul, airyInt_neg_one_eq]
     rw [show cexp (2 * π * I / 3) * (cexp (-(π * I)) * (y : ℂ)) =
@@ -103,10 +103,10 @@ lemma airyPrim_neg_eq (y : ℝ) :
   linear_combination h
 
 lemma airyInt_neg_cast (T : ℝ) : ((∫ x in (-T)..0, airyAi x : ℝ) : ℂ) =
-    airyPrim ((T : ℂ) * cexp (((1 * (π / 3) : ℝ) : ℂ) * I)) +
-      airyPrim ((T : ℂ) * cexp ((((-1 : ℝ) * (π / 3) : ℝ) : ℂ) * I)) := by
-  have h1 := airyPrim_real (-T)
-  have h2 := airyPrim_neg_eq T
+    airyAiPrim ((T : ℂ) * cexp (((1 * (π / 3) : ℝ) : ℂ) * I)) +
+      airyAiPrim ((T : ℂ) * cexp ((((-1 : ℝ) * (π / 3) : ℝ) : ℂ) * I)) := by
+  have h1 := airyAiPrim_real (-T)
+  have h2 := airyAiPrim_neg_eq T
   rw [intervalIntegral.integral_symm] at h1
   push_cast at h1
   rw [h2] at h1
@@ -115,8 +115,8 @@ lemma airyInt_neg_cast (T : ℝ) : ((∫ x in (-T)..0, airyAi x : ℝ) : ℂ) =
 /-- `∫_{-T}^0 Ai → 2 L`, `L = ∫_{(0,∞)} Ai`: Cauchy on the sector `|arg z| ≤ π/3`. -/
 lemma tendsto_airyInt_neg :
     Tendsto (fun T : ℝ => ∫ x in (-T)..0, airyAi x) atTop (𝓝 (2 * airyIntPos)) := by
-  have h1 := tendsto_airyPrim_ray (σ := 1) (Or.inl rfl)
-  have h2 := tendsto_airyPrim_ray (σ := -1) (Or.inr rfl)
+  have h1 := tendsto_airyAiPrim_ray (σ := 1) (Or.inl rfl)
+  have h2 := tendsto_airyAiPrim_ray (σ := -1) (Or.inr rfl)
   have h := ((Complex.continuous_re.tendsto _).comp (h1.add h2))
   refine (h.congr fun T => ?_).trans (by simp [two_mul])
   simp only [Function.comp, ← airyInt_neg_cast, Complex.ofReal_re]

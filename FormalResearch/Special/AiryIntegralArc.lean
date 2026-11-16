@@ -7,17 +7,17 @@ public import FormalResearch.Special.AiryRotation
 # An entire primitive of `Ai`, and its behaviour on the rays `arg z = ±π/3`
 
 `Ai` is entire, so it has an entire primitive `P` with `P(0) = 0` (Mathlib's Morera theorem for `ℂ`,
-`Differentiable.isExactOn_univ`).  This file proves, for `P = airyPrim`:
+`Differentiable.isExactOn_univ`).  This file proves, for `P = airyAiPrim`:
 
-* `airyPrim_rotation`: `P(z) + P(ωz) + P(ω²z) = 0` (integrate the three-fold rotation identity),
-* `airyPrim_real`: `P(T) = ∫_0^T Ai` for real `T`,
-* `norm_airyPrim_ray_sub_le`: `‖P(ρ e^{±iπ/3}) - P(ρ)‖ ≤ 3π/(2√ρ)`: the integral of `Ai` over the arc
+* `airyAiPrim_rotation`: `P(z) + P(ωz) + P(ω²z) = 0` (integrate the three-fold rotation identity),
+* `airyAiPrim_real`: `P(T) = ∫_0^T Ai` for real `T`,
+* `norm_airyAiPrim_ray_sub_le`: `‖P(ρ e^{±iπ/3}) - P(ρ)‖ ≤ 3π/(2√ρ)`: the integral of `Ai` over the arc
   `{ρ e^{±iθ} : 0 ≤ θ ≤ π/3}` is `O(ρ^{-1/2})`.  It uses only the complex envelope
   `|Ai(z)| ≤ 3 exp(-(2/3) Re z^{3/2})` (`airyAiC_envelope`), the identity
   `Re (ρ e^{iφ})^{3/2} = ρ^{3/2} cos(3φ/2)` and Jordan's inequality `cos φ ≥ 1 - 2φ/π`
   (`φ ∈ [0, π/2]`): the exponential gain `exp(-(2/3) ρ^{3/2} cos(3θ/2))` degenerates to `1` only at the
   end point `θ = π/3`, on a `θ`-set of size `O(ρ^{-3/2})`.
-(The identity `P(-y) = -P(y e^{iπ/3}) - P(y e^{-iπ/3})` is `airyPrim_neg_eq` in `AiryIntegral`.)
+(The identity `P(-y) = -P(y e^{iπ/3}) - P(y e^{-iπ/3})` is `airyAiPrim_neg_eq` in `AiryIntegral`.)
 
 These are the inputs of `AiryIntegral` (`∫_0^∞ Ai = 1/3`, `∫_{-∞}^0 Ai = 2/3`).
 -/
@@ -34,50 +34,50 @@ lemma airyInt_exists_prim : ∃ P : ℂ → ℂ, P 0 = 0 ∧ ∀ z, HasDerivAt P
   exact ⟨g, hg0, fun z => hg z trivial⟩
 
 /-- The entire primitive of `Ai` vanishing at `0` (`P(z) = ∫_0^z Ai`). -/
-noncomputable def airyPrim : ℂ → ℂ := airyInt_exists_prim.choose
+noncomputable def airyAiPrim : ℂ → ℂ := airyInt_exists_prim.choose
 
-lemma airyPrim_zero : airyPrim 0 = 0 := airyInt_exists_prim.choose_spec.1
+lemma airyAiPrim_zero : airyAiPrim 0 = 0 := airyInt_exists_prim.choose_spec.1
 
-lemma hasDerivAt_airyPrim (z : ℂ) : HasDerivAt airyPrim (airyAiC z) z :=
+lemma hasDerivAt_airyAiPrim (z : ℂ) : HasDerivAt airyAiPrim (airyAiC z) z :=
   airyInt_exists_prim.choose_spec.2 z
 
-lemma continuous_airyPrim : Continuous airyPrim :=
-  continuous_iff_continuousAt.2 fun z => (hasDerivAt_airyPrim z).continuousAt
+lemma continuous_airyAiPrim : Continuous airyAiPrim :=
+  continuous_iff_continuousAt.2 fun z => (hasDerivAt_airyAiPrim z).continuousAt
 
 /-- `P(z) + P(ωz) + P(ω²z) = 0`. -/
-theorem airyPrim_rotation (z : ℂ) :
-    airyPrim z + airyPrim (airyOmega * z) + airyPrim (airyOmega ^ 2 * z) = 0 := by
-  have hQ : ∀ w : ℂ, HasDerivAt (fun w => airyPrim w + airyPrim (airyOmega * w) +
-      airyPrim (airyOmega ^ 2 * w)) 0 w := by
+theorem airyAiPrim_rotation (z : ℂ) :
+    airyAiPrim z + airyAiPrim (airyOmega * z) + airyAiPrim (airyOmega ^ 2 * z) = 0 := by
+  have hQ : ∀ w : ℂ, HasDerivAt (fun w => airyAiPrim w + airyAiPrim (airyOmega * w) +
+      airyAiPrim (airyOmega ^ 2 * w)) 0 w := by
     intro w
-    have h1 := hasDerivAt_airyPrim w
-    have h2 : HasDerivAt (fun w => airyPrim (airyOmega * w)) (airyAiC (airyOmega * w) * airyOmega) w := by
-      have := (hasDerivAt_airyPrim (airyOmega * w)).comp w ((hasDerivAt_id w).const_mul airyOmega)
+    have h1 := hasDerivAt_airyAiPrim w
+    have h2 : HasDerivAt (fun w => airyAiPrim (airyOmega * w)) (airyAiC (airyOmega * w) * airyOmega) w := by
+      have := (hasDerivAt_airyAiPrim (airyOmega * w)).comp w ((hasDerivAt_id w).const_mul airyOmega)
       exact this.congr_deriv (by ring)
-    have h3 : HasDerivAt (fun w => airyPrim (airyOmega ^ 2 * w))
+    have h3 : HasDerivAt (fun w => airyAiPrim (airyOmega ^ 2 * w))
         (airyAiC (airyOmega ^ 2 * w) * airyOmega ^ 2) w := by
-      have := (hasDerivAt_airyPrim (airyOmega ^ 2 * w)).comp w
+      have := (hasDerivAt_airyAiPrim (airyOmega ^ 2 * w)).comp w
         ((hasDerivAt_id w).const_mul (airyOmega ^ 2))
       exact this.congr_deriv (by ring)
     have := (h1.add h2).add h3
     convert this using 1
     have := airyAiC_rotation w
     linear_combination -this
-  have hconst := is_const_of_deriv_eq_zero (f := fun w => airyPrim w + airyPrim (airyOmega * w) +
-      airyPrim (airyOmega ^ 2 * w)) (fun w => (hQ w).differentiableAt) (fun w => (hQ w).deriv) z 0
-  simpa [airyPrim_zero] using hconst
+  have hconst := is_const_of_deriv_eq_zero (f := fun w => airyAiPrim w + airyAiPrim (airyOmega * w) +
+      airyAiPrim (airyOmega ^ 2 * w)) (fun w => (hQ w).differentiableAt) (fun w => (hQ w).deriv) z 0
+  simpa [airyAiPrim_zero] using hconst
 
 /-- For real `T`, `P(T) = ∫_0^T Ai`. -/
-lemma airyPrim_real (T : ℝ) : airyPrim (T : ℂ) = ((∫ x in (0 : ℝ)..T, airyAi x : ℝ) : ℂ) := by
-  have h : ∀ x ∈ Set.uIcc (0 : ℝ) T, HasDerivAt (fun x : ℝ => airyPrim (x : ℂ)) (airyAi x : ℂ) x := by
+lemma airyAiPrim_real (T : ℝ) : airyAiPrim (T : ℂ) = ((∫ x in (0 : ℝ)..T, airyAi x : ℝ) : ℂ) := by
+  have h : ∀ x ∈ Set.uIcc (0 : ℝ) T, HasDerivAt (fun x : ℝ => airyAiPrim (x : ℂ)) (airyAi x : ℂ) x := by
     intro x _
-    have := (hasDerivAt_airyPrim (x : ℂ)).comp_ofReal
+    have := (hasDerivAt_airyAiPrim (x : ℂ)).comp_ofReal
     rwa [airyAiC_ofReal] at this
   have hi : IntervalIntegrable (fun x : ℝ => (airyAi x : ℂ)) volume 0 T :=
     (Complex.continuous_ofReal.comp differentiable_airyAi.continuous).intervalIntegrable _ _
   have := intervalIntegral.integral_eq_sub_of_hasDerivAt h hi
   rw [intervalIntegral.integral_ofReal] at this
-  simpa [airyPrim_zero] using this.symm
+  simpa [airyAiPrim_zero] using this.symm
 
 /-! ### The arc estimate -/
 
@@ -123,8 +123,8 @@ lemma airyInt_exp_integral_le {a : ℝ} (ha : 0 < a) :
   linarith
 
 /-- The arc integral: `‖P(ρ e^{±iπ/3}) - P(ρ)‖ ≤ 3π/(2√ρ)`. -/
-theorem norm_airyPrim_ray_sub_le {ρ σ : ℝ} (hρ : 0 < ρ) (hσ : σ = 1 ∨ σ = -1) :
-    ‖airyPrim ((ρ : ℂ) * cexp (((σ * (π / 3) : ℝ) : ℂ) * I)) - airyPrim ρ‖ ≤ 3 * π / (2 * √ρ) := by
+theorem norm_airyAiPrim_ray_sub_le {ρ σ : ℝ} (hρ : 0 < ρ) (hσ : σ = 1 ∨ σ = -1) :
+    ‖airyAiPrim ((ρ : ℂ) * cexp (((σ * (π / 3) : ℝ) : ℂ) * I)) - airyAiPrim ρ‖ ≤ 3 * π / (2 * √ρ) := by
   have hπ := Real.pi_pos
   set a : ℝ := (2 / 3) * ρ ^ (3 / 2 : ℝ) with ha_def
   have hρ32 : 0 < ρ ^ (3 / 2 : ℝ) := Real.rpow_pos_of_pos hρ _
@@ -138,9 +138,9 @@ theorem norm_airyPrim_ray_sub_le {ρ σ : ℝ} (hρ : 0 < ρ) (hσ : σ = 1 ∨ 
       have := ((hasDerivAt_id θ).const_mul σ).ofReal_comp
       simpa using this
     exact ((h1.mul_const I).cexp.const_mul (ρ : ℂ)).congr_deriv (by ring)
-  have hgd : ∀ θ : ℝ, HasDerivAt (fun θ => airyPrim (γ θ)) (G θ) θ := by
+  have hgd : ∀ θ : ℝ, HasDerivAt (fun θ => airyAiPrim (γ θ)) (G θ) θ := by
     intro θ
-    exact ((hasDerivAt_airyPrim (γ θ)).scomp θ (hγd θ)).congr_deriv (by simp [hG])
+    exact ((hasDerivAt_airyAiPrim (γ θ)).scomp θ (hγd θ)).congr_deriv (by simp [hG])
   have hGc : Continuous G := by
     have := differentiable_airyAiC.continuous
     have hγc : Continuous γ := by simp only [hγ]; fun_prop
@@ -151,8 +151,8 @@ theorem norm_airyPrim_ray_sub_le {ρ σ : ℝ} (hρ : 0 < ρ) (hσ : σ = 1 ∨ 
     (hGc.intervalIntegrable _ _)
   have hγ0 : γ 0 = ρ := by simp [hγ]
   have hπ3 : (0 : ℝ) ≤ π / 3 := by positivity
-  rw [show airyPrim ((ρ : ℂ) * cexp (((σ * (π / 3) : ℝ) : ℂ) * I)) - airyPrim ρ =
-    airyPrim (γ (π / 3)) - airyPrim (γ 0) by rw [hγ0]]
+  rw [show airyAiPrim ((ρ : ℂ) * cexp (((σ * (π / 3) : ℝ) : ℂ) * I)) - airyAiPrim ρ =
+    airyAiPrim (γ (π / 3)) - airyAiPrim (γ 0) by rw [hγ0]]
   rw [← hftc]
   have hpt : ∀ θ ∈ Set.Icc (0 : ℝ) (π / 3), ‖G θ‖ ≤ 3 * ρ * Real.exp (-(a * (1 - 3 * θ / π))) := by
     intro θ hθ
@@ -205,12 +205,12 @@ theorem norm_airyPrim_ray_sub_le {ρ σ : ℝ} (hρ : 0 < ρ) (hσ : σ = 1 ∨ 
       rw [ha_def, hr]
       field_simp
 
-/-- info: 'FormalResearch.Special.airyPrim_rotation' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.Special.airyAiPrim_rotation' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.Special.airyPrim_rotation
+#print axioms FormalResearch.Special.airyAiPrim_rotation
 
-/-- info: 'FormalResearch.Special.norm_airyPrim_ray_sub_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.Special.norm_airyAiPrim_ray_sub_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.Special.norm_airyPrim_ray_sub_le
+#print axioms FormalResearch.Special.norm_airyAiPrim_ray_sub_le
 
 end FormalResearch.Special
