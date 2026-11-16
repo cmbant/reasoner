@@ -1,0 +1,112 @@
+/-
+Copyright (c) 2026 Antony Lewis. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Antony Lewis
+-/
+module
+
+public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJRacah
+public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJRacahEdge
+
+/-!
+
+# Racah's formula for the 6j symbol, for all labels
+
+The operator-defined 6j symbol `sixJ` is Racah's formula `racah6j` when the four triads are
+admissible, and `0` otherwise.
+
+## i. Overview
+
+`sixJ` of `SixJ` is defined for every `K` and every `k₁`, `k₃`, and is set to `0` unless
+`ValidA a b c K k₁` and `ValidB a b c K k₃` hold. The comparison with `racah6j` is
+`sixJ_eq_racah6j` (`SixJRacah`) for `0 < a` and `0 < c`, and `sixJ_eq_racah6j_zero_left`,
+`sixJ_eq_racah6j_zero_right` (`SixJRacahEdge`) for `a = 0`, respectively `c = 0`.
+
+1. `validA_and_validB_iff` shows that `ValidA` and `ValidB` together say that `2K ≤ a + b + c`
+   and that the four triads `(j₁ j₂ j₁₂)`, `(j₁ J j₂₃)`, `(j₃ j₂ j₂₃)`, `(j₃ J j₁₂)` of the
+   6j symbol are admissible (`TriadAdm`: even perimeter and the triangle inequalities).
+2. `sixJ_eq_ite_racah6j` combines the three cases: for all natural `a`, `b`, `c` with
+   `0 < a + b`, `0 < b + c` and all `K`, `k₁`, `k₃`, the symbol is `racah6j` if `ValidA` and
+   `ValidB` hold and `0` otherwise.
+3. `sixJ_eq_zero_of_not_triadAdm` is the vanishing for inadmissible labels, in the language of
+   the triads.
+
+## ii. Key results
+
+- `sixJ_eq_ite_racah6j`: Racah's formula for `sixJ`, for all labels.
+- `validA_and_validB_iff`: `ValidA` and `ValidB` as admissibility of the four triads.
+- `sixJ_eq_zero_of_not_triadAdm`: `sixJ` vanishes for inadmissible labels.
+
+## iii. Table of contents
+
+- A. Admissibility of the four triads
+- B. Racah's formula for all labels
+
+## iv. References
+
+- G. Racah, *Theory of complex spectra. II*, Phys. Rev. 62, 438 (1942).
+
+-/
+
+@[expose] public section
+
+noncomputable section
+
+namespace PhyslibAlpha.Sl2
+
+/-!
+
+## A. Admissibility of the four triads
+
+-/
+
+/-- `ValidA` and `ValidB` say that `2K ≤ a + b + c` and that the triads `(a, b, a + b - 2k₁)`,
+`(a, J, j₂₃)`, `(c, b, j₂₃)`, `(c, J, j₁₂)` are admissible, in doubled units
+(`J = a + b + c - 2K`, `j₁₂ = a + b - 2k₁`, `j₂₃ = b + c - 2k₃`). -/
+lemma validA_and_validB_iff {a b c K : ℕ} (k₁ : Fin (min a b + 1)) (k₃ : Fin (min b c + 1)) :
+    (ValidA a b c K k₁ ∧ ValidB a b c K k₃) ↔ 2 * K ≤ a + b + c ∧
+      TriadAdm a b (a + b - 2 * (k₁ : ℕ)) ∧ TriadAdm a (a + b + c - 2 * K) (b + c - 2 * (k₃ : ℕ)) ∧
+        TriadAdm c b (b + c - 2 * (k₃ : ℕ)) ∧
+          TriadAdm c (a + b + c - 2 * K) (a + b - 2 * (k₁ : ℕ)) := by
+  have h₁ := k₁.isLt
+  have h₃ := k₃.isLt
+  unfold ValidA ValidB TriadAdm
+  omega
+
+/-!
+
+## B. Racah's formula for all labels
+
+-/
+
+/-- **Racah's formula for the 6j symbol, for all labels.** `{j₁ j₂ j₁₂; j₃ J j₂₃}` of `sixJ` is
+`racah6j` of the doubled quantum numbers when `ValidA` and `ValidB` hold (see
+`validA_and_validB_iff`), and `0` otherwise, with no further hypothesis on `a`, `b`, `c`. -/
+theorem sixJ_eq_ite_racah6j {a b c : ℕ} (hab : 0 < a + b) (hbc : 0 < b + c) (K : ℕ)
+    (k₁ : Fin (min a b + 1)) (k₃ : Fin (min b c + 1)) :
+    sixJ hab hbc K k₁ k₃ =
+      if ValidA a b c K k₁ ∧ ValidB a b c K k₃ then
+        racah6j a b (a + b - 2 * (k₁ : ℕ)) c (a + b + c - 2 * K) (b + c - 2 * (k₃ : ℕ))
+      else 0 := by
+  by_cases h : ValidA a b c K k₁ ∧ ValidB a b c K k₃
+  · rw [ite_eq_left h]
+    obtain ⟨hA, hB⟩ := h
+    rcases Nat.eq_zero_or_pos a with rfl | ha
+    · exact sixJ_eq_racah6j_zero_left hab hbc hA hB
+    rcases Nat.eq_zero_or_pos c with rfl | hc
+    · exact sixJ_eq_racah6j_zero_right hab hbc hA hB
+    · exact sixJ_eq_racah6j hab hbc ha hc hA hB
+  · rw [ite_eq_right h, sixJ, ite_eq_right h]
+
+/-- `sixJ` vanishes unless `2K ≤ a + b + c` and the four triads are admissible. -/
+lemma sixJ_eq_zero_of_not_triadAdm {a b c : ℕ} (hab : 0 < a + b) (hbc : 0 < b + c) {K : ℕ}
+    {k₁ : Fin (min a b + 1)} {k₃ : Fin (min b c + 1)}
+    (h : ¬(2 * K ≤ a + b + c ∧ TriadAdm a b (a + b - 2 * (k₁ : ℕ)) ∧
+      TriadAdm a (a + b + c - 2 * K) (b + c - 2 * (k₃ : ℕ)) ∧
+        TriadAdm c b (b + c - 2 * (k₃ : ℕ)) ∧
+          TriadAdm c (a + b + c - 2 * K) (a + b - 2 * (k₁ : ℕ)))) :
+    sixJ hab hbc K k₁ k₃ = 0 := by
+  rw [sixJ_eq_ite_racah6j hab hbc K k₁ k₃, ite_eq_right]
+  rwa [validA_and_validB_iff]
+
+end PhyslibAlpha.Sl2

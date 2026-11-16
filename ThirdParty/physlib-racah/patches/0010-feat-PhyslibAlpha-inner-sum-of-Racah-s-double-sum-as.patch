@@ -1,7 +1,7 @@
 From c53730d60a22907120cac4ece13688719066453e Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:10:25 +0000
-Subject: [PATCH 10/20] feat(PhyslibAlpha): inner sum of Racah's double sum as
+Subject: [PATCH 10/24] feat(PhyslibAlpha): inner sum of Racah's double sum as
  `racahR` (`z_sum_eq_racahR`, `racahL_eq_x_sum`)
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>

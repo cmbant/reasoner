@@ -1,7 +1,7 @@
 From ea4b734b84a1a069cb0742ab2334877e578de06d Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:23:12 +0000
-Subject: [PATCH 19/20] =?UTF-8?q?feat(PhyslibAlpha):=20Racah's=20formula?=
+Subject: [PATCH 19/24] =?UTF-8?q?feat(PhyslibAlpha):=20Racah's=20formula?=
  =?UTF-8?q?=20for=20sixJ=20in=20the=20region=20k=E2=82=81=20+=20k=E2=82=83?=
  =?UTF-8?q?=20=E2=89=A4=20min=20b=20K=20(`Xs=5Feq=5Fracah=5Fsix`,=20`sixJ?=
  =?UTF-8?q?=5Feq=5Fracah=5FR1`)?=

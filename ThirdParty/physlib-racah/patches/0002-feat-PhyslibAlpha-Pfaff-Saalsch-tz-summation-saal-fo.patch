@@ -1,7 +1,7 @@
 From 6ab5ea3b01122c27a617376b8ad8661c78efec6d Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:03:20 +0000
-Subject: [PATCH 02/20] =?UTF-8?q?feat(PhyslibAlpha):=20Pfaff=E2=80=93Saals?=
+Subject: [PATCH 02/24] =?UTF-8?q?feat(PhyslibAlpha):=20Pfaff=E2=80=93Saals?=
  =?UTF-8?q?ch=C3=BCtz=20summation=20`saal`=20for=20terminating=20balanced?=
  =?UTF-8?q?=203F2(1)?=
 MIME-Version: 1.0

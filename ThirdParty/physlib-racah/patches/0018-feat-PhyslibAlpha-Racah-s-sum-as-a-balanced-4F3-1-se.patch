@@ -1,7 +1,7 @@
 From f402aa7e5f7e58aa9e03f06aa10e567c9f2aa413 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:20:49 +0000
-Subject: [PATCH 18/20] feat(PhyslibAlpha): Racah's sum as a balanced 4F3(1)
+Subject: [PATCH 18/24] feat(PhyslibAlpha): Racah's sum as a balanced 4F3(1)
  series, `racahSum6_eq_racahSeries`
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>

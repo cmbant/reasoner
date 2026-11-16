@@ -1,7 +1,7 @@
 From 74ce032adcf30d450e766c84f6b9b48dc155f13d Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:07:22 +0000
-Subject: [PATCH 06/20] =?UTF-8?q?feat(PhyslibAlpha):=20column=20symmetries?=
+Subject: [PATCH 06/24] =?UTF-8?q?feat(PhyslibAlpha):=20column=20symmetries?=
  =?UTF-8?q?=20`racah6j=5Fswap=E2=82=81=E2=82=82`,=20`racah6j=5Fswap?=
  =?UTF-8?q?=E2=82=82=E2=82=83`=20of=20Racah's=20expression?=
 MIME-Version: 1.0

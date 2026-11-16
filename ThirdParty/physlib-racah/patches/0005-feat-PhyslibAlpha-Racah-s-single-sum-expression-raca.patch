@@ -1,7 +1,7 @@
 From 769223d0bf75cfa8715709587a38fb6a4334a4f1 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:06:38 +0000
-Subject: [PATCH 05/20] feat(PhyslibAlpha): Racah's single-sum expression
+Subject: [PATCH 05/24] feat(PhyslibAlpha): Racah's single-sum expression
  `racah6j` (`factZ`, `triCoeff`, `racahSum6`)
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>

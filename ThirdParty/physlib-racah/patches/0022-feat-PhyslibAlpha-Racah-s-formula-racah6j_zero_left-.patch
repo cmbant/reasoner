@@ -1,0 +1,251 @@
+From 96c290da8316b3578b312dd68a1ec3c3278d83c1 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 16 Nov 2026 11:32:08 +0000
+Subject: [PATCH 22/24] feat(PhyslibAlpha): Racah's formula
+ `racah6j_zero_left`, `racah6j_zero_right` for a vanishing spin
+ (`racahSum6_single`)
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01CoYoSnPzLFW27jyKntrTVS
+---
+ PhyslibAlpha.lean                             |   1 +
+ .../AngularMomentum/RacahEdge.lean            | 215 ++++++++++++++++++
+ 2 files changed, 216 insertions(+)
+ create mode 100644 PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahEdge.lean
+
+diff --git a/PhyslibAlpha.lean b/PhyslibAlpha.lean
+index 5d69567..6df4876 100644
+--- a/PhyslibAlpha.lean
++++ b/PhyslibAlpha.lean
+@@ -775,6 +775,7 @@ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.ProjectionTheorem
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSum
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSumCollapse
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSumInner
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahEdge
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSum
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSumSeries
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSumSymmetry
+diff --git a/PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahEdge.lean b/PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahEdge.lean
+new file mode 100644
+index 0000000..e89a2bc
+--- /dev/null
++++ b/PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahEdge.lean
+@@ -0,0 +1,215 @@
++/-
++Copyright (c) 2026 Antony Lewis. All rights reserved.
++Released under Apache 2.0 license as described in the file LICENSE.
++Authors: Antony Lewis
++-/
++module
++
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSumSymmetry
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJCollapseConst
++
++/-!
++
++# Racah's closed formula with a vanishing spin
++
++`racah6j` with `j₁ = 0` or `j₃ = 0` is `(-1)^(a + b + c - K) / √((2j₁₂ + 1)(2j₂₃ + 1))`.
++
++## i. Overview
++
++All spins are doubled naturals. For `{0 b b; c f f}` and `{a b e; 0 e b}` (with `f = b + c - 2K`,
++`e = a + b - 2K`, `K` at most the relevant spins) Racah's sum has a single term.
++
++1. The arguments of `racahSum6` are `t - m` for four naturals `m`, one of them `0`, and `t + n`
++   for three naturals `n`, one of them `0`; then only the term `t` is nonzero
++   (`racahSum6_single`).
++2. Write `b = K + r`, `c = K + q` (respectively `a = K + q`, `b = K + r`). Then `t = K + q + r`
++   and the single term is `(-1)^t (t + 1)! / (q! K! r!)`. Of the four triangle coefficients, two
++   are `1 / (n + 1)` and two are `Δ² = K! q! r! / (K + q + r + 1)!`, which cancels the term
++   (`triCoeff_mul_edge`).
++3. This gives `racah6j_zero_left` and `racah6j_zero_right`.
++
++## ii. Key results
++
++- `racahSum6_single`: Racah's sum when only one term survives.
++- `racah6j_zero_left`: `racah6j 0 b b c f f` with `f = b + c - 2K`.
++- `racah6j_zero_right`: `racah6j a b e 0 e b` with `e = a + b - 2K`.
++
++## iii. Table of contents
++
++- A. Racah's sum with a single term
++- B. Racah's formula with a vanishing spin
++
++## iv. References
++
++- G. Racah, *Theory of complex spectra. II*, Phys. Rev. 62, 438 (1942).
++- NIST Digital Library of Mathematical Functions, §34.4, https://dlmf.nist.gov/34.4.
++
++-/
++
++@[expose] public section
++
++noncomputable section
++
++namespace PhyslibAlpha.Sl2
++
++/-!
++
++## A. Racah's sum with a single term
++
++-/
++
++/-- Racah's sum when `α₁, …, α₄ = t - aᵢ` with some `aᵢ = 0` and `β₁, …, β₃ = t + bⱼ` with some
++`bⱼ = 0`: only `t` contributes. -/
++lemma racahSum6_single {t α₁ α₂ α₃ α₄ β₁ β₂ β₃ : ℤ} {a₁ a₂ a₃ a₄ b₁ b₂ b₃ : ℕ}
++    (h₁ : α₁ = t - a₁) (h₂ : α₂ = t - a₂) (h₃ : α₃ = t - a₃) (h₄ : α₄ = t - a₄)
++    (h₅ : β₁ = t + b₁) (h₆ : β₂ = t + b₂) (h₇ : β₃ = t + b₃)
++    (hα : a₁ = 0 ∨ a₂ = 0 ∨ a₃ = 0 ∨ a₄ = 0) (hβ : b₁ = 0 ∨ b₂ = 0 ∨ b₃ = 0) :
++    racahSum6 α₁ α₂ α₃ α₄ β₁ β₂ β₃ = (-1) ^ t * factZ (t + 1) *
++      ((a₁.factorial : ℝ)⁻¹ * (a₂.factorial : ℝ)⁻¹ * (a₃.factorial : ℝ)⁻¹ *
++        (a₄.factorial : ℝ)⁻¹ * ((b₁.factorial : ℝ)⁻¹ * (b₂.factorial : ℝ)⁻¹ *
++          (b₃.factorial : ℝ)⁻¹)) := by
++  subst h₁ h₂ h₃ h₄ h₅ h₆ h₇
++  rw [racahSum6, finsum_eq_single _ t]
++  · simp only [sub_sub_cancel, add_sub_cancel_left, invFact_natCast]
++  · intro s hs
++    have hz : invFact (s - (t - a₁)) * invFact (s - (t - a₂)) * invFact (s - (t - a₃)) *
++        invFact (s - (t - a₄)) * (invFact (t + b₁ - s) * invFact (t + b₂ - s) *
++          invFact (t + b₃ - s)) = 0 := by
++      rcases lt_or_gt_of_ne hs with h | h
++      · have h0 : invFact (s - (t - ((0 : ℕ) : ℤ))) = 0 := invFact_of_neg (by omega)
++        rcases hα with rfl | rfl | rfl | rfl <;> simp only [h0, mul_zero, zero_mul]
++      · have h0 : invFact (t + ((0 : ℕ) : ℤ) - s) = 0 := invFact_of_neg (by omega)
++        rcases hβ with rfl | rfl | rfl <;> simp only [h0, mul_zero, zero_mul]
++    rw [hz, mul_zero]
++
++/-!
++
++## B. Racah's formula with a vanishing spin
++
++-/
++
++lemma triCoeff_comm (x y z : ℤ) : triCoeff x y z = triCoeff y x z := by
++  rw [triCoeff, triCoeff, add_comm x y]
++  ring
++
++lemma triD_zero_self (n : ℕ) : triD 0 n n = ((n + 1 : ℕ) : ℝ)⁻¹ := by
++  have e : ∀ x y z : ℤ, x = 0 → y = 0 → z = n → triCoeff x y z = ((n + 1 : ℕ) : ℝ)⁻¹ := by
++    rintro x y z rfl rfl rfl
++    have h0 : factZ 0 = 1 := by simpa using factZ_natCast 0
++    rw [triCoeff, factZ_natCast, h0, invFact_eq (t := n + 1) (by simp), Nat.factorial_succ]
++    have : (n.factorial : ℝ) ≠ 0 := by exact_mod_cast n.factorial_ne_zero
++    push_cast
++    field_simp
++  exact e _ _ _ (by omega) (by omega) (by omega)
++
++lemma triD_tri (p q r : ℕ) : triD (p + q) (p + r) (q + r) = triCoeff p q r := by
++  unfold triD
++  congr 1 <;> omega
++
++lemma triD_tri' (p q r : ℕ) : triD (p + q) (q + r) (p + r) = triCoeff q p r := by
++  unfold triD
++  congr 1 <;> omega
++
++lemma racahSum6_edge_left (K q r : ℕ) :
++    racahSum6 ((K : ℤ) + r) ((q : ℤ) + r) ((K : ℤ) + q + r) ((K : ℤ) + q + r) ((K : ℤ) + q + r)
++      ((K : ℤ) + q + 2 * r) ((K : ℤ) + q + r) = (-1) ^ (K + q + r) *
++        ((K + q + r + 1).factorial : ℝ) *
++        ((q.factorial : ℝ)⁻¹ * (K.factorial : ℝ)⁻¹ * (r.factorial : ℝ)⁻¹) := by
++  rw [racahSum6_single (t := ((K + q + r : ℕ) : ℤ)) (a₁ := q) (a₂ := K) (a₃ := 0) (a₄ := 0)
++    (b₁ := 0) (b₂ := r) (b₃ := 0) (by push_cast; ring) (by push_cast; ring) (by push_cast; ring)
++    (by push_cast; ring) (by push_cast; ring) (by push_cast; ring) (by push_cast; ring)
++    (Or.inr (Or.inr (Or.inl rfl))) (Or.inl rfl), zpow_natCast,
++    factZ_eq_factorial (t := K + q + r + 1) (by push_cast; ring)]
++  simp only [Nat.factorial_zero, Nat.cast_one, inv_one]
++  ring
++
++lemma racahSum6_edge_right (K q r : ℕ) :
++    racahSum6 ((K : ℤ) + q + r) ((K : ℤ) + q + r) ((K : ℤ) + r) ((q : ℤ) + r) ((K : ℤ) + q + r)
++      ((K : ℤ) + q + 2 * r) ((K : ℤ) + q + r) = (-1) ^ (K + q + r) *
++        ((K + q + r + 1).factorial : ℝ) *
++        ((q.factorial : ℝ)⁻¹ * (K.factorial : ℝ)⁻¹ * (r.factorial : ℝ)⁻¹) := by
++  rw [racahSum6_single (t := ((K + q + r : ℕ) : ℤ)) (a₁ := 0) (a₂ := 0) (a₃ := q) (a₄ := K)
++    (b₁ := 0) (b₂ := r) (b₃ := 0) (by push_cast; ring) (by push_cast; ring) (by push_cast; ring)
++    (by push_cast; ring) (by push_cast; ring) (by push_cast; ring) (by push_cast; ring)
++    (Or.inl rfl) (Or.inl rfl), zpow_natCast,
++    factZ_eq_factorial (t := K + q + r + 1) (by push_cast; ring)]
++  simp only [Nat.factorial_zero, Nat.cast_one, inv_one]
++  ring
++
++/-- `Δ²` cancels Racah's single term. -/
++lemma triCoeff_mul_edge (K q r : ℕ) :
++    triCoeff K q r * ((-1) ^ (K + q + r) * ((K + q + r + 1).factorial : ℝ) *
++      ((q.factorial : ℝ)⁻¹ * (K.factorial : ℝ)⁻¹ * (r.factorial : ℝ)⁻¹)) = (-1) ^ (K + q + r) := by
++  rw [triCoeff_nat (p := K) (q := q) (r := r) (s := K + q + r + 1) rfl rfl rfl
++    (by push_cast; ring)]
++  have h1 : (K.factorial : ℝ) ≠ 0 := by exact_mod_cast K.factorial_ne_zero
++  have h2 : (q.factorial : ℝ) ≠ 0 := by exact_mod_cast q.factorial_ne_zero
++  have h3 : (r.factorial : ℝ) ≠ 0 := by exact_mod_cast r.factorial_ne_zero
++  have h4 : ((K + q + r + 1).factorial : ℝ) ≠ 0 := by exact_mod_cast Nat.factorial_ne_zero _
++  push_cast
++  field_simp
++
++lemma racah6j_eq_of_sums (j₁ j₂ j₃ j₄ j₅ j₆ : ℕ) {α₁ α₂ α₃ α₄ β₁ β₂ β₃ : ℤ}
++    (h₁ : 2 * α₁ = j₁ + j₂ + j₃) (h₂ : 2 * α₂ = j₁ + j₅ + j₆) (h₃ : 2 * α₃ = j₄ + j₂ + j₆)
++    (h₄ : 2 * α₄ = j₄ + j₅ + j₃) (h₅ : 2 * β₁ = j₁ + j₂ + j₄ + j₅)
++    (h₆ : 2 * β₂ = j₂ + j₃ + j₅ + j₆) (h₇ : 2 * β₃ = j₃ + j₁ + j₆ + j₄) :
++    racah6j j₁ j₂ j₃ j₄ j₅ j₆ =
++      Real.sqrt (triD j₁ j₂ j₃ * triD j₁ j₅ j₆ * triD j₄ j₂ j₆ * triD j₄ j₅ j₃) *
++        racahSum6 α₁ α₂ α₃ α₄ β₁ β₂ β₃ := by
++  rw [racah6j]
++  congr 1
++  exact racahSum6_congr (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
++    (by omega)
++
++lemma sqrt_edge {X Y D S σ : ℝ} (hX : 0 < X) (hY : 0 < Y) (hD : 0 ≤ D) (hDS : D * S = σ) :
++    Real.sqrt (X⁻¹ * Y⁻¹ * D * D) * S = σ / Real.sqrt (X * Y) := by
++  have h : X⁻¹ * Y⁻¹ * D * D = (X * Y)⁻¹ * (D * D) := by rw [mul_inv]; ring
++  rw [h, Real.sqrt_mul (by positivity), Real.sqrt_inv, Real.sqrt_mul_self hD, ← hDS]
++  ring
++
++lemma triCoeff_nonneg (K q r : ℕ) : 0 ≤ triCoeff K q r := by
++  rw [triCoeff_nat (p := K) (q := q) (r := r) (s := K + q + r + 1) rfl rfl rfl
++    (by push_cast; ring)]
++  positivity
++
++/-- **Racah's formula for `j₁ = 0`.** -/
++lemma racah6j_zero_left {b c K : ℕ} (hKb : K ≤ b) (hKc : K ≤ c) :
++    racah6j 0 b b c (b + c - 2 * K) (b + c - 2 * K) = (-1) ^ (b + c - K) /
++      Real.sqrt (((b + 1 : ℕ) : ℝ) * ((b + c - 2 * K + 1 : ℕ) : ℝ)) := by
++  obtain ⟨r, rfl⟩ := Nat.exists_eq_add_of_le hKb
++  obtain ⟨q, rfl⟩ := Nat.exists_eq_add_of_le hKc
++  have hf : K + r + (K + q) - 2 * K = q + r := by omega
++  have hP : K + r + (K + q) - K = K + q + r := by omega
++  rw [hf, hP, racah6j_eq_of_sums 0 (K + r) (K + r) (K + q) (q + r) (q + r)
++    (α₁ := (K : ℤ) + r) (α₂ := (q : ℤ) + r) (α₃ := (K : ℤ) + q + r) (α₄ := (K : ℤ) + q + r)
++    (β₁ := (K : ℤ) + q + r) (β₂ := (K : ℤ) + q + 2 * r) (β₃ := (K : ℤ) + q + r)
++    (by push_cast; omega) (by push_cast; omega) (by push_cast; omega) (by push_cast; omega)
++    (by push_cast; omega) (by push_cast; omega) (by push_cast; omega),
++    triD_zero_self, triD_zero_self, triD_tri, triD_tri', triCoeff_comm q K r,
++    racahSum6_edge_left]
++  have h := sqrt_edge (X := ((K + r + 1 : ℕ) : ℝ)) (Y := ((q + r + 1 : ℕ) : ℝ)) (by positivity)
++    (by positivity) (triCoeff_nonneg K q r) (triCoeff_mul_edge K q r)
++  exact h
++
++/-- **Racah's formula for `j₃ = 0`.** -/
++lemma racah6j_zero_right {a b K : ℕ} (hKa : K ≤ a) (hKb : K ≤ b) :
++    racah6j a b (a + b - 2 * K) 0 (a + b - 2 * K) b = (-1) ^ (a + b - K) /
++      Real.sqrt (((a + b - 2 * K + 1 : ℕ) : ℝ) * ((b + 1 : ℕ) : ℝ)) := by
++  obtain ⟨q, rfl⟩ := Nat.exists_eq_add_of_le hKa
++  obtain ⟨r, rfl⟩ := Nat.exists_eq_add_of_le hKb
++  have hf : K + q + (K + r) - 2 * K = q + r := by omega
++  have hP : K + q + (K + r) - K = K + q + r := by omega
++  rw [hf, hP, racah6j_eq_of_sums (K + q) (K + r) (q + r) 0 (q + r) (K + r)
++    (α₁ := (K : ℤ) + q + r) (α₂ := (K : ℤ) + q + r) (α₃ := (K : ℤ) + r) (α₄ := (q : ℤ) + r)
++    (β₁ := (K : ℤ) + q + r) (β₂ := (K : ℤ) + q + 2 * r) (β₃ := (K : ℤ) + q + r)
++    (by push_cast; omega) (by push_cast; omega) (by push_cast; omega) (by push_cast; omega)
++    (by push_cast; omega) (by push_cast; omega) (by push_cast; omega),
++    triD_zero_self, triD_zero_self, triD_tri, triD_tri', triCoeff_comm q K r,
++    racahSum6_edge_right]
++  have h := sqrt_edge (X := ((q + r + 1 : ℕ) : ℝ)) (Y := ((K + r + 1 : ℕ) : ℝ)) (by positivity)
++    (by positivity) (triCoeff_nonneg K q r) (triCoeff_mul_edge K q r)
++  rw [show triCoeff K q r * triCoeff K q r * ((K + r + 1 : ℕ) : ℝ)⁻¹ * ((q + r + 1 : ℕ) : ℝ)⁻¹ =
++    ((q + r + 1 : ℕ) : ℝ)⁻¹ * ((K + r + 1 : ℕ) : ℝ)⁻¹ * triCoeff K q r * triCoeff K q r by ring]
++  exact h
++
++end PhyslibAlpha.Sl2
+-- 
+2.43.0
+

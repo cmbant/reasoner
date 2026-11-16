@@ -1,7 +1,7 @@
 From ae94c3ba2c85914e6b57bc2d917a24f3c23e379e Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:14:35 +0000
-Subject: [PATCH 13/20] feat(PhyslibAlpha): weight rule `sum_three_cg_eq` and
+Subject: [PATCH 13/24] feat(PhyslibAlpha): weight rule `sum_three_cg_eq` and
  `collapseSum_eq_sum_collapseTerm`
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>

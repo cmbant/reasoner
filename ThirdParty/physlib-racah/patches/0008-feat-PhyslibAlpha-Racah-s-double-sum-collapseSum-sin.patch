@@ -1,7 +1,7 @@
 From d67c9ca092579f445954940d141ea958fa054fe9 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:08:53 +0000
-Subject: [PATCH 08/20] feat(PhyslibAlpha): Racah's double sum `collapseSum`,
+Subject: [PATCH 08/24] feat(PhyslibAlpha): Racah's double sum `collapseSum`,
  single sum `Xs` and zero-extended binomial `zbinom`
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>

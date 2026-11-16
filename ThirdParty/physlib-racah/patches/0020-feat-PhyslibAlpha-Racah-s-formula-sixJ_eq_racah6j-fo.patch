@@ -1,7 +1,7 @@
 From 4fd34a0512686c622f7de9523d842009c2276cef Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:25:22 +0000
-Subject: [PATCH 20/20] feat(PhyslibAlpha): Racah's formula `sixJ_eq_racah6j`
+Subject: [PATCH 20/24] feat(PhyslibAlpha): Racah's formula `sixJ_eq_racah6j`
  for the 6j symbol of SixJ (`sixJSym_eq_racah6j`)
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>

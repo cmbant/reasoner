@@ -1,7 +1,7 @@
 From 5bf2139adcd53c4008c5b928acc023e4279e856e Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:18:11 +0000
-Subject: [PATCH 16/20] feat(PhyslibAlpha): the Sears transformation for
+Subject: [PATCH 16/24] feat(PhyslibAlpha): the Sears transformation for
  Racah's sums, `sears_instance`
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>

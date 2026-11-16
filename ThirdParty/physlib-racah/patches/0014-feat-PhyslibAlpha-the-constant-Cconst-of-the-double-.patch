@@ -1,7 +1,7 @@
 From c0bb642b06ec3eb3ed7abbc8ba93e2b64156827f Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:16:27 +0000
-Subject: [PATCH 14/20] feat(PhyslibAlpha): the constant `Cconst` of the
+Subject: [PATCH 14/24] feat(PhyslibAlpha): the constant `Cconst` of the
  double-sum form of sixJ (`collapseConst_div`, `Cconst_eq`)
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>
