@@ -65,6 +65,13 @@ public import FormalResearch.Special.DiscreteAiryLimit
 public import FormalResearch.Special.DiscreteAiryLimitHahnTurn
 public import FormalResearch.Special.DiscreteAiryLimitHahn
 public import FormalResearch.Special.DiscreteAiryLimitWindow
+public import FormalResearch.Special.DiscreteAiryLimitHyperDecay
+public import FormalResearch.Special.DiscreteAiryLimitHyperWindow
+public import FormalResearch.Special.DiscreteAiryLimitChainsCore
+public import FormalResearch.Special.DiscreteAiryLimitChains3j
+public import FormalResearch.Special.DiscreteAiryLimitChains6j
+public import FormalResearch.Special.DiscreteAiryLimitChainsHahnAiry
+public import FormalResearch.Special.DiscreteAiryLimitChainsRacahAiry
 
 /-!
 # Special functions: Jacobi polynomials
@@ -95,9 +102,15 @@ composes all of these for a simple turn (`DiscreteAiryLimit*`): `discrete_airy_l
 `u(c₀) = 1`, `u'(c₀) > 0`, `A(c₀) > 0`: the exact recessive solution is `ψ = g·Ai(h^{-2/3}ζ)` within relative error `O(δ³)`
 on `X ≥ 0` and within `O(δ³)` of the weight `W` on a bounded oscillatory window `X ≥ -A₀`, with the window positions exported,
 and every solution with controlled end values is `κf + μf₂` with `μ` exponentially small), its bounded-window consequence
-`dal_conclusion_window`, and the closed-form Hahn / centred Racah instance `discrete_airy_hahn_racah(_window)`.  Scope: one
+`dal_conclusion_window`, the closed-form Hahn / centred Racah instance `discrete_airy_hahn_racah(_window)`, the hard-edge
+decay that discharges hypothesis (R) for the closed forms up to one normalisation `|Y_{k₁}| ≤ δ^{-p}` at an early forbidden-side
+site (`DiscreteAiryLimitHyper*`: `hd_backward_decay`, `hr_hardedge_decay`, `discrete_airy_hahn_racah_hardedge(_window)`), and
+the identification of the actual Wigner `3j`/`6j` chains (integer data) with the closed-form Hahn / centred Racah recurrences,
+with the end conditions and the bound `|Ŷ| ≤ √N` from the Gauss weight, composed with the Airy limit
+(`DiscreteAiryLimitChains*`: `hahn_class_chain`, `racah_class_chain`, `hahn_chain_airy`, `racah_chain_airy`).  Scope: one
 fixed shape `(u, A, c₀)`, the recessive solution (not the non-recessive `Ai/Bi` pair), a bounded oscillatory window (not the
-full oscillatory side), hypothesis (R) on the forbidden-end values; `κ` is not identified (no Darboux matching, `κ ≠ 0` not
-proved), the closed forms are not identified with the actual `3j/6j` chains, constants are existential (window constant
-`e^{O(A₀²)}`); it is a replacement for neither the full GBVA nor the Geronimo asymptotics.
+full oscillatory side); for the actual chains, integer data only (not half-integer), at lattice nodes `x_n = x` assumed to
+exist (the congruence condition is not stated), the simple-turn data (and for Racah the branch `τ = +1` and `q_*`) being
+hypotheses; `κ` is not identified (no Darboux matching, `κ ≠ 0` not proved), constants are existential (window constant
+`e^{O(A₀²)}`); the input cited by the papers (GBVA, Geronimo) is still cited, not replaced.
 -/

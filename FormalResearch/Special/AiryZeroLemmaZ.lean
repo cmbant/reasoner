@@ -14,8 +14,10 @@ that follows from the phase theorem `airyZero_phase_r` alone is proved, with exp
   `n⁴ |a_n + t_n^{2/3}|³ ≤ 0.0008`.
 
 (The CFT survey's `δ_k = O(k^{-4/3})` consequence of "Lemma Z"; the actual `|δ_n| n^{4/3}` decreases from `0.0155` (`n = 2`) to
-`0.0140` (`n = 5`) and tends to `(5/48)(3π/2)^{-4/3} = 0.0132…`; mpmath, `2 ≤ n < 400`.)  **Not formalised:** the `5/(48 t²)` second term itself
-(`δ_n = -(5/48) t_n^{-4/3}(1 + O(t_n^{-2}))`), see the handoff; the case `n = 1`.
+`0.0140` (`n = 5`) and tends to `(5/48)(3π/2)^{-4/3} = 0.0132…`; mpmath, `2 ≤ n < 400`.)  The `5/(48 t²)` second term itself
+(`δ_n = -(5/48) t_n^{-4/3} + O(t_n^{-10/3})`, DLMF 9.9.18) is proved in `AiryZeroSecondOrder` (`airyZero_second_order`,
+`airyZero_delta_second`, `n ≥ 2`, constant `2` not sharp), which also gives `∃ C ∀ n ≥ 1` (`airyZero_delta_exists`, absorbing
+`n = 1`).  **Not formalised:** the next coefficient `-(5/36) t^{-4}` and the zeros of `Ai'` (DLMF 9.9.19).
 -/
 
 @[expose] public section

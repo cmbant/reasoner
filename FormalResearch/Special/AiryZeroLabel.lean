@@ -26,8 +26,9 @@ The consequences `|a_n| ≍ n^{2/3}`, the gaps `a_n - a_{n+1} ≍ n^{-1/3}` and 
 
 Numerically checked (mpmath, 30 digits, `2 ≤ n ≤ 200`): `|(2/3)|a_n|^{3/2} - (n - 1/4)π| ≤ 0.0124` and
 `|a_n|^{3/2}·|(2/3)|a_n|^{3/2} - (n - 1/4)π|` increases from `0.1026` (`n = 2`) to its limit `5/48 = 0.1041…`
-(the `5/(48 t²)` correction of DLMF 9.9.18), far inside the proved constant `2/5`.  Everything here is proved;
-DLMF 9.9.18's second term is not (see the handoff).
+(the `5/(48 t²)` correction of DLMF 9.9.18), far inside the proved constant `2/5`.  Everything here is proved; the phase to the
+next order, `|(2/3)r³ - (n-1/4)π - 5/(48r³)| ≤ (11/10) r^{-9}`, and DLMF 9.9.18's second term are in
+`AiryZeroSecondOrder{Phase,}` (`airyZero_phase_second`, `airyZero_second_order`).
 -/
 
 @[expose] public section

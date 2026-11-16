@@ -20,8 +20,9 @@ Proved.  Constants in `δ₁` are existential.  `dal_conclusion_window` is for a
 is a property of the data it is applied to); `discrete_airy_hahn_racah_window` exports the position (`q_* - Dδ² ≤ q_J ≤ q_*`,
 `q_* ≤ q_m < q_* + h`, `X_J ≤ -A₀`) next to the bound.  Scope as in `DiscreteAiryLimitHahn`: this is the recessive-plus-bounded-window
 form, not a replacement of Geronimo/GBVA in full (no non-recessive `Ai`/`Bi` pair, no full oscillatory side, no uniformity over
-families; `κ` unidentified, `κ ≠ 0` unproved; `(R)` and the identification of the closed forms with the 3j/6j chains are
-hypotheses/obligations).
+families; `κ` unidentified, `κ ≠ 0` unproved; `(R)` is a hypothesis of the theorems of this module: it is derived from the hard
+edge up to one normalisation in `DiscreteAiryLimitHyperWindow`, and proved for the actual integer-data `3j/6j` chains in
+`DiscreteAiryLimitChains{HahnAiry,RacahAiry}`, which also identify the closed forms with the chains).
 -/
 
 @[expose] public section
@@ -147,7 +148,7 @@ theorem dal_conclusion_window (C Cosc Ctop W Cmu ξ0 Z : ℝ) (hC : 0 ≤ C) (hC
 
 /-- **Hahn / centred Racah, bounded-window form** (`Y = κ g [Ai + O(h)]` on `X ∈ [-A₀, Z]`, P3
 `thm:hahnAiryConnection`, `thm:racahAiryConnection` up to the normalisation `κ`): see the module docstring of
-`DiscreteAiryLimitHahn` for the hypotheses and the obligations left (closed forms = actual chains, `(R)`, `κ`). -/
+`DiscreteAiryLimitHahn` for the hypotheses and the obligations left (closed forms = actual chains and `(R)`: see `DiscreteAiryLimitChains*`, `DiscreteAiryLimitHyper*`; `κ`). -/
 theorem discrete_airy_hahn_racah_window {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (hqs : 0 < qs)
     (hτ : τ ^ 2 = 1) (hκ : 0 < 1 - τ * x) (hα : 0 < 1 - P * qs ^ 2) (hβ : 0 < 1 - Q * qs ^ 2)
     (hturn : Phi P Q τ x (qs ^ 2) = 0) (A0 Z : ℝ) (hA0 : 0 < A0) (hZ : 0 ≤ Z) (n p : ℕ) :

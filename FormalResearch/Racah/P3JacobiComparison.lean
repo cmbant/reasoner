@@ -40,11 +40,13 @@ forbidden side" (`(F1)`-`(F3)`, `eq:forbidden-slope`, `eq:forbidden-const-ratio`
 
 ## Not formalised
 
-The quantum-`6j` variant of `(F3)` (`sinh/cosh` bounds, `σ = tanh²`); the identification of the closed forms
-with the actual chains (`prop:hahn-class`, `prop:racah-class`); the *verification* part of (b), i.e.
+The quantum-`6j` variant of `(F3)` (`sinh/cosh` bounds, `σ = tanh²`); the *verification* part of (b), i.e.
 the explicit `D` and the product bound, `(c)` and everything about `Θ`, `ξ` and Olver (the Airy limit for the closed-form
-coefficients is `discrete_airy_hahn_racah` in `FormalResearch.Special.DiscreteAiryLimitHahn`, with its own obligations); the Airy
-input `|Ŷ_{k_1}| ≤ CN^{1/6}`.
+coefficients is `discrete_airy_hahn_racah` in `FormalResearch.Special.DiscreteAiryLimitHahn`, with its own obligations; the
+identification of the closed forms with the actual integer-data `3j/6j` chains, `prop:hahn-class`, `prop:racah-class`, is
+`hahn_class_chain`, `racah_class_chain` in `FormalResearch.Special.DiscreteAiryLimitChains{3j,6j}`); the Airy
+input `|Ŷ_{k_1}| ≤ CN^{1/6}` (the normalisation `|Y_{k₁}| ≤ δ^{-p}` of `DiscreteAiryLimitHyperWindow`, or for the actual
+chains the Gauss-weight bound of `DiscreteAiryLimitChains*`).
 -/
 
 @[expose] public section
@@ -458,7 +460,8 @@ noncomputable def hrB (β₀ a b h k : ℝ) : ℝ :=
 `C₀ = (ρ₁+ρ₂)/(2κ q_*)`, `κ = (1-τx)/q_*²`, `ρ₁ = 4(a²+b²+1/3)/q_*²`,
 `ρ₂ = β₀(1+2(a²+b²))/4 + 4|ab|/q_*²`.  Not formalised: the quantum-`6j` variant (`sinh`/`cosh` bounds
 and the unimodality of `σ = tanh²`), the passage from the closed forms of `A_k`, `B_k` to the chains
-themselves (`prop:hahn-class`, `prop:racah-class`), and `A_{k_max+1} = 0` (here `σ_{k+1}` in the domain
+themselves (`prop:hahn-class`, `prop:racah-class`; now `hahn_class_chain`, `racah_class_chain` in
+`FormalResearch.Special.DiscreteAiryLimitChains{3j,6j}`, integer data), and `A_{k_max+1} = 0` (here `σ_{k+1}` in the domain
 suffices: at the hard edge `ẽ(σ_max) = 0`). -/
 theorem exact_hyperbolicity_hahn_racah {p q : ℝ} (hp : 0 ≤ p) (hq : 0 ≤ q)
     (a b τ x qs h k : ℝ) (hh : 0 < h) (hqs : 0 < qs) (hτ : τ ^ 2 = 1) (hκ : 0 < 1 - τ * x)

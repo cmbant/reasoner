@@ -33,7 +33,10 @@ saddle) this gives, for every `y > 0`, with `ξ = (2/3) y^{3/2}` and `θ = ξ - 
 Numerical check (mpmath, 30 digits, `y ∈ [10^{-1}, 10^{5}]`): `|χ(-y) - main| y^{13/4} ≤ 0.0472` (the limit is
 `u₂ · (3/2)² · π^{-1/2} = 0.0472` with `u₂ = 385/10368`); the constant `1/5` is that of the proof.
 
-Not formalised: the next coefficients `u₂, u₃, ...` (the same method needs further Gaussian moments and Taylor
+The `u₂` term (to relative order `r^{-9}`, explicit remainder) is in `AiryZeroSecondOrder{Saddle,Chi}`
+(`norm_airyAiC_sq_fourth_le`, `airySO_chi_neg_sq`, `airySO_Ai_neg_sq`, `airySO_Bi_neg_sq`).
+
+Not formalised: the next coefficients `u₃, ...` (the same method needs further Gaussian moments and Taylor
 orders), the derivative `χ'` to order `u₁` (the analogue with `Ai'`, `v₁ = -7/72`), and statements for `|arg|` beyond the
 negative axis.
 -/

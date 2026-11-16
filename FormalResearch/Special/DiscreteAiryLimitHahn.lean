@@ -34,8 +34,10 @@ window is not degenerate.
 
 **Scope.**  This does not replace Geronimo/GBVA in full: it is the recessive-plus-bounded-window form (not the non-recessive
 `Ai`/`Bi` pair, not the full oscillatory side, not uniform over `(a, b, τ, x, P, Q)`); `κ` is unidentified and `κ ≠ 0` is
-not proved; `(R)` is a hypothesis of the `Y`-form; the closed forms `hrAk`, `hrCk` are not identified with the actual 3j/6j
-chains.
+not proved; `(R)` is a hypothesis of the `Y`-form here (it is discharged, up to one normalisation, in
+`DiscreteAiryLimitHyperWindow`, and for the actual integer-data chains in `DiscreteAiryLimitChains{HahnAiry,RacahAiry}`); this
+module treats the closed forms `hrAk`, `hrCk` as given (their identification with the actual 3j/6j chains is in
+`DiscreteAiryLimitChains{3j,6j}`).
 
 **Hypotheses of the abstract theorem checked here** (all proved): `A ∈ C²`, `A(q_*) > 0` (`hrA_contDiffAt`, `hrA_pos`),
 `u ∈ C³` (`hrU_contDiffAt`), `u(q_*) = 1` (`hrU_turn`), **`u'(q_*) > 0`** (`hrU_deriv_pos`, from `1 - τx > 0` by an
@@ -43,14 +45,16 @@ AM-GM identity), and the `O(h²)` perturbation sizes `|A_k - A(q_k - h/2)| ≤ E
 (`hr_coef_A`, `hr_coef_C`, from `rr_sub_one_le`, `Bk_close`; `E₁ = 2(a²+b²+1/3)/q_*²`, `ρ₂` the constant of
 `exact_hyperbolicity_hahn_racah`).
 
-**Not formalised (obligations left).**
-1. *Identification of the closed forms with the actual chains*: that the Wigner `3j` (Hahn) / `6j` (centred Racah)
-   symbols in the natural gauge satisfy exactly this recurrence with these `A_k`, `B_k` (`prop:hahn-class`,
-   `prop:racah-class`, `A:1319-1322`; the exact-chain algebra is in `Racah/W1*`, `P2*`, but the matching of the
-   closed forms is not done).  Here `Y` is any solution of the closed-form recurrence.
-2. *The physical (hard-edge) solution and the bound `(R)`*: `|Y_N|, |Y_{N+1}| ≤ Y_max` with `Y_max` polynomial in `1/h`
-   is a hypothesis; the backward-ratio monotonicity (`backward_ratio`, `exact_hyperbolicity_hahn_racah`) transports `Y` from the
-   hard edge to `N` but the polynomial bound itself (T:889-892, `3j/6j` orthogonality) is not connected.
+**Obligations not discharged in this module (done elsewhere, integer data).**
+1. *Identification of the closed forms with the actual chains* (`prop:hahn-class`, `prop:racah-class`, `A:1319-1322`):
+   here `Y` is any solution of the closed-form recurrence; that the Wigner `3j` (Hahn) / `6j` (centred Racah) symbols in
+   the natural gauge satisfy it is `hahn_class_chain`, `racah_class_chain` (`DiscreteAiryLimitChains{3j,6j}`, integer data
+   only; half-integer data is not translated).
+2. *The bound `(R)`*: `|Y_N|, |Y_{N+1}| ≤ Y_max` with `Y_max` polynomial in `1/h` is a hypothesis of the theorems here.  The
+   monotone decay from the hard edge (`backward_ratio`, `exact_hyperbolicity_hahn_racah`) is connected in
+   `DiscreteAiryLimitHyperDecay`/`HyperWindow`, leaving one normalisation `|Y_{k₁}| ≤ δ^{-p}`; for the actual chains `(R)` is
+   proved from the Gauss weight (`hahn_chain_abs_le`, `racah_chain_abs_le`).
+**Not formalised.**
 3. The normalisation `κ` (Darboux/Wigner-`d` matching, T:336, A:925-1054) and `κ ≠ 0`; the parity factor `σ_τ`, the lattice
    quantisation `K_τ ∈ ℤ`, the explicit `varpi^H` of the second-order bracket; the Racah `q`-6j.
 4. Uniformity over the compact family of shapes `x` (everything here is for one fixed `(P, Q, a, b, τ, x)`).

@@ -53,6 +53,10 @@ public import FormalResearch.Special.AiryZeroOrder
 public import FormalResearch.Special.AiryZeroLabel
 public import FormalResearch.Special.AiryZeroSpacing
 public import FormalResearch.Special.AiryZeroLemmaZ
+public import FormalResearch.Special.AiryZeroSecondOrderSaddle
+public import FormalResearch.Special.AiryZeroSecondOrderChi
+public import FormalResearch.Special.AiryZeroSecondOrderPhase
+public import FormalResearch.Special.AiryZeroSecondOrder
 public import FormalResearch.Special.AiryPruferAsym
 public import FormalResearch.Special.AiryClarkMid
 public import FormalResearch.Special.AiryWt
@@ -90,13 +94,16 @@ estimate; hence `Ai, Ai', Bi` on the negative axis with explicit `O(y^{-3/2})` r
 location of the zeros `y ≥ 4`), then
 `AiryBiReal` (`Bi'` on `ℝ`, `Bi'' = x Bi`, the real Wronskian), `AiryAsymBi{Neg,Pos}` (`Bi'` on the negative axis, `Bi`, `Bi'`
 on the positive axis, first terms with explicit remainders), `AiryAsymChi{,Aux}` (`χ = Ai + iBi` on the negative axis with the
-`u_1 = 5/72` term: `Ai`, `Bi` to order `u_1`), `AiryBi{Mono,Neg,Envelope}` (`Bi/Ai` increasing, `Bi > 0` and `Bi' > 0` on
+`u_1 = 5/72` term: `Ai`, `Bi` to order `u_1`; the `u_2` term for `Ai`, `Bi` is in `AiryZeroSecondOrder{Saddle,Chi}`), `AiryBi{Mono,Neg,Envelope}` (`Bi/Ai` increasing, `Bi > 0` and `Bi' > 0` on
 `[-11/10, ∞)`, two-sided envelope of `Bi` on `[-1, ∞)`), `AiryOlver{,Bounds}` (the DLMF 9.8 modulus `Ai² + Bi²`, Olver's weights
 `E`, `M` and a convenient majorant `airyDerivWeightN` of the derivatives, which is *not* Olver's `N`, with two-sided bounds);
 the ordered zeros `a_n` of `Ai`: `AiryGammaBounds`, `AiryZeroTaylor`, `AiryFirstZeros` (rational enclosures of `Γ(1/3)`, `Γ(2/3)`,
 `Ai(0)`, `Ai'(0)`, the sign change of `Ai` at `-2.33`, `-2.35`, and `a_1, a_2`), `AiryZeroGap` (Prüfer rate, spacing of zeros),
 `AiryZeroOrder` (`airyZero n`), `AiryZeroLabel` (the phase theorem `|(2/3)|a_n|^{3/2} - (n-1/4)π| ≤ (2/5)|a_n|^{-3/2}`, DLMF 9.9.6),
 `AiryZeroSpacing` (`|a_n| ≍ n^{2/3}`, gaps `≍ n^{-1/3}`), `AiryZeroLemmaZ` (`a_n = -((3π/2)(n-1/4))^{2/3} + O(n^{-4/3})`),
+`AiryZeroSecondOrder{Saddle,Chi,Phase,}` (the second order DLMF 9.9.18: `|a_n + t^{2/3}(1 + 5/(48t²))| ≤ 2t^{-10/3}`,
+`t = (3π/2)(n-1/4)`, via the saddle integral and `Ai`, `Bi` on the negative axis to relative order `r^{-9}` and the phase
+`|(2/3)r³ - (n-1/4)π - 5/(48r³)| ≤ (11/10)r^{-9}`; constants not sharp),
 `AiryPruferAsym` (the Prüfer angle of `Ai`, zeros of `Ai'`), `AiryClarkMid` (one zero of `Ai'` per gap, asymptotically the
 midpoint); and the Airy side of the discrete-to-Airy limit: `AiryWt` (an explicit envelope weight `(2+|X|)^{-1/4} e^{-ξ}` with
 local constancy and lattice sums), `AiryShift` (the shift identity `y(X+s) = y(X) C + y'(X) S`), `AiryShiftTaylor` (Taylor
@@ -106,15 +113,16 @@ are separate modules of `FormalResearch.Special`, not imported by this aggregate
 `AiryGammaBounds` each carry their own, with different constants.)
 
 **Not formalised:** the full asymptotic series (the `AiryAsym*` files give the first term, or `u_1` in `AiryAsymChi`, with explicit
-remainder, not `u_2` and higher terms; `Ai'`, `Bi'`, `χ'` to order `v_1` only to first order); the second term `5/(48 t²)` of
-DLMF 9.9.18 for the zeros and sharp constants anywhere; the asymptotics of the general Clark nodes `z_n(α)`, `α ≢ 0, π/2`
+remainder; `AiryZeroSecondOrder*` add `u_2` for `Ai`, `Bi` on the negative axis, not `u_3` and higher terms; `Ai'`, `Bi'`, `χ'`
+to order `v_1` only to first order); the `-(5/36)t^{-4}` coefficient of the zeros' expansion and the zeros of `Ai'`
+(DLMF 9.9.19), the second order of DLMF 9.9.18 itself being proved with non-sharp constants, and sharp constants anywhere; the asymptotics of the general Clark nodes `z_n(α)`, `α ≢ 0, π/2`
 (existence and uniqueness are `airy_node_exists_unique`); Olver's own `N` and the value of the crossing point `c = -0.366…`
 (`airyCross > -1`); Olver-type uniform expansions; the Mellin moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the `Lp`-level
 operator `K_u`; the `Ai'` and `P Ai + Q Ai'` versions of the good-circle bound (E2); the first zero of `Bi` and `Bi > 0`
-beyond `-11/10`; the open parts of the discrete-to-Airy chain: the link of (R) to the hard-edge solution, the identification
-of the Hahn/Racah closed forms with the `3j/6j` chains, the Darboux normalisation `κ` and `κ ≠ 0`, the non-recessive `Ai/Bi`
-pair and the full oscillatory side, uniformity over families, explicit constants, and analyticity of the Langer coordinate
-(see the design note).
+beyond `-11/10`; the open parts of the discrete-to-Airy chain: the Darboux normalisation `κ` and `κ ≠ 0` (also the single
+normalisation `|Y_{k₁}| ≤ δ^{-p}` for the closed-form chains), the non-recessive `Ai/Bi` pair and the full oscillatory side,
+uniformity over families (and the existence of lattice nodes), half-integer chain data, the derivation of the Racah `q_*` and
+the `τ = -1` branch, explicit constants, and analyticity of the Langer coordinate (see the design note).
 
 Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and the free-fermion edge
 (`Weyl/free_fermion`, `thm:edge`) need next, and what is now reachable.
@@ -149,12 +157,23 @@ Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and
   `discrete_airy_hahn_racah(_window)` (simple-turn data from `1 - τx > 0`, `O(h²)` comparison of the closed-form `A_k, c_k`).
   This covers the recessive solution with relative `O(h)` error and a bounded oscillatory window for one fixed `(u, A, c₀)`
   under (R); it does **not** cover the non-recessive canonical `Ai/Bi` pair, the oscillatory side beyond the bounded window,
-  uniformity over families of shapes, the identification of `κ` (Darboux matching) or `κ ≠ 0`, nor the identification of the
-  closed forms with the actual `3j/6j` chains; constants are existential (window constant `e^{O(A0²)}`), so it is neither
-  the full GBVA nor the Geronimo asymptotics.  Open: the link of (R) to the hard-edge solution (`backward_ratio` with the
-  exact hyperbolicity would give monotone decay past the turn, but that link is not written, and the polynomial bound from the
-  `3j/6j` orthogonality is not connected), the
-  closed forms versus the actual chains, the Darboux normalisation `κ` and `κ ≠ 0`, explicit constants, and analyticity of `ζ`.
+  uniformity over families of shapes, or the identification of `κ` (Darboux matching) or `κ ≠ 0`; constants are existential
+  (window constant `e^{O(A0²)}`), and the input cited by the papers (GBVA, Geronimo) is still cited, not replaced.
+  Two further pieces now close the (R) and chain-identification gaps for the closed forms.  Hard-edge decay
+  (`DiscreteAiryLimitHyper*`): `hd_backward_decay` (abstract monotone decay `|Y_k| ≤ |Y_{j-1}|` to a hard edge `A_{N+1} = 0`),
+  `hr_hardedge_decay` (for the closed-form Hahn / centred Racah rows, via `exact_hyperbolicity_hahn_racah` row by row) and
+  `discrete_airy_hahn_racah_hardedge(_window)`: (R) is derived from the hard edge up to **one normalisation**
+  `|Y_{k₁}| ≤ δ^{-p}` at an early forbidden-side site `k₁` (the decay runs from `k₁` to the edge, so a bound at the end of the
+  chain gives nothing there).  Actual chains (`DiscreteAiryLimitChains*`): for integer data the actual Wigner `3j` and `6j`
+  natural-gauge chains `Ŷ_k = √(2k+1)Φ_k` satisfy the closed-form Hahn / centred Racah recurrences for every `k ≥ 1`
+  (`hahn_class_chain`, `racah_class_chain`; gauge change of the paper's exact rank recurrences), with the support and end
+  conditions (`A_{k_max+1} = 0`) and `|Ŷ| ≤ √N` resp. `√(4AB/2C)` from one term of the Gauss weight; `hahn_chain_airy` and
+  `racah_chain_airy` compose these with `discrete_airy_hahn_racah`, so (R) is proved, not assumed, for the actual chains at
+  integer data (Hahn at a lattice node `x_n = x`, e.g. `M = σ = 0`, `x = 1/2`, `N = 4t+2`, `n = 3t+1`; the existence of
+  nodes is not stated in general; Racah on the branch `τ = +1` with the turn data `q_*` taken as hypotheses).  Open: `κ` and
+  `κ ≠ 0` (Darboux), the non-recessive `Ai/Bi` pair, the full oscillatory side, uniformity over families, half-integer chain
+  data (the chain lives on the shifted lattice), the derivation of the Racah `q_*` and the `τ = -1` branch, explicit
+  constants, and analyticity of `ζ`.
 * *Free-fermion edge*: the Airy kernel `K(x,y)`, `K(x,x) = Ai'² - x Ai²`, `(∂_x + ∂_y)K = -Ai(x)Ai(y)` and
   `∫_x^∞ Ai² = K(x,x)` are in place, and `K(x,y) = ∫_0^∞ Ai(x+s)Ai(y+s) ds` (hence positivity of `K`) is
   `airyKer_eq_integral` (real `x,y`) and `airyKerC_eq_integral` (complex `x,y`) in `AiryKernelOp*`.
