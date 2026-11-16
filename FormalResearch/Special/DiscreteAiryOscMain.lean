@@ -216,8 +216,33 @@ theorem dao_conclusion {X g a c : ℤ → ℝ} {J N : ℤ} {δ c1 c2 gmin gmax c
     obtain ⟨κ, μ, hYeq, hμ⟩ := hY Y hYex
     exact ⟨κ, μ, hYeq, dao_mu_bound hP hJN hfN hfN1 haN hγ0p hγ hQp hγQ hμ hYN hYN1⟩
 
+/-- **Pointwise form.**  Every exact solution `Y` is `κ g Ai(X) + μ g Bi(X)` up to `C δ³ (|κ| airyWt + |μ| airyBiWt)` on all of `[J, N]`,
+with `|μ| ≤ Cmu Ymax e^{-ξ(X_N)}/δ`. -/
+theorem DaoConclusion.pointwise {a c X g : ℤ → ℝ} {J m N : ℤ} {δ C Cmu : ℝ}
+    (h : DaoConclusion a c X g J m N δ C Cmu) (Y : ℤ → ℝ) (Ymax : ℝ)
+    (hY : ∀ k ∈ Icc (J + 1) N, jac a c Y k = 0) (hYN : |Y N| ≤ Ymax) (hYN1 : |Y (N + 1)| ≤ Ymax) :
+    ∃ κ μ : ℝ, |μ| ≤ Cmu * Ymax * Real.exp (-airyXi (X N)) / δ ∧
+      ∀ k ∈ Icc J N, |Y k - (κ * daoPhi g X k + μ * daoPsi g X k)| ≤
+        C * δ ^ 3 * (|κ| * airyWt (X k) + |μ| * airyBiWt (X k)) := by
+  obtain ⟨f, F₂, -, -, -, hf, -, -, -, hF, -, -, hYd⟩ := h
+  obtain ⟨κ, μ, hYeq, hμ⟩ := hYd Y Ymax hY hYN hYN1
+  refine ⟨κ, μ, hμ, fun k hk => ?_⟩
+  have hk1 : k ∈ Icc J (N + 1) := by rw [mem_Icc] at hk ⊢; omega
+  have e : Y k - (κ * daoPhi g X k + μ * daoPsi g X k) =
+      κ * (f k - daoPhi g X k) + μ * (F₂ k - daoPsi g X k) := by rw [hYeq k hk1]; ring
+  rw [e]
+  refine (abs_add_le _ _).trans ?_
+  rw [abs_mul, abs_mul]
+  have h1 := mul_le_mul_of_nonneg_left (hf k hk) (abs_nonneg κ)
+  have h2 := mul_le_mul_of_nonneg_left (hF k hk) (abs_nonneg μ)
+  nlinarith
+
 /-- info: 'FormalResearch.Special.dao_conclusion' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.dao_conclusion
+
+/-- info: 'FormalResearch.Special.DaoConclusion.pointwise' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.DaoConclusion.pointwise
 
 end FormalResearch.Special

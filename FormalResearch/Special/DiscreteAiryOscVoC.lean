@@ -18,8 +18,8 @@ Then `Y_k = α_k φ_k + β_k ψ_k` and `Y_{k+1} = α_k φ_{k+1} + β_k ψ_{k+1}`
 * down: `α_{k-1} - α_k = -ψ_k (α_k ε_k + β_k ε̃_k) / D_{k-1}`,   `β_{k-1} - β_k =  φ_k (α_k ε_k + β_k ε̃_k) / D_{k-1}`.
 
 `voc_march_up` / `voc_march_down` turn this into a discrete Grönwall bound in the weighted `ℓ¹` norm
-`ω_k |α_k| + |β_k|` (`ω ≡ 1` downward; a non-increasing weight `ω` upward, which is how a growing partner `ψ ~ e^{ξ}`
-and a decaying partner `φ ~ e^{-ξ}` are balanced): if the step quantities satisfy
+`ω_k |α_k| + |β_k|` upward (`ω` non-increasing in `k`) and `|α_k| + ω_k |β_k|` downward (`ω` non-decreasing in `k`), which is how
+a growing partner `ψ ~ e^{ξ}` and a decaying partner `φ ~ e^{-ξ}` are balanced (`ω = e^{-2ξ}` upward, `e^{+2ξ}` downward): if the step quantities satisfy
 `(ω_k|ψ_k| + |φ_k|) |ε_k| ≤ λ_k γ ω_{k-1}`, `(ω_k|ψ_k| + |φ_k|) |ε̃_k| ≤ λ_k γ` and `|D_k| ≥ γ`, then
 `ω_k |α_k - α_m| + |β_k - β_m| ≤ (ω_m |α_m| + |β_m|) (e^Λ - 1)` with `Λ ≥ Σ λ`.  This is the
 "amplitude-adapted" Grönwall that replaces the `ℓ¹` difference norm of `DiscreteJacobiExtrasGronwall` (which carries the

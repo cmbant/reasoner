@@ -10,7 +10,7 @@ index `J` sits at the *macroscopic* position `q_J ∈ [c₀ - r, c₀ - r + δ³
 `ζ(c₀) = 0`, `0 < c₁ ≤ ζ' ≤ c₂`, `h = δ³`, `q_k = q₀ + kh`, `X_k = ζ(q_k)/δ²`: there are `δ₀ > 0` and, for `δ ≤ δ₀`
 and every `q₀`, indices `J ≤ m ≤ N` with
 
-* all sites `q_k, k ∈ [J, N+1]` in `[c₀ - r, c₀ + r]`; `q_m ∈ [c₀, c₀ + h)`; `q_N ≥ c₀ + r/4`; `q_{N+1} ≤ c₀ + r/2`;
+* `q_J ∈ [c₀ - r, c₀ - r + δ³)`; all sites `q_k, k ∈ [J, N+1]` in `[c₀ - r, c₀ + r]`; `q_m ∈ [c₀, c₀ + h)`; `q_N ≥ c₀ + r/4`; `q_{N+1} ≤ c₀ + r/2`;
 * spacings `c₁ δ ≤ X_{k+1} - X_k ≤ c₂ δ` on `[J, N]`; `|X_k| ≤ c₂ r δ⁻²` on `[J, N+1]`;
   `0 ≤ X_m ≤ c₂ δ`; `X_N ≥ c₁ r/(4δ²)`.
 
@@ -29,7 +29,7 @@ theorem dao_lattice {ζ : ℝ → ℝ} {c0 r c1 c2 : ℝ} (hr : 0 < r) (hc1 : 0 
     (hd : ∀ q ∈ Icc (c0 - r) (c0 + r), HasDerivAt ζ (deriv ζ q) q ∧ c1 ≤ deriv ζ q ∧ deriv ζ q ≤ c2) :
     ∃ δ0 : ℝ, 0 < δ0 ∧ δ0 ≤ 1 ∧ ∀ δ q₀ : ℝ, 0 < δ → δ ≤ δ0 → ∃ J m N : ℤ, J ≤ m ∧ m ≤ N ∧
       (∀ k ∈ Finset.Icc J (N + 1), dalQ q₀ δ k ∈ Icc (c0 - r) (c0 + r)) ∧
-      c0 ≤ dalQ q₀ δ m ∧ dalQ q₀ δ m < c0 + δ ^ 3 ∧ c0 + r / 4 ≤ dalQ q₀ δ N ∧
+      c0 - r ≤ dalQ q₀ δ J ∧ dalQ q₀ δ J < c0 - r + δ ^ 3 ∧ c0 ≤ dalQ q₀ δ m ∧ dalQ q₀ δ m < c0 + δ ^ 3 ∧ c0 + r / 4 ≤ dalQ q₀ δ N ∧
       dalQ q₀ δ (N + 1) ≤ c0 + r / 2 ∧
       (∀ k ∈ Finset.Icc J N, c1 * δ ≤ dalX ζ q₀ δ (k + 1) - dalX ζ q₀ δ k ∧
         dalX ζ q₀ δ (k + 1) - dalX ζ q₀ δ k ≤ c2 * δ) ∧
@@ -77,7 +77,8 @@ theorem dao_lattice {ζ : ℝ → ℝ} {c0 r c1 c2 : ℝ} (hr : 0 < r) (hc1 : 0 
     intro x; rw [dal_rpow_cube hδ]; ring
   have hXk : ∀ k : ℤ, dalX ζ q₀ δ k = ζ (q₀ + (k : ℝ) * δ ^ 3) / δ ^ 2 := by
     intro k; unfold dalX dalQ; exact hXdef _
-  refine ⟨J, m, N, hJm, hmN, fun k hk => by unfold dalQ; exact hwin k hk, by unfold dalQ; exact hm1,
+  refine ⟨J, m, N, hJm, hmN, fun k hk => by unfold dalQ; exact hwin k hk, by unfold dalQ; exact hJ1, by unfold dalQ; exact hJ2,
+    by unfold dalQ; exact hm1,
     by unfold dalQ; exact hm2, by unfold dalQ; exact hqN, by unfold dalQ; push_cast; exact hqN1, ?_, ?_, ?_, ?_, ?_⟩
   · intro k hk
     rw [Finset.mem_Icc] at hk
