@@ -9,6 +9,7 @@ public import FormalResearch.Special.AiryIdentities
 public import FormalResearch.Special.AiryPositive
 public import FormalResearch.Special.AiryZeros
 public import FormalResearch.Special.AiryRotation
+public import FormalResearch.Special.AiryValues
 
 /-!
 # The Airy function: aggregate and design note
