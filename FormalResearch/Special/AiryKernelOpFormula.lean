@@ -18,9 +18,8 @@ diagonal and `Ai'(x)² - x Ai(x)²` on it.  Proved here:
 * `airyKer_quad`: the quadratic form `∫ (Ai(x+t) + λ Ai(y+t))² dt = K(x,x) + 2λK(x,y) + λ²K(y,y)`.
   The diagonal integrals `∫_u^∞ K(s,s) ds` are in `AiryKernelOpBounds`.
 
-**Real arguments only.**  The same Gram formula holds for complex `x, y` (`Ai` is entire), but this
-needs a decay bound for `Ai(z)` along real shifts of complex `z`, which is not in the base library
-(`AiryBound` is for real `x`); it is not formalised here.
+**Real arguments only in this module.**  The complex-argument formula (`Ai` is entire; decay of `Ai(z₀ + t)`
+along real shifts from `AiryZeros`) is `AiryKernelOpComplex`.
 -/
 
 @[expose] public section
