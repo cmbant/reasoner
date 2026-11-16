@@ -22,7 +22,7 @@ nothing more:
 
 **Not formalised:** `K_u` as a bounded operator on `L²(u,∞)` (the quadratic-form bound is not stated as an
 operator norm), the factorisation `K_u = A_u A_u^*` as operators, the spectral statements (trace-class norm
-equal to the trace, eigenvalue decay, Fredholm determinant), and the complex-argument kernel.
+equal to the trace, eigenvalue decay, Fredholm determinant).
 -/
 
 @[expose] public section
