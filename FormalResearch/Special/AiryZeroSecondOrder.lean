@@ -27,7 +27,7 @@ the CFT survey's "Lemma Z" (UPPER_TRANSFER): `δ_n = a_n + t_n^{2/3}` satisfies
 
 Numerically (mpmath, 30 digits, `1 ≤ n ≤ 3000`): `t_n^{10/3} (a_n + T₂(t_n))` rises from `0.1004` (`n = 1`) to the limit
 `5/36 = 0.13889` (the next term `-(5/36) t^{-4}` of DLMF 9.9.18), so the proved constant `2` is about `14` times the
-truth; `n^{4/3} δ_n` equals `-0.01786` (`n = 1`), `-0.01547` (`n = 2`) and tends to `-(5/48)(3π/2)^{-4/3} = -0.01319`.
+truth; `n^{4/3} δ_n` equals `-0.01786` (`n = 1`), `-0.01547` (`n = 2`) and tends to `-(5/48)(3π/2)^{-4/3} = -0.013185`.
 
 Proved here: everything stated.  **Not formalised:** the `-(5/36) t^{-4}` coefficient (DLMF 9.9.18's next term; the
 method would need the `u₃`-term of the saddle expansion), the derivative/`Ai'` analogue (DLMF 9.9.19), spacing
