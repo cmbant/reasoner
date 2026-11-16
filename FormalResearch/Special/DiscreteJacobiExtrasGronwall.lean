@@ -14,7 +14,7 @@ Airy-free wrapper of Mathlib's `discrete_gronwall` (`Mathlib/Analysis/ODE/Discre
 per-step matrix is `[[1 + σ_k, -δ q_k], [σ_k/δ, -q_k]]` with `σ_k = p_k + q_k - 1`; its `ℓ¹` operator norm is
 `≤ 1 + Lδ` as soon as `|σ_k| ≤ Sg δ²` and `|q_k| ≤ 1 + Qq δ` (`L = 1 + 2 Sg + 2 Qq`, `0 < δ ≤ 1`).
 
-Statements (all **proved**; mpmath/python sanity runs: the one-step inequality on an Airy-like recurrence
+Statements (all **proved**; uncommitted mpmath/python sanity runs: the one-step inequality on an Airy-like recurrence
 `a = 1`, `c = 2 + δ²X`, `|X| ≤ 3`, `δ ∈ {0.2, 0.05}` with random defects (ratio of the two sides `≤ 0.85`), and
 the final bound of `jacobi_difference_bound` on 300 random coefficient sequences obeying its hypotheses
 (`δ ∈ {0.3, 0.1, 0.03}`, ratio of the two sides `≤ 0.96`)):
@@ -37,7 +37,8 @@ the final bound of `jacobi_difference_bound` on 300 random coefficient sequences
 `jac a c d = -κ jac a c ψ =: r` with `|r| ≤ ρ = |κ| C h² sup ψ` (hypothesis `hdef` of M4), `δ = h^{1/3}`.  If at the
 two top sites `d` is `ε`-small in the scaled sense, then on the `K - J ≲ A0 h^{-1/3}` steps down to `X = -A0` one
 gets `|d k| ≤ (ε' + 2 (K-J) ρ/(δ m)) exp (L δ (K-J))`: the inhomogeneous term is
-`h^{-1/3} · h² / h^{1/3} = h^{4/3}` and `exp (L δ (K-J)) = exp (L A0')` is the `e^{C A0}` of the plan.
+`h^{-1/3} · h² / h^{1/3} = h^{4/3}` and `exp (L δ (K-J)) = exp (L A0')` with `L ≈ 1 + 2 Sg'/m` and `Sg' ≈ A0` on the Airy window, i.e. `e^{O(A0²)}`: harmless
+for a statement quantified over `A0`, but not the `e^{C A0}` of the plan.
 
 **Why the structural hypotheses.**  Crude bounds `|c| ≤ C0`, `a ∈ [a_min, a_max]` do *not* suffice: for
 `c = 2.5 a` the recurrence `y_{k+1} = 2.5 y_k - y_{k-1}` has multipliers `2, 1/2` and `2^n` growth over the
@@ -118,7 +119,7 @@ theorem step_bound (y0 y1 y2 p q s δ Sg Qq : ℝ) (hδ : 0 < δ) (hδ1 : δ ≤
 /-- **Grönwall step along a window** (`discrete_gronwall` for the scaled state).  Rows `k0, …, K-1` of
 `y (k+1) = p k y k + q k y (k-1) + s k` with `|p k + q k - 1| ≤ Sg δ²`, `|q k| ≤ 1 + Qq δ`:
 for `k0 + n ≤ K`,
-`stateSize y δ (k0 + n) ≤ (stateSize y δ k0 + Sg_{i<n} (1 + 1/δ)|s (k0+i)|) · exp ((1 + 2Sg + 2Q) δ n)`. -/
+`stateSize y δ (k0 + n) ≤ (stateSize y δ k0 + ∑_{i<n} (1 + 1/δ)|s (k0+i)|) · exp ((1 + 2Sg + 2Q) δ n)`. -/
 theorem three_term_bound (y p q s : ℤ → ℝ) (δ Sg Qq : ℝ) (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hSg : 0 ≤ Sg) (hQ : 0 ≤ Qq)
     (k0 K : ℤ) (hrec : ∀ k ∈ Ico k0 K, y (k + 1) = p k * y k + q k * y (k - 1) + s k)
     (hσ : ∀ k ∈ Ico k0 K, |p k + q k - 1| ≤ Sg * δ ^ 2) (hq : ∀ k ∈ Ico k0 K, |q k| ≤ 1 + Qq * δ)

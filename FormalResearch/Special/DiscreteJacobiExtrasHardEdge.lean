@@ -14,7 +14,7 @@ chain with `A_{N+1} = 0` is `κ f1 + μ f2` (`exists_combination`), and the *sel
 `y = 1` (exact hyperbolicity `A_i + A_{i+1} ≤ c_i`).
 
 Statements (all **proved**; the ratio inequality itself is `backward_ratio`, nothing is re-derived; a mpmath
-sanity run on a random hard-edge chain checked `|Y_{i+1}| ≤ |Y_i|` and the sign of `Y_i Y_N`):
+uncommitted sanity run on a random hard-edge chain checked `|Y_{i+1}| ≤ |Y_i|` and the sign of `Y_i Y_N`):
 
 * `backward_ratio_int`: `backward_ratio` for `ℤ`-sequences `a c y` with window `Icc j N`, `1 ≤ j ≤ N`,
   `a > 0` on `Icc j N`, `a (N+1) = 0`, `y N ≠ 0`, constant-ratio supersolution
@@ -252,5 +252,13 @@ theorem recessive_selection_hardEdge_nat (A c Y : ℕ → ℝ) (j N : ℕ) (hj :
 /-- info: 'FormalResearch.DiscreteAiry.recessive_selection_hardEdge_nat' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.DiscreteAiry.recessive_selection_hardEdge_nat
+
+/-- info: 'FormalResearch.DiscreteAiry.hardEdge_abs_le_pow' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.DiscreteAiry.hardEdge_abs_le_pow
+
+/-- info: 'FormalResearch.DiscreteAiry.hardEdge_ne_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.DiscreteAiry.hardEdge_ne_zero
 
 end FormalResearch.DiscreteAiry

@@ -16,7 +16,7 @@ is solved for `y (k-1)`; this needs `a k ≠ 0`, and `k` runs from `N` down to `
 hypothesis is **`a k ≠ 0` for `k ∈ Icc lo N`** (the coefficient `a (N+1)` multiplies the *prescribed* value
 `y (N+1)` and may vanish; for uniqueness one needs `a ≠ 0` on `Icc lo (N+1)`, see `existsUnique_final_solution`).
 
-Statements (all **proved**, exact; mpmath 30-digit sanity run of the backward recursion on random data with
+Statements (all **proved**, exact; uncommitted mpmath 30-digit sanity run of the backward recursion on random data with
 residual `4e-31`):
 
 * `finalSol a c r u v N`: the explicit backward-recursive sequence (`finalSol .. N = u`, `finalSol .. (N+1) = v`);
