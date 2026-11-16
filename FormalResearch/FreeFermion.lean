@@ -4,3 +4,6 @@ public import FormalResearch.FreeFermion.W1Tridiagonal
 public import FormalResearch.FreeFermion.W1Heun
 public import FormalResearch.FreeFermion.W1ProjectorDictionary
 public import FormalResearch.FreeFermion.W1TwoLevel
+public import FormalResearch.FreeFermion.W1Krawtchouk
+public import FormalResearch.FreeFermion.W1Replica
+public import FormalResearch.FreeFermion.W1Bispectral
