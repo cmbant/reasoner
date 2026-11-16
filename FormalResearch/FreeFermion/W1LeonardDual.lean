@@ -26,7 +26,7 @@ for every chain whose pair satisfies the relation (Hahn: `W1Hahn`, folded Racah:
   non-adjacent pair `i ≠ j`, then `X` is **irreducible tridiagonal in `f`**: tridiagonal because the
   relation sandwiched between `f_i, f_j` kills `X_ij` unless the pair is adjacent, and nonzero links
   because a vanishing link would give a proper non-zero subspace invariant under `X` and `Y`, while
-  `X` diagonal with distinct eigenvalues and `Y` irreducible tridiagonal in `e` admit none
+  `X` diagonal with distinct eigenvalues and `Y` irreducible tridiagonal in `e` has none
   (`invariant_eq_bot_or_top`).
 * `leonard_heun` : the resulting instance of `heun_commutant`, with the eigenbasis `f` supplied.
 
