@@ -101,7 +101,7 @@ the ordered zeros `a_n` of `Ai`: `AiryGammaBounds`, `AiryZeroTaylor`, `AiryFirst
 midpoint); and the Airy side of the discrete-to-Airy limit: `AiryWt` (an explicit envelope weight `(2+|X|)^{-1/4} e^{-ξ}` with
 local constancy and lattice sums), `AiryShift` (the shift identity `y(X+s) = y(X) C + y'(X) S`), `AiryShiftTaylor` (Taylor
 expansions of `Ai`, `C`, `S` against the weight).  The Langer coordinate (`Langer*`), the discrete Jacobi calculus
-(`DiscreteJacobi*`) and the discrete-to-Airy comparison built on it (`AiryParametrix*`, `AiryRecessive*`, `AiryWindow*`)
+(`DiscreteJacobi*`) and the discrete-to-Airy comparison built on it (`AiryParametrix*`, `AiryRecessive*`, `AiryWindow*`, `DiscreteAiryLimit*`)
 are separate modules of `FormalResearch.Special`, not imported by this aggregate.  (Overlapping Gamma enclosures: `AiryBiNeg` and
 `AiryGammaBounds` each carry their own, with different constants.)
 
@@ -111,8 +111,10 @@ DLMF 9.9.18 for the zeros and sharp constants anywhere; the asymptotics of the g
 (existence and uniqueness are `airy_node_exists_unique`); Olver's own `N` and the value of the crossing point `c = -0.366…`
 (`airyCross > -1`); Olver-type uniform expansions; the Mellin moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the `Lp`-level
 operator `K_u`; the `Ai'` and `P Ai + Q Ai'` versions of the good-circle bound (E2); the first zero of `Bi` and `Bi > 0`
-beyond `-11/10`; the concrete Hahn/Racah/W1 wiring of the discrete-to-Airy modules, explicit constants, the Darboux
-normalisation `κ`, and analyticity of the Langer coordinate (see the design note).
+beyond `-11/10`; the open parts of the discrete-to-Airy chain: the link of (R) to the hard-edge solution, the identification
+of the Hahn/Racah closed forms with the `3j/6j` chains, the Darboux normalisation `κ` and `κ ≠ 0`, the non-recessive `Ai/Bi`
+pair and the full oscillatory side, uniformity over families, explicit constants, and analyticity of the Langer coordinate
+(see the design note).
 
 Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and the free-fermion edge
 (`Weyl/free_fermion`, `thm:edge`) need next, and what is now reachable.
@@ -137,9 +139,22 @@ Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and
   (the turn neighbourhood `X ~ h^{-2/3}` included), and its lattice and relative forms `≤ K h² |ψ_k|` (under
   `-1 ≤ h^{-2/3}ζ`); M5 the recessive discrete solution and second solution under the relative defect hypothesis
   `|jac ψ| ≤ C₀h²ψ` (`AiryRecessive*`); M6 the bounded oscillatory window by a discrete Grönwall march
-  (`discrete_airy_window`, asymptotic regime `δ ≤ δ₀`, `δ³ = h`; the constant is pessimistic, `e^{O(A0²)}`).  Open: the
-  concrete Hahn/Racah/W1 wiring (in progress: verifying the hypotheses `hdef`, `hdefW`, the junction data and the
-  near-hyperbolic constants for the actual chains), explicit constants, the Darboux normalisation `κ`, and analyticity of `ζ`.
+  (`discrete_airy_window`, asymptotic regime `δ ≤ δ₀`, `δ³ = h`; the constant is pessimistic, `e^{O(A0²)}`); and the wiring
+  layer (`DiscreteAiryLimit*`): `discrete_airy_limit`, an abstract simple-turn theorem composing M1–M7 (for one fixed
+  `u ∈ C³`, `A ∈ C²` with `u(c₀) = 1`, `u'(c₀) > 0`, `A(c₀) > 0`: the exact recessive solution is `g·Ai(h^{-2/3}ζ)` within
+  `O(δ³)` relative error on `X ≥ 0` and within `O(δ³)W` on a bounded oscillatory window `X ≥ -A₀`, the window positions
+  `X_J ≲ -A₀`, `X_m ≈ 0` being exported, and every solution with controlled end values is `κf + μf₂` with `μ` exponentially
+  small), `dal_conclusion_window` (its bounded-window form `Y = κg(Ai + O(h))`, from a polynomial bound `|Y_N|, |Y_{N+1}| ≤
+  δ^{-p}`, hypothesis (R), on the forbidden-end values), and the closed-form Hahn / centred Racah instance
+  `discrete_airy_hahn_racah(_window)` (simple-turn data from `1 - τx > 0`, `O(h²)` comparison of the closed-form `A_k, c_k`).
+  This covers the recessive solution with relative `O(h)` error and a bounded oscillatory window for one fixed `(u, A, c₀)`
+  under (R); it does **not** cover the non-recessive canonical `Ai/Bi` pair, the oscillatory side beyond the bounded window,
+  uniformity over families of shapes, the identification of `κ` (Darboux matching) or `κ ≠ 0`, nor the identification of the
+  closed forms with the actual `3j/6j` chains; constants are existential (window constant `e^{O(A0²)}`), so it is neither
+  the full GBVA nor the Geronimo asymptotics.  Open: the link of (R) to the hard-edge solution (`backward_ratio` with the
+  exact hyperbolicity would give monotone decay past the turn, but that link is not written, and the polynomial bound from the
+  `3j/6j` orthogonality is not connected), the
+  closed forms versus the actual chains, the Darboux normalisation `κ` and `κ ≠ 0`, explicit constants, and analyticity of `ζ`.
 * *Free-fermion edge*: the Airy kernel `K(x,y)`, `K(x,x) = Ai'² - x Ai²`, `(∂_x + ∂_y)K = -Ai(x)Ai(y)` and
   `∫_x^∞ Ai² = K(x,x)` are in place, and `K(x,y) = ∫_0^∞ Ai(x+s)Ai(y+s) ds` (hence positivity of `K`) is
   `airyKer_eq_integral` (real `x,y`) and `airyKerC_eq_integral` (complex `x,y`) in `AiryKernelOp*`.

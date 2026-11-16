@@ -47,9 +47,9 @@ the constant `windowConst` of `AiryWindowMain` is itself about `10⁵` larger: p
 the order `h^{1/3}`.  Because `δ₀` of `recessive_airy` (inherited from M5) is about `10⁻²` to `3·10⁻³` on the model chain,
 the theorem is asymptotic (`N ≳ 10⁶`), not a statement about small `N`.
 
-**Not formalised** here: the parametrix defect `hdef` on the window (supplied by the parametrix module `M4`; see
-`AiryWindowMain` for the precise gap), the Hahn/Racah coefficient hypotheses (see `window_hyperbolic_constants`),
-a sharper Grönwall norm (adapted to the Prüfer amplitude `|X|^{-1/4}`, which would replace `e^{O(A₀²)}` by a power),
+**Not formalised** here: the parametrix defect `hdef` on the window (supplied by `AiryParametrixUniform*` and the wiring
+layer `DiscreteAiryLimit*`; see `AiryWindowMain`), the Hahn/Racah coefficient hypotheses (supplied by `dal_window_hyp`
+and `hr_perturb`, `DiscreteAiryLimit*`), a sharper Grönwall norm (adapted to the Prüfer amplitude `|X|^{-1/4}`, which would replace `e^{O(A₀²)}` by a power),
 and the oscillatory side beyond a bounded window.
 -/
 

@@ -33,7 +33,8 @@ Numerics (mpmath 30 digits, model chain `a = 1`, `c = 2cosh√t`, `ψ = g Ai`): 
 on `X ∈ [-1,6]` the recessive solution differs from `ψ` by `0.0154 N^{-4/3}` relative, and
 `|(f-ψ)_k-(f-ψ)_{k+1}|/(hδψ_k) ≤ 0.003` at `X ≤ 1` (`N = 10³ … 10⁵`).
 
-**Not formalised:** `hdef` itself, `ψ ≍ airyWt` for `g Ai`, and the oscillatory side `X < -1` (up to the scalar `κ`: `discrete_airy_window` in `AiryWindowMain`).
+`hdef` and `ψ ≍ airyWt` for `ψ = g Ai` are supplied for a simple turn by the wiring layer (`dal_window_hyp`, `DiscreteAiryLimitSetup`; composed in `discrete_airy_limit`).
+**Not formalised:** the oscillatory side `X < -1` beyond a bounded window (`discrete_airy_window` in `AiryWindowMain`), and the identification of `κ`.
 -/
 
 @[expose] public section

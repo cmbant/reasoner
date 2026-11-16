@@ -20,7 +20,7 @@ numerics).  All **proved**; nothing about `Bi`.
 * `recessive_airy_selection`: everything packaged (the interface for the window lemma M6).
 
 **Not formalised:** the sharper `(1+X⁺)^{-1/2}` saving in the bound for `f₂`; the monotone decay hypothesis `|Y_{k₁}| ≤ |Y_{k₀}|`
-(from `hardEdge_abs_antitone`, M1b); the oscillatory side (`AiryWindow*`).
+(from `hardEdge_abs_antitone`, M1b; `discrete_airy_limit` instead takes a bound on the end values as hypothesis (R)); the oscillatory side is `AiryWindow*`.
 -/
 
 @[expose] public section

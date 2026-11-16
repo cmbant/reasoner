@@ -42,7 +42,8 @@ forbidden side" (`(F1)`-`(F3)`, `eq:forbidden-slope`, `eq:forbidden-const-ratio`
 
 The quantum-`6j` variant of `(F3)` (`sinh/cosh` bounds, `σ = tanh²`); the identification of the closed forms
 with the actual chains (`prop:hahn-class`, `prop:racah-class`); the *verification* part of (b), i.e.
-the explicit `D` and the product bound, `(c)` and everything about `Θ`, `ξ`, Airy and Olver; the Airy
+the explicit `D` and the product bound, `(c)` and everything about `Θ`, `ξ` and Olver (the Airy limit for the closed-form
+coefficients is `discrete_airy_hahn_racah` in `FormalResearch.Special.DiscreteAiryLimitHahn`, with its own obligations); the Airy
 input `|Ŷ_{k_1}| ≤ CN^{1/6}`.
 -/
 

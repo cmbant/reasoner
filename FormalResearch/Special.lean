@@ -55,6 +55,16 @@ public import FormalResearch.Special.AiryParametrixUniformODE
 public import FormalResearch.Special.AiryParametrixUniformPointwise
 public import FormalResearch.Special.AiryParametrixUniformDefect
 public import FormalResearch.Special.AiryParametrixUniformLattice
+public import FormalResearch.Special.DiscreteAiryLimitData
+public import FormalResearch.Special.DiscreteAiryLimitLattice
+public import FormalResearch.Special.DiscreteAiryLimitDefect
+public import FormalResearch.Special.DiscreteAiryLimitHyp
+public import FormalResearch.Special.DiscreteAiryLimitFields
+public import FormalResearch.Special.DiscreteAiryLimitSetup
+public import FormalResearch.Special.DiscreteAiryLimit
+public import FormalResearch.Special.DiscreteAiryLimitHahnTurn
+public import FormalResearch.Special.DiscreteAiryLimitHahn
+public import FormalResearch.Special.DiscreteAiryLimitWindow
 
 /-!
 # Special functions: Jacobi polynomials
@@ -80,5 +90,14 @@ turn, with the combined window-form defect (`AiryParametrixLanger`, M7a); the un
 `(1+|X|)³`, for every real `X` including the turn neighbourhood, by expanding the shift functions at fixed `ζ`, with its
 lattice and relative forms `≤ K h² |ψ_k|` (`AiryParametrixUniform*`, M7b); the recessive solution and second solution under a relative defect hypothesis (`AiryRecessive*`: kernel row
 sums, exact solution `f` with `|f-ψ| ≤ Cδ³ψ`, selection `Y = κf + μ f₂`), and the bounded oscillatory window by a discrete
-Grönwall march (`AiryWindow*`: `discrete_airy_window`, Taylor remainders of `Ai` on `[-A0,-1]`).
+Grönwall march (`AiryWindow*`: `discrete_airy_window`, Taylor remainders of `Ai` on `[-A0,-1]`); and the wiring layer that
+composes all of these for a simple turn (`DiscreteAiryLimit*`): `discrete_airy_limit` (for one fixed smooth `u, A` with
+`u(c₀) = 1`, `u'(c₀) > 0`, `A(c₀) > 0`: the exact recessive solution is `ψ = g·Ai(h^{-2/3}ζ)` within relative error `O(δ³)`
+on `X ≥ 0` and within `O(δ³)` of the weight `W` on a bounded oscillatory window `X ≥ -A₀`, with the window positions exported,
+and every solution with controlled end values is `κf + μf₂` with `μ` exponentially small), its bounded-window consequence
+`dal_conclusion_window`, and the closed-form Hahn / centred Racah instance `discrete_airy_hahn_racah(_window)`.  Scope: one
+fixed shape `(u, A, c₀)`, the recessive solution (not the non-recessive `Ai/Bi` pair), a bounded oscillatory window (not the
+full oscillatory side), hypothesis (R) on the forbidden-end values; `κ` is not identified (no Darboux matching, `κ ≠ 0` not
+proved), the closed forms are not identified with the actual `3j/6j` chains, constants are existential (window constant
+`e^{O(A₀²)}`); it is a replacement for neither the full GBVA nor the Geronimo asymptotics.
 -/

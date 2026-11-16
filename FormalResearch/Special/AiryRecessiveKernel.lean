@@ -33,10 +33,10 @@ mpmath check (30 digits, scripts and logs `m5_numerics/num1.py`, `num1.log` in t
 (`|jac ψ| ≤ C₀ h² ψ`), and `max_k Σ_i |K k i| / h ∈ [3·10⁻⁴, 2.7·10⁻³]`; `Q` above is therefore far from sharp, and `‖K‖ = O(h)`
 holds uniformly in the window length.
 
-**Not formalised:** the hypothesis `hdef` itself (parametrix defect `O(h²)`: the module M4), and `ψ ≍ airyWt`
-for the actual `ψ = g Ai` (needs `g ≍ 1`, supplied with the parametrix).  The parametrix defect is
-`airyParametrix_defect` (`AiryParametrixDefect`), in window form `K h²(1+|X|)³ airyWt` under an assumed amplitude relation:
-it gives `hdef` for bounded `|X|` only; the oscillatory side `X < -1` is `discrete_airy_window` (`AiryWindowMain`).
+The hypothesis `hdef` and `ψ ≍ airyWt` for the actual `ψ = g Ai` are supplied for a simple turn by the uniform defect
+(`airyParametrix_defect_uniform_rel`, M7b, with `langer_hrel`, M7a) and the wiring layer (`dal_window_hyp`,
+`DiscreteAiryLimitSetup`).  **Not formalised:** the oscillatory side `X < -1` beyond a bounded window
+(`discrete_airy_window`, `AiryWindowMain`), explicit constants.
 -/
 
 @[expose] public section

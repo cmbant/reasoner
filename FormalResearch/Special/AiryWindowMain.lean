@@ -35,21 +35,23 @@ Statements (all **proved**, explicit constants):
 
 The scalar `κ` is **not** determined here (it needs the Darboux/Wigner-`d` bulk matching; plan §0.3).
 
-**Hypotheses that are supplied elsewhere (precise gaps).**
+**Hypotheses that are supplied elsewhere.**  Items 1-3 below are now supplied for a simple turn (Langer data, lattice
+window, `O(h²)`-perturbed coefficients) by `dal_window_hyp` (`DiscreteAiryLimitSetup`), and `discrete_airy_limit`
+(`DiscreteAiryLimit`) composes them; the text records where each came from.
 1. The defect `hdef` on the top window (`ψ = g Ai`, `X ≥ -1`) is the parametrix module `M4` (`AiryParametrix*`).  On the
    oscillatory window the defect `|jac a c ψ| ≤ C₀ δ⁶ W` is *not* a consequence of M2's Taylor lemmas as stated:
    `airy_taylor4/5` (`AiryShiftTaylor`) cover base points `X ≥ -1` only (they use the envelope `airyAi_envelope_real`).
    The underlying `airy_sol_taylor4/5` are valid for all `X` given a sup bound `B` of the jet on the segment, and for
    `X ∈ [-A₀,-1]`, `|s| ≤ 1` the segment lies in `(-∞, 0]`, where `abs_airyAi_le_of_nonpos`, `abs_airyAi'_le_of_nonpos`
    (`AiryKernelOpSharp`) give `|Ai| ≤ 3`, `|Ai'| ≤ 5 (1+|x|)^{1/4} ≤ 5 (2+A₀)`; so the window version of the Taylor remainder is
-   available with `K = K(A₀)` polynomial in `A₀` (`airy_taylor4_window`, `airy_taylor5_window` of `AiryWindowTaylor`, **proved**), and the remaining work in M4 is the bookkeeping of the
-   coefficient jets (`g, ζ, a, c` are smooth across the turn: M3).
+   available with `K = K(A₀)` polynomial in `A₀` (`airy_taylor4_window`, `airy_taylor5_window` of `AiryWindowTaylor`, **proved**), and the bookkeeping of the
+   coefficient jets (`g, ζ, a, c` are smooth across the turn: M3) is done in M7 (`AiryParametrixUniform*`, `dal_exact_defect`).
 2. `|ψ_m - ψ_{m+1}| ≤ Λ δ W` (a Lipschitz bound at the junction, true for `ψ = g Ai` at bounded `X`) and `ψ_m ≤ W`.
 3. The near-hyperbolic constants `Sg, Qq` for the actual chains (Hahn/Racah, W1 class) via `window_hyperbolic_constants`.
 
-**Not formalised:** the parametrix defect hypotheses themselves (`hdef`, `hdefW`: module `M4`), `ψ ≍ airyWt` for `g Ai`,
-the value of `κ` (Darboux matching), `Sg, Qq` for the concrete Hahn/Racah/W1 chains (only the reduction
-`window_hyperbolic_constants`), the oscillatory side beyond a bounded window (full GBVA with `M/E` weights), and a
+**Not formalised:** the value of `κ` (Darboux matching), the identification of the Hahn/Racah/W1 closed forms with the
+actual chains and the link of the end-value hypothesis (R) to the hard-edge solution (see `discrete_airy_hahn_racah`),
+the oscillatory side beyond a bounded window (full GBVA with `M/E` weights), and a
 Grönwall norm adapted to the amplitude `|X|^{-1/4}` (would give power instead of `e^{O(A₀²)}` growth).
 
 **Numerics** (see `AiryWindow`; scripts in `/home/user/scratch/m6_numerics/`): model chain, actual `|f-ψ| ≈ 0.0163 h^{4/3}` on `X ∈ [-10,-1]`, independent of `A₀`;
