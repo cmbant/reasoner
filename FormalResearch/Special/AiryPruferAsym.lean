@@ -146,14 +146,13 @@ theorem airyAi'_zero_location_r {r : ℝ} (hr : 2 ≤ r) (hz : airyAi' (-(r ^ 2)
         apply div_le_div_of_nonneg_right _ hr3.le
         nlinarith [Real.sqrt_nonneg π, Real.pi_pos]
 
-/-- The corner data for the zero `b_n` of `Ai'` (`n ≥ 2`): its radius `√(-b)` lies between `ρ_n` and `ρ_{n+1}` and
-`|(2/3)√(-b)³ - (n + 1/4)π| ≤ 0.14`. -/
-lemma airyPrufer_corner (hθ : IsPruferLift (fun x => x) airyAi airyAi' θ) (h0 : 0 < θ 0) (h1 : θ 0 < π)
-    (hlo : π / 2 < θ 0) {n : ℕ} (hn : 2 ≤ n) :
-    ∃ b : ℝ, airyZero (n + 1) < b ∧ b < airyZero n ∧ θ b = -((n : ℝ) - 1) * π - π / 2 ∧
+/-- **Any zero of `Ai'` in the gap `(a_{n+1}, a_n)`** (`n ≥ 2`) has radius `r = √(-b) ∈ (ρ_n, ρ_{n+1})` and phase
+`|(2/3) r³ - (n + 1/4)π| ≤ 1.12/r³ ≤ 0.14`. -/
+lemma airyAi'_zero_phase_of_gap {n : ℕ} (hn : 2 ≤ n) {b : ℝ} (hb1 : airyZero (n + 1) < b)
+    (hb2 : b < airyZero n) (hz : airyAi' b = 0) :
+    airyZeroRoot n < √(-b) ∧ √(-b) < airyZeroRoot (n + 1) ∧
+      |2 / 3 * (√(-b)) ^ 3 - ((n : ℝ) + 1 / 4) * π| ≤ 1.12 / (√(-b)) ^ 3 ∧
       |2 / 3 * (√(-b)) ^ 3 - ((n : ℝ) + 1 / 4) * π| ≤ 0.14 := by
-  obtain ⟨b, hb1, hb2, hb3, hb4⟩ := airy_exists_airyAi'_zero hθ h0 h1 hlo (by omega : 1 ≤ n)
-  refine ⟨b, hb1, hb2, hb4, ?_⟩
   have hbneg : b < 0 := hb2.trans (airyZero_neg n)
   set r := √(-b) with hr
   have hr0 : 0 < r := Real.sqrt_pos.mpr (neg_pos.mpr hbneg)
@@ -165,9 +164,10 @@ lemma airyPrufer_corner (hθ : IsPruferLift (fun x => x) airyAi airyAi' θ) (h0 
   have hrσ : r < airyZeroRoot (n + 1) := by
     rw [hr, airyZeroRoot]
     exact Real.sqrt_lt_sqrt (neg_nonneg.mpr hbneg.le) (by linarith)
-  have hz : airyAi' (-(r ^ 2)) = 0 := by rw [hrsq, neg_neg]; exact hb3
-  obtain ⟨k, hk⟩ := airyAi'_zero_location_r (by linarith) hz
-  have hr3 : 8 < r ^ 3 := by nlinarith [pow_lt_pow_left₀ (hρ.trans hrρ) (by norm_num : (0 : ℝ) ≤ 2) (by norm_num : 3 ≠ 0)]
+  have hz' : airyAi' (-(r ^ 2)) = 0 := by rw [hrsq, neg_neg]; exact hz
+  obtain ⟨k, hk⟩ := airyAi'_zero_location_r (by linarith) hz'
+  have hr3 : 8 < r ^ 3 := by
+    nlinarith [pow_lt_pow_left₀ (hρ.trans hrρ) (by norm_num : (0 : ℝ) ≤ 2) (by norm_num : 3 ≠ 0)]
   have hT : 1.12 / r ^ 3 ≤ 0.14 := by rw [div_le_iff₀ (by positivity)]; nlinarith
   have hk' := abs_le.mp (hk.trans hT)
   have hρ3 := abs_le.mp (airyZero_phase_weak hn)
@@ -189,7 +189,15 @@ lemma airyPrufer_corner (hθ : IsPruferLift (fun x => x) airyAi airyAi' θ) (h0 
     have h2' : (n : ℤ) - 1 < k := by exact_mod_cast hk2
     omega
   rw [hkn] at hk
-  exact hk.trans hT
+  exact ⟨hrρ, hrσ, hk, hk.trans hT⟩
+
+/-- The corner data for the zero `b_n` of `Ai'` (`n ≥ 2`). -/
+lemma airyPrufer_corner (hθ : IsPruferLift (fun x => x) airyAi airyAi' θ) (h0 : 0 < θ 0) (h1 : θ 0 < π)
+    (hlo : π / 2 < θ 0) {n : ℕ} (hn : 2 ≤ n) :
+    ∃ b : ℝ, airyZero (n + 1) < b ∧ b < airyZero n ∧ θ b = -((n : ℝ) - 1) * π - π / 2 ∧
+      |2 / 3 * (√(-b)) ^ 3 - ((n : ℝ) + 1 / 4) * π| ≤ 0.14 := by
+  obtain ⟨b, hb1, hb2, hb3, hb4⟩ := airy_exists_airyAi'_zero hθ h0 h1 hlo (by omega : 1 ≤ n)
+  exact ⟨b, hb1, hb2, hb4, (airyAi'_zero_phase_of_gap hn hb1 hb2 hb3).2.2.2⟩
 
 /-- **Deviation of the Prüfer angle on a bracket `[a_{n+1}, a_n]`** (`n ≥ 2`): for `a_{n+1} ≤ x ≤ a_n`,
 `|θ(x) + (2/3)√(-x)³ - 3π/4| ≤ π/2 + 0.14`. -/
