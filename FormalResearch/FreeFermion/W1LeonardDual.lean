@@ -63,6 +63,35 @@ theorem exists_eigenbasis (hV : finrank 𝕜 V = Fintype.card ι)
   refine ⟨basisOfLinearIndependentOfCardEqFinrank hli hV.symm, fun i => ?_⟩
   simpa using (Module.End.mem_eigenspace_iff.mp (hv i).1)
 
+omit [Nonempty ι] in
+/-- The spectrum of an operator with an eigenbasis `f`, `Y f_i = y_i f_i`, is exactly `{y_i}`. -/
+theorem hasEigenvalue_iff_of_eigenbasis (f : Basis ι 𝕜 V) (Y : V →ₗ[𝕜] V) (y : ι → 𝕜)
+    (hYf : ∀ i, Y (f i) = y i • f i) (lam : 𝕜) :
+    Module.End.HasEigenvalue Y lam ↔ ∃ k, lam = y k := by
+  classical
+  constructor
+  · intro h
+    obtain ⟨v, hv⟩ := h.exists_hasEigenvector
+    obtain ⟨hvE, hv0⟩ := hv
+    have hvE' : Y v = lam • v := Module.End.mem_eigenspace_iff.mp hvE
+    obtain ⟨k, hk⟩ : ∃ k, f.repr v k ≠ 0 := by
+      by_contra hcon
+      push Not at hcon
+      apply hv0
+      apply f.repr.injective
+      ext k
+      simpa using hcon k
+    have hY : f.repr (Y v) k = y k * f.repr v k := by
+      conv_lhs => rw [← f.sum_repr v]
+      simp only [map_sum, map_smul, hYf]
+      simp [Finsupp.single_apply, mul_comm]
+    rw [hvE'] at hY
+    simp only [map_smul, Finsupp.smul_apply, smul_eq_mul] at hY
+    exact ⟨k, mul_right_cancel₀ hk hY⟩
+  · rintro ⟨k, rfl⟩
+    exact Module.End.hasEigenvalue_of_hasEigenvector
+      ⟨Module.End.mem_eigenspace_iff.mpr (hYf k), f.ne_zero k⟩
+
 end Eigenbasis
 
 section Spectrum

@@ -105,6 +105,12 @@ theorem hahnY_basis (hα : -1 < α) (hβ : -1 < β) (hN : 0 < N) (k : Fin (N + 1
     hahnY α β N (hahnBasis hα hβ hN k) = hahnEig α β N k • hahnBasis hα hβ hN k :=
   (hahn_exists_eigenbasis hα hβ hN).choose_spec k
 
+/-- **The spectrum of the Hahn chain is exactly `{k(k+α+β+1)/N² : 0 ≤ k ≤ N}`.** -/
+theorem hahnY_hasEigenvalue_iff (hα : -1 < α) (hβ : -1 < β) (hN : 0 < N) (lam : ℝ) :
+    Module.End.HasEigenvalue (hahnY α β N) lam ↔ ∃ k : Fin (N + 1), lam = hahnEig α β N k :=
+  hasEigenvalue_iff_of_eigenbasis (hahnBasis hα hβ hN) (hahnY α β N) (hahnEig α β N)
+    (hahnY_basis hα hβ hN) lam
+
 /-! ### The tridiagonal relation -/
 
 theorem hahnA_sq (hα : -1 < α) (hβ : -1 < β) (n : ℤ) (h1 : -1 ≤ n) (h2 : n ≤ N) :
@@ -265,6 +271,10 @@ theorem hahn_heun (α β : ℝ) (N : ℕ) (hα : -1 < α) (hβ : -1 < β) (hN : 
     (hahnEig_strictMono hα hβ hN) (hahnX_basis_e) (hahnY_basis hα hβ hN)
     (by rw [hahnY_matrix_e]; exact hahnChain_irreducible hα hβ hN)
     (hahn_dual_irreducible hα hβ hN) hK hM hW hP
+
+/-- info: 'FormalResearch.FreeFermion.hahnY_hasEigenvalue_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hahnY_hasEigenvalue_iff
 
 /-- info: 'FormalResearch.FreeFermion.hahn_hasEigenvalue' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

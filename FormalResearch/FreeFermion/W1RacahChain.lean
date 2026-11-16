@@ -92,6 +92,12 @@ noncomputable def racBasis (M : ℕ) : Basis (Fin (M + 1)) ℝ (Fin (M + 1) → 
 theorem racY_basis (k : Fin (M + 1)) : racY M (racBasis M k) = racEig M k • racBasis M k :=
   rac_exists_eigenbasis.choose_spec k
 
+/-- **The spectrum of the folded chain is exactly `{(2k)² : 0 ≤ k ≤ M}`** (`eq:model`: "both
+spectra are `{r² : r = 0, 2, …, L}`"). -/
+theorem racY_hasEigenvalue_iff (lam : ℝ) :
+    Module.End.HasEigenvalue (racY M) lam ↔ ∃ k : Fin (M + 1), lam = racEig M k :=
+  hasEigenvalue_iff_of_eigenbasis (racBasis M) (racY M) (racEig M) racY_basis lam
+
 /-! ### The tridiagonal relation -/
 
 /-- The diagonal identity at `n = 0, 1, ≥ 2`; the doubled link `a_0² = 2 Q(0)/16` is compensated at
@@ -224,6 +230,10 @@ theorem racah_heun (M : ℕ) {K K' R R' : Fin (M + 1)} (hK : K ⋖ K') (hR : R �
   exact heun_commutant (Pi.basisFun ℝ (Fin (M + 1))) (racBasis M) (racXop M) (racY M) W P
     (fun n => 4 * ((n : ℕ) : ℝ) ^ 2) (racEig M) hmono racEig_strictMono racX_basis_e
     racY_basis (by rw [racY_matrix_e]; exact racChain_irreducible) rac_dual_irreducible hK hR hW hP
+
+/-- info: 'FormalResearch.FreeFermion.racY_hasEigenvalue_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms racY_hasEigenvalue_iff
 
 /-- info: 'FormalResearch.FreeFermion.racChain_hasEigenvalue' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
