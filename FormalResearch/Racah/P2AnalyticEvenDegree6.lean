@@ -22,10 +22,10 @@ In `ε = S⁻¹`, `δ = (A-B)/S`: `u = 4ε²/(1+δ)²`, `v = 4ε²/(1-δ)²`, `w
 denominator bound.
 
 * `ptPoly_inFil`: `P̃_{m+d}` is in the weight-`d` filtration `InFil d` (all `m, n`);
-* `evenRacah6_coeff_form`: **the degree bound of `lem:evendeformation6j`**: the coefficient of `ς^{d-j}` of `q_d`
+* `evenRacah6All_coeff_form`: **the degree bound of `lem:evendeformation6j`**: the coefficient of `ς^{d-j}` of `q_d`
   at `(u,v,w) = (4ε²/(1+δ)², 4ε²/(1-δ)², 4ε²/(1-δ²))` is `∑_{s ≤ j} ε^{2s} M_s(δ²)/(1-δ²)^j` with
   `M_s ∈ ℝ[X]` independent of `ε, δ`;
-* `evenRacah6Eval`, `evenRacah6Eval_eq_AB`: `q_d(ς; ε, δ)` and its relation to `A, B`;
+* `shapeEval`, `shapeEval_eq_AB`: `q_d(ς; ε, δ)` and its relation to `A, B`;
 * `evenRacah6All_bound`: **`eq:evendeformationbound`**, in every chamber (`q_d = evenRacah6All`), for
   `0 < ε ≤ 1`, `|δ| ≤ δ₀ < 1`, `0 ≤ ς ≤ 1`.
 

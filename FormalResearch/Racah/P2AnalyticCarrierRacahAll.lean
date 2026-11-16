@@ -29,7 +29,7 @@ the reduced system, with Jacobi parameters `(M-N, M+N) = (|m-n|, |m+n|)` in ever
 * `Phi6_eq_kLeadAll_mul_evenRacah6`: at every physical point `Φ_f = E W Π_f^{-1/2} k_{6j} q_d(ς; A⁻², B⁻², (AB)⁻¹)`
   with the reduced edges, in every chamber.
 
-Not formalised: the analytic estimate `eq:evendeformationbound` (see `P2AnalyticEvenDegree6`).
+The degree bound and the estimate `eq:evendeformationbound` are in `P2AnalyticEvenDegree6` (`evenRacah6All_coeff_form`, `evenRacah6All_bound`). Not formalised: the difference operator `ℒ_ε` of the paper's proof of `lem:evendeformation6j` (not needed here).
 -/
 
 @[expose] public section
