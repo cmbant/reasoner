@@ -13,6 +13,8 @@ public import FormalResearch.Special.AiryKernelOpOperator
 public import FormalResearch.Special.AiryKernelOpComplex
 public import FormalResearch.Special.AiryBridge
 public import FormalResearch.Special.AiryNodes
+public import FormalResearch.Special.AiryEnvelope
+public import FormalResearch.Special.AiryEnvelopeReal
 
 /-!
 # The Airy function: aggregate and design note
@@ -26,11 +28,13 @@ solution of `y'' = x y`, ODE uniqueness; independent of the definition), `AiryId
 limits), `AiryPositive` (two-sided bounds, `Ai > 0`, `Ai' < 0` on `[0,∞)`), `AiryZeros` (zeros are real and
 negative), `AiryRotation` (`Ai(z) + ω Ai(ωz) + ω² Ai(ω²z) = 0`, `Bi`, Wronskian constant), `AiryKernelOp{Formula,Bounds,Operator,Complex}`
 (the Airy kernel as a Gram integral `∫_0^∞ Ai(x+t)Ai(y+t)dt` for real and complex `x,y`, diagonal bounds, `∫_u^∞ K(s,s)ds`,
-Hilbert–Schmidt/trace finiteness and positivity of the quadratic form).
+Hilbert–Schmidt/trace finiteness and positivity of the quadratic form), `AiryEnvelope*` (free-parameter bound for every `c > 0`; the complex envelope `|Ai(z)| ≲ (1+|z|)^{-1/4} e^{-(2/3) Re z^{3/2}}` on all of `ℂ`,
+the same for `Ai'`, order `3/2`; `Ai > 0` on `[-1, ∞)` and the two-sided real-axis envelope there).
 
 **Not formalised:** `Ai(0) = 3^{-2/3}/Γ(2/3)`, `Ai'(0)`, the value `W(Ai, Bi) = 1/π` (only `-2√3 Ai(0)Ai'(0) > 0`
-is proved), `Bi` asymptotics, `Ai` for `x < 0` (oscillation, `|x|^{-1/4}` envelope, zero asymptotics), sector
-bounds `|Ai(z)| ≲ |z|^{-1/4} e^{-(2/3) Re z^{3/2}}` and Olver-type uniform expansions, `∫_0^∞ Ai = 1/3`.
+is proved), `Bi` asymptotics, `Ai` for `x < 0` (oscillation, lower envelope `|x|^{-1/4}`, zero asymptotics; only the upper
+envelope on `ℂ` and positivity on `[-1, ∞)` are proved), lower bounds for `|Ai(z)|` off the real axis, Olver-type
+uniform expansions, `∫_0^∞ Ai = 1/3`.
 
 Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and the free-fermion edge
 (`Weyl/free_fermion`, `thm:edge`) need next, and what is now reachable.
