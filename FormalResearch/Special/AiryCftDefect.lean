@@ -13,6 +13,8 @@ enclosing the zeros `a_1, …, a_N` of `Ai`,
 `A₊ = ∫_{upper semicircle, R → -R} f R₊ du`, `A₋ = ∫_{lower semicircle, -R → R} f R₋ du`,
 `R_± = (Bi ∓ iAi)/Ai`,
 
+(the exact identity is an intermediate step of the proof of `airy_defect_bound`, not a separate Lean statement; the Lean
+statement is the consequence)
 and hence `|P_R(f) - I_R(f)| ≤ π R M` whenever `|f R_±| ≤ M` on the respective half circles
 (`airy_defect_bound`; with the good-circle bounds `|R_±| e ≤ 30√π` of `AiryRatioBounds`, `M = 30√π · sup |f|/e`).
 
