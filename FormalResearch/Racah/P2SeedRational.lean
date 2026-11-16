@@ -16,7 +16,8 @@ Regge and transposition covariance extends the same operator to every nondegener
 chamber `M ≥ |σ|` only.  This file proves, for `M ± σ` integers with `L₀ = max(|M|,|σ|) > 0`
 (all chambers, all half-integer labels):
 
-* `link3_zero_all` (**the seed-row link in every chamber**): for `α = |M-σ|`, `β = |M+σ|`,
+* `link3_zero_all` (**the seed-row link in every chamber**; stated for `α = |M-σ|`, `β = |M+σ|` natural, with no
+  `L₀ > 0` hypothesis; `L₀ > 0` is used only in `allorder_operators_seed_psi_rat`): for `α = |M-σ|`, `β = |M+σ|`,
   `f_{2r}^{(0)}(x) = κ_r(x) d^{L₀}_{Mσ}(x)` on `(-1,1)`, `κ_r = [t^r] exp(∑ ℓ_s t^s)` (`expCoeff (seedEll α β) r`).
   The extremal chamber is `f3even_zero_eq_expCoeff_mul`; the other chambers follow by the exact
   Regge, sign and transposition scalings of `f3even` (`f3even_regge`, `f3even_negMσ`, `f3even_swap`), under which

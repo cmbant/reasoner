@@ -10,6 +10,9 @@ Every real sequence `Ξ` satisfying the Laguerre recurrence at spectral paramete
 natural-number convention `0 - 1 = 0`, reads `√(p+1) Ξ_1 = (p+1) Ξ_0`), is a scalar multiple of
 `laguerreRegular p` (`Ξ_n = (Ξ_0 / Ξ^{reg}_0) Ξ^{reg}_n`), for every real `p > -1`.  Claim class: proved.
 The proof is the forward induction: the coefficient of `Ξ_{n+1}` is positive.
+The paper states it for `p = p_+ ∈ ℕ`; the formal statement holds for every real `p > -1`.
+*Not formalised:* that the physical `3j`/`6j` edge functions solve this recurrence (`eq:3jdiff`
+identification), i.e. the application of the uniqueness to the physical kernels.
 -/
 
 @[expose] public section
