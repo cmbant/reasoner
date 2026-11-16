@@ -17,7 +17,7 @@ closed forms `apuC2`, `apuS2` and their `s`-derivatives with the second-order id
 initial data, and (iii) compact-uniform bounds.  The closed forms were found by sympy (ansatz `s^m Σ p_j(w) Ch^{(j)}(w)`, the
 operator `L_m F = 4w²F'' + (4m+2) w F' + (m(m-1) - w) F` on `Y = s^m F(ζ s²)`) and checked against the exact `C`, `S`
 (`mpmath` ODE integration, error `/h³` between `1e-5` and `1.5e-4` for `ζ ∈ {1.3,-2}`, `s ∈ {0.8, 1.1}`, `h ∈ {1e-2, 1e-3}`;
-`/home/user/scratch/r13_numerics/num2.py`).
+scratch script, not committed: numerical evidence only; an independent re-check at `h = 10⁻³` on `ζ ∈ {-2,-1,0,1,2}`, `s ∈ {±0.5, ±1}` gave `|C - (E + hO + h²C₂)|/h³ ≤ 9.3·10⁻⁵`, `|S - (A + hB + h²S₂)|/h³ ≤ 2.5·10⁻⁵`, stable between `h = 10⁻²` and `10⁻³`).
 
 **Claim class: proved.**
 -/

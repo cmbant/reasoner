@@ -13,6 +13,14 @@ For a real solution `(y, y')` of `y'' = x y` (the exact shift identity, `airy_sh
 (`airy2_identity`; the minus link is the plus link at `-t`, by the definitional parity of the scaled shift functions).
 `airy2_defect_of_AB` turns `|𝔄|, |𝔅| ≤ K |h|³` into `|row defect| ≤ K' |h|³ w(X)` for every solution with the envelope bounds
 `|y| ≤ C_y w`, `|y'| ≤ C_{y'} √(2+|x|) w` (`t √(2+|z₀/t²|) ≤ √(2+Z₀)`).  **Claim class: proved.**
+
+**Not formalised** (this chain stops at the abstract and the generic-solution level): the `q`-level assembly of the `LinkData`
+hypotheses over the lattice from the jets of `ζ, g, A, q₁, p, A₂` (the eikonal and transport conditions are *hypotheses* of
+`pair_A`/`pair_S`); the paper-form row-defect theorem for `Ai`, `Bi` on the lattice and its conversion to the shifted form
+`g Ai(X + h^{4/3} q₁/g)`; the wiring of the resulting `δ^9` defects into `dao_pair_rate`/`dai_full_rate` at `n = 1`; the existence of
+the regular solution `q₁` of the transport equation (Olver `B₀` analysis, an input here); and the Hahn-polynomial instance with
+second-order coefficient closeness.  So no second-order discrete-to-Airy bracket is claimed: only the abstract rate machinery
+(`DiscreteAirySecondAbstract`) and the analytic ingredients are proved.
 -/
 
 @[expose] public section
