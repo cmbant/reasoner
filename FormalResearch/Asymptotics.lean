@@ -4,6 +4,7 @@ public import FormalResearch.Asymptotics.UniformExpansion
 public import FormalResearch.Asymptotics.TaylorUniform
 public import FormalResearch.Asymptotics.AnalyticGerm
 public import FormalResearch.Asymptotics.Examples
+public import FormalResearch.Asymptotics.DominatedSeries
 public import FormalResearch.Asymptotics.CenteredPowerSum
 public import FormalResearch.Asymptotics.LogSeries
 public import FormalResearch.Asymptotics.GeometricExpansion
@@ -21,6 +22,8 @@ Aggregate module for `FormalResearch/Asymptotics/`:
 * `AnalyticGerm`: the bridge `f z i = G (z, ε i)` with `G` smooth/analytic implies
   `HasUniformExpansion f (taylorCoeff G) ε l K`;
 * `Examples`: the `3j` even expansion of Weyl P2 (`thm:3jeven`) as a corollary;
+* `DominatedSeries`: uniform Tannery theorem for finite sums with varying index sets (used by the
+  Mehler–Heine formula, `FormalResearch/Special/JacobiMehlerHeine.lean`);
 * `CenteredPowerSum`: `S_{2r}(p) = ∑_{q=-(p-1)/2}^{(p-1)/2} q^{2r} = 2B_{2r+1}((p+1)/2)/(2r+1)`;
 * `LogSeries`: Mercator series `∑ log(1 - y_i) = -∑_n (∑ y_i^n)/n` for a finite family;
 * `GeometricExpansion`: a convergent power series with geometrically bounded coefficients is a
