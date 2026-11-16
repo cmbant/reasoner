@@ -34,8 +34,9 @@ The identification of `κ_r` with the local-calculus coefficients (`f_{2r}^{(0)}
 `ψ_{2r} = κ_r - 𝒥(𝖡_{2r})d/d` at the seed row) is `f3even_zero_eq_expCoeff_mul` in
 `P2SeedMultiplierLink`.
 
-Not covered: this is the seed (extremal rank `L = M`, `k = 0`) statement only, in the chamber
-`M ≥ |σ|`; rationality of `ψ_{2r}` is not shown.
+This file is the seed (extremal rank `L = M`, `k = 0`) statement in the chamber `M ≥ |σ|`; the same
+statements in every chamber (`α = |M-σ|`, `β = |M+σ|`) are in `P2SeedAllChambers`.  Rationality of `ψ_{2r}`
+is not shown.
 -/
 
 @[expose] public section
