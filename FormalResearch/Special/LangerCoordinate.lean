@@ -178,7 +178,8 @@ noncomputable def langerA (F : ℝ → ℝ) (c q : ℝ) : ℝ :=
   (3 / 2 * hadInt (fun t => √t) (fun s => √(dslope F c s)) c q) ^ (1 / 3 : ℝ)
 
 /-- The Langer coordinate of a function `F` with a simple zero at `c`: `ζ = (q-c) a²`,
-which is `(3/2 ∫_c^q √|F|)^{2/3}` with sign (see `langerZetaOf_spec`). -/
+which is `(3/2 ∫_c^q √|F|)^{2/3}` with sign (see `langerZetaOf_spec`).  It takes junk values away from `c`:
+all statements about it are local, on a ball about `c` where `dslope F c > 0`. -/
 noncomputable def langerZetaOf (F : ℝ → ℝ) (c q : ℝ) : ℝ := (q - c) * langerA F c q ^ 2
 
 lemma hasDerivAt_langer_aux {K : ℝ → ℝ} {c ρ q : ℝ} (hK : ContDiffOn ℝ 1 K (ball c ρ))
@@ -399,7 +400,7 @@ theorem langerZetaOf_integral {F : ℝ → ℝ} {c : ℝ} {m : ℕ} (hm : 1 ≤ 
 noncomputable def langerF (u : ℝ → ℝ) (q : ℝ) : ℝ := langerPhi (u q - 1)
 
 /-- The Langer coordinate `ζ` (zero at the turning point `c`, positive on the forbidden side `q > c`):
-`ζ ζ'² = F`, equivalently `(2/3) sgn(ζ) |ζ|^{3/2} = ∫_c^q √|F|` (the latter is not proved here). -/
+`ζ ζ'² = F`, equivalently `(2/3) sgn(ζ) |ζ|^{3/2} = ∫_c^q √|F|` (`langerZeta_integral`); meaningful only near `c`. -/
 noncomputable def langerZeta (u : ℝ → ℝ) (c : ℝ) : ℝ → ℝ := langerZetaOf (langerF u) c
 
 lemma contDiffAt_langerF {u : ℝ → ℝ} {c : ℝ} {n : ℕ} (hu : ContDiffAt ℝ n u c) (h1 : u c = 1) :
