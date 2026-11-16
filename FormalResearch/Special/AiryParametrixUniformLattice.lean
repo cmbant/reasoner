@@ -17,6 +17,9 @@ consumers (M5/M6), with the *same* hypotheses as `airyParametrix_defect_lattice`
   `X_k ≥ -1` (`Ai ≥ airyWt/20` there, and `g² ≥ 1/(1 + sup|A ζ' Sh|)` from the amplitude relation).
 
 Proved.  On the oscillatory side `X < -1` `ψ` has zeros, so only the weight form is stated there.
+
+Not formalised: explicit constants (`K`, `h₀` are existential, as in `airyParametrix_defect_lattice`), the construction
+of `g` satisfying the amplitude relation `hrel` (a hypothesis), and a relative form on `X_k < -1` (impossible: `ψ` has zeros).
 -/
 
 @[expose] public section
