@@ -11,13 +11,14 @@ public import FormalResearch.Special.DiscreteAiryUnifAmp
 
 **Theorem** (`discrete_airy_full_unif`).  For fixed `ρ, Ku, m, aLo, aHi, KA, E` (`ρ, Ku, m, aLo > 0`, `aLo ≤ aHi`, `KA, E ≥ 0`) there are
 `r ≤ ρ`, `δ₀, C, C_μ, ξ₀ > 0`, depending **only** on these, such that for **every** `(u, A, c)` in the datum class the conclusion of
-`discrete_airy_full` holds (canonical `langerZeta`, `langerAmp`): for `δ ≤ δ₀`, every `q₀`, indices `J < N`, `J ≤ m' ≤ N`,
-`q_J ∈ [c - r, c - r + δ³)`, `q_{m'} ∈ [c, c + δ³)`, `q_N ≥ c + r/4`, `q_{N+1} ≤ c + r/2`, and for all `a, c'` within `Eδ⁶` of the exact
+`discrete_airy_full` holds (canonical `langerZeta`, `langerAmp`): for `δ ≤ δ₀` and every `q₀` there *exist* indices `J < N`, `J ≤ m' ≤ N`
+with `q_J ∈ [c - r, c - r + δ³)`, `q_{m'} ∈ [c, c + δ³)`, `q_N ≥ c + r/4`, `q_{N+1} ≤ c + r/2`, and for all `a, c'` within `Eδ⁶` of the exact
 coefficients on the rows, the unified conclusion `DaiFull` (unique recessive `f`, unique dominant `F₂`, `|f - gAi| ≤ Cδ³ airyWt`,
 `|F₂ - gBi| ≤ Cδ³ airyBiWt`, Casoratian `≥ δ/C`, every solution `κf + μF₂` with `|μ| ≤ Cmu Y_max e^{-ξ(X_N)}/δ`).
 
 Hence uniformity over any family `(u_s, A_s, c_s)_{s ∈ S}` whose datum-class constants are uniform (e.g. a continuous family over a compact
-`S`: the jets, `u'(c_s) ≥ m`, `a_±` are uniform by compactness).  Mechanism: `discrete_airy_full_win` (constants explicit in the window
+`S`: the jets, `u'(c_s) ≥ m`, `a_±` are uniform by compactness; this general compactness remark is **not formalised**, only the Hahn family
+is verified to lie in the datum class, `hahn_datum_unif`).  Mechanism: `discrete_airy_full_win` (constants explicit in the window
 data and jet bounds), `dun_chart` (the Langer coordinate on an explicit ball with explicit jets), `dun_amp`, `langerAmp_eq_rel`; the
 only absolute (data-free) inputs are existential constants of the analytic functions `Φ = langerPhi` (analytic at `0`) and `Sh`.
 
