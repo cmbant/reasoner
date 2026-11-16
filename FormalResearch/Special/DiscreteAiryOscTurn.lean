@@ -22,6 +22,20 @@ Smooth data `u ∈ C³`, `A ∈ C²` at a simple turn `c₀` (`u(c₀) = 1`, `u'
 **Claim class: proved.**  Constants are existential; `C δ³` is the *amplitude-adapted Olver form* on the oscillatory side
 (`airyWt, airyBiWt ≍ (2+|X|)^{-1/4}` for `X ≤ 0`).  The accumulated phase error is `O(δ³)` relative, i.e. `O(h)`; the `h²` phase
 coefficient is *not* resolved by this Airy parametrix.
+
+**Hypotheses are on the whole macroscopic window.**  The coefficient closeness `|a_k - A(q_k - δ³/2)| ≤ Eδ⁶`,
+`|c_k - 2A(q_k)u(q_k)| ≤ Eδ⁶` is required on every row `J+1..N+1` (`q ≥ c₀ - r`), not only on `X ≥ -A₀` as in `discrete_airy_limit`.
+Mpmath check (scratch, not a Lean claim; model chain of `DiscreteAiryLimit`, `A = 1 + 0.3q + 0.2q²`, `u = cosh√(q + 0.4q²)`,
+`c₀ = 0`, `h = δ³ = 10⁻³…10⁻⁶`, `f` by backward recursion from `q ≈ 0.12`, `F₂` from two sites at the turn, `q_J ≈ -0.5`, i.e.
+`X` down to `≈ -4700`): `sup |f - g Ai|/(h airyWt)` and `sup |F₂ - g Bi|/(h airyBiWt)` stay `≈ 0.018` for every `h`
+and every `X` sampled (also with `±3h²` perturbations of `a, c`).
+
+**Not formalised.**  The Darboux normalisation of `κ` and `κ ≠ 0`; identification of `f` with the recessive `f` of
+`discrete_airy_limit` (both are the exact solution with prescribed values at `N, N+1`, up to normalisation); the comparison of `F₂`
+and `Y` with the parametrix at the site `N+1` (the decomposition `Y = κ f + μ F₂` holds on `[J, N+1]`, the parametrix bounds on
+`[J, N]`); explicit constants and uniformity in families of data; the `h²` phase coefficient `ϖ`; and the application to the
+physical Hahn/Racah chains (their `Eδ⁶` coefficient closeness is established in `discrete_airy_hahn_racah` only on the window
+`X ≥ -A₀` and is not re-derived on the whole window `[c₀ - r, c₀]`).
 -/
 
 @[expose] public section
