@@ -57,6 +57,10 @@ theorem dao_up (hP : DaoPair X g a c J N δ c1 c2 gmin gmax ca K M) {b : ℤ} {�
     (hΛ : 475 * gmax * K * δ ^ 6 * (8 * √(2 + M) / (c1 * δ ^ 2)) / γ ≤ Λ)
     (hY : ∀ k ∈ Icc (b + 1) N, jac a c Y k = 0) :
     ∀ k ∈ Icc b N,
+      Real.exp (-2 * airyXi (X k)) * |vocA a Y (daoPhi g X) (daoPsi g X) k - vocA a Y (daoPhi g X) (daoPsi g X) b| +
+          |vocB a Y (daoPhi g X) (daoPsi g X) k - vocB a Y (daoPhi g X) (daoPsi g X) b| ≤
+        (Real.exp (-2 * airyXi (X b)) * |vocA a Y (daoPhi g X) (daoPsi g X) b| +
+          |vocB a Y (daoPhi g X) (daoPsi g X) b|) * (Real.exp Λ - 1) ∧
       |Y k - vocA a Y (daoPhi g X) (daoPsi g X) b * daoPhi g X k -
           vocB a Y (daoPhi g X) (daoPsi g X) b * daoPsi g X k| ≤
         450 * gmax * (Real.exp (-2 * airyXi (X b)) * |vocA a Y (daoPhi g X) (daoPsi g X) b| +
@@ -171,6 +175,7 @@ theorem dao_up (hP : DaoPair X g a c J N δ c1 c2 gmin gmax ca K M) {b : ℤ} {�
   set βk := vocB a Y (daoPhi g X) (daoPsi g X) k
   have e : Y k - α0 * daoPhi g X k - β0 * daoPsi g X k =
       (αk - α0) * daoPhi g X k + (βk - β0) * daoPsi g X k := by rw [hrep]; ring
+  refine ⟨hE2, ?_⟩
   rw [e]
   have hwb := airyBiWt_pos (X k)
   have hωk : 0 < ω k := Real.exp_pos _
@@ -197,6 +202,10 @@ theorem dao_down (hP : DaoPair X g a c J N δ c1 c2 gmin gmax ca K M) {b : ℤ} 
     (hΛ : 475 * gmax * K * δ ^ 6 * (8 * √(2 + M) / (c1 * δ ^ 2)) / γ ≤ Λ)
     (hY : ∀ k ∈ Icc (J + 1) b, jac a c Y k = 0) :
     ∀ k ∈ Icc J b,
+      |vocA a Y (daoPhi g X) (daoPsi g X) k - vocA a Y (daoPhi g X) (daoPsi g X) b| +
+          Real.exp (2 * airyXi (X k)) * |vocB a Y (daoPhi g X) (daoPsi g X) k - vocB a Y (daoPhi g X) (daoPsi g X) b| ≤
+        (|vocA a Y (daoPhi g X) (daoPsi g X) b| +
+          Real.exp (2 * airyXi (X b)) * |vocB a Y (daoPhi g X) (daoPsi g X) b|) * (Real.exp Λ - 1) ∧
       |Y k - vocA a Y (daoPhi g X) (daoPsi g X) b * daoPhi g X k -
           vocB a Y (daoPhi g X) (daoPsi g X) b * daoPsi g X k| ≤
         450 * gmax * (|vocA a Y (daoPhi g X) (daoPsi g X) b| +
@@ -310,6 +319,7 @@ theorem dao_down (hP : DaoPair X g a c J N δ c1 c2 gmin gmax ca K M) {b : ℤ} 
   set βk := vocB a Y (daoPhi g X) (daoPsi g X) k
   have e : Y k - α0 * daoPhi g X k - β0 * daoPsi g X k =
       (αk - α0) * daoPhi g X k + (βk - β0) * daoPsi g X k := by rw [hrep]; ring
+  refine ⟨hE2, ?_⟩
   rw [e]
   have hwt := airyWt_pos (X k)
   have hωk : 0 < ω k := Real.exp_pos _
