@@ -230,4 +230,12 @@ theorem tendsto_integral_airyAi_symm :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.tendsto_integral_airyAi_interval
 
+/-- info: 'FormalResearch.Special.tendsto_integral_airyAi_symm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.tendsto_integral_airyAi_symm
+
+/-- info: 'FormalResearch.Special.integrableOn_airyAi_Ioi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.integrableOn_airyAi_Ioi
+
 end FormalResearch.Special

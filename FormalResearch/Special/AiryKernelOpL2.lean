@@ -15,12 +15,12 @@ the function-level content of "`K_u` is a bounded self-adjoint operator on `L²(
   `K(x,·) ∈ L²(u,∞)` for every `x` because `K(x,y)² ≤ K(x,x)K(y,y)`);
 * `integral_airyKerOp_sq_le`: `K_u f ∈ L²(u,∞)` and **`‖K_u f‖² ≤ N_Ai(u)² ‖f‖²`**, `N_Ai(u) = Tr K_u`
   (Hilbert–Schmidt bound `∫∫K² ≤ N_Ai(u)²` of `AiryKernelOpOperator`);
-* `airyKerForm_abs_le`, `airyKerForm_comm`: the bilinear form `B_u(g,f) = ∫_u^∞∫_u^∞ g(x) K(x,y) f(y) dy dx` is
-  absolutely convergent for `g, f ∈ L²(u,∞)`, `|B_u(g,f)| ≤ N_Ai(u) ‖g‖ ‖f‖` (via `|K(x,y)| ≤ √(K(x,x)K(y,y))`,
+* `airyKerForm_sq_le`, `airyKerForm_comm`: the bilinear form `B_u(g,f) = ∫_u^∞∫_u^∞ g(x) K(x,y) f(y) dy dx` is
+  absolutely convergent for `g, f ∈ L²(u,∞)`, `B_u(g,f)² ≤ N_Ai(u)² ‖g‖² ‖f‖²` (via `|K(x,y)| ≤ √(K(x,x)K(y,y))`,
   trace bound), and **symmetric** `B_u(g,f) = B_u(f,g)` (self-adjointness of `K_u`).
 
 Positivity `⟨f, K_u f⟩ ≥ 0` for all `f ∈ L²` is `airyKerForm_self_nonneg` (continuity of `B_u` in `L²` plus the
-existing compact-support case `airyKer_quadForm_nonneg_Ioi`).
+existing compact-support case `airyKer_quadForm_nonneg`).
 
 **Not formalised:** `K_u` as an element of `Lp ℝ 2 →L[ℝ] Lp ℝ 2`, the factorisation `K_u = A_u A_u^*`,
 eigenvalues/Fredholm determinant.
@@ -390,5 +390,9 @@ theorem airyKerForm_self_nonneg (u : ℝ) {f : ℝ → ℝ} (hf : Measurable f)
 /-- info: 'FormalResearch.Special.airyKerForm_sq_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyKerForm_sq_le
+
+/-- info: 'FormalResearch.Special.airyKerOp_sq_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyKerOp_sq_le
 
 end FormalResearch.Special

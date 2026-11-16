@@ -198,4 +198,8 @@ theorem tendsto_integral_airyAi_mul_airyAi_shift {t : ℝ} (ht : t ≠ 0) :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.tendsto_integral_airyAi_mul_airyAi_shift
 
+/-- info: 'FormalResearch.Special.integral_airyAi_sq_mul_exp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.integral_airyAi_sq_mul_exp
+
 end FormalResearch.Special
