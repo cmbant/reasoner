@@ -3,7 +3,7 @@ module
 public import FormalResearch.Special.AiryZeroSpacing
 
 /-!
-# The Prüfer angle of `Ai` on the negative axis: `θ(-y) = -(2/3) y^{3/2} + 3π/4 + O(1)`, with sharp amplitude `π/2`
+# The Prüfer angle of `Ai` on the negative axis: `θ(-y) = -(2/3) y^{3/2} + 3π/4 + O(1)`, with amplitude at most `π/2 + 0.14`
 
 Let `θ` be a Prüfer angle of `(Ai, Ai')` (`Ai = r sin θ`, `Ai' = r cos θ`, `θ' = cos²θ + y sin²θ` at `x = -y`) normalised by
 `θ(0) ∈ (0, π)` (`airy_exists_prufer`: `θ(0) ∈ (π/2, π)`), and `ξ(y) = (2/3) y^{3/2}`.
@@ -14,20 +14,20 @@ plateau at the zeros of `Ai` (`θ ∈ πℤ`) and a fast jump by `-π` (width `~
 `sup |D| = 0.88` for `y ≤ 60`, increasing slowly to `π/2`).
 
 * `airy_prufer_airyZero`: **`θ(a_n) = -(n-1)π` exactly** (`n ≥ 1`);
-* `airy_exists_airyAi'_zero`: for `n ≥ 1` there is exactly one zero `b_n` of `Ai'` in `(a_{n+1}, a_n)` and
-  `θ(b_n) = -(n-1)π - π/2` (Clark node for `α = π/2`);
+* `airy_exists_airyAi'_zero`: for `n ≥ 1` there is a zero `b_n` of `Ai'` in `(a_{n+1}, a_n)` with
+  `θ(b_n) = -(n-1)π - π/2` (Clark node for `α = π/2`; uniqueness in the gap is `airyAi'_existsUnique_zero_gap`, `AiryClarkMid`);
 * `airyAi'_zero_location_r`: a zero `-r²` of `Ai'` with `r ≥ 2` has `|(2/3) r³ - (k + 1/4)π| ≤ 1.12/r³` for an integer `k`
   (from `airyAi'_neg_sq_asymptotic`); `k = n` for `b_n` (`n ≥ 2`);
 * **`airy_prufer_deviation`**: for `y ≥ |a_2|`,
-  `|θ(-y) + (2/3) y^{3/2} - 3π/4| ≤ π/2 + 0.14`  (`0.14 = 1.12/8`); the constant `π/2` is the sharp amplitude of the
-  sawtooth.  Proof: on `[a_n, b_n]` and `[b_n, a_{n+1}]` the angle lies between its (exact) values at the end points and
+  `|θ(-y) + (2/3) y^{3/2} - 3π/4| ≤ π/2 + 0.14`  (`0.14 = 1.12/8`); the amplitude `π/2` is the limit of the
+  sawtooth's sup (numerical evidence only: `0.88` at `y = 60`, `1.25` at `y = 1500`, `1.55` at `y = 10⁸`; not proved).  Proof: on `[a_n, b_n]` and `[b_n, a_{n+1}]` the angle lies between its (exact) values at the end points and
   `ξ` between its (located) values; the four corner values give `±π/2` up to the location errors `0.05` (zeros of
   `Ai`) and `0.14` (zeros of `Ai'`);
 * `airy_prufer_ratio`: `|-θ(-y)/ξ(y) - 1| ≤ 4.1/ξ(y)` for `y ≥ |a_2|`, i.e. **`θ(-y) ~ -ξ(y)`** with explicit rate `O(y^{-3/2})`.
 
 Numerically checked (mpmath, unwrapped angle `arg(Ai' + i Ai)`, `θ(0) = 2.2…`): `θ(a_n) = -(n-1)π`, `D(a_n) ≈ 0`,
 `|D| ≤ 0.8808` on `4.0879 ≤ y ≤ 60`; the proved `π/2 + 0.14` is therefore valid but the finite-`y` sup is smaller.
-Everything here is proved; **not formalised**: the `O(y^{-1/2})` refinements at general Clark nodes
+Everything stated in the list above is proved except the sharpness remark (numerical); **not formalised**: sharpness of the amplitude `π/2`, the `O(y^{-1/2})` refinements at general Clark nodes
 (`cos α Ai - sin α Ai'`, `α ≢ 0, π/2`; see the handoff).
 -/
 
@@ -266,7 +266,7 @@ lemma exists_airyZero_bracket {x : ℝ} (hx : x ≤ airyZero 2) :
     have e : m' + 1 + 2 = m' + 3 := by ring
     rw [e]; exact this.le
 
-/-- **Deviation of the Prüfer angle** (sharp amplitude `π/2`): for `y ≥ |a_2| = 4.0879…`,
+/-- **Deviation of the Prüfer angle** (amplitude `≤ π/2 + 0.14`; `π/2` is the numerical limit of the sup): for `y ≥ |a_2| = 4.0879…`,
 `|θ(-y) + (2/3) y^{3/2} - 3π/4| ≤ π/2 + 0.14`. -/
 theorem airy_prufer_deviation (hθ : IsPruferLift (fun x => x) airyAi airyAi' θ) (h0 : 0 < θ 0)
     (h1 : θ 0 < π) (hlo : π / 2 < θ 0) {y : ℝ} (hy : -airyZero 2 ≤ y) :

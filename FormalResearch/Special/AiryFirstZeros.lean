@@ -22,7 +22,7 @@ Exact finite count (the finite numerical input to the labelling of the ordered z
   excludes a third zero.
 
 Numerically checked (mpmath, 30 digits): `Ai(-2.33) = 0.0056849`, `Ai(-2.35) = -0.0083388`,
-`Ai(-4) = -0.0702…`, `Ai(-4.84) = 0.3667…`, zeros `-2.3381074105, -4.0879494441, -5.5205598281`.
+`Ai(-4) = -0.0702…`, `Ai(-4.84) = 0.3800…`, zeros `-2.3381074105, -4.0879494441, -5.5205598281`.
 Everything is proved (no numerical evidence enters).
 -/
 
