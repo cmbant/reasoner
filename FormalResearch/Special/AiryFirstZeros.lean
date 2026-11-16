@@ -178,4 +178,16 @@ theorem airy_zeros_Icc :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airy_zeros_Icc
 
+/-- info: 'FormalResearch.Special.airy_exists_zero_first' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airy_exists_zero_first
+
+/-- info: 'FormalResearch.Special.airy_exists_zero_second' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airy_exists_zero_second
+
+/-- info: 'FormalResearch.Special.airyAi_pos_of_neg_233_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAi_pos_of_neg_233_le
+
 end FormalResearch.Special

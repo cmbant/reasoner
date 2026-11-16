@@ -258,4 +258,12 @@ theorem airyZero_abs_sub_ge {k n : ℕ} (hk : 1 ≤ k) (hn : 1 ≤ n) (hne : k �
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyZero_abs_sub_ge
 
+/-- info: 'FormalResearch.Special.airyZero_gap_cube_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyZero_gap_cube_bounds
+
+/-- info: 'FormalResearch.Special.airyZero_abs_cube_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyZero_abs_cube_bounds
+
 end FormalResearch.Special

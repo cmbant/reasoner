@@ -241,4 +241,12 @@ end Values
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyZeroCount_neg_484
 
+/-- info: 'FormalResearch.Special.airy_existsUnique_zero_Ioc_neg_four' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airy_existsUnique_zero_Ioc_neg_four
+
+/-- info: 'FormalResearch.Special.airyZero_one' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyZero_one
+
 end FormalResearch.Special

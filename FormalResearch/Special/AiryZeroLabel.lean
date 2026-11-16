@@ -224,4 +224,8 @@ theorem airyZero_phase {n : ℕ} (hn : 2 ≤ n) :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyZero_phase
 
+/-- info: 'FormalResearch.Special.airyZero_phase_r' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyZero_phase_r
+
 end FormalResearch.Special
