@@ -3,7 +3,7 @@ module
 public import FormalResearch.Special.AiryAsymNegComplex
 
 /-!
-# Good circles for `Ai` (E2)
+# Good circles for `Ai` (E2, pure-`Ai` case)
 
 Statement formalised (CFT/PR240, `AIRY_POISSON.md` (E2), `GENERAL_THEOREMS.md` Lemma 1.0 with `α = 0`):
 for every integer `k ≥ 10` there is a radius `r ∈ [k, k+1]` such that on the whole circle `|u| = r`
@@ -310,7 +310,7 @@ lemma NegSector_of_re_lt {u : ℂ} (hu : u.re < -(‖u‖ / 2)) : NegSector ((-u
     nlinarith
   exact (pow_le_pow_iff_left₀ (by positivity) h0 two_ne_zero).mp this
 
-/-- **Good circles (E2).** For every integer `k ≥ 10` there is a radius `r ∈ [k, k+1]` such that for all `u`
+/-- **Good circles (E2, pure-`Ai` case).** For every integer `k ≥ 10` there is a radius `r ∈ [k, k+1]` such that for all `u`
 with `|u| = r`: `(1/(25π)) (1+r)^{-1/2} e(u) ≤ ‖Ai(u)‖²`, `e(u) = exp(-(4/3) Re u^{3/2})`.
 (`GENERAL_THEOREMS.md` Lemma 1.0 with `α = 0`; the radius satisfies `(2/3) r^{3/2} ∈ π/4 + πℕ`.) -/
 theorem good_circle_exists (k : ℕ) (hk : 10 ≤ k) :

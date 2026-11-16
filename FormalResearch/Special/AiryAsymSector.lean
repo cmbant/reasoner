@@ -25,6 +25,8 @@ Write `L(w) = (1/(2π)) e^{-(2/3)w³} (π/w)^{1/2}` (so `L = e^{-ζ}/(2√π w^{
 Numerical check (mpmath, 30 digits; `s ∈ {1/2, 0.2588, 0.8}`, `‖w‖ ∈ {0.5,…,20}`, 41 angles each across
 the whole sector): the ratio (actual relative error)/(stated bound) is at most `0.47` for `Ai` and `0.22` for
 `Ai'` (bound in the sharper form `(5/48)‖w‖^{1/2}ρ^{-7/2} + (1/4)‖w‖^{-1/2}ρ^{-5/2}`).
+The constant `5/48` is not slack: at `s = 1` (real `w`) the ratio tends to `1` as `‖w‖ → ∞`, since the true relative error
+is `5/(72ζ)`; the ratios `0.47`, `0.22` hold for the listed `s` only.
 
 Not formalised: higher terms of the expansion; the sector `|arg z| > π - 2 arccos s` (see
 `AiryAsymNegComplex`); the value of the optimal constants.
