@@ -65,7 +65,8 @@ theorem dun_chart (m ρ K0 K1 K2 : ℝ) (hm : 0 < m) :
       (∀ x ∈ ball c ρ, HasDerivAt F (P x) x) → F c = 0 → (∀ x ∈ ball c ρ, m ≤ P x) →
       ContDiffOn ℝ 3 (langerZetaOf F c) (ball c ρ) ∧ J2 (deriv (langerZetaOf F c)) (ball c ρ) d0 d1 d2 ∧
       (∀ x ∈ ball c ρ, c1 ≤ deriv (langerZetaOf F c) x) ∧
-      (∀ x ∈ ball c ρ, langerZetaOf F c x * deriv (langerZetaOf F c) x ^ 2 = F x) := by
+      (∀ x ∈ ball c ρ, langerZetaOf F c x * deriv (langerZetaOf F c) x ^ 2 = F x) ∧
+      (∀ x ∈ ball c ρ, x ≠ c → langerZetaOf F c x ≠ 0) := by
   have hm2 : 0 < m ^ (1 / 2 : ℝ) := Real.rpow_pos_of_pos hm _
   -- jets of `G^(1/2)`
   set R0 : ℝ := max (m ^ (1 / 2 : ℝ)) (K0 ^ (1 / 2 : ℝ)) with hR0
@@ -156,7 +157,7 @@ theorem dun_chart (m ρ K0 K1 K2 : ℝ) (hm : 0 < m) :
     exact this
   have hderiv : ∀ q ∈ ball c ρ, deriv ζ q = G q ^ (1 / 2 : ℝ) * (3 / 2 * M q) ^ (-(1 / 3 : ℝ)) :=
     fun q hq => (hder q hq).deriv
-  refine ⟨?_, ?_, ?_, ?_⟩
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
   · have := contDiffOn_succ_of_hasDerivAt isOpen_ball 2 hder hDj.1
     simpa using this
   · exact hDj.congr isOpen_ball hderiv
@@ -188,6 +189,10 @@ theorem dun_chart (m ρ K0 K1 K2 : ℝ) (hm : 0 < m) :
     field_simp
     rw [hKx]
     linarith [hsub]
+  · intro x hx hxc
+    have hax : 0 < langerA F c x := Real.rpow_pos_of_pos (hNpos x hx) _
+    show (x - c) * langerA F c x ^ 2 ≠ 0
+    exact mul_ne_zero (sub_ne_zero.2 hxc) (by positivity)
 
 /-- info: 'FormalResearch.Special.dun_chart' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
