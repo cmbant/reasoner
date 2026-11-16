@@ -19,7 +19,7 @@ functions `e, o` (resp. `a, b`) with bounded derivatives, with explicit constant
 
 The functions enter only through explicit bounds on `|e|, |e'|, |e''|, |o|, |o'|` on `[-S, S]`, so the same
 statement serves the polynomial truncations of the window lemma (`AiryParametrixDefect`) and, with the exact
-`Ch(ζσ²)`, `σ Sh(ζσ²)`, a future uniform version.  Proved; no asymptotic input.
+`Ch(ζσ²)`, `σ Sh(ζσ²)`, the uniform version (`AiryParametrixUniform*`).  Proved; no asymptotic input.
 -/
 
 @[expose] public section

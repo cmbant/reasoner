@@ -27,7 +27,9 @@ equivalently `(V g²)' = 0`-transport integrated: `V = A S₀(ζ') = A ζ' Sh(ζ
   neighbourhood (`X ~ h^{-2/3}`): the truncation error of `Ch` (the fifth-order Taylor remainder of the
   exact shift functions) is `ζ³`, i.e. `h² X³`.  The true defect there is `O(h²) ψ` (mpmath sanity run, not
   committed), which needs the `h`-expansion of the shift functions at *fixed* `ζ`
-  (the paper's `C(s;ζ,h)`, `S(s;ζ,h)`), not formalised.
+  (the paper's `C(s;ζ,h)`, `S(s;ζ,h)`); this is done in `AiryParametrixUniform*`
+  (`airyParametrix_defect_uniform`: `≤ K h² airyWt X` for all real `X`), of which the present window form is
+  a weaker corollary (`(1+|X|)³ ≥ 1`).
 * *Stages.*  The `h^{5/3}` defect follows from the `h²` statement since `h² ≤ h^{5/3}` for `h ≤ 1`;
   the proof gives the `h²` statement directly because the parity cancellation of the odd orders is purely
   algebraic in the variables `(ζ, s, h)` (`AiryParametrixSkeleton`).
@@ -37,10 +39,10 @@ equivalently `(V g²)' = 0`-transport integrated: `V = A S₀(ζ') = A ζ' Sh(ζ
   `A ζ' Sh > 0`; `A > 0` is needed by the consumer for the lattice recurrence;
   `c` is the displayed formula.  Constants `K, h₀` are existential and depend on `J, U, A, ζ, g`.
 
-Not formalised here: the construction of `ζ, g` from `(A, u)` (M3 `LangerCoordinate` gives `ζ` with
-`ζζ'² = Φ(u-1)` and `langerAmp_of_coeff` the amplitude ratio; the closed-form relation is `Sh(F) =
-sinh√F/√F`, `u = Ch(F)`; the relation `g² A ζ' Sh(F) = 1` for M3's `g` is *not* proved here), the uniform
-`O(h²)ψ` bound on the whole turn neighbourhood, and the `h²` coefficient `ϖ`.
+Not formalised here: the `h²` coefficient `ϖ`.  The relation `g² A ζ' Sh(F) = 1` and `Ch(F) = u` for M3's
+coordinate `ζ = langerZeta u c` and amplitude `g = langerAmp u A c` (with `Sh(F) = sinh√F/√F`) is derived in
+`AiryParametrixLanger` (`langer_hrel`), which also gives the combined window-form defect; the uniform
+`O(h²)ψ` bound on the whole turn neighbourhood is `AiryParametrixUniform*`.
 -/
 
 @[expose] public section

@@ -31,7 +31,9 @@ quantities `g² A ζ' Sh(ζ ζ'²)` equal `1` and `Ch(ζ ζ'²) - u`, `Ch²-1-F 
 `q ∈ {-0.3,…,0.3}` normalised by `h²(1+|X|)³ airyWt X` is about `0.015–0.018` for `h = 0.1, 0.05, 0.025`
 (bounded, as the lemma asserts).
 
-Proved.  Not formalised: the uniform `O(h²) ψ` bound for `|X| ~ h^{-2/3}` (see `AiryParametrixDefect`); the
+Proved.  The uniform `O(h²) ψ` bound for `|X| ~ h^{-2/3}` is `AiryParametrixUniform*`
+(`airyParametrix_defect_uniform` and its lattice and relative forms); composing it with `langer_hrel` in the same way
+gives the uniform defect for M3's data (the combination is not stated as a separate theorem here).  Not formalised: the
 statement is local (an open `U ∋ c` is produced, not made explicit); the `A > 0`, `C²` hypotheses are at the point `c`
 only.
 -/
@@ -247,8 +249,8 @@ Same hypotheses as `airyParametrix_defect_langer_window`.  For the Jacobi data `
 `g = langerAmp u A c`, the lattice defect satisfies
 `|jac a d ψ k| ≤ K h² (1 + |X_k|)³ airyWt X_k` whenever `q_k ∈ J` (compact `J ⊆ U`), `X_k = h^{-2/3} ζ(q_k)`,
 with `K, h₀` independent of `q₀, k`.  (This is `airyParametrix_defect_lattice` with its hypothesis `hrel`
-discharged by `langer_hrel`.)  Not formalised: the uniform `O(h²) ψ` bound for `|X| ~ h^{-2/3}` (see
-`AiryParametrixDefect`). -/
+discharged by `langer_hrel`.)  The uniform `O(h²) ψ` bound for `|X| ~ h^{-2/3}` is
+`airyParametrix_defect_uniform_lattice` (`AiryParametrixUniformLattice`). -/
 theorem airyParametrix_defect_langer {u A : ℝ → ℝ} {c : ℝ} (hu : ContDiffAt ℝ 3 u c)
     (h1 : u c = 1) (h2 : 0 < deriv u c) (hA : ContDiffAt ℝ 2 A c) (hA0 : 0 < A c) :
     ∃ U : Set ℝ, IsOpen U ∧ c ∈ U ∧ ∀ J : Set ℝ, IsCompact J → J ⊆ U →

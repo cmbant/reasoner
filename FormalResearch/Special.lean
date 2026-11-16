@@ -49,6 +49,12 @@ public import FormalResearch.Special.AiryRecessiveSelection
 public import FormalResearch.Special.AiryWindow
 public import FormalResearch.Special.AiryWindowMain
 public import FormalResearch.Special.AiryWindowTaylor
+public import FormalResearch.Special.AiryParametrixLanger
+public import FormalResearch.Special.AiryParametrixUniformCh
+public import FormalResearch.Special.AiryParametrixUniformODE
+public import FormalResearch.Special.AiryParametrixUniformPointwise
+public import FormalResearch.Special.AiryParametrixUniformDefect
+public import FormalResearch.Special.AiryParametrixUniformLattice
 
 /-!
 # Special functions: Jacobi polynomials
@@ -69,7 +75,10 @@ expansions, envelope weight); the Langer coordinate at a simple turning point (`
 selection, final-value existence, hard-edge bridge, discrete Grönwall bounds); and the discrete-to-Airy comparison built on
 it: the parametrix defect `|A(q+h/2)ψ(q+h) + A(q-h/2)ψ(q-h) - cψ(q)| ≤ K h²(1+|X|)³ airyWt X` for `ψ = g·Ai(h^{-2/3}ζ)`
 under an assumed amplitude relation (`AiryParametrix*`: shift Taylor bounds, parity skeleton, pointwise and jet estimates,
-lattice form), the recessive solution and second solution under a relative defect hypothesis (`AiryRecessive*`: kernel row
+lattice form); the amplitude relation `g²Aζ'Sh(ζζ'²) = 1` and the eikonal `Ch(ζζ'²) = u` for M3's own `ζ, g` near a simple
+turn, with the combined window-form defect (`AiryParametrixLanger`, M7a); the uniform defect `≤ K h² airyWt X` with no
+`(1+|X|)³`, for every real `X` including the turn neighbourhood, by expanding the shift functions at fixed `ζ`, with its
+lattice and relative forms `≤ K h² |ψ_k|` (`AiryParametrixUniform*`, M7b); the recessive solution and second solution under a relative defect hypothesis (`AiryRecessive*`: kernel row
 sums, exact solution `f` with `|f-ψ| ≤ Cδ³ψ`, selection `Y = κf + μ f₂`), and the bounded oscillatory window by a discrete
 Grönwall march (`AiryWindow*`: `discrete_airy_window`, Taylor remainders of `Ai` on `[-A0,-1]`).
 -/

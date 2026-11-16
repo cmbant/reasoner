@@ -33,8 +33,8 @@ Numerics (`mpmath`, not committed): relative defect over `h² airyWt` stays belo
 `h ∈ {1e-2, 1e-4, 1e-6, 1e-9}`, i.e. `|X|` up to `3·10⁵`); the remainder constants `|C - (E+hO)|/h²`, `|S/t - (A+hB)|/h²` are `1.7e-3 .. 7.1e-3` for
 `ζ ∈ [-2, 2]`, `h ∈ [1e-6, 1e-2]` (`AiryParametrixUniformCh`).
 
-Not formalised: the amplitude relation for M3's `g` (hypothesis `hrel`), the `h²` coefficient, explicit
-constants.
+Here `hrel` is a hypothesis; it holds for M3's `ζ, g` by `langer_hrel` (`AiryParametrixLanger`).  Not formalised: the
+`h²` coefficient, explicit constants.
 -/
 
 @[expose] public section

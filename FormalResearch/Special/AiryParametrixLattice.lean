@@ -17,8 +17,10 @@ Two corollaries of the window-form defect lemma `airyParametrix_defect`
   `ψ k = g(q_k) Ai(h^{-2/3} ζ(q_k))`, the discrete Jacobi operator `FormalResearch.DiscreteAiry.jac a c ψ k` of
   `DiscreteJacobiCalculus` is the defect, so `|FormalResearch.DiscreteAiry.jac a c ψ k| ≤ K h² (1+|X_k|)³ airyWt X_k` whenever `q_k ∈ J`.
 
-Proved.  Not formalised: the uniform `O(h²) ψ` bound on the whole turn neighbourhood (see
-`AiryParametrixDefect`), and the construction of `(ζ, g)` from `(a, c)`.
+Proved.  Not formalised here: the uniform `O(h²) ψ` bound on the whole turn neighbourhood
+(`AiryParametrixUniformLattice`: `airyParametrix_defect_uniform_lattice`, `airyParametrix_defect_uniform_rel`) and the
+construction of `(ζ, g)` from `(a, c)` (`AiryParametrixLanger`: `langer_hrel` gives `ζ, g` from the data `u, A`, with
+`c = 2 A u`; the identification `E - b = 2 a u` for a concrete chain remains the caller's input).
 -/
 
 @[expose] public section

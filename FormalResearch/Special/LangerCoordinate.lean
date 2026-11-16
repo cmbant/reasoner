@@ -33,7 +33,8 @@ Applying the theorems for every `m` gives `ζ ∈ C^∞` for `u ∈ C^∞`.  **N
 analytic `u` (true, but the parametric-integral route used here does not give it; it would need an analytic
 Hadamard quotient and an analytic parametric integral), uniformity of constants over the papers' compact
 parameter families, and everything involving the discrete chain (modules M4-M6: `AiryParametrix*`, `AiryRecessive*`, `AiryWindow*`;
-the amplitude relation `g²Aζ'Sh(ζζ'²) = 1` of `airyParametrix_defect` is not derived from this module).
+the amplitude relation `g²Aζ'Sh(ζζ'²) = 1` of `airyParametrix_defect` is derived from this module's `ζ`, `g` in
+`AiryParametrixLanger`, `langer_hrel`).
 
 **Numerical checks (mpmath, 30 digits; scratch only).**  (i) `Φ`-series coefficients `2, -1/3, 4/45, -1/35`
 against `sympy`; (ii) `u = 1 + 0.7s + 0.3s² + 0.5s³`: `ζ'(0) = (2·0.7)^{1/3}` from the numerical integral
