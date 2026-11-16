@@ -194,6 +194,23 @@ theorem step_unique (x : End K M) (q : K[X]) (e : ℕ → K) (he0 : e 0 = 1) (τ
     exact smul_right_injective M hfwd h4
   exact smulS_cancel _ (by rw [constantCoeff_eta e he0]; exact one_ne_zero) key
 
+/-- Linear maps commute with the formal-series operations. -/
+theorem rankDefect_map {N : Type*} [AddCommGroup N] [Module K N] (ℓ : M →ₗ[K] N) (x : End K M)
+    (x' : End K N) (hx : ∀ v, ℓ (x v) = x' (ℓ v)) (q : K[X]) (e : ℕ → K) (τ k0 : K) (R : ℕ → K)
+    (Φ : ℕ → ℕ → M) (n r : ℕ) :
+    ℓ (rankDefect x q e τ k0 R Φ n r) =
+      rankDefect x' q e τ k0 R (fun m s => ℓ (Φ m s)) n r := by
+  have hs : ∀ (c : PowerSeries K) (v : ℕ → M) (m : ℕ), ℓ (smulS c v m) = smulS c (fun s => ℓ (v s)) m := by
+    intro c v m; simp [smulS, map_sum]
+  have hsh : ∀ (v : ℕ → M) (m : ℕ), ℓ (shiftS v m) = shiftS (fun s => ℓ (v s)) m := by
+    intro v m; cases m <;> simp [shiftS]
+  have hp : ∀ m s, ℓ (prevS Φ m s) = prevS (fun m s => ℓ (Φ m s)) m s := by
+    intro m s; cases m <;> simp [prevS]
+  unfold rankDefect defectS
+  simp only [map_sub, map_smul, hx, hsh, hs]
+  have : (fun s => ℓ (prevS Φ n s)) = prevS (fun m s => ℓ (Φ m s)) n := funext (hp n)
+  rw [this]
+
 /-- **Forward uniqueness, one start** (`prop:localcalculus` (b)): if `R_{k₀} = 0` (the recurrence is
 one-sided at the minimal rank) and all forward coefficients `(k₀+n)R_{n+1}` are nonzero, then a family of
 formal solutions of the rank recurrence is determined by `Φ_0`. -/

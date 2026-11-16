@@ -102,6 +102,9 @@ lemma LN_D_pow_mul_C (hCD : ∀ c ∈ C, D * c - c * D ∈ C) {c : End K M} (hc 
   | zero => simpa using C_le_LN hc
   | succ j ih => rw [pow_succ', mul_assoc]; exact LN_D_mul hCD ih
 
+lemma LN_sub_mem {a b : End K M} (ha : a ∈ LN D C) (hb : b ∈ LN D C) : a - b ∈ LN D C :=
+  sub_mem ha hb
+
 /-- Left-normal operators are closed under products. -/
 theorem LN_mul_mem (hCD : ∀ c ∈ C, D * c - c * D ∈ C) {T T' : End K M} (hT : T ∈ LN D C)
     (hT' : T' ∈ LN D C) : T * T' ∈ LN D C := by
