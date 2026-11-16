@@ -26,7 +26,9 @@ coefficients `f_{2r}^{(n)}` of the exact germ (`P2AnalyticAllOrder3jSeries`):
 The whole chain is formalised: forward uniqueness of the rank recurrence, the exact algebra of
 `prop:localcalculus`, the Taylor coefficients of the closed form as formal series, and the Wigner ODE
 and rank recurrence.  See the docstrings of `allorder_operators` and `threeJ_allorder_local` for what is
-*not* formalised (the explicit multipliers `ψ_{2r}` and their rationality, `D̂_2`, `D̂_4` in closed form).
+*not* formalised in this file (the explicit multipliers `ψ_{2r}` and their rationality, `D̂_2`, `D̂_4` in closed
+form); at the seed row the multiplier is identified with the exponential coefficient `κ_r` of the seed
+log series in `P2SeedMultiplierLink`.
 -/
 
 @[expose] public section
