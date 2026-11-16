@@ -26,8 +26,9 @@ deformation is a corollary and the difference-equation computation of the paper 
   equals the monic Jacobi polynomial at `t = 0`, and is a nonzero multiple of the Hahn polynomial at
   every admissible `N`.
 
-Not formalised: the explicit bound `sup |q_d - P̂_d| ≤ C N⁻²`, and the Racah analogue
-`eq:carrierRacah6j`, `lem:evendeformation6j`.
+The estimate `sup |q_d - P̂_d| ≤ C N⁻²` is `evenHahn3_bound` (`P2AnalyticEvenDegree3`); the Racah analogue
+`eq:carrierRacah6j`, `lem:evendeformation6j` is `P2AnalyticCarrierRacah` (canonical chamber) and
+`P2AnalyticCarrierRacahAll`, `P2AnalyticEvenDegree6` (all chambers, degree bound and estimate).
 -/
 
 @[expose] public section
@@ -258,7 +259,7 @@ carrier `P̃_{L₀+k}` divided by its `t`-independent leading coefficient `k_{3j
 The statement is the paper's lemma read through the carrier: the even deformation of the Jacobi
 polynomial is defined by the recurrence `eq:3jrankpoly` (where the polynomial dependence on `h²` is
 immediate), and its identification with the Hahn polynomial is `ptilde3_eq_hahn`.  The paper's
-estimate `sup |q_d - P̂_d| ≤ C N⁻²` is not stated here. -/
+estimate `sup |q_d - P̂_d| ≤ C N⁻²` is `evenHahn3_bound` (`P2AnalyticEvenDegree3`). -/
 theorem lem_evendeformation3 (M σ : ℚ) (α β k : ℕ) (hα : |M - σ| = α) (hβ : |M + σ| = β) :
     (evenHahn3 M σ k).natDegree ≤ k ∧ (evenHahn3 M σ k).coeff k = 1 ∧
       (evenHahn3 M σ k).map (Polynomial.evalRingHom 0) = jacobiMonicTau α β k ∧
