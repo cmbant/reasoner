@@ -40,10 +40,12 @@ amplification factor is `exp (L δ n) ≤ exp (L S/c₁)`, `L = 1 + 2 (Sg + Qq)/
 end `X = 14` with `f = ψ` at the last two sites, `N = 10³ … 10⁶`): the hypotheses of the Grönwall step hold with
 `Qq = 0` and `Sg = sup_window |2cosh√t - 2|/δ² ≤ A₀` (`1.9967, 4.979, 9.917` for `A₀ = 2, 5, 10` at `N = 10³`); the
 relative defect is `|jac ψ| ≤ 0.00418 δ⁶ sup|ψ|` (the `1/240` of the paper); the actual error on `X ∈ [-A₀,-1]` is
-`max |f - ψ| ≤ 0.0163 · N^{-4/3}` (`err/h = 1.6·10⁻³, 7.5·10⁻⁴, 3.5·10⁻⁴, 1.6·10⁻⁴` for `N = 10³ … 10⁶`), **the same
+`max |f - ψ| ≤ 0.0163 · N^{-4/3} · sup|ψ|` (normalised by `sup|ψ| = 0.536`; absolute `0.0087 N^{-4/3}`) (`err/h = 1.6·10⁻³, 7.5·10⁻⁴, 3.5·10⁻⁴, 1.6·10⁻⁴` for `N = 10³ … 10⁶`), **the same
 for `A₀ = 2, 5, 10`** (no growth in `A₀`); profile `|f-ψ|/h^{4/3} = 0.0083, 0.0061, 0.0044, 0.0003, 0.0048` at
-`X = -1,-2,-4,-7,-10`.  The Grönwall bound is `10⁷⁹ · h` at `A₀ = 10` (exponent `L δ n ≈ 190`): proved, but
-pessimistic by `e^{190}` and by the order `h^{1/3}`.
+`X = -1,-2,-4,-7,-10`.  The Grönwall bound is about `10⁷⁹ · h` at `A₀ = 10` with the *measured* initial data (exponent `L δ n ≈ 190`);
+the constant `windowConst` of `AiryWindowMain` is itself about `10⁵` larger: proved, but pessimistic by `e^{190}` and by
+the order `h^{1/3}`.  Because `δ₀` of `recessive_airy` (inherited from M5) is about `10⁻²` to `3·10⁻³` on the model chain,
+the theorem is asymptotic (`N ≳ 10⁶`), not a statement about small `N`.
 
 **Not formalised** here: the parametrix defect `hdef` on the window (supplied by the parametrix module `M4`; see
 `AiryWindowMain` for the precise gap), the Hahn/Racah coefficient hypotheses (see `window_hyperbolic_constants`),

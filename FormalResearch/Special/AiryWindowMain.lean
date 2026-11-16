@@ -14,7 +14,7 @@ on bounded windows) and `EC:95-113`; the replacement of the cited external theor
 `X ≤ B δ⁻²`), the parametrix `ψ` is comparable with `airyWt` there (`κ₁ airyWt ≤ ψ ≤ κ₂ airyWt`, i.e. `ψ = g Ai`,
 `g ≍ 1`) and satisfies the relative defect `|jac a c ψ_i| ≤ C₀ δ⁶ ψ_i` (`hdef` of `recessive_airy`).  Oscillatory
 window `Icc J m`: gaps `≥ c₁ δ`, `X_J ≥ -A₀`, `X_m ≤ Z` (so `S = A₀ + Z`); **no positivity of `ψ` is assumed there**;
-the defect is *absolute*, `|jac a c ψ_i| ≤ C₀ δ⁶ W` with `W` a bound for `sup |ψ|` over the window (in the Airy lane
+the defect is *absolute*, `|jac a c ψ_i| ≤ C₀ δ⁶ W` with `W` a scale: only `ψ_m ≤ W` and the junction Lipschitz bound are used, not `W ≥ sup |ψ|` (in the Airy lane
 `W ≍ sup (1+|X|)^{-1/4} ≲ 1`); the coefficients are near-hyperbolic there (`|c_k - a_k - a_{k+1}| ≤ Sg δ²`,
 `|a_{k+1} - a_k| ≤ Qq δ²`, `a ≥ c_a`).
 
@@ -41,7 +41,7 @@ The scalar `κ` is **not** determined here (it needs the Darboux/Wigner-`d` bulk
    `airy_taylor4/5` (`AiryShiftTaylor`) cover base points `X ≥ -1` only (they use the envelope `airyAi_envelope_real`).
    The underlying `airy_sol_taylor4/5` are valid for all `X` given a sup bound `B` of the jet on the segment, and for
    `X ∈ [-A₀,-1]`, `|s| ≤ 1` the segment lies in `(-∞, 0]`, where `abs_airyAi_le_of_nonpos`, `abs_airyAi'_le_of_nonpos`
-   (`AiryKernelOpSharp`) give `|Ai| ≤ 3`, `|Ai'| ≤ 3 (1+A₀)^{1/4}`; so the window version of the Taylor remainder is
+   (`AiryKernelOpSharp`) give `|Ai| ≤ 3`, `|Ai'| ≤ 5 (1+|x|)^{1/4} ≤ 5 (2+A₀)`; so the window version of the Taylor remainder is
    available with `K = K(A₀)` polynomial in `A₀` (`airy_taylor4_window`, `airy_taylor5_window` of `AiryWindowTaylor`, **proved**), and the remaining work in M4 is the bookkeeping of the
    coefficient jets (`g, ζ, a, c` are smooth across the turn: M3).
 2. `|ψ_m - ψ_{m+1}| ≤ Λ δ W` (a Lipschitz bound at the junction, true for `ψ = g Ai` at bounded `X`) and `ψ_m ≤ W`.
