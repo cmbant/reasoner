@@ -24,8 +24,8 @@ Racah deformation is then a corollary.
   `(A⁻², B⁻², (AB)⁻¹)`, the monic Jacobi `P̂_d^{(m-n,m+n)}` at zero scale, and a nonzero multiple of the
   Racah polynomial on every `RacahSystem`.
 
-Not formalised: the other chambers (`eq:carrierRacah6j` is a canonical-chamber statement in the paper
-as well), the degree bound of the coefficients in `ε²` and `δ²` and `eq:evendeformationbound`.
+This file is the canonical chamber (as in the paper).  The other chambers are `P2AnalyticCarrierRacahAll`; the
+degree bound of the coefficients in `ε²` and `δ²` and `eq:evendeformationbound` are `P2AnalyticEvenDegree6`.
 -/
 
 @[expose] public section
@@ -229,7 +229,7 @@ noncomputable def evenRacah6 (m n : ℚ) (d : ℕ) : CarrierRing :=
 it is a nonzero `ς`-independent multiple of the Racah polynomial `R_d(λ(ς))` of `eq:physicalRacah4F3`,
 `λ(ς) = 4ABς + (A-B)² - (c_min+½)²` (`ptilde6_eq_racah`).  The paper's degree bound on the coefficients
 (`≤ j` in `ε²`, rational in `δ²` with denominator `(1-δ²)^j`) and the estimate `eq:evendeformationbound`
-are not stated here. -/
+are `evenRacah6All_coeff_form` and `evenRacah6All_bound` (`P2AnalyticEvenDegree6`). -/
 theorem lem_evendeformation6 (m n : ℚ) (p q : ℕ) (hp : m - n = p) (hq : m + n = q) (hcan : |n| ≤ m)
     (d : ℕ) :
     (evenRacah6 m n d).natDegree ≤ d ∧ (evenRacah6 m n d).coeff d = 1 ∧
