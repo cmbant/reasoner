@@ -26,8 +26,9 @@ Numerics (mpmath/numpy, recorded as a comment, not part of the proof): on lattic
 `B ∈ {1,3}` and random spacings in `[δ,4δ]`, `max_p G_p / (e⁴(1+1/(2δ s_p))) ≤ 0.062`, `δ³ Σ_p G_p ≤ 1.9`, and the
 backward sums `G'_k = Σ_{p≤k} e^{-2(ξ_k-ξ_p)}` satisfy `δ (1+X_k^+)^{1/2} G'_k ≤ 1.8`.
 
-**Not formalised** here: the *backward* sums `Σ_{p ≤ k} e^{-2(ξ_k-ξ_p)}` (for bounds on the growing second solution,
-see `AiryRecessive`), and any comparison `airyWt ≍ M/E` on `X < −1`.
+(The backward sums are `expBack_le`, with `sum_exp_geom_back_le` and `sum_inv_sqrt_lattice`, used by `AiryRecessiveSelection`.)
+
+**Not formalised** here: any comparison `airyWt ≍ M/E` on `X < −1`.
 -/
 
 @[expose] public section

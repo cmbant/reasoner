@@ -14,7 +14,9 @@ numerics).  All **proved**; nothing about `Bi`.
 * `secondSol_le`, `secondSol_ge`: `1/(a_k f_{k-1}) ≤ f₂_k` and `0 ≤ f₂_k ≤ C₂ δ⁻¹/airyWt(X_k)`;
 * `recessive_selection_airy` (W1 `lem:recessive`, est:291-299, exact `f₂`): `|μ| ≤ 4|κ| f_{k₀} A₁ (3κ₂/2) airyWt(X_{k₁-1})` from two
   nodes with `|Y_{k₁}| ≤ |Y_{k₀}|`, `f_{k₁} ≤ f_{k₀}` and the `ξ`-gap condition `2C₂δ⁻¹/airyWt(X_{k₀}) ≤ 1/(A₁(3κ₂/2)airyWt(X_{k₁-1}))`
-  (the paper's `X₀ = (3/4 log 1/h)^{2/3}`); `Y_{k₀} ≠ 0 ⇒ κ ≠ 0`;
+  (the two nodes must be separated by `ξ(X_{k₁-1}) - ξ(X_{k₀}) ≳ log(1/δ)` plus a constant: this is *not* implied by
+  W1's nodes `X₀ = (3/4 log 1/h)^{2/3}`, `X₀ + 2`, whose `ξ`-gap is only about `2√X₀`; with nodes spread this way it holds,
+  numerically on the model chain); `Y_{k₀} ≠ 0 ⇒ κ ≠ 0`;
 * `recessive_airy_selection`: everything packaged (the interface for the window lemma M6).
 
 **Not formalised:** the sharper `(1+X⁺)^{-1/2}` saving in the bound for `f₂`; the monotone decay hypothesis `|Y_{k₁}| ≤ |Y_{k₀}|`
@@ -255,10 +257,10 @@ theorem secondSol_ge (a f : ℤ → ℝ) (m k : ℤ) (hk : m + 1 ≤ k) (ha : �
   exact mul_le_mul_of_nonneg_left hsingle hfk.le
 
 /-- **Recessive selection with the exact second solution** (W1 `lem:recessive`, est:291-299, in the normalisation `W = 1`;
-`A:1160` is the special case of the last two sites).  Let `Y = κ f + μ f₂` on `Icc m (N+1)`, nodes `m ≤ k₀ ≤ k₁ ≤ N+1`
+`A:1160` is `abs_mu_le_airy`, not a special case of this lemma).  Let `Y = κ f + μ f₂` on `Icc m (N+1)`, nodes `m ≤ k₀ ≤ k₁ ≤ N+1`
 (`k₁ ≥ m+1`) with `|Y_{k₁}| ≤ |Y_{k₀}|`, `f_{k₁} ≤ f_{k₀}`, `a_{k₁} ≤ A₁` and the growth condition
-`2 C₂ δ⁻¹ / airyWt(X_{k₀}) ≤ 1/(A₁ (3κ₂/2) airyWt(X_{k₁-1}))` (i.e. `ξ(X_{k₁-1}) - ξ(X_{k₀}) ≳ log(1/δ)`: the
-paper's choice `X ≈ (3/4 log 1/h)^{2/3}`).  Then
+`2 C₂ δ⁻¹ / airyWt(X_{k₀}) ≤ 1/(A₁ (3κ₂/2) airyWt(X_{k₁-1}))` (i.e. `ξ(X_{k₁-1}) - ξ(X_{k₀}) ≳ log(1/δ) + const`, which
+the nodes of W1 `lem:recessive` do not satisfy as stated; they have to be spread further apart).  Then
 `|μ| ≤ 4 |κ| f_{k₀} A₁ (3κ₂/2) airyWt(X_{k₁-1})`, and `κ ≠ 0` if `Y_{k₀} ≠ 0`. -/
 theorem recessive_selection_airy {X ψ a f f2 Y : ℤ → ℝ} {m N : ℤ} {c1 B δ κ1 κ2 ca A1 κ μ : ℝ}
     (hL : AiryLattice X m N c1 B δ) (hψ : AiryComparison ψ X m N κ1 κ2) (hca : 0 < ca)
@@ -401,5 +403,13 @@ theorem recessive_airy_selection (c1 B ca κ1 κ2 C0 : ℝ) (hca : 0 < ca) (hC0 
 /-- info: 'FormalResearch.Special.recessive_airy_selection' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.recessive_airy_selection
+
+/-- info: 'FormalResearch.Special.secondSol_ge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.secondSol_ge
+
+/-- info: 'FormalResearch.Special.abs_mu_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.abs_mu_le
 
 end FormalResearch.Special

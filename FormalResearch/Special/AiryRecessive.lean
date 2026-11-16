@@ -227,4 +227,8 @@ theorem recessive_airy (c1 B ca κ1 κ2 C0 : ℝ) (hca : 0 < ca) (hC0 : 0 ≤ C0
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.recessive_abstract
 
+/-- info: 'FormalResearch.Special.flux_formula' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.flux_formula
+
 end FormalResearch.Special
