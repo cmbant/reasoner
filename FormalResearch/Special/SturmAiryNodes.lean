@@ -37,7 +37,7 @@ zeros of `u_α` in the case `y = Ai` are the Clark nodes.
 * `IsPruferLift.exists_unique_le_level`, `IsPruferLift.exists_unique_combo_zero_Iic_level`: for `q < 0`
   on `(-∞, b)` with `θ` unbounded below on `(-∞, b]`, every level `L ≤ θ b` is attained exactly once on
   `(-∞, b]`; so the zeros of `u_α` in `(-∞, b]` are `x_m`, `θ x_m = α + mπ`, `m ≤ ⌊(θ b - α)/π⌋`, one for
-  each such `m` (`IsPruferLift.exists_floor_of_combo_zero`), increasing in `m`.
+  each such `m` (`IsPruferLift.exists_floor_of_combo_zero`).
   `IsPruferLift.exists_le_of_le_neg_one` gives the unboundedness from `q ≤ -1` on `(-∞, b₁]`, and
   `airy_exists_unique_combo_zero_Iic_level` is the case `q x = x`, `b ≤ 0`.
 
@@ -173,7 +173,9 @@ theorem between_combo_zeros {D : Set ℝ} {θ : ℝ → ℝ} (hm : StrictMonoOn 
 
 /-- **The node `m` of `u_α` between zeros of `y`** (`jπ < α < (j+1)π`): points `x₀, x₁, x₂` of a set
 `D` on which `θ` is strictly increasing, with `θ x₀ = (m+j)π`, `θ x₁ = α + mπ`, `θ x₂ = (m+j+1)π`
-(so `y x₀ = y x₂ = 0 = u_α x₁`) satisfy `x₀ < x₁ < x₂`. -/
+satisfy `x₀ < x₁ < x₂`.  This is a statement about levels of `θ` only: the zeros of `y` are the points at
+levels `kπ` and those of `u_α` the points at levels `α + kπ` (`IsPruferLift.zero_iff`,
+`combo_eq_zero_iff`, applied separately). -/
 theorem node_between {D : Set ℝ} {θ : ℝ → ℝ} (hm : StrictMonoOn θ D) {x₀ x₁ x₂ : ℝ}
     (h₀ : x₀ ∈ D) (h₁ : x₁ ∈ D) (h₂ : x₂ ∈ D) {α : ℝ} {j m : ℤ} (hα1 : j * Real.pi < α)
     (hα2 : α < (j + 1) * Real.pi) (e₀ : θ x₀ = ((m : ℝ) + j) * Real.pi)
