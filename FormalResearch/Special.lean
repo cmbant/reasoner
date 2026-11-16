@@ -113,4 +113,11 @@ full oscillatory side); for the actual chains, integer data only (not half-integ
 exist (the congruence condition is not stated), the simple-turn data (and for Racah the branch `τ = +1` and `q_*`) being
 hypotheses; `κ` is not identified (no Darboux matching, `κ ≠ 0` not proved), constants are existential (window constant
 `e^{O(A₀²)}`); the input cited by the papers (GBVA, Geronimo) is still cited, not replaced.
+
+The `Airy` aggregate also holds the CFT consequences of the zeros of `Ai` (`AiryCft*`): the Mittag-Leffler expansion of `Ai'/Ai`
+and the sum rules `Σ(z-a_n)^{-2} = (Ai'/Ai)² - z`, `Σ a_n^{-2} = (Ai'(0)/Ai(0))²`, the residue-defect formula (Theorem D) for entire
+`f`, and the quadrature `∫_ℝ f = Σ f(a_n)/Ai'(a_n)²` (Corollary D1, `f` entire with `‖f(u)‖ ≤ C(1+|u|)^ν e(u)`, `ν < -1`).  Open: the
+`Ai'/(P Ai + Q Ai')` good circles, Clark summation for `ψ_α`, Theorem Q for `ν ∈ [-1, 1/2]`.  The Hadamard factorization theorem and
+the genus-one product of `Ai` are in the separate aggregate `FormalResearch.Complex` (it imports `HadamardAiry`, which uses the Airy
+modules; no Airy module imports it).
 -/

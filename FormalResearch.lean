@@ -311,6 +311,7 @@ public import FormalResearch.Racah.P3CayleyMenger
 public import FormalResearch.Racah.P3ContactIdentity
 public import FormalResearch.Racah.P3JacobiComparison
 public import FormalResearch.Special
+public import FormalResearch.Complex
 public import FormalResearch.Asymptotics
 public import FormalResearch.Wigner
 public import FormalResearch.FreeFermion

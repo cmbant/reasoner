@@ -31,9 +31,9 @@ the partial sum `Σ_{n ≤ 4000}(…)` is within the `3·(3π/2)^{-4/3}` tail es
 `Σ (a_n - a_1')^{-2} = 0.99485` against `|a_1'| = 1.01879` (tail `0.0239`).
 
 Everything here is proved; the zeros `a_n` are the real zeros of `AiryZeroOrder` (all zeros of `Ai` are real and negative,
-`AiryZeros`).  Not formalised: the Hadamard product `Ai(z) = Ai(0) e^{cz} Π(1 - z/a_n)e^{z/a_n}` itself (this file gives
-its logarithmic derivative, which is what the notes use); `c = Ai'(0)/Ai(0)` is the exponential factor, and the product
-needs integration of the series.
+`AiryZeros`).  This file gives the logarithmic derivative of the genus-one product; the product
+`Ai(z) = Ai(0) e^{cz} Π(1 - z/a_n)e^{z/a_n}` itself (`c = Ai'(0)/Ai(0)`) is `Hadamard.airyAiC_hadamard`
+(`FormalResearch.Complex.HadamardAiry`), proved independently from the general Hadamard factorization theorem.
 -/
 
 @[expose] public section

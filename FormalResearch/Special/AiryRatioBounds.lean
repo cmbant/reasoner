@@ -22,8 +22,9 @@ For `Im u ≥ 0` the principal root of `ω² u` is `e^{-iπ/3} u^{1/2}`, hence `
 The constant `30√π ≈ 53` is far from the numerical `C_0 ≈ 2.01` of the notes (it is the product of the (E1)
 constant `3`, the good-circle constant `1/(25π)` and a factor `2`).  Numerical check (mpmath, 80 digits): the connection
 formulas hold to `1e-77`; `2‖Ai(ω²u)/Ai(u)‖ e(u)` on the circles `r_k`, `k ∈ {10,11,15,20,40,100}` (upper half circle,
-361 angles) has supremum `2.012` (attained on the positive axis, tends to `2`), as in the notes.  Not formalised here: the defect formula
-itself (needs `Ai` zeros as simple poles, Cauchy on the two half discs, `Bi(a_n) = -1/(π Ai'(a_n))`) and the
+361 angles) has supremum `2.012` (attained on the positive axis, tends to `2`), as in the notes.  The defect formula
+itself (`Ai` zeros as simple poles, Cauchy on the two half discs, `Bi(a_n) = -1/(π Ai'(a_n))`) is not in this file but
+in `AiryCftDefect` (`airy_defect_bound`, for entire `f`); `AiryCftQuadrature` combines it with the bounds here.  Not formalised: the
 `P·Ai + Q·Ai'` versions.
 -/
 

@@ -62,6 +62,13 @@ public import FormalResearch.Special.AiryClarkMid
 public import FormalResearch.Special.AiryWt
 public import FormalResearch.Special.AiryShift
 public import FormalResearch.Special.AiryShiftTaylor
+public import FormalResearch.Special.AiryCftCircle
+public import FormalResearch.Special.AiryCftZeros
+public import FormalResearch.Special.AiryCftMittagLeffler
+public import FormalResearch.Special.AiryCftResidue
+public import FormalResearch.Special.AiryCftDefect
+public import FormalResearch.Special.AiryCftWeights
+public import FormalResearch.Special.AiryCftQuadrature
 
 /-!
 # The Airy function: aggregate and design note
@@ -107,7 +114,8 @@ the ordered zeros `a_n` of `Ai`: `AiryGammaBounds`, `AiryZeroTaylor`, `AiryFirst
 `AiryPruferAsym` (the Prüfer angle of `Ai`, zeros of `Ai'`), `AiryClarkMid` (one zero of `Ai'` per gap, asymptotically the
 midpoint); and the Airy side of the discrete-to-Airy limit: `AiryWt` (an explicit envelope weight `(2+|X|)^{-1/4} e^{-ξ}` with
 local constancy and lattice sums), `AiryShift` (the shift identity `y(X+s) = y(X) C + y'(X) S`), `AiryShiftTaylor` (Taylor
-expansions of `Ai`, `C`, `S` against the weight).  The Langer coordinate (`Langer*`), the discrete Jacobi calculus
+expansions of `Ai`, `C`, `S` against the weight); and the CFT consequences of the zeros of `Ai` (`AiryCft*`: see the design
+note).  The Langer coordinate (`Langer*`), the discrete Jacobi calculus
 (`DiscreteJacobi*`) and the discrete-to-Airy comparison built on it (`AiryParametrix*`, `AiryRecessive*`, `AiryWindow*`, `DiscreteAiryLimit*`)
 are separate modules of `FormalResearch.Special`, not imported by this aggregate.  (Overlapping Gamma enclosures: `AiryBiNeg` and
 `AiryGammaBounds` each carry their own, with different constants.)
@@ -118,7 +126,9 @@ to order `v_1` only to first order); the `-(5/36)t^{-4}` coefficient of the zero
 (DLMF 9.9.19), the second order of DLMF 9.9.18 itself being proved with non-sharp constants, and sharp constants anywhere; the asymptotics of the general Clark nodes `z_n(α)`, `α ≢ 0, π/2`
 (existence and uniqueness are `airy_node_exists_unique`); Olver's own `N` and the value of the crossing point `c = -0.366…`
 (`airyCross > -1`); Olver-type uniform expansions; the Mellin moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the `Lp`-level
-operator `K_u`; the `Ai'` and `P Ai + Q Ai'` versions of the good-circle bound (E2); the first zero of `Bi` and `Bi > 0`
+operator `K_u`; the `Ai'` and `P Ai + Q Ai'` versions of the good-circle bound (E2) and hence of the residue-defect formula, Clark-Airy
+summation for `ψ_α`, and Theorem Q for `ν ∈ [-1, 1/2]` (`AiryCftQuadrature`); the product form of `Ai'` and `Bi`, and
+the converse of Hadamard's theorem (`FormalResearch.Complex`); the first zero of `Bi` and `Bi > 0`
 beyond `-11/10`; the open parts of the discrete-to-Airy chain: the Darboux normalisation `κ` and `κ ≠ 0` (also the single
 normalisation `|Y_{k₁}| ≤ δ^{-p}` for the closed-form chains), the non-recessive `Ai/Bi` pair and the full oscillatory side,
 uniformity over families (and the existence of lattice nodes), half-integer chain data, the derivation of the Racah `q_*` and
@@ -174,6 +184,32 @@ Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and
   `κ ≠ 0` (Darboux), the non-recessive `Ai/Bi` pair, the full oscillatory side, uniformity over families, half-integer chain
   data (the chain lives on the shifted lattice), the derivation of the Racah `q_*` and the `τ = -1` branch, explicit
   constants, and analyticity of `ζ`.
+* *CFT consequences of the Airy zeros* (`AiryCft*`; direct route by good circles, no Hadamard theory).  Generic
+  complex analysis (`AiryCftCircle`: for an entire `f` with simple zeros `c_i` in a disc, `f = Π(w - c_i) φ` with
+  `φ` zero-free, the circle formulas for `f'/f` and its derivative as Cauchy integrals with error bounds;
+  `AiryCftResidue`: `∮ H/f = 2πi Σ H(c_i)/f'(c_i)`, a residue formula for simple poles, which Mathlib lacks); the zeros of
+  `Ai` in `ℂ` are exactly the `a_n`, simple, with every radius splitting the list, and `‖Ai'/Ai‖ ≤ 45√(1+r)` on a good
+  circle (`AiryCftZeros`); the Mittag-Leffler expansion `Ai'(z)/Ai(z) = Ai'(0)/Ai(0) + Σ(1/(z-a_n) + 1/a_n)` and the sum
+  rules `Σ(z-a_n)^{-2} = (Ai'/Ai)² - z`, `Σ a_n^{-2} = (Ai'(0)/Ai(0))²` with its closed form
+  (`AiryCftMittagLeffler`); Theorem D, the residue-defect formula for entire `f` with `Bi(a_n) = -1/(πAi'(a_n))`:
+  `‖Σ_{n ≤ N} f(a_n)/Ai'(a_n)² - ∫_{-R}^R f‖ ≤ πRM` if `‖f R_±‖ ≤ M` on the half circles (`AiryCftDefect`); and
+  Corollary D1, the quadrature `∫_ℝ f = Σ_{n ≥ 1} f(a_n)/Ai'(a_n)²` for `f` entire with `‖f(u)‖ ≤ C(1+|u|)^ν e(u)` on
+  all of `ℂ` and `ν < -1` (`AiryCftWeights`, `AiryCftQuadrature`).  Honest scope: `f` is entire with the bound on all of
+  `ℂ`; that the class is non-empty and useful (e.g. smearings of `Ai`) is checked only mathematically/numerically in the
+  module docstrings, not in Lean; the constants `45`, `30√π` are not sharp.  Open: `Ai'/(P Ai + Q Ai')` good circles (the
+  derivative analogue of `AiryAsymNegComplex`), Clark summation for `ψ_α` and Theorem D for `P Ai + Q Ai'`, Theorem Q for
+  `ν ∈ [-1, 1/2]` (Hardy-space unfolding, Fejér-Riesz), `f` holomorphic only near the closed disc.
+* *Hadamard factorization* (`FormalResearch.Complex`, `Hadamard*`, namespace `FormalResearch.Hadamard`; a separate aggregate,
+  not imported by this one, since only `HadamardAiry` uses the Airy modules and nothing here uses it): the general
+  theorem for entire functions of finite order, `f(z) = c z^m e^{P(z)} Π E_p(z/a_i)` with `deg P ≤ p` for
+  `|f| ≤ C exp(C|z|^σ)`, `σ < p+1` (`Hadamard.hadamard`, `hadamard_floor`, `hadamard_exists`: Weierstrass products,
+  Jensen counting of zeros, Blaschke/Borel–Carathéodory estimates and a derivative route replacing lower bounds on
+  circles), and its application to `Ai` (order `3/2`, genus one): `Ai(z) = Ai(0) exp((Ai'(0)/Ai(0)) z) Π(1 - z/a_n)e^{z/a_n}`
+  (`Hadamard.airyAiC_hadamard`).  Mathlib has Jensen's formula, Borel–Carathéodory and canonical decompositions but no
+  Hadamard factorization theorem, so this is upstreamable in principle.  Not formalised: the converse (finite genus implies
+  finite order), order = convergence exponent, lower bounds on canonical products, the closed value of `Ai'(0)/Ai(0)`
+  inside the product form, the products for `Ai'` and `Bi`.  The Mittag-Leffler expansion above is the logarithmic
+  derivative of this product, proved independently.
 * *Free-fermion edge*: the Airy kernel `K(x,y)`, `K(x,x) = Ai'² - x Ai²`, `(∂_x + ∂_y)K = -Ai(x)Ai(y)` and
   `∫_x^∞ Ai² = K(x,x)` are in place, and `K(x,y) = ∫_0^∞ Ai(x+s)Ai(y+s) ds` (hence positivity of `K`) is
   `airyKer_eq_integral` (real `x,y`) and `airyKerC_eq_integral` (complex `x,y`) in `AiryKernelOp*`.
