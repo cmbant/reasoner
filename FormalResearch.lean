@@ -222,6 +222,8 @@ public import FormalResearch.Racah.P2RacahLattice
 public import FormalResearch.Racah.P2RacahLatticeEnd
 public import FormalResearch.Racah.P2RacahSeed
 public import FormalResearch.Racah.P2RacahUnique
+public import FormalResearch.Racah.P2MomentPolynomial
+public import FormalResearch.Racah.P2LocalCalculus
 public import FormalResearch.Racah.P2ThreeJVanish
 public import FormalResearch.Racah.P2ThreeJRecAll
 public import FormalResearch.Racah.P2ThreeJRec
