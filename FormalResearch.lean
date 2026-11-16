@@ -283,6 +283,8 @@ public import FormalResearch.Racah.P2AnalyticL2Polar2
 public import FormalResearch.Racah.P2AnalyticL2Polar3
 public import FormalResearch.Racah.P2AnalyticL2Polar4
 public import FormalResearch.Racah.P2AnalyticNLO6j
+public import FormalResearch.Racah.P3FluxGauss
+public import FormalResearch.Racah.P3PhaseDatum
 public import FormalResearch.Special
 public import FormalResearch.Asymptotics
 public import FormalResearch.Wigner
