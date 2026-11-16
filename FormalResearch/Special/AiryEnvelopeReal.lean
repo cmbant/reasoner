@@ -15,7 +15,7 @@ With `ξ(X) = (2/3) (max X 0)^{3/2}` (`airyXi`), for every `X ≥ -1`:
 The upper bounds are (E1), (E1′) on the real axis, where `Re X^{3/2} = (max X 0)^{3/2}`
 (`re_ofReal_cpow_three_halves`: it vanishes on the negative axis).  The lower bound is `airyAi_lower_bound`
 on `[1, ∞)`, monotonicity on `[0, 1]` and the Sturm-type bound `Ai(x) ≥ Ai(0) cos x` of `AiryEnvelopeNeg` on
-`[-1, 0]`.  The constants are far from optimal (the true two-sided ratio constants are about `0.28` and `0.57`
+`[-1, 0]`.  The constants are far from optimal (the true two-sided ratio constants are about `0.28` and `0.55`
 on this range, by a numerical check) and the range `X ≥ -1` is not sharp (`Ai > 0` up to the first zero
 `≈ -2.338`, which is not located here).
 -/
