@@ -158,23 +158,11 @@ theorem hahn_tdRel (hα : -1 < α) (hβ : -1 < β) (hN : 0 < N) :
 
 theorem hahnChain_irreducible (hα : -1 < α) (hβ : -1 < β) (hN : 0 < N) :
     IsIrreducibleTridiag (hahnChain α β N) := by
-  refine ⟨fun i j hij => ?_, fun i j hij => ?_⟩
-  · by_contra hcon
-    push Not at hcon
-    obtain ⟨h1, h2, h3⟩ := hcon
-    simp only [Fin.covBy_iff, Nat.covBy_iff_add_one_eq] at h2 h3
-    exact hij (triChain_far N _ _ h1 (fun h => h2 h.symm) (fun h => h3 h.symm))
-  · simp only [Fin.covBy_iff, Nat.covBy_iff_add_one_eq] at hij
-    have hapos : ∀ m : ℕ, m < N → hahnA α β N m ≠ 0 := by
-      intro m hm
-      obtain ⟨hB, hD⟩ := hahn_BD_pos hα hβ hm
-      rw [hahnA_nat]
-      have : 0 < √(hahnB α N (m : ℝ) * hahnD β N ((m : ℝ) + 1)) :=
-        Real.sqrt_pos.mpr (mul_pos hB hD)
-      positivity
-    have hi : (i : ℕ) < N := by have := j.2; omega
-    exact ⟨by rw [hahnChain, triChain_succ N _ _ hij.symm]; exact hapos i hi,
-      by rw [hahnChain, triChain_pred N _ _ hij.symm]; exact hapos i hi⟩
+  refine triChain_irreducible N _ _ fun m hm => ?_
+  obtain ⟨hB, hD⟩ := hahn_BD_pos hα hβ hm
+  rw [hahnA_nat]
+  have : 0 < √(hahnB α N (m : ℝ) * hahnD β N ((m : ℝ) + 1)) := Real.sqrt_pos.mpr (mul_pos hB hD)
+  positivity
 
 /-- The factorisation behind the duality: for the spectrum `θ_k = k(k+s)`,
 `(θ_i-θ_j)² - 2(θ_i+θ_j) - (s²-1) = ((i-j)²-1)((i+j+s)²-1)`. -/

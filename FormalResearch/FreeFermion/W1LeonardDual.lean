@@ -28,7 +28,9 @@ for every chain whose pair satisfies the relation (Hahn: `W1Hahn`, folded Racah:
   because a vanishing link would give a proper non-zero subspace invariant under `X` and `Y`, while
   `X` diagonal with distinct eigenvalues and `Y` irreducible tridiagonal in `e` has none
   (`invariant_eq_bot_or_top`).
-* `leonard_heun` : the resulting instance of `heun_commutant`, with the eigenbasis `f` supplied.
+* `irreducible_of_tridiag_dual`: irreducibility of the dual is automatic (the hypothesis of
+  `thm:heun` "each irreducible tridiagonal in an eigenbasis of the other" can be weakened to "`Y`
+  irreducible tridiagonal in an eigenbasis of `X`, and `X` tridiagonal in an eigenbasis of `Y`").
 
 Nothing here uses self-adjointness or orthonormality, and the index set is an arbitrary finite
 linear order.
@@ -270,37 +272,18 @@ theorem no_invariant_span (e f : Basis ι 𝕜 V) (X Y : V →ₗ[𝕜] V) (x y 
   · have : f b ∈ U := by rw [htop]; trivial
     exact f.linearIndependent.notMem_span_image hb this
 
-/-- **Duality criterion** (Terwilliger's tridiagonal relation).  `X` is diagonal in `e` with distinct
-eigenvalues `x`, `Y` is irreducible tridiagonal in `e` and diagonal in the basis `f` with eigenvalues
-`y`, and `tdRel X Y γ ρ = c₂ Y² + c₁ Y + c₀` with `(y_i - y_j)² - γ(y_i + y_j) - ρ ≠ 0` for all
-non-adjacent `i ≠ j`.  Then `X` is irreducible tridiagonal in `f`. -/
-theorem tridiag_dual_of_relation (e f : Basis ι 𝕜 V) (X Y : V →ₗ[𝕜] V) (x y : ι → ℝ)
+/-- **Irreducibility is automatic** (Terwilliger).  If `X` is diagonal in `e` with distinct
+eigenvalues, `Y` is irreducible tridiagonal in `e` and diagonal in `f`, and `X` is merely
+*tridiagonal* in `f`, then `X` is irreducible tridiagonal in `f`: a vanishing link would give a proper
+non-zero subspace invariant under both. -/
+theorem irreducible_of_tridiag_dual (e f : Basis ι 𝕜 V) (X Y : V →ₗ[𝕜] V) (x y : ι → ℝ)
     (hx : Function.Injective x) (hXe : ∀ n, X (e n) = (x n : 𝕜) • e n)
     (hYf : ∀ n, Y (f n) = (y n : 𝕜) • f n)
-    (hYe : IsIrreducibleTridiag (LinearMap.toMatrixAlgEquiv e Y)) (γ ρ c₂ c₁ c₀ : ℝ)
-    (hrel : tdRel X Y (γ : 𝕜) (ρ : 𝕜) = (c₂ : 𝕜) • (Y * Y) + (c₁ : 𝕜) • Y + (c₀ : 𝕜) • 1)
-    (hc : ∀ i j, i ≠ j → ¬ i ⋖ j → ¬ j ⋖ i → (y i - y j) ^ 2 - γ * (y i + y j) - ρ ≠ 0) :
+    (hYe : IsIrreducibleTridiag (LinearMap.toMatrixAlgEquiv e Y))
+    (htri : IsTridiag (LinearMap.toMatrixAlgEquiv f X)) :
     IsIrreducibleTridiag (LinearMap.toMatrixAlgEquiv f X) := by
   have hT : ∀ i j, LinearMap.toMatrixAlgEquiv f X i j = f.repr (X (f j)) i := fun i j => by
     simp [LinearMap.toMatrixAlgEquiv_apply]
-  have hYy : ∀ v i, f.repr (Y v) i = (y i : 𝕜) * f.repr v i :=
-    fun v i => repr_apply_of_eigenbasis f Y y hYf v i
-  have htri : IsTridiag (LinearMap.toMatrixAlgEquiv f X) := by
-    intro i j hne
-    by_contra hcon
-    push Not at hcon
-    obtain ⟨hij, h1, h2⟩ := hcon
-    have hcij := hc i j hij h1 h2
-    have h := congrArg (fun v => f.repr v i) (LinearMap.congr_fun hrel (f j))
-    simp only [tdRel, LinearMap.sub_apply, LinearMap.add_apply, LinearMap.smul_apply,
-      Module.End.mul_apply, Module.End.one_apply, hYf, map_smul, map_sub, map_add,
-      Finsupp.sub_apply, Finsupp.add_apply, Finsupp.smul_apply, hYy, smul_eq_mul,
-      Basis.repr_self, Finsupp.single_apply, hij.symm, ite_false, mul_zero, add_zero] at h
-    rw [hT] at hne
-    have h3 : f.repr (X (f j)) i * (((y i - y j) ^ 2 - γ * (y i + y j) - ρ : ℝ) : 𝕜) = 0 := by
-      push_cast
-      linear_combination h
-    exact hne ((mul_eq_zero.mp h3).resolve_right (by exact_mod_cast hcij))
   refine ⟨htri, fun k k' hk => ⟨?_, ?_⟩⟩
   · -- the link `T k k'`: coefficient of `f_k` in `X f_k'`
     intro h0
@@ -334,6 +317,40 @@ theorem tridiag_dual_of_relation (e f : Basis ι 𝕜 V) (X Y : V →ₗ[𝕜] V
         exact absurd h0 hi'
       · by_contra hik
         exact hji.2 hlt (not_le.mp hik)
+
+
+/-- **Duality criterion** (Terwilliger's tridiagonal relation).  `X` is diagonal in `e` with distinct
+eigenvalues `x`, `Y` is irreducible tridiagonal in `e` and diagonal in the basis `f` with eigenvalues
+`y`, and `tdRel X Y γ ρ = c₂ Y² + c₁ Y + c₀` with `(y_i - y_j)² - γ(y_i + y_j) - ρ ≠ 0` for all
+non-adjacent `i ≠ j`.  Then `X` is irreducible tridiagonal in `f`. -/
+theorem tridiag_dual_of_relation (e f : Basis ι 𝕜 V) (X Y : V →ₗ[𝕜] V) (x y : ι → ℝ)
+    (hx : Function.Injective x) (hXe : ∀ n, X (e n) = (x n : 𝕜) • e n)
+    (hYf : ∀ n, Y (f n) = (y n : 𝕜) • f n)
+    (hYe : IsIrreducibleTridiag (LinearMap.toMatrixAlgEquiv e Y)) (γ ρ c₂ c₁ c₀ : ℝ)
+    (hrel : tdRel X Y (γ : 𝕜) (ρ : 𝕜) = (c₂ : 𝕜) • (Y * Y) + (c₁ : 𝕜) • Y + (c₀ : 𝕜) • 1)
+    (hc : ∀ i j, i ≠ j → ¬ i ⋖ j → ¬ j ⋖ i → (y i - y j) ^ 2 - γ * (y i + y j) - ρ ≠ 0) :
+    IsIrreducibleTridiag (LinearMap.toMatrixAlgEquiv f X) := by
+  have hT : ∀ i j, LinearMap.toMatrixAlgEquiv f X i j = f.repr (X (f j)) i := fun i j => by
+    simp [LinearMap.toMatrixAlgEquiv_apply]
+  have hYy : ∀ v i, f.repr (Y v) i = (y i : 𝕜) * f.repr v i :=
+    fun v i => repr_apply_of_eigenbasis f Y y hYf v i
+  have htri : IsTridiag (LinearMap.toMatrixAlgEquiv f X) := by
+    intro i j hne
+    by_contra hcon
+    push Not at hcon
+    obtain ⟨hij, h1, h2⟩ := hcon
+    have hcij := hc i j hij h1 h2
+    have h := congrArg (fun v => f.repr v i) (LinearMap.congr_fun hrel (f j))
+    simp only [tdRel, LinearMap.sub_apply, LinearMap.add_apply, LinearMap.smul_apply,
+      Module.End.mul_apply, Module.End.one_apply, hYf, map_smul, map_sub, map_add,
+      Finsupp.sub_apply, Finsupp.add_apply, Finsupp.smul_apply, hYy, smul_eq_mul,
+      Basis.repr_self, Finsupp.single_apply, hij.symm, ite_false, mul_zero, add_zero] at h
+    rw [hT] at hne
+    have h3 : f.repr (X (f j)) i * (((y i - y j) ^ 2 - γ * (y i + y j) - ρ : ℝ) : 𝕜) = 0 := by
+      push_cast
+      linear_combination h
+    exact hne ((mul_eq_zero.mp h3).resolve_right (by exact_mod_cast hcij))
+  exact irreducible_of_tridiag_dual e f X Y x y hx hXe hYf hYe htri
 
 end Duality
 

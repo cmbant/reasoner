@@ -11,3 +11,5 @@ public import FormalResearch.FreeFermion.W1LeonardDual
 public import FormalResearch.FreeFermion.W1TridiagRelation
 public import FormalResearch.FreeFermion.W1HahnSpectrum
 public import FormalResearch.FreeFermion.W1Hahn
+public import FormalResearch.FreeFermion.W1RacahSpectrum
+public import FormalResearch.FreeFermion.W1RacahChain

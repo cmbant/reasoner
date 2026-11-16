@@ -111,6 +111,20 @@ theorem triChain_far (a b : ℤ → ℝ) {i j : Fin (N + 1)} (h1 : i ≠ j) (h2 
 theorem triChain_diag (a b : ℤ → ℝ) (i : Fin (N + 1)) : triChain N a b i i = b i := by
   simp [triChain]
 
+/-- A symmetric tridiagonal matrix with nonzero links `a_n` (`n < N`) is irreducible tridiagonal. -/
+theorem triChain_irreducible (a b : ℤ → ℝ) (hapos : ∀ m : ℕ, m < N → a m ≠ 0) :
+    IsIrreducibleTridiag (triChain N a b) := by
+  refine ⟨fun i j hij => ?_, fun i j hij => ?_⟩
+  · by_contra hcon
+    push Not at hcon
+    obtain ⟨h1, h2, h3⟩ := hcon
+    simp only [Fin.covBy_iff, Nat.covBy_iff_add_one_eq] at h2 h3
+    exact hij (triChain_far N _ _ h1 (fun h => h2 h.symm) (fun h => h3 h.symm))
+  · simp only [Fin.covBy_iff, Nat.covBy_iff_add_one_eq] at hij
+    have hi : (i : ℕ) < N := by have := j.2; omega
+    exact ⟨by rw [triChain_succ N _ _ hij.symm]; exact hapos i hi,
+      by rw [triChain_pred N _ _ hij.symm]; exact hapos i hi⟩
+
 /-- The Jacobi operator on `ℤ`-sequences. -/
 def Yh (a b : ℤ → ℝ) : (ℤ → ℝ) →ₗ[ℝ] (ℤ → ℝ) where
   toFun w n := b n * w n + a n * w (n + 1) + a (n - 1) * w (n - 1)
