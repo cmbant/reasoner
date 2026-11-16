@@ -13,8 +13,9 @@ For `x ≥ -1`, with `ξ(x) = airyXi x = (2/3)(x₊)^{3/2}`:
 `airyAi_envelope_real` (`(1/20) (2+x)^{-1/4} e^{-ξ} ≤ Ai ≤ 4 (2+x)^{-1/4} e^{-ξ}`).  For `x ≥ 2` it follows from
 `airyBi_pos_asymptotic`; on `[-1, 2]` from `1/100 ≤ Bi ≤ Bi(2)` (`airyBi_ge_one_hundredth`, monotonicity).
 Consequences: `Ai Bi ≍ (2+x)^{-1/2}` on `[-1, ∞)` (`airyAi_mul_airyBi_envelope`) and `Bi' ≤ C (2+x)^{1/2} Bi`
-(`airyBiDeriv_le_mul_airyBi`, from the Wronskian).  Constants are those of the proof (numerically the optimal ones
-are `≈ 0.28` and `≈ 0.9` for large `x`).
+(`airyBiDeriv_le_mul_airyBi`, from the Wronskian).  Constants are those of the proof (numerically, on `[-1, ∞)` the best
+constants in the lower/upper bound of `Ai Bi (2+x)^{1/2}` are about `0.104` (at `x = -1`) and `0.849` (at `x ≈ 0.55`); the
+large-`x` limit is `1/√π`).
 -/
 
 @[expose] public section

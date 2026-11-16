@@ -5,7 +5,7 @@ public import FormalResearch.Special.AiryOlver
 /-!
 # Bounds for Olver's weights: `E² ≍ e^{2ξ}`, `2 e^{2ξ}/E² → 1`, `M² ≍ (2+|x|)^{-1/2}`, `N ≲ (2+|x|)^{1/2} M`
 
-Quantitative real-axis bounds for the objects of `AiryOlver` (`airyOlverE`, `airyOlverM`, `airyOlverN`; here `M` is
+Quantitative real-axis bounds for the objects of `AiryOlver` (`airyOlverE`, `airyOlverM`, `airyDerivWeightN`, the derivative majorant of `AiryOlver`, which is **not** Olver's `N`; here `M` is
 *Olver's* `M`, which equals the DLMF 9.8 modulus `airyModSq^{1/2}` only for `x ≤ airyCross`).  Everything is
 `ξ(x) = airyXi x = (2/3)(x₊)^{3/2}`.
 
@@ -17,16 +17,16 @@ Quantitative real-axis bounds for the objects of `AiryOlver` (`airyOlverE`, `air
   `Ai, Ai', Bi, Bi'` on the negative axis; on `x ≥ -1` via the envelopes `airyAi_envelope_real`, `airyBi_envelope_real`);
 * `airyOlverM_div_E_sq_bounds`, `airyOlverM_mul_E_sq_bounds`: for `x > airyCross`, `(M/E)² = 2 Ai² ≍ e^{-2ξ}/√(2+x)`
   and `(M E)² = 2 Bi² ≍ e^{2ξ}/√(2+x)`;
-* `airyOlverN_le`: `N ≤ 5300 (2+|x|)^{1/2} M` on all of `ℝ` (the constant is that of the Wronskian bound
+* `airyDerivWeightN_le`: `N ≤ 5300 (2+|x|)^{1/2} M` on all of `ℝ` (the constant is that of the Wronskian bound
   `airyBiDeriv_le_mul_airyBi`; the true constant is `O(1)`).
 
-Numerical check (mpmath, 30 digits, 4801-point grid on `[-60, 60]`, `c = -0.366046328...`): `M²√(2+|x|)` lies in
+Numerical check (mpmath, 30 digits, 4801-point grid on `[-60, 60]`; on `[-1000, 300]` the ratio bounds below become `0.999` (limit `1`) and `0.705`, `c = -0.366046328...`): `M²√(2+|x|)` lies in
 `[0.3235, 0.6366]` for Olver's `M` (the limit is `1/π` as `x → -∞` and `2/π` as `x → +∞`; the proved constants `1/8000`,
 `600` are far from optimal); `2 e^{2ξ} Ai/Bi` equals `0.9199, 0.9814, 0.9934, 0.9977` at `x = 2, 5, 10, 20`; and
 `N/((2+|x|)^{1/2} M)` is at most `0.984` on `x ≤ c` (DLMF `N`) and at most `0.696` on `x > c` (the `max`-definition of
-`airyOlverN`), versus the proved constant `5300`.
+`airyDerivWeightN`), versus the proved constant `5300`.
 
-**Not formalised:** the sharp constants; Olver's own `N` (`(-2 Ai' Bi')^{1/2}`); a uniform `M² ~ 1/(π √|x|)` asymptotic
+**Not formalised:** the sharp constants; Olver's own `N` (only the majorant `airyDerivWeightN` is defined); a uniform `M² ~ 1/(π √|x|)` asymptotic
 for `x → -∞` (only two-sided bounds are proved).
 -/
 
@@ -346,8 +346,8 @@ theorem airyOlverM_sq_two_sided (x : ℝ) :
 lemma sqrt_two_add_eq {x : ℝ} : (2 + x) ^ (1 / 2 : ℝ) = √(2 + x) := (Real.sqrt_eq_rpow _).symm
 
 /-- `N ≤ 5300 (2+x)^{1/2} M` on `[-1, ∞)` (the constant is that of `airyBiDeriv_le_mul_airyBi`). -/
-theorem airyOlverN_le_of_neg_one_le {x : ℝ} (hx : -1 ≤ x) :
-    airyOlverN x ≤ 5300 * √(2 + x) * airyOlverM x := by
+theorem airyDerivWeightN_le_of_neg_one_le {x : ℝ} (hx : -1 ≤ x) :
+    airyDerivWeightN x ≤ 5300 * √(2 + x) * airyOlverM x := by
   have h2 : 0 < 2 + x := by linarith
   have hs : 0 < √(2 + x) := Real.sqrt_pos.mpr h2
   have hD := abs_airyAi'_le_mul_airyAi hx
@@ -358,7 +358,7 @@ theorem airyOlverN_le_of_neg_one_le {x : ℝ} (hx : -1 ≤ x) :
   have hBd := airyBiDeriv_pos_of_ge (show -(11 / 10 : ℝ) ≤ x by linarith)
   have hM0 : 0 ≤ airyOlverM x := airyOlverM_nonneg x
   by_cases hc : x ≤ airyCross
-  · simp only [airyOlverN, hc, ite_true]
+  · simp only [airyDerivWeightN, hc, ite_true]
     rw [airyOlverM_of_le hc]
     refine Real.sqrt_le_iff.mpr ⟨by positivity, ?_⟩
     rw [mul_pow, mul_pow, Real.sq_sqrt h2.le, Real.sq_sqrt (airyModSq_pos x).le]
@@ -370,7 +370,7 @@ theorem airyOlverN_le_of_neg_one_le {x : ℝ} (hx : -1 ≤ x) :
     rw [mul_pow, mul_pow, Real.sq_sqrt h2.le] at e1 e2
     nlinarith [sq_nonneg (airyAi x), sq_nonneg (airyBi x)]
   · rw [not_le] at hc
-    simp only [airyOlverN, not_le.mpr hc, ite_false]
+    simp only [airyDerivWeightN, not_le.mpr hc, ite_false]
     have hE := airyOlverE_pos x
     have hMe := airyOlverM_eq hc
     have h1 : (1 : ℝ) ≤ √2 := by rw [Real.le_sqrt' (by norm_num)]; norm_num
@@ -391,9 +391,9 @@ theorem airyOlverN_le_of_neg_one_le {x : ℝ} (hx : -1 ≤ x) :
         _ ≤ _ := mul_le_mul_of_nonneg_left hBE (by positivity)
 
 /-- **`N ≤ 5300 (2+|x|)^{1/2} M` on all of `ℝ`** (for `x < -1` from `N² ≤ 2√|x|` and `M² ≥ (1/8000)/√(2+|x|)`). -/
-theorem airyOlverN_le (x : ℝ) : airyOlverN x ≤ 5300 * √(2 + |x|) * airyOlverM x := by
+theorem airyDerivWeightN_le (x : ℝ) : airyDerivWeightN x ≤ 5300 * √(2 + |x|) * airyOlverM x := by
   rcases le_or_gt (-1) x with hx | hx
-  · refine (airyOlverN_le_of_neg_one_le hx).trans ?_
+  · refine (airyDerivWeightN_le_of_neg_one_le hx).trans ?_
     have hM0 : 0 ≤ airyOlverM x := airyOlverM_nonneg x
     have hle : √(2 + x) ≤ √(2 + |x|) := Real.sqrt_le_sqrt (by linarith [le_abs_self x])
     nlinarith [mul_nonneg hM0 (sub_nonneg.mpr hle)]
@@ -415,7 +415,7 @@ theorem airyOlverN_le (x : ℝ) : airyOlverN x ≤ 5300 * √(2 + |x|) * airyOlv
       have := mul_le_mul_of_nonneg_left hl (sq_nonneg (√(2 + y)))
       refine le_trans (le_of_eq ?_) this
       field_simp
-    simp only [airyOlverN, hc, ite_true]
+    simp only [airyDerivWeightN, hc, ite_true]
     refine Real.sqrt_le_iff.mpr ⟨by positivity, ?_⟩
     rw [mul_pow, mul_pow]
     nlinarith
@@ -498,13 +498,13 @@ theorem airyOlverM_mul_E_sq_bounds {x : ℝ} (hc : airyCross < x) :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyOlverM_sq_two_sided
 
-/-- info: 'FormalResearch.Special.airyOlverN_le_of_neg_one_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.Special.airyDerivWeightN_le_of_neg_one_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.Special.airyOlverN_le_of_neg_one_le
+#print axioms FormalResearch.Special.airyDerivWeightN_le_of_neg_one_le
 
-/-- info: 'FormalResearch.Special.airyOlverN_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.Special.airyDerivWeightN_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.Special.airyOlverN_le
+#print axioms FormalResearch.Special.airyDerivWeightN_le
 
 /-- info: 'FormalResearch.Special.airyOlverM_div_E_sq_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -24,10 +24,11 @@ inequality directions quoted in the Weyl sources (`|Ai| ≤ M/E`, `|Bi| ≤ M E`
 better numerics than the ones in `AiryBiNeg`), hence the value `-0.366...`.  Nothing below uses it: all properties of
 `E, M, N` hold for this `airyCross`.
 
-**The derivative weight `N`.**  The survey does not quote Olver's formula for `N`; the downstream uses are
-`|Ai'| ≤ N/E` and `N ≤ C (2+|x|)^{1/2} M`.  `airyOlverN` is therefore *defined* as the least function with
-`|Ai'| ≤ N/E`, `|Bi'| ≤ N E` for `x > c` (`N = max(E|Ai'|, |Bi'|/E)`) and `N = (Ai'² + Bi'²)^{1/2}` for `x ≤ c`; this is
-not claimed to coincide with Olver's `N` (numerically `Olver's N = (-2 Ai' Bi')^{1/2}` for `x > c`, which is `≥` ours there).
+**The derivative weight (not Olver's `N`).**  Only `E` and `M` are Olver's functions here.  The downstream uses need
+`|Ai'| ≤ N/E`, `|Bi'| ≤ N E` and `N ≤ C (2+|x|)^{1/2} M`; `airyDerivWeightN` is a *convenient majorant with these
+properties, not Olver's `N`*: it is `(Ai'² + Bi'²)^{1/2}` for `x ≤ c` and `max(E|Ai'|, |Bi'|/E)` for `x > c`, and is
+**discontinuous at `c`** (`0.5345` from the left, `0.4820` from the right).  It is not related to
+`(-2 Ai' Bi')^{1/2}`, which does not satisfy these two inequalities on `(c, c + 0.016)`.
 
 **Proved here:** the definitions; `E ≥ 1`, `E` monotone, `E² = Bi/Ai` for `x > c`; `M/E`, `M E`; `|Ai| ≤ M/E`, `|Bi| ≤ M E`,
 `|Ai'| ≤ N/E`, `|Bi'| ≤ N E`; the elementary Wronskian bound `1/π² ≤ M² N²` for the DLMF modulus; `E^{-2} = Ai/Bi ≍ e^{-2ξ}`
@@ -122,7 +123,7 @@ noncomputable def airyOlverM (x : ℝ) : ℝ :=
 
 /-- The derivative weight `N` (see the module docstring): `(Ai'² + Bi'²)^{1/2}` for `x ≤ airyCross`,
 `max (E |Ai'|) (|Bi'|/E)` for `x > airyCross`. -/
-noncomputable def airyOlverN (x : ℝ) : ℝ :=
+noncomputable def airyDerivWeightN (x : ℝ) : ℝ :=
   if x ≤ airyCross then √(airyModDerivSq x) else max (airyOlverE x * |airyAi' x|) (|airyBiDeriv x| / airyOlverE x)
 
 lemma airyBi_pos_of_gt {x : ℝ} (hx : airyCross < x) : 0 < airyBi x := by
@@ -222,23 +223,23 @@ theorem abs_airyBi_le_airyOlverM_mul_E (x : ℝ) : |airyBi x| ≤ airyOlverM x *
     nlinarith
 
 /-- `|Ai'| ≤ N/E` (all `x`). -/
-theorem abs_airyAi'_le_airyOlverN_div_E (x : ℝ) : |airyAi' x| ≤ airyOlverN x / airyOlverE x := by
+theorem abs_airyAi'_le_airyDerivWeightN_div_E (x : ℝ) : |airyAi' x| ≤ airyDerivWeightN x / airyOlverE x := by
   by_cases hx : x ≤ airyCross
-  · simp only [airyOlverN, hx, ite_true]
+  · simp only [airyDerivWeightN, hx, ite_true]
     rw [airyOlverE_of_le hx, div_one]
     exact Real.abs_le_sqrt (by unfold airyModDerivSq; nlinarith [sq_nonneg (airyBiDeriv x)])
-  · simp only [airyOlverN, hx, ite_false]
+  · simp only [airyDerivWeightN, hx, ite_false]
     rw [le_div_iff₀ (airyOlverE_pos x)]
     calc |airyAi' x| * airyOlverE x = airyOlverE x * |airyAi' x| := by ring
       _ ≤ _ := le_max_left _ _
 
 /-- `|Bi'| ≤ N E` (all `x`). -/
-theorem abs_airyBiDeriv_le_airyOlverN_mul_E (x : ℝ) : |airyBiDeriv x| ≤ airyOlverN x * airyOlverE x := by
+theorem abs_airyBiDeriv_le_airyDerivWeightN_mul_E (x : ℝ) : |airyBiDeriv x| ≤ airyDerivWeightN x * airyOlverE x := by
   by_cases hx : x ≤ airyCross
-  · simp only [airyOlverN, hx, ite_true]
+  · simp only [airyDerivWeightN, hx, ite_true]
     rw [airyOlverE_of_le hx, mul_one]
     exact Real.abs_le_sqrt (by unfold airyModDerivSq; nlinarith [sq_nonneg (airyAi' x)])
-  · simp only [airyOlverN, hx, ite_false]
+  · simp only [airyDerivWeightN, hx, ite_false]
     have h := le_max_right (airyOlverE x * |airyAi' x|) (|airyBiDeriv x| / airyOlverE x)
     have hE := airyOlverE_pos x
     calc |airyBiDeriv x| = |airyBiDeriv x| / airyOlverE x * airyOlverE x := by field_simp
@@ -307,13 +308,13 @@ lemma airyModSq_pos (x : ℝ) : 0 < airyModSq x := by
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.abs_airyBi_le_airyOlverM_mul_E
 
-/-- info: 'FormalResearch.Special.abs_airyAi'_le_airyOlverN_div_E' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.Special.abs_airyAi'_le_airyDerivWeightN_div_E' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.Special.abs_airyAi'_le_airyOlverN_div_E
+#print axioms FormalResearch.Special.abs_airyAi'_le_airyDerivWeightN_div_E
 
-/-- info: 'FormalResearch.Special.abs_airyBiDeriv_le_airyOlverN_mul_E' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.Special.abs_airyBiDeriv_le_airyDerivWeightN_mul_E' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.Special.abs_airyBiDeriv_le_airyOlverN_mul_E
+#print axioms FormalResearch.Special.abs_airyBiDeriv_le_airyDerivWeightN_mul_E
 
 /-- info: 'FormalResearch.Special.one_div_pi_sq_le_airyModSq_mul' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
