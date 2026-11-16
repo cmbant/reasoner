@@ -7,3 +7,7 @@ public import FormalResearch.FreeFermion.W1TwoLevel
 public import FormalResearch.FreeFermion.W1Krawtchouk
 public import FormalResearch.FreeFermion.W1Replica
 public import FormalResearch.FreeFermion.W1Bispectral
+public import FormalResearch.FreeFermion.W1LeonardDual
+public import FormalResearch.FreeFermion.W1TridiagRelation
+public import FormalResearch.FreeFermion.W1HahnSpectrum
+public import FormalResearch.FreeFermion.W1Hahn
