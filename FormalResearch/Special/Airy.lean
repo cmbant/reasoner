@@ -11,6 +11,7 @@ public import FormalResearch.Special.AiryZeros
 public import FormalResearch.Special.AiryRotation
 public import FormalResearch.Special.AiryKernelOpOperator
 public import FormalResearch.Special.AiryKernelOpComplex
+public import FormalResearch.Special.AiryKernelOpSharp
 public import FormalResearch.Special.AiryBridge
 public import FormalResearch.Special.AiryNodes
 public import FormalResearch.Special.AiryEnvelope

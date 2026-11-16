@@ -18,9 +18,9 @@ Write `K(x) := K(x,x) = Ai'(x)² - x Ai(x)² = ∫_x^∞ Ai²` (`airyKer x x`, `
 * `integral_Ioi_airyAi'_sq`: `∫_u^∞ Ai'² = (u²Ai(u)² - u Ai'(u)² - 2Ai(u)Ai'(u))/3`.
 * `airyN_le`, `integral_Ioi_airyAi'_sq_le`: both are `≤ C' (1 + max(-u,0))²` for all real `u`.
 
-**Not proved:** the sharp bounds `K(x) ≤ C(1+x_-)^{1/2}` and `∫_u^∞ Ai'² ≤ C(1+u_-)^{3/2}` (they need the
-oscillatory asymptotics `Ai(-x) ~ π^{-1/2}x^{-1/4}cos(...)`, which are not in the library); the exponents here
-are `1` and `2`, from the energy identity alone.
+The sharp bounds `K(x) ≤ C(1+x_-)^{1/2}` and `∫_u^∞ Ai'² ≤ C(1+u_-)^{3/2}` are proved in
+`AiryKernelOpSharp` from the complex envelope; the exponents here are `1` and `2`, from the energy identity
+alone.
 -/
 
 @[expose] public section
