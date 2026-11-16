@@ -19,7 +19,7 @@ A solution is a pair `(y, y')` of real functions with `HasDerivAt y (y' x) x` an
   hence a nontrivial solution has `(y x, y' x) ≠ (0, 0)` for every `x` (`IsSol.data_ne_zero`).
 * `IsSol.wr_eq`: the Wronskian `y w' - y' w` of two solutions is constant;
   `IsSol.eq_smul_of_wr_eq_zero`: if it vanishes and `y` is nontrivial then `w = c y`
-  (so `wr ≠ 0` is exactly linear independence, one direction being trivial).
+  (so, for `y` nontrivial, `wr ≠ 0` is exactly linear independence, one direction being trivial).
 * `IsSol.deriv_ne_zero_of_zero` (zeros are simple), `IsSol.eventually_ne_of_zero` (isolated),
   `IsSol.finite_zeros_Icc` (finitely many zeros on a compact interval).
 * `exists_unique_zero_of_sep`: the generic Rolle argument for the ratio of two functions whose

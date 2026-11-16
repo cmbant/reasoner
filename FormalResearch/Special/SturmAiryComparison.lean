@@ -15,7 +15,7 @@ Continuation of `FormalResearch/Special/SturmAiryZeros.lean` (real solutions of 
   `[a, a + π]`, every solution has a zero in `[a, a + π]`.
 * `IsSol.infinite_zeros_of_le_neg_one` and `IsSol.infinite_zeros_Iic_zero`: for `q x = x` (the Airy
   equation) every solution has infinitely many zeros in `(-∞, 0]` (more precisely, in
-  `(-∞, -1]`; for the trivial solution this is vacuous; for a nontrivial one the zeros are
+  `(-∞, -1]`; the zero solution has every point as a zero; for a nontrivial one the zeros are
   discrete by `IsSol.finite_zeros_Icc`).
 * `IsSol.eq_zero_of_two_zeros_of_pos`, `IsSol.zeros_Ici_zero_subsingleton`: if `q > 0` on `(x₁, x₂)`
   and `y x₁ = y x₂ = 0` then `y ≡ 0`; for `q x = x` a nontrivial solution has **at most one zero in

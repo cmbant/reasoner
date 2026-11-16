@@ -21,7 +21,7 @@ differentiable **Prüfer angle** `θ` (`cot θ = y'/y`).  It satisfies
   Im ∫ a`, `r = |w(t₀)| exp Re ∫ a`; `Im a = cos² θ - q sin² θ`.  No Picard-Lindelöf is needed.
 * `IsPruferLift.zero_iff`: `y x = 0 ↔ sin (θ x) = 0`; at a zero, `θ' = 1`
   (`IsPruferLift.hasDerivAt_eq_one_of_zero`).
-* `IsPruferLift.continuous_deriv`: `θ` is `C¹` (its derivative is continuous).
+* `IsPruferLift.contDiff_one`: `θ` is `C¹` (its derivative is continuous).
 
 Not formalised: uniqueness of the lift up to an additive `2πℤ` (not needed downstream), the
 complex (Herglotz) form of the log-derivative.
