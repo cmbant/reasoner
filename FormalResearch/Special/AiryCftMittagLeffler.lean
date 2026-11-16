@@ -358,4 +358,16 @@ theorem airyZero_sum_sq_of_deriv_zero {x : ℝ} (h : airyAi' x = 0) :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyZero_sum_sq_of_deriv_zero
 
+/-- info: 'FormalResearch.Special.airyAi_logDeriv_mittagLeffler_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAi_logDeriv_mittagLeffler_real
+
+/-- info: 'FormalResearch.Special.airyAi_sq_series_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAi_sq_series_real
+
+/-- info: 'FormalResearch.Special.airyZero_sum_inv_sq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyZero_sum_inv_sq
+
 end FormalResearch.Special

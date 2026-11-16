@@ -223,4 +223,16 @@ theorem airy_circleData_exists (k : ℕ) (hk : 10 ≤ k) :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airy_circleData_exists
 
+/-- info: 'FormalResearch.Special.airyAiC_eq_zero_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAiC_eq_zero_iff
+
+/-- info: 'FormalResearch.Special.airyZero_deriv_ne_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyZero_deriv_ne_zero
+
+/-- info: 'FormalResearch.Special.airy_logDeriv_norm_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airy_logDeriv_norm_le
+
 end FormalResearch.Special

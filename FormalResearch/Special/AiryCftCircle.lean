@@ -395,4 +395,20 @@ theorem cftCircle_error_two (h : CftCircleData f c s R) {z : ℂ} (hz : ‖z‖ 
 
 end main
 
+/-- info: 'FormalResearch.Special.cftCircle_logDeriv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.cftCircle_logDeriv
+
+/-- info: 'FormalResearch.Special.cftCircle_deriv_logDeriv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.cftCircle_deriv_logDeriv
+
+/-- info: 'FormalResearch.Special.cftCircle_error_one' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.cftCircle_error_one
+
+/-- info: 'FormalResearch.Special.cftCircle_error_two' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.cftCircle_error_two
+
 end FormalResearch.Special
