@@ -165,4 +165,20 @@ theorem racah_chain_airy_full_family_neg (P Q R m n : ℤ) (hRlo : |P - Q| < R) 
   exact ⟨a, b, c, D', hsys, i, h, hc, hh, hhε.trans (min_le_left _ _), hAh, hBh, hx,
     H a b c D' hsys i h hc hh (hhε.trans (min_le_right _ _)) hAh hBh hx⟩
 
+/-- info: 'FormalResearch.Special.racah_chain_airy_full_pos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.racah_chain_airy_full_pos
+
+/-- info: 'FormalResearch.Special.racah_chain_airy_full_neg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.racah_chain_airy_full_neg
+
+/-- info: 'FormalResearch.Special.racah_chain_airy_full_family_pos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.racah_chain_airy_full_family_pos
+
+/-- info: 'FormalResearch.Special.racah_chain_airy_full_family_neg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.racah_chain_airy_full_family_neg
+
 end FormalResearch.Special
