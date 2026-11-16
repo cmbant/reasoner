@@ -28,8 +28,8 @@ exceptional channel).
   `eq:hahn-class-data`, `eq:racah-class-data` (sources of `A:1372`, `A:1550`).
 * `wigner_natural_jacobi`, `wigner_natural_jacobi_zero`: `eq:wigner-natural-jacobi` itself (all rows,
   with the conventions `A_{k_min}^{(0)} = 0`, `B_0^{(0)} = 0`).  This was not formalised before.
-* `contact_residual_hasDerivAt`: the reduction "the `t`-coefficient of `𝓡_k(Û^{[2]})` vanishes iff
-  `eq:general-contact-identity` holds", for given first-order jets of `A_{k±}(t)`, `B_k(t)`, `Û_j(t)`.
+* `contact_residual_hasDerivAt`: the reduction "if `eq:general-contact-identity` holds, the `t`-coefficient of
+  `𝓡_k(Û^{[2]})` vanishes" (one direction only), for given first-order jets of `A_{k±}(t)`, `B_k(t)`, `Û_j(t)`.
 * `Q2_beta2_part`, `Q2_lam1_part`: the "transparent" `β₂`- and `λ₁`-parts of `𝒬_{2,k}`.
 
 ## Not formalised

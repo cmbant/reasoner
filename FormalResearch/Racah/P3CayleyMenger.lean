@@ -173,8 +173,7 @@ theorem cmDet_neg_iff {N α β : ℝ} (hN : N ≠ 0) (hα : α ≠ 0) (hβ : β 
 /-- **Face admissibility** (a point the paper's proof uses without proof).  With `α, β, γ > 0`,
 `D₆ > 0` already forces `ρ² < 4α²` and `ρ² < 4β²`: the faces `(A,A,F)` and `(B,B,F)` of the
 tetrahedron satisfy the triangle inequality (the other two faces are the `(α,β,γ)` triangle).
-The inequalities are `4α²γ² - [4α²β²-(α²+β²-γ²)²] = (α²-β²+γ²)² ≥ 0` and the symmetric one
-(`eq:racahTurnBoundaryIdentities`). -/
+The inequalities are `4α²γ² - [4α²β²-(α²+β²-γ²)²] = (α²-β²+γ²)² ≥ 0` and the symmetric one. -/
 theorem faces_admissible {α β γ ρ : ℝ} (hα : 0 < α) (hβ : 0 < β) (hγ : 0 < γ)
     (hD : 0 < D6lin α β γ ρ) : ρ ^ 2 < 4 * α ^ 2 ∧ ρ ^ 2 < 4 * β ^ 2 := by
   rw [D6lin_eq hα.ne' hβ.ne'] at hD
