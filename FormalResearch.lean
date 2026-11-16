@@ -302,6 +302,9 @@ public import FormalResearch.Racah.P2AnalyticNLO6j
 public import FormalResearch.Racah.P2CtLogSeries
 public import FormalResearch.Racah.P2SeedLogAllOrder
 public import FormalResearch.Racah.P2SeedLogAllOrderPhys
+public import FormalResearch.Racah.P2SeedGridUnique
+public import FormalResearch.Racah.P2SeedMultiplierLink
+public import FormalResearch.Racah.P2SeedAllChambers
 public import FormalResearch.Racah.P3FluxGauss
 public import FormalResearch.Racah.P3PhaseDatum
 public import FormalResearch.Racah.P3CayleyMenger
