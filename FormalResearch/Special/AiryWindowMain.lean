@@ -51,7 +51,8 @@ window, `O(h²)`-perturbed coefficients) by `dal_window_hyp` (`DiscreteAiryLimit
 
 **Not formalised:** the value of `κ` (Darboux matching), the identification of the Hahn/Racah/W1 closed forms with the
 actual chains and the link of the end-value hypothesis (R) to the hard-edge solution (see `discrete_airy_hahn_racah`),
-the oscillatory side beyond a bounded window (full GBVA with `M/E` weights), and a
+the oscillatory side beyond a bounded window with the `M/E` weights of GBVA (covered in the amplitude-adapted `O(δ³)` form by
+`DiscreteAiryOsc*`, via a different, amplitude-weighted march), and a
 Grönwall norm adapted to the amplitude `|X|^{-1/4}` (would give power instead of `e^{O(A₀²)}` growth; the abstract
 `window_from_top_sharp` of `AiryWindowSharp` is the sharper chain lemma, not yet applied here).
 

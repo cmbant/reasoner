@@ -23,7 +23,7 @@ lattice `q_k = q₀ + kδ³`, `X_k = ζ(q_k)/δ²`, `φ_k = g(q_k) Ai(X_k)`, `ψ
 
 This **strengthens** `dao_turn_conclusion` (`[J, N]` only, no uniqueness; same hypotheses, same `r`, `N`) and has the content of
 `discrete_airy_limit` (window `X ≥ -A₀`, `e^{O(A₀²)}` constants) on the oscillatory side, with the same recessive `f` *when both are
-normalised at the same `N`* (`dap_recessive_eq`).  *Caveat*: `discrete_airy_limit` chooses its own `r` (hence its own `N`); `r`, `N` here
+normalised at the same `N`* (`dap_recessive_eq`); it does **not** formally supersede either.  *Caveat*: `discrete_airy_limit` chooses its own `r` (hence its own `N`); `r`, `N` here
 are those of `dao_turn_conclusion`, so the identification of the two `f`'s is conditional on the same `N` and is **not** a formal
 derivation of `discrete_airy_limit` from `discrete_airy_full`; both older theorems stay in place.
 

@@ -51,7 +51,7 @@ the theorem is asymptotic (`N ≳ 10⁶`), not a statement about small `N`.
 layer `DiscreteAiryLimit*`; see `AiryWindowMain`), the Hahn/Racah coefficient hypotheses (supplied by `dal_window_hyp`
 and `hr_perturb`, `DiscreteAiryLimit*`), a sharper Grönwall norm (adapted to the Prüfer amplitude `|X|^{-1/4}`, which would replace `e^{O(A₀²)}` by a power;
 the abstract chain lemma `window_from_top_sharp`, `AiryWindowSharp`, has the sharper constant `exp(3V/2)` but is not yet
-applied to `discrete_airy_window`), and the oscillatory side beyond a bounded window.
+applied to `discrete_airy_window`); the oscillatory side beyond a bounded window is `DiscreteAiryOsc*` (amplitude-weighted march).
 -/
 
 @[expose] public section

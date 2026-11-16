@@ -30,13 +30,11 @@ Mpmath check (scratch, not a Lean claim; model chain of `DiscreteAiryLimit`, `A 
 `X` down to `≈ -4700`): `sup |f - g Ai|/(h airyWt)` and `sup |F₂ - g Bi|/(h airyBiWt)` stay `≈ 0.018` for every `h`
 and every `X` sampled (also with `±3h²` perturbations of `a, c`).
 
-**Not formalised.**  The Darboux normalisation of `κ` and `κ ≠ 0`; identification of `f` with the recessive `f` of
-`discrete_airy_limit` (both are the exact solution with prescribed values at `N, N+1`, up to normalisation); the comparison of `F₂`
-and `Y` with the parametrix at the site `N+1` (the decomposition `Y = κ f + μ F₂` holds on `[J, N+1]`, the parametrix bounds on
-`[J, N]`); explicit constants and uniformity in families of data; the `h²` phase coefficient `ϖ`; and the application to the
-physical Hahn/Racah chains.  For the closed-form Hahn chain the required `Eδ⁶` closeness is available on a macroscopic window
-(`hr_perturb` of `DiscreteAiryLimitHahn`, `|q_k - q_*| ≤ r ≤ q_*/4`), so `dao_turn_conclusion` with `r₀ ≤ q_*/4` applies to it
-after the same bookkeeping as `discrete_airy_hahn_racah`; that instantiation, and the Racah analogue, are not carried out here.
+**Not formalised here.**  The Darboux normalisation of `κ` and `κ ≠ 0`; explicit constants and uniformity in families of data; the
+`h²` phase coefficient `ϖ`.  Continued in `DiscreteAiryPhys*`: the unified statement `discrete_airy_full` (the two recessive `f`'s are
+identified, `dap_recessive_eq`, when normalised at the same `N`; the comparison of `F₂` and `Y` with the parametrix extends to the
+site `N+1`, the decomposition `Y = κ f + μ F₂` holding on `[J, N+1]`) and the physical Hahn/Racah chains on this window
+(`hahn_chain_airy_full`, `racah_chain_airy_full_*`; the required `Eδ⁶` closeness is `hr_perturb` of `DiscreteAiryLimitHahn`).
 -/
 
 @[expose] public section

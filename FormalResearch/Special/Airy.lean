@@ -137,8 +137,8 @@ local constancy and lattice sums), `AiryShift` (the shift identity `y(X+s) = y(X
 expansions of `Ai`, `C`, `S` against the weight); and the CFT consequences of the zeros of `Ai` (`AiryCft*`, and `AiryCft2*` for
 Theorem D on a disc, the zeros and quadrature of `P Ai + Q Ai'`, Clark summation, `a'_1`: see the design note; the Hadamard product of
 `Ai'`, `AiryCft2DerivHadamard`, imports `FormalResearch.Complex` and is therefore imported by `FormalResearch.Special`, not here).  The Langer coordinate (`Langer*`), the discrete Jacobi calculus
-(`DiscreteJacobi*`) and the discrete-to-Airy comparison built on it (`AiryParametrix*`, `AiryRecessive*`, `AiryWindow*`, `DiscreteAiryLimit*`)
-are separate modules of `FormalResearch.Special`, not imported by this aggregate.  (Overlapping Gamma enclosures: `AiryBiNeg` and
+(`DiscreteJacobi*`) and the discrete-to-Airy comparison built on it (`AiryParametrix*`, `AiryRecessive*`, `AiryWindow*`, `DiscreteAiryLimit*`,
+`DiscreteAiryOsc*`, `DiscreteAiryPhys*`) are separate modules of `FormalResearch.Special`, not imported by this aggregate.  (Overlapping Gamma enclosures: `AiryBiNeg` and
 `AiryGammaBounds` each carry their own, with different constants.)
 
 **Not formalised:** the full asymptotic series (the `AiryAsym*` files give the first term, or `u_1` in `AiryAsymChi`, with explicit
@@ -153,10 +153,11 @@ moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the `Lp`-level operator `K
 Hardy-space unfolding) and the `P Ai + Q Ai'` versions with polynomial (non-constant) `P, Q`; the product form of `Bi`; the lower
 bound / order = convergence exponent of Hadamard's theorem (`FormalResearch.Complex`); the first zero of `Bi` and `Bi > 0`
 beyond `-11/10`; the open parts of the discrete-to-Airy chain: the Darboux normalisation `κ` and `κ ≠ 0` (also the single
-normalisation `|Y_{k₁}| ≤ δ^{-p}` for the closed-form chains), the non-recessive `Ai/Bi` pair and the full oscillatory side,
-uniformity over families (an irrational shape has no exact lattice node or realisation), mixed-parity `6j` labels and
-half-integer Hahn with `x < 0`, a polynomial `A0^{3/2}` window constant for `discrete_airy_window` itself (only the abstract
-`window_from_top_sharp` exists), explicit constants, and analyticity of the Langer coordinate (see the design note).
+normalisation `|Y_{k₁}| ≤ δ^{-p}` for the closed-form chains), uniformity over families (an irrational shape has no exact lattice
+node or realisation; needs a parametric Langer chart), the second-order bracket (needs a second-order Olver parametrix), the
+half-integer version of the unified statement `discrete_airy_full`, mixed-parity `6j` labels, half-integer Hahn with `x < 0`,
+Racah family variants of the full statement, a polynomial `A0^{3/2}` window constant for `discrete_airy_window` itself (only the
+abstract `window_from_top_sharp` exists), explicit constants, and analyticity of the Langer coordinate (see the design note).
 
 Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and the free-fermion edge
 (`Weyl/free_fermion`, `thm:edge`) need next, and what is now reachable.
@@ -191,10 +192,10 @@ a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete
   small), `dal_conclusion_window` (its bounded-window form `Y = κg(Ai + O(h))`, from a polynomial bound `|Y_N|, |Y_{N+1}| ≤
   δ^{-p}`, hypothesis (R), on the forbidden-end values), and the closed-form Hahn / centred Racah instance
   `discrete_airy_hahn_racah(_window)` (simple-turn data from `1 - τx > 0`, `O(h²)` comparison of the closed-form `A_k, c_k`).
-  This covers the recessive solution with relative `O(h)` error and a bounded oscillatory window for one fixed `(u, A, c₀)`
-  under (R); it does **not** cover the non-recessive canonical `Ai/Bi` pair, the oscillatory side beyond the bounded window,
-  uniformity over families of shapes, or the identification of `κ` (Darboux matching) or `κ ≠ 0`; constants are existential
-  (window constant `e^{O(A0²)}`), and the input cited by the papers (GBVA, Geronimo) is still cited, not replaced.
+  This layer covers the recessive solution with relative `O(h)` error and a bounded oscillatory window for one fixed
+  `(u, A, c₀)` under (R); the non-recessive `Ai/Bi` pair and the whole oscillatory side are the later layers below
+  (`DiscreteAiryOsc*`, `DiscreteAiryPhys*`); constants are existential (window constant `e^{O(A0²)}` here), and the input cited by the
+  papers (GBVA, Geronimo) is still cited, not replaced.
   Two further pieces now close the (R) and chain-identification gaps for the closed forms.  Hard-edge decay
   (`DiscreteAiryLimitHyper*`): `hd_backward_decay` (abstract monotone decay `|Y_k| ≤ |Y_{j-1}|` to a hard edge `A_{N+1} = 0`),
   `hr_hardedge_decay` (for the closed-form Hahn / centred Racah rows, via `exact_hyperbolicity_hahn_racah` row by row) and
@@ -215,11 +216,34 @@ a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete
   for infinitely many `h → 0` (`racah_realisation`, `racah_chain_airy_family_pos/_neg`); and the half-integer data, the chain on
   the shifted lattice `L = k + 1/2` (`discrete_airy_hahn_racah_half`, `hahn_class_chain_half`, `racah_class_chain_half`, nodes
   `hahn_node_exists_half`, the Airy limits `hahn_chain_airy_half`, `racah_chain_airy_geom_half_pos/_neg` and the realisation
-  families).  The abstract composition `airy_chain_compose` holds for any solution of the rows and any `τ² = 1`.  Open: `κ` and
-  `κ ≠ 0` (Darboux), the non-recessive `Ai/Bi` pair, the full oscillatory side, uniformity over families (all constants are for
-  one fixed rational `x`, resp. `(α, β, x)`; approximate nodes `x_N → x*` need the Airy limit made uniform in the shape),
-  mixed-parity `6j` labels and half-integer Hahn with `x < 0`, a polynomial window constant for `discrete_airy_window` itself,
-  explicit constants, and analyticity of `ζ`.
+  families).  The abstract composition `airy_chain_compose` holds for any solution of the rows and any `τ² = 1`.
+  The non-recessive pair and the whole oscillatory side come in two further layers.  *`DiscreteAiryOsc*`*: the exact step identities
+  of variation of constants for `α = cas(Y,ψ)/cas(φ,ψ)`, `β = cas(φ,Y)/cas(φ,ψ)` with a weighted Grönwall march (`voc_step_up/down`,
+  `voc_march_up/down`; Airy-free, with weight `e^{∓2ξ}` adapted to the amplitude instead of the `e^{O(A₀²)}` `l¹` Grönwall); the
+  `Bi` envelope `airyBiWt = (2+|x|)^{-1/4} e^{ξ}` (`apx_airyBi_global`, `airyBiWt_le_of_close`) and the uniform parametrix defect for
+  `ψ_B = g·Bi(h^{-2/3}ζ)` (`dao_bi_defect_lattice`; the M7b shift identity holds for every solution of `y'' = xy`, so the defect lemma
+  is not specific to `Ai`, `dao_defect_lattice`); the Casoratian of the parametrix pair, `≥ δ/C`, conserved up to
+  `O(δ⁴)` (`dao_cas_eq`, `dao_cas_base`, `DaoPair.cas_vary`, with the lattice sum `dao_sum_p`: `Σ(2+|X_k|)^{-1/2} ≲ δ^{-2}`, using
+  `airyWt·airyBiWt = (2+|X|)^{-1/2}`); the two-sided decomposition (`dao_decomposition`, `dao_up`, `dao_down`) and the theorem
+  `DaoConclusion` (`dao_conclusion`, `dao_mu_bound`, `DaoConclusion.pointwise`): on the whole macroscopic window `[J, N]` the exact `f`
+  and `F₂` differ from `g Ai`, `g Bi` by `Cδ³ airyWt` resp. `Cδ³ airyBiWt` (error `Cδ³` in the Olver-type weights, i.e. relative
+  `O(h)` phase accumulation with no `e^{O(A₀²)}`), `cas(f,F₂) ≥ δ/C`, every solution is `κf + μF₂` and `|μ| ≤ Cmu Y_max
+  e^{-ξ(X_N)}/δ`; `dao_turn_conclusion` is the smooth-data form at a simple turn (`q_J ∈ [c₀ - r, c₀ - r + δ³)`, coefficients within
+  `Eδ⁶` on the whole window).  *`DiscreteAiryPhys*`*: the unified statement `DaiFull` / `discrete_airy_full` (`f`, `F₂` the unique
+  exact solutions with the given values at `N, N+1` resp. `m, m+1`, the comparison with `g Ai`, `g Bi` extended to the site `N+1`
+  by one more row `dap_one_step`, and the pointwise form `Y = κ g Ai + μ g Bi + O(δ³)(|κ| airyWt + |μ| airyBiWt)` on `[J, N+1]`).  It
+  has the content of `dao_turn_conclusion` and of `discrete_airy_limit` on the oscillatory side but does **not** formally supersede
+  them: each picks its own radius `r` (hence its own `N`), and the two recessive solutions are identified only when normalised at the
+  same `N` (`dap_recessive_eq`).  The actual chains are instantiated on that window: `airy_full_compose` (any solution of the rows),
+  `hahn_chain_airy_full` (`τ = ±1`, `_neg`, `_infinite`, `_neg_infinite`, `_half` for `M = σ = 0`, `x = 1/2`: integers `M, σ`,
+  fixed rational `x` with the lattice-node condition, constants depending on `(M, σ, x)`, `|μ| ≤ Cmu √N e^{-ξ₀N}/δ`, the radius
+  `r ≤ q_*/4` existential, that of the Langer chart) and the Racah `racah_chain_airy_full_pos/_neg`, `_family_pos/_neg` (integer
+  data).  Open: `κ` and `κ ≠ 0` (Darboux), uniformity over families (all constants are for one fixed rational `x`, resp.
+  `(α, β, x)`; approximate nodes `x_N → x*` need a parametric Langer chart with quantitative defect lemmas, a perturbative shortcut
+  fails because the turn moves by `O(h)`), the second-order bracket `Ai + N^{-4/3} ϖ Ai' + O(N^{-3} M/E)` (needs a second-order
+  Olver parametrix; the Airy parametrix gives `O(h)` phase accuracy only), the half-integer (shifted-lattice) version of the full
+  statement (`hahn_chain_airy_full_half` is the integer-data model case `M = σ = 0`, `x = 1/2`, not the shifted lattice), Racah family variants (mixed-parity labels, half-integer data), half-integer Hahn
+  with `x < 0`, a polynomial window constant for `discrete_airy_window` itself, explicit constants, and analyticity of `ζ`.
 * *CFT consequences of the Airy zeros* (`AiryCft*`; direct route by good circles, no Hadamard theory).  Generic
   complex analysis (`AiryCftCircle`: for an entire `f` with simple zeros `c_i` in a disc, `f = Π(w - c_i) φ` with
   `φ` zero-free, the circle formulas for `f'/f` and its derivative as Cauchy integrals with error bounds;

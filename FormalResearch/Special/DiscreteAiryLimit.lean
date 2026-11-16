@@ -47,13 +47,15 @@ and the absolute error on `X ∈ [-6, -1]` is `≈ 0.017 h`, i.e. `O(h)` as the 
 oscillatory window `[J, m]` reaches at least `X = -A₀` and the forbidden side `[m, N+1]` is non-empty (`X_N ≥ c₁r/(4δ²)`).
 
 **Not formalised / scope.**  This does **not** replace Geronimo/GBVA in full.  It is the recessive-plus-bounded-window
-form for one fixed `(u, A, c₀)`: not the non-recessive canonical `Ai`/`Bi` pair, not the full oscillatory side beyond
-`X ≥ -A₀`, not uniform over families of data; here the closed forms of the Hahn/Racah instance are not identified with the actual
+form for one fixed `(u, A, c₀)`: this theorem has no non-recessive canonical `Ai`/`Bi` pair and no oscillatory side beyond
+`X ≥ -A₀` (both are in `DiscreteAiryOsc*`, `dao_turn_conclusion`, and in the unified `DiscreteAiryPhys*`, `discrete_airy_full`: whole
+macroscopic oscillatory side, `Cδ³` in the Olver-type weights, pair `g Ai`, `g Bi`; those statements pick their own radius `r`, so
+they are not formally derived from this one), not uniform over families of data; here the closed forms of the Hahn/Racah instance are not identified with the actual
 3j/6j chains (done in `DiscreteAiryLimitChains*`) and `(R)` is a hypothesis (derived in `DiscreteAiryLimitHyper*` up to one
 normalisation, proved for the actual chains in `DiscreteAiryLimitChains*`).  The scalar `κ` (a normalisation fixed by the Darboux/Wigner-`d` bulk matching, T:336,
 A:925-1054, est:309-318) is produced by the recessive selection and is not identified; `κ ≠ 0` is not proved.  The
-oscillatory side beyond a bounded window `X ≥ -A₀` (full GBVA with `M/E` weights, plan M7); the `h²` coefficient `ϖ`
-(second-order bracket); constants are not tracked (the window constant is `e^{O(A₀²)}`, see `AiryWindowMain`); the
+oscillatory side beyond a bounded window `X ≥ -A₀` with the `M/E` weights of GBVA (covered in the amplitude-adapted `O(δ³)`
+form by `DiscreteAiryOsc*`); the `h²` coefficient `ϖ` (second-order bracket, still open); constants are not tracked (the window constant is `e^{O(A₀²)}`, see `AiryWindowMain`); the
 uniformity in the family parameters (everything is for one fixed `(u, A, c₀)`).
 -/
 

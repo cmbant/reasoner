@@ -19,7 +19,7 @@ the additive `δⁿ` (`n > 3 + s`) is a relative `O(h)` error.  `κ` is not iden
 Proved.  Constants in `δ₁` are existential.  `dal_conclusion_window` is for arbitrary `J ≤ m ≤ N` (the window position
 is a property of the data it is applied to); `discrete_airy_hahn_racah_window` exports the position (`q_* - Dδ² ≤ q_J ≤ q_*`,
 `q_* ≤ q_m < q_* + h`, `X_J ≤ -A₀`) next to the bound.  Scope as in `DiscreteAiryLimitHahn`: this is the recessive-plus-bounded-window
-form, not a replacement of Geronimo/GBVA in full (no non-recessive `Ai`/`Bi` pair, no full oscillatory side, no uniformity over
+form, not a replacement of Geronimo/GBVA in full (no non-recessive `Ai`/`Bi` pair and no full oscillatory side here: see `DiscreteAiryOsc*`, `DiscreteAiryPhys*`; no uniformity over
 families; `κ` unidentified, `κ ≠ 0` unproved; `(R)` is a hypothesis of the theorems of this module: it is derived from the hard
 edge up to one normalisation in `DiscreteAiryLimitHyperWindow`, and proved for the actual integer-data `3j/6j` chains in
 `DiscreteAiryLimitChains{HahnAiry,RacahAiry}`, which also identify the closed forms with the chains).

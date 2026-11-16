@@ -33,7 +33,7 @@ interior of the domain (`P q_*² < 1`, `Q q_*² < 1`): these are exactly the hyp
 window is not degenerate.
 
 **Scope.**  This does not replace Geronimo/GBVA in full: it is the recessive-plus-bounded-window form (not the non-recessive
-`Ai`/`Bi` pair, not the full oscillatory side, not uniform over `(a, b, τ, x, P, Q)`); `κ` is unidentified and `κ ≠ 0` is
+`Ai`/`Bi` pair, not the full oscillatory side (`discrete_airy_hahn_racah_full`, `DiscreteAiryPhysHahn`, has both for the same data), not uniform over `(a, b, τ, x, P, Q)`); `κ` is unidentified and `κ ≠ 0` is
 not proved; `(R)` is a hypothesis of the `Y`-form here (it is discharged, up to one normalisation, in
 `DiscreteAiryLimitHyperWindow`, and for the actual integer-data chains in `DiscreteAiryLimitChains{HahnAiry,RacahAiry}`); this
 module treats the closed forms `hrAk`, `hrCk` as given (their identification with the actual 3j/6j chains is in

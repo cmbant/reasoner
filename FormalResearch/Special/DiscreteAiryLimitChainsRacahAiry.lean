@@ -30,7 +30,8 @@ taken as hypotheses and only `τ = +1` is covered (`α = β` forces `τ = -1`). 
 `τ = ±1` with the `(-1)^k` twist (`racah_chain_airy_geom_pos/_neg`), and infinitely many realisations as `h → 0`
 (`racah_realisation`, `racah_chain_airy_family_pos/_neg`; e.g. `α/β = 3`, `x = 5/8`, `m = n = -1`,
 `(a, b, c) = (6u+3, 2u+1, 5u+2)`).  Integer data only here (half-integer `m, n`: `DiscreteAiryLimitChains2Half6j`,
-`Half6jFam`); the oscillatory side `X < -A₀`; the `q`-Racah chain.
+`Half6jFam`); the oscillatory side `X < -A₀` and the non-recessive pair (`racah_chain_airy_full_*` in `DiscreteAiryPhysRacah`, integer data,
+up to `κ`); the `q`-Racah chain.
 -/
 
 @[expose] public section
