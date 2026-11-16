@@ -152,7 +152,7 @@ lemma link3_transfer {M' σ' : ℚ} (s : ℝ) (hs : ∀ r y, f3even M' σ' 0 r y
     f3even M' σ' 0 r y = expCoeff (seedEll α β) r y * f3even M' σ' 0 0 y := by
   rw [hs r y, hs 0 y, h r y hy]; ring
 
-private lemma sign_sq (n : ℕ) : ((-1 : ℝ) ^ n) * ((-1 : ℝ) ^ n) = 1 := by
+private lemma sign_sq_seed (n : ℕ) : ((-1 : ℝ) ^ n) * ((-1 : ℝ) ^ n) = 1 := by
   rw [← mul_pow]; norm_num
 
 /-- **The seed-row link in every chamber**: for `α = |M-σ|`, `β = |M+σ|` natural (and `M ± σ`
@@ -185,7 +185,7 @@ theorem link3_zero_all (hα : |M - σ| = α) (hβ : |M + σ| = β) (r : ℕ) {y 
       (base (-M) (-σ) α β h1 h2) r hy
     rw [f3even_negMσ M σ 0 r y]
     calc f3even M σ 0 r y = ((-1 : ℝ) ^ pPlus3 M σ * (-1 : ℝ) ^ pPlus3 M σ) * f3even M σ 0 r y := by
-          rw [sign_sq, one_mul]
+          rw [sign_sq_seed, one_mul]
       _ = _ := by ring
   have hlt : |M| < |σ| := by
     by_contra hc
@@ -206,7 +206,7 @@ theorem link3_zero_all (hα : |M - σ| = α) (hβ : |M + σ| = β) (r : ℕ) {y 
       (base σ M α β h1 h2) r hy
     rw [f3even_swap M σ 0 r y]
     calc f3even M σ 0 r y = ((-1 : ℝ) ^ pPlus3 M σ * (-1 : ℝ) ^ pPlus3 M σ) * f3even M σ 0 r y := by
-          rw [sign_sq, one_mul]
+          rw [sign_sq_seed, one_mul]
       _ = _ := by ring
   · -- `(M,σ) ↦ (-σ,-M)`
     have hσ' : σ < 0 := not_le.mp hσ
