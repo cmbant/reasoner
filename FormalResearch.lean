@@ -285,6 +285,9 @@ public import FormalResearch.Racah.P2AnalyticL2Polar4
 public import FormalResearch.Racah.P2AnalyticNLO6j
 public import FormalResearch.Racah.P3FluxGauss
 public import FormalResearch.Racah.P3PhaseDatum
+public import FormalResearch.Racah.P3CayleyMenger
+public import FormalResearch.Racah.P3ContactIdentity
+public import FormalResearch.Racah.P3JacobiComparison
 public import FormalResearch.Special
 public import FormalResearch.Asymptotics
 public import FormalResearch.Wigner
