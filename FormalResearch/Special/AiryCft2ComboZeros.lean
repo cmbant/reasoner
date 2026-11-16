@@ -18,7 +18,7 @@ Let `m = Ai'/Ai`.  At a zero `z` of `N` one has `Ai(z) ≠ 0` and `m(z) = -P/Q �
   simple, the weights `D/N'²` of the Clark summation are positive).  From `m' = x - m² = -Σ_n (x - a_n)^{-2} < 0`
   (`airyAi_sq_series_real`) and `m(x)² = P²/Q²`.
 * `airy_m_strictAntiOn`: `m` is strictly decreasing on any interval free of zeros of `Ai`; hence
-  `airyNC_zero_unique_gap`: **at most one zero of `N` between two consecutive zeros of `Ai`** (and at most one above `a_1`).
+  consequently (`airyNIdx_injOn`) **at most one zero of `N` between two consecutive zeros of `Ai`** (and at most one above `a_1`).
 * the index `airyNIdx t` (the number of zeros `a_j` above `t`, `t ∈ (a_{n+1}, a_n)`, `a_0 = +∞`) is injective on the real zeros of `N`
   (`airyNIdx_injOn`) and `t < a_n` for `n = airyNIdx t ≥ 1`, so `-t ≥ 2.5 n^{2/3}` for `n ≥ 2` (`airyNIdx_abs_ge`); hence
   `airyNC_zeros_finite`: finitely many zeros in every disc, and the node counting `#{|t| < r} = O(r^{3/2})`.
@@ -98,6 +98,10 @@ theorem airyNC_zero_im (P Q : ℝ) (hQ : Q ≠ 0) {z : ℂ} (h : airyNC P Q z = 
     positivity
   linarith
 
+/-- info: 'FormalResearch.Special.airyNC_zero_im' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyNC_zero_im
+
 /-! ### Real zeros: positive weights, simplicity -/
 
 lemma airyNC_ofReal (P Q : ℝ) (x : ℝ) :
@@ -153,6 +157,10 @@ theorem airyNC_zero_weight_pos (P Q : ℝ) (hQ : Q ≠ 0) {x : ℝ} (h : airyNC 
   rw [e]
   have : -(airyAi x / Q) ≠ 0 := neg_ne_zero.mpr (div_ne_zero hAx hQ)
   exact mul_ne_zero this hD.ne'
+
+/-- info: 'FormalResearch.Special.airyNC_zero_weight_pos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyNC_zero_weight_pos
 
 /-! ### Strict monotonicity of `Ai'/Ai` between the zeros of `Ai` -/
 
@@ -326,5 +334,9 @@ theorem airyNC_zeros_finite (P Q : ℝ) (hQ : Q ≠ 0) (R : ℝ) :
     rw [e2] at h2
     have := airyNIdx_injOn P Q hQ h1 h2 h12
     rw [e1, e2, this]
+
+/-- info: 'FormalResearch.Special.airyNC_zeros_finite' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyNC_zeros_finite
 
 end FormalResearch.Special

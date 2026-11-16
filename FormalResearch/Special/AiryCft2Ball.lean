@@ -18,7 +18,7 @@ open disc `|w| < R'`, `R < R'`:
   `‖f (M/N + i)‖ ≤ B` on the lower half circle (primitive of `f` on the disc: `DifferentiableOn.isExactOn_ball`, Mathlib);
 * `airy_defect_ball`: the case `N = Ai`, `M = Bi` (**Theorem D** of `AIRY_POISSON.md` §2 as stated there):
   `‖Σ_{n ≤ N} f(a_n)/Ai'(a_n)² - ∫_{-R}^{R} f‖ ≤ π R B` for `f` holomorphic on `|w| < R'` (any `R' > R`);
-* `airyNC_defect_ball` (in `AiryCft2ComboQuadrature`'s setting) is not repeated: use `cft2_defect_ball` with
+* `airyNC_defect_ball` (`AiryCft2ComboBall`): the same for `N = P Ai + Q Ai'`, via `cft2_defect_ball` and
   `cft2_circleData_of_finset`.
 
 Proved (axiom-checked).  Not formalised: `f` holomorphic on a neighbourhood that is not a disc (not needed: a neighbourhood of

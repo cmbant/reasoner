@@ -62,6 +62,10 @@ theorem airyNC_weight_eq_inv_K (P Q : ℝ) (hQ : Q ≠ 0) {z : ℂ} (h : airyNC 
   rw [hK, hN']
   field_simp
 
+/-- info: 'FormalResearch.Special.airyNC_weight_eq_inv_K' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyNC_weight_eq_inv_K
+
 /-- `K(x,x) = Ai'(x)² - x Ai(x)² > 0` at a real zero `x` of `N` (`Q ≠ 0`). -/
 theorem airyNC_K_pos (P Q : ℝ) (hQ : Q ≠ 0) {x : ℝ} (h : airyNC P Q (x : ℂ) = 0) :
     0 < airyAi' x ^ 2 - x * airyAi x ^ 2 := by
@@ -83,6 +87,10 @@ theorem airyNC_K_pos (P Q : ℝ) (hQ : Q ≠ 0) {x : ℝ} (h : airyNC P Q (x : �
   rw [e]
   have : 0 < airyAi x ^ 2 := by positivity
   positivity
+
+/-- info: 'FormalResearch.Special.airyNC_K_pos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyNC_K_pos
 
 /-- **Clark-Airy summation** (`ν < -1`): for `sin α ≠ 0` and `f` entire with `‖f(u)‖ ≤ C (1+|u|)^ν e(u)`, `ν < -1`,
 `∫_ℝ f = Σ_{cos α Ai(z) - sin α Ai'(z) = 0} f(z)/K(z,z)`, `K = Ai'² - z Ai²`. -/

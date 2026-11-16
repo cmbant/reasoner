@@ -16,9 +16,8 @@ for `N = Ai`, already in `AiryCftQuadrature`): for real `P`, `Q ≠ 0` put `N = 
 `∫_ℝ f = Σ_{N(z)=0} f(z) D(z)/N'(z)²`   (`airyNC_quadrature`; HasSum over the subtype of zeros, absolutely convergent).
 
 The zeros of `N` are real and simple and the weights are positive (`AiryCft2ComboZeros`); for `P = cos α`, `Q = -sin α`,
-`D(z)/N'(z)² = 1/K(z,z)` with `K(z,z) = Ai'(z)² - z Ai(z)²` at a node (`Ai(z) = sin α χ`, `Ai'(z) = cos α χ`, so
-`K = χ²(cos²α - z sin²α)` and `N' = -χ D/Q`... the identification with `K(z,z)` is not formalised here; the weights are stated in
-the form `D/N'²` of `SOFT_EDGE_THEOREMS.md` Lemma 4.4).
+`D(z)/N'(z)² = 1/K(z,z)` with `K(z,z) = Ai'(z)² - z Ai(z)²` at a node (`airyNC_weight_eq_inv_K`, `AiryCft2Clark`, which also gives the
+Clark form `airyClark_quadrature`); here the weights are stated in the form `D/N'²` of `SOFT_EDGE_THEOREMS.md` Lemma 4.4).
 
 * `airyNC_defect_bound` (Theorem D for `N`, entire `f`): on a good circle `|u| = r` of `airyNC_good_circle`,
   `‖Σ_{N(t)=0, |t|<r} f(t) D(t)/N'(t)² - ∫_{-r}^{r} f‖ ≤ π r C₀ sup_{|u|=r} ‖f(u)‖/e(u)`.
@@ -29,7 +28,8 @@ Proof: the generic residue-defect bound `cft2_defect_bound` for the pair `(N, M)
 `‖M/N ∓ i‖ e ≤ C₀` on the good circles (`airyNC_good_circle`), `e ≤ 1` on `ℝ`, and the absolute convergence of
 `AiryCft2ComboWeights`; the partial sums over `|t| < r_k` converge to the full (absolutely convergent) series.
 
-Not formalised: the case `f` holomorphic only near the closed disc, `ν ∈ [-1, 1/2]` (Theorem Q, needs the Hardy-space
+The case `f` holomorphic only near the closed disc is `airyNC_defect_ball` (`AiryCft2ComboBall`).
+Not formalised: `ν ∈ [-1, 1/2]` (Theorem Q, needs the Hardy-space
 unfolding), polynomial `P, Q`, and the `α → 0` limit identifications.
 -/
 

@@ -12,8 +12,8 @@ are real, negative and simple (the zeros `a'_n` of `Ai'`: `airyNC_zero_im` for `
 
 `Ai'(z) = Ai'(0) ∏_i (1 - z/b_i) exp (z/b_i)`, `Σ_i |b_i|^{-2} < ∞`   (`airyDeriv_hadamard`),
 
-where `b` is the canonical listing of the zeros of `Ai'` (`Hadamard.ZeroIdx`, `Listing`; every `b_i` is real and negative,
-`airyDeriv_hadamard_zero`).  The identification of the listing with the ordered zeros `a'_1 > a'_2 > …`
+where `b` is the canonical listing of the zeros of `Ai'` (`Hadamard.ZeroIdx`, `Listing`; every `b_i` is real and negative
+and a simple zero, part of the statement of `airyDeriv_hadamard`).  The identification of the listing with the ordered zeros `a'_1 > a'_2 > …`
 (`a'_1 ∈ (a_1, 0)`: `airyDeriv_largest_zero`, `a'_{n+1} ∈ (a_{n+1}, a_n)`: `airyAi'_existsUnique_zero_gap`) is not
 recorded here.
 
