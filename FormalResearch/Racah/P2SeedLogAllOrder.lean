@@ -29,8 +29,8 @@ Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, appendix `app:3j-allorder`
 * `seedRatio_hasUniformExpansion`: `seedRatio` itself has the uniform expansion `∑ κ_r(x) t^r`,
   `κ_r = [t^r] exp(∑_{s≥1} ℓ_s t^s)` (`expCoeff`; formal exponential of the series).
 
-Not covered here: the identification with `Φ_M^{Mσ}/d^M_{Mσ}` (that is `P2SeedLogAllOrderPhys`),
-and the (separate, unproved here) statement that `ψ_{2r}` of the local calculus equals `κ_r`.
+Not covered here: the identification with `Φ_M^{Mσ}/d^M_{Mσ}` (that is `P2SeedLogAllOrderPhys`), and
+that the local-calculus multiplier `ψ_{2r}` is built from `κ_r` (that is `P2SeedMultiplierLink`).
 -/
 
 @[expose] public section

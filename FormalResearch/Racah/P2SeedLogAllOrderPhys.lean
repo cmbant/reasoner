@@ -30,10 +30,13 @@ Notation: `M, σ ∈ ℚ` with `α = M-σ` and `β = M+σ` natural numbers (the 
   physical grid, uniformly for `x` in a compact `K ⊆ (-1,1)`, `log(Φ/d)` has the expansion
   `∑ ℓ_r(x) N^{-2r}` and `Φ/d` has the expansion `∑ κ_r(x) N^{-2r}`, `κ_r = [t^r] exp(∑ ℓ_s t^s)`.
 
-Not covered: this is the seed (extremal rank `L = M`, `k = 0`) statement only.  It is not shown
-here that the local-calculus functions `ψ_{2r}` of `prop:localcalculus(b)` equal `κ_r`: the abstract
-`eq:3jpsi2r` is `local_calculus_start` (`P2LocalCalculusLeftNormal`), but its instance at the seed row,
-`ψ_{2r} = κ_r - 𝒥(𝖡_{2r})d/d`, is not shown here.
+The identification of `κ_r` with the local-calculus coefficients (`f_{2r}^{(0)} = κ_r d`, hence
+`ψ_{2r} = κ_r - 𝒥(𝖡_{2r})d/d` at the seed row) is `f3even_zero_eq_expCoeff_mul` in
+`P2SeedMultiplierLink`.
+
+This file is the seed (extremal rank `L = M`, `k = 0`) statement in the chamber `M ≥ |σ|`; the same
+statements in every chamber (`α = |M-σ|`, `β = |M+σ|`) are in `P2SeedAllChambers`.  Rationality of `ψ_{2r}`
+is not shown.
 -/
 
 @[expose] public section
