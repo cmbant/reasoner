@@ -28,7 +28,7 @@ M4 (`AiryParametrixDefect`, which assumes the amplitude relation `hrel` and the 
 Numerical sanity check (mpmath, 30 digits, not a Lean claim): `A = 1 + 0.3q + 0.2q²`, `u = cosh √(q + 0.4q²)`,
 `c = 0`, `ζ = ±(3/2 ∫₀^q √|F|)^{2/3}`, `g = (ζ/(A²(u²-1)))^{1/4}`: at `q ∈ {-0.3,-0.1,0.05,0.2,0.4}` the
 quantities `g² A ζ' Sh(ζ ζ'²)` equal `1` and `Ch(ζ ζ'²) - u`, `Ch²-1-F Sh²` vanish to `10⁻³⁰`; the lattice defect over
-`q ∈ {-0.3,…,0.3}` normalised by `h²(1+|X|)³ airyWt X` is `0.01757, 0.01730, 0.01719` for `h = 0.1, 0.05, 0.025`
+`q ∈ {-0.3,…,0.3}` normalised by `h²(1+|X|)³ airyWt X` is about `0.015–0.018` for `h = 0.1, 0.05, 0.025`
 (bounded, as the lemma asserts).
 
 Proved.  Not formalised: the uniform `O(h²) ψ` bound for `|X| ~ h^{-2/3}` (see `AiryParametrixDefect`); the
