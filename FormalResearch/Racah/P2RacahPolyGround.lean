@@ -13,7 +13,8 @@ realization*.  Canonical sector `|n| ≤ m`.
 * `groundTransform_eq`: for every sequence `p`, `ℒ_R p (c_i) = B(i)(p(i+1)-p(i)) + D(i)(p(i-1)-p(i))`,
   the standard Racah difference operator with the physical parameters (`physRacahB`, `physRacahD`;
   absent boundary terms have zero coefficient).
-* `groundTransform_physR`: `ℒ_R ℛ_r = r(r+2m+1) ℛ_r` (`eq:RacahPolyEigenvalue`), `0 ≤ r ≤ D`.
+* `groundTransform_physR`: `ℒ_R ℛ_r = r(r+2m+1) ℛ_r` (`eq:RacahPolyEigenvalue`), `0 ≤ r ≤ D` (`ℛ_r` is the
+  paper's `𝒰_r`).
 -/
 
 @[expose] public section

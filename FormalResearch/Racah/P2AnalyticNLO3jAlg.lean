@@ -7,7 +7,10 @@ public import FormalResearch.Wigner.WignerDODE
 # Next-to-leading squeezed `3j` formula: the Wigner-`d` algebra (Weyl P2, `thm:3jNLO`)
 
 Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `thm:3jNLO` (`eq:3jf2`,
-`eq:3jf2seednorm`); ladders `eq:dranklower`, `eq:drankupper`, ODE `eq:dODE`.
+`eq:3jf2seednorm`); Wigner rank ladders (tagged `eq:dranklower`, `eq:drankupper`, see `Wigner/WignerDLadder`; no
+longer displayed in the paper), ODE `eq:dODE`.  The paper's proof of `thm:3jNLO` instead uses the local calculus
+(`eq:3jorderone`, `eq:3jmastercommutator`, `eq:3jneighbormomentidentity`, `eq:3jJoperator`); the direct route here
+(one rational identity from the ladders and the ODE) is formalised, `prop:localcalculus` is not.
 
 This file is the pure Wigner-`d` half of the induction in `P2AnalyticNLO3j`: it knows nothing
 about the `3j` carrier.  With `d_L = wignerSmallDx L M σ`, `J = L(L+1)`,

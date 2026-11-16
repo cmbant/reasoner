@@ -3,11 +3,11 @@ module
 public import FormalResearch.Racah.P2AnalyticCarrier6jInduction
 
 /-!
-# The `6j` carrier identity in every chamber (Weyl P2, `lem:sqrtfreecarrier`)
+# The `6j` carrier identity in every chamber (Weyl P2, `lem:sqrtfreecarrier6j`)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `lem:sqrtfreecarrier` ("in any chamber ... the
-other chambers follow by the reductions preceding Lemma `lem:6jseed`") and the reduction text before
-`eq:canonicalsector`.
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `lem:sqrtfreecarrier6j` ("in any chamber"; the other
+chambers follow from the two reductions of `sec:6jseed` preceding `lem:6jseed`, which change `ξ` by `m-n`,
+with `ε_{mn} = ε(n,m)`).
 
 `P2AnalyticCarrier6jInduction.lean` proves the carrier identity in the canonical sector `m ≥ |n|`.  Here the
 four chambers `|n| ≤ m`, `|n| ≤ -m`, `|m| ≤ n`, `|m| ≤ -n` (which cover every `(m,n)`) are reduced to
@@ -131,7 +131,7 @@ noncomputable def carrierAll (a b c f m n : ℚ) : ℝ :=
     (-1 : ℝ) ^ ⌊m - n⌋ * carrierV n m (wB b m) (wA a n) (wC c) f ⌊f - n⌋₊
   else carrierV (-n) (-m) (wB b m) (wA a n) (wC c) f ⌊f + n⌋₊
 
-/-- **`lem:sqrtfreecarrier`, `6j` version, every chamber** (`eq:sqrtfreecarrier`).  At every
+/-- **`lem:sqrtfreecarrier6j`, every chamber** (`eq:sqrtfreecarrier6j`).  At every
 physical point (the hypotheses of `Phi6_midpoint_recurrence` and `Phi6_seed`),
 `Φ_f = ± E W Π^{-1/2} P̃` with the canonical data of the chamber, i.e. `Phi6 = carrierAll`. -/
 theorem Phi6_carrier_all (a b c f m n : ℚ) (h1 : IsTri f (b + m) b) (h2 : IsTri f a (a + n))

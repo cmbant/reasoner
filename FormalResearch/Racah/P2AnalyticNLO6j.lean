@@ -7,7 +7,17 @@ public import FormalResearch.Racah.P2AnalyticBridge6j
 # First `6j` correction, canonical sector (Weyl P2, `thm:6jclosedcorrection`)
 
 Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `thm:6jclosedcorrection` (`eq:6jclosedg`,
-`eq:6jPf`, `eq:6jQf`), `eq:grec`, `eq:glocalforcing`, `eq:kappaClosedMatch`, `eq:gexceptional`.
+`eq:6jPf`, `eq:6jQf`, `eq:6jG2operator`), `eq:kappaClosedMatch`, `eq:gexceptional`.
+
+Paper versus Lean.  The paper derives `eq:6jclosedg` from the general local calculus of
+`prop:localcalculus` (`app:localgeneral`: the master commutator `eq:3jmastercommutator`, the
+neighbouring-moment identity `eq:3jneighbormomentidentity`, the antiderivative `eq:3jJoperator`, instance
+`eq:generalrankrec` with `(a,b) = (n,m)`, `q(λ) = (2λ+1-Σ)/(8AB)`, `e_1 = -ρ_{AB}`), then fixes the scalar
+multiplier at the stretched seed (`eq:kappaClosedMatch`); that calculus is not formalised.  This file
+proves the same statement by the direct route below (the carrier recurrence differentiated once in `t`
+compared with the Wigner ladders differentiated once in `x`; in the paper's earlier presentation this was the
+inhomogeneous recurrence for `G_{f,2}`, which is no longer a paper equation).  The two routes meet in
+`eq:6jclosedg` and the seed identity `eq:kappaClosedMatch`.
 
 Route (as for `thm:3jNLO`): the true `t`-derivative of the carrier,
 `e_d = W(x) q_d` with `W = √(((1-x)/2)^p((1+x)/2)^q)`, satisfies (`q6_rank`, the carrier recurrence

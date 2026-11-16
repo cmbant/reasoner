@@ -6,8 +6,10 @@ public import FormalResearch.Special.JacobiRec
 /-!
 # Rank ladders and rank recurrence for the Wigner `d`-function
 
-Paper: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`: `eq:dranklower`, `eq:drankupper` (rank ladders)
-and the `t = 0` case of `eq:3jrank` (rank recurrence of `d`).  Standard references: Varshalovich
+Paper: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`: the `t = 0` case of `eq:3jrank` (rank recurrence of `d`,
+`eq:drank` for `6j`).  The rank ladders, tagged `eq:dranklower`, `eq:drankupper` in this file, are not displayed
+equations of the current paper (these tags are the labels of an earlier version of the paper); the paper's local
+calculus (`prop:localcalculus`, `eq:3jmastercommutator`) replaces them, and they are standard identities.  Standard references: Varshalovich
 §4.8 (recursion relations), Edmonds 4.1; contiguous Jacobi relations (Szegő §4.5, DLMF §18.9(iii)).
 
 **Dictionary.**  Paper `d^f_{nm}(x)`, `x = cos θ`, is `wignerSmallD f n m θ` (`n = m'` row index,

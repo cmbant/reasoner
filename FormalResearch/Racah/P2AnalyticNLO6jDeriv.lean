@@ -6,9 +6,9 @@ public import FormalResearch.Racah.P2AnalyticNLO6jAlg
 /-!
 # First `6j` correction: the `t`-derivative of the carrier germ (Weyl P2, `thm:6jclosedcorrection`)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `thm:6jclosedcorrection` (proof: the intrinsic
-inhomogeneous recurrence `eq:grec`, the stretched seed `eq:kappa`, `eq:kappaClosedMatch`,
-`eq:trianglePairIdentities`), `thm:6jeven` (`G_{f,2} = S^{-2} ∂_t G(·,0)`).
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `thm:6jclosedcorrection` (the stretched seed
+`eq:kappa`, `eq:kappaClosedMatch`, `eq:trianglePairIdentities`; the paper's proof uses `prop:localcalculus`,
+see `P2AnalyticNLO6j` for the difference of routes), `thm:6jeven` (`G_{f,2} = Λ^{-2} ∂_t G(·,0)`, `Λ = A+B+C`).
 
 In the canonical sector `|n| ≤ m` (`m ∓ n = p, q ∈ ℕ`), `F = m + d`, `x = cosA α β γ`,
 `ρ = (α⁻²+β⁻²)/8`, for a strict-triangle shape:

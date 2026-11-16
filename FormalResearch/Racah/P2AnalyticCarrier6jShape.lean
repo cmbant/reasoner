@@ -4,10 +4,11 @@ public import FormalResearch.Racah.P2AnalyticCarrier6jChambers
 
 /-!
 # The `6j` carrier in shape variables, `G6`, and the `t = 0` carrier `dZero6`
-(Weyl P2, `lem:sqrtfreecarrier`, `thm:6jeven` proof, `lem:6jseed` holomorphy paragraph)
+(Weyl P2, `lem:sqrtfreecarrier6j`, `thm:6jeven` proof, `lem:6jseed` holomorphy paragraph)
 
 Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, proof of `thm:6jeven` ("use the positive
-homogeneous analytic scale `S := A+B+C`, `A = Sα`, `B = Sβ`, `C = Sγ`, `t := S⁻²`") and the paragraph
+homogeneous analytic scale `Λ := A+B+C`, `A = Λα`, `B = Λβ`, `C = Λγ`, `t := Λ⁻²`"; Lean's `S` is the paper's
+`Λ`) and the paragraph
 after `lem:6jseed` (every central factor is `Λ^r` times a polynomial in `Λ⁻² = t`).
 
 With `S = A+B+C`, `(α,β,γ) = (A,B,C)/S`, `t = S⁻²` every ingredient of the carrier identity is an
@@ -207,7 +208,7 @@ lemma carrierV_shape_canon {f m n : ℚ} (hmn : |n| ≤ m) (a2 : IsNat (f - m))
   rw [← hfd] at this
   exact this
 
-/-- **`Phi6 = G6 (A/S) (B/S) (C/S) (S⁻²)`** (`thm:6jeven` proof, `lem:sqrtfreecarrier`): at every
+/-- **`Phi6 = G6 (A/S) (B/S) (C/S) (S⁻²)`** (`thm:6jeven` proof, `lem:sqrtfreecarrier6j`): at every
 physical point and in every chamber, with `A = wA a n`, `B = wB b m`, `C = wC c`, `S = A+B+C`. -/
 theorem Phi6_eq_G6 (a b c f m n : ℚ) (h1 : IsTri f (b + m) b) (h2 : IsTri f a (a + n))
     (h3 : IsTri c a b) (h4 : IsTri c (b + m) (a + n)) :

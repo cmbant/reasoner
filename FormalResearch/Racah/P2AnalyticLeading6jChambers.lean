@@ -4,10 +4,11 @@ public import FormalResearch.Racah.P2AnalyticLeading
 public import FormalResearch.Racah.P2AnalyticCarrier6jChambers
 
 /-!
-# The `6j` leading constant `k_{6j}` in every chamber (Weyl P2, `lem:sqrtfreecarrier`)
+# The `6j` leading constant `k_{6j}` in every chamber (Weyl P2, `lem:sqrtfreecarrier6j`)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `eq:WignerJacobiMonic`, `eq:kconstants`,
-`lem:sqrtfreecarrier` ("their leading coefficients are `k_{3j}`, respectively `ε_{mn} k_{6j}`").
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `eq:WignerJacobiMonic6j` (`k_{6j} = ε(n,m) κ_{f-f_0}(p_min,p_max)`),
+`eq:kconstants`, `eq:HahnAllChamberPhase`, `lem:sqrtfreecarrier6j` ("its leading coefficient is `ε_{mn} k_{6j}`",
+`ε_{mn} = ε(n,m)`).
 
 `P2AnalyticLeading.lean` identifies the leading coefficient `kLead m n d` of the carrier `P̃_{m+d}` in the
 canonical sector `|n| ≤ m` only.  `P2AnalyticCarrier6jChambers.lean` reduces the four chambers to it
@@ -34,14 +35,15 @@ For `(m,n)` in chamber I `|n| ≤ m`, II `|n| ≤ -m`, III `|m| ≤ n`, IV `|m| 
 
 ## Paper versus Lean
 
-The paper writes `Φ_f = ε_{mn} E W Π^{-1/2} P̃_f` and says `P̃_f` has leading coefficient `ε_{mn} k_{6j}` with
-`k_{6j} = ε(n,m) κ` (`eq:kconstants`).  Since `ε_{mn} = ε(n,m)` (`chamberSign_eq_signE3`) and `ε² = 1`, this says
-that `P̃_f` has leading coefficient `κ_d(p,q)` (no sign) and the signed polynomial `ε P̃_f` has leading
-coefficient `k_{6j} = ε κ`; this is what is proved here (`kLeadAll`).  The paper's phrase "`N`-independent
-nonzero constants" is made exact: the constant is `ε(n,m) κ_d(|m-n|,|m+n|)`, independent of `u,v,w`, nonzero.
-`ε_{mn}` is stated in the paper only in the lemma's text (`(-1)^{m-n}` in `|n| ≤ -m`, `|m| ≤ n`; `1` otherwise), and
-`ε_{mn} = ε(n,m)` is not remarked there.  Not covered: the all-chamber Wigner form
-`d^f_{nm}(arccos x) = k_{6j} W P̂` (`wignerD6_eq_kLead_mul_monic` is canonical only).
+The paper writes `Φ_f = ε_{mn} E W Π^{-1/2} P̃_f` (`eq:sqrtfreecarrier6j`) with `ε_{mn} = ε(n,m)` of
+`eq:HahnAllChamberPhase`, i.e. `(-1)^{m-n}` for `m ≤ n` and `1` for `m > n` (this is `chamberSign`, equal to
+`signE3 n m` by `chamberSign_eq_signE3`; `(-1)^{m-n}` exactly in the chambers `|n| ≤ -m`, `|m| ≤ n`), and says
+`P̃_f` has leading coefficient `ε_{mn} k_{6j}` with `k_{6j} = ε(n,m) κ` (`eq:WignerJacobiMonic6j`).  Since
+`ε² = 1`, this says that `P̃_f` has leading coefficient `κ_d(p,q)` (no sign) and the signed polynomial `ε P̃_f`
+has leading coefficient `k_{6j} = ε κ`; this is what is proved here (`kLeadAll`).  The constant is
+`ε(n,m) κ_d(|m-n|,|m+n|)`, independent of `u,v,w`, nonzero.  Not covered: the all-chamber Wigner form
+`d^f_{nm}(arccos x) = k_{6j} W P̂` of `eq:WignerJacobiMonic6j` (`wignerD6_eq_kLead_mul_monic` is canonical
+only; its leading coefficient `kLeadAll` and the chamber Wigner forms `wignerSmallD_chamber_A..D` are here).
 -/
 
 @[expose] public section
@@ -254,7 +256,7 @@ theorem kLeadAll_ne_zero (m n f : ℚ) (p q : ℕ) (hp : |m - n| = p) (hq : |m +
   exact mul_ne_zero (chamberSign_ne_zero m n) (kappaJac_ne_zero _ _ _)
 
 /-- **Exact degree and leading coefficient of the carrier polynomial in every chamber**
-(`lem:sqrtfreecarrier`): for `p = |m-n|`, `q = |m+n|` natural, the signed carrier polynomial has degree exactly
+(`lem:sqrtfreecarrier6j`): for `p = |m-n|`, `q = |m+n|` natural, the signed carrier polynomial has degree exactly
 `d = ⌊f - max(|m|,|n|)⌋₊` in `τ`, and its `τ^d` coefficient is the nonzero constant
 `kLeadAll m n f = ε(n,m) κ_d(p,q)`. -/
 theorem carrierPolyAll_natDegree (m n f : ℚ) (p q : ℕ) (hp : |m - n| = p) (hq : |m + n| = q) :

@@ -3,9 +3,9 @@ module
 public import FormalResearch.Racah.P2AnalyticCarrier6j
 
 /-!
-# The `6j` carrier identity in the canonical sector: the induction (Weyl P2, `lem:sqrtfreecarrier`)
+# The `6j` carrier identity in the canonical sector: the induction (Weyl P2, `lem:sqrtfreecarrier6j`)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, proof of `lem:sqrtfreecarrier` ("divide the
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, proof of `lem:sqrtfreecarrier6j` ("divide the
 recurrence by `E W Π^{-1/2}`; it therefore suffices to check the starts and to define `P̃` by the
 recurrences").
 
@@ -280,7 +280,7 @@ theorem carrierClaim_all (a b c m n : ℚ) (hmn : |n| ≤ m) (h3 : IsTri c a b)
     | succ d ih => exact ⟨ih.2, carrierClaim_succ a b c m n hmn d ih.1 ih.2⟩
   exact (key d).1
 
-/-- **`lem:sqrtfreecarrier`, canonical sector** (`eq:sqrtfreecarrier`, 6j version).  For every
+/-- **`lem:sqrtfreecarrier6j`, canonical sector** (`eq:sqrtfreecarrier6j`).  For every
 physical point of the sector `m ≥ |n|` (the hypotheses are those of `Phi6_midpoint_recurrence` and
 `Phi6_seed`: both triads at `f`, and the two `c`-triads), with `f = m + d`,
 `Φ_f = E_{A,B}(C) W_{6j}(x) · Π_f(A,B)^{-1/2} · P̃_f(τ; A⁻², B⁻², (AB)⁻¹)`,

@@ -6,9 +6,12 @@ public import FormalResearch.Racah.P2AnalyticCt
 /-!
 # Generic analytic lemmas for the analytic half of Weyl P2 (WP1: T1.1, T1.2, T1.4)
 
-Paper labels: `lem:centeredshift` (T1.1), `thm:analytic-recurrence` and
-`lem:physicalinterpolation` (scalar content, T1.2), `lem:momentpolynomial` /
-the central-binomial convolution `∑_{i+j=r} C(2i,i) C(2j,j) = 4^r` (T1.4).
+Paper labels: `lem:centeredshift` (T1.1; `sec:analytic-principle`).  T1.2 (scalar analytic propagation along a
+recurrence) and T1.4 (the central-binomial convolution `∑_{i+j=r} C(2i,i) C(2j,j) = 4^r`, behind the
+Taylor coefficients `C(2r,r)/4^r` of `eq:3jscalarDallorder` and of `(1-t)^{-1/2}`) are generic inputs, not
+statements of the current paper: the paper obtains analyticity directly from the closed forms of
+`lem:sqrtfreecarrier`, `lem:sqrtfreecarrier6j` with `lem:uniformtaylor`, and its `lem:momentpolynomial`
+(the moment polynomials `π_s` of the local calculus) is not formalised.
 
 ## T1.1: the central products `Ct r u t` (polynomials in `u`, `t = h²`)
 
@@ -249,7 +252,7 @@ section Propagation
 
 variable {X : Type*} [NormedAddCommGroup X] [NormedSpace ℝ X]
 
-/-- **Analytic propagation, two analytic starts** (scalar `thm:analytic-recurrence`).
+/-- **Analytic propagation, two analytic starts** (generic scalar lemma; not a statement of the current paper).
 Let `a b c : ℕ → X → ℝ` be analytic at `p₀` with `a k p₀ ≠ 0`, and let `y : ℕ → X → ℝ` satisfy
 `a (k+1) · y (k+2) = b (k+1) · y (k+1) - c (k+1) · y k` near `p₀` for every `k`.  If `y 0`, `y 1`
 are analytic at `p₀`, so is every `y k`.  (In the application `X = E × ℝ` and `p₀ = (z₀, 0)`.) -/
@@ -299,8 +302,8 @@ theorem analyticAt_recurrence_one {a b c y : ℕ → X → ℝ} {p₀ : X}
   filter_upwards [hrec (k + 1)] with p hp
   simpa using hp
 
-/-- The square root of a positive analytic function is analytic (`lem:physicalinterpolation`,
-branch of the square root). -/
+/-- The square root of a positive analytic function is analytic (the positive branch of the square root used
+in `lem:sqrtfreecarrier`, `lem:sqrtfreecarrier6j`). -/
 theorem analyticAt_sqrt_comp {g : X → ℝ} {p₀ : X} (hg : AnalyticAt ℝ g p₀) (h0 : 0 < g p₀) :
     AnalyticAt ℝ (fun p => Real.sqrt (g p)) p₀ := by
   have hlog : AnalyticAt ℝ (fun p => Real.log (g p)) p₀ :=

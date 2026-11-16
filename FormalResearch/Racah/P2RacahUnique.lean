@@ -5,7 +5,8 @@ public import Mathlib
 /-!
 # Uniqueness of the affine centering (Weyl P2, `prop:unique`): the exact algebraic core
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, section *The midpoint is uniquely forced*.
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `prop:unique` (subsection *The midpoint is selected within
+the admitted gauge class*, `sec:6jsetup`); its statement is relative to the admitted `f`-independent gauge class.
 
 The proposition compares the canonical centered lengths `A = a + (n+1)/2`, `B = b + (m+1)/2`,
 `C = c + 1/2` with trial lengths `A' = a+u`, `B' = b+v`, `C' = c+w`; with

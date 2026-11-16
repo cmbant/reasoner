@@ -25,7 +25,8 @@ Points of `Shape6 × ℝ` are read as `((α, β, γ), t)`.
 * `Dom6`, `analyticAt_G6`, `analyticOnNhd_G6`, `mem_Dom6_zero`: the same for `G6 f m n` in all
   four chambers.
 * `a6 f m n r` (`= a_{f,r}`): `t^r` Taylor coefficient of the germ; `analyticOnNhd_a6`: analytic on
-  `StrictTri`.  `G6even f m n r A B C = S^{-2r} a_{f,r}((A,B,C)/S)` (`= G_{f,2r}`), `S = A+B+C`;
+  `StrictTri`.  `G6even f m n r A B C = S^{-2r} a_{f,r}((A,B,C)/S)` (`= G_{f,2r}`), `S = A+B+C` (the paper's
+  `Λ`); `G6even_swap` (in `P2AnalyticSymm6j`): `G_{f,2r}` is symmetric under `A ↔ B`;
   `G6even_homogeneous` (degree `-2r`), `analyticOnNhd_G6even` (analytic on the whole cone),
   `G6even_zero_eq_dZero6` (`G_{f,0} = dZero6 f m n (cosA A B C)`, `eq:6jleading`, not identified
   with the Wigner `d`).

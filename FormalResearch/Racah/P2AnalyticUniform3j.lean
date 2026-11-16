@@ -8,7 +8,8 @@ public import FormalResearch.Racah.P2AnalyticBulk3j
 Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `thm:uniformedge` (a) (`eq:3juniformedge`),
 `lem:sqrtfreecarrier`.
 
-By `lem:sqrtfreecarrier` (`Phi3j_eq_Gc3_spec`) `Φ = E_N W_{3j} · Π_L^{-1/2} P̃_L(τ;N⁻²)`.  With
+By `lem:sqrtfreecarrier` (`Phi3j_eq_Gc3_spec`) `Φ = E_N W_{3j} · Π_L^{-1/2} P̃_L(τ;N⁻²)`
+(Lean's `τ = (1-x)/2` is the paper's `ς`).  With
 `edgeEnv3 M σ x t = √(𝔠_{p_+}((1-x)/2,h) 𝔠_{p_-}((1+x)/2,h))` (`= E_N W_{3j}`, `t = h² = N⁻²`) this is
 `Φ = edgeEnv3 · H(τ,t)`, `H = P̃_L(τ;t)/√(Π_L(t))`.  Only the scalar `Π_L^{-1/2}` has to be expanded
 in `t`.

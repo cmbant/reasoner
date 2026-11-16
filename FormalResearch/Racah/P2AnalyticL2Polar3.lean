@@ -5,7 +5,7 @@ public import FormalResearch.Racah.P2AnalyticL2Polar2
 /-!
 # The continuum gauge `G_c` and the Wigner-Jacobi identification (Weyl P2, `eq:GcGauge`)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, Appendix `app:beta-polar`
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, Appendix `app:beta-polar-sv`
 (`eq:GcGauge`, `eq:physicalGaugeModes`), `prop:betabinomialpolar` (`eq:SNpolar`).
 
 * `Gc`: `G_c : P_D → L²(-1,1)`, the linear map with `G_c J_n = gauge(J_n)`, where

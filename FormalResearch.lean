@@ -238,6 +238,7 @@ public import FormalResearch.Racah.P2RacahSystemOp
 public import FormalResearch.Racah.P2RacahSystemOrth
 public import FormalResearch.Racah.P2RacahSystemSpec
 public import FormalResearch.Racah.P2RacahSystem
+public import FormalResearch.Racah.P2RacahNonempty
 public import FormalResearch.Racah.P2RacahSystemWigner
 public import FormalResearch.Racah.P2RacahPolyDiff
 public import FormalResearch.Racah.P2RacahPolyShift
@@ -273,6 +274,7 @@ public import FormalResearch.Racah.P2AnalyticHeadline
 public import FormalResearch.Racah.P2AnalyticHeadline6j
 public import FormalResearch.Racah.P2AnalyticLeading
 public import FormalResearch.Racah.P2AnalyticLeading6jChambers
+public import FormalResearch.Racah.P2AnalyticSymm6j
 public import FormalResearch.Racah.P2AnalyticL2Transmutation
 public import FormalResearch.Racah.P2AnalyticL2Singular
 public import FormalResearch.Racah.P2AnalyticL2PolarAbs

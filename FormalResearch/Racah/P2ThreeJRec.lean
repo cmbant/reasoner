@@ -5,8 +5,9 @@ public import FormalResearch.Racah.P2ThreeJRecAll
 /-!
 # The Regge-midpoint `3j` kernel: exact rank and magnetic recurrences (Weyl P2)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, sections *Variables and the exact even
-theorem* and *Exact finite-difference equation and the first correction*.
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `sec:3jsetup` (*The `3j` symbol: variables, exact
+recurrences and the midpoint*, including `eq:3jrank`, `eq:3jseed`) and its subsection `sec:3jdiff` (*Exact magnetic
+difference equation and uniqueness of the midpoint*, `eq:3jdiff`).
 
 ## Dictionary (paper symbol -> Lean symbol)
 

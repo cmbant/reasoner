@@ -6,7 +6,7 @@ public import FormalResearch.Racah.P2AnalyticCarrier3jSeed
 # The square-root-free `3j` carrier: the identity at every admissible point (Weyl P2)
 
 Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `lem:sqrtfreecarrier`
-(`eq:sqrtfreecarrier`, `eq:3jrankpoly`, Appendix G).
+(`eq:sqrtfreecarrier`, `eq:3jrankpoly`; `sec:3jcarrier`).
 
 `Phi3j_carrier` is the identity `Φ_L^{M,σ} = E_N W_{3j} Π_L^{-1/2} P̃_L` on the physical lattice, in
 every chamber, for every rank `L = L₀ + k`, `L ≤ N-1`: with `α = |M-σ|`, `β = |M+σ|`,

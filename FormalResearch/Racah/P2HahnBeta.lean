@@ -5,8 +5,10 @@ public import FormalResearch.Racah.P2HahnRec
 /-!
 # Exact finite part of the beta--binomial polar realization (Weyl P2)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `sec:polartransmutation` and Appendix
-`app:beta-polar` (`eq:BernsteinHahnJacobi`, `eq:singularvaluesgeneral`, `eq:physicalsingularvalues`).
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, Appendix `app:beta-polar` (`sec:polartransmutation`:
+`eq:singularvaluesgeneral`, `eq:physicalsingularvalues`) and `app:beta-polar-sv` (`eq:BernsteinHahnJacobi`).  This
+beta--binomial realization is an appendix of the current paper, recorded as classical structure that the
+main results do not use.
 
 ## What is proved (finite, exact, independent of `L²` and of the Jacobi limit)
 

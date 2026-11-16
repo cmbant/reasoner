@@ -3,11 +3,12 @@ module
 public import FormalResearch.Racah.P2AnalyticCarrier6jShape
 
 /-!
-# Polynomiality of the `6j` carrier (Weyl P2, `lem:sqrtfreecarrier`)
+# Polynomiality of the `6j` carrier (Weyl P2, `lem:sqrtfreecarrier6j`)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `lem:sqrtfreecarrier`: "`P̃_f` is a polynomial of
-degree `f - f_0` in `τ = (1-x)/2` whose coefficients are polynomials in `A⁻²`, `B⁻²` and `(AB)⁻¹`",
-"their leading coefficients are constants", and the symmetry under `A ↔ B`.
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `lem:sqrtfreecarrier6j`: "`P̃_f` is a polynomial of
+degree `f - f_0` in `ς = (1-x)/2` (Lean `τ`) whose coefficients are polynomials in `A⁻²`, `B⁻²` and `(AB)⁻¹`",
+"its leading coefficient is `ε_{mn} k_{6j}`" (a constant), and the symmetry under `A ↔ B`
+(carried through the germ and `G_{f,2r}` in `P2AnalyticSymm6j`).
 
 The carrier is *defined* as an element `ptPoly m n d` of `ℝ[u,v,w][τ]`
 (`CarrierRing = Polynomial (MvPolynomial (Fin 3) ℝ)`), so polynomiality in `(τ,u,v,w)` is built in

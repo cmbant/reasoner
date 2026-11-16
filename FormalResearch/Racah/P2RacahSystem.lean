@@ -5,12 +5,16 @@ public import FormalResearch.Racah.P2RacahSystemSpec
 /-!
 # Exact finite self-adjoint Racah-Wigner system (Weyl P2, `thm:6jfiniteRacah`)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, section *Exact finite Racah spectral system on
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, subsection *Exact finite Racah spectral system on
 the physical `c`-lattice* (`sec:6jcspectral`), `thm:6jfiniteRacah`.
 
 `RacahSystem a b m n D` records the paper's integrality conventions (`2a, 2b, 2m, m-n ∈ ℤ`) and
 `D = c_max - c_min` (so that `D + 1 = |𝒞|`); `RacahSystem.exists` shows that such a `D` exists iff the
-physical `c`-lattice is non-empty.  The lattice is indexed by `i : Fin (D+1)`, `c_i = c_min + i`, and the
+physical `c`-lattice is non-empty.  The paper states the non-emptiness in the opening paragraph of
+`sec:6jcspectral` ("with `b+m, a+n ≥ 0` and `f_1 ≥ f_0` below, so that the lattices are non-empty");
+`racah_nonempty_tfae` (`P2RacahNonempty`) shows that this hypothesis is equivalent to `∃ D, RacahSystem a b m n D`
+(the conditions `b+m, a+n ≥ 0` follow from `f_1 ≥ f_0`), so `thm_6jfiniteRacah` is exactly the paper's theorem
+under its hypothesis.  The lattice is indexed by `i : Fin (D+1)`, `c_i = c_min + i`, and the
 `f`-range by `j : Fin (D+1)`, `f_j = f_0 + j` (same cardinality, `eq:Racahdimension`).
 
 ## Dictionary (paper -> Lean)

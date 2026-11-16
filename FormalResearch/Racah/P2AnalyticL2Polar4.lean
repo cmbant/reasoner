@@ -6,8 +6,8 @@ public import FormalResearch.Racah.P2AnalyticL2Polar3
 # `eq:SNpolar`, whitening and the headline `prop:betabinomialpolar` (Weyl P2)
 
 Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `prop:betabinomialpolar`
-(`eq:singularvaluesgeneral`, `eq:SNpolar`, `eq:physicalsingularvalues`), Appendix `app:beta-polar`
-(`eq:physicalGaugeModes`, the whitening formulas `Λ_{N,M}`, `eq:SNwhitening`).
+(`eq:singularvaluesgeneral`, `eq:SNpolar`, `eq:physicalsingularvalues`), Appendices `app:beta-polar` and
+`app:beta-polar-sv` (`eq:physicalGaugeModes`, the whitening formulas `Λ_{N,M}`, `eq:SNwhitening`).
 
 ## Dictionary
 
@@ -83,7 +83,7 @@ lemma gamma_ratio (a b : ℝ) (hb : 0 < b) (n : ℕ) (hn : (n : ℝ) < a) :
     field_simp
     ring
 
-/-- **Whitening weight** (`app:beta-polar`): `s_{L-M}² = Γ(N-M)Γ(N+M+1)/(Γ(N-L)Γ(N+L+1))`,
+/-- **Whitening weight** (`app:beta-polar-sv`): `s_{L-M}² = Γ(N-M)Γ(N+M+1)/(Γ(N-L)Γ(N+L+1))`,
 `L = M + n`, i.e. `Λ_{N,M}(L(L+1))`. -/
 theorem sing_sq_gamma {M σ N : ℚ} {α β D : ℕ} (hα : M - σ = α) (hβ : M + σ = β)
     (hD : N - M - 1 = D) (n : Fin (D + 1)) :

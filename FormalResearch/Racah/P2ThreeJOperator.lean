@@ -5,9 +5,9 @@ public import FormalResearch.Racah.P2ThreeJRec
 /-!
 # The exact finite-difference operator and the affine-midpoint uniqueness core (Weyl P2)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, section *Exact finite-difference equation and
-the first correction* (`eq:3jdiff`, `prop:3junique`, `rem:discreteWeyl`) and the first half of
-*Exact finite spectral system* (`eq:physicalgrid`, `eq:3jHh`, `thm:3jspectral`).
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `sec:3jdiff` (*Exact magnetic difference equation and
+uniqueness of the midpoint*: `eq:3jdiff`, `prop:3junique`, `rem:discreteWeyl`) and the first half of
+`sec:3jHahn` (*Exact finite spectral system*: `eq:physicalgrid`, `eq:3jHh`, `thm:3jspectral`).
 
 Dictionary: `aH M σ h y` is `a_h(y)` of `eq:ah3` (real `h`; `aMid M σ N y = aH M σ (1/N) y`);
 `Dop M σ h ψ x` is the left side of `eq:3jdiff` without its constant term; `Hh M σ N ψ x` is

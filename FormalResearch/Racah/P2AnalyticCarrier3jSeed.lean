@@ -177,7 +177,7 @@ theorem carrier_start_B (M σ N μ : ℚ) (α β : ℕ) (hA : |M| ≤ σ) (hα :
   rw [neg_neg] at this
   rw [Phi3j_regge σ M σ N μ, this, seed3_regge]
 
-/-- **Starts of `lem:sqrtfreecarrier`, every chamber.**  At the minimal rank `L₀ = max(|M|,|σ|)`
+/-- **Starts of `lem:sqrtfreecarrier`, every chamber** (`eq:3jcarrierstart`).  At the minimal rank `L₀ = max(|M|,|σ|)`
 and a physical lattice point (`Lat4`), with `α = |M-σ|`, `β = |M+σ|` natural,
 `Φ_{L₀}^{M,σ} = seed3 M σ · √(𝔠_α((1-x)/2,h) 𝔠_β((1+x)/2,h)) / √(𝔠_{α+β+1}(1,h))`
 (`h = 1/N`, `x = 2μ/N`; `α+β+1 = 2L₀+1`). -/

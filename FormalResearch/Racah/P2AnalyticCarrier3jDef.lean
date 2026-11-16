@@ -6,16 +6,16 @@ public import FormalResearch.Racah.P2ThreeJRec
 /-!
 # The square-root-free `3j` carrier: definitions and polynomiality (Weyl P2, `lem:sqrtfreecarrier`)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `lem:sqrtfreecarrier`
-(`eq:sqrtfreecarrier`, `eq:3jrankpoly`), Appendix G.
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, `lem:sqrtfreecarrier` (the `3j` half; the `6j` half is
+`lem:sqrtfreecarrier6j`) with `eq:sqrtfreecarrier`, `eq:3jrankpoly`, `eq:3jcarrierstart`, in `sec:3jcarrier`.
 
 ## Conventions
 
 * `M σ : ℚ` with `α = |M-σ|` and `β = |M+σ|` natural numbers (`pPlus3 M σ`, `pMinus3 M σ`; the
   paper's `p_+ = |M-σ|`, `p_- = |M+σ|`); the minimal rank is `L₀ = max(|M|,|σ|)` and
   `α + β = 2 L₀` (`hahn_alpha_add_beta`).  The rank is written `L = L₀ + k`.
-* `τ = (1-x)/2` and `t = h²` are two independent real variables (the paper's `t` of
-  `lem:sqrtfreecarrier` is our `τ`; our `t = h² = N⁻²` is the paper's `h²`).
+* `τ = (1-x)/2` and `t = h²` are two independent real variables (`τ` is the paper's `ς = (1-x)/2` of
+  `lem:sqrtfreecarrier`; the paper's `τ` is `Mσ`; our `t = h² = N⁻²` is the paper's `h²`).
 * `ptilde3 M σ k τ t` is `P̃_{L₀+k}` of `lem:sqrtfreecarrier`, defined by the square-root-free
   rank recurrence `eq:3jrankpoly`
   `(2L+1)[L(L+1)(1-2τ) - Mσ] P̃_L = (L+1) R_L (1-L²t) P̃_{L-1} + L R_{L+1} P̃_{L+1}`

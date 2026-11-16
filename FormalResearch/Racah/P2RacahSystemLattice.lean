@@ -5,8 +5,9 @@ public import FormalResearch.Racah.P2RacahLattice
 /-!
 # The physical `c`- and `f`-lattices of the Racah system (Weyl P2, `thm:6jfiniteRacah`)
 
-Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, section *Exact finite Racah spectral system on
-the physical `c`-lattice*, equations `eq:cminRacah`-`eq:Racahdimension`.
+Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`, subsection *Exact finite Racah spectral system on
+the physical `c`-lattice* (`sec:6jcspectral`), equations `eq:cminRacah`-`eq:Racahdimension`.  Non-emptiness of
+the lattice (the paper's hypothesis `b+m, a+n ≥ 0`, `f_1 ≥ f_0`) is `racah_nonempty_tfae` in `P2RacahNonempty`.
 
 The paper's integrality conventions are packaged in `RacahLabels a b m n`: `2a`, `2b`, `2m` are
 integers and `m - n` is an integer (so `a, b` are integers or half-integers, `m, n` are integers or
