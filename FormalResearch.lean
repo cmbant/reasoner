@@ -288,6 +288,7 @@ public import FormalResearch.Racah.P3PhaseDatum
 public import FormalResearch.Special
 public import FormalResearch.Asymptotics
 public import FormalResearch.Wigner
+public import FormalResearch.FreeFermion
 public import FormalResearch.Bridges.B2BlaschkeWalshGauge
 public import FormalResearch.Bridges.B2BlaschkeGatePhase
 public import FormalResearch.Bridges.B2BlaschkeSingletonSelection
