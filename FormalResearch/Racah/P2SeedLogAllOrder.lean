@@ -277,4 +277,12 @@ theorem seedRatio_hasUniformExpansion_compact (α β : ℕ) {K : Set ℝ} (hK : 
 #guard_msgs (whitespace := lax) in
 #print axioms seedRatio_hasUniformExpansion_compact
 
+/-- info: 'FormalResearch.Racah.seedRatio_log_hasUniformExpansion' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms seedRatio_log_hasUniformExpansion
+
+/-- info: 'FormalResearch.Racah.seedRatio_hasUniformExpansion' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms seedRatio_hasUniformExpansion
+
 end FormalResearch.Racah

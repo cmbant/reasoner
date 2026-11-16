@@ -31,8 +31,9 @@ Notation: `M, σ ∈ ℚ` with `α = M-σ` and `β = M+σ` natural numbers (the 
   `∑ ℓ_r(x) N^{-2r}` and `Φ/d` has the expansion `∑ κ_r(x) N^{-2r}`, `κ_r = [t^r] exp(∑ ℓ_s t^s)`.
 
 Not covered: this is the seed (extremal rank `L = M`, `k = 0`) statement only.  It is not shown
-here that the local-calculus functions `ψ_{2r}` of `prop:localcalculus(b)` (`eq:3jpsi2r`) equal
-`κ_r`; `eq:3jpsi2r` is not formalised in this repository.
+here that the local-calculus functions `ψ_{2r}` of `prop:localcalculus(b)` equal `κ_r`: the abstract
+`eq:3jpsi2r` is `local_calculus_start` (`P2LocalCalculusLeftNormal`), but its instance at the seed row,
+`ψ_{2r} = κ_r - 𝒥(𝖡_{2r})d/d`, is not shown here.
 -/
 
 @[expose] public section
@@ -223,6 +224,14 @@ theorem Phi3j_ratio_hasUniformExpansionOn {K : Set ℝ} (hK : IsCompact K)
   rw [grid_ratio_eq M σ α β hα hβ hp]
 
 end Grid
+
+/-- info: 'FormalResearch.Racah.wignerSmallDx_extremal' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms wignerSmallDx_extremal
+
+/-- info: 'FormalResearch.Racah.Phi3j_eq_wignerSmallDx_mul_seedRatio' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Phi3j_eq_wignerSmallDx_mul_seedRatio
 
 /-- info: 'FormalResearch.Racah.Phi3j_div_wignerSmallDx' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
