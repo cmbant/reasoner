@@ -252,11 +252,11 @@ lemma SOB.pow_of_sob1 {δ : α → ℝ} (h : SOB D hh 1 δ) (k : ℕ) : SOB D hh
   have := pow_le_pow_left₀ (abs_nonneg _) (by simpa using hb a ha) k
   simpa [abs_abs, mul_pow, abs_pow] using this
 
-lemma Ex3.of_taylor3 (hD : ∀ a, D a → |hh a| ≤ 1) {F F1 F2 F3 : α → ℝ → ℝ} {M S : ℝ} {x0 δ d1 d2 : α → ℝ}
-    (hM : 0 ≤ M)
+lemma Ex3.of_taylor3 (hD : ∀ a, D a → |hh a| ≤ 1) {F F1 F2 F3 : α → ℝ → ℝ} {M0 M1 M2 M3 S : ℝ} {x0 δ d1 d2 : α → ℝ}
+    (hM3 : 0 ≤ M3)
     (hF : ∀ a, D a → ∀ x, HasDerivAt (F a) (F1 a x) x) (hF1 : ∀ a, D a → ∀ x, HasDerivAt (F1 a) (F2 a x) x)
     (hF2 : ∀ a, D a → ∀ x, HasDerivAt (F2 a) (F3 a x) x)
-    (hb : ∀ a, D a → ∀ x, |x| ≤ S → |F a x| ≤ M ∧ |F1 a x| ≤ M ∧ |F2 a x| ≤ M ∧ |F3 a x| ≤ M)
+    (hb : ∀ a, D a → ∀ x, |x| ≤ S → |F a x| ≤ M0 ∧ |F1 a x| ≤ M1 ∧ |F2 a x| ≤ M2 ∧ |F3 a x| ≤ M3)
     (hx0 : ∀ a, D a → |x0 a| ≤ S) (hx1 : ∀ a, D a → |x0 a + δ a| ≤ S)
     (hδ : Ex3 D hh δ (fun _ => 0) d1 d2) :
     Ex3 D hh (fun a => F a (x0 a + δ a)) (fun a => F a (x0 a)) (fun a => F1 a (x0 a) * d1 a)
@@ -265,29 +265,26 @@ lemma Ex3.of_taylor3 (hD : ∀ a, D a → |hh a| ≤ 1) {F F1 F2 F3 : α → ℝ
   obtain ⟨K, hK, hKb⟩ := hs1.pow_of_sob1 3
   have hrem : SOB D hh 3 (fun a => F a (x0 a + δ a) -
       (F a (x0 a) + F1 a (x0 a) * δ a + F2 a (x0 a) * δ a ^ 2 / 2)) := by
-    refine ⟨M * K, by positivity, fun a ha => ?_⟩
+    refine ⟨M3 * K, by positivity, fun a ha => ?_⟩
     have := sj_taylor3 (hF a ha) (hF1 a ha) (hF2 a ha) (fun x hx => (hb a ha x hx).2.2.2) (hx0 a ha) (hx1 a ha)
     refine this.trans ?_
-    calc M * |δ a| ^ 3 ≤ M * (K * |hh a| ^ 3) := mul_le_mul_of_nonneg_left (by simpa using hKb a ha) hM
+    calc M3 * |δ a| ^ 3 ≤ M3 * (K * |hh a| ^ 3) := mul_le_mul_of_nonneg_left (by simpa using hKb a ha) hM3
       _ = _ := by ring
-  have bdd : ∀ (G : α → ℝ → ℝ), (∀ a, D a → |G a (x0 a)| ≤ M) → SOB D hh 0 (fun a => G a (x0 a)) :=
-    fun G h => SOB.bdd h
-  have c0 := bdd F fun a ha => (hb a ha _ (hx0 a ha)).1
-  have c1 := bdd F1 fun a ha => (hb a ha _ (hx0 a ha)).2.1
-  have c2 := bdd F2 fun a ha => (hb a ha _ (hx0 a ha)).2.2.1
+  have c0 : SOB D hh 0 (fun a => F a (x0 a)) := SOB.bdd (M := M0) fun a ha => (hb a ha _ (hx0 a ha)).1
+  have c1 : SOB D hh 0 (fun a => F1 a (x0 a)) := SOB.bdd (M := M1) fun a ha => (hb a ha _ (hx0 a ha)).2.1
+  have c2 : SOB D hh 0 (fun a => F2 a (x0 a)) := SOB.bdd (M := M2) fun a ha => (hb a ha _ (hx0 a ha)).2.2.1
   have e1 := Ex3.mul hD (Ex3.const c1) hδ
   have e2 := Ex3.mul hD hδ hδ
   have e3 := Ex3.mul hD (Ex3.const c2) e2
-  have e4 := ((Ex3.const c0).add e1).add (e3.smul (1 / 2) |>.congr (fun a _ => rfl) (fun a _ => rfl) (fun a _ => rfl) (fun a _ => rfl))
+  have e4 := ((Ex3.const c0).add e1).add (e3.smul (1 / 2))
   have := e4.add (Ex3.of_sob hrem)
   refine this.congr (fun a _ => by ring) (fun a _ => by ring) (fun a _ => by ring) (fun a _ => by ring)
 
-
 /-- `hh · F(x0 + δ)` with `F, F', F''` bounded (second-order Taylor suffices). -/
-lemma Ex3.of_taylor_h (hD : ∀ a, D a → |hh a| ≤ 1) {F F1 F2 : α → ℝ → ℝ} {M S : ℝ} {x0 δ d1 d2 : α → ℝ}
-    (hM : 0 ≤ M)
+lemma Ex3.of_taylor_h (hD : ∀ a, D a → |hh a| ≤ 1) {F F1 F2 : α → ℝ → ℝ} {M0 M1 M2 S : ℝ} {x0 δ d1 d2 : α → ℝ}
+    (hM2 : 0 ≤ M2)
     (hF : ∀ a, D a → ∀ x, HasDerivAt (F a) (F1 a x) x) (hF1 : ∀ a, D a → ∀ x, HasDerivAt (F1 a) (F2 a x) x)
-    (hb : ∀ a, D a → ∀ x, |x| ≤ S → |F a x| ≤ M ∧ |F1 a x| ≤ M ∧ |F2 a x| ≤ M)
+    (hb : ∀ a, D a → ∀ x, |x| ≤ S → |F a x| ≤ M0 ∧ |F1 a x| ≤ M1 ∧ |F2 a x| ≤ M2)
     (hx0 : ∀ a, D a → |x0 a| ≤ S) (hx1 : ∀ a, D a → |x0 a + δ a| ≤ S)
     (hδ : Ex3 D hh δ (fun _ => 0) d1 d2) :
     Ex3 D hh (fun a => hh a * F a (x0 a + δ a)) (fun _ => 0) (fun a => F a (x0 a))
@@ -295,15 +292,13 @@ lemma Ex3.of_taylor_h (hD : ∀ a, D a → |hh a| ≤ 1) {F F1 F2 : α → ℝ �
   have hs1 := Ex3.sob1 hD hδ
   obtain ⟨K, hK, hKb⟩ := hs1.pow_of_sob1 2
   have hrem : SOB D hh 2 (fun a => F a (x0 a + δ a) - (F a (x0 a) + F1 a (x0 a) * δ a)) := by
-    refine ⟨M * K, by positivity, fun a ha => ?_⟩
+    refine ⟨M2 * K, by positivity, fun a ha => ?_⟩
     have := sj_taylor2 (hF a ha) (hF1 a ha) (fun x hx => (hb a ha x hx).2.2) (hx0 a ha) (hx1 a ha)
     refine this.trans ?_
-    calc M * |δ a| ^ 2 ≤ M * (K * |hh a| ^ 2) := mul_le_mul_of_nonneg_left (by simpa using hKb a ha) hM
+    calc M2 * |δ a| ^ 2 ≤ M2 * (K * |hh a| ^ 2) := mul_le_mul_of_nonneg_left (by simpa using hKb a ha) hM2
       _ = _ := by ring
-  have bdd : ∀ (G : α → ℝ → ℝ), (∀ a, D a → |G a (x0 a)| ≤ M) → SOB D hh 0 (fun a => G a (x0 a)) :=
-    fun G h => SOB.bdd h
-  have c0 := bdd F fun a ha => (hb a ha _ (hx0 a ha)).1
-  have c1 := bdd F1 fun a ha => (hb a ha _ (hx0 a ha)).2.1
+  have c0 : SOB D hh 0 (fun a => F a (x0 a)) := SOB.bdd (M := M0) fun a ha => (hb a ha _ (hx0 a ha)).1
+  have c1 : SOB D hh 0 (fun a => F1 a (x0 a)) := SOB.bdd (M := M1) fun a ha => (hb a ha _ (hx0 a ha)).2.1
   have e1 := Ex3.mul hD (Ex3.const c1) hδ
   have e2 := (Ex3.const c0).add e1
   have e3 := Ex3.mulh hD e2
@@ -313,25 +308,24 @@ lemma Ex3.of_taylor_h (hD : ∀ a, D a → |hh a| ≤ 1) {F F1 F2 : α → ℝ �
   refine this.congr (fun a _ => by ring) (fun a _ => by ring) (fun a _ => by ring) (fun a _ => by ring)
 
 /-- `hh² · F(x0 + δ)` with `F, F'` bounded (first-order Taylor). -/
-lemma Ex3.of_taylor_h2 (hD : ∀ a, D a → |hh a| ≤ 1) {F F1 : α → ℝ → ℝ} {M S : ℝ} {x0 δ d1 d2 : α → ℝ}
-    (hM : 0 ≤ M)
+lemma Ex3.of_taylor_h2 (hD : ∀ a, D a → |hh a| ≤ 1) {F F1 : α → ℝ → ℝ} {M0 M1 S : ℝ} {x0 δ d1 d2 : α → ℝ}
+    (hM1 : 0 ≤ M1)
     (hF : ∀ a, D a → ∀ x, HasDerivAt (F a) (F1 a x) x)
-    (hb : ∀ a, D a → ∀ x, |x| ≤ S → |F a x| ≤ M ∧ |F1 a x| ≤ M)
+    (hb : ∀ a, D a → ∀ x, |x| ≤ S → |F a x| ≤ M0 ∧ |F1 a x| ≤ M1)
     (hx0 : ∀ a, D a → |x0 a| ≤ S) (hx1 : ∀ a, D a → |x0 a + δ a| ≤ S)
     (hδ : Ex3 D hh δ (fun _ => 0) d1 d2) :
     Ex3 D hh (fun a => hh a ^ 2 * F a (x0 a + δ a)) (fun _ => 0) (fun _ => 0) (fun a => F a (x0 a)) := by
   have hs1 := Ex3.sob1 hD hδ
   obtain ⟨K, hK, hKb⟩ := hs1.pow_of_sob1 1
   have hrem : SOB D hh 1 (fun a => F a (x0 a + δ a) - F a (x0 a)) := by
-    refine ⟨M * K, by positivity, fun a ha => ?_⟩
+    refine ⟨M1 * K, by positivity, fun a ha => ?_⟩
     have := sj_taylor1 (hF a ha) (fun x hx => (hb a ha x hx).2) (hx0 a ha) (hx1 a ha)
     refine this.trans ?_
-    calc M * |δ a| ≤ M * (K * |hh a|) := mul_le_mul_of_nonneg_left (by simpa using hKb a ha) hM
+    calc M1 * |δ a| ≤ M1 * (K * |hh a|) := mul_le_mul_of_nonneg_left (by simpa using hKb a ha) hM1
       _ = _ := by ring
-  have bdd : SOB D hh 0 (fun a => F a (x0 a)) := SOB.bdd (M := M) fun a ha => (hb a ha _ (hx0 a ha)).1
+  have e5 : SOB D hh 0 (fun a => F a (x0 a)) := SOB.bdd (M := M0) fun a ha => (hb a ha _ (hx0 a ha)).1
   have e4 : SOB D hh 3 (fun a => hh a ^ 2 * (F a (x0 a + δ a) - F a (x0 a))) :=
     ((SOB.hh_pow (D := D) (hh := hh) 2).mul hrem).congr fun a _ => by simp
-  have e5 : SOB D hh 0 (fun a => F a (x0 a)) := bdd
   have e6 : Ex3 D hh (fun a => hh a ^ 2 * F a (x0 a)) (fun _ => 0) (fun _ => 0) (fun a => F a (x0 a)) :=
     ⟨(SOB.zero 3).congr fun a _ => by ring, SOB.const 0, SOB.const 0, e5⟩
   have := e6.add (Ex3.of_sob e4)
