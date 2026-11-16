@@ -10,7 +10,7 @@ public import FormalResearch.Racah.P3FluxGauss
 Source: `Weyl/P3/paper/weyl_midpoint_semiclassics.tex`, `prop:hahn-class` (`eq:adiabaticJacobi`), with the
 rank recurrence `eq:3jrank` (DLMF 34.3.15, formalised as `Racah.Phi3j_rank_recurrence`).
 
-**Setting.**  Integers `M, σ, N` (the integer case of the paper; half-integers are *not* covered, see below),
+**Setting.**  Integers `M, σ, N` (the integer case of the paper; the half-integer case is `DiscreteAiryLimitChains2Half3j`),
 `h = 1/N`, `x = 2μ/N` any rational (`PhiX`), the natural-gauge kernel
 `Ŷ_k = √(2k+1) Φ_k^{M,σ}(x; 1/N)` (`hahn3jY`; `Φ_L = (-1)^{2L+j₊+m₊} √N (L j₋ j₊; M m₋ m₊)`, `Racah.Phi3j`), extended by the
 library's zero extension.  The closed forms are those of `DiscreteAiryLimitHahn`:
@@ -34,12 +34,12 @@ library's zero extension.  The closed forms are those of `DiscreteAiryLimitHahn`
 
 ## Not formalised
 
-* The half-integer case (`L, M, σ` half-integers, `N ∈ ℤ + ½`): `hrAk`/`hrCk` and the Airy instance are indexed by
-  `k ∈ ℤ` with sites `(k + ½)h`; the half-integer chain lives on the other sublattice `k ∈ ℤ + ½`, with sites
-  `(k+½)h ∈ hℤ`.  The recurrence itself (`Phi3j_rank_recurrence`) holds there, but the translation to the `ℤ`-indexed
-  `jac` is not done.
+* The half-integer case (`L, M, σ` half-integers, `N ∈ ℤ + ½`) lives on the shifted lattice `k ∈ ℤ + ½`; it is done
+  in `DiscreteAiryLimitChains2Half3j` (identification, support, end rows, `(R)`, nodes, Airy limit) on top of
+  `DiscreteAiryLimitChains2HalfAiry`.  Lattice nodes `x_n = x` and the `τ = -1` twist are in
+  `DiscreteAiryLimitChains2Nodes`, `DiscreteAiryLimitChains2Twist`.
 * The identification is for a single `(M, σ, N, x)`; the Airy theorem is for the closed-form chain with fixed real `x`
-  (uniformity over `x`, the compact family of shapes, is not provided).
+  (uniformity over `x`, the compact family of shapes, is not provided: an irrational `x` has no exact node).
 * `κ ≠ 0` and the Darboux normalisation; the other items listed in `DiscreteAiryLimitHahn`.
 -/
 

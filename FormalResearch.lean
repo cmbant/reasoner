@@ -231,6 +231,8 @@ public import FormalResearch.Racah.P2LocalCalculusWigner
 public import FormalResearch.Racah.P2AnalyticTaylorSeries
 public import FormalResearch.Racah.P2AnalyticAllOrder3jSeries
 public import FormalResearch.Racah.P2AnalyticAllOrder3j
+public import FormalResearch.Racah.P2AnalyticAllOrder6jSeries
+public import FormalResearch.Racah.P2AnalyticAllOrder6j
 public import FormalResearch.Racah.P2ThreeJVanish
 public import FormalResearch.Racah.P2ThreeJRecAll
 public import FormalResearch.Racah.P2ThreeJRec
@@ -305,6 +307,8 @@ public import FormalResearch.Racah.P2SeedLogAllOrderPhys
 public import FormalResearch.Racah.P2SeedGridUnique
 public import FormalResearch.Racah.P2SeedMultiplierLink
 public import FormalResearch.Racah.P2SeedAllChambers
+public import FormalResearch.Racah.P2SeedRational
+public import FormalResearch.Racah.P2SeedZeroPsi
 public import FormalResearch.Racah.P3FluxGauss
 public import FormalResearch.Racah.P3PhaseDatum
 public import FormalResearch.Racah.P3CayleyMenger

@@ -16,8 +16,9 @@ Statement formalised (Hadamard 1893; Boas, *Entire functions*, Thm 2.7.1; Titchm
 
 (`Hadamard.hadamard`.)  For non-integer `σ` the choice `p = ⌊σ⌋` is the classical one (genus `≤ σ`, degree `≤ σ`); for integer
 `σ` it gives the classical theorem with genus/degree `≤ σ` (the theorem as stated needs only `σ < p + 1`, so it covers the
-borderline case `p = σ` as well).  **Proved**; not formalised: the converse direction (that every such product has order `≤ σ`),
-and the identification of the exact order of `f` with the convergence exponent of its zeros.  (The multiplicity of the
+borderline case `p = σ` as well).  **Proved**; the upper growth bound of the converse (that a product with `Σ|a_i|^{-s} < ∞`, `p ≤ s ≤ p+1`, has growth
+order `≤ s`) is `HadamardGrowth`.  Not formalised: the lower bound / the identification of the exact order of `f` with the
+convergence exponent of its zeros.  (The multiplicity of the
 zeros of the canonical product, `analyticOrderNatAt (canonProd p a) w = (a ⁻¹' {w}).ncard`, is proved separately in
 `HadamardProductOrder`; no lower bound for canonical products is used or proved.)
 -/

@@ -21,7 +21,7 @@ already known, `sin ε = ε + O(r^{-9})`, `cos ε = 1 + O(r^{-6})` and `a = 1 + 
 Numerically (mpmath, 30 digits, `2 ≤ n ≤ 3000`): `r⁹ ((2/3) r³ - (n - 1/4)π - 5/(48 r³))` equals `-0.1098` (`n = 2`) and
 converges to `-0.11990` as `n → ∞` (the `u₃`-sized value), far inside the proved `11/10`.
 
-Proved here: both statements.  **Not formalised:** the sharp `ξ^{-3}` coefficient.
+Proved here: both statements.  The next order of the phase is `airyZero_phase_third` (`AiryZeroThirdPhase`).
 -/
 
 @[expose] public section

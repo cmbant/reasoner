@@ -21,7 +21,7 @@ For `q ∈ ℂ` in the sector `|arg q| ≤ π/6` (`Re q ≥ (√3/2)‖q‖`) pu
   most `0.087` times the stated bound.
 
 The derivation uses no branch computation beyond `Re(e^{±iπ/12} τ) > 0` for `τ = (π/q)^{1/2}`
-(which follows from `Re τ² > 0`).  Not formalised: the derivative analogue and the `Bi` combination.
+(which follows from `Re τ² > 0`).  The derivative analogue is `deriv_airyAiC_neg_complex` (`AiryCft2DerivNeg`).  Not formalised: the `Bi` combination.
 -/
 
 @[expose] public section

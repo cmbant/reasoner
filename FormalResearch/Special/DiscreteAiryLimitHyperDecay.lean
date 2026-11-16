@@ -38,7 +38,8 @@ site `≥ q_*`.
 
 ## Not formalised
 
-The identification of the closed forms with the actual `3j`/`6j` chains and of the actual hard-edge row `k_max`; the
+The identification of the closed forms with the actual `3j`/`6j` chains and of the actual hard-edge row `k_max` is in
+`DiscreteAiryLimitChains*` (not here); the
 normalisation of `Y` (a bound on `|Y_{k₁}|` is *not* derived here: the decay goes from `k₁` forward, so a bound at the end of
 the chain does not control `Y` at `k₁`); the quantum-`6j` (`sinh/cosh`) variant; the sharper exponential decay of
 `prop:forbidden-decay`(b).

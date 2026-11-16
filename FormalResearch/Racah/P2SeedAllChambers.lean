@@ -31,10 +31,11 @@ of the Wigner function (`dZero3_eq_wignerD`).
 * `Phi3j_log_hasUniformExpansionOn_all`, `Phi3j_ratio_hasUniformExpansionOn_all`: the expansions on the physical
   grid, uniformly on compact `K ⊆ (-1,1)`; `κ_r = expCoeff (seedEll α β) r`.
 
-Not covered: the operator statement `(𝒢_r d_{L₀}) = κ_r d_{L₀}` outside `M ≥ |σ|`.  The proof in
+Not covered here: the operator statement `(𝒢_r d_{L₀}) = κ_r d_{L₀}` outside `M ≥ |σ|`.  The proof in
 `P2SeedMultiplierLink` needs the density of the physical lattice of `(M,σ)` in `x` (`exists_grid_point`), which is
-proved there only for `M ≥ |σ|`; transporting it along the lattice symmetries (`Lat4.regge`, `Lat4.negM`, and the
-corresponding statements for `SpecAdm`, not in the repository) is not done here.
+proved there only for `M ≥ |σ|`; it is obtained in every chamber in `P2SeedRational` (`link3_zero_all`) not by
+transporting the density but by the exact sign scalings `f3even_negMσ`, `f3even_swap`, `f3even_regge` of the
+extremal-chamber statement.
 -/
 
 @[expose] public section

@@ -29,9 +29,9 @@ is not derived: a bound at the hard edge does not bound `Y` at `k₁`.  In the p
 (`Y` normalised in the bulk by Darboux matching, so `κ` is identified) or, independently, from `3j`/`6j` orthogonality
 (`Σ Y_k² ≤ δ^{-2p}` gives `|Y_{k₁}| ≤ δ^{-p}` at once).  Neither normalisation is formalised here (`κ` is not identified, as in
 `DiscreteAiryLimit`).  Claiming a bound `|Y_{k₁}| ≤ δ^{-p}` for the actual `3j/6j` chain would need the identification of the
-closed forms with the actual chains (not done; another agent's task).
+closed forms with the actual chains (done in `DiscreteAiryLimitChains*`).
 
-**Scope / not formalised** (as in `DiscreteAiryLimitHahn`): the closed forms are not identified with the actual `3j`/`6j` chains;
+**Scope / not formalised** (as in `DiscreteAiryLimitHahn`): the closed forms are not identified with the actual `3j`/`6j` chains here (see `DiscreteAiryLimitChains*`);
 `κ` unidentified, `κ ≠ 0` unproved; recessive-plus-bounded-window form only; one fixed `(P,Q,a,b,τ,x)`; the quantum-`6j` variant;
 the sharper exponential decay `prop:forbidden-decay`(b) is not used (monotone decay suffices for `(R)`).
 -/

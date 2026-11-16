@@ -57,6 +57,11 @@ public import FormalResearch.Special.AiryZeroSecondOrderSaddle
 public import FormalResearch.Special.AiryZeroSecondOrderChi
 public import FormalResearch.Special.AiryZeroSecondOrderPhase
 public import FormalResearch.Special.AiryZeroSecondOrder
+public import FormalResearch.Special.AiryZeroThirdSaddle
+public import FormalResearch.Special.AiryZeroThirdChi
+public import FormalResearch.Special.AiryZeroThirdPhase
+public import FormalResearch.Special.AiryZeroThirdLimits
+public import FormalResearch.Special.AiryZeroThird
 public import FormalResearch.Special.AiryPruferAsym
 public import FormalResearch.Special.AiryClarkMid
 public import FormalResearch.Special.AiryWt
@@ -69,6 +74,17 @@ public import FormalResearch.Special.AiryCftResidue
 public import FormalResearch.Special.AiryCftDefect
 public import FormalResearch.Special.AiryCftWeights
 public import FormalResearch.Special.AiryCftQuadrature
+public import FormalResearch.Special.AiryCft2Generic
+public import FormalResearch.Special.AiryCft2Ball
+public import FormalResearch.Special.AiryCft2DerivNeg
+public import FormalResearch.Special.AiryCft2ComboAlg
+public import FormalResearch.Special.AiryCft2ComboZeros
+public import FormalResearch.Special.AiryCft2ComboBounds
+public import FormalResearch.Special.AiryCft2ComboWeights
+public import FormalResearch.Special.AiryCft2ComboQuadrature
+public import FormalResearch.Special.AiryCft2ComboBall
+public import FormalResearch.Special.AiryCft2Clark
+public import FormalResearch.Special.AiryCft2FirstDerivZero
 
 /-!
 # The Airy function: aggregate and design note
@@ -111,28 +127,36 @@ the ordered zeros `a_n` of `Ai`: `AiryGammaBounds`, `AiryZeroTaylor`, `AiryFirst
 `AiryZeroSecondOrder{Saddle,Chi,Phase,}` (the second order DLMF 9.9.18: `|a_n + t^{2/3}(1 + 5/(48t²))| ≤ 2t^{-10/3}`,
 `t = (3π/2)(n-1/4)`, via the saddle integral and `Ai`, `Bi` on the negative axis to relative order `r^{-9}` and the phase
 `|(2/3)r³ - (n-1/4)π - 5/(48r³)| ≤ (11/10)r^{-9}`; constants not sharp),
+`AiryZeroThird{Saddle,Chi,Phase,Limits,}` (the third order: the general-`N` saddle expansion of `∫ exp(-ws² - is³/3) ds`,
+`|χ|²`, `Ai²`, `Bi²` at `-r²` to relative `O(r^{-15})`, the phase to `O(s^{-5})`, and `|a_n + t^{2/3}(1 + 5/(48t²) - 5/(36t⁴))| ≤ 32 t^{-16/3}`,
+i.e. DLMF 9.9.18 through the `-5/36` term, with the `Tendsto` form `t^{10/3}(a_n + t^{2/3} + (5/48)t^{-4/3}) → 5/36`, the limits
+`n^{4/3}(a_n + t_n^{2/3})`, `|a_n|/n^{2/3}` and the gap asymptotics `n^{1/3}(a_n - a_{n+1}) → (2/3)(3π/2)^{2/3}`),
 `AiryPruferAsym` (the Prüfer angle of `Ai`, zeros of `Ai'`), `AiryClarkMid` (one zero of `Ai'` per gap, asymptotically the
 midpoint); and the Airy side of the discrete-to-Airy limit: `AiryWt` (an explicit envelope weight `(2+|X|)^{-1/4} e^{-ξ}` with
 local constancy and lattice sums), `AiryShift` (the shift identity `y(X+s) = y(X) C + y'(X) S`), `AiryShiftTaylor` (Taylor
-expansions of `Ai`, `C`, `S` against the weight); and the CFT consequences of the zeros of `Ai` (`AiryCft*`: see the design
-note).  The Langer coordinate (`Langer*`), the discrete Jacobi calculus
+expansions of `Ai`, `C`, `S` against the weight); and the CFT consequences of the zeros of `Ai` (`AiryCft*`, and `AiryCft2*` for
+Theorem D on a disc, the zeros and quadrature of `P Ai + Q Ai'`, Clark summation, `a'_1`: see the design note; the Hadamard product of
+`Ai'`, `AiryCft2DerivHadamard`, imports `FormalResearch.Complex` and is therefore imported by `FormalResearch.Special`, not here).  The Langer coordinate (`Langer*`), the discrete Jacobi calculus
 (`DiscreteJacobi*`) and the discrete-to-Airy comparison built on it (`AiryParametrix*`, `AiryRecessive*`, `AiryWindow*`, `DiscreteAiryLimit*`)
 are separate modules of `FormalResearch.Special`, not imported by this aggregate.  (Overlapping Gamma enclosures: `AiryBiNeg` and
 `AiryGammaBounds` each carry their own, with different constants.)
 
 **Not formalised:** the full asymptotic series (the `AiryAsym*` files give the first term, or `u_1` in `AiryAsymChi`, with explicit
-remainder; `AiryZeroSecondOrder*` add `u_2` for `Ai`, `Bi` on the negative axis, not `u_3` and higher terms; `Ai'`, `Bi'`, `χ'`
-to order `v_1` only to first order); the `-(5/36)t^{-4}` coefficient of the zeros' expansion and the zeros of `Ai'`
-(DLMF 9.9.19), the second order of DLMF 9.9.18 itself being proved with non-sharp constants, and sharp constants anywhere; the asymptotics of the general Clark nodes `z_n(α)`, `α ≢ 0, π/2`
-(existence and uniqueness are `airy_node_exists_unique`); Olver's own `N` and the value of the crossing point `c = -0.366…`
-(`airyCross > -1`); Olver-type uniform expansions; the Mellin moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the `Lp`-level
-operator `K_u`; the `Ai'` and `P Ai + Q Ai'` versions of the good-circle bound (E2) and hence of the residue-defect formula, Clark-Airy
-summation for `ψ_α`, and Theorem Q for `ν ∈ [-1, 1/2]` (`AiryCftQuadrature`); the product form of `Ai'` and `Bi`, and
-the converse of Hadamard's theorem (`FormalResearch.Complex`); the first zero of `Bi` and `Bi > 0`
+remainder; `AiryZeroSecondOrder*` and `AiryZeroThird*` add `u_2`, `u_3`, `u_4` for `Ai`, `Bi` on the negative axis, not higher terms; `Ai'`, `Bi'`, `χ'`
+to order `v_1` only to first order); the `t^{-6}` coefficient `77125/82944` of the zeros' expansion (DLMF 9.9.18 is proved through the
+`-(5/36)t^{-4}` term, with non-sharp constants) and the zeros of `Ai'` (DLMF 9.9.19: only the first-order phase and one zero per gap exist,
+`AiryPruferAsym`, `AiryClarkMid`, plus the largest zero `a'_1`; the asymptotics would need a new saddle expansion with the odd-moment
+integrand and the coefficient `-7/48`), and sharp constants anywhere; the asymptotics of the general Clark nodes `z_n(α)`,
+`α ≢ 0, π/2` (existence and uniqueness are `airy_node_exists_unique`; the node labelling and monotonicity in `α` are not formalised);
+Olver's own `N` and the value of the crossing point `c = -0.366…` (`airyCross > -1`); Olver-type uniform expansions; the Mellin
+moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the `Lp`-level operator `K_u`; Theorem Q for `ν ∈ [-1, 1/2]` (`AiryCftQuadrature`,
+Hardy-space unfolding) and the `P Ai + Q Ai'` versions with polynomial (non-constant) `P, Q`; the product form of `Bi`; the lower
+bound / order = convergence exponent of Hadamard's theorem (`FormalResearch.Complex`); the first zero of `Bi` and `Bi > 0`
 beyond `-11/10`; the open parts of the discrete-to-Airy chain: the Darboux normalisation `κ` and `κ ≠ 0` (also the single
 normalisation `|Y_{k₁}| ≤ δ^{-p}` for the closed-form chains), the non-recessive `Ai/Bi` pair and the full oscillatory side,
-uniformity over families (and the existence of lattice nodes), half-integer chain data, the derivation of the Racah `q_*` and
-the `τ = -1` branch, explicit constants, and analyticity of the Langer coordinate (see the design note).
+uniformity over families (an irrational shape has no exact lattice node or realisation), mixed-parity `6j` labels and
+half-integer Hahn with `x < 0`, a polynomial `A0^{3/2}` window constant for `discrete_airy_window` itself (only the abstract
+`window_from_top_sharp` exists), explicit constants, and analyticity of the Langer coordinate (see the design note).
 
 Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and the free-fermion edge
 (`Weyl/free_fermion`, `thm:edge`) need next, and what is now reachable.
@@ -157,7 +181,9 @@ Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and
   (the turn neighbourhood `X ~ h^{-2/3}` included), and its lattice and relative forms `≤ K h² |ψ_k|` (under
   `-1 ≤ h^{-2/3}ζ`); M5 the recessive discrete solution and second solution under the relative defect hypothesis
   `|jac ψ| ≤ C₀h²ψ` (`AiryRecessive*`); M6 the bounded oscillatory window by a discrete Grönwall march
-  (`discrete_airy_window`, asymptotic regime `δ ≤ δ₀`, `δ³ = h`; the constant is pessimistic, `e^{O(A0²)}`); and the wiring
+  (`discrete_airy_window`, asymptotic regime `δ ≤ δ₀`, `δ³ = h`; the constant is pessimistic, `e^{O(A0²)}`; `AiryWindowSharp*`
+proves, as an abstract chain lemma only, the sharper constant `exp(3V/2)` in the relative variation `V` of the local frequency,
+a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete_airy_window`); and the wiring
   layer (`DiscreteAiryLimit*`): `discrete_airy_limit`, an abstract simple-turn theorem composing M1–M7 (for one fixed
   `u ∈ C³`, `A ∈ C²` with `u(c₀) = 1`, `u'(c₀) > 0`, `A(c₀) > 0`: the exact recessive solution is `g·Ai(h^{-2/3}ζ)` within
   `O(δ³)` relative error on `X ≥ 0` and within `O(δ³)W` on a bounded oscillatory window `X ≥ -A₀`, the window positions
@@ -179,11 +205,21 @@ Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and
   (`hahn_class_chain`, `racah_class_chain`; gauge change of the paper's exact rank recurrences), with the support and end
   conditions (`A_{k_max+1} = 0`) and `|Ŷ| ≤ √N` resp. `√(4AB/2C)` from one term of the Gauss weight; `hahn_chain_airy` and
   `racah_chain_airy` compose these with `discrete_airy_hahn_racah`, so (R) is proved, not assumed, for the actual chains at
-  integer data (Hahn at a lattice node `x_n = x`, e.g. `M = σ = 0`, `x = 1/2`, `N = 4t+2`, `n = 3t+1`; the existence of
-  nodes is not stated in general; Racah on the branch `τ = +1` with the turn data `q_*` taken as hypotheses).  Open: `κ` and
-  `κ ≠ 0` (Darboux), the non-recessive `Ai/Bi` pair, the full oscillatory side, uniformity over families, half-integer chain
-  data (the chain lives on the shifted lattice), the derivation of the Racah `q_*` and the `τ = -1` branch, explicit
-  constants, and analyticity of `ζ`.
+  integer data (Hahn at a lattice node `x_n = x`, e.g. `M = σ = 0`, `x = 1/2`, `N = 4t+2`, `n = 3t+1`; Racah on the branch `τ = +1`
+  with the turn data `q_*` taken as hypotheses in those two theorems).  The chain instances are then completed
+  (`DiscreteAiryLimitChains2*`): node existence for the `3j` chain with the exact congruence obstruction (`hahn_node_exists`:
+  `x = p/q` has nodes for infinitely many `N` iff `p+q` is odd or `M+σ` is odd, `hahn_node_obstruction`; `hahn_chain_airy_infinite`);
+  the `τ = -1` branch by the twist `jac_twist` (`(-1)^k Y_k`, `hahn_chain_airy_neg`, `racah_class_chain_neg`); the Racah turn
+  `q_* = 2αβ sinθ/γ` from the triangle geometry, `τ = sgn ε` with `ε = -cos A_α cos A_β` (`racah_turn_geom_pos/_neg`,
+  `racah_chain_airy_geom_pos/_neg`, no turn hypotheses) and the family of integral-triangle realisations, one fixed direction
+  for infinitely many `h → 0` (`racah_realisation`, `racah_chain_airy_family_pos/_neg`); and the half-integer data, the chain on
+  the shifted lattice `L = k + 1/2` (`discrete_airy_hahn_racah_half`, `hahn_class_chain_half`, `racah_class_chain_half`, nodes
+  `hahn_node_exists_half`, the Airy limits `hahn_chain_airy_half`, `racah_chain_airy_geom_half_pos/_neg` and the realisation
+  families).  The abstract composition `airy_chain_compose` holds for any solution of the rows and any `τ² = 1`.  Open: `κ` and
+  `κ ≠ 0` (Darboux), the non-recessive `Ai/Bi` pair, the full oscillatory side, uniformity over families (all constants are for
+  one fixed rational `x`, resp. `(α, β, x)`; approximate nodes `x_N → x*` need the Airy limit made uniform in the shape),
+  mixed-parity `6j` labels and half-integer Hahn with `x < 0`, a polynomial window constant for `discrete_airy_window` itself,
+  explicit constants, and analyticity of `ζ`.
 * *CFT consequences of the Airy zeros* (`AiryCft*`; direct route by good circles, no Hadamard theory).  Generic
   complex analysis (`AiryCftCircle`: for an entire `f` with simple zeros `c_i` in a disc, `f = Π(w - c_i) φ` with
   `φ` zero-free, the circle formulas for `f'/f` and its derivative as Cauchy integrals with error bounds;
@@ -196,20 +232,41 @@ Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and
   Corollary D1, the quadrature `∫_ℝ f = Σ_{n ≥ 1} f(a_n)/Ai'(a_n)²` for `f` entire with `‖f(u)‖ ≤ C(1+|u|)^ν e(u)` on
   all of `ℂ` and `ν < -1` (`AiryCftWeights`, `AiryCftQuadrature`).  Honest scope: `f` is entire with the bound on all of
   `ℂ`; that the class is non-empty and useful (e.g. smearings of `Ai`) is checked only mathematically/numerically in the
-  module docstrings, not in Lean; the constants `45`, `30√π` are not sharp.  Open: `Ai'/(P Ai + Q Ai')` good circles (the
-  derivative analogue of `AiryAsymNegComplex`), Clark summation for `ψ_α` and Theorem D for `P Ai + Q Ai'`, Theorem Q for
-  `ν ∈ [-1, 1/2]` (Hardy-space unfolding, Fejér-Riesz), `f` holomorphic only near the closed disc.
+  module docstrings, not in Lean; the constants `45`, `30√π` are not sharp.  Round two (`AiryCft2*`):
+  Theorem D for `f` holomorphic only on a disc (`airy_defect_ball`, from the generic `cft2_defect_ball`), and the `Ai'`-type nodes: the
+  derivative asymptotics `deriv_airyAiC_neg_complex` on the negative axis for complex phase, the algebra of `N = P Ai + Q Ai'`,
+  `M = P Bi + Q Bi'`, `D = P² - zQ²` (Wronskian `NM' - N'M = D/π`), the zeros of `N` (`Q ≠ 0`: real, simple, positive weights
+  `D/N'²`, indexed into the zeros of `Ai`, finitely many per disc; by Mittag-Leffler of `Ai'/Ai`, no Prüfer or de Branges theory), the
+  good circles `airyNC_good_circle` (`|N|² ≥ Q²√r e(u)/(256π)`, `‖M/N ∓ i‖ e(u) ≤ C`), Theorem D for `N` (`airyNC_defect_bound`, and on a
+  ball `airyNC_defect_ball`) and the quadrature `∫_ℝ f = Σ_{N(z)=0} f(z)D/N'²` (`airyNC_quadrature`, `ν < -1`, absolutely
+  convergent); the Clark-Airy summation `airyClark_quadrature` for `ψ_α = cos α Ai - sin α Ai'` (`sin α ≠ 0`, `ν < -1`, weight `1/K`,
+  `K = Ai'² - zAi²`); the largest zero `a'_1 ∈ (a_1, 0)` of `Ai'` and the seed lemma `Σ(a_n - a'_1)^{-2} = |a'_1|`
+  (`airy_S1_eq_abs_firstDerivZero`); and the Hadamard product of `Ai'` (`airyDeriv_hadamard`, order `3/2`, genus 1, in `AiryCft2DerivHadamard`).
+  Open: Theorem Q for `ν ∈ [-1, 1/2]` (Hardy-space unfolding, Fejér-Riesz: the missing piece is the Hardy-class replacement
+  of the pointwise bound `|f| ≤ C(1+|u|)^ν e(u)` by `L¹`-decay on circles), the Clark node labelling and monotonicity in `α`,
+  polynomial (non-constant) `P, Q`, the enclosure `a'_1 ∈ (-1.0188, -1.0187)`, the asymptotics of the zeros of `Ai'` (DLMF 9.9.19).
 * *Hadamard factorization* (`FormalResearch.Complex`, `Hadamard*`, namespace `FormalResearch.Hadamard`; a separate aggregate,
-  not imported by this one, since only `HadamardAiry` uses the Airy modules and nothing here uses it): the general
+  not imported by this one, since only `HadamardAiry` (and `AiryCft2DerivHadamard`, which imports it) uses the Airy modules and
+  nothing here uses it): the general
   theorem for entire functions of finite order, `f(z) = c z^m e^{P(z)} Π E_p(z/a_i)` with `deg P ≤ p` for
   `|f| ≤ C exp(C|z|^σ)`, `σ < p+1` (`Hadamard.hadamard`, `hadamard_floor`, `hadamard_exists`: Weierstrass products,
   Jensen counting of zeros, Blaschke/Borel–Carathéodory estimates and a derivative route replacing lower bounds on
   circles), and its application to `Ai` (order `3/2`, genus one): `Ai(z) = Ai(0) exp((Ai'(0)/Ai(0)) z) Π(1 - z/a_n)e^{z/a_n}`
   (`Hadamard.airyAiC_hadamard`).  Mathlib has Jensen's formula, Borel–Carathéodory and canonical decompositions but no
-  Hadamard factorization theorem, so this is upstreamable in principle.  Not formalised: the converse (finite genus implies
-  finite order), order = convergence exponent, lower bounds on canonical products, the closed value of `Ai'(0)/Ai(0)`
-  inside the product form, the products for `Ai'` and `Bi`.  The Mittag-Leffler expansion above is the logarithmic
+  Hadamard factorization theorem, so this is upstreamable in principle.  The upper growth bound of the converse (a
+  canonical product with `Σ|a_i|^{-s} < ∞`, `p ≤ s ≤ p+1`, has `|f| ≤ C exp(C|z|^s)`, and so does `c z^m e^P Π E_p(z/a_i)` with
+  `deg P ≤ p`) is `Hadamard.growthBound_canonProd`, `growthBound_factorization` (`HadamardGrowth`), and the genus-one product of `Ai'` is
+  `airyDeriv_hadamard`.  Not formalised: a lower bound on canonical products / order = convergence exponent, the excess-genus case
+  `deg P > p`, the closed value of `Ai'(0)/Ai(0)` inside the product form, the product for `Bi` (zeros not all real).  The Mittag-Leffler expansion above is the logarithmic
   derivative of this product, proved independently.
+* *Zeros of `Ai`* (`AiryZero*`): the phase theorem `|(2/3)|a_n|^{3/2} - (n-1/4)π| ≤ (2/5)|a_n|^{-3/2}`, the second order
+  DLMF 9.9.18 (`airyZero_second_order`), and now the third order including the `-5/36` term (`airyZero_third_order`:
+  `|a_n + t^{2/3}(1 + 5/(48t²) - 5/(36t⁴))| ≤ 32 t^{-16/3}`, `t = (3π/2)(n-1/4)`, constants about 34 times the truth), via the general-`N`
+  saddle expansion with explicit remainder (`norm_saddleJ0_general_le`), the modulus `|χ|²` to `O(r^{-15})` and the phase to `O(s^{-5})`;
+  the `Tendsto` form of the limit `t^{10/3}(a_n + t^{2/3} + (5/48)t^{-4/3}) → 5/36` (`airyZero_delta_tendsto_third`) and the spacing
+  `n^{1/3}(a_n - a_{n+1}) → (2/3)(3π/2)^{2/3}` (`airyZero_gap_tendsto`) are proved.  Open: the next coefficient `77125/82944`, and the
+  zeros of `Ai'` (DLMF 9.9.19, coefficient `-7/48`), which would need a separate odd-moment saddle chain (`norm_saddleJ0_general_le`
+  is the starting point).
 * *Free-fermion edge*: the Airy kernel `K(x,y)`, `K(x,x) = Ai'² - x Ai²`, `(∂_x + ∂_y)K = -Ai(x)Ai(y)` and
   `∫_x^∞ Ai² = K(x,x)` are in place, and `K(x,y) = ∫_0^∞ Ai(x+s)Ai(y+s) ds` (hence positivity of `K`) is
   `airyKer_eq_integral` (real `x,y`) and `airyKerC_eq_integral` (complex `x,y`) in `AiryKernelOp*`.
