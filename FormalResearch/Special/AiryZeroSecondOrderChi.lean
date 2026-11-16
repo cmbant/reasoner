@@ -24,7 +24,7 @@ Numerical check (mpmath, 30 digits, 596 points `r ∈ [0.5, 60]`, and `r = 100, 
 at the zeros `a_n` (`n ≤ 400` and `n = 1000, 3000`) `|a cos φ + t sin φ| r⁹ / (√π/2) ≤ 0.145`, the quantity bounded in
 `airyZero_phase_second`.
 
-Proved here: everything stated.  **Not formalised:** `Ai'`, `Bi'` to this order; the `u₃` coefficient itself.
+Proved here: everything stated.  The third-order version is `AiryZeroThirdChi`.  **Not formalised:** `Ai'`, `Bi'` to this order.
 -/
 
 @[expose] public section

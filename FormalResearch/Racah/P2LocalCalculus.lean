@@ -33,9 +33,10 @@ paper uses about `d`: the Wigner rank recurrence `ℒ_W d = 0` at `k`, and the e
 Formalised in the later modules of this family (`P2LocalCalculusSeries`, `P2LocalCalculusLeftNormal`,
 `P2LocalCalculusFun`, `P2LocalCalculusWigner`, `P2AnalyticTaylorSeries`, `P2AnalyticAllOrder3j*`): the
 identification with functions on `(-1,1)`, part (b) and the one-start uniqueness, and the `3j` instance
-(`threeJ_allorder_local`, pointwise, with smooth multipliers). Not formalised: rationality of the
-coefficients and the pole statement at `x = ±1`, the explicit `D̂_2`, `D̂_4` (`thm:3jNNLO`), the Bernoulli
-seed formula `eq:3jseedlogallorder`, and the `6j` instance (`thm:6jallorderlocal`). The abstract
+(`threeJ_allorder_local`, pointwise, with smooth multipliers); rationality of the multipliers `ψ_{2r}`
+(`P2SeedRational`, `P2SeedZeroPsi`) and the `6j` instance in the canonical sector `m ≥ n`
+(`P2AnalyticAllOrder6jSeries`, `P2AnalyticAllOrder6j`). Not formalised: the pole statement of the `6j`
+coefficients and the `6j` sectors other than `m ≥ n`, the explicit `D̂_2`, `D̂_4` (`thm:3jNNLO`). The abstract
 algebra here does not need any of this.
 -/
 

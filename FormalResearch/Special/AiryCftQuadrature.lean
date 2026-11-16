@@ -23,7 +23,9 @@ Numerical evidence only (mpmath, 20 digits; not a proof ingredient): `f(u) = ∫
 tail `n^{-1/6}` (the exponent `(2/3)(ν - 1/2)` with `ν = -5/4`); the finite identity itself is checked to `10⁻⁵⁰` in `AiryCftDefect`.
 
 Not formalised: the full range `N ≤ 1/2` of Theorem Q (Hardy-space unfolding and Fejér-Riesz; Hardy spaces are not in
-Mathlib), and the case where `f` is holomorphic only near the closed disc.
+Mathlib).  The case where `f` is holomorphic only near the closed disc is `AiryCft2Ball` (`airy_defect_ball`); the
+`P·Ai + Q·Ai'` quadrature, the Clark summation for `ν < -1` and the first zero of `Ai'` are in `AiryCft2Combo*`,
+`AiryCft2Clark`, `AiryCft2FirstDerivZero`.
 -/
 
 @[expose] public section

@@ -21,8 +21,8 @@ further:
   (**`norm_airyAiC_sq_fourth_le`**, via `airyAiC_sq_eq`).
 
 Proved here: all of the above (the coefficients `-5/48` and `385/4608` are the `u₁`, `u₂` of DLMF 9.7.2–9.7.3 after
-`w³ = (3/2)ξ`-scaling: `385/4608 · (4/9) = 385/10368 = u₂`).  **Not formalised:** the `u₃` term and beyond (the same
-method needs further Gaussian moments and Taylor orders), and sector-uniform versions.
+`w³ = (3/2)ξ`-scaling: `385/4608 · (4/9) = 385/10368 = u₂`).  The general-`N` expansion with the `u₃`, `u₄` terms is `AiryZeroThirdSaddle`.  **Not formalised:**
+the terms beyond that, and sector-uniform versions.
 -/
 
 @[expose] public section

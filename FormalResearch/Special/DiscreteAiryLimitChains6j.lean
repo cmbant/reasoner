@@ -33,7 +33,8 @@ formalised as `Racah.SixJ.Phi6_midpoint_recurrence`).
 
 ## Not formalised
 
-* Half-integer data (`2a, 2b, 2m, 2n ∈ ℤ` with `m - n ∈ ℤ`): see the note in `DiscreteAiryLimitChains3j`.
+* Half-integer data: `a, b, c ∈ ℤ` with `m, n ∈ ℤ + ½` is `DiscreteAiryLimitChains2Half6j`; the mixed-parity labels
+  (`a, b, c` half-integer with integer `m, n`, or both half-integer) are not covered.
 * The paper's reduction to the canonical chamber `m ≥ |n|` is not needed here (the recurrence holds in every chamber), and
   the dependence on the triple `(α, β, γ)` is not made uniform.
 * The `q`-Racah (quantum `6j`) chain.

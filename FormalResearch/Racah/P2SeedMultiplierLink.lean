@@ -40,8 +40,9 @@ Conventions (all reconciled by the statements): `x = 2μ/N`, `t = N⁻²`; `Phi3
 stated, so no re-indexing is needed.  `hα : M - σ = α` (rational equation, `P2SeedLogAllOrderPhys`) and
 `hα' : |M - σ| = α` (`P2AnalyticAllOrder3j`) are interchanged by `abs_of_nonneg`.
 
-Not covered: that `ψ_{2r}` is rational with poles at `±1` only (the multipliers here are smooth on `(-1,1)`
-and given by the formula above); poles; the `6j` analogues.
+Not covered here: rationality of `ψ_{2r}` with poles at `±1` only (the multipliers here are smooth on `(-1,1)`
+and given by the formula above), proved in `P2SeedRational` (`allorder_operators_seed_psi_rat`, every chamber);
+the `6j` analogues (canonical sector: `P2AnalyticAllOrder6j`).
 -/
 
 @[expose] public section
@@ -206,7 +207,9 @@ theorem seed_G1_formula (hα : M - σ = α) (hβ : M + σ = β) {G : ℕ → End
 `φ = κ_{r+1} - 𝒥(𝖡_{r+1}) d_M / d_M` there, `κ_{r+1} = expCoeff (seedEll α β) (r+1)`: the paper's
 `ψ_{2r} = κ_r - 𝒥(𝖡_{2r}) d/d`, with the seed coefficient `κ_r` of `eq:3jseedlogallorder`.
 (For `M = σ = 0` the two-start argument of `allorder_operators_zero` is needed instead; there
-`seed_multiplier_link` still gives `𝒢_r d_0 = κ_r d_0`.)  *Not formalised:* rationality of `φ`. -/
+`seed_multiplier_link` still gives `𝒢_r d_0 = κ_r d_0`.)  Rationality of `φ` is
+`allorder_operators_seed_psi_rat` (`P2SeedRational`); the case `M = σ = 0` is `allorder_operators_zero_psi`
+(`P2SeedZeroPsi`). -/
 theorem allorder_operators_seed_psi (hα : M - σ = α) (hβ : M + σ = β) (hL : 0 < max |M| |σ|) :
     ∃ G : ℕ → End ℝ Fn, G 0 = 1 ∧ (∀ r, G r ∈ LN DOp Csm) ∧
       (∀ r, comm xOp (G (r + 1)) =

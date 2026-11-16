@@ -23,7 +23,8 @@ zeros are as in DLMF §9.9(i); the product form itself is the classical conseque
 the exponential factor is identified by differentiating at `0` (the logarithmic derivative of the product at `0` vanishes
 because `Σ (0/a)^1/(0 - a) = 0`).  **Proved**; not formalised: the numerical value `Ai'(0)/Ai(0) = -3^{1/3} Γ(2/3)/Γ(1/3)`
 combined with it (the identification with `AiryValues` is a one-line rewrite not recorded here), `Σ 1/a_n` (conditionally
-convergent), the corresponding product for `Ai'`.
+convergent).  The corresponding product for `Ai'` is `airyDeriv_hadamard` (`Special/AiryCft2DerivHadamard`, which imports this
+file); the product for `Bi` is not formalised.
 -/
 
 @[expose] public section
