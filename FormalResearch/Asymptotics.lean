@@ -4,6 +4,10 @@ public import FormalResearch.Asymptotics.UniformExpansion
 public import FormalResearch.Asymptotics.TaylorUniform
 public import FormalResearch.Asymptotics.AnalyticGerm
 public import FormalResearch.Asymptotics.Examples
+public import FormalResearch.Asymptotics.CenteredPowerSum
+public import FormalResearch.Asymptotics.LogSeries
+public import FormalResearch.Asymptotics.GeometricExpansion
+public import FormalResearch.Asymptotics.ExpExpansion
 
 /-!
 # Uniform asymptotic expansions in a parameter
@@ -16,5 +20,11 @@ Aggregate module for `FormalResearch/Asymptotics/`:
 * `TaylorUniform`: uniform Taylor remainder of a jointly smooth `G : E × ℝ → F`;
 * `AnalyticGerm`: the bridge `f z i = G (z, ε i)` with `G` smooth/analytic implies
   `HasUniformExpansion f (taylorCoeff G) ε l K`;
-* `Examples`: the `3j` even expansion of Weyl P2 (`thm:3jeven`) as a corollary.
+* `Examples`: the `3j` even expansion of Weyl P2 (`thm:3jeven`) as a corollary;
+* `CenteredPowerSum`: `S_{2r}(p) = ∑_{q=-(p-1)/2}^{(p-1)/2} q^{2r} = 2B_{2r+1}((p+1)/2)/(2r+1)`;
+* `LogSeries`: Mercator series `∑ log(1 - y_i) = -∑_n (∑ y_i^n)/n` for a finite family;
+* `GeometricExpansion`: a convergent power series with geometrically bounded coefficients is a
+  `HasUniformExpansion`;
+* `ExpExpansion`: `exp` of an expansion with `a_0 = 0` is an expansion with the coefficients of the
+  formal exponential (`HasExpansionAlong.exp`, `expCoeff`).
 -/
