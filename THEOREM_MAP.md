@@ -601,6 +601,17 @@ All theorems depend only on `propext`, `Classical.choice` and `Quot.sound`.
 
 Third-party input: the Euler–Maclaurin formula and the Stirling series for `log Γ` (`log_gamma_em`), vendored without modification from `girving/interval` (Apache-2.0). Location: `ThirdParty/interval/`; see its `NOTICE.md`.
 
+## Weyl W1 free-fermion entanglement: exact finite algebra (`FormalResearch/FreeFermion`, branch `w1-lean`)
+
+Source: QIprojects `Weyl/free_fermion/paper/` (`parts/model.tex`, `parts/constants.tex`, `parts/resonance.tex`); aggregate `FormalResearch.FreeFermion`.
+Only the exact finite algebra is formalised (no asymptotics, no Fock space). Headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (pinned by `#print axioms`). Not on `master` until merged.
+
+| paper label | Lean | claim as formalised / caveats |
+|---|---|---|
+| `thm:heun` (Heun commutant of a Leonard pair; P1 `thm:Heun` is the folded-Racah specialisation) | `W1Heun.heun_commutant` (one side: `heun_side`; eigenvector lemma `W1Tridiagonal.eq_zero_of_eigen_of_tridiag`; entries `heun_diagonal_apply`, `sum_eq_iff`) | `X`, `Y` with eigenbases `e`, `f` (strictly increasing real eigenvalues), each irreducible tridiagonal in the other basis; `W`, `P` the spectral projections (`W e_n = [n ≤ K] e_n`); `H = {X-μ_X, Y-μ_Y}` with the midgaps. Then `H W = W H`, `H P = P H`; the matrices of `H` in `e`, `f` are tridiagonal with links vanishing exactly at the cut and nonzero elsewhere (Jacobi blocks); each of `Ran W`, `Ran(1-W)`, `Ran P`, `Ran(1-P)` carries a restriction of `H` with all eigenspaces of dimension at most one (simple spectrum). Caveats: more general than the paper (any bases over any `RCLike` field; self-adjointness and orthonormality are not used); finite index set is any finite linear order with adjacency `⋖`; spectral projections are characterised by their action on the eigenbasis rather than built by functional calculus |
+| `prop:finite` (finite projector dictionary), all but `eq:replica` | `W1ProjectorDictionary.projector_dictionary` (parts: `spectrum_nonzero_eq`, `charpoly_mul_mul_eq`, `finrank_eigenspace_eq`, `hasEigenvalue_iff`, `adjoint_mul_self`, `commutator_eq`, `trace_variance`) | for orthogonal projection matrices `W`, `P`: nonzero spectra of `WPW`, `PWP` agree (indeed equal characteristic polynomials); eigenvalues of `C = WPW` and `K = (1-W)(1-P)(1-W)` outside `{0,1}` agree with multiplicity, using only `W² = W`, `P² = P` (`K A = A C`); `Aᴴ A = C(1-C)`; `Tr C(1-C) = ‖A‖_F² = ½‖[P,W]‖_F²`; `[P,W] = A - Aᴴ`. `C`, `K` are operators on the whole space, not compressions. **Not formalised:** `eq:replica` (`Tr(ρⁿ e^{iθN_A}) = det[(1-C)ⁿ + e^{iθ}Cⁿ]`, needs Fock space and Slater determinants) |
+| `prop:res-twolevel`(c), (e) (exact `2×2` reduction, only the finite algebra) | `W1TwoLevel.twolevel_weight`, `twolevel_logit`, `twolevel_symmetric` | for `[[a,t],[t,d]]`, `t ≠ 0`, eigenvector of the lower (upper) eigenvalue: `p²/(p²+q²) = ½(1 ∓ Δ/√(Δ²+4t²))`; logit `2 arsinh(Δ/(2|t|))`; `Δ = 0` gives `1/2`. **Not formalised:** the reduction of the chain to `h(E)` and all `O(e^{-cL})` statements, `thm:res-doublet` |
+
 ## Next source-authorized finite targets
 
 At the current handoff, the cleanest exact candidates are:
