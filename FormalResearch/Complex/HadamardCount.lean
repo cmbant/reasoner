@@ -218,3 +218,19 @@ theorem Listing.canonData (hσ : 0 ≤ σ) {p : ℕ} (hp : σ < p + 1) : CanonDa
 end summable
 
 end FormalResearch.Hadamard
+
+/-- info: 'FormalResearch.Hadamard.Listing.ncard_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.Listing.ncard_le
+
+/-- info: 'FormalResearch.Hadamard.Listing.summable_rpow' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.Listing.summable_rpow
+
+/-- info: 'FormalResearch.Hadamard.Listing.canonData' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.Listing.canonData
+
+/-- info: 'FormalResearch.Hadamard.summable_rpow_of_count' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.summable_rpow_of_count

@@ -205,3 +205,15 @@ lemma exists_listing (f : ℂ → ℂ) :
       exact Fin.ext this
 
 end FormalResearch.Hadamard
+
+/-- info: 'FormalResearch.Hadamard.exists_listing' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.exists_listing
+
+/-- info: 'FormalResearch.Hadamard.Listing.ncard_idx_eq_finsum_divisor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.Listing.ncard_idx_eq_finsum_divisor
+
+/-- info: 'FormalResearch.Hadamard.Listing.prod_idx' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.Listing.prod_idx

@@ -246,3 +246,27 @@ theorem logDeriv_canonProd {p : ℕ} {a : ι → ℂ} (h : CanonData p a) {z : �
   exact tsum_congr fun i => logDeriv_E_comp p (h.ne_zero i) (hz i)
 
 end FormalResearch.Hadamard
+
+/-- info: 'FormalResearch.Hadamard.E_sub_one_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.E_sub_one_le
+
+/-- info: 'FormalResearch.Hadamard.hasProd_E' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.hasProd_E
+
+/-- info: 'FormalResearch.Hadamard.differentiable_canonProd' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.differentiable_canonProd
+
+/-- info: 'FormalResearch.Hadamard.canonProd_ne_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.canonProd_ne_zero
+
+/-- info: 'FormalResearch.Hadamard.canonProd_eq_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.canonProd_eq_zero
+
+/-- info: 'FormalResearch.Hadamard.logDeriv_canonProd' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.logDeriv_canonProd

@@ -152,3 +152,19 @@ lemma exists_poly_of_iteratedDeriv_eq_zero {U : Set ℂ} (hU : IsOpen U) (hUc : 
     rfl
 
 end FormalResearch.Hadamard
+
+/-- info: 'FormalResearch.Hadamard.norm_iteratedDeriv_le_ball' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.norm_iteratedDeriv_le_ball
+
+/-- info: 'FormalResearch.Hadamard.exists_log_ball' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.exists_log_ball
+
+/-- info: 'FormalResearch.Hadamard.exists_poly_of_iteratedDeriv_eq_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.exists_poly_of_iteratedDeriv_eq_zero
+
+/-- info: 'FormalResearch.Hadamard.tendstoLocallyUniformlyOn_iteratedDeriv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.tendstoLocallyUniformlyOn_iteratedDeriv

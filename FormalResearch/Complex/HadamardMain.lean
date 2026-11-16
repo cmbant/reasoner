@@ -160,3 +160,7 @@ theorem hadamard_of_ne_zero :
 end main
 
 end FormalResearch.Hadamard
+
+/-- info: 'FormalResearch.Hadamard.hadamard_of_ne_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.hadamard_of_ne_zero

@@ -82,3 +82,11 @@ lemma core_bound_le {σ C : ℝ} (hσ : 0 < σ) (hC : 1 ≤ C) (p : ℕ) (ℓ K 
     _ = _ := by rw [← hrhs]; ring
 
 end FormalResearch.Hadamard
+
+/-- info: 'FormalResearch.Hadamard.exists_good_radii' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.exists_good_radii
+
+/-- info: 'FormalResearch.Hadamard.core_bound_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.core_bound_le

@@ -178,3 +178,7 @@ theorem core_estimate (p : ℕ) {z : ℂ} (hz : ‖z‖ < R / 4) (hfz : f z ≠ 
 end core
 
 end FormalResearch.Hadamard
+
+/-- info: 'FormalResearch.Hadamard.core_estimate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.core_estimate

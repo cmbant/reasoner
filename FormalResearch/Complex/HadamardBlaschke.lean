@@ -240,3 +240,15 @@ lemma exists_log_bound (hM1 : 1 ≤ M) :
 end bounds
 
 end FormalResearch.Hadamard
+
+/-- info: 'FormalResearch.Hadamard.exists_blaschke' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.exists_blaschke
+
+/-- info: 'FormalResearch.Hadamard.logDeriv_eq_blaschke' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.logDeriv_eq_blaschke
+
+/-- info: 'FormalResearch.Hadamard.exists_log_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.exists_log_bound

@@ -190,3 +190,11 @@ theorem iteratedDeriv_defect_eq_zero {z : ℂ} (hz : f z ≠ 0) :
 end defect
 
 end FormalResearch.Hadamard
+
+/-- info: 'FormalResearch.Hadamard.tendstoLocallyUniformlyOn_partial' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.tendstoLocallyUniformlyOn_partial
+
+/-- info: 'FormalResearch.Hadamard.iteratedDeriv_defect_eq_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hadamard.iteratedDeriv_defect_eq_zero
