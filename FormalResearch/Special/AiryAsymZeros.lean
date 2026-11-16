@@ -18,9 +18,9 @@ From the explicit oscillatory asymptotics of `AiryAsymNeg` (`Ai(-r²) = cos φ/(
 
 Hence every zero in `(-∞, -4]` has an integer label `k` with `O(y^{-3/2})` location in the phase, and the
 zeros with `k ≥ 2` are in bijection with the integers `k ≥ 2` (the zero with `k = 1`, `a_2 ≈ -4.088`, is not covered
-by the uniqueness statement).  **Not proved here:** the labelling of these zeros against the ordered zeros
-`a_1 > a_2 > ...` (that the `n`-th zero has `k = n - 1`; this needs the number of zeros in `[-4, 0]`, a finite
-numerical input, or the Prüfer count of `AiryNodes`), the next term of DLMF 9.9.18 (`5/(48 t²)`), and
+by the uniqueness statement).  The labelling of these zeros against the ordered zeros `a_1 > a_2 > ...`
+(that the `n`-th zero has `k = n - 1`) is `AiryZeroLabel` (`airyZero_phase`), built on the zero count of
+`AiryFirstZeros`/`AiryZeroOrder`.  **Not proved here:** the next term of DLMF 9.9.18 (`5/(48 t²)`), and
 sharper constants.
 -/
 

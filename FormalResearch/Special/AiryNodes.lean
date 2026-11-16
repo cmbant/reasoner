@@ -22,8 +22,10 @@ via `isSol_airyAi`.
   parameter `α`).
 
 Not formalised: the node counts for `x > 0` (there `θ ∈ (π/2, π)` stays bounded, so for `α ∈ (θ(0), π)`
-the level `α + 0·π` is also reached on `x > 0`, which is outside the half-line statements), asymptotics
-of `θ(-v)` (`~ (2/3) v^{3/2}`), and the values `a_k`.
+the level `α + 0·π` is also reached on `x > 0`, which is outside the half-line statements), the general-`α`
+asymptotics of the nodes.  The asymptotics of `θ(-v)` (`~ (2/3) v^{3/2}`) are `AiryPruferAsym`
+(`airy_prufer_deviation`, `airy_prufer_ratio`), the ordered zeros `a_k` and their locations are `AiryZeroOrder`,
+`AiryZeroLabel`, and the Clark nodes with `α = π/2` (the zeros of `Ai'`) are `AiryClarkMid`.
 -/
 
 @[expose] public section

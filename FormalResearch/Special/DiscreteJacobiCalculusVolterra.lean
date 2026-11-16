@@ -25,7 +25,7 @@ With `D k = a (k+1) ψ k ψ (k+1) (σ (k+1) - σ k)`:
 
 **Not formalised** here: the existence direction (a solution `σ` of the Volterra equation gives a solution
 `y`; it is not needed for the bound; note that the existence of the exact final-value solution `y` by backward
-recursion, given `a ≠ 0`, is not stated here either), and every Airy-specific
+recursion, given `a ≠ 0`, is not stated here either: it is `exists_final_solution` in `DiscreteJacobiExtras`), and every Airy-specific
 bound on `K`.
 -/
 

@@ -39,7 +39,10 @@ order identity of the Volterra part: all residuals `< 1e-38`):
   `green_final_secondSol` is the corresponding explicit Green function with `W = 1`.
 
 **Not formalised** here: anything asymptotic (this module carries no `O(h)` and no constants other than the
-exact ones displayed); the existence/boundedness of the sums in `ℕ`-indexed chains with a hard edge.
+exact ones displayed).  The existence of final-value solutions by backward recursion is
+`DiscreteJacobiExtras` (`exists_final_solution`), the `ℕ`-indexed hard-edge chains are bridged to this `ℤ`-indexed
+calculus in `DiscreteJacobiExtrasHardEdge` (`hardEdge_toInt`, `hardEdge_window`), and a discrete Grönwall bound for
+the difference of two solutions is `DiscreteJacobiExtrasGronwall`.
 -/
 
 @[expose] public section

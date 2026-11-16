@@ -7,8 +7,7 @@ public import FormalResearch.Special.AiryAsymNeg
 # `Bi'` on the real axis
 
 `airyBiDeriv x = Re Bi'(x)` is the derivative of `airyBi`; `Bi'' = x Bi`; `Bi` and `Bi'` are real on `ℝ`;
-the real Wronskian `Ai Bi' - Ai' Bi = 1/π`.  (`airyBiDeriv` is named so as not to clash with other branches;
-it is the function `Bi'` of DLMF 9.2.)
+the real Wronskian `Ai Bi' - Ai' Bi = 1/π`.  (`airyBiDeriv` is the function `Bi'` of DLMF 9.2; `AiryShift` uses it.)
 -/
 
 @[expose] public section
