@@ -21,10 +21,11 @@ lattice `q_k = q₀ + kδ³`, `X_k = ζ(q_k)/δ²`, `φ_k = g(q_k) Ai(X_k)`, `ψ
 * every exact `Y` with `|Y_N|, |Y_{N+1}| ≤ Y_max` is `κ f + μ F₂` on `[J, N+1]` with `|μ| ≤ Cmu Y_max e^{-ξ(X_N)}/δ`, `ξ₀/δ³ ≤ ξ(X_N)`;
   pointwise (`DaiFull.pointwise`) `Y = κ g Ai + μ g Bi` up to `C δ³ (|κ| airyWt + |μ| airyBiWt)` on `[J, N+1]`.
 
-This **replaces** the two statements `dao_turn_conclusion` (`[J, N]` only, no uniqueness) and `discrete_airy_limit` (window `X ≥ -A₀`,
-`e^{O(A₀²)}` constants): the window statement is a weaker consequence, with the same recessive `f` when both are normalised at the
-same `N` (`dap_recessive_eq`).  *Caveat*: `discrete_airy_limit` chooses its own `r` (hence its own `N`); `r`, `N` here are those of
-`dao_turn_conclusion`, so the two `f`'s are normalised at different `N` unless the theorems are combined for the same `r`.
+This **strengthens** `dao_turn_conclusion` (`[J, N]` only, no uniqueness; same hypotheses, same `r`, `N`) and has the content of
+`discrete_airy_limit` (window `X ≥ -A₀`, `e^{O(A₀²)}` constants) on the oscillatory side, with the same recessive `f` *when both are
+normalised at the same `N`* (`dap_recessive_eq`).  *Caveat*: `discrete_airy_limit` chooses its own `r` (hence its own `N`); `r`, `N` here
+are those of `dao_turn_conclusion`, so the identification of the two `f`'s is conditional on the same `N` and is **not** a formal
+derivation of `discrete_airy_limit` from `discrete_airy_full`; both older theorems stay in place.
 
 **Claim class: proved.**  Constants are explicit in the data of `dal_turn_data` and `dao_exact_defect_bi` (existential in the data).
 

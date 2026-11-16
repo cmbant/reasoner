@@ -26,7 +26,9 @@ Also `τ = -1` (`x ∈ (-1, 0)`, twisted chain `(-1)^k Ŷ_k`) and the versions a
 **Numerics (mpmath, 50 digits, scratch, not a Lean claim).**  `M = σ = 0`, `x = 1/2`, `N = 4t+2`, `t = 25, 50, 100, 200, 400`
 (`n = 3t+1`, `N = 102, 202, 402, 802, 1602`), `Ŷ` from the hard edge `Ŷ_{N-1} = 1`, `r = q_*/4`: least-squares fit of `κ, μ` on
 `q_k ∈ [q_* - r, q_* + r/2]` (`X_J` down to `-48`) gives `sup |Ŷ - κ g Ai - μ g Bi|/(δ³(|κ| airyWt + |μ| airyBiWt)) =
-0.144, 0.211, 0.241, 0.247, 0.268` (bounded) and `|μ/κ| = 2·10⁻⁹, 3·10⁻¹⁷, 1·10⁻³¹, 5·10⁻⁵⁹, 7·10⁻¹¹⁶` (exponentially small in `N`).
+0.144, 0.211, 0.241, 0.247, 0.268` (bounded) and `|μ/κ| = 2·10⁻⁹, 3·10⁻¹⁷, 1·10⁻³¹, 5·10⁻⁵⁹, 7·10⁻¹¹⁶` (exponentially small in `N`).  The numerical window uses `r = q_*/4`
+(for `x = 1/2`, `q_* + r/2 = 9q_*/8 ≈ 0.97 < 1`, so the sites lie in the Hahn domain); the Lean statement only provides some `r ≤ q_*/4` (`q_* + r₀ < 1` is not
+guaranteed at `r₀ = q_*/4`, e.g. `x = 1/2`), so the numerics probe a window at least as large as the proved one.
 
 **Not formalised.**  The value of `κ` (Darboux/Wigner-`d`) and `κ ≠ 0`; uniformity of `r, δ₀, C, Cmu, ξ₀` in `x`; the radius is the
 (existential) radius `r ≤ q_*/4` of the Langer chart, not `q_*/4`; half-integer data; second-order bracket.
