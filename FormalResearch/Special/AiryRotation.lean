@@ -18,9 +18,8 @@ written in algebraic form, so that every algebraic fact is a `Complex.ext` compu
   (`isAirySol_airyBiC`), real on `ℝ` (`airyBiC_ofReal`), and the Wronskian
   `Ai Bi' - Ai' Bi = -2√3 Ai(0) Ai'(0) > 0` is constant (`airyAiC_wronskian_airyBiC`).
 
-Not formalised: the value `-2√3 Ai(0) Ai'(0) = 1/π` (equivalently `Ai(0) Ai'(0) = -1/(2√3 π)`; this
-needs `Ai(0) = 3^{-2/3}/Γ(2/3)`, `Ai'(0) = -3^{-1/3}/Γ(1/3)` or the large-`x` asymptotics of `Bi`),
-the growth of `Bi`, and the asymptotics of `Ai` in sectors.
+The value `-2√3 Ai(0) Ai'(0) = 1/π` (so `W(Ai, Bi) = 1/π`), `Ai(0) = 3^{-2/3}/Γ(2/3)` and `Ai'(0)` are in
+`AiryValues`.  Not formalised here: the growth of `Bi` and the asymptotics of `Ai` in sectors.
 -/
 
 @[expose] public section
