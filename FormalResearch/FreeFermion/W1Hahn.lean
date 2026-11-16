@@ -22,7 +22,7 @@ Hahn chains are such pairs too"), and `thm:heun` (`W1Heun`).
   tridiagonal** (self-duality: the Hahn recurrence in the degree), from `hahn_tdRel`, the spectrum,
   and `tridiag_dual_of_relation`: the factorisation
   `(θ_i-θ_j)² - 2(θ_i+θ_j) - (s²-1) = ((i-j)²-1)((i+j+s)²-1)`, `θ_k = k(k+s)`, `s = α+β+1`, is
-  nonzero for `|i-j| ≥ 2` exactly because `α + β > -2`.
+  nonzero for `|i-j| ≥ 2` when `s > -1`, i.e. `α + β > -2` (a sufficient condition, and sharp at `s = -1`).
 * `hahn_heun`: the instance of `heun_commutant`: `H = {X - μ_X, Y - μ_Y}` commutes with the spectral
   projections of `X` (on `n ≤ K`) and `Y` (on `k ≤ M`) for every pair of cuts, with simple-spectrum
   Jacobi blocks.
