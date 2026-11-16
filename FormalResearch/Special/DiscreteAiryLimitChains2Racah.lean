@@ -33,17 +33,16 @@ sign of `(α-βx)(β-αx)`, for every finite Racah system, physical `c`, scale `
 
 **Exact obstruction (not formalised, elementary).**  For integer `a,b,c,m,n`, `(2A,2B,2C) = (2a+n+1, 2b+m+1, 2c+1)` has
 `2C` odd and `2A ≡ n+1`, `2B ≡ m+1 (mod 2)`.  If `A : B : C = P : Q : R` with `gcd(P,Q,R) = 1` then `(2A,2B,2C) = t(P,Q,R)`
-with `t = gcd`, and `2C` odd forces `t` and `R` odd and then `P ≡ n+1`, `Q ≡ m+1`.  So the parity conditions of
-`racah_realisation` are necessary and sufficient for a direction `(P:Q:R)` (rational triangle) to occur with integer data;
-directions with `R` even (e.g. the equilateral-type `(1,1,2)` excluded anyway by strictness, `(3,4,6)`, `(2,3,4)`) and
-irrational directions never occur.  Quarter-turn irrational ratios `α/β ∉ ℚ` or `γ/β ∉ ℚ` (non-Pythagorean angle) have no exact
-realisation, only approximate ones, which need the uniformity in `(α, β, x)` that is not formalised.
+with `t` a positive integer, and `2C` odd forces `t` and `R` odd, and then `P ≡ n+1`, `Q ≡ m+1 (mod 2)`.  So the parity
+conditions of `racah_realisation` are necessary and sufficient for an integral triangle direction `(P : Q : R)` to occur
+with integer data (`R` even, e.g. `(3,4,6)`, never occurs; `P ≢ n+1`, `Q ≢ m+1` never occur).  Shapes with `α/β ∉ ℚ` or
+`γ/β ∉ ℚ` have no exact realisation, only approximate ones, which need the uniformity in `(α, β, x)` that is not formalised.
 
 `racah_chain_airy_family_pos/_neg`: composition.  For every `ε > 0` the realisation of `racah_realisation` satisfies the
 Airy conclusion `AiryOutAt` with constants independent of the realisation; `τ = +1` iff `R² < |P²-Q²|`, `τ = -1` iff
-`R² > |P²-Q²|` (`R² = |P² - Q²|` is a right angle and excluded).  Example `(P,Q,R) = (6,2,5)`, `m = n = -1`: `τ = +1`,
-`α/β = 3`, `x = 5/8`, `(a,b,c) = (t·3 + 0, ...)`: `(a,b,c) = (3u+3, u+1, 5u+2)` (checked with exact rationals for
-`t = 1,…,11`: `cMin ≤ c ≤ cMax`).
+`R² > |P²-Q²|` (`R² = |P² - Q²|` is a right angle and excluded).  Example `(P,Q,R) = (6,2,5)`, `m = n = -1`: `τ = +1`
+(`R² = 25 < 32 = |P²-Q²|`), `α/β = 3`, `x = 5/8`, `t = 2u+1`, `(a,b,c) = (6u+3, 2u+1, 5u+2)` (checked with exact rationals
+for `t = 1, 3, …, 11`: `a, b, c` integers, `cMin ≤ c ≤ cMax`, `cosA = 5/8`).
 
 Claim class: **proved**.
 
