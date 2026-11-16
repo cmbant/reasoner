@@ -34,7 +34,8 @@ on `X ∈ [-1,6]` the recessive solution differs from `ψ` by `0.0154 N^{-4/3}` 
 `|(f-ψ)_k-(f-ψ)_{k+1}|/(hδψ_k) ≤ 0.003` at `X ≤ 1` (`N = 10³ … 10⁵`).
 
 `hdef` and `ψ ≍ airyWt` for `ψ = g Ai` are supplied for a simple turn by the wiring layer (`dal_window_hyp`, `DiscreteAiryLimitSetup`; composed in `discrete_airy_limit`).
-**Not formalised:** the oscillatory side `X < -1` beyond a bounded window (`discrete_airy_window` in `AiryWindowMain`), and the identification of `κ`.
+**Not formalised:** the identification of `κ`.  The oscillatory side `X < -1` is `discrete_airy_window` (`AiryWindowMain`, bounded window) and, as an
+amplitude-adapted `O(δ³)` bound on the whole macroscopic side rather than through `M/E` weights, `DiscreteAiryOsc*`, `DiscreteAiryPhys*`.
 -/
 
 @[expose] public section

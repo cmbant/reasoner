@@ -27,8 +27,9 @@ Numerical check (mpmath, 70 digits): for `f(u) = (1+u) exp(-u²/50)` and the goo
 zeros inside) `P_r(f) = -16.95620038226354106191554…` and `I_r(f) + (i/2)(A₊ + A₋)` agree to `1.3·10⁻⁵⁰` (the quadrature
 of `A_±` needs the high precision because `|R_+| ~ 1/e` is huge on the positive axis).
 
-Not formalised: the case of `f` only holomorphic near the closed disc (the note's remark for `REMAINDER.md`
-Theorem L*); here `f` is entire (the Cauchy step is the explicit primitive).  All proved.
+Here `f` is entire (the Cauchy step is the explicit primitive); the case of `f` only holomorphic near the closed disc
+(the note's remark for `REMAINDER.md` Theorem L*) is `AiryCft2Ball` (`cft2_defect_ball`, `airy_defect_ball`), the general
+pair `(N, M)` is `AiryCft2Generic` (`cft2_defect_bound`).  All proved.
 -/
 
 @[expose] public section

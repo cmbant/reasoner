@@ -24,8 +24,8 @@ constant `3`, the good-circle constant `1/(25π)` and a factor `2`).  Numerical 
 formulas hold to `1e-77`; `2‖Ai(ω²u)/Ai(u)‖ e(u)` on the circles `r_k`, `k ∈ {10,11,15,20,40,100}` (upper half circle,
 361 angles) has supremum `2.012` (attained on the positive axis, tends to `2`), as in the notes.  The defect formula
 itself (`Ai` zeros as simple poles, Cauchy on the two half discs, `Bi(a_n) = -1/(π Ai'(a_n))`) is not in this file but
-in `AiryCftDefect` (`airy_defect_bound`, for entire `f`); `AiryCftQuadrature` combines it with the bounds here.  Not formalised: the
-`P·Ai + Q·Ai'` versions.
+in `AiryCftDefect` (`airy_defect_bound`, for entire `f`); `AiryCftQuadrature` combines it with the bounds here.  The
+`P·Ai + Q·Ai'` versions are `AiryCft2ComboBounds` (`airyNC_good_circle`) and `AiryCft2ComboQuadrature`.
 -/
 
 @[expose] public section

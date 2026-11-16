@@ -10,7 +10,9 @@ public import FormalResearch.Racah.P2AnalyticUniform6j
 Source: `Weyl/P2/paper/weyl_midpoint_recoupling.tex`.  `lem:sqrtfreecarrier6j` states that the coefficients of
 the carrier polynomial `P̃_f` are "symmetric under `A ↔ B`", and `thm:6jallorderlocal` that the first
 chamber reduction exchanges `A` and `B` and is immaterial because `x`, `q`, `η_k` and the stretched seed are
-symmetric, "so by induction every `𝒢_{2r}(A,B,C)` is" symmetric.
+symmetric, "so by induction every `𝒢_{2r}(A,B,C)` is" symmetric (the operator-level instance of
+`thm:6jallorderlocal` in the canonical sector is `P2AnalyticAllOrder6j`; this file is the coefficient-level
+symmetry).
 
 `ptilde6_symm_uv` (`P2AnalyticCarrier6jPoly`) is the polynomial statement.  Here it is carried through the
 closed-form germ and its Taylor coefficients:
@@ -26,7 +28,8 @@ closed-form germ and its Taylor coefficients:
   the chambers III and IV is immaterial).
 
 This is the coefficient-level form of the paper's operator statement ("every `𝒢_{2r}(A,B,C)` is
-symmetric"): the Lean development has no differential operators `𝒢_{2r}`.  Exact algebraic identities, no
+symmetric"): this file has no differential operators `𝒢_{2r}` (they are in `P2AnalyticAllOrder6j`, canonical
+sector only, without the `A ↔ B` symmetry statement).  Exact algebraic identities, no
 analysis beyond the definition of the Taylor coefficient.
 -/
 

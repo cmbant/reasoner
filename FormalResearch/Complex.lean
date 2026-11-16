@@ -12,6 +12,7 @@ public import FormalResearch.Complex.HadamardDefect
 public import FormalResearch.Complex.HadamardMain
 public import FormalResearch.Complex.HadamardGeneral
 public import FormalResearch.Complex.HadamardAiry
+public import FormalResearch.Complex.HadamardGrowth
 
 /-!
 # Complex analysis: Hadamard factorization of entire functions of finite order
@@ -34,10 +35,15 @@ directory proves it, and applies it to the Airy function.
   `P(0) = 0`, for entire `f` with `|f| ≤ C exp(C|z|^σ)`, `σ < p+1` (`hadamard`, `hadamard_floor`, `hadamard_exists`),
   any index type, zero at `0` allowed;
 * `HadamardAiry`: the genus-one product of the Airy function (order `3/2`), `Ai(z) = Ai(0) exp((Ai'(0)/Ai(0)) z) ∏ (1 -
-  z/a_n) e^{z/a_n}` (`airyAiC_hadamard`).
+  z/a_n) e^{z/a_n}` (`airyAiC_hadamard`);
+* `HadamardGrowth`: the converse growth bound: for `p ≤ s ≤ p+1` and `Σ ‖a_i‖^{-s} < ∞`, `‖E_p(w)‖ ≤ exp(K‖w‖^s)`, the canonical
+  product satisfies `|f(z)| ≤ C exp(C|z|^s)` (`norm_canonProd_le`, `growthBound_canonProd`), and so does `c z^m e^{P} ∏ E_p(z/a_i)` with
+  `deg P ≤ p` (`growthBound_factorization`): finite genus gives finite order, an upper bound only.
 
-Layering: only `HadamardAiry` imports `FormalResearch.Special.Airy*` modules; no `Airy` module imports this aggregate.
-Not formalised: the converse (a canonical product of finite genus has finite order), order = convergence exponent, lower
-bounds on canonical products, the closed value of `Ai'(0)/Ai(0)` inside the product form, the products for `Ai'` and `Bi`;
-orders are not defined as notions (`hadamard` takes any `p` with `σ < p + 1` and the exact growth form).
+Layering: only `HadamardAiry` imports `FormalResearch.Special.Airy*` modules; no module of the `Airy` aggregate imports this
+aggregate (the product of `Ai'`, `FormalResearch.Special.airyDeriv_hadamard` in `Special/AiryCft2DerivHadamard`, imports `HadamardAiry`
+and is imported by `FormalResearch.Special`).
+Not formalised: order = convergence exponent and lower bounds on canonical products (the converse is an upper growth bound only,
+and only for `deg P ≤ p ≤ s ≤ p+1`, not the excess-genus case), the closed value of `Ai'(0)/Ai(0)` inside the product form, the
+product for `Bi`; orders are not defined as notions (`hadamard` takes any `p` with `σ < p + 1` and the exact growth form).
 -/

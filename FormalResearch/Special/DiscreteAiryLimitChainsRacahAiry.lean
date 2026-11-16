@@ -24,11 +24,14 @@ not assumed.
 ## Not formalised
 
 `κ` is unidentified (Darboux/Wigner-`d`) and `κ ≠ 0` is not proved; the hypotheses `A h = α`, `B h = β`, `x = cosA …` couple
-the integer data to the scale (the theorem is a statement for each such realisation; that there are many realisations as `h → 0`
-is a congruence condition, not asserted); the turn hypotheses are taken as hypotheses (the paper's turn `q_* = 2αβ sin θ/γ`,
-the branch `τ = ±1`, is not derived here; only `τ = +1` is covered, and e.g. `α = β` (`P = Q`) forces `τ = -1`, so it is excluded;
-the `τ = +1` hypotheses are satisfiable, e.g. `α/β = 3`, `x = 5/8`, `m = n = -1`, `(a, b, c + ½) = t(3, 1, 5/2)` for odd `t`
-(numerical check of the turn only; the `RacahSystem` hypothesis for this family was not checked)); integer data only; the oscillatory side `X < -A₀`; the `q`-Racah chain.
+the integer data to the scale (the theorem is a statement for each such realisation); in this module the turn hypotheses are
+taken as hypotheses and only `τ = +1` is covered (`α = β` forces `τ = -1`).  Done in `DiscreteAiryLimitChains2Racah`,
+`DiscreteAiryLimitChains2Twist`: the turn from the triangle (`racah_turn_geom_pos/_neg`, `q_* = 2αβ sin θ/γ`), both branches
+`τ = ±1` with the `(-1)^k` twist (`racah_chain_airy_geom_pos/_neg`), and infinitely many realisations as `h → 0`
+(`racah_realisation`, `racah_chain_airy_family_pos/_neg`; e.g. `α/β = 3`, `x = 5/8`, `m = n = -1`,
+`(a, b, c) = (6u+3, 2u+1, 5u+2)`).  Integer data only here (half-integer `m, n`: `DiscreteAiryLimitChains2Half6j`,
+`Half6jFam`); the oscillatory side `X < -A₀` and the non-recessive pair (`racah_chain_airy_full_*` in `DiscreteAiryPhysRacah`, integer data,
+up to `κ`); the `q`-Racah chain.
 -/
 
 @[expose] public section

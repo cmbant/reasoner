@@ -371,10 +371,10 @@ and `d_n = d^{L₀+n}_{Mσ}(arccos x)` (`dv`).  There are differential operators
 
 Every chamber is covered (the germ `Gc3` and the Wigner function `d^{L₀+n}_{Mσ}` are defined uniformly,
 `dZero3_eq_wignerD`); the multipliers `ψ_r` are the ones fixed by the exact seed at the minimal rank
-(`eq:3jpsi2r`; for `M = σ = 0` the two exact starts).  *Not formalised:* that the `ψ_r` (hence the
-coefficients `b_j`) are rational functions of `x` with poles at `±1` only (the coefficients here are
-smooth on `(-1,1)`), the Bernoulli closed form `eq:3jseedlogallorder`, and the explicit operators
-`D̂_2`, `D̂_4` (`eq:D2hat`, `app:D4`). -/
+(`eq:3jpsi2r`; for `M = σ = 0` the two exact starts).  The coefficients here are smooth on `(-1,1)`;
+that the `ψ_r` (hence the coefficients `b_j`) are rational functions of `x` with poles at `±1` only is
+`allorder_operators_seed_psi_rat` (`P2SeedRational`; `M = σ = 0`: `allorder_operators_zero_psi`,
+`P2SeedZeroPsi`).  *Not formalised:* the explicit operators `D̂_2`, `D̂_4` (`eq:D2hat`, `app:D4`). -/
 theorem allorder_operators (hα : |M - σ| = α) (hβ : |M + σ| = β) :
     ∃ G : ℕ → End ℝ Fn, G 0 = 1 ∧ (∀ r, G r ∈ LN DOp Csm) ∧
       (∀ r, comm xOp (G (r + 1)) =
@@ -408,7 +408,8 @@ The proof: the exact expansion `thm:3jeven` of each `Φ_{L₀+k}` plus the ident
 `f_{2r}^{(k)} = D̂_{2r} d_k` (`allorder_operators`), which is the content of the paper's proof.
 
 *Differences from the paper's statement.* The operators have coefficients smooth on `(-1,1)` rather than
-rational (not formalised, see `allorder_operators`); the statement is pointwise on the lattice points of `K`
+rational (the rational form of the operators is `allorder_operators_seed_psi_rat` in `P2SeedRational`; this
+pointwise statement is not restated with them); the statement is pointwise on the lattice points of `K`
 (the `ℓ²(𝒳_N ∩ K, 2h)` version follows by summing at most `N` points and is not stated); `D̂_2`, `D̂_4` in closed
 form (`eq:D2hat`, `thm:3jNNLO`) are not part of this statement. -/
 theorem threeJ_allorder_local (hα : |M - σ| = α) (hβ : |M + σ| = β) (kmax : ℕ) {K : Set ℝ}

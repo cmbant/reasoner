@@ -12,7 +12,7 @@ Two exact statements, both elementary.
   `√(n(n+p)) Ξ_{n-1} + √((n+1)(n+p+1)) Ξ_{n+1} = (2n+p+1) Ξ_n`, has the solution
   `Ξ_n = √((n+1)_p) = √(Γ(n+p+1)/n!)` (`laguerreRegular`), including its `n = 0` row (the first coefficient
   vanishes), for every real `p > -1`; this solution is unique up to scale by the forward recurrence
-  (positive coefficients), which is not formalised; for natural `p`
+  (positive coefficients; `laguerre_solution_unique` in `LaguerreUniqueness`); for natural `p`
   this is `√` of the Pochhammer symbol (`laguerreRegular_nat`).
 * `ah3_*_tendsto`: the leading part, as `h → 0⁺`, of the exact magnetic difference equation
   `eq:3jdiff` near the upper edge at the grid point `x = 1 - h (p+1+2n)`: with

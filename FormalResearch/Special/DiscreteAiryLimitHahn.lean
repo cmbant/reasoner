@@ -33,7 +33,7 @@ interior of the domain (`P q_*² < 1`, `Q q_*² < 1`): these are exactly the hyp
 window is not degenerate.
 
 **Scope.**  This does not replace Geronimo/GBVA in full: it is the recessive-plus-bounded-window form (not the non-recessive
-`Ai`/`Bi` pair, not the full oscillatory side, not uniform over `(a, b, τ, x, P, Q)`); `κ` is unidentified and `κ ≠ 0` is
+`Ai`/`Bi` pair, not the full oscillatory side (`discrete_airy_hahn_racah_full`, `DiscreteAiryPhysHahn`, has both for the same data), not uniform over `(a, b, τ, x, P, Q)`); `κ` is unidentified and `κ ≠ 0` is
 not proved; `(R)` is a hypothesis of the `Y`-form here (it is discharged, up to one normalisation, in
 `DiscreteAiryLimitHyperWindow`, and for the actual integer-data chains in `DiscreteAiryLimitChains{HahnAiry,RacahAiry}`); this
 module treats the closed forms `hrAk`, `hrCk` as given (their identification with the actual 3j/6j chains is in
@@ -48,8 +48,8 @@ AM-GM identity), and the `O(h²)` perturbation sizes `|A_k - A(q_k - h/2)| ≤ E
 **Obligations not discharged in this module (done elsewhere, integer data).**
 1. *Identification of the closed forms with the actual chains* (`prop:hahn-class`, `prop:racah-class`, `A:1319-1322`):
    here `Y` is any solution of the closed-form recurrence; that the Wigner `3j` (Hahn) / `6j` (centred Racah) symbols in
-   the natural gauge satisfy it is `hahn_class_chain`, `racah_class_chain` (`DiscreteAiryLimitChains{3j,6j}`, integer data
-   only; half-integer data is not translated).
+   the natural gauge satisfy it is `hahn_class_chain`, `racah_class_chain` (`DiscreteAiryLimitChains{3j,6j}`, integer data;
+   the shifted-index half-integer versions are `DiscreteAiryLimitChains2Half{3j,6j}`; mixed-parity `6j` labels are not covered).
 2. *The bound `(R)`*: `|Y_N|, |Y_{N+1}| ≤ Y_max` with `Y_max` polynomial in `1/h` is a hypothesis of the theorems here.  The
    monotone decay from the hard edge (`backward_ratio`, `exact_hyperbolicity_hahn_racah`) is connected in
    `DiscreteAiryLimitHyperDecay`/`HyperWindow`, leaving one normalisation `|Y_{k₁}| ≤ δ^{-p}`; for the actual chains `(R)` is
@@ -57,7 +57,8 @@ AM-GM identity), and the `O(h²)` perturbation sizes `|A_k - A(q_k - h/2)| ≤ E
 **Not formalised.**
 3. The normalisation `κ` (Darboux/Wigner-`d` matching, T:336, A:925-1054) and `κ ≠ 0`; the parity factor `σ_τ`, the lattice
    quantisation `K_τ ∈ ℤ`, the explicit `varpi^H` of the second-order bracket; the Racah `q`-6j.
-4. Uniformity over the compact family of shapes `x` (everything here is for one fixed `(P, Q, a, b, τ, x)`).
+4. Uniformity over the compact family of shapes `x` (everything here is for one fixed `(P, Q, a, b, τ, x)`; an irrational
+   `x` has no exact lattice node, so this needs the Airy limit made uniform in the shape).
 -/
 
 @[expose] public section

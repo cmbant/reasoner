@@ -28,11 +28,13 @@ This is `thm:general-rank-airy`(i) / `eq:airyfactor` for the Hahn chain, with th
 
 `κ` is produced by the recessive selection and is not identified (the Darboux/Wigner-`d` normalisation), and `κ ≠ 0` is not
 proved; the node `x_n` has to equal the fixed shape `x` (the theorem is uniform in `N` for each fixed `x`, but it does not
-assert that infinitely many `N` admit such a node: for a rational `x` this is a congruence condition, and for a compact
-family of `x` the constants are not shown uniform).  The hypothesis is not vacuous: for `M = σ = 0`, `x = 1/2` the
-nodes `x_n = x` occur for `N = 4t+2`, `n = 3t+1` (all `t`; `xLat 0 0 N n = -1 + (1+2n)/N = 1/2`, checked in Lean
-separately, not a committed theorem), whereas e.g. `M = σ = 0`, `x = 1/3` has no node at all (parity); the integer case only; the non-recessive `Ai`/`Bi` pair and the
-oscillatory side `X < -A₀`; the second-order bracket.
+itself assert that infinitely many `N` admit such a node, and for a compact family of `x` the constants are not shown
+uniform).  That infinitely many `N` do is `hahn_node_exists` (`DiscreteAiryLimitChains2Nodes`): `x = p/q` with `p+q` odd
+or `M+σ` odd (e.g. `M = σ = 0`, `x = 1/2`, `N = 4t+2`, `n = 3t+1`), with the exact obstruction `hahn_node_obstruction`
+(`M = σ = 0`, `x = 1/3` has no node at all); the combined statement is `hahn_chain_airy_infinite`.  Integer data only
+here (half-integer: `DiscreteAiryLimitChains2Half3j`); `x ∈ (-1,0)` is the `τ = -1` twist (`hahn_chain_airy_neg`).  Not
+formalised in this module: the non-recessive `Ai`/`Bi` pair and the oscillatory side `X < -A₀` (for fixed `x` at a node they are
+`hahn_chain_airy_full` etc. in `DiscreteAiryPhysChains`, up to `κ`); the second-order bracket.
 -/
 
 @[expose] public section

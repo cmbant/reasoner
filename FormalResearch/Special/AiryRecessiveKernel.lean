@@ -35,8 +35,8 @@ holds uniformly in the window length.
 
 The hypothesis `hdef` and `ψ ≍ airyWt` for the actual `ψ = g Ai` are supplied for a simple turn by the uniform defect
 (`airyParametrix_defect_uniform_rel`, M7b, with `langer_hrel`, M7a) and the wiring layer (`dal_window_hyp`,
-`DiscreteAiryLimitSetup`).  **Not formalised:** the oscillatory side `X < -1` beyond a bounded window
-(`discrete_airy_window`, `AiryWindowMain`), explicit constants.
+`DiscreteAiryLimitSetup`).  **Not formalised:** explicit constants.  (The oscillatory side `X < -1` is `discrete_airy_window`,
+`AiryWindowMain`, for a bounded window, and `DiscreteAiryOsc*` for the whole macroscopic side as an amplitude-adapted `O(δ³)` bound.)
 -/
 
 @[expose] public section
