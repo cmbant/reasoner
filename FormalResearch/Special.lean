@@ -27,6 +27,13 @@ public import FormalResearch.Special.SturmAiryNodes
 public import FormalResearch.Special.DiscreteJacobiCalculus
 public import FormalResearch.Special.DiscreteJacobiCalculusVolterra
 public import FormalResearch.Special.DiscreteJacobiCalculusComparison
+public import FormalResearch.Special.DiscreteJacobiExtras
+public import FormalResearch.Special.DiscreteJacobiExtrasHardEdge
+public import FormalResearch.Special.DiscreteJacobiExtrasGronwall
+public import FormalResearch.Special.LangerPhi
+public import FormalResearch.Special.LangerHadamard
+public import FormalResearch.Special.LangerJets
+public import FormalResearch.Special.LangerCoordinate
 
 /-!
 # Special functions: Jacobi polynomials
@@ -40,5 +47,9 @@ Gegenbauer special cases; the Mehler–Heine formula `n^{-α} P_n^{(α,β)}(cos(
 contour integral, entire, `Ai'' = z Ai`, explicit decay, positivity on `[0,∞)`, real negative zeros, rotation
 identity and `Bi` (`Airy`); Sturm and Prüfer theory of `y'' = q y` (`q` continuous, in particular the Airy
 equation `q x = x`): simple zeros, Sturm separation and comparison, zero counts, Prüfer angle
-(`SturmAiry*`, `AiryPrufer*`).
+(`SturmAiry*`, `AiryPrufer*`); the Airy side of the discrete-to-Airy limit (`Airy` aggregate: shift identity, Taylor
+expansions, envelope weight); the Langer coordinate at a simple turning point (`LangerPhi`, `LangerHadamard`,
+`LangerJets`, `LangerCoordinate`); and the discrete Jacobi calculus for three-term recurrences (`DiscreteJacobiCalculus*`,
+`DiscreteJacobiExtras*`: Lagrange/Casoratian identities, Green function, reduction of order, Volterra form, recessive
+selection, final-value existence, hard-edge bridge, discrete Grönwall bounds).
 -/

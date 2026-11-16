@@ -35,6 +35,29 @@ public import FormalResearch.Special.AiryAsymNeg
 public import FormalResearch.Special.AiryAsymReal
 public import FormalResearch.Special.AiryAsymPos
 public import FormalResearch.Special.AiryAsymZeros
+public import FormalResearch.Special.AiryBiReal
+public import FormalResearch.Special.AiryAsymBiNeg
+public import FormalResearch.Special.AiryAsymBiPos
+public import FormalResearch.Special.AiryAsymChiAux
+public import FormalResearch.Special.AiryAsymChi
+public import FormalResearch.Special.AiryBiMono
+public import FormalResearch.Special.AiryBiNeg
+public import FormalResearch.Special.AiryBiEnvelope
+public import FormalResearch.Special.AiryOlver
+public import FormalResearch.Special.AiryOlverBounds
+public import FormalResearch.Special.AiryGammaBounds
+public import FormalResearch.Special.AiryZeroTaylor
+public import FormalResearch.Special.AiryZeroGap
+public import FormalResearch.Special.AiryFirstZeros
+public import FormalResearch.Special.AiryZeroOrder
+public import FormalResearch.Special.AiryZeroLabel
+public import FormalResearch.Special.AiryZeroSpacing
+public import FormalResearch.Special.AiryZeroLemmaZ
+public import FormalResearch.Special.AiryPruferAsym
+public import FormalResearch.Special.AiryClarkMid
+public import FormalResearch.Special.AiryWt
+public import FormalResearch.Special.AiryShift
+public import FormalResearch.Special.AiryShiftTaylor
 
 /-!
 # The Airy function: aggregate and design note
@@ -64,12 +87,31 @@ sector asymptotics with relative remainder, `Ai` near the negative axis for comp
 saddle-point formula `Ai(w²) = (e^{-(2/3)w³}/2π) ∫ exp(-w s² - i s³/3) ds`, `Re w > 0`, with the second-order
 estimate; hence `Ai, Ai', Bi` on the negative axis with explicit `O(y^{-3/2})` relative error, the amplitude
 `Ai² + Bi²` and the kernel diagonal `K(-y,-y) = √y/π (1+O(y^{-3/2}))`, positive-axis asymptotics of `Ai, Ai'`, and the
-location of the zeros `y ≥ 4`; no Olver theory).
+location of the zeros `y ≥ 4`), then
+`AiryBiReal` (`Bi'` on `ℝ`, `Bi'' = x Bi`, the real Wronskian), `AiryAsymBi{Neg,Pos}` (`Bi'` on the negative axis, `Bi`, `Bi'`
+on the positive axis, first terms with explicit remainders), `AiryAsymChi{,Aux}` (`χ = Ai + iBi` on the negative axis with the
+`u_1 = 5/72` term: `Ai`, `Bi` to order `u_1`), `AiryBi{Mono,Neg,Envelope}` (`Bi/Ai` increasing, `Bi > 0` and `Bi' > 0` on
+`[-11/10, ∞)`, two-sided envelope of `Bi` on `[-1, ∞)`), `AiryOlver{,Bounds}` (the DLMF 9.8 modulus `Ai² + Bi²`, Olver's weights
+`E`, `M` and a convenient majorant `airyDerivWeightN` of the derivatives, which is *not* Olver's `N`, with two-sided bounds);
+the ordered zeros `a_n` of `Ai`: `AiryGammaBounds`, `AiryZeroTaylor`, `AiryFirstZeros` (rational enclosures of `Γ(1/3)`, `Γ(2/3)`,
+`Ai(0)`, `Ai'(0)`, the sign change of `Ai` at `-2.33`, `-2.35`, and `a_1, a_2`), `AiryZeroGap` (Prüfer rate, spacing of zeros),
+`AiryZeroOrder` (`airyZero n`), `AiryZeroLabel` (the phase theorem `|(2/3)|a_n|^{3/2} - (n-1/4)π| ≤ (2/5)|a_n|^{-3/2}`, DLMF 9.9.6),
+`AiryZeroSpacing` (`|a_n| ≍ n^{2/3}`, gaps `≍ n^{-1/3}`), `AiryZeroLemmaZ` (`a_n = -((3π/2)(n-1/4))^{2/3} + O(n^{-4/3})`),
+`AiryPruferAsym` (the Prüfer angle of `Ai`, zeros of `Ai'`), `AiryClarkMid` (one zero of `Ai'` per gap, asymptotically the
+midpoint); and the Airy side of the discrete-to-Airy limit: `AiryWt` (an explicit envelope weight `(2+|X|)^{-1/4} e^{-ξ}` with
+local constancy and lattice sums), `AiryShift` (the shift identity `y(X+s) = y(X) C + y'(X) S`), `AiryShiftTaylor` (Taylor
+expansions of `Ai`, `C`, `S` against the weight).  The Langer coordinate (`Langer*`) and the discrete Jacobi calculus
+(`DiscreteJacobi*`) are separate modules of `FormalResearch.Special`.  (Overlapping Gamma enclosures: `AiryBiNeg` and
+`AiryGammaBounds` each carry their own, with different constants.)
 
-**Not formalised:** `Bi` on the positive axis, `Bi'` on the negative axis, the full asymptotic series (only the first
-term with explicit remainder, `AiryAsym*`), the labelling of the far zeros against the ordered zeros `a_n` and the
-Prüfer-angle asymptotics, Olver-type uniform expansions, the Mellin moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`, the `Lp`-level
-operator `K_u`, and the `Ai'` and `P Ai + Q Ai'` versions of (E2).
+**Not formalised:** the full asymptotic series (the `AiryAsym*` files give the first term, or `u_1` in `AiryAsymChi`, with explicit
+remainder, not `u_2` and higher terms; `Ai'`, `Bi'`, `χ'` to order `v_1` only to first order); the second term `5/(48 t²)` of
+DLMF 9.9.18 for the zeros and sharp constants anywhere; the asymptotics of the general Clark nodes `z_n(α)`, `α ≢ 0, π/2`
+(existence and uniqueness are `airy_node_exists_unique`); Olver's own `N` and the value of the crossing point `c = -0.366…`
+(`airyCross > -1`); Olver-type uniform expansions; the Mellin moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the `Lp`-level
+operator `K_u`; the `Ai'` and `P Ai + Q Ai'` versions of the good-circle bound (E2); the first zero of `Bi` and `Bi > 0`
+beyond `-11/10`; the parametrix defect, the recessive-solution comparison and the discrete-to-Airy window estimates (modules
+M4–M6 of the discrete-to-Airy plan).
 
 Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and the free-fermion edge
 (`Weyl/free_fermion`, `thm:edge`) need next, and what is now reachable.
@@ -79,13 +121,15 @@ Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and
 * *Canonical `Ai/Bi` basis and variation of constants* (Green function of the Airy-form branch): `Bi`, `Bi'' = zBi`
   and the Wronskian `W(Ai, Bi) = 1/π` are in place (`AiryValues`: `Ai(0)Ai'(0) = -1/(2√3 π)` by a contour
   rotation to the rays `arg t = ±π/3`, proved by a derivative-in-the-ray-direction argument as for `airyMom_indep`).
-* *Olver modulus/weight `M, E` and the uniform bracket `Ai + N^{-4/3}ϖ Ai' + O(N^{-2})`*: needs `Ai`, `Bi` for
-  `x < 0` and the envelope `M² = 2(Ai² + Bi²)`.  The first term of the negative-axis expansions of `Ai, Ai', Bi`
-  and the amplitude `Ai² + Bi² = 1/(π√y) + O(y^{-2})` (`y ≥ 1`) are now proved (`AiryAsym*`, by the exact saddle
-  formula, without Olver theory); the uniform-in-`x` bracket with the `N^{-4/3}` correction remains open.
-* *Discrete recurrence → Airy ODE limit*: Gronwall/uniqueness (`airy_unique_real`) and the wronskian/energy
-  identities exist; the remaining analytic input is a stable comparison (Taylor of the Jacobi coefficients at the
-  turn, `h^{4/3}`-scaling), independent of the Airy definition.
+* *Olver modulus/weight `M, E` and the uniform bracket `Ai + N^{-4/3}ϖ Ai' + O(N^{-2})`*: the weights `E`, `M` of Olver and
+  the DLMF 9.8 modulus are in place on the real axis (`AiryOlver`, `AiryOlverBounds`, with `Bi` on all of `ℝ` via
+  `AiryAsymBi*`, `AiryBi*`), as is the explicit stand-in `airyWt` for `M/E` (`AiryWt`); the uniform-in-`x` bracket with
+  the `N^{-4/3}` correction (Olver's uniform expansions) remains open.
+* *Discrete recurrence → Airy ODE limit*: Gronwall/uniqueness (`airy_unique_real`), the wronskian/energy identities, the
+  Airy shift identity and the Taylor expansions at the turn (`AiryShift`, `AiryShiftTaylor`, mesoscopic hypothesis
+  `|s|√(1+|X|) ≤ Λ`), the Langer coordinate (`Langer*`, module M3) and the discrete calculus with final-value existence,
+  hard-edge bridge and Grönwall bounds (`DiscreteJacobi*`, modules M1, M1b) exist; the parametrix defect, the recessive
+  selection with the Airy inputs and the window estimates (M4–M6, `h^{4/3}`-scaling) are open.
 * *Free-fermion edge*: the Airy kernel `K(x,y)`, `K(x,x) = Ai'² - x Ai²`, `(∂_x + ∂_y)K = -Ai(x)Ai(y)` and
   `∫_x^∞ Ai² = K(x,x)` are in place, and `K(x,y) = ∫_0^∞ Ai(x+s)Ai(y+s) ds` (hence positivity of `K`) is
   `airyKer_eq_integral` (real `x,y`) and `airyKerC_eq_integral` (complex `x,y`) in `AiryKernelOp*`.

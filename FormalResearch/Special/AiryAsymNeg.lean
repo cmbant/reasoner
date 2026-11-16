@@ -19,8 +19,9 @@ for every `y > 0` (so for `ξ = (2/3) y^{3/2}`):
 The constants `1/8`, `2/5` are those of the proof (true constants are smaller: numerically
 `|err| · y^{7/4} ≤ 0.07`); the ranges are all `y > 0` (the estimate is only informative for large `y`).
 
-Not formalised here: the full asymptotic series (`u_k` coefficients), `Bi'` on the negative axis, `Bi` on
-the positive axis, and uniform-in-sector statements.
+Not formalised here: the full asymptotic series (`u_k` coefficients; only `u_1` is in `AiryAsymChi`), and
+uniform-in-sector statements.  `Bi'` on the negative axis is `AiryAsymBiNeg`, `Bi`, `Bi'` on the positive axis
+`AiryAsymBiPos`, and the `u_1` term of `Ai`, `Bi` on the negative axis is `AiryAsymChi`.
 -/
 
 @[expose] public section

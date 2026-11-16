@@ -16,7 +16,9 @@ Airy-free abstract lemmas, all **proved** with explicit constants.
   `|μ| ≤ |κ| |f1 k0 / f2 k0|` for `λ = 3` (`recessive_selection_three`), and `κ ≠ 0` whenever `Y k0 ≠ 0`
   (`kappa_ne_zero`).  Without the monotonicity of `f1`: `|μ|(λ-1)|f2 k0| ≤ |κ|(|f1 k0| + |f1 k1|)`.
   The *derivation of the monotone decay of `|Y|`* from the margin of the rows is the backward-ratio
-  comparison `FormalResearch.Racah.P3.backward_ratio` (Racah/P3JacobiComparison); it is not repeated here.
+  comparison `FormalResearch.Racah.P3.backward_ratio` (Racah/P3JacobiComparison); it is not repeated here, but
+  bridged to this `ℤ`-indexed setting in `DiscreteJacobiExtrasHardEdge` (`hardEdge_abs_antitone`, which supplies
+  the monotone decay, and `recessive_selection_hardEdge`).
 * `zmatrix_min_principle`, `zmatrix_comparison` (W1 `lem:ec-olver`(ii), EC:95): for the Z-matrix operator
   `zop a c y k = c k y k - a (k+1) y (k+1) - a k y (k-1) = - jac a c y k` with `a > 0` and a positive strict
   supersolution `w` (`zop w > 0`): `|zop e| ≤ K zop w` on the interior and `|e| ≤ K w` at the two ends imply

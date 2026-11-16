@@ -12,7 +12,7 @@ For `x > 0`, with `ξ = (2/3) x^{3/2}` and `P(x) = (1/(2√π)) x^{-1/4} e^{-ξ}
 * `airyAi'_add_leading_le`: `|Ai'(x) + (1/(2√π)) x^{1/4} e^{-ξ}| ≤ (17/(96√π)) x^{-5/4} e^{-ξ}`, i.e. relative error
   `(17/48) x^{-3/2}`; the case `w = √x` of `norm_deriv_airyAiC_sq_add_le`.
 
-Both hold for every `x > 0`.  Not formalised: further terms of the expansion; `Bi` on the positive axis.
+Both hold for every `x > 0`.  Not formalised: further terms of the expansion (`Bi`, `Bi'` on the positive axis are `AiryAsymBiPos`).
 -/
 
 @[expose] public section

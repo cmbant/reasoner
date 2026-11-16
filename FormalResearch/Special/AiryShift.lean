@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.Special.AiryBridge
 public import FormalResearch.Special.AiryValues
+public import FormalResearch.Special.AiryBiReal
 
 /-!
 # The Airy shift identity
@@ -49,36 +50,14 @@ namespace FormalResearch.Special
 
 open SturmAiry
 
-/-! ### The real `Bi'` -/
+/-! ### The real `Bi'`
 
-/-- The real derivative `Bi'(x)`, `Re (airyBiC' x)` (private-style helper of this module; `Bi'` has no
-definition on the real axis elsewhere in `FormalResearch.Special`). -/
-noncomputable def airyShiftBiD (x : ℝ) : ℝ := (airyBiC' (x : ℂ)).re
-
-theorem hasDerivAt_airyBi_shift (x : ℝ) : HasDerivAt airyBi (airyShiftBiD x) x := by
-  have h : HasDerivAt (fun y : ℝ => airyBiC (y : ℂ)) (airyBiC' (x : ℂ)) x :=
-    ((isAirySol_airyBiC (x : ℂ)).1).comp_ofReal
-  have := Complex.reCLM.hasFDerivAt.comp_hasDerivAt x h
-  convert this using 1 <;> rfl
-
-theorem hasDerivAt_airyShiftBiD (x : ℝ) : HasDerivAt airyShiftBiD (x * airyBi x) x := by
-  have h : HasDerivAt (fun y : ℝ => airyBiC' (y : ℂ)) ((x : ℂ) * airyBiC (x : ℂ)) x :=
-    ((isAirySol_airyBiC (x : ℂ)).2).comp_ofReal
-  have := Complex.reCLM.hasFDerivAt.comp_hasDerivAt x h
-  have e : (fun y : ℝ => (airyBiC' (y : ℂ)).re) = airyShiftBiD := rfl
-  simpa [Function.comp_def, e, airyBiC_ofReal] using this
+`Bi'` on the real axis is `airyBiDeriv` (`AiryBiReal`): `hasDerivAt_airyBi`, `hasDerivAt_airyBiDeriv`,
+`airyWronskian_real` (`Ai Bi' - Ai' Bi = 1/π`). -/
 
 /-- `(Bi, Bi')` is a real solution of `y'' = x y`. -/
-theorem isAirySol_airyBi_shift : IsAirySol airyBi airyShiftBiD :=
-  fun x => ⟨hasDerivAt_airyBi_shift x, hasDerivAt_airyShiftBiD x⟩
-
-/-- **Real Wronskian**: `Ai Bi' − Ai' Bi = 1/π`. -/
-theorem airyShift_wronskian (x : ℝ) :
-    airyAi x * airyShiftBiD x - airyAi' x * airyBi x = 1 / Real.pi := by
-  have h := airyAiC_wronskian_airyBiC_eq (x : ℂ)
-  rw [airyAiC_ofReal, deriv_airyAiC_ofReal, airyBiC_ofReal] at h
-  have := congrArg Complex.re h
-  simpa [airyShiftBiD] using this
+theorem isAirySol_airyBi_shift : IsAirySol airyBi airyBiDeriv :=
+  fun x => ⟨hasDerivAt_airyBi x, hasDerivAt_airyBiDeriv x⟩
 
 /-! ### The functions `C`, `S` -/
 
@@ -89,19 +68,19 @@ noncomputable def airyShiftS (X s : ℝ) : ℝ :=
 /-- `C(X, s) = π (Bi'(X) Ai(X+s) − Ai'(X) Bi(X+s))`: the solution of `Y'' = (X+s) Y` with
 `(Y, Y')(0) = (1, 0)`. -/
 noncomputable def airyShiftC (X s : ℝ) : ℝ :=
-  Real.pi * (airyShiftBiD X * airyAi (X + s) - airyAi' X * airyBi (X + s))
+  Real.pi * (airyBiDeriv X * airyAi (X + s) - airyAi' X * airyBi (X + s))
 
 /-- `S_s(X, s) = ∂_s S(X, s)`. -/
 noncomputable def airyShiftSd (X s : ℝ) : ℝ :=
-  Real.pi * (airyAi X * airyShiftBiD (X + s) - airyBi X * airyAi' (X + s))
+  Real.pi * (airyAi X * airyBiDeriv (X + s) - airyBi X * airyAi' (X + s))
 
 /-- `C_s(X, s) = ∂_s C(X, s)`. -/
 noncomputable def airyShiftCd (X s : ℝ) : ℝ :=
-  Real.pi * (airyShiftBiD X * airyAi' (X + s) - airyAi' X * airyShiftBiD (X + s))
+  Real.pi * (airyBiDeriv X * airyAi' (X + s) - airyAi' X * airyBiDeriv (X + s))
 
 private lemma pi_mul_w (x : ℝ) :
-    Real.pi * (airyAi x * airyShiftBiD x - airyAi' x * airyBi x) = 1 := by
-  rw [airyShift_wronskian]; field_simp [Real.pi_pos.ne']
+    Real.pi * (airyAi x * airyBiDeriv x - airyAi' x * airyBi x) = 1 := by
+  rw [airyWronskian_real]; field_simp [Real.pi_pos.ne']
 
 /-- Initial data: `C(X,0) = 1`, `C_s(X,0) = 0`, `S(X,0) = 0`, `S_s(X,0) = 1`. -/
 theorem airyShift_initial (X : ℝ) :
@@ -126,7 +105,7 @@ theorem isSol_lin {q y y' w w' : ℝ → ℝ} (h1 : IsSol q y y') (h2 : IsSol q 
 theorem isSol_airyShiftC (X : ℝ) :
     IsSol (fun s => X + s) (airyShiftC X) (airyShiftCd X) := by
   have := isSol_lin (isSol_shift isAirySol_airyAi X) (isSol_shift isAirySol_airyBi_shift X)
-    (Real.pi * airyShiftBiD X) (-(Real.pi * airyAi' X))
+    (Real.pi * airyBiDeriv X) (-(Real.pi * airyAi' X))
   convert this using 2 <;> (simp only [airyShiftC, airyShiftCd]; ring)
 
 theorem isSol_airyShiftS (X : ℝ) :
@@ -182,7 +161,7 @@ theorem airyAi'_shift (X s : ℝ) :
 
 /-- `Bi(X+s) = Bi(X) C(X,s) + Bi'(X) S(X,s)`. -/
 theorem airyBi_shift (X s : ℝ) :
-    airyBi (X + s) = airyBi X * airyShiftC X s + airyShiftBiD X * airyShiftS X s :=
+    airyBi (X + s) = airyBi X * airyShiftC X s + airyBiDeriv X * airyShiftS X s :=
   (airy_shift isAirySol_airyBi_shift X s).1
 
 /-- The shift matrix has determinant one: `C S_s − C_s S = 1` (Wronskian of `C`, `S`). -/
@@ -191,8 +170,8 @@ theorem airyShift_det (X s : ℝ) :
   have h1 := pi_mul_w X
   have h2 := pi_mul_w (X + s)
   have : airyShiftC X s * airyShiftSd X s - airyShiftCd X s * airyShiftS X s =
-      (Real.pi * (airyAi X * airyShiftBiD X - airyAi' X * airyBi X)) *
-        (Real.pi * (airyAi (X + s) * airyShiftBiD (X + s) - airyAi' (X + s) * airyBi (X + s))) := by
+      (Real.pi * (airyAi X * airyBiDeriv X - airyAi' X * airyBi X)) *
+        (Real.pi * (airyAi (X + s) * airyBiDeriv (X + s) - airyAi' (X + s) * airyBi (X + s))) := by
     unfold airyShiftC airyShiftSd airyShiftCd airyShiftS
     ring
   rw [this, h1, h2, one_mul]
@@ -208,10 +187,6 @@ theorem airyShift_det (X s : ℝ) :
 /-- info: 'FormalResearch.Special.airyShift_det' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyShift_det
-
-/-- info: 'FormalResearch.Special.airyShift_wronskian' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.Special.airyShift_wronskian
 
 /-- info: 'FormalResearch.Special.airyShift_initial' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

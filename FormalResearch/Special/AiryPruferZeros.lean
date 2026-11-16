@@ -21,7 +21,7 @@ Let `θ` be a Prüfer angle of a nontrivial solution `(y, y')` of `y'' = q y`
   `θ b - θ a ≥ b - a` and the number of zeros in `(a, b]` exceeds `(b - a)/π - 1`.  For
   `q x = x`: on `[-T, -1]` there are more than `(T - 1)/π - 1` zeros of every solution.
 
-All results are proved (no numerical input).  Not formalised: asymptotics `θ(-v) ~ (2/3) v^{3/2}`.
+All results are proved (no numerical input).  The asymptotics `θ(-v) ~ (2/3) v^{3/2}` are `AiryPruferAsym`.
 -/
 
 @[expose] public section

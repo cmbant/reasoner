@@ -19,8 +19,8 @@ Consequences for `y ≥ 1` (relative error `O(y^{-3/2})`):
 * `airyKer_diag_neg`: `|K(-y,-y) - √y/π| ≤ y^{-1}`, where `K(x,x) = Ai'(x)² - x Ai(x)²` is the Airy kernel
   on the diagonal (the density `√y/π` of the Airy point process at `-y`).
 
-Constants are those of the proof and are not optimal.  Not formalised: the full asymptotic series,
-`Bi'` on the negative axis.
+Constants are those of the proof and are not optimal.  Not formalised: the full asymptotic series
+(`Bi'` on the negative axis is `AiryAsymBiNeg`; the `u_1` term is `AiryAsymChi`).
 -/
 
 @[expose] public section

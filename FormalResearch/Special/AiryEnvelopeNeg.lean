@@ -7,7 +7,8 @@ public import FormalResearch.Special.AiryPositive
 
 `airyAi_ge_on_Icc`: for `x ∈ [-1, 0]`, `Ai(x) ≥ Ai(0) cos x ≥ Ai(0)(1 - x²/2)`; in particular `Ai > 0`
 on `[-1, ∞)` (`airyAi_pos_of_neg_one_le`).  The first zero of `Ai` is `≈ -2.338`; this file does not
-locate it, it only gets past `x = -1` by a Sturm-type argument using only `Ai(0) > 0`, `Ai'(0) < 0`
+locate it (it is located in `(-2.35, -2.33)` by `airy_exists_zero_first` and `airyZero_one` in `AiryFirstZeros`,
+`AiryZeroOrder`), it only gets past `x = -1` by a Sturm-type argument using only `Ai(0) > 0`, `Ai'(0) < 0`
 (`airyAi_pos`, `airyAi'_neg`) and `Ai'' = x Ai`:
 
 with `H(x) = Ai'(x) cos x + Ai(x) sin x` one has `H' = (1 + x) cos x · Ai`, so `H' ≥ 0` on `[-1, 0]` as long
