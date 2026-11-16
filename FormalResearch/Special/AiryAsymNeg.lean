@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.Special.AiryAsymSaddle
+public import FormalResearch.Special.AiryEnvelopeSector
 
 /-!
 # `Ai`, `Ai'`, `Bi` on the negative axis with explicit error (no Olver theory)
@@ -282,12 +283,6 @@ lemma airyAi'_neg_eq (r : ℝ) :
     linear_combination h
   unfold airyAi'
   rw [this, Complex.neg_re]
-
-lemma norm_airyOmega_sq : ‖airyOmega ^ 2‖ = 1 := by
-  rw [airyOmega_sq_eq_exp]; exact Complex.norm_exp_ofReal_mul_I _
-
-lemma norm_airyOmega : ‖airyOmega‖ = 1 := by
-  rw [airyOmega_eq_exp']; exact Complex.norm_exp_ofReal_mul_I _
 
 lemma norm_conj_airyEps : ‖(starRingEnd ℂ) airyEps‖ = 1 := by
   rw [conj_airyEps_eq_exp]; exact Complex.norm_exp_ofReal_mul_I _

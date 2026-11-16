@@ -16,8 +16,9 @@ From the explicit oscillatory asymptotics of `AiryAsymNeg` (`Ai(-r²) = cos φ/(
 * `airy_zero_window_existsUnique`: for every integer `k ≥ 2` there is exactly one `y > 0` with `Ai(-y) = 0`
   and `|(2/3) y^{3/2} - (k + 3/4) π| < π/3`.
 
-Hence on `(-∞, -4]` the zeros are in bijection with a tail of the integers, with explicit `O(y^{-3/2})`
-location in the phase.  **Not proved here:** the labelling of these zeros against the ordered zeros
+Hence every zero in `(-∞, -4]` has an integer label `k` with `O(y^{-3/2})` location in the phase, and the
+zeros with `k ≥ 2` are in bijection with the integers `k ≥ 2` (the zero with `k = 1`, `a_2 ≈ -4.088`, is not covered
+by the uniqueness statement).  **Not proved here:** the labelling of these zeros against the ordered zeros
 `a_1 > a_2 > ...` (that the `n`-th zero has `k = n - 1`; this needs the number of zeros in `[-4, 0]`, a finite
 numerical input, or the Prüfer count of `AiryNodes`), the next term of DLMF 9.9.18 (`5/(48 t²)`), and
 sharper constants.
