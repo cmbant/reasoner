@@ -29,7 +29,9 @@ This is `thm:general-rank-airy`(i) / `eq:airyfactor` for the Hahn chain, with th
 `κ` is produced by the recessive selection and is not identified (the Darboux/Wigner-`d` normalisation), and `κ ≠ 0` is not
 proved; the node `x_n` has to equal the fixed shape `x` (the theorem is uniform in `N` for each fixed `x`, but it does not
 assert that infinitely many `N` admit such a node: for a rational `x` this is a congruence condition, and for a compact
-family of `x` the constants are not shown uniform); the integer case only; the non-recessive `Ai`/`Bi` pair and the
+family of `x` the constants are not shown uniform).  The hypothesis is not vacuous: for `M = σ = 0`, `x = 1/2` the
+nodes `x_n = x` occur for `N = 4t+2`, `n = 3t+1` (all `t`; `xLat 0 0 N n = -1 + (1+2n)/N = 1/2`, checked in Lean
+separately, not a committed theorem), whereas e.g. `M = σ = 0`, `x = 1/3` has no node at all (parity); the integer case only; the non-recessive `Ai`/`Bi` pair and the
 oscillatory side `X < -A₀`; the second-order bracket.
 -/
 
