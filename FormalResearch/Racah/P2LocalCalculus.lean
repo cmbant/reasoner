@@ -30,11 +30,13 @@ paper uses about `d`: the Wigner rank recurrence `ℒ_W d = 0` at `k`, and the e
   derivation `∂`, `[∂, x] = 1`, so that the hypothesis `[x,G_r] = B_r` is solvable;
 * `Ns_apply_one`, `scalar_start_recursion` (`prop:localcalculus` (c), `eq:3jscalarNsone`).
 
-Not formalised: the identification of `x`, `H`, `d_k` with the multiplication operator, the Wigner
-operator and the Wigner functions on `(-1,1)` (the algebra does not need it); part (b), the choice
-`ψ_{2r} = κ_r - 𝒥(𝖡_{2r})d_{k₀}/d_{k₀}` of the multiplier at the one-sided start (a pointwise division of
-functions); the resummation of formal series, the link to the physical kernels and the two instances
-`3j`, `6j` (`thm:3jallorderlocal`, `thm:6jallorderlocal`).
+Formalised in the later modules of this family (`P2LocalCalculusSeries`, `P2LocalCalculusLeftNormal`,
+`P2LocalCalculusFun`, `P2LocalCalculusWigner`, `P2AnalyticTaylorSeries`, `P2AnalyticAllOrder3j*`): the
+identification with functions on `(-1,1)`, part (b) and the one-start uniqueness, and the `3j` instance
+(`threeJ_allorder_local`, pointwise, with smooth multipliers). Not formalised: rationality of the
+coefficients and the pole statement at `x = ±1`, the explicit `D̂_2`, `D̂_4` (`thm:3jNNLO`), the Bernoulli
+seed formula `eq:3jseedlogallorder`, and the `6j` instance (`thm:6jallorderlocal`). The abstract
+algebra here does not need any of this.
 -/
 
 @[expose] public section
