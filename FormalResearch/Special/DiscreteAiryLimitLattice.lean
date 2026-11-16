@@ -112,7 +112,9 @@ theorem dal_lattice_window {ζ : ℝ → ℝ} {c0 r c1 c2 A0 : ℝ} (hr : 0 < r)
       (∀ k ∈ Finset.Icc J N, c1 * δ ≤ (δ ^ 3) ^ (-(2 / 3 : ℝ)) * ζ (q₀ + ((k + 1 : ℤ) : ℝ) * δ ^ 3) -
           (δ ^ 3) ^ (-(2 / 3 : ℝ)) * ζ (q₀ + (k : ℝ) * δ ^ 3) ∧
         (δ ^ 3) ^ (-(2 / 3 : ℝ)) * ζ (q₀ + ((k + 1 : ℤ) : ℝ) * δ ^ 3) -
-          (δ ^ 3) ^ (-(2 / 3 : ℝ)) * ζ (q₀ + (k : ℝ) * δ ^ 3) ≤ c2 * δ) := by
+          (δ ^ 3) ^ (-(2 / 3 : ℝ)) * ζ (q₀ + (k : ℝ) * δ ^ 3) ≤ c2 * δ) ∧
+      q₀ + (J : ℝ) * δ ^ 3 < c0 - A0 * δ ^ 2 / c2 + δ ^ 3 ∧
+      (δ ^ 3) ^ (-(2 / 3 : ℝ)) * ζ (q₀ + (J : ℝ) * δ ^ 3) ≤ -(c1 * A0 / c2) + c1 * δ := by
   have hc2 : 0 < c2 := lt_of_lt_of_le hc1 hc12
   have hA0c : 0 < A0 / c2 := by positivity
   set δ0 : ℝ := min (min 1 (A0 / c2)) (min (r * c2 / A0) (r / 8)) with hδ0
@@ -174,7 +176,7 @@ theorem dal_lattice_window {ζ : ℝ → ℝ} {c0 r c1 c2 A0 : ℝ} (hr : 0 < r)
     have := (zlow x hx hcx).1
     have := mul_nonneg hc1.le (sub_nonneg.2 hcx)
     linarith
-  refine ⟨J, m, N, hJm, hmN, hwin, hJ1, hqJc, hm1, hm2, hqN1, hqN, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨J, m, N, hJm, hmN, hwin, hJ1, hqJc, hm1, hm2, hqN1, hqN, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, hJ2, ?_⟩
   · intro k hk
     rw [Finset.mem_Icc] at hk
     have a1 := qmono J k hk.1
@@ -251,6 +253,15 @@ theorem dal_lattice_window {ζ : ℝ → ℝ} {c0 r c1 c2 A0 : ℝ} (hr : 0 < r)
     constructor
     · rw [le_div_iff₀ h2]; have := this.1; rw [e3] at this; linarith
     · rw [div_le_iff₀ h2]; have := this.2; rw [e3] at this; linarith
+  · have hJw := hwin J (by rw [Finset.mem_Icc]; omega)
+    have h1 := (dal_zeta_bounds hd hJw hc0w hqJc).1
+    rw [hz0] at h1
+    rw [div_le_iff₀ h2]
+    have h3 : c1 * (e - δ ^ 3) ≤ c1 * (c0 - (q₀ + (J : ℝ) * δ ^ 3)) :=
+      mul_le_mul_of_nonneg_left (by linarith) hc1.le
+    have e4 : c1 * e = c1 * A0 / c2 * δ ^ 2 := by rw [he]; ring
+    have e5 : c1 * δ ^ 3 = c1 * δ * δ ^ 2 := by ring
+    nlinarith
 
 /-- info: 'FormalResearch.Special.dal_lattice_window' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -44,6 +44,8 @@ structure DalLat (ζ : ℝ → ℝ) (q₀ δ c0 r c1 c2 A0 : ℝ) (J m N : ℤ) 
   win : ∀ k ∈ Finset.Icc J (N + 1), dalQ q₀ δ k ∈ Set.Icc (c0 - r) (c0 + r)
   qJ : c0 - A0 * δ ^ 2 / c2 ≤ dalQ q₀ δ J
   qJc : dalQ q₀ δ J ≤ c0
+  qJ2 : dalQ q₀ δ J < c0 - A0 * δ ^ 2 / c2 + δ ^ 3
+  XJup : dalX ζ q₀ δ J ≤ -(c1 * A0 / c2) + c1 * δ
   qm1 : c0 ≤ dalQ q₀ δ m
   qm2 : dalQ q₀ δ m < c0 + δ ^ 3
   qN1 : dalQ q₀ δ (N + 1) ≤ c0 + r / 2
@@ -66,8 +68,12 @@ theorem dal_lattice_window_struct {ζ : ℝ → ℝ} {c0 r c1 c2 A0 : ℝ} (hr :
       ∃ J m N : ℤ, DalLat ζ q₀ δ c0 r c1 c2 A0 J m N := by
   obtain ⟨δ0, h0, h1, H⟩ := dal_lattice_window hr hc1 hc12 hA0 hz0 hd
   refine ⟨δ0, h0, h1, fun δ q₀ hδ hδ0 => ?_⟩
-  obtain ⟨J, m, N, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17⟩ := H δ q₀ hδ hδ0
-  exact ⟨J, m, N, ⟨a1, a2, a3, a4, a5, a6, a7, by unfold dalQ; push_cast; exact a8, a9, a10, a11, a12, a13, a14, a15, a16, a17⟩⟩
+  obtain ⟨J, m, N, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19⟩ := H δ q₀ hδ hδ0
+  exact ⟨J, m, N, ⟨a1, a2, a3, a4, a5, a18, a19, a6, a7, by unfold dalQ; push_cast; exact a8, a9, a10, a11, a12, a13, a14, a15, a16, a17⟩⟩
+
+/-- info: 'FormalResearch.Special.dal_lattice_window_struct' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dal_lattice_window_struct
 
 lemma dal_jac_congr_c {a c c' y : ℤ → ℝ} {k : ℤ} (h : c k = c' k) : jac a c y k = jac a c' y k := by
   unfold jac; rw [h]

@@ -41,20 +41,22 @@ theorem dal_window_hyp {U : Set ℝ} {ζ g A u : ℝ → ℝ}
         (∀ k ∈ Finset.Icc J (N + 1), dalQ q₀ δ k ∈ Set.Icc (c0 - r) (c0 + r)) ∧
         c0 - D * δ ^ 2 ≤ dalQ q₀ δ J ∧ dalQ q₀ δ J ≤ c0 ∧ c0 ≤ dalQ q₀ δ m ∧
         dalQ q₀ δ m < c0 + δ ^ 3 ∧ c0 + r / 4 ≤ dalQ q₀ δ N ∧ dalQ q₀ δ (N + 1) ≤ c0 + r / 2 ∧
-        c1 * (r / 4) / δ ^ 2 ≤ dalX ζ q₀ δ N ∧
+        c1 * (r / 4) / δ ^ 2 ≤ dalX ζ q₀ δ N ∧ dalX ζ q₀ δ J ≤ -A0 ∧
         ∀ a c : ℤ → ℝ,
           (∀ k ∈ Finset.Icc (J + 1) (N + 1), |a k - A (dalQ q₀ δ k - δ ^ 3 / 2)| ≤ E * δ ^ 6) →
           (∀ k ∈ Finset.Icc (J + 1) N, |c k - 2 * A (dalQ q₀ δ k) * u (dalQ q₀ δ k)| ≤ E * δ ^ 6) →
           AiryWindowHyp (dalX ζ q₀ δ) (dalPsi g ζ q₀ δ) a c J m N δ W c1 B ca κ1 κ2 C0 Λ S Sg Qq w0 := by
   have hc2 : 0 < c2 := lt_of_lt_of_le T.c1_pos T.c1_le
-  obtain ⟨δL, hδL, hδL1, hL⟩ := dal_lattice_window_struct T.r_pos T.c1_pos T.c1_le hA0 T.zeta0 (fun q hq => T.der q hq)
+  obtain ⟨A1, hA1⟩ : ∃ A1 : ℝ, A1 = 2 * A0 * c2 / c1 := ⟨_, rfl⟩
+  have hA1p : 0 < A1 := by rw [hA1]; have := T.c1_pos; positivity
+  obtain ⟨δL, hδL, hδL1, hL⟩ := dal_lattice_window_struct T.r_pos T.c1_pos T.c1_le hA1p T.zeta0 (fun q hq => T.der q hq)
   obtain ⟨K, K', δE, hK, hK', hδE, hδE1, hEx⟩ := dal_exact_defect hU hsub hζ hA hg hrel heik
   set κ1 : ℝ := gmin / 20 with hκ1
   set κ2 : ℝ := 6 * gmax with hκ2
   set W : ℝ := 25 * gmax with hW
   set B : ℝ := c2 * (r / 2) with hB
   set Cn : ℝ := 6 / 5 * Real.exp (c2 * √(1 + B)) with hCn
-  set D : ℝ := A0 / c2 + 1 with hD
+  set D : ℝ := A1 / c2 + 1 with hD
   have hgmin := T.gmin_pos
   have hgmax : 0 < gmax := lt_of_lt_of_le hgmin T.gmin_le
   have hκ1p : 0 < κ1 := by rw [hκ1]; positivity
@@ -77,7 +79,7 @@ theorem dal_window_hyp {U : Set ℝ} {ζ g A u : ℝ → ℝ}
   have hΛ0 : 0 ≤ Λ := by
     have := T.Lg_nonneg
     rw [hΛ]; positivity
-  set S : ℝ := A0 + c2 with hS
+  set S : ℝ := A1 + c2 with hS
   set Sg : ℝ := 2 * Amax * Lu * D + LA + 3 * E with hSg
   set Qq : ℝ := LA + 2 * E with hQq
   have hAmax : 0 < Amax := lt_of_lt_of_le T.Amin_pos T.Amin_le
@@ -91,18 +93,20 @@ theorem dal_window_hyp {U : Set ℝ} {ζ g A u : ℝ → ℝ}
   have hcap : 0 < ca := by have := T.Amin_pos; rw [hca]; positivity
   set w0 : ℝ := κ1 * (2 / 9) with hw0
   have hw0p : 0 < w0 := by rw [hw0]; positivity
-  set δ1 : ℝ := min (min δL δE) (min (1 / (2 * c2)) (Amin / (2 * (E + 1)))) with hδ1
+  set δ1 : ℝ := min (min (min δL δE) (min (1 / (2 * c2)) (Amin / (2 * (E + 1))))) (A0 / c1) with hδ1
   have hδ1p : 0 < δ1 := by
     have := T.Amin_pos
-    exact lt_min (lt_min hδL hδE) (lt_min (by positivity) (by positivity))
+    have := T.c1_pos
+    exact lt_min (lt_min (lt_min hδL hδE) (lt_min (by positivity) (by positivity))) (by positivity)
   refine ⟨δ1, D, W, ca, B, κ1, κ2, C0, Λ, S, Sg, Qq, w0, hδ1p,
-    (min_le_left _ _).trans ((min_le_left _ _).trans hδL1), by rw [hD]; positivity, hWp, hcap, hB0, hκ1p, hκ12, hC00, hΛ0,
+    (min_le_left _ _).trans ((min_le_left _ _).trans ((min_le_left _ _).trans hδL1)), by rw [hD]; positivity, hWp, hcap, hB0, hκ1p, hκ12, hC00, hΛ0,
     (by rw [hS]; linarith), hSg0, hQq0, hw0p, ?_⟩
   intro δ q₀ hδ hδδ1
-  have hδL' : δ ≤ δL := hδδ1.trans ((min_le_left _ _).trans (min_le_left _ _))
-  have hδE' : δ ≤ δE := hδδ1.trans ((min_le_left _ _).trans (min_le_right _ _))
-  have hδc : δ ≤ 1 / (2 * c2) := hδδ1.trans ((min_le_right _ _).trans (min_le_left _ _))
-  have hδa : δ ≤ Amin / (2 * (E + 1)) := hδδ1.trans ((min_le_right _ _).trans (min_le_right _ _))
+  have hδL' : δ ≤ δL := hδδ1.trans ((min_le_left _ _).trans ((min_le_left _ _).trans (min_le_left _ _)))
+  have hδE' : δ ≤ δE := hδδ1.trans ((min_le_left _ _).trans ((min_le_left _ _).trans (min_le_right _ _)))
+  have hδc : δ ≤ 1 / (2 * c2) := hδδ1.trans ((min_le_left _ _).trans ((min_le_right _ _).trans (min_le_left _ _)))
+  have hδa : δ ≤ Amin / (2 * (E + 1)) := hδδ1.trans ((min_le_left _ _).trans ((min_le_right _ _).trans (min_le_right _ _)))
+  have hδA0 : δ ≤ A0 / c1 := hδδ1.trans (min_le_right _ _)
   have hδ1' : δ ≤ 1 := hδL'.trans hδL1
   have h2p : 0 < δ ^ 2 := by positivity
   have h3δ : δ ^ 3 ≤ δ ^ 2 := by
@@ -121,10 +125,15 @@ theorem dal_window_hyp {U : Set ℝ} {ζ g A u : ℝ → ℝ}
   have hc2δ : c2 * δ ≤ 1 / 2 := by
     rw [le_div_iff₀ (by positivity)] at hδc; linarith
   obtain ⟨J, m, N, L⟩ := hL δ q₀ hδ hδL'
-  refine ⟨J, m, N, L.J_le, L.m_le, L.win, ?_, L.qJc, L.qm1, L.qm2, L.qN, L.qN1, L.XN, ?_⟩
+  refine ⟨J, m, N, L.J_le, L.m_le, L.win, ?_, L.qJc, L.qm1, L.qm2, L.qN, L.qN1, L.XN, ?_, ?_⟩
   · have h4 := L.qJ
-    have e1 : A0 * δ ^ 2 / c2 = A0 / c2 * δ ^ 2 := by ring
-    have e2 : D * δ ^ 2 = A0 / c2 * δ ^ 2 + δ ^ 2 := by rw [hD]; ring
+    have e1 : A1 * δ ^ 2 / c2 = A1 / c2 * δ ^ 2 := by ring
+    have e2 : D * δ ^ 2 = A1 / c2 * δ ^ 2 + δ ^ 2 := by rw [hD]; ring
+    linarith
+  · have h5 := L.XJup
+    have h6 : c1 * δ ≤ A0 := by rw [le_div_iff₀ T.c1_pos] at hδA0; linarith
+    have h7 : c1 * A1 / c2 = 2 * A0 := by
+      have := T.c1_pos.ne'; have := hc2.ne'; rw [hA1]; field_simp
     linarith
   intro a c ha hc
   have hdef := hEx δ q₀ hδ hδE'

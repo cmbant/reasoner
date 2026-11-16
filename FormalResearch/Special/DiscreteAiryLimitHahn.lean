@@ -27,10 +27,15 @@ interior of the domain (`P q_*² < 1`, `Q q_*² < 1`): these are exactly the hyp
 `ψ(1 + O(h))` on `X ≥ 0` and `ψ + O(h)` on `X ∈ [-A₀, 0]`; every solution `Y` of the closed-form chain with
 `|Y_N|, |Y_{N+1}| ≤ Y_max` is `κ g (Ai + O(h)) + (exponentially small)`.
 
-**Statement caveat.**  The exported statement of `discrete_airy_hahn_racah` (and `_window`) keeps only `1 ≤ J ≤ m ≤ N`
-and the localisation `|q_k - q_*| ≤ r` on `[J, N+1]`; the positions `c₀ ≤ q_m < c₀ + h`, `q_J ∈ [c₀ - Dδ², c₀]`, which
-`discrete_airy_limit` does provide, are dropped, so as stated the oscillatory window `X ∈ [-A₀, 0]` is not pinned (a
-degenerate `J = m = N` is not excluded by the statement; `X_N ≥ ξ₀`-large is).  The proof supplies the intended window.
+**Exported window position.**  With `q_k = (k + 1/2)h`, `h = δ³`, the statements of `discrete_airy_hahn_racah` and
+`discrete_airy_hahn_racah_window` record `1 ≤ J ≤ m ≤ N`, `|q_k - q_*| ≤ r` on `[J, N+1]`, `q_* - Dδ² ≤ q_J ≤ q_*`,
+`q_* ≤ q_m < q_* + h` and `X_J ≤ -A₀` (`turnX … J ≤ -A₀`), so the oscillatory window `[J, m]` reaches `X = -A₀` and the
+window is not degenerate.
+
+**Scope.**  This does not replace Geronimo/GBVA in full: it is the recessive-plus-bounded-window form (not the non-recessive
+`Ai`/`Bi` pair, not the full oscillatory side, not uniform over `(a, b, τ, x, P, Q)`); `κ` is unidentified and `κ ≠ 0` is
+not proved; `(R)` is a hypothesis of the `Y`-form; the closed forms `hrAk`, `hrCk` are not identified with the actual 3j/6j
+chains.
 
 **Hypotheses of the abstract theorem checked here** (all proved): `A ∈ C²`, `A(q_*) > 0` (`hrA_contDiffAt`, `hrA_pos`),
 `u ∈ C³` (`hrU_contDiffAt`), `u(q_*) = 1` (`hrU_turn`), **`u'(q_*) > 0`** (`hrU_deriv_pos`, from `1 - τx > 0` by an
@@ -246,10 +251,13 @@ lemma hr_J_pos {qs r δ : ℝ} {J N : ℤ} (hr4 : r ≤ qs / 4) (hδ : 0 < δ) (
 theorem discrete_airy_hahn_racah {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (hqs : 0 < qs)
     (hτ : τ ^ 2 = 1) (hκ : 0 < 1 - τ * x) (hα : 0 < 1 - P * qs ^ 2) (hβ : 0 < 1 - Q * qs ^ 2)
     (hturn : Phi P Q τ x (qs ^ 2) = 0) (A0 : ℝ) (hA0 : 0 < A0) :
-    ∃ (r δ0 C Cosc Ctop W Cmu ξ0 : ℝ), 0 < r ∧ r ≤ qs / 4 ∧ 0 < δ0 ∧ δ0 ≤ 1 ∧ 0 < C ∧ 0 < Cosc ∧
-      0 < Ctop ∧ 0 < W ∧ 0 < Cmu ∧ 0 < ξ0 ∧
+    ∃ (r δ0 C Cosc Ctop W Cmu ξ0 D : ℝ), 0 < r ∧ r ≤ qs / 4 ∧ 0 < δ0 ∧ δ0 ≤ 1 ∧ 0 < C ∧ 0 < Cosc ∧
+      0 < Ctop ∧ 0 < W ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < D ∧
       ∀ δ : ℝ, 0 < δ → δ ≤ δ0 → ∃ J m N : ℤ, 1 ≤ J ∧ J ≤ m ∧ m ≤ N ∧
         (∀ k ∈ Finset.Icc J (N + 1), |((k : ℝ) + 1 / 2) * δ ^ 3 - qs| ≤ r) ∧
+        qs - D * δ ^ 2 ≤ ((J : ℝ) + 1 / 2) * δ ^ 3 ∧ ((J : ℝ) + 1 / 2) * δ ^ 3 ≤ qs ∧
+        qs ≤ ((m : ℝ) + 1 / 2) * δ ^ 3 ∧ ((m : ℝ) + 1 / 2) * δ ^ 3 < qs + δ ^ 3 ∧
+        turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ J ≤ -A0 ∧
         DalConclusion (hrAk P Q a b (δ ^ 3)) (hrCk P Q τ x a b (δ ^ 3))
           (turnPsi (hrU P Q τ x) (hrA1 P Q) qs (δ ^ 3 / 2) δ) (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ)
           J m N δ C Cosc Ctop W Cmu ξ0 := by
@@ -262,8 +270,8 @@ theorem discrete_airy_hahn_racah {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b 
   have hM0 : 0 < hrM a b := lt_of_lt_of_le one_pos (le_max_left _ _)
   have hδip : 0 < min 1 (min (3 * qs / (4 * hrM a b)) (qs / 2)) :=
     lt_min one_pos (lt_min (by positivity) (by positivity))
-  refine ⟨r, min δ0' (min 1 (min (3 * qs / (4 * hrM a b)) (qs / 2))), C, Cosc, Ctop, W, Cmu, ξ0, hr,
-    hrr0.trans hr0q, lt_min hδ0' hδip, (min_le_left _ _).trans hδ01, hC, hCosc, hCtop, hW, hCmu, hξ0, ?_⟩
+  refine ⟨r, min δ0' (min 1 (min (3 * qs / (4 * hrM a b)) (qs / 2))), C, Cosc, Ctop, W, Cmu, ξ0, D, hr,
+    hrr0.trans hr0q, lt_min hδ0' hδip, (min_le_left _ _).trans hδ01, hC, hCosc, hCtop, hW, hCmu, hξ0, hD, ?_⟩
   intro δ hδ hδδ0
   have hδ1' : δ ≤ δ0' := hδδ0.trans (min_le_left _ _)
   have hδi' := hδδ0.trans (min_le_right _ _)
@@ -275,13 +283,14 @@ theorem discrete_airy_hahn_racah {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b 
     calc δ ^ 3 = δ * δ ^ 2 := by ring
       _ ≤ δ * 1 := mul_le_mul_of_nonneg_left h1 hδ.le
       _ = δ := mul_one _
-  obtain ⟨J, m, N, hJm, hmN, hwin, hqJ, hqJc, hqm1, hqm2, hqN, hqN1, Hc⟩ := H δ (δ ^ 3 / 2) hδ hδ1'
+  obtain ⟨J, m, N, hJm, hmN, hwin, hqJ, hqJc, hqm1, hqm2, hqN, hqN1, hXJ, Hc⟩ := H δ (δ ^ 3 / 2) hδ hδ1'
   have hr4 : r ≤ qs / 4 := hrr0.trans hr0q
   obtain ⟨hpa, hpc⟩ := hr_perturb hP hQ a b τ x qs hqs hτ hr4 hrr0 hdom hδ hδ1 hδM hwin
+  have e2 : ∀ k : ℤ, dalQ (δ ^ 3 / 2) δ k = ((k : ℝ) + 1 / 2) * δ ^ 3 := fun k => by unfold dalQ; ring
   refine ⟨J, m, N, hr_J_pos hr4 hδ (h3δ.trans hδq) (by omega) hwin, hJm, hmN, fun k hk => ?_,
-    Hc _ _ hpa hpc⟩
+    by rw [← e2]; exact hqJ, by rw [← e2]; exact hqJc, by rw [← e2]; exact hqm1, by rw [← e2]; exact hqm2,
+    hXJ, Hc _ _ hpa hpc⟩
   have h1 := hwin k hk
-  have e2 : dalQ (δ ^ 3 / 2) δ k = ((k : ℝ) + 1 / 2) * δ ^ 3 := by unfold dalQ; ring
   rw [e2] at h1
   rw [abs_le]
   constructor <;> linarith [h1.1, h1.2]

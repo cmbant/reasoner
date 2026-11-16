@@ -16,9 +16,12 @@ This is the column form of P3 `thm:general-rank-airy`(i) (`Y_k = κ g [Ai + O(h)
 the additive `δⁿ` (`n > 3 + s`) is a relative `O(h)` error.  `κ` is not identified (Darboux matching) and
 `κ ≠ 0` is not proved.  `discrete_airy_hahn_racah_window` is the Hahn/centred-Racah instance.
 
-Proved.  Constants in `δ₁` are existential.  `dal_conclusion_window` is for arbitrary `J ≤ m ≤ N`; whether `[J, N+1]`
-reaches `X ≈ -A₀` is a property of the data it is applied to (see the statement caveat in `DiscreteAiryLimitHahn`: the
-Hahn instance as stated does not pin `J, m`).
+Proved.  Constants in `δ₁` are existential.  `dal_conclusion_window` is for arbitrary `J ≤ m ≤ N` (the window position
+is a property of the data it is applied to); `discrete_airy_hahn_racah_window` exports the position (`q_* - Dδ² ≤ q_J ≤ q_*`,
+`q_* ≤ q_m < q_* + h`, `X_J ≤ -A₀`) next to the bound.  Scope as in `DiscreteAiryLimitHahn`: this is the recessive-plus-bounded-window
+form, not a replacement of Geronimo/GBVA in full (no non-recessive `Ai`/`Bi` pair, no full oscillatory side, no uniformity over
+families; `κ` unidentified, `κ ≠ 0` unproved; `(R)` and the identification of the closed forms with the 3j/6j chains are
+hypotheses/obligations).
 -/
 
 @[expose] public section
@@ -148,20 +151,23 @@ theorem dal_conclusion_window (C Cosc Ctop W Cmu ξ0 Z : ℝ) (hC : 0 ≤ C) (hC
 theorem discrete_airy_hahn_racah_window {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (hqs : 0 < qs)
     (hτ : τ ^ 2 = 1) (hκ : 0 < 1 - τ * x) (hα : 0 < 1 - P * qs ^ 2) (hβ : 0 < 1 - Q * qs ^ 2)
     (hturn : Phi P Q τ x (qs ^ 2) = 0) (A0 Z : ℝ) (hA0 : 0 < A0) (hZ : 0 ≤ Z) (n p : ℕ) :
-    ∃ (r δ0 C W : ℝ), 0 < r ∧ r ≤ qs / 4 ∧ 0 < δ0 ∧ δ0 ≤ 1 ∧ 0 < C ∧ 0 < W ∧
+    ∃ (r δ0 C W D : ℝ), 0 < r ∧ r ≤ qs / 4 ∧ 0 < δ0 ∧ δ0 ≤ 1 ∧ 0 < C ∧ 0 < W ∧ 0 < D ∧
       ∀ δ : ℝ, 0 < δ → δ ≤ δ0 → ∃ J m N : ℤ, 1 ≤ J ∧ J ≤ m ∧ m ≤ N ∧
         (∀ k ∈ Finset.Icc J (N + 1), |((k : ℝ) + 1 / 2) * δ ^ 3 - qs| ≤ r) ∧
+        qs - D * δ ^ 2 ≤ ((J : ℝ) + 1 / 2) * δ ^ 3 ∧ ((J : ℝ) + 1 / 2) * δ ^ 3 ≤ qs ∧
+        qs ≤ ((m : ℝ) + 1 / 2) * δ ^ 3 ∧ ((m : ℝ) + 1 / 2) * δ ^ 3 < qs + δ ^ 3 ∧
+        turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ J ≤ -A0 ∧
         ∀ Y : ℤ → ℝ, (∀ k ∈ Finset.Icc (J + 1) N, jac (hrAk P Q a b (δ ^ 3)) (hrCk P Q τ x a b (δ ^ 3)) Y k = 0) →
           |Y N| ≤ (δ ^ p)⁻¹ → |Y (N + 1)| ≤ (δ ^ p)⁻¹ →
           ∃ κ : ℝ, ∀ k ∈ Finset.Icc J (N + 1), turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k ≤ Z →
             |Y k - κ * turnPsi (hrU P Q τ x) (hrA1 P Q) qs (δ ^ 3 / 2) δ k| ≤ C * δ ^ 3 * |κ| * W + δ ^ n := by
-  obtain ⟨r, δ0, C, Cosc, Ctop, W, Cmu, ξ0, hr, hrq, hδ0, hδ01, hC, hCosc, hCtop, hW, hCmu, hξ0, H⟩ :=
+  obtain ⟨r, δ0, C, Cosc, Ctop, W, Cmu, ξ0, D, hr, hrq, hδ0, hδ01, hC, hCosc, hCtop, hW, hCmu, hξ0, hD, H⟩ :=
     discrete_airy_hahn_racah hP hQ a b τ x qs hqs hτ hκ hα hβ hturn A0 hA0
   obtain ⟨δ1, hδ1, hδ11, Hw⟩ := dal_conclusion_window C Cosc Ctop W Cmu ξ0 Z hC.le hCosc hCtop hCmu hξ0 hZ n p
-  refine ⟨r, min δ0 δ1, C, W, hr, hrq, lt_min hδ0 hδ1, (min_le_left _ _).trans hδ01, hC, hW, ?_⟩
+  refine ⟨r, min δ0 δ1, C, W, D, hr, hrq, lt_min hδ0 hδ1, (min_le_left _ _).trans hδ01, hC, hW, hD, ?_⟩
   intro δ hδ hδδ
-  obtain ⟨J, m, N, hJ1, hJm, hmN, hloc, Hc⟩ := H δ hδ (hδδ.trans (min_le_left _ _))
-  exact ⟨J, m, N, hJ1, hJm, hmN, hloc, fun Y hY hYN hYN1 =>
+  obtain ⟨J, m, N, hJ1, hJm, hmN, hloc, hp1, hp2, hp3, hp4, hXJ, Hc⟩ := H δ hδ (hδδ.trans (min_le_left _ _))
+  exact ⟨J, m, N, hJ1, hJm, hmN, hloc, hp1, hp2, hp3, hp4, hXJ, fun Y hY hYN hYN1 =>
     Hw _ _ _ _ J m N δ hδ (hδδ.trans (min_le_right _ _)) hJm hmN Hc Y hY hYN hYN1⟩
 
 /-- info: 'FormalResearch.Special.discrete_airy_hahn_racah_window' depends on axioms: [propext, Classical.choice, Quot.sound] -/

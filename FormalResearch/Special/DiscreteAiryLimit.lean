@@ -42,13 +42,15 @@ and the absolute error on `X ∈ [-6, -1]` is `≈ 0.017 h`, i.e. `O(h)` as the 
 `ζ`, `g` are the M3 coordinate and amplitude).  Hypothesis `|Y_N|, |Y_{N+1}| ≤ Y_max` is the polynomial bound `(R)`
 (`T:889-892`) at the fixed point `N`, left to the caller (for the Hahn/Racah chains, `DiscreteAiryLimitHahn`).
 
-**Not formalised.**  *Window position (statement vs proof):* the exported statement records `q_J ∈ [c₀ - Dδ², c₀]`
-and `c₀ ≤ q_m < c₀ + h`, hence the forbidden-side claims on `[m, N+1]` are substantive, but it does not record an upper
-bound for `X_J`; that the oscillatory window `[J, m]` really reaches `X ≈ -A₀` (the proof chooses `J` as a ceiling, so
-`q_J < c₀ - A₀δ²/c₂ + h`, `X_J ≲ -(c₁/c₂)A₀`) is a property of the construction, not of the theorem as stated.  Not a
-uniform-in-family or non-recessive (canonical `Ai`/`Bi` pair) statement either, so it replaces the external input only in
-the fixed-`(u, A, c₀)`, recessive-plus-bounded-window form.  The scalar `κ` (it is `κ = ` normalisation fixed by the Darboux/Wigner-`d` bulk matching, T:336,
-A:925-1054, est:309-318): `κ` is produced by the recessive selection and is not identified; `κ ≠ 0` is not proved.  The
+**Exported window position.**  The statement records `q_k ∈ [c₀ - r, c₀ + r]` on `[J, N+1]`, `c₀ - Dδ² ≤ q_J ≤ c₀`,
+`c₀ ≤ q_m < c₀ + h`, `c₀ + r/4 ≤ q_N`, `q_{N+1} ≤ c₀ + r/2` and `X_J ≤ -A₀` (`turnX u c₀ q₀ δ J ≤ -A₀`), so the
+oscillatory window `[J, m]` reaches at least `X = -A₀` and the forbidden side `[m, N+1]` is non-empty (`X_N ≥ c₁r/(4δ²)`).
+
+**Not formalised / scope.**  This does **not** replace Geronimo/GBVA in full.  It is the recessive-plus-bounded-window
+form for one fixed `(u, A, c₀)`: not the non-recessive canonical `Ai`/`Bi` pair, not the full oscillatory side beyond
+`X ≥ -A₀`, not uniform over families of data; the closed forms of the Hahn/Racah instance are not identified with the actual
+3j/6j chains; `(R)` is a hypothesis.  The scalar `κ` (a normalisation fixed by the Darboux/Wigner-`d` bulk matching, T:336,
+A:925-1054, est:309-318) is produced by the recessive selection and is not identified; `κ ≠ 0` is not proved.  The
 oscillatory side beyond a bounded window `X ≥ -A₀` (full GBVA with `M/E` weights, plan M7); the `h²` coefficient `ϖ`
 (second-order bracket); constants are not tracked (the window constant is `e^{O(A₀²)}`, see `AiryWindowMain`); the
 uniformity in the family parameters (everything is for one fixed `(u, A, c₀)`).
@@ -129,6 +131,7 @@ theorem discrete_airy_limit {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 
         (∀ k ∈ Finset.Icc J (N + 1), dalQ q₀ δ k ∈ Set.Icc (c0 - r) (c0 + r)) ∧
         c0 - D * δ ^ 2 ≤ dalQ q₀ δ J ∧ dalQ q₀ δ J ≤ c0 ∧ c0 ≤ dalQ q₀ δ m ∧
         dalQ q₀ δ m < c0 + δ ^ 3 ∧ c0 + r / 4 ≤ dalQ q₀ δ N ∧ dalQ q₀ δ (N + 1) ≤ c0 + r / 2 ∧
+        turnX u c0 q₀ δ J ≤ -A0 ∧
         ∀ a c : ℤ → ℝ,
           (∀ k ∈ Finset.Icc (J + 1) (N + 1), |a k - A (dalQ q₀ δ k - δ ^ 3 / 2)| ≤ E * δ ^ 6) →
           (∀ k ∈ Finset.Icc (J + 1) N, |c k - 2 * A (dalQ q₀ δ k) * u (dalQ q₀ δ k)| ≤ E * δ ^ 6) →
@@ -158,8 +161,8 @@ theorem discrete_airy_limit {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 
   have hδ2' : δ ≤ δ2 := hδ0.trans ((min_le_right _ _).trans (min_le_left _ _))
   have hδ3' : δ ≤ δ3 := hδ0.trans ((min_le_right _ _).trans (min_le_right _ _))
   have hδ11' : δ ≤ 1 := hδ1'.trans hδ11
-  obtain ⟨J, m, N, hJm, hmN, hwin, hqJ, hqJc, hqm1, hqm2, hqN, hqN1, hXN, Hh⟩ := H δ q₀ hδ hδ1'
-  refine ⟨J, m, N, hJm, hmN, hwin, hqJ, hqJc, hqm1, hqm2, hqN, hqN1, ?_⟩
+  obtain ⟨J, m, N, hJm, hmN, hwin, hqJ, hqJc, hqm1, hqm2, hqN, hqN1, hXN, hXJ, Hh⟩ := H δ q₀ hδ hδ1'
+  refine ⟨J, m, N, hJm, hmN, hwin, hqJ, hqJc, hqm1, hqm2, hqN, hqN1, hXJ, ?_⟩
   intro a c ha hc
   have hh := Hh a c ha hc
   have h3 : 0 ≤ δ ^ 3 := by positivity
