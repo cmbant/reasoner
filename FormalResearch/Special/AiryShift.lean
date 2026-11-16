@@ -209,4 +209,20 @@ theorem airyShift_det (X s : ℝ) :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyShift_det
 
+/-- info: 'FormalResearch.Special.airyShift_wronskian' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyShift_wronskian
+
+/-- info: 'FormalResearch.Special.airyShift_initial' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyShift_initial
+
+/-- info: 'FormalResearch.Special.airyAi_shift' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAi_shift
+
+/-- info: 'FormalResearch.Special.airyBi_shift' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyBi_shift
+
 end FormalResearch.Special
