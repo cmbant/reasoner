@@ -31,7 +31,7 @@ from the hard edge) `|κ| = |Ŷ_k|/(g Ai(X_k))` near the turn is `√2 N^{1/6}(1
 to second order; `ki_invariant` controls it only up to `e^{O(1)}`), not just on the Airy window.
 
 **Not formalised.**  The value of `|κ|` (Darboux normalisation `ε_{ab}(-1)^{K_τ}√(2/q) N^{-1/3}|ζ/D|^{1/4}`); `τ = -1`; half-integer chains; Racah;
-uniformity of the constants in `x`.
+uniformity of the constants in `x` (the matching without `κ` is uniform in `x ∈ [x₀, x₁]`: `hahn_chain_airy_full_unif`, `DiscreteAiryUnifHahn`; `κ_min` is not).
 -/
 
 @[expose] public section

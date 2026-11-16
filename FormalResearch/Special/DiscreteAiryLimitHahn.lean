@@ -33,7 +33,7 @@ interior of the domain (`P q_*² < 1`, `Q q_*² < 1`): these are exactly the hyp
 window is not degenerate.
 
 **Scope.**  This does not replace Geronimo/GBVA in full: it is the recessive-plus-bounded-window form (not the non-recessive
-`Ai`/`Bi` pair, not the full oscillatory side (`discrete_airy_hahn_racah_full`, `DiscreteAiryPhysHahn`, has both for the same data), not uniform over `(a, b, τ, x, P, Q)`); `κ` is unidentified and `κ ≠ 0` is
+`Ai`/`Bi` pair, not the full oscillatory side (`discrete_airy_hahn_racah_full`, `DiscreteAiryPhysHahn`, has both for the same data), not uniform over `(a, b, τ, x, P, Q)`; for the uniform full statement, `P = 1, Q = 0`, see `DiscreteAiryUnifHahn`); `κ` is unidentified and `κ ≠ 0` is
 not proved; `(R)` is a hypothesis of the `Y`-form here (it is discharged, up to one normalisation, in
 `DiscreteAiryLimitHyperWindow`, and for the actual integer-data chains in `DiscreteAiryLimitChains{HahnAiry,RacahAiry}`); this
 module treats the closed forms `hrAk`, `hrCk` as given (their identification with the actual 3j/6j chains is in
@@ -57,8 +57,11 @@ AM-GM identity), and the `O(h²)` perturbation sizes `|A_k - A(q_k - h/2)| ≤ E
 **Not formalised.**
 3. The normalisation `κ` (Darboux/Wigner-`d` matching, T:336, A:925-1054) and `κ ≠ 0`; the parity factor `σ_τ`, the lattice
    quantisation `K_τ ∈ ℤ`, the explicit `varpi^H` of the second-order bracket; the Racah `q`-6j.
-4. Uniformity over the compact family of shapes `x` (everything here is for one fixed `(P, Q, a, b, τ, x)`; an irrational
-   `x` has no exact lattice node, so this needs the Airy limit made uniform in the shape).
+4. Uniformity over the compact family of shapes `x` for the recessive-plus-bounded-window statements here (everything in this module is for one fixed
+   `(P, Q, a, b, τ, x)`; an irrational `x` has no exact lattice node).  For the full unified statement (`Ai` and `Bi` parts, whole macroscopic side) and
+   the `3j` kernel (`P = 1, Q = 0`) uniformity in `x ∈ [x₀, x₁] ⊂ (0,1)` over all lattice nodes at once is `hahn_chain_airy_full_unif` (and `_neg_unif` for
+   `τ = -1`), `DiscreteAiryUnifHahn`, from the quantitative `discrete_airy_full_unif` (`DiscreteAiryUnifTheorem`).  Still open: the hard edges `x → 0, 1`, general
+   `(P, Q)`, Racah and half-integer (shifted-lattice) uniform versions, `κ`.
 -/
 
 @[expose] public section

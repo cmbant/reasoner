@@ -12,7 +12,7 @@ public import FormalResearch.Special.DiscreteAiryLimitChains2Twist
 the identification `hahn_class_chain` (the actual chain solves every row `k ≥ 1` of the closed-form recurrence) and the Gauss-weight
 bound `hahn_chain_abs_le` (`|Ŷ_k| ≤ √N`, condition `(R)`).
 
-**Result (proved).**  Fix integers `M, σ` and a rational `x ∈ (0,1)`.  There are `r, δ₀, C, Cmu, ξ₀ > 0` (depending on `M, σ, x` only)
+**Result (proved).**  Fix integers `M, σ` and a rational `x ∈ (0,1)`.  There are `r, δ₀, C, Cmu, ξ₀ > 0` (depending on `M, σ, x` only; for the uniform version, constants depending on `M, σ` and a compact range `x ∈ [x₀, x₁] ⊂ (0,1)` only, see `hahn_chain_airy_full_unif`, `DiscreteAiryUnifHahn`)
 such that for every admissible node `(N, n)` with `x_n = x` and `1/N ≤ δ₀³`, `δ = N^{-1/3}` (`h = 1/N`, `q_k = (k+½)h`,
 `q_* = √(1-x²)`), there are indices `1 ≤ J < N_w`, `J ≤ m ≤ N_w` with `q_J ∈ [q_* - r, q_* - r + h)`, `q_m ∈ [q_*, q_*+h)`,
 `q_{N_w} ≥ q_* + r/4`, `q_{N_w+1} ≤ q_* + r/2`, and `κ, μ` with `|μ| ≤ Cmu √N e^{-ξ₀ N}/δ` such that on the **whole macroscopic window**
@@ -31,7 +31,8 @@ Also `τ = -1` (`x ∈ (-1, 0)`, twisted chain `(-1)^k Ŷ_k`) and the versions a
 guaranteed at `r₀ = q_*/4`, e.g. `x = 1/2`), so the numerics probe a window at least as large as the proved one.
 
 **Not formalised.**  The value of `κ` (Darboux/Wigner-`d`; `|κ| ≥ κ_min > 0` uniformly in `N` is `hahn_chain_kappa`, `DiscreteAiryKappaMain`, numerically
-`|κ| = √2 N^{1/6}`; `κ ≠ 0` for `τ = -1` is open); uniformity of `r, δ₀, C, Cmu, ξ₀` in `x`; the radius is the
+`|κ| = √2 N^{1/6}`; `κ ≠ 0` for `τ = -1` is open); uniformity of `r, δ₀, C, Cmu, ξ₀` in `x` for the `κ` statements and as `x → 0, 1` (for `x ∈ [x₀, x₁]` it is `hahn_chain_airy_full_unif`, `DiscreteAiryUnifHahn`, which supersedes
+this statement for the shape); the radius is the
 (existential) radius `r ≤ q_*/4` of the Langer chart, not `q_*/4`; half-integer data; second-order bracket.
 -/
 
@@ -41,7 +42,8 @@ open FormalResearch.Racah FormalResearch.Racah.P3 FormalResearch.Wigner FormalRe
 
 namespace FormalResearch.Special
 
-/-- **The unified Airy matching for the actual `3j` chain at lattice nodes** (`τ = +1`, `x ∈ (0,1)`). -/
+/-- **The unified Airy matching for the actual `3j` chain at lattice nodes** (`τ = +1`, `x ∈ (0,1)`).  The constants depend on `(M, σ, x)`: for `x` in a compact range
+`[x₀, x₁] ⊂ (0,1)`, with constants depending only on `(M, σ, x₀, x₁)` and every lattice node, see `hahn_chain_airy_full_unif` (`DiscreteAiryUnifHahn`). -/
 theorem hahn_chain_airy_full (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) :
     ∃ (r δ0 C Cmu ξ0 : ℝ), 0 < r ∧ 0 < δ0 ∧ 0 < C ∧ 0 < Cmu ∧ 0 < ξ0 ∧
       ∀ (N : ℤ) (n : ℕ), max |M| |σ| < N → (n : ℤ) < N - max |M| |σ| →

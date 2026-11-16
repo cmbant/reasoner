@@ -86,6 +86,7 @@ public import FormalResearch.Special.DiscreteAiryOscTurn
 public import FormalResearch.Special.DiscreteAiryPhysChains
 public import FormalResearch.Special.DiscreteAiryPhysRacah
 public import FormalResearch.Special.DiscreteAiryKappaMain
+public import FormalResearch.Special.DiscreteAiryUnifHahn
 public import FormalResearch.Special.AiryCft2DerivHadamard
 
 /-!
@@ -161,9 +162,23 @@ bound on the whole chain by the values at the turn.  Its ingredients are of inde
 (`kl_hahn_left`), monotone decay on the forbidden side beyond the turn (`kr_chain_mono`) and the matching with the chart data exported
 (`kc_hahn_full`; this repeats the proof of `discrete_airy_full` with two extra conjuncts and may later be folded into it).  The bound is not sharp
 (numerics give `|κ| = √2 N^{1/6}(1+o(1))`).  Still open: the value of `|κ|` (needs a second-order adiabatic invariant with a `1+o(1)`
-amplitude over the whole left band), the Darboux phase and sign of `κ`, `κ ≠ 0` for `τ = -1`, Racah and half-integer chains, uniformity over
-families (a parametric Langer chart; also of `κ_min` in `x`), the second-order bracket (a second-order Olver parametrix), the half-integer version
+amplitude over the whole left band), the Darboux phase and sign of `κ`, `κ ≠ 0` for `τ = -1`, Racah and half-integer chains, uniformity of
+`κ_min` in `x` and of the Racah/half-integer matching over families, the second-order bracket (a second-order Olver parametrix), the half-integer version
 of the full statement, Racah family variants, explicit constants, analyticity of `ζ`.
+
+Uniformity in the shape: `DiscreteAiryUnif*` (10 modules, imported through `DiscreteAiryUnifHahn`) make the unified statement quantitative.
+A `C²` jet calculus and an explicit Langer chart on a ball (`dun_chart`, `DiscreteAiryUnifJet`, `DiscreteAiryUnifChart`), explicit amplitude jets
+(`dun_amp`, `DiscreteAiryUnifAmp`), the parametrix defect `≤ K δ⁶ airyWt`, resp. `airyBiWt`, from jet bounds alone (`dun_exact_defect`, `dun_lattice`,
+`DiscreteAiryUnifDefect`, `DiscreteAiryUnifLattice`) and the assembly with explicit window data (`discrete_airy_full_win`, `DiscreteAiryUnifFull`) give
+`discrete_airy_full_unif` (`DiscreteAiryUnifTheorem`, datum class `DunDatum` in `DiscreteAiryUnifMain`): for bounds `(ρ, Ku, m, a±, KA, E)` there are `r, δ₀, C,
+Cmu, ξ₀` depending only on these such that `DaiFull` holds for every datum within the bounds (quantifier order `∀ bounds ∃ constants ∀ datum`).
+`hahn_datum_unif` (`DiscreteAiryUnifHahnData`) checks the bounds for the `3j` datum uniformly in `y = τx ∈ [x₀, x₁] ⊂ (0,1)`, and `hahn_chain_airy_full_unif`,
+`hahn_chain_airy_full_neg_unif`, `airy_full_compose_unif`, `discrete_airy_hahn_full_unif` (`DiscreteAiryUnifHahn`) give the actual `3j` chain with
+`r, δ₀, C, Cmu, ξ₀` depending only on `(M, σ, x₀, x₁)`, for every lattice node `x_n ∈ [x₀, x₁]` (resp. `[-x₁, -x₀]`) and `1/N ≤ δ₀³`, with no parity
+condition; this supersedes the fixed-`x` `hahn_chain_airy_full` for the shape, and covers approximate nodes `x_N → x*`.  Still open there: the hard-edge
+degenerations `x → 0`, `x → 1` (constants degrade), `κ` and `κ_min` uniform in `x`, uniform Racah and half-integer (shifted-lattice) versions, and the statement that
+a continuous family over a compact parameter set satisfies the `DunDatum` bounds (checked by hand for the Hahn family only; compactness is used there only for fixed
+functions of the chart variable, never in the datum parameter).
 
 The `Airy` aggregate also holds the CFT consequences of the zeros of `Ai` (`AiryCft*`): the Mittag-Leffler expansion of `Ai'/Ai`
 and the sum rules `Σ(z-a_n)^{-2} = (Ai'/Ai)² - z`, `Σ a_n^{-2} = (Ai'(0)/Ai(0))²`, the residue-defect formula (Theorem D) for entire

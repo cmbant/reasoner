@@ -39,7 +39,7 @@ library's zero extension.  The closed forms are those of `DiscreteAiryLimitHahn`
   `DiscreteAiryLimitChains2HalfAiry`.  Lattice nodes `x_n = x` and the `τ = -1` twist are in
   `DiscreteAiryLimitChains2Nodes`, `DiscreteAiryLimitChains2Twist`.
 * The identification is for a single `(M, σ, N, x)`; the Airy theorem is for the closed-form chain with fixed real `x`
-  (uniformity over `x`, the compact family of shapes, is not provided: an irrational `x` has no exact node).
+  (uniformity over `x`, the compact family of shapes, is not provided for the recessive window statement: an irrational `x` has no exact node; the full unified statement is uniform in `x ∈ [x₀, x₁]` by `hahn_chain_airy_full_unif`, `DiscreteAiryUnifHahn`).
 * The Darboux normalisation (the value of `|κ|`, its phase and sign); `κ ≠ 0` for the `τ = +1` chain is `hahn_chain_kappa`
   (`DiscreteAiryKappaMain`); the other items listed in `DiscreteAiryLimitHahn`.
 -/

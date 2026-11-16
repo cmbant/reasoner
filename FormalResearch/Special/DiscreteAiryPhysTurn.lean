@@ -33,7 +33,7 @@ derivation of `discrete_airy_limit` from `discrete_airy_full`; both older theore
 `q_J ≈ q_* - r`, `r = q_*/4`, `q_* = √3/2`: `sup |f - gAi|/(δ³ airyWt) = 0.217, 0.202, 0.192, 0.186, 0.183`,
 `sup |F₂ - gBi|/(δ³ airyBiWt) = 0.173, 0.145, 0.140, 0.135, 0.137` (all of `[J, N+1]`, attained at `N+1` for `F₂`), `X_J` down to `-48`.
 
-**Not formalised.**  `κ` (Darboux normalisation) and `κ ≠ 0` for general data (for the actual `3j` chain `κ ≠ 0` is `hahn_chain_kappa`, `DiscreteAiryKappaMain`, which repeats the proof of `discrete_airy_full` with chart data exported in `DiscreteAiryKappaChart`); uniformity in families of data; the `h²` phase coefficient; the unification
+**Not formalised.**  `κ` (Darboux normalisation) and `κ ≠ 0` for general data (for the actual `3j` chain `κ ≠ 0` is `hahn_chain_kappa`, `DiscreteAiryKappaMain`, which repeats the proof of `discrete_airy_full` with chart data exported in `DiscreteAiryKappaChart`); uniformity in families of data (for the quantitative version, with constants depending only on jet bounds of the datum, see `discrete_airy_full_unif`, `DiscreteAiryUnifTheorem`, and `discrete_airy_full_win`, `DiscreteAiryUnifFull`); the `h²` phase coefficient; the unification
 with `discrete_airy_limit` at the same `r`/`N` (only the abstract identification `dap_recessive_eq`).
 -/
 

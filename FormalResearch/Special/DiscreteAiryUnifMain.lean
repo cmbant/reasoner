@@ -76,7 +76,7 @@ lemma dun_phi_abs : ∃ ε1 B0 B1 B2 : ℝ, 0 < ε1 ∧ ε1 ≤ 1 ∧ 0 ≤ B0 �
 
 
 /-- Third-order Taylor remainder on a window inside the ball. -/
-lemma dun_taylor3 {f : ℝ → ℝ} {c ρ1 r δJ B : ℝ} (hr : 0 ≤ r) (hδJ : 0 ≤ δJ) (hrδ : r + δJ < ρ1)
+lemma dun_taylor3 {f : ℝ → ℝ} {c ρ1 r δJ B : ℝ} (_hr : 0 ≤ r) (_hδJ : 0 ≤ δJ) (hrδ : r + δJ < ρ1)
     (hf : ContDiffOn ℝ 3 f (ball c ρ1)) (hB : ∀ x ∈ ball c ρ1, |deriv (deriv (deriv f)) x| ≤ B) :
     ∀ q ∈ Icc (c - r) (c + r), ∀ s : ℝ, |s| ≤ δJ →
       |f (q + s) - (f q + deriv f q * s + deriv (deriv f) q * s ^ 2 / 2)| ≤ B * |s| ^ 3 := by
@@ -107,7 +107,7 @@ lemma dun_taylor3 {f : ℝ → ℝ} {c ρ1 r δJ B : ℝ} (hr : 0 ≤ r) (hδJ :
   convert h using 3; norm_num
 
 /-- Second-order Taylor remainder on a window inside the ball. -/
-lemma dun_taylor2 {f : ℝ → ℝ} {c ρ1 r δJ B : ℝ} (hr : 0 ≤ r) (hδJ : 0 ≤ δJ) (hrδ : r + δJ < ρ1)
+lemma dun_taylor2 {f : ℝ → ℝ} {c ρ1 r δJ B : ℝ} (_hr : 0 ≤ r) (_hδJ : 0 ≤ δJ) (hrδ : r + δJ < ρ1)
     (hf : ContDiffOn ℝ 2 f (ball c ρ1)) (hB : ∀ x ∈ ball c ρ1, |deriv (deriv f) x| ≤ B) :
     ∀ q ∈ Icc (c - r) (c + r), ∀ s : ℝ, |s| ≤ δJ → |f (q + s) - (f q + deriv f q * s)| ≤ B * s ^ 2 := by
   intro q hq s hs
