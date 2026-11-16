@@ -160,3 +160,15 @@ theorem wigF_rank (j M σ : ℚ) :
   · simp [Fn.zero_off _ hy, xOp]
 
 end FormalResearch.Racah.LocalCalculus.Fun
+
+/-- info: 'FormalResearch.Racah.LocalCalculus.Fun.Hop_wigF' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Racah.LocalCalculus.Fun.Hop_wigF
+
+/-- info: 'FormalResearch.Racah.LocalCalculus.Fun.wigF_rank' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Racah.LocalCalculus.Fun.wigF_rank
+
+/-- info: 'FormalResearch.Racah.LocalCalculus.Fun.Hop_mem_LN_sm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Racah.LocalCalculus.Fun.Hop_mem_LN_sm

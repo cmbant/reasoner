@@ -413,4 +413,53 @@ theorem Gc3_rankDefect {M σ : ℚ} {α β : ℕ} (hα : |M - σ| = α) (hβ : |
     simp only [Pi.zero_apply, zero_mul, sub_zero, LocalCalculus.lam]
     linear_combination h
 
+
+/-! ### The scalar case `M = σ = 0` -/
+
+lemma Gc3_zero_zero (y t : ℝ) : Gc3 0 0 0 y t = 1 := by
+  simp [Gc3, pPlus3, pMinus3, Ct_zero, Ct_one, ptilde3_zero, seed3]
+
+lemma Psi_zero_zero_zero (y : ℝ) : Psi 0 0 0 y = 1 := by
+  unfold Psi
+  have : Gc3 0 0 0 y = fun _ => 1 := funext (Gc3_zero_zero y)
+  rw [this, taylorSer_one]
+
+/-- **The second start** of the scalar case (`prop:localcalculus` (c)): `Φ_0 = 1` and
+`√(1-t) Φ_1 = x`, i.e. `Φ_1 = x/√(1-t)`. -/
+theorem Psi_zero_zero_one {y : ℝ} (hy : y ∈ Set.Ioo (-1 : ℝ) 1) :
+    epsS 1 * Psi 0 0 1 y = PowerSeries.C y := by
+  have hA : taylorSer (aF 0 0 y) = 1 := by
+    have : aF 0 0 y = fun _ => 1 := by
+      funext t; simp [aF, pPlus3, pMinus3, Ct_zero]
+    rw [this, taylorSer_one]
+  have hS0 : taylorSer (sF 0 0 0) = 1 := by
+    have : sF 0 0 0 = fun _ => 1 := by
+      funext t; simp [sF, piF, pPlus3, pMinus3, Ct_one]
+    rw [this, taylorSer_one]
+  have hP : taylorSer (pF 0 0 1 y) = PowerSeries.C y := by
+    have : pF 0 0 1 y = fun _ => y := by
+      funext t
+      simp only [pF]
+      rw [ptilde3_one_of_eq _ _ _ _ (by simp)]
+      ring
+    rw [this, taylorSer_const]
+  have hrel := sF_relation 0 0 0
+  have hL : Lr 0 0 0 = 0 := by simp [Lr, pPlus3, pMinus3]
+  rw [hL, zero_add, hS0] at hrel
+  unfold Psi
+  rw [taylorSer_Gc3 0 0 1 hy, hA, hP]
+  linear_combination (PowerSeries.C y) * (-1 : PowerSeries ℝ) * hrel
+
 end FormalResearch.Racah
+
+/-- info: 'FormalResearch.Racah.Gc3_rankDefect' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Racah.Gc3_rankDefect
+
+/-- info: 'FormalResearch.Racah.Psi_rank' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Racah.Psi_rank
+
+/-- info: 'FormalResearch.Racah.Psi_zero_zero_one' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Racah.Psi_zero_zero_one

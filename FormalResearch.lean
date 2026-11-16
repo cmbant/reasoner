@@ -224,6 +224,13 @@ public import FormalResearch.Racah.P2RacahSeed
 public import FormalResearch.Racah.P2RacahUnique
 public import FormalResearch.Racah.P2MomentPolynomial
 public import FormalResearch.Racah.P2LocalCalculus
+public import FormalResearch.Racah.P2LocalCalculusSeries
+public import FormalResearch.Racah.P2LocalCalculusLeftNormal
+public import FormalResearch.Racah.P2LocalCalculusFun
+public import FormalResearch.Racah.P2LocalCalculusWigner
+public import FormalResearch.Racah.P2AnalyticTaylorSeries
+public import FormalResearch.Racah.P2AnalyticAllOrder3jSeries
+public import FormalResearch.Racah.P2AnalyticAllOrder3j
 public import FormalResearch.Racah.P2ThreeJVanish
 public import FormalResearch.Racah.P2ThreeJRecAll
 public import FormalResearch.Racah.P2ThreeJRec

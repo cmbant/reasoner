@@ -255,3 +255,11 @@ theorem comm_Crat {c : End ℝ Fn} (hc : c ∈ Crat) : DOp * c - c * DOp ∈ Cra
     ring
 
 end FormalResearch.Racah.LocalCalculus.Fun
+
+/-- info: 'FormalResearch.Racah.LocalCalculus.Fun.DOp_xOp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Racah.LocalCalculus.Fun.DOp_xOp
+
+/-- info: 'FormalResearch.Racah.LocalCalculus.Fun.comm_Csm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Racah.LocalCalculus.Fun.comm_Csm
