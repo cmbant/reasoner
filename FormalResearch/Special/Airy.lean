@@ -19,6 +19,11 @@ public import FormalResearch.Special.AiryBridge
 public import FormalResearch.Special.AiryNodes
 public import FormalResearch.Special.AiryEnvelope
 public import FormalResearch.Special.AiryEnvelopeReal
+public import FormalResearch.Special.AiryAsymSaddle
+public import FormalResearch.Special.AiryAsymNeg
+public import FormalResearch.Special.AiryAsymReal
+public import FormalResearch.Special.AiryAsymPos
+public import FormalResearch.Special.AiryAsymZeros
 
 /-!
 # The Airy function: aggregate and design note
@@ -37,12 +42,18 @@ the rays `arg t = ±π/3`), `AiryTaylor` (`Ai = Ai(0) F + Ai'(0) G` with the exp
 `AiryKernelOp{Formula,Bounds,Operator,Complex}` (the Airy kernel as a Gram integral `∫_0^∞ Ai(x+t)Ai(y+t)dt` for real and
 complex `x,y`, diagonal bounds, `∫_u^∞ K(s,s)ds`, Hilbert–Schmidt/trace finiteness and positivity of the quadratic form),
 `AiryEnvelope*` (free-parameter bound for every `c > 0`; the complex envelope `|Ai(z)| ≲ (1+|z|)^{-1/4} e^{-(2/3) Re z^{3/2}}`
-on all of `ℂ`, the same for `Ai'`, order `3/2`; `Ai > 0` on `[-1, ∞)` and the two-sided real-axis envelope there).
+on all of `ℂ`, the same for `Ai'`, order `3/2`; `Ai > 0` on `[-1, ∞)` and the two-sided real-axis envelope there),
+`AiryAsym{Saddle,Neg,Real,Pos,Zeros}` (exact
+saddle-point formula `Ai(w²) = (e^{-(2/3)w³}/2π) ∫ exp(-w s² - i s³/3) ds`, `Re w > 0`, with the second-order
+estimate; hence `Ai, Ai', Bi` on the negative axis with explicit `O(y^{-3/2})` relative error, the amplitude
+`Ai² + Bi²` and the kernel diagonal `K(-y,-y) = √y/π (1+O(y^{-3/2}))`, positive-axis asymptotics of `Ai, Ai'`, and the
+location of the zeros `y ≥ 4`; no Olver theory).
 
-**Not formalised:** `Bi` asymptotics, `Ai` for `x < 0` (oscillation, lower envelope `|x|^{-1/4}`, zero asymptotics; only the
-upper envelope on `ℂ` and positivity on `[-1, ∞)` are proved), lower bounds for `|Ai(z)|` off the real axis, Olver-type
-uniform expansions, the conditionally convergent improper integrals `∫_{-∞}^∞ Ai = 1` and `∫_0^∞ Ai = 1/3` (only their
-Abel-regularised forms `∫ Ai(x) e^{εx} dx = e^{ε³/3}` are proved).
+**Not formalised:** `Bi` on the positive axis, `Bi'` on the negative axis, the full asymptotic series (only the first
+term with explicit remainder, `AiryAsym*`), the labelling of the far zeros against the ordered zeros `a_n` and the
+Prüfer-angle asymptotics, lower bounds for `|Ai(z)|` off the real axis, Olver-type uniform expansions, the
+conditionally convergent improper integrals `∫_{-∞}^∞ Ai = 1` and `∫_0^∞ Ai = 1/3` (only their Abel-regularised forms
+`∫ Ai(x) e^{εx} dx = e^{ε³/3}` are proved).
 
 Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and the free-fermion edge
 (`Weyl/free_fermion`, `thm:edge`) need next, and what is now reachable.
@@ -53,9 +64,9 @@ Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and
   and the Wronskian `W(Ai, Bi) = 1/π` are in place (`AiryValues`: `Ai(0)Ai'(0) = -1/(2√3 π)` by a contour
   rotation to the rays `arg t = ±π/3`, proved by a derivative-in-the-ray-direction argument as for `airyMom_indep`).
 * *Olver modulus/weight `M, E` and the uniform bracket `Ai + N^{-4/3}ϖ Ai' + O(N^{-2})`*: needs `Ai`, `Bi` for
-  `x < 0` and the envelope `M² = 2(Ai² + Bi²)`, hence Bi asymptotics and steepest descent on tilted contours
-  (complex abscissa `c`, sectors `|arg z| ≤ π - δ`).  Not yet reachable; first extend `airyMom_indep` to
-  complex `c` in a sector.
+  `x < 0` and the envelope `M² = 2(Ai² + Bi²)`.  The first term of the negative-axis expansions of `Ai, Ai', Bi`
+  and the amplitude `Ai² + Bi² = 1/(π√y) + O(y^{-2})` (`y ≥ 1`) are now proved (`AiryAsym*`, by the exact saddle
+  formula, without Olver theory); the uniform-in-`x` bracket with the `N^{-4/3}` correction remains open.
 * *Discrete recurrence → Airy ODE limit*: Gronwall/uniqueness (`airy_unique_real`) and the wronskian/energy
   identities exist; the remaining analytic input is a stable comparison (Taylor of the Jacobi coefficients at the
   turn, `h^{4/3}`-scaling), independent of the Airy definition.

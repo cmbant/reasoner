@@ -20,7 +20,8 @@ negative real axis, where `Re z^{3/2} = 0`) gives the sharp exponents that
 These are the bounds `K(s,s) ≤ C(1+s_-)^{1/2}` and `∫_u^∞ Ai'² ≤ C(1+u_-)^{3/2}` used in the W1 edge notes
 (`Weyl/free_fermion/notes/edge_crossover.tex`), with explicit constants.
 
-Not formalised: the matching lower bounds and the leading asymptotics `K(-y,-y) ~ √y/π`.
+The leading asymptotics `K(-y,-y) = √y/π + O(1/y)` (`y ≥ 1`) are `airyKer_diag_neg` in `AiryAsymReal`.
+Not formalised: the matching lower bounds for all `x`.
 -/
 
 @[expose] public section
