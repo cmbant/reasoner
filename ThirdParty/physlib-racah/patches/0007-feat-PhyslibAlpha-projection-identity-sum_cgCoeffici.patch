@@ -1,7 +1,7 @@
 From 493ac580d1a5e4df39a4bdc35cdd46fa379ca814 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:07:55 +0000
-Subject: [PATCH 07/20] feat(PhyslibAlpha): projection identity
+Subject: [PATCH 07/24] feat(PhyslibAlpha): projection identity
  `sum_cgCoefficient_mul_eq_recoupling` for the recoupling coefficient
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>

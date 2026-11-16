@@ -10,6 +10,6 @@ git diff --quiet && git diff --cached --quiet || { echo "checkout not clean"; ex
 git cat-file -e "$BASE^{commit}" || { echo "base commit $BASE not present; fetch upstream"; exit 1; }
 git switch -c racah-check "$BASE"
 git am "$here"/patches/*.patch
-lake build PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJRacah
+lake build PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJRacahAll
 lake build PhyslibAlpha.Mathematics.SpecialFunctions.Hypergeometric.Sears
-echo "OK: sixJ_eq_racah6j builds on top of $BASE"
+echo "OK: sixJ_eq_ite_racah6j builds on top of $BASE"

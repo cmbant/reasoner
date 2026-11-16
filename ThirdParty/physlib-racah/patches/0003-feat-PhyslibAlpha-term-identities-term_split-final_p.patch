@@ -1,7 +1,7 @@
 From 77f2ae27eef5c6957bbbe10ca2969afe8b1191f9 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:04:35 +0000
-Subject: [PATCH 03/20] feat(PhyslibAlpha): term identities `term_split`,
+Subject: [PATCH 03/24] feat(PhyslibAlpha): term identities `term_split`,
  `final_pt` for the Sears transformation
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>

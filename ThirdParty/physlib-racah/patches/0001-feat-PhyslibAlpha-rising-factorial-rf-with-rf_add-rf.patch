@@ -1,7 +1,7 @@
 From 5df6b99cfd95284c23cda422a5270205f99fda04 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:01:52 +0000
-Subject: [PATCH 01/20] feat(PhyslibAlpha): rising factorial `rf` with
+Subject: [PATCH 01/24] feat(PhyslibAlpha): rising factorial `rf` with
  `rf_add`, `rf_reflect`, `rf_pos_dec`, `rf_neg_dec`
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>

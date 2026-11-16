@@ -1,7 +1,7 @@
 From b4504ec9d91fce9be5be743de92f1a42a73c536f Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:05:47 +0000
-Subject: [PATCH 04/20] feat(PhyslibAlpha): Sears transformation `sears` of a
+Subject: [PATCH 04/24] feat(PhyslibAlpha): Sears transformation `sears` of a
  terminating balanced 4F3(1)
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>

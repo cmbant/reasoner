@@ -1,7 +1,7 @@
 From e412eab1d583bf4b4b8dab225443c9e8b0ad2d17 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:11:59 +0000
-Subject: [PATCH 11/20] feat(PhyslibAlpha): collapse of Racah's double sum
+Subject: [PATCH 11/24] feat(PhyslibAlpha): collapse of Racah's double sum
  `collapseSum_eq_Xs` via the Vandermonde convolution
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>

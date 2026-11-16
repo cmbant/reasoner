@@ -1,7 +1,7 @@
 From f28a750ac73dcfd3e56b84d6977bf5466856602b Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:13:07 +0000
-Subject: [PATCH 12/20] =?UTF-8?q?feat(PhyslibAlpha):=20top-weight=20Clebsc?=
+Subject: [PATCH 12/24] =?UTF-8?q?feat(PhyslibAlpha):=20top-weight=20Clebsc?=
  =?UTF-8?q?h=E2=80=93Gordan=20coefficients=20`cgCoefficient=5Ftop=5Fracah`?=
  =?UTF-8?q?=20and=20the=20product=20`cg=5Fthree=5Feq`?=
 MIME-Version: 1.0

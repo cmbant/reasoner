@@ -1,7 +1,7 @@
 From 003ecc98ad5c92243da9330cfc8abdddbfbbf7f7 Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:19:08 +0000
-Subject: [PATCH 17/20] feat(PhyslibAlpha): `Xs` as a balanced 4F3(1) series,
+Subject: [PATCH 17/24] feat(PhyslibAlpha): `Xs` as a balanced 4F3(1) series,
  `Xs_eq_XsSeries`
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>

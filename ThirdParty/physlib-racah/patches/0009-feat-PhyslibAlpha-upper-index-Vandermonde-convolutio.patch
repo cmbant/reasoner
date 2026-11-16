@@ -1,7 +1,7 @@
 From 63e97e0aa6a32b4b41047d4e441ac7c3fa8717de Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
 Date: Fri, 13 Nov 2026 17:09:37 +0000
-Subject: [PATCH 09/20] feat(PhyslibAlpha): upper-index Vandermonde convolution
+Subject: [PATCH 09/24] feat(PhyslibAlpha): upper-index Vandermonde convolution
  `upper_vandermonde`
 
 Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>
