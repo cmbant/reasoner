@@ -15,8 +15,8 @@ Proved here (all by the same contour rotation, with no appeal to Cauchy's theore
 **Method.**  For `w(τ) = (τ² + i√3)/2` (so `w(0)` is vertical, `w(1) = e^{iπ/3}`), `c > 0`, put
 `F_k(τ) = ∫_0^∞ w(τ) G_k(c + r w(τ)) dr`, `G_k(t) = (-t)^k exp(t³/3)`.  Then `∂_τ` of the integrand is the
 total `r`-derivative `τ ∂_r [r G_k(c + r w)]`, so `F_k'(τ) = 0` (`hasDerivAt_airyRayInt_zero`,
-dominated differentiation; the Gaussian majorant is uniform for `τ² ≤ 8/5` because `Re w² < 0` and
-`Re w³ ≤ 0`).  Hence `F_k(1) = F_k(0) = i ∫_0^∞ G_k(c + is) ds`, whose imaginary part is
+dominated differentiation; the Gaussian majorant is uniform for `τ² ≤ 8/5` because `c > 0`: the rate is proportional to `c`, which
+is why `c → 0⁺` is taken only at `τ = 1`, where `w³ = −1`).  Hence `F_k(1) = F_k(0) = i ∫_0^∞ G_k(c + is) ds`, whose imaginary part is
 `π Ai^{(k)}(0)` (the lower half-line is the complex conjugate).  Letting `c → 0⁺` (dominated
 convergence on the ray `τ = 1`, where `w³ = -1`) gives `Ai^{(k)}(0) = (1/π) Im[w (-w)^k ∫_0^∞ r^k e^{-r³/3} dr]`,
 and the Gamma integral `∫_0^∞ r^k e^{-r³/3} dr = 3^{(k+1)/3 - 1} Γ((k+1)/3)` is Mathlib's.  The reflection
@@ -43,9 +43,9 @@ noncomputable def airyRayDir (τ : ℝ) : ℂ := ⟨τ ^ 2 / 2, √3 / 2⟩
 lemma airyRayDir_re (τ : ℝ) : (airyRayDir τ).re = τ ^ 2 / 2 := rfl
 lemma airyRayDir_im (τ : ℝ) : (airyRayDir τ).im = √3 / 2 := rfl
 
-lemma sqrt3_sq : √(3 : ℝ) ^ 2 = 3 := Real.sq_sqrt (by norm_num)
+lemma airyValues_sqrt3_sq : √(3 : ℝ) ^ 2 = 3 := Real.sq_sqrt (by norm_num)
 
-lemma re_cube (t : ℂ) : (t ^ 3).re = t.re ^ 3 - 3 * t.re * t.im ^ 2 := by
+lemma airyValues_re_cube (t : ℂ) : (t ^ 3).re = t.re ^ 3 - 3 * t.re * t.im ^ 2 := by
   simp [pow_succ, Complex.mul_re, Complex.mul_im]; ring
 
 lemma hasDerivAt_airyG (k : ℕ) (t : ℂ) : HasDerivAt (airyG k) (airyGd k t) t := by
@@ -64,12 +64,12 @@ lemma norm_airyG (k : ℕ) (t : ℂ) :
   unfold airyG
   rw [norm_mul, norm_pow, norm_neg, Complex.norm_exp]
   congr 2
-  simp [re_cube]
+  simp [airyValues_re_cube]
 
 lemma re_cube_ray_le {c a r : ℝ} (hc : 0 < c) (ha0 : 0 ≤ a) (ha : a ≤ 4 / 5) (hr : 0 ≤ r) :
     (c + r * a) ^ 3 - 3 * (c + r * a) * (r * (√3 / 2)) ^ 2 ≤ c ^ 3 + 3 * c ^ 2 * a * r - c / 4 * r ^ 2 := by
   have h1 : (r * (√3 / 2)) ^ 2 = r ^ 2 * 3 / 4 := by
-    have := sqrt3_sq
+    have := airyValues_sqrt3_sq
     calc (r * (√3 / 2)) ^ 2 = r ^ 2 * (√3 ^ 2) / 4 := by ring
       _ = _ := by rw [this]
   rw [h1]
@@ -144,7 +144,7 @@ lemma norm_pow_mul_exp_ray_le {c τ r : ℝ} (hc : 0 < c) (hτ : τ ^ 2 ≤ 8 / 
     have := re_exponent_ray_le hc hτ hr
     have e : (airyRayPt c τ r ^ 3 / 3).re = ((airyRayPt c τ r).re ^ 3 -
         3 * (airyRayPt c τ r).re * (airyRayPt c τ r).im ^ 2) / 3 := by
-      simp [re_cube]
+      simp [airyValues_re_cube]
     rw [e]; linarith
   have hX : 1 ≤ (3 + c) * (|(1 : ℝ)| + |r|) := by
     rw [abs_one]; nlinarith [abs_nonneg r]
@@ -456,7 +456,7 @@ lemma norm_airyRayF_one_le {c r : ℝ} (hc : 0 < c) (hc1 : c ≤ 1) (hr : 0 ≤ 
   have hw : ‖airyRayDir 1‖ = 1 := by
     have h : ‖airyRayDir 1‖ ^ 2 = 1 := by
       rw [Complex.sq_norm, Complex.normSq_apply, airyRayDir_re, airyRayDir_im]
-      have := sqrt3_sq
+      have := airyValues_sqrt3_sq
       nlinarith
     nlinarith [norm_nonneg (airyRayDir 1)]
   have h1 : ‖airyRayPt c 1 r‖ ≤ 1 + |r| := by
@@ -472,9 +472,9 @@ lemma norm_airyRayF_one_le {c r : ℝ} (hc : 0 < c) (hc1 : c ≤ 1) (hr : 0 ≤ 
     apply Real.exp_le_exp.mpr
     have e : (airyRayPt c 1 r ^ 3 / 3).re = ((airyRayPt c 1 r).re ^ 3 -
         3 * (airyRayPt c 1 r).re * (airyRayPt c 1 r).im ^ 2) / 3 := by
-      simp [re_cube]
+      simp [airyValues_re_cube]
     rw [e, airyRayPt_re, airyRayPt_im]
-    have hs := sqrt3_sq
+    have hs := airyValues_sqrt3_sq
     have h3 : (r * (√3 / 2)) ^ 2 = r ^ 2 * 3 / 4 := by
       calc (r * (√3 / 2)) ^ 2 = r ^ 2 * (√3 ^ 2) / 4 := by ring
         _ = _ := by rw [hs]
@@ -527,7 +527,7 @@ theorem airyMom_one_zero_re (k : ℕ) :
   field_simp
 
 lemma airyRayDir_one_cube : airyRayDir 1 ^ 3 = -1 := by
-  have hs := sqrt3_sq
+  have hs := airyValues_sqrt3_sq
   have h4 : √(3 : ℝ) ^ 3 = 3 * √3 := by rw [pow_succ, hs]
   apply Complex.ext
   · simp [pow_succ, Complex.mul_re, Complex.mul_im, airyRayDir_re, airyRayDir_im]

@@ -27,7 +27,9 @@ open scoped Real
 
 namespace FormalResearch.Special
 
-/-- `M_k(c, z) = (1/2π) ∫_ℝ (-t)^k exp(t³/3 - z t) ds`, `t = c + i s`. -/
+/-- `M_k(c, z) = (1/2π) ∫_ℝ (-t)^k exp(t³/3 - z t) ds`, `t = c + i s`.  Only `c > 0` is meaningful: for
+`c ≤ 0` the integrand is not integrable and the Bochner integral is the junk value `0`, so every
+statement about `airyMom` carries `0 < c`. -/
 noncomputable def airyMom (k : ℕ) (c : ℝ) (z : ℂ) : ℂ :=
   (1 / (2 * (π : ℂ))) * ∫ s, airyPoly k c z s
 
