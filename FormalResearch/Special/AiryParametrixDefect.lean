@@ -25,16 +25,16 @@ equivalently `(V g²)' = 0`-transport integrated: `V = A S₀(ζ') = A ζ' Sh(ζ
 
 * *Window.* `h² (1+|X|)³` is `O(h^{2 - 3ε})` for `|X| ≤ h^{-ε}` and is **not** small on the whole turn
   neighbourhood (`X ~ h^{-2/3}`): the truncation error of `Ch` (the fifth-order Taylor remainder of the
-  exact shift functions) is `ζ³`, i.e. `h² X³`.  The true defect there is `O(h²) ψ` (mpmath, the committed
-  sanity run in `handoff-d2a-m4.md`), which needs the `h`-expansion of the shift functions at *fixed* `ζ`
+  exact shift functions) is `ζ³`, i.e. `h² X³`.  The true defect there is `O(h²) ψ` (mpmath sanity run, not
+  committed), which needs the `h`-expansion of the shift functions at *fixed* `ζ`
   (the paper's `C(s;ζ,h)`, `S(s;ζ,h)`), not formalised.
-* *Stages.*  The `h^{5/3}` defect (orders `≤ h^{4/3}` cancelled) is the corollary `airyParametrix_defect_stage1`;
+* *Stages.*  The `h^{5/3}` defect follows from the `h²` statement since `h² ≤ h^{5/3}` for `h ≤ 1`;
   the proof gives the `h²` statement directly because the parity cancellation of the odd orders is purely
   algebraic in the variables `(ζ, s, h)` (`AiryParametrixSkeleton`).
 * *Weight.* All `X ∈ ℝ` (oscillatory side included): `airyWt ≍ M/E` of Olver on `x ≤ 0` and `≍ Ai` on
   `x ≥ -1` (`apx_airy_global`).
-* *Hypotheses.*  Nothing is assumed about `A > 0`, `ζ' > 0`, or the sign of `g` (they are consequences of
-  the closed-form relation on `U` except `A > 0`, which the consumer needs for the lattice recurrence);
+* *Hypotheses.*  The closed-form relation `g² A ζ' Sh(ζζ'²) = 1` on `U` gives only `g, A, ζ', Sh ≠ 0` and
+  `A ζ' Sh > 0`; `A > 0` is needed by the consumer for the lattice recurrence;
   `c` is the displayed formula.  Constants `K, h₀` are existential and depend on `J, U, A, ζ, g`.
 
 Not formalised here: the construction of `ζ, g` from `(A, u)` (M3 `LangerCoordinate` gives `ζ` with
