@@ -333,4 +333,12 @@ lemma Ex3.of_taylor_h2 (hD : ∀ a, D a → |hh a| ≤ 1) {F F1 : α → ℝ →
 
 end Calc
 
+/-- info: 'FormalResearch.Special.Ex3.mul' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.Ex3.mul
+
+/-- info: 'FormalResearch.Special.Ex3.of_taylor3' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.Ex3.of_taylor3
+
 end FormalResearch.Special

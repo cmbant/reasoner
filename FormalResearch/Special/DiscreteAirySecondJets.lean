@@ -114,4 +114,16 @@ theorem SOB.lip1 {f : ℝ → ℝ} {U J : Set ℝ} (hU : IsOpen U) (hf : ContDif
 
 end Calc
 
+/-- info: 'FormalResearch.Special.sj_jet4' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.sj_jet4
+
+/-- info: 'FormalResearch.Special.Ex3.of_q3' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.Ex3.of_q3
+
+/-- info: 'FormalResearch.Special.SOB.lip1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.SOB.lip1
+
 end FormalResearch.Special

@@ -72,4 +72,12 @@ theorem pair_S {e₁ γ₁ η₁ e₂ γ₂ η₂ : α → ℝ} {Zc : α → ℝ
 
 end Pair
 
+/-- info: 'FormalResearch.Special.pair_A' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.pair_A
+
+/-- info: 'FormalResearch.Special.pair_S' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.pair_S
+
 end FormalResearch.Special
