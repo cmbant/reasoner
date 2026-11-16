@@ -1,0 +1,215 @@
+From c0bb642b06ec3eb3ed7abbc8ba93e2b64156827f Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 13 Nov 2026 17:16:27 +0000
+Subject: [PATCH 14/20] feat(PhyslibAlpha): the constant `Cconst` of the
+ double-sum form of sixJ (`collapseConst_div`, `Cconst_eq`)
+
+Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01CoYoSnPzLFW27jyKntrTVS
+---
+ PhyslibAlpha.lean                             |   1 +
+ .../AngularMomentum/SixJCollapseConst.lean    | 180 ++++++++++++++++++
+ 2 files changed, 181 insertions(+)
+ create mode 100644 PhyslibAlpha/QuantumMechanics/AngularMomentum/SixJCollapseConst.lean
+
+diff --git a/PhyslibAlpha.lean b/PhyslibAlpha.lean
+index 0940d35..673d520 100644
+--- a/PhyslibAlpha.lean
++++ b/PhyslibAlpha.lean
+@@ -780,6 +780,7 @@ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSumSymmetry
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahVandermonde
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SelectionRules
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJ
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJCollapseConst
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJProjection
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJSymmetry
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJTopWeight
+diff --git a/PhyslibAlpha/QuantumMechanics/AngularMomentum/SixJCollapseConst.lean b/PhyslibAlpha/QuantumMechanics/AngularMomentum/SixJCollapseConst.lean
+new file mode 100644
+index 0000000..b23eba8
+--- /dev/null
++++ b/PhyslibAlpha/QuantumMechanics/AngularMomentum/SixJCollapseConst.lean
+@@ -0,0 +1,180 @@
++/-
++Copyright (c) 2026 Antony Lewis. All rights reserved.
++Released under Apache 2.0 license as described in the file LICENSE.
++Authors: Antony Lewis
++-/
++module
++
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJTopWeight
++
++/-!
++
++# The constant of the reduction of the 6j symbol to a double sum
++
++The constant `Cconst` in `sixJ = Cconst * collapseSum`, and its evaluation through the four
++triangle coefficients of Racah's formula.
++
++## i. Overview
++
++In doubled units (`a = 2 j₁`, `b = 2 j₂`, `c = 2 j₃`, `J = (a + b + c)/2 - K`,
++`j₁₂ = (a + b)/2 - k₁`, `j₂₃ = (b + c)/2 - k₃`), the constant is
++
++`Cconst = (-1)^(a+b+c-K) √(Δ₁ Δ₂ Δ₃ Δ₄) (a+b+c-K-k₁+1)! / ((a-k₁)! (b-k₁)! (a-K+k₃)! (b+c-K-k₃)!)`,
++
++where `Δ₁ Δ₂ Δ₃ Δ₄` are the squares of Racah's `Δ` for the four triads of
++`{j₁ j₂ j₁₂; j₃ J j₂₃}` (`triCoeff`). The highest-weight reduction of the recoupling coefficient
++(`SixJTopWeight`, `SixJWeightRule`) produces instead the constant `collapseConst`, to be divided by
++the top-weight coefficient `⟨j₁₂ 0 j₃ k₂ | J J⟩` on the right-hand side of the projection identity
++and by the normalisation `√((2 j₁₂ + 1)(2 j₂₃ + 1))` of `sixJ`. `collapseConst_div` shows that this
++quotient is `√(racahDelta) (a+b+c-K-k₁+1)! / ((a-k₁)! (b-k₁)! (a-K+k₃)! (b+c-K-k₃)!)`, by
++comparing squares, and `Cconst_eq` identifies `racahDelta` with the product of the four `triCoeff`.
++
++## ii. Key results
++
++- `Cconst`: the constant of `sixJ = Cconst * collapseSum`.
++- `racahDelta`: the product of the four `Δ²` as a quotient of natural-number factorials.
++- `collapseConst_div`: the quotient of `collapseConst` by the top-weight coefficient and the
++  normalisation of `sixJ`.
++- `Cconst_eq`: `Cconst` on natural-number data, in the form of `collapseConst_div`.
++
++## iii. Table of contents
++
++- A. The constant
++- B. The constant from the highest-weight reduction
++- C. The constant on natural-number data
++
++## iv. References
++
++- G. Racah, *Theory of complex spectra. II*, Phys. Rev. 62, 438 (1942).
++
++-/
++
++@[expose] public section
++
++noncomputable section
++
++namespace PhyslibAlpha.Sl2
++
++/-!
++
++## A. The constant
++
++-/
++
++/-- The constant of the explicit formula `sixJ = Cconst · collapseSum`:
++`(-1)^(a+b+c-K) √(Δ₁ Δ₂ Δ₃ Δ₄) (a+b+c-K-k₁+1)! / ((a-k₁)! (b-k₁)! (a-K+k₃)! (b+c-K-k₃)!)`,
++where `Δ₁ Δ₂ Δ₃ Δ₄` are the squares of Racah's `Δ` for the four triads of
++`{j₁ j₂ j₁₂; j₃ J j₂₃}`. -/
++def Cconst (a b c K k₁ k₃ : ℤ) : ℝ :=
++  (-1) ^ (a + b + c - K) *
++    Real.sqrt (triCoeff k₁ (a - k₁) (b - k₁) * triCoeff (a - K + k₃) (K - k₃) (b + c - K - k₃) *
++      triCoeff k₃ (c - k₃) (b - k₃) * triCoeff (c - K + k₁) (K - k₁) (a + b - K - k₁)) *
++    (factZ (a + b + c - K - k₁ + 1) * invFact (a - k₁) * invFact (b - k₁) * invFact (a - K + k₃) *
++      invFact (b + c - K - k₃))
++
++/-- The four `Δ²` of Racah's formula for `{j₁ j₂ j₁₂; j₃ J j₂₃}`, in natural-number form. -/
++def racahDelta (a b c K k₁ k₃ : ℕ) : ℝ :=
++  ((k₁.factorial * (a - k₁).factorial * (b - k₁).factorial : ℕ) : ℝ) /
++      ((a + b - k₁ + 1).factorial : ℝ) *
++    (((a - (K - k₃)).factorial * (K - k₃).factorial * (b + c - k₃ - K).factorial : ℕ) : ℝ) /
++      ((a + b + c - K - k₃ + 1).factorial : ℝ) *
++    (((k₃.factorial * (c - k₃).factorial * (b - k₃).factorial : ℕ) : ℝ) /
++      ((b + c - k₃ + 1).factorial : ℝ)) *
++    ((((c - (K - k₁)).factorial * (K - k₁).factorial * (a + b - K - k₁).factorial : ℕ) : ℝ) /
++      ((a + b + c - K - k₁ + 1).factorial : ℝ))
++
++lemma racahDelta_nonneg (a b c K k₁ k₃ : ℕ) : 0 ≤ racahDelta a b c K k₁ k₃ := by
++  unfold racahDelta
++  positivity
++
++/-!
++
++## B. The constant from the highest-weight reduction
++
++-/
++
++/-- The constant `collapseConst`, divided by the top-weight coefficient and by
++`√((e + 1)(f + 1))`, is the Racah constant. -/
++lemma collapseConst_div {a b c K k₁ k₃ : ℕ} (hA₂ : K - k₁ ≤ a + b - 2 * k₁) (hA₃ : K - k₁ ≤ c)
++    (hk₁a : k₁ ≤ a) (hk₁b : k₁ ≤ b) (hk₃b : k₃ ≤ b) (hk₃c : k₃ ≤ c) (hk₁K : k₁ ≤ K)
++    (hk₃K : k₃ ≤ K) (hB₂ : K - k₃ ≤ a) (hB₃ : K - k₃ ≤ b + c - 2 * k₃) :
++    collapseConst a b c K k₁ k₃ /
++        (cgCoefficient (a + b - 2 * k₁) c (K - k₁) 0 0 (K - k₁) *
++          Real.sqrt (((a + b - 2 * k₁ + 1 : ℕ) : ℝ) * ((b + c - 2 * k₃ + 1 : ℕ) : ℝ))) =
++      Real.sqrt (racahDelta a b c K k₁ k₃) * ((a + b + c - K - k₁ + 1).factorial : ℝ) /
++        (((a - k₁).factorial * (b - k₁).factorial * (a - (K - k₃)).factorial *
++          (b + c - k₃ - K).factorial : ℕ) : ℝ) := by
++  have hpos := cgCoefficient_top_pos (m := a + b - 2 * k₁) (n := c) (k := K - k₁) hA₂ hA₃
++  have hE : (0 : ℝ) < ((a + b - 2 * k₁ + 1 : ℕ) : ℝ) * ((b + c - 2 * k₃ + 1 : ℕ) : ℝ) := by
++    positivity
++  have hL : 0 ≤ collapseConst a b c K k₁ k₃ /
++        (cgCoefficient (a + b - 2 * k₁) c (K - k₁) 0 0 (K - k₁) *
++          Real.sqrt (((a + b - 2 * k₁ + 1 : ℕ) : ℝ) * ((b + c - 2 * k₃ + 1 : ℕ) : ℝ))) := by
++    unfold collapseConst
++    positivity
++  have hR : 0 ≤ Real.sqrt (racahDelta a b c K k₁ k₃) *
++        ((a + b + c - K - k₁ + 1).factorial : ℝ) /
++        (((a - k₁).factorial * (b - k₁).factorial * (a - (K - k₃)).factorial *
++          (b + c - k₃ - K).factorial : ℕ) : ℝ) := by positivity
++  refine (pow_left_inj₀ hL hR two_ne_zero).mp ?_
++  rw [div_pow, div_pow, mul_pow, mul_pow, Real.sq_sqrt hE.le,
++    Real.sq_sqrt (racahDelta_nonneg _ _ _ _ _ _), collapseConst, div_pow,
++    Real.sq_sqrt (by unfold cgNorm; positivity), cgCoefficient_top_racah_zero hA₂ hA₃, mul_pow,
++    mul_pow, Real.sq_sqrt (cgNorm_nonneg _ _ _), Real.sq_sqrt (Nat.cast_nonneg _)]
++  unfold racahDelta cgNorm
++  have e1 : a + (b + c - 2 * k₃) - 2 * (K - k₃) = a + b + c - 2 * K := by omega
++  have e1' : a + b - 2 * k₁ + c - 2 * (K - k₁) = a + b + c - 2 * K := by omega
++  have e2 : b + c - 2 * k₃ - (K - k₃) = b + c - k₃ - K := by omega
++  have e3 : a + (b + c - 2 * k₃) - (K - k₃) + 1 = a + b + c - K - k₃ + 1 := by omega
++  have e4 : a + b - 2 * k₁ + c - (K - k₁) + 1 = a + b + c - K - k₁ + 1 := by omega
++  have e5 : a + b - 2 * k₁ - (K - k₁) = a + b - K - k₁ := by omega
++  simp only [e1, e1', e2, e3, e4, e5]
++  push_cast
++  field_simp
++
++/-!
++
++## C. The constant on natural-number data
++
++-/
++
++/-- `triCoeff` on arguments that are natural numbers. -/
++lemma triCoeff_nat {x y z : ℤ} {p q r s : ℕ} (hx : x = p) (hy : y = q) (hz : z = r)
++    (hs : x + y + z + 1 = s) :
++    triCoeff x y z = ((p.factorial * q.factorial * r.factorial : ℕ) : ℝ) / (s.factorial : ℝ) := by
++  rw [triCoeff, factZ_eq_factorial hx, factZ_eq_factorial hy, factZ_eq_factorial hz,
++    invFact_eq hs]
++  push_cast
++  ring
++
++/-- `Cconst` on natural-number data. -/
++lemma Cconst_eq {a b c K k₁ k₃ : ℕ} (hk₁a : k₁ ≤ a) (hk₁b : k₁ ≤ b) (hk₃b : k₃ ≤ b)
++    (hk₃c : k₃ ≤ c) (hk₁K : k₁ ≤ K) (hA₂ : K - k₁ ≤ a + b - 2 * k₁) (hA₃ : K - k₁ ≤ c)
++    (hk₃K : k₃ ≤ K) (hB₂ : K - k₃ ≤ a) (hB₃ : K - k₃ ≤ b + c - 2 * k₃) :
++    Cconst a b c K k₁ k₃ = (-1) ^ (a + b + c - K) *
++      (Real.sqrt (racahDelta a b c K k₁ k₃) * ((a + b + c - K - k₁ + 1).factorial : ℝ) /
++        (((a - k₁).factorial * (b - k₁).factorial * (a - (K - k₃)).factorial *
++          (b + c - k₃ - K).factorial : ℕ) : ℝ)) := by
++  have hexp : ((a : ℤ) + b + c - K) = ((a + b + c - K : ℕ) : ℤ) := by omega
++  have hD : triCoeff (k₁ : ℤ) (a - k₁) (b - k₁) *
++      triCoeff ((a : ℤ) - K + k₃) (K - k₃) (b + c - K - k₃) *
++      triCoeff (k₃ : ℤ) (c - k₃) (b - k₃) * triCoeff ((c : ℤ) - K + k₁) (K - k₁) (a + b - K - k₁) =
++      racahDelta a b c K k₁ k₃ := by
++    rw [triCoeff_nat (p := k₁) (q := a - k₁) (r := b - k₁) (s := a + b - k₁ + 1) (by omega)
++        (by omega) (by omega) (by omega),
++      triCoeff_nat (p := a - (K - k₃)) (q := K - k₃) (r := b + c - k₃ - K)
++        (s := a + b + c - K - k₃ + 1) (by omega) (by omega) (by omega) (by omega),
++      triCoeff_nat (p := k₃) (q := c - k₃) (r := b - k₃) (s := b + c - k₃ + 1) (by omega)
++        (by omega) (by omega) (by omega),
++      triCoeff_nat (p := c - (K - k₁)) (q := K - k₁) (r := a + b - K - k₁)
++        (s := a + b + c - K - k₁ + 1) (by omega) (by omega) (by omega) (by omega)]
++    unfold racahDelta
++    ring
++  rw [Cconst, hD, hexp, zpow_natCast, factZ_eq_factorial (t := a + b + c - K - k₁ + 1) (by omega),
++    invFact_eq (t := a - k₁) (by omega), invFact_eq (t := b - k₁) (by omega),
++    invFact_eq (t := a - (K - k₃)) (by omega), invFact_eq (t := b + c - k₃ - K) (by omega)]
++  push_cast
++  simp only [div_eq_mul_inv, mul_inv]
++  ring
++
++end PhyslibAlpha.Sl2
+-- 
+2.43.0
+

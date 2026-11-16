@@ -1,0 +1,175 @@
+/-
+Copyright (c) 2026 Antony Lewis. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Antony Lewis
+-/
+module
+
+public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSumSeries
+public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSumSymmetry
+public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJDoubleSum
+public import PhyslibAlpha.QuantumMechanics.AngularMomentum.XsSeries
+
+/-!
+
+# Racah's formula for the 6j symbol in the region `k₁ + k₃ ≤ min b K`
+
+The operator-defined `sixJ` equals Racah's explicit expression when the third column of
+`{j₁ j₂ j₁₂; j₃ J j₂₃}` has maximal sum.
+
+## i. Overview
+
+In doubled units, `a = 2 j₁`, `b = 2 j₂`, `c = 2 j₃`, `J = (a + b + c)/2 - K`,
+`j₁₂ = (a + b)/2 - k₁` and `j₂₃ = (b + c)/2 - k₃`. The region `k₁ + k₃ ≤ min b K` is where
+`β₁ = a + b + c - K` is the smallest of Racah's three quadrilateral sums. In it
+`w = K - k₁ - k₃`, `z = b - k₁ - k₃`, `u = c - w - k₃` and `v = a - w - k₁` are natural numbers, so
+that `a = v + w + k₁`, `b = z + k₁ + k₃`, `c = u + w + k₃` and `K = w + k₁ + k₃` are given by
+six free natural numbers `k₁ k₃ u v w z`, with `M = u + v + w + z + k₁ + k₃ = a + b + c - K`.
+The chain of identities is
+
+* `Xs = (-1)^M * XsRacahConst * racahSum6` in the six parameters (`Xs_eq_racah_six`), from the
+  `₄F₃(1)` forms of `XsSearsInstance`, `XsSeries` and `RacahSumSeries`;
+* `sixJ = Cconst * Xs * X! / ((c-K+k₁)! k₃! (b-k₃)! (c-k₃)!)` (`SixJDoubleSum`), so that the
+  constants combine to the four triangle coefficients (`sixJ_six`);
+* hence `sixJ = √(Δ₁ Δ₂ Δ₃ Δ₄) · racahSum6` with Racah's arguments (`sixJ_eq_racah_R1`).
+
+The other regions are reached by permuting the columns, in `SixJRacah`.
+
+## ii. Key results
+
+- `Xs_eq_racah_six`: `Xs` as Racah's sum in six free parameters.
+- `sixJ_eq_racah_R1`: Racah's formula for `sixJ` in the region `k₁ + k₃ ≤ min b K`.
+
+## iii. Table of contents
+
+- A. From `Xs` to Racah's sum
+- B. The formula in the region `k₁ + k₃ ≤ min b K`
+
+## iv. References
+
+- G. Racah, *Theory of complex spectra. II*, Phys. Rev. 62, 438 (1942).
+
+-/
+
+@[expose] public section
+
+noncomputable section
+
+namespace PhyslibAlpha.Sl2
+
+open PhyslibAlpha.Hypergeometric
+
+/-!
+
+## A. From `Xs` to Racah's sum
+
+-/
+
+/-- The constant in the identity `Xs = (-1)^M * XsRacahConst * racahSum6`. -/
+def XsRacahConst (k1 k3 u v w z : ℕ) : ℝ :=
+  ((v + w).factorial : ℝ) * ((z + k3).factorial : ℝ) * (v.factorial : ℝ) * (u.factorial : ℝ) *
+    (k3.factorial : ℝ) * ((z + k1).factorial : ℝ) * ((u + w).factorial : ℝ) /
+    ((u + v + w + z + k3 + 1).factorial : ℝ)
+
+/-- The constants of `Xs = XsSeriesConst * XsSeries`, `racahSum6 = racahSeriesConst * racahSeries`
+and the Sears prefactor combine to `XsRacahConst`. -/
+lemma const_id (k1 k3 u v w z : ℕ) :
+    XsSeriesConst k1 k3 u v w z =
+      (-1) ^ (u + v + w + z + k1 + k3) * XsRacahConst k1 k3 u v w z *
+        racahSeriesConst k1 k3 u v w z * searsPrefactor k1 k3 u v w z := by
+  have h1 : (z : ℝ) + 1 + k1 = ((z + k1 : ℕ) : ℝ) + 1 := by push_cast; ring
+  have h2 : -((u : ℝ) + v + w + z + k1 + k3 + 1) + k1 =
+      -(((k3 + (u + v + w + z + 1) : ℕ)) : ℝ) := by
+    push_cast; ring
+  have h3 : -((u : ℝ) + v + w + z + k1 + k3 + 1) =
+      -(((k3 + (u + v + w + z + k1 + 1) : ℕ)) : ℝ) := by
+    push_cast; ring
+  unfold searsPrefactor
+  rw [h1, h2, h3, rf_pos_dec (z + k1) k3, rf_pos_dec z k3, rf_neg_dec k3 (u + v + w + z + 1),
+    rf_neg_dec k3 (u + v + w + z + k1 + 1)]
+  simp only [XsSeriesConst, XsRacahConst, racahSeriesConst]
+  have hf : ∀ n : ℕ, (n.factorial : ℝ) ≠ 0 := fun n => by exact_mod_cast Nat.factorial_ne_zero n
+  have e2 : k3 + (u + v + w + z + 1) = u + v + w + z + k3 + 1 := by ring
+  have e3 : k3 + (u + v + w + z + k1 + 1) = u + v + w + z + k1 + k3 + 1 := by ring
+  rw [e2, e3]
+  rcases neg_one_pow_eq_or ℝ (u + v + w + z + k1 + k3) with h | h <;>
+  rcases neg_one_pow_eq_or ℝ k3 with h' | h' <;> rw [h, h'] <;> field_simp
+
+/-- **The `Xs` to Racah identity**, in the six free natural parameters `k₁ k₃ u v w z`
+(`a = v + w + k₁`, `b = z + k₁ + k₃`, `c = u + w + k₃`, `K = w + k₁ + k₃`) and
+`M = u + v + w + z + k₁ + k₃ = a + b + c - K`. -/
+lemma Xs_eq_racah_six {k1 k3 u v w z M : ℕ} (hM : u + v + w + z + k1 + k3 = M) :
+    Xs ((v + w + k1 : ℕ) : ℤ) ((z + k1 + k3 : ℕ) : ℤ) ((u + w + k3 : ℕ) : ℤ)
+      ((w + k1 + k3 : ℕ) : ℤ) k1 k3 =
+      (-1) ^ M * XsRacahConst k1 k3 u v w z *
+        racahSum6 ((M : ℤ) - u) ((M : ℤ) - k3) ((M : ℤ) - v) ((M : ℤ) - k1) M ((M : ℤ) + z)
+          ((M : ℤ) + w) := by
+  rw [Xs_eq_XsSeries, const_id, racahSum6_eq_racahSeries hM, ← sears_instance, hM]
+  ring
+
+/-!
+
+## B. The formula in the region `k₁ + k₃ ≤ min b K`
+
+-/
+
+/-- The collapse identity in the six free parameters: the constant `Cconst` times the single sum
+`Xs`, as in `sixJ_eq_const_mul_Xs`, is Racah's right-hand side. -/
+lemma sixJ_six {a b c K k1 k3 u v w z M : ℕ} (ha : a = v + w + k1) (hb : b = z + k1 + k3)
+    (hc : c = u + w + k3) (hK : K = w + k1 + k3) (hM : u + v + w + z + k1 + k3 = M) :
+    Cconst a b c K k1 k3 * (Xs a b c K k1 k3 * factZ ((b : ℤ) + c - k3 - K) /
+        (factZ ((c : ℤ) - K + k1) * factZ k3 * factZ ((b : ℤ) - k3) * factZ ((c : ℤ) - k3))) =
+      Real.sqrt (triCoeff k1 ((a : ℤ) - k1) ((b : ℤ) - k1) *
+          triCoeff ((a : ℤ) - K + k3) ((K : ℤ) - k3) ((b : ℤ) + c - K - k3) *
+          triCoeff k3 ((c : ℤ) - k3) ((b : ℤ) - k3) *
+          triCoeff ((c : ℤ) - K + k1) ((K : ℤ) - k1) ((a : ℤ) + b - K - k1)) *
+        racahSum6 ((M : ℤ) - u) ((M : ℤ) - k3) ((M : ℤ) - v) ((M : ℤ) - k1) M ((M : ℤ) + z)
+          ((M : ℤ) + w) := by
+  subst ha hb hc hK
+  rw [Xs_eq_racah_six hM]
+  unfold Cconst
+  have hpow : (-1 : ℝ) ^ (((v + w + k1 : ℕ) : ℤ) + ((z + k1 + k3 : ℕ) : ℤ) +
+      ((u + w + k3 : ℕ) : ℤ) - ((w + k1 + k3 : ℕ) : ℤ)) = (-1) ^ M := by
+    rw [show ((v + w + k1 : ℕ) : ℤ) + ((z + k1 + k3 : ℕ) : ℤ) + ((u + w + k3 : ℕ) : ℤ) -
+      ((w + k1 + k3 : ℕ) : ℤ) = (M : ℤ) by rw [← hM]; push_cast; ring, zpow_natCast]
+  rw [hpow, factZ_eq_factorial (t := u + v + w + z + k3 + 1) (by push_cast; ring),
+    invFact_eq (t := v + w) (by push_cast; ring), invFact_eq (t := z + k3) (by push_cast; ring),
+    invFact_eq (t := v) (by push_cast; ring), invFact_eq (t := u + z) (by push_cast; ring),
+    factZ_eq_factorial (t := u + z) (by push_cast; ring),
+    factZ_eq_factorial (t := u) (by push_cast; ring), factZ_eq_factorial (t := k3) rfl,
+    factZ_eq_factorial (t := z + k1) (by push_cast; ring),
+    factZ_eq_factorial (t := u + w) (by push_cast; ring)]
+  simp only [XsRacahConst]
+  have hf : ∀ n : ℕ, (n.factorial : ℝ) ≠ 0 := fun n => by exact_mod_cast Nat.factorial_ne_zero n
+  rcases neg_one_pow_eq_or ℝ M with h | h <;> rw [h] <;> field_simp
+
+/-- **Racah's formula for the operator-defined `sixJ` in the region `k₁ + k₃ ≤ min b K`**, where
+`β₁ = a + b + c - K` is the smallest of the quadrilateral sums. -/
+lemma sixJ_eq_racah_R1 {a b c : ℕ} (hab : 0 < a + b) (hbc : 0 < b + c) (ha : 0 < a) (hc : 0 < c)
+    {K : ℕ} {k₁ : Fin (min a b + 1)} {k₃ : Fin (min b c + 1)} (hA : ValidA a b c K k₁)
+    (hB : ValidB a b c K k₃) (hR1 : (k₁ : ℕ) + k₃ ≤ b ∧ (k₁ : ℕ) + k₃ ≤ K) :
+    sixJ hab hbc K k₁ k₃ =
+      Real.sqrt (triCoeff k₁ ((a : ℤ) - k₁) ((b : ℤ) - k₁) *
+          triCoeff ((a : ℤ) - K + k₃) ((K : ℤ) - k₃) ((b : ℤ) + c - K - k₃) *
+          triCoeff k₃ ((c : ℤ) - k₃) ((b : ℤ) - k₃) *
+          triCoeff ((c : ℤ) - K + k₁) ((K : ℤ) - k₁) ((a : ℤ) + b - K - k₁)) *
+        racahSum6 ((a : ℤ) + b - k₁) ((a : ℤ) + b + c - K - k₃) ((b : ℤ) + c - k₃)
+          ((a : ℤ) + b + c - K - k₁) ((a : ℤ) + b + c - K)
+          ((a : ℤ) + 2 * b + c - k₁ - K - k₃) ((a : ℤ) + b + c - k₁ - k₃) := by
+  have hk₁ := k₁.isLt
+  have hk₃ := k₃.isLt
+  obtain ⟨hA1, hA2, hA3⟩ := hA
+  obtain ⟨hB1, hB2, hB3⟩ := hB
+  obtain ⟨hR1, hR2⟩ := hR1
+  rw [sixJ_eq_const_mul_Xs hab hbc ha hc ⟨hA1, hA2, hA3⟩ ⟨hB1, hB2, hB3⟩]
+  generalize (k₁ : ℕ) = p at hk₁ hA1 hA2 hA3 hR1 hR2 ⊢
+  generalize (k₃ : ℕ) = q at hk₃ hB1 hB2 hB3 hR1 hR2 ⊢
+  obtain ⟨w, hw⟩ : ∃ w, K = w + p + q := ⟨K - p - q, by omega⟩
+  obtain ⟨z, hz⟩ : ∃ z, b = z + p + q := ⟨b - p - q, by omega⟩
+  obtain ⟨u, hu⟩ : ∃ u, c = u + w + q := ⟨c - w - q, by omega⟩
+  obtain ⟨v, hv⟩ : ∃ v, a = v + w + p := ⟨a - w - p, by omega⟩
+  rw [sixJ_six hv hz hu hw rfl]
+  congr 1
+  apply racahSum6_congr <;> push_cast <;> omega
+
+end PhyslibAlpha.Sl2

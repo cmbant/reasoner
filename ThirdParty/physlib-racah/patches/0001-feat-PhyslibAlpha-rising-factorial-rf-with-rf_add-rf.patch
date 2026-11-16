@@ -1,0 +1,207 @@
+From 5df6b99cfd95284c23cda422a5270205f99fda04 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 13 Nov 2026 17:01:52 +0000
+Subject: [PATCH 01/20] feat(PhyslibAlpha): rising factorial `rf` with
+ `rf_add`, `rf_reflect`, `rf_pos_dec`, `rf_neg_dec`
+
+Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01CoYoSnPzLFW27jyKntrTVS
+---
+ PhyslibAlpha.lean                             |   1 +
+ .../Hypergeometric/RisingFactorial.lean       | 172 ++++++++++++++++++
+ 2 files changed, 173 insertions(+)
+ create mode 100644 PhyslibAlpha/Mathematics/SpecialFunctions/Hypergeometric/RisingFactorial.lean
+
+diff --git a/PhyslibAlpha.lean b/PhyslibAlpha.lean
+index a01e405..e601532 100644
+--- a/PhyslibAlpha.lean
++++ b/PhyslibAlpha.lean
+@@ -327,6 +327,7 @@ public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.TensorDecomposit
+ public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.TensorHighestWeight
+ public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.TensorIntertwiner
+ public import PhyslibAlpha.Mathematics.RepresentationTheory.Sl2.Weights
++public import PhyslibAlpha.Mathematics.SpecialFunctions.Hypergeometric.RisingFactorial
+ public import PhyslibAlpha.Mathematics.SpecialFunctions.Laguerre
+ public import PhyslibAlpha.Mathematics.SpecialFunctions.SincPropagator.Basic
+ public import PhyslibAlpha.Mathematics.SpecialFunctions.SincPropagator.Bessel
+diff --git a/PhyslibAlpha/Mathematics/SpecialFunctions/Hypergeometric/RisingFactorial.lean b/PhyslibAlpha/Mathematics/SpecialFunctions/Hypergeometric/RisingFactorial.lean
+new file mode 100644
+index 0000000..6b3f397
+--- /dev/null
++++ b/PhyslibAlpha/Mathematics/SpecialFunctions/Hypergeometric/RisingFactorial.lean
+@@ -0,0 +1,172 @@
++/-
++Copyright (c) 2026 Antony Lewis. All rights reserved.
++Released under Apache 2.0 license as described in the file LICENSE.
++Authors: Antony Lewis
++-/
++module
++
++public import Mathlib.RingTheory.Polynomial.Pochhammer
++public import Mathlib.Basic.Real.Basic
++public import Mathlib.Tactic.FieldSimp
++public import Mathlib.Tactic.Ring
++
++/-!
++
++# Rising factorials of a real argument
++
++The rising factorial `(x)_k` of a real number `x`, with the shift, reflection and integer-argument
++identities used to manipulate terminating hypergeometric sums.
++
++## i. Overview
++
++`rf x k = x (x + 1) ⋯ (x + k - 1)` is the evaluation at `x` of Mathlib's `ascPochhammer ℝ k`, with
++the recursion `rf x (k + 1) = rf x k * (x + k)` and the splitting
++`rf x (i + j) = rf x i * rf (x + i) j` as rewriting rules. The reflection
++`rf (1 - y - j) j = (-1) ^ j * rf y j` turns a rising factorial of a negative argument into one
++of a positive argument. At integer arguments the rising factorial is a quotient of factorials
++(`rf_pos_dec`, `rf_neg_dec`), and `rf (-m) k` vanishes for `m < k` (`rf_neg_zero`).
++
++## ii. Key results
++
++- `rf`: the rising factorial.
++- `rf_succ`, `rf_succ'`, `rf_add`: recursion and splitting.
++- `rf_reflect`: reflection `rf (1 - y - j) j = (-1) ^ j * rf y j`.
++- `rf_pos_dec`, `rf_neg_dec`, `rf_neg_zero`: the rising factorial at integer arguments.
++
++## iii. Table of contents
++
++- A. The rising factorial
++- B. Non-vanishing
++- C. Reflection
++- D. Integer arguments
++
++## iv. References
++
++- Mathlib, `Mathlib.RingTheory.Polynomial.Pochhammer` (`ascPochhammer`).
++
++-/
++
++@[expose] public section
++
++namespace PhyslibAlpha.Hypergeometric
++
++open Polynomial
++
++/-!
++
++## A. The rising factorial
++
++-/
++
++/-- The rising factorial `(x)_k = x (x + 1) ⋯ (x + k - 1)` of a real number, as the evaluation of
++Mathlib's `ascPochhammer`. -/
++noncomputable def rf (x : ℝ) (k : ℕ) : ℝ := (ascPochhammer ℝ k).eval x
++
++@[simp] lemma rf_zero (x : ℝ) : rf x 0 = 1 := by simp [rf]
++
++lemma rf_succ (x : ℝ) (k : ℕ) : rf x (k + 1) = rf x k * (x + k) := by
++  simp [rf, ascPochhammer_succ_eval]
++
++lemma rf_succ' (x : ℝ) (k : ℕ) : rf x (k + 1) = x * rf (x + 1) k := by
++  simp [rf, ascPochhammer_succ_left, eval_comp]
++
++/-- Splitting of a rising factorial: `(x)_{i + j} = (x)_i (x + i)_j`. -/
++lemma rf_add (x : ℝ) (i j : ℕ) : rf x (i + j) = rf x i * rf (x + i) j := by
++  have h := congrArg (eval x) (ascPochhammer_mul ℝ i j)
++  simpa [rf, eval_comp] using h.symm
++
++lemma rf_one (n : ℕ) : rf 1 n = n.factorial := by simp [rf]
++
++lemma rf_one_add (i j : ℕ) : rf (1 + i) j * i.factorial = (i + j).factorial := by
++  have h := factorial_mul_ascPochhammer ℝ i j
++  rw [add_comm (1 : ℝ) i, mul_comm]
++  simpa [rf] using h
++
++/-!
++
++## B. Non-vanishing
++
++-/
++
++lemma rf_ne_zero_of_le {x : ℝ} {n k : ℕ} (h : rf x n ≠ 0) (hk : k ≤ n) : rf x k ≠ 0 := by
++  obtain ⟨m, rfl⟩ := Nat.exists_eq_add_of_le hk
++  rw [rf_add] at h
++  exact left_ne_zero_of_mul h
++
++lemma rf_ne_zero_shift {x : ℝ} {n k : ℕ} (h : rf x n ≠ 0) (hk : k ≤ n) :
++    rf (x + k) (n - k) ≠ 0 := by
++  obtain ⟨m, rfl⟩ := Nat.exists_eq_add_of_le hk
++  rw [rf_add] at h
++  simpa using right_ne_zero_of_mul h
++
++lemma rf_pos {x : ℝ} (hx : 0 < x) (k : ℕ) : 0 < rf x k := by
++  induction k with
++  | zero => simp
++  | succ k ih => rw [rf_succ]; exact mul_pos ih (by positivity)
++
++lemma rf_ne_zero_neg {m k : ℕ} (hk : k ≤ m) : rf (-(m : ℝ)) k ≠ 0 := by
++  induction k with
++  | zero => simp
++  | succ k ih =>
++    rw [rf_succ]
++    refine mul_ne_zero (ih (by omega)) ?_
++    have : (k : ℝ) < m := by exact_mod_cast hk
++    linarith
++
++/-!
++
++## C. Reflection
++
++-/
++
++/-- Reflection: `(1 - y - j)_j = (-1)^j (y)_j`. -/
++lemma rf_reflect (y : ℝ) (j : ℕ) : rf (1 - y - j) j = (-1) ^ j * rf y j := by
++  induction j with
++  | zero => simp
++  | succ j ih =>
++    rw [rf_succ', rf_succ]
++    have : (1 - y - ((j + 1 : ℕ) : ℝ)) + 1 = 1 - y - j := by push_cast; ring
++    rw [this, ih]; push_cast; ring
++
++lemma rf_reflect' (x y : ℝ) (j : ℕ) (h : x = 1 - y - j) : rf x j = (-1) ^ j * rf y j := by
++  rw [h, rf_reflect]
++
++lemma rf_neg_self (n : ℕ) : rf (-(n : ℝ)) n = (-1) ^ n * n.factorial := by
++  induction n with
++  | zero => simp
++  | succ n ih =>
++    rw [rf_succ']
++    have : (-(((n + 1 : ℕ)) : ℝ)) + 1 = -(n : ℝ) := by push_cast; ring
++    rw [this, ih, Nat.factorial_succ]; push_cast; ring
++
++/-!
++
++## D. Integer arguments
++
++-/
++
++lemma rf_neg_dec (x j : ℕ) :
++    rf (-(((x + j : ℕ)) : ℝ)) x = (-1) ^ x * ((x + j).factorial : ℝ) / (j.factorial : ℝ) := by
++  have h := rf_reflect (1 + (j : ℝ)) x
++  have e : (1 : ℝ) - (1 + j) - x = -(((x + j : ℕ)) : ℝ) := by push_cast; ring
++  rw [e] at h
++  rw [h]
++  have h2 := rf_one_add j x
++  have hj : (j.factorial : ℝ) ≠ 0 := by exact_mod_cast Nat.factorial_ne_zero j
++  rw [add_comm j x] at h2
++  field_simp
++  rw [← h2]
++
++lemma rf_pos_dec (m x : ℕ) : rf ((m : ℝ) + 1) x = ((m + x).factorial : ℝ) / (m.factorial : ℝ) := by
++  have h2 := rf_one_add m x
++  have hm : (m.factorial : ℝ) ≠ 0 := by exact_mod_cast Nat.factorial_ne_zero m
++  rw [add_comm (1 : ℝ) m] at h2
++  field_simp
++  rw [← h2]
++
++lemma rf_neg_zero (m x : ℕ) (h : m < x) : rf (-(m : ℝ)) x = 0 := by
++  obtain ⟨t, rfl⟩ := Nat.exists_eq_add_of_le h
++  rw [show m + 1 + t = (m + 1) + t from rfl, rf_add, rf_succ]
++  simp
++
++end PhyslibAlpha.Hypergeometric
+-- 
+2.43.0
+

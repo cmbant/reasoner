@@ -24,6 +24,12 @@ srcDir = "ThirdParty/interval"
 globs = ["Interval.EulerMaclaurin.+"]
 leanOptions = {autoImplicit = false, relaxedAutoImplicit = false}
 
+# Pfaff-Saalschutz and Sears summations (Mathlib-only part of the Physlib Racah stack; see ThirdParty/physlib-racah/NOTICE.md). Optional: not a default target.
+[[lean_lib]]
+name = "PhyslibRacahHyp"
+srcDir = "ThirdParty/physlib-racah"
+globs = ["PhyslibAlpha.Mathematics.SpecialFunctions.Hypergeometric.+"]
+
 [[lean_lib]]
 name = "ThreeCopyQutritWerner"
 srcDir = "ThirdParty/math-lab/ThirdParty/PSI"

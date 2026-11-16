@@ -1,0 +1,190 @@
+From f402aa7e5f7e58aa9e03f06aa10e567c9f2aa413 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 13 Nov 2026 17:20:49 +0000
+Subject: [PATCH 18/20] feat(PhyslibAlpha): Racah's sum as a balanced 4F3(1)
+ series, `racahSum6_eq_racahSeries`
+
+Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01CoYoSnPzLFW27jyKntrTVS
+---
+ PhyslibAlpha.lean                             |   1 +
+ .../AngularMomentum/RacahSumSeries.lean       | 155 ++++++++++++++++++
+ 2 files changed, 156 insertions(+)
+ create mode 100644 PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahSumSeries.lean
+
+diff --git a/PhyslibAlpha.lean b/PhyslibAlpha.lean
+index 3bdfc70..9bcca54 100644
+--- a/PhyslibAlpha.lean
++++ b/PhyslibAlpha.lean
+@@ -776,6 +776,7 @@ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSum
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSumCollapse
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSumInner
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSum
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSumSeries
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSumSymmetry
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahVandermonde
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SelectionRules
+diff --git a/PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahSumSeries.lean b/PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahSumSeries.lean
+new file mode 100644
+index 0000000..029ebe7
+--- /dev/null
++++ b/PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahSumSeries.lean
+@@ -0,0 +1,155 @@
++/-
++Copyright (c) 2026 Antony Lewis. All rights reserved.
++Released under Apache 2.0 license as described in the file LICENSE.
++Authors: Antony Lewis
++-/
++module
++
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSum
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.XsSearsInstance
++
++/-!
++
++# Racah's sum as a balanced `₄F₃(1)`
++
++In the region `k₁ + k₃ ≤ min b K`, Racah's sum `racahSum6` is the series `racahSeries` times an
++explicit product of factorials.
++
++## i. Overview
++
++With the six free natural parameters `k₁ k₃ u v w z` of `XsSearsInstance` and
++`N = u + v + w + z + k₁ + k₃`, Racah's sum in the arguments
++`racahSum6 (N-u) (N-k₃) (N-v) (N-k₁) N (N+z) (N+w)` has the first quadrilateral sum `β₁ = N`
++as its smallest upper limit. Summing from the top, `t = N - s` with `0 ≤ s ≤ k₃`, its summand is
++
++`(-1)^(N-s) (N-s+1)! / ((u-s)! (k₃-s)! (v-s)! (k₁-s)! s! (z+s)! (w+s)!)`.
++
++Each factorial is a rising factorial at an integer argument: `(m - s)! = m! (-1)^s / (-m)_s` for
++`s ≤ m` (`rf_neg_inv`), and `(m + s)! = m! (m + 1)_s` (`rf_pos_dec`). The summand is therefore
++`racahSeriesConst` times the summand of `racahSeries`, the `₄F₃(1)` with upper parameters
++`-k₃, -k₁, -u, -v` and lower parameters `w+1, z+1, -(N+1)` (`termR`), and
++`racahSum6 (N-u) (N-k₃) (N-v) (N-k₁) N (N+z) (N+w) = racahSeriesConst * racahSeries`
++(`racahSum6_eq_racahSeries`).
++
++## ii. Key results
++
++- `racahSeriesConst`: the constant relating `racahSum6` and `racahSeries`.
++- `termR`: the identity of the terms.
++- `racahSum6_eq_racahSeries`: `racahSum6 = racahSeriesConst * racahSeries` in the six parameters.
++
++## iii. Table of contents
++
++- A. Rising factorials of negative integers
++- B. The identity of terms
++- C. The sums
++
++## iv. References
++
++- G. Racah, *Theory of complex spectra. II*, Phys. Rev. 62, 438 (1942).
++
++-/
++
++@[expose] public section
++
++noncomputable section
++
++namespace PhyslibAlpha.Sl2
++
++open Finset PhyslibAlpha.Hypergeometric
++
++/-!
++
++## A. Rising factorials of negative integers
++
++-/
++
++/-- `(-m)_s = (-1)^s m! / (m - s)!`, in the zero-extended form with `invFact`. -/
++lemma rf_neg_inv (m s : ℕ) :
++    rf (-(m : ℝ)) s = (-1) ^ s * (m.factorial : ℝ) * invFact ((m : ℤ) - s) := by
++  by_cases h : s ≤ m
++  · obtain ⟨j, rfl⟩ := Nat.exists_eq_add_of_le h
++    rw [rf_neg_dec, show (((s + j : ℕ) : ℤ) - s) = (j : ℤ) by push_cast; ring, invFact_natCast]
++    have hj : (j.factorial : ℝ) ≠ 0 := by exact_mod_cast Nat.factorial_ne_zero j
++    field_simp
++  · rw [rf_neg_zero m s (by omega), invFact_of_neg (by omega)]; ring
++
++/-!
++
++## B. The identity of terms
++
++-/
++
++/-- The constant relating Racah's sum, summed from the top, and its `₄F₃` form `racahSeries`. -/
++def racahSeriesConst (k1 k3 u v w z : ℕ) : ℝ :=
++  (-1) ^ (u + v + w + z + k1 + k3) * ((u + v + w + z + k1 + k3 + 1).factorial : ℝ) /
++    ((k3.factorial : ℝ) * (k1.factorial : ℝ) * (u.factorial : ℝ) * (v.factorial : ℝ) *
++      (w.factorial : ℝ) * (z.factorial : ℝ))
++
++/-- The summand of `racahSum6`, at `t = M - s` for `M = u + v + w + z + k₁ + k₃`, is
++`racahSeriesConst` times the summand of `racahSeries`. -/
++lemma termR {s k1 k3 u v w z M : ℕ} (hM : u + v + w + z + k1 + k3 = M) (hs : s ≤ k3) :
++    (-1 : ℝ) ^ ((M : ℤ) - s) * factZ ((M : ℤ) - s + 1) *
++      (invFact ((M : ℤ) - s - ((M : ℤ) - u)) * invFact ((M : ℤ) - s - ((M : ℤ) - k3)) *
++        invFact ((M : ℤ) - s - ((M : ℤ) - v)) * invFact ((M : ℤ) - s - ((M : ℤ) - k1)) *
++        (invFact ((M : ℤ) - ((M : ℤ) - s)) * invFact ((M : ℤ) + z - ((M : ℤ) - s)) *
++          invFact ((M : ℤ) + w - ((M : ℤ) - s)))) =
++    racahSeriesConst k1 k3 u v w z *
++      (rf (-(k3 : ℝ)) s * rf (-(k1 : ℝ)) s * rf (-(u : ℝ)) s * rf (-(v : ℝ)) s /
++        ((s.factorial : ℝ) * rf ((w : ℝ) + 1) s * rf ((z : ℝ) + 1) s *
++          rf (-((u : ℝ) + v + w + z + k1 + k3 + 1)) s)) := by
++  have hsM : s ≤ M := by omega
++  have hMN : (M : ℝ) = (u : ℝ) + v + w + z + k1 + k3 := by rw [← hM]; push_cast; ring
++  have a1 : (M : ℤ) - s - ((M : ℤ) - u) = (u : ℤ) - s := by ring
++  have a2 : (M : ℤ) - s - ((M : ℤ) - k3) = (k3 : ℤ) - s := by ring
++  have a3 : (M : ℤ) - s - ((M : ℤ) - v) = (v : ℤ) - s := by ring
++  have a4 : (M : ℤ) - s - ((M : ℤ) - k1) = (k1 : ℤ) - s := by ring
++  have a5 : (M : ℤ) - ((M : ℤ) - s) = ((s : ℕ) : ℤ) := by ring
++  have a6 : (M : ℤ) + z - ((M : ℤ) - s) = ((z + s : ℕ) : ℤ) := by push_cast; ring
++  have a7 : (M : ℤ) + w - ((M : ℤ) - s) = ((w + s : ℕ) : ℤ) := by push_cast; ring
++  have a8 : (M : ℤ) - s + 1 = ((M + 1 - s : ℕ) : ℤ) := by
++    push_cast [Nat.cast_sub (by omega : s ≤ M + 1)]; ring
++  have a9 : -((u : ℝ) + v + w + z + k1 + k3 + 1) = -(((M + 1 : ℕ)) : ℝ) := by push_cast; rw [hMN]
++  rw [a1, a2, a3, a4, a5, a6, a7, a8, a9, rf_neg_inv k3, rf_neg_inv k1, rf_neg_inv u, rf_neg_inv v,
++    rf_neg_inv (M + 1), rf_pos_dec w, rf_pos_dec z, invFact_natCast, invFact_natCast,
++    invFact_natCast, factZ_natCast,
++    show (((M + 1 : ℕ) : ℤ) - s) = ((M + 1 - s : ℕ) : ℤ) by
++      push_cast [Nat.cast_sub (by omega : s ≤ M + 1)]; ring,
++    invFact_natCast]
++  simp only [racahSeriesConst, hM]
++  have hpw : (-1 : ℝ) ^ ((M : ℤ) - s) = (-1) ^ (M - s) := by
++    rw [show ((M : ℤ) - s) = ((M - s : ℕ) : ℤ) by push_cast [Nat.cast_sub hsM]; ring, zpow_natCast]
++  rw [hpw]
++  have hM2 : (-1 : ℝ) ^ M = (-1) ^ (M - s) * (-1) ^ s := by
++    rw [← pow_add, Nat.sub_add_cancel hsM]
++  have hf : ∀ n : ℕ, (n.factorial : ℝ) ≠ 0 := fun n => by exact_mod_cast Nat.factorial_ne_zero n
++  rcases neg_one_pow_eq_or ℝ s with h | h
++  · have e : (-1 : ℝ) ^ (M - s) = (-1) ^ M := by rw [h, mul_one] at hM2; exact hM2.symm
++    rw [e, h]; field_simp
++  · have e : (-1 : ℝ) ^ (M - s) = -(-1) ^ M := by rw [h] at hM2; linarith
++    rw [e, h]; field_simp
++
++/-!
++
++## C. The sums
++
++-/
++
++/-- Racah's sum in the arguments `(M-u) (M-k₃) (M-v) (M-k₁) M (M+z) (M+w)`,
++`M = u + v + w + z + k₁ + k₃`, is `racahSeriesConst` times `racahSeries`. -/
++lemma racahSum6_eq_racahSeries {k1 k3 u v w z M : ℕ} (hM : u + v + w + z + k1 + k3 = M) :
++    racahSum6 ((M : ℤ) - u) ((M : ℤ) - k3) ((M : ℤ) - v) ((M : ℤ) - k1) M ((M : ℤ) + z)
++        ((M : ℤ) + w) = racahSeriesConst k1 k3 u v w z * racahSeries k1 k3 u v w z := by
++  unfold racahSum6
++  rw [← finsum_comp_equiv (Equiv.subLeft (M : ℤ))]
++  simp only [Equiv.subLeft_apply]
++  rw [finsum_int_eq_sum_range _ k3 (fun s hs => ?_)]
++  · unfold racahSeries
++    rw [Finset.mul_sum]
++    refine Finset.sum_congr rfl fun s hs => ?_
++    exact termR hM (Nat.lt_succ_iff.mp (Finset.mem_range.mp hs))
++  · rcases hs with hs | hs
++    · rw [show (M : ℤ) - ((M : ℤ) - s) = s by ring, invFact_of_neg hs]; ring
++    · rw [show (M : ℤ) - s - ((M : ℤ) - k3) = (k3 : ℤ) - s by ring,
++        invFact_of_neg (u := (k3 : ℤ) - s) (by omega)]; ring
++
++end PhyslibAlpha.Sl2
+-- 
+2.43.0
+

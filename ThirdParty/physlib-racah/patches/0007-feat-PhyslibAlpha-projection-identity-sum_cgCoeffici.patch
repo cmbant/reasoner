@@ -1,0 +1,202 @@
+From 493ac580d1a5e4df39a4bdc35cdd46fa379ca814 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 13 Nov 2026 17:07:55 +0000
+Subject: [PATCH 07/20] feat(PhyslibAlpha): projection identity
+ `sum_cgCoefficient_mul_eq_recoupling` for the recoupling coefficient
+
+Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01CoYoSnPzLFW27jyKntrTVS
+---
+ PhyslibAlpha.lean                             |   1 +
+ .../AngularMomentum/SixJProjection.lean       | 167 ++++++++++++++++++
+ 2 files changed, 168 insertions(+)
+ create mode 100644 PhyslibAlpha/QuantumMechanics/AngularMomentum/SixJProjection.lean
+
+diff --git a/PhyslibAlpha.lean b/PhyslibAlpha.lean
+index a1f53bc..4feb5b7 100644
+--- a/PhyslibAlpha.lean
++++ b/PhyslibAlpha.lean
+@@ -776,6 +776,7 @@ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSum
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSumSymmetry
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SelectionRules
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJ
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJProjection
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJSymmetry
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SpinOrbit
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.Wigner3j
+diff --git a/PhyslibAlpha/QuantumMechanics/AngularMomentum/SixJProjection.lean b/PhyslibAlpha/QuantumMechanics/AngularMomentum/SixJProjection.lean
+new file mode 100644
+index 0000000..202e283
+--- /dev/null
++++ b/PhyslibAlpha/QuantumMechanics/AngularMomentum/SixJProjection.lean
+@@ -0,0 +1,167 @@
++/-
++Copyright (c) 2026 Antony Lewis. All rights reserved.
++Released under Apache 2.0 license as described in the file LICENSE.
++Authors: Antony Lewis
++-/
++module
++
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJSymmetry
++
++/-!
++
++# The weight projection of the recoupling coefficient
++
++The recoupling coefficient at `M = J` projected onto one product weight of the first coupling
++scheme.
++
++## i. Overview
++
++Both coupling schemes `stateA` and `stateB` of `CouplingSchemes` consist of eigenvectors of the
++total `J²` and `J_z`. Expanding `|j₁, (j₂ j₃) j₂₃; J J⟩` in the orthonormal basis `vecA` of the
++first scheme, only the vector `|(j₁ j₂) j₁₂, j₃; J J⟩` of the same `J` and `M` contributes
++(`tripleForm_stateA_stateB_eq_zero`). Pairing both sides with
++`|(j₁ j₂) j₁₂ μ⟩ ⊗ |j₃ γ⟩`, the vector of the `k₁`-sector with fixed `μ` and `γ`, gives, for every
++`μ` and `γ`,
++
++`Σ_{α β ν} ⟨j₁ α j₂ β | j₁₂ μ⟩ ⟨j₁ α j₂₃ ν | J J⟩ ⟨j₂ β j₃ γ | j₂₃ ν⟩ =
++  ⟨(j₁ j₂) j₁₂, j₃; J J | j₁, (j₂ j₃) j₂₃; J J⟩ · ⟨j₁₂ μ j₃ γ | J J⟩`
++
++(`sum_cgCoefficient_mul_eq_recoupling`). Summing this over `μ` and `γ` against
++`⟨j₁₂ μ j₃ γ | J J⟩` is `recoupling_eq_sum`; keeping a single weight is the projection used to
++evaluate the recoupling coefficient in `SixJCollapse`.
++
++## ii. Key results
++
++- `tripleForm_embed_normVec_stateB`: the pairing of `|(j₁ j₂) j₁₂ μ⟩ ⊗ |j₃ γ⟩` with the second
++  scheme, as a sum of three Clebsch–Gordan coefficients.
++- `tripleForm_embed_normVec_stateB_eq`: the same pairing as a recoupling coefficient times a
++  Clebsch–Gordan coefficient.
++- `sum_cgCoefficient_mul_eq_recoupling`: the projection identity.
++
++## iii. Table of contents
++
++- A. The pairing with the second coupling scheme
++- B. The projection identity
++
++## iv. References
++
++- A. R. Edmonds, *Angular Momentum in Quantum Mechanics*, Princeton University Press (1957),
++  chapter 6.
++
++-/
++
++@[expose] public section
++
++noncomputable section
++
++namespace PhyslibAlpha.Sl2
++
++open StandardSl2Module
++
++open scoped TensorProduct
++
++variable {a b c : ℕ}
++
++/-!
++
++## A. The pairing with the second coupling scheme
++
++-/
++
++/-- The pairing of the vector `|(j₁ j₂) j₁₂ μ⟩ ⊗ |j₃ γ⟩` of the `k₁`-sector with `stateB` is a sum
++of products of three Clebsch–Gordan coefficients. -/
++lemma tripleForm_embed_normVec_stateB (hab : 0 < a + b) (hbc : 0 < b + c)
++    (k₁ : Fin (min a b + 1)) (k₃ : Fin (min b c + 1)) (k₄ l μ γ : ℕ) :
++    tripleForm a b c ((embed hab k₁).rTensor _ (normVec (a + b - 2 * (k₁ : ℕ)) μ ⊗ₜ normVec c γ))
++        (stateB hbc k₃ k₄ l) =
++      ∑ α ∈ Finset.range (a + 1), ∑ β ∈ Finset.range (b + 1),
++        cgCoefficient a b k₁ μ α β *
++          ∑ ν ∈ Finset.range (b + c - 2 * (k₃ : ℕ) + 1),
++            cgCoefficient a (b + c - 2 * (k₃ : ℕ)) k₄ l α ν * cgCoefficient b c k₃ ν β γ := by
++  rw [LinearMap.rTensor_tmul, embed_normVec, coupledVec_eq_sum, TensorProduct.sum_tmul, map_sum,
++    LinearMap.sum_apply]
++  refine Finset.sum_congr rfl fun α hα => ?_
++  rw [TensorProduct.sum_tmul, map_sum, LinearMap.sum_apply]
++  refine Finset.sum_congr rfl fun β _ => ?_
++  rw [← TensorProduct.smul_tmul', map_smul, LinearMap.smul_apply, smul_eq_mul,
++    tripleForm_normVec_stateB hbc k₃ _ l (Nat.lt_succ_iff.mp (Finset.mem_range.mp hα))]
++
++/-- The pairing of `|(j₁ j₂) j₁₂ μ⟩ ⊗ |j₃ γ⟩` with a vector of the first coupling scheme is a
++Clebsch–Gordan coefficient if the `k₁`-sectors agree, and zero otherwise. -/
++lemma tripleForm_embed_normVec_stateA (hab : 0 < a + b) (k₁ k₁' : Fin (min a b + 1))
++    (k₂' l' μ γ : ℕ) :
++    tripleForm a b c ((embed hab k₁).rTensor _
++        (normVec (a + b - 2 * (k₁ : ℕ)) μ ⊗ₜ normVec c γ)) (stateA hab k₁' k₂' l') =
++      if k₁ = k₁' then cgCoefficient (a + b - 2 * (k₁ : ℕ)) c k₂' l' μ γ else 0 := by
++  by_cases hk : k₁ = k₁'
++  · subst hk
++    rw [stateA, tripleForm_rTensor_embed, ite_eq_left rfl, cgCoefficient]
++  · rw [stateA, tripleForm_rTensor_embed_of_ne hab _ hk, ite_eq_right hk]
++
++/-- The same pairing, computed by expanding `stateB` in the first coupling scheme: only the vector
++with the same `J` and `M` contributes. -/
++lemma tripleForm_embed_normVec_stateB_eq (hab : 0 < a + b) (hbc : 0 < b + c) (ha : 0 < a)
++    (hc : 0 < c) {K : ℕ} {k₁ : Fin (min a b + 1)} {k₃ : Fin (min b c + 1)}
++    (hA : ValidA a b c K k₁) (hB : ValidB a b c K k₃) (μ γ : ℕ) :
++    tripleForm a b c ((embed hab k₁).rTensor _ (normVec (a + b - 2 * (k₁ : ℕ)) μ ⊗ₜ normVec c γ))
++        (stateB hbc k₃ (K - k₃) 0) =
++      recoupling hab hbc K 0 k₁ k₃ * cgCoefficient (a + b - 2 * (k₁ : ℕ)) c (K - k₁) 0 μ γ := by
++  obtain ⟨hA1, hA2, hA3⟩ := hA
++  obtain ⟨hB1, hB2, hB3⟩ := hB
++  have hk₁ := k₁.isLt
++  have hk₃ := k₃.isLt
++  have hex := congrArg (tripleForm a b c
++    ((embed hab k₁).rTensor _ (normVec (a + b - 2 * (k₁ : ℕ)) μ ⊗ₜ normVec c γ)))
++    (eq_sum_vecA hab hc (stateB hbc k₃ (K - k₃) 0))
++  rw [hex, map_sum, Fintype.sum_sigma]
++  rw [Finset.sum_eq_single k₁]
++  · rw [Fintype.sum_sigma, Finset.sum_eq_single ⟨K - k₁, by omega⟩]
++    · rw [Finset.sum_eq_single (⟨0, by omega⟩ : Fin (a + b - 2 * (k₁ : ℕ) + c - 2 * (K - k₁) + 1))]
++      · simp only [vecA, map_smul, smul_eq_mul]
++        rw [tripleForm_embed_normVec_stateA hab, ite_eq_left rfl, recoupling]
++      · intro l' _ hl'
++        simp only [vecA, map_smul, smul_eq_mul]
++        rw [tripleForm_stateA_stateB_eq_zero hab hbc ha hc (l' := (l' : ℕ)) hA2 hA3 hB2 hB3
++          (fun h => hl' (Fin.ext h.2)), zero_mul]
++      · intro h
++        exact absurd (Finset.mem_univ _) h
++    · intro k₂' _ hk₂'
++      refine Finset.sum_eq_zero fun l' _ => ?_
++      have := k₂'.isLt
++      simp only [vecA, map_smul, smul_eq_mul]
++      rw [tripleForm_stateA_stateB_eq_zero hab hbc ha hc (by omega) (by omega) hB2 hB3
++        (fun h => hk₂' (Fin.ext (show (k₂' : ℕ) = K - (k₁ : ℕ) by have := h.1; omega))),
++        zero_mul]
++    · intro h
++      exact absurd (Finset.mem_univ _) h
++  · intro k₁' _ hk
++    refine Finset.sum_eq_zero fun j _ => ?_
++    simp only [vecA, map_smul, smul_eq_mul]
++    rw [tripleForm_embed_normVec_stateA hab, ite_eq_right (Ne.symm hk), mul_zero]
++  · intro h
++    exact absurd (Finset.mem_univ _) h
++
++/-!
++
++## B. The projection identity
++
++-/
++
++/-- **The projection identity.** For every `μ` and `γ`,
++`Σ_{α β ν} ⟨j₁ α j₂ β | j₁₂ μ⟩ ⟨j₁ α j₂₃ ν | J J⟩ ⟨j₂ β j₃ γ | j₂₃ ν⟩ =
++  ⟨(j₁ j₂) j₁₂, j₃; J J | j₁, (j₂ j₃) j₂₃; J J⟩ · ⟨j₁₂ μ j₃ γ | J J⟩`
++(with `J = (a + b + c)/2 - K`, the coupling `k₄ = K - k₃` of `j₁` with `j₂₃` and the coupling
++`k₂ = K - k₁` of `j₁₂` with `j₃`). -/
++lemma sum_cgCoefficient_mul_eq_recoupling (hab : 0 < a + b) (hbc : 0 < b + c) (ha : 0 < a)
++    (hc : 0 < c) {K : ℕ} {k₁ : Fin (min a b + 1)} {k₃ : Fin (min b c + 1)}
++    (hA : ValidA a b c K k₁) (hB : ValidB a b c K k₃) (μ γ : ℕ) :
++    ∑ α ∈ Finset.range (a + 1), ∑ β ∈ Finset.range (b + 1),
++      cgCoefficient a b k₁ μ α β *
++        ∑ ν ∈ Finset.range (b + c - 2 * (k₃ : ℕ) + 1),
++          cgCoefficient a (b + c - 2 * (k₃ : ℕ)) (K - k₃) 0 α ν * cgCoefficient b c k₃ ν β γ =
++      recoupling hab hbc K 0 k₁ k₃ *
++        cgCoefficient (a + b - 2 * (k₁ : ℕ)) c (K - k₁) 0 μ γ := by
++  rw [← tripleForm_embed_normVec_stateB hab hbc k₁ k₃ (K - k₃) 0 μ γ,
++    tripleForm_embed_normVec_stateB_eq hab hbc ha hc hA hB μ γ]
++
++end PhyslibAlpha.Sl2
+-- 
+2.43.0
+

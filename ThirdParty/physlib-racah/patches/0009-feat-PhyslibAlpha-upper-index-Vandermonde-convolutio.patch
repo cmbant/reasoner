@@ -1,0 +1,207 @@
+From 63e97e0aa6a32b4b41047d4e441ac7c3fa8717de Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 13 Nov 2026 17:09:37 +0000
+Subject: [PATCH 09/20] feat(PhyslibAlpha): upper-index Vandermonde convolution
+ `upper_vandermonde`
+
+Co-authored-by: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01CoYoSnPzLFW27jyKntrTVS
+---
+ PhyslibAlpha.lean                             |   1 +
+ .../AngularMomentum/RacahVandermonde.lean     | 172 ++++++++++++++++++
+ 2 files changed, 173 insertions(+)
+ create mode 100644 PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahVandermonde.lean
+
+diff --git a/PhyslibAlpha.lean b/PhyslibAlpha.lean
+index c1f76e4..a95664c 100644
+--- a/PhyslibAlpha.lean
++++ b/PhyslibAlpha.lean
+@@ -775,6 +775,7 @@ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.ProjectionTheorem
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSum
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSum
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahSumSymmetry
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahVandermonde
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SelectionRules
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJ
+ public import PhyslibAlpha.QuantumMechanics.AngularMomentum.SixJProjection
+diff --git a/PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahVandermonde.lean b/PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahVandermonde.lean
+new file mode 100644
+index 0000000..0fc0bad
+--- /dev/null
++++ b/PhyslibAlpha/QuantumMechanics/AngularMomentum/RacahVandermonde.lean
+@@ -0,0 +1,172 @@
++/-
++Copyright (c) 2026 Antony Lewis. All rights reserved.
++Released under Apache 2.0 license as described in the file LICENSE.
++Authors: Antony Lewis
++-/
++module
++
++public import PhyslibAlpha.QuantumMechanics.AngularMomentum.RacahDoubleSum
++
++/-!
++
++# The upper-index Vandermonde convolution
++
++The convolution identity `Σ_α C(m, α) (m + t - α)! (X + α)! = t! X! (m + t + X + 1)(m + t + X) ⋯
++(t + X + 2)` and its zero-extended form, used to evaluate the `α`-sum in Racah's double sum.
++
++## i. Overview
++
++For natural numbers `m, t, X` the sum `Σ_α C(m, α) (m + t - α)! (X + α)!` over `α ≤ m` is
++`t! X!` times the descending factorial `(m + t + X + 1)(m + t + X) ⋯ (t + X + 2)`
++(`upper_vandermonde_nat`). It is proved by induction on `m`, using Pascal's rule inside the sum
++(`sum_range_choose_succ_mul_real`). Dividing by `m!`, this is the upper-index Vandermonde
++convolution `Σ_α C(a - α, m - α) C(X + α, α) = C(a + X + 1, m)` in the zero-extended form
++
++`Σ_α (a - α)! (X + α)! / (α! (m - α)!) = (a - m)! X! C(a + X + 1, m)`  (`upper_vandermonde`),
++
++with `factZ`, `invFact` and `zbinom` so that the sum over `ℤ` needs no range restriction. Mathlib
++has the Vandermonde identity with the lower index summed (`Nat.add_choose_eq`), which does not
++give this convolution directly.
++
++## ii. Key results
++
++- `upper_vandermonde_nat`: the identity for natural numbers.
++- `upper_vandermonde`: the zero-extended identity, for `m ≤ a`.
++
++## iii. Table of contents
++
++- A. Pascal's rule inside a sum
++- B. The identity for natural numbers
++- C. The zero-extended identity
++
++## iv. References
++
++- Mathlib, `Nat.add_choose_eq` (`Mathlib.Data.Nat.Choose.Vandermonde`): Vandermonde's identity with
++  the lower index summed, for comparison.
++
++-/
++
++@[expose] public section
++
++noncomputable section
++
++namespace PhyslibAlpha.Sl2
++
++/-!
++
++## A. Pascal's rule inside a sum
++
++-/
++
++/-- Pascal's rule inside a real binomial sum. -/
++lemma sum_range_choose_succ_mul_real (f : ℕ → ℝ) (k : ℕ) :
++    ∑ a ∈ Finset.range (k + 1 + 1), ((k + 1).choose a : ℝ) * f a =
++      ∑ a ∈ Finset.range (k + 1), (k.choose a : ℝ) * f a +
++        ∑ a ∈ Finset.range (k + 1), (k.choose a : ℝ) * f (a + 1) := by
++  have h : ∑ a ∈ Finset.range (k + 1), (k.choose (a + 1) : ℝ) * f (a + 1) + f 0 =
++      ∑ a ∈ Finset.range (k + 1), (k.choose a : ℝ) * f a := by
++    have h1 := Finset.sum_range_succ' (fun a => (k.choose a : ℝ) * f a) (k + 1)
++    have h2 := Finset.sum_range_succ (fun a => (k.choose a : ℝ) * f a) (k + 1)
++    simp only [Nat.choose_zero_right, Nat.cast_one, one_mul] at h1
++    simp only [Nat.choose_succ_self, Nat.cast_zero, zero_mul, add_zero] at h2
++    rw [← h2, h1]
++  rw [Finset.sum_range_succ', Nat.choose_zero_right, Nat.cast_one, one_mul, ← h]
++  simp only [Nat.choose_succ_succ', Nat.cast_add, add_mul, Finset.sum_add_distrib]
++  ring
++
++/-!
++
++## B. The identity for natural numbers
++
++-/
++
++/-- Upper-index Vandermonde, binomial form:
++`Σ_α C(m, α) (m + t - α)! (X + α)! = t! X! (m + t + X + 1)(m + t + X)⋯(t + X + 2)`. -/
++lemma upper_vandermonde_nat (m : ℕ) : ∀ t X : ℕ,
++    ∑ α ∈ Finset.range (m + 1), (m.choose α : ℝ) * (m + t - α).factorial * (X + α).factorial =
++      (t.factorial : ℝ) * X.factorial * ((m + t + X + 1).descFactorial m : ℕ) := by
++  induction m with
++  | zero => intro t X; simp
++  | succ m ih =>
++    intro t X
++    simp only [mul_assoc]
++    rw [sum_range_choose_succ_mul_real
++      (fun α => ((m + 1 + t - α).factorial : ℝ) * (X + α).factorial)]
++    have e1 : ∑ α ∈ Finset.range (m + 1), (m.choose α : ℝ) *
++        (((m + 1 + t - α).factorial : ℝ) * (X + α).factorial) =
++        (((t + 1).factorial : ℝ) * X.factorial * ((m + (t + 1) + X + 1).descFactorial m : ℕ)) := by
++      rw [← ih (t + 1) X]
++      refine Finset.sum_congr rfl fun α _ => ?_
++      rw [show m + 1 + t = m + (t + 1) by omega]; ring
++    have e2 : ∑ α ∈ Finset.range (m + 1), (m.choose α : ℝ) *
++        (((m + 1 + t - (α + 1)).factorial : ℝ) * (X + (α + 1)).factorial) =
++        ((t.factorial : ℝ) * (X + 1).factorial * ((m + t + (X + 1) + 1).descFactorial m : ℕ)) := by
++      rw [← ih t (X + 1)]
++      refine Finset.sum_congr rfl fun α _ => ?_
++      rw [show m + 1 + t - (α + 1) = m + t - α by omega,
++        show X + (α + 1) = X + 1 + α by omega]
++      ring
++    rw [e1, e2, show m + (t + 1) + X + 1 = m + t + (X + 1) + 1 by omega,
++      show m + 1 + t + X + 1 = m + t + (X + 1) + 1 by omega, Nat.descFactorial_succ,
++      show m + t + (X + 1) + 1 - m = t + X + 2 by omega]
++    push_cast
++    rw [Nat.factorial_succ t, Nat.factorial_succ X]
++    push_cast
++    ring
++
++/-!
++
++## C. The zero-extended identity
++
++-/
++
++/-- **Upper-index Vandermonde** (zero-extended): for `m ≤ a`,
++`Σ_α (a - α)! (X + α)! / (α! (m - α)!) = (a - m)! X! C(a + X + 1, m)`. -/
++lemma upper_vandermonde (a X : ℕ) (m : ℤ) (hm : m ≤ a) :
++    ∑ᶠ α : ℤ, factZ (a - α) * factZ (X + α) * invFact α * invFact (m - α) =
++      factZ (a - m) * factZ X * zbinom ((a : ℤ) + X + 1) m := by
++  by_cases hm0 : m < 0
++  · rw [zbinom, ite_eq_right (by omega)]
++    rw [mul_zero]
++    refine finsum_eq_zero_of_forall_eq_zero fun α => ?_
++    by_cases hα : α < 0
++    · rw [invFact_of_neg hα]; ring
++    · rw [invFact_of_neg (by omega : m - α < 0)]; ring
++  · obtain ⟨M, rfl⟩ := Int.eq_ofNat_of_zero_le (by omega : 0 ≤ m)
++    have hMa : M ≤ a := by omega
++    rw [finsum_int_eq_sum_range _ M (fun z hz => ?_)]
++    · obtain ⟨t, rfl⟩ : ∃ t, a = M + t := ⟨a - M, by omega⟩
++      have key := upper_vandermonde_nat M t X
++      rw [zbinom, ite_eq_left (by omega)]
++      simp only [Int.toNat_natCast, show (((M + t : ℕ) : ℤ) - M) = (t : ℤ) by omega,
++        factZ_natCast]
++      have hd : (((M + t + X + 1).descFactorial M : ℕ) : ℝ) =
++          (M.factorial : ℝ) * ((M + t + X + 1).choose M : ℕ) := by
++        rw [Nat.descFactorial_eq_factorial_mul_choose]; push_cast; ring
++      rw [hd] at key
++      have hM : (M.factorial : ℝ) ≠ 0 := by exact_mod_cast Nat.factorial_ne_zero _
++      rw [show (((M + t : ℕ) : ℤ) + X + 1) = ((M + t + X + 1 : ℕ) : ℤ) by push_cast; ring,
++        Int.toNat_natCast]
++      have : ∀ α ∈ Finset.range (M + 1),
++          factZ (((M + t : ℕ) : ℤ) - (α : ℕ)) * factZ ((X : ℤ) + (α : ℕ)) *
++          invFact (α : ℕ) * invFact ((M : ℤ) - (α : ℕ)) =
++          (M.factorial : ℝ)⁻¹ * ((M.choose α : ℝ) * (M + t - α).factorial * (X + α).factorial) := by
++        intro α hα
++        have hα' : α ≤ M := Nat.lt_succ_iff.mp (Finset.mem_range.mp hα)
++        have hc : (M.choose α : ℝ) * α.factorial * (M - α).factorial = M.factorial := by
++          exact_mod_cast Nat.choose_mul_factorial_mul_factorial hα'
++        rw [show (((M + t : ℕ) : ℤ) - (α : ℕ)) = ((M + t - α : ℕ) : ℤ) by omega,
++          show (M : ℤ) - (α : ℕ) = ((M - α : ℕ) : ℤ) by omega,
++          show (X : ℤ) + (α : ℕ) = ((X + α : ℕ) : ℤ) by push_cast; ring,
++          factZ_natCast, factZ_natCast, invFact_natCast, invFact_natCast]
++        have h1 : (α.factorial : ℝ) ≠ 0 := by exact_mod_cast Nat.factorial_ne_zero _
++        have h2 : ((M - α).factorial : ℝ) ≠ 0 := by exact_mod_cast Nat.factorial_ne_zero _
++        field_simp
++        rw [← hc]; ring
++      rw [Finset.sum_congr rfl this, ← Finset.mul_sum, key]
++      field_simp
++    · rcases hz with hz | hz
++      · rw [invFact_of_neg hz]; ring
++      · rw [invFact_of_neg (by omega : (M : ℤ) - z < 0)]; ring
++
++end PhyslibAlpha.Sl2
+-- 
+2.43.0
+
