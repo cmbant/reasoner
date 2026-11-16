@@ -85,6 +85,7 @@ public import FormalResearch.Special.DiscreteAiryLimitChains2Half6jFam
 public import FormalResearch.Special.DiscreteAiryOscTurn
 public import FormalResearch.Special.DiscreteAiryPhysChains
 public import FormalResearch.Special.DiscreteAiryPhysRacah
+public import FormalResearch.Special.DiscreteAiryKappaMain
 public import FormalResearch.Special.AiryCft2DerivHadamard
 
 /-!
@@ -135,7 +136,7 @@ branch by the `(-1)^k` twist (`jac_twist`, `hahn_chain_airy_neg`), the `6j` turn
 rational `x`, resp. `(α, β, x)`: an irrational shape has no exact node or realisation, and uniformity over compact families is
 not proved), the recessive solution and a bounded oscillatory window `X ≥ -A₀`; the chains are for integer data and for the
 shifted half-integer data of `3j` and of `6j` with `a, b, c ∈ ℤ`, `m, n ∈ ℤ + 1/2` (mixed-parity `6j` labels, and half-integer
-Hahn with `x < 0`, are not covered); `κ` is not identified (no Darboux matching, `κ ≠ 0` not proved), constants are existential
+Hahn with `x < 0`, are not covered); `κ` is not identified (no Darboux matching; `κ ≠ 0` is not part of these layers, it is `hahn_chain_kappa` below), constants are existential
 (window constant `e^{O(A₀²)}`; the sharper `exp(3V/2)` is an abstract lemma, not wired in); the input cited by the papers (GBVA,
 Geronimo) is still cited, not replaced.
 
@@ -152,9 +153,17 @@ the unified statement `DaiFull` / `discrete_airy_full` (`f`, `F₂` unique, comp
 solutions agree only when normalised at the same `N`, `dap_recessive_eq`), and the actual chains on that window
 (`airy_full_compose`; Hahn `hahn_chain_airy_full` with `_neg`, `_infinite`, `_half` (the model case `M = σ = 0`, `x = 1/2`), Racah `racah_chain_airy_full_pos/_neg`,
 `_family_pos/_neg`: fixed rational `x` at a lattice node, resp. integer data, constants depending on `(M, σ, x)`, radius `r ≤ q_*/4`
-that of the Langer chart).  Still open: `κ` and `κ ≠ 0`, uniformity over families (a parametric Langer chart), the second-order
-bracket (a second-order Olver parametrix), the half-integer version of the full statement, Racah family variants, explicit
-constants, analyticity of `ζ`.
+that of the Langer chart).  `DiscreteAiryKappa*` (7 modules) then shows `κ ≠ 0` for the actual `3j` chain: `hahn_chain_kappa` (integers `M, σ`,
+rational `x ∈ (0,1)`, `τ = +1`: every lattice node with `1/N ≤ ε₀` has the matching of `hahn_chain_airy_full` with `|κ| ≥ κ_min > 0`, `κ_min`
+independent of `N`, constants depending on `(M, σ, x)`), by a mass argument `N = ΣŶ² ≤ N sup Ŷ²` (`gaussWeight_3j`, `kf_mass_le`) with an a priori
+bound on the whole chain by the values at the turn.  Its ingredients are of independent use: the adiabatic invariant of a three-term recurrence
+(`kiF_step`, `ki_invariant`: two-sided `e^{O(1)}` comparison over a band, `kl_band`), the a priori left bound down to the hard edge
+(`kl_hahn_left`), monotone decay on the forbidden side beyond the turn (`kr_chain_mono`) and the matching with the chart data exported
+(`kc_hahn_full`; this repeats the proof of `discrete_airy_full` with two extra conjuncts and may later be folded into it).  The bound is not sharp
+(numerics give `|κ| = √2 N^{1/6}(1+o(1))`).  Still open: the value of `|κ|` (needs a second-order adiabatic invariant with a `1+o(1)`
+amplitude over the whole left band), the Darboux phase and sign of `κ`, `κ ≠ 0` for `τ = -1`, Racah and half-integer chains, uniformity over
+families (a parametric Langer chart; also of `κ_min` in `x`), the second-order bracket (a second-order Olver parametrix), the half-integer version
+of the full statement, Racah family variants, explicit constants, analyticity of `ζ`.
 
 The `Airy` aggregate also holds the CFT consequences of the zeros of `Ai` (`AiryCft*`): the Mittag-Leffler expansion of `Ai'/Ai`
 and the sum rules `Σ(z-a_n)^{-2} = (Ai'/Ai)² - z`, `Σ a_n^{-2} = (Ai'(0)/Ai(0))²`, the residue-defect formula (Theorem D) for entire

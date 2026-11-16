@@ -7,7 +7,7 @@ public import FormalResearch.Special.DiscreteAiryLimitChains2Twist
 /-!
 # The actual Wigner `3j` chain: the unified Airy matching on the whole macroscopic window
 
-`hahn_chain_airy_full` is `thm:hahnAiryConnection`(i) (up to the value of `κ`) for the actual natural-gauge `3j` kernel
+`hahn_chain_airy_full` is `thm:hahnAiryConnection`(i) (up to the value of `κ`; `κ ≠ 0` for `τ = +1` is `hahn_chain_kappa`, `DiscreteAiryKappaMain`) for the actual natural-gauge `3j` kernel
 `Ŷ_k = √(2k+1) Φ_k^{M,σ}(x; 1/N)` at a lattice node `x_n = x`: composition of `airy_full_compose` (`DiscreteAiryPhysHahn`) with
 the identification `hahn_class_chain` (the actual chain solves every row `k ≥ 1` of the closed-form recurrence) and the Gauss-weight
 bound `hahn_chain_abs_le` (`|Ŷ_k| ≤ √N`, condition `(R)`).
@@ -30,7 +30,8 @@ Also `τ = -1` (`x ∈ (-1, 0)`, twisted chain `(-1)^k Ŷ_k`) and the versions a
 (for `x = 1/2`, `q_* + r/2 = 9q_*/8 ≈ 0.97 < 1`, so the sites lie in the Hahn domain); the Lean statement only provides some `r ≤ q_*/4` (`q_* + r₀ < 1` is not
 guaranteed at `r₀ = q_*/4`, e.g. `x = 1/2`), so the numerics probe a window at least as large as the proved one.
 
-**Not formalised.**  The value of `κ` (Darboux/Wigner-`d`) and `κ ≠ 0`; uniformity of `r, δ₀, C, Cmu, ξ₀` in `x`; the radius is the
+**Not formalised.**  The value of `κ` (Darboux/Wigner-`d`; `|κ| ≥ κ_min > 0` uniformly in `N` is `hahn_chain_kappa`, `DiscreteAiryKappaMain`, numerically
+`|κ| = √2 N^{1/6}`; `κ ≠ 0` for `τ = -1` is open); uniformity of `r, δ₀, C, Cmu, ξ₀` in `x`; the radius is the
 (existential) radius `r ≤ q_*/4` of the Langer chart, not `q_*/4`; half-integer data; second-order bracket.
 -/
 

@@ -152,7 +152,7 @@ Olver's own `N` and the value of the crossing point `c = -0.366…` (`airyCross 
 moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the `Lp`-level operator `K_u`; Theorem Q for `ν ∈ [-1, 1/2]` (`AiryCftQuadrature`,
 Hardy-space unfolding) and the `P Ai + Q Ai'` versions with polynomial (non-constant) `P, Q`; the product form of `Bi`; the lower
 bound / order = convergence exponent of Hadamard's theorem (`FormalResearch.Complex`); the first zero of `Bi` and `Bi > 0`
-beyond `-11/10`; the open parts of the discrete-to-Airy chain: the Darboux normalisation `κ` and `κ ≠ 0` (also the single
+beyond `-11/10`; the open parts of the discrete-to-Airy chain: the value of `|κ|` (numerics `√2 N^{1/6}`; `κ ≠ 0` with `κ_min` independent of `N` is `hahn_chain_kappa` for the `τ = +1` integer `3j` chain), its Darboux phase and sign, `κ ≠ 0` for `τ = -1`, Racah and half-integer chains (also the single
 normalisation `|Y_{k₁}| ≤ δ^{-p}` for the closed-form chains), uniformity over families (an irrational shape has no exact lattice
 node or realisation; needs a parametric Langer chart), the second-order bracket (needs a second-order Olver parametrix), the
 half-integer version of the unified statement `discrete_airy_full`, mixed-parity `6j` labels, half-integer Hahn with `x < 0`,
@@ -238,7 +238,17 @@ a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete
   `hahn_chain_airy_full` (`τ = ±1`, `_neg`, `_infinite`, `_neg_infinite`, `_half` for `M = σ = 0`, `x = 1/2`: integers `M, σ`,
   fixed rational `x` with the lattice-node condition, constants depending on `(M, σ, x)`, `|μ| ≤ Cmu √N e^{-ξ₀N}/δ`, the radius
   `r ≤ q_*/4` existential, that of the Langer chart) and the Racah `racah_chain_airy_full_pos/_neg`, `_family_pos/_neg` (integer
-  data).  Open: `κ` and `κ ≠ 0` (Darboux), uniformity over families (all constants are for one fixed rational `x`, resp.
+  data).  *`DiscreteAiryKappa*`*: `hahn_chain_kappa` adds `|κ| ≥ κ_min > 0` (`κ_min` independent of `N`; `τ = +1`, integer data, constants
+  depending on `(M, σ, x)`) to the matching of `hahn_chain_airy_full`.  Proof: the mass identity `ΣŶ² = N` (`gaussWeight_3j`, `kf_mass_le`)
+  against an a priori bound `Ŷ_k² ≤ C κ²` on the whole chain, assembled from `Ŷ = κ g Ai + μ g Bi` on the window with `μ` absorbed
+  (`kf_mu_bound`, `kf_absorb`, `kf_window_abs`), the left bound down to the hard edge (`kl_hahn_left`, from the adiabatic invariant `kiF_step`,
+  `ki_invariant` and the band estimate `kl_band`) and the monotone decay beyond the turn (`kr_chain_mono`); `kc_turn`, `kc_hahn_full` repeat
+  `discrete_airy_full` / `discrete_airy_hahn_racah_full` with the chart data exported (`g ≤ g_max`, `X_k ≤ 1/4` for `k ≤ m+1`; the Langer-chart radius is
+  existential, so these cannot be read off `hahn_chain_airy_full`) and may later be folded into them.  The `e^{O(1)}` invariance gives a bound that is
+  not sharp (numerically `|κ| = √2 N^{1/6}`).  Open: the value of `|κ|` (a second-order adiabatic invariant with `1+o(1)` amplitude over the whole left band;
+  an order-sharp `κ² ≳ N^{1/3}` needs strict geometric decay beyond the turn and lattice sums of `airyWt²`), the Darboux phase and sign of `κ`,
+  `κ ≠ 0` for `τ = -1`, Racah and half-integer chains (the mass argument applies, the Racah analogues of `kl_coef_facts`, `kr_margin_hahn` are missing),
+  uniformity over families (also of `κ_min` in `x`: all constants are for one fixed rational `x`, resp.
   `(α, β, x)`; approximate nodes `x_N → x*` need a parametric Langer chart with quantitative defect lemmas, a perturbative shortcut
   fails because the turn moves by `O(h)`), the second-order bracket `Ai + N^{-4/3} ϖ Ai' + O(N^{-3} M/E)` (needs a second-order
   Olver parametrix; the Airy parametrix gives `O(h)` phase accuracy only), the half-integer (shifted-lattice) version of the full

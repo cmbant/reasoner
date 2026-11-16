@@ -14,10 +14,12 @@ afterwards).  This module re-runs the same proofs with two extra conclusions, in
 * `X_k ≤ 1/4` for `J ≤ k ≤ m+1` (the sites up to one past the turn, `q_m ∈ [q_*, q_*+h)`).
 
 * `kc_turn`: `discrete_airy_full` with these extras;
-* `kc_hahn_chain`: `hahn_chain_airy_full` (`τ = +1`, integer `M, σ`, rational `x ∈ (0,1)`) with these extras.
+* `kc_hahn_full`: `discrete_airy_hahn_racah_full` (closed-form Hahn / centred Racah recurrence) with these extras; `DiscreteAiryKappaMain`
+  composes it with `hahn_class_chain` and `hahn_chain_abs_le` for the actual `3j` chain (`τ = +1`, integer `M, σ`, rational `x ∈ (0,1)`).
 
-**Claim class: proved** (the proofs of `discrete_airy_full`, `discrete_airy_hahn_racah_full`, `airy_full_compose`, `hahn_chain_airy_full`
-are repeated with the extra conjuncts; nothing else changes).
+**Claim class: proved** (the proofs of `discrete_airy_full` and `discrete_airy_hahn_racah_full` are repeated with the extra conjuncts;
+nothing else changes).  This duplicates the two proofs: the two conjuncts may later be folded into `discrete_airy_full`
+(`DiscreteAiryPhysTurn`) and this module deleted.
 
 **Not formalised.**  The value of `κ`; `τ = -1`; Racah.
 -/
