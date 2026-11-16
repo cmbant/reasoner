@@ -217,6 +217,16 @@ theorem airyZeroCount_neg_484 : airyZeroCount (-4.84) = 2 := by
       · exact ⟨⟨h3, by linarith⟩, airyAi_airyZero 2⟩
   rw [this, Set.ncard_pair hne]
 
+/-- **Exactly one zero of `Ai` in `(-4, 0]`, located in `(-2.35, -2.33)`.** -/
+theorem airy_existsUnique_zero_Ioc_neg_four :
+    ∃! x : ℝ, x ∈ Ioc (-4 : ℝ) 0 ∧ airyAi x = 0 := by
+  obtain ⟨h1, h2, -, h4, -, hcl⟩ := airyZero_first_values
+  refine ⟨airyZero 1, ⟨⟨by linarith, by linarith⟩, airyAi_airyZero 1⟩, ?_⟩
+  rintro t ⟨ht, ht0⟩
+  rcases hcl t (by linarith [ht.1]) ht.2 ht0 with h | h
+  · exact h
+  · rw [h] at ht; linarith [ht.1]
+
 end Values
 
 /-- info: 'FormalResearch.Special.airyZero_strictAnti' depends on axioms: [propext, Classical.choice, Quot.sound] -/

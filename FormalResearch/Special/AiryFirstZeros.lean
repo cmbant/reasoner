@@ -14,7 +14,7 @@ Exact finite count (the finite numerical input to the labelling of the ordered z
 * `airyAi_neg_four_neg`, `airyAi_neg_484_pos`: `Ai(-4) < 0 < Ai(-4.84)` from the explicit asymptotic
   `airyAi_neg_sq_asymptotic` at `r = 2` and `r = 2.2` (error terms `≤ 0.0111`, `≤ 0.01`, main terms
   `≤ -0.0637`, `≥ 0.37`); hence a zero in `(-4.84, -4)` (`a_2 = -4.0879494…`);
-* `airyAi_pos_Icc`: `Ai > 0` on `[-2.33, 0]`: the Prüfer angle satisfies `θ(-2.33) ≥ θ(0) - 1 - 1.33·2.33 > -π`
+* `airyAi_pos_of_neg_233_le`: `Ai > 0` on `[-2.33, 0]`: the Prüfer angle satisfies `θ(-2.33) ≥ θ(0) - 1 - 1.33·2.33 > -π`
   (`airy_prufer_rate`, `θ(0) > π/2`) and `sin θ(-2.33) > 0`, so `θ(-2.33) ∈ (0, π)`, and `θ` increases to
   `θ(0) < π`;
 * `airy_zeros_Icc`: **the zero set of `Ai` in `[-4.84, 0]` is exactly `{a, w}` with `a ∈ (-2.35, -2.33)` and
@@ -102,7 +102,7 @@ theorem airyAi_neg_484_pos : 0 < airyAi (-4.84) := by
   linarith
 
 /-- **`Ai > 0` on `[-2.33, 0]`.** -/
-theorem airyAi_pos_Icc {x : ℝ} (h1 : -2.33 ≤ x) (h2 : x ≤ 0) : 0 < airyAi x := by
+theorem airyAi_pos_of_neg_233_le {x : ℝ} (h1 : -2.33 ≤ x) (h2 : x ≤ 0) : 0 < airyAi x := by
   obtain ⟨θ, hθ, hlo, hhi, hmono⟩ := airy_exists_prufer
   have hpi := Real.pi_gt_three
   have r1 := airy_prufer_rate hθ (M := 1) (a := -1) (b := 0) le_rfl (by norm_num) (by norm_num)
@@ -164,7 +164,7 @@ theorem airy_zeros_Icc :
     · exfalso
       have := airy_zero_gap hY (x := a) (x' := z) (by linarith) h hz2 ha0 hz0
       have hz' : -2.33 ≤ z := by linarith
-      exact (airyAi_pos_Icc hz' hz2).ne' hz0
+      exact (airyAi_pos_of_neg_233_le hz' hz2).ne' hz0
   have hza' : z ≤ -3.75 := by
     have := airy_zero_gap hY (x := z) (x' := a) hz1 hza (by linarith) hz0 ha0
     linarith

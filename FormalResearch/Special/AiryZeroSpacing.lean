@@ -13,7 +13,9 @@ From the phase theorem `airyZero_phase_r` (`|(2/3) ρ_n³ - (n - 1/4)π| ≤ (2/
 * `airyZero_gap_cube_bounds`: the gaps `g_n = a_n - a_{n+1}` satisfy `5.9 ≤ (n + 1) g_n³` and `n g_n³ ≤ 8.4`;
   `airyZero_gap_bounds`: **`1.8 (n+1)^{-1/3} ≤ a_n - a_{n+1} ≤ 2.05 n^{-1/3}`** — from
   `(2/3)Δ/ρ_{n+1} ≤ g_n ≤ (2/3)Δ/ρ_n` with `Δ = ρ_{n+1}³ - ρ_n³ ∈ [4.56, 4.87]` (`airyZero_gap_between`);
-* `airyZero_separation`: **`|a_n - a_k| ≥ 1.8 |n - k| max(n,k)^{-1/3}`** and `≤ 2.05 |n - k| min(n,k)^{-1/3}` for `n ≠ k`, `n, k ≥ 2`.
+* `airyZero_separation`: for `2 ≤ k < n`, `1.8 (n - k) n^{-1/3} ≤ a_k - a_n ≤ 2.05 (n - k) k^{-1/3}`;
+  `airyZero_separation_lower`, `airyZero_abs_sub_ge`: **`|a_n - a_k| ≥ 1.8 |n - k| max(n,k)^{-1/3}`** for all `n ≠ k`,
+  `n, k ≥ 1` (the case `k = 1` uses `a_1 - a_2 > 1.65` from `AiryFirstZeros`).
 
 Numerically checked with mpmath (30 digits) for `n ≤ 62` (and all pairs `2 ≤ k < n ≤ 62` for the separation):
 `|a_n|^{3/2}/n ∈ [4.08, 4.72]`, `|a_n|/n^{2/3} ∈ [2.5, 2.85]`, `g_n n^{1/3} ∈ [1.8049, 1.8713]`,
@@ -190,6 +192,56 @@ theorem airyZero_separation {k n : ℕ} (hk : 2 ≤ k) (hkn : k < n) :
     · nlinarith [mul_le_mul_of_nonneg_left hmono (by nlinarith : (0 : ℝ) ≤ 1.8 * ((n : ℝ) - k))]
     · nlinarith [mul_le_mul_of_nonneg_left hmono2 (by norm_num : (0 : ℝ) ≤ 2.05)]
 
+/-- **Separation including `a_1`**: for `1 ≤ k < n`, `a_k - a_n ≥ 1.8 (n - k) n^{-1/3}`; with the symmetric case,
+`|a_n - a_k| ≥ 1.8 |n - k| max(n,k)^{-1/3}` for all `n ≠ k` (`n, k ≥ 1`). -/
+theorem airyZero_separation_lower {k n : ℕ} (hk : 1 ≤ k) (hkn : k < n) :
+    1.8 * ((n : ℝ) - k) * (n : ℝ) ^ (-(1 / 3) : ℝ) ≤ airyZero k - airyZero n := by
+  rcases Nat.lt_or_ge 1 k with hk2 | hk1
+  · exact (airyZero_separation (by omega) hkn).1
+  · have hk' : k = 1 := by omega
+    subst hk'
+    have hn2 : 2 ≤ n := hkn
+    have hn0 : (0 : ℝ) < n := by exact_mod_cast (by omega : 0 < n)
+    obtain ⟨-, h1, -, h2, -⟩ := airyZero_first_values
+    have hpow : (n : ℝ) ^ (-(1 / 3) : ℝ) ≤ 0.8 := by
+      have h2n : (2 : ℝ) ≤ n := by exact_mod_cast hn2
+      have := Real.rpow_le_rpow_of_nonpos (by norm_num : (0 : ℝ) < 2) h2n (by norm_num : -(1 / 3 : ℝ) ≤ 0)
+      refine this.trans ?_
+      refine le_of_pow_le_pow_left₀ (by norm_num : 3 ≠ 0) (by norm_num) ?_
+      rw [show ((2 : ℝ) ^ (-(1 / 3) : ℝ)) ^ 3 = 1 / 2 by
+        rw [← Real.rpow_natCast, ← Real.rpow_mul (by norm_num)]; norm_num]
+      norm_num
+    have hpos : 0 < (n : ℝ) ^ (-(1 / 3) : ℝ) := by positivity
+    have h12 : airyZero 1 - airyZero 2 ≥ 1.65 := by
+      obtain ⟨h1', -⟩ := airyZero_one
+      obtain ⟨-, h2'⟩ := airyZero_two
+      linarith
+    rcases Nat.lt_or_ge 2 n with hn3 | hn3
+    · have := (airyZero_separation (k := 2) (n := n) le_rfl hn3).1
+      push_cast at this ⊢
+      nlinarith
+    · have hn : n = 2 := by omega
+      subst hn
+      push_cast
+      nlinarith
+
+/-- **`|a_n - a_k| ≥ 1.8 |n - k| max(n,k)^{-1/3}`** for all `n ≠ k`, `n, k ≥ 1`. -/
+theorem airyZero_abs_sub_ge {k n : ℕ} (hk : 1 ≤ k) (hn : 1 ≤ n) (hne : k ≠ n) :
+    1.8 * |(n : ℝ) - k| * ((max n k : ℕ) : ℝ) ^ (-(1 / 3) : ℝ) ≤ |airyZero n - airyZero k| := by
+  rcases lt_or_gt_of_ne hne with h | h
+  · have h1 := airyZero_separation_lower hk h
+    have hkn : (k : ℝ) < n := by exact_mod_cast h
+    have h3 := airyZero_lt_of_lt hk h
+    rw [abs_of_nonneg (by linarith : (0 : ℝ) ≤ (n : ℝ) - k), abs_sub_comm,
+      abs_of_nonneg (by linarith : (0 : ℝ) ≤ airyZero k - airyZero n), max_eq_left h.le]
+    exact h1
+  · have h1 := airyZero_separation_lower hn h
+    have hkn : (n : ℝ) < k := by exact_mod_cast h
+    have h3 := airyZero_lt_of_lt hn h
+    rw [abs_sub_comm, abs_of_nonneg (by linarith : (0 : ℝ) ≤ (k : ℝ) - n),
+      abs_of_nonneg (by linarith : (0 : ℝ) ≤ airyZero n - airyZero k), max_eq_right h.le]
+    exact h1
+
 /-- info: 'FormalResearch.Special.airyZero_gap_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyZero_gap_bounds
@@ -201,5 +253,9 @@ theorem airyZero_separation {k n : ℕ} (hk : 2 ≤ k) (hkn : k < n) :
 /-- info: 'FormalResearch.Special.airyZero_abs_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyZero_abs_bounds
+
+/-- info: 'FormalResearch.Special.airyZero_abs_sub_ge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyZero_abs_sub_ge
 
 end FormalResearch.Special

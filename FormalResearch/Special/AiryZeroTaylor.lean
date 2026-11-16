@@ -11,7 +11,7 @@ With `Ai = Ai(0) F + Ai'(0) G` (`AiryTaylor`) and the rational enclosures of `Ai
 
 * `airyAi_eq_series`: for real `x`, `Ai(x) = Ai(0) F(x) + Ai'(0) G(x)` with `F, G` the sums of the real series
   `Σ A_j x^{3j}/(3j)!` and `Σ B_j x^{3j+1}/(3j+1)!` (`airyFterm`, `airyGterm`);
-* `abs_sub_partial_le`: if `|t_{k+1}| ≤ ρ |t_k|` for `k ≥ K` (`ρ < 1`) then
+* `airyTail_abs_sub_le`: if `|t_{k+1}| ≤ ρ |t_k|` for `k ≥ K` (`ρ < 1`) then
   `|Σ t - Σ_{k<K} t_k| ≤ |t_K|/(1 - ρ)`;
 * `airyFterm_ratio`, `airyGterm_ratio`: `|F_{k+1}| = |F_k| |x|³/((3k+2)(3k+3))`,
   `|G_{k+1}| = |G_k| |x|³/((3k+3)(3k+4))`;
@@ -20,7 +20,7 @@ With `Ai = Ai(0) F + Ai'(0) G` (`AiryTaylor`) and the rational enclosures of `Ai
 
 Numerically checked with mpmath (30 digits): `F(-2.33) = -0.36137212…`, `G(-2.33) = -0.51766637…`,
 `F(-2.35) = -0.38034159…`, `G(-2.35) = -0.48950419…`, `Ai(-2.33) = 0.0056848…`, `Ai(-2.35) = -0.0083387…`; the
-partial sums used have six terms and the proved enclosures are `±3·10⁻⁴` wide.  The sign change is robust: it
+partial sums used have six terms (the tail is `< 10⁻⁴`) and the proved enclosures are `≈ 10⁻³` wide.  The sign change is robust: it
 holds for every `Ai(0)/|Ai'(0)| ∈ (1.287, 1.4325)` (true value `1.3717…`).
 
 Not formalised: a Taylor evaluation at other points (the zeros `a_n`, `n ≥ 2` are located by the
@@ -65,7 +65,7 @@ theorem airyAi_eq_series (x : ℝ) :
   simpa using this
 
 /-- Tail bound for a series with eventually geometric decay of the terms. -/
-lemma abs_sub_partial_le {t : ℕ → ℝ} {s : ℝ} (h : HasSum t s) (K : ℕ) {ρ : ℝ} (hρ0 : 0 ≤ ρ)
+lemma airyTail_abs_sub_le {t : ℕ → ℝ} {s : ℝ} (h : HasSum t s) (K : ℕ) {ρ : ℝ} (hρ0 : 0 ≤ ρ)
     (hρ1 : ρ < 1) (hr : ∀ k, K ≤ k → |t (k + 1)| ≤ ρ * |t k|) :
     |s - ∑ k ∈ Finset.range K, t k| ≤ |t K| / (1 - ρ) := by
   have hs := h.summable
@@ -137,7 +137,7 @@ lemma airyF_enclosure {x F : ℝ} (hx : |x| ≤ 47 / 20) (h : HasSum (airyFterm 
   have hx3 : |x| ^ 3 ≤ 13 := by
     have := pow_le_pow_left₀ (abs_nonneg x) hx 3
     norm_num at this ⊢; linarith
-  have := abs_sub_partial_le h 6 (ρ := 13 / 420) (by norm_num) (by norm_num) (fun k hk => by
+  have := airyTail_abs_sub_le h 6 (ρ := 13 / 420) (by norm_num) (by norm_num) (fun k hk => by
     rw [airyFterm_ratio, mul_comm]
     have hk' : (6 : ℝ) ≤ k := by exact_mod_cast hk
     refine mul_le_mul_of_nonneg_right ?_ (abs_nonneg _)
@@ -152,7 +152,7 @@ lemma airyG_enclosure {x G : ℝ} (hx : |x| ≤ 47 / 20) (h : HasSum (airyGterm 
   have hx3 : |x| ^ 3 ≤ 13 := by
     have := pow_le_pow_left₀ (abs_nonneg x) hx 3
     norm_num at this ⊢; linarith
-  have := abs_sub_partial_le h 6 (ρ := 13 / 462) (by norm_num) (by norm_num) (fun k hk => by
+  have := airyTail_abs_sub_le h 6 (ρ := 13 / 462) (by norm_num) (by norm_num) (fun k hk => by
     rw [airyGterm_ratio, mul_comm]
     have hk' : (6 : ℝ) ≤ k := by exact_mod_cast hk
     refine mul_le_mul_of_nonneg_right ?_ (abs_nonneg _)
