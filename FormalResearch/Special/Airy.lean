@@ -9,6 +9,7 @@ public import FormalResearch.Special.AiryIdentities
 public import FormalResearch.Special.AiryPositive
 public import FormalResearch.Special.AiryZeros
 public import FormalResearch.Special.AiryRotation
+public import FormalResearch.Special.AiryKernelOpOperator
 
 /-!
 # The Airy function: aggregate and design note
@@ -20,7 +21,9 @@ independence of the abscissa `c > 0` by differentiating in `c`, derivatives are 
 `AiryReal` (real on `ℝ`, smooth), `AiryBound` (explicit decay on `(0,∞)`), `AiryEquation` (identities for any
 solution of `y'' = x y`, ODE uniqueness; independent of the definition), `AiryIdentities` (`∫_x^∞ Ai²`, kernel
 limits), `AiryPositive` (two-sided bounds, `Ai > 0`, `Ai' < 0` on `[0,∞)`), `AiryZeros` (zeros are real and
-negative), `AiryRotation` (`Ai(z) + ω Ai(ωz) + ω² Ai(ω²z) = 0`, `Bi`, Wronskian constant).
+negative), `AiryRotation` (`Ai(z) + ω Ai(ωz) + ω² Ai(ω²z) = 0`, `Bi`, Wronskian constant), `AiryKernelOp{Formula,Bounds,Operator}`
+(the Airy kernel as a Gram integral `∫_0^∞ Ai(x+t)Ai(y+t)dt` for real `x,y`, diagonal bounds, `∫_u^∞ K(s,s)ds`,
+Hilbert–Schmidt/trace finiteness and positivity of the quadratic form).
 
 **Not formalised:** `Ai(0) = 3^{-2/3}/Γ(2/3)`, `Ai'(0)`, the value `W(Ai, Bi) = 1/π` (only `-2√3 Ai(0)Ai'(0) > 0`
 is proved), `Bi` asymptotics, `Ai` for `x < 0` (oscillation, `|x|^{-1/4}` envelope, zero asymptotics), sector
@@ -43,5 +46,6 @@ Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and
   identities exist; the remaining analytic input is a stable comparison (Taylor of the Jacobi coefficients at the
   turn, `h^{4/3}`-scaling), independent of the Airy definition.
 * *Free-fermion edge*: the Airy kernel `K(x,y)`, `K(x,x) = Ai'² - x Ai²`, `(∂_x + ∂_y)K = -Ai(x)Ai(y)` and
-  `∫_x^∞ Ai² = K(x,x)` are in place; `K(x,y) = ∫_0^∞ Ai(x+s)Ai(y+s) ds` (hence positivity of `K`) follows from the shift identity and decay: reachable next.
+  `∫_x^∞ Ai² = K(x,x)` are in place, and `K(x,y) = ∫_0^∞ Ai(x+s)Ai(y+s) ds` (real `x,y`; hence positivity of `K`) is
+  `airyKer_eq_integral` (`AiryKernelOp*`).  Complex `x,y` needs decay of `Ai(z)` along real shifts of complex `z`: not done.
 -/
