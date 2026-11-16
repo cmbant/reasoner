@@ -27,6 +27,11 @@ interior of the domain (`P q_*² < 1`, `Q q_*² < 1`): these are exactly the hyp
 `ψ(1 + O(h))` on `X ≥ 0` and `ψ + O(h)` on `X ∈ [-A₀, 0]`; every solution `Y` of the closed-form chain with
 `|Y_N|, |Y_{N+1}| ≤ Y_max` is `κ g (Ai + O(h)) + (exponentially small)`.
 
+**Statement caveat.**  The exported statement of `discrete_airy_hahn_racah` (and `_window`) keeps only `1 ≤ J ≤ m ≤ N`
+and the localisation `|q_k - q_*| ≤ r` on `[J, N+1]`; the positions `c₀ ≤ q_m < c₀ + h`, `q_J ∈ [c₀ - Dδ², c₀]`, which
+`discrete_airy_limit` does provide, are dropped, so as stated the oscillatory window `X ∈ [-A₀, 0]` is not pinned (a
+degenerate `J = m = N` is not excluded by the statement; `X_N ≥ ξ₀`-large is).  The proof supplies the intended window.
+
 **Hypotheses of the abstract theorem checked here** (all proved): `A ∈ C²`, `A(q_*) > 0` (`hrA_contDiffAt`, `hrA_pos`),
 `u ∈ C³` (`hrU_contDiffAt`), `u(q_*) = 1` (`hrU_turn`), **`u'(q_*) > 0`** (`hrU_deriv_pos`, from `1 - τx > 0` by an
 AM-GM identity), and the `O(h²)` perturbation sizes `|A_k - A(q_k - h/2)| ≤ E₁h²`, `|c_k - 2A(q_k)u(q_k)| ≤ ρ₂h²`

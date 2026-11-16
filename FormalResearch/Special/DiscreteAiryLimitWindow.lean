@@ -16,7 +16,9 @@ This is the column form of P3 `thm:general-rank-airy`(i) (`Y_k = κ g [Ai + O(h)
 the additive `δⁿ` (`n > 3 + s`) is a relative `O(h)` error.  `κ` is not identified (Darboux matching) and
 `κ ≠ 0` is not proved.  `discrete_airy_hahn_racah_window` is the Hahn/centred-Racah instance.
 
-Proved.  Constants in `δ₁` are existential.
+Proved.  Constants in `δ₁` are existential.  `dal_conclusion_window` is for arbitrary `J ≤ m ≤ N`; whether `[J, N+1]`
+reaches `X ≈ -A₀` is a property of the data it is applied to (see the statement caveat in `DiscreteAiryLimitHahn`: the
+Hahn instance as stated does not pin `J, m`).
 -/
 
 @[expose] public section

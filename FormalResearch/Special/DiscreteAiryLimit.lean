@@ -17,7 +17,8 @@ Jacobi recurrence `a_{k+1} y_{k+1} + a_k y_{k-1} = c_k y_k` with `a_k ≈ A(q_k 
 Defect,Hyp,Fields,Setup}`: for coefficient sequences with `|a_k - A(q_k-h/2)| ≤ E h²`, `|c_k - 2A(q_k)u(q_k)| ≤ E h²`
 (the paper's `A_k = a₀(s) + O(h²)`), on the lattice window `J ≤ m ≤ N` with `X_J ≈ -A₀`, `X_m ≈ 0`, `q_{N+1} ≈ c₀ + r/2`:
 
-* **recessive form** (the Geronimo/GBVA Thm 3.8 replacement): there is an exact solution `f` of the recurrence on the
+* **recessive form** (the recessive-branch counterpart of Geronimo/GBVA Thm 3.8, on a bounded oscillatory window and the
+  forbidden side up to `q ≤ c₀ + r/2`; see *Not formalised* for what is not replaced): there is an exact solution `f` of the recurrence on the
   rows `J+1..N` with `f = ψ` at the last two sites and `|f_k - ψ_k| ≤ C δ³ ψ_k` on the forbidden side `X ≥ 0` and
   `|f_k - ψ_k| ≤ C δ³ W` on the oscillatory window `X ∈ [-A₀, 0]` (`δ³ = h`; `W` bounds `|ψ|`);
 * **physical form** (P3 `thm:general-rank-airy`(i), W1 `eq:airyfactor`): every exact solution `Y` of the rows with
@@ -41,7 +42,12 @@ and the absolute error on `X ∈ [-6, -1]` is `≈ 0.017 h`, i.e. `O(h)` as the 
 `ζ`, `g` are the M3 coordinate and amplitude).  Hypothesis `|Y_N|, |Y_{N+1}| ≤ Y_max` is the polynomial bound `(R)`
 (`T:889-892`) at the fixed point `N`, left to the caller (for the Hahn/Racah chains, `DiscreteAiryLimitHahn`).
 
-**Not formalised.**  The scalar `κ` (it is `κ = ` normalisation fixed by the Darboux/Wigner-`d` bulk matching, T:336,
+**Not formalised.**  *Window position (statement vs proof):* the exported statement records `q_J ∈ [c₀ - Dδ², c₀]`
+and `c₀ ≤ q_m < c₀ + h`, hence the forbidden-side claims on `[m, N+1]` are substantive, but it does not record an upper
+bound for `X_J`; that the oscillatory window `[J, m]` really reaches `X ≈ -A₀` (the proof chooses `J` as a ceiling, so
+`q_J < c₀ - A₀δ²/c₂ + h`, `X_J ≲ -(c₁/c₂)A₀`) is a property of the construction, not of the theorem as stated.  Not a
+uniform-in-family or non-recessive (canonical `Ai`/`Bi` pair) statement either, so it replaces the external input only in
+the fixed-`(u, A, c₀)`, recessive-plus-bounded-window form.  The scalar `κ` (it is `κ = ` normalisation fixed by the Darboux/Wigner-`d` bulk matching, T:336,
 A:925-1054, est:309-318): `κ` is produced by the recessive selection and is not identified; `κ ≠ 0` is not proved.  The
 oscillatory side beyond a bounded window `X ≥ -A₀` (full GBVA with `M/E` weights, plan M7); the `h²` coefficient `ϖ`
 (second-order bracket); constants are not tracked (the window constant is `e^{O(A₀²)}`, see `AiryWindowMain`); the
