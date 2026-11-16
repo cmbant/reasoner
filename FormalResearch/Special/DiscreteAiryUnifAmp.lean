@@ -151,4 +151,68 @@ theorem dun_amp (aLo aHi KA c1 d0 d1 d2 εS Msh ρ1 : ℝ) (haLo : 0 < aLo) (ha 
   refine ⟨hg, fun x hx => ?_⟩
   exact Real.rpow_le_rpow_of_nonpos (lt_of_lt_of_le hℓp (hRl x hx)) (hRu x hx) (by norm_num)
 
+
+lemma amp_pow (y : ℝ) (hy : 0 < y) : ((y ^ 2)⁻¹) ^ (1 / 4 : ℝ) = y ^ (-(1 / 2 : ℝ)) := by
+  rw [Real.inv_rpow (by positivity), ← Real.rpow_natCast y 2, ← Real.rpow_mul hy.le, Real.rpow_neg hy.le]
+  norm_num
+
+/-- **The canonical amplitude is the explicit one on a ball where the chart is regular.**  For `ζ = langerZeta u c` with
+`ζ ζ'² = Φ(u-1)`, `ζ' > 0`, `ζ(x) ≠ 0` for `x ≠ c`, `Ch(ζζ'²) = u` and `Sh(ζζ'²) > 0`, `A > 0` on the ball:
+`langerAmp u A c x = (A ζ' Sh(ζζ'²))^{-1/2}`. -/
+theorem langerAmp_eq_rel {u A : ℝ → ℝ} {c ρ1 : ℝ} (hρ1 : 0 < ρ1) (hu3 : ContDiffOn ℝ 3 u (ball c ρ1))
+    (hu0 : u c = 1) (hu' : 0 < deriv u c)
+    (hD : ∀ x ∈ ball c ρ1, 0 < deriv (langerZeta u c) x)
+    (hzne : ∀ x ∈ ball c ρ1, x ≠ c → langerZeta u c x ≠ 0)
+    (hSh : ∀ x ∈ ball c ρ1, 0 < langerSinhc (langerZeta u c x * deriv (langerZeta u c) x ^ 2))
+    (hA : ∀ x ∈ ball c ρ1, 0 < A x)
+    (heik : ∀ x ∈ ball c ρ1, langerCosh (langerZeta u c x * deriv (langerZeta u c) x ^ 2) = u x) :
+    ∀ x ∈ ball c ρ1, langerAmp u A c x =
+      (A x * deriv (langerZeta u c) x * langerSinhc (langerZeta u c x * deriv (langerZeta u c) x ^ 2)) ^
+        (-(1 / 2 : ℝ)) := by
+  intro x hx
+  set ζ := langerZeta u c with hζ
+  have hcb : c ∈ ball c ρ1 := mem_ball_self hρ1
+  have hu3' : ContDiffAt ℝ ((2 + 1 : ℕ) : WithTop ℕ∞) u c := by
+    have := hu3.contDiffAt (isOpen_ball.mem_nhds hcb)
+    exact_mod_cast this
+  have hz0 : ζ c = 0 := langerZetaOf_zero _ _
+  have hy : 0 < A x * deriv ζ x * langerSinhc (ζ x * deriv ζ x ^ 2) :=
+    mul_pos (mul_pos (hA x hx) (hD x hx)) (hSh x hx)
+  unfold langerAmp
+  rw [← amp_pow _ hy]
+  congr 1
+  have hAx := hA x hx
+  by_cases hxc : x = c
+  · subst hxc
+    obtain ⟨-, -, hval, -⟩ := langerAmpRatio_spec (m := 2) (by norm_num) hu3' hu0 hu'
+    obtain ⟨-, hdc, -⟩ := langerZeta_spec (m := 2) (by norm_num) hu3' hu0 hu'
+    rw [hval]
+    rw [hz0] at *
+    simp only [zero_mul, langerSinhc_zero, mul_one]
+    have hw : 0 < (2 * deriv u x) ^ (1 / 3 : ℝ) := Real.rpow_pos_of_pos (by linarith) _
+    rw [hdc]
+    set w := (2 * deriv u x) ^ (1 / 3 : ℝ) with hwdef
+    have e1 : (2 * deriv u x) ^ (-(2 / 3) : ℝ) = (w ^ 2)⁻¹ := by
+      rw [hwdef, ← Real.rpow_natCast, ← Real.rpow_mul (by linarith), ← Real.rpow_neg (by linarith)]
+      norm_num
+    rw [e1]
+    field_simp
+  · have hzx := hzne x hx hxc
+    have hq : x - c ≠ 0 := sub_ne_zero.2 hxc
+    have hform : langerAmpRatio u c x = ζ x / (u x ^ 2 - 1) := by
+      have hz0' : langerZeta u c c = 0 := langerZetaOf_zero _ _
+      simp only [langerAmpRatio]
+      rw [dslope_of_ne _ hxc, dslope_of_ne _ hxc, slope_def_field, slope_def_field, hz0', hu0]
+      field_simp
+      ring
+    have hid := langerCosh_sq_sub_one (ζ x * deriv ζ x ^ 2)
+    rw [heik x hx] at hid
+    set Sx := langerSinhc (ζ x * deriv ζ x ^ 2) with hSx
+    have hSp := hSh x hx
+    have hdp := hD x hx
+    rw [hform]
+    have : u x ^ 2 - 1 = ζ x * (deriv ζ x ^ 2 * Sx ^ 2) := by rw [hid]; ring
+    rw [this]
+    field_simp
+
 end FormalResearch.Special
