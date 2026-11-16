@@ -12,6 +12,7 @@ public import FormalResearch.Special.JacobiZeros
 public import FormalResearch.Special.JacobiCD
 public import FormalResearch.Special.GammaRatio
 public import FormalResearch.Special.JacobiMehlerHeine
+public import FormalResearch.Special.JacobiMehlerHeineRate
 public import FormalResearch.Special.JacobiBessel
 public import FormalResearch.Special.LaguerreHardEdge
 

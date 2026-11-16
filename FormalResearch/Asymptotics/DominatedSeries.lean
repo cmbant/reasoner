@@ -15,7 +15,11 @@ infinite series `∑' ℓ, G ℓ z`.
 * `tendstoUniformlyOn_sum_of_dominated`: the statement above (uniform in `z`; the argument is the
   usual `ε/4` splitting into a finite head, a tail of the finite sum and a tail of the limit);
 * `tendsto_sum_of_dominated`: the pointwise case `K = {z}`, i.e. the classical Tannery theorem for a
-  varying finite index set (Mathlib's `tendsto_tsum_of_dominated_convergence` has a fixed index set).
+  varying finite index set (Mathlib's `tendsto_tsum_of_dominated_convergence` has a fixed index set);
+* `norm_sum_sub_tsum_le_of_rate`: the rate version for `s n = range (n+1)`: if the terms differ from
+  the limit terms by `≤ D ℓ / n` and the limit terms are dominated by `M ℓ` with `ℓ M ℓ` summable, the
+  partial sum differs from the series by `≤ (∑ D + ∑ ℓ M ℓ)/n`;
+* `tendstoUniformlyOn_of_norm_le`, `norm_pow_sub_pow_le'`: small helpers.
 
 Nothing here is specific to Jacobi polynomials; the Jacobi instance is
 `FormalResearch/Special/JacobiMehlerHeine.lean`.
@@ -180,6 +184,63 @@ theorem norm_pow_sub_pow_le' {R : Type*} [NormedField R] {a b : R} {S : ℝ} (ha
     rw [pow_succ] at h3 ⊢
     nlinarith [mul_nonneg hn (pow_nonneg (by linarith : (0:ℝ) ≤ S) k), mul_nonneg hn (by linarith : (0:ℝ) ≤ S - 1)]
 
+/-- **Rate version of the Tannery theorem** for the partial sums `∑_{ℓ ≤ n} Fn n ℓ z`.  If the
+terms differ from the limit terms by at most `D ℓ / n` (`D` summable), and the limit terms of index
+`≥ L0` are dominated by `M ℓ` with `ℓ ↦ ℓ M ℓ` summable, then
+`‖∑_{ℓ ≤ n} Fn n ℓ z - ∑' ℓ, G ℓ z‖ ≤ (∑' D + ∑' ℓ M ℓ) / n` for `n ≥ max N L0`, `n ≥ 1`. -/
+theorem norm_sum_sub_tsum_le_of_rate {Fn : ℕ → ℕ → E → F} {G : ℕ → E → F} {K : Set E}
+    {M D : ℕ → ℝ} (hM : Summable M) (hM0 : ∀ ℓ, 0 ≤ M ℓ)
+    (hMl : Summable fun ℓ : ℕ => (ℓ : ℝ) * M ℓ) (hD : Summable D) (hD0 : ∀ ℓ, 0 ≤ D ℓ)
+    (L0 N : ℕ) (hG : ∀ ℓ, L0 ≤ ℓ → ∀ z ∈ K, ‖G ℓ z‖ ≤ M ℓ)
+    (hF : ∀ n, N ≤ n → ∀ ℓ ∈ range (n + 1), ∀ z ∈ K, ‖Fn n ℓ z - G ℓ z‖ ≤ D ℓ / n)
+    {n : ℕ} (hn1 : 1 ≤ n) (hnN : N ≤ n) (hnL : L0 ≤ n) {z : E} (hz : z ∈ K) :
+    ‖∑ ℓ ∈ range (n + 1), Fn n ℓ z - ∑' ℓ, G ℓ z‖ ≤
+      ((∑' ℓ, D ℓ) + ∑' ℓ : ℕ, (ℓ : ℝ) * M ℓ) / n := by
+  have hnpos : (0 : ℝ) < n := by exact_mod_cast hn1
+  have hGs : Summable fun ℓ => G ℓ z := by
+    rw [← summable_nat_add_iff L0]
+    exact Summable.of_norm_bounded ((summable_nat_add_iff L0).2 hM)
+      fun k => hG (k + L0) (Nat.le_add_left _ _) z hz
+  have hGsplit : ∑' ℓ, G ℓ z = ∑ ℓ ∈ range (n + 1), G ℓ z + ∑' k, G (k + (n + 1)) z :=
+    (hGs.sum_add_tsum_nat_add (n + 1)).symm
+  have hhead : ‖∑ ℓ ∈ range (n + 1), (Fn n ℓ z - G ℓ z)‖ ≤ (∑' ℓ, D ℓ) / n := by
+    refine (norm_sum_le _ _).trans ?_
+    calc ∑ ℓ ∈ range (n + 1), ‖Fn n ℓ z - G ℓ z‖ ≤ ∑ ℓ ∈ range (n + 1), D ℓ / n :=
+          Finset.sum_le_sum fun ℓ hℓ => hF n hnN ℓ hℓ z hz
+      _ = (∑ ℓ ∈ range (n + 1), D ℓ) / n := by rw [Finset.sum_div]
+      _ ≤ (∑' ℓ, D ℓ) / n := by
+          gcongr
+          exact hD.sum_le_tsum _ fun ℓ _ => hD0 ℓ
+  have htail1 : ‖∑' k, G (k + (n + 1)) z‖ ≤ ∑' k, M (k + (n + 1)) :=
+    tsum_of_norm_bounded ((summable_nat_add_iff (n + 1)).2 hM).hasSum
+      fun k => hG (k + (n + 1)) (by omega) z hz
+  have htail2 : ∑' k, M (k + (n + 1)) ≤ (∑' ℓ : ℕ, (ℓ : ℝ) * M ℓ) / n := by
+    have h1 : ∀ k, M (k + (n + 1)) ≤ ((k + (n + 1) : ℕ) : ℝ) * M (k + (n + 1)) / n := by
+      intro k
+      rw [le_div_iff₀ hnpos]
+      have : (n : ℝ) ≤ ((k + (n + 1) : ℕ) : ℝ) := by
+        push_cast; have : (0 : ℝ) ≤ k := Nat.cast_nonneg _; linarith
+      nlinarith [hM0 (k + (n + 1))]
+    have hs : Summable fun k => ((k + (n + 1) : ℕ) : ℝ) * M (k + (n + 1)) / n :=
+      (((summable_nat_add_iff (n + 1)).2 hMl).div_const _)
+    calc ∑' k, M (k + (n + 1)) ≤ ∑' k, ((k + (n + 1) : ℕ) : ℝ) * M (k + (n + 1)) / n :=
+          Summable.tsum_le_tsum h1 ((summable_nat_add_iff (n + 1)).2 hM) hs
+      _ = (∑' k, ((k + (n + 1) : ℕ) : ℝ) * M (k + (n + 1))) / n := tsum_div_const
+      _ ≤ (∑' ℓ : ℕ, (ℓ : ℝ) * M ℓ) / n := by
+          refine div_le_div_of_nonneg_right ?_ hnpos.le
+          have h2 := hMl.sum_add_tsum_nat_add (n + 1)
+          have h3 : 0 ≤ ∑ i ∈ range (n + 1), (i : ℝ) * M i :=
+            Finset.sum_nonneg fun i _ => mul_nonneg (Nat.cast_nonneg _) (hM0 i)
+          linarith
+  have e : ∑ ℓ ∈ range (n + 1), Fn n ℓ z - ∑' ℓ, G ℓ z =
+      ∑ ℓ ∈ range (n + 1), (Fn n ℓ z - G ℓ z) - ∑' k, G (k + (n + 1)) z := by
+    rw [hGsplit, Finset.sum_sub_distrib]; abel
+  rw [e]
+  refine (norm_sub_le _ _).trans ?_
+  have := add_le_add hhead (htail1.trans htail2)
+  rw [← add_div] at this
+  exact this
+
 /-! ### Axiom check -/
 
 /-- info: 'FormalResearch.Asymptotics.tendstoUniformlyOn_sum_of_dominated' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -189,5 +250,9 @@ theorem norm_pow_sub_pow_le' {R : Type*} [NormedField R] {a b : R} {S : ℝ} (ha
 /-- info: 'FormalResearch.Asymptotics.tendsto_sum_of_dominated' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Asymptotics.tendsto_sum_of_dominated
+
+/-- info: 'FormalResearch.Asymptotics.norm_sum_sub_tsum_le_of_rate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Asymptotics.norm_sum_sub_tsum_le_of_rate
 
 end FormalResearch.Asymptotics

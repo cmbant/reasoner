@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.Special.JacobiMehlerHeine
+public import FormalResearch.Special.JacobiMehlerHeineRate
 
 /-!
 # Mehler–Heine: the Bessel function, real argument
@@ -13,10 +13,12 @@ Consequences of `FormalResearch/Special/JacobiMehlerHeine.lean`:
   `∑ (-1)^ℓ (z/2)^{2ℓ}/(ℓ! Γ(α+ℓ+1))` of `(z/2)^{-α} J_α(z)` (any real `α`);
 * `mehlerHeine_besselJ`: `n^{-α} P_n^{(α,β)}(cos(z/n)) → (z/2)^{-α} J_α(z)` uniformly on bounded
   `K ⊆ ℂ \ {0}`, with `J_α = Complex.besselJ α`;
+* `mehlerHeine_real_rate`, from `JacobiMehlerHeineRate`: the same with a remainder `O(1/n)`;
 * `mehlerHeine_real`: the real-argument form, uniformly on bounded `K ⊆ ℝ`, for the real polynomial
   `(jacobi α β n).eval (cos (x/n))`; `besselJ_ofReal` shows `J_α(x)` is real for `x > 0`.
 
-All for `α > -1`, `β` real.  Not formalised: a convergence rate, and any statement for `α ≤ -1`.
+All for `α > -1`, `β` real.  Not formalised: explicit constants in the rate, and any statement for
+`α ≤ -1`.
 -/
 
 @[expose] public section
@@ -106,6 +108,16 @@ theorem besselJ_ofReal (α : ℝ) {x : ℝ} (hx : 0 < x) :
   push_cast
   rfl
 
+/-- The complex expression at a real point is the cast of the real one. -/
+lemma mh_cast_aeval (α β : ℝ) (n : ℕ) (x : ℝ) :
+    (((n : ℝ) ^ (-α) : ℝ) : ℂ) * Polynomial.aeval (Complex.cos ((x : ℂ) / n)) (jacobi α β n) =
+      (((n : ℝ) ^ (-α) * (jacobi α β n).eval (Real.cos (x / n)) : ℝ) : ℂ) := by
+  rw [Complex.ofReal_mul]
+  congr 1
+  have : Complex.cos ((x : ℂ) / n) = algebraMap ℝ ℂ (Real.cos (x / n)) := by
+    rw [Complex.coe_algebraMap, Complex.ofReal_cos]; push_cast; rfl
+  rw [this, Polynomial.aeval_algebraMap_apply_eq_algebraMap_eval, Complex.coe_algebraMap]
+
 /-- **Mehler–Heine formula on the real line** (uniform on bounded sets): for `α > -1`, real `β`,
 `n^{-α} P_n^{(α,β)}(cos(x/n)) → ∑_ℓ (-1)^ℓ (x/2)^{2ℓ}/(ℓ! Γ(α+ℓ+1))` uniformly for `x` in a bounded
 set `K ⊆ ℝ` (the limit is `(x/2)^{-α} J_α(x)` for `x > 0`, `besselJ_ofReal`). -/
@@ -118,16 +130,28 @@ theorem mehlerHeine_real (α β : ℝ) (hα : -1 < α) {K : Set ℝ} (hK : Borno
   intro ε hε
   filter_upwards [h ε hε] with n hn x hx
   have h1 := hn (x : ℂ) (by simpa using hC x hx)
-  have e : (((n : ℝ) ^ (-α) : ℝ) : ℂ) *
-      Polynomial.aeval (Complex.cos ((x : ℂ) / n)) (jacobi α β n) =
-      (((n : ℝ) ^ (-α) * (jacobi α β n).eval (Real.cos (x / n)) : ℝ) : ℂ) := by
-    rw [Complex.ofReal_mul]
-    congr 1
-    have : Complex.cos ((x : ℂ) / n) = algebraMap ℝ ℂ (Real.cos (x / n)) := by
-      rw [Complex.coe_algebraMap, Complex.ofReal_cos]; push_cast; rfl
-    rw [this, Polynomial.aeval_algebraMap_apply_eq_algebraMap_eval, Complex.coe_algebraMap]
+  have e := mh_cast_aeval α β n x
   rw [e, ← ofReal_mhLimitReal, Complex.dist_eq, ← Complex.ofReal_sub, Complex.norm_real] at h1
   rwa [Real.dist_eq, ← Real.norm_eq_abs]
+
+/-- **Mehler–Heine on the real line with a rate**: for `α > -1`, `β` real and `R ≥ 0`,
+`|n^{-α} P_n^{(α,β)}(cos(x/n)) - ∑_ℓ (-1)^ℓ (x/2)^{2ℓ}/(ℓ! Γ(α+ℓ+1))| ≤ C/n` for `n ≥ N`,
+`|x| ≤ R`; the constants `C, N` are not explicit. -/
+theorem mehlerHeine_real_rate (α β : ℝ) (hα : -1 < α) {R : ℝ} (hR : 0 ≤ R) :
+    ∃ C : ℝ, ∃ N : ℕ, ∀ n : ℕ, N ≤ n → ∀ x : ℝ, |x| ≤ R →
+      |(n : ℝ) ^ (-α) * (jacobi α β n).eval (Real.cos (x / n)) - mhLimitReal α x| ≤ C / n := by
+  obtain ⟨C, N, h⟩ := mehlerHeine_rate α β hα hR
+  refine ⟨C, N, fun n hn x hx => ?_⟩
+  have h1 := h n hn (x : ℂ) (by simpa using hx)
+  rw [mh_cast_aeval, ← ofReal_mhLimitReal, ← Complex.ofReal_sub, Complex.norm_real,
+    Real.norm_eq_abs] at h1
+  exact h1
+
+/-- For `x > 0`, the limit function is `(x/2)^{-α} J_α(x)` (real part of `Complex.besselJ`). -/
+theorem mhLimitReal_eq_rpow_mul_besselJ_re (α : ℝ) {x : ℝ} (hx : 0 < x) :
+    mhLimitReal α x = (x / 2) ^ (-α) * (Complex.besselJ α (x : ℂ)).re := by
+  rw [besselJ_ofReal α hx, Complex.ofReal_re, ← mul_assoc, ← Real.rpow_add (by positivity)]
+  simp
 
 /-! ### Axiom check -/
 
@@ -146,5 +170,9 @@ theorem mehlerHeine_real (α β : ℝ) (hα : -1 < α) {K : Set ℝ} (hK : Borno
 /-- info: 'FormalResearch.Special.besselJ_ofReal' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.besselJ_ofReal
+
+/-- info: 'FormalResearch.Special.mehlerHeine_real_rate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.mehlerHeine_real_rate
 
 end FormalResearch.Special

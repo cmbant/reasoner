@@ -33,8 +33,9 @@ real coefficients `mhCoeff = n^{-α-2ℓ} (n+α+β+1)_ℓ (α+ℓ+1)_{n-ℓ} / (
 ## Scope
 
 * `α > -1` (so that every `Γ(α+ℓ+1)` is positive); `β` is arbitrary.  Not formalised: `α ≤ -1`
-  (where `1/Γ` has zeros and the leading behaviour changes), a rate `O(1/n)`, and the Mehler–Heine
-  formula for other families (Laguerre, Gegenbauer, Hermite).
+  (where `1/Γ` has zeros and the leading behaviour changes), explicit constants, and the
+  Mehler–Heine formula for other families (Laguerre, Gegenbauer, Hermite).  The `O(1/n)` remainder
+  is `FormalResearch/Special/JacobiMehlerHeineRate.lean`.
 * The statement is for the explicit-sum polynomial `jacobi` evaluated at the complex point
   `cos(z/n)` through `Polynomial.aeval`; the real-line form is in `JacobiBessel.lean`.
 -/
@@ -294,6 +295,50 @@ lemma mh_term (α β : ℝ) {n : ℕ} (hn : 1 ≤ n) (ℓ : ℕ) (z : ℂ) :
   push_cast at hreal' ⊢
   linear_combination Complex.sin (z / (2 * n)) ^ (2 * ℓ) * hreal'
 
+/-- For `R + 1 ≤ n`, `‖z‖ ≤ R`: `‖z/(2n)‖ ≤ 1/2`. -/
+lemma mh_norm_arg_le {R : ℝ} {n : ℕ} (hn : R + 1 ≤ n) {z : ℂ} (hz : ‖z‖ ≤ R) :
+    ‖z / (2 * n)‖ ≤ 1 / 2 := by
+  have hn1 : (1 : ℝ) ≤ n := by linarith [norm_nonneg z]
+  rw [norm_div, norm_mul, Complex.norm_ofNat, Complex.norm_natCast, div_le_div_iff₀ (by positivity)
+    (by norm_num)]
+  nlinarith
+
+/-- `‖n sin(z/(2n))‖ ≤ ‖z‖ ≤ R`. -/
+lemma mh_norm_u_le {R : ℝ} {n : ℕ} (hn : R + 1 ≤ n) {z : ℂ} (hz : ‖z‖ ≤ R) :
+    ‖(n : ℂ) * Complex.sin (z / (2 * n))‖ ≤ R := by
+  have hn1 : (1 : ℝ) ≤ n := by linarith [norm_nonneg z]
+  have h1 := norm_sin_le (w := z / (2 * n)) (by linarith [mh_norm_arg_le hn hz])
+  rw [norm_mul, Complex.norm_natCast]
+  refine (mul_le_mul_of_nonneg_left h1 (by positivity)).trans ?_
+  rw [norm_div, norm_mul, Complex.norm_ofNat, Complex.norm_natCast]
+  field_simp
+  linarith
+
+/-- `‖n sin(z/(2n)) - z/2‖ ≤ max(R,1)²/n`. -/
+lemma mh_norm_u_sub_le {R : ℝ} {n : ℕ} (hn : R + 1 ≤ n) {z : ℂ} (hz : ‖z‖ ≤ R) :
+    ‖(n : ℂ) * Complex.sin (z / (2 * n)) - z / 2‖ ≤ (max R 1) ^ 2 / n := by
+  have hS1 : 1 ≤ max R 1 := le_max_right _ _
+  have hRS : R ≤ max R 1 := le_max_left _ _
+  have hn1 : (1 : ℝ) ≤ n := by linarith [norm_nonneg z]
+  have h1 := norm_sin_sub_le (w := z / (2 * n)) (by linarith [mh_norm_arg_le hn hz])
+  have e : (n : ℂ) * Complex.sin (z / (2 * n)) - z / 2 =
+      (n : ℂ) * (Complex.sin (z / (2 * n)) - z / (2 * n)) := by
+    have hnpos : 0 < n := by exact_mod_cast (show (0 : ℝ) < n by linarith)
+    have hn0 : (n : ℂ) ≠ 0 := by exact_mod_cast hnpos.ne'
+    field_simp
+  rw [e, norm_mul, Complex.norm_natCast]
+  have h2 : ‖z / (2 * n)‖ ^ 2 ≤ (max R 1) ^ 2 / (n : ℝ) ^ 2 := by
+    have : ‖z / (2 * n)‖ ≤ max R 1 / n := by
+      rw [norm_div, norm_mul, Complex.norm_ofNat, Complex.norm_natCast,
+        div_le_div_iff₀ (by positivity) (by positivity)]
+      nlinarith
+    rw [← div_pow]
+    exact pow_le_pow_left₀ (norm_nonneg _) this 2
+  calc (n : ℝ) * ‖Complex.sin (z / (2 * n)) - z / (2 * n)‖
+      ≤ (n : ℝ) * ((max R 1) ^ 2 / (n : ℝ) ^ 2) :=
+        mul_le_mul_of_nonneg_left (h1.trans h2) (by positivity)
+    _ = (max R 1) ^ 2 / n := by field_simp
+
 /-- `n^{-α} P_n^{(α,β)}(cos(z/n))` as a finite sum of explicit terms. -/
 lemma mh_aeval (α β : ℝ) {n : ℕ} (hn : 1 ≤ n) (z : ℂ) :
     (((n : ℝ) ^ (-α) : ℝ) : ℂ) * Polynomial.aeval (Complex.cos (z / n)) (jacobi α β n) =
@@ -324,43 +369,11 @@ theorem mehlerHeine_uniform (α β : ℝ) (hα : -1 < α) {R : ℝ} (hR : 0 ≤ 
   have hRS : R ≤ S := le_max_left _ _
   have hS0 : 0 < S := by linarith
   set γ : ℝ := α + β + 1 with hγ
-  -- the sin bounds
-  have hw : ∀ n : ℕ, (R + 1 ≤ n) → ∀ z : ℂ, ‖z‖ ≤ R → ‖z / (2 * n)‖ ≤ 1 / 2 := by
-    intro n hn z hz
-    have hn1 : (1 : ℝ) ≤ n := by linarith
-    rw [norm_div, norm_mul, Complex.norm_ofNat, Complex.norm_natCast, div_le_div_iff₀ (by positivity)
-      (by norm_num)]
-    nlinarith
   have hu : ∀ n : ℕ, (R + 1 ≤ n) → ∀ z : ℂ, ‖z‖ ≤ R →
-      ‖(n : ℂ) * Complex.sin (z / (2 * n))‖ ≤ R := by
-    intro n hn z hz
-    have hn1 : (1 : ℝ) ≤ n := by linarith
-    have h1 := norm_sin_le (w := z / (2 * n)) (by linarith [hw n hn z hz])
-    rw [norm_mul, Complex.norm_natCast]
-    refine (mul_le_mul_of_nonneg_left h1 (by positivity)).trans ?_
-    rw [norm_div, norm_mul, Complex.norm_ofNat, Complex.norm_natCast]
-    field_simp
-    linarith
+      ‖(n : ℂ) * Complex.sin (z / (2 * n))‖ ≤ R := fun n hn z hz => mh_norm_u_le hn hz
   have hu2 : ∀ n : ℕ, (R + 1 ≤ n) → ∀ z : ℂ, ‖z‖ ≤ R →
-      ‖(n : ℂ) * Complex.sin (z / (2 * n)) - z / 2‖ ≤ S ^ 2 / n := by
-    intro n hn z hz
-    have hn1 : (1 : ℝ) ≤ n := by linarith
-    have hn0 : (n : ℂ) ≠ 0 := by exact_mod_cast (show n ≠ 0 by exact_mod_cast hn1.trans_lt' zero_lt_one |>.ne')
-    have h1 := norm_sin_sub_le (w := z / (2 * n)) (by linarith [hw n hn z hz])
-    have e : (n : ℂ) * Complex.sin (z / (2 * n)) - z / 2 =
-        (n : ℂ) * (Complex.sin (z / (2 * n)) - z / (2 * n)) := by field_simp
-    rw [e, norm_mul, Complex.norm_natCast]
-    have h2 : ‖z / (2 * n)‖ ^ 2 ≤ S ^ 2 / (n : ℝ) ^ 2 := by
-      have : ‖z / (2 * n)‖ ≤ S / n := by
-        rw [norm_div, norm_mul, Complex.norm_ofNat, Complex.norm_natCast,
-          div_le_div_iff₀ (by positivity) (by positivity)]
-        nlinarith
-      rw [← div_pow]
-      exact pow_le_pow_left₀ (norm_nonneg _) this 2
-    calc (n : ℝ) * ‖Complex.sin (z / (2 * n)) - z / (2 * n)‖
-        ≤ (n : ℝ) * (S ^ 2 / (n : ℝ) ^ 2) :=
-          mul_le_mul_of_nonneg_left (h1.trans h2) (by positivity)
-      _ = S ^ 2 / n := by field_simp
+      ‖(n : ℂ) * Complex.sin (z / (2 * n)) - z / 2‖ ≤ S ^ 2 / n :=
+    fun n hn z hz => mh_norm_u_sub_le hn hz
   have hmhA : ∀ ℓ : ℕ, 0 ≤ mhLimitCoeff α ℓ := by
     intro ℓ
     have : 0 < Real.Gamma (α + ℓ + 1) :=
