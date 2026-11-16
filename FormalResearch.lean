@@ -274,6 +274,7 @@ public import FormalResearch.Racah.P2AnalyticNLO3jUniform
 public import FormalResearch.Racah.P2AnalyticNLO6jUniform
 public import FormalResearch.Racah.P2AnalyticHeadline
 public import FormalResearch.Racah.P2AnalyticFludeDefect
+public import FormalResearch.Racah.P2AnalyticCarrierHahn
 public import FormalResearch.Racah.P2AnalyticHeadline6j
 public import FormalResearch.Racah.P2AnalyticLeading
 public import FormalResearch.Racah.P2AnalyticLeading6jChambers
