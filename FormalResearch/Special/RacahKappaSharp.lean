@@ -11,7 +11,7 @@ public import FormalResearch.Special.RacahKappaChain
 * monotone decay `Y_k² ≤ Y_{k'}²` for `k ≥ k'`, `q_{k'} ≥ q_* + h`;
 * a vanishing left mass: for every `ε > 0` there are `c_L, h_L > 0` with `Σ_{k < k_c} Y_k² ≤ εM` for `h ≤ h_L`, `q_{k_c - 1} ≤ c_L`.
 
-Then there are constants `r, C_μ, ξ₀, g, c₁, c₂, C_A, c_s` (depending on `P, Q, τ, x, a, b`) such that for every `τ' > 0` and every member with `h` small there is an Airy window `RkWinAt` (with `Y_max = c_s/δ³`, `δ³ = h`)
+Then there are constants `r, C_μ, ξ₀, g, c₁, c₂, C_A, c_s` (depending on `P, Q, τ, x, a, b`) such that for every `τ' > 0` there is `ε₁` (depending on `τ'`, on `P, Q, τ, x, a, b`, and on the family only through the left-mass hypothesis) such that for every member with `h ≤ ε₁` there is an Airy window `RkWinAt` (with `Y_max = c_s/δ³`, `δ³ = h`)
 with `|κ²δ - 2| ≤ τ'`.
 
 **Claim class: proved.**

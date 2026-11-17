@@ -9,6 +9,17 @@ public import FormalResearch.Special.RacahKappaHRacah
 matching on the shifted lattice (`RkWinAtH`) satisfies `|κ² δ - 2| ≤ τ'` for every `τ' > 0` once `h = δ³ ≤ ε₁(τ')`.  Half-integer analogue of `racah_chain_kappa_sharp`.
 
 **Claim class: proved** (`m, n` fixed integers labelling `m + ½`, `n + ½`; `κ` is the window amplitude, its sign is not asserted; mixed parities are not covered).
+
+**Quantifiers.**  As in `RacahKappaSharpInst`: `(α, β, x, m, n)` fixed first, then the window constants (depending on these only), then for each `τ' > 0` an `ε₁(τ'; α, β, x, m, n)` that works for every finite half-integer Racah system
+with the exact equalities `A h = α`, `B h = β`, `cos = x` (here `A = a + (n + 3/2)/2`, `B = b + (m + 3/2)/2`, `C = c + ½`) and every `0 < h ≤ ε₁`.  `κ` is the Airy coefficient of the actual chain `racah6jYH` (rank `f = k + ½`,
+site `q_k = (k + 1) h`, versus `(k + ½) h` for integer data), pinned by the window as in the integer case.  Satisfiable with `h → 0`, e.g. (exact, scaling by `s ≡ 1 (mod 4)`) `x = 11/21`, `(4A, 4B, 2C) = s (3, 7, 3)`, `m = n = 0`,
+`τ = +1`, and `x = 7/25`, `A = B`, `(4A, 2C) = s (5, 3)`, `m = n = 0`, `s ≡ 3 (mod 4)`, `τ = -1`.
+
+**Numerical evidence (not part of the proof; as in `RacahKappaSharpInst`, half-integer chain checked against the Racah formula at `m' = m + ½`).**  `|κ²δ - 2| ≤ 3·10⁻³` at `h = 1/150` and `≤ 10⁻⁴` at `h = 1/2400`, both `τ`;
+using the integer lattice `(k + ½) h` instead of `(k + 1) h` in the chart gives a visibly wrong fit (relative residual `0.1` instead of `10⁻⁴`).
+
+**Not formalised.**  (i) The sign of `κ`.  (ii) Uniformity in `(α, β, x, m, n)`.  (iii) `x`, `A h`, `B h` only approximately equal to the fixed data.  (iv) Mixed-parity labels (half-integer `a, b, c` with integer `m, n`, etc.).
+(v) The Hahn half-integer `κ` (an instance of `rk_kappa_sharp_absH` with the Hahn rows; not done here).
 -/
 
 @[expose] public section

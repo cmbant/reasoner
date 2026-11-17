@@ -6,7 +6,7 @@ public import FormalResearch.Special.RacahKappaFam
 # The sharp amplitude theorem for the actual `6j` chain (integer data)
 
 `rk_racah_sharp_gen`: for the (twisted) physical Wigner `6j` chain `Y_k = u_k Ŷ_k`, `u_k² = 1`, with geometric data `(α, β, x)` having a simple turn `Φ(q_*²) = 0` (`τ = ±1`),
-the Airy-window amplitude `κ` of the Langer matching satisfies `κ² δ → 2` as `h = δ³ → 0` (`|κ²δ - 2| ≤ τ'` for `h ≤ ε₁(τ')`).  The instances `racah_chain_kappa_sharp` (`τ = +1`) and `racah_chain_kappa_sharp_neg`
+the Airy-window amplitude `κ` of the Langer matching satisfies `κ² δ → 2` as `h = δ³ → 0` (`|κ²δ - 2| ≤ τ'` for `h ≤ ε₁`, where `ε₁` depends on `τ'` and on the fixed data `(α, β, x, m, n)` but not on the system; the quantifier order and the not-formalised list are in `RacahKappaSharpInst`).  The instances `racah_chain_kappa_sharp` (`τ = +1`) and `racah_chain_kappa_sharp_neg`
 (`τ = -1`, twisted chain) are in `RacahKappaSharpInst`.
 
 **Claim class: proved** (integer data; `κ` itself is the window amplitude `RkWinAt`, its sign is not asserted).

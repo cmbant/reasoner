@@ -10,6 +10,8 @@ public import FormalResearch.Special.RacahKappaSharp
 Twin of `rk_kappa_sharp_abs` (`RacahKappaSharp`) for the closed forms `hrAkH`, `hrCkH` on the lattice `q_k = (k+1) δ³`; declarations carry the suffix `H`.
 The abstract hypotheses (rows, Gauss mass, `Y² ≤ M`, support, total mass, monotone forbidden tail, left a priori bound) are the same, with the lattice shifted.
 
+As in `rk_kappa_sharp_abs`, `ε₁` depends on `τ'`, on the data and (through the left-mass hypothesis) on the family.
+
 **Claim class: proved.**
 -/
 
