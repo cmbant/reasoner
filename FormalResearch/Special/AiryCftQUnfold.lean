@@ -190,4 +190,8 @@ lemma airyQ_boundary {f : ℂ → ℂ} (hf : Differentiable ℂ f) (hfi : Integr
       simpa [hφ] using this
     rw [← h7, h5, h6]
 
+/-- info: 'FormalResearch.Special.airyQ_boundary' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyQ_boundary
+
 end FormalResearch.Special

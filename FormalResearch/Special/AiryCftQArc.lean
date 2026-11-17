@@ -56,18 +56,16 @@ lemma integral_lower_unfold (F : ℝ → ℝ) :
   rw [e1, e2] at this
   rw [this]; field_simp
 
-/-- Both parametrisations of the upper (`φ ∈ [π/2,π]`) and lower (`φ ∈ [0,π/2]`) half circle unfold to one arc integral. -/
-theorem airyQ_defect_le_arc {N : ℕ} {a : ℝ} (ha : 0 < a)
-    (hD : CftCircleData airyAiC (fun n => (airyZero n : ℂ)) (Finset.Icc 1 N) (a ^ 2))
-    (hup : ∀ u : ℂ, ‖u‖ = a ^ 2 → 0 ≤ u.im →
-      ‖(airyBiC u - I * airyAiC u) / airyAiC u‖ * airyEnv u ≤ 30 * √π)
-    (hlo : ∀ u : ℂ, ‖u‖ = a ^ 2 → u.im ≤ 0 →
-      ‖(airyBiC u + I * airyAiC u) / airyAiC u‖ * airyEnv u ≤ 30 * √π)
+/-- **Reduction of the Theorem D arc integrals to the Hardy arc integral.**  If `‖R_±(u)‖ e(u) ≤ K` on the upper/lower half of
+the circle `|u| = a²`, then `(a²/2)(∫_0^π |f R₊| + ∫_π^{2π} |f R₋|)(a²e^{iθ}) dθ ≤ K · a ∫_0^π |G(ae^{iφ})| dφ`,
+`G = airyQG f`: the substitution `u = -z²`, `z = ae^{iφ}`, and `|f(u)|/e(u) = |G(z)|/|z|` (Lemma U). -/
+theorem airyQ_arc_reduce {a : ℝ} (ha : 0 < a) {K : ℝ} {Rp Rm : ℂ → ℂ}
+    (hup : ∀ u : ℂ, ‖u‖ = a ^ 2 → 0 ≤ u.im → ‖Rp u‖ * airyEnv u ≤ K)
+    (hlo : ∀ u : ℂ, ‖u‖ = a ^ 2 → u.im ≤ 0 → ‖Rm u‖ * airyEnv u ≤ K)
     {f : ℂ → ℂ} (hf : Differentiable ℂ f) :
-    ‖(∑ n ∈ Finset.Icc 1 N, f (airyZero n : ℂ) / (deriv airyAiC (airyZero n : ℂ)) ^ 2) -
-        ∫ x in (-(a ^ 2))..(a ^ 2), f (x : ℂ)‖ ≤
-      30 * √π * (a * ∫ φ in (0 : ℝ)..π, ‖airyQG f (circleMap 0 a φ)‖) := by
-  have hb := airyQ_defect_bound_int hD hf
+    (a ^ 2 / 2) * ((∫ θ in (0 : ℝ)..π, ‖f (circleMap 0 (a ^ 2) θ) * Rp (circleMap 0 (a ^ 2) θ)‖) +
+        ∫ θ in π..(2 * π), ‖f (circleMap 0 (a ^ 2) θ) * Rm (circleMap 0 (a ^ 2) θ)‖) ≤
+      K * (a * ∫ φ in (0 : ℝ)..π, ‖airyQG f (circleMap 0 a φ)‖) := by
   have hR : 0 < a ^ 2 := by positivity
   set w : ℝ → ℂ := circleMap 0 (a ^ 2) with hw
   have hGc : Continuous (fun φ : ℝ => ‖airyQG f (circleMap 0 a φ)‖) :=
@@ -86,10 +84,8 @@ theorem airyQ_defect_le_arc {N : ℕ} {a : ℝ} (ha : 0 < a)
   have hnorm : ∀ φ : ℝ, ‖circleMap 0 a φ‖ = a := fun φ => by rw [norm_circleMap_zero, abs_of_pos ha]
   -- pointwise bound for the upper half
   have hpt_up : ∀ φ ∈ Icc (π / 2) π,
-      0 ≤ ‖f (w (2 * φ - π)) * ((airyBiC (w (2 * φ - π)) - I * airyAiC (w (2 * φ - π))) /
-          airyAiC (w (2 * φ - π)))‖ ∧
-      ‖f (w (2 * φ - π)) * ((airyBiC (w (2 * φ - π)) - I * airyAiC (w (2 * φ - π))) /
-          airyAiC (w (2 * φ - π)))‖ ≤ 30 * √π / a * ‖airyQG f (circleMap 0 a φ)‖ := by
+      0 ≤ ‖f (w (2 * φ - π)) * Rp (w (2 * φ - π))‖ ∧
+      ‖f (w (2 * φ - π)) * Rp (w (2 * φ - π))‖ ≤ K / a * ‖airyQG f (circleMap 0 a φ)‖ := by
     intro φ hφ
     refine ⟨norm_nonneg _, ?_⟩
     have hφ0 : φ ∈ Icc (0 : ℝ) π := ⟨by linarith [hφ.1, Real.pi_pos], hφ.2⟩
@@ -102,17 +98,14 @@ theorem airyQ_defect_le_arc {N : ℕ} {a : ℝ} (ha : 0 < a)
     have hG := airyQ_norm_G f (hz φ hφ0)
     rw [hnorm, ← hu] at hG
     rw [hG, norm_mul]
-    have hR' : ‖(airyBiC (w (2 * φ - π)) - I * airyAiC (w (2 * φ - π))) / airyAiC (w (2 * φ - π))‖ ≤
-        30 * √π / airyEnv (w (2 * φ - π)) := by rw [le_div_iff₀ he]; exact h1
-    calc ‖f (w (2 * φ - π))‖ * ‖(airyBiC (w (2 * φ - π)) - I * airyAiC (w (2 * φ - π))) /
-          airyAiC (w (2 * φ - π))‖
-        ≤ ‖f (w (2 * φ - π))‖ * (30 * √π / airyEnv (w (2 * φ - π))) := by gcongr
-      _ = 30 * √π / a * (a * (‖f (w (2 * φ - π))‖ / airyEnv (w (2 * φ - π)))) := by field_simp
+    have hR' : ‖Rp (w (2 * φ - π))‖ ≤
+        K / airyEnv (w (2 * φ - π)) := by rw [le_div_iff₀ he]; exact h1
+    calc ‖f (w (2 * φ - π))‖ * ‖Rp (w (2 * φ - π))‖
+        ≤ ‖f (w (2 * φ - π))‖ * (K / airyEnv (w (2 * φ - π))) := by gcongr
+      _ = K / a * (a * (‖f (w (2 * φ - π))‖ / airyEnv (w (2 * φ - π)))) := by field_simp
   have hpt_lo : ∀ φ ∈ Icc (0 : ℝ) (π / 2),
-      0 ≤ ‖f (w (2 * φ + π)) * ((airyBiC (w (2 * φ + π)) + I * airyAiC (w (2 * φ + π))) /
-          airyAiC (w (2 * φ + π)))‖ ∧
-      ‖f (w (2 * φ + π)) * ((airyBiC (w (2 * φ + π)) + I * airyAiC (w (2 * φ + π))) /
-          airyAiC (w (2 * φ + π)))‖ ≤ 30 * √π / a * ‖airyQG f (circleMap 0 a φ)‖ := by
+      0 ≤ ‖f (w (2 * φ + π)) * Rm (w (2 * φ + π))‖ ∧
+      ‖f (w (2 * φ + π)) * Rm (w (2 * φ + π))‖ ≤ K / a * ‖airyQG f (circleMap 0 a φ)‖ := by
     intro φ hφ
     refine ⟨norm_nonneg _, ?_⟩
     have hφ0 : φ ∈ Icc (0 : ℝ) π := ⟨hφ.1, by linarith [hφ.2, Real.pi_pos]⟩
@@ -130,17 +123,16 @@ theorem airyQ_defect_le_arc {N : ℕ} {a : ℝ} (ha : 0 < a)
     have hG := airyQ_norm_G f (hz φ hφ0)
     rw [hnorm, ← hu] at hG
     rw [hG, norm_mul]
-    have hR' : ‖(airyBiC (w (2 * φ + π)) + I * airyAiC (w (2 * φ + π))) / airyAiC (w (2 * φ + π))‖ ≤
-        30 * √π / airyEnv (w (2 * φ + π)) := by rw [le_div_iff₀ he]; exact h1
-    calc ‖f (w (2 * φ + π))‖ * ‖(airyBiC (w (2 * φ + π)) + I * airyAiC (w (2 * φ + π))) /
-          airyAiC (w (2 * φ + π))‖
-        ≤ ‖f (w (2 * φ + π))‖ * (30 * √π / airyEnv (w (2 * φ + π))) := by gcongr
-      _ = 30 * √π / a * (a * (‖f (w (2 * φ + π))‖ / airyEnv (w (2 * φ + π)))) := by field_simp
-  rw [integral_upper_unfold, integral_lower_unfold] at hb
+    have hR' : ‖Rm (w (2 * φ + π))‖ ≤
+        K / airyEnv (w (2 * φ + π)) := by rw [le_div_iff₀ he]; exact h1
+    calc ‖f (w (2 * φ + π))‖ * ‖Rm (w (2 * φ + π))‖
+        ≤ ‖f (w (2 * φ + π))‖ * (K / airyEnv (w (2 * φ + π))) := by gcongr
+      _ = K / a * (a * (‖f (w (2 * φ + π))‖ / airyEnv (w (2 * φ + π)))) := by field_simp
+  rw [integral_upper_unfold, integral_lower_unfold]
   have hup' := hmono _ _ (π / 2) π (by linarith [Real.pi_pos]) hpt_up
-    ((hGc.const_mul (30 * √π / a)).intervalIntegrable _ _)
+    ((hGc.const_mul (K / a)).intervalIntegrable _ _)
   have hlo' := hmono _ _ 0 (π / 2) (by linarith [Real.pi_pos]) hpt_lo
-    ((hGc.const_mul (30 * √π / a)).intervalIntegrable _ _)
+    ((hGc.const_mul (K / a)).intervalIntegrable _ _)
   rw [intervalIntegral.integral_const_mul] at hup' hlo'
   have hsplit : ∫ φ in (0 : ℝ)..π, ‖airyQG f (circleMap 0 a φ)‖ =
       (∫ φ in (0 : ℝ)..(π / 2), ‖airyQG f (circleMap 0 a φ)‖) +
@@ -148,15 +140,29 @@ theorem airyQ_defect_le_arc {N : ℕ} {a : ℝ} (ha : 0 < a)
     (intervalIntegral.integral_add_adjacent_intervals (hGc.intervalIntegrable _ _)
       (hGc.intervalIntegrable _ _)).symm
   rw [hsplit]
-  refine hb.trans ?_
-  have hsq : (a ^ 2 / 2) * (2 * (30 * √π / a) * ((∫ φ in (0 : ℝ)..(π / 2), ‖airyQG f (circleMap 0 a φ)‖) +
+  have hsq : (a ^ 2 / 2) * (2 * (K / a) * ((∫ φ in (0 : ℝ)..(π / 2), ‖airyQG f (circleMap 0 a φ)‖) +
       ∫ φ in (π / 2)..π, ‖airyQG f (circleMap 0 a φ)‖)) =
-      30 * √π * (a * ((∫ φ in (0 : ℝ)..(π / 2), ‖airyQG f (circleMap 0 a φ)‖) +
+      K * (a * ((∫ φ in (0 : ℝ)..(π / 2), ‖airyQG f (circleMap 0 a φ)‖) +
       ∫ φ in (π / 2)..π, ‖airyQG f (circleMap 0 a φ)‖)) := by field_simp
   rw [← hsq]
   have hc : 0 ≤ a ^ 2 / 2 := by positivity
   refine mul_le_mul_of_nonneg_left ?_ hc
   nlinarith [hup', hlo']
+
+/-- Both parametrisations of the upper (`φ ∈ [π/2,π]`) and lower (`φ ∈ [0,π/2]`) half circle unfold to one arc integral. -/
+theorem airyQ_defect_le_arc {N : ℕ} {a : ℝ} (ha : 0 < a)
+    (hD : CftCircleData airyAiC (fun n => (airyZero n : ℂ)) (Finset.Icc 1 N) (a ^ 2))
+    (hup : ∀ u : ℂ, ‖u‖ = a ^ 2 → 0 ≤ u.im →
+      ‖(airyBiC u - I * airyAiC u) / airyAiC u‖ * airyEnv u ≤ 30 * √π)
+    (hlo : ∀ u : ℂ, ‖u‖ = a ^ 2 → u.im ≤ 0 →
+      ‖(airyBiC u + I * airyAiC u) / airyAiC u‖ * airyEnv u ≤ 30 * √π)
+    {f : ℂ → ℂ} (hf : Differentiable ℂ f) :
+    ‖(∑ n ∈ Finset.Icc 1 N, f (airyZero n : ℂ) / (deriv airyAiC (airyZero n : ℂ)) ^ 2) -
+        ∫ x in (-(a ^ 2))..(a ^ 2), f (x : ℂ)‖ ≤
+      30 * √π * (a * ∫ φ in (0 : ℝ)..π, ‖airyQG f (circleMap 0 a φ)‖) :=
+  (airyQ_defect_bound_int hD hf).trans
+    (airyQ_arc_reduce (Rp := fun u => (airyBiC u - I * airyAiC u) / airyAiC u)
+      (Rm := fun u => (airyBiC u + I * airyAiC u) / airyAiC u) ha hup hlo hf)
 
 /-- info: 'FormalResearch.Special.airyQ_defect_le_arc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
