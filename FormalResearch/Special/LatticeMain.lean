@@ -281,4 +281,94 @@ theorem latticesum_gamma_fixed (nc : ℕ) (hnc : 1 ≤ nc) {L Fm Fp cs δ κ b X
     refine hfin.trans (add_le_add (hII.trans ?_) htail)
     convert hE using 3
 
+/-- **`lem:latticesum` (o) and (ii) for the Gamma phase** (paper form).  Constants `C, L₀` depend only on
+`nc, b, c_*, δ, κ, b₁, F_±`. -/
+theorem latticesum_gamma (nc : ℕ) (hnc : 1 ≤ nc) {b cs δ κ b1 Fm Fp : ℝ}
+    (hb : 0 < b) (hcs0 : 0 < cs) (hcs : cs < 1 / 2) (hδ : 0 < δ) (hκ : 0 < κ) (hb1 : 0 < b1)
+    (hb1b : b1 < b) (hb1δ : b1 < nc * min δ (1 / 4)) (hFm : 0 < Fm) (hFmp : Fm ≤ Fp) :
+    ∃ C L0 : ℝ, 0 < C ∧ 1 < L0 ∧ ∀ L : ℝ, L0 ≤ L → ∀ F : Fin nc → ℝ, (∀ i, Fm ≤ F i ∧ F i ≤ Fp) →
+      ∀ (X θ0 : ℝ), L ^ (cs / 2) ≤ X → X ≤ L ^ cs →
+      ∀ Θ : ℝ → ℝ, ContinuousOn Θ (Icc (-X) X) → StrictMonoOn Θ (Icc (-X) X) →
+      (∀ s ∈ Icc (-X) X, |Θ s - gammaG nc (lsum nc L F) θ0 s| ≤ L ^ (-b)) →
+      ∀ S : Finset ℝ, (∀ x, x ∈ S ↔ x ∈ Icc (-X) X ∧ ∃ n : ℤ, Θ x = n * Real.pi) →
+      ((∀ a a' : ℝ, -X ≤ a → a ≤ a' → a' ≤ X →
+          ((S.filter fun x => x ∈ Icc a a').card : ℝ) ≤ 2 * nc * Real.log L / Real.pi * (a' - a) + 2) ∧
+       (∀ x ∈ S, ∀ y ∈ S, x < y → (∀ z ∈ S, ¬(x < z ∧ z < y)) →
+          Real.pi / (4 * nc * Real.log L) ≤ y - x ∧ y - x ≤ 4 * Real.pi / (nc * Real.log L))) ∧
+      ∀ (φ : ℂ → ℂ) (Cφ : ℝ), 0 ≤ Cφ → DifferentiableOn ℂ φ {s | |s.im| ≤ δ} →
+        (∀ s : ℂ, |s.im| ≤ δ → ‖φ s‖ ≤ Cφ * Real.exp (-κ * |s.re|)) →
+        ‖∑ x ∈ S, φ (x : ℂ) - ∫ s : ℝ, φ (s : ℂ) * ((gdens nc (lsum nc L F) s : ℝ) : ℂ)‖ ≤
+          C * Cφ * L ^ (-b1) := by
+  have hncpos : (0 : ℝ) < nc := by exact_mod_cast hnc
+  set Y : ℝ := min δ (1 / 4) with hY
+  have hY0 : 0 < Y := lt_min hδ (by norm_num)
+  have hbY : b1 / nc < Y := by rw [div_lt_iff₀ hncpos]; linarith
+  set y1 : ℝ := (b1 / nc + Y) / 2 with hy1d
+  have hy1 : 0 < y1 := by positivity
+  have hy1Y : y1 < Y := by rw [hy1d]; linarith
+  set r : ℝ := (Y - y1) / 2 with hrd
+  have hr : 0 < r := by rw [hrd]; linarith
+  have hyr : y1 + r + r ≤ Y := by rw [hrd]; linarith
+  have hnc_y : b1 ≤ nc * y1 := by
+    have : (nc : ℝ) * (b1 / nc) = b1 := by field_simp
+    have h2 : (nc : ℝ) * y1 = (b1 + nc * Y) / 2 := by rw [hy1d]; field_simp
+    rw [h2]; linarith
+  have hK : 0 ≤ (nc : ℝ) * (16 * invSqSum) / Real.pi := by
+    have := invSqSum_nonneg; positivity
+  obtain ⟨A1, A2, A3, hA1, hA2, hA3, hA⟩ :=
+    explicit_total_le κ r r y1 ((nc : ℝ) * (16 * invSqSum) / Real.pi) hκ hr hr hy1 hK
+  obtain ⟨C, hC, hCb⟩ := error_asymp nc (cs := cs) (b := b) (b1 := b1) (y1 := y1) (A1 := A1)
+    (A2 := A2) (A3 := A3) (T := |Real.log Fp|) hκ hcs0 hb1b.le hnc_y hA1 hA2 hA3 (abs_nonneg _)
+  set Λ : ℝ := max (max (2 * Real.pi) ((Real.log 3 + 5 - Real.log Fm) / (1 / 2 - cs)))
+    (max (max (Real.log Fp + 3) (-Real.log Fm)) (Real.log 4 / b)) with hΛ
+  refine ⟨C, Real.exp Λ + 1, hC, by linarith [Real.exp_pos Λ], ?_⟩
+  intro L hLL F hF X θ0 hX hXu Θ hΘc hΘm hΘG S hS
+  have hL1 : 1 < L := by linarith [Real.exp_pos Λ]
+  have hL0 : 0 < L := by linarith
+  have hlogL : Λ ≤ Real.log L := (Real.le_log_iff_exp_le hL0).2 (by linarith)
+  have hΛ1 : 2 * Real.pi ≤ Real.log L := le_trans (le_trans (le_max_left _ _) (le_max_left _ _)) hlogL
+  have hΛ2 : (Real.log 3 + 5 - Real.log Fm) / (1 / 2 - cs) ≤ Real.log L :=
+    le_trans (le_trans (le_max_right _ _) (le_max_left _ _)) hlogL
+  have hΛ3 : Real.log Fp + 3 ≤ Real.log L :=
+    le_trans (le_trans (le_max_left _ _) (le_trans (le_max_left _ _) (le_max_right _ _))) hlogL
+  have hΛ4 : -Real.log Fm ≤ Real.log L :=
+    le_trans (le_trans (le_max_right _ _) (le_trans (le_max_left _ _) (le_max_right _ _))) hlogL
+  have hΛ5 : Real.log 4 / b ≤ Real.log L :=
+    le_trans (le_trans (le_max_right _ _) (le_max_right _ _)) hlogL
+  have hm1 : 2 * Real.pi ≤ nc * Real.log L := by
+    have hlp : 0 ≤ Real.log L := by linarith [Real.pi_pos]
+    have : (1 : ℝ) ≤ nc := by exact_mod_cast hnc
+    nlinarith
+  have h1 : Real.log 3 + 5 - Real.log Fm ≤ (1 / 2 - cs) * Real.log L := by
+    have := (div_le_iff₀ (by linarith : 0 < 1 / 2 - cs)).1 hΛ2
+    linarith
+  have hε4 : L ^ (-b) ≤ 1 / 4 := by
+    rw [Real.rpow_def_of_pos hL0]
+    have h : Real.log 4 ≤ b * Real.log L := by
+      have := (div_le_iff₀ hb).1 hΛ5
+      linarith
+    have e : Real.log L * -b = -(b * Real.log L) := by ring
+    rw [e, show (1 / 4 : ℝ) = Real.exp (-Real.log 4) by
+      rw [Real.exp_neg, Real.exp_log (by norm_num)]; norm_num]
+    exact Real.exp_le_exp.2 (by linarith)
+  obtain ⟨hlo, hup⟩ := lsum_bounds nc hL0 hFm F hF
+  have hℓ0 : 0 ≤ lsum nc L F := le_trans (mul_nonneg hncpos.le (by linarith)) hlo
+  have hℓup : lsum nc L F ≤ nc * (Real.log L + |Real.log Fp|) :=
+    hup.trans (mul_le_mul_of_nonneg_left (by linarith [le_abs_self (Real.log Fp)]) hncpos.le)
+  have hfix := latticesum_gamma_fixed nc hnc (L := L) (Fm := Fm) (Fp := Fp) (cs := cs) (δ := δ)
+    (κ := κ) (b := b) (X := X) (θ0 := θ0) (y1 := y1) (r := r) (r0 := r) (A1 := A1) (A2 := A2)
+    (A3 := A3) hL1 hFm hcs0 hcs hδ hκ hy1 hr hr hyr hA F hF hX hXu h1 hΛ3 hm1 hℓ0 hε4 Θ hΘc hΘm hΘG
+    S hS
+  refine ⟨hfix.1, fun φ Cφ hCφ hφd hφb => ?_⟩
+  refine (hfix.2 φ Cφ hCφ hφd hφb).trans ?_
+  exact hCb L hL1 X Cφ (lsum nc L F) hX hCφ hℓ0 hℓup
+
+/-- info: 'FormalResearch.Special.Lattice.latticesum_gamma' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms latticesum_gamma
+
+/-- info: 'FormalResearch.Special.Lattice.latticesum_gamma_fixed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms latticesum_gamma_fixed
+
 end FormalResearch.Special.Lattice
