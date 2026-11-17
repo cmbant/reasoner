@@ -243,4 +243,97 @@ lemma kp_tau {h u0 qs αp α0 αm A : ℝ} (hh : 0 < h) (hu : 0 < u0 - h) (hu1 :
     _ ≤ 3 * Q := by have : 0 ≤ Q := by positivity
                     linarith
 
+/-- **Square-root closeness**: `|r - w²| ≤ D`, `r ≥ 0`, `w > 0` give `|√r - w| ≤ D/w`. -/
+lemma kp_sqrt_close {r w D : ℝ} (hw : 0 < w) (hr : 0 ≤ r) (h : |r - w ^ 2| ≤ D) : |Real.sqrt r - w| ≤ D / w := by
+  have hs := Real.sqrt_nonneg r
+  have hsq := Real.sq_sqrt hr
+  have e : (Real.sqrt r - w) * (Real.sqrt r + w) = r - w ^ 2 := by nlinarith [hsq]
+  have hpos : 0 < Real.sqrt r + w := by linarith
+  have h1 : |Real.sqrt r - w| * (Real.sqrt r + w) = |r - w ^ 2| := by
+    rw [← e, abs_mul, abs_of_pos hpos]
+  rw [le_div_iff₀ hw]
+  nlinarith [abs_nonneg (Real.sqrt r - w)]
+
+/-- **The radicand of the Hahn profile, exactly**: with `a² = (1+η)(1-m²)/4`, `m = u - h/2`, `P = 2/α`, `α_a² = q_*² - u²`,
+`α_b² = q_*² - (u-h)²`, `q_*² = 1 - x²`:
+`a² P_a P_b - 1 = (x² + (α_a - α_b)²/2 + h²/4 + η(1 - m²))/(α_aα_b)`. -/
+lemma kp_radicand {x qs h u η αa αb : ℝ} (hqs : qs ^ 2 = 1 - x ^ 2) (hαa : αa ^ 2 = qs ^ 2 - u ^ 2)
+    (hαb : αb ^ 2 = qs ^ 2 - (u - h) ^ 2) (ha0 : 0 < αa) (hb0 : 0 < αb) :
+    (1 + η) * ((1 - (u - h / 2) ^ 2) / 4) * (2 / αa) * (2 / αb) - 1 =
+      (x ^ 2 + ((αa - αb) ^ 2 / 2 + h ^ 2 / 4) + η * (1 - (u - h / 2) ^ 2)) / (αa * αb) := by
+  have key : (1 - (u - h / 2) ^ 2) - αa * αb = x ^ 2 + (αa - αb) ^ 2 / 2 + h ^ 2 / 4 := by
+    nlinarith [hqs, hαa, hαb]
+  field_simp
+  nlinarith [key]
+
+/-- Core of `kp_s_close` (pure scalar algebra): `r = (x² + ε + η m₂) t²`, `0 ≤ m₂ ≤ 1`, `|η| ≤ x²`, `ε ≥ 0`, `t > 0`
+give `|√r - x t| ≤ (ε + |η|) t/x`. -/
+lemma kp_s_core {x t ε η m2 r : ℝ} (hx : 0 < x) (ht0 : 0 < t) (hε0 : 0 ≤ ε) (hm0 : 0 ≤ m2) (hm1 : m2 ≤ 1)
+    (hη : |η| ≤ x ^ 2) (hr : r = (x ^ 2 + ε + η * m2) * t ^ 2) :
+    |Real.sqrt r - x * t| ≤ (ε + |η|) * t / x := by
+  have hηm : |η * m2| ≤ |η| := by
+    rw [abs_mul, abs_of_nonneg hm0]
+    nlinarith [abs_nonneg η]
+  have hr0 : 0 ≤ r := by
+    rw [hr]
+    have : 0 ≤ x ^ 2 + ε + η * m2 := by
+      have := (abs_le.1 hηm).1
+      have := (abs_le.1 hη).1
+      nlinarith
+    positivity
+  have hw : 0 < x * t := mul_pos hx ht0
+  have hD : |r - (x * t) ^ 2| ≤ (ε + |η|) * t ^ 2 := by
+    have : r - (x * t) ^ 2 = (ε + η * m2) * t ^ 2 := by rw [hr]; ring
+    rw [this, abs_mul, abs_of_nonneg (sq_nonneg t)]
+    apply mul_le_mul_of_nonneg_right _ (sq_nonneg t)
+    calc |ε + η * m2| ≤ |ε| + |η * m2| := abs_add_le _ _
+      _ ≤ ε + |η| := by rw [abs_of_nonneg hε0]; linarith
+  have hc := kp_sqrt_close hw hr0 hD
+  refine hc.trans (le_of_eq ?_)
+  field_simp
+
+lemma kp_eps_le {a b h A : ℝ} (hA0 : 0 < A) (hA1 : A ≤ 1) (hδ : |a - b| ≤ h / A) :
+    (a - b) ^ 2 / 2 + h ^ 2 / 4 ≤ h ^ 2 / A ^ 2 := by
+  have h1 : (a - b) ^ 2 ≤ (h / A) ^ 2 := by
+    have := sq_le_sq' (abs_le.1 hδ).1 (abs_le.1 hδ).2
+    simpa using this
+  have h2 : (h / A) ^ 2 = h ^ 2 / A ^ 2 := by rw [div_pow]
+  have hA2 : A ^ 2 ≤ 1 := by nlinarith
+  have h3 : h ^ 2 / 4 ≤ h ^ 2 / (2 * A ^ 2) := by
+    rw [div_le_div_iff₀ (by norm_num) (by positivity)]
+    nlinarith [sq_nonneg h, mul_nonneg (sq_nonneg h) (sub_nonneg.2 hA2)]
+  have h4 : h ^ 2 / (2 * A ^ 2) = (h ^ 2 / A ^ 2) / 2 := by field_simp
+  nlinarith [h1, h2, h3, h4]
+
+/-- **`s_k` is close to `x t_k`**, `t_k = 1/√(α_aα_b)`:
+`|√(a² P_a P_b - 1) - x/√(α_aα_b)| ≤ (h²/A² + |η|)/(x A)` for `|η| ≤ x²`, `α ≥ A`, `|α_a - α_b| ≤ h/A`. -/
+lemma kp_s_close {x qs h u η αa αb A : ℝ} (hx : 0 < x) (hqs : qs ^ 2 = 1 - x ^ 2) (hαa : αa ^ 2 = qs ^ 2 - u ^ 2)
+    (hαb : αb ^ 2 = qs ^ 2 - (u - h) ^ 2) (hA0 : 0 < A) (hA1 : A ≤ 1) (hAa : A ≤ αa) (hAb : A ≤ αb)
+    (hδ : |αa - αb| ≤ h / A) (hη : |η| ≤ x ^ 2) (hm : (u - h / 2) ^ 2 ≤ 1) :
+    |Real.sqrt ((1 + η) * ((1 - (u - h / 2) ^ 2) / 4) * (2 / αa) * (2 / αb) - 1) - x / Real.sqrt (αa * αb)| ≤
+      (h ^ 2 / A ^ 2 + |η|) / (x * A) := by
+  have ha0 : 0 < αa := by linarith
+  have hb0 : 0 < αb := by linarith
+  have hab : 0 < αa * αb := mul_pos ha0 hb0
+  have hrad := kp_radicand (x := x) (η := η) (h := h) hqs hαa hαb ha0 hb0
+  set t := 1 / Real.sqrt (αa * αb) with ht
+  have ht0 : 0 < t := by rw [ht]; positivity
+  have ht2 : t ^ 2 = 1 / (αa * αb) := by rw [ht, div_pow, Real.sq_sqrt hab.le]; ring
+  have htA : t ≤ 1 / A := by
+    rw [ht]
+    apply one_div_le_one_div_of_le hA0
+    apply Real.le_sqrt_of_sq_le; nlinarith
+  have hr2 : (1 + η) * ((1 - (u - h / 2) ^ 2) / 4) * (2 / αa) * (2 / αb) - 1 =
+      (x ^ 2 + ((αa - αb) ^ 2 / 2 + h ^ 2 / 4) + η * (1 - (u - h / 2) ^ 2)) * t ^ 2 := by
+    rw [hrad, ht2]; ring
+  have hc := kp_s_core hx ht0 (by positivity) (by linarith) (by nlinarith [sq_nonneg (u - h / 2)]) hη hr2
+  have e1 : x / Real.sqrt (αa * αb) = x * t := by rw [ht]; ring
+  rw [e1]
+  refine hc.trans ?_
+  have hε1 := kp_eps_le hA0 hA1 hδ
+  calc ((αa - αb) ^ 2 / 2 + h ^ 2 / 4 + |η|) * t / x ≤ (h ^ 2 / A ^ 2 + |η|) * (1 / A) / x := by
+        apply div_le_div_of_nonneg_right _ hx.le
+        apply mul_le_mul (by linarith) htA ht0.le (by positivity)
+    _ = (h ^ 2 / A ^ 2 + |η|) / (x * A) := by field_simp
+
 end FormalResearch.Special
