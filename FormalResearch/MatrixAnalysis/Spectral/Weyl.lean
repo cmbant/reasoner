@@ -20,8 +20,8 @@ Every proof is a dimension-counting argument on the Courant–Fischer certificat
   (Weyl's perturbation theorem, Bhatia Cor III.2.6).
 * `interlace_le`, `interlace_ge`: Cauchy interlacing `μ_{k+N-m}(T) ≤ μ_k(T') ≤ μ_k(T)` for a compression
   `T'` of `T` to an `m`-dimensional space along an isometry `J`.
-* `eigenvalue_le_add_finiteRank`, `le_eigenvalue_add_finiteRank`: for `P ⪰ 0` of rank `≤ r`,
-  `μ_k(S) ≤ μ_k(S+P) ≤ μ_{k-r}(S)`; `rank-one` interlacing is `r = 1`.
+* `eigenvalue_le_add_finiteRank`, `add_finiteRank_le_eigenvalue`: for `P ⪰ 0` of rank `≤ r`,
+  `μ_k(S) ≤ μ_k(S+P)` and `μ_{l+r}(S+P) ≤ μ_l(S)`; `interlace_rankOne` is `r = 1`.
 
 Not formalised here: the multiplicative (Horn) inequalities, the Weyl inequality for non-Hermitian
 matrices, and the infinite-dimensional (compact operator) forms.
@@ -192,13 +192,15 @@ variable {𝕜 : Type*} [RCLike 𝕜] {E : Type*} [NormedAddCommGroup E] [InnerP
   (hN : finrank 𝕜 E = N)
 
 include hS hP in
-/-- **Finite-rank interlacing.**  If `P ⪰ 0` and `Re⟪x, P x⟫ ≤ 0` on a subspace of dimension `≥ N - r`
-(e.g. `rank P ≤ r`), then `μ_k(S) ≤ μ_k(S+P)` and `μ_{l+r}(S+P) ≤ μ_l(S)`. -/
+/-- **Finite-rank interlacing, lower half.**  If `P ⪰ 0` then `μ_k(S) ≤ μ_k(S+P)`. -/
 theorem eigenvalue_le_add_finiteRank (hpos : ∀ x, 0 ≤ rq P x) (k : Fin N) :
     hS.eigenvalues hN k ≤ (hS.add hP).eigenvalues hN k :=
   eigenvalue_mono hS (hS.add hP) hN (fun x => by rw [rq_add]; linarith [hpos x]) k
 
 include hS hP in
+/-- **Finite-rank interlacing, upper half.**  If `Re⟪x, P x⟫ ≤ 0` on a subspace of dimension `≥ N - r`
+(e.g. `P ⪰ 0` of rank `≤ r`) then `μ_{l+r}(S+P) ≤ μ_l(S)`.  (The hypothesis `P ⪰ 0` is not used here;
+`P` need only be symmetric.) -/
 theorem add_finiteRank_le_eigenvalue {W : Submodule 𝕜 E} {r : ℕ} (hW : N - r ≤ finrank 𝕜 W)
     (h0 : ∀ x ∈ W, rq P x ≤ 0) (l r' k : Fin N) (hr : (r' : ℕ) = r) (hk : (k : ℕ) = l + r) :
     (hS.add hP).eigenvalues hN k ≤ hS.eigenvalues hN l := by
