@@ -174,7 +174,7 @@ the band, left and zone masses add up to `N`, `ksa_combine`).  Its ingredients a
 (`kiF_step`, `ki_invariant`: two-sided `e^{O(1)}` comparison over a band, `kl_band`), the second-order Ermakov invariant, the exact mass identity and band masses
 (`kerm_mass_id`, `kp_band_mass`, `hahn3j_band_mass`), Riemann sums of `1/α` (`kr_sum_bounds`), the a priori left bound down to the hard edge
 (`kl_hahn_left`), monotone decay on the forbidden side beyond the turn (`kr_chain_mono`) and the matching with the chart data exported
-(`kc_hahn_full`, `kc2_hahn_full`; these repeat the proof of `discrete_airy_full` with extra conjuncts and may later be folded into it).  The rate is not uniform:
+(`kc_turn_full`, `kc_hahn_full`, `kc2_hahn_full`; these repeat the proof of `discrete_airy_full` with extra conjuncts and could be folded into it).  The rate is not uniform:
 the proof gives `|κ² δ - 2| ≤ C₁ A + C₂(A) δ` for every small `A` (numerically the error is about `δ⁴`).  Still open: an explicit rate and uniformity in `x` (the hard
 edges `x → 0, 1`), the Darboux phase and sign of `κ`, `κ ≠ 0` and the value of `κ` for `τ = -1` and half-integer `3j` chains, uniformity of the Racah/half-integer matching over families,
 the half-integer version of the full statement, Racah family variants, explicit constants, analyticity of `ζ`.

@@ -8,19 +8,18 @@ public import FormalResearch.Special.DiscreteAiryPhysHahn
 
 `hahn_chain_airy_full` (`DiscreteAiryPhysChains`) gives `Ŷ_k = κ g Ai(X_k) + μ g Bi(X_k) + O(δ³)` on the macroscopic window but does
 not export the chart data (the Langer-chart radius `r` is existential in `dal_turn_data`, so a bound on `g` cannot be recovered
-afterwards).  This module re-runs the same proofs with two extra conclusions, independent of the coefficients:
+afterwards).  This module re-runs the proof of `discrete_airy_full` with extra conclusions, independent of the coefficients:
 
-* `|g(q_k)| ≤ g_max` on the whole window `[J, N+1]`;
-* `X_k ≤ 1/4` for `J ≤ k ≤ m+1` (the sites up to one past the turn, `q_m ∈ [q_*, q_*+h)`).
-
-* `kc_turn`: `discrete_airy_full` with these extras;
-* `kc_hahn_full`: `discrete_airy_hahn_racah_full` (closed-form Hahn / centred Racah recurrence) with these extras; `DiscreteAiryKappaMain`
+* `kc_turn_full`: `discrete_airy_full` with `g_min ≤ |g| ≤ g_max` on the whole window `[J, N+1]`, `X_k ≤ 1/4` for `J ≤ k ≤ m+1` (the sites up to one
+  past the turn, `q_m ∈ [q_*, q_*+h)`), the lattice gaps `c₁ δ ≤ X_{k+1} - X_k ≤ c₂ δ`, `0 ≤ X_m ≤ c₂ δ`, `c₁ r/(4δ²) ≤ X_N` and the Lipschitz bound
+  `|g(q_{k+1}) - g(q_k)| ≤ L_g δ³` (the single proof; used for the Hermite chain, `HermiteKappaEdge`);
+* `kc_turn`: the weaker statement (`g ≤ g_max` and `X_k ≤ 1/4` only), a projection of `kc_turn_full`; `DiscreteAiryKappaChart2.kc2_turn` is the projection with
+  `g_min`, the gaps and `X_N` but without `L_g`;
+* `kc_hahn_full`: `discrete_airy_hahn_racah_full` (closed-form Hahn / centred Racah recurrence) with the `kc_turn` extras; `DiscreteAiryKappaMain`
   composes it with `hahn_class_chain` and `hahn_chain_abs_le` for the actual `3j` chain (`τ = +1`, integer `M, σ`, rational `x ∈ (0,1)`).
 
-**Claim class: proved** (the proofs of `discrete_airy_full` and `discrete_airy_hahn_racah_full` are repeated with the extra conjuncts;
-nothing else changes).  This duplicates the two proofs: the two conjuncts may later be folded into `discrete_airy_full`
-(`DiscreteAiryPhysTurn`) and this module deleted; `DiscreteAiryKappaChart2` (`kc2_turn`, `kc2_hahn_full`) is the same statement with more conjuncts, and
-`HermiteKappaChart.hkc_turn` a further copy.
+**Claim class: proved** (the proof of `discrete_airy_full` is repeated once, with the extra conjuncts; nothing else changes).  The extra conjuncts could be
+folded into `discrete_airy_full` itself (`DiscreteAiryPhysTurn`), which would make this theorem a one-line restatement.
 
 **Not formalised here.**  The value of `κ` (it is `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`); `τ = -1`; Racah (the `6j` value of `κ` is `racah_chain_kappa_sharp`, `RacahKappa*`, built on its own window data `RkWinAt`, not on `kc_hahn_full`).
 -/
@@ -48,19 +47,28 @@ lemma kc_mono {X : ℤ → ℝ} {J N : ℤ} (h : ∀ k ∈ Finset.Icc J N, X k �
   have := this n (by omega)
   rwa [show k + (n : ℤ) = k' by omega] at this
 
-/-- **`discrete_airy_full` with the chart data**: the same statement as `discrete_airy_full` (`DiscreteAiryPhysTurn`) with, in
-addition, a uniform bound `gmax` on the Langer amplitude on the window `[J, N+1]` and `X_k ≤ 1/4` for `k ≤ m+1` (the data of the
-chart are not exported by `discrete_airy_full`, whose radius `r` is existential). -/
-theorem kc_turn {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 3 u c0) (h1 : u c0 = 1)
+/-- **`discrete_airy_full` with the full chart data exported** (the single proof behind `kc_turn`, `kc2_turn` (`DiscreteAiryKappaChart2`) and `hermite_kappa_edge`
+(`HermiteKappaEdge`)): the statement of `discrete_airy_full` (`DiscreteAiryPhysTurn`) with, in addition, `g_min ≤ g ≤ g_max` on the window `[J, N+1]`, `X_k ≤ 1/4` for
+`k ≤ m+1`, the lattice gaps `c₁ δ ≤ X_{k+1} - X_k ≤ c₂ δ`, `0 ≤ X_m ≤ c₂ δ`, `c₁ r/(4δ²) ≤ X_N`, `c₂ δ ≤ 1/8` and the Lipschitz bound `|g(q_{k+1}) - g(q_k)| ≤ L_g δ³`
+(the data of the chart are not exported by `discrete_airy_full`, whose radius `r` is existential). -/
+theorem kc_turn_full {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 3 u c0) (h1 : u c0 = 1)
     (h2 : 0 < deriv u c0) (hA : ContDiffAt ℝ 2 A c0) (hA0 : 0 < A c0) {r0 : ℝ} (hr0 : 0 < r0)
     (E : ℝ) (hE : 0 ≤ E) :
-    ∃ (r δ0 C Cmu ξ0 gmax : ℝ), 0 < r ∧ r ≤ r0 ∧ 0 < δ0 ∧ δ0 ≤ 1 ∧ 0 < C ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < gmax ∧
+    ∃ (r δ0 C Cmu ξ0 gmax gmin c1 c2 Lg : ℝ), 0 < r ∧ r ≤ r0 ∧ 0 < δ0 ∧ δ0 ≤ 1 ∧ 0 < C ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < gmax ∧
+      0 < gmin ∧ gmin ≤ gmax ∧ 0 < c1 ∧ c1 ≤ c2 ∧ 0 ≤ Lg ∧
       ∀ δ q₀ : ℝ, 0 < δ → δ ≤ δ0 → ∃ J m N : ℤ, J < N ∧ J ≤ m ∧ m ≤ N ∧
         (∀ k ∈ Finset.Icc J (N + 1), dalQ q₀ δ k ∈ Set.Icc (c0 - r) (c0 + r)) ∧
         c0 - r ≤ dalQ q₀ δ J ∧ dalQ q₀ δ J < c0 - r + δ ^ 3 ∧ c0 ≤ dalQ q₀ δ m ∧
         dalQ q₀ δ m < c0 + δ ^ 3 ∧ c0 + r / 4 ≤ dalQ q₀ δ N ∧ dalQ q₀ δ (N + 1) ≤ c0 + r / 2 ∧
         (∀ k ∈ Finset.Icc J (N + 1), |langerAmp u A c0 (dalQ q₀ δ k)| ≤ gmax) ∧
         (∀ k ∈ Finset.Icc J (m + 1), turnX u c0 q₀ δ k ≤ 1 / 4) ∧
+        (∀ k ∈ Finset.Icc J (N + 1), gmin ≤ langerAmp u A c0 (dalQ q₀ δ k)) ∧
+        (∀ k ∈ Finset.Icc J N, c1 * δ ≤ turnX u c0 q₀ δ (k + 1) - turnX u c0 q₀ δ k ∧
+          turnX u c0 q₀ δ (k + 1) - turnX u c0 q₀ δ k ≤ c2 * δ) ∧
+        (0 ≤ turnX u c0 q₀ δ m ∧ turnX u c0 q₀ δ m ≤ c2 * δ) ∧
+        c1 * (r / 4) / δ ^ 2 ≤ turnX u c0 q₀ δ N ∧
+        (∀ k ∈ Finset.Icc J N, |langerAmp u A c0 (dalQ q₀ δ (k + 1)) - langerAmp u A c0 (dalQ q₀ δ k)| ≤ Lg * δ ^ 3) ∧
+        c2 * δ ≤ 1 / 8 ∧
         ∀ a c : ℤ → ℝ,
           (∀ k ∈ Finset.Icc (J + 1) (N + 1), |a k - A (dalQ q₀ δ k - δ ^ 3 / 2)| ≤ E * δ ^ 6) →
           (∀ k ∈ Finset.Icc (J + 1) N, |c k - 2 * A (dalQ q₀ δ k) * u (dalQ q₀ δ k)| ≤ E * δ ^ 6) →
@@ -111,7 +119,8 @@ theorem kc_turn {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 3 u c0) (h1 
     rw [hC]; linarith
   have hξ0 : 0 < 2 / 3 * (c1 * (r / 4)) ^ (3 / 2 : ℝ) := by positivity
   refine ⟨r, min δL (min δ1 (min δ2 (min (1 / (8 * c2)) (min (1 / (4 * (Cl + 1))) (min (Amin / (2 * (E + 1))) (r / 8)))))),
-    C, Cmu, 2 / 3 * (c1 * (r / 4)) ^ (3 / 2 : ℝ), gmax, hr, hrr0, ?_, ?_, hCpos, by positivity, hξ0, hgmax, ?_⟩
+    C, Cmu, 2 / 3 * (c1 * (r / 4)) ^ (3 / 2 : ℝ), gmax, gmin, c1, c2, Lg, hr, hrr0, ?_, ?_, hCpos, by positivity, hξ0, hgmax,
+    hgmin, T.gmin_le, hc1, T.c1_le, T.Lg_nonneg, ?_⟩
   · refine lt_min hδL (lt_min hδ1 (lt_min hδ2 (lt_min (by positivity) (lt_min (by positivity)
       (lt_min (by positivity) (by positivity))))))
   · exact (min_le_left _ _).trans hδL1
@@ -142,7 +151,18 @@ theorem kc_turn {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 3 u c0) (h1 
     have h1 := kc_mono hmono k (m + 1) hk.1 hk.2 (by omega)
     have h2 := (hgap m (by rw [Finset.mem_Icc]; omega)).2
     linarith only [h1, h2, hX1, hc2δ]
-  refine ⟨J, m, N, hJN, hJm, hmN, hwin, hqJ1, hqJ2, hqm1, hqm2, hqN, hqN1, hg, hXm, ?_⟩
+  have hLgb : ∀ k ∈ Finset.Icc J N, |langerAmp u A c0 (dalQ q₀ δ (k + 1)) - langerAmp u A c0 (dalQ q₀ δ k)| ≤ Lg * δ ^ 3 := by
+    intro k hk
+    have hk1 : k + 1 ≤ N + 1 := by rw [Finset.mem_Icc] at hk; omega
+    have h := (T.lip _ (hwin (k + 1) (by rw [Finset.mem_Icc] at hk ⊢; omega)) _ (hwin k (by rw [Finset.mem_Icc] at hk ⊢; omega))).2.1
+    have e : |dalQ q₀ δ (k + 1) - dalQ q₀ δ k| = δ ^ 3 := by
+      simp only [dalQ]; push_cast
+      rw [show q₀ + ((k : ℝ) + 1) * δ ^ 3 - (q₀ + (k : ℝ) * δ ^ 3) = δ ^ 3 by ring]
+      exact abs_of_pos (by positivity)
+    rw [e] at h
+    exact h
+  have hgl : ∀ k ∈ Finset.Icc J (N + 1), gmin ≤ langerAmp u A c0 (dalQ q₀ δ k) := fun k hk => (T.gb _ (hwin k hk)).1
+  refine ⟨J, m, N, hJN, hJm, hmN, hwin, hqJ1, hqJ2, hqm1, hqm2, hqN, hqN1, hg, hXm, hgl, hgap, ⟨hX0, hX1⟩, hXN, hLgb, hc2δ, ?_⟩
   intro a c ha hc
   have hEδ : E * δ ^ 6 ≤ Amin / 2 := dao_E_arith hE hδ hδ11 hδE
   have hsmall : Cl * δ ^ 3 ≤ 1 / 4 := dao_small_arith hCl0 hδ hδ11 hδCl
@@ -190,6 +210,32 @@ theorem kc_turn {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 3 u c0) (h1 
       hgap hXabs hgmin (fun k hk => T.gb _ (hwin k hk)) hcap halow hK0n hE ha hc hdA hdB
   exact dai_extend hP hJN hJm hmN hc2.le hM0 haN' hcN hCdp hxi
     (dao_conclusion hP (mem_Icc.2 ⟨hJm, hmN⟩) hX0 hX1 hc2δ haN hsmall)
+
+/-- info: 'FormalResearch.Special.kc_turn_full' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.kc_turn_full
+
+/-- **`discrete_airy_full` with the chart data**: `kc_turn_full` without the lower bound on `g`, the lattice gaps, the Lipschitz bound and `c₂ δ ≤ 1/8`
+(`g ≤ g_max` on the window `[J, N+1]` and `X_k ≤ 1/4` for `k ≤ m+1` only). -/
+theorem kc_turn {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 3 u c0) (h1 : u c0 = 1)
+    (h2 : 0 < deriv u c0) (hA : ContDiffAt ℝ 2 A c0) (hA0 : 0 < A c0) {r0 : ℝ} (hr0 : 0 < r0)
+    (E : ℝ) (hE : 0 ≤ E) :
+    ∃ (r δ0 C Cmu ξ0 gmax : ℝ), 0 < r ∧ r ≤ r0 ∧ 0 < δ0 ∧ δ0 ≤ 1 ∧ 0 < C ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < gmax ∧
+      ∀ δ q₀ : ℝ, 0 < δ → δ ≤ δ0 → ∃ J m N : ℤ, J < N ∧ J ≤ m ∧ m ≤ N ∧
+        (∀ k ∈ Finset.Icc J (N + 1), dalQ q₀ δ k ∈ Set.Icc (c0 - r) (c0 + r)) ∧
+        c0 - r ≤ dalQ q₀ δ J ∧ dalQ q₀ δ J < c0 - r + δ ^ 3 ∧ c0 ≤ dalQ q₀ δ m ∧
+        dalQ q₀ δ m < c0 + δ ^ 3 ∧ c0 + r / 4 ≤ dalQ q₀ δ N ∧ dalQ q₀ δ (N + 1) ≤ c0 + r / 2 ∧
+        (∀ k ∈ Finset.Icc J (N + 1), |langerAmp u A c0 (dalQ q₀ δ k)| ≤ gmax) ∧
+        (∀ k ∈ Finset.Icc J (m + 1), turnX u c0 q₀ δ k ≤ 1 / 4) ∧
+        ∀ a c : ℤ → ℝ,
+          (∀ k ∈ Finset.Icc (J + 1) (N + 1), |a k - A (dalQ q₀ δ k - δ ^ 3 / 2)| ≤ E * δ ^ 6) →
+          (∀ k ∈ Finset.Icc (J + 1) N, |c k - 2 * A (dalQ q₀ δ k) * u (dalQ q₀ δ k)| ≤ E * δ ^ 6) →
+          DaiFull a c (turnX u c0 q₀ δ) (fun k => langerAmp u A c0 (dalQ q₀ δ k)) J m N δ C Cmu ξ0 := by
+  obtain ⟨r, δ0, C, Cmu, ξ0, gmax, gmin, c1, c2, Lg, hr, hrr0, hδ0, hδ01, hC, hCmu, hξ0, hgmax, -, -, -, -, -, H⟩ :=
+    kc_turn_full hu h1 h2 hA hA0 hr0 E hE
+  refine ⟨r, δ0, C, Cmu, ξ0, gmax, hr, hrr0, hδ0, hδ01, hC, hCmu, hξ0, hgmax, fun δ q₀ hδ hδδ0 => ?_⟩
+  obtain ⟨J, m, N, hJN, hJm, hmN, hwin, h3, h4, h5, h6, h7, h8, hg, hX, -, -, -, -, -, -, Hc⟩ := H δ q₀ hδ hδδ0
+  exact ⟨J, m, N, hJN, hJm, hmN, hwin, h3, h4, h5, h6, h7, h8, hg, hX, Hc⟩
 
 /-- info: 'FormalResearch.Special.kc_turn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

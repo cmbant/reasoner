@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.Special.HermiteKappaChart
+public import FormalResearch.Special.DiscreteAiryKappaChart
 public import FormalResearch.Special.HermiteAiryEdge
 
 /-!
@@ -8,7 +8,7 @@ public import FormalResearch.Special.HermiteAiryEdge
 
 `hermite_airy_edge` (`HermiteAiryEdge`) gives `φ_{-k}(x) = κ g Ai(X_k) + μ g Bi(X_k) + O(δ³)` but hides the chart constants
 (`g_min ≤ g ≤ g_max`, lattice gaps, `X_m ∈ [0, c₂δ]`).  `hermite_kappa_edge` is the same statement with these exported, obtained from
-`hkc_turn` (`HermiteKappaChart`) applied to the Hermite datum `u = (√(-q))⁻¹`, `A = √(-q/2)`, `c₀ = -1`, `E = 0`.
+`kc_turn_full` (`DiscreteAiryKappaChart`) applied to the Hermite datum `u = (√(-q))⁻¹`, `A = √(-q/2)`, `c₀ = -1`, `E = 0`.
 It is what the order bounds on `κ` (`hermite_kappa_order`, `HermiteKappaLower`) are built on.
 
 **Claim class: proved.**  `κ` itself is not identified here.
@@ -61,7 +61,7 @@ theorem hermite_kappa_edge :
   have hA0 : 0 < hmA (-1) := by unfold hmA; exact Real.sqrt_pos.2 (by norm_num)
   have hu' : 0 < deriv hmU (-1) := by rw [hasDerivAt_hmU_neg_one.deriv]; norm_num
   obtain ⟨r, δ0, C, Cmu, ξ0, gmax, gmin, c1, c2, Lg, hr, hrr0, hδ0, hδ01, hC, hCmu, hξ0, hgmax, hgmin, hgg, hc1, hc12, hLg0, H⟩ :=
-    hkc_turn h3 hmU_neg_one hu' h2 hA0 (r0 := 1 / 2) (by norm_num) 0 le_rfl
+    kc_turn_full h3 hmU_neg_one hu' h2 hA0 (r0 := 1 / 2) (by norm_num) 0 le_rfl
   refine ⟨r, δ0, C, Cmu, ξ0, gmax, gmin, c1, c2, Lg, hr, hrr0, hδ0, hC, hCmu, hξ0, hgmin, hgg, hc1, hc12, hLg0, ?_⟩
   intro x δ hx hδ hδδ0 hδx
   obtain ⟨J, m, N, hJN, hJm, hmN, hwin, hqJ1, hqJ2, hqm1, hqm2, hqN, hqN1, hg, hXm, hgl, hgap, ⟨hX0, hX1⟩, hXN, hLgb,
