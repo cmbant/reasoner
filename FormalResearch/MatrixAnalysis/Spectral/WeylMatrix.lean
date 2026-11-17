@@ -3,6 +3,7 @@ module
 public import Mathlib
 public import FormalResearch.MatrixAnalysis.TraceNorm
 public import FormalResearch.MatrixAnalysis.Spectral.Lidskii
+public import FormalResearch.MatrixAnalysis.Spectral.HoffmanWielandt
 
 /-!
 # Weyl, interlacing, Ky Fan and Lidskii for Hermitian matrices
@@ -21,6 +22,8 @@ descending list; `λ_0 ≥ ⋯ ≥ λ_{N-1}`, `N = card n`) is `hT.eigenvalues` 
 * `herm_interlace_le`, `herm_interlace_ge`: Cauchy interlacing for `Jᴴ A J` with `Jᴴ J = 1`;
   `herm_interlace_submatrix_*`: principal submatrices.
 * `herm_partial_sum_add_le`: Ky Fan subadditivity.
+* `herm_sum_sq_eigenvalues₀_eq`, `herm_hoffman_wielandt`: `Σ_j λ_j(C)² = Σ_{ij} |C_ij|²` and Hoffman–Wielandt
+  `Σ_j (λ_j(A) - λ_j(B))² ≤ Σ_{ij} |(A-B)_{ij}|²`; `herm_sum_mul_le`: von Neumann `Re tr(AB) ≤ Σ λ_j(A)λ_j(B)`.
 * `herm_lidskii_sum_le`, `herm_lidskii_abs_sum_le`, `herm_lidskii_tnorm`: Lidskii, the last one with the
   repository's `tnorm`: `Σ_j |λ_j(A) - λ_j(B)| ≤ ‖A - B‖₁`.
 -/
@@ -253,6 +256,46 @@ theorem herm_lidskii_abs_sum_le (hA : A.IsHermitian) (hB : B.IsHermitian) :
 
 end KyFanLidskii
 
+section Frobenius
+
+/-- `Σ_j λ_j(C)² = Σ_{ij} |C_ij|²` for Hermitian `C`. -/
+theorem herm_sum_sq_eigenvalues₀_eq (hC : A.IsHermitian) :
+    ∑ j, hC.eigenvalues₀ j ^ 2 = ∑ i, ∑ j, ‖A i j‖ ^ 2 := by
+  have h := sum_sq_eigenvalues_eq (hsym hC) finrank_euclideanSpace (EuclideanSpace.basisFun n 𝕜)
+  refine h.trans ?_
+  rw [Finset.sum_comm]
+  refine Finset.sum_congr rfl fun j _ => ?_
+  rw [EuclideanSpace.norm_sq_eq]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  simp [Matrix.toLpLin_apply]
+
+/-- **Hoffman–Wielandt** for Hermitian matrices:
+`Σ_j (λ_j(A) - λ_j(B))² ≤ Σ_{ij} |(A - B)_{ij}|²`. -/
+theorem herm_hoffman_wielandt (hA : A.IsHermitian) (hB : B.IsHermitian) :
+    ∑ j, (hA.eigenvalues₀ j - hB.eigenvalues₀ j) ^ 2 ≤ ∑ i, ∑ j, ‖(A - B) i j‖ ^ 2 := by
+  rw [← herm_sum_sq_eigenvalues₀_eq (hA.sub hB), eigenvalues₀_sub hA hB]
+  exact hoffman_wielandt (hsym hA) (hsym hB) finrank_euclideanSpace
+
+/-- **Von Neumann's trace inequality** (Hermitian form): `Re tr(AB) ≤ Σ_j λ_j(A) λ_j(B)`. -/
+theorem herm_sum_mul_le (hA : A.IsHermitian) (hB : B.IsHermitian) :
+    RCLike.re (A * B).trace ≤ ∑ j, hA.eigenvalues₀ j * hB.eigenvalues₀ j := by
+  have htr : (toEuclideanLin (A * B)).trace 𝕜 (EuclideanSpace 𝕜 n) = (A * B).trace := by
+    rw [LinearMap.trace_eq_matrix_trace 𝕜 (EuclideanSpace.basisFun n 𝕜).toBasis,
+      toEuclideanLin_eq_toLin_orthonormal, LinearMap.toMatrix_toLin]
+  rw [← htr, LinearMap.trace_eq_sum_inner _ ((hsym hB).eigenvectorBasis finrank_euclideanSpace), map_sum]
+  have h := sum_mul_rq_le (hsym hA) (hsym hB) finrank_euclideanSpace
+  have e : ∀ j, RCLike.re (inner 𝕜 ((hsym hB).eigenvectorBasis finrank_euclideanSpace j)
+      (toEuclideanLin (A * B) ((hsym hB).eigenvectorBasis finrank_euclideanSpace j))) =
+      hB.eigenvalues₀ j * rq (toEuclideanLin A) ((hsym hB).eigenvectorBasis finrank_euclideanSpace j) := by
+    intro j
+    rw [Matrix.toLpLin_mul_same, LinearMap.comp_apply, (hsym hB).apply_eigenvectorBasis, map_smul,
+      inner_smul_right, RCLike.re_ofReal_mul]
+    rfl
+  simp_rw [e]
+  exact h.trans (le_of_eq (Finset.sum_congr rfl fun j _ => mul_comm _ _))
+
+end Frobenius
+
 section RankOne
 
 omit [Fintype n] [DecidableEq n] in
@@ -374,5 +417,17 @@ end Complex
 /-- info: 'FormalResearch.MatrixAnalysis.Spectral.herm_lidskii_tnorm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.MatrixAnalysis.Spectral.herm_lidskii_tnorm
+
+/-- info: 'FormalResearch.MatrixAnalysis.Spectral.herm_sum_sq_eigenvalues₀_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.MatrixAnalysis.Spectral.herm_sum_sq_eigenvalues₀_eq
+
+/-- info: 'FormalResearch.MatrixAnalysis.Spectral.herm_hoffman_wielandt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.MatrixAnalysis.Spectral.herm_hoffman_wielandt
+
+/-- info: 'FormalResearch.MatrixAnalysis.Spectral.herm_sum_mul_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.MatrixAnalysis.Spectral.herm_sum_mul_le
 
 end FormalResearch.MatrixAnalysis.Spectral
