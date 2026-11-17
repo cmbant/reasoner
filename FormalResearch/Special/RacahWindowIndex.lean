@@ -23,8 +23,8 @@ Numerics (mpmath, 40 digits, exact `6j` symbols from the Racah sum, throw-away s
 (`α = 2`): at every site with `0.15 q_* ≤ q_k < 0.97 q_*` and `|cos(Φ/h - π/4)| > 1/2` (about 1000 sites) the number `R_k` of nodes in the bonds `j ≥ k` equals
 `⌊Φ(q_k)/(π h) + 1/4⌋` (offset `0`; the offsets `±1` fail at every such site, negative control), and the total number of nodes of the chain is `c - c_min` (the index of the lattice point).
 
-**Claim class: proved** (axiom guards pinned).  **Not formalised:** `τ = -1` (twisted chain), the half-integer lattice, `kmin = 0`; the total node count
-of the `6j` chain (so the zero index from the left); uniformity of `ε` in `(α, β, x, m, n)`; resonant sites `|cos θ| ≤ 1/2`.
+**Claim class: proved** (axiom guards pinned).  The total node count and the zero index from the left are `RacahWindowNodes`, `RacahWindowZero`.  **Not formalised:** `τ = -1` (twisted chain),
+the half-integer lattice, `kmin = 0`; uniformity of `ε` in `(α, β, x, m, n)`; resonant sites `|cos θ| ≤ 1/2`.
 -/
 
 @[expose] public section
