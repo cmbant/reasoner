@@ -39,4 +39,14 @@ Survey row T5.  Modules:
   which uses Hardy/Fejér–Riesz), hence completeness again (`airyPW_parseval`, `airyPW_eq_zero_of_inner`);
 * `AiryTransformRKHS`: `PW` is a reproducing-kernel space of entire functions with kernel `airyKerC`; the bridge
   between the operator `K_u = A_u A_u^*` and `airyKerOp`.
+
+**Correction to the survey wording.**  `𝒜 = 𝓕⁻¹ M_{e^{iω³/3}} 𝓕` is unitary and equals convolution with `Ai`,
+`(𝒜 f)(u) = ∫ f(t) Ai(u-t) dt`, but it is **not** an involution (`𝒜⁻¹ = 𝒜* = R 𝒜 R`).  The self-adjoint unitary
+involution with kernel `Ai(u+t)` is `A = 𝒜 R` (`airyA`); all statements about `PW`, `K_Ai` and `K_u` are about `A`.
+
+**Not formalised:** the converse Paley–Wiener-type characterisation (every entire `F` with `F|_ℝ ∈ L²` and growth
+`|F(z)|² ≲ (1+|z|)^ν e(z)` lies in `PW`); the sharp exponent `(1+|z|)^{1/2}` in the growth bounds for `κ` and `Ψφ`
+(proved: `(1+|z|)`, which suffices for completeness and Parseval); trace-class / Fredholm-determinant statements for
+`K_Ai` and `K_u` and the Tracy–Widom identification; `A` on tempered distributions (for `φ ∈ L²(ℝ)` the kernel formula
+`Ai(u+t)` is proved for `Pφ`, since `Ai(u+·)` is not square integrable on `(-∞,0)`).
 -/

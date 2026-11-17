@@ -145,6 +145,7 @@ theorem airyKappa_le (z : ℂ) : airyKappa z ≤ 9 * airyEnv z * (2 * ‖z‖ + 
     _ = 9 * airyEnv z * (2 * ‖z‖ + 2 + 1 / 2) := integral_airyKB z hs
     _ = _ := by ring
 
+/-- Polynomial form of the growth bound: `κ(z) ≤ 23 (1+‖z‖) e(z)`. -/
 theorem airyKappa_le' (z : ℂ) : airyKappa z ≤ 23 * (1 + ‖z‖) * airyEnv z := by
   have := airyKappa_le z
   have h := airyEnv_pos z
@@ -156,5 +157,9 @@ lemma airyKappa_nonneg (z : ℂ) : 0 ≤ airyKappa z :=
 /-- info: 'FormalResearch.Special.airyKappa_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyKappa_le
+
+/-- info: 'FormalResearch.Special.airyKappa_le'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyKappa_le'
 
 end FormalResearch.Special

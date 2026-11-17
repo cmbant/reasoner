@@ -273,4 +273,24 @@ theorem airyKu_ae (u : ℝ) (f : AiryL2) :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyKu_ae
 
+/-- info: 'FormalResearch.Special.norm_airyKerL2_sq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.norm_airyKerL2_sq
+
+/-- info: 'FormalResearch.Special.isClosed_airyPW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.isClosed_airyPW
+
+/-- info: 'FormalResearch.Special.airyAu_adjoint' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyAu_adjoint
+
+/-- info: 'FormalResearch.Special.airyKu_eq_adjoint' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyKu_eq_adjoint
+
+/-- info: 'FormalResearch.Special.airyKu_inner' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyKu_inner
+
 end FormalResearch.Special

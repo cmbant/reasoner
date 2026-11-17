@@ -9,9 +9,9 @@ public import FormalResearch.Special.AiryTransformHilbert
 
 * `airyPWFun_ae`: `F(u) = airyPWFun F (u)` for a.e. real `u` (so `airyPWFun F` is the entire representative of `F`);
 * `differentiable_airyPWFun`, `norm_airyPWFun_sq_le`: it is entire with `‖F(z)‖² ≤ 23 ‖F‖² (1+|z|) e(z)`;
-* `airyPW_eval_inner`: **reproducing kernel**: `F(z) = ⟨k_z, F⟩`, `k_z = A(1_{t>0} Ai(\\bar z+·)) ∈ PW`
-  (`airyKerCL2`), with `⟨k_z, k_w⟩ = K(z, \\bar w)` the complex Airy kernel `airyKerC` (`inner_airyKerCL2`), so that
-  `|F(z)| ≤ ‖F‖ K(\\bar z, z)^{1/2}` (`K(\\bar z, z) = κ(\\bar z)`).
+* `airyPW_eval_inner`: **reproducing kernel**: `F(z) = ⟨k_z, F⟩`, `k_z = A(1_{t>0} Ai(z̄+·)) ∈ PW`
+  (`airyKerCL2`), with `⟨k_z, k_w⟩ = K(z, w̄)` the complex Airy kernel `airyKerC` (`inner_airyKerCL2`), so that
+  `|F(z)| ≤ ‖F‖ K(z̄, z)^{1/2}` (`K(z̄, z) = κ(z̄)`).
 
 **`K_u` bridge** (`airyKu_airyKerOp`): for real measurable `f` with `∫_u^∞ f² < ∞`, the Hilbert-space operator
 `K_u = A_u A_u^*` (`AiryTransformProj`) applied to `1_{(u,∞)} f` is, a.e., `1_{(u,∞)}` times the function-level
@@ -29,7 +29,7 @@ open scoped ComplexInnerProductSpace Real
 
 namespace FormalResearch.Special
 
-/-- `k_z = A(1_{t>0} Ai(\\bar z + ·)) ∈ PW`: the reproducing kernel of `PW` at `z ∈ ℂ`. -/
+/-- `k_z = A(1_{t>0} Ai(z̄ + ·)) ∈ PW`: the reproducing kernel of `PW` at `z ∈ ℂ`. -/
 noncomputable def airyKerCL2 (z : ℂ) : AiryL2 := airyA (airyHalfC ((starRingEnd ℂ) z))
 
 lemma airyPL_airyHalfC (w : ℂ) : airyPL (airyHalfC w) = airyHalfC w := by
@@ -48,7 +48,7 @@ theorem airyPsiC_eq_inner_airyKerCL2 (φ : AiryL2) (z : ℂ) :
     airyPsiC φ z = inner ℂ (airyKerCL2 z) (airyA φ) := by
   rw [airyKerCL2, airyA_inner, airyPsiC_eq_inner]
 
-/-- `⟨k_z, k_w⟩ = K(z, \\bar w)`, the complex Airy kernel. -/
+/-- `⟨k_z, k_w⟩ = K(z, w̄)`, the complex Airy kernel. -/
 theorem inner_airyKerCL2 (z w : ℂ) :
     inner ℂ (airyKerCL2 z) (airyKerCL2 w) = airyKerC z ((starRingEnd ℂ) w) := by
   unfold airyKerCL2
@@ -186,5 +186,17 @@ theorem norm_airyKu_le (u : ℝ) (f : AiryL2) : ‖airyKu u f‖ ≤ ‖f‖ := 
 /-- info: 'FormalResearch.Special.airyKu_airyKerOp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyKu_airyKerOp
+
+/-- info: 'FormalResearch.Special.differentiable_airyPWFun' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.differentiable_airyPWFun
+
+/-- info: 'FormalResearch.Special.norm_airyPWFun_sq_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.norm_airyPWFun_sq_le
+
+/-- info: 'FormalResearch.Special.norm_airyKu_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.norm_airyKu_le
 
 end FormalResearch.Special

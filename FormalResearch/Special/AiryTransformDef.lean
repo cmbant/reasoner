@@ -189,4 +189,20 @@ theorem airyA_norm (f : AiryL2) : ‖airyA f‖ = ‖f‖ := airyA.norm_map f
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyF_airyF
 
+/-- info: 'FormalResearch.Special.airyTransform_norm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyTransform_norm
+
+/-- info: 'FormalResearch.Special.airyTransform_inner' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyTransform_inner
+
+/-- info: 'FormalResearch.Special.airyA_inner' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyA_inner
+
+/-- info: 'FormalResearch.Special.airyA_norm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyA_norm
+
 end FormalResearch.Special
