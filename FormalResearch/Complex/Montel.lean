@@ -71,4 +71,30 @@ lemma lipschitz_near (hU : IsOpen U) (hd : ∀ i, DifferentiableOn ℂ (F i) U) 
     (hd i).differentiableAt (hU.mem_nhds (hsub (ball_subset_ball (by linarith) hw)))
   exact Convex.norm_image_sub_le_of_norm_deriv_le hdiff hdi (convex_ball x₀ ρ) (mem_ball_self hρ) hy
 
+
+/-- The family as continuous functions on the open subspace `↥U`. -/
+noncomputable def toCont (hd : ∀ i, DifferentiableOn ℂ (F i) U) (i : ι) : C(U, ℂ) :=
+  ⟨fun z => F i z, (hd i).continuousOn.comp_continuous continuous_subtype_val fun z => z.2⟩
+
+/-- **Equicontinuity** of a locally uniformly bounded holomorphic family, on `↥U`. -/
+lemma equicontinuous (hU : IsOpen U) (hd : ∀ i, DifferentiableOn ℂ (F i) U) (hb : LocallyBounded F U) :
+    Equicontinuous (fun i : ι => ⇑(toCont hd i)) := by
+  intro x₀
+  rw [Metric.equicontinuousAt_iff]
+  intro ε hε
+  obtain ⟨ρ, hρ, C, hC, hlip⟩ := lipschitz_near hU hd hb x₀.2
+  refine ⟨min ρ (ε / (C + 1)), lt_min hρ (by positivity), fun x hx i => ?_⟩
+  have hx' : dist (x : ℂ) (x₀ : ℂ) < min ρ (ε / (C + 1)) := by rwa [← Subtype.dist_eq]
+  have hxρ : dist (x : ℂ) x₀ < ρ := lt_of_lt_of_le hx' (min_le_left _ _)
+  have hxε : dist (x : ℂ) x₀ < ε / (C + 1) := lt_of_lt_of_le hx' (min_le_right _ _)
+  have h1 := hlip i x (mem_ball.mpr hxρ)
+  rw [← dist_eq_norm, ← dist_eq_norm] at h1
+  show dist (F i x₀) (F i x) < ε
+  rw [dist_comm]
+  have h2 : C * dist (x : ℂ) x₀ < ε := by
+    have h3 : dist (x : ℂ) x₀ * (C + 1) < ε := by
+      rwa [lt_div_iff₀ (by positivity)] at hxε
+    nlinarith [dist_nonneg (x := (x : ℂ)) (y := x₀)]
+  exact lt_of_le_of_lt h1 h2
+
 end FormalResearch.Montel
