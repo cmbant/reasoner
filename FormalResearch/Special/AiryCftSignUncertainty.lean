@@ -84,6 +84,54 @@ lemma airy_entire_eq_zero_of_real_interval {f : ℂ → ℂ} (hf : Differentiabl
     (fun z _ => hf.analyticAt z) isPreconnected_univ (mem_univ _) hfreq
   exact fun z => this (mem_univ z)
 
+/-- `f(x) = Re f(x)` for `f` real on `ℝ`. -/
+lemma airy_real_cast {f : ℂ → ℂ} (hreal : ∀ x : ℝ, (f (x : ℂ)).im = 0) (x : ℝ) :
+    f (x : ℂ) = (((f (x : ℂ)).re : ℝ) : ℂ) :=
+  Complex.ext (by simp) (by simpa using hreal x)
+
+/-- **Translated quadrature** (Theorem Q (4) for `f(· + ε)`, `ε ≥ 0`, in real form): for `f` in the class and real on `ℝ`,
+`Σ_{n ≥ 1} Re f(a_n + ε)/Ai'(a_n)² = ∫_ℝ Re f`, a series of the real numbers `f(a_n + ε)/Ai'(a_n)²`. -/
+theorem airy_shift_hasSum {f : ℂ → ℂ} (hf : Differentiable ℂ f) (hfi : Integrable (fun x : ℝ => f (x : ℂ)))
+    {C ν : ℝ} (hC : 0 ≤ C) (hb : ∀ u : ℂ, ‖f u‖ ≤ C * (1 + ‖u‖) ^ ν * airyEnv u)
+    (hreal : ∀ x : ℝ, (f (x : ℂ)).im = 0) {ε : ℝ} (hε : 0 ≤ ε) :
+    HasSum (fun n : ℕ => (f (((airyZero (n + 1) + ε : ℝ)) : ℂ)).re / (airyAi' (airyZero (n + 1))) ^ 2)
+      (∫ x : ℝ, (f (x : ℂ)).re) := by
+  set g : ℂ → ℂ := fun u => f (u + (ε : ℂ)) with hg
+  have hgd : Differentiable ℂ g := hf.comp (differentiable_id.add_const _)
+  have hgc : ∀ x : ℝ, g (x : ℂ) = f (((x + ε : ℝ)) : ℂ) := fun x => by simp only [hg]; push_cast; rfl
+  have hgi : Integrable (fun x : ℝ => g (x : ℂ)) := by
+    simp_rw [hgc]
+    exact hfi.comp_add_right ε
+  have hgint : ∫ x : ℝ, g (x : ℂ) = ∫ x : ℝ, f (x : ℂ) := by
+    simp_rw [hgc]
+    exact integral_add_right_eq_self (fun x : ℝ => f (x : ℂ)) ε
+  have hsum := airyQ_hasSum_unc hgd hgi (by positivity) (airy_shift_bound hC hb hε)
+  rw [hgint] at hsum
+  set t : ℕ → ℝ := fun n => (f (((airyZero (n + 1) + ε : ℝ)) : ℂ)).re / (airyAi' (airyZero (n + 1))) ^ 2 with ht
+  have hterm : ∀ n : ℕ, (g (airyZero (n + 1) : ℂ) / (deriv airyAiC (airyZero (n + 1) : ℂ)) ^ 2).re = t n := by
+    intro n
+    rw [hgc, deriv_airyAiC_ofReal, airy_real_cast hreal (airyZero (n + 1) + ε)]
+    simp only [ht]
+    rw [← Complex.ofReal_pow, ← Complex.ofReal_div, Complex.ofReal_re]
+  have hre' : HasSum t ((∫ x : ℝ, f (x : ℂ)).re) := by
+    have h := hsum.mapL Complex.reCLM
+    have e : (fun n : ℕ => Complex.reCLM (g (airyZero (n + 1) : ℂ) / (deriv airyAiC (airyZero (n + 1) : ℂ)) ^ 2)) = t := by
+      funext n; exact hterm n
+    rw [e] at h
+    exact h
+  have hS : (∫ x : ℝ, f (x : ℂ)).re = ∫ x : ℝ, (f (x : ℂ)).re := by
+    have := integral_re hfi
+    simpa using this.symm
+  rw [hS] at hre'
+  exact hre'
+
+lemma airyAi'_sq_first_ne : (airyAi' (airyZero 1)) ^ 2 ≠ 0 := by
+  have := airyKer_pos' (airyZero 1)
+  rw [airyAi_airyZero] at this
+  have h2 : airyAi' (airyZero 1) ^ 2 - airyZero 1 * (0 : ℝ) ^ 2 = airyAi' (airyZero 1) ^ 2 := by ring
+  rw [h2] at this
+  exact this.ne'
+
 /-- **Theorem B (sign uncertainty on the Airy class), inequality.**  `f` entire, `f ∈ L¹(ℝ)`, `‖f(u)‖ ≤ C (1+|u|)^ν e(u)` (any real `ν`),
 real on `ℝ`, `f ≢ 0`, `f ≥ 0` on `(-∞, u₁]`, `∫ f ≤ 0`: then `u₁ ≤ a₁`. -/
 theorem airy_sign_uncertainty {f : ℂ → ℂ} (hf : Differentiable ℂ f) (hfi : Integrable (fun x : ℝ => f (x : ℂ)))
@@ -92,59 +140,26 @@ theorem airy_sign_uncertainty {f : ℂ → ℂ} (hf : Differentiable ℂ f) (hfi
     (hint : (∫ x : ℝ, (f (x : ℂ)).re) ≤ 0) (hne : ∃ z : ℂ, f z ≠ 0) : u₁ ≤ airyZero 1 := by
   by_contra hlt
   push Not at hlt
-  have hcast : ∀ x : ℝ, f (x : ℂ) = (((f (x : ℂ)).re : ℝ) : ℂ) := fun x =>
-    Complex.ext (by simp) (by simpa using hreal x)
   have hzero : ∀ ε : ℝ, 0 < ε → ε < u₁ - airyZero 1 → f (((airyZero 1 + ε : ℝ)) : ℂ) = 0 := by
     intro ε hε0 hεδ
-    set g : ℂ → ℂ := fun u => f (u + (ε : ℂ)) with hg
-    have hgd : Differentiable ℂ g := hf.comp (differentiable_id.add_const _)
-    have hgc : ∀ x : ℝ, g (x : ℂ) = f (((x + ε : ℝ)) : ℂ) := fun x => by simp only [hg]; push_cast; rfl
-    have hgi : Integrable (fun x : ℝ => g (x : ℂ)) := by
-      simp_rw [hgc]
-      exact hfi.comp_add_right ε
-    have hgint : ∫ x : ℝ, g (x : ℂ) = ∫ x : ℝ, f (x : ℂ) := by
-      simp_rw [hgc]
-      exact integral_add_right_eq_self (fun x : ℝ => f (x : ℂ)) ε
-    have hsum := airyQ_hasSum_unc hgd hgi (by positivity) (airy_shift_bound hC hb hε0.le)
-    rw [hgint] at hsum
-    have hre := hsum.mapL Complex.reCLM
+    have hre' := airy_shift_hasSum hf hfi hC hb hreal hε0.le
     set t : ℕ → ℝ := fun n => (f (((airyZero (n + 1) + ε : ℝ)) : ℂ)).re / (airyAi' (airyZero (n + 1))) ^ 2 with ht
-    have hterm : ∀ n : ℕ, (g (airyZero (n + 1) : ℂ) / (deriv airyAiC (airyZero (n + 1) : ℂ)) ^ 2).re = t n := by
-      intro n
-      rw [hgc, deriv_airyAiC_ofReal, hcast (airyZero (n + 1) + ε)]
-      simp only [ht]
-      rw [← Complex.ofReal_pow, ← Complex.ofReal_div, Complex.ofReal_re]
-    have hre' : HasSum t ((∫ x : ℝ, f (x : ℂ)).re) := by
-      have h := hsum.mapL Complex.reCLM
-      have e : (fun n : ℕ => Complex.reCLM (g (airyZero (n + 1) : ℂ) / (deriv airyAiC (airyZero (n + 1) : ℂ)) ^ 2)) = t := by
-        funext n; exact hterm n
-      rw [e] at h
-      exact h
     have ht0 : ∀ n : ℕ, 0 ≤ t n := by
       intro n
       refine div_nonneg (hpos _ ?_) (sq_nonneg _)
       have h1 : airyZero (n + 1) ≤ airyZero 1 := airyZero_le_of_le le_rfl (by omega)
       linarith
-    have hS : (∫ x : ℝ, f (x : ℂ)).re = ∫ x : ℝ, (f (x : ℂ)).re := by
-      have := integral_re hfi
-      simpa using this.symm
-    have hS0 : 0 ≤ (∫ x : ℝ, f (x : ℂ)).re := hre'.nonneg ht0
-    have hS1 : (∫ x : ℝ, f (x : ℂ)).re = 0 := by rw [hS] at hS0 ⊢; linarith
+    have hS0 : 0 ≤ ∫ x : ℝ, (f (x : ℂ)).re := hre'.nonneg ht0
+    have hS1 : (∫ x : ℝ, (f (x : ℂ)).re) = 0 := le_antisymm hint hS0
     rw [hS1] at hre'
     have htz := (hasSum_zero_iff_of_nonneg ht0).1 hre'
     have h0 := congrFun htz 0
     simp only [ht, Pi.zero_apply, zero_add] at h0
-    have hd : (airyAi' (airyZero 1)) ^ 2 ≠ 0 := by
-      have := airyKer_pos' (airyZero 1)
-      rw [airyAi_airyZero] at this
-      have h2 : airyAi' (airyZero 1) ^ 2 - airyZero 1 * (0 : ℝ) ^ 2 = airyAi' (airyZero 1) ^ 2 := by ring
-      rw [h2] at this
-      exact this.ne'
     have hre0 : (f (((airyZero 1 + ε : ℝ)) : ℂ)).re = 0 := by
       rcases div_eq_zero_iff.1 h0 with h | h
       · exact h
-      · exact absurd h hd
-    rw [hcast, hre0]; simp
+      · exact absurd h airyAi'_sq_first_ne
+    rw [airy_real_cast hreal, hre0]; simp
   obtain ⟨z, hz⟩ := hne
   refine hz (airy_entire_eq_zero_of_real_interval hf hlt (fun x hx1 hx2 => ?_) z)
   have := hzero (x - airyZero 1) (by linarith) (by linarith)
