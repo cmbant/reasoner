@@ -15,7 +15,7 @@ but the **constancy of sign**.
   `k₁ ≤ k ≤ k_max` (`q_* ≤ (k₁+½)h`, `2 M h ≤ q_*`, `h (ρ₁+ρ₂) ≤ 2κ q_*`).
 * `bix_hahn_tail`: for the integer `3j` chain (`kmin ≥ 1`, `N = kmin + m + 1`, `x = x_n`) there is `ε > 0` such that for `h ≤ ε` and every
   site `kmin + i₁` with `q_* ≤ q`, the bonds `i₁, …, m-1` carry no node: `∑_{j=i₁}^{m-1} bix_c u j = 0` (all `Ŷ_j`, `j ≥ kmin + i₁`, are nonzero of one sign).
-* `bix_count_tail`: hence the node count of the bonds `i_R, …, m-1` equals that of `i_R, …, i₁ - 1` for any `i_R ≤ i₁`, `q_{i₁} ≥ q_*`.
+* `bix_rightcount_of_window`: hence the node count of the bonds `i_R, …, m-1` equals that of `i_R, …, i₁ - 1` for any `i_R ≤ i₁`, `q_{i₁} ≥ q_*`, and `BixRightCount` follows from the Airy-window count (NOT proved).
 
 **Claim class: proved.**  The nonvanishing `Ŷ_{N-1} ≠ 0` is derived (not assumed) from the zero propagation `hd_zero_backward` and
 `cho_vec_ne_zero`.  Numerics: in 8 mpmath chains (see `BulkIndexHahn`) there is no sign change at any bond with `q_k ≥ q_*`.
