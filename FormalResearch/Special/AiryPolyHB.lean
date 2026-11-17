@@ -152,6 +152,7 @@ theorem airyPQHB_wronskian {P Q : ℝ[X]} (h : AiryPQHB P Q) (x : ℝ) :
     have := hn2 hr
     nlinarith
 
+/-- `(P Q' - Q P')(x) ≥ 0` on `ℝ` for a Hermite-Biehler pair (the non-strict form of `airyPQHB_wronskian`). -/
 lemma airyPQHB_wronskian_nonneg {P Q : ℝ[X]} (h : AiryPQHB P Q) (x : ℝ) :
     0 ≤ P.eval x * (derivative Q).eval x - Q.eval x * (derivative P).eval x := by
   have := (airyPQHB_wronskian h x).1
@@ -164,5 +165,9 @@ lemma airyPQHB_wronskian_nonneg {P Q : ℝ[X]} (h : AiryPQHB P Q) (x : ℝ) :
 /-- info: 'FormalResearch.Special.airyPQHB_wronskian' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyPQHB_wronskian
+
+/-- info: 'FormalResearch.Special.airyPQHB_wronskian_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyPQHB_wronskian_nonneg
 
 end FormalResearch.Special

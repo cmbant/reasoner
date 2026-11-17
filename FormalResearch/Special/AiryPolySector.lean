@@ -72,7 +72,7 @@ lemma airyPQ_cos_good {ξ : ℂ} (hre : 0 ≤ ξ.re) (h1 : 1 ≤ ‖ξ‖) (m : 
 
 /-! ### Real arithmetic -/
 
-lemma airyPQ_arith (x y E s : ℝ) (hx : 0 ≤ x) (hy : 0 ≤ y) (hE : 0 ≤ E) (hs0 : 0 ≤ s) (hs : s ≤ 1 / 125) :
+lemma airyPQ_arith (x y E s : ℝ) (hx : 0 ≤ x) (hy : 0 ≤ y) (hE : 0 ≤ E) (hs : s ≤ 1 / 125) :
     (16 * y ≤ x → E * x / 8 ≤ E * (x / 4 - y) - E * s * (6 / 5 * x + 41 / 10 * y)) ∧
     (16 * x ≤ y → E * y / 8 ≤ E * (y / 4 - x) - E * s * (6 / 5 * x + 41 / 10 * y)) := by
   have hb : s * (6 / 5 * x + 41 / 10 * y) ≤ 1 / 125 * (6 / 5 * x + 41 / 10 * y) :=
@@ -251,7 +251,7 @@ theorem airyAB_neg_sq_ge (a b : ℂ) {q : ℂ} (hq : NegSector q) (h5 : 5 ≤ �
     have e1 : x * (6 / 5 * Ee * s) + ‖b‖ * (41 / 10 * Ee * (s * ‖q‖)) = Ee * s * (6 / 5 * x + 41 / 10 * y) := by
       rw [hy]; ring
     linarith
-  have hari := airyPQ_arith x y Ee s hx0 hy0 hEe0.le hs0 hs1
+  have hari := airyPQ_arith x y Ee s hx0 hy0 hEe0.le hs1
   have hfin : Ee * (max x y / 8) ≤ ‖a * airyAiC (-(q ^ 2)) + b * deriv airyAiC (-(q ^ 2))‖ := by
     have h1 := norm_sub_norm_le (a * TA + b * TD) (a * airyAiC (-(q ^ 2)) + b * deriv airyAiC (-(q ^ 2)))
     have h2 : ‖a * TA + b * TD - (a * airyAiC (-(q ^ 2)) + b * deriv airyAiC (-(q ^ 2)))‖ ≤

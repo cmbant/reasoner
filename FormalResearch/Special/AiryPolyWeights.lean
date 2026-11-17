@@ -11,7 +11,7 @@ Formalises `general_theorems.tex` Lemma 1.0′(d) (weights `D/N'² ≍ |t|^{-1/2
 
 * `airyPQ_D_lower`: for real `t ≤ -T₁`: `W(t)²/2 ≤ D(t)` with `W = max(|P(t)|, |Q(t)| √|t|)` (`D = P² + PQ' - QP' + |t| Q²`; the derivative terms are
   `O(|t|^{-1})` relative, `airyPQ_asymp`; the two cases `deg Q < deg P` and `deg P ≤ deg Q` of the note are the dominance dichotomy);
-* `airyPQ_weight_norm_le`: at a real zero `t ≤ -T₁` of `N`: `‖D(t)/N'(t)²‖ ≤ 882 π² (1+|t|)^{-1/2}·√2` (from `D/N'² = π² M²/D`, `M(t)² = ‖M - iN‖²(t) ≤ 441 W²/√|t|`);
+* `airyPQ_weight_norm_le`: at a real zero `t ≤ -T₁` of `N`: `‖D(t)/N'(t)²‖ ≤ 882 π² / √(-t)` (from `D/N'² = π² M²/D`, `M(t)² = ‖M - iN‖²(t) ≤ 441 W²/√|t|`);
 * position data for the sampling bound, for every real `t` with `Ai(t) ≠ 0` (for zeros of `N` beyond the real roots of `Q`, `Ai(t) ≠ 0`): the index
   `airyNIdx t` satisfies `(n+1)² ≤ √(-t)⁶` and the separation up to a shift of one index (`airyPQ_root_growth`, `airyPQ_root_sep_abs`), as in
   `AiryCftQNCZeros` where `Ai(t) ≠ 0` was a consequence of `Q ≠ 0` constant.
@@ -46,7 +46,7 @@ lemma airyPQ_D_arith1 {a b c d ρ L1 L2 : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc
   have hρ2 : 1 ≤ ρ ^ 2 := by nlinarith
   nlinarith [mul_le_mul_of_nonneg_right hρ2 h4]
 
-lemma airyPQ_D_arith2 {a b c d ρ L1 L2 : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c) (hd : 0 ≤ d) (hρ : 1 ≤ ρ)
+lemma airyPQ_D_arith2 {a b c d ρ L1 L2 : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) (hρ : 1 ≤ ρ)
     (hL : L1 + L2 ≤ 8 * ρ) (hcL : c * ρ ^ 2 ≤ L1 * a) (hdL : d * ρ ^ 2 ≤ L2 * b) (hab : 16 * a ≤ b * ρ) :
     a * d + b * c ≤ b ^ 2 / 2 := by
   have hρ0 : 0 < ρ ^ 2 := by positivity
@@ -129,7 +129,7 @@ theorem airyPQ_D_lower (P Q : ℝ[X]) (hPQ : P ≠ 0 ∨ Q ≠ 0) :
       rw [hWdef]; exact max_eq_right (by linarith [abs_nonneg p0])
     refine ⟨by rw [hW]; exact mul_pos hpos hρ0, ?_⟩
     rw [hW, hD]
-    have := airyPQ_D_arith2 (abs_nonneg p0) (abs_nonneg q0) (abs_nonneg p1) (abs_nonneg q1) hρ1 hL hp1b hq1b
+    have := airyPQ_D_arith2 (abs_nonneg p0) (abs_nonneg q0) hρ1 hL hp1b hq1b
       (by linarith)
     have h6 : (|q0| * ρ) ^ 2 = ρ ^ 2 * q0 ^ 2 := by rw [mul_pow, sq_abs]; ring
     have h7 : q0 ^ 2 ≤ ρ ^ 2 * q0 ^ 2 := by nlinarith [sq_nonneg q0]

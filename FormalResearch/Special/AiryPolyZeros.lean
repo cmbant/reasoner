@@ -23,7 +23,8 @@ no Prüfer or de Branges theory is used.)
   the real roots of `Q`) with the same index `airyNIdx` one has `t₁ = t₂`: `m = Ai'/Ai` is strictly decreasing on the gap, `-P/Q` has derivative
   `(PQ'-QP')/Q² ≥ 0`.
 
-All proved.  Not formalised: the monotonicity `Λ' > 0` of the Prüfer angle.
+All proved.  Not formalised: the monotonicity `Λ' > 0` of the Prüfer angle, the existence of a zero of `N` in each gap of `Ai` (only the
+at-most-one half, `airyPQ_injOn_far`), and `Q = 0` for the weight statements (`airyPQ_zero_weight_pos` needs `Q ≠ 0`).
 -/
 
 @[expose] public section
@@ -139,7 +140,7 @@ lemma airyPQN_ofReal (P Q : ℝ[X]) (x : ℝ) :
   rw [airyAiC_ofReal, deriv_airyAiC_ofReal, airyPQc_ofReal, airyPQc_ofReal]
   push_cast; ring
 
-lemma airyPQ_nonconst_of_root {P Q : ℝ[X]} (hHB : AiryPQHB P Q) (hQ : Q ≠ 0) {x : ℝ} (hx : Q.eval x = 0) :
+lemma airyPQ_nonconst_of_root {P Q : ℝ[X]} (hQ : Q ≠ 0) {x : ℝ} (hx : Q.eval x = 0) :
     (airyPQF P Q).roots ≠ 0 := by
   intro h0
   have hs := IsAlgClosed.splits (airyPQF P Q)
@@ -176,7 +177,7 @@ theorem airyPQ_zero_weight_pos {P Q : ℝ[X]} (hHB : AiryPQHB P Q) (hQ : Q ≠ 0
         · exact h1
         · exact absurd hAx (airyAi_ne_zero_of_deriv_zero h1)
       have hPx : P.eval x ≠ 0 := fun hP => airyPQHB_ne_zero_real hHB x ⟨hQx, hP⟩
-      have hpos := hW.2 (airyPQ_nonconst_of_root hHB hQ hQx)
+      have hpos := hW.2 (airyPQ_nonconst_of_root hQ hQx)
       rw [hWe] at hpos
       rw [hQx] at hpos
       rw [hDW, hQx]

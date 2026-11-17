@@ -24,7 +24,7 @@ Survey row T4 of the Airy/soft-edge programme: `general_theorems.tex` Lemma 1.0�
 * `AiryPolySector`, `AiryPolyCircle`: **(i) good circles** for every pair `(P, Q) ≠ 0` (`airyPQ_good_circle`, `airyPQ_good_circle_kappa`): `N ≠ 0` and
   `|N|² ≥ c r^{2κ} e`, `|M/N ∓ i| e ≤ 168√π` on circles `|u| = r ∈ [k, k+1]`;
 * `AiryPolyHB`, `AiryPolyZeros`: **(ii) Hermite-Biehler step**: Herglotz inequality, positive Wronskian, zeros of `N` real, simple, `D > 0`
-  (`airyPQ_zero_im`, `airyPQ_zero_weight_pos`), finitely many in discs, one zero per gap of `Ai` beyond the real roots of `Q`;
+  (`airyPQ_zero_im`, `airyPQ_zero_weight_pos`), finitely many in discs, at most one zero per gap of `Ai` beyond the real roots of `Q` (`airyPQ_injOn_far`; existence of a zero in each gap is not formalised);
 * `AiryPolyQuad`, `AiryPolyWeights`, `AiryPolySample`: **(iii) quadrature**: limit form for every `(P, Q)` with simple zeros
   (`airyPQ_tendsto_of_simple`), weights `D/N'² ≍ |t|^{-1/2}`, sampling bound, and the unconditional `∫ f = Σ f D/N'²` (`airyPQ_hasSum_unc`);
 * `AiryPolyApplications`: constant pairs, Lemma 4.4 (`airyPQ_lemma44_hasSum`), and the positivity step of Theorems 4.5/4.7

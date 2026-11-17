@@ -231,6 +231,10 @@ theorem airyPQ_hasSum_unc {P Q : ℝ[X]} (hHB : AiryPQHB P Q) (hQ : Q ≠ 0) {f 
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyPQ_sampling_sum
 
+/-- info: 'FormalResearch.Special.airyPQ_summable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyPQ_summable
+
 /-- info: 'FormalResearch.Special.airyPQ_hasSum_unc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyPQ_hasSum_unc
