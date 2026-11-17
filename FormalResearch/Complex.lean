@@ -23,11 +23,15 @@ public import FormalResearch.Complex.SeparatedKernelSum
 public import FormalResearch.Complex.ChebyshevBernsteinCore
 public import FormalResearch.Complex.ChebyshevBernstein
 public import FormalResearch.Complex.EntireDivSq
+public import FormalResearch.Complex.ArgumentPrinciple
+public import FormalResearch.Complex.Rouche
+public import FormalResearch.Complex.Hurwitz
+public import FormalResearch.Complex.Montel
 
 /-!
-# Complex analysis: Hadamard factorization, Fejér–Riesz arc bounds, Chebyshev coefficients, entire division
+# Complex analysis: Hadamard factorization, Fejér–Riesz arc bounds, Chebyshev coefficients, entire division, argument principle, Rouché, Hurwitz, Montel
 
-Aggregate module for `FormalResearch/Complex/` (namespaces `FormalResearch.Hadamard`, `FormalResearch.Hardy`, `FormalResearch.Chebyshev` and `FormalResearch.EntireDiv`).  Mathlib has Jensen's formula,
+Aggregate module for `FormalResearch/Complex/` (namespaces `FormalResearch.Hadamard`, `FormalResearch.Hardy`, `FormalResearch.Chebyshev`, `FormalResearch.EntireDiv`, `FormalResearch.ArgPrinciple` and `FormalResearch.Montel`).  Mathlib has Jensen's formula,
 Borel–Carathéodory and the canonical decomposition of an entire function, but no Hadamard factorization theorem; this
 directory proves it, and applies it to the Airy function.  It also holds an elementary Fejér–Riesz inequality on the disc and its
 half-plane arc form (`Hardy*`, Airy-free).
@@ -83,6 +87,19 @@ half-plane arc form (`Hardy*`, Airy-free).
 * `EntireDivSq`: two generic Liouville-type facts (Airy-free), used by the equality case of the Airy sign-uncertainty theorem
   (`Special.AiryCftSignEquality*`): `entire_exists_div_sq` (`φ, ψ` entire, `φ` vanishing to second order at every simple zero of `ψ` ⇒ `φ = H ψ²`
   with `H` entire) and `entire_affine_of_circle_bound` (an entire `Q` with `‖Q‖ ≤ C(1+r)` on circles of arbitrarily large radius is affine).
+* `ArgumentPrinciple`: `zeroCount f c r` (zeros of `f` in `ball c r` with multiplicity, `analyticOrderNatAt` finsum), `zeros_finite`, and the argument
+  principle on a circle (`circleIntegral_logDeriv`): `f` holomorphic on `ball c R`, `0 < r < R`, `f ≠ 0` on `sphere c r` give
+  `∮ f'/f = 2πi · zeroCount f c r` (induction on the zero count through `dslope`); namespace `FormalResearch.ArgPrinciple`;
+* `Rouche`: Rouché's theorem on a circle (`rouche`: `‖f − g‖ < ‖g‖` on the circle gives equal `zeroCount`; principal logarithm of `f/g`);
+* `Hurwitz`: Hurwitz's theorem for `TendstoLocallyUniformlyOn F f p U` along an arbitrary filter `p` (sequences, a real parameter): counting form
+  (`hurwitz_zeroCount`, `hurwitz_rouche_eventually`), zeros near a zero of order `m` (`hurwitz_zeroCount_small`, `hurwitz_exists_zero_near`), the
+  non-vanishing form (`hurwitz_nonvanishing`), no zeros off a neighbourhood of the zero set of `f` on a compact (`hurwitz_no_zeros_off`) and
+  persistence of a simple real zero of real functions (`hurwitz_simple_real_zero`);
+* `Montel`: Montel's theorem (namespace `FormalResearch.Montel`): a locally uniformly bounded family of holomorphic functions on an open `U ⊆ ℂ` is
+  equicontinuous (`equicontinuous`, Cauchy estimates), every sequence has a locally uniformly convergent subsequence with holomorphic limit
+  (`montel`), and the normal-family form (`montel_family`); via Mathlib's Arzelà–Ascoli on `C(↥U, ℂ)`.
+  Not formalised in these four modules: the meromorphic argument principle (`N − P`), general contours and winding numbers, symmetric Rouché,
+  Hurwitz for univalent limits, Montel's omitted-values (Fatou) form, spherical normal families.
 
 Layering: only `HadamardAiry` imports `FormalResearch.Special.Airy*` modules; no module of the `Airy` aggregate imports this
 aggregate (the product of `Ai'`, `FormalResearch.Special.airyDeriv_hadamard` in `Special/AiryCft2DerivHadamard`, imports `HadamardAiry`
