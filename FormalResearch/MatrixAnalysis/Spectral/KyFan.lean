@@ -47,6 +47,17 @@ theorem card_filter_lt_fin {N k : ℕ} (hk : k ≤ N) :
   simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, mul_one] at this
   exact_mod_cast this.symm
 
+/-- A threshold separating the first `k` values of an antitone `μ` from the rest. -/
+theorem exists_threshold {N : ℕ} (μ : Fin N → ℝ) (hμ : Antitone μ) (k : ℕ) :
+    ∃ c : ℝ, (∀ i : Fin N, (i : ℕ) < k → c ≤ μ i) ∧ (∀ i : Fin N, k ≤ (i : ℕ) → μ i ≤ c) := by
+  by_cases hk : k < N
+  · exact ⟨μ ⟨k, hk⟩, fun i hi => hμ (Fin.le_def.mpr hi.le),
+      fun i hi => hμ (show (⟨k, hk⟩ : Fin N) ≤ i from hi)⟩
+  · by_cases hN : 0 < N
+    · exact ⟨μ ⟨N - 1, by omega⟩, fun i _ => hμ (by simp [Fin.le_def]; omega),
+        fun i hi => absurd i.isLt (by omega)⟩
+    · exact ⟨0, fun i => absurd i.isLt (by omega), fun i => absurd i.isLt (by omega)⟩
+
 /-- **Ky Fan weight lemma.** -/
 theorem weighted_sum_le {N k : ℕ} (μ : Fin N → ℝ) (hμ : Antitone μ) (w : Fin N → ℝ)
     (h0 : ∀ i, 0 ≤ w i) (h1 : ∀ i, w i ≤ 1) (hs : ∑ i, w i = k) :
@@ -56,14 +67,7 @@ theorem weighted_sum_le {N k : ℕ} (μ : Fin N → ℝ) (hμ : Antitone μ) (w 
     rw [hs] at this
     simp at this
     exact_mod_cast this
-  obtain ⟨c, hc1, hc2⟩ : ∃ c : ℝ, (∀ i : Fin N, (i : ℕ) < k → c ≤ μ i) ∧
-      (∀ i : Fin N, k ≤ (i : ℕ) → μ i ≤ c) := by
-    by_cases hk : k < N
-    · exact ⟨μ ⟨k, hk⟩, fun i hi => hμ (Fin.le_def.mpr hi.le), fun i hi => hμ (show (⟨k, hk⟩ : Fin N) ≤ i from hi)⟩
-    · by_cases hN : 0 < N
-      · exact ⟨μ ⟨N - 1, by omega⟩, fun i _ => hμ (by simp [Fin.le_def]; omega),
-          fun i hi => absurd i.isLt (by omega)⟩
-      · exact ⟨0, fun i => absurd i.isLt (by omega), fun i => absurd i.isLt (by omega)⟩
+  obtain ⟨c, hc1, hc2⟩ := exists_threshold μ hμ k
   have hind : ∑ i ∈ Finset.univ.filter (fun i : Fin N => (i : ℕ) < k), μ i =
       ∑ i, μ i * (if (i : ℕ) < k then 1 else 0) := by
     rw [Finset.sum_filter]
@@ -201,5 +205,9 @@ end Subadditive
 /-- info: 'FormalResearch.MatrixAnalysis.Spectral.partial_sum_add_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.MatrixAnalysis.Spectral.partial_sum_add_le
+
+/-- info: 'FormalResearch.MatrixAnalysis.Spectral.exists_threshold' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.MatrixAnalysis.Spectral.exists_threshold
 
 end FormalResearch.MatrixAnalysis.Spectral
