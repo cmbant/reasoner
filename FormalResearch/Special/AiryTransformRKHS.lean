@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.Special.AiryTransformParseval
+public import FormalResearch.Special.AiryTransformHilbert
 
 /-!
 # `PW` as a reproducing-kernel space of entire functions; the function-level `K_u` is the Hilbert-space `K_u`
@@ -138,7 +138,7 @@ theorem airyKu_airyKerOp (u : ℝ) {f : ℝ → ℝ} (hf : Measurable f)
 theorem airyPW_parseval_fun {F G : AiryL2} (hF : F ∈ airyPW) (hG : G ∈ airyPW) :
     HasSum (fun n : ℕ => airyPWFun F (airyZ n : ℂ) * (starRingEnd ℂ) (airyPWFun G (airyZ n : ℂ)) /
         (((airyAi' (airyZ n)) ^ 2 : ℝ) : ℂ)) (inner ℂ G F) := by
-  have h := airyPW_parseval hF hG
+  have h := airyPW_parseval_of_basis hF hG
   have hfun : (fun n : ℕ => inner ℂ (airyBasisVec n) F * (starRingEnd ℂ) (inner ℂ (airyBasisVec n) G)) =
       fun n : ℕ => airyPWFun F (airyZ n : ℂ) * (starRingEnd ℂ) (airyPWFun G (airyZ n : ℂ)) /
         (((airyAi' (airyZ n)) ^ 2 : ℝ) : ℂ) := by
