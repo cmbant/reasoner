@@ -29,8 +29,9 @@ bordered Cayley--Menger determinant of the face opposite the vertex `i`.
 
 ## Not formalised
 
-The corank-one rank-one adjugate `adj M = c v vᵀ` (`eq:dDlambda`) is treated in
-`FormalResearch.EuclTet.Planar`; Hypothesis `hyp:faces` and the wall `det CM = 0` as a stratified
+The planar wall formula `C_ij = -16 λ_iλ_j` (`eq:dDlambda`) is in
+`FormalResearch.EuclTet.Radon` (vertex block and kernel only; the border row/column of `adj M = c v vᵀ` and
+corank exactly one are not formalised); Hypothesis `hyp:faces` and the wall `det CM = 0` as a stratified
 set are not formalised as sets.
 -/
 

@@ -38,9 +38,8 @@ only; this module proves the geometric one.
 * `V` is *defined* as `|det|/6`; the identification with the Lebesgue measure of the convex hull of
   the four points is not formalised.
 * Blumenthal's full criterion (`det CM ≥ 0` together with the triangle inequalities on the faces
-  implies realisability in `ℝ³`) needs the Sylvester-type criterion for positive semidefiniteness of
-  a `3×3` matrix by its principal minors, which is not in Mathlib; only the Gram-matrix form of the
-  criterion above is proved.
+  implies realisability in `ℝ³`) is proved in `FormalResearch.EuclTet.Dichotomy` (`blumenthal_iff`), via a
+  Sylvester-type criterion for `3×3` matrices; only the Gram-matrix form is proved here.
 * The general `n`-simplex version `det CM_n = (-1)^{n+1} 2^n det G` (here only `n = 3`).
 -/
 
