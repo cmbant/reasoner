@@ -17,8 +17,9 @@ Source: `Weyl/free_fermion/paper/parts/constants.tex`, `lem:latticesum`.  Settin
   `nc, b, c_*, F_±, δ, κ, b₁` (not on `φ`'s constant, `θ₀`, `X`, `Θ`, `F`).
 
 Not formalised: the Gamma-function identification of the phase (the continuous branch
-`argGammaHalf` is used; its relation to the polar argument of `Γ(½+is)` is not proved); (i) and (iii)
-for the Gamma phase (the abstract (i) is `latticeI_bound`).
+`argGammaHalf` is used; its relation to the polar argument of `Γ(½+is)` is not proved); (i) for the Gamma phase
+as a standalone statement (the abstract (i) is `latticeI_bound`).  (iii) for the Gamma phase is `latticesum_gamma_iii`
+(`LatticeIIIGamma`).
 -/
 
 @[expose] public section

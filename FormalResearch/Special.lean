@@ -92,6 +92,9 @@ public import FormalResearch.Special.AiryCft2DerivHadamard
 public import FormalResearch.Special.Barnes
 public import FormalResearch.Special.Lattice
 public import FormalResearch.Special.ComplexStirling
+public import FormalResearch.Special.HermiteAiry
+public import FormalResearch.Special.HermiteKappa
+public import FormalResearch.Special.DiscreteLg
 
 /-!
 # Special functions: Jacobi polynomials
@@ -230,13 +233,15 @@ differentiation under the integral (`hasDerivAt_bgInt`), the real form of `thm:B
 log[G(1+b)G(1-b)]`, `b = θ/2π`, `|θ| < π` (`barnes_gamma_identity`), and `lem:VI` (`integral_wR`, `integral_wR_mul_rhoR`).  Not formalised: the complex
 `g_θ` form of the first equality of `thm:BG` (only the real part, `re_gTheta`), the sharp `O(log)` bound for `Re ψ` inside the Barnes modules (they use a linear bound, which suffices; the sharper
 `|Re ψ(½+is) - log|s|| ≤ 11/(8s²)` is `re_digamma_half_line` in `ComplexStirling`, not used by `Barnes*`), the Weierstrass product on all of `ℂ`, uniqueness of `G`, Gauss' series for `Re z ≤ 0`, and everything downstream (Barnes products,
-entropy constants, the trace-perturbation core).
+entropy constants).
 Phase-lattice summation of the same paper (`Lattice*`, umbrella `Lattice`, namespace `FormalResearch.Special.Lattice`): the Gauss-series branch
 `argGammaHalf` of `arg Γ(½+is)` (analytic on `|Im s| < ½`, odd, real, derivative `Re ψ`, with elementary bounds on `Re ψ`; no Stirling), the abstract
 lattice estimates for a calibrated phase (level counts and spacing, `latticeI_bound`, `latticeII_bound`), `lem:latticesum` (o) and (ii) for the
-Gamma phase in paper form (`latticesum_gamma`), `lem:varcore` (i) and (ii) (`varcore_gamma`, `varcore_tail_gamma`, with `integral_hvar_gdens` from `lem:VI`), and `prop:offsetcore` (i)
-deduced from `lem:latticesum` (iii) taken as a hypothesis (`offsetcore_i_of_iii`).  Not formalised: `lem:latticesum` (iii) and the concrete (i), `prop:offsetcore` (ii),
-`lem:traceperturb`, `thm:tracecore`, and the identification of `argGammaHalf` with the polar argument of `Γ`.
+Gamma phase in paper form (`latticesum_gamma`), `lem:varcore` (i) and (ii) (`varcore_gamma`, `varcore_tail_gamma`, with `integral_hvar_gdens` from `lem:VI`), `lem:latticesum` (iii)
+for the Gamma phase (`latticesum_gamma_iii`), `prop:offsetcore` (i) and (ii) for the Gamma phase without hypotheses on (iii) (`offsetcore_gamma`; the finite deduction is `offsetcore_i_of_iii`),
+`lem:traceperturb` (`traceperturb`, via Lidskii) and `thm:tracecore` for the Gamma phase (`tracecore_gamma_opnorm`; namespace `FormalResearch.Special.TraceCore`, modules `Trace*`).  Not formalised:
+`lem:latticesum` (i) for the Gamma phase as a standalone statement, the identification of `argGammaHalf` with the polar argument of `Γ`, and the verification of the hypotheses of
+`thm:tracecore` in the cases (G), (H) of the paper (for (H), only the Airy-edge shape of the Hermite functions is formalised, see `HermiteAiry` below).
 Complex Stirling formula and Binet's formulas (`ComplexStirling*`, umbrella `ComplexStirling`, namespace
 `FormalResearch.Special.ComplexStirling`; Mathlib has no complex Stirling): Binet's formula for `log Γ` (DLMF §5.9(ii), (5.9.10_2)) and, by
 differentiation, for `ψ` on `Re z > 0` (`digamma_eq_binet`, `binetLogGamma` with `exp (binetLogGamma z) = Γ z`, `log_Gamma_eq_binet` on the
@@ -249,4 +254,24 @@ rotation).  Imports `BarnesDigamma` (Gauss' series and convexity bounds) and the
 (Stirling's constant along `ℕ`); both are to be replaced before upstreaming.  Not formalised: the sharp constants and the Bernoulli
 series (`1/12`-type), sectors `|arg z| > π/2` and `Re z ≤ 0`, the Weierstrass product form of `log Γ`, uniqueness of the branch among
 merely continuous logarithms.
+Hermite functions and their Airy edge (`Hermite*`, umbrellas `HermiteAiry` and `HermiteKappa`, namespace `FormalResearch.Special`; survey item T9, W1 `hermite.tex` `lem:PR`, case H): the orthonormal Hermite functions
+`hermitePhi` (Mathlib's `Polynomial.hermite` over `ℝ`) with the exact three-term recurrence, ladder relations and parity (`hermitePsi_rec`, `hasDerivAt_hermitePhi_succ`, `hermitePhi_neg`),
+`∫ φ_n² = 1` and the polynomial sup bound `φ_n² ≤ 2n+2` (`integral_hermitePhi_sq`, `abs_hermitePhi_le`), the reflected chain `Y_k = φ_{-k}(x)` as an *exact* simple-turn datum
+`DunDatum` (`hermite_datum`, `hermite_row`: coefficient error `E = 0`), and the Plancherel–Rotach Airy edge (`hermite_airy_edge`): from `discrete_airy_full_unif`, on the macroscopic window `|(2n+1)/x² - 1| ≤ r`,
+`φ_n(x) = κ g Ai(X) + μ g Bi(X)` with relative error `O(1/n)` in the Olver weights, `μ` exponentially small, absolute constants.  `HermiteKappa` (`HermiteKappa*`, 13 modules) adds
+the Weber equation `φ_n'' = (x² - 2n - 1) φ_n` with the energy and an adiabatic invariant (`hasDerivAt_hkDer`, `hermite_weberData`), the **uniform envelope**
+`φ_n(x)² √(|2n+1-x²| + (2n+1)^{1/3}) ≤ 12·10⁶` for all `n` and real `x` (`hermite_envelope`) and the size statement of W1 `lem:PR`(b) in product form (`hermite_PR_b`),
+and the **order** of the Airy amplitude, `c ≤ κ² x^{1/3} ≤ C` (`|κ| ≍ S^{-1/12}`, `S = x²/2`; `hermite_kappa_order`, hence `κ ≠ 0`), with the Airy-edge chart data exported (`hermite_kappa_edge`).
+Not formalised: the exact amplitude (numerically `κ = S^{-1/12}(1+o(1))`) and the sharp constants (the envelope's `12·10⁶` is crude, numerically `≈ 0.75`), uniqueness of `κ` in the Airy decomposition, the derivative bound and the oscillatory form with phase of `lem:PR`(a),
+negative `x` and `x = 0` in the `κ` order theorem; the bulk expansion and phase for the Hermite chain (the generic discrete Liouville–Green layer `dlg_bulk_smooth` exists, see `DiscreteLg` below, but is not instantiated for it), closed form of the Langer coordinate,
+Cramér's bound, orthogonality, the second solution of the Weber equation, the Mehler kernel, the Laguerre analogues.
+Discrete Liouville–Green (Darboux) layer for Jacobi chains (`DiscreteLg*`, 10 modules, umbrella `DiscreteLg`, namespace `FormalResearch.Special`): the oscillatory bulk of a three-term recurrence with
+smooth symmetric Jacobi coefficients and its matching to the Airy turn, first order with explicit `O(h)` error.  For a bulk datum `DlgData` (`A w² sin θ = 1`, `Θ' = θ`) the pair `w cos(Θ/h)`, `w sin(Θ/h)`
+has row defect `O(h²)` and Casoratian `1 + O(h)` (`dlg_row_defect`, `dlg_cas_bound`), and the Airy-free variation-of-constants march gives, for every solution, `Y_k = R w(q_k)[cos(Θ(q_k)/h - φ₀) + O(h)]`
+on any compact interior window (`dlg_bulk`, Cartesian form `dlg_bulk_cart`), with zero localisation in phase (`dlg_bulk_zero_bond`); for smooth `(A, u)` (`dlg_bulk_smooth`) and for the closed-form Hahn/Racah
+chains on an arbitrary window `[c, d]` strictly inside the oscillatory region (`dlg_bulk_hahn`).  Airy matching (`dlg_airy_match`, `dlg_airy_match_smooth`, `dlg_airy_match_hahn`): from the Airy shape at two
+sites, `Y_k = h^{1/6} π^{-1/2} w_k (κ cos χ_k + μ sin χ_k) + O(h^{1/6} h (|κ|+|μ|) w_k)`, `χ_k = (Θ_k - Θ*)/h + π/4`, i.e. phase offset exactly `π/4` and amplitude `h^{1/6}|κ|/√π`;
+for the Hahn/Racah chains this is proved end to end from `airy_full_compose` and the Langer chart relations (`dlg_hahn_airy`, `dlgh_chart`).  Not formalised: second-order Liouville–Green; the value of `κ`
+(`κ ≠ 0` is `hahn_chain_kappa`; the sharp `|κ|` is open) so the amplitude is known only up to the unidentified `κ`; the oscillatory hypothesis `|hrU| < 1` on `[c₀, q_*)` is assumed, not derived from the
+parameters; the other turning point / left edge, Bohr–Sommerfeld quantisation and node counting over the whole oscillatory interval; the continuum Wigner-`d` ODE form; constants are existential, not tracked in the parameters.
 -/

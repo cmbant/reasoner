@@ -34,7 +34,7 @@ the level count (o) and the rate-`πσ` tail (`sum_exp_rate_le`) for `∑ e^{-π
 
 Not formalised / differences: the Gamma-function identification of the phase (`argGammaHalf`, the continuous branch
 of `arg Γ(½+is)`, is used as given; their equality is checked numerically only); the verification of the hypotheses
-(TC), (FM_σ) and of the lattice data (`Θ`, `S`) for the cases (G), (H) of the paper, which are hypotheses here; the
+(TC), (FM_σ) and of the lattice data (`Θ`, `S`) for the cases (G), (H) of the paper, which are hypotheses here (the Hermite Airy edge `hermite_airy_edge` is the only Hermite asymptotic formalised); the
 standalone Gamma-phase statement of `lem:latticesum` (i).  Differences from the paper's proof: the smooth cutoff `χ₀`
 is replaced by a piecewise linear one, and `ε_ρ = ρ^{σ/2}(1+|log ρ|)` by `K_ρ ∼ ρ^{5σ/12}` (all that the exponent
 `b_h` needs; the stated exponent `b_h = min(σ a/3, b₁)` is the paper's); the paper's `O(L^{-σ a/2} log² L)` is absorbed
