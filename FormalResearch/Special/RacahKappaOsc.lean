@@ -151,4 +151,8 @@ theorem rko_abel (f Φ : ℕ → ℝ) (n : ℕ) {F F' D ε : ℝ} (hε : 0 < ε)
   rw [this]
   exact (Complex.abs_re_le_norm _).trans hmain
 
+/-- info: 'FormalResearch.Special.rko_abel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.rko_abel
+
 end FormalResearch.Special

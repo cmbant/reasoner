@@ -129,4 +129,20 @@ lemma rk_racah_s {α β x γ : ℝ} (hα : 0 < α) (hβ : 0 < β) (hγ : 0 < γ)
   rw [this, Real.sqrt_sq (by positivity)]
   field_simp
 
+/-- info: 'FormalResearch.Special.rk_turn_id' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.rk_turn_id
+
+/-- info: 'FormalResearch.Special.rk_A_sin' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.rk_A_sin
+
+/-- info: 'FormalResearch.Special.rk_w_sq_kpP' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.rk_w_sq_kpP
+
+/-- info: 'FormalResearch.Special.rk_racah_s' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.rk_racah_s
+
 end FormalResearch.Special
