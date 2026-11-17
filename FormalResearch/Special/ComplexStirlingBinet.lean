@@ -168,4 +168,244 @@ theorem digamma_eq_binet {z : ℂ} (hz : 0 < z.re) :
   unfold binetD at this
   linear_combination this
 
+/-! ### The logarithm of `Γ` -/
+
+/-- The Stirling main term plus Binet's remainder:
+`(z - 1/2) log z - z + (1/2) log (2π) + ∫_0^∞ (1/2 - 1/t + 1/(e^t-1)) e^{-tz}/t dt`. -/
+noncomputable def binetLogGamma (z : ℂ) : ℂ :=
+  (z - 1 / 2) * Complex.log z - z + ((Real.log (2 * Real.pi) / 2 : ℝ) : ℂ) + binetB z
+
+lemma hasDerivAt_binetLogGamma {z : ℂ} (hz : 0 < z.re) :
+    HasDerivAt binetLogGamma (Complex.digamma z) z := by
+  have hz0 := re_pos_ne_zero hz
+  have hslit : z ∈ Complex.slitPlane := Complex.mem_slitPlane_iff.2 (Or.inl hz)
+  have h1 := (((hasDerivAt_id z).sub_const (1 / 2 : ℂ)).mul (Complex.hasDerivAt_log hslit))
+  have h2 := ((h1.sub (hasDerivAt_id z)).add_const (((Real.log (2 * Real.pi) / 2 : ℝ) : ℂ))).add
+    (hasDerivAt_binetB hz)
+  refine h2.congr_deriv ?_
+  rw [digamma_eq_binet hz]
+  simp only [id]
+  field_simp
+  ring
+
+lemma hasDerivAt_Gamma_digamma {z : ℂ} (hz : 0 < z.re) :
+    HasDerivAt Complex.Gamma (Complex.digamma z * Complex.Gamma z) z := by
+  have hd := (Complex.differentiableAt_Gamma z (re_pos_ne_neg_nat hz)).hasDerivAt
+  have hne := Complex.Gamma_ne_zero (re_pos_ne_neg_nat hz)
+  have : Complex.digamma z * Complex.Gamma z = deriv Complex.Gamma z := by
+    rw [Complex.digamma_def, logDeriv_apply]; field_simp
+  rwa [← this] at hd
+
+/-- `log Γ(N) - ((N - 1/2) log N - N + (1/2) log 2π)` at `N = n + 1`. -/
+noncomputable def stirlingRemSeq (n : ℕ) : ℝ :=
+  Real.log (Real.Gamma ((n + 1 : ℕ) : ℝ)) -
+    ((((n + 1 : ℕ) : ℝ) - 1 / 2) * Real.log ((n + 1 : ℕ) : ℝ) - ((n + 1 : ℕ) : ℝ) +
+      Real.log (2 * Real.pi) / 2)
+
+/-- Stirling's constant along the integers: `stirlingRemSeq n → 0`. -/
+lemma tendsto_stirlingRemSeq : Tendsto stirlingRemSeq atTop (𝓝 0) := by
+  have h := tendsto_log_gamma_stirling.comp (tendsto_add_atTop_nat 1)
+  have h2 := h.sub_const (Real.log (2 * Real.pi) / 2)
+  simp only [sub_self] at h2
+  refine h2.congr (fun n => ?_)
+  simp only [Function.comp, stirlingRemSeq]
+  have : (2 : ℝ)⁻¹ = 1 / 2 := by norm_num
+  rw [this]; ring
+
+lemma tendsto_binetB_nat :
+    Tendsto (fun n : ℕ => binetB (((n + 1 : ℕ) : ℝ) : ℂ)) atTop (𝓝 0) := by
+  rw [tendsto_zero_iff_norm_tendsto_zero]
+  have hlim : Tendsto (fun n : ℕ => 1 / 6 / ((((n + 1 : ℕ) : ℝ)))) atTop (𝓝 0) := by
+    have := (tendsto_div_add_nat (x := 1) one_pos (1 / 6))
+    refine this.congr (fun n => ?_)
+    push_cast; ring_nf
+  refine squeeze_zero (fun n => norm_nonneg _) (fun n => ?_) hlim
+  have hn : (0 : ℝ) < (n + 1 : ℕ) := by positivity
+  have := norm_binetB_le (z := (((n + 1 : ℕ) : ℝ) : ℂ)) (by simpa using hn)
+  simpa only [Complex.ofReal_re] using this
+
+lemma Gamma_exp_neg_binetLogGamma_nat (n : ℕ) (G : ℂ → ℂ)
+    (hG : G = fun w => Complex.Gamma w * Complex.exp (-binetLogGamma w))
+    (hconst : ∀ w ∈ rhp, G w = G 1) :
+    G 1 = Complex.exp ((stirlingRemSeq n : ℂ) - binetB (((n + 1 : ℕ) : ℝ) : ℂ)) := by
+  set N : ℝ := ((n + 1 : ℕ) : ℝ) with hN
+  have hNpos : 0 < N := by rw [hN]; positivity
+  have hNr : (N : ℂ) ∈ rhp := by simpa [rhp] using hNpos
+  rw [← hconst _ hNr]
+  simp only [hG, binetLogGamma, stirlingRemSeq]
+  rw [← hN]
+  rw [Complex.Gamma_ofReal, ← Complex.ofReal_log hNpos.le]
+  have hΓ : ((Real.Gamma N : ℝ) : ℂ) = Complex.exp ((Real.log (Real.Gamma N) : ℝ) : ℂ) := by
+    rw [← Complex.ofReal_exp, Real.exp_log (Real.Gamma_pos_of_pos hNpos)]
+  rw [hΓ, ← Complex.exp_add]
+  congr 1
+  push_cast
+  ring
+
+/-- `exp (binetLogGamma z) = Γ z` on `Re z > 0`. -/
+theorem exp_binetLogGamma {z : ℂ} (hz : 0 < z.re) :
+    Complex.exp (binetLogGamma z) = Complex.Gamma z := by
+  set G : ℂ → ℂ := fun w => Complex.Gamma w * Complex.exp (-binetLogGamma w) with hG
+  have hGd : ∀ w ∈ rhp, HasDerivAt G 0 w := by
+    intro w hw
+    have hwr : 0 < w.re := hw
+    have h1 := hasDerivAt_Gamma_digamma hwr
+    have h2 := ((hasDerivAt_binetLogGamma hwr).neg).cexp
+    have h3 := h1.mul h2
+    refine h3.congr_deriv ?_
+    ring
+  have hconst : ∀ w ∈ rhp, G w = G 1 := fun w hw =>
+    isOpen_rhp.is_const_of_deriv_eq_zero isPreconnected_rhp
+      (fun x hx => (hGd x hx).differentiableAt.differentiableWithinAt)
+      (fun x hx => (hGd x hx).deriv) hw (by simp [rhp])
+  have hG1 : G 1 = 1 := by
+    have h0 : Tendsto (fun n : ℕ => Complex.exp ((stirlingRemSeq n : ℂ) -
+        binetB (((n + 1 : ℕ) : ℝ) : ℂ))) atTop (𝓝 (Complex.exp (((0 : ℝ) : ℂ) - 0))) := by
+      refine (Complex.continuous_exp.tendsto _).comp ?_
+      exact ((Complex.continuous_ofReal.tendsto 0).comp tendsto_stirlingRemSeq).sub
+        tendsto_binetB_nat
+    simp only [Complex.ofReal_zero, sub_zero, Complex.exp_zero] at h0
+    have hlim : Tendsto (fun n : ℕ => G 1) atTop (𝓝 1) :=
+      h0.congr (fun n => (Gamma_exp_neg_binetLogGamma_nat n G hG hconst).symm)
+    exact tendsto_nhds_unique tendsto_const_nhds hlim
+  have := hconst z hz
+  rw [hG1] at this
+  simp only [hG] at this
+  rw [Complex.exp_neg] at this
+  have hne := Complex.exp_ne_zero (binetLogGamma z)
+  field_simp at this
+  exact this.symm
+
+lemma binetLogGamma_real_form {x : ℝ} (hx : 0 < x) :
+    binetLogGamma (x : ℂ) = (((x - 1 / 2) * Real.log x - x + Real.log (2 * Real.pi) / 2 +
+      ∫ t in Ioi (0 : ℝ), binetKernel t / t * Real.exp (-(t * x)) : ℝ) : ℂ) := by
+  have hB : binetB (x : ℂ) =
+      ((∫ t in Ioi (0 : ℝ), binetKernel t / t * Real.exp (-(t * x)) : ℝ) : ℂ) := lap_ofReal x
+  unfold binetLogGamma
+  rw [hB, ← Complex.ofReal_log hx.le]
+  push_cast
+  ring
+
+/-- On the positive axis `binetLogGamma` is the real `log Γ`. -/
+theorem binetLogGamma_ofReal {x : ℝ} (hx : 0 < x) :
+    binetLogGamma (x : ℂ) = ((Real.log (Real.Gamma x) : ℝ) : ℂ) := by
+  have hxr : 0 < (x : ℂ).re := by simpa using hx
+  have h := exp_binetLogGamma hxr
+  rw [binetLogGamma_real_form hx, Complex.Gamma_ofReal, ← Complex.ofReal_exp] at h
+  have h' := Complex.ofReal_injective h
+  rw [binetLogGamma_real_form hx, ← h', Real.log_exp]
+
+/-- Real Binet formula: for `x > 0`,
+`log Γ(x) = (x - 1/2) log x - x + (1/2) log 2π + ∫_0^∞ (1/2 - 1/t + 1/(e^t-1)) e^{-tx}/t dt`. -/
+theorem log_Gamma_eq_binet {x : ℝ} (hx : 0 < x) :
+    Real.log (Real.Gamma x) = (x - 1 / 2) * Real.log x - x + Real.log (2 * Real.pi) / 2 +
+      ∫ t in Ioi (0 : ℝ), binetKernel t / t * Real.exp (-(t * x)) := by
+  have h := binetLogGamma_ofReal hx
+  rw [binetLogGamma_real_form hx] at h
+  exact (Complex.ofReal_injective h).symm
+
+lemma binetLogGamma_one : binetLogGamma 1 = 0 := by
+  have := binetLogGamma_ofReal (x := 1) one_pos
+  simpa using this
+
+/-- Uniqueness of the branch: a holomorphic `L` on `Re z > 0` with `exp L = Γ` and `L 1 = 0`
+equals `binetLogGamma`. -/
+theorem eq_binetLogGamma_of_differentiableOn {L : ℂ → ℂ} (hL : DifferentiableOn ℂ L rhp)
+    (hexp : ∀ z ∈ rhp, Complex.exp (L z) = Complex.Gamma z) (h1 : L 1 = 0) :
+    ∀ z ∈ rhp, L z = binetLogGamma z := by
+  have hderiv : ∀ w ∈ rhp, HasDerivAt L (Complex.digamma w) w := by
+    intro w hw
+    have hwr : 0 < w.re := hw
+    have hLd : HasDerivAt L (deriv L w) w :=
+      (hL.differentiableAt (isOpen_rhp.mem_nhds hw)).hasDerivAt
+    have h1' := hLd.cexp
+    have h2' : HasDerivAt (fun v => Complex.exp (L v)) (Complex.digamma w * Complex.Gamma w) w :=
+      (hasDerivAt_Gamma_digamma hwr).congr_of_eventuallyEq (by
+        filter_upwards [isOpen_rhp.mem_nhds hw] with v hv using hexp v hv)
+    have := h1'.unique h2'
+    rw [hexp w hw] at this
+    have hne := Complex.Gamma_ne_zero (re_pos_ne_neg_nat hwr)
+    have : deriv L w = Complex.digamma w := mul_left_cancel₀ hne (by linear_combination this)
+    rwa [← this]
+  intro z hz
+  set H : ℂ → ℂ := fun w => L w - binetLogGamma w with hH
+  have hHd : ∀ w ∈ rhp, HasDerivAt H 0 w := fun w hw => by
+    exact ((hderiv w hw).sub (hasDerivAt_binetLogGamma (show 0 < w.re from hw))).congr_deriv
+      (sub_self _)
+  have hconst := isOpen_rhp.is_const_of_deriv_eq_zero isPreconnected_rhp
+    (fun x hx => (hHd x hx).differentiableAt.differentiableWithinAt)
+    (fun x hx => (hHd x hx).deriv) hz (by simp [rhp] : (1 : ℂ) ∈ rhp)
+  simp only [hH, h1, binetLogGamma_one, sub_zero] at hconst
+  exact sub_eq_zero.1 hconst
+
+/-- `ψ' = 1/z + 1/(2z²) + binetI'(z)`. -/
+lemma hasDerivAt_digamma_binet {z : ℂ} (hz : 0 < z.re) :
+    HasDerivAt Complex.digamma (z⁻¹ + 1 / 2 * (z ^ 2)⁻¹ + binetI' z) z := by
+  have hz0 := re_pos_ne_zero hz
+  have hslit : z ∈ Complex.slitPlane := Complex.mem_slitPlane_iff.2 (Or.inl hz)
+  have h1 := (((Complex.hasDerivAt_log hslit).sub ((hasDerivAt_inv hz0).const_mul (1 / 2 : ℂ))).sub
+    (hasDerivAt_binetI hz))
+  refine (h1.congr_deriv ?_).congr_of_eventuallyEq ?_
+  · field_simp
+    ring
+  · filter_upwards [isOpen_rhp.mem_nhds (show z ∈ rhp from hz)] with w hw
+    exact digamma_eq_binet hw
+
+/-- `‖ψ(z) - (log z - 1/(2z))‖ ≤ 1/‖z‖²` on `Re z > 0` (Stirling remainder for `ψ`). -/
+theorem norm_digamma_sub_le {z : ℂ} (hz : 0 < z.re) :
+    ‖Complex.digamma z - (Complex.log z - 1 / 2 * z⁻¹)‖ ≤ 1 / ‖z‖ ^ 2 := by
+  have : Complex.digamma z - (Complex.log z - 1 / 2 * z⁻¹) = -binetI z := by
+    rw [digamma_eq_binet hz]; ring
+  rw [this, norm_neg]
+  exact norm_binetI_le_div hz
+
+/-- `‖ψ'(z) - 1/z - 1/(2z²)‖ ≤ (2/3)/‖z‖³` on `Re z > 0`. -/
+theorem norm_deriv_digamma_sub_le {z : ℂ} (hz : 0 < z.re) :
+    ‖deriv Complex.digamma z - (z⁻¹ + 1 / 2 * (z ^ 2)⁻¹)‖ ≤ 2 / 3 / ‖z‖ ^ 3 := by
+  rw [(hasDerivAt_digamma_binet hz).deriv]
+  simpa using norm_binetI'_le_div hz
+
+/-- `‖log Γ(z) - ((z - 1/2) log z - z + (1/2) log 2π)‖ ≤ 2/‖z‖` for the branch `binetLogGamma`. -/
+theorem norm_binetLogGamma_sub_le {z : ℂ} (hz : 0 < z.re) :
+    ‖binetLogGamma z - ((z - 1 / 2) * Complex.log z - z +
+      ((Real.log (2 * Real.pi) / 2 : ℝ) : ℂ))‖ ≤ 2 / ‖z‖ := by
+  have : binetLogGamma z - ((z - 1 / 2) * Complex.log z - z +
+      ((Real.log (2 * Real.pi) / 2 : ℝ) : ℂ)) = binetB z := by
+    unfold binetLogGamma; ring
+  rw [this]
+  exact norm_binetB_le_div hz
+
+
+/-- info: 'FormalResearch.Special.ComplexStirling.digamma_eq_binet' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.digamma_eq_binet
+
+/-- info: 'FormalResearch.Special.ComplexStirling.exp_binetLogGamma' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.exp_binetLogGamma
+
+/-- info: 'FormalResearch.Special.ComplexStirling.binetLogGamma_ofReal' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.binetLogGamma_ofReal
+
+/-- info: 'FormalResearch.Special.ComplexStirling.log_Gamma_eq_binet' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.log_Gamma_eq_binet
+
+/-- info: 'FormalResearch.Special.ComplexStirling.eq_binetLogGamma_of_differentiableOn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.eq_binetLogGamma_of_differentiableOn
+
+/-- info: 'FormalResearch.Special.ComplexStirling.norm_digamma_sub_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.norm_digamma_sub_le
+
+/-- info: 'FormalResearch.Special.ComplexStirling.norm_deriv_digamma_sub_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.norm_deriv_digamma_sub_le
+
+/-- info: 'FormalResearch.Special.ComplexStirling.norm_binetLogGamma_sub_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.norm_binetLogGamma_sub_le
+
 end FormalResearch.Special.ComplexStirling
