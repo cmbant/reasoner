@@ -19,7 +19,12 @@ from the Fejér–Riesz arc bound alone (no Poisson integral is needed).
 `hardy_sample_real` (sub-mean-value at a real point): if moreover `‖G w‖ ≤ E ‖G(-w)‖` on the lower half of the circle `|w - c| = r`
 (`c` real), then `‖G(c)‖ ≤ (r/π)(∫ ‖G(t)‖/((t-c)²+r²) dt + E ∫ ‖G(t)‖/((t+c)²+r²) dt)`: the circle average of the entire `G`
 (Mathlib `DiffContOnCl.circleAverage`) splits into the upper semicircle about `c` and the (reflected) upper semicircle about `-c`,
-each bounded by `hardy_arc_weighted`.  Not formalised: the Poisson representation of `G` and
+each bounded by `hardy_arc_weighted`.
+
+`hardy_point_le` (value at an arbitrary fixed point): for `‖w‖ < ρ` and the same kind of reflection on `|z| = ρ`,
+`‖Φ(w)‖ ≤ (ρ/(ρ-‖w‖))(2π)⁻¹(1+E) ∫_0^π ‖Φ(ρe^{iθ})‖ dθ` (Mathlib's generalised mean value property
+`DiffContOnCl.circleAverage_smul_div`); together with `hardy_arc_le_poly` this bounds an entire `G` with the Hardy hypotheses at
+any fixed point by a constant times `‖G|_ℝ‖₁`.  Not formalised: the Poisson representation of `G` and
 `‖G(z)‖ ≤ ‖G|_ℝ‖₁/(π Im z)` for non-real `z`.
 -/
 
@@ -247,9 +252,100 @@ theorem hardy_sample_real {G : ℂ → ℂ} (hG : Differentiable ℂ G) {C : ℝ
   calc _ ≤ _ := hfin
     _ = _ := by field_simp
 
+/-- **Pointwise bound at an arbitrary fixed point from the arc integral.**  `Φ` entire, `ρ > ‖w‖`, and the reflection
+`‖Φ z‖ ≤ E ‖Φ(-z)‖` on the lower half of the circle `|z| = ρ`.  Then
+`‖Φ(w)‖ ≤ (ρ/(ρ - ‖w‖)) (1/(2π)) (1 + E) ∫_0^π ‖Φ(ρ e^{iθ})‖ dθ`
+(Cauchy's formula on `|z| = ρ`, `circleAverage (z/(z-w) · Φ z) = Φ w`, the lower semicircle reflected to the upper one). -/
+theorem hardy_point_le {Φ : ℂ → ℂ} (hΦ : Differentiable ℂ Φ) {w : ℂ} {ρ : ℝ} (hρ : ‖w‖ < ρ) {E : ℝ}
+    (hrefl : ∀ z : ℂ, ‖z‖ = ρ → z.im ≤ 0 → ‖Φ z‖ ≤ E * ‖Φ (-z)‖) :
+    ‖Φ w‖ ≤ (ρ / (ρ - ‖w‖)) * ((2 * π)⁻¹ * ((1 + E) * ∫ θ in (0 : ℝ)..π, ‖Φ (circleMap 0 ρ θ)‖)) := by
+  have hpi := Real.pi_pos
+  have hρ0 : 0 < ρ := lt_of_le_of_lt (norm_nonneg _) hρ
+  have hgap : 0 < ρ - ‖w‖ := by linarith
+  have hwb : w ∈ Metric.ball (0 : ℂ) |ρ| := by
+    rw [mem_ball_zero_iff, abs_of_pos hρ0]; exact hρ
+  have hmv := (hΦ.diffContOnCl (s := Metric.ball (0 : ℂ) |ρ|)).circleAverage_smul_div hwb
+  rw [← hmv, Real.circleAverage_def, norm_smul, norm_inv, Real.norm_eq_abs,
+    abs_of_pos (by positivity : (0 : ℝ) < 2 * π)]
+  set F : ℝ → ℝ := fun θ => ‖Φ (circleMap 0 ρ θ)‖ with hF
+  have hFc : Continuous F := (hΦ.continuous.comp (continuous_circleMap _ _)).norm
+  have hbound : ∀ θ : ℝ, ‖(((circleMap 0 ρ θ) - 0) / (circleMap 0 ρ θ - w)) • Φ (circleMap 0 ρ θ)‖ ≤
+      (ρ / (ρ - ‖w‖)) * F θ := by
+    intro θ
+    rw [norm_smul, norm_div, sub_zero]
+    have h1 : ‖circleMap 0 ρ θ‖ = ρ := by simp [abs_of_pos hρ0]
+    have h2 : ρ - ‖w‖ ≤ ‖circleMap 0 ρ θ - w‖ := by
+      have := norm_sub_norm_le (circleMap 0 ρ θ) w
+      rw [h1] at this; exact this
+    rw [h1]
+    have : ρ / ‖circleMap 0 ρ θ - w‖ ≤ ρ / (ρ - ‖w‖) :=
+      div_le_div_of_nonneg_left hρ0.le hgap h2
+    exact mul_le_mul_of_nonneg_right this (norm_nonneg _)
+  have hint1 : ‖(∫ θ in (0 : ℝ)..2 * π, (((circleMap 0 ρ θ) - 0) / (circleMap 0 ρ θ - w)) • Φ (circleMap 0 ρ θ))‖ ≤
+      (∫ θ in (0 : ℝ)..2 * π, (ρ / (ρ - ‖w‖)) * F θ) := by
+    refine (intervalIntegral.norm_integral_le_integral_norm (by positivity)).trans ?_
+    refine intervalIntegral.integral_mono_on (by positivity) ?_ ?_ (fun θ _ => hbound θ)
+    · refine ContinuousOn.intervalIntegrable ?_
+      refine (Continuous.continuousOn ?_)
+      have : Continuous fun θ : ℝ => circleMap 0 ρ θ - w := (continuous_circleMap _ _).sub continuous_const
+      refine Continuous.norm ?_
+      refine Continuous.smul (Continuous.div ((continuous_circleMap _ _).sub continuous_const) this ?_)
+        (hΦ.continuous.comp (continuous_circleMap _ _))
+      intro θ h0
+      have := norm_sub_norm_le (circleMap 0 ρ θ) w
+      have h1 : ‖circleMap 0 ρ θ‖ = ρ := by simp [abs_of_pos hρ0]
+      rw [h0, norm_zero, h1] at this
+      linarith
+    · exact (hFc.const_mul _).intervalIntegrable _ _
+  have hsplit : (∫ θ in (0 : ℝ)..2 * π, F θ) =
+      (∫ θ in (0 : ℝ)..π, F θ) + (∫ φ in (0 : ℝ)..π, F (φ + π)) := by
+    rw [← intervalIntegral.integral_add_adjacent_intervals (hFc.intervalIntegrable 0 π)
+      (hFc.intervalIntegrable π (2 * π))]
+    congr 1
+    rw [intervalIntegral.integral_comp_add_right F π]
+    congr 1 <;> ring
+  have hlow : (∫ φ in (0 : ℝ)..π, F (φ + π)) ≤ E * (∫ φ in (0 : ℝ)..π, F φ) := by
+    rw [← intervalIntegral.integral_const_mul]
+    refine intervalIntegral.integral_mono_on hpi.le ?_ ?_ ?_
+    · exact (hFc.comp (continuous_id.add continuous_const)).intervalIntegrable _ _
+    · exact (hFc.const_mul E).intervalIntegrable _ _
+    · intro φ hφ
+      have hw' : circleMap 0 ρ (φ + π) = -circleMap 0 ρ φ := by
+        simp only [circleMap, Complex.ofReal_add, zero_add]
+        rw [add_mul, Complex.exp_add, Complex.exp_pi_mul_I]
+        ring
+      have him : (circleMap 0 ρ (φ + π)).im ≤ 0 := by
+        rw [hw']
+        have := circleMap_im_nonneg hρ0.le hφ
+        simp only [Complex.neg_im]
+        linarith
+      have hnorm : ‖circleMap 0 ρ (φ + π)‖ = ρ := by simp [abs_of_pos hρ0]
+      have := hrefl _ hnorm him
+      rw [hw', neg_neg] at this
+      show ‖Φ (circleMap 0 ρ (φ + π))‖ ≤ E * ‖Φ (circleMap 0 ρ φ)‖
+      rw [hw']
+      exact this
+  have hF1 : (∫ θ in (0 : ℝ)..2 * π, (ρ / (ρ - ‖w‖)) * F θ) =
+      (ρ / (ρ - ‖w‖)) * (∫ θ in (0 : ℝ)..2 * π, F θ) := by
+    exact intervalIntegral.integral_const_mul _ _
+  rw [hF1, hsplit] at hint1
+  have hI0 : 0 ≤ (∫ φ in (0 : ℝ)..π, F φ) := intervalIntegral.integral_nonneg hpi.le (fun θ _ => norm_nonneg _)
+  have hq : 0 ≤ ρ / (ρ - ‖w‖) := by positivity
+  calc (2 * π)⁻¹ * ‖(∫ θ in (0 : ℝ)..2 * π, (((circleMap 0 ρ θ) - 0) / (circleMap 0 ρ θ - w)) • Φ (circleMap 0 ρ θ))‖
+      ≤ (2 * π)⁻¹ * ((ρ / (ρ - ‖w‖)) * ((∫ θ in (0 : ℝ)..π, F θ) + ∫ φ in (0 : ℝ)..π, F (φ + π))) := by
+        gcongr
+    _ ≤ (2 * π)⁻¹ * ((ρ / (ρ - ‖w‖)) * ((1 + E) * ∫ θ in (0 : ℝ)..π, F θ)) := by
+        gcongr
+        linarith
+    _ = _ := by ring
+
 /-- info: 'FormalResearch.Hardy.hardy_arc_weighted' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Hardy.hardy_arc_weighted
+
+/-- info: 'FormalResearch.Hardy.hardy_point_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Hardy.hardy_point_le
 
 /-- info: 'FormalResearch.Hardy.hardy_sample_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
