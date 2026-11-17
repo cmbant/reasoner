@@ -9,8 +9,7 @@ public import Mathlib.Analysis.Complex.LocallyUniformLimit
 Generic complex analysis (no application content).  **Proved**, for a net of holomorphic functions `F n` converging
 locally uniformly on an open set `U` (`TendstoLocallyUniformlyOn F f p U`, along any filter `p`, in particular sequences).
 
-Statements formalised (Hurwitz 1889; Conway, *Functions of One Complex Variable*, VII.2.5; Stein–Shakarchi, Ch. 3 Prop. 4.2
-for the non-vanishing form):
+Statements formalised (Hurwitz 1889; Conway, *Functions of One Complex Variable*, VII.2.5):
 
 * `hurwitz_zeroCount`: if `f` has no zero on the circle `sphere c r` (`r < R`, `ball c R ⊆ U`) then eventually
   `F n` is non-vanishing on the circle and has the same number of zeros as `f`, with multiplicity, in `ball c r`
@@ -140,7 +139,7 @@ lemma exists_punctured_disc (hf : DifferentiableOn ℂ f U) (hU : IsOpen U) {z�
 
 /-- **Hurwitz: the count near a zero.**  If `f` (a locally uniform limit of holomorphic `F n`) is not identically zero
 near `z₀ ∈ U`, there is `r₀ > 0` such that for every `0 < r ≤ r₀`, eventually `F n` has exactly `ord_{z₀} f` zeros, with
-multiplicity, in `ball z₀ r`.  (Zeros of `f` that are not identically-zero points.) -/
+multiplicity, in `ball z₀ r`.  (If `f z₀ ≠ 0` the order is `0` and `F n` is eventually zero-free in `ball z₀ r`.) -/
 theorem hurwitz_zeroCount_small (hU : IsOpen U) (hF : TendstoLocallyUniformlyOn F f p U)
     (hFd : ∀ᶠ n in p, DifferentiableOn ℂ (F n) U) (hf : DifferentiableOn ℂ f U) {z₀ : ℂ} (hz₀ : z₀ ∈ U)
     (hnz : ¬ ∀ᶠ z in 𝓝 z₀, f z = 0) :
