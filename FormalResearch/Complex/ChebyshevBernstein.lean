@@ -29,7 +29,7 @@ coefficients are `a₀ = (2πi)⁻¹∮_{|w|=ρ} g w⁻¹ dw`, `a_{k+1} = (2πi)
 * `bernsteinHyp_of_differentiableOn`, `bernsteinHyp_of_differentiable`: the hypotheses for `f` differentiable on an
   open set containing the closed region (e.g. entire `f`).
 * `continuous_chebCoeff`: the coefficients depend continuously on a parameter when `f` does (measurability of the
-  coefficient functions of a parametrised kernel).
+  coefficient functions of a parametrised kernel; `G` need only be jointly continuous on `{w ≠ 0}`).
 
 Mechanism: with `v` on the unit circle, the annulus Cauchy formula gives `g(v) = O(v) + I(v)`; the finite
 geometric expansion of `(w - v)⁻¹` on `|w| = ρ` and of `(v - w)⁻¹` on `|w| = ρ⁻¹` gives `g(v)` as a Laurent
