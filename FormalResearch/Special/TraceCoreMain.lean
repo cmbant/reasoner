@@ -28,8 +28,11 @@ Proof (as in the paper): `tracecore_decomp` (block form, `traceperturb` via Lids
 the level count (o) and the rate-`πσ` tail (`sum_exp_rate_le`) for `∑ e^{-πσ|x_r|} ≤ C ϰ log L`, and
 `latticesum_gamma` (ii) applied to `s ↦ h(ν(2πs))`.
 
-Not formalised / differences: the Gamma-function identification of the phase (`argGammaHalf`); the operator norm in
-(TC) is replaced by its eigenvalue form (equivalent); the smooth cutoff `χ₀` by a piecewise linear one, and
+`tracecore_gamma_opnorm` is the statement with (TC) literally as in the paper (`‖C'(1-C')‖` the spectral norm);
+`tracecore_gamma` is the same with that term replaced by any `ε_op ≥ 0` bounding `μ(1-μ)` over the eigenvalues `μ` of `C'`
+(equivalent for the positive semidefinite `C'(1-C')`, `eigenvalue_mul_one_sub_le_opNorm`).
+
+Not formalised / differences: the Gamma-function identification of the phase (`argGammaHalf`); the smooth cutoff `χ₀` by a piecewise linear one, and
 `ε_ρ = ρ^{σ/2}(1+|log ρ|)` by `K_ρ ∼ ρ^{5σ/12}` (all that the exponent `b_h` needs); admissibility (a) is
 used in the form of `def:admissible`.  The case distinctions of the paper's `O(L^{-σ a/2} log² L)` are absorbed into
 the exponent `σ a/3`.
@@ -209,5 +212,66 @@ theorem tracecore_gamma (nc : ℕ) (hnc : 1 ≤ nc) {b cs b1 Fm Fp δ κ σ a Mf
 /-- info: 'FormalResearch.Special.TraceCore.tracecore_gamma' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms tracecore_gamma
+
+section OpNorm
+
+open scoped Matrix.Norms.L2Operator
+
+/-- The eigenvalue form of `‖A(1-A)‖ ≤ ε` (spectral norm): `μ(1-μ) ≤ ‖A(1-A)‖` for every eigenvalue `μ`. -/
+theorem eigenvalue_mul_one_sub_le_opNorm {ι : Type*} [Fintype ι] [DecidableEq ι] {A : Matrix ι ι ℂ}
+    (hA : A.IsHermitian) (i : ι) : hA.eigenvalues i * (1 - hA.eigenvalues i) ≤ ‖A * (1 - A)‖ := by
+  set v := hA.eigenvectorBasis i with hv
+  have hmul : A *ᵥ (⇑v : ι → ℂ) = (hA.eigenvalues i : ℂ) • (⇑v : ι → ℂ) := by
+    have := hA.mulVec_eigenvectorBasis i
+    simpa [hv] using this
+  have h2 : (A * (1 - A)) *ᵥ (⇑v : ι → ℂ) =
+      ((hA.eigenvalues i * (1 - hA.eigenvalues i) : ℝ) : ℂ) • (⇑v : ι → ℂ) := by
+    rw [← Matrix.mulVec_mulVec, Matrix.sub_mulVec, Matrix.one_mulVec, Matrix.mulVec_sub, hmul,
+      Matrix.mulVec_smul, hmul]
+    push_cast
+    rw [smul_smul, ← sub_smul]
+    congr 1; ring
+  have hb := Matrix.l2_opNorm_mulVec (A * (1 - A)) v
+  have hv1 : ‖v‖ = 1 := hA.eigenvectorBasis.orthonormal.1 i
+  have e : (EuclideanSpace.equiv ι ℂ).symm ((A * (1 - A)) *ᵥ (⇑v : ι → ℂ)) =
+      ((hA.eigenvalues i * (1 - hA.eigenvalues i) : ℝ) : ℂ) • v := by
+    rw [h2]; ext j; simp
+  rw [e, norm_smul, hv1, mul_one, Complex.norm_real, Real.norm_eq_abs] at hb
+  rw [mul_one] at hb
+  exact (le_abs_self _).trans hb
+
+/-- **`thm:tracecore`** for the Gamma phase with (TC) exactly as in the paper: the third term of (TC) is the
+spectral norm `‖C'(1-C')‖`. -/
+theorem tracecore_gamma_opnorm (nc : ℕ) (hnc : 1 ≤ nc) {b cs b1 Fm Fp δ κ σ a Mfm Ch : ℝ}
+    (hb : 0 < b) (hcs0 : 0 < cs) (hcs : cs < 1 / 2) (hδ : 0 < δ) (hκ : 0 < κ) (hb1 : 0 < b1)
+    (hb1b : b1 < b) (hb1δ : b1 < nc * min δ (1 / 4)) (hFm : 0 < Fm) (hFmp : Fm ≤ Fp)
+    (hσ : 0 < σ) (hσ1 : σ ≤ 1) (ha : 0 < a) (hM : 0 ≤ Mfm) (hCh : 0 ≤ Ch) :
+    ∃ K0 L0 : ℝ, 0 < K0 ∧ 1 < L0 ∧ ∀ L : ℝ, L0 ≤ L → ∀ F : Fin nc → ℝ, (∀ i, Fm ≤ F i ∧ F i ≤ Fp) →
+      ∀ (X θ0 : ℝ), L ^ (cs / 2) ≤ X → X ≤ L ^ cs →
+      ∀ Θ : ℝ → ℝ, ContinuousOn Θ (Icc (-X) X) → StrictMonoOn Θ (Icc (-X) X) →
+      (∀ s ∈ Icc (-X) X, |Θ s - gammaG nc (lsum nc L F) θ0 s| ≤ L ^ (-b)) →
+      ∀ S : Finset ℝ, (∀ x, x ∈ S ↔ x ∈ Icc (-X) X ∧ ∃ n : ℤ, Θ x = n * Real.pi) →
+      ∀ {h : ℝ → ℂ}, Admissible σ δ κ Ch h →
+      ∀ (ι : Type u) [Fintype ι] [DecidableEq ι] (C : Matrix ι ι ℂ) (hC : C.IsHermitian),
+        C.PosSemidef → (1 - C).PosSemidef →
+        ∀ (U : Matrix ι S ℂ), Uᴴ * U = 1 →
+        ∀ epl : ℝ, 0 ≤ epl → (∀ x : S, |blockLam U C x - nuR (2 * Real.pi * x)| ≤ epl) →
+        X * epl + tnorm (C - (blockD U (blockLam U C) + blockC' U C)) +
+            ‖blockC' U C * (1 - blockC' U C)‖ ≤ L ^ (-a) →
+        ∑ i, ddf (hC.eigenvalues i) ^ (σ / 2) ≤ Mfm * Real.log L →
+        ‖traceFn h hC - ∫ s : ℝ, h (nuR (2 * Real.pi * s)) * ((gdens nc (lsum nc L F) s : ℝ) : ℂ)‖ ≤
+          K0 * L ^ (-min (σ * a / 3) b1) := by
+  obtain ⟨K0, L0, hK0, hL0, H⟩ := tracecore_gamma.{u} nc hnc hb hcs0 hcs hδ hκ hb1 hb1b hb1δ hFm hFmp
+    hσ hσ1 ha hM hCh
+  refine ⟨K0, L0, hK0, hL0, ?_⟩
+  intro L hL F hF X θ0 hX hXu Θ hΘc hΘm hΘG S hS h Hh ι _ _ C hC hC0 hC1 U hU epl hepl hlam hTC hFM
+  exact H L hL F hF X θ0 hX hXu Θ hΘc hΘm hΘG S hS Hh ι C hC hC0 hC1 U hU epl _ hepl (norm_nonneg _) hlam
+    (fun i => eigenvalue_mul_one_sub_le_opNorm (blockC'_isHermitian hC U) i) hTC hFM
+
+/-- info: 'FormalResearch.Special.TraceCore.tracecore_gamma_opnorm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms tracecore_gamma_opnorm
+
+end OpNorm
 
 end FormalResearch.Special.TraceCore

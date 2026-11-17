@@ -348,4 +348,8 @@ lemma offset_of_bound {Sν t0 E : ℝ}
       split_ifs <;> (rw [Int.fract]; ring)
     rw [e]; exact h
 
+/-- info: 'FormalResearch.Special.Lattice.latticeIII_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms latticeIII_bound
+
 end FormalResearch.Special.Lattice

@@ -133,4 +133,8 @@ theorem tracecore_decomp {σ δ κ Ch : ℝ} {h : ℝ → ℂ} (H : Admissible �
   rw [hΛt, hKt]
   linarith
 
+/-- info: 'FormalResearch.Special.TraceCore.tracecore_decomp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms tracecore_decomp
+
 end FormalResearch.Special.TraceCore

@@ -112,4 +112,8 @@ theorem sum_exp_rate_le (S : Finset ℝ) {X c γ : ℝ} (hγ : 0 < γ) (hc0 : 0 
   rw [Finset.sum_add_distrib] at hle
   linarith
 
+/-- info: 'FormalResearch.Special.Lattice.sum_exp_rate_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sum_exp_rate_le
+
 end FormalResearch.Special.Lattice

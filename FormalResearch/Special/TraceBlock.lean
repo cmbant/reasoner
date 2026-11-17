@@ -335,4 +335,8 @@ lemma eigenvalues_mem_unit {A : Matrix ι ι ℂ} (hA : A.IsHermitian) (h0 : A.P
   linarith
 
 
+/-- info: 'FormalResearch.Special.TraceCore.traceFn_block' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms traceFn_block
+
 end FormalResearch.Special.TraceCore

@@ -426,4 +426,12 @@ lemma dd_nuR_le (x : ℝ) : ddf (nuR (2 * Real.pi * x)) ≤ Real.exp (-(2 * Real
   rw [this]
   exact wR_two_mul_le x
 
+/-- info: 'FormalResearch.Special.TraceCore.h1_lipschitz' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms h1_lipschitz
+
+/-- info: 'FormalResearch.Special.TraceCore.h2fn_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms h2fn_bound
+
 end FormalResearch.Special.TraceCore
