@@ -23,8 +23,8 @@ to the set of operators of rank `≤ m` is at most `√C e^{-m/72}`.
 
 Numerical checks (mpmath, 30 digits): the majorants `Ai(x)² ≤ 9e⁴e^{-x}` (all `x ∈ [-30,60]`, step `0.01`) and
 `Ai(x)² ≤ 9e^{-x}exp(-(2/3)y^{3/2})` (`4 ≤ y ≤ x`) have no violation; the pointwise Chebyshev error for `R = 8`,
-`s ∈ {-1,0,3,8}`, `n ≤ 20` is below `10⁻⁹` against the (very pessimistic) proved bound `2M/2^n` with
-`M = 3exp((2/3)(17R/8)^{3/2}) ≈ 10¹⁹`: the proved constants are far from sharp, only the geometric rate in `m` matters.
+`s ∈ {-1,0,3,8}`, at `n = 20` is below `10⁻⁹` (worst `3·10⁻¹⁰` at `s = -1`; it decays geometrically in `n`) against the (very pessimistic) proved bound `2M/2^n` with
+`M = 3exp((2/3)(17R/8)^{3/2}) ≈ 5·10²⁰` at `R = 8`: the proved constants are far from sharp, only the geometric rate in `m` matters.
 
 **Not formalised** (no such theory in Mathlib / this repository): (i) the passage from this HS-tail statement to the
 singular values `s_{m+1}(𝒜_a) ≤ C' e^{-c' m}` of the paper's `lem:airydecay` (that `s_{m+1}` is the operator-norm
