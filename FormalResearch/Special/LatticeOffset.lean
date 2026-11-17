@@ -12,7 +12,8 @@ Source: `Weyl/free_fermion/paper/parts/constants.tex`, `prop:offsetcore`.  Given
 `|𝔱 - (k₀ + K₊ + r₀ + {t₀} - ½)| ≤ n ε_λ + 2 ε_μ + E₃` and
 `dist(t₀ - 𝔱 - ½, ℤ) ≤ n ε_λ + 2 ε_μ + E₃`.
 
-Not formalised: `lem:latticesum` (iii) itself (the hypothesis), and `prop:offsetcore` (ii).
+This is the finite deduction only.  `lem:latticesum` (iii) for the Gamma phase (`latticesum_gamma_iii`) and `prop:offsetcore`
+(i), (ii) without hypotheses on (iii) are in `LatticeOffsetGamma` (`offsetcore_gamma`).
 -/
 
 @[expose] public section
@@ -27,7 +28,9 @@ lemma abs_sub_indicator_le {m : ℝ} (h0 : 0 ≤ m) (h1 : m ≤ 1) :
   · rw [abs_of_nonpos (by linarith)]; nlinarith
   · rw [abs_of_nonneg (by linarith)]; nlinarith
 
-/-- **`prop:offsetcore` (i)**, conditional on `lem:latticesum` (iii). -/
+/-- **`prop:offsetcore` (i)**, the finite deduction from `lem:latticesum` (iii) taken as the hypotheses `hIII`, `hIIIfrac`.
+The unconditional statement for the Gamma phase is `offsetcore_gamma` (`LatticeOffsetGamma`), which feeds this theorem
+with `latticesum_gamma_iii`. -/
 theorem offsetcore_i_of_iii {ι : Type*} (S : Finset ℝ) (M : Finset ι) (lam : ℝ → ℝ) (mu : ι → ℝ)
     (k0 : ℤ) (t0 tt epl epm E3 : ℝ)
     (hlam : ∀ x ∈ S, |lam x - nuR (2 * Real.pi * x)| ≤ epl)

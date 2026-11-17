@@ -230,13 +230,15 @@ differentiation under the integral (`hasDerivAt_bgInt`), the real form of `thm:B
 log[G(1+b)G(1-b)]`, `b = θ/2π`, `|θ| < π` (`barnes_gamma_identity`), and `lem:VI` (`integral_wR`, `integral_wR_mul_rhoR`).  Not formalised: the complex
 `g_θ` form of the first equality of `thm:BG` (only the real part, `re_gTheta`), the sharp `O(log)` bound for `Re ψ` inside the Barnes modules (they use a linear bound, which suffices; the sharper
 `|Re ψ(½+is) - log|s|| ≤ 11/(8s²)` is `re_digamma_half_line` in `ComplexStirling`, not used by `Barnes*`), the Weierstrass product on all of `ℂ`, uniqueness of `G`, Gauss' series for `Re z ≤ 0`, and everything downstream (Barnes products,
-entropy constants, the trace-perturbation core).
+entropy constants).
 Phase-lattice summation of the same paper (`Lattice*`, umbrella `Lattice`, namespace `FormalResearch.Special.Lattice`): the Gauss-series branch
 `argGammaHalf` of `arg Γ(½+is)` (analytic on `|Im s| < ½`, odd, real, derivative `Re ψ`, with elementary bounds on `Re ψ`; no Stirling), the abstract
 lattice estimates for a calibrated phase (level counts and spacing, `latticeI_bound`, `latticeII_bound`), `lem:latticesum` (o) and (ii) for the
-Gamma phase in paper form (`latticesum_gamma`), `lem:varcore` (i) and (ii) (`varcore_gamma`, `varcore_tail_gamma`, with `integral_hvar_gdens` from `lem:VI`), and `prop:offsetcore` (i)
-deduced from `lem:latticesum` (iii) taken as a hypothesis (`offsetcore_i_of_iii`).  Not formalised: `lem:latticesum` (iii) and the concrete (i), `prop:offsetcore` (ii),
-`lem:traceperturb`, `thm:tracecore`, and the identification of `argGammaHalf` with the polar argument of `Γ`.
+Gamma phase in paper form (`latticesum_gamma`), `lem:varcore` (i) and (ii) (`varcore_gamma`, `varcore_tail_gamma`, with `integral_hvar_gdens` from `lem:VI`), `lem:latticesum` (iii)
+for the Gamma phase (`latticesum_gamma_iii`), `prop:offsetcore` (i) and (ii) for the Gamma phase without hypotheses on (iii) (`offsetcore_gamma`; the finite deduction is `offsetcore_i_of_iii`),
+`lem:traceperturb` (`traceperturb`, via Lidskii) and `thm:tracecore` for the Gamma phase (`tracecore_gamma_opnorm`; namespace `FormalResearch.Special.TraceCore`, modules `Trace*`).  Not formalised:
+`lem:latticesum` (i) for the Gamma phase as a standalone statement, the identification of `argGammaHalf` with the polar argument of `Γ`, and the verification of the hypotheses of
+`thm:tracecore` in the cases (G), (H) of the paper.
 Complex Stirling formula and Binet's formulas (`ComplexStirling*`, umbrella `ComplexStirling`, namespace
 `FormalResearch.Special.ComplexStirling`; Mathlib has no complex Stirling): Binet's formula for `log Γ` (DLMF §5.9(ii), (5.9.10_2)) and, by
 differentiation, for `ψ` on `Re z > 0` (`digamma_eq_binet`, `binetLogGamma` with `exp (binetLogGamma z) = Γ z`, `log_Gamma_eq_binet` on the
