@@ -134,12 +134,17 @@ lemma airyRoot_sep {n m : ℕ} (hnm : n ≠ m) :
 theorem airyRoot_kernel_sum : ∃ K : ℝ, ∀ (t : ℝ) (N : ℕ),
     ∑ n ∈ Finset.range N, (1 / (4 * airyZeroRoot (n + 1) ^ 2)) ^ 2 /
       ((t - airyZeroRoot (n + 1)) ^ 2 + (1 / (4 * airyZeroRoot (n + 1) ^ 2)) ^ 2) ≤ K := by
-  refine FormalResearch.Hardy.separated_kernel_sum (c := fun n => airyZeroRoot (n + 1)) (s := 1) (κ := 12)
-    (by norm_num) (by norm_num) (fun n => airyZeroRoot_pos _) (fun n => ?_) (fun n m hnm => ?_)
+  obtain ⟨K, hK⟩ := FormalResearch.Hardy.separated_kernel_sum (ι := ℕ) (c := fun n => airyZeroRoot (n + 1))
+    (d := id) (s := 1) (κ := 12) (by norm_num) (by norm_num)
+  refine ⟨K, fun t N => hK (Finset.range N) (fun n _ => airyZeroRoot_pos _) (fun n _ => ?_)
+    Function.injective_id.injOn (fun n _ m _ hnm => ?_) t⟩
   · have := airyZeroRoot_sixth_ge (ℓ := n + 1) (by omega)
     push_cast at this
     simpa using this
-  · simpa using airyRoot_sep hnm
+  · have := airyRoot_sep hnm
+    have h0 : (0 : ℝ) ≤ |(n : ℝ) - m| := abs_nonneg _
+    simp only [id]
+    linarith
 
 /-- info: 'FormalResearch.Special.airyRoot_kernel_sum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
