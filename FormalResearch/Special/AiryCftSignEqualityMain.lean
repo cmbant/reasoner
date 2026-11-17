@@ -9,7 +9,7 @@ public import FormalResearch.Special.AiryAsymReal
 
 CFT `AIRY_POISSON.md` §4 (Theorem B, "equality holds iff `f = c Ai²/(u - a₁)` with `c < 0`"; Proof 2, step 4; Proof 1 via the
 Liouville argument).  Let `f` be entire, real on `ℝ`, `f ∈ L¹(ℝ)`, `‖f(u)‖ ≤ C (1+|u|)^ν e(u)` for some real `ν`, `f ≢ 0`, `f ≥ 0` on
-`(-∞, a₁]` and `∫ f ≤ 0`.  Then (**proved**, `airy_sign_equality`) `∫ f = 0` and there is a real `c < 0` with
+`(-∞, a₁]` and `∫ f ≤ 0`.  Then (**proved**, `airy_sign_equality`) there is a real `c < 0` with
 
 `f(u) = c · Ai(u)²/(u - a₁)`  for `u ≠ a₁`   (equivalently `f = (-c) · airyExtremal`),
 
@@ -25,8 +25,11 @@ Proof (assembling `AiryCftSignEquality`, `AiryCftSignEqualityDiv`, `AiryCftSignE
 5. `f = λ·airyExtremal` with `λ = -β` real (compare at `0`, where `f` and `airyExtremal` are real and the latter nonzero) and `λ > 0` from
    `f ≥ 0` on the band and `airyExtremal > 0` at the midpoint of `(a₂, a₁)` (`f ≢ 0` gives `λ ≠ 0`).
 
-Everything here is proved; nothing numerical.  The sign of `c`, the vanishing of `∫ f` and the statement "attained" are all part of the
-formal statement.  Not formalised: the note's Remark B.1 (tangent rigidity, the sign-unstable direction at vacuum equality), which uses
+(`∫ f = 0` is then `airyExtremal_integral`, or directly `airy_sign_equality_samples`.)
+
+Sanity check only (mpmath, 30 digits): `∫_{-R}^0 Ai² = K(-R) - K(0)` agrees to 30 digits
+with quadrature for `R = 4, 16, 100, 400` (values `0.578, 1.211, 3.116, 6.299` against `√R/π = 0.637, 1.273, 3.183, 6.366`), the growth
+used in step 4.  Everything stated above is proved (the sign of `c` and the converse are part of the formal statement).  Not formalised: the note's Remark B.1 (tangent rigidity, the sign-unstable direction at vacuum equality), which uses
 the equality case as a black box.
 -/
 
@@ -233,5 +236,56 @@ theorem airy_sign_equality {f : ℂ → ℂ} (hf : Differentiable ℂ f) (hfi : 
 /-- info: 'FormalResearch.Special.airy_sign_equality' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airy_sign_equality
+
+/-- **Converse.**  For real `c < 0`, `f = (-c) · airyExtremal` (that is `c Ai²/(u - a₁)`) satisfies every hypothesis of Theorem B
+with `u₁ = a₁`, and `∫ f = 0`. -/
+theorem airy_sign_equality_converse {c : ℝ} (hc : c < 0) :
+    Differentiable ℂ (fun u : ℂ => ((-c : ℝ) : ℂ) * airyExtremal u) ∧
+      Integrable (fun x : ℝ => ((-c : ℝ) : ℂ) * airyExtremal (x : ℂ)) ∧
+      (∃ C ν : ℝ, 0 ≤ C ∧ ∀ u : ℂ, ‖((-c : ℝ) : ℂ) * airyExtremal u‖ ≤ C * (1 + ‖u‖) ^ ν * airyEnv u) ∧
+      (∀ x : ℝ, (((-c : ℝ) : ℂ) * airyExtremal (x : ℂ)).im = 0) ∧
+      (∀ x : ℝ, x ≤ airyZero 1 → 0 ≤ (((-c : ℝ) : ℂ) * airyExtremal (x : ℂ)).re) ∧
+      (∫ x : ℝ, (((-c : ℝ) : ℂ) * airyExtremal (x : ℂ)).re) = 0 ∧
+      (∃ z : ℂ, ((-c : ℝ) : ℂ) * airyExtremal z ≠ 0) := by
+  obtain ⟨hd, hi, ⟨C, ν, hC, hb⟩, hr, hp, hint, ⟨z, hz⟩⟩ := airyExtremal_attains
+  have hlam : (0 : ℝ) < -c := by linarith
+  have hre : ∀ x : ℝ, (((-c : ℝ) : ℂ) * airyExtremal (x : ℂ)).re = (-c) * (airyExtremal (x : ℂ)).re := by
+    intro x; simp [Complex.mul_re]
+  refine ⟨(differentiable_const _).mul hd, hi.const_mul _, ⟨|(-c)| * C, ν, by positivity, fun u => ?_⟩,
+    fun x => ?_, fun x hx => ?_, ?_, ⟨z, mul_ne_zero (by exact_mod_cast hlam.ne') hz⟩⟩
+  · rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    have := hb u
+    calc |(-c)| * ‖airyExtremal u‖ ≤ |(-c)| * (C * (1 + ‖u‖) ^ ν * airyEnv u) := by gcongr
+      _ = |(-c)| * C * (1 + ‖u‖) ^ ν * airyEnv u := by ring
+  · simp [Complex.mul_im, hr x]
+  · rw [hre]; exact mul_nonneg hlam.le (hp x hx)
+  · simp_rw [hre]
+    rw [integral_const_mul, hint]; simp
+
+/-- **Theorem B, `u₁ = a₁` equality case, as an equivalence.**  An entire `f` is real on `ℝ`, in `L¹(ℝ)`, of the class growth, `≢ 0`,
+`≥ 0` on `(-∞, a₁]` with `∫ f ≤ 0` **iff** `f = c Ai²/(u - a₁)` (that is `(-c) · airyExtremal`) with `c < 0`. -/
+theorem airy_sign_equality_iff {f : ℂ → ℂ} :
+    (Differentiable ℂ f ∧ Integrable (fun x : ℝ => f (x : ℂ)) ∧
+      (∃ C ν : ℝ, 0 ≤ C ∧ ∀ u : ℂ, ‖f u‖ ≤ C * (1 + ‖u‖) ^ ν * airyEnv u) ∧
+      (∀ x : ℝ, (f (x : ℂ)).im = 0) ∧ (∀ x : ℝ, x ≤ airyZero 1 → 0 ≤ (f (x : ℂ)).re) ∧
+      (∫ x : ℝ, (f (x : ℂ)).re) ≤ 0 ∧ (∃ z : ℂ, f z ≠ 0)) ↔
+    ∃ c : ℝ, c < 0 ∧ ∀ u : ℂ, f u = ((-c : ℝ) : ℂ) * airyExtremal u := by
+  constructor
+  · rintro ⟨hf, hfi, ⟨C, ν, hC, hb⟩, hreal, hpos, hint, hne⟩
+    obtain ⟨c, hc, hfe, -⟩ := airy_sign_equality hf hfi hC hb hreal hpos hint hne
+    exact ⟨c, hc, hfe⟩
+  · rintro ⟨c, hc, hfe⟩
+    have : f = fun u : ℂ => ((-c : ℝ) : ℂ) * airyExtremal u := funext hfe
+    subst this
+    obtain ⟨h1, h2, h3, h4, h5, h6, h7⟩ := airy_sign_equality_converse hc
+    exact ⟨h1, h2, h3, h4, h5, h6.le, h7⟩
+
+/-- info: 'FormalResearch.Special.airy_sign_equality_converse' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airy_sign_equality_converse
+
+/-- info: 'FormalResearch.Special.airy_sign_equality_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airy_sign_equality_iff
 
 end FormalResearch.Special
