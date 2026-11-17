@@ -42,7 +42,7 @@ lemma dalQ_sub_dalQ (q₀ δ : ℝ) (a b : ℤ) : dalQ q₀ δ a - dalQ q₀ δ 
 /-- **The site `k₀ = m - L`, `L = ⌈100/δ⌉`**: see the module docstring. -/
 lemma hk_sites {r c1 c2 x δ : ℝ} {J m N : ℤ} {X : ℤ → ℝ}
     (hx : 0 < x) (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hsm : 103 * δ ^ 2 < r) (hc1 : 0 < c1) (hcc : c2 * δ ≤ c1)
-    (hδx : δ ^ 3 = 2 / x ^ 2) (hJm : J ≤ m) (hmN : m ≤ N)
+    (hδx : δ ^ 3 = 2 / x ^ 2) (hmN : m ≤ N)
     (hqJ : dalQ (-δ ^ 3 / 2) δ J < -1 - r + δ ^ 3) (hqm1 : -1 ≤ dalQ (-δ ^ 3 / 2) δ m)
     (hqm2 : dalQ (-δ ^ 3 / 2) δ m < -1 + δ ^ 3)
     (hgap : ∀ k ∈ Finset.Icc J N, c1 * δ ≤ X (k + 1) - X k ∧ X (k + 1) - X k ≤ c2 * δ)
@@ -57,7 +57,7 @@ lemma hk_sites {r c1 c2 x δ : ℝ} {J m N : ℤ} {X : ℤ → ℝ}
     rw [hδx]; field_simp
   have hc2 : 0 ≤ c2 := by
     by_contra h
-    push_neg at h
+    push Not at h
     nlinarith [mul_neg_of_neg_of_pos h hδ]
   set L : ℕ := ⌈100 / δ⌉₊ with hL
   have hL1 : 100 / δ ≤ (L : ℝ) := Nat.le_ceil _
@@ -102,7 +102,7 @@ lemma hk_sites {r c1 c2 x δ : ℝ} {J m N : ℤ} {X : ℤ → ℝ}
     nlinarith [h, hx2']
   -- the `X` data
   have hT := hk_tele (X := X) (J := J) (N := N) (lo := c1 * δ) (hi := c2 * δ) hgap
-  have hT1 := hT (L - 1) (m - L + 1) (by omega) (by push_cast; omega)
+  have hT1 := hT (L - 1) (m - L + 1) (by omega) (by omega)
   have hT2 := hT (L + 1) (m - L - 1) (by omega) (by push_cast; omega)
   have hT3 := hT 2 (m - L - 1) (by omega) (by push_cast; omega)
   have e1 : m - (L : ℤ) + 1 + ((L - 1 : ℕ) : ℤ) = m := by omega

@@ -345,7 +345,7 @@ lemma hk_two_L {x δ : ℝ} {L : ℕ} (hδ : 0 < δ) (hδ4 : δ ≤ 1 / 400) (h�
 /-- **Choice of the site**: from the lattice data of `HkEdge` (as abstract reals `X`, `dalQ`), the index `n = L - m` with the
 Weber-side conclusions `T ≥ 9/50`, `w ∈ [9 s, 15 s]` and the lattice position of the three sites. -/
 lemma hk_pick {r c1 c2 x δ : ℝ} {J m N : ℤ} {X : ℤ → ℝ} (hx : 0 < x) (hδ : 0 < δ) (hδa : δ ≤ 1 / 400)
-    (hsm : 103 * δ ^ 2 < r) (hc1 : 0 < c1) (hcδ : c2 * δ ≤ c1) (hδx : δ ^ 3 = 2 / x ^ 2) (hJm : J ≤ m) (hmN : m ≤ N)
+    (hsm : 103 * δ ^ 2 < r) (hc1 : 0 < c1) (hcδ : c2 * δ ≤ c1) (hδx : δ ^ 3 = 2 / x ^ 2) (hmN : m ≤ N)
     (hqJ : dalQ (-δ ^ 3 / 2) δ J < -1 - r + δ ^ 3) (hqm1 : -1 ≤ dalQ (-δ ^ 3 / 2) δ m)
     (hqm2 : dalQ (-δ ^ 3 / 2) δ m < -1 + δ ^ 3)
     (hgap : ∀ k ∈ Finset.Icc J N, c1 * δ ≤ X (k + 1) - X k ∧ X (k + 1) - X k ≤ c2 * δ)
@@ -357,7 +357,7 @@ lemma hk_pick {r c1 c2 x δ : ℝ} {J m N : ℤ} {X : ℤ → ℝ} (hx : 0 < x) 
       X (m - L - 1) ≤ X (m - L) ∧ X (m - L) ≤ X (m - L + 1) := by
   have hδ1' : δ ≤ 1 := by linarith
   obtain ⟨L, hL1, hL2, hJL, hlam1, hlam2, hXp, hXm, hXd, hXmo, hXom⟩ :=
-    hk_sites hx hδ hδ1' hsm hc1 hcδ hδx hJm hmN hqJ hqm1 hqm2 hgap hX0 hX1
+    hk_sites hx hδ hδ1' hsm hc1 hcδ hδx hmN hqJ hqm1 hqm2 hgap hX0 hX1
   have hL100 : (100 : ℝ) ≤ L := by
     have : (100 : ℝ) ≤ 100 / δ := by rw [le_div_iff₀ hδ]; linarith
     linarith
@@ -536,7 +536,7 @@ lemma hk_edge_amp {r C Cmu ξ0 gmax gmin c1 c2 Lg A0 A1 B0 B1 P Q R x δ κ μ :
     9 / 50 ≤ x ^ (1 / 3 : ℝ) * R * (|κ| + |μ|) ^ 2 := by
   obtain ⟨hJN, hJm, hmN, hNneg, hwin, hqJ2, hqm1, hqm2, hqN, hqN1, hg, hgap, hLgb, ⟨hX0, hX1⟩, hc2δ, hμ, hY⟩ := h
   obtain ⟨L, n, hn, hJL, hLpos, hnx, hT, hw1, hw2, hXp, hXm, hXd, hXmo, hXom⟩ :=
-    hk_pick hx hδ hδa hsm hc1 hcδ hδx hJm hmN hqJ2 hqm1 hqm2 hgap hX0 hX1
+    hk_pick hx hδ hδa hsm hc1 hcδ hδx hmN hqJ2 hqm1 hqm2 hgap hX0 hX1
   have hch := hk_chain (G := fun k => langerAmp hmU hmA (-1) (dalQ (-δ ^ 3 / 2) δ k))
     (XX := turnX hmU (-1) (-δ ^ 3 / 2) δ) (J := J) (N := N) (m := m) (n := n) (L := L) hx hC hLg hc2 hδ
     (by linarith) hA0 hA1 hB0 hB1 hP hQ hR hAs hAl hBs hBl hY

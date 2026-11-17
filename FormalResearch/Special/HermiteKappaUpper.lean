@@ -212,7 +212,7 @@ lemma hk_index {x δ : ℝ} {m : ℤ} {n : ℕ} (hx : 4 ≤ x) (hδx : δ ^ 3 = 
   rw [hn]; linarith
 
 /-- Final algebra: `a|κ| ≤ |φ| + K|μ|`, `φ² w ≤ 24·10⁶`, `μ² w ≤ 8 C_μ²/ξ₀²` give `κ² w ≤ C_κ`. -/
-lemma hk_final {Cmu ξ0 a K κ μ φ x : ℝ} (hCmu : 0 < Cmu) (hξ0 : 0 < ξ0) (ha0 : 0 < a) (hK0 : 0 ≤ K)
+lemma hk_final {Cmu ξ0 a K κ μ φ x : ℝ} (ha0 : 0 < a)
     (hκ1 : a * |κ| ≤ |φ| + K * |μ|) (hphi : φ ^ 2 * x ^ (1 / 3 : ℝ) ≤ 24000000)
     (hmu : μ ^ 2 * x ^ (1 / 3 : ℝ) ≤ 8 * Cmu ^ 2 / ξ0 ^ 2) (hx : 0 < x) :
     κ ^ 2 * x ^ (1 / 3 : ℝ) ≤ (48000000 + 16 * K ^ 2 * Cmu ^ 2 / ξ0 ^ 2) / a ^ 2 := by
@@ -282,7 +282,7 @@ theorem hermite_kappa_le {r C Cmu ξ0 gmax gmin c1 c2 Lg : ℝ} (hC : 0 < C) (hC
   have hphi := hk_phi_bound n hx hlam
   rw [hYn] at hkap
   have hmu := hk_mu_bound_weak hCmu hξ0 hx4 hδ hδx hμ
-  exact hk_final hCmu hξ0 ha0 hK0 hkap hphi hmu hx
+  exact hk_final ha0 hkap hphi hmu hx
 
 /-- info: 'FormalResearch.Special.hermite_kappa_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
