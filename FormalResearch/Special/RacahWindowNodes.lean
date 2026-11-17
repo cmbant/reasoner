@@ -16,7 +16,7 @@ spectrum, and the nodal Sturm theorem (`cho_eigen_ascending`) gives:
 * **`rw_chain_nodes`**: the chain at `c = c_min + l` has exactly `l` nodes (sign changes, an interior zero counting as one): the largest eigenvalue (`l = 0`) has none.
 
 **Claim class: proved** (axiom guard pinned).  Numerics (mpmath, 40 digits, exact `6j` symbols from the Racah sum): the total number of nodes of the chain is `c - c_min` for all the chains
-listed in `RacahWindowIndex` (`k = 5, …, 101`).  **Not formalised:** `kmin = 0`, half-integer data, `τ = -1` (the twisted chain `(-1)^k Ŷ_k`).
+listed in `RacahWindowIndex` (`k = 5, …, 101`).  **Not formalised:** `kmin = 0`, half-integer data.  The twisted chain `(-1)^k Ŷ_k` (`τ = -1`) is `RacahWindowNodesNeg`.
 -/
 
 @[expose] public section
