@@ -16,6 +16,21 @@ Proof (modules `DiscreteAiryKappaSharp*`): the Ermakov amplitude `I_k(Ŷ)` of th
 `ksa_combine` gives `|κ²δ/2 - 1| ≤ 2 max(θ₁, θ₂)`, `θ = O(A + η) + O_A(δ)`; `A = η^{1/2} → 0` after `N → ∞`.
 
 **Claim class: proved**, all constants existential (depending on `M, σ, x`); the rate is `|κ² δ - 2| ≤ C₁ A + C₂(A) δ` for every `A ∈ (0, A₀]`.
+
+The chain is `Ŷ = hahn3jY M σ N x` (`√(2k+1) Φ_k^{M,σ}(x; 1/N)`, the Regge-midpoint `3j` kernel, natural gauge, hard edge at `k = N`) at a lattice node
+`xLat M σ N n = x`.  Quantifier order: `r, ε₀, C, C_μ, ξ₀` depend on `(M, σ, x)`; `ε₁` on `(M, σ, x, τ)`; everything else (`δ, J, m, N_w, κ, μ`) is
+produced at the node, and `κ, μ` are the Airy/Bi coefficients of the pointwise matching of `Ŷ` on the window (pinned to relative accuracy `Cδ³`).
+
+**Numerics** (not a Lean claim; mpmath 40 digits; exact chain from the closed-form recurrence `hahn_class_chain` run from the hard edge and normalised by
+`Σ Ŷ² = N`, checked against `wigner_3j` for `N = 12`; Langer chart `ζ, g` of `u = x/√(1-q²)`, `A = ½√(1-q²)`; least-squares fit of `Ŷ` to `κ g Ai + μ g Bi`
+on `-6 ≤ X ≤ 2`): `κ² δ` equals `2.00006, 2.000005, 2.000000, 2.000000` for `(M, σ, x) = (1, 0, ½)`, `N = 200, 800, 3200, 12800`; `2.0017, 2.00027, 2.000038,
+2.000006` for `(2, -1, 3/5)` (same `N`); `2.0005, 2.00006, 2.000007, 2.000001` for `(3, 0, ⅓)` (`N = 201, 801, 3201, 12801`); `1.9991, 1.99993, 1.99999,
+1.999999` for `(0, 0, 9/10)` (`N = 210, 810, 3210, 12810`); `κ²/(2N^{1/3}) → 1` accordingly.  The observed error is roughly `δ⁴`.  At `N = 3200`,
+`(1, 0, ½)`, `Ŷ_k / (g Ai(X_k))` agrees with `√(2/δ)` to relative `4·10⁻⁴` over `-23 ≤ X ≤ 60` (so `μ` is tiny, consistent with the exponential bound).
+
+**Not formalised:** an explicit rate and uniformity in `x` (the constants depend on `x`; the proof gives only `C₁A + C₂(A)δ` with `C₂(A) ~ A⁻⁹`, no
+power rate); the Darboux phase and the sign of `κ` (only `κ²` is determined); `τ = -1`, the Racah `6j` chain, and half-integer `(M, σ, N)`; the hard
+edges `x → 0, 1`.
 -/
 
 @[expose] public section

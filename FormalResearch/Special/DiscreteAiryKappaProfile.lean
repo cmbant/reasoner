@@ -14,15 +14,16 @@ the Ermakov defect `E_k = s_{k+1} + s_k - c_k P_k` (`DiscreteAiryKappaErmakov`) 
 * the radicand `a_k² P_k P_{k-1} - 1 = (x² + ε_k + η_k(1 - (kh)²))/(α_kα_{k-1})`, `ε_k = δ_k²/2 + h²/4` (exact);
 * `|s_k - x/√(α_kα_{k-1})| ≤ (ε_k + |η_k|)/(x √(α_kα_{k-1}))`;
 * `|t_{k+1} + t_k - 2/α_k| ≤ 3h²/A⁶` (`t_k = 1/√(α_kα_{k-1})`; AM–GM against `½(1/α_k + 1/α_{k-1})` and the exact second difference);
-* **`|E_k| ≤ (5/x) h²/A⁶ + (2/x) η̄/A + 2 κ̄/A`** (`kp_defect`) and `B_k ≤ 40/A` (`kp_B`), so `ε_k := 40|E_k|/A` sums over a band of `n` sites to
+* **`|E_k| ≤ 2(h²/A² + η̄)/(x A) + 3x h²/A⁶ + 2 κ̄/A`** (`kp_defect`) and `B_k ≤ 40/A` (`kp_B`), so `ε_k := 40|E_k|/A` sums over a band of `n` sites to
   `n·O(h² A⁻⁷) + O(Σ(η̄ + κ̄)/A²)`.
 
-These bounds are crude (powers of `A` are not optimal: the sharp WKB count is `A⁻⁵`), but they suffice for the sharp constant with an explicit
-rate.  Numerics (mpmath 40 digits, scratch `r29_num/chk_bounds.py`, 20000 random `(x, N, k)`): the ratios of the exact quantities to the
-claimed bounds are `≤ 0.97` (`b1`), `0.50` (`b2`), `0.21` (`τ`), `0.05` (`E`), `0.50` (`s`-closeness).
+These bounds are crude (powers of `A` are not optimal: the sharp WKB count is `A⁻⁵`), but they suffice for the sharp constant (the final rate
+`C₁A + C₂(A)δ` of `hahn_chain_kappa_sharp` is not optimised).  Numerics (mpmath 40 digits, 20000 random `(M, σ, x, N, A, k)`, rechecked on the final
+form of `kp_defect`): `|E_k|` / (bound of `kp_defect`) `≤ 0.78`; earlier check of the other elementary bounds (scratch `r29_num/chk_bounds.py`): ratios of
+the exact quantities to the claimed bounds `≤ 0.97` (`b1`), `0.50` (`b2`), `0.21` (`τ`), `0.50` (`s`-closeness).
 
 **Claim class: proved** (real algebra).  The identification of this profile with the Langer data of the Airy matching and the sums over a
-band are in `DiscreteAiryKappaSharp`.
+band are in the `DiscreteAiryKappaSharp*` modules.
 -/
 
 @[expose] public section

@@ -9,9 +9,9 @@ public import FormalResearch.Special.AiryAsymReal
 The chart `ζ = langerZeta u q_*`, `g = langerAmp u A q_*` of `u = x/√(1-q²)`, `A = ½√(1-q²)` (the Hahn data `P = 1, Q = 0`) satisfies on a window
 `[q_* - r, q_* + r]` (`ksh_chart`): `ζ' ∈ [c₁, c₂]`, `ζ(q_*) = 0`, `g² A ζ' Sh(ζζ'²) = 1`, `Ch(ζζ'²) = u`.
 
-* `ksh_g2`: **`g(q)² = 2 √(-ζ(q)) / α(q)`**, `α = √(q_*² - q²)`, for `q < q_*` in the window (from `Ch² - 1 = w Sh²`, `Ch = u`, `u² - 1 = -α²/(1-q²)`).
-  Consequence: `g y^{-1/4} = √(δ P)` for `y = -ζ/δ²`, `P = 2/α`: the Airy amplitude is the Ermakov profile amplitude (`ksh_amp_sq`).
-* `ksh_phase`: for `q₁ < q₀ < q_*` in the window with `q₀ - q₁ = δ³`, the Airy phases `ξ_j = (2/3)(-ζ(q_j)/δ²)^{3/2}` satisfy
+* `KshChart.g2`: **`g(q)² = 2 √(-ζ(q)) / α(q)`**, `α = √(q_*² - q²)`, for `q < q_*` in the window (from `Ch² - 1 = w Sh²`, `Ch = u`, `u² - 1 = -α²/(1-q²)`).
+  Consequence: `g y^{-1/4} = √(δ P)` for `y = -ζ/δ²`, `P = 2/α`: the Airy amplitude is the Ermakov profile amplitude (`KshChart.amp_sq`).
+* `KshChart.phase`: for `q₁ < q₀ < q_*` in the window with `q₀ - q₁ = δ³`, the Airy phases `ξ_j = (2/3)(-ζ(q_j)/δ²)^{3/2}` satisfy
   `cos(ξ₁ - ξ₀) = x/√(1 - η²)` for some `η ∈ (q₁, q₀)` (mean value theorem for `(2/3)(-ζ)^{3/2}`, whose derivative is `-√(-ζ) ζ'`,
   and `Ch(w) = cos√(-w)` for `w = ζζ'² ≤ 0`).
 

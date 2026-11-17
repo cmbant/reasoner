@@ -20,7 +20,7 @@ For the Jacobi rows `a_{k+1}Y_{k+1} + a_k Y_{k-1} = c_k Y_k` (`jac a c Y k = 0`)
 `P_k (I_{k+1} - I_k) = E_k [ (c_k P_k + s_{k+1} - s_k) Y_k² - 2 P_k · a_{k+1}Y_{k+1} · Y_k ]`.
 
 * `kermI_lower`: `I_k ≥ ½ (Y_k²/P_k + Y_{k-1}²/P_{k-1})` (positive definite; the discriminant of the form is `-a_k²`, no hypothesis);
-* `kermI_upper`: `I_k ≤ 2 a_k² (P_{k-1} Y_k² + P_k Y_{k-1}²)`;
+* `kermI_nonneg`, `kermI_cross`: `I_k ≥ 0` and `|Y_k Y_{k-1}| ≤ (P_k + P_{k-1}) I_k`;
 * `kerm_step_bound`: `|I_{k+1} - I_k| ≤ |E_k| B_k I_k`, `B_k = 2|c_kP_k + s_{k+1} - s_k| + 4 P_k |c_k| + 2 a_k (P_k + P_{k-1})`;
 * `kerm_chain`: from one-step relative bounds `|G_{j+1} - G_j| ≤ ε_j G_j` (`0 ≤ ε_j ≤ ½`) over `n` steps:
   `G_{k₀+n} ≤ e^{Σε} G_{k₀}`, `G_{k₀} ≤ e^{2Σε} G_{k₀+n}`; `kerm_invariant` specialises to `G = I`.

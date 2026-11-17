@@ -8,8 +8,8 @@ public import FormalResearch.Special.DiscreteAiryKappaBandMass
 For the Hahn profile `P = 2/α` and weights `v = P/2 = 1/α` this module bounds, on a band `α_j ≥ A`,
 
 * `|t_{k+1} - t_k| ≤ h/A³ + h²/(2A⁶)` (`kp_t_diff`; `t_k = 1/√(α_kα_{k-1})`),
-* `|u_{k+1} - u_k| ≤ 2h/A⁴ + (2ε̄ + x(h/A³ + h²/(2A⁶)))/A`, `ε̄ = (h²/A² + η̄)/(xA)`, `u = (P/2)s` (`kp_du`),
-* `|Ω_k - 1| ≤ h/(2A²) + |Δu|/A + |E_k|/A²` (`kp_omega_bound`, via the exact `kp_omega_eq`).
+* `|u_{k+1} - u_k| ≤ 2h/A⁴ + (2ε̄ + x(h/A³ + h²/(2A⁶)))/A`, `ε̄ = (h²/A² + η̄)/(xA)`, `u = (P/2)s` (`kp_site_bounds`, via `kp_du_core`),
+* `|Ω_k - 1| ≤ h/(2A²) + |Δu|/A + |E_k|/A²` (`kp_site_bounds`, via `kp_omega_core` and the exact `kp_omega_eq`).
 
 **Claim class: proved** (real algebra).
 -/
