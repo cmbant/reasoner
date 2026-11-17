@@ -17,7 +17,7 @@ Umbrella module (namespace `FormalResearch.Special.ComplexStirling`).
   transform `∫ (1-e^{-t})/t e^{-tz} = log(1+1/z)` and the difference equation of `binetI`.
 * `ComplexStirlingRemainder` : `‖binetI'‖ ≤ (2/3)/|z|³`, `‖binetI‖ ≤ 1/|z|²`, `‖binetB‖ ≤ 2/|z|` on
   `Re z > 0` (telescoping of the difference equation; no contour rotation).
-* `ComplexStirlingBinet` : Binet's formula for `ψ` (DLMF 5.9.16) and for `log Γ`
+* `ComplexStirlingBinet` : Binet's formula for `log Γ` (DLMF §5.9(ii), (5.9.10_2)) and its derivative for `ψ`
   (`binetLogGamma`, `exp = Γ`), real form, branch uniqueness, remainders for `ψ`, `ψ'`, `log Γ`.
 * `ComplexStirlingLine` : `|Γ(1/2+is)|² = π/cosh(πs)`, `Re ψ`, `Im log Γ` on `Re z = 1/2`.
 * `ComplexStirlingStrip` : `|Γ(x+iy)|` in vertical strips with explicit remainder.

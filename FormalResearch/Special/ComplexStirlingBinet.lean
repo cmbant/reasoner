@@ -10,18 +10,19 @@ public import Interval.EulerMaclaurin.Gamma
 Notation: `ψ = Complex.digamma`, `binetI z = ∫_0^∞ (1/2 - 1/t + 1/(e^t-1)) e^{-tz} dt`,
 `binetB z = ∫_0^∞ (1/2 - 1/t + 1/(e^t-1)) e^{-tz}/t dt` (`ComplexStirlingKernel`).
 
-* `digamma_eq_binet` (DLMF 5.9.16): for `Re z > 0`, `ψ(z) = log z - 1/(2z) - binetI z`.
+* `digamma_eq_binet` (the `z`-derivative of Binet's formula for `Ln Γ`, DLMF §5.9(ii) (5.9.10_2); the
+  formula for `ψ` is not numbered separately there): for `Re z > 0`, `ψ(z) = log z - 1/(2z) - binetI z`.
   Proof: `D(z) = ψ(z) - log z + 1/(2z) + binetI z` is holomorphic on `Re z > 0` and 1-periodic
   (`ψ(z+1) = ψ(z) + 1/z` from Mathlib, `binetI_sub_succ`); for real `x > 0`, `D(x) = D(x+n+1)` and
   `|ψ(y) - log y| ≤ 1/(y-1)` (convexity of `log Γ`, Barnes `deriv_logGammaR_bounds`) gives
   `‖D(x)‖ ≤ 2/(x+n) → 0`; the identity theorem on the half-plane gives `D ≡ 0`.
 * `binetLogGamma z = (z - 1/2) log z - z + (1/2) log(2π) + binetB z` (the right-hand side of Binet's
-  second formula, DLMF 5.9.? / 5.11.?): it is holomorphic on `Re z > 0`, with derivative `ψ`
+  formula for `Ln Γ`, DLMF (5.9.10_2)): it is holomorphic on `Re z > 0`, with derivative `ψ`
   (`hasDerivAt_binetLogGamma`) and satisfies `exp (binetLogGamma z) = Γ z` (`exp_binetLogGamma`): the
   quotient `Γ e^{-Λ}` has zero derivative and its value is `1` by Stirling's formula along the integers
   (Mathlib `Stirling.tendsto_stirlingSeq_sqrt_pi` via the vendored `tendsto_log_gamma_stirling`).
 * `binetLogGamma_ofReal`: for real `x > 0` it equals the real `log Γ(x)`, so `binetLogGamma` is the
-  continuous branch of `log Γ` that is real on the positive axis; `eq_binetLogGamma_of_differentiable`:
+  continuous branch of `log Γ` that is real on the positive axis; `eq_binetLogGamma_of_differentiableOn`:
   any holomorphic `L` on `Re z > 0` with `exp L = Γ` and `L 1 = 0` equals it.
 * `exists_int_im_binetLogGamma`: `Im binetLogGamma z = arg Γ(z) + 2π n` for some integer `n`.
 * Remainders (from `ComplexStirlingRemainder`): `‖ψ(z) - (log z - 1/(2z))‖ ≤ 1/‖z‖²`,
@@ -161,7 +162,7 @@ lemma binetD_eq_zero {z : ℂ} (hz : 0 < z.re) : binetD z = 0 := by
     exact binetD_real (by positivity)
   exact hA.eqOn_zero_of_preconnected_of_frequently_eq_zero isPreconnected_rhp h1 hfreq hz
 
-/-- **Binet's formula for `ψ`** (DLMF 5.9.16): for `Re z > 0`,
+/-- **Binet's formula for `ψ`** (the `z`-derivative of DLMF (5.9.10_2)): for `Re z > 0`,
 `ψ(z) = log z - 1/(2z) - ∫_0^∞ (1/2 - 1/t + 1/(e^t-1)) e^{-tz} dt`. -/
 theorem digamma_eq_binet {z : ℂ} (hz : 0 < z.re) :
     Complex.digamma z = Complex.log z - 1 / 2 * z⁻¹ - binetI z := by

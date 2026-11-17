@@ -5,7 +5,7 @@ public import FormalResearch.Special.ComplexStirlingLaplace
 /-!
 # The Binet kernel `1/2 - 1/t + 1/(e^t - 1)` and its Laplace transforms
 
-`binetKernel t = 1/2 - 1/t + 1/(e^t - 1)` (DLMF 5.9.16, 5.9.17).  Elementary bounds, for `t > 0`:
+`binetKernel t = 1/2 - 1/t + 1/(e^t - 1)` (the kernel of Binet's formula DLMF (5.9.10_2) for `Ln Γ`; its `z`-derivative gives `ψ`).  Elementary bounds, for `t > 0`:
 
 * `0 ≤ binetKernel t ≤ min (1/2) (t/6)` (the sharp bound `t/12` is not needed and not proved);
 * hence `binetKernelDiv t = binetKernel t / t ∈ [0, 1/6]`.
