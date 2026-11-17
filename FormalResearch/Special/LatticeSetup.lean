@@ -8,7 +8,7 @@ public import FormalResearch.Special.LatticePhaseProps
 The generic part of `lem:latticesum` (`constants.tex`) uses the phase `τ₀ = G/π` only through the
 following properties, collected in `CalPhase τ₀ X y₀ m M K` (window `|Re s| ≤ X+1`, `|Im s| ≤ y₀`):
 
-* `τ₀` is complex differentiable (twice) on the window, real on `ℝ`;
+* `τ₀` is complex analytic on the window, real on `ℝ`;
 * `Re τ₀' ≥ m` on the window and `Re τ₀' ≤ M` on the real window;
 * `|τ₀''| ≤ K` on the window.
 
@@ -33,8 +33,7 @@ structure CalPhase (τ0 : ℂ → ℂ) (X y0 m M K : ℝ) : Prop where
   hX : 0 < X
   hy0 : 0 < y0
   hm : 0 < m
-  diff : ∀ s, InWin X y0 s → DifferentiableAt ℂ τ0 s
-  ddiff : ∀ s, InWin X y0 s → DifferentiableAt ℂ (deriv τ0) s
+  ana : ∀ s, InWin X y0 s → AnalyticAt ℂ τ0 s
   real : ∀ x : ℝ, (τ0 x).im = 0
   ge : ∀ s, InWin X y0 s → m ≤ (deriv τ0 s).re
   le : ∀ x : ℝ, |x| ≤ X + 1 → (deriv τ0 x).re ≤ M
@@ -47,6 +46,15 @@ namespace CalPhase
 
 variable {τ0 : ℂ → ℂ} {X y0 m M K : ℝ}
 
+lemma diff (h : CalPhase τ0 X y0 m M K) {s : ℂ} (hs : InWin X y0 s) : DifferentiableAt ℂ τ0 s :=
+  (h.ana s hs).differentiableAt
+
+lemma ana_deriv (h : CalPhase τ0 X y0 m M K) {s : ℂ} (hs : InWin X y0 s) : AnalyticAt ℂ (deriv τ0) s :=
+  (h.ana s hs).deriv
+
+lemma ddiff (h : CalPhase τ0 X y0 m M K) {s : ℂ} (hs : InWin X y0 s) :
+    DifferentiableAt ℂ (deriv τ0) s := (h.ana_deriv hs).differentiableAt
+
 lemma inWin_real {x : ℝ} (hx : |x| ≤ X + 1) (hy : 0 ≤ y0) : InWin X y0 (x : ℂ) := by
   refine ⟨by simpa using hx, by simpa using hy⟩
 
@@ -55,8 +63,7 @@ lemma mono (h : CalPhase τ0 X y0 m M K) {y1 : ℝ} (hy1 : 0 < y1) (hle : y1 ≤
   hX := h.hX
   hy0 := hy1
   hm := h.hm
-  diff s hs := h.diff s ⟨hs.1, hs.2.trans hle⟩
-  ddiff s hs := h.ddiff s ⟨hs.1, hs.2.trans hle⟩
+  ana s hs := h.ana s ⟨hs.1, hs.2.trans hle⟩
   real := h.real
   ge s hs := h.ge s ⟨hs.1, hs.2.trans hle⟩
   le := h.le
@@ -64,7 +71,7 @@ lemma mono (h : CalPhase τ0 X y0 m M K) {y1 : ℝ} (hy1 : 0 < y1) (hle : y1 ≤
 
 lemma hasDerivAt_real (h : CalPhase τ0 X y0 m M K) {x : ℝ} (hx : |x| ≤ X + 1) :
     HasDerivAt (realPhase τ0) (deriv τ0 x).re x := by
-  have := (h.diff x (inWin_real hx h.hy0.le)).hasDerivAt
+  have := (h.diff (inWin_real hx h.hy0.le)).hasDerivAt
   exact this.real_of_complex
 
 lemma real_slope_ge (h : CalPhase τ0 X y0 m M K) {x y : ℝ} (hx : |x| ≤ X + 1) (hy : |y| ≤ X + 1)
@@ -117,7 +124,7 @@ lemma im_ge (h : CalPhase τ0 X y0 m M K) {u : ℝ} (hu : |u| ≤ X + 1) {a b : 
     have h1 : HasDerivAt (fun y : ℝ => ((u : ℂ) + (y : ℂ) * I)) I y := by
       have := ((hasDerivAt_id y).ofReal_comp.mul_const I).const_add (u : ℂ)
       simpa using this
-    have h2 := HasDerivAt.scomp y (h.diff _ hw).hasDerivAt h1
+    have h2 := HasDerivAt.scomp y (h.diff hw).hasDerivAt h1
     have h3 := Complex.imCLM.hasFDerivAt.comp_hasDerivAt y h2
     refine h3.congr_deriv ?_
     simp

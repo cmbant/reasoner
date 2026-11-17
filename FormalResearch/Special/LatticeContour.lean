@@ -140,7 +140,7 @@ theorem contour_shift_le {τ0 : ℂ → ℂ} {X y0 m M K : ℝ} (h : CalPhase τ
   have hdiff : DifferentiableOn ℂ f R := by
     refine (hwd.mono (fun s hs => hRsub s hs)).mul (fun s hs => ?_)
     obtain ⟨hre', him'⟩ := hRsub s hs
-    have ht : DifferentiableAt ℂ τ0 s := h.diff s ⟨by linarith, him'.trans hy10⟩
+    have ht : DifferentiableAt ℂ τ0 s := h.diff (s := s) ⟨by linarith, him'.trans hy10⟩
     exact ((ht.const_mul c).cexp).differentiableWithinAt
   have hG := integral_boundary_rect_eq_zero_of_differentiableOn f ⟨-X, 0⟩ ⟨X, σ * y1⟩ hdiff
   simp only at hG

@@ -26,7 +26,7 @@ lemma continuousOn_deriv_re (h : CalPhase τ0 X y0 m M K) :
     ContinuousOn (fun s : ℝ => (deriv τ0 (s : ℂ)).re) (Icc (-(X + 1)) (X + 1)) := by
   intro z hz
   have hw : InWin X y0 (z : ℂ) := inWin_real (abs_le.mpr hz) h.hy0.le
-  have h1 : ContinuousAt (deriv τ0) (z : ℂ) := (h.ddiff _ hw).continuousAt
+  have h1 : ContinuousAt (deriv τ0) (z : ℂ) := (h.ddiff hw).continuousAt
   have h2 : ContinuousAt (fun s : ℝ => deriv τ0 (s : ℂ)) z :=
     h1.comp (f := fun s : ℝ => (s : ℂ)) Complex.continuous_ofReal.continuousAt
   exact (Complex.continuous_re.continuousAt.comp h2).continuousWithinAt
@@ -54,11 +54,11 @@ noncomputable def realDeriv (τ0 : ℂ → ℂ) (s : ℝ) : ℝ := (deriv τ0 (s
 `t₀⁻¹(ℤ)`). -/
 theorem ibp_identity (h : CalPhase τ0 X y0 m M K) {Ψ : ℂ → ℂ} {CΨ : ℝ}
     (hΨ : ∀ s, InWin X y0 s → DifferentiableAt ℂ Ψ s)
-    (hΨ' : ∀ s, InWin X y0 s → DifferentiableAt ℂ (deriv Ψ) s)
+    (hΨ' : ∀ s : ℝ, |s| ≤ X → ContinuousAt (deriv Ψ) (s : ℂ))
     (hb : ∀ s : ℝ, |s| ≤ X → ‖Ψ s‖ ≤ CΨ) :
-    ∫ s in (-X)..X, (deriv Ψ (s : ℂ) * ((sawH (realPhase τ0 s) : ℝ) : ℂ) +
-      Ψ s * (((Int.fract (realPhase τ0 s) - 1 / 2) * realDeriv τ0 s : ℝ) : ℂ)) =
-    Ψ X * ((sawH (realPhase τ0 X) : ℝ) : ℂ) - Ψ (-X : ℝ) * ((sawH (realPhase τ0 (-X)) : ℝ) : ℂ) := by
+    ∫ s in (-X)..X, Ψ s * (((Int.fract (realPhase τ0 s) - 1 / 2) * realDeriv τ0 s : ℝ) : ℂ) =
+    Ψ X * ((sawH (realPhase τ0 X) : ℝ) : ℂ) - Ψ (-X : ℝ) * ((sawH (realPhase τ0 (-X)) : ℝ) : ℂ) -
+      ∫ s in (-X)..X, deriv Ψ (s : ℂ) * ((sawH (realPhase τ0 s) : ℝ) : ℂ) := by
   have hX := h.hX
   have hwin : ∀ s : ℝ, |s| ≤ X → InWin X y0 (s : ℂ) := fun s hs =>
     inWin_real (hs.trans (by linarith)) h.hy0.le
@@ -69,7 +69,7 @@ theorem ibp_identity (h : CalPhase τ0 X y0 m M K) {Ψ : ℂ → ℂ} {CΨ : ℝ
     (((hΨ _ (hwin s (hIcc s hs))).continuousAt).comp (f := fun s : ℝ => (s : ℂ))
       Complex.continuous_ofReal.continuousAt).continuousWithinAt
   have hΨ'c : ContinuousOn (fun s : ℝ => deriv Ψ (s : ℂ)) (Icc (-X) X) := fun s hs =>
-    (((hΨ' _ (hwin s (hIcc s hs))).continuousAt).comp (f := fun s : ℝ => (s : ℂ))
+    (((hΨ' s (hIcc s hs))).comp (f := fun s : ℝ => (s : ℂ))
       Complex.continuous_ofReal.continuousAt).continuousWithinAt
   have ht0c : ContinuousOn (realPhase τ0) (Icc (-X) X) := h.continuousOn_realPhase.mono hsub
   have hHc : ContinuousOn (fun s => sawH (realPhase τ0 s)) (Icc (-X) X) :=
@@ -93,11 +93,12 @@ theorem ibp_identity (h : CalPhase τ0 X y0 m M K) {Ψ : ℂ → ℂ} {CΨ : ℝ
       (hasDerivAt_sawH hnoint).comp s (h.hasDerivAt_real (abs_le.mpr (hsub hsI)))
     have hd3 := hd2.ofReal_comp
     exact hd1.mul hd3
-  have hint : IntervalIntegrable g' volume (-X) X := by
-    have hA : IntervalIntegrable (fun s : ℝ => deriv Ψ (s : ℂ) * ((sawH (realPhase τ0 s) : ℝ) : ℂ))
+  have hA : IntervalIntegrable (fun s : ℝ => deriv Ψ (s : ℂ) * ((sawH (realPhase τ0 s) : ℝ) : ℂ))
         volume (-X) X :=
       (hΨ'c.mul (Complex.continuous_ofReal.comp_continuousOn hHc)).intervalIntegrable_of_Icc
         (by linarith)
+  have hBi : IntervalIntegrable (fun s : ℝ => Ψ s *
+      (((Int.fract (realPhase τ0 s) - 1 / 2) * realDeriv τ0 s : ℝ) : ℂ)) volume (-X) X := by
     have hBm : AEStronglyMeasurable (fun s : ℝ => Ψ s *
         (((Int.fract (realPhase τ0 s) - 1 / 2) * realDeriv τ0 s : ℝ) : ℂ))
         (volume.restrict (Icc (-X) X)) := by
@@ -125,10 +126,17 @@ theorem ibp_identity (h : CalPhase τ0 X y0 m M K) {Ψ : ℂ → ℂ} {CΨ : ℝ
       have h5 : |Int.fract (realPhase τ0 s) - 1 / 2| * |realDeriv τ0 s| ≤ 1 / 2 * M :=
         mul_le_mul h1 h2 (abs_nonneg _) (by norm_num)
       exact mul_le_mul h3 h5 (by positivity) h4
-    exact hA.add ((intervalIntegrable_iff_integrableOn_Icc_of_le (by linarith)).mpr hB)
-  have := MeasureTheory.integral_eq_of_hasDerivAt_off_countable_of_le g g' (by linarith : -X ≤ X)
+    exact (intervalIntegrable_iff_integrableOn_Icc_of_le (by linarith)).mpr hB
+  have hint : IntervalIntegrable g' volume (-X) X := hA.add hBi
+  have hF := MeasureTheory.integral_eq_of_hasDerivAt_off_countable_of_le g g' (by linarith : -X ≤ X)
     h.countable_levels hgc hderiv hint
-  exact this
+  have hsplit : ∫ s in (-X)..X, g' s = (∫ s in (-X)..X, deriv Ψ (s : ℂ) * ((sawH (realPhase τ0 s) : ℝ) : ℂ)) +
+      ∫ s in (-X)..X, Ψ s * (((Int.fract (realPhase τ0 s) - 1 / 2) * realDeriv τ0 s : ℝ) : ℂ) :=
+    intervalIntegral.integral_add hA hBi
+  rw [hsplit] at hF
+  have : g X - g (-X) = Ψ X * ((sawH (realPhase τ0 X) : ℝ) : ℂ) - Ψ (-X : ℝ) * ((sawH (realPhase τ0 (-X)) : ℝ) : ℂ) := rfl
+  rw [this] at hF
+  linear_combination hF
 
 end CalPhase
 
