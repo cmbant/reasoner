@@ -273,4 +273,79 @@ theorem dlgh_airyat {P Q τ x qs : ℝ} {Y : ℤ → ℝ} {κ μ Ts Φmin lo C �
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.dlgh_airyat
 
+
+lemma dlgh_fac {P qs q : ℝ} (hP : 0 ≤ P) (hα : 0 < 1 - P * qs ^ 2) (hq : 0 < q) (hqq : q ≤ qs) : 0 < 1 - P * q ^ 2 := by
+  have : q ^ 2 ≤ qs ^ 2 := pow_le_pow_left₀ hq.le hqq 2
+  nlinarith [mul_le_mul_of_nonneg_left this hP]
+
+lemma dlgh_w_ge_one {P Q q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (h1 : 0 < 1 - P * q ^ 2) (h2 : 0 < 1 - Q * q ^ 2)
+    (τ x : ℝ) (hu : |hrU P Q τ x q| < 1) : 1 ≤ dlgsW (hrA1 P Q) (hrU P Q τ x) q := by
+  have hu2 : 0 < 1 - hrU P Q τ x q ^ 2 := by
+    have : hrU P Q τ x q ^ 2 < 1 := by nlinarith [abs_nonneg (hrU P Q τ x q), sq_abs (hrU P Q τ x q)]
+    linarith
+  have hs : 0 < √(1 - hrU P Q τ x q ^ 2) := Real.sqrt_pos.2 hu2
+  have hs1 : √(1 - hrU P Q τ x q ^ 2) ≤ 1 := by
+    rw [Real.sqrt_le_one]; nlinarith [sq_nonneg (hrU P Q τ x q)]
+  have hint : 0 < (1 - P * q ^ 2) * (1 - Q * q ^ 2) := mul_pos h1 h2
+  have hA : 0 < hrA1 P Q q := hrA_pos hint
+  have hA1 : hrA1 P Q q ≤ 1 := by
+    unfold hrA1 Racah.P3.etilde
+    have : (1 - P * q ^ 2) * (1 - Q * q ^ 2) ≤ 1 := by
+      have a1 : 1 - P * q ^ 2 ≤ 1 := by nlinarith [mul_nonneg hP (sq_nonneg q)]
+      have a2 : 1 - Q * q ^ 2 ≤ 1 := by nlinarith [mul_nonneg hQ (sq_nonneg q)]
+      calc (1 - P * q ^ 2) * (1 - Q * q ^ 2) ≤ 1 * 1 := mul_le_mul a1 a2 h2.le zero_le_one
+        _ = 1 := one_mul 1
+    have := Real.sqrt_le_one.2 this
+    linarith
+  have hp : 0 < hrA1 P Q q * √(1 - hrU P Q τ x q ^ 2) := mul_pos hA hs
+  have hp1 : hrA1 P Q q * √(1 - hrU P Q τ x q ^ 2) ≤ 1 := by
+    calc _ ≤ 1 * 1 := mul_le_mul hA1 hs1 hs.le zero_le_one
+      _ = 1 := one_mul 1
+  unfold dlgsW
+  rw [one_le_inv₀ (Real.sqrt_pos.2 hp), Real.sqrt_le_one]
+  exact hp1
+
+lemma dlgh_cont {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (τ x qs c1 : ℝ) (hc1 : 0 < c1) (hα : 0 < 1 - P * qs ^ 2)
+    (hβ : 0 < 1 - Q * qs ^ 2) :
+    ContinuousOn (fun s => Real.arccos (hrU P Q τ x s)) (Set.Icc c1 qs) := by
+  refine Real.continuous_arccos.comp_continuousOn (fun s hs => ?_)
+  have hs0 : 0 < s := hc1.trans_le hs.1
+  have := hrU_contDiffAt (P := P) (Q := Q) τ x 1
+    (mul_pos (dlgh_fac hP hα hs0 hs.2) (dlgh_fac hQ hβ hs0 hs.2))
+  exact this.continuousAt.continuousWithinAt
+
+lemma dlgh_split {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (τ x qs c1 q : ℝ) (hc1 : 0 < c1) (hα : 0 < 1 - P * qs ^ 2)
+    (hβ : 0 < 1 - Q * qs ^ 2) (hq1 : c1 ≤ q) (hq2 : q ≤ qs) :
+    (∫ s in c1..qs, Real.arccos (hrU P Q τ x s)) - dlgsPhase (hrU P Q τ x) c1 q =
+      ∫ s in q..qs, Real.arccos (hrU P Q τ x s) := by
+  have hc := dlgh_cont hP hQ τ x qs c1 hc1 hα hβ
+  have i1 : IntervalIntegrable (fun s => Real.arccos (hrU P Q τ x s)) MeasureTheory.volume c1 q :=
+    (hc.mono (Set.Icc_subset_Icc_right hq2)).intervalIntegrable_of_Icc hq1
+  have i2 : IntervalIntegrable (fun s => Real.arccos (hrU P Q τ x s)) MeasureTheory.volume q qs :=
+    (hc.mono (Set.Icc_subset_Icc_left hq1)).intervalIntegrable_of_Icc hq2
+  rw [← intervalIntegral.integral_add_adjacent_intervals i1 i2]
+  unfold dlgsPhase dlgsTheta
+  ring
+
+lemma dlgh_tail_ge {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (τ x qs c1 q e : ℝ) (hc1 : 0 < c1) (hα : 0 < 1 - P * qs ^ 2)
+    (hβ : 0 < 1 - Q * qs ^ 2) (hq1 : c1 ≤ q) (hqe : q ≤ e) (he : e ≤ qs) :
+    (∫ s in e..qs, Real.arccos (hrU P Q τ x s)) ≤ ∫ s in q..qs, Real.arccos (hrU P Q τ x s) := by
+  have hc := dlgh_cont hP hQ τ x qs c1 hc1 hα hβ
+  have i1 : IntervalIntegrable (fun s => Real.arccos (hrU P Q τ x s)) MeasureTheory.volume q e :=
+    (hc.mono (Set.Icc_subset_Icc hq1 he)).intervalIntegrable_of_Icc hqe
+  have i2 : IntervalIntegrable (fun s => Real.arccos (hrU P Q τ x s)) MeasureTheory.volume e qs :=
+    (hc.mono (Set.Icc_subset_Icc (hq1.trans hqe) le_rfl)).intervalIntegrable_of_Icc he
+  rw [← intervalIntegral.integral_add_adjacent_intervals i1 i2]
+  have : 0 ≤ ∫ s in q..e, Real.arccos (hrU P Q τ x s) :=
+    intervalIntegral.integral_nonneg hqe (fun s _ => Real.arccos_nonneg _)
+  linarith
+
+lemma dlgh_lattice {δ c d : ℝ} (hδ : 0 < δ) (k : ℤ) :
+    (c ≤ dlgQ (δ ^ 3 / 2) (δ ^ 3) k ∧ dlgQ (δ ^ 3 / 2) (δ ^ 3) k ≤ d) ↔
+      (⌈(c - δ ^ 3 / 2) / δ ^ 3⌉ ≤ k ∧ k ≤ ⌊(d - δ ^ 3 / 2) / δ ^ 3⌋) := by
+  have hh : 0 < δ ^ 3 := by positivity
+  rw [Int.ceil_le, Int.le_floor, div_le_iff₀ hh, le_div_iff₀ hh]
+  unfold dlgQ
+  constructor <;> rintro ⟨h1, h2⟩ <;> constructor <;> linarith
+
 end FormalResearch.Special
