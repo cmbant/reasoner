@@ -336,4 +336,121 @@ lemma kp_s_close {x qs h u η αa αb A : ℝ} (hx : 0 < x) (hqs : qs ^ 2 = 1 - 
         apply mul_le_mul (by linarith) htA ht0.le (by positivity)
     _ = (h ^ 2 / A ^ 2 + |η|) / (x * A) := by field_simp
 
+/-- The lattice position `q_k = (k + ½)h`. -/
+noncomputable def kpU (h : ℝ) (k : ℤ) : ℝ := ((k : ℝ) + 1 / 2) * h
+
+/-- The profile radius `α_k = √(q_*² - q_k²)`. -/
+noncomputable def kpα (qs h : ℝ) (k : ℤ) : ℝ := Real.sqrt (qs ^ 2 - kpU h k ^ 2)
+
+/-- The Ermakov profile `P_k = ρ_k² = 2/α_k` of the Hahn chain. -/
+noncomputable def kpP (qs h : ℝ) (k : ℤ) : ℝ := 2 / kpα qs h k
+
+lemma kpU_succ (h : ℝ) (k : ℤ) : kpU h (k + 1) - h = kpU h k := by unfold kpU; push_cast; ring
+
+lemma kpU_pred (h : ℝ) (k : ℤ) : kpU h k - h = kpU h (k - 1) := by unfold kpU; push_cast; ring
+
+lemma kpα_sq {qs h A : ℝ} {j : ℤ} (hA : A ^ 2 ≤ qs ^ 2 - kpU h j ^ 2) :
+    kpα qs h j ^ 2 = qs ^ 2 - kpU h j ^ 2 ∧ A ≤ kpα qs h j := by
+  refine ⟨Real.sq_sqrt (by nlinarith [sq_nonneg A]), ?_⟩
+  exact Real.le_sqrt_of_sq_le hA
+
+lemma kpU_mid {h : ℝ} {k : ℤ} (hh : 0 < h) (hk : 0 ≤ k) : 0 ≤ kpU h k - h / 2 := by
+  unfold kpU
+  have : (0 : ℝ) ≤ k := by exact_mod_cast hk
+  nlinarith
+
+lemma kp_sq_le_one {a : ℝ} (h0 : 0 ≤ a) (h1 : a < 1) : a ^ 2 ≤ 1 := by nlinarith
+
+lemma kpU_lt_one {qs h A : ℝ} {j : ℤ} (hq : qs ^ 2 ≤ 1) (hA : 0 < A) (hj : A ^ 2 ≤ qs ^ 2 - kpU h j ^ 2)
+    (hU : 0 < kpU h j) : kpU h j < 1 := by
+  by_contra hcon
+  push Not at hcon
+  nlinarith [mul_pos hA hA]
+
+/-- **The Ermakov defect of the Hahn profile** (`kp_defect`).  Closed-form coefficients at the bonds `k, k+1`:
+`a_j² = (1+η_j)(1 - (jh)²)/4`, `c_k = x - κ_k`; band `A² ≤ q_*² - q_j²` for `j = k-1, k, k+1`, `k ≥ 1`, `|η| ≤ η̄ ≤ x²`, `|κ_k| ≤ κ̄`:
+`|E_k| ≤ 2(h²/A² + η̄)/(x A) + 3x h²/A⁶ + 2κ̄/A`. -/
+theorem kp_defect {x qs h A ηb κb : ℝ} {k : ℤ} {a c η κ : ℤ → ℝ} (hx : 0 < x) (hqs : qs ^ 2 = 1 - x ^ 2) (hh : 0 < h)
+    (hk : 1 ≤ k) (hA0 : 0 < A) (hA1 : A ≤ 1) (hAm : A ^ 2 ≤ qs ^ 2 - kpU h (k - 1) ^ 2)
+    (hA0' : A ^ 2 ≤ qs ^ 2 - kpU h k ^ 2) (hAp : A ^ 2 ≤ qs ^ 2 - kpU h (k + 1) ^ 2)
+    (ha0 : a k ^ 2 = (1 + η k) * ((1 - ((k : ℝ) * h) ^ 2) / 4))
+    (hap : a (k + 1) ^ 2 = (1 + η (k + 1)) * ((1 - (((k + 1 : ℤ) : ℝ) * h) ^ 2) / 4))
+    (hη0 : |η k| ≤ ηb) (hηp : |η (k + 1)| ≤ ηb) (hηb : ηb ≤ x ^ 2) (hc : c k = x - κ k) (hκ : |κ k| ≤ κb) :
+    |kermE a c (kpP qs h) k| ≤ 2 * (h ^ 2 / A ^ 2 + ηb) / (x * A) + 3 * x * (h ^ 2 / A ^ 6) + 2 * κb / A := by
+  have hqs1 : qs ^ 2 ≤ 1 := by nlinarith [sq_nonneg x]
+  obtain ⟨sm, bm⟩ := kpα_sq hAm
+  obtain ⟨s0, b0⟩ := kpα_sq hA0'
+  obtain ⟨sp, bp⟩ := kpα_sq hAp
+  have hk' : (1 : ℝ) ≤ k := by exact_mod_cast hk
+  have hU0 : 0 < kpU h k := by unfold kpU; exact mul_pos (by linarith) hh
+  have hUm : 0 < kpU h (k - 1) := by unfold kpU; push_cast; exact mul_pos (by linarith) hh
+  have hUp0 : 0 < kpU h (k + 1) := by unfold kpU; push_cast; exact mul_pos (by linarith) hh
+  have hUp1 : kpU h (k + 1) < 1 := kpU_lt_one hqs1 hA0 hAp hUp0
+  have hU01 : kpU h k < 1 := by rw [← kpU_succ h k] at *; linarith
+  have hkk : kpU h k - h = kpU h (k - 1) := kpU_pred h k
+  have hkk' : kpU h (k + 1) - h = kpU h k := kpU_succ h k
+  have hkk2 : kpU h k + h = kpU h (k + 1) := by linarith [hkk']
+  obtain ⟨-, bδ0⟩ := kp_delta (h := h) (u0 := kpU h k) (qs := qs) (α0 := kpα qs h k) (αm := kpα qs h (k - 1)) (A := A) hh
+    (by rw [hkk]; exact hUm) hU01 s0 (by rw [hkk]; exact sm) hA0 b0 bm
+  obtain ⟨-, bδp⟩ := kp_delta (h := h) (u0 := kpU h (k + 1)) (qs := qs) (α0 := kpα qs h (k + 1)) (αm := kpα qs h k) (A := A) hh
+    (by rw [hkk']; exact hU0) hUp1 sp (by rw [hkk']; exact s0) hA0 bp b0
+  have hτ := kp_tau (h := h) (u0 := kpU h k) (qs := qs) (αp := kpα qs h (k + 1)) (α0 := kpα qs h k)
+    (αm := kpα qs h (k - 1)) (A := A) hh (by rw [hkk]; exact hUm) (by rw [hkk2]; exact hUp1) hqs1
+    (by rw [hkk2]; exact sp) s0 (by rw [hkk]; exact sm) hA0 hA1 bp b0 bm
+  have hx2 : ηb ≤ x ^ 2 := hηb
+  have hmid0 : 0 ≤ kpU h k - h / 2 := kpU_mid hh (by omega)
+  have hmidp : 0 ≤ kpU h (k + 1) - h / 2 := kpU_mid hh (by omega)
+  have ep : kermS a (kpP qs h) (k + 1) = Real.sqrt ((1 + η (k + 1)) * ((1 - (kpU h (k + 1) - h / 2) ^ 2) / 4) *
+      (2 / kpα qs h (k + 1)) * (2 / kpα qs h k) - 1) := by
+    unfold kermS kpP
+    simp only [add_sub_cancel_right]
+    rw [hap, show ((k + 1 : ℤ) : ℝ) * h = kpU h (k + 1) - h / 2 by unfold kpU; push_cast; ring]
+  have e0 : kermS a (kpP qs h) k = Real.sqrt ((1 + η k) * ((1 - (kpU h k - h / 2) ^ 2) / 4) *
+      (2 / kpα qs h k) * (2 / kpα qs h (k - 1)) - 1) := by
+    unfold kermS kpP
+    rw [ha0, show (k : ℝ) * h = kpU h k - h / 2 by unfold kpU; ring]
+  have Sp := kp_s_close (x := x) (qs := qs) (h := h) (u := kpU h (k + 1)) (η := η (k + 1)) (αa := kpα qs h (k + 1))
+    (αb := kpα qs h k) (A := A) hx hqs sp (by rw [hkk']; exact s0) hA0 hA1 bp b0 bδp (hηp.trans hηb)
+    (kp_sq_le_one hmidp (by linarith))
+  have S0 := kp_s_close (x := x) (qs := qs) (h := h) (u := kpU h k) (η := η k) (αa := kpα qs h k)
+    (αb := kpα qs h (k - 1)) (A := A) hx hqs s0 (by rw [hkk]; exact sm) hA0 hA1 b0 bm bδ0 (hη0.trans hηb)
+    (kp_sq_le_one hmid0 (by linarith))
+  rw [← ep] at Sp
+  rw [← e0] at S0
+  have hα0p : 0 < kpα qs h k := by linarith
+  have hdec : kermE a c (kpP qs h) k =
+      (kermS a (kpP qs h) (k + 1) - x / Real.sqrt (kpα qs h (k + 1) * kpα qs h k)) +
+      (kermS a (kpP qs h) k - x / Real.sqrt (kpα qs h k * kpα qs h (k - 1))) +
+      x * (1 / Real.sqrt (kpα qs h (k + 1) * kpα qs h k) + 1 / Real.sqrt (kpα qs h k * kpα qs h (k - 1)) -
+        2 / kpα qs h k) + κ k * (2 / kpα qs h k) := by
+    unfold kermE kpP
+    rw [hc]
+    ring
+  rw [hdec]
+  have hκt : |κ k * (2 / kpα qs h k)| ≤ 2 * κb / A := by
+    rw [abs_mul, abs_of_pos (by positivity : 0 < 2 / kpα qs h k)]
+    calc |κ k| * (2 / kpα qs h k) ≤ κb * (2 / A) := by
+          apply mul_le_mul hκ _ (by positivity) ((abs_nonneg _).trans hκ)
+          exact div_le_div_of_nonneg_left (by norm_num) hA0 b0
+      _ = 2 * κb / A := by ring
+  have hxt : |x * (1 / Real.sqrt (kpα qs h (k + 1) * kpα qs h k) + 1 / Real.sqrt (kpα qs h k * kpα qs h (k - 1)) -
+        2 / kpα qs h k)| ≤ 3 * x * (h ^ 2 / A ^ 6) := by
+    rw [abs_mul, abs_of_pos hx]
+    calc x * _ ≤ x * (3 * (h ^ 2 / A ^ 6)) := mul_le_mul_of_nonneg_left hτ hx.le
+      _ = 3 * x * (h ^ 2 / A ^ 6) := by ring
+  calc _ ≤ |kermS a (kpP qs h) (k + 1) - x / Real.sqrt (kpα qs h (k + 1) * kpα qs h k)| +
+        |kermS a (kpP qs h) k - x / Real.sqrt (kpα qs h k * kpα qs h (k - 1))| +
+        |x * (1 / Real.sqrt (kpα qs h (k + 1) * kpα qs h k) + 1 / Real.sqrt (kpα qs h k * kpα qs h (k - 1)) -
+          2 / kpα qs h k)| + |κ k * (2 / kpα qs h k)| := by
+        refine (abs_add_le _ _).trans ?_
+        gcongr
+        refine (abs_add_le _ _).trans ?_
+        gcongr
+        exact abs_add_le _ _
+    _ ≤ (h ^ 2 / A ^ 2 + ηb) / (x * A) + (h ^ 2 / A ^ 2 + ηb) / (x * A) + 3 * x * (h ^ 2 / A ^ 6) + 2 * κb / A := by
+        have h1 : (h ^ 2 / A ^ 2 + |η (k + 1)|) / (x * A) ≤ (h ^ 2 / A ^ 2 + ηb) / (x * A) := by gcongr
+        have h2 : (h ^ 2 / A ^ 2 + |η k|) / (x * A) ≤ (h ^ 2 / A ^ 2 + ηb) / (x * A) := by gcongr
+        linarith [Sp, S0, hxt, hκt]
+    _ = _ := by ring
+
 end FormalResearch.Special
