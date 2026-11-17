@@ -5,7 +5,7 @@ public import FormalResearch.Special.LatticeTail
 /-!
 # From data on `[-X, X]` to `LevelData`
 
-The paper's `Θ` is only defined on `[-X, X]`.  `levelData_of_Icc` extends `t = Θ/π` to all of `ℝ`
+The paper's `Θ` is only defined on `[-X, X]`.  `exists_levelData` extends `t = Θ/π` to all of `ℝ`
 (by `t∘clamp + (t₀ - t₀∘clamp)`, which stays `ε`-close to `t₀`), so that it can be used with `LevelData`
 (which asks for a continuous `t` and closeness on `[-X-1, X+1]`).
 -/

@@ -10,7 +10,7 @@ Source: `constants.tex`, proof of `lem:latticesum`.  For `A = argGammaHalf` and 
 * `argGammaHalf_neg`, `argGammaHalf_real` : `A` is odd and real on `ℝ`;
 * `hasDerivAt_phaseDeriv` : `p` is differentiable on `|Im s| < ½` with derivative of norm `≤ 16 ∑ k⁻²`
   on `|Im s| ≤ ¼` (this is the bound on `τ₀''` needed by the contour shift);
-* `re_phaseDeriv_real` : `p(x) = Re ψ(½+ix)` for real `x`;
+* `phaseDeriv_real` : `p(x) = Re ψ(½+ix)` for real `x`;
 * `re_phaseDeriv_ge`, `re_phaseDeriv_le` : `Re p ≥ -3` on `ℝ` and `Re p(u+iv) ≤ log(1+|u|) + 5` on `|v| ≤ ¼`.
 -/
 

@@ -17,11 +17,11 @@ cannot be used; we define the **continuous branch** with value `0` at `s = 0` by
 with positive real part when `|Im s| < ½`).
 
 * `hasDerivAt_argGammaHalf` : on `|Im s| < ½` the derivative is `(ψ(½+is)+ψ(½-is))/2`;
-* `argGammaHalf_neg` (odd), `argGammaHalf_real` (real on `ℝ`), `argGammaHalf_deriv_real`
-  (`= Re ψ(½+is)` for real `s`).
+* `argGammaHalf_neg` (odd), `argGammaHalf_real` (real on `ℝ`) and `phaseDeriv_real`
+  (the derivative is `Re ψ(½+is)` for real `s`) are in `LatticePhaseProps`.
 
-Not formalised here: identification of this branch with the polar argument of `Γ(½+is)` (see
-`LatticePhaseGamma`).
+Not formalised: identification of this branch with the polar argument of `Γ(½+is)` (no module of
+this branch proves it; the lattice statements use only analyticity, oddness, reality and the derivative).
 -/
 
 @[expose] public section

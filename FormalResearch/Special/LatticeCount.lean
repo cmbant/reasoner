@@ -13,7 +13,7 @@ public import FormalResearch.Special.LatticeSetup
   levels, and `n ≤ 2MX + 2ε + 1`);
 * `spacing_ge`, `spacing_le` : consecutive levels are at distance in
   `[(1-2ε)/M, (1+2ε)/m]` (the paper's `c/(ϰ log L) ≤ spacing ≤ C/(ϰ log L)`);
-* `bad_set_meas` : the set where `t₀` is within `ε` of an integer has measure
+* `nearInt_meas` : the set where `t₀` is within `ε` of an integer has measure
   `≤ (M+2ε+1)·4ε/m` in each unit interval (the key to `(i)`: no factor `X`).
 -/
 

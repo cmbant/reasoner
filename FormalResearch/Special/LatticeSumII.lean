@@ -7,7 +7,8 @@ public import FormalResearch.Special.LatticeSum
 
 * `card_le_eq` : `#{x ∈ S : x ≤ s} = ⌊t(s)⌋ - ⌈t(-X)⌉ + 1` on `[-X, X]` (the paper's
   `N(s) = ⌊τ(s)⌋ + κ₀`, with `κ₀` identified);
-* `sum_eq_levels` : `∑_{x∈S} φ(x) = ⌊t(X)⌋ φ(X) + (1 - ⌈t(-X)⌉) φ(-X) - ∫ φ' t + ∫ φ' {t}`;
+* (`sum_by_parts` in `LatticeSum`, with `card_le_eq`, gives
+  `∑_{x∈S} φ(x) = ⌊t(X)⌋ φ(X) + (1 - ⌈t(-X)⌉) φ(-X) - ∫ φ' t + ∫ φ' {t}`, used inside `latticeII_bound`;)
 * `latticeII_bound` : `‖∑_{x∈S} φ(x) - ∫_{-X}^{X} φ t₀'‖ ≤ (1+2ε) C_φ e^{-κX} + 2ε C_φ'/κ + (i)-bound(φ')`.
 
 Both boundary coefficients `⌊t(X)⌋ - t₀(X) + ½` and `t₀(-X) + 1 - ⌈t(-X)⌉ - ½` have modulus `≤ ½ + ε`
