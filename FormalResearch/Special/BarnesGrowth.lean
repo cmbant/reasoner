@@ -11,7 +11,8 @@ From Gauss' series (`digamma_eq_series`): for `Re z ≥ 1/2`,
 
 This is weaker than the logarithmic bound `ψ(z) = O(log |z|)` in vertical strips (DLMF 5.11.2) that
 the paper quotes; the polynomial bound is all that the contour argument of `thm:BG` needs (it is
-multiplied by `e^{-π|ξ|}`).  Not formalised: the sharp `O(log)` bound.
+multiplied by `e^{-π|ξ|}`).  The sharp bound on the critical line is `ComplexStirling.re_digamma_half_line`
+(`|Re ψ(½+is) - log|s|| ≤ 11/(8s²)`), not used here.
 -/
 
 @[expose] public section

@@ -91,6 +91,7 @@ public import FormalResearch.Special.DiscreteAirySecondHahn
 public import FormalResearch.Special.AiryCft2DerivHadamard
 public import FormalResearch.Special.Barnes
 public import FormalResearch.Special.Lattice
+public import FormalResearch.Special.ComplexStirling
 
 /-!
 # Special functions: Jacobi polynomials
@@ -227,8 +228,8 @@ extension to an entire function `barnesG` with zero locus `{0,-1,-2,…}` and a 
 `cosh πξ + cos θ` and the Cauchy contour shift `∫ψ(½+ix/2)/(cosh πx+cos θ)dx = 2[Q(1+b) - Q(1-b)]/sin θ` (`integral_digamma_div_kerD`),
 differentiation under the integral (`hasDerivAt_bgInt`), the real form of `thm:BG`, `-(1/4π)∫log((cosh πx+cos θ)/(cosh πx+1)) Re ψ(½+ix/2)dx =
 log[G(1+b)G(1-b)]`, `b = θ/2π`, `|θ| < π` (`barnes_gamma_identity`), and `lem:VI` (`integral_wR`, `integral_wR_mul_rhoR`).  Not formalised: the complex
-`g_θ` form of the first equality of `thm:BG` (only the real part, `re_gTheta`), the sharp `O(log)` bound for `Re ψ` (a linear bound is proved and
-suffices), the Weierstrass product on all of `ℂ`, uniqueness of `G`, Gauss' series for `Re z ≤ 0`, and everything downstream (Barnes products,
+`g_θ` form of the first equality of `thm:BG` (only the real part, `re_gTheta`), the sharp `O(log)` bound for `Re ψ` inside the Barnes modules (they use a linear bound, which suffices; the sharper
+`|Re ψ(½+is) - log|s|| ≤ 11/(8s²)` is `re_digamma_half_line` in `ComplexStirling`, not used by `Barnes*`), the Weierstrass product on all of `ℂ`, uniqueness of `G`, Gauss' series for `Re z ≤ 0`, and everything downstream (Barnes products,
 entropy constants, the trace-perturbation core).
 Phase-lattice summation of the same paper (`Lattice*`, umbrella `Lattice`, namespace `FormalResearch.Special.Lattice`): the Gauss-series branch
 `argGammaHalf` of `arg Γ(½+is)` (analytic on `|Im s| < ½`, odd, real, derivative `Re ψ`, with elementary bounds on `Re ψ`; no Stirling), the abstract
@@ -236,4 +237,16 @@ lattice estimates for a calibrated phase (level counts and spacing, `latticeI_bo
 Gamma phase in paper form (`latticesum_gamma`), `lem:varcore` (i) and (ii) (`varcore_gamma`, `varcore_tail_gamma`, with `integral_hvar_gdens` from `lem:VI`), and `prop:offsetcore` (i)
 deduced from `lem:latticesum` (iii) taken as a hypothesis (`offsetcore_i_of_iii`).  Not formalised: `lem:latticesum` (iii) and the concrete (i), `prop:offsetcore` (ii),
 `lem:traceperturb`, `thm:tracecore`, and the identification of `argGammaHalf` with the polar argument of `Γ`.
+Complex Stirling formula and Binet's formulas (`ComplexStirling*`, umbrella `ComplexStirling`, namespace
+`FormalResearch.Special.ComplexStirling`; Mathlib has no complex Stirling): Binet's formula for `log Γ` (DLMF §5.9(ii), (5.9.10_2)) and, by
+differentiation, for `ψ` on `Re z > 0` (`digamma_eq_binet`, `binetLogGamma` with `exp (binetLogGamma z) = Γ z`, `log_Gamma_eq_binet` on the
+reals, branch uniqueness among holomorphic logarithms of `Γ`), the explicit remainders on all of `Re z > 0`
+`‖ψ(z) - (log z - 1/(2z))‖ ≤ 1/|z|²`, `‖ψ'(z) - 1/z - 1/(2z²)‖ ≤ (2/3)/|z|³`, `‖log Γ(z) - ((z-½)log z - z + ½ log 2π)‖ ≤ 2/|z|`
+(non-sharp constants), the critical line `|Γ(½+is)|² = π/cosh πs`, `|Re ψ(½+is) - log|s|| ≤ 11/(8s²)`, `Im ψ(½+is) = (π/2) tanh πs`
+and `Im log Γ(½+is) = s log|s| - s + O(1/|s|)`, and `|Γ(x+iy)|` in vertical strips with explicit remainder (`norm_Gamma_strip*`).  The
+route is a Laplace transform of the Binet kernel, the difference equation and the identity theorem (no Euler–Maclaurin, no contour
+rotation).  Imports `BarnesDigamma` (Gauss' series and convexity bounds) and the vendored `Interval.EulerMaclaurin.Gamma`
+(Stirling's constant along `ℕ`); both are to be replaced before upstreaming.  Not formalised: the sharp constants and the Bernoulli
+series (`1/12`-type), sectors `|arg z| > π/2` and `Re z ≤ 0`, the Weierstrass product form of `log Γ`, uniqueness of the branch among
+merely continuous logarithms.
 -/
