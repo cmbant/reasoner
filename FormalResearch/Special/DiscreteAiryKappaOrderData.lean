@@ -192,4 +192,89 @@ lemma kk_upper {Y X g : ℤ → ℝ} {Nz J m Nw : ℤ} {δ qs r C Cmu ξ0 gmin g
     (by linarith [s.d3]) hδ5' hgapZ d.X0 hpos
     (fun k h1 h2 => d.glo k (Finset.mem_Icc.2 ⟨h1, by have := d.hm1; omega⟩)) hrest hmassUB
 
+/-- **Lower bound** `1 ≤ Q κ² δ`. -/
+lemma kk_lower {Y X g : ℤ → ℝ} {Nz J m Nw : ℤ} {δ qs r C Cmu ξ0 gmin gmax c1 c2 κmin Cl κ μ σ0 : ℝ}
+    (d : KkData Y X g Nz δ qs r C Cmu ξ0 gmin gmax c1 c2 κmin Cl κ μ J m Nw)
+    (s : KkSmall δ r C Cmu ξ0 gmin gmax c1 c2 κmin σ0) (hCl : 0 ≤ Cl) {k1 : ℤ} (hk1 : m + 1 ≤ k1) (hk1N : k1 + 1 ≤ Nw)
+    (hX1 : X k1 ≤ 1 / δ) (hX2 : 1 / δ < X (k1 + 1))
+    (hrest : ∀ k : ℤ, J ≤ k → k ≤ k1 + 1 → |Y k - κ * (g k * airyAi (X k))| ≤ (C + 1) * δ ^ 3 * |κ|) :
+    1 ≤ kkQ c1 c2 gmax C σ0 (c2 * (r + 1)) (r + 3) Cl * (κ ^ 2 * δ) := by
+  have hδp := s.hδ
+  have hδ1' : δ ≤ 1 := by linarith [s.d1]
+  have hc2 : 0 < c2 := lt_of_lt_of_le s.hc1 s.hc12
+  have hδ3pos : 0 < δ ^ 3 := pow_pos hδp 3
+  have hσ0p := s.sigma_pos
+  have hJm := d.hJm
+  have hgmax : 0 < gmax := lt_of_lt_of_le s.hgmin s.hgg
+  have hgapZ : ∀ k : ℤ, J ≤ k → k < Nw → c1 * δ ≤ X (k + 1) - X k ∧ X (k + 1) - X k ≤ c2 * δ :=
+    fun k h1 h2 => d.gap k (Finset.mem_Icc.2 ⟨h1, by omega⟩)
+  have hpos : r - δ ^ 3 ≤ ((m - J : ℤ) : ℝ) * δ ^ 3 := by
+    have e : ((m - J : ℤ) : ℝ) * δ ^ 3 = ((m : ℝ) + 1 / 2) * δ ^ 3 - ((J : ℝ) + 1 / 2) * δ ^ 3 := by push_cast; ring
+    rw [e]; linarith [d.p3, d.p2]
+  have hposU : ((m - J : ℤ) : ℝ) * δ ^ 3 < r + δ ^ 3 := by
+    have e : ((m - J : ℤ) : ℝ) * δ ^ 3 = ((m : ℝ) + 1 / 2) * δ ^ 3 - ((J : ℝ) + 1 / 2) * δ ^ 3 := by push_cast; ring
+    rw [e]; linarith [d.p4, d.p1]
+  have hδc' : c2 * δ ^ 3 ≤ c1 * r / 8 := by
+    have h0 : δ ^ 3 ≤ δ := by nlinarith [sq_nonneg δ, pow_pos hδp 2]
+    have h1 : c2 * δ ^ 3 ≤ c2 * δ := mul_le_mul_of_nonneg_left h0 hc2.le
+    have h2 : c2 * δ ≤ c2 * (c1 * r / (8 * (c2 + 1))) := mul_le_mul_of_nonneg_left s.d2 hc2.le
+    have h3 : c2 * (c1 * r / (8 * (c2 + 1))) ≤ c1 * r / 8 := by
+      rw [← mul_div_assoc, div_le_div_iff₀ (by positivity) (by norm_num)]
+      nlinarith [mul_pos s.hc1 s.hr]
+    linarith
+  have hσ2 : σ0 ^ 2 ≤ 3 * c1 * r / 4 := by
+    have h := min_le_left (√(3 * c1 * r / 4)) (1 / (20 * c2))
+    rw [← s.hσ0] at h
+    calc σ0 ^ 2 ≤ √(3 * c1 * r / 4) ^ 2 := pow_le_pow_left₀ hσ0p.le h 2
+      _ = 3 * c1 * r / 4 := Real.sq_sqrt (by have := s.hc1; have := s.hr; positivity)
+  have hXJ := kk_xJ (X := X) (J := J) (m := m) (δ := δ) (c1 := c1) (c2 := c2) (r := r) (σ0 := σ0) hJm hδp s.hc1 hσ2 s.d8 hδc'
+    (fun k h1 h2 => (hgapZ k h1 (by have := d.hm1; omega)).1) d.X0.2 hpos
+  have hs : 2 * δ ^ 2 ≤ σ0 ^ 2 := by
+    have : δ ^ 2 ≤ δ := by nlinarith
+    linarith [s.d5]
+  have hXJlow : -X J ≤ c2 * (r + 1) / δ ^ 2 := by
+    have hsp := kk_span_up (X := X) (ε' := c2 * δ) hJm
+      (fun k h1 h2 => (hgapZ k h1 (by have := d.hm1; omega)).2)
+    have h1 : ((m - J : ℤ) : ℝ) * (c2 * δ) ≤ c2 * (r + 1) / δ ^ 2 := by
+      have h2 : ((m - J : ℤ) : ℝ) ≤ (r + δ ^ 3) / δ ^ 3 := by
+        rw [le_div_iff₀ hδ3pos]; linarith
+      have h3 : ((m - J : ℤ) : ℝ) * (c2 * δ) ≤ (r + δ ^ 3) / δ ^ 3 * (c2 * δ) :=
+        mul_le_mul_of_nonneg_right h2 (by positivity)
+      have h4 : (r + δ ^ 3) / δ ^ 3 * (c2 * δ) = c2 * (r + δ ^ 3) / δ ^ 2 := by field_simp
+      rw [h4] at h3
+      refine h3.trans ?_
+      apply div_le_div_of_nonneg_right _ (by positivity)
+      nlinarith [pow_le_one₀ hδp.le hδ1' (n := 3)]
+    have := d.X0.1
+    linarith
+  have hkT : X (k1 + 1 - 1) ≤ 1 / δ ∧ 1 / δ ≤ X (k1 + 1) := ⟨by simpa using hX1, hX2.le⟩
+  have hmonoT' : ∀ k : ℤ, k1 + 1 ≤ k → Y k ^ 2 ≤ Y (k1 + 1) ^ 2 := by
+    intro k hk
+    have := d.mono (k1 + 1 - 1)
+      (by
+        have : (m : ℝ) ≤ ((k1 + 1 - 1 : ℤ) : ℝ) := by exact_mod_cast (by omega : m ≤ k1 + 1 - 1)
+        nlinarith [d.p3, hδ3pos]) k (by omega)
+    simpa using this
+  have hmassLB : 1 / δ ^ 3 ≤ ∑ k ∈ Finset.Ico 0 (k1 + 1 + Nz), Y k ^ 2 :=
+    d.cover _ (fun k hk1' hk2' => Finset.mem_Ico.2 ⟨hk1', by have := d.hJ; omega⟩)
+  have hJcnt : ((J + 2 : ℤ) : ℝ) ≤ 2 / δ ^ 3 := by
+    have h8 : δ ^ 3 ≤ 1 / 8 := by
+      have : δ ^ 3 ≤ (1 / 2) ^ 3 := pow_le_pow_left₀ hδp.le s.d1 3
+      norm_num at this; exact this
+    have e : ((J + 2 : ℤ) : ℝ) * δ ^ 3 = ((J : ℝ) + 1 / 2) * δ ^ 3 + 3 / 2 * δ ^ 3 := by push_cast; ring
+    rw [le_div_iff₀ hδ3pos, e]
+    nlinarith [d.p2, d.hq1, s.hr]
+  have hmcnt : ((m + 2 - J : ℤ) : ℝ) ≤ (r + 3) / δ ^ 3 := by
+    rw [le_div_iff₀ hδ3pos]
+    have e : ((m + 2 - J : ℤ) : ℝ) * δ ^ 3 = ((m - J : ℤ) : ℝ) * δ ^ 3 + 2 * δ ^ 3 := by push_cast; ring
+    rw [e]; nlinarith [pow_le_one₀ hδp.le hδ1' (n := 3)]
+  have hNN : ((Nz : ℤ) : ℝ) ≤ 1 / δ ^ 3 := d.hNz.le
+  exact kk_lb_final (X := X) (Y := Y) (g := g) (J := J) (m := m) (kT := k1 + 1) (NN := Nz) (δ := δ)
+    (c1 := c1) (c2 := c2) (G := gmax) (C := C) (κ := κ) (s0 := σ0) (R0 := c2 * (r + 1)) (Rc := r + 3) (Cl := Cl) hδp hδ1'
+    s.hc1 hc2.le hσ0p hgmax.le s.hC.le (by have := s.hr; positivity) (by have := s.hr; positivity) hCl
+    (by have := d.hJ; omega) hJm (by omega) (by have := d.hNz1; omega) (by have := s.c2δ; linarith)
+    (fun k h1' h2' => hgapZ k h1' (by omega)) hXJ hs hXJlow d.X0.1
+    (d.Xm (m + 1) (Finset.mem_Icc.2 ⟨by omega, le_rfl⟩)) hkT hrest
+    (fun k h1' h2' => d.gup k (Finset.mem_Icc.2 ⟨h1', by omega⟩)) d.left hmonoT' hmassLB hNN hJcnt hmcnt
+
 end FormalResearch.Special
