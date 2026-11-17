@@ -5,7 +5,7 @@ public import FormalResearch.Special.BulkIndexRight
 public import FormalResearch.Special.BulkKappaRacahInst
 
 /-!
-# Racah window, part 5: no nodes beyond the turning point of the `6j` chain (integer data, `τ = +1`)
+# Racah window, part 5: no nodes beyond the turning point of the `6j` chain (integer data, `τ = ±1`, any sign twist `u`)
 
 The Racah counterpart of `bix_last_ne_zero`, `bix_hahn_tail` (`BulkIndexRight`).  For the integer `6j` chain `Ŷ_k = racah6jY a b c m n k` of shape `(α, β, x)`, `τ = +1`, on the support
 `kmin = max |m| |n| ≤ k ≤ kmax = min(2b + m, 2a + n) = kmin + D'` (`D'` the dimension of the Racah system, `rw_D_eq`):
@@ -15,7 +15,7 @@ The Racah counterpart of `bix_last_ne_zero`, `bix_hahn_tail` (`BulkIndexRight`).
 * **`rwn_racah_tail`**: there is `ε > 0` (depending on `(α, β, x, m, n)`) such that for `h ≤ ε` and every site `K + i₁` with `q ≥ q_*` the bonds `i₁, …, D' - 1` carry no node (`bix_tail_sign`:
   all `Ŷ_j`, `j ≥ K + i₁`, are nonzero of one sign).  Hypothesis `1 ≤ kmin` is not needed here (rows `k ≥ 1` only).
 
-**Claim class: proved** (axiom guards pinned).  **Not formalised:** `τ = -1`, half-integer lattice.
+**Claim class: proved** (axiom guards pinned).  **Not formalised:** half-integer lattice.
 -/
 
 @[expose] public section
@@ -189,26 +189,27 @@ theorem rw_last_ne_zero {α β x h : ℝ} (hα : 0 < α) (hβ : 0 < β) (a b c m
 #print axioms FormalResearch.Special.rw_last_ne_zero
 
 
-/-- **No nodes beyond the turning point of the integer `6j` chain** (`τ = +1`).  There is `ε > 0` such that for every finite Racah system with `A h = α`, `B h = β`,
-`cos = x`, `h ≤ ε` and every site `K + i₁` with `q ≥ q_*` (`K = max |m| |n|`), the bonds `i₁, …, D' - 1` carry no node (all `Ŷ_j`, `j ≥ K + i₁`, are nonzero of one sign). -/
-theorem rwn_racah_tail (α β x : ℝ) (hα : 0 < α) (hβ : 0 < β) (hx1 : -1 < x) (hx2 : x < 1)
-    (hprod : (α - β * x) * (β - α * x) < 0) (m n : ℤ) :
+/-- **No nodes beyond the turning point of the integer `6j` chain** (`τ = ±1`, chain `Y = u Ŷ`).  There is `ε > 0` such that for every finite Racah system with `A h = α`, `B h = β`,
+`cos = x`, `h ≤ ε` and every site `K + i₁` with `q ≥ q_*` (`K = max |m| |n|`), the bonds `i₁, …, D' - 1` carry no node (all `Y_j`, `j ≥ K + i₁`, are nonzero of one sign). -/
+theorem rwn_racah_tail {α β x τ qs : ℝ} {m n : ℤ} {u : ℤ → ℝ} (D : RwData α β x τ qs m n u) :
     ∃ ε : ℝ, 0 < ε ∧
       ∀ (a b c : ℤ) (D' : ℕ), RacahSystem (a : ℚ) (b : ℚ) (m : ℚ) (n : ℚ) D' → ∀ i : Fin (D' + 1),
         (c : ℚ) = cPt (a : ℚ) (b : ℚ) (m : ℚ) (n : ℚ) i → ∀ h : ℝ, 0 < h → h ≤ ε →
         wA (a : ℚ) (n : ℚ) * h = α → wB (b : ℚ) (m : ℚ) * h = β →
         cosA (wA (a : ℚ) (n : ℚ)) (wB (b : ℚ) (m : ℚ)) (wC (c : ℚ)) = x → 1 ≤ max |m| |n| →
-        ∀ i₁ : ℕ, racahQs α β x ≤ rwQ (1 / 2) h (max |m| |n| + (i₁ : ℤ)) →
-          ∑ j ∈ Ico i₁ D', bix_c (fun s : ℕ => racah6jY a b c m n (max |m| |n| + (s : ℤ))) j = 0 := by
-  obtain ⟨hqs, hκ, hαq, hβq, hturn⟩ := racah_turn_geom_pos hα hβ hx1 hx2 hprod
-  set qs : ℝ := racahQs α β x with hqsdef
+        ∀ i₁ : ℕ, qs ≤ rwQ (1 / 2) h (max |m| |n| + (i₁ : ℤ)) →
+          ∑ j ∈ Ico i₁ D', bix_c (fun s : ℕ => rwY u a b c m n (max |m| |n| + (s : ℤ))) j = 0 := by
+  have hα := D.hα
+  have hβ := D.hβ
+  have hqs := D.hqs
+  have hκ := D.hκ
   have hP : (0 : ℝ) ≤ 1 / (4 * α ^ 2) := by positivity
   have hQ : (0 : ℝ) ≤ 1 / (4 * β ^ 2) := by positivity
   have hM0 : 0 < hrM (m : ℝ) (n : ℝ) := lt_of_lt_of_le one_pos (le_max_left _ _)
   have hρ0 : 0 ≤ hrRho (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) (m : ℝ) (n : ℝ) qs := by unfold hrRho; positivity
-  have hK : 0 < 2 * ((1 - 1 * x) / qs ^ 2) * qs := by positivity
+  have hK : 0 < 2 * ((1 - τ * x) / qs ^ 2) * qs := by positivity
   refine ⟨min (qs / (2 * hrM (m : ℝ) (n : ℝ)))
-    ((2 * ((1 - 1 * x) / qs ^ 2) * qs) / (hrRho (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) (m : ℝ) (n : ℝ) qs + 1)),
+    ((2 * ((1 - τ * x) / qs ^ 2) * qs) / (hrRho (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) (m : ℝ) (n : ℝ) qs + 1)),
     lt_min (by positivity) (by positivity), ?_⟩
   intro a b c D' hsys i hc h hh hhε hAh hBh hx hlo i₁ hi₁
   by_cases hmi : D' ≤ i₁
@@ -223,26 +224,31 @@ theorem rwn_racah_tail (α β x : ℝ) (hα : 0 < α) (hβ : 0 < β) (hx1 : -1 <
   have hkmaxD : kmax = Kn + D' := by omega
   have hedge := rw_hedge hα hβ a b m n hkmax hAh hBh hh
   have hεM : h ≤ qs / (2 * hrM (m : ℝ) (n : ℝ)) := hhε.trans (min_le_left _ _)
-  have hεC : h ≤ (2 * ((1 - 1 * x) / qs ^ 2) * qs) / (hrRho (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) (m : ℝ) (n : ℝ) qs + 1) :=
+  have hεC : h ≤ (2 * ((1 - τ * x) / qs ^ 2) * qs) / (hrRho (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) (m : ℝ) (n : ℝ) qs + 1) :=
     hhε.trans (min_le_right _ _)
   have hhM : h * (2 * hrM (m : ℝ) (n : ℝ)) ≤ qs := by
     rwa [le_div_iff₀ (by positivity)] at hεM
-  have hhC : h * hrRho (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) (m : ℝ) (n : ℝ) qs ≤ 2 * ((1 - 1 * x) / qs ^ 2) * qs := by
+  have hhC : h * hrRho (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) (m : ℝ) (n : ℝ) qs ≤ 2 * ((1 - τ * x) / qs ^ 2) * qs := by
     rw [le_div_iff₀ (by positivity)] at hεC
     nlinarith
   have hk1 : qs ≤ (((Kn + i₁ : ℕ) : ℝ) + 1 / 2) * h := by
     have : (((Kn + i₁ : ℕ) : ℝ)) = ((K + (i₁ : ℤ) : ℤ) : ℝ) := by rw [← hKn]; push_cast; ring
     rw [this]; exact hi₁
+  set Yf : ℤ → ℝ := fun j => u j * racah6jY a b c m n j with hYf
   have hrows : ∀ k ∈ Finset.Icc (((Kn + i₁ : ℕ) : ℤ) + 1) (kmax : ℤ),
       jac (hrAk (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) (m : ℝ) (n : ℝ) h)
-        (hrCk (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) 1 x (m : ℝ) (n : ℝ) h) (racah6jY a b c m n) k = 0 := by
+        (hrCk (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) τ x (m : ℝ) (n : ℝ) h) Yf k = 0 := by
     intro k hk
     rw [Finset.mem_Icc] at hk
-    exact rw_rows (x := x) hα hβ a b c m n hsys i hc hh hAh hBh hx k (by omega)
-  have hYN : racah6jY a b c m n (kmax : ℤ) ≠ 0 := by
-    rw [hkmax]; exact rw_last_ne_zero hα hβ a b c m n hsys i hc hh hAh hBh hx hlo
-  have H := bix_tail_sign (P := 1 / (4 * α ^ 2)) (Q := 1 / (4 * β ^ 2)) hP hQ (m : ℝ) (n : ℝ) 1 x qs h hqs hh (by norm_num) hκ hturn
-    hhM hhC kmax (Kn + i₁) hedge.1 hedge.2 hk1 (by omega) (racah6jY a b c m n) hrows hYN
+    exact D.hrows a b c D' hsys i hc h hh hAh hBh hx k (by omega)
+  have hYN : Yf (kmax : ℤ) ≠ 0 := by
+    have h1 : racah6jY a b c m n (kmax : ℤ) ≠ 0 := by
+      rw [hkmax]; exact rw_last_ne_zero hα hβ a b c m n hsys i hc hh hAh hBh hx hlo
+    have h2 : u (kmax : ℤ) ≠ 0 := by
+      intro h0; have := D.hu (kmax : ℤ); rw [h0] at this; norm_num at this
+    exact mul_ne_zero h2 h1
+  have H := bix_tail_sign (P := 1 / (4 * α ^ 2)) (Q := 1 / (4 * β ^ 2)) hP hQ (m : ℝ) (n : ℝ) τ x qs h hqs hh D.hτ hκ D.hturn
+    hhM hhC kmax (Kn + i₁) hedge.1 hedge.2 hk1 (by omega) Yf hrows hYN
   apply Finset.sum_eq_zero
   intro j hj
   rw [Finset.mem_Ico] at hj
@@ -252,21 +258,20 @@ theorem rwn_racah_tail (α β x : ℝ) (hα : 0 < α) (hβ : 0 < β) (hx1 : -1 <
   have e2 : ((Kn + (j + 1) : ℕ) : ℤ) = K + ((j + 1 : ℕ) : ℤ) := by push_cast; omega
   rw [e1] at p1
   rw [e2] at p2
-  have hne : racah6jY a b c m n (K + (j : ℤ)) ≠ 0 := by
+  have hne : Yf (K + (j : ℤ)) ≠ 0 := by
     intro h0; rw [h0] at p1; simp at p1
-  have hpos : 0 < racah6jY a b c m n (K + (j : ℤ)) * racah6jY a b c m n (K + ((j + 1 : ℕ) : ℤ)) := by
+  have hpos : 0 < Yf (K + (j : ℤ)) * Yf (K + ((j + 1 : ℕ) : ℤ)) := by
     have := mul_pos p1 p2
-    have h2 : 0 < racah6jY a b c m n (kmax : ℤ) ^ 2 := by positivity
-    have e : (racah6jY a b c m n (K + (j : ℤ)) * racah6jY a b c m n (kmax : ℤ)) *
-        (racah6jY a b c m n (K + ((j + 1 : ℕ) : ℤ)) * racah6jY a b c m n (kmax : ℤ)) =
-        (racah6jY a b c m n (K + (j : ℤ)) * racah6jY a b c m n (K + ((j + 1 : ℕ) : ℤ))) *
-          racah6jY a b c m n (kmax : ℤ) ^ 2 := by ring
+    have h2 : 0 < Yf (kmax : ℤ) ^ 2 := by positivity
+    have e : (Yf (K + (j : ℤ)) * Yf (kmax : ℤ)) * (Yf (K + ((j + 1 : ℕ) : ℤ)) * Yf (kmax : ℤ)) =
+        (Yf (K + (j : ℤ)) * Yf (K + ((j + 1 : ℕ) : ℤ))) * Yf (kmax : ℤ) ^ 2 := by ring
     rw [e] at this
     exact (mul_pos_iff_of_pos_right h2).1 this
+  have hY : ∀ k, rwY u a b c m n k = Yf k := fun k => rfl
   unfold bix_c
-  have h0 : ¬ (racah6jY a b c m n (K + (j : ℤ)) * racah6jY a b c m n (K + ((j + 1 : ℕ) : ℤ)) < 0) :=
-    not_lt.2 hpos.le
-  have h1 : ¬ (0 < j ∧ racah6jY a b c m n (K + (j : ℤ)) = 0) := fun h => hne h.2
+  simp only [hY]
+  have h0 : ¬ (Yf (K + (j : ℤ)) * Yf (K + ((j + 1 : ℕ) : ℤ)) < 0) := not_lt.2 hpos.le
+  have h1 : ¬ (0 < j ∧ Yf (K + (j : ℤ)) = 0) := fun h => hne h.2
   simp only [h0, h1, ↓reduceIte]
   rfl
 

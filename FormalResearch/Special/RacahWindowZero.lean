@@ -1,13 +1,13 @@
 module
 
-public import FormalResearch.Special.RacahWindowIndex
+public import FormalResearch.Special.RacahWindowPhys
 public import FormalResearch.Special.RacahWindowNodes
 public import FormalResearch.Special.BulkIndexZero
 
 /-!
 # Racah window, part 8: the zero index of the integer `6j` chain (`τ = +1`)
 
-Composition of the right count `bix_racah_rightcount` (`RacahWindowIndex`) with the total node count `rw_chain_nodes` (`RacahWindowNodes`: the chain at `c = c_min + l` has `l` nodes), exactly as
+Composition of the right count `bix_racah_rightcount` (`RacahWindowPhys`) with the total node count `rw_chain_nodes` (`RacahWindowNodes`: the chain at `c = c_min + l` has `l` nodes), exactly as
 `hahn_chain_zero_index`, `hahn_chain_bs_index` (`BulkWindowIndex`) do for the `3j` chain:
 
 * **`racah_chain_zero_index`**: at a definite bulk site `i₀` (`q ∈ [a', b']`, `|cos θ| > 1/2`) the nodes in the bonds `i₀, …, D' - 1` (at or to the right of the site) number `⌊Φ(q_{i₀})/(π h) + 1/4⌋`, and the
@@ -15,7 +15,7 @@ Composition of the right count `bix_racah_rightcount` (`RacahWindowIndex`) with 
 * **`racah_chain_bs_index`**: for a node bond `(i₀, i₀+1)` of the bulk (`Ŷ Ŷ' < 0`, both sites definite) the number `R` of nodes at or to the right of the bond satisfies
   `Φ(q_{i₀+1})/h < π (R - 1/4) ≤ Φ(q_{i₀})/h` (the Bohr-Sommerfeld integer of `racah_chain_bulk_zeros` is `R`, no offset), and the bond carries the node of index `l - R + 1` from the left.
 
-**Claim class: proved** (axiom guards pinned; `1 ≤ kmin`, integer data, `τ = +1`).  **Not formalised:** `τ = -1`, half-integer lattice, `kmin = 0`; resonant sites `|cos θ| ≤ 1/2`.
+**Claim class: proved** (axiom guards pinned; `1 ≤ kmin`, integer data, `τ = +1`).  **Not formalised:** half-integer lattice, `kmin = 0`; resonant sites `|cos θ| ≤ 1/2`.
 -/
 
 @[expose] public section
@@ -38,7 +38,7 @@ theorem racah_chain_zero_index (α β x : ℝ) (hα : 0 < α) (hβ : 0 < β) (hx
         wA (a : ℚ) (n : ℚ) * h = α → wB (b : ℚ) (m : ℚ) * h = β →
         cosA (wA (a : ℚ) (n : ℚ)) (wB (b : ℚ) (m : ℚ)) (wC (c : ℚ)) = x → 1 ≤ max |m| |n| →
         ∀ i₀ : ℕ, a' ≤ rwQ (1 / 2) h (max |m| |n| + (i₀ : ℤ)) → rwQ (1 / 2) h (max |m| |n| + (i₀ : ℤ)) ≤ b' →
-          1 / 2 < |Real.cos (rwTheta (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) x (racahQs α β x) (1 / 2) h (max |m| |n| + (i₀ : ℤ)))| →
+          1 / 2 < |Real.cos (rwTheta (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) 1 x (racahQs α β x) (1 / 2) h (max |m| |n| + (i₀ : ℤ)))| →
           i₀ < D' ∧ ((∑ j ∈ Ico i₀ D', bix_c (fun s : ℕ => racah6jY a b c m n (max |m| |n| + (s : ℤ))) j : ℕ) : ℤ) =
               ⌊bkPhase (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) 1 x (racahQs α β x) (rwQ (1 / 2) h (max |m| |n| + (i₀ : ℤ))) / (π * h) + 1 / 4⌋ ∧
             ((∑ j ∈ range i₀, bix_c (fun s : ℕ => racah6jY a b c m n (max |m| |n| + (s : ℤ))) j : ℕ) : ℤ) =
@@ -97,8 +97,8 @@ theorem racah_chain_bs_index (α β x : ℝ) (hα : 0 < α) (hβ : 0 < β) (hx1 
         wA (a : ℚ) (n : ℚ) * h = α → wB (b : ℚ) (m : ℚ) * h = β →
         cosA (wA (a : ℚ) (n : ℚ)) (wB (b : ℚ) (m : ℚ)) (wC (c : ℚ)) = x → 1 ≤ max |m| |n| →
         ∀ i₀ : ℕ, a' ≤ rwQ (1 / 2) h (max |m| |n| + (i₀ : ℤ)) → rwQ (1 / 2) h (max |m| |n| + ((i₀ + 1 : ℕ) : ℤ)) ≤ b' →
-          1 / 2 < |Real.cos (rwTheta (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) x (racahQs α β x) (1 / 2) h (max |m| |n| + (i₀ : ℤ)))| →
-          1 / 2 < |Real.cos (rwTheta (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) x (racahQs α β x) (1 / 2) h (max |m| |n| + ((i₀ + 1 : ℕ) : ℤ)))| →
+          1 / 2 < |Real.cos (rwTheta (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) 1 x (racahQs α β x) (1 / 2) h (max |m| |n| + (i₀ : ℤ)))| →
+          1 / 2 < |Real.cos (rwTheta (1 / (4 * α ^ 2)) (1 / (4 * β ^ 2)) 1 x (racahQs α β x) (1 / 2) h (max |m| |n| + ((i₀ + 1 : ℕ) : ℤ)))| →
           racah6jY a b c m n (max |m| |n| + (i₀ : ℤ)) * racah6jY a b c m n (max |m| |n| + ((i₀ + 1 : ℕ) : ℤ)) < 0 →
           ∃ R : ℕ, (∑ j ∈ Ico i₀ D', bix_c (fun s : ℕ => racah6jY a b c m n (max |m| |n| + (s : ℤ))) j) = R ∧
             ((∑ j ∈ range i₀, bix_c (fun s : ℕ => racah6jY a b c m n (max |m| |n| + (s : ℤ))) j : ℕ) : ℤ) = ((i : ℕ) : ℤ) - R ∧

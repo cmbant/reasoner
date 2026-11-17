@@ -6,23 +6,22 @@ public import FormalResearch.Special.RacahWindowChain
 public import FormalResearch.Special.RacahWindowBulk
 public import FormalResearch.Special.RacahWindowTail
 public import FormalResearch.Special.RacahWindowIndex
+public import FormalResearch.Special.RacahWindowPhys
 public import FormalResearch.Special.RacahWindowNodes
+public import FormalResearch.Special.RacahWindowNodesNeg
 public import FormalResearch.Special.RacahWindowZero
+public import FormalResearch.Special.RacahWindowZeroNeg
 
 /-!
-# Racah window (umbrella)
+# Racah window: zero counting of the integer `6j` chains (`τ = ±1`)
 
-Zero counting of the physical integer `6j` chain (`τ = +1`), the Racah counterpart of the `3j` modules `BulkWindow*`:
+Umbrella of the `RacahWindow*` modules: the Racah counterpart of `BulkWindow*` (`3j` chain).  The proof is written once for the data `RwData` (`τ = ±1`, sign twist `u`), then specialised.
 
-* `RacahWindowGeom`: `RwGeo`, the phase `Φ`, `0 < u < 1`, phase steps;
-* `RacahWindowSetup`: `RwnSetup.count`, the node count of an Airy window for general centred Racah data;
-* `RacahWindowChain`: `rwn_window_of_out` (any family with a `BkOut` window), `rwn_racah_window`;
-* `RacahWindowBulk`: `rwn_bulk_count_of_form`, `rwn_racah_bulk`;
-* `RacahWindowTail`: `rw_last_ne_zero`, `rwn_racah_tail` (no node beyond the turn);
-* `RacahWindowIndex`: **`racah_chain_window_count`**, **`bix_racah_rightcount`** (the Bohr-Sommerfeld integer of `racah_chain_bulk_zeros` is the number of nodes at or to the right of the site,
-  threshold `1/2 < |cos θ|`);
-* `RacahWindowNodes`: the `6j` chain is a Jacobi eigenvector, `rw_chain_nodes` (the chain at `c = c_min + l` has `l` nodes);
-* `RacahWindowZero`: **`racah_chain_zero_index`**, **`racah_chain_bs_index`** (zero index from the left, Bohr-Sommerfeld integer of a node bond).
+* `RacahWindowGeom`, `RacahWindowSetup`: geometry of `hrU` (`RwGeo`) and the Airy window setup.
+* `RacahWindowChain`: `RwData`, `rwn_racah_window` (window count).  `RacahWindowBulk`: `rwn_racah_bulk`.  `RacahWindowTail`: `rwn_racah_tail`.
+* `RacahWindowIndex`: `rwn_chain_window_count`, `rwn_chain_rightcount` (literal threshold `1/2 < |cos θ|`).  `RacahWindowPhys`: `racah_chain_window_count`, `bix_racah_rightcount` (`τ = +1`),
+  `racah_chain_window_count_neg`, `bix_racah_rightcount_neg` (`τ = -1`).
+* `RacahWindowNodes`, `RacahWindowNodesNeg`: total node count `l`, resp. `D' - l`.  `RacahWindowZero`, `RacahWindowZeroNeg`: zero index from the left and Bohr-Sommerfeld index of a node bond.
 
-**Claim class: proved.**  **Not formalised:** `τ = -1`, the half-integer lattice, `kmin = 0`.
+**Not formalised:** the half-integer lattice (`racah6jYH`), `kmin = 0`, uniformity of `ε` in `(α, β, x, m, n)`, resonant sites `|cos θ| ≤ 1/2`.
 -/
