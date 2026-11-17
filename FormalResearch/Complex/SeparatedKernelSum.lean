@@ -29,7 +29,7 @@ open Finset
 namespace FormalResearch.Hardy
 
 /-- The two pointwise bounds for a single kernel term. -/
-lemma kernel_term_le {c d : ℝ} (hc : 0 < c) (hd : 0 < d) :
+lemma cauchyKernel_term_le {c d : ℝ} (hc : 0 < c) (hd : 0 < d) :
     (1 / (4 * c ^ 2)) ^ 2 / (d ^ 2 + (1 / (4 * c ^ 2)) ^ 2) ≤ 1 / (16 * c ^ 4 * d ^ 2) := by
   have hr : (1 / (4 * c ^ 2)) ^ 2 = 1 / (16 * c ^ 4) := by
     field_simp; ring
@@ -142,7 +142,7 @@ theorem separated_kernel_sum {ι : Type*} {c : ι → ℝ} {d : ι → ℕ} {s �
           rw [this, zero_mul] at hsep'
           nlinarith [mul_pos (by positivity : 0 < s / 2) hφpos]
         have hd : 0 < |t - c i| := by linarith
-        have hk := kernel_term_le hcn (d := |t - c i|) hd
+        have hk := cauchyKernel_term_le hcn (d := |t - c i|) hd
         rw [← sq_abs (t - c i)]
         refine hk.trans ?_
         by_cases hcase : c m ≤ 2 * c i
