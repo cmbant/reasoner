@@ -31,7 +31,7 @@ Mpmath check (scratch, not a Lean claim; model chain of `DiscreteAiryLimit`, `A 
 and every `X` sampled (also with `±3h²` perturbations of `a, c`).
 
 **Not formalised here.**  The Darboux normalisation of `κ` and `κ ≠ 0`; explicit constants and uniformity in families of data; the
-`h²` phase coefficient `ϖ`.  Continued in `DiscreteAiryPhys*`: the unified statement `discrete_airy_full` (the two recessive `f`'s are
+`h²` phase coefficient `ϖ` (the abstract second-order bracket with error `h²` in these weights is `airy2_turn_full`, `DiscreteAirySecond*`; its Hahn/Racah instance, S4, is not formalised).  Continued in `DiscreteAiryPhys*`: the unified statement `discrete_airy_full` (the two recessive `f`'s are
 identified, `dap_recessive_eq`, when normalised at the same `N`; the comparison of `F₂` and `Y` with the parametrix extends to the
 site `N+1`, the decomposition `Y = κ f + μ F₂` holding on `[J, N+1]`) and the physical Hahn/Racah chains on this window
 (`hahn_chain_airy_full`, `racah_chain_airy_full_*`; the required `Eδ⁶` closeness is `hr_perturb` of `DiscreteAiryLimitHahn`).

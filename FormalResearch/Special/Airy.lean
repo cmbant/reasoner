@@ -145,7 +145,7 @@ expansions of `Ai`, `C`, `S` against the weight); and the CFT consequences of th
 Theorem D on a disc, the zeros and quadrature of `P Ai + Q Ai'`, Clark summation, `a'_1`: see the design note; the Hadamard product of
 `Ai'`, `AiryCft2DerivHadamard`, imports `FormalResearch.Complex` and is therefore imported by `FormalResearch.Special`, not here).  The Langer coordinate (`Langer*`), the discrete Jacobi calculus
 (`DiscreteJacobi*`) and the discrete-to-Airy comparison built on it (`AiryParametrix*`, `AiryRecessive*`, `AiryWindow*`, `DiscreteAiryLimit*`,
-`DiscreteAiryOsc*`, `DiscreteAiryPhys*`, `DiscreteAiryKappa*`, `DiscreteAiryUnif*`) are separate modules of `FormalResearch.Special`, not imported by this aggregate.  (Overlapping Gamma enclosures: `AiryBiNeg` and
+`DiscreteAiryOsc*`, `DiscreteAiryPhys*`, `DiscreteAiryKappa*`, `DiscreteAiryUnif*`, `DiscreteAirySecond*`) are separate modules of `FormalResearch.Special`, not imported by this aggregate.  (Overlapping Gamma enclosures: `AiryBiNeg` and
 `AiryGammaBounds` each carry their own, with different constants.)
 
 **Not formalised:** the full asymptotic series (the `AiryAsym*` files give the first term, or `u_1` in `AiryAsymChi`, with explicit
@@ -161,7 +161,7 @@ quadrature for `ν ∈ [-1, 1/2]`; Theorem Q (1) and the limit form of (4) are f
 bound / order = convergence exponent of Hadamard's theorem (`FormalResearch.Complex`); the first zero of `Bi` and `Bi > 0`
 beyond `-11/10`; the open parts of the discrete-to-Airy chain: the value of `|κ|` (numerics `√2 N^{1/6}`; `κ ≠ 0` with `κ_min` independent of `N` is `hahn_chain_kappa` for the `τ = +1` integer `3j` chain), its Darboux phase and sign, `κ ≠ 0` for `τ = -1`, Racah and half-integer chains (also the single
 normalisation `|Y_{k₁}| ≤ δ^{-p}` for the closed-form chains), uniformity over families beyond the `3j` shape `x ∈ [x₀, x₁]` (`hahn_chain_airy_full_unif`: no exact node for an irrational shape, but all rational
-nodes at once; open: Racah, half-integer, `κ_min`, the hard edges `x → 0, 1`), the second-order bracket (needs a second-order Olver parametrix), the
+nodes at once; open: Racah, half-integer, `κ_min`, the hard edges `x → 0, 1`), the Hahn/Racah instance of the second-order bracket (S4; the abstract second-order bracket for Langer-form data is `DiscreteAirySecond*`), the
 half-integer version of the unified statement `discrete_airy_full`, mixed-parity `6j` labels, half-integer Hahn with `x < 0`,
 Racah family variants of the full statement, a polynomial `A0^{3/2}` window constant for `discrete_airy_window` itself (only the
 abstract `window_from_top_sharp` exists), explicit constants, and analyticity of the Langer coordinate (see the design note).
@@ -177,7 +177,8 @@ Design note: what the Airy connection of `Weyl/P3` (`thm:general-rank-airy`) and
 * *Olver modulus/weight `M, E` and the uniform bracket `Ai + N^{-4/3}ϖ Ai' + O(N^{-2})`*: the weights `E`, `M` of Olver and
   the DLMF 9.8 modulus are in place on the real axis (`AiryOlver`, `AiryOlverBounds`, with `Bi` on all of `ℝ` via
   `AiryAsymBi*`, `AiryBi*`), as is the explicit stand-in `airyWt` for `M/E` (`AiryWt`); the uniform-in-`x` bracket with
-  the `N^{-4/3}` correction (Olver's uniform expansions) remains open.
+  the `N^{-4/3}` correction is formalised abstractly, for smooth Langer-form data, error `h² = δ⁶` (`airy2_turn_full`, `DiscreteAirySecond*`); Olver's uniform expansions
+  themselves and the Hahn/Racah instance (S4) remain open.
 * *Discrete recurrence → Airy ODE limit*: Gronwall/uniqueness (`airy_unique_real`), the wronskian/energy identities, then, in
   `FormalResearch.Special` and not in this aggregate: M1/M1b the generic recurrence calculus (`DiscreteJacobi*`: Casoratian,
   Green function, reduction of order, final-value existence, hard-edge bridge, discrete Grönwall bounds); M2 the Airy shift
@@ -257,8 +258,8 @@ a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete
   `κ ≠ 0` for `τ = -1`, Racah and half-integer chains (the mass argument applies, the Racah analogues of `kl_coef_facts`, `kr_margin_hahn` are missing),
   uniformity of `κ_min` in `x` and for Racah (the constants of `hahn_chain_kappa`, `racah_chain_airy_full_*` are for one fixed rational `x`, resp.
   `(α, β, x)`; for the `3j` matching without `κ` the uniformity in `x ∈ [x₀, x₁]` is `hahn_chain_airy_full_unif`, `DiscreteAiryUnif*`, proved by a quantitative
-  Langer chart, not by a perturbative argument, which fails because the turn moves by `O(h)`), the second-order bracket `Ai + N^{-4/3} ϖ Ai' + O(N^{-3} M/E)` (needs a second-order
-  Olver parametrix; the Airy parametrix gives `O(h)` phase accuracy only), the half-integer (shifted-lattice) version of the full
+  Langer chart, not by a perturbative argument, which fails because the turn moves by `O(h)`), the Hahn/Racah instance (S4) of the second-order bracket `Ai + N^{-4/3} ϖ Ai' + O(N^{-2} M/E)` (the abstract bracket for Langer-form data with error `δ⁶ = h²` is formalised in
+  `DiscreteAirySecond*`, `airy2_turn_full`; the first-order Airy parametrix of the layers above gives `O(h)` phase accuracy only), the half-integer (shifted-lattice) version of the full
   statement (`hahn_chain_airy_full_half` is the integer-data model case `M = σ = 0`, `x = 1/2`, not the shifted lattice), Racah family variants (mixed-parity labels, half-integer data), half-integer Hahn
   with `x < 0`, a polynomial window constant for `discrete_airy_window` itself, explicit constants, and analyticity of `ζ`.
   *`DiscreteAiryUnif*`* (10 modules) makes the unified statement uniform in the data: `discrete_airy_full_unif` (`∀ bounds ∃ r, δ₀, C, Cmu, ξ₀ ∀ datum`,
@@ -268,6 +269,11 @@ a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete
   `(M, σ, x₀, x₁)` and hold at every lattice node `x_n ∈ [x₀, x₁]` (resp. `[-x₁, -x₀]`), no parity condition, which supersedes the fixed-`x`
   `hahn_chain_airy_full` for the shape.  Not formalised: the hard edges `x → 0, 1`; `κ` and `κ_min` uniform in `x`; uniform Racah and half-integer versions; the statement
   that a compact continuous family satisfies the `DunDatum` bounds (only the Hahn family is checked); a global chart larger than the Langer ball.
+  *`DiscreteAirySecond*`* (17 modules) is the abstract second-order bracket: for smooth Langer-form data `(ζ, A, A₂, g, q₁, c₂)` at a simple turn the exact
+  solutions are `g·Ai(X + δ⁴q₁/g)`, `g·Bi(…)` (`X = ζ/δ²`) within `δ⁶ = h²` in the Olver weights `airyWt`, `airyBiWt` on `[c₀ - r, c₀ + r/4]`, Casoratian `≥ δ/Q`
+  (`airy2_turn_conclusion`; `q₁` constructed on a ball, `airy2_turn_full`, needs `ζ ∈ C⁷`, `A, g ∈ C⁶`).  Weaker than the paper's `O(h³)` remainder.  Not formalised:
+  the Hahn/Racah instance (second-order coefficient closeness `E δ⁹`, S4, and the chain wiring), a global `q₁`, the route from `u` to second-order Langer data
+  (`u ∈ C⁷`), the `h²` phase / Darboux `κ`, and the `P3` external input (GBVA canonical basis, connection), which is not replaced.
 * *CFT consequences of the Airy zeros* (`AiryCft*`; direct route by good circles, no Hadamard theory).  Generic
   complex analysis (`AiryCftCircle`: for an entire `f` with simple zeros `c_i` in a disc, `f = Π(w - c_i) φ` with
   `φ` zero-free, the circle formulas for `f'/f` and its derivative as Cauchy integrals with error bounds;

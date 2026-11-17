@@ -56,7 +56,7 @@ AM-GM identity), and the `O(h²)` perturbation sizes `|A_k - A(q_k - h/2)| ≤ E
    proved from the Gauss weight (`hahn_chain_abs_le`, `racah_chain_abs_le`).
 **Not formalised.**
 3. The normalisation `κ` (Darboux/Wigner-`d` matching, T:336, A:925-1054) and `κ ≠ 0`; the parity factor `σ_τ`, the lattice
-   quantisation `K_τ ∈ ℤ`, the explicit `varpi^H` of the second-order bracket; the Racah `q`-6j.
+   quantisation `K_τ ∈ ℤ`, the explicit `varpi^H` of the second-order bracket (only the abstract bracket `airy2_turn_full` is formalised, `DiscreteAirySecond*`; the Hahn instance, S4, is not); the Racah `q`-6j.
 4. Uniformity over the compact family of shapes `x` for the recessive-plus-bounded-window statements here (everything in this module is for one fixed
    `(P, Q, a, b, τ, x)`; an irrational `x` has no exact lattice node).  For the full unified statement (`Ai` and `Bi` parts, whole macroscopic side) and
    the `3j` kernel (`P = 1, Q = 0`) uniformity in `x ∈ [x₀, x₁] ⊂ (0,1)` over all lattice nodes at once is `hahn_chain_airy_full_unif` (and `_neg_unif` for

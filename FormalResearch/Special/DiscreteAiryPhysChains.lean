@@ -33,7 +33,7 @@ guaranteed at `r₀ = q_*/4`, e.g. `x = 1/2`), so the numerics probe a window at
 **Not formalised.**  The value of `κ` (Darboux/Wigner-`d`; `|κ| ≥ κ_min > 0` uniformly in `N` is `hahn_chain_kappa`, `DiscreteAiryKappaMain`, numerically
 `|κ| = √2 N^{1/6}`; `κ ≠ 0` for `τ = -1` is open); uniformity of `r, δ₀, C, Cmu, ξ₀` in `x` for the `κ` statements and as `x → 0, 1` (for `x ∈ [x₀, x₁]` it is `hahn_chain_airy_full_unif`, `DiscreteAiryUnifHahn`, which supersedes
 this statement for the shape); the radius is the
-(existential) radius `r ≤ q_*/4` of the Langer chart, not `q_*/4`; half-integer data; second-order bracket.
+(existential) radius `r ≤ q_*/4` of the Langer chart, not `q_*/4`; half-integer data; the Hahn/Racah instance of the second-order bracket (S4; the abstract second-order bracket is `airy2_turn_full`, `DiscreteAirySecond*`).
 -/
 
 @[expose] public section

@@ -55,7 +55,7 @@ they are not formally derived from this one), not uniform over families of data;
 normalisation, proved for the actual chains in `DiscreteAiryLimitChains*`).  The scalar `κ` (a normalisation fixed by the Darboux/Wigner-`d` bulk matching, T:336,
 A:925-1054, est:309-318) is produced by the recessive selection and is not identified; `κ ≠ 0` is not proved.  The
 oscillatory side beyond a bounded window `X ≥ -A₀` with the `M/E` weights of GBVA (covered in the amplitude-adapted `O(δ³)`
-form by `DiscreteAiryOsc*`); the `h²` coefficient `ϖ` (second-order bracket, still open); constants are not tracked (the window constant is `e^{O(A₀²)}`, see `AiryWindowMain`); the
+form by `DiscreteAiryOsc*`); the `h²` coefficient `ϖ` (the abstract second-order bracket for Langer-form data is `airy2_turn_full`, `DiscreteAirySecond*`; its Hahn/Racah instance, S4, is not formalised); constants are not tracked (the window constant is `e^{O(A₀²)}`, see `AiryWindowMain`); the
 uniformity in the family parameters (everything is for one fixed `(u, A, c₀)`).
 -/
 
