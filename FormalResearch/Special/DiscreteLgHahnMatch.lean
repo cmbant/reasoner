@@ -99,4 +99,49 @@ theorem dlgh_airy_compose {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.dlgh_airy_compose
 
+
+lemma dlgh_sqrt_phi (z : ℝ) : √(-langerPhi z) = Real.arccos (1 + z) := by
+  by_cases hz : 0 ≤ z
+  · rw [langerPhi_of_nonneg hz]
+    rw [Real.sqrt_eq_zero_of_nonpos (by nlinarith [sq_nonneg (Real.arcosh (1 + z))]),
+      Real.arccos_eq_zero.2 (by linarith)]
+  · push Not at hz
+    simp only [langerPhi, not_le.2 hz, ite_false]
+    rw [neg_neg, Real.sqrt_sq (Real.arccos_nonneg _)]
+
+/-- **Langer chart facts at the Hahn/Racah turn** on a punctured left neighbourhood `(q_* - ρ, q_*)`: with `ζ = langerZeta u q_*`, `g = langerAmp u A q_*`,
+`u = hrU`, `A = hrA1`: `ζ < 0`; `(2/3)(-ζ)^{3/2} = ∫_q^{q_*} arccos u` (the Langer phase is the Liouville-Green phase measured from the turn);
+`g⁴ = 4|ζ| / |4 A² (1 - u²)|` (the Langer amplitude relation). -/
+theorem dlgh_chart {P Q : ℝ} (τ x qs : ℝ) (hqs : 0 < qs) (hκ : 0 < 1 - τ * x) (hα : 0 < 1 - P * qs ^ 2)
+    (hβ : 0 < 1 - Q * qs ^ 2) (hturn : Phi P Q τ x (qs ^ 2) = 0) :
+    ∃ ρ : ℝ, 0 < ρ ∧ ∀ q : ℝ, qs - ρ < q → q < qs →
+      langerZeta (hrU P Q τ x) qs q < 0 ∧
+      2 / 3 * (-langerZeta (hrU P Q τ x) qs q) ^ (3 / 2 : ℝ) = ∫ s in q..qs, Real.arccos (hrU P Q τ x s) ∧
+      (langerAmp (hrU P Q τ x) (hrA1 P Q) qs q) ^ 4 =
+        4 * |langerZeta (hrU P Q τ x) qs q| / |4 * hrA1 P Q q ^ 2 * (1 - hrU P Q τ x q ^ 2)| := by
+  have hint : 0 < (1 - P * qs ^ 2) * (1 - Q * qs ^ 2) := mul_pos hα hβ
+  have hu3 : ContDiffAt ℝ ((2 + 1 : ℕ) : WithTop ℕ∞) (hrU P Q τ x) qs := by
+    simpa using hrU_contDiffAt (P := P) (Q := Q) τ x 3 hint
+  have h1 := hrU_turn hint hturn
+  have h2 := hrU_deriv_pos hqs hκ hα hβ hturn
+  have hA2 : ContDiffAt ℝ (2 : ℕ) (hrA1 P Q) qs := by simpa using hrA_contDiffAt (P := P) (Q := Q) 2 hint
+  have hAp := hrA_pos hint
+  have sp := langerZeta_spec (m := 2) (by norm_num) hu3 h1 h2
+  have ig := langerZeta_integral (m := 2) (by norm_num) hu3 h1 h2
+  have am := (langerAmp_of_coeff (m := 2) (by norm_num) hu3 h1 h2 hA2 hAp).2.2
+  have ev := (sp.2.2.1).and (ig.and am)
+  obtain ⟨ρ, hρ, hρb⟩ := Metric.eventually_nhds_iff.1 ev
+  refine ⟨ρ, hρ, fun q hq1 hq2 => ?_⟩
+  have hd : dist q qs < ρ := by rw [Real.dist_eq, abs_lt]; constructor <;> linarith
+  obtain ⟨⟨-, -, -, -, hneg⟩, ⟨-, hI⟩, hg⟩ := hρb hd
+  refine ⟨hneg.2 hq2, ?_, hg hq2.ne⟩
+  rw [hI hq2.le]
+  refine intervalIntegral.integral_congr (fun s _ => ?_)
+  rw [dlgh_sqrt_phi]
+  congr 1; ring
+
+/-- info: 'FormalResearch.Special.dlgh_chart' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dlgh_chart
+
 end FormalResearch.Special
