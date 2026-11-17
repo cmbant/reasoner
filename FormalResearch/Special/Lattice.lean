@@ -49,5 +49,6 @@ of `G(s) = θ₀ + s ℓ_Σ - ϰ arg Γ(½+is)`, `ℓ_Σ = ∑ log(L F_i)`, `L^{
   (iii) and `thm:tracecore`).
 * The identification of `argGammaHalf` with the polar argument of `Γ(½+is)` (not needed by any statement here).
 * The verification of the hypotheses (TC) and (FM_σ) of `thm:tracecore`, and of the lattice data, in the cases (G) and (H) of the
-  paper (the instances and the Hermite asymptotics); and everything downstream of `thm:tracecore` (`res:constants`, `intoffset`).
+  paper (the instances and the Hermite asymptotics: for the Hermite functions only the Airy-edge shape `hermite_airy_edge` of `HermiteAiry` is formalised, with the
+  amplitude `κ` unidentified, not the bulk phase or the lattice data); and everything downstream of `thm:tracecore` (`res:constants`, `intoffset`).
 -/

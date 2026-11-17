@@ -92,6 +92,7 @@ public import FormalResearch.Special.AiryCft2DerivHadamard
 public import FormalResearch.Special.Barnes
 public import FormalResearch.Special.Lattice
 public import FormalResearch.Special.ComplexStirling
+public import FormalResearch.Special.HermiteAiry
 
 /-!
 # Special functions: Jacobi polynomials
@@ -238,7 +239,7 @@ Gamma phase in paper form (`latticesum_gamma`), `lem:varcore` (i) and (ii) (`var
 for the Gamma phase (`latticesum_gamma_iii`), `prop:offsetcore` (i) and (ii) for the Gamma phase without hypotheses on (iii) (`offsetcore_gamma`; the finite deduction is `offsetcore_i_of_iii`),
 `lem:traceperturb` (`traceperturb`, via Lidskii) and `thm:tracecore` for the Gamma phase (`tracecore_gamma_opnorm`; namespace `FormalResearch.Special.TraceCore`, modules `Trace*`).  Not formalised:
 `lem:latticesum` (i) for the Gamma phase as a standalone statement, the identification of `argGammaHalf` with the polar argument of `Γ`, and the verification of the hypotheses of
-`thm:tracecore` in the cases (G), (H) of the paper.
+`thm:tracecore` in the cases (G), (H) of the paper (for (H), only the Airy-edge shape of the Hermite functions is formalised, see `HermiteAiry` below).
 Complex Stirling formula and Binet's formulas (`ComplexStirling*`, umbrella `ComplexStirling`, namespace
 `FormalResearch.Special.ComplexStirling`; Mathlib has no complex Stirling): Binet's formula for `log Γ` (DLMF §5.9(ii), (5.9.10_2)) and, by
 differentiation, for `ψ` on `Re z > 0` (`digamma_eq_binet`, `binetLogGamma` with `exp (binetLogGamma z) = Γ z`, `log_Gamma_eq_binet` on the
@@ -251,4 +252,12 @@ rotation).  Imports `BarnesDigamma` (Gauss' series and convexity bounds) and the
 (Stirling's constant along `ℕ`); both are to be replaced before upstreaming.  Not formalised: the sharp constants and the Bernoulli
 series (`1/12`-type), sectors `|arg z| > π/2` and `Re z ≤ 0`, the Weierstrass product form of `log Γ`, uniqueness of the branch among
 merely continuous logarithms.
+Hermite functions and their Airy edge (`Hermite*`, umbrella `HermiteAiry`, namespace `FormalResearch.Special`; survey item T9, W1 `hermite.tex` `lem:PR`, case H): the orthonormal Hermite functions
+`hermitePhi` (Mathlib's `Polynomial.hermite` over `ℝ`) with the exact three-term recurrence, ladder relations and parity (`hermitePsi_rec`, `hasDerivAt_hermitePhi_succ`, `hermitePhi_neg`),
+`∫ φ_n² = 1` and the polynomial sup bound `φ_n² ≤ 2n+2` (`integral_hermitePhi_sq`, `abs_hermitePhi_le`), the reflected chain `Y_k = φ_{-k}(x)` as an *exact* simple-turn datum
+`DunDatum` (`hermite_datum`, `hermite_row`: coefficient error `E = 0`), and the Plancherel–Rotach Airy edge (`hermite_airy_edge`): from `discrete_airy_full_unif`, on the macroscopic window `|(2n+1)/x² - 1| ≤ r`,
+`φ_n(x) = κ g Ai(X) + μ g Bi(X)` with relative error `O(1/n)` in the Olver weights, `μ` exponentially small, absolute constants.  Not formalised: the identification of the amplitude `κ`
+(numerically `κ = S^{-1/12}(1+o(1))`, `S = x²/2`; the Hahn mass argument `hahn_chain_kappa` has no analogue because `∑_n φ_n(x)²` diverges) and even `κ ≠ 0`, so the Airy *shape* is proved but not the size
+(W1 `lem:PR`(b), `|φ_n| ≤ C n^{-1/12}` at the edge, is not obtained); the bulk expansion and phase (needs a discrete Liouville–Green layer), the decay beyond the window, closed form of the Langer coordinate,
+Cramér's bound, orthogonality, the Weber ODE, the Mehler kernel, the Laguerre analogues.
 -/
