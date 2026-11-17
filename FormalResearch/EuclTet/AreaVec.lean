@@ -182,10 +182,10 @@ theorem heron16_eq (α β γ : ℝ) :
       16 * FormalResearch.Racah.P3.heronT2 α β γ := by
   unfold FormalResearch.Racah.P3.heronT2; ring
 
-private theorem sqd_eq_dist_sq (p : Fin 4 → R3) (i j : Fin 4) : sqd p i j = dist (p i) (p j) ^ 2 := by
+theorem sqd_eq_dist_sq (p : Fin 4 → R3) (i j : Fin 4) : sqd p i j = dist (p i) (p j) ^ 2 := by
   simp [sqd, dist_eq_norm]
 
-private theorem sqrt_sqd (p : Fin 4 → R3) (i j : Fin 4) : Real.sqrt (sqd p i j) = dist (p i) (p j) := by
+theorem sqrt_sqd (p : Fin 4 → R3) (i j : Fin 4) : Real.sqrt (sqd p i j) = dist (p i) (p j) := by
   rw [sqd_eq_dist_sq, Real.sqrt_sq dist_nonneg]
 
 /-- **Heron.**  The squared norm of the area vector of a face is `T²` (`heronT2`) of its three

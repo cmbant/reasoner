@@ -4,57 +4,43 @@ public import Mathlib
 public import FormalResearch.EuclTet.AreaVec
 
 /-!
-# Euclidean Schläfli identity, volume derivative and the opposite-edge Van Vleck formula
+# Euclidean Schläfli identity from Cayley--Menger cofactors
 
 Sources: Weyl/P5 `cayley_menger_trichotomy.tex`: "Euclidean Schläfli identity
-`∑_i ℓ_i dΘ_i = 0`" (quoted in `sec:quarter`, `thm:quarter`, `prop:racah-vanvleck` and the Regge/Schläfli
-integrability `∂_fΘ_e = ∂_eΘ_f` of the six-edge section) and `prop:racah-vanvleck`
-(`eq:opposite-edge-vanvleck`, `eq:regge-mixed-hessian`); Weyl/P3 `lem:racah-cayley-menger`.
+`∑_i ℓ_i dΘ_i = 0`" (used in `sec:quarter`, `thm:quarter`, `prop:racah-vanvleck`, and as the
+Regge/Schläfli integrability `∂_fΘ_e = ∂_eΘ_f` of the six-edge section); Weyl/P3
+`lem:racah-cayley-menger`.  The consequences (Regge function, volume derivative, Van Vleck) are in
+`FormalResearch.EuclTet.SchlafliApp`.
 
-Setting.  `x_e = ℓ_e²` are the six squared edge lengths of the vertices `0,1,2,3`.  `Nondeg x` says
-`x_e > 0`, `det CM > 0` and the four faces satisfy the strict triangle inequalities (`C_ii < 0`);
-this holds exactly for a nondegenerate tetrahedron of `ℝ³` (`nondeg_of_points`; the converse
-direction of Blumenthal's criterion is not formalised).  `thetaX x i j = arccos(C_ij/√(C_ii C_jj))`
-is the interior dihedral angle of the two faces opposite `i`, `j` (at their common edge `kl`); for
-points of `ℝ³` it equals `dihedral p i j` (`dihedral_eq_thetaX`).
+Setting.  `x_e = ℓ_e²` are the six squared edge lengths of the vertices `0,1,2,3`.  `Nondeg x`
+says `x_e > 0`, `det CM > 0` and the four faces satisfy the strict triangle inequalities
+(`C_ii < 0`); a nondegenerate tetrahedron of `ℝ³` gives such data (`nondeg_of_points`; the converse,
+realisability of every such `x` in `ℝ³`, is the unformalised half of Blumenthal's criterion).
+`thetaX x i j = arccos(C_ij/√(C_ii C_jj))` is the interior dihedral angle between the faces opposite
+`i` and `j`, i.e. at their common edge `kl` (`{i,j,k,l} = {0,1,2,3}`); for points of `ℝ³` it equals
+`dihedral p i j` (`dihedral_eq_thetaX`).
 
-## What is formalised
+## What is formalised (proved; no numerics)
 
-* `schlafli` (**Euclidean Schläfli**): along every path of squared edges differentiable at `t₀` and
-  nondegenerate at `t₀`,
-  `∑_e ℓ_e · (d/dt) θ_e = 0`, `ℓ_e = √x_e`, summed over the six edges, `θ_e` the dihedral angle at
-  `e` (angle of the two faces *not* containing the opposite... i.e. sharing `e`).  Proved from the
-  Cayley--Menger cofactor expressions only: the three ingredients are `∑_j C_ij = 0`
-  (`cofM_row_sum`), Jacobi's identity `C_iiC_jj - C_ij² = 2 x_kl D` (`cof_jacobi*`, which gives the
-  sine) and `C_ii ≠ 0` (no use of any geometric volume or of angle-sum formulas).
-  `schlafli_lengths` is the same statement for paths of lengths.
-* `hasDerivAt_S_path` (**`dS = ∑ θ_e dℓ_e`**, i.e. `∂S/∂ℓ_f = θ_f` for the Regge generating function
-  `S = ∑_e ℓ_e θ_e`, `eq:regge-mixed-hessian` first two equalities) is a corollary.
-* `hasDerivAt_vol_x*` (**volume derivative**): `∂V/∂x_{kl} = ℓ_{ij} cot θ_{ij}/12`, i.e.
-  `∂V/∂ℓ_{kl} = ℓ_{kl}ℓ_{ij} cot θ_{ij}/6`, where `ij` is the edge opposite `kl`, `θ_{ij}` the interior
-  dihedral angle at `ij` and `V = √(D/288)` (checked numerically at 30 digits before formalising:
-  random tetrahedron, mpmath).  (The paper's `thm:smooth` gives `∂D/∂x = 2 cof`, already in
-  `Cofactor`; this is its volume form.)
-* `hasDerivAt_theta_opposite` (**`eq:opposite-edge-vanvleck`**): for the interior dihedral angle
-  `θ_A` at the edge `A = ℓ_01` and the opposite edge `D = ℓ_23` (others fixed),
-  `∂θ_A/∂D = A·D/(6V)`; in `hasDerivAt_theta_opposite_pts` stated for a tetrahedron in `ℝ³`
-  with `V = tetVol`.  `hasDerivAt_theta_opposite_swap` is the same for `θ_D` and `A`
-  (`∂θ_D/∂A = AD/(6V)`).  `regge_mixed` combines these with `hasDerivAt_S_path`:
-  `S_A = θ_A`, `S_D = θ_D`, `S_AD = AD/(6V)` for the Regge function of the pair `(A,D)`.
-
-## Sign conventions (P5 footnote)
-
-The paper's `prop:racah-vanvleck` uses the *interior* angle and states `∂θ_A/∂D = +AD/(6V)`: confirmed
-(the exterior angle `π - θ` has the opposite sign, as the paper's footnote says).  The Schläfli
-identity holds for either, since `∑ℓ_e = ` is not used.
+* `pair_deriv`: derivative of one dihedral angle `arccos(c/√(ab))` along a path.
+* `schlafli_alg`: the algebraic core (row sums of `C` and of `dC` vanish).
+* `schlafli_hasDerivAt`, `schlafli` (**Euclidean Schläfli**): along every path of squared edges
+  differentiable at `t₀` and nondegenerate at `t₀`, the six dihedral angles are differentiable and
+  `∑_e ℓ_e θ_e' = 0` (`ℓ_e = √x_e`, `θ_e` the angle at `e`).  The proof uses only the
+  Cayley--Menger cofactor expressions: `∑_j C_ij = 0` (`cofM_row_sum`), Jacobi's identity
+  `C_iiC_jj - C_ij² = 2 x_kl D` (`cof_jacobi*`, which gives `sin θ ∝ ℓ_kl`, i.e. the factor
+  `ℓ_kl = √(2D)^{-1}·√(C_iiC_jj - C_ij²)`), and `C_ii < 0`.  No volume formula or angle-sum
+  identity enters.
+* `nondeg_of_points`, `dihedral_eq_thetaX`, `sqrt_cmDet2_div_eq_tetVol`: link to genuine tetrahedra
+  of `ℝ³` (Gram/area-vector modules).
 
 ## Not formalised
 
-* The statement for a *family of embedded tetrahedra* is formalised on the edge lengths
-  (equivalent for nondegenerate tetrahedra, since the dihedral angles depend only on the edge
-  lengths, `dihedral_eq_thetaX`); a family of point configurations is not treated separately.
-* Schläfli for the hyperbolic/spherical case and the extension across the wall `det CM = 0`
-  (where the angles stop being differentiable) are not formalised.
+* Families of embedded point configurations are not treated separately: the statement is about edge
+  lengths, which is equivalent for nondegenerate tetrahedra since the angles depend only on them
+  (`dihedral_eq_thetaX`).
+* Schläfli across the wall `det CM = 0` (the angles stop being differentiable there) and the
+  hyperbolic/spherical Schläfli identities.
 -/
 
 @[expose] public section
@@ -382,5 +368,21 @@ theorem schlafli {x01 x02 x03 x12 x13 x23 : ℝ → ℝ} {x01' x02' x03' x12' x1
   exact hs
 
 end Main
+
+/-- info: 'FormalResearch.EuclTet.schlafli_hasDerivAt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms schlafli_hasDerivAt
+
+/-- info: 'FormalResearch.EuclTet.schlafli' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms schlafli
+
+/-- info: 'FormalResearch.EuclTet.dihedral_eq_thetaX' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms dihedral_eq_thetaX
+
+/-- info: 'FormalResearch.EuclTet.nondeg_of_points' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms nondeg_of_points
 
 end FormalResearch.EuclTet
