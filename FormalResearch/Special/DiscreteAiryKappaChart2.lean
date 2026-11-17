@@ -11,7 +11,7 @@ window and `0 ≤ X_m ≤ c₂ δ` (all produced by the same proofs through `dao
 module repeats the two proofs with these extra conjuncts (the constants `g_min, c₁, c₂` are independent of `δ`).
 
 **Claim class: proved** (same proofs as `kc_turn`, `kc_hahn_full`).  The extra conjuncts may later be folded into `kc_turn` (then this
-module is deleted).
+module is deleted).  `HermiteKappaChart.hkc_turn` is a copy of `kc2_turn` with one further conjunct (`L_g`).
 -/
 
 @[expose] public section

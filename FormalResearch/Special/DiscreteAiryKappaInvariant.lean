@@ -29,9 +29,10 @@ and the identity gives `|F_{k+1} - F_k| ≤ ε_k F_k` with `ε_k ≍ |Δa| + |Δ
 not a Lean claim): identity residual `< 10⁻³⁰` on the actual Hahn `3j` chain (`M = σ = 1, N = 342, x = 1/2`; `M = 2, σ = 1,
 N = 150, x = 1/3`); `max F/min F` over the whole left region `k ≤ (q_* - 0.1) N` is `1.6`, resp. `1.4`.
 
-**Not formalised.**  A sharper (two-sided, `1 + o(1)`) invariance of the energy: this module bounds `F` between constant
-multiples, which is what the a priori bound needs; the asymptotically exact amplitude needs the oscillatory averaging
-of the `O(h)` terms.
+**Not formalised here.**  A sharper (two-sided, `1 + o(1)`) invariance of the energy: this module bounds `F` between constant
+multiples, which is what the a priori bound needs.  The `1 + o(1)` amplitude is the Ermakov-Milne form `I_k(Y)` of
+`DiscreteAiryKappaErmakov` (`kerm_invariant`, with the Hahn profile `P = 2/α` and its transport along a band in
+`DiscreteAiryKappaProfile`, `DiscreteAiryKappaTransport`, and `hahn3j_band_clean` for the actual `3j` chain), which gives the sharp constant `hahn_chain_kappa_sharp`.
 -/
 
 @[expose] public section

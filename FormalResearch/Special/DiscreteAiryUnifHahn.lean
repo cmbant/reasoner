@@ -14,7 +14,7 @@ holds: the unified `DaiFull` of the closed-form recurrence plus `Ŷ = κ g Ai + 
 (`DiscreteAiryUnifTheorem`, quantitative in the datum bounds) and `hahn_datum_unif` (`DiscreteAiryUnifHahnData`, the Hahn data
 `A = ½√(1-q²)`, `u = τx/√(1-q²)` satisfy those bounds uniformly in `τx ∈ [x₀, x₁]`).
 
-**Claim class: proved.**  Not formalised: the value of `κ` and `κ ≠ 0`; shapes with `x → 0` or `x → 1` (the hard-edge degeneration; the
+**Claim class: proved.**  Not formalised: the value of `κ` and `κ ≠ 0` (for the fixed-`x` chain `κ² δ → 2` is `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`; not uniform in `x`); shapes with `x → 0` or `x → 1` (the hard-edge degeneration; the
 constants blow up there); the half-integer and Racah variants.
 -/
 

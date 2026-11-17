@@ -22,15 +22,17 @@ macroscopic window `[J, N_w + 1]` but leaves `κ` unidentified.  The mass argume
 4. **mass** (`gaussWeight_3j`, `kf_mass_le`): `N = Σ Ŷ_k² ≤ N sup_k Ŷ_k² ≤ N · 8 C_left A_κ² κ²`, so `κ² ≥ 1/(8 C_left A_κ²)`.
 
 **Claim class: proved** (`hahn_chain_kappa`), all constants explicit in the constants of `kc_hahn_full`, `ke_C`.  The bound `|κ| ≥ κ_min > 0` is
-uniform in `N` but **not sharp**.  *Numerical evidence (mpmath, 30 digits, scratch, not a Lean claim):* for the actual chain (`Σ Ŷ² = N`, `Ŷ`
-from the hard edge) `|κ| = |Ŷ_k|/(g Ai(X_k))` near the turn is `√2 N^{1/6}(1 + o(1))`: `M = σ = 0`, `x = 1/2`, `N = 22, 86, 342`:
-`2.37, 2.97, 3.74` against `√2 N^{1/6} = 2.37, 2.97, 3.74`; also (nodes found by root finding) `M = σ = 0, N = 100, x = 0.55, 0.85`: `3.046, 3.064` vs
-`3.047`; `M = σ = 1, N = 100, x = 0.65`: `3.085`; `M = 2, σ = 1, N = 160, x = 0.5`: `3.314` vs `3.295`.  The heuristic mass identity
+uniform in `N` but crude (`e^{O(1)}` control of the adiabatic invariant only).  It is superseded for the size of `κ` by `hahn_chain_kappa_order`
+(`c_lo ≤ κ² δ ≤ c_up`, `δ³ = 1/N`, `DiscreteAiryKappaOrder`) and for its value by `hahn_chain_kappa_sharp` (`|κ² δ - 2| ≤ τ` for `1/N ≤ ε₁(τ)`, i.e.
+`κ² = 2N^{1/3}(1+o(1))`, `DiscreteAiryKappaSharpFinal`), which use the second-order (Ermakov) adiabatic invariant with `1 + o(1)` amplitude over the whole left band
+(`DiscreteAiryKappaErmakov`, `DiscreteAiryKappaSharp*`); this module keeps the mass argument and its ingredients that the later modules reuse
+(`kf_mass_le`, `kf_window_abs`, `kf_mu_bound`, `kf_absorb`).  *Numerical check of the theorem (mpmath, 30 digits, scratch, not a Lean claim):* for the actual
+chain `|κ| = |Ŷ_k|/(g Ai(X_k))` near the turn is `√2 N^{1/6}(1 + o(1))`: `M = σ = 0`, `x = 1/2`, `N = 22, 86, 342`:
+`2.37, 2.97, 3.74` against `√2 N^{1/6} = 2.37, 2.97, 3.74`.  The heuristic mass identity
 `N = Σ Ŷ² ≈ N κ² N^{-1/3}/(2π) ∫_0^{q_*} dq/(A sin φ) = κ² N^{2/3}/2` (`A sin φ = ½√(q_*² - q²)`, `∫ = π`) gives `κ² = 2 N^{1/3}`, independent of
-`(M, σ, x)`; making it rigorous needs the oscillatory form of `Ŷ` on the *whole* left band with a `1 + o(1)` amplitude (an adiabatic invariant
-to second order; `ki_invariant` controls it only up to `e^{O(1)}`), not just on the Airy window.
+`(M, σ, x)`; its rigorous version is `hahn_chain_kappa_sharp`.
 
-**Not formalised.**  The value of `|κ|` (Darboux normalisation `ε_{ab}(-1)^{K_τ}√(2/q) N^{-1/3}|ζ/D|^{1/4}`); `τ = -1`; half-integer chains; Racah;
+**Not formalised** (anywhere in the tree; this module proves only `κ_min`, the order and the value are in the modules named above): the Darboux phase and sign of `κ`; `τ = -1`; half-integer chains; Racah;
 uniformity of the constants in `x` (the matching without `κ` is uniform in `x ∈ [x₀, x₁]`: `hahn_chain_airy_full_unif`, `DiscreteAiryUnifHahn`; `κ_min` is not).
 -/
 
