@@ -23,11 +23,19 @@ Proof (a variant of the note's: the Poisson representation of Lemma H is **not**
    `‖G(c_n)‖ ≤ (r_n/π)(∫ ‖G(t)‖/((t-c_n)²+r_n²) + e⁴ ∫ ‖G(t)‖/((t+c_n)²+r_n²))`;
 3. (weights) `1/‖Ai'(a_n)‖² ≤ 36π²/c_n` (`airyZero_inv_deriv_sq_le`) and `‖f(a_n)‖ = ‖G(c_n)‖/c_n`, `1/c_n² = 4 r_n`;
 4. (Carleson-type kernel sum) `Σ_n r_n²/((t∓c_n)²+r_n²) ≤ K` uniformly in `t`, from the separation `|c_n - c_m| max(c_n,c_m)² ≥ |n-m|`
-   of the zeros (`airyRoot_kernel_sum`, `AiryCftQSampleZeros`), so `Σ_{n<N} ‖f(a_{n+1})/Ai'(a_{n+1})²‖ ≤ 288 π e⁴ K ‖G‖_{L¹}`.
+   of the zeros (`airyRoot_kernel_sum`, `AiryCftQSampleZeros`), so `Σ_{n<N} ‖f(a_{n+1})/Ai'(a_{n+1})²‖ ≤ 144 π (1+e⁴) K ‖G‖_{L¹}`.
 
-All **proved**.  The pointwise bound of Theorem Q (2) is only obtained on the real axis here (`airyQ_pointwise_real`:
-`‖f(-x²)‖ ≤ (2·e⁴/π)·4|x|·‖f‖_b`-type, from step 2 with `r = 1/(4x²)`); the note's full statement
-`‖G(z)‖ ≤ ‖g‖₁/(π Im z)` for non-real `z` needs the Poisson representation and is not formalised.
+All **proved** (`airyQ_sampling`, `airyQ_sampling_sum`).  The constant is absolute (`C = 144π(1+e⁴)K + 1` where `K` is the kernel-sum bound of
+`separated_kernel_sum` with `s = 1`, `κ = 12`, in the form of `airyQ_sampling_sum`; not optimised).
+
+Numerical sanity check of the statement (scipy double precision, evidence only; not used in any proof): for the test function
+`f(u) = ∫_0^1 τ⁴(1-τ)⁴ Ai(2^{2/3}(u+τ)) dτ` (`f ∈ L¹(ℝ)`, entire, in the class of Theorem Q), `Σ_{n ≤ 3000} |f(a_n)|/Ai'(a_n)² = 5.33·10⁻⁴`
+and `∫_{-4000}^0 |f| = 5.97·10⁻³` (ratio `0.089`, far below the proved constant).
+
+The notes' proof uses the Poisson representation of Lemma H (`|G(ξ+iη)| ≤ ∫ P_η(ξ-t)|g(t)| dt`) and a Carleson-measure sum; here the
+Fejér–Riesz arc bound alone (with a Cauchy weight) replaces it, so no Poisson integral is formalised.  The pointwise bounds of Theorem Q (2) that
+this proof yields are in `AiryCftQSamplePt` (`airyQ_pointwise_real`, `airyQ_f_point`); the sharp form `‖G(z)‖ ≤ ‖g‖₁/(π Im z)` for non-real `z`
+(Lemma H) is **not formalised**.
 -/
 
 @[expose] public section

@@ -7,9 +7,9 @@ public import FormalResearch.Special.AiryCftQSample
 
 With the sampling bound of Theorem Q (3) (`airyQ_sampling`, `AiryCftQSample`) the series `Σ_n f(a_n)/Ai'(a_n)²` converges absolutely
 for every entire `f` with `‖f(u)‖ ≤ C (1+|u|)^ν e(u)` (**any real `ν`**, complex-valued `f`) and `f ∈ L¹(ℝ)`, so the `Summable` hypothesis of
-`airyQ_hasSum` is dropped: `airyQ_hasSum_unc : HasSum (fun n => f(a_{n+1})/Ai'(a_{n+1})²) (∫_ℝ f)`.  (The range `ν ∈ [-1, 1/2]` of the note
-is covered because `f ∈ L¹(ℝ)` is the only integrability input; Theorem Q (2) shows that every `f` in the class automatically has `ν ≤ 1/2`,
-which is not needed here.)  **Proved.**
+`airyQ_hasSum` is dropped: `airyQ_hasSum_unc : HasSum (fun n => f(a_{n+1})/Ai'(a_{n+1})²) (∫_ℝ f)`.  (The note's range `ν ∈ [-1, 1/2]` is covered: `f ∈ L¹(ℝ)` is the only
+integrability input and the growth exponent `ν` is arbitrary.)  `airyQ_hasSum` (`AiryCftQQuad`) remains as the version with an explicit
+summability hypothesis.  **Proved.**
 -/
 
 @[expose] public section

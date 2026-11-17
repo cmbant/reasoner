@@ -12,6 +12,8 @@ Companions of `AiryCftQSample`, all **proved**, with the Hardy hypotheses of The
   the zeros of `P Ai + Q Ai'` as well);
 * `airyQH f z = f(-z²) exp((4/3) i z³) = G(z)/z` (entire) and `airyQH_point`: for every fixed `w` there is an explicit constant `C(w)`
   (independent of `f`) with `‖H(w)‖ ≤ C(w) ∫_{x<0} ‖f‖`;
+* `airyQ_pointwise_real`: for real `u ≤ -1`, `‖f(u)‖ ≤ (4/π)(1+e⁴) √(-u) ∫_{x<0} ‖f‖` with an absolute constant (Theorem Q (2) on the negative
+  axis, `ψ ≤ C₁ ‖f‖_b |u|^{1/2}`);
 * `airyQ_f_point`: hence `‖f(u)‖ ≤ C(u) ∫_{x<0} ‖f‖` at every fixed `u ∈ ℂ` (`f(u) = H(z₀) e^{-(4/3) i z₀³}` for `z₀² = -u`),
   in particular at the finitely many zeros of `P Ai + Q Ai'` with `t > -1`.
 
@@ -174,6 +176,51 @@ theorem airyQ_f_point (u : ℂ) : ∃ C : ℝ, 0 ≤ C ∧ ∀ {f : ℂ → ℂ}
       ≤ (C * ∫ x in Iic (0 : ℝ), ‖f (x : ℂ)‖) * Real.exp ((4 / 3) * ‖z₀‖ ^ 3) :=
         mul_le_mul h1 hE (Real.exp_pos _).le (by positivity)
     _ = _ := by ring
+
+/-- **Pointwise bound on the band (Theorem Q (2), real axis, `u ≤ -1`).**  `‖f(u)‖ ≤ (4/π)(1 + e⁴) √(-u) ∫_{x<0} ‖f‖`
+(`ψ(u) = ‖f(u)‖/e(u) ≤ C ‖f‖_b |u|^{1/2}` on the negative axis, where `e = 1`; the note's constant `C₁` is absolute as here). -/
+theorem airyQ_pointwise_real {f : ℂ → ℂ} (hf : Differentiable ℂ f) (hfi : Integrable (fun x : ℝ => f (x : ℂ)))
+    {C ν : ℝ} (hC : 0 ≤ C) (hb : ∀ u : ℂ, ‖f u‖ ≤ C * (1 + ‖u‖) ^ ν * airyEnv u) {u : ℝ} (hu : u ≤ -1) :
+    ‖f (u : ℂ)‖ ≤ (4 / π) * (1 + Real.exp 4) * √(-u) * ∫ x in Iic (0 : ℝ), ‖f (x : ℂ)‖ := by
+  have hpi := Real.pi_pos
+  set c : ℝ := √(-u) with hc
+  have hc1 : 1 ≤ c := by
+    rw [hc, show (1 : ℝ) = √1 by simp]; exact Real.sqrt_le_sqrt (by linarith)
+  have hc0 : 0 < c := by linarith
+  have hsq : -(c ^ 2) = u := by rw [hc, Real.sq_sqrt (by linarith)]; ring
+  have hfar := airyQ_far_le hf hfi hC hb hc1
+  rw [hsq] at hfar
+  set r : ℝ := 1 / (4 * c ^ 2) with hr
+  have hr0 : 0 < r := by positivity
+  have hgi : Integrable (fun t : ℝ => ‖airyQG f (t : ℂ)‖) := (airyQ_boundary hf hfi).1.norm
+  have hgint : ∫ t : ℝ, ‖airyQG f (t : ℂ)‖ = ∫ x in Iic (0 : ℝ), ‖f (x : ℂ)‖ := (airyQ_boundary hf hfi).2
+  have hk : ∀ s : ℝ, ∫ t : ℝ, ‖airyQG f (t : ℂ)‖ * (r ^ 2 / ((t - s) ^ 2 + r ^ 2)) ≤
+      ∫ t : ℝ, ‖airyQG f (t : ℂ)‖ := by
+    intro s
+    refine integral_mono (integrable_mul_kern hgi s r hr0) hgi (fun t => ?_)
+    have := FormalResearch.Hardy.kernel_term_le_one (d := t - s) hr0
+    nlinarith [norm_nonneg (airyQG f (t : ℂ))]
+  have h1 := hk c
+  have h2 := hk (-c)
+  simp only [sub_neg_eq_add] at h2
+  rw [hgint] at h1 h2
+  have hI0 : 0 ≤ ∫ x in Iic (0 : ℝ), ‖f (x : ℂ)‖ := integral_nonneg fun x => norm_nonneg _
+  have h3 : ‖f (u : ℂ)‖ / c ≤ (4 / π) * (1 + Real.exp 4) * ∫ x in Iic (0 : ℝ), ‖f (x : ℂ)‖ := by
+    refine hfar.trans ?_
+    have : (∫ t : ℝ, ‖airyQG f (t : ℂ)‖ * (r ^ 2 / ((t - c) ^ 2 + r ^ 2))) +
+        Real.exp 4 * (∫ t : ℝ, ‖airyQG f (t : ℂ)‖ * (r ^ 2 / ((t + c) ^ 2 + r ^ 2))) ≤
+        (1 + Real.exp 4) * ∫ x in Iic (0 : ℝ), ‖f (x : ℂ)‖ := by
+      nlinarith [Real.exp_pos 4]
+    calc 4 / π * _ ≤ 4 / π * ((1 + Real.exp 4) * ∫ x in Iic (0 : ℝ), ‖f (x : ℂ)‖) :=
+          mul_le_mul_of_nonneg_left this (by positivity)
+      _ = _ := by ring
+  rw [div_le_iff₀ hc0] at h3
+  calc ‖f (u : ℂ)‖ ≤ (4 / π) * (1 + Real.exp 4) * (∫ x in Iic (0 : ℝ), ‖f (x : ℂ)‖) * c := h3
+    _ = _ := by ring
+
+/-- info: 'FormalResearch.Special.airyQ_pointwise_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyQ_pointwise_real
 
 /-- info: 'FormalResearch.Special.airyQ_f_point' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
