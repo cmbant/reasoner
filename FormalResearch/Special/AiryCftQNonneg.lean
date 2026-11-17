@@ -8,7 +8,10 @@ public import FormalResearch.Special.AiryCftQNCQuad
 If the terms `f(a_n)/Ai'(a_n)²` (resp. `f(z) D(z)/N'(z)²`, resp. `f(z)/K(z,z)`) are real and nonnegative, the limit form of
 Theorem Q (`airyQ_tendsto`, `airyNC_tendsto`) already gives summability (the partial sums are monotone and converge along
 the good circles), hence the `HasSum` identity `∫_ℝ f = Σ ...` for every `f ∈ 𝒢` with `f ∈ L¹(ℝ)`, **without** the sampling
-bound of Theorem Q (3) (`airyQ_hasSum_of_nonneg`, `airyNC_hasSum_of_nonneg`).  This is the case used for the positivity
+bound of Theorem Q (3) (`airyQ_hasSum_of_nonneg`, `airyNC_hasSum_of_nonneg`).  Theorem Q (3) is now formalised (`airyQ_sampling`,
+`airyNC_sampling_sum`) and `airyQ_hasSum_unc`, `airyNC_hasSum_unc` (`AiryCftQUnc`, `AiryCftQNCUnc`) give `HasSum` for every term
+sign, so the nonnegative-term theorems here are corollaries in scope; they are kept (they need no zero-spacing input and no
+`‖f‖_b` bound).  This is the case used for the positivity
 arguments (`f = |ψ|²`, `f ≥ 0` on the nodes).  All **proved**.
 -/
 

@@ -92,6 +92,13 @@ public import FormalResearch.Special.AiryCftQQuad
 public import FormalResearch.Special.AiryCftQNCDefect
 public import FormalResearch.Special.AiryCftQNCQuad
 public import FormalResearch.Special.AiryCftQNonneg
+public import FormalResearch.Special.AiryCftQSampleZeros
+public import FormalResearch.Special.AiryCftQSample
+public import FormalResearch.Special.AiryCftQSamplePt
+public import FormalResearch.Special.AiryCftQNCZeros
+public import FormalResearch.Special.AiryCftQNCSample
+public import FormalResearch.Special.AiryCftQUnc
+public import FormalResearch.Special.AiryCftQNCUnc
 
 /-!
 # The Airy function: aggregate and design note
@@ -156,8 +163,7 @@ to order `v_1` only to first order); the `t^{-6}` coefficient `77125/82944` of t
 integrand and the coefficient `-7/48`), and sharp constants anywhere; the asymptotics of the general Clark nodes `z_n(α)`,
 `α ≢ 0, π/2` (existence and uniqueness are `airy_node_exists_unique`; the node labelling and monotonicity in `α` are not formalised);
 Olver's own `N` and the value of the crossing point `c = -0.366…` (`airyCross > -1`); Olver-type uniform expansions; the Mellin
-moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the `Lp`-level operator `K_u`; the sampling bound `Σ|f(a_n)|/Ai'(a_n)² ≤ C‖f‖_b` and the pointwise bound of Theorem Q (3), (2) (unconditional absolute convergence of the
-quadrature for `ν ∈ [-1, 1/2]`; Theorem Q (1) and the limit form of (4) are formalised in `AiryCftQ*`) and the `P Ai + Q Ai'` versions with polynomial (non-constant) `P, Q`; the product form of `Bi`; the lower
+moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the `Lp`-level operator `K_u`; the Poisson representation of Theorem Q's unfolded function `G` (Lemma H) and the sharp pointwise bound Theorem Q (2) (`ψ(u) ≤ ‖f‖_b/(π|u|^{1/2} Re√u)`; only weak forms are formalised), the vanishing moments (Corollary Q′, `∫G = 0`) and the `P Ai + Q Ai'` versions with polynomial (non-constant) `P, Q`; the product form of `Bi`; the lower
 bound / order = convergence exponent of Hadamard's theorem (`FormalResearch.Complex`); the first zero of `Bi` and `Bi > 0`
 beyond `-11/10`; the open parts of the discrete-to-Airy chain: the value of `|κ|` (numerics `√2 N^{1/6}`; `κ ≠ 0` with `κ_min` independent of `N` is `hahn_chain_kappa` for the `τ = +1` integer `3j` chain), its Darboux phase and sign, `κ ≠ 0` for `τ = -1`, Racah and half-integer chains (also the single
 normalisation `|Y_{k₁}| ≤ δ^{-p}` for the closed-form chains), uniformity over families beyond the `3j` shape `x ∈ [x₀, x₁]` (`hahn_chain_airy_full_unif`: no exact node for an irrational shape, but all rational
@@ -303,10 +309,20 @@ a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete
   (`airyQ_defect_le_boundary`, with `AiryCftQDefect`, `AiryCftQArc`, `AiryCftQQuad`), the limit `Σ_{n ≤ N_k} → ∫_ℝ f` along good circles (`airyQ_tendsto`), `HasSum` if
   the series is summable (`airyQ_hasSum`) and for nonnegative real terms with no sampling bound (`airyQ_hasSum_of_nonneg`, `AiryCftQNonneg`), and the same for `P Ai + Q Ai'`
   (`airyNC_tendsto`, `airyNC_hasSum`, `airyNC_hasSum_of_nonneg`; `cft2_defect_bound_int`, `AiryCftQNC*`) and for Clark-Airy (`airyClark_hasSum`).  The older
-  `ν < -1` theorems (`airy_quadrature`, `airyNC_quadrature`, `airyClark_quadrature`) are not superseded: they give absolute convergence.
-  Open: Theorem Q (3), the sampling bound `Σ|f(a_n)|/Ai'(a_n)² ≤ C‖f‖_b` (Poisson representation on the half-plane with the horizontal `L¹` bound, the sub-mean-value
-  estimate on discs of radius `~ z_n^{-2}`, and the Carleson-type sum over the zero spacing `z_{n+1} - z_n ≥ c z_n^{-2}`) and Q (2), the pointwise bound
-  `‖G(z)‖ ≤ ‖g‖₁/(π Im z)`, which together give unconditional absolute convergence for `ν ∈ [-1, 1/2]`; the Clark node labelling and monotonicity in `α`,
+  `ν < -1` theorems (`airy_quadrature`, `airyNC_quadrature`, `airyClark_quadrature`) are not superseded: they give absolute convergence (the
+  `Summable`-hypothesis and nonnegative-term `HasSum` theorems of this round are superseded in scope by the `_unc` versions below but kept).
+  Round four (Theorem Q (3), the sampling bound; `AiryCftQSample*`, `AiryCftQNC*`, `AiryCftQUnc`, with the generic `Complex.HardyWeightedArc`,
+  `Complex.SeparatedKernelSum`): for the same `f` (complex-valued, any real `ν`, `f ∈ L¹(ℝ)`) `Σ_n ‖f(a_n)/Ai'(a_n)²‖ ≤ C ∫_{x<0}‖f‖` with `C` absolute
+  (`airyQ_sampling`), hence `HasSum` to `∫_ℝ f` with no summability hypothesis (`airyQ_hasSum_unc`), and the same over the zeros of
+  `N = P Ai + Q Ai'` (`C = C(P,Q)`, `airyNC_sampling_sum`, `airyNC_summable`, `airyNC_hasSum_unc`) and for Clark-Airy (`airyClark_summable`,
+  `airyClark_hasSum_unc`).  The route avoids the Poisson representation: a weighted Fejér–Riesz arc bound at a real centre
+  (`hardy_arc_weighted`, applied to `G(x₀+z)(r/(z+ir))²`), the circle mean value of the entire `G` on discs of radius `r = 1/(4c²)`
+  (`hardy_sample_real`, `airyQ_sample_pt`), the reflection `w ↦ -w` of `G`, and a Cauchy-kernel sum over the separated zeros
+  (`separated_kernel_sum`, `airyRoot_kernel_sum`; zero spacing from `AiryZeroSpacing`, interlacing for `N`); weak Theorem Q (2):
+  `airyQ_pointwise_real` (negative axis) and `airyQ_f_point` (every fixed `u`).
+  Open: the Poisson representation of `G` on the half-plane (Lemma H, horizontal `L¹` bound) and the sharp pointwise bound Theorem Q (2),
+  `ψ(u) ≤ ‖f‖_b/(π|u|^{1/2} Re√u)` from `‖G(z)‖ ≤ ‖g‖₁/(π Im z)` (only the weak forms above are formalised), the vanishing moments
+  Corollary Q′ (`∫G = 0`), the Clark node labelling and monotonicity in `α`,
   polynomial (non-constant) `P, Q`, the enclosure `a'_1 ∈ (-1.0188, -1.0187)`, the asymptotics of the zeros of `Ai'` (DLMF 9.9.19).
 * *Hadamard factorization* (`FormalResearch.Complex`, `Hadamard*`, namespace `FormalResearch.Hadamard`; a separate aggregate,
   not imported by this one, since only `HadamardAiry` (and `AiryCft2DerivHadamard`, which imports it) uses the Airy modules and

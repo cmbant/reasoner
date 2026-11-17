@@ -16,6 +16,8 @@ public import FormalResearch.Complex.HadamardGrowth
 public import FormalResearch.Complex.HardyFejerRiesz
 public import FormalResearch.Complex.HardyHalfPlane
 public import FormalResearch.Complex.HardyArcDecay
+public import FormalResearch.Complex.HardyWeightedArc
+public import FormalResearch.Complex.SeparatedKernelSum
 
 /-!
 # Complex analysis: Hadamard factorization and Fejér–Riesz arc bounds
@@ -51,8 +53,13 @@ half-plane arc form (`Hardy*`, Airy-free).
   closure with `‖G(z)‖(1+‖z‖)³ ≤ C`, `a ∫_0^π ‖G(a e^{iφ})‖ dφ ≤ (1/2) ∫_ℝ ‖G‖` for every `a > 0`;
 * `HardyArcDecay`: the same under polynomial growth and integrable boundary values (`hardy_arc_le_poly`, by the damping factor
   `(1 - iδz)^{-K}`), and `hardy_arc_tendsto_zero`: the arc integral tends to `0` as `a → ∞`.
+* `HardyWeightedArc`: the weighted (Carleson-type) arc bound at a real centre (`hardy_arc_weighted`): `r ∫_0^π ‖G(x₀+re^{iφ})‖ dφ ≤ 2 ∫ ‖G(t)‖ r²/((t-x₀)²+r²) dt`
+  (`hardy_arc_le_poly` applied to `G(x₀+z)(r/(z+ir))²`), the sub-mean-value bound at a real point from these arcs (`hardy_sample_real`) and the value at any
+  fixed point from the arc integral (`hardy_point_le`; circle averages of an entire function);
+* `SeparatedKernelSum`: `Σ_i r_i²/((t-c_i)²+r_i²) ≤ K` over a separated family of centres with `r_i = 1/(4c_i²)` (`separated_kernel_sum`; nearest-index
+  argument and the `ℤ`-sum of `1/k²`), the generic Carleson-sum input of the Airy sampling bound (Theorem Q (3)).
   Not formalised there: Hardy spaces `H^p(ℍ)` as notions, the Poisson representation of `G` on `ℍ` and the horizontal `L¹` bound
-  `∫ ‖G(x+iy)‖ dx ≤ ∫ ‖G(x)‖ dx` (Lemma H of the Airy sampling bound), and the pointwise bound `‖G(z)‖ ≤ ‖g‖₁/(π Im z)`.
+  `∫ ‖G(x+iy)‖ dx ≤ ∫ ‖G(x)‖ dx` (Lemma H; the sampling bound does not need it), and the sharp pointwise bound `‖G(z)‖ ≤ ‖g‖₁/(π Im z)`.
 
 Layering: only `HadamardAiry` imports `FormalResearch.Special.Airy*` modules; no module of the `Airy` aggregate imports this
 aggregate (the product of `Ai'`, `FormalResearch.Special.airyDeriv_hadamard` in `Special/AiryCft2DerivHadamard`, imports `HadamardAiry`

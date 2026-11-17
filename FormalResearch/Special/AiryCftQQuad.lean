@@ -20,8 +20,11 @@ Proof: Theorem D in integral form (`airyQ_defect_le_arc`) bounds the defect by `
 `L¹` boundary values (`AiryCftQUnfold`); the Hardy-space Fejér–Riesz bounds (`HardyArcDecay`) give `≤ (1/2) ‖G‖_{L¹(ℝ)}
 = (1/2) ∫_{x<0}|f|` and `→ 0`.  All **proved**.
 
-Not formalised: absolute convergence of the series for `-1 ≤ ν` (Theorem Q (3), the sampling bound, needs the Poisson
-representation of `G` on `ℍ` and a zero-spacing kernel sum); `airy_quadrature` for `ν < -1` is the case where it is known.
+The `HasSum` form here (`airyQ_hasSum`) assumes summability.  Theorem Q (3), the sampling bound, is now formalised
+(`airyQ_sampling` in `AiryCftQSample`, by a weighted Fejér–Riesz bound and a Carleson-type kernel sum; the Poisson representation of `G`
+is not needed), and gives summability for every real `ν` with `f ∈ L¹(ℝ)`, so `airyQ_hasSum_unc` (`AiryCftQUnc`) is the hypothesis-free
+statement; `airyQ_hasSum` is superseded in scope by it but kept (the sampling modules import this file, so the assumed-summability form
+cannot be derived from them here).  Not formalised: the Poisson representation of `G` (Lemma H) and the sharp pointwise bound Theorem Q (2).
 -/
 
 @[expose] public section

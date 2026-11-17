@@ -19,7 +19,9 @@ and `f ∈ L¹(ℝ)`:
 Proof: the integral form `cft2_defect_bound_int` of the residue-defect bound (`AiryCftQNCDefect`) for `(N, M)`,
 `M = P Bi + Q Bi'`, and the weights `-π M/N' = D/N'²` give, on the good circles `|u| = r_k = a_k²` of `airyNC_good_circle`
 (ratio bounds `‖M/N ∓ i‖ e ≤ C₀`), the defect bound `C₀ a_k ∫_0^π |G(a_k e^{iφ})| dφ` (`airyQ_arc_reduce`), which the Hardy
-Fejér–Riesz bound sends to `0` (`HardyArcDecay`).  All **proved**.  Not formalised: summability for `ν ≥ -1` (Theorem Q (3)).
+Fejér–Riesz bound sends to `0` (`HardyArcDecay`).  All **proved**.  The `HasSum` forms here (`airyNC_hasSum`, `airyClark_hasSum`) assume summability; Theorem Q (3) for `N` is now formalised
+(`airyNC_sampling_sum`, `AiryCftQNCSample`) and gives it for any real `ν` with `f ∈ L¹(ℝ)` (`airyNC_hasSum_unc`, `airyClark_hasSum_unc`,
+`AiryCftQNCUnc`); these are superseded in scope by the `_unc` versions but kept.
 -/
 
 @[expose] public section
