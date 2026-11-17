@@ -86,10 +86,10 @@ lemma dlg_cramer_size {a Y φ ψ : ℤ → ℝ} {m : ℤ} {hi E : ℝ} (hD : 1 /
     have : 0 ≤ (hi + E) * (hi * (|Y m| + |Y (m + 1)|)) := (abs_nonneg _).trans hcr
     nlinarith
 
-/-- **Amplitude and phase of an exact solution** (abstract sequences).  Let `φ = W cos P`, `ψ = W sin P` (`0 ≤ W ≤ hi`) have Casoratian `≥ 1/2` on
-the bonds `[J, N]` and let the Cramer coefficients of `Y` at the bond `m` drift by at most `n₀ · 2Λ` (`n₀ = |α_m| + |β_m|`).  Then there are
-`R ≥ 0`, `φ₀` with `|Y_k - R W_k cos(P_k - φ₀)| ≤ 4 Λ R W_k` on `[J, N+1]`, `R ≤ 4 (hi + E) hi (|Y_m| + |Y_{m+1}|)` and `|Y_m| + |Y_{m+1}| ≤ 4 hi R`. -/
-theorem dlg_amp_phase {a Y W P : ℤ → ℝ} {J N m : ℤ} {hi E Λ : ℝ} (hΛ : 0 ≤ Λ)
+/-- **Cartesian form** (abstract sequences).  Let `φ = W cos P`, `ψ = W sin P` (`0 ≤ W ≤ hi`) have Casoratian `≥ 1/2` on the bonds `[J, N]` and let the
+Cramer coefficients of `Y` at the bond `m` drift by at most `n₀ · 2Λ` (`n₀ = |α_m| + |β_m|`).  Then `Y = α_m φ + β_m ψ` up to `2Λ n₀ W` on `[J, N+1]`, and
+`n₀ ≤ 4 (hi + E) hi (|Y_m| + |Y_{m+1}|)`, `|Y_m| + |Y_{m+1}| ≤ 4 hi n₀`. -/
+theorem dlg_amp_cart {a Y W P : ℤ → ℝ} {J N m : ℤ} {hi E Λ : ℝ}
     (hJm : J ≤ m) (hmN : m ≤ N) (hW0 : ∀ k ∈ Icc J (N + 1), 0 ≤ W k) (hW : ∀ k ∈ Icc J (N + 1), W k ≤ hi)
     (hcas : ∀ k ∈ Icc J N, 1 / 2 ≤ cas a (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) k)
     (ham : |a (m + 1)| ≤ hi + E)
@@ -100,8 +100,16 @@ theorem dlg_amp_phase {a Y W P : ℤ → ℝ} {J N m : ℤ} {hi E Λ : ℝ} (hΛ
           vocB a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m| ≤
         (|vocA a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m| +
           |vocB a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m|) * (2 * Λ)) :
-    ∃ R φ0 : ℝ, 0 ≤ R ∧ (∀ k ∈ Icc J (N + 1), |Y k - R * W k * Real.cos (P k - φ0)| ≤ 4 * Λ * R * W k) ∧
-      R ≤ 4 * (hi + E) * hi * (|Y m| + |Y (m + 1)|) ∧ |Y m| + |Y (m + 1)| ≤ 4 * hi * R := by
+    (∀ k ∈ Icc J (N + 1),
+      |Y k - (vocA a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m * (W k * Real.cos (P k)) +
+          vocB a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m * (W k * Real.sin (P k)))| ≤
+        (|vocA a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m| +
+          |vocB a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m|) * (2 * Λ) * W k) ∧
+    |vocA a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m| +
+        |vocB a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m| ≤
+      4 * (hi + E) * hi * (|Y m| + |Y (m + 1)|) ∧
+    |Y m| + |Y (m + 1)| ≤ 4 * hi * (|vocA a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m| +
+        |vocB a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m|) := by
   set φ : ℤ → ℝ := fun i => W i * Real.cos (P i) with hφdef
   set ψ : ℤ → ℝ := fun i => W i * Real.sin (P i) with hψdef
   have hφb : ∀ k ∈ Icc J (N + 1), |φ k| ≤ W k := fun k hk => by
@@ -115,10 +123,8 @@ theorem dlg_amp_phase {a Y W P : ℤ → ℝ} {J N m : ℤ} {hi E Λ : ℝ} (hΛ
   have hne : ∀ k ∈ Icc J N, cas a φ ψ k ≠ 0 := fun k hk => by
     have := hcas k hk
     intro h0; rw [h0] at this; norm_num at this
-  obtain ⟨R, φ0, hR0, hαR, hβR, hRn, hpol⟩ := dlg_polar (vocA a Y φ ψ m) (vocB a Y φ ψ m)
   have hmI : m ∈ Icc J N := by rw [Finset.mem_Icc]; omega
-  have hn : |vocA a Y φ ψ m| + |vocB a Y φ ψ m| ≤ 2 * R := by linarith
-  refine ⟨R, φ0, hR0, ?_, ?_, ?_⟩
+  refine ⟨?_, ?_, ?_⟩
   · intro k hk
     have hk' := hk
     rw [Finset.mem_Icc] at hk'
@@ -129,25 +135,18 @@ theorem dlg_amp_phase {a Y W P : ℤ → ℝ} {J N m : ℤ} {hi E Λ : ℝ} (hΛ
         subst hk1
         exact ⟨N, by rw [Finset.mem_Icc]; omega, (voc_repr a Y φ ψ N (hne N (by rw [Finset.mem_Icc]; omega))).2⟩
     have hdb := hd b hb
-    have hmain : vocA a Y φ ψ m * φ k + vocB a Y φ ψ m * ψ k = R * W k * Real.cos (P k - φ0) := by
-      have := hpol (P k)
-      calc vocA a Y φ ψ m * φ k + vocB a Y φ ψ m * ψ k =
-          W k * (vocA a Y φ ψ m * Real.cos (P k) + vocB a Y φ ψ m * Real.sin (P k)) := by simp only [hφdef, hψdef]; ring
-        _ = R * W k * Real.cos (P k - φ0) := by rw [this]; ring
     have e : Y k - (vocA a Y φ ψ m * φ k + vocB a Y φ ψ m * ψ k) =
         (vocA a Y φ ψ b - vocA a Y φ ψ m) * φ k + (vocB a Y φ ψ b - vocB a Y φ ψ m) * ψ k := by rw [hYk]; ring
-    rw [← hmain, e]
     have t1 : |(vocA a Y φ ψ b - vocA a Y φ ψ m) * φ k| ≤ |vocA a Y φ ψ b - vocA a Y φ ψ m| * W k :=
       dlg_mul_le (le_refl _) (hφb k hk)
     have t2 : |(vocB a Y φ ψ b - vocB a Y φ ψ m) * ψ k| ≤ |vocB a Y φ ψ b - vocB a Y φ ψ m| * W k :=
       dlg_mul_le (le_refl _) (hψb k hk)
     have hWk := hW0 k hk
+    show |Y k - (vocA a Y φ ψ m * φ k + vocB a Y φ ψ m * ψ k)| ≤ _
+    rw [e]
     calc _ ≤ |(vocA a Y φ ψ b - vocA a Y φ ψ m) * φ k| + |(vocB a Y φ ψ b - vocB a Y φ ψ m) * ψ k| := abs_add_le _ _
       _ ≤ (|vocA a Y φ ψ b - vocA a Y φ ψ m| + |vocB a Y φ ψ b - vocB a Y φ ψ m|) * W k := by linarith
       _ ≤ ((|vocA a Y φ ψ m| + |vocB a Y φ ψ m|) * (2 * Λ)) * W k := mul_le_mul_of_nonneg_right hdb hWk
-      _ ≤ ((2 * R) * (2 * Λ)) * W k :=
-          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hn (by positivity)) hWk
-      _ = 4 * Λ * R * W k := by ring
   · have hDm := hcas m hmI
     have wm := hW m (by rw [Finset.mem_Icc]; omega)
     have wm1 := hW (m + 1) (by rw [Finset.mem_Icc]; omega)
@@ -162,13 +161,57 @@ theorem dlg_amp_phase {a Y W P : ℤ → ℝ} {J N m : ℤ} {hi E Λ : ℝ} (hΛ
     have hp0 := hφb m (by rw [Finset.mem_Icc]; omega)
     have wm := hW m (by rw [Finset.mem_Icc]; omega)
     have wm1 := hW (m + 1) (by rw [Finset.mem_Icc]; omega)
-    have b0 : |Y m| ≤ 2 * hi * R := by
+    have hαR : |vocA a Y φ ψ m| ≤ |vocA a Y φ ψ m| + |vocB a Y φ ψ m| := by linarith [abs_nonneg (vocB a Y φ ψ m)]
+    have hβR : |vocB a Y φ ψ m| ≤ |vocA a Y φ ψ m| + |vocB a Y φ ψ m| := by linarith [abs_nonneg (vocA a Y φ ψ m)]
+    have b0 : |Y m| ≤ 2 * hi * (|vocA a Y φ ψ m| + |vocB a Y φ ψ m|) := by
       rw [hYm.1]
       exact dlg_rep_size hαR hβR ((hp0).trans wm) ((hq0).trans wm)
-    have b1 : |Y (m + 1)| ≤ 2 * hi * R := by
+    have b1 : |Y (m + 1)| ≤ 2 * hi * (|vocA a Y φ ψ m| + |vocB a Y φ ψ m|) := by
       rw [hYm.2]
       exact dlg_rep_size hαR hβR ((hp).trans wm1) ((hq).trans wm1)
-    linarith
+    have hn0 : 0 ≤ |vocA a Y φ ψ m| + |vocB a Y φ ψ m| := by positivity
+    have hhi0 : 0 ≤ hi := (hW0 m (by rw [Finset.mem_Icc]; omega)).trans wm
+    nlinarith
+
+/-- **Amplitude and phase of an exact solution** (abstract sequences), polar form of `dlg_amp_cart`: there are `R ≥ 0`, `φ₀` with
+`|Y_k - R W_k cos(P_k - φ₀)| ≤ 4 Λ R W_k`, `R ≤ 4 (hi + E) hi (|Y_m| + |Y_{m+1}|)` and `|Y_m| + |Y_{m+1}| ≤ 8 hi R`. -/
+theorem dlg_amp_phase {a Y W P : ℤ → ℝ} {J N m : ℤ} {hi E Λ : ℝ} (hΛ : 0 ≤ Λ)
+    (hJm : J ≤ m) (hmN : m ≤ N) (hW0 : ∀ k ∈ Icc J (N + 1), 0 ≤ W k) (hW : ∀ k ∈ Icc J (N + 1), W k ≤ hi)
+    (hcas : ∀ k ∈ Icc J N, 1 / 2 ≤ cas a (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) k)
+    (ham : |a (m + 1)| ≤ hi + E)
+    (hd : ∀ k ∈ Icc J N,
+      |vocA a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) k -
+          vocA a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m| +
+        |vocB a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) k -
+          vocB a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m| ≤
+        (|vocA a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m| +
+          |vocB a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m|) * (2 * Λ)) :
+    ∃ R φ0 : ℝ, 0 ≤ R ∧ (∀ k ∈ Icc J (N + 1), |Y k - R * W k * Real.cos (P k - φ0)| ≤ 4 * Λ * R * W k) ∧
+      R ≤ 4 * (hi + E) * hi * (|Y m| + |Y (m + 1)|) ∧ |Y m| + |Y (m + 1)| ≤ 8 * hi * R := by
+  obtain ⟨c1, c2, c3⟩ := dlg_amp_cart hJm hmN hW0 hW hcas ham hd
+  obtain ⟨R, φ0, hR0, hαR, hβR, hRn, hpol⟩ := dlg_polar
+    (vocA a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m)
+    (vocB a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m)
+  have hn : |vocA a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m| +
+      |vocB a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m| ≤ 2 * R := by linarith
+  have hhi : 0 ≤ hi := by
+    have := hW m (by rw [Finset.mem_Icc]; omega)
+    exact (hW0 m (by rw [Finset.mem_Icc]; omega)).trans this
+  refine ⟨R, φ0, hR0, fun k hk => ?_, by linarith, ?_⟩
+  · have hmain : vocA a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m * (W k * Real.cos (P k)) +
+        vocB a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m * (W k * Real.sin (P k)) =
+        R * W k * Real.cos (P k - φ0) := by
+      have := hpol (P k)
+      calc _ = W k * (vocA a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m * Real.cos (P k) +
+            vocB a Y (fun i => W i * Real.cos (P i)) (fun i => W i * Real.sin (P i)) m * Real.sin (P k)) := by ring
+        _ = R * W k * Real.cos (P k - φ0) := by rw [this]; ring
+    rw [← hmain]
+    refine (c1 k hk).trans ?_
+    have hWk := hW0 k hk
+    calc _ ≤ ((2 * R) * (2 * Λ)) * W k :=
+          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hn (by positivity)) hWk
+      _ = 4 * Λ * R * W k := by ring
+  · nlinarith [mul_le_mul_of_nonneg_left hn hhi]
 
 /-- Row defects and Casoratian of the bulk pair on a window (packaging of `dlg_row_defect`, `dlg_cas_bound`). -/
 lemma dlg_pair_ok {A θ w Θ : ℝ → ℝ} {U : Set ℝ} {lo hi M E : ℝ} (D : DlgData A θ w Θ U lo hi M) (hE : 0 ≤ E)
@@ -190,28 +233,42 @@ lemma dlg_pair_ok {A θ w Θ : ℝ → ℝ} {U : Set ℝ} {lo hi M E : ℝ} (D :
     rw [abs_le] at this
     linarith [this.1]
 
-/-- **Discrete Liouville-Green (Darboux) theorem in the oscillatory bulk.**  See the module docstring. -/
-theorem dlg_bulk (lo hi M E L : ℝ) (hlo : 0 < lo) (hhi : 0 ≤ hi) (hM : 0 ≤ M) (hE : 0 ≤ E) (hL : 0 ≤ L) :
-    ∃ h0 C : ℝ, 0 < h0 ∧ h0 ≤ 1 ∧ 0 < C ∧
+/-- The hypotheses of `dlg_amp_cart` for the bulk pair (Casoratian, step bound for `a_{m+1}`, and the Grönwall drift `Λ = 280 hi² R⁴ L h`). -/
+lemma dlg_bulk_core (lo hi M E L : ℝ) (hlo : 0 < lo) (hhi : 0 ≤ hi) (hM : 0 ≤ M) (hE : 0 ≤ E) (hL : 0 ≤ L) :
+    ∃ h0 C : ℝ, 0 < h0 ∧ h0 ≤ 1 ∧ 0 < C ∧ 1120 * hi ^ 2 * dlgR lo hi M E ^ 4 * L ≤ C ∧ 4 * (hi + E) * hi ≤ C ∧ 8 * hi ≤ C ∧
       ∀ {A θ w Θ : ℝ → ℝ} {U : Set ℝ}, DlgData A θ w Θ U lo hi M →
       ∀ (q0 h : ℝ) (a c Y : ℤ → ℝ) (J N m : ℤ), 0 < h → h ≤ h0 → J ≤ m → m ≤ N → ((N - J : ℤ) : ℝ) * h ≤ L →
         (∀ k ∈ Icc J (N + 1), dlgQ q0 h k ∈ U) →
         (∀ k ∈ Icc (J + 1) (N + 1), |a k - A (dlgQ q0 h k - h / 2)| ≤ E * h ^ 2) →
         (∀ k ∈ Icc (J + 1) N, |c k - 2 * A (dlgQ q0 h k) * Real.cos (θ (dlgQ q0 h k))| ≤ E * h ^ 2) →
         (∀ k ∈ Icc (J + 1) N, jac a c Y k = 0) →
-        ∃ R φ0 : ℝ, 0 ≤ R ∧
-          (∀ k ∈ Icc J (N + 1), |Y k - R * w (dlgQ q0 h k) * Real.cos (dlgP Θ q0 h k - φ0)| ≤
-            C * h * R * w (dlgQ q0 h k)) ∧
-          R ≤ C * (|Y m| + |Y (m + 1)|) ∧ |Y m| + |Y (m + 1)| ≤ C * R := by
+        (∀ k ∈ Icc J N, 1 / 2 ≤ cas a (fun i => w (dlgQ q0 h i) * Real.cos (dlgP Θ q0 h i))
+          (fun i => w (dlgQ q0 h i) * Real.sin (dlgP Θ q0 h i)) k) ∧ |a (m + 1)| ≤ hi + E ∧
+        (∀ k ∈ Icc J N,
+          |vocA a Y (fun i => w (dlgQ q0 h i) * Real.cos (dlgP Θ q0 h i))
+              (fun i => w (dlgQ q0 h i) * Real.sin (dlgP Θ q0 h i)) k -
+            vocA a Y (fun i => w (dlgQ q0 h i) * Real.cos (dlgP Θ q0 h i))
+              (fun i => w (dlgQ q0 h i) * Real.sin (dlgP Θ q0 h i)) m| +
+          |vocB a Y (fun i => w (dlgQ q0 h i) * Real.cos (dlgP Θ q0 h i))
+              (fun i => w (dlgQ q0 h i) * Real.sin (dlgP Θ q0 h i)) k -
+            vocB a Y (fun i => w (dlgQ q0 h i) * Real.cos (dlgP Θ q0 h i))
+              (fun i => w (dlgQ q0 h i) * Real.sin (dlgP Θ q0 h i)) m| ≤
+          (|vocA a Y (fun i => w (dlgQ q0 h i) * Real.cos (dlgP Θ q0 h i))
+              (fun i => w (dlgQ q0 h i) * Real.sin (dlgP Θ q0 h i)) m| +
+            |vocB a Y (fun i => w (dlgQ q0 h i) * Real.cos (dlgP Θ q0 h i))
+              (fun i => w (dlgQ q0 h i) * Real.sin (dlgP Θ q0 h i)) m|) * (2 * (280 * hi ^ 2 * dlgR lo hi M E ^ 4 * L * h))) := by
   have hRd := dlgR_ge_one hlo hhi hM hE
   set Rd := dlgR lo hi M E with hRddef
   have hRd4 : 1 ≤ Rd ^ 4 := one_le_pow₀ hRd
   have hRd0 : 0 < Rd ^ 4 := by linarith
   set h0 : ℝ := min 1 (min (1 / (96 * Rd ^ 4)) (1 / (1120 * (hi ^ 2 + 1) * Rd ^ 4 * (L + 1)))) with hh0
-  set C : ℝ := 1120 * hi ^ 2 * Rd ^ 4 * L + 4 * (hi + E) * hi + 4 * hi + 1 with hC
+  set C : ℝ := 1120 * hi ^ 2 * Rd ^ 4 * L + 4 * (hi + E) * hi + 8 * hi + 1 with hC
   have hh0pos : 0 < h0 := lt_min one_pos (lt_min (by positivity) (by positivity))
   have hC0 : 0 < C := by rw [hC]; positivity
-  refine ⟨h0, C, hh0pos, min_le_left _ _, hC0, ?_⟩
+  have p1 : 0 ≤ 1120 * hi ^ 2 * Rd ^ 4 * L := by positivity
+  have p2 : 0 ≤ 4 * (hi + E) * hi := by positivity
+  have p3 : 0 ≤ 8 * hi := by positivity
+  refine ⟨h0, C, hh0pos, min_le_left _ _, hC0, by rw [hC]; linarith, by rw [hC]; linarith, by rw [hC]; linarith, ?_⟩
   intro A θ w Θ U D q0 h a c Y J N m hh hh0' hJm hmN hlen hU hA hCc hY
   have hh1 : h ≤ 1 := hh0'.trans (min_le_left _ _)
   have hh96 : h ≤ 1 / (96 * Rd ^ 4) := hh0'.trans ((min_le_right _ _).trans (min_le_left _ _))
@@ -274,30 +331,107 @@ theorem dlg_bulk (lo hi M E L : ℝ) (hlo : 0 < lo) (hhi : 0 ≤ hi) (hM : 0 ≤
     have := (abs_sub_abs_le_abs_sub (a (m + 1)) (A (dlgQ q0 h m + h / 2)))
     rw [abs_of_pos (D.lo_pos.trans_le hApos)] at this
     linarith
+  refine ⟨hcas, ham, fun k hk => (hmarch k hk).trans (mul_le_mul_of_nonneg_left hexp (by positivity))⟩
+
+/-- **Discrete Liouville-Green (Darboux) theorem in the oscillatory bulk, Cartesian form**: every exact solution is `α φ + β ψ` with the Cramer
+coefficients `(α, β)` at any base bond `m`, up to `C h (|α| + |β|) w`; `|α| + |β| ≍ |Y_m| + |Y_{m+1}|`. -/
+theorem dlg_bulk_cart (lo hi M E L : ℝ) (hlo : 0 < lo) (hhi : 0 ≤ hi) (hM : 0 ≤ M) (hE : 0 ≤ E) (hL : 0 ≤ L) :
+    ∃ h0 C : ℝ, 0 < h0 ∧ h0 ≤ 1 ∧ 0 < C ∧
+      ∀ {A θ w Θ : ℝ → ℝ} {U : Set ℝ}, DlgData A θ w Θ U lo hi M →
+      ∀ (q0 h : ℝ) (a c Y : ℤ → ℝ) (J N m : ℤ), 0 < h → h ≤ h0 → J ≤ m → m ≤ N → ((N - J : ℤ) : ℝ) * h ≤ L →
+        (∀ k ∈ Icc J (N + 1), dlgQ q0 h k ∈ U) →
+        (∀ k ∈ Icc (J + 1) (N + 1), |a k - A (dlgQ q0 h k - h / 2)| ≤ E * h ^ 2) →
+        (∀ k ∈ Icc (J + 1) N, |c k - 2 * A (dlgQ q0 h k) * Real.cos (θ (dlgQ q0 h k))| ≤ E * h ^ 2) →
+        (∀ k ∈ Icc (J + 1) N, jac a c Y k = 0) →
+        (∀ k ∈ Icc J (N + 1),
+          |Y k - (vocA a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m * dlgPhi w Θ q0 h k +
+              vocB a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m * dlgPsi w Θ q0 h k)| ≤
+            C * h * (|vocA a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m| +
+              |vocB a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m|) * w (dlgQ q0 h k)) ∧
+        |vocA a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m| + |vocB a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m| ≤
+          C * (|Y m| + |Y (m + 1)|) ∧
+        |Y m| + |Y (m + 1)| ≤ C * (|vocA a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m| +
+          |vocB a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m|) := by
+  obtain ⟨h0, C, hh0, hh01, hC0, hCa, hCb, hCd, H⟩ := dlg_bulk_core lo hi M E L hlo hhi hM hE hL
+  refine ⟨h0, C, hh0, hh01, hC0, ?_⟩
+  intro A θ w Θ U D q0 h a c Y J N m hh hh0' hJm hmN hlen hU hA hCc hY
+  obtain ⟨hcas, ham, hd⟩ := H D q0 h a c Y J N m hh hh0' hJm hmN hlen hU hA hCc hY
+  have hwk : ∀ k ∈ Icc J (N + 1), 0 ≤ w (dlgQ q0 h k) ∧ w (dlgQ q0 h k) ≤ hi := fun k hk =>
+    ⟨(D.lo_pos.trans_le (D.wb _ (hU k hk)).1).le, (D.wb _ (hU k hk)).2⟩
+  obtain ⟨c1, c2, c3⟩ := dlg_amp_cart (a := a) (Y := Y) (W := fun k => w (dlgQ q0 h k)) (P := dlgP Θ q0 h)
+    (J := J) (N := N) (m := m) (hi := hi) (E := E)
+    (Λ := 280 * hi ^ 2 * dlgR lo hi M E ^ 4 * L * h) hJm hmN
+    (fun k hk => (hwk k hk).1) (fun k hk => (hwk k hk).2) hcas ham hd
+  have hhi0 : 0 ≤ 4 * (hi + E) * hi := by positivity
+  refine ⟨fun k hk => (c1 k hk).trans ?_, c2.trans (mul_le_mul_of_nonneg_right hCb (by positivity)), ?_⟩
+  · have hn0 : 0 ≤ |vocA a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m| + |vocB a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m| := by
+      positivity
+    have hwk0 := (hwk k hk).1
+    have p0 : 0 ≤ 560 * hi ^ 2 * dlgR lo hi M E ^ 4 * L := by
+      have := dlgR_ge_one hlo hhi hM hE
+      positivity
+    have key : 560 * hi ^ 2 * dlgR lo hi M E ^ 4 * L ≤ C := by linarith
+    have e : (|vocA a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m| + |vocB a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m|) *
+        (2 * (280 * hi ^ 2 * dlgR lo hi M E ^ 4 * L * h)) * w (dlgQ q0 h k) =
+        (560 * hi ^ 2 * dlgR lo hi M E ^ 4 * L) * (h * (|vocA a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m| +
+          |vocB a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m|) * w (dlgQ q0 h k)) := by ring
+    have hnn : 0 ≤ h * (|vocA a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m| +
+        |vocB a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m|) * w (dlgQ q0 h k) :=
+      mul_nonneg (mul_nonneg hh.le hn0) hwk0
+    have := mul_le_mul_of_nonneg_right key hnn
+    refine le_trans (le_of_eq e) ?_
+    have e2 : C * h * (|vocA a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m| + |vocB a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m|) *
+        w (dlgQ q0 h k) = C * (h * (|vocA a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m| +
+          |vocB a Y (dlgPhi w Θ q0 h) (dlgPsi w Θ q0 h) m|) * w (dlgQ q0 h k)) := by ring
+    rw [e2]
+    exact this
+  · have : 4 * hi ≤ C := by linarith
+    exact c3.trans (mul_le_mul_of_nonneg_right this (by positivity))
+
+/-- **Discrete Liouville-Green (Darboux) theorem in the oscillatory bulk** (amplitude-phase form).  See the module docstring. -/
+theorem dlg_bulk (lo hi M E L : ℝ) (hlo : 0 < lo) (hhi : 0 ≤ hi) (hM : 0 ≤ M) (hE : 0 ≤ E) (hL : 0 ≤ L) :
+    ∃ h0 C : ℝ, 0 < h0 ∧ h0 ≤ 1 ∧ 0 < C ∧
+      ∀ {A θ w Θ : ℝ → ℝ} {U : Set ℝ}, DlgData A θ w Θ U lo hi M →
+      ∀ (q0 h : ℝ) (a c Y : ℤ → ℝ) (J N m : ℤ), 0 < h → h ≤ h0 → J ≤ m → m ≤ N → ((N - J : ℤ) : ℝ) * h ≤ L →
+        (∀ k ∈ Icc J (N + 1), dlgQ q0 h k ∈ U) →
+        (∀ k ∈ Icc (J + 1) (N + 1), |a k - A (dlgQ q0 h k - h / 2)| ≤ E * h ^ 2) →
+        (∀ k ∈ Icc (J + 1) N, |c k - 2 * A (dlgQ q0 h k) * Real.cos (θ (dlgQ q0 h k))| ≤ E * h ^ 2) →
+        (∀ k ∈ Icc (J + 1) N, jac a c Y k = 0) →
+        ∃ R φ0 : ℝ, 0 ≤ R ∧
+          (∀ k ∈ Icc J (N + 1), |Y k - R * w (dlgQ q0 h k) * Real.cos (dlgP Θ q0 h k - φ0)| ≤
+            C * h * R * w (dlgQ q0 h k)) ∧
+          R ≤ C * (|Y m| + |Y (m + 1)|) ∧ |Y m| + |Y (m + 1)| ≤ C * R := by
+  obtain ⟨h0, C, hh0, hh01, hC0, hCa, hCb, hCd, H⟩ := dlg_bulk_core lo hi M E L hlo hhi hM hE hL
+  refine ⟨h0, C, hh0, hh01, hC0, ?_⟩
+  intro A θ w Θ U D q0 h a c Y J N m hh hh0' hJm hmN hlen hU hA hCc hY
+  obtain ⟨hcas, ham, hd⟩ := H D q0 h a c Y J N m hh hh0' hJm hmN hlen hU hA hCc hY
+  have hwk : ∀ k ∈ Icc J (N + 1), 0 ≤ w (dlgQ q0 h k) ∧ w (dlgQ q0 h k) ≤ hi := fun k hk =>
+    ⟨(D.lo_pos.trans_le (D.wb _ (hU k hk)).1).le, (D.wb _ (hU k hk)).2⟩
+  have hRd := dlgR_ge_one hlo hhi hM hE
+  have hΛ0 : 0 ≤ 280 * hi ^ 2 * dlgR lo hi M E ^ 4 * L * h := by positivity
   obtain ⟨R, φ0, hR0, hpt, hR1, hR2⟩ := dlg_amp_phase (a := a) (Y := Y) (W := fun k => w (dlgQ q0 h k))
-    (P := dlgP Θ q0 h) (J := J) (N := N) (m := m) (hi := hi) (E := E) (Λ := Λ) hΛ0 hJm hmN
-    (fun k hk => (hwk k hk).1) (fun k hk => (hwk k hk).2) hcas ham
-    (fun k hk => (hmarch k hk).trans (mul_le_mul_of_nonneg_left hexp (by positivity)))
-  have p1 : 0 ≤ 1120 * hi ^ 2 * Rd ^ 4 * L := by positivity
+    (P := dlgP Θ q0 h) (J := J) (N := N) (m := m) (hi := hi) (E := E)
+    (Λ := 280 * hi ^ 2 * dlgR lo hi M E ^ 4 * L * h) hΛ0 hJm hmN
+    (fun k hk => (hwk k hk).1) (fun k hk => (hwk k hk).2) hcas ham hd
   have p2 : 0 ≤ 4 * (hi + E) * hi := by positivity
-  have p3 : 0 ≤ 4 * hi := by positivity
-  have hCa : 1120 * hi ^ 2 * Rd ^ 4 * L ≤ C := by rw [hC]; linarith
-  have hCb : 4 * (hi + E) * hi ≤ C := by rw [hC]; linarith
-  have hCd : 4 * hi ≤ C := by rw [hC]; linarith
-  refine ⟨R, φ0, hR0, fun k hk => (hpt k hk).trans ?_, ?_, ?_⟩
-  · have hwk0 := (hwk k hk).1
-    have e : 4 * Λ * R * w (dlgQ q0 h k) = (1120 * hi ^ 2 * Rd ^ 4 * L) * (h * R * w (dlgQ q0 h k)) := by
-      rw [hΛdef]; ring
-    rw [e]
-    have : 0 ≤ h * R * w (dlgQ q0 h k) := mul_nonneg (mul_nonneg hh.le hR0) hwk0
-    have := mul_le_mul_of_nonneg_right hCa this
-    linarith
-  · exact hR1.trans (mul_le_mul_of_nonneg_right hCb (by positivity))
-  · exact hR2.trans (mul_le_mul_of_nonneg_right hCd hR0)
+  refine ⟨R, φ0, hR0, fun k hk => (hpt k hk).trans ?_, hR1.trans (mul_le_mul_of_nonneg_right hCb (by positivity)),
+    hR2.trans (mul_le_mul_of_nonneg_right hCd hR0)⟩
+  have hwk0 := (hwk k hk).1
+  have e : 4 * (280 * hi ^ 2 * dlgR lo hi M E ^ 4 * L * h) * R * w (dlgQ q0 h k) =
+      (1120 * hi ^ 2 * dlgR lo hi M E ^ 4 * L) * (h * R * w (dlgQ q0 h k)) := by ring
+  show _ ≤ C * h * R * _
+  rw [e]
+  have : 0 ≤ h * R * w (dlgQ q0 h k) := mul_nonneg (mul_nonneg hh.le hR0) hwk0
+  have := mul_le_mul_of_nonneg_right hCa this
+  linarith
 
 /-- info: 'FormalResearch.Special.dlg_bulk' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.dlg_bulk
+
+/-- info: 'FormalResearch.Special.dlg_bulk_cart' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dlg_bulk_cart
 
 /-- info: 'FormalResearch.Special.dlg_amp_phase' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
