@@ -46,7 +46,7 @@ theorem rl_left {P Q a b τ x qs : ℝ} {kmin : ℤ} (hP : 0 ≤ P) (hQ : 0 ≤ 
     (Fam : ℝ → (ℤ → ℝ) → ℝ → Prop)
     (hrows : ∀ h Y M, Fam h Y M → ∀ k : ℤ, 1 ≤ k → jac (hrAk P Q a b h) (hrCk P Q τ x a b h) Y k = 0)
     (hlow : ∀ h Y M, Fam h Y M → ∀ k : ℤ, k < kmin → Y k = 0)
-    (hMle : ∀ h Y M, Fam h Y M → ∀ k0 k1 : ℤ, 0 ≤ k0 → ∑ k ∈ Finset.Ico k0 k1, Y k ^ 2 ≤ M) :
+    (hMle : ∀ h Y M, Fam h Y M → 0 < h → ∀ k0 k1 : ℤ, 0 ≤ k0 → ∑ k ∈ Finset.Ico k0 k1, Y k ^ 2 ≤ M) :
     ∀ ε : ℝ, 0 < ε → ∃ cL hL : ℝ, 0 < cL ∧ 0 < hL ∧ ∀ h Y M, Fam h Y M → 0 < h → h ≤ hL →
       ∀ kc : ℤ, ((kc : ℝ) - 1 / 2) * h ≤ cL → ∑ k ∈ Finset.Ico 0 kc, Y k ^ 2 ≤ ε * M := by
   obtain ⟨K0b, h0b, Cb, hK0b2, hh0b, hh0b1, hCb, hKa, hKb, band⟩ :=
@@ -71,7 +71,7 @@ theorem rl_left {P Q a b τ x qs : ℝ} {kmin : ℤ} (hP : 0 ≤ P) (hQ : 0 ≤ 
   have hhLp : 0 < hL := lt_min (lt_min hh0b (by positivity)) (lt_min (lt_min (by positivity) (by positivity)) (by positivity))
   refine ⟨cL, hL, hcLp, hhLp, ?_⟩
   intro h Y M hF hh hhL' kc hkc
-  have hMnn : 0 ≤ M := by simpa using hMle h Y M hF 0 0 le_rfl
+  have hMnn : 0 ≤ M := by simpa using hMle h Y M hF hh 0 0 le_rfl
   have hh0 : h ≤ h0b := hhL'.trans ((min_le_left _ _).trans (min_le_left _ _))
   have hhq : h ≤ qs / 36 := hhL'.trans ((min_le_left _ _).trans (min_le_right _ _))
   have hhε : h ≤ ε * qs / (4 * W) := hhL'.trans ((min_le_right _ _).trans ((min_le_left _ _).trans (min_le_left _ _)))
@@ -116,7 +116,7 @@ theorem rl_left {P Q a b τ x qs : ℝ} {kmin : ℤ} (hP : 0 ≤ P) (hQ : 0 ≤ 
     intro j hj
     rw [Finset.mem_Icc] at hj
     exact ⟨hrows h Y M hF j (by omega), edge h hh hh1 hKh j hj.1 hj.2⟩
-  have hM := hMle h Y M hF n (kmid + 1) hn0
+  have hM := hMle h Y M hF hh n (kmid + 1) hn0
   have hmass := rl_left_mass (a := hrAk P Q a b h) (c := hrCk P Q τ x a b h) (Y := Y) (kmin := kmin) (K0 := K0) (kc := n)
     (kmid := kmid) (D := D) (Cb := Cb) (M := M) hD hCb (by omega) hkmin0 hK0min hKn hlt (hlow h Y M hF) hback hcomp hM
   have hsub : ∑ k ∈ Finset.Ico 0 kc, Y k ^ 2 ≤ ∑ k ∈ Finset.Ico 0 n, Y k ^ 2 :=

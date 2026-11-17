@@ -261,4 +261,58 @@ lemma rd_mono {α β x τ qs : ℝ} (hα : 0 < α) (hβ : 0 < β) (hqs : 0 < qs)
   rw [e, sq_abs, sq_abs, hsq, hsq] at h2
   exact h2
 
+/-- The oscillatory hypothesis `|u| < 1` on `(0, q_*)` follows from the simple turn. -/
+lemma rk_hosc0 {P Q τ x qs : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (hτ : τ ^ 2 = 1) (hqs : 0 < qs) (hκ : 0 < 1 - τ * x)
+    (hα : 0 < 1 - P * qs ^ 2) (hβ : 0 < 1 - Q * qs ^ 2) (hturn : Phi P Q τ x (qs ^ 2) = 0) :
+    ∀ q : ℝ, 0 < q → q < qs → |hrU P Q τ x q| < 1 := by
+  intro q hq hqq
+  have hs := rk_turn_id hP hQ hτ hα hβ hturn
+  have hx2 := rk_abs_x_lt hP hQ hτ hqs hα hβ hκ hturn
+  have hspos : 0 < rkS P Q x := by
+    have : 0 < rkS P Q x * qs ^ 2 := by rw [← hs]; linarith
+    by_contra hc; push Not at hc
+    nlinarith only [this, mul_nonneg (neg_nonneg.2 hc) (sq_nonneg qs)]
+  have hq2 : q ^ 2 < qs ^ 2 := by nlinarith only [hq, hqq]
+  have hP1 : 0 < 1 - P * q ^ 2 := by nlinarith only [mul_le_mul_of_nonneg_left hq2.le hP, hα]
+  have hQ1 : 0 < 1 - Q * q ^ 2 := by nlinarith only [mul_le_mul_of_nonneg_left hq2.le hQ, hβ]
+  have hkey := rl_key (P := P) (Q := Q) (x := x) (qs := qs) (σ := q ^ 2) hP hQ hs
+  have hpos : 0 < (1 - P * q ^ 2) * (1 - Q * q ^ 2) := mul_pos hP1 hQ1
+  have he : etilde P Q (q ^ 2) ^ 2 = (1 - P * q ^ 2) * (1 - Q * q ^ 2) := by
+    unfold etilde; exact Real.sq_sqrt hpos.le
+  have hep : 0 < etilde P Q (q ^ 2) := by unfold etilde; exact Real.sqrt_pos.2 hpos
+  unfold hrU
+  rw [abs_div, abs_of_pos hep, div_lt_one hep, abs_mul]
+  have hτ1 : |τ| = 1 := by
+    have : |τ| ^ 2 = 1 := by rw [sq_abs]; exact hτ
+    nlinarith only [this, abs_nonneg τ]
+  rw [hτ1, one_mul]
+  have h1 : |x - Real.sqrt (P * Q) * q ^ 2| ^ 2 < etilde P Q (q ^ 2) ^ 2 := by
+    rw [sq_abs, he]
+    have : 0 < rkS P Q x * (qs ^ 2 - q ^ 2) := mul_pos hspos (by linarith)
+    nlinarith only [hkey, this]
+  exact lt_of_pow_lt_pow_left₀ 2 hep.le h1
+
+/-- A partial sum of squares is at most the total mass, from the support and total-mass hypotheses. -/
+lemma rk_mle {Fam : ℝ → (ℤ → ℝ) → ℝ → Prop} {Rmax : ℝ}
+    (hsupp : ∀ h Y M, Fam h Y M → ∀ k : ℤ, Rmax < ((k : ℝ) + 1 / 2) * h → Y k = 0)
+    (hMeq : ∀ h Y M, Fam h Y M → ∀ END : ℤ, (∀ k : ℤ, END ≤ k → Y k = 0) → ∑ k ∈ Finset.Ico 0 END, Y k ^ 2 = M) :
+    ∀ h Y M, Fam h Y M → 0 < h → ∀ k0 k1 : ℤ, 0 ≤ k0 → ∑ k ∈ Finset.Ico k0 k1, Y k ^ 2 ≤ M := by
+  intro h Y M hF hh k0 k1 hk0
+  set END : ℤ := max k1 (⌈Rmax / h⌉ + 1) with hEND
+  have hY : ∀ k : ℤ, END ≤ k → Y k = 0 := by
+    intro k hk
+    apply hsupp h Y M hF k
+    have h1 : ⌈Rmax / h⌉ + 1 ≤ k := le_trans (le_max_right _ _) hk
+    have h2 : Rmax / h ≤ (⌈Rmax / h⌉ : ℝ) := Int.le_ceil _
+    have h3 : ((⌈Rmax / h⌉ : ℤ) : ℝ) + 1 ≤ (k : ℝ) := by exact_mod_cast h1
+    rw [div_le_iff₀ hh] at h2
+    nlinarith only [h2, h3, hh]
+  rw [← hMeq h Y M hF END hY]
+  apply Finset.sum_le_sum_of_subset_of_nonneg
+  · intro k hk
+    rw [Finset.mem_Ico] at hk ⊢
+    have := le_max_left k1 (⌈Rmax / h⌉ + 1)
+    omega
+  · intro k _ _; positivity
+
 end FormalResearch.Special
