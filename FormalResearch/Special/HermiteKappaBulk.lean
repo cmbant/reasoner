@@ -250,9 +250,11 @@ lemma invAt_bulk (hq : 4 ≤ q) (h : WeberData (q ^ 6) f g V) {y : ℝ} (hy : y 
     rw [this]
     field_simp
 
-/-- **Bulk amplitude bound.**  `T = w f² + f'²/w ≤ 5` on `[0, x_b]` (numerically `T ≈ 2/π`). -/
-theorem weber_bulk_T (hq : 4 ≤ q) (h : WeberData (q ^ 6) f g V) :
-    ∀ y ∈ Set.Icc 0 (bxb q), invT (bw q) f g y ≤ 5 := by
+/-- **Bulk amplitude, two-sided.**  There is `A ∈ [0, 5]` with `0.99 A ≤ T ≤ A` on `[0, x_b]`
+(`T = w f² + f'²/w`; numerically `T ≈ 2/π`). -/
+theorem weber_bulk_A (hq : 4 ≤ q) (h : WeberData (q ^ 6) f g V) :
+    ∃ A : ℝ, 0 ≤ A ∧ A ≤ 5 ∧ ∀ y ∈ Set.Icc 0 (bxb q),
+      99 / 100 * A ≤ invT (bw q) f g y ∧ invT (bw q) f g y ≤ A := by
   have hq0 : 0 < q := by linarith
   have hI : (Set.Icc (0 : ℝ) (bxb q)).Nonempty := ⟨0, le_refl _, bxb_nonneg q⟩
   have hAt : ∀ y ∈ Set.Icc (0 : ℝ) (bxb q), InvAt f g (bw q) y := fun y hy => invAt_bulk hq h hy
@@ -451,8 +453,13 @@ theorem weber_bulk_T (hq : 4 ≤ q) (h : WeberData (q ^ 6) f g V) :
   have m0 := mul_le_mul_of_nonneg_left hG0.1 hAnn
   rw [e0, e1] at hFmono
   have hAle : A ≤ 5 := by nlinarith [hR0.1, hR0.2, hR1.1, hR1.2]
-  intro y hy
-  exact (hle y hy).trans hAle
+  exact ⟨A, hAnn, hAle, fun y hy => ⟨hT99 y hy, hle y hy⟩⟩
+
+/-- **Bulk amplitude bound.**  `T = w f² + f'²/w ≤ 5` on `[0, x_b]`. -/
+theorem weber_bulk_T (hq : 4 ≤ q) (h : WeberData (q ^ 6) f g V) :
+    ∀ y ∈ Set.Icc 0 (bxb q), invT (bw q) f g y ≤ 5 := by
+  obtain ⟨A, -, hA5, hA⟩ := weber_bulk_A hq h
+  exact fun y hy => (hA y hy).2.trans hA5
 
 
 /-- info: 'FormalResearch.Special.weber_bulk_T' depends on axioms: [propext, Classical.choice, Quot.sound] -/

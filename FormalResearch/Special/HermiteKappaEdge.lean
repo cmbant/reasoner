@@ -28,6 +28,7 @@ window indices `J < N`, `J ≤ m ≤ N ≤ -1` (`m` at the turn, `q_m ∈ [-1, -
 def HkEdge (r C Cmu ξ0 gmax gmin c1 c2 Lg x δ : ℝ) (J m N : ℤ) (κ μ : ℝ) : Prop :=
   J < N ∧ J ≤ m ∧ m ≤ N ∧ N ≤ -1 ∧
     (∀ k ∈ Finset.Icc J (N + 1), dalQ (-δ ^ 3 / 2) δ k ∈ Set.Icc (-1 - r) (-1 + r)) ∧
+    dalQ (-δ ^ 3 / 2) δ J < -1 - r + δ ^ 3 ∧
     -1 ≤ dalQ (-δ ^ 3 / 2) δ m ∧ dalQ (-δ ^ 3 / 2) δ m < -1 + δ ^ 3 ∧
     -1 + r / 4 ≤ dalQ (-δ ^ 3 / 2) δ N ∧ dalQ (-δ ^ 3 / 2) δ (N + 1) ≤ -1 + r / 2 ∧
     (∀ k ∈ Finset.Icc J (N + 1), gmin ≤ langerAmp hmU hmA (-1) (dalQ (-δ ^ 3 / 2) δ k) ∧
@@ -114,7 +115,7 @@ theorem hermite_kappa_edge :
     have e : -ξ0 / δ ^ 3 = -(ξ0 / δ ^ 3) := neg_div _ _
     rw [e]
     linarith
-  exact ⟨J, m, N, κ, μ, hJN, hJm, hmN, hNneg, hwin, hqm1, hqm2, hqN, hqN1,
+  exact ⟨J, m, N, κ, μ, hJN, hJm, hmN, hNneg, hwin, hqJ2, hqm1, hqm2, hqN, hqN1,
     fun k hk => ⟨hgl k hk, (abs_le.1 (hg k hk)).2⟩, hgap, hLgb, ⟨hX0, hX1⟩, hc2δ, hμ2, hY⟩
 
 /-- info: 'FormalResearch.Special.hermite_kappa_edge' depends on axioms: [propext, Classical.choice, Quot.sound] -/

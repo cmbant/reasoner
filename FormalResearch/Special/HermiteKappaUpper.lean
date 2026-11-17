@@ -245,7 +245,7 @@ theorem hermite_kappa_le {r C Cmu ξ0 gmax gmin c1 c2 Lg : ℝ} (hC : 0 < C) (hC
   have hK0 : 0 ≤ K := by positivity
   refine ⟨min (1 / 2) (a / C), (48000000 + 16 * K ^ 2 * Cmu ^ 2 / ξ0 ^ 2) / a ^ 2, by positivity, by positivity, ?_⟩
   intro x δ J m N κ μ hx hδ hδ1 hδx h
-  obtain ⟨hJN, hJm, hmN, hNneg, hwin, hqm1, hqm2, hqN, hqN1, hg, hgap, hLg, ⟨hX0, hX1⟩, hc2δ, hμ, hY⟩ := h
+  obtain ⟨hJN, hJm, hmN, hNneg, hwin, hqJ2, hqm1, hqm2, hqN, hqN1, hg, hgap, hLg, ⟨hX0, hX1⟩, hc2δ, hμ, hY⟩ := h
   have hδ12 : δ ≤ 1 / 2 := hδ1.trans (min_le_left _ _)
   have hδa : δ ≤ a / C := hδ1.trans (min_le_right _ _)
   have hδ3 : δ ^ 3 ≤ δ := by nlinarith [pow_pos hδ 2]
