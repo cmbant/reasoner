@@ -57,7 +57,7 @@ theorem rk_compose {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ)
       0 < gmax ∧ 0 < gmin ∧ gmin ≤ gmax ∧ 0 < c1 ∧ c1 ≤ c2 ∧
       ∀ (h : ℝ) (Y : ℤ → ℝ) (Ymax : ℝ), 0 < h → h ≤ δ0 ^ 3 →
         (∀ k : ℤ, 1 ≤ k → jac (hrAk P Q a b h) (hrCk P Q τ x a b h) Y k = 0) →
-        (∀ k : ℤ, qs ≤ ((k : ℝ) + 1 / 2) * h → |Y k| ≤ Ymax) →
+        (∀ k : ℤ, qs + h ≤ ((k : ℝ) + 1 / 2) * h → |Y k| ≤ Ymax) →
         RkWin P Q τ x qs Y Ymax r δ0 C Cmu ξ0 gmin gmax c1 c2 h := by
   obtain ⟨r0, hr0, hr0q, hdom⟩ := hr_dom hqs hα hβ
   have hint : 0 < (1 - P * qs ^ 2) * (1 - Q * qs ^ 2) := mul_pos hα hβ
@@ -66,27 +66,28 @@ theorem rk_compose {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ)
       (hrU_deriv_pos hqs hκ hα hβ hturn) (hrA_contDiffAt 2 hint) (hrA_pos hint) (lt_min hr0 hρ) (hrE P Q a b qs)
       (hrE_nonneg P Q a b qs)
   have hM0 : 0 < hrM a b := lt_of_lt_of_le one_pos (le_max_left _ _)
-  have hδip : 0 < min 1 (min (3 * qs / (4 * hrM a b)) (qs / 2)) :=
-    lt_min one_pos (lt_min (by positivity) (by positivity))
+  have hδip : 0 < min 1 (min (3 * qs / (4 * hrM a b)) (min (qs / 2) (r / 4))) :=
+    lt_min one_pos (lt_min (by positivity) (lt_min (by positivity) (by positivity)))
   have hrr1 : r ≤ r0 := hrr0.trans (min_le_left _ _)
   have hrρ : r ≤ ρ := hrr0.trans (min_le_right _ _)
-  refine ⟨r, min δ0' (min 1 (min (3 * qs / (4 * hrM a b)) (qs / 2))), C, Cmu, ξ0, gmax, gmin, c1, c2, hr, hrρ,
+  refine ⟨r, min δ0' (min 1 (min (3 * qs / (4 * hrM a b)) (min (qs / 2) (r / 4)))), C, Cmu, ξ0, gmax, gmin, c1, c2, hr, hrρ,
     hrr1.trans hr0q, lt_min hδ0' hδip, (min_le_right _ _).trans (min_le_left _ _), hC, hCmu, hξ0, hgmax, hgmin, hgg, hc1, hc12, ?_⟩
   intro h Y Ymax hh hhδ hrows hbd
   obtain ⟨δ, hδ, hδ3⟩ : ∃ δ : ℝ, 0 < δ ∧ δ ^ 3 = h := by
     refine ⟨h ^ ((1 : ℝ) / 3), Real.rpow_pos_of_pos hh _, ?_⟩
     rw [← Real.rpow_natCast, ← Real.rpow_mul hh.le]
     norm_num
-  have hδle : δ ≤ min δ0' (min 1 (min (3 * qs / (4 * hrM a b)) (qs / 2))) := by
+  have hδle : δ ≤ min δ0' (min 1 (min (3 * qs / (4 * hrM a b)) (min (qs / 2) (r / 4)))) := by
     by_contra hcon
     push Not at hcon
-    have : (min δ0' (min 1 (min (3 * qs / (4 * hrM a b)) (qs / 2)))) ^ 3 < δ ^ 3 := by gcongr
+    have : (min δ0' (min 1 (min (3 * qs / (4 * hrM a b)) (min (qs / 2) (r / 4))))) ^ 3 < δ ^ 3 := by gcongr
     linarith
   have hδ1' : δ ≤ δ0' := hδle.trans (min_le_left _ _)
   have hδi' := hδle.trans (min_le_right _ _)
   have hδ1 : δ ≤ 1 := hδi'.trans (min_le_left _ _)
   have hδM : δ ≤ 3 * qs / (4 * hrM a b) := hδi'.trans ((min_le_right _ _).trans (min_le_left _ _))
-  have hδq : δ ≤ qs / 2 := hδi'.trans ((min_le_right _ _).trans (min_le_right _ _))
+  have hδq : δ ≤ qs / 2 := hδi'.trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _)))
+  have hδr4 : δ ≤ r / 4 := hδi'.trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_right _ _)))
   have h3δ : δ ^ 3 ≤ δ := by nlinarith [pow_pos hδ 2]
   obtain ⟨J, m, N, hJN, hJm, hmN, hwin, hqJ, hqJc, hqm1, hqm2, hqN, hqN1, hg, hXm, hgl, hgap, hX0m, hXN, Hc⟩ :=
     H δ (δ ^ 3 / 2) hδ hδ1'
@@ -101,8 +102,8 @@ theorem rk_compose {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ)
     have hk1 : 1 ≤ k := by rw [Finset.mem_Icc] at hk; omega
     rw [hδ3]
     exact hrows k hk1
-  have hqN' : qs ≤ ((N : ℝ) + 1 / 2) * δ ^ 3 := by have := hqN; rw [e2] at this; linarith
-  have hqN1' : qs ≤ (((N + 1 : ℤ) : ℝ) + 1 / 2) * δ ^ 3 := by
+  have hqN' : qs + δ ^ 3 ≤ ((N : ℝ) + 1 / 2) * δ ^ 3 := by have := hqN; rw [e2] at this; linarith
+  have hqN1' : qs + δ ^ 3 ≤ (((N + 1 : ℤ) : ℝ) + 1 / 2) * δ ^ 3 := by
     push_cast; nlinarith [pow_pos hδ 3]
   obtain ⟨κ, μ, hμ, hpt⟩ := Hc'.pointwise Y Ymax hrows' (hbd N (by rw [← hδ3]; exact hqN')) (hbd (N + 1) (by rw [← hδ3]; exact hqN1'))
   have hYm : 0 ≤ Ymax := (abs_nonneg _).trans (hbd N (by rw [← hδ3]; exact hqN'))

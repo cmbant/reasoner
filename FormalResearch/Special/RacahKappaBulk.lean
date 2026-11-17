@@ -24,12 +24,12 @@ namespace FormalResearch.Special
 chart data of `rk_compose`, and the Airy coefficients `κ, μ` of the window `RkWinAt` being those of the bulk form. -/
 theorem rk_bulk {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (hqs : 0 < qs) (hτ : τ ^ 2 = 1)
     (hκ : 0 < 1 - τ * x) (hα : 0 < 1 - P * qs ^ 2) (hβ : 0 < 1 - Q * qs ^ 2) (hturn : Phi P Q τ x (qs ^ 2) = 0)
-    {c0 : ℝ} (hc0 : 0 < c0) (hc0q : c0 < qs) (hosc : ∀ q ∈ Set.Ico c0 qs, |hrU P Q τ x q| < 1) :
+    (hosc0 : ∀ q : ℝ, 0 < q → q < qs → |hrU P Q τ x q| < 1) :
     ∃ (r Cmu ξ0 gmax gmin c1 c2 CA : ℝ), 0 < r ∧ r ≤ qs / 4 ∧ 0 < CA ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < gmax ∧ 0 < gmin ∧ gmin ≤ gmax ∧
       0 < c1 ∧ c1 ≤ c2 ∧
-      ∀ η : ℝ, 0 < η → η ≤ r / 2 → ∀ c : ℝ, c0 < c → c < qs - r → ∃ δ0 C : ℝ, 0 < δ0 ∧ 0 < C ∧
+      ∀ c0 : ℝ, 0 < c0 → c0 < qs / 2 → ∀ η : ℝ, 0 < η → η ≤ r / 2 → ∀ c : ℝ, c0 < c → c < qs - r → ∃ δ0 C : ℝ, 0 < δ0 ∧ 0 < C ∧
         ∀ (δ : ℝ) (Y : ℤ → ℝ) (Ymax : ℝ), 0 < δ → δ ≤ δ0 →
-          (∀ k : ℤ, 1 ≤ k → jac (hrAk P Q a b (δ ^ 3)) (hrCk P Q τ x a b (δ ^ 3)) Y k = 0) → (∀ k : ℤ, qs ≤ ((k : ℝ) + 1 / 2) * δ ^ 3 → |Y k| ≤ Ymax) →
+          (∀ k : ℤ, 1 ≤ k → jac (hrAk P Q a b (δ ^ 3)) (hrCk P Q τ x a b (δ ^ 3)) Y k = 0) → (∀ k : ℤ, qs + δ ^ 3 ≤ ((k : ℝ) + 1 / 2) * δ ^ 3 → |Y k| ≤ Ymax) →
           ∃ (J m N : ℤ) (κ μ : ℝ), RkWinAt P Q τ x qs Y Ymax r CA Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ ∧
             ∀ k : ℤ, c ≤ dlgQ (δ ^ 3 / 2) (δ ^ 3) k → dlgQ (δ ^ 3 / 2) (δ ^ 3) k ≤ qs - η →
               |Y k - (δ ^ 3) ^ (1 / 6 : ℝ) * (1 / √π) * dlgsW (hrA1 P Q) (hrU P Q τ x) (dlgQ (δ ^ 3 / 2) (δ ^ 3) k) *
@@ -41,12 +41,13 @@ theorem rk_bulk {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (h
                   dlgsW (hrA1 P Q) (hrU P Q τ x) (dlgQ (δ ^ 3 / 2) (δ ^ 3) k) := by
   obtain ⟨ρ, hρ, hch⟩ := dlgh_chart (P := P) (Q := Q) τ x qs hqs hκ hα hβ hturn
   obtain ⟨r, δA, CA, Cmu, ξ0, gmax, gmin0, c1, c2, hr, hrρ, hrq4, hδA, hδA1, hCA, hCmu, hξ0, hgmax, hgmin0, hgg, hc1, hc12, HA⟩ :=
-    rk_compose hP hQ a b τ x qs hqs hτ hκ hα hβ hturn (ρ := min (ρ / 2) (qs - c0))
+    rk_compose hP hQ a b τ x qs hqs hτ hκ hα hβ hturn (ρ := min (ρ / 2) (qs / 4))
       (lt_min (by positivity) (by linarith))
   have hrρ1 : r ≤ ρ / 2 := hrρ.trans (min_le_left _ _)
-  have hrρ2 : r ≤ qs - c0 := hrρ.trans (min_le_right _ _)
+  have hrρ2 : r ≤ qs / 4 := hrρ.trans (min_le_right _ _)
   refine ⟨r, Cmu, ξ0, gmax, gmin0, c1, c2, CA, hr, hrq4, hCA, hCmu, hξ0, hgmax, hgmin0, hgg, hc1, hc12, ?_⟩
-  intro η hη hηr c hc0c hcr
+  intro c0 hc0 hc0q η hη hηr c hc0c hcr
+  have hosc : ∀ q ∈ Set.Ico c0 qs, |hrU P Q τ x q| < 1 := fun q hq => hosc0 q (hc0.trans_le hq.1) hq.2
   have hc : 0 < c := hc0.trans hc0c
   have hc1pos : 0 < (c0 + c) / 2 := by linarith
   have hcd : c < qs - η := by linarith
