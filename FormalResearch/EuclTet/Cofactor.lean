@@ -163,7 +163,8 @@ end Jacobi
 
 section Derivative
 
-private theorem hasDerivAt_of_quad {f : ℝ → ℝ} (x0 c0 d0 e0 : ℝ)
+/-- A function equal to `c₀ + d₀ (s - x₀) + e₀ (s - x₀)²` has derivative `d₀` at `x₀`. -/
+theorem hasDerivAt_of_quad {f : ℝ → ℝ} (x0 c0 d0 e0 : ℝ)
     (h : ∀ s, f s = c0 + d0 * (s - x0) + e0 * (s - x0) ^ 2) : HasDerivAt f d0 x0 := by
   have h1 : HasDerivAt (fun s : ℝ => c0 + d0 * (s - x0) + e0 * (s - x0) ^ 2) d0 x0 := by
     have h3 : HasDerivAt (fun s : ℝ => s - x0) 1 x0 := (hasDerivAt_id x0).sub_const x0

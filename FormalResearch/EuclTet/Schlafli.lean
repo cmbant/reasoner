@@ -257,19 +257,23 @@ section Main
 
 /-- **Euclidean Schläfli identity**, `∑_e ℓ_e dθ_e = 0`.  For any six squared edge lengths
 `x_e(t)` differentiable at `t₀` and nondegenerate at `t₀`, with `ℓ_e = √x_e` and `θ_e` the interior
-dihedral angle at `e` (`thetaX … i j` is the angle at the edge `kl` complementary to `ij`):
+dihedral angle at `e` (`thetaX … i j` is the angle at the edge `kl` complementary to `ij`), the six
+dihedral angles are differentiable at `t₀` and
 `ℓ_{23} θ'_{01} + ℓ_{13} θ'_{02} + ℓ_{12} θ'_{03} + ℓ_{03} θ'_{12} + ℓ_{02} θ'_{13} + ℓ_{01} θ'_{23} = 0`. -/
-theorem schlafli {x01 x02 x03 x12 x13 x23 : ℝ → ℝ} {x01' x02' x03' x12' x13' x23' t0 : ℝ}
+theorem schlafli_hasDerivAt {x01 x02 x03 x12 x13 x23 : ℝ → ℝ}
+    {x01' x02' x03' x12' x13' x23' t0 : ℝ}
     (h01 : HasDerivAt x01 x01' t0) (h02 : HasDerivAt x02 x02' t0) (h03 : HasDerivAt x03 x03' t0)
     (h12 : HasDerivAt x12 x12' t0) (h13 : HasDerivAt x13 x13' t0) (h23 : HasDerivAt x23 x23' t0)
     (hnd : Nondeg (x01 t0) (x02 t0) (x03 t0) (x12 t0) (x13 t0) (x23 t0)) :
-    √(x23 t0) * deriv (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 0 1) t0
-    + √(x13 t0) * deriv (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 0 2) t0
-    + √(x12 t0) * deriv (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 0 3) t0
-    + √(x03 t0) * deriv (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 1 2) t0
-    + √(x02 t0) * deriv (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 1 3) t0
-    + √(x01 t0) * deriv (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 2 3) t0
-      = 0 := by
+    ∃ d01 d02 d03 d12 d13 d23 : ℝ,
+      HasDerivAt (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 0 1) d01 t0 ∧
+      HasDerivAt (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 0 2) d02 t0 ∧
+      HasDerivAt (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 0 3) d03 t0 ∧
+      HasDerivAt (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 1 2) d12 t0 ∧
+      HasDerivAt (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 1 3) d13 t0 ∧
+      HasDerivAt (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 2 3) d23 t0 ∧
+      √(x23 t0) * d01 + √(x13 t0) * d02 + √(x12 t0) * d03 + √(x03 t0) * d12 + √(x02 t0) * d13
+        + √(x01 t0) * d23 = 0 := by
   have d01 := h01.differentiableAt
   have d02 := h02.differentiableAt
   have d03 := h03.differentiableAt
@@ -337,14 +341,9 @@ theorem schlafli {x01 x02 x03 x12 x13 x23 : ℝ → ℝ} {x01' x02' x03' x12' x1
   have hth : ∀ i j, (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) i j) =
       fun t => arccos (c i j t / √(c i i t * c j j t)) := by
     intro i j; funext t; simp only [thetaX, hcval]
-  rw [hth 0 1,
-      hth 0 2,
-      hth 0 3,
-      hth 1 2,
-      hth 1 3,
-      hth 2 3,
-      p01.deriv, p02.deriv, p03.deriv, p12.deriv, p13.deriv, p23.deriv,
-      w_mul hx23 hDd0 J01, w_mul hx13 hDd0 J02, w_mul hx12 hDd0 J03,
+  refine ⟨_, _, _, _, _, _, by rw [hth]; exact p01, by rw [hth]; exact p02, by rw [hth]; exact p03,
+    by rw [hth]; exact p12, by rw [hth]; exact p13, by rw [hth]; exact p23, ?_⟩
+  rw [w_mul hx23 hDd0 J01, w_mul hx13 hDd0 J02, w_mul hx12 hDd0 J03,
       w_mul hx03 hDd0 J12, w_mul hx02 hDd0 J13, w_mul hx01 hDd0 J23]
   -- row sums (value and derivative), written out
   have r : ∀ i, c i 0 t0 + c i 1 t0 + c i 2 t0 + c i 3 t0 = 0 := by
@@ -365,9 +364,22 @@ theorem schlafli {x01 x02 x03 x12 x13 x23 : ℝ → ℝ} {x01' x02' x03' x12' x1
     (by have := s 3; rw [hsymm 3 0, hsymm 3 1, hsymm 3 2] at this; simpa using this)
   linear_combination (-(1 / √(2 * Dd))) * alg
 
-/-- info: 'FormalResearch.EuclTet.schlafli' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms schlafli
+/-- **Euclidean Schläfli identity** in the `deriv` form: `∑_e ℓ_e (θ_e)' = 0`. -/
+theorem schlafli {x01 x02 x03 x12 x13 x23 : ℝ → ℝ} {x01' x02' x03' x12' x13' x23' t0 : ℝ}
+    (h01 : HasDerivAt x01 x01' t0) (h02 : HasDerivAt x02 x02' t0) (h03 : HasDerivAt x03 x03' t0)
+    (h12 : HasDerivAt x12 x12' t0) (h13 : HasDerivAt x13 x13' t0) (h23 : HasDerivAt x23 x23' t0)
+    (hnd : Nondeg (x01 t0) (x02 t0) (x03 t0) (x12 t0) (x13 t0) (x23 t0)) :
+    √(x23 t0) * deriv (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 0 1) t0
+    + √(x13 t0) * deriv (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 0 2) t0
+    + √(x12 t0) * deriv (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 0 3) t0
+    + √(x03 t0) * deriv (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 1 2) t0
+    + √(x02 t0) * deriv (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 1 3) t0
+    + √(x01 t0) * deriv (fun t => thetaX (x01 t) (x02 t) (x03 t) (x12 t) (x13 t) (x23 t) 2 3) t0
+      = 0 := by
+  obtain ⟨d01, d02, d03, d12, d13, d23, e01, e02, e03, e12, e13, e23, hs⟩ :=
+    schlafli_hasDerivAt h01 h02 h03 h12 h13 h23 hnd
+  rw [e01.deriv, e02.deriv, e03.deriv, e12.deriv, e13.deriv, e23.deriv]
+  exact hs
 
 end Main
 
