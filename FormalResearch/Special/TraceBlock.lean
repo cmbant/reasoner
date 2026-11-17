@@ -87,6 +87,7 @@ noncomputable def blockC' (U : Matrix ι s ℂ) (C : Matrix ι ι ℂ) : Matrix 
 
 variable {U : Matrix ι s ℂ}
 
+omit [Fintype ι] [DecidableEq s] in
 lemma projC_conjTranspose (U : Matrix ι s ℂ) : (projC U)ᴴ = projC U := by
   unfold projC
   rw [conjTranspose_sub, conjTranspose_one, conjTranspose_mul, conjTranspose_conjTranspose]
@@ -118,6 +119,7 @@ lemma blockC'_mul_D (hU : Uᴴ * U = 1) (lam : s → ℝ) (C : Matrix ι ι ℂ)
         simp only [Matrix.mul_assoc]
     _ = 0 := by rw [h]; simp
 
+omit [Fintype ι] [DecidableEq ι] in
 lemma blockD_isHermitian (U : Matrix ι s ℂ) (lam : s → ℝ) : (blockD U lam).IsHermitian := by
   unfold blockD
   rw [Matrix.IsHermitian, conjTranspose_mul, conjTranspose_mul, conjTranspose_conjTranspose,
@@ -126,6 +128,7 @@ lemma blockD_isHermitian (U : Matrix ι s ℂ) (lam : s → ℝ) : (blockD U lam
     ext x; simp
   rw [this, Matrix.mul_assoc]
 
+omit [DecidableEq s] in
 lemma blockC'_isHermitian {C : Matrix ι ι ℂ} (hC : C.IsHermitian) (U : Matrix ι s ℂ) :
     (blockC' U C).IsHermitian := by
   unfold blockC'
@@ -162,14 +165,14 @@ lemma aeval_blockD (hU : Uᴴ * U = 1) (lam : s → ℝ) (q : ℂ[X]) :
     rw [Polynomial.aeval_monomial, Polynomial.eval_monomial, Algebra.algebraMap_eq_smul_one]
     rcases k with _ | k
     · have hd : (diagonal fun x : s => Polynomial.eval (lam x : ℂ) (monomial 0 a)) = a • (1 : Matrix s s ℂ) := by
-        ext i j; by_cases h : i = j <;> simp [h, diagonal_apply]
+        ext i j; by_cases h : i = j <;> simp [h]
       rw [hd, Matrix.mul_smul, Matrix.mul_one, Matrix.smul_mul, projC]
       simp only [pow_zero, mul_one]
       rw [Matrix.smul_mul, ← smul_add, sub_add_cancel]
     · have h0 : (0 : ℂ) ^ (k + 1) = 0 := by simp
       have hd : (diagonal fun x : s => Polynomial.eval (lam x : ℂ) (monomial (k + 1) a)) =
           a • diagonal (fun x : s => (lam x : ℂ) ^ (k + 1)) := by
-        ext i j; by_cases h : i = j <;> simp [h, diagonal_apply]
+        ext i j; by_cases h : i = j <;> simp [h]
       rw [h0, mul_zero, zero_smul, zero_add, hd, Matrix.mul_smul, Matrix.smul_mul, blockD_pow hU,
         Matrix.smul_mul]
       simp
@@ -200,7 +203,7 @@ lemma aeval_add_of_mul_eq_zero {A B : Matrix ι ι ℂ} (hAB : A * B = 0) (hBA :
     rcases k with _ | k
     · simp
     · rw [add_pow_succ_of_mul_eq_zero hAB hBA]
-      simp [Matrix.mul_add]
+      simp
 
 lemma trace_blockD_aeval (hU : Uᴴ * U = 1) (lam : s → ℝ) (q : ℂ[X]) :
     (aeval (blockD U lam) q).trace =
@@ -259,6 +262,7 @@ lemma blockLam_mem {C : Matrix ι ι ℂ} {U : Matrix ι s ℂ} (hU : Uᴴ * U =
   simp only [Matrix.sub_apply, Matrix.one_apply_eq, Complex.sub_re, Complex.one_re] at this
   unfold blockLam; linarith
 
+omit [DecidableEq s] in
 lemma blockC'_psd {C : Matrix ι ι ℂ} (U : Matrix ι s ℂ) (h0 : C.PosSemidef) :
     (blockC' U C).PosSemidef := by
   have := h0.conjTranspose_mul_mul_same (projC U)
@@ -278,6 +282,7 @@ lemma one_sub_blockC'_psd {C : Matrix ι ι ℂ} {U : Matrix ι s ℂ} (hU : U�
     unfold projC; noncomm_ring
   rw [e]; exact hP.add h2
 
+omit [DecidableEq ι] in
 lemma blockD_psd {U : Matrix ι s ℂ} (lam : s → ℝ) (hl : ∀ x, 0 ≤ lam x) :
     (blockD U lam).PosSemidef := by
   have hd : (diagonal fun x => (lam x : ℂ)).PosSemidef := by
@@ -298,8 +303,8 @@ lemma one_sub_block_psd {C : Matrix ι ι ℂ} {U : Matrix ι s ℂ} (hU : Uᴴ 
     have e1 : (diagonal fun x => ((1 - lam x : ℝ) : ℂ)) = 1 - diagonal (fun x => (lam x : ℂ)) := by
       ext i j
       by_cases h : i = j
-      · subst h; simp [Matrix.diagonal_apply]
-      · simp [h, Matrix.diagonal_apply, Matrix.one_apply_ne h]
+      · subst h; simp
+      · simp [h, Matrix.one_apply_ne h]
     have : projC U * (1 - C) * projC U = projC U - projC U * C * projC U := by
       rw [Matrix.mul_sub, Matrix.mul_one, Matrix.sub_mul, hP2]
     rw [e1, this, blockC', blockD, Matrix.mul_sub, Matrix.mul_one, Matrix.sub_mul]
