@@ -137,4 +137,8 @@ theorem hr_hardedge_decayH {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x q
   have := H k (by omega) (by omega)
   simpa using this
 
+/-- info: 'FormalResearch.Special.hr_hardedge_decayH' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.hr_hardedge_decayH
+
 end FormalResearch.Special

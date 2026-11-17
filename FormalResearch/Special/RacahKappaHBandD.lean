@@ -273,4 +273,8 @@ theorem rk_bulk_bandH {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : �
       linarith) h3δ D hhi0 hbulk kc jz M hkc1 hkc2 hjz1 hjz2 hM
 
 
+/-- info: 'FormalResearch.Special.rk_bulk_bandH' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.rk_bulk_bandH
+
 end FormalResearch.Special

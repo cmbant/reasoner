@@ -128,4 +128,8 @@ theorem rk_composeH {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ
     exact div_le_div_of_nonneg_right this hδ.le
 
 
+/-- info: 'FormalResearch.Special.rk_composeH' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.rk_composeH
+
 end FormalResearch.Special

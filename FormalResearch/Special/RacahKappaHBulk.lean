@@ -117,4 +117,8 @@ theorem rk_bulkH {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (
   exact this
 
 
+/-- info: 'FormalResearch.Special.rk_bulkH' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.rk_bulkH
+
 end FormalResearch.Special

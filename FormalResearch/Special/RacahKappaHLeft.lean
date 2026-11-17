@@ -140,4 +140,8 @@ theorem rl_leftH {P Q a b τ x qs : ℝ} {kl : ℤ} (hP : 0 ≤ P) (hQ : 0 ≤ Q
   nlinarith only [hrat, hMnn]
 
 
+/-- info: 'FormalResearch.Special.rl_leftH' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.rl_leftH
+
 end FormalResearch.Special

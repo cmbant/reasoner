@@ -294,4 +294,8 @@ lemma rk_mleH {Fam : ℝ → (ℤ → ℝ) → ℝ → Prop} {Rmax : ℝ}
     omega
   · intro k _ _; positivity
 
+/-- info: 'FormalResearch.Special.rdH_mono' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.rdH_mono
+
 end FormalResearch.Special

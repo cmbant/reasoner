@@ -135,4 +135,8 @@ theorem rk_kappa_sharp_absH {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x 
   linarith
 
 
+/-- info: 'FormalResearch.Special.rk_kappa_sharp_absH' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.rk_kappa_sharp_absH
+
 end FormalResearch.Special
