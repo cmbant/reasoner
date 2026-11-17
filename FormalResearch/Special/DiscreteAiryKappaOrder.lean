@@ -20,9 +20,9 @@ Fix integers `M, σ` and a rational `x ∈ (0,1)`; `h = 1/N = δ³`.  `hahn_chai
 The chart constants `g_min, g_max, c₁, c₂` come from `kc2_hahn_full` (`DiscreteAiryKappaChart2`); the pointwise matching of `Ŷ = κ g Ai + μ g Bi`
 is that of `hahn_chain_airy_full`, with `|μ|` exponentially small (`kk_mu_small`).
 
-**Claim class: proved**, all constants existential (depending on `M, σ, x`); not sharp.  The *sharp* constant `κ² = 2N^{1/3}(1 + o(1))`
-(numerics) is **not** proved here: it needs the amplitude relation between the chart's `g` and the Ermakov profile (`DiscreteAiryKappaBand3j`)
-through the whole oscillatory region, i.e. the Airy matching `I = κ² h^{1/3}/π`.
+**Claim class: proved**, all constants existential (depending on `M, σ, x`); not sharp here.  The *sharp* constant `κ² = 2N^{1/3}(1 + o(1))` is
+`hahn_chain_kappa_sharp` (`DiscreteAiryKappaSharpFinal`), which uses the Airy matching `I = κ² h^{1/3}/π` of the Ermakov amplitude
+(`DiscreteAiryKappaSharpMatch`) and the band/left/zone mass accounting of the `DiscreteAiryKappaSharp*` modules.
 -/
 
 @[expose] public section
