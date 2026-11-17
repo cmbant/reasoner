@@ -19,8 +19,7 @@ and the Gaussian Fourier transform (the cubic terms of the two symbols cancel, `
 Numerical check (mpmath, 20 digits, `quad` on `[-60,30]`): `(ε,t) = (1,0.5), (0.8,-1.2), (1.5,2)` give
 `0.2243206471606789…, 0.33916326456144…, 0.03495613307814…`, equal to the closed formula to `≥ 15` digits.
 
-**Not formalised:** the statement as a distribution identity `∫ Ai(x+s) Ai(x+t) dx = δ(s-t)` (test functions),
-unitarity on `L²`, and the projection property `K_Ai² = K_Ai` of the Airy kernel.
+**Not formalised here:** the statement as a distribution identity `∫ Ai(x+s) Ai(x+t) dx = δ(s-t)` (test functions).  Unitarity on `L²` (via the Fourier side, `AiryTransformDef`: `airyTransform_norm`) and the projection property `K_Ai² = K_Ai` (`isStarProjection_airyKAi`, `AiryTransformProj`) are formalised in `AiryTransform*`.
 -/
 
 @[expose] public section

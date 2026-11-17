@@ -95,6 +95,7 @@ public import FormalResearch.Special.ComplexStirling
 public import FormalResearch.Special.HermiteAiry
 public import FormalResearch.Special.HermiteKappa
 public import FormalResearch.Special.DiscreteLg
+public import FormalResearch.Special.AiryTransform
 
 /-!
 # Special functions: Jacobi polynomials
@@ -278,4 +279,14 @@ sites, `Y_k = h^{1/6} π^{-1/2} w_k (κ cos χ_k + μ sin χ_k) + O(h^{1/6} h (|
 for the Hahn/Racah chains this is proved end to end from `airy_full_compose` and the Langer chart relations (`dlg_hahn_airy`, `dlgh_chart`).  Not formalised: second-order Liouville–Green; the value of `κ`
 (for the `τ = +1` integer `3j` chain at a fixed rational shape `κ² = 2N^{1/3}(1+o(1))` is `hahn_chain_kappa_sharp`, but it is not composed with the matching here) so the amplitude `R` is known only up to `κ`; the oscillatory hypothesis `|hrU| < 1` on `[c₀, q_*)` is assumed, not derived from the
 parameters; the other turning point / left edge, Bohr–Sommerfeld quantisation and node counting over the whole oscillatory interval; the continuum Wigner-`d` ODE form; constants are existential, not tracked in the parameters.
+Airy transform on `L²(ℝ)`, the Airy projector and the Paley–Wiener space (`AiryTransform*`, 13 modules, umbrella `AiryTransform`, namespace `FormalResearch.Special`; survey item T5, W1 `edge.tex`, CFT notes `GENERAL_THEOREMS` §3):
+`𝒜 = 𝓕⁻¹ M_{e^{iω³/3}} 𝓕` is a unitary of `L²(ℝ;ℂ)` (`airyTransform`, `airyTransform_norm`, `airyTransform_inner`) and equals convolution with `Ai` on Schwartz functions (`airyTransform_schwartz_ae`, by Abel regularisation `airy_abel_identity`);
+it is **not** an involution (`𝒜⁻¹ = 𝒜* = R𝒜R`, `R f(t) = f(-t)`; the survey wording is corrected): `A = 𝒜R` (`airyA`; unrelated to `FormalResearch.Hadamard.airyA` of `Complex/HadamardAiry.lean`, the `n`-th zero of `Ai`) is the self-adjoint unitary involution with kernel `Ai(u+t)`
+(`airyA_airyA`, `airyA_inner`, `airyA_schwartz_ae`), and `A(Pφ)(u) = ∫_{t>0} φ(t) Ai(u+t) dt` a.e. for every `φ ∈ L²(ℝ)` (`airyA_indProj_ae`).  `K_Ai = A P A` is an orthogonal projection with integral kernel `K(u,v) = ∫_0^∞ Ai(u+t)Ai(v+t)dt`
+(`isStarProjection_airyKAi`, `airyKAi_ae`) onto the closed space `PW = A L²(0,∞)` (`airyPW`), with `K(u,·) ∈ PW`, `‖K(u,·)‖² = K(u,u)` and the reproducing property (`airyPW_reproducing`); `K_u = A_u A_u*` is a positive contraction on `Lp` agreeing a.e. with the function-level `airyKerOp`
+(`airyKu_eq_adjoint`, `inner_airyKu_self`, `norm_airyKu_le`, `airyKu_airyKerOp`).  `PW` is a reproducing-kernel space of entire functions with kernel `airyKerC` (`airyPWFun`, `differentiable_airyPWFun`, `airyPW_eval_inner`), `Ψφ(z) = ∫_{t>0} φ(t) Ai(z+t) dt` is entire with
+`|Ψφ(z)|² ≤ 23 ‖φ‖² (1+|z|) e(z)`, `e(z) = exp(-(4/3) Re z^{3/2})` (`norm_airyPsiC_sq_le`; the constant is loose and the exponent `(1+|z|)` is not the sharp `(1+|z|)^{1/2}`), and `{K(·,a_n)/|Ai'(a_n)|}`, `a_n` the zeros of `Ai`, is a Hilbert basis of `PW`
+(`airyBasisVec_orthonormal`, `airyPW_hilbertBasis`), complete by good circles and a Liouville argument with no Hardy space (`airyPsiC_eq_const_mul`, `airyPW_eq_zero_of_inner_liouville`), with Parseval `Σ F(a_n)\overline{G(a_n)}/Ai'(a_n)² = ⟨G,F⟩` (`airyPW_parseval_fun`);
+a second route through Theorem Q (`airyQ_hasSum_unc`) is kept as a cross-check (`airyPW_parseval`).  Not formalised: the converse Paley–Wiener characterisation of `PW` by growth, the sharp exponent `(1+|z|)^{1/2}`, trace class / Fredholm determinant of `K_Ai` and `K_u` and the Tracy–Widom identification, `𝒜` as the spectral transform of `-d²/dx² + x`, `A` on tempered distributions
+(the kernel formula is proved for `Pφ`: `Ai(u+·)` is not square integrable on `(-∞,0)`).
 -/

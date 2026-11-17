@@ -42,7 +42,7 @@ Survey row T5.  Modules:
 
 **Correction to the survey wording.**  `𝒜 = 𝓕⁻¹ M_{e^{iω³/3}} 𝓕` is unitary and equals convolution with `Ai`,
 `(𝒜 f)(u) = ∫ f(t) Ai(u-t) dt`, but it is **not** an involution (`𝒜⁻¹ = 𝒜* = R 𝒜 R`).  The self-adjoint unitary
-involution with kernel `Ai(u+t)` is `A = 𝒜 R` (`airyA`); all statements about `PW`, `K_Ai` and `K_u` are about `A`.
+involution with kernel `Ai(u+t)` is `A = 𝒜 R` (`airyA`); all statements about `PW`, `K_Ai` and `K_u` are about `A`.  (`FormalResearch.Special.airyA` is this involution; the unrelated `FormalResearch.Hadamard.airyA n` of `Complex/HadamardAiry.lean` is the `n`-th zero of `Ai`; the namespaces differ, so there is no clash.)
 
 **Not formalised:** the converse Paley–Wiener-type characterisation (every entire `F` with `F|_ℝ ∈ L²` and growth
 `|F(z)|² ≲ (1+|z|)^ν e(z)` lies in `PW`); the sharp exponent `(1+|z|)^{1/2}` in the growth bounds for `κ` and `Ψφ`
