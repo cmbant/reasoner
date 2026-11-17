@@ -133,4 +133,89 @@ lemma norm_deriv_psiQuot_le (h : CalPhase τ0 X y0 m M K) {φ : ℂ → ℂ} {C�
 
 end CalPhase
 
+lemma abs_sawH_le (y : ℝ) : |sawH y| ≤ 1 / 2 := by
+  have h1 := Int.fract_nonneg y
+  have h2 := Int.fract_lt_one y
+  unfold sawH
+  rw [abs_le]; constructor <;> nlinarith
+
+/-- **Smooth-phase estimate** (see the module docstring). -/
+theorem smooth_saw_bound {τ0 : ℂ → ℂ} {X y0 m M K : ℝ} (h : CalPhase τ0 X y0 m M K)
+    {φ : ℂ → ℂ} {Cφ κ y1 r : ℝ} (hκ : 0 < κ) (hCφ : 0 ≤ Cφ) (hy1 : 0 < y1) (hr : 0 < r)
+    (hyr : y1 + r ≤ y0) (hφd : DifferentiableOn ℂ φ {s | |s.im| ≤ y0})
+    (hφb : ∀ s : ℂ, |s.im| ≤ y0 → ‖φ s‖ ≤ Cφ * Real.exp (-κ * |s.re|)) :
+    ‖∫ s in (-X)..X, φ (s : ℂ) * (((Int.fract (realPhase τ0 s) - 1 / 2 : ℝ)) : ℂ)‖ ≤
+      Cφ * Real.exp (-κ * X) / m +
+        1 / 12 * (2 * smoothCw Cφ κ r m K * y1 * Real.exp (-κ * X) +
+          2 * smoothCw Cφ κ r m K / κ * Real.exp (-(2 * Real.pi * m * y1))) := by
+  have hX := h.hX
+  have hm := h.hm
+  have hy : y1 ≤ y0 := by linarith
+  set Ψ := psiQuot τ0 φ with hΨdef
+  have hCw : 0 ≤ smoothCw Cφ κ r m K := by
+    have hK : 0 ≤ K := by
+      have := h.dd ((0 : ℝ) : ℂ) (CalPhase.inWin_real (by simp; linarith) h.hy0.le)
+      exact (norm_nonneg _).trans this
+    unfold smoothCw; positivity
+  have hwin : ∀ s : ℝ, |s| ≤ X → InWin X y0 (s : ℂ) := fun s hs =>
+    CalPhase.inWin_real (hs.trans (by linarith)) h.hy0.le
+  have hΨ : ∀ s : ℝ, |s| ≤ X → DifferentiableAt ℂ Ψ (s : ℂ) := fun s hs =>
+    (h.analyticAt_psiQuot hr hyr hφd (z := (s : ℂ)) (by simpa using hs.trans (by linarith))
+      (by simpa using hy1.le)).differentiableAt
+  have hΨ' : ∀ s : ℝ, |s| ≤ X → ContinuousAt (deriv Ψ) (s : ℂ) := fun s hs =>
+    (h.analyticAt_psiQuot hr hyr hφd (z := (s : ℂ)) (by simpa using hs.trans (by linarith))
+      (by simpa using hy1.le)).deriv.continuousAt
+  have hnormΨ : ∀ s : ℝ, |s| ≤ X → ‖Ψ (s : ℂ)‖ ≤ Cφ * Real.exp (-κ * |s|) / m := fun s hs => by
+    have hw := hwin s hs
+    have hb : m ≤ ‖deriv τ0 (s : ℂ)‖ := (h.ge _ hw).trans (Complex.re_le_norm _)
+    have hc : ‖φ (s : ℂ)‖ ≤ Cφ * Real.exp (-κ * |s|) := by
+      have := hφb (s : ℂ) (by simpa using h.hy0.le)
+      simpa using this
+    simp only [hΨdef, psiQuot]
+    rw [norm_div]
+    exact div_le_div₀ (by positivity) hc hm hb
+  have hb : ∀ s : ℝ, |s| ≤ X → ‖Ψ (s : ℂ)‖ ≤ Cφ / m := fun s hs => by
+    refine (hnormΨ s hs).trans ?_
+    apply div_le_div_of_nonneg_right _ hm.le
+    have : Real.exp (-κ * |s|) ≤ 1 := by rw [Real.exp_le_one_iff]; nlinarith [abs_nonneg s]
+    nlinarith
+  have hibp := h.ibp_identity hΨ hΨ' hb
+  -- identify the left side
+  have hlhs : ∫ s in (-X)..X, Ψ (s : ℂ) * (((Int.fract (realPhase τ0 s) - 1 / 2) * CalPhase.realDeriv τ0 s : ℝ) : ℂ) =
+      ∫ s in (-X)..X, φ (s : ℂ) * (((Int.fract (realPhase τ0 s) - 1 / 2 : ℝ)) : ℂ) := by
+    refine intervalIntegral.integral_congr (fun s hs => ?_)
+    rw [uIcc_of_le (by linarith)] at hs
+    have hs' : |s| ≤ X := abs_le.mpr hs
+    have hw := hwin s hs'
+    have him := h.deriv_im_zero (x := s) (hs'.trans (by linarith))
+    have hre : deriv τ0 (s : ℂ) = ((CalPhase.realDeriv τ0 s : ℝ) : ℂ) := by
+      apply Complex.ext <;> simp [CalPhase.realDeriv, him]
+    have hpos : 0 < CalPhase.realDeriv τ0 s := lt_of_lt_of_le hm (h.ge _ hw)
+    simp only [hΨdef, psiQuot]
+    rw [hre]
+    have : ((CalPhase.realDeriv τ0 s : ℝ) : ℂ) ≠ 0 := by exact_mod_cast hpos.ne'
+    push_cast
+    field_simp
+  rw [hlhs] at hibp
+  rw [hibp]
+  have hbd : ‖Ψ (X : ℂ) * ((sawH (realPhase τ0 X) : ℝ) : ℂ)‖ ≤ Cφ * Real.exp (-κ * X) / m * (1 / 2) := by
+    rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    have := hnormΨ X (by rw [abs_of_pos hX])
+    rw [abs_of_pos hX] at this
+    exact mul_le_mul this (abs_sawH_le _) (abs_nonneg _) (by positivity)
+  have hbd2 : ‖Ψ ((-X : ℝ) : ℂ) * ((sawH (realPhase τ0 (-X)) : ℝ) : ℂ)‖ ≤ Cφ * Real.exp (-κ * X) / m * (1 / 2) := by
+    rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    have := hnormΨ (-X) (by rw [abs_neg, abs_of_pos hX])
+    rw [abs_neg, abs_of_pos hX] at this
+    exact mul_le_mul this (abs_sawH_le _) (abs_nonneg _) (by positivity)
+  have hint := integral_w_sawH_le h (w := deriv Ψ) (Cw := smoothCw Cφ κ r m K) hκ hCw hy1 hy
+    (fun z hz => (h.analyticAt_psiQuot hr hyr hφd (z := z) (hz.1.trans (by linarith)) hz.2).deriv.differentiableAt.differentiableWithinAt)
+    (fun z hz1 hz2 => h.norm_deriv_psiQuot_le hκ.le hCφ hr hyr hφd hφb hz1 hz2)
+  calc _ ≤ ‖Ψ (X : ℂ) * ((sawH (realPhase τ0 X) : ℝ) : ℂ) - Ψ ((-X : ℝ) : ℂ) * ((sawH (realPhase τ0 (-X)) : ℝ) : ℂ)‖ +
+      ‖∫ s in (-X)..X, deriv Ψ (s : ℂ) * ((sawH (realPhase τ0 s) : ℝ) : ℂ)‖ := norm_sub_le _ _
+    _ ≤ (‖Ψ (X : ℂ) * ((sawH (realPhase τ0 X) : ℝ) : ℂ)‖ + ‖Ψ ((-X : ℝ) : ℂ) * ((sawH (realPhase τ0 (-X)) : ℝ) : ℂ)‖) +
+      ‖∫ s in (-X)..X, deriv Ψ (s : ℂ) * ((sawH (realPhase τ0 s) : ℝ) : ℂ)‖ := by
+        gcongr; exact norm_sub_le _ _
+    _ ≤ _ := by linarith
+
 end FormalResearch.Special.Lattice
