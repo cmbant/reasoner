@@ -29,7 +29,7 @@ the exact recessive solution is `g(Ai(X̂) + O(h²) airyWt)`, every solution `Y`
 `κ g Ai(X̂) + μ g Bi(X̂)` up to `C h² (|κ| airyWt + |μ| airyBiWt)` (`DaiFullR.pointwise`), `|μ| ≤ C_μ Y_max e^{-ξ(X̂_N)}/δ`.
 In the paper's notation `B_τ = q₁/g`, `δ⁴ = h^{4/3}`: the bracket is `Ai(t) + h^{4/3} B_τ(q) Ai'(t) + O(h²)`.
 
-**Claim class: proved** (Lean, no sorry); the constants `δ₀, C, Q', C_μ, ξ₀, ρ` depend on `(P, Q, a, b, τ, x, q_*)` only.
+**Claim class: proved**; the constants `δ₀, C, Q', C_μ, ξ₀, ρ` depend on `(P, Q, a, b, τ, x, q_*)` only.
 
 **Not formalised.**  (i) The Langer-chart radius `ρ` is existential (as in `discrete_airy_hahn_racah_full`): the window is
 `[q_* - ρ/2, q_* + ρ/2]`, not the largest window of smoothness, and `q₁` is local on `B(q_*, ρ)` (a global `q₁` is the nonsingular
@@ -161,5 +161,63 @@ theorem hahn_airy2_turn {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs :
 /-- info: 'FormalResearch.Special.hahn_airy2_turn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.hahn_airy2_turn
+
+/-- **Composition form.**  Under the hypotheses of `hahn_airy2_turn`, with the same constants, every sequence `Y` satisfying all
+rows `k ≥ 1` of the closed-form recurrence `jac (hrAk P Q a b h) (hrCk P Q τ x a b h) Y = 0` at a scale `0 < h ≤ δ₀³` with
+`|Y_k| ≤ Y_max` is `κ g Ai(X̂) + μ g Bi(X̂)` up to `C h² (|κ| airyWt(X̂) + |μ| airyBiWt(X̂))` on the whole window `[J, N+1]`
+(`h = δ³`, `X̂_k = ζ(q_k)/δ² + δ⁴ q₁(q_k)/g(q_k)`, `g_k = g(q_k)`), with `|μ| ≤ C_μ Y_max e^{-ξ(X̂_N)}/δ`.  `κ` is not
+identified. -/
+theorem hahn_airy2_compose {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (hqs : 0 < qs)
+    (hτ : τ ^ 2 = 1) (hκ : 0 < 1 - τ * x) (hα : 0 < 1 - P * qs ^ 2) (hβ : 0 < 1 - Q * qs ^ 2)
+    (hturn : Phi P Q τ x (qs ^ 2) = 0) :
+    ∃ (ρ : ℝ) (q1 : ℝ → ℝ), 0 < ρ ∧ ρ ≤ qs / 4 ∧ ContDiffOn ℝ 3 q1 (ball qs ρ) ∧
+      ∃ (δ0 C Cmu ξ0 : ℝ), 0 < δ0 ∧ 0 < Cmu ∧ 0 < ξ0 ∧
+        ∀ (h : ℝ) (Y : ℤ → ℝ) (Ymax : ℝ), 0 < h → h ≤ δ0 ^ 3 →
+          (∀ k : ℤ, 1 ≤ k → jac (hrAk P Q a b h) (hrCk P Q τ x a b h) Y k = 0) → (∀ k, |Y k| ≤ Ymax) →
+          ∃ δ : ℝ, 0 < δ ∧ δ ≤ δ0 ∧ δ ^ 3 = h ∧ ∃ J m0 N : ℤ, 1 ≤ J ∧ J < N ∧ J ≤ m0 ∧ m0 ≤ N ∧
+            (∀ k ∈ Icc J (N + 1), |((k : ℝ) + 1 / 2) * δ ^ 3 - qs| ≤ ρ / 2) ∧
+            qs - ρ / 2 ≤ ((J : ℝ) + 1 / 2) * δ ^ 3 ∧ ((J : ℝ) + 1 / 2) * δ ^ 3 < qs - ρ / 2 + δ ^ 3 ∧
+            qs ≤ ((m0 : ℝ) + 1 / 2) * δ ^ 3 ∧ ((m0 : ℝ) + 1 / 2) * δ ^ 3 < qs + 2 * δ ^ 3 ∧
+            qs + ρ / 8 ≤ ((N : ℝ) + 1 / 2) * δ ^ 3 ∧ ((N : ℝ) + 1 + 1 / 2) * δ ^ 3 ≤ qs + ρ / 4 ∧
+            ∃ κ μ : ℝ,
+              |μ| ≤ Cmu * Ymax * Real.exp (-airyXi (a2Xh (langerZeta (hrU P Q τ x) qs)
+                (langerAmp (hrU P Q τ x) (hrA1 P Q) qs) q1 δ (dalQ (δ ^ 3 / 2) δ N))) / δ ∧
+              ∀ k ∈ Icc J (N + 1),
+                |Y k - (κ * daoPhi (fun k => langerAmp (hrU P Q τ x) (hrA1 P Q) qs (dalQ (δ ^ 3 / 2) δ k))
+                    (fun k => a2Xh (langerZeta (hrU P Q τ x) qs) (langerAmp (hrU P Q τ x) (hrA1 P Q) qs) q1 δ
+                      (dalQ (δ ^ 3 / 2) δ k)) k +
+                  μ * daoPsi (fun k => langerAmp (hrU P Q τ x) (hrA1 P Q) qs (dalQ (δ ^ 3 / 2) δ k))
+                    (fun k => a2Xh (langerZeta (hrU P Q τ x) qs) (langerAmp (hrU P Q τ x) (hrA1 P Q) qs) q1 δ
+                      (dalQ (δ ^ 3 / 2) δ k)) k)| ≤
+                  C * δ ^ 6 * (|κ| * airyWt (a2Xh (langerZeta (hrU P Q τ x) qs)
+                      (langerAmp (hrU P Q τ x) (hrA1 P Q) qs) q1 δ (dalQ (δ ^ 3 / 2) δ k)) +
+                    |μ| * airyBiWt (a2Xh (langerZeta (hrU P Q τ x) qs)
+                      (langerAmp (hrU P Q τ x) (hrA1 P Q) qs) q1 δ (dalQ (δ ^ 3 / 2) δ k))) := by
+  obtain ⟨ρ, q1, hρ, hρ4, hq1c, -, δ0, C, Q', Cmu, ξ0, hδ0, -, -, hCmu, hξ0, H⟩ :=
+    hahn_airy2_turn hP hQ a b τ x qs hqs hτ hκ hα hβ hturn
+  refine ⟨ρ, q1, hρ, hρ4, hq1c, δ0, C, Cmu, ξ0, hδ0, hCmu, hξ0, ?_⟩
+  intro h Y Ymax hh hhδ hrows hbd
+  obtain ⟨δ, hδ0', hδ3⟩ : ∃ δ : ℝ, 0 < δ ∧ δ ^ 3 = h := by
+    refine ⟨h ^ ((1 : ℝ) / 3), Real.rpow_pos_of_pos hh _, ?_⟩
+    rw [← Real.rpow_natCast, ← Real.rpow_mul hh.le]
+    norm_num
+  have hδle : δ ≤ δ0 := by
+    by_contra hcon
+    push Not at hcon
+    have : δ0 ^ 3 < δ ^ 3 := by gcongr
+    linarith
+  obtain ⟨J, m0, N, hJ, hJN, hJm, hmN, hwin, h1, h2, h3, h4, h5, h6, Hc⟩ := H δ hδ0' hδle
+  have hrows' : ∀ k ∈ Icc (J + 1) N,
+      jac (hrAk P Q a b (δ ^ 3)) (hrCk P Q τ x a b (δ ^ 3)) Y k = 0 := by
+    intro k hk
+    have hk1 : 1 ≤ k := by rw [mem_Icc] at hk; omega
+    rw [hδ3]
+    exact hrows k hk1
+  obtain ⟨κ, μ, hμ, hpt⟩ := Hc.pointwise Y Ymax hrows' (hbd _) (hbd _)
+  exact ⟨δ, hδ0', hδle, hδ3, J, m0, N, hJ, hJN, hJm, hmN, hwin, h1, h2, h3, h4, h5, h6, κ, μ, hμ, hpt⟩
+
+/-- info: 'FormalResearch.Special.hahn_airy2_compose' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.hahn_airy2_compose
 
 end FormalResearch.Special
