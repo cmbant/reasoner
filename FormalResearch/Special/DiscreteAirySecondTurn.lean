@@ -25,6 +25,18 @@ public import FormalResearch.Special.AiryRecessiveSums
 
 **Claim class: proved.**  This is the abstract statement; the Hahn/Racah instances (coefficient closeness `E δ⁹`, i.e. `S4`) are not
 formalised here.
+
+The error order is `δ⁶ = h²` in the Olver weights, i.e. the bracket `Ai(t) + N^{-4/3} B Ai'(t) + O(N^{-2})` of
+`thm:general-rank-airy-second` in `Weyl/P3/paper/weyl_midpoint_semiclassics.tex` (`B = q₁/g`, `h^{4/3} = δ⁴`); the sharper `O(h³)`
+remainder `𝔯_N` of `thm:general-rank-airy` (ii) (residual `O(h⁴)`, amplitude `p₂` with `2 p₂/g + 𝔧 = 0`) is **not** formalised, since `p`
+is taken as `ζ q₁²/(2g)` (`a2p`), which differs from `p₂` at order `h²`, inside the `δ⁶` error.  Numerical evidence only (independent
+`mpmath` check, no committed verifier): for a smooth model chain `a_k = A(q_k - h/2)`, `c_k = 2 A u(q_k)` the exact recessive solution
+fits `g Ai(X̂)` with error `≈ 0.004 δ⁶` for `h = 10⁻² … 3·10⁻⁴` (first order `g Ai(X)`: `≈ 0.002 δ³`).
+
+**Not formalised:** `S4` (second-order coefficient closeness for the Hahn/Racah chains and the chain wiring); a global `q₁` on the
+window (`airy2_q1_exists` is local on a ball `B(c₀, ρ)`, window `[c₀ - ρ/2, c₀ + ρ/2]`); the route from `c = 2 A u + h² c₂` to second-order
+Langer-form data `(ζ, A, A₂, g, c₂)` (needs `u ∈ C⁷`); the `h²` phase / Darboux normalisation `κ`.  The `P3` external input (canonical
+`Ai/Bi` basis of Geronimo–Bruno–Van Assche, connection by matching) is **not** replaced by this result.
 -/
 
 @[expose] public section
