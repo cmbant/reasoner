@@ -158,4 +158,8 @@ theorem airyQ_defect_le_arc {N : ℕ} {a : ℝ} (ha : 0 < a)
   refine mul_le_mul_of_nonneg_left ?_ hc
   nlinarith [hup', hlo']
 
+/-- info: 'FormalResearch.Special.airyQ_defect_le_arc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyQ_defect_le_arc
+
 end FormalResearch.Special
