@@ -37,6 +37,8 @@ area* of the face opposite `p_i` (`λ_m = ‖N_m‖ > 0`).
 * `nPlus_eq_four_of_22`, `nPlus_eq_three_of_31` (**`cor:gradsignature`**): the number `n₊` of edges with
   `∂D/∂x_ij > 0` is `4` in the `(2,2)` pattern and `3` in the `(3,1)` pattern; `card_flat_eq_nPlus`: `|E| = n₊`
   where `E` is the set of edges at which the dihedral angle vanishes.
+* `exists_strictPlanar_of_wall` (a wall point `det CM = 0` with strict faces is realised by coplanar points),
+  `nPlus_wall` (`n₊ ∈ {3,4}` in squared-edge form), `card_thetaX_zero_eq_nPlus_wall` (`|E| = n₊` in squared-edge form).
 * `flat_edge_iff_22`, `flat_edge_iff_31` (**the `thm:radon` table**): for the edge `kl` shared by the faces `i`,
   `j`: in the `(2,2)` pattern `θ = 0 ⇔ λ_kλ_l < 0` (the four sides), in the `(3,1)` pattern `θ = 0 ⇔ λ_kλ_l > 0`
   (the three edges of the outer triangle).
@@ -644,6 +646,77 @@ theorem hasDerivAt_cmDet2_x23_planar (hp : Planar p m) :
 
 end DerivPlanar
 
+section Wall
+
+/-- **Wall points are planar configurations**: squared edges `x` with strict faces and `det CM = 0` are the
+squared distances of four coplanar points with nondegenerate faces (Blumenthal). -/
+theorem exists_strictPlanar_of_wall {x01 x02 x03 x12 x13 x23 : ℝ}
+    (h : FacesStrict x01 x02 x03 x12 x13 x23) (hD : cmDet2 x01 x02 x03 x12 x13 x23 = 0) :
+    ∃ p : Fin 4 → R3, sqd p 0 1 = x01 ∧ sqd p 0 2 = x02 ∧ sqd p 0 3 = x03 ∧
+      sqd p 1 2 = x12 ∧ sqd p 1 3 = x13 ∧ sqd p 2 3 = x23 ∧ StrictPlanar p := by
+  obtain ⟨p, e01, e02, e03, e12, e13, e23⟩ := exists_points_of_blumenthal h.x01_pos.le h.x02_pos.le
+    h.x03_pos.le h.c11_neg.le h.c22_neg.le h.c33_neg.le hD.ge
+  have hc : cmPts p = 0 := by
+    unfold cmPts; rw [e01, e02, e03, e12, e13, e23]; exact hD
+  have hdet : tetDet p = 0 := by
+    have := cmPts_eq_288_tetVol_sq p
+    rw [hc] at this
+    have h2 : tetVol p ^ 2 = 0 := by linarith
+    have h3 : tetVol p = 0 := pow_eq_zero_iff (two_ne_zero) |>.mp h2
+    unfold tetVol at h3
+    have : |tetDet p| = 0 := by linarith
+    exact abs_eq_zero.mp this
+  have hne : ∀ i, areaVec p i ≠ 0 := by
+    intro i hi
+    have := norm_sq_areaVec p i
+    rw [hi] at this
+    simp only [norm_zero] at this
+    have hc' : cofP p i i < 0 := by
+      unfold cofP; rw [e01, e02, e03, e12, e13, e23]; exact h.cofM_diag_neg i
+    linarith
+  exact ⟨p, e01, e02, e03, e12, e13, e23, ⟨hdet, hne 0⟩, hne⟩
+
+/-- **`cor:gradsignature` in squared-edge form**: at a wall point with strict faces, the number `n₊` of
+edges with `∂D/∂x_ij = 2 C_ij > 0` is `4` or `3`, and equals the number `|E|` of edges with vanishing dihedral
+angle `θ_ij = 0`. -/
+theorem nPlus_wall {x01 x02 x03 x12 x13 x23 : ℝ} (h : FacesStrict x01 x02 x03 x12 x13 x23)
+    (hD : cmDet2 x01 x02 x03 x12 x13 x23 = 0) :
+    (Finset.univ.filter fun ij : Fin 4 × Fin 4 =>
+        ij.1 < ij.2 ∧ 0 < cofM x01 x02 x03 x12 x13 x23 ij.1 ij.2).card = 4 ∨
+      (Finset.univ.filter fun ij : Fin 4 × Fin 4 =>
+        ij.1 < ij.2 ∧ 0 < cofM x01 x02 x03 x12 x13 x23 ij.1 ij.2).card = 3 := by
+  obtain ⟨p, e01, e02, e03, e12, e13, e23, hp⟩ := exists_strictPlanar_of_wall h hD
+  have hc : ∀ i j, cofP p i j = cofM x01 x02 x03 x12 x13 x23 i j := by
+    intro i j; unfold cofP; rw [e01, e02, e03, e12, e13, e23]
+  have e : (Finset.univ.filter fun ij : Fin 4 × Fin 4 =>
+      ij.1 < ij.2 ∧ 0 < cofM x01 x02 x03 x12 x13 x23 ij.1 ij.2) =
+      Finset.univ.filter fun ij : Fin 4 × Fin 4 => ij.1 < ij.2 ∧ 0 < cofP p ij.1 ij.2 := by
+    refine Finset.filter_congr fun ij _ => ?_
+    rw [hc]
+  rw [e]
+  show nPlus p = 4 ∨ nPlus p = 3
+  rcases radon_signs hp with ⟨h1, _⟩ | ⟨h1, _⟩ | ⟨h1, _⟩
+  · exact Or.inl (nPlus_eq_four_of_22 hp h1)
+  · exact Or.inr (nPlus_eq_three_of_31 hp (Or.inl h1))
+  · exact Or.inr (nPlus_eq_three_of_31 hp (Or.inr h1))
+
+/-- **`eq:Egradient` in squared-edge form**: at a wall point with strict faces, `|E| = n₊`. -/
+theorem card_thetaX_zero_eq_nPlus_wall {x01 x02 x03 x12 x13 x23 : ℝ}
+    (h : FacesStrict x01 x02 x03 x12 x13 x23) (hD : cmDet2 x01 x02 x03 x12 x13 x23 = 0) :
+    (Finset.univ.filter fun ij : Fin 4 × Fin 4 =>
+        ij.1 < ij.2 ∧ thetaX x01 x02 x03 x12 x13 x23 ij.1 ij.2 = 0).card =
+      (Finset.univ.filter fun ij : Fin 4 × Fin 4 =>
+        ij.1 < ij.2 ∧ 0 < cofM x01 x02 x03 x12 x13 x23 ij.1 ij.2).card := by
+  congr 1
+  refine Finset.filter_congr fun ij _ => ?_
+  constructor
+  · rintro ⟨h1, h2⟩
+    exact ⟨h1, (thetaX_eq_zero_iff_cof_pos h hD _ _ h1.ne).mp h2⟩
+  · rintro ⟨h1, h2⟩
+    exact ⟨h1, (thetaX_eq_zero_iff_cof_pos h hD _ _ h1.ne).mpr h2⟩
+
+end Wall
+
 /-- info: 'FormalResearch.EuclTet.areaVec_eq_lam_smul' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms areaVec_eq_lam_smul
@@ -727,5 +800,17 @@ end DerivPlanar
 /-- info: 'FormalResearch.EuclTet.flat_edge_iff_31' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms flat_edge_iff_31
+
+/-- info: 'FormalResearch.EuclTet.exists_strictPlanar_of_wall' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms exists_strictPlanar_of_wall
+
+/-- info: 'FormalResearch.EuclTet.nPlus_wall' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms nPlus_wall
+
+/-- info: 'FormalResearch.EuclTet.card_thetaX_zero_eq_nPlus_wall' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms card_thetaX_zero_eq_nPlus_wall
 
 end FormalResearch.EuclTet
