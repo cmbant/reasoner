@@ -366,43 +366,51 @@ theorem bernsteinHyp_of_differentiable {f : ℂ → ℂ} {ρ M : ℝ} (hρ : 1 <
 
 /-! ### Continuous dependence of the coefficients on a parameter -/
 
+lemma continuous_circleMap_prod {S : Type*} [TopologicalSpace S] (R : ℝ) :
+    Continuous fun p : S × ℝ => circleMap 0 R p.2 :=
+  (continuous_circleMap 0 R).comp continuous_snd
+
+/-- The integrand of a circle integral depends continuously on a parameter: used for the coefficients. -/
 lemma continuous_outerCoeff {S : Type*} [TopologicalSpace S] {G : S → ℂ → ℂ}
-    (hG : Continuous fun p : S × ℂ => G p.1 p.2) {R : ℝ} (hR : R ≠ 0) (k : ℕ) :
+    (hG : ContinuousOn (fun p : S × ℂ => G p.1 p.2) {p | p.2 ≠ 0}) {R : ℝ} (hR : R ≠ 0) (k : ℕ) :
     Continuous fun s => outerCoeff (G s) R k := by
   unfold outerCoeff circleIntegral
   refine continuous_const.mul ?_
   refine intervalIntegral.continuous_parametric_intervalIntegral_of_continuous'
     (f := fun (s : S) (θ : ℝ) => deriv (circleMap 0 R) θ •
       ((circleMap 0 R θ ^ (k + 1))⁻¹ * G s (circleMap 0 R θ))) ?_ 0 (2 * π)
-  have hc : Continuous fun p : S × ℝ => circleMap 0 R p.2 := (continuous_circleMap 0 R).comp continuous_snd
+  have hc := continuous_circleMap_prod (S := S) R
   have hne : ∀ p : S × ℝ, circleMap 0 R p.2 ≠ 0 := fun p => by
     simp [circleMap, hR]
   simp only [deriv_circleMap, smul_eq_mul]
   refine hc.mul continuous_const |>.mul ?_
   refine Continuous.mul ?_ ?_
   · exact (hc.pow _).inv₀ fun p => pow_ne_zero _ (hne p)
-  · exact hG.comp (continuous_fst.prodMk hc)
+  · exact hG.comp_continuous (continuous_fst.prodMk hc) fun p => hne p
 
 lemma continuous_innerCoeff {S : Type*} [TopologicalSpace S] {G : S → ℂ → ℂ}
-    (hG : Continuous fun p : S × ℂ => G p.1 p.2) (r : ℝ) (k : ℕ) :
+    (hG : ContinuousOn (fun p : S × ℂ => G p.1 p.2) {p | p.2 ≠ 0}) {r : ℝ} (hr : r ≠ 0) (k : ℕ) :
     Continuous fun s => innerCoeff (G s) r k := by
   unfold innerCoeff circleIntegral
   refine continuous_const.mul ?_
   refine intervalIntegral.continuous_parametric_intervalIntegral_of_continuous'
     (f := fun (s : S) (θ : ℝ) => deriv (circleMap 0 r) θ •
       (circleMap 0 r θ ^ k * G s (circleMap 0 r θ))) ?_ 0 (2 * π)
-  have hc : Continuous fun p : S × ℝ => circleMap 0 r p.2 := (continuous_circleMap 0 r).comp continuous_snd
+  have hc := continuous_circleMap_prod (S := S) r
+  have hne : ∀ p : S × ℝ, circleMap 0 r p.2 ≠ 0 := fun p => by
+    simp [circleMap, hr]
   simp only [deriv_circleMap, smul_eq_mul]
-  exact (hc.mul continuous_const).mul ((hc.pow _).mul (hG.comp (continuous_fst.prodMk hc)))
+  exact (hc.mul continuous_const).mul ((hc.pow _).mul
+    (hG.comp_continuous (continuous_fst.prodMk hc) fun p => hne p))
 
 lemma continuous_chebCoeff {S : Type*} [TopologicalSpace S] {G : S → ℂ → ℂ}
-    (hG : Continuous fun p : S × ℂ => G p.1 p.2) {ρ : ℝ} (hρ : ρ ≠ 0) (k : ℕ) :
+    (hG : ContinuousOn (fun p : S × ℂ => G p.1 p.2) {p | p.2 ≠ 0}) {ρ : ℝ} (hρ : ρ ≠ 0) (k : ℕ) :
     Continuous fun s => chebCoeff (G s) ρ k := by
   cases k with
   | zero => simpa [chebCoeff] using continuous_outerCoeff hG hρ 0
   | succ k =>
-    exact Continuous.add (continuous_outerCoeff hG hρ (k + 1)) (continuous_innerCoeff hG ρ⁻¹ k)
-
+    exact Continuous.add (continuous_outerCoeff hG hρ (k + 1))
+      (continuous_innerCoeff hG (inv_ne_zero hρ) k)
 
 /-- info: 'FormalResearch.Chebyshev.annulus_cauchy' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
