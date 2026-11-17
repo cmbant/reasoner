@@ -6,7 +6,7 @@ public import FormalResearch.Special.HermiteAiryDatum
 # Plancherel–Rotach edge asymptotics of the Hermite functions from the discrete-to-Airy theorem
 
 **Statement formalised** (the Airy-edge part of `Weyl/free_fermion/paper/parts/hermite.tex`, Lemma `lem:PR`, case H;
-Szegő, Orthogonal Polynomials, Thm 8.22.8; DLMF §18.15(iv), §12.10).  Fix `x > 0` and put `S = x²/2`, `δ = S^{-1/3}`
+Szegő, Orthogonal Polynomials, Thm 8.22.8; DLMF §18.15(v), §12.10).  Fix `x > 0` and put `S = x²/2`, `δ = S^{-1/3}`
 (`δ³ = 2/x²`).  For the reflected Hermite chain `Y_k = φ_{-k}(x)` (so `n = -k`) on the lattice `q_k = (k - ½)δ³`
 (`2n + 1 = x²·(-q)`, turning point `c = -1`, `2n+1 = x²`) there are *absolute* constants `r, δ₀, C, C_μ, ξ₀ > 0` such that for
 `δ ≤ δ₀` (`x² ≥ 2/δ₀³`):
@@ -25,7 +25,7 @@ region `|2n+1-x²| ≤ r x²`.
 
 **Proof.** The chain is *exactly* the Jacobi chain of `hermite_datum` (`E = 0`, `hermite_row`); `discrete_airy_full_unif` (constants
 depending only on the datum constants, which are absolute) gives `DaiFull`; `DaiFull.pointwise` with the a priori bound
-`|φ_n(x)| ≤ √(2n+2)` (`abs_hermitePhi_le`, polynomial; Cramér's bound is *not* needed) at the two forbidden-side sites `N, N+1`
+`|φ_n(x)| ≤ √(2n+2)` (`abs_hermitePhi_le`, polynomial; Cramér's inequality is *not* needed) at the two forbidden-side sites `N, N+1`
 (where `-N ≤ x²/2`) gives the decomposition.
 
 **Not formalised (honest accounting).**

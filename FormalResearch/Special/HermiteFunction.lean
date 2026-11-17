@@ -3,14 +3,14 @@ module
 public import Mathlib
 
 /-!
-# Orthonormal Hermite functions: exact recurrence, ladder relations and the Weber equation
+# Orthonormal Hermite functions: exact recurrence, ladder relations and parity
 
 The orthonormal Hermite functions are
 `φ_n(x) = (π^{1/4} √(n!))⁻¹ · He_n(√2 x) · e^{-x²/2}`, where `He_n = Polynomial.hermite n` is Mathlib's
 (probabilists') Hermite polynomial.  This module proves, from `Polynomial.hermite_succ` only, the facts that the
 discrete-to-Airy machinery uses (`HermiteAiryEdge`):
 
-* `hermitePhi_rec`: the exact three-term recurrence `√((n+1)/2) φ_{n+1} + √(n/2) φ_{n-1} = x φ_n`
+* `hermitePsi_rec`: the exact three-term recurrence `√((n+1)/2) φ_{n+1} + √(n/2) φ_{n-1} = x φ_n`
   (a Jacobi chain with off-diagonal `a_k = √(k/2)` and constant diagonal `x`; `n = 0` included with `φ_{-1} = 0`);
 * `hermitePhi_neg`: parity `φ_n(-x) = (-1)^n φ_n(x)`;
 * `hasDerivAt_hermitePhi_succ`, `hasDerivAt_hermitePsi`: the ladder relations `φ_n' = √(2n) φ_{n-1} - x φ_n
@@ -18,8 +18,8 @@ discrete-to-Airy machinery uses (`HermiteAiryEdge`):
 
 Not formalised here: the Weber equation `φ_n'' = (x² - 2n - 1) φ_n` (not needed downstream).
 
-**Claim class: proved.**  Not formalised: completeness of `{φ_n}` in `L²(ℝ)`, the Mehler kernel, Cramér's bound
-`|φ_n| ≤ π^{-1/4}` (only a polynomial sup bound is proved, in `HermiteNorm`).
+**Claim class: proved.**  Not formalised: completeness of `{φ_n}` in `L²(ℝ)`, the Mehler kernel, Cramér's inequality
+`|φ_n| ≤ k π^{-1/4}` (`k ≈ 1.0865`; numerically `sup|φ_n| ≤ π^{-1/4}` for `n ≤ 100`) (only a polynomial sup bound is proved, in `HermiteNorm`).
 -/
 
 @[expose] public section

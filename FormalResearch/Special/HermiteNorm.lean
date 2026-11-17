@@ -12,11 +12,11 @@ For the orthonormal Hermite functions `hermitePhi` of `HermiteFunction`:
   `∫ u_{n+1}² e^{-x²} = (n+1) ∫ u_n² e^{-x²}` and `∫ e^{-x²} = √π`.
 * `hermitePhi_sq_le`, `abs_hermitePhi_le`: **sup bound** `φ_n(x)² ≤ 2n + 2` for all real `x`.  Proof:
   `φ_n(x)² = ∫_{-∞}^x 2 φ_n φ_n'`, `2φφ' ≤ φ² + φ'²`, `φ'² ≤ n φ_{n-1}² + (n+1) φ_{n+1}²` (the ladder relation of
-  `hasDerivAt_hermitePsi`) and the normalisation.  This is the cheap substitute for Cramér's bound `|φ_n| ≤ π^{-1/4}`
-  (polynomial, not uniform, but enough for the exponentially small dominant coefficient in `HermiteAiryEdge`).
+  `hasDerivAt_hermitePsi`) and the normalisation.  This is the cheap substitute for Cramér's inequality `|φ_n| ≤ k π^{-1/4}`
+  (`k ≈ 1.0865`; numerically `sup|φ_n| ≤ π^{-1/4}`, mpmath, `n ≤ 100`; polynomial, not uniform, but enough for the exponentially small dominant coefficient in `HermiteAiryEdge`).
 
 **Claim class: proved.**  Not formalised: orthogonality `∫ φ_n φ_m = 0` for `n ≠ m` (not needed), completeness,
-Cramér's bound.
+Cramér's inequality.
 -/
 
 @[expose] public section
@@ -217,7 +217,7 @@ lemma integral_hermitePsi_sq_le (m : ℤ) : ∫ x : ℝ, hermitePsi m x ^ 2 ≤ 
       funext x; rw [hermitePsi_neg (not_le.1 hm)]; norm_num
     rw [this]; simp
 
-/-- **Sup bound**: `φ_n(x)² ≤ 2n + 2` for all real `x` (polynomial substitute for Cramér's `|φ_n| ≤ π^{-1/4}`). -/
+/-- **Sup bound**: `φ_n(x)² ≤ 2n + 2` for all real `x` (polynomial substitute for Cramér's inequality `|φ_n| ≤ k π^{-1/4}`). -/
 theorem hermitePhi_sq_le (n : ℕ) (x : ℝ) : hermitePhi n x ^ 2 ≤ 2 * n + 2 := by
   have hn : (0 : ℤ) ≤ (n : ℤ) := Int.natCast_nonneg n
   have hm : hermitePsi (n : ℤ) = hermitePhi n := funext (hermitePsi_natCast n)
