@@ -113,4 +113,134 @@ lemma kp_delta2 {h u0 qs αp α0 αm A : ℝ} (hh : 0 < h) (hu : 0 < u0 - h) (hu
       _ = 8 * h ^ 2 := div_mul_cancel₀ _ hAi.ne'
   nlinarith [h5]
 
+/-- **AM–GM defect of `t = 1/√(ab)`**: `|1/√(ab) - ½(1/a + 1/b)| ≤ (a - b)²/(4A³)` for `a, b ≥ A > 0`. -/
+lemma kp_t_am {a b A : ℝ} (hA : 0 < A) (ha : A ≤ a) (hb : A ≤ b) :
+    |1 / Real.sqrt (a * b) - (1 / a + 1 / b) / 2| ≤ (a - b) ^ 2 / (4 * A ^ 3) := by
+  have ha0 : 0 < a := by linarith
+  have hb0 : 0 < b := by linarith
+  have hab : 0 < a * b := mul_pos ha0 hb0
+  set r := 1 / Real.sqrt (a * b) with hr
+  have hr0 : 0 < r := by rw [hr]; positivity
+  have hr2 : r ^ 2 = 1 / (a * b) := by
+    rw [hr, div_pow, Real.sq_sqrt hab.le]; ring
+  set M := (1 / a + 1 / b) / 2 with hM
+  have hM0 : 0 < M := by rw [hM]; positivity
+  have hM2 : M ^ 2 - r ^ 2 = (a - b) ^ 2 / (4 * (a * b) ^ 2) := by
+    rw [hr2, hM]; field_simp; ring
+  have hMr : r ≤ M := by
+    by_contra hcon
+    push Not at hcon
+    have : M ^ 2 < r ^ 2 := by nlinarith
+    have h0 : 0 ≤ (a - b) ^ 2 / (4 * (a * b) ^ 2) := by positivity
+    linarith
+  rw [abs_of_nonpos (by linarith)]
+  have h1 : M - r = (a - b) ^ 2 / (4 * (a * b) ^ 2) / (M + r) := by
+    rw [← hM2]; field_simp; ring
+  have h2 : (a - b) ^ 2 / (4 * (a * b) ^ 2) / (M + r) ≤ (a - b) ^ 2 / (4 * (a * b) ^ 2) / M := by
+    apply div_le_div_of_nonneg_left (by positivity) hM0 (by linarith)
+  have h3 : (a - b) ^ 2 / (4 * (a * b) ^ 2) / M = (a - b) ^ 2 / (2 * (a * b) * (a + b)) := by
+    rw [hM]; field_simp; ring
+  have h4 : (a - b) ^ 2 / (2 * (a * b) * (a + b)) ≤ (a - b) ^ 2 / (4 * A ^ 3) := by
+    apply div_le_div_of_nonneg_left (sq_nonneg _) (by positivity)
+    have : A ^ 2 ≤ a * b := by nlinarith
+    nlinarith [mul_pos hA hA]
+  linarith [h1, h2, h3, h4]
+
+/-- Second difference of the inverse radius: `|1/α_+ + 1/α_- - 2/α_0| ≤ 4h²/A⁶`. -/
+lemma kp_inv_second {h u0 qs αp α0 αm A : ℝ} (hh : 0 < h) (hu : 0 < u0 - h) (hu1 : u0 + h < 1) (hq : qs ^ 2 ≤ 1)
+    (hap : αp ^ 2 = qs ^ 2 - (u0 + h) ^ 2) (ha0 : α0 ^ 2 = qs ^ 2 - u0 ^ 2)
+    (ham : αm ^ 2 = qs ^ 2 - (u0 - h) ^ 2) (hA0 : 0 < A) (hA1 : A ≤ 1) (hAp : A ≤ αp) (hA : A ≤ α0)
+    (hAm : A ≤ αm) :
+    |1 / αp + 1 / αm - 2 / α0| ≤ 4 * h ^ 2 / A ^ 6 := by
+  have hd2 := kp_delta2 hh hu hu1 hq hap ha0 ham hA0 hA1 hAp hA hAm
+  obtain ⟨e0, b0⟩ := kp_delta (h := h) (u0 := u0) (qs := qs) (α0 := α0) (αm := αm) (A := A) hh hu (by linarith) ha0 ham hA0 hA hAm
+  obtain ⟨ep, bp⟩ := kp_delta (h := h) (u0 := u0 + h) (qs := qs) (α0 := αp) (αm := α0) (A := A) hh (by linarith) hu1
+    hap (by simpa using ha0) hA0 hAp hA
+  have hαm : αm ≤ 1 := kp_alpha_le_one hq ham (by linarith)
+  have hA6 : 0 < A ^ 6 := by positivity
+  have hα0p : 0 < α0 := by linarith
+  have hαmp : 0 < αm := by linarith
+  have hαpp : 0 < αp := by linarith
+  set δ0 := α0 - αm with hδ0
+  set δp := αp - α0 with hδp
+  have hD2 : 1 / αp + 1 / αm - 2 / α0 = (αm * (δ0 - δp) + δ0 * (δ0 + δp)) / (αp * α0 * αm) := by
+    rw [hδ0, hδp]; field_simp; ring
+  rw [hD2, abs_div, abs_of_pos (by positivity : 0 < αp * α0 * αm)]
+  have h1 : |αm * (δ0 - δp)| ≤ 2 * h ^ 2 / A ^ 3 := by
+    rw [abs_mul, abs_of_pos hαmp, abs_sub_comm]
+    have : |δp - δ0| ≤ 2 * h ^ 2 / A ^ 3 := by
+      have := hd2
+      rw [show (αp - α0) - (α0 - αm) = δp - δ0 by rw [hδp, hδ0]] at this
+      exact this
+    calc αm * |δp - δ0| ≤ 1 * (2 * h ^ 2 / A ^ 3) := mul_le_mul hαm this (abs_nonneg _) (by norm_num)
+      _ = _ := by ring
+  have h2 : |δ0 * (δ0 + δp)| ≤ 2 * h ^ 2 / A ^ 2 := by
+    rw [abs_mul]
+    calc |δ0| * |δ0 + δp| ≤ (h / A) * (2 * h / A) := by
+          apply mul_le_mul b0 _ (abs_nonneg _) (by positivity)
+          calc |δ0 + δp| ≤ |δ0| + |δp| := abs_add_le _ _
+            _ ≤ h / A + h / A := add_le_add b0 bp
+            _ = 2 * h / A := by ring
+      _ = 2 * h ^ 2 / A ^ 2 := by ring
+  have hnum : |αm * (δ0 - δp) + δ0 * (δ0 + δp)| ≤ 4 * h ^ 2 / A ^ 3 := by
+    have : 2 * h ^ 2 / A ^ 2 ≤ 2 * h ^ 2 / A ^ 3 := by
+      apply div_le_div_of_nonneg_left (by positivity) (by positivity)
+      nlinarith [pow_pos hA0 2]
+    have e : 4 * h ^ 2 / A ^ 3 = 2 * h ^ 2 / A ^ 3 + 2 * h ^ 2 / A ^ 3 := by ring
+    calc |αm * (δ0 - δp) + δ0 * (δ0 + δp)| ≤ |αm * (δ0 - δp)| + |δ0 * (δ0 + δp)| := abs_add_le _ _
+      _ ≤ 4 * h ^ 2 / A ^ 3 := by linarith
+  have hden : A ^ 3 ≤ αp * α0 * αm := by
+    have : A * A ≤ αp * α0 := mul_le_mul hAp hA hA0.le (by linarith)
+    calc A ^ 3 = A * A * A := by ring
+      _ ≤ αp * α0 * αm := mul_le_mul this hAm hA0.le (by positivity)
+  calc |αm * (δ0 - δp) + δ0 * (δ0 + δp)| / (αp * α0 * αm) ≤ (4 * h ^ 2 / A ^ 3) / A ^ 3 :=
+        div_le_div₀ (by positivity) hnum (by positivity) hden
+    _ = 4 * h ^ 2 / A ^ 6 := by rw [div_div, ← pow_add]
+
+lemma kp_sq_aux {d h A : ℝ} (hA0 : 0 < A) (hA1 : A ≤ 1) (hd : |d| ≤ h / A) :
+    d ^ 2 / (4 * A ^ 3) ≤ h ^ 2 / A ^ 6 / 4 := by
+  have h1 : d ^ 2 ≤ (h / A) ^ 2 := by
+    have := sq_le_sq' (abs_le.1 hd).1 (abs_le.1 hd).2
+    simpa using this
+  have h2 : d ^ 2 / (4 * A ^ 3) ≤ (h / A) ^ 2 / (4 * A ^ 3) := by gcongr
+  have h3 : (h / A) ^ 2 / (4 * A ^ 3) = h ^ 2 / (4 * A ^ 5) := by field_simp
+  have h4 : h ^ 2 / (4 * A ^ 5) ≤ h ^ 2 / A ^ 6 / 4 := by
+    rw [div_div, div_le_div_iff₀ (by positivity) (by positivity)]
+    have : 0 ≤ h ^ 2 * A ^ 5 := by positivity
+    nlinarith [mul_nonneg this (sub_nonneg.2 hA1), pow_pos hA0 5]
+  linarith
+
+/-- **Second difference of `t_k = 1/√(α_kα_{k-1})` against `2/α_k`**: `|t_{k+1} + t_k - 2/α_k| ≤ 3h²/A⁶`. -/
+lemma kp_tau {h u0 qs αp α0 αm A : ℝ} (hh : 0 < h) (hu : 0 < u0 - h) (hu1 : u0 + h < 1) (hq : qs ^ 2 ≤ 1)
+    (hap : αp ^ 2 = qs ^ 2 - (u0 + h) ^ 2) (ha0 : α0 ^ 2 = qs ^ 2 - u0 ^ 2)
+    (ham : αm ^ 2 = qs ^ 2 - (u0 - h) ^ 2) (hA0 : 0 < A) (hA1 : A ≤ 1) (hAp : A ≤ αp) (hA : A ≤ α0)
+    (hAm : A ≤ αm) :
+    |1 / Real.sqrt (αp * α0) + 1 / Real.sqrt (α0 * αm) - 2 / α0| ≤ 3 * (h ^ 2 / A ^ 6) := by
+  have hD2b := kp_inv_second hh hu hu1 hq hap ha0 ham hA0 hA1 hAp hA hAm
+  obtain ⟨e0, b0⟩ := kp_delta (h := h) (u0 := u0) (qs := qs) (α0 := α0) (αm := αm) (A := A) hh hu (by linarith) ha0 ham hA0 hA hAm
+  obtain ⟨ep, bp⟩ := kp_delta (h := h) (u0 := u0 + h) (qs := qs) (α0 := αp) (αm := α0) (A := A) hh (by linarith) hu1
+    hap (by simpa using ha0) hA0 hAp hA
+  have tp := kp_t_am hA0 hAp hA
+  have t0 := kp_t_am hA0 hA hAm
+  have hsplit : 1 / Real.sqrt (αp * α0) + 1 / Real.sqrt (α0 * αm) - 2 / α0 =
+      (1 / Real.sqrt (αp * α0) - (1 / αp + 1 / α0) / 2) + (1 / Real.sqrt (α0 * αm) - (1 / α0 + 1 / αm) / 2) +
+        (1 / αp + 1 / αm - 2 / α0) / 2 := by ring
+  rw [hsplit]
+  set Q := h ^ 2 / A ^ 6 with hQ
+  have hX1 : |1 / Real.sqrt (αp * α0) - (1 / αp + 1 / α0) / 2| ≤ Q / 4 :=
+    tp.trans (kp_sq_aux hA0 hA1 bp)
+  have hX2 : |1 / Real.sqrt (α0 * αm) - (1 / α0 + 1 / αm) / 2| ≤ Q / 4 :=
+    t0.trans (kp_sq_aux hA0 hA1 b0)
+  have hX3 : |(1 / αp + 1 / αm - 2 / α0) / 2| ≤ 2 * Q := by
+    rw [abs_div, abs_of_pos (by norm_num : (0:ℝ) < 2)]
+    have : 4 * h ^ 2 / A ^ 6 = 4 * Q := by rw [hQ]; ring
+    linarith [hD2b]
+  calc _ ≤ |1 / Real.sqrt (αp * α0) - (1 / αp + 1 / α0) / 2| + |1 / Real.sqrt (α0 * αm) - (1 / α0 + 1 / αm) / 2| +
+        |(1 / αp + 1 / αm - 2 / α0) / 2| := by
+          refine (abs_add_le _ _).trans ?_
+          gcongr
+          exact abs_add_le _ _
+    _ ≤ 3 * Q := by have : 0 ≤ Q := by positivity
+                    linarith
+
 end FormalResearch.Special
