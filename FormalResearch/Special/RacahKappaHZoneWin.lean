@@ -18,8 +18,8 @@ open scoped Real
 
 namespace FormalResearch.Special
 lemma rk_idxH {δ c d : ℝ} (hδ : 0 < δ) :
-    ∃ kc jz : ℤ, c ≤ ((kc : ℝ) + 1) * δ ^ 3 ∧ ((kc : ℝ) - 1 / 2) * δ ^ 3 < c ∧
-      d < ((jz : ℝ) + 1) * δ ^ 3 ∧ ((jz : ℝ) - 1 / 2) * δ ^ 3 ≤ d := by
+    ∃ kc jz : ℤ, c ≤ ((kc : ℝ) + 1) * δ ^ 3 ∧ (kc : ℝ) * δ ^ 3 < c ∧
+      d < ((jz : ℝ) + 1) * δ ^ 3 ∧ (jz : ℝ) * δ ^ 3 ≤ d := by
   have hh : 0 < δ ^ 3 := by positivity
   refine ⟨⌈(c - δ ^ 3) / δ ^ 3⌉, ⌊(d - δ ^ 3) / δ ^ 3⌋ + 1, ?_, ?_, ?_, ?_⟩
   · have := Int.le_ceil ((c - δ ^ 3) / δ ^ 3)
