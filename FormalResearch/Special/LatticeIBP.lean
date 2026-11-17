@@ -47,13 +47,23 @@ lemma countable_levels (h : CalPhase τ0 X y0 m M K) :
   obtain ⟨n, hn⟩ := hs.2
   exact ⟨n, hn.symm⟩
 
+lemma deriv_im_zero (h : CalPhase τ0 X y0 m M K) {x : ℝ} (hx : |x| ≤ X + 1) :
+    (deriv τ0 (x : ℂ)).im = 0 := by
+  have h1 : HasDerivAt (fun y : ℝ => τ0 (y : ℂ)) (deriv τ0 (x : ℂ)) x :=
+    (h.diff (inWin_real hx h.hy0.le)).hasDerivAt.comp_ofReal
+  have h2 := Complex.imCLM.hasFDerivAt.comp_hasDerivAt x h1
+  have h3 : HasDerivAt (fun y : ℝ => (τ0 (y : ℂ)).im) 0 x := by
+    have : (fun y : ℝ => (τ0 (y : ℂ)).im) = fun _ => 0 := funext h.real
+    rw [this]; exact hasDerivAt_const x 0
+  exact h2.unique h3
+
 /-- The real derivative `t₀' = Re τ₀'`. -/
 noncomputable def realDeriv (τ0 : ℂ → ℂ) (s : ℝ) : ℝ := (deriv τ0 (s : ℂ)).re
 
 /-- **Integration by parts** with `sawH` (the fundamental theorem of calculus off the finite set
 `t₀⁻¹(ℤ)`). -/
 theorem ibp_identity (h : CalPhase τ0 X y0 m M K) {Ψ : ℂ → ℂ} {CΨ : ℝ}
-    (hΨ : ∀ s, InWin X y0 s → DifferentiableAt ℂ Ψ s)
+    (hΨ : ∀ s : ℝ, |s| ≤ X → DifferentiableAt ℂ Ψ (s : ℂ))
     (hΨ' : ∀ s : ℝ, |s| ≤ X → ContinuousAt (deriv Ψ) (s : ℂ))
     (hb : ∀ s : ℝ, |s| ≤ X → ‖Ψ s‖ ≤ CΨ) :
     ∫ s in (-X)..X, Ψ s * (((Int.fract (realPhase τ0 s) - 1 / 2) * realDeriv τ0 s : ℝ) : ℂ) =
@@ -66,7 +76,7 @@ theorem ibp_identity (h : CalPhase τ0 X y0 m M K) {Ψ : ℂ → ℂ} {CΨ : ℝ
   have hIcc : ∀ s ∈ Icc (-X) X, |s| ≤ X := fun s hs => abs_le.mpr hs
   -- continuity pieces
   have hΨc : ContinuousOn (fun s : ℝ => Ψ (s : ℂ)) (Icc (-X) X) := fun s hs =>
-    (((hΨ _ (hwin s (hIcc s hs))).continuousAt).comp (f := fun s : ℝ => (s : ℂ))
+    (((hΨ s (hIcc s hs)).continuousAt).comp (f := fun s : ℝ => (s : ℂ))
       Complex.continuous_ofReal.continuousAt).continuousWithinAt
   have hΨ'c : ContinuousOn (fun s : ℝ => deriv Ψ (s : ℂ)) (Icc (-X) X) := fun s hs =>
     (((hΨ' s (hIcc s hs))).comp (f := fun s : ℝ => (s : ℂ))
@@ -87,7 +97,7 @@ theorem ibp_identity (h : CalPhase τ0 X y0 m M K) {Ψ : ℂ → ℂ} {CΨ : ℝ
     have hsI : s ∈ Icc (-X) X := ⟨hs.1.le, hs.2.le⟩
     have hnoint : ∀ n : ℤ, realPhase τ0 s ≠ n := fun n hn => hns ⟨hsI, n, hn⟩
     have hd1 : HasDerivAt (fun y : ℝ => Ψ (y : ℂ)) (deriv Ψ (s : ℂ)) s :=
-      (hΨ _ (hwin s (hIcc s hsI))).hasDerivAt.comp_ofReal
+      (hΨ s (hIcc s hsI)).hasDerivAt.comp_ofReal
     have hd2 : HasDerivAt (fun y => sawH (realPhase τ0 y)) ((Int.fract (realPhase τ0 s) - 1 / 2) *
         realDeriv τ0 s) s :=
       (hasDerivAt_sawH hnoint).comp s (h.hasDerivAt_real (abs_le.mpr (hsub hsI)))
