@@ -13,7 +13,7 @@ only; this module proves the geometric one.
 
 ## What is formalised (exact, all statements proved, no numerics)
 
-* `cmDet2 x01 x02 x03 x12 x13 x23`: the bordered `5×5` Cayley--Menger determinant in the six squared
+* `cmMat2`, `cmDet2 x01 x02 x03 x12 x13 x23`: the bordered `5×5` Cayley--Menger determinant in the six squared
   edge lengths of the vertices `0,1,2,3` (the `P3.cmDet` of `P3CayleyMenger` is the same matrix with
   the entries `a²,…`; `cmDet_eq_cmDet2`).
 * `gramX`: the Gram matrix `g_ij = (x_0i + x_0j - x_ij)/2` of the edge vectors `p_i - p_0`
@@ -50,14 +50,17 @@ namespace FormalResearch.EuclTet
 
 open Matrix
 
-/-- The bordered Cayley--Menger determinant of four points with squared edge lengths
-`x_{ij}` (vertices `0,1,2,3`; the border row/column has entries `1`, `0` in the corner). -/
-def cmDet2 (x01 x02 x03 x12 x13 x23 : ℝ) : ℝ :=
-  (!![0, 1, 1, 1, 1;
-      1, 0, x01, x02, x03;
-      1, x01, 0, x12, x13;
-      1, x02, x12, 0, x23;
-      1, x03, x13, x23, 0] : Matrix (Fin 5) (Fin 5) ℝ).det
+/-- The bordered Cayley--Menger matrix of four points with squared edge lengths
+`x_{ij}` (vertices `0,1,2,3`; row/column `0` is the border, indices `1..4` are the vertices). -/
+def cmMat2 (x01 x02 x03 x12 x13 x23 : ℝ) : Matrix (Fin 5) (Fin 5) ℝ :=
+  !![0, 1, 1, 1, 1;
+     1, 0, x01, x02, x03;
+     1, x01, 0, x12, x13;
+     1, x02, x12, 0, x23;
+     1, x03, x13, x23, 0]
+
+/-- The bordered Cayley--Menger determinant of four points with squared edge lengths. -/
+def cmDet2 (x01 x02 x03 x12 x13 x23 : ℝ) : ℝ := (cmMat2 x01 x02 x03 x12 x13 x23).det
 
 /-- `P3.cmDet a b c d e f` (edges `d₁₂=a, d₂₃=b, d₁₃=c, d₃₄=d, d₁₄=e, d₂₄=f` on vertices `1..4`)
 is `cmDet2` of the squares, in the vertex labelling `0..3` (`01=a, 12=b, 02=c, 23=d, 03=e, 13=f`). -/
@@ -74,7 +77,7 @@ noncomputable def gramX (x01 x02 x03 x12 x13 x23 : ℝ) : Matrix (Fin 3) (Fin 3)
 /-- **`det CM = 8 det G`**, a polynomial identity in the six squared edge lengths. -/
 theorem cmDet2_eq_eight_det_gramX (x01 x02 x03 x12 x13 x23 : ℝ) :
     cmDet2 x01 x02 x03 x12 x13 x23 = 8 * (gramX x01 x02 x03 x12 x13 x23).det := by
-  simp [cmDet2, gramX, Matrix.det_succ_row_zero, Fin.sum_univ_succ, Fin.succAbove]
+  simp [cmDet2, cmMat2, gramX, Matrix.det_succ_row_zero, Fin.sum_univ_succ, Fin.succAbove]
   ring
 
 section Points
