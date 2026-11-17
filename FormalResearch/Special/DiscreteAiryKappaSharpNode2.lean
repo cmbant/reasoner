@@ -87,6 +87,18 @@ lemma ksf_zone_hyps {x r c1 c2 δ A h qb : ℝ} (C : KshChart x r c1 c2) (hδ : 
       mul_le_mul_of_nonneg_left hg2 (by linarith [C.hc1, C.hc12])
     linarith
 
+/-- Lower bound of `y = -ζ(q)/δ²` away from the turn: `q_* - q ≥ A²/(2q_*)` gives `y ≥ c₁A²/(2q_*δ²)`. -/
+lemma ksf_y_lower {x r c1 c2 δ A qq : ℝ} (C : KshChart x r c1 c2) (hδ : 0 < δ) (hqs : 0 < √(1 - x ^ 2))
+    (hq : qq ∈ Icc (√(1 - x ^ 2) - r) (√(1 - x ^ 2))) (hg : A ^ 2 / (2 * √(1 - x ^ 2)) ≤ √(1 - x ^ 2) - qq) :
+    c1 * A ^ 2 / (2 * √(1 - x ^ 2) * δ ^ 2) ≤ -(kshZ x qq / δ ^ 2) := by
+  obtain ⟨-, hz2⟩ := C.zeta_bounds hq
+  have hδ2 : 0 < δ ^ 2 := by positivity
+  have h3 : c1 * (A ^ 2 / (2 * √(1 - x ^ 2))) ≤ c1 * (√(1 - x ^ 2) - qq) := mul_le_mul_of_nonneg_left hg C.hc1.le
+  have e : c1 * A ^ 2 / (2 * √(1 - x ^ 2) * δ ^ 2) = c1 * (A ^ 2 / (2 * √(1 - x ^ 2))) / δ ^ 2 := by
+    field_simp
+  rw [e, ← neg_div, div_le_div_iff_of_pos_right hδ2]
+  linarith
+
 /-- `y^{-3/2} ≤ K_Y δ³` for `y ≥ y₀ = c₁ A²/(2 q_* δ²) > 0`, `K_Y = (2 q_*/(c₁ A²))^{3/2}`. -/
 lemma ksf_ye {c1 A qs δ y : ℝ} (hc1 : 0 < c1) (hA : 0 < A) (hqs : 0 < qs) (hδ : 0 < δ) (hy : c1 * A ^ 2 / (2 * qs * δ ^ 2) ≤ y) :
     y ^ (-(3 / 2) : ℝ) ≤ (2 * qs / (c1 * A ^ 2)) ^ (3 / 2 : ℝ) * δ ^ 3 := by

@@ -188,6 +188,43 @@ lemma ksa_final {t θ1 θ2 : ℝ} (h1 : t * (1 - θ1) ≤ 1) (h2 : 1 ≤ t * (1 
     replace h := not_le.1 h
     nlinarith [mul_nonneg ht0 (sub_nonneg.2 hm1)]
 
+/-- **The real assembly with all errors replaced by upper bounds**: from the nine inputs (`N ≤ L + B + Z`, `B ≤ N`, the band mass, the profile sum, the
+transport, the bond match, `L ≤ L_c I₀`, `Z ≤ 2tNζ`), `|t - 1| ≤ 2 max(θ₁, θ₂)` with `θ₁ = 2Ē + ā + 20 S̄ + w̄`, `θ₂ = 24 S̄ + 3Ē + 2z̄ + 2l̄ + 2w̄`. -/
+theorem ksa_combine {t N B L Z sv I0 Ia S E a ω1 Lc ζ Ebar Sbar abar lbar zbar wbar : ℝ} (hN : 0 < N) (ht : 0 ≤ t)
+    (hS0 : 0 ≤ S) (hSb : S ≤ Sbar) (hSbar : Sbar ≤ 1 / 100) (hE0 : 0 ≤ E) (hEb : E ≤ Ebar) (hEbar : Ebar ≤ 1 / 4)
+    (ha0 : 0 ≤ a) (hab : a ≤ abar) (habar : abar ≤ 1 / 4) (hω0 : 0 ≤ ω1) (hωb : ω1 / N ≤ wbar) (hwbar : wbar ≤ 1 / 4)
+    (hLc : 0 ≤ Lc) (hLb : Lc / N ≤ lbar) (hζb : ζ ≤ zbar) (hz0 : 0 ≤ zbar)
+    (hsum : N ≤ L + B + Z) (hL : L ≤ Lc * I0) (hZ : Z ≤ 2 * t * N * ζ) (hB : B ≤ N)
+    (hmass : |B - I0 * sv| ≤ I0 * (18 * S * sv + ω1)) (hsv1 : Real.pi / 2 * N * (1 - a) ≤ sv) (hsv2 : sv ≤ Real.pi / 2 * N)
+    (hI0 : 0 ≤ I0) (hIa1 : Ia ≤ (1 + 2 * S) * I0) (hIa2 : I0 ≤ (1 + 4 * S) * Ia)
+    (hlow : (1 - E) ^ 2 * (2 * t / Real.pi) ≤ Ia) (hup : Ia ≤ (1 + E) ^ 2 * (2 * t / Real.pi))
+    (h1 : 2 * Ebar + abar + 20 * Sbar + wbar ≤ 1 / 2) (h2 : 24 * Sbar + 3 * Ebar + 2 * zbar + 2 * lbar + 2 * wbar ≤ 1 / 2) :
+    |t - 1| ≤ 2 * max (2 * Ebar + abar + 20 * Sbar + wbar) (24 * Sbar + 3 * Ebar + 2 * zbar + 2 * lbar + 2 * wbar) := by
+  have hω : ω1 ≤ N / 4 := by
+    have := (div_le_iff₀ hN).1 (hωb.trans hwbar)
+    linarith
+  have hwN : 0 ≤ ω1 / N := by positivity
+  have hlN : 0 ≤ Lc / N := by positivity
+  have hup1 := ksa_up hN ht hS0 (hSb.trans hSbar) hE0 (hEb.trans hEbar) ha0 (hab.trans habar) hω0 hω hB hmass hsv1 hI0 hIa1 hlow
+  have hlow1 := ksa_low hN ht hS0 (hSb.trans hSbar) hE0 (hEb.trans hEbar) hω0 hLc hsum hL hZ hmass hsv2 hI0 hIa2 hup
+  have hw2 : 2 * (Lc + ω1) / N = 2 * (Lc / N) + 2 * (ω1 / N) := by ring
+  have hθ1 : 2 * E + a + 20 * S + ω1 / N ≤ 2 * Ebar + abar + 20 * Sbar + wbar := by linarith
+  have hθ2 : 24 * S + 3 * E + 2 * ζ + 2 * (Lc + ω1) / N ≤ 24 * Sbar + 3 * Ebar + 2 * zbar + 2 * lbar + 2 * wbar := by
+    rw [hw2]; linarith
+  have hnn1 : 0 ≤ 2 * Ebar + abar + 20 * Sbar + wbar := by linarith
+  have hnn2 : 0 ≤ 24 * Sbar + 3 * Ebar + 2 * zbar + 2 * lbar + 2 * wbar := by linarith
+  have u1 : t * (1 - (2 * Ebar + abar + 20 * Sbar + wbar)) ≤ 1 := by
+    have : t * (1 - (2 * Ebar + abar + 20 * Sbar + wbar)) ≤ t * (1 - (2 * E + a + 20 * S + ω1 / N)) :=
+      mul_le_mul_of_nonneg_left (by linarith) ht
+    linarith
+  have u2 : 1 ≤ t * (1 + (24 * Sbar + 3 * Ebar + 2 * zbar + 2 * lbar + 2 * wbar)) := by
+    have : t * (1 + (24 * S + 3 * E + 2 * ζ + 2 * (Lc + ω1) / N)) ≤ t * (1 + (24 * Sbar + 3 * Ebar + 2 * zbar + 2 * lbar + 2 * wbar)) := by
+      refine mul_le_mul_of_nonneg_left ?_ ht
+      linarith
+    have e : 24 * S + 3 * E + 2 * ζ + 2 * (Lc + ω1) / N = 24 * S + 3 * E + 2 * ζ + 2 * (Lc + ω1) / N := rfl
+    linarith
+  exact ksa_final u1 u2 hnn1 hnn2 (by linarith) (by linarith)
+
 /-- info: 'FormalResearch.Special.ksa_up' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.ksa_up
@@ -195,6 +232,10 @@ lemma ksa_final {t θ1 θ2 : ℝ} (h1 : t * (1 - θ1) ≤ 1) (h2 : 1 ≤ t * (1 
 /-- info: 'FormalResearch.Special.ksa_low' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.ksa_low
+
+/-- info: 'FormalResearch.Special.ksa_combine' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ksa_combine
 
 /-- info: 'FormalResearch.Special.ksa_final' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
