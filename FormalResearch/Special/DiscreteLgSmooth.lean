@@ -15,6 +15,7 @@ This makes `dlg_bulk` and `dlg_airy_match` applicable to every smooth symmetric 
 @[expose] public section
 
 open Set FormalResearch.DiscreteAiry
+open scoped Real
 
 namespace FormalResearch.Special
 
@@ -174,5 +175,41 @@ theorem dlg_bulk_smooth {A u : ℝ → ℝ} {U0 : Set ℝ} (hU0 : IsOpen U0) {c 
 /-- info: 'FormalResearch.Special.dlg_bulk_smooth' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.dlg_bulk_smooth
+
+
+/-- **Airy matching for a smooth chain** (the user-facing form of `dlg_airy_match`): same assumptions as `dlg_bulk_smooth`; the matching hypotheses `DlgAiryAt` at the two
+sites `m, m+1` give the Maslov-offset form on the whole window, with the explicit `θ = arccos u`, `w = dlgsW A u`, `Θ = dlgsPhase u c`. -/
+theorem dlg_airy_match_smooth {A u : ℝ → ℝ} {U0 : Set ℝ} (hU0 : IsOpen U0) {c d : ℝ} (hcd : c < d) (hsub : Icc c d ⊆ U0)
+    (hA : ContDiffOn ℝ 2 A U0) (hu : ContDiffOn ℝ 2 u U0) (hApos : ∀ t ∈ U0, 0 < A t) (hu1 : ∀ t ∈ U0, |u t| < 1)
+    (E L : ℝ) (hE : 0 ≤ E) (hL : 0 ≤ L) :
+    ∃ h0 C : ℝ, 0 < h0 ∧ h0 ≤ 1 ∧ 0 < C ∧
+      ∀ (q0 h : ℝ) (a c' Y : ℤ → ℝ) (J N m : ℤ) (κ μ Ts Φmin gmin Ca : ℝ), 0 < Φmin → 0 < gmin → 0 ≤ Ca →
+        0 < h → h ≤ h0 → J ≤ m → m ≤ N → ((N - J : ℤ) : ℝ) * h ≤ L →
+        (∀ k ∈ Finset.Icc J (N + 1), dlgQ q0 h k ∈ Ioo c d) →
+        (∀ k ∈ Finset.Icc (J + 1) (N + 1), |a k - A (dlgQ q0 h k - h / 2)| ≤ E * h ^ 2) →
+        (∀ k ∈ Finset.Icc (J + 1) N, |c' k - 2 * A (dlgQ q0 h k) * u (dlgQ q0 h k)| ≤ E * h ^ 2) →
+        (∀ k ∈ Finset.Icc (J + 1) N, jac a c' Y k = 0) →
+        DlgAiryAt κ μ Y (dlgsW A u) (dlgsPhase u c) q0 h Ts Φmin gmin Ca m →
+        DlgAiryAt κ μ Y (dlgsW A u) (dlgsPhase u c) q0 h Ts Φmin gmin Ca (m + 1) →
+        ∀ k ∈ Finset.Icc J (N + 1),
+          |Y k - h ^ (1 / 6 : ℝ) * (1 / √π) * dlgsW A u (dlgQ q0 h k) *
+              (κ * Real.cos (dlgP (dlgsPhase u c) q0 h k - Ts / h + π / 4) +
+                μ * Real.sin (dlgP (dlgsPhase u c) q0 h k - Ts / h + π / 4))| ≤
+            C * (2 + (1 / (12 * Φmin) + Ca / gmin)) * ((|κ| + |μ|) * (h ^ (1 / 6 : ℝ) * h)) *
+              dlgsW A u (dlgQ q0 h k) := by
+  obtain ⟨lo, hi, M, D, hcos⟩ := dlg_smooth_data hU0 hcd hsub hA hu hApos hu1
+  have hmid : (c + d) / 2 ∈ Ioo c d := ⟨by linarith, by linarith⟩
+  have hhi : 0 ≤ hi := ((D.Ab _ hmid).1.trans' D.lo_pos.le).trans (D.Ab _ hmid).2
+  obtain ⟨h0, C, hh0, hh01, hC, H⟩ := dlg_airy_match lo hi M E L D.lo_pos hhi D.M_nonneg hE hL
+  refine ⟨h0, C, hh0, hh01, hC, ?_⟩
+  intro q0 h a c' Y J N m κ μ Ts Φmin gmin Ca hΦ hg hCa hh hhh0 hJm hmN hlen hU hA' hC' hY S0 S1
+  refine H D q0 h a c' Y J N m κ μ Ts Φmin gmin Ca hΦ hg hCa hh hhh0 hJm hmN hlen hU hA' (fun k hk => ?_) hY S0 S1
+  have hq : dlgQ q0 h k ∈ Ioo c d := hU k (by rw [Finset.mem_Icc] at hk ⊢; omega)
+  rw [hcos _ hq]
+  exact hC' k hk
+
+/-- info: 'FormalResearch.Special.dlg_airy_match_smooth' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dlg_airy_match_smooth
 
 end FormalResearch.Special

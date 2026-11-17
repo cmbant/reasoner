@@ -19,6 +19,7 @@ is the Langer-chart link to `DaiFull` and `hahn_chain_kappa`; the value of `κ`.
 @[expose] public section
 
 open Set FormalResearch.DiscreteAiry
+open scoped Real
 
 namespace FormalResearch.Special
 
@@ -179,5 +180,101 @@ theorem dlg_bulk_hahn {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x : ℝ)
 /-- info: 'FormalResearch.Special.dlg_bulk_hahn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.dlg_bulk_hahn
+
+/-- The window hypotheses of the smooth LG theorems for the Hahn/Racah chains: sites in the smooth domain, window length, and the two closeness statements in the
+`E h²` form (`h = δ³`). -/
+lemma dlgh_inputs {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x : ℝ) (hτ : τ ^ 2 = 1) {c0 d0 c d δ : ℝ} {J N : ℤ}
+    (hJN : J ≤ N) (hc0 : 0 < c0) (hc0c : c0 < c) (hdd0 : d < d0)
+    (hreg : ∀ q ∈ Icc c0 d0, 0 < 1 - P * q ^ 2 ∧ 0 < 1 - Q * q ^ 2) (hδ : 0 < δ) (hδ1 : δ ≤ 1)
+    (hδM : δ ≤ 3 * c / (4 * hrM a b)) (hδc : δ ≤ c - c0) (hδd : δ ≤ d0 - d) (hδq : δ ≤ c / 4)
+    (hwin : ∀ k ∈ Finset.Icc J (N + 1), dlgQ (δ ^ 3 / 2) (δ ^ 3) k ∈ Icc c d) :
+    (∀ k ∈ Finset.Icc J (N + 1), dlgQ (δ ^ 3 / 2) (δ ^ 3) k ∈ Ioo ((c0 + c) / 2) ((d + d0) / 2)) ∧
+      ((N - J : ℤ) : ℝ) * δ ^ 3 ≤ d - c ∧
+      (∀ k ∈ Finset.Icc (J + 1) (N + 1),
+        |hrAk P Q a b (δ ^ 3) k - hrA1 P Q (dlgQ (δ ^ 3 / 2) (δ ^ 3) k - δ ^ 3 / 2)| ≤ hrE P Q a b c * (δ ^ 3) ^ 2) ∧
+      (∀ k ∈ Finset.Icc (J + 1) N,
+        |hrCk P Q τ x a b (δ ^ 3) k - 2 * hrA1 P Q (dlgQ (δ ^ 3 / 2) (δ ^ 3) k) * hrU P Q τ x (dlgQ (δ ^ 3 / 2) (δ ^ 3) k)| ≤
+          hrE P Q a b c * (δ ^ 3) ^ 2) := by
+  have h3δ : δ ^ 3 ≤ δ := by
+    have h1 : δ ^ 2 ≤ 1 := pow_le_one₀ hδ.le hδ1
+    calc δ ^ 3 = δ * δ ^ 2 := by ring
+      _ ≤ δ * 1 := mul_le_mul_of_nonneg_left h1 hδ.le
+      _ = δ := mul_one _
+  obtain ⟨hpa, hpc⟩ := dlgh_close hP hQ a b τ x hτ (c0 := c0) (d0 := d0) (c := c) (d := d) (J := J) (N := N) hc0 hc0c
+    hreg hδ hδ1 hδM (h3δ.trans hδc) (h3δ.trans hδd) (h3δ.trans hδq) hwin
+  have e6 : (δ ^ 3) ^ 2 = δ ^ 6 := by ring
+  refine ⟨fun k hk => ?_, ?_, fun k hk => ?_, fun k hk => ?_⟩
+  · have := hwin k hk
+    exact ⟨by linarith [this.1], by linarith [this.2]⟩
+  · have h1 := hwin J (by rw [Finset.mem_Icc]; omega)
+    have h2 := hwin (N + 1) (by rw [Finset.mem_Icc]; omega)
+    have e : dlgQ (δ ^ 3 / 2) (δ ^ 3) (N + 1) = dlgQ (δ ^ 3 / 2) (δ ^ 3) J + ((N + 1 - J : ℤ) : ℝ) * δ ^ 3 := by
+      unfold dlgQ; push_cast; ring
+    have h3 : ((N + 1 - J : ℤ) : ℝ) * δ ^ 3 ≤ d - c := by
+      have : dlgQ (δ ^ 3 / 2) (δ ^ 3) (N + 1) ≤ d := h2.2
+      have : c ≤ dlgQ (δ ^ 3 / 2) (δ ^ 3) J := h1.1
+      linarith
+    have h4 : ((N - J : ℤ) : ℝ) = ((N + 1 - J : ℤ) : ℝ) - 1 := by push_cast; ring
+    rw [h4]; nlinarith [pow_pos hδ 3]
+  · rw [e6]; exact hpa k hk
+  · rw [e6]; exact hpc k hk
+
+/-- **Airy matching for the Hahn/Racah chains**: `dlg_airy_match_smooth` for the closed-form coefficients on an arbitrary window `[c, d]`.  Given the
+Airy-chart datum `DlgAiryAt` at two sites `m, m+1` of the window (`Θ = dlgsPhase hrU c₁`, `c₁ = (c₀ + c)/2`), every exact solution is
+`Y_k = h^{1/6} π^{-1/2} w_k (κ cos χ_k + μ sin χ_k) + O(h^{1/6} h (|κ|+|μ|) w_k)`, `χ_k = Θ_k/h - Θ*/h + π/4`, `h = δ³`, on the whole window. -/
+theorem dlg_airy_match_hahn {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x : ℝ) (hτ : τ ^ 2 = 1) {c0 d0 c d : ℝ}
+    (hc0 : 0 < c0) (hc0c : c0 < c) (hcd : c < d) (hdd0 : d < d0)
+    (hreg : ∀ q ∈ Icc c0 d0, 0 < 1 - P * q ^ 2 ∧ 0 < 1 - Q * q ^ 2 ∧ |hrU P Q τ x q| < 1) :
+    ∃ δ0 C : ℝ, 0 < δ0 ∧ 0 < C ∧
+      ∀ (δ : ℝ) (Y : ℤ → ℝ) (J N m : ℤ) (κ μ Ts Φmin gmin Ca : ℝ), 0 < Φmin → 0 < gmin → 0 ≤ Ca →
+        0 < δ → δ ≤ δ0 → J ≤ m → m ≤ N →
+        (∀ k ∈ Finset.Icc J (N + 1), dlgQ (δ ^ 3 / 2) (δ ^ 3) k ∈ Icc c d) →
+        (∀ k ∈ Finset.Icc (J + 1) N, jac (hrAk P Q a b (δ ^ 3)) (hrCk P Q τ x a b (δ ^ 3)) Y k = 0) →
+        DlgAiryAt κ μ Y (dlgsW (hrA1 P Q) (hrU P Q τ x)) (dlgsPhase (hrU P Q τ x) ((c0 + c) / 2)) (δ ^ 3 / 2) (δ ^ 3)
+          Ts Φmin gmin Ca m →
+        DlgAiryAt κ μ Y (dlgsW (hrA1 P Q) (hrU P Q τ x)) (dlgsPhase (hrU P Q τ x) ((c0 + c) / 2)) (δ ^ 3 / 2) (δ ^ 3)
+          Ts Φmin gmin Ca (m + 1) →
+        ∀ k ∈ Finset.Icc J (N + 1),
+          |Y k - (δ ^ 3) ^ (1 / 6 : ℝ) * (1 / √π) * dlgsW (hrA1 P Q) (hrU P Q τ x) (dlgQ (δ ^ 3 / 2) (δ ^ 3) k) *
+              (κ * Real.cos (dlgP (dlgsPhase (hrU P Q τ x) ((c0 + c) / 2)) (δ ^ 3 / 2) (δ ^ 3) k - Ts / δ ^ 3 + π / 4) +
+                μ * Real.sin (dlgP (dlgsPhase (hrU P Q τ x) ((c0 + c) / 2)) (δ ^ 3 / 2) (δ ^ 3) k - Ts / δ ^ 3 + π / 4))| ≤
+            C * (2 + (1 / (12 * Φmin) + Ca / gmin)) * ((|κ| + |μ|) * ((δ ^ 3) ^ (1 / 6 : ℝ) * δ ^ 3)) *
+              dlgsW (hrA1 P Q) (hrU P Q τ x) (dlgQ (δ ^ 3 / 2) (δ ^ 3) k) := by
+  have hreg' : ∀ q ∈ Ioo c0 d0, 0 < (1 - P * q ^ 2) * (1 - Q * q ^ 2) := fun q hq =>
+    mul_pos (hreg q (Ioo_subset_Icc_self hq)).1 (hreg q (Ioo_subset_Icc_self hq)).2.1
+  have hA : ContDiffOn ℝ 2 (hrA1 P Q) (Ioo c0 d0) := fun q hq =>
+    (hrA_contDiffAt 2 (hreg' q hq)).contDiffWithinAt
+  have hu := dlgh_u_diff τ x hreg'
+  have hsub : Icc ((c0 + c) / 2) ((d + d0) / 2) ⊆ Ioo c0 d0 := fun q hq => ⟨by linarith [hq.1], by linarith [hq.2]⟩
+  obtain ⟨h0, C, hh0, hh01, hC, H⟩ := dlg_airy_match_smooth (isOpen_Ioo (a := c0) (b := d0))
+    (c := (c0 + c) / 2) (d := (d + d0) / 2) (by linarith) hsub hA hu
+    (fun q hq => hrA_pos (hreg' q hq)) (fun q hq => (hreg q (Ioo_subset_Icc_self hq)).2.2)
+    (hrE P Q a b c) (d - c) (hrE_nonneg P Q a b c) (by linarith)
+  have hM1 : 1 ≤ hrM a b := le_max_left _ _
+  have hc : 0 < c := hc0.trans hc0c
+  have hρ : 0 < min (min (min 1 (3 * c / (4 * hrM a b))) (min (c - c0) (d0 - d))) (min (c / 4) h0) :=
+    lt_min (lt_min (lt_min one_pos (by positivity)) (lt_min (by linarith) (by linarith))) (lt_min (by positivity) hh0)
+  refine ⟨_, C, hρ, hC, ?_⟩
+  intro δ Y J N m κ μ Ts Φmin gmin Ca hΦ hg hCa hδ hδ0 hJm hmN hwin hY S0 S1
+  have hδ1 : δ ≤ 1 := hδ0.trans ((min_le_left _ _).trans ((min_le_left _ _).trans (min_le_left _ _)))
+  have hδM : δ ≤ 3 * c / (4 * hrM a b) :=
+    hδ0.trans ((min_le_left _ _).trans ((min_le_left _ _).trans (min_le_right _ _)))
+  have hδc' : δ ≤ c - c0 := hδ0.trans ((min_le_left _ _).trans ((min_le_right _ _).trans (min_le_left _ _)))
+  have hδd' : δ ≤ d0 - d := hδ0.trans ((min_le_left _ _).trans ((min_le_right _ _).trans (min_le_right _ _)))
+  have hδq' : δ ≤ c / 4 := hδ0.trans ((min_le_right _ _).trans (min_le_left _ _))
+  have hδh : δ ≤ h0 := hδ0.trans ((min_le_right _ _).trans (min_le_right _ _))
+  have h3δ : δ ^ 3 ≤ δ := by
+    have h1 : δ ^ 2 ≤ 1 := pow_le_one₀ hδ.le hδ1
+    calc δ ^ 3 = δ * δ ^ 2 := by ring
+      _ ≤ δ * 1 := mul_le_mul_of_nonneg_left h1 hδ.le
+      _ = δ := mul_one _
+  obtain ⟨hU, hlen, hpa, hpc⟩ := dlgh_inputs hP hQ a b τ x hτ (by omega) hc0 hc0c hdd0
+    (fun q hq => ⟨(hreg q hq).1, (hreg q hq).2.1⟩) hδ hδ1 hδM hδc' hδd' hδq' hwin
+  exact H (δ ^ 3 / 2) (δ ^ 3) (hrAk P Q a b (δ ^ 3)) (hrCk P Q τ x a b (δ ^ 3)) Y J N m κ μ Ts Φmin gmin Ca hΦ hg hCa
+    (by positivity) (h3δ.trans hδh) hJm hmN hlen hU hpa hpc hY S0 S1
+
+/-- info: 'FormalResearch.Special.dlg_airy_match_hahn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dlg_airy_match_hahn
 
 end FormalResearch.Special
