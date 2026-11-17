@@ -16,9 +16,10 @@ Route (no Airy matching): Liouville-Green variables of the Weber equation (`Herm
 rotation comparison from `x = 0` (`HermiteBulkRot`), initial data from parity, the sign alternation of
 `φ_{2m}(0)` and the Wallis product bounds (`HermiteBulkOrigin`), the phase identity
 `S = nπ/2 - Φ` (`HermiteBulkPR`), small `n` by the crude sup bound `hermitePhi_sq_le`, negative `x` by
-parity.  Numerical check (mpmath, 30 digits, `φ_n` by the three-term recurrence; scratch, not
-committed): `(n+1)|φ_n(x)/A - cos Φ| ≤ 1.21` for `n ≤ 59` and `n = 100, 201, 400, 1000`, `|x/√(2n+1)|
-≤ 0.95` on a grid of 39 points.  The constant `C` is existential (`C ≈ (10/ε⁵ + O(1)) · 2`, not
+parity.  Numerical check (mpmath, 30 to 40 digits, `φ_n` by the three-term recurrence; two independent
+scratch runs, not committed): `(n+1)|φ_n(x)/A - cos Φ|` stays bounded (between `0.4` and about `3.2`) for
+`n = 0, 1, 2, 5, 30, 200, 1000` and `|x/√(2n+1)| ≤ 0.95`, the largest values near the endpoint
+`0.95`; with the phase shifted by `π/2` or `A` scaled by `5%` it grows with `n`.  The constant `C` is existential (`C ≈ (10/ε⁵ + O(1)) · 2`, not
 sharp).  Not formalised: the transition and forbidden regions, the derivative asymptotics, the
 dependence of `C` on `ε` beyond the explicit `ε⁻⁵` growth.
 -/
