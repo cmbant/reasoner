@@ -20,8 +20,8 @@ CFT `AIRY_POISSON.md` §5, Theorem Q (2): for `f ∈ 𝒢_N` (`f` entire, `‖f(
 * `airyQ_mem_half`: `f ∈ 𝒢_{1/2}`: `‖f(u)‖ ≤ C' (1+|u|)^{1/2} e(u)` for all `u`, with `C'` depending on `f` (on the unit disc by
   continuity, `e ≥ exp(-(4/3)·8)` there).
 
-Not formalised: the gain `ψ ≤ C‖f‖_b/|u|` on `|arg u| ≤ 2π/3` is the sharp bound `airyQ_pointwise_sharp` (`Re √u ≥ |u|^{1/2}/2` there); the
-horizontal bound `∫ ‖G(x+iy)‖ dx ≤ ‖g‖₁`.
+The note's gain `ψ ≤ C‖f‖_b/|u|` on `|arg u| ≤ 2π/3` is the sharp bound `airyQ_pointwise_sharp` (`Re √u ≥ |u|^{1/2}/2` there; proved there, not
+restated here).  Not formalised: the horizontal bound `∫ ‖G(x+iy)‖ dx ≤ ‖g‖₁` (Lemma H) used by the note's disc-average argument.
 -/
 
 @[expose] public section
