@@ -86,6 +86,7 @@ public import FormalResearch.Special.DiscreteAiryOscTurn
 public import FormalResearch.Special.DiscreteAiryPhysChains
 public import FormalResearch.Special.DiscreteAiryPhysRacah
 public import FormalResearch.Special.DiscreteAiryKappaAll
+public import FormalResearch.Special.RacahKappaAll
 public import FormalResearch.Special.DiscreteAiryUnifHahn
 public import FormalResearch.Special.DiscreteAirySecondHahn
 public import FormalResearch.Special.AiryCft2DerivHadamard
@@ -175,8 +176,15 @@ the band, left and zone masses add up to `N`, `ksa_combine`).  Its ingredients a
 (`kl_hahn_left`), monotone decay on the forbidden side beyond the turn (`kr_chain_mono`) and the matching with the chart data exported
 (`kc_hahn_full`, `kc2_hahn_full`; these repeat the proof of `discrete_airy_full` with extra conjuncts and may later be folded into it).  The rate is not uniform:
 the proof gives `|κ² δ - 2| ≤ C₁ A + C₂(A) δ` for every small `A` (numerically the error is about `δ⁴`).  Still open: an explicit rate and uniformity in `x` (the hard
-edges `x → 0, 1`), the Darboux phase and sign of `κ`, `κ ≠ 0` for `τ = -1`, Racah and half-integer chains, uniformity of the Racah/half-integer matching over families,
+edges `x → 0, 1`), the Darboux phase and sign of `κ`, `κ ≠ 0` and the value of `κ` for `τ = -1` and half-integer `3j` chains, uniformity of the Racah/half-integer matching over families,
 the half-integer version of the full statement, Racah family variants, explicit constants, analyticity of `ζ`.
+
+The Racah `6j` counterpart is `RacahKappa*` (43 modules, umbrella `RacahKappaAll`: 23 integer-data modules and 20 half-integer ones, `H` in the name): `racah_chain_kappa_sharp` (`τ = +1`), `racah_chain_kappa_sharp_neg` (`τ = -1`, twisted chain),
+and for `racah6jYH` (labels `m + 1/2`, `n + 1/2`, shifted lattice `q_k = (k+1)h`) `racah_chain_kappa_sharp_half`, `racah_chain_kappa_sharp_half_neg`: for fixed `(α, β, x, m, n)` (window constants first) and every `τ' > 0` there is `ε₁ > 0` depending on
+`τ'` and `(α, β, x, m, n)` only, not on the system or on `h`, such that for every finite Racah system with `A h = α`, `B h = β`, `cos = x` exactly and `0 < h ≤ ε₁` the Airy-window amplitude `κ` of the Langer matching satisfies `|κ² δ - 2| ≤ τ'`, `δ³ = h`
+(the Hahn constant 2, independent of `τ, x, m, n`).  Proof: Liouville-Green bulk form with the window's own `κ, μ` (`rk_bulk`, `rk_bulkH`), band, zone and Gauss mass, left a priori bound (`rl_left`, `rl_leftH`) and monotone forbidden tail
+(`rd_mono`, `rdH_mono`), abstractly in `rk_kappa_sharp_abs`, `rk_kappa_sharp_absH` over a family of closed-form chains.  Not formalised: the sign of `κ` and the Airy phase, uniformity in `(α, β, x, m, n)`, approximate fits of `A h`, `cos`,
+mixed-parity labels, `q`-Racah, the Hahn half-integer `κ` (an instance of `rk_kappa_sharp_absH`, not done).
 
 Second order: `DiscreteAirySecond*` (20 modules, imported through `DiscreteAirySecondHahn`, which imports `DiscreteAirySecondTurn`, `DiscreteAirySecondHahnCoef` and
 `DiscreteAirySecondLangerData`) prove the second-order bracket, abstractly and for the closed-form Hahn / centred-Racah chain (S4).

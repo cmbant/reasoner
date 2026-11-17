@@ -17,7 +17,7 @@ finitely many sites between the left edge `kmin = max(|M|, |σ|)` and `K₀` are
 
 **Claim class: proved**, explicit constants.  No oscillatory input; valid on the entire left part including the hard edge.
 
-**Not formalised.**  The sharp (`1 + o(1)`) amplitude on the left; half-integer chains; Racah.
+**Not formalised.**  The sharp (`1 + o(1)`) amplitude on the left; half-integer `3j` chains (the Racah left bounds are `rl_left`, `rl_leftH` in `RacahKappa*`).
 -/
 
 @[expose] public section

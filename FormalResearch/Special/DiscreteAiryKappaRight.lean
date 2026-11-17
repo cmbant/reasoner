@@ -18,7 +18,7 @@ being `Y_{k+1}² ≤ Y_k²`: from the row, `a_k Y_{k-1} Y_k = c_k Y_k² - a_{k+1
 
 **Claim class: proved.**
 
-**Not formalised.**  The half-integer chain; Racah.
+**Not formalised.**  The half-integer `3j` chain (the Racah right side is `rd_mono`, `rdH_mono` in `RacahKappa*`).
 -/
 
 @[expose] public section

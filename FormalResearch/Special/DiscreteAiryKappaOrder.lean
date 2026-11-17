@@ -24,8 +24,8 @@ is that of `hahn_chain_airy_full`, with `|μ|` exponentially small (`kk_mu_small
 `hahn_chain_kappa_sharp` (`DiscreteAiryKappaSharpFinal`), which uses the Airy matching `I = κ² h^{1/3}/π` of the Ermakov amplitude
 (`DiscreteAiryKappaSharpMatch`) and the band/left/zone mass accounting of the `DiscreteAiryKappaSharp*` modules.
 
-**Not formalised:** the value of the constants (`c_lo, c_up`, existential), uniformity in `x`, the Darboux phase and sign of `κ`, `τ = -1`, Racah and
-half-integer parameters (see `hahn_chain_kappa_sharp` for the numerical check of `κ² δ → 2`).
+**Not formalised:** the value of the constants (`c_lo, c_up`, existential), uniformity in `x`, the Darboux phase and sign of `κ`, `τ = -1` and
+half-integer parameters for the `3j` chain (Racah: `racah_chain_kappa_sharp*`, `RacahKappa*`; see `hahn_chain_kappa_sharp` for the numerical check of `κ² δ → 2`).
 -/
 
 @[expose] public section

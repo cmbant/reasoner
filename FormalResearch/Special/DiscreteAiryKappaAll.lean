@@ -59,8 +59,8 @@ macroscopic window but leaves `κ` unidentified.  This umbrella collects the mod
 **Claim class: proved** (no extra hypotheses; each headline has a pinned axiom guard `[propext, Classical.choice, Quot.sound]`).  Constants are existential in `(M, σ, x)`.
 
 **Not formalised:** an explicit rate for `κ² δ → 2` (the proof gives `|κ² δ - 2| ≤ C₁ A + C₂(A) δ` for every small `A`, `C₂(A) ~ A⁻⁹`, no uniform power rate; numerically the error is about
-`δ⁴`, not a Lean claim) and uniformity in `x`, including the hard edges `x → 0, 1`; the Darboux phase and the sign of `κ` (only `κ²` is determined); `τ = -1`; the Racah `6j` chain;
-half-integer parameters.
+`δ⁴`, not a Lean claim) and uniformity in `x`, including the hard edges `x → 0, 1`; the Darboux phase and the sign of `κ` (only `κ²` is determined); `τ = -1` and half-integer parameters for the `3j` chain.  (The Racah `6j` chain, integer and half-integer data, both `τ`, is the separate umbrella `RacahKappaAll`:
+`racah_chain_kappa_sharp` and its variants.)
 -/
 
 @[expose] public section

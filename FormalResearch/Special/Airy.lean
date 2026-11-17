@@ -179,9 +179,9 @@ integrand and the coefficient `-7/48`), and sharp constants anywhere; the node p
 Olver's own `N` and the value of the crossing point `c = -0.366…` (`airyCross > -1`); Olver-type uniform expansions; the Mellin
 moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the trace-class / Fredholm-determinant statements for the operator `K_u` (the `Lp`-level `K_u`, `K_u = A_u A_u*` and the Hilbert-space side of the Airy kernel are in `AiryTransform*`, not in this aggregate); the Poisson representation of Theorem Q's unfolded function `G` (Lemma H), the conclusion `f = c Ai²/(u-a₁)` of the equality case of Theorem B, and the `P Ai + Q Ai'` versions with polynomial (non-constant) `P, Q`; the product form of `Bi`; the lower
 bound / order = convergence exponent of Hadamard's theorem (`FormalResearch.Complex`); the first zero of `Bi` and `Bi > 0`
-beyond `-11/10`; the open parts of the discrete-to-Airy chain: the Darboux phase and sign of `κ` (the value `|κ|² = 2N^{1/3}(1+o(1))` for the `τ = +1` integer `3j` chain at a fixed rational shape is `hahn_chain_kappa_sharp`, with an explicit rate and uniformity in `x` not formalised), `κ ≠ 0` for `τ = -1`, Racah and half-integer chains (also the single
+beyond `-11/10`; the open parts of the discrete-to-Airy chain: the Darboux phase and sign of `κ` (the value `|κ|² = 2N^{1/3}(1+o(1))` for the `τ = +1` integer `3j` chain at a fixed rational shape is `hahn_chain_kappa_sharp`, with an explicit rate and uniformity in `x` not formalised), `κ ≠ 0` and the value of `κ` for `τ = -1` and half-integer `3j` chains (for the Racah `6j` chain, integer and half-integer data, both `τ`, `κ² δ → 2` is `racah_chain_kappa_sharp`, `_neg`, `_half`, `_half_neg`, `RacahKappa*`; also the single
 normalisation `|Y_{k₁}| ≤ δ^{-p}` for the closed-form chains), uniformity over families beyond the `3j` shape `x ∈ [x₀, x₁]` (`hahn_chain_airy_full_unif`: no exact node for an irrational shape, but all rational
-nodes at once; open: Racah, half-integer, `κ` uniform in `x`, the hard edges `x → 0, 1`), the
+nodes at once; open: uniform Racah and half-integer matching, `κ` uniform in `x`, the hard edges `x → 0, 1`), the
 half-integer version of the unified statement `discrete_airy_full`, mixed-parity `6j` labels, half-integer Hahn with `x < 0`,
 Racah family variants of the full statement, a polynomial `A0^{3/2}` window constant for `discrete_airy_window` itself (only the
 abstract `window_from_top_sharp` exists), explicit constants, and analyticity of the Langer coordinate (see the design note).
@@ -279,13 +279,18 @@ a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete
   its Airy matching `I = κ²δ/π (1 + o(1))` at the band end (`ksh_bond_match`, chart identity `KshChart.g2`: the Airy amplitude is the Ermakov amplitude, `P = 2/α`) and the mass accounting
   `N = band + left + zone` (`ksa_combine`, `ksg_sv`, `ksl_left`, `ksz_zone`); the proved rate is `|κ² δ - 2| ≤ C₁ A + C₂(A) δ` for every small `A` (no uniform power rate).
   Not formalised there: an explicit rate and uniformity in `x` (also the hard edges `x → 0, 1`), the Darboux phase and sign of `κ`,
-  `κ ≠ 0` for `τ = -1`, Racah and half-integer chains (the mass argument applies, the Racah analogues of `kl_coef_facts`, `kr_margin_hahn` are missing),
+  `κ ≠ 0` and the value of `κ` for `τ = -1` and half-integer `3j` chains (the mass argument applies; for the Racah `6j` chain the analogues are proved in `RacahKappa*`: `rl_left`, `rd_mono`, `racah_chain_kappa_sharp*`),
   uniformity of `κ` in `x` and for Racah (the constants of the `hahn_chain_kappa*` theorems, `racah_chain_airy_full_*` are for one fixed rational `x`, resp.
   `(α, β, x)`; for the `3j` matching without `κ` the uniformity in `x ∈ [x₀, x₁]` is `hahn_chain_airy_full_unif`, `DiscreteAiryUnif*`, proved by a quantitative
   Langer chart, not by a perturbative argument, which fails because the turn moves by `O(h)`), the identification of the second-order bracket `Ai + N^{-4/3} ϖ Ai' + O(N^{-2} M/E)` with the paper's `ϖ` and `κ` (the bracket with error `δ⁶ = h²` is formalised in
   `DiscreteAirySecond*`, abstractly by `airy2_turn_full` and for the closed-form Hahn / centred-Racah chain, `η_π = 0`, by `hahn_airy2_turn`; the first-order Airy parametrix of the layers above gives `O(h)` phase accuracy only), the half-integer (shifted-lattice) version of the full
   statement (`hahn_chain_airy_full_half` is the integer-data model case `M = σ = 0`, `x = 1/2`, not the shifted lattice), Racah family variants (mixed-parity labels, half-integer data), half-integer Hahn
   with `x < 0`, a polynomial window constant for `discrete_airy_window` itself, explicit constants, and analyticity of `ζ`.
+  *`RacahKappa*`* (43 modules, umbrella `RacahKappaAll`; 23 integer-data modules and 20 half-integer ones, `H` in the name): the Racah counterpart of `hahn_chain_kappa_sharp` for the actual Wigner `6j` chain.
+  `racah_chain_kappa_sharp` (`τ = +1`), `racah_chain_kappa_sharp_neg` (`τ = -1`, twisted chain `(-1)^k Ŷ_k`) and the half-integer `racah_chain_kappa_sharp_half`, `_half_neg` (`racah6jYH`, shifted lattice `q_k = (k+1)h`):
+  for fixed `(α, β, x, m, n)` and every `τ' > 0` there is `ε₁ > 0` (depending on `τ'` and `(α, β, x, m, n)`, not on the system or on `h`) such that every finite Racah system with `A h = α`, `B h = β`, `cos = x` exactly and `0 < h ≤ ε₁`
+  has `|κ² δ - 2| ≤ τ'`, `δ³ = h`, for the window amplitude `κ` of the Langer matching; the constant 2 is that of Hahn.  Abstract form `rk_kappa_sharp_abs`, `rk_kappa_sharp_absH`; left a priori bound `rl_left`, `rl_leftH`.
+  Not formalised there: the sign of `κ` and the Airy phase, uniformity in `(α, β, x, m, n)`, approximate (instead of exact) `A h = α`, `cos = x`, mixed-parity labels, `q`-Racah, and the Hahn half-integer `κ` (an instance of `rk_kappa_sharp_absH`, not done).
   *`DiscreteAiryUnif*`* (10 modules) makes the unified statement uniform in the data: `discrete_airy_full_unif` (`∀ bounds ∃ r, δ₀, C, Cmu, ξ₀ ∀ datum`,
   datum class `DunDatum`), built from a `C²` jet calculus, the explicit Langer chart `dun_chart`, explicit amplitude jets `dun_amp`, the jet-hypothesis
   defect `dun_exact_defect`, `dun_lattice` (`≤ Kδ⁶ airyWt`, resp. `airyBiWt`) and the assembly `discrete_airy_full_win`.  For the `3j` chain
