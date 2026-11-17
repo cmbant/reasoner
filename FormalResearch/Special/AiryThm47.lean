@@ -3,6 +3,7 @@ module
 public import FormalResearch.Special.AiryThm47Nonintegrability
 public import FormalResearch.Special.AiryThm47Liouville
 public import FormalResearch.Special.AiryThm47Band
+public import FormalResearch.Special.AiryThm47Uniq
 
 /-!
 # Theorem 4.7 Airy polynomial extremals
