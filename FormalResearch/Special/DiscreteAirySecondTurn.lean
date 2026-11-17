@@ -23,8 +23,9 @@ public import FormalResearch.Special.AiryRecessiveSums
   on the whole oscillatory side `[c₀ - r, c₀]` plus the bulk to `c₀ + r/4`.  The Casoratian constant `Q` does not depend on `E`.
 * `airy2_turn_full`: the same with `q₁` **constructed** (`airy2_q1_exists`) on a ball, from `ζ ∈ C⁷`, `A, g ∈ C⁶`, `A₂, c₂ ∈ C⁴`.
 
-**Claim class: proved.**  This is the abstract statement; the Hahn/Racah instances (coefficient closeness `E δ⁹`, i.e. `S4`) are not
-formalised here.
+**Claim class: proved.**  This is the abstract statement; the Hahn / centred-Racah instance (coefficient closeness `E δ⁹`, i.e. `S4`) is
+`hahn_airy2_turn` in `DiscreteAirySecondHahn` (coefficients: `DiscreteAirySecondHahnCoef`; the route from `u` to second-order Langer data:
+`langer_hrel_seven` in `DiscreteAirySecondLangerData`, for `u ∈ C⁷`, `A ∈ C⁶`).
 
 The error order is `δ⁶ = h²` in the Olver weights, i.e. the bracket `Ai(t) + N^{-4/3} B Ai'(t) + O(N^{-2})` of
 `thm:general-rank-airy-second` in `Weyl/P3/paper/weyl_midpoint_semiclassics.tex` (`B = q₁/g`, `h^{4/3} = δ⁴`); the sharper `O(h³)`
@@ -33,9 +34,9 @@ is taken as `ζ q₁²/(2g)` (`a2p`), which differs from `p₂` at order `h²`, 
 `mpmath` check, no committed verifier): for a smooth model chain `a_k = A(q_k - h/2)`, `c_k = 2 A u(q_k)` the exact recessive solution
 fits `g Ai(X̂)` with error `≈ 0.004 δ⁶` for `h = 10⁻² … 3·10⁻⁴` (first order `g Ai(X)`: `≈ 0.002 δ³`).
 
-**Not formalised:** `S4` (second-order coefficient closeness for the Hahn/Racah chains and the chain wiring); a global `q₁` on the
-window (`airy2_q1_exists` is local on a ball `B(c₀, ρ)`, window `[c₀ - ρ/2, c₀ + ρ/2]`); the route from `c = 2 A u + h² c₂` to second-order
-Langer-form data `(ζ, A, A₂, g, c₂)` (needs `u ∈ C⁷`); the `h²` phase / Darboux normalisation `κ`.  The `P3` external input (canonical
+**Not formalised (in this module):** a global `q₁` on the
+window (`airy2_q1_exists` is local on a ball `B(c₀, ρ)`, window `[c₀ - ρ/2, c₀ + ρ/2]`); the `h²` phase / Darboux normalisation `κ`; `q`-Racah (`η_π ≠ 0`),
+half-integer and mixed-parity labels.  The `P3` external input (canonical
 `Ai/Bi` basis of Geronimo–Bruno–Van Assche, connection by matching) is **not** replaced by this result.
 -/
 

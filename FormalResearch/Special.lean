@@ -87,7 +87,7 @@ public import FormalResearch.Special.DiscreteAiryPhysChains
 public import FormalResearch.Special.DiscreteAiryPhysRacah
 public import FormalResearch.Special.DiscreteAiryKappaMain
 public import FormalResearch.Special.DiscreteAiryUnifHahn
-public import FormalResearch.Special.DiscreteAirySecondTurn
+public import FormalResearch.Special.DiscreteAirySecondHahn
 public import FormalResearch.Special.AiryCft2DerivHadamard
 
 /-!
@@ -164,10 +164,11 @@ bound on the whole chain by the values at the turn.  Its ingredients are of inde
 (`kc_hahn_full`; this repeats the proof of `discrete_airy_full` with two extra conjuncts and may later be folded into it).  The bound is not sharp
 (numerics give `|κ| = √2 N^{1/6}(1+o(1))`).  Still open: the value of `|κ|` (needs a second-order adiabatic invariant with a `1+o(1)`
 amplitude over the whole left band), the Darboux phase and sign of `κ`, `κ ≠ 0` for `τ = -1`, Racah and half-integer chains, uniformity of
-`κ_min` in `x` and of the Racah/half-integer matching over families, the Hahn/Racah instance of the second-order bracket (S4; the abstract bracket is `DiscreteAirySecond*` below), the half-integer version
+`κ_min` in `x` and of the Racah/half-integer matching over families, the half-integer version
 of the full statement, Racah family variants, explicit constants, analyticity of `ζ`.
 
-Second order: `DiscreteAirySecond*` (17 modules, imported through `DiscreteAirySecondTurn`) prove the abstract second-order bracket.
+Second order: `DiscreteAirySecond*` (20 modules, imported through `DiscreteAirySecondHahn`, which imports `DiscreteAirySecondTurn`, `DiscreteAirySecondHahnCoef` and
+`DiscreteAirySecondLangerData`) prove the second-order bracket, abstractly and for the closed-form Hahn / centred-Racah chain (S4).
 For smooth Langer-form data `(ζ, A, A₂, g, q₁, c₂)` (`ζ(c₀) = 0`, `ζ' > 0`, `A, g > 0`, amplitude relation `hrel`, the `q₁`-residual equation) the
 exact solutions are `g·Ai(X + δ⁴q₁/g)` and `g·Bi(…)`, `X = ζ/δ²`, with error `δ⁶ = h²` in the Olver weights `airyWt`, `airyBiWt`
 (`airy2_turn_conclusion`, `A2TurnConclusion`: macroscopic window `[c₀ - r, c₀ + r/4]`, Casoratian `≥ δ/Q`, coefficients within `E δ⁹` of the
@@ -175,9 +176,16 @@ second-order ones), and `q₁` is constructed on a ball `B(c₀, ρ)` from `ζ �
 `airy2_q1_exists`).  The pieces: the general-rate abstract machinery (`dao_conclusion_rate`, `dai_full_rate`, `DaiFullR`: `DiscreteAirySecondAbstract`),
 the second-order shift coefficients and third-order remainders (`apu2_C_remainder`, `apu2_S_remainder`), the one-link expansion and the two-link
 combination, the row defect `K δ⁹ airyWt` of the parametrix (`airy2_defect_Ai/_Bi`, `airy2_shifted_defect_Ai/_Bi`) and the window facts at a simple turn
-(`a2t_window`).  This is weaker than the paper's `O(h³)` remainder.  Not formalised: the Hahn/Racah instance (second-order coefficient closeness
-`E δ⁹` for the actual `3j`/`6j` chains and the chain wiring, S4); a global `q₁` on the window; the route from `u` to second-order Langer-form data (needs
-`u ∈ C⁷`); the `h²` phase / Darboux normalisation of `κ`; the external input of `P3` (Geronimo–Bruno–Van Assche canonical basis and connection) is not replaced.
+(`a2t_window`).  This is weaker than the paper's `O(h³)` remainder.
+The Hahn / centred-Racah instance (S4): the closed-form coefficients `A_k`, `c_k` are within `O(h⁴)` of the second-order forms `A + h²A₂`, `2Au + h²c₂`,
+with `A₂ = ½ ẽ(q²) c_ab/q²`, `c_ab = 1/8 - (a² + b²)/2`, `c₂ = -τ[β₀(1/4 - (a² + b²)/2) + ab/q²]` (`hsc_coef_A`, `hsc_coef_C`,
+`hs_perturb`: `DiscreteAirySecondHahnCoef`; this is the `η_π = 0` case of P3 `eq:class-a2b2`); the route from `u ∈ C⁷`, `A ∈ C⁶` to second-order Langer data
+(`langer_hrel_seven`: `ζ ∈ C⁷`, `A, g ∈ C⁶`; `DiscreteAirySecondLangerData`); and the wiring (`hahn_airy2_turn`, `hahn_airy2_compose`:
+`DiscreteAirySecondHahn`): `DaiFullR` at rate `δ⁶ = h²` for the actual closed-form chain on the window `[q* - ρ/2, q* + ρ/4]`
+(`ρ` the Langer-chart radius, `q₁ ∈ C³` on a ball; bracket `Ai + h^{4/3}(q₁/g) Ai' + O(h²)`; for the composition, the bound (R) on `Y` is a hypothesis).
+Not formalised: the `κ` normalisation and the second-order phase (Darboux identification of `q₁/g` with the paper's `ϖ`), the `q`-Racah chain
+(`η_π ≠ 0`), half-integer / shifted-lattice and mixed-parity labels, uniformity in `x`, hard edges, a global `q₁` on the window, the paper's sharper `O(h³)` remainder;
+the external input of `P3` (Geronimo–Bruno–Van Assche canonical basis and connection) is not replaced.
 
 Uniformity in the shape: `DiscreteAiryUnif*` (10 modules, imported through `DiscreteAiryUnifHahn`) make the unified statement quantitative.
 A `C²` jet calculus and an explicit Langer chart on a ball (`dun_chart`, `DiscreteAiryUnifJet`, `DiscreteAiryUnifChart`), explicit amplitude jets

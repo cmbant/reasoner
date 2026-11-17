@@ -34,7 +34,7 @@ or `M+σ` odd (e.g. `M = σ = 0`, `x = 1/2`, `N = 4t+2`, `n = 3t+1`), with the e
 (`M = σ = 0`, `x = 1/3` has no node at all); the combined statement is `hahn_chain_airy_infinite`.  Integer data only
 here (half-integer: `DiscreteAiryLimitChains2Half3j`); `x ∈ (-1,0)` is the `τ = -1` twist (`hahn_chain_airy_neg`).  Not
 formalised in this module: the non-recessive `Ai`/`Bi` pair and the oscillatory side `X < -A₀` (for fixed `x` at a node they are
-`hahn_chain_airy_full` etc. in `DiscreteAiryPhysChains`, up to `κ`); the Hahn/Racah instance of the second-order bracket (S4; the abstract second-order bracket is `airy2_turn_full`, `DiscreteAirySecond*`).
+`hahn_chain_airy_full` etc. in `DiscreteAiryPhysChains`, up to `κ`); the identification of the second-order phase (the second-order bracket is `airy2_turn_full` abstractly and `hahn_airy2_turn` for the closed-form Hahn / centred-Racah chain, S4, `DiscreteAirySecond*`).
 -/
 
 @[expose] public section
