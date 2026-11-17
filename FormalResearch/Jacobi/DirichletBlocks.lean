@@ -161,6 +161,118 @@ theorem db1 (hH : LocalBound H M) (hM : 0 < M) {lam : ℝ} {u : ι → ℝ} (hu 
 #guard_msgs (whitespace := lax) in
 #print axioms db1
 
+/-- The forcing from outside a block is small: for a pairwise disjoint family of blocks,
+`∑_I ∑_{j∈I} (∑_{k∉I} H_{jk} u_k)² ≤ 4 M² ∑ u²` (each exterior site feeds at most two blocks). -/
+theorem forcing_sum_le (hH : LocalBound H M) {α : Type*} [Fintype α] (I : α → Finset ι)
+    (hdisj : ∀ a b, a ≠ b → Disjoint (I a) (I b)) (u : ι → ℝ) :
+    ∑ a, ∑ j ∈ I a, (∑ k ∈ (I a)ᶜ, H j k * u k) ^ 2 ≤ 4 * M ^ 2 * ∑ k, u k ^ 2 := by
+  classical
+  set N : ι → Finset ι := fun j => univ.filter fun k => k ≠ j ∧ H j k ≠ 0 with hN
+  have hM0 : ∀ j, ∀ k, k ≠ j → H j k ≠ 0 → |H j k| ≤ M := fun j k hk _ =>
+    hH.bound j k (Ne.symm hk)
+  -- pointwise bound
+  have hpt : ∀ a, ∀ j ∈ I a, (∑ k ∈ (I a)ᶜ, H j k * u k) ^ 2 ≤ 2 * M ^ 2 * ∑ k ∈ N j, u k ^ 2 := by
+    intro a j hj
+    set T := (I a)ᶜ.filter fun k => H j k ≠ 0 with hT
+    have hTsub : T ⊆ N j := by
+      intro k hk
+      simp only [hT, mem_filter, mem_compl] at hk
+      simp only [hN, mem_filter, mem_univ, true_and]
+      exact ⟨fun h => hk.1 (h ▸ hj), hk.2⟩
+    have hsum : ∑ k ∈ (I a)ᶜ, H j k * u k = ∑ k ∈ T, H j k * u k := by
+      rw [hT, sum_filter_of_ne]
+      intro k _ hk h0
+      exact hk (by rw [h0, zero_mul])
+    have hcard : T.card ≤ 2 := (card_le_card hTsub).trans (hH.deg j)
+    rw [hsum]
+    calc (∑ k ∈ T, H j k * u k) ^ 2 ≤ T.card * ∑ k ∈ T, (H j k * u k) ^ 2 :=
+          sq_sum_le_card_mul_sum_sq
+      _ ≤ 2 * ∑ k ∈ T, M ^ 2 * u k ^ 2 := by
+          apply mul_le_mul (by exact_mod_cast hcard) _ (sum_nonneg fun _ _ => sq_nonneg _)
+            (by norm_num)
+          refine sum_le_sum fun k hk => ?_
+          have hk' : k ≠ j ∧ H j k ≠ 0 := by simpa [hN] using hTsub hk
+          rw [mul_pow]
+          exact mul_le_mul_of_nonneg_right (sq_le_sq' (abs_le.mp (hM0 j k hk'.1 hk'.2)).1
+            (abs_le.mp (hM0 j k hk'.1 hk'.2)).2) (sq_nonneg _)
+      _ ≤ 2 * M ^ 2 * ∑ k ∈ N j, u k ^ 2 := by
+          rw [← mul_sum, ← mul_assoc]
+          apply mul_le_mul_of_nonneg_left _ (by positivity)
+          exact sum_le_sum_of_subset_of_nonneg hTsub fun _ _ _ => sq_nonneg _
+  -- sum over the blocks
+  have hnbr : ∑ j, ∑ k ∈ N j, u k ^ 2 ≤ 2 * ∑ k, u k ^ 2 := by
+    have e1 : ∀ j, ∑ k ∈ N j, u k ^ 2 = ∑ k, if k ≠ j ∧ H j k ≠ 0 then u k ^ 2 else 0 := by
+      intro j; rw [hN]; simp only; rw [sum_filter]
+    simp only [e1]
+    rw [sum_comm]
+    calc ∑ k, ∑ j, (if k ≠ j ∧ H j k ≠ 0 then u k ^ 2 else 0)
+        = ∑ k, ((univ.filter fun j => j ≠ k ∧ H k j ≠ 0).card : ℝ) * u k ^ 2 := by
+          refine sum_congr rfl fun k _ => ?_
+          rw [← sum_filter, sum_const, nsmul_eq_mul]
+          congr 3
+          ext j
+          simp only [mem_filter, mem_univ, true_and]
+          rw [hH.symm k j]
+          exact ⟨fun h => ⟨Ne.symm h.1, h.2⟩, fun h => ⟨Ne.symm h.1, h.2⟩⟩
+      _ ≤ ∑ k, 2 * u k ^ 2 := sum_le_sum fun k _ =>
+          mul_le_mul_of_nonneg_right (by exact_mod_cast hH.deg k) (sq_nonneg _)
+      _ = 2 * ∑ k, u k ^ 2 := by rw [mul_sum]
+  calc ∑ a, ∑ j ∈ I a, (∑ k ∈ (I a)ᶜ, H j k * u k) ^ 2
+      ≤ ∑ a, ∑ j ∈ I a, 2 * M ^ 2 * ∑ k ∈ N j, u k ^ 2 :=
+        sum_le_sum fun a _ => sum_le_sum fun j hj => hpt a j hj
+    _ = ∑ j ∈ univ.biUnion I, 2 * M ^ 2 * ∑ k ∈ N j, u k ^ 2 := by
+        rw [sum_biUnion]
+        intro a _ b _ hab
+        exact hdisj a b hab
+    _ ≤ ∑ j, 2 * M ^ 2 * ∑ k ∈ N j, u k ^ 2 :=
+        sum_le_sum_of_subset_of_nonneg (subset_univ _) fun j _ _ =>
+          mul_nonneg (by positivity) (sum_nonneg fun _ _ => sq_nonneg _)
+    _ = 2 * M ^ 2 * ∑ j, ∑ k ∈ N j, u k ^ 2 := by rw [mul_sum]
+    _ ≤ 2 * M ^ 2 * (2 * ∑ k, u k ^ 2) := mul_le_mul_of_nonneg_left hnbr (by positivity)
+    _ = 4 * M ^ 2 * ∑ k, u k ^ 2 := by ring
+
+/-- **Theorem DB.2** (eq. (DB.2)).  For a finite family of pairwise disjoint blocks `I_a`, each with
+Dirichlet gap `Δ_a ≥ Δ₀ > 0` and admissible distance `d_a`, and a unit (or any) eigenvector `u`,
+`∑_a ∑_{j∈I_a} e^{2 μ₀ d_a(j)} u_j² ≤ (16 M² / Δ₀²) ∑ u²`, `μ₀ = log(1 + Δ₀/(4M))`. -/
+theorem db2 (hH : LocalBound H M) (hM : 0 < M) {lam : ℝ} {u : ι → ℝ} (hu : H *ᵥ u = lam • u)
+    {α : Type*} [Fintype α] (I : α → Finset ι)
+    (hdisj : ∀ a b, a ≠ b → Disjoint (I a) (I b)) {Δ₀ : ℝ} (hΔ₀ : 0 < Δ₀) (Δ : α → ℝ)
+    (hΔ : ∀ a, Δ₀ ≤ Δ a)
+    (hgap : ∀ a μ, IsEigenval (H.submatrix (fun i : I a => (i : ι)) (fun i : I a => (i : ι))) μ →
+      Δ a ≤ |μ - lam|)
+    (d : α → ι → ℕ) (hd0 : ∀ a, ∀ j ∈ I a, (∃ k ∈ (I a)ᶜ, H j k ≠ 0) → d a j = 0)
+    (hlip : ∀ a, ∀ i ∈ I a, ∀ j ∈ I a, i ≠ j → H i j ≠ 0 → |(d a i : ℝ) - d a j| ≤ 1) :
+    ∑ a, ∑ j ∈ I a, exp (2 * log (1 + Δ₀ / (4 * M)) * d a j) * u j ^ 2 ≤
+      16 * M ^ 2 / Δ₀ ^ 2 * ∑ k, u k ^ 2 := by
+  have hμ : ∀ a, log (1 + Δ₀ / (4 * M)) ≤ log (1 + Δ a / (4 * M)) := fun a =>
+    Real.log_le_log (by positivity) (by gcongr; exact hΔ a)
+  have hblock : ∀ a, ∑ j ∈ I a, exp (2 * log (1 + Δ₀ / (4 * M)) * d a j) * u j ^ 2 ≤
+      4 / Δ₀ ^ 2 * ∑ j ∈ I a, (∑ k ∈ (I a)ᶜ, H j k * u k) ^ 2 := by
+    intro a
+    have hΔa : 0 < Δ a := lt_of_lt_of_le hΔ₀ (hΔ a)
+    calc ∑ j ∈ I a, exp (2 * log (1 + Δ₀ / (4 * M)) * d a j) * u j ^ 2
+        ≤ ∑ j ∈ I a, exp (2 * log (1 + Δ a / (4 * M)) * d a j) * u j ^ 2 := by
+          refine sum_le_sum fun j _ => mul_le_mul_of_nonneg_right ?_ (sq_nonneg _)
+          apply exp_le_exp.mpr
+          have := hμ a
+          have h0 : (0 : ℝ) ≤ d a j := Nat.cast_nonneg _
+          nlinarith
+      _ ≤ 4 / Δ a ^ 2 * ∑ j ∈ I a, (∑ k ∈ (I a)ᶜ, H j k * u k) ^ 2 :=
+          db1 hH hM hu (I a) hΔa (hgap a) (d a) (hd0 a) (hlip a)
+      _ ≤ 4 / Δ₀ ^ 2 * ∑ j ∈ I a, (∑ k ∈ (I a)ᶜ, H j k * u k) ^ 2 := by
+          apply mul_le_mul_of_nonneg_right _ (sum_nonneg fun _ _ => sq_nonneg _)
+          gcongr; exact hΔ a
+  calc ∑ a, ∑ j ∈ I a, exp (2 * log (1 + Δ₀ / (4 * M)) * d a j) * u j ^ 2
+      ≤ ∑ a, 4 / Δ₀ ^ 2 * ∑ j ∈ I a, (∑ k ∈ (I a)ᶜ, H j k * u k) ^ 2 := sum_le_sum fun a _ => hblock a
+    _ = 4 / Δ₀ ^ 2 * ∑ a, ∑ j ∈ I a, (∑ k ∈ (I a)ᶜ, H j k * u k) ^ 2 := by rw [mul_sum]
+    _ ≤ 4 / Δ₀ ^ 2 * (4 * M ^ 2 * ∑ k, u k ^ 2) :=
+        mul_le_mul_of_nonneg_left (forcing_sum_le hH I hdisj u) (by positivity)
+    _ = 16 * M ^ 2 / Δ₀ ^ 2 * ∑ k, u k ^ 2 := by ring
+
+/-- info: 'FormalResearch.Jacobi.db2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms db2
+
 end Blocks
 
 end FormalResearch.Jacobi
