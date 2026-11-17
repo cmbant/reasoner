@@ -118,7 +118,8 @@ theorem dlgh_chart {P Q : ℝ} (τ x qs : ℝ) (hqs : 0 < qs) (hκ : 0 < 1 - τ 
       langerZeta (hrU P Q τ x) qs q < 0 ∧
       2 / 3 * (-langerZeta (hrU P Q τ x) qs q) ^ (3 / 2 : ℝ) = ∫ s in q..qs, Real.arccos (hrU P Q τ x s) ∧
       (langerAmp (hrU P Q τ x) (hrA1 P Q) qs q) ^ 4 =
-        4 * |langerZeta (hrU P Q τ x) qs q| / |4 * hrA1 P Q q ^ 2 * (1 - hrU P Q τ x q ^ 2)| := by
+        4 * |langerZeta (hrU P Q τ x) qs q| / |4 * hrA1 P Q q ^ 2 * (1 - hrU P Q τ x q ^ 2)| ∧
+      0 < langerAmp (hrU P Q τ x) (hrA1 P Q) qs q := by
   have hint : 0 < (1 - P * qs ^ 2) * (1 - Q * qs ^ 2) := mul_pos hα hβ
   have hu3 : ContDiffAt ℝ ((2 + 1 : ℕ) : WithTop ℕ∞) (hrU P Q τ x) qs := by
     simpa using hrU_contDiffAt (P := P) (Q := Q) τ x 3 hint
@@ -128,13 +129,13 @@ theorem dlgh_chart {P Q : ℝ} (τ x qs : ℝ) (hqs : 0 < qs) (hκ : 0 < 1 - τ 
   have hAp := hrA_pos hint
   have sp := langerZeta_spec (m := 2) (by norm_num) hu3 h1 h2
   have ig := langerZeta_integral (m := 2) (by norm_num) hu3 h1 h2
-  have am := (langerAmp_of_coeff (m := 2) (by norm_num) hu3 h1 h2 hA2 hAp).2.2
-  have ev := (sp.2.2.1).and (ig.and am)
+  have am0 := langerAmp_of_coeff (m := 2) (by norm_num) hu3 h1 h2 hA2 hAp
+  have ev := (sp.2.2.1).and (ig.and (am0.2.2.and am0.2.1))
   obtain ⟨ρ, hρ, hρb⟩ := Metric.eventually_nhds_iff.1 ev
   refine ⟨ρ, hρ, fun q hq1 hq2 => ?_⟩
   have hd : dist q qs < ρ := by rw [Real.dist_eq, abs_lt]; constructor <;> linarith
-  obtain ⟨⟨-, -, -, -, hneg⟩, ⟨-, hI⟩, hg⟩ := hρb hd
-  refine ⟨hneg.2 hq2, ?_, hg hq2.ne⟩
+  obtain ⟨⟨-, -, -, -, hneg⟩, ⟨-, hI⟩, hg, hgp⟩ := hρb hd
+  refine ⟨hneg.2 hq2, ?_, hg hq2.ne, hgp⟩
   rw [hI hq2.le]
   refine intervalIntegral.integral_congr (fun s _ => ?_)
   rw [dlgh_sqrt_phi]
@@ -143,5 +144,133 @@ theorem dlgh_chart {P Q : ℝ} (τ x qs : ℝ) (hqs : 0 < qs) (hκ : 0 < 1 - τ 
 /-- info: 'FormalResearch.Special.dlgh_chart' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.dlgh_chart
+
+
+/-- Real arithmetic of one site: with `Z = -ζ > 0`, `g⁴ = Z W⁴` (`g, W > 0`), `h > 0`, `y = h^{-2/3} Z`:
+`g y^{-1/4} = h^{1/6} W` and `(2/3) y^{3/2} = ((2/3) Z^{3/2}) / h`, and `g = Z^{1/4} W`. -/
+lemma dlgh_site_arith {g W Z h : ℝ} (hg : 0 < g) (hW : 0 < W) (hZ : 0 < Z) (hh : 0 < h) (h4 : g ^ 4 = Z * W ^ 4) :
+    g = Z ^ (1 / 4 : ℝ) * W ∧ 0 < h ^ (-(2 / 3) : ℝ) * Z ∧
+      g * (h ^ (-(2 / 3) : ℝ) * Z) ^ (-(1 / 4) : ℝ) = h ^ (1 / 6 : ℝ) * W ∧
+      2 / 3 * (h ^ (-(2 / 3) : ℝ) * Z) ^ (3 / 2 : ℝ) = (2 / 3 * Z ^ (3 / 2 : ℝ)) / h := by
+  have hZ4 : (Z ^ (1 / 4 : ℝ)) ^ 4 = Z := by
+    rw [← Real.rpow_natCast, ← Real.rpow_mul hZ.le]; norm_num
+  have hZp : 0 < Z ^ (1 / 4 : ℝ) := Real.rpow_pos_of_pos hZ _
+  have hgeq : g = Z ^ (1 / 4 : ℝ) * W := by
+    have : g ^ 4 = (Z ^ (1 / 4 : ℝ) * W) ^ 4 := by rw [mul_pow, hZ4]; exact h4
+    exact (pow_left_inj₀ hg.le (by positivity) (by norm_num)).1 this
+  have hhp : 0 < h ^ (-(2 / 3) : ℝ) := Real.rpow_pos_of_pos hh _
+  have e1 : (h ^ (-(2 / 3) : ℝ) * Z) ^ (-(1 / 4) : ℝ) = h ^ (1 / 6 : ℝ) * Z ^ (-(1 / 4) : ℝ) := by
+    rw [Real.mul_rpow hhp.le hZ.le, ← Real.rpow_mul hh.le]; norm_num
+  have e2 : (h ^ (-(2 / 3) : ℝ) * Z) ^ (3 / 2 : ℝ) = h⁻¹ * Z ^ (3 / 2 : ℝ) := by
+    rw [Real.mul_rpow hhp.le hZ.le, ← Real.rpow_mul hh.le, ← Real.rpow_neg_one]; norm_num
+  refine ⟨hgeq, mul_pos hhp hZ, ?_, ?_⟩
+  · rw [e1, hgeq]
+    have : Z ^ (-(1 / 4) : ℝ) = (Z ^ (1 / 4 : ℝ))⁻¹ := Real.rpow_neg hZ.le _
+    rw [this]; field_simp
+  · rw [e2]; field_simp
+
+lemma dlgh_W4 {A0 u0 : ℝ} (hA : 0 < A0) (hu : |u0| < 1) :
+    ((√(A0 * √(1 - u0 ^ 2)))⁻¹) ^ 4 = 1 / (A0 ^ 2 * (1 - u0 ^ 2)) := by
+  have hu2 : 0 < 1 - u0 ^ 2 := by
+    have : u0 ^ 2 < 1 := by nlinarith [abs_nonneg u0, sq_abs u0]
+    linarith
+  have hs : 0 < √(1 - u0 ^ 2) := Real.sqrt_pos.2 hu2
+  have hp : 0 < A0 * √(1 - u0 ^ 2) := mul_pos hA hs
+  have e : ((√(A0 * √(1 - u0 ^ 2)))⁻¹) ^ 4 = ((√(A0 * √(1 - u0 ^ 2))) ^ 2)⁻¹ ^ 2 := by
+    rw [← inv_pow, ← pow_mul]
+  rw [e, Real.sq_sqrt hp.le, inv_pow, mul_pow, Real.sq_sqrt hu2.le]
+  field_simp
+
+lemma dlgh_g4 {A0 u0 Z g : ℝ} (hA : 0 < A0) (hu : |u0| < 1) (hZ : 0 < Z)
+    (hg : g ^ 4 = 4 * |-Z| / |4 * A0 ^ 2 * (1 - u0 ^ 2)|) :
+    g ^ 4 = Z * ((√(A0 * √(1 - u0 ^ 2)))⁻¹) ^ 4 := by
+  have hu2 : 0 < 1 - u0 ^ 2 := by
+    have : u0 ^ 2 < 1 := by nlinarith [abs_nonneg u0, sq_abs u0]
+    linarith
+  rw [hg, dlgh_W4 hA hu, abs_neg, abs_of_pos hZ, abs_of_pos (by positivity)]
+  field_simp
+
+
+/-- **The Airy datum at one lattice site** (`DlgAiryAt`) from the Langer chart facts at that site and the D2A pointwise Airy shape. -/
+theorem dlgh_airyat {P Q τ x qs : ℝ} {Y : ℤ → ℝ} {κ μ Ts Φmin lo C δ : ℝ} {k : ℤ} {Θ : ℝ → ℝ}
+    (hδ : 0 < δ) (hlo : 0 < lo) (hΦ : 0 < Φmin) (hC : 0 ≤ C)
+    (hA : 0 < hrA1 P Q (dalQ (δ ^ 3 / 2) δ k)) (hu : |hrU P Q τ x (dalQ (δ ^ 3 / 2) δ k)| < 1)
+    (hneg : langerZeta (hrU P Q τ x) qs (dalQ (δ ^ 3 / 2) δ k) < 0)
+    (hphase : 2 / 3 * (-langerZeta (hrU P Q τ x) qs (dalQ (δ ^ 3 / 2) δ k)) ^ (3 / 2 : ℝ) = Ts - Θ (dalQ (δ ^ 3 / 2) δ k))
+    (hg4 : (langerAmp (hrU P Q τ x) (hrA1 P Q) qs (dalQ (δ ^ 3 / 2) δ k)) ^ 4 =
+      4 * |langerZeta (hrU P Q τ x) qs (dalQ (δ ^ 3 / 2) δ k)| /
+        |4 * hrA1 P Q (dalQ (δ ^ 3 / 2) δ k) ^ 2 * (1 - hrU P Q τ x (dalQ (δ ^ 3 / 2) δ k) ^ 2)|)
+    (hg0 : 0 < langerAmp (hrU P Q τ x) (hrA1 P Q) qs (dalQ (δ ^ 3 / 2) δ k))
+    (hΦle : Φmin ≤ Ts - Θ (dalQ (δ ^ 3 / 2) δ k))
+    (hwlo : lo ≤ dlgsW (hrA1 P Q) (hrU P Q τ x) (dalQ (δ ^ 3 / 2) δ k))
+    (hAiry : |Y k - (κ * daoPhi (fun k => langerAmp (hrU P Q τ x) (hrA1 P Q) qs (dalQ (δ ^ 3 / 2) δ k))
+          (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ) k +
+        μ * daoPsi (fun k => langerAmp (hrU P Q τ x) (hrA1 P Q) qs (dalQ (δ ^ 3 / 2) δ k))
+          (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ) k)| ≤
+      C * δ ^ 3 * (|κ| * airyWt (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k) +
+        |μ| * airyBiWt (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k))) :
+    DlgAiryAt κ μ Y (dlgsW (hrA1 P Q) (hrU P Q τ x)) Θ (δ ^ 3 / 2) (δ ^ 3) Ts Φmin
+      ((((3 / 2) * Φmin) ^ (2 / 3 : ℝ)) ^ (1 / 4 : ℝ) * lo) C k := by
+  set q : ℝ := dalQ (δ ^ 3 / 2) δ k with hq
+  set ζ : ℝ := langerZeta (hrU P Q τ x) qs q with hζ
+  set g : ℝ := langerAmp (hrU P Q τ x) (hrA1 P Q) qs q with hgdef
+  set W : ℝ := dlgsW (hrA1 P Q) (hrU P Q τ x) q with hWdef
+  have hh : 0 < δ ^ 3 := by positivity
+  have hZ : 0 < -ζ := neg_pos.2 hneg
+  have hW : 0 < W := hlo.trans_le hwlo
+  have h4 : g ^ 4 = -ζ * W ^ 4 := by
+    have := dlgh_g4 (A0 := hrA1 P Q q) (u0 := hrU P Q τ x q) (Z := -ζ) (g := g) hA hu hZ (by rw [hg4, neg_neg])
+    exact this
+  obtain ⟨hgeq, hyp, hM2, hM3⟩ := dlgh_site_arith hg0 hW hZ hh h4
+  have hDpos : Φmin ≤ 2 / 3 * (-ζ) ^ (3 / 2 : ℝ) := by rw [hphase]; exact hΦle
+  have hXk : turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k = (δ ^ 3) ^ (-(2 / 3) : ℝ) * ζ := rfl
+  set y : ℝ := (δ ^ 3) ^ (-(2 / 3) : ℝ) * (-ζ) with hy
+  have hXy : turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k = -y := by
+    rw [hXk, hy]; ring
+  have hyw : y ^ (-(1 / 4) : ℝ) ≥ 0 := (Real.rpow_pos_of_pos hyp _).le
+  have hq' : dlgQ (δ ^ 3 / 2) (δ ^ 3) k = q := rfl
+  refine ⟨g, y, hyp, ?_, ?_, ?_, ?_, ?_⟩
+  · rw [hq']; exact hM2
+  · have : (2 / 3 * (-ζ) ^ (3 / 2 : ℝ)) / δ ^ 3 = Ts / δ ^ 3 - dlgP Θ (δ ^ 3 / 2) (δ ^ 3) k := by
+      rw [hphase, sub_div]; rfl
+    rw [hM3, this]
+  · have : δ ^ 3 * dlgP Θ (δ ^ 3 / 2) (δ ^ 3) k = Θ q := by
+      unfold dlgP; rw [mul_div_cancel₀ _ hh.ne']; rfl
+    rw [this]; exact hΦle
+  · -- g ≥ gmin
+    have hZmin : ((3 / 2) * Φmin) ^ (2 / 3 : ℝ) ≤ -ζ := by
+      have h1 : (3 / 2) * Φmin ≤ (-ζ) ^ (3 / 2 : ℝ) := by linarith
+      have h2 := Real.rpow_le_rpow (by positivity) h1 (by norm_num : (0 : ℝ) ≤ 2 / 3)
+      rwa [← Real.rpow_mul hZ.le, show (3 / 2 : ℝ) * (2 / 3) = 1 by norm_num, Real.rpow_one] at h2
+    rw [hgeq]
+    exact mul_le_mul (Real.rpow_le_rpow (by positivity) hZmin (by norm_num)) hwlo hlo.le (Real.rpow_nonneg hZ.le _)
+  · -- Airy shape
+    have hAi : airyAi (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k) = airyAi (-y) := by rw [hXy]
+    have hBi : airyBi (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k) = airyBi (-y) := by rw [hXy]
+    have hwt : airyWt (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k) ≤ y ^ (-(1 / 4) : ℝ) ∧
+        airyBiWt (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k) ≤ y ^ (-(1 / 4) : ℝ) := by
+      rw [hXy]
+      have hxi : airyXi (-y) = 0 := by
+        unfold airyXi
+        rw [max_eq_right (by linarith), Real.zero_rpow (by norm_num)]; ring
+      have hab : |-y| = y := by rw [abs_neg, abs_of_pos hyp]
+      have hrp : (2 + y) ^ (-(1 / 4) : ℝ) ≤ y ^ (-(1 / 4) : ℝ) :=
+        Real.rpow_le_rpow_of_nonpos hyp (by linarith) (by norm_num)
+      unfold airyWt airyBiWt
+      rw [hxi, hab]
+      simp only [neg_zero, Real.exp_zero, mul_one]
+      exact ⟨hrp, hrp⟩
+    have hC' : C * δ ^ 3 * (|κ| * airyWt (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k) +
+        |μ| * airyBiWt (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k)) ≤ C * (δ ^ 3) * ((|κ| + |μ|) * y ^ (-(1 / 4) : ℝ)) := by
+      apply mul_le_mul_of_nonneg_left _ (by positivity)
+      nlinarith [mul_le_mul_of_nonneg_left hwt.1 (abs_nonneg κ), mul_le_mul_of_nonneg_left hwt.2 (abs_nonneg μ)]
+    have := hAiry
+    unfold daoPhi daoPsi at this
+    rw [hAi, hBi] at this
+    exact this.trans hC'
+
+/-- info: 'FormalResearch.Special.dlgh_airyat' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dlgh_airyat
 
 end FormalResearch.Special
