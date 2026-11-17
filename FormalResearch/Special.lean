@@ -89,6 +89,7 @@ public import FormalResearch.Special.DiscreteAiryKappaMain
 public import FormalResearch.Special.DiscreteAiryUnifHahn
 public import FormalResearch.Special.DiscreteAirySecondHahn
 public import FormalResearch.Special.AiryCft2DerivHadamard
+public import FormalResearch.Special.Barnes
 
 /-!
 # Special functions: Jacobi polynomials
@@ -215,4 +216,15 @@ the sampling bound `Σ‖f(a_n)/Ai'(a_n)²‖ ≤ C ∫_{x<0}‖f‖` (`airyQ_sa
 pointwise bound Q (2) (only weak forms, `airyQ_pointwise_real`, `airyQ_f_point`), the vanishing moments (Corollary Q′), the Clark node labelling and `α`-dependence, polynomial `P, Q`.  The
 Hadamard factorization theorem, the converse growth bound (`HadamardGrowth`) and the genus-one product of `Ai` are in the separate
 aggregate `FormalResearch.Complex` (it imports `HadamardAiry`, which uses the Airy modules; no module of the `Airy` aggregate imports it).
+Barnes' `G`-function and the Gamma identities of the Weyl W1 free-fermion paper (`Barnes*`, umbrella `Barnes`, namespace
+`FormalResearch.Special.Barnes`; Mathlib has no Barnes `G`): Gauss' series `ψ(z) = -γ + ∑(1/(k+1) - 1/(k+z))` for `Complex.digamma` on
+`Re z > 0` (`digamma_eq_series`; Mathlib has no Gauss series), the Weierstrass log series of `log G(1+z)` with termwise derivative
+`z(ψ(1+z)+γ)` and the normalisation `G(2) = 1` from Stirling, `G` on `Re w > 0` with `G' = QG` (`barnesQ`), `G(w+1) = Γ(w)G(w)`, its
+extension to an entire function `barnesG` with zero locus `{0,-1,-2,…}` and a zero of order exactly `m+1` at `-m`, the kernel
+`cosh πξ + cos θ` and the Cauchy contour shift `∫ψ(½+ix/2)/(cosh πx+cos θ)dx = 2[Q(1+b) - Q(1-b)]/sin θ` (`integral_digamma_div_kerD`),
+differentiation under the integral (`hasDerivAt_bgInt`), the real form of `thm:BG`, `-(1/4π)∫log((cosh πx+cos θ)/(cosh πx+1)) Re ψ(½+ix/2)dx =
+log[G(1+b)G(1-b)]`, `b = θ/2π`, `|θ| < π` (`barnes_gamma_identity`), and `lem:VI` (`integral_wR`, `integral_wR_mul_rhoR`).  Not formalised: the complex
+`g_θ` form of the first equality of `thm:BG` (only the real part, `re_gTheta`), the sharp `O(log)` bound for `Re ψ` (a linear bound is proved and
+suffices), the Weierstrass product on all of `ℂ`, uniqueness of `G`, Gauss' series for `Re z ≤ 0`, and everything downstream (Barnes products,
+entropy constants, lattice summation).
 -/
