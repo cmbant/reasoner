@@ -29,14 +29,12 @@ depending only on the datum constants, which are absolute) gives `DaiFull`; `Dai
 (where `-N ≤ x²/2`) gives the decomposition.
 
 **Not formalised (honest accounting).**
-* **`κ` is unidentified**: the theorem says nothing about `κ = κ(x)`, in particular neither `κ ≠ 0` nor the size.  Numerically
-  (mpmath 30 digits, scratch) `κ = S^{-1/12}(1+O(1/S))`, i.e. `φ_n(x) ≈ S^{-1/12} g Ai(X)`, `S=x²/2`:
-  `κ = 0.6431, 0.5729, 0.5104` for `S = 200, 800, 3200`, ratio `4^{-1/12}`; this is numerical evidence only.  The `ℓ²`-mass
-  argument of `hahn_chain_kappa` has no analogue (`∑_n φ_n(x)²` diverges at fixed `x`); the available normalisations are
-  the transverse `∫ φ_n² dx = 1` (proved, `integral_hermitePhi_sq`) and the Mehler kernel `∑ t^n φ_n(x)² =
-  e^{-x²(1-t)/(1+t)}/√(π(1-t²))` (not formalised); either needs control of the bulk (Liouville–Green) region (the generic layer `dlg_bulk_smooth` of `DiscreteLg` exists but is not instantiated for the Hermite chain, and gives no amplitude without `κ`) or the
-  Airy Laplace transform `∫ Ai² e^{-pX}` plus lattice sums.  Hence the amplitude bound `|φ_n| ≤ C n^{-1/12}` and the
-  full Plancherel–Rotach statement (which carries the constant) are **not** obtained here.
+* **`κ` is not identified here**: `hermite_airy_edge` says nothing about `κ = κ(x)`.  Its order is determined in `HermiteKappa`
+  (`hermite_kappa_order`: `c ≤ κ² x^{1/3} ≤ C`, so `κ ≠ 0` and `|κ| ≍ S^{-1/12}`, `S = x²/2`), and the size statement of W1 `lem:PR`(b) is
+  `hermite_PR_b` (uniform envelope `hermite_envelope`), both by a Weber-ODE energy/adiabatic-invariant argument in `x`; the `ℓ²`-mass
+  argument of `hahn_chain_kappa` has no analogue (`∑_n φ_n(x)²` diverges at fixed `x`).  The exact value `κ = S^{-1/12}(1+O(1/S))`
+  (numerically `κ = 0.6431, 0.5729, 0.5104` for `S = 200, 800, 3200`, ratio `4^{-1/12}`; numerical evidence only), sharp constants and
+  uniqueness of `κ` in the decomposition are **not** obtained, nor the full Plancherel–Rotach statement with phase.
 * the bulk `|ζ_n| ≤ 1 - ε'` statement and the explicit phase for the Hermite chain (the generic discrete Liouville–Green layer `dlg_bulk_smooth` of `DiscreteLg` exists, first order, for smooth Jacobi chains, but is not instantiated for the Hermite datum);
 * negative `x` is not restated (parity `hermitePhi_neg`: `φ_n(-x) = (-1)^n φ_n(x)`, so `|φ_n(-x)| = |φ_n(x)|` and the signed chain
   is multiplied by `(-1)^k`);

@@ -93,6 +93,7 @@ public import FormalResearch.Special.Barnes
 public import FormalResearch.Special.Lattice
 public import FormalResearch.Special.ComplexStirling
 public import FormalResearch.Special.HermiteAiry
+public import FormalResearch.Special.HermiteKappa
 public import FormalResearch.Special.DiscreteLg
 
 /-!
@@ -253,14 +254,17 @@ rotation).  Imports `BarnesDigamma` (Gauss' series and convexity bounds) and the
 (Stirling's constant along `ℕ`); both are to be replaced before upstreaming.  Not formalised: the sharp constants and the Bernoulli
 series (`1/12`-type), sectors `|arg z| > π/2` and `Re z ≤ 0`, the Weierstrass product form of `log Γ`, uniqueness of the branch among
 merely continuous logarithms.
-Hermite functions and their Airy edge (`Hermite*`, umbrella `HermiteAiry`, namespace `FormalResearch.Special`; survey item T9, W1 `hermite.tex` `lem:PR`, case H): the orthonormal Hermite functions
+Hermite functions and their Airy edge (`Hermite*`, umbrellas `HermiteAiry` and `HermiteKappa`, namespace `FormalResearch.Special`; survey item T9, W1 `hermite.tex` `lem:PR`, case H): the orthonormal Hermite functions
 `hermitePhi` (Mathlib's `Polynomial.hermite` over `ℝ`) with the exact three-term recurrence, ladder relations and parity (`hermitePsi_rec`, `hasDerivAt_hermitePhi_succ`, `hermitePhi_neg`),
 `∫ φ_n² = 1` and the polynomial sup bound `φ_n² ≤ 2n+2` (`integral_hermitePhi_sq`, `abs_hermitePhi_le`), the reflected chain `Y_k = φ_{-k}(x)` as an *exact* simple-turn datum
 `DunDatum` (`hermite_datum`, `hermite_row`: coefficient error `E = 0`), and the Plancherel–Rotach Airy edge (`hermite_airy_edge`): from `discrete_airy_full_unif`, on the macroscopic window `|(2n+1)/x² - 1| ≤ r`,
-`φ_n(x) = κ g Ai(X) + μ g Bi(X)` with relative error `O(1/n)` in the Olver weights, `μ` exponentially small, absolute constants.  Not formalised: the identification of the amplitude `κ`
-(numerically `κ = S^{-1/12}(1+o(1))`, `S = x²/2`; the Hahn mass argument `hahn_chain_kappa` has no analogue because `∑_n φ_n(x)²` diverges) and even `κ ≠ 0`, so the Airy *shape* is proved but not the size
-(W1 `lem:PR`(b), `|φ_n| ≤ C n^{-1/12}` at the edge, is not obtained); the bulk expansion and phase for the Hermite chain (the generic discrete Liouville–Green layer `dlg_bulk_smooth` exists, see `DiscreteLg` below, but is not instantiated for it), the decay beyond the window, closed form of the Langer coordinate,
-Cramér's bound, orthogonality, the Weber ODE, the Mehler kernel, the Laguerre analogues.
+`φ_n(x) = κ g Ai(X) + μ g Bi(X)` with relative error `O(1/n)` in the Olver weights, `μ` exponentially small, absolute constants.  `HermiteKappa` (`HermiteKappa*`, 13 modules) adds
+the Weber equation `φ_n'' = (x² - 2n - 1) φ_n` with the energy and an adiabatic invariant (`hasDerivAt_hkDer`, `hermite_weberData`), the **uniform envelope**
+`φ_n(x)² √(|2n+1-x²| + (2n+1)^{1/3}) ≤ 12·10⁶` for all `n` and real `x` (`hermite_envelope`) and the size statement of W1 `lem:PR`(b) in product form (`hermite_PR_b`),
+and the **order** of the Airy amplitude, `c ≤ κ² x^{1/3} ≤ C` (`|κ| ≍ S^{-1/12}`, `S = x²/2`; `hermite_kappa_order`, hence `κ ≠ 0`), with the Airy-edge chart data exported (`hermite_kappa_edge`).
+Not formalised: the exact amplitude (numerically `κ = S^{-1/12}(1+o(1))`) and the sharp constants (the envelope's `12·10⁶` is crude, numerically `≈ 0.75`), uniqueness of `κ` in the Airy decomposition, the derivative bound and the oscillatory form with phase of `lem:PR`(a),
+negative `x` and `x = 0` in the `κ` order theorem; the bulk expansion and phase for the Hermite chain (the generic discrete Liouville–Green layer `dlg_bulk_smooth` exists, see `DiscreteLg` below, but is not instantiated for it), closed form of the Langer coordinate,
+Cramér's bound, orthogonality, the second solution of the Weber equation, the Mehler kernel, the Laguerre analogues.
 Discrete Liouville–Green (Darboux) layer for Jacobi chains (`DiscreteLg*`, 10 modules, umbrella `DiscreteLg`, namespace `FormalResearch.Special`): the oscillatory bulk of a three-term recurrence with
 smooth symmetric Jacobi coefficients and its matching to the Airy turn, first order with explicit `O(h)` error.  For a bulk datum `DlgData` (`A w² sin θ = 1`, `Θ' = θ`) the pair `w cos(Θ/h)`, `w sin(Θ/h)`
 has row defect `O(h²)` and Casoratian `1 + O(h)` (`dlg_row_defect`, `dlg_cas_bound`), and the Airy-free variation-of-constants march gives, for every solution, `Y_k = R w(q_k)[cos(Θ(q_k)/h - φ₀) + O(h)]`

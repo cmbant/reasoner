@@ -14,6 +14,7 @@ For the orthonormal Hermite functions `hermitePhi` of `HermiteFunction`:
   `φ_n(x)² = ∫_{-∞}^x 2 φ_n φ_n'`, `2φφ' ≤ φ² + φ'²`, `φ'² ≤ n φ_{n-1}² + (n+1) φ_{n+1}²` (the ladder relation of
   `hasDerivAt_hermitePsi`) and the normalisation.  This is the cheap substitute for Cramér's inequality `|φ_n| ≤ k π^{-1/4}`
   (`k ≈ 1.0865`; numerically `sup|φ_n| ≤ π^{-1/4}`, mpmath, `n ≤ 100`; polynomial, not uniform, but enough for the exponentially small dominant coefficient in `HermiteAiryEdge`).
+  The uniform bound is `hermite_envelope` of `HermiteKappaSup` (`φ_n(x)² (2n+1)^{1/6} ≲ 1` with a crude constant, from the Weber ODE; Cramér's sharp constant is still not formalised).
 
 **Claim class: proved.**  Not formalised: orthogonality `∫ φ_n φ_m = 0` for `n ≠ m` (not needed), completeness,
 Cramér's inequality.
