@@ -16,6 +16,7 @@ public import FormalResearch.Special.DiscreteAiryPhysHahn
 @[expose] public section
 
 open Finset FormalResearch.Racah.P3 FormalResearch.DiscreteAiry
+open scoped Real
 
 namespace FormalResearch.Special
 
@@ -347,5 +348,169 @@ lemma dlgh_lattice {δ c d : ℝ} (hδ : 0 < δ) (k : ℤ) :
   rw [Int.ceil_le, Int.le_floor, div_le_iff₀ hh, le_div_iff₀ hh]
   unfold dlgQ
   constructor <;> rintro ⟨h1, h2⟩ <;> constructor <;> linarith
+
+
+lemma dlgh_qJ {qs r δ : ℝ} {J : ℤ} (hδ : 0 < δ) (h1 : qs - r ≤ ((J : ℝ) + 1 / 2) * δ ^ 3)
+    (h2 : ((J : ℝ) + 1 / 2) * δ ^ 3 < qs - r + δ ^ 3) (h3 : δ ^ 3 ≤ r / 4) :
+    ∀ k : ℤ, J ≤ k → k ≤ J + 1 → qs - r ≤ dalQ (δ ^ 3 / 2) δ k ∧ dalQ (δ ^ 3 / 2) δ k ≤ qs - r / 2 := by
+  intro k hk1 hk2
+  have e2 : dalQ (δ ^ 3 / 2) δ k = ((k : ℝ) + 1 / 2) * δ ^ 3 := by unfold dalQ; ring
+  rw [e2]
+  have h3p : 0 < δ ^ 3 := by positivity
+  rcases (by omega : k = J ∨ k = J + 1) with rfl | rfl
+  · constructor <;> linarith
+  · push_cast
+    have : (((J : ℝ) + 1) + 1 / 2) * δ ^ 3 = ((J : ℝ) + 1 / 2) * δ ^ 3 + δ ^ 3 := by ring
+    rw [this]
+    constructor <;> linarith
+
+/-- The Airy datum `DlgAiryAt` at the two sites `J, J + 1` of the Airy window (assembly of `dlgh_chart`, the phase split and `dlgh_airyat`). -/
+lemma dlgh_site_all {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (τ x qs : ℝ) (hα : 0 < 1 - P * qs ^ 2) (hβ : 0 < 1 - Q * qs ^ 2)
+    {c0 c r ρ δ : ℝ} {J N : ℤ} {κ μ : ℝ} {Y : ℤ → ℝ} {CA : ℝ}
+    (hch : ∀ q : ℝ, qs - ρ < q → q < qs →
+      langerZeta (hrU P Q τ x) qs q < 0 ∧
+      2 / 3 * (-langerZeta (hrU P Q τ x) qs q) ^ (3 / 2 : ℝ) = ∫ s in q..qs, Real.arccos (hrU P Q τ x s) ∧
+      (langerAmp (hrU P Q τ x) (hrA1 P Q) qs q) ^ 4 =
+        4 * |langerZeta (hrU P Q τ x) qs q| / |4 * hrA1 P Q q ^ 2 * (1 - hrU P Q τ x q ^ 2)| ∧
+      0 < langerAmp (hrU P Q τ x) (hrA1 P Q) qs q)
+    (hosc : ∀ q ∈ Set.Ico c0 qs, |hrU P Q τ x q| < 1) (hrρ1 : r ≤ ρ / 2) (hc0c : c0 < c) (hcr : c < qs - r)
+    (hδ : 0 < δ)
+    (hqJ : ∀ k : ℤ, J ≤ k → k ≤ J + 1 → qs - r ≤ dalQ (δ ^ 3 / 2) δ k ∧ dalQ (δ ^ 3 / 2) δ k ≤ qs - r / 2)
+    (hΦpos : 0 < ∫ s in (qs - r / 2)..qs, Real.arccos (hrU P Q τ x s)) (hCA : 0 < CA)
+    (hpt : ∀ k ∈ Finset.Icc J (N + 1),
+      |Y k - (κ * daoPhi (fun k => langerAmp (hrU P Q τ x) (hrA1 P Q) qs (dalQ (δ ^ 3 / 2) δ k))
+            (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ) k +
+          μ * daoPsi (fun k => langerAmp (hrU P Q τ x) (hrA1 P Q) qs (dalQ (δ ^ 3 / 2) δ k))
+            (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ) k)| ≤
+        CA * δ ^ 3 * (|κ| * airyWt (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k) +
+          |μ| * airyBiWt (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k))) (hJN : J < N) (hr : 0 < r) (hc0 : 0 < c0) :
+    ∀ k : ℤ, J ≤ k → k ≤ J + 1 →
+      DlgAiryAt κ μ Y (dlgsW (hrA1 P Q) (hrU P Q τ x)) (dlgsPhase (hrU P Q τ x) ((c0 + c) / 2)) (δ ^ 3 / 2) (δ ^ 3)
+        (∫ s in (c0 + c) / 2..qs, Real.arccos (hrU P Q τ x s))
+        (∫ s in (qs - r / 2)..qs, Real.arccos (hrU P Q τ x s))
+        ((((3 / 2) * (∫ s in (qs - r / 2)..qs, Real.arccos (hrU P Q τ x s))) ^ (2 / 3 : ℝ)) ^ (1 / 4 : ℝ) * 1) CA k := by
+  intro k hk1 hk2
+  have hc : 0 < c := hc0.trans hc0c
+  have hc1pos : 0 < (c0 + c) / 2 := by linarith
+  have hfacP : ∀ q : ℝ, 0 < q → q ≤ qs → 0 < 1 - P * q ^ 2 := fun q h1 h2 => dlgh_fac hP hα h1 h2
+  have hfacQ : ∀ q : ℝ, 0 < q → q ≤ qs → 0 < 1 - Q * q ^ 2 := fun q h1 h2 => dlgh_fac hQ hβ h1 h2
+  obtain ⟨hq1, hq2⟩ := hqJ k hk1 hk2
+  have hqc : c < dalQ (δ ^ 3 / 2) δ k := by linarith
+  have hq0 : 0 < dalQ (δ ^ 3 / 2) δ k := hc.trans hqc
+  have hqs' : dalQ (δ ^ 3 / 2) δ k < qs := by linarith
+  have hcq1 : (c0 + c) / 2 ≤ dalQ (δ ^ 3 / 2) δ k := by linarith
+  obtain ⟨hneg, hI, hg4, hg0⟩ := hch (dalQ (δ ^ 3 / 2) δ k) (by linarith) hqs'
+  have hsplit := dlgh_split hP hQ τ x qs ((c0 + c) / 2) (dalQ (δ ^ 3 / 2) δ k) hc1pos hα hβ hcq1 hqs'.le
+  have hΦle := dlgh_tail_ge hP hQ τ x qs ((c0 + c) / 2) (dalQ (δ ^ 3 / 2) δ k) (qs - r / 2) hc1pos hα hβ hcq1 hq2
+    (by linarith)
+  have hu1 : |hrU P Q τ x (dalQ (δ ^ 3 / 2) δ k)| < 1 := hosc _ ⟨by linarith, hqs'⟩
+  exact dlgh_airyat (P := P) (Q := Q) (τ := τ) (x := x) (qs := qs) (Y := Y) (κ := κ) (μ := μ) hδ one_pos hΦpos hCA.le
+    (hrA_pos (mul_pos (hfacP _ hq0 hqs'.le) (hfacQ _ hq0 hqs'.le))) hu1 hneg (hI.trans hsplit.symm) hg4 hg0
+    (by rw [hsplit]; exact hΦle)
+    (dlgh_w_ge_one hP hQ (hfacP _ hq0 hqs'.le) (hfacQ _ hq0 hqs'.le) τ x hu1)
+    (hpt k (by rw [Finset.mem_Icc]; omega))
+
+/-- **End-to-end bulk/Airy matching for the Hahn / centred Racah chains.**  Inputs: the simple-turn hypotheses of `airy_full_compose`
+(`P, Q ≥ 0`, `τ² = 1`, `Φ(q_*²) = 0`, `1 - τ x > 0`, `P q_*² < 1`, `Q q_*² < 1`, `q_* > 0`) and the oscillatory regularity `|u| < 1` on `[c₀, q_*)`.
+There are `r, C_μ, ξ₀ > 0` (the Airy chart radius; `r ≤ q_*/4`) such that for every left end `c ∈ (c₀, q_* - r)` there are `δ₀, C > 0` with the following property.
+Every `Y` solving all rows `k ≥ 1` of the closed-form Jacobi chain at scale `h = δ³`, `δ ≤ δ₀`, with `|Y_k| ≤ Y_max`, has Airy coefficients `κ, μ`
+(`|μ| ≤ C_μ Y_max e^{-ξ₀/δ³}/δ`) such that at every lattice site `q_k ∈ [c, q_* - r/2]`
+`Y_k = h^{1/6} π^{-1/2} w(q_k) (κ cos χ_k + μ sin χ_k) + O(h^{1/6} h (|κ|+|μ|) w(q_k))`, `χ_k = Θ(q_k)/h - Θ*/h + π/4`,
+with `Θ = ∫_{c₁}^· arccos u`, `Θ* = ∫_{c₁}^{q_*} arccos u`, `w = (A √(1-u²))^{-1/2}`.  For `μ = 0` (and `μ` is exponentially small): amplitude `h^{1/6}|κ|/√π`, phase
+offset exactly `π/4` (the Maslov index of a simple turn), sign of `κ` the sign of the cosine factor. -/
+theorem dlg_hahn_airy {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (hqs : 0 < qs) (hτ : τ ^ 2 = 1)
+    (hκ : 0 < 1 - τ * x) (hα : 0 < 1 - P * qs ^ 2) (hβ : 0 < 1 - Q * qs ^ 2) (hturn : Phi P Q τ x (qs ^ 2) = 0)
+    {c0 : ℝ} (hc0 : 0 < c0) (hc0q : c0 < qs) (hosc : ∀ q ∈ Set.Ico c0 qs, |hrU P Q τ x q| < 1) :
+    ∃ (r Cmu ξ0 : ℝ), 0 < r ∧ r ≤ qs / 4 ∧ 0 < Cmu ∧ 0 < ξ0 ∧
+      ∀ c : ℝ, c0 < c → c < qs - r → ∃ δ0 C : ℝ, 0 < δ0 ∧ 0 < C ∧
+        ∀ (δ : ℝ) (Y : ℤ → ℝ) (Ymax : ℝ), 0 < δ → δ ≤ δ0 →
+          (∀ k : ℤ, 1 ≤ k → jac (hrAk P Q a b (δ ^ 3)) (hrCk P Q τ x a b (δ ^ 3)) Y k = 0) → (∀ k, |Y k| ≤ Ymax) →
+          ∃ κ μ : ℝ, |μ| ≤ Cmu * Ymax * Real.exp (-ξ0 / δ ^ 3) / δ ∧
+            ∀ k : ℤ, c ≤ dlgQ (δ ^ 3 / 2) (δ ^ 3) k → dlgQ (δ ^ 3 / 2) (δ ^ 3) k ≤ qs - r / 2 →
+              |Y k - (δ ^ 3) ^ (1 / 6 : ℝ) * (1 / √π) * dlgsW (hrA1 P Q) (hrU P Q τ x) (dlgQ (δ ^ 3 / 2) (δ ^ 3) k) *
+                  (κ * Real.cos (dlgP (dlgsPhase (hrU P Q τ x) ((c0 + c) / 2)) (δ ^ 3 / 2) (δ ^ 3) k -
+                      (∫ s in (c0 + c) / 2..qs, Real.arccos (hrU P Q τ x s)) / δ ^ 3 + π / 4) +
+                    μ * Real.sin (dlgP (dlgsPhase (hrU P Q τ x) ((c0 + c) / 2)) (δ ^ 3 / 2) (δ ^ 3) k -
+                      (∫ s in (c0 + c) / 2..qs, Real.arccos (hrU P Q τ x s)) / δ ^ 3 + π / 4))| ≤
+                C * ((|κ| + |μ|) * ((δ ^ 3) ^ (1 / 6 : ℝ) * δ ^ 3)) *
+                  dlgsW (hrA1 P Q) (hrU P Q τ x) (dlgQ (δ ^ 3 / 2) (δ ^ 3) k) := by
+  obtain ⟨ρ, hρ, hch⟩ := dlgh_chart (P := P) (Q := Q) τ x qs hqs hκ hα hβ hturn
+  obtain ⟨r, δA, CA, Cmu, ξ0, hr, hrρ, hrq4, hδA, hCA, hCmu, hξ0, HA⟩ :=
+    dlgh_airy_compose hP hQ a b τ x qs hqs hτ hκ hα hβ hturn (ρ := min (ρ / 2) (qs - c0))
+      (lt_min (by positivity) (by linarith))
+  have hrρ1 : r ≤ ρ / 2 := hrρ.trans (min_le_left _ _)
+  have hrρ2 : r ≤ qs - c0 := hrρ.trans (min_le_right _ _)
+  refine ⟨r, Cmu, ξ0, hr, hrq4, hCmu, hξ0, ?_⟩
+  intro c hc0c hcr
+  have hc : 0 < c := hc0.trans hc0c
+  have hc1pos : 0 < (c0 + c) / 2 := by linarith
+  have hcd : c < qs - r / 2 := by linarith
+  have hdd0 : qs - r / 2 < qs - r / 4 := by linarith
+  have hfacP : ∀ q : ℝ, 0 < q → q ≤ qs → 0 < 1 - P * q ^ 2 := fun q h1 h2 => dlgh_fac hP hα h1 h2
+  have hfacQ : ∀ q : ℝ, 0 < q → q ≤ qs → 0 < 1 - Q * q ^ 2 := fun q h1 h2 => dlgh_fac hQ hβ h1 h2
+  have hreg : ∀ q ∈ Set.Icc c0 (qs - r / 4), 0 < 1 - P * q ^ 2 ∧ 0 < 1 - Q * q ^ 2 ∧ |hrU P Q τ x q| < 1 :=
+    fun q hq => ⟨hfacP q (by linarith [hq.1]) (by linarith [hq.2]), hfacQ q (by linarith [hq.1]) (by linarith [hq.2]),
+      hosc q ⟨hq.1, by linarith [hq.2]⟩⟩
+  obtain ⟨δ1, Cb, hδ1, hCb, HM⟩ := dlg_airy_match_hahn hP hQ a b τ x hτ hc0 hc0c hcd hdd0 hreg
+  have hch_d := hch (qs - r / 2) (by linarith) (by linarith)
+  have hΦpos : 0 < ∫ s in (qs - r / 2)..qs, Real.arccos (hrU P Q τ x s) := by
+    rw [← hch_d.2.1]; exact mul_pos (by norm_num) (Real.rpow_pos_of_pos (neg_pos.2 hch_d.1) _)
+  set Φ : ℝ := ∫ s in (qs - r / 2)..qs, Real.arccos (hrU P Q τ x s) with hΦ
+  have hgmin : 0 < (((3 / 2) * Φ) ^ (2 / 3 : ℝ)) ^ (1 / 4 : ℝ) * 1 :=
+    mul_pos (Real.rpow_pos_of_pos (Real.rpow_pos_of_pos (by positivity) _) _) one_pos
+  set gmin : ℝ := (((3 / 2) * Φ) ^ (2 / 3 : ℝ)) ^ (1 / 4 : ℝ) * 1 with hgmin_def
+  have hKc : 0 ≤ 1 / (12 * Φ) + CA / gmin := by positivity
+  refine ⟨min (min δA δ1) (min 1 (r / 4)), Cb * (2 + (1 / (12 * Φ) + CA / gmin)),
+    lt_min (lt_min hδA hδ1) (lt_min one_pos (by positivity)), by positivity, ?_⟩
+  intro δ Y Ymax hδ hδ0 hrows hbd
+  have hδA' : δ ≤ δA := hδ0.trans ((min_le_left _ _).trans (min_le_left _ _))
+  have hδ1' : δ ≤ δ1 := hδ0.trans ((min_le_left _ _).trans (min_le_right _ _))
+  have hδone : δ ≤ 1 := hδ0.trans ((min_le_right _ _).trans (min_le_left _ _))
+  have hδr : δ ≤ r / 4 := hδ0.trans ((min_le_right _ _).trans (min_le_right _ _))
+  have h3δ : δ ^ 3 ≤ δ := by
+    have h1 : δ ^ 2 ≤ 1 := pow_le_one₀ hδ.le hδone
+    calc δ ^ 3 = δ * δ ^ 2 := by ring
+      _ ≤ δ * 1 := mul_le_mul_of_nonneg_left h1 hδ.le
+      _ = δ := mul_one _
+  have hδ3r : δ ^ 3 ≤ r / 4 := h3δ.trans hδr
+  have hhA := HA (δ ^ 3) Y Ymax (by positivity) (pow_le_pow_left₀ hδ.le hδA' 3) hrows hbd
+  obtain ⟨δ', hδ', hδ'A, hδ'3, J, m, N, hJ1, hJN, hJm, hmN, hwin, h1, h2, h3, h4, h5, h6, Hc, κ, μ, hμ1, hμ2, hpt⟩ := hhA
+  have hδeq : δ = δ' := (pow_left_inj₀ hδ.le hδ'.le (by norm_num)).1 hδ'3.symm
+  subst hδeq
+  have e2 : ∀ k : ℤ, dalQ (δ ^ 3 / 2) δ k = ((k : ℝ) + 1 / 2) * δ ^ 3 := fun k => by unfold dalQ; ring
+  have hqJ := dlgh_qJ (qs := qs) (r := r) (δ := δ) (J := J) hδ h1 h2 hδ3r
+  have site := dlgh_site_all (P := P) (Q := Q) hP hQ τ x qs hα hβ (c0 := c0) (c := c) (r := r) (ρ := ρ) (δ := δ) (J := J)
+    (N := N) (κ := κ) (μ := μ) (Y := Y) (CA := CA) hch hosc hrρ1 hc0c hcr hδ hqJ hΦpos hCA hpt hJN hr hc0
+  -- the bulk window of all lattice sites in `[c, qs - r/2]`
+  have hlat := dlgh_lattice (c := c) (d := qs - r / 2) hδ
+  have hqJ' : ∀ k : ℤ, J ≤ k → k ≤ J + 1 → c ≤ dlgQ (δ ^ 3 / 2) (δ ^ 3) k ∧ dlgQ (δ ^ 3 / 2) (δ ^ 3) k ≤ qs - r / 2 :=
+    fun k hk1 hk2 => ⟨by have h := hqJ k hk1 hk2; show c ≤ dalQ (δ ^ 3 / 2) δ k; linarith [h.1], (hqJ k hk1 hk2).2⟩
+  have hJw := (hlat J).1 (hqJ' J le_rfl (by omega))
+  have hJw1 := (hlat (J + 1)).1 (hqJ' (J + 1) (by omega) le_rfl)
+  have hJ0 : 0 ≤ ⌈(c - δ ^ 3 / 2) / δ ^ 3⌉ := by
+    by_contra hneg
+    push Not at hneg
+    have hmem := (hlat ⌈(c - δ ^ 3 / 2) / δ ^ 3⌉).2 ⟨le_rfl, by omega⟩
+    have h1' : ((⌈(c - δ ^ 3 / 2) / δ ^ 3⌉ : ℤ) : ℝ) ≤ -1 := by exact_mod_cast (by omega : ⌈(c - δ ^ 3 / 2) / δ ^ 3⌉ ≤ -1)
+    have := hmem.1
+    unfold dlgQ at this
+    have h3p : 0 < δ ^ 3 := by positivity
+    nlinarith
+  refine ⟨κ, μ, hμ2, fun k hk1 hk2 => ?_⟩
+  have hmem := (hlat k).1 ⟨hk1, hk2⟩
+  have hres := HM δ Y ⌈(c - δ ^ 3 / 2) / δ ^ 3⌉ (⌊(qs - r / 2 - δ ^ 3 / 2) / δ ^ 3⌋ - 1) J κ μ
+    (∫ s in (c0 + c) / 2..qs, Real.arccos (hrU P Q τ x s)) Φ gmin CA hΦpos hgmin hCA.le hδ
+    (hδ0.trans ((min_le_left _ _).trans (min_le_right _ _))) hJw.1 (by omega)
+    (fun j hj => by
+      rw [Finset.mem_Icc] at hj
+      exact (hlat j).2 ⟨hj.1, by omega⟩)
+    (fun j hj => hrows j (by rw [Finset.mem_Icc] at hj; omega))
+    (site J le_rfl (by omega)) (site (J + 1) (by omega) le_rfl)
+  have := hres k (by rw [Finset.mem_Icc]; omega)
+  exact this
+
+/-- info: 'FormalResearch.Special.dlg_hahn_airy' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dlg_hahn_airy
 
 end FormalResearch.Special
