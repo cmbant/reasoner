@@ -1,14 +1,14 @@
 module
 
-public import FormalResearch.Special.RacahKappaZone
+public import FormalResearch.Special.DiscreteAiryKappaSharpZone
 public import FormalResearch.Special.RacahKappaMu
 
 /-!
 # The zone mass from the Airy window (abstract chart data)
 
-`rk_zone_abs`: from the chart data and the pointwise Airy matching `Y = κ g Ai + μ g Bi + O(δ³(|κ|W + |μ|W̃))` on a window `[J, N+1]` (the fields of `RkWinAt`), an exponentially small `μ`
+`rk_zone_abs`: from the chart data and the pointwise Airy matching `Y = κ g Ai + μ g Bi + O(δ³(|κ|W + |μ|W̃))` on a window `[J, N+1]` (the fields of `RkWinAtG`), an exponentially small `μ`
 (`|μ| ≤ C_μ (c_s/δ³) e^{-ξ₀/δ³}/δ`, which follows from `|Y| ≤ c_s/δ³`), a monotone decay beyond `q_* + h`, and a support bound `Y_k = 0` for `q_k > R_max`, the mass `Σ_{jz ≤ k < END} Y_k²` beyond the
-first lattice site `jz` to the right of `q_* - η` is bounded by `2G²(2κ² + 2κ_m²)(√R₀/π + 2c₂R₀)/(c₁δ²) + K₃'(2κ² + 2κ_m²)/δ`, `R₀ = 2c₂η`.  Here `κ_m > 0` is arbitrary (take it small).
+first lattice site `jz` to the right of `q_* - η` is bounded by `2G²(2κ² + 2κ_m²)(√R₀/π + 2c₂R₀)/(c₁δ²) + K₃'(2κ² + 2κ_m²)/δ`, `R₀ = 2c₂η`.  Here `κ_m > 0` is arbitrary (take it small).  The lattice is `q_k = (k + θ) δ³`, `θ ≥ 0` (`θ = 1/2` integer chains, `θ = 1` half-integer chains).
 
 **Claim class: proved.**
 -/
@@ -19,12 +19,12 @@ open Finset FormalResearch.DiscreteAiry
 
 namespace FormalResearch.Special
 
-lemma rkza_geom {X : ℤ → ℝ} {J m N jz : ℤ} {δ qs r η c1 c2 : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hc1 : 0 < c1) (hη : 0 < η)
+lemma rkza_geom {X : ℤ → ℝ} {J m N jz : ℤ} {δ qs r η c1 c2 θ : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hc1 : 0 < c1) (hη : 0 < η)
     (hηr : η ≤ r / 2) (hη1 : η ≤ 1) (hr : 0 < r) (hs3 : δ ^ 3 ≤ η / 2) (hs4 : δ ^ 2 ≤ c1 * η / (2 * (1 + c2))) (hc2 : 0 < c2)
     (hJN : J < N) (hJm : J ≤ m)
-    (hp2 : ((J : ℝ) + 1 / 2) * δ ^ 3 < qs - r + δ ^ 3) (hp3 : qs ≤ ((m : ℝ) + 1 / 2) * δ ^ 3)
-    (hp4 : ((m : ℝ) + 1 / 2) * δ ^ 3 < qs + δ ^ 3)
-    (hjz1 : qs - η < ((jz : ℝ) + 1 / 2) * δ ^ 3) (hjz2 : ((jz : ℝ) + 1 / 2) * δ ^ 3 ≤ qs - η + δ ^ 3)
+    (hp2 : ((J : ℝ) + θ) * δ ^ 3 < qs - r + δ ^ 3) (hp3 : qs ≤ ((m : ℝ) + θ) * δ ^ 3)
+    (hp4 : ((m : ℝ) + θ) * δ ^ 3 < qs + δ ^ 3)
+    (hjz1 : qs - η < ((jz : ℝ) + θ) * δ ^ 3) (hjz2 : ((jz : ℝ) + θ) * δ ^ 3 ≤ qs - η + δ ^ 3)
     (gap : ∀ k ∈ Finset.Icc J N, c1 * δ ≤ X (k + 1) - X k ∧ X (k + 1) - X k ≤ c2 * δ)
     (hmN : m ≤ N) (X0 : 0 ≤ X m ∧ X m ≤ c2 * δ) :
     J < jz ∧ jz ≤ m ∧ X jz ≤ -1 ∧ -X jz ≤ (2 * c2 * η) / δ ^ 2 ∧ ((m + 2 - jz : ℤ) : ℝ) ≤ 4 / δ ^ 3 := by
@@ -32,7 +32,7 @@ lemma rkza_geom {X : ℤ → ℝ} {J m N jz : ℤ} {δ qs r η c1 c2 : ℝ} (hδ
   have hJjz : J < jz := by
     by_contra hcon
     push Not at hcon
-    have : ((jz : ℝ) + 1 / 2) * δ ^ 3 ≤ ((J : ℝ) + 1 / 2) * δ ^ 3 := by
+    have : ((jz : ℝ) + θ) * δ ^ 3 ≤ ((J : ℝ) + θ) * δ ^ 3 := by
       apply mul_le_mul_of_nonneg_right _ hδ3.le
       have : (jz : ℝ) ≤ J := by exact_mod_cast hcon
       linarith
@@ -40,16 +40,16 @@ lemma rkza_geom {X : ℤ → ℝ} {J m N jz : ℤ} {δ qs r η c1 c2 : ℝ} (hδ
   have hjzm : jz ≤ m := by
     by_contra hcon
     push Not at hcon
-    have : ((m : ℝ) + 1 / 2) * δ ^ 3 < ((jz : ℝ) + 1 / 2) * δ ^ 3 := by
+    have : ((m : ℝ) + θ) * δ ^ 3 < ((jz : ℝ) + θ) * δ ^ 3 := by
       apply mul_lt_mul_of_pos_right _ hδ3
       have : (m : ℝ) < jz := by exact_mod_cast hcon
       linarith
     linarith
   have hmj_lo : η / 2 ≤ ((m - jz : ℤ) : ℝ) * δ ^ 3 := by
-    have e : ((m - jz : ℤ) : ℝ) * δ ^ 3 = ((m : ℝ) + 1 / 2) * δ ^ 3 - ((jz : ℝ) + 1 / 2) * δ ^ 3 := by push_cast; ring
+    have e : ((m - jz : ℤ) : ℝ) * δ ^ 3 = ((m : ℝ) + θ) * δ ^ 3 - ((jz : ℝ) + θ) * δ ^ 3 := by push_cast; ring
     rw [e]; linarith
   have hmj_hi : ((m - jz : ℤ) : ℝ) * δ ^ 3 ≤ η + δ ^ 3 := by
-    have e : ((m - jz : ℤ) : ℝ) * δ ^ 3 = ((m : ℝ) + 1 / 2) * δ ^ 3 - ((jz : ℝ) + 1 / 2) * δ ^ 3 := by push_cast; ring
+    have e : ((m - jz : ℤ) : ℝ) * δ ^ 3 = ((m : ℝ) + θ) * δ ^ 3 - ((jz : ℝ) + θ) * δ ^ 3 := by push_cast; ring
     rw [e]; linarith
   have hgapJ : ∀ k : ℤ, jz ≤ k → k < m → c1 * δ ≤ X (k + 1) - X k := fun k h1 h2 =>
     (gap k (Finset.mem_Icc.2 ⟨by omega, by omega⟩)).1
@@ -175,23 +175,23 @@ lemma rkza_K {Y X g : ℤ → ℝ} {J N k1 : ℤ} {δ C Cmu ξ0 gmax κ μ cs κ
       nlinarith [sq_nonneg (airyAi (X k)), mul_le_mul_of_nonneg_right this (sq_nonneg (airyAi (X k)))]
     linarith
 
-lemma rk_zone_abs {Y X g : ℤ → ℝ} {J m N jz : ℤ} {δ qs r η C Cmu ξ0 gmin gmax c1 c2 κ μ cs Rmax κm : ℝ}
-    (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hc1 : 0 < c1) (hc12 : c1 ≤ c2) (hgmax : 0 ≤ gmax) (hC : 0 ≤ C) (hCmu : 0 ≤ Cmu) (hcs : 0 ≤ cs)
+lemma rk_zone_abs {Y X g : ℤ → ℝ} {J m N jz : ℤ} {δ qs r η C Cmu ξ0 gmin gmax c1 c2 κ μ cs Rmax κm θ : ℝ}
+    (hθ : 0 ≤ θ) (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hc1 : 0 < c1) (hc12 : c1 ≤ c2) (hgmax : 0 ≤ gmax) (hC : 0 ≤ C) (hCmu : 0 ≤ Cmu) (hcs : 0 ≤ cs)
     (hξ0 : 0 < ξ0) (hκm : 0 < κm) (hRmax : 0 ≤ Rmax) (hr : 0 < r) (hη : 0 < η) (hηr : η ≤ r / 2) (hη1 : η ≤ 1)
     (hs1 : δ ≤ ξ0 / 14) (hs2 : δ ≤ κm * ξ0 ^ 3 / (48 * ((450 * gmax + C) * Cmu * cs + 1))) (hs3 : δ ^ 3 ≤ η / 2)
     (hs4 : δ ^ 2 ≤ c1 * η / (2 * (1 + c2))) (hs5 : δ ≤ c1 * r / 8) (hs6 : c2 * δ ≤ 1)
     (hJ1 : 1 ≤ J) (hJN : J < N) (hJm : J ≤ m) (hmN : m ≤ N)
-    (hp2 : ((J : ℝ) + 1 / 2) * δ ^ 3 < qs - r + δ ^ 3) (hp3 : qs ≤ ((m : ℝ) + 1 / 2) * δ ^ 3)
-    (hp4 : ((m : ℝ) + 1 / 2) * δ ^ 3 < qs + δ ^ 3)
-    (hjz1 : qs - η < ((jz : ℝ) + 1 / 2) * δ ^ 3) (hjz2 : ((jz : ℝ) + 1 / 2) * δ ^ 3 ≤ qs - η + δ ^ 3)
+    (hp2 : ((J : ℝ) + θ) * δ ^ 3 < qs - r + δ ^ 3) (hp3 : qs ≤ ((m : ℝ) + θ) * δ ^ 3)
+    (hp4 : ((m : ℝ) + θ) * δ ^ 3 < qs + δ ^ 3)
+    (hjz1 : qs - η < ((jz : ℝ) + θ) * δ ^ 3) (hjz2 : ((jz : ℝ) + θ) * δ ^ 3 ≤ qs - η + δ ^ 3)
     (gap : ∀ k ∈ Finset.Icc J N, c1 * δ ≤ X (k + 1) - X k ∧ X (k + 1) - X k ≤ c2 * δ)
     (Xm : ∀ k ∈ Finset.Icc J (m + 1), X k ≤ 1 / 4) (X0 : 0 ≤ X m ∧ X m ≤ c2 * δ) (XN : c1 * (r / 4) / δ ^ 2 ≤ X N)
     (gup : ∀ k ∈ Finset.Icc J (N + 1), |g k| ≤ gmax)
     (pt : ∀ k ∈ Finset.Icc J (N + 1), |Y k - (κ * (g k * airyAi (X k)) + μ * (g k * airyBi (X k)))| ≤
       C * δ ^ 3 * (|κ| * airyWt (X k) + |μ| * airyBiWt (X k)))
     (hμ : |μ| ≤ Cmu * (cs / δ ^ 3) * Real.exp (-ξ0 / δ ^ 3) / δ)
-    (hmono : ∀ k' k : ℤ, qs + δ ^ 3 ≤ ((k' : ℝ) + 1 / 2) * δ ^ 3 → k' ≤ k → Y k ^ 2 ≤ Y k' ^ 2)
-    (hsupp : ∀ k : ℤ, Rmax < ((k : ℝ) + 1 / 2) * δ ^ 3 → Y k = 0) :
+    (hmono : ∀ k' k : ℤ, qs + δ ^ 3 ≤ ((k' : ℝ) + θ) * δ ^ 3 → k' ≤ k → Y k ^ 2 ≤ Y k' ^ 2)
+    (hsupp : ∀ k : ℤ, Rmax < ((k : ℝ) + θ) * δ ^ 3 → Y k = 0) :
     ∃ END : ℤ, jz ≤ END ∧ (∀ k : ℤ, END ≤ k → Y k = 0) ∧
       ∑ k ∈ Finset.Ico jz END, Y k ^ 2 ≤
         2 * gmax ^ 2 * (2 * κ ^ 2 + 2 * κm ^ 2) * ((√(2 * c2 * η) / Real.pi + 2 * c2 * (2 * c2 * η)) / (c1 * δ ^ 2)) +
@@ -221,7 +221,7 @@ lemma rk_zone_abs {Y X g : ℤ → ℝ} {J m N jz : ℤ} {δ qs r η C Cmu ξ0 g
     intro k hk
     refine hmono (k1 + 1) k ?_ hk
     have : (m : ℝ) + 1 ≤ (k1 : ℝ) := by exact_mod_cast hk11
-    have : ((m : ℝ) + 1 / 2) * δ ^ 3 + δ ^ 3 ≤ (((k1 + 1 : ℤ) : ℝ) + 1 / 2) * δ ^ 3 := by
+    have : ((m : ℝ) + θ) * δ ^ 3 + δ ^ 3 ≤ (((k1 + 1 : ℤ) : ℝ) + θ) * δ ^ 3 := by
       push_cast; nlinarith
     linarith
   have Z := rkz_zone (X := X) (Y := Y) (jz := jz) (m := m) (k1 := k1) (NN := NN) (δ := δ) (G := gmax) (C := C) (c1 := c1)
@@ -245,7 +245,7 @@ lemma rk_zone_abs {Y X g : ℤ → ℝ} {J m N jz : ℤ} {δ qs r η C Cmu ξ0 g
         exact_mod_cast this
       push_cast at this
       linarith
-    have : (NN : ℝ) * δ ^ 3 ≤ ((k : ℝ) + 1 / 2) * δ ^ 3 :=
+    have : (NN : ℝ) * δ ^ 3 ≤ ((k : ℝ) + θ) * δ ^ 3 :=
       mul_le_mul_of_nonneg_right (by linarith) hδ3.le
     linarith
   · refine Z.trans ?_
