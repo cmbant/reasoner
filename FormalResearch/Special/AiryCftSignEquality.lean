@@ -15,10 +15,9 @@ the real series `Σ_n f(a_n + ε)/Ai'(a_n)²` has sum `J = ∫ f ≤ 0`, and its
 `t₁(ε) + t_m(ε) ≤ J` for every `m ≥ 2`; letting `ε → 0⁺` (continuity of `f`) and using `f(a_n) ≥ 0` gives `0 ≤ t₁(0) ≤ J ≤ 0` and
 `t_m(0) ≤ J - t₁(0) ≤ 0`, so all samples vanish.
 
-This is the generic half of the equality case.  **Not formalised:** the conclusion `f = c Ai²/(u - a₁)`, `c < 0`: with these vanishing samples
-`f` has double zeros at `a_n` (`n ≥ 2`, since `f ≥ 0` around them), so `f/Ai²` has at most a simple pole at `a₁`; its polynomial growth on good circles
-(lower bound `|Ai| ≥ c (1+|u|)^{-1/4} e^{1/2}` there, and the `𝒢_{1/2}` pointwise bound), Liouville, and `Ai² P ∈ L¹ ⇒ P = 0` are not formalised.
-The converse (the extremal `-Ai²/(u - a₁)` satisfies all hypotheses with `∫ = 0`) is `airyExtremal_attains`.
+This is the first half of the equality case: the vanishing samples.  The conclusion `f = c Ai²/(u - a₁)`, `c < 0` (and the converse,
+`airyExtremal_attains`) is `airy_sign_equality` / `airy_sign_equality_iff` in `AiryCftSignEqualityMain`, which builds on this file with
+`AiryCftSignEqualityDiv` and `AiryCftSignEqualityGrowth`.
 -/
 
 @[expose] public section

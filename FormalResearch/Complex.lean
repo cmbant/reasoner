@@ -22,11 +22,12 @@ public import FormalResearch.Complex.HardyPointReal
 public import FormalResearch.Complex.SeparatedKernelSum
 public import FormalResearch.Complex.ChebyshevBernsteinCore
 public import FormalResearch.Complex.ChebyshevBernstein
+public import FormalResearch.Complex.EntireDivSq
 
 /-!
-# Complex analysis: Hadamard factorization, Fejér–Riesz arc bounds, Chebyshev coefficients
+# Complex analysis: Hadamard factorization, Fejér–Riesz arc bounds, Chebyshev coefficients, entire division
 
-Aggregate module for `FormalResearch/Complex/` (namespaces `FormalResearch.Hadamard`, `FormalResearch.Hardy` and `FormalResearch.Chebyshev`).  Mathlib has Jensen's formula,
+Aggregate module for `FormalResearch/Complex/` (namespaces `FormalResearch.Hadamard`, `FormalResearch.Hardy`, `FormalResearch.Chebyshev` and `FormalResearch.EntireDiv`).  Mathlib has Jensen's formula,
 Borel–Carathéodory and the canonical decomposition of an entire function, but no Hadamard factorization theorem; this
 directory proves it, and applies it to the Airy function.  It also holds an elementary Fejér–Riesz inequality on the disc and its
 half-plane arc form (`Hardy*`, Airy-free).
@@ -79,6 +80,9 @@ half-plane arc form (`Hardy*`, Airy-free).
   the sufficient conditions `bernsteinHyp_of_differentiableOn` / `bernsteinHyp_of_differentiable`, and `continuous_chebCoeff` (dependence on a parameter);
   used by `Special.AiryChebyshevApprox` and `Special.AiryRankDecay*` (geometric decay of the Hilbert–Schmidt tail of `Ai(s+ζ)`).
   Not formalised: Chebyshev interpolation in Chebyshev points (Thm 8.3), the converse (Bernstein) theorem, Banach/Hilbert-space-valued `f`, sharp constants.
+* `EntireDivSq`: two generic Liouville-type facts (Airy-free), used by the equality case of the Airy sign-uncertainty theorem
+  (`Special.AiryCftSignEquality*`): `entire_exists_div_sq` (`φ, ψ` entire, `φ` vanishing to second order at every simple zero of `ψ` ⇒ `φ = H ψ²`
+  with `H` entire) and `entire_affine_of_circle_bound` (an entire `Q` with `‖Q‖ ≤ C(1+r)` on circles of arbitrarily large radius is affine).
 
 Layering: only `HadamardAiry` imports `FormalResearch.Special.Airy*` modules; no module of the `Airy` aggregate imports this
 aggregate (the product of `Ai'`, `FormalResearch.Special.airyDeriv_hadamard` in `Special/AiryCft2DerivHadamard`, imports `HadamardAiry`

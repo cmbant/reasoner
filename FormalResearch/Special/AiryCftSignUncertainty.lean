@@ -21,9 +21,9 @@ CFT `AIRY_POISSON.md` §4 (Theorem B, Proof 2 = translation proof), survey item 
   `f_* ≢ 0`, in `𝒢` (`‖f_*(u)‖ ≤ C (1+|u|)^{-1/2}·… e(u)`), and `∫ f_* = 0` (`airyExtremal_integral`: all samples `f_*(a_n)` vanish, Theorem Q (4)).
   Hence **`u₁ = a₁` is attained and the bound of `airy_sign_uncertainty` is sharp.**
 
-Not formalised: the equality case of Theorem B (`u₁ = a₁ ⇒ f = c Ai²/(u - a₁)`, `c < 0`), which needs the double-zero/Liouville argument on good
-circles (lower bound `|Ai| ≥ c (1+|u|)^{-1/4} e^{1/2}`, `f/Ai²` polynomial plus a simple pole, `Ai² P ∈ L¹ ⇒ P = 0`), and the Airy–Poisson identity
-`Σ_n Φ_τ(a_n)/Ai'(a_n)² = 2^{-2/3}` (Theorem 1) with Lemma 3 (`u f_m = f_{Lm}`).
+The equality case (`u₁ = a₁ ⇒ f = c Ai²/(u - a₁)`, `c < 0`, and the converse) is proved in `AiryCftSignEquality` (samples) and
+`AiryCftSignEqualityMain` (`airy_sign_equality`, `airy_sign_equality_iff`).  Not formalised: the Airy–Poisson identity
+`Σ_n Φ_τ(a_n)/Ai'(a_n)² = 2^{-2/3}` (Theorem 1) with Lemma 3 (`u f_m = f_{Lm}`), and the note's Remark B.1 (tangent rigidity).
 -/
 
 @[expose] public section

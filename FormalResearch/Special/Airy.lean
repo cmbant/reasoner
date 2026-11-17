@@ -105,6 +105,9 @@ public import FormalResearch.Special.AiryClarkLabel
 public import FormalResearch.Special.AiryClarkLabelAsym
 public import FormalResearch.Special.AiryCftSignUncertainty
 public import FormalResearch.Special.AiryCftSignEquality
+public import FormalResearch.Special.AiryCftSignEqualityDiv
+public import FormalResearch.Special.AiryCftSignEqualityGrowth
+public import FormalResearch.Special.AiryCftSignEqualityMain
 public import FormalResearch.Special.AiryChebyshevApprox
 public import FormalResearch.Special.AiryRankDecayTail
 public import FormalResearch.Special.AiryRankDecayKernel
@@ -343,9 +346,14 @@ a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete
   (`airyClark_existsUnique`, `airyClark_zero_classification`, `airyClarkAngleNode_bijOn`), and their half-way location with the rate `0.4/k + 0.3|c|k^{-1/3}`
   (`airyClarkNode_fraction_le`, `tendsto_airyClarkNode_fraction`); Theorem B (sign uncertainty) for any real `ν`: `f ≥ 0` on `(-∞,u₁]`, `∫f ≤ 0`, `f ≢ 0` real imply
   `u₁ ≤ a₁` (`airy_sign_uncertainty`), sharp by `airyExtremal` (`airyExtremal_attains`), and for `u₁ = a₁` one gets `∫f = 0` and `f(a_n) = 0` (`airy_sign_equality_samples`).
-  Open: the Poisson representation of `G` on the half-plane (Lemma H, horizontal `L¹` bound; not used by any of the above), the conclusion `f = c Ai²/(u-a₁)`, `c < 0`, of the
-  equality case of Theorem B, the node phase of the general Clark nodes, the Airy–Poisson identity `Σ Φ_τ(a_n)/Ai'(a_n)² = 2^{-2/3}`,
-  polynomial (non-constant) `P, Q`, the enclosure `a'_1 ∈ (-1.0188, -1.0187)`, the asymptotics of the zeros of `Ai'` (DLMF 9.9.19).
+  Round six (`AiryCftSignEqualityDiv`, `AiryCftSignEqualityGrowth`, `AiryCftSignEqualityMain`, with the generic `Complex.EntireDivSq`): the equality case of
+  Theorem B, for the same class (any real `ν`): `f ≥ 0` on `(-∞, a₁]`, `∫f ≤ 0`, `f ≢ 0` real force `f = c Ai²/(u-a₁)` with a real `c < 0` (`airy_sign_equality`) and
+  conversely every such function satisfies the hypotheses (`airy_sign_equality_converse`, `airy_sign_equality_iff`).  Route: `f'(a_n) = 0` for `n ≥ 2` (`airy_eq_deriv_zero`),
+  `(u-a₁)f = H Ai²` with `H` entire (`airy_eq_div`, from `entire_exists_div_sq`), `H` affine-times-`(u-a₁)` plus a constant by `‖H‖ ≲ r²` on the good circles (`airy_eq_H_bound`,
+  `airy_eq_affine`, using `airyQ_mem_half`, so no restriction `ν < -1/2`, and `entire_affine_of_circle_bound`), then `Ai²·(polynomial) ∉ L¹` (`airy_poly_sq_not_integrable`) and
+  the sign of `c` from `airyExtremal_pos_mid`.  It needs none of the Poisson representation, Lemma H, the node phase or the polynomial class `P Ai + Q Ai'`.
+  Open: the Poisson representation of `G` on the half-plane (Lemma H, horizontal `L¹` bound; not used by any of the above), the node phase of the general Clark nodes,
+  the Airy–Poisson identity `Σ Φ_τ(a_n)/Ai'(a_n)² = 2^{-2/3}` (Theorem 1, Lemma 3), the note's Remark B.1 (tangent rigidity), polynomial (non-constant) `P, Q`, the enclosure `a'_1 ∈ (-1.0188, -1.0187)`, the asymptotics of the zeros of `Ai'` (DLMF 9.9.19).
 * *Chebyshev approximation and Hilbert–Schmidt rank decay of the Airy kernel* (`AiryChebyshevApprox`, `AiryRankDecayTail`, `AiryRankDecayKernel`,
   `AiryRankDecayHS`, `AiryRankDecay`; generic input `Complex.ChebyshevBernstein`, Trefethen ATAP Thm 8.1/8.2, imported here like `Complex.Hardy*`).
   `Ai(s + R/2 + (R/2)z)` is entire with the order-`3/2` growth bound only, so `BernsteinHyp` holds with `ρ = 2` and `M(R) = 3exp((2/3)(17R/8)^{3/2})`
