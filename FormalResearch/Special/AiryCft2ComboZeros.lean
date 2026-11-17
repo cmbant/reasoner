@@ -28,7 +28,9 @@ Let `m = Ai'/Ai`.  At a zero `z` of `N` one has `Ai(z) ≠ 0` and `m(z) = -P/Q �
   (summable over the subtype of zeros).
 
 All proved (no numerics enter).  Not formalised: existence and the exact location of the nodes `z_n(α)` (`z_1 > a_1`,
-`z_n ∈ (a_n, a_{n-1})`; the node asymptotics), and polynomial `P, Q` (Hermite-Biehler `N`, `SOFT_EDGE_THEOREMS.md` Lemma 4.6).
+`z_n ∈ (a_n, a_{n-1})`; the node asymptotics).  This module is the constant-coefficient case; for polynomial `P, Q` with `Q + iP` having
+all roots in the open lower half-plane (Hermite-Biehler `N`, `SOFT_EDGE_THEOREMS.md` Lemma 4.6) the zeros are real and simple
+(`airyPQ_zero_im`, `airyPQ_zero_weight_pos`, `AiryPolyZeros`, umbrella `AiryPoly`).
 -/
 
 @[expose] public section

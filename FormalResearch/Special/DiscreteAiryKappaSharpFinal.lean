@@ -29,7 +29,7 @@ on `-6 ≤ X ≤ 2`): `κ² δ` equals `2.00006, 2.000005, 2.000000, 2.000000` f
 `(1, 0, ½)`, `Ŷ_k / (g Ai(X_k))` agrees with `√(2/δ)` to relative `4·10⁻⁴` over `-23 ≤ X ≤ 60` (so `μ` is tiny, consistent with the exponential bound).
 
 **Not formalised:** an explicit rate and uniformity in `x` (the constants depend on `x`; the proof gives only `C₁A + C₂(A)δ` with `C₂(A) ~ A⁻⁹`, no
-power rate); the Darboux phase and the sign of `κ` (only `κ²` is determined); `τ = -1` and half-integer `(M, σ, N)` for the `3j` chain (the Racah `6j` chain is `racah_chain_kappa_sharp*`, `RacahKappa*`); the hard
+power rate); the Darboux phase and the sign of `κ` (only `κ²` is determined); `τ = -1` and half-integer `(M, σ, N)` for the `3j` chain are not in this module (they are `hahn_chain_kappa_sharp_neg`, `_half`, `_half_neg`, window form, `BulkKappaHahnInst`; the Racah `6j` chain is `racah_chain_kappa_sharp*`, `RacahKappa*`); the hard
 edges `x → 0, 1`.
 -/
 

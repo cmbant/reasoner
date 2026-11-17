@@ -19,7 +19,7 @@ site `q_k = (k + 1) h`, versus `(k + ½) h` for integer data), pinned by the win
 using the integer lattice `(k + ½) h` instead of `(k + 1) h` in the chart gives a visibly wrong fit (relative residual `0.1` instead of `10⁻⁴`).
 
 **Not formalised.**  (i) The sign of `κ`.  (ii) Uniformity in `(α, β, x, m, n)`.  (iii) `x`, `A h`, `B h` only approximately equal to the fixed data.  (iv) Mixed-parity labels (half-integer `a, b, c` with integer `m, n`, etc.).
-(v) The Hahn half-integer `κ` (an instance of `rk_kappa_sharp_absH` with the Hahn rows; not done here).
+(v) The Hahn half-integer `κ` is not done here; it is `hahn_chain_kappa_sharp_half`, `_half_neg` (`BulkKappaHahnInst`, window form).
 -/
 
 @[expose] public section

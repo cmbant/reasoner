@@ -34,8 +34,8 @@ Grönwall march (`voc_march_up/down`, `DiscreteAiryOsc*`) then transports every 
 
 **Honest limits.**  Everything is first order (relative error `C h`, `C` depending on the datum bounds only).  The Hahn/Racah instance assumes the oscillatory hypothesis
 `|hrU| < 1` on `[c₀, q_*)` and `q_* > 0`, `c₀ > 0` (assumed, not derived from the parameters); the other turning point / left edge, Bohr-Sommerfeld quantisation and node
-counting over the whole oscillatory interval are not treated.  The value of `κ` is not identified here (for the `τ = +1` integer `3j` chain at a fixed rational shape `κ² δ → 2` is `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`, not composed with this layer), so `R` is
-`h^{1/6}|κ|/√π` only up to `O(h)`.  Second-order Liouville-Green, the continuum Wigner-`d` ODE form and explicit constants in `(P, Q, a, b, x, c)` are not formalised.
+counting over the whole oscillatory interval are not treated.  The value of `κ` is not identified in this layer itself, so `R` is
+`h^{1/6}|κ|/√π` only up to `O(h)` here; the sharp value `κ² δ → 2` is composed with this layer in `BulkKappa*` (umbrella `BulkKappaAll`, imported by `FormalResearch.Special`): the explicit amplitude and zero localisation for the physical chains, integer and half-integer, both `τ`, are `hahn_chain_bulk_explicit*`, `racah_chain_bulk_explicit*`, `hahn_chain_bulk_zeros*`, `racah_chain_bulk_zeros*` (`BulkKappa*`).  Second-order Liouville-Green, the continuum Wigner-`d` ODE form and explicit constants in `(P, Q, a, b, x, c)` are not formalised.
 -/
 
 @[expose] public section

@@ -21,7 +21,8 @@ Proof: the integral form `cft2_defect_bound_int` of the residue-defect bound (`A
 (ratio bounds `‖M/N ∓ i‖ e ≤ C₀`), the defect bound `C₀ a_k ∫_0^π |G(a_k e^{iφ})| dφ` (`airyQ_arc_reduce`), which the Hardy
 Fejér–Riesz bound sends to `0` (`HardyArcDecay`).  All **proved**.  The `HasSum` forms here (`airyNC_hasSum`, `airyClark_hasSum`) assume summability; Theorem Q (3) for `N` is now formalised
 (`airyNC_sampling_sum`, `AiryCftQNCSample`) and gives it for any real `ν` with `f ∈ L¹(ℝ)` (`airyNC_hasSum_unc`, `airyClark_hasSum_unc`,
-`AiryCftQNCUnc`); these are superseded in scope by the `_unc` versions but kept.
+`AiryCftQNCUnc`); these are superseded in scope by the `_unc` versions but kept.  The coefficients `P, Q` here are real constants; the polynomial
+case (Hermite-Biehler pairs) is `airyPQ_hasSum_unc` (`AiryPolySample`, umbrella `AiryPoly`).
 -/
 
 @[expose] public section

@@ -31,7 +31,7 @@ Proof: the generic residue-defect bound `cft2_defect_bound` for the pair `(N, M)
 The case `f` holomorphic only near the closed disc is `airyNC_defect_ball` (`AiryCft2ComboBall`).
 For `ν ≥ -1` see `AiryCftQNCQuad` and `AiryCftQNonneg` (limit form over good circles for any real `ν` with `f ∈ L¹(ℝ)`; `HasSum` under summability or for
 nonnegative terms; this file's absolutely convergent `ν < -1` theorem is not superseded).  The sampling bound of Theorem Q (3) for `N` is `airyNC_sampling_sum` (`AiryCftQNCSample`), giving unconditional absolute convergence and
-`HasSum` for every real `ν` with `f ∈ L¹(ℝ)` (`airyNC_hasSum_unc`, `AiryCftQNCUnc`).  Not formalised: polynomial `P, Q`, and the `α → 0`
+`HasSum` for every real `ν` with `f ∈ L¹(ℝ)` (`airyNC_hasSum_unc`, `AiryCftQNCUnc`).  Not formalised here: polynomial `P, Q` (see `airyPQ_hasSum_unc`, `AiryPolySample`, umbrella `AiryPoly`, for Hermite-Biehler pairs), and the `α → 0`
 limit identifications.
 -/
 

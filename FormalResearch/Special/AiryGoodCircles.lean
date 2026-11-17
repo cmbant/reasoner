@@ -25,7 +25,7 @@ constant `1/(25π) = 0.0127` is conservative.
 The `|R_±| ≤ C/e` consequence is in `AiryRatioBounds`.  The `P·Ai + Q·Ai'` version
 (`GENERAL_THEOREMS.md` Lemma 1.0′, constant coefficients, `airyNC_good_circle`) and hence the `ψ_α = cos α Ai - sin α Ai'`
 version (Lemma 1.0, `α ≠ 0`) are `AiryCft2ComboBounds`, built on the derivative analogue `deriv_airyAiC_neg_complex` of
-`AiryAsymNegComplex` (`AiryCft2DerivNeg`).  Not formalised: polynomial (non-constant) `P, Q`; radii `k < 10`.  The residue-defect formula
+`AiryAsymNegComplex` (`AiryCft2DerivNeg`).  Not formalised here: polynomial (non-constant) `P, Q` (they are `airyPQ_good_circle`, `AiryPolyCircle`, umbrella `AiryPoly`); radii `k < 10`.  The residue-defect formula
 (Theorem D) for entire `f` is `airy_defect_bound` (`AiryCftDefect`), with Corollary D1 `airy_quadrature`
 (`AiryCftQuadrature`); its `P·Ai + Q·Ai'` versions are `airyNC_defect_bound`, `airyNC_quadrature`
 (`AiryCft2ComboQuadrature`) and `airyClark_quadrature` (`AiryCft2Clark`, `ν < -1`).

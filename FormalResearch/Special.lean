@@ -98,6 +98,8 @@ public import FormalResearch.Special.HermiteKappa
 public import FormalResearch.Special.DiscreteLg
 public import FormalResearch.Special.AiryTransform
 public import FormalResearch.Special.AiryPws
+public import FormalResearch.Special.AiryPoly
+public import FormalResearch.Special.BulkKappaAll
 
 /-!
 # Special functions: Jacobi polynomials
@@ -286,7 +288,7 @@ on any compact interior window (`dlg_bulk`, Cartesian form `dlg_bulk_cart`), wit
 chains on an arbitrary window `[c, d]` strictly inside the oscillatory region (`dlg_bulk_hahn`).  Airy matching (`dlg_airy_match`, `dlg_airy_match_smooth`, `dlg_airy_match_hahn`): from the Airy shape at two
 sites, `Y_k = h^{1/6} π^{-1/2} w_k (κ cos χ_k + μ sin χ_k) + O(h^{1/6} h (|κ|+|μ|) w_k)`, `χ_k = (Θ_k - Θ*)/h + π/4`, i.e. phase offset exactly `π/4` and amplitude `h^{1/6}|κ|/√π`;
 for the Hahn/Racah chains this is proved end to end from `airy_full_compose` and the Langer chart relations (`dlg_hahn_airy`, `dlgh_chart`).  Not formalised: second-order Liouville–Green; the value of `κ`
-(for the `τ = +1` integer `3j` chain at a fixed rational shape `κ² = 2N^{1/3}(1+o(1))` is `hahn_chain_kappa_sharp`, but it is not composed with the matching here) so the amplitude `R` is known only up to `κ`; the oscillatory hypothesis `|hrU| < 1` on `[c₀, q_*)` is assumed, not derived from the
+(for the `3j` chain at a fixed rational shape `κ² δ → 2` is `hahn_chain_kappa_sharp` and, for `τ = -1` and half-integer data, `hahn_chain_kappa_sharp_neg`, `_half`, `_half_neg`; the composition with this layer, giving the explicit amplitude and zero localisation, is `BulkKappa*`, below) so within this layer the amplitude `R` is known only up to `κ`; the oscillatory hypothesis `|hrU| < 1` on `[c₀, q_*)` is assumed, not derived from the
 parameters; the other turning point / left edge, Bohr–Sommerfeld quantisation and node counting over the whole oscillatory interval; the continuum Wigner-`d` ODE form; constants are existential, not tracked in the parameters.
 Airy transform on `L²(ℝ)`, the Airy projector and the Paley–Wiener space (`AiryTransform*`, 13 modules, umbrella `AiryTransform`, namespace `FormalResearch.Special`; survey item T5, W1 `edge.tex`, CFT notes `GENERAL_THEOREMS` §3):
 `𝒜 = 𝓕⁻¹ M_{e^{iω³/3}} 𝓕` is a unitary of `L²(ℝ;ℂ)` (`airyTransform`, `airyTransform_norm`, `airyTransform_inner`) and equals convolution with `Ai` on Schwartz functions (`airyTransform_schwartz_ae`, by Abel regularisation `airy_abel_identity`);
@@ -305,4 +307,15 @@ for complex `f` in the class `G` (entire, `f|_ℝ ∈ L¹`, `|f(z)| ≤ C(1+|z|)
 (`airyFtilde_laplace`), `H₁H₂ ∈ G` and `|F̃_{H²}| ≤ k ‖F‖²` for `H, H_j ∈ PW` (`airyClassG_PW_mul`, `airyFtilde_PW_sq_le`), and the Step 0 identities `Σ_n |L_n^{(j)}(y)|² = ∫_y^∞ Ai^{(j)}²` and the absolutely, locally uniformly convergent expansion
 `∫_0^∞ Ai(u+t)v(t)dt = Σ b_n L_n(u)` for `v ∈ L²(0,∞)` (`airyLn_iteratedDeriv_sq_hasSum`, `airy_expansion`; real arguments only).  Not formalised: statement `(c)` and `(b) ⇔ (c)` for general tempered one-sided `μ` (needs the Paley–Wiener–Schwartz/Titchmarsh theorem
 for tempered distributions, absent from Mathlib), the sharp exponent `(1+|u|)^{1/2}` (the formalised growth exponent is `1`, which `G` allows), `F̃_{Φ_τ}` at real `ζ`, `f ∈ L¹` in the Laplace form, complex-`u` Step 0, the unfolded-function statement of Corollary Q′ (remark (b) of Theorem 3.1).
+Polynomial coefficients for `N = P Ai + Q Ai'` (`AiryPoly*`, 10 modules, umbrella `AiryPoly`, namespace `FormalResearch.Special`; survey item T4, CFT `SOFT_EDGE_THEOREMS` Lemmas 4.4, 4.6, 4.7, `SE5_FIVE_LEVEL_AIRY` §0.3): for real polynomials `P, Q`, `N = P Ai + Q Ai'`, `M = P Bi + Q Bi'`, `D = P(P+Q') - Q(P'+zQ)` (`N M' - N' M = D/π`).
+Good circles `r ∈ [k, k+1]` with `‖N‖² ≥ c r^{2κ} e` and `‖M/N ∓ i‖ e ≤ 168√π` for every `(P, Q) ≠ 0` (`airyPQ_good_circle`, `airyPQ_good_circle_kappa`, where `airyPQkappa` is `2κ`, and the SE5 form `airyPQ_good_circle_SE5`) from the dominance dichotomy `airyPQ_dominance`.
+Hermite-Biehler pairs (all roots of `Q + iP` in the open lower half-plane): the Herglotz inequality `airyPQHB_norm_le`, `PQ' - QP' ≥ 0` on `ℝ` (`airyPQHB_wronskian_nonneg`), all zeros of `N` real (`airyPQ_zero_im`) and, for `Q ≠ 0`, simple with `D > 0`
+(`airyPQ_zero_weight_pos`), the weight bound `‖D/N'²‖ ≤ 882π²/√(-t)` (`airyPQ_weight_norm_le`), the quadrature `∫f = Σ_{N(z)=0} f(z) D(z)/N'(z)²` for entire `f` with `|f| ≤ C(1+|u|)^ν e(u)`, `f ∈ L¹`, any real `ν`, with unconditional summability (`airyPQ_hasSum_unc`;
+limit form for any `(P, Q) ≠ 0` with simple zeros `airyPQ_tendsto_of_simple`), Lemma 4.4 (`airyPQ_lemma44_hasSum`) and the positivity step of Theorems 4.5/4.7 (`airyPQ_nonneg_zeros_vanish`).  Not formalised: the uniqueness and existence halves of Theorem 4.7, `Q = 0`
+(the constant-coefficient `airyQ_*` theorems), Prüfer monotonicity and the existence of a zero in each gap (only at most one zero per gap far out is proved, `airyPQ_injOn_far`), sharp constants.
+Bulk amplitude and zeros of the physical chains (`BulkKappa*`, 14 modules, umbrella `BulkKappaAll`, namespace `FormalResearch.Special`; Weyl P3 `thm:general-rank-airy`(i), `thm:racahAiryConnection`): the sharp amplitude `|κ² δ - 2| ≤ τ'` of the Airy window for the Hahn `3j` chain at integer and half-integer data and `τ = ±1`
+(`hahn_chain_kappa_sharp_win`, `_neg`, `_half`, `_half_neg`; the public statements say there is a window with this property, the "every window of the exported constants" form is the generic `BkOut`), composed with the bulk Liouville-Green form of `DiscreteLg`: for `[a, b] ⊂ (0, q_*)`
+and `t > 0` there is `ε` such that every node with `h ≤ ε` has a sign `s = ±1` (uniform over the sites) with `|Y_k - s A(q_k) cos(Φ(q_k)/h - π/4)| ≤ t A(q_k)` on `[a, b]` (`hahn_chain_bulk_explicit*`, `racah_chain_bulk_explicit*`, `A(q) = (2/√π)(s_R(q_*² - q²))^{-1/4}`, `Φ(q) = ∫_q^{q_*} arccos(hrU)`),
+and every sign change `Y_k Y_{k+1} ≤ 0` there satisfies the Bohr-Sommerfeld bound `Φ(q_{k+1})/h - C₀h ≤ π(m - ¼) ≤ Φ(q_k)/h + C₀h` for an integer `m` (`hahn_chain_bulk_zeros*`, `racah_chain_bulk_zeros*`, abstract `bk_zeros_of_out`; phase anchored at `q_*`, leading order with `O(h)` error).  Not formalised: the sign of `κ`, the dependence and uniformity of `ε`
+and `C₀`, the converse count of zeros, the turning-point and `q → 0` regions, mixed-parity labels, `q`-Racah, explicit rates, the conversion of the phase window into a window in `q`, and the paper's `thm:general-bulk-zeros` (phase anchored at `q = 0` with the second-order term and the `O(N⁻³)` error).
 -/

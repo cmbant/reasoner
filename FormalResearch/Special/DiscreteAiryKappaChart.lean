@@ -21,7 +21,7 @@ afterwards).  This module re-runs the proof of `discrete_airy_full` with extra c
 **Claim class: proved** (the proof of `discrete_airy_full` is repeated once, with the extra conjuncts; nothing else changes).  The extra conjuncts could be
 folded into `discrete_airy_full` itself (`DiscreteAiryPhysTurn`), which would make this theorem a one-line restatement.
 
-**Not formalised here.**  The value of `κ` (it is `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`); `τ = -1`; Racah (the `6j` value of `κ` is `racah_chain_kappa_sharp`, `RacahKappa*`, built on its own window data `RkWinAt`, not on `kc_hahn_full`).
+**Not formalised here.**  The value of `κ` (it is `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`, and for `τ = -1` and half-integer data `hahn_chain_kappa_sharp_neg`, `_half`, `_half_neg`, `BulkKappaHahnInst`); Racah (the `6j` value of `κ` is `racah_chain_kappa_sharp`, `RacahKappa*`, built on its own window data `RkWinAt`, not on `kc_hahn_full`).
 -/
 
 @[expose] public section

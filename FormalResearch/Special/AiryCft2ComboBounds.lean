@@ -28,8 +28,8 @@ Numerical check (mpmath, 25 digits; `(P,Q) ∈ {(1,-1), (0.3,-1), (-2,0.5), (1,1
 `400`, `r ≥ max(64, 64 P²/Q²)`, 121 angles on the upper half circle): `min ‖N‖²/((Q²/(256π))√r e) = 49`, and
 `max ‖M/N - i‖ e = 2.56` (against the proved `C`).  The constants are not optimised.
 
-Not formalised: polynomial coefficients `P, Q` (Lemma 1.0′ with `deg ≥ 1`, needed for the Hermite-Biehler extensions of
-`SOFT_EDGE_THEOREMS.md` Lemma 4.4/4.6), uniformity in `α` over a compact set, and radii `k < k₀`.
+This module is the constant-coefficient case; Lemma 1.0′ for polynomial `P, Q` of any degree is `airyPQ_good_circle`
+(`AiryPolyCircle`, umbrella `AiryPoly`).  Not formalised here: uniformity in `α` over a compact set, and radii `k < k₀`.
 -/
 
 @[expose] public section
