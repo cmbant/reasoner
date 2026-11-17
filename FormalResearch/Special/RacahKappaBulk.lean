@@ -20,18 +20,18 @@ open scoped Real
 
 namespace FormalResearch.Special
 
-/-- **Airy window and bulk Liouville-Green form with the same `κ, μ`** (see the module docstring).  The conclusion of `dlg_hahn_airy`, with a free cap `rcap` on the Airy radius, the
+/-- **Airy window and bulk Liouville-Green form with the same `κ, μ`** (see the module docstring).  The conclusion of `dlg_hahn_airy`, with a free right end `q_* - η` of the bulk window (`0 < η ≤ r/2`), the
 chart data of `rk_compose`, and the Airy coefficients `κ, μ` of the window `RkWinAt` being those of the bulk form. -/
 theorem rk_bulk {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (hqs : 0 < qs) (hτ : τ ^ 2 = 1)
     (hκ : 0 < 1 - τ * x) (hα : 0 < 1 - P * qs ^ 2) (hβ : 0 < 1 - Q * qs ^ 2) (hturn : Phi P Q τ x (qs ^ 2) = 0)
-    {c0 : ℝ} (hc0 : 0 < c0) (hc0q : c0 < qs) (hosc : ∀ q ∈ Set.Ico c0 qs, |hrU P Q τ x q| < 1) {rcap : ℝ} (hrcap : 0 < rcap) :
-    ∃ (r Cmu ξ0 gmax gmin c1 c2 CA : ℝ), 0 < r ∧ r ≤ rcap ∧ r ≤ qs / 4 ∧ 0 < CA ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < gmax ∧ 0 < gmin ∧ gmin ≤ gmax ∧
+    {c0 : ℝ} (hc0 : 0 < c0) (hc0q : c0 < qs) (hosc : ∀ q ∈ Set.Ico c0 qs, |hrU P Q τ x q| < 1) :
+    ∃ (r Cmu ξ0 gmax gmin c1 c2 CA : ℝ), 0 < r ∧ r ≤ qs / 4 ∧ 0 < CA ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < gmax ∧ 0 < gmin ∧ gmin ≤ gmax ∧
       0 < c1 ∧ c1 ≤ c2 ∧
-      ∀ c : ℝ, c0 < c → c < qs - r → ∃ δ0 C : ℝ, 0 < δ0 ∧ 0 < C ∧
+      ∀ η : ℝ, 0 < η → η ≤ r / 2 → ∀ c : ℝ, c0 < c → c < qs - r → ∃ δ0 C : ℝ, 0 < δ0 ∧ 0 < C ∧
         ∀ (δ : ℝ) (Y : ℤ → ℝ) (Ymax : ℝ), 0 < δ → δ ≤ δ0 →
-          (∀ k : ℤ, 1 ≤ k → jac (hrAk P Q a b (δ ^ 3)) (hrCk P Q τ x a b (δ ^ 3)) Y k = 0) → (∀ k, |Y k| ≤ Ymax) →
+          (∀ k : ℤ, 1 ≤ k → jac (hrAk P Q a b (δ ^ 3)) (hrCk P Q τ x a b (δ ^ 3)) Y k = 0) → (∀ k : ℤ, qs ≤ ((k : ℝ) + 1 / 2) * δ ^ 3 → |Y k| ≤ Ymax) →
           ∃ (J m N : ℤ) (κ μ : ℝ), RkWinAt P Q τ x qs Y Ymax r CA Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ ∧
-            ∀ k : ℤ, c ≤ dlgQ (δ ^ 3 / 2) (δ ^ 3) k → dlgQ (δ ^ 3 / 2) (δ ^ 3) k ≤ qs - r / 2 →
+            ∀ k : ℤ, c ≤ dlgQ (δ ^ 3 / 2) (δ ^ 3) k → dlgQ (δ ^ 3 / 2) (δ ^ 3) k ≤ qs - η →
               |Y k - (δ ^ 3) ^ (1 / 6 : ℝ) * (1 / √π) * dlgsW (hrA1 P Q) (hrU P Q τ x) (dlgQ (δ ^ 3 / 2) (δ ^ 3) k) *
                   (κ * Real.cos (dlgP (dlgsPhase (hrU P Q τ x) ((c0 + c) / 2)) (δ ^ 3 / 2) (δ ^ 3) k -
                       (∫ s in (c0 + c) / 2..qs, Real.arccos (hrU P Q τ x s)) / δ ^ 3 + π / 4) +
@@ -41,20 +41,19 @@ theorem rk_bulk {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (h
                   dlgsW (hrA1 P Q) (hrU P Q τ x) (dlgQ (δ ^ 3 / 2) (δ ^ 3) k) := by
   obtain ⟨ρ, hρ, hch⟩ := dlgh_chart (P := P) (Q := Q) τ x qs hqs hκ hα hβ hturn
   obtain ⟨r, δA, CA, Cmu, ξ0, gmax, gmin0, c1, c2, hr, hrρ, hrq4, hδA, hδA1, hCA, hCmu, hξ0, hgmax, hgmin0, hgg, hc1, hc12, HA⟩ :=
-    rk_compose hP hQ a b τ x qs hqs hτ hκ hα hβ hturn (ρ := min (min (ρ / 2) (qs - c0)) rcap)
-      (lt_min (lt_min (by positivity) (by linarith)) hrcap)
-  have hrρ1 : r ≤ ρ / 2 := hrρ.trans ((min_le_left _ _).trans (min_le_left _ _))
-  have hrρ2 : r ≤ qs - c0 := hrρ.trans ((min_le_left _ _).trans (min_le_right _ _))
-  have hrρ3 : r ≤ rcap := hrρ.trans (min_le_right _ _)
-  refine ⟨r, Cmu, ξ0, gmax, gmin0, c1, c2, CA, hr, hrρ3, hrq4, hCA, hCmu, hξ0, hgmax, hgmin0, hgg, hc1, hc12, ?_⟩
-  intro c hc0c hcr
+    rk_compose hP hQ a b τ x qs hqs hτ hκ hα hβ hturn (ρ := min (ρ / 2) (qs - c0))
+      (lt_min (by positivity) (by linarith))
+  have hrρ1 : r ≤ ρ / 2 := hrρ.trans (min_le_left _ _)
+  have hrρ2 : r ≤ qs - c0 := hrρ.trans (min_le_right _ _)
+  refine ⟨r, Cmu, ξ0, gmax, gmin0, c1, c2, CA, hr, hrq4, hCA, hCmu, hξ0, hgmax, hgmin0, hgg, hc1, hc12, ?_⟩
+  intro η hη hηr c hc0c hcr
   have hc : 0 < c := hc0.trans hc0c
   have hc1pos : 0 < (c0 + c) / 2 := by linarith
-  have hcd : c < qs - r / 2 := by linarith
-  have hdd0 : qs - r / 2 < qs - r / 4 := by linarith
+  have hcd : c < qs - η := by linarith
+  have hdd0 : qs - η < qs - η / 2 := by linarith
   have hfacP : ∀ q : ℝ, 0 < q → q ≤ qs → 0 < 1 - P * q ^ 2 := fun q h1 h2 => dlgh_fac hP hα h1 h2
   have hfacQ : ∀ q : ℝ, 0 < q → q ≤ qs → 0 < 1 - Q * q ^ 2 := fun q h1 h2 => dlgh_fac hQ hβ h1 h2
-  have hreg : ∀ q ∈ Set.Icc c0 (qs - r / 4), 0 < 1 - P * q ^ 2 ∧ 0 < 1 - Q * q ^ 2 ∧ |hrU P Q τ x q| < 1 :=
+  have hreg : ∀ q ∈ Set.Icc c0 (qs - η / 2), 0 < 1 - P * q ^ 2 ∧ 0 < 1 - Q * q ^ 2 ∧ |hrU P Q τ x q| < 1 :=
     fun q hq => ⟨hfacP q (by linarith [hq.1]) (by linarith [hq.2]), hfacQ q (by linarith [hq.1]) (by linarith [hq.2]),
       hosc q ⟨hq.1, by linarith [hq.2]⟩⟩
   obtain ⟨δ1, Cb, hδ1, hCb, HM⟩ := dlg_airy_match_hahn hP hQ a b τ x hτ hc0 hc0c hcd hdd0 hreg
@@ -90,9 +89,10 @@ theorem rk_bulk {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (h
   have site := dlgh_site_all (P := P) (Q := Q) hP hQ τ x qs hα hβ (c0 := c0) (c := c) (r := r) (ρ := ρ) (δ := δ) (J := J)
     (N := N) (κ := κ) (μ := μ) (Y := Y) (CA := CA) hch hosc hrρ1 hc0c hcr hδ hqJ hΦpos hCA hpt hJN hr hc0
   -- the bulk window of all lattice sites in `[c, qs - r/2]`
-  have hlat := dlgh_lattice (c := c) (d := qs - r / 2) hδ
-  have hqJ' : ∀ k : ℤ, J ≤ k → k ≤ J + 1 → c ≤ dlgQ (δ ^ 3 / 2) (δ ^ 3) k ∧ dlgQ (δ ^ 3 / 2) (δ ^ 3) k ≤ qs - r / 2 :=
-    fun k hk1 hk2 => ⟨by have h := hqJ k hk1 hk2; show c ≤ dalQ (δ ^ 3 / 2) δ k; linarith [h.1], (hqJ k hk1 hk2).2⟩
+  have hlat := dlgh_lattice (c := c) (d := qs - η) hδ
+  have hqJ' : ∀ k : ℤ, J ≤ k → k ≤ J + 1 → c ≤ dlgQ (δ ^ 3 / 2) (δ ^ 3) k ∧ dlgQ (δ ^ 3 / 2) (δ ^ 3) k ≤ qs - η :=
+    fun k hk1 hk2 => ⟨by have h := hqJ k hk1 hk2; show c ≤ dalQ (δ ^ 3 / 2) δ k; linarith [h.1],
+      by have h := hqJ k hk1 hk2; show dalQ (δ ^ 3 / 2) δ k ≤ qs - η; linarith [h.2]⟩
   have hJw := (hlat J).1 (hqJ' J le_rfl (by omega))
   have hJw1 := (hlat (J + 1)).1 (hqJ' (J + 1) (by omega) le_rfl)
   have hJ0 : 0 ≤ ⌈(c - δ ^ 3 / 2) / δ ^ 3⌉ := by
@@ -107,7 +107,7 @@ theorem rk_bulk {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (h
     linarith only [this, h4, h3p, hc]
   refine ⟨J, m, N, κ, μ, hWin', fun k hk1 hk2 => ?_⟩
   have hmem := (hlat k).1 ⟨hk1, hk2⟩
-  have hres := HM δ Y ⌈(c - δ ^ 3 / 2) / δ ^ 3⌉ (⌊(qs - r / 2 - δ ^ 3 / 2) / δ ^ 3⌋ - 1) J κ μ
+  have hres := HM δ Y ⌈(c - δ ^ 3 / 2) / δ ^ 3⌉ (⌊(qs - η - δ ^ 3 / 2) / δ ^ 3⌋ - 1) J κ μ
     (∫ s in (c0 + c) / 2..qs, Real.arccos (hrU P Q τ x s)) Φ gmin CA hΦpos hgmin hCA.le hδ
     (hδ0.trans ((min_le_left _ _).trans (min_le_right _ _))) hJw.1 (by omega)
     (fun j hj => by

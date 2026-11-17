@@ -56,7 +56,8 @@ theorem rk_compose {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ)
     ∃ (r δ0 C Cmu ξ0 gmax gmin c1 c2 : ℝ), 0 < r ∧ r ≤ ρ ∧ r ≤ qs / 4 ∧ 0 < δ0 ∧ δ0 ≤ 1 ∧ 0 < C ∧ 0 < Cmu ∧ 0 < ξ0 ∧
       0 < gmax ∧ 0 < gmin ∧ gmin ≤ gmax ∧ 0 < c1 ∧ c1 ≤ c2 ∧
       ∀ (h : ℝ) (Y : ℤ → ℝ) (Ymax : ℝ), 0 < h → h ≤ δ0 ^ 3 →
-        (∀ k : ℤ, 1 ≤ k → jac (hrAk P Q a b h) (hrCk P Q τ x a b h) Y k = 0) → (∀ k, |Y k| ≤ Ymax) →
+        (∀ k : ℤ, 1 ≤ k → jac (hrAk P Q a b h) (hrCk P Q τ x a b h) Y k = 0) →
+        (∀ k : ℤ, qs ≤ ((k : ℝ) + 1 / 2) * h → |Y k| ≤ Ymax) →
         RkWin P Q τ x qs Y Ymax r δ0 C Cmu ξ0 gmin gmax c1 c2 h := by
   obtain ⟨r0, hr0, hr0q, hdom⟩ := hr_dom hqs hα hβ
   have hint : 0 < (1 - P * qs ^ 2) * (1 - Q * qs ^ 2) := mul_pos hα hβ
@@ -100,8 +101,11 @@ theorem rk_compose {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ)
     have hk1 : 1 ≤ k := by rw [Finset.mem_Icc] at hk; omega
     rw [hδ3]
     exact hrows k hk1
-  obtain ⟨κ, μ, hμ, hpt⟩ := Hc'.pointwise Y Ymax hrows' (hbd _) (hbd _)
-  have hYm : 0 ≤ Ymax := (abs_nonneg _).trans (hbd 0)
+  have hqN' : qs ≤ ((N : ℝ) + 1 / 2) * δ ^ 3 := by have := hqN; rw [e2] at this; linarith
+  have hqN1' : qs ≤ (((N + 1 : ℤ) : ℝ) + 1 / 2) * δ ^ 3 := by
+    push_cast; nlinarith [pow_pos hδ 3]
+  obtain ⟨κ, μ, hμ, hpt⟩ := Hc'.pointwise Y Ymax hrows' (hbd N (by rw [← hδ3]; exact hqN')) (hbd (N + 1) (by rw [← hδ3]; exact hqN1'))
+  have hYm : 0 ≤ Ymax := (abs_nonneg _).trans (hbd N (by rw [← hδ3]; exact hqN'))
   have hwin' : ∀ k ∈ Finset.Icc J (N + 1), |((k : ℝ) + 1 / 2) * δ ^ 3 - qs| ≤ r := by
     intro k hk
     have h1 := hwin k hk
