@@ -588,26 +588,28 @@ theorem hermite_kappa_ge {r C Cmu ξ0 gmax gmin c1 c2 Lg : ℝ} (hr : 0 < r) (hC
   exact hk_lower_alg hR0 hM0 hD hsD hT hmu
 
 /-- **The Airy amplitude of the Hermite chain has the order `κ² ≍ x^{-1/3}`** (`|κ| ≍ S^{-1/12}`, `S = x²/2`, `κ² ≍ √δ`):
-absolute constants `δ₀, c_κ, C_κ > 0` such that for `δ ≤ δ₀`, `δ³ = 2/x²` the Airy-edge data `HkEdge` exist with
-`c_κ ≤ κ² x^{1/3} ≤ C_κ`.  Combined with `hermite_airy_edge`, `φ_{-k}(x) = κ g_k Ai(X_k) + μ g_k Bi(X_k) + O(δ³)` with
-`|κ| ≍ x^{-1/6}` and `|μ|` exponentially small. -/
+there are absolute constants (the chart constants `r, C, C_μ, ξ₀, g_max, g_min, c₁, c₂, L_g` of `HkEdge`, `δ₀`, `c_κ`, `C_κ`, all positive,
+fixed before `x` is chosen) such that for every `x > 0`, `δ ≤ δ₀`, `δ³ = 2/x²` the Airy-edge data `HkEdge` exist with
+`c_κ ≤ κ² x^{1/3} ≤ C_κ`.  Combined with the content of `HkEdge` (`hermite_airy_edge`), `φ_{-k}(x) = κ g_k Ai(X_k) + μ g_k Bi(X_k) + O(δ³)`
+with `|κ| ≍ x^{-1/6}` and `|μ|` exponentially small.  `κ` is only constrained through `HkEdge`; its uniqueness is not shown. -/
 theorem hermite_kappa_order :
-    ∃ δ0 ck Ck : ℝ, 0 < δ0 ∧ 0 < ck ∧ 0 < Ck ∧ ∀ x δ : ℝ, 0 < x → 0 < δ → δ ≤ δ0 → δ ^ 3 = 2 / x ^ 2 →
-      ∃ (J m N : ℤ) (κ μ : ℝ), ∃ r C Cmu ξ0 gmax gmin c1 c2 Lg : ℝ,
-        HkEdge r C Cmu ξ0 gmax gmin c1 c2 Lg x δ J m N κ μ ∧
-        ck ≤ κ ^ 2 * x ^ (1 / 3 : ℝ) ∧ κ ^ 2 * x ^ (1 / 3 : ℝ) ≤ Ck := by
-  obtain ⟨r, δ0, C, Cmu, ξ0, gmax, gmin, c1, c2, Lg, hr, -, hδ0, hC, hCmu, hξ0, hgmin, hgg, hc1, hc12, hLg, H⟩ :=
+    ∃ r δ0 C Cmu ξ0 gmax gmin c1 c2 Lg ck Ck : ℝ, 0 < r ∧ r ≤ 1 / 2 ∧ 0 < δ0 ∧ 0 < C ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < gmin ∧
+      gmin ≤ gmax ∧ 0 < c1 ∧ c1 ≤ c2 ∧ 0 ≤ Lg ∧ 0 < ck ∧ 0 < Ck ∧
+      ∀ x δ : ℝ, 0 < x → 0 < δ → δ ≤ δ0 → δ ^ 3 = 2 / x ^ 2 →
+        ∃ (J m N : ℤ) (κ μ : ℝ), HkEdge r C Cmu ξ0 gmax gmin c1 c2 Lg x δ J m N κ μ ∧
+          ck ≤ κ ^ 2 * x ^ (1 / 3 : ℝ) ∧ κ ^ 2 * x ^ (1 / 3 : ℝ) ≤ Ck := by
+  obtain ⟨r, δ0, C, Cmu, ξ0, gmax, gmin, c1, c2, Lg, hr, hrr0, hδ0, hC, hCmu, hξ0, hgmin, hgg, hc1, hc12, hLg, H⟩ :=
     hermite_kappa_edge
   obtain ⟨δ1, Ck, hδ1, hCk, Hle⟩ := hermite_kappa_le (r := r) (c1 := c1) (c2 := c2) (Lg := Lg) hC hCmu hξ0 hgmin hgg
   obtain ⟨δ2, ck, hδ2, hck, Hge⟩ := hermite_kappa_ge hr hC hCmu hξ0 hgmin hgg hc1 hc12 hLg
-  refine ⟨min δ0 (min δ1 δ2), ck, Ck, by positivity, hck, hCk, ?_⟩
+  refine ⟨r, min δ0 (min δ1 δ2), C, Cmu, ξ0, gmax, gmin, c1, c2, Lg, ck, Ck, hr, hrr0, by positivity, hC, hCmu, hξ0, hgmin,
+    hgg, hc1, hc12, hLg, hck, hCk, ?_⟩
   intro x δ hx hδ hδm hδx
   have h0 : δ ≤ δ0 := hδm.trans (min_le_left _ _)
   have h1 : δ ≤ δ1 := hδm.trans ((min_le_right _ _).trans (min_le_left _ _))
   have h2 : δ ≤ δ2 := hδm.trans ((min_le_right _ _).trans (min_le_right _ _))
   obtain ⟨J, m, N, κ, μ, hE⟩ := H x δ hx hδ h0 hδx
-  exact ⟨J, m, N, κ, μ, r, C, Cmu, ξ0, gmax, gmin, c1, c2, Lg, hE, Hge x δ J m N κ μ hx hδ h2 hδx hE,
-    Hle x δ J m N κ μ hx hδ h1 hδx hE⟩
+  exact ⟨J, m, N, κ, μ, hE, Hge x δ J m N κ μ hx hδ h2 hδx hE, Hle x δ J m N κ μ hx hδ h1 hδx hE⟩
 
 /-- info: 'FormalResearch.Special.hermite_kappa_ge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

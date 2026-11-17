@@ -15,7 +15,13 @@ Umbrella for the `HermiteKappa*` modules (r31):
 * `HermiteKappaUpper`, `HermiteKappaLowerX`, `HermiteKappaSites`, `HermiteKappaLower`: the order of the amplitude,
   `κ² x^{1/3} ≍ 1` (`hermite_kappa_order`).
 
-**Claim class: proved.**  Not formalised: the exact value of `κ` (`κ² ≈ (2/π)·(…) √δ`), i.e. the constant in the Plancherel-Rotach amplitude.
+**Claim class: proved** (explicit but crude constants: `12·10⁶` in the envelope; `δ₀, c_κ, C_κ` existential).
+
+**Not formalised:** the sharp envelope constant (numerically `√2/√π ≈ 0.798`, at `n = 0`, `x = 0`, tending to `≈ 0.75`); the exact amplitude
+(`κ = S^{-1/12}(1 + o(1))`, i.e. `κ² x^{1/3} → 2^{1/6}`, `S = x²/2`; numerics only); uniqueness of `κ` in the Airy decomposition
+(`κ` is the coefficient produced by `hermite_airy_edge`/`hermite_kappa_edge`, constrained only through `HkEdge`); the Plancherel-Rotach
+oscillatory form with phase (`lem:PR(a)`) and the derivative bound `|y_n'| ≤ C N^{1/4} ρ_n^{1/2}`; negative `x` and `x = 0`
+(in `hermite_kappa_order`; `hermite_envelope` covers all real `x`); the region `δ > δ₀` in `hermite_kappa_order`.
 -/
 
 @[expose] public section

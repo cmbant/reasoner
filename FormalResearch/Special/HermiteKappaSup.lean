@@ -8,7 +8,8 @@ public import FormalResearch.Special.HermiteKappaOde
 
 **Theorem (`hermite_envelope`).**  For all `n ≥ 0` and all real `x`,
 `φ_n(x)² · √(|2n + 1 - x²| + (2n+1)^{1/3}) ≤ 12·10⁶`.
-(Numerics: the sharp constant is `≈ 0.76`; mpmath/numpy scratch check `n ≤ 300`.)
+(Numerics, double-precision scan, not committed: the sharp constant is `√2/√π ≈ 0.798`, attained at `n = 0`, `x = 0`; for `n = 1, 2, 5, 10, 100, 1000`
+the supremum over `x` is `0.777, 0.770, 0.762, 0.758, 0.753, 0.752`, tending to `≈ 0.75`.  So the claim is true and the constant `12·10⁶` is crude.)
 
 This is the size statement of W1 `lem:PR(b)` (`Weyl/free_fermion/paper/parts/hermite.tex`): for `x₀ = ξ√(2N)`, `y_n = φ_n(x₀)`,
 `|y_n|² ≤ C N^{-1/2} ρ_n` with `ρ_n = min(d_n^{-1/2}, N^{1/2}(2n+1)^{-1/6})`, `d_n = |2n+1-x₀²|/N` for `n < 2N`, and
@@ -88,7 +89,11 @@ theorem hermite_envelope (n : ℕ) (x : ℝ) :
 * `y_n² √|2n+1-x₀²| ≤ C` (so `y_n² ≤ C N^{-1/2} d_n^{-1/2}`, `d_n = |2n+1-x₀²|/N`, the other branch of `ρ_n`);
 * for `n ≥ 2N`: `y_n² N ≤ C √n` (`y_n² ≤ C N^{-1/2} (n/N)^{1/2}`);
 
-with `C = 12·10⁶`; together `y_n² ≤ C N^{-1/2} ρ_n` for all `n ≥ 0`. -/
+with `C = 12·10⁶`.  Elementary algebra (not formalised here) turns the three conjuncts into the paper's `y_n² ≤ C N^{-1/2} ρ_n`
+for all `n ≥ 0`: for `n < 2N` the first two conjuncts give `y_n² ≤ C min(|2n+1-x₀²|^{-1/2}, (2n+1)^{-1/6}) = C N^{-1/2} ρ_n`
+(the case `2n+1 = x₀²` being covered by the first conjunct alone), and for `n ≥ 2N` the third gives `y_n² ≤ C N^{-1/2} (n/N)^{1/2}`.
+The Lean statement holds for every real `x₀` (the hypothesis `x₀² ≤ 2N` is only used in the third conjunct).  It does not contain the
+paper's bound `|y_n'| ≤ C N^{1/4} ρ_n^{1/2}` nor the oscillatory form `lem:PR(a)`. -/
 theorem hermite_PR_b (N n : ℕ) (hN : 1 ≤ N) (x₀ : ℝ) (hx : x₀ ^ 2 ≤ 2 * N) :
     hermitePhi n x₀ ^ 2 * √((2 * (n : ℝ) + 1) ^ (1 / 3 : ℝ)) ≤ 12000000 ∧
     hermitePhi n x₀ ^ 2 * √|2 * (n : ℝ) + 1 - x₀ ^ 2| ≤ 12000000 ∧

@@ -6,11 +6,11 @@ public import FormalResearch.Special.HermiteKappaBulk
 # The uniform envelope of a Weber-type solution
 
 For `f` with `WeberData (q⁶)` (`q ≥ 4`), the three regions give, for all `x ≥ 0`,
-`f(x)² √(|q⁶ - x²| + q²) ≤ C` (`weber_envelope`), `C = 3·10⁷` (explicit, not optimised):
+`f(x)² √(|q⁶ - x²| + q²) ≤ C` (`weber_envelope`), `C = 12·10⁶` (explicit, not optimised):
 
 * **bulk** `0 ≤ x ≤ x_b` (`q⁶ - x² ≥ 100 q²`): `f² ≤ T/w ≤ 5/√(q⁶ - x²)` (`weber_bulk_T`);
 * **turning window** `x_b ≤ x ≤ s = q³`: the energy `E = f'² + (q⁶ - x²) f²` is nonincreasing, `E(x_b) = w T ≤ 50 q`, so
-  `|f'| ≤ √(50 q)` on the window, whose length is `≤ 100/q`; hence `f² ≤ (10⁶ + 1)/q` (`window_bound`);
+  `|f'| ≤ √(50 q)` on the window, whose length is `≤ 100/q`; hence `f² ≤ (10⁶ + 1)/q` (`hk_window_bound`);
 * **forbidden region** `x ≥ s`: `f² ≤ f(s)² exp(-(4/3)√(2s)(x - s)^{3/2})` (`WeberData.sq_exp_decay`), which beats the
   polynomial factor (`forbidden_bound`).
 
@@ -62,7 +62,7 @@ lemma xb_data (hq : 4 ≤ q) (h : WeberData (q ^ 6) f g V) :
     nlinarith
 
 /-- **Turning window**: `f² ≤ (10⁶ + 1)/q` on `[x_b, q³]`. -/
-theorem window_bound (hq : 4 ≤ q) (h : WeberData (q ^ 6) f g V) {x : ℝ}
+theorem hk_window_bound (hq : 4 ≤ q) (h : WeberData (q ^ 6) f g V) {x : ℝ}
     (hx1 : bxb q ≤ x) (hx2 : x ≤ q ^ 3) : f x ^ 2 ≤ 1000001 / q := by
   have hq0 : 0 < q := by linarith
   obtain ⟨hf0, hE0⟩ := xb_data hq h
@@ -207,7 +207,7 @@ theorem weber_envelope (hq : 4 ≤ q) (h : WeberData (q ^ 6) f g V) {x : ℝ} (h
       _ ≤ 12000000 := by norm_num
   · rcases le_total x (q ^ 3) with hx2 | hx2
     · -- window
-      have hw := window_bound hq h hx1 hx2
+      have hw := hk_window_bound hq h hx1 hx2
       have hd : |q ^ 6 - x ^ 2| + q ^ 2 ≤ (11 * q) ^ 2 := by
         have hsq := bxb_sq hq
         have : 0 ≤ q ^ 6 - x ^ 2 := by nlinarith [pow_pos hq0 3]
@@ -218,7 +218,7 @@ theorem weber_envelope (hq : 4 ≤ q) (h : WeberData (q ^ 6) f g V) {x : ℝ} (h
             mul_le_mul hw hs (Real.sqrt_nonneg _) (by positivity)
         _ = 11000011 := by field_simp; norm_num
         _ ≤ 12000000 := by norm_num
-    · have hK := window_bound hq h hxbq le_rfl
+    · have hK := hk_window_bound hq h hxbq le_rfl
       have := forbidden_bound (by linarith) h (K := 1000001) (by norm_num) hK hx2
       linarith
 

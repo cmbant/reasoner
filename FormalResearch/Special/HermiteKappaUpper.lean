@@ -13,7 +13,7 @@ decomposition of `hermite_kappa_edge` gives `|κ| g_min Ai_min / 2 ≤ |φ_n(x)|
 small, and `φ_n(x)² ≤ 24·10⁶ x^{-1/3}` by `hermite_envelope` (the uniform sup bound of `HermiteKappaEnvelope`, proved in the `x` variable).
 So `κ` is bounded by the envelope; no mass argument in `n` is needed.
 
-**Claim class: proved** (constants existential).  Not formalised here: the lower bound `|κ| ≥ c S^{-1/12}` (`HermiteKappaLower`).
+**Claim class: proved** (constants existential).  The lower bound `|κ| ≥ c S^{-1/12}` is in `HermiteKappaLower`; the sharp constant (`κ ≈ S^{-1/12}`, numerics only) is not formalised.
 -/
 
 @[expose] public section

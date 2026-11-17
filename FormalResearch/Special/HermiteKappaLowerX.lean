@@ -161,4 +161,8 @@ theorem hermite_V_tendsto (n : ℕ) :
   rw [hval] at hT
   simpa using hT
 
+/-- info: 'FormalResearch.Special.hermite_V_tendsto' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.hermite_V_tendsto
+
 end FormalResearch.Special

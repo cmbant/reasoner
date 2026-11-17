@@ -9,7 +9,7 @@ public import FormalResearch.Special.HermiteAiryEdge
 `hermite_airy_edge` (`HermiteAiryEdge`) gives `φ_{-k}(x) = κ g Ai(X_k) + μ g Bi(X_k) + O(δ³)` but hides the chart constants
 (`g_min ≤ g ≤ g_max`, lattice gaps, `X_m ∈ [0, c₂δ]`).  `hermite_kappa_edge` is the same statement with these exported, obtained from
 `hkc_turn` (`HermiteKappaChart`) applied to the Hermite datum `u = (√(-q))⁻¹`, `A = √(-q/2)`, `c₀ = -1`, `E = 0`.
-It is what the order bounds on `κ` (`HermiteKappaOrder`) are built on.
+It is what the order bounds on `κ` (`hermite_kappa_order`, `HermiteKappaLower`) are built on.
 
 **Claim class: proved.**  `κ` itself is not identified here.
 -/
