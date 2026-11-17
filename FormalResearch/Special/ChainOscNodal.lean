@@ -24,10 +24,14 @@ Main results.
   lemma `cho_count_step`.
 * `cho_nodal_eigenvector` : the eigenvector statement above.
 
+Relation to existing material: `Jacobi.jacP_interlacing` (interlacing of the recurrence polynomials) and
+`Jacobi.jacobi_oscillation` / `jacobi_oscillation_sign` (SP.1, the end-sign form of oscillation, for nonzero links)
+already exist; new here is the nodal (sign-change count) form and the ascending-index form, for positive links.
+
 Claim class: proved.  Not formalised: the physical instantiation (that the `3j` / `6j` Hahn and Racah
 chains are the eigenvectors of such Jacobi matrices with spectrum the physical lattice
 `x_n = xLat n`, hence have `m - n` nodes) and the comparison with the Airy phase
-(see the handoff of round 39).
+(identifying the Bohr-Sommerfeld integer of the bulk zeros with the zero index).
 -/
 
 @[expose] public section

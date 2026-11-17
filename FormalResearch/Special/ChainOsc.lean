@@ -8,5 +8,5 @@ public import FormalResearch.Special.ChainOscHahn
 
 Nodal Sturm oscillation for finite Jacobi eigenvectors (`ChainOscCount`, `ChainOscNodal`), the
 generic ingredient for anchoring the Bohr-Sommerfeld integer of the Hahn and Racah chain zeros at
-the index.  See the round 39 handoff for what is and is not composed.
+the index.  Not composed here: the identification of the bulk-zero integer with the zero index (needs the Airy window).
 -/
