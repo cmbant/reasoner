@@ -32,10 +32,17 @@ the level count (o) and the rate-`πσ` tail (`sum_exp_rate_le`) for `∑ e^{-π
 `tracecore_gamma` is the same with that term replaced by any `ε_op ≥ 0` bounding `μ(1-μ)` over the eigenvalues `μ` of `C'`
 (equivalent for the positive semidefinite `C'(1-C')`, `eigenvalue_mul_one_sub_le_opNorm`).
 
-Not formalised / differences: the Gamma-function identification of the phase (`argGammaHalf`); the smooth cutoff `χ₀` by a piecewise linear one, and
-`ε_ρ = ρ^{σ/2}(1+|log ρ|)` by `K_ρ ∼ ρ^{5σ/12}` (all that the exponent `b_h` needs); admissibility (a) is
-used in the form of `def:admissible`.  The case distinctions of the paper's `O(L^{-σ a/2} log² L)` are absorbed into
-the exponent `σ a/3`.
+Not formalised / differences: the Gamma-function identification of the phase (`argGammaHalf`, the continuous branch
+of `arg Γ(½+is)`, is used as given; their equality is checked numerically only); the verification of the hypotheses
+(TC), (FM_σ) and of the lattice data (`Θ`, `S`) for the cases (G), (H) of the paper, which are hypotheses here; the
+standalone Gamma-phase statement of `lem:latticesum` (i).  Differences from the paper's proof: the smooth cutoff `χ₀`
+is replaced by a piecewise linear one, and `ε_ρ = ρ^{σ/2}(1+|log ρ|)` by `K_ρ ∼ ρ^{5σ/12}` (all that the exponent
+`b_h` needs; the stated exponent `b_h = min(σ a/3, b₁)` is the paper's); the paper's `O(L^{-σ a/2} log² L)` is absorbed
+into the exponent `σ a/3`.  Differences in the hypotheses (none weakens the statement): `M ≥ 0` instead of `M ≥ 1`;
+`h : ℝ → ℂ`, of which only the values on `[0,1]` enter (`Admissible`); the analytic extension in `Admissible` is
+`DifferentiableOn` the closed strip `|Im s| ≤ δ`, and its field `dcont` (continuity of `h'`) is not used.  `K0` and `L₀` depend only on
+the listed parameters (`nc, b, c_*, b₁, δ, κ, F_±, σ, a, M, C_h`) and not on `ι, C, U, h, L, F, X, θ₀, Θ`;
+`b₁ < b`, `b₁ < ϰ min(δ,¼)` are the paper's hypotheses of `lem:latticesum`.
 -/
 
 @[expose] public section

@@ -10,6 +10,10 @@ Source: `Weyl/free_fermion/paper/parts/constants.tex`, `def:admissible` and the 
 With `d(t) = t(1-t)` (`ddf`), a function `h` is `(σ,δ,κ)`-admissible with constant `C_h` (`Admissible`) if it is
 continuous on `[0,1]`, `C¹` on `(0,1)` with `|h| ≤ C_h d^σ(1+|log d|)`, `|h'| ≤ C_h d^{σ-1}(1+|log d|)`, and
 `s ↦ h(ν(2πs))` has an analytic extension `g` to `|Im s| ≤ δ` with `|g| ≤ C_h e^{-κ|Re s|}`.
+(Formalised with `h : ℝ → ℂ`, only its values on `[0,1]` being used; `g` is `DifferentiableOn ℂ` the closed strip,
+which is at most as strong as analyticity on a neighbourhood of it; the field `dcont` is part of the paper's
+definition but is not used by any proof here.  An instance: `h(t) = t(1-t)` with `σ = 1`, `δ = ¼`, `κ = 2π`, `C_h = 2`,
+for which `g(s) = 1/(4 cosh² πs)`, `|g| ≤ e^{-2π|Re s|}` on the strip, checked numerically.)
 
 The cutoff is the piecewise linear `χ(y) = min(max(y-1,0),1)` (`cutχ`; the paper's smooth `χ₀` is used only through
 Lipschitz bounds, which `χ` satisfies with constant `1` instead of `2`), `ψ_ρ(t) = χ(d(t)/ρ)`,
