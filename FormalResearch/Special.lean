@@ -188,7 +188,7 @@ phase, the zeros of `N = P Ai + Q Ai'` (real, simple, positive weights, indexed 
 Theorem D and the quadrature `∫_ℝ f = Σ f(z) D/N'²` (`ν < -1`; constant real `P, Q`, `Q ≠ 0`), Clark-Airy summation for `ψ_α`
 (`airyClark_quadrature`, `ν < -1`), the largest zero `a'_1` of `Ai'` with `S_1 = Σ (a_n - a'_1)^{-2} = |a'_1|`, and the Hadamard
 product of `Ai'` (`airyDeriv_hadamard`; this module imports `Complex.HadamardAiry` and is imported here, not by `Airy`).  Open:
-Theorem Q for `ν ∈ [-1, 1/2]` (Hardy-space unfolding), the Clark node labelling and `α`-dependence, polynomial `P, Q`.  The
+the sampling bound and pointwise bound of Theorem Q (3), (2) (absolute convergence for `ν ∈ [-1, 1/2]`; Theorem Q (1) and the limit/`HasSum`-under-summability form of (4) are formalised for any real `ν` in `AiryCftQ*`, via the Fejér–Riesz bounds of `Complex.Hardy*`), the Clark node labelling and `α`-dependence, polynomial `P, Q`.  The
 Hadamard factorization theorem, the converse growth bound (`HadamardGrowth`) and the genus-one product of `Ai` are in the separate
 aggregate `FormalResearch.Complex` (it imports `HadamardAiry`, which uses the Airy modules; no module of the `Airy` aggregate imports it).
 -/

@@ -15,8 +15,9 @@ Specialisation of `airyNC_quadrature` (`AiryCft2ComboQuadrature`) to the Clark f
   `∫_ℝ f = Σ_{ψ_α(z) = 0} f(z)/K(z,z)`, absolutely convergent (HasSum over the subtype of zeros of `ψ_α`; the zeros are
   real and simple, `airyNC_zero_im`, `airyNC_zero_weight_pos`).
 
-Class: proved (axiom-checked) for `ν < -1` (Corollary-D1 range); the full range `ν ≤ 1/2` of Theorem 1.1 (`f ∈ 𝒢`) needs the Hardy-space
-bound `∮ |f|/e → 0` (Theorem Q(1)), not formalised.  Not formalised either: the labelling `z_1(α) > a_1`, `z_n(α) ∈ (a_n, a_{n-1})` and the
+Class: proved (axiom-checked) for `ν < -1` (Corollary-D1 range); for the full range `ν ≤ 1/2` of Theorem 1.1 (`f ∈ 𝒢`), the Hardy-space
+bound `∮ |f|/e → 0` (Theorem Q(1)) is formalised in `AiryCftQQuad`/`AiryCftQNCQuad`, giving `airyClark_hasSum` (`HasSum` under summability; the nonnegative-term form is `airyNC_hasSum_of_nonneg` with
+`P = cos α`, `Q = -sin α`, whose weight is `1/K` by `airyNC_weight_eq_inv_K`); the sampling bound of Theorem Q (3), which gives summability unconditionally, is not formalised.  Not formalised either: the labelling `z_1(α) > a_1`, `z_n(α) ∈ (a_n, a_{n-1})` and the
 dependence of the nodes on `α`.
 
 Numerical check (mpmath, 20 digits; evidence only): `α = 0.4`, `f(u) = ∫_0^1 τ⁴(1-τ)⁴ Ai(2^{2/3}(u+τ)) dτ` (`∫ f = 2^{-2/3} 576/9! = 0.00099994`):

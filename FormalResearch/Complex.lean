@@ -13,13 +13,17 @@ public import FormalResearch.Complex.HadamardMain
 public import FormalResearch.Complex.HadamardGeneral
 public import FormalResearch.Complex.HadamardAiry
 public import FormalResearch.Complex.HadamardGrowth
+public import FormalResearch.Complex.HardyFejerRiesz
+public import FormalResearch.Complex.HardyHalfPlane
+public import FormalResearch.Complex.HardyArcDecay
 
 /-!
-# Complex analysis: Hadamard factorization of entire functions of finite order
+# Complex analysis: Hadamard factorization and Fejér–Riesz arc bounds
 
-Aggregate module for `FormalResearch/Complex/` (namespace `FormalResearch.Hadamard`).  Mathlib has Jensen's formula,
+Aggregate module for `FormalResearch/Complex/` (namespaces `FormalResearch.Hadamard` and `FormalResearch.Hardy`).  Mathlib has Jensen's formula,
 Borel–Carathéodory and the canonical decomposition of an entire function, but no Hadamard factorization theorem; this
-directory proves it, and applies it to the Airy function.
+directory proves it, and applies it to the Airy function.  It also holds an elementary Fejér–Riesz inequality on the disc and its
+half-plane arc form (`Hardy*`, Airy-free).
 
 * `HadamardProduct`: elementary factors `E p`, canonical products `canonProd p a` over a family `a` with
   `Σ ‖a i‖^{-(p+1)} < ∞` (`hasProd_E`: locally uniform convergence; entire; zero set exactly `{a i}`; logarithmic derivative);
@@ -39,6 +43,16 @@ directory proves it, and applies it to the Airy function.
 * `HadamardGrowth`: the converse growth bound: for `p ≤ s ≤ p+1` and `Σ ‖a_i‖^{-s} < ∞`, `‖E_p(w)‖ ≤ exp(K‖w‖^s)`, the canonical
   product satisfies `|f(z)| ≤ C exp(C|z|^s)` (`norm_canonProd_le`, `growthBound_canonProd`), and so does `c z^m e^{P} ∏ E_p(z/a_i)` with
   `deg P ≤ p` (`growthBound_factorization`): finite genus gives finite order, an upper bound only.
+
+* `HardyFejerRiesz`: the Fejér–Riesz inequality on the unit disc (`fejerRiesz_disc`): `h` holomorphic on the open disc and continuous on
+  the closed disc (`DiffContOnCl`, not only polynomials) satisfies `∫_{-1}^1 ‖h‖ ≤ (1/2) ∫_{-π}^{π} ‖h(e^{iθ})‖`; elementary proof (Blaschke
+  division at a zero-free radius, `q = r r̄`, no Hilbert inequality), no Hardy-space theory;
+* `HardyHalfPlane`: Möbius transport to the upper half-plane and the arc bound `hardy_arc_le`: for `G` holomorphic on `ℍ`, continuous on the
+  closure with `‖G(z)‖(1+‖z‖)³ ≤ C`, `a ∫_0^π ‖G(a e^{iφ})‖ dφ ≤ (1/2) ∫_ℝ ‖G‖` for every `a > 0`;
+* `HardyArcDecay`: the same under polynomial growth and integrable boundary values (`hardy_arc_le_poly`, by the damping factor
+  `(1 - iδz)^{-K}`), and `hardy_arc_tendsto_zero`: the arc integral tends to `0` as `a → ∞`.
+  Not formalised there: Hardy spaces `H^p(ℍ)` as notions, the Poisson representation of `G` on `ℍ` and the horizontal `L¹` bound
+  `∫ ‖G(x+iy)‖ dx ≤ ∫ ‖G(x)‖ dx` (Lemma H of the Airy sampling bound), and the pointwise bound `‖G(z)‖ ≤ ‖g‖₁/(π Im z)`.
 
 Layering: only `HadamardAiry` imports `FormalResearch.Special.Airy*` modules; no module of the `Airy` aggregate imports this
 aggregate (the product of `Ai'`, `FormalResearch.Special.airyDeriv_hadamard` in `Special/AiryCft2DerivHadamard`, imports `HadamardAiry`

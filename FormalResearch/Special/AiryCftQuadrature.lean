@@ -22,8 +22,11 @@ Numerical evidence only (mpmath, 20 digits; not a proof ingredient): `f(u) = ∫
 `Σ_{n ≤ 25, 50, 100, 200, 400} = 0.00937, 0.01030, 0.01497, 0.01606, 0.01779`, closing the gap to `0.020999` like the predicted
 tail `n^{-1/6}` (the exponent `(2/3)(ν - 1/2)` with `ν = -5/4`); the finite identity itself is checked to `10⁻⁵⁰` in `AiryCftDefect`.
 
-Not formalised: the full range `N ≤ 1/2` of Theorem Q (Hardy-space unfolding and Fejér-Riesz; Hardy spaces are not in
-Mathlib).  The case where `f` is holomorphic only near the closed disc is `AiryCft2Ball` (`airy_defect_ball`); the
+The range `ν ≥ -1` is treated in `AiryCftQQuad` and `AiryCftQNonneg` (this file's absolute-convergence theorems are not superseded): the
+Fejér–Riesz/Hardy arc bound (`FormalResearch.Complex.HardyArcDecay`) gives Theorem Q (1) for any real `ν` with `f ∈ L¹(ℝ)` (the limit of the partial sums over
+good circles, `airyQ_tendsto`; `HasSum` if the series is summable or its terms are nonnegative).  Not formalised: Theorem Q (3), the sampling bound
+`Σ|f(a_n)|/Ai'(a_n)² ≤ C‖f‖_b` (Poisson representation on the half-plane, the horizontal `L¹` bound, and the Carleson-type sum over the zero spacing),
+and Q (2), the pointwise bound, which give unconditional absolute convergence for `ν ∈ [-1, 1/2]`.  The case where `f` is holomorphic only near the closed disc is `AiryCft2Ball` (`airy_defect_ball`); the
 `P·Ai + Q·Ai'` quadrature, the Clark summation for `ν < -1` and the first zero of `Ai'` are in `AiryCft2Combo*`,
 `AiryCft2Clark`, `AiryCft2FirstDerivZero`.
 -/
