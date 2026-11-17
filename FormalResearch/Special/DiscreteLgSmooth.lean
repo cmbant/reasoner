@@ -9,7 +9,7 @@ For `A, u ∈ C²` on an open set `U₀ ⊇ [c, d]` with `A > 0`, `|u| < 1` (the
 `θ = arccos u`, `w = (A sin θ)^{-1/2} = (√(A √(1 - u²)))⁻¹`, `Θ = ∫_c^t θ`; the constants `lo, hi, M` come from compactness of `[c, d]`.
 This makes `dlg_bulk` and `dlg_airy_match` applicable to every smooth symmetric Jacobi chain `a_k ≈ A(q_k - h/2)`, `c_k ≈ 2 A(q_k) u(q_k)`.
 
-**Claim class: proved.**  **Not formalised here:** the closed-form Hahn/Racah instance (the closeness `|a_k - A(q_k - h/2)| ≤ E h²` is `hr_perturb`'s job).
+**Claim class: proved.**  The closed-form Hahn/Racah instance (the closeness `|a_k - A(q_k - h/2)| ≤ E h²` is `hr_perturb`'s job) is `DiscreteLgHahn`.  **Not formalised:** second-order Liouville-Green.
 -/
 
 @[expose] public section

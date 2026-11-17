@@ -18,7 +18,7 @@ public import FormalResearch.Special.DiscreteAiryOscBi
 
 **Results.**
 * `dlgm_site`: at one site, `|Y - h^{1/6} π^{-1/2} w (κ cos χ + μ sin χ)| ≤ (|κ| + |μ|)(1/(12 Φ_min) + C_a/g_min) h^{1/6} h w`, with the phase
-  `χ = Θ(q)/h - Θ*/h + π/4`.  I.e. `g Ai(X) ≈ h^{1/6} π^{-1/2} w cos χ`, `g Bi(X) ≈ h^{1/6} π^{-1/2} w sin χ` (`Ai(-y) ~ π^{-1/2} y^{-1/4} cos(ξ - π/4)`).
+  `χ = Θ(q)/h - Θ*/h + π/4`.  I.e. `g Ai(X) ≈ h^{1/6} π^{-1/2} w cos χ`, `g Bi(X) ≈ h^{1/6} π^{-1/2} w sin χ` (`Ai(-y) ~ π^{-1/2} y^{-1/4} cos(ξ - π/4)`, `Bi(-y) ~ -π^{-1/2} y^{-1/4} sin(ξ - π/4)`, `ξ = (2/3) y^{3/2}`; DLMF §9.7(ii)).
 * `dlg_airy_match`: transported across the whole bulk window `[J, N+1]`:
   `|Y_k - h^{1/6} π^{-1/2} w_k (κ cos χ_k + μ sin χ_k)| ≤ C h^{1/6} h (|κ| + |μ|) w_k`.  For `μ = 0`: `Y_k = h^{1/6} κ π^{-1/2} w_k [cos(Θ_k/h - Θ*/h + π/4) + O(h)]`,
   i.e. amplitude `R = h^{1/6} |κ|/√π` and phase offset **exactly `π/4`** (the Maslov index of a simple turn); the sign of `κ` is the sign of the cosine factor.

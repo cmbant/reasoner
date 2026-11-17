@@ -10,7 +10,16 @@ public import FormalResearch.Special.DiscreteAiryPhysHahn
 (`langerZeta_integral`, `langerAmp_of_coeff`, the sign of `ζ`) hold only on a neighbourhood `|q - q_*| < ρ` of the turn, so `r` has to be shrunk below the radius
 `ρ` of that neighbourhood.  `dlgh_airy_compose` is `airy_full_compose` with the extra output `r ≤ ρ` for an arbitrary `ρ > 0` (same proof, `discrete_airy_full` with `r₀ = min(r₀, ρ)`).
 
-**Claim class: proved.**
+The end-to-end theorem `dlg_hahn_airy` combines it with the bulk layer of `DiscreteLgHahn`/`DiscreteLgMatch`: the Langer chart relations at the turn (`dlgh_chart`, from
+`langerZeta_integral`, `langerAmp_of_coeff`) feed `DlgAiryAt` (`dlgh_airyat`, using the Airy asymptotics `airyAi_neg_asymptotic`, `airyBi_neg_asymptotic`, cf. DLMF §9.7(ii)),
+and `dlg_airy_match_hahn` transports the Airy shape across the bulk.  The phase offset `π/4` is the standard simple-turn connection constant
+(`Ai(-y) ~ π^{-1/2} y^{-1/4} cos(ξ - π/4)`, `ξ = (2/3) y^{3/2}`).  Numerically cross-checked (mpmath, exact solution recessive at the right end, Hahn `a = b = 0`, `τ = 1`, `x = 1/2`
+and further `(P, Q, a, b, x)`): `N = 200, 800, 3200` give error `≈ 1.1 h` and `|μ/κ| ≈ 0.2 h` for a least-squares fit of `κ, μ` in the bulk, i.e. offset `π/4` and `O(h)` error.
+
+**Claim class: proved.**  **Not formalised:** the value of `κ` (only that it exists; `κ ≠ 0` is `hahn_chain_kappa`, a sharp `|κ|` is not obtained here); second-order
+Liouville-Green (the error is first order, `O(h)` relative); the left edge `q = 0` / other turning point, the two-turn Bohr-Sommerfeld quantisation and node counting; the
+oscillatory hypothesis `|u| < 1` on `[c₀, q_*)` is assumed, not derived from `(P, Q, a, b, τ, x)`; the constants `r, C, δ₀, C_μ, ξ₀` are existential and not tracked in the
+parameters.
 -/
 
 @[expose] public section

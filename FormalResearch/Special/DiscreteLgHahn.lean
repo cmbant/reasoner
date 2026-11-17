@@ -12,8 +12,8 @@ The input is the `O(h²)` closeness of the closed forms to the smooth data `A = 
 on an open neighbourhood of the window).  Conclusion: every exact solution of the Hahn/Racah rows on a lattice window of macroscopic length `≤ L` inside `[c, d]`
 is `R w(q_k) [cos(Θ(q_k)/δ³ - φ₀) + O(δ³)]`, `R ≍ |Y_m| + |Y_{m+1}|`.
 
-**Claim class: proved.**  **Not formalised here:** the Hahn/Racah chain data needed to feed the *matching* `dlg_airy_match` (chart relations at the sites near a turn) -- that
-is the Langer-chart link to `DaiFull` and `hahn_chain_kappa`; the value of `κ`.
+**Claim class: proved.**  `dlg_airy_match_hahn` is the matching with the Airy layer given `DlgAiryAt` at two sites; the Langer-chart link that supplies `DlgAiryAt` and the end-to-end
+theorem are in `DiscreteLgHahnMatch`.  **Not formalised:** the value of `κ`; second-order Liouville-Green; the oscillatory hypothesis `hreg` is assumed.
 -/
 
 @[expose] public section
