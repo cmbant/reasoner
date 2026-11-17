@@ -11,7 +11,7 @@ Umbrella for the `HermiteKappa*` modules (r31):
 * `HermiteKappaWeber`, `HermiteKappaOde`, `HermiteKappaInvariant`, `HermiteKappaBulk`, `HermiteKappaEnvelope`, `HermiteKappaSup`:
   the Weber equation for `φ_n`, the adiabatic invariant and the **uniform envelope** `φ_n(x)² √(|2n+1-x²| + (2n+1)^{1/3}) ≤ C`
   (`hermite_envelope`), and the product form of W1 `lem:PR(b)` (`hermite_PR_b`);
-* `HermiteKappaChart`, `HermiteKappaEdge`: the Airy edge `hermite_airy_edge` with the chart data exported (`hermite_kappa_edge`);
+* `HermiteKappaEdge`: the Airy edge `hermite_airy_edge` with the chart data exported (`hermite_kappa_edge`);
 * `HermiteKappaUpper`, `HermiteKappaLowerX`, `HermiteKappaSites`, `HermiteKappaLower`: the order of the amplitude,
   `κ² x^{1/3} ≍ 1` (`hermite_kappa_order`).
 

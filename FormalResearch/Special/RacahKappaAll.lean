@@ -11,25 +11,17 @@ public import FormalResearch.Special.RacahKappaConst
 public import FormalResearch.Special.RacahKappaFam
 public import FormalResearch.Special.RacahKappaFinalAlg
 public import FormalResearch.Special.RacahKappaHBandD
-public import FormalResearch.Special.RacahKappaHBandMass
 public import FormalResearch.Special.RacahKappaHBulk
-public import FormalResearch.Special.RacahKappaHChain
 public import FormalResearch.Special.RacahKappaHCompose
 public import FormalResearch.Special.RacahKappaHFam
 public import FormalResearch.Special.RacahKappaHHardEdge
 public import FormalResearch.Special.RacahKappaHLeft
 public import FormalResearch.Special.RacahKappaHLeftBand
-public import FormalResearch.Special.RacahKappaHLeftBandT
-public import FormalResearch.Special.RacahKappaHLeftCoef
-public import FormalResearch.Special.RacahKappaHLeftEdge
 public import FormalResearch.Special.RacahKappaHLgHahn
 public import FormalResearch.Special.RacahKappaHLgMatch
 public import FormalResearch.Special.RacahKappaHRacah
-public import FormalResearch.Special.RacahKappaHRiem
 public import FormalResearch.Special.RacahKappaHSharp
 public import FormalResearch.Special.RacahKappaHSharpInst
-public import FormalResearch.Special.RacahKappaHZoneAbs
-public import FormalResearch.Special.RacahKappaHZoneWin
 public import FormalResearch.Special.RacahKappaLeft
 public import FormalResearch.Special.RacahKappaLeftBand
 public import FormalResearch.Special.RacahKappaLeftCoef
@@ -40,15 +32,14 @@ public import FormalResearch.Special.RacahKappaOsc
 public import FormalResearch.Special.RacahKappaRacah
 public import FormalResearch.Special.RacahKappaSharp
 public import FormalResearch.Special.RacahKappaSharpInst
-public import FormalResearch.Special.RacahKappaZone
 public import FormalResearch.Special.RacahKappaZoneAbs
 public import FormalResearch.Special.RacahKappaZoneWin
 
 /-!
-# `κ² δ → 2` for the actual Wigner `6j` chain: umbrella for the `RacahKappa*` modules (43 modules)
+# `κ² δ → 2` for the actual Wigner `6j` chain: umbrella for the `RacahKappa*` modules (34 modules)
 
 The Racah counterpart of `hahn_chain_kappa_sharp` (`DiscreteAiryKappaAll`).  `racah_chain_airy_full_pos/_neg` write the actual `6j` chain at a macroscopic window as `κ g Ai + μ g Bi` but leave `κ`
-unidentified.  The 43 modules here (23 for integer data, 20 with `H` in the name for half-integer data) determine `|κ|`:
+unidentified.  The 34 modules here (22 for integer data, 12 with `H` in the name for half-integer data; the chain-step, zone and band-assembly lemmas are generic in the lattice offset `θ`, so they have no `H` twin) determine `|κ|`:
 
 * **Headlines.**  `racah_chain_kappa_sharp` (`τ = +1`, natural gauge `racah6jY`) and `racah_chain_kappa_sharp_neg` (`τ = -1`, twisted chain `(-1)^k Y_k`), integer data (`RacahKappaSharpInst`);
   `racah_chain_kappa_sharp_half` and `racah_chain_kappa_sharp_half_neg` for `racah6jYH` (labels `m + 1/2`, `n + 1/2`, rank `k + 1/2`, shifted lattice `q_k = (k+1) h`; `RacahKappaHSharpInst`).

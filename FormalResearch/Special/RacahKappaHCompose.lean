@@ -16,28 +16,9 @@ Twin of `RacahKappaCompose` for the closed forms `hrAkH`, `hrCkH` on the lattice
 open Finset FormalResearch.Racah.P3 FormalResearch.DiscreteAiry
 
 namespace FormalResearch.Special
-/-- The Airy window of `Y` with the chart data and the pointwise matching, at the indices `J, m, N`, scale `δ`, coefficients `κ, μ`. -/
+/-- The Airy window on the shifted lattice `q_k = (k + 1) δ³` (half-integer chains): `RkWinAtG` with `θ = 1`, `q₀ = δ³`. -/
 def RkWinAtH (P Q τ x qs : ℝ) (Y : ℤ → ℝ) (Ymax r C Cmu ξ0 gmin gmax c1 c2 δ : ℝ) (J m N : ℤ) (κ μ : ℝ) : Prop :=
-  1 ≤ J ∧ J < N ∧ J ≤ m ∧ m ≤ N ∧
-    (∀ k ∈ Finset.Icc J (N + 1), |((k : ℝ) + 1) * δ ^ 3 - qs| ≤ r) ∧
-    qs - r ≤ ((J : ℝ) + 1) * δ ^ 3 ∧ ((J : ℝ) + 1) * δ ^ 3 < qs - r + δ ^ 3 ∧
-    qs ≤ ((m : ℝ) + 1) * δ ^ 3 ∧ ((m : ℝ) + 1) * δ ^ 3 < qs + δ ^ 3 ∧
-    qs + r / 4 ≤ ((N : ℝ) + 1) * δ ^ 3 ∧ ((N : ℝ) + 1 + 1) * δ ^ 3 ≤ qs + r / 2 ∧
-    (∀ k ∈ Finset.Icc J (N + 1), |langerAmp (hrU P Q τ x) (hrA1 P Q) qs (dalQ (δ ^ 3) δ k)| ≤ gmax) ∧
-    (∀ k ∈ Finset.Icc J (m + 1), turnX (hrU P Q τ x) qs (δ ^ 3) δ k ≤ 1 / 4) ∧
-    (∀ k ∈ Finset.Icc J (N + 1), gmin ≤ langerAmp (hrU P Q τ x) (hrA1 P Q) qs (dalQ (δ ^ 3) δ k)) ∧
-    (∀ k ∈ Finset.Icc J N, c1 * δ ≤ turnX (hrU P Q τ x) qs (δ ^ 3) δ (k + 1) - turnX (hrU P Q τ x) qs (δ ^ 3) δ k ∧
-      turnX (hrU P Q τ x) qs (δ ^ 3) δ (k + 1) - turnX (hrU P Q τ x) qs (δ ^ 3) δ k ≤ c2 * δ) ∧
-    (0 ≤ turnX (hrU P Q τ x) qs (δ ^ 3) δ m ∧ turnX (hrU P Q τ x) qs (δ ^ 3) δ m ≤ c2 * δ) ∧
-    c1 * (r / 4) / δ ^ 2 ≤ turnX (hrU P Q τ x) qs (δ ^ 3) δ N ∧
-    |μ| ≤ Cmu * Ymax * Real.exp (-ξ0 / δ ^ 3) / δ ∧
-      ∀ k ∈ Finset.Icc J (N + 1),
-        |Y k - (κ * daoPhi (fun k => langerAmp (hrU P Q τ x) (hrA1 P Q) qs (dalQ (δ ^ 3) δ k))
-              (turnX (hrU P Q τ x) qs (δ ^ 3) δ) k +
-            μ * daoPsi (fun k => langerAmp (hrU P Q τ x) (hrA1 P Q) qs (dalQ (δ ^ 3) δ k))
-              (turnX (hrU P Q τ x) qs (δ ^ 3) δ) k)| ≤
-          C * δ ^ 3 * (|κ| * airyWt (turnX (hrU P Q τ x) qs (δ ^ 3) δ k) +
-            |μ| * airyBiWt (turnX (hrU P Q τ x) qs (δ ^ 3) δ k))
+  RkWinAtG 1 (δ ^ 3) P Q τ x qs Y Ymax r C Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ
 
 /-- The Airy window of `Y` at the scale `h`: `RkWinAtH` for some `δ, J, m, N, κ, μ`. -/
 def RkWinH (P Q τ x qs : ℝ) (Y : ℤ → ℝ) (Ymax r δ0 C Cmu ξ0 gmin gmax c1 c2 h : ℝ) : Prop :=

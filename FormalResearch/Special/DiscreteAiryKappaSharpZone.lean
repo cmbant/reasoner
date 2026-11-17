@@ -16,6 +16,10 @@ sharp constant needs this part small.  With `Y = κ g Ai(X) + rest` (`|rest| ≤
 
 Hence the mass beyond `jz` is `κ²δ · N · (2G²(√R₀/π + 2c₂R₀)/c₁ + O(δ))`, which is `O(A)·N` for `R₀ = O(A²)`.
 
+The proofs are written once, for the *pointwise square bound* `Y_k² ≤ 2G²K²Ai(X_k)² + 2((C+1)δ³|K|)²` with a free amplitude `K ≥ |κ|` (so that a tiny exponentially small `μ`-part can be
+absorbed into `K`) and a real tail count `NN ≤ R_t/δ³` (the Racah support is `O(1/h)`): `rkz_mid`, `rkz_tail`, `rkz_win`, `rkz_zone` (zone constant `rkzK3`; used by the Racah chains,
+`RacahKappaZoneAbs`).  `ksz_mid`, `ksz_tail`, `ksz_win`, `ksz_zone` are their instances `K = κ`, `R_t = 1` for `Y = κ g Ai + rest`.
+
 **Claim class: proved** (abstract).
 -/
 
@@ -105,18 +109,17 @@ lemma ksz_geo {X : ℤ → ℝ} {a b : ℤ} {ε0 : ℝ} (hε0 : 0 < ε0) (hab : 
   have h9 : 0 ≤ 9 * Real.exp (4 / 3) := by positivity
   exact mul_le_mul_of_nonneg_left (hgeo.trans hden) h9
 
-/-- **Middle part** `a ≤ k < k_T` (`X_a ≥ 0`, `X_{k_T - 1} ≤ 1/δ`): `Σ Y_k² ≤ K₂ κ²/δ`, `K₂ = 18G²e^{4/3}(1 + 3/(4c₁)) + 2(C+1)²(1/c₁ + 1)`. -/
-lemma ksz_mid {X Y g : ℤ → ℝ} {a kT : ℤ} {δ c1 G C κ : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hc1 : 0 < c1) (hC : 0 ≤ C)
+/-- **Middle part** `a ≤ k < k_T` (`X_a ≥ 0`, `X_{k_T - 1} ≤ 1/δ`): `Σ Y_k² ≤ K₂ K²/δ`, `K₂ = 18G²e^{4/3}(1 + 3/(4c₁)) + 2(C+1)²(1/c₁ + 1)`. -/
+lemma rkz_mid {X Y : ℤ → ℝ} {a kT : ℤ} {δ c1 G C K : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hc1 : 0 < c1) (hC : 0 ≤ C)
     (hak : a ≤ kT) (hgap : ∀ k : ℤ, a ≤ k → k < kT → c1 * δ ≤ X (k + 1) - X k) (hXa : 0 ≤ X a) (hkT : X (kT - 1) ≤ 1 / δ)
-    (hrest : ∀ k : ℤ, a ≤ k → k ≤ kT → |Y k - κ * (g k * airyAi (X k))| ≤ (C + 1) * δ ^ 3 * |κ|)
-    (hg : ∀ k : ℤ, a ≤ k → k ≤ kT → |g k| ≤ G) :
+    (hY2 : ∀ k : ℤ, a ≤ k → k ≤ kT → Y k ^ 2 ≤ 2 * G ^ 2 * K ^ 2 * airyAi (X k) ^ 2 + 2 * ((C + 1) * δ ^ 3 * |K|) ^ 2) :
     ∑ k ∈ Finset.Ico a kT, Y k ^ 2 ≤
-      (18 * G ^ 2 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) + 2 * (C + 1) ^ 2 * (1 / c1 + 1)) * κ ^ 2 / δ := by
+      (18 * G ^ 2 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) + 2 * (C + 1) ^ 2 * (1 / c1 + 1)) * K ^ 2 / δ := by
   have hε0 : 0 < c1 * δ := by positivity
-  have hpt : ∀ k ∈ Finset.Ico a kT, Y k ^ 2 ≤ 2 * G ^ 2 * κ ^ 2 * airyAi (X k) ^ 2 + 2 * ((C + 1) * δ ^ 3 * |κ|) ^ 2 := by
+  have hpt : ∀ k ∈ Finset.Ico a kT, Y k ^ 2 ≤ 2 * G ^ 2 * K ^ 2 * airyAi (X k) ^ 2 + 2 * ((C + 1) * δ ^ 3 * |K|) ^ 2 := by
     intro k hk
     have hk' := Finset.mem_Ico.1 hk
-    exact kk_y_le (hrest k hk'.1 (by omega)) (hg k hk'.1 (by omega))
+    exact hY2 k hk'.1 (by omega)
   have hsum := Finset.sum_le_sum hpt
   rw [Finset.sum_add_distrib, ← Finset.mul_sum, Finset.sum_const, Int.card_Ico, nsmul_eq_mul] at hsum
   have hcast : (((kT - a).toNat : ℕ) : ℝ) = ((kT - a : ℤ) : ℝ) := by
@@ -136,7 +139,7 @@ lemma ksz_mid {X Y g : ℤ → ℝ} {a kT : ℤ} {δ c1 G C κ : ℝ} (hδ : 0 <
       have e3 : (1 / c1 + 1) / δ ^ 2 = 1 / c1 / δ ^ 2 + 1 / δ ^ 2 := by ring
       rw [e, e3]; linarith
   refine hsum.trans ?_
-  have hρ2 : 2 * ((C + 1) * δ ^ 3 * |κ|) ^ 2 = 2 * (C + 1) ^ 2 * δ ^ 6 * κ ^ 2 := by
+  have hρ2 : 2 * ((C + 1) * δ ^ 3 * |K|) ^ 2 = 2 * (C + 1) ^ 2 * δ ^ 6 * K ^ 2 := by
     rw [mul_pow, mul_pow, sq_abs]; ring
   rw [hρ2]
   have h9 : 9 * Real.exp (4 / 3) * (1 + 3 / (4 * (c1 * δ))) ≤ 9 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) / δ := by
@@ -146,23 +149,32 @@ lemma ksz_mid {X Y g : ℤ → ℝ} {a kT : ℤ} {δ c1 G C κ : ℝ} (hδ : 0 <
     have : 1 ≤ 1 / δ := by rw [le_div_iff₀ hδ]; linarith
     have e2 : (1 + 3 / (4 * c1)) / δ = 1 / δ + 3 / (4 * c1) / δ := by ring
     rw [e2]; linarith
-  have t1 : 2 * G ^ 2 * κ ^ 2 * ∑ k ∈ Finset.Ico a kT, airyAi (X k) ^ 2 ≤
-      2 * G ^ 2 * κ ^ 2 * (9 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) / δ) :=
+  have t1 : 2 * G ^ 2 * K ^ 2 * ∑ k ∈ Finset.Ico a kT, airyAi (X k) ^ 2 ≤
+      2 * G ^ 2 * K ^ 2 * (9 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) / δ) :=
     mul_le_mul_of_nonneg_left (hgeo.trans h9) (by positivity)
-  have t2 : ((kT - a : ℤ) : ℝ) * (2 * (C + 1) ^ 2 * δ ^ 6 * κ ^ 2) ≤ 2 * (C + 1) ^ 2 * (1 / c1 + 1) * κ ^ 2 / δ := by
-    calc _ ≤ (1 / c1 + 1) / δ ^ 2 * (2 * (C + 1) ^ 2 * δ ^ 6 * κ ^ 2) := mul_le_mul_of_nonneg_right hcnt (by positivity)
-      _ = 2 * (C + 1) ^ 2 * (1 / c1 + 1) * κ ^ 2 * δ ^ 4 := by field_simp
-      _ ≤ 2 * (C + 1) ^ 2 * (1 / c1 + 1) * κ ^ 2 / δ := by
+  have t2 : ((kT - a : ℤ) : ℝ) * (2 * (C + 1) ^ 2 * δ ^ 6 * K ^ 2) ≤ 2 * (C + 1) ^ 2 * (1 / c1 + 1) * K ^ 2 / δ := by
+    calc _ ≤ (1 / c1 + 1) / δ ^ 2 * (2 * (C + 1) ^ 2 * δ ^ 6 * K ^ 2) := mul_le_mul_of_nonneg_right hcnt (by positivity)
+      _ = 2 * (C + 1) ^ 2 * (1 / c1 + 1) * K ^ 2 * δ ^ 4 := by field_simp
+      _ ≤ 2 * (C + 1) ^ 2 * (1 / c1 + 1) * K ^ 2 / δ := by
         rw [le_div_iff₀ hδ]
         have : δ ^ 4 * δ ≤ 1 := by
           have : δ ^ 5 ≤ 1 := pow_le_one₀ hδ.le hδ1
           nlinarith
-        have h0 : 0 ≤ 2 * (C + 1) ^ 2 * (1 / c1 + 1) * κ ^ 2 := by positivity
+        have h0 : 0 ≤ 2 * (C + 1) ^ 2 * (1 / c1 + 1) * K ^ 2 := by positivity
         nlinarith [mul_le_mul_of_nonneg_left this h0]
-  have e4 : (18 * G ^ 2 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) + 2 * (C + 1) ^ 2 * (1 / c1 + 1)) * κ ^ 2 / δ =
-      2 * G ^ 2 * κ ^ 2 * (9 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) / δ) + 2 * (C + 1) ^ 2 * (1 / c1 + 1) * κ ^ 2 / δ := by
+  have e4 : (18 * G ^ 2 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) + 2 * (C + 1) ^ 2 * (1 / c1 + 1)) * K ^ 2 / δ =
+      2 * G ^ 2 * K ^ 2 * (9 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) / δ) + 2 * (C + 1) ^ 2 * (1 / c1 + 1) * K ^ 2 / δ := by
     ring
   linarith [e4]
+
+/-- **Middle part** `a ≤ k < k_T` (`X_a ≥ 0`, `X_{k_T - 1} ≤ 1/δ`): `Σ Y_k² ≤ K₂ κ²/δ`, `K₂ = 18G²e^{4/3}(1 + 3/(4c₁)) + 2(C+1)²(1/c₁ + 1)`. -/
+lemma ksz_mid {X Y g : ℤ → ℝ} {a kT : ℤ} {δ c1 G C κ : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hc1 : 0 < c1) (hC : 0 ≤ C)
+    (hak : a ≤ kT) (hgap : ∀ k : ℤ, a ≤ k → k < kT → c1 * δ ≤ X (k + 1) - X k) (hXa : 0 ≤ X a) (hkT : X (kT - 1) ≤ 1 / δ)
+    (hrest : ∀ k : ℤ, a ≤ k → k ≤ kT → |Y k - κ * (g k * airyAi (X k))| ≤ (C + 1) * δ ^ 3 * |κ|)
+    (hg : ∀ k : ℤ, a ≤ k → k ≤ kT → |g k| ≤ G) :
+    ∑ k ∈ Finset.Ico a kT, Y k ^ 2 ≤
+      (18 * G ^ 2 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) + 2 * (C + 1) ^ 2 * (1 / c1 + 1)) * κ ^ 2 / δ :=
+  rkz_mid hδ hδ1 hc1 hC hak hgap hXa hkT (fun k h1 h2 => kk_y_le (hrest k h1 h2) (hg k h1 h2))
 
 /-- `e^{-(4/3) X} ≤ 3δ³` for `X ≥ 1/δ`. -/
 lemma ksz_exp_cube {δ X : ℝ} (hδ : 0 < δ) (hX : 1 / δ ≤ X) : Real.exp (-(4 / 3) * X) ≤ 3 * δ ^ 3 := by
@@ -190,16 +202,16 @@ lemma ksz_exp_cube {δ X : ℝ} (hδ : 0 < δ) (hX : 1 / δ ≤ X) : Real.exp (-
   rw [e]; nlinarith [pow_pos hδ 3]
 
 /-- **Tail part** `k ≥ k_T` (`X_{k_T} ≥ 1/δ`, monotone decay, `NN ≤ 1/δ³` sites):
-`Σ_{k_T ≤ k < k_T + NN} Y_k² ≤ (54G² + 2(C+1)²) κ²`. -/
-lemma ksz_tail {X Y g : ℤ → ℝ} {kT NN : ℤ} {δ G C κ : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hNN0 : 0 ≤ NN)
-    (hNN : (NN : ℝ) ≤ 1 / δ ^ 3) (hkT : 1 / δ ≤ X kT)
-    (hrest : |Y kT - κ * (g kT * airyAi (X kT))| ≤ (C + 1) * δ ^ 3 * |κ|) (hg : |g kT| ≤ G)
+`Σ_{k_T ≤ k < k_T + NN} Y_k² ≤ (54G² + 2(C+1)²) K²`. -/
+lemma rkz_tail {X Y : ℤ → ℝ} {kT NN : ℤ} {δ G C K Rt : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hNN0 : 0 ≤ NN)
+    (hRt0 : 0 ≤ Rt) (hNN : (NN : ℝ) ≤ Rt / δ ^ 3) (hkT : 1 / δ ≤ X kT)
+    (hY : Y kT ^ 2 ≤ 2 * G ^ 2 * K ^ 2 * airyAi (X kT) ^ 2 + 2 * ((C + 1) * δ ^ 3 * |K|) ^ 2)
     (hmono : ∀ k : ℤ, kT ≤ k → Y k ^ 2 ≤ Y kT ^ 2) :
-    ∑ k ∈ Finset.Ico kT (kT + NN), Y k ^ 2 ≤ (54 * G ^ 2 + 2 * (C + 1) ^ 2) * κ ^ 2 := by
+    ∑ k ∈ Finset.Ico kT (kT + NN), Y k ^ 2 ≤ Rt * (54 * G ^ 2 + 2 * (C + 1) ^ 2) * K ^ 2 := by
   have hX1 : 1 ≤ X kT := by
     have : 1 ≤ 1 / δ := by rw [le_div_iff₀ hδ]; linarith
     linarith
-  have h1 := kk_y_le hrest hg
+  have h1 := hY
   have hAi := kk_ai_tail hX1
   have hAi2 : airyAi (X kT) ^ 2 ≤ 27 * δ ^ 3 := by
     have h2 : airyAi (X kT) ^ 2 ≤ (3 * Real.exp (-(2 / 3) * X kT)) ^ 2 := by
@@ -210,10 +222,10 @@ lemma ksz_tail {X Y g : ℤ → ℝ} {kT NN : ℤ} {δ G C κ : ℝ} (hδ : 0 < 
       rw [e]; norm_num
     have h4 := ksz_exp_cube hδ hkT
     nlinarith
-  have hy : Y kT ^ 2 ≤ 54 * G ^ 2 * κ ^ 2 * δ ^ 3 + 2 * (C + 1) ^ 2 * δ ^ 6 * κ ^ 2 := by
-    have h5 : 2 * G ^ 2 * κ ^ 2 * airyAi (X kT) ^ 2 ≤ 2 * G ^ 2 * κ ^ 2 * (27 * δ ^ 3) :=
+  have hy : Y kT ^ 2 ≤ 54 * G ^ 2 * K ^ 2 * δ ^ 3 + 2 * (C + 1) ^ 2 * δ ^ 6 * K ^ 2 := by
+    have h5 : 2 * G ^ 2 * K ^ 2 * airyAi (X kT) ^ 2 ≤ 2 * G ^ 2 * K ^ 2 * (27 * δ ^ 3) :=
       mul_le_mul_of_nonneg_left hAi2 (by positivity)
-    have h6 : 2 * ((C + 1) * δ ^ 3 * |κ|) ^ 2 = 2 * (C + 1) ^ 2 * δ ^ 6 * κ ^ 2 := by
+    have h6 : 2 * ((C + 1) * δ ^ 3 * |K|) ^ 2 = 2 * (C + 1) ^ 2 * δ ^ 6 * K ^ 2 := by
       rw [mul_pow, mul_pow, sq_abs]; ring
     nlinarith
   have hb := kk_ico_bound (fun k => Y k ^ 2) (a := kT) (b := kT + NN) (by omega)
@@ -223,26 +235,35 @@ lemma ksz_tail {X Y g : ℤ → ℝ} {kT NN : ℤ} {δ G C κ : ℝ} (hδ : 0 < 
   refine hb.trans ?_
   have hY0 : 0 ≤ Y kT ^ 2 := sq_nonneg _
   have hNN0' : (0 : ℝ) ≤ NN := by exact_mod_cast hNN0
-  calc (NN : ℝ) * Y kT ^ 2 ≤ (1 / δ ^ 3) * (54 * G ^ 2 * κ ^ 2 * δ ^ 3 + 2 * (C + 1) ^ 2 * δ ^ 6 * κ ^ 2) :=
+  calc (NN : ℝ) * Y kT ^ 2 ≤ (Rt / δ ^ 3) * (54 * G ^ 2 * K ^ 2 * δ ^ 3 + 2 * (C + 1) ^ 2 * δ ^ 6 * K ^ 2) :=
         mul_le_mul hNN hy hY0 (by positivity)
-    _ = (54 * G ^ 2 + 2 * (C + 1) ^ 2 * δ ^ 3) * κ ^ 2 := by field_simp
+    _ = Rt * (54 * G ^ 2 + 2 * (C + 1) ^ 2 * δ ^ 3) * K ^ 2 := by field_simp
     _ ≤ _ := by
       have : δ ^ 3 ≤ 1 := pow_le_one₀ hδ.le hδ1
-      apply mul_le_mul_of_nonneg_right _ (sq_nonneg κ)
+      apply mul_le_mul_of_nonneg_right _ (sq_nonneg K)
+      apply mul_le_mul_of_nonneg_left _ hRt0
       nlinarith [sq_nonneg (C + 1)]
 
+/-- **Tail part** `k ≥ k_T` (`X_{k_T} ≥ 1/δ`, monotone decay, `NN ≤ 1/δ³` sites):
+`Σ_{k_T ≤ k < k_T + NN} Y_k² ≤ (54G² + 2(C+1)²) κ²`. -/
+lemma ksz_tail {X Y g : ℤ → ℝ} {kT NN : ℤ} {δ G C κ : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hNN0 : 0 ≤ NN)
+    (hNN : (NN : ℝ) ≤ 1 / δ ^ 3) (hkT : 1 / δ ≤ X kT)
+    (hrest : |Y kT - κ * (g kT * airyAi (X kT))| ≤ (C + 1) * δ ^ 3 * |κ|) (hg : |g kT| ≤ G)
+    (hmono : ∀ k : ℤ, kT ≤ k → Y k ^ 2 ≤ Y kT ^ 2) :
+    ∑ k ∈ Finset.Ico kT (kT + NN), Y k ^ 2 ≤ (54 * G ^ 2 + 2 * (C + 1) ^ 2) * κ ^ 2 :=
+  by rw [← one_mul (54 * G ^ 2 + 2 * (C + 1) ^ 2)]; exact rkz_tail (Rt := 1) hδ hδ1 hNN0 zero_le_one hNN hkT (kk_y_le hrest hg) hmono
+
 /-- **Window part** `jz ≤ k < m+2` (`X_{jz} ≤ -1`, `-X_{jz} ≤ R₀/δ²`, `m + 2 - jz ≤ R_c/δ³`):
-`Σ Y_k² ≤ 2G²κ²[(√R₀/π + 2c₂R₀)/(c₁δ²) + K₁/δ] + 2(C+1)² R_c κ²/δ`, `K₁ = 49/(4c₁) + 18`. -/
-lemma ksz_win {X Y g : ℤ → ℝ} {jz m : ℤ} {δ c1 c2 G C κ R0 Rc : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hc1 : 0 < c1)
+`Σ Y_k² ≤ 2G²K²[(√R₀/π + 2c₂R₀)/(c₁δ²) + K₁/δ] + 2(C+1)² R_c K²/δ`, `K₁ = 49/(4c₁) + 18`. -/
+lemma rkz_win {X Y : ℤ → ℝ} {jz m : ℤ} {δ c1 c2 G C K R0 Rc : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hc1 : 0 < c1)
     (hc2 : 0 ≤ c2) (hR0 : 0 ≤ R0) (hRc : 0 ≤ Rc) (hC : 0 ≤ C) (hjm : jz ≤ m)
     (hgap : ∀ k : ℤ, jz ≤ k → k < m + 2 → c1 * δ ≤ X (k + 1) - X k ∧ X (k + 1) - X k ≤ c2 * δ)
     (hXJ : X jz ≤ -1) (hXJlow : -X jz ≤ R0 / δ ^ 2) (hXm : 0 ≤ X m) (hXm1 : X (m + 1) ≤ 1 / 4)
-    (hrest : ∀ k : ℤ, jz ≤ k → k < m + 2 → |Y k - κ * (g k * airyAi (X k))| ≤ (C + 1) * δ ^ 3 * |κ|)
-    (hg : ∀ k : ℤ, jz ≤ k → k < m + 2 → |g k| ≤ G)
+    (hY2 : ∀ k : ℤ, jz ≤ k → k < m + 2 → Y k ^ 2 ≤ 2 * G ^ 2 * K ^ 2 * airyAi (X k) ^ 2 + 2 * ((C + 1) * δ ^ 3 * |K|) ^ 2)
     (hmcnt : ((m + 2 - jz : ℤ) : ℝ) ≤ Rc / δ ^ 3) :
     ∑ k ∈ Finset.Ico jz (m + 2), Y k ^ 2 ≤
-      2 * G ^ 2 * κ ^ 2 * ((√R0 / Real.pi + 2 * c2 * R0) / (c1 * δ ^ 2) + (49 / (4 * c1) + 18) / δ) +
-        2 * (C + 1) ^ 2 * Rc * κ ^ 2 / δ := by
+      2 * G ^ 2 * K ^ 2 * ((√R0 / Real.pi + 2 * c2 * R0) / (c1 * δ ^ 2) + (49 / (4 * c1) + 18) / δ) +
+        2 * (C + 1) ^ 2 * Rc * K ^ 2 / δ := by
   have hε0 : 0 < c1 * δ := by positivity
   have hε' : 0 ≤ c2 * δ := by positivity
   have hAi := kk_win_ai (X := X) (J := jz) (m := m) (ε0 := c1 * δ) (ε' := c2 * δ) hjm hε0 hε'
@@ -283,36 +304,109 @@ lemma ksz_win {X Y g : ℤ → ℝ} {jz m : ℤ} {δ c1 c2 G C κ R0 Rc : ℝ} (
     rw [e4]
     rw [e3] at b1
     linarith
-  have hpt : ∀ k ∈ Finset.Ico jz (m + 2), Y k ^ 2 ≤ 2 * G ^ 2 * κ ^ 2 * airyAi (X k) ^ 2 + 2 * ((C + 1) * δ ^ 3 * |κ|) ^ 2 := by
+  have hpt : ∀ k ∈ Finset.Ico jz (m + 2), Y k ^ 2 ≤ 2 * G ^ 2 * K ^ 2 * airyAi (X k) ^ 2 + 2 * ((C + 1) * δ ^ 3 * |K|) ^ 2 := by
     intro k hk
     have hk' := Finset.mem_Ico.1 hk
-    exact kk_y_le (hrest k hk'.1 hk'.2) (hg k hk'.1 hk'.2)
+    exact hY2 k hk'.1 hk'.2
   have hsum := Finset.sum_le_sum hpt
   rw [Finset.sum_add_distrib, ← Finset.mul_sum, Finset.sum_const, Int.card_Ico, nsmul_eq_mul] at hsum
   have hcast : (((m + 2 - jz).toNat : ℕ) : ℝ) = ((m + 2 - jz : ℤ) : ℝ) := by
     rw [← Int.cast_natCast, Int.toNat_of_nonneg (by omega)]
   rw [hcast] at hsum
   refine hsum.trans ?_
-  have hρ2 : 2 * ((C + 1) * δ ^ 3 * |κ|) ^ 2 = 2 * (C + 1) ^ 2 * δ ^ 6 * κ ^ 2 := by
+  have hρ2 : 2 * ((C + 1) * δ ^ 3 * |K|) ^ 2 = 2 * (C + 1) ^ 2 * δ ^ 6 * K ^ 2 := by
     rw [mul_pow, mul_pow, sq_abs]; ring
   rw [hρ2]
-  have t1 : 2 * G ^ 2 * κ ^ 2 * ∑ k ∈ Finset.Ico jz (m + 2), airyAi (X k) ^ 2 ≤
-      2 * G ^ 2 * κ ^ 2 * ((√R0 / Real.pi + 2 * c2 * R0) / (c1 * δ ^ 2) + (49 / (4 * c1) + 18) / δ) :=
+  have t1 : 2 * G ^ 2 * K ^ 2 * ∑ k ∈ Finset.Ico jz (m + 2), airyAi (X k) ^ 2 ≤
+      2 * G ^ 2 * K ^ 2 * ((√R0 / Real.pi + 2 * c2 * R0) / (c1 * δ ^ 2) + (49 / (4 * c1) + 18) / δ) :=
     mul_le_mul_of_nonneg_left hAi1 (by positivity)
-  have t2 : ((m + 2 - jz : ℤ) : ℝ) * (2 * (C + 1) ^ 2 * δ ^ 6 * κ ^ 2) ≤ 2 * (C + 1) ^ 2 * Rc * κ ^ 2 / δ := by
-    calc _ ≤ (Rc / δ ^ 3) * (2 * (C + 1) ^ 2 * δ ^ 6 * κ ^ 2) := mul_le_mul_of_nonneg_right hmcnt (by positivity)
-      _ = 2 * (C + 1) ^ 2 * Rc * δ ^ 3 * κ ^ 2 := by field_simp
-      _ ≤ 2 * (C + 1) ^ 2 * Rc * κ ^ 2 / δ := by
+  have t2 : ((m + 2 - jz : ℤ) : ℝ) * (2 * (C + 1) ^ 2 * δ ^ 6 * K ^ 2) ≤ 2 * (C + 1) ^ 2 * Rc * K ^ 2 / δ := by
+    calc _ ≤ (Rc / δ ^ 3) * (2 * (C + 1) ^ 2 * δ ^ 6 * K ^ 2) := mul_le_mul_of_nonneg_right hmcnt (by positivity)
+      _ = 2 * (C + 1) ^ 2 * Rc * δ ^ 3 * K ^ 2 := by field_simp
+      _ ≤ 2 * (C + 1) ^ 2 * Rc * K ^ 2 / δ := by
         rw [le_div_iff₀ hδ]
         have : δ ^ 4 ≤ 1 := pow_le_one₀ hδ.le hδ1
-        have h0 : 0 ≤ 2 * (C + 1) ^ 2 * Rc * κ ^ 2 := by positivity
+        have h0 : 0 ≤ 2 * (C + 1) ^ 2 * Rc * K ^ 2 := by positivity
         nlinarith [mul_le_mul_of_nonneg_left this h0]
   linarith
+
+/-- **Window part** `jz ≤ k < m+2` (`X_{jz} ≤ -1`, `-X_{jz} ≤ R₀/δ²`, `m + 2 - jz ≤ R_c/δ³`):
+`Σ Y_k² ≤ 2G²κ²[(√R₀/π + 2c₂R₀)/(c₁δ²) + K₁/δ] + 2(C+1)² R_c κ²/δ`, `K₁ = 49/(4c₁) + 18`. -/
+lemma ksz_win {X Y g : ℤ → ℝ} {jz m : ℤ} {δ c1 c2 G C κ R0 Rc : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hc1 : 0 < c1)
+    (hc2 : 0 ≤ c2) (hR0 : 0 ≤ R0) (hRc : 0 ≤ Rc) (hC : 0 ≤ C) (hjm : jz ≤ m)
+    (hgap : ∀ k : ℤ, jz ≤ k → k < m + 2 → c1 * δ ≤ X (k + 1) - X k ∧ X (k + 1) - X k ≤ c2 * δ)
+    (hXJ : X jz ≤ -1) (hXJlow : -X jz ≤ R0 / δ ^ 2) (hXm : 0 ≤ X m) (hXm1 : X (m + 1) ≤ 1 / 4)
+    (hrest : ∀ k : ℤ, jz ≤ k → k < m + 2 → |Y k - κ * (g k * airyAi (X k))| ≤ (C + 1) * δ ^ 3 * |κ|)
+    (hg : ∀ k : ℤ, jz ≤ k → k < m + 2 → |g k| ≤ G)
+    (hmcnt : ((m + 2 - jz : ℤ) : ℝ) ≤ Rc / δ ^ 3) :
+    ∑ k ∈ Finset.Ico jz (m + 2), Y k ^ 2 ≤
+      2 * G ^ 2 * κ ^ 2 * ((√R0 / Real.pi + 2 * c2 * R0) / (c1 * δ ^ 2) + (49 / (4 * c1) + 18) / δ) +
+        2 * (C + 1) ^ 2 * Rc * κ ^ 2 / δ :=
+  rkz_win hδ hδ1 hc1 hc2 hR0 hRc hC hjm hgap hXJ hXJlow hXm hXm1 (fun k h1 h2 => kk_y_le (hrest k h1 h2) (hg k h1 h2)) hmcnt
+
+/-- The zone constant. -/
+noncomputable def rkzK3 (c1 G C Rc Rt : ℝ) : ℝ :=
+  2 * G ^ 2 * (49 / (4 * c1) + 18) + 2 * (C + 1) ^ 2 * Rc +
+    (18 * G ^ 2 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) + 2 * (C + 1) ^ 2 * (1 / c1 + 1)) + Rt * (54 * G ^ 2 + 2 * (C + 1) ^ 2)
 
 /-- The zone constant `K₃`. -/
 noncomputable def kszK3 (c1 G C Rc : ℝ) : ℝ :=
   2 * G ^ 2 * (49 / (4 * c1) + 18) + 2 * (C + 1) ^ 2 * Rc +
     (18 * G ^ 2 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) + 2 * (C + 1) ^ 2 * (1 / c1 + 1)) + (54 * G ^ 2 + 2 * (C + 1) ^ 2)
+
+/-- **The mass beyond `jz`** (pointwise square bound with amplitude `K`, real tail count `NN <= Rt/δ³`). -/
+lemma rkz_zone {Y X : ℤ → ℝ} {jz m k1 NN : ℤ} {δ G C c1 c2 K R0 Rc Rt : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hc1 : 0 < c1)
+    (hc2 : 0 ≤ c2) (hC : 0 ≤ C) (hR0 : 0 ≤ R0) (hRc : 0 ≤ Rc) (hRt0 : 0 ≤ Rt) (hjzm : jz ≤ m) (hmk : m + 1 ≤ k1) (hNN0 : 0 ≤ NN)
+    (hgap : ∀ k : ℤ, jz ≤ k → k < k1 + 1 → c1 * δ ≤ X (k + 1) - X k ∧ X (k + 1) - X k ≤ c2 * δ)
+    (hX0 : 0 ≤ X m) (hXm1 : X (m + 1) ≤ 1 / 4) (hX1 : X k1 ≤ 1 / δ) (hX2 : 1 / δ < X (k1 + 1))
+    (hXJ : X jz ≤ -1) (hXJlow : -X jz ≤ R0 / δ ^ 2) (hmcnt : ((m + 2 - jz : ℤ) : ℝ) ≤ Rc / δ ^ 3)
+    (hY2 : ∀ k : ℤ, jz ≤ k → k ≤ k1 + 1 →
+      Y k ^ 2 ≤ 2 * G ^ 2 * K ^ 2 * airyAi (X k) ^ 2 + 2 * ((C + 1) * δ ^ 3 * |K|) ^ 2)
+    (hNN : (NN : ℝ) ≤ Rt / δ ^ 3) (hmono : ∀ k : ℤ, k1 + 1 ≤ k → Y k ^ 2 ≤ Y (k1 + 1) ^ 2) :
+    ∑ k ∈ Finset.Ico jz (k1 + 1 + NN), Y k ^ 2 ≤
+      2 * G ^ 2 * K ^ 2 * ((√R0 / Real.pi + 2 * c2 * R0) / (c1 * δ ^ 2)) + rkzK3 c1 G C Rc Rt * K ^ 2 / δ := by
+  have hsplit : ∑ k ∈ Finset.Ico jz (k1 + 1 + NN), Y k ^ 2 =
+      ∑ k ∈ Finset.Ico jz (m + 2), Y k ^ 2 + ∑ k ∈ Finset.Ico (m + 2) (k1 + 1), Y k ^ 2 +
+        ∑ k ∈ Finset.Ico (k1 + 1) (k1 + 1 + NN), Y k ^ 2 := by
+    rw [kk_ico_split (fun k => Y k ^ 2) (b := m + 2) (by omega) (by omega),
+      kk_ico_split (fun k => Y k ^ 2) (a := m + 2) (b := k1 + 1) (by omega) (by omega)]
+    ring
+  rw [hsplit]
+  have Z1 := rkz_win (X := X) (Y := Y) (jz := jz) (m := m) (δ := δ) (c1 := c1) (c2 := c2) (G := G) (C := C)
+    (K := K) (R0 := R0) (Rc := Rc) hδ hδ1 hc1 hc2 hR0 hRc hC hjzm
+    (fun k h1 h2 => hgap k h1 (by omega)) hXJ hXJlow hX0 hXm1
+    (fun k h1 h2 => hY2 k h1 (by omega)) hmcnt
+  have hXa : 0 ≤ X (m + 2) := by
+    have h1 := (hgap m (by omega) (by omega)).1
+    have h2 := (hgap (m + 1) (by omega) (by omega)).1
+    have e : m + 1 + 1 = m + 2 := by ring
+    rw [e] at h2
+    have : 0 ≤ c1 * δ := by positivity
+    linarith
+  have Z2 := rkz_mid (X := X) (Y := Y) (a := m + 2) (kT := k1 + 1) (δ := δ) (c1 := c1) (G := G) (C := C) (K := K)
+    hδ hδ1 hc1 hC (by omega) (fun k h1 h2 => (hgap k (by omega) (by omega)).1) hXa (by simpa using hX1)
+    (fun k h1 h2 => hY2 k (by omega) h2)
+  have Z3 := rkz_tail (X := X) (Y := Y) (kT := k1 + 1) (NN := NN) (δ := δ) (G := G) (C := C) (K := K) (Rt := Rt) hδ hδ1 hNN0
+    hRt0 hNN hX2.le (hY2 (k1 + 1) (by omega) le_rfl) hmono
+  have hK2 : 0 ≤ K ^ 2 := sq_nonneg K
+  unfold rkzK3
+  have hd1 : 1 ≤ 1 / δ := by rw [le_div_iff₀ hδ]; linarith
+  have t3 : Rt * (54 * G ^ 2 + 2 * (C + 1) ^ 2) * K ^ 2 ≤ Rt * (54 * G ^ 2 + 2 * (C + 1) ^ 2) * K ^ 2 / δ := by
+    rw [le_div_iff₀ hδ]
+    have h0 : 0 ≤ Rt * (54 * G ^ 2 + 2 * (C + 1) ^ 2) * K ^ 2 := by positivity
+    nlinarith [mul_le_mul_of_nonneg_left hδ1 h0]
+  have e3 : 2 * G ^ 2 * K ^ 2 * ((√R0 / Real.pi + 2 * c2 * R0) / (c1 * δ ^ 2) + (49 / (4 * c1) + 18) / δ) =
+      2 * G ^ 2 * K ^ 2 * ((√R0 / Real.pi + 2 * c2 * R0) / (c1 * δ ^ 2)) + 2 * G ^ 2 * (49 / (4 * c1) + 18) * K ^ 2 / δ := by
+    field_simp
+  rw [e3] at Z1
+  have e4 : (2 * G ^ 2 * (49 / (4 * c1) + 18) + 2 * (C + 1) ^ 2 * Rc +
+      (18 * G ^ 2 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) + 2 * (C + 1) ^ 2 * (1 / c1 + 1)) +
+        Rt * (54 * G ^ 2 + 2 * (C + 1) ^ 2)) * K ^ 2 / δ =
+      2 * G ^ 2 * (49 / (4 * c1) + 18) * K ^ 2 / δ + 2 * (C + 1) ^ 2 * Rc * K ^ 2 / δ +
+        (18 * G ^ 2 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) + 2 * (C + 1) ^ 2 * (1 / c1 + 1)) * K ^ 2 / δ +
+        Rt * (54 * G ^ 2 + 2 * (C + 1) ^ 2) * K ^ 2 / δ := by ring
+  rw [e4]
+  linarith
 
 /-- **The mass beyond `jz`** (`J ≤ jz ≤ m`, `X_{jz} ≤ -1`, `-X_{jz} ≤ R₀/δ²`, `m + 2 - jz ≤ R_c/δ³`):
 `Σ_{jz ≤ k < k₁ + 1 + N} Ŷ_k² ≤ 2G²κ²(√R₀/π + 2c₂R₀)/(c₁δ²) + K₃ κ²/δ`, `G = g_max`. -/
@@ -328,37 +422,12 @@ lemma ksz_zone {Y X g : ℤ → ℝ} {Nz J m Nw : ℤ} {δ qs r C Cmu ξ0 gmin g
   have hδp := s.hδ
   have hδ1' : δ ≤ 1 := by linarith [s.d1]
   have hc2 : 0 < c2 := lt_of_lt_of_le s.hc1 s.hc12
-  have hc1 := s.hc1
-  have hgmax : 0 < gmax := lt_of_lt_of_le s.hgmin s.hgg
   have hgap : ∀ k : ℤ, J ≤ k → k < Nw → c1 * δ ≤ X (k + 1) - X k ∧ X (k + 1) - X k ≤ c2 * δ :=
     fun k h1 h2 => d.gap k (Finset.mem_Icc.2 ⟨h1, by omega⟩)
   have hm1 := d.hm1
   have hJm := d.hJm
-  have hsplit : ∑ k ∈ Finset.Ico jz (k1 + 1 + Nz), Y k ^ 2 =
-      ∑ k ∈ Finset.Ico jz (m + 2), Y k ^ 2 + ∑ k ∈ Finset.Ico (m + 2) (k1 + 1), Y k ^ 2 +
-        ∑ k ∈ Finset.Ico (k1 + 1) (k1 + 1 + Nz), Y k ^ 2 := by
-    have hNz : 0 ≤ Nz := by have := d.hNz1; omega
-    rw [kk_ico_split (fun k => Y k ^ 2) (b := m + 2) (by omega) (by omega),
-      kk_ico_split (fun k => Y k ^ 2) (a := m + 2) (b := k1 + 1) (by omega) (by omega)]
-    ring
-  rw [hsplit]
   have hG : ∀ k : ℤ, J ≤ k → k ≤ k1 + 1 → |g k| ≤ gmax := fun k h1 h2 =>
     d.gup k (Finset.mem_Icc.2 ⟨h1, by omega⟩)
-  have Z1 := ksz_win (X := X) (Y := Y) (g := g) (jz := jz) (m := m) (δ := δ) (c1 := c1) (c2 := c2) (G := gmax) (C := C)
-    (κ := κ) (R0 := R0) (Rc := Rc) hδp hδ1' hc1 hc2.le hR0 hRc s.hC.le hjzm
-    (fun k h1 h2 => hgap k (by omega) (by omega)) hXJ hXJlow d.X0.1 (d.Xm (m + 1) (Finset.mem_Icc.2 ⟨by omega, le_rfl⟩))
-    (fun k h1 h2 => hrest k (by omega) (by omega)) (fun k h1 h2 => hG k (by omega) (by omega)) hmcnt
-  have hXa : 0 ≤ X (m + 2) := by
-    have h1 := (hgap m (by omega) (by omega)).1
-    have h2 := (hgap (m + 1) (by omega) (by omega)).1
-    have e : m + 1 + 1 = m + 2 := by ring
-    rw [e] at h2
-    have := d.X0.1
-    have : 0 ≤ c1 * δ := by positivity
-    linarith
-  have Z2 := ksz_mid (X := X) (Y := Y) (g := g) (a := m + 2) (kT := k1 + 1) (δ := δ) (c1 := c1) (G := gmax) (C := C) (κ := κ)
-    hδp hδ1' hc1 s.hC.le (by omega) (fun k h1 h2 => (hgap k (by omega) (by omega)).1) hXa (by simpa using hX1)
-    (fun k h1 h2 => hrest k (by omega) h2) (fun k h1 h2 => hG k (by omega) h2)
   have hmonoT' : ∀ k : ℤ, k1 + 1 ≤ k → Y k ^ 2 ≤ Y (k1 + 1) ^ 2 := by
     intro k hk
     have := d.mono (k1 + 1 - 1)
@@ -366,29 +435,13 @@ lemma ksz_zone {Y X g : ℤ → ℝ} {Nz J m Nw : ℤ} {δ qs r C Cmu ξ0 gmin g
         have : (m : ℝ) ≤ ((k1 + 1 - 1 : ℤ) : ℝ) := by exact_mod_cast (by omega : m ≤ k1 + 1 - 1)
         nlinarith [d.p3, pow_pos hδp 3]) k (by omega)
     simpa using this
-  have Z3 := ksz_tail (X := X) (Y := Y) (g := g) (kT := k1 + 1) (NN := Nz) (δ := δ) (G := gmax) (C := C) (κ := κ) hδp hδ1'
-    (by have := d.hNz1; omega) d.hNz.le hX2.le (hrest (k1 + 1) (by omega) le_rfl) (hG (k1 + 1) (by omega) le_rfl) hmonoT'
-  -- combine
-  have hκ2 : 0 ≤ κ ^ 2 := sq_nonneg κ
-  have hd1 : 1 ≤ 1 / δ := by rw [le_div_iff₀ hδp]; linarith
-  unfold kszK3
-  have t3 : (54 * gmax ^ 2 + 2 * (C + 1) ^ 2) * κ ^ 2 ≤ (54 * gmax ^ 2 + 2 * (C + 1) ^ 2) * κ ^ 2 / δ := by
-    rw [le_div_iff₀ hδp]
-    have h0 : 0 ≤ (54 * gmax ^ 2 + 2 * (C + 1) ^ 2) * κ ^ 2 := by positivity
-    nlinarith [mul_le_mul_of_nonneg_left hδ1' h0]
-  have e2 : 2 * gmax ^ 2 * κ ^ 2 * (49 / (4 * c1) + 18) / δ = 2 * gmax ^ 2 * (49 / (4 * c1) + 18) * κ ^ 2 / δ := by ring
-  have e3 : 2 * gmax ^ 2 * κ ^ 2 * ((√R0 / Real.pi + 2 * c2 * R0) / (c1 * δ ^ 2) + (49 / (4 * c1) + 18) / δ) =
-      2 * gmax ^ 2 * κ ^ 2 * ((√R0 / Real.pi + 2 * c2 * R0) / (c1 * δ ^ 2)) + 2 * gmax ^ 2 * (49 / (4 * c1) + 18) * κ ^ 2 / δ := by
-    field_simp
-  rw [e3] at Z1
-  have e4 : (2 * gmax ^ 2 * (49 / (4 * c1) + 18) + 2 * (C + 1) ^ 2 * Rc +
-      (18 * gmax ^ 2 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) + 2 * (C + 1) ^ 2 * (1 / c1 + 1)) +
-        (54 * gmax ^ 2 + 2 * (C + 1) ^ 2)) * κ ^ 2 / δ =
-      2 * gmax ^ 2 * (49 / (4 * c1) + 18) * κ ^ 2 / δ + 2 * (C + 1) ^ 2 * Rc * κ ^ 2 / δ +
-        (18 * gmax ^ 2 * Real.exp (4 / 3) * (1 + 3 / (4 * c1)) + 2 * (C + 1) ^ 2 * (1 / c1 + 1)) * κ ^ 2 / δ +
-        (54 * gmax ^ 2 + 2 * (C + 1) ^ 2) * κ ^ 2 / δ := by ring
-  rw [e4]
-  linarith
+  have hz := rkz_zone (X := X) (Y := Y) (jz := jz) (m := m) (k1 := k1) (NN := Nz) (δ := δ) (G := gmax) (C := C) (c1 := c1) (c2 := c2)
+    (K := κ) (R0 := R0) (Rc := Rc) (Rt := 1) hδp hδ1' s.hc1 hc2.le s.hC.le hR0 hRc zero_le_one hjzm hk1 (by have := d.hNz1; omega)
+    (fun k h1 h2 => hgap k (by omega) (by omega)) d.X0.1 (d.Xm (m + 1) (Finset.mem_Icc.2 ⟨by omega, le_rfl⟩)) hX1 hX2 hXJ hXJlow hmcnt
+    (fun k h1 h2 => kk_y_le (hrest k (by omega) h2) (hG k (by omega) h2)) d.hNz.le hmonoT'
+  have e : kszK3 c1 gmax C Rc = rkzK3 c1 gmax C Rc 1 := by unfold kszK3 rkzK3; ring
+  rw [e]
+  exact hz
 
 /-- info: 'FormalResearch.Special.ksz_geo' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -405,6 +458,10 @@ lemma ksz_zone {Y X g : ℤ → ℝ} {Nz J m Nw : ℤ} {δ qs r C Cmu ξ0 gmin g
 /-- info: 'FormalResearch.Special.ksz_tail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.ksz_tail
+
+/-- info: 'FormalResearch.Special.rkz_zone' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.rkz_zone
 
 /-- info: 'FormalResearch.Special.ksz_zone' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

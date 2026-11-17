@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.Special.RacahKappaHLeftBandT
+public import FormalResearch.Special.RacahKappaLeftBand
 public import FormalResearch.Special.RacahKappaLeftMass
 public import FormalResearch.Special.DiscreteAiryKappaLeftBand
 public import FormalResearch.Special.DiscreteAiryLimitChains2HalfAiry

@@ -1,7 +1,6 @@
 module
 
 public import FormalResearch.Special.RacahKappaHLeftBand
-public import FormalResearch.Special.RacahKappaHLeftEdge
 public import FormalResearch.Special.RacahKappaLeft
 
 /-!

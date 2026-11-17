@@ -8,7 +8,7 @@ public import FormalResearch.Special.RacahKappaChoose
 /-!
 # One chain at one scale: the mass accounting
 
-`rk_chain_step`: given the Airy window `RkWinAt` of a chain `Y` (with the exponentially small `μ`), the band mass bounds in units of the Gauss weight, the left mass `≤ uM`, a monotone tail, a bounded support and the identity
+`rk_chain_step`: given the Airy window `RkWinAtG θ q₀` of a chain (`θ = 1/2`: `RkWinAt`, integer chains; `θ = 1`: `RkWinAtH`, half-integer chains) `Y` (with the exponentially small `μ`), the band mass bounds in units of the Gauss weight, the left mass `≤ uM`, a monotone tail, a bounded support and the identity
 `M = Σ_{k ≥ 0} Y_k²`, one has `|κ²δ - 2| ≤ 40 u`.
 
 **Claim class: proved.**
@@ -44,35 +44,35 @@ lemma rk_mass_split {Y : ℤ → ℝ} {kc jz END : ℤ} {M : ℝ} (h0 : 0 ≤ kc
     M = ∑ k ∈ Finset.Ico 0 kc, Y k ^ 2 + ∑ k ∈ Finset.Ico kc jz, Y k ^ 2 + ∑ k ∈ Finset.Ico jz END, Y k ^ 2 := by
   rw [← hM, kk_ico_split (fun k => Y k ^ 2) (b := jz) (by omega) h2, kk_ico_split (fun k => Y k ^ 2) (a := 0) (b := kc) h0 h1]
 
-/-- `0 ≤ kc ≤ jz`. -/
-lemma rk_kc_facts {δ3 c qs η : ℝ} {kc jz : ℤ} (hδ3 : 0 < δ3) (hkc1 : c ≤ ((kc : ℝ) + 1 / 2) * δ3)
-    (hkc2 : ((kc : ℝ) - 1 / 2) * δ3 < c) (hcpos : 0 < c) (hcη : c + δ3 < qs - η) (hjz1 : qs - η < ((jz : ℝ) + 1 / 2) * δ3) :
+/-- `0 ≤ kc ≤ jz` (lattice `q_k = (k + θ) δ³`, `0 < θ ≤ 1`). -/
+lemma rk_kc_facts {δ3 c qs η θ : ℝ} {kc jz : ℤ} (hθ1 : θ ≤ 1) (hδ3 : 0 < δ3) (hkc1 : c ≤ ((kc : ℝ) + θ) * δ3)
+    (hkc2 : ((kc : ℝ) + θ - 1) * δ3 < c) (hcpos : 0 < c) (hcη : c + δ3 < qs - η) (hjz1 : qs - η < ((jz : ℝ) + θ) * δ3) :
     0 ≤ kc ∧ kc ≤ jz := by
   constructor
   · by_contra hneg
     have h1 : (kc : ℝ) ≤ -1 := by exact_mod_cast (by omega : kc ≤ -1)
-    have : ((kc : ℝ) + 1 / 2) * δ3 ≤ 0 := by nlinarith only [h1, hδ3]
+    have : ((kc : ℝ) + θ) * δ3 ≤ 0 := by nlinarith only [h1, hδ3, hθ1]
     linarith only [this, hkc1, hcpos]
   · by_contra hneg
     have h1 : (jz : ℝ) + 1 ≤ kc := by exact_mod_cast (by omega : jz + 1 ≤ kc)
-    have h3 : ((jz : ℝ) + 3 / 2) * δ3 ≤ ((kc : ℝ) + 1 / 2) * δ3 := by nlinarith only [h1, hδ3]
-    have h2 : ((kc : ℝ) + 1 / 2) * δ3 = ((kc : ℝ) - 1 / 2) * δ3 + δ3 := by ring
-    have h4 : ((jz : ℝ) + 1 / 2) * δ3 + δ3 = ((jz : ℝ) + 3 / 2) * δ3 := by ring
+    have h3 : ((jz : ℝ) + θ + 1) * δ3 ≤ ((kc : ℝ) + θ) * δ3 := by nlinarith only [h1, hδ3]
+    have h2 : ((kc : ℝ) + θ) * δ3 = ((kc : ℝ) + θ - 1) * δ3 + δ3 := by ring
+    have h4 : ((jz : ℝ) + θ) * δ3 + δ3 = ((jz : ℝ) + θ + 1) * δ3 := by ring
     linarith only [h3, h2, h4, hkc2, hjz1, hcη, hδ3]
 
 /-- **One chain at one scale.** -/
-lemma rk_chain_step {P Q τ x qs : ℝ} {Y : ℤ → ℝ} {r C Cmu ξ0 gmin gmax c1 c2 δ cs Rmax η c M sq u θ0 : ℝ} {J m N kc jz : ℤ} {κ μ : ℝ}
-    (hW : RkWinAt P Q τ x qs Y (cs / δ ^ 3) r C Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ)
+lemma rk_chain_step {P Q τ x qs : ℝ} {Y : ℤ → ℝ} {r C Cmu ξ0 gmin gmax c1 c2 δ cs Rmax η c M sq u θ0 θ q₀ : ℝ} {J m N kc jz : ℤ} {κ μ : ℝ}
+    (hW : RkWinAtG θ q₀ P Q τ x qs Y (cs / δ ^ 3) r C Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ) (hθ : 0 ≤ θ) (hθ1 : θ ≤ 1)
     (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hc1 : 0 < c1) (hc12 : c1 ≤ c2) (hgmax : 0 ≤ gmax) (hC : 0 ≤ C) (hCmu : 0 ≤ Cmu) (hcs : 0 ≤ cs)
     (hξ0 : 0 < ξ0) (hRmax : 0 ≤ Rmax) (hr : 0 < r) (hη : 0 < η) (hηr : η ≤ r / 2) (hη1 : η ≤ 1) (hsq : 0 < sq) (hqs : 0 < qs)
     (hs1 : δ ≤ ξ0 / 14) (hs2 : δ ≤ 1 * ξ0 ^ 3 / (48 * ((450 * gmax + C) * Cmu * cs + 1))) (hs3 : δ ^ 3 ≤ η / 2)
     (hs4 : δ ^ 2 ≤ c1 * η / (2 * (1 + c2))) (hs5 : δ ≤ c1 * r / 8) (hs6 : c2 * δ ≤ 1)
     (hs7 : δ ≤ 1 * ξ0 ^ 3 / (48 * (Cmu * cs + 1)))
-    (hkc1 : c ≤ ((kc : ℝ) + 1 / 2) * δ ^ 3) (hkc2 : ((kc : ℝ) - 1 / 2) * δ ^ 3 < c) (hcpos : 0 < c) (hcη : c + δ ^ 3 < qs - η)
-    (hjz1 : qs - η < ((jz : ℝ) + 1 / 2) * δ ^ 3) (hjz2 : ((jz : ℝ) - 1 / 2) * δ ^ 3 ≤ qs - η)
+    (hkc1 : c ≤ ((kc : ℝ) + θ) * δ ^ 3) (hkc2 : ((kc : ℝ) + θ - 1) * δ ^ 3 < c) (hcpos : 0 < c) (hcη : c + δ ^ 3 < qs - η)
+    (hjz1 : qs - η < ((jz : ℝ) + θ) * δ ^ 3) (hjz2 : ((jz : ℝ) + θ - 1) * δ ^ 3 ≤ qs - η)
     (hM : M * δ ^ 3 * sq = 1)
-    (hmono : ∀ k' k : ℤ, qs + δ ^ 3 ≤ ((k' : ℝ) + 1 / 2) * δ ^ 3 → k' ≤ k → Y k ^ 2 ≤ Y k' ^ 2)
-    (hsupp : ∀ k : ℤ, Rmax < ((k : ℝ) + 1 / 2) * δ ^ 3 → Y k = 0)
+    (hmono : ∀ k' k : ℤ, qs + δ ^ 3 ≤ ((k' : ℝ) + θ) * δ ^ 3 → k' ≤ k → Y k ^ 2 ≤ Y k' ^ 2)
+    (hsupp : ∀ k : ℤ, Rmax < ((k : ℝ) + θ) * δ ^ 3 → Y k = 0)
     (hMeq : ∀ END : ℤ, (∀ k : ℤ, END ≤ k → Y k = 0) → ∑ k ∈ Finset.Ico 0 END, Y k ^ 2 = M)
     (hL : ∑ k ∈ Finset.Ico 0 kc, Y k ^ 2 ≤ u * M)
     (hBlo : (κ ^ 2 + μ ^ 2) * δ / 2 * M * (1 - (c / qs + 2 * √(η / qs)) - θ0 * δ ^ 3) ≤ ∑ k ∈ Finset.Ico kc jz, Y k ^ 2)
@@ -91,12 +91,12 @@ lemma rk_chain_step {P Q τ x qs : ℝ} {Y : ℤ → ℝ} {r C Cmu ξ0 gmin gmax
   have hW' := hW
   obtain ⟨_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, hμ, _⟩ := hW'
   have hμ3 : |μ| ≤ δ ^ 3 := rk_mu_le hδ hδ1 hξ0 hCmu hcs hs1 hs7 hμ
-  have hjz2' : ((jz : ℝ) + 1 / 2) * δ ^ 3 ≤ qs - η + δ ^ 3 := by
-    have h2 : ((jz : ℝ) + 1 / 2) * δ ^ 3 = ((jz : ℝ) - 1 / 2) * δ ^ 3 + δ ^ 3 := by ring
+  have hjz2' : ((jz : ℝ) + θ) * δ ^ 3 ≤ qs - η + δ ^ 3 := by
+    have h2 : ((jz : ℝ) + θ) * δ ^ 3 = ((jz : ℝ) + θ - 1) * δ ^ 3 + δ ^ 3 := by ring
     linarith only [hjz2, h2]
-  have hz := rk_zone_win hW hδ hδ1 hc1 hc12 hgmax hC hCmu hcs hξ0 hRmax hr hη hηr hη1 hs1 hs2 hs3 hs4 hs5 hs6 hjz1 hjz2' hmono hsupp
+  have hz := rk_zone_win hW hθ hδ hδ1 hc1 hc12 hgmax hC hCmu hcs hξ0 hRmax hr hη hηr hη1 hs1 hs2 hs3 hs4 hs5 hs6 hjz1 hjz2' hmono hsupp
   obtain ⟨END, hEND, hEND0, hZ⟩ := hz
-  obtain ⟨hkc0, hkcjz⟩ := rk_kc_facts hδ3 hkc1 hkc2 hcpos hcη hjz1
+  obtain ⟨hkc0, hkcjz⟩ := rk_kc_facts hθ1 hδ3 hkc1 hkc2 hcpos hcη hjz1
   have hsplit := rk_mass_split (Y := Y) hkc0 hkcjz hEND (hMeq END hEND0)
   have hL0 : 0 ≤ ∑ k ∈ Finset.Ico 0 kc, Y k ^ 2 := Finset.sum_nonneg (fun k _ => sq_nonneg _)
   have hZ0 : 0 ≤ ∑ k ∈ Finset.Ico jz END, Y k ^ 2 := Finset.sum_nonneg (fun k _ => sq_nonneg _)

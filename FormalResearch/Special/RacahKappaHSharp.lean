@@ -1,7 +1,6 @@
 module
 
 public import FormalResearch.Special.RacahKappaHBandD
-public import FormalResearch.Special.RacahKappaHChain
 public import FormalResearch.Special.RacahKappaSharp
 
 /-!
@@ -98,8 +97,8 @@ theorem rk_kappa_sharp_absH {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x 
   have hbd : ∀ k : ℤ, qs + δ ^ 3 ≤ ((k : ℝ) + 1) * δ ^ 3 → |Y k| ≤ cs / δ ^ 3 := fun k _ =>
     rk_tail_bd hδ d1 hsq hM (hYle _ Y M hF k)
   obtain ⟨J, m, N, κ, μ, hWin, hbands⟩ := HB δ Y (cs / δ ^ 3) hδ d0 (hrows _ Y M hF) hbd
-  obtain ⟨kc, jz, hkc1, hkc2, hjz1, hjz2⟩ := rk_idxH (c := c) (d := qs - η) hδ
-  obtain ⟨hBlo, hBhi⟩ := hbands kc jz M hkc1 hkc2 hjz1 hjz2 hM
+  obtain ⟨kc, jz, hkc1, hkc2, hjz1, hjz2⟩ := rk_idx (θ := 1) (c := c) (d := qs - η) hδ
+  obtain ⟨hBlo, hBhi⟩ := hbands kc jz M hkc1 (by linarith) hjz1 (by linarith) hM
   have hLeftB : ∑ k ∈ Finset.Ico 0 kc, Y k ^ 2 ≤ u * M :=
     HL _ Y M hF hh (hδ3le.trans dL) kc (by linarith)
   refine ⟨δ, hδ, rfl, J, m, N, κ, μ, hWin, ?_⟩
@@ -129,9 +128,9 @@ theorem rk_kappa_sharp_absH {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x 
     have h2 := (le_div_iff₀ (by positivity : (0 : ℝ) < 2 * sq * (A0v + K3) + 1)).1 d13
     have h3 := mul_le_mul_of_nonneg_left h1 (by positivity : (0 : ℝ) ≤ 2 * sq)
     linarith only [h2, h3, hδ]
-  have hfin := rk_chain_stepH (P := P) (Q := Q) (τ := τ) (x := x) (qs := qs) (Y := Y) (r := r) (C := CA) (Cmu := Cmu) (ξ0 := ξ0)
+  have hfin := rk_chain_step (P := P) (Q := Q) (τ := τ) (x := x) (qs := qs) (Y := Y) (r := r) (C := CA) (Cmu := Cmu) (ξ0 := ξ0)
     (gmin := gmin) (gmax := gmax) (c1 := c1) (c2 := c2) (δ := δ) (cs := cs) (Rmax := Rmax) (η := η) (c := c) (M := M) (sq := sq) (u := u)
-    (θ0 := θ0) hWin hδ d1 hc1 hc12 hgmax.le hCA.le hCmu.le hcs0 hξ0 hRmax hr hη hηr hη1 hsq hqs d4 d5 (hδ3le.trans d6)
+    (θ0 := θ0) hWin (by norm_num) (by norm_num) hδ d1 hc1 hc12 hgmax.le hCA.le hCmu.le hcs0 hξ0 hRmax hr hη hηr hη1 hsq hqs d4 d5 (hδ3le.trans d6)
     (hδ2.trans d7) d8 hc2δ d10 hkc1 hkc2 hcpos hcη hjz1 hjz2 hM (hmono _ Y M hF) (hsupp _ Y M hF) (hMeq _ Y M hF) hLeftB hBlo hBhi
     hu hu6 hθ0 hcu hηu hθδ hA0 hK3δ hξδ d14
   linarith
