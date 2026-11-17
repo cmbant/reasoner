@@ -36,7 +36,11 @@ area* of the face opposite `p_i` (`λ_m = ‖N_m‖ > 0`).
 * `dihedral_eq_zero_iff` (`cor:combinatorial` for points): `θ_ij = 0 ⇔ λ_iλ_j < 0`, `θ_ij = π ⇔ λ_iλ_j > 0`.
 * `nPlus_eq_four_of_22`, `nPlus_eq_three_of_31` (**`cor:gradsignature`**): the number `n₊` of edges with
   `∂D/∂x_ij > 0` is `4` in the `(2,2)` pattern and `3` in the `(3,1)` pattern; `card_flat_eq_nPlus`: `|E| = n₊`
-  where `E` is the set of edges at which the dihedral angle vanishes.
+  where `E` is the set of edges at which the dihedral angle vanishes.  This is an equality of cardinalities,
+  counted over face pairs `{i<j}` (the angle `θ_ij` sits at the complementary edge `kl`, and `θ_ij = 0 ⇔ C_ij > 0`):
+  as sets of edges `E` and `{ij : ∂D/∂x_ij > 0}` coincide in the `(2,2)` pattern only; in the `(3,1)` pattern `E` is
+  the outer triangle (`λ_kλ_l > 0`) while the positive partials are the three spokes (`λ_iλ_j < 0`), so no set
+  equality is claimed or true.
 * `exists_strictPlanar_of_wall` (a wall point `det CM = 0` with strict faces is realised by coplanar points),
   `nPlus_wall` (`n₊ ∈ {3,4}` in squared-edge form), `card_thetaX_zero_eq_nPlus_wall` (`|E| = n₊` in squared-edge form).
 * `flat_edge_iff_22`, `flat_edge_iff_31` (**the `thm:radon` table**): for the edge `kl` shared by the faces `i`,

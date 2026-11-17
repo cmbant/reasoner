@@ -330,13 +330,15 @@ theorem nondegL_of_points {p : Fin 4 → R3} (hD : 0 < cmPts p) :
     hp 2 3 h.x23_pos, ?_⟩
   simpa only [sqd_eq_dist_sq] using h
 
+/-- `volL` of the six distances of four points is `tetVol`. -/
 theorem volL_dist (p : Fin 4 → R3) :
     volL (dist (p 0) (p 1)) (dist (p 0) (p 2)) (dist (p 0) (p 3)) (dist (p 1) (p 2))
       (dist (p 1) (p 3)) (dist (p 2) (p 3)) = tetVol p := by
   rw [← sqrt_cmDet2_div_eq_tetVol p]
   simp only [volL, sqd_eq_dist_sq]
 
-theorem thetaL_dist (p : Fin 4 → R3) {hD : 0 < cmPts p} (i j : Fin 4) :
+/-- For a nondegenerate tetrahedron of `ℝ³`, `thetaL` of its six distances is the geometric `dihedral`. -/
+theorem thetaL_dist (p : Fin 4 → R3) (hD : 0 < cmPts p) (i j : Fin 4) :
     thetaL (dist (p 0) (p 1)) (dist (p 0) (p 2)) (dist (p 0) (p 3)) (dist (p 1) (p 2))
       (dist (p 1) (p 3)) (dist (p 2) (p 3)) i j = dihedral p i j := by
   rw [dihedral_eq_thetaX hD]

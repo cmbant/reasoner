@@ -15,7 +15,8 @@ Regge/Schläfli integrability `∂_fΘ_e = ∂_eΘ_f` of the six-edge section); 
 Setting.  `x_e = ℓ_e²` are the six squared edge lengths of the vertices `0,1,2,3`.  `Nondeg x`
 says `x_e > 0`, `det CM > 0` and the four faces satisfy the strict triangle inequalities
 (`C_ii < 0`); a nondegenerate tetrahedron of `ℝ³` gives such data (`nondeg_of_points`; the converse,
-realisability of every such `x` in `ℝ³`, is the unformalised half of Blumenthal's criterion).
+realisability of every such `x` in `ℝ³`, is Blumenthal's criterion `exists_points_of_blumenthal` of
+`FormalResearch.EuclTet.Dichotomy`, which this module does not import and does not use).
 `thetaX x i j = arccos(C_ij/√(C_ii C_jj))` is the interior dihedral angle between the faces opposite
 `i` and `j`, i.e. at their common edge `kl` (`{i,j,k,l} = {0,1,2,3}`); for points of `ℝ³` it equals
 `dihedral p i j` (`dihedral_eq_thetaX`).
