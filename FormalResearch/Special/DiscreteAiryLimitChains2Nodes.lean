@@ -34,7 +34,7 @@ Claim class: **proved** (exact integer arithmetic; checked with exact rationals 
 
 Uniformity of the constants over compact sets of `x` (the lattice values `x_n` for a *fixed* `N` accumulate at every real
 `x ∈ (-1,1)`, but the constants of `hahn_chain_airy` are for one fixed rational `x`; the paper's compact families need
-`discrete_airy_limit` uniform in the Langer data); irrational `x` (no exact node); half-integer `M, σ, N` (see
+`discrete_airy_limit` uniform in the Langer data; for the full unified statement this is now `hahn_chain_airy_full_unif`, `DiscreteAiryUnifHahn`, for `x ∈ [x₀, x₁]`); irrational `x` (no exact node); half-integer `M, σ, N` (see
 `DiscreteAiryLimitChains2Half*`).
 -/
 

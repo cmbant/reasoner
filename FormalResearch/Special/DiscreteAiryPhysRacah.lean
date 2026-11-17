@@ -17,7 +17,7 @@ of the closed-form centred Racah recurrence), the Gauss-weight bound `racah_chai
   `C δ³ (|κ| airyWt + |μ| airyBiWt)` on all of `[J, N+1]`, `|μ| ≤ Cmu Y_max e^{-ξ₀/δ³}/δ`, `Y_max = √(4AB/(2C))`);
 * `racah_chain_airy_full_family_pos/_neg`: along infinitely many integer realisations (`racah_realisation`).
 
-**Claim class: proved** (integer data); same hypotheses and caveats as `DiscreteAiryPhysChains` (`κ` and `κ ≠ 0` not asserted, uniformity in
+**Claim class: proved** (integer data); same hypotheses and caveats as `DiscreteAiryPhysChains` (`κ` and `κ ≠ 0` not asserted; the Racah analogue of `hahn_chain_kappa` is not proved; uniformity in
 `(α, β, x)` not shown, `r ≤ q_*/4` the radius of the Langer chart).  Half-integer data (`DiscreteAiryLimitChains2Half6j*`) is not carried
 over.
 -/
