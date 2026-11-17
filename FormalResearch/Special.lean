@@ -85,7 +85,7 @@ public import FormalResearch.Special.DiscreteAiryLimitChains2Half6jFam
 public import FormalResearch.Special.DiscreteAiryOscTurn
 public import FormalResearch.Special.DiscreteAiryPhysChains
 public import FormalResearch.Special.DiscreteAiryPhysRacah
-public import FormalResearch.Special.DiscreteAiryKappaMain
+public import FormalResearch.Special.DiscreteAiryKappaAll
 public import FormalResearch.Special.DiscreteAiryUnifHahn
 public import FormalResearch.Special.DiscreteAirySecondHahn
 public import FormalResearch.Special.AiryCft2DerivHadamard
@@ -161,17 +161,21 @@ the unified statement `DaiFull` / `discrete_airy_full` (`f`, `F₂` unique, comp
 solutions agree only when normalised at the same `N`, `dap_recessive_eq`), and the actual chains on that window
 (`airy_full_compose`; Hahn `hahn_chain_airy_full` with `_neg`, `_infinite`, `_half` (the model case `M = σ = 0`, `x = 1/2`), Racah `racah_chain_airy_full_pos/_neg`,
 `_family_pos/_neg`: fixed rational `x` at a lattice node, resp. integer data, constants depending on `(M, σ, x)`, radius `r ≤ q_*/4`
-that of the Langer chart).  `DiscreteAiryKappa*` (7 modules) then shows `κ ≠ 0` for the actual `3j` chain: `hahn_chain_kappa` (integers `M, σ`,
-rational `x ∈ (0,1)`, `τ = +1`: every lattice node with `1/N ≤ ε₀` has the matching of `hahn_chain_airy_full` with `|κ| ≥ κ_min > 0`, `κ_min`
-independent of `N`, constants depending on `(M, σ, x)`), by a mass argument `N = ΣŶ² ≤ N sup Ŷ²` (`gaussWeight_3j`, `kf_mass_le`) with an a priori
-bound on the whole chain by the values at the turn.  Its ingredients are of independent use: the adiabatic invariant of a three-term recurrence
-(`kiF_step`, `ki_invariant`: two-sided `e^{O(1)}` comparison over a band, `kl_band`), the a priori left bound down to the hard edge
+that of the Langer chart).  `DiscreteAiryKappa*` (39 modules, umbrella `DiscreteAiryKappaAll`) then determines `κ` for the actual `3j` chain (integers `M, σ`,
+rational `x ∈ (0,1)`, `τ = +1`; every lattice node with `1/N ≤ ε₀` has the matching of `hahn_chain_airy_full` with constants depending on `(M, σ, x)`):
+`hahn_chain_kappa` (`|κ| ≥ κ_min > 0`, `κ_min` independent of `N`, by a mass argument `N = ΣŶ² ≤ N sup Ŷ²`, `gaussWeight_3j`, `kf_mass_le`, with an a priori
+bound on the whole chain by the values at the turn), the **order** `hahn_chain_kappa_order` (`c_lo ≤ κ² δ ≤ c_up`, `δ³ = 1/N`, i.e. `κ² ≍ N^{1/3}`; lattice sums of `Ai²`,
+`kai_sum_lower`, `kai_sum_upper_bound`, against the Gauss weight `kk_mass_eq`) and the **sharp constant** `hahn_chain_kappa_sharp` (for every `τ > 0` and `1/N ≤ ε₁(τ)`:
+`|κ² δ - 2| ≤ τ`, i.e. `κ² = 2N^{1/3}(1+o(1))`, `|κ| = √2 N^{1/6}(1+o(1))`; the amplitude of the second-order (Ermakov-Milne) invariant `kerm_invariant` is constant along the
+oscillatory band to `O(S)` (`hahn3j_band_clean`) and equals `κ²δ/π(1+o(1))` at its end by the Airy matching with the chart identity `g² = 2√(-ζ)/α`, `KshChart.g2`, `ksh_bond_match`;
+the band, left and zone masses add up to `N`, `ksa_combine`).  Its ingredients are of independent use: the first-order adiabatic invariant of a three-term recurrence
+(`kiF_step`, `ki_invariant`: two-sided `e^{O(1)}` comparison over a band, `kl_band`), the second-order Ermakov invariant, the exact mass identity and band masses
+(`kerm_mass_id`, `kp_band_mass`, `hahn3j_band_mass`), Riemann sums of `1/α` (`kr_sum_bounds`), the a priori left bound down to the hard edge
 (`kl_hahn_left`), monotone decay on the forbidden side beyond the turn (`kr_chain_mono`) and the matching with the chart data exported
-(`kc_hahn_full`; this repeats the proof of `discrete_airy_full` with two extra conjuncts and may later be folded into it).  The bound is not sharp
-(numerics give `|κ| = √2 N^{1/6}(1+o(1))`).  Still open: the value of `|κ|` (needs a second-order adiabatic invariant with a `1+o(1)`
-amplitude over the whole left band), the Darboux phase and sign of `κ`, `κ ≠ 0` for `τ = -1`, Racah and half-integer chains, uniformity of
-`κ_min` in `x` and of the Racah/half-integer matching over families, the half-integer version
-of the full statement, Racah family variants, explicit constants, analyticity of `ζ`.
+(`kc_hahn_full`, `kc2_hahn_full`; these repeat the proof of `discrete_airy_full` with extra conjuncts and may later be folded into it).  The rate is not uniform:
+the proof gives `|κ² δ - 2| ≤ C₁ A + C₂(A) δ` for every small `A` (numerically the error is about `δ⁴`).  Still open: an explicit rate and uniformity in `x` (the hard
+edges `x → 0, 1`), the Darboux phase and sign of `κ`, `κ ≠ 0` for `τ = -1`, Racah and half-integer chains, uniformity of the Racah/half-integer matching over families,
+the half-integer version of the full statement, Racah family variants, explicit constants, analyticity of `ζ`.
 
 Second order: `DiscreteAirySecond*` (20 modules, imported through `DiscreteAirySecondHahn`, which imports `DiscreteAirySecondTurn`, `DiscreteAirySecondHahnCoef` and
 `DiscreteAirySecondLangerData`) prove the second-order bracket, abstractly and for the closed-form Hahn / centred-Racah chain (S4).
@@ -203,7 +207,7 @@ Cmu, ξ₀` depending only on these such that `DaiFull` holds for every datum wi
 `hahn_chain_airy_full_neg_unif`, `airy_full_compose_unif`, `discrete_airy_hahn_full_unif` (`DiscreteAiryUnifHahn`) give the actual `3j` chain with
 `r, δ₀, C, Cmu, ξ₀` depending only on `(M, σ, x₀, x₁)`, for every lattice node `x_n ∈ [x₀, x₁]` (resp. `[-x₁, -x₀]`) and `1/N ≤ δ₀³`, with no parity
 condition; this supersedes the fixed-`x` `hahn_chain_airy_full` for the shape, and covers approximate nodes `x_N → x*`.  Still open there: the hard-edge
-degenerations `x → 0`, `x → 1` (constants degrade), `κ` and `κ_min` uniform in `x`, uniform Racah and half-integer (shifted-lattice) versions, and the statement that
+degenerations `x → 0`, `x → 1` (constants degrade), `κ` uniform in `x`, uniform Racah and half-integer (shifted-lattice) versions, and the statement that
 a continuous family over a compact parameter set satisfies the `DunDatum` bounds (checked by hand for the Hahn family only; compactness is used there only for fixed
 functions of the chart variable, never in the datum parameter).
 
@@ -272,6 +276,6 @@ on any compact interior window (`dlg_bulk`, Cartesian form `dlg_bulk_cart`), wit
 chains on an arbitrary window `[c, d]` strictly inside the oscillatory region (`dlg_bulk_hahn`).  Airy matching (`dlg_airy_match`, `dlg_airy_match_smooth`, `dlg_airy_match_hahn`): from the Airy shape at two
 sites, `Y_k = h^{1/6} π^{-1/2} w_k (κ cos χ_k + μ sin χ_k) + O(h^{1/6} h (|κ|+|μ|) w_k)`, `χ_k = (Θ_k - Θ*)/h + π/4`, i.e. phase offset exactly `π/4` and amplitude `h^{1/6}|κ|/√π`;
 for the Hahn/Racah chains this is proved end to end from `airy_full_compose` and the Langer chart relations (`dlg_hahn_airy`, `dlgh_chart`).  Not formalised: second-order Liouville–Green; the value of `κ`
-(`κ ≠ 0` is `hahn_chain_kappa`; the sharp `|κ|` is open) so the amplitude is known only up to the unidentified `κ`; the oscillatory hypothesis `|hrU| < 1` on `[c₀, q_*)` is assumed, not derived from the
+(for the `τ = +1` integer `3j` chain at a fixed rational shape `κ² = 2N^{1/3}(1+o(1))` is `hahn_chain_kappa_sharp`, but it is not composed with the matching here) so the amplitude `R` is known only up to `κ`; the oscillatory hypothesis `|hrU| < 1` on `[c₀, q_*)` is assumed, not derived from the
 parameters; the other turning point / left edge, Bohr–Sommerfeld quantisation and node counting over the whole oscillatory interval; the continuum Wigner-`d` ODE form; constants are existential, not tracked in the parameters.
 -/

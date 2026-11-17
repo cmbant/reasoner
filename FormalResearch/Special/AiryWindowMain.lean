@@ -49,7 +49,7 @@ window, `O(h²)`-perturbed coefficients) by `dal_window_hyp` (`DiscreteAiryLimit
 2. `|ψ_m - ψ_{m+1}| ≤ Λ δ W` (a Lipschitz bound at the junction, true for `ψ = g Ai` at bounded `X`) and `ψ_m ≤ W`.
 3. The near-hyperbolic constants `Sg, Qq` for the actual chains (Hahn/Racah, W1 class) via `window_hyperbolic_constants`.
 
-**Not formalised:** the value of `κ` (Darboux matching), the identification of the Hahn/Racah/W1 closed forms with the
+**Not formalised:** the value of `κ` for a general window (Darboux matching; for the `3j` chain at a fixed rational shape `κ² δ → 2` is `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`), the identification of the Hahn/Racah/W1 closed forms with the
 actual chains and the link of the end-value hypothesis (R) to the hard-edge solution (see `discrete_airy_hahn_racah`),
 the oscillatory side beyond a bounded window with the `M/E` weights of GBVA (covered in the amplitude-adapted `O(δ³)` form by
 `DiscreteAiryOsc*`, via a different, amplitude-weighted march), and a

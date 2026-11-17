@@ -23,7 +23,7 @@ public import FormalResearch.Special.DiscreteAiryOscBi
   `|Y_k - h^{1/6} π^{-1/2} w_k (κ cos χ_k + μ sin χ_k)| ≤ C h^{1/6} h (|κ| + |μ|) w_k`.  For `μ = 0`: `Y_k = h^{1/6} κ π^{-1/2} w_k [cos(Θ_k/h - Θ*/h + π/4) + O(h)]`,
   i.e. amplitude `R = h^{1/6} |κ|/√π` and phase offset **exactly `π/4`** (the Maslov index of a simple turn); the sign of `κ` is the sign of the cosine factor.
 
-**Claim class: proved** (the chart relations are hypotheses).  **Not formalised here:** `κ`, `μ` themselves (`κ ≠ 0` is `hahn_chain_kappa`, the sharp value is open here).
+**Claim class: proved** (the chart relations are hypotheses).  **Not formalised here:** `κ`, `μ` themselves (for the `τ = +1` integer `3j` chain the value `κ² δ → 2` is `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`, not composed here).
 -/
 
 @[expose] public section

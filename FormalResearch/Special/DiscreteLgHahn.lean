@@ -13,7 +13,7 @@ on an open neighbourhood of the window).  Conclusion: every exact solution of th
 is `R w(q_k) [cos(Θ(q_k)/δ³ - φ₀) + O(δ³)]`, `R ≍ |Y_m| + |Y_{m+1}|`.
 
 **Claim class: proved.**  `dlg_airy_match_hahn` is the matching with the Airy layer given `DlgAiryAt` at two sites; the Langer-chart link that supplies `DlgAiryAt` and the end-to-end
-theorem are in `DiscreteLgHahnMatch`.  **Not formalised:** the value of `κ`; second-order Liouville-Green; the oscillatory hypothesis `hreg` is assumed.
+theorem are in `DiscreteLgHahnMatch`.  **Not formalised:** the value of `κ` (for the `3j` chain `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`, not composed here); second-order Liouville-Green; the oscillatory hypothesis `hreg` is assumed.
 -/
 
 @[expose] public section

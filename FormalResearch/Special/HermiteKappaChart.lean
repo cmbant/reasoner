@@ -9,7 +9,7 @@ public import FormalResearch.Special.DiscreteAiryKappaChart
 `hkc_turn` is `discrete_airy_full` (`DiscreteAiryPhysTurn`) with the chart data exported: `g_min ≤ g ≤ g_max` on the window, the lattice gaps
 `c₁ δ ≤ X_{k+1} - X_k ≤ c₂ δ`, `0 ≤ X_m ≤ c₂ δ`, `X_k ≤ 1/4` for `k ≤ m+1`, `c₁ r/(4δ²) ≤ X_N`, and the Lipschitz bound
 `|g(q_{k+1}) - g(q_k)| ≤ L_g δ³`.  It is the proof of `kc_turn` (`DiscreteAiryKappaChart`), verbatim, with the extra conjuncts (the same
-statement as the `r29-kappa` branch's `kc2_turn` plus the `L_g` conjunct); once that branch is merged this module should be replaced by
+statement as `kc2_turn` (`DiscreteAiryKappaChart2`) plus the `L_g` conjunct); `hkc_turn` is a copy of `kc2_turn` and may be replaced by
 `kc2_turn` plus the one extra conjunct.
 
 **Claim class: proved.**

@@ -16,7 +16,7 @@ and `dlg_airy_match_hahn` transports the Airy shape across the bulk.  The phase 
 (`Ai(-y) ~ π^{-1/2} y^{-1/4} cos(ξ - π/4)`, `ξ = (2/3) y^{3/2}`).  Numerically cross-checked (mpmath, exact solution recessive at the right end, Hahn `a = b = 0`, `τ = 1`, `x = 1/2`
 and further `(P, Q, a, b, x)`): `N = 200, 800, 3200` give error `≈ 1.1 h` and `|μ/κ| ≈ 0.2 h` for a least-squares fit of `κ, μ` in the bulk, i.e. offset `π/4` and `O(h)` error.
 
-**Claim class: proved.**  **Not formalised:** the value of `κ` (only that it exists; `κ ≠ 0` is `hahn_chain_kappa`, a sharp `|κ|` is not obtained here); second-order
+**Claim class: proved.**  **Not formalised:** the value of `κ` (only that it exists; for the `3j` chain the sharp value `κ² δ → 2` is `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`, not composed here); second-order
 Liouville-Green (the error is first order, `O(h)` relative); the left edge `q = 0` / other turning point, the two-turn Bohr-Sommerfeld quantisation and node counting; the
 oscillatory hypothesis `|u| < 1` on `[c₀, q_*)` is assumed, not derived from `(P, Q, a, b, τ, x)`; the constants `r, C, δ₀, C_μ, ξ₀` are existential and not tracked in the
 parameters.

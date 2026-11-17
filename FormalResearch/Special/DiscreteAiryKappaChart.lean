@@ -19,9 +19,10 @@ afterwards).  This module re-runs the same proofs with two extra conclusions, in
 
 **Claim class: proved** (the proofs of `discrete_airy_full` and `discrete_airy_hahn_racah_full` are repeated with the extra conjuncts;
 nothing else changes).  This duplicates the two proofs: the two conjuncts may later be folded into `discrete_airy_full`
-(`DiscreteAiryPhysTurn`) and this module deleted.
+(`DiscreteAiryPhysTurn`) and this module deleted; `DiscreteAiryKappaChart2` (`kc2_turn`, `kc2_hahn_full`) is the same statement with more conjuncts, and
+`HermiteKappaChart.hkc_turn` a further copy.
 
-**Not formalised.**  The value of `κ`; `τ = -1`; Racah.
+**Not formalised here.**  The value of `κ` (it is `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`); `τ = -1`; Racah.
 -/
 
 @[expose] public section

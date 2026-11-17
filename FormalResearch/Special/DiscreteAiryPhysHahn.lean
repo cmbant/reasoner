@@ -19,7 +19,7 @@ The coefficient closeness `|A_k - A(q_k - h/2)|, |c_k - 2A(q_k)u(q_k)| ≤ E h²
 
 **Claim class: proved.**  `r` is the (existential) radius of the Langer chart of `dal_turn_data` (`r ≤ q_*/4`), not the full
 `q_*/4` of the paper: the whole macroscopic window is `[q_* - r, q_* + r/2]` with this `r`; enlarging it to the largest window on
-which `A, u` are smooth needs the global Langer chart (not formalised).  `κ ≠ 0` and the value of `κ` are not asserted for the abstract recurrence (for the actual `3j` chain `κ ≠ 0` is `hahn_chain_kappa`, `DiscreteAiryKappaMain`).
+which `A, u` are smooth needs the global Langer chart (not formalised).  `κ ≠ 0` and the value of `κ` are not asserted for the abstract recurrence (for the actual `3j` chain `κ² δ → 2` is `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`).
 -/
 
 @[expose] public section

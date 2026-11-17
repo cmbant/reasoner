@@ -26,8 +26,9 @@ This is `thm:general-rank-airy`(i) / `eq:airyfactor` for the Hahn chain, with th
 
 ## Not formalised
 
-`κ` is produced by the recessive selection and is not identified (the Darboux/Wigner-`d` normalisation); `κ ≠ 0` is not part of
-this theorem (for `τ = +1` it is `hahn_chain_kappa`, `DiscreteAiryKappaMain`, `|κ| ≥ κ_min > 0` with `κ_min` independent of `N`); the node `x_n` has to equal the fixed shape `x` (the theorem is uniform in `N` for each fixed `x`, but it does not
+`κ` is produced by the recessive selection and is not identified here (the Darboux/Wigner-`d` normalisation); `κ ≠ 0` is not part of
+this theorem (for `τ = +1` the value is `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`: `κ² δ → 2`, `δ³ = 1/N`; also `hahn_chain_kappa`, `DiscreteAiryKappaMain`, `|κ| ≥ κ_min > 0`
+with `κ_min` independent of `N`, and `hahn_chain_kappa_order`); the node `x_n` has to equal the fixed shape `x` (the theorem is uniform in `N` for each fixed `x`, but it does not
 itself assert that infinitely many `N` admit such a node, and for a compact family of `x` the constants of this recessive statement are not shown
 uniform; the full unified statement is uniform in `x ∈ [x₀, x₁]`, `hahn_chain_airy_full_unif`, `DiscreteAiryUnifHahn`).  That infinitely many `N` do is `hahn_node_exists` (`DiscreteAiryLimitChains2Nodes`): `x = p/q` with `p+q` odd
 or `M+σ` odd (e.g. `M = σ = 0`, `x = 1/2`, `N = 4t+2`, `n = 3t+1`), with the exact obstruction `hahn_node_obstruction`
