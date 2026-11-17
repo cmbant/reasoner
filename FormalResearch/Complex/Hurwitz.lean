@@ -13,12 +13,15 @@ Statements formalised (Hurwitz 1889; Conway, *Functions of One Complex Variable*
 for the non-vanishing form):
 
 * `hurwitz_zeroCount`: if `f` has no zero on the circle `sphere c r` (`r < R`, `ball c R ⊆ U`) then eventually
-  `F n` and `f` have the same number of zeros, with multiplicity, in `ball c r` (Rouché applied to `F n` and `f`);
+  `F n` is non-vanishing on the circle and has the same number of zeros as `f`, with multiplicity, in `ball c r`
+  (Rouché applied to `F n` and `f`; `hurwitz_rouche_eventually` is the uniform-convergence step);
 * `hurwitz_zeroCount_small`: if `f` has a zero of order `m` at `z₀` and `f` is not identically zero near `z₀`, there is
   `r₀ > 0` such that for **every** `r ∈ (0, r₀]`, eventually `F n` has exactly `m` zeros (with multiplicity) in
   `ball z₀ r`; they therefore converge to `z₀` (`hurwitz_exists_zero_near`: every zero of `f`, not identically zero near
   it, is a limit of zeros of `F n`);
 * `hurwitz_nonvanishing`: if `U` is open and connected, the `F n` are zero-free on `U` and `f ≢ 0` then `f` has no zero in `U`;
+* `hurwitz_simple_real_zero`: for real `F n` (`F n (conj z) = conj (F n z)`), a simple real zero `x₀` of `f` is a limit of
+  real zeros of `F n` (the unique zero in the disc is fixed by conjugation), the form used for persistence of simple real zeros;
 * `hurwitz_no_zeros_off`: on a compact `K ⊆ U` and an open `W` containing the zeros of `f` in `K`, eventually `F n` has no zero
   in `K \ W` (this is uniform convergence only; `f` need not be holomorphic).
 
