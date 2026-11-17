@@ -10,7 +10,8 @@ Conditional composition for the actual `3j` chain (integer lattice, `τ = +1`, `
 
 **Right-end count** (`BixRightCount`, an explicit hypothesis, NOT proved): at some bulk site `i_R` with `|cos θ| > t₀`, the
 number of nodes in the bonds `i_R, …, m-1` is `⌊Φ(q_{i_R})/(π h) + 1/4⌋`.  This is the node count of the region `[b, N)`
-(Airy window around `q_*`, none beyond `q_*`); see the module docstring of `BulkIndexRight` for what is missing.
+(Airy window around `q_*`, none beyond `q_*`).  The part beyond `q_*` is proved (`BulkIndexRight.bix_hahn_tail`) and `bix_rightcount_of_window` reduces
+`BixRightCount` to the node count of the Airy window, which is not proved.
 
 * **`bix_hahn_zero_index`**: under `BixRightCount`, for every bulk site `i ≤ i_R` with `|cos θ_i| > t₀`:
   the nodes at or to the right of `i` number `⌊Φ(q_i)/(π h) + 1/4⌋`, and (with `cho_hahn_nodes`, total `m - n`) the nodes strictly
@@ -19,8 +20,8 @@ number of nodes in the bonds `i_R, …, m-1` is `⌊Φ(q_{i_R})/(π h) + 1/4⌋`
   then `Φ(q_{i+1})/h < π (R - 1/4) ≤ Φ(q_i)/h`: the Bohr-Sommerfeld point of the bond is the `R`-th, `R` = the number of nodes at or to the
   right of the bond (no offset: the integer `m` of `hahn_chain_bulk_zeros` is `R`, `bix_bs_unique`).
 
-**Claim class: proved under the explicit hypothesis `BixRightCount`** (`proved` for the pure lemmas).  **Not formalised:** the discharge of
-`BixRightCount`, `τ = -1`, half-integer lattice, Racah chains.
+**Claim class: proved under the explicit hypothesis `BixRightCount`** (`proved` for the pure lemmas).  **Not formalised:** the node count of the Airy window (the remaining input of
+`BixRightCount`), `τ = -1`, half-integer lattice, Racah chains.
 -/
 
 @[expose] public section
