@@ -265,4 +265,134 @@ theorem dlg_match_core (lo hi M E L : ℝ) (hlo : 0 < lo) (hhi : 0 ≤ hi) (hM :
     _ = (C1 * (h * (|α| + |β|)) + 2 * Dq) * w (dlgQ q0 h k) := by ring
     _ ≤ _ := mul_le_mul_of_nonneg_right step hwk0.1
 
+
+/-- The Airy-chart datum at the lattice site `k` (the hypothesis `H1`-`H3` of the module docstring): Langer amplitude `g`, `y = -X > 0`, the Langer
+amplitude relation `g y^{-1/4} = h^{1/6} w`, the phase relation `(2/3) y^{3/2} = Θ*/h - Θ/h`, the macroscopic distance `Θ* - Θ ≥ Φ_min` from the turn,
+the lower bound `g ≥ g_min`, and the D2A pointwise Airy shape `Y = κ g Ai + μ g Bi + O(h)(|κ| + |μ|) y^{-1/4}`. -/
+def DlgAiryAt (κ μ : ℝ) (Y : ℤ → ℝ) (w Θ : ℝ → ℝ) (q0 h Ts Φmin gmin Ca : ℝ) (k : ℤ) : Prop :=
+  ∃ g y : ℝ, 0 < y ∧ g * y ^ (-(1 / 4) : ℝ) = h ^ (1 / 6 : ℝ) * w (dlgQ q0 h k) ∧
+    2 / 3 * y ^ (3 / 2 : ℝ) = Ts / h - dlgP Θ q0 h k ∧ Φmin ≤ Ts - h * dlgP Θ q0 h k ∧ gmin ≤ g ∧
+    |Y k - (κ * (g * airyAi (-y)) + μ * (g * airyBi (-y)))| ≤ Ca * h * ((|κ| + |μ|) * y ^ (-(1 / 4) : ℝ))
+
+lemma dlgm_comb (κ μ c0 w P δ : ℝ) :
+    c0 * w * (κ * Real.cos (P - δ) + μ * Real.sin (P - δ)) =
+      c0 * (κ * Real.cos δ - μ * Real.sin δ) * (w * Real.cos P) +
+        c0 * (κ * Real.sin δ + μ * Real.cos δ) * (w * Real.sin P) := by
+  rw [Real.cos_sub, Real.sin_sub]; ring
+
+lemma dlgm_xy_le (κ μ c0 δ : ℝ) (hc : 0 ≤ c0) :
+    |c0 * (κ * Real.cos δ - μ * Real.sin δ)| + |c0 * (κ * Real.sin δ + μ * Real.cos δ)| ≤ 2 * c0 * (|κ| + |μ|) := by
+  have b1 : |κ * Real.cos δ - μ * Real.sin δ| ≤ |κ| + |μ| := by
+    refine (abs_sub _ _).trans ?_
+    rw [abs_mul, abs_mul]
+    have := mul_le_of_le_one_right (abs_nonneg κ) (Real.abs_cos_le_one δ)
+    have := mul_le_of_le_one_right (abs_nonneg μ) (Real.abs_sin_le_one δ)
+    linarith
+  have b2 : |κ * Real.sin δ + μ * Real.cos δ| ≤ |κ| + |μ| := by
+    refine (abs_add_le _ _).trans ?_
+    rw [abs_mul, abs_mul]
+    have := mul_le_of_le_one_right (abs_nonneg κ) (Real.abs_sin_le_one δ)
+    have := mul_le_of_le_one_right (abs_nonneg μ) (Real.abs_cos_le_one δ)
+    linarith
+  rw [abs_mul, abs_mul, abs_of_nonneg hc]
+  have := mul_le_mul_of_nonneg_left b1 hc
+  have := mul_le_mul_of_nonneg_left b2 hc
+  linarith
+
+lemma dlgm_arith2 {C Kc c0 h κ' δ' ε' : ℝ} (hC : 0 < C) (hK : 0 ≤ Kc) (hh : 0 < h)
+    (hc1 : c0 ≤ h ^ (1 / 6 : ℝ)) (hκ : 0 ≤ κ') (hε : ε' = κ' * Kc * (h ^ (1 / 6 : ℝ) * h)) (hxy : δ' ≤ 2 * c0 * κ') :
+    C * (h * δ' + |ε'|) ≤ C * (2 + Kc) * (κ' * (h ^ (1 / 6 : ℝ) * h)) := by
+  have hh6 : 0 ≤ h ^ (1 / 6 : ℝ) := Real.rpow_nonneg hh.le _
+  have hε0 : 0 ≤ ε' := by rw [hε]; positivity
+  rw [abs_of_nonneg hε0]
+  have a1 : h * δ' ≤ h * (2 * c0 * κ') := mul_le_mul_of_nonneg_left hxy hh.le
+  have a2 : h * (2 * c0 * κ') ≤ h * (2 * h ^ (1 / 6 : ℝ) * κ') := by
+    apply mul_le_mul_of_nonneg_left _ hh.le
+    exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hc1 (by norm_num)) hκ
+  have e : C * (h * (2 * h ^ (1 / 6 : ℝ) * κ') + κ' * Kc * (h ^ (1 / 6 : ℝ) * h)) =
+      C * (2 + Kc) * (κ' * (h ^ (1 / 6 : ℝ) * h)) := by ring
+  rw [← e, hε]
+  exact mul_le_mul_of_nonneg_left (by linarith) hC.le
+
+/-- **Matching of the bulk Liouville-Green layer with the Airy turning layer** (Maslov offset `π/4`, amplitude `h^{1/6}|κ|/√π`).  If the Airy shape
+`Y = κ g Ai(X) + μ g Bi(X)` holds at the two sites `m, m+1` of the bulk window, in the sense of `DlgAiryAt` (chart relations plus the D2A pointwise shape),
+then on the whole bulk window `[J, N+1]`
+`Y_k = h^{1/6} π^{-1/2} w_k (κ cos χ_k + μ sin χ_k) + O(h^{1/6} h (|κ| + |μ|) w_k)`, `χ_k = Θ(q_k)/h - Θ*/h + π/4`.
+For `μ = 0` this is `Y_k = κ h^{1/6} π^{-1/2} w_k [cos(Θ_k/h - Θ*/h + π/4) + O(h)]`: amplitude `R = h^{1/6} |κ| / √π`, phase offset exactly `π/4`. -/
+theorem dlg_airy_match (lo hi M E L : ℝ) (hlo : 0 < lo) (hhi : 0 ≤ hi) (hM : 0 ≤ M) (hE : 0 ≤ E) (hL : 0 ≤ L) :
+    ∃ h0 C : ℝ, 0 < h0 ∧ h0 ≤ 1 ∧ 0 < C ∧
+      ∀ {A θ w Θ : ℝ → ℝ} {U : Set ℝ}, DlgData A θ w Θ U lo hi M →
+      ∀ (q0 h : ℝ) (a c Y : ℤ → ℝ) (J N m : ℤ) (κ μ Ts Φmin gmin Ca : ℝ), 0 < Φmin → 0 < gmin → 0 ≤ Ca →
+        0 < h → h ≤ h0 → J ≤ m → m ≤ N → ((N - J : ℤ) : ℝ) * h ≤ L →
+        (∀ k ∈ Icc J (N + 1), dlgQ q0 h k ∈ U) →
+        (∀ k ∈ Icc (J + 1) (N + 1), |a k - A (dlgQ q0 h k - h / 2)| ≤ E * h ^ 2) →
+        (∀ k ∈ Icc (J + 1) N, |c k - 2 * A (dlgQ q0 h k) * Real.cos (θ (dlgQ q0 h k))| ≤ E * h ^ 2) →
+        (∀ k ∈ Icc (J + 1) N, jac a c Y k = 0) →
+        DlgAiryAt κ μ Y w Θ q0 h Ts Φmin gmin Ca m → DlgAiryAt κ μ Y w Θ q0 h Ts Φmin gmin Ca (m + 1) →
+        ∀ k ∈ Icc J (N + 1),
+          |Y k - h ^ (1 / 6 : ℝ) * (1 / √π) * w (dlgQ q0 h k) *
+              (κ * Real.cos (dlgP Θ q0 h k - Ts / h + π / 4) + μ * Real.sin (dlgP Θ q0 h k - Ts / h + π / 4))| ≤
+            C * (2 + (1 / (12 * Φmin) + Ca / gmin)) * ((|κ| + |μ|) * (h ^ (1 / 6 : ℝ) * h)) * w (dlgQ q0 h k) := by
+  obtain ⟨h0, C, hh0, hh01, hC, H⟩ := dlg_match_core lo hi M E L hlo hhi hM hE hL
+  refine ⟨h0, C, hh0, hh01, hC, ?_⟩
+  intro A θ w Θ U D q0 h a c Y J N m κ μ Ts Φmin gmin Ca hΦ hgmin hCa hh hhh0 hJm hmN hlen hU hA hCc hY S0 S1 k hk
+  set δ : ℝ := Ts / h - π / 4 with hδ
+  set c0 : ℝ := h ^ (1 / 6 : ℝ) * (1 / √π) with hc0
+  set Kc : ℝ := 1 / (12 * Φmin) + Ca / gmin with hKc
+  have hKc0 : 0 ≤ Kc := by positivity
+  have hh6 : 0 < h ^ (1 / 6 : ℝ) := Real.rpow_pos_of_pos hh _
+  have hsq : 1 ≤ √π := by
+    rw [show (1 : ℝ) = √1 by simp]; exact Real.sqrt_le_sqrt (by linarith [Real.pi_gt_three])
+  have hc00 : 0 ≤ c0 := by positivity
+  have hc01 : c0 ≤ h ^ (1 / 6 : ℝ) := by
+    rw [hc0]; apply mul_le_of_le_one_right hh6.le
+    rw [div_le_one (by linarith)]; exact hsq
+  have hwk : ∀ k ∈ Icc J (N + 1), 0 ≤ w (dlgQ q0 h k) ∧ w (dlgQ q0 h k) ≤ hi := fun k hk =>
+    ⟨(D.lo_pos.trans_le (D.wb _ (hU k hk)).1).le, (D.wb _ (hU k hk)).2⟩
+  -- site estimates
+  have site : ∀ j : ℤ, j ∈ Icc J (N + 1) → DlgAiryAt κ μ Y w Θ q0 h Ts Φmin gmin Ca j →
+      |Y j - (c0 * (κ * Real.cos δ - μ * Real.sin δ) * dlgPhi w Θ q0 h j +
+          c0 * (κ * Real.sin δ + μ * Real.cos δ) * dlgPsi w Θ q0 h j)| ≤
+        (|κ| + |μ|) * Kc * (h ^ (1 / 6 : ℝ) * h) * w (dlgQ q0 h j) := by
+    intro j hj ⟨g, y, hy, M2, M3, M4, hg, hYj⟩
+    have := dlgm_site (κ := κ) (μ := μ) (g := g) (y := y) (w := w (dlgQ q0 h j)) (h := h) (Ts := Ts)
+      (P := dlgP Θ q0 h j) (Φmin := Φmin) (Ca := Ca) (gmin := gmin) (Y := Y j) hh hy M2 M3 M4 hΦ hg hgmin
+      (hwk j hj).1 hCa hYj
+    have e : c0 * w (dlgQ q0 h j) * (κ * Real.cos (dlgP Θ q0 h j - δ) + μ * Real.sin (dlgP Θ q0 h j - δ)) =
+        c0 * (κ * Real.cos δ - μ * Real.sin δ) * dlgPhi w Θ q0 h j +
+          c0 * (κ * Real.sin δ + μ * Real.cos δ) * dlgPsi w Θ q0 h j := dlgm_comb κ μ c0 _ _ δ
+    have e2 : dlgP Θ q0 h j - Ts / h + π / 4 = dlgP Θ q0 h j - δ := by rw [hδ]; ring
+    rw [e2] at this
+    rw [← e]; exact this
+  have mI := site m (by rw [Finset.mem_Icc]; omega) S0
+  have mI1 := site (m + 1) (by rw [Finset.mem_Icc]; omega) S1
+  have hk' := H D q0 h a c Y J N m (c0 * (κ * Real.cos δ - μ * Real.sin δ)) (c0 * (κ * Real.sin δ + μ * Real.cos δ))
+    ((|κ| + |μ|) * Kc * (h ^ (1 / 6 : ℝ) * h)) hh hhh0 hJm hmN hlen hU hA hCc hY mI mI1 k hk
+  have hxy := dlgm_xy_le κ μ c0 δ hc00
+  have hfin := dlgm_arith2 (C := C) (Kc := Kc) (c0 := c0) (h := h) (κ' := |κ| + |μ|)
+    (δ' := |c0 * (κ * Real.cos δ - μ * Real.sin δ)| + |c0 * (κ * Real.sin δ + μ * Real.cos δ)|)
+    (ε' := (|κ| + |μ|) * Kc * (h ^ (1 / 6 : ℝ) * h)) hC hKc0 hh hc01 (by positivity) rfl hxy
+  have e : c0 * w (dlgQ q0 h k) * (κ * Real.cos (dlgP Θ q0 h k - δ) + μ * Real.sin (dlgP Θ q0 h k - δ)) =
+        c0 * (κ * Real.cos δ - μ * Real.sin δ) * dlgPhi w Θ q0 h k +
+          c0 * (κ * Real.sin δ + μ * Real.cos δ) * dlgPsi w Θ q0 h k := dlgm_comb κ μ c0 _ _ δ
+  have e2 : dlgP Θ q0 h k - Ts / h + π / 4 = dlgP Θ q0 h k - δ := by rw [hδ]; ring
+  rw [e2]
+  have : h ^ (1 / 6 : ℝ) * (1 / √π) * w (dlgQ q0 h k) *
+      (κ * Real.cos (dlgP Θ q0 h k - δ) + μ * Real.sin (dlgP Θ q0 h k - δ)) =
+      c0 * w (dlgQ q0 h k) * (κ * Real.cos (dlgP Θ q0 h k - δ) + μ * Real.sin (dlgP Θ q0 h k - δ)) := by rw [hc0]
+  rw [this, e]
+  exact hk'.trans (mul_le_mul_of_nonneg_right hfin (hwk k hk).1)
+
+/-- info: 'FormalResearch.Special.dlgm_site' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dlgm_site
+
+/-- info: 'FormalResearch.Special.dlg_match_core' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dlg_match_core
+
+/-- info: 'FormalResearch.Special.dlg_airy_match' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dlg_airy_match
+
 end FormalResearch.Special
