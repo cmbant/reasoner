@@ -192,4 +192,12 @@ theorem airyFtilde_PW_mul_le {F₁ F₂ : AiryL2} (h₁ : F₁ ∈ airyPW) (h₂
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyFtilde_PW_sq_le
 
+/-- info: 'FormalResearch.Special.airyClassG_PW_mul' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyClassG_PW_mul
+
+/-- info: 'FormalResearch.Special.airyFtilde_PW_mul_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyFtilde_PW_mul_le
+
 end FormalResearch.Special

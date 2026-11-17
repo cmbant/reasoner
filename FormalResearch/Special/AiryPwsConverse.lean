@@ -45,14 +45,14 @@ noncomputable def airyIeta (Fh : ℂ → ℂ) (η : ℝ) (u : ℂ) : ℂ := ∫ 
 lemma airyHinf_nonneg {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) : 0 ≤ B :=
   le_trans (norm_nonneg _) (h.bound 0 (by simp))
 
-lemma norm_cexp_cube (ζ : ℂ) : ‖cexp (I * ζ ^ 3 / 12)‖ =
+lemma airyPws_norm_cexp_cube (ζ : ℂ) : ‖cexp (I * ζ ^ 3 / 12)‖ =
     Real.exp (-(3 * ζ.re ^ 2 * ζ.im - ζ.im ^ 3) / 12) := by
   rw [Complex.norm_exp]
   congr 1
   simp [pow_succ, Complex.mul_re, Complex.mul_im]
   ring
 
-lemma norm_cexp_mul (ζ u : ℂ) : ‖cexp (I * ζ * u)‖ = Real.exp (-(ζ.re * u.im + ζ.im * u.re)) := by
+lemma airyPws_norm_cexp_mul (ζ u : ℂ) : ‖cexp (I * ζ * u)‖ = Real.exp (-(ζ.re * u.im + ζ.im * u.re)) := by
   rw [Complex.norm_exp]
   congr 1
   simp [Complex.mul_re, Complex.mul_im]
@@ -62,7 +62,7 @@ lemma norm_cexp_mul (ζ u : ℂ) : ‖cexp (I * ζ * u)‖ = Real.exp (-(ζ.re *
 lemma norm_airyKE_le {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) (u ζ : ℂ) (hζ : 0 ≤ ζ.im) :
     ‖airyKE Fh u ζ‖ ≤ B / airyPhiK * Real.exp (ζ.im ^ 3 / 12 - ζ.im * ζ.re ^ 2 / 4 - ζ.re * u.im - ζ.im * u.re) := by
   unfold airyKE airyLam
-  rw [norm_mul, norm_mul, norm_mul, norm_cexp_cube, norm_cexp_mul, norm_inv, Complex.norm_real,
+  rw [norm_mul, norm_mul, norm_mul, airyPws_norm_cexp_cube, airyPws_norm_cexp_mul, norm_inv, Complex.norm_real,
     Real.norm_eq_abs, abs_of_pos airyPhiK_pos]
   have hb := h.bound ζ hζ
   have e : Real.exp (-(3 * ζ.re ^ 2 * ζ.im - ζ.im ^ 3) / 12) * Real.exp (-(ζ.re * u.im + ζ.im * u.re)) =
@@ -219,7 +219,7 @@ theorem differentiable_airyIeta {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B)
     (Eventually.of_forall fun ξ u _ => hasDerivAt_airyKE_u Fh _ u)
   exact (key.2).differentiableAt
 
-lemma tendsto_gauss_lin (a b c : ℝ) (hb : 0 < b) :
+lemma airyPws_tendsto_gauss_lin (a b c : ℝ) (hb : 0 < b) :
     Tendsto (fun R : ℝ => Real.exp (-b * R ^ 2 + a * R + c)) atTop (𝓝 0) := by
   refine (Real.tendsto_exp_atBot).comp ?_
   have h1 : Tendsto (fun R : ℝ => (R - a / (2 * b)) ^ 2) atTop atTop :=
@@ -315,7 +315,7 @@ lemma airyIeta_eq {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {η₁ η₂ 
           linarith
     have hlim : Tendsto (fun R : ℝ => 2 * ((η₂ - η₁) * (B / airyPhiK * Real.exp (-(η₁ / 4) * R ^ 2 +
         |u.im| * R + (η₂ ^ 3 / 12 + η₂ * |u.re|))))) atTop (𝓝 0) := by
-      have := ((tendsto_gauss_lin |u.im| (η₁ / 4) (η₂ ^ 3 / 12 + η₂ * |u.re|) (by positivity)).const_mul
+      have := ((airyPws_tendsto_gauss_lin |u.im| (η₁ / 4) (η₂ ^ 3 / 12 + η₂ * |u.re|) (by positivity)).const_mul
         (B / airyPhiK)).const_mul (η₂ - η₁) |>.const_mul 2
       simpa using this
     refine squeeze_zero_norm' ?_ hlim
@@ -373,7 +373,7 @@ lemma airy_sqrt_facts (u : ℂ) : ∃ a b : ℝ, a = (u ^ (1 / 2 : ℂ)).re ∧ 
     simp [pow_succ, Complex.mul_re, Complex.mul_im]
     ring
 
-lemma sqrt_aux {η N : ℝ} (hη : 0 < η) (hN : 0 ≤ N) (h : 1 / η ≤ (1 + N) ^ 2) :
+lemma airyPws_sqrt_aux {η N : ℝ} (hη : 0 < η) (hN : 0 ≤ N) (h : 1 / η ≤ (1 + N) ^ 2) :
     √(4 * π / η) ≤ √(4 * π) * (1 + N) := by
   have : 4 * π / η ≤ 4 * π * (1 + N) ^ 2 := by
     rw [div_eq_mul_one_div]; exact mul_le_mul_of_nonneg_left h (by positivity)
@@ -399,7 +399,7 @@ theorem norm_airyIeta_global {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) (u
       rw [hre, him]; field_simp; ring
     rw [hex, ← henv] at h1
     have hs : √(4 * π / (2 * a)) ≤ √(4 * π) * (1 + N) := by
-      refine sqrt_aux (by positivity) hN ?_
+      refine airyPws_sqrt_aux (by positivity) hN ?_
       have : 1 / a ≤ 1 + N := by
         rw [div_le_iff₀ hapos]
         rw [div_le_iff₀ (by positivity)] at hc
@@ -444,7 +444,7 @@ theorem norm_airyIeta_global {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) (u
         nlinarith
       linarith
     have hs : √(4 * π / η) ≤ √(4 * π) * (1 + N) := by
-      refine sqrt_aux hηpos hN ?_
+      refine airyPws_sqrt_aux hηpos hN ?_
       rw [hinv]; nlinarith
     have hen : Real.exp (-(4 / 3)) ≤ airyEnv u := by
       rw [henv]

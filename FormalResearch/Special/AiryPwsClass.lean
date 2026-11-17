@@ -6,7 +6,7 @@ public import FormalResearch.Special.AiryEnvCalculus
 /-!
 # The class `G` and its Fourier transform on the closed upper half plane
 
-`AiryClassG f` is the class `G` of `GENERAL_THEOREMS` §0/§3: `f` entire, `f|_ℝ ∈ L¹(ℝ)` and
+`AiryClassG f` is the class `G` recalled in `CFT/notes/general_theorems.tex` (§0, used in §3): `f` entire, `f|_ℝ ∈ L¹(ℝ)` and
 `‖f(z)‖ ≤ C (1+|z|)^N e(z)`, `e(z) = exp(-(4/3) Re z^{3/2})` (`airyEnv`).  (The paper's `G` consists of *real* functions;
 reality is not used anywhere here, so this is the complex class `G_ℂ`.)
 
@@ -55,7 +55,7 @@ lemma airyEnv_ofReal_nonneg {u : ℝ} (hu : 0 ≤ u) : airyEnv (u : ℂ) = Real.
   rw [this]
 
 /-- Young: `R u ≤ (2/3) u^{3/2} + R³/3` for `R, u ≥ 0`. -/
-lemma young_three_halves {R u : ℝ} (hR : 0 ≤ R) (hu : 0 ≤ u) :
+lemma airyPws_young_three_halves {R u : ℝ} (hR : 0 ≤ R) (hu : 0 ≤ u) :
     R * u ≤ (2 / 3) * u ^ (3 / 2 : ℝ) + R ^ 3 / 3 := by
   have h : u ^ (3 / 2 : ℝ) = (√u) ^ 3 := by
     rw [Real.sqrt_eq_rpow, ← Real.rpow_natCast, ← Real.rpow_mul hu]; norm_num
@@ -66,7 +66,7 @@ lemma young_three_halves {R u : ℝ} (hR : 0 ≤ R) (hu : 0 ≤ u) :
   rw [hu']
   nlinarith [mul_nonneg (sq_nonneg (x - R)) (by positivity : 0 ≤ 2 * x + R)]
 
-lemma sub_one_le_rpow_three_halves {u : ℝ} (hu : 0 ≤ u) : u - 1 ≤ u ^ (3 / 2 : ℝ) := by
+lemma airyPws_sub_one_le_rpow_three_halves {u : ℝ} (hu : 0 ≤ u) : u - 1 ≤ u ^ (3 / 2 : ℝ) := by
   have h0 := Real.rpow_nonneg hu (3 / 2 : ℝ)
   rcases le_total u 1 with h1 | h1
   · linarith
@@ -78,8 +78,8 @@ lemma exp_mul_airyEnv_le {R : ℝ} (hR : 0 ≤ R) {u : ℝ} (hu : 0 ≤ u) :
     Real.exp (R * u) * airyEnv (u : ℂ) ≤ Real.exp (R ^ 3 / 3 + 2 / 3) * Real.exp (-(2 / 3) * u) := by
   rw [airyEnv_ofReal_nonneg hu, ← Real.exp_add, ← Real.exp_add]
   refine Real.exp_le_exp.mpr ?_
-  have := young_three_halves hR hu
-  have := sub_one_le_rpow_three_halves hu
+  have := airyPws_young_three_halves hR hu
+  have := airyPws_sub_one_le_rpow_three_halves hu
   nlinarith
 
 /-- The integrable majorant. -/
@@ -94,7 +94,7 @@ lemma integrable_airyPwsDom {f : ℂ → ℂ} (hf : AiryClassG f) {C : ℝ} {N :
   have h2 : Integrable (fun u : ℝ => (Ici (0 : ℝ)).indicator
       (fun u => C * Real.exp (R ^ 3 / 3 + 2 / 3) * ((1 + u) ^ (N + 1) * Real.exp (-(2 / 3) * u))) u) := by
     rw [integrable_indicator_iff measurableSet_Ici]
-    have := ((integrableOn_pow_mul_exp (N + 1) (by norm_num : (0 : ℝ) < 2 / 3)).const_mul
+    have := ((airyPws_integrableOn_pow_mul_exp (N + 1) (by norm_num : (0 : ℝ) < 2 / 3)).const_mul
       (C * Real.exp (R ^ 3 / 3 + 2 / 3)))
     exact (integrableOn_Ici_iff_integrableOn_Ioi).mpr this
   refine (h1.add h2).congr (Eventually.of_forall fun u => ?_)
@@ -103,7 +103,7 @@ lemma integrable_airyPwsDom {f : ℂ → ℂ} (hf : AiryClassG f) {C : ℝ} {N :
   · simp [airyPwsDom, hu, mem_Iio, mem_Ici, not_lt.mp hu]
 
 /-- Pointwise bound of the integrand and of `(1+|u|)` times it, for `δ ≤ Im ζ ≤ R`. -/
-lemma norm_integrand_le {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
+lemma airyPws_norm_integrand_le {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
     (hb : ∀ z : ℂ, ‖f z‖ ≤ C * (1 + ‖z‖) ^ N * airyEnv z) {δ R : ℝ} (hδ : 0 < δ) (ζ : ℂ)
     (h1 : δ ≤ ζ.im) (h2 : ζ.im ≤ R) (u : ℝ) :
     (1 + |u|) * ‖f (u : ℂ) * cexp (-(I * ζ * (u : ℂ)))‖ ≤ airyPwsDom f C N δ R u := by
@@ -160,7 +160,7 @@ lemma norm_integrand_le {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
       _ = _ := by ring
 
 /-- The same without the factor `1 + |u|`, for `0 ≤ Im ζ ≤ R`. -/
-lemma norm_integrand_le' {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
+lemma airyPws_norm_integrand_le' {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
     (hb : ∀ z : ℂ, ‖f z‖ ≤ C * (1 + ‖z‖) ^ N * airyEnv z) {R : ℝ} (ζ : ℂ)
     (h1 : 0 ≤ ζ.im) (h2 : ζ.im ≤ R) (u : ℝ) :
     ‖f (u : ℂ) * cexp (-(I * ζ * (u : ℂ)))‖ ≤ airyPwsDom f C N 1 R u := by
@@ -209,7 +209,7 @@ theorem continuousOn_airyFhat {f : ℂ → ℂ} (hf : AiryClassG f) :
       (integrable_airyPwsDom hf _ _) ?_
     · intro ζ _; exact (continuous_airyIntegrand hf ζ).aestronglyMeasurable
     · intro ζ hζ
-      exact Eventually.of_forall fun u => norm_integrand_le' hC hb ζ hζ.1 hζ.2 u
+      exact Eventually.of_forall fun u => airyPws_norm_integrand_le' hC hb ζ hζ.1 hζ.2 u
     · exact Eventually.of_forall fun u => by
         have := hf.differentiable.continuous
         fun_prop
@@ -248,7 +248,7 @@ theorem differentiableOn_airyFhat {f : ℂ → ℂ} (hf : AiryClassG f) :
       have := (integrable_airyPwsDom hf (C := C) (N := N) δ R)
       refine this.mono' (continuous_airyIntegrand hf ζ0).aestronglyMeasurable
         (Eventually.of_forall fun u => ?_)
-      have h := norm_integrand_le hC hb hδ0 ζ0 (R := R) (by linarith) (by linarith) u
+      have h := airyPws_norm_integrand_le hC hb hδ0 ζ0 (R := R) (by linarith) (by linarith) u
       have h2 : 0 ≤ ‖f (u : ℂ) * cexp (-(I * ζ0 * (u : ℂ)))‖ := norm_nonneg _
       nlinarith [abs_nonneg u])
     (by
@@ -256,7 +256,7 @@ theorem differentiableOn_airyFhat {f : ℂ → ℂ} (hf : AiryClassG f) :
       have := hf.differentiable.continuous
       fun_prop)
     (Eventually.of_forall fun u ζ hζ => by
-      have h := norm_integrand_le hC hb hδ0 ζ (hbd ζ hζ).1 (hbd ζ hζ).2 u
+      have h := airyPws_norm_integrand_le hC hb hδ0 ζ (hbd ζ hζ).1 (hbd ζ hζ).2 u
       have e : ‖f (u : ℂ) * (cexp (-(I * ζ * (u : ℂ))) * (-(I * (u : ℂ))))‖ =
           |u| * ‖f (u : ℂ) * cexp (-(I * ζ * (u : ℂ)))‖ := by
         simp only [norm_mul, norm_neg, Complex.norm_I, Complex.norm_real, Real.norm_eq_abs]
@@ -274,5 +274,13 @@ theorem differentiableOn_airyFhat {f : ℂ → ℂ} (hf : AiryClassG f) :
       have := (h1.cexp).const_mul (f (u : ℂ))
       simpa [mul_comm] using this)
   exact key.2.differentiableAt
+
+/-- info: 'FormalResearch.Special.continuousOn_airyFhat' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.continuousOn_airyFhat
+
+/-- info: 'FormalResearch.Special.differentiableOn_airyFhat' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.differentiableOn_airyFhat
 
 end FormalResearch.Special

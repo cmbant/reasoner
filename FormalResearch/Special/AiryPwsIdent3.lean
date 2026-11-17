@@ -7,7 +7,7 @@ public import FormalResearch.Special.AiryPwsIdent2
 
 Let `f₀ ∈ L¹(ℝ)` and let `Fh` be `H^∞` (`AiryHinf`) with boundary values `Λ(ξ) = k⁻¹ e^{iξ³/12} Fh(ξ) = f̂₀(ξ)`
 (that is `Fh(ξ) = k e^{-iξ³/12} f̂₀(ξ)`, the real-line value of the twisted transform).  Then `f₀ = (2π)⁻¹ I_1` a.e.:
-both pair with every smooth compactly supported `φ` to `(2π)⁻¹ ∫ f̂₀ ψ_φ` (`pairing_f0`, `pairing_eq`).
+both pair with every smooth compactly supported `φ` to `(2π)⁻¹ ∫ f̂₀ ψ_φ` (`airyPws_pairing_f0`, `airyPws_pairing_eq`).
 
 Continued in `AiryPwsConverseMain` (packaging as the class `G`, identification `F̃ = Fh`).
 -/
@@ -22,10 +22,10 @@ namespace FormalResearch.Special
 /-- `f̂₀(ξ) = ∫ f₀(u) e^{-iξu} du` for `f₀ : ℝ → ℂ`. -/
 noncomputable def airyFhatR (f₀ : ℝ → ℂ) (ξ : ℝ) : ℂ := ∫ u : ℝ, f₀ u * cexp (-(I * (ξ : ℂ) * (u : ℂ)))
 
-lemma norm_cexp_neg_real (ξ u : ℝ) : ‖cexp (-(I * (ξ : ℂ) * (u : ℂ)))‖ = 1 := by
+lemma airyPws_norm_cexp_neg_real (ξ u : ℝ) : ‖cexp (-(I * (ξ : ℂ) * (u : ℂ)))‖ = 1 := by
   rw [Complex.norm_exp]; simp [Complex.mul_re, Complex.mul_im]
 
-lemma pairing_f0 {f₀ : ℝ → ℂ} (hf : Integrable f₀) {Φ : ℝ → ℂ} (hΦ : ContDiff ℝ ∞ Φ)
+lemma airyPws_pairing_f0 {f₀ : ℝ → ℂ} (hf : Integrable f₀) {Φ : ℝ → ℂ} (hΦ : ContDiff ℝ ∞ Φ)
     (hc : HasCompactSupport Φ) :
     ∫ u : ℝ, Φ u * f₀ u = (2 * π : ℝ)⁻¹ * ∫ ξ : ℝ, airyTestPsi Φ (ξ : ℂ) * airyFhatR f₀ ξ := by
   have hψ := integrable_airyTestPsi hΦ hc
@@ -40,7 +40,7 @@ lemma pairing_f0 {f₀ : ℝ → ℂ} (hf : Integrable f₀) {Φ : ℝ → ℂ} 
       exact h1.mul h2.aestronglyMeasurable
     refine (hf.norm.mul_prod hψ.norm).mono' hm (Eventually.of_forall fun z => ?_)
     show ‖f₀ z.1 * (airyTestPsi Φ (z.2 : ℂ) * cexp (-(I * (z.2 : ℂ) * (z.1 : ℂ))))‖ ≤ _
-    rw [norm_mul, norm_mul, norm_cexp_neg_real, mul_one]
+    rw [norm_mul, norm_mul, airyPws_norm_cexp_neg_real, mul_one]
   have hswap := integral_integral_swap hfub
   have e1 : ∀ u : ℝ, Φ u * f₀ u = (2 * π : ℝ)⁻¹ * ∫ ξ : ℝ, G u ξ := by
     intro u
@@ -56,8 +56,8 @@ lemma pairing_f0 {f₀ : ℝ → ℂ} (hf : Integrable f₀) {Φ : ℝ → ℂ} 
   rw [← integral_const_mul]
   congr 1; funext u; ring
 
-/-- info: 'FormalResearch.Special.pairing_f0' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.Special.airyPws_pairing_f0' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.Special.pairing_f0
+#print axioms FormalResearch.Special.airyPws_pairing_f0
 
 end FormalResearch.Special

@@ -6,7 +6,7 @@ public import FormalResearch.Special.AiryTransform
 # Derivatives of the Airy kernel `K(x, y)` in `x`
 
 `airyD j s = Ai^{(j)}(s)` (real) is the `j`-th derivative of `Ai` on `ℝ`, with the three-term recurrence
-`Ai^{(k+3)} = s Ai^{(k+1)} + (k+1) Ai^{(k)}` and the bound `|Ai^{(j)}(s)| ≤ C_j (1+|s|)^j e^{-(2/3)(s-1)}`
+`Ai^{(k+3)} = s Ai^{(k+1)} + (k+1) Ai^{(k)}` and the bound `|Ai^{(j)}(s)| ≤ C_j (1+|s|)^j e^{-(2/3)s}` (`abs_airyD_le`)
 (from the envelope (E1), (E1') of `AiryEnvelope`, by induction).  Hence `t ↦ Ai^{(j)}(x+t) Ai(y+t)` is integrable on
 `(0,∞)` with any polynomial weight, the Gram integral `K(x,y) = ∫_0^∞ Ai(x+t) Ai(y+t) dt`
 (`airyKer_eq_integral`) can be differentiated in `x` under the integral sign, and
@@ -67,7 +67,7 @@ lemma airyD_succ_succ_succ (k : ℕ) (s : ℝ) :
 
 /-! ### The real exponent `Re s^{3/2}` -/
 
-lemma re_cpow_three_halves_ofReal (s : ℝ) :
+lemma airyPws_re_cpow_three_halves_ofReal (s : ℝ) :
     s - 1 ≤ ((s : ℂ) ^ (3 / 2 : ℂ)).re ∧ 0 ≤ ((s : ℂ) ^ (3 / 2 : ℂ)).re := by
   rcases lt_or_ge s 0 with hs | hs
   · have h := airyEnv_ofReal_neg hs
@@ -88,14 +88,14 @@ lemma re_cpow_three_halves_ofReal (s : ℝ) :
       rw [Real.rpow_one] at this
       linarith
 
-lemma exp_neg_re_cpow_le_one (s : ℝ) :
+lemma airyPws_exp_neg_re_cpow_le_one (s : ℝ) :
     Real.exp (-(2 / 3) * ((s : ℂ) ^ (3 / 2 : ℂ)).re) ≤ 1 :=
-  Real.exp_le_one_iff.mpr (by nlinarith [(re_cpow_three_halves_ofReal s).2])
+  Real.exp_le_one_iff.mpr (by nlinarith [(airyPws_re_cpow_three_halves_ofReal s).2])
 
-lemma exp_neg_re_cpow_le_exp (s : ℝ) :
+lemma airyPws_exp_neg_re_cpow_le_exp (s : ℝ) :
     Real.exp (-(2 / 3) * ((s : ℂ) ^ (3 / 2 : ℂ)).re) ≤ Real.exp (2 / 3) * Real.exp (-(2 / 3) * s) := by
   rw [← Real.exp_add]
-  exact Real.exp_le_exp.mpr (by nlinarith [(re_cpow_three_halves_ofReal s).1])
+  exact Real.exp_le_exp.mpr (by nlinarith [(airyPws_re_cpow_three_halves_ofReal s).1])
 
 /-! ### Bounds for `Ai^{(j)}` on `ℝ` -/
 
@@ -189,7 +189,7 @@ theorem abs_airyD_le (j : ℕ) :
   have hp : 0 ≤ C * (1 + |s|) ^ j := by positivity
   calc |airyD j s| ≤ C * (1 + |s|) ^ j * Real.exp (-(2 / 3) * ((s : ℂ) ^ (3 / 2 : ℂ)).re) := h1
     _ ≤ C * (1 + |s|) ^ j * (Real.exp (2 / 3) * Real.exp (-(2 / 3) * s)) :=
-        mul_le_mul_of_nonneg_left (exp_neg_re_cpow_le_exp s) hp
+        mul_le_mul_of_nonneg_left (airyPws_exp_neg_re_cpow_le_exp s) hp
     _ = _ := by ring
 
 /-- `|Ai^{(j)}(s)| ≤ C_j (1+|s|)^j` for real `s`. -/
@@ -201,7 +201,7 @@ theorem abs_airyD_le_poly (j : ℕ) :
   rw [airyMom_ofReal_eq, Complex.norm_real, Real.norm_eq_abs] at h1
   have hp : 0 ≤ C * (1 + |s|) ^ j := by positivity
   calc |airyD j s| ≤ C * (1 + |s|) ^ j * Real.exp (-(2 / 3) * ((s : ℂ) ^ (3 / 2 : ℂ)).re) := h1
-    _ ≤ C * (1 + |s|) ^ j * 1 := mul_le_mul_of_nonneg_left (exp_neg_re_cpow_le_one s) hp
+    _ ≤ C * (1 + |s|) ^ j * 1 := mul_le_mul_of_nonneg_left (airyPws_exp_neg_re_cpow_le_one s) hp
     _ = _ := by ring
 
 /-- `|Ai(s)| ≤ C e^{-(2/3) s}` for every real `s`. -/
@@ -214,7 +214,7 @@ theorem abs_airyAi_le_exp : ∃ C : ℝ, 0 ≤ C ∧ ∀ s : ℝ, |airyAi s| ≤
 /-! ### Integrability and differentiation under the integral -/
 
 /-- `(1+t)^m e^{-ct}` is integrable on `(0,∞)` for `c > 0`. -/
-lemma integrableOn_pow_mul_exp (m : ℕ) {c : ℝ} (hc : 0 < c) :
+lemma airyPws_integrableOn_pow_mul_exp (m : ℕ) {c : ℝ} (hc : 0 < c) :
     IntegrableOn (fun t : ℝ => (1 + t) ^ m * Real.exp (-c * t)) (Ioi 0) := by
   set ε := c / 2 with hε
   have hε0 : 0 < ε := by positivity
@@ -280,7 +280,7 @@ lemma abs_airyD_mul_le (j : ℕ) (R y : ℝ) (hR : 0 ≤ R) :
 lemma integrableOn_airyD_mul (j : ℕ) (x y : ℝ) :
     IntegrableOn (fun t => airyD j (x + t) * airyAi (y + t)) (Ioi 0) := by
   obtain ⟨A, hA, hb⟩ := abs_airyD_mul_le j |x| y (abs_nonneg x)
-  refine Integrable.mono' ((integrableOn_pow_mul_exp j (by norm_num : (0 : ℝ) < 2 / 3)).const_mul A) ?_ ?_
+  refine Integrable.mono' ((airyPws_integrableOn_pow_mul_exp j (by norm_num : (0 : ℝ) < 2 / 3)).const_mul A) ?_ ?_
   · refine Continuous.aestronglyMeasurable ?_
     have := continuous_airyD j
     have := continuous_airyAi
@@ -296,7 +296,7 @@ theorem hasDerivAt_airyKerD (j : ℕ) (y x0 : ℝ) :
   obtain ⟨A, hA, hb⟩ := abs_airyD_mul_le (j + 1) (|x0| + 1) y (by positivity)
   have hI : Integrable (fun t : ℝ => A * ((1 + t) ^ (j + 1) * Real.exp (-(2 / 3) * t)))
       (volume.restrict (Ioi 0)) :=
-    (integrableOn_pow_mul_exp (j + 1) (by norm_num : (0 : ℝ) < 2 / 3)).const_mul A
+    (airyPws_integrableOn_pow_mul_exp (j + 1) (by norm_num : (0 : ℝ) < 2 / 3)).const_mul A
   have hc := continuous_airyD j
   have hc1 := continuous_airyD (j + 1)
   have hA0 := continuous_airyAi
@@ -349,7 +349,7 @@ theorem iteratedDeriv_airyKer_eq (j : ℕ) (y : ℝ) :
 lemma integrableOn_airyD_sq (j : ℕ) (y : ℝ) :
     IntegrableOn (fun t => airyD j (y + t) ^ 2) (Ioi 0) := by
   obtain ⟨C, hC, h1⟩ := abs_airyD_le j
-  have hI := (integrableOn_pow_mul_exp (2 * j) (by norm_num : (0 : ℝ) < 4 / 3)).const_mul
+  have hI := (airyPws_integrableOn_pow_mul_exp (2 * j) (by norm_num : (0 : ℝ) < 4 / 3)).const_mul
     (C ^ 2 * (1 + |y|) ^ (2 * j) * Real.exp (-(4 / 3) * y))
   refine Integrable.mono' hI ?_ ?_
   · refine Continuous.aestronglyMeasurable ?_

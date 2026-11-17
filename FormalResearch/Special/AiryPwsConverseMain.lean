@@ -16,6 +16,12 @@ Theorem 3.1 of `CFT/notes/general_theorems.tex`, for complex-valued `f` (reality
 * `airyPws_converse`: packaging, using the Phragmén–Lindelöf lemma `pl_halfPlane` with `B = 0` to identify
   `airyFtilde f = Fh` on the closed half plane.
 
+Hypothesis `AiryHinf` (holomorphic on `Im ζ > 0`, continuous on `Im ζ ≥ 0`, bounded) is the paper's `(b)`
+(`F̃` continuous and bounded on `ℝ`, boundary function of an `H^∞(ℍ)` function) with the continuity up to `ℝ` made explicit;
+it is equivalent to it by the Poisson representation of `H^∞(ℍ)`, since `F̃` is continuous on `ℝ`.  The paper's remark that `f` has growth
+`(1+|u|)^{1/2}` is not reproduced: the Lean `G`-bound has `(1+|z|)^1` (`norm_airyIeta_global`), which is all that membership
+of `G` needs (`G` allows any polynomial factor).
+
 **Not formalised**: statement `(c)` (representation `f = ∫ Φ_τ dμ` with a measure supported on `[0,∞)`), which needs a
 Paley–Wiener–Schwartz/Titchmarsh theorem for tempered distributions that is not in Mathlib.
 -/
@@ -66,7 +72,7 @@ theorem airy_converse_ae {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {f₀ 
     rw [integral_sub i1 i2]
     have e2 : ∫ u : ℝ, Φ u * fE u = ((2 * π : ℝ) : ℂ)⁻¹ * ∫ u : ℝ, Φ u * airyIeta Fh 1 (u : ℂ) := by
       rw [← integral_const_mul]; congr 1; funext u; rw [hfE]; ring
-    rw [e2, pairing_eq h hΦd hΦc, pairing_f0 hf hΦd hΦc]
+    rw [e2, airyPws_pairing_eq h hΦd hΦc, airyPws_pairing_f0 hf hΦd hΦc]
     have e3 : ∀ ξ : ℝ, airyLam Fh (ξ : ℂ) * airyTestPsi Φ (ξ : ℂ) = airyTestPsi Φ (ξ : ℂ) * airyFhatR f₀ ξ :=
       fun ξ => by rw [airyLam_real hb ξ]; ring
     simp_rw [e3]

@@ -6,7 +6,7 @@ public import FormalResearch.Special.AiryRatioBounds
 /-!
 # The Airy Paley–Wiener–Schwartz theorem, direction `(a) ⇒ (b)`: `F̃ ∈ H^∞` with `‖F̃‖_∞ ≤ k ‖f‖₁`
 
-Theorem 3.1 of `CFT/notes/general_theorems.tex` (`GENERAL_THEOREMS`), `(a)⇒(b)`: for `f ∈ G` (`AiryClassG`: entire,
+Theorem 3.1 of `CFT/notes/general_theorems.tex` `(a)⇒(b)`: for `f ∈ G` (`AiryClassG`: entire,
 `L¹(ℝ)`, `|f(z)| ≤ C(1+|z|)^N e(z)`), the twisted transform `F̃(ζ) = k e^{-iζ³/12} ∫ f(u) e^{-iζu} du`, `k = 2^{2/3}`,
 is holomorphic on `Im ζ > 0`, continuous on `Im ζ ≥ 0` and bounded there by `k ‖f‖_{L¹}`:
 
@@ -232,7 +232,7 @@ lemma airyFtilde_poly_left {g : ℂ → ℂ} (hg : AiryClassG g) :
     apply Complex.ext
     · simp [hbdef]; ring
     · simp [hηdef]
-  have h1 := norm_airyFtilde_le hg hC hb hb0 him
+  have h1 := norm_airyFtilde_left_le hg hC hb hb0 him
   rw [← hζ] at h1
   set r := ‖ζ‖ with hr
   have hr0 : 0 ≤ r := norm_nonneg _
@@ -303,7 +303,7 @@ theorem airyFtilde_diffContOnCl {f : ℂ → ℂ} (hf : AiryClassG f) :
   · rw [closure_setOfPred_lt_im]
     exact (hent.continuous.continuousOn).mul (continuousOn_airyFhat hf)
 
-/-- **The uniform `H^∞` bound** (Theorem 3.1 `(a)⇒(b)` of `GENERAL_THEOREMS`, with the norm bound): for `f ∈ G`
+/-- **The uniform `H^∞` bound** (Theorem 3.1 `(a)⇒(b)` of `CFT/notes/general_theorems.tex`, with the norm bound): for `f ∈ G`
 and `Im ζ ≥ 0`, `|F̃(ζ)| = |k e^{-iζ³/12} ∫ f(u) e^{-iζu} du| ≤ k ‖f‖_{L¹(ℝ)}`, `k = 2^{2/3}`. -/
 theorem airyFtilde_norm_le {f : ℂ → ℂ} (hf : AiryClassG f) {ζ : ℂ} (hζ : 0 ≤ ζ.im) :
     ‖airyFtilde f ζ‖ ≤ airyPhiK * ∫ u : ℝ, ‖f (u : ℂ)‖ := by
@@ -317,5 +317,13 @@ theorem airyFtilde_norm_le {f : ℂ → ℂ} (hf : AiryClassG f) {ζ : ℂ} (hζ
 /-- info: 'FormalResearch.Special.airyFtilde_norm_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyFtilde_norm_le
+
+/-- info: 'FormalResearch.Special.airyFtilde_poly' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyFtilde_poly
+
+/-- info: 'FormalResearch.Special.airyFtilde_diffContOnCl' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyFtilde_diffContOnCl
 
 end FormalResearch.Special

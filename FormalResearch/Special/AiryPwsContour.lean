@@ -17,7 +17,7 @@ under two hypotheses which are verified in `AiryPwsGrowth` from the growth bound
 `t ↦ G_ζ(t+ib)` on `(0,∞)` and `∫_0^b G_ζ(R+iy) dy → 0` as `R → ∞`.
 
 This is the contour deformation `i∞ → 0 → +∞  ⇝  i∞ → ib → ib + ∞` of the proof of Theorem 3.1 `(a)⇒(b)` in
-`GENERAL_THEOREMS.md` §3.  **Not formalised** here: the estimates of the two pieces (`AiryPwsGrowth`).
+`CFT/notes/general_theorems.tex` §3.  **Not formalised** here: the estimates of the two pieces (`AiryPwsGrowth`).
 -/
 
 @[expose] public section
@@ -43,7 +43,7 @@ lemma integrable_airyJ {f : ℂ → ℂ} (hf : AiryClassG f) {ζ : ℂ} (hζ : 0
   obtain ⟨C, N, hC, hb⟩ := hf.bound
   refine (integrable_airyPwsDom hf (C := C) (N := N) 1 ζ.im).mono'
     (continuous_airyIntegrand hf ζ).aestronglyMeasurable (Eventually.of_forall fun u => ?_)
-  exact norm_integrand_le' hC hb ζ hζ le_rfl u
+  exact airyPws_norm_integrand_le' hC hb ζ hζ le_rfl u
 
 /-! ### The Cauchy rectangle -/
 
@@ -57,7 +57,7 @@ lemma airyPwsG_rect {f : ℂ → ℂ} (hf : Differentiable ℂ f) (ζ : ℂ) (R 
 
 /-! ### Changes of variables `u = x²`, `u = -y²` -/
 
-lemma image_sq_Ioi : (fun x : ℝ => x ^ 2) '' Ioi 0 = Ioi 0 := by
+lemma airyPws_image_sq_Ioi : (fun x : ℝ => x ^ 2) '' Ioi 0 = Ioi 0 := by
   ext u
   constructor
   · rintro ⟨x, hx, rfl⟩
@@ -65,7 +65,7 @@ lemma image_sq_Ioi : (fun x : ℝ => x ^ 2) '' Ioi 0 = Ioi 0 := by
   · intro hu
     exact ⟨√u, Real.sqrt_pos.mpr hu, Real.sq_sqrt (le_of_lt hu)⟩
 
-lemma image_neg_sq_Ioi : (fun x : ℝ => -x ^ 2) '' Ioi 0 = Iio 0 := by
+lemma airyPws_image_neg_sq_Ioi : (fun x : ℝ => -x ^ 2) '' Ioi 0 = Iio 0 := by
   ext u
   constructor
   · rintro ⟨x, hx, rfl⟩
@@ -74,60 +74,60 @@ lemma image_neg_sq_Ioi : (fun x : ℝ => -x ^ 2) '' Ioi 0 = Iio 0 := by
     have hu' : 0 < -u := neg_pos.mpr hu
     exact ⟨√(-u), Real.sqrt_pos.mpr hu', by show -(√(-u)) ^ 2 = u; rw [Real.sq_sqrt (le_of_lt hu')]; ring⟩
 
-lemma injOn_sq_Ioi : InjOn (fun x : ℝ => x ^ 2) (Ioi 0) := by
+lemma airyPws_injOn_sq_Ioi : InjOn (fun x : ℝ => x ^ 2) (Ioi 0) := by
   intro x hx y hy h
   exact (sq_eq_sq₀ (le_of_lt hx) (le_of_lt hy)).mp h
 
-lemma injOn_neg_sq_Ioi : InjOn (fun x : ℝ => -x ^ 2) (Ioi 0) := by
+lemma airyPws_injOn_neg_sq_Ioi : InjOn (fun x : ℝ => -x ^ 2) (Ioi 0) := by
   intro x hx y hy h
   have : x ^ 2 = y ^ 2 := by simpa using h
   exact (sq_eq_sq₀ (le_of_lt hx) (le_of_lt hy)).mp this
 
 /-- `∫_{u>0} g(u) du = ∫_{x>0} 2x g(x²) dx`. -/
-lemma integral_Ioi_sq {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] (g : ℝ → E) :
+lemma airyPws_integral_Ioi_sq {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] (g : ℝ → E) :
     ∫ u in Ioi 0, g u = ∫ x in Ioi 0, (2 * x) • g (x ^ 2) := by
   have h := integral_image_eq_integral_abs_deriv_smul (f := fun x : ℝ => x ^ 2) (f' := fun x => 2 * x)
     (measurableSet_Ioi (a := (0 : ℝ))) (fun x _ => by
       have := (hasDerivAt_pow 2 x).hasDerivWithinAt (s := Ioi 0)
-      simpa using this) injOn_sq_Ioi g
-  rw [image_sq_Ioi] at h
+      simpa using this) airyPws_injOn_sq_Ioi g
+  rw [airyPws_image_sq_Ioi] at h
   rw [h]
   refine setIntegral_congr_fun measurableSet_Ioi fun x hx => ?_
   show |2 * x| • g (x ^ 2) = (2 * x) • g (x ^ 2)
   rw [abs_of_pos (by have : 0 < x := hx; positivity)]
 
 /-- `∫_{u<0} g(u) du = ∫_{y>0} 2y g(-y²) dy`. -/
-lemma integral_Iio_neg_sq {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] (g : ℝ → E) :
+lemma airyPws_integral_Iio_neg_sq {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] (g : ℝ → E) :
     ∫ u in Iio 0, g u = ∫ y in Ioi 0, (2 * y) • g (-y ^ 2) := by
   have h := integral_image_eq_integral_abs_deriv_smul (f := fun x : ℝ => -x ^ 2) (f' := fun x => -(2 * x))
     (measurableSet_Ioi (a := (0 : ℝ))) (fun x _ => by
       have := ((hasDerivAt_pow 2 x).const_mul (-1 : ℝ)).hasDerivWithinAt (s := Ioi 0)
-      simpa using this) injOn_neg_sq_Ioi g
-  rw [image_neg_sq_Ioi] at h
+      simpa using this) airyPws_injOn_neg_sq_Ioi g
+  rw [airyPws_image_neg_sq_Ioi] at h
   rw [h]
   refine setIntegral_congr_fun measurableSet_Ioi fun x hx => ?_
   show |-(2 * x)| • g (-x ^ 2) = (2 * x) • g (-x ^ 2)
   rw [abs_neg, abs_of_pos (by have : 0 < x := hx; positivity)]
 
-lemma integrableOn_Ioi_sq_iff {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] (g : ℝ → E) :
+lemma airyPws_integrableOn_Ioi_sq_iff {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] (g : ℝ → E) :
     IntegrableOn g (Ioi 0) ↔ IntegrableOn (fun x => (2 * x) • g (x ^ 2)) (Ioi 0) := by
   have h := integrableOn_image_iff_integrableOn_abs_deriv_smul (f := fun x : ℝ => x ^ 2)
     (f' := fun x => 2 * x) (measurableSet_Ioi (a := (0 : ℝ))) (fun x _ => by
       have := (hasDerivAt_pow 2 x).hasDerivWithinAt (s := Ioi 0)
-      simpa using this) injOn_sq_Ioi g
-  rw [image_sq_Ioi] at h
+      simpa using this) airyPws_injOn_sq_Ioi g
+  rw [airyPws_image_sq_Ioi] at h
   rw [h]
   refine integrableOn_congr_fun (fun x hx => ?_) measurableSet_Ioi
   show |2 * x| • g (x ^ 2) = (2 * x) • g (x ^ 2)
   rw [abs_of_pos (by have : 0 < x := hx; positivity)]
 
-lemma integrableOn_Iio_neg_sq_iff {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] (g : ℝ → E) :
+lemma airyPws_integrableOn_Iio_neg_sq_iff {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] (g : ℝ → E) :
     IntegrableOn g (Iio 0) ↔ IntegrableOn (fun x => (2 * x) • g (-x ^ 2)) (Ioi 0) := by
   have h := integrableOn_image_iff_integrableOn_abs_deriv_smul (f := fun x : ℝ => -x ^ 2)
     (f' := fun x => -(2 * x)) (measurableSet_Ioi (a := (0 : ℝ))) (fun x _ => by
       have := ((hasDerivAt_pow 2 x).const_mul (-1 : ℝ)).hasDerivWithinAt (s := Ioi 0)
-      simpa using this) injOn_neg_sq_Ioi g
-  rw [image_neg_sq_Ioi] at h
+      simpa using this) airyPws_injOn_neg_sq_Ioi g
+  rw [airyPws_image_neg_sq_Ioi] at h
   rw [h]
   refine integrableOn_congr_fun (fun x hx => ?_) measurableSet_Ioi
   show |-(2 * x)| • g (-x ^ 2) = (2 * x) • g (-x ^ 2)
@@ -165,14 +165,14 @@ theorem airyFhat_eq_hor_add_vert {f : ℂ → ℂ} (hf : AiryClassG f) {ζ : ℂ
     exact this.symm
   -- the three pieces
   set g : ℝ → ℂ := fun y => ((2 * y : ℝ)) • airyJ f ζ (-y ^ 2) with hg
-  have hB : ∫ u in Iio (0 : ℝ), airyJ f ζ u = ∫ y in Ioi (0 : ℝ), g y := integral_Iio_neg_sq _
-  have hgint : IntegrableOn g (Ioi 0) := (integrableOn_Iio_neg_sq_iff _).mp hJ.integrableOn
+  have hB : ∫ u in Iio (0 : ℝ), airyJ f ζ u = ∫ y in Ioi (0 : ℝ), g y := airyPws_integral_Iio_neg_sq _
+  have hgint : IntegrableOn g (Ioi 0) := (airyPws_integrableOn_Iio_neg_sq_iff _).mp hJ.integrableOn
   have hA : ∫ u in Ioi (0 : ℝ), airyJ f ζ u = ∫ x in Ioi (0 : ℝ), airyPwsG f ζ (x : ℂ) := by
-    rw [integral_Ioi_sq]
+    rw [airyPws_integral_Ioi_sq]
     refine setIntegral_congr_fun measurableSet_Ioi fun x _ => ?_
     simp only [airyPwsG_real]
   have hGint : IntegrableOn (fun x : ℝ => airyPwsG f ζ (x : ℂ)) (Ioi 0) := by
-    have := (integrableOn_Ioi_sq_iff _).mp hJ.integrableOn
+    have := (airyPws_integrableOn_Ioi_sq_iff _).mp hJ.integrableOn
     refine this.congr_fun (fun x _ => ?_) measurableSet_Ioi
     simp only [airyPwsG_real]
   -- the limit of the rectangle identity
@@ -215,5 +215,9 @@ theorem airyFhat_eq_hor_add_vert {f : ℂ → ℂ} (hf : AiryClassG f) {ζ : ℂ
   rw [hsplit, hB, hA, hAH, hIW, hsplit2]
   simp only [smul_zero, sub_zero]
   ring
+
+/-- info: 'FormalResearch.Special.airyFhat_eq_hor_add_vert' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyFhat_eq_hor_add_vert
 
 end FormalResearch.Special

@@ -25,7 +25,7 @@ namespace FormalResearch.Special
 /-- `ψ(ζ) = ∫ Φ(t) e^{iζt} dt`. -/
 noncomputable def airyTestPsi (Φ : ℝ → ℂ) (ζ : ℂ) : ℂ := ∫ t : ℝ, Φ t * cexp (I * ζ * (t : ℂ))
 
-lemma exists_supp_bound {Φ : ℝ → ℂ} (hc : HasCompactSupport Φ) : ∃ R : ℝ, 0 ≤ R ∧ ∀ t, Φ t ≠ 0 → |t| ≤ R := by
+lemma airyPws_exists_supp_bound {Φ : ℝ → ℂ} (hc : HasCompactSupport Φ) : ∃ R : ℝ, 0 ≤ R ∧ ∀ t, Φ t ≠ 0 → |t| ≤ R := by
   obtain ⟨R, hR⟩ := hc.isCompact.isBounded.subset_closedBall 0
   refine ⟨max R 0, le_max_right _ _, fun t ht => ?_⟩
   have := hR (subset_tsupport _ ht)
@@ -34,7 +34,7 @@ lemma exists_supp_bound {Φ : ℝ → ℂ} (hc : HasCompactSupport Φ) : ∃ R :
 
 lemma continuous_cexp_line (ζ : ℂ) : Continuous fun t : ℝ => cexp (I * ζ * (t : ℂ)) := by fun_prop
 
-lemma integrable_mul_cexp_line {Φ : ℝ → ℂ} (hΦ : Continuous Φ) (hc : HasCompactSupport Φ) (ζ : ℂ) :
+lemma airyPws_integrable_mul_cexp_line {Φ : ℝ → ℂ} (hΦ : Continuous Φ) (hc : HasCompactSupport Φ) (ζ : ℂ) :
     Integrable fun t : ℝ => Φ t * cexp (I * ζ * (t : ℂ)) :=
   (hΦ.mul (continuous_cexp_line ζ)).integrable_of_hasCompactSupport (hc.mul_right)
 
@@ -50,9 +50,9 @@ lemma airyTestPsi_ibp {Φ : ℝ → ℂ} (hΦ : ContDiff ℝ 1 Φ) (hc : HasComp
     have h2 : HasDerivAt (fun t : ℝ => I * ζ * (t : ℂ)) (I * ζ) t := by
       simpa using ((hasDerivAt_id (t : ℝ)).ofReal_comp).const_mul (I * ζ)
     exact h1.mul h2.cexp
-  have hi1 := integrable_mul_cexp_line hd hcd ζ
+  have hi1 := airyPws_integrable_mul_cexp_line hd hcd ζ
   have hi2 : Integrable fun t : ℝ => Φ t * (cexp (I * ζ * (t : ℂ)) * (I * ζ)) := by
-    have := (integrable_mul_cexp_line hcont hc ζ).mul_const (I * ζ)
+    have := (airyPws_integrable_mul_cexp_line hcont hc ζ).mul_const (I * ζ)
     simpa [mul_assoc] using this
   have hz : Tendsto (fun t : ℝ => Φ t * cexp (I * ζ * (t : ℂ))) (cocompact ℝ) (𝓝 0) := by
     have h2 := (hc.mul_right (f' := fun t : ℝ => cexp (I * ζ * (t : ℂ))))
@@ -69,7 +69,7 @@ lemma airyTestPsi_ibp {Φ : ℝ → ℂ} (hΦ : ContDiff ℝ 1 Φ) (hc : HasComp
   rw [h3] at this
   linear_combination this
 
-lemma norm_cexp_line (ζ : ℂ) (t : ℝ) : ‖cexp (I * ζ * (t : ℂ))‖ = Real.exp (-(ζ.im * t)) := by
+lemma airyPws_norm_cexp_line (ζ : ℂ) (t : ℝ) : ‖cexp (I * ζ * (t : ℂ))‖ = Real.exp (-(ζ.im * t)) := by
   rw [Complex.norm_exp]; congr 1; simp [Complex.mul_re, Complex.mul_im]
 
 lemma airyTestPsi_norm_le {Φ : ℝ → ℂ} (hΦ : Continuous Φ) (hc : HasCompactSupport Φ) {R : ℝ}
@@ -79,10 +79,10 @@ lemma airyTestPsi_norm_le {Φ : ℝ → ℂ} (hΦ : Continuous Φ) (hc : HasComp
   unfold airyTestPsi
   rw [← integral_const_mul]
   refine (norm_integral_le_integral_norm _).trans (integral_mono
-    (integrable_mul_cexp_line hΦ hc ζ).norm (hint.const_mul _) fun t => ?_)
+    (airyPws_integrable_mul_cexp_line hΦ hc ζ).norm (hint.const_mul _) fun t => ?_)
   by_cases ht : Φ t = 0
   · simp [ht]
-  · rw [norm_mul, norm_cexp_line, mul_comm]
+  · rw [norm_mul, airyPws_norm_cexp_line, mul_comm]
     refine mul_le_mul_of_nonneg_right (Real.exp_le_exp.mpr ?_) (norm_nonneg _)
     have := hR t ht
     have h2 : -(ζ.im * t) ≤ ζ.im * |t| := by nlinarith [neg_abs_le t, abs_nonneg t]
@@ -90,7 +90,7 @@ lemma airyTestPsi_norm_le {Φ : ℝ → ℂ} (hΦ : Continuous Φ) (hc : HasComp
 
 lemma continuous_airyTestPsi {Φ : ℝ → ℂ} (hΦ : Continuous Φ) (hc : HasCompactSupport Φ) :
     Continuous (airyTestPsi Φ) := by
-  obtain ⟨R, hR0, hR⟩ := exists_supp_bound hc
+  obtain ⟨R, hR0, hR⟩ := airyPws_exists_supp_bound hc
   have hcont : Continuous (Function.uncurry fun (ζ : ℂ) (t : ℝ) => Φ t * cexp (I * ζ * (t : ℂ))) := by
     fun_prop
   have := continuous_parametric_integral_of_continuous (μ := volume) hcont
@@ -117,8 +117,8 @@ lemma airyTestPsi_decay {Φ : ℝ → ℂ} (hΦ : ContDiff ℝ ∞ Φ) (hc : Has
   have h1 : ContDiff ℝ ∞ (deriv Φ) := (contDiff_infty_iff_deriv.mp hΦ).2
   have h2 : ContDiff ℝ ∞ (deriv (deriv Φ)) := (contDiff_infty_iff_deriv.mp h1).2
   have hc2 : HasCompactSupport (deriv (deriv Φ)) := hc.deriv.deriv
-  obtain ⟨R, hR0, hR⟩ := exists_supp_bound hc
-  obtain ⟨R2, hR20, hR2⟩ := exists_supp_bound hc2
+  obtain ⟨R, hR0, hR⟩ := airyPws_exists_supp_bound hc
+  obtain ⟨R2, hR20, hR2⟩ := airyPws_exists_supp_bound hc2
   refine ⟨Real.exp R * (∫ t : ℝ, ‖Φ t‖) + Real.exp R2 * ∫ t : ℝ, ‖deriv (deriv Φ) t‖, by positivity, fun ζ h0 h1' => ?_⟩
   have hb1 := airyTestPsi_norm_le hΦ.continuous hc hR h0 h1'
   have hb2 := airyTestPsi_norm_le (h2.continuous) hc2 hR2 (ζ := ζ) h0 h1'

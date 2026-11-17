@@ -7,8 +7,8 @@ public import FormalResearch.Special.AiryPwsIdent
 
 For `Φ` smooth with compact support and `η > 0` (`AiryHinf Fh B`):
 
-* `pairing_eta`: `∫ Φ(u) I_η(u) du = ∫ Λ(ξ+iη) ψ(ξ+iη) dξ` (Fubini, Gaussian majorant);
-* `pairing_limit`: the right side tends to `∫ Λ(ξ) ψ(ξ) dξ` as `η → 0⁺` (dominated convergence with the uniform
+* `airyPws_pairing_eta`: `∫ Φ(u) I_η(u) du = ∫ Λ(ξ+iη) ψ(ξ+iη) dξ` (Fubini, Gaussian majorant);
+* `airyPws_pairing_eq`: the right side tends to `∫ Λ(ξ) ψ(ξ) dξ` as `η → 0⁺` (dominated convergence with the uniform
   decay `airyTestPsi_decay`); since `I_η = I_1` it follows that `∫ Φ I_1 = ∫ Λ ψ`.
 
 Continued in the next module of the chain `AiryPwsIdent`, `AiryPwsIdent2`, `AiryPwsIdent3`, `AiryPwsConverseMain`.
@@ -24,7 +24,7 @@ namespace FormalResearch.Special
 lemma norm_airyLam_le {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {ζ : ℂ} (h0 : 0 ≤ ζ.im) (h1 : ζ.im ≤ 1) :
     ‖airyLam Fh ζ‖ ≤ B / airyPhiK * Real.exp (1 / 12) := by
   unfold airyLam
-  rw [norm_mul, norm_mul, norm_cexp_cube, norm_inv, Complex.norm_real, Real.norm_eq_abs,
+  rw [norm_mul, norm_mul, airyPws_norm_cexp_cube, norm_inv, Complex.norm_real, Real.norm_eq_abs,
     abs_of_pos airyPhiK_pos]
   have hB := airyHinf_nonneg h
   have hk := airyPhiK_pos
@@ -41,11 +41,11 @@ lemma continuous_airyLam_line {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {
     Continuous fun ξ : ℝ => airyLam Fh ((ξ : ℂ) + η * I) :=
   (continuousOn_airyLam h).comp_continuous (by fun_prop) (fun ξ => by simp [hη])
 
-lemma pairing_eta {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {Φ : ℝ → ℂ} (hΦ : Continuous Φ)
+lemma airyPws_pairing_eta {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {Φ : ℝ → ℂ} (hΦ : Continuous Φ)
     (hc : HasCompactSupport Φ) {η : ℝ} (hη : 0 < η) :
     ∫ u : ℝ, Φ u * airyIeta Fh η (u : ℂ) =
       ∫ ξ : ℝ, airyLam Fh ((ξ : ℂ) + η * I) * airyTestPsi Φ ((ξ : ℂ) + η * I) := by
-  obtain ⟨R, hR0, hR⟩ := exists_supp_bound hc
+  obtain ⟨R, hR0, hR⟩ := airyPws_exists_supp_bound hc
   set C : ℝ := B / airyPhiK * Real.exp (η ^ 3 / 12 + η * R + 2 * R ^ 2 / η) with hC
   have hint : Integrable fun u : ℝ => Φ u := hΦ.integrable_of_hasCompactSupport hc
   have hG : Integrable (fun z : ℝ × ℝ => ‖Φ z.1‖ * (C * Real.exp (-(η / 8) * z.2 ^ 2))) (volume.prod volume) :=
@@ -82,7 +82,7 @@ lemma pairing_eta {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {Φ : ℝ →
         congr 1; funext u; ring
 
 /-- `∫ Φ I_1 = ∫ Λ ψ` (boundary values, `η → 0⁺`). -/
-theorem pairing_eq {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {Φ : ℝ → ℂ} (hΦ : ContDiff ℝ ∞ Φ)
+theorem airyPws_pairing_eq {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {Φ : ℝ → ℂ} (hΦ : ContDiff ℝ ∞ Φ)
     (hc : HasCompactSupport Φ) :
     ∫ u : ℝ, Φ u * airyIeta Fh 1 (u : ℂ) = ∫ ξ : ℝ, airyLam Fh (ξ : ℂ) * airyTestPsi Φ (ξ : ℂ) := by
   obtain ⟨D, hD0, hD⟩ := airyTestPsi_decay hΦ hc
@@ -127,13 +127,13 @@ theorem pairing_eq {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {Φ : ℝ �
     refine tendsto_const_nhds.congr' ?_
     filter_upwards [Ioo_mem_nhdsGT (zero_lt_one' ℝ)] with η hη
     rw [hJ]; simp only
-    rw [← pairing_eta h hΦc hc hη.1]
+    rw [← airyPws_pairing_eta h hΦc hc hη.1]
     congr 1; funext u
     rw [airyIeta_eq' h hη.1 (by norm_num : (0 : ℝ) < 1)]
   exact tendsto_nhds_unique hconst hlim
 
-/-- info: 'FormalResearch.Special.pairing_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.Special.airyPws_pairing_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.Special.pairing_eq
+#print axioms FormalResearch.Special.airyPws_pairing_eq
 
 end FormalResearch.Special

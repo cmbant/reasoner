@@ -91,4 +91,8 @@ theorem airyFtilde_airyPhi {ζ : ℂ} (hζ : 0 < ζ.im) (τ : ℝ) :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyFtilde_airyPhi
 
+/-- info: 'FormalResearch.Special.airyFhat_airyPhi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyFhat_airyPhi
+
 end FormalResearch.Special

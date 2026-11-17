@@ -2,6 +2,19 @@ module
 
 public import FormalResearch.Special.AiryPwsContour
 
+/-!
+# Polynomial growth of `F̃` for `Re ζ ≤ 0`
+
+For `f ∈ G` (`AiryClassG`) and `ζ = -2b + iη` with `b, η ≥ 0`, the two pieces of the decomposition
+`f̂(ζ) = ∫_0^∞ G_ζ(t+ib) dt + ∫_b^∞ 2y f(-y²) e^{iζy²} dy` (`airyFhat_eq_hor_add_vert`, `AiryPwsContour`) are estimated:
+the vertical piece by `‖f‖_{L¹(u<0)}` (`|e^{iζy²}| ≤ e^{-η(y²-b²)}`), the horizontal piece through the algebraic identity
+`-(4/3)s³ - iζs² - iζ³/12 = -(4/3)(s-s₀)²(s+s₀/2)` (`s₀ = -iζ/2`), which gives
+`|F̃(ζ)| ≤ k (2C (1+b)^{2N+1}((1+η)^{2N+1}η + K_{2N+1}) + ‖f‖_{L¹})` (`norm_airyFtilde_left_le`), a polynomial bound.
+The right half plane follows by reflection in `AiryPwsMain`.
+
+**Not formalised** here: sharp polynomial exponents (any polynomial bound suffices for the Phragmén–Lindelöf step).
+-/
+
 @[expose] public section
 
 open MeasureTheory Complex Filter Topology Set
@@ -9,7 +22,7 @@ open scoped Real
 
 namespace FormalResearch.Special
 
-lemma cpow_sq_three_halves {s : ℂ} (h1 : 0 ≤ s.re) (h2 : 0 ≤ s.im) :
+lemma airyPws_cpow_sq_three_halves {s : ℂ} (h1 : 0 ≤ s.re) (h2 : 0 ≤ s.im) :
     (s ^ 2) ^ (3 / 2 : ℂ) = s ^ 3 := by
   rcases eq_or_ne s 0 with rfl | hs
   · simp
@@ -24,7 +37,7 @@ lemma cpow_sq_three_halves {s : ℂ} (h1 : 0 ≤ s.re) (h2 : 0 ≤ s.im) :
 lemma airyEnv_sq_firstQuadrant {s : ℂ} (h1 : 0 ≤ s.re) (h2 : 0 ≤ s.im) :
     airyEnv (s ^ 2) = Real.exp (-(4 / 3) * (s ^ 3).re) := by
   unfold airyEnv
-  rw [cpow_sq_three_halves h1 h2]
+  rw [airyPws_cpow_sq_three_halves h1 h2]
 
 /-- Real part of the exponent on the line `Im s = b`, for `Re ζ = -2b`. -/
 lemma re_airyZ (t b η : ℝ) :
@@ -59,7 +72,7 @@ lemma re_airyZ_split (s ζ : ℂ) :
 
 /-- Pointwise bound on the horizontal line `s = t + ib`, `Re ζ = -2b`:
 `‖e^{-iζ³/12}‖ ‖G_ζ(t + ib)‖ ≤ 2C ((1+b)(1+t))^{2N+1} exp(-(4/3)(t - η/2)²(t + η/4))`. -/
-lemma norm_hor_le {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
+lemma airyPws_norm_hor_le {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
     (hb : ∀ z : ℂ, ‖f z‖ ≤ C * (1 + ‖z‖) ^ N * airyEnv z) {b η t : ℝ} (hbb : 0 ≤ b) (ht : 0 ≤ t) :
     ‖cexp (-(I * (((-2 * b : ℝ) : ℂ) + η * I) ^ 3 / 12))‖ *
         ‖airyPwsG f (((-2 * b : ℝ) : ℂ) + η * I) ((t : ℂ) + b * I)‖ ≤
@@ -115,7 +128,7 @@ noncomputable def airyK3 (m : ℕ) : ℝ := ∫ t in Ioi (0 : ℝ), (1 + t) ^ m 
 
 lemma integrableOn_airyK3 (m : ℕ) :
     IntegrableOn (fun t : ℝ => (1 + t) ^ m * Real.exp (-(t ^ 3 / 3))) (Ioi 0) := by
-  have h := (integrableOn_pow_mul_exp m (by norm_num : (0 : ℝ) < 1)).const_mul (Real.exp (2 / 3))
+  have h := (airyPws_integrableOn_pow_mul_exp m (by norm_num : (0 : ℝ) < 1)).const_mul (Real.exp (2 / 3))
   refine Integrable.mono' h ?_ ?_
   · refine Continuous.aestronglyMeasurable ?_
     fun_prop
@@ -154,7 +167,7 @@ noncomputable def airyHorMaj (C : ℝ) (m : ℕ) (b η : ℝ) (t : ℝ) : ℝ :=
   2 * C * (1 + b) ^ m * ((1 + η) ^ m * (Ioc (0 : ℝ) η).indicator (fun _ => (1 : ℝ)) t +
     (1 + t) ^ m * Real.exp (-(t ^ 3 / 3)))
 
-lemma integrable_indicator_Ioc_one (η : ℝ) :
+lemma airyPws_integrable_indicator_Ioc_one (η : ℝ) :
     Integrable (fun t : ℝ => (Ioc (0 : ℝ) η).indicator (fun _ => (1 : ℝ)) t) (volume.restrict (Ioi 0)) := by
   have : Integrable (fun t : ℝ => (Ioc (0 : ℝ) η).indicator (fun _ => (1 : ℝ)) t) volume :=
     (integrable_indicator_iff measurableSet_Ioc).mpr (integrableOn_const (by simp))
@@ -163,7 +176,7 @@ lemma integrable_indicator_Ioc_one (η : ℝ) :
 lemma integrableOn_airyHorMaj (C : ℝ) (m : ℕ) (b η : ℝ) :
     IntegrableOn (airyHorMaj C m b η) (Ioi 0) := by
   unfold airyHorMaj
-  exact Integrable.const_mul (Integrable.add ((integrable_indicator_Ioc_one η).const_mul _)
+  exact Integrable.const_mul (Integrable.add ((airyPws_integrable_indicator_Ioc_one η).const_mul _)
     (integrableOn_airyK3 m)) _
 
 lemma integral_airyHorMaj {C : ℝ} (m : ℕ) {b η : ℝ} (hη : 0 ≤ η) :
@@ -171,20 +184,20 @@ lemma integral_airyHorMaj {C : ℝ} (m : ℕ) {b η : ℝ} (hη : 0 ≤ η) :
   unfold airyHorMaj airyK3
   rw [integral_const_mul]
   congr 1
-  rw [integral_add ((integrable_indicator_Ioc_one η).const_mul _) (integrableOn_airyK3 m),
+  rw [integral_add ((airyPws_integrable_indicator_Ioc_one η).const_mul _) (integrableOn_airyK3 m),
     integral_const_mul]
   congr 1
   rw [setIntegral_indicator measurableSet_Ioc, Set.inter_eq_right.mpr Ioc_subset_Ioi_self]
   simp [Real.volume_real_Ioc, hη]
 
 /-- The twisted horizontal integrand is dominated by `airyHorMaj` on `t > 0`. -/
-lemma hor_dom {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
+lemma airyPws_hor_dom {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
     (hb : ∀ z : ℂ, ‖f z‖ ≤ C * (1 + ‖z‖) ^ N * airyEnv z) {b η : ℝ} (hbb : 0 ≤ b) (hη : 0 ≤ η)
     {t : ℝ} (ht : 0 < t) :
     ‖cexp (-(I * (((-2 * b : ℝ) : ℂ) + η * I) ^ 3 / 12))‖ *
         ‖airyPwsG f (((-2 * b : ℝ) : ℂ) + η * I) ((t : ℂ) + b * I)‖ ≤
       airyHorMaj C (2 * N + 1) b η t := by
-  refine (norm_hor_le hC hb hbb ht.le).trans ?_
+  refine (airyPws_norm_hor_le hC hb hbb ht.le).trans ?_
   unfold airyHorMaj
   obtain ⟨hE1, hE2⟩ := airyE_le hη ht.le
   set m := 2 * N + 1
@@ -211,7 +224,7 @@ lemma hor_dom {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
         rw [mul_pow]; ring
     _ ≤ _ := mul_le_mul_of_nonneg_left key hpos
 
-lemma re_vert_exponent (R y b η : ℝ) :
+lemma airyPws_re_vert_exponent (R y b η : ℝ) :
     (-(4 / 3) * (((R : ℂ) + y * I) ^ 3).re) +
         (-(I * (((-2 * b : ℝ) : ℂ) + η * I) * ((R : ℂ) + y * I) ^ 2)).re =
       -(4 / 3) * (R ^ 3 - 3 * R * y ^ 2) + (η * (R ^ 2 - y ^ 2) - 4 * b * R * y) := by
@@ -219,7 +232,7 @@ lemma re_vert_exponent (R y b η : ℝ) :
   ring
 
 /-- Bound on the vertical side `s = R + iy`, `0 ≤ y ≤ b`. -/
-lemma norm_vert_le {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
+lemma airyPws_norm_vert_le {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
     (hb : ∀ z : ℂ, ‖f z‖ ≤ C * (1 + ‖z‖) ^ N * airyEnv z) {b η R y : ℝ} (hbb : 0 ≤ b) (hη : 0 ≤ η)
     (hR : 0 ≤ R) (hy0 : 0 ≤ y) (hyb : y ≤ b) :
     ‖airyPwsG f (((-2 * b : ℝ) : ℂ) + η * I) ((R : ℂ) + y * I)‖ ≤
@@ -243,7 +256,7 @@ lemma norm_vert_le {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
       Real.exp (-(4 / 3) * R ^ 3 + 4 * b ^ 2 * R + η * R ^ 2) := by
     rw [← Real.exp_add]
     refine Real.exp_le_exp.mpr ?_
-    have := re_vert_exponent R y b η
+    have := airyPws_re_vert_exponent R y b η
     rw [hs, hζ] at *
     rw [this]
     have h1 : y ^ 2 ≤ b ^ 2 := by nlinarith
@@ -266,7 +279,7 @@ lemma norm_vert_le {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
     _ = _ := by rw [pow_succ]; ring
 
 /-- `(1+R+b)^m e^{-(4/3)R³+cR+ηR²} → 0`. -/
-lemma tendsto_poly_exp_cubic (m : ℕ) (b c η : ℝ) (hη : 0 ≤ η) (hc : 0 ≤ c) (hb : 0 ≤ b) :
+lemma airyPws_tendsto_poly_exp_cubic (m : ℕ) (b c η : ℝ) (hη : 0 ≤ η) (hc : 0 ≤ c) (hb : 0 ≤ b) :
     Tendsto (fun R : ℝ => (1 + R + b) ^ m * Real.exp (-(4 / 3) * R ^ 3 + c * R + η * R ^ 2)) atTop (𝓝 0) := by
   have hb0 : Tendsto (fun R : ℝ => R + (1 + b)) atTop atTop := tendsto_atTop_add_const_right _ _ tendsto_id
   have h1 := (Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero m).comp hb0
@@ -297,11 +310,11 @@ lemma tendsto_poly_exp_cubic (m : ℕ) (b c η : ℝ) (hη : 0 ≤ η) (hc : 0 �
     rw [e]; congr 2; ring
 
 /-- The vertical side of the rectangle tends to `0`. -/
-theorem tendsto_vert {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
+theorem airyPws_tendsto_vert {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
     (hb : ∀ z : ℂ, ‖f z‖ ≤ C * (1 + ‖z‖) ^ N * airyEnv z) {b η : ℝ} (hbb : 0 ≤ b) (hη : 0 ≤ η) :
     Tendsto (fun R : ℝ => ∫ y in (0 : ℝ)..b, airyPwsG f (((-2 * b : ℝ) : ℂ) + η * I) ((R : ℂ) + y * I))
       atTop (𝓝 0) := by
-  have hlim := (tendsto_poly_exp_cubic (2 * N + 1) b (4 * b ^ 2) η hη (by positivity) hbb).const_mul (2 * C * b)
+  have hlim := (airyPws_tendsto_poly_exp_cubic (2 * N + 1) b (4 * b ^ 2) η hη (by positivity) hbb).const_mul (2 * C * b)
   rw [mul_zero] at hlim
   refine squeeze_zero_norm' ?_ hlim
   filter_upwards [eventually_ge_atTop (0 : ℝ)] with R hR
@@ -310,32 +323,32 @@ theorem tendsto_vert {f : ℂ → ℂ} {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
     (C := 2 * C * (1 + R + b) ^ (2 * N + 1) * Real.exp (-(4 / 3) * R ^ 3 + 4 * b ^ 2 * R + η * R ^ 2))
     (fun y hy => by
       rw [Set.uIoc_of_le hbb] at hy
-      exact norm_vert_le hC hb hbb hη hR hy.1.le hy.2)
+      exact airyPws_norm_vert_le hC hb hbb hη hR hy.1.le hy.2)
   rw [abs_of_nonneg (by simpa using hbb), sub_zero] at this
   refine this.trans (le_of_eq ?_)
   ring
 
-lemma norm_cexp_twist (b η : ℝ) :
+lemma airyPws_norm_cexp_twist (b η : ℝ) :
     ‖cexp (-(I * (((-2 * b : ℝ) : ℂ) + η * I) ^ 3 / 12))‖ = Real.exp (b ^ 2 * η - η ^ 3 / 12) := by
   rw [Complex.norm_exp]
   congr 1
   simp [pow_succ, Complex.mul_re, Complex.mul_im, Complex.add_re, Complex.add_im]
   ring
 
-lemma norm_cexp_twist_pos (ζ : ℂ) : 0 < ‖cexp (-(I * ζ ^ 3 / 12))‖ := by
+lemma airyPws_norm_cexp_twist_pos (ζ : ℂ) : 0 < ‖cexp (-(I * ζ ^ 3 / 12))‖ := by
   rw [Complex.norm_exp]; exact Real.exp_pos _
 
 /-- The vertical piece: `‖e^{-iζ³/12}‖ ‖∫_b^∞ 2y J(-y²) dy‖ ≤ ∫_{u<0} ‖f‖`. -/
-lemma vert_piece_le {f : ℂ → ℂ} (hf : AiryClassG f) {b η : ℝ} (hbb : 0 ≤ b) (hη : 0 ≤ η) :
+lemma airyPws_vert_piece_le {f : ℂ → ℂ} (hf : AiryClassG f) {b η : ℝ} (hbb : 0 ≤ b) (hη : 0 ≤ η) :
     ‖cexp (-(I * (((-2 * b : ℝ) : ℂ) + η * I) ^ 3 / 12))‖ *
       ‖∫ y in Ioi b, ((2 * y : ℝ)) • airyJ f (((-2 * b : ℝ) : ℂ) + η * I) (-y ^ 2)‖ ≤
       ∫ u : ℝ, ‖f (u : ℂ)‖ := by
   set ζ : ℂ := ((-2 * b : ℝ) : ℂ) + η * I with hζ
   set c := ‖cexp (-(I * ζ ^ 3 / 12))‖ with hc
-  have hc0 : 0 < c := norm_cexp_twist_pos ζ
+  have hc0 : 0 < c := airyPws_norm_cexp_twist_pos ζ
   have hnf : Integrable (fun u : ℝ => ‖f (u : ℂ)‖) := hf.integrable.norm
   have hint0 : IntegrableOn (fun y : ℝ => ((2 * y : ℝ)) • ‖f ((-y ^ 2 : ℝ) : ℂ)‖) (Ioi 0) :=
-    (integrableOn_Iio_neg_sq_iff (fun u : ℝ => ‖f (u : ℂ)‖)).mp hnf.integrableOn
+    (airyPws_integrableOn_Iio_neg_sq_iff (fun u : ℝ => ‖f (u : ℂ)‖)).mp hnf.integrableOn
   have hpt : ∀ y ∈ Ioi b, c * ‖((2 * y : ℝ)) • airyJ f ζ (-y ^ 2)‖ ≤ ((2 * y : ℝ)) • ‖f ((-y ^ 2 : ℝ) : ℂ)‖ := by
     intro y hy
     have hyb : b < y := hy
@@ -343,7 +356,7 @@ lemma vert_piece_le {f : ℂ → ℂ} (hf : AiryClassG f) {b η : ℝ} (hbb : 0 
     simp only [airyJ, norm_smul, Real.norm_eq_abs, norm_mul, norm_cexp_airyFhat,
       abs_of_nonneg hy0, abs_two, smul_eq_mul]
     have hζim : ζ.im = η := by simp [hζ]
-    rw [hζim, hc, hζ, norm_cexp_twist]
+    rw [hζim, hc, hζ, airyPws_norm_cexp_twist]
     have e1 : Real.exp (b ^ 2 * η - η ^ 3 / 12) * Real.exp (η * -y ^ 2) ≤ 1 := by
       rw [← Real.exp_add]
       refine Real.exp_le_one_iff.mpr ?_
@@ -358,7 +371,7 @@ lemma vert_piece_le {f : ℂ → ℂ} (hf : AiryClassG f) {b η : ℝ} (hbb : 0 
     have hnn : ∀ y ∈ Ioi b, 0 ≤ ‖((2 * y : ℝ)) • airyJ f ζ (-y ^ 2)‖ := fun _ _ => norm_nonneg _
     have hge : IntegrableOn (fun y : ℝ => ((2 * y : ℝ)) • airyJ f ζ (-y ^ 2)) (Ioi 0) := by
       have hJ := integrable_airyJ hf (ζ := ζ) (by simp [hζ, hη])
-      exact (integrableOn_Iio_neg_sq_iff _).mp hJ.integrableOn
+      exact (airyPws_integrableOn_Iio_neg_sq_iff _).mp hJ.integrableOn
     exact (hge.mono_set (Ioi_subset_Ioi hbb)).norm
   calc c * ‖∫ y in Ioi b, ((2 * y : ℝ)) • airyJ f ζ (-y ^ 2)‖
       ≤ c * ∫ y in Ioi b, ‖((2 * y : ℝ)) • airyJ f ζ (-y ^ 2)‖ :=
@@ -373,13 +386,13 @@ lemma vert_piece_le {f : ℂ → ℂ} (hf : AiryClassG f) {b η : ℝ} (hbb : 0 
         have : 0 < y := hy
         simp only [Pi.zero_apply, smul_eq_mul]
         positivity
-    _ = ∫ u in Iio (0 : ℝ), ‖f (u : ℂ)‖ := (integral_Iio_neg_sq (fun u : ℝ => ‖f (u : ℂ)‖)).symm
+    _ = ∫ u in Iio (0 : ℝ), ‖f (u : ℂ)‖ := (airyPws_integral_Iio_neg_sq (fun u : ℝ => ‖f (u : ℂ)‖)).symm
     _ ≤ ∫ u : ℝ, ‖f (u : ℂ)‖ :=
         setIntegral_le_integral hnf (Eventually.of_forall fun u => norm_nonneg _)
 
 /-- **Exact decomposition and bound at one point** (`Re ζ = -2b ≤ 0`, `Im ζ = η ≥ 0`): with `m = 2N+1`,
 `|F̃(ζ)| ≤ k (2C (1+b)^m ((1+η)^m η + K_m) + ‖f‖_{L¹})`. -/
-theorem norm_airyFtilde_le {f : ℂ → ℂ} (hf : AiryClassG f) {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
+theorem norm_airyFtilde_left_le {f : ℂ → ℂ} (hf : AiryClassG f) {C : ℝ} {N : ℕ} (hC : 0 ≤ C)
     (hb : ∀ z : ℂ, ‖f z‖ ≤ C * (1 + ‖z‖) ^ N * airyEnv z) {b η : ℝ} (hbb : 0 ≤ b) (hη : 0 ≤ η) :
     ‖airyFtilde f (((-2 * b : ℝ) : ℂ) + η * I)‖ ≤
       airyPhiK * (2 * C * (1 + b) ^ (2 * N + 1) * ((1 + η) ^ (2 * N + 1) * η + airyK3 (2 * N + 1)) +
@@ -387,7 +400,7 @@ theorem norm_airyFtilde_le {f : ℂ → ℂ} (hf : AiryClassG f) {C : ℝ} {N : 
   set ζ : ℂ := ((-2 * b : ℝ) : ℂ) + η * I with hζ
   have hζim : 0 ≤ ζ.im := by simp [hζ, hη]
   set c := ‖cexp (-(I * ζ ^ 3 / 12))‖ with hc
-  have hc0 : 0 < c := norm_cexp_twist_pos ζ
+  have hc0 : 0 < c := airyPws_norm_cexp_twist_pos ζ
   have hhor0 : IntegrableOn (fun t : ℝ => ‖cexp (-(I * ζ ^ 3 / 12))‖ * ‖airyPwsG f ζ ((t : ℂ) + b * I)‖)
       (Ioi 0) := by
     refine Integrable.mono' (integrableOn_airyHorMaj C (2 * N + 1) b η) ?_ ?_
@@ -396,7 +409,7 @@ theorem norm_airyFtilde_le {f : ℂ → ℂ} (hf : AiryClassG f) {C : ℝ} {N : 
       fun_prop
     · refine (ae_restrict_iff' measurableSet_Ioi).mpr (Eventually.of_forall fun t ht => ?_)
       rw [Real.norm_eq_abs, abs_of_nonneg (by positivity)]
-      exact hor_dom hC hb hbb hη ht
+      exact airyPws_hor_dom hC hb hbb hη ht
   have hhor : IntegrableOn (fun t : ℝ => airyPwsG f ζ ((t : ℂ) + b * I)) (Ioi 0) := by
     have := hhor0.const_mul c⁻¹
     refine this.mono' ?_ ?_
@@ -405,7 +418,7 @@ theorem norm_airyFtilde_le {f : ℂ → ℂ} (hf : AiryClassG f) {C : ℝ} {N : 
       fun_prop
     · refine Eventually.of_forall fun t => ?_
       rw [← hc, ← mul_assoc, inv_mul_cancel₀ hc0.ne', one_mul]
-  have hvert := tendsto_vert (f := f) hC hb hbb hη
+  have hvert := airyPws_tendsto_vert (f := f) hC hb hbb hη
   have hdec := airyFhat_eq_hor_add_vert hf hζim hbb hhor hvert
   have hHb : c * ‖∫ t in Ioi (0 : ℝ), airyPwsG f ζ ((t : ℂ) + b * I)‖ ≤
       2 * C * (1 + b) ^ (2 * N + 1) * ((1 + η) ^ (2 * N + 1) * η + airyK3 (2 * N + 1)) := by
@@ -415,9 +428,9 @@ theorem norm_airyFtilde_le {f : ℂ → ℂ} (hf : AiryClassG f) {C : ℝ} {N : 
       _ = ∫ t in Ioi (0 : ℝ), c * ‖airyPwsG f ζ ((t : ℂ) + b * I)‖ := (integral_const_mul _ _).symm
       _ ≤ ∫ t in Ioi (0 : ℝ), airyHorMaj C (2 * N + 1) b η t :=
           setIntegral_mono_on hhor0 (integrableOn_airyHorMaj C (2 * N + 1) b η) measurableSet_Ioi
-            (fun t ht => hor_dom hC hb hbb hη ht)
+            (fun t ht => airyPws_hor_dom hC hb hbb hη ht)
       _ = _ := integral_airyHorMaj (2 * N + 1) hη
-  have hVb := vert_piece_le hf hbb hη
+  have hVb := airyPws_vert_piece_le hf hbb hη
   unfold airyFtilde
   rw [norm_mul, norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_pos airyPhiK_pos, hdec]
   have h3 : c * ‖(∫ t in Ioi (0 : ℝ), airyPwsG f ζ ((t : ℂ) + b * I)) +
@@ -433,5 +446,9 @@ theorem norm_airyFtilde_le {f : ℂ → ℂ} (hf : AiryClassG f) {C : ℝ} {N : 
   have := mul_le_mul_of_nonneg_left h3 airyPhiK_pos.le
   calc airyPhiK * c * _ = airyPhiK * (c * _) := by ring
     _ ≤ _ := this
+
+/-- info: 'FormalResearch.Special.norm_airyFtilde_left_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.norm_airyFtilde_left_le
 
 end FormalResearch.Special
