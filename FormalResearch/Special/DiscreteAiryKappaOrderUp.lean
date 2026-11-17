@@ -169,4 +169,104 @@ lemma kk_ub_abs {X Y g : ℤ → ℝ} {J m : ℤ} {ε0 ε' s κ ρ gmin N : ℝ}
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.kk_ub_abs
 
+
+
+/-- Span of a lattice with gaps `≥ ε₀`: `(m - J) ε₀ ≤ X_m - X_J`. -/
+lemma kk_span {X : ℤ → ℝ} {J m : ℤ} {ε0 : ℝ} (hJm : J ≤ m)
+    (hgap : ∀ k : ℤ, J ≤ k → k < m → ε0 ≤ X (k + 1) - X k) : ((m - J : ℤ) : ℝ) * ε0 ≤ X m - X J := by
+  obtain ⟨n, hn⟩ : ∃ n : ℕ, (n : ℤ) = m - J := ⟨(m - J).toNat, Int.toNat_of_nonneg (by omega)⟩
+  have key : ∀ n : ℕ, J + (n : ℤ) ≤ m → (n : ℝ) * ε0 ≤ X (J + (n : ℤ)) - X J := by
+    intro n
+    induction n with
+    | zero => intro _; simp
+    | succ n ih =>
+      intro hj
+      have h1 := ih (by push_cast at hj; omega)
+      have h2 := hgap (J + (n : ℤ)) (by omega) (by push_cast at hj; omega)
+      have e : J + ((n + 1 : ℕ) : ℤ) = J + (n : ℤ) + 1 := by push_cast; ring
+      rw [e]; push_cast; linarith
+  have := key n (by omega)
+  rw [show J + (n : ℤ) = m by omega] at this
+  have e : ((m - J : ℤ) : ℝ) = (n : ℝ) := by rw [← hn]; simp
+  rw [e]; exact this
+
+/-- **Upper bound `κ² δ ≤ 80 c₂/(g_min² σ₀)`**, abstract form for the Airy window of the `3j` chain (`δ³ = 1/N`).  Lattice gaps in
+`[c₁δ, c₂δ]` on `[J, m)`, `0 ≤ X_m`, `(m - J)δ³ ≥ r - δ³`, `g ≥ g_min`, `|Y - κ g Ai(X)| ≤ (C+1) δ³ |κ|` on `[J, m]`, every lattice sum
+of `Y²` at most `N = δ^{-3}`; `σ₀ = min(√(3c₁r/4), 1/(20c₂))`; `δ` small. -/
+lemma kk_ub_final {X Y g : ℤ → ℝ} {J m : ℤ} {δ c1 c2 r gmin C κ σ0 : ℝ} (hJm : J ≤ m) (hδ : 0 < δ) (hc1 : 0 < c1)
+    (hc12 : c1 ≤ c2) (hr : 0 < r) (hgmin : 0 < gmin) (hC : 0 < C)
+    (hσ0 : σ0 = min (√(3 * c1 * r / 4)) (1 / (20 * c2)))
+    (hδ3 : δ ^ 3 ≤ r / 8) (hδc : c2 * δ ^ 3 ≤ c1 * r / 8) (hδσ : 100 * δ ≤ σ0)
+    (hδ5 : δ ^ 5 ≤ gmin ^ 2 * c1 / (80 * c2 * σ0 * (C + 1) ^ 2))
+    (hgap : ∀ k : ℤ, J ≤ k → k < m → c1 * δ ≤ X (k + 1) - X k ∧ X (k + 1) - X k ≤ c2 * δ)
+    (hXm : 0 ≤ X m ∧ X m ≤ c2 * δ) (hpos : r - δ ^ 3 ≤ ((m - J : ℤ) : ℝ) * δ ^ 3)
+    (hg : ∀ k : ℤ, J ≤ k → k ≤ m → gmin ≤ g k)
+    (hrest : ∀ k : ℤ, J ≤ k → k ≤ m → |Y k - κ * (g k * airyAi (X k))| ≤ (C + 1) * δ ^ 3 * |κ|)
+    (hmass : ∀ (ka : ℤ) (n : ℕ), ∑ i ∈ range n, Y (ka + (i : ℤ)) ^ 2 ≤ 1 / δ ^ 3) :
+    κ ^ 2 * δ ≤ 80 * c2 / (gmin ^ 2 * σ0) := by
+  have hc2 : 0 < c2 := lt_of_lt_of_le hc1 hc12
+  have hσ0p : 0 < σ0 := by
+    rw [hσ0]; exact lt_min (Real.sqrt_pos.2 (by positivity)) (by positivity)
+  have hσ1 : σ0 ≤ 1 / (20 * c2) := hσ0 ▸ min_le_right _ _
+  have hσ2 : σ0 ^ 2 ≤ 3 * c1 * r / 4 := by
+    have := (hσ0 ▸ min_le_left _ _ : σ0 ≤ √(3 * c1 * r / 4))
+    calc σ0 ^ 2 ≤ √(3 * c1 * r / 4) ^ 2 := pow_le_pow_left₀ hσ0p.le this 2
+      _ = 3 * c1 * r / 4 := Real.sq_sqrt (by positivity)
+  have hδ0 : 0 < δ ^ 3 := by positivity
+  -- X_J
+  have hspan := kk_span (X := X) (ε0 := c1 * δ) hJm (fun k h1 h2 => (hgap k h1 h2).1)
+  have hXJ : X J ≤ -((σ0 / δ) ^ 2) := by
+    have h1 : ((m - J : ℤ) : ℝ) * (c1 * δ) ≥ c1 * (r - δ ^ 3) / δ ^ 2 := by
+      have : (r - δ ^ 3) ≤ ((m - J : ℤ) : ℝ) * δ ^ 3 := hpos
+      rw [ge_iff_le, div_le_iff₀ (by positivity)]
+      nlinarith [mul_le_mul_of_nonneg_left this hc1.le]
+    have h2 : (σ0 / δ) ^ 2 + c2 * δ ≤ c1 * (r - δ ^ 3) / δ ^ 2 := by
+      have e : (σ0 / δ) ^ 2 + c2 * δ = (σ0 ^ 2 + c2 * δ ^ 3) / δ ^ 2 := by field_simp
+      rw [e]
+      apply div_le_div_of_nonneg_right _ (by positivity)
+      nlinarith [mul_le_mul_of_nonneg_left hδ3 hc1.le]
+    linarith [hXm.2]
+  have hε1 : c2 * δ ≤ 1 := by
+    have : 100 * δ ≤ 1 / (20 * c2) := hδσ.trans hσ1
+    rw [le_div_iff₀ (by positivity)] at this
+    nlinarith
+  have hε : c2 * δ * (σ0 / δ) ≤ 1 / 20 := by
+    have : c2 * δ * (σ0 / δ) = c2 * σ0 := by field_simp
+    rw [this]
+    have := mul_le_mul_of_nonneg_left hσ1 hc2.le
+    calc c2 * σ0 ≤ c2 * (1 / (20 * c2)) := this
+      _ = 1 / 20 := by field_simp
+  have hs : 100 ≤ σ0 / δ := by rw [le_div_iff₀ hδ]; linarith
+  have H := kk_ub_abs (X := X) (Y := Y) (g := g) (J := J) (m := m) (ε0 := c1 * δ) (ε' := c2 * δ) (s := σ0 / δ)
+    (κ := κ) (ρ := (C + 1) * δ ^ 3 * |κ|) (gmin := gmin) (N := 1 / δ ^ 3) hJm (by positivity) (by positivity) hε1 hε
+    hgap hXm.1 hs hXJ hg hgmin hrest hmass
+  set A : ℝ := gmin ^ 2 * σ0 / (40 * c2) with hA
+  have hA0 : 0 < A := by positivity
+  set B : ℝ := σ0 ^ 2 * (C + 1) ^ 2 / c1 with hB
+  have e1 : gmin ^ 2 * (σ0 / δ) / (40 * (c2 * δ)) * κ ^ 2 = A * (κ ^ 2 * δ) / δ ^ 3 := by
+    rw [hA]; field_simp
+  have e2 : (σ0 / δ) ^ 2 * ((C + 1) * δ ^ 3 * |κ|) ^ 2 / (c1 * δ) = B * (κ ^ 2 * δ) * δ ^ 2 := by
+    rw [hB, mul_pow, mul_pow, sq_abs]; field_simp
+  rw [e1, e2] at H
+  set P : ℝ := κ ^ 2 * δ with hP
+  have hP0 : 0 ≤ P := by positivity
+  have hBδ : B * δ ^ 5 ≤ A / 2 := by
+    calc B * δ ^ 5 ≤ B * (gmin ^ 2 * c1 / (80 * c2 * σ0 * (C + 1) ^ 2)) :=
+          mul_le_mul_of_nonneg_left hδ5 (by positivity)
+      _ = A / 2 := by rw [hB, hA]; field_simp; norm_num
+  have H2 : A * P ≤ 1 + A / 2 * P := by
+    have h3 := mul_le_mul_of_nonneg_right H (pow_pos hδ 3).le
+    have e3 : A * P / δ ^ 3 * δ ^ 3 = A * P := by field_simp
+    have e4 : (1 / δ ^ 3 + B * P * δ ^ 2) * δ ^ 3 = 1 + B * δ ^ 5 * P := by field_simp
+    rw [e3, e4] at h3
+    linarith [mul_le_mul_of_nonneg_right hBδ hP0]
+  have h5 : P ≤ 2 / A := by
+    rw [le_div_iff₀ hA0]; linarith
+  calc P ≤ 2 / A := h5
+    _ = 80 * c2 / (gmin ^ 2 * σ0) := by rw [hA]; field_simp; ring
+
+/-- info: 'FormalResearch.Special.kk_ub_final' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.kk_ub_final
+
 end FormalResearch.Special
