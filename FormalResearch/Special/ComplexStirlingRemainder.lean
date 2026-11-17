@@ -174,4 +174,135 @@ lemma norm_binetI'_shift_le {z : ℂ} (hz : 0 < z.re) {s : ℝ} (hs : 0 ≤ s) :
   rw [div_div, div_le_div_iff₀ (by positivity) (by positivity)]
   nlinarith
 
+/-! ### Integration along a horizontal ray -/
+
+/-- If `F' ` bounds `‖F'(z+s)‖ ≤ K/(‖z‖+s)^(p+1)` along the ray `z + [0,R]`, then
+`‖F z - F (z+R)‖ ≤ (K/p) (‖z‖^{-p} - (‖z‖+R)^{-p})`. -/
+lemma ray_bound {F F' : ℂ → ℂ} {z : ℂ} (hz : 0 < z.re) {K : ℝ} {p : ℕ} (hp : 1 ≤ p)
+    (hF : ∀ w : ℂ, 0 < w.re → HasDerivAt F (F' w) w)
+    (hb : ∀ s : ℝ, 0 ≤ s → ‖F' (z + s)‖ ≤ K / (‖z‖ + s) ^ (p + 1)) {R : ℝ} (hR : 0 ≤ R) :
+    ‖F z - F (z + R)‖ ≤ K / p * (((‖z‖) ^ p)⁻¹ - ((‖z‖ + R) ^ p)⁻¹) := by
+  obtain ⟨q, rfl⟩ : ∃ q, p = q + 1 := ⟨p - 1, by omega⟩
+  have hr : 0 < ‖z‖ := norm_pos_iff.2 (fun h => by simp [h] at hz)
+  set r := ‖z‖ with hr_def
+  set f : ℝ → ℂ := fun τ => F (z + ((R - τ : ℝ) : ℂ)) - F (z + R) with hf
+  set f' : ℝ → ℂ := fun τ => -F' (z + ((R - τ : ℝ) : ℂ)) with hf'
+  set B : ℝ → ℝ := fun τ => K / ((q + 1 : ℕ) : ℝ) * (((r + R - τ) ^ (q + 1))⁻¹ - ((r + R) ^ (q + 1))⁻¹)
+    with hB
+  set B' : ℝ → ℝ := fun τ => K / (r + R - τ) ^ (q + 1 + 1) with hB'
+  have hfd : ∀ τ ∈ Icc 0 R, HasDerivAt f (f' τ) τ := by
+    intro τ hτ
+    have hre : 0 < (z + ((R - τ : ℝ) : ℂ)).re := by
+      simp; linarith [hτ.2]
+    have hg : HasDerivAt (fun x : ℝ => z + ((R - x : ℝ) : ℂ)) (-1) τ := by
+      have := (((hasDerivAt_const τ R).sub (hasDerivAt_id τ)).ofReal_comp).const_add z
+      refine this.congr_deriv ?_
+      simp
+    have h := (hF _ hre).scomp τ hg
+    have h2 := h.sub_const (F (z + R))
+    refine h2.congr_deriv ?_
+    simp [hf']
+  have hBd : ∀ τ ∈ Ico 0 R, HasDerivAt B (B' τ) τ := by
+    intro τ hτ
+    have hpos : 0 < r + R - τ := by linarith [hτ.2]
+    have hu : HasDerivAt (fun x : ℝ => r + R - x) (-1) τ := by
+      have := ((hasDerivAt_const τ (r + R)).sub (hasDerivAt_id τ))
+      refine this.congr_deriv ?_
+      simp
+    have h1 := (hu.pow (q + 1)).inv (pow_ne_zero _ hpos.ne')
+    have h2 := (h1.sub_const (((r + R) ^ (q + 1))⁻¹)).const_mul (K / ((q + 1 : ℕ) : ℝ))
+    refine h2.congr_deriv ?_
+    simp only [hB']
+    push_cast
+    simp only [Pi.pow_apply]
+    field_simp
+    ring
+  have hcont : ContinuousOn f (Icc 0 R) := fun τ hτ => (hfd τ hτ).continuousAt.continuousWithinAt
+  have hBcont : ContinuousOn B (Icc 0 R) := by
+    intro τ hτ
+    have hpos : 0 < r + R - τ := by linarith [hτ.2]
+    refine ContinuousAt.continuousWithinAt ?_
+    simp only [hB]
+    have : ContinuousAt (fun x : ℝ => ((r + R - x) ^ (q + 1))⁻¹) τ :=
+      ((continuousAt_const.sub continuousAt_id).pow _).inv₀ (pow_ne_zero _ hpos.ne')
+    exact (this.sub continuousAt_const).const_mul _
+  have key := image_norm_le_of_norm_deriv_right_le_deriv_boundary' (f := f) (a := 0) (b := R)
+    (f' := f') hcont (fun τ hτ => (hfd τ ⟨hτ.1, hτ.2.le⟩).hasDerivWithinAt)
+    (B := B) (B' := B') (by simp [hf, hB]) hBcont
+    (fun τ hτ => (hBd τ hτ).hasDerivWithinAt)
+    (fun τ hτ => by
+      simp only [hf', hB', norm_neg]
+      have := hb (R - τ) (by linarith [hτ.2])
+      have e : r + R - τ = r + (R - τ) := by ring
+      rw [e]
+      exact this)
+  have := @key R ⟨hR, le_rfl⟩
+  simpa [hf, hB] using this
+
+/-- `‖binetI z‖ ≤ 1/‖z‖²` on `Re z > 0`. -/
+theorem norm_binetI_le_div {z : ℂ} (hz : 0 < z.re) : ‖binetI z‖ ≤ 1 / ‖z‖ ^ 2 := by
+  have hr : 0 < ‖z‖ := norm_pos_iff.2 (fun h => by simp [h] at hz)
+  refine le_of_forall_nat (f := fun n : ℕ => 1 / 2 / (z.re + n)) (tendsto_div_add_nat hz _) fun n => ?_
+  have hF : ∀ w : ℂ, 0 < w.re → HasDerivAt binetI (-binetI' w) w := fun w hw => hasDerivAt_binetI hw
+  have hray := ray_bound (F := binetI) (F' := fun w => -binetI' w) (K := 2) (p := 2) hz (by norm_num)
+    hF (fun s hs => by
+      rw [norm_neg]
+      simpa using norm_binetI'_shift_le hz hs) (R := n) (Nat.cast_nonneg n)
+  have hzn : 0 < (z + n).re := by simp; linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)]
+  have h1 := norm_binetI_le hzn
+  have h2 : (1 : ℝ) / ‖z‖ ^ 2 ≥ 2 / ((2 : ℕ) : ℝ) * (((‖z‖) ^ 2)⁻¹ - ((‖z‖ + n) ^ 2)⁻¹) := by
+    have : 0 ≤ ((‖z‖ + n) ^ 2)⁻¹ := by positivity
+    push_cast
+    rw [one_div]
+    nlinarith
+  calc ‖binetI z‖ = ‖(binetI z - binetI (z + n)) + binetI (z + n)‖ := by ring_nf
+    _ ≤ ‖binetI z - binetI (z + n)‖ + ‖binetI (z + n)‖ := norm_add_le _ _
+    _ ≤ 2 / ((2 : ℕ) : ℝ) * (((‖z‖) ^ 2)⁻¹ - ((‖z‖ + n) ^ 2)⁻¹) + 1 / 2 / (z.re + n) := by
+        refine add_le_add hray ?_
+        simpa using h1
+    _ ≤ 1 / 2 / (z.re + n) + 1 / ‖z‖ ^ 2 := by linarith
+
+/-- `‖binetB z‖ ≤ 2/‖z‖` on `Re z > 0`. -/
+theorem norm_binetB_le_div {z : ℂ} (hz : 0 < z.re) : ‖binetB z‖ ≤ 2 / ‖z‖ := by
+  have hr : 0 < ‖z‖ := norm_pos_iff.2 (fun h => by simp [h] at hz)
+  refine le_of_forall_nat (f := fun n : ℕ => 1 / 6 / (z.re + n)) (tendsto_div_add_nat hz _) fun n => ?_
+  have hF : ∀ w : ℂ, 0 < w.re → HasDerivAt binetB (-binetI w) w := fun w hw => hasDerivAt_binetB hw
+  have hray := ray_bound (F := binetB) (F' := fun w => -binetI w) (K := 2) (p := 1) hz (by norm_num)
+    hF (fun s hs => by
+      rw [norm_neg]
+      have hzs : 0 < (z + s).re := by simp; linarith
+      have h1 := norm_binetI_le_div hzs
+      have h2 := sq_norm_add_ge hz.le hs
+      have hw : 0 < ‖z + s‖ := norm_pos_iff.2 (fun h => by simp [h] at hzs)
+      refine h1.trans ?_
+      rw [div_le_div_iff₀ (by positivity) (by positivity)]
+      norm_num
+      nlinarith) (R := n) (Nat.cast_nonneg n)
+  have hzn : 0 < (z + n).re := by simp; linarith [(Nat.cast_nonneg n : (0 : ℝ) ≤ n)]
+  have h1 := norm_binetB_le hzn
+  have h2 : 2 / ‖z‖ ≥ 2 / ((1 : ℕ) : ℝ) * (((‖z‖) ^ 1)⁻¹ - ((‖z‖ + n) ^ 1)⁻¹) := by
+    have : 0 ≤ (‖z‖ + n)⁻¹ := by positivity
+    push_cast
+    simp only [pow_one, div_one]
+    rw [div_eq_mul_inv]
+    nlinarith
+  calc ‖binetB z‖ = ‖(binetB z - binetB (z + n)) + binetB (z + n)‖ := by ring_nf
+    _ ≤ ‖binetB z - binetB (z + n)‖ + ‖binetB (z + n)‖ := norm_add_le _ _
+    _ ≤ 2 / ((1 : ℕ) : ℝ) * (((‖z‖) ^ 1)⁻¹ - ((‖z‖ + n) ^ 1)⁻¹) + 1 / 6 / (z.re + n) := by
+        refine add_le_add hray ?_
+        simpa using h1
+    _ ≤ 1 / 6 / (z.re + n) + 2 / ‖z‖ := by linarith
+
+/-- info: 'FormalResearch.Special.ComplexStirling.norm_binetI'_le_div' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.norm_binetI'_le_div
+
+/-- info: 'FormalResearch.Special.ComplexStirling.norm_binetI_le_div' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.norm_binetI_le_div
+
+/-- info: 'FormalResearch.Special.ComplexStirling.norm_binetB_le_div' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.norm_binetB_le_div
+
 end FormalResearch.Special.ComplexStirling
