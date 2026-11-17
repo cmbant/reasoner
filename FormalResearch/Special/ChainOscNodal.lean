@@ -258,4 +258,48 @@ theorem cho_nodal_eigenvector (m : ℕ) {b a : ℕ → ℝ} (ha : ∀ j, j < m �
 #guard_msgs (whitespace := lax) in
 #print axioms cho_sturm_count
 
+/-- **Ascending eigenvalues with their nodal counts.**  For positive links, the spectrum of `J_{m+1}` is
+a strictly increasing list `θ_0 < ⋯ < θ_m`, and every eigenvector for `θ_i` has exactly `m - i` nodes. -/
+theorem cho_eigen_ascending (m : ℕ) {b a : ℕ → ℝ} (ha : ∀ j, j < m → 0 < a j) :
+    ∃ θ : ℕ → ℝ, (∀ i j, i < j → j ≤ m → θ i < θ j) ∧
+      (∀ x, IsEigenval (jacobiMatrix (m + 1) b a) x ↔ ∃ i, i ≤ m ∧ θ i = x) ∧
+      ∀ i, i ≤ m → ∀ v : Fin (m + 1) → ℝ, v ≠ 0 →
+        jacobiMatrix (m + 1) b a *ᵥ v = θ i • v → cho_nodal (extVec v) m = m - i := by
+  have haN : ∀ j, j < m → a j ≠ 0 := fun j hj => (ha j hj).ne'
+  have haN' : ∀ j, j + 1 < m + 1 → a j ≠ 0 := fun j hj => haN j (by omega)
+  obtain ⟨μ, θ, hμ, hθ, hI⟩ := jacP_interlacing b a m haN
+  have hE : ∀ x, IsEigenval (jacobiMatrix (m + 1) b a) x ↔ ∃ i, i ≤ m ∧ θ i = x := by
+    intro x
+    rw [jacobi_isEigenval_iff haN', rootSeq_eval_eq_zero_iff hθ]
+    exact ⟨fun ⟨i, hi, h⟩ => ⟨i, by omega, h⟩, fun ⟨i, hi, h⟩ => ⟨i, by omega, h⟩⟩
+  refine ⟨θ, fun i j hij hj => hI.theta_strictMono hij hj, hE, ?_⟩
+  intro i hi v hv0 hv
+  apply cho_nodal_eigenvector m ha _ hv0 hv
+  have hset : {x : ℝ | IsEigenval (jacobiMatrix (m + 1) b a) x ∧ x < θ i} =
+      ↑((range i).image θ) := by
+    ext x
+    simp only [Set.mem_ofPred_eq, coe_image, coe_range, Set.mem_image, Set.mem_Iio]
+    rw [hE]
+    constructor
+    · rintro ⟨⟨l, hl, rfl⟩, hlt⟩
+      refine ⟨l, ?_, rfl⟩
+      by_contra hge
+      have := hI.theta_mono (by omega : i ≤ l) hl
+      linarith
+    · rintro ⟨l, hl, rfl⟩
+      exact ⟨⟨l, by omega, rfl⟩, hI.theta_strictMono hl hi⟩
+  have hinj : Set.InjOn θ (range i : Finset ℕ) := by
+    intro p hp q hq hpq
+    have hp' := mem_range.mp (mem_coe.mp hp)
+    have hq' := mem_range.mp (mem_coe.mp hq)
+    by_contra hne
+    rcases lt_or_gt_of_ne hne with hlt | hlt
+    · have := hI.theta_strictMono hlt (by omega); linarith
+    · have := hI.theta_strictMono hlt (by omega); linarith
+  rw [hset, Set.ncard_coe_finset, card_image_of_injOn hinj, card_range]
+
+/-- info: 'FormalResearch.Special.cho_eigen_ascending' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms cho_eigen_ascending
+
 end FormalResearch.Special

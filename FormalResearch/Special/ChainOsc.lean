@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.Special.ChainOscNodal
+public import FormalResearch.Special.ChainOscHahn
 
 /-!
 # Chain oscillation (umbrella)
