@@ -30,7 +30,9 @@ Proof (assembling `AiryCftSignEquality`, `AiryCftSignEqualityDiv`, `AiryCftSignE
 Sanity check only (mpmath, 30 digits): `∫_{-R}^0 Ai² = K(-R) - K(0)` agrees to 30 digits
 with quadrature for `R = 4, 16, 100, 400` (values `0.578, 1.211, 3.116, 6.299` against `√R/π = 0.637, 1.273, 3.183, 6.366`), the growth
 used in step 4.  Everything stated above is proved (the sign of `c` and the converse are part of the formal statement).  Not formalised: the note's Remark B.1 (tangent rigidity, the sign-unstable direction at vacuum equality), which uses
-the equality case as a black box.
+the equality case as a black box.  The proof above needs none of the note's other unformalised machinery (Airy–Poisson identity, Lemma H,
+the node phase, the polynomial class `P·Ai + Q·Ai'`): it uses only `airyQ_mem_half` (`𝒢_N ⊂ 𝒢_{1/2}`), the good circles and the proved sample
+vanishing, all already on `master`.
 -/
 
 @[expose] public section
