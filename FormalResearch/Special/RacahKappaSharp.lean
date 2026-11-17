@@ -63,7 +63,7 @@ theorem rk_kappa_sharp_abs {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x q
     (hsupp : ∀ h Y M, Fam h Y M → ∀ k : ℤ, Rmax < ((k : ℝ) + 1 / 2) * h → Y k = 0)
     (hMeq : ∀ h Y M, Fam h Y M → ∀ END : ℤ, (∀ k : ℤ, END ≤ k → Y k = 0) → ∑ k ∈ Finset.Ico 0 END, Y k ^ 2 = M)
     (hmono : ∀ h Y M, Fam h Y M → ∀ k' k : ℤ, qs + h ≤ ((k' : ℝ) + 1 / 2) * h → k' ≤ k → Y k ^ 2 ≤ Y k' ^ 2)
-    (hLeft : ∀ ε : ℝ, 0 < ε → ∃ cL hL : ℝ, 0 < cL ∧ 0 < hL ∧ ∀ h Y M, Fam h Y M → h ≤ hL →
+    (hLeft : ∀ ε : ℝ, 0 < ε → ∃ cL hL : ℝ, 0 < cL ∧ 0 < hL ∧ ∀ h Y M, Fam h Y M → 0 < h → h ≤ hL →
       ∀ kc : ℤ, ((kc : ℝ) - 1 / 2) * h ≤ cL → ∑ k ∈ Finset.Ico 0 kc, Y k ^ 2 ≤ ε * M) :
     ∃ (r Cmu ξ0 gmax gmin c1 c2 CA cs : ℝ), 0 < r ∧ r ≤ qs / 4 ∧ 0 < CA ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < gmax ∧ 0 < gmin ∧
       gmin ≤ gmax ∧ 0 < c1 ∧ c1 ≤ c2 ∧ 0 ≤ cs ∧
@@ -132,7 +132,7 @@ theorem rk_kappa_sharp_abs {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x q
   obtain ⟨kc, jz, hkc1, hkc2, hjz1, hjz2⟩ := rk_idx (c := c) (d := qs - η) hδ
   obtain ⟨hBlo, hBhi⟩ := hbands kc jz M hkc1 hkc2 hjz1 hjz2 hM
   have hLeftB : ∑ k ∈ Finset.Ico 0 kc, Y k ^ 2 ≤ u * M :=
-    HL _ Y M hF (hδ3le.trans dL) kc (by linarith)
+    HL _ Y M hF hh (hδ3le.trans dL) kc (by linarith)
   refine ⟨δ, hδ, rfl, J, m, N, κ, μ, hWin, ?_⟩
   have hcη : c + δ ^ 3 < qs - η := by
     have : η ≤ qs / 8 := by linarith
