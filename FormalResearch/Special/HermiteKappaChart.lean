@@ -27,8 +27,8 @@ chart are not exported by `discrete_airy_full`, whose radius `r` is existential)
 theorem hkc_turn {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 3 u c0) (h1 : u c0 = 1)
     (h2 : 0 < deriv u c0) (hA : ContDiffAt ℝ 2 A c0) (hA0 : 0 < A c0) {r0 : ℝ} (hr0 : 0 < r0)
     (E : ℝ) (hE : 0 ≤ E) :
-    ∃ (r δ0 C Cmu ξ0 gmax gmin c1 c2 : ℝ), 0 < r ∧ r ≤ r0 ∧ 0 < δ0 ∧ δ0 ≤ 1 ∧ 0 < C ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < gmax ∧
-      0 < gmin ∧ gmin ≤ gmax ∧ 0 < c1 ∧ c1 ≤ c2 ∧
+    ∃ (r δ0 C Cmu ξ0 gmax gmin c1 c2 Lg : ℝ), 0 < r ∧ r ≤ r0 ∧ 0 < δ0 ∧ δ0 ≤ 1 ∧ 0 < C ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < gmax ∧
+      0 < gmin ∧ gmin ≤ gmax ∧ 0 < c1 ∧ c1 ≤ c2 ∧ 0 ≤ Lg ∧
       ∀ δ q₀ : ℝ, 0 < δ → δ ≤ δ0 → ∃ J m N : ℤ, J < N ∧ J ≤ m ∧ m ≤ N ∧
         (∀ k ∈ Finset.Icc J (N + 1), dalQ q₀ δ k ∈ Set.Icc (c0 - r) (c0 + r)) ∧
         c0 - r ≤ dalQ q₀ δ J ∧ dalQ q₀ δ J < c0 - r + δ ^ 3 ∧ c0 ≤ dalQ q₀ δ m ∧
@@ -40,7 +40,8 @@ theorem hkc_turn {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 3 u c0) (h1
           turnX u c0 q₀ δ (k + 1) - turnX u c0 q₀ δ k ≤ c2 * δ) ∧
         (0 ≤ turnX u c0 q₀ δ m ∧ turnX u c0 q₀ δ m ≤ c2 * δ) ∧
         c1 * (r / 4) / δ ^ 2 ≤ turnX u c0 q₀ δ N ∧
-        (∃ Lg : ℝ, 0 ≤ Lg ∧ ∀ k ∈ Finset.Icc J N, |langerAmp u A c0 (dalQ q₀ δ (k + 1)) - langerAmp u A c0 (dalQ q₀ δ k)| ≤ Lg * δ ^ 3) ∧
+        (∀ k ∈ Finset.Icc J N, |langerAmp u A c0 (dalQ q₀ δ (k + 1)) - langerAmp u A c0 (dalQ q₀ δ k)| ≤ Lg * δ ^ 3) ∧
+        c2 * δ ≤ 1 / 8 ∧
         ∀ a c : ℤ → ℝ,
           (∀ k ∈ Finset.Icc (J + 1) (N + 1), |a k - A (dalQ q₀ δ k - δ ^ 3 / 2)| ≤ E * δ ^ 6) →
           (∀ k ∈ Finset.Icc (J + 1) N, |c k - 2 * A (dalQ q₀ δ k) * u (dalQ q₀ δ k)| ≤ E * δ ^ 6) →
@@ -91,8 +92,8 @@ theorem hkc_turn {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 3 u c0) (h1
     rw [hC]; linarith
   have hξ0 : 0 < 2 / 3 * (c1 * (r / 4)) ^ (3 / 2 : ℝ) := by positivity
   refine ⟨r, min δL (min δ1 (min δ2 (min (1 / (8 * c2)) (min (1 / (4 * (Cl + 1))) (min (Amin / (2 * (E + 1))) (r / 8)))))),
-    C, Cmu, 2 / 3 * (c1 * (r / 4)) ^ (3 / 2 : ℝ), gmax, gmin, c1, c2, hr, hrr0, ?_, ?_, hCpos, by positivity, hξ0, hgmax,
-    hgmin, T.gmin_le, hc1, T.c1_le, ?_⟩
+    C, Cmu, 2 / 3 * (c1 * (r / 4)) ^ (3 / 2 : ℝ), gmax, gmin, c1, c2, Lg, hr, hrr0, ?_, ?_, hCpos, by positivity, hξ0, hgmax,
+    hgmin, T.gmin_le, hc1, T.c1_le, T.Lg_nonneg, ?_⟩
   · refine lt_min hδL (lt_min hδ1 (lt_min hδ2 (lt_min (by positivity) (lt_min (by positivity)
       (lt_min (by positivity) (by positivity))))))
   · exact (min_le_left _ _).trans hδL1
@@ -134,7 +135,7 @@ theorem hkc_turn {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 3 u c0) (h1
     rw [e] at h
     exact h
   have hgl : ∀ k ∈ Finset.Icc J (N + 1), gmin ≤ langerAmp u A c0 (dalQ q₀ δ k) := fun k hk => (T.gb _ (hwin k hk)).1
-  refine ⟨J, m, N, hJN, hJm, hmN, hwin, hqJ1, hqJ2, hqm1, hqm2, hqN, hqN1, hg, hXm, hgl, hgap, ⟨hX0, hX1⟩, hXN, ⟨Lg, T.Lg_nonneg, hLgb⟩, ?_⟩
+  refine ⟨J, m, N, hJN, hJm, hmN, hwin, hqJ1, hqJ2, hqm1, hqm2, hqN, hqN1, hg, hXm, hgl, hgap, ⟨hX0, hX1⟩, hXN, hLgb, hc2δ, ?_⟩
   intro a c ha hc
   have hEδ : E * δ ^ 6 ≤ Amin / 2 := dao_E_arith hE hδ hδ11 hδE
   have hsmall : Cl * δ ^ 3 ≤ 1 / 4 := dao_small_arith hCl0 hδ hδ11 hδCl
