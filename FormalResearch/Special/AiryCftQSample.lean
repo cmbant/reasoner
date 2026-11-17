@@ -28,9 +28,10 @@ Proof (a variant of the note's: the Poisson representation of Lemma H is **not**
 All **proved** (`airyQ_sampling`, `airyQ_sampling_sum`).  The constant is absolute (`C = 144π(1+e⁴)K + 1` where `K` is the kernel-sum bound of
 `separated_kernel_sum` with `s = 1`, `κ = 12`, in the form of `airyQ_sampling_sum`; not optimised).
 
-Numerical sanity check of the statement (scipy double precision, evidence only; not used in any proof): for the test function
-`f(u) = ∫_0^1 τ⁴(1-τ)⁴ Ai(2^{2/3}(u+τ)) dτ` (`f ∈ L¹(ℝ)`, entire, in the class of Theorem Q), `Σ_{n ≤ 3000} |f(a_n)|/Ai'(a_n)² = 5.33·10⁻⁴`
-and `∫_{-4000}^0 |f| = 5.97·10⁻³` (ratio `0.089`, far below the proved constant).
+Numerical sanity check of the statement (scipy double precision, terms cross-checked with mpmath at 30 digits for `n = 1, 2, 3, 10`; evidence only,
+not used in any proof): for the test function `f(u) = ∫_0^1 τ⁴(1-τ)⁴ Ai(2^{2/3}(u+τ)) dτ` (`f ∈ L¹(ℝ)`, entire, in the class of Theorem Q),
+`Σ_{n ≤ 3000} |f(a_n)|/Ai'(a_n)² = 4.97·10⁻³` and `∫_{-1500}^0 |f| = 5.96·10⁻³` (ratio `0.83`, far below the proved constant), while
+`Σ_{n ≤ 3000} f(a_n)/Ai'(a_n)² = 1.0026·10⁻³` against `∫_ℝ f = 2^{-2/3} B(5,5) = 0.99994·10⁻³`.
 
 The notes' proof uses the Poisson representation of Lemma H (`|G(ξ+iη)| ≤ ∫ P_η(ξ-t)|g(t)| dt`) and a Carleson-measure sum; here the
 Fejér–Riesz arc bound alone (with a Cauchy weight) replaces it, so no Poisson integral is formalised.  The pointwise bounds of Theorem Q (2) that
