@@ -29,7 +29,7 @@ its `η_π ≠ 0` data; the identification with the actual `3j`/`6j` chains is `
 
 @[expose] public section
 
-open FormalResearch.Racah.P3
+open FormalResearch.Racah.P3 FormalResearch.DiscreteAiry
 
 namespace FormalResearch.Special
 
@@ -229,9 +229,118 @@ lemma hsc_coef_C {P Q a b τ x h k qs : ℝ} (hh : 0 < h) (hqs : 0 < qs) (hτ : 
   have hqs4 : 0 < qs ^ 4 := by positivity
   exact le_of_mul_le_mul_right key hqs4
 
+/-- The perturbation size `E = max(40 (S+1)²/q_*⁴, 6|ab|/q_*⁴)` of the second-order closeness (`h⁴`; a fortiori `h³`). -/
+noncomputable def hsE (a b qs : ℝ) : ℝ := max (40 * (hsS a b + 1) ^ 2 / qs ^ 4) (6 * |a * b| / qs ^ 4)
+
+lemma hsE_nonneg (a b qs : ℝ) : 0 ≤ hsE a b qs :=
+  (show 0 ≤ 40 * (hsS a b + 1) ^ 2 / qs ^ 4 by positivity).trans (le_max_left _ _)
+
+/-- **Second-order closeness on a window** (the analogue of `hr_perturb` with the `h²` terms subtracted): on the window
+`k ∈ [J+1, N+1]` with `|q_k - q_*| ≤ r ≤ r₀` (`q_k = (k+½)δ³`), `δ³ ≤ 3q_*/(4M)`:
+`|A_k - (A + δ⁶ A₂)(q_k - h/2)| ≤ E δ⁹` and `|c_k - (2A(q_k)u(q_k) + δ⁶ c₂(q_k))| ≤ E δ⁹` (`h = δ³`; the true remainder is
+`O(h⁴)`). -/
+lemma hs_perturb {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (hqs : 0 < qs) (hτ : τ ^ 2 = 1)
+    {r r0 δ : ℝ} {J N : ℤ} (hr4 : r ≤ qs / 4) (hrr : r ≤ r0)
+    (hdom : ∀ q ∈ Set.Icc (qs - r0) (qs + r0), 0 < 1 - P * q ^ 2 ∧ 0 < 1 - Q * q ^ 2)
+    (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hδM : δ ≤ 3 * qs / (4 * hrM a b))
+    (hwin : ∀ k ∈ Finset.Icc J (N + 1), dalQ (δ ^ 3 / 2) δ k ∈ Set.Icc (qs - r) (qs + r)) :
+    (∀ k ∈ Finset.Icc (J + 1) (N + 1),
+      |hrAk P Q a b (δ ^ 3) k - (hrA1 P Q (dalQ (δ ^ 3 / 2) δ k - δ ^ 3 / 2) +
+        (δ ^ 3) ^ 2 * hsA2 P Q a b (dalQ (δ ^ 3 / 2) δ k - δ ^ 3 / 2))| ≤ hsE a b qs * δ ^ 9) ∧
+    (∀ k ∈ Finset.Icc (J + 1) N,
+      |hrCk P Q τ x a b (δ ^ 3) k - (2 * hrA1 P Q (dalQ (δ ^ 3 / 2) δ k) * hrU P Q τ x (dalQ (δ ^ 3 / 2) δ k) +
+        (δ ^ 3) ^ 2 * hsCq P Q a b τ (dalQ (δ ^ 3 / 2) δ k))| ≤ hsE a b qs * δ ^ 9) := by
+  have hM1 : 1 ≤ hrM a b := le_max_left _ _
+  have hMa : |a| ≤ hrM a b := (le_max_left _ _).trans (le_max_right _ _)
+  have hMb : |b| ≤ hrM a b := (le_max_right _ _).trans (le_max_right _ _)
+  have h3 : 0 < δ ^ 3 := by positivity
+  have h3δ : δ ^ 3 ≤ δ := by
+    have h1 : δ ^ 2 ≤ 1 := pow_le_one₀ hδ.le hδ1
+    calc δ ^ 3 = δ * δ ^ 2 := by ring
+      _ ≤ δ * 1 := mul_le_mul_of_nonneg_left h1 hδ.le
+      _ = δ := mul_one _
+  have h31 : δ ^ 3 ≤ 1 := h3δ.trans hδ1
+  have hyw : ∀ k ∈ Finset.Icc (J + 1) (N + 1), qs - r ≤ (k : ℝ) * δ ^ 3 ∧ (k : ℝ) * δ ^ 3 ≤ qs + r := by
+    intro k hk
+    rw [Finset.mem_Icc] at hk
+    have h1 := hwin (k - 1) (by rw [Finset.mem_Icc]; omega)
+    have h2 := hwin k (by rw [Finset.mem_Icc]; omega)
+    have e1 : dalQ (δ ^ 3 / 2) δ (k - 1) = (k : ℝ) * δ ^ 3 - δ ^ 3 / 2 := by unfold dalQ; push_cast; ring
+    have e2 : dalQ (δ ^ 3 / 2) δ k = (k : ℝ) * δ ^ 3 + δ ^ 3 / 2 := by unfold dalQ; ring
+    rw [e1] at h1; rw [e2] at h2
+    constructor <;> linarith [h1.1, h2.2]
+  have hkM : ∀ k ∈ Finset.Icc (J + 1) (N + 1), hrM a b ≤ (k : ℝ) := by
+    intro k hk
+    have := (hyw k hk).1
+    have h4 : 3 * qs / 4 ≤ (k : ℝ) * δ ^ 3 := by linarith
+    have h5 : δ ^ 3 ≤ 3 * qs / (4 * hrM a b) := h3δ.trans hδM
+    rw [le_div_iff₀ (by positivity)] at h5
+    by_contra hlt
+    push Not at hlt
+    nlinarith [mul_lt_mul_of_pos_right hlt h3]
+  have hk1 : ∀ k ∈ Finset.Icc (J + 1) (N + 1),
+      1 ≤ (k : ℝ) ∧ a ^ 2 ≤ (k : ℝ) ^ 2 ∧ b ^ 2 ≤ (k : ℝ) ^ 2 ∧ qs ≤ 2 * (k : ℝ) * δ ^ 3 ∧
+        ((k : ℝ) * δ ^ 3) ^ 2 ∈ Dom P Q := by
+    intro k hk
+    have hM' := hkM k hk
+    have hy := hyw k hk
+    have hyd := hdom ((k : ℝ) * δ ^ 3) ⟨by linarith [hy.1], by linarith [hy.2]⟩
+    refine ⟨hM1.trans hM', ?_, ?_, ?_, ⟨by positivity, ?_, ?_⟩⟩
+    · have : |a| ≤ (k : ℝ) := hMa.trans hM'
+      nlinarith [sq_abs a, abs_nonneg a]
+    · have : |b| ≤ (k : ℝ) := hMb.trans hM'
+      nlinarith [sq_abs b, abs_nonneg b]
+    · nlinarith [hy.1]
+    · linarith [hyd.1]
+    · linarith [hyd.2]
+  have h9 : (δ ^ 3) ^ 4 ≤ δ ^ 9 := by
+    have : (δ ^ 3) ^ 4 = δ ^ 12 := by ring
+    rw [this]
+    exact pow_le_pow_of_le_one hδ.le hδ1 (by norm_num)
+  have h49 : (δ ^ 3) ^ 4 ≤ δ ^ 9 := h9
+  constructor
+  · intro k hk
+    obtain ⟨k1, ka, kb, kq, kd⟩ := hk1 k hk
+    have e : dalQ (δ ^ 3 / 2) δ k - δ ^ 3 / 2 = (k : ℝ) * δ ^ 3 := by unfold dalQ; ring
+    rw [e]
+    unfold hrAk hrA1
+    have := hsc_coef_A (P := P) (Q := Q) (a := a) (b := b) hP hQ h3 hqs k1 ka kb kq kd
+    refine this.trans ?_
+    have hE : 40 * (hsS a b + 1) ^ 2 / qs ^ 4 ≤ hsE a b qs := le_max_left _ _
+    calc 40 * (hsS a b + 1) ^ 2 / qs ^ 4 * (δ ^ 3) ^ 4 ≤ hsE a b qs * (δ ^ 3) ^ 4 :=
+          mul_le_mul_of_nonneg_right hE (by positivity)
+      _ ≤ hsE a b qs * δ ^ 9 := mul_le_mul_of_nonneg_left h49 (hsE_nonneg a b qs)
+  · intro k hk
+    have hk' : k ∈ Finset.Icc (J + 1) (N + 1) := by rw [Finset.mem_Icc] at hk ⊢; omega
+    obtain ⟨k1, ka, kb, kq, kd⟩ := hk1 k hk'
+    have hqw := hwin k (by rw [Finset.mem_Icc] at hk ⊢; omega)
+    have hqd := hdom (dalQ (δ ^ 3 / 2) δ k) ⟨by linarith [hqw.1], by linarith [hqw.2]⟩
+    have e2 : dalQ (δ ^ 3 / 2) δ k = ((k : ℝ) + 1 / 2) * δ ^ 3 := by unfold dalQ; ring
+    have hpos : 0 < etilde P Q ((((k : ℝ) + 1 / 2) * δ ^ 3) ^ 2) := by
+      rw [e2] at hqd
+      unfold etilde; exact Real.sqrt_pos.2 (mul_pos hqd.1 hqd.2)
+    have e1 : 2 * hrA1 P Q (dalQ (δ ^ 3 / 2) δ k) * hrU P Q τ x (dalQ (δ ^ 3 / 2) δ k) =
+        τ * (x - Real.sqrt (P * Q) * (((k : ℝ) + 1 / 2) * δ ^ 3) ^ 2) := by
+      unfold hrA1 hrU
+      rw [e2]
+      generalize etilde P Q ((((k : ℝ) + 1 / 2) * δ ^ 3) ^ 2) = e at hpos ⊢
+      field_simp
+    rw [e1, e2]
+    unfold hrCk
+    have := hsc_coef_C (P := P) (Q := Q) (a := a) (b := b) (τ := τ) (x := x) (qs := qs) h3 hqs hτ k1 kq
+    refine this.trans ?_
+    have hE : 6 * |a * b| / qs ^ 4 ≤ hsE a b qs := le_max_right _ _
+    calc 6 * |a * b| / qs ^ 4 * (δ ^ 3) ^ 4 ≤ hsE a b qs * (δ ^ 3) ^ 4 :=
+          mul_le_mul_of_nonneg_right hE (by positivity)
+      _ ≤ hsE a b qs * δ ^ 9 := mul_le_mul_of_nonneg_left h49 (hsE_nonneg a b qs)
+
 /-- info: 'FormalResearch.Special.hsc_coef_A' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.hsc_coef_A
+
+/-- info: 'FormalResearch.Special.hs_perturb' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.hs_perturb
 
 /-- info: 'FormalResearch.Special.hsc_coef_C' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
