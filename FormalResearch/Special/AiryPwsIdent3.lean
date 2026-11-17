@@ -56,4 +56,8 @@ lemma pairing_f0 {f₀ : ℝ → ℂ} (hf : Integrable f₀) {Φ : ℝ → ℂ} 
   rw [← integral_const_mul]
   congr 1; funext u; ring
 
+/-- info: 'FormalResearch.Special.pairing_f0' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.pairing_f0
+
 end FormalResearch.Special

@@ -492,4 +492,8 @@ theorem norm_airyIeta_saddle {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) (u
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.norm_airyIeta_global
 
+/-- info: 'FormalResearch.Special.norm_airyIeta_saddle' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.norm_airyIeta_saddle
+
 end FormalResearch.Special
