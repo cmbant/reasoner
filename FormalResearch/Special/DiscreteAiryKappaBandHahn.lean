@@ -294,7 +294,7 @@ lemma kp_a_le_one {x qs h A η : ℝ} {k : ℤ} {a : ℤ → ℝ} (hqs : qs ^ 2 
     rw [ha]; nlinarith
   nlinarith
 
-/-- **The mass of the Hahn chain on a band** (`kp_hahn_band_mass`).  On the sites `k₀, …, k₀+m` of a band where `q_*² - q_j² ≥ A²`
+/-- **The mass of the Hahn chain on a band** (`kp_hahn_band_mass`; the first conjunct is the transport `I_{k₀+i} ≤ e^S I_{k₀}`, `I_{k₀} ≤ e^{2S} I_{k₀+i}`, `i ≤ m+1`).  On the sites `k₀, …, k₀+m` of a band where `q_*² - q_j² ≥ A²`
 (`j = k₀-1, …, k₀+m+1`) with closed-form coefficients `a_j² = (1+η_j)(1-(jh)²)/4`, `c_j = x - κ_j` (`|η_j| ≤ η̄_j ≤ η_B ≤ x²`,
 `|κ_j| ≤ κ̄_j ≤ κ_B ≤ 1`) and `ε_j = kpEps(η̄_j, κ̄_j) ≤ ½`, a solution `Y` of the Jacobi rows satisfies, with `I = I_{k₀}(Y)` the amplitude form,
 `S = Σ ε_j`, `r = kpRb(η_B, κ_B)`, `τ = kpDub(η_B)`, `Σv = Σ_{i≤m} P_{k₀+i}/2 = Σ 1/α_{k₀+i}`:
@@ -313,6 +313,12 @@ theorem kp_hahn_band_mass {x qs h A ηB κB : ℝ} {a c η κ ηb κb Y : ℤ �
     (hc : ∀ i : ℕ, i < m + 1 → c (k0 + (i : ℤ)) = x - κ (k0 + (i : ℤ)))
     (hκ : ∀ i : ℕ, i < m + 1 → |κ (k0 + (i : ℤ))| ≤ κb (k0 + (i : ℤ)) ∧ κb (k0 + (i : ℤ)) ≤ κB ∧ κB ≤ 1)
     (hε : ∀ i : ℕ, i < m + 1 → kpEps x h A (ηb (k0 + (i : ℤ))) (κb (k0 + (i : ℤ))) ≤ 1 / 2) :
+    (∀ i : ℕ, i ≤ m + 1 →
+      kermI a (kpP qs h) Y (k0 + (i : ℤ)) ≤
+          Real.exp (∑ i ∈ range (m + 1), kpEps x h A (ηb (k0 + (i : ℤ))) (κb (k0 + (i : ℤ)))) * kermI a (kpP qs h) Y k0 ∧
+        kermI a (kpP qs h) Y k0 ≤
+          Real.exp (2 * ∑ i ∈ range (m + 1), kpEps x h A (ηb (k0 + (i : ℤ))) (κb (k0 + (i : ℤ)))) *
+            kermI a (kpP qs h) Y (k0 + (i : ℤ))) ∧
     |∑ i ∈ range (m + 1), Y (k0 + (i : ℤ)) ^ 2 - kermI a (kpP qs h) Y k0 * ∑ i ∈ range (m + 1), kpP qs h (k0 + (i : ℤ)) / 2| ≤
       kermI a (kpP qs h) Y k0 *
         (((Real.exp (2 * ∑ i ∈ range (m + 1), kpEps x h A (ηb (k0 + (i : ℤ))) (κb (k0 + (i : ℤ)))) - 1) *
@@ -393,7 +399,7 @@ theorem kp_hahn_band_mass {x qs h A ηB κB : ℝ} {a c η κ ηb κb Y : ℤ �
     (fun i hi => kp_rad_ge (a := a) (η := η (k0 + (i : ℤ))) hqs (by omega) hh hA0 (hband _ (by omega) (by omega))
       (hband _ (by omega) (by omega)) (ha i hi) (hη i hi)) hapos hale htr (fun i hi => (hsite i hi).1)
     (fun i hi => (hsite i hi).2)
-  · exact hbm
+  · exact ⟨htr, hbm⟩
   · unfold kpDub
     have h1 : 0 ≤ ηB := (abs_nonneg _).trans ((hηb 0 (by omega)).1.trans (hηb 0 (by omega)).2.2.1)
     positivity

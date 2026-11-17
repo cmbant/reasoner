@@ -78,6 +78,15 @@ theorem hahn3j_band_mass (M σ N : ℤ) (x : ℚ) (hN : 0 < N) (hx0 : (0 : ℝ) 
     (hε : ∀ i : ℕ, i < m + 1 → kpEps (x : ℝ) (1 / (N : ℝ)) A
       (3 * kl_beta (M : ℝ) (σ : ℝ) / (((k0 + (i : ℤ) : ℤ) : ℝ)) ^ 2)
       (|(M : ℝ) * (σ : ℝ)| / (((k0 + (i : ℤ) : ℤ) : ℝ)) ^ 2) ≤ 1 / 2) :
+    (∀ i : ℕ, i ≤ m + 1 →
+      kermI (hrAk 1 0 (M : ℝ) (σ : ℝ) (1 / (N : ℝ))) (kpP (Real.sqrt (1 - (x : ℝ) ^ 2)) (1 / (N : ℝ))) (hahn3jY M σ N x)
+          (k0 + (i : ℤ)) ≤
+        Real.exp (kb3S M σ (x : ℝ) (1 / (N : ℝ)) A k0 m) *
+          kermI (hrAk 1 0 (M : ℝ) (σ : ℝ) (1 / (N : ℝ))) (kpP (Real.sqrt (1 - (x : ℝ) ^ 2)) (1 / (N : ℝ))) (hahn3jY M σ N x) k0 ∧
+      kermI (hrAk 1 0 (M : ℝ) (σ : ℝ) (1 / (N : ℝ))) (kpP (Real.sqrt (1 - (x : ℝ) ^ 2)) (1 / (N : ℝ))) (hahn3jY M σ N x) k0 ≤
+        Real.exp (2 * kb3S M σ (x : ℝ) (1 / (N : ℝ)) A k0 m) *
+          kermI (hrAk 1 0 (M : ℝ) (σ : ℝ) (1 / (N : ℝ))) (kpP (Real.sqrt (1 - (x : ℝ) ^ 2)) (1 / (N : ℝ))) (hahn3jY M σ N x)
+            (k0 + (i : ℤ))) ∧
     |∑ i ∈ range (m + 1), hahn3jY M σ N x (k0 + (i : ℤ)) ^ 2 -
         kermI (hrAk 1 0 (M : ℝ) (σ : ℝ) (1 / (N : ℝ))) (kpP (Real.sqrt (1 - (x : ℝ) ^ 2)) (1 / (N : ℝ))) (hahn3jY M σ N x) k0 *
           ∑ i ∈ range (m + 1), kpP (Real.sqrt (1 - (x : ℝ) ^ 2)) (1 / (N : ℝ)) (k0 + (i : ℤ)) / 2| ≤
