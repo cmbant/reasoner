@@ -461,4 +461,20 @@ theorem norm_airyIeta_global {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) (u
       _ ≤ B / airyPhiK * (√(4 * π) * (1 + N)) * (Real.exp 8 * airyEnv u) := by gcongr
       _ = _ := by ring
 
+/-- info: 'FormalResearch.Special.differentiable_airyIeta' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.differentiable_airyIeta
+
+/-- info: 'FormalResearch.Special.airyIeta_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyIeta_eq
+
+/-- info: 'FormalResearch.Special.norm_airyIeta_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.norm_airyIeta_le
+
+/-- info: 'FormalResearch.Special.norm_airyIeta_global' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.norm_airyIeta_global
+
 end FormalResearch.Special

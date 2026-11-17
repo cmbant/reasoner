@@ -184,4 +184,12 @@ theorem airy_inversion {Φ : ℝ → ℂ} (hΦ : ContDiff ℝ ∞ Φ) (hc : HasC
   push_cast
   field_simp
 
+/-- info: 'FormalResearch.Special.airy_inversion' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airy_inversion
+
+/-- info: 'FormalResearch.Special.airyTestPsi_decay' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyTestPsi_decay
+
 end FormalResearch.Special
