@@ -41,4 +41,23 @@ def BkBandAt (θ : ℝ) (P Q x qs c η δ θ0 : ℝ) (Y : ℤ → ℝ) (κ μ : 
       (κ ^ 2 + μ ^ 2) * δ / 2 * M * (1 - (c / qs + 2 * √(η / qs)) - θ0 * δ ^ 3) ≤ ∑ k ∈ Finset.Ico kc jz, Y k ^ 2 ∧
       ∑ k ∈ Finset.Ico kc jz, Y k ^ 2 ≤ (κ ^ 2 + μ ^ 2) * δ / 2 * M * (1 + θ0 * δ ^ 3)
 
+/-- **The three conclusions of the abstract sharp theorem for a family** `Fam` of chains (`h`, `Y`, Gauss weight `M`), with one set of constants (`cs = 1/√s + 1`, `s = rkS P Q x`):
+(window) every member with `h ≤ δ_A³` has an Airy window `RkWinAtG θ (q₀ δ)` with `Y_max = cs/δ³`;
+(sharp) for every `τ' > 0` there is `ε₁` such that for every member with `h ≤ ε₁` **every** such window has `|κ² δ - 2| ≤ τ'`;
+(bulk) for every bulk window `[c, q_* - η]` there are `δ₀, C` such that for every member with `h ≤ δ₀³` **every** such window satisfies `BkBulkAt` with its own `κ, μ`. -/
+def BkOut (θ : ℝ) (q₀ : ℝ → ℝ) (P Q τ x qs : ℝ) (Fam : ℝ → (ℤ → ℝ) → ℝ → Prop)
+    (r Cmu ξ0 gmax gmin c1 c2 CA δA : ℝ) : Prop :=
+  (∀ (h : ℝ) (Y : ℤ → ℝ) (M : ℝ), Fam h Y M → 0 < h → h ≤ δA ^ 3 →
+    ∃ δ : ℝ, 0 < δ ∧ δ ^ 3 = h ∧ ∃ (J m N : ℤ) (κ μ : ℝ),
+      RkWinAtG θ (q₀ δ) P Q τ x qs Y ((1 / Real.sqrt (rkS P Q x) + 1) / δ ^ 3) r CA Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ) ∧
+  (∀ τ' : ℝ, 0 < τ' → ∃ ε1 : ℝ, 0 < ε1 ∧ ∀ (h : ℝ) (Y : ℤ → ℝ) (M : ℝ), Fam h Y M → 0 < h → h ≤ ε1 →
+    ∀ (δ : ℝ) (J m N : ℤ) (κ μ : ℝ), 0 < δ → δ ^ 3 = h →
+      RkWinAtG θ (q₀ δ) P Q τ x qs Y ((1 / Real.sqrt (rkS P Q x) + 1) / δ ^ 3) r CA Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ →
+        |κ ^ 2 * δ - 2| ≤ τ') ∧
+  (∀ c0 : ℝ, 0 < c0 → c0 < qs / 2 → ∀ η : ℝ, 0 < η → η ≤ r / 2 → ∀ c : ℝ, c0 < c → c < qs - r → ∃ δ0 C : ℝ, 0 < δ0 ∧ 0 < C ∧
+    ∀ (h : ℝ) (Y : ℤ → ℝ) (M : ℝ), Fam h Y M → 0 < h → h ≤ δ0 ^ 3 →
+      ∀ (δ : ℝ) (J m N : ℤ) (κ μ : ℝ), 0 < δ → δ ^ 3 = h →
+        RkWinAtG θ (q₀ δ) P Q τ x qs Y ((1 / Real.sqrt (rkS P Q x) + 1) / δ ^ 3) r CA Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ →
+          BkBulkAt (q₀ δ) P Q τ x qs c0 c η δ C Y κ μ)
+
 end FormalResearch.Special

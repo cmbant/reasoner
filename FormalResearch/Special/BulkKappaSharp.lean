@@ -51,18 +51,7 @@ theorem bk_sharp_abs {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : �
       ∀ kc : ℤ, ((kc : ℝ) - 1 / 2) * h ≤ cL → ∑ k ∈ Finset.Ico 0 kc, Y k ^ 2 ≤ ε * M) :
     ∃ (r Cmu ξ0 gmax gmin c1 c2 CA δA : ℝ), 0 < r ∧ r ≤ qs / 4 ∧ 0 < CA ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < gmax ∧ 0 < gmin ∧
       gmin ≤ gmax ∧ 0 < c1 ∧ c1 ≤ c2 ∧ 0 < δA ∧
-      (∀ (h : ℝ) (Y : ℤ → ℝ) (M : ℝ), Fam h Y M → 0 < h → h ≤ δA ^ 3 →
-        ∃ δ : ℝ, 0 < δ ∧ δ ^ 3 = h ∧ ∃ (J m N : ℤ) (κ μ : ℝ),
-          RkWinAt P Q τ x qs Y ((1 / Real.sqrt (rkS P Q x) + 1) / δ ^ 3) r CA Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ) ∧
-      (∀ τ' : ℝ, 0 < τ' → ∃ ε1 : ℝ, 0 < ε1 ∧ ∀ (h : ℝ) (Y : ℤ → ℝ) (M : ℝ), Fam h Y M → 0 < h → h ≤ ε1 →
-        ∀ (δ : ℝ) (J m N : ℤ) (κ μ : ℝ), 0 < δ → δ ^ 3 = h →
-          RkWinAt P Q τ x qs Y ((1 / Real.sqrt (rkS P Q x) + 1) / δ ^ 3) r CA Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ →
-            |κ ^ 2 * δ - 2| ≤ τ') ∧
-      (∀ c0 : ℝ, 0 < c0 → c0 < qs / 2 → ∀ η : ℝ, 0 < η → η ≤ r / 2 → ∀ c : ℝ, c0 < c → c < qs - r → ∃ δ0 C : ℝ, 0 < δ0 ∧ 0 < C ∧
-        ∀ (h : ℝ) (Y : ℤ → ℝ) (M : ℝ), Fam h Y M → 0 < h → h ≤ δ0 ^ 3 →
-          ∀ (δ : ℝ) (J m N : ℤ) (κ μ : ℝ), 0 < δ → δ ^ 3 = h →
-            RkWinAt P Q τ x qs Y ((1 / Real.sqrt (rkS P Q x) + 1) / δ ^ 3) r CA Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ →
-              BkBulkAt (δ ^ 3 / 2) P Q τ x qs c0 c η δ C Y κ μ) := by
+      BkOut (1 / 2) (fun δ => δ ^ 3 / 2) P Q τ x qs Fam r Cmu ξ0 gmax gmin c1 c2 CA δA := by
   have hs := rk_turn_id hP hQ hτ hα hβ hturn
   have hx2 := rk_abs_x_lt hP hQ hτ hqs hα hβ hκ hturn
   have hspos : 0 < rkS P Q x := by
@@ -80,7 +69,9 @@ theorem bk_sharp_abs {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : �
     (fun ε hε => by
       obtain ⟨cL, hL, hcL, hhL, HL⟩ := hLeft ε hε
       exact ⟨cL, hL, hcL, hhL, fun h Y M hF hh hhL' kc hkc => HL h Y M hF hh hhL' kc (by linarith)⟩)
-  refine ⟨r, Cmu, ξ0, gmax, gmin, c1, c2, CA, min δA 1, hr, hrq4, hCA, hCmu, hξ0, hgmax, hgmin, hgg, hc1, hc12, lt_min hδA one_pos, ?_, Hs, ?_⟩
+  refine ⟨r, Cmu, ξ0, gmax, gmin, c1, c2, CA, min δA 1, hr, hrq4, hCA, hCmu, hξ0, hgmax, hgmin, hgg, hc1, hc12, lt_min hδA one_pos, ?_⟩
+  unfold BkOut
+  refine ⟨?_, Hs, ?_⟩
   · intro h Y M hF hh hhA
     obtain ⟨δ, hδ, hδ3⟩ := bk_cbrt hh
     have hδA' : δ ≤ min δA 1 := bk_le_of_cube hδ (lt_min hδA one_pos) (by rw [hδ3]; exact hhA)
@@ -118,18 +109,7 @@ theorem bk_sharp_absH {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : �
       ∀ kc : ℤ, (kc : ℝ) * h ≤ cL → ∑ k ∈ Finset.Ico 0 kc, Y k ^ 2 ≤ ε * M) :
     ∃ (r Cmu ξ0 gmax gmin c1 c2 CA δA : ℝ), 0 < r ∧ r ≤ qs / 4 ∧ 0 < CA ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < gmax ∧ 0 < gmin ∧
       gmin ≤ gmax ∧ 0 < c1 ∧ c1 ≤ c2 ∧ 0 < δA ∧
-      (∀ (h : ℝ) (Y : ℤ → ℝ) (M : ℝ), Fam h Y M → 0 < h → h ≤ δA ^ 3 →
-        ∃ δ : ℝ, 0 < δ ∧ δ ^ 3 = h ∧ ∃ (J m N : ℤ) (κ μ : ℝ),
-          RkWinAtH P Q τ x qs Y ((1 / Real.sqrt (rkS P Q x) + 1) / δ ^ 3) r CA Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ) ∧
-      (∀ τ' : ℝ, 0 < τ' → ∃ ε1 : ℝ, 0 < ε1 ∧ ∀ (h : ℝ) (Y : ℤ → ℝ) (M : ℝ), Fam h Y M → 0 < h → h ≤ ε1 →
-        ∀ (δ : ℝ) (J m N : ℤ) (κ μ : ℝ), 0 < δ → δ ^ 3 = h →
-          RkWinAtH P Q τ x qs Y ((1 / Real.sqrt (rkS P Q x) + 1) / δ ^ 3) r CA Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ →
-            |κ ^ 2 * δ - 2| ≤ τ') ∧
-      (∀ c0 : ℝ, 0 < c0 → c0 < qs / 2 → ∀ η : ℝ, 0 < η → η ≤ r / 2 → ∀ c : ℝ, c0 < c → c < qs - r → ∃ δ0 C : ℝ, 0 < δ0 ∧ 0 < C ∧
-        ∀ (h : ℝ) (Y : ℤ → ℝ) (M : ℝ), Fam h Y M → 0 < h → h ≤ δ0 ^ 3 →
-          ∀ (δ : ℝ) (J m N : ℤ) (κ μ : ℝ), 0 < δ → δ ^ 3 = h →
-            RkWinAtH P Q τ x qs Y ((1 / Real.sqrt (rkS P Q x) + 1) / δ ^ 3) r CA Cmu ξ0 gmin gmax c1 c2 δ J m N κ μ →
-              BkBulkAt (δ ^ 3) P Q τ x qs c0 c η δ C Y κ μ) := by
+      BkOut 1 (fun δ => δ ^ 3) P Q τ x qs Fam r Cmu ξ0 gmax gmin c1 c2 CA δA := by
   have hs := rk_turn_id hP hQ hτ hα hβ hturn
   have hx2 := rk_abs_x_lt hP hQ hτ hqs hα hβ hκ hturn
   have hspos : 0 < rkS P Q x := by
@@ -147,7 +127,9 @@ theorem bk_sharp_absH {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : �
     (fun ε hε => by
       obtain ⟨cL, hL, hcL, hhL, HL⟩ := hLeft ε hε
       exact ⟨cL, hL, hcL, hhL, fun h Y M hF hh hhL' kc hkc => HL h Y M hF hh hhL' kc (by linarith)⟩)
-  refine ⟨r, Cmu, ξ0, gmax, gmin, c1, c2, CA, min δA 1, hr, hrq4, hCA, hCmu, hξ0, hgmax, hgmin, hgg, hc1, hc12, lt_min hδA one_pos, ?_, Hs, ?_⟩
+  refine ⟨r, Cmu, ξ0, gmax, gmin, c1, c2, CA, min δA 1, hr, hrq4, hCA, hCmu, hξ0, hgmax, hgmin, hgg, hc1, hc12, lt_min hδA one_pos, ?_⟩
+  unfold BkOut
+  refine ⟨?_, Hs, ?_⟩
   · intro h Y M hF hh hhA
     obtain ⟨δ, hδ, hδ3⟩ := bk_cbrt hh
     have hδA' : δ ≤ min δA 1 := bk_le_of_cube hδ (lt_min hδA one_pos) (by rw [hδ3]; exact hhA)
