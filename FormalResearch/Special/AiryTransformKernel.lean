@@ -17,7 +17,11 @@ Proof: `𝒜 f = 𝓕⁻¹(m · 𝓕 f)` (Mathlib's `𝓕` on Schwartz functions
 `∫ f(t) Ai(u-t) dt` by dominated convergence (`|e^{cx} Ai(x)| ≤ C` uniformly for `0 < c ≤ 1`) and the right
 side to `∫ m(ξ) f̂(ξ) e^{2πi uξ} dξ` (`|h_c| ≤ e^{c³/3}`).
 
-**Not formalised:** the general `L²` kernel statement (see `AiryTransformWeak` for `φ` supported in a half line).
+Numerical check (mpmath, 30 digits): `f(t) = e^{-t²}`, `u = 0.7, -1.3`: `∫ e^{2πiuξ} e^{i(2πξ)³/3} f̂(ξ) dξ` and
+`∫ f(t) Ai(u-t) dt` both equal `0.3774914224908578168830376`, `0.6751522004004783603266278`, difference `< 10⁻³⁸`.
+
+**Not formalised:** the general `L²` kernel statement (see `AiryTransformWeak` for `φ` supported in a half line; for general
+`φ ∈ L²(ℝ)` the integral `∫ φ(t) Ai(u+t) dt` need not converge).
 -/
 
 @[expose] public section

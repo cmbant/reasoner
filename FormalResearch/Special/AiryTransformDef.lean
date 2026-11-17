@@ -20,7 +20,7 @@ With the unimodular symbol `m(ξ) = exp(i (2πξ)³/3)` (`airyMult`; `m(ξ) = e^
 In `AiryTransformKernel` and `AiryTransformWeak` it is shown that `(A φ)(u) = ∫ φ(t) Ai(u+t) dt`, i.e. `A` is the
 "Airy transform with kernel `Ai(u+t)`" of the CFT notes (`LOCAL_AIRY_MODEL` Lemma Q2: unitary involution on `L²(ℝ)`).
 Note that `𝒜 = ` convolution with `Ai` is unitary but **not** an involution; the involution is the reflected
-operator `A = 𝒜 R` (checked numerically, see the plan: `𝓕⁻¹ m 𝓕 f (u) = ∫ f(t) Ai(u-t) dt` to `10⁻¹¹`).
+operator `A = 𝒜 R` (checked numerically, see `AiryTransformKernel`: `𝓕⁻¹ m 𝓕 f (u) = ∫ f(t) Ai(u-t) dt`, 25 digits).
 
 **Not formalised** here: the kernel identification (next modules).
 -/

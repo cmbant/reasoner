@@ -23,6 +23,10 @@ This is the ONB `{K(·,a_n)/|Ai'(a_n)|}` and the Parseval sum `Σ F G(a_n)/Ai'(a
 Branges orthogonal sampling at the zeros of `Ai`); the completeness here uses the Clark/Theorem-Q quadrature, not an
 independent good-circle + Liouville argument.
 
+Numerical check (scipy, Gauss–Legendre on `[0,40]`, `a_n` for `n ≤ 40`): `‖Ai(a_n+·)1_{t>0}‖²/Ai'(a_n)² = 1` to `10⁻¹²`, and for
+`φ(t) = t e^{-t}` on `(0,∞)` (`‖φ‖² = 1/4`) the partial sums `Σ_{n ≤ N} (∫ φ(t) Ai(a_n+t) dt)²/Ai'(a_n)²` for
+`N = 1, 5, 10, 20, 40` are `0.24283, 0.24843, 0.24940, 0.24979, 0.24993`, converging to `0.25`.
+
 **Not formalised:** the description of `PW` as an entire-function space with intrinsic growth characterisation
 (Paley–Wiener–Schwartz converse, survey T7).
 -/
