@@ -105,13 +105,13 @@ lemma rk_w_sq {P Q τ x qs q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (hτ : τ ^ 2 
   rw [inv_pow, Real.sq_sqrt (by rw [hA]; positivity), hA]
   field_simp
 
-/-- In terms of the Ermakov profile `kpP = 2/α`: `w²(q_k) = kpP/√s`. -/
-lemma rk_w_sq_kpP {P Q τ x qs h : ℝ} {k : ℤ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (hτ : τ ^ 2 = 1)
-    (hs : 1 - x ^ 2 = rkS P Q x * qs ^ 2) (hq : 0 ≤ kpU h k) (hqq : kpU h k < qs)
-    (hint : 0 < (1 - P * kpU h k ^ 2) * (1 - Q * kpU h k ^ 2)) (hspos : 0 < rkS P Q x) :
-    dlgsW (hrA1 P Q) (hrU P Q τ x) (kpU h k) ^ 2 = kpP qs h k / Real.sqrt (rkS P Q x) := by
+/-- In terms of the Ermakov profile `kpPg = 2/α` on the lattice `q_k = (k + θ) h`: `w²(q_k) = kpPg/√s`. -/
+lemma rk_w_sq_kpPg {P Q τ x qs h θ : ℝ} {k : ℤ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (hτ : τ ^ 2 = 1)
+    (hs : 1 - x ^ 2 = rkS P Q x * qs ^ 2) (hq : 0 ≤ kpUg θ h k) (hqq : kpUg θ h k < qs)
+    (hint : 0 < (1 - P * kpUg θ h k ^ 2) * (1 - Q * kpUg θ h k ^ 2)) (hspos : 0 < rkS P Q x) :
+    dlgsW (hrA1 P Q) (hrU P Q τ x) (kpUg θ h k) ^ 2 = kpPg θ qs h k / Real.sqrt (rkS P Q x) := by
   rw [rk_w_sq hP hQ hτ hs hq hqq hint hspos]
-  unfold kpP kpα
+  unfold kpPg kpαg
   ring
 
 /-- Racah geometry: `P = 1/(4α²)`, `Q = 1/(4β²)`, `γ² = α² + β² - 2αβx`: `s = γ²/(4α²β²)` and `1/√s = 2αβ/γ`. -/
@@ -137,9 +137,9 @@ lemma rk_racah_s {α β x γ : ℝ} (hα : 0 < α) (hβ : 0 < β) (hγ : 0 < γ)
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.rk_A_sin
 
-/-- info: 'FormalResearch.Special.rk_w_sq_kpP' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.Special.rk_w_sq_kpPg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.Special.rk_w_sq_kpP
+#print axioms FormalResearch.Special.rk_w_sq_kpPg
 
 /-- info: 'FormalResearch.Special.rk_racah_s' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

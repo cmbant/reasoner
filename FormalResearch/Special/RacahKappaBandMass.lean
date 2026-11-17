@@ -11,7 +11,7 @@ For an LG datum with `w² = kpP/√s` on the lattice sites of a band `kc ≤ k <
 
 `T M (1 - a - θ) ≤ B ≤ T M (1 + θ)`,  `θ = 8E(1+E)h + 2 C_b √s h/π`,  `a = q_{kc-1}/q_* + √(1 - (q_{kc+N'-1}/q_*)²)`
 
-(`rk_band_mass`; `rkb_band` for the oscillation, `ksg_sv` for the Riemann sum of the profile).
+(`rk_band_mass`; `rkb_band` for the oscillation, `ksg_sv_g` for the Riemann sum of the profile).  The lattice is `q_k = q₀ + k h = (k + θ_l) h` (`kpUg θ_l`): `θ_l = 1/2`, `q₀ = h/2` for the integer chains, `θ_l = 1`, `q₀ = h` for the half-integer chains (`RacahKappaBandD`, `RacahKappaHBandD`).
 
 **Claim class: proved.**
 -/
@@ -23,26 +23,26 @@ open Finset FormalResearch.DiscreteAiry
 namespace FormalResearch.Special
 
 lemma rk_band_mass {A θ w Θ : ℝ → ℝ} {U : Set ℝ} {lo hi Mm : ℝ} (D : DlgData A θ w Θ U lo hi Mm)
-    {h δ ρ E κ μ φ0 qs sq M : ℝ} {kc : ℤ} {Y : ℤ → ℝ} (m : ℕ) (hh : 0 < h) (hh1 : h ≤ 1) (hδ0 : 0 < δ)
+    {θl q0 : ℝ} (hθl : 0 < θl) {h δ ρ E κ μ φ0 qs sq M : ℝ} {kc : ℤ} {Y : ℤ → ℝ} (m : ℕ) (hh : 0 < h) (hh1 : h ≤ 1) (hδ0 : 0 < δ)
     (hρ0 : 0 ≤ ρ) (hρ : ρ ^ 2 = δ / Real.pi) (hE : 0 ≤ E) (hsq : 0 < sq) (hM : M * h * sq = 1) (hqs : 0 < qs) (hk0 : 1 ≤ kc)
-    (hNh : ((m : ℝ) + 1) * h ≤ qs) (hend : kpU h (kc + (m : ℤ) + 1) < qs)
-    (hq : ∀ i : ℕ, i ≤ m + 1 → dlgQ (h / 2) h (kc + (i : ℤ)) ∈ U)
-    (hrep : ∀ i : ℕ, i < m + 1 → |Y (kc + (i : ℤ)) - ρ * w (dlgQ (h / 2) h (kc + (i : ℤ))) *
-        (κ * Real.cos (Θ (dlgQ (h / 2) h (kc + (i : ℤ))) / h + φ0) + μ * Real.sin (Θ (dlgQ (h / 2) h (kc + (i : ℤ))) / h + φ0))| ≤
-      E * ((|κ| + |μ|) * (ρ * h)) * w (dlgQ (h / 2) h (kc + (i : ℤ))))
-    (hw2 : ∀ i : ℕ, i < m + 1 → w (dlgQ (h / 2) h (kc + (i : ℤ))) ^ 2 = kpP qs h (kc + (i : ℤ)) / sq) :
-    (κ ^ 2 + μ ^ 2) * δ / 2 * M * (1 - (kpU h (kc - 1) / qs + √(1 - (kpU h (kc + (m : ℤ)) / qs) ^ 2)) -
+    (hNh : ((m : ℝ) + 1) * h ≤ qs) (hend : kpUg θl h (kc + (m : ℤ) + 1) < qs)
+    (hq : ∀ i : ℕ, i ≤ m + 1 → dlgQ q0 h (kc + (i : ℤ)) ∈ U)
+    (hrep : ∀ i : ℕ, i < m + 1 → |Y (kc + (i : ℤ)) - ρ * w (dlgQ q0 h (kc + (i : ℤ))) *
+        (κ * Real.cos (Θ (dlgQ q0 h (kc + (i : ℤ))) / h + φ0) + μ * Real.sin (Θ (dlgQ q0 h (kc + (i : ℤ))) / h + φ0))| ≤
+      E * ((|κ| + |μ|) * (ρ * h)) * w (dlgQ q0 h (kc + (i : ℤ))))
+    (hw2 : ∀ i : ℕ, i < m + 1 → w (dlgQ q0 h (kc + (i : ℤ))) ^ 2 = kpPg θl qs h (kc + (i : ℤ)) / sq) :
+    (κ ^ 2 + μ ^ 2) * δ / 2 * M * (1 - (kpUg θl h (kc - 1) / qs + √(1 - (kpUg θl h (kc + (m : ℤ)) / qs) ^ 2)) -
         (8 * E * (1 + E) * h + 2 * ((hi ^ 5 + 2 * qs * Mm * (hi ^ 4 + hi ^ 8)) / 2) * sq * h / Real.pi)) ≤
       ∑ i ∈ range (m + 1), Y (kc + (i : ℤ)) ^ 2 ∧
     ∑ i ∈ range (m + 1), Y (kc + (i : ℤ)) ^ 2 ≤
       (κ ^ 2 + μ ^ 2) * δ / 2 * M * (1 + (8 * E * (1 + E) * h + 2 * ((hi ^ 5 + 2 * qs * Mm * (hi ^ 4 + hi ^ 8)) / 2) * sq * h / Real.pi)) := by
   have hπ := Real.pi_pos
-  have hband := rkb_band D (q0 := h / 2) (a := kc) (Y := Y) (ρ := ρ) (E := E) (κ := κ) (μ := μ) (φ0 := φ0) (m + 1) hh hh1 hρ0 hE hq hrep
-  obtain ⟨hsv_hi, hsv_lo⟩ := ksg_sv (qs := qs) (h := h) (k0 := kc) m hqs hh hk0 hend
+  have hband := rkb_band D (q0 := q0) (a := kc) (Y := Y) (ρ := ρ) (E := E) (κ := κ) (μ := μ) (φ0 := φ0) (m + 1) hh hh1 hρ0 hE hq hrep
+  obtain ⟨hsv_hi, hsv_lo⟩ := ksg_sv_g hθl (qs := qs) (h := h) (k0 := kc) m hqs hh hk0 hend
   set B : ℝ := ∑ i ∈ range (m + 1), Y (kc + (i : ℤ)) ^ 2 with hB
-  set W : ℝ := ∑ i ∈ range (m + 1), w (dlgQ (h / 2) h (kc + (i : ℤ))) ^ 2 with hW
-  set sv : ℝ := ∑ i ∈ range (m + 1), kpP qs h (kc + (i : ℤ)) / 2 with hsv
-  set a : ℝ := kpU h (kc - 1) / qs + √(1 - (kpU h (kc + (m : ℤ)) / qs) ^ 2) with ha
+  set W : ℝ := ∑ i ∈ range (m + 1), w (dlgQ q0 h (kc + (i : ℤ))) ^ 2 with hW
+  set sv : ℝ := ∑ i ∈ range (m + 1), kpPg θl qs h (kc + (i : ℤ)) / 2 with hsv
+  set a : ℝ := kpUg θl h (kc - 1) / qs + √(1 - (kpUg θl h (kc + (m : ℤ)) / qs) ^ 2) with ha
   have hWsv : W = 2 * sv / sq := by
     rw [hW, hsv, Finset.mul_sum, Finset.sum_div]
     refine Finset.sum_congr rfl fun i hi => ?_

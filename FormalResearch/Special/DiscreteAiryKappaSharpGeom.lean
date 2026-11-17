@@ -42,51 +42,61 @@ lemma ksg_arccos_le {w : ℝ} (h0 : 0 ≤ w) (_h1 : w ≤ 1) : Real.pi / 2 - Rea
   rw [Real.arccos_eq_pi_div_two_sub_arcsin] at h2
   nlinarith
 
+/-- **The band sum of the profile**: `(π/2)N(1 - a) ≤ Σ P/2 ≤ (π/2)N` (lattice `q_k = (k + θ) h`, `θ > 0`). -/
+theorem ksg_sv_g {θ qs h : ℝ} (hθ : 0 < θ) {k0 : ℤ} (m : ℕ) (hq : 0 < qs) (hh : 0 < h) (hk0 : 1 ≤ k0)
+    (hend : kpUg θ h (k0 + (m : ℤ) + 1) < qs) :
+    ∑ i ∈ range (m + 1), kpPg θ qs h (k0 + (i : ℤ)) / 2 ≤ Real.pi / 2 * (1 / h) ∧
+    Real.pi / 2 * (1 / h) * (1 - (kpUg θ h (k0 - 1) / qs + √(1 - (kpUg θ h (k0 + (m : ℤ)) / qs) ^ 2))) ≤
+      ∑ i ∈ range (m + 1), kpPg θ qs h (k0 + (i : ℤ)) / 2 := by
+  obtain ⟨hlo, hhi⟩ := kr_sum_bounds_g hθ (qs := qs) (h := h) (k0 := k0) m hq hh hk0 hend
+  have hk' : (1 : ℝ) ≤ k0 := by exact_mod_cast hk0
+  have hsum : ∑ i ∈ range (m + 1), kpPg θ qs h (k0 + (i : ℤ)) / 2 = ∑ i ∈ range (m + 1), 1 / kpαg θ qs h (k0 + (i : ℤ)) := by
+    refine Finset.sum_congr rfl fun i _ => ?_
+    unfold kpPg
+    ring
+  rw [hsum]
+  have hπ := Real.pi_pos
+  have hU0 : ∀ j : ℤ, 1 ≤ j → 0 < kpUg θ h j := fun j hj => by
+    have : (1 : ℝ) ≤ j := by exact_mod_cast hj
+    unfold kpUg; exact mul_pos (by linarith) hh
+  have hUm : kpUg θ h (k0 + (m : ℤ)) < qs := by
+    have : kpUg θ h (k0 + (m : ℤ)) ≤ kpUg θ h (k0 + (m : ℤ) + 1) := by unfold kpUg; push_cast; nlinarith
+    linarith
+  have hUm0 : 0 < kpUg θ h (k0 + (m : ℤ)) := hU0 _ (by omega)
+  have hU1 : 0 ≤ kpUg θ h (k0 - 1) := by unfold kpUg; push_cast; nlinarith
+  have hU1q : kpUg θ h (k0 - 1) ≤ kpUg θ h (k0 + (m : ℤ)) := by unfold kpUg; push_cast; have : (0 : ℝ) ≤ m := Nat.cast_nonneg m; nlinarith
+  have e1 : 1 / h * (h * ∑ i ∈ range (m + 1), 1 / kpαg θ qs h (k0 + (i : ℤ))) = ∑ i ∈ range (m + 1), 1 / kpαg θ qs h (k0 + (i : ℤ)) := by
+    field_simp
+  constructor
+  · have hA0 : 0 ≤ Real.arcsin (kpUg θ h k0 / qs) := Real.arcsin_nonneg.2 (by have := hU0 k0 hk0; positivity)
+    have hA1 : Real.arcsin (kpUg θ h (k0 + (m : ℤ) + 1) / qs) ≤ Real.pi / 2 := Real.arcsin_le_pi_div_two _
+    have : h * ∑ i ∈ range (m + 1), 1 / kpαg θ qs h (k0 + (i : ℤ)) ≤ Real.pi / 2 := by linarith
+    rw [← e1]
+    exact mul_le_mul_of_nonneg_left this (by positivity) |>.trans (by rw [mul_comm])
+  · have hw0 : 0 ≤ kpUg θ h (k0 + (m : ℤ)) / qs := by positivity
+    have hw1 : kpUg θ h (k0 + (m : ℤ)) / qs ≤ 1 := by rw [div_le_one hq]; exact hUm.le
+    have hz0 : 0 ≤ kpUg θ h (k0 - 1) / qs := by positivity
+    have hz1 : kpUg θ h (k0 - 1) / qs ≤ 1 := by rw [div_le_one hq]; linarith
+    have j1 := ksg_arccos_le hw0 hw1
+    have j2 := ksg_arcsin_le hz0 hz1
+    have key : Real.pi / 2 * (1 - (kpUg θ h (k0 - 1) / qs + √(1 - (kpUg θ h (k0 + (m : ℤ)) / qs) ^ 2))) ≤
+        h * ∑ i ∈ range (m + 1), 1 / kpαg θ qs h (k0 + (i : ℤ)) := by nlinarith
+    rw [← e1]
+    have := mul_le_mul_of_nonneg_left key (by positivity : (0 : ℝ) ≤ 1 / h)
+    calc Real.pi / 2 * (1 / h) * (1 - (kpUg θ h (k0 - 1) / qs + √(1 - (kpUg θ h (k0 + (m : ℤ)) / qs) ^ 2))) =
+        1 / h * (Real.pi / 2 * (1 - (kpUg θ h (k0 - 1) / qs + √(1 - (kpUg θ h (k0 + (m : ℤ)) / qs) ^ 2)))) := by ring
+      _ ≤ _ := this
+
+/-- info: 'FormalResearch.Special.ksg_sv_g' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ksg_sv_g
+
 /-- **The band sum of the profile**: `(π/2)N(1 - a) ≤ Σ P/2 ≤ (π/2)N`. -/
 theorem ksg_sv {qs h : ℝ} {k0 : ℤ} (m : ℕ) (hq : 0 < qs) (hh : 0 < h) (hk0 : 1 ≤ k0)
     (hend : kpU h (k0 + (m : ℤ) + 1) < qs) :
     ∑ i ∈ range (m + 1), kpP qs h (k0 + (i : ℤ)) / 2 ≤ Real.pi / 2 * (1 / h) ∧
     Real.pi / 2 * (1 / h) * (1 - (kpU h (k0 - 1) / qs + √(1 - (kpU h (k0 + (m : ℤ)) / qs) ^ 2))) ≤
-      ∑ i ∈ range (m + 1), kpP qs h (k0 + (i : ℤ)) / 2 := by
-  obtain ⟨hlo, hhi⟩ := kr_sum_bounds (qs := qs) (h := h) (k0 := k0) m hq hh hk0 hend
-  have hk' : (1 : ℝ) ≤ k0 := by exact_mod_cast hk0
-  have hsum : ∑ i ∈ range (m + 1), kpP qs h (k0 + (i : ℤ)) / 2 = ∑ i ∈ range (m + 1), 1 / kpα qs h (k0 + (i : ℤ)) := by
-    refine Finset.sum_congr rfl fun i _ => ?_
-    unfold kpP
-    ring
-  rw [hsum]
-  have hπ := Real.pi_pos
-  have hU0 : ∀ j : ℤ, 1 ≤ j → 0 < kpU h j := fun j hj => by
-    have : (1 : ℝ) ≤ j := by exact_mod_cast hj
-    unfold kpU; positivity
-  have hUm : kpU h (k0 + (m : ℤ)) < qs := by
-    have : kpU h (k0 + (m : ℤ)) ≤ kpU h (k0 + (m : ℤ) + 1) := by unfold kpU; push_cast; nlinarith
-    linarith
-  have hUm0 : 0 < kpU h (k0 + (m : ℤ)) := hU0 _ (by have : (0 : ℤ) ≤ m := by omega
-                                                    omega)
-  have hU1 : 0 ≤ kpU h (k0 - 1) := by unfold kpU; push_cast; nlinarith
-  have hU1q : kpU h (k0 - 1) ≤ kpU h (k0 + (m : ℤ)) := by unfold kpU; push_cast; have : (0 : ℝ) ≤ m := Nat.cast_nonneg m; nlinarith
-  have e1 : 1 / h * (h * ∑ i ∈ range (m + 1), 1 / kpα qs h (k0 + (i : ℤ))) = ∑ i ∈ range (m + 1), 1 / kpα qs h (k0 + (i : ℤ)) := by
-    field_simp
-  constructor
-  · have hA0 : 0 ≤ Real.arcsin (kpU h k0 / qs) := Real.arcsin_nonneg.2 (by have := hU0 k0 hk0; positivity)
-    have hA1 : Real.arcsin (kpU h (k0 + (m : ℤ) + 1) / qs) ≤ Real.pi / 2 := Real.arcsin_le_pi_div_two _
-    have : h * ∑ i ∈ range (m + 1), 1 / kpα qs h (k0 + (i : ℤ)) ≤ Real.pi / 2 := by linarith
-    rw [← e1]
-    exact mul_le_mul_of_nonneg_left this (by positivity) |>.trans (by rw [mul_comm])
-  · have hw0 : 0 ≤ kpU h (k0 + (m : ℤ)) / qs := by positivity
-    have hw1 : kpU h (k0 + (m : ℤ)) / qs ≤ 1 := by rw [div_le_one hq]; exact hUm.le
-    have hz0 : 0 ≤ kpU h (k0 - 1) / qs := by positivity
-    have hz1 : kpU h (k0 - 1) / qs ≤ 1 := by rw [div_le_one hq]; linarith
-    have j1 := ksg_arccos_le hw0 hw1
-    have j2 := ksg_arcsin_le hz0 hz1
-    have key : Real.pi / 2 * (1 - (kpU h (k0 - 1) / qs + √(1 - (kpU h (k0 + (m : ℤ)) / qs) ^ 2))) ≤
-        h * ∑ i ∈ range (m + 1), 1 / kpα qs h (k0 + (i : ℤ)) := by nlinarith
-    rw [← e1]
-    have := mul_le_mul_of_nonneg_left key (by positivity : (0 : ℝ) ≤ 1 / h)
-    calc Real.pi / 2 * (1 / h) * (1 - (kpU h (k0 - 1) / qs + √(1 - (kpU h (k0 + (m : ℤ)) / qs) ^ 2))) =
-        1 / h * (Real.pi / 2 * (1 - (kpU h (k0 - 1) / qs + √(1 - (kpU h (k0 + (m : ℤ)) / qs) ^ 2)))) := by ring
-      _ ≤ _ := this
+      ∑ i ∈ range (m + 1), kpP qs h (k0 + (i : ℤ)) / 2 := ksg_sv_g (θ := 1 / 2) (by norm_num) m hq hh hk0 hend
 
 /-- **The band indices**: for `h > 0`, `η > 0`, `qA > 0` with `η + 4h ≤ qA` there are integers `1 ≤ k₀`, `k₀ + 1 ≤ b` with
 `η ≤ k₀ h < η + h` and `q_b ≤ qA < q_b + h` (`q_j = (j + ½)h`). -/
