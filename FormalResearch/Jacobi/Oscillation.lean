@@ -24,7 +24,10 @@ theorem is used).
 
 Not formalised: the physical instantiation (SP.2: the Racah matrix has `sgn U_{a_0 d} =
 (-1)^{z_0+d-d_0}` by R0(d), hence the `d`-independent sign of the second endpoint row); that is an
-input about the `6j` symbols, not a statement about generic Jacobi matrices.
+input about the `6j` symbols, not a statement about generic Jacobi matrices.  Also not formalised: the
+nodal (sign-change count) form of Sturm oscillation, and the identification of `k` (here
+`#{eigenvalues < λ}`, via `Set.ncard`) with the index in Mathlib's sorted
+`Matrix.IsHermitian.eigenvalues₀`.
 -/
 
 @[expose] public section

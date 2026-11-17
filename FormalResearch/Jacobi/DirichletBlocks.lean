@@ -26,10 +26,11 @@ distance to the set of sources), with `μ_I = log(1 + Δ/(4M))`:
   `db1`, `db2` apply to Jacobi matrices; `jacobi_db1` (module `DirichletIntervals`) is the interval form.
 
 Claim class: proved.  The note's case of an interval without source (`u|_I = 0`) is the case `d`
-arbitrary, `f = 0` of `db1`.  Not formalised: DB.3/DB.4 (the Racah corollary: `T`-dependent choice of
+arbitrary, `f = 0` of `db1`.  The generic Frobenius form of (DB.3) is `FormalResearch.Jacobi.db3`
+(module `DirichletIntervals`), and the interval form with the lattice distance to the sources is
+`jacobi_db1` there.  Not formalised: DB.4 and the Racah instance of DB.3 (`T`-dependent choice of
 `Δ_0`, `L_T`, and the exact Racah spectrum bounds `M ≤ 5`, `n ≤ 5T/2`), which need the physical
-`6j` input; the generic Frobenius form is `FormalResearch.Jacobi.db3` (module `DirichletIntervals`),
-and the interval form with the lattice distance to the sources is `jacobi_db1` there.  The explicit
+`6j` input.  The explicit
 two-term form of the Jacobi forcing (`f_l = -H_{l,l-1}u_{l-1}`, `f_r += -H_{r,r+1}u_{r+1}`) is the
 statement `f_j = -∑_{k∉I} H_{jk}u_k` read off from the tridiagonal structure; this reading is not
 re-proved as a separate lemma.

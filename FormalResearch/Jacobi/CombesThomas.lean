@@ -243,4 +243,12 @@ theorem jacobiMatrix_localBound (n : ℕ) (b a : ℕ → ℝ) {M : ℝ} (hM0 : 0
       exact Fin.ext (by omega)
     omega
 
+/-- info: 'FormalResearch.Jacobi.weighted_resolvent' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms weighted_resolvent
+
+/-- info: 'FormalResearch.Jacobi.jacobiMatrix_localBound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms jacobiMatrix_localBound
+
 end FormalResearch.Jacobi

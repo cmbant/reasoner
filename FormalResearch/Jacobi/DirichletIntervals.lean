@@ -13,7 +13,9 @@ head `cfad461d2`).  Specialisation of `FormalResearch.Jacobi.db1` to an interval
 * `intervalDist` : `d_I(j) = min(j - l, r - j)` if both endpoints are sources, `j - l` (resp. `r - j`)
   if only the left (right) one is, `0` if there is none (then the forcing vanishes and `u|_I = 0`);
   `l` is a *source* iff `l > 0` and `a_{l-1} ≠ 0`, `r` iff `r + 1 < n` and `a_r ≠ 0`
-  (physical endpoints and zero bonds are not sources);
+  (physical endpoints and zero bonds are not sources); in the formal statement `jacobi_db1` the
+  source flags are the definitions `∃ k ∉ I, J_{lk} ≠ 0` (resp. `J_{rk}`), and this equivalence with
+  the `a`-form is read off from the tridiagonal structure, not proved separately;
 * the forcing is `∑_{k∉I} J_{jk} u_k`, which for an interval is the note's `f(l) = H_{l,l-1}u_{l-1}`,
   `f(r) += H_{r,r+1}u_{r+1}` up to sign (at a singleton both terms add); this identification is read
   off from the tridiagonal structure, not proved as a separate lemma;
