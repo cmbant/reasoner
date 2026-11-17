@@ -160,4 +160,87 @@ theorem hahn_chain_kappa_data (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1)
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.hahn_chain_kappa_data
 
+/-- **Order-sharp `|κ|` for the actual `3j` chain at a lattice node** (see the module docstring): the conclusion of `hahn_chain_kappa`
+with `|κ| ≥ κ_min` replaced by `c_lo ≤ κ² δ ≤ c_up` (`δ³ = 1/N`), i.e. `c_lo N^{1/3} ≤ κ² ≤ c_up N^{1/3}`. -/
+theorem hahn_chain_kappa_order (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) :
+    ∃ (r ε0 C Cmu ξ0 clo cup : ℝ), 0 < r ∧ 0 < ε0 ∧ 0 < C ∧ 0 < Cmu ∧ 0 < ξ0 ∧ 0 < clo ∧ 0 < cup ∧
+      ∀ (N : ℤ) (n : ℕ), max |M| |σ| < N → (n : ℤ) < N - max |M| |σ| →
+        xLat (M : ℚ) (σ : ℚ) (N : ℚ) n = x → 1 / (N : ℝ) ≤ ε0 →
+        ∃ δ : ℝ, 0 < δ ∧ δ ^ 3 = 1 / (N : ℝ) ∧ ∃ J m Nw : ℤ, 1 ≤ J ∧ J < Nw ∧ J ≤ m ∧ m < Nw ∧
+          (∀ k ∈ Finset.Icc J (Nw + 1), |((k : ℝ) + 1 / 2) * δ ^ 3 - Real.sqrt (1 - (x : ℝ) ^ 2)| ≤ r) ∧
+          Real.sqrt (1 - (x : ℝ) ^ 2) - r ≤ ((J : ℝ) + 1 / 2) * δ ^ 3 ∧
+          ((J : ℝ) + 1 / 2) * δ ^ 3 < Real.sqrt (1 - (x : ℝ) ^ 2) - r + δ ^ 3 ∧
+          Real.sqrt (1 - (x : ℝ) ^ 2) ≤ ((m : ℝ) + 1 / 2) * δ ^ 3 ∧
+          ((m : ℝ) + 1 / 2) * δ ^ 3 < Real.sqrt (1 - (x : ℝ) ^ 2) + δ ^ 3 ∧
+          Real.sqrt (1 - (x : ℝ) ^ 2) + r / 4 ≤ ((Nw : ℝ) + 1 / 2) * δ ^ 3 ∧
+          ((Nw : ℝ) + 1 + 1 / 2) * δ ^ 3 ≤ Real.sqrt (1 - (x : ℝ) ^ 2) + r / 2 ∧
+          DaiFull (hrAk 1 0 (M : ℝ) (σ : ℝ) (δ ^ 3)) (hrCk 1 0 1 (x : ℝ) (M : ℝ) (σ : ℝ) (δ ^ 3))
+            (turnX (hrU 1 0 1 (x : ℝ)) (Real.sqrt (1 - (x : ℝ) ^ 2)) (δ ^ 3 / 2) δ)
+            (fun k => langerAmp (hrU 1 0 1 (x : ℝ)) (hrA1 1 0) (Real.sqrt (1 - (x : ℝ) ^ 2)) (dalQ (δ ^ 3 / 2) δ k))
+            J m Nw δ C Cmu ξ0 ∧
+          ∃ κ μ : ℝ, clo ≤ κ ^ 2 * δ ∧ κ ^ 2 * δ ≤ cup ∧
+            |μ| ≤ Cmu * Real.sqrt (N : ℝ) * Real.exp (-ξ0 / δ ^ 3) / δ ∧
+            ∀ k ∈ Finset.Icc J (Nw + 1),
+              |hahn3jY M σ N x k -
+                  (κ * daoPhi (fun k => langerAmp (hrU 1 0 1 (x : ℝ)) (hrA1 1 0) (Real.sqrt (1 - (x : ℝ) ^ 2))
+                      (dalQ (δ ^ 3 / 2) δ k))
+                    (turnX (hrU 1 0 1 (x : ℝ)) (Real.sqrt (1 - (x : ℝ) ^ 2)) (δ ^ 3 / 2) δ) k +
+                   μ * daoPsi (fun k => langerAmp (hrU 1 0 1 (x : ℝ)) (hrA1 1 0) (Real.sqrt (1 - (x : ℝ) ^ 2))
+                      (dalQ (δ ^ 3 / 2) δ k))
+                    (turnX (hrU 1 0 1 (x : ℝ)) (Real.sqrt (1 - (x : ℝ) ^ 2)) (δ ^ 3 / 2) δ) k)| ≤
+                C * δ ^ 3 * (|κ| * airyWt (turnX (hrU 1 0 1 (x : ℝ)) (Real.sqrt (1 - (x : ℝ) ^ 2)) (δ ^ 3 / 2) δ k) +
+                  |μ| * airyBiWt (turnX (hrU 1 0 1 (x : ℝ)) (Real.sqrt (1 - (x : ℝ) ^ 2)) (δ ^ 3 / 2) δ k)) := by
+  obtain ⟨r, ε0, C, Cmu, ξ0, gmin, gmax, c1, c2, κmin, Cl, hr, hε0, hC, hCmu, hξ0, hgmin, hgg, hc1, hc12, hκmin, hCl, HA⟩ :=
+    hahn_chain_kappa_data M σ x hx0 hx1
+  have hc2 : 0 < c2 := lt_of_lt_of_le hc1 hc12
+  have hgmax : 0 < gmax := lt_of_lt_of_le hgmin hgg
+  set σ0 : ℝ := min (√(3 * c1 * r / 4)) (1 / (20 * c2)) with hσ0
+  have hσ0p : 0 < σ0 := lt_min (Real.sqrt_pos.2 (by positivity)) (by positivity)
+  set B0 : ℝ := (450 * gmax + C) * Cmu with hB0def
+  have hB0 : 0 ≤ B0 := by positivity
+  set δ1 : ℝ := min (1 / 2) (min (c1 * r / (8 * (c2 + 1))) (min (σ0 / 100) (min (gmin ^ 2 * c1 / (80 * c2 * σ0 * (C + 1) ^ 2))
+    (min (σ0 ^ 2 / 2) (min (ξ0 / 14) (κmin * ξ0 ^ 3 / (48 * (B0 + 1)))))))) with hδ1def
+  have hδ1p : 0 < δ1 := by
+    refine lt_min (by norm_num) (lt_min (by positivity) (lt_min (by positivity) (lt_min (by positivity)
+      (lt_min (by positivity) (lt_min (by positivity) (by positivity))))))
+  set Qc : ℝ := kkQ c1 c2 gmax C σ0 (c2 * (r + 1)) (r + 3) Cl with hQc
+  have hQpos : 0 < Qc := by
+    rw [hQc]; unfold kkQ
+    have : 0 < (1 / c1 + 1) * (3 * gmax + C + 1) ^ 2 := by positivity
+    have h2 : 0 ≤ Cl * (20 * gmax ^ 2 / σ0 + 8 * (C + 1) ^ 2) := by
+      have : 0 ≤ Cl := by linarith
+      positivity
+    have h3 : 0 ≤ 2 * gmax ^ 2 * ((√(c2 * (r + 1)) / Real.pi + 1 + 2 * c2 * (c2 * (r + 1))) / c1 + 9 * (5 / (4 * c1) + 2)) +
+        2 * (C + 1) ^ 2 * (r + 3) := by positivity
+    have h4 : 0 ≤ 18 * gmax ^ 2 + 2 * (C + 1) ^ 2 := by positivity
+    linarith
+  refine ⟨r, min ε0 (δ1 ^ 3), C, Cmu, ξ0, 1 / Qc, 80 * c2 / (gmin ^ 2 * σ0), hr, lt_min hε0 (by positivity), hC, hCmu, hξ0,
+    by positivity, by positivity, ?_⟩
+  intro N n hN hn hxn hNε
+  obtain ⟨hNε1, hNε2⟩ := le_min_iff.1 hNε
+  obtain ⟨δ, hδp, hδ3, hδ3r, J, m, Nw, hJ, hJN, hJm, hm1, hwin, h1, h2, h3, h4, h5, h6, Hc, κ, μ, d⟩ :=
+    HA N n hN hn hxn hNε1
+  have hδδ1 : δ ≤ δ1 := by
+    have : δ ^ 3 ≤ δ1 ^ 3 := by rw [hδ3]; exact hNε2
+    exact le_of_pow_le_pow_left₀ (by norm_num) hδ1p.le this
+  obtain ⟨hδhalf, hδrest⟩ := le_min_iff.1 hδδ1
+  obtain ⟨hδc, hδrest⟩ := le_min_iff.1 hδrest
+  obtain ⟨hδσ, hδrest⟩ := le_min_iff.1 hδrest
+  obtain ⟨hδ5, hδrest⟩ := le_min_iff.1 hδrest
+  obtain ⟨hδs, hδrest⟩ := le_min_iff.1 hδrest
+  obtain ⟨hδξ, hδμ⟩ := le_min_iff.1 hδrest
+  have s : KkSmall δ r C Cmu ξ0 gmin gmax c1 c2 κmin σ0 :=
+    ⟨hδp, hr, hC, hCmu, hξ0, hgmin, hgg, hc1, hc12, hκmin, hσ0, hδhalf, hδc, hδσ, hδ5, hδs, hδξ, hδμ, hδ3r⟩
+  obtain ⟨k1, hk1, hk1N, hX1, hX2, hrest⟩ := kk_rest_all d s
+  have hUB := kk_upper d s (fun k h1' h2' => hrest k h1' (by omega))
+  have hLB := kk_lower d s (by linarith) hk1 hk1N hX1 hX2 hrest
+  have hlo : 1 / Qc ≤ κ ^ 2 * δ := by
+    rw [div_le_iff₀ hQpos]; linarith
+  exact ⟨δ, hδp, hδ3, J, m, Nw, hJ, hJN, hJm, hm1, hwin, h1, h2, h3, h4, h5, h6, Hc, κ, μ, hlo, hUB, d.mu,
+    fun k hk => by simpa [daoPhi, daoPsi] using d.pt k hk⟩
+
+/-- info: 'FormalResearch.Special.hahn_chain_kappa_order' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.hahn_chain_kappa_order
+
 end FormalResearch.Special
