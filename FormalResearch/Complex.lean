@@ -17,6 +17,8 @@ public import FormalResearch.Complex.HardyFejerRiesz
 public import FormalResearch.Complex.HardyHalfPlane
 public import FormalResearch.Complex.HardyArcDecay
 public import FormalResearch.Complex.HardyWeightedArc
+public import FormalResearch.Complex.HardyPoint
+public import FormalResearch.Complex.HardyPointReal
 public import FormalResearch.Complex.SeparatedKernelSum
 public import FormalResearch.Complex.ChebyshevBernsteinCore
 public import FormalResearch.Complex.ChebyshevBernstein
@@ -60,8 +62,13 @@ half-plane arc form (`Hardy*`, Airy-free).
   fixed point from the arc integral (`hardy_point_le`; circle averages of an entire function);
 * `SeparatedKernelSum`: `Σ_i r_i²/((t-c_i)²+r_i²) ≤ K` over a separated family of centres with `r_i = 1/(4c_i²)` (`separated_kernel_sum`; nearest-index
   argument and the `ℤ`-sum of `1/k²`), the generic Carleson-sum input of the Airy sampling bound (Theorem Q (3)).
+* `HardyPoint`: for `G` holomorphic on `ℍ`, continuous on the closure, polynomially bounded with `G|_ℝ ∈ L¹`: `∫_ℝ G = 0` (`hardy_integral_zero`, Cauchy on the
+  unit circle after the Möbius transport `h = (G∘φ)φ'`, `∮ hpTransport G = ∫_ℝ G`) and the sharp pointwise bound `‖G(x+iy)‖ ≤ (4π y)⁻¹ ∫_ℝ ‖G‖`
+  (`hardy_value_le`; the circle mean of `h` at the centre, `h(0) = 2G(i)`, then `G ↦ yG(x+y·)`; `hardy_value_le_pi` is the weaker `1/(πy)`);
+* `HardyPointReal`: the value of an entire `G` with the Hardy hypotheses at a point `w` of a disc about a real centre `c` from the weighted arcs of
+  `HardyWeightedArc` at `±c` (`hardy_point_real_le`: `‖G w‖ ≤ (1+E)‖g‖₁/(π(r-|w-c|))` under a reflection bound `E`).
   Not formalised there: Hardy spaces `H^p(ℍ)` as notions, the Poisson representation of `G` on `ℍ` and the horizontal `L¹` bound
-  `∫ ‖G(x+iy)‖ dx ≤ ∫ ‖G(x)‖ dx` (Lemma H; the sampling bound does not need it), and the sharp pointwise bound `‖G(z)‖ ≤ ‖g‖₁/(π Im z)`.
+  `∫ ‖G(x+iy)‖ dx ≤ ∫ ‖G(x)‖ dx` (Lemma H; neither the sampling bound nor the sharp pointwise bound needs it).
 * `ChebyshevBernsteinCore`: Cauchy's integral formula on an annulus (`annulus_cauchy`, from `dslope` and Mathlib's annulus Cauchy–Goursat), finite Laurent
   expansions of the Cauchy kernel integrals with explicit integral remainders and norm bounds (`outer_expand`, `inner_expand`, `norm_outerRem_le`,
   `norm_innerRem_le`, `norm_outerCoeff_le`, `norm_innerCoeff_le`); generic, no infinite series;

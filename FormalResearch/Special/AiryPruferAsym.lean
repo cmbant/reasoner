@@ -28,7 +28,7 @@ plateau at the zeros of `Ai` (`θ ∈ πℤ`) and a fast jump by `-π` (width `~
 Numerically checked (mpmath, unwrapped angle `arg(Ai' + i Ai)`, `θ(0) = 2.2…`): `θ(a_n) = -(n-1)π`, `D(a_n) ≈ 0`,
 `|D| ≤ 0.8808` on `4.0879 ≤ y ≤ 60`; the proved `π/2 + 0.14` is therefore valid but the finite-`y` sup is smaller.
 Everything stated in the list above is proved except the sharpness remark (numerical); **not formalised**: sharpness of the amplitude `π/2`, the `O(y^{-1/2})` refinements at general Clark nodes
-(`cos α Ai - sin α Ai'`, `α ≢ 0, π/2`; see the handoff).
+(`cos α Ai - sin α Ai'`, `α ≢ 0, π/2`; their labelling and half-way location, without the phase, are `AiryClarkLabel`, `AiryClarkLabelAsym`).
 -/
 
 @[expose] public section

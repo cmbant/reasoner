@@ -18,7 +18,8 @@ Companions of `AiryCftQSample`, all **proved**, with the Hardy hypotheses of The
   in particular at the finitely many zeros of `P Ai + Q Ai'` with `t > -1`.
 
 This is the pointwise bound of Theorem Q (2) of the note at a fixed point, with a non-sharp constant (Cauchy's formula on `|z| = |w|+1` instead
-of the Poisson kernel); the sharp form `‖G(z)‖ ≤ ‖g‖₁/(π Im z)` is not formalised.
+of the Poisson kernel); the sharp form `‖G(z)‖ ≤ ‖g‖₁/(4π Im z)` is `HardyPoint.hardy_value_le`, giving the sharp Theorem Q (2)
+`airyQ_pointwise_sharp` (`AiryCftQSharp`; `AiryCftQUniform` for the uniform form), which supersedes these weak forms (kept: they are used upstream).
 -/
 
 @[expose] public section

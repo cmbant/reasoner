@@ -19,7 +19,7 @@ On an interval where `q < 0` (for `q x = x`: the negative half-line), and `sin �
 
 Hence the two zero sets strictly interlace on `{q < 0}`.  Not formalised: the statement where `q`
 changes sign (it is false in general for `q > 0`: there `y` has at most one zero), or the position of
-the first node (the zeros of `u_α` being simple, and the interlacing in counting form with the
+the first node (for `y = Ai` the labelling of all nodes, the first included, is `Special.AiryClarkLabel`) (the zeros of `u_α` being simple, and the interlacing in counting form with the
 position of the nodes through the Prüfer angle, are in `SturmAiryPruferUnique`, `SturmAiryNodes`).
 -/
 

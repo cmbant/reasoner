@@ -26,8 +26,8 @@ The range `ν ≥ -1` is treated in `AiryCftQQuad` and `AiryCftQNonneg` (this fi
 Fejér–Riesz/Hardy arc bound (`FormalResearch.Complex.HardyArcDecay`) gives Theorem Q (1) for any real `ν` with `f ∈ L¹(ℝ)` (the limit of the partial sums over
 good circles, `airyQ_tendsto`; `HasSum` if the series is summable or its terms are nonnegative), and Theorem Q (3), the sampling bound
 `Σ|f(a_n)|/Ai'(a_n)² ≤ C‖f‖_b` (`airyQ_sampling`, `AiryCftQSample`), makes the `HasSum` unconditional for every real `ν` with `f ∈ L¹(ℝ)`
-(`airyQ_hasSum_unc`, `AiryCftQUnc`).  Not formalised: the Poisson representation of `G` (Lemma H) and the sharp pointwise bound of
-Theorem Q (2) (`‖G(z)‖ ≤ ‖g‖₁/(π Im z)`; only weak forms, `airyQ_pointwise_real`, `airyQ_f_point`, are in `AiryCftQSamplePt`).  The case where `f` is holomorphic only near the closed disc is `AiryCft2Ball` (`airy_defect_ball`); the
+(`airyQ_hasSum_unc`, `AiryCftQUnc`).  The sharp pointwise bound of
+Theorem Q (2) (`‖G(z)‖ ≤ ‖g‖₁/(4π Im z)`, `airyQ_pointwise_sharp`) is `AiryCftQSharp` (weak forms: `AiryCftQSamplePt`); not formalised: the Poisson representation of `G` (Lemma H).  The case where `f` is holomorphic only near the closed disc is `AiryCft2Ball` (`airy_defect_ball`); the
 `P·Ai + Q·Ai'` quadrature, the Clark summation for `ν < -1` and the first zero of `Ai'` are in `AiryCft2Combo*`,
 `AiryCft2Clark`, `AiryCft2FirstDerivZero`.
 -/

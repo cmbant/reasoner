@@ -24,7 +24,7 @@ The `HasSum` form here (`airyQ_hasSum`) assumes summability.  Theorem Q (3), the
 (`airyQ_sampling` in `AiryCftQSample`, by a weighted Fejér–Riesz bound and a Carleson-type kernel sum; the Poisson representation of `G`
 is not needed), and gives summability for every real `ν` with `f ∈ L¹(ℝ)`, so `airyQ_hasSum_unc` (`AiryCftQUnc`) is the hypothesis-free
 statement; `airyQ_hasSum` is superseded in scope by it but kept (the sampling modules import this file, so the assumed-summability form
-cannot be derived from them here).  Not formalised: the Poisson representation of `G` (Lemma H) and the sharp pointwise bound Theorem Q (2).
+cannot be derived from them here).  The sharp pointwise bound Theorem Q (2) is `AiryCftQSharp`/`AiryCftQUniform`; not formalised: the Poisson representation of `G` (Lemma H).
 -/
 
 @[expose] public section

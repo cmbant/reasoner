@@ -35,8 +35,8 @@ not used in any proof): for the test function `f(u) = ∫_0^1 τ⁴(1-τ)⁴ Ai(
 
 The notes' proof uses the Poisson representation of Lemma H (`|G(ξ+iη)| ≤ ∫ P_η(ξ-t)|g(t)| dt`) and a Carleson-measure sum; here the
 Fejér–Riesz arc bound alone (with a Cauchy weight) replaces it, so no Poisson integral is formalised.  The pointwise bounds of Theorem Q (2) that
-this proof yields are in `AiryCftQSamplePt` (`airyQ_pointwise_real`, `airyQ_f_point`); the sharp form `‖G(z)‖ ≤ ‖g‖₁/(π Im z)` for non-real `z`
-(Lemma H) is **not formalised**.
+this proof yields are in `AiryCftQSamplePt` (`airyQ_pointwise_real`, `airyQ_f_point`); the sharp form `‖G(z)‖ ≤ ‖g‖₁/(4π Im z)` for non-real `z`
+is `HardyPoint.hardy_value_le` (not through Lemma H), giving the sharp Theorem Q (2) of `AiryCftQSharp`; the Poisson representation itself is **not formalised**.
 -/
 
 @[expose] public section

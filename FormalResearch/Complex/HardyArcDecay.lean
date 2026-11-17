@@ -15,8 +15,8 @@ on its closure, with `‖G z‖ ≤ C (1 + ‖z‖)^m` on `Im z ≥ 0` and `G|_�
 Proof (the notes' Lemma FR, step (2)): `HardyHalfPlane.hardy_arc_le` applies to `G_δ = G·(1 - iδz)^{-(m+3)}` (decay `(1+|z|)^{-3}`);
 `|(1 - iδz)^{-K}| ≤ 1` on `Im z ≥ 0` and `→ 1` as `δ → 0`, so the bound passes to the limit (dominated convergence on the arc).
 For the decay: `G = G_η + (G - G_η)`; the arc integral of `G_η` is `O(a^{-2})`, and that of `G - G_η` is at most
-`(1/2)∫_ℝ ‖G‖ ‖1 - (1 - iηx)^{-K}‖`, which tends to `0` as `η → 0⁺` (dominated convergence).  Not formalised: the Poisson
-representation, `∫_ℝ G = 0` and the pointwise bound `|G(z)| ≤ ‖g‖₁/(π Im z)` (they are not needed for the arc bound).
+`(1/2)∫_ℝ ‖G‖ ‖1 - (1 - iηx)^{-K}‖`, which tends to `0` as `η → 0⁺` (dominated convergence).  Not formalised here:
+`∫_ℝ G = 0` and the pointwise bound `‖G(z)‖ ≤ ‖g‖₁/(4π Im z)` are `HardyPoint` (not needed for the arc bound); the Poisson representation is not formalised.
 -/
 
 @[expose] public section

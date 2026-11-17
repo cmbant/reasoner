@@ -15,8 +15,8 @@ The Clark nodes of `cos α·Ai - sin α·Ai'` for `α = π/2` are the zeros of `
   `(2/3)(t³ - ρ³)/t ≤ t² - ρ² ≤ (2/3)(t³ - ρ³)/ρ` with `ρ_{n+1}/ρ_n ≤ 1 + 1.63 ε`.
 
 Numerically (mpmath, 30 digits): `(a_n - b_n)/(a_n - a_{n+1}) - 1/2 = 0.0249…/n` (`n = 2…100`: `0.0221, 0.0229, …, 0.02472`),
-inside the proved `0.4/n`.  Not formalised: general Clark nodes `α ≢ 0, π/2` (the node phase is then
-`kπ + π/4 + O(y^{-1/2})`, the fraction `1/2 + O(n^{-1/3})`; see the handoff for the plan).
+inside the proved `0.4/n`.  General Clark nodes `α ≢ 0, π/2`: the labelling by gaps is `AiryClarkLabel` and the half-way location, the fraction `1/2 + O(n^{-1/3})`, is
+`AiryClarkLabelAsym`.  Not formalised: the node phase `kπ + π/4 + O(y^{-1/2})` itself.
 -/
 
 @[expose] public section

@@ -212,8 +212,10 @@ Theorem D and the quadrature `∫_ℝ f = Σ f(z) D/N'²` (`ν < -1`; constant r
 product of `Ai'` (`airyDeriv_hadamard`; this module imports `Complex.HadamardAiry` and is imported here, not by `Airy`).  Theorem Q
 of AIRY_POISSON, parts (1), (3), (4), is formalised for any real `ν` with `f ∈ L¹(ℝ)` (`AiryCftQ*`, via the Fejér–Riesz bounds of `Complex.Hardy*`): the limit form,
 the sampling bound `Σ‖f(a_n)/Ai'(a_n)²‖ ≤ C ∫_{x<0}‖f‖` (`airyQ_sampling`) and the unconditional `HasSum` to `∫_ℝ f` (`airyQ_hasSum_unc`), also for
-`P Ai + Q Ai'` and Clark-Airy (`airyNC_hasSum_unc`, `airyClark_hasSum_unc`).  Open: the Poisson representation of the unfolded function (Lemma H) and the sharp
-pointwise bound Q (2) (only weak forms, `airyQ_pointwise_real`, `airyQ_f_point`), the vanishing moments (Corollary Q′), the Clark node labelling and `α`-dependence, polynomial `P, Q`.  The
+`P Ai + Q Ai'` and Clark-Airy (`airyNC_hasSum_unc`, `airyClark_hasSum_unc`).  Round five adds the sharp pointwise bound Q (2) with the constant `4π` (`airyQ_pointwise_sharp`), `𝒢_N ⊂ 𝒢_{1/2}` (`airyQ_mem_half`),
+the vanishing moments (Corollary Q′, `airyQ_vanishing_moment`), the labelling of the Clark nodes by the gaps of `Ai` and their half-way location (`AiryClarkLabel*`), and the
+inequality of Theorem B with its sharpness and the first half of its equality case (`AiryCftSign*`).  Open: the Poisson representation of the unfolded function (Lemma H), the equality
+conclusion of Theorem B, the node phase, polynomial `P, Q`.  The
 Hadamard factorization theorem, the converse growth bound (`HadamardGrowth`) and the genus-one product of `Ai` are in the separate
 aggregate `FormalResearch.Complex` (it imports `HadamardAiry`, which uses the Airy modules; no module of the `Airy` aggregate imports it).
 Barnes' `G`-function and the Gamma identities of the Weyl W1 free-fermion paper (`Barnes*`, umbrella `Barnes`, namespace

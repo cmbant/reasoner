@@ -24,8 +24,9 @@ each bounded by `hardy_arc_weighted`.
 `hardy_point_le` (value at an arbitrary fixed point): for `‖w‖ < ρ` and the same kind of reflection on `|z| = ρ`,
 `‖Φ(w)‖ ≤ (ρ/(ρ-‖w‖))(2π)⁻¹(1+E) ∫_0^π ‖Φ(ρe^{iθ})‖ dθ` (Mathlib's generalised mean value property
 `DiffContOnCl.circleAverage_smul_div`); together with `hardy_arc_le_poly` this bounds an entire `G` with the Hardy hypotheses at
-any fixed point by a constant times `‖G|_ℝ‖₁`.  Not formalised: the Poisson representation of `G` and
-`‖G(z)‖ ≤ ‖G|_ℝ‖₁/(π Im z)` for non-real `z`.
+any fixed point by a constant times `‖G|_ℝ‖₁`.  The sharp value bound
+`‖G(z)‖ ≤ ‖G|_ℝ‖₁/(4π Im z)` for non-real `z` is `HardyPoint.hardy_value_le`, and `HardyPointReal` gives the value near a real centre from these arcs;
+the Poisson representation of `G` is not formalised.
 -/
 
 @[expose] public section

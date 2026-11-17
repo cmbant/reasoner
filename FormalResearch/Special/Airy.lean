@@ -99,6 +99,12 @@ public import FormalResearch.Special.AiryCftQNCZeros
 public import FormalResearch.Special.AiryCftQNCSample
 public import FormalResearch.Special.AiryCftQUnc
 public import FormalResearch.Special.AiryCftQNCUnc
+public import FormalResearch.Special.AiryCftQSharp
+public import FormalResearch.Special.AiryCftQUniform
+public import FormalResearch.Special.AiryClarkLabel
+public import FormalResearch.Special.AiryClarkLabelAsym
+public import FormalResearch.Special.AiryCftSignUncertainty
+public import FormalResearch.Special.AiryCftSignEquality
 public import FormalResearch.Special.AiryChebyshevApprox
 public import FormalResearch.Special.AiryRankDecayTail
 public import FormalResearch.Special.AiryRankDecayKernel
@@ -151,10 +157,10 @@ the ordered zeros `a_n` of `Ai`: `AiryGammaBounds`, `AiryZeroTaylor`, `AiryFirst
 i.e. DLMF 9.9.18 through the `-5/36` term, with the `Tendsto` form `t^{10/3}(a_n + t^{2/3} + (5/48)t^{-4/3}) → 5/36`, the limits
 `n^{4/3}(a_n + t_n^{2/3})`, `|a_n|/n^{2/3}` and the gap asymptotics `n^{1/3}(a_n - a_{n+1}) → (2/3)(3π/2)^{2/3}`),
 `AiryPruferAsym` (the Prüfer angle of `Ai`, zeros of `Ai'`), `AiryClarkMid` (one zero of `Ai'` per gap, asymptotically the
-midpoint); and the Airy side of the discrete-to-Airy limit: `AiryWt` (an explicit envelope weight `(2+|X|)^{-1/4} e^{-ξ}` with
+midpoint), `AiryClarkLabel*` (the zeros of `Ai' - c Ai`, one per gap, their monotonicity in `c`, `α` and half-way location); and the Airy side of the discrete-to-Airy limit: `AiryWt` (an explicit envelope weight `(2+|X|)^{-1/4} e^{-ξ}` with
 local constancy and lattice sums), `AiryShift` (the shift identity `y(X+s) = y(X) C + y'(X) S`), `AiryShiftTaylor` (Taylor
 expansions of `Ai`, `C`, `S` against the weight); and the CFT consequences of the zeros of `Ai` (`AiryCft*`, and `AiryCft2*` for
-Theorem D on a disc, the zeros and quadrature of `P Ai + Q Ai'`, Clark summation, `a'_1`: see the design note; the Chebyshev approximation of `Ai(s+·)` and the Hilbert–Schmidt rank decay of the kernel `Ai(s+ζ)`, `AiryChebyshevApprox`, `AiryRankDecay*`; the Hadamard product of
+Theorem D on a disc, the zeros and quadrature of `P Ai + Q Ai'`, Clark summation, `a'_1`: see the design note; the sharp Theorem Q (2), Corollary Q′ and Theorem B, `AiryCftQSharp`, `AiryCftQUniform`, `AiryCftSign*`; the Chebyshev approximation of `Ai(s+·)` and the Hilbert–Schmidt rank decay of the kernel `Ai(s+ζ)`, `AiryChebyshevApprox`, `AiryRankDecay*`; the Hadamard product of
 `Ai'`, `AiryCft2DerivHadamard`, imports `FormalResearch.Complex` and is therefore imported by `FormalResearch.Special`, not here).  The Langer coordinate (`Langer*`), the discrete Jacobi calculus
 (`DiscreteJacobi*`) and the discrete-to-Airy comparison built on it (`AiryParametrix*`, `AiryRecessive*`, `AiryWindow*`, `DiscreteAiryLimit*`,
 `DiscreteAiryOsc*`, `DiscreteAiryPhys*`, `DiscreteAiryKappa*`, `DiscreteAiryUnif*`, `DiscreteAirySecond*`) are separate modules of `FormalResearch.Special`, not imported by this aggregate.  (Overlapping Gamma enclosures: `AiryBiNeg` and
@@ -165,10 +171,10 @@ remainder; `AiryZeroSecondOrder*` and `AiryZeroThird*` add `u_2`, `u_3`, `u_4` f
 to order `v_1` only to first order); the `t^{-6}` coefficient `77125/82944` of the zeros' expansion (DLMF 9.9.18 is proved through the
 `-(5/36)t^{-4}` term, with non-sharp constants) and the zeros of `Ai'` (DLMF 9.9.19: only the first-order phase and one zero per gap exist,
 `AiryPruferAsym`, `AiryClarkMid`, plus the largest zero `a'_1`; the asymptotics would need a new saddle expansion with the odd-moment
-integrand and the coefficient `-7/48`), and sharp constants anywhere; the asymptotics of the general Clark nodes `z_n(α)`,
-`α ≢ 0, π/2` (existence and uniqueness are `airy_node_exists_unique`; the node labelling and monotonicity in `α` are not formalised);
+integrand and the coefficient `-7/48`), and sharp constants anywhere; the node phase of the general Clark nodes `z_n(α)`,
+`α ≢ 0, π/2` (existence and uniqueness are `airy_node_exists_unique`; the labelling by gaps, monotonicity in `α` and the half-way location are `AiryClarkLabel`, `AiryClarkLabelAsym`);
 Olver's own `N` and the value of the crossing point `c = -0.366…` (`airyCross > -1`); Olver-type uniform expansions; the Mellin
-moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the `Lp`-level operator `K_u`; the Poisson representation of Theorem Q's unfolded function `G` (Lemma H) and the sharp pointwise bound Theorem Q (2) (`ψ(u) ≤ ‖f‖_b/(π|u|^{1/2} Re√u)`; only weak forms are formalised), the vanishing moments (Corollary Q′, `∫G = 0`) and the `P Ai + Q Ai'` versions with polynomial (non-constant) `P, Q`; the product form of `Bi`; the lower
+moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the `Lp`-level operator `K_u`; the Poisson representation of Theorem Q's unfolded function `G` (Lemma H), the conclusion `f = c Ai²/(u-a₁)` of the equality case of Theorem B, and the `P Ai + Q Ai'` versions with polynomial (non-constant) `P, Q`; the product form of `Bi`; the lower
 bound / order = convergence exponent of Hadamard's theorem (`FormalResearch.Complex`); the first zero of `Bi` and `Bi > 0`
 beyond `-11/10`; the open parts of the discrete-to-Airy chain: the value of `|κ|` (numerics `√2 N^{1/6}`; `κ ≠ 0` with `κ_min` independent of `N` is `hahn_chain_kappa` for the `τ = +1` integer `3j` chain), its Darboux phase and sign, `κ ≠ 0` for `τ = -1`, Racah and half-integer chains (also the single
 normalisation `|Y_{k₁}| ≤ δ^{-p}` for the closed-form chains), uniformity over families beyond the `3j` shape `x ∈ [x₀, x₁]` (`hahn_chain_airy_full_unif`: no exact node for an irrational shape, but all rational
@@ -327,9 +333,18 @@ a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete
   (`hardy_sample_real`, `airyQ_sample_pt`), the reflection `w ↦ -w` of `G`, and a Cauchy-kernel sum over the separated zeros
   (`separated_kernel_sum`, `airyRoot_kernel_sum`; zero spacing from `AiryZeroSpacing`, interlacing for `N`); weak Theorem Q (2):
   `airyQ_pointwise_real` (negative axis) and `airyQ_f_point` (every fixed `u`).
-  Open: the Poisson representation of `G` on the half-plane (Lemma H, horizontal `L¹` bound) and the sharp pointwise bound Theorem Q (2),
-  `ψ(u) ≤ ‖f‖_b/(π|u|^{1/2} Re√u)` from `‖G(z)‖ ≤ ‖g‖₁/(π Im z)` (only the weak forms above are formalised), the vanishing moments
-  Corollary Q′ (`∫G = 0`), the Clark node labelling and monotonicity in `α`,
+  Round five (`AiryCftQSharp`, `AiryCftQUniform`, `AiryClarkLabel`, `AiryClarkLabelAsym`, `AiryCftSignUncertainty`, `AiryCftSignEquality`, with the generic
+  `Complex.HardyPoint`, `Complex.HardyPointReal`): the sharp pointwise bound Theorem Q (2), `‖f(u)‖ ≤ ‖f‖_b e(u)/(4π|√u| Re√u)` for `u ∉ (-∞,0]` and complex `f`
+  (`airyQ_pointwise_sharp`; the note's constant `π` is `airyQ_pointwise_sharp_pi`) from the sharp `H¹(ℍ)` value bound `‖G(x+iy)‖ ≤ ‖g‖₁/(4π y)`
+  (`hardy_value_le`, by the Möbius transport to the disc and the circle mean, with no Poisson representation); the uniform collapse `𝒢_N ⊂ 𝒢_{1/2}`
+  (`airyQ_pointwise_uniform`, `airyQ_mem_half`: `‖f(u)‖ ≤ C₁√|u| ‖f‖_b e(u)` for `|u| ≥ 1`, from `hardy_point_real_le` near the real axis); Corollary Q′,
+  `∫_0^∞ f(-v) sin((4/3)v^{3/2} + λ√v) dv = 0` for `λ ≥ 0` (`airyQ_vanishing_moment`, from `hardy_integral_zero`); the labelling of the Clark nodes `Ai' - c Ai`: one
+  zero `airyClarkNode c n` in each gap `(a_n, a_{n-1})`, all simple, every zero of this form, strictly monotone in `c` and in `α` with limits at the ends of the gap
+  (`airyClark_existsUnique`, `airyClark_zero_classification`, `airyClarkAngleNode_bijOn`), and their half-way location with the rate `0.4/k + 0.3|c|k^{-1/3}`
+  (`airyClarkNode_fraction_le`, `tendsto_airyClarkNode_fraction`); Theorem B (sign uncertainty) for any real `ν`: `f ≥ 0` on `(-∞,u₁]`, `∫f ≤ 0`, `f ≢ 0` real imply
+  `u₁ ≤ a₁` (`airy_sign_uncertainty`), sharp by `airyExtremal` (`airyExtremal_attains`), and for `u₁ = a₁` one gets `∫f = 0` and `f(a_n) = 0` (`airy_sign_equality_samples`).
+  Open: the Poisson representation of `G` on the half-plane (Lemma H, horizontal `L¹` bound; not used by any of the above), the conclusion `f = c Ai²/(u-a₁)`, `c < 0`, of the
+  equality case of Theorem B, the node phase of the general Clark nodes, the Airy–Poisson identity `Σ Φ_τ(a_n)/Ai'(a_n)² = 2^{-2/3}`,
   polynomial (non-constant) `P, Q`, the enclosure `a'_1 ∈ (-1.0188, -1.0187)`, the asymptotics of the zeros of `Ai'` (DLMF 9.9.19).
 * *Chebyshev approximation and Hilbert–Schmidt rank decay of the Airy kernel* (`AiryChebyshevApprox`, `AiryRankDecayTail`, `AiryRankDecayKernel`,
   `AiryRankDecayHS`, `AiryRankDecay`; generic input `Complex.ChebyshevBernstein`, Trefethen ATAP Thm 8.1/8.2, imported here like `Complex.Hardy*`).
