@@ -97,4 +97,83 @@ lemma equicontinuous (hU : IsOpen U) (hd : ∀ i, DifferentiableOn ℂ (F i) U) 
     nlinarith [dist_nonneg (x := (x : ℂ)) (y := x₀)]
   exact lt_of_le_of_lt h1 h2
 
+
+/-- The closure of the family is compact in `C(↥U, ℂ)` (compact-open topology). -/
+lemma isCompact_closure_range (hU : IsOpen U) (hd : ∀ i, DifferentiableOn ℂ (F i) U) (hb : LocallyBounded F U) :
+    IsCompact (closure (Set.range (toCont hd))) := by
+  have : LocallyCompactSpace U := hU.locallyCompactSpace
+  have hemb : Topology.IsClosedEmbedding
+      (UniformOnFun.ofFun {K : Set U | IsCompact K} ∘ (fun g : C(U, ℂ) => (g : U → ℂ))) := by
+    refine ⟨ContinuousMap.isUniformEmbedding_toUniformOnFunIsCompact.isEmbedding, ?_⟩
+    have hrange : Set.range (UniformOnFun.ofFun {K : Set U | IsCompact K} ∘ (fun g : C(U, ℂ) => (g : U → ℂ))) =
+        {f : UniformOnFun U ℂ {K | IsCompact K} | Continuous f} :=
+      ContinuousMap.range_toUniformOnFunIsCompact
+    rw [hrange]
+    refine UniformOnFun.isClosed_setOfPred_continuous (Topology.IsCoherentWith.of_nhds fun x => ?_)
+    obtain ⟨K, hK, hKc⟩ := exists_compact_mem_nhds x
+    exact ⟨K, hK, hKc⟩
+  refine ArzelaAscoli.isCompact_closure_of_isClosedEmbedding (𝔖 := {K : Set U | IsCompact K})
+    (fun K hK => hK) hemb (s := Set.range (toCont hd)) ?_ ?_
+  · intro K _
+    have heq : Equicontinuous (fun i : ι => ⇑(toCont hd i)) := equicontinuous hU hd hb
+    have : Equicontinuous ((fun g : C(U, ℂ) => (g : U → ℂ)) ∘ ((↑) : Set.range (toCont hd) → C(U, ℂ))) := by
+      intro x
+      have h1 := (heq x).comp (fun s : Set.range (toCont hd) => Classical.choose s.2)
+      convert h1 using 1
+      funext s
+      have := Classical.choose_spec s.2
+      simp only [Function.comp_apply]
+      rw [this]
+    exact this.equicontinuousOn K
+  · intro K hK x hx
+    obtain ⟨M, hM⟩ := hb (Subtype.val '' {x}) (by rintro _ ⟨y, -, rfl⟩; exact y.2)
+      (isCompact_singleton.image continuous_subtype_val)
+    refine ⟨closedBall 0 M, isCompact_closedBall _ _, ?_⟩
+    rintro _ ⟨j, rfl⟩
+    have := hM j x ⟨x, rfl, rfl⟩
+    simpa [toCont] using this
+
+
+/-- **Montel's theorem.**  A locally uniformly bounded sequence of holomorphic functions on an open set `U ⊆ ℂ` has a
+subsequence converging locally uniformly on `U` to a holomorphic function. -/
+theorem montel (hU : IsOpen U) {F : ℕ → ℂ → ℂ} (hd : ∀ n, DifferentiableOn ℂ (F n) U) (hb : LocallyBounded F U) :
+    ∃ φ : ℕ → ℕ, StrictMono φ ∧ ∃ f : ℂ → ℂ, DifferentiableOn ℂ f U ∧
+      TendstoLocallyUniformlyOn (fun k => F (φ k)) f atTop U := by
+  classical
+  have hLC : LocallyCompactSpace U := hU.locallyCompactSpace
+  have hcl := isCompact_closure_range hU hd hb
+  obtain ⟨a, -, φ, hφ, hlim⟩ := hcl.tendsto_subseq (x := toCont hd) (fun n => subset_closure ⟨n, rfl⟩)
+  let f : ℂ → ℂ := fun z => if h : z ∈ U then a ⟨z, h⟩ else 0
+  have hTLU : TendstoLocallyUniformlyOn (fun k => F (φ k)) f atTop U := by
+    rw [tendstoLocallyUniformlyOn_iff_tendstoLocallyUniformly_comp_coe]
+    have h1 := ContinuousMap.tendsto_iff_tendstoLocallyUniformly.mp hlim
+    have h2 : (f ∘ Subtype.val) = ⇑a := by
+      funext x
+      simp [f]
+    rw [h2]
+    exact h1
+  exact ⟨φ, hφ, f, hTLU.differentiableOn (Eventually.of_forall fun k => hd _) hU, hTLU⟩
+
+/-- **Normal family form.**  Every locally uniformly bounded family `S` of functions holomorphic on `U` is normal: every
+sequence in `S` has a subsequence converging locally uniformly on `U` (to a holomorphic function). -/
+theorem montel_family (hU : IsOpen U) {S : Set (ℂ → ℂ)} (hd : ∀ g ∈ S, DifferentiableOn ℂ g U)
+    (hb : ∀ K ⊆ U, IsCompact K → ∃ M : ℝ, ∀ g ∈ S, ∀ z ∈ K, ‖g z‖ ≤ M) (F : ℕ → ℂ → ℂ) (hF : ∀ n, F n ∈ S) :
+    ∃ φ : ℕ → ℕ, StrictMono φ ∧ ∃ f : ℂ → ℂ, DifferentiableOn ℂ f U ∧
+      TendstoLocallyUniformlyOn (fun k => F (φ k)) f atTop U := by
+  refine montel hU (fun n => hd _ (hF n)) fun K hK hKc => ?_
+  obtain ⟨M, hM⟩ := hb K hK hKc
+  exact ⟨M, fun n z hz => hM _ (hF n) z hz⟩
+
+/-- info: 'FormalResearch.Montel.equicontinuous' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Montel.equicontinuous
+
+/-- info: 'FormalResearch.Montel.montel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Montel.montel
+
+/-- info: 'FormalResearch.Montel.montel_family' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Montel.montel_family
+
 end FormalResearch.Montel
