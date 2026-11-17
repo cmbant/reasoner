@@ -7,12 +7,12 @@ public import FormalResearch.Special.AiryPwsMain
 
 * `pl_halfPlane_decay`: a function `F` holomorphic on `Im ζ > 0`, continuous on `Im ζ ≥ 0`, polynomially bounded there, with
   boundary decay `|F(ξ)| (1+|ξ|)^m ≤ D` (`m ≥ 0` real) satisfies `|F(ζ)| (1+|ζ|)^m ≤ 2^{m/2} D` on all of `Im ζ ≥ 0`
-  (apply `pl_halfPlane` to `F(ζ)(ζ+i)^m`).  This is the "Phragmén–Lindelöf as in Lemma U.2" step of CE_O1_ROUTE O.11n,
+  (apply `pl_halfPlane` to `F(ζ)(ζ+i)^m`).  This is the "Phragmén–Lindelöf as in Lemma U.2" step of the CFT PR 240 branch note `CE_O1_ROUTE.md` (not yet on `main`) O.11n,
   where `m = 5/2`.
 * `airyClassG_PW_mul`: for `F₁, F₂ ∈ PW` (Airy Paley–Wiener space, `AiryTransform*`) with entire representatives
   `H_j = airyPWFun F_j`, the product `H₁ H₂` lies in `G` (`‖H₁H₂‖ ≤ 23‖F₁‖‖F₂‖(1+|z|)e(z)`, `H₁H₂ ∈ L¹` by Cauchy–Schwarz):
   this is the formalised part of `LOCAL_AIRY_MODEL` Lemma Q2, third bullet (with the exponent `(1+|z|)` in place of `(1+|z|)^{1/2}`).
-* `airyFtilde_PW_sq_le`, `airyFtilde_PW_mul_le`: the **uniform `H^∞` bound** of CE_O1_ROUTE O.11n for `P = H²`:
+* `airyFtilde_PW_sq_le`, `airyFtilde_PW_mul_le`: the **uniform `H^∞` bound** of the CFT PR 240 branch note `CE_O1_ROUTE.md` (not yet on `main`) O.11n for `P = H²`:
   `|F̃_{H²}(ζ)| ≤ k ‖F‖₂²` for `Im ζ ≥ 0`; for products `|F̃_{H₁H₂}| ≤ k (‖F₁‖² + ‖F₂‖²)/2`
   (the sharp `k‖F₁‖‖F₂‖` follows by scaling `H₁ ↦ tH₁`, `H₂ ↦ H₂/t`, not done here).
 
@@ -155,7 +155,7 @@ theorem airyClassG_PW_mul {F₁ F₂ : AiryL2} (h₁ : F₁ ∈ airyPW) (h₂ : 
         _ = _ := by ring
     exact abs_le_of_sq_le_sq' hsq hX |>.2 |> fun h => by simpa using h
 
-/-- **Uniform `H^∞` bound for `P = H²`** (CE_O1_ROUTE O.11n): for `F ∈ PW` with entire representative `H`,
+/-- **Uniform `H^∞` bound for `P = H²`** (the CFT PR 240 branch note `CE_O1_ROUTE.md` (not yet on `main`) O.11n): for `F ∈ PW` with entire representative `H`,
 `|F̃_{H²}(ζ)| ≤ k ‖F‖₂²` on `Im ζ ≥ 0`. -/
 theorem airyFtilde_PW_sq_le {F : AiryL2} (hF : F ∈ airyPW) {ζ : ℂ} (hζ : 0 ≤ ζ.im) :
     ‖airyFtilde (fun z => airyPWFun F z * airyPWFun F z) ζ‖ ≤ airyPhiK * ‖F‖ ^ 2 := by

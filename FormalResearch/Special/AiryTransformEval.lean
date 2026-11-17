@@ -20,7 +20,7 @@ Together with `AiryTransformProj` this gives the entire-function model `PW = {Ψ
 Paley–Wiener space; the Parseval sum at the Airy zeros is in `AiryTransformParseval`.
 
 **Not formalised:** the sharp exponent `(1+|z|)^{1/2}` (not needed), and any converse "every entire `F` with the growth
-bound and `F ∈ L²(ℝ)` lies in `PW`" (Paley–Wiener–Schwartz direction, survey item T7).
+bound and `F ∈ L²(ℝ)` lies in `PW`" (the `L²` converse for `PW`; the `L¹` Paley–Wiener–Schwartz theorem for the class `G`, survey item T7, is `AiryPws`).
 -/
 
 @[expose] public section

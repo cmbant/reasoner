@@ -11,7 +11,7 @@ Theorem 3.1 of `CFT/notes/general_theorems.tex` `(a)⇒(b)`: for `f ∈ G` (`Air
 is holomorphic on `Im ζ > 0`, continuous on `Im ζ ≥ 0` and bounded there by `k ‖f‖_{L¹}`:
 
 * `airyFtilde_diffContOnCl`: `DiffContOnCl ℂ F̃ {Im ζ > 0}`;
-* `airyFtilde_norm_le`: `‖F̃(ζ)‖ ≤ k ∫_ℝ |f|` for all `Im ζ ≥ 0`   (the **uniform `H^∞` bound**, CE_O1_ROUTE O.11n);
+* `airyFtilde_norm_le`: `‖F̃(ζ)‖ ≤ k ∫_ℝ |f|` for all `Im ζ ≥ 0`   (the **uniform `H^∞` bound**, the CFT PR 240 branch note `CE_O1_ROUTE.md` (not yet on `main`) O.11n);
 * `airyFtilde_boundary`: on `ℝ`, `F̃(ξ) = k e^{-iξ³/12} f̂(ξ)`.
 
 Proof (the paper's): polynomial growth of `F̃` on `Im ζ ≥ 0` from the contour deformation in `s = √u`

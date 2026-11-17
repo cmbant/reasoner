@@ -8,13 +8,13 @@ public import FormalResearch.Special.AiryPwsDeriv
 With `a_n = airyZ n` the zeros of `Ai` and `L_n(u) = Ai(u)/(u-a_n) = K(u,a_n)/Ai'(a_n)` (`airyLn`; `L_n(a_n) = Ai'(a_n)`),
 `φ_n = 1_{t>0} Ai(a_n+t)/Ai'(a_n)` (`airyPwsPhi`, an orthonormal family of `L²(0,∞)`, and `A φ_n = L_n`):
 
-* `airyLn_iteratedDeriv_sq_hasSum` (CE_O1_ROUTE (O.11ad.5), the reproducing identity applied to derivatives): for every
+* `airyLn_iteratedDeriv_sq_hasSum` (the CFT PR 240 branch note `CE_O1_ROUTE.md` (not yet on `main`) (O.11ad.5), the reproducing identity applied to derivatives): for every
   `j ≥ 0` and `y ∈ ℝ`,
   `Σ_{n ≥ 1} |L_n^{(j)}(y)|² = ∫_y^∞ Ai^{(j)}(t)² dt`.
   (With `y = -x` this is `Σ |L_n^{(j)}(-x)|² = ∫_{-x}^∞ Ai^{(j)}(t)² dt`.)  Proof: `L_n^{(j)}(y) = Ψg(a_n)/Ai'(a_n)`
   with `g = 1_{t>0} Ai^{(j)}(y+t) ∈ L²(0,∞)` (differentiation under the integral, `AiryPwsDeriv`), then Parseval
   at the zeros (`airy_parseval_psi`).
-* `airy_expansion` (CE_O1_ROUTE O.11f, O.11n): for `v ∈ L²(ℝ)` supported in `(0,∞)` and
+* `airy_expansion` (the CFT PR 240 branch note `CE_O1_ROUTE.md` (not yet on `main`) O.11f, O.11n): for `v ∈ L²(ℝ)` supported in `(0,∞)` and
   `H(u) = ∫_0^∞ Ai(u+t) v(t) dt` (`airyPsi v`), with `b_n = ⟨φ_n, v⟩ = Ψv(a_n)/Ai'(a_n)`:
   `‖H‖₂ = ‖v‖₂ = (Σ b_n²)^{1/2}` (so `b ∈ ℓ²`), `v = Σ b_n φ_n` and `A v = Σ b_n L_n` in `L²`, and `H(u) = Σ b_n L_n(u)`
   for **every** real `u`, the series converging absolutely and **locally uniformly** with the explicit remainder
@@ -111,7 +111,7 @@ lemma inner_airyLp_self {g : ℝ → ℝ} (hg : Continuous g) (hi : IntegrableOn
 
 /-! ### The sum rule for derivatives -/
 
-/-- **Reproducing identity for derivatives** (CE_O1_ROUTE (O.11ad.5)): for `L_n(u) = Ai(u)/(u - a_n)`, every `j ≥ 0`
+/-- **Reproducing identity for derivatives** (the CFT PR 240 branch note `CE_O1_ROUTE.md` (not yet on `main`) (O.11ad.5)): for `L_n(u) = Ai(u)/(u - a_n)`, every `j ≥ 0`
 and every real `y`, `Σ_{n ≥ 1} (L_n^{(j)}(y))² = ∫_y^∞ Ai^{(j)}(t)² dt`. -/
 theorem airyLn_iteratedDeriv_sq_hasSum (j : ℕ) (y : ℝ) :
     HasSum (fun n : ℕ => (iteratedDeriv j (airyLn n) y) ^ 2) (∫ t in Ioi y, airyD j t ^ 2) := by
@@ -223,7 +223,7 @@ theorem airy_hasSum_airyPwsPhi (v : AiryL2) (hv : airyPL v = v) :
   push_cast
   field_simp
 
-/-- **Expansion of `A v` in the functions `L_n`** (CE_O1_ROUTE O.11f, O.11n): let `v ∈ L²(ℝ)` vanish on `(-∞,0]`,
+/-- **Expansion of `A v` in the functions `L_n`** (the CFT PR 240 branch note `CE_O1_ROUTE.md` (not yet on `main`) O.11f, O.11n): let `v ∈ L²(ℝ)` vanish on `(-∞,0]`,
 `H = A v`, `H(u) = ∫_0^∞ Ai(u+t) v(t) dt` (`airyPsi v`), `b_n = ⟨φ_n, v⟩ = Ψv(a_n)/Ai'(a_n)`. Then `‖H‖ = ‖v‖`,
 `Σ |b_n|² = ‖v‖²`, `v = Σ b_n φ_n`, `A v = Σ b_n A φ_n` (`A φ_n = L_n`) in `L²`, and for every real `u`
 `H(u) = Σ b_n L_n(u)`, absolutely convergent, locally uniformly in `u`. -/

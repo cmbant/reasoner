@@ -19,7 +19,7 @@ public import FormalResearch.Special.AiryPwsLaplace
 # Airy Paley–Wiener–Schwartz theorem: umbrella
 
 Theorem 3.1 of `CFT/notes/general_theorems.tex` (`(a) ⇔ (b)`, complex `f`; `(c)` only for absolutely continuous `μ`),
-the Airy-kernel identities of CE_O1_ROUTE O.11 (Step 0) and the uniform `H^∞` bound for `H²`:
+the Airy-kernel identities of the CFT PR 240 branch note `CE_O1_ROUTE.md` (not yet on `main`) O.11 (Step 0) and the uniform `H^∞` bound for `H²`:
 
 * `AiryPwsDeriv`, `AiryPwsSum`: `Σ_n |L_n^{(j)}(-x)|² = ∫_{-x}^∞ Ai^{(j)}(t)² dt`, and `H = ∫₀^∞ Ai(u+t) v(t) dt`
   has `‖H‖ = ‖v‖`, `H = Σ b_n L_n`;

@@ -19,7 +19,7 @@ operator `airyKerOp u f (x) = ∫_u^∞ K(x,y) f(y) dy` of `AiryKernelOpL2`.  So
 positive statements there and the operator statements here are two views of one operator.
 
 **Not formalised:** the converse direction (a Paley–Wiener-type characterisation of `PW` as the space of entire
-`F` with the above growth and `F|_ℝ ∈ L²`).
+`F` with the above growth and `F|_ℝ ∈ L²`; the `L¹` Paley–Wiener–Schwartz theorem for the class `G` of survey item T7 is `AiryPws`, a different statement).
 -/
 
 @[expose] public section

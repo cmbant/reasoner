@@ -44,8 +44,8 @@ Survey row T5.  Modules:
 `(𝒜 f)(u) = ∫ f(t) Ai(u-t) dt`, but it is **not** an involution (`𝒜⁻¹ = 𝒜* = R 𝒜 R`).  The self-adjoint unitary
 involution with kernel `Ai(u+t)` is `A = 𝒜 R` (`airyA`); all statements about `PW`, `K_Ai` and `K_u` are about `A`.  (`FormalResearch.Special.airyA` is this involution; the unrelated `FormalResearch.Hadamard.airyA n` of `Complex/HadamardAiry.lean` is the `n`-th zero of `Ai`; the namespaces differ, so there is no clash.)
 
-**Not formalised:** the converse Paley–Wiener-type characterisation (every entire `F` with `F|_ℝ ∈ L²` and growth
-`|F(z)|² ≲ (1+|z|)^ν e(z)` lies in `PW`); the sharp exponent `(1+|z|)^{1/2}` in the growth bounds for `κ` and `Ψφ`
+**Not formalised:** the converse Paley–Wiener-type characterisation of `PW` itself (every entire `F` with `F|_ℝ ∈ L²` and growth
+`|F(z)|² ≲ (1+|z|)^ν e(z)` lies in `PW`; the `L¹` Paley–Wiener–Schwartz theorem for the class `G` of survey item T7 is a different statement and is in `AiryPws*`, umbrella `AiryPws`); the sharp exponent `(1+|z|)^{1/2}` in the growth bounds for `κ` and `Ψφ`
 (proved: `(1+|z|)`, which suffices for completeness and Parseval); trace-class / Fredholm-determinant statements for
 `K_Ai` and `K_u` and the Tracy–Widom identification; `A` on tempered distributions (for `φ ∈ L²(ℝ)` the kernel formula
 `Ai(u+t)` is proved for `Pφ`, since `Ai(u+·)` is not square integrable on `(-∞,0)`).

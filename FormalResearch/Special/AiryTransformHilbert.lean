@@ -18,7 +18,7 @@ we get the Hilbert basis `airyPW_hilbertBasis : HilbertBasis ℕ ℂ airyPW` and
 The route is independent of `AiryTransformParseval` (which proves the same Parseval identity from Theorem Q, a Hardy-space
 statement); the two are mutual cross-checks and neither is used by the other.
 
-**Not formalised:** the Paley–Wiener-type characterisation of `PW` by growth of entire functions; Parseval for the
+**Not formalised:** the Paley–Wiener-type characterisation of `PW` by growth of entire functions (the `L¹` Paley–Wiener–Schwartz theorem for the class `G` of survey item T7 is `AiryPws`, a different statement); Parseval for the
 `HilbertBasis` is stated in `PW`-valued inner products, the function form with entire representatives is in
 `AiryTransformRKHS` (`airyPW_parseval_fun`).
 -/

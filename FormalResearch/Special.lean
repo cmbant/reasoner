@@ -97,6 +97,7 @@ public import FormalResearch.Special.HermiteAiry
 public import FormalResearch.Special.HermiteKappa
 public import FormalResearch.Special.DiscreteLg
 public import FormalResearch.Special.AiryTransform
+public import FormalResearch.Special.AiryPws
 
 /-!
 # Special functions: Jacobi polynomials
@@ -295,6 +296,13 @@ it is **not** an involution (`𝒜⁻¹ = 𝒜* = R𝒜R`, `R f(t) = f(-t)`; the
 (`airyKu_eq_adjoint`, `inner_airyKu_self`, `norm_airyKu_le`, `airyKu_airyKerOp`).  `PW` is a reproducing-kernel space of entire functions with kernel `airyKerC` (`airyPWFun`, `differentiable_airyPWFun`, `airyPW_eval_inner`), `Ψφ(z) = ∫_{t>0} φ(t) Ai(z+t) dt` is entire with
 `|Ψφ(z)|² ≤ 23 ‖φ‖² (1+|z|) e(z)`, `e(z) = exp(-(4/3) Re z^{3/2})` (`norm_airyPsiC_sq_le`; the constant is loose and the exponent `(1+|z|)` is not the sharp `(1+|z|)^{1/2}`), and `{K(·,a_n)/|Ai'(a_n)|}`, `a_n` the zeros of `Ai`, is a Hilbert basis of `PW`
 (`airyBasisVec_orthonormal`, `airyPW_hilbertBasis`), complete by good circles and a Liouville argument with no Hardy space (`airyPsiC_eq_const_mul`, `airyPW_eq_zero_of_inner_liouville`), with Parseval `Σ F(a_n)\overline{G(a_n)}/Ai'(a_n)² = ⟨G,F⟩` (`airyPW_parseval_fun`);
-a second route through Theorem Q (`airyQ_hasSum_unc`) is kept as a cross-check (`airyPW_parseval`).  Not formalised: the converse Paley–Wiener characterisation of `PW` by growth, the sharp exponent `(1+|z|)^{1/2}`, trace class / Fredholm determinant of `K_Ai` and `K_u` and the Tracy–Widom identification, `𝒜` as the spectral transform of `-d²/dx² + x`, `A` on tempered distributions
+a second route through Theorem Q (`airyQ_hasSum_unc`) is kept as a cross-check (`airyPW_parseval`).  Not formalised: the converse Paley–Wiener characterisation of `PW` by growth (the `L¹` Airy Paley–Wiener–Schwartz theorem for the class `G` is the next paragraph, a different statement), the sharp exponent `(1+|z|)^{1/2}`, trace class / Fredholm determinant of `K_Ai` and `K_u` and the Tracy–Widom identification, `𝒜` as the spectral transform of `-d²/dx² + x`, `A` on tempered distributions
 (the kernel formula is proved for `Pφ`: `Ai(u+·)` is not square integrable on `(-∞,0)`).
+Airy Paley–Wiener–Schwartz theorem (`AiryPws*`, 15 modules, umbrella `AiryPws`, namespace `FormalResearch.Special`; survey item T7, Theorem 3.1 of `CFT/notes/general_theorems.tex`, and the Airy-kernel identities O.11n/O.11f/O.11ad.5 of the CFT PR 240 branch note `CE_O1_ROUTE.md`, not yet on `main`):
+for complex `f` in the class `G` (entire, `f|_ℝ ∈ L¹`, `|f(z)| ≤ C(1+|z|)^N e(z)`), `F̃(ζ) = k e^{-iζ³/12} f̂(ζ)`, `k = 2^{2/3}`, is holomorphic on `Im ζ > 0`, continuous on `Im ζ ≥ 0` and `|F̃| ≤ k ‖f‖₁` there
+(`airyFtilde_norm_le`, `(a) ⇒ (b)`, via Phragmén–Lindelöf `pl_halfPlane`); conversely a bounded holomorphic `F̃` on `Im ζ > 0` with boundary values `k e^{-iξ³/12} f̂₀`, `f₀ ∈ L¹`, comes from an entire `f ∈ G` with `f = f₀` a.e.
+(`airyPws_converse`, `(b) ⇒ (a)`, by test functions and Fourier inversion, no tempered distributions).  Also: `F̃_{Φ_τ}(ζ) = e^{iζτ}` for the Airy translates `Φ_τ(u) = Ai(k(u+τ))` (`airyFtilde_airyPhi`), the Laplace form of `(c) ⇒ (b)` for `μ = m dτ`, `m ∈ L¹(0,∞)`
+(`airyFtilde_laplace`), `H₁H₂ ∈ G` and `|F̃_{H²}| ≤ k ‖F‖²` for `H, H_j ∈ PW` (`airyClassG_PW_mul`, `airyFtilde_PW_sq_le`), and the Step 0 identities `Σ_n |L_n^{(j)}(y)|² = ∫_y^∞ Ai^{(j)}²` and the absolutely, locally uniformly convergent expansion
+`∫_0^∞ Ai(u+t)v(t)dt = Σ b_n L_n(u)` for `v ∈ L²(0,∞)` (`airyLn_iteratedDeriv_sq_hasSum`, `airy_expansion`; real arguments only).  Not formalised: statement `(c)` and `(b) ⇔ (c)` for general tempered one-sided `μ` (needs the Paley–Wiener–Schwartz/Titchmarsh theorem
+for tempered distributions, absent from Mathlib), the sharp exponent `(1+|u|)^{1/2}` (the formalised growth exponent is `1`, which `G` allows), `F̃_{Φ_τ}` at real `ζ`, `f ∈ L¹` in the Laplace form, complex-`u` Step 0, the unfolded-function statement of Corollary Q′ (remark (b) of Theorem 3.1).
 -/
