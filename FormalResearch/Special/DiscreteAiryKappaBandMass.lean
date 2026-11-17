@@ -230,4 +230,8 @@ theorem kp_band_mass {a c P Y : ℤ → ℝ} {p : ℤ} (m : ℕ) {r τ S A Ip : 
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.kp_band_mass
 
+/-- info: 'FormalResearch.Special.kp_omega_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.kp_omega_eq
+
 end FormalResearch.Special

@@ -267,4 +267,143 @@ theorem kp_site_bounds {x qs h A ηb κb : ℝ} {k : ℤ} {a c η κ : ℤ → �
       _ ≤ 2 * h / A ^ 3 / A + (2 * εb + x * (h / A ^ 3 + h ^ 2 / A ^ 6 / 2)) / A := by linarith [hdu]
       _ = _ := by rw [h5]
 
+/-- The bound of `|Δu|` of `kp_site_bounds`. -/
+noncomputable def kpDub (x h A ηb : ℝ) : ℝ :=
+  2 * h / A ^ 4 + (2 * ((h ^ 2 / A ^ 2 + ηb) / (x * A)) + x * (h / A ^ 3 + h ^ 2 / A ^ 6 / 2)) / A
+
+/-- The bound of `|Ω - 1|` of `kp_site_bounds`. -/
+noncomputable def kpRb (x h A ηb κb : ℝ) : ℝ :=
+  h / (2 * A ^ 2) + kpDub x h A ηb / A + (2 * (h ^ 2 / A ^ 2 + ηb) / (x * A) + 3 * x * (h ^ 2 / A ^ 6) + 2 * κb / A) / A ^ 2
+
+/-- `a_k ≤ 1` for the closed-form Hahn coefficient on the band. -/
+lemma kp_a_le_one {x qs h A η : ℝ} {k : ℤ} {a : ℤ → ℝ} (hqs : qs ^ 2 = 1 - x ^ 2) (hh : 0 < h) (hk : 1 ≤ k)
+    (hA0 : 0 < A) (hj : A ^ 2 ≤ qs ^ 2 - kpU h k ^ 2) (ha : a k ^ 2 = (1 + η) * ((1 - ((k : ℝ) * h) ^ 2) / 4))
+    (hη : |η| ≤ x ^ 2) (hapos : 0 < a k) : a k ≤ 1 := by
+  have hqs1 : qs ^ 2 ≤ 1 := by nlinarith [sq_nonneg x]
+  have hx2 : x ^ 2 ≤ 1 := by nlinarith [sq_nonneg qs]
+  have hk' : (1 : ℝ) ≤ k := by exact_mod_cast hk
+  have hU : 0 < kpU h k := by unfold kpU; exact mul_pos (by linarith) hh
+  have hm : 0 ≤ (k : ℝ) * h := by positivity
+  have hlt : (k : ℝ) * h ≤ kpU h k := by unfold kpU; nlinarith
+  have hU1 := kpU_lt_one hqs1 hA0 hj hU
+  have hm1 : ((k : ℝ) * h) ^ 2 ≤ 1 := kp_sq_le_one hm (by linarith)
+  have h3 := (abs_le.1 hη).2
+  have h4 : (1 - ((k : ℝ) * h) ^ 2) / 4 ≤ 1 / 4 := by nlinarith [sq_nonneg ((k : ℝ) * h)]
+  have h5 : 0 ≤ (1 - ((k : ℝ) * h) ^ 2) / 4 := by linarith
+  have : a k ^ 2 ≤ 1 := by
+    rw [ha]; nlinarith
+  nlinarith
+
+/-- **The mass of the Hahn chain on a band** (`kp_hahn_band_mass`).  On the sites `k₀, …, k₀+m` of a band where `q_*² - q_j² ≥ A²`
+(`j = k₀-1, …, k₀+m+1`) with closed-form coefficients `a_j² = (1+η_j)(1-(jh)²)/4`, `c_j = x - κ_j` (`|η_j| ≤ η̄_j ≤ η_B ≤ x²`,
+`|κ_j| ≤ κ̄_j ≤ κ_B ≤ 1`) and `ε_j = kpEps(η̄_j, κ̄_j) ≤ ½`, a solution `Y` of the Jacobi rows satisfies, with `I = I_{k₀}(Y)` the amplitude form,
+`S = Σ ε_j`, `r = kpRb(η_B, κ_B)`, `τ = kpDub(η_B)`, `Σv = Σ_{i≤m} P_{k₀+i}/2 = Σ 1/α_{k₀+i}`:
+
+`|Σ_{i≤m} Y_{k₀+i}² - I Σv| ≤ I [ ((e^{2S} - 1)e^S + 4(|r| + τ)e^S) Σv + (2τ/A + 32/A³) e^S ]`. -/
+theorem kp_hahn_band_mass {x qs h A ηB κB : ℝ} {a c η κ ηb κb Y : ℤ → ℝ} {k0 : ℤ} (m : ℕ) (hx : 0 < x)
+    (hqs : qs ^ 2 = 1 - x ^ 2) (hh : 0 < h) (hk0 : 1 ≤ k0) (hA0 : 0 < A) (hA1 : A ≤ 1)
+    (hband : ∀ j : ℤ, k0 - 1 ≤ j → j ≤ k0 + ((m + 1 : ℕ) : ℤ) → A ^ 2 ≤ qs ^ 2 - kpU h j ^ 2)
+    (hrow : ∀ i : ℕ, i < m + 1 → jac a c Y (k0 + (i : ℤ)) = 0)
+    (hapos : ∀ i : ℕ, i ≤ m + 1 → 0 < a (k0 + (i : ℤ)))
+    (ha : ∀ i : ℕ, i ≤ m + 1 → a (k0 + (i : ℤ)) ^ 2 =
+      (1 + η (k0 + (i : ℤ))) * ((1 - (((k0 + (i : ℤ) : ℤ) : ℝ) * h) ^ 2) / 4))
+    (hη : ∀ i : ℕ, i ≤ m + 1 → |η (k0 + (i : ℤ))| ≤ x ^ 2)
+    (hηb : ∀ i : ℕ, i < m + 1 → |η (k0 + (i : ℤ))| ≤ ηb (k0 + (i : ℤ)) ∧ |η (k0 + (i : ℤ) + 1)| ≤ ηb (k0 + (i : ℤ)) ∧
+      ηb (k0 + (i : ℤ)) ≤ ηB ∧ ηB ≤ x ^ 2)
+    (hc : ∀ i : ℕ, i < m + 1 → c (k0 + (i : ℤ)) = x - κ (k0 + (i : ℤ)))
+    (hκ : ∀ i : ℕ, i < m + 1 → |κ (k0 + (i : ℤ))| ≤ κb (k0 + (i : ℤ)) ∧ κb (k0 + (i : ℤ)) ≤ κB ∧ κB ≤ 1)
+    (hε : ∀ i : ℕ, i < m + 1 → kpEps x h A (ηb (k0 + (i : ℤ))) (κb (k0 + (i : ℤ))) ≤ 1 / 2) :
+    |∑ i ∈ range (m + 1), Y (k0 + (i : ℤ)) ^ 2 - kermI a (kpP qs h) Y k0 * ∑ i ∈ range (m + 1), kpP qs h (k0 + (i : ℤ)) / 2| ≤
+      kermI a (kpP qs h) Y k0 *
+        (((Real.exp (2 * ∑ i ∈ range (m + 1), kpEps x h A (ηb (k0 + (i : ℤ))) (κb (k0 + (i : ℤ)))) - 1) *
+            Real.exp (∑ i ∈ range (m + 1), kpEps x h A (ηb (k0 + (i : ℤ))) (κb (k0 + (i : ℤ)))) +
+          4 * (|kpRb x h A ηB κB| + kpDub x h A ηB) *
+            Real.exp (∑ i ∈ range (m + 1), kpEps x h A (ηb (k0 + (i : ℤ))) (κb (k0 + (i : ℤ))))) *
+          ∑ i ∈ range (m + 1), kpP qs h (k0 + (i : ℤ)) / 2 +
+        (2 * kpDub x h A ηB / A + 32 / A ^ 3) *
+          Real.exp (∑ i ∈ range (m + 1), kpEps x h A (ηb (k0 + (i : ℤ))) (κb (k0 + (i : ℤ))))) := by
+  set S := ∑ i ∈ range (m + 1), kpEps x h A (ηb (k0 + (i : ℤ))) (κb (k0 + (i : ℤ))) with hSdef
+  have hqs1 : qs ^ 2 ≤ 1 := by nlinarith [sq_nonneg x]
+  have heps0 : ∀ i : ℕ, i < m + 1 → 0 ≤ kpEps x h A (ηb (k0 + (i : ℤ))) (κb (k0 + (i : ℤ))) := by
+    intro i hi
+    have h1 : 0 ≤ ηb (k0 + (i : ℤ)) := (abs_nonneg _).trans (hηb i hi).1
+    have h2 : 0 ≤ κb (k0 + (i : ℤ)) := (abs_nonneg _).trans (hκ i hi).1
+    unfold kpEps; positivity
+  have hS0 : 0 ≤ S := Finset.sum_nonneg fun i hi => heps0 i (Finset.mem_range.1 hi)
+  have hP : ∀ j : ℤ, k0 - 1 ≤ j → j ≤ k0 + ((m + 1 : ℕ) : ℤ) → 0 < kpP qs h j ∧ kpP qs h j ≤ 2 / A := fun j h1 h2 =>
+    ⟨kpP_pos hA0 (hband j h1 h2), kpP_le hA0 (hband j h1 h2)⟩
+  have hale : ∀ i : ℕ, i ≤ m + 1 → a (k0 + (i : ℤ)) ≤ 1 := fun i hi =>
+    kp_a_le_one (η := η (k0 + (i : ℤ))) hqs hh (by omega) hA0 (hband _ (by omega) (by omega)) (ha i hi) (hη i hi) (hapos i hi)
+  have hsucc : ∀ i : ℕ, k0 + ((i + 1 : ℕ) : ℤ) = k0 + (i : ℤ) + 1 := fun i => by push_cast; ring
+  have htr : ∀ i : ℕ, i ≤ m + 1 → kermI a (kpP qs h) Y (k0 + (i : ℤ)) ≤ Real.exp S * kermI a (kpP qs h) Y k0 ∧
+      kermI a (kpP qs h) Y k0 ≤ Real.exp (2 * S) * kermI a (kpP qs h) Y (k0 + (i : ℤ)) := by
+    intro i hi
+    have := kp_transport (x := x) (qs := qs) (h := h) (A := A) (a := a) (c := c) (η := η) (κ := κ) (ηb := ηb) (κb := κb)
+      (Y := Y) (k0 := k0) i hx hqs hh hk0 hA0 hA1 (fun j h1 h2 => hband j h1 (by omega))
+      (fun i' hi' => hrow i' (by omega)) (fun i' hi' => hapos i' (by omega)) (fun i' hi' => ha i' (by omega))
+      (fun i' hi' => hη i' (by omega))
+      (fun i' hi' => ⟨(hηb i' (by omega)).1, (hηb i' (by omega)).2.1, (hηb i' (by omega)).2.2.1.trans (hηb i' (by omega)).2.2.2⟩)
+      (fun i' hi' => hc i' (by omega))
+      (fun i' hi' => ⟨(hκ i' (by omega)).1, (hκ i' (by omega)).2.1.trans (hκ i' (by omega)).2.2⟩)
+      (fun i' hi' => hε i' (by omega))
+    obtain ⟨t1, t2⟩ := this
+    have hsub : ∑ i' ∈ range i, kpEps x h A (ηb (k0 + (i' : ℤ))) (κb (k0 + (i' : ℤ))) ≤ S :=
+      Finset.sum_le_sum_of_subset_of_nonneg (Finset.range_subset_range.2 hi)
+        (fun i' hi' _ => heps0 i' (by have := Finset.mem_range.1 hi'; omega))
+    have hI0 : 0 ≤ kermI a (kpP qs h) Y k0 := by
+      have := kermI_nonneg (a := a) (Y := Y) (P := kpP qs h) (k := k0) (hP k0 (by omega) (by omega)).1
+        (hP (k0 - 1) (by omega) (by omega)).1
+        (kp_rad_ge (a := a) (η := η k0) hqs hk0 hh hA0 (hband _ (by omega) (by omega)) (hband _ (by omega) (by omega))
+          (by simpa using ha 0 (by omega)) (by simpa using hη 0 (by omega)))
+      exact this
+    have hIi0 : 0 ≤ kermI a (kpP qs h) Y (k0 + (i : ℤ)) := by
+      refine kermI_nonneg (a := a) (Y := Y) (P := kpP qs h) (k := k0 + (i : ℤ)) (hP _ (by omega) (by omega)).1
+        (hP _ (by omega) (by omega)).1 (kp_rad_ge (a := a) (η := η (k0 + (i : ℤ))) hqs (by omega) hh hA0 (hband _ (by omega) (by omega))
+          (hband _ (by omega) (by omega)) (ha i hi) (hη i hi))
+    constructor
+    · exact t1.trans (mul_le_mul_of_nonneg_right (Real.exp_le_exp.2 hsub) hI0)
+    · exact t2.trans (mul_le_mul_of_nonneg_right (Real.exp_le_exp.2 (by linarith)) hIi0)
+  have hsite : ∀ i : ℕ, i ≤ m → |kmOmega a c (kpP qs h) (fun j => kpP qs h j / 2) (k0 + (i : ℤ)) - 1| ≤ kpRb x h A ηB κB ∧
+      |kpP qs h (k0 + (i : ℤ) + 1) / 2 * kermS a (kpP qs h) (k0 + (i : ℤ) + 1) -
+        kpP qs h (k0 + (i : ℤ)) / 2 * kermS a (kpP qs h) (k0 + (i : ℤ))| * a (k0 + (i : ℤ) + 1) ≤ kpDub x h A ηB := by
+    intro i hi
+    have hk1 : 1 ≤ k0 + (i : ℤ) := by omega
+    have hb := kp_site_bounds (x := x) (qs := qs) (h := h) (A := A) (ηb := ηb (k0 + (i : ℤ))) (κb := κb (k0 + (i : ℤ)))
+      (k := k0 + (i : ℤ)) (a := a) (c := c) (η := η) (κ := κ) hx hqs hh hk1 hA0 hA1 (hband _ (by omega) (by omega))
+      (hband _ (by omega) (by omega)) (hband _ (by omega) (by omega)) (ha i (by omega))
+      (by have := ha (i + 1) (by omega); rw [hsucc] at this; push_cast at this ⊢; exact this)
+      (hηb i (by omega)).1 (hηb i (by omega)).2.1 ((hηb i (by omega)).2.2.1.trans (hηb i (by omega)).2.2.2) (hc i (by omega))
+      (hκ i (by omega)).1 (hapos i (by omega)) (by have := hapos (i + 1) (by omega); rwa [hsucc] at this)
+      (hale i (by omega)) (by have := hale (i + 1) (by omega); rwa [hsucc] at this)
+    have hη' := (hηb i (by omega)).2.2.1
+    have hκ' := (hκ i (by omega)).2.1
+    constructor
+    · refine hb.1.trans ?_
+      unfold kpRb kpDub
+      have h1 : 0 ≤ ηb (k0 + (i : ℤ)) := (abs_nonneg _).trans (hηb i (by omega)).1
+      have h2 : 0 ≤ κb (k0 + (i : ℤ)) := (abs_nonneg _).trans (hκ i (by omega)).1
+      gcongr
+    · refine hb.2.trans ?_
+      unfold kpDub
+      have h1 : 0 ≤ ηb (k0 + (i : ℤ)) := (abs_nonneg _).trans (hηb i (by omega)).1
+      gcongr
+  have hbm := kp_band_mass (a := a) (c := c) (P := kpP qs h) (Y := Y) (p := k0) m (r := kpRb x h A ηB κB)
+    (τ := kpDub x h A ηB) (S := S) (A := A) (Ip := kermI a (kpP qs h) Y k0) hA0 hS0 ?_ (fun i hi => hrow i (by omega))
+    (fun i hi => hP _ (by omega) (by omega)) (hP (k0 - 1) (by omega) (by omega))
+    (fun i hi => kp_rad_ge (a := a) (η := η (k0 + (i : ℤ))) hqs (by omega) hh hA0 (hband _ (by omega) (by omega))
+      (hband _ (by omega) (by omega)) (ha i hi) (hη i hi)) hapos hale htr (fun i hi => (hsite i hi).1)
+    (fun i hi => (hsite i hi).2)
+  · exact hbm
+  · unfold kpDub
+    have h1 : 0 ≤ ηB := (abs_nonneg _).trans ((hηb 0 (by omega)).1.trans (hηb 0 (by omega)).2.2.1)
+    positivity
+
+/-- info: 'FormalResearch.Special.kp_hahn_band_mass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.kp_hahn_band_mass
+
+/-- info: 'FormalResearch.Special.kp_site_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.kp_site_bounds
+
 end FormalResearch.Special
