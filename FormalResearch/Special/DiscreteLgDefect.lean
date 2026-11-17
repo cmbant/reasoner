@@ -418,4 +418,12 @@ theorem dlg_cas_bound {A θ w Θ : ℝ → ℝ} {U : Set ℝ} {lo hi M E : ℝ} 
   rw [e48] at hc
   exact hc
 
+/-- info: 'FormalResearch.Special.dlg_row_defect' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dlg_row_defect
+
+/-- info: 'FormalResearch.Special.dlg_cas_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.dlg_cas_bound
+
 end FormalResearch.Special
