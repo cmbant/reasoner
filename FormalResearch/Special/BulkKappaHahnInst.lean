@@ -16,9 +16,11 @@ Instances of the abstract theorems `bk_sharp_abs`, `bk_sharp_absH` (`BulkKappaSh
 | `hahn3jYH M σ N x` | `q_k = (k+1)h` | `1/(N+½)` | `RkWinAtH` | `τ = +1` (`hahn_chain_kappa_sharp_half`, `hahn_chain_bulk_explicit_half`) |
 | `(-1)^k hahn3jYH M σ N x k` | `q_k = (k+1)h` | `1/(N+½)` | `RkWinAtH` | `τ = -1` (`hahn_chain_kappa_sharp_half_neg`, `hahn_chain_bulk_explicit_half_neg`) |
 
-**`κ² δ → 2`** (`hahn_chain_kappa_sharp_*`): for every `τ' > 0` there is `ε₁` such that at every lattice node with `h ≤ ε₁` the Airy window `(J, m, N', κ, μ)` of the chain (positions, chart data, pointwise matching
-`Ŷ = κ g Ai + μ g Bi + O(δ³ ...)`, `|μ| ≤ C_μ (2/δ³) e^{-ξ₀/δ³}/δ`) satisfies `|κ² δ - 2| ≤ τ'`, `δ³ = h`: `|κ| = √2 N^{1/6}(1 + o(1))`.  For `τ = +1`, integer data this is the window form of
-`hahn_chain_kappa_sharp` (`DiscreteAiryKappaSharpFinal`); the other three are new (the half-integer `3j` chain, and the `τ = -1` branch, the twisted chain `(-1)^k Ŷ_k`).
+**`κ² δ → 2`** (`hahn_chain_kappa_sharp_*`): the Airy-window constants `(r, C_μ, ξ₀, g, c₁, c₂, C_A)` (depending on `(M, σ, x)` only) are exported first; then for every `τ' > 0` there is `ε₁` such that at every lattice node with
+`h ≤ ε₁` there **is** an Airy window `(J, m, N', κ, μ)` of the chain with these constants (positions, chart data, pointwise matching `Ŷ = κ g Ai + μ g Bi + O(δ³ ...)`, `|μ| ≤ C_μ (2/δ³) e^{-ξ₀/δ³}/δ`) whose `κ` satisfies
+`|κ² δ - 2| ≤ τ'`, `δ³ = h`: `|κ| = √2 N^{1/6}(1 + o(1))`.  These four statements are existential in the window, like `hahn_chain_kappa_sharp` (`DiscreteAiryKappaSharpFinal`); the stronger form "**every** window of the exported
+constants has `|κ² δ - 2| ≤ τ'`" is the second component of `BkOut` (`bk_hahn_int`, `bk_hahn_half`, `bk_sharp_abs(H)`) and is what the explicit theorems below use.  For `τ = +1`, integer data this is the window-first
+form of `hahn_chain_kappa_sharp`; the other three are new (the half-integer `3j` chain, and the `τ = -1` branch, the twisted chain `(-1)^k Ŷ_k`).
 
 **Explicit bulk theorem** (`hahn_chain_bulk_explicit_*`): for every compact `[a, b] ⊂ (0, q_*)` and `t > 0` there is `ε` such that at every node with `h ≤ ε` there is a sign `s = ±1` with, for every site `q_k ∈ [a, b]`,
 `|Y_k - s A(q_k) cos(Φ(q_k)/h - π/4)| ≤ t A(q_k)`, `A(q) = (2/√π)(q_*² - q²)^{-1/4}`, `Φ(q) = ∫_q^{q_*} arccos(|x|/√(1-t²)) dt` (`bkAmp`, `bkPhase`; `hrU 1 0 τ x t = τ x/√(1-t²) = |x|/√(1-t²)`).

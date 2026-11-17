@@ -12,8 +12,9 @@ integer `m` with
 
 `Φ(q_{k+1})/h - C₀ h ≤ π (m - 1/4) ≤ Φ(q_k)/h + C₀ h`,  `Φ(q) = ∫_q^{q_*} arccos(|x|/√(1-t²)) dt` (`bkPhase`):
 
-the bond contains, up to `O(h)` in the phase, a point `Φ(q) = π h (m - 1/4)` of the Bohr-Sommerfeld lattice, i.e. a zero `(2j+1)π/2` of `cos(Θ(q)/h - Θ_*/h + π/4)`.  This is the Lean-side statement behind the
-bulk-zero localisation of `thm:general-bulk-zeros` (sign changes near the semiclassical lattice).
+the bond contains, up to `O(h)` in the phase, a point `Φ(q) = π h (m - 1/4)` of the Bohr-Sommerfeld lattice, i.e. a zero `(2j+1)π/2` of `cos(Φ(q)/h - π/4)`.  This is a leading-order (error `O(h)` in the phase) counterpart of the
+bulk-zero quantisation `thm:general-bulk-zeros` (`Weyl/P3/paper/weyl_midpoint_semiclassics.tex`): the phase is anchored at the turning point `q_*` (the paper's action `N S(q, x)` and offset `p_{ab}π/2` are anchored at
+`q = 0`; the relation between the two anchorings is not formalised), and the second-order term `h Γ̃` (with the Darboux term), the `O(N^{-3})` error and the identification of the index `ν_j` are not part of the Lean statement.
 
 **Claim class: proved.**  **Not formalised:** the converse (a sign change in every bond that contains a Bohr-Sommerfeld point, equivalently the count of sign changes in `[a, b]`), the conversion of the phase window into
 a window in `q` (needs `arccos u ≥ θ_min > 0` on `[a, b]`), constants uniform in `(a, b)` or in the data, the regions near the turning point and near `q = 0`.
