@@ -9,8 +9,8 @@ This module proves the elementary phase identities used in W1, Lemma PR(a):
 for fixed x₀, ∂ᵣ tᵣ = cot(tᵣ)/(2r+1), ∂ᵣ Φᵣ = tᵣ, and the corresponding
 integral formula on an interval contained in the oscillatory domain. The phase is
 the one in Szegő, Theorem 8.22.8 (also DLMF §18.15(iv)). This is calculus only;
-it does not identify the phase of the Hermite function or prove its asymptotic
-expansion.
+the identification of this phase with the phase of the Hermite function and the
+asymptotic expansion are `hermite_bulk_PR` (`HermiteBulkMain`).
 -/
 
 @[expose] public section

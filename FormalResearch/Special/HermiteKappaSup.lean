@@ -17,8 +17,8 @@ This is the size statement of W1 `lem:PR(b)` (`Weyl/free_fermion/paper/parts/her
 Airy amplitude `κ` of `HermiteAiryEdge`: the proof is in the `x` variable (Weber ODE `φ'' = (x² - 2n - 1) φ`, the adiabatic invariant
 `T = w φ² + φ'²/w`, `w = √(2n+1 - x²)`, and `∫ φ_n² = 1`), see `HermiteKappaEnvelope`.
 
-**Claim class: proved.**  Not formalised: the oscillatory form `y_n = √(2/π)(2n+1)^{-1/4}(sin t_n)^{-1/2}[cos Φ_n + O(1/n)]`
-(`lem:PR(a)`), the sharp constant.  The bound on `y_n'` is `hpr_deriv_bound` (`HermitePRRho`).
+**Claim class: proved.**  Not formalised: the sharp constant.  The oscillatory form `y_n = √(2/π)(2n+1)^{-1/4}(sin t_n)^{-1/2}[cos Φ_n + O(1/n)]`
+(`lem:PR(a)`) is `hermite_bulk_PR` (`HermiteBulkMain`).  The bound on `y_n'` is `hpr_deriv_bound` (`HermitePRRho`).
 -/
 
 @[expose] public section

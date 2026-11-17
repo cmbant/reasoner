@@ -19,8 +19,8 @@ Umbrella for the `HermiteKappa*` modules (r31):
 
 **Not formalised:** the sharp envelope constant (numerically `√2/√π ≈ 0.798`, at `n = 0`, `x = 0`, tending to `≈ 0.75`); the exact amplitude
 (`κ = S^{-1/12}(1 + o(1))`, i.e. `κ² x^{1/3} → 2^{1/6}`, `S = x²/2`; numerics only); uniqueness of `κ` in the Airy decomposition
-(`κ` is the coefficient produced by `hermite_airy_edge`/`hermite_kappa_edge`, constrained only through `HkEdge`); the Plancherel-Rotach
-oscillatory form with phase (`lem:PR(a)`) and the derivative bound `|y_n'| ≤ C N^{1/4} ρ_n^{1/2}`; negative `x` and `x = 0`
+(`κ` is the coefficient produced by `hermite_airy_edge`/`hermite_kappa_edge`, constrained only through `HkEdge`); the derivative
+asymptotics (the oscillatory form of `lem:PR(a)` is `hermite_bulk_PR`, `HermiteBulk`; the derivative bound is `hpr_deriv_bound`); negative `x` and `x = 0`
 (in `hermite_kappa_order`; `hermite_envelope` covers all real `x`); the region `δ > δ₀` in `hermite_kappa_order`.
 -/
 
