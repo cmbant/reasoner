@@ -144,27 +144,27 @@ theorem dlg_smooth_data {A u : ℝ → ℝ} {U0 : Set ℝ} (hU0 : IsOpen U0) {c 
 
 
 /-- **Bulk Liouville-Green theorem for a smooth chain** (the user-facing form of `dlg_bulk`): only `A, u ∈ C²` with `A > 0`, `|u| < 1` on a neighbourhood
-of `[c, d]` are assumed.  There are `θ = arccos u`, `w`, `Θ` (with `cos θ = u`) and constants `h₀, C` such that every exact solution of the rows of a chain
+of `[c, d]` are assumed.  There are constants `h₀, C` such that every exact solution of the rows of a chain
 `a_k ≈ A(q_k - h/2)`, `c_k ≈ 2 A(q_k) u(q_k)` (error `E h²`) on a lattice window of macroscopic length `≤ L` inside `(c, d)` is
-`Y_k = R w(q_k) [cos(Θ(q_k)/h - φ₀) + O(h)]`, with `R ≍ |Y_m| + |Y_{m+1}|` for any bond `m` of the window. -/
+`Y_k = R w(q_k) [cos(Θ(q_k)/h - φ₀) + O(h)]` with the explicit `θ = arccos u` (`dlgsTheta`), `w = dlgsW A u`, `Θ = dlgsPhase u c = ∫_c^· θ`, with `R ≍ |Y_m| + |Y_{m+1}|` for any bond `m` of the window. -/
 theorem dlg_bulk_smooth {A u : ℝ → ℝ} {U0 : Set ℝ} (hU0 : IsOpen U0) {c d : ℝ} (hcd : c < d) (hsub : Icc c d ⊆ U0)
     (hA : ContDiffOn ℝ 2 A U0) (hu : ContDiffOn ℝ 2 u U0) (hApos : ∀ t ∈ U0, 0 < A t) (hu1 : ∀ t ∈ U0, |u t| < 1)
     (E L : ℝ) (hE : 0 ≤ E) (hL : 0 ≤ L) :
-    ∃ (θ w Θ : ℝ → ℝ) (h0 C : ℝ), 0 < h0 ∧ h0 ≤ 1 ∧ 0 < C ∧ (∀ t ∈ Ioo c d, Real.cos (θ t) = u t) ∧
+    ∃ h0 C : ℝ, 0 < h0 ∧ h0 ≤ 1 ∧ 0 < C ∧
       ∀ (q0 h : ℝ) (a c' Y : ℤ → ℝ) (J N m : ℤ), 0 < h → h ≤ h0 → J ≤ m → m ≤ N → ((N - J : ℤ) : ℝ) * h ≤ L →
         (∀ k ∈ Finset.Icc J (N + 1), dlgQ q0 h k ∈ Ioo c d) →
         (∀ k ∈ Finset.Icc (J + 1) (N + 1), |a k - A (dlgQ q0 h k - h / 2)| ≤ E * h ^ 2) →
         (∀ k ∈ Finset.Icc (J + 1) N, |c' k - 2 * A (dlgQ q0 h k) * u (dlgQ q0 h k)| ≤ E * h ^ 2) →
         (∀ k ∈ Finset.Icc (J + 1) N, jac a c' Y k = 0) →
         ∃ R φ0 : ℝ, 0 ≤ R ∧
-          (∀ k ∈ Finset.Icc J (N + 1), |Y k - R * w (dlgQ q0 h k) * Real.cos (dlgP Θ q0 h k - φ0)| ≤
-            C * h * R * w (dlgQ q0 h k)) ∧
+          (∀ k ∈ Finset.Icc J (N + 1), |Y k - R * dlgsW A u (dlgQ q0 h k) *
+              Real.cos (dlgP (dlgsPhase u c) q0 h k - φ0)| ≤ C * h * R * dlgsW A u (dlgQ q0 h k)) ∧
           R ≤ C * (|Y m| + |Y (m + 1)|) ∧ |Y m| + |Y (m + 1)| ≤ C * R := by
   obtain ⟨lo, hi, M, D, hcos⟩ := dlg_smooth_data hU0 hcd hsub hA hu hApos hu1
   have hmid : (c + d) / 2 ∈ Ioo c d := ⟨by linarith, by linarith⟩
   have hhi : 0 ≤ hi := ((D.Ab _ hmid).1.trans' D.lo_pos.le).trans (D.Ab _ hmid).2
   obtain ⟨h0, C, hh0, hh01, hC, H⟩ := dlg_bulk lo hi M E L D.lo_pos hhi D.M_nonneg hE hL
-  refine ⟨dlgsTheta u, dlgsW A u, dlgsPhase u c, h0, C, hh0, hh01, hC, hcos, ?_⟩
+  refine ⟨h0, C, hh0, hh01, hC, ?_⟩
   intro q0 h a c' Y J N m hh hhh0 hJm hmN hlen hU hA' hC' hY
   refine H D q0 h a c' Y J N m hh hhh0 hJm hmN hlen hU hA' (fun k hk => ?_) hY
   have hq : dlgQ q0 h k ∈ Ioo c d := hU k (by rw [Finset.mem_Icc] at hk ⊢; omega)
