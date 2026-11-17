@@ -4,6 +4,7 @@ public import Mathlib
 public import FormalResearch.MatrixAnalysis.TraceNorm
 public import FormalResearch.MatrixAnalysis.Spectral.Lidskii
 public import FormalResearch.MatrixAnalysis.Spectral.HoffmanWielandt
+public import FormalResearch.MatrixAnalysis.Spectral.KyFanProj
 
 /-!
 # Weyl, interlacing, Ky Fan and Lidskii for Hermitian matrices
@@ -24,6 +25,8 @@ descending list; `λ_0 ≥ ⋯ ≥ λ_{N-1}`, `N = card n`) is `hT.eigenvalues` 
 * `herm_partial_sum_add_le`: Ky Fan subadditivity.
 * `herm_sum_sq_eigenvalues₀_eq`, `herm_hoffman_wielandt`: `Σ_j λ_j(C)² = Σ_{ij} |C_ij|²` and Hoffman–Wielandt
   `Σ_j (λ_j(A) - λ_j(B))² ≤ Σ_{ij} |(A-B)_{ij}|²`; `herm_sum_mul_le`: von Neumann `Re tr(AB) ≤ Σ λ_j(A)λ_j(B)`.
+* `herm_kyFan_projection_le`, `herm_kyFan_projection_isGreatest`: Ky Fan maximum principle
+  `Σ_{i<k} λ_i(A) = max { Re tr(PA) : P = P* = P², tr P = k }`.
 * `herm_lidskii_sum_le`, `herm_lidskii_abs_sum_le`, `herm_lidskii_tnorm`: Lidskii, the last one with the
   repository's `tnorm`: `Σ_j |λ_j(A) - λ_j(B)| ≤ ‖A - B‖₁`.
 -/
@@ -76,6 +79,11 @@ theorem sum_eigenvalues₀_eq (hA : A.IsHermitian) (f : ℝ → ℝ) :
   unfold Matrix.IsHermitian.eigenvalues
   exact (Equiv.sum_comp (Fintype.equivOfCardEq (Fintype.card_fin _)).symm
     (fun j => f (hA.eigenvalues₀ j))).symm
+
+theorem trace_toEuclideanLin (M : Matrix n n 𝕜) :
+    (toEuclideanLin M).trace 𝕜 (EuclideanSpace 𝕜 n) = M.trace := by
+  rw [LinearMap.trace_eq_matrix_trace 𝕜 (EuclideanSpace.basisFun n 𝕜).toBasis,
+    toEuclideanLin_eq_toLin_orthonormal, LinearMap.toMatrix_toLin]
 
 section CourantFischer
 
@@ -256,6 +264,39 @@ theorem herm_lidskii_abs_sum_le (hA : A.IsHermitian) (hB : B.IsHermitian) :
 
 end KyFanLidskii
 
+section KyFanProjection
+
+/-- **Ky Fan inequality, projection form**, for Hermitian matrices: for an orthogonal projection `P`
+(`P* = P`, `P² = P`) of trace `k`, `Re tr(PA) ≤ Σ_{i<k} λ_i(A)`. -/
+theorem herm_kyFan_projection_le (hA : A.IsHermitian) (P : Matrix n n 𝕜) (hP : P.IsHermitian)
+    (hPP : P * P = P) {k : ℕ} (hk : P.trace = (k : 𝕜)) :
+    RCLike.re (P * A).trace ≤
+      ∑ i ∈ Finset.univ.filter (fun i : Fin (Fintype.card n) => (i : ℕ) < k), hA.eigenvalues₀ i := by
+  have h := kyFan_projection_le (hsym hA) finrank_euclideanSpace (hsym hP)
+    (by rw [← Matrix.toLpLin_mul_same, hPP]) (k := k) (by rw [trace_toEuclideanLin, hk])
+  rwa [← Matrix.toLpLin_mul_same, trace_toEuclideanLin] at h
+
+/-- **Ky Fan maximum principle for Hermitian matrices.**  For `k ≤ card n`,
+`Σ_{i<k} λ_i(A) = max { Re tr(PA) : P = P* = P², tr P = k }`. -/
+theorem herm_kyFan_projection_isGreatest (hA : A.IsHermitian) {k : ℕ} (hk : k ≤ Fintype.card n) :
+    IsGreatest {s : ℝ | ∃ P : Matrix n n 𝕜, P.IsHermitian ∧ P * P = P ∧ P.trace = (k : 𝕜) ∧
+        s = RCLike.re (P * A).trace}
+      (∑ i ∈ Finset.univ.filter (fun i : Fin (Fintype.card n) => (i : ℕ) < k), hA.eigenvalues₀ i) := by
+  obtain ⟨⟨Q, hQ, hQQ, hQk, hQs⟩, hub⟩ := kyFan_projection_isGreatest (hsym hA) finrank_euclideanSpace hk
+  set P : Matrix n n 𝕜 := (toEuclideanLin (𝕜 := 𝕜) (m := n) (n := n)).symm Q with hP
+  have hPQ : toEuclideanLin P = Q := (toEuclideanLin (𝕜 := 𝕜) (m := n) (n := n)).apply_symm_apply Q
+  refine ⟨⟨P, ?_, ?_, ?_, ?_⟩, ?_⟩
+  · exact isSymmetric_toEuclideanLin_iff.mp (hPQ ▸ hQ)
+  · apply toEuclideanLin.injective
+    rw [Matrix.toLpLin_mul_same, hPQ, hQQ]
+  · rw [← trace_toEuclideanLin, hPQ, hQk]
+  · refine hQs.trans ?_
+    rw [← hPQ, ← Matrix.toLpLin_mul_same, trace_toEuclideanLin]
+  · rintro s ⟨P', hP', hP'P', hk', rfl⟩
+    exact herm_kyFan_projection_le hA P' hP' hP'P' hk'
+
+end KyFanProjection
+
 section Frobenius
 
 /-- `Σ_j λ_j(C)² = Σ_{ij} |C_ij|²` for Hermitian `C`. -/
@@ -429,5 +470,13 @@ end Complex
 /-- info: 'FormalResearch.MatrixAnalysis.Spectral.herm_sum_mul_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.MatrixAnalysis.Spectral.herm_sum_mul_le
+
+/-- info: 'FormalResearch.MatrixAnalysis.Spectral.herm_kyFan_projection_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.MatrixAnalysis.Spectral.herm_kyFan_projection_le
+
+/-- info: 'FormalResearch.MatrixAnalysis.Spectral.herm_kyFan_projection_isGreatest' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.MatrixAnalysis.Spectral.herm_kyFan_projection_isGreatest
 
 end FormalResearch.MatrixAnalysis.Spectral
