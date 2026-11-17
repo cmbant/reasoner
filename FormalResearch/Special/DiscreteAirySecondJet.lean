@@ -13,7 +13,7 @@ size of `t`).  This module packages the bookkeeping once.  Over a parameter type
 * `SOB D hh n f` : `|f| ≤ K |hh|^n` on `D` for some `K ≥ 0` (`SOB 0` is boundedness);
 * `Ex3 D hh f c0 c1 c2` : `f = c0 + hh c1 + hh² c2 + SOB 3` with bounded coefficients; closed under `+`, `*` (truncated
   convolution), multiplication by `hh`, and composition with smooth functions with bounded derivatives
-  (`Ex3.comp3`, `Ex3.comp_h`, `Ex3.comp_h2`, Taylor with the explicit chain `apx_taylor_chain`).
+  (`Ex3.of_taylor3`, `Ex3.of_taylor_h`, `Ex3.of_taylor_h2`, via the Taylor lemmas `sj_taylor1/2/3` built on `apx_taylor_chain`).
 
 Everything is proved; constants existential.  This is the replacement of the explicit-constant bookkeeping of the first-order
 proof (`sk_even_odd`, `apu_PA`).
