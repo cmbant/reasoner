@@ -22,9 +22,11 @@ Numerics (mpmath): `|Γ(1/2+is)|² cosh(π s)/π = 1` to 30 digits; `|Re ψ(1/2+
 `|Im log Γ(1/2+is) - (s log s - s)|` for `s ∈ {0.1, 0.3, 1, 3, 10}` are below the stated bounds
 (e.g. `s = 3`: `0.0047 ≤ 0.153` and `0.0140 ≤ 0.708`).
 
-Not formalised: the exact formula `Im ψ(1/2+is) = (π/2) tanh(π s)` (checked numerically), arguments `s`
-near `0` beyond the stated (non-sharp) bounds, the identification of `binetLogGamma` with
-`Complex.arg ∘ Γ` up to `2π k(s)`.
+* `im_digamma_half_line` : exactly `Im ψ(1/2 + is) = (π/2) tanh(π s)` (digamma reflection, Mathlib
+  `Complex.digamma_one_sub`, and `ψ(z̄) = conj ψ(z)` from Binet's formula).
+
+Not formalised: arguments `s` near `0` beyond the stated (non-sharp) bounds.
+(`binetLogGamma = arg Γ` modulo `2π` is `exists_int_im_binetLogGamma`; the integer `n(s)` is not determined.)
 -/
 
 @[expose] public section
@@ -161,6 +163,62 @@ theorem im_binetLogGamma_half_line {s : ℝ} (hs : s ≠ 0) :
   have e2 : (17 : ℝ) / 8 / |s| = 1 / 8 / |s| + 2 / |s| := by field_simp; ring
   rw [e2]
   exact add_le_add h1 h2
+/-- `ψ(z̄) = conj ψ(z)` on `Re z > 0` (from Binet's formula). -/
+lemma digamma_conj_of_re_pos {z : ℂ} (hz : 0 < z.re) :
+    Complex.digamma ((starRingEnd ℂ) z) = (starRingEnd ℂ) (Complex.digamma z) := by
+  have hz' : 0 < ((starRingEnd ℂ) z).re := by simpa using hz
+  rw [digamma_eq_binet hz', digamma_eq_binet hz]
+  have hI : binetI ((starRingEnd ℂ) z) = (starRingEnd ℂ) (binetI z) := lap_conj z
+  have hlog : Complex.log ((starRingEnd ℂ) z) = (starRingEnd ℂ) (Complex.log z) := by
+    rw [Complex.log_conj]
+    intro h
+    have := Complex.arg_eq_pi_iff.1 h
+    linarith [this.1]
+  rw [hI, hlog]
+  simp [map_sub, map_mul, map_inv₀, map_ofNat]
+
+/-- `Im ψ(1/2 + is) = (π/2) tanh(π s)` (exact; reflection formula and `ψ(z̄) = conj ψ(z)`). -/
+theorem im_digamma_half_line (s : ℝ) :
+    (Complex.digamma (halfLine s)).im = Real.pi / 2 * Real.tanh (Real.pi * s) := by
+  set z : ℂ := halfLine s with hz
+  have hzr : 0 < z.re := halfLine_re_pos s
+  have h1 : (1 : ℂ) - z = (starRingEnd ℂ) z := by
+    simp only [hz, halfLine, map_add, map_mul, map_div₀, map_one, map_ofNat, Complex.conj_ofReal,
+      Complex.conj_I]
+    ring
+  have hnint : ∀ n : ℤ, z ≠ n := by
+    intro n h
+    have := congrArg Complex.im h
+    simp [hz, halfLine] at this
+    have h2 := congrArg Complex.re h
+    simp [hz, halfLine] at h2
+    have : (n : ℝ) = 1 / 2 := by linarith
+    have h3 : (2 * n : ℝ) = 1 := by linarith
+    have : (2 * n : ℤ) = 1 := by exact_mod_cast h3
+    omega
+  have h2 := Complex.digamma_one_sub hnint
+  rw [h1, digamma_conj_of_re_pos hzr] at h2
+  have hcot : Complex.cot (Real.pi * z) = -(((Real.sinh (Real.pi * s) / Real.cosh (Real.pi * s) : ℝ) : ℂ) * I) := by
+    have e : (Real.pi : ℂ) * z = (Real.pi * s : ℝ) * I + Real.pi / 2 := by
+      simp [hz, halfLine]; ring
+    rw [Complex.cot_eq_cos_div_sin, e, Complex.cos_add_pi_div_two, Complex.sin_add_pi_div_two,
+      Complex.sin_mul_I, Complex.cos_mul_I]
+    have hc : (Complex.cosh ((Real.pi * s : ℝ) : ℂ)) ≠ 0 := by
+      rw [← Complex.ofReal_cosh]; exact_mod_cast (Real.cosh_pos _).ne'
+    rw [← Complex.ofReal_sinh, ← Complex.ofReal_cosh]
+    push_cast
+    field_simp
+  rw [hcot] at h2
+  have h3 := congrArg Complex.im h2
+  simp only [Complex.conj_im, Complex.add_im, Complex.mul_im, Complex.neg_im, Complex.ofReal_re,
+    Complex.ofReal_im, Complex.neg_re, Complex.mul_re, Complex.I_re, Complex.I_im] at h3
+  rw [Real.tanh_eq_sinh_div_cosh]
+  simp at h3
+  linarith
+
+/-- info: 'FormalResearch.Special.ComplexStirling.im_digamma_half_line' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.im_digamma_half_line
 
 /-- info: 'FormalResearch.Special.ComplexStirling.norm_sq_Gamma_half_line' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

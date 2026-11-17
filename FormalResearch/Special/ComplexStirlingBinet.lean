@@ -23,6 +23,7 @@ Notation: `ψ = Complex.digamma`, `binetI z = ∫_0^∞ (1/2 - 1/t + 1/(e^t-1)) 
 * `binetLogGamma_ofReal`: for real `x > 0` it equals the real `log Γ(x)`, so `binetLogGamma` is the
   continuous branch of `log Γ` that is real on the positive axis; `eq_binetLogGamma_of_differentiable`:
   any holomorphic `L` on `Re z > 0` with `exp L = Γ` and `L 1 = 0` equals it.
+* `exists_int_im_binetLogGamma`: `Im binetLogGamma z = arg Γ(z) + 2π n` for some integer `n`.
 * Remainders (from `ComplexStirlingRemainder`): `‖ψ(z) - (log z - 1/(2z))‖ ≤ 1/‖z‖²`,
   `‖ψ'(z) - 1/z - 1/(2z²)‖ ≤ (2/3)/‖z‖³`,
   `‖binetLogGamma z - ((z-1/2) log z - z + (1/2) log 2π)‖ ≤ 2/‖z‖` for `Re z > 0`.
@@ -338,6 +339,20 @@ theorem eq_binetLogGamma_of_differentiableOn {L : ℂ → ℂ} (hL : Differentia
   simp only [hH, h1, binetLogGamma_one, sub_zero] at hconst
   exact sub_eq_zero.1 hconst
 
+
+/-- `Im binetLogGamma z = arg Γ(z) + 2π n` for some integer `n` (continuous `arg Γ`). -/
+theorem exists_int_im_binetLogGamma {z : ℂ} (hz : 0 < z.re) :
+    ∃ n : ℤ, (binetLogGamma z).im = Complex.arg (Complex.Gamma z) + 2 * Real.pi * n := by
+  have hne := Complex.Gamma_ne_zero (re_pos_ne_neg_nat hz)
+  have h : Complex.exp (binetLogGamma z) = Complex.exp (Complex.log (Complex.Gamma z)) := by
+    rw [exp_binetLogGamma hz, Complex.exp_log hne]
+  obtain ⟨n, hn⟩ := Complex.exp_eq_exp_iff_exists_int.1 h
+  refine ⟨n, ?_⟩
+  have := congrArg Complex.im hn
+  simp at this
+  rw [Complex.log_im] at this
+  linarith
+
 /-- `ψ' = 1/z + 1/(2z²) + binetI'(z)`. -/
 lemma hasDerivAt_digamma_binet {z : ℂ} (hz : 0 < z.re) :
     HasDerivAt Complex.digamma (z⁻¹ + 1 / 2 * (z ^ 2)⁻¹ + binetI' z) z := by
@@ -407,5 +422,9 @@ theorem norm_binetLogGamma_sub_le {z : ℂ} (hz : 0 < z.re) :
 /-- info: 'FormalResearch.Special.ComplexStirling.norm_binetLogGamma_sub_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.ComplexStirling.norm_binetLogGamma_sub_le
+
+/-- info: 'FormalResearch.Special.ComplexStirling.exists_int_im_binetLogGamma' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.exists_int_im_binetLogGamma
 
 end FormalResearch.Special.ComplexStirling
