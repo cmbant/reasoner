@@ -14,10 +14,11 @@ Let `Fh = F̃` be holomorphic on `Im ζ > 0`, continuous on `Im ζ ≥ 0` and bo
 * `airyIeta_eq`: `I_η(u)` is **independent of `η > 0`** (Cauchy–Goursat on `[-R,R]×[η₁,η₂]`, the vertical sides vanish by the Gaussian);
 * `norm_airyIeta_le`: the saddle estimate `|I_η(u)| ≤ (B/k) √(4π/η) exp(η³/12 - η Re u + (Im u)²/η)`.
 
-The choice `η = 2 Re √u` gives `|f_E(u)| ≤ B e(u)/(k √(2π Re √u))`, and a second choice near the cut `η = 1/(1+|u|)`, the global bound
-`|f_E(u)| ≤ C (1+|u|) e(u)` in `AiryPwsConverse2`.
+* `norm_airyIeta_saddle`: the choice `η = 2 Re √u` gives `|I_1(u)| ≤ (B/k) √(2π/a) e(u)`, `a = Re √u`;
+* `norm_airyIeta_global`: a second choice near the cut, `η = 1/(1+|u|)`, gives `|I_1(u)| ≤ C (1+|u|) e(u)` on `ℂ`.
 
-**Not formalised** here: the identification `f = f_E` a.e. with the given `L¹` function (`AiryPwsConverse2`).
+The identification with a given `L¹` function is `AiryPwsIdent`, `AiryPwsIdent2`, `AiryPwsIdent3`,
+`AiryPwsConverseMain`.
 -/
 
 @[expose] public section
@@ -339,7 +340,7 @@ lemma airyIeta_eq' {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {η₁ η₂
   · exact (airyIeta_eq h hη₂ hle u).symm
 
 /-- Parametrisation of the principal square root. -/
-lemma airy_sqrt_facts (u : ℂ) : ∃ a b : ℝ, 0 ≤ a ∧ u.re = a ^ 2 - b ^ 2 ∧ u.im = 2 * a * b ∧
+lemma airy_sqrt_facts (u : ℂ) : ∃ a b : ℝ, a = (u ^ (1 / 2 : ℂ)).re ∧ 0 ≤ a ∧ u.re = a ^ 2 - b ^ 2 ∧ u.im = 2 * a * b ∧
     ‖u‖ = a ^ 2 + b ^ 2 ∧ airyEnv u = Real.exp (-(4 / 3) * (a ^ 3 - 3 * a * b ^ 2)) := by
   set s : ℂ := u ^ (1 / 2 : ℂ) with hs
   have hs2 : s ^ 2 = u := by
@@ -363,7 +364,7 @@ lemma airy_sqrt_facts (u : ℂ) : ∃ a b : ℝ, 0 ≤ a ∧ u.re = a ^ 2 - b ^ 
         have := Complex.arg_le_pi u
         norm_num
         linarith
-  refine ⟨s.re, s.im, ha, ?_, ?_, ?_, ?_⟩
+  refine ⟨s.re, s.im, rfl, ha, ?_, ?_, ?_, ?_⟩
   · rw [← hs2]; simp [sq, Complex.mul_re]
   · rw [← hs2]; simp [sq, Complex.mul_im]; ring
   · rw [← hs2, norm_pow, Complex.sq_norm, Complex.normSq_apply]; ring
@@ -383,7 +384,7 @@ lemma sqrt_aux {η N : ℝ} (hη : 0 < η) (hN : 0 ≤ N) (h : 1 / η ≤ (1 + N
 /-- **Global growth bound** for `I_1`: `|I_1(u)| ≤ (B/k) √(4π) e⁸ (1+|u|) e(u)`. -/
 theorem norm_airyIeta_global {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) (u : ℂ) :
     ‖airyIeta Fh 1 u‖ ≤ B / airyPhiK * √(4 * π) * Real.exp 8 * (1 + ‖u‖) * airyEnv u := by
-  obtain ⟨a, b, ha, hre, him, hn, henv⟩ := airy_sqrt_facts u
+  obtain ⟨a, b, -, ha, hre, him, hn, henv⟩ := airy_sqrt_facts u
   have hB := airyHinf_nonneg h
   have hk := airyPhiK_pos
   have hN : 0 ≤ ‖u‖ := norm_nonneg u
@@ -460,6 +461,20 @@ theorem norm_airyIeta_global {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) (u
           gcongr
       _ ≤ B / airyPhiK * (√(4 * π) * (1 + N)) * (Real.exp 8 * airyEnv u) := by gcongr
       _ = _ := by ring
+
+/-- **Saddle bound** `|I_1(u)| ≤ (B/k) √(2π/a) e(u)`, `a = Re √u > 0`, at `η = 2a`. -/
+theorem norm_airyIeta_saddle {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) (u : ℂ)
+    (ha : 0 < (u ^ (1 / 2 : ℂ)).re) :
+    ‖airyIeta Fh 1 u‖ ≤ B / airyPhiK * √(2 * π / (u ^ (1 / 2 : ℂ)).re) * airyEnv u := by
+  obtain ⟨a, b, hdef, -, hre, him, -, henv⟩ := airy_sqrt_facts u
+  rw [← hdef] at ha ⊢
+  have h1 := norm_airyIeta_le h (η := 2 * a) (by positivity) u
+  rw [← airyIeta_eq' h (by norm_num : (0 : ℝ) < 1) (by positivity : (0 : ℝ) < 2 * a)] at h1
+  have hex : (2 * a) ^ 3 / 12 - 2 * a * u.re + u.im ^ 2 / (2 * a) = -(4 / 3) * (a ^ 3 - 3 * a * b ^ 2) := by
+    rw [hre, him]; field_simp; ring
+  rw [hex, ← henv] at h1
+  have e : 4 * π / (2 * a) = 2 * π / a := by field_simp; ring
+  rwa [e] at h1
 
 /-- info: 'FormalResearch.Special.differentiable_airyIeta' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -23,8 +23,10 @@ polynomially bounded functions that are bounded on the boundary (`pl_halfPlane`,
 Also here: `pl_halfPlane_decay`, the transfer of a boundary decay `|F(ξ)| ≤ B (1+|ξ|)^{-m}` of a bounded holomorphic
 function to the closed half plane (the step "Phragmén–Lindelöf as in Lemma U.2" of O.11n).
 
-**Not formalised:** the converse `(b) ⇒ (a)` and the distributional form `(c)` (`f = ∫ Φ_τ dμ(τ)`, `supp μ ⊂ [0,∞)`);
-the sharp inversion formula and the pointwise bound `|f(u)| ≤ ‖f‖₁ e(u)/√(2π Re√u)` (needs `(b)`).
+The converse `(b) ⇒ (a)` is `AiryPwsConverseMain`, the plane-wave identity and the Laplace form of `(c)` are
+`AiryPwsPlaneWave`, `AiryPwsLaplace`.
+
+**Not formalised:** the distributional form `(c)` (`f = ∫ Φ_τ dμ(τ)`, `supp μ ⊂ [0,∞)`, `μ` tempered).
 -/
 
 @[expose] public section

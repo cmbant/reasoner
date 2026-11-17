@@ -9,7 +9,7 @@ Let `f₀ ∈ L¹(ℝ)` and let `Fh` be `H^∞` (`AiryHinf`) with boundary value
 (that is `Fh(ξ) = k e^{-iξ³/12} f̂₀(ξ)`, the real-line value of the twisted transform).  Then `f₀ = (2π)⁻¹ I_1` a.e.:
 both pair with every smooth compactly supported `φ` to `(2π)⁻¹ ∫ f̂₀ ψ_φ` (`pairing_f0`, `pairing_eq`).
 
-**Not formalised** here: the packaging as the class `G` and the identification `F̃ = Fh` (`AiryPwsConverseMain`).
+Continued in `AiryPwsConverseMain` (packaging as the class `G`, identification `F̃ = Fh`).
 -/
 
 @[expose] public section

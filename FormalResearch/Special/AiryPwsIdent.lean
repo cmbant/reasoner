@@ -12,7 +12,7 @@ For a compactly supported smooth `Φ : ℝ → ℂ` put `ψ(ζ) = ∫ Φ(t) e^{i
 * `continuous_airyTestPsi`;
 * `airy_inversion`: `Φ(u) = (2π)⁻¹ ∫ ψ(ξ) e^{-iξu} dξ`, from Mathlib's Fourier inversion.
 
-**Not formalised** here: the identification `f = f_E` (`AiryPwsIdent2`).
+Continued in the next module of the chain `AiryPwsIdent`, `AiryPwsIdent2`, `AiryPwsIdent3`, `AiryPwsConverseMain`.
 -/
 
 @[expose] public section

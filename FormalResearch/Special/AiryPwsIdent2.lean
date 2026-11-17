@@ -11,7 +11,7 @@ For `Φ` smooth with compact support and `η > 0` (`AiryHinf Fh B`):
 * `pairing_limit`: the right side tends to `∫ Λ(ξ) ψ(ξ) dξ` as `η → 0⁺` (dominated convergence with the uniform
   decay `airyTestPsi_decay`); since `I_η = I_1` it follows that `∫ Φ I_1 = ∫ Λ ψ`.
 
-**Not formalised** here: the comparison with the `L¹` function `f` (`AiryPwsIdent3`).
+Continued in the next module of the chain `AiryPwsIdent`, `AiryPwsIdent2`, `AiryPwsIdent3`, `AiryPwsConverseMain`.
 -/
 
 @[expose] public section
