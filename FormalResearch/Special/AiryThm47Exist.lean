@@ -10,7 +10,8 @@ public import FormalResearch.Special.AiryThm47Uniq
 `|x|^{-3/2}` at `-∞` (`at47_Nf_neg_sq`, `at47_F_neg_decay`: `N(-s)² ≲ s^e √s`, `|∏| ≳ s^m`, `m = e + 2`) and super-polynomially
 at `+∞` (`at47_F_pos_decay`), so it is integrable; it vanishes on `S`, is `≥ 0` on `(-∞, min S]`, and `∫F = 0` by the quadrature
 `airyPQ_hasSum_unc` (all terms vanish).  `at47_no_admissible_above`: with `at47_uniqueness`, an admissible `f` with `um > tm` is zero,
-so `sup um = tm`.  All proved.  Not formalised: existence of the ordered `m` largest zeros (`S` is a hypothesis).
+so `sup um = tm`.  All proved.  Such an `S` exists for every Hermite-Biehler pair with `Q ≠ 0` (`at47_top_zeros_min`).  Not formalised: an ordered enumeration `t_1 > t_2 > ⋯` as a function, or
+simplicity/one-zero-per-gap (the theorems take the finite set `S` of the `m` largest zeros).
 -/
 
 @[expose] public section
@@ -274,8 +275,8 @@ lemma at47_F_pos_decay {F : ℂ → ℂ} {C ν : ℝ} (hC : 0 ≤ C)
 /-- **Theorem 4.7, existence half** (`SOFT_EDGE_THEOREMS.md`).  Let `S` be a set of `m = at47_m P Q` zeros of `N = P Ai + Q Ai'`
 (`(P, Q)` Hermite-Biehler, `Q ≠ 0`) with minimum `tm`.  Then `F = (-1)^m N² / ∏_{t ∈ S}(u - t)` (the entire function with
 `F ∏ = (-1)^m N²`) is entire, integrable on `ℝ` (decay `|x|^{-3/2}`), in the class `‖F(u)‖ ≤ C (1+|u|)^ν e(u)`, real on `ℝ`,
-`≥ 0` on `(-∞, tm]`, vanishes on `S`, has `∫ F = 0`, and is not identically zero.  So `F` is admissible for `um = tm`.  Not formalised:
-that the `m` largest zeros exist (this is a hypothesis on `S`). -/
+`≥ 0` on `(-∞, tm]`, vanishes on `S`, has `∫ F = 0`, and is not identically zero.  So `F` is admissible for `um = tm`.  Such `S`
+exists by `at47_top_zeros_min`; `S` is a finite set, not an ordered enumeration. -/
 theorem at47_existence {P Q : ℝ[X]} (hHB : AiryPQHB P Q) (hQ : Q ≠ 0) (S : Finset ℝ)
     (hcard : S.card = at47_m P Q) (hSz : ∀ t ∈ S, airyPQN P Q (t : ℂ) = 0)
     {tm : ℝ} (htm : tm ∈ S) (hmin : ∀ t ∈ S, tm ≤ t) :

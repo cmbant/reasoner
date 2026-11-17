@@ -13,8 +13,8 @@ zeros: an entire `f` of the class with `∫ f ≤ 0`, `f ≥ 0` on `S` and on `(
 `f ∏_{t∈S}(z - t) = c (-1)^m N²` with a constant `c ≥ 0` (`c = 0` if `um > tm`).  Proof: positivity step
 (`airyPQ_nonneg_zeros_vanish`), local minima give double zeros, `entire_exists_div_sq`, polynomial bound on good circles
 (`at47_G_circle_bound`), Liouville (`at47_entire_polynomial_of_circle_bound`), non-integrability (`at47_not_integrable_poly_mul`),
-sign from `f ≥ 0` below `tm`, second derivative at `tm` when `um > tm`.  All proved.  The set `S` (ordered enumeration of the zeros
-of `N`, one per gap) is a hypothesis: Prüfer monotonicity is not formalised.
+sign from `f ≥ 0` below `tm`, second derivative at `tm` when `um > tm`.  All proved.  The set `S` of the `m` largest zeros is a hypothesis
+(it exists by `at47_top_zeros_min`); no ordered enumeration or one-zero-per-gap statement (Prüfer monotonicity) is formalised or needed.
 -/
 
 @[expose] public section
@@ -138,8 +138,8 @@ lemma at47_deriv2_sq {N : ℂ → ℂ} (hN : Differentiable ℂ N) {a : ℂ} (hN
 zeros of `N = P Ai + Q Ai'` (`hSz`, `hS_top`: every zero of `N` outside `S` lies below all of `S`), `tm = min S`.  If `f` is entire in the
 class of `airyPQ_hasSum_unc`, real on `ℝ`, `∫ f ≤ 0`, `f ≥ 0` on `S` and on `(-∞, um]` with `um ≥ tm`, then
 `f(z) ∏_{t ∈ S}(z - t) = c (-1)^m N(z)²` with a constant `c ≥ 0`, and `c = 0` if `um > tm`.  (So `f = c (-1)^m N²/∏(u - t_j)` off `S`,
-and `f = 0` if `um > tm`.)  Not formalised: that `S` exists, i.e. the ordered enumeration `t_1 > t_2 > ⋯ > t_m` of the zeros of `N`;
-here it is a hypothesis. -/
+and `f = 0` if `um > tm`.)  `S` is a hypothesis (it exists by `at47_top_zeros_min`); an ordered
+enumeration `t_1 > ⋯ > t_m` as a function is not formalised. -/
 theorem at47_uniqueness {P Q : ℝ[X]} (hHB : AiryPQHB P Q) (hQ : Q ≠ 0) (S : Finset ℝ)
     (hcard : S.card = at47_m P Q) (hSz : ∀ t ∈ S, airyPQN P Q (t : ℂ) = 0)
     (hS_top : ∀ x : ℝ, airyPQN P Q (x : ℂ) = 0 → x ∉ S → ∀ t ∈ S, x < t)
