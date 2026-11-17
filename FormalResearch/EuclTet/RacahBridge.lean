@@ -172,4 +172,8 @@ theorem racah_exists_points_iff {N α β γ ρ : ℝ} (hN : 0 < N) (hα : 0 < α
 #guard_msgs (whitespace := lax) in
 #print axioms racah_no_points_of_D6_neg
 
+/-- info: 'FormalResearch.EuclTet.racah_exists_points_of_D6_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms racah_exists_points_of_D6_nonneg
+
 end FormalResearch.EuclTet

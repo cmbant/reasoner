@@ -813,4 +813,20 @@ end Wall
 #guard_msgs (whitespace := lax) in
 #print axioms card_thetaX_zero_eq_nPlus_wall
 
+/-- info: 'FormalResearch.EuclTet.hasDerivAt_cmDet2_x02_planar' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasDerivAt_cmDet2_x02_planar
+
+/-- info: 'FormalResearch.EuclTet.hasDerivAt_cmDet2_x03_planar' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasDerivAt_cmDet2_x03_planar
+
+/-- info: 'FormalResearch.EuclTet.hasDerivAt_cmDet2_x12_planar' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasDerivAt_cmDet2_x12_planar
+
+/-- info: 'FormalResearch.EuclTet.hasDerivAt_cmDet2_x13_planar' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasDerivAt_cmDet2_x13_planar
+
 end FormalResearch.EuclTet
