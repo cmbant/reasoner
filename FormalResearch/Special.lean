@@ -93,6 +93,7 @@ public import FormalResearch.Special.Barnes
 public import FormalResearch.Special.Lattice
 public import FormalResearch.Special.ComplexStirling
 public import FormalResearch.Special.HermiteAiry
+public import FormalResearch.Special.DiscreteLg
 
 /-!
 # Special functions: Jacobi polynomials
@@ -258,6 +259,15 @@ Hermite functions and their Airy edge (`Hermite*`, umbrella `HermiteAiry`, names
 `DunDatum` (`hermite_datum`, `hermite_row`: coefficient error `E = 0`), and the Plancherel–Rotach Airy edge (`hermite_airy_edge`): from `discrete_airy_full_unif`, on the macroscopic window `|(2n+1)/x² - 1| ≤ r`,
 `φ_n(x) = κ g Ai(X) + μ g Bi(X)` with relative error `O(1/n)` in the Olver weights, `μ` exponentially small, absolute constants.  Not formalised: the identification of the amplitude `κ`
 (numerically `κ = S^{-1/12}(1+o(1))`, `S = x²/2`; the Hahn mass argument `hahn_chain_kappa` has no analogue because `∑_n φ_n(x)²` diverges) and even `κ ≠ 0`, so the Airy *shape* is proved but not the size
-(W1 `lem:PR`(b), `|φ_n| ≤ C n^{-1/12}` at the edge, is not obtained); the bulk expansion and phase (needs a discrete Liouville–Green layer), the decay beyond the window, closed form of the Langer coordinate,
+(W1 `lem:PR`(b), `|φ_n| ≤ C n^{-1/12}` at the edge, is not obtained); the bulk expansion and phase for the Hermite chain (the generic discrete Liouville–Green layer `dlg_bulk_smooth` exists, see `DiscreteLg` below, but is not instantiated for it), the decay beyond the window, closed form of the Langer coordinate,
 Cramér's bound, orthogonality, the Weber ODE, the Mehler kernel, the Laguerre analogues.
+Discrete Liouville–Green (Darboux) layer for Jacobi chains (`DiscreteLg*`, 10 modules, umbrella `DiscreteLg`, namespace `FormalResearch.Special`): the oscillatory bulk of a three-term recurrence with
+smooth symmetric Jacobi coefficients and its matching to the Airy turn, first order with explicit `O(h)` error.  For a bulk datum `DlgData` (`A w² sin θ = 1`, `Θ' = θ`) the pair `w cos(Θ/h)`, `w sin(Θ/h)`
+has row defect `O(h²)` and Casoratian `1 + O(h)` (`dlg_row_defect`, `dlg_cas_bound`), and the Airy-free variation-of-constants march gives, for every solution, `Y_k = R w(q_k)[cos(Θ(q_k)/h - φ₀) + O(h)]`
+on any compact interior window (`dlg_bulk`, Cartesian form `dlg_bulk_cart`), with zero localisation in phase (`dlg_bulk_zero_bond`); for smooth `(A, u)` (`dlg_bulk_smooth`) and for the closed-form Hahn/Racah
+chains on an arbitrary window `[c, d]` strictly inside the oscillatory region (`dlg_bulk_hahn`).  Airy matching (`dlg_airy_match`, `dlg_airy_match_smooth`, `dlg_airy_match_hahn`): from the Airy shape at two
+sites, `Y_k = h^{1/6} π^{-1/2} w_k (κ cos χ_k + μ sin χ_k) + O(h^{1/6} h (|κ|+|μ|) w_k)`, `χ_k = (Θ_k - Θ*)/h + π/4`, i.e. phase offset exactly `π/4` and amplitude `h^{1/6}|κ|/√π`;
+for the Hahn/Racah chains this is proved end to end from `airy_full_compose` and the Langer chart relations (`dlg_hahn_airy`, `dlgh_chart`).  Not formalised: second-order Liouville–Green; the value of `κ`
+(`κ ≠ 0` is `hahn_chain_kappa`; the sharp `|κ|` is open) so the amplitude is known only up to the unidentified `κ`; the oscillatory hypothesis `|hrU| < 1` on `[c₀, q_*)` is assumed, not derived from the
+parameters; the other turning point / left edge, Bohr–Sommerfeld quantisation and node counting over the whole oscillatory interval; the continuum Wigner-`d` ODE form; constants are existential, not tracked in the parameters.
 -/

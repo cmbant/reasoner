@@ -34,10 +34,10 @@ depending only on the datum constants, which are absolute) gives `DaiFull`; `Dai
   `κ = 0.6431, 0.5729, 0.5104` for `S = 200, 800, 3200`, ratio `4^{-1/12}`; this is numerical evidence only.  The `ℓ²`-mass
   argument of `hahn_chain_kappa` has no analogue (`∑_n φ_n(x)²` diverges at fixed `x`); the available normalisations are
   the transverse `∫ φ_n² dx = 1` (proved, `integral_hermitePhi_sq`) and the Mehler kernel `∑ t^n φ_n(x)² =
-  e^{-x²(1-t)/(1+t)}/√(π(1-t²))` (not formalised); either needs control of the bulk (Liouville–Green) region or the
+  e^{-x²(1-t)/(1+t)}/√(π(1-t²))` (not formalised); either needs control of the bulk (Liouville–Green) region (the generic layer `dlg_bulk_smooth` of `DiscreteLg` exists but is not instantiated for the Hermite chain, and gives no amplitude without `κ`) or the
   Airy Laplace transform `∫ Ai² e^{-pX}` plus lattice sums.  Hence the amplitude bound `|φ_n| ≤ C n^{-1/12}` and the
   full Plancherel–Rotach statement (which carries the constant) are **not** obtained here.
-* the bulk `|ζ_n| ≤ 1 - ε'` statement (needs a discrete Liouville–Green layer) and the explicit phase;
+* the bulk `|ζ_n| ≤ 1 - ε'` statement and the explicit phase for the Hermite chain (the generic discrete Liouville–Green layer `dlg_bulk_smooth` of `DiscreteLg` exists, first order, for smooth Jacobi chains, but is not instantiated for the Hermite datum);
 * negative `x` is not restated (parity `hermitePhi_neg`: `φ_n(-x) = (-1)^n φ_n(x)`, so `|φ_n(-x)| = |φ_n(x)|` and the signed chain
   is multiplied by `(-1)^k`);
 * the identification of `ζ` with the closed form `(2/3)(-ζ)^{3/2} = (-q)arccos(1/√(-q)) - √(-q-1)` (`q < -1`) is only
