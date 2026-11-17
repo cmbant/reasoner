@@ -16,9 +16,9 @@ Consequences of `airyPQ_hasSum_unc` (`AiryPolySample`) used by the soft-edge not
 * `airyPQ_nonneg_zeros_vanish`: **the positivity step of Theorems 4.5, 4.7** (and of Theorem 1.2/Theorem B of the notes): `f` of the class, real on `ℝ`, with
   `f(t) ≥ 0` at every zero `t` of `N` and `∫ f ≤ 0` vanishes at every zero of `N` (the weights `D/N'²` are positive and real).
 
-Not formalised: the rest of the proof of Theorem 4.7 (the extremal `F = N²/Π(u - t_j)` is entire, `F ≍ |u|^{-3/2}` on the band, then the polynomial
-`f Π(u - t_j)/N²` is bounded on the good circles — for which the lower bound of `airyPQ_good_circle_kappa` is the input — hence a polynomial; and its
-constancy needs the non-integrability of `(polynomial)·N²` on the band, the analogue of `airy_poly_sq_not_integrable` for `N`).
+The rest of the proof of Theorem 4.7 (the extremal `F = N²/Π(u - t_j)` is entire, `F ≍ |u|^{-3/2}` on the band, the polynomial
+`f Π(u - t_j)/N²` is bounded on the good circles, hence a polynomial, constant by the non-integrability of `(polynomial)·N²` on the band) is in `AiryThm47`
+(uniqueness `at47_uniqueness`, existence `at47_existence`).  Not formalised: the converse of Theorem 4.7 (the space `V_m`).
 -/
 
 @[expose] public section

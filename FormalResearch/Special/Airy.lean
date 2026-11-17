@@ -172,9 +172,9 @@ Theorem D on a disc, the zeros and quadrature of `P Ai + Q Ai'`, Clark summation
 **Not formalised:** the full asymptotic series (the `AiryAsym*` files give the first term, or `u_1` in `AiryAsymChi`, with explicit
 remainder; `AiryZeroSecondOrder*` and `AiryZeroThird*` add `u_2`, `u_3`, `u_4` for `Ai`, `Bi` on the negative axis, not higher terms; `Ai'`, `Bi'`, `χ'`
 to order `v_1` only to first order); the `t^{-6}` coefficient `77125/82944` of the zeros' expansion (DLMF 9.9.18 is proved through the
-`-(5/36)t^{-4}` term, with non-sharp constants) and the zeros of `Ai'` (DLMF 9.9.19: only the first-order phase and one zero per gap exist,
-`AiryPruferAsym`, `AiryClarkMid`, plus the largest zero `a'_1`; the asymptotics would need a new saddle expansion with the odd-moment
-integrand and the coefficient `-7/48`), and sharp constants anywhere; the node phase of the general Clark nodes `z_n(α)`,
+`-(5/36)t^{-4}` term, with non-sharp constants) and the zeros of `Ai'` (DLMF 9.9.19: the first-order phase location `|(2/3)y^{3/2} - (k+1/4)π| ≤ 1.12 y^{-3/2}` and one zero in each far phase window exist,
+`AiryPruferAsym`, `AiryClarkMid`, `AiryAsymZerosDeriv` (umbrella-imported by `FormalResearch.Special`), plus the largest zero `a'_1`; the correction `7/48` and the matching of phase labels with the ordered zeros `a'_n` are not formalised, and would need a new saddle expansion with the odd-moment
+integrand), and sharp constants anywhere; the node phase of the general Clark nodes `z_n(α)`,
 `α ≢ 0, π/2` (existence and uniqueness are `airy_node_exists_unique`; the labelling by gaps, monotonicity in `α` and the half-way location are `AiryClarkLabel`, `AiryClarkLabelAsym`);
 Olver's own `N` and the value of the crossing point `c = -0.366…` (`airyCross > -1`); Olver-type uniform expansions; the Mellin
 moments `∫_0^∞ x^{s-1} Ai`, `Ai ∉ L¹(-∞,0)`; the trace-class / Fredholm-determinant statements for the operator `K_u` (the `Lp`-level `K_u`, `K_u = A_u A_u*` and the Hilbert-space side of the Airy kernel are in `AiryTransform*`, not in this aggregate); the Poisson representation of Theorem Q's unfolded function `G` (Lemma H), the conclusion `f = c Ai²/(u-a₁)` of the equality case of Theorem B, and the uniqueness and existence halves of Theorem 4.7 for `P Ai + Q Ai'` with polynomial `P, Q` (good circles for every `(P,Q) ≠ 0`, and zeros, quadrature and Lemma 4.4 for Hermite-Biehler pairs with `Q ≠ 0`, are `AiryPoly*`, umbrella `AiryPoly`, imported by `FormalResearch.Special`); the product form of `Bi`; the lower
@@ -362,7 +362,7 @@ a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete
   `airy_eq_affine`, using `airyQ_mem_half`, so no restriction `ν < -1/2`, and `entire_affine_of_circle_bound`), then `Ai²·(polynomial) ∉ L¹` (`airy_poly_sq_not_integrable`) and
   the sign of `c` from `airyExtremal_pos_mid`.  It needs none of the Poisson representation, Lemma H, the node phase or the polynomial class `P Ai + Q Ai'`.
   Open: the Poisson representation of `G` on the half-plane (Lemma H, horizontal `L¹` bound; not used by any of the above), the node phase of the general Clark nodes,
-  the Airy–Poisson identity `Σ Φ_τ(a_n)/Ai'(a_n)² = 2^{-2/3}` (Theorem 1, Lemma 3), the note's Remark B.1 (tangent rigidity), the uniqueness and existence halves of Theorem 4.7 for polynomial `P, Q` (the rest of the polynomial case is `AiryPoly`), the enclosure `a'_1 ∈ (-1.0188, -1.0187)`, the asymptotics of the zeros of `Ai'` (DLMF 9.9.19).
+  the Airy–Poisson identity `Σ Φ_τ(a_n)/Ai'(a_n)² = 2^{-2/3}` (Theorem 1, Lemma 3), the note's Remark B.1 (tangent rigidity), the converse of Theorem 4.7 for polynomial `P, Q` (the space `V_m`; the forward direction, uniqueness and existence, is `AiryThm47`, the rest of the polynomial case is `AiryPoly`), the enclosure `a'_1 ∈ (-1.0188, -1.0187)`, the sharp asymptotics of the zeros of `Ai'` (DLMF 9.9.19: only the first-order phase location and one zero per phase window are in `AiryAsymZerosDeriv`).
 * *Chebyshev approximation and Hilbert–Schmidt rank decay of the Airy kernel* (`AiryChebyshevApprox`, `AiryRankDecayTail`, `AiryRankDecayKernel`,
   `AiryRankDecayHS`, `AiryRankDecay`; generic input `Complex.ChebyshevBernstein`, Trefethen ATAP Thm 8.1/8.2, imported here like `Complex.Hardy*`).
   `Ai(s + R/2 + (R/2)z)` is entire with the order-`3/2` growth bound only, so `BernsteinHyp` holds with `ρ = 2` and `M(R) = 3exp((2/3)(17R/8)^{3/2})`
@@ -395,7 +395,7 @@ a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete
   saddle expansion with explicit remainder (`norm_saddleJ0_general_le`), the modulus `|χ|²` to `O(r^{-15})` and the phase to `O(s^{-5})`;
   the `Tendsto` form of the limit `t^{10/3}(a_n + t^{2/3} + (5/48)t^{-4/3}) → 5/36` (`airyZero_delta_tendsto_third`) and the spacing
   `n^{1/3}(a_n - a_{n+1}) → (2/3)(3π/2)^{2/3}` (`airyZero_gap_tendsto`) are proved.  Open: the next coefficient `77125/82944`, and the
-  zeros of `Ai'` (DLMF 9.9.19, coefficient `-7/48`), which would need a separate odd-moment saddle chain (`norm_saddleJ0_general_le`
+  zeros of `Ai'` (DLMF 9.9.19: the first-order phase location with one zero per far window is `AiryAsymZerosDeriv`; the coefficient `-7/48` is open), which would need a separate odd-moment saddle chain (`norm_saddleJ0_general_le`
   is the starting point).
 * *Free-fermion edge*: the Airy kernel `K(x,y)`, `K(x,x) = Ai'² - x Ai²`, `(∂_x + ∂_y)K = -Ai(x)Ai(y)` and
   `∫_x^∞ Ai² = K(x,x)` are in place, and `K(x,y) = ∫_0^∞ Ai(x+s)Ai(y+s) ds` (hence positivity of `K`) is

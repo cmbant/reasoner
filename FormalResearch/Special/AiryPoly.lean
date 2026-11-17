@@ -30,6 +30,6 @@ Survey row T4 of the Airy/soft-edge programme: `general_theorems.tex` Lemma 1.0�
 * `AiryPolyApplications`: constant pairs, Lemma 4.4 (`airyPQ_lemma44_hasSum`), and the positivity step of Theorems 4.5/4.7
   (`airyPQ_nonneg_zeros_vanish`).
 
-Not formalised: `Q = 0` (that is `Ai` itself, the existing `airyQ_*`), the Prüfer-angle monotonicity `Λ' = D/(P²+Q²)`, the extremal
-assembly of Theorem 4.7 (see `AiryPolyApplications`), explicit `k₀`.
+Not formalised: `Q = 0` (that is `Ai` itself, the existing `airyQ_*`), the Prüfer-angle monotonicity `Λ' = D/(P²+Q²)`, the converse of
+Theorem 4.7 (the extremal assembly, forward direction, is in `AiryThm47`), explicit `k₀`.
 -/

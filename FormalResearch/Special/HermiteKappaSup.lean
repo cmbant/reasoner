@@ -18,7 +18,7 @@ Airy amplitude `κ` of `HermiteAiryEdge`: the proof is in the `x` variable (Webe
 `T = w φ² + φ'²/w`, `w = √(2n+1 - x²)`, and `∫ φ_n² = 1`), see `HermiteKappaEnvelope`.
 
 **Claim class: proved.**  Not formalised: the oscillatory form `y_n = √(2/π)(2n+1)^{-1/4}(sin t_n)^{-1/2}[cos Φ_n + O(1/n)]`
-(`lem:PR(a)`), the sharp constant, the bound on `y_n'` (follows from `y_n' = a_{n-1}y_{n-1} - a_n y_{n+1}`, not restated).
+(`lem:PR(a)`), the sharp constant.  The bound on `y_n'` is `hpr_deriv_bound` (`HermitePRRho`).
 -/
 
 @[expose] public section
@@ -93,7 +93,7 @@ with `C = 12·10⁶`.  Elementary algebra (not formalised here) turns the three 
 for all `n ≥ 0`: for `n < 2N` the first two conjuncts give `y_n² ≤ C min(|2n+1-x₀²|^{-1/2}, (2n+1)^{-1/6}) = C N^{-1/2} ρ_n`
 (the case `2n+1 = x₀²` being covered by the first conjunct alone), and for `n ≥ 2N` the third gives `y_n² ≤ C N^{-1/2} (n/N)^{1/2}`.
 The Lean statement holds for every real `x₀` (the hypothesis `x₀² ≤ 2N` is only used in the third conjunct).  It does not contain the
-paper's bound `|y_n'| ≤ C N^{1/4} ρ_n^{1/2}` nor the oscillatory form `lem:PR(a)`. -/
+paper's bound `|y_n'| ≤ C N^{1/4} ρ_n^{1/2}` (that is `hpr_deriv_bound`, `HermitePRRho`) nor the oscillatory form `lem:PR(a)`. -/
 theorem hermite_PR_b (N n : ℕ) (hN : 1 ≤ N) (x₀ : ℝ) (hx : x₀ ^ 2 ≤ 2 * N) :
     hermitePhi n x₀ ^ 2 * √((2 * (n : ℝ) + 1) ^ (1 / 3 : ℝ)) ≤ 12000000 ∧
     hermitePhi n x₀ ^ 2 * √|2 * (n : ℝ) + 1 - x₀ ^ 2| ≤ 12000000 ∧

@@ -99,6 +99,9 @@ public import FormalResearch.Special.DiscreteLg
 public import FormalResearch.Special.AiryTransform
 public import FormalResearch.Special.AiryPws
 public import FormalResearch.Special.AiryPoly
+public import FormalResearch.Special.AiryThm47
+public import FormalResearch.Special.AiryAsymZerosDeriv
+public import FormalResearch.Special.HermitePR
 public import FormalResearch.Special.BulkKappaAll
 
 /-!
@@ -278,7 +281,7 @@ Hermite functions and their Airy edge (`Hermite*`, umbrellas `HermiteAiry` and `
 the Weber equation `φ_n'' = (x² - 2n - 1) φ_n` with the energy and an adiabatic invariant (`hasDerivAt_hkDer`, `hermite_weberData`), the **uniform envelope**
 `φ_n(x)² √(|2n+1-x²| + (2n+1)^{1/3}) ≤ 12·10⁶` for all `n` and real `x` (`hermite_envelope`) and the size statement of W1 `lem:PR`(b) in product form (`hermite_PR_b`),
 and the **order** of the Airy amplitude, `c ≤ κ² x^{1/3} ≤ C` (`|κ| ≍ S^{-1/12}`, `S = x²/2`; `hermite_kappa_order`, hence `κ ≠ 0`), with the Airy-edge chart data exported (`hermite_kappa_edge`).
-Not formalised: the exact amplitude (numerically `κ = S^{-1/12}(1+o(1))`) and the sharp constants (the envelope's `12·10⁶` is crude, numerically `≈ 0.75`), uniqueness of `κ` in the Airy decomposition, the derivative bound and the oscillatory form with phase of `lem:PR`(a),
+Not formalised: the exact amplitude (numerically `κ = S^{-1/12}(1+o(1))`) and the sharp constants (the envelope's `12·10⁶` is crude, numerically `≈ 0.75`), uniqueness of `κ` in the Airy decomposition, the oscillatory form with phase of `lem:PR`(a) (the derivative bound and the phase calculus are `HermitePR*`, umbrella `HermitePR`),
 negative `x` and `x = 0` in the `κ` order theorem; the bulk expansion and phase for the Hermite chain (the generic discrete Liouville–Green layer `dlg_bulk_smooth` exists, see `DiscreteLg` below, but is not instantiated for it), closed form of the Langer coordinate,
 Cramér's bound, orthogonality, the second solution of the Weber equation, the Mehler kernel, the Laguerre analogues.
 Discrete Liouville–Green (Darboux) layer for Jacobi chains (`DiscreteLg*`, 10 modules, umbrella `DiscreteLg`, namespace `FormalResearch.Special`): the oscillatory bulk of a three-term recurrence with
@@ -311,7 +314,7 @@ Polynomial coefficients for `N = P Ai + Q Ai'` (`AiryPoly*`, 10 modules, umbrell
 Good circles `r ∈ [k, k+1]` with `‖N‖² ≥ c r^{2κ} e` and `‖M/N ∓ i‖ e ≤ 168√π` for every `(P, Q) ≠ 0` (`airyPQ_good_circle`, `airyPQ_good_circle_kappa`, where `airyPQkappa` is `2κ`, and the SE5 form `airyPQ_good_circle_SE5`) from the dominance dichotomy `airyPQ_dominance`.
 Hermite-Biehler pairs (all roots of `Q + iP` in the open lower half-plane): the Herglotz inequality `airyPQHB_norm_le`, `PQ' - QP' ≥ 0` on `ℝ` (`airyPQHB_wronskian_nonneg`), all zeros of `N` real (`airyPQ_zero_im`) and, for `Q ≠ 0`, simple with `D > 0`
 (`airyPQ_zero_weight_pos`), the weight bound `‖D/N'²‖ ≤ 882π²/√(-t)` (`airyPQ_weight_norm_le`), the quadrature `∫f = Σ_{N(z)=0} f(z) D(z)/N'(z)²` for entire `f` with `|f| ≤ C(1+|u|)^ν e(u)`, `f ∈ L¹`, any real `ν`, with unconditional summability (`airyPQ_hasSum_unc`;
-limit form for any `(P, Q) ≠ 0` with simple zeros `airyPQ_tendsto_of_simple`), Lemma 4.4 (`airyPQ_lemma44_hasSum`) and the positivity step of Theorems 4.5/4.7 (`airyPQ_nonneg_zeros_vanish`).  Not formalised: the uniqueness and existence halves of Theorem 4.7, `Q = 0`
+limit form for any `(P, Q) ≠ 0` with simple zeros `airyPQ_tendsto_of_simple`), Lemma 4.4 (`airyPQ_lemma44_hasSum`) and the positivity step of Theorems 4.5/4.7 (`airyPQ_nonneg_zeros_vanish`).  `AiryThm47` (13 modules, umbrella `AiryThm47`) adds the forward direction of Theorem 4.7 for the `m` largest zeros of `N` (existence of the extremal `F = (−1)^m N²/∏(u−t_j)`, uniqueness, `sup u_m = t_m`, non-integrability, existence of the top zeros).  Not formalised: the converse of Theorem 4.7 (the space `V_m`), `Q = 0`
 (the constant-coefficient `airyQ_*` theorems), Prüfer monotonicity and the existence of a zero in each gap (only at most one zero per gap far out is proved, `airyPQ_injOn_far`), sharp constants.
 Bulk amplitude and zeros of the physical chains (`BulkKappa*`, 14 modules, umbrella `BulkKappaAll`, namespace `FormalResearch.Special`; Weyl P3 `thm:general-rank-airy`(i), `thm:racahAiryConnection`): the sharp amplitude `|κ² δ - 2| ≤ τ'` of the Airy window for the Hahn `3j` chain at integer and half-integer data and `τ = ±1`
 (`hahn_chain_kappa_sharp_win`, `_neg`, `_half`, `_half_neg`; the public statements say there is a window with this property, the "every window of the exported constants" form is the generic `BkOut`), composed with the bulk Liouville-Green form of `DiscreteLg`: for `[a, b] ⊂ (0, q_*)`
