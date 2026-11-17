@@ -38,6 +38,7 @@ theorem kc2_turn {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 3 u c0) (h1
         (∀ k ∈ Finset.Icc J N, c1 * δ ≤ turnX u c0 q₀ δ (k + 1) - turnX u c0 q₀ δ k ∧
           turnX u c0 q₀ δ (k + 1) - turnX u c0 q₀ δ k ≤ c2 * δ) ∧
         (0 ≤ turnX u c0 q₀ δ m ∧ turnX u c0 q₀ δ m ≤ c2 * δ) ∧
+        c1 * (r / 4) / δ ^ 2 ≤ turnX u c0 q₀ δ N ∧
         ∀ a c : ℤ → ℝ,
           (∀ k ∈ Finset.Icc (J + 1) (N + 1), |a k - A (dalQ q₀ δ k - δ ^ 3 / 2)| ≤ E * δ ^ 6) →
           (∀ k ∈ Finset.Icc (J + 1) N, |c k - 2 * A (dalQ q₀ δ k) * u (dalQ q₀ δ k)| ≤ E * δ ^ 6) →
@@ -121,7 +122,7 @@ theorem kc2_turn {u A : ℝ → ℝ} {c0 : ℝ} (hu : ContDiffAt ℝ 3 u c0) (h1
     have h2 := (hgap m (by rw [Finset.mem_Icc]; omega)).2
     linarith only [h1, h2, hX1, hc2δ]
   have hgl : ∀ k ∈ Finset.Icc J (N + 1), gmin ≤ langerAmp u A c0 (dalQ q₀ δ k) := fun k hk => (T.gb _ (hwin k hk)).1
-  refine ⟨J, m, N, hJN, hJm, hmN, hwin, hqJ1, hqJ2, hqm1, hqm2, hqN, hqN1, hg, hXm, hgl, hgap, ⟨hX0, hX1⟩, ?_⟩
+  refine ⟨J, m, N, hJN, hJm, hmN, hwin, hqJ1, hqJ2, hqm1, hqm2, hqN, hqN1, hg, hXm, hgl, hgap, ⟨hX0, hX1⟩, hXN, ?_⟩
   intro a c ha hc
   have hEδ : E * δ ^ 6 ≤ Amin / 2 := dao_E_arith hE hδ hδ11 hδE
   have hsmall : Cl * δ ^ 3 ≤ 1 / 4 := dao_small_arith hCl0 hδ hδ11 hδCl
@@ -191,6 +192,7 @@ theorem kc2_hahn_full {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : �
         (∀ k ∈ Finset.Icc J N, c1 * δ ≤ turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ (k + 1) - turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k ∧
           turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ (k + 1) - turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ k ≤ c2 * δ) ∧
         (0 ≤ turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ m ∧ turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ m ≤ c2 * δ) ∧
+        c1 * (r / 4) / δ ^ 2 ≤ turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ N ∧
         DaiFull (hrAk P Q a b (δ ^ 3)) (hrCk P Q τ x a b (δ ^ 3)) (turnX (hrU P Q τ x) qs (δ ^ 3 / 2) δ)
           (fun k => langerAmp (hrU P Q τ x) (hrA1 P Q) qs (dalQ (δ ^ 3 / 2) δ k)) J m N δ C Cmu ξ0 := by
   obtain ⟨r0, hr0, hr0q, hdom⟩ := hr_dom hqs hα hβ
@@ -211,14 +213,14 @@ theorem kc2_hahn_full {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : �
   have hδM : δ ≤ 3 * qs / (4 * hrM a b) := hδi'.trans ((min_le_right _ _).trans (min_le_left _ _))
   have hδq : δ ≤ qs / 2 := hδi'.trans ((min_le_right _ _).trans (min_le_right _ _))
   have h3δ : δ ^ 3 ≤ δ := by nlinarith [pow_pos hδ 2]
-  obtain ⟨J, m, N, hJN, hJm, hmN, hwin, hqJ, hqJc, hqm1, hqm2, hqN, hqN1, hg, hXm, hgl, hgap, hX0m, Hc⟩ := H δ (δ ^ 3 / 2) hδ hδ1'
+  obtain ⟨J, m, N, hJN, hJm, hmN, hwin, hqJ, hqJc, hqm1, hqm2, hqN, hqN1, hg, hXm, hgl, hgap, hX0m, hXN, Hc⟩ := H δ (δ ^ 3 / 2) hδ hδ1'
   have hr4 : r ≤ qs / 4 := hrr0.trans hr0q
   obtain ⟨hpa, hpc⟩ := hr_perturb hP hQ a b τ x qs hqs hτ hr4 hrr0 hdom hδ hδ1 hδM hwin
   have e2 : ∀ k : ℤ, dalQ (δ ^ 3 / 2) δ k = ((k : ℝ) + 1 / 2) * δ ^ 3 := fun k => by unfold dalQ; ring
   refine ⟨J, m, N, hr_J_pos hr4 hδ (h3δ.trans hδq) (by omega) hwin, hJN, hJm, hmN, fun k hk => ?_,
     by rw [← e2]; exact hqJ, by rw [← e2]; exact hqJc, by rw [← e2]; exact hqm1, by rw [← e2]; exact hqm2,
     by rw [← e2]; exact hqN, by have := hqN1; rw [show ((N : ℝ) + 1 + 1 / 2) * δ ^ 3 = dalQ (δ ^ 3 / 2) δ (N + 1) by
-      unfold dalQ; push_cast; ring]; exact this, hg, hXm, hgl, hgap, hX0m, Hc _ _ hpa hpc⟩
+      unfold dalQ; push_cast; ring]; exact this, hg, hXm, hgl, hgap, hX0m, hXN, Hc _ _ hpa hpc⟩
   have h1 := hwin k hk
   rw [e2] at h1
   rw [abs_le]
