@@ -32,7 +32,7 @@ chain `|κ| = |Ŷ_k|/(g Ai(X_k))` near the turn is `√2 N^{1/6}(1 + o(1))`: `M 
 `N = Σ Ŷ² ≈ N κ² N^{-1/3}/(2π) ∫_0^{q_*} dq/(A sin φ) = κ² N^{2/3}/2` (`A sin φ = ½√(q_*² - q²)`, `∫ = π`) gives `κ² = 2 N^{1/3}`, independent of
 `(M, σ, x)`; its rigorous version is `hahn_chain_kappa_sharp`.
 
-**Not formalised** (anywhere in the tree; this module proves only `κ_min`, the order and the value are in the modules named above): the Darboux phase and sign of `κ`; `τ = -1`; half-integer chains; Racah;
+**Not formalised** (anywhere in the tree; this module proves only `κ_min`, the order and the value are in the modules named above): the Darboux phase and sign of `κ`; `τ = -1` and half-integer chains for the `3j` (the Racah `6j` chain, integer and half-integer, is `racah_chain_kappa_sharp*` in `RacahKappa*`);
 uniformity of the constants in `x` (the matching without `κ` is uniform in `x ∈ [x₀, x₁]`: `hahn_chain_airy_full_unif`, `DiscreteAiryUnifHahn`; `κ_min` is not).
 -/
 

@@ -22,7 +22,7 @@ nothing else changes).  This duplicates the two proofs: the two conjuncts may la
 (`DiscreteAiryPhysTurn`) and this module deleted; `DiscreteAiryKappaChart2` (`kc2_turn`, `kc2_hahn_full`) is the same statement with more conjuncts, and
 `HermiteKappaChart.hkc_turn` a further copy.
 
-**Not formalised here.**  The value of `κ` (it is `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`); `τ = -1`; Racah.
+**Not formalised here.**  The value of `κ` (it is `hahn_chain_kappa_sharp`, `DiscreteAiryKappaSharpFinal`); `τ = -1`; Racah (the `6j` value of `κ` is `racah_chain_kappa_sharp`, `RacahKappa*`, built on its own window data `RkWinAt`, not on `kc_hahn_full`).
 -/
 
 @[expose] public section

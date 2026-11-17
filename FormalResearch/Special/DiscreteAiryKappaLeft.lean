@@ -23,7 +23,7 @@ left of the macroscopic Airy window (`DiscreteAiryOsc*`): it holds on the entire
 Hahn edge), with no WKB phase or amplitude input.  Mpmath check of the invariant on the actual chain: see
 `DiscreteAiryKappaInvariant`.
 
-**Not formalised.**  The sharp (`1 + o(1)`) amplitude on the left; the half-integer shifted chain; Racah.
+**Not formalised.**  The sharp (`1 + o(1)`) amplitude on the left; the half-integer shifted `3j` chain (the Racah left bounds are `rl_left`, `rl_leftH` in `RacahKappa*`).
 -/
 
 @[expose] public section
