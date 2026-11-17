@@ -6,7 +6,7 @@ public import FormalResearch.Special.AiryKernelOpOperator
 # The Airy kernel operator `K_u` on `L²(u, ∞)`: norm bound and symmetry at the level of functions
 
 Mathlib has no Hilbert–Schmidt / integral-operator API (checked: no `HilbertSchmidt`, no integral operator
-on `Lp`), and this file does **not** build `K_u` as a `ContinuousLinearMap` on `Lp ℝ 2`.  What is proved is
+on `Lp`), and this file does **not** build `K_u` as a `ContinuousLinearMap` on `Lp ℝ 2` (that is done in `AiryTransformProj`, `airyKu`, and identified a.e. with `airyKerOp` in `AiryTransformRKHS`, `airyKu_airyKerOp`).  What is proved here is
 the function-level content of "`K_u` is a bounded self-adjoint operator on `L²(u,∞)`".  Write
 `(K_u f)(x) = ∫_u^∞ K(x,y) f(y) dy` (`airyKerOp u f x`) and `μ_u = vol|_{(u,∞)}`.  For `f` measurable with
 `∫_u^∞ f² < ∞`:
@@ -22,8 +22,7 @@ the function-level content of "`K_u` is a bounded self-adjoint operator on `L²(
 Positivity `⟨f, K_u f⟩ ≥ 0` for all `f ∈ L²` is `airyKerForm_self_nonneg` (continuity of `B_u` in `L²` plus the
 existing compact-support case `airyKer_quadForm_nonneg`).
 
-**Not formalised:** `K_u` as an element of `Lp ℝ 2 →L[ℝ] Lp ℝ 2`, the factorisation `K_u = A_u A_u^*`,
-eigenvalues/Fredholm determinant.
+**Not formalised here** (but see `AiryTransformProj` / `AiryTransformRKHS` for `K_u` as a bounded positive operator on `Lp`, over `ℂ`, and the factorisation `K_u = A_u A_u^*`): eigenvalues/Fredholm determinant.
 -/
 
 @[expose] public section
