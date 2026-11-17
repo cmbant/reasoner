@@ -179,7 +179,7 @@ the proof gives `|κ² δ - 2| ≤ C₁ A + C₂(A) δ` for every small `A` (num
 edges `x → 0, 1`), the Darboux phase and sign of `κ`, `κ ≠ 0` and the value of `κ` for `τ = -1` and half-integer `3j` chains, uniformity of the Racah/half-integer matching over families,
 the half-integer version of the full statement, Racah family variants, explicit constants, analyticity of `ζ`.
 
-The Racah `6j` counterpart is `RacahKappa*` (43 modules, umbrella `RacahKappaAll`: 23 integer-data modules and 20 half-integer ones, `H` in the name): `racah_chain_kappa_sharp` (`τ = +1`), `racah_chain_kappa_sharp_neg` (`τ = -1`, twisted chain),
+The Racah `6j` counterpart is `RacahKappa*` (34 modules, umbrella `RacahKappaAll`: 22 integer-data modules and 12 half-integer ones, `H` in the name): `racah_chain_kappa_sharp` (`τ = +1`), `racah_chain_kappa_sharp_neg` (`τ = -1`, twisted chain),
 and for `racah6jYH` (labels `m + 1/2`, `n + 1/2`, shifted lattice `q_k = (k+1)h`) `racah_chain_kappa_sharp_half`, `racah_chain_kappa_sharp_half_neg`: for fixed `(α, β, x, m, n)` (window constants first) and every `τ' > 0` there is `ε₁ > 0` depending on
 `τ'` and `(α, β, x, m, n)` only, not on the system or on `h`, such that for every finite Racah system with `A h = α`, `B h = β`, `cos = x` exactly and `0 < h ≤ ε₁` the Airy-window amplitude `κ` of the Langer matching satisfies `|κ² δ - 2| ≤ τ'`, `δ³ = h`
 (the Hahn constant 2, independent of `τ, x, m, n`).  Proof: Liouville-Green bulk form with the window's own `κ, μ` (`rk_bulk`, `rk_bulkH`), band, zone and Gauss mass, left a priori bound (`rl_left`, `rl_leftH`) and monotone forbidden tail
