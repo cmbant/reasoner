@@ -201,7 +201,7 @@ lemma combo_airy_eq_zero_iff {α : ℝ} (hα : Real.sin α ≠ 0) (x : ℝ) :
     ring
 
 /-- An angle `α ∈ (0, π)` with `cot α = c`: `α = π/2 - arctan c`. -/
-lemma exists_angle_cot (c : ℝ) :
+lemma airyClark_exists_angle_cot (c : ℝ) :
     ∃ α : ℝ, 0 < α ∧ α < Real.pi ∧ Real.cos α / Real.sin α = c := by
   refine ⟨Real.pi / 2 - Real.arctan c, ?_, ?_, ?_⟩
   · have := Real.arctan_lt_pi_div_two c; linarith
@@ -213,7 +213,7 @@ lemma exists_angle_cot (c : ℝ) :
 /-- Existence of a zero of `Ai' - c Ai` in a gap `G_n`, `n ≥ 2` (interlacing theorem with `α`, `cot α = c`). -/
 lemma airyClark_exists_gap {n : ℕ} (hn : 2 ≤ n) (c : ℝ) :
     ∃ x ∈ airyClarkGap n, airyAi' x = c * airyAi x := by
-  obtain ⟨α, hα0, hαpi, hαc⟩ := exists_angle_cot c
+  obtain ⟨α, hα0, hαpi, hαc⟩ := airyClark_exists_angle_cot c
   have hsin : Real.sin α ≠ 0 := (Real.sin_pos_of_pos_of_lt_pi hα0 hαpi).ne'
   have hab : airyZero n < airyZero (n - 1) := by
     have := airyZero_strictAnti (n := n - 1) (by omega)
@@ -429,7 +429,7 @@ theorem tendsto_airyClarkNode_one_atBot : Tendsto (fun c : ℝ => airyClarkNode 
 /-- The Clark node `z_n(α)` of `ψ_α = cos α · Ai - sin α · Ai'` (`sin α ≠ 0`): `z_n(cot α)`. -/
 noncomputable def airyClarkAngleNode (α : ℝ) (n : ℕ) : ℝ := airyClarkNode (Real.cos α / Real.sin α) n
 
-lemma cot_strictAntiOn : StrictAntiOn (fun α : ℝ => Real.cos α / Real.sin α) (Ioo 0 Real.pi) := by
+lemma airyClark_cot_strictAntiOn : StrictAntiOn (fun α : ℝ => Real.cos α / Real.sin α) (Ioo 0 Real.pi) := by
   intro a ha b hb hab
   have hsa := Real.sin_pos_of_pos_of_lt_pi ha.1 ha.2
   have hsb := Real.sin_pos_of_pos_of_lt_pi hb.1 hb.2
@@ -444,7 +444,7 @@ lemma cot_strictAntiOn : StrictAntiOn (fun α : ℝ => Real.cos α / Real.sin α
 theorem airyClarkAngleNode_strictMonoOn {n : ℕ} (hn : 1 ≤ n) :
     StrictMonoOn (fun α : ℝ => airyClarkAngleNode α n) (Ioo 0 Real.pi) := by
   intro a ha b hb hab
-  exact airyClarkNode_strictAnti hn (cot_strictAntiOn ha hb hab)
+  exact airyClarkNode_strictAnti hn (airyClark_cot_strictAntiOn ha hb hab)
 
 /-- `z_n(α + π) = z_n(α)` (the nodes of `ψ_α` depend on `α` modulo `π`; this is how the note's `α ∈ (-π/2, 0)` enters). -/
 theorem airyClarkAngleNode_add_pi (α : ℝ) (n : ℕ) : airyClarkAngleNode (α + Real.pi) n = airyClarkAngleNode α n := by
@@ -455,7 +455,7 @@ theorem airyClarkAngleNode_add_pi (α : ℝ) (n : ℕ) : airyClarkAngleNode (α 
 theorem airyClarkAngleNode_bijOn {n : ℕ} (hn : 1 ≤ n) :
     BijOn (fun α : ℝ => airyClarkAngleNode α n) (Ioo 0 Real.pi) (airyClarkGap n) := by
   refine ⟨fun α _ => airyClarkNode_mem_gap hn _, (airyClarkAngleNode_strictMonoOn hn).injOn, fun x hx => ?_⟩
-  obtain ⟨α, hα0, hαpi, hαc⟩ := exists_angle_cot (airyRatio x)
+  obtain ⟨α, hα0, hαpi, hαc⟩ := airyClark_exists_angle_cot (airyRatio x)
   exact ⟨α, ⟨hα0, hαpi⟩, by
     show airyClarkNode (Real.cos α / Real.sin α) n = x
     rw [hαc]; exact airyClarkNode_ratio hn hx⟩
@@ -469,7 +469,7 @@ theorem airyClarkAngle_zero_iff {α : ℝ} (hα : Real.sin α ≠ 0) (x : ℝ) :
   · rintro ⟨n, hn, rfl⟩
     exact (airyClarkNode_spec hn _).2
 
-lemma tendsto_cot_nhdsGT_zero : Tendsto (fun α : ℝ => Real.cos α / Real.sin α) (𝓝[>] 0) atTop := by
+lemma airyClark_tendsto_cot_nhdsGT_zero : Tendsto (fun α : ℝ => Real.cos α / Real.sin α) (𝓝[>] 0) atTop := by
   have h1 : Tendsto Real.sin (𝓝[>] 0) (𝓝[>] 0) := by
     refine tendsto_nhdsWithin_iff.2 ⟨(Real.continuous_sin.tendsto' 0 0 Real.sin_zero).mono_left nhdsWithin_le_nhds, ?_⟩
     filter_upwards [Ioo_mem_nhdsGT Real.pi_pos] with a ha
@@ -480,7 +480,7 @@ lemma tendsto_cot_nhdsGT_zero : Tendsto (fun α : ℝ => Real.cos α / Real.sin 
   have h3 : Tendsto (fun α : ℝ => (Real.sin α)⁻¹) (𝓝[>] 0) atTop := tendsto_inv_nhdsGT_zero.comp h1
   simpa [div_eq_mul_inv] using h2.pos_mul_atTop one_pos h3
 
-lemma tendsto_cot_nhdsLT_pi : Tendsto (fun α : ℝ => Real.cos α / Real.sin α) (𝓝[<] Real.pi) atBot := by
+lemma airyClark_tendsto_cot_nhdsLT_pi : Tendsto (fun α : ℝ => Real.cos α / Real.sin α) (𝓝[<] Real.pi) atBot := by
   have h : Tendsto (fun α : ℝ => Real.pi - α) (𝓝[<] Real.pi) (𝓝[>] 0) := by
     refine tendsto_nhdsWithin_iff.2 ⟨?_, ?_⟩
     · have : Tendsto (fun α : ℝ => Real.pi - α) (𝓝 Real.pi) (𝓝 (Real.pi - Real.pi)) :=
@@ -488,24 +488,24 @@ lemma tendsto_cot_nhdsLT_pi : Tendsto (fun α : ℝ => Real.cos α / Real.sin α
       simpa using this.mono_left nhdsWithin_le_nhds
     · filter_upwards [self_mem_nhdsWithin] with a ha
       simp only [mem_Ioi]; exact sub_pos.2 ha
-  have h2 := tendsto_neg_atTop_atBot.comp (tendsto_cot_nhdsGT_zero.comp h)
+  have h2 := tendsto_neg_atTop_atBot.comp (airyClark_tendsto_cot_nhdsGT_zero.comp h)
   refine h2.congr fun α => ?_
   simp [Real.cos_pi_sub, Real.sin_pi_sub, neg_div]
 
 /-- **`z_n(α) → a_n` as `α → 0⁺`** (note: `z_n(α) → a_n`). -/
 theorem tendsto_airyClarkAngleNode_zero {n : ℕ} (hn : 1 ≤ n) :
     Tendsto (fun α : ℝ => airyClarkAngleNode α n) (𝓝[>] 0) (𝓝 (airyZero n)) :=
-  (tendsto_airyClarkNode_atTop hn).comp tendsto_cot_nhdsGT_zero
+  (tendsto_airyClarkNode_atTop hn).comp airyClark_tendsto_cot_nhdsGT_zero
 
 /-- **`z_n(α) → a_{n-1}` as `α → π⁻ ≡ 0⁻`** (`n ≥ 2`). -/
 theorem tendsto_airyClarkAngleNode_pi {n : ℕ} (hn : 2 ≤ n) :
     Tendsto (fun α : ℝ => airyClarkAngleNode α n) (𝓝[<] Real.pi) (𝓝 (airyZero (n - 1))) :=
-  (tendsto_airyClarkNode_atBot hn).comp tendsto_cot_nhdsLT_pi
+  (tendsto_airyClarkNode_atBot hn).comp airyClark_tendsto_cot_nhdsLT_pi
 
 /-- **`z_1(α) → +∞` as `α → π⁻`.** -/
 theorem tendsto_airyClarkAngleNode_one_pi :
     Tendsto (fun α : ℝ => airyClarkAngleNode α 1) (𝓝[<] Real.pi) atTop :=
-  tendsto_airyClarkNode_one_atBot.comp tendsto_cot_nhdsLT_pi
+  tendsto_airyClarkNode_one_atBot.comp airyClark_tendsto_cot_nhdsLT_pi
 
 /-- info: 'FormalResearch.Special.airyClark_existsUnique' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -20,9 +20,9 @@ CFT `AIRY_POISSON.md` §5, Theorem Q (2) and Corollary Q′, for `f` entire (com
   `|f(-z²)|/e ≤ C … e^{-2ε₀ Im z}`), so `∫_ℝ G(x) e^{iλx} dx = 0`; the parts `x > 0` and `x < 0` combine to `i ∫_0^∞ f(-v) sin(…) dv`
   (substitution `v = x²`).  The statement is stated for complex-valued `f` (the sine is real, `f` is not required to be real).
 
-Not formalised: the second half of Theorem Q (2) for every `u` (`ψ ≤ C₁‖f‖_b|u|^{1/2}` for non-real `u` near the negative axis; see
-`AiryCftQUniform`), the Poisson representation, the interpretation of Corollary Q′ as `supp ĝ ⊂ [0,∞)`, and the resonance
-numerics for `f_m` (`verify_poisson_unfold.py` (5), numerical evidence in the note).
+The second half of Theorem Q (2) (`ψ ≤ C₁‖f‖_b|u|^{1/2}` for every `|u| ≥ 1`, hence `𝒢_N ⊂ 𝒢_{1/2}`) is `AiryCftQUniform`.
+Not formalised: the Poisson representation `G(z) = ∫ P_z g` and the horizontal bound of Lemma H, the interpretation of Corollary Q′ as
+`supp ĝ ⊂ [0,∞)`, and the resonance numerics for `f_m` (`verify_poisson_unfold.py` (5), numerical evidence in the note).
 -/
 
 @[expose] public section

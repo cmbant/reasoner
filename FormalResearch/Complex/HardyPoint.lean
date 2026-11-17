@@ -20,8 +20,8 @@ Proof.  The Möbius map `φ(w) = (w + i)/(1 + i w)` of `D` onto `ℍ` (`HardyHal
 `2 ‖G(i)‖ ≤ (2π)⁻¹ ∫_ℝ ‖G‖`.  A general `z = x + iy` is moved to `i` by `G ↦ y G(x + y ·)`, and polynomial growth is handled by
 the damping `G (1 - iδz)^{-K}` of `HardyArcDecay`, as there.
 
-Not formalised: the Poisson representation `G(z) = ∫ P_z g`, the horizontal bound `∫ ‖G(x + iy)‖ dx ≤ ‖g‖₁`, the improvement
-`4π`-factorisation `H¹ = H²·H²` (the constant `1/(4π y)` here is already that sharp constant).
+Not formalised: the Poisson representation `G(z) = ∫ P_z g` and the horizontal bound `∫ ‖G(x + iy)‖ dx ≤ ‖g‖₁`.  (The constant `1/(4π y)` is the
+sharp `H¹(ℍ)` constant, the one the note obtains from the factorisation `H¹ = H²·H²`.)
 -/
 
 @[expose] public section
