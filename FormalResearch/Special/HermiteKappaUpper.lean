@@ -55,7 +55,7 @@ lemma hk_phi_bound (n : ℕ) {x : ℝ} (hx : 0 < x) (hn : x ^ 2 / 2 ≤ 2 * (n :
 
 lemma hk_mu_bound {Cmu ξ0 x δ μ : ℝ} (hCmu : 0 < Cmu) (hξ0 : 0 < ξ0) (hx : 4 ≤ x) (hδ : 0 < δ)
     (hδx : δ ^ 3 = 2 / x ^ 2) (hμ : |μ| ≤ Cmu * √(x ^ 2 + 2) * Real.exp (-ξ0 / δ ^ 3) / δ) :
-    μ ^ 2 * x ^ (1 / 3 : ℝ) ≤ 8 * Cmu ^ 2 / ξ0 ^ 2 := by
+    μ ^ 2 * x ^ (1 / 3 : ℝ) ≤ 8 * Cmu ^ 2 / ξ0 ^ 2 / x ^ (1 / 3 : ℝ) := by
   have hx0 : 0 < x := by linarith
   set s : ℝ := x ^ (1 / 3 : ℝ) with hs
   have hs0 : 0 < s := Real.rpow_pos_of_pos hx0 _
@@ -114,9 +114,15 @@ lemma hk_mu_bound {Cmu ξ0 x δ μ : ℝ} (hCmu : 0 < Cmu) (hξ0 : 0 < ξ0) (hx 
     field_simp
     norm_num
   rw [e6] at h5
-  have h7 : 8 * Cmu ^ 2 / ξ0 ^ 2 / s ≤ 8 * Cmu ^ 2 / ξ0 ^ 2 :=
-    div_le_self (by positivity) hs1
-  linarith
+  exact h5
+
+lemma hk_mu_bound_weak {Cmu ξ0 x δ μ : ℝ} (hCmu : 0 < Cmu) (hξ0 : 0 < ξ0) (hx : 4 ≤ x) (hδ : 0 < δ)
+    (hδx : δ ^ 3 = 2 / x ^ 2) (hμ : |μ| ≤ Cmu * √(x ^ 2 + 2) * Real.exp (-ξ0 / δ ^ 3) / δ) :
+    μ ^ 2 * x ^ (1 / 3 : ℝ) ≤ 8 * Cmu ^ 2 / ξ0 ^ 2 := by
+  have h := hk_mu_bound hCmu hξ0 hx hδ hδx hμ
+  have hx0 : 0 < x := by linarith
+  have hs1 : 1 ≤ x ^ (1 / 3 : ℝ) := Real.one_le_rpow (by linarith) (by norm_num)
+  exact h.trans (div_le_self (by positivity) hs1)
 
 lemma hk_airy_consts : ∃ aiMin biMax : ℝ, 0 < aiMin ∧ 0 ≤ biMax ∧
     ∀ X ∈ Set.Icc (0 : ℝ) (1 / 8), aiMin ≤ airyAi X ∧ |airyBi X| ≤ biMax := by
@@ -275,7 +281,7 @@ theorem hermite_kappa_le {r C Cmu ξ0 gmax gmin c1 c2 Lg : ℝ} (hC : 0 < C) (hC
   have hlam := hk_index hx4 hδx hqm2' hnR
   have hphi := hk_phi_bound n hx hlam
   rw [hYn] at hkap
-  have hmu := hk_mu_bound hCmu hξ0 hx4 hδ hδx hμ
+  have hmu := hk_mu_bound_weak hCmu hξ0 hx4 hδ hδx hμ
   exact hk_final hCmu hξ0 ha0 hK0 hkap hphi hmu hx
 
 /-- info: 'FormalResearch.Special.hermite_kappa_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
