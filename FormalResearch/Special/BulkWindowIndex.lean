@@ -309,13 +309,13 @@ For `[a, b] ⊂ (0, q_*)` there are `t₀ = 1/2` and `ε > 0` such that at every
 `n ≤ m`, `x_n = x`), for every site `iR` with `q ∈ [a, b]` and `|cos θ_{iR}| > 1/2` and every `i₁ ≥ iR`, `i₁ ≤ m` with `q_{i₁} ≥ q_*`, the nodes in the bonds
 `iR, …, i₁ - 1` number `⌊Φ(q_{iR})/(π h) + 1/4⌋`. -/
 theorem hahn_chain_window_count (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) :
-    ∀ a b : ℝ, 0 < a → a < b → b < √(1 - (x : ℝ) ^ 2) → ∃ t₀ ε : ℝ, 0 < t₀ ∧ 0 < ε ∧
+    ∀ a b : ℝ, 0 < a → a < b → b < √(1 - (x : ℝ) ^ 2) → ∃ ε : ℝ, 0 < ε ∧
       ∀ (m n : ℕ), 1 ≤ max |M| |σ| → n ≤ m → xLat (M : ℚ) (σ : ℚ) ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℚ) n = x →
         1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ) ≤ ε → ∀ i₁ iR : ℕ, iR ≤ i₁ → i₁ ≤ m →
           a ≤ bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)) →
           bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)) ≤ b →
           √(1 - (x : ℝ) ^ 2) ≤ bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i₁ : ℤ)) →
-          t₀ < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)))| →
+          1 / 2 < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)))| →
           ((∑ j ∈ Ico iR i₁, bix_c (bixU M σ (max |M| |σ| + (m : ℤ) + 1) x) j : ℕ) : ℤ) =
             ⌊bkPhase 1 0 1 (x : ℝ) (√(1 - (x : ℝ) ^ 2)) (bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ))) /
               (π * (1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ))) + 1 / 4⌋ := by
@@ -332,7 +332,7 @@ theorem hahn_chain_window_count (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 
   obtain ⟨εb, hεb, Hb⟩ := bwn_bulk_count M σ x hx0 hx1 a b2 ha hab2 hb2q
   obtain ⟨εt, hεt, Ht⟩ := bix_hahn_tail M σ x hx0 hx1
   obtain ⟨εg, hεg, Hg⟩ := bwn_exists_good M σ x hx0 hx1 hρ hρq
-  refine ⟨1 / 2, min εw (min εb (min εt εg)), by norm_num, lt_min hεw (lt_min hεb (lt_min hεt hεg)), ?_⟩
+  refine ⟨min εw (min εb (min εt εg)), lt_min hεw (lt_min hεb (lt_min hεt hεg)), ?_⟩
   intro m n hlo hnm hxn hNε i₁ iR hiR him haR hRb hq1 hcos
   set K : ℤ := max |M| |σ| with hK
   set N : ℤ := K + (m : ℤ) + 1 with hN
@@ -370,19 +370,19 @@ theorem hahn_chain_window_count (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 
 `|cos θ_{iR}| > t₀`, the bonds `iR, …, m - 1` carry `⌊Φ(q_{iR})/(π h) + 1/4⌋` nodes. -/
 theorem bix_hahn_rightcount (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) (a b : ℝ) (ha : 0 < a) (hab : a < b)
     (hb : b < √(1 - (x : ℝ) ^ 2)) :
-    ∃ t₀ ε : ℝ, 0 < t₀ ∧ 0 < ε ∧
+    ∃ ε : ℝ, 0 < ε ∧
       ∀ (m n : ℕ), 1 ≤ max |M| |σ| → n ≤ m → xLat (M : ℚ) (σ : ℚ) ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℚ) n = x →
         1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ) ≤ ε → ∀ iR : ℕ,
           a ≤ bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)) →
           bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)) ≤ b →
-          t₀ < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)))| →
+          1 / 2 < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)))| →
           BixRightCount M σ (max |M| |σ| + (m : ℤ) + 1) x iR m := by
   have hx0' : (0 : ℝ) < x := by exact_mod_cast hx0
   have hx1' : (x : ℝ) < 1 := by exact_mod_cast hx1
-  obtain ⟨t₀, ε1, ht, hε1, H⟩ := hahn_chain_window_count M σ x hx0 hx1 a b ha hab hb
+  obtain ⟨ε1, hε1, H⟩ := hahn_chain_window_count M σ x hx0 hx1 a b ha hab hb
   have hqs1 : √(1 - (x : ℝ) ^ 2) < 1 := by
     rw [Real.sqrt_lt' one_pos]; nlinarith
-  refine ⟨t₀, min ε1 (1 - √(1 - (x : ℝ) ^ 2)), ht, lt_min hε1 (by linarith), ?_⟩
+  refine ⟨min ε1 (1 - √(1 - (x : ℝ) ^ 2)), lt_min hε1 (by linarith), ?_⟩
   intro m n hlo hnm hxn hNε iR haR hRb hcos
   set N : ℤ := max |M| |σ| + (m : ℤ) + 1 with hN
   have hK0 : 0 ≤ max |M| |σ| := le_trans (abs_nonneg M) (le_max_left _ _)
@@ -422,8 +422,8 @@ theorem hahn_chain_zero_index (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1)
               ⌊bkPhase 1 0 1 (x : ℝ) (√(1 - (x : ℝ) ^ 2)) (bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ))) /
                 (π * (1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ))) + 1 / 4⌋ := by
   obtain ⟨t1, ε1, ht1, hε1, H1⟩ := bix_hahn_zero_index M σ x hx0 hx1 a b ha hab hb
-  obtain ⟨t2, ε2, ht2, hε2, H2⟩ := bix_hahn_rightcount M σ x hx0 hx1 a b ha hab hb
-  refine ⟨max t1 t2, min ε1 ε2, lt_max_of_lt_left ht1, lt_min hε1 hε2, ?_⟩
+  obtain ⟨ε2, hε2, H2⟩ := bix_hahn_rightcount M σ x hx0 hx1 a b ha hab hb
+  refine ⟨max t1 (1 / 2), min ε1 ε2, lt_max_of_lt_left ht1, lt_min hε1 hε2, ?_⟩
   intro m n hlo hnm hxn hNε i iR hi haI hRb hc1 hc2
   set N : ℤ := max |M| |σ| + (m : ℤ) + 1 with hN
   have hK0 : 0 ≤ max |M| |σ| := le_trans (abs_nonneg M) (le_max_left _ _)
@@ -452,8 +452,8 @@ theorem hahn_chain_bs_index (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) (
             π * ((R : ℝ) - 1 / 4) ≤ bkPhase 1 0 1 (x : ℝ) (√(1 - (x : ℝ) ^ 2)) (bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ))) /
                 (1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ)) := by
   obtain ⟨t1, ε1, ht1, hε1, H1⟩ := bix_hahn_bs_index M σ x hx0 hx1 a b ha hab hb
-  obtain ⟨t2, ε2, ht2, hε2, H2⟩ := bix_hahn_rightcount M σ x hx0 hx1 a b ha hab hb
-  refine ⟨max t1 t2, min ε1 ε2, lt_max_of_lt_left ht1, lt_min hε1 hε2, ?_⟩
+  obtain ⟨ε2, hε2, H2⟩ := bix_hahn_rightcount M σ x hx0 hx1 a b ha hab hb
+  refine ⟨max t1 (1 / 2), min ε1 ε2, lt_max_of_lt_left ht1, lt_min hε1 hε2, ?_⟩
   intro m n hlo hnm hxn hNε i iR hi haI hRb hc1 hc2 hc3 hnode
   set N : ℤ := max |M| |σ| + (m : ℤ) + 1 with hN
   have hK0 : 0 ≤ max |M| |σ| := le_trans (abs_nonneg M) (le_max_left _ _)
