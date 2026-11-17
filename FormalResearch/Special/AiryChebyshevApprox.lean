@@ -48,6 +48,8 @@ lemma norm_joukowski_le_of_norm_eq_two {w : ℂ} (hw : ‖w‖ = 2) : ‖joukows
 /-- The uniform bound `M(R) = 3 exp((2/3)(17R/8)^{3/2})` for `|Ai|` on the boundary ellipse. -/
 noncomputable def airyChebM (R : ℝ) : ℝ := 3 * Real.exp ((2 / 3) * ((17 / 8) * R) ^ (3 / 2 : ℝ))
 
+lemma airyChebM_nonneg (R : ℝ) : 0 ≤ airyChebM R := by unfold airyChebM; positivity
+
 lemma bernsteinHyp_airy {R s : ℝ} (hR : 0 < R) (hs : |s| ≤ R) :
     BernsteinHyp (airyShiftScale (s + R / 2) (R / 2)) 2 (airyChebM R) := by
   refine bernsteinHyp_of_differentiable (by norm_num) (differentiable_airyShiftScale _ _) ?_
