@@ -18,11 +18,13 @@ public import FormalResearch.Complex.HardyHalfPlane
 public import FormalResearch.Complex.HardyArcDecay
 public import FormalResearch.Complex.HardyWeightedArc
 public import FormalResearch.Complex.SeparatedKernelSum
+public import FormalResearch.Complex.ChebyshevBernsteinCore
+public import FormalResearch.Complex.ChebyshevBernstein
 
 /-!
-# Complex analysis: Hadamard factorization and Fejér–Riesz arc bounds
+# Complex analysis: Hadamard factorization, Fejér–Riesz arc bounds, Chebyshev coefficients
 
-Aggregate module for `FormalResearch/Complex/` (namespaces `FormalResearch.Hadamard` and `FormalResearch.Hardy`).  Mathlib has Jensen's formula,
+Aggregate module for `FormalResearch/Complex/` (namespaces `FormalResearch.Hadamard`, `FormalResearch.Hardy` and `FormalResearch.Chebyshev`).  Mathlib has Jensen's formula,
 Borel–Carathéodory and the canonical decomposition of an entire function, but no Hadamard factorization theorem; this
 directory proves it, and applies it to the Airy function.  It also holds an elementary Fejér–Riesz inequality on the disc and its
 half-plane arc form (`Hardy*`, Airy-free).
@@ -60,6 +62,16 @@ half-plane arc form (`Hardy*`, Airy-free).
   argument and the `ℤ`-sum of `1/k²`), the generic Carleson-sum input of the Airy sampling bound (Theorem Q (3)).
   Not formalised there: Hardy spaces `H^p(ℍ)` as notions, the Poisson representation of `G` on `ℍ` and the horizontal `L¹` bound
   `∫ ‖G(x+iy)‖ dx ≤ ∫ ‖G(x)‖ dx` (Lemma H; the sampling bound does not need it), and the sharp pointwise bound `‖G(z)‖ ≤ ‖g‖₁/(π Im z)`.
+* `ChebyshevBernsteinCore`: Cauchy's integral formula on an annulus (`annulus_cauchy`, from `dslope` and Mathlib's annulus Cauchy–Goursat), finite Laurent
+  expansions of the Cauchy kernel integrals with explicit integral remainders and norm bounds (`outer_expand`, `inner_expand`, `norm_outerRem_le`,
+  `norm_innerRem_le`, `norm_outerCoeff_le`, `norm_innerCoeff_le`); generic, no infinite series;
+* `ChebyshevBernstein`: Chebyshev coefficients on the Bernstein ellipse.  `BernsteinHyp f ρ M` (`f` analytic in the open ellipse `E_ρ`, continuous on its
+  closure, `|f| ≤ M` on `∂E_ρ`), `chebCoeff` (Laurent coefficients of `f ∘ joukowski` on the circle `|w| = ρ`; the identification with the cosine integrals
+  `(2/π)∫ f(cos t) cos kt dt` is not formalised), **Trefethen ATAP Thm 8.1** `BernsteinHyp.norm_chebCoeff_le` (`|a_k| ≤ 2Mρ^{-k}`) and **Thm 8.2**
+  `BernsteinHyp.error_real` (truncation error `|f(x) - Σ_{k ≤ n} a_k T_k(x)| ≤ 2Mρ^{-n}/(ρ-1)` on `[-1,1]`, with `exists_poly`, `error_real_re`),
+  the sufficient conditions `bernsteinHyp_of_differentiableOn` / `bernsteinHyp_of_differentiable`, and `continuous_chebCoeff` (dependence on a parameter);
+  used by `Special.AiryChebyshevApprox` and `Special.AiryRankDecay*` (geometric decay of the Hilbert–Schmidt tail of `Ai(s+ζ)`).
+  Not formalised: Chebyshev interpolation in Chebyshev points (Thm 8.3), the converse (Bernstein) theorem, Banach/Hilbert-space-valued `f`, sharp constants.
 
 Layering: only `HadamardAiry` imports `FormalResearch.Special.Airy*` modules; no module of the `Airy` aggregate imports this
 aggregate (the product of `Ai'`, `FormalResearch.Special.airyDeriv_hadamard` in `Special/AiryCft2DerivHadamard`, imports `HadamardAiry`

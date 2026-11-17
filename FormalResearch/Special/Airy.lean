@@ -99,6 +99,11 @@ public import FormalResearch.Special.AiryCftQNCZeros
 public import FormalResearch.Special.AiryCftQNCSample
 public import FormalResearch.Special.AiryCftQUnc
 public import FormalResearch.Special.AiryCftQNCUnc
+public import FormalResearch.Special.AiryChebyshevApprox
+public import FormalResearch.Special.AiryRankDecayTail
+public import FormalResearch.Special.AiryRankDecayKernel
+public import FormalResearch.Special.AiryRankDecayHS
+public import FormalResearch.Special.AiryRankDecay
 
 /-!
 # The Airy function: aggregate and design note
@@ -149,7 +154,7 @@ i.e. DLMF 9.9.18 through the `-5/36` term, with the `Tendsto` form `t^{10/3}(a_n
 midpoint); and the Airy side of the discrete-to-Airy limit: `AiryWt` (an explicit envelope weight `(2+|X|)^{-1/4} e^{-ξ}` with
 local constancy and lattice sums), `AiryShift` (the shift identity `y(X+s) = y(X) C + y'(X) S`), `AiryShiftTaylor` (Taylor
 expansions of `Ai`, `C`, `S` against the weight); and the CFT consequences of the zeros of `Ai` (`AiryCft*`, and `AiryCft2*` for
-Theorem D on a disc, the zeros and quadrature of `P Ai + Q Ai'`, Clark summation, `a'_1`: see the design note; the Hadamard product of
+Theorem D on a disc, the zeros and quadrature of `P Ai + Q Ai'`, Clark summation, `a'_1`: see the design note; the Chebyshev approximation of `Ai(s+·)` and the Hilbert–Schmidt rank decay of the kernel `Ai(s+ζ)`, `AiryChebyshevApprox`, `AiryRankDecay*`; the Hadamard product of
 `Ai'`, `AiryCft2DerivHadamard`, imports `FormalResearch.Complex` and is therefore imported by `FormalResearch.Special`, not here).  The Langer coordinate (`Langer*`), the discrete Jacobi calculus
 (`DiscreteJacobi*`) and the discrete-to-Airy comparison built on it (`AiryParametrix*`, `AiryRecessive*`, `AiryWindow*`, `DiscreteAiryLimit*`,
 `DiscreteAiryOsc*`, `DiscreteAiryPhys*`, `DiscreteAiryKappa*`, `DiscreteAiryUnif*`, `DiscreteAirySecond*`) are separate modules of `FormalResearch.Special`, not imported by this aggregate.  (Overlapping Gamma enclosures: `AiryBiNeg` and
@@ -324,6 +329,18 @@ a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete
   `ψ(u) ≤ ‖f‖_b/(π|u|^{1/2} Re√u)` from `‖G(z)‖ ≤ ‖g‖₁/(π Im z)` (only the weak forms above are formalised), the vanishing moments
   Corollary Q′ (`∫G = 0`), the Clark node labelling and monotonicity in `α`,
   polynomial (non-constant) `P, Q`, the enclosure `a'_1 ∈ (-1.0188, -1.0187)`, the asymptotics of the zeros of `Ai'` (DLMF 9.9.19).
+* *Chebyshev approximation and Hilbert–Schmidt rank decay of the Airy kernel* (`AiryChebyshevApprox`, `AiryRankDecayTail`, `AiryRankDecayKernel`,
+  `AiryRankDecayHS`, `AiryRankDecay`; generic input `Complex.ChebyshevBernstein`, Trefethen ATAP Thm 8.1/8.2, imported here like `Complex.Hardy*`).
+  `Ai(s + R/2 + (R/2)z)` is entire with the order-`3/2` growth bound only, so `BernsteinHyp` holds with `ρ = 2` and `M(R) = 3exp((2/3)(17R/8)^{3/2})`
+  (`airy_cheb_pointwise`: `|Ai(s+ζ) - Σ_{k ≤ n} a_k(s) T_k(2ζ/R-1)| ≤ 2M/2^n` for `|s| ≤ R`, `0 ≤ ζ ≤ R`; `continuous_airyChebCoeff`); real-axis majorants
+  `Ai² ≤ 9e⁴e^{-x}`, `Ai(x)² ≤ 9e^{-x}exp(-(2/3)y^{3/2})` for `4 ≤ y ≤ x` (`airyAi_sq_le_exp`, `airyAi_sq_le_tail`); the separated kernel
+  `airyRankKer R m = Σ_{k<m} φ_k(s)ψ_k(ζ)` and the explicit Hilbert–Schmidt error bound `airy_hs_bound`; and the HS-tail form of W1 `lem:airydecay`: for every
+  `a` there are `C`, `c = 1/36` such that for every `m` a separated kernel of `m` bounded, measurable, compactly supported terms has
+  `∬_{s>a, ζ>0}(Ai(s+ζ) - Σ_{k<m} φ_k(s)ψ_k(ζ))² ≤ C e^{-cm}` (`airy_hs_rank_decay`, `airy_hs_rank_decay_of_ge`: the same kernel for every `u ≥ a`;
+  `airy_rank_decay_separated`, `airy_rank_decay_integral`; `airy_hs_zero_bound` for `m = 0`).  Constants are far from sharp; no sector bound on `Ai` is
+  needed.  Not formalised: the singular-value and eigenvalue statements `s_{m+1}(A_u) ≤ C e^{-cm}`, `λ_{m+1}(K_u) ≤ C e^{-2cm}` (compact-operator spectral
+  theory is absent from Mathlib; the Hilbert–Schmidt distance to rank `≤ m` operators is bounded instead), `K_u = A_u A_u^*` as operators, and the
+  vector-valued Chebyshev bound for `prop:Kdecay`(c).
 * *Hadamard factorization* (`FormalResearch.Complex`, `Hadamard*`, namespace `FormalResearch.Hadamard`; a separate aggregate,
   not imported by this one, since only `HadamardAiry` (and `AiryCft2DerivHadamard`, which imports it) uses the Airy modules and
   nothing here uses it): the general

@@ -23,7 +23,8 @@ nothing more:
 The bound `∫(K_u f)² ≤ N_Ai(u)² ∫f²` and positivity on all of `L²` are in `AiryKernelOpL2` (function level).
 
 **Not formalised:** `K_u` as an element of `Lp ℝ 2 →L[ℝ] Lp ℝ 2`, the factorisation `K_u = A_u A_u^*` as operators, the spectral statements (trace-class norm
-equal to the trace, eigenvalue decay, Fredholm determinant).
+equal to the trace, eigenvalue decay, Fredholm determinant).  The Hilbert–Schmidt-tail form of the decay of the factor kernel `Ai(s+ζ)`
+(rank-`m` separated approximations with error `≤ C e^{-cm}`) is proved in `AiryRankDecay`; the passage to singular values and eigenvalues is not.
 -/
 
 @[expose] public section
