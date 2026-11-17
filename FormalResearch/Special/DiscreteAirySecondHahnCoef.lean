@@ -20,7 +20,8 @@ The proofs are exact algebra: `√R - 1 - (R-1)/2 = -(√R - 1)²/2`, `R - 1 - D
 `R = (1-a²t)(1-b²t)/(1-t/4)`, and `ab/(k(k+1)) - ab h²/q² = ab h⁴/(4q²(q²-h²/4))`.  The constants are explicit (`hsE`); no
 numerical constant is claimed beyond that.  Numerical check (mpmath, 30 digits, scratch only; `P = 1, Q = 0.3, a = 2, b = 1.5,
 τ = 1, x = 0.4`, `q ∈ {0.3, 0.6}`, `h ∈ {10⁻², 5·10⁻³, 2.5·10⁻³}`): `(A_k - (A + h²A₂))/h⁴` and `(c_k - (c + h²c₂))/h⁴` are
-constant to three digits (`-43.57`, `-2.186` resp. `-91`, `-5.74`), i.e. the remainder is exactly of order `h⁴`.
+constant to three digits (`-43.57`, `-2.186` resp. `-92.6`, `-5.787`; the latter is the leading term `-ab/(4q⁴)` of the exact
+diagonal identity `hsc_C_alg`), i.e. the remainder is exactly of order `h⁴`.
 
 **Claim class: proved.**  Not formalised here: the half-integer (shifted-lattice) and mixed-parity forms, the `q`-Racah chain with
 its `η_π ≠ 0` data; the identification with the actual `3j`/`6j` chains is `hahn_class_chain`, `racah_class_chain`
@@ -236,7 +237,7 @@ lemma hsE_nonneg (a b qs : ℝ) : 0 ≤ hsE a b qs :=
   (show 0 ≤ 40 * (hsS a b + 1) ^ 2 / qs ^ 4 by positivity).trans (le_max_left _ _)
 
 /-- **Second-order closeness on a window** (the analogue of `hr_perturb` with the `h²` terms subtracted): on the window
-`k ∈ [J+1, N+1]` with `|q_k - q_*| ≤ r ≤ r₀` (`q_k = (k+½)δ³`), `δ³ ≤ 3q_*/(4M)`:
+`k ∈ [J+1, N+1]` with `|q_k - q_*| ≤ r ≤ r₀` (`q_k = (k+½)δ³`), `δ ≤ 1`, `δ ≤ 3q_*/(4M)` (`M = hrM a b`):
 `|A_k - (A + δ⁶ A₂)(q_k - h/2)| ≤ E δ⁹` and `|c_k - (2A(q_k)u(q_k) + δ⁶ c₂(q_k))| ≤ E δ⁹` (`h = δ³`; the true remainder is
 `O(h⁴)`). -/
 lemma hs_perturb {P Q : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (a b τ x qs : ℝ) (hqs : 0 < qs) (hτ : τ ^ 2 = 1)

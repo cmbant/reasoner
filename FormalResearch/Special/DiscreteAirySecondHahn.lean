@@ -31,8 +31,8 @@ In the paper's notation `B_τ = q₁/g`, `δ⁴ = h^{4/3}`: the bracket is `Ai(t
 
 **Claim class: proved**; the constants `δ₀, C, Q', C_μ, ξ₀, ρ` depend on `(P, Q, a, b, τ, x, q_*)` only.
 
-**Not formalised.**  (i) The Langer-chart radius `ρ` is existential (as in `discrete_airy_hahn_racah_full`): the window is
-`[q_* - ρ/2, q_* + ρ/2]`, not the largest window of smoothness, and `q₁` is local on `B(q_*, ρ)` (a global `q₁` is the nonsingular
+**Not formalised.**  (i) The Langer-chart radius `ρ` is existential (as in `discrete_airy_hahn_racah_full`): the lattice window is
+`[q_* - ρ/2, q_* + ρ/4]`, not the largest window of smoothness, and `q₁` is local on `B(q_*, ρ)` (a global `q₁` is the nonsingular
 transport ODE, not formalised).  (ii) The `κ` normalisation and the second-order phase `ϖ_τ = B_τ(q_*)` / Darboux matching: only
 the bracket is formalised, `κ` is not identified (for the actual `3j` chain `κ ≠ 0` is `hahn_chain_kappa`).  (iii) The Racah `q`-`6j`
 chain (`η_π ≠ 0`, `δ_fl = -1/12`), half-integer / shifted-lattice and mixed-parity labels, uniformity in `x`, and the hard edges
