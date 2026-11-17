@@ -90,6 +90,7 @@ public import FormalResearch.Special.DiscreteAiryUnifHahn
 public import FormalResearch.Special.DiscreteAirySecondHahn
 public import FormalResearch.Special.AiryCft2DerivHadamard
 public import FormalResearch.Special.Barnes
+public import FormalResearch.Special.Lattice
 
 /-!
 # Special functions: Jacobi polynomials
@@ -228,5 +229,11 @@ differentiation under the integral (`hasDerivAt_bgInt`), the real form of `thm:B
 log[G(1+b)G(1-b)]`, `b = θ/2π`, `|θ| < π` (`barnes_gamma_identity`), and `lem:VI` (`integral_wR`, `integral_wR_mul_rhoR`).  Not formalised: the complex
 `g_θ` form of the first equality of `thm:BG` (only the real part, `re_gTheta`), the sharp `O(log)` bound for `Re ψ` (a linear bound is proved and
 suffices), the Weierstrass product on all of `ℂ`, uniqueness of `G`, Gauss' series for `Re z ≤ 0`, and everything downstream (Barnes products,
-entropy constants, lattice summation).
+entropy constants, the trace-perturbation core).
+Phase-lattice summation of the same paper (`Lattice*`, umbrella `Lattice`, namespace `FormalResearch.Special.Lattice`): the Gauss-series branch
+`argGammaHalf` of `arg Γ(½+is)` (analytic on `|Im s| < ½`, odd, real, derivative `Re ψ`, with elementary bounds on `Re ψ`; no Stirling), the abstract
+lattice estimates for a calibrated phase (level counts and spacing, `latticeI_bound`, `latticeII_bound`), `lem:latticesum` (o) and (ii) for the
+Gamma phase in paper form (`latticesum_gamma`), `lem:varcore` (i) and (ii) (`varcore_gamma`, `varcore_tail_gamma`, with `integral_hvar_gdens` from `lem:VI`), and `prop:offsetcore` (i)
+deduced from `lem:latticesum` (iii) taken as a hypothesis (`offsetcore_i_of_iii`).  Not formalised: `lem:latticesum` (iii) and the concrete (i), `prop:offsetcore` (ii),
+`lem:traceperturb`, `thm:tracecore`, and the identification of `argGammaHalf` with the polar argument of `Γ`.
 -/
