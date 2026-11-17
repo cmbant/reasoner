@@ -16,7 +16,7 @@ the bond contains, up to `O(h)` in the phase, a point `Φ(q) = π h (m - 1/4)` o
 bulk-zero quantisation `thm:general-bulk-zeros` (`Weyl/P3/paper/weyl_midpoint_semiclassics.tex`): the phase is anchored at the turning point `q_*` (the paper's action `N S(q, x)` and offset `p_{ab}π/2` are anchored at
 `q = 0`; the relation between the two anchorings is not formalised), and the second-order term `h Γ̃` (with the Darboux term), the `O(N^{-3})` error and the identification of the index `ν_j` are not part of the Lean statement.
 
-**Claim class: proved.**  **Not formalised:** the converse (a sign change in every bond that contains a Bohr-Sommerfeld point, equivalently the count of sign changes in `[a, b]`), the conversion of the phase window into
+**Claim class: proved.**  **Not formalised:** the converse and the count of sign changes in `[a, b]` are now `bix_hahn_count` (`BulkIndexHahn`, integer lattice, `τ = +1`); not formalised here: the conversion of the phase window into
 a window in `q` (needs `arccos u ≥ θ_min > 0` on `[a, b]`), constants uniform in `(a, b)` or in the data, the regions near the turning point and near `q = 0`.
 -/
 

@@ -27,8 +27,8 @@ Sanity check (not part of the proof): mpmath, 30 digits, the matrix with these `
 and the `n`-th eigenvector has exactly `m - n` sign changes for every `n`.
 
 Claim class: proved.  Not formalised: `kmin = 0` (`M = σ = 0`; the row `k = 0` is not part of
-`hahn_class_chain`), the half-integer lattice and the Racah (`6j`) chain, and the comparison of the
-node count with the Airy phase (identification of the Bohr-Sommerfeld integer with the zero index).
+`hahn_class_chain`), the half-integer lattice and the Racah (`6j`) chain, and the unconditional comparison of the
+node count with the Airy phase: the composition with the bulk zeros is `BulkIndexZero.bix_hahn_zero_index`, conditional on `BixRightCount` (the Airy-window node count).
 -/
 
 @[expose] public section

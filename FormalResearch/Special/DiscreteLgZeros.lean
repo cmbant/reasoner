@@ -12,7 +12,7 @@ From `|Y_k - R w_k cos x_k| ≤ ε R w_k` (`x_k = Θ(q_k)/h - φ₀`, `ε = C h`
   `[x_k - (π/2) ε, x_{k+1} + (π/2) ε]`.  In the variable `q` the zeros are the points `Θ(q_j)/h = φ₀ + (2j+1)π/2` (Bohr-Sommerfeld lattice), and the bound
   says that the discrete zero bonds are the bonds containing them up to `O(h)` in the phase, i.e. `O(h²)` in `q`.
 
-**Claim class: proved.**  **Not formalised:** the converse (every zero of the cosine produces a sign change; counting of sign changes) and the conversion
+**Claim class: proved.**  **Not formalised:** the converse and the counting of sign changes are the abstract `bix_count` (`BulkIndexCount`); not formalised here: the conversion
 of the phase window into a window in `q` (needs a lower bound `θ ≥ θ_min > 0`).
 -/
 
