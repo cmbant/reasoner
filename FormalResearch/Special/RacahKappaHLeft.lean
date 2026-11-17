@@ -122,8 +122,8 @@ theorem rl_leftH {P Q a b τ x qs : ℝ} {kl : ℤ} (hP : 0 ≤ P) (hQ : 0 ≤ Q
     have hj2 : (j : ℝ) + 1 ≤ (K0 : ℝ) := by exact_mod_cast (by omega : j + 1 ≤ K0)
     obtain ⟨e1, e2⟩ := edge h hh hh1 hKh ((j : ℝ) + 1 / 2) (by linarith) (by linarith)
     refine ⟨hrows h Y M hF j (by omega), ?_, ?_⟩
-    · rw [hrAkH_eq]; exact e1
-    · rw [hrAkH_succ, hrAkH_eq, hrCkH_eq]; exact e2
+    · rw [rkAkH_eq]; exact e1
+    · rw [rkAkH_succ, rkAkH_eq, rkCkH_eq]; exact e2
   have hM := hMle h Y M hF hh n (kmid + 1) hn0
   have hmass := rl_left_mass (a := hrAkH P Q a b h) (c := hrCkH P Q τ x a b h) (Y := Y) (kmin := kl) (K0 := K0) (kc := n)
     (kmid := kmid) (D := D) (Cb := Cb) (M := M) hD hCb (by omega) hkl0 hK0min hKn hlt (hlow h Y M hF) hback hcomp hM

@@ -19,14 +19,14 @@ open Finset FormalResearch.Racah.P3 FormalResearch.DiscreteAiry
 
 namespace FormalResearch.Special
 
-lemma hrAkH_eq (P Q a b h : ℝ) (k : ℤ) : hrAkH P Q a b h k = hrAt P Q a b h ((k : ℝ) + 1 / 2) := rfl
+lemma rkAkH_eq (P Q a b h : ℝ) (k : ℤ) : hrAkH P Q a b h k = hrAt P Q a b h ((k : ℝ) + 1 / 2) := rfl
 
-lemma hrCkH_eq (P Q τ x a b h : ℝ) (k : ℤ) : hrCkH P Q τ x a b h k = hrCt P Q τ x a b h ((k : ℝ) + 1 / 2) := rfl
+lemma rkCkH_eq (P Q τ x a b h : ℝ) (k : ℤ) : hrCkH P Q τ x a b h k = hrCt P Q τ x a b h ((k : ℝ) + 1 / 2) := rfl
 
-lemma hrAkH_succ (P Q a b h : ℝ) (k : ℤ) : hrAkH P Q a b h (k + 1) = hrAt P Q a b h (((k : ℝ) + 1 / 2) + 1) := by
+lemma rkAkH_succ (P Q a b h : ℝ) (k : ℤ) : hrAkH P Q a b h (k + 1) = hrAt P Q a b h (((k : ℝ) + 1 / 2) + 1) := by
   unfold hrAkH hrAt; push_cast; ring_nf
 
-lemma hrCkH_succ (P Q τ x a b h : ℝ) (k : ℤ) : hrCkH P Q τ x a b h (k + 1) = hrCt P Q τ x a b h (((k : ℝ) + 1 / 2) + 1) := by
+lemma rkCkH_succ (P Q τ x a b h : ℝ) (k : ℤ) : hrCkH P Q τ x a b h (k + 1) = hrCt P Q τ x a b h (((k : ℝ) + 1 / 2) + 1) := by
   unfold hrCkH hrCt; push_cast; ring_nf
 
 /-- **The band comparison** for the half-integer Racah coefficients. -/
@@ -61,18 +61,18 @@ theorem rl_bandH {P Q a b τ x qs : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (hτ : τ
     (ε := fun k => Ê * (1 / ((k : ℝ) + 1 / 2) ^ 2 + h)) (k0 := k0) (k1 := k1) (m0 := m0) (B := B) (E0 := E0) hm0 hk01 hrow
     (fun k hk => by
       obtain ⟨a1, a2, a3⟩ := (key h hh hhh0 _ (hat k hk).1 (hat k hk).2).1
-      rw [hrAkH_eq]; exact ⟨a1, a2⟩)
+      rw [rkAkH_eq]; exact ⟨a1, a2⟩)
     (fun k hk => by
       have := (key h hh hhh0 _ (hat k hk).1 (hat k hk).2).1.2.2
-      rw [hrAkH_eq, hrCkH_eq]; exact this)
+      rw [rkAkH_eq, rkCkH_eq]; exact this)
     (fun k hk => by
       have := (key h hh hhh0 _ (hatI k hk).1 (hatI k hk).2).2.2.1
       have e : (((k + 1 : ℤ) : ℝ) + 1 / 2) = ((k : ℝ) + 1 / 2) + 1 := by push_cast; ring
-      simp only [hrAkH_eq, hrCkH_eq, e]; exact this)
+      simp only [rkAkH_eq, rkCkH_eq, e]; exact this)
     (fun k hk => by
       have := (key h hh hhh0 _ (hatI k hk).1 (hatI k hk).2).2.2.2.1
       have e : (((k + 1 : ℤ) : ℝ) + 1 / 2) = ((k : ℝ) + 1 / 2) + 1 := by push_cast; ring
-      simp only [hrAkH_eq, hrCkH_eq, e]; exact this)
+      simp only [rkAkH_eq, rkCkH_eq, e]; exact this)
     (fun k hk => by
       have : 0 ≤ 1 / ((k : ℝ) + 1 / 2) ^ 2 + h := by positivity
       positivity)
