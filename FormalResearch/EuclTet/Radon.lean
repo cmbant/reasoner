@@ -49,8 +49,9 @@ area* of the face opposite `p_i` (`λ_m = ‖N_m‖ > 0`).
 
 ## Not formalised
 
-* The inertia `(1,3,1)` of the bordered distance matrix (`prop:inertia`) and the general-`d` statement; only
-  its consequence for the planar sign of `c` (here `c = -16` from the explicit formula).
+* The derivation of the planar sign of `c` from the inertia `(1,3,1)` of the bordered distance matrix:
+  the inertia itself is `p5a_bordered_distance_inertia` (`EuclTet.P5AlgInertia`), but the link to
+  `c` is not formalised (here `c = -16` is computed from the explicit formula).
 * The border row/column of the adjugate `adj M = c v vᵀ` (only the vertex block `C_ij` and the kernel
   statement `M v = 0` are proved; corank exactly one is not proved as such).
 * The identification of the sign patterns with "convex quadrilateral / point inside a triangle" is the content

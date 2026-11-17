@@ -8,6 +8,7 @@ public import FormalResearch.EuclTet.SchlafliApp
 public import FormalResearch.EuclTet.Dichotomy
 public import FormalResearch.EuclTet.Radon
 public import FormalResearch.EuclTet.RacahBridge
+public import FormalResearch.EuclTet.P5Alg
 
 /-!
 # Euclidean tetrahedron geometry (namespace `FormalResearch.EuclTet`)
@@ -31,8 +32,11 @@ Cayley--Menger, dihedral angles, Schläfli and Radon for a tetrahedron of `ℝ³
 * `EuclTet.RacahBridge` : a principal Racah tetrahedron exists in `ℝ³` iff `D₆ ≥ 0`, with
   `288 V² = 8 N⁶ ρ² α² β² D₆`.
 
-Not formalised: the bordered-distance inertia (`prop:inertia`) and the corank-one adjugate
-structure; the `n`-simplex statements and Blumenthal for general `n`; Regge integrability for all
+* `EuclTet.P5AlgInertia` : the bordered-distance inertia `(1, d+1, m-d-1)` (`prop:inertia`) as an
+  orthogonal decomposition (`p5a_bordered_distance_inertia`).
+
+Not formalised: the corank-one adjugate structure and the sign of `c` in `adj M = c v vᵀ` derived
+from the inertia (only the explicit planar value is proved, in `EuclTet.Radon`); the `n`-simplex statements and Blumenthal for general `n`; Regge integrability for all
 pairs of edges (only the opposite pair, `regge_mixed`); `V` and `|N_i|` as measure and area (they
 are the absolute-determinant and area-vector formulas).
 -/
