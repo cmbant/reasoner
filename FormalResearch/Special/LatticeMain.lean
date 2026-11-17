@@ -63,6 +63,105 @@ lemma phi_gdens_le {κ Cφ A B u g s : ℝ} (hκ : 0 < κ) (hCφ : 0 ≤ Cφ)
     _ ≤ Cφ * (A + 2 * B / κ) * Real.exp (-(κ / 2) * |s|) :=
         mul_le_mul_of_nonneg_right h8 hE0
 
+/-- Linear bound for the density constant. -/
+theorem lin_bound (nc : ℕ) {κ T ℓ L : ℝ} (hκ : 0 < κ) (hT : 0 ≤ T) (hℓ0 : 0 ≤ ℓ)
+    (hℓ : ℓ ≤ nc * (Real.log L + T)) (hL : 1 < L) (hlogL : Real.log L ≤ L) :
+    (ℓ + 5 * nc) / Real.pi + 2 * (nc / Real.pi) / κ ≤
+      (nc * (T + 6) / Real.pi + 2 * nc / (Real.pi * κ)) * L := by
+  have hpi := Real.pi_pos
+  have hL0 : 0 < L := by linarith
+  have hnc0 : (0 : ℝ) ≤ nc := Nat.cast_nonneg _
+  have h5 : ℓ + 5 * nc ≤ nc * (T + 6) * L := by
+    have h : Real.log L + T + 5 ≤ (T + 6) * L := by nlinarith
+    have := mul_le_mul_of_nonneg_left h hnc0
+    nlinarith
+  have h6 : (ℓ + 5 * nc) / Real.pi ≤ nc * (T + 6) / Real.pi * L := by
+    rw [div_mul_eq_mul_div]; exact div_le_div_of_nonneg_right h5 hpi.le
+  have h7 : 2 * (nc / Real.pi) / κ ≤ 2 * nc / (Real.pi * κ) * L := by
+    have e : 2 * (nc / Real.pi) / κ = 2 * nc / (Real.pi * κ) := by field_simp
+    rw [e]
+    have : 0 ≤ 2 * (nc : ℝ) / (Real.pi * κ) := by positivity
+    nlinarith
+  calc _ ≤ _ := add_le_add h6 h7
+    _ = _ := by ring
+
+/-- The explicit error of `latticesum_gamma_fixed` is `O(C_φ L^{-b₁})` uniformly in `X ≥ L^{c_*/2}` and
+`0 ≤ ℓ ≤ nc (log L + T)`. -/
+theorem error_asymp (nc : ℕ) {κ cs b b1 y1 A1 A2 A3 T : ℝ} (hκ : 0 < κ) (hcs0 : 0 < cs)
+    (hb1b : b1 ≤ b) (hy : b1 ≤ nc * y1) (hA1 : 0 ≤ A1) (hA2 : 0 ≤ A2) (hA3 : 0 ≤ A3) (hT : 0 ≤ T) :
+    ∃ C : ℝ, 0 < C ∧ ∀ L : ℝ, 1 < L → ∀ X Cφ ℓ : ℝ, L ^ (cs / 2) ≤ X → 0 ≤ Cφ → 0 ≤ ℓ →
+      ℓ ≤ nc * (Real.log L + T) →
+      Cφ * (A1 * Real.exp (-κ * X) + A2 * (L ^ (-b) / Real.pi) +
+          A3 * Real.exp (-(2 * Real.pi * (nc * Real.log L / (2 * Real.pi)) * y1))) +
+        2 * (Cφ * ((ℓ + 5 * nc) / Real.pi + 2 * (nc / Real.pi) / κ)) * Real.exp (-(κ / 2) * X) /
+          (κ / 2) ≤ C * Cφ * L ^ (-b1) := by
+  obtain ⟨C1, hC1, hE⟩ := exp_neg_rpow_le (a := κ / 2) (c := cs / 2) (p := b1 + 1) (by positivity)
+    (by positivity)
+  have hpi := Real.pi_pos
+  have hpi3 := Real.pi_gt_three
+  set Q : ℝ := nc * (T + 6) / Real.pi + 2 * nc / (Real.pi * κ) with hQ
+  have hQ0 : 0 ≤ Q := by positivity
+  refine ⟨A1 * C1 + A2 + A3 + 4 * Q * C1 / κ + 1, by positivity, ?_⟩
+  intro L hL X Cφ ℓ hX hCφ hℓ0 hℓ
+  have hL0 : 0 < L := by linarith
+  set P : ℝ := L ^ (-b1) with hP
+  have hP0 : 0 < P := Real.rpow_pos_of_pos hL0 _
+  have hXpos : 0 < X := lt_of_lt_of_le (Real.rpow_pos_of_pos hL0 _) hX
+  -- exponential tail
+  have hEX : Real.exp (-(κ / 2) * X) ≤ C1 * (P / L) := by
+    have h1 : Real.exp (-(κ / 2) * X) ≤ Real.exp (-((κ / 2) * L ^ (cs / 2))) := by
+      apply Real.exp_le_exp.2
+      nlinarith
+    have h2 := hE L hL.le
+    have h3 : L ^ (-(b1 + 1)) = P / L := by
+      rw [show -(b1 + 1) = -b1 - 1 by ring, Real.rpow_sub_one hL0.ne']
+    rw [h3] at h2
+    exact h1.trans h2
+  have hEX0 : 0 ≤ Real.exp (-(κ / 2) * X) := (Real.exp_pos _).le
+  have hEX1 : Real.exp (-κ * X) ≤ C1 * P := by
+    have : Real.exp (-κ * X) ≤ Real.exp (-(κ / 2) * X) := Real.exp_le_exp.2 (by nlinarith)
+    have h4 : P / L ≤ P := div_le_self hP0.le hL.le
+    nlinarith
+  have hexpP : Real.exp (-(2 * Real.pi * (nc * Real.log L / (2 * Real.pi)) * y1)) ≤ P := by
+    have e : Real.exp (-(2 * Real.pi * (nc * Real.log L / (2 * Real.pi)) * y1)) =
+        L ^ (-(nc * y1)) := by
+      rw [Real.rpow_def_of_pos hL0]; congr 1; field_simp
+    rw [e]
+    exact Real.rpow_le_rpow_of_exponent_le hL.le (by linarith)
+  have hPb : L ^ (-b) ≤ P := Real.rpow_le_rpow_of_exponent_le hL.le (by linarith)
+  have hlogL : Real.log L ≤ L := (Real.log_le_sub_one_of_pos hL0).trans (by linarith)
+  have hlin := lin_bound nc hκ hT hℓ0 hℓ hL hlogL
+  have hT2 : 2 * (Cφ * ((ℓ + 5 * nc) / Real.pi + 2 * (nc / Real.pi) / κ)) *
+        Real.exp (-(κ / 2) * X) / (κ / 2) ≤ 4 * Q * C1 / κ * Cφ * P := by
+    have h8 : Cφ * ((ℓ + 5 * nc) / Real.pi + 2 * (nc / Real.pi) / κ) ≤ Cφ * (Q * L) :=
+      mul_le_mul_of_nonneg_left hlin hCφ
+    have h9 : Cφ * (Q * L) * Real.exp (-(κ / 2) * X) ≤ Cφ * (Q * L) * (C1 * (P / L)) :=
+      mul_le_mul_of_nonneg_left hEX (by positivity)
+    have h10 : Cφ * (Q * L) * (C1 * (P / L)) = Q * C1 * Cφ * P := by field_simp
+    have h11 : Cφ * ((ℓ + 5 * nc) / Real.pi + 2 * (nc / Real.pi) / κ) * Real.exp (-(κ / 2) * X) ≤
+        Cφ * (Q * L) * Real.exp (-(κ / 2) * X) := mul_le_mul_of_nonneg_right h8 hEX0
+    rw [div_le_iff₀ (by positivity)]
+    have : 2 * (Cφ * ((ℓ + 5 * nc) / Real.pi + 2 * (nc / Real.pi) / κ)) * Real.exp (-(κ / 2) * X) ≤
+        2 * (Q * C1 * Cφ * P) := by nlinarith
+    calc _ ≤ 2 * (Q * C1 * Cφ * P) := this
+      _ = 4 * Q * C1 / κ * Cφ * P * (κ / 2) := by field_simp; ring
+  have hT1 : Cφ * (A1 * Real.exp (-κ * X) + A2 * (L ^ (-b) / Real.pi) +
+          A3 * Real.exp (-(2 * Real.pi * (nc * Real.log L / (2 * Real.pi)) * y1))) ≤
+      Cφ * (A1 * (C1 * P) + A2 * P + A3 * P) := by
+    apply mul_le_mul_of_nonneg_left _ hCφ
+    have a1 : A1 * Real.exp (-κ * X) ≤ A1 * (C1 * P) := mul_le_mul_of_nonneg_left hEX1 hA1
+    have a2 : A2 * (L ^ (-b) / Real.pi) ≤ A2 * P := by
+      apply mul_le_mul_of_nonneg_left _ hA2
+      calc L ^ (-b) / Real.pi ≤ L ^ (-b) := div_le_self (Real.rpow_pos_of_pos hL0 _).le (by linarith)
+        _ ≤ P := hPb
+    have a3 := mul_le_mul_of_nonneg_left hexpP hA3
+    linarith
+  have hfinal : Cφ * (A1 * (C1 * P) + A2 * P + A3 * P) + 4 * Q * C1 / κ * Cφ * P ≤
+      (A1 * C1 + A2 + A3 + 4 * Q * C1 / κ + 1) * Cφ * P := by
+    have : 0 ≤ Cφ * P := by positivity
+    nlinarith
+  linarith
+
 /-- The fixed-`L` form of `latticesum_gamma`: all error terms explicit. -/
 theorem latticesum_gamma_fixed (nc : ℕ) (hnc : 1 ≤ nc) {L Fm Fp cs δ κ b X θ0 y1 r r0 A1 A2 A3 : ℝ}
     (hL : 1 < L) (hFm : 0 < Fm) (hcs0 : 0 < cs) (hcs : cs < 1 / 2) (hδ : 0 < δ)
