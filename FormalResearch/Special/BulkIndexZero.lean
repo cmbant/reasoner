@@ -8,20 +8,19 @@ public import FormalResearch.Special.BulkIndexHahn
 Conditional composition for the actual `3j` chain (integer lattice, `τ = +1`, `0 < x < 1`), `N = kmin + m + 1`,
 `kmin = max |M| |σ| ≥ 1`, node `x = x_n`, `n ≤ m`, `u_i = Ŷ_{kmin+i}` (`bixU`), `q_i = (kmin + i + 1/2)/N`.
 
-**Right-end count** (`BixRightCount`, an explicit hypothesis, NOT proved): at some bulk site `i_R` with `|cos θ| > t₀`, the
+**Right-end count** (`BixRightCount`, an explicit hypothesis of this module; discharged by `BulkWindowIndex.bix_hahn_rightcount`): at some bulk site `i_R` with `|cos θ| > 1/2`, the
 number of nodes in the bonds `i_R, …, m-1` is `⌊Φ(q_{i_R})/(π h) + 1/4⌋`.  This is the node count of the region `[b, N)`
 (Airy window around `q_*`, none beyond `q_*`).  The part beyond `q_*` is proved (`BulkIndexRight.bix_hahn_tail`) and `bix_rightcount_of_window` reduces
-`BixRightCount` to the node count of the Airy window, which is not proved.
+`BixRightCount` to the node count of the Airy window, which is proved in `BulkWindowIndex` (`hahn_chain_window_count`); the unconditional forms are `hahn_chain_zero_index`, `hahn_chain_bs_index`.
 
-* **`bix_hahn_zero_index`**: under `BixRightCount`, for every bulk site `i ≤ i_R` with `|cos θ_i| > t₀`:
+* **`bix_hahn_zero_index`**: under `BixRightCount`, for every bulk site `i ≤ i_R` with `|cos θ_i| > 1/2` (the margin `sin η < 1/2` of `bix_hahn_window`):
   the nodes at or to the right of `i` number `⌊Φ(q_i)/(π h) + 1/4⌋`, and (with `cho_hahn_nodes`, total `m - n`) the nodes strictly
   to the left of `i` number `(m - n) - ⌊Φ(q_i)/(π h) + 1/4⌋`.
 * **`bix_bs_lattice`**: if the bond `(i, i+1)` carries a node and both sites are definite, with `R = ⌊Φ(q_i)/(π h) + 1/4⌋`
   then `Φ(q_{i+1})/h < π (R - 1/4) ≤ Φ(q_i)/h`: the Bohr-Sommerfeld point of the bond is the `R`-th, `R` = the number of nodes at or to the
   right of the bond (no offset: the integer `m` of `hahn_chain_bulk_zeros` is `R`, `bix_bs_unique`).
 
-**Claim class: proved under the explicit hypothesis `BixRightCount`** (`proved` for the pure lemmas).  **Not formalised:** the node count of the Airy window (the remaining input of
-`BixRightCount`), `τ = -1`, half-integer lattice, Racah chains.
+**Claim class: proved under the explicit hypothesis `BixRightCount`** (`proved` for the pure lemmas); the hypothesis is a theorem by `bix_hahn_rightcount`.  **Not formalised:** `τ = -1`, half-integer lattice, Racah chains.
 -/
 
 @[expose] public section
@@ -79,13 +78,13 @@ theorem bix_site_le_m {N k : ℤ} {b : ℝ} {x : ℝ} (hb : b < √(1 - x ^ 2)) 
 /-- **The zero index of the `3j` chain in the bulk, conditional on the right-end count.** -/
 theorem bix_hahn_zero_index (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) (a b : ℝ) (ha : 0 < a) (hab : a < b)
     (hb : b < √(1 - (x : ℝ) ^ 2)) :
-    ∃ t₀ ε : ℝ, 0 < t₀ ∧ 0 < ε ∧
+    ∃ ε : ℝ, 0 < ε ∧
       ∀ (m n : ℕ), 1 ≤ max |M| |σ| → n ≤ m → xLat (M : ℚ) (σ : ℚ) ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℚ) n = x →
         1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ) ≤ ε → ∀ i iR : ℕ, i ≤ iR →
           a ≤ bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ)) →
           bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)) ≤ b →
-          t₀ < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ)))| →
-          t₀ < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)))| →
+          1 / 2 < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ)))| →
+          1 / 2 < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)))| →
           BixRightCount M σ (max |M| |σ| + (m : ℤ) + 1) x iR m →
           ((∑ j ∈ Ico i m, bix_c (bixU M σ (max |M| |σ| + (m : ℤ) + 1) x) j : ℕ) : ℤ) =
               ⌊bkPhase 1 0 1 (x : ℝ) (√(1 - (x : ℝ) ^ 2)) (bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ))) /
@@ -95,7 +94,10 @@ theorem bix_hahn_zero_index (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) (
               ⌊bkPhase 1 0 1 (x : ℝ) (√(1 - (x : ℝ) ^ 2)) (bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ))) /
                 (π * (1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ))) + 1 / 4⌋ := by
   obtain ⟨η, ε, hη0, hη1, hε, H⟩ := bix_hahn_window M σ x hx0 hx1 a b ha hab hb
-  refine ⟨Real.sin η, ε, Real.sin_pos_of_pos_of_lt_pi hη0 (by linarith [Real.pi_pos]), hε, ?_⟩
+  have hsin : Real.sin η < 1 / 2 := by
+    rw [← Real.sin_pi_div_six]
+    exact Real.sin_lt_sin_of_lt_of_le_pi_div_two (by linarith [Real.pi_pos]) (by linarith [Real.pi_pos]) hη1
+  refine ⟨ε, hε, ?_⟩
   intro m n hlo hnm hxn hNε i iR hi hlo' hhi hd1 hd2 hR
   set N : ℤ := max |M| |σ| + (m : ℤ) + 1 with hNdef
   have hkpos : 0 ≤ max |M| |σ| := le_trans (abs_nonneg M) (le_max_left _ _)
@@ -118,8 +120,8 @@ theorem bix_hahn_zero_index (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) (
       positivity
     unfold bixTheta
     rw [bixN_theta _ _ hh]
-  have hDi : BixDef (fun i : ℕ => bixTheta (x : ℝ) N (max |M| |σ| + (i : ℤ))) η i := bix_def_iff.2 hd1
-  have hDR : BixDef (fun i : ℕ => bixTheta (x : ℝ) N (max |M| |σ| + (i : ℤ))) η iR := bix_def_iff.2 hd2
+  have hDi : BixDef (fun i : ℕ => bixTheta (x : ℝ) N (max |M| |σ| + (i : ℤ))) η i := bix_def_iff.2 (hsin.trans hd1)
+  have hDR : BixDef (fun i : ℕ => bixTheta (x : ℝ) N (max |M| |σ| + (i : ℤ))) η iR := bix_def_iff.2 (hsin.trans hd2)
   have hh : (0 : ℝ) < 1 / (N : ℝ) := by
     have : (0 : ℝ) < N := by exact_mod_cast hNpos
     positivity
@@ -148,14 +150,14 @@ both sites definite) the number `R` of nodes in the bonds `i, …, m-1` satisfie
 the left of the bond number `(m - n) - R`, so the bond carries the node of index `(m - n) - R + 1` from the left. -/
 theorem bix_hahn_bs_index (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) (a b : ℝ) (ha : 0 < a) (hab : a < b)
     (hb : b < √(1 - (x : ℝ) ^ 2)) :
-    ∃ t₀ ε : ℝ, 0 < t₀ ∧ 0 < ε ∧
+    ∃ ε : ℝ, 0 < ε ∧
       ∀ (m n : ℕ), 1 ≤ max |M| |σ| → n ≤ m → xLat (M : ℚ) (σ : ℚ) ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℚ) n = x →
         1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ) ≤ ε → ∀ i iR : ℕ, i + 1 ≤ iR →
           a ≤ bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ)) →
           bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)) ≤ b →
-          t₀ < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ)))| →
-          t₀ < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + ((i + 1 : ℕ) : ℤ)))| →
-          t₀ < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)))| →
+          1 / 2 < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ)))| →
+          1 / 2 < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + ((i + 1 : ℕ) : ℤ)))| →
+          1 / 2 < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)))| →
           BixRightCount M σ (max |M| |σ| + (m : ℤ) + 1) x iR m →
           bixU M σ (max |M| |σ| + (m : ℤ) + 1) x i * bixU M σ (max |M| |σ| + (m : ℤ) + 1) x (i + 1) < 0 →
           ∃ R : ℕ, (∑ j ∈ Ico i m, bix_c (bixU M σ (max |M| |σ| + (m : ℤ) + 1) x) j) = R ∧
@@ -164,8 +166,8 @@ theorem bix_hahn_bs_index (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) (a 
                 (1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ)) < π * ((R : ℝ) - 1 / 4) ∧
             π * ((R : ℝ) - 1 / 4) ≤ bkPhase 1 0 1 (x : ℝ) (√(1 - (x : ℝ) ^ 2)) (bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ))) /
                 (1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ)) := by
-  obtain ⟨t₀, ε, ht, hε, H⟩ := bix_hahn_zero_index M σ x hx0 hx1 a b ha hab hb
-  refine ⟨t₀, ε, ht, hε, ?_⟩
+  obtain ⟨ε, hε, H⟩ := bix_hahn_zero_index M σ x hx0 hx1 a b ha hab hb
+  refine ⟨ε, hε, ?_⟩
   intro m n hlo hnm hxn hNε i iR hiR hlo' hhi hd1 hd2 hd3 hR hnode
   set N : ℤ := max |M| |σ| + (m : ℤ) + 1 with hNdef
   have hkpos : 0 ≤ max |M| |σ| := le_trans (abs_nonneg M) (le_max_left _ _)

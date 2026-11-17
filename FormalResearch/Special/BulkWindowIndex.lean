@@ -407,13 +407,13 @@ theorem bix_hahn_rightcount (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) (
 /-- **The zero index of the integer `3j` chain, unconditional** (`bix_hahn_zero_index` with `BixRightCount` proved). -/
 theorem hahn_chain_zero_index (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) (a b : ℝ) (ha : 0 < a) (hab : a < b)
     (hb : b < √(1 - (x : ℝ) ^ 2)) :
-    ∃ t₀ ε : ℝ, 0 < t₀ ∧ 0 < ε ∧
+    ∃ ε : ℝ, 0 < ε ∧
       ∀ (m n : ℕ), 1 ≤ max |M| |σ| → n ≤ m → xLat (M : ℚ) (σ : ℚ) ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℚ) n = x →
         1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ) ≤ ε → ∀ i iR : ℕ, i ≤ iR →
           a ≤ bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ)) →
           bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)) ≤ b →
-          t₀ < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ)))| →
-          t₀ < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)))| →
+          1 / 2 < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ)))| →
+          1 / 2 < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)))| →
           ((∑ j ∈ Ico i m, bix_c (bixU M σ (max |M| |σ| + (m : ℤ) + 1) x) j : ℕ) : ℤ) =
               ⌊bkPhase 1 0 1 (x : ℝ) (√(1 - (x : ℝ) ^ 2)) (bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ))) /
                 (π * (1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ))) + 1 / 4⌋ ∧
@@ -421,29 +421,29 @@ theorem hahn_chain_zero_index (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1)
               ((m : ℤ) - n) -
               ⌊bkPhase 1 0 1 (x : ℝ) (√(1 - (x : ℝ) ^ 2)) (bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ))) /
                 (π * (1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ))) + 1 / 4⌋ := by
-  obtain ⟨t1, ε1, ht1, hε1, H1⟩ := bix_hahn_zero_index M σ x hx0 hx1 a b ha hab hb
+  obtain ⟨ε1, hε1, H1⟩ := bix_hahn_zero_index M σ x hx0 hx1 a b ha hab hb
   obtain ⟨ε2, hε2, H2⟩ := bix_hahn_rightcount M σ x hx0 hx1 a b ha hab hb
-  refine ⟨max t1 (1 / 2), min ε1 ε2, lt_max_of_lt_left ht1, lt_min hε1 hε2, ?_⟩
+  refine ⟨min ε1 ε2, lt_min hε1 hε2, ?_⟩
   intro m n hlo hnm hxn hNε i iR hi haI hRb hc1 hc2
   set N : ℤ := max |M| |σ| + (m : ℤ) + 1 with hN
   have hK0 : 0 ≤ max |M| |σ| := le_trans (abs_nonneg M) (le_max_left _ _)
   have hNpos : 0 < N := by omega
   have haR : a ≤ bixQ N (max |M| |σ| + (iR : ℤ)) := haI.trans (bixQ_mono hNpos (by omega))
-  have hR := H2 m n hlo hnm hxn (hNε.trans (min_le_right _ _)) iR haR hRb (lt_of_le_of_lt (le_max_right _ _) hc2)
-  exact H1 m n hlo hnm hxn (hNε.trans (min_le_left _ _)) i iR hi haI hRb (lt_of_le_of_lt (le_max_left _ _) hc1)
-    (lt_of_le_of_lt (le_max_left _ _) hc2) hR
+  have hR := H2 m n hlo hnm hxn (hNε.trans (min_le_right _ _)) iR haR hRb hc2
+  exact H1 m n hlo hnm hxn (hNε.trans (min_le_left _ _)) i iR hi haI hRb hc1
+    hc2 hR
 
 /-- **The Bohr-Sommerfeld integer of a node bond and the index from the left, unconditional** (`bix_hahn_bs_index` with `BixRightCount` proved). -/
 theorem hahn_chain_bs_index (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) (a b : ℝ) (ha : 0 < a) (hab : a < b)
     (hb : b < √(1 - (x : ℝ) ^ 2)) :
-    ∃ t₀ ε : ℝ, 0 < t₀ ∧ 0 < ε ∧
+    ∃ ε : ℝ, 0 < ε ∧
       ∀ (m n : ℕ), 1 ≤ max |M| |σ| → n ≤ m → xLat (M : ℚ) (σ : ℚ) ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℚ) n = x →
         1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ) ≤ ε → ∀ i iR : ℕ, i + 1 ≤ iR →
           a ≤ bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ)) →
           bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)) ≤ b →
-          t₀ < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ)))| →
-          t₀ < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + ((i + 1 : ℕ) : ℤ)))| →
-          t₀ < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)))| →
+          1 / 2 < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ)))| →
+          1 / 2 < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + ((i + 1 : ℕ) : ℤ)))| →
+          1 / 2 < |Real.cos (bixTheta (x : ℝ) (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (iR : ℤ)))| →
           bixU M σ (max |M| |σ| + (m : ℤ) + 1) x i * bixU M σ (max |M| |σ| + (m : ℤ) + 1) x (i + 1) < 0 →
           ∃ R : ℕ, (∑ j ∈ Ico i m, bix_c (bixU M σ (max |M| |σ| + (m : ℤ) + 1) x) j) = R ∧
             ((∑ j ∈ range i, bix_c (bixU M σ (max |M| |σ| + (m : ℤ) + 1) x) j : ℕ) : ℤ) = ((m : ℤ) - n) - R ∧
@@ -451,17 +451,17 @@ theorem hahn_chain_bs_index (M σ : ℤ) (x : ℚ) (hx0 : 0 < x) (hx1 : x < 1) (
                 (1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ)) < π * ((R : ℝ) - 1 / 4) ∧
             π * ((R : ℝ) - 1 / 4) ≤ bkPhase 1 0 1 (x : ℝ) (√(1 - (x : ℝ) ^ 2)) (bixQ (max |M| |σ| + (m : ℤ) + 1) (max |M| |σ| + (i : ℤ))) /
                 (1 / ((max |M| |σ| + (m : ℤ) + 1 : ℤ) : ℝ)) := by
-  obtain ⟨t1, ε1, ht1, hε1, H1⟩ := bix_hahn_bs_index M σ x hx0 hx1 a b ha hab hb
+  obtain ⟨ε1, hε1, H1⟩ := bix_hahn_bs_index M σ x hx0 hx1 a b ha hab hb
   obtain ⟨ε2, hε2, H2⟩ := bix_hahn_rightcount M σ x hx0 hx1 a b ha hab hb
-  refine ⟨max t1 (1 / 2), min ε1 ε2, lt_max_of_lt_left ht1, lt_min hε1 hε2, ?_⟩
+  refine ⟨min ε1 ε2, lt_min hε1 hε2, ?_⟩
   intro m n hlo hnm hxn hNε i iR hi haI hRb hc1 hc2 hc3 hnode
   set N : ℤ := max |M| |σ| + (m : ℤ) + 1 with hN
   have hK0 : 0 ≤ max |M| |σ| := le_trans (abs_nonneg M) (le_max_left _ _)
   have hNpos : 0 < N := by omega
   have haR : a ≤ bixQ N (max |M| |σ| + (iR : ℤ)) := haI.trans (bixQ_mono hNpos (by omega))
-  have hR := H2 m n hlo hnm hxn (hNε.trans (min_le_right _ _)) iR haR hRb (lt_of_le_of_lt (le_max_right _ _) hc3)
-  exact H1 m n hlo hnm hxn (hNε.trans (min_le_left _ _)) i iR hi haI hRb (lt_of_le_of_lt (le_max_left _ _) hc1)
-    (lt_of_le_of_lt (le_max_left _ _) hc2) (lt_of_le_of_lt (le_max_left _ _) hc3) hR hnode
+  have hR := H2 m n hlo hnm hxn (hNε.trans (min_le_right _ _)) iR haR hRb hc3
+  exact H1 m n hlo hnm hxn (hNε.trans (min_le_left _ _)) i iR hi haI hRb hc1
+    hc2 hc3 hR hnode
 
 /-- info: 'FormalResearch.Special.hahn_chain_bs_index' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

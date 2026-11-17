@@ -17,7 +17,7 @@ theorem `bix_count` (`BulkIndexCount`) and the phase steps `bix_phase_step` (`Bu
   `h ≤ ε` and every site window `[kmin + i₁, kmin + i₂]` with `q ∈ [a, b]` the chain is in the amplitude-phase form of
   `BixWin` (tolerance `sin η`, a sign `s = ±1`, amplitude `bkAmp`, steps in `(2η, π - 2η)`).
 * **`bix_hahn_count`** (step (i) of the zero index; every bulk Bohr-Sommerfeld window carries exactly one node):
-  with `t₀ = sin η`, for every pair of sites `i₁ ≤ i₂` of the window with `|cos θ| > t₀` there, the number of nodes
+  with `t₀ = sin η < 1/2` (so `|cos θ| > 1/2` suffices; see `BulkWindowIndex.bwn_bulk_count`), for every pair of sites `i₁ ≤ i₂` of the window with `|cos θ| > t₀` there, the number of nodes
   (sign changes `u_j u_{j+1} < 0` and interior zeros, `bix_c`) in the bonds `i₁, …, i₂ - 1` is exactly
   `⌊Φ(q_{i₁})/(π h) + 1/4⌋ - ⌊Φ(q_{i₂})/(π h) + 1/4⌋`, the number of integers `m` with `Φ(q_{i₂})/h < π (m - 1/4) ≤ Φ(q_{i₁})/h`,
   i.e. of Bohr-Sommerfeld points of `hahn_chain_bulk_zeros` in the window.  The value of `u` at a site with `|cos θ| ≤ t₀` is
