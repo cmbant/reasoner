@@ -7,8 +7,11 @@ public import FormalResearch.Jacobi.Basic
 
 For a Jacobi matrix with nonzero links the monic polynomials `P_j = jacP b a j` of the leading
 `j × j` blocks (three-term recurrence `P_{j+2} = (X - b_{j+1}) P_{j+1} - a_j² P_j`) satisfy the
-classical Sturm / Cauchy interlacing, here proved from the recurrence alone (Cauchy interlacing for
-general Hermitian matrices is not in Mathlib; for tridiagonal matrices the recurrence suffices):
+classical Sturm / Cauchy interlacing, here proved from the recurrence alone (weak Cauchy interlacing
+for general Hermitian matrices is proved separately in
+`FormalResearch.MatrixAnalysis.Spectral.herm_interlace_le` / `herm_interlace_ge` and
+`herm_interlace_submatrix_le/ge`; it does not give the strict inequalities, which for tridiagonal
+matrices with nonzero links need the recurrence):
 
 `jacP_interlacing` : for `1 ≤ m ≤ n` (all links `a_0 … a_{m-2}` nonzero) there are `μ_0 … μ_{m-2}`,
 `θ_0 … θ_{m-1}` with `P_{m-1} = ∏ (X - μ_i)`, `P_m = ∏ (X - θ_i)` and

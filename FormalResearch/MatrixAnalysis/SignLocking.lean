@@ -22,7 +22,10 @@ and the sign-locking condition `η₂ + 2κρ < 2√2 k_* √(t_min² - ρ²)`:
 Claim class: proved.  Differences from the note: tridiagonality of `K` is not used (only the lower
 bound on the superdiagonal links, since `‖[K,T]‖_F² ≥ 2 K_{j,j+1}² (c_{j+1} - c_j)²` holds for any `K`);
 the hypothesis `ε < 1` and the polar-factor bound (2.12) `‖Q - σU‖ ≤ 2ε` are NOT formalised (they need
-the Weyl singular-value perturbation inequality, not in Mathlib); the Racah instantiation (`H = h²J^{(a)}`,
+Weyl's singular-value perturbation inequality, which now exists as
+`FormalResearch.MatrixAnalysis.Spectral.singularValues_add_le` / `abs_singularValues_sub_le`, and the
+operator-norm polar-factor statement `Spectral.fanHoffman_polar`, but neither (2.12) nor the `ε < 1` form
+of Theorem 2 has been derived from them here); the Racah instantiation (`H = h²J^{(a)}`,
 `D`, `K = h²J^{(d)}` and the exact bispectral identities) is not formalised.
 -/
 
