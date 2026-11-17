@@ -217,4 +217,94 @@ theorem error_asymp_III (nc : ℕ) {cs b b1 y1 A1 A2 A3 : ℝ} (hcs0 : 0 < cs) (
       2 * P + 4 * Real.pi * (A1 * (C1 * P) + A2 * P + A3 * P) + (8 * nc * C1 + 3 * C1) * P + P := by ring
   linarith [hT, hA, hεP]
 
+/-- **`lem:latticesum` (iii) for the Gamma phase** (paper form), `t₀ = Θ(0)/π`.  Constants `C, L₀` depend only on
+`nc, b, c_*, b₁, F_±`.  `Sν = ∑_{x∈S} [ν(2πx) - 1_{x<0}]` with `ν(e) = (1+e^e)⁻¹` (`nuR`). -/
+theorem latticesum_gamma_iii (nc : ℕ) (hnc : 1 ≤ nc) {b cs b1 Fm Fp : ℝ}
+    (hb : 0 < b) (hcs0 : 0 < cs) (hcs : cs < 1 / 2) (hb1 : 0 < b1)
+    (hb1b : b1 < b) (hb1δ : b1 < nc * (1 / 4)) (hFm : 0 < Fm) :
+    ∃ C L0 : ℝ, 0 < C ∧ 1 < L0 ∧ ∀ L : ℝ, L0 ≤ L → ∀ F : Fin nc → ℝ, (∀ i, Fm ≤ F i ∧ F i ≤ Fp) →
+      ∀ (X θ0 : ℝ), L ^ (cs / 2) ≤ X → X ≤ L ^ cs →
+      ∀ Θ : ℝ → ℝ, ContinuousOn Θ (Icc (-X) X) → StrictMonoOn Θ (Icc (-X) X) →
+      (∀ s ∈ Icc (-X) X, |Θ s - gammaG nc (lsum nc L F) θ0 s| ≤ L ^ (-b)) →
+      ∀ S : Finset ℝ, (∀ x, x ∈ S ↔ x ∈ Icc (-X) X ∧ ∃ n : ℤ, Θ x = n * Real.pi) →
+      (Int.fract (Θ 0 / Real.pi) ≠ 0 →
+        |(∑ x ∈ S, (nuR (2 * Real.pi * x) - if x < 0 then (1 : ℝ) else 0)) -
+          (Int.fract (Θ 0 / Real.pi) - 1 / 2)| ≤ C * L ^ (-b1)) ∧
+      ∃ m : ℤ, |(∑ x ∈ S, (nuR (2 * Real.pi * x) - if x < 0 then (1 : ℝ) else 0)) -
+          Θ 0 / Real.pi + 1 / 2 - m| ≤ C * L ^ (-b1) := by
+  have hncpos : (0 : ℝ) < nc := by exact_mod_cast hnc
+  have hpi := Real.pi_pos
+  set y1 : ℝ := (b1 / nc + 1 / 4) / 2 with hy1d
+  have hbY : b1 / nc < 1 / 4 := by rw [div_lt_iff₀ hncpos]; linarith
+  have hy1 : 0 < y1 := by positivity
+  have hy1Y : y1 < 1 / 4 := by rw [hy1d]; linarith
+  set r : ℝ := 1 / 4 - y1 with hrd
+  have hr : 0 < r := by rw [hrd]; linarith
+  have hyr : y1 + r ≤ 1 / 4 := by rw [hrd]; linarith
+  have hnc_y : b1 ≤ nc * y1 := by
+    have : (nc : ℝ) * (b1 / nc) = b1 := by field_simp
+    have h2 : (nc : ℝ) * y1 = (b1 + nc * (1 / 4)) / 2 := by rw [hy1d]; field_simp
+    rw [h2]; linarith
+  have hK : 0 ≤ (nc : ℝ) * (16 * invSqSum) / Real.pi := by
+    have := invSqSum_nonneg; positivity
+  obtain ⟨A1, A2, A3, hA1, hA2, hA3, hA⟩ :=
+    explicit_I_le (2 * Real.pi) r y1 ((nc : ℝ) * (16 * invSqSum) / Real.pi) (by positivity) hr hy1 hK
+  obtain ⟨C, hC, hCb⟩ := error_asymp_III nc (cs := cs) (b := b) (b1 := b1) (y1 := y1) (A1 := A1)
+    (A2 := A2) (A3 := A3) hcs0 hb hb1b.le hnc_y hA1 hA2 hA3
+  set Λ : ℝ := max (max (2 * Real.pi) ((Real.log 3 + 5 - Real.log Fm) / (1 / 2 - cs)))
+    (max (Real.log Fp + 3) (-Real.log Fm)) with hΛ
+  refine ⟨C, Real.exp Λ + 1, hC, by linarith [Real.exp_pos Λ], ?_⟩
+  intro L hLL F hF X θ0 hX hXu Θ hΘc hΘm hΘG S hS
+  have hL1 : 1 < L := by linarith [Real.exp_pos Λ]
+  have hL0 : 0 < L := by linarith
+  have hlogL : Λ ≤ Real.log L := (Real.le_log_iff_exp_le hL0).2 (by linarith)
+  have hΛ1 : 2 * Real.pi ≤ Real.log L := le_trans (le_trans (le_max_left _ _) (le_max_left _ _)) hlogL
+  have hΛ2 : (Real.log 3 + 5 - Real.log Fm) / (1 / 2 - cs) ≤ Real.log L :=
+    le_trans (le_trans (le_max_right _ _) (le_max_left _ _)) hlogL
+  have hΛ3 : Real.log Fp + 3 ≤ Real.log L :=
+    le_trans (le_trans (le_max_left _ _) (le_max_right _ _)) hlogL
+  have hm1 : 2 * Real.pi ≤ nc * Real.log L := by
+    have hlp : 0 ≤ Real.log L := by linarith [Real.pi_pos]
+    have : (1 : ℝ) ≤ nc := by exact_mod_cast hnc
+    nlinarith
+  have h1 : Real.log 3 + 5 - Real.log Fm ≤ (1 / 2 - cs) * Real.log L := by
+    have := (div_le_iff₀ (by linarith : 0 < 1 / 2 - cs)).1 hΛ2
+    linarith
+  set ℓ := lsum nc L F with hℓ
+  set m : ℝ := nc * Real.log L / (2 * Real.pi) with hm
+  have hm1' : 1 ≤ m := by rw [hm, le_div_iff₀ (by positivity)]; linarith
+  set ε : ℝ := L ^ (-b) / Real.pi with hε
+  have hε0 : 0 ≤ ε := by positivity
+  have hLb1 : L ^ (-b) ≤ 1 := Real.rpow_le_one_of_one_le_of_nonpos hL1.le (by linarith)
+  have hε1 : ε ≤ 1 := by
+    rw [hε, div_le_iff₀ hpi]; nlinarith [Real.pi_gt_three]
+  have hCal := gamma_calPhase nc hnc hL1 hFm F hF hcs0 hcs hX hXu h1 hΛ3 (θ0 := θ0)
+  obtain ⟨t', hd, ht'⟩ := exists_levelData hCal (continuous_realPhase_gamma nc ℓ θ0)
+    (t := fun s => Θ s / Real.pi) (ε := ε)
+    (hΘc.div_const _) (fun x hx y hy hxy => div_lt_div_of_pos_right (hΘm hx hy hxy) hpi) hε0
+    (fun s hs => by
+      rw [realPhase_gamma, ← sub_div, abs_div, abs_of_pos hpi]
+      exact div_le_div_of_nonneg_right (hΘG s hs) hpi.le) (S := S)
+    (fun x => by
+      rw [hS x]
+      refine and_congr_right (fun _ => exists_congr (fun n => ?_))
+      rw [div_eq_iff hpi.ne'])
+  have hb0 := latticeIII_bound hd (y1 := y1) (r := r) hy1 hr hyr le_rfl (gamma_odd nc ℓ θ0)
+  have h0 : t' 0 = Θ 0 / Real.pi := ht' 0 ⟨by linarith [hd.cal.hX], hd.cal.hX.le⟩
+  rw [h0, ← hm] at hb0
+  have hI := hA (4 * Real.pi) ε X m (by positivity) hε0 hε1 hm1'
+  have hE := hCb L hL1 X hX
+  rw [← hε, ← hm] at hE
+  set Sν := ∑ x ∈ S, (nuR (2 * Real.pi * x) - if x < 0 then (1 : ℝ) else 0) with hSν
+  have hfin : |Sν - ((Int.fract (Θ 0 / Real.pi) - 1 / 2) +
+      if Int.fract (Θ 0 / Real.pi) = 0 then 1 else 0)| ≤ C * L ^ (-b1) := by
+    refine hb0.trans ?_
+    refine le_trans ?_ hE
+    linarith
+  exact offset_of_bound hfin
+
+/-- info: 'FormalResearch.Special.Lattice.latticesum_gamma_iii' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms latticesum_gamma_iii
+
 end FormalResearch.Special.Lattice
