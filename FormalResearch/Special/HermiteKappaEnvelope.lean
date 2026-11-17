@@ -222,6 +222,10 @@ theorem weber_envelope (hq : 4 ≤ q) (h : WeberData (q ^ 6) f g V) {x : ℝ} (h
       have := forbidden_bound (by linarith) h (K := 1000001) (by norm_num) hK hx2
       linarith
 
+/-- info: 'FormalResearch.Special.weber_envelope' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.weber_envelope
+
 end window
 
 end FormalResearch.Special

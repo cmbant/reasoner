@@ -209,4 +209,8 @@ lemma sq_exp_decay (h : WeberData L f g V) {s : ℝ} (hs0 : 0 < s) (hs : s ^ 2 =
 
 end WeberData
 
+/-- info: 'FormalResearch.Special.WeberData.sq_exp_decay' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.WeberData.sq_exp_decay
+
 end FormalResearch.Special

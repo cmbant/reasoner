@@ -455,6 +455,10 @@ theorem weber_bulk_T (hq : 4 ≤ q) (h : WeberData (q ^ 6) f g V) :
   exact (hle y hy).trans hAle
 
 
+/-- info: 'FormalResearch.Special.weber_bulk_T' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.weber_bulk_T
+
 end bulk
 
 end FormalResearch.Special

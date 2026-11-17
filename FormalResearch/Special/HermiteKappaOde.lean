@@ -152,4 +152,8 @@ theorem hermite_weberData (n : ℕ) :
           setIntegral_le_integral hint (Filter.Eventually.of_forall fun t => sq_nonneg _)
       _ = 1 := integral_hermitePhi_sq n
 
+/-- info: 'FormalResearch.Special.hasDerivAt_hkDer' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.hasDerivAt_hkDer
+
 end FormalResearch.Special
