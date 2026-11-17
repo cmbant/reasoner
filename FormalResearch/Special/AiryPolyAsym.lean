@@ -130,8 +130,7 @@ lemma airyPQ_not_domP_domQ (P Q : ℝ[X]) : ¬ (AiryPQDomP P Q ∧ AiryPQDomQ P 
     · exact h1 h
     · omega
 
-/-- **Dominance.** -/
-theorem airyPQ_dominance (P Q : ℝ[X]) : ∃ T : ℝ, 1 ≤ T ∧ ∀ u : ℂ, T ≤ ‖u‖ →
+lemma airyPQ_dominance_aux (P Q : ℝ[X]) : ∃ T : ℝ, 1 ≤ T ∧ ∀ u : ℂ, T ≤ ‖u‖ →
     (AiryPQDomP P Q → 16 * ‖airyPQc Q u‖ * √‖u‖ ≤ ‖airyPQc P u‖) ∧
     (AiryPQDomQ P Q → 16 * ‖airyPQc P u‖ ≤ ‖airyPQc Q u‖ * √‖u‖) := by
   by_cases hP : P = 0
@@ -202,6 +201,38 @@ theorem airyPQ_dominance (P Q : ℝ[X]) : ∃ T : ℝ, 1 ≤ T ∧ ∀ u : ℂ, 
                   rw [div_le_iff₀ hcQ0] at hm; nlinarith
                 nlinarith
             _ ≤ ‖airyPQc Q u‖ * √‖u‖ := by gcongr
+
+lemma airyPQ_lower_ex (p : ℝ[X]) : ∃ T : ℝ, 1 ≤ T ∧ ∀ u : ℂ, T ≤ ‖u‖ → p ≠ 0 →
+    |p.leadingCoeff| / 2 * ‖u‖ ^ p.natDegree ≤ ‖airyPQc p u‖ ∧ 0 < ‖airyPQc p u‖ := by
+  by_cases hp : p = 0
+  · exact ⟨1, le_rfl, fun u _ h => absurd hp h⟩
+  · obtain ⟨T, L, hT1, -, hT⟩ := airyPQ_asymp p hp
+    refine ⟨T, hT1, fun u hu _ => ?_⟩
+    have h := (hT u hu).1
+    refine ⟨h, lt_of_lt_of_le ?_ h⟩
+    have : 0 < |p.leadingCoeff| := abs_pos.mpr (leadingCoeff_ne_zero.mpr hp)
+    have : 0 < ‖u‖ := by linarith
+    positivity
+
+/-- **Dominance** (with the leading-term lower bound and positivity of the dominant coefficient). -/
+theorem airyPQ_dominance (P Q : ℝ[X]) : ∃ T : ℝ, 1 ≤ T ∧ ∀ u : ℂ, T ≤ ‖u‖ →
+    (AiryPQDomP P Q → 16 * ‖airyPQc Q u‖ * √‖u‖ ≤ ‖airyPQc P u‖ ∧
+      |P.leadingCoeff| / 2 * ‖u‖ ^ P.natDegree ≤ ‖airyPQc P u‖ ∧ 0 < ‖airyPQc P u‖) ∧
+    (AiryPQDomQ P Q → 16 * ‖airyPQc P u‖ ≤ ‖airyPQc Q u‖ * √‖u‖ ∧
+      |Q.leadingCoeff| / 2 * ‖u‖ ^ Q.natDegree ≤ ‖airyPQc Q u‖ ∧ 0 < ‖airyPQc Q u‖) := by
+  obtain ⟨T0, hT01, h0⟩ := airyPQ_dominance_aux P Q
+  obtain ⟨T1, hT11, h1⟩ := airyPQ_lower_ex P
+  obtain ⟨T2, hT21, h2⟩ := airyPQ_lower_ex Q
+  refine ⟨max T0 (max T1 T2), hT01.trans (le_max_left _ _), fun u hu => ?_⟩
+  have hu0 : T0 ≤ ‖u‖ := (le_max_left _ _).trans hu
+  have hu1 : T1 ≤ ‖u‖ := ((le_max_left _ _).trans (le_max_right _ _)).trans hu
+  have hu2 : T2 ≤ ‖u‖ := ((le_max_right _ _).trans (le_max_right _ _)).trans hu
+  refine ⟨fun hd => ⟨(h0 u hu0).1 hd, ?_⟩, fun hd => ⟨(h0 u hu0).2 hd, ?_⟩⟩
+  · have hP : P ≠ 0 := by
+      rcases hd with ⟨-, h⟩ | ⟨h, -⟩ <;> exact h
+    exact h1 u hu1 hP
+  · have hQ : Q ≠ 0 := hd.1
+    exact h2 u hu2 hQ
 
 /-- info: 'FormalResearch.Special.airyPQ_asymp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
