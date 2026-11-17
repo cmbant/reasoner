@@ -18,6 +18,8 @@ order; "adjacent" is `CovBy` (`⋖`), so no `Fin` arithmetic is needed.
 * `eq_zero_of_eigen_of_tridiag` : an eigenvector of a tridiagonal matrix with nonzero upper links,
   supported on an upper set and vanishing at its least element, is zero (so eigenspaces of Jacobi
   blocks have dimension at most one).
+  For `Fin n` Jacobi matrices see also `FormalResearch.Jacobi.jacobi_eigenvec_unique` and
+  `jacobi_reconstruct` (`FormalResearch.Jacobi.Basic`, `Reconstruction`).
 
 Nothing here uses self-adjointness or orthonormality.
 -/

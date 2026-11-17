@@ -765,6 +765,7 @@ public import FormalResearch.ConvexGeometry
 public import FormalResearch.MatrixAnalysis
 public import FormalResearch.PPTThreeQubit
 public import FormalResearch.GurvitsBarnum
+public import FormalResearch.Jacobi
 
 
 @[expose] public section

@@ -15,4 +15,7 @@ General finite-dimensional matrix facts used across the corpus: the Hermitian tr
 variational characterisation (`TraceNorm`), the trace norm of a non-Hermitian matrix (`TraceNormGeneral`),
 pure-state Helstrom (`HelstromPure`), witness distance bounds (`TraceDistance`), the quantitative
 kernel-penalty lift (`KernelQuant`) and the supported-face extremality criterion (`ExtremeCriterion`).
+
+The masked-Frobenius, spectral-residual and sign-locking lemmas (`MaskedFrobenius`, `SpectralResidual`,
+`SignLocking`) belong to the Jacobi programme and are imported by the aggregate `FormalResearch.Jacobi`.
 -/
