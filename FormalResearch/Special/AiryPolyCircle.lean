@@ -332,6 +332,39 @@ theorem airyPQ_good_circle_kappa (P Q : ℝ[X]) (hPQ : P ≠ 0 ∨ Q ≠ 0) :
     _ = airyPQW P Q u ^ 2 * airyEnv u / (64 * π * √r) := by ring
     _ ≤ _ := h1
 
+lemma airyPQkappa_ge (P Q : ℝ[X]) : -(1 / 2 : ℝ) ≤ airyPQkappa P Q := by
+  unfold airyPQkappa
+  split_ifs
+  · have : (0 : ℝ) ≤ P.natDegree := Nat.cast_nonneg _
+    linarith
+  · have : (0 : ℝ) ≤ Q.natDegree := Nat.cast_nonneg _
+    linarith
+
+/-- **Good circles in the form `(E2_N)` of `SE5_FIVE_LEVEL_AIRY.md` §0.3**: `|N(u)|² ≥ c (1+|u|)^{-1/2} e(u)` on the circles
+(`A = max(0, -2κ) ≤ 1/2`), with `|M/N ∓ i| ≤ 168√π/e`. -/
+theorem airyPQ_good_circle_SE5 (P Q : ℝ[X]) (hPQ : P ≠ 0 ∨ Q ≠ 0) :
+    ∃ c : ℝ, 0 < c ∧ ∃ k₀ : ℕ, ∀ k : ℕ, k₀ ≤ k → ∃ r : ℝ, (k : ℝ) ≤ r ∧ r ≤ k + 1 ∧
+      ∀ u : ℂ, ‖u‖ = r →
+        c * (1 + ‖u‖) ^ (-(1 / 2 : ℝ)) * airyEnv u ≤ ‖airyPQN P Q u‖ ^ 2 ∧
+        (0 ≤ u.im → ‖airyPQM P Q u / airyPQN P Q u - I‖ * airyEnv u ≤ 168 * √π) ∧
+        (u.im ≤ 0 → ‖airyPQM P Q u / airyPQN P Q u + I‖ * airyEnv u ≤ 168 * √π) := by
+  obtain ⟨c, hc, k₀, hk₀⟩ := airyPQ_good_circle_kappa P Q hPQ
+  refine ⟨c, hc, max k₀ 1, fun k hk => ?_⟩
+  obtain ⟨r, hr1, hr2, hr⟩ := hk₀ k ((le_max_left _ _).trans hk)
+  have hk1 : (1 : ℝ) ≤ k := by exact_mod_cast (le_max_right _ _).trans hk
+  refine ⟨r, hr1, hr2, fun u hu => ?_⟩
+  obtain ⟨-, h1, h2, h3⟩ := hr u hu
+  refine ⟨?_, h2, h3⟩
+  have hr1' : 1 ≤ r := hk1.trans hr1
+  have hen := airyEnv_pos u
+  have h4 : (1 + ‖u‖) ^ (-(1 / 2 : ℝ)) ≤ r ^ airyPQkappa P Q := by
+    rw [hu]
+    calc (1 + r) ^ (-(1 / 2 : ℝ)) ≤ r ^ (-(1 / 2 : ℝ)) :=
+          Real.rpow_le_rpow_of_nonpos (by linarith) (by linarith) (by norm_num)
+      _ ≤ r ^ airyPQkappa P Q := Real.rpow_le_rpow_of_exponent_le hr1' (airyPQkappa_ge P Q)
+  calc c * (1 + ‖u‖) ^ (-(1 / 2 : ℝ)) * airyEnv u ≤ c * r ^ airyPQkappa P Q * airyEnv u := by gcongr
+    _ ≤ _ := h1
+
 /-- info: 'FormalResearch.Special.airyPQ_good_circle' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyPQ_good_circle
@@ -339,5 +372,9 @@ theorem airyPQ_good_circle_kappa (P Q : ℝ[X]) (hPQ : P ≠ 0 ∨ Q ≠ 0) :
 /-- info: 'FormalResearch.Special.airyPQ_good_circle_kappa' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.airyPQ_good_circle_kappa
+
+/-- info: 'FormalResearch.Special.airyPQ_good_circle_SE5' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.airyPQ_good_circle_SE5
 
 end FormalResearch.Special
