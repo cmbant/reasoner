@@ -8,8 +8,7 @@ public import FormalResearch.Special.AiryPoly
 This file records the denominator and degree count in `SOFT_EDGE_THEOREMS.md`, Theorem 4.7.  For
 `N = P·Ai + Q·Ai'`, the prescribed number of factors is `max (2 deg P + 1) (2 deg Q + 2)`.
 The analytic assertion that a nonconstant polynomial multiple of `N² / ∏(u-t_j)` is not in
-`L¹(ℝ)` is not proved here: it needs a negative-axis averaged lower bound for `N²` that is not
-among the existing `AiryPoly*` results.  The constant case is expected to have band decay
+`L¹(ℝ)` is `at47_not_integrable_poly_mul` in `AiryThm47Band` (proved there; this file holds only the bookkeeping).  The constant case is expected to have band decay
 `|u|^(-3/2)`.  Numerical check (SciPy 1.17, double precision): for `P = Q = 1`, `m = 2`, and for
 `P = u, Q = 1`, `m = 3`, the block integrals of `N(-s)²/s^m` over `[R,2R]` at
 `R = 100, 400, 1600` are respectively `(0.00939155, 0.00467033, 0.00233183)` and
