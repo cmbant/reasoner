@@ -453,4 +453,115 @@ theorem kp_defect {x qs h A ηb κb : ℝ} {k : ℤ} {a c η κ : ℤ → ℝ} (
         linarith [Sp, S0, hxt, hκt]
     _ = _ := by ring
 
+lemma kpP_pos {qs h A : ℝ} {j : ℤ} (hA0 : 0 < A) (hj : A ^ 2 ≤ qs ^ 2 - kpU h j ^ 2) : 0 < kpP qs h j := by
+  have := (kpα_sq hj).2
+  unfold kpP; exact div_pos (by norm_num) (by linarith)
+
+lemma kpP_le {qs h A : ℝ} {j : ℤ} (hA0 : 0 < A) (hj : A ^ 2 ≤ qs ^ 2 - kpU h j ^ 2) : kpP qs h j ≤ 2 / A := by
+  have := (kpα_sq hj).2
+  unfold kpP; exact div_le_div_of_nonneg_left (by norm_num) hA0 this
+
+/-- `s_j ≤ 2/A` when `a ≤ 1` and `P, P' ≤ 2/A` (`s = √(a² P P' - 1)`). -/
+lemma kermS_le {a P : ℤ → ℝ} {j : ℤ} {A : ℝ} (hA0 : 0 < A) (ha0 : 0 ≤ a j) (ha1 : a j ≤ 1) (hP0 : 0 ≤ P j)
+    (hP1 : 0 ≤ P (j - 1)) (hPa : P j ≤ 2 / A) (hPb : P (j - 1) ≤ 2 / A) : kermS a P j ≤ 2 / A := by
+  unfold kermS
+  apply Real.sqrt_le_iff.2
+  refine ⟨by positivity, ?_⟩
+  have h1 : a j ^ 2 ≤ 1 := by nlinarith
+  have h2 : P j * P (j - 1) ≤ (2 / A) * (2 / A) := mul_le_mul hPa hPb hP1 (by positivity)
+  have h3 : a j ^ 2 * (P j * P (j - 1)) ≤ 1 * ((2 / A) * (2 / A)) :=
+    mul_le_mul h1 h2 (mul_nonneg hP0 hP1) (by norm_num)
+  nlinarith [h3]
+
+/-- **`B_k ≤ 40/A`**: the coefficient of the one-step bound of `DiscreteAiryKappaErmakov` is `O(1/A)`. -/
+lemma kp_B {a c P : ℤ → ℝ} {k : ℤ} {A : ℝ} (hA0 : 0 < A) (ha0 : 0 < a k) (ha1 : a k ≤ 1) (ha0' : 0 < a (k + 1))
+    (ha1' : a (k + 1) ≤ 1) (hc : |c k| ≤ 2) (hP0 : 0 < P k) (hPm : 0 < P (k - 1)) (hPp : 0 < P (k + 1))
+    (hPa : P k ≤ 2 / A) (hPb : P (k - 1) ≤ 2 / A) (hPc : P (k + 1) ≤ 2 / A) :
+    2 * |c k * P k + kermS a P (k + 1) - kermS a P k| + 4 * P k * |c k| + 2 * a k * (P k + P (k - 1)) ≤ 40 / A := by
+  have hs1 : kermS a P (k + 1) ≤ 2 / A := by
+    apply kermS_le hA0 ha0'.le ha1' hPp.le (by simpa using hP0.le) hPc
+    simpa using hPa
+  have hs0 : kermS a P k ≤ 2 / A := kermS_le hA0 ha0.le ha1 hP0.le hPm.le hPa hPb
+  have hs1' := kermS_nonneg a P (k + 1)
+  have hs0' := kermS_nonneg a P k
+  have hcP : |c k * P k| ≤ 4 / A := by
+    rw [abs_mul, abs_of_pos hP0]
+    calc |c k| * P k ≤ 2 * (2 / A) := mul_le_mul hc hPa hP0.le (by norm_num)
+      _ = 4 / A := by ring
+  have hdiff : |kermS a P (k + 1) - kermS a P k| ≤ 2 / A := by
+    rw [abs_le]; constructor <;> linarith
+  have hC : |c k * P k + kermS a P (k + 1) - kermS a P k| ≤ 6 / A := by
+    calc |c k * P k + kermS a P (k + 1) - kermS a P k| = |c k * P k + (kermS a P (k + 1) - kermS a P k)| := by ring_nf
+      _ ≤ |c k * P k| + |kermS a P (k + 1) - kermS a P k| := abs_add_le _ _
+      _ ≤ 4 / A + 2 / A := add_le_add hcP hdiff
+      _ = 6 / A := by ring
+  have h2 : 4 * P k * |c k| ≤ 16 / A := by
+    calc 4 * P k * |c k| ≤ 4 * (2 / A) * 2 := by
+          apply mul_le_mul (mul_le_mul_of_nonneg_left hPa (by norm_num)) hc (abs_nonneg _) (by positivity)
+      _ = 16 / A := by ring
+  have h3 : 2 * a k * (P k + P (k - 1)) ≤ 8 / A := by
+    calc 2 * a k * (P k + P (k - 1)) ≤ 2 * 1 * (2 / A + 2 / A) := by
+          apply mul_le_mul (by linarith) (by linarith) (by positivity) (by norm_num)
+      _ = 8 / A := by ring
+  have e : 40 / A = 12 / A + 16 / A + 8 / A + 4 / A := by ring
+  have : 0 ≤ 4 / A := by positivity
+  linarith [mul_le_mul_of_nonneg_left hC (by norm_num : (0:ℝ) ≤ 2), show 2 * (6 / A) = 12 / A by ring]
+
+/-- **Radicand positivity**: `a² P_k P_{k-1} ≥ 1` on the band. -/
+lemma kp_rad_ge {x qs h A η : ℝ} {k : ℤ} {a : ℤ → ℝ} (hqs : qs ^ 2 = 1 - x ^ 2) (hk : 1 ≤ k)
+    (hh : 0 < h) (hA0 : 0 < A) (hAm : A ^ 2 ≤ qs ^ 2 - kpU h (k - 1) ^ 2) (hA0' : A ^ 2 ≤ qs ^ 2 - kpU h k ^ 2)
+    (ha : a k ^ 2 = (1 + η) * ((1 - ((k : ℝ) * h) ^ 2) / 4)) (hη : |η| ≤ x ^ 2) :
+    1 ≤ a k ^ 2 * kpP qs h k * kpP qs h (k - 1) := by
+  obtain ⟨sm, bm⟩ := kpα_sq hAm
+  obtain ⟨s0, b0⟩ := kpα_sq hA0'
+  have hk' : (1 : ℝ) ≤ k := by exact_mod_cast hk
+  have hUm : 0 < kpU h (k - 1) := by unfold kpU; push_cast; exact mul_pos (by linarith) hh
+  have hU0 : 0 < kpU h k := by unfold kpU; exact mul_pos (by linarith) hh
+  have hqs1 : qs ^ 2 ≤ 1 := by nlinarith [sq_nonneg x]
+  have hU01 : kpU h k < 1 := kpU_lt_one hqs1 hA0 hA0' hU0
+  have hkk : kpU h k - h = kpU h (k - 1) := kpU_pred h k
+  have hm0 : 0 ≤ kpU h k - h / 2 := kpU_mid hh (by omega)
+  have hm1 := kp_sq_le_one hm0 (by linarith)
+  have hrad := kp_radicand (x := x) (η := η) (h := h) (u := kpU h k) hqs s0 (by rw [hkk]; exact sm) (by linarith)
+    (by linarith)
+  have hk2 : (k : ℝ) * h = kpU h k - h / 2 := by unfold kpU; ring
+  have : a k ^ 2 * kpP qs h k * kpP qs h (k - 1) - 1 =
+      (x ^ 2 + ((kpα qs h k - kpα qs h (k - 1)) ^ 2 / 2 + h ^ 2 / 4) + η * (1 - (kpU h k - h / 2) ^ 2)) /
+        (kpα qs h k * kpα qs h (k - 1)) := by
+    rw [← hrad, ha, hk2]; unfold kpP; ring
+  have hnn : 0 ≤ x ^ 2 + ((kpα qs h k - kpα qs h (k - 1)) ^ 2 / 2 + h ^ 2 / 4) + η * (1 - (kpU h k - h / 2) ^ 2) := by
+    have h1 : |η * (1 - (kpU h k - h / 2) ^ 2)| ≤ |η| := by
+      rw [abs_mul, abs_of_nonneg (sub_nonneg.2 hm1)]
+      nlinarith [abs_nonneg η, sq_nonneg (kpU h k - h / 2)]
+    have := (abs_le.1 h1).1
+    have := (abs_le.1 hη).1
+    nlinarith [sq_nonneg (kpα qs h k - kpα qs h (k - 1)), sq_nonneg h]
+  have : 0 ≤ a k ^ 2 * kpP qs h k * kpP qs h (k - 1) - 1 := by
+    rw [this]; exact div_nonneg hnn (mul_pos (by linarith) (by linarith)).le
+  linarith
+
+/-- info: 'FormalResearch.Special.kp_delta2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.kp_delta2
+
+/-- info: 'FormalResearch.Special.kp_tau' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.kp_tau
+
+/-- info: 'FormalResearch.Special.kp_s_close' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.kp_s_close
+
+/-- info: 'FormalResearch.Special.kp_defect' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.kp_defect
+
+/-- info: 'FormalResearch.Special.kp_B' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.kp_B
+
+/-- info: 'FormalResearch.Special.kp_rad_ge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.kp_rad_ge
+
 end FormalResearch.Special
