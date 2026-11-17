@@ -18,6 +18,10 @@ Put `z = 1/2 + i s`, `s ∈ ℝ`.  All statements follow from the Binet bounds
   `Im log Γ(1/2+is) - (s log s - s) ≈ 1/(24 s)` (mpmath, `s ∈ {0.5,1,3,10,50}`: `0.096, 0.045, 0.0140,
   0.00417, 0.00083`).
 
+Numerics (mpmath): `|Γ(1/2+is)|² cosh(π s)/π = 1` to 30 digits; `|Re ψ(1/2+is) - log s|` and
+`|Im log Γ(1/2+is) - (s log s - s)|` for `s ∈ {0.1, 0.3, 1, 3, 10}` are below the stated bounds
+(e.g. `s = 3`: `0.0047 ≤ 0.153` and `0.0140 ≤ 0.708`).
+
 Not formalised: the exact formula `Im ψ(1/2+is) = (π/2) tanh(π s)` (checked numerically), arguments `s`
 near `0` beyond the stated (non-sharp) bounds, the identification of `binetLogGamma` with
 `Complex.arg ∘ Γ` up to `2π k(s)`.
@@ -157,5 +161,17 @@ theorem im_binetLogGamma_half_line {s : ℝ} (hs : s ≠ 0) :
   have e2 : (17 : ℝ) / 8 / |s| = 1 / 8 / |s| + 2 / |s| := by field_simp; ring
   rw [e2]
   exact add_le_add h1 h2
+
+/-- info: 'FormalResearch.Special.ComplexStirling.norm_sq_Gamma_half_line' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.norm_sq_Gamma_half_line
+
+/-- info: 'FormalResearch.Special.ComplexStirling.re_digamma_half_line' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.re_digamma_half_line
+
+/-- info: 'FormalResearch.Special.ComplexStirling.im_binetLogGamma_half_line' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.ComplexStirling.im_binetLogGamma_half_line
 
 end FormalResearch.Special.ComplexStirling
