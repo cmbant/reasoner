@@ -11,7 +11,7 @@ Formalises `CFT/notes/general_theorems.tex` Lemma 1.0′ (E2$_N$) (= `SE5_FIVE_L
 
 `airyPQ_good_circle`: there is `k₀` such that every `[k, k+1]`, `k ≥ k₀`, contains a radius `r` with, on the whole circle `|u| = r`,
 
-* `W(u)² e(u) / (64 π √r) ≤ ‖N(u)‖²` (so `N ≠ 0` there);
+* `W(u) > 0` and `W(u)² e(u) / (64 π √r) ≤ ‖N(u)‖²` (so `N ≠ 0` there);
 * `‖M(u)/N(u) - i‖ e(u) ≤ 168 √π` for `Im u ≥ 0`, and `‖M(u)/N(u) + i‖ e(u) ≤ 168 √π` for `Im u ≤ 0`
 
 (`M = P Bi + Q Bi'`).  The ratio constant is **universal** (independent of `P`, `Q`).  `airyPQ_good_circle_kappa` rewrites the first
