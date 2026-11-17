@@ -167,4 +167,12 @@ theorem hahn_chain_bulk_zeros_half_neg (M σ : ℤ) (x : ℚ) (hx0 : x < 0) (hx1
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.hahn_chain_bulk_zeros_half_neg
 
+/-- info: 'FormalResearch.Special.bk_hahn_int_zeros' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.bk_hahn_int_zeros
+
+/-- info: 'FormalResearch.Special.bk_hahn_half_zeros' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.bk_hahn_half_zeros
+
 end FormalResearch.Special

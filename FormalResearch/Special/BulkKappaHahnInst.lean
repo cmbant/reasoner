@@ -25,7 +25,11 @@ form of `hahn_chain_kappa_sharp`; the other three are new (the half-integer `3j`
 **Explicit bulk theorem** (`hahn_chain_bulk_explicit_*`): for every compact `[a, b] ⊂ (0, q_*)` and `t > 0` there is `ε` such that at every node with `h ≤ ε` there is a sign `s = ±1` with, for every site `q_k ∈ [a, b]`,
 `|Y_k - s A(q_k) cos(Φ(q_k)/h - π/4)| ≤ t A(q_k)`, `A(q) = (2/√π)(q_*² - q²)^{-1/4}`, `Φ(q) = ∫_q^{q_*} arccos(|x|/√(1-t²)) dt` (`bkAmp`, `bkPhase`; `hrU 1 0 τ x t = τ x/√(1-t²) = |x|/√(1-t²)`).
 
-**Claim class: proved.**  Numerics (mpmath, exact chain by backward recursion, `N = 800`, `(M, σ, x) = (0,0,1/2), (1,0,1/2)`): `Y_k / (A cos(Φ/h - π/4)) = 1 ± 10⁻³` at sites `0.15 q_* N ≤ k ≤ 0.85 q_* N`, `s = +1` in the natural gauge (numerical evidence only).
+**Claim class: proved.**  Numerics (numerical evidence only; mpmath with the exact `3j` symbols from the Racah sum, normalisation `Σ_k Ŷ_k² = N` checked at small `N`; throw-away script, not committed): for
+`(M, σ, x) = (1, 0, 1/2)`, `N = 200, 800, 3200`, the maximum over all sites `0.15 q_* ≤ q_k ≤ 0.85 q_*` of `|Ŷ_k - A(q_k) cos(Φ(q_k)/h - π/4)| / A(q_k)` is `7.5e-3, 1.9e-3, 5.2e-4`
+(`(0, 0, 1/2)`, `N = 202, 802, 3202`: `4.0e-3, 1.0e-3, 2.6e-4`; the half-integer chains `(0, 0, 1/3)` at `N + ½ = 199.5, 799.5, 3199.5` and `(0, 0, -1/5)` at `197.5, 797.5, 3197.5`, and the twisted
+`τ = -1` chain `(0, 0, -1/2)`, give the same order, `≲ 2h`; every sign change `Ŷ_kŶ_{k+1} ≤ 0` found has a Bohr-Sommerfeld point `π(m - ¼)` inside `[Φ(q_{k+1})/h, Φ(q_k)/h]`), with `s = +1` in the natural gauge in every case tested; the wrong offsets `cos(Φ/h + π/4)`, `cos(Φ/h)` and the wrong amplitudes `0.95 A`, `1.05 A`
+give errors `1.4`, `0.76`, `0.05`, `0.05` at `N = 800`.
 **Not formalised:** the sign `s` (equivalently the sign of `κ`; `κ` is an Airy-window coefficient and the lemma pins only `κ²`), the dependence of `ε₁, ε` on `x, M, σ` (constants existential; no uniformity in `x`), a rate in `τ'`, mixed
 parities `(M+½, σ)`, the hard edges `x → 0, 1`.
 -/
@@ -350,5 +354,21 @@ theorem hahn_chain_bulk_explicit_half_neg (M σ : ℤ) (x : ℚ) (hx0 : x < 0) (
 /-- info: 'FormalResearch.Special.hahn_chain_bulk_explicit_half_neg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.hahn_chain_bulk_explicit_half_neg
+
+/-- info: 'FormalResearch.Special.bk_hahn_int_sharp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.bk_hahn_int_sharp
+
+/-- info: 'FormalResearch.Special.bk_hahn_int_bulk' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.bk_hahn_int_bulk
+
+/-- info: 'FormalResearch.Special.bk_hahn_half_sharp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.bk_hahn_half_sharp
+
+/-- info: 'FormalResearch.Special.bk_hahn_half_bulk' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.bk_hahn_half_bulk
 
 end FormalResearch.Special

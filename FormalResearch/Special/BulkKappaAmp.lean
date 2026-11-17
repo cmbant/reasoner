@@ -171,4 +171,8 @@ lemma bk_cont {P Q τ x qs c1 : ℝ} (hP : 0 ≤ P) (hQ : 0 ≤ Q) (hα : 0 < 1 
     exact (Real.sqrt_pos.2 (mul_pos h1 h3)).ne'
   exact Real.continuous_arccos.comp_continuousOn hu
 
+/-- info: 'FormalResearch.Special.bk_amp_est' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.bk_amp_est
+
 end FormalResearch.Special

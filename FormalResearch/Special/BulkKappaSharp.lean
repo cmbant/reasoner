@@ -30,7 +30,7 @@ lemma bk_cbrt {h : ℝ} (hh : 0 < h) : ∃ δ : ℝ, 0 < δ ∧ δ ^ 3 = h := by
   rw [← Real.rpow_natCast, ← Real.rpow_mul hh.le]
   norm_num
 
-lemma bk_le_of_cube {δ δA : ℝ} (hδ : 0 < δ) (hA : 0 < δA) (h : δ ^ 3 ≤ δA ^ 3) : δ ≤ δA := by
+lemma bk_le_of_cube {δ δA : ℝ} (_hδ : 0 < δ) (hA : 0 < δA) (h : δ ^ 3 ≤ δA ^ 3) : δ ≤ δA := by
   by_contra hcon
   push Not at hcon
   have : δA ^ 3 < δ ^ 3 := by gcongr

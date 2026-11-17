@@ -15,6 +15,11 @@ Instances of `bk_explicit_of_out` and `bk_zeros_of_out` for the `6j` families of
 for every site `q_k ∈ [a', b']` (`q_k = (k+½)h` integer data, `(k+1)h` half-integer data); and every sign change `Y_k Y_{k+1} ≤ 0` in the window has an integer `m` with
 `Φ(q_{k+1})/h - C₀ h ≤ π(m - ¼) ≤ Φ(q_k)/h + C₀ h` (Bohr-Sommerfeld lattice up to `O(h)`).  This is the `6j` counterpart of `BulkKappaHahnInst`, `BulkKappaHahnZeros`.
 
+Numerics (numerical evidence only; mpmath with the exact `6j` symbols from the Racah sum, `Σ_f Ŷ_f² = 4AB/(2C)` checked at small size; throw-away script, not committed; `(A, B, C) = k (A₀, B₀, C₀)`, `h = 1/k`, `k = 201, 801, 3201`):
+the maximum over the sites `0.15 q_* ≤ q_k ≤ 0.85 q_*` of `|Ŷ_k - s A(q_k) cos(Φ(q_k)/h - π/4)| / A(q_k)` is, for the integer chains `m = n = 1` with `(A₀, B₀, C₀) = (2, 3, 3/2)` (`τ = +1`) and `(2, 2, 3/2)` (`τ = -1`, twisted),
+`4.4e-3, 1.1e-3, 2.7e-4` and `4.3e-3, 1.1e-3, 2.8e-4`, and for the half-integer chains `m = n = 0` with `(11/4, 19/4, 7/2)` (`τ = +1`) and `(11/4, 11/4, 5/2)` (`τ = -1`, twisted), `1.3e-3, 3.3e-4, 8.4e-5` and
+`1.4e-3, 3.6e-4` (`k = 201, 801`); in every case every sign change `Ŷ_kŶ_{k+1} ≤ 0` has a Bohr-Sommerfeld point `π(m' - ¼)` inside `[Φ(q_{k+1})/h, Φ(q_k)/h]`.
+
 **Claim class: proved.**  **Not formalised:** the sign `s`, uniformity of `ε, C₀` in the data, the converse count of the zeros, the conversion of the phase window into `q`, mixed parities.
 -/
 
@@ -405,5 +410,21 @@ theorem racah_chain_bulk_zeros_half_neg (α β x : ℝ) (hα : 0 < α) (hβ : 0 
 /-- info: 'FormalResearch.Special.racah_chain_bulk_zeros_half_neg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.racah_chain_bulk_zeros_half_neg
+
+/-- info: 'FormalResearch.Special.bk_racah_int_bulk' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.bk_racah_int_bulk
+
+/-- info: 'FormalResearch.Special.bk_racah_int_zeros' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.bk_racah_int_zeros
+
+/-- info: 'FormalResearch.Special.bk_racah_half_bulk' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.bk_racah_half_bulk
+
+/-- info: 'FormalResearch.Special.bk_racah_half_zeros' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.bk_racah_half_zeros
 
 end FormalResearch.Special
