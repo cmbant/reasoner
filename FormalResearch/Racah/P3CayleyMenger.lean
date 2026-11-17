@@ -42,10 +42,12 @@ equilateral family).  The principal Weyl tetrahedron has edge array `(A,B,C;B,A,
 
 ## Not formalised
 
-`det CM = 288 𝒱²` for an actual Euclidean tetrahedron (the geometric content, `𝒱` is the volume),
-the characterisation "a tetrahedron with prescribed edge lengths exists in `ℝ³` iff `det CM ≥ 0` and
-the faces are admissible", the Schläfli/dihedral-angle identity `ω = Θ_F`, and the irrationality
-remark (`√3`).  The two remarks' *algebra* is here; their geometric reading is not.
+The geometric content (`det CM = 288 𝒱²` for an actual Euclidean tetrahedron, the existence
+criterion "a tetrahedron with prescribed edges exists in `ℝ³` iff `det CM ≥ 0` and the faces are
+admissible", the Schläfli/dihedral-angle machinery) is formalised in `FormalResearch.EuclTet`
+(`EuclTet.Gram`, `EuclTet.Dichotomy`, `EuclTet.Schlafli`, `EuclTet.RacahBridge`).  Not formalised
+anywhere: `ω = Θ_F` and `𝒱 = F r_A r_B sin ω/6` as statements about points, and the irrationality
+remark (`√3`) beyond `cmDet_equilateral`.  This module is the *algebra* only.
 -/
 
 @[expose] public section
