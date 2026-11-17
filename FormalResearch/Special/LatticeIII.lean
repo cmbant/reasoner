@@ -136,4 +136,216 @@ lemma card_lt_real (h : LevelData τ0 X y0 m M K ε t S) :
 
 end LevelData
 
+lemma intervalIntegrable_wnu_floor {a b : ℝ} (hab : a ≤ b) {t : ℝ → ℝ} (ht : Continuous t) (c : ℝ) :
+    IntervalIntegrable (fun s => wnu s * ((⌊t s⌋ : ℝ) - c)) volume a b := by
+  have hw := continuous_wnu
+  have h1 : IntervalIntegrable (fun s => wnu s * (t s - c - 1 / 2)) volume a b :=
+    Continuous.intervalIntegrable (by fun_prop) _ _
+  have h2 := intervalIntegrable_mul_fract_real hab continuous_wnu ht
+  refine (h1.sub h2).congr (fun s _ => ?_)
+  show wnu s * (t s - c - 1 / 2) - wnu s * (Int.fract (t s) - 1 / 2) = wnu s * ((⌊t s⌋ : ℝ) - c)
+  rw [Int.fract]; ring
+
+/-- Splitting `⌊t⌋ - ⌊t₀⌋ = (t - t₀) - ({t} - ½) + ({t₀} - ½)` inside the weighted integral. -/
+lemma integral_wnu_floor_split {X : ℝ} {t : ℝ → ℝ} (ht : Continuous t) (hX : 0 ≤ X) :
+    ∫ s in (-X)..X, wnu s * ((⌊t s⌋ : ℝ) - ⌊t 0⌋) =
+      (∫ s in (-X)..X, wnu s * (t s - t 0)) - (∫ s in (-X)..X, wnu s * (Int.fract (t s) - 1 / 2)) +
+        (Int.fract (t 0) - 1 / 2) * (1 - 2 * nuR (2 * Real.pi * X)) := by
+  have hle : -X ≤ X := by linarith
+  have hw := continuous_wnu
+  have i1 : IntervalIntegrable (fun s => wnu s * (t s - t 0)) volume (-X) X :=
+    Continuous.intervalIntegrable (by fun_prop) _ _
+  have i2 := intervalIntegrable_mul_fract_real hle continuous_wnu ht
+  have i3 : IntervalIntegrable (fun s => (Int.fract (t 0) - 1 / 2) * wnu s) volume (-X) X :=
+    Continuous.intervalIntegrable (by fun_prop) _ _
+  have e : ∀ s, wnu s * ((⌊t s⌋ : ℝ) - ⌊t 0⌋) = wnu s * (t s - t 0) - wnu s * (Int.fract (t s) - 1 / 2) +
+      (Int.fract (t 0) - 1 / 2) * wnu s := fun s => by
+    rw [Int.fract, Int.fract]; ring
+  simp_rw [e]
+  rw [intervalIntegral.integral_add (i1.sub i2) i3, intervalIntegral.integral_sub i1 i2,
+    intervalIntegral.integral_const_mul, integral_wnu_sym]
+
+/-- The exact identity behind `lem:latticesum` (iii). -/
+theorem LevelData.offset_identity {τ0 : ℂ → ℂ} {X y0 m M K ε : ℝ} {t : ℝ → ℝ} {S : Finset ℝ}
+    (h : LevelData τ0 X y0 m M K ε t S) :
+    ∑ x ∈ S, (nuR (2 * Real.pi * x) - if x < 0 then (1 : ℝ) else 0) =
+      (∫ s in (-X)..X, wnu s * ((⌊t s⌋ : ℝ) - ⌊t 0⌋)) + (if Int.fract (t 0) = 0 then 1 else 0) +
+        nuR (2 * Real.pi * X) * ((S.card : ℝ) - 2 * (((S.filter (fun x => x ≤ 0)).card : ℕ) : ℝ)) := by
+  have hX := h.cal.hX
+  have hle : -X ≤ X := by linarith
+  have hr0 : ∑ x ∈ S, (if x < 0 then (1 : ℝ) else 0) = (((S.filter (fun x => x < 0)).card : ℕ) : ℝ) := by
+    rw [Finset.card_filter]; push_cast; rfl
+  rw [Finset.sum_sub_distrib, hr0, sum_nuR_eq hX.le h.subset_Icc, h.card_lt_real]
+  set N0 : ℝ := (((S.filter (fun x => x ≤ 0)).card : ℕ) : ℝ) with hN0
+  have hi := intervalIntegrable_wnu_floor hle h.cont (⌊t 0⌋ : ℝ)
+  have hint : ∫ s in (-X)..X, wnu s * (((S.filter (fun x => x ≤ s)).card : ℕ) : ℝ) =
+      (∫ s in (-X)..X, wnu s * ((⌊t s⌋ : ℝ) - ⌊t 0⌋)) + N0 * (1 - 2 * nuR (2 * Real.pi * X)) := by
+    have e : ∀ s ∈ uIcc (-X) X, wnu s * (((S.filter (fun x => x ≤ s)).card : ℕ) : ℝ) =
+        wnu s * ((⌊t s⌋ : ℝ) - ⌊t 0⌋) + N0 * wnu s := by
+      intro s hs
+      rw [uIcc_of_le hle] at hs
+      rw [h.card_le_real hs]; ring
+    rw [intervalIntegral.integral_congr e,
+      intervalIntegral.integral_add hi
+        (Continuous.intervalIntegrable (by have := continuous_wnu; fun_prop : Continuous fun s => N0 * wnu s) _ _),
+      intervalIntegral.integral_const_mul, integral_wnu_sym]
+  rw [hint]
+  ring
+
+lemma integral_odd_sym {f : ℝ → ℝ} {X : ℝ} (hf : ∀ s, f (-s) = -f s) :
+    ∫ s in (-X)..X, f s = 0 := by
+  have h1 : ∫ s in (-X)..X, f (-s) = ∫ s in (-X)..X, f s := by
+    rw [intervalIntegral.integral_comp_neg (fun s => f s)]; simp
+  have h2 : ∫ s in (-X)..X, f (-s) = -∫ s in (-X)..X, f s := by
+    simp_rw [hf]; rw [intervalIntegral.integral_neg]
+  linarith
+
+/-- The `t - t₀` integral: by oddness of `rp - rp(0)` it is bounded by `2ε`. -/
+lemma integral_wnu_t_sub_le {τ0 : ℂ → ℂ} {X y0 m M K ε : ℝ} {t : ℝ → ℝ} {S : Finset ℝ}
+    (hd : LevelData τ0 X y0 m M K ε t S)
+    (hodd : ∀ s : ℝ, realPhase τ0 (-s) - realPhase τ0 0 = -(realPhase τ0 s - realPhase τ0 0)) :
+    |∫ s in (-X)..X, wnu s * (t s - t 0)| ≤ 2 * ε := by
+  have hX := hd.cal.hX
+  have hle : -X ≤ X := by linarith
+  have hsub : Icc (-X) X ⊆ Icc (-(X + 1)) (X + 1) := Icc_subset_Icc (by linarith) (by linarith)
+  have hwc := continuous_wnu
+  have iA : IntervalIntegrable (fun s => wnu s * (t s - t 0)) volume (-X) X :=
+    Continuous.intervalIntegrable (by have := hd.cont; fun_prop) _ _
+  have iB : IntervalIntegrable (fun s => wnu s * (realPhase τ0 s - realPhase τ0 0)) volume (-X) X := by
+    refine ContinuousOn.intervalIntegrable_of_Icc hle ?_
+    exact hwc.continuousOn.mul ((hd.cal.continuousOn_realPhase.mono hsub).sub continuousOn_const)
+  have hzero : ∫ s in (-X)..X, wnu s * (realPhase τ0 s - realPhase τ0 0) = 0 := by
+    refine integral_odd_sym (fun s => ?_)
+    rw [wnu_neg, hodd s]; ring
+  have hsubint : ∫ s in (-X)..X, wnu s * (t s - t 0) =
+      ∫ s in (-X)..X, (wnu s * (t s - t 0) - wnu s * (realPhase τ0 s - realPhase τ0 0)) := by
+    rw [intervalIntegral.integral_sub iA iB, hzero, sub_zero]
+  rw [hsubint]
+  have hb : ∀ s ∈ Icc (-X) X, |wnu s * (t s - t 0) - wnu s * (realPhase τ0 s - realPhase τ0 0)| ≤
+      2 * ε * wnu s := by
+    intro s hs
+    have h1 := hd.close s (LevelData.mem_Icc_win hs)
+    have h2 := hd.close 0 (LevelData.mem_Icc_win hd.zero_mem_Icc)
+    have e : wnu s * (t s - t 0) - wnu s * (realPhase τ0 s - realPhase τ0 0) =
+        wnu s * ((t s - realPhase τ0 s) - (t 0 - realPhase τ0 0)) := by ring
+    rw [e, abs_mul, abs_of_nonneg (wnu_nonneg s), mul_comm]
+    refine mul_le_mul_of_nonneg_right ?_ (wnu_nonneg s)
+    calc |(t s - realPhase τ0 s) - (t 0 - realPhase τ0 0)|
+        ≤ |t s - realPhase τ0 s| + |t 0 - realPhase τ0 0| := abs_sub _ _
+      _ ≤ ε + ε := add_le_add h1 h2
+      _ = 2 * ε := by ring
+  have hint2 : IntervalIntegrable (fun s => 2 * ε * wnu s) volume (-X) X :=
+    Continuous.intervalIntegrable (by fun_prop) _ _
+  calc |∫ s in (-X)..X, (wnu s * (t s - t 0) - wnu s * (realPhase τ0 s - realPhase τ0 0))|
+      ≤ ∫ s in (-X)..X, |wnu s * (t s - t 0) - wnu s * (realPhase τ0 s - realPhase τ0 0)| :=
+        intervalIntegral.abs_integral_le_integral_abs hle
+    _ ≤ ∫ s in (-X)..X, 2 * ε * wnu s := by
+        refine intervalIntegral.integral_mono_on hle (iA.sub iB).abs hint2 (fun s hs => hb s hs)
+    _ = 2 * ε * (1 - 2 * nuR (2 * Real.pi * X)) := by
+        rw [intervalIntegral.integral_const_mul, integral_wnu_sym]
+    _ ≤ 2 * ε := by
+        have := (nuR_mem (2 * Real.pi * X)).1
+        have := hd.eps
+        nlinarith
+
+/-- **`lem:latticesum` (iii)**, abstract form.  `t₀ = t 0`, `Z = 1_{t₀∈ℤ}`; explicit error
+`2ε + B_I(w) + ν(2πX)(2MX + 2ε + 2)`, with `B_I` the bound of `latticeI_bound` for `φ = w`
+(`C_w = 4π`, `κ = 2π`), `y₁ + r ≤ y₀ ≤ ¼`.  The hypothesis `hodd` says `rp - rp(0)` is odd
+(`rp = Re τ₀`; for the Gamma phase it follows from oddness of `arg Γ(½+is)`). -/
+theorem latticeIII_bound {τ0 : ℂ → ℂ} {X y0 m M K ε : ℝ} {t : ℝ → ℝ} {S : Finset ℝ}
+    (hd : LevelData τ0 X y0 m M K ε t S) {y1 r : ℝ} (hy1 : 0 < y1) (hr : 0 < r) (hyr : y1 + r ≤ y0)
+    (hy0 : y0 ≤ 1 / 4)
+    (hodd : ∀ s : ℝ, realPhase τ0 (-s) - realPhase τ0 0 = -(realPhase τ0 s - realPhase τ0 0)) :
+    |(∑ x ∈ S, (nuR (2 * Real.pi * x) - if x < 0 then (1 : ℝ) else 0)) -
+        ((Int.fract (t 0) - 1 / 2) + if Int.fract (t 0) = 0 then 1 else 0)| ≤
+      2 * ε + ((4 * Real.pi) * wconst (2 * Real.pi) * ε * (1 + 4 * (M + 2 * ε + 1) / m) +
+        ((4 * Real.pi) * Real.exp (-(2 * Real.pi) * X) / m +
+          1 / 12 * (2 * smoothCw (4 * Real.pi) (2 * Real.pi) r m K * y1 * Real.exp (-(2 * Real.pi) * X) +
+            2 * smoothCw (4 * Real.pi) (2 * Real.pi) r m K / (2 * Real.pi) *
+              Real.exp (-(2 * Real.pi * m * y1))))) +
+        nuR (2 * Real.pi * X) * (M * (2 * X) + 2 * ε + 2) := by
+  have hX := hd.cal.hX
+  have hpi := Real.pi_pos
+  have hle : -X ≤ X := by linarith
+  have hy0pos : 0 < y0 := hd.cal.hy0
+  -- the exact identity and the splitting
+  have hid := hd.offset_identity
+  rw [integral_wnu_floor_split hd.cont hX.le] at hid
+  set A1 := ∫ s in (-X)..X, wnu s * (t s - t 0) with hA1
+  set A2 := ∫ s in (-X)..X, wnu s * (Int.fract (t s) - 1 / 2) with hA2
+  set N0 : ℝ := (((S.filter (fun x => x ≤ 0)).card : ℕ) : ℝ) with hN0
+  set νX := nuR (2 * Real.pi * X) with hνX
+  set Z : ℝ := if Int.fract (t 0) = 0 then 1 else 0 with hZ
+  have hνX0 : 0 ≤ νX := (nuR_mem _).1
+  have hA1b : |A1| ≤ 2 * ε := integral_wnu_t_sub_le hd hodd
+  -- the fractional-part integral
+  have hA2b : |A2| ≤ (4 * Real.pi) * wconst (2 * Real.pi) * ε * (1 + 4 * (M + 2 * ε + 1) / m) +
+        ((4 * Real.pi) * Real.exp (-(2 * Real.pi) * X) / m +
+          1 / 12 * (2 * smoothCw (4 * Real.pi) (2 * Real.pi) r m K * y1 * Real.exp (-(2 * Real.pi) * X) +
+            2 * smoothCw (4 * Real.pi) (2 * Real.pi) r m K / (2 * Real.pi) *
+              Real.exp (-(2 * Real.pi * m * y1)))) := by
+    have hdiff : DifferentiableOn ℂ wC {s | |s.im| ≤ y0} :=
+      differentiableOn_wC.mono (fun s (hs : |s.im| ≤ y0) => show |s.im| ≤ 1 / 4 from hs.trans hy0)
+    have hb : ∀ s : ℂ, |s.im| ≤ y0 → ‖wC s‖ ≤ (4 * Real.pi) * Real.exp (-(2 * Real.pi) * |s.re|) :=
+      fun s hs => norm_wC_le (hs.trans hy0)
+    have h := latticeI_bound hd (φ := wC) (Cφ := 4 * Real.pi) (κ := 2 * Real.pi) (y1 := y1) (r := r)
+      (by positivity) (by positivity) hy1 hr hyr hdiff hb
+    have e : ∫ s in (-X)..X, wC (s : ℂ) * (((Int.fract (t s) - 1 / 2 : ℝ)) : ℂ) = ((A2 : ℝ) : ℂ) := by
+      rw [hA2, intervalIntegral.integral_ofReal.symm]
+      refine intervalIntegral.integral_congr (fun s _ => ?_)
+      simp only [wC_real]; push_cast; ring
+    rw [e, Complex.norm_real, Real.norm_eq_abs] at h
+    exact h
+  -- cardinality bounds
+  have hSc : (S.card : ℝ) ≤ M * (2 * X) + 2 * ε + 1 := by
+    have := hd.card_levels_le (a := -X) (b := X) hle le_rfl le_rfl
+    have hf : S.filter (fun x => x ∈ Icc (-X) X) = S := Finset.filter_true_of_mem hd.subset_Icc
+    rw [hf] at this
+    linarith
+  have hN0n : N0 ≤ S.card := by
+    rw [hN0]; exact_mod_cast Finset.card_filter_le _ _
+  have hN00 : 0 ≤ N0 := Nat.cast_nonneg _
+  have hfr0 := Int.fract_nonneg (t 0)
+  have hfr1 := Int.fract_lt_one (t 0)
+  have hE : (∑ x ∈ S, (nuR (2 * Real.pi * x) - if x < 0 then (1 : ℝ) else 0)) -
+      ((Int.fract (t 0) - 1 / 2) + Z) =
+      A1 - A2 - 2 * νX * (Int.fract (t 0) - 1 / 2) + νX * ((S.card : ℝ) - 2 * N0) := by
+    rw [hid]; ring
+  rw [hE]
+  have b1 : |2 * νX * (Int.fract (t 0) - 1 / 2)| ≤ νX := by
+    rw [abs_mul, abs_of_nonneg (by positivity : 0 ≤ 2 * νX)]
+    have : |Int.fract (t 0) - 1 / 2| ≤ 1 / 2 := by rw [abs_le]; constructor <;> linarith
+    nlinarith
+  have b2 : |νX * ((S.card : ℝ) - 2 * N0)| ≤ νX * S.card := by
+    rw [abs_mul, abs_of_nonneg hνX0]
+    refine mul_le_mul_of_nonneg_left ?_ hνX0
+    rw [abs_le]; constructor <;> nlinarith
+  have hcard0 : (0 : ℝ) ≤ S.card := Nat.cast_nonneg _
+  calc _ ≤ |A1 - A2 - 2 * νX * (Int.fract (t 0) - 1 / 2)| + |νX * ((S.card : ℝ) - 2 * N0)| := abs_add_le _ _
+    _ ≤ (|A1| + |A2| + |2 * νX * (Int.fract (t 0) - 1 / 2)|) + νX * S.card := by
+        refine add_le_add ?_ b2
+        calc |A1 - A2 - 2 * νX * (Int.fract (t 0) - 1 / 2)| ≤ |A1 - A2| + |2 * νX * (Int.fract (t 0) - 1 / 2)| :=
+              abs_sub _ _
+          _ ≤ (|A1| + |A2|) + |2 * νX * (Int.fract (t 0) - 1 / 2)| := by
+              have := abs_sub A1 A2; linarith
+    _ ≤ 2 * ε + (_ ) + νX * (M * (2 * X) + 2 * ε + 2) := by
+        have : νX * S.card ≤ νX * (M * (2 * X) + 2 * ε + 1) := mul_le_mul_of_nonneg_left hSc hνX0
+        nlinarith [hA1b, hA2b, b1]
+
+/-- The two forms of the paper's (iii) from the bound with the integer correction `Z`. -/
+lemma offset_of_bound {Sν t0 E : ℝ}
+    (h : |Sν - ((Int.fract t0 - 1 / 2) + if Int.fract t0 = 0 then 1 else 0)| ≤ E) :
+    (Int.fract t0 ≠ 0 → |Sν - (Int.fract t0 - 1 / 2)| ≤ E) ∧ ∃ m : ℤ, |Sν - t0 + 1 / 2 - m| ≤ E := by
+  constructor
+  · intro hf
+    have h0 : (if Int.fract t0 = 0 then (1 : ℝ) else 0) = 0 := by simp [hf]
+    rw [h0, add_zero] at h
+    exact h
+  · refine ⟨(if Int.fract t0 = 0 then 1 else 0) - ⌊t0⌋, ?_⟩
+    have e : Sν - t0 + 1 / 2 - (((if Int.fract t0 = 0 then 1 else 0) - ⌊t0⌋ : ℤ) : ℝ) =
+        Sν - ((Int.fract t0 - 1 / 2) + if Int.fract t0 = 0 then 1 else 0) := by
+      push_cast
+      split_ifs <;> (rw [Int.fract]; ring)
+    rw [e]; exact h
+
 end FormalResearch.Special.Lattice
