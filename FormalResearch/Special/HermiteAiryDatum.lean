@@ -165,6 +165,31 @@ theorem hermite_row {x δ : ℝ} (hx : 0 < x) (hδ : δ ^ 3 = 2 / x ^ 2) (k : �
     rw [← hrec]; ring
   rw [this]; field_simp; ring
 
+/-- **Langer data of the Hermite datum.**  The Langer coordinate `ζ = langerZeta hmU (-1)` (`ζ ζ'² = Φ(u-1)`) and amplitude
+`g = langerAmp hmU hmA (-1)` of `u = (√(-q))⁻¹`, `A = √(-q/2)` satisfy, on an open neighbourhood of the turn `q = -1`, the
+eikonal relation `Ch(ζ ζ'²) = u` and the amplitude relation `g² A ζ' Sh(ζ ζ'²) = 1` (`langer_hrel`).  Numerically (mpmath) the
+closed form is `(2/3)(-ζ)^{3/2} = (-q) arccos(1/√(-q)) - √(-q-1)` for `q < -1` (so `S·(2/3)(-ζ)^{3/2}` is the
+Plancherel–Rotach phase `(2n+1)(2t_n - sin 2t_n)/4`, `cos t_n = x/√(2n+1)`); that closed form is **not** proved in Lean. -/
+theorem hermite_langer_data :
+    ∃ U : Set ℝ, IsOpen U ∧ (-1 : ℝ) ∈ U ∧ ContDiffOn ℝ 3 (langerZeta hmU (-1)) U ∧ ContDiffOn ℝ 2 hmA U ∧
+      ContDiffOn ℝ 2 (langerAmp hmU hmA (-1)) U ∧
+      ∀ q ∈ U, 0 < hmA q ∧ 0 < langerAmp hmU hmA (-1) q ∧ 0 < deriv (langerZeta hmU (-1)) q ∧
+        langerAmp hmU hmA (-1) q ^ 2 * hmA q * deriv (langerZeta hmU (-1)) q *
+          (2 * deriv langerCosh (langerZeta hmU (-1) q * deriv (langerZeta hmU (-1)) q ^ 2)) = 1 ∧
+        langerCosh (langerZeta hmU (-1) q * deriv (langerZeta hmU (-1)) q ^ 2) = hmU q := by
+  have hmem : (-1 : ℝ) ∈ Iio (0 : ℝ) := by norm_num
+  have h3 : ContDiffAt ℝ 3 hmU (-1) := (hmU_cd.contDiffAt (isOpen_Iio.mem_nhds hmem))
+  have h2 : ContDiffAt ℝ 2 hmA (-1) :=
+    ((hmA_cd.contDiffAt (isOpen_Iio.mem_nhds hmem)).of_le (by norm_num))
+  have hA0 : 0 < hmA (-1) := by
+    unfold hmA; exact Real.sqrt_pos.2 (by norm_num)
+  have hu' : 0 < deriv hmU (-1) := by rw [hasDerivAt_hmU_neg_one.deriv]; norm_num
+  exact langer_hrel h3 hmU_neg_one hu' h2 hA0
+
+/-- info: 'FormalResearch.Special.hermite_langer_data' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.Special.hermite_langer_data
+
 /-- info: 'FormalResearch.Special.hermite_datum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.Special.hermite_datum

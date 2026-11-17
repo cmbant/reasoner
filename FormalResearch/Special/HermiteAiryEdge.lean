@@ -38,7 +38,8 @@ depending only on the datum constants, which are absolute) gives `DaiFull`; `Dai
   Airy Laplace transform `∫ Ai² e^{-pX}` plus lattice sums.  Hence the amplitude bound `|φ_n| ≤ C n^{-1/12}` and the
   full Plancherel–Rotach statement (which carries the constant) are **not** obtained here.
 * the bulk `|ζ_n| ≤ 1 - ε'` statement (needs a discrete Liouville–Green layer) and the explicit phase;
-* negative `x` (parity `φ_n(-x) = (-1)^n φ_n(x)`);
+* negative `x` is not restated (parity `hermitePhi_neg`: `φ_n(-x) = (-1)^n φ_n(x)`, so `|φ_n(-x)| = |φ_n(x)|` and the signed chain
+  is multiplied by `(-1)^k`);
 * the identification of `ζ` with the closed form `(2/3)(-ζ)^{3/2} = (-q)arccos(1/√(-q)) - √(-q-1)` (`q < -1`) is only
   checked numerically (it reproduces the W1 phase `Φ_n = (2n+1)(2t_n - sin 2t_n)/4 - π/4`, `cos t_n = x/√(2n+1)`).
 

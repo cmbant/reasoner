@@ -12,6 +12,7 @@ discrete-to-Airy machinery uses (`HermiteAiryEdge`):
 
 * `hermitePhi_rec`: the exact three-term recurrence `√((n+1)/2) φ_{n+1} + √(n/2) φ_{n-1} = x φ_n`
   (a Jacobi chain with off-diagonal `a_k = √(k/2)` and constant diagonal `x`; `n = 0` included with `φ_{-1} = 0`);
+* `hermitePhi_neg`: parity `φ_n(-x) = (-1)^n φ_n(x)`;
 * `hasDerivAt_hermitePhi_succ`, `hasDerivAt_hermitePsi`: the ladder relations `φ_n' = √(2n) φ_{n-1} - x φ_n
   = √(n/2) φ_{n-1} - √((n+1)/2) φ_{n+1}`.
 
@@ -222,6 +223,31 @@ theorem hasDerivAt_hermitePsi (n : ℤ) (hn : 0 ≤ n) (x : ℝ) :
       rw [this]
     rw [hs]
     linear_combination hrec
+
+/-- Parity of `He_n`: `He_n(-y) = (-1)^n He_n(y)`. -/
+lemma heR_eval_neg (n : ℕ) (y : ℝ) : (heR n).eval (-y) = (-1) ^ n * (heR n).eval y := by
+  induction n using Nat.strong_induction_on with
+  | _ n ih =>
+    rcases n with _ | _ | n
+    · simp [heR_zero]
+    · have : heR 1 = X := by rw [show (1 : ℕ) = 0 + 1 from rfl, heR_succ, heR_zero]; simp
+      simp [this]
+    · have hr := heR_rec n
+      have e : ∀ z, (heR (n + 2)).eval z = z * (heR (n + 1)).eval z - ((n : ℝ) + 1) * (heR n).eval z := by
+        intro z; rw [hr]; simp
+      rw [e, e, ih (n + 1) (by omega), ih n (by omega)]
+      ring
+
+/-- Parity of the Hermite functions: `φ_n(-x) = (-1)^n φ_n(x)`. -/
+theorem hermitePhi_neg (n : ℕ) (x : ℝ) : hermitePhi n (-x) = (-1) ^ n * hermitePhi n x := by
+  unfold hermitePhi
+  have h : √2 * -x = -(√2 * x) := by ring
+  rw [h, heR_eval_neg]
+  simp only [neg_sq]
+  ring
+
+theorem abs_hermitePhi_neg (n : ℕ) (x : ℝ) : |hermitePhi n (-x)| = |hermitePhi n x| := by
+  rw [hermitePhi_neg, abs_mul, abs_pow, abs_neg, abs_one, one_pow, one_mul]
 
 /-- info: 'FormalResearch.Special.derivative_heR_succ' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
