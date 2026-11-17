@@ -21,12 +21,18 @@ Source: `Weyl/P5/notes/intrinsic_agmon_action.md`, Theorem AG.1, eqs. (AG.1)–(
   at most two nonzero off-diagonal entries, then
   `∑_{j∈I} γ_j e^{2φ_j} u_j² ≤ 2 ∑_{j∈I} ∑_{k∉I} A_jk |u_j||u_k|`.
   For `I` with no source the right side vanishes, so `u|_I = 0` when all `γ_j > 0`.
+* `edge_condition_of_arcosh` : the arcosh edge length `ℓ = arcosh (1 + min(γ_j,γ_k)/(4A_jk))` of (AG.1)
+  gives exactly the cosh-form hypothesis of `ag_inequality`.
+* `ag_boundary_le`, `ag_total` : **(AG.2)** for a family of pairwise disjoint, mutually non-bonded
+  components `I_a` (each with its own weights) `∑_a ∑_{j∈I_a} γ_j e^{2φ_a(j)} u_j² ≤ 2 M ∑ u²`,
+  since every boundary-crossing link costs `A|u_j||u_k|` and `∑ A|u_j||u_k| ≤ M ∑ u²`.
 
 Claim class: proved.  The statements are for any symmetric matrix with at most two nonzero
 off-diagonal entries per row (`LocalBound`), a slight generalisation of the finite Jacobi matrices of
 the note.  Not formalised: the identification of the maximal connected components of
-`F = {γ_j > 0}` and of the path-metric `φ_j` (any `φ` with the stated properties works),
-the AG.2 Frobenius corollary for the Racah matrices, and AG.5 (needs the exact Racah spectrum).
+`F = {γ_j > 0}` and of the path-metric `φ_j` (any `φ` with the stated properties works; the existence
+of the path metric with `|φ_j - φ_k| ≤ ℓ_jk` is elementary and left to the user), and AG.5 (needs the
+exact Racah spectrum).  The Frobenius corollary (AG.4) is `FormalResearch.Jacobi.ag4`.
 -/
 
 @[expose] public section

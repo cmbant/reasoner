@@ -22,8 +22,9 @@ Note on the statement: the hypothesis `η < 1` of the note is needed only to mak
 `σ_d` above, with no hypothesis on `η`.  Claim class: proved.
 
 Not formalised: (2.4), the Racah instantiation (`gap_d ≥ h²(d+1)` from the exact quadratic spectrum),
-Proposition 2 (certification of physical signs from a bulk anchor) and Theorem 2 (dual-Egorov sign
-locking, which needs the second intertwiner and the Weyl singular-value inequality).
+Proposition 2 (certification of physical signs from a bulk anchor; the single-anchor statement of
+Theorem 2 is `sign_anchor` in `SignLocking`).  Theorem 2 itself (dual-Egorov sign locking) is
+`FormalResearch.MatrixAnalysis.signLocking`.
 -/
 
 @[expose] public section

@@ -22,12 +22,17 @@ distance to the set of sources), with `μ_I = log(1 + Δ/(4M))`:
   `f_r += -H_{r,r+1}u_{r+1}`, exactly the note's forcing, including the singleton case).
 * `db2` : **(DB.2)** for a family of pairwise disjoint blocks with gaps `Δ_I ≥ Δ_0`,
   `∑_I ∑_{j∈I} e^{2 μ_0 d_I(j)} u_j² ≤ 16 M² ‖u‖² / Δ_0²`, `μ_0 = log(1 + Δ_0/(4M))`.
-* `jacobi_db1` / `jacobi_db2` : the Jacobi-matrix instances (`jacobiMatrix n b a`).
+* `jacobiMatrix_localBound` (module `CombesThomas`) : `jacobiMatrix n b a` is `LocalBound`, so
+  `db1`, `db2` apply to Jacobi matrices; `jacobi_db1` (module `DirichletIntervals`) is the interval form.
 
 Claim class: proved.  The note's case of an interval without source (`u|_I = 0`) is the case `d`
 arbitrary, `f = 0` of `db1`.  Not formalised: DB.3/DB.4 (the Racah corollary: `T`-dependent choice of
 `Δ_0`, `L_T`, and the exact Racah spectrum bounds `M ≤ 5`, `n ≤ 5T/2`), which need the physical
-`6j` input; the generic Frobenius form is `db3` below.
+`6j` input; the generic Frobenius form is `FormalResearch.Jacobi.db3` (module `DirichletIntervals`),
+and the interval form with the lattice distance to the sources is `jacobi_db1` there.  The explicit
+two-term form of the Jacobi forcing (`f_l = -H_{l,l-1}u_{l-1}`, `f_r += -H_{r,r+1}u_{r+1}`) is the
+statement `f_j = -∑_{k∉I} H_{jk}u_k` read off from the tridiagonal structure; this reading is not
+re-proved as a separate lemma.
 -/
 
 @[expose] public section

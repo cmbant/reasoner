@@ -6,9 +6,24 @@ public import FormalResearch.MatrixAnalysis.SpectralResidual
 # Dual-Egorov sign locking (Weyl P5/M7, Theorem 2 of `m7_m1_global_criteria.md`)
 
 Source: `Weyl/P5/notes/m7_m1_global_criteria.md`, Theorem 2, eqs. (2.9)–(2.11) (PR 250, head
-`cfad461d2`).  Frobenius-norm toolkit (`fnorm M = √(∑ M_ij²)`) used by the sign-locking argument.
+`cfad461d2`).
 
-Claim class: proved.  See `FormalResearch.MatrixAnalysis.signLocking` for the statement.
+Let `U` be orthogonal with `H U = U Λ` (simple spectrum, gaps `g_d`), `D U = U K` with `K` symmetric
+and `|K_{j,j+1}| ≥ k_* > 0`, and `G` any matrix with nonzero columns of norms `t_j ∈ [t_min, t_max]`.
+With `η² = ∑_j ‖(HG - GΛ)_{·j}‖²/(t_j² g_j²)`, `ρ = t_max η < t_min`, `η₂ = ‖DG - GK‖_F`, `κ ≥ ‖K‖_{2→2}`
+and the sign-locking condition `η₂ + 2κρ < 2√2 k_* √(t_min² - ρ²)`:
+
+* `signLocking` : all diagonal entries of `Uᵀ G` have one common sign `σ` and
+  `‖G - σ U‖_{2→2} ≤ (1 + ε)√2 η + ε`   (2.11);
+* `sign_anchor` : one entry `G_{i₀j₀}` with the sign of `U_{i₀j₀}` and `ε < |U_{i₀j₀}|` forces `σ = 1`;
+* building blocks `offDiag_frobSq_le` (2.13), `diag_sq_ge` (2.14), `commutator_upper` (2.15),
+  `no_sign_flip` (the step (2.16)), `common_sign`.
+
+Claim class: proved.  Differences from the note: tridiagonality of `K` is not used (only the lower
+bound on the superdiagonal links, since `‖[K,T]‖_F² ≥ 2 K_{j,j+1}² (c_{j+1} - c_j)²` holds for any `K`);
+the hypothesis `ε < 1` and the polar-factor bound (2.12) `‖Q - σU‖ ≤ 2ε` are NOT formalised (they need
+the Weyl singular-value perturbation inequality, not in Mathlib); the Racah instantiation (`H = h²J^{(a)}`,
+`D`, `K = h²J^{(d)}` and the exact bispectral identities) is not formalised.
 -/
 
 @[expose] public section
@@ -443,5 +458,43 @@ theorem signLocking {n : ℕ} {H D K U G : Matrix (Fin n) (Fin n) ℝ} {lam g : 
 /-- info: 'FormalResearch.MatrixAnalysis.signLocking' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms signLocking
+
+
+theorem abs_apply_le_l2_opNorm (M : Matrix ι ι ℝ) (i j : ι) : |M i j| ≤ ‖M‖ := by
+  have h := Matrix.l2_opNorm_mulVec M (EuclideanSpace.single j (1 : ℝ))
+  have h1 : ‖(EuclideanSpace.single j (1 : ℝ))‖ = 1 := by simp
+  rw [h1, mul_one] at h
+  refine le_trans ?_ h
+  have := PiLp.norm_apply_le ((EuclideanSpace.equiv ι ℝ).symm
+    (M *ᵥ (EuclideanSpace.single j (1 : ℝ)).ofLp)) i
+  refine le_trans (le_of_eq ?_) this
+  simp
+
+/-- **A single sign anchor forces `σ = +1`** (last sentence of Theorem 2): if
+`‖G - σ U‖ ≤ ε`, `ε < |U_{i₀ j₀}|` and `G_{i₀ j₀}` has the sign of `U_{i₀ j₀}`, then `σ = 1`. -/
+theorem sign_anchor {σ ε : ℝ} (hσ : σ ^ 2 = 1) {G U : Matrix ι ι ℝ} (i₀ j₀ : ι)
+    (hε : ‖G - σ • U‖ ≤ ε) (hU : ε < |U i₀ j₀|) (hG : 0 < G i₀ j₀ * U i₀ j₀) : σ = 1 := by
+  have hσ' : σ = 1 ∨ σ = -1 := by
+    have : σ * σ = 1 := by rw [← sq]; exact hσ
+    exact mul_self_eq_one_iff.mp this
+  rcases hσ' with h | h
+  · exact h
+  · exfalso
+    have h1 := abs_apply_le_l2_opNorm (G - σ • U) i₀ j₀
+    rw [h] at h1 hε
+    simp only [Matrix.sub_apply, Matrix.smul_apply, smul_eq_mul, neg_mul, one_mul,
+      sub_neg_eq_add] at h1
+    have h2 : |U i₀ j₀| ≤ |G i₀ j₀ + U i₀ j₀| := by
+      rcases lt_trichotomy (U i₀ j₀) 0 with hu | hu | hu
+      · have hg : G i₀ j₀ < 0 := by nlinarith
+        rw [abs_of_neg hu, abs_of_neg (by linarith : G i₀ j₀ + U i₀ j₀ < 0)]; linarith
+      · rw [hu] at hG; simp at hG
+      · have hg : 0 < G i₀ j₀ := by nlinarith
+        rw [abs_of_pos hu, abs_of_pos (by linarith : 0 < G i₀ j₀ + U i₀ j₀)]; linarith
+    linarith
+
+/-- info: 'FormalResearch.MatrixAnalysis.sign_anchor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sign_anchor
 
 end FormalResearch.MatrixAnalysis
