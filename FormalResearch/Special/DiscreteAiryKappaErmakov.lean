@@ -30,8 +30,8 @@ amplitude** `I_k` (the first-order `F_k` loses `e^{O(1)}`).  Numerics (mpmath 40
 Hahn chain with `P_k = 2/√(q_*² - q_k²)`, `q_k = (k+½)h`, `E_k N² ∈ [-330, 120]` on `0.2q_*N ≤ k ≤ 0.9q_*N` (`N = 1366..1600`,
 `(M,σ,x) = (0,0,½), (1,1,0.65), (2,1,0.3)`), and the actual chain has `I_k = 2/π (1 ± 2.6·10⁻⁴)` there.
 
-**Claim class: proved** (real algebra).  **Not formalised** here: the profile defect for the Hahn coefficients, the mass identity, the Airy
-matching (`DiscreteAiryKappaMassId`, `DiscreteAiryKappaProfile`, `DiscreteAiryKappaSharp`).
+**Claim class: proved** (real algebra).  **Not formalised** here: the profile defect for the Hahn coefficients and the Airy matching (see
+`DiscreteAiryKappaMassId` for the mass identity).
 -/
 
 @[expose] public section
@@ -218,7 +218,7 @@ theorem kerm_chain {G ε : ℤ → ℝ} {k0 : ℤ} (n : ℕ) (hG : ∀ i : ℕ, 
             mul_le_mul_of_nonneg_left s2 hE0
         _ = _ := by ring
 
-/-- **The second-order invariant over a band.**  Hypotheses on the sites `k₀, …, k₀+n` (rows `jac = 0`, `a > 0`, `P > 0`, radicands `≥ 1`)
+/-- **The second-order invariant over a band.**  Hypotheses on the sites `k₀, …, k₀+n` (rows `jac = 0`, `a > 0`, `P > 0` on `k₀-1..k₀+n`, radicands `≥ 1` at `k₀..k₀+n`)
 and `|E_k| B_k ≤ ε_k ≤ ½`: `I_{k₀+n} ≤ e^{Σε} I_{k₀}` and `I_{k₀} ≤ e^{2Σε} I_{k₀+n}`.  Here `Σ ε = O(Σ |E_k|)` is `O(h)` for a profile of
 Ermakov defect `E_k = O(h²)` on a band of `O(1/h)` sites. -/
 theorem kerm_invariant {a c P Y ε : ℤ → ℝ} {k0 : ℤ} (n : ℕ)
