@@ -111,3 +111,151 @@ theorem sum_minus_integral_identity {X : ℝ} (hX : 0 < X) {S : Finset ℝ} {t t
   ring
 
 end FormalResearch.Special.Lattice
+
+namespace FormalResearch.Special.Lattice
+
+open Filter Topology Set Complex MeasureTheory intervalIntegral
+
+lemma intervalIntegrable_mul_fract {a b : ℝ} (hab : a ≤ b) {g : ℝ → ℂ} {C : ℝ}
+    (hg : ContinuousOn g (Icc a b)) (hC : ∀ s ∈ Icc a b, ‖g s‖ ≤ C) {t : ℝ → ℝ} (ht : Continuous t) :
+    IntervalIntegrable (fun s => g s * (((Int.fract (t s) - 1 / 2 : ℝ)) : ℂ)) volume a b := by
+  rw [intervalIntegrable_iff_integrableOn_Icc_of_le hab]
+  have hm : AEStronglyMeasurable (fun s : ℝ => g s * (((Int.fract (t s) - 1 / 2 : ℝ)) : ℂ))
+      (volume.restrict (Icc a b)) := by
+    refine (hg.aestronglyMeasurable measurableSet_Icc).mul ?_
+    refine (Complex.measurable_ofReal.comp_aemeasurable ?_).aestronglyMeasurable
+    exact (measurable_fract.comp ht.measurable).aemeasurable.sub_const (1 / 2 : ℝ)
+  show Integrable _ (volume.restrict (Icc a b))
+  refine Integrable.of_bound hm (C * (1 / 2)) ?_
+  refine (ae_restrict_iff' measurableSet_Icc).mpr (Filter.Eventually.of_forall (fun s hs => ?_))
+  rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+  have h1 : |Int.fract (t s) - 1 / 2| ≤ 1 / 2 := by
+    have := Int.fract_nonneg (t s); have := Int.fract_lt_one (t s)
+    rw [abs_le]; constructor <;> linarith
+  have h0 : 0 ≤ C := (norm_nonneg _).trans (hC s hs)
+  exact mul_le_mul (hC s hs) h1 (abs_nonneg _) h0
+
+/-- **`lem:latticesum` (ii)**, abstract form (explicit constants). -/
+theorem latticeII_bound {τ0 : ℂ → ℂ} {X y0 m M K ε : ℝ} {t : ℝ → ℝ} {S : Finset ℝ}
+    (hd : LevelData τ0 X y0 m M K ε t S) {φ : ℂ → ℂ} {Cφ κ y1 r r0 : ℝ} (hκ : 0 < κ)
+    (hCφ : 0 ≤ Cφ) (hy1 : 0 < y1) (hr : 0 < r) (hr0 : 0 < r0) (hyr : y1 + r + r0 ≤ y0)
+    (hφd : DifferentiableOn ℂ φ {s | |s.im| ≤ y0})
+    (hφb : ∀ s : ℂ, |s.im| ≤ y0 → ‖φ s‖ ≤ Cφ * Real.exp (-κ * |s.re|)) :
+    ‖∑ x ∈ S, φ (x : ℂ) - ∫ s in (-X)..X, φ (s : ℂ) * ((CalPhase.realDeriv τ0 s : ℝ) : ℂ)‖ ≤
+      (1 / 2 + ε) * (2 * (Cφ * Real.exp (-κ * X))) +
+      ε * (Cφ * Real.exp (κ * r0) / r0 * (2 / κ)) +
+      (Cφ * Real.exp (κ * r0) / r0 * wconst κ * ε * (1 + 4 * (M + 2 * ε + 1) / m) +
+        (Cφ * Real.exp (κ * r0) / r0 * Real.exp (-κ * X) / m +
+          1 / 12 * (2 * smoothCw (Cφ * Real.exp (κ * r0) / r0) κ r m K * y1 * Real.exp (-κ * X) +
+            2 * smoothCw (Cφ * Real.exp (κ * r0) / r0) κ r m K / κ *
+              Real.exp (-(2 * Real.pi * m * y1))))) := by
+  have h := hd.cal
+  have hX := h.hX
+  have hy0 : 0 < y0 := h.hy0
+  have hm := h.hm
+  have hle : -X ≤ X := by linarith
+  set Cφ' : ℝ := Cφ * Real.exp (κ * r0) / r0 with hCφ'
+  have hCφ'0 : 0 ≤ Cφ' := by positivity
+  have hy0' : y0 - r0 ≤ y0 := by linarith
+  have hy0'pos : 0 < y0 - r0 := by linarith
+  have hsub : Icc (-X) X ⊆ Icc (-(X + 1)) (X + 1) := Icc_subset_Icc (by linarith) (by linarith)
+  have hwin : ∀ s : ℝ, s ∈ Icc (-X) X → InWin X y0 (s : ℂ) := fun s hs =>
+    CalPhase.inWin_real (by have := abs_le.mpr hs; linarith) hy0.le
+  -- analyticity of φ at real points and on the smaller strip
+  have hanaφ : ∀ z : ℂ, |z.im| ≤ y0 - r0 → AnalyticAt ℂ φ z := fun z hz =>
+    hφd.analyticAt (strip_mem_nhds hr0 (by linarith : (y0 - r0) + r0 ≤ y0) hz)
+  have hφ'b : ∀ s : ℂ, |s.im| ≤ y0 - r0 → ‖deriv φ s‖ ≤ Cφ' * Real.exp (-κ * |s.re|) := fun s hs => by
+    have := norm_deriv_strip_le hr0 hκ.le hCφ hφd hφb (z := s) (by linarith)
+    refine this.trans (le_of_eq ?_)
+    rw [hCφ']; ring
+  have hφ'd : DifferentiableOn ℂ (deriv φ) {s | |s.im| ≤ y0 - r0} := fun s hs =>
+    (hanaφ s hs).deriv.differentiableAt.differentiableWithinAt
+  have hφc : Continuous (fun s : ℝ => φ (s : ℂ)) := continuous_real_of_strip hy0 hφd
+  have hφr : ∀ s : ℝ, ‖φ (s : ℂ)‖ ≤ Cφ * Real.exp (-κ * |s|) := fun s => by
+    have := hφb (s : ℂ) (by simpa using hy0.le)
+    simpa using this
+  have hφ'r : ∀ s : ℝ, ‖deriv φ (s : ℂ)‖ ≤ Cφ' * Real.exp (-κ * |s|) := fun s => by
+    have := hφ'b (s : ℂ) (by simpa using hy0'pos.le)
+    simpa using this
+  have hΦd : ∀ s ∈ Icc (-X) X, HasDerivAt (fun s : ℝ => φ (s : ℂ)) (deriv φ (s : ℂ)) s := fun s hs =>
+    (hφd.differentiableAt (strip_mem_nhds hr0 (by linarith : (y0 - r0) + r0 ≤ y0)
+      (by simpa using hy0'pos.le))).hasDerivAt.comp_ofReal
+  have hΦ'c : ContinuousOn (fun s : ℝ => deriv φ (s : ℂ)) (Icc (-X) X) := fun s _ =>
+    (((hanaφ (s : ℂ) (by simpa using hy0'pos.le)).deriv.continuousAt).comp (f := fun s : ℝ => (s : ℂ))
+      Complex.continuous_ofReal.continuousAt).continuousWithinAt
+  have ht0 : ∀ s ∈ Icc (-X) X, HasDerivAt (realPhase τ0) (CalPhase.realDeriv τ0 s) s := fun s hs =>
+    h.hasDerivAt_real (by have := abs_le.mpr hs; linarith)
+  have ht0'c : ContinuousOn (CalPhase.realDeriv τ0) (Icc (-X) X) := h.continuousOn_deriv_re.mono hsub
+  have hfr : IntervalIntegrable (fun s : ℝ => deriv φ (s : ℂ) *
+      ((Int.fract (t s) - 1 / 2 : ℝ) : ℂ)) volume (-X) X :=
+    intervalIntegrable_mul_fract hle hΦ'c (C := Cφ') (fun s _ => (hφ'r s).trans (by
+      have : Real.exp (-κ * |s|) ≤ 1 := by rw [Real.exp_le_one_iff]; nlinarith [abs_nonneg s]
+      nlinarith)) hd.cont
+  have hid := sum_minus_integral_identity hX (S := S) (t := t) (t0 := realPhase τ0)
+    (t0' := CalPhase.realDeriv τ0)
+    (fun s hs => hd.card_le_eq hs) (fun x hx => ((hd.mem x).mp hx).1) hφc hΦd hΦ'c ht0 ht0'c hd.cont hfr
+  rw [hid]
+  -- bounds on the four pieces
+  have b1 : ‖φ (X : ℂ) * (((⌊t X⌋ : ℝ) - realPhase τ0 X + 1 / 2 : ℝ) : ℂ)‖ ≤
+      (1 / 2 + ε) * (Cφ * Real.exp (-κ * X)) := by
+    rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    have hc := abs_le.mp (hd.close X (by rw [abs_of_pos hX]; linarith))
+    have hf := Int.fract_nonneg (t X); have hf1 := Int.fract_lt_one (t X)
+    have hfl : (⌊t X⌋ : ℝ) = t X - Int.fract (t X) := by rw [Int.fract]; ring
+    have : |(⌊t X⌋ : ℝ) - realPhase τ0 X + 1 / 2| ≤ 1 / 2 + ε := by
+      rw [hfl, abs_le]; constructor <;> linarith [hc.1, hc.2]
+    have h2 := hφr X
+    rw [abs_of_pos hX] at h2
+    calc _ ≤ (Cφ * Real.exp (-κ * X)) * (1 / 2 + ε) := mul_le_mul h2 this (abs_nonneg _) (by positivity)
+      _ = _ := by ring
+  have b2 : ‖φ ((-X : ℝ) : ℂ) * (((1 / 2 - (⌈t (-X)⌉ : ℝ) + realPhase τ0 (-X) : ℝ)) : ℂ)‖ ≤
+      (1 / 2 + ε) * (Cφ * Real.exp (-κ * X)) := by
+    rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    have hc := abs_le.mp (hd.close (-X) (by rw [abs_neg, abs_of_pos hX]; linarith))
+    have hc1 := Int.le_ceil (t (-X))
+    have hc2 := Int.ceil_lt_add_one (t (-X))
+    have : |1 / 2 - (⌈t (-X)⌉ : ℝ) + realPhase τ0 (-X)| ≤ 1 / 2 + ε := by
+      rw [abs_le]; constructor <;> linarith [hc.1, hc.2]
+    have h2 := hφr (-X)
+    rw [abs_neg, abs_of_pos hX] at h2
+    calc _ ≤ (Cφ * Real.exp (-κ * X)) * (1 / 2 + ε) := mul_le_mul h2 this (abs_nonneg _) (by positivity)
+      _ = _ := by ring
+  have b3 : ‖∫ s in (-X)..X, deriv φ (s : ℂ) * ((t s - realPhase τ0 s : ℝ) : ℂ)‖ ≤
+      ε * (Cφ' * (2 / κ)) := by
+    have hg : IntervalIntegrable (fun s : ℝ => Cφ' * ε * Real.exp (-κ * |s|)) volume (-X) X :=
+      Continuous.intervalIntegrable (by fun_prop) _ _
+    have h1 := intervalIntegral.norm_integral_le_of_norm_le (μ := volume) (a := -X) (b := X)
+      (f := fun s : ℝ => deriv φ (s : ℂ) * ((t s - realPhase τ0 s : ℝ) : ℂ))
+      (g := fun s : ℝ => Cφ' * ε * Real.exp (-κ * |s|)) hle
+      (Filter.Eventually.of_forall (fun s hs => by
+        rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+        have hs' : |s| ≤ X + 1 := by
+          rw [abs_le]; constructor <;> linarith [hs.1, hs.2]
+        have hc := hd.close s hs'
+        calc ‖deriv φ (s : ℂ)‖ * |t s - realPhase τ0 s| ≤ (Cφ' * Real.exp (-κ * |s|)) * ε :=
+              mul_le_mul (hφ'r s) hc (abs_nonneg _) (by positivity)
+          _ = _ := by ring)) hg
+    refine h1.trans ?_
+    rw [intervalIntegral.integral_const_mul]
+    have := integral_exp_neg_abs_le hκ hX.le
+    have hn : 0 ≤ Cφ' * ε := mul_nonneg hCφ'0 hd.eps
+    calc Cφ' * ε * ∫ x in (-X)..X, Real.exp (-κ * |x|) ≤ Cφ' * ε * (2 / κ) :=
+          mul_le_mul_of_nonneg_left this hn
+      _ = _ := by ring
+  have b4 := latticeI_bound (hd.mono_strip hy0'pos hy0') (φ := deriv φ) (Cφ := Cφ') (κ := κ)
+    (y1 := y1) (r := r) hκ hCφ'0 hy1 hr (by linarith) hφ'd hφ'b
+  have hsum := norm_add_le
+    (φ (X : ℂ) * (((⌊t X⌋ : ℝ) - realPhase τ0 X + 1 / 2 : ℝ) : ℂ) +
+      φ ((-X : ℝ) : ℂ) * (((1 / 2 - (⌈t (-X)⌉ : ℝ) + realPhase τ0 (-X) : ℝ)) : ℂ) -
+        ∫ s in (-X)..X, deriv φ (s : ℂ) * ((t s - realPhase τ0 s : ℝ) : ℂ))
+    (∫ s in (-X)..X, deriv φ (s : ℂ) * ((Int.fract (t s) - 1 / 2 : ℝ) : ℂ))
+  have hs2 := norm_sub_le
+    (φ (X : ℂ) * (((⌊t X⌋ : ℝ) - realPhase τ0 X + 1 / 2 : ℝ) : ℂ) +
+      φ ((-X : ℝ) : ℂ) * (((1 / 2 - (⌈t (-X)⌉ : ℝ) + realPhase τ0 (-X) : ℝ)) : ℂ))
+    (∫ s in (-X)..X, deriv φ (s : ℂ) * ((t s - realPhase τ0 s : ℝ) : ℂ))
+  have hs3 := norm_add_le (φ (X : ℂ) * (((⌊t X⌋ : ℝ) - realPhase τ0 X + 1 / 2 : ℝ) : ℂ))
+    (φ ((-X : ℝ) : ℂ) * (((1 / 2 - (⌈t (-X)⌉ : ℝ) + realPhase τ0 (-X) : ℝ)) : ℂ))
+  push_cast at *
+  linarith
+
+end FormalResearch.Special.Lattice
