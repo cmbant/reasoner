@@ -114,7 +114,7 @@ lemma airyPQ_num_le (P Q : ℝ[X]) {u : ℂ} (hu : 0 ≤ u.im) (hr : 1 ≤ ‖u�
 (`general_theorems.tex` Lemma 1.0′; `κ`-form: `airyPQ_good_circle_kappa`). -/
 theorem airyPQ_good_circle (P Q : ℝ[X]) (hPQ : P ≠ 0 ∨ Q ≠ 0) :
     ∃ k₀ : ℕ, ∀ k : ℕ, k₀ ≤ k → ∃ r : ℝ, (k : ℝ) ≤ r ∧ r ≤ k + 1 ∧
-      ∀ u : ℂ, ‖u‖ = r →
+      ∀ u : ℂ, ‖u‖ = r → 0 < airyPQW P Q u ∧
         airyPQW P Q u ^ 2 * airyEnv u / (64 * π * √r) ≤ ‖airyPQN P Q u‖ ^ 2 ∧
         (0 ≤ u.im → ‖airyPQM P Q u / airyPQN P Q u - I‖ * airyEnv u ≤ 168 * √π) ∧
         (u.im ≤ 0 → ‖airyPQM P Q u / airyPQN P Q u + I‖ * airyEnv u ≤ 168 * √π) := by
@@ -203,17 +203,19 @@ theorem airyPQ_good_circle (P Q : ℝ[X]) (hPQ : P ≠ 0 ∨ Q ≠ 0) :
       refine le_trans (le_of_eq ?_) this
       ring
   have hL := hlow u hu
+  have hWposAll : ∀ v : ℂ, ‖v‖ = r → 0 < airyPQW P Q v := by
+    intro v hv
+    obtain ⟨hdP, hdQ⟩ := hT v (by rw [hv]; exact hrT)
+    rcases airyPQ_domP_or_domQ P Q hPQ with h | h
+    · exact lt_of_lt_of_le (hdP h).2.2 (le_max_left _ _)
+    · have h2 := (hdQ h).2.2
+      exact lt_of_lt_of_le (mul_pos h2 (by rw [hv]; exact hsr0)) (le_max_right _ _)
   have hup : ∀ v : ℂ, ‖v‖ = r → 0 ≤ v.im →
       ‖airyPQM P Q v / airyPQN P Q v - I‖ * airyEnv v ≤ 168 * √π := by
     intro v hv hvi
     have hLv := hlow v hv
     have hen := airyEnv_pos v
-    obtain ⟨hdP, hdQ⟩ := hT v (by rw [hv]; exact hrT)
-    have hWpos : 0 < airyPQW P Q v := by
-      rcases airyPQ_domP_or_domQ P Q hPQ with h | h
-      · exact lt_of_lt_of_le (hdP h).2.2 (le_max_left _ _)
-      · have h2 := (hdQ h).2.2
-        exact lt_of_lt_of_le (mul_pos h2 (by rw [hv]; exact hsr0)) (le_max_right _ _)
+    have hWpos := hWposAll v hv
     have hN2 : 0 < ‖airyPQN P Q v‖ ^ 2 := by
       refine lt_of_lt_of_le ?_ hLv
       positivity
@@ -228,7 +230,7 @@ theorem airyPQ_good_circle (P Q : ℝ[X]) (hPQ : P ≠ 0 ∨ Q ≠ 0) :
       field_simp
     rw [e, norm_div]
     exact airyPQ_ratio_le hN hen hsr0 hnum hLv (norm_nonneg _)
-  refine ⟨hL, fun hi => hup u hu hi, fun hi => ?_⟩
+  refine ⟨hWposAll u hu, hL, fun hi => hup u hu hi, fun hi => ?_⟩
   have hci : 0 ≤ ((starRingEnd ℂ) u).im := by simpa using hi
   have hcu : ‖(starRingEnd ℂ) u‖ = r := by rw [Complex.norm_conj, hu]
   have h := hup ((starRingEnd ℂ) u) hcu hci
@@ -309,7 +311,7 @@ lemma airyPQW_lower (P Q : ℝ[X]) (hPQ : P ≠ 0 ∨ Q ≠ 0) :
 /-- **Good circles, `κ`-form** (`general_theorems.tex` Lemma 1.0′: `|N(u)| ≥ c r^κ e(u)^{1/2}`). -/
 theorem airyPQ_good_circle_kappa (P Q : ℝ[X]) (hPQ : P ≠ 0 ∨ Q ≠ 0) :
     ∃ c : ℝ, 0 < c ∧ ∃ k₀ : ℕ, ∀ k : ℕ, k₀ ≤ k → ∃ r : ℝ, (k : ℝ) ≤ r ∧ r ≤ k + 1 ∧
-      ∀ u : ℂ, ‖u‖ = r →
+      ∀ u : ℂ, ‖u‖ = r → 0 < airyPQW P Q u ∧
         c * r ^ airyPQkappa P Q * airyEnv u ≤ ‖airyPQN P Q u‖ ^ 2 ∧
         (0 ≤ u.im → ‖airyPQM P Q u / airyPQN P Q u - I‖ * airyEnv u ≤ 168 * √π) ∧
         (u.im ≤ 0 → ‖airyPQM P Q u / airyPQN P Q u + I‖ * airyEnv u ≤ 168 * √π) := by
@@ -319,8 +321,8 @@ theorem airyPQ_good_circle_kappa (P Q : ℝ[X]) (hPQ : P ≠ 0 ∨ Q ≠ 0) :
   obtain ⟨r, hr1, hr2, hr⟩ := hk₀ k ((le_max_left _ _).trans hk)
   have hkT : T ≤ (k : ℝ) := (Nat.le_ceil T).trans (by exact_mod_cast (le_max_right _ _).trans hk)
   refine ⟨r, hr1, hr2, fun u hu => ?_⟩
-  obtain ⟨h1, h2, h3⟩ := hr u hu
-  refine ⟨?_, h2, h3⟩
+  obtain ⟨h0, h1, h2, h3⟩ := hr u hu
+  refine ⟨h0, ?_, h2, h3⟩
   have hTu : T ≤ ‖u‖ := by rw [hu]; exact hkT.trans hr1
   have := hT u hTu
   rw [hu] at this
