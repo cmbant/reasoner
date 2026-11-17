@@ -22,7 +22,7 @@ part `P` (`C ⪯ P`, `P ⪰ 0`, `tr P = Σ max(γ_i, 0)`); monotonicity gives `�
 scalar shifts) and trace additivity (`Spectral.KyFan`).
 
 Not formalised here: Wielandt's minimax principle, the general majorization (Lidskii) form
-`α↓ - β↓ ≺ γ` for convex test functions, and Hoffman–Wielandt (see `Spectral.HoffmanWielandt` if present).
+`α↓ - β↓ ≺ γ` for convex test functions, and the equality case.  Hoffman–Wielandt is `Spectral.HoffmanWielandt`.
 -/
 
 @[expose] public section

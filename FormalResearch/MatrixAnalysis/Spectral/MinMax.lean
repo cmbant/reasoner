@@ -9,7 +9,7 @@ Namespace `FormalResearch.MatrixAnalysis.Spectral`.  Claim class: **proved** (no
 
 Let `E` be a finite-dimensional inner product space over `𝕜 = ℝ` or `ℂ` (`RCLike 𝕜`), `T : E →ₗ[𝕜] E`
 symmetric, `N = dim E` and `μ_0 ≥ μ_1 ≥ ⋯ ≥ μ_{N-1}` the eigenvalues `hT.eigenvalues hN` (Mathlib's sorted
-list; for a Hermitian matrix this is `Matrix.IsHermitian.eigenvalues₀`, see `Spectral.MinMaxMatrix`).
+list; for a Hermitian matrix this is `Matrix.IsHermitian.eigenvalues₀`, see `Spectral.WeylMatrix`).
 Write `rq T x = Re ⟪x, T x⟫` for the Rayleigh form.
 
 * `rq_eq_sum`: `rq T x = ∑ i, μ_i ‖⟪b_i, x⟫‖²` (`b` the eigenvector basis).

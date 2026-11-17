@@ -18,8 +18,9 @@ eigenvalues `μ_0 ≥ ⋯ ≥ μ_{N-1}` and `k ≤ N`, write `Σ_{i<k} μ_i` for
   first `k` eigenvectors.
 * `partial_sum_add_le`: subadditivity `Σ_{i<k} μ_i(S+T) ≤ Σ_{i<k} μ_i(S) + Σ_{i<k} μ_i(T)`.
 
-Source: Ky Fan 1949; Bhatia, *Matrix Analysis*, Prop. III.5.1 / Cor. III.2.4.  Not formalised here: the
-trace-of-projection phrasing `Σ_{i<k} μ_i = max tr(PT)` (see `Spectral.WeylMatrix` for matrices).
+Source: Ky Fan 1949; Bhatia, *Matrix Analysis*, Prop. III.5.1 / Cor. III.2.4.  The
+trace-of-projection phrasing `Σ_{i<k} μ_i = max tr(PT)` is `Spectral.KyFanProj`.  Not formalised here: Ky Fan norms
+of non-Hermitian operators (singular-value dominance).
 -/
 
 @[expose] public section
