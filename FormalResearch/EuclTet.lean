@@ -33,7 +33,11 @@ Cayley--Menger, dihedral angles, Schläfli and Radon for a tetrahedron of `ℝ³
   `288 V² = 8 N⁶ ρ² α² β² D₆`.
 
 * `EuclTet.P5AlgInertia` : the bordered-distance inertia `(1, d+1, m-d-1)` (`prop:inertia`) as an
-  orthogonal decomposition (`p5a_bordered_distance_inertia`).
+  orthogonal decomposition (`p5a_bordered_distance_inertia`, for `0 < m`);
+* `EuclTet.P5AlgDiscriminant` : the finite-`h` frozen-symbol discriminant as a polynomial identity in six
+  reals and `h` (`p5a_cm_constant`, `p5a_discriminant_expansion`, `p5a_discriminant_even`);
+* `EuclTet.P5AlgEgorov` : the entrywise Racah Egorov relations `J^(a) R = R D_d`, `D_a R = R J^(d)`
+  (`p5a_racah_egorov_first`, `p5a_racah_egorov_second`; `a > 0`, resp. `d > 0`).
 
 Not formalised: the corank-one adjugate structure and the sign of `c` in `adj M = c v vᵀ` derived
 from the inertia (only the explicit planar value is proved, in `EuclTet.Radon`); the `n`-simplex statements and Blumenthal for general `n`; Regge integrability for all

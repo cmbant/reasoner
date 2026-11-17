@@ -296,7 +296,7 @@ a power `≈ A0^{3/2}`, via an energy march — **not yet applied** to `discrete
   defect `dun_exact_defect`, `dun_lattice` (`≤ Kδ⁶ airyWt`, resp. `airyBiWt`) and the assembly `discrete_airy_full_win`.  For the `3j` chain
   (`hahn_datum_unif`, `hahn_chain_airy_full_unif`, `_neg_unif`, `airy_full_compose_unif`, `discrete_airy_hahn_full_unif`) the constants depend only on
   `(M, σ, x₀, x₁)` and hold at every lattice node `x_n ∈ [x₀, x₁]` (resp. `[-x₁, -x₀]`), no parity condition, which supersedes the fixed-`x`
-  `hahn_chain_airy_full` for the shape.  Not formalised: the hard edges `x → 0, 1`; `κ` uniform in `x`; uniform Racah and half-integer versions; the statement
+  `hahn_chain_airy_full` for the shape.  Not formalised: the hard edges `x → 0, 1`; `κ` uniform in `x`; uniform Racah and half-integer versions (the integer Racah window count and zero index are `RacahWindow`); the statement
   that a compact continuous family satisfies the `DunDatum` bounds (only the Hahn family is checked); a global chart larger than the Langer ball.
   *`DiscreteAirySecond*`* (20 modules) is the second-order bracket: for smooth Langer-form data `(ζ, A, A₂, g, q₁, c₂)` at a simple turn the exact
   solutions are `g·Ai(X + δ⁴q₁/g)`, `g·Bi(…)` (`X = ζ/δ²`) within `δ⁶ = h²` in the Olver weights `airyWt`, `airyBiWt` on `[c₀ - r, c₀ + r/4]`, Casoratian `≥ δ/Q`

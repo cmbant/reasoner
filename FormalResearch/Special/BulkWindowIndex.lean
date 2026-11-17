@@ -20,7 +20,7 @@ Junction of the Airy-window count (`bwn_hahn_window`, `BulkWindowHahn`) with the
 * **`hahn_chain_zero_index`**, **`hahn_chain_bs_index`**: `bix_hahn_zero_index`, `bix_hahn_bs_index` without the hypothesis `BixRightCount`.
 
 **Claim class: proved** (axiom guards pinned).  Numerics (mpmath, 40 digits, exact `3j` symbols; `BulkIndexHahn` docstring): `R_k = ⌊Φ/(π h) + 1/4⌋` at all non-resonant bulk sites of 8 chains.
-**Not formalised:** `τ = -1`, the half-integer lattice and the Racah chains (the same proof with the corresponding window theorems `hahn_chain_kappa_sharp_neg`, `_half`, ...);
+**Not formalised:** `τ = -1`, the half-integer lattice (the integer Racah `6j` chain, `τ = ±1`, is `RacahWindow`; the same proof with the corresponding window theorems `hahn_chain_kappa_sharp_neg`, `_half`, ...);
 constants uniform in `x` or `(M, σ)`; resonant sites `|cos θ| ≤ 1/2` (the count there is `⌊·⌋` or `⌊·⌋ - 1`; not needed for the index of a node bond with definite ends);
 the left edge `q → 0` (not needed: the index from the left is `(m - n) - R` from the total node count).
 -/

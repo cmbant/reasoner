@@ -106,6 +106,7 @@ public import FormalResearch.Special.HermiteBulk
 public import FormalResearch.Special.ChainOsc
 public import FormalResearch.Special.BulkIndex
 public import FormalResearch.Special.BulkWindow
+public import FormalResearch.Special.RacahWindow
 public import FormalResearch.Special.BulkKappaAll
 
 /-!
@@ -331,5 +332,6 @@ Bulk zero index of the integer `3j` chain (`BulkIndex*`, 7 modules incl. umbrell
 and the zero index `bix_hahn_zero_index`, `bix_hahn_bs_index` (index from the left `(m-n) - R + 1` with `R` the Bohr–Sommerfeld integer, via `cho_hahn_nodes`), stated under `BixRightCount` (a hypothesis, now a theorem: `bix_rightcount_of_window` reduces it to the Airy-window count).
 Bulk window and unconditional zero index of the integer `3j` chain (`BulkWindow*`, 8 modules incl. umbrella `BulkWindow`, namespace `FormalResearch.Special`): `hahn_chain_window_count` (the nodes in the bonds `iR, …, i₁ - 1`, `q_{i₁} ≥ q_*`, number `⌊Φ(q_{iR})/(πh)+1/4⌋` at every bulk site `iR` with `|cos θ| > 1/2`, via the Airy-window count `BwnSetup.count`, `bwn_hahn_window` from `hahn_chain_kappa_sharp_win`, no sign of Ai between lattice sites beyond one zero per gap `bwn_nz`, `bwn_count_floor`),
 `bix_hahn_rightcount` (`BixRightCount` is a theorem) and the unconditional zero index `hahn_chain_zero_index`, `hahn_chain_bs_index` (threshold `1/2` literal; `ε` existential in `(M, σ, x, a, b)`).  Integer lattice, `τ = +1`, `kmin ≥ 1`, fixed `x ∈ (0, 1)`.
-Not formalised: `τ = −1`, half-integer, Racah `6j`, `kmin = 0`, the left edge `q → 0`, uniformity of `ε` in `(x, M, σ)`, and resonant sites `|cos θ| ≤ 1/2` (the count there is `⌊·⌋` or `⌊·⌋ − 1`).
+Racah `6j` window (`RacahWindow*`, 12 modules incl. umbrella `RacahWindow`, proof written once for `RwData` with `τ = ±1` and a sign twist): the window count `rwn_racah_window`, `rwn_racah_bulk`, `rwn_racah_tail`, the right count and window count of the integer chain at the literal threshold `1/2 < |cos θ|` (`racah_chain_window_count`, `bix_racah_rightcount` for `τ = +1`; `racah_chain_window_count_neg`, `bix_racah_rightcount_neg` for the twisted `τ = −1` chain), total node counts `rw_chain_nodes` (`l` nodes) and `rw_chain_nodes_neg` (`D' − l`), and the zero index `racah_chain_zero_index`, `racah_chain_bs_index`, `racah_chain_zero_index_neg`, `racah_chain_bs_index_neg`; `ε` existential in `(α, β, x, m, n, [a, b])`.
+Not formalised: Hahn `τ = −1`, half-integer lattices (Hahn and Racah), `kmin = 0`, the left edge `q → 0`, uniformity of `ε` in `(x, M, σ)`, and resonant sites `|cos θ| ≤ 1/2` (the count there is `⌊·⌋` or `⌊·⌋ − 1`).
 -/

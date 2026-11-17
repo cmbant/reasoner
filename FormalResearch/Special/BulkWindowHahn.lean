@@ -16,8 +16,7 @@ Instance of `BwnSetup.count` (`BulkWindowRk`) for the integer `3j` chain (`τ = 
   `q ∈ [q_* - ρ, b₀]` and `|cos θ_i| > 1/10` (`θ_i = Φ(q_{K+i})/h - π/4`, `bixTheta`) one has `i < i_w` and the number of nodes of `bixU M σ N x` in the bonds
   `i, …, i_w - 1` is exactly `⌊Φ(q_{K+i})/(π h) + 1/4⌋`.
 
-**Claim class: proved** (composition of proved results; axiom guard pinned).  **Not formalised:** `τ = -1`, the half-integer lattice and the Racah chains
-(the same proof with the corresponding window theorems); constants uniform in `x` or `(M, σ)`; the junction with the bulk count and the right-end count
+**Claim class: proved** (composition of proved results; axiom guard pinned).  **Not formalised:** `τ = -1`, the half-integer lattice (the same proof with the corresponding window theorems; the integer Racah `6j` chain, `τ = ±1`, is `RacahWindow`); constants uniform in `x` or `(M, σ)`; the junction with the bulk count and the right-end count
 (`BulkWindowIndex`).
 -/
 
