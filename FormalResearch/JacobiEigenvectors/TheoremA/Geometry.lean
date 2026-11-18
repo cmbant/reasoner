@@ -3,6 +3,7 @@ module
 public import Mathlib
 public import FormalResearch.JacobiEigenvectors.TheoremA.Statements
 public import FormalResearch.JacobiEigenvectors.TheoremA.Count
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryStatements
 
 /-!
 # Paper J, Layer 2 (L2.G1): the Morse form of the hypotheses (lem:hyp-morse)
@@ -2321,6 +2322,265 @@ theorem frozenStandard {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Pa
       constructor <;> linarith [ht.1, ht.2]
     exact hT ν.2 hab ν.1 hμ
 
+/-! ### L2.G4 (a): the bulk statement `GeomBulk` -/
+
+lemma hasDerivAt_Tfun_of_mem (hG : ∀ u ∈ Icc 0 L, g ≤ G0 u) (hg : 0 < g) (hG2 : ContDiffOn ℝ 2 G0 (Icc 0 L))
+    (hB2 : ContDiffOn ℝ 2 B0 (Icc 0 L)) (X : ℝ) {c : ℝ} (hc : c ∈ Ioo 0 L) :
+    HasDerivAt (Tfun L G0 B0 X) (deriv (fPlus L G0 B0) c * (X - fMinus L G0 B0 c) +
+      (fPlus L G0 B0 c - X) * (0 - deriv (fMinus L G0 B0) c)) c := by
+  have hfpd := fPlus_hasDerivAt_of_mem hG hg hG2 hB2 hc
+  have hfmd := fMinus_hasDerivAt_of_mem hG hg hG2 hB2 hc
+  have hprod : HasDerivAt (fun u => (fPlus L G0 B0 u - X) * (X - fMinus L G0 B0 u))
+      (deriv (fPlus L G0 B0) c * (X - fMinus L G0 B0 c) + (fPlus L G0 B0 c - X) * (0 - deriv (fMinus L G0 B0) c)) c :=
+    (hfpd.sub_const X).mul ((hasDerivAt_const c X).sub hfmd)
+  have heq : Tfun L G0 B0 X =ᶠ[𝓝 c] fun u => (fPlus L G0 B0 u - X) * (X - fMinus L G0 B0 u) :=
+    Filter.eventually_of_mem (isOpen_Ioo.mem_nhds hc) (fun u hu => Tfun_eq hG hg (Ioo_subset_Icc_self hu) X)
+  exact hprod.congr_of_eventuallyEq heq
+
+/-- The shapes of `f_+` and `f_-` for a `Hyp` pair: strict unimodality with extremal points `uc`, `q` in `(0, L)`. -/
+lemma shapes_of_hyp {G0 B0 : ℝ → ℝ} {L g : ℝ} (hyp : Hyp L G0 B0 g) (hG2 : ContDiffOn ℝ 2 G0 (Icc 0 L))
+    (hB2 : ContDiffOn ℝ 2 B0 (Icc 0 L)) (hL : 0 < L) :
+    ∃ uc q : ℝ, uc ∈ Ioo 0 L ∧ q ∈ Ioo 0 L ∧
+      (StrictMonoOn (fPlus L G0 B0) (Icc 0 uc) ∧ StrictAntiOn (fPlus L G0 B0) (Icc uc L)) ∧
+      (StrictAntiOn (fMinus L G0 B0) (Icc 0 q) ∧ StrictMonoOn (fMinus L G0 B0) (Icc q L)) ∧
+      fPlus L G0 B0 uc = Xsp L G0 B0 ∧ fMinus L G0 B0 q = Xsm L G0 B0 := by
+  have hg := hyp.gstar_pos
+  have hGg := hyp.G0_lb
+  have hA : AProp L G0 B0 := fun X h1 h2 => by
+    obtain ⟨a, b, ha, hab, hbL, hS, hda, hdb, ha0, hbL'⟩ := hyp.H2 X h1 h2
+    exact ⟨a, b, ha, hab, hbL, hS, fun h => (hda h).2, fun h => (hdb h).2, ha0, hbL'⟩
+  obtain ⟨hPp, hPm⟩ := (hypMorseEquiv L G0 B0 g hL hg hGg hG2 hB2).2 ⟨hA, hyp.H3p, hyp.H3m⟩
+  obtain ⟨uc, huc, hsh, _, _⟩ := shape_of_Pp hGg hg hG2 hB2 hPp
+  have hB2n : ContDiffOn ℝ 2 (fun u => -B0 u) (Icc 0 L) := hB2.neg
+  obtain ⟨q, hq, hshn, _, _⟩ := shape_of_Pp hGg hg hG2 hB2n (Pm_iff_neg.1 hPm)
+  have hfm1 : StrictAntiOn (fMinus L G0 B0) (Icc 0 q) := by
+    intro x hx y hy hxy
+    have := hshn.1 hx hy hxy
+    rw [congrFun fPlus_neg_B x, congrFun fPlus_neg_B y] at this
+    linarith
+  have hfm2 : StrictMonoOn (fMinus L G0 B0) (Icc q L) := by
+    intro x hx y hy hxy
+    have := hshn.2 hx hy hxy
+    rw [congrFun fPlus_neg_B x, congrFun fPlus_neg_B y] at this
+    linarith
+  have hmaxn := max_of_shape hq hshn.1 hshn.2
+  have hXm : fMinus L G0 B0 q = Xsm L G0 B0 := by
+    have hmin : ∀ u ∈ Icc 0 L, fMinus L G0 B0 q ≤ fMinus L G0 B0 u := by
+      intro u hu
+      have := hmaxn u hu
+      rw [congrFun fPlus_neg_B u, congrFun fPlus_neg_B q] at this
+      linarith
+    exact (Xsm_eq_of_min ⟨hq.1.le, hq.2.le⟩ hmin).symm
+  have hXp : fPlus L G0 B0 uc = Xsp L G0 B0 :=
+    (Xsp_eq_of_max ⟨huc.1.le, huc.2.le⟩ (max_of_shape huc hsh.1 hsh.2)).symm
+  exact ⟨uc, q, huc, hq, hsh, ⟨hfm1, hfm2⟩, hXp, hXm⟩
+
+theorem geomBulk : GeomBulk := by
+  intro L G0 B0 g hL hyp hG2 hB2 X hX1 hX2
+  have hg : 0 < g := hyp.gstar_pos
+  have hGg : ∀ u ∈ Icc 0 L, g ≤ G0 u := hyp.G0_lb
+  obtain ⟨a, b, ha0, hab, hbL, hS, hda, hdb, ha0B, hbLB⟩ := hyp.H2 X hX1 hX2
+  obtain ⟨uc, q, huc, hq, ⟨hP1, hP2⟩, ⟨hM1, hM2⟩, hXp, hXm⟩ := shapes_of_hyp hyp hG2 hB2 hL
+  have hbI : b ∈ Icc 0 L := ⟨ha0.trans hab, hbL⟩
+  have haI : a ∈ Icc 0 L := ⟨ha0, hab.trans hbL⟩
+  have h0I : (0:ℝ) ∈ Icc 0 L := ⟨le_rfl, hL.le⟩
+  have hLI : L ∈ Icc 0 L := ⟨hL.le, le_rfl⟩
+  have huM : uMinusS L G0 B0 X = a := by
+    unfold uMinusS allowedSet
+    rw [hS, csInf_Icc hab]
+  have huP : uPlusS L G0 B0 X = b := by
+    unfold uPlusS allowedSet
+    rw [hS, csSup_Icc hab]
+  rw [huM, huP]
+  -- the allowed set is `[a, b]`
+  have hmem : ∀ u ∈ Icc 0 L, (0 ≤ Tfun L G0 B0 X u ↔ a ≤ u ∧ u ≤ b) := by
+    intro u hu
+    have h1 : u ∈ Icc 0 L ∩ {u | 0 ≤ Tfun L G0 B0 X u} ↔ u ∈ Icc a b := by rw [hS]
+    constructor
+    · intro h0
+      exact h1.1 ⟨hu, h0⟩
+    · intro h
+      exact (h1.2 h).2
+  have hTeq : ∀ u ∈ Icc 0 L, Tfun L G0 B0 X u = (fPlus L G0 B0 u - X) * (X - fMinus L G0 B0 u) :=
+    fun u hu => Tfun_eq hGg hg hu X
+  have hTpos : ∀ u ∈ Icc 0 L, fMinus L G0 B0 u < X → X < fPlus L G0 B0 u → 0 < Tfun L G0 B0 X u := by
+    intro u hu h1 h2
+    rw [hTeq u hu]
+    exact mul_pos (by linarith) (by linarith)
+  have hXa : fMinus L G0 B0 a ≤ X ∧ X ≤ fPlus L G0 B0 a :=
+    (Tfun_nonneg_iff hGg hg haI X).1 ((hmem a haI).2 ⟨le_rfl, hab⟩)
+  have hXb : fMinus L G0 B0 b ≤ X ∧ X ≤ fPlus L G0 B0 b :=
+    (Tfun_nonneg_iff hGg hg hbI X).1 ((hmem b hbI).2 ⟨hab, le_rfl⟩)
+  -- (ii) `T > 0` strictly between `a` and `b`
+  have hint : ∀ u, a < u → u < b → 0 < Tfun L G0 B0 X u := by
+    intro u hau hub
+    have huI : u ∈ Icc 0 L := ⟨ha0.trans hau.le, hub.le.trans hbL⟩
+    refine hTpos u huI ?_ ?_
+    · rcases le_total u q with huq | huq
+      · have h1 := hM1 (show a ∈ Icc 0 q from ⟨ha0, hau.le.trans huq⟩)
+          (show u ∈ Icc 0 q from ⟨ha0.trans hau.le, huq⟩) hau
+        linarith [hXa.1]
+      · have h1 := hM2 (show u ∈ Icc q L from ⟨huq, hub.le.trans hbL⟩)
+          (show b ∈ Icc q L from ⟨huq.trans hub.le, hbL⟩) hub
+        linarith [hXb.1]
+    · rcases le_total u uc with huc' | huc'
+      · have h1 := hP1 (show a ∈ Icc 0 uc from ⟨ha0, hau.le.trans huc'⟩)
+          (show u ∈ Icc 0 uc from ⟨ha0.trans hau.le, huc'⟩) hau
+        linarith [hXa.2]
+      · have h1 := hP2 (show u ∈ Icc uc L from ⟨huc', huI.2⟩)
+          (show b ∈ Icc uc L from ⟨huc'.trans hub.le, hbL⟩) hub
+        linarith [hXb.2]
+  -- endpoint collision cases: `X = B_0(0)` forces `T > 0` just right of `0`
+  have key0 : X = B0 0 → ∀ u, 0 < u → u < uc → u < q → 0 < Tfun L G0 B0 X u := by
+    intro hX u hu0 hu1 hu2
+    have huI : u ∈ Icc 0 L := ⟨hu0.le, (hu1.trans huc.2).le⟩
+    refine hTpos u huI ?_ ?_
+    · have h1 := hM1 (show (0:ℝ) ∈ Icc 0 q from ⟨le_rfl, hq.1.le⟩)
+        (show u ∈ Icc 0 q from ⟨hu0.le, hu2.le⟩) hu0
+      rw [fMinus_zero] at h1
+      linarith
+    · have h1 := hP1 (show (0:ℝ) ∈ Icc 0 uc from ⟨le_rfl, huc.1.le⟩)
+        (show u ∈ Icc 0 uc from ⟨hu0.le, hu1.le⟩) hu0
+      rw [fPlus_zero] at h1
+      linarith
+  -- endpoint collision cases: `X = B_0(L)` forces `T > 0` just left of `L`
+  have keyL : X = B0 L → ∀ u, max uc q < u → u < L → 0 < Tfun L G0 B0 X u := by
+    intro hX u hu1 hu2
+    have hu0 : 0 < u := by linarith [le_max_left uc q, huc.1]
+    have huI : u ∈ Icc 0 L := ⟨hu0.le, hu2.le⟩
+    refine hTpos u huI ?_ ?_
+    · have h1 := hM2 (show u ∈ Icc q L from ⟨(le_max_right uc q).trans hu1.le, hu2.le⟩)
+        (show L ∈ Icc q L from ⟨hq.2.le, le_rfl⟩) hu2
+      rw [fMinus_L] at h1
+      linarith
+    · have h1 := hP2 (show u ∈ Icc uc L from ⟨(le_max_left uc q).trans hu1.le, hu2.le⟩)
+        (show L ∈ Icc uc L from ⟨huc.2.le, le_rfl⟩) hu2
+      rw [fPlus_L] at h1
+      linarith
+  -- (i) `a < b`
+  have hab' : a < b := by
+    refine lt_of_le_of_ne hab (fun h => ?_)
+    rcases eq_or_lt_of_le ha0 with h0 | hpos
+    · -- `a = b = 0`
+      have hX : X = B0 0 := ha0B h0.symm
+      have hmpos : 0 < min uc q / 2 := by linarith [lt_min huc.1 hq.1]
+      have hmuc : min uc q / 2 < uc := by linarith [min_le_left uc q, huc.1]
+      have hmq : min uc q / 2 < q := by linarith [min_le_right uc q, hq.1]
+      have hmI : min uc q / 2 ∈ Icc 0 L := ⟨hmpos.le, by linarith [huc.2]⟩
+      have hT := (hmem _ hmI).1 (key0 hX _ hmpos hmuc hmq).le
+      linarith [hT.2]
+    · have haL : a ≤ L := hab.trans hbL
+      have hT0 : Tfun L G0 B0 X a = 0 := (hda hpos).1
+      have hd : deriv (Tfun L G0 B0 X) a ≠ 0 := (hda hpos).2
+      rcases eq_or_lt_of_le haL with hal | hal
+      · -- `a = b = L`
+        have hML : max uc q < L := max_lt huc.2 hq.2
+        have hgt : max uc q < (max uc q + L) / 2 := by linarith
+        have hlt : (max uc q + L) / 2 < L := by linarith
+        have huI : (max uc q + L) / 2 ∈ Icc 0 L := ⟨by linarith [le_max_left uc q, huc.1], hlt.le⟩
+        have hT := (hmem _ huI).1 (keyL (hbLB (h.symm.trans hal)) _ hgt hlt).le
+        linarith [hT.1]
+      · -- `0 < a = b < L`: a sign change of `T` at `a`
+        have haI' : a ∈ Ioo 0 L := ⟨hpos, hal⟩
+        have hTd : HasDerivAt (Tfun L G0 B0 X) (deriv (Tfun L G0 B0 X) a) a :=
+          (hasDerivAt_Tfun_of_mem hGg hg hG2 hB2 X haI').differentiableAt.hasDerivAt
+        rcases lt_or_gt_of_ne hd with hneg | hposd
+        · obtain ⟨δ, hδ, -, hn⟩ := count_local_sign (f := fun u => -Tfun L G0 B0 X u)
+            (f' := -deriv (Tfun L G0 B0 X) a) hTd.neg
+            (by show -Tfun L G0 B0 X a = 0; rw [hT0, neg_zero]) (by linarith)
+          have hm : 0 < min δ a := lt_min hδ hpos
+          have hm2 : min δ a ≤ a := min_le_right _ _
+          have htI : a - min δ a / 2 ∈ Icc 0 L := ⟨by linarith, by linarith⟩
+          have h3 : -Tfun L G0 B0 X (a - min δ a / 2) < 0 :=
+            hn (a - min δ a / 2) (by linarith [min_le_left δ a]) (by linarith)
+          have h4 := (hmem _ htI).1 (by linarith)
+          linarith [h4.1]
+        · obtain ⟨δ, hδ, hn, -⟩ := count_local_sign (f := Tfun L G0 B0 X)
+            (f' := deriv (Tfun L G0 B0 X) a) hTd hT0 hposd
+          have hm : 0 < min δ (L - a) := lt_min hδ (by linarith)
+          have hm2 : min δ (L - a) ≤ L - a := min_le_right _ _
+          have htI : a + min δ (L - a) / 2 ∈ Icc 0 L := ⟨by linarith, by linarith⟩
+          have h3 : 0 < Tfun L G0 B0 X (a + min δ (L - a) / 2) :=
+            hn (a + min δ (L - a) / 2) (by linarith) (by linarith [min_le_left δ (L - a)])
+          have h4 := (hmem _ htI).1 h3.le
+          linarith [h4.2]
+  -- zeros of `T` at the ends
+  have hTa0 : Tfun L G0 B0 X a = 0 := by
+    rcases eq_or_lt_of_le ha0 with h0 | hpos
+    · rw [← h0, Tfun_eq hGg hg h0I X, fPlus_zero, fMinus_zero, ha0B h0.symm]
+      ring
+    · exact (hda hpos).1
+  have hTb0 : Tfun L G0 B0 X b = 0 := by
+    rcases eq_or_lt_of_le hbL with h1 | h1
+    · rw [h1, Tfun_eq hGg hg hLI X, fPlus_L, fMinus_L, hbLB h1]
+      ring
+    · exact (hdb h1).1
+  have hzero : ∀ u ∈ Icc 0 L, Tfun L G0 B0 X u = 0 ↔ u = a ∨ u = b := by
+    intro u hu
+    constructor
+    · intro h
+      have hm := (hmem u hu).1 h.ge
+      rcases eq_or_lt_of_le hm.1 with h1 | h1
+      · exact Or.inl h1.symm
+      rcases eq_or_lt_of_le hm.2 with h2 | h2
+      · exact Or.inr h2
+      · exact absurd h (hint u h1 h2).ne'
+    · rintro (h | h)
+      · rw [h]
+        exact hTa0
+      · rw [h]
+        exact hTb0
+  have hpos_iff : ∀ u ∈ Icc 0 L, 0 < Tfun L G0 B0 X u ↔ a < u ∧ u < b := by
+    intro u hu
+    constructor
+    · intro h
+      have hm := (hmem u hu).1 h.le
+      refine ⟨lt_of_le_of_ne hm.1 (fun e => ?_), lt_of_le_of_ne hm.2 (fun e => ?_)⟩
+      · have : Tfun L G0 B0 X u = 0 := by
+          rw [← e]
+          exact hTa0
+        linarith
+      · have : Tfun L G0 B0 X u = 0 := by
+          rw [e]
+          exact hTb0
+        linarith
+    · rintro ⟨h1, h2⟩
+      exact hint u h1 h2
+  refine ⟨hab', hpos_iff, ?_, hzero, fun h => (hda h).2, fun h => (hdb h).2, ?_, ?_⟩
+  · intro u hu hnot
+    have h0 : ¬ (0 ≤ Tfun L G0 B0 X u) := fun h => hnot ((hmem u hu).1 h)
+    exact not_le.mp h0
+  · constructor
+    · intro h
+      exact ha0B h
+    · intro hX
+      by_contra hne
+      have hpos : 0 < a := lt_of_le_of_ne ha0 (Ne.symm hne)
+      have hmin : 0 < min a (min uc q) := lt_min hpos (lt_min huc.1 hq.1)
+      have hu1 : min a (min uc q) ≤ a := min_le_left _ _
+      have hu2 : min a (min uc q) ≤ uc := (min_le_right _ _).trans (min_le_left _ _)
+      have hu3 : min a (min uc q) ≤ q := (min_le_right _ _).trans (min_le_right _ _)
+      have hu0 : 0 < min a (min uc q) / 2 := by linarith
+      have huI : min a (min uc q) / 2 ∈ Icc 0 L := ⟨hu0.le, by linarith [huc.2]⟩
+      have hT := (hmem _ huI).1 (key0 hX _ hu0 (by linarith) (by linarith)).le
+      linarith [hT.1]
+  · constructor
+    · intro h
+      exact hbLB h
+    · intro hX
+      by_contra hne
+      have hlt : b < L := lt_of_le_of_ne hbL hne
+      have hML : max b (max uc q) < L := max_lt hlt (max_lt huc.2 hq.2)
+      have hA : max uc q < (max b (max uc q) + L) / 2 := by
+        linarith [le_max_right b (max uc q)]
+      have hB : (max b (max uc q) + L) / 2 < L := by linarith
+      have hBb : b < (max b (max uc q) + L) / 2 := by
+        linarith [le_max_left b (max uc q)]
+      have huI : (max b (max uc q) + L) / 2 ∈ Icc 0 L :=
+        ⟨by linarith [le_max_left b (max uc q), hbI.1, hL], hB.le⟩
+      have hT := (hmem _ huI).1 (keyL hX _ hA hB).le
+      linarith [hT.2]
+
 end HypMorse
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.hypMorseEquiv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -2334,6 +2594,10 @@ end HypMorse
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.frozenStandard' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.frozenStandard
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.geomBulk' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.geomBulk
 
 end FormalResearch.JacobiEigenvectors.TheoremA
 
