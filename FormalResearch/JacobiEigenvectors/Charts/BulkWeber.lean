@@ -63,6 +63,13 @@ the coordinate, the corrector row and the *defect* of the comparison sequence.
   **Round 5 (agent M's proposals F-S2-1, F-S2-2, both confirmed and applied):** the positive prefactor of `casoratian` is bounded below, `pre >= c0 h^{1/2}`; and the
   uniform-in-`mu` bound of the `C^{2M+1}` norms of the `Sigma_j` is a new field `Sigma_bdd`.
 
+## Round 6 (agent R: `lem:smo-bulkphase` (1), L2.S1)
+
+* **`corr_lead` (finding F-S1-1, confirmed and refined, added):** `A^{[m]} = g_0 + O(h^2)`, `g_0 >= c_g > 0`, `|B^{[m]}| <= C_g` on the rows of the chart (`prop:cha-halfrow`, `lem:cha-weber-coord` (3); `thm:eng-corr`).
+  The phase of `psi-hat` is determined by it (`TheoremA/BulkPhases.lean`); `A_bd`, `B_bd` alone do not fix the rotation of the row `(A, h B)`.
+* **`theta_margin` (finding F-S1-4, new, added):** `|X - B_0(u)| <= (1 - eps) 2 sqrt(E_0(u))` on `[c', c]` (the paper's "`theta in [eps, pi - eps]` on the overlap", `lem:smo-bulkphase` (2)).  Used only by the sign argument `(iii)`.
+* The derivative of the Weber branch (finding F-S1-2) needs no field: `TheoremA/BulkPhasesPC.lean` derives the envelope bound from `phase_osc` and the differential equation.
+
 ## Honest differences
 
 * the paper's `Y_L` for energies at which `X` is a collision energy `B_0(0)`, where `u_- = 0`, is covered by the same fields (`uMinus = 0`).
@@ -169,6 +176,20 @@ structure BulkWeberChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily 
   collar_lb : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
     uNode (F.step N) k ≤ F.uMinus μ X →
       c3 * (chain μ X N).W k * (chain μ X N).M k ≤ |(chain μ X N).phi (F.step N) 0 1 k|
+  /-- **(round 6, finding F-S1-1: confirmed, added)** the leading corrector row: `A^{[m]}(u, h^2) = g_0(u) + O(h^2)` with `g_0 > 0` and `h B^{[m]} = O(h)`
+  (`prop:cha-halfrow`, `lem:cha-weber-coord` (3), `thm:eng-corr`: `A^{[m]} = sum_{2i <= m-1} h^{2i} g_{2i}`, `B^{[m]} = sum_{2i <= m} h^{2i-2} B_{2i-1}`, `g_0 = V_0^{-1/2} > 0`).
+  The engine fields `A_bd`, `B_bd` only give `|A| <= K_A`, `|h B| <= K_B`, which does not determine the phase of `psi-hat` (the row `(A, h B)` could be rotated by an angle
+  `O(1)`); this field says the rotation is `O(h)`.  Only the three consequences `A >= c_g/2`, `|h B| <= C_g h` are used (`TheoremA/BulkPhases.lean`); `g_0` is existential. -/
+  corr_lead : ∃ cg Cg : ℝ, 0 < cg ∧ ∃ g0 : Par → ℝ → ℝ → ℝ, ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N →
+    ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
+      cg ≤ g0 μ X (uNode (F.step N) k) ∧
+      |(chain μ X N).AA 1 (uNode (F.step N) k) (F.step N) - g0 μ X (uNode (F.step N) k)| ≤ Cg * F.step N ^ 2 ∧
+      |(chain μ X N).BB 1 (uNode (F.step N) k) (F.step N)| ≤ Cg
+  /-- **(round 6, finding F-S1-4: new, added)** the uniform margin of `lem:smo-bulkphase` (2): "`theta(u) = arccos(Q_0/(2 sqrt E_0)) in [epsilon, pi - epsilon]` on the overlap",
+  i.e. `|X - B_0(u)| <= (1 - epsilon) 2 sqrt(E_0(u))` for `u in [c', c]`, uniformly in `(mu, X)`.  It is not derivable from `overlap_in_well` (which says `T > 0`
+  pointwise with a margin `sigma` in `u`) without compactness and joint continuity in `mu` (finding F-loc), and not from `turn_eq`/`Hz_lb` (these constrain `Y`, not `T`). -/
+  theta_margin : ∃ ε : ℝ, 0 < ε ∧ ε < 1 ∧ ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ u ∈ Set.Icc c' c,
+    |X - F.B 0 μ u| ≤ (1 - ε) * (2 * Real.sqrt (E0 F.L (F.G 0 μ) u))
 
 namespace BulkWeberChart
 
