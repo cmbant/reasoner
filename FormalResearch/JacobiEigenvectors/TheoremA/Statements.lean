@@ -43,7 +43,7 @@ collar width `delta`.  For `ThmAii`, `delta`, `t0` are chart data.  Eigen-system
   extension, its `C^{M+1}` norm and `delta` are uniform in `mu`, as the paper says; but the rule is only claimed for `h <= h_M` -- here `exists h_M`, and `N` ranges over *all*
   `N` with `L/(N+1) <= h_M`.
 * **F-A2 (quantifiers of thm:A(ii))**: "there are explicit vectors" is vacuous unless the vector is a specific function of the charts; `ThmAii` is stated for the
-  specific `psiHatVec`/`envVec` of `Comparison.lean` (not an existential), and the relative error on collars is a separate conjunct with `delta`-dependent constant (`PropThaW`).
+  specific `psiHatVec`/`envVec` of `Comparison.lean` (not an existential), and the relative error on collars is a separate conjunct with `delta`-dependent constant (`PropThaW`); the relative clause of A(ii) itself (sites with `T <= -eps`) is the second conjunct of `ThmAii` (F-A(ii)-1).
 * **F-geom (lem:tha-geom (c), single overlap)**: the lemma asserts one pair `c' < c` with `u_-(X) + delta_1 <= c' < c <= u_+(X) - delta_1` for *all* `X` in a compact `J`; this is false in general
   (if `u_c^+ < u_c^-`, `sup_J u_- > inf_J u_+`).  It is true per energy, hence on each interval of a finite cover (as Lemma smo-bulkphase and Section thb-matrices already do).  The Lean
   statements use bulk *blocks* (`ChartInputs.nb, lo, hi`, one `BulkWeberChart` per block, each with its own overlap `[c', c]`); prop:tha-W and thm:A(ii) are stated per block / for the vector of a block containing `X_k`.
@@ -195,7 +195,7 @@ def PropThaW (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (Jlo Jhi : 
 
 /-- **prop:tha-W2** (soft edge, upper end).  `Lm = 1` for items (1)--(3); `Lm h = log(1/h)` for the "one shift short" item (4) (`m` odd, `q = m - 1`).
 (1) the left solution through the soft edge: Weber bound on `u_n <= u_c - eta/2`, PC bound `|psi - lambda_L psi-hat^{PC,-}| <= C h^m |lambda_L| M_Olv(a,-Z_n)` on `u_c - eta/2 <= u_n <= u_c + 2 eta`, and
-`|lambda_L| ~ lambda kappa_bal(a)`; (2) eigenvectors `|Psi_n - hat Psi_n| <= C h^m V_n/hat N`, `sum V^2/hat N^2 <= C`; (3) quantisation: the label of an eigenvalue in the window is its index and
+`|lambda_L| ~ lambda kappa_bal(a)`; (2) eigenvectors `|Psi_n - hat Psi_n| <= C h^m V_n/hat N`, `sum V^2/hat N^2 <= C`, and (**F-W2-13, applied**: the paper's "relative `O(h^m)` error at every site off the window `Omega`", the proof's Step 4 (f)) `V_n/hat N <= C |hat Psi_n|` for `n` off `Omega`; (3) quantisation: the label of an eigenvalue in the window is its index and
 `mu_0 + sum_{r=1}^{q/2} h^{2r} mu_{2r} = (k + 1/2) h + O(h^{m+1})`; conversely the eigenvalue of index `k` exists whenever the nominal point lies in `|X - X_s^+| <= delta_0/2`.
 Hypotheses: `(E_{q/2})`, (H1)--(H3) on `P`.  **Corrected in round 3** (findings F-W2-4, F-W2-5, F-W2-9; `Charts/SoftParabolicCylinder.lean`): the paper fixes `m >= 1` (the engine smallness `h^m Theta <= c_*` is unavailable for `m = 0`),
 `Lm` (now the parameter of the charts, `SoftEdgeChart .. U V Lm`; F-W2-8) is `1` or `1 + log(1/h)` so it must satisfy `1 <= Lm h` on `(0,1]` (for `Lm = 0` items (1)--(3) are false), and the PC bound of (1) is for `u_c - eta/2 < u_n` (the single row `u_n = u_c - eta/2` carries
@@ -218,7 +218,8 @@ def PropThaW2 (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ
           (∀ i, Xs i ≤ Fz.bandHi p + Cs0 * Fz.step N ^ 2) →
           ∀ k : Fin (N + 1), Xs k = X →
             (∀ n ∈ rowsOf N, |eigVec Um k n - softVec CL CR p X N n| ≤ Cc * Fz.step N ^ m * Lm (Fz.step N) * softEnv CL CR p X N n) ∧
-            ∑ n ∈ rowsOf N, softEnv CL CR p X N n ^ 2 ≤ Cc)) ∧
+            ∑ n ∈ rowsOf N, softEnv CL CR p X N n ^ 2 ≤ Cc ∧
+            (∀ n ∈ rowsOf N, n ∉ softWindow CL p X N → softEnv CL CR p X N n ≤ Cc * |softVec CL CR p X N n|))) ∧
       (∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →
         (∀ i, Xs i ≤ Fz.bandHi p + Cs0 * Fz.step N ^ 2) →
         ∀ i : Fin (N + 1), |Xs i - Fz.bandHi p| ≤ CL.δ0 →
@@ -340,13 +341,20 @@ def PropL2Jets (F : SymbolFamily Par) (K : Set Par) (m : ℕ) (t0 : ℝ) (U V : 
 
 /-- **Theorem A (ii)**: for `m >= 1`, `q = 2 ceil(m/2)` (admissible), under `(D_{2 ceil(m/2) + 1})` and (H1)--(H3) and the charts `CI`: for `h <= h_m`, all `k, n`,
 `|(Psi_k)_n - (hat Psi^{(m)}_k)_n| <= C_m h^m V_{k,n}` and `sum_n V_{k,n}^2 <= C`, with the explicit `psiHatVec`, `envVec` (def:tha-Psihat) evaluated at `X = X_k`.
-(`sum V^2 <= C` gives `||Psi_k - hat Psi_k||_2 <= C_m h^m`.)  The frozen family and the choice `t = h` are in `psiHatVec` (`atStep`). -/
+(`sum V^2 <= C` gives `||Psi_k - hat Psi_k||_2 <= C_m h^m`.)  The frozen family and the choice `t = h` are in `psiHatVec` (`atStep`).
+**Second conjunct (F-A(ii)-1, applied)**: the paper's relative statement: for every `eps > 0`, at the sites with `T(u_n; X_k) <= -eps` (`T` of the principal symbols of `F` itself) `V_{k,n} <= C_eps |hat Psi_{k,n}|`
+(the product with the first conjunct is the paper's `|Psi - hat Psi| <= C_m C_{m,eps} h^m |hat Psi|`).  The bulk case follows from the delta-collar clause of `PropThaW` and the soft case from the off-window relative clause of `PropThaW2`. -/
 def ThmAii (F : SymbolFamily Par) (K : Set Par) (m Kidx : ℕ) (t0 : ℝ) (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ)
     (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) : Prop :=
   1 ≤ m → Kidx = (m + 1) / 2 → IsCompact K → HypOn F K → DM F K (2 * ((m + 1) / 2) + 1) →
-    ∃ C hm : ℝ, 0 < hm ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hm → F.step N ≤ t0 →
+    (∃ C hm : ℝ, 0 < hm ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hm → F.step N ≤ t0 →
       ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
         ∀ k : Fin (N + 1), (∀ n ∈ rowsOf N, |eigVec Um k n - psiHatVec CI μ N (X k) n| ≤ C * F.step N ^ m * envVec CI μ N (X k) n) ∧
-          ∑ n ∈ rowsOf N, envVec CI μ N (X k) n ^ 2 ≤ C
+          ∑ n ∈ rowsOf N, envVec CI μ N (X k) n ^ 2 ≤ C) ∧
+    (∀ ε : ℝ, 0 < ε → ∃ Cε hε : ℝ, 0 < hε ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hε → F.step N ≤ t0 →
+      ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
+        ∀ k : Fin (N + 1), ∀ n ∈ rowsOf N,
+          Tfun F.L (F.G 0 μ) (F.B 0 μ) (X k) (uNode (F.step N) n) ≤ -ε →
+            envVec CI μ N (X k) n ≤ Cε * |psiHatVec CI μ N (X k) n|)
 
 end FormalResearch.JacobiEigenvectors.TheoremA
