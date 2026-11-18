@@ -211,9 +211,10 @@ Hypotheses: `(E_{q/2})`, (H1)--(H3) on `P`.  **Corrected in round 3** (findings 
 `Lm` (now the parameter of the charts, `SoftEdgeChart .. U V Lm`; F-W2-8) is `1` or `1 + log(1/h)` so it must satisfy `1 <= Lm h` on `(0,1]` (for `Lm = 0` items (1)--(3) are false), and the PC bound of (1) is for `u_c - eta/2 < u_n` (the single row `u_n = u_c - eta/2` carries
 the Weber sequence by definition of `psi-hat^L`).  **Corrected (F-W2-12, round 6)**: (a) the right chart must be the mirror image of the left one, `SoftMirror CL CR` (the `ChartInputs.mirror_up` clause), a premise; (b) items (2), (3) need `a <= a_+` at
 the eigenvalues, i.e. Step 0 of app_thmA (`StepZero`, `EigenvalueStatements.lean`: every eigenvalue is `<= bandHi + C h^2`), so the eigen-system clauses carry the premise `forall i, X_i <= bandHi + Cs0 h^2` with `Cs0` a parameter of the statement
-(`StepZero` supplies it; for `h` below both thresholds the premise holds, so `StepZero` and `PropThaW2` compose). -/
+(`StepZero` supplies it; for `h` below both thresholds the premise holds, so `StepZero` and `PropThaW2` compose).  **Corrected (round 9, finding F-W2-21)**: like `PropThaWin` and `PropThaM`, the statement carries the premise `ParabolicCylinderFacts U V cPC CPC` (items (1), (2) are false for arbitrary `U V`). -/
 def PropThaW2 (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ) {Lm : ℝ → ℝ}
-    (CL : SoftEdgeChart Fz P m q U V Lm) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V Lm) (Cs0 : ℝ) : Prop :=
+    (CL : SoftEdgeChart Fz P m q U V Lm) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V Lm) (Cs0 : ℝ) (cPC CPC : ℝ) : Prop :=
+  ParabolicCylinderFacts U V cPC CPC →
   1 ≤ m → (∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ Lm h) → SoftMirror CL CR →
   ∀ r, StdAssump Fz P (q / 2) r →
     ∃ Cc h0 clam Clam : ℝ, 0 < h0 ∧ 0 < clam ∧ ∀ p ∈ P, ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 →

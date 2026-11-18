@@ -46,9 +46,9 @@ lemma mono5 {C1 C2 a b w v : ℝ} (hC : C1 ≤ C2) (ha : 0 ≤ a) (hb : 0 ≤ b)
   mul_le_mul_of_nonneg_right (mono4 hC ha hb hw) hv
 
 /-- **`PropThaW2`, assembled modulo the sign facts of Step 6**. -/
-theorem propThaW2_proved_of_signs {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (Cs0 : ℝ)
-    (hS : SoftCountHyps CL CR Cs0) : PropThaW2 Fz P m q U V CL CR Cs0 := by
-  intro hm hLm hM r _
+theorem propThaW2_proved_of_signs {cPC CPC : ℝ} (Cs0 : ℝ)
+    (hS : SoftCountHyps CL CR Cs0) : PropThaW2 Fz P m q U V CL CR Cs0 cPC CPC := by
+  intro hf hm hLm hM r _
   obtain ⟨C1, h1, c1, Cl1, h1p, hc1, H1⟩ := propThaW2_item1 (C := CL) hf hm hLm
   obtain ⟨C2, h2, h2p, H2⟩ := soft_eigen_clause CL CR hM hf hm hLm Cs0
   obtain ⟨C3, h3, h3p, H3⟩ := soft_count_chart CL CR hM hf hm hLm Cs0 hS
