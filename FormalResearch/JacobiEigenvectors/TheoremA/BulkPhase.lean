@@ -92,15 +92,14 @@ lemma exists_int_near (y ε : ℝ) (h : |Real.sin y| ≤ ε) : ∃ j : ℤ, |y -
     _ ≤ Real.pi / 2 * |Real.sin z| := h4
     _ ≤ Real.pi / 2 * ε := by rw [hsin]; exact mul_le_mul_of_nonneg_left h (by positivity)
 
-/-- **Casoratian of the comparison sequences from a vanishing exact Casoratian.**  If `f1 g1 - f2 g2 = 0` for the exact sequences, `f, g` are within
-`ef, eg` of the comparison values `F, G`, and these are bounded by `BF, BG`, then
-`|a (F1 G1 - F2 G2)| <= CA * 2 (ef BG + BF eg + ef eg)` for `|a| <= CA`. -/
+/-- **Casoratian of the comparison sequences versus that of exact sequences.**  If `f, g` are within `ef, eg` of the comparison values `F, G`, and these are bounded by `BF, BG`, then
+`|a (F1 G1 - F2 G2) - a (f1 g1 - f2 g2)| <= CA * 2 (ef BG + BF eg + ef eg)` for `|a| <= CA`. -/
 lemma cas_hat_bound (a F1 F2 G1 G2 f1 f2 g1 g2 CA ef eg BF BG : ℝ)
-    (hCA : |a| ≤ CA) (hex : f1 * g1 - f2 * g2 = 0)
+    (hCA : |a| ≤ CA)
     (hf1 : |f1 - F1| ≤ ef) (hf2 : |f2 - F2| ≤ ef) (hg1 : |g1 - G1| ≤ eg) (hg2 : |g2 - G2| ≤ eg)
     (hF1 : |F1| ≤ BF) (hF2 : |F2| ≤ BF) (hG1 : |G1| ≤ BG) (hG2 : |G2| ≤ BG)
     (hef : 0 ≤ ef) (heg : 0 ≤ eg) (hBF : 0 ≤ BF) (hBG : 0 ≤ BG) :
-    |a * (F1 * G1 - F2 * G2)| ≤ CA * (2 * (ef * BG + BF * eg + ef * eg)) := by
+    |a * (F1 * G1 - F2 * G2) - a * (f1 * g1 - f2 * g2)| ≤ CA * (2 * (ef * BG + BF * eg + ef * eg)) := by
   have key : ∀ f F g G : ℝ, |f - F| ≤ ef → |g - G| ≤ eg → |F| ≤ BF → |G| ≤ BG →
       |F * G - f * g| ≤ ef * BG + BF * eg + ef * eg := by
     intro f F g G hf hg hF hG
@@ -117,28 +116,27 @@ lemma cas_hat_bound (a F1 F2 G1 G2 f1 f2 g1 g2 CA ef eg BF BG : ℝ)
           · exact mul_le_mul (by rw [abs_sub_comm]; exact hf) hG (abs_nonneg _) hef
           · exact mul_le_mul hfF (by rw [abs_sub_comm]; exact hg) (abs_nonneg _) (by linarith)
       _ = ef * BG + BF * eg + ef * eg := by ring
-  have e : F1 * G1 - F2 * G2 = (F1 * G1 - f1 * g1) - (F2 * G2 - f2 * g2) := by linarith
+  have e : a * (F1 * G1 - F2 * G2) - a * (f1 * g1 - f2 * g2) = a * ((F1 * G1 - f1 * g1) - (F2 * G2 - f2 * g2)) := by ring
   have h1 := key f1 F1 g1 G1 hf1 hg1 hF1 hG1
   have h2 := key f2 F2 g2 G2 hf2 hg2 hF2 hG2
   have hCA0 : 0 ≤ CA := (abs_nonneg _).trans hCA
-  rw [abs_mul]
-  calc |a| * |F1 * G1 - F2 * G2| ≤ CA * (2 * (ef * BG + BF * eg + ef * eg)) := by
+  rw [e, abs_mul]
+  calc |a| * |(F1 * G1 - f1 * g1) - (F2 * G2 - f2 * g2)| ≤ CA * (2 * (ef * BG + BF * eg + ef * eg)) := by
         apply mul_le_mul hCA _ (abs_nonneg _) hCA0
-        rw [e]
         calc |(F1 * G1 - f1 * g1) - (F2 * G2 - f2 * g2)|
             ≤ |F1 * G1 - f1 * g1| + |F2 * G2 - f2 * g2| := abs_sub _ _
           _ ≤ 2 * (ef * BG + BF * eg + ef * eg) := by linarith
 
 /-- **Numerical form of the Casoratian bound**: with `ef = A1 h^m q`, `eg = A2 h^m q`, `BF = B1 q`, `BG = B2 q` (`q^2 = sqrt h`), `0 <= h^m <= 1`:
-`|a (F1 G1 - F2 G2)| <= CA * (Cx h^m q^2)` with `Cx = 2 (A1 B2 + B1 A2 + A1 A2)`. -/
+`|a (F1 G1 - F2 G2) - a (f1 g1 - f2 g2)| <= CA * (Cx h^m q^2)` with `Cx = 2 (A1 B2 + B1 A2 + A1 A2)`. -/
 lemma hat_cas_numeric (a F1 F2 G1 G2 f1 f2 g1 g2 CA q hm A1 A2 B1 B2 : ℝ)
-    (hCA : |a| ≤ CA) (hex : f1 * g1 - f2 * g2 = 0)
+    (hCA : |a| ≤ CA)
     (hf1 : |f1 - F1| ≤ A1 * hm * q) (hf2 : |f2 - F2| ≤ A1 * hm * q)
     (hg1 : |g1 - G1| ≤ A2 * hm * q) (hg2 : |g2 - G2| ≤ A2 * hm * q)
     (hF1 : |F1| ≤ B1 * q) (hF2 : |F2| ≤ B1 * q) (hG1 : |G1| ≤ B2 * q) (hG2 : |G2| ≤ B2 * q)
     (hA1 : 0 ≤ A1) (hA2 : 0 ≤ A2) (hB1 : 0 ≤ B1) (hB2 : 0 ≤ B2) (hq : 0 ≤ q) (hm0 : 0 ≤ hm) (hm1 : hm ≤ 1) :
-    |a * (F1 * G1 - F2 * G2)| ≤ CA * ((2 * (A1 * B2 + B1 * A2 + A1 * A2)) * hm * q ^ 2) := by
-  have h := cas_hat_bound a F1 F2 G1 G2 f1 f2 g1 g2 CA (A1 * hm * q) (A2 * hm * q) (B1 * q) (B2 * q) hCA hex
+    |a * (F1 * G1 - F2 * G2) - a * (f1 * g1 - f2 * g2)| ≤ CA * ((2 * (A1 * B2 + B1 * A2 + A1 * A2)) * hm * q ^ 2) := by
+  have h := cas_hat_bound a F1 F2 G1 G2 f1 f2 g1 g2 CA (A1 * hm * q) (A2 * hm * q) (B1 * q) (B2 * q) hCA
     hf1 hf2 hg1 hg2 hF1 hF2 hG1 hG2 (by positivity) (by positivity) (by positivity) (by positivity)
   have hCA0 : 0 ≤ CA := (abs_nonneg _).trans hCA
   refine h.trans (mul_le_mul_of_nonneg_left ?_ hCA0)
@@ -212,15 +210,19 @@ variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily (Par × ℝ)} {P
 def bulkPhaseSum (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) (μ : Par) (t X : ℝ) (N : ℕ) : ℝ :=
   ∑ j ∈ range (M + 1), F.step N ^ j * PI.Sigma μ j X t
 
-/-- **L2.S2 (first half): at an eigenvalue the sine of the phase is `O(h^m)`.**  `m = max M 1`. -/
-theorem bulk_eigen_sin (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
+/-- **The exact Casoratian of the two exact edge solutions** (`lem:smo-bulkphase` (4) for `C(X)`, by `prop:tha-W` (1) "as in (2)"): for *any* energy `X` of the block and any exact left solution `f`
+(on the rows of the left chart, seeded by `psi-hat^L_0`) and exact right solution `g` (mirror rows, seeded by `psi-hat^R_0`), there are a row `n` of the overlap and the prefactor `pre >= c0 h^{1/2}` of the
+field `PI.casoratian` such that `|C_n(f, g) - pre sin(Sigma/h - pi/2)| <= Kc h^m pre`, `C_n(f,g) = a_n (f_n g~_{n+1} - f_{n+1} g~_n)`, `g~_n = g(N - n)`.  `m = max M 1`. -/
+theorem bulk_cas_core (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
     (hP : ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, (μ, t) ∈ P)
     (hcoup : CR.c = F.L - CL.c' ∧ CR.c' = F.L - CL.c) (r : ℕ) (hr : StdAssump F P (max M 1 / 2) r) :
-    ∃ Cs h0 : ℝ, 0 < h0 ∧ ∃ N1 : ℕ, ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ N : ℕ, N1 ≤ N → F.step N ≤ h0 →
-      (∀ n : ℤ, 0 ≤ n → n < N → 0 < F.bondA (μ, t) N n) →
-      ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
-        IsEigenSystem (F.jacobiMat (μ, t) N) Xs Um → ∀ k : Fin (N + 1), Xs k ∈ Set.Icc Jlo Jhi →
-          |Real.sin (bulkPhaseSum PI μ t (Xs k) N / F.step N - Real.pi / 2)| ≤ Cs * F.step N ^ (max M 1) := by
+    ∃ Kc c0 h0 : ℝ, 0 < c0 ∧ 0 < h0 ∧ ∃ N1 : ℕ, CL.N0 ≤ N1 ∧ CR.N0 ≤ N1 ∧ ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ N : ℕ, N1 ≤ N → F.step N ≤ h0 →
+      ∀ X ∈ Set.Icc Jlo Jhi, ∀ f g : ℤ → ℝ,
+        JacSol F (μ, t) N X (CL.chain (μ, t) X N).NR f → f 0 = CL.psiHatL (μ, t) X N 0 →
+        JacSol (mirrorFamily F) (μ, t) N X (CR.chain (μ, t) X N).NR g → g 0 = CR.psiHatL (μ, t) X N 0 →
+        ∃ pre : ℝ, c0 * Real.sqrt (F.step N) ≤ pre ∧ ∃ n : ℤ, 0 ≤ n ∧ n < N ∧
+          |F.bondA (μ, t) N n * (f n * g ((N : ℤ) - (n + 1)) - f (n + 1) * g ((N : ℤ) - n))
+            - pre * Real.sin (bulkPhaseSum PI μ t X N / F.step N - Real.pi / 2)| ≤ Kc * F.step N ^ (max M 1) * pre := by
   classical
   obtain ⟨Ccas, c0, N0r, hc0, hpre⟩ := PI.casoratian
   obtain ⟨hPc, hEK, -⟩ := hr
@@ -245,10 +247,10 @@ theorem bulk_eigen_sin (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
   have hB2n : 0 ≤ B2 := by rw [hB2]; exact mul_nonneg hKR (by linarith)
   obtain ⟨Cx, hCx⟩ : ∃ x : ℝ, x = 2 * (A1 * B2 + B1 * A2 + A1 * A2) := ⟨_, rfl⟩
   have hCxn : 0 ≤ Cx := by rw [hCx]; positivity
-  refine ⟨CA * Cx / c0 + |Ccas|, min (min (min 1 h0L) h0R) (min ((CL.c - CL.c') / 6) CL.σ), ?_,
-    max (max CL.N0 CR.N0) ⌈N0r⌉₊, ?_⟩
+  refine ⟨CA * Cx / c0 + |Ccas|, c0, min (min (min 1 h0L) h0R) (min ((CL.c - CL.c') / 6) CL.σ), hc0, ?_,
+    max (max CL.N0 CR.N0) ⌈N0r⌉₊, le_trans (le_max_left _ _) (le_max_left _ _), le_trans (le_max_right _ _) (le_max_left _ _), ?_⟩
   · refine lt_min (lt_min (lt_min one_pos hh0L) hh0R) (lt_min (by linarith) hσL)
-  intro μ hμ t ht N hN hstep hpos Xs Um hE k hXk
+  intro μ hμ t ht N hN hstep X hXk' f g hJL hseedL hJR hseedR
   have hp : (μ, t) ∈ P := hP μ hμ t ht
   have hN1 : CL.N0 ≤ N := le_trans (le_trans (le_max_left _ _) (le_max_left _ _)) hN
   have hN2 : CR.N0 ≤ N := le_trans (le_trans (le_max_right _ _) (le_max_left _ _)) hN
@@ -261,6 +263,165 @@ theorem bulk_eigen_sin (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
   have hhd : F.step N ≤ (CL.c - CL.c') / 6 := hstep.trans ((min_le_right _ _).trans (min_le_left _ _))
   have hhσ : F.step N ≤ CL.σ := hstep.trans ((min_le_right _ _).trans (min_le_right _ _))
   have hLs : F.step N * ((N : ℝ) + 1) = F.L := step_mul_succ F N
+  -- an overlap pair
+  obtain ⟨S, hS, hScard⟩ := count_pairs (F.step N) F.L CL.c' CL.c N hst hLs hc'L hc'cL (by linarith)
+  have h6 : 6 ≤ (CL.c - CL.c') / F.step N := by
+    rw [le_div_iff₀ hst]; linarith
+  have hSne : S.Nonempty := by
+    apply Finset.card_pos.mp
+    have : (0 : ℝ) < (S.card : ℝ) := by linarith
+    exact_mod_cast this
+  obtain ⟨n, hnS⟩ := hSne
+  obtain ⟨hn0, hn1, hc1, hc2⟩ := hS n hnS
+  obtain ⟨pre, hpre1, hpre2⟩ := hpre μ hμ t ht X hXk' N (le_trans hN0r (by exact_mod_cast le_refl _))
+  have hcn := hpre2 n hn0 (by omega) hc1 (le_trans (uNode_le_of_le hst.le (by omega)) hc2)
+  -- chart rows
+  have hL1 : n ≤ (CL.chain (μ, t) X N).NR :=
+    le_NR_of CL (μ, t) hp X hXk' N hN1 hst n (le_trans (uNode_le_of_le hst.le (by omega)) hc2)
+  have hL2 : n + 1 ≤ (CL.chain (μ, t) X N).NR := le_NR_of CL (μ, t) hp X hXk' N hN1 hst (n + 1) hc2
+  have hov1 : CL.c' ≤ uNode (F.step N) (n + 1) := le_trans hc1 (uNode_le_of_le hst.le (by omega))
+  have hmir1 : uNode (F.step N) ((N : ℤ) - (n + 1)) = F.L - uNode (F.step N) (n + 1) := uNode_mirror F.L (F.step N) N (n + 1) hLs
+  have hmir0 : uNode (F.step N) ((N : ℤ) - n) = F.L - uNode (F.step N) n := uNode_mirror F.L (F.step N) N n hLs
+  have hu01 : uNode (F.step N) n ≤ uNode (F.step N) (n + 1) := uNode_le_of_le hst.le (by omega)
+  have hR1c : uNode ((mirrorFamily F).step N) ((N : ℤ) - (n + 1)) ≤ CR.c := by
+    rw [hstepR, hmir1, hcoup.1]; linarith
+  have hR0c : uNode ((mirrorFamily F).step N) ((N : ℤ) - n) ≤ CR.c := by
+    rw [hstepR, hmir0, hcoup.1]; linarith
+  have hR1' : CR.c' ≤ uNode ((mirrorFamily F).step N) ((N : ℤ) - (n + 1)) := by
+    rw [hstepR, hmir1, hcoup.2]; linarith
+  have hR0' : CR.c' ≤ uNode ((mirrorFamily F).step N) ((N : ℤ) - n) := by
+    rw [hstepR, hmir0, hcoup.2]; linarith
+  have hR1 : (N : ℤ) - (n + 1) ≤ (CR.chain (μ, t) X N).NR :=
+    le_NR_of CR (μ, t) hp X hXk' N hN2 hst _ hR1c
+  have hR0 : (N : ℤ) - n ≤ (CR.chain (μ, t) X N).NR := le_NR_of CR (μ, t) hp X hXk' N hN2 hst _ hR0c
+  -- row bounds
+  have hbL0 := chart_overlap_row CL (μ, t) hp X hXk' N hN1 n hn0 hL1 hc1
+  have hbL1 := chart_overlap_row CL (μ, t) hp X hXk' N hN1 (n + 1) (by omega) hL2 hov1
+  have hbR1 := chart_overlap_row CR (μ, t) hp X hXk' N hN2 ((N : ℤ) - (n + 1)) (by omega) hR1 hR1'
+  have hbR0 := chart_overlap_row CR (μ, t) hp X hXk' N hN2 ((N : ℤ) - n) (by omega) hR0 hR0'
+  rw [hstepR] at hbR1 hbR0
+  -- distances of the exact sequences from the comparison sequences
+  have dL : ∀ j : ℤ, 0 ≤ j → j ≤ (CL.chain (μ, t) X N).NR → CL.envL (μ, t) X N j ≤ CL.CM * F.step N ^ ((1 : ℝ) / 4) →
+      |f j - CL.psiHatL (μ, t) X N j| ≤ |CcL| * F.step N ^ (max M 1) * (CL.CM * F.step N ^ ((1 : ℝ) / 4)) := by
+    intro j hj0 hjN hE
+    have h1 := hBL (μ, t) hp X hXk' N hN1 (hhL.trans le_rfl) f hJL hseedL j
+      (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)
+    refine h1.trans ?_
+    have hE0 : 0 ≤ CL.envL (μ, t) X N j := by
+      have := (hbL0.2); unfold BulkWeberChart.envL
+      exact mul_nonneg (CL.valid _ hp X hXk' N hN1 |>.W_pos j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)).le
+        (CL.valid _ hp X hXk' N hN1 |>.M_pos j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)).le
+    calc CcL * F.step N ^ (max M 1) * CL.envL (μ, t) X N j
+        ≤ |CcL| * F.step N ^ (max M 1) * CL.envL (μ, t) X N j :=
+          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (le_abs_self _) (pow_nonneg hst.le _)) hE0
+      _ ≤ _ := mul_le_mul_of_nonneg_left hE (mul_nonneg (abs_nonneg _) (pow_nonneg hst.le _))
+  have dR : ∀ j : ℤ, 0 ≤ j → j ≤ (CR.chain (μ, t) X N).NR → CR.envL (μ, t) X N j ≤ CR.CM * F.step N ^ ((1 : ℝ) / 4) →
+      |g j - CR.psiHatL (μ, t) X N j| ≤ |CcR| * F.step N ^ (max M 1) * (CR.CM * F.step N ^ ((1 : ℝ) / 4)) := by
+    intro j hj0 hjN hE
+    have h1 := hBR (μ, t) hp X hXk' N hN2 (hhR.trans le_rfl) g hJR hseedR j
+      (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)
+    refine h1.trans ?_
+    have hE0 : 0 ≤ CR.envL (μ, t) X N j := by
+      unfold BulkWeberChart.envL
+      exact mul_nonneg (CR.valid _ hp X hXk' N hN2 |>.W_pos j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)).le
+        (CR.valid _ hp X hXk' N hN2 |>.M_pos j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)).le
+    have hstR : (mirrorFamily F).step N = F.step N := rfl
+    rw [hstR]
+    calc CcR * F.step N ^ (max M 1) * CR.envL (μ, t) X N j
+        ≤ |CcR| * F.step N ^ (max M 1) * CR.envL (μ, t) X N j :=
+          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (le_abs_self _) (pow_nonneg hst.le _)) hE0
+      _ ≤ _ := mul_le_mul_of_nonneg_left hE (mul_nonneg (abs_nonneg _) (pow_nonneg hst.le _))
+  have hq := fourth_root_sq (F.step N) hst
+  obtain ⟨q, hqdef⟩ : ∃ q : ℝ, q = F.step N ^ ((1 : ℝ) / 4) := ⟨_, rfl⟩
+  rw [← hqdef] at hbL0 hbL1 hbR1 hbR0 dL dR hq
+  have hq0 : 0 < q := hq.2
+  have hq2 : q ^ 2 = Real.sqrt (F.step N) := hq.1
+  have e1 := dL n hn0 hL1 hbL0.2
+  have e2 := dL (n + 1) (by omega) hL2 hbL1.2
+  have e3 := dR ((N : ℤ) - (n + 1)) (by omega) hR1 hbR1.2
+  have e4 := dR ((N : ℤ) - n) (by omega) hR0 hbR0.2
+  set hm : ℝ := F.step N ^ (max M 1) with hhm
+  have hm0 : 0 ≤ hm := pow_nonneg hst.le _
+  have hm1' : hm ≤ 1 := pow_le_one₀ hst.le hh1
+  have hq0' : 0 ≤ q := hq0.le
+  have hCML0 : 0 ≤ CL.CM := by linarith
+  have hCMR0 : 0 ≤ CR.CM := by linarith
+  have e1' : |f n - CL.psiHatL (μ, t) X N n| ≤ A1 * hm * q :=
+    e1.trans (le_of_eq (by rw [hA1]; ring))
+  have e2' : |f (n + 1) - CL.psiHatL (μ, t) X N (n + 1)| ≤ A1 * hm * q :=
+    e2.trans (le_of_eq (by rw [hA1]; ring))
+  have e3' : |g ((N : ℤ) - (n + 1)) - CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))| ≤ A2 * hm * q :=
+    e3.trans (le_of_eq (by rw [hA2]; ring))
+  have e4' : |g ((N : ℤ) - n) - CR.psiHatL (μ, t) X N ((N : ℤ) - n)| ≤ A2 * hm * q :=
+    e4.trans (le_of_eq (by rw [hA2]; ring))
+  have b1 : |CL.psiHatL (μ, t) X N n| ≤ B1 * q := hbL0.1.trans (le_of_eq (by rw [hB1]; ring))
+  have b2 : |CL.psiHatL (μ, t) X N (n + 1)| ≤ B1 * q := hbL1.1.trans (le_of_eq (by rw [hB1]; ring))
+  have b3 : |CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))| ≤ B2 * q := hbR1.1.trans (le_of_eq (by rw [hB2]; ring))
+  have b4 : |CR.psiHatL (μ, t) X N ((N : ℤ) - n)| ≤ B2 * q := hbR0.1.trans (le_of_eq (by rw [hB2]; ring))
+  have hcas := hat_cas_numeric (F.bondA (μ, t) N n) (CL.psiHatL (μ, t) X N n) (CL.psiHatL (μ, t) X N (n + 1))
+    (CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))) (CR.psiHatL (μ, t) X N ((N : ℤ) - n))
+    (f n) (f (n + 1)) (g ((N : ℤ) - (n + 1))) (g ((N : ℤ) - n)) CA q hm A1 A2 B1 B2
+    (hCA (μ, t) hp N n) e1' e2' e3' e4' b1 b2 b3 b4 hA1n hA2n hB1n hB2n hq0' hm0 hm1'
+  have hChat : |F.bondA (μ, t) N n * (CL.psiHatL (μ, t) X N n * (CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))) -
+          CL.psiHatL (μ, t) X N (n + 1) * (CR.psiHatL (μ, t) X N ((N : ℤ) - n)))
+        - F.bondA (μ, t) N n * (f n * g ((N : ℤ) - (n + 1)) - f (n + 1) * g ((N : ℤ) - n))|
+        ≤ CA * (Cx * hm * Real.sqrt (F.step N)) := by
+    rw [← hq2, hCx]; exact hcas
+  refine ⟨pre, hpre1, n, hn0, by omega, ?_⟩
+  have hprepos : 0 < pre := lt_of_lt_of_le (mul_pos hc0 (Real.sqrt_pos.mpr hst)) hpre1
+  have hsq_le : Real.sqrt (F.step N) ≤ pre / c0 := by rw [le_div_iff₀ hc0]; linarith
+  have h3 : CA * (Cx * hm * Real.sqrt (F.step N)) ≤ CA * Cx / c0 * hm * pre := by
+    have : CA * Cx * hm * Real.sqrt (F.step N) ≤ CA * Cx * hm * (pre / c0) :=
+      mul_le_mul_of_nonneg_left hsq_le (mul_nonneg (mul_nonneg hCA0 hCxn) hm0)
+    calc CA * (Cx * hm * Real.sqrt (F.step N)) = CA * Cx * hm * Real.sqrt (F.step N) := by ring
+      _ ≤ CA * Cx * hm * (pre / c0) := this
+      _ = CA * Cx / c0 * hm * pre := by ring
+  have hfield' : |F.bondA (μ, t) N n * (CL.psiHatL (μ, t) X N n * (CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))) -
+          CL.psiHatL (μ, t) X N (n + 1) * (CR.psiHatL (μ, t) X N ((N : ℤ) - n)))
+        - pre * Real.sin (bulkPhaseSum PI μ t X N / F.step N - Real.pi / 2)| ≤ |Ccas| * hm * pre :=
+    hcn.trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (le_abs_self _) hm0) hprepos.le)
+  have htri := abs_add_le
+    (F.bondA (μ, t) N n * (f n * g ((N : ℤ) - (n + 1)) - f (n + 1) * g ((N : ℤ) - n))
+      - F.bondA (μ, t) N n * (CL.psiHatL (μ, t) X N n * (CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))) -
+          CL.psiHatL (μ, t) X N (n + 1) * (CR.psiHatL (μ, t) X N ((N : ℤ) - n))))
+    (F.bondA (μ, t) N n * (CL.psiHatL (μ, t) X N n * (CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))) -
+          CL.psiHatL (μ, t) X N (n + 1) * (CR.psiHatL (μ, t) X N ((N : ℤ) - n)))
+        - pre * Real.sin (bulkPhaseSum PI μ t X N / F.step N - Real.pi / 2))
+  have hrw : F.bondA (μ, t) N n * (f n * g ((N : ℤ) - (n + 1)) - f (n + 1) * g ((N : ℤ) - n))
+      - pre * Real.sin (bulkPhaseSum PI μ t X N / F.step N - Real.pi / 2)
+      = (F.bondA (μ, t) N n * (f n * g ((N : ℤ) - (n + 1)) - f (n + 1) * g ((N : ℤ) - n))
+      - F.bondA (μ, t) N n * (CL.psiHatL (μ, t) X N n * (CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))) -
+          CL.psiHatL (μ, t) X N (n + 1) * (CR.psiHatL (μ, t) X N ((N : ℤ) - n))))
+      + (F.bondA (μ, t) N n * (CL.psiHatL (μ, t) X N n * (CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))) -
+          CL.psiHatL (μ, t) X N (n + 1) * (CR.psiHatL (μ, t) X N ((N : ℤ) - n)))
+        - pre * Real.sin (bulkPhaseSum PI μ t X N / F.step N - Real.pi / 2)) := by ring
+  rw [hrw]
+  have habs : |F.bondA (μ, t) N n * (f n * g ((N : ℤ) - (n + 1)) - f (n + 1) * g ((N : ℤ) - n))
+      - F.bondA (μ, t) N n * (CL.psiHatL (μ, t) X N n * (CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))) -
+          CL.psiHatL (μ, t) X N (n + 1) * (CR.psiHatL (μ, t) X N ((N : ℤ) - n)))| ≤ CA * (Cx * hm * Real.sqrt (F.step N)) := by
+    rw [abs_sub_comm]; exact hChat
+  calc _ ≤ _ := htri
+    _ ≤ CA * Cx / c0 * hm * pre + |Ccas| * hm * pre := add_le_add (habs.trans h3) hfield'
+    _ = (CA * Cx / c0 + |Ccas|) * F.step N ^ (max M 1) * pre := by rw [hhm]; ring
+
+/-- **L2.S2 (first half): at an eigenvalue the sine of the phase is `O(h^m)`.**  `m = max M 1`.  The exact Casoratian of the left and right parts of the eigenvector vanishes;
+`bulk_cas_core` compares it with `pre sin(Sigma/h - pi/2)`. -/
+theorem bulk_eigen_sin (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
+    (hP : ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, (μ, t) ∈ P)
+    (hcoup : CR.c = F.L - CL.c' ∧ CR.c' = F.L - CL.c) (r : ℕ) (hr : StdAssump F P (max M 1 / 2) r) :
+    ∃ Cs h0 : ℝ, 0 < h0 ∧ ∃ N1 : ℕ, ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ N : ℕ, N1 ≤ N → F.step N ≤ h0 →
+      (∀ n : ℤ, 0 ≤ n → n < N → 0 < F.bondA (μ, t) N n) →
+      ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
+        IsEigenSystem (F.jacobiMat (μ, t) N) Xs Um → ∀ k : Fin (N + 1), Xs k ∈ Set.Icc Jlo Jhi →
+          |Real.sin (bulkPhaseSum PI μ t (Xs k) N / F.step N - Real.pi / 2)| ≤ Cs * F.step N ^ (max M 1) := by
+  classical
+  obtain ⟨Kc, c0, h0, hc0, hh0, N1, hN1L, hN1R, hcore⟩ := bulk_cas_core PI hP hcoup r hr
+  refine ⟨Kc, h0, hh0, N1, ?_⟩
+  intro μ hμ t ht N hN hstep hpos Xs Um hE k hXk
+  have hp : (μ, t) ∈ P := hP μ hμ t ht
+  have hN1 : CL.N0 ≤ N := le_trans hN1L hN
+  have hN2 : CR.N0 ≤ N := le_trans hN1R hN
+  have hst : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
   set X := Xs k with hX
   have hXk' : X ∈ Set.Icc Jlo Jhi := hXk
   obtain ⟨hJ0, hψ0, hψn⟩ := eigen_col_facts F (μ, t) N Xs Um hE k
@@ -312,116 +473,15 @@ theorem bulk_eigen_sin (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
     jacSol_mono (jacSol_smul hJ0 (1 / a)) (chain_NR_le CL (μ, t) hp X hXk' N hN1)
   have hJR : JacSol (mirrorFamily F) (μ, t) N X (CR.chain (μ, t) X N).NR (fun i => (1 / b) * ψ ((N : ℤ) - i)) :=
     jacSol_mono (jacSol_smul hJm (1 / b)) (chain_NR_le CR (μ, t) hp X hXk' N hN2)
-  -- an overlap pair
-  obtain ⟨S, hS, hScard⟩ := count_pairs (F.step N) F.L CL.c' CL.c N hst hLs hc'L hc'cL (by linarith)
-  have h6 : 6 ≤ (CL.c - CL.c') / F.step N := by
-    rw [le_div_iff₀ hst]; linarith
-  have hSne : S.Nonempty := by
-    apply Finset.card_pos.mp
-    have : (0 : ℝ) < (S.card : ℝ) := by linarith
-    exact_mod_cast this
-  obtain ⟨n, hnS⟩ := hSne
-  obtain ⟨hn0, hn1, hc1, hc2⟩ := hS n hnS
-  obtain ⟨pre, hpre1, hpre2⟩ := hpre μ hμ t ht X hXk' N (le_trans hN0r (by exact_mod_cast le_refl _))
-  have hcn := hpre2 n hn0 (by omega) hc1 (le_trans (uNode_le_of_le hst.le (by omega)) hc2)
-  -- chart rows
-  have hL1 : n ≤ (CL.chain (μ, t) X N).NR :=
-    le_NR_of CL (μ, t) hp X hXk' N hN1 hst n (le_trans (uNode_le_of_le hst.le (by omega)) hc2)
-  have hL2 : n + 1 ≤ (CL.chain (μ, t) X N).NR := le_NR_of CL (μ, t) hp X hXk' N hN1 hst (n + 1) hc2
-  have hov1 : CL.c' ≤ uNode (F.step N) (n + 1) := le_trans hc1 (uNode_le_of_le hst.le (by omega))
-  have hmir1 : uNode (F.step N) ((N : ℤ) - (n + 1)) = F.L - uNode (F.step N) (n + 1) := uNode_mirror F.L (F.step N) N (n + 1) hLs
-  have hmir0 : uNode (F.step N) ((N : ℤ) - n) = F.L - uNode (F.step N) n := uNode_mirror F.L (F.step N) N n hLs
-  have hu01 : uNode (F.step N) n ≤ uNode (F.step N) (n + 1) := uNode_le_of_le hst.le (by omega)
-  have hR1c : uNode ((mirrorFamily F).step N) ((N : ℤ) - (n + 1)) ≤ CR.c := by
-    rw [hstepR, hmir1, hcoup.1]; linarith
-  have hR0c : uNode ((mirrorFamily F).step N) ((N : ℤ) - n) ≤ CR.c := by
-    rw [hstepR, hmir0, hcoup.1]; linarith
-  have hR1' : CR.c' ≤ uNode ((mirrorFamily F).step N) ((N : ℤ) - (n + 1)) := by
-    rw [hstepR, hmir1, hcoup.2]; linarith
-  have hR0' : CR.c' ≤ uNode ((mirrorFamily F).step N) ((N : ℤ) - n) := by
-    rw [hstepR, hmir0, hcoup.2]; linarith
-  have hR1 : (N : ℤ) - (n + 1) ≤ (CR.chain (μ, t) X N).NR :=
-    le_NR_of CR (μ, t) hp X hXk' N hN2 hst _ hR1c
-  have hR0 : (N : ℤ) - n ≤ (CR.chain (μ, t) X N).NR := le_NR_of CR (μ, t) hp X hXk' N hN2 hst _ hR0c
-  -- row bounds
-  have hbL0 := chart_overlap_row CL (μ, t) hp X hXk' N hN1 n hn0 hL1 hc1
-  have hbL1 := chart_overlap_row CL (μ, t) hp X hXk' N hN1 (n + 1) (by omega) hL2 hov1
-  have hbR1 := chart_overlap_row CR (μ, t) hp X hXk' N hN2 ((N : ℤ) - (n + 1)) (by omega) hR1 hR1'
-  have hbR0 := chart_overlap_row CR (μ, t) hp X hXk' N hN2 ((N : ℤ) - n) (by omega) hR0 hR0'
-  rw [hstepR] at hbR1 hbR0
-  -- distances of the exact sequences from the comparison sequences
-  have dL : ∀ j : ℤ, 0 ≤ j → j ≤ (CL.chain (μ, t) X N).NR → CL.envL (μ, t) X N j ≤ CL.CM * F.step N ^ ((1 : ℝ) / 4) →
-      |(1 / a) * ψ j - CL.psiHatL (μ, t) X N j| ≤ |CcL| * F.step N ^ (max M 1) * (CL.CM * F.step N ^ ((1 : ℝ) / 4)) := by
-    intro j hj0 hjN hE
-    have h1 := hBL (μ, t) hp X hXk' N hN1 (hhL.trans le_rfl) (fun n => (1 / a) * ψ n) hJL hseedL j
-      (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)
-    refine h1.trans ?_
-    have hE0 : 0 ≤ CL.envL (μ, t) X N j := by
-      have := (hbL0.2); unfold BulkWeberChart.envL
-      exact mul_nonneg (CL.valid _ hp X hXk' N hN1 |>.W_pos j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)).le
-        (CL.valid _ hp X hXk' N hN1 |>.M_pos j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)).le
-    calc CcL * F.step N ^ (max M 1) * CL.envL (μ, t) X N j
-        ≤ |CcL| * F.step N ^ (max M 1) * CL.envL (μ, t) X N j :=
-          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (le_abs_self _) (pow_nonneg hst.le _)) hE0
-      _ ≤ _ := mul_le_mul_of_nonneg_left hE (mul_nonneg (abs_nonneg _) (pow_nonneg hst.le _))
-  have dR : ∀ j : ℤ, 0 ≤ j → j ≤ (CR.chain (μ, t) X N).NR → CR.envL (μ, t) X N j ≤ CR.CM * F.step N ^ ((1 : ℝ) / 4) →
-      |(1 / b) * ψ ((N : ℤ) - j) - CR.psiHatL (μ, t) X N j| ≤ |CcR| * F.step N ^ (max M 1) * (CR.CM * F.step N ^ ((1 : ℝ) / 4)) := by
-    intro j hj0 hjN hE
-    have h1 := hBR (μ, t) hp X hXk' N hN2 (hhR.trans le_rfl) (fun i => (1 / b) * ψ ((N : ℤ) - i)) hJR hseedR j
-      (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)
-    refine h1.trans ?_
-    have hE0 : 0 ≤ CR.envL (μ, t) X N j := by
-      unfold BulkWeberChart.envL
-      exact mul_nonneg (CR.valid _ hp X hXk' N hN2 |>.W_pos j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)).le
-        (CR.valid _ hp X hXk' N hN2 |>.M_pos j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)).le
-    have hstR : (mirrorFamily F).step N = F.step N := rfl
-    rw [hstR]
-    calc CcR * F.step N ^ (max M 1) * CR.envL (μ, t) X N j
-        ≤ |CcR| * F.step N ^ (max M 1) * CR.envL (μ, t) X N j :=
-          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (le_abs_self _) (pow_nonneg hst.le _)) hE0
-      _ ≤ _ := mul_le_mul_of_nonneg_left hE (mul_nonneg (abs_nonneg _) (pow_nonneg hst.le _))
-  have hq := fourth_root_sq (F.step N) hst
-  obtain ⟨q, hqdef⟩ : ∃ q : ℝ, q = F.step N ^ ((1 : ℝ) / 4) := ⟨_, rfl⟩
-  rw [← hqdef] at hbL0 hbL1 hbR1 hbR0 dL dR hq
-  have hq0 : 0 < q := hq.2
-  have hq2 : q ^ 2 = Real.sqrt (F.step N) := hq.1
-  have e1 := dL n hn0 hL1 hbL0.2
-  have e2 := dL (n + 1) (by omega) hL2 hbL1.2
-  have e3 := dR ((N : ℤ) - (n + 1)) (by omega) hR1 hbR1.2
-  have e4 := dR ((N : ℤ) - n) (by omega) hR0 hbR0.2
-  have eN1 : (N : ℤ) - ((N : ℤ) - (n + 1)) = n + 1 := by ring
-  have eN0 : (N : ℤ) - ((N : ℤ) - n) = n := by ring
-  rw [eN1] at e3
-  rw [eN0] at e4
-  have hex : ((1 / a) * ψ n) * ((1 / b) * ψ (n + 1)) - ((1 / a) * ψ (n + 1)) * ((1 / b) * ψ n) = 0 := by ring
-  set hm : ℝ := F.step N ^ (max M 1) with hhm
-  have hm0 : 0 ≤ hm := pow_nonneg hst.le _
-  have hm1' : hm ≤ 1 := pow_le_one₀ hst.le hh1
-  have hq0' : 0 ≤ q := hq0.le
-  have hCML0 : 0 ≤ CL.CM := by linarith
-  have hCMR0 : 0 ≤ CR.CM := by linarith
-  have e1' : |(1 / a) * ψ n - CL.psiHatL (μ, t) X N n| ≤ A1 * hm * q :=
-    e1.trans (le_of_eq (by rw [hA1]; ring))
-  have e2' : |(1 / a) * ψ (n + 1) - CL.psiHatL (μ, t) X N (n + 1)| ≤ A1 * hm * q :=
-    e2.trans (le_of_eq (by rw [hA1]; ring))
-  have e3' : |(1 / b) * ψ (n + 1) - CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))| ≤ A2 * hm * q :=
-    e3.trans (le_of_eq (by rw [hA2]; ring))
-  have e4' : |(1 / b) * ψ n - CR.psiHatL (μ, t) X N ((N : ℤ) - n)| ≤ A2 * hm * q :=
-    e4.trans (le_of_eq (by rw [hA2]; ring))
-  have b1 : |CL.psiHatL (μ, t) X N n| ≤ B1 * q := hbL0.1.trans (le_of_eq (by rw [hB1]; ring))
-  have b2 : |CL.psiHatL (μ, t) X N (n + 1)| ≤ B1 * q := hbL1.1.trans (le_of_eq (by rw [hB1]; ring))
-  have b3 : |CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))| ≤ B2 * q := hbR1.1.trans (le_of_eq (by rw [hB2]; ring))
-  have b4 : |CR.psiHatL (μ, t) X N ((N : ℤ) - n)| ≤ B2 * q := hbR0.1.trans (le_of_eq (by rw [hB2]; ring))
-  have hcas := hat_cas_numeric (F.bondA (μ, t) N n) (CL.psiHatL (μ, t) X N n) (CL.psiHatL (μ, t) X N (n + 1))
-    (CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))) (CR.psiHatL (μ, t) X N ((N : ℤ) - n))
-    ((1 / a) * ψ n) ((1 / a) * ψ (n + 1)) ((1 / b) * ψ (n + 1)) ((1 / b) * ψ n) CA q hm A1 A2 B1 B2
-    (hCA (μ, t) hp N n) hex e1' e2' e3' e4' b1 b2 b3 b4 hA1n hA2n hB1n hB2n hq0' hm0 hm1'
-  have hChat : |F.bondA (μ, t) N n * (CL.psiHatL (μ, t) X N n * (CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))) -
-          CL.psiHatL (μ, t) X N (n + 1) * (CR.psiHatL (μ, t) X N ((N : ℤ) - n)))|
-        ≤ CA * (Cx * hm * Real.sqrt (F.step N)) := by
-    rw [← hq2, hCx]; exact hcas
-  exact sin_from_cas _ pre _ c0 Ccas CA Cx hm (Real.sqrt (F.step N)) hc0 (Real.sqrt_pos.mpr hst) hpre1 hm0 hCA0 hCxn
-    hChat hcn
+  obtain ⟨pre, hpre1, n, hn0, hn1, hcn⟩ := hcore μ hμ t ht N hN hstep X hXk' (fun n => (1 / a) * ψ n) (fun i => (1 / b) * ψ ((N : ℤ) - i))
+    hJL hseedL hJR hseedR
+  have hprepos : 0 < pre := lt_of_lt_of_le (mul_pos hc0 (Real.sqrt_pos.mpr hst)) hpre1
+  have hex : (1 / a * ψ n) * (1 / b * ψ ((N : ℤ) - ((N : ℤ) - (n + 1)))) - (1 / a * ψ (n + 1)) * (1 / b * ψ ((N : ℤ) - ((N : ℤ) - n))) = 0 := by
+    simp only [sub_sub_cancel]; ring
+  rw [hex, mul_zero, zero_sub, abs_neg, abs_mul, abs_of_pos hprepos] at hcn
+  have : |Real.sin (bulkPhaseSum PI μ t X N / F.step N - Real.pi / 2)| ≤ Kc * F.step N ^ (max M 1) :=
+    le_of_mul_le_mul_right (by linarith [hcn]) hprepos
+  exact this
 
 /-- **L2.S2 (second half): quantisation.**  `Sigma(X_k, t, h) = pi h (j + 1/2) + O(h^{max M 1 + 1})` for an integer `j` (the label `k'` of `thm:smo-BSr`). -/
 theorem bulk_eigen_quant (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
@@ -584,6 +644,10 @@ end Phase
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.chart_overlap_row' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.chart_overlap_row
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.bulk_cas_core' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.bulk_cas_core
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.bulk_eigen_sin' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

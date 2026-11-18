@@ -39,6 +39,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.BulkPhase
 public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumTaylor
 public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumUnique
 public import FormalResearch.JacobiEigenvectors.TheoremA.SmoothSpectrum
+public import FormalResearch.JacobiEigenvectors.TheoremA.BulkWindows
 
 /-!
 # Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)
