@@ -262,10 +262,10 @@ def PropThaWin (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : �
       ∑ n ∈ softWindow CL p X N, Mbal (CL.aOf p X N) (CL.Zof p X N n) ^ 2 ≤ 11 / CL.dm * Fz.step N ^ (-(1 : ℝ) / 2)
 
 /-- **lem:tha-M** (statement): for `a <= a_+` and every cut `|s| <= s_A = sqrt A + l_A/4` (`A = max(-a,0)`, `l_A = (1+A)^{-1/6}`) each half-window carries a fixed fraction of the mass:
-`sum_{Omega, Z_n > s} U(a,Z_n)^2 >= c kappa_bal^{-2} sum_Omega M_bal^2`, and the same for `U(a,-Z_n)` on `Z_n <= s`, and for the corrected `-` sequence `phi^{(1)}_2 / kappa_bal`. -/
+`sum_{Omega, Z_n > s} U(a,Z_n)^2 >= c kappa_bal^{-2} sum_Omega M_bal^2`, and the same for `U(a,-Z_n)` on `Z_n <= s`, and for the corrected `-` sequence `phi^{(1)}_2 / kappa_bal`.  **Corrected (finding F-PW7, round 7)**: like `PropThaWin`, it carries the premise `ParabolicCylinderFacts U V cPC CPC` (for arbitrary `U V` the conclusion is false). -/
 def PropThaM (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ) {Lm : ℝ → ℝ}
-    (CL : SoftEdgeChart Fz P m q U V Lm) (aplus : ℝ) : Prop :=
-  ∀ r, StdAssump Fz P (q / 2) r →
+    (CL : SoftEdgeChart Fz P m q U V Lm) (aplus : ℝ) (cPC CPC : ℝ) : Prop :=
+  ParabolicCylinderFacts U V cPC CPC → ∀ r, StdAssump Fz P (q / 2) r →
     ∃ c h0 : ℝ, 0 < c ∧ 0 < h0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, CL.N0 ≤ N → Fz.step N ≤ h0 →
       CL.aOf p X N ≤ aplus → ∀ s : ℝ, |s| ≤ Real.sqrt (max (-CL.aOf p X N) 0) + (1 + max (-CL.aOf p X N) 0) ^ (-(1 : ℝ) / 6) / 4 →
         c * (kappaBal (CL.aOf p X N))⁻¹ ^ 2 * ∑ n ∈ softWindow CL p X N, Mbal (CL.aOf p X N) (CL.Zof p X N n) ^ 2

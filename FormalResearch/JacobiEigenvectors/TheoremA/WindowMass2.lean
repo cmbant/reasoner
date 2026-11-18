@@ -12,7 +12,7 @@ Frozen statement: `PropThaM` (`TheoremA/Statements.lean`).
 
 ## What is proved
 
-`propThaM_of_facts : ParabolicCylinderFacts U V cPC CPC -> PropThaM Fz P m q U V CL aplus`, for the soft chart `CL` (with the
+`propThaM_of_facts : PropThaM Fz P m q U V CL aplus cPC CPC` (the frozen statement, corrected in round 7: F-PW7 added the premise `ParabolicCylinderFacts`), for the soft chart `CL` (with the
 corrector field `corr_PC`).  The premise on `U`, `V` is missing from the frozen `PropThaM` (see the finding in `WindowMass.lean`).  Structure: put `A = max(-a,0)`, `Delta = wmDelta c1 (winCB^2) dp`.
 * branch `h A <= Delta` (`wm_small`, via `wm_small12`, `wm_small3`): Step 2 lattice transfer of the continuous mass `c_1`
   (`wm_step2_abstract`, with `WmBlock`/`wm_ctx`) for the uncorrected `U`, then the corrector step `wm_corr_lower` for the
@@ -1740,9 +1740,9 @@ lemma wm_unscale3 (κ c mm : ℝ) (hκ : 0 < κ) (T T' : Finset ℤ) (φ : ℤ �
     _ ≤ _ := h2
 
 /-- **lem:tha-M** (`PropThaM`), from the parabolic-cylinder facts and the chart (with the corrector field `corr_PC`). -/
-theorem propThaM_of_facts {cPC CPC : ℝ} (pc : ParabolicCylinderFacts U V cPC CPC) (CL : SoftEdgeChart Fz P m q U V Lm)
-    (aplus : ℝ) : PropThaM Fz P m q U V CL aplus := by
-  intro r _
+theorem propThaM_of_facts {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V Lm)
+    (aplus : ℝ) : PropThaM Fz P m q U V CL aplus cPC CPC := by
+  intro pc r _
   obtain ⟨-, hη, hdm, hdmp, -, -, -, -⟩ := CL.consts_pos
   have hdp : 0 < CL.dp := lt_of_lt_of_le hdm hdmp
   have hCPC : 0 < CPC := lt_of_lt_of_le pc.cPC_pos pc.cPC_le

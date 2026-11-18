@@ -38,6 +38,10 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoft
 public import FormalResearch.JacobiEigenvectors.TheoremA.TruncationSM
 public import FormalResearch.JacobiEigenvectors.TheoremA.WindowEnvelopes
 public import FormalResearch.JacobiEigenvectors.TheoremA.WindowMass
+public import FormalResearch.JacobiEigenvectors.TheoremA.WindowMass2
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftQuant
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftTails
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftTails2
 public import FormalResearch.JacobiEigenvectors.TheoremA.StepZeroCovered
 public import FormalResearch.JacobiEigenvectors.TheoremA.BulkPhase
 public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumTaylor
