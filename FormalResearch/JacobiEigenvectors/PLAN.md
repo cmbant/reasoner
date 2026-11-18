@@ -18,7 +18,7 @@ Relocation notes (main session): the engine `FormalResearch/JE/` will move to `F
 | `Charts/ParabolicCylinder.lean` | `k2, Mbal, Ewell, Ebar, kappaBal, Molv`; `ParabolicCylinderFacts` (DLMF 12.2/12.8, Olver envelopes, connection) |
 | `Charts/Regularity.lean` | `BoundedC2`, `JetRegJ` (plain regularity bounds replacing lem:smo-budget) |
 | `Charts/BulkWeber.lean` | `BulkWeberChart` (hard-edge Weber chart, per energy block), `BulkPhaseInputs` (lem:smo-bulkphase (4)) |
-| `Charts/SoftParabolicCylinder.lean` | `SoftEdgeChart` (two-patch chain Weber + PC), `pcMinus`, `aPC`, `lamL`, `psiHatL` |
+| `Charts/SoftParabolicCylinder.lean` | `SoftEdgeChart` (Step-1 Weber chain `chainW` + three-patch chain Weber / PC(`Z<=0`) / PC(`Z>=0`), validity of the rescaled chain), `pcMinus`, `pcSwap`, `Eminus`, `Eswap`, `aPC`, `lamL`, `psiHatL`, `pcSwap_eq_pcMinus` |
 | `Charts/TransferCoefficients.lean` | `TransferInputs` (I2 coefficients, parity eq:thb-parity) |
 | `Charts/ChartInputs.lean` | `ChartInputs` bundle (frozen family, bulk blocks, four soft charts, mirror/cover relations) |
 | `TheoremA/Comparison.lean`, `Statements.lean` | glue vectors, `psiHatVec`, `envVec`; statements of A(i), A(ii), prop:tha-W/W2, lem:tha-win/M/count, prop:l2jets, thm:smo-spec, lem:hyp-morse |
@@ -50,8 +50,8 @@ Legend of hypotheses: LS = `LadderData.Stability`, BW/SE = bulk/soft chart, PC =
 | L2.C3 | `PropThaWin` | lem:tha-win | PC, SE.zeta_deriv | 400 | M (many routine inequalities) |
 | L2.C4 | `PropThaM` | lem:tha-M | C3, PC (virial identity, continuity in `a`) | 350 | H (compactness in `a`; `Gamma` continuity; two-site Casoratian) |
 | L2.C5 | `PropThaCount` | lem:tha-count | L1.4 | 200 | M |
-| L2.C6 | `PropThaW2` (1): through the soft edge, rescaling `lambda`, `|lambda_L| ~ lambda kappa_bal` | prop:tha-W2 (1), thm:cha-PC | L1.1 for two patches, SE.valid, PC | 600 | VH (forbidden-overlap rescaling, S3) |
-| L2.C7 | `PropThaW2` (2)-(4): eigenvectors, quantisation (label = index), one shift short | prop:tha-W2 | C3, C4, C5, C6, PC connection `M_-(a)` | 900 | VH |
+| L2.C6 | `PropThaW2` (1): through the soft edge, rescaling `lambda`, `|lambda_L| ~ lambda kappa_bal` | prop:tha-W2 (1), thm:cha-PC | L1.1 for the three-patch chain (rescaled), SE.valid/validW, PC (`reflect_V`, `molv_*`, `V_growth`) | 600 | VH. **Proved** (`TheoremA/SoftRescale.lean`, `TheoremA/SoftProof.lean`): `stability_rescale1`, `soft_weber_bound` (Weber bound on all rows `u <= u_c - eta/2`), `soft_through_edge` (`lambda > 0`, `|lambda_L| <= Lambda lambda kappa_bal`, pre-absorption PC bound on patch 2, engine bound on patch 3), `pcSwap_eq_pcMinus` (`M_-(a)`). **Remaining**: absorption (R1, calculus on `Ewell`), patch 3 vs `psi-hat^{PC,-}` (R2, `M_-(a)` relation of the corrected sequences), `M_Olv` form (R3), the lower bound of (c) (R4), (S3) derived from the forbidden overlap (R5, needs `Valid` split) |
+| L2.C7 | `PropThaW2` (2)-(4): eigenvectors, quantisation (label = index), one shift short | prop:tha-W2 | C3, C4, C5, C6, PC connection `M_-(a)` (`reflect_V`, `pcSwap_eq_pcMinus`) | 900 | VH |
 | L2.C8 | Step 0: eigenvalues in `[X_s^- - Ch^2, X_s^+ + Ch^2]` (**statement frozen**: `StepZero`, `StepZeroD0`, `SpectrumCovered` in `TheoremA/EigenvalueStatements.lean`; F-E1) | app_thmA Step 0 | L2.S4 | 300 | H |
 | L2.C9 | `ThmAii` | thm:A(ii) | C2, C7, C8, F-A3 | 150 | E-M |
 | L2.S1 | bulk windows: lem:smo-bulkphase (1)-(3) | lem:smo-bulkphase | C2, C5, PC.phase_osc | 400 | M-H |
@@ -90,10 +90,12 @@ Legend of hypotheses: LS = `LadderData.Stability`, BW/SE = bulk/soft chart, PC =
 ## The Layer-4 list (residual hypotheses of the whole pipeline) and the exact paper statement behind each
 
 1. `ParabolicCylinderFacts` (DLMF 12.2.2, 12.2.4, 12.2.10, 12.8.2-3, 12.8.6-7, 12.2.15-16; Olver Ch.11 Thm 3.1, Ch.6 Thm 2.2): lem:cha-PCenv (1b), (2), (3); eq:tha-conn (`M_-(a)`);
+   Round 3 additions: `reflect_V` (DLMF 12.2.15--16, 12.2.7: `V(a,-z) = cos(pi a)/Gamma(1/2-a) U + sin(pi a) V`, the matrix `M_-(a)` of lem:cha-PCenv (1a)), `molv_well`, `molv_bar` (eq:cha-MolvEquiv, eq:cha-envbar: two-sided `M_Olv` equivalence, lower bound inside the well), `V_growth` (`V > 0`, `V' >= c_V k_2^{1/2} V` beyond the turning point; the ratio `r_2 < 1` of app_thmA Step 3 (ii)); numerically checked (mpmath, see `Charts/ParabolicCylinder.lean`).
    `ode`, `wronsk`, `shift_*` (lem:cha-weber-ladder (2)); `phase_osc` (DLMF 12.10.18, lem:smo-bulkphase (1)).  Needs a definition of `U, V` (none in Mathlib).
 2. `BulkWeberChart`: coordinate `Y`: prop:cha-halfrow (a), lem:cha-weber-coord (1)-(2), eq:tha-matchF/O; ladder (SM1)-(SM3) and annihilation: lem:cha-weber-ladder (1), (3), eq:cha-annih;
    envelopes and weights: lem:cha-weber-env (1)-(3), lem:cha-W0; `W_osc`, `M_osc`, `seed_pos`, `collar_lb`, `theta_le`; defect/Casoratian bounds `defect*`, `cas_lb`, `A_bd`, `B_bd`: thm:eng-corr + lem:cha-weber-coord (3) (this is L1.2, not Layer 4 proper).
 3. `SoftEdgeChart`: lem:cha-PCcoord (coordinate `zeta`, `mu_0` with `pi mu_0 = S_0`, shifts `mu_{2r}`; thm:smo-MPS, thm:smo-TPC, thm:smo-WT2), turning-point-free coordinate eq:tha-YLsoft (prop:cha-halfrow (b)),
+   Round 3 (structure corrected, see the findings below): `chainW` (Step 1, `cor:cha-I-general`), `patch1_eq`, `shared_PC`, `wf3_eq` (swapped pair), `W3_def`, `shape` (`P = 3`, switch bond `j_2`); (S3) of both overlaps stays in `valid` (`Valid.transfer`).
    thm:cha-PC (two-patch chain `valid`, forbidden-overlap transfer (S3) after thm:eng-volterra), identification of weights `W1_def`..`M2_def`.
 4. `BulkPhaseInputs`: lem:smo-bulkphase (4) (DLMF 12.10.35 + Stirling), lem:smo-S0, regularity `C^{2M+1}` in `(X,t)` through the collisions (thm:smo-BSr, lem:smo-budget (e)).
 5. `TransferBundle` (`TransferInputs` of all charts): app_thmB "(I2) and the changed coefficient", "(I2): soft charts"; lem:smo-budget (b)-(e), lem:cha-weber-coord (3), lem:cha-PCcoord (2), lem:tha-collar (2); parity eq:thb-parity.
@@ -121,6 +123,18 @@ Verdicts: `LadderData.Valid` sound (a `SymplecticLadder` for every `h` and `j` i
 * **F-B6 (cor:thb-Dm)** is not an instance of `ThmB` for `F`: the DM budget `r(2K+1)` exceeds `r(m)`, and the comparison is with the eigenvectors of `J_h`, not of the truncated `tilde J_h`; it needs cor:thb-stable, **absent from the DAG** (new row L3.D).
 * **F-recheck** quantifier order, eigen-system universality, index ranges re-checked for prop:tha-W, prop:tha-W2 (clause (3) label = index verified against app_thmA Step 6; `lem:tha-M`'s `s_A`), lem:tha-win/M, thm:smo-spec, thm:A, prop:l2jets, prop:tha-splice, lem:tha-Mflat, lem:tha-collar, prop:thb-inputs, thm:B: no change needed beyond F-t0.
 * **Not done**: a toy instance of the Setting structures (the spin family `G = 1, B = 0, L = 1`) was not formalised; hand check: `Xsp = 1`, `Xsm = -1`, allowed set `[(1 - sqrt(1-X^2))/2, (1 + sqrt(1-X^2))/2]`, `f_+'' = -4` at `1/2`, so (H1)--(H3) hold and `DM`, `EK` hold for all `M` (jets constant).
+
+## Round 3 findings (first proof attempt of `PropThaW2` (1), L2.C6; each checked against app_thmA Steps 1--3, charts.tex thm:cha-PC, engine.tex after thm:eng-volterra; details in `Charts/SoftParabolicCylinder.lean`)
+
+* **F-W2-1 confirmed, fixed** (`valid` was for the unrescaled chain, forcing `lambda ~ 1`): `SoftEdgeChart.valid` is now `((chain).rescale1 lam).Valid`, `lam = softLamVal` (`E_Web(j_1)/E_-(j_1)`).
+* **F-W2-2 confirmed, fixed** (two patches with weight `E_well(a,|Z|)` on all of `Z >> 0` fail `env`/`W_mono` for `a <= 0`; the paper has three patches, swapped pair `(v~,-u~)` with `E_well^{-1}` after `Z = 0`): the chain has `P = 3` for every `a` (patch 3 = patch 2 for `a > 0`), `pcSwap`, `Eswap`, `wf3_eq`, `W3_def`, `shared_PC`, `shape` with the switch bond `j_2`.
+* **F-W2-3 confirmed, fixed** (Step 1 is a separate single-patch Weber chart on `[0, u_c - eta/2]`): `chainW` with `validW`, `shapeW`, `W_defW`, ...; `patch1_eq` identifies its Weber patch with patch 1 of `chain`; `psiHatL` takes the Weber part from `chainW`.
+* **F-W2-4, F-W2-5 confirmed, fixed**: `PropThaW2` assumes `1 <= m` and `1 <= Lm h` on `(0,1]`.
+* **F-W2-6 refined**: absorption follows from chart fields + definition of `Ewell` (not added); `eq:cha-MolvEquiv`, the growth of the dominant member and `V(a,-z)` (for `M_-(a)`) added to `ParabolicCylinderFacts` (`molv_well`, `molv_bar`, `V_growth`, `reflect_V`).
+* **F-W2-7 refined, kept a field**: `Valid.transfer` is in `LadderChain.lean`; deriving it needs `bondA` bounds, `k_2 >= c/h`, one-step ratios of the weights; proposal: split `Valid` (without `transfer`) and add a lemma.
+* **F-W2-8 (new)**: item (4) (odd `m`, `q = m - 1`, `Theta <= C log(1/h)`, defect weights `rho_k != 1`) is not representable: `rho_one`, `theta_le` fix `rho = 1`, `Theta <= Csum`; to be corrected with a chart-level `Lm` before L2.C7 uses (4).
+* **F-W2-9 (new)**: the PC bound of `PropThaW2` (1) is for `u_c - eta/2 < u_n` (the paper's `<=` overlaps the Weber range in one row where `psi-hat^L` is Weber by definition).
+* **F-W2-10 (new)**: the soft chart pinned only the first Weber member `wf 1 0`; `wfW_eq` pins both.
 
 ## Parts of the plan I am unsure about
 
