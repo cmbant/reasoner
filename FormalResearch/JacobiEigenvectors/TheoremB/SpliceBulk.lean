@@ -396,4 +396,467 @@ theorem bulk_norm_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremB.bulk_norm_clause
 
+/-- **Two normalisations of one value**: `|v/N1 - v/N0| <= 2 e |v| / N0` when `|N1/N0 - 1| <= e <= 1/2`. -/
+theorem div_pair_bound (v N0 N1 e : ℝ) (hN0 : 0 < N0) (hN1 : 0 < N1) (hr : |N1 / N0 - 1| ≤ e) (he : e ≤ 1 / 2) :
+    |v / N1 - v / N0| ≤ 2 * e * |v| / N0 := by
+  have hrel : |N1 - N0| ≤ e * N0 := by
+    have e1 : N1 - N0 = (N1 / N0 - 1) * N0 := by field_simp
+    rw [e1, abs_mul, abs_of_pos hN0]
+    exact mul_le_mul_of_nonneg_right hr hN0.le
+  have hlow : N0 / 2 ≤ N1 := by
+    have h := (abs_le.mp hr).1
+    have h2 : 1 / 2 ≤ N1 / N0 := by linarith
+    rw [le_div_iff₀ hN0] at h2
+    linarith
+  have e2 : v / N1 - v / N0 = v * (N0 - N1) / (N1 * N0) := by field_simp
+  rw [e2, abs_div, abs_mul, abs_of_pos (mul_pos hN1 hN0)]
+  have hd : |N0 - N1| ≤ e * N0 := by rw [abs_sub_comm]; exact hrel
+  have hnum : |v| * |N0 - N1| ≤ |v| * (e * N0) := mul_le_mul_of_nonneg_left hd (abs_nonneg _)
+  rw [div_le_div_iff₀ (mul_pos hN1 hN0) hN0]
+  have : |v| * |N0 - N1| * N0 ≤ |v| * (e * N0) * N0 := mul_le_mul_of_nonneg_right hnum hN0.le
+  have he0 : 0 ≤ e := (abs_nonneg _).trans hr
+  have hN0le : N0 ≤ 2 * N1 := by linarith [hlow]
+  have hen : e * N0 ≤ 2 * N1 * e := by
+    calc e * N0 ≤ e * (2 * N1) := mul_le_mul_of_nonneg_left hN0le he0
+      _ = 2 * N1 * e := by ring
+  have h3 : |v| * (e * N0) * N0 ≤ 2 * e * |v| * N1 * N0 := by
+    have h4 := mul_le_mul_of_nonneg_left hen (abs_nonneg v)
+    have h5 := mul_le_mul_of_nonneg_right h4 hN0.le
+    calc |v| * (e * N0) * N0 = |v| * (e * N0) * N0 := rfl
+      _ ≤ |v| * (2 * N1 * e) * N0 := h5
+      _ = 2 * e * |v| * N1 * N0 := by ring
+  calc |v| * |N0 - N1| * N0 ≤ |v| * (e * N0) * N0 := this
+    _ ≤ 2 * e * |v| * N1 * N0 := h3
+    _ = 2 * e * |v| * (N1 * N0) := by ring
+
+set_option maxHeartbeats 4000000 in
+/-- **Clause (iii) of `prop:tha-splice` (a), bulk, at an eigenvalue**: the eigenvector is compared with the spliced vector
+`splicedVec ns` within `C h^m bulkEnv`, uniformly in `ns` (the splice-independence of the comparison vector). -/
+theorem bulk_vec_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
+    {Jlo Jhi : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ}
+    (CL : BulkWeberChart Fz P Jlo Jhi m U V) (CR : BulkWeberChart (mirrorFamily Fz) P Jlo Jhi m U V)
+    (hm : 1 ≤ m) (hcoup : CR.c = Fz.L - CL.c' ∧ CR.c' = Fz.L - CL.c) (r : ℕ) (hr : StdAssump Fz P (m / 2) r) :
+    ∃ C3 h1 : ℝ, 0 < h1 ∧ ∀ p ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h1 →
+      ∀ ns ∈ bulkWindow CL N, ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
+        IsEigenSystem (Fz.jacobiMat p N) Xs Um → ∀ k : Fin (N + 1), Xs k = X → ∀ n ∈ rowsOf N,
+          |eigVec Um k n - splicedVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns n| ≤
+            C3 * Fz.step N ^ m * bulkEnv CL CR p X N n := by
+  obtain ⟨Cn, h1n, hh1n, hnorm⟩ := bulk_norm_clause CL CR hm hcoup r hr
+  obtain ⟨Cm, h1m, hh1m, hmatch⟩ := bulk_matching_eig CL CR hm hcoup r hr
+  obtain ⟨Cc0, h0k, cN, CN, cκ, Cκ, hh0k, hcN, hcκ, hκall⟩ := bulk_conj1 CL CR hm hcoup r hr
+  have hr' := hr
+  obtain ⟨hPc, hEK, hH⟩ := hr'
+  obtain ⟨CA, hCA0, hCA⟩ := bondA_bound_of_EK Fz P (m / 2) r hPc hEK
+  have hcM : 0 < CL.cM := CL.consts_pos.2.2.2.2.2.1
+  obtain ⟨KgL, hKgL⟩ : ∃ x : ℝ, x = (CL.cs.KA + CL.cs.KB) * CL.cs.Kw + 1 := ⟨_, rfl⟩
+  obtain ⟨KgR, hKgR⟩ : ∃ x : ℝ, x = (CR.cs.KA + CR.cs.KB) * CR.cs.Kw + 1 := ⟨_, rfl⟩
+  have hKgL0 : 0 < KgL := by
+    have := mul_nonneg (add_nonneg CL.cs.KA_nonneg CL.cs.KB_nonneg) CL.cs.Kw_nonneg
+    rw [hKgL]; linarith
+  have hKgR0 : 0 < KgR := by
+    have := mul_nonneg (add_nonneg CR.cs.KA_nonneg CR.cs.KB_nonneg) CR.cs.Kw_nonneg
+    rw [hKgR]; linarith
+  have hKgCL : (CL.cs.KA + CL.cs.KB) * CL.cs.Kw ≤ KgL := by rw [hKgL]; linarith
+  have hKgCR : (CR.cs.KA + CR.cs.KB) * CR.cs.Kw ≤ KgR := by rw [hKgR]; linarith
+  obtain ⟨CML, hCML⟩ : ∃ x : ℝ, x = CL.CM + 1 := ⟨_, rfl⟩
+  obtain ⟨CMR, hCMR⟩ : ∃ x : ℝ, x = CR.CM + 1 := ⟨_, rfl⟩
+  obtain ⟨CsL, hCsL⟩ : ∃ x : ℝ, x = CL.Csum + 1 := ⟨_, rfl⟩
+  obtain ⟨CsR, hCsR⟩ : ∃ x : ℝ, x = CR.Csum + 1 := ⟨_, rfl⟩
+  obtain ⟨CEL, hCEL⟩ : ∃ x : ℝ, x = |CL.cs.CE| + 1 := ⟨_, rfl⟩
+  obtain ⟨CER, hCER⟩ : ∃ x : ℝ, x = |CR.cs.CE| + 1 := ⟨_, rfl⟩
+  obtain ⟨CAg, hCAg⟩ : ∃ x : ℝ, x = CA + 1 := ⟨_, rfl⟩
+  have hCML0 : 0 < CML := by rw [hCML]; linarith [CL.consts_pos.2.2.2.2.2.2.1, hcM]
+  have hCMR0 : 0 < CMR := by rw [hCMR]; linarith [CR.consts_pos.2.2.2.2.2.2.1, CR.consts_pos.2.2.2.2.2.1]
+  have hCsL0 : 0 < CsL := by rw [hCsL]; linarith [CL.consts_pos.2.2.2.2.2.2.2.2.1]
+  have hCsR0 : 0 < CsR := by rw [hCsR]; linarith [CR.consts_pos.2.2.2.2.2.2.2.2.1]
+  have hCEL0 : 0 < CEL := by rw [hCEL]; linarith [abs_nonneg CL.cs.CE]
+  have hCER0 : 0 < CER := by rw [hCER]; linarith [abs_nonneg CR.cs.CE]
+  have hCAg0 : 0 < CAg := by rw [hCAg]; linarith
+  have hCEgCL : CL.cs.CE ≤ CEL := by rw [hCEL]; linarith [le_abs_self CL.cs.CE]
+  have hCEgCR : CR.cs.CE ≤ CER := by rw [hCER]; linarith [le_abs_self CR.cs.CE]
+  have hCMgCL : CL.CM ≤ CML := by rw [hCML]; linarith
+  have hCMgCR : CR.CM ≤ CMR := by rw [hCMR]; linarith
+  have hCsgCL : CL.Csum ≤ CsL := by rw [hCsL]; linarith
+  have hCsgCR : CR.Csum ≤ CsR := by rw [hCsR]; linarith
+  have hCAgCA : CA ≤ CAg := by rw [hCAg]; linarith
+  -- the constant of the statement
+  obtain ⟨C3, hC3⟩ : ∃ x : ℝ, x = |Cc0| + (2 * |Cn| * (KgL + KgR) + 2 * |Cm| + 2 * |Cn| * |Cm|) := ⟨_, rfl⟩
+  have hC30 : 0 ≤ C3 := by rw [hC3]; positivity
+  have hCn0 : 0 ≤ |Cn| := abs_nonneg _
+  have hcLD : 0 < CL.c - CL.c' := by linarith [CL.consts_pos.2.1]
+  refine ⟨C3, min (min h1n h1m) (min (min h0k (min 1 (1 / (2 * (|Cn| + 1))))) ((CL.c - CL.c') / 6)),
+    lt_min (lt_min hh1n hh1m) (lt_min (lt_min hh0k (lt_min one_pos (div_pos one_pos (by positivity))))
+      (div_pos hcLD (by norm_num))), ?_⟩
+  intro p hp X hX N hN hstep ns hns Xs Um hE k hk n hn
+  have hN1 : CL.N0 ≤ N := le_trans (le_max_left _ _) hN
+  have hN2 : CR.N0 ≤ N := le_trans (le_max_right _ _) hN
+  have hst : 0 < Fz.step N := FormalResearch.JB.stepSize_pos Fz.L_pos N
+  have hLs : Fz.step N * ((N : ℝ) + 1) = Fz.L := step_mul_succ Fz N
+  have hs1n : Fz.step N ≤ h1n := hstep.trans ((min_le_left _ _).trans (min_le_left _ _))
+  have hs1m : Fz.step N ≤ h1m := hstep.trans ((min_le_left _ _).trans (min_le_right _ _))
+  have hsk : Fz.step N ≤ h0k := hstep.trans ((min_le_right _ _).trans ((min_le_left _ _).trans (min_le_left _ _)))
+  have hs1 : Fz.step N ≤ 1 := hstep.trans ((min_le_right _ _).trans ((min_le_left _ _).trans ((min_le_right _ _).trans (min_le_left _ _))))
+  have hsC : Fz.step N ≤ 1 / (2 * (|Cn| + 1)) :=
+    hstep.trans ((min_le_right _ _).trans ((min_le_left _ _).trans ((min_le_right _ _).trans (min_le_right _ _))))
+  have hsW : Fz.step N ≤ (CL.c - CL.c') / 6 := hstep.trans ((min_le_right _ _).trans (min_le_right _ _))
+  have hη : Fz.step N ^ m ≤ Fz.step N := pow_le_of_le_one hst.le hs1 (by omega)
+  have hη0 : 0 ≤ Fz.step N ^ m := pow_nonneg hst.le _
+  have hη1 : Fz.step N ^ m ≤ 1 := pow_le_one₀ hst.le hs1
+  have hsn' : Fz.step N * (2 * (|Cn| + 1)) ≤ 1 := (le_div_iff₀ (by positivity)).mp hsC
+  have hCnη : |Cn| * Fz.step N ^ m ≤ 1 / 2 := by
+    have := mul_le_mul_of_nonneg_left hη hCn0
+    linarith
+  -- the normaliser ratio and the standard normaliser
+  have hr1 := hnorm p hp X hX N hN hs1n ns hns Xs Um hE k hk
+  have hr1' : |glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns /
+      bulkNorm CL CR p X N - 1| ≤ |Cn| * Fz.step N ^ m :=
+    hr1.trans (mul_le_mul_of_nonneg_right (le_abs_self _) hη0)
+  obtain ⟨hyPos, -, -, -, -⟩ := hκall p hp X hX N hN hsk
+  have hN1pos : 0 < glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns := by
+    have h2 : 0 < glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns /
+        bulkNorm CL CR p X N := by
+      have := (abs_le.mp hr1').1
+      linarith
+    exact (div_pos_iff_of_pos_right hyPos).mp h2
+  -- the eigenvector comparison of `bulk_conj1`
+  have heig := ((hκall p hp X hX N hN hsk).2.2.2.2 Xs Um hE k hk).2 n hn
+  -- the window point ns and the fold
+  have hnsF : CL.c' ≤ uNode (Fz.step N) ns ∧ uNode (Fz.step N) ns ≤ CL.c := by
+    have h := hns
+    unfold bulkWindow at h
+    exact (Finset.mem_filter.mp h).2
+  obtain ⟨hl_ns, hu_ns⟩ := hnsF
+  -- the chart facts (envelope bounds on the rows)
+  have hAL0 : ∀ j : ℤ, 0 ≤ j → j ≤ (CL.chain p X N).NR - 1 → |(CL.chain p X N).A j| ≤ CA := by
+    intro j h0 h1
+    rw [CL.A_bond p hp X hX N hN1 j (Finset.mem_Icc.mpr ⟨by omega, by omega⟩)]
+    exact hCA p hp N j
+  have hAR0 : ∀ j : ℤ, 0 ≤ j → j ≤ (CR.chain p X N).NR - 1 → |(CR.chain p X N).A j| ≤ CA := by
+    intro j h0 h1
+    rw [CR.A_bond p hp X hX N hN2 j (Finset.mem_Icc.mpr ⟨by omega, by omega⟩), bondA_mirror]
+    exact hCA p hp N _
+  have hAL : ∀ j : ℤ, 0 ≤ j → j ≤ (CL.chain p X N).NR - 1 → |(CL.chain p X N).A j| ≤ CAg :=
+    fun j h0 h1 => (hAL0 j h0 h1).trans hCAgCA
+  have hAR : ∀ j : ℤ, 0 ≤ j → j ≤ (CR.chain p X N).NR - 1 → |(CR.chain p X N).A j| ≤ CAg :=
+    fun j h0 h1 => (hAR0 j h0 h1).trans hCAgCA
+  have hhcL' : Fz.step N ≤ CL.c - CL.c' := by linarith [hsW, hcLD]
+  have hhcR' : (mirrorFamily Fz).step N ≤ CR.c - CR.c' := by
+    have hCRD : CR.c - CR.c' = CL.c - CL.c' := by rw [hcoup.1, hcoup.2]; ring
+    show Fz.step N ≤ CR.c - CR.c'
+    rw [hCRD]
+    exact hhcL'
+  obtain ⟨LA, LB, -, -, -⟩ := chart_side_facts CL p hp X hX N hN1 hhcL' KgL CEL CML CL.cs.cm CsL CAg hKgL0 hCEL0
+    hCML0 CL.cs.cm_pos hCAg0 hKgCL hCEgCL hCMgCL le_rfl hCsgCL hAL
+  obtain ⟨RA, RB, -, -, -⟩ := chart_side_facts CR p hp X hX N hN2 hhcR' KgR CER CMR CR.cs.cm CsR CAg hKgR0 hCER0
+    hCMR0 CR.cs.cm_pos hCAg0 hKgCR hCEgCR hCMgCR le_rfl hCsgCR hAR
+  obtain ⟨Csp, hCsp⟩ : ∃ x : ℝ, x = 2 * |Cn| * (KgL + KgR) + 2 * |Cm| + 2 * |Cn| * |Cm| := ⟨_, rfl⟩
+  have hCsp0 : 0 ≤ Csp := by rw [hCsp]; positivity
+  have hn0 : 0 ≤ n := by unfold rowsOf at hn; exact (Finset.mem_Icc.mp hn).1
+  have hnN : n ≤ (N : ℤ) := by unfold rowsOf at hn; exact (Finset.mem_Icc.mp hn).2
+  have hMn0 : ∀ n ∈ bulkWindow CL N, 0 ≤ (CL.chain p X N).M n := by
+    intro n hn
+    have hn' := window_sub_rows CL p hp X hX N hN1 hst n hn
+    have hcn : CL.c' ≤ uNode (Fz.step N) n := by
+      have h := hn
+      unfold bulkWindow at h
+      exact (Finset.mem_filter.mp h).2.1
+    exact le_trans (mul_nonneg hcM.le (Real.rpow_nonneg hst.le _)) (CL.M_osc p hp X hX N hN1 n hn' hcn).1
+  have hu_mir : uNode (Fz.step N) ((N : ℤ) - n) = Fz.L - uNode (Fz.step N) n := uNode_mirror Fz.L (Fz.step N) N n hLs
+  -- the splice-versus-standard vector on the row `n`
+  have hcLD' : CL.c' < CL.c := CL.consts_pos.2.1
+  have hsplice : |bulkVec CL CR p X N n - splicedVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N)
+      (rowsOf N) ns n| ≤ Csp * Fz.step N ^ m * bulkEnv CL CR p X N n ∧ 0 ≤ bulkEnv CL CR p X N n := by
+    by_cases hnsn : n ≤ ns
+    · by_cases hcn : uNode (Fz.step N) n ≤ CL.c
+      · -- case 1: both left
+        have hnr := Finset.mem_Icc.mpr ⟨hn0, le_NR_of CL p hp X hX N hN1 hst n hcn⟩
+        have hLA := LA n (Finset.mem_Icc.mp hnr).1 (Finset.mem_Icc.mp hnr).2
+        have hLB0 := (LB n (Finset.mem_Icc.mp hnr).1 (Finset.mem_Icc.mp hnr).2).1
+        have eV : bulkVec CL CR p X N n = CL.psiHatL p X N n / bulkNorm CL CR p X N := by
+          unfold bulkVec glueVec; rw [if_pos hcn]; rfl
+        have eS : splicedVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns n =
+            CL.psiHatL p X N n / glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns := by
+          unfold splicedVec; rw [if_pos hnsn]
+        have eE : bulkEnv CL CR p X N n = CL.envL p X N n / bulkNorm CL CR p X N := by
+          unfold bulkEnv; rw [if_pos hcn]
+        rw [eV, eS, eE, abs_sub_comm]
+        have hX0 : 0 ≤ CL.envL p X N n / bulkNorm CL CR p X N := div_nonneg hLB0 hyPos.le
+        refine ⟨?_, hX0⟩
+        have hd := div_pair_bound (CL.psiHatL p X N n) (bulkNorm CL CR p X N)
+          (glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns)
+          (|Cn| * Fz.step N ^ m) hyPos hN1pos hr1' hCnη
+        calc _ ≤ 2 * (|Cn| * Fz.step N ^ m) * |CL.psiHatL p X N n| / bulkNorm CL CR p X N := hd
+          _ ≤ 2 * (|Cn| * Fz.step N ^ m) * (KgL * CL.envL p X N n) / bulkNorm CL CR p X N :=
+              div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left hLA (by positivity)) hyPos.le
+          _ = (2 * |Cn| * KgL) * Fz.step N ^ m * (CL.envL p X N n / bulkNorm CL CR p X N) := by ring
+          _ ≤ Csp * Fz.step N ^ m * (CL.envL p X N n / bulkNorm CL CR p X N) := by
+              apply mul_le_mul_of_nonneg_right _ hX0
+              apply mul_le_mul_of_nonneg_right _ hη0
+              rw [hCsp]
+              have h1 := mul_nonneg (abs_nonneg Cn) hKgR0.le
+              have h2 := mul_nonneg (abs_nonneg Cn) (abs_nonneg Cm)
+              have h3 := abs_nonneg Cm
+              linarith
+      · exfalso
+        exact hcn ((uNode_le_of_le hst.le hnsn).trans hu_ns)
+    · by_cases hcn : uNode (Fz.step N) n ≤ CL.c
+      · -- case 3: the splice is right, the standard split is left (a window point)
+        have hlow : CL.c' ≤ uNode (Fz.step N) n := hl_ns.trans (uNode_le_of_le hst.le (not_le.mp hnsn).le)
+        have hnW : n ∈ bulkWindow CL N := by
+          unfold bulkWindow
+          exact Finset.mem_filter.mpr ⟨hn, hlow, hcn⟩
+        have hnr := window_sub_rows CL p hp X hX N hN1 hst n hnW
+        have hLA := LA n (Finset.mem_Icc.mp hnr).1 (Finset.mem_Icc.mp hnr).2
+        have hLB0 := (LB n (Finset.mem_Icc.mp hnr).1 (Finset.mem_Icc.mp hnr).2).1
+        have hWe : CL.envL p X N n = (CL.chain p X N).M n := by
+          unfold BulkWeberChart.envL
+          rw [CL.W_osc p hp X hX N hN1 n hnr hlow, one_mul]
+        have hmt := hmatch p hp X hX N hN hs1m Xs Um hE k hk n hnW
+        have hmt' : |CL.psiHatL p X N n - bulkKappa CL CR p X N * bulkSeqR CR p X N n| ≤
+            |Cm| * Fz.step N ^ m * CL.envL p X N n := by
+          rw [hWe]
+          exact hmt.trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (le_abs_self _) hη0)
+            (hMn0 n hnW))
+        have eV : bulkVec CL CR p X N n = CL.psiHatL p X N n / bulkNorm CL CR p X N := by
+          unfold bulkVec glueVec; rw [if_pos hcn]; rfl
+        have eS : splicedVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns n =
+            bulkKappa CL CR p X N * bulkSeqR CR p X N n /
+              glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns := by
+          unfold splicedVec; rw [if_neg hnsn]; rfl
+        have eE : bulkEnv CL CR p X N n = CL.envL p X N n / bulkNorm CL CR p X N := by
+          unfold bulkEnv; rw [if_pos hcn]
+        rw [eV, eS, eE]
+        have hX0 : 0 ≤ CL.envL p X N n / bulkNorm CL CR p X N := div_nonneg hLB0 hyPos.le
+        refine ⟨?_, hX0⟩
+        have hdec : CL.psiHatL p X N n / bulkNorm CL CR p X N -
+            bulkKappa CL CR p X N * bulkSeqR CR p X N n / glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N)
+              (bulkWindow CL N) (rowsOf N) ns =
+            (CL.psiHatL p X N n - bulkKappa CL CR p X N * bulkSeqR CR p X N n) / bulkNorm CL CR p X N +
+            (bulkKappa CL CR p X N * bulkSeqR CR p X N n / bulkNorm CL CR p X N -
+              bulkKappa CL CR p X N * bulkSeqR CR p X N n /
+                glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns) := by ring
+        rw [hdec]
+        have h1 : |(CL.psiHatL p X N n - bulkKappa CL CR p X N * bulkSeqR CR p X N n) / bulkNorm CL CR p X N| ≤
+            |Cm| * Fz.step N ^ m * CL.envL p X N n / bulkNorm CL CR p X N := by
+          rw [abs_div, abs_of_pos hyPos]
+          exact div_le_div_of_nonneg_right hmt' hyPos.le
+        have hκψ : |bulkKappa CL CR p X N * bulkSeqR CR p X N n| ≤ (KgL + |Cm|) * CL.envL p X N n := by
+          have hA1 : |CL.psiHatL p X N n| ≤ KgL * CL.envL p X N n := hLA
+          have e2 : CL.psiHatL p X N n - (CL.psiHatL p X N n - bulkKappa CL CR p X N * bulkSeqR CR p X N n) =
+              bulkKappa CL CR p X N * bulkSeqR CR p X N n := by ring
+          have hA2 := abs_sub (CL.psiHatL p X N n) (CL.psiHatL p X N n - bulkKappa CL CR p X N * bulkSeqR CR p X N n)
+          rw [e2] at hA2
+          have hη1' : |Cm| * Fz.step N ^ m * CL.envL p X N n ≤ |Cm| * CL.envL p X N n := by
+            have hEn : 0 ≤ CL.envL p X N n := hLB0
+            have := mul_le_mul_of_nonneg_left hη1 (abs_nonneg Cm)
+            have := mul_le_mul_of_nonneg_right this hEn
+            linarith
+          have hsub : |CL.psiHatL p X N n - bulkKappa CL CR p X N * bulkSeqR CR p X N n| ≤
+              |Cm| * CL.envL p X N n := hmt'.trans hη1'
+          nlinarith [hA2, hA1, hsub]
+        have h2 := div_pair_bound (bulkKappa CL CR p X N * bulkSeqR CR p X N n) (bulkNorm CL CR p X N)
+          (glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns)
+          (|Cn| * Fz.step N ^ m) hyPos hN1pos hr1' hCnη
+        rw [abs_sub_comm] at h2
+        have hX0' : 0 ≤ CL.envL p X N n / bulkNorm CL CR p X N := hX0
+        calc _ ≤ |(CL.psiHatL p X N n - bulkKappa CL CR p X N * bulkSeqR CR p X N n) / bulkNorm CL CR p X N| +
+              |bulkKappa CL CR p X N * bulkSeqR CR p X N n / bulkNorm CL CR p X N -
+                bulkKappa CL CR p X N * bulkSeqR CR p X N n /
+                  glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns| :=
+              abs_add_le _ _
+          _ ≤ |Cm| * Fz.step N ^ m * CL.envL p X N n / bulkNorm CL CR p X N +
+              2 * (|Cn| * Fz.step N ^ m) * ((KgL + |Cm|) * CL.envL p X N n) / bulkNorm CL CR p X N :=
+              add_le_add h1 (h2.trans (div_le_div_of_nonneg_right
+                (mul_le_mul_of_nonneg_left hκψ (by positivity)) hyPos.le))
+          _ = (|Cm| + 2 * |Cn| * (KgL + |Cm|)) * Fz.step N ^ m * (CL.envL p X N n / bulkNorm CL CR p X N) := by ring
+          _ ≤ Csp * Fz.step N ^ m * (CL.envL p X N n / bulkNorm CL CR p X N) := by
+              apply mul_le_mul_of_nonneg_right _ hX0'
+              apply mul_le_mul_of_nonneg_right _ hη0
+              rw [hCsp]
+              have h1' := mul_nonneg (abs_nonneg Cn) hKgR0.le
+              have h3 := abs_nonneg Cm
+              have h4 := mul_nonneg (abs_nonneg Cn) (abs_nonneg Cm)
+              nlinarith
+      · -- case 4: the splice is right and the standard split is right (outside the window)
+        have hcn_up : CL.c < uNode (Fz.step N) n := not_le.mp hcn
+        have hjn0 : 0 ≤ (N : ℤ) - n := by omega
+        have hjle : uNode (Fz.step N) ((N : ℤ) - n) ≤ CR.c := by
+          rw [hu_mir, hcoup.1]
+          linarith [hcLD', hcn_up]
+        have hjR := le_NR_of CR p hp X hX N hN2 hst ((N : ℤ) - n) hjle
+        have hjm := Finset.mem_Icc.mpr ⟨hjn0, hjR⟩
+        have hRA := RA ((N : ℤ) - n) (Finset.mem_Icc.mp hjm).1 (Finset.mem_Icc.mp hjm).2
+        have hRB0 := (RB ((N : ℤ) - n) (Finset.mem_Icc.mp hjm).1 (Finset.mem_Icc.mp hjm).2).1
+        have eV : bulkVec CL CR p X N n = bulkKappa CL CR p X N * bulkSeqR CR p X N n / bulkNorm CL CR p X N := by
+          unfold bulkVec glueVec; rw [if_neg hcn]; rfl
+        have eS : splicedVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns n =
+            bulkKappa CL CR p X N * bulkSeqR CR p X N n /
+              glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns := by
+          unfold splicedVec; rw [if_neg hnsn]; rfl
+        have eE : bulkEnv CL CR p X N n = |bulkKappa CL CR p X N| * CR.envL p X N ((N : ℤ) - n) /
+            bulkNorm CL CR p X N := by
+          unfold bulkEnv; rw [if_neg hcn]
+        rw [eV, eS, eE]
+        have hX0 : 0 ≤ |bulkKappa CL CR p X N| * CR.envL p X N ((N : ℤ) - n) / bulkNorm CL CR p X N :=
+          div_nonneg (mul_nonneg (abs_nonneg _) hRB0) hyPos.le
+        refine ⟨?_, hX0⟩
+        have h2 := div_pair_bound (bulkKappa CL CR p X N * bulkSeqR CR p X N n) (bulkNorm CL CR p X N)
+          (glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns)
+          (|Cn| * Fz.step N ^ m) hyPos hN1pos hr1' hCnη
+        have h2' : |bulkKappa CL CR p X N * bulkSeqR CR p X N n / bulkNorm CL CR p X N -
+            bulkKappa CL CR p X N * bulkSeqR CR p X N n /
+              glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns| ≤
+            2 * (|Cn| * Fz.step N ^ m) * |bulkKappa CL CR p X N * bulkSeqR CR p X N n| / bulkNorm CL CR p X N := by
+          rw [abs_sub_comm]; exact h2
+        have hκR : |bulkKappa CL CR p X N * bulkSeqR CR p X N n| ≤
+            |bulkKappa CL CR p X N| * (KgR * CR.envL p X N ((N : ℤ) - n)) := by
+          rw [abs_mul]
+          exact mul_le_mul_of_nonneg_left (hRA : |CR.psiHatL p X N ((N : ℤ) - n)| ≤ _) (abs_nonneg _)
+        calc _ ≤ 2 * (|Cn| * Fz.step N ^ m) * |bulkKappa CL CR p X N * bulkSeqR CR p X N n| / bulkNorm CL CR p X N :=
+              h2'
+          _ ≤ 2 * (|Cn| * Fz.step N ^ m) * (|bulkKappa CL CR p X N| * (KgR * CR.envL p X N ((N : ℤ) - n))) /
+              bulkNorm CL CR p X N :=
+              div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left hκR (by positivity)) hyPos.le
+          _ = (2 * |Cn| * KgR) * Fz.step N ^ m * (|bulkKappa CL CR p X N| * CR.envL p X N ((N : ℤ) - n) /
+              bulkNorm CL CR p X N) := by ring
+          _ ≤ Csp * Fz.step N ^ m * (|bulkKappa CL CR p X N| * CR.envL p X N ((N : ℤ) - n) /
+              bulkNorm CL CR p X N) := by
+              apply mul_le_mul_of_nonneg_right _ hX0
+              apply mul_le_mul_of_nonneg_right _ hη0
+              rw [hCsp]
+              have h1' := mul_nonneg (abs_nonneg Cn) (abs_nonneg Cm)
+              have h3 := mul_nonneg (abs_nonneg Cn) hKgL0.le
+              have h4 := abs_nonneg Cm
+              nlinarith
+  -- the eigenvector comparison: the bulk part and the splice part
+  have heig := ((hκall p hp X hX N hN hsk).2.2.2.2 Xs Um hE k hk).2 n hn
+  have hB0 := hsplice.2
+  have htri := abs_add_le (eigVec Um k n - bulkVec CL CR p X N n) (bulkVec CL CR p X N n -
+    splicedVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns n)
+  rw [show eigVec Um k n - bulkVec CL CR p X N n + (bulkVec CL CR p X N n -
+    splicedVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns n) =
+    eigVec Um k n - splicedVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns n by ring] at htri
+  have hCc0 : Cc0 * Fz.step N ^ m * bulkEnv CL CR p X N n ≤ |Cc0| * Fz.step N ^ m * bulkEnv CL CR p X N n :=
+    mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (le_abs_self _) hη0) hB0
+  calc _ ≤ _ := htri
+    _ ≤ (Cc0 * Fz.step N ^ m * bulkEnv CL CR p X N n) + Csp * Fz.step N ^ m * bulkEnv CL CR p X N n :=
+        add_le_add heig hsplice.1
+    _ ≤ |Cc0| * Fz.step N ^ m * bulkEnv CL CR p X N n + Csp * Fz.step N ^ m * bulkEnv CL CR p X N n :=
+        add_le_add hCc0 le_rfl
+    _ = C3 * Fz.step N ^ m * bulkEnv CL CR p X N n := by rw [hC3, hCsp]; ring
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.div_pair_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.div_pair_bound
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.bulk_vec_clause' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.bulk_vec_clause
+
+/-- **The bulk envelope is nonnegative on the rows** (from the nonnegativity of the chart envelopes `envL`, `envR` on their rows). -/
+theorem bulkEnv_nonneg_rows {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
+    {Jlo Jhi : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ}
+    (CL : BulkWeberChart Fz P Jlo Jhi m U V) (CR : BulkWeberChart (mirrorFamily Fz) P Jlo Jhi m U V)
+    (hcoup : CR.c = Fz.L - CL.c' ∧ CR.c' = Fz.L - CL.c) (p : Par × ℝ) (hp : p ∈ P) (X : ℝ) (hX : X ∈ Set.Icc Jlo Jhi)
+    (N : ℕ) (hN1 : CL.N0 ≤ N) (hN2 : CR.N0 ≤ N) (hst : 0 < Fz.step N)
+    (hLB : ∀ j : ℤ, 0 ≤ j → j ≤ (CL.chain p X N).NR → 0 ≤ CL.envL p X N j)
+    (hRB : ∀ j : ℤ, 0 ≤ j → j ≤ (CR.chain p X N).NR → 0 ≤ CR.envL p X N j) (n : ℤ) (hn : n ∈ rowsOf N) :
+    0 ≤ bulkEnv CL CR p X N n := by
+  have hn0 : 0 ≤ n := by unfold rowsOf at hn; exact (Finset.mem_Icc.mp hn).1
+  have hnN : n ≤ (N : ℤ) := by unfold rowsOf at hn; exact (Finset.mem_Icc.mp hn).2
+  have hLs : Fz.step N * ((N : ℝ) + 1) = Fz.L := step_mul_succ Fz N
+  by_cases hcn : uNode (Fz.step N) n ≤ CL.c
+  · unfold bulkEnv
+    rw [if_pos hcn]
+    exact div_nonneg (hLB n hn0 (le_NR_of CL p hp X hX N hN1 hst n hcn)) (Real.sqrt_nonneg _)
+  · unfold bulkEnv
+    rw [if_neg hcn]
+    have hcn_up : CL.c < uNode (Fz.step N) n := not_le.mp hcn
+    have hjle : uNode (Fz.step N) ((N : ℤ) - n) ≤ CR.c := by
+      rw [uNode_mirror Fz.L (Fz.step N) N n hLs, hcoup.1]
+      linarith [CL.consts_pos.2.1]
+    exact div_nonneg (mul_nonneg (abs_nonneg _) (hRB ((N : ℤ) - n) (by omega)
+      (le_NR_of CR p hp X hX N hN2 hst ((N : ℤ) - n) hjle))) (Real.sqrt_nonneg _)
+
+/-- The bulk chart's `M` is nonnegative on the window (from `M_osc`, with `cM > 0`). -/
+theorem bulk_M_nonneg {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
+    {Jlo Jhi : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ}
+    (CL : BulkWeberChart Fz P Jlo Jhi m U V) (p : Par × ℝ) (hp : p ∈ P) (X : ℝ) (hX : X ∈ Set.Icc Jlo Jhi)
+    (N : ℕ) (hN1 : CL.N0 ≤ N) (hst : 0 < Fz.step N) (n : ℤ) (hn : n ∈ bulkWindow CL N) :
+    0 ≤ (CL.chain p X N).M n := by
+  have hcM : 0 < CL.cM := CL.consts_pos.2.2.2.2.2.1
+  have hn' := window_sub_rows CL p hp X hX N hN1 hst n hn
+  have hcn : CL.c' ≤ uNode (Fz.step N) n := by
+    have h := hn
+    unfold bulkWindow at h
+    exact (Finset.mem_filter.mp h).2.1
+  exact le_trans (mul_nonneg hcM.le (Real.rpow_nonneg hst.le _)) (CL.M_osc p hp X hX N hN1 n hn' hcn).1
+
+/-- The chart envelope `envL = W * M` is nonnegative on its rows (from the chart's `W_pos`, `M_pos`). -/
+theorem chart_envL_nonneg {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
+    {Jlo Jhi : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ} (C : BulkWeberChart G P Jlo Jhi m U V) (p : Par × ℝ) (hp : p ∈ P)
+    (X : ℝ) (hX : X ∈ Set.Icc Jlo Jhi) (N : ℕ) (hN : C.N0 ≤ N) (j : ℤ) (hj0 : 0 ≤ j) (hjN : j ≤ (C.chain p X N).NR) :
+    0 ≤ C.envL p X N j := by
+  have hW := (C.valid p hp X hX N hN).W_pos j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)
+  have hM := (C.valid p hp X hX N hN).M_pos j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)
+  unfold BulkWeberChart.envL
+  exact (mul_pos hW hM).le
+
+set_option maxHeartbeats 4000000 in
+/-- **`PropThaSpliceBulk` for `eta(h) = h^m`** (prop:tha-splice (a), bulk), assembled from the three clauses: the normaliser
+ratio (`bulk_norm_clause`), the window matching (`bulk_matching_eig`) and the eigenvector comparison (`bulk_vec_clause`), with
+the one constant `C = |Cn| + |Cm| + |C3|`.  The hypotheses `1 <= m` and the mirror overlap `hcoup` are those of the clauses; the
+frozen `PropThaSpliceBulk` does not state them (see the report). -/
+theorem propThaSpliceBulk_proved {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
+    {Jlo Jhi : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ}
+    (CL : BulkWeberChart Fz P Jlo Jhi m U V) (CR : BulkWeberChart (mirrorFamily Fz) P Jlo Jhi m U V)
+    (hm : 1 ≤ m) (hcoup : CR.c = Fz.L - CL.c' ∧ CR.c' = Fz.L - CL.c) :
+    PropThaSpliceBulk CL CR (fun h => h ^ m) := by
+  unfold PropThaSpliceBulk
+  intro r hr
+  obtain ⟨Cn, h1n, hh1n, hnorm⟩ := bulk_norm_clause CL CR hm hcoup r hr
+  obtain ⟨Cm, h1m, hh1m, hmatch⟩ := bulk_matching_eig CL CR hm hcoup r hr
+  obtain ⟨C3, h1v, hh1v, hvec⟩ := bulk_vec_clause CL CR hm hcoup r hr
+  obtain ⟨C, hCdef⟩ : ∃ x : ℝ, x = |Cn| + |Cm| + |C3| := ⟨_, rfl⟩
+  have hCn : Cn ≤ C := by rw [hCdef]; linarith [le_abs_self Cn, abs_nonneg Cm, abs_nonneg C3]
+  have hCm : Cm ≤ C := by rw [hCdef]; linarith [le_abs_self Cm, abs_nonneg Cn, abs_nonneg C3]
+  have hC3 : C3 ≤ C := by rw [hCdef]; linarith [le_abs_self C3, abs_nonneg Cn, abs_nonneg Cm]
+  refine ⟨C, min (min h1n h1m) h1v, lt_min (lt_min hh1n hh1m) hh1v, ?_⟩
+  intro p hp X hX N hN hstep ns hns Xs Um hEig k hk
+  have hst : 0 < Fz.step N := FormalResearch.JB.stepSize_pos Fz.L_pos N
+  have hN1 : CL.N0 ≤ N := le_trans (le_max_left _ _) hN
+  have hN2 : CR.N0 ≤ N := le_trans (le_max_right _ _) hN
+  have hs1n : Fz.step N ≤ h1n := hstep.trans ((min_le_left _ _).trans (min_le_left _ _))
+  have hs1m : Fz.step N ≤ h1m := hstep.trans ((min_le_left _ _).trans (min_le_right _ _))
+  have hs1v : Fz.step N ≤ h1v := hstep.trans (min_le_right _ _)
+  have hη0 : 0 ≤ Fz.step N ^ m := pow_nonneg hst.le _
+  refine ⟨⟨?_, ?_⟩, ?_⟩
+  · exact (hnorm p hp X hX N hN hs1n ns hns Xs Um hEig k hk).trans (mul_le_mul_of_nonneg_right hCn hη0)
+  · intro n hn
+    have hmM := bulk_M_nonneg CL p hp X hX N hN1 hst n hn
+    exact (hmatch p hp X hX N hN hs1m Xs Um hEig k hk n hn).trans
+      (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hCm hη0) hmM)
+  · intro n hn
+    have hE := bulkEnv_nonneg_rows CL CR hcoup p hp X hX N hN1 hN2 hst
+      (fun j hj0 hjN => chart_envL_nonneg CL p hp X hX N hN1 j hj0 hjN)
+      (fun j hj0 hjN => chart_envL_nonneg CR p hp X hX N hN2 j hj0 hjN) n hn
+    exact (hvec p hp X hX N hN hs1v ns hns Xs Um hEig k hk n hn).trans
+      (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hC3 hη0) hE)
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.bulkEnv_nonneg_rows' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.bulkEnv_nonneg_rows
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.bulk_M_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.bulk_M_nonneg
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.chart_envL_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.chart_envL_nonneg
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.propThaSpliceBulk_proved' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.propThaSpliceBulk_proved
+
 end FormalResearch.JacobiEigenvectors.TheoremB
