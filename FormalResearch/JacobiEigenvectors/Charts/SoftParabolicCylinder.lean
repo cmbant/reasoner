@@ -346,6 +346,17 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   `k_2^{-1/4}` with `k_2 ≍ h^{-1}` at the two rows). -/
   ratioM : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
     (chain μ X N).M ((chain μ X N).jj 1 + 1) ≤ CM * (chain μ X N).M ((chain μ X N).jj 1)
+  /-- **(round 7, F-PW6 of `lem:tha-M`; thmA.tex "the corrector" and `lem:cha-PCcoord`)** the constants `g_- / 2` and `C_B` of the PC corrector rows `A^{[m]}, B^{[m]}` of the collar. -/
+  gm : ℝ
+  CBc : ℝ
+  consts_pos4 : 0 < gm ∧ 0 ≤ CBc
+  /-- **(round 7, F-PW6)** on the rows of the PC patches (`|u_k - u_c| <= 2 eta`) the corrector amplitude is bounded below and the corrector `B` above:
+  `g_- / 2 <= A^{[m]} = g_0 + O(h^2)` (`g_0 = V_0^{-1/2} >= g_- > 0`; the upper bound `A^{[m]} <= 2 g_+` is `A_bd`) and `|B^{[m]}| <= C_B`.  Neither follows from `cas_lb`, `A_bd`, `B_bd`
+  (`Fcas` involves the free ladder data `pp`, `PiM`; `B_bd` is weighted by the free `rho/rho~`); `TheoremA/WindowMass2.lean` (`lem:tha-M`, third conjunct, and the corrector step) needs them. -/
+  corr_PC : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k : ℤ, 0 ≤ k → k ≤ (N : ℤ) →
+    |uNode (F.step N) k - uc μ| ≤ 2 * η →
+      gm ≤ (chain μ X N).AA 2 (uNode (F.step N) k) (F.step N) ∧
+        |(chain μ X N).BB 2 (uNode (F.step N) k) (F.step N)| ≤ CBc
 
 namespace SoftEdgeChart
 
