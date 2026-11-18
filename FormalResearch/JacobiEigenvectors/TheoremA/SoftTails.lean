@@ -14,6 +14,7 @@ The paper splits the sites outside `Omega` into three kinds: (i) parabolic-cylin
 Notation as in `SoftQuant.lean`: `T_0 = |lam_L| / kappa_b`, `V_n` = the numerator of `softEnv` (`softEnvNum`), four pieces (Weber `softEnvWeb CL`; `|lam_L| M_Olv(a,-Z_n)` for `Z_n <= 0`; `|kappa^ lam_R| M_Olv(a,Z_n)` for `Z_n > 0`, `u_n < u_c + eta/2`;
 `|kappa^| softEnvWeb CR` at the mirror row `N - n`).
 
+* **T0' (abstract).**  `geom_up`, `geom_down`: `e >= 0`, `e_{n+1} <= theta e_n` (resp. `e_{n-1} <= theta e_n`), `0 <= theta < 1` give `sum e <= e_{n_0}/(1-theta)` (resp. `e_{n_1}/(1-theta)`).  (Used for (i).)
 * **T0 (abstract).**  `sq_sum_geom_le`: `f_n <= r f_{n+1}` on `0 <= n <= n_1`, `f >= 0`, `0 <= r < 1` give `sum_{n <= n_1} f_n^2 <= f_{n_1+1}^2 r^2/(1-r^2)`.  (Used for (ii).)
 * **T1 (Weber tail, one chart), (ii).**  `weber_tail`: for a soft chart `C` (hypotheses: `ParabolicCylinderFacts`, `1 <= m`, `1 <= Lm`), and `psi` the exact solution seeded by `psi-hat^L_0`,
   `sum_{0 <= n <= n_1} E_Web(n)^2 M_Web(n)^2 <= C_w T_0^2 exp(-c_w/h)` (`n_1 = chainW.NR`, the last row with `u_n <= u_c - eta/2`).  Inputs: `growth_ratio` (the recurrence and `grow_gap`: `psi_{n+1} >= (1 + gamma) psi_n > 0`),
@@ -30,9 +31,16 @@ Notation as in `SoftQuant.lean`: `T_0 = |lam_L| / kappa_b`, `V_n` = the numerato
   `sum <= M_rho^2 (1 + 1/(gamma d_- sqrt h))` with the same order `(1+A)^{-1/3} h^{-1/2}` (no integral, no substitution `S`).
 * The sites with `|x_n| >= eta/4` are bounded crudely by `E <= exp(-c/h)` (the margin of `zeta_far`, `zeta_far_out`) times their number `N + 1`; the paper's single exponential `e^{-c eta^2/h}` is not needed.
 
+## Proved here (claim class: proved, no extra hypothesis beyond the chart structure and `ParabolicCylinderFacts`)
+
+`sq_sum_geom_le`, `geom_up`, `geom_down`, `Mbal_le_one`, `Eminus_left_small`, and **`weber_tail`** (item (ii), T1): for every `p`, `N >= N0`, `h <= h0`, `|X - bandHi| <= delta0` and every exact solution seeded by `psi-hat^L_0`,
+`sum_{0<=n<=chainW.NR} softEnvWeb(n)^2 <= C_w T_0^2 exp(-c_w/h)`.
+
 ## Not formalised
 
-See the end of the module for the status of each item.
+* T2 (right Weber tail (iii)): `weber_tail` applied to the mirror chart `CR` plus the re-indexing `n -> N - n` and the weight premise `|kappa^| |lam_R| <= C_k |lam_L|`.  Every ingredient is present (`weber_tail` is stated for an arbitrary soft chart, `uNode_mirror`, `jacSol_mirror`, `aOf_mirror`, `Zof_mirror`, `psiL_eq_kappa_psiR`); the transport of the sum is not written.
+* T3 (PC sites beyond the Airy layer (i)): `Eminus_crude`, `rhoWin_margin`, `pc_tail`.  `geom_up`/`geom_down` are the abstract ingredient; the remaining inputs are `Eminus_decay` with `gamma^2 = rho^2/4 + a` and the crude bound for `|x_n| >= eta/4`.  Note the chart constrains only `zeta^2` (`zeta_far_out`) for `x > 2 eta`, not its sign, so the crude bound there must use the margin of `zeta^2`, not monotonicity.
+* T4 (assembly `softEnv_eq`, `soft_tail`, and the relative form `(S4tail)` using the window mass of `PropThaWin` and the E4 premise `hmass`).
 -/
 
 @[expose] public section
@@ -95,6 +103,75 @@ lemma Mbal_le_one (a z : ℝ) : Mbal a z ≤ 1 := by
   apply Real.rpow_le_one_of_one_le_of_nonpos _ (by norm_num)
   refine le_trans ?_ (le_max_right _ _)
   exact Real.one_le_rpow (le_max_right _ _) (by norm_num)
+
+/-! ### T0': geometric decay along consecutive sites (for the PC tail (i)) -/
+
+/-- (T0') geometric decay to the right: `e_{n+1} <= θ e_n` on `[n0, n1)` gives `∑_{[n0,n1]} e <= e_{n0}/(1-θ)`. -/
+lemma geom_up (e : ℤ → ℝ) (θ : ℝ) (hθ0 : 0 ≤ θ) (hθ1 : θ < 1) (he0 : ∀ n, 0 ≤ e n) (n0 n1 : ℤ)
+    (hup : ∀ n, n0 ≤ n → n < n1 → e (n + 1) ≤ θ * e n) :
+    ∑ n ∈ Finset.Icc n0 n1, e n ≤ e n0 / (1 - θ) := by
+  by_cases hle : n0 ≤ n1
+  · have hpow : ∀ k : ℕ, n0 + k ≤ n1 → e (n0 + k) ≤ θ ^ k * e n0 := by
+      intro k
+      induction k with
+      | zero => intro _; simp
+      | succ k ih =>
+        intro hk
+        have h1 := ih (by omega)
+        have h2 := hup (n0 + k) (by omega) (by omega)
+        have e1 : n0 + ((k + 1 : ℕ) : ℤ) = n0 + k + 1 := by push_cast; ring
+        rw [e1]
+        calc e (n0 + k + 1) ≤ θ * e (n0 + k) := h2
+          _ ≤ θ * (θ ^ k * e n0) := mul_le_mul_of_nonneg_left h1 hθ0
+          _ = θ ^ (k + 1) * e n0 := by ring
+    have hsum : ∀ k : ℕ, n0 + k ≤ n1 → ∑ n ∈ Finset.Icc n0 (n0 + k), e n ≤ e n0 * ∑ j ∈ Finset.range (k + 1), θ ^ j := by
+      intro k
+      induction k with
+      | zero => intro _; simp
+      | succ k ih =>
+        intro hk
+        have e1 : n0 + ((k + 1 : ℕ) : ℤ) = n0 + k + 1 := by push_cast; ring
+        have hI : Finset.Icc n0 (n0 + k + 1) = insert (n0 + k + 1) (Finset.Icc n0 (n0 + k)) := by
+          ext x; simp only [Finset.mem_Icc, Finset.mem_insert]; omega
+        have hnm : (n0 + k + 1) ∉ Finset.Icc n0 (n0 + k) := by simp
+        rw [e1, hI, Finset.sum_insert hnm, Finset.sum_range_succ]
+        have h1 := ih (by omega)
+        have h2 := hpow (k + 1) (by omega)
+        rw [e1] at h2
+        calc e (n0 + k + 1) + ∑ n ∈ Finset.Icc n0 (n0 + k), e n ≤ θ ^ (k + 1) * e n0 + e n0 * ∑ j ∈ Finset.range (k + 1), θ ^ j := add_le_add h2 h1
+          _ = e n0 * (∑ j ∈ Finset.range (k + 1), θ ^ j + θ ^ (k + 1)) := by ring
+    have hk := hsum (n1 - n0).toNat (by omega)
+    have e2 : n0 + ((n1 - n0).toNat : ℤ) = n1 := by omega
+    rw [e2] at hk
+    have hg : ∑ j ∈ Finset.range ((n1 - n0).toNat + 1), θ ^ j ≤ 1 / (1 - θ) := by
+      have := geom_sum_Ico_le_of_lt_one (m := 0) (n := (n1 - n0).toNat + 1) hθ0 hθ1
+      rw [← Finset.range_eq_Ico] at this
+      simpa using this
+    calc _ ≤ e n0 * ∑ j ∈ Finset.range ((n1 - n0).toNat + 1), θ ^ j := hk
+      _ ≤ e n0 * (1 / (1 - θ)) := mul_le_mul_of_nonneg_left hg (he0 n0)
+      _ = e n0 / (1 - θ) := by ring
+  · rw [Finset.Icc_eq_empty (by omega)]
+    simp only [Finset.sum_empty]
+    exact div_nonneg (he0 n0) (by linarith)
+
+/-- (T0') geometric decay to the left: `e_{n-1} <= theta e_n` on `(n0, n1]` gives `sum_{[n0,n1]} e <= e_{n1}/(1-theta)`. -/
+lemma geom_down (e : ℤ → ℝ) (θ : ℝ) (hθ0 : 0 ≤ θ) (hθ1 : θ < 1) (he0' : ∀ n, 0 ≤ e n) (n0 n1 : ℤ)
+    (hdn : ∀ n, n0 < n → n ≤ n1 → e (n - 1) ≤ θ * e n) :
+    ∑ n ∈ Finset.Icc n0 n1, e n ≤ e n1 / (1 - θ) := by
+  have h := geom_up (fun n => e (-n)) θ hθ0 hθ1 (fun n => he0' _) (-n1) (-n0) (by
+    intro n hn1 hn2
+    have := hdn (-n) (by omega) (by omega)
+    have e1 : -(n + 1) = -n - 1 := by ring
+    simpa [e1] using this)
+  have hs : ∑ n ∈ Finset.Icc n0 n1, e n = ∑ n ∈ Finset.Icc (-n1) (-n0), e (-n) := by
+    apply Finset.sum_nbij' (fun n => -n) (fun n => -n)
+    · intro n hn; simp only [Finset.mem_Icc] at hn ⊢; omega
+    · intro n hn; simp only [Finset.mem_Icc] at hn ⊢; omega
+    · intro n _; ring
+    · intro n _; ring
+    · intro n _; simp
+  rw [hs]
+  simpa using h
 
 /-! ### T1: the left Weber tail -/
 
@@ -338,6 +415,22 @@ theorem weber_tail {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (hm
     _ = (2 / C.c3W) ^ 2 * Kr * CE ^ 2 * T0 ^ 2 * Real.exp (-((2 * softCQ C) / Fz.step N)) := by ring
 
 end Left
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.weber_tail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms weber_tail
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.sq_sum_geom_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sq_sum_geom_le
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.geom_up' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms geom_up
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.geom_down' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms geom_down
 
 end FormalResearch.JacobiEigenvectors.TheoremA
 
