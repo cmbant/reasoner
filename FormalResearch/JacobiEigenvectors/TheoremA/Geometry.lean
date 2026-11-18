@@ -40,7 +40,7 @@ noncomputable section
 
 namespace FormalResearch.JacobiEigenvectors.TheoremA
 
-open Set Filter Topology FormalResearch.JacobiEigenvectors.Setting
+open Set Filter Topology FormalResearch.JacobiEigenvectors.Setting FormalResearch.JacobiEigenvectors.Charts
 
 namespace HypMorse
 
@@ -1930,6 +1930,397 @@ theorem hypOpen : HypOpen := by
     (HypMorse.hypMorseEquiv L G0' B0' (g / 2) hL (half_pos hg) hG0'lb hG' hB').1 ⟨hPp', hPm'⟩
   exact ⟨half_pos hg, hG0'lb, HypMorse.H2_of_AProp hL hG' hB' hG0'lb (half_pos hg) hA', hBp', hBm'⟩
 
+/-! ### L2.G3: the frozen family and the uniform openness over a compact parameter set -/
+
+/-- Local uniformity in the parameter: a continuous family on `K × [0, L]` is uniformly close to its value at `μ0` in `s`,
+for `μ` near `μ0` in `K`. -/
+lemma eventually_uniform_close {Par : Type*} [TopologicalSpace Par] {K : Set Par} {L : ℝ}
+    (hK : IsCompact K) (f : Par → ℝ → ℝ) (hf : ContinuousOn (fun p : Par × ℝ => f p.1 p.2) (K ×ˢ Icc 0 L))
+    {μ0 : Par} (hμ0 : μ0 ∈ K) {η : ℝ} (hη : 0 < η) :
+    ∀ᶠ μ in 𝓝 μ0, μ ∈ K → ∀ s ∈ Icc 0 L, |f μ s - f μ0 s| < η := by
+  have key : ∀ᶠ μ in 𝓝 μ0, ∀ s ∈ Icc 0 L, (μ ∈ K → s ∈ Icc 0 L → |f μ s - f μ0 s| < η) := by
+    apply (isCompact_Icc (a := 0) (b := L)).eventually_forall_of_forall_eventually
+    intro s hs
+    have h2 : ContinuousOn (fun p : Par × ℝ => f μ0 p.2) (K ×ˢ Icc 0 L) := by
+      have h : ContinuousOn (fun s' : ℝ => f μ0 s') (Icc 0 L) :=
+        hf.comp (f := fun s' : ℝ => (μ0, s')) (continuousOn_const.prodMk continuousOn_id)
+          (fun x hx => ⟨hμ0, hx⟩)
+      exact h.comp continuousOn_snd (fun p hp => hp.2)
+    have hc : ContinuousWithinAt (fun p : Par × ℝ => f p.1 p.2 - f μ0 p.2) (K ×ˢ Icc 0 L) (μ0, s) :=
+      (hf (μ0, s) ⟨hμ0, hs⟩).sub (h2 (μ0, s) ⟨hμ0, hs⟩)
+    have ht : Tendsto (fun p : Par × ℝ => f p.1 p.2 - f μ0 p.2) (𝓝[K ×ˢ Icc 0 L] (μ0, s)) (𝓝 0) := by
+      have := hc
+      simpa [ContinuousWithinAt] using this
+    have hev := eventually_nhdsWithin_iff.1 (ht.eventually (Metric.ball_mem_nhds (0 : ℝ) hη))
+    filter_upwards [hev] with z hz
+    intro hzK hzI
+    have := hz ⟨hzK, hzI⟩
+    rw [Real.dist_eq, sub_zero] at this
+    exact this
+  filter_upwards [key] with μ hμ hμK s hs
+  exact hμ s hs hμK hs
+
+/-- A family of neighbourhoods of `t = 0` uniform in a compact parameter set. -/
+lemma uniform_in_param {Par : Type*} [TopologicalSpace Par] {K : Set Par} (hK : IsCompact K)
+    {Q : ℝ → Par → Prop} (h : ∀ μ0 ∈ K, ∀ᶠ z in 𝓝 ((0 : ℝ), μ0), Q z.1 z.2) :
+    ∃ t0 > 0, ∀ t : ℝ, |t| < t0 → ∀ μ ∈ K, Q t μ := by
+  have h' : ∀ᶠ t in 𝓝 (0 : ℝ), ∀ μ ∈ K, Q t μ :=
+    hK.eventually_forall_of_forall_eventually (fun μ hμ => h μ hμ)
+  obtain ⟨ε, hε, hball⟩ := Metric.eventually_nhds_iff.1 h'
+  refine ⟨ε, hε, fun t ht μ hμ => hball ?_ μ hμ⟩
+  rw [Real.dist_eq, sub_zero]
+  exact ht
+
+/-- Linearity of the iterated within-derivatives in a linear combination (for `i ≤ 2`). -/
+lemma iter_lin {f g : ℝ → ℝ} {L t s : ℝ} {i : ℕ} (hL : 0 < L) (hf : ContDiffOn ℝ 2 f (Icc 0 L))
+    (hg : ContDiffOn ℝ 2 g (Icc 0 L)) (hs : s ∈ Icc 0 L) (hi : i ≤ 2) :
+    iteratedDerivWithin i (fun x => f x + t * g x) (Icc 0 L) s =
+      iteratedDerivWithin i f (Icc 0 L) s + t * iteratedDerivWithin i g (Icc 0 L) s := by
+  have hu := uniqueDiffOn_Icc hL
+  have hi2 : (i : WithTop ℕ∞) ≤ 2 := by exact_mod_cast hi
+  have hfi : ContDiffWithinAt ℝ (i : WithTop ℕ∞) f (Icc 0 L) s := (hf.of_le hi2).contDiffWithinAt hs
+  have hgi : ContDiffWithinAt ℝ (i : WithTop ℕ∞) g (Icc 0 L) s := (hg.of_le hi2).contDiffWithinAt hs
+  have hgt : ContDiffWithinAt ℝ (i : WithTop ℕ∞) (fun x => t * g x) (Icc 0 L) s :=
+    contDiffWithinAt_const.mul hgi
+  have e1 : (fun x => f x + t * g x) = f + (fun x => t * g x) := rfl
+  rw [e1, iteratedDerivWithin_add hs hu hfi hgt, iteratedDerivWithin_const_mul hs hu t hgi]
+
+/-- **Uniform openness** over a compact parameter set: the perturbations `A0 μ + t A1 μ` (`t` small, `μ ∈ K`) of the
+principal symbols keep `Hyp` with `g/2`, if `Hyp` holds at each `μ ∈ K` with one `g` (the jets are continuous on `K × [0, L]`). -/
+lemma hyp_uniform {Par : Type*} [TopologicalSpace Par] {K : Set Par} {L g : ℝ} (hL : 0 < L) (hK : IsCompact K)
+    (A0 A1 B0 B1 : Par → ℝ → ℝ)
+    (hC2 : ∀ μ ∈ K, ContDiffOn ℝ 2 (A0 μ) (Icc 0 L) ∧ ContDiffOn ℝ 2 (A1 μ) (Icc 0 L) ∧
+      ContDiffOn ℝ 2 (B0 μ) (Icc 0 L) ∧ ContDiffOn ℝ 2 (B1 μ) (Icc 0 L))
+    (hcont : ∀ i ≤ 2, ContinuousOn (fun p : Par × ℝ => iteratedDerivWithin i (A0 p.1) (Icc 0 L) p.2) (K ×ˢ Icc 0 L) ∧
+      ContinuousOn (fun p : Par × ℝ => iteratedDerivWithin i (A1 p.1) (Icc 0 L) p.2) (K ×ˢ Icc 0 L) ∧
+      ContinuousOn (fun p : Par × ℝ => iteratedDerivWithin i (B0 p.1) (Icc 0 L) p.2) (K ×ˢ Icc 0 L) ∧
+      ContinuousOn (fun p : Par × ℝ => iteratedDerivWithin i (B1 p.1) (Icc 0 L) p.2) (K ×ˢ Icc 0 L))
+    (hHyp : ∀ μ ∈ K, Hyp L (A0 μ) (B0 μ) g) :
+    ∃ t0 > 0, ∀ t : ℝ, |t| < t0 → ∀ μ ∈ K,
+      Hyp L (fun s => A0 μ s + t * A1 μ s) (fun s => B0 μ s + t * B1 μ s) (g / 2) := by
+  -- a common bound for the derivatives of `A1, B1` of order `≤ 2` on `K × [0, L]`
+  have hS : IsCompact (K ×ˢ Icc 0 L) := hK.prod isCompact_Icc
+  obtain ⟨c0A, hc0A⟩ := hS.exists_bound_of_continuousOn (hcont 0 (by norm_num)).2.1
+  obtain ⟨c1A, hc1A⟩ := hS.exists_bound_of_continuousOn (hcont 1 (by norm_num)).2.1
+  obtain ⟨c2A, hc2A⟩ := hS.exists_bound_of_continuousOn (hcont 2 le_rfl).2.1
+  obtain ⟨c0B, hc0B⟩ := hS.exists_bound_of_continuousOn (hcont 0 (by norm_num)).2.2.2
+  obtain ⟨c1B, hc1B⟩ := hS.exists_bound_of_continuousOn (hcont 1 (by norm_num)).2.2.2
+  obtain ⟨c2B, hc2B⟩ := hS.exists_bound_of_continuousOn (hcont 2 le_rfl).2.2.2
+  set CB : ℝ := |c0A| + |c1A| + |c2A| + |c0B| + |c1B| + |c2B| + 1 with hCB
+  have hCBpos : 0 < CB := by
+    rw [hCB]
+    have := abs_nonneg c0A; have := abs_nonneg c1A; have := abs_nonneg c2A
+    have := abs_nonneg c0B; have := abs_nonneg c1B; have := abs_nonneg c2B
+    linarith
+  have hbound : ∀ μ ∈ K, ∀ s ∈ Icc 0 L, ∀ i ≤ 2,
+      |iteratedDerivWithin i (A1 μ) (Icc 0 L) s| ≤ CB ∧ |iteratedDerivWithin i (B1 μ) (Icc 0 L) s| ≤ CB := by
+    intro μ hμ s hs i hi
+    have hp : (μ, s) ∈ K ×ˢ Icc 0 L := ⟨hμ, hs⟩
+    have a0 := abs_nonneg c0A
+    have a1 := abs_nonneg c1A
+    have a2 := abs_nonneg c2A
+    have b0 := abs_nonneg c0B
+    have b1 := abs_nonneg c1B
+    have b2 := abs_nonneg c2B
+    have hA : |iteratedDerivWithin i (A1 μ) (Icc 0 L) s| ≤ CB := by
+      interval_cases i
+      · have := hc0A (μ, s) hp
+        simp only [Real.norm_eq_abs] at this
+        rw [hCB]; linarith [le_abs_self c0A]
+      · have := hc1A (μ, s) hp
+        simp only [Real.norm_eq_abs] at this
+        rw [hCB]; linarith [le_abs_self c1A]
+      · have := hc2A (μ, s) hp
+        simp only [Real.norm_eq_abs] at this
+        rw [hCB]; linarith [le_abs_self c2A]
+    have hB : |iteratedDerivWithin i (B1 μ) (Icc 0 L) s| ≤ CB := by
+      interval_cases i
+      · have := hc0B (μ, s) hp
+        simp only [Real.norm_eq_abs] at this
+        rw [hCB]; linarith [le_abs_self c0B]
+      · have := hc1B (μ, s) hp
+        simp only [Real.norm_eq_abs] at this
+        rw [hCB]; linarith [le_abs_self c1B]
+      · have := hc2B (μ, s) hp
+        simp only [Real.norm_eq_abs] at this
+        rw [hCB]; linarith [le_abs_self c2B]
+    exact ⟨hA, hB⟩
+  -- the local statement at each `μ0 ∈ K`
+  have hloc : ∀ μ0 ∈ K, ∀ᶠ z in 𝓝 ((0 : ℝ), μ0), (z.2 ∈ K →
+      Hyp L (fun s => A0 z.2 s + z.1 * A1 z.2 s) (fun s => B0 z.2 s + z.1 * B1 z.2 s) (g / 2)) := by
+    intro μ0 hμ0
+    obtain ⟨ε0, hε0, hH⟩ := hypOpen L (A0 μ0) (B0 μ0) g (hHyp μ0 hμ0) (hC2 μ0 hμ0).1 (hC2 μ0 hμ0).2.2.1
+    have hη : 0 < ε0 / 4 := by positivity
+    have hcloseA : ∀ i ≤ 2, ∀ᶠ μ in 𝓝 μ0, μ ∈ K → ∀ s ∈ Icc 0 L,
+        |iteratedDerivWithin i (A0 μ) (Icc 0 L) s - iteratedDerivWithin i (A0 μ0) (Icc 0 L) s| < ε0 / 4 :=
+      fun i hi => eventually_uniform_close hK (fun μ s => iteratedDerivWithin i (A0 μ) (Icc 0 L) s)
+        (hcont i hi).1 hμ0 hη
+    have hcloseB : ∀ i ≤ 2, ∀ᶠ μ in 𝓝 μ0, μ ∈ K → ∀ s ∈ Icc 0 L,
+        |iteratedDerivWithin i (B0 μ) (Icc 0 L) s - iteratedDerivWithin i (B0 μ0) (Icc 0 L) s| < ε0 / 4 :=
+      fun i hi => eventually_uniform_close hK (fun μ s => iteratedDerivWithin i (B0 μ) (Icc 0 L) s)
+        (hcont i hi).2.2.1 hμ0 hη
+    have hμev : ∀ᶠ μ in 𝓝 μ0, μ ∈ K → ∀ i ≤ 2, ∀ s ∈ Icc 0 L,
+        |iteratedDerivWithin i (A0 μ) (Icc 0 L) s - iteratedDerivWithin i (A0 μ0) (Icc 0 L) s| < ε0 / 4 ∧
+        |iteratedDerivWithin i (B0 μ) (Icc 0 L) s - iteratedDerivWithin i (B0 μ0) (Icc 0 L) s| < ε0 / 4 := by
+      have h0 := (hcloseA 0 (by norm_num)).and (hcloseB 0 (by norm_num))
+      have h1 := (hcloseA 1 (by norm_num)).and (hcloseB 1 (by norm_num))
+      have h2 := (hcloseA 2 le_rfl).and (hcloseB 2 le_rfl)
+      filter_upwards [h0, h1, h2] with μ a0 a1 a2 hμK i hi s hs
+      interval_cases i
+      · exact ⟨a0.1 hμK s hs, a0.2 hμK s hs⟩
+      · exact ⟨a1.1 hμK s hs, a1.2 hμK s hs⟩
+      · exact ⟨a2.1 hμK s hs, a2.2 hμK s hs⟩
+    have hτpos : 0 < ε0 / (4 * CB) := by positivity
+    have hτ_ev : ∀ᶠ t in 𝓝 (0 : ℝ), |t| < ε0 / (4 * CB) := by
+      filter_upwards [Metric.ball_mem_nhds (0 : ℝ) hτpos] with t ht
+      simpa [Real.dist_eq] using ht
+    filter_upwards [(continuous_fst.tendsto ((0 : ℝ), μ0)).eventually hτ_ev,
+      (continuous_snd.tendsto ((0 : ℝ), μ0)).eventually hμev] with z hzt hzμ hzK
+    have hzt' : |z.1| < ε0 / (4 * CB) := hzt
+    have hC := hC2 z.2 hzK
+    apply hH _ _ (hC.1.add (contDiffOn_const.mul hC.2.1)) (hC.2.2.1.add (contDiffOn_const.mul hC.2.2.2))
+    intro i hi s hs
+    have hlinA := iter_lin hL hC.1 hC.2.1 hs hi (t := z.1)
+    have hlinB := iter_lin hL hC.2.2.1 hC.2.2.2 hs hi (t := z.1)
+    have hdecA : iteratedDerivWithin i (fun s => A0 z.2 s + z.1 * A1 z.2 s) (Icc 0 L) s -
+        iteratedDerivWithin i (A0 μ0) (Icc 0 L) s =
+        (iteratedDerivWithin i (A0 z.2) (Icc 0 L) s - iteratedDerivWithin i (A0 μ0) (Icc 0 L) s) +
+          z.1 * iteratedDerivWithin i (A1 z.2) (Icc 0 L) s := by
+      rw [hlinA]; ring
+    have hdecB : iteratedDerivWithin i (fun s => B0 z.2 s + z.1 * B1 z.2 s) (Icc 0 L) s -
+        iteratedDerivWithin i (B0 μ0) (Icc 0 L) s =
+        (iteratedDerivWithin i (B0 z.2) (Icc 0 L) s - iteratedDerivWithin i (B0 μ0) (Icc 0 L) s) +
+          z.1 * iteratedDerivWithin i (B1 z.2) (Icc 0 L) s := by
+      rw [hlinB]; ring
+    obtain ⟨pA, pB⟩ := hzμ hzK i hi s hs
+    obtain ⟨bA, bB⟩ := hbound z.2 hzK s hs i hi
+    have hτCB : ε0 / (4 * CB) * CB = ε0 / 4 := by field_simp
+    have hmulA : |z.1 * iteratedDerivWithin i (A1 z.2) (Icc 0 L) s| ≤ ε0 / 4 := by
+      rw [abs_mul]
+      have h1 : |z.1| * |iteratedDerivWithin i (A1 z.2) (Icc 0 L) s| ≤ |z.1| * CB :=
+        mul_le_mul_of_nonneg_left bA (abs_nonneg _)
+      have h2 : |z.1| * CB ≤ ε0 / (4 * CB) * CB := mul_le_mul_of_nonneg_right hzt'.le hCBpos.le
+      linarith
+    have hmulB : |z.1 * iteratedDerivWithin i (B1 z.2) (Icc 0 L) s| ≤ ε0 / 4 := by
+      rw [abs_mul]
+      have h1 : |z.1| * |iteratedDerivWithin i (B1 z.2) (Icc 0 L) s| ≤ |z.1| * CB :=
+        mul_le_mul_of_nonneg_left bB (abs_nonneg _)
+      have h2 : |z.1| * CB ≤ ε0 / (4 * CB) * CB := mul_le_mul_of_nonneg_right hzt'.le hCBpos.le
+      linarith
+    constructor
+    · rw [hdecA]
+      have := abs_add_le ((iteratedDerivWithin i (A0 z.2) (Icc 0 L) s - iteratedDerivWithin i (A0 μ0) (Icc 0 L) s))
+        (z.1 * iteratedDerivWithin i (A1 z.2) (Icc 0 L) s)
+      linarith [pA.le]
+    · rw [hdecB]
+      have := abs_add_le ((iteratedDerivWithin i (B0 z.2) (Icc 0 L) s - iteratedDerivWithin i (B0 μ0) (Icc 0 L) s))
+        (z.1 * iteratedDerivWithin i (B1 z.2) (Icc 0 L) s)
+      linarith [pB.le]
+  obtain ⟨t0, ht0, hT⟩ := uniform_in_param hK
+    (Q := fun t μ => μ ∈ K → Hyp L (fun s => A0 μ s + t * A1 μ s) (fun s => B0 μ s + t * B1 μ s) (g / 2)) hloc
+  exact ⟨t0, ht0, fun t ht μ hμ => hT t ht μ hμ hμ⟩
+
+/-- `iter_lin` with a general regularity index `n ≥ i`. -/
+lemma iter_lin' {f g : ℝ → ℝ} {L t s : ℝ} {n i : ℕ} (hL : 0 < L) (hf : ContDiffOn ℝ (n : WithTop ℕ∞) f (Icc 0 L))
+    (hg : ContDiffOn ℝ (n : WithTop ℕ∞) g (Icc 0 L)) (hs : s ∈ Icc 0 L) (hi : i ≤ n) :
+    iteratedDerivWithin i (fun x => f x + t * g x) (Icc 0 L) s =
+      iteratedDerivWithin i f (Icc 0 L) s + t * iteratedDerivWithin i g (Icc 0 L) s := by
+  have hu := uniqueDiffOn_Icc hL
+  have hi2 : (i : WithTop ℕ∞) ≤ (n : WithTop ℕ∞) := by exact_mod_cast hi
+  have hfi : ContDiffWithinAt ℝ (i : WithTop ℕ∞) f (Icc 0 L) s := (hf.of_le hi2).contDiffWithinAt hs
+  have hgi : ContDiffWithinAt ℝ (i : WithTop ℕ∞) g (Icc 0 L) s := (hg.of_le hi2).contDiffWithinAt hs
+  have hgt : ContDiffWithinAt ℝ (i : WithTop ℕ∞) (fun x => t * g x) (Icc 0 L) s :=
+    contDiffWithinAt_const.mul hgi
+  have e1 : (fun x => f x + t * g x) = f + (fun x => t * g x) := rfl
+  rw [e1, iteratedDerivWithin_add hs hu hfi hgt, iteratedDerivWithin_const_mul hs hu t hgi]
+
+/-- The even-odd splitting of a finite sum over `range (2n)`. -/
+lemma sum_range_two_mul_split (f : ℕ → ℝ) (n : ℕ) :
+    ∑ i ∈ Finset.range (2 * n), f i = ∑ j ∈ Finset.range n, (f (2 * j) + f (2 * j + 1)) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [show 2 * (n + 1) = 2 * n + 1 + 1 by ring, Finset.sum_range_succ, Finset.sum_range_succ, ih,
+      Finset.sum_range_succ]
+    ring
+
+/-- The frozen symbol at an even index `2j ≤ 2K`: `G_{2j}(μ) + t G_{2j+1}(μ)`. -/
+lemma frozen_G_eq {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (Kidx j : ℕ) (hj : j ≤ Kidx)
+    (ν : Par × ℝ) :
+    (frozenFamily F Kidx).G (2 * j) ν = fun s => F.G (2 * j) ν.1 s + ν.2 * F.G (2 * j + 1) ν.1 s := by
+  funext s
+  simp only [frozenFamily]
+  rw [if_pos (show 2 * j % 2 = 0 ∧ 2 * j ≤ 2 * Kidx from ⟨by omega, by omega⟩)]
+
+lemma frozen_B_eq {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (Kidx j : ℕ) (hj : j ≤ Kidx)
+    (ν : Par × ℝ) :
+    (frozenFamily F Kidx).B (2 * j) ν = fun s => F.B (2 * j) ν.1 s + ν.2 * F.B (2 * j + 1) ν.1 s := by
+  funext s
+  simp only [frozenFamily]
+  rw [if_pos (show 2 * j % 2 = 0 ∧ 2 * j ≤ 2 * Kidx from ⟨by omega, by omega⟩)]
+
+/-- The jets of `s ↦ f(μ)(s) + t g(μ)(s)` on `K × [-t0, t0]` (regularity `n`). -/
+lemma jetReg_comb {Par : Type*} [TopologicalSpace Par] {K : Set Par} {L : ℝ} {n : ℕ} (hL : 0 < L) (t0 : ℝ)
+    {f g : Par → ℝ → ℝ} (hf : JetReg f K L n) (hg : JetReg g K L n) :
+    JetReg (fun ν : Par × ℝ => fun s => f ν.1 s + ν.2 * g ν.1 s) (paramSet K t0) L n := by
+  refine ⟨fun ν hν => ?_, fun i hi => ?_⟩
+  · have h1 : ContDiffOn ℝ (n : WithTop ℕ∞) (f ν.1) (Icc 0 L) := hf.1 ν.1 hν.1
+    have h2 : ContDiffOn ℝ (n : WithTop ℕ∞) (g ν.1) (Icc 0 L) := hg.1 ν.1 hν.1
+    exact h1.add (contDiffOn_const.mul h2)
+  · have hA : ContinuousOn (fun p : (Par × ℝ) × ℝ => iteratedDerivWithin i (f p.1.1) (Icc 0 L) p.2)
+        (paramSet K t0 ×ˢ Icc 0 L) := by
+      have hmap : MapsTo (fun p : (Par × ℝ) × ℝ => (p.1.1, p.2)) (paramSet K t0 ×ˢ Icc 0 L) (K ×ˢ Icc 0 L) :=
+        fun p hp => ⟨hp.1.1, hp.2⟩
+      exact (hf.2 i hi).comp ((continuous_fst.comp continuous_fst).prodMk continuous_snd).continuousOn hmap
+    have hB : ContinuousOn (fun p : (Par × ℝ) × ℝ => iteratedDerivWithin i (g p.1.1) (Icc 0 L) p.2)
+        (paramSet K t0 ×ˢ Icc 0 L) := by
+      have hmap : MapsTo (fun p : (Par × ℝ) × ℝ => (p.1.1, p.2)) (paramSet K t0 ×ˢ Icc 0 L) (K ×ˢ Icc 0 L) :=
+        fun p hp => ⟨hp.1.1, hp.2⟩
+      exact (hg.2 i hi).comp ((continuous_fst.comp continuous_fst).prodMk continuous_snd).continuousOn hmap
+    have hT : ContinuousOn (fun p : (Par × ℝ) × ℝ => p.1.2 * iteratedDerivWithin i (g p.1.1) (Icc 0 L) p.2)
+        (paramSet K t0 ×ˢ Icc 0 L) :=
+      ((continuous_snd.comp continuous_fst).continuousOn).mul hB
+    refine (hA.add hT).congr (fun p hp => ?_)
+    exact iter_lin' (n := n) hL (hf.1 p.1.1 hp.1.1) (hg.1 p.1.1 hp.1.1) hp.2 hi
+
+/-- The remainder identity of the frozen family (`G`-part). -/
+lemma frozen_identity_G {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K : ℕ) (ν : Par × ℝ) (h s : ℝ) :
+    (frozenFamily F K).Gh ν h s - ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * (frozenFamily F K).G (2 * j) ν s
+      = F.Gh ν.1 h s - ∑ i ∈ Finset.range (2 * K + 1 + 1), h ^ i * F.G i ν.1 s := by
+  have hA : ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * (frozenFamily F K).G (2 * j) ν s =
+      ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * F.G (2 * j) ν.1 s +
+        ν.2 * ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * F.G (2 * j + 1) ν.1 s := by
+    rw [Finset.mul_sum, ← Finset.sum_add_distrib]
+    apply Finset.sum_congr rfl
+    intro j hj
+    have hj' : j ≤ K := Nat.lt_succ_iff.1 (Finset.mem_range.1 hj)
+    rw [congrFun (frozen_G_eq F K j hj' ν) s]
+    ring
+  have hB : ∑ i ∈ Finset.range (2 * K + 1 + 1), h ^ i * F.G i ν.1 s =
+      ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * F.G (2 * j) ν.1 s +
+        h * ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * F.G (2 * j + 1) ν.1 s := by
+    have hsplit := sum_range_two_mul_split (fun i => h ^ i * F.G i ν.1 s) (K + 1)
+    rw [show 2 * K + 1 + 1 = 2 * (K + 1) by ring]
+    rw [hsplit, Finset.mul_sum, ← Finset.sum_add_distrib]
+    apply Finset.sum_congr rfl
+    intro j _
+    ring
+  have hGh : (frozenFamily F K).Gh ν h s =
+      F.Gh ν.1 h s + (ν.2 - h) * ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * F.G (2 * j + 1) ν.1 s := rfl
+  rw [hA, hB, hGh]
+  ring
+
+/-- The remainder identity of the frozen family (`B`-part). -/
+lemma frozen_identity_B {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K : ℕ) (ν : Par × ℝ) (h s : ℝ) :
+    (frozenFamily F K).Bh ν h s - ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * (frozenFamily F K).B (2 * j) ν s
+      = F.Bh ν.1 h s - ∑ i ∈ Finset.range (2 * K + 1 + 1), h ^ i * F.B i ν.1 s := by
+  have hA : ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * (frozenFamily F K).B (2 * j) ν s =
+      ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * F.B (2 * j) ν.1 s +
+        ν.2 * ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * F.B (2 * j + 1) ν.1 s := by
+    rw [Finset.mul_sum, ← Finset.sum_add_distrib]
+    apply Finset.sum_congr rfl
+    intro j hj
+    have hj' : j ≤ K := Nat.lt_succ_iff.1 (Finset.mem_range.1 hj)
+    rw [congrFun (frozen_B_eq F K j hj' ν) s]
+    ring
+  have hB : ∑ i ∈ Finset.range (2 * K + 1 + 1), h ^ i * F.B i ν.1 s =
+      ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * F.B (2 * j) ν.1 s +
+        h * ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * F.B (2 * j + 1) ν.1 s := by
+    have hsplit := sum_range_two_mul_split (fun i => h ^ i * F.B i ν.1 s) (K + 1)
+    rw [show 2 * K + 1 + 1 = 2 * (K + 1) by ring]
+    rw [hsplit, Finset.mul_sum, ← Finset.sum_add_distrib]
+    apply Finset.sum_congr rfl
+    intro j _
+    ring
+  have hBh : (frozenFamily F K).Bh ν h s =
+      F.Bh ν.1 h s + (ν.2 - h) * ∑ j ∈ Finset.range (K + 1), h ^ (2 * j) * F.B (2 * j + 1) ν.1 s := rfl
+  rw [hA, hB, hBh]
+  ring
+
+/-- `(E_K)` for the frozen family on `paramSet K t0`, with the regularity `r = regBudget (2 K + 1)`. -/
+lemma EK_frozen {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} (t0 : ℝ)
+    (hDM : DM F K (2 * Kidx + 1)) : EK (frozenFamily F Kidx) (paramSet K t0) Kidx (regBudget (2 * Kidx + 1)) := by
+  have hbud : regBudget (max (2 * Kidx - 1) 0) ≤ regBudget (2 * Kidx + 1) := by
+    unfold regBudget
+    omega
+  refine EK.mk hbud ?_ ?_
+  · intro j hj
+    have hG := hDM.reg (2 * j) (by omega)
+    have hG1 := hDM.reg (2 * j + 1) (by omega)
+    have e1 : (2 * j) / 2 = j := by omega
+    have e2 : (2 * j + 1) / 2 = j := by omega
+    rw [e1] at hG
+    rw [e2] at hG1
+    have hfunG : (frozenFamily F Kidx).G (2 * j) =
+        fun ν : Par × ℝ => fun s => F.G (2 * j) ν.1 s + ν.2 * F.G (2 * j + 1) ν.1 s :=
+      funext (fun ν => frozen_G_eq F Kidx j hj ν)
+    have hfunB : (frozenFamily F Kidx).B (2 * j) =
+        fun ν : Par × ℝ => fun s => F.B (2 * j) ν.1 s + ν.2 * F.B (2 * j + 1) ν.1 s :=
+      funext (fun ν => frozen_B_eq F Kidx j hj ν)
+    rw [hfunG, hfunB]
+    exact ⟨jetReg_comb F.L_pos t0 hG.1 hG1.1, jetReg_comb F.L_pos t0 hG.2 hG1.2⟩
+  · obtain ⟨C, hC⟩ := hDM.rem
+    refine ⟨C, fun ν hν N s hs => ?_⟩
+    obtain ⟨hG, hB⟩ := hC ν.1 hν.1 N s hs
+    constructor
+    · have e := frozen_identity_G F Kidx ν (F.step N) s
+      rw [show (frozenFamily F Kidx).step N = F.step N from rfl, e]
+      exact hG
+    · have e := frozen_identity_B F Kidx ν (F.step N) s
+      rw [show (frozenFamily F Kidx).step N = F.step N from rfl, e]
+      exact hB
+
+/-- **sec:tha-standing** (`FrozenStandard`), proved: the frozen family satisfies `(E_K)` and `(H1)`--`(H3)` on
+`K × [-t0, t0]` for a suitable `t0 > 0`. -/
+theorem frozenStandard {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K : Set Par) (Kidx : ℕ) :
+    FrozenStandard F K Kidx := by
+  intro hK hHypOn hDM
+  obtain ⟨g0, hg0⟩ := hHypOn
+  have hreg0 : ∀ μ ∈ K, ∀ j ≤ 1, ContDiffOn ℝ 2 (F.G j μ) (Icc 0 F.L) ∧ ContDiffOn ℝ 2 (F.B j μ) (Icc 0 F.L) := by
+    intro μ hμ j hj
+    have hr : (2 : WithTop ℕ∞) ≤ ((regBudget (2 * Kidx + 1) - 10 * (j / 2) : ℕ) : WithTop ℕ∞) := by
+      have : (2 : ℕ) ≤ regBudget (2 * Kidx + 1) - 10 * (j / 2) := by
+        unfold regBudget
+        omega
+      exact_mod_cast this
+    have hJ := hDM.reg j (by omega)
+    exact ⟨(hJ.1.1 μ hμ).of_le hr, (hJ.2.1 μ hμ).of_le hr⟩
+  have hC2 : ∀ μ ∈ K, ContDiffOn ℝ 2 (F.G 0 μ) (Icc 0 F.L) ∧ ContDiffOn ℝ 2 (F.G 1 μ) (Icc 0 F.L) ∧
+      ContDiffOn ℝ 2 (F.B 0 μ) (Icc 0 F.L) ∧ ContDiffOn ℝ 2 (F.B 1 μ) (Icc 0 F.L) := fun μ hμ =>
+    ⟨(hreg0 μ hμ 0 (by norm_num)).1, (hreg0 μ hμ 1 (by norm_num)).1,
+      (hreg0 μ hμ 0 (by norm_num)).2, (hreg0 μ hμ 1 (by norm_num)).2⟩
+  have hcont : ∀ i ≤ 2, ContinuousOn (fun p : Par × ℝ => iteratedDerivWithin i (F.G 0 p.1) (Icc 0 F.L) p.2) (K ×ˢ Icc 0 F.L) ∧
+      ContinuousOn (fun p : Par × ℝ => iteratedDerivWithin i (F.G 1 p.1) (Icc 0 F.L) p.2) (K ×ˢ Icc 0 F.L) ∧
+      ContinuousOn (fun p : Par × ℝ => iteratedDerivWithin i (F.B 0 p.1) (Icc 0 F.L) p.2) (K ×ˢ Icc 0 F.L) ∧
+      ContinuousOn (fun p : Par × ℝ => iteratedDerivWithin i (F.B 1 p.1) (Icc 0 F.L) p.2) (K ×ˢ Icc 0 F.L) := by
+    intro i hi
+    have hle : i ≤ regBudget (2 * Kidx + 1) - 10 * (0 / 2) := by
+      unfold regBudget at *
+      omega
+    have hle1 : i ≤ regBudget (2 * Kidx + 1) - 10 * (1 / 2) := by
+      unfold regBudget at *
+      omega
+    have hJ0 := hDM.reg 0 (by omega)
+    have hJ1 := hDM.reg 1 (by omega)
+    exact ⟨hJ0.1.2 i hle, hJ1.1.2 i hle1, hJ0.2.2 i hle, hJ1.2.2 i hle1⟩
+  obtain ⟨t0, ht0, hT⟩ := hyp_uniform F.L_pos hK (fun μ => F.G 0 μ) (fun μ => F.G 1 μ) (fun μ => F.B 0 μ)
+    (fun μ => F.B 1 μ) (fun μ hμ => hC2 μ hμ) (fun i hi => hcont i hi) (fun μ hμ => hg0 μ hμ)
+  refine ⟨t0 / 2, by positivity, regBudget (2 * Kidx + 1), ⟨?_, EK_frozen (t0 / 2) hDM, ?_⟩⟩
+  · exact hK.prod isCompact_Icc
+  · refine ⟨g0 / 2, fun ν hν => ?_⟩
+    obtain ⟨hμ, ht⟩ := hν
+    have hf0 : (frozenFamily F Kidx).G 0 ν = fun s => F.G 0 ν.1 s + ν.2 * F.G 1 ν.1 s := by
+      have := frozen_G_eq F Kidx 0 (Nat.zero_le _) ν
+      simpa using this
+    have hb0 : (frozenFamily F Kidx).B 0 ν = fun s => F.B 0 ν.1 s + ν.2 * F.B 1 ν.1 s := by
+      have := frozen_B_eq F Kidx 0 (Nat.zero_le _) ν
+      simpa using this
+    rw [hf0, hb0]
+    have hab : |ν.2| < t0 := by
+      rw [abs_lt]
+      constructor <;> linarith [ht.1, ht.2]
+    exact hT ν.2 hab ν.1 hμ
+
 end HypMorse
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.hypMorseEquiv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -1939,6 +2330,10 @@ end HypMorse
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.hypOpen' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.hypOpen
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.frozenStandard' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.frozenStandard
 
 end FormalResearch.JacobiEigenvectors.TheoremA
 
