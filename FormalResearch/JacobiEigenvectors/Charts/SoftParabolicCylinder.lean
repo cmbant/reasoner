@@ -61,6 +61,9 @@ sequences" (eq:tha-weber-seq, eq:tha-aPC, eq:tha-PCseq), "The soft edges" (eq:th
 * **New, F-W2-8 (item (4), `rho_one`/`theta_le`).**  For odd `m` and `q = m - 1` (one shift short) the paper has `Theta <= C log(1/h)` with defect weights `rho_k` not identically `1`; the structure fixes `rho = rho~ = 1` and
   `Theta <= Csum`, so a chart in the sense of this structure exists for `q = m - 1` only if the defect bound holds with `rho = 1`, i.e. `PropThaW2` item (4) is, as frozen, vacuous or implied by the full-order statement.  Not changed here (would require a chart-level
   `Lm` and `theta_le : Theta <= Csum Lm`); reported.
+* **New, F-W2-11 (round 5, R4: the lower half of (c)).**  The lower bound `|lambda_L| >= c lambda kappa_bal` (`TheoremA/SoftLower.lean`) uses the paper's Step 3 (i)--(iii); of its inputs `grow_gap` (growth margin of the exact solution, `eq:tha-S4grow`),
+  `collar_lbW` (lem:cha-W0 for the Weber chart) and `ratio2` (`r_2 = e^{-theta}(1+O(h))`) were fields of round 4, and the comparison `M_{j_1+1} <= C_M M_{j_1}` ("`M^2_Web ~ h^{1/2}` there") is the new field `ratioM`
+  (it needs an upper bound `k_2 <= C/h` at the two rows, which `Y_forb` does not give: `Y` is only bounded below there).  Nothing else was needed: `r_W >= 1 + gamma/2` is *derived* from the exact solution (`growth_ratio`) and the engine bound.
 * **New, F-W2-9 (endpoint).**  `prop:tha-W2` (1) displays the PC range as `u_c - eta/2 <= u_n`, `psi-hat^L` is Weber for `u_n <= u_c - eta/2` (item (2)); the two ranges overlap at one row.  `PropThaW2` now has the strict `u_c - eta/2 < u_n` in the PC bound.
 * **New, F-W2-10 (wf 1 1).**  The second member of the Weber pair was not pinned in the soft chart (only `wf 1 0`); `wfW_eq` pins both (as `BulkWeberChart.wf_eq`).
 
@@ -147,12 +150,13 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   Cmu : ℝ
   cz1 : ℝ
   consts_pos2 : 0 ≤ Cmu ∧ 0 < cz1
-  /-- **(round 4)** the bond bound `CA`, the growth margin `nu1`, the collar lower-bound constant `c3W`, the ratio constant `C2` (fields `bondA_le`, `grow_gap`, `collar_lbW`, `ratio2`). -/
+  /-- **(round 4)** the bond bound `CA`, the growth margin `nu1`, the collar lower-bound constant `c3W`, the ratio constant `C2`, the envelope ratio constant `CM` (fields `bondA_le`, `grow_gap`, `collar_lbW`, `ratio2`, `ratioM`). -/
   CA : ℝ
   nu1 : ℝ
   c3W : ℝ
   C2 : ℝ
-  consts_pos3 : 0 ≤ CA ∧ 0 < nu1 ∧ 0 < c3W ∧ 0 ≤ C2
+  CM : ℝ
+  consts_pos3 : 0 ≤ CA ∧ 0 < nu1 ∧ 0 < c3W ∧ 0 ≤ C2 ∧ 0 < CM
   /-- the fold `u_c = u_c^+` (the unique maximiser of `f_+`, (H3)). -/
   uc : Par → ℝ
   /-- the coordinate `zeta(x; alpha)` at `(mu, alpha, x)` and the shifts `mu_{2r}(alpha)` at `(r, mu, alpha)` (`muS 0 = mu_0`). -/
@@ -325,6 +329,10 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   ratio2 : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
     |(chain μ X N).phi (F.step N) 1 2 ((chain μ X N).jj 1 + 1)| ≤
       (1 + C2 * F.step N) * |(chain μ X N).phi (F.step N) 1 2 ((chain μ X N).jj 1)|
+  /-- **(round 5; app_thmA Step 3 (i), "`M^2_Web ≍ h^{1/2}` there")** the amplitude weight is comparable across the overlap bond: `M_{j_1+1} <= C_M M_{j_1}` (both `M_Web(j_1)` and `M_bal(a, Z_{j_1+1})` are
+  `k_2^{-1/4}` with `k_2 ≍ h^{-1}` at the two rows). -/
+  ratioM : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    (chain μ X N).M ((chain μ X N).jj 1 + 1) ≤ CM * (chain μ X N).M ((chain μ X N).jj 1)
 
 namespace SoftEdgeChart
 

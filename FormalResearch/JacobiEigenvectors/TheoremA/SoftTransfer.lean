@@ -297,6 +297,109 @@ lemma soft_pos :
     exact absurd hZb (not_lt.mpr (div_nonpos_of_nonpos_of_nonneg (not_lt.mp hneg) hsq.le))
 
 
+/-- **The weight ratio at the forbidden overlap**: `W_{j_1+1} <= C_w W_{j_1}` (one-step comparison of `E_-`, `E_- = E_Web/lam` at `j_1`). -/
+lemma soft_Wratio :
+    (C.chain μ X N).W ((C.chain μ X N).jj 1 + 1) ≤ C.tCw * (C.chain μ X N).W ((C.chain μ X N).jj 1) := by
+  obtain ⟨hP3, hj0, hj12, hj2NR, hx1, hx2, hx3, hza, hzb⟩ := C.soft_pos hμ hX hN hh hV
+  obtain ⟨-, hη, hdm, hdmp, -, hcF, -, hcZ⟩ := C.consts_pos
+  have hP3' : ((C.chain μ X N).rescale1 lam).P = 3 := hP3
+  set h := F.step N with hhdef
+  have hh0 : 0 < h := step_pos (F := F) N
+  have hh1 : h ≤ 1 := hh.trans C.softH1_le_one
+  have hhη : h ≤ C.η / 2 := hh.trans C.softH1_le_eta
+  have hdp : 0 < C.dp := lt_of_lt_of_le hdm hdmp
+  have hs : 0 < Real.sqrt h := Real.sqrt_pos.mpr hh0
+  have hs2 : Real.sqrt h ^ 2 = h := Real.sq_sqrt hh0.le
+  have hα := C.abs_alpha_le hX
+  -- weights
+  have hWj1 : (C.chain μ X N).W ((C.chain μ X N).jj 1) = Eminus (C.aOf μ X N) (C.Zof μ X N ((C.chain μ X N).jj 1)) := by
+    rw [C.W1_def μ hμ X hX N hN ((C.chain μ X N).jj 1) (mem_Icc.mpr ⟨hj0, le_rfl⟩)]
+    unfold softLamVal
+    exact div_div_self_eq _ _ (Ewell_pos _ _).ne'
+  have hWj2 : (C.chain μ X N).W ((C.chain μ X N).jj 1 + 1) = Eminus (C.aOf μ X N) (C.Zof μ X N ((C.chain μ X N).jj 1 + 1)) :=
+    C.W2_def μ hμ X hX N hN ((C.chain μ X N).jj 1 + 1) (mem_Icc.mpr ⟨le_rfl, by omega⟩)
+  -- the coordinate at the two rows
+  have hx12 : uNode h ((C.chain μ X N).jj 1 + 1) - C.uc μ - (uNode h ((C.chain μ X N).jj 1) - C.uc μ) = h := by
+    unfold uNode; push_cast; ring
+  have hx1lo : -(2 * C.η) ≤ uNode h ((C.chain μ X N).jj 1) - C.uc μ := by linarith
+  have hx2hi : uNode h ((C.chain μ X N).jj 1 + 1) - C.uc μ ≤ 2 * C.η := by
+    have : uNode h ((C.chain μ X N).jj 1 + 1) ≤ uNode h ((C.chain μ X N).jj 2 + 1) := uNode_mono_le hh0.le (by omega)
+    linarith
+  have hmvt1 := C.zeta_mvt hμ hα hx1lo (by linarith) hx2hi
+  rw [hx12] at hmvt1
+  have hx2le : uNode h ((C.chain μ X N).jj 1 + 1) - C.uc μ ≤ uNode h ((C.chain μ X N).jj 2) - C.uc μ := by
+    have : uNode h ((C.chain μ X N).jj 1 + 1) ≤ uNode h ((C.chain μ X N).jj 2) := uNode_mono_le hh0.le (by omega)
+    linarith
+  have hx2d : uNode h ((C.chain μ X N).jj 2) - C.uc μ ≤ 2 * C.η := by
+    have : uNode h ((C.chain μ X N).jj 2) ≤ uNode h ((C.chain μ X N).jj 2 + 1) := uNode_mono_le hh0.le (by omega)
+    linarith
+  have hmvt2 := C.zeta_mvt hμ hα (by linarith) hx2le hx2d
+  have hz2neg : C.zeta μ (F.bandHi μ - X) (uNode h ((C.chain μ X N).jj 1 + 1) - C.uc μ) ≤ 0 := by
+    have := mul_nonneg hdm.le (sub_nonneg.mpr hx2le)
+    linarith [hmvt2.1, hza]
+  have hz12 : C.zeta μ (F.bandHi μ - X) (uNode h ((C.chain μ X N).jj 1) - C.uc μ) ≤ C.zeta μ (F.bandHi μ - X) (uNode h ((C.chain μ X N).jj 1 + 1) - C.uc μ) := by
+    have := mul_nonneg hdm.le hh0.le
+    linarith [hmvt1.1]
+  -- Z comparisons
+  have hZ12 : C.Zof μ X N ((C.chain μ X N).jj 1) ≤ C.Zof μ X N ((C.chain μ X N).jj 1 + 1) := by
+    rw [Zof_eq, Zof_eq]; exact div_le_div_of_nonneg_right hz12 hs.le
+  have hZ2 : C.Zof μ X N ((C.chain μ X N).jj 1 + 1) ≤ 0 := by
+    rw [Zof_eq]; exact div_nonpos_of_nonpos_of_nonneg hz2neg hs.le
+  -- bound for zeta at x1
+  have hz0 : |C.zeta μ (F.bandHi μ - X) 0| ≤ C.cZ * C.δ0 := by
+    have := C.zeta_alpha μ hμ _ hα
+    have h2 : C.cZ * |F.bandHi μ - X| ≤ C.cZ * C.δ0 := mul_le_mul_of_nonneg_left hα hcZ.le
+    linarith
+  have hmvt0 := C.zeta_mvt hμ hα hx1lo (by linarith : uNode h ((C.chain μ X N).jj 1) - C.uc μ ≤ 0) (by linarith : (0 : ℝ) ≤ 2 * C.η)
+  have hzb1 : |C.zeta μ (F.bandHi μ - X) (uNode h ((C.chain μ X N).jj 1) - C.uc μ)| ≤ C.cZ * C.δ0 + 2 * C.dp * C.η := by
+    have h1 := abs_le.mp hz0
+    have h2 : C.dp * (0 - (uNode h ((C.chain μ X N).jj 1) - C.uc μ)) ≤ C.dp * (2 * C.η) :=
+      mul_le_mul_of_nonneg_left (by linarith) hdp.le
+    have hn := mul_nonneg hdm.le (by linarith : (0 : ℝ) ≤ 0 - (uNode h ((C.chain μ X N).jj 1) - C.uc μ))
+    rw [abs_le]
+    constructor <;> linarith [hmvt0.1, hmvt0.2]
+  -- exponent of the one-step comparison
+  have hdiffZ : C.Zof μ X N ((C.chain μ X N).jj 1 + 1) - C.Zof μ X N ((C.chain μ X N).jj 1) ≤ C.dp * Real.sqrt h := by
+    rw [Zof_eq, Zof_eq, ← sub_div, div_le_iff₀ hs]
+    have : C.dp * Real.sqrt h * Real.sqrt h = C.dp * h := by rw [mul_assoc, ← sq, hs2]
+    rw [this]; exact hmvt1.2
+  have hdiffZ0 : 0 ≤ C.zeta μ (F.bandHi μ - X) (uNode h ((C.chain μ X N).jj 1 + 1) - C.uc μ) / Real.sqrt h
+      - C.zeta μ (F.bandHi μ - X) (uNode h ((C.chain μ X N).jj 1) - C.uc μ) / Real.sqrt h := by
+    rw [← sub_div]; exact div_nonneg (sub_nonneg.mpr hz12) hs.le
+  have hZ1abs : |C.Zof μ X N ((C.chain μ X N).jj 1)| ≤ (C.cZ * C.δ0 + 2 * C.dp * C.η) / Real.sqrt h := by
+    rw [Zof_eq, abs_div, abs_of_pos hs]
+    exact div_le_div_of_nonneg_right hzb1 hs.le
+  have hamax : Real.sqrt (max (C.aOf μ X N) 0) ≤ Real.sqrt (C.Cmu * (1 + ((q / 2 : ℕ) : ℝ))) / Real.sqrt h := by
+    rw [← Real.sqrt_div (by have := C.consts_pos2.1; positivity)]
+    apply Real.sqrt_le_sqrt
+    have hmu := C.muTilde_abs_le hμ hX hh1
+    rw [aOf_eq]
+    apply max_le
+    · have : -(1 / h) * C.muTilde μ X N ≤ C.Cmu * (1 + ((q / 2 : ℕ) : ℝ)) / h := by
+        have h1 : -(1 / h) * C.muTilde μ X N = (-C.muTilde μ X N) / h := by ring
+        rw [h1]
+        exact div_le_div_of_nonneg_right (by linarith [abs_le.mp hmu]) hh0.le
+      exact this
+    · exact div_nonneg (mul_nonneg C.consts_pos2.1 (by positivity)) hh0.le
+  have hexp : (C.Zof μ X N ((C.chain μ X N).jj 1 + 1) - C.Zof μ X N ((C.chain μ X N).jj 1)) *
+      (|C.Zof μ X N ((C.chain μ X N).jj 1)| / 2 + Real.sqrt (max (C.aOf μ X N) 0)) ≤ C.tDw := by
+    have hfac : |C.Zof μ X N ((C.chain μ X N).jj 1)| / 2 + Real.sqrt (max (C.aOf μ X N) 0) ≤
+        ((C.cZ * C.δ0 + 2 * C.dp * C.η) / 2 + Real.sqrt (C.Cmu * (1 + ((q / 2 : ℕ) : ℝ)))) / Real.sqrt h := by
+      have := add_le_add (div_le_div_of_nonneg_right hZ1abs (by norm_num : (0 : ℝ) ≤ 2)) hamax
+      calc _ ≤ _ := this
+        _ = _ := by field_simp
+    have hnn : 0 ≤ |C.Zof μ X N ((C.chain μ X N).jj 1)| / 2 + Real.sqrt (max (C.aOf μ X N) 0) := by positivity
+    have hd0 : 0 ≤ C.Zof μ X N ((C.chain μ X N).jj 1 + 1) - C.Zof μ X N ((C.chain μ X N).jj 1) := sub_nonneg.mpr hZ12
+    calc _ ≤ (C.dp * Real.sqrt h) * (((C.cZ * C.δ0 + 2 * C.dp * C.η) / 2 + Real.sqrt (C.Cmu * (1 + ((q / 2 : ℕ) : ℝ)))) / Real.sqrt h) :=
+          mul_le_mul hdiffZ hfac hnn (by positivity)
+      _ = C.tDw := by unfold tDw; field_simp
+  have hw : (C.chain μ X N).W ((C.chain μ X N).jj 1 + 1) ≤ C.tCw * (C.chain μ X N).W ((C.chain μ X N).jj 1) := by
+    rw [hWj1, hWj2]
+    have hr := Eminus_ratio (C.aOf μ X N) hZ12 hZ2
+    refine le_trans hr ?_
+    exact mul_le_mul_of_nonneg_right (Real.exp_le_exp.mpr hexp) (Eminus_pos _ _).le
+  exact hw
+
 /-- **(S3) at the forbidden overlap `j_1`** (`app_thmA` Step 3, `engine.tex` case (ii)), derived from the chart fields. -/
 lemma soft_transfer_one :
     ((C.chain μ X N).rescale1 lam).TransferAtΛ C.softLamC (F.step N) 1 := by
@@ -401,11 +504,7 @@ lemma soft_transfer_one :
     calc _ ≤ (C.dp * Real.sqrt h) * (((C.cZ * C.δ0 + 2 * C.dp * C.η) / 2 + Real.sqrt (C.Cmu * (1 + ((q / 2 : ℕ) : ℝ)))) / Real.sqrt h) :=
           mul_le_mul hdiffZ hfac hnn (by positivity)
       _ = C.tDw := by unfold tDw; field_simp
-  have hw : (C.chain μ X N).W ((C.chain μ X N).jj 1 + 1) ≤ C.tCw * (C.chain μ X N).W ((C.chain μ X N).jj 1) := by
-    rw [hWj1, hWj2]
-    have hr := Eminus_ratio (C.aOf μ X N) hZ12 hZ2
-    refine le_trans hr ?_
-    exact mul_le_mul_of_nonneg_right (Real.exp_le_exp.mpr hexp) (Eminus_pos _ _).le
+  have hw := C.soft_Wratio hμ hX hN hh hV
   -- the margins `k_2 >= c/h`
   have hωeq : |(C.chain μ X N).ω 1 h| = Real.sqrt h := by
     obtain ⟨-, -, -, -, -, hω, -⟩ := C.patch1_eq μ hμ X hX N hN
