@@ -6,7 +6,7 @@ public import FormalResearch.JacobiEigenvectors.Setting.EigenSystem
 public import FormalResearch.JacobiEigenvectors.TheoremA.BulkNormalisation
 
 /-!
-# Paper J, Layer 2 (L2.C7): the routine algebra of `prop:tha-W2` (2), (3) (chain steps E1, E2)
+# Paper J, Layer 2 (L2.C7): the routine algebra of `prop:tha-W2` (2), (3) (chain steps E1, E2, E5, E7)
 
 Source: `app_thmA.tex` "The soft edges: proof of Proposition prop:tha-W2", Step 4 (first paragraph: `psi^L = kappa psi^R` and `Psi = psi^L/||psi^L||`), the "mirror statement" used throughout (item (1) for `psi^R`),
 and `Charts/SoftParabolicCylinder.lean` (`SoftMirror`).
@@ -18,6 +18,9 @@ and `Charts/SoftParabolicCylinder.lean` (`SoftMirror`).
   (`psi^L = kappa psi^R` on `0..N` for the eigen column and a solution `psi^R` of rows `1..N`, `psi^R_N != 0`), and the combination `psiL_eq_kappa_psiR` with the mirror transport (`psi^R_n := psi'_{N-n}`, `psi'` seeded for the mirror family).
 * **E2** (mirror transport; `uNode_mirror`, `bondA_mirror`, `diagQ_mirror`, `lop_mirror` are those of `BulkNormalisation.lean`): `jacSol_mirror` (`JacSol (mirrorFamily F) mu N X R psi'` implies the recurrence of `F` for `n -> psi'(N - n)` on
   `N - R < m <= N`), `bandHi_mirror` (`X_s^+` of the mirror family is that of the family), and, for `SoftMirror CL CR`, `Zof_mirror` (`Z_R(N - n) = -Z_L(n)`), `aOf_mirror` (`a_R = a_L`).
+
+* **E5, E7** (abstract `l^2` lemmas, independent of the charts): `abs_sum_mul_le_sqrt`, `sqrt_sum_add_le` (Minkowski), `abs_sqrt_sub_le`, `glueKappa_sub_le` (`|hat kappa - kappa| <= ||a - kappa b|| / ||b||`, Step 4 (b)),
+  `normalised_error` (`|psi/||psi|| - psi^/||psi^||| <= (2 + 2 C sqrt Cs) eps V/||psi^||` from `|psi - psi^| <= eps V`, `|psi^| <= C V`, `sum V^2 <= Cs ||psi^||^2`, `eps sqrt Cs <= 1/2`, Step 4 (e)).
 
 ## Not formalised
 
@@ -306,6 +309,121 @@ theorem psiL_eq_kappa_psiR {Par : Type*} (F : SymbolFamily Par) (μ : Par) (N : 
   rw [hL n hn, hL N hN0, h1]
   field_simp
 
+/-! ### E5, E7: the algebra of matching and normalisation (abstract `l^2` lemmas) -/
+
+section L2Algebra
+
+/-- Cauchy--Schwarz in the form `|sum u v| <= sqrt(sum u^2) sqrt(sum v^2)`. -/
+lemma abs_sum_mul_le_sqrt (S : Finset ℤ) (u v : ℤ → ℝ) :
+    |∑ n ∈ S, u n * v n| ≤ Real.sqrt (∑ n ∈ S, u n ^ 2) * Real.sqrt (∑ n ∈ S, v n ^ 2) := by
+  rw [← Real.sqrt_mul (Finset.sum_nonneg (fun n _ => sq_nonneg _))]
+  apply Real.abs_le_sqrt
+  exact Finset.sum_mul_sq_le_sq_mul_sq S u v
+
+/-- Minkowski in `l^2`: `sqrt(sum (a+b)^2) <= sqrt(sum a^2) + sqrt(sum b^2)`. -/
+lemma sqrt_sum_add_le (S : Finset ℤ) (a b : ℤ → ℝ) :
+    Real.sqrt (∑ n ∈ S, (a n + b n) ^ 2) ≤ Real.sqrt (∑ n ∈ S, a n ^ 2) + Real.sqrt (∑ n ∈ S, b n ^ 2) := by
+  have ha : 0 ≤ ∑ n ∈ S, a n ^ 2 := Finset.sum_nonneg (fun n _ => sq_nonneg _)
+  have hb : 0 ≤ ∑ n ∈ S, b n ^ 2 := Finset.sum_nonneg (fun n _ => sq_nonneg _)
+  apply Real.sqrt_le_iff.mpr
+  refine ⟨by positivity, ?_⟩
+  have hcs := abs_sum_mul_le_sqrt S a b
+  have e : ∑ n ∈ S, (a n + b n) ^ 2 = ∑ n ∈ S, a n ^ 2 + 2 * ∑ n ∈ S, a n * b n + ∑ n ∈ S, b n ^ 2 := by
+    rw [Finset.mul_sum, ← Finset.sum_add_distrib, ← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl (fun n _ => by ring)
+  have h1 := le_abs_self (∑ n ∈ S, a n * b n)
+  have h2 := Real.sq_sqrt ha
+  have h3 := Real.sq_sqrt hb
+  rw [e]
+  nlinarith [h1, hcs, h2, h3]
+
+/-- reverse Minkowski: `|sqrt(sum a^2) - sqrt(sum b^2)| <= sqrt(sum (a-b)^2)`. -/
+lemma abs_sqrt_sub_le (S : Finset ℤ) (a b : ℤ → ℝ) :
+    |Real.sqrt (∑ n ∈ S, a n ^ 2) - Real.sqrt (∑ n ∈ S, b n ^ 2)| ≤ Real.sqrt (∑ n ∈ S, (a n - b n) ^ 2) := by
+  rw [abs_le]
+  have h1 := sqrt_sum_add_le S (fun n => a n - b n) b
+  have h2 := sqrt_sum_add_le S (fun n => b n - a n) a
+  simp only [sub_add_cancel] at h1 h2
+  have e : ∑ n ∈ S, (b n - a n) ^ 2 = ∑ n ∈ S, (a n - b n) ^ 2 := Finset.sum_congr rfl (fun n _ => by ring)
+  rw [e] at h2
+  constructor <;> linarith
+
+/-- **E5 (matching, Cauchy--Schwarz)**: `hat kappa - kappa = sum (a - kappa b) b / sum b^2` and `|hat kappa - kappa| <= sqrt(sum (a - kappa b)^2) / sqrt(sum b^2)`
+(app_thmA Step 4 (b)). -/
+lemma glueKappa_sub_le (a b : ℤ → ℝ) (Ω : Finset ℤ) (κ : ℝ) (hb : 0 < ∑ n ∈ Ω, b n ^ 2) :
+    |glueKappa a b Ω - κ| ≤ Real.sqrt (∑ n ∈ Ω, (a n - κ * b n) ^ 2) / Real.sqrt (∑ n ∈ Ω, b n ^ 2) := by
+  have e : glueKappa a b Ω - κ = (∑ n ∈ Ω, (a n - κ * b n) * b n) / ∑ n ∈ Ω, b n ^ 2 := by
+    unfold glueKappa
+    field_simp
+    rw [Finset.sum_mul, ← Finset.sum_sub_distrib]
+    exact Finset.sum_congr rfl (fun n _ => by ring)
+  rw [e, abs_div, abs_of_pos hb]
+  have hs : 0 < Real.sqrt (∑ n ∈ Ω, b n ^ 2) := Real.sqrt_pos.mpr hb
+  have h := abs_sum_mul_le_sqrt Ω (fun n => a n - κ * b n) b
+  rw [div_le_div_iff₀ hb hs]
+  have h2 := Real.sq_sqrt hb.le
+  nlinarith [h, h2, Real.sqrt_nonneg (∑ n ∈ Ω, (a n - κ * b n) ^ 2)]
+
+/-- **E7 (normalisation, app_thmA Step 4 (e))**: if `|psi - psi^| <= eps V`, `|psi^| <= C V`, `sum V^2 <= Cs sum psi^^2` and `eps sqrt Cs <= 1/2`, then the normalised vectors differ by
+`(2 + 2 C sqrt Cs) eps V / ||psi^||`. -/
+theorem normalised_error (S : Finset ℤ) (ψ ψh V : ℤ → ℝ) (ε C Cs : ℝ) (hε : 0 ≤ ε) (hC : 0 ≤ C) (hCs : 0 ≤ Cs)
+    (hNpos : 0 < ∑ n ∈ S, ψh n ^ 2) (hV : ∀ n ∈ S, 0 ≤ V n)
+    (herr : ∀ n ∈ S, |ψ n - ψh n| ≤ ε * V n) (henv : ∀ n ∈ S, |ψh n| ≤ C * V n)
+    (hsum : ∑ n ∈ S, V n ^ 2 ≤ Cs * ∑ n ∈ S, ψh n ^ 2) (hsmall : ε * Real.sqrt Cs ≤ 1 / 2) :
+    ∀ n ∈ S, |ψ n / Real.sqrt (∑ n ∈ S, ψ n ^ 2) - ψh n / Real.sqrt (∑ n ∈ S, ψh n ^ 2)|
+      ≤ (2 + 2 * C * Real.sqrt Cs) * ε * V n / Real.sqrt (∑ n ∈ S, ψh n ^ 2) := by
+  intro n hn
+  set N := Real.sqrt (∑ n ∈ S, ψh n ^ 2) with hN
+  set M := Real.sqrt (∑ n ∈ S, ψ n ^ 2) with hM
+  have hNp : 0 < N := Real.sqrt_pos.mpr hNpos
+  have hsC : 0 ≤ Real.sqrt Cs := Real.sqrt_nonneg _
+  -- (1) the `l^2` distance
+  have hD : Real.sqrt (∑ n ∈ S, (ψ n - ψh n) ^ 2) ≤ ε * Real.sqrt Cs * N := by
+    apply Real.sqrt_le_iff.mpr
+    refine ⟨by positivity, ?_⟩
+    calc ∑ n ∈ S, (ψ n - ψh n) ^ 2 ≤ ∑ n ∈ S, ε ^ 2 * V n ^ 2 := by
+          refine Finset.sum_le_sum (fun n hn => ?_)
+          have := herr n hn
+          have h0 := abs_nonneg (ψ n - ψh n)
+          calc (ψ n - ψh n) ^ 2 = |ψ n - ψh n| ^ 2 := (sq_abs _).symm
+            _ ≤ (ε * V n) ^ 2 := pow_le_pow_left₀ h0 this 2
+            _ = _ := by ring
+      _ = ε ^ 2 * ∑ n ∈ S, V n ^ 2 := by rw [Finset.mul_sum]
+      _ ≤ ε ^ 2 * (Cs * ∑ n ∈ S, ψh n ^ 2) := mul_le_mul_of_nonneg_left hsum (sq_nonneg _)
+      _ = (ε * Real.sqrt Cs * N) ^ 2 := by
+          rw [mul_pow, mul_pow, Real.sq_sqrt hCs, hN, Real.sq_sqrt hNpos.le]; ring
+  have hMN := abs_sqrt_sub_le S ψ ψh
+  rw [← hM, ← hN] at hMN
+  have hMN' : |M - N| ≤ ε * Real.sqrt Cs * N := hMN.trans hD
+  have hM2 : N / 2 ≤ M := by
+    have := (abs_le.mp hMN').1
+    nlinarith [mul_le_mul_of_nonneg_right hsmall hNp.le]
+  have hMp : 0 < M := by linarith
+  have hVn := hV n hn
+  have h1 := herr n hn
+  have h2 := henv n hn
+  have key : ψ n / M - ψh n / N = (ψ n - ψh n) / M + ψh n * (N - M) / (M * N) := by
+    field_simp
+    ring
+  rw [key]
+  refine (abs_add_le _ _).trans ?_
+  have t1 : |(ψ n - ψh n) / M| ≤ 2 * ε * V n / N := by
+    rw [abs_div, abs_of_pos hMp, div_le_div_iff₀ hMp hNp]
+    nlinarith [h1, abs_nonneg (ψ n - ψh n), hVn, hε]
+  have t2 : |ψh n * (N - M) / (M * N)| ≤ 2 * C * Real.sqrt Cs * ε * V n / N := by
+    rw [abs_div, abs_mul, abs_of_pos (mul_pos hMp hNp), div_le_div_iff₀ (mul_pos hMp hNp) hNp, abs_sub_comm]
+    have e1 : |ψh n| * |M - N| ≤ (C * V n) * (ε * Real.sqrt Cs * N) :=
+      mul_le_mul h2 hMN' (abs_nonneg _) (by positivity)
+    have e2 : 0 ≤ (C * V n) * (ε * Real.sqrt Cs * N) := by positivity
+    calc |ψh n| * |M - N| * N ≤ (C * V n) * (ε * Real.sqrt Cs * N) * N := mul_le_mul_of_nonneg_right e1 hNp.le
+      _ ≤ (C * V n) * (ε * Real.sqrt Cs * N) * (2 * M) := by
+          apply mul_le_mul_of_nonneg_left (by linarith) e2
+      _ = 2 * C * Real.sqrt Cs * ε * V n * (M * N) := by ring
+  calc _ ≤ 2 * ε * V n / N + 2 * C * Real.sqrt Cs * ε * V n / N := add_le_add t1 t2
+    _ = _ := by field_simp
+
+end L2Algebra
+
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.eig_eq_normalised' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms eig_eq_normalised
@@ -325,6 +443,14 @@ theorem psiL_eq_kappa_psiR {Par : Type*} (F : SymbolFamily Par) (μ : Par) (N : 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.psiL_eq_kappa_psiR' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms psiL_eq_kappa_psiR
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.normalised_error' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms normalised_error
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.glueKappa_sub_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms glueKappa_sub_le
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.aOf_mirror' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
