@@ -73,8 +73,10 @@ ladder, (SM1)--(SM3)), `eq:eng-ansatz`, `thm:eng-defect` (1)--(3); proofs in `ap
    relations.  A ladder defined on an interval only must be extended to `ℝ` with these identities to fit the
    structure; stating them on a domain is an open improvement.
 
-Not formalised: the existence of the ladder (the paper's Remark on the Weber/parabolic-cylinder charts), the
-parity-freezing identity of Section 3, and anything about the corrector recursion (`thm:eng-corr`).
+Not formalised here: the existence of the ladder (the paper's Remark on the Weber/parabolic-cylinder charts) and the
+parity-freezing identity of Section 3.  The corrector recursion and the defect order (`thm:eng-corr`) are formalised
+in `Engine/CorrectorOrder.lean`, `Engine/CorrectorDefect.lean` and `Engine/Corrector.lean` (`eng_corr`), on top of the
+identities of this file.
 -/
 
 @[expose] public section

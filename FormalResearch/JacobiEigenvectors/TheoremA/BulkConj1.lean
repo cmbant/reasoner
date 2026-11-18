@@ -1192,6 +1192,10 @@ theorem propThaW {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par ×
   exact ⟨bulkSolutionBound_of_one_le CL hm, bulkSolutionBound_of_one_le CR hm,
     bulk_conj1 CL CR hm hcoup r hr, bulk_collar_bound CL CR⟩
 
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.bulk_conj1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.bulk_conj1
+
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.propThaW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.propThaW

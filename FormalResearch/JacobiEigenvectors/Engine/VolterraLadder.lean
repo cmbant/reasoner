@@ -45,8 +45,10 @@ identities of `thm:eng-defect` (`Defect`) and the multi-patch theorem `volterra_
    `ladder_pair_stability(_forbidden)` is formalised: the hypotheses are not shown to be jointly satisfiable by a
    concrete ladder (`constant_ladder` of `Defect` has `𝒟 = 1` and no hard edge).
 5. The residual at the hard-edge site is claimed for `α = 1` only (the paper: `r²_{1,0}` not required).
-6. The defect bounds and envelopes are hypotheses: the charts of Section 3 (which supply them for the Weber and
-   parabolic-cylinder ladders) and the corrector recursion `thm:eng-corr` are not formalised.
+6. The defect bounds and envelopes are hypotheses: the charts of Section 3 (which supply the envelopes for the Weber and
+   parabolic-cylinder ladders) are not formalised.  The defect order of the correctors (`thm:eng-corr`) is formalised in
+   `Engine/Corrector.lean` (`eng_corr`, `eng_corr_full`, `eng_corr_site`), but the link from its conclusion
+   (`O(h^{m+1})` for `defectRow`) to the sitewise bounds `|𝔄^tot| ≤ K_D h^{m+1} ρ_k` with the chart weights `ρ_k` is not formalised.
 
 No new analysis: the corollary is `volterra_multi` with the three bounds discharged.
 -/

@@ -34,9 +34,9 @@ explicit value at the bond `0`, which is the `casD` of the frozen `TheoremA/Stat
 
 ## Not formalised
 
-The consequences of the Green identity for the zero counting (simplicity of the zeros, sign changes between windows): lem:tha-count,
-item L2.C5, not written: the frozen `PropThaCount` is false without `1 ≤ N` and positive bonds (two degenerate families with all bonds
-zero give counterexamples at `N = 0` and `N = 1`), and the instantiation of `green_hasDerivAt` to `pSol`, `qSol` needs nonzero bonds.
+The zero counting of lem:tha-count is formalised in `TheoremA/Count.lean` (`propThaCount`, using `green_hasDerivAt` instantiated to `pSol`, `qSol`).
+Its statement `PropThaCount` carries the hypotheses `1 ≤ N` and `0 < bondA` (the frozen statement is false without them: two degenerate families with
+all bonds zero give counterexamples at `N = 0` and `N = 1`); the instantiation of `green_hasDerivAt` needs nonzero bonds.
 -/
 
 @[expose] public section

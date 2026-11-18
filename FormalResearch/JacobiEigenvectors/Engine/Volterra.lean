@@ -52,8 +52,8 @@ replaces the discrete Grönwall lemma: the coupling constant is `c ≤ 1`, so ea
 * `volterra_instance_perturbed_nontrivial`: for `N ≥ 2` and `cosθ ≠ cosθ'` the right-hand side is positive; for
   `cosθ' ≠ 0` the error at `j = 2`, `ψ_2 - cos 2θ' = 2cosθ'(cosθ - cosθ')`, is non-zero, so `ψ ≠ φ¹`.
 
-Not formalised: multi-patch stability, the hard-edge seed, the transfer matrices, and the application to the Weber and
-parabolic-cylinder ladders.
+Not formalised here: multi-patch stability, the hard-edge seed and the transfer matrices (they are in `Engine/VolterraMulti.lean`,
+`volterra_multi`) and the application to the Weber and parabolic-cylinder ladders (`Engine/LadderStability.lean`, `Charts/`).
 -/
 
 @[expose] public section

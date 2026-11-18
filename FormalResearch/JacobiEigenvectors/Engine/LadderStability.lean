@@ -43,8 +43,11 @@ one envelope family `(M, W)`, and the seed of patch 1.  `CE ≥ 0` is not a fiel
 
 ## Not formalised
 
-The defect bounds `Valid.defect0/1`, the envelopes `Valid.env`, the Casoratian bound `Valid.cas_lb` and the transfer bounds
-`Valid.transfer` are hypotheses (the charts of Section 3 and `thm:eng-corr`).  The bounded-overlap derivation of (S3) is not formalised.
+The defect bounds `Valid.defect0/1`, the envelopes `Valid.env`, the Casoratian bound `Valid.cas_lb` are hypotheses (the charts of
+Section 3; the defect *order* of the correctors is `Engine/Corrector.lean`, `eng_corr`, whose conclusion is not linked here to the sitewise
+`defect0/1` with the chart weights).  `Valid.transfer` (S3) is a field of `Valid`; for the soft-edge chain it is derived from chart inputs at the
+forbidden overlap and the switch (`TheoremA/SoftTransfer.lean`, `soft_valid`), with the split `PreValid` + `transfer` of `Charts/LadderChain.lean`.
+The bounded-overlap derivation of (S3) for other charts is not formalised.
 -/
 
 @[expose] public section

@@ -10,8 +10,9 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryMargins
 
 `TheGeometry F K r` (frozen, `GeometryStatements.lean`) is the conjunction of (a) `GeomBulk`, (b) `GeomCollision`,
 (c) `GeomMargins`, and the two soft-edge statements (d) `GeomSoft`, `GeomSoftLower`.  Parts (a), (b), (c) are proved
-(`HypMorse.geomBulk`, `Collision.geomCollision`, `Margins.geomMargins`).  The soft-edge statements (d) are not yet proved,
-so this file proves `TheGeometry` from them; `TheGeometry` itself is open until they are.
+(`HypMorse.geomBulk`, `Collision.geomCollision`, `Margins.geomMargins`), and so are the soft-edge statements (d)
+(`SoftEdge.geomSoft`, `SoftEdge.geomSoftLower`, `TheoremA/GeometrySoft.lean`).  This file proves `TheGeometry` *from* (d)
+(`theGeometry_of_soft`); the unconditional `SoftEdge.theGeometry : TheGeometry F K r` is in `TheoremA/GeometrySoft.lean`.
 -/
 
 @[expose] public section

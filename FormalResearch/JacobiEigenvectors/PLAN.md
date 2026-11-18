@@ -1,6 +1,7 @@
 # Paper J, conditional pipeline: plan, dependency DAG, Layer-4 list
 
-Status: **statement freeze** (this commit group): definitions and Prop-valued statements only, no proofs, no placeholder proofs, no added axioms.
+Status (round 4): the statement freeze of Layers 2--3 is in place and Layers 1 and most of the geometry, bulk and soft-edge (1) parts of Layer 2 are proved (table *Status of the proof obligations* below);
+every theorem of the project closure has axioms `[propext, Classical.choice, Quot.sound]` only (checked by a scratch `collectAxioms` audit over all 1100+ theorems; no `axiom`, no placeholder proofs).
 Paper: `Weyl/jacobi_eigenvectors/paper/parts/*.tex` on `origin/agents/m7-m1-global-racah` of QIprojects.
 Layers: **L1** engine completion (`thm:eng-corr`, per-patch stability); **L2** Theorem A from engine + `ChartInputs`; **L3** Theorem B from L2 + chart inputs;
 **L4** discharge the chart / special-function hypotheses (NOT this phase).  Namespace `FormalResearch.JacobiEigenvectors.<Sub>`.
@@ -8,6 +9,27 @@ Layers: **L1** engine completion (`thm:eng-corr`, per-patch stability); **L2** T
 Relocation notes (main session): the engine `FormalResearch/JE/` will move to `FormalResearch/JacobiEigenvectors/Engine/` (imports here are `FormalResearch.JE.*` until then);
 `FormalResearch/JB/` (Theorem B reduction, `OneStepInputs`, `jb_onestep`, `thm_B_conditional`) stays and is to be folded into `TheoremB/` later.
 `FormalResearch/JacobiEigenvectors.lean` is an umbrella stub, **not** in `FormalResearch.lean` yet.
+
+## Status of the proof obligations (round 4)
+
+Proved = a Lean theorem with an axiom pin, under the hypotheses stated in its module docstring ("Differences from the paper").  The names are those of the files.
+
+| id | status | Lean name (file) | main restriction |
+|---|---|---|---|
+| L1.1 | proved | `LadderData.stability` (`Engine/LadderStability.lean`) | `Valid` (incl. (S3) `transfer`) is a hypothesis |
+| L1.2 | proved under data | `eng_corr`, `eng_corr_full`, `eng_corr_site`, `transport_corrector`, `ex_eng_corr` (`Engine/Corrector*.lean`) | global domain `u in R`; `SymbolExp` (Taylor expansions) and the correctors with relations (a)_k, (b)_k are *data*; `nondeg` (bonds `D != 0` everywhere) excludes a hard-edge bond, so the theorem is **not applicable to the Weber ladder as it stands**: the chart fields `Valid.defect0/1` are not derived from it (Layer 4) |
+| L1.3 | proved | `exists_eigenSystem`, `eigVec_JacSol`, `bondA_pos` (`Setting/EigenSystem.lean`) | `bondA_pos` needs `G_h > 0` at the nodes (hypothesis) |
+| L1.4 | proved | `green_cas_const`, `green_cas_last`, `green_hasDerivAt` (`Engine/Green.lean`) | none |
+| L2.G1--G3 | proved | `hypMorseEquiv`, `hypOpen`, `frozenStandard` (`TheoremA/Geometry.lean`) | none |
+| L2.G4 | proved | `theGeometry` = (a) `geomBulk`, (b) `geomCollision`, (c) `geomMargins`, (d) `geomSoft`, `geomSoftLower` (`TheoremA/Geometry*.lean`) | none (statements of `GeometryStatements.lean`, per block / neighbourhood: F-geom, F-geom2) |
+| L2.C1, C2 | proved | `bulkSolutionBound_of_one_le`, `bulk_conj1`, `bulk_collar_bound`, `propThaW` (`TheoremA/Bulk*.lean`) | `BulkWeberChart` fields; `m >= 1`, mirror overlap; `|kappa-hat| >= c` at eigenvalues only (F-C1..C3) |
+| L2.C3, C4 | in progress (`TheoremA/WindowEnvelopes.lean`) | `PropThaWin`, `PropThaM` | |
+| L2.C5 | proved | `propThaCount` (`TheoremA/Count.lean`) | statement has `1 <= N`, positive bonds (F-A7) |
+| L2.C6 | item (1) proved | `propThaW2_item1`, `soft_through_edge`, `soft_valid`, `soft_pc_bound`, `soft_lamL_lower` (`TheoremA/Soft*.lean`) | `ParabolicCylinderFacts` and the new soft-chart fields (`bondA_le`, `grow_gap`, `collar_lbW`, `ratio2`, `ratioM`) |
+| L2.C7 | open | `PropThaW2` (2)--(4) | |
+| L2.S4 | proved | `smo_SM` (`TheoremA/TruncationSM.lean`) | bounded jets `G_j` (F-SM1); one `mu`, no uniformity |
+| L2.C8, C9, S1--S3, S5--S7, E, J | open | `StepZero`, `ThmAii`, ... | statements frozen |
+| L3.* | statements frozen, reconciled with the paper of PR 250 (F-B7, round 4) | `TheoremB/Statements.lean` | not proved |
 
 ## Files of the freeze (all build; `lake build FormalResearch.JacobiEigenvectors`)
 
@@ -132,7 +154,7 @@ Verdicts: `LadderData.Valid` sound (a `SymplecticLadder` for every `h` and `j` i
 * **F-W2-4, F-W2-5 confirmed, fixed**: `PropThaW2` assumes `1 <= m` and `1 <= Lm h` on `(0,1]`.
 * **F-W2-6 refined**: absorption follows from chart fields + definition of `Ewell` (not added); `eq:cha-MolvEquiv`, the growth of the dominant member and `V(a,-z)` (for `M_-(a)`) added to `ParabolicCylinderFacts` (`molv_well`, `molv_bar`, `V_growth`, `reflect_V`).
 * **F-W2-7 refined, kept a field**: `Valid.transfer` is in `LadderChain.lean`; deriving it needs `bondA` bounds, `k_2 >= c/h`, one-step ratios of the weights; proposal: split `Valid` (without `transfer`) and add a lemma.
-* **F-W2-8 (new)**: item (4) (odd `m`, `q = m - 1`, `Theta <= C log(1/h)`, defect weights `rho_k != 1`) is not representable: `rho_one`, `theta_le` fix `rho = 1`, `Theta <= Csum`; to be corrected with a chart-level `Lm` before L2.C7 uses (4).  **Exact proposed change (round 5, not applied: it touches every `SoftEdgeChart` signature, `Statements.lean`, `Comparison.lean`, `GeometryAll`)**: give `SoftEdgeChart` a parameter `Lm : ℝ → ℝ`, replace `theta_le`/`theta_leW` by `Theta <= Csum * Lm (F.step N)`, delete `rho_one`/`rho_oneW` (they are used only by `BulkNormalisation`, for the *bulk* chart, which has its own `rho_one`), and replace `softH0` by a threshold making `2 K_D K_w h^m Csum Lm(h) <= c_*` (`soft_small`, `soft_engine_le`: the only two places in `SoftProof.lean` that use `Csum`); every conclusion then carries the factor `Lm(h)`.  For `Lm = 1` nothing changes.
+* **F-W2-8 (new)**: item (4) (odd `m`, `q = m - 1`, `Theta <= C log(1/h)`, defect weights `rho_k != 1`) is not representable: `rho_one`, `theta_le` fix `rho = 1`, `Theta <= Csum`; to be corrected with a chart-level `Lm` before L2.C7 uses (4).  **Exact proposed change (round 5; applied in round 6, see `Charts/SoftParabolicCylinder.lean`: `SoftEdgeChart` now has the parameter `Lm`, and `ChartInputs`, `Statements.lean`, `Comparison.lean`, the `TheoremB` files use `fun _ => 1`)**: give `SoftEdgeChart` a parameter `Lm : ℝ → ℝ`, replace `theta_le`/`theta_leW` by `Theta <= Csum * Lm (F.step N)`, delete `rho_one`/`rho_oneW` (they are used only by `BulkNormalisation`, for the *bulk* chart, which has its own `rho_one`), and replace `softH0` by a threshold making `2 K_D K_w h^m Csum Lm(h) <= c_*` (`soft_small`, `soft_engine_le`: the only two places in `SoftProof.lean` that use `Csum`); every conclusion then carries the factor `Lm(h)`.  For `Lm = 1` nothing changes.
 * **F-W2-11 (round 5, L2.C6)**: the lower half of (c) needs the paper's `M^2_Web ~ h^{1/2}` at the overlap rows as an input: new chart field `ratioM` (`M_{j_1+1} <= C_M M_{j_1}`); `r_W >= 1 + gamma/2` is derived from the exact solution (`growth_ratio`, `exists_seeded`) and the engine bound for patch 1, not from the corrector bound of `phi^{(1)}_1` alone.  Paper gap: `a <= a_+` is not assumed in `PropThaW2`; `muS_bd` (`r = 0`) is used for `|mu_0| <= C_mu`.  `PropThaW2` has no `ParabolicCylinderFacts` hypothesis; `propThaW2_item1` takes it.
 * **F-W2-9 (new)**: the PC bound of `PropThaW2` (1) is for `u_c - eta/2 < u_n` (the paper's `<=` overlaps the Weber range in one row where `psi-hat^L` is Weber by definition).
 * **F-W2-10 (new)**: the soft chart pinned only the first Weber member `wf 1 0`; `wfW_eq` pins both.
@@ -143,3 +165,47 @@ Verdicts: `LadderData.Valid` sound (a `SymplecticLadder` for every `h` and `j` i
 * `matchF`/`matchO`/`matchF_soft` (integral identities, `arccoshR` by logarithm) are the *definition* of the coordinates; their sign conventions at collisions (`SignType.sign (X - B_0(0))`) need a check in L4; they are not used by L2/L3 proofs except `turn_eq`, `Hz_lb`.
 * `PropThaWin` omits item (4) (it is `ParabolicCylinderFacts.beyond`) and the Riemann-sum bounds (eq:tha-RiemannM, eq:tha-Riemanng) which are proof-internal; add them if L2.C4 needs them as lemmas.
 * Satisfiability (see round-2 audit): no *Lean* toy instance of the chart structures (they mention the actual parabolic-cylinder functions; a degenerate `LadderData.Valid` instance needs a rotation ladder defined for all real `h`).
+
+## Round 4: adversarial audit of rounds 2--3 and reconciliation with the paper of PR 250 (`origin/agents/m7-m1-global-racah`, after `401fb1893`)
+
+**Reconciliation of Layer 3.**  The paper edits since the freeze that touch Layer 3 (`thmB.tex`, `app_thmB.tex`; `thmA.tex`, `app_thmA.tex` changed only in proof text and one remark) are: lem:tha-collar (1) has the bound `C e^{-c/h}` *without* `h^{-K}`
+(`PropThaCollar` has no `Kx`; `PropThbInputs` has no `K_eps`: `eps5 <= C_eps e^{-c_eps/h}`); (I5) is "remaining rows" (`||Q_{0,Sigma}(G^[m] - G^[m+1]) P_Sigma|| <= C h^m`, vacuous for bulk blocks; outside the collar the column coincides with `hat Psi`), and
+`JB.OneStepInputs.outside` (entries of `G0, G1, U` outside the used rows `<= eps5`) is stronger than that and is still what lem:tha-collar (1) gives, so `JB` is unchanged; (I1) is "columns and reference" (operator bound for `G^[m+1]`: follows from the
+column bounds `OneStepInputs.G1_col` by the Frobenius estimate done in `jb_onestep`); (S1) blocks and remaining rows (`OneStepInputs.cols/ch/outside`); the constant `K` is `K_S` (`OneStepConsts.K`); the lower soft edge is `D_-` times the upper-edge column of
+`-D_- J D_-` = `negFamily` at `-X_k` (`compColumn`; the model pair carries `(-1)^n`, so `(t_11, t_12) -> (-t_11, -t_12)`, which changes no Schur norm, `alpha`, `t_11/t_12` or `eq:thb-parity`; `TransferBundle.softLo*` are the transfer inputs of the `negFamily` chart itself);
+`a = -(k + 1/2) + O(h^m log(1/h))` (logarithm only in prop:tha-W2 (4)) is used only in the proof of lem:tha-Mflat.  Rechecked, no change needed: `ThmB`, `CorThbDm` (matches cor:thb-Dm: `G^jet_m` from `tilde X_k` of the truncated family, `D_m` only),
+`PropThaSpliceBulk/Soft/TwoOrders`, `PropThaMflat`, `StepZero*`, `SpectrumCovered`, `CorEigen*`.  The `SoftEdgeChart` parameter `Lm` (F-W2-8) enters Layer 3 only as `fun _ => 1`.
+
+**Verdicts (Lean statement against the paper).**
+
+| item | verdict | note |
+|---|---|---|
+| `eng_corr`, `eng_corr_full`, `eng_corr_site` | faithful, weaker | global domain, `SymbolExp`, correctors with (a)_k, (b)_k as data (not circular: the recursion refers to the ansatz `(Aans g k, Bans b (k-1))` / `(Aans g k, Bans b k)`, which excludes `g_k`; instance `ex_eng_corr` is non-vacuous); `nondeg` excludes the hard-edge bond (see L1.2 row) |
+| `LadderData.stability` | faithful | no change of statement; docstring updated |
+| `Green.lean` identities, `PropThaCount` | faithful | positivity of bonds and `1 <= N` are needed (F-A7) |
+| `IsEigenSystem`, `exists_eigenSystem`, `eigVec_JacSol` | faithful | gauge `(Psi_k)_0 > 0`, order decreasing |
+| `TheGeometry` (a)--(d) | faithful (per block, per neighbourhood) | F-geom, F-geom2 |
+| `propThaW` | faithful with corrections F-C1..C3 | `N-hat`, `kappa-hat` bounds stated for every `X` (stronger than the paper, which says "at an eigenvalue"); `|kappa-hat| >= c` only at eigenvalues |
+| `smo_SM` | faithful, needs one more hypothesis | F-SM1 |
+| `propThaW2_item1` + new chart fields `ratioM, bondA_le, grow_gap, collar_lbW, ratio2` | faithful | each is a fact the paper proves or uses in Step 3 (`ratioM`: "`M^2_Web ~ h^{1/2}`"; `grow_gap`: `Q_0 - 2 sqrt(E_0) >= nu` on the compact `[0, u_c - eta/4]` plus `O(h^2)`, derivable from lem:tha-geom (d) and `(E)`; `bondA_le`: bounded `G_h`; `collar_lbW`: lem:cha-W0; `ratio2`: Step 3 (ii) `r_2 <= 1 + O(h)`), none is a conclusion in disguise, and they are mutually consistent; four of them are derivable from `Hyp` and `EK` and are fields only to keep the chart structure self-contained |
+| Layer-3 statements | faithful after F-B7 | `PropThaCollar`, `PropThbInputs` strengthened to the paper's form |
+
+## Findings for the paper (consolidated; label, what is wrong or missing, minimal corrected statement)
+
+| label | location | what is wrong / missing | corrected statement |
+|---|---|---|---|
+| F-corr1 | `app_engine.tex`, proof of (b)_k of thm:eng-corr | "`F_cas = c_0 + ... + c_{2k} h^{2k} + O(h^{2k+2})` is even, so its centred difference is `O(h^{2k+3})`": a bare `O(h^{2k+2})` remainder has centred difference `O(h^{2k+2})` | "`F_cas = sum_{i <= k} c_{2i} h^{2i} + h^{2k+2} f(s) + O(h^{2k+3})` with `f in C^1`; by evenness the remainder is `O(h^{2k+4})`, so the centred difference is `h^{2k+2}(f(s + h/2) - f(s - h/2)) + O(h^{2k+4}) = O(h^{2k+3})`" (equivalently: `B^tot` is odd in `h` (thm:eng-defect (2)) and `O(h^{2k+2})`, hence `O(h^{2k+3})`; this is the route formalised in `Engine/Corrector.lean`, `D1_lift`) |
+| F-SM1 | `app_thmA.tex`, lem:smo-SM | "real `G_j, B_j`" is not enough: `G_0 = 1`, `M = 1`, `G_1 = -c/(s - L/2)` (`c > 1`) gives a negative `E_n` at the node `L/2 + h` for infinitely many `h` | add "with `G_j` bounded on `[0, L]` for `j <= M` (automatic under `(D_M)`)" |
+| F-geom | `thmA.tex`, lem:tha-geom (c) | one pair `c' < c` for all `X` in a compact `J` is false when `u_c^+ < u_c^-` (`sup_J u_- > inf_J u_+`) | "for every compact `J` and every `mu_0 in K` there are a neighbourhood `N` of `mu_0`, finitely many closed intervals `J_nu` covering `J` and `c'_nu < c_nu`, `delta_1 > 0` with `u_-(X) + delta_1 <= c'_nu < c_nu <= u_+(X) - delta_1` for `X in J_nu`, `mu in N`" (the uniformity in `mu` also needs the localisation of sec:tha-standing: F-geom2) |
+| F-A7 | `app_thmA.tex`, lem:tha-count | false without `N >= 1` and `a_n > 0` for `0 <= n < N` (all bonds zero) | add "`N >= 1`, `a_n > 0` for `0 <= n < N`, `I` an interval" |
+| F-W2-9 | `thmA.tex`, prop:tha-W2 (1) | the PC range `u_c - eta/2 <= u_n` overlaps the Weber range `u_n <= u_c - eta/2` in one row, where `psi-hat^L` is Weber by definition | PC bound for `u_c - eta/2 < u_n <= u_c + 2 eta` |
+| F-W2-11 | `app_thmA.tex`, Step 3 | uses `a <= a_+` / `|mu_0| <= C` without stating it | "`|mu_{2r}(X)| <= C_mu` for `|X - X_s^+| <= delta_0`" (from the chart) |
+| F-t0 | `thmA.tex` (standing/freezing), thm:A(ii), thm:B | the frozen family is a chart family for `|t| <= t0` and `t = h` must lie in it | "for `0 < h <= min(h_m, t_0)`" |
+| F-E1 | `app_thmA.tex`, Step 0 | `X_k in [X_s^- - C h^2, X_s^+ + C h^2]` holds for the band of the *frozen* principal symbols `G_0 + h G_1` (`O(h)` from the band of `J_h`'s own `G_0, B_0`) | "`X_k in [X_s^-(h) - C h^2, X_s^+(h) + C h^2]`, `X_s^pm(t)` the band ends of `G_0 + t G_1`, `B_0 + t B_1`; for the plain band `O(h)`" |
+| F-E2..E4 | `main_results.tex`, cor:eigen (b)--(d) | `I'` needs `delta' <= delta`; the counting sum needs `X_k` inside the Lipschitz neighbourhood (Step 0, `O(h)`); (c) first part needs only `x_0` | state `delta' <= delta`, the neighbourhood radius before `g`, and `x_0` only |
+| F-A1..A6 | `main_results.tex`, thm:A | quantifier order (constants before `mu`), vectors explicit (not existential), case split by the value of `X_k`, labels equal indices, `C^{M+1}` through the collisions | as in the docstring of `TheoremA/Statements.lean` |
+| F-loc | `thmA.tex`, sec:tha-standing | uniform margins "by compactness and continuity" need `IsCompact K` and jointly continuous jets (`JetReg`) | state both |
+
+Lean-side only, not paper findings: F-W2-8 (the paper's prop:tha-W2 (4) already carries `log(1/h)` in (1)--(3); the Lean `PropThaW2` needed the `Lm` parameter to say so), F-C1..C3 (`m >= 1`, mirror overlap, `|kappa-hat| >= c` at eigenvalues: the paper states them for eigenvalues and `m >= 1`).
+Resolved in the paper of PR 250 since the freeze (no longer findings): F-B1 (`def:thb-inputs` incomplete: host/submatrix structure, parity, matching are in (S1)--(S3) and "Charts, bootstrap blocks"), F-B-eps5 / (I1) (operator bound for `G^[m+1]` from the column bounds), F-B6 (cor:thb-Dm now via cor:thb-stable),
+`h^{-K}` in lem:tha-collar and (I5) (now `C e^{-c/h}` and "remaining rows"), `D_-` for the lower soft edge, `s, t != 0` in lem:thb-ratio (now `delta < c_0` forces it).
