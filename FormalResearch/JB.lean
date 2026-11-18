@@ -10,6 +10,7 @@ public import FormalResearch.JB.JBOneStepDef
 public import FormalResearch.JB.JBOneStepAux
 public import FormalResearch.JB.JBOneStepChart
 public import FormalResearch.JB.JBOneStep
+public import FormalResearch.JB.JBThmB
 
 /-!
 # Paper J, Theorem B reduction (Lean, stage 1)
@@ -27,6 +28,7 @@ Umbrella for the Lean formalisation of the matrix lemmas of Paper J's Theorem B 
 * `JBOneStepDef` : the one-step criterion `thm:thb-onestep`: `Chart`, `OneStepInputs`, `OneStepReduction`
   (statement) and a toy non-vacuity instance.
 * `JBOneStepAux`, `JBOneStepChart`, `JBOneStep` : its proof (`jb_onestep : OneStepReduction cs`).
+* `JBThmB` : `thm_B_conditional` (paper quantifier order, `D = L/h`, family of one-step inputs).
 
 The finite
 Schur lemma, ratio lemma, polar repair and fermion bounds of the Jacobi-operator package
