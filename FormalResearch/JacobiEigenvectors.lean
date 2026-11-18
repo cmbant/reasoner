@@ -18,6 +18,8 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.Statements
 public import FormalResearch.JacobiEigenvectors.TheoremA.Count
 public import FormalResearch.JacobiEigenvectors.TheoremA.Geometry
 public import FormalResearch.JacobiEigenvectors.TheoremA.BulkProof
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftRescale
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftProof
 
 /-!
 # Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)
