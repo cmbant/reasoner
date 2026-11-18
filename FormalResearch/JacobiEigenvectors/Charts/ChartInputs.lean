@@ -48,6 +48,18 @@ structure ChartInputs {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par
   softUpR : SoftEdgeChart (mirrorFamily (frozenFamily F Kidx)) (paramSet K t0) m q U V
   softLoL : SoftEdgeChart (negFamily (frozenFamily F Kidx)) (paramSet K t0) m q U V
   softLoR : SoftEdgeChart (mirrorFamily (negFamily (frozenFamily F Kidx))) (paramSet K t0) m q U V
+  /-- the right overlap `[c'_R, c_R]` is the mirror of the left one: `c_R = L - c'_L`, `c'_R = L - c_L`. -/
+  overlap_match : bulkR.c = F.L - bulkL.c' ∧ bulkR.c' = F.L - bulkL.c
+  /-- mirror symmetry of the soft charts: `u_c^R = L - u_c`, `zeta_R(-x) = -zeta(x)`, the same shifts `mu_{2r}`, same `eta`, `delta_0`
+  (the right chart of the soft edge is the mirror image of the left one; `Z_R(N-n) = -Z(n)`, `a_R = a`). -/
+  mirror_up : (∀ p ∈ paramSet K t0, softUpR.uc p = F.L - softUpL.uc p) ∧
+    (∀ p ∈ paramSet K t0, ∀ α x, softUpR.zeta p α (-x) = -softUpL.zeta p α x) ∧
+    (∀ r, ∀ p ∈ paramSet K t0, ∀ α, softUpR.muS r p α = softUpL.muS r p α) ∧
+    softUpR.η = softUpL.η ∧ softUpR.δ0 = softUpL.δ0 ∧ softUpR.N0 = softUpL.N0
+  mirror_lo : (∀ p ∈ paramSet K t0, softLoR.uc p = F.L - softLoL.uc p) ∧
+    (∀ p ∈ paramSet K t0, ∀ α x, softLoR.zeta p α (-x) = -softLoL.zeta p α x) ∧
+    (∀ r, ∀ p ∈ paramSet K t0, ∀ α, softLoR.muS r p α = softLoL.muS r p α) ∧
+    softLoR.η = softLoL.η ∧ softLoR.δ0 = softLoL.δ0 ∧ softLoR.N0 = softLoL.N0
   /-- the bulk range lies inside the band and, with the two soft windows, covers it. -/
   cover : ∀ p ∈ paramSet K t0,
     (frozenFamily F Kidx).bandLo p < Jlo ∧ Jlo ≤ Jhi ∧ Jhi < (frozenFamily F Kidx).bandHi p ∧

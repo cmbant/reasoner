@@ -35,9 +35,15 @@ Source: Paper J, `Weyl/jacobi_eigenvectors/paper/parts/engine.tex`, Section 2 (`
    (both pairs at the common bond) force both factors to be read at the overlap bond `j_p`.  Formalised as
    `M_p = (bondMat (p+1) (j_p))⁻¹ · bondMat p (j_p)` (`transMat`).  The paper should read: `U_p^{out}` rows at
    `j_p, j_p+1` of patch `p`, `U_{p+1}^{in}` rows at `j_p, j_p+1` of patch `p+1`, `M_p := (U_{p+1}^{in})⁻¹ U_p^{out}`.
-2. **Envelopes.** (S2) is formalised exactly as printed: one envelope family `M, W` on all sites (the printed parenthesis
-   "on an overlap bond the moduli and weights of the two patches are comparable, and `𝖬, 𝖶` denote either" is the
-   instruction for gluing patch envelopes into this family; the gluing itself is not formalised, see below).
+2. **Envelopes.** `volterra_multi` takes (S2) exactly as printed: one envelope family `M, W` on all sites.  The printed
+   parenthesis "on an overlap bond the moduli and weights of the two patches are comparable, and `𝖬, 𝖶` denote either"
+   describes patch envelopes `M_p, W_p` glued into this family; that reading is `volterra_multi_patchwise`: patch
+   envelopes `(M_p, W_p)` on the windows, `W_p` non-decreasing up to `C_E` on its window, `M_p, W_p` comparable up to a
+   constant `C_o` on the overlap sites `{j_p, j_p+1}` (both directions), all bounds with the patch envelopes.  The glued
+   family `glueW j = W_{own j}(j)` (`ownP`, `glueF`) satisfies (S2) with `C_E' = (C_E C_o^P)^P` (`glue_mono`) and is
+   comparable to each patch envelope with constant `C_o^P` (`glue_comparable`); the stability bound is then that of
+   `volterra_multi` with `K' = K C_o^{2P}`, `ε' = ε C_o^{2P}`, `Λ' = Λ C_o^{2P}`, in terms of the glued family.  The
+   constants grow like `C_o^{O(P)}`, which the paper absorbs in "constants depending only on `P`".
 3. **Upper Casoratian bound** `c₊` is not used by the proof and is omitted (a weaker hypothesis).
 4. **Entry flux.** The paper's `|f¹_p| ≤ a_p ω W_{j_{p-1}}²` is formalised with a weight `V_p`, `V_1 = 0` (the flux of
    patch 1 vanishes by the seed), `V_p = W_{j_{p-1}}` otherwise; the same content.
@@ -61,8 +67,7 @@ Source: Paper J, `Weyl/jacobi_eigenvectors/paper/parts/engine.tex`, Section 2 (`
   Only the weights `W = M = 1` and a trivial transfer `M_p = I` are exercised: no instance has non-constant weights or a
   non-trivial change of basis.
 
-Not formalised: patch-dependent envelopes and their gluing into the family `M, W` (see the report), the bounded-overlap case
-of (S3), non-trivial weights in an instance, `thm:eng-volterra`(b) (see `JEVolterraLadder`).
+Not formalised: the bounded-overlap case of (S3), instances with non-trivial weights or patch-dependent envelopes, `thm:eng-volterra`(b) (see `JEVolterraLadder`).
 -/
 
 @[expose] public section
@@ -1807,6 +1812,412 @@ theorem volterra_multi_forbidden (h ω cm CE K ε Cw Cω : ℝ) (A Q ψ ρ M W :
     hh hω hcm hK hε (le_max_left _ _) hP hjj0 hjjmono hjjP hs0 hA hS1 hMpos hWpos hmono hφ1 hφ2 hρ hr1 hr2 hT
     hsol hseed hsmall
 
+/-! ### Patch-dependent envelopes and their gluing into the single family of (S2) -/
+
+/-- The owner of a site: the least patch `p ≥ 1` whose window ends at or after `j` (`j ≤ jj p + 1`). -/
+noncomputable def ownP (jj : ℕ → ℤ) (j : ℤ) : ℕ :=
+  open Classical in if h : ∃ p, 1 ≤ p ∧ j ≤ jj p + 1 then Nat.find h else 1
+
+/-- The glued family `j ↦ f_{own(j)}(j)` of a patchwise family `f`. -/
+noncomputable def glueF (f : ℕ → ℤ → ℝ) (jj : ℕ → ℤ) (j : ℤ) : ℝ := f (ownP jj j) j
+
+lemma ownP_spec (jj : ℕ → ℤ) (P : ℕ) (NR : ℤ) (hP : 1 ≤ P) (hjjP : jj P = NR - 1) (j : ℤ) (hj : j ≤ NR) :
+    1 ≤ ownP jj j ∧ ownP jj j ≤ P ∧ j ≤ jj (ownP jj j) + 1 ∧
+    (∀ p, 1 ≤ p → j ≤ jj p + 1 → ownP jj j ≤ p) ∧ (2 ≤ ownP jj j → jj (ownP jj j - 1) + 1 < j) := by
+  classical
+  have hex : ∃ p, 1 ≤ p ∧ j ≤ jj p + 1 := ⟨P, hP, by rw [hjjP]; omega⟩
+  have hown : ownP jj j = Nat.find hex := by
+    unfold ownP
+    rw [dif_pos hex]
+  rw [hown]
+  refine ⟨(Nat.find_spec hex).1, Nat.find_min' hex ⟨hP, by rw [hjjP]; omega⟩, (Nat.find_spec hex).2,
+    fun p hp hjp => Nat.find_min' hex ⟨hp, hjp⟩, ?_⟩
+  intro h2
+  by_contra hc
+  have hmin : ¬(1 ≤ Nat.find hex - 1 ∧ j ≤ jj (Nat.find hex - 1) + 1) := Nat.find_min hex (by omega)
+  apply hmin
+  exact ⟨by omega, by omega⟩
+
+/-- Comparability of a patchwise family along the chain of patches containing a site. -/
+lemma own_chain (f : ℕ → ℤ → ℝ) (Co : ℝ) (jj : ℕ → ℤ) (P : ℕ) (hjjmono : ∀ p < P, jj p < jj (p + 1))
+    (hCo : 1 ≤ Co)
+    (hcmp : ∀ r, 1 ≤ r → r < P → ∀ s, (s = jj r ∨ s = jj r + 1) →
+      f (r + 1) s ≤ Co * f r s ∧ f r s ≤ Co * f (r + 1) s)
+    (j : ℤ) (q : ℕ) (hq1 : 1 ≤ q) (hjq : j ≤ jj q + 1) :
+    ∀ d : ℕ, ∀ p : ℕ, p = q + d → p ≤ P → jj (p - 1) ≤ j → j ≤ jj p + 1 →
+      (f p j ≤ Co ^ d * f q j ∧ f q j ≤ Co ^ d * f p j) := by
+  intro d
+  induction d with
+  | zero =>
+    intro p hp _ _ _
+    subst hp
+    simp
+  | succ d ih =>
+    intro p hp hpP hlo hhi
+    obtain ⟨r, hr⟩ : ∃ r, r = q + d := ⟨_, rfl⟩
+    have hpr : p = r + 1 := by omega
+    subst hpr
+    have hr1 : 1 ≤ r := by omega
+    have hrP : r < P := by omega
+    have hqr : jj q ≤ jj r := jj_mono_le jj P hjjmono q r (by omega) (by omega)
+    have hjr : jj r ≤ j := by simpa using hlo
+    have hs : j = jj r ∨ j = jj r + 1 := by omega
+    obtain ⟨c1, c2⟩ := hcmp r hr1 hrP j hs
+    have hlo' : jj (r - 1) ≤ j := by
+      have := jj_mono_le jj P hjjmono (r - 1) r (by omega) (by omega)
+      omega
+    obtain ⟨i1, i2⟩ := ih r hr (by omega) hlo' (by omega)
+    have hCo0 : 0 ≤ Co := by linarith
+    constructor
+    · calc f (r + 1) j ≤ Co * f r j := c1
+        _ ≤ Co * (Co ^ d * f q j) := mul_le_mul_of_nonneg_left i1 hCo0
+        _ = Co ^ (d + 1) * f q j := by ring
+    · calc f q j ≤ Co ^ d * f r j := i2
+        _ ≤ Co ^ d * (Co * f (r + 1) j) := mul_le_mul_of_nonneg_left c2 (by positivity)
+        _ = Co ^ (d + 1) * f (r + 1) j := by ring
+
+/-- A patchwise family and its glued family are comparable on every window, with constant `Co ^ P`. -/
+lemma glue_comparable (f : ℕ → ℤ → ℝ) (Co : ℝ) (jj : ℕ → ℤ) (P : ℕ) (NR : ℤ) (hP : 1 ≤ P)
+    (hjj0 : jj 0 = 0) (hjjmono : ∀ p < P, jj p < jj (p + 1)) (hjjP : jj P = NR - 1) (hCo : 1 ≤ Co)
+    (hfpos : ∀ p, 1 ≤ p → p ≤ P → ∀ j, jj (p - 1) ≤ j → j ≤ jj p + 1 → 0 ≤ f p j)
+    (hcmp : ∀ r, 1 ≤ r → r < P → ∀ s, (s = jj r ∨ s = jj r + 1) →
+      f (r + 1) s ≤ Co * f r s ∧ f r s ≤ Co * f (r + 1) s)
+    (p : ℕ) (hp1 : 1 ≤ p) (hpP : p ≤ P) (j : ℤ) (hlo : jj (p - 1) ≤ j) (hhi : j ≤ jj p + 1) :
+    f p j ≤ Co ^ P * glueF f jj j ∧ glueF f jj j ≤ Co ^ P * f p j := by
+  have hjNR : j ≤ NR := by
+    have := jj_mono_le jj P hjjmono p P hpP le_rfl
+    omega
+  obtain ⟨o1, oP, ojq, omin, _⟩ := ownP_spec jj P NR hP hjjP j hjNR
+  have hq : ownP jj j ≤ p := omin p hp1 hhi
+  obtain ⟨c1, c2⟩ := own_chain f Co jj P hjjmono hCo hcmp j (ownP jj j) o1 ojq (p - ownP jj j) p
+    (by omega) hpP hlo hhi
+  have hpow : Co ^ (p - ownP jj j) ≤ Co ^ P := pow_le_pow_right₀ hCo (by omega)
+  obtain ⟨_, _, _, _, o5⟩ := ownP_spec jj P NR hP hjjP j hjNR
+  have hj0 : 0 ≤ j := by
+    have := jj_mono_le jj P hjjmono 0 (p - 1) (Nat.zero_le _) (by omega)
+    omega
+  have hlo_q : jj (ownP jj j - 1) ≤ j := by
+    by_cases h1 : ownP jj j = 1
+    · rw [h1]; simpa [hjj0] using hj0
+    · have := o5 (by omega)
+      omega
+  have hfq : 0 ≤ f (ownP jj j) j := hfpos _ o1 oP j hlo_q ojq
+  have hfp : 0 ≤ f p j := hfpos p hp1 hpP j hlo hhi
+  unfold glueF
+  constructor
+  · calc f p j ≤ Co ^ (p - ownP jj j) * f (ownP jj j) j := c1
+      _ ≤ Co ^ P * f (ownP jj j) j := mul_le_mul_of_nonneg_right hpow hfq
+  · calc f (ownP jj j) j ≤ Co ^ (p - ownP jj j) * f p j := c2
+      _ ≤ Co ^ P * f p j := mul_le_mul_of_nonneg_right hpow hfp
+
+
+
+lemma eqLo_ge_jj_aux (s0 : ℤ) (jj : ℕ → ℤ) (p : ℕ) (hs0 : s0 = 0 ∨ s0 = 1) (hj0 : jj 0 = 0) (hjp : 0 ≤ jj (p - 1)) :
+    jj (p - 1) ≤ eqLo s0 jj p := by
+  unfold eqLo
+  split_ifs with h1
+  · subst h1
+    simp only [Nat.sub_self, hj0]
+    rcases hs0 with h | h <;> omega
+  · omega
+
+/-- The window of the owner of `j` contains `j` (on the left). -/
+lemma own_lo (jj : ℕ → ℤ) (P : ℕ) (NR : ℤ) (hP : 1 ≤ P) (hjj0 : jj 0 = 0) (hjjP : jj P = NR - 1)
+    (j : ℤ) (hj0 : 0 ≤ j) (hjNR : j ≤ NR) : jj (ownP jj j - 1) ≤ j := by
+  obtain ⟨o1, _, _, _, o5⟩ := ownP_spec jj P NR hP hjjP j hjNR
+  by_cases h1 : ownP jj j = 1
+  · rw [h1]; simpa [hjj0] using hj0
+  · have := o5 (by omega)
+    omega
+
+/-- **Monotonicity of the glued weight.** If each patch weight is non-decreasing up to `C_E` on its window and consecutive
+patch weights are comparable up to `C_o` on the overlap sites, then the glued weight is non-decreasing up to
+`(C_E C_o^P)^P` on `[0, N_R]`. -/
+lemma glue_mono (Wp : ℕ → ℤ → ℝ) (Co CE : ℝ) (jj : ℕ → ℤ) (P : ℕ) (NR : ℤ) (hP : 1 ≤ P)
+    (hjj0 : jj 0 = 0) (hjjmono : ∀ p < P, jj p < jj (p + 1)) (hjjP : jj P = NR - 1)
+    (hCo : 1 ≤ Co) (hCE : 1 ≤ CE)
+    (hWpos : ∀ p, 1 ≤ p → p ≤ P → ∀ j, jj (p - 1) ≤ j → j ≤ jj p + 1 → 0 < Wp p j)
+    (hG1 : ∀ p, 1 ≤ p → p ≤ P → ∀ k j, jj (p - 1) ≤ k → k ≤ j → j ≤ jj p + 1 → Wp p k ≤ CE * Wp p j)
+    (hcmp : ∀ r, 1 ≤ r → r < P → ∀ s, (s = jj r ∨ s = jj r + 1) →
+      Wp (r + 1) s ≤ Co * Wp r s ∧ Wp r s ≤ Co * Wp (r + 1) s) :
+    ∀ k j : ℤ, 0 ≤ k → k ≤ j → j ≤ NR → glueF Wp jj k ≤ (CE * Co ^ P) ^ P * glueF Wp jj j := by
+  set X := CE * Co ^ P with hX
+  have hCoP : Co ≤ Co ^ P := by
+    calc Co = Co ^ 1 := (pow_one _).symm
+      _ ≤ Co ^ P := pow_le_pow_right₀ hCo hP
+  have hX1 : 1 ≤ X := by
+    have : 1 ≤ Co ^ P := one_le_pow₀ hCo
+    nlinarith
+  have hCEC : CE * Co ≤ X := by
+    rw [hX]; exact mul_le_mul_of_nonneg_left hCoP (by linarith)
+  have hgpos : ∀ j : ℤ, 0 ≤ j → j ≤ NR → 0 < glueF Wp jj j := by
+    intro j hj0 hjNR
+    obtain ⟨o1, oP, ojq, _, _⟩ := ownP_spec jj P NR hP hjjP j hjNR
+    exact hWpos _ o1 oP j (own_lo jj P NR hP hjj0 hjjP j hj0 hjNR) ojq
+  -- comparison of the patch `p` with the glued weight at `j`
+  have hcomp : ∀ p, 1 ≤ p → p ≤ P → ∀ j, jj (p - 1) ≤ j → j ≤ jj p + 1 →
+      Wp p j ≤ Co ^ P * glueF Wp jj j := by
+    intro p hp1 hpP j hlo hhi
+    exact (glue_comparable Wp Co jj P NR hP hjj0 hjjmono hjjP hCo
+      (fun p hp1 hpP j hlo hhi => (hWpos p hp1 hpP j hlo hhi).le) hcmp p hp1 hpP j hlo hhi).1
+  have claim : ∀ e : ℕ, ∀ q : ℕ, q + e = P → 1 ≤ q → ∀ k j : ℤ, jj (q - 1) ≤ k → k ≤ jj q + 1 → k ≤ j →
+      j ≤ NR → Wp q k ≤ X ^ (e + 1) * glueF Wp jj j := by
+    intro e
+    induction e with
+    | zero =>
+      intro q hq hq1 k j hklo hkhi hkj hjNR
+      have hqP : q = P := by omega
+      subst hqP
+      have hj0 : 0 ≤ j := by
+        have := jj_mono_le jj q hjjmono 0 (q - 1) (Nat.zero_le _) (by omega)
+        omega
+      have hjhi : j ≤ jj q + 1 := by omega
+      have h1 := hG1 q hq1 le_rfl k j hklo hkj hjhi
+      have h2 := hcomp q hq1 le_rfl j (by omega) hjhi
+      have hg := hgpos j hj0 hjNR
+      calc Wp q k ≤ CE * Wp q j := h1
+        _ ≤ CE * (Co ^ q * glueF Wp jj j) := mul_le_mul_of_nonneg_left h2 (by linarith)
+        _ = X ^ (0 + 1) * glueF Wp jj j := by rw [hX]; ring
+    | succ e ih =>
+      intro q hq hq1 k j hklo hkhi hkj hjNR
+      have hqP : q < P := by omega
+      have hk0 : 0 ≤ k := by
+        have := jj_mono_le jj P hjjmono 0 (q - 1) (Nat.zero_le _) (by omega)
+        omega
+      have hj0 : 0 ≤ j := by omega
+      have hg := hgpos j hj0 hjNR
+      have hXe : X ≤ X ^ (e + 1 + 1) := by
+        calc X = X ^ 1 := (pow_one _).symm
+          _ ≤ X ^ (e + 1 + 1) := pow_le_pow_right₀ hX1 (by omega)
+      by_cases hjq : j ≤ jj q + 1
+      · have h1 := hG1 q hq1 hqP.le k j hklo hkj hjq
+        have h2 := hcomp q hq1 hqP.le j (by omega) hjq
+        calc Wp q k ≤ CE * Wp q j := h1
+          _ ≤ CE * (Co ^ P * glueF Wp jj j) := mul_le_mul_of_nonneg_left h2 (by linarith)
+          _ = X * glueF Wp jj j := by rw [hX]; ring
+          _ ≤ X ^ (e + 1 + 1) * glueF Wp jj j := mul_le_mul_of_nonneg_right hXe hg.le
+      · have hjq' : jj q + 1 < j := by omega
+        have ht : Wp q k ≤ CE * Wp q (jj q + 1) := hG1 q hq1 hqP.le k (jj q + 1) hklo hkhi le_rfl
+        have hjm : jj q < jj (q + 1) := hjjmono q hqP
+        have hIH := ih (q + 1) (by omega) (by omega) (jj q + 1) j (by rw [Nat.add_sub_cancel]; omega)
+          (by omega) (by omega) hjNR
+        have hWq1 : 0 ≤ Wp q (jj q + 1) := by
+          have := hWpos q hq1 hqP.le (jj q + 1) (by omega) le_rfl
+          exact this.le
+        calc Wp q k ≤ CE * Wp q (jj q + 1) := ht
+          _ ≤ CE * (Co * Wp (q + 1) (jj q + 1)) := by
+              apply mul_le_mul_of_nonneg_left _ (by linarith)
+              -- the comparison direction needed: Wp q ≤ Co Wp (q+1)
+              obtain ⟨_, c2⟩ := hcmp q hq1 hqP (jj q + 1) (Or.inr rfl)
+              exact c2
+          _ ≤ CE * (Co * (X ^ (e + 1) * glueF Wp jj j)) := by
+              apply mul_le_mul_of_nonneg_left _ (by linarith)
+              exact mul_le_mul_of_nonneg_left hIH (by linarith)
+          _ = (CE * Co) * (X ^ (e + 1) * glueF Wp jj j) := by ring
+          _ ≤ X * (X ^ (e + 1) * glueF Wp jj j) :=
+              mul_le_mul_of_nonneg_right hCEC (mul_nonneg (by positivity) hg.le)
+          _ = X ^ (e + 1 + 1) * glueF Wp jj j := by ring
+  intro k j hk0 hkj hjNR
+  obtain ⟨o1, oP, ojq, _, _⟩ := ownP_spec jj P NR hP hjjP k (hkj.trans hjNR)
+  have hlo := own_lo jj P NR hP hjj0 hjjP k hk0 (hkj.trans hjNR)
+  have hcl := claim (P - ownP jj k) (ownP jj k) (by omega) o1 k j hlo ojq hkj hjNR
+  have hg := hgpos j (hk0.trans hkj) hjNR
+  have hpow : X ^ (P - ownP jj k + 1) ≤ X ^ P := pow_le_pow_right₀ hX1 (by omega)
+  unfold glueF at hcl ⊢
+  calc Wp (ownP jj k) k ≤ X ^ (P - ownP jj k + 1) * Wp (ownP jj j) j := hcl
+    _ ≤ X ^ P * Wp (ownP jj j) j := mul_le_mul_of_nonneg_right hpow hg.le
+
+
+/-- **Multi-patch stability with patch-dependent envelopes** (`thm:eng-volterra`(a), (S2) as the paper describes it: every
+patch has its own weight `W_p` and modulus `M_p`, comparable on the overlap sites `{j_p, j_p+1}` with constant `C_o`; `W_p` is
+non-decreasing up to `C_E` on its window).  The envelopes are glued into the single family of `volterra_multi` by
+`glueW j = W_{own(j)}(j)`, `glueM j = M_{own(j)}(j)` (`own(j)` the first patch whose window reaches `j`); the glued
+family satisfies (S2) with `C_E' = (C_E C_o^P)^P` and, through the comparison `glue_comparable`, the envelope and residual
+bounds of the patches hold with `K' = K C_o^{2P}`, `ε' = ε C_o^{2P}`, `Λ' = Λ C_o^{2P}`.  The conclusion is that of
+`volterra_multi` for the glued family and these constants; `volTheta` is taken for the glued modulus (it is at most
+`C_o^{2P}` times the patchwise sum). -/
+theorem volterra_multi_patchwise (h ω cm CE K ε Λ Co : ℝ) (A Q ψ ρ : ℤ → ℝ) (Wp Mp : ℕ → ℤ → ℝ)
+    (s0 NR : ℤ) (P : ℕ) (jj : ℕ → ℤ) (φ1 φ2 : ℕ → ℤ → ℝ)
+    (hh : 0 < h) (hω : 0 < ω) (hcm : 0 < cm) (hK : 0 ≤ K) (hε : 0 ≤ ε) (hΛ : 1 ≤ Λ) (hCo : 1 ≤ Co)
+    (hCE : 1 ≤ CE)
+    (hP : 1 ≤ P) (hjj0 : jj 0 = 0) (hjjmono : ∀ p < P, jj p < jj (p + 1)) (hjjP : jj P = NR - 1)
+    (hs0 : s0 = 0 ∨ s0 = 1) (hA : s0 = 0 → A (-1) = 0)
+    (hS1 : ∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p), cm * ω ≤ |cas A (φ1 p) (φ2 p) j|)
+    (hMpos : ∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p + 1), 0 < Mp p j)
+    (hWpos : ∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p + 1), 0 < Wp p j)
+    (hG1 : ∀ p ∈ Icc 1 P, ∀ k ∈ Icc (jj (p - 1)) (jj p + 1), ∀ j ∈ Icc (jj (p - 1)) (jj p + 1),
+      k ≤ j → Wp p k ≤ CE * Wp p j)
+    (hcW : ∀ r, 1 ≤ r → r < P → ∀ s, (s = jj r ∨ s = jj r + 1) →
+      Wp (r + 1) s ≤ Co * Wp r s ∧ Wp r s ≤ Co * Wp (r + 1) s)
+    (hcM : ∀ r, 1 ≤ r → r < P → ∀ s, (s = jj r ∨ s = jj r + 1) →
+      Mp (r + 1) s ≤ Co * Mp r s ∧ Mp r s ≤ Co * Mp (r + 1) s)
+    (hφ1 : ∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p + 1), |φ1 p j| ≤ K * Wp p j * Mp p j)
+    (hφ2 : ∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p + 1), |φ2 p j| ≤ K * (Wp p j)⁻¹ * Mp p j)
+    (hρ : ∀ k, 0 ≤ ρ k)
+    (hr1 : ∀ p ∈ Icc 1 P, ∀ k ∈ Icc (eqLo s0 jj p) (jj p),
+      |Lh h A Q (φ1 p) k| ≤ ε * ρ k * Wp p k * Mp p k)
+    (hr2 : ∀ p ∈ Icc 1 P, ∀ k ∈ Icc (eqLo s0 jj p) (jj p), k ≠ 0 →
+      |Lh h A Q (φ2 p) k| ≤ ε * ρ k * (Wp p k)⁻¹ * Mp p k)
+    (hT : ∀ p, 1 ≤ p → p < P → Λ⁻¹ ≤ |(transMat φ1 φ2 jj p).det| ∧
+      |transMat φ1 φ2 jj p 0 0| ≤ Λ ∧ |transMat φ1 φ2 jj p 1 1| ≤ Λ ∧
+      |transMat φ1 φ2 jj p 0 1| ≤ Λ * (Wp p (jj p) ^ 2)⁻¹ ∧ |transMat φ1 φ2 jj p 1 0| ≤ Λ * Wp p (jj p) ^ 2)
+    (hsol : ∀ k ∈ Icc s0 (NR - 1), Lh h A Q ψ k = 0)
+    (hseed : ∀ j ∈ Icc 0 s0, ψ j = φ1 1 j)
+    (hsmall : ε * (Co ^ P) ^ 2 * volTheta h ω s0 jj P ρ (glueF Mp jj)
+      ≤ mvCstar cm ((CE * Co ^ P) ^ P) (K * (Co ^ P) ^ 2)) :
+    (∀ p ∈ Icc 1 P, ∀ j ∈ Icc (eqLo s0 jj p) (jj p + 1),
+      |ψ j - psiHat φ1 φ2 jj p j|
+        ≤ mvC cm ((CE * Co ^ P) ^ P) (K * (Co ^ P) ^ 2) (Λ * (Co ^ P) ^ 2) P
+          * (ε * (Co ^ P) ^ 2 * volTheta h ω s0 jj P ρ (glueF Mp jj)) * glueF Wp jj j * glueF Mp jj j) ∧
+    (∀ p, 1 ≤ p → p < P → ∀ j ∈ Icc (jj p) (jj p + 1),
+      psiHat φ1 φ2 jj p j = psiHat φ1 φ2 jj (p + 1) j) ∧
+    (∀ j ∈ Icc 0 NR, ∃ p ∈ Icc 1 P,
+      |ψ j - psiHat φ1 φ2 jj p j|
+        ≤ mvC cm ((CE * Co ^ P) ^ P) (K * (Co ^ P) ^ 2) (Λ * (Co ^ P) ^ 2) P
+          * (ε * (Co ^ P) ^ 2 * volTheta h ω s0 jj P ρ (glueF Mp jj)) * glueF Wp jj j * glueF Mp jj j) := by
+  set B := Co ^ P with hB
+  have hB1 : 1 ≤ B := one_le_pow₀ hCo
+  have hB0 : 0 < B := lt_of_lt_of_le one_pos hB1
+  have hB21 : 1 ≤ B ^ 2 := by nlinarith
+  have hCo0 : 0 ≤ Co := by linarith
+  -- windows in inequality form
+  have wW : ∀ p, 1 ≤ p → p ≤ P → ∀ j, jj (p - 1) ≤ j → j ≤ jj p + 1 → 0 < Wp p j :=
+    fun p hp1 hpP j hlo hhi => hWpos p (mem_Icc.mpr ⟨hp1, hpP⟩) j (mem_Icc.mpr ⟨hlo, hhi⟩)
+  have wM : ∀ p, 1 ≤ p → p ≤ P → ∀ j, jj (p - 1) ≤ j → j ≤ jj p + 1 → 0 < Mp p j :=
+    fun p hp1 hpP j hlo hhi => hMpos p (mem_Icc.mpr ⟨hp1, hpP⟩) j (mem_Icc.mpr ⟨hlo, hhi⟩)
+  have cW := glue_comparable Wp Co jj P NR hP hjj0 hjjmono hjjP hCo
+    (fun p hp1 hpP j hlo hhi => (wW p hp1 hpP j hlo hhi).le) hcW
+  have cM := glue_comparable Mp Co jj P NR hP hjj0 hjjmono hjjP hCo
+    (fun p hp1 hpP j hlo hhi => (wM p hp1 hpP j hlo hhi).le) hcM
+  have hjjle : ∀ p, p ≤ P → jj p ≤ NR - 1 := fun p hp => by
+    have := jj_mono_le jj P hjjmono p P hp le_rfl
+    rw [hjjP] at this
+    exact this
+  have hjjge : ∀ p, p ≤ P → 0 ≤ jj p := fun p hp => by
+    have := jj_mono_le jj P hjjmono 0 p (Nat.zero_le _) hp
+    rw [hjj0] at this
+    exact this
+  -- positivity of the glued families on [0, N_R]
+  have gW : ∀ j, 0 ≤ j → j ≤ NR → 0 < glueF Wp jj j := by
+    intro j hj0 hjNR
+    obtain ⟨o1, oP, ojq, _, _⟩ := ownP_spec jj P NR hP hjjP j hjNR
+    exact wW _ o1 oP j (own_lo jj P NR hP hjj0 hjjP j hj0 hjNR) ojq
+  have gM : ∀ j, 0 ≤ j → j ≤ NR → 0 < glueF Mp jj j := by
+    intro j hj0 hjNR
+    obtain ⟨o1, oP, ojq, _, _⟩ := ownP_spec jj P NR hP hjjP j hjNR
+    exact wM _ o1 oP j (own_lo jj P NR hP hjj0 hjjP j hj0 hjNR) ojq
+  -- comparison on the windows of the patches
+  have cWM : ∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p + 1),
+      Wp p j ≤ B * glueF Wp jj j ∧ glueF Wp jj j ≤ B * Wp p j ∧
+      Mp p j ≤ B * glueF Mp jj j ∧ glueF Mp jj j ≤ B * Mp p j := by
+    intro p hp j hj
+    have hp' := mem_Icc.mp hp
+    have hj' := mem_Icc.mp hj
+    obtain ⟨a1, a2⟩ := cW p hp'.1 hp'.2 j hj'.1 hj'.2
+    obtain ⟨b1, b2⟩ := cM p hp'.1 hp'.2 j hj'.1 hj'.2
+    exact ⟨a1, a2, b1, b2⟩
+  have hwin : ∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p + 1), 0 ≤ j ∧ j ≤ NR := by
+    intro p hp j hj
+    have hp' := mem_Icc.mp hp
+    have hj' := mem_Icc.mp hj
+    have := hjjle p hp'.2
+    have := hjjge (p - 1) (by omega)
+    omega
+  -- inverse comparison
+  have invc : ∀ x y : ℝ, 0 < x → 0 < y → y ≤ B * x → x⁻¹ ≤ B * y⁻¹ := by
+    intro x y hx hy hxy
+    rw [inv_eq_one_div, inv_eq_one_div, mul_one_div, div_le_div_iff₀ hx hy]
+    nlinarith
+  have hmono' : ∀ k ∈ Icc 0 NR, ∀ j ∈ Icc 0 NR, k ≤ j → glueF Wp jj k ≤ (CE * Co ^ P) ^ P * glueF Wp jj j := by
+    intro k hk j hj hkj
+    exact glue_mono Wp Co CE jj P NR hP hjj0 hjjmono hjjP hCo hCE wW
+      (fun p hp1 hpP k j hklo hkj hjhi => hG1 p (mem_Icc.mpr ⟨hp1, hpP⟩) k (mem_Icc.mpr ⟨hklo, by omega⟩) j
+        (mem_Icc.mpr ⟨by omega, hjhi⟩) hkj) hcW k j (mem_Icc.mp hk).1 hkj (mem_Icc.mp hj).2
+  have hX1 : 1 ≤ Λ * B ^ 2 := by nlinarith
+  have hΛ0 : 0 < Λ := by linarith
+  refine volterra_multi h ω cm ((CE * Co ^ P) ^ P) (K * B ^ 2) (ε * B ^ 2) (Λ * B ^ 2) A Q ψ ρ (glueF Mp jj)
+    (glueF Wp jj) s0 NR P jj φ1 φ2 hh hω hcm (by positivity) (by positivity) hX1 hP hjj0 hjjmono hjjP hs0 hA hS1
+    (fun j hj => gM j (mem_Icc.mp hj).1 (mem_Icc.mp hj).2) (fun j hj => gW j (mem_Icc.mp hj).1 (mem_Icc.mp hj).2)
+    hmono' ?_ ?_ hρ ?_ ?_ ?_ hsol hseed hsmall
+  · intro p hp j hj
+    obtain ⟨hj0, hjN⟩ := hwin p hp j hj
+    obtain ⟨w1, _, m1, _⟩ := cWM p hp j hj
+    have hWp := wW p (mem_Icc.mp hp).1 (mem_Icc.mp hp).2 j (mem_Icc.mp hj).1 (mem_Icc.mp hj).2
+    have hMp := wM p (mem_Icc.mp hp).1 (mem_Icc.mp hp).2 j (mem_Icc.mp hj).1 (mem_Icc.mp hj).2
+    calc |φ1 p j| ≤ K * Wp p j * Mp p j := hφ1 p hp j hj
+      _ ≤ K * (B * glueF Wp jj j) * (B * glueF Mp jj j) := by
+          apply mul_le_mul (mul_le_mul_of_nonneg_left w1 hK) m1 hMp.le
+            (mul_nonneg hK (mul_nonneg hB0.le (gW j hj0 hjN).le))
+      _ = K * B ^ 2 * glueF Wp jj j * glueF Mp jj j := by ring
+  · intro p hp j hj
+    obtain ⟨hj0, hjN⟩ := hwin p hp j hj
+    obtain ⟨_, w2, m1, _⟩ := cWM p hp j hj
+    have hWp := wW p (mem_Icc.mp hp).1 (mem_Icc.mp hp).2 j (mem_Icc.mp hj).1 (mem_Icc.mp hj).2
+    have hMp := wM p (mem_Icc.mp hp).1 (mem_Icc.mp hp).2 j (mem_Icc.mp hj).1 (mem_Icc.mp hj).2
+    have hg := gW j hj0 hjN
+    have hiv := invc (Wp p j) (glueF Wp jj j) hWp hg w2
+    calc |φ2 p j| ≤ K * (Wp p j)⁻¹ * Mp p j := hφ2 p hp j hj
+      _ ≤ K * (B * (glueF Wp jj j)⁻¹) * (B * glueF Mp jj j) := by
+          apply mul_le_mul (mul_le_mul_of_nonneg_left hiv hK) m1 hMp.le
+            (mul_nonneg hK (mul_nonneg hB0.le (inv_nonneg.mpr hg.le)))
+      _ = K * B ^ 2 * (glueF Wp jj j)⁻¹ * glueF Mp jj j := by ring
+  · intro p hp k hk
+    have hkw : k ∈ Icc (jj (p - 1)) (jj p + 1) := by
+      have hlow := eqLo_ge_jj_aux s0 jj p hs0 hjj0 (hjjge (p - 1) (by have := mem_Icc.mp hp; omega))
+      exact mem_Icc.mpr ⟨hlow.trans (mem_Icc.mp hk).1, by have := (mem_Icc.mp hk).2; omega⟩
+    obtain ⟨w1, _, m1, _⟩ := cWM p hp k hkw
+    have hMp := wM p (mem_Icc.mp hp).1 (mem_Icc.mp hp).2 k (mem_Icc.mp hkw).1 (mem_Icc.mp hkw).2
+    have hρk := hρ k
+    obtain ⟨hj0, hjN⟩ := hwin p hp k hkw
+    have hg := gW k hj0 hjN
+    calc |Lh h A Q (φ1 p) k| ≤ ε * ρ k * Wp p k * Mp p k := hr1 p hp k hk
+      _ ≤ ε * ρ k * (B * glueF Wp jj k) * (B * glueF Mp jj k) := by
+          apply mul_le_mul (mul_le_mul_of_nonneg_left w1 (by positivity)) m1 hMp.le
+            (mul_nonneg (mul_nonneg hε hρk) (mul_nonneg hB0.le hg.le))
+      _ = ε * B ^ 2 * ρ k * glueF Wp jj k * glueF Mp jj k := by ring
+  · intro p hp k hk hk0
+    have hkw : k ∈ Icc (jj (p - 1)) (jj p + 1) := by
+      have hlow := eqLo_ge_jj_aux s0 jj p hs0 hjj0 (hjjge (p - 1) (by have := mem_Icc.mp hp; omega))
+      exact mem_Icc.mpr ⟨hlow.trans (mem_Icc.mp hk).1, by have := (mem_Icc.mp hk).2; omega⟩
+    obtain ⟨hj0, hjN⟩ := hwin p hp k hkw
+    obtain ⟨_, w2, m1, _⟩ := cWM p hp k hkw
+    have hWp := wW p (mem_Icc.mp hp).1 (mem_Icc.mp hp).2 k (mem_Icc.mp hkw).1 (mem_Icc.mp hkw).2
+    have hMp := wM p (mem_Icc.mp hp).1 (mem_Icc.mp hp).2 k (mem_Icc.mp hkw).1 (mem_Icc.mp hkw).2
+    have hg := gW k hj0 hjN
+    have hiv := invc (Wp p k) (glueF Wp jj k) hWp hg w2
+    have hρk := hρ k
+    calc |Lh h A Q (φ2 p) k| ≤ ε * ρ k * (Wp p k)⁻¹ * Mp p k := hr2 p hp k hk hk0
+      _ ≤ ε * ρ k * (B * (glueF Wp jj k)⁻¹) * (B * glueF Mp jj k) := by
+          apply mul_le_mul (mul_le_mul_of_nonneg_left hiv (by positivity)) m1 hMp.le (by positivity)
+      _ = ε * B ^ 2 * ρ k * (glueF Wp jj k)⁻¹ * glueF Mp jj k := by ring
+  · intro p hp1 hpP
+    obtain ⟨d1, d2, d3, d4, d5⟩ := hT p hp1 hpP
+    have hpP' : p ∈ Icc 1 P := mem_Icc.mpr ⟨hp1, hpP.le⟩
+    have hjw : jj p ∈ Icc (jj (p - 1)) (jj p + 1) :=
+      mem_Icc.mpr ⟨jj_mono_le jj P hjjmono (p - 1) p (by omega) hpP.le, by omega⟩
+    obtain ⟨hj0, hjN⟩ := hwin p hpP' _ hjw
+    obtain ⟨w1, w2, _, _⟩ := cWM p hpP' _ hjw
+    have hWp := wW p hp1 hpP.le (jj p) (mem_Icc.mp hjw).1 (mem_Icc.mp hjw).2
+    have hg := gW _ hj0 hjN
+    have hiv := invc (Wp p (jj p)) (glueF Wp jj (jj p)) hWp hg w2
+    have hsq : (Wp p (jj p) ^ 2)⁻¹ ≤ B ^ 2 * (glueF Wp jj (jj p) ^ 2)⁻¹ := by
+      rw [← inv_pow, ← inv_pow, ← mul_pow]
+      exact pow_le_pow_left₀ (inv_nonneg.mpr hWp.le) hiv 2
+    have hsq2 : Wp p (jj p) ^ 2 ≤ B ^ 2 * glueF Wp jj (jj p) ^ 2 := by
+      rw [← mul_pow]
+      exact pow_le_pow_left₀ hWp.le w1 2
+    have hΛle : Λ ≤ Λ * B ^ 2 := le_mul_of_one_le_right hΛ0.le hB21
+    refine ⟨?_, d2.trans hΛle, d3.trans hΛle, ?_, ?_⟩
+    · have : (Λ * B ^ 2)⁻¹ ≤ Λ⁻¹ := inv_anti₀ hΛ0 hΛle
+      exact this.trans d1
+    · calc _ ≤ Λ * (Wp p (jj p) ^ 2)⁻¹ := d4
+        _ ≤ Λ * (B ^ 2 * (glueF Wp jj (jj p) ^ 2)⁻¹) := mul_le_mul_of_nonneg_left hsq hΛ0.le
+        _ = Λ * B ^ 2 * (glueF Wp jj (jj p) ^ 2)⁻¹ := by ring
+    · calc _ ≤ Λ * Wp p (jj p) ^ 2 := d5
+        _ ≤ Λ * (B ^ 2 * glueF Wp jj (jj p) ^ 2) := mul_le_mul_of_nonneg_left hsq2 hΛ0.le
+        _ = Λ * B ^ 2 * glueF Wp jj (jj p) ^ 2 := by ring
+
+
 /-! ### Non-vacuity: two patches, the two-node seed, the exact pair `cos(iθ)`, `sin(iθ)` -/
 
 /-- Non-vacuity of `volterra_multi`: two patches (`P = 2`, breakpoints `j_p = p`, `N_R = 3`, windows `[0,2]`, `[1,3]`,
@@ -2274,6 +2685,18 @@ theorem volterra_multi_instance_hard_edge (h θ θ' : ℝ) (hh : 0 < h) (hθ : R
 /-- info: 'FormalResearch.JE.volterra_multi_perturbed_params' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JE.volterra_multi_perturbed_params
+
+/-- info: 'FormalResearch.JE.volterra_multi_patchwise' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.volterra_multi_patchwise
+
+/-- info: 'FormalResearch.JE.glue_mono' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.glue_mono
+
+/-- info: 'FormalResearch.JE.glue_comparable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.glue_comparable
 
 /-- info: 'FormalResearch.JE.volterra_multi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
