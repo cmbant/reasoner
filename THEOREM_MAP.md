@@ -1342,6 +1342,28 @@ Notes.
 - All headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (pinned axiom guards).
 - Not formalised: the verification of (I1)-(I5) for actual Jacobi matrices (`prop:thb-inputs`; needs Theorem A(ii) and the charts), hence Theorem B itself; `rem:thb-entropy`; the measure-theoretic form of `lem:thb-schur`; the sharper orthogonal-column assembly `(Σ‖T_ν‖²)^{1/2}` (the lemma sums the block norms); an `h`-indexed non-trivial instance family (only the `D = 1` toy exists).
 
+
+## Paper J engine: Casoratian, defect, kernel and Volterra (`FormalResearch/JE/*.lean`, umbrella `FormalResearch.JE`, namespace `FormalResearch.JE`)
+
+Source: Paper J `Weyl/jacobi_eigenvectors/paper/parts/engine.tex` (Section 2, `sec:eng-cas`, `sec:eng-ladder`, `sec:eng-volterra`) and `app_engine.tex`, branch `agents/m7-m1-global-racah`. Modules: `JECasoratian` (JE1), `JEDefect` (JE2), `JEKernel` (JE3), `JEVolterra` (JE4). Conventions: `Lop A Q f j = A j f(j+1) + A(j-1) f(j-1) - Q j f j` is `h · L_h f` (the paper's `h⁻¹` is dropped in JE1-JE3 and restored as `Lh h A Q f = h⁻¹ Lop` in JE4); `cas A f g j = A j (f(j+1) g j - f j g(j+1))` is the paper's `𝒲_j(f,g)`. Axioms of all headline statements: `[propext, Classical.choice, Quot.sound]` (pinned). Not formalised in this section: the corrector recursion (`thm:eng-corr`, `prop:eng-corr1`), the multi-patch and hard-edge-seed forms of `thm:eng-volterra`, the Section 3 charts and the existence of the ladders.
+
+| Statement | Lean | Notes |
+|---|---|---|
+| `lem:eng-abel` (i) Abel identity, hard-edge form, summed form | `abel_pointwise`, `abel_hard_edge`, `abel_sum`, `Lop_hard_ghost` (`JECasoratian`) | proved; reuses `FormalResearch.DiscreteAiry.cas_sub` under `a k = A (k-1)`; `A(-1)=0` removes the ghost value |
+| `lem:eng-abel` constancy of `𝒲` | `cas_const_of_sol`, `cas_const_global`, `cas_zero_of_hard_sol` (`JECasoratian`) | proved; hard-edge solutions on `[0,b]` have `𝒲 ≡ 0` on `[-1,b]` |
+| `lem:eng-abel` (ii) Cramer identities (`eq:eng-cramer`) | `cramer_first`, `cramer_second` (`JECasoratian`) | proved (`ring`) |
+| `thm:eng-defect` (1) defect identity `h(L_h ψ̂)_j = 𝔄 w + 𝔅 w̃` (interior and hard edge) | `defect_identity_interior`, `defect_identity_hard`, `Lop_seq_eq_siteLop` (`JEDefect`) | proved; `SymplecticLadder` (SM1)-(SM3) as named fields; hard edge needs `Π₋ 𝐰⁽¹⁾₀ = 0` and `𝒟₋(u₀,h) = 0`; sequence bridge to `JECasoratian.Lop` |
+| `thm:eng-defect` (2) parity `𝔄(u,-h)=𝔄(u,h)`, `𝔅(u,-h)=-𝔅(u,h)` | `defectRow_parity` (`JEDefect`) | proved; `P`, `Q`, `A`, `B` even in `h` |
+| `thm:eng-defect` (3a) `𝒲_j(ψ̂¹,ψ̂²) = ω_mod 𝓕_cas(s_j,h)` | `casSite_eq_omega_Fcas` (`JEDefect`) | proved under `𝒟(s_j,h) ≠ 0` (see Differences in the module docstring) |
+| `thm:eng-defect` (3b) `𝓕_cas` even in `h`; `𝓕_cas(s,0) = A(s,0)² V₀(s)` | `Fcas_even`, `Fcas_zero` (`JEDefect`) | proved under `𝒟(s,h) ≠ 0` |
+| `thm:eng-defect` (3c) Casoratian--Green identity (`eq:eng-green`) | `green_identity` (`JEDefect`) | proved under `𝒟(u+h/2,h) ≠ 0`; the adjugate identity `Π₊ = adj Π₋(u+h)` is derived from `Π₋Π₊ = 𝒟₊²I` |
+| non-vacuity of `SymplecticLadder` | `constant_ladder` (`JEDefect`) | the constant ladder (`𝒟 = P = 1`, `Π± = I`) satisfies every field |
+| `lem:eng-kernel` (both inequalities, `eq:eng-kernel`) | `kernel_bound_a`, `kernel_bound_b` (`JEKernel`) | proved; constants `(1+C_E²)K²` and `(1+C_E²)Kε'η`; `ε', η ≥ 0` derived |
+| `lem:eng-transport` (b), algebraic core (`2xS'+S = G ⟹ q B' + ½q'B = -2f`) | `transport_alg` (`JEKernel`) | proved for `W > 0`, `S` and `W` differentiable at `u` |
+| `lem:eng-transport` (b), formula `B = -4S/√W`, `S = ∫₀¹ G(u*+(u-u*)t²)dt` | `transport_key` (`JEKernel`) | proved for `f, W ∈ C¹` on an open interval containing `u*` and `u`, `W > 0`; differentiation under the integral and one integration by parts; holomorphy, regularity and uniqueness not formalised |
+| `thm:eng-volterra` (a), one patch `P = 1`, two-node seed | `volterra_single_patch` (`JEVolterra`) | proved: `\|ψ_j - φ¹_j\| ≤ C εΘ 𝖶_j 𝖬_j` with `C = (1+C_E²)(K²+K)/c₋`, `Θ = (h/ω)∑ρ_k𝖬_k²`, under `C εΘ ≤ 1`; `c₊`, `Λ` and the transfer (S3) not needed for `P = 1`; the induction replaces Grönwall |
+| non-vacuity of the Volterra hypotheses | `volterra_instance` (`JEVolterra`) | the exact cos/sin pair of `cos_sin_solutions` (`A = 1`, `Q = 2cos θ`) satisfies every hypothesis |
+
 ## Spectral perturbation theory (Hermitian matrices) (`FormalResearch/MatrixAnalysis/Spectral/*.lean`, aggregate `FormalResearch.MatrixAnalysis`, namespace `FormalResearch.MatrixAnalysis.Spectral`)
 
 Generic Hermitian/symmetric spectral inequalities with Mathlib's sorted eigenvalues, at two levels: abstract symmetric operators `T : E →ₗ[𝕜] E` on a finite-dimensional inner product space (`RCLike 𝕜`) with `hT.eigenvalues`, and `Matrix n n 𝕜` with `hA.eigenvalues₀`. Everything rests on dimension counting with the Courant–Fischer certificates (no compactness). Headline theorems depend only on `[propext, Classical.choice, Quot.sound]` (pinned by `#print axioms` guards). Modules: `MinMax`, `Weyl`, `KyFan`, `SpecMap`, `Lidskii`, `HoffmanWielandt`, `KyFanProj`, `WeylMatrix`, `SingularWeyl`, `FanHoffman`, `FanHoffmanPolar`.
