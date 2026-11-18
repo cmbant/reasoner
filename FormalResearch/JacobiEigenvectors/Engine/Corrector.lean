@@ -485,6 +485,137 @@ theorem eng_corr (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correctors K 
     rw [Ahat_even, Bhat_even]
     exact ⟨h0, h1⟩
 
+/-- Bounds for the ansatz entries (needed for the remainders). -/
+lemma Correctors.ans_bdd (C : Correctors K pp qq PiP PiM g b c) {k l : ℕ} (hk : k ≤ K + 1) (hl : l ≤ K) :
+    UO 0 (fun u h => Aans g k (u + h) h) ∧ UO 0 (fun u h => Aans g k (u - h) h) ∧ UO 0 (Aans g k) ∧
+    UO 0 (fun u h => Bans b l (u + h) h) ∧ UO 0 (fun u h => Bans b l (u - h) h) ∧ UO 0 (Bans b l) := by
+  have hgk : ∀ i < k, BSmooth (2 * K + 3) (g i) := fun i hi => C.g_reg i (by omega)
+  have hbl : ∀ i, 1 ≤ i → i ≤ l → BSmooth (2 * K + 3) (b i) := fun i h1 h2 => C.b_reg i h1 (by omega)
+  exact ⟨(Aans_papprox' hgk 1 (σ := fun u h => u + h) (fun u h => by ring)).bdd,
+    (Aans_papprox' hgk (-1) (σ := fun u h => u - h) (fun u h => by ring)).bdd,
+    (Aans_papprox_zero hgk).bdd,
+    (Bans_papprox' hbl 1 (σ := fun u h => u + h) (fun u h => by ring)).bdd,
+    (Bans_papprox' hbl (-1) (σ := fun u h => u - h) (fun u h => by ring)).bdd,
+    (Bans_papprox_zero hbl).bdd⟩
+
+/-- **`thm:eng-corr` with the remainders of (eq:eng-factor).**  Let `P_h = P + h^{2K+2} R_P`, `𝒬_h = Q + h^{2K+2} R_Q` with bounded
+`R_P, R_Q` (no regularity).  For `m ≤ 2K` the orders of `eng_corr` are unchanged; for `m = 2K+1`, `𝔄^tot = O(h^{m+1})` and the
+remainders add `O(h^{m+1})` to `𝔅^tot`; in all cases both components of the defect are `O(h^{m+1})`. -/
+theorem eng_corr_full (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c)
+    {RP RQ : ℝ → ℝ → ℝ} (hRP : UO 0 RP) (hRQ : UO 0 RQ) {m : ℕ} (hm1 : 1 ≤ m) (hm : m ≤ 2 * K + 1) :
+    (∀ k : Fin 2, UO (m + 1) (fun u h => defectRow (fun s h => pp s h + h ^ (2 * K + 2) * RP s h)
+        (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h) (Ahat g m) (Bhat b m) PiP PiM u h k)) ∧
+    (m ≤ 2 * K →
+      (Odd m → UO (m + 1) (fun u h => defectRow (fun s h => pp s h + h ^ (2 * K + 2) * RP s h)
+            (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h) (Ahat g m) (Bhat b m) PiP PiM u h 0) ∧
+          UO (m + 2) (fun u h => defectRow (fun s h => pp s h + h ^ (2 * K + 2) * RP s h)
+            (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h) (Ahat g m) (Bhat b m) PiP PiM u h 1)) ∧
+      (Even m → UO (m + 2) (fun u h => defectRow (fun s h => pp s h + h ^ (2 * K + 2) * RP s h)
+            (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h) (Ahat g m) (Bhat b m) PiP PiM u h 0) ∧
+          UO (m + 1) (fun u h => defectRow (fun s h => pp s h + h ^ (2 * K + 2) * RP s h)
+            (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h) (Ahat g m) (Bhat b m) PiP PiM u h 1))) := by
+  -- bounds for the ansatz entries at stage `m`
+  have hk : (m + 1) / 2 ≤ K + 1 := by omega
+  have hl : m / 2 ≤ K := by omega
+  obtain ⟨Ap, Am, A0, Bp, Bm, B0⟩ := C.ans_bdd hk hl
+  have hrem : ∀ k : Fin 2, UO (2 * K + 2) (fun u h => defectRow (fun s h => h ^ (2 * K + 2) * RP s h)
+      (fun u h => h ^ (2 * K + 2) * RQ u h) (Ahat g m) (Bhat b m) PiP PiM u h k) :=
+    fun k => defect_remainder (n := 2 * K + 2) S.exp.bddP S.exp.bddM hRP hRQ Ap Am A0 Bp Bm B0 k
+  have hsplit : ∀ (k : Fin 2) (u h : ℝ),
+      defectRow (fun s h => pp s h + h ^ (2 * K + 2) * RP s h) (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h)
+        (Ahat g m) (Bhat b m) PiP PiM u h k
+      = defectRow pp qq (Ahat g m) (Bhat b m) PiP PiM u h k
+        + defectRow (fun s h => h ^ (2 * K + 2) * RP s h) (fun u h => h ^ (2 * K + 2) * RQ u h)
+          (Ahat g m) (Bhat b m) PiP PiM u h k := fun k u h =>
+    defectRow_add_symbols (pp := pp) (pp' := fun s h => h ^ (2 * K + 2) * RP s h) (qq := qq)
+      (qq' := fun u h => h ^ (2 * K + 2) * RQ u h) _ _ u h k
+  have key : ∀ (k : Fin 2) (n : ℕ), n ≤ 2 * K + 2 →
+      UO n (fun u h => defectRow pp qq (Ahat g m) (Bhat b m) PiP PiM u h k) →
+      UO n (fun u h => defectRow (fun s h => pp s h + h ^ (2 * K + 2) * RP s h)
+        (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h) (Ahat g m) (Bhat b m) PiP PiM u h k) := by
+    intro k n hn hs
+    exact (hs.add ((hrem k).mono hn)).congr fun u h => (hsplit k u h).symm
+  obtain ⟨hodd, heven⟩ := eng_corr S C hm1 hm
+  refine ⟨fun k => ?_, fun hm2 => ⟨fun ho => ?_, fun he => ?_⟩⟩
+  · rcases Nat.even_or_odd m with he | ho
+    · obtain ⟨h0, h1⟩ := heven he
+      fin_cases k
+      · exact key 0 (m + 1) (by omega) (h0.mono (by omega))
+      · exact key 1 (m + 1) (by omega) h1
+    · obtain ⟨h0, h1⟩ := hodd ho
+      fin_cases k
+      · exact key 0 (m + 1) (by omega) h0
+      · exact key 1 (m + 1) (by omega) (h1.mono (by omega))
+  · obtain ⟨h0, h1⟩ := hodd ho
+    exact ⟨key 0 (m + 1) (by omega) h0, key 1 (m + 2) (by omega) h1⟩
+  · obtain ⟨h0, h1⟩ := heven he
+    exact ⟨key 0 (m + 2) (by omega) h0, key 1 (m + 1) (by omega) h1⟩
+
+/-- The ladder fields do not depend on the symbols `P`, `Q`. -/
+lemma SymplecticLadder.of_symbols {γ : ℝ} {dd pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2}
+    {ω : ℝ → ℝ} (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (pp' qq' : ℝ → ℝ → ℝ) :
+    SymplecticLadder γ dd pp' qq' PiP PiM w ω :=
+  ⟨L.wronsk, L.wronsk_ne, L.shift_up, L.shift_dn, L.det_up, L.det_dn, L.prod, L.par_D, L.par_Pi⟩
+
+/-- **The comparison sequence.**  At interior lattice sites (`IsSitePos`) the sequence `ψ̂^{(α)}_j = v^{[m]}(u_j,h)·𝐰^{(α)}_j` satisfies
+`|h (L_h ψ̂)_j| ≤ C h^{m+1} (|w_j| + |w̃_j|)`, i.e. `(L_h ψ̂)_j = O(h^m)` times the size of `w_j, w̃_j` (`siteLop = h (L_h ψ̂)_j`), for the full
+symbols `P_h = P + h^{2K+2} R_P`, `𝒬_h = Q + h^{2K+2} R_Q`. -/
+theorem eng_corr_site (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c)
+    {RP RQ : ℝ → ℝ → ℝ} (hRP : UO 0 RP) (hRQ : UO 0 RQ) {m : ℕ} (hm1 : 1 ≤ m) (hm : m ≤ 2 * K + 1) :
+    ∃ C₁ δ : ℝ, 0 < δ ∧ ∀ (α : Fin 2) (u h : ℝ), 0 < h → h < δ → IsSitePos γ h u →
+      |siteLop dd (fun s h => pp s h + h ^ (2 * K + 2) * RP s h) (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h)
+          (Ahat g m) (Bhat b m) w α u h|
+        ≤ C₁ * h ^ (m + 1) * (|w α u h 0| + |w α u h 1|) := by
+  obtain ⟨h0, -⟩ := eng_corr_full S C hRP hRQ hm1 hm
+  obtain ⟨C0, δ0, hC0, hδ0, hδ01, H0⟩ := (h0 0).norm
+  obtain ⟨C1', δ1, hC1, hδ1, hδ11, H1⟩ := (h0 1).norm
+  refine ⟨max C0 C1', min δ0 δ1, lt_min hδ0 hδ1, fun α u h hh hlt hs => ?_⟩
+  have hL := S.ladder.of_symbols (fun s h => pp s h + h ^ (2 * K + 2) * RP s h)
+    (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h)
+  rw [defect_identity_interior hL (Ahat g m) (Bhat b m) α u h hh hs]
+  have a0 := H0 u h (by rw [abs_of_pos hh]; exact lt_of_lt_of_le hlt (min_le_left _ _))
+  have a1 := H1 u h (by rw [abs_of_pos hh]; exact lt_of_lt_of_le hlt (min_le_right _ _))
+  rw [abs_of_pos hh] at a0 a1
+  have hp : 0 ≤ h ^ (m + 1) := by positivity
+  calc |defectRow (fun s h => pp s h + h ^ (2 * K + 2) * RP s h) (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h)
+          (Ahat g m) (Bhat b m) PiP PiM u h 0 * w α u h 0
+        + defectRow (fun s h => pp s h + h ^ (2 * K + 2) * RP s h) (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h)
+          (Ahat g m) (Bhat b m) PiP PiM u h 1 * w α u h 1|
+      ≤ |defectRow (fun s h => pp s h + h ^ (2 * K + 2) * RP s h) (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h)
+          (Ahat g m) (Bhat b m) PiP PiM u h 0| * |w α u h 0|
+        + |defectRow (fun s h => pp s h + h ^ (2 * K + 2) * RP s h) (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h)
+          (Ahat g m) (Bhat b m) PiP PiM u h 1| * |w α u h 1| := by
+        refine (abs_add_le _ _).trans ?_
+        rw [abs_mul, abs_mul]
+    _ ≤ (max C0 C1' * h ^ (m + 1)) * |w α u h 0| + (max C0 C1' * h ^ (m + 1)) * |w α u h 1| := by
+        refine add_le_add ?_ ?_
+        · exact mul_le_mul_of_nonneg_right (a0.trans (mul_le_mul_of_nonneg_right (le_max_left _ _) hp)) (abs_nonneg _)
+        · exact mul_le_mul_of_nonneg_right (a1.trans (mul_le_mul_of_nonneg_right (le_max_right _ _) hp)) (abs_nonneg _)
+    _ = max C0 C1' * h ^ (m + 1) * (|w α u h 0| + |w α u h 1|) := by ring
+
+/-- **Solvability of (a)_k at one simple turning point** (`lem:eng-transport`(b), `prop:eng-corr1`).  If `M₀ = Ω₀²V₀ = -q_V/4` with
+`q_V = (u - u_*) W`, `W > 0` of class `C¹` on `(a,b) ∋ u_*`, and `f` is `C¹`, then `B = -4 S/√W` of `Kernel.transport_solution`
+(`S(u) = ∫₀¹ f/√W (u_* + (u-u_*)t²) dt`, eq:eng-G8) satisfies the transport equation `𝒯[B] = -f` of (eq:eng-transport)
+at every point of `(a,b)`.  (Regularity bookkeeping `C^{p-3k+1}` of `prop:eng-corr1` and the uniqueness among bounded solutions are not formalised.) -/
+theorem transport_corrector (a b ustar : ℝ) (hJ : ustar ∈ Set.Ioo a b) (f f' W W' : ℝ → ℝ)
+    (hWpos : ∀ y ∈ Set.Ioo a b, 0 < W y) (hWd : ∀ y ∈ Set.Ioo a b, HasDerivAt W (W' y) y)
+    (hWc : ContinuousOn W' (Set.Ioo a b))
+    (hfd : ∀ y ∈ Set.Ioo a b, HasDerivAt f (f' y) y) (hfc : ContinuousOn f' (Set.Ioo a b))
+    (M0 : ℝ → ℝ) (hM0 : ∀ y ∈ Set.Ioo a b, M0 y = -((y - ustar) * W y) / 4)
+    (u : ℝ) (hu : u ∈ Set.Ioo a b) :
+    transportOp M0 (fun v => -4 * transportS ustar f W v / Real.sqrt (W v)) u = -f u := by
+  obtain ⟨B', hB, heq⟩ := transport_solution a b ustar hJ f f' W W' hWpos hWd hWc hfd hfc u hu
+  have hq : HasDerivAt (fun y => -((y - ustar) * W y) / 4)
+      (-(1 * W u + (u - ustar) * W' u) / 4) u :=
+    ((((hasDerivAt_id u).sub_const ustar).mul (hWd u hu)).neg).div_const 4
+  have hM : HasDerivAt M0 (-(1 * W u + (u - ustar) * W' u) / 4) u := by
+    refine hq.congr_of_eventuallyEq ?_
+    filter_upwards [isOpen_Ioo.mem_nhds hu] with y hy using hM0 y hy
+  unfold transportOp
+  rw [hB.deriv, hM.deriv, hM0 u hu]
+  simp only [id]
+  linear_combination (1 / 2 : ℝ) * heq
+
 end Main
 
 -- Axiom pins for the headline statements (checked at build time).
@@ -503,6 +634,19 @@ end Main
 /-- info: 'FormalResearch.JacobiEigenvectors.Engine.eng_corr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.Engine.eng_corr
+
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.eng_corr_full' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Engine.eng_corr_full
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.transport_corrector' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Engine.transport_corrector
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.eng_corr_site' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Engine.eng_corr_site
 
 
 end FormalResearch.JacobiEigenvectors.Engine
