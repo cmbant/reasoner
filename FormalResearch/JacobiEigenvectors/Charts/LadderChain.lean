@@ -1,19 +1,19 @@
 module
 
 public import Mathlib
-public import FormalResearch.JE.JEVolterraLadder
+public import FormalResearch.JacobiEigenvectors.Engine.VolterraLadder
 public import FormalResearch.JacobiEigenvectors.Setting.JacobiFamily
 
 /-!
 # Paper J, charts: the engine interface (chains of ladder pairs)
 
 Source: Paper J `engine.tex`, `thm:eng-volterra` (a) (multi-patch Casoratian--Volterra stability), (b) (ladder pairs) and
-`thm:eng-defect`; the engine is formalised in `FormalResearch.JE` (to be moved to `FormalResearch.JacobiEigenvectors.Engine`).
+`thm:eng-defect`; the engine is formalised in `FormalResearch.JacobiEigenvectors.Engine` (to be moved to `FormalResearch.JacobiEigenvectors.Engine`).
 
 A **ladder chain** is the data and the hypotheses with which the engine is applied to one edge solution of the Jacobi
 recurrence: `P` patches, each with its own symplectic model ladder (`SymplecticLadder`: (SM1)--(SM3)), its own
 corrector row `v = (A^{[m]}, h B^{[m]})`, and common envelopes `(M, W)`, residual weights `(rho, rho~)` and constants.
-The fields are exactly the hypotheses of `FormalResearch.JE.ladder_pair_stability`, with the ladder `(D, P, Q, Pi, omega, w)`
+The fields are exactly the hypotheses of `FormalResearch.JacobiEigenvectors.Engine.ladder_pair_stability`, with the ladder `(D, P, Q, Pi, omega, w)`
 and the row `v` allowed to depend on the patch (the Weber patch and the parabolic-cylinder patch of a soft edge have
 different ladders); (S1) is the Casoratian lower bound `|F_cas| >= c_-`, (S2) the envelopes and bounds on the row, (R) the
 **defect bounds `eq:eng-UC1`** (the output of `thm:eng-corr`, a hypothesis here: it is proved in a later Layer-1 module), (S3) the transfer-matrix bounds.
@@ -41,7 +41,7 @@ noncomputable section
 
 namespace FormalResearch.JacobiEigenvectors.Charts
 
-open Finset FormalResearch.JE
+open Finset FormalResearch.JacobiEigenvectors.Engine
 
 /-- The constants of an engine application (uniform in `h`, `X`, `mu`). -/
 structure ChainConsts where
@@ -96,8 +96,8 @@ def phi (h : ℝ) (α : Fin 2) : ℕ → ℤ → ℝ :=
 /-- The modulus sum `Theta_h = (h/omega_*) sum rho M^2` (`omega_* = |omega_mod(h)|` of patch 1). -/
 def theta (h : ℝ) : ℝ := volTheta h |D.ω 1 h| D.s0 D.jj D.P D.ρ D.M
 
-/-- The single-valued comparison sequence `psi-hat` of the chain (`psiHat` of `JEVolterraMulti`) on patch `p`. -/
-def psiHat (h : ℝ) (p : ℕ) (j : ℤ) : ℝ := FormalResearch.JE.psiHat (D.phi h 0) (D.phi h 1) D.jj p j
+/-- The single-valued comparison sequence `psi-hat` of the chain (`psiHat` of `VolterraMulti`) on patch `p`. -/
+def psiHat (h : ℝ) (p : ℕ) (j : ℤ) : ℝ := FormalResearch.JacobiEigenvectors.Engine.psiHat (D.phi h 0) (D.phi h 1) D.jj p j
 
 /-- The hypotheses of `thm:eng-volterra` for the chain, at step `h` and order `m` (see the module docstring). -/
 structure Valid (cs : ChainConsts) (h : ℝ) (m : ℕ) : Prop where

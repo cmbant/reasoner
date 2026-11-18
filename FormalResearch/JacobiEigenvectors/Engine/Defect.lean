@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.JE.JECasoratian
+public import FormalResearch.JacobiEigenvectors.Engine.Casoratian
 public import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
 public import Mathlib.Tactic
 
@@ -21,7 +21,7 @@ ladder, (SM1)--(SM3)), `eq:eng-ansatz`, `thm:eng-defect` (1)--(3); proofs in `ap
 * Row vectors multiply matrices on the right (`rowMul v M`), column vectors on the left (`colMul M x`); the
   2-dimensional determinants are `colDet x y = det[x|y]` and `rowDet a b = det[a;b]`.
 * The bond coefficient is `𝒜_h(s_j) = pp s_j h * dd s_j h`; the site form of `L_h` with the paper's `h⁻¹` removed is
-  `siteLop`, so `h (L_h ψ̂)_j = siteLop` (the convention of `JECasoratian`: `Lop = h L_h`).
+  `siteLop`, so `h (L_h ψ̂)_j = siteLop` (the convention of `Casoratian`: `Lop = h L_h`).
 
 ## Statements formalised
 * `SymplecticLadder γ` (`γ` a fixed shift parameter), indexed by `j ∈ ℕ` (the paper's `j_min = 0`):
@@ -44,7 +44,7 @@ ladder, (SM1)--(SM3)), `eq:eng-ansatz`, `thm:eng-defect` (1)--(3); proofs in `ap
   `F_cas(s,0) = A(s,0)² V₀(s)` with `V₀(s) = P₀(s) Π₋(s,0)₁₂`.
 * `green_identity` (`thm:eng-defect`(3c), eq:eng-green): `A 𝔅 - h B 𝔄 = -[F_cas(u+h/2,h) - F_cas(u-h/2,h)]`, at a
   point with `𝒟(u+h/2,h) ≠ 0`.
-* `Lop_seq_eq_siteLop`: the bridge to the sequence operator `FormalResearch.JE.Lop` of `JECasoratian` (with
+* `Lop_seq_eq_siteLop`: the bridge to the sequence operator `FormalResearch.JacobiEigenvectors.Engine.Lop` of `Casoratian` (with
   `u_j = (j+γ)h`, `A j = 𝒜_h(s_j)`, `Q j = 𝒬_h(u_j)`): the defect identity holds for `Lop` itself.
 * `constant_ladder`: non-vacuity, the constant instance (`𝒟 ≡ P ≡ 1`, `Q ≡ 0`, `Π± = I`, `𝐰^{(1)} = e_1`,
   `𝐰^{(2)} = e_2`, `ω_mod = 1`, `A ≡ 1`, `B ≡ 0`) satisfies every field of `SymplecticLadder`.
@@ -69,7 +69,7 @@ ladder, (SM1)--(SM3)), `eq:eng-ansatz`, `thm:eng-defect` (1)--(3); proofs in `ap
 5. **Global domain of the algebraic identities (a restriction relative to the paper).** `det Π± = D±²`,
    `Π₋(u+h)Π₊(u) = D₊²I` and (SM3) are required for all real `(u,h)`, whereas the paper has them on
    `I_u × (-h₀,h₀)`.  They are used only by `defectRow_parity`, `Fcas_even` and `green_identity`; the defect
-   identities, `casSite_eq_omega_Fcas` and hence the stability theorems (`JEVolterraLadder`) use only the lattice
+   identities, `casSite_eq_omega_Fcas` and hence the stability theorems (`VolterraLadder`) use only the lattice
    relations.  A ladder defined on an interval only must be extended to `ℝ` with these identities to fit the
    structure; stating them on a domain is an open improvement.
 
@@ -81,7 +81,7 @@ parity-freezing identity of Section 3, and anything about the corrector recursio
 
 noncomputable section
 
-namespace FormalResearch.JE
+namespace FormalResearch.JacobiEigenvectors.Engine
 
 /-- Real 2-vectors (columns, or rows when written on the left of a matrix). -/
 abbrev V2 := Fin 2 → ℝ
@@ -165,7 +165,7 @@ lemma IsSite.add_h_pos {γ h u : ℝ} (hu : IsSite γ h u) : IsSitePos γ h (u +
   exact ⟨j + 1, by omega, by push_cast; ring⟩
 
 /-- **Symplectic model ladder** (`def:eng-ladder`) with shift parameter `γ`: the hypotheses (SM1)--(SM3), one named
-field each.  The functions are those of `JEDefect` (see the module docstring for the lattice-point convention).  The
+field each.  The functions are those of `Defect` (see the module docstring for the lattice-point convention).  The
 Wronskian and the upper shift relation are required at the lattice points `u_j = (j+γ)h`, `j ∈ ℕ`; the lower shift
 relation at those with `j ≥ 1` (the paper's `j > j_min`), with no guard on `𝒟₋`. -/
 structure SymplecticLadder (γ : ℝ) (dd pp qq : ℝ → ℝ → ℝ) (PiP PiM : ℝ → ℝ → M2) (w : Fin 2 → ℝ → ℝ → V2)
@@ -502,16 +502,16 @@ lemma bondUp_sub (dd pp : ℝ → ℝ → ℝ) (u h : ℝ) : bondUp dd pp (u - h
   simp only [bondUp, bondDn, Dp, Dm, e]
 
 /-- **Sequence form.** With `u_j = (j+γ)h`, the comparison sequence `ψ̂_j = v(u_j,h)·𝐰^{(α)}(u_j,h)` and the
-Jacobi operator `FormalResearch.JE.Lop` of `JECasoratian` (bond `A j = 𝒜_h(s_j)`, `Q j = 𝒬_h(u_j)`), the sequence
+Jacobi operator `FormalResearch.JacobiEigenvectors.Engine.Lop` of `Casoratian` (bond `A j = 𝒜_h(s_j)`, `Q j = 𝒬_h(u_j)`), the sequence
 operator at `j` is `siteLop` at `u_j`.  Hence `thm:eng-defect`(1) holds for the sequence operator. -/
 theorem Lop_seq_eq_siteLop (dd pp qq AA BB : ℝ → ℝ → ℝ) (w : Fin 2 → ℝ → ℝ → V2) (α : Fin 2) (γ h : ℝ) (j : ℤ) :
-    FormalResearch.JE.Lop (fun k : ℤ => bondUp dd pp (((k : ℝ) + γ) * h) h)
+    FormalResearch.JacobiEigenvectors.Engine.Lop (fun k : ℤ => bondUp dd pp (((k : ℝ) + γ) * h) h)
       (fun k : ℤ => qq (((k : ℝ) + γ) * h) h)
       (fun k : ℤ => dot (vrow AA BB (((k : ℝ) + γ) * h) h) (w α (((k : ℝ) + γ) * h) h)) j
     = siteLop dd pp qq AA BB w α (((j : ℝ) + γ) * h) h := by
   have e1 : (((j + 1 : ℤ) : ℝ) + γ) * h = ((j : ℝ) + γ) * h + h := by push_cast; ring
   have e2 : (((j - 1 : ℤ) : ℝ) + γ) * h = ((j : ℝ) + γ) * h - h := by push_cast; ring
-  unfold FormalResearch.JE.Lop siteLop
+  unfold FormalResearch.JacobiEigenvectors.Engine.Lop siteLop
   simp only []
   rw [e1, e2, bondUp_sub]
 
@@ -542,43 +542,43 @@ theorem constant_ladder (γ : ℝ) :
   · intro u h; rw [SgSg]
 
 -- Axiom pins for the headline statements (checked at build time).
-/-- info: 'FormalResearch.JE.defectRow_parity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.defectRow_parity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.defectRow_parity
+#print axioms FormalResearch.JacobiEigenvectors.Engine.defectRow_parity
 
-/-- info: 'FormalResearch.JE.Fcas_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.Fcas_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.Fcas_zero
+#print axioms FormalResearch.JacobiEigenvectors.Engine.Fcas_zero
 
-/-- info: 'FormalResearch.JE.Fcas_even' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.Fcas_even' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.Fcas_even
+#print axioms FormalResearch.JacobiEigenvectors.Engine.Fcas_even
 
-/-- info: 'FormalResearch.JE.casSite_eq_omega_Fcas' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.casSite_eq_omega_Fcas' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.casSite_eq_omega_Fcas
+#print axioms FormalResearch.JacobiEigenvectors.Engine.casSite_eq_omega_Fcas
 
-/-- info: 'FormalResearch.JE.green_identity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.green_identity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.green_identity
+#print axioms FormalResearch.JacobiEigenvectors.Engine.green_identity
 
-/-- info: 'FormalResearch.JE.defect_identity_interior' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.defect_identity_interior' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.defect_identity_interior
+#print axioms FormalResearch.JacobiEigenvectors.Engine.defect_identity_interior
 
-/-- info: 'FormalResearch.JE.defect_identity_hard' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.defect_identity_hard' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.defect_identity_hard
+#print axioms FormalResearch.JacobiEigenvectors.Engine.defect_identity_hard
 
-/-- info: 'FormalResearch.JE.Lop_seq_eq_siteLop' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.Lop_seq_eq_siteLop' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.Lop_seq_eq_siteLop
+#print axioms FormalResearch.JacobiEigenvectors.Engine.Lop_seq_eq_siteLop
 
-/-- info: 'FormalResearch.JE.constant_ladder' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.constant_ladder' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.constant_ladder
+#print axioms FormalResearch.JacobiEigenvectors.Engine.constant_ladder
 
-end FormalResearch.JE
+end FormalResearch.JacobiEigenvectors.Engine
 
 end
 

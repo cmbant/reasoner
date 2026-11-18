@@ -34,7 +34,7 @@ Differences from the paper: none in the statements; the `ε', η ≥ 0` of `lem:
 
 @[expose] public section
 
-namespace FormalResearch.JE
+namespace FormalResearch.JacobiEigenvectors.Engine
 
 /-- **Kernel bound I** (`lem:eng-kernel`, first line). -/
 theorem kernel_bound_a (CE Em Ek Mm Mk K p1m p2m p1k p2k : ℝ) (hEm : 0 < Em) (hEk : 0 < Ek)
@@ -364,31 +364,31 @@ theorem transport_solution (a b ustar : ℝ) (hJ : ustar ∈ Ioo a b) (f f' W W'
 end Analytic
 
 -- Axiom pins for the headline statements (checked at build time).
-/-- info: 'FormalResearch.JE.kernel_bound_a' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.kernel_bound_a' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.kernel_bound_a
+#print axioms FormalResearch.JacobiEigenvectors.Engine.kernel_bound_a
 
-/-- info: 'FormalResearch.JE.kernel_bound_b' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.kernel_bound_b' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.kernel_bound_b
+#print axioms FormalResearch.JacobiEigenvectors.Engine.kernel_bound_b
 
-/-- info: 'FormalResearch.JE.transport_alg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.transport_alg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.transport_alg
+#print axioms FormalResearch.JacobiEigenvectors.Engine.transport_alg
 
-/-- info: 'FormalResearch.JE.transport_key' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.transport_key' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.transport_key
+#print axioms FormalResearch.JacobiEigenvectors.Engine.transport_key
 
-/-- info: 'FormalResearch.JE.transport_solution' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.transport_solution' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.transport_solution
+#print axioms FormalResearch.JacobiEigenvectors.Engine.transport_solution
 
-/-- info: 'FormalResearch.JE.transportG_hasDerivAt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.transportG_hasDerivAt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.transportG_hasDerivAt
+#print axioms FormalResearch.JacobiEigenvectors.Engine.transportG_hasDerivAt
 
-end FormalResearch.JE
+end FormalResearch.JacobiEigenvectors.Engine
 
 
 end

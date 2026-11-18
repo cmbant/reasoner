@@ -769,7 +769,7 @@ public import FormalResearch.PPTThreeQubit
 public import FormalResearch.GurvitsBarnum
 public import FormalResearch.Jacobi
 public import FormalResearch.EuclTet
-public import FormalResearch.JE
+public import FormalResearch.JacobiEigenvectors.Engine
 
 
 @[expose] public section

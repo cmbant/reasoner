@@ -1,13 +1,13 @@
 module
 
-public import FormalResearch.JE.JEVolterra
+public import FormalResearch.JacobiEigenvectors.Engine.Volterra
 
 /-!
 # Paper J engine, JE5: multi-patch Casoratian--Volterra stability (`thm:eng-volterra`(a), both seeds)
 
 Source: Paper J, `Weyl/jacobi_eigenvectors/paper/parts/engine.tex`, Section 2 (`thm:eng-volterra`(a) and the proof
-`app:eng-twopatch` in `app_engine.tex`).  Namespace `FormalResearch.JE`; builds on `JECasoratian` (Abel, Cramer),
-`JEKernel` (`lem:eng-kernel`, used through its summand bounds) and `JEVolterra` (`Lh`, `Lop_eq_h_mul_Lh`).
+`app:eng-twopatch` in `app_engine.tex`).  Namespace `FormalResearch.JacobiEigenvectors.Engine`; builds on `Casoratian` (Abel, Cramer),
+`Kernel` (`lem:eng-kernel`, used through its summand bounds) and `Volterra` (`Lh`, `Lop_eq_h_mul_Lh`).
 
 ## Statement formalised: `volterra_multi`
 * Breakpoints `jj : ℕ → ℤ`, `jj 0 = 0`, strictly increasing, `jj P = N_R - 1`.  Patch `p ∈ [1,P]` has window
@@ -67,14 +67,14 @@ Source: Paper J, `Weyl/jacobi_eigenvectors/paper/parts/engine.tex`, Section 2 (`
   Only the weights `W = M = 1` and a trivial transfer `M_p = I` are exercised: no instance has non-constant weights or a
   non-trivial change of basis.
 
-Not formalised: the bounded-overlap case of (S3), instances with non-trivial weights or patch-dependent envelopes, `thm:eng-volterra`(b) (see `JEVolterraLadder`).
+Not formalised: the bounded-overlap case of (S3), instances with non-trivial weights or patch-dependent envelopes, `thm:eng-volterra`(b) (see `VolterraLadder`).
 -/
 
 @[expose] public section
 
 open Finset
 
-namespace FormalResearch.JE
+namespace FormalResearch.JacobiEigenvectors.Engine
 
 /-- The Volterra step of one patch: the telescoped Abel identity from the first equation site `s` (entry bond
 `s - 1`) to the bond `m - 1`. -/
@@ -2674,66 +2674,66 @@ theorem volterra_multi_instance_hard_edge (h θ θ' : ℝ) (hh : 0 < h) (hθ : R
       exact h3
 
 
-/-- info: 'FormalResearch.JE.volterra_multi_instance_perturbed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.volterra_multi_instance_perturbed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.volterra_multi_instance_perturbed
+#print axioms FormalResearch.JacobiEigenvectors.Engine.volterra_multi_instance_perturbed
 
-/-- info: 'FormalResearch.JE.volterra_multi_instance_hard_edge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.volterra_multi_instance_hard_edge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.volterra_multi_instance_hard_edge
+#print axioms FormalResearch.JacobiEigenvectors.Engine.volterra_multi_instance_hard_edge
 
-/-- info: 'FormalResearch.JE.volterra_multi_perturbed_params' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.volterra_multi_perturbed_params' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.volterra_multi_perturbed_params
+#print axioms FormalResearch.JacobiEigenvectors.Engine.volterra_multi_perturbed_params
 
-/-- info: 'FormalResearch.JE.volterra_multi_patchwise' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.volterra_multi_patchwise' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.volterra_multi_patchwise
+#print axioms FormalResearch.JacobiEigenvectors.Engine.volterra_multi_patchwise
 
-/-- info: 'FormalResearch.JE.glue_mono' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.glue_mono' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.glue_mono
+#print axioms FormalResearch.JacobiEigenvectors.Engine.glue_mono
 
-/-- info: 'FormalResearch.JE.glue_comparable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.glue_comparable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.glue_comparable
+#print axioms FormalResearch.JacobiEigenvectors.Engine.glue_comparable
 
-/-- info: 'FormalResearch.JE.volterra_multi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.volterra_multi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.volterra_multi
+#print axioms FormalResearch.JacobiEigenvectors.Engine.volterra_multi
 
-/-- info: 'FormalResearch.JE.volterra_multi_instance' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.volterra_multi_instance' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.volterra_multi_instance
+#print axioms FormalResearch.JacobiEigenvectors.Engine.volterra_multi_instance
 
-/-- info: 'FormalResearch.JE.transfer_of_forbidden_overlap' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.transfer_of_forbidden_overlap' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.transfer_of_forbidden_overlap
+#print axioms FormalResearch.JacobiEigenvectors.Engine.transfer_of_forbidden_overlap
 
-/-- info: 'FormalResearch.JE.volterra_multi_forbidden' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.volterra_multi_forbidden' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.volterra_multi_forbidden
+#print axioms FormalResearch.JacobiEigenvectors.Engine.volterra_multi_forbidden
 
-/-- info: 'FormalResearch.JE.patch_volterra' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.patch_volterra' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.patch_volterra
+#print axioms FormalResearch.JacobiEigenvectors.Engine.patch_volterra
 
-/-- info: 'FormalResearch.JE.flux_transfer' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.flux_transfer' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.flux_transfer
+#print axioms FormalResearch.JacobiEigenvectors.Engine.flux_transfer
 
-/-- info: 'FormalResearch.JE.cvec_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.cvec_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.cvec_bounds
+#print axioms FormalResearch.JacobiEigenvectors.Engine.cvec_bounds
 
-/-- info: 'FormalResearch.JE.psiHat_overlap' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.psiHat_overlap' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.psiHat_overlap
+#print axioms FormalResearch.JacobiEigenvectors.Engine.psiHat_overlap
 
-/-- info: 'FormalResearch.JE.covering_patch' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.covering_patch' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.covering_patch
+#print axioms FormalResearch.JacobiEigenvectors.Engine.covering_patch
 
-end FormalResearch.JE
+end FormalResearch.JacobiEigenvectors.Engine
 
 end

@@ -2,7 +2,7 @@ module
 
 public import Mathlib
 public import FormalResearch.JB.JBThmB
-public import FormalResearch.JE.JECasoratian
+public import FormalResearch.JacobiEigenvectors.Engine.Casoratian
 
 /-!
 # Paper J, the setting (statement freeze): Jacobi family, hypotheses (H1)--(H3), freezing, gauges
@@ -51,7 +51,7 @@ the paper is proved here.  The proved lemmas are the exact algebraic identities 
 
 ## Not here
 
-The statements (`TheoremA/Statements.lean`), the chart hypotheses (`Charts/`).  The engine is `FormalResearch.JE`
+The statements (`TheoremA/Statements.lean`), the chart hypotheses (`Charts/`).  The engine is `FormalResearch.JacobiEigenvectors.Engine`
 (it will be moved to `FormalResearch.JacobiEigenvectors.Engine`).
 -/
 
@@ -119,7 +119,7 @@ end SymbolFamily
 /-- `f` solves the three-term recurrence (eq:tha-rec) at energy `X` on the rows `0 <= n < NR`.  The ghost value
 `f_{-1}` never enters (`a_{-1} = 0`). -/
 def JacSol {Par : Type*} (F : SymbolFamily Par) (μ : Par) (N : ℕ) (X : ℝ) (NR : ℤ) (f : ℤ → ℝ) : Prop :=
-  ∀ n : ℤ, 0 ≤ n → n < NR → FormalResearch.JE.Lop (F.bondA μ N) (F.diagQ μ N X) f n = 0
+  ∀ n : ℤ, 0 ≤ n → n < NR → FormalResearch.JacobiEigenvectors.Engine.Lop (F.bondA μ N) (F.diagQ μ N X) f n = 0
 
 /-- Eigenvalues `X_0 > ... > X_N` and the orthogonal eigenvector matrix `U = (Psi_0, ..., Psi_N)` in the gauge
 `(Psi_k)_0 > 0` (the setting of main_results.tex, Section 1.1).  Statements quantify over such pairs, so no existence
@@ -297,7 +297,7 @@ theorem negFamily_JacSol {Par : Type*} (F : SymbolFamily Par) (μ : Par) (N : �
     JacSol (negFamily F) μ N (-X) NR (fun n => (-1 : ℝ) ^ n * f n) := by
   intro n hn hnR
   have h0 := hf n hn hnR
-  unfold FormalResearch.JE.Lop at h0 ⊢
+  unfold FormalResearch.JacobiEigenvectors.Engine.Lop at h0 ⊢
   simp only [negFamily_bondA, negFamily_diagQ]
   have e1 : (-1 : ℝ) ^ (n + 1) = -(-1 : ℝ) ^ n := by
     rw [zpow_add_one₀ (by norm_num)]; ring

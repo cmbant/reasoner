@@ -1,7 +1,7 @@
 module
 
-public import FormalResearch.JE.JECasoratian
-public import FormalResearch.JE.JEKernel
+public import FormalResearch.JacobiEigenvectors.Engine.Casoratian
+public import FormalResearch.JacobiEigenvectors.Engine.Kernel
 public import Mathlib
 
 /-!
@@ -12,7 +12,7 @@ Volterra equation from the Abel and Cramer identities, `lem:eng-kernel`) and its
 (`app:eng-twopatch`, the one-patch case with the two-node seed).  Branch `agents/m7-m1-global-racah` of QIprojects.
 
 ## Setting and conventions
-* `Lh h A Q f j := h⁻¹ · Lop A Q f j` is the paper's `L_h` (`JECasoratian.Lop` is `h · L_h`).
+* `Lh h A Q f j := h⁻¹ · Lop A Q f j` is the paper's `L_h` (`Casoratian.Lop` is `h · L_h`).
 * `cas A f g j` is the paper's Casoratian `𝒲_j(f,g)`.
 * The sites are `{0,…,N}` (`N ≥ 1`), the equation sites are `I° = {1,…,N-1}` (the two-node seed: `ψ_0, ψ_1` are
   prescribed), and the residual of `φ^{(α)}` is `r^{(α)}_k = (L_h φ^{(α)})_k`.
@@ -30,7 +30,7 @@ Conclusion: if `C · ε Θ ≤ 1` with `C = volterraC`, then `|ψ_j - φ¹_j| �
 So `c* = 1/C` and the constant `C` depend only on `K, c₋, C_E` (not on `c₊`, `Λ`, `P`).
 
 The proof: the error `e = ψ - φ¹` satisfies the exact Volterra equation (Abel's identity `lem:eng-abel`(i) summed over
-the window, then the first Cramer identity `lem:eng-abel`(ii)); the two kernel bounds of `lem:eng-kernel` (`JEKernel`)
+the window, then the first Cramer identity `lem:eng-abel`(ii)); the two kernel bounds of `lem:eng-kernel` (`Kernel`)
 bound its terms; an induction on the site index closes the bound `|e_m| ≤ c 𝖶_m 𝖬_m`, `c = C ε Θ`.  The induction
 replaces the discrete Grönwall lemma: the coupling constant is `c ≤ 1`, so each step gives the same constant.
 
@@ -60,7 +60,7 @@ parabolic-cylinder ladders.
 
 open Finset
 
-namespace FormalResearch.JE
+namespace FormalResearch.JacobiEigenvectors.Engine
 
 /-- The paper's residual operator `L_h f = h⁻¹ · Lop f` (the Jacobi operator with the factor `h⁻¹`). -/
 noncomputable def Lh (h : ℝ) (A Q f : ℤ → ℝ) (j : ℤ) : ℝ := h⁻¹ * Lop A Q f j
@@ -308,7 +308,7 @@ theorem volterra_single_patch (h ω cm CE K ε : ℝ) (N : ℤ) (A Q φ1 φ2 ψ 
   exact hk
 
 /-- Non-vacuity of the hypotheses of `volterra_single_patch`: the exact constant-coefficient pair `cos(jθ)`, `sin(jθ)`
-(`A = 1`, `Q = 2 cos θ`, `JECasoratian.cos_sin_solutions`) with `ψ = φ¹`, `ε = 0`, `W = M = ρ = 1`, `K = C_E = c₋ = 1`
+(`A = 1`, `Q = 2 cos θ`, `Casoratian.cos_sin_solutions`) with `ψ = φ¹`, `ε = 0`, `W = M = ρ = 1`, `K = C_E = c₋ = 1`
 and `ω = |sin θ| ≠ 0` satisfies every hypothesis of `volterra_single_patch`, so the theorem applies to it (with
 `ψ = φ¹` the conclusion `|ψ_j - φ¹_j| ≤ 0` is consistent). -/
 theorem volterra_instance (h θ : ℝ) (N : ℤ) (hh : 0 < h) (hN : 1 ≤ N) (hθ : Real.sin θ ≠ 0) :
@@ -547,35 +547,35 @@ theorem volterra_instance_perturbed_nontrivial (h θ θ' : ℝ) (N : ℤ) (hh : 
   exact ⟨hpos, pertSol_two_ne θ θ' hθ h0 hne, hb⟩
 
 -- Axiom pins for the headline statements (checked at build time).
-/-- info: 'FormalResearch.JE.flux_sum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.flux_sum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.flux_sum
+#print axioms FormalResearch.JacobiEigenvectors.Engine.flux_sum
 
-/-- info: 'FormalResearch.JE.volterra_single_patch' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.volterra_single_patch' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.volterra_single_patch
+#print axioms FormalResearch.JacobiEigenvectors.Engine.volterra_single_patch
 
-/-- info: 'FormalResearch.JE.volterra_instance' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.volterra_instance' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.volterra_instance
+#print axioms FormalResearch.JacobiEigenvectors.Engine.volterra_instance
 
-/-- info: 'FormalResearch.JE.volterra_instance_perturbed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.volterra_instance_perturbed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.volterra_instance_perturbed
+#print axioms FormalResearch.JacobiEigenvectors.Engine.volterra_instance_perturbed
 
-/-- info: 'FormalResearch.JE.volterra_instance_perturbed_closed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.volterra_instance_perturbed_closed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.volterra_instance_perturbed_closed
+#print axioms FormalResearch.JacobiEigenvectors.Engine.volterra_instance_perturbed_closed
 
-/-- info: 'FormalResearch.JE.volterra_instance_perturbed_nontrivial' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.volterra_instance_perturbed_nontrivial' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.volterra_instance_perturbed_nontrivial
+#print axioms FormalResearch.JacobiEigenvectors.Engine.volterra_instance_perturbed_nontrivial
 
-/-- info: 'FormalResearch.JE.pertSol_ne_of_cos_ne' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.pertSol_ne_of_cos_ne' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.pertSol_ne_of_cos_ne
+#print axioms FormalResearch.JacobiEigenvectors.Engine.pertSol_ne_of_cos_ne
 
 
-end FormalResearch.JE
+end FormalResearch.JacobiEigenvectors.Engine
 
 end

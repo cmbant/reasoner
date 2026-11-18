@@ -48,7 +48,7 @@ noncomputable section
 
 namespace FormalResearch.JacobiEigenvectors.Charts
 
-open Finset FormalResearch.JacobiEigenvectors.Setting FormalResearch.JE
+open Finset FormalResearch.JacobiEigenvectors.Setting FormalResearch.JacobiEigenvectors.Engine
 
 /-- The `-` pair `(y_1, y_2)` of lem:cha-PCenv (via `ParabolicCylinderFacts`), as functions of `Z`:
 `a <= 0`: `(u~(a,-Z), -v~(a,-Z))`; `a > 0`: `(w~_+, -u~_+) = (kappa U(a,-Z), -kappa U(a,Z))`. -/

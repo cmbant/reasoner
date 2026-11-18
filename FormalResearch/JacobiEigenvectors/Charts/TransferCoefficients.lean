@@ -36,7 +36,7 @@ noncomputable section
 
 namespace FormalResearch.JacobiEigenvectors.Charts
 
-open FormalResearch.JacobiEigenvectors.Setting FormalResearch.JE
+open FormalResearch.JacobiEigenvectors.Setting FormalResearch.JacobiEigenvectors.Engine
 
 /-- `epsilon_m = m mod 2`. -/
 def epsM (m : ℕ) : ℝ := ((m % 2 : ℕ) : ℝ)

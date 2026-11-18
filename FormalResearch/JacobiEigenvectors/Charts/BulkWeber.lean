@@ -56,7 +56,7 @@ noncomputable section
 
 namespace FormalResearch.JacobiEigenvectors.Charts
 
-open Finset FormalResearch.JacobiEigenvectors.Setting FormalResearch.JE
+open Finset FormalResearch.JacobiEigenvectors.Setting FormalResearch.JacobiEigenvectors.Engine
 
 /-- `arccosh x = log(x + sqrt(x^2 - 1))`, `x >= 1`. -/
 def arccoshR (x : ℝ) : ℝ := Real.log (x + Real.sqrt (x ^ 2 - 1))

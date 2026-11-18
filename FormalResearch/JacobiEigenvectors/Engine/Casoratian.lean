@@ -41,7 +41,7 @@ Differences from the paper: none in the statements (only the `h⁻¹` convention
 
 open Finset
 
-namespace FormalResearch.JE
+namespace FormalResearch.JacobiEigenvectors.Engine
 
 /-- The Jacobi operator `Lop A Q f j = A j f(j+1) + A(j-1) f(j-1) - Q j f j`, equal to `h · (L_h f)_j`. -/
 def Lop (A Q f : ℤ → ℝ) (j : ℤ) : ℝ := A j * f (j + 1) + A (j - 1) * f (j - 1) - Q j * f j
@@ -211,42 +211,42 @@ theorem cos_sin_solutions (θ : ℝ) :
 
 
 -- Axiom pins for the headline statements (checked at build time).
-/-- info: 'FormalResearch.JE.abel_pointwise' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.abel_pointwise' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.abel_pointwise
+#print axioms FormalResearch.JacobiEigenvectors.Engine.abel_pointwise
 
-/-- info: 'FormalResearch.JE.abel_hard_edge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.abel_hard_edge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.abel_hard_edge
+#print axioms FormalResearch.JacobiEigenvectors.Engine.abel_hard_edge
 
-/-- info: 'FormalResearch.JE.abel_sum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.abel_sum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.abel_sum
+#print axioms FormalResearch.JacobiEigenvectors.Engine.abel_sum
 
-/-- info: 'FormalResearch.JE.cas_const_of_sol' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.cas_const_of_sol' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.cas_const_of_sol
+#print axioms FormalResearch.JacobiEigenvectors.Engine.cas_const_of_sol
 
-/-- info: 'FormalResearch.JE.cas_const_global' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.cas_const_global' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.cas_const_global
+#print axioms FormalResearch.JacobiEigenvectors.Engine.cas_const_global
 
-/-- info: 'FormalResearch.JE.cas_zero_of_hard_sol' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.cas_zero_of_hard_sol' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.cas_zero_of_hard_sol
+#print axioms FormalResearch.JacobiEigenvectors.Engine.cas_zero_of_hard_sol
 
-/-- info: 'FormalResearch.JE.cramer_first' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.cramer_first' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.cramer_first
+#print axioms FormalResearch.JacobiEigenvectors.Engine.cramer_first
 
-/-- info: 'FormalResearch.JE.cramer_second' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.cramer_second' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.cramer_second
+#print axioms FormalResearch.JacobiEigenvectors.Engine.cramer_second
 
-/-- info: 'FormalResearch.JE.cos_sin_solutions' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.cos_sin_solutions' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.cos_sin_solutions
+#print axioms FormalResearch.JacobiEigenvectors.Engine.cos_sin_solutions
 
-end FormalResearch.JE
+end FormalResearch.JacobiEigenvectors.Engine
 
 end

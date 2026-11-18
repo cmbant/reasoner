@@ -1,20 +1,20 @@
 module
 
-public import FormalResearch.JE.JEDefect
-public import FormalResearch.JE.JEVolterraMulti
+public import FormalResearch.JacobiEigenvectors.Engine.Defect
+public import FormalResearch.JacobiEigenvectors.Engine.VolterraMulti
 
 /-!
 # Paper J engine, JE6: ladder pairs and the stability theorem (`thm:eng-volterra`(b))
 
 Source: Paper J, `Weyl/jacobi_eigenvectors/paper/parts/engine.tex`, `thm:eng-volterra`(b) (ladder pairs), with the
-identities of `thm:eng-defect` (`JEDefect`) and the multi-patch theorem `volterra_multi` (`JEVolterraMulti`).
+identities of `thm:eng-defect` (`Defect`) and the multi-patch theorem `volterra_multi` (`VolterraMulti`).
 
 ## Dictionary
 * The comparison pair of patch `p` is `φ^{(α)}_p = ladderPairFun AA BB wf γ h α p`, the sequence
   `k ↦ v(u_k,h)·𝐰^{(α)}_p(u_k)` at `u_k = (k+γ)h` with `v = (A, hB)` (`ladderSeq`); `ladderA`, `ladderQ` are the
   bond and diagonal coefficients `𝒜_h(s_k)`, `𝒬_h(u_k)` of the sequence operator.
 * `ω_* = |ω_mod(h)|`, `c₋ = cm`, `K = (K_A + K_B) K_w`, `ε = 2 K_𝔇 K_w h^m`, and `Θ_h = (h/ω_*) ∑ ρ_k M_k²` is the
-  `volTheta` of `JEVolterraMulti`, so `εΘ = 2K_𝔇K_w h^m Θ_h` as in the paper.
+  `volTheta` of `VolterraMulti`, so `εΘ = 2K_𝔇K_w h^m Θ_h` as in the paper.
 
 ## Statements formalised
 * `ladder_S1` (S1): `c₋ |ω_mod(h)| ≤ |𝒲_k(φ¹,φ²)|` from the ladder identity `𝒲_j = ω_mod 𝓕_cas` (`casSite_eq_omega_Fcas`)
@@ -31,7 +31,7 @@ identities of `thm:eng-defect` (`JEDefect`) and the multi-patch theorem `volterr
   constants above.
 * `ladder_pair_stability_forbidden`: the same with `hT` replaced by the forbidden-overlap conditions (`𝒜_{j_p} > 0`,
   `W_{j_p+1} ≤ C_w W_{j_p}`, `𝒜_{j_p} M_{j_p} M_{j_p+1} ≤ C_ω |ω_mod|`), from which (S3) is derived
-  (`transfer_of_forbidden_overlap` in `JEVolterraMulti`).
+  (`transfer_of_forbidden_overlap` in `VolterraMulti`).
 
 ## Differences from the paper (all stated in the report)
 1. (eq:eng-UC1) and the lower bound `|𝓕_cas| ≥ c₋` are assumed at every lattice site `k ≥ 0` (the paper: interior sites);
@@ -41,9 +41,9 @@ identities of `thm:eng-defect` (`JEDefect`) and the multi-patch theorem `volterr
    (derived from the charts in the paper's bounded-overlap case, which is not formalised) and is derived from
    comparability conditions at forbidden overlaps in `ladder_pair_stability_forbidden`.
 4. The model ladders `𝐰_p` enter through `SymplecticLadder γ dd pp qq PiP PiM (wf p) ω`: the same `Π±`, `𝒟`, `ω_mod` for all
-   patches, with the relations (SM1), (SM2) for `h > 0` only (see `JEDefect`).  No instance of
+   patches, with the relations (SM1), (SM2) for `h > 0` only (see `Defect`).  No instance of
    `ladder_pair_stability(_forbidden)` is formalised: the hypotheses are not shown to be jointly satisfiable by a
-   concrete ladder (`constant_ladder` of `JEDefect` has `𝒟 = 1` and no hard edge).
+   concrete ladder (`constant_ladder` of `Defect` has `𝒟 = 1` and no hard edge).
 5. The residual at the hard-edge site is claimed for `α = 1` only (the paper: `r²_{1,0}` not required).
 6. The defect bounds and envelopes are hypotheses: the charts of Section 3 (which supply them for the Weber and
    parabolic-cylinder ladders) and the corrector recursion `thm:eng-corr` are not formalised.
@@ -55,7 +55,7 @@ No new analysis: the corollary is `volterra_multi` with the three bounds dischar
 
 open Finset
 
-namespace FormalResearch.JE
+namespace FormalResearch.JacobiEigenvectors.Engine
 
 /-- The comparison sequence of a ladder pair: `ψ̂^{(α)}_k = v(u_k,h)·𝐰^{(α)}(u_k)` at `u_k = (k+γ)h`. -/
 noncomputable def ladderSeq (AA BB : ℝ → ℝ → ℝ) (w : Fin 2 → ℝ → ℝ → V2) (γ h : ℝ) (α : Fin 2) (k : ℤ) : ℝ :=
@@ -499,38 +499,38 @@ theorem ladder_pair_stability_forbidden (γ h CE Cw Cω cm KD Kw KA KB : ℝ) (m
     hh hωpos hcm (by positivity) (by positivity) hP hjj0 hjjmono hjjP hs0 hA hS1 hMpos hWpos hmono
     hφ1 hφ2 hρ hr1 hr2 hover hsol hseed hsmall
 
-/-- info: 'FormalResearch.JE.ladder_S1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.ladder_S1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.ladder_S1
+#print axioms FormalResearch.JacobiEigenvectors.Engine.ladder_S1
 
-/-- info: 'FormalResearch.JE.ladder_S2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.ladder_S2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.ladder_S2
+#print axioms FormalResearch.JacobiEigenvectors.Engine.ladder_S2
 
-/-- info: 'FormalResearch.JE.residual_of_defect' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.residual_of_defect' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.residual_of_defect
+#print axioms FormalResearch.JacobiEigenvectors.Engine.residual_of_defect
 
-/-- info: 'FormalResearch.JE.ladder_residual_interior' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.ladder_residual_interior' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.ladder_residual_interior
+#print axioms FormalResearch.JacobiEigenvectors.Engine.ladder_residual_interior
 
-/-- info: 'FormalResearch.JE.ladder_residual_hard' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.ladder_residual_hard' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.ladder_residual_hard
+#print axioms FormalResearch.JacobiEigenvectors.Engine.ladder_residual_hard
 
-/-- info: 'FormalResearch.JE.ladder_pair_data' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.ladder_pair_data' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.ladder_pair_data
+#print axioms FormalResearch.JacobiEigenvectors.Engine.ladder_pair_data
 
-/-- info: 'FormalResearch.JE.ladder_pair_stability_forbidden' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.ladder_pair_stability_forbidden' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.ladder_pair_stability_forbidden
+#print axioms FormalResearch.JacobiEigenvectors.Engine.ladder_pair_stability_forbidden
 
-/-- info: 'FormalResearch.JE.ladder_pair_stability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.ladder_pair_stability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JE.ladder_pair_stability
+#print axioms FormalResearch.JacobiEigenvectors.Engine.ladder_pair_stability
 
-end FormalResearch.JE
+end FormalResearch.JacobiEigenvectors.Engine
 
 end
