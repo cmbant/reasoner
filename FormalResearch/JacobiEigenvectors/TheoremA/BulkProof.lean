@@ -49,12 +49,6 @@ namespace FormalResearch.JacobiEigenvectors.TheoremA
 
 open Finset FormalResearch.JacobiEigenvectors.Setting FormalResearch.JacobiEigenvectors.Charts FormalResearch.JacobiEigenvectors.Engine
 
-/-- On patch `1` the comparison sequence of a ladder chain is the first comparison pair (`cvec 1 = (1,0)`). -/
-lemma psiHat_one_eq (D : LadderData) (h : ℝ) (j : ℤ) : D.psiHat h 1 j = D.phi h 0 1 j := by
-  unfold LadderData.psiHat Engine.psiHat
-  rw [cvec_one]
-  simp
-
 /-- **L2.C1: the bulk comparison bound** (`thm:cha-I` with `cor:cha-I-general`, prop:tha-W (1)).  The frozen statement `BulkSolutionBound`
 with the hypothesis `1 <= m` that the paper states and the proof uses (finding F-C1). -/
 theorem bulkSolutionBound_of_one_le {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
@@ -351,5 +345,26 @@ theorem bulk_collar_bound {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamil
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.bulkSolutionBound_of_one_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.bulkSolutionBound_of_one_le
+
+/-- The chain of a bulk chart has at most `N + 1` rows (its last row lies below `c < L`). -/
+lemma chain_NR_le {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
+    {Jlo Jhi : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ} (C : BulkWeberChart G P Jlo Jhi m U V) (p : Par × ℝ) (hp : p ∈ P)
+    (X : ℝ) (hX : X ∈ Set.Icc Jlo Jhi) (N : ℕ) (hN : C.N0 ≤ N) :
+    (C.chain p X N).NR ≤ (N : ℤ) + 1 := by
+  obtain ⟨-, -, -, hNRc, -⟩ := C.shape p hp X hX N hN
+  obtain ⟨-, -, -, hcσ, -, -, -, -, -, -⟩ := C.consts_pos
+  have hst : 0 < G.step N := FormalResearch.JB.stepSize_pos G.L_pos N
+  have hL : G.step N * ((N : ℝ) + 1) = G.L := step_mul_succ G N
+  by_contra hcon
+  rw [not_le] at hcon
+  have h1 : uNode (G.step N) ((N : ℤ) + 1) ≤ uNode (G.step N) ((C.chain p X N).NR) :=
+    uNode_le_of_le hst.le (by omega)
+  have e : uNode (G.step N) ((N : ℤ) + 1) = G.L + G.step N / 2 := by
+    unfold uNode
+    push_cast
+    linear_combination hL
+  have hσ := C.consts_pos
+  have hσpos : 0 < C.σ := hσ.2.2.1
+  linarith
 
 end FormalResearch.JacobiEigenvectors.TheoremA

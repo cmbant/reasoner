@@ -32,6 +32,12 @@ variable {Par : Type*}
 
 open scoped Matrix
 
+/-- On patch `1` the comparison sequence of a ladder chain is the first comparison pair (`cvec 1 = (1,0)`). -/
+lemma psiHat_one_eq (D : LadderData) (h : ℝ) (j : ℤ) : D.psiHat h 1 j = D.phi h 0 1 j := by
+  unfold LadderData.psiHat Engine.psiHat
+  rw [cvec_one]
+  simp
+
 /-! ### uNode and step helpers -/
 
 lemma uNode_le_of_le {h : ℝ} (hh : 0 ≤ h) {a b : ℤ} (hab : a ≤ b) : uNode h a ≤ uNode h b := by
@@ -774,6 +780,130 @@ theorem normalisation_algebra (q ε a Kt TL SR SΩr XΩ NL NRp cΩ CT Cenv Cκe 
   refine ⟨⟨hnn_lo, hnn_hi⟩, ⟨hκlo, hκup⟩, ?_⟩
   have := hana.trans (hmain2.trans hfin)
   exact this
+
+
+/-- **Side facts of one bulk chart** (the comparison sequence `psihat` and its envelope `e = W M` at a fixed `(mu, X, N)`), with the
+constants of the chart replaced by common (larger, resp. smaller) constants `Kg, CEg, CMg, cmg, Csg, CAg`. -/
+theorem chart_side_facts {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
+    {Jlo Jhi : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ} (C : BulkWeberChart G P Jlo Jhi m U V) (p : Par × ℝ) (hp : p ∈ P)
+    (X : ℝ) (hX : X ∈ Set.Icc Jlo Jhi) (N : ℕ) (hN : C.N0 ≤ N) (hhc : G.step N ≤ C.c - C.c')
+    (Kg CEg CMg cmg Csg CAg : ℝ) (hKg : 0 < Kg) (hCEg : 0 < CEg) (hCMg : 0 < CMg) (hcmg : 0 < cmg) (hCAg : 0 < CAg)
+    (hKgC : (C.cs.KA + C.cs.KB) * C.cs.Kw ≤ Kg) (hCEgC : C.cs.CE ≤ CEg) (hCMgC : C.CM ≤ CMg)
+    (hcmgC : cmg ≤ C.cs.cm) (hCsgC : C.Csum ≤ Csg)
+    (hA : ∀ j : ℤ, 0 ≤ j → j ≤ (C.chain p X N).NR - 1 → |(C.chain p X N).A j| ≤ CAg) :
+    (∀ j : ℤ, 0 ≤ j → j ≤ (C.chain p X N).NR → |C.psiHatL p X N j| ≤ Kg * C.envL p X N j) ∧
+    (∀ j : ℤ, 0 ≤ j → j ≤ (C.chain p X N).NR → 0 ≤ C.envL p X N j ∧ C.envL p X N j ≤ CEg * (C.chain p X N).M j) ∧
+    (∑ j ∈ Finset.Icc (0 : ℤ) (C.chain p X N).NR, C.envL p X N j ^ 2
+      ≤ CEg ^ 2 * (Csg / Real.sqrt (G.step N) + CMg ^ 2 * Real.sqrt (G.step N))) ∧
+    (∀ j : ℤ, 0 ≤ j → j ≤ (C.chain p X N).NR → C.c' ≤ uNode (G.step N) j →
+      C.envL p X N j ≤ CMg * (G.step N) ^ ((1 : ℝ) / 4)) ∧
+    (∀ j : ℤ, 0 ≤ j → j + 1 ≤ (C.chain p X N).NR → C.c' ≤ uNode (G.step N) j →
+      uNode (G.step N) (j + 1) ≤ C.c →
+      cmg * (G.step N) ^ ((1 : ℝ) / 4) ≤ CAg * Kg * CMg * (|C.psiHatL p X N j| + |C.psiHatL p X N (j + 1)|)) := by
+  obtain ⟨hP1, -, -, -, -⟩ := C.shape p hp X hX N hN
+  have hV := C.valid p hp X hX N hN
+  have hst : 0 < G.step N := FormalResearch.JB.stepSize_pos G.L_pos N
+  obtain ⟨hq2, hq⟩ := fourth_root_sq (G.step N) hst
+  obtain ⟨-, -, -, -, -, hcM0, hcMCM, -, hCsum0, -⟩ := C.consts_pos
+  have hCM0 : 0 ≤ C.CM := le_trans hcM0.le hcMCM
+  have hK0 : 0 ≤ (C.cs.KA + C.cs.KB) * C.cs.Kw :=
+    mul_nonneg (add_nonneg C.cs.KA_nonneg C.cs.KB_nonneg) C.cs.Kw_nonneg
+  have hrow := chart_row_facts C p hp X hX N hN hst hhc
+  have hpsi : ∀ j : ℤ, C.psiHatL p X N j = (C.chain p X N).phi (G.step N) 0 1 j := fun j =>
+    psiHat_one_eq (C.chain p X N) (G.step N) j
+  have hWM : ∀ j : ℤ, 0 ≤ j → j ≤ (C.chain p X N).NR → 0 ≤ C.envL p X N j := by
+    intro j hj0 hjN
+    have hW := (C.valid p hp X hX N hN).W_pos j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)
+    have hM := (C.valid p hp X hX N hN).M_pos j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)
+    unfold BulkWeberChart.envL
+    exact (mul_pos hW hM).le
+  have hEle : ∀ j : ℤ, 0 ≤ j → j ≤ (C.chain p X N).NR → C.envL p X N j ≤ CEg * (C.chain p X N).M j := by
+    intro j hj0 hjN
+    have hW : (C.chain p X N).W j ≤ C.cs.CE := hrow.1 j hj0 hjN
+    have hM := (hV.M_pos j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩)).le
+    unfold BulkWeberChart.envL
+    exact mul_le_mul_of_nonneg_right ((hW.trans hCEgC)) hM
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  · intro j hj0 hjN
+    rw [hpsi]
+    have h1 := (ladder_phi_bound (C.chain p X N) C.cs (G.step N) m hV hP1 j hj0 hjN).1
+    have hen := hWM j hj0 hjN
+    have hKe : (C.cs.KA + C.cs.KB) * C.cs.Kw * (C.chain p X N).W j * (C.chain p X N).M j
+        ≤ Kg * C.envL p X N j := by
+      unfold BulkWeberChart.envL at hen ⊢
+      have e1 : (C.cs.KA + C.cs.KB) * C.cs.Kw * (C.chain p X N).W j * (C.chain p X N).M j
+          = (C.cs.KA + C.cs.KB) * C.cs.Kw * ((C.chain p X N).W j * (C.chain p X N).M j) := by ring
+      have e2 : (C.cs.KA + C.cs.KB) * C.cs.Kw * ((C.chain p X N).W j * (C.chain p X N).M j)
+          ≤ Kg * ((C.chain p X N).W j * (C.chain p X N).M j) :=
+        mul_le_mul_of_nonneg_right hKgC hen
+      rw [e1]
+      exact e2
+    exact h1.trans hKe
+  · intro j hj0 hjN
+    exact ⟨hWM j hj0 hjN, hEle j hj0 hjN⟩
+  · have hsum1 : ∑ j ∈ Finset.Icc (0 : ℤ) (C.chain p X N).NR, C.envL p X N j ^ 2
+        ≤ ∑ j ∈ Finset.Icc (0 : ℤ) (C.chain p X N).NR, (CEg * (C.chain p X N).M j) ^ 2 := by
+      apply Finset.sum_le_sum
+      intro j hj
+      obtain ⟨hj0, hjN⟩ := Finset.mem_Icc.mp hj
+      exact pow_le_pow_left₀ (hWM j hj0 hjN) (hEle j hj0 hjN) 2
+    have hsum2 : ∑ j ∈ Finset.Icc (0 : ℤ) (C.chain p X N).NR, (CEg * (C.chain p X N).M j) ^ 2
+        = CEg ^ 2 * ∑ j ∈ Finset.Icc (0 : ℤ) (C.chain p X N).NR, (C.chain p X N).M j ^ 2 := by
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro j _
+      ring
+    have hM2 : ∑ j ∈ Finset.Icc (0 : ℤ) (C.chain p X N).NR, (C.chain p X N).M j ^ 2
+        ≤ Csg / Real.sqrt (G.step N) + CMg ^ 2 * Real.sqrt (G.step N) := by
+      have h1 : C.Csum / Real.sqrt (G.step N) ≤ Csg / Real.sqrt (G.step N) :=
+        div_le_div_of_nonneg_right hCsgC (Real.sqrt_nonneg _)
+      have h2 : C.CM ^ 2 * Real.sqrt (G.step N) ≤ CMg ^ 2 * Real.sqrt (G.step N) :=
+        mul_le_mul_of_nonneg_right (pow_le_pow_left₀ hCM0 hCMgC 2) (Real.sqrt_nonneg _)
+      linarith [hrow.2]
+    calc ∑ j ∈ Finset.Icc (0 : ℤ) (C.chain p X N).NR, C.envL p X N j ^ 2
+        ≤ ∑ j ∈ Finset.Icc (0 : ℤ) (C.chain p X N).NR, (CEg * (C.chain p X N).M j) ^ 2 := hsum1
+      _ = CEg ^ 2 * ∑ j ∈ Finset.Icc (0 : ℤ) (C.chain p X N).NR, (C.chain p X N).M j ^ 2 := hsum2
+      _ ≤ CEg ^ 2 * (Csg / Real.sqrt (G.step N) + CMg ^ 2 * Real.sqrt (G.step N)) :=
+          mul_le_mul_of_nonneg_left hM2 (sq_nonneg _)
+  · intro j hj0 hjN hcj
+    have hW1 := C.W_osc p hp X hX N hN j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩) hcj
+    have hM := (C.M_osc p hp X hX N hN j (Finset.mem_Icc.mpr ⟨hj0, hjN⟩) hcj).2
+    unfold BulkWeberChart.envL
+    rw [hW1, one_mul]
+    exact hM.trans (mul_le_mul_of_nonneg_right hCMgC hq.le)
+  · intro j hj0 hj1 hc1 hc2
+    have hpb := chart_pair_bound C p hp X hX N hN CAg hA j hj0 hj1 ⟨hc1, hc2⟩
+    rw [← hpsi j, ← hpsi (j + 1)] at hpb
+    set q : ℝ := (G.step N) ^ ((1 : ℝ) / 4) with hqdef
+    rw [← hq2] at hpb
+    have hS0 : 0 ≤ |C.psiHatL p X N j| + |C.psiHatL p X N (j + 1)| := by positivity
+    have hKCM : (C.cs.KA + C.cs.KB) * C.cs.Kw * C.CM ≤ Kg * CMg :=
+      mul_le_mul hKgC hCMgC hCM0 (le_trans hK0 hKgC)
+    have hcm' : cmg * q ^ 2 ≤ C.cs.cm * q ^ 2 := mul_le_mul_of_nonneg_right hcmgC (sq_nonneg q)
+    have hmid : CAg * ((C.cs.KA + C.cs.KB) * C.cs.Kw * C.CM * q) * (|C.psiHatL p X N j| + |C.psiHatL p X N (j + 1)|)
+        ≤ CAg * (Kg * CMg * q) * (|C.psiHatL p X N j| + |C.psiHatL p X N (j + 1)|) := by
+      apply mul_le_mul_of_nonneg_right _ hS0
+      apply mul_le_mul_of_nonneg_left _ hCAg.le
+      exact mul_le_mul_of_nonneg_right hKCM hq.le
+    have h2 : (cmg * q) * q ≤ (CAg * Kg * CMg * (|C.psiHatL p X N j| + |C.psiHatL p X N (j + 1)|)) * q := by
+      calc (cmg * q) * q = cmg * q ^ 2 := by ring
+        _ ≤ C.cs.cm * q ^ 2 := hcm'
+        _ ≤ CAg * ((C.cs.KA + C.cs.KB) * C.cs.Kw * C.CM * q) * (|C.psiHatL p X N j| + |C.psiHatL p X N (j + 1)|) := hpb
+        _ ≤ CAg * (Kg * CMg * q) * (|C.psiHatL p X N j| + |C.psiHatL p X N (j + 1)|) := hmid
+        _ = (CAg * Kg * CMg * (|C.psiHatL p X N j| + |C.psiHatL p X N (j + 1)|)) * q := by ring
+    exact le_of_mul_le_mul_right h2 hq
+
+/-- **Reflection of a row sum**: a sum of a nonnegative function over the rows `n` with `N - n` in `T` is at most the sum over `T`. -/
+theorem sum_reflect_le (N : ℕ) (S T : Finset ℤ) (g : ℤ → ℝ) (hg : ∀ k, 0 ≤ g k)
+    (hS : ∀ n ∈ S, (N : ℤ) - n ∈ T) (hinj : Set.InjOn (fun n : ℤ => (N : ℤ) - n) S) :
+    ∑ n ∈ S, g ((N : ℤ) - n) ≤ ∑ k ∈ T, g k := by
+  rw [← Finset.sum_image (f := g) (g := fun n : ℤ => (N : ℤ) - n) hinj]
+  apply Finset.sum_le_sum_of_subset_of_nonneg
+  · intro k hk
+    obtain ⟨n, hn, rfl⟩ := Finset.mem_image.mp hk
+    exact hS n hn
+  · intro k _ _
+    exact hg k
 
 
 end FormalResearch.JacobiEigenvectors.TheoremA
