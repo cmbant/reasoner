@@ -18,6 +18,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.Statements
 public import FormalResearch.JacobiEigenvectors.TheoremB.BulkSchur
 public import FormalResearch.JacobiEigenvectors.TheoremB.SpliceBulk
 public import FormalResearch.JacobiEigenvectors.TheoremB.TwoOrdersBulk
+public import FormalResearch.JacobiEigenvectors.TheoremB.BulkOneStep
 public import FormalResearch.JacobiEigenvectors.TheoremA.Count
 public import FormalResearch.JacobiEigenvectors.TheoremA.Geometry
 public import FormalResearch.JacobiEigenvectors.TheoremA.BulkProof
