@@ -11,6 +11,8 @@ public import FormalResearch.JacobiEigenvectors.Charts.TransferCoefficients
 public import FormalResearch.JacobiEigenvectors.Charts.ChartInputs
 public import FormalResearch.JacobiEigenvectors.TheoremA.Comparison
 public import FormalResearch.JacobiEigenvectors.TheoremA.Statements
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryStatements
+public import FormalResearch.JacobiEigenvectors.TheoremA.EigenvalueStatements
 public import FormalResearch.JacobiEigenvectors.TheoremB.ComparisonMatrix
 public import FormalResearch.JacobiEigenvectors.TheoremB.Statements
 
@@ -23,8 +25,8 @@ Namespace `FormalResearch.JacobiEigenvectors`; plan, dependency DAG and the Laye
 
 * `Setting/JacobiFamily`: the Jacobi family `J_h`, (D_M), (E_K), (H1)--(H3), parity freezing, mirror and gauge families.
 * `Charts/*`: the hypothesis structures (`ChartInputs`): engine interface `LadderChain`, parabolic-cylinder facts, bulk Weber chart, soft-edge chart, transfer coefficients.
-* `TheoremA/*`: the comparison vectors and the Prop-valued statements of thm:A, prop:tha-W/W2, lem:tha-win/M/count, prop:l2jets, thm:smo-spec.
-* `TheoremB/*`: the comparison matrices and the statements of prop:tha-splice, lem:tha-Mflat, lem:tha-collar, prop:thb-inputs, thm:B.
+* `TheoremA/*`: the comparison vectors and the Prop-valued statements of thm:A, prop:tha-W/W2, lem:tha-win/M/count, prop:l2jets, thm:smo-spec; `GeometryStatements` (lem:tha-geom (a)--(d) per block); `EigenvalueStatements` (Step 0 of app_thmA, cor:eigen (a)--(d)).
+* `TheoremB/*`: the comparison matrices and the statements of prop:tha-splice, lem:tha-Mflat, lem:tha-collar, prop:thb-inputs, thm:B, cor:thb-Dm.
 
 The engine is currently `FormalResearch.JE` (to become `FormalResearch.JacobiEigenvectors.Engine`); `FormalResearch.JB` (Theorem B reduction) is to be folded into `TheoremB/` later.
 No placeholder proofs and no added axioms: statements are `def ... : Prop`, to be proved later.

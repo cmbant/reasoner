@@ -22,7 +22,9 @@ Relocation notes (main session): the engine `FormalResearch/JE/` will move to `F
 | `Charts/TransferCoefficients.lean` | `TransferInputs` (I2 coefficients, parity eq:thb-parity) |
 | `Charts/ChartInputs.lean` | `ChartInputs` bundle (frozen family, bulk blocks, four soft charts, mirror/cover relations) |
 | `TheoremA/Comparison.lean`, `Statements.lean` | glue vectors, `psiHatVec`, `envVec`; statements of A(i), A(ii), prop:tha-W/W2, lem:tha-win/M/count, prop:l2jets, thm:smo-spec, lem:hyp-morse |
-| `TheoremB/ComparisonMatrix.lean`, `Statements.lean` | `compMatrix`; prop:tha-splice, lem:tha-Mflat, lem:tha-collar, `ChartPair`, `TransferBundle`, prop:thb-inputs, thm:B |
+| `TheoremA/GeometryStatements.lean` | lem:tha-geom (a)-(d) per block (`TheGeometry`) |
+| `TheoremA/EigenvalueStatements.lean` | Step 0 (`StepZero`, `StepZeroD0`, `SpectrumCovered`), cor:eigen (a)-(d) (`CorEigen`) |
+| `TheoremB/ComparisonMatrix.lean`, `Statements.lean` | `compMatrix`; prop:tha-splice, lem:tha-Mflat, lem:tha-collar, `ChartPair`, `TransferBundle`, prop:thb-inputs, thm:B, cor:thb-Dm |
 
 ## Dependency DAG of proof obligations (hyp = hypotheses used besides the setting; size in lines; diff: E easy, M medium, H hard, VH VERY HARD)
 
@@ -42,7 +44,7 @@ Legend of hypotheses: LS = `LadderData.Stability`, BW/SE = bulk/soft chart, PC =
 | L2.G1 | `HypMorseEquiv` | lem:hyp-morse | none | 250 | M (1-d real analysis) |
 | L2.G2 | `HypOpen` | lem:hyp-morse (openness) | G1 | 150 | M |
 | L2.G3 | `FrozenStandard` | sec:tha-standing | G2 | 200 | M |
-| L2.G4 | lem:tha-geom (a)-(d) (**statement still to freeze**: feeds `overlap_in_well`, `uc_spec`; per-block, see F-geom) | lem:tha-geom | G1 | 300 | M |
+| L2.G4 | lem:tha-geom (a)-(d) (**statement frozen**: `TheoremA/GeometryStatements.lean` (`TheGeometry`: `GeomBulk`, `GeomCollision`, `GeomMargins`, `GeomSoft`, `GeomSoftLower`); feeds `overlap_in_well`, `uc_spec`; per-block and per-neighbourhood, F-geom, F-geom2) | lem:tha-geom | G1 | 300 | M |
 | L2.C1 | `BulkSolutionBound` (= `thm:cha-I`, `cor:cha-I-general`) | thm:cha-I | BW.valid, L1.1 | 120 | E-M (JacSol to `Lh`; `volTheta` smallness for `h<=h1`) |
 | L2.C2 | `PropThaW` (2) normalisation, `hat N ~ h^{-1/4}`, collars | prop:tha-W | C1, BW (`M_osc`, `W_osc`, `collar_lb`) | 400 | M |
 | L2.C3 | `PropThaWin` | lem:tha-win | PC, SE.zeta_deriv | 400 | M (many routine inequalities) |
@@ -50,7 +52,7 @@ Legend of hypotheses: LS = `LadderData.Stability`, BW/SE = bulk/soft chart, PC =
 | L2.C5 | `PropThaCount` | lem:tha-count | L1.4 | 200 | M |
 | L2.C6 | `PropThaW2` (1): through the soft edge, rescaling `lambda`, `|lambda_L| ~ lambda kappa_bal` | prop:tha-W2 (1), thm:cha-PC | L1.1 for two patches, SE.valid, PC | 600 | VH (forbidden-overlap rescaling, S3) |
 | L2.C7 | `PropThaW2` (2)-(4): eigenvectors, quantisation (label = index), one shift short | prop:tha-W2 | C3, C4, C5, C6, PC connection `M_-(a)` | 900 | VH |
-| L2.C8 | Step 0: eigenvalues in `[X_s^- - Ch^2, X_s^+ + Ch^2]` (**statement to freeze**) | app_thmA Step 0 | L2.S4 | 300 | H |
+| L2.C8 | Step 0: eigenvalues in `[X_s^- - Ch^2, X_s^+ + Ch^2]` (**statement frozen**: `StepZero`, `StepZeroD0`, `SpectrumCovered` in `TheoremA/EigenvalueStatements.lean`; F-E1) | app_thmA Step 0 | L2.S4 | 300 | H |
 | L2.C9 | `ThmAii` | thm:A(ii) | C2, C7, C8, F-A3 | 150 | E-M |
 | L2.S1 | bulk windows: lem:smo-bulkphase (1)-(3) | lem:smo-bulkphase | C2, C5, PC.phase_osc | 400 | M-H |
 | L2.S2 | phase of the comparison Casoratian to eigenvalue-level phase (from `BP.casoratian` and `BulkSolutionBound`) | lem:smo-bulkphase (4) | BP | 250 | M |
@@ -59,7 +61,7 @@ Legend of hypotheses: LS = `LadderData.Stability`, BW/SE = bulk/soft chart, PC =
 | L2.S5 | matching on overlaps and density (`S_l^I = S_l^{I'}`) | thm:smo-spec, "Matching" | S1-S3, C7 | 500 | H |
 | L2.S6 | `ThmSmoSpec` (existence, uniqueness, extension independence) and `ThmAi` | thm:smo-spec, thm:A(i) | S1-S5, C7 | 400 | VH (assembly across `K`, cover, soft windows) |
 | L2.S7 | `S_j` depends only on jets `<= j`; `C^infty` jets | thm:smo-spec | S6 | 250 | M |
-| L2.E | cor:eigen (a)-(d): `S_1` formula, inverse quantisation, gap `>= c h`, counting (**statements to freeze**) | cor:eigen | S6 | 700 | H |
+| L2.E | cor:eigen (a)-(d): `S_1` formula, inverse quantisation, gap `>= c h`, counting (**statements frozen**: `CorEigenS1`, `CorEigenInverse`, `CorEigenGap1`, `CorEigenGapM`, `CorEigenCount`, `CorEigen` in `TheoremA/EigenvalueStatements.lean`; F-E2..E4) | cor:eigen | S6 | 700 | H |
 | L2.J | `PropL2Jets` | prop:l2jets | C9 (truncated family), L2.S4, L2.E (gap) | 350 | M-H (eigenvector perturbation along `J_s`) |
 
 ### Layer 3 (Theorem B)
@@ -72,6 +74,8 @@ Legend of hypotheses: LS = `LadderData.Stability`, BW/SE = bulk/soft chart, PC =
 | L3.5a | bulk charts to `JB.Chart` + `Chart.Ok` (transfer = row of `shift_up`; Schur via `jb_schur_of_C2/inv/div`; closure of `FullC2` under products and quotients) | app_thmB (I2)-(I4) bulk | TB, C2, L3.1 | 500 | M-H |
 | L3.5b | soft halves to `JB.Chart` | app_thmB (I2)-(I4), (I5) soft | TB, L3.3, L3.4 | 500 | H |
 | L3.5c | assembly `PropThbInputs`: blocks (finite by compactness), hosts at extreme splices, `outside`, `G1_col`, `U_orth`, `eps5` form | prop:thb-inputs | L3.2, L3.5a/b | 400 | H |
+| L3.D | cor:thb-stable (Fourier--Schur perturbation lemma, Bhatia--Davis--McIntosh): gaps `>= c h` and `||J' - J|| <= K h^{m+1}` give `||U' Delta - U|| <= C_* K h^m` (**not in the DAG before; statement not frozen**; needed for `CorThbDm`) | cor:thb-stable | L2.E (gap) | 250 | M |
+| L3.Dm | `CorThbDm` (**statement frozen**: `TheoremB/Statements.lean`) | cor:thb-Dm | L2.J, L3.5c for `truncFamily F m`, L3.D | 150 | E-M |
 | L3.B | `ThmB` from `jb_onestep` with constants uniform in `mu` (copy of `thm_B_conditional` proof; F-B2) | thm:B | L3.5c | 150 | E |
 
 ## Assignment (disjoint files; independent agents)
@@ -101,14 +105,26 @@ Legend of hypotheses: LS = `LadderData.Stability`, BW/SE = bulk/soft chart, PC =
 * **F-A1..A7, F-B1..B5** in the docstrings of `TheoremA/Statements.lean` and `TheoremB/Statements.lean`: quantifier order (constants before `mu`), explicit vectors (not existential), case split by the value of `X_k`, labels equal indices, `OrdConnected` in lem:tha-count,
   `def:thb-inputs` incomplete (host/submatrix, parity, matching, common `q`), uniformity in `mu` hidden by `thm_B_conditional`, `h <= t0`, `log(1/h)` at even `m+1`.
 * **F-loc** (H2), (H3) are required pointwise in `mu`; uniform margins are claimed "by compactness and continuity" -- needs `IsCompact K` and joint continuity of the jets (`JetReg`); to be checked in L2.G3 whether continuity in `C^2` suffices (it does by lem:hyp-morse openness).
-* **F-DLMF** signs of 12.8.6-7 in `shift_V_*` are as recalled; recheck against DLMF at the start of Layer 4.
+* **F-DLMF (closed, round 2)** the signs of DLMF 12.8.6-7 in `shift_V_*` (and 12.2/12.8 recurrences, 12.10.18 connection `V(a,z) = Gamma(1/2+a)/pi (sin(pi a) U(a,z) + U(a,-z))`, Olver envelope constants) were checked numerically with mpmath (scratch, not committed) on a grid of `a, z`; all fields of `ParabolicCylinderFacts` are consistent with them (audit section of `Charts/ParabolicCylinder.lean`).
 * **F-B-eps5** `OneStepInputs.G1_col` has `C h^{m+1} log(1/h)` for both parities; weaker than the paper's `h^{m+1}` for odd `m` (harmless, `PropThaSpliceTwoOrders` states the sharp one).
+
+## Round-2 audit findings (chart hypothesis structures; each is also recorded in the corresponding docstring)
+
+Verdicts: `LadderData.Valid` sound (a `SymplecticLadder` for every `h` and `j` is satisfiable, e.g. the rotation ladder); `ParabolicCylinderFacts` sound (numerics, F-DLMF closed); `BulkWeberChart` **fixed**; `BulkPhaseInputs` sound (matches lem:smo-bulkphase (4)); `SoftEdgeChart` **fixed**; `TransferInputs` **fixed**; `ChartInputs` sound (with F-t0).
+
+* **F-bw** `BulkWeberChart` left the weights `W`, `M` free (only bounded), so an envelope could be inflated on single rows; added `W_def`, `M_def` (weights = the Weber envelopes `Ewell(-(k+1/2)) |Y(u_k)/sqrt h|`, resp. with `Mbal`); `W_osc`, `M_osc` kept as redundant consistent fields.
+* **F-se** `SoftEdgeChart` lacked parts of lem:tha-geom (d) and of the chart's own definition: added `ucη_in` (collar `[u_c - 2 eta, u_c + 2 eta]` inside `(0,L)`), `geom_far` (away from `u_c` by `eta/4` and `|X - X_s^+| <= delta_0`: `T < 0`, `X - B_0 > 0`), `muS_bd` (`|mu_{2r}| <= C_mu`), `zeta_far` (`zeta^2 >= 4 max(mu_0,0) + c_z1` on `eta/4 <= |x| <= 2 eta`; the turning-point margin), and the constants `Cmu`, `cz1`.  Without them `SoftEdgeChart` was satisfiable by charts whose collar leaves `(0,L)` or whose `zeta` turns inside the collar.
+* **F-ti** `TransferInputs.ulo, uhi` were *existential* inside the structure (a degenerate rectangle satisfied everything); they are now structure parameters, supplied by `TransferBundle` (bulk `[0, c + sigma/2]`, soft `[u_c -+ eta/2]`).
+* **F-geom (corrected)** lem:tha-geom (c) is per block *and* the soft statements are per energy cover; **F-geom2** uniformity in `mu` also needs a *parameter* localisation (a neighbourhood `N in nhdsWithin mu_0 K` and a finite energy cover per neighbourhood, then compactness of `K`): `GeomMargins`; **F-geom3** the collision statement (a) at `u_c^+ = 0` or `L` is a statement about the mirror family at the right end (`GeomCollision`); **F-geom4** (d) for the lower soft edge goes through `negFamily` (`GeomSoftLower`).
+* **F-t0** `t0` is chart data, `ChartInputs F K Kidx t0 ...`; the proofs of `ThmAii`, `CorThbDm` need a `ChartInputs.restrict` step (shrinking `t0`) that is not in the DAG; to be added to L2.C9.
+* **F-E1..E4** (EigenvalueStatements): Step 0 is relative to the *frozen* band (`O(h^2)`); for the plain band it is `O(h)` (`StepZeroD0`); the interval `I'` of cor:eigen (b) needs `delta' <= delta`; counting needs `X_k` in the Lipschitz neighbourhood (Step 0); cor:eigen (c) first part needs only `x_0`.
+* **F-B6 (cor:thb-Dm)** is not an instance of `ThmB` for `F`: the DM budget `r(2K+1)` exceeds `r(m)`, and the comparison is with the eigenvectors of `J_h`, not of the truncated `tilde J_h`; it needs cor:thb-stable, **absent from the DAG** (new row L3.D).
+* **F-recheck** quantifier order, eigen-system universality, index ranges re-checked for prop:tha-W, prop:tha-W2 (clause (3) label = index verified against app_thmA Step 6; `lem:tha-M`'s `s_A`), lem:tha-win/M, thm:smo-spec, thm:A, prop:l2jets, prop:tha-splice, lem:tha-Mflat, lem:tha-collar, prop:thb-inputs, thm:B: no change needed beyond F-t0.
+* **Not done**: a toy instance of the Setting structures (the spin family `G = 1, B = 0, L = 1`) was not formalised; hand check: `Xsp = 1`, `Xsm = -1`, allowed set `[(1 - sqrt(1-X^2))/2, (1 + sqrt(1-X^2))/2]`, `f_+'' = -4` at `1/2`, so (H1)--(H3) hold and `DM`, `EK` hold for all `M` (jets constant).
 
 ## Parts of the plan I am unsure about
 
 * Whether `LadderData.Valid` is the right granularity: the window ranges (`max (jj (p-1)) 0 .. jj p + 1`) and `defect*` on `eqLo .. jj p` follow `volterra_multi`; L1.1 may force tightening of a range.
 * `matchF`/`matchO`/`matchF_soft` (integral identities, `arccoshR` by logarithm) are the *definition* of the coordinates; their sign conventions at collisions (`SignType.sign (X - B_0(0))`) need a check in L4; they are not used by L2/L3 proofs except `turn_eq`, `Hz_lb`.
-* Step 0 (eigenvalue location) and cor:eigen are used by L2.C9, L2.J and L3 but their statements are not yet frozen; they must be frozen (and reviewed) before those items start.
-* `PropThaW2` (3) merges "some integer `k`" with "label = index": the converse clause is stated via existence of the eigenvalue of index `k`; check against Step 4(b) of app_thmA A4 (not re-read in full).
 * `PropThaWin` omits item (4) (it is `ParabolicCylinderFacts.beyond`) and the Riemann-sum bounds (eq:tha-RiemannM, eq:tha-Riemanng) which are proof-internal; add them if L2.C4 needs them as lemmas.
-* Satisfiability: no toy instance of the chart structures (they mention the actual parabolic-cylinder functions; a degenerate `LadderData.Valid` instance needs a rotation ladder defined for all real `h`).
+* Satisfiability (see round-2 audit): no *Lean* toy instance of the chart structures (they mention the actual parabolic-cylinder functions; a degenerate `LadderData.Valid` instance needs a rotation ladder defined for all real `h`).
