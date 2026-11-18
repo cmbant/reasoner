@@ -261,14 +261,15 @@ structure OneStepInputs (cs : OneStepConsts) (D m : ℕ) (h : ℝ) where
 /-- The explicit smallness conditions ("for `h` small") of `thm:thb-onestep`: all are `h`-dependent numbers
 made small by `h → 0` with `D = L/h` (`√D h^{m+1} log(1/h) = O(h^{m+1/2} log(1/h))`, `D ε5 = O(h^{-1-K} e^{-c/h})`):
 `h ≤ 1`, Step 1 (`‖Ĝ^{[m+1]} - U‖_F ≤ √D η₁ ≤ 1`, so every host has norm `≤ 2`), Step 2
-(`ε = K C₄ h^m < 1`, `δ ≤ C h^m < c₀`), Step 3 (`h K ω_max < 1`), Step 5 (`2 D ε5 ≤ h^m`). -/
+(uniform margins `ε = K C₄ h^m ≤ 1/2`, `δ = C h^m ≤ c₀/2`; the condition `C h^{m+1} log(1/h) < c₀` is
+not needed, it follows from `C h^m ≤ c₀/2` and `h log(1/h) ≤ 1`), Step 3 (`h K ω_max ≤ 1/2`), Step 5
+(`2 D ε5 ≤ h^m`). -/
 def OneStepInputs.Small {cs : OneStepConsts} {D m : ℕ} {h : ℝ} (I : OneStepInputs cs D m h) : Prop :=
   h ≤ 1 ∧
   √(D : ℝ) * (cs.C * h ^ (m + 1) * Real.log (1 / h)) ≤ 1 ∧
-  cs.K * cs.C4 * h ^ m < 1 ∧
-  cs.C * h ^ m < cs.c0 ∧
-  cs.C * h ^ (m + 1) * Real.log (1 / h) < cs.c0 ∧
-  h * cs.K * cs.ωmax < 1 ∧
+  cs.K * cs.C4 * h ^ m ≤ 1 / 2 ∧
+  cs.C * h ^ m ≤ cs.c0 / 2 ∧
+  h * cs.K * cs.ωmax ≤ 1 / 2 ∧
   2 * (D : ℝ) * I.ε5 ≤ h ^ m
 
 /-- **The one-step criterion** (Paper J, `thm:thb-onestep`), stated as a proposition: for every order `m` there
@@ -438,7 +439,7 @@ theorem toyInputs_small : toyInputs.Small := by
     have := Real.log_le_sub_one_of_pos (show (0:ℝ) < 1 / (1 / 2) by norm_num)
     linarith
   have hlog0 : 0 ≤ Real.log (1 / (1 / 2 : ℝ)) := Real.log_nonneg (by norm_num)
-  refine ⟨by norm_num, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;> simp [toyConsts, toyInputs] <;> nlinarith
+  refine ⟨by norm_num, ?_, ?_, ?_, ?_, ?_⟩ <;> simp [toyConsts, toyInputs] <;> nlinarith
 
 /-- info: 'FormalResearch.JB.toyInputs' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
