@@ -13,9 +13,9 @@ Status:
 * conjunct (1), the lattice facts and localisation (`win_conj1`): proved;
 * conjunct (2), the weights (`weights_conj`): proved;
 * conjunct (3), the envelopes (`envelope_conj3`): proved, for the `ParabolicCylinderFacts` premise of `PropThaWin`;
-* conjunct (5), the window sums: the lower bound is proved unconditionally, the upper bound under the far-field
-  hypothesis `hfar` of `propThaWin_of_far` (the chart fields localise the zeta coordinate only on the collar,
-  `|u - u_c| <= 2 eta`; see that theorem's docstring).  The frozen `PropThaWin` itself is therefore not proved here.
+* conjunct (5), the window sums (`win_chart_sums`): proved; the far-field localisation (`farChart`, from the
+  chart field `zeta_far_out`) supplies the outside-the-window bound the upper estimate needs.
+* `propThaWin`: the frozen `PropThaWin` (with its `ParabolicCylinderFacts` premise, as stated), proved.
 -/
 
 @[expose] public section
@@ -2291,36 +2291,228 @@ lemma win_chart_sums (CL : SoftEdgeChart Fz P m q U V Lm) (p : Par × ℝ) (hp :
 
 end WinAssembly
 
-section Final
+
+/-! ### The far-field localisation of `Z` (from `zeta_far_out`); `PropThaWin` without a premise -/
+
+section FarField
+
+variable {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ}
+  {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
+
+/-- the cut-off comparison: `2 sqrt(max(mu~,0)) + l sqrt h < |zeta|` from the far margin of `zeta`. -/
+lemma far_real (cz1 Cmu K h s ℓ P Pt muS0 μt zz : ℝ) (hcz : 0 < cz1) (hC : 0 ≤ Cmu) (hK : 0 ≤ K)
+    (hh : 0 < h) (hs : s = Real.sqrt h) (hℓ0 : 0 ≤ ℓ) (hℓ1 : ℓ ≤ 1) (hP : P = max muS0 0)
+    (hmu0 : |muS0| ≤ Cmu) (hPt : Pt = max μt 0) (hd : |μt - muS0| ≤ K * h ^ 2)
+    (hzz : 4 * P + cz1 ≤ zz ^ 2) (hzz0 : 0 ≤ zz)
+    (hsmall : 2 * Real.sqrt K * h + s < cz1 / (2 * Real.sqrt (4 * Cmu + cz1))) :
+    2 * Real.sqrt Pt + ℓ * s < zz := by
+  have hs0 : 0 ≤ s := by rw [hs]; exact Real.sqrt_nonneg h
+  have hP0 : 0 ≤ P := by rw [hP]; exact le_max_right _ _
+  have hPC : P ≤ Cmu := by
+    rw [hP]; exact max_le (le_trans (le_abs_self _) hmu0) hC
+  -- `Pt <= P + K h^2`: the positive part is 1-Lipschitz
+  have hPt_le : Pt ≤ P + K * h ^ 2 := by
+    rw [hPt, hP]
+    have h1 : max μt 0 ≤ max muS0 0 + |μt - muS0| := by
+      apply max_le
+      · have a1 := le_max_left muS0 0
+        have a2 := le_abs_self (μt - muS0)
+        linarith
+      · have a1 := le_max_right muS0 0
+        have a2 := abs_nonneg (μt - muS0)
+        linarith
+    linarith
+  -- `sqrt Pt <= sqrt P + sqrt K * h`
+  have hsqPt : Real.sqrt Pt ≤ Real.sqrt P + Real.sqrt K * h := by
+    rw [Real.sqrt_le_iff]
+    refine ⟨add_nonneg (Real.sqrt_nonneg _) (mul_nonneg (Real.sqrt_nonneg _) hh.le), ?_⟩
+    have e : (Real.sqrt P + Real.sqrt K * h) ^ 2 =
+        P + 2 * Real.sqrt P * Real.sqrt K * h + K * h ^ 2 := by
+      rw [add_sq, mul_pow, Real.sq_sqrt hP0, Real.sq_sqrt hK]; ring
+    have : 0 ≤ 2 * Real.sqrt P * Real.sqrt K * h := by
+      have := Real.sqrt_nonneg P; have := Real.sqrt_nonneg K
+      exact mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) (Real.sqrt_nonneg P)) (Real.sqrt_nonneg K)) hh.le
+    rw [e]
+    linarith
+  -- the margin: with R = sqrt(4P + cz1), `2 sqrt P + cz1/(2T) <= R`, T = sqrt(4 Cmu + cz1)
+  set R := Real.sqrt (4 * P + cz1) with hR
+  set T := Real.sqrt (4 * Cmu + cz1) with hT
+  have hTpos : 0 < T := Real.sqrt_pos.mpr (by linarith)
+  have hRsq : R ^ 2 = 4 * P + cz1 := Real.sq_sqrt (by linarith)
+  have hPsq : Real.sqrt P ^ 2 = P := Real.sq_sqrt hP0
+  have hR2 : 2 * Real.sqrt P ≤ R := by
+    refine (sq_le_sq₀ (by positivity) (Real.sqrt_nonneg _)).mp ?_
+    rw [mul_pow, hPsq, hRsq]; linarith
+  have hRT : R ≤ T := Real.sqrt_le_sqrt (by linarith)
+  have hmargin : cz1 / (2 * T) ≤ R - 2 * Real.sqrt P := by
+    rw [div_le_iff₀ (by linarith)]
+    nlinarith [mul_nonneg (sub_nonneg.2 hR2) (show (0 : ℝ) ≤ 2 * T - R - 2 * Real.sqrt P by linarith),
+      hRsq, hPsq]
+  have hRzz : R ≤ zz := by
+    rw [hR]
+    calc Real.sqrt (4 * P + cz1) ≤ Real.sqrt (zz ^ 2) := Real.sqrt_le_sqrt hzz
+      _ = zz := Real.sqrt_sq hzz0
+  have hℓs : ℓ * s ≤ s := mul_le_of_le_one_left hs0 hℓ1
+  have hsmall' : cz1 / (2 * Real.sqrt (4 * Cmu + cz1)) = cz1 / (2 * T) := by rw [hT]
+  rw [hsmall'] at hsmall
+  nlinarith
+
+/-- the far-field smallness `2 sqrt K h + sqrt h < delta1` for `h <= (delta1/(2(2 sqrt K+1)))^2`. -/
+lemma far_small (K δ1 h : ℝ) (hK : 0 ≤ K) (hδ : 0 < δ1) (hh : 0 < h) (h1 : h ≤ 1)
+    (ht : h ≤ (δ1 / (2 * (2 * Real.sqrt K + 1))) ^ 2) :
+    2 * Real.sqrt K * h + Real.sqrt h < δ1 := by
+  set t := δ1 / (2 * (2 * Real.sqrt K + 1)) with htdef
+  have htpos : 0 < t := by
+    rw [htdef]; apply div_pos hδ; have := Real.sqrt_nonneg K; linarith
+  have hsh : Real.sqrt h ≤ t := by
+    calc Real.sqrt h ≤ Real.sqrt (t ^ 2) := Real.sqrt_le_sqrt ht
+      _ = t := Real.sqrt_sq htpos.le
+  have hsq : Real.sqrt h ^ 2 = h := Real.sq_sqrt hh.le
+  have hs1 : Real.sqrt h ≤ 1 := by nlinarith [Real.sqrt_nonneg h]
+  have hhs : h ≤ Real.sqrt h := by nlinarith [Real.sqrt_nonneg h]
+  have hK1 := Real.sqrt_nonneg K
+  have hA : 2 * Real.sqrt K * h ≤ 2 * Real.sqrt K * Real.sqrt h :=
+    mul_le_mul_of_nonneg_left hhs (by linarith)
+  have hB : (2 * Real.sqrt K + 1) * Real.sqrt h ≤ (2 * Real.sqrt K + 1) * t :=
+    mul_le_mul_of_nonneg_left hsh (by linarith)
+  have hC : (2 * Real.sqrt K + 1) * t = δ1 / 2 := by
+    rw [htdef]; field_simp
+  nlinarith
+
+/-- the sum `sum_{r=1}^{q/2} h^{2r} muS_r` is `O(h^2)` by the uniform bound `Cmu` on `muS_r`. -/
+lemma far_sum_bound (q : ℕ) (f : ℕ → ℝ) (C h : ℝ) (hC : 0 ≤ C) (hh0 : 0 ≤ h) (hh1 : h ≤ 1)
+    (hf : ∀ r ∈ Finset.Icc 1 (q / 2), |f r| ≤ C) :
+    |∑ r ∈ Finset.Icc 1 (q / 2), h ^ (2 * r) * f r| ≤ ((q / 2 : ℕ) : ℝ) * C * h ^ 2 := by
+  have step1 : |∑ r ∈ Finset.Icc 1 (q / 2), h ^ (2 * r) * f r| ≤
+      ∑ r ∈ Finset.Icc 1 (q / 2), C * h ^ 2 := by
+    refine (Finset.abs_sum_le_sum_abs _ _).trans (Finset.sum_le_sum fun r hr => ?_)
+    rw [abs_mul, abs_of_nonneg (pow_nonneg hh0 _)]
+    have hr1 : 1 ≤ r := (Finset.mem_Icc.mp hr).1
+    have hp : h ^ (2 * r) ≤ h ^ 2 := pow_le_pow_of_le_one hh0 hh1 (by omega)
+    have := mul_le_mul hp (hf r hr) (abs_nonneg _) (pow_nonneg hh0 2)
+    linarith [mul_comm C (h ^ 2)]
+  rw [Finset.sum_const, Nat.card_Icc, nsmul_eq_mul] at step1
+  have hcard : ((q / 2 + 1 - 1 : ℕ) : ℝ) = ((q / 2 : ℕ) : ℝ) := by
+    rw [Nat.add_sub_cancel]
+  rw [hcard] at step1
+  linarith [step1]
+
+/-- the positive part of the far threshold `h` for which the chart lemma holds. -/
+def farThr (CL : SoftEdgeChart Fz P m q U V Lm) : ℝ :=
+  min 1 ((CL.cz1 / (2 * Real.sqrt (4 * CL.Cmu + CL.cz1)) /
+    (2 * (2 * Real.sqrt (((q / 2 : ℕ) : ℝ) * CL.Cmu) + 1))) ^ 2)
+
+lemma farThr_pos (CL : SoftEdgeChart Fz P m q U V Lm) : 0 < farThr CL := by
+  have hcz : 0 < CL.cz1 := CL.consts_pos2.2
+  have hC : 0 ≤ CL.Cmu := CL.consts_pos2.1
+  have hT : 0 < Real.sqrt (4 * CL.Cmu + CL.cz1) := Real.sqrt_pos.mpr (by linarith)
+  have hK : 0 ≤ Real.sqrt (((q / 2 : ℕ) : ℝ) * CL.Cmu) := Real.sqrt_nonneg _
+  unfold farThr
+  refine lt_min one_pos (pow_pos (div_pos (div_pos hcz (by linarith)) (by linarith)) 2)
+
+/-- **the far-field localisation**: rows beyond the collar lie outside the window,
+`rho(a) < |Z_n|`, for `step N <= farThr CL`. -/
+lemma farChart (CL : SoftEdgeChart Fz P m q U V Lm) (p : Par × ℝ) (hp : p ∈ P) (X : ℝ)
+    (hX : |X - Fz.bandHi p| ≤ CL.δ0) (N : ℕ) (hstep : Fz.step N ≤ farThr CL) (n : ℤ)
+    (hn0 : 0 ≤ n) (hnN : n ≤ (N : ℤ)) (hfn : 2 * CL.η < |uNode (Fz.step N) n - CL.uc p|) :
+    rhoWin (CL.aOf p X N) < |CL.Zof p X N n| := by
+  have hcz : 0 < CL.cz1 := CL.consts_pos2.2
+  have hC : 0 ≤ CL.Cmu := CL.consts_pos2.1
+  have hh0 : 0 < Fz.step N := FormalResearch.JB.stepSize_pos Fz.L_pos N
+  have hLh : Fz.step N * ((N : ℝ) + 1) = Fz.L := by
+    unfold SymbolFamily.step FormalResearch.JB.stepSize
+    field_simp
+  have hh1 : Fz.step N ≤ 1 := le_trans hstep (min_le_left _ _)
+  have hthr : Fz.step N ≤ (CL.cz1 / (2 * Real.sqrt (4 * CL.Cmu + CL.cz1)) /
+      (2 * (2 * Real.sqrt (((q / 2 : ℕ) : ℝ) * CL.Cmu) + 1))) ^ 2 :=
+    le_trans hstep (min_le_right _ _)
+  have hδ1 : 0 < CL.cz1 / (2 * Real.sqrt (4 * CL.Cmu + CL.cz1)) := by
+    apply div_pos hcz
+    have : 0 < Real.sqrt (4 * CL.Cmu + CL.cz1) := Real.sqrt_pos.mpr (by linarith)
+    linarith
+  have hsmall : 2 * Real.sqrt (((q / 2 : ℕ) : ℝ) * CL.Cmu) * Fz.step N + Real.sqrt (Fz.step N) <
+      CL.cz1 / (2 * Real.sqrt (4 * CL.Cmu + CL.cz1)) :=
+    far_small _ _ _ (mul_nonneg (Nat.cast_nonneg _) hC) hδ1 hh0 hh1 hthr
+  set α := Fz.bandHi p - X with hα
+  have hαδ : |α| ≤ CL.δ0 := by rw [hα, abs_sub_comm]; exact hX
+  set μt : ℝ := CL.muS 0 p α + ∑ r ∈ Finset.Icc 1 (q / 2), Fz.step N ^ (2 * r) * CL.muS r p α with hμt
+  have haO : CL.aOf p X N = -(1 / Fz.step N) * μt := rfl
+  -- the bound on the sum and on the zeroth moment
+  have hmu0 : |CL.muS 0 p α| ≤ CL.Cmu :=
+    CL.muS_bd 0 (Finset.mem_Icc.mpr ⟨le_refl 0, Nat.zero_le _⟩) p hp α hαδ
+  have hsum := far_sum_bound q (fun r => CL.muS r p α) CL.Cmu (Fz.step N) hC hh0.le hh1
+    (fun r hr => CL.muS_bd r (Finset.mem_Icc.mpr ⟨by linarith [(Finset.mem_Icc.mp hr).1],
+      (Finset.mem_Icc.mp hr).2⟩) p hp α hαδ)
+  have hd : |μt - CL.muS 0 p α| ≤ ((q / 2 : ℕ) : ℝ) * CL.Cmu * Fz.step N ^ 2 := by
+    have e : μt - CL.muS 0 p α = ∑ r ∈ Finset.Icc 1 (q / 2), Fz.step N ^ (2 * r) * CL.muS r p α := by
+      rw [hμt]; ring
+    rw [e]; exact hsum
+  -- the zeta margin beyond the collar
+  have hx0 : 0 ≤ uNode (Fz.step N) n := by
+    unfold uNode
+    have : (0 : ℝ) ≤ n := by exact_mod_cast hn0
+    nlinarith
+  have hxL : CL.uc p + (uNode (Fz.step N) n - CL.uc p) ≤ Fz.L := by
+    unfold uNode at *
+    have : (n : ℝ) ≤ N := by exact_mod_cast hnN
+    nlinarith
+  have hz := CL.zeta_far_out p hp α hαδ (uNode (Fz.step N) n - CL.uc p)
+    (le_trans (by linarith) hfn.le) (by linarith) hxL
+  -- the algebra of `aOf`
+  set A' : ℝ := max (-CL.aOf p X N) 0 with hA'
+  have hA'0 : 0 ≤ A' := le_max_right _ _
+  have hneg : -CL.aOf p X N * Fz.step N = μt := by
+    rw [haO]; field_simp
+  have hAh : A' * Fz.step N = max μt 0 := by
+    rw [hA', max_mul_of_nonneg _ _ hh0.le, hneg, zero_mul]
+  have hℓ0 : 0 ≤ (1 + A') ^ (-(1 : ℝ) / 6) := by positivity
+  have hℓ1 : (1 + A') ^ (-(1 : ℝ) / 6) ≤ 1 := ell_le_one A' hA'0
+  have hrho : rhoWin (CL.aOf p X N) = 2 * Real.sqrt A' + (1 + A') ^ (-(1 : ℝ) / 6) := rfl
+  have hsq : Real.sqrt (max μt 0) = Real.sqrt A' * Real.sqrt (Fz.step N) := by
+    rw [← hAh, Real.sqrt_mul hA'0]
+  -- the real comparison
+  have key := far_real CL.cz1 CL.Cmu (((q / 2 : ℕ) : ℝ) * CL.Cmu) (Fz.step N) (Real.sqrt (Fz.step N))
+    ((1 + A') ^ (-(1 : ℝ) / 6)) (max (CL.muS 0 p α) 0) (max μt 0) (CL.muS 0 p α) μt
+    (|CL.zeta p α (uNode (Fz.step N) n - CL.uc p)|) hcz hC (mul_nonneg (Nat.cast_nonneg _) hC) hh0 rfl
+    hℓ0 hℓ1 rfl hmu0 rfl hd (by rw [sq_abs]; exact hz) (abs_nonneg _) hsmall
+  have hzpos : 0 < Real.sqrt (Fz.step N) := Real.sqrt_pos.mpr hh0
+  unfold SoftEdgeChart.Zof
+  rw [abs_div, abs_of_pos hzpos, lt_div_iff₀ hzpos, hrho]
+  have e2 : (2 * Real.sqrt A' + (1 + A') ^ (-(1 : ℝ) / 6)) * Real.sqrt (Fz.step N) =
+      2 * Real.sqrt (max μt 0) + (1 + A') ^ (-(1 : ℝ) / 6) * Real.sqrt (Fz.step N) := by
+    rw [hsq]; ring
+  rw [e2]
+  exact key
+
+end FarField
+
+section FinalTheorem
 
 variable {Par : Type*} [TopologicalSpace Par]
 
-/-- **lem:tha-win** (items (1), (2), (3), (5)) for `PropThaWin`, assuming the far-field localisation
-`hfar` of the zeta coordinate (see the report: the chart fields give it only on the collar). -/
-theorem propThaWin_of_far (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ)
-    {Lm : ℝ → ℝ} (CL : SoftEdgeChart Fz P m q U V Lm) (aplus cPC CPC : ℝ)
-    (hfar : ∃ h1 : ℝ, 0 < h1 ∧ ∀ p ∈ P, ∀ X : ℝ, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, CL.N0 ≤ N →
-      Fz.step N ≤ h1 → CL.aOf p X N ≤ aplus → ∀ n : ℤ, 0 ≤ n → n ≤ (N : ℤ) →
-        2 * CL.η < |uNode (Fz.step N) n - CL.uc p| → rhoWin (CL.aOf p X N) < |CL.Zof p X N n|) :
+/-- **lem:tha-win** (items (1), (2), (3), (5)): the frozen `PropThaWin`, with no premise. -/
+theorem propThaWin (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ)
+    {Lm : ℝ → ℝ} (CL : SoftEdgeChart Fz P m q U V Lm) (aplus cPC CPC : ℝ) :
     PropThaWin Fz P m q U V CL aplus cPC CPC := by
-  obtain ⟨h1, hh1pos, hfar'⟩ := hfar
   unfold PropThaWin
   intro pc r _
-  obtain ⟨hδ0, hη, hdm, hdmp, -, -, -, -⟩ := CL.consts_pos
+  obtain ⟨-, hη, hdm, hdmp, -, -, -, -⟩ := CL.consts_pos
   have hdp : 0 < CL.dp := lt_of_lt_of_le hdm hdmp
   have hM1 : 1 ≤ max 1 aplus := le_max_left _ _
   have hc0pos : 0 < 1 / (2 * max 1 aplus) := by apply div_pos one_pos; linarith
-  have hh0pos : 0 < min (winH1 CL) (min CL.η h1) := lt_min (winH1_pos CL) (lt_min hη hh1pos)
+  have hfpos := farThr_pos CL
+  have hh0pos : 0 < min (winH1 CL) (min CL.η (farThr CL)) :=
+    lt_min (winH1_pos CL) (lt_min hη hfpos)
   have hsq : 0 < (1 / (2 * max 1 aplus) / (10 * CL.dp)) ^ 2 :=
     pow_pos (div_pos hc0pos (by linarith)) 2
-  refine ⟨min (min (winH1 CL) (min CL.η h1)) ((1 / (2 * max 1 aplus) / (10 * CL.dp)) ^ 2),
+  refine ⟨min (min (winH1 CL) (min CL.η (farThr CL))) ((1 / (2 * max 1 aplus) / (10 * CL.dp)) ^ 2),
     winCLam CL, winCnb CL, winCB CPC aplus, 1 / (2 * max 1 aplus), lt_min hh0pos hsq, hc0pos, ?_⟩
   intro p hp X hX N hN hstep haplus
   have hstep1 : Fz.step N ≤ winH1 CL :=
     le_trans hstep (le_trans (min_le_left _ _) (min_le_left _ _))
   have hstep2 : Fz.step N ≤ CL.η :=
     le_trans hstep (le_trans (min_le_left _ _) (le_trans (min_le_right _ _) (min_le_left _ _)))
-  have hstep3 : Fz.step N ≤ h1 :=
+  have hstep3 : Fz.step N ≤ farThr CL :=
     le_trans hstep (le_trans (min_le_left _ _) (le_trans (min_le_right _ _) (min_le_right _ _)))
   have hstep4 : Fz.step N ≤ (1 / (2 * max 1 aplus) / (10 * CL.dp)) ^ 2 :=
     le_trans hstep (min_le_right _ _)
@@ -2335,7 +2527,7 @@ theorem propThaWin_of_far (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)
       _ = 1 / (2 * max 1 aplus) / 10 := by field_simp
   have hfarN : ∀ n : ℤ, 0 ≤ n → n ≤ (N : ℤ) → 2 * CL.η < |uNode (Fz.step N) n - CL.uc p| →
       rhoWin (CL.aOf p X N) < |CL.Zof p X N n| :=
-    fun n h0 hN' hfn => hfar' p hp X hX N hN hstep3 haplus n h0 hN' hfn
+    fun n h0 hN' hfn => farChart CL p hp X hX N hstep3 n h0 hN' hfn
   obtain ⟨hup, hlow⟩ := win_chart_sums CL p hp X hX N hN aplus hstep1 hstep2 hsm haplus hfarN
   refine ⟨win_conj1 CL p hp X hX N hstep1, ?_, hlow, hup⟩
   intro z hz
@@ -2343,7 +2535,7 @@ theorem propThaWin_of_far (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)
     (weights_conj (CL.aOf p X N) aplus z haplus hz).2,
     envelope_conj3 pc aplus (CL.aOf p X N) z haplus hz⟩
 
-end Final
+end FinalTheorem
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.mbal_sq_shape' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -2369,9 +2561,13 @@ end Final
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.win_chart_sums
 
-/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.propThaWin_of_far' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.farChart' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JacobiEigenvectors.TheoremA.propThaWin_of_far
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.farChart
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.propThaWin' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.propThaWin
 
 end FormalResearch.JacobiEigenvectors.TheoremA
 
