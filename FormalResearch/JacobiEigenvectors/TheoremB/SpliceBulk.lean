@@ -805,15 +805,14 @@ theorem chart_envL_nonneg {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily
 set_option maxHeartbeats 4000000 in
 /-- **`PropThaSpliceBulk` for `eta(h) = h^m`** (prop:tha-splice (a), bulk), assembled from the three clauses: the normaliser
 ratio (`bulk_norm_clause`), the window matching (`bulk_matching_eig`) and the eigenvector comparison (`bulk_vec_clause`), with
-the one constant `C = |Cn| + |Cm| + |C3|`.  The hypotheses `1 <= m` and the mirror overlap `hcoup` are those of the clauses; the
-frozen `PropThaSpliceBulk` does not state them (see the report). -/
+the one constant `C = |Cn| + |Cm| + |C3|`.  The hypotheses `1 <= m` and the mirror overlap `hcoup` are now part of the statement
+`PropThaSpliceBulk` (finding F-B9, applied: same pattern as `PropThaW`), so the theorem has no further premise. -/
 theorem propThaSpliceBulk_proved {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
     {Jlo Jhi : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ}
-    (CL : BulkWeberChart Fz P Jlo Jhi m U V) (CR : BulkWeberChart (mirrorFamily Fz) P Jlo Jhi m U V)
-    (hm : 1 ≤ m) (hcoup : CR.c = Fz.L - CL.c' ∧ CR.c' = Fz.L - CL.c) :
+    (CL : BulkWeberChart Fz P Jlo Jhi m U V) (CR : BulkWeberChart (mirrorFamily Fz) P Jlo Jhi m U V) :
     PropThaSpliceBulk CL CR (fun h => h ^ m) := by
   unfold PropThaSpliceBulk
-  intro r hr
+  intro hm hcoup r hr
   obtain ⟨Cn, h1n, hh1n, hnorm⟩ := bulk_norm_clause CL CR hm hcoup r hr
   obtain ⟨Cm, h1m, hh1m, hmatch⟩ := bulk_matching_eig CL CR hm hcoup r hr
   obtain ⟨C3, h1v, hh1v, hvec⟩ := bulk_vec_clause CL CR hm hcoup r hr

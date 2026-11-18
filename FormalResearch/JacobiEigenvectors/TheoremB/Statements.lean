@@ -47,6 +47,15 @@ Prop-valued definitions only; no placeholder proofs, no added axioms.  (`FormalR
   `(-1)^n`, so the transfer coefficients are `(-t_11, -t_12)` and the quotients `1/t_12`, `B/(t_12 alpha)` change sign while `alpha`, `t_11/t_12` and all Schur norms are unchanged: `TransferBundle.softLoL/softLoR` (the transfer inputs of the chart of `negFamily` itself) and
   `JB.Chart.Ok` (`|t_12| >= c`, `IsSchurBdd` is invariant under `M -> -M`) therefore need no change, and `eq:thb-parity` is unchanged; (vii) `a = -(k + 1/2) + O(h^m log(1/h))` (the logarithm only for prop:tha-W2 (4)) enters the proof of `PropThaMflat` (flat2) only.
   `OneStepInputs` field `G1_col` has `log(1/h)` for both parities (weaker than the paper for odd `m`, harmless; F-B-eps5).
+* **F-B9 (prop:tha-splice (a), (b): `1 <= m`, coupling of the two charts; applied, same pattern as `PropThaW` / `PropThaW2`)**.  The bulk statement relied silently on `m >= 1` (the engine smallness `h^m Theta <= c_*` is unavailable for `m = 0`) and on the
+  mirror overlap `CR.c = L - CL.c'`, `CR.c' = L - CL.c` (the two charts are independent data, but the glue `bulkKappa`, `bulkNorm`, `bulkVec` needs the right sequence on all rows `u_n > c`, and the window of `CL` must be the mirror image of that of `CR`).
+  Both are now the first premises of `PropThaSpliceBulk` (the relation is the one `ChartInputs.overlap_match` provides).  Verified against the paper: prop:tha-splice (a) is stated "in the setting of Proposition prop:tha-W", whose hypotheses are `r >= 1` and
+  the two edge charts being the left and the mirrored right chart of one block; confirmed, no refinement.  `PropThaSpliceSoft` has the same two gaps (`m >= 1`; the right soft chart must be the mirror image of the left, `SoftMirror CL CR`, the
+  `ChartInputs.mirror_up` clause, as in F-W2-12) and got the same premises `1 <= m -> SoftMirror CL CR`; the Step-0 premise of `PropThaW2` is not needed in the statement since `a <= 1` is a hypothesis of (b) and `StepZero` is proved.
+* **F-B10 (prop:tha-splice (c): the splices must lie in the window; applied)**.  `PropThaSpliceTwoOrders` was stated for an arbitrary `spl : Fin nb -> R`, but the column error `<= C eta_r` is false for a splice outside the overlap
+  (the paper says "uniformly in the splice `n_nu in [n_nu^-, n_nu^+]`", and the order-`(m+1)` clause needs the splice in the window of the order-`(m+1)` chart).  New premise `ChartPair.SplicesInWindow CP spl`: `spl nu` lies in the open overlap `(c', c)` of
+  `CI0.bulkL nu` and (via `spl1`) of `CI1.bulkL nu`.  **Refinement of the paper**: strict inequalities, since the splice row is `nearestRow h (spl nu)` and for `spl nu = c'` the row can lie half a step outside the window `{c' <= u_n <= c}`.  `ThmB`, `PropThbInputs`, `CorThbDm`
+  take the same `spl` and need the same premise (not yet changed: their proofs go through `PropThaSpliceTwoOrders`, L3.5c).
 * **F-B5 (lem:tha-Mflat, `delta_0` small)**: "choose `delta_0` so small" is a constraint on the chart constants (`SoftEdgeChart.delta0`), not part of the conclusion; the statement is for the given chart and `a <= 1`, which covers every eigenvalue (Step 0).
 -/
 
@@ -76,6 +85,7 @@ holds *at an eigenvalue*, so the glue-norm clause and the window-matching clause
 `|Psi_n - hat Psi^{(n_s)}_n| <= C eta V_n / hat N` for all `n`, with `C` independent of `n_s`. -/
 def PropThaSpliceBulk {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {Jlo Jhi : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ}
     (CL : BulkWeberChart Fz P Jlo Jhi m U V) (CR : BulkWeberChart (mirrorFamily Fz) P Jlo Jhi m U V) (η : ℝ → ℝ) : Prop :=
+  1 ≤ m → (CR.c = Fz.L - CL.c' ∧ CR.c' = Fz.L - CL.c) →
   ∀ r, StdAssump Fz P (m / 2) r →
     ∃ C h0 : ℝ, 0 < h0 ∧ ∀ p ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 →
       ∀ ns ∈ bulkWindow CL N,
@@ -90,6 +100,7 @@ def PropThaSpliceBulk {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {J
 /-- **prop:tha-splice (b)** (soft edge): the same for every `n_s` in the window `Omega`, and the fold row `n_c = nearestRow u_c` is an admissible splice for every column of the edge. -/
 def PropThaSpliceSoft {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
     (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) (η : ℝ → ℝ) : Prop :=
+  1 ≤ m → SoftMirror CL CR →
   ∀ r, StdAssump Fz P (q / 2) r →
     ∃ C h0 : ℝ, 0 < h0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 → CL.aOf p X N ≤ 1 →
       nearestRow (Fz.step N) (CL.uc p) ∈ softWindow CL p X N ∧
@@ -121,15 +132,26 @@ def ChartPair.spl1 {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} 
     (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) : Fin CP.CI1.nb → ℝ := fun ν => spl (Fin.cast CP.nb_eq ν)
 
+/-- **The splices lie in the bulk overlap of both orders** (finding F-B10): for every block `nu` the fixed splice position `spl nu` lies in the open overlap `(c', c)` of the block's bulk chart,
+at order `m` (`CI0`) and, transported by `spl1`, at order `m + 1` (`CI1`).  Strict inequalities, because the splice row is `nearestRow h (spl nu)`, which lies within `h/2` of `spl nu`: for `spl nu = c'` the row can lie outside the
+window `{c' <= u_n <= c}` of `PropThaSpliceBulk`, and then the splice is not controlled. -/
+def ChartPair.SplicesInWindow {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
+    (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
+    (spl : Fin CP.CI0.nb → ℝ) : Prop :=
+  (∀ ν, (CP.CI0.bulkL ν).c' < spl ν ∧ spl ν < (CP.CI0.bulkL ν).c) ∧
+  (∀ ν, (CP.CI1.bulkL ν).c' < CP.spl1 spl ν ∧ CP.spl1 spl ν < (CP.CI1.bulkL ν).c)
+
 section Splice2
 
 variable {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
 
 /-- **prop:tha-splice (c)** (two orders, one shift) in matrix form: with the same `q = 2 ceil(m/2)`, for every spectrum and every column `j`,
-`||(hat G^{[m]} - U) e_j||_2 <= C eta_m` and `||(hat G^{[m+1]} - U) e_j||_2 <= C eta_{m+1}` (the splices of `hat G` are the fixed ones `spl`). -/
+`||(hat G^{[m]} - U) e_j||_2 <= C eta_m` and `||(hat G^{[m+1]} - U) e_j||_2 <= C eta_{m+1}` (the splices of `hat G` are the fixed ones `spl`).
+**Corrected (finding F-B10, applied)**: the paper's constants are "uniformly in the splice `n_nu in [n^-_nu, n^+_nu]`", so the splice positions must lie in the bulk overlap of both orders (`ChartPair.SplicesInWindow`, a premise: for a
+splice outside the window the column is not close to the eigenvector).  (`ThmB`, `PropThbInputs`, `CorThbDm` take the same `spl` and have the same gap: they need the same premise.) -/
 def PropThaSpliceTwoOrders (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) : Prop :=
-  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → DM F K (2 * Kidx + 1) →
+  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → DM F K (2 * Kidx + 1) → CP.SplicesInWindow spl →
     ∃ C h0 : ℝ, 0 < h0 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h0 → F.step N ≤ t0 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
         ∀ j : Fin (N + 1),
