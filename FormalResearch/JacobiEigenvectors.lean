@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.JacobiEigenvectors.Setting.JacobiFamily
+public import FormalResearch.JacobiEigenvectors.Setting.EigenSystem
 public import FormalResearch.JacobiEigenvectors.Charts.LadderChain
 public import FormalResearch.JacobiEigenvectors.Charts.ParabolicCylinder
 public import FormalResearch.JacobiEigenvectors.Charts.Regularity
