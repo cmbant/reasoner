@@ -251,6 +251,11 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
       zeta μ (F.bandHi μ - X) (uNode (F.step N) ((chain μ X N).jj 2) - uc μ) / Real.sqrt (F.step N) ≤ 0 ∧
       0 < zeta μ (F.bandHi μ - X) (uNode (F.step N) ((chain μ X N).jj 2 + 1) - uc μ) / Real.sqrt (F.step N) ∧
       uNode (F.step N) (chain μ X N).NR ≤ uc μ + 2 * η ∧ uc μ + 2 * η < uNode (F.step N) ((chain μ X N).NR + 1)
+  /-- **(F-PW4, from the `PropThaWin` attempt)** the switch bond `j_2` and the next row are rows of the lattice, inside the collar: `0 <= j_2`, `j_2 + 1 <= N`, `|u_{j_2} - u_c|, |u_{j_2+1} - u_c| <= 2 eta`
+  (the switch `Z = 0` of thm:cha-PC / app_thmA Step 2 is inside the collar; this is what makes the window `Omega = {|Z_n| <= rho}` non-empty). -/
+  switch_in : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    0 ≤ (chain μ X N).jj 2 ∧ (chain μ X N).jj 2 + 1 ≤ (N : ℤ) ∧
+      |uNode (F.step N) ((chain μ X N).jj 2) - uc μ| ≤ 2 * η ∧ |uNode (F.step N) ((chain μ X N).jj 2 + 1) - uc μ| ≤ 2 * η
   /-- **(round 3, F-W2-1; round 4: `PreValid`)** the engine hypotheses *without (S3)* for the chain with its first pair rescaled by `(lam^{-1}, lam)`, `lam = E_Web(j_1)/E_-(j_1)` (`softLamVal`): the rescaling of
   `engine.tex` after `thm:eng-volterra`; `lam` may be exponentially large or small.  (S3) at `j_1` (forbidden overlap) and at `j_2` (bounded overlap, `M_-(a)`) is **derived** in `TheoremA/SoftTransfer.lean`
   from `bondA_le`, `zeta_*`, `muS_bd`, `Y_forb`, `pcSwap_eq_pcMinus`. -/

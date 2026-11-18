@@ -225,11 +225,11 @@ def PropThaW2 (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ
 
 /-- **lem:tha-win** (statement, items (1), (2), (3), (5)): for `a <= a_+`, `|alpha| <= delta_0`: the lattice facts (`d_- sqrt h <= Z_{n+1} - Z_n <= d_+ sqrt h`, `h k_2 <= C_Lambda^2`, `M_bal` comparable
 at neighbours), the weight bounds `e^{-5/2} <= E_well <= 1` (`a <= 0`) / `E_bar` bounded (`0 < a <= a_+`) on `|Z| <= rho'`, the envelope bounds `|y_i| <= C_1 M_bal`, `|y_i'| <= C_1 k_2^{1/2} M_bal`
-for both pairs, and the window sum `m_0/(2 d_+) h^{-1/2} <= sum_Omega M_bal^2 <= 11/d_- h^{-1/2}`.  **Corrected in the second pass (finding F-W1 of the window attempt)**: the neighbour-dependent
+for both pairs, and the window sum `m_0/(2 d_+) h^{-1/2} <= sum_Omega M_bal^2 <= 11/d_- h^{-1/2}`.  **Corrected (F-PW3, round 6)**: the envelope bounds of `pcPlus`/`pcMinus` (item (3)) hold for the genuine parabolic-cylinder functions only, so the statement takes `ParabolicCylinderFacts U V cPC CPC` (lem:cha-PCenv (1b), (2)) as a hypothesis; the chart fields constrain `U, V` only at chain rows.  **Corrected in the second pass (finding F-W1 of the window attempt)**: the neighbour-dependent
 facts (`Z_{n+1} - Z_n` bounds, `M_bal` at neighbours) are asserted only when the neighbouring row also lies on the chart `|u - u_c| <= 2 eta`; at the boundary row the chart gives no control of `Z_{n+1}`. -/
 def PropThaWin (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ) {Lm : ℝ → ℝ}
-    (CL : SoftEdgeChart Fz P m q U V Lm) (aplus : ℝ) : Prop :=
-  ∀ r, StdAssump Fz P (q / 2) r →
+    (CL : SoftEdgeChart Fz P m q U V Lm) (aplus : ℝ) (cPC CPC : ℝ) : Prop :=
+  ParabolicCylinderFacts U V cPC CPC → ∀ r, StdAssump Fz P (q / 2) r →
     ∃ h0 CΛ Cnb C1 m0 : ℝ, 0 < h0 ∧ 0 < m0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, CL.N0 ≤ N → Fz.step N ≤ h0 →
       CL.aOf p X N ≤ aplus →
       (∀ n ∈ rowsOf N, |uNode (Fz.step N) n - CL.uc p| ≤ 2 * CL.η →
