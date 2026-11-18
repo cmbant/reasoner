@@ -1444,6 +1444,351 @@ theorem volterra_multi (h ω cm CE K ε Λ : ℝ) (A Q ψ ρ M W : ℤ → ℝ) 
     · obtain ⟨p, hp1, hpP, hlo', hup⟩ := covering_patch s0 NR P jj hP hjj0 hjjP j (by omega) hj'.2
       exact ⟨p, mem_Icc.mpr ⟨hp1, hpP⟩, hbound1 p hp1 hpP j (mem_Icc.mpr ⟨hlo', hup⟩)⟩
 
+/-! ### The transfer condition (S3) at a forbidden overlap -/
+
+/-- Quotient step: `|n| ≤ 2 c P X` and `Dl P ≤ |D|` give `|n/D| ≤ (2c/Dl) X`. -/
+lemma div_bound_aux (n D X c Dl P : ℝ) (hDl : 0 < Dl) (hP : 0 < P) (hD : Dl * P ≤ |D|)
+    (hX : 0 ≤ X) (hc : 0 ≤ c) (hn : |n| ≤ 2 * c * P * X) : |n / D| ≤ (2 * c / Dl) * X := by
+  have hDpos : 0 < |D| := lt_of_lt_of_le (mul_pos hDl hP) hD
+  rw [abs_div, div_le_iff₀ hDpos]
+  have h1 : (2 * c / Dl) * X * (Dl * P) ≤ (2 * c / Dl) * X * |D| :=
+    mul_le_mul_of_nonneg_left hD (by positivity)
+  have h2 : (2 * c / Dl) * X * (Dl * P) = 2 * c * P * X := by
+    field_simp
+  linarith
+
+/-- The algebraic core of the forbidden-overlap transfer bound (`thm:eng-volterra`, remark after (S3), case (ii)):
+entries of `U'⁻¹ U` for `2×2` matrices `U = (a_ij)`, `U' = (b_ij)` whose rows are at the sites `j, j+1` and whose
+columns obey the envelope bounds with the weights `Wj, W1` (`Wj ≤ Cw W1`, `W1 ≤ Cw Wj`) and `|det U'| ≥ Dl Mj M1`. -/
+lemma transfer_entries_bound (a11 a12 a21 a22 b11 b12 b21 b22 Wj W1 Mj M1 K Cw Dl : ℝ)
+    (hWj : 0 < Wj) (hW1 : 0 < W1) (hMj : 0 < Mj) (hM1 : 0 < M1) (hK : 0 ≤ K) (hDl : 0 < Dl)
+    (h1 : W1 ≤ Cw * Wj) (h2 : Wj ≤ Cw * W1)
+    (ha11 : |a11| ≤ K * Wj * Mj) (ha12 : |a12| ≤ K * Wj⁻¹ * Mj)
+    (ha21 : |a21| ≤ K * W1 * M1) (ha22 : |a22| ≤ K * W1⁻¹ * M1)
+    (hb11 : |b11| ≤ K * Wj * Mj) (hb12 : |b12| ≤ K * Wj⁻¹ * Mj)
+    (hb21 : |b21| ≤ K * W1 * M1) (hb22 : |b22| ≤ K * W1⁻¹ * M1)
+    (hD : Dl * (Mj * M1) ≤ |b11 * b22 - b12 * b21|) :
+    |(b22 * a11 - b12 * a21) / (b11 * b22 - b12 * b21)| ≤ 2 * K ^ 2 * Cw / Dl ∧
+    |(b22 * a12 - b12 * a22) / (b11 * b22 - b12 * b21)| ≤ 2 * K ^ 2 * Cw / Dl * (Wj ^ 2)⁻¹ ∧
+    |(b11 * a21 - b21 * a11) / (b11 * b22 - b12 * b21)| ≤ 2 * K ^ 2 * Cw / Dl * Wj ^ 2 ∧
+    |(b11 * a22 - b21 * a12) / (b11 * b22 - b12 * b21)| ≤ 2 * K ^ 2 * Cw / Dl ∧
+    |b11 * b22 - b12 * b21| ≤ 2 * K ^ 2 * Cw * (Mj * M1) := by
+  have hCw : 0 < Cw := by
+    by_contra hc
+    have hc := not_lt.mp hc
+    have : Cw * Wj ≤ 0 := mul_nonpos_of_nonpos_of_nonneg hc hWj.le
+    linarith
+  have hr1 : W1 * Wj⁻¹ ≤ Cw := by
+    rw [← div_eq_mul_inv, div_le_iff₀ hWj]; linarith
+  have hr2 : Wj * W1⁻¹ ≤ Cw := by
+    rw [← div_eq_mul_inv, div_le_iff₀ hW1]; linarith
+  have hP : 0 < Mj * M1 := mul_pos hMj hM1
+  have hWj2 : 0 < Wj ^ 2 := by positivity
+  have hWj2i : 0 ≤ (Wj ^ 2)⁻¹ := by positivity
+  have hK2 : 0 ≤ K ^ 2 := sq_nonneg K
+  -- product bounds
+  have bp : ∀ x y s t : ℝ, |x| ≤ s → |y| ≤ t → 0 ≤ s → |x * y| ≤ s * t := by
+    intro x y s t hx hy hs
+    rw [abs_mul]
+    exact mul_le_mul hx hy (abs_nonneg _) hs
+  -- Type A: weights cancel to Wj/W1 or W1/Wj
+  have PA1 : |b22 * a11| ≤ K ^ 2 * (Mj * M1) * Cw := by
+    have := bp _ _ _ _ hb22 ha11 (by positivity)
+    have e : (K * W1⁻¹ * M1) * (K * Wj * Mj) = (K ^ 2 * (Mj * M1)) * (Wj * W1⁻¹) := by ring
+    rw [e] at this
+    exact this.trans (mul_le_mul_of_nonneg_left hr2 (by positivity))
+  have PA2 : |b12 * a21| ≤ K ^ 2 * (Mj * M1) * Cw := by
+    have := bp _ _ _ _ hb12 ha21 (by positivity)
+    have e : (K * Wj⁻¹ * Mj) * (K * W1 * M1) = (K ^ 2 * (Mj * M1)) * (W1 * Wj⁻¹) := by ring
+    rw [e] at this
+    exact this.trans (mul_le_mul_of_nonneg_left hr1 (by positivity))
+  have PA7 : |b21 * a12| ≤ K ^ 2 * (Mj * M1) * Cw := by
+    have := bp _ _ _ _ hb21 ha12 (by positivity)
+    have e : (K * W1 * M1) * (K * Wj⁻¹ * Mj) = (K ^ 2 * (Mj * M1)) * (W1 * Wj⁻¹) := by ring
+    rw [e] at this
+    exact this.trans (mul_le_mul_of_nonneg_left hr1 (by positivity))
+  have PA8 : |b11 * a22| ≤ K ^ 2 * (Mj * M1) * Cw := by
+    have := bp _ _ _ _ hb11 ha22 (by positivity)
+    have e : (K * Wj * Mj) * (K * W1⁻¹ * M1) = (K ^ 2 * (Mj * M1)) * (Wj * W1⁻¹) := by ring
+    rw [e] at this
+    exact this.trans (mul_le_mul_of_nonneg_left hr2 (by positivity))
+  have PA3 : |b22 * a12| ≤ K ^ 2 * (Mj * M1) * Cw * (Wj ^ 2)⁻¹ := by
+    have := bp _ _ _ _ hb22 ha12 (by positivity)
+    have e : (K * W1⁻¹ * M1) * (K * Wj⁻¹ * Mj) = (K ^ 2 * (Mj * M1)) * (Wj * W1⁻¹) * (Wj ^ 2)⁻¹ := by
+      field_simp
+    rw [e] at this
+    refine this.trans ?_
+    exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hr2 (by positivity)) hWj2i
+  have PA4 : |b12 * a22| ≤ K ^ 2 * (Mj * M1) * Cw * (Wj ^ 2)⁻¹ := by
+    have := bp _ _ _ _ hb12 ha22 (by positivity)
+    have e : (K * Wj⁻¹ * Mj) * (K * W1⁻¹ * M1) = (K ^ 2 * (Mj * M1)) * (Wj * W1⁻¹) * (Wj ^ 2)⁻¹ := by
+      field_simp
+    rw [e] at this
+    refine this.trans ?_
+    exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hr2 (by positivity)) hWj2i
+  have PA5 : |b21 * a11| ≤ K ^ 2 * (Mj * M1) * Cw * Wj ^ 2 := by
+    have := bp _ _ _ _ hb21 ha11 (by positivity)
+    have e : (K * W1 * M1) * (K * Wj * Mj) = (K ^ 2 * (Mj * M1)) * (W1 * Wj⁻¹) * Wj ^ 2 := by
+      field_simp
+    rw [e] at this
+    refine this.trans ?_
+    exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hr1 (by positivity)) hWj2.le
+  have PA6 : |b11 * a21| ≤ K ^ 2 * (Mj * M1) * Cw * Wj ^ 2 := by
+    have := bp _ _ _ _ hb11 ha21 (by positivity)
+    have e : (K * Wj * Mj) * (K * W1 * M1) = (K ^ 2 * (Mj * M1)) * (W1 * Wj⁻¹) * Wj ^ 2 := by
+      field_simp
+    rw [e] at this
+    refine this.trans ?_
+    exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hr1 (by positivity)) hWj2.le
+  have hc : 0 ≤ K ^ 2 * Cw := by positivity
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  · have := div_bound_aux (b22 * a11 - b12 * a21) (b11 * b22 - b12 * b21) 1 (K ^ 2 * Cw) Dl (Mj * M1)
+      hDl hP hD zero_le_one hc (by
+        calc |b22 * a11 - b12 * a21| ≤ |b22 * a11| + |b12 * a21| := abs_sub _ _
+          _ ≤ 2 * (K ^ 2 * Cw) * (Mj * M1) * 1 := by linarith)
+    calc _ ≤ 2 * (K ^ 2 * Cw) / Dl * 1 := this
+      _ = _ := by ring
+  · have := div_bound_aux (b22 * a12 - b12 * a22) (b11 * b22 - b12 * b21) ((Wj ^ 2)⁻¹) (K ^ 2 * Cw) Dl (Mj * M1)
+      hDl hP hD hWj2i hc (by
+        calc |b22 * a12 - b12 * a22| ≤ |b22 * a12| + |b12 * a22| := abs_sub _ _
+          _ ≤ 2 * (K ^ 2 * Cw) * (Mj * M1) * (Wj ^ 2)⁻¹ := by linarith)
+    calc _ ≤ 2 * (K ^ 2 * Cw) / Dl * (Wj ^ 2)⁻¹ := this
+      _ = _ := by ring
+  · have := div_bound_aux (b11 * a21 - b21 * a11) (b11 * b22 - b12 * b21) (Wj ^ 2) (K ^ 2 * Cw) Dl (Mj * M1)
+      hDl hP hD hWj2.le hc (by
+        calc |b11 * a21 - b21 * a11| ≤ |b11 * a21| + |b21 * a11| := abs_sub _ _
+          _ ≤ 2 * (K ^ 2 * Cw) * (Mj * M1) * Wj ^ 2 := by linarith)
+    calc _ ≤ 2 * (K ^ 2 * Cw) / Dl * Wj ^ 2 := this
+      _ = _ := by ring
+  · have := div_bound_aux (b11 * a22 - b21 * a12) (b11 * b22 - b12 * b21) 1 (K ^ 2 * Cw) Dl (Mj * M1)
+      hDl hP hD zero_le_one hc (by
+        calc |b11 * a22 - b21 * a12| ≤ |b11 * a22| + |b21 * a12| := abs_sub _ _
+          _ ≤ 2 * (K ^ 2 * Cw) * (Mj * M1) * 1 := by linarith)
+    calc _ ≤ 2 * (K ^ 2 * Cw) / Dl * 1 := this
+      _ = _ := by ring
+  · have B1 : |b11 * b22| ≤ K ^ 2 * (Mj * M1) * Cw := by
+      have := bp _ _ _ _ hb11 hb22 (by positivity)
+      have e : (K * Wj * Mj) * (K * W1⁻¹ * M1) = (K ^ 2 * (Mj * M1)) * (Wj * W1⁻¹) := by ring
+      rw [e] at this
+      exact this.trans (mul_le_mul_of_nonneg_left hr2 (by positivity))
+    have B2 : |b12 * b21| ≤ K ^ 2 * (Mj * M1) * Cw := by
+      have := bp _ _ _ _ hb12 hb21 (by positivity)
+      have e : (K * Wj⁻¹ * Mj) * (K * W1 * M1) = (K ^ 2 * (Mj * M1)) * (W1 * Wj⁻¹) := by ring
+      rw [e] at this
+      exact this.trans (mul_le_mul_of_nonneg_left hr1 (by positivity))
+    calc |b11 * b22 - b12 * b21| ≤ |b11 * b22| + |b12 * b21| := abs_sub _ _
+      _ ≤ 2 * K ^ 2 * Cw * (Mj * M1) := by linarith
+
+lemma transMat_entries (φ1 φ2 : ℕ → ℤ → ℝ) (jj : ℕ → ℤ) (p : ℕ) :
+    transMat φ1 φ2 jj p 0 0 = (φ2 (p+1) (jj p + 1) * φ1 p (jj p) - φ2 (p+1) (jj p) * φ1 p (jj p + 1))
+        / (φ1 (p+1) (jj p) * φ2 (p+1) (jj p + 1) - φ2 (p+1) (jj p) * φ1 (p+1) (jj p + 1)) ∧
+    transMat φ1 φ2 jj p 0 1 = (φ2 (p+1) (jj p + 1) * φ2 p (jj p) - φ2 (p+1) (jj p) * φ2 p (jj p + 1))
+        / (φ1 (p+1) (jj p) * φ2 (p+1) (jj p + 1) - φ2 (p+1) (jj p) * φ1 (p+1) (jj p + 1)) ∧
+    transMat φ1 φ2 jj p 1 0 = (φ1 (p+1) (jj p) * φ1 p (jj p + 1) - φ1 (p+1) (jj p + 1) * φ1 p (jj p))
+        / (φ1 (p+1) (jj p) * φ2 (p+1) (jj p + 1) - φ2 (p+1) (jj p) * φ1 (p+1) (jj p + 1)) ∧
+    transMat φ1 φ2 jj p 1 1 = (φ1 (p+1) (jj p) * φ2 p (jj p + 1) - φ1 (p+1) (jj p + 1) * φ2 p (jj p))
+        / (φ1 (p+1) (jj p) * φ2 (p+1) (jj p + 1) - φ2 (p+1) (jj p) * φ1 (p+1) (jj p + 1)) ∧
+    (transMat φ1 φ2 jj p).det
+      = (φ1 p (jj p) * φ2 p (jj p + 1) - φ2 p (jj p) * φ1 p (jj p + 1))
+        / (φ1 (p+1) (jj p) * φ2 (p+1) (jj p + 1) - φ2 (p+1) (jj p) * φ1 (p+1) (jj p + 1)) := by
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  · unfold transMat
+    rw [Matrix.inv_def, Matrix.adjugate_fin_two]
+    simp [bondMat, Matrix.det_fin_two, Matrix.mul_apply, Fin.sum_univ_two, Ring.inverse_eq_inv']
+    ring
+  · unfold transMat
+    rw [Matrix.inv_def, Matrix.adjugate_fin_two]
+    simp [bondMat, Matrix.det_fin_two, Matrix.mul_apply, Fin.sum_univ_two, Ring.inverse_eq_inv']
+    ring
+  · unfold transMat
+    rw [Matrix.inv_def, Matrix.adjugate_fin_two]
+    simp [bondMat, Matrix.det_fin_two, Matrix.mul_apply, Fin.sum_univ_two, Ring.inverse_eq_inv']
+    ring
+  · unfold transMat
+    rw [Matrix.inv_def, Matrix.adjugate_fin_two]
+    simp [bondMat, Matrix.det_fin_two, Matrix.mul_apply, Fin.sum_univ_two, Ring.inverse_eq_inv']
+    ring
+  · unfold transMat
+    rw [Matrix.det_mul, Matrix.det_nonsing_inv, Ring.inverse_eq_inv']
+    simp only [bondMat, Matrix.det_fin_two_of]
+    ring
+
+
+/-- The Casoratian of a pair across the bond `j` is `-A_j det U`, `U` the matrix of the pair at the sites `j, j+1`. -/
+lemma cas_eq_neg_det (A f g : ℤ → ℝ) (j : ℤ) :
+    cas A f g j = -(A j * (f j * g (j + 1) - g j * f (j + 1))) := by
+  unfold cas; ring
+
+/-- **Forbidden-overlap transfer bound** (`thm:eng-volterra`, remark after (S3), case (ii)): at the overlap bond `j = j_p`
+let both pairs satisfy the envelope bounds with the weights `W_j, W_{j+1}` (`W_{j+1} ≤ C_w W_j`; the opposite inequality is
+the monotonicity), let both Casoratians be `≥ c₋ ω`, and let `A_j M_j M_{j+1} ≤ C_ω ω` (the paper's `𝒜_h(s_{j_p}) 𝖬 𝖬 ≍ ω_*`).
+Then the transfer matrix `M_p = transMat p` satisfies (S3) with `Λ = max 1 (2K²C_w C_ω/c₋)`. -/
+theorem transfer_of_forbidden_overlap (φ1 φ2 : ℕ → ℤ → ℝ) (jj : ℕ → ℤ) (p : ℕ) (A W M : ℤ → ℝ)
+    (ω cm K Cw Cω : ℝ) (hA : 0 < A (jj p)) (hω : 0 < ω) (hcm : 0 < cm) (hK : 0 ≤ K)
+    (hWj : 0 < W (jj p)) (hW1 : 0 < W (jj p + 1)) (hMj : 0 < M (jj p)) (hM1 : 0 < M (jj p + 1))
+    (hw1 : W (jj p + 1) ≤ Cw * W (jj p)) (hw2 : W (jj p) ≤ Cw * W (jj p + 1))
+    (hAM : A (jj p) * (M (jj p) * M (jj p + 1)) ≤ Cω * ω)
+    (hq : ∀ q, q = p ∨ q = p + 1 →
+      |φ1 q (jj p)| ≤ K * W (jj p) * M (jj p) ∧ |φ2 q (jj p)| ≤ K * (W (jj p))⁻¹ * M (jj p) ∧
+      |φ1 q (jj p + 1)| ≤ K * W (jj p + 1) * M (jj p + 1) ∧
+      |φ2 q (jj p + 1)| ≤ K * (W (jj p + 1))⁻¹ * M (jj p + 1))
+    (hc : ∀ q, q = p ∨ q = p + 1 → cm * ω ≤ |cas A (φ1 q) (φ2 q) (jj p)|) :
+    (max 1 (2 * K ^ 2 * Cw * Cω / cm))⁻¹ ≤ |(transMat φ1 φ2 jj p).det| ∧
+    |transMat φ1 φ2 jj p 0 0| ≤ max 1 (2 * K ^ 2 * Cw * Cω / cm) ∧
+    |transMat φ1 φ2 jj p 1 1| ≤ max 1 (2 * K ^ 2 * Cw * Cω / cm) ∧
+    |transMat φ1 φ2 jj p 0 1| ≤ max 1 (2 * K ^ 2 * Cw * Cω / cm) * (W (jj p) ^ 2)⁻¹ ∧
+    |transMat φ1 φ2 jj p 1 0| ≤ max 1 (2 * K ^ 2 * Cw * Cω / cm) * W (jj p) ^ 2 := by
+  set Wj := W (jj p) with hWjdef
+  set W1 := W (jj p + 1) with hW1def
+  set Mj := M (jj p) with hMjdef
+  set M1 := M (jj p + 1) with hM1def
+  have hP : 0 < Mj * M1 := mul_pos hMj hM1
+  have hCω : 0 < Cω := by
+    have h0 : 0 < A (jj p) * (Mj * M1) := mul_pos hA hP
+    by_contra hneg
+    have hneg := not_lt.mp hneg
+    have : Cω * ω ≤ 0 := mul_nonpos_of_nonpos_of_nonneg hneg hω.le
+    linarith
+  have hDl : 0 < cm / Cω := div_pos hcm hCω
+  -- determinant lower bound for the pair of the patch `q`
+  have hdet : ∀ q, q = p ∨ q = p + 1 →
+      (cm / Cω) * (Mj * M1) ≤ |φ1 q (jj p) * φ2 q (jj p + 1) - φ2 q (jj p) * φ1 q (jj p + 1)| := by
+    intro q hq'
+    have h1 := hc q hq'
+    rw [cas_eq_neg_det, abs_neg, abs_mul, abs_of_pos hA] at h1
+    -- A |det| ≥ cm ω ≥ cm A Mj M1 / Cω
+    have h2 : cm * ω * Cω ≥ cm * (A (jj p) * (Mj * M1)) := by
+      have := mul_le_mul_of_nonneg_left hAM hcm.le
+      nlinarith
+    have h3 : cm * (A (jj p) * (Mj * M1)) ≤ A (jj p) * |φ1 q (jj p) * φ2 q (jj p + 1) - φ2 q (jj p) * φ1 q (jj p + 1)| * Cω := by
+      have := mul_le_mul_of_nonneg_right h1 hCω.le
+      nlinarith
+    have h4 : cm / Cω * (Mj * M1) * (A (jj p) * Cω) ≤
+        |φ1 q (jj p) * φ2 q (jj p + 1) - φ2 q (jj p) * φ1 q (jj p + 1)| * (A (jj p) * Cω) := by
+      have e : cm / Cω * (Mj * M1) * (A (jj p) * Cω) = cm * (A (jj p) * (Mj * M1)) := by
+        field_simp
+      rw [e]; nlinarith
+    exact le_of_mul_le_mul_right h4 (mul_pos hA hCω)
+  obtain ⟨b1, b2, b3, b4⟩ := hq (p + 1) (Or.inr rfl)
+  obtain ⟨a1, a2, a3, a4⟩ := hq p (Or.inl rfl)
+  have hDb := hdet (p + 1) (Or.inr rfl)
+  have hDa := hdet p (Or.inl rfl)
+  obtain ⟨e00, e01, e10, e11, edet⟩ := transMat_entries φ1 φ2 jj p
+  obtain ⟨t00, t01, t10, t11, tD⟩ := transfer_entries_bound (φ1 p (jj p)) (φ2 p (jj p)) (φ1 p (jj p + 1))
+    (φ2 p (jj p + 1)) (φ1 (p+1) (jj p)) (φ2 (p+1) (jj p)) (φ1 (p+1) (jj p + 1)) (φ2 (p+1) (jj p + 1))
+    Wj W1 Mj M1 K Cw (cm / Cω) hWj hW1 hMj hM1 hK hDl hw1 hw2 a1 a2 a3 a4 b1 b2 b3 b4 hDb
+  have hLam : 2 * K ^ 2 * Cw / (cm / Cω) = 2 * K ^ 2 * Cw * Cω / cm := by
+    field_simp
+  rw [hLam] at t00 t01 t10 t11
+  set Λe := 2 * K ^ 2 * Cw * Cω / cm with hΛe
+  have hle : Λe ≤ max 1 Λe := le_max_right _ _
+  have hΛpos : 0 < max 1 Λe := lt_of_lt_of_le one_pos (le_max_left _ _)
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  · -- the determinant of the transfer matrix
+    rw [edet, abs_div]
+    set Dd := |φ1 (p+1) (jj p) * φ2 (p+1) (jj p + 1) - φ2 (p+1) (jj p) * φ1 (p+1) (jj p + 1)| with hDd
+    have hDdpos : 0 < Dd := lt_of_lt_of_le (mul_pos hDl hP) hDb
+    rw [le_div_iff₀ hDdpos]
+    have hT : 2 * K ^ 2 * Cw * (Mj * M1) = Λe * (cm / Cω) * (Mj * M1) := by
+      rw [hΛe]; field_simp
+    have h1 : (max 1 Λe)⁻¹ * Dd ≤ (max 1 Λe)⁻¹ * (Λe * (cm / Cω) * (Mj * M1)) :=
+      mul_le_mul_of_nonneg_left (tD.trans_eq hT) (inv_nonneg.mpr hΛpos.le)
+    have h2 : (max 1 Λe)⁻¹ * Λe ≤ 1 := by
+      rw [inv_mul_le_iff₀ hΛpos]; linarith
+    have h3 : (max 1 Λe)⁻¹ * (Λe * (cm / Cω) * (Mj * M1)) ≤ (cm / Cω) * (Mj * M1) := by
+      have : (max 1 Λe)⁻¹ * (Λe * (cm / Cω) * (Mj * M1)) = ((max 1 Λe)⁻¹ * Λe) * ((cm / Cω) * (Mj * M1)) := by ring
+      rw [this]
+      calc _ ≤ 1 * ((cm / Cω) * (Mj * M1)) := mul_le_mul_of_nonneg_right h2 (by positivity)
+        _ = _ := one_mul _
+    linarith
+  · rw [e00]; exact t00.trans hle
+  · rw [e11]; exact t11.trans hle
+  · rw [e01]; exact t01.trans (mul_le_mul_of_nonneg_right hle (by positivity))
+  · rw [e10]; exact t10.trans (mul_le_mul_of_nonneg_right hle (by positivity))
+
+
+/-- Multi-patch stability with the forbidden-overlap transfer condition derived (`thm:eng-volterra`(a) with (S3) replaced
+by the paper's case (ii), "forbidden overlap").  Instead of the transfer bounds (S3) it assumes, at each overlap bond
+`j_p`: `A_{j_p} > 0`, `W_{j_p+1} ≤ C_w W_{j_p}` (no jump of the weight; the opposite inequality is the monotonicity) and
+`A_{j_p} M_{j_p} M_{j_p+1} ≤ C_ω ω` (the paper's `𝒜_h(s_{j_p}) 𝖬 𝖬 ≍ ω_*`); (S3) then holds with
+`Λ = max 1 (2K² max(C_w,C_E) C_ω/c₋)` (`transfer_of_forbidden_overlap`).  The conclusions are those of `volterra_multi`. -/
+theorem volterra_multi_forbidden (h ω cm CE K ε Cw Cω : ℝ) (A Q ψ ρ M W : ℤ → ℝ) (s0 NR : ℤ) (P : ℕ)
+    (jj : ℕ → ℤ) (φ1 φ2 : ℕ → ℤ → ℝ)
+    (hh : 0 < h) (hω : 0 < ω) (hcm : 0 < cm) (hK : 0 ≤ K) (hε : 0 ≤ ε)
+    (hP : 1 ≤ P) (hjj0 : jj 0 = 0) (hjjmono : ∀ p < P, jj p < jj (p + 1)) (hjjP : jj P = NR - 1)
+    (hs0 : s0 = 0 ∨ s0 = 1) (hA : s0 = 0 → A (-1) = 0)
+    (hS1 : ∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p), cm * ω ≤ |cas A (φ1 p) (φ2 p) j|)
+    (hMpos : ∀ j ∈ Icc 0 NR, 0 < M j) (hWpos : ∀ j ∈ Icc 0 NR, 0 < W j)
+    (hmono : ∀ k ∈ Icc 0 NR, ∀ j ∈ Icc 0 NR, k ≤ j → W k ≤ CE * W j)
+    (hφ1 : ∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p + 1), |φ1 p j| ≤ K * W j * M j)
+    (hφ2 : ∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p + 1), |φ2 p j| ≤ K * (W j)⁻¹ * M j)
+    (hρ : ∀ k, 0 ≤ ρ k)
+    (hr1 : ∀ p ∈ Icc 1 P, ∀ k ∈ Icc (eqLo s0 jj p) (jj p), |Lh h A Q (φ1 p) k| ≤ ε * ρ k * W k * M k)
+    (hr2 : ∀ p ∈ Icc 1 P, ∀ k ∈ Icc (eqLo s0 jj p) (jj p), k ≠ 0 →
+      |Lh h A Q (φ2 p) k| ≤ ε * ρ k * (W k)⁻¹ * M k)
+    (hover : ∀ p, 1 ≤ p → p < P → 0 < A (jj p) ∧ W (jj p + 1) ≤ Cw * W (jj p) ∧
+      A (jj p) * (M (jj p) * M (jj p + 1)) ≤ Cω * ω)
+    (hsol : ∀ k ∈ Icc s0 (NR - 1), Lh h A Q ψ k = 0)
+    (hseed : ∀ j ∈ Icc 0 s0, ψ j = φ1 1 j)
+    (hsmall : ε * volTheta h ω s0 jj P ρ M ≤ mvCstar cm CE K) :
+    (∀ p ∈ Icc 1 P, ∀ j ∈ Icc (eqLo s0 jj p) (jj p + 1),
+      |ψ j - psiHat φ1 φ2 jj p j|
+        ≤ mvC cm CE K (max 1 (2 * K ^ 2 * max Cw CE * Cω / cm)) P * (ε * volTheta h ω s0 jj P ρ M) * W j * M j) ∧
+    (∀ p, 1 ≤ p → p < P → ∀ j ∈ Icc (jj p) (jj p + 1),
+      psiHat φ1 φ2 jj p j = psiHat φ1 φ2 jj (p + 1) j) ∧
+    (∀ j ∈ Icc 0 NR, ∃ p ∈ Icc 1 P,
+      |ψ j - psiHat φ1 φ2 jj p j|
+        ≤ mvC cm CE K (max 1 (2 * K ^ 2 * max Cw CE * Cω / cm)) P * (ε * volTheta h ω s0 jj P ρ M) * W j * M j) := by
+  have hjjge : ∀ p, p ≤ P → 0 ≤ jj p := fun p hp => by
+    have := jj_mono_le jj P hjjmono 0 p (Nat.zero_le _) hp
+    rw [hjj0] at this
+    exact this
+  have hjjle : ∀ p, p ≤ P → jj p ≤ NR - 1 := fun p hp => by
+    have := jj_mono_le jj P hjjmono p P hp le_rfl
+    rw [hjjP] at this
+    exact this
+  have hT : ∀ p, 1 ≤ p → p < P →
+      (max 1 (2 * K ^ 2 * max Cw CE * Cω / cm))⁻¹ ≤ |(transMat φ1 φ2 jj p).det| ∧
+      |transMat φ1 φ2 jj p 0 0| ≤ max 1 (2 * K ^ 2 * max Cw CE * Cω / cm) ∧
+      |transMat φ1 φ2 jj p 1 1| ≤ max 1 (2 * K ^ 2 * max Cw CE * Cω / cm) ∧
+      |transMat φ1 φ2 jj p 0 1| ≤ max 1 (2 * K ^ 2 * max Cw CE * Cω / cm) * (W (jj p) ^ 2)⁻¹ ∧
+      |transMat φ1 φ2 jj p 1 0| ≤ max 1 (2 * K ^ 2 * max Cw CE * Cω / cm) * W (jj p) ^ 2 := by
+    intro p hp1 hpP
+    obtain ⟨hAp, hw, hAM⟩ := hover p hp1 hpP
+    have hj0 := hjjge p hpP.le
+    have hj1 : jj p + 1 ≤ NR := by have := hjjle p hpP.le; omega
+    have hjm : jj p < jj (p + 1) := hjjmono p hpP
+    have hjm' : jj (p - 1) ≤ jj p := jj_mono_le jj P hjjmono (p - 1) p (by omega) hpP.le
+    have hmemj : jj p ∈ Icc 0 NR := mem_Icc.mpr ⟨hj0, by omega⟩
+    have hmemj1 : jj p + 1 ∈ Icc 0 NR := mem_Icc.mpr ⟨by omega, hj1⟩
+    have hWj := hWpos _ hmemj
+    have hW1 := hWpos _ hmemj1
+    have hw1 : W (jj p + 1) ≤ max Cw CE * W (jj p) :=
+      hw.trans (mul_le_mul_of_nonneg_right (le_max_left _ _) hWj.le)
+    have hw2 : W (jj p) ≤ max Cw CE * W (jj p + 1) :=
+      (hmono _ hmemj _ hmemj1 (by omega)).trans (mul_le_mul_of_nonneg_right (le_max_right _ _) hW1.le)
+    have hpP' : p ∈ Icc 1 P := mem_Icc.mpr ⟨hp1, hpP.le⟩
+    have hp1P : p + 1 ∈ Icc 1 P := mem_Icc.mpr ⟨by omega, hpP⟩
+    refine transfer_of_forbidden_overlap φ1 φ2 jj p A W M ω cm K (max Cw CE) Cω hAp hω hcm hK hWj hW1
+      (hMpos _ hmemj) (hMpos _ hmemj1) hw1 hw2 hAM ?_ ?_
+    · intro q hq
+      rcases hq with rfl | rfl
+      · refine ⟨hφ1 q hpP' _ (mem_Icc.mpr ⟨hjm', by omega⟩), hφ2 q hpP' _ (mem_Icc.mpr ⟨hjm', by omega⟩),
+          hφ1 q hpP' _ (mem_Icc.mpr ⟨by omega, le_rfl⟩), hφ2 q hpP' _ (mem_Icc.mpr ⟨by omega, le_rfl⟩)⟩
+      · have e : (p + 1 - 1) = p := by omega
+        refine ⟨hφ1 (p + 1) hp1P _ (mem_Icc.mpr ⟨by rw [e], by omega⟩),
+          hφ2 (p + 1) hp1P _ (mem_Icc.mpr ⟨by rw [e], by omega⟩),
+          hφ1 (p + 1) hp1P _ (mem_Icc.mpr ⟨by rw [e]; omega, by omega⟩),
+          hφ2 (p + 1) hp1P _ (mem_Icc.mpr ⟨by rw [e]; omega, by omega⟩)⟩
+    · intro q hq
+      rcases hq with rfl | rfl
+      · exact hS1 q hpP' _ (mem_Icc.mpr ⟨hjm', le_rfl⟩)
+      · have e : (p + 1 - 1) = p := by omega
+        exact hS1 (p + 1) hp1P _ (mem_Icc.mpr ⟨by rw [e], hjm.le⟩)
+  exact volterra_multi h ω cm CE K ε (max 1 (2 * K ^ 2 * max Cw CE * Cω / cm)) A Q ψ ρ M W s0 NR P jj φ1 φ2
+    hh hω hcm hK hε (le_max_left _ _) hP hjj0 hjjmono hjjP hs0 hA hS1 hMpos hWpos hmono hφ1 hφ2 hρ hr1 hr2 hT
+    hsol hseed hsmall
+
 /-! ### Non-vacuity: two patches, the two-node seed, the exact pair `cos(iθ)`, `sin(iθ)` -/
 
 /-- Non-vacuity of `volterra_multi`: two patches (`P = 2`, breakpoints `j_p = p`, `N_R = 3`, windows `[0,2]`, `[1,3]`,
@@ -1531,6 +1876,14 @@ theorem volterra_multi_instance (θ : ℝ) (hθ : Real.sin θ ≠ 0) :
 /-- info: 'FormalResearch.JE.volterra_multi_instance' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JE.volterra_multi_instance
+
+/-- info: 'FormalResearch.JE.transfer_of_forbidden_overlap' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.transfer_of_forbidden_overlap
+
+/-- info: 'FormalResearch.JE.volterra_multi_forbidden' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.volterra_multi_forbidden
 
 /-- info: 'FormalResearch.JE.patch_volterra' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
