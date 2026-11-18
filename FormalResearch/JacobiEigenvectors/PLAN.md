@@ -77,12 +77,12 @@ Legend of hypotheses: LS = `LadderData.Stability`, BW/SE = bulk/soft chart, PC =
 | L2.C8 | Step 0: eigenvalues in `[X_s^- - Ch^2, X_s^+ + Ch^2]` (**statement frozen**: `StepZero`, `StepZeroD0`, `SpectrumCovered` in `TheoremA/EigenvalueStatements.lean`; F-E1) | app_thmA Step 0 | L2.S4 | 300 | H |
 | L2.C9 | `ThmAii` | thm:A(ii) | C2, C7, C8, F-A3 | 150 | E-M |
 | L2.S1 | bulk windows: lem:smo-bulkphase (1)-(3) | lem:smo-bulkphase | C2, C5, PC.phase_osc | 400 | M-H |
-| L2.S2 | phase of the comparison Casoratian to eigenvalue-level phase (from `BP.casoratian` and `BulkSolutionBound`) | lem:smo-bulkphase (4) | BP | 250 | M |
-| L2.S3 | Taylor substitution `t=h` of `Sigma_j(X,t)` (`C^{2M+1}` in `(X,t)`) | thm:smo-spec, "substitution" | BP.Sigma_reg | 250 | M |
+| L2.S2 | **proved conditionally** (`TheoremA/BulkPhase.lean`: `bulk_eigen_sin`, `bulk_eigen_quant`, `bulk_BSr2`; needs `BulkCasPre`, i.e. the field `c0 sqrt h <= pre` in `BulkPhaseInputs`, F-S2-1) phase of the comparison Casoratian to eigenvalue-level phase (from `BP.casoratian` and `BulkSolutionBound`) | lem:smo-bulkphase (4) | BP | 250 | M |
+| L2.S3 | **proved** (`TheoremA/SpectrumTaylor.lean`: `taylor_subst`, `Scoef_contDiffOn`, `phase_substitution`) Taylor substitution `t=h` of `Sigma_j(X,t)` (`C^{2M+1}` in `(X,t)`) | thm:smo-spec, "substitution" | BP.Sigma_reg | 250 | M |
 | L2.S4 | lem:smo-SM: `||J - tilde J|| <= C h^{M+1}`, eigenvalues shift (Weyl) | lem:smo-SM | none | 200 | E-M |
 | L2.S5 | matching on overlaps and density (`S_l^I = S_l^{I'}`) | thm:smo-spec, "Matching" | S1-S3, C7 | 500 | H |
 | L2.S6 | `ThmSmoSpec` (existence, uniqueness, extension independence) and `ThmAi` | thm:smo-spec, thm:A(i) | S1-S5, C7 | 400 | VH (assembly across `K`, cover, soft windows) |
-| L2.S7 | `S_j` depends only on jets `<= j`; `C^infty` jets | thm:smo-spec | S6 | 250 | M |
+| L2.S7 | **proved modulo S5/C8** (`TheoremA/SmoothSpectrum.lean`: `smo_jets`, `rule_truncate`, `rule_transfer`; `EigClose` from `smo_SM` and `EigDensity` still hypotheses; `smo_unique`, `smo_extend` = S6 (b),(c) core, `TheoremA/SpectrumUnique.lean`: `unique_core`) `S_j` depends only on jets `<= j`; `C^infty` jets | thm:smo-spec | S6 | 250 | M |
 | L2.E | cor:eigen (a)-(d): `S_1` formula, inverse quantisation, gap `>= c h`, counting (**statements frozen**: `CorEigenS1`, `CorEigenInverse`, `CorEigenGap1`, `CorEigenGapM`, `CorEigenCount`, `CorEigen` in `TheoremA/EigenvalueStatements.lean`; F-E2..E4) | cor:eigen | S6 | 700 | H |
 | L2.J | `PropL2Jets` | prop:l2jets | C9 (truncated family), L2.S4, L2.E (gap) | 350 | M-H (eigenvector perturbation along `J_s`) |
 
