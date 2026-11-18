@@ -6,6 +6,10 @@ public import FormalResearch.JacobiEigenvectors.Engine.Kernel
 public import FormalResearch.JacobiEigenvectors.Engine.Volterra
 public import FormalResearch.JacobiEigenvectors.Engine.VolterraMulti
 public import FormalResearch.JacobiEigenvectors.Engine.VolterraLadder
+public import FormalResearch.JacobiEigenvectors.Engine.CorrectorOrder
+public import FormalResearch.JacobiEigenvectors.Engine.CorrectorDefect
+public import FormalResearch.JacobiEigenvectors.Engine.Corrector
+public import FormalResearch.JacobiEigenvectors.Engine.CorrectorExample
 public import FormalResearch.JacobiEigenvectors.Engine.Green
 public import FormalResearch.JacobiEigenvectors.Engine.LadderStability
 
@@ -30,7 +34,12 @@ Umbrella for the Casoratian--Volterra comparison engine of Paper J (`engine.tex`
   identities, and the stability corollaries `ladder_pair_stability` (`volterra_multi` with these bounds) and
   `ladder_pair_stability_forbidden`.
 
-Not formalised: `thm:eng-corr`, the bounded-overlap derivation of (S3), the defect and envelope bounds of the ladders (hypotheses of the corollaries; charts
+* `CorrectorOrder`, `CorrectorDefect`, `Corrector`, `CorrectorExample`: `thm:eng-corr` (all-order defect bound for the corrector ansatz, with
+  `lem:eng-transport` solvability `transport_corrector`) over an abstract ladder, with the analytic input `SymbolExp` (Taylor expansions of the
+  symbols) and the correctors given as data satisfying the recursion (a)_k, (b)_k; uniformity over `u ∈ ℝ`; an explicit `K = 1` instance.
+
+Not formalised: `prop:eng-corr1` (regularity of the correctors, `μ`-dependence, holomorphy), `SymbolExp` from `C^r` data, localisation of
+`thm:eng-corr` to an interval, the hard-edge bond, the bounded-overlap derivation of (S3), the defect and envelope bounds of the ladders (hypotheses of the corollaries; charts
 of Section 3), and the model ladders (Weber, parabolic cylinder).  The relations `det Π± = 𝒟±²`, `Π₋Π₊ = 𝒟₊²` and (SM3)
 of `SymplecticLadder` are required on all of `ℝ²` rather than on the paper's domain.
 -/

@@ -34,7 +34,8 @@ proof in `app_engine.tex`, "Proof of Theorem `thm:eng-corr`" (hypotheses `(H_k)`
 * `transport_corrector` (`lem:eng-transport`(b) for `𝒯`): `B = -4S/√W` of `Kernel.transport_solution` satisfies `𝒯[B] = -f` for `M₀ = -q_V/4`,
   `q_V = (u - u_*) W`; this is the solvability of (a)_k at one simple turning point (regularity and `C^{p-3k}` bookkeeping of
   `prop:eng-corr1` is not formalised).
-* `corr_nonvacuous` (`CorrectorExample`): an explicit instance in which the defect is nonzero and the order gain is exercised.
+* `CorrectorExample`: `exCorrSetting`, `exCorrectors` (every hypothesis of `eng_corr` for an explicit `K = 1` instance with `𝒬_h = h² cos u`,
+  `b₁ = -sin(u)/2`, `g₁ = (cos 2u - 1)/16`), `ex_eng_corr`, and `exDefect_m1_not_O3` (the order `h^{m+1}` is sharp: the correctors are needed).
 
 ## Differences from the paper
 1. **Global domain.**  Uniformity over all `u ∈ ℝ`; the data are globally defined with globally bounded derivatives (`BSmooth`).
@@ -47,6 +48,11 @@ proof in `app_engine.tex`, "Proof of Theorem `thm:eng-corr`" (hypotheses `(H_k)`
    the solvability formula is `transport_corrector`).  The paper's "for any constant `c_{2k}`" is the sequence `c`.  The uniform positivity `g₀ ≥ m₀` replaces "`g₀ > 0` on `I_u`".
 5. **`𝒟 ≥ 0` and `Ω₀²`.** Neither is used: `V₀ ≠ 0` (through `c₀/V₀ > 0`) and `M₀ = Ω₀²V₀` are all that enter.  (eq:eng-omega) is the definition of `Ω₀²`.
 6. The Langer condition is stated with the 0-based entries `(0,0)` of `Π_±`.
+
+7. **Proof route for the last order of `𝔅^tot`.**  The paper's proof of (b)_k says that `F_cas = c₀ + … + c_{2k}h^{2k} + O(h^{2k+2})` has a centred difference
+   `O(h^{2k+3})`; with only the stated expansion the centred difference is `O(h^{2k+2})` (the `h^{2k+2}` coefficient is evaluated at `u ± h/2`).  The
+   missing order comes from the parity of `𝔅^tot` (odd in `h`), which is what `D1_lift` uses (`PApprox.lift` with `σ = -1`); the same applies to (a)_k.  The statement is
+   unaffected.
 
 Not formalised: derivation of `SymbolExp` from `C^r` data, `prop:eng-corr1` (regularity `C^{p-3k+1}`, holomorphic extension, dependence on `μ`), localisation to an interval `I_u`,
 the hard-edge bond (`𝒟 = 0`), and the identification of `(A^{[m]}, hB^{[m]})` with a specific chart.
@@ -180,7 +186,7 @@ lemma CorrSetting.ans_papprox (S : CorrSetting K γ dd pp qq PiP PiM w ω)
 /-- **The Green bound.** If `F_cas - P(h) = O(h^n)` (`P` independent of `u`) and `h B 𝔄 = O(h^n)`, then `𝔅^tot = O(h^n)`:
 the Casoratian--Green identity (eq:eng-green) divides by `A ≥ m > 0`. -/
 lemma CorrSetting.D1_bound (S : CorrSetting K γ dd pp qq PiP PiM w ω) {AA BB : ℝ → ℝ → ℝ}
-    (hAe : ∀ u h, AA u (-h) = AA u h) (hBe : ∀ u h, BB u (-h) = BB u h) {n : ℕ} (hn : 1 ≤ n)
+    (hAe : ∀ u h, AA u (-h) = AA u h) (hBe : ∀ u h, BB u (-h) = BB u h) {n : ℕ} (_hn : 1 ≤ n)
     (hlow : ∃ m δ : ℝ, 0 < m ∧ 0 < δ ∧ ∀ u h, |h| < δ → m ≤ |AA u h|)
     (hBD : UO n (fun u h => h * BB u h * defectRow pp qq AA BB PiP PiM u h 0))
     {P : ℝ → ℝ} (hF : UO n (fun s h => Fcas pp AA BB PiM s h - P h)) :
@@ -613,7 +619,6 @@ theorem transport_corrector (a b ustar : ℝ) (hJ : ustar ∈ Set.Ioo a b) (f f'
     filter_upwards [isOpen_Ioo.mem_nhds hu] with y hy using hM0 y hy
   unfold transportOp
   rw [hB.deriv, hM.deriv, hM0 u hu]
-  simp only [id]
   linear_combination (1 / 2 : ℝ) * heq
 
 end Main

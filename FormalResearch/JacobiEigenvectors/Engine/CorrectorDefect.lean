@@ -21,7 +21,7 @@ Namespace `FormalResearch.JacobiEigenvectors.Engine`.  Builds on `Defect` (`defe
 * (i) `lA_UO2`: `L_A[g] = O(h²)` for `g ∈ BSmooth 2` (Langer condition (eq:eng-langer) + parity).
 * (ii) `lB_UO3`: `lB b - h 𝒯[b] = O(h³)` for `b ∈ BSmooth 3`, with the transport operator
   `𝒯[b] = -(2 M₀ b' + M₀' b)`, `M₀ = P₀ Π₋(·,0)₂₁ = Ω₀² V₀` (eq:eng-T, eq:eng-omega).
-* (iii) `dFA_UO`, `dFB_UO`: the change of `F_cas` when `h^{2k} g` is added to `A` (resp. `h^{2k} b` to `B`): `ΔF_A = h^{2k}·2V₀ g₀ g + O(h^{2k+2})` and
+* (iii) `dFA_UO1`, `dFB_UO`: the change of `F_cas` when `h^{2k} g` is added to `A` (resp. `h^{2k} b` to `B`): `ΔF_A = h^{2k}·2V₀ g₀ g + O(h^{2k+2})` and
   `ΔF_B = O(h^{2k+1})` (before the parity upgrade, done in `Corrector`).
 * `defectRow_add_A/B`: exact additivity of the defect in the ansatz; `defect_remainder`: the `h^{2K+2}` remainders of
   (eq:eng-factor) enter as `O(h^{2K+2})`.
@@ -523,7 +523,7 @@ theorem dFA_UO1 {N : ℕ} (hN : 1 ≤ N) (hS : SymbolExp N pp qq PiP PiM) {g b :
       ((hh.mul (hS.cM 1 1)).mul (gp.mul bm))).sub ((hh.mul (hS.cM 0 0)).mul (bp.mul gm)))
   have hΦ0 : ∀ s, Φ s 0 = 2 * V0fun pp PiM s * g 0 s * g k s := by
     intro s
-    simp only [hΦ, V0fun, zero_div, add_zero, sub_zero, zero_mul, mul_zero, zero_sub, sub_self,
+    simp only [hΦ, V0fun, zero_div, add_zero, sub_zero, zero_mul,
       Aans_zero_h g hk, zero_pow (by omega : 2 * k ≠ 0)]
     ring
   have h1 : UO 1 (fun s h => Φ s h - 2 * V0fun pp PiM s * g 0 s * g k s) := by
