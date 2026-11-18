@@ -71,14 +71,8 @@ structure ChartInputs {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par
   overlap_match : ∀ ν, (bulkR ν).c = F.L - (bulkL ν).c' ∧ (bulkR ν).c' = F.L - (bulkL ν).c
   /-- mirror symmetry of the soft charts: `u_c^R = L - u_c`, `zeta_R(-x) = -zeta(x)`, the same shifts `mu_{2r}`, same `eta`, `delta_0`
   (the right chart of the soft edge is the mirror image of the left one; `Z_R(N-n) = -Z(n)`, `a_R = a`). -/
-  mirror_up : (∀ p ∈ paramSet K t0, softUpR.uc p = F.L - softUpL.uc p) ∧
-    (∀ p ∈ paramSet K t0, ∀ α x, softUpR.zeta p α (-x) = -softUpL.zeta p α x) ∧
-    (∀ r, ∀ p ∈ paramSet K t0, ∀ α, softUpR.muS r p α = softUpL.muS r p α) ∧
-    softUpR.η = softUpL.η ∧ softUpR.δ0 = softUpL.δ0 ∧ softUpR.N0 = softUpL.N0
-  mirror_lo : (∀ p ∈ paramSet K t0, softLoR.uc p = F.L - softLoL.uc p) ∧
-    (∀ p ∈ paramSet K t0, ∀ α x, softLoR.zeta p α (-x) = -softLoL.zeta p α x) ∧
-    (∀ r, ∀ p ∈ paramSet K t0, ∀ α, softLoR.muS r p α = softLoL.muS r p α) ∧
-    softLoR.η = softLoL.η ∧ softLoR.δ0 = softLoL.δ0 ∧ softLoR.N0 = softLoL.N0
+  mirror_up : SoftMirror softUpL softUpR
+  mirror_lo : SoftMirror softLoL softLoR
   /-- the bulk range lies inside the band and, with the two soft windows, covers it. -/
   cover_bulk : ∀ X, Jlo ≤ X → X ≤ Jhi → ∃ ν, lo ν ≤ X ∧ X ≤ hi ν
   blocks_in_J : ∀ ν, Jlo ≤ lo ν ∧ lo ν ≤ hi ν ∧ hi ν ≤ Jhi

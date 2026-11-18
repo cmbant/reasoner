@@ -196,10 +196,12 @@ def PropThaW (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (Jlo Jhi : 
 `mu_0 + sum_{r=1}^{q/2} h^{2r} mu_{2r} = (k + 1/2) h + O(h^{m+1})`; conversely the eigenvalue of index `k` exists whenever the nominal point lies in `|X - X_s^+| <= delta_0/2`.
 Hypotheses: `(E_{q/2})`, (H1)--(H3) on `P`.  **Corrected in round 3** (findings F-W2-4, F-W2-5, F-W2-9; `Charts/SoftParabolicCylinder.lean`): the paper fixes `m >= 1` (the engine smallness `h^m Theta <= c_*` is unavailable for `m = 0`),
 `Lm` (now the parameter of the charts, `SoftEdgeChart .. U V Lm`; F-W2-8) is `1` or `1 + log(1/h)` so it must satisfy `1 <= Lm h` on `(0,1]` (for `Lm = 0` items (1)--(3) are false), and the PC bound of (1) is for `u_c - eta/2 < u_n` (the single row `u_n = u_c - eta/2` carries
-the Weber sequence by definition of `psi-hat^L`). -/
+the Weber sequence by definition of `psi-hat^L`).  **Corrected (F-W2-12, round 6)**: (a) the right chart must be the mirror image of the left one, `SoftMirror CL CR` (the `ChartInputs.mirror_up` clause), a premise; (b) items (2), (3) need `a <= a_+` at
+the eigenvalues, i.e. Step 0 of app_thmA (`StepZero`, `EigenvalueStatements.lean`: every eigenvalue is `<= bandHi + C h^2`), so the eigen-system clauses carry the premise `forall i, X_i <= bandHi + Cs0 h^2` with `Cs0` a parameter of the statement
+(`StepZero` supplies it; for `h` below both thresholds the premise holds, so `StepZero` and `PropThaW2` compose). -/
 def PropThaW2 (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ) {Lm : ℝ → ℝ}
-    (CL : SoftEdgeChart Fz P m q U V Lm) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V Lm) : Prop :=
-  1 ≤ m → (∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ Lm h) →
+    (CL : SoftEdgeChart Fz P m q U V Lm) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V Lm) (Cs0 : ℝ) : Prop :=
+  1 ≤ m → (∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ Lm h) → SoftMirror CL CR →
   ∀ r, StdAssump Fz P (q / 2) r →
     ∃ Cc h0 clam Clam : ℝ, 0 < h0 ∧ 0 < clam ∧ ∀ p ∈ P, ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 →
       (∀ X, |X - Fz.bandHi p| ≤ CL.δ0 →
@@ -210,14 +212,17 @@ def PropThaW2 (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ
               |ψ k - CL.psiHatL p X N k| ≤ Cc * Fz.step N ^ m * Lm (Fz.step N) * |CL.lamL p X N| * Molv U V (CL.aOf p X N) (-(CL.Zof p X N k)))) ∧
         clam * (softLam CL p X N * kappaBal (CL.aOf p X N)) ≤ |CL.lamL p X N| ∧ |CL.lamL p X N| ≤ Clam * (softLam CL p X N * kappaBal (CL.aOf p X N)) ∧
         (∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →
+          (∀ i, Xs i ≤ Fz.bandHi p + Cs0 * Fz.step N ^ 2) →
           ∀ k : Fin (N + 1), Xs k = X →
             (∀ n ∈ rowsOf N, |eigVec Um k n - softVec CL CR p X N n| ≤ Cc * Fz.step N ^ m * Lm (Fz.step N) * softEnv CL CR p X N n) ∧
             ∑ n ∈ rowsOf N, softEnv CL CR p X N n ^ 2 ≤ Cc)) ∧
       (∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →
+        (∀ i, Xs i ≤ Fz.bandHi p + Cs0 * Fz.step N ^ 2) →
         ∀ i : Fin (N + 1), |Xs i - Fz.bandHi p| ≤ CL.δ0 →
           |(CL.muS 0 p (Fz.bandHi p - Xs i) + ∑ s ∈ Finset.Icc 1 (q / 2), Fz.step N ^ (2 * s) * CL.muS s p (Fz.bandHi p - Xs i))
               - ((i : ℕ) + 1 / 2) * Fz.step N| ≤ Cc * Fz.step N ^ (m + 1) * Lm (Fz.step N)) ∧
       (∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →
+        (∀ i, Xs i ≤ Fz.bandHi p + Cs0 * Fz.step N ^ 2) →
         ∀ k : ℕ, k ≤ N → (∃ X, |X - Fz.bandHi p| ≤ CL.δ0 / 2 ∧
             CL.muS 0 p (Fz.bandHi p - X) + ∑ s ∈ Finset.Icc 1 (q / 2), Fz.step N ^ (2 * s) * CL.muS s p (Fz.bandHi p - X)
               = ((k : ℝ) + 1 / 2) * Fz.step N) →

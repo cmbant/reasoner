@@ -374,6 +374,13 @@ def psiHatL (μ : Par) (X : ℝ) (N : ℕ) (n : ℤ) : ℝ :=
 
 end SoftEdgeChart
 
+/-- **The right chart is the mirror image of the left one** (F-W2-12; the clause `ChartInputs.mirror_up`): `u_c^R = L - u_c`, `zeta_R(-x) = -zeta(x)`, the same shifts `mu_{2r}`, the same `eta`, `delta_0`, `N_0`
+(so that `Z_R(N-n) = -Z(n)` and `a_R = a`; the matching `psi-hat^L - kappa psi-hat^R` on `Omega` needs it; the paper uses it silently, "the mirror statement"). -/
+def SoftMirror {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
+    (CL : SoftEdgeChart F P m q U V Lm) (CR : SoftEdgeChart (mirrorFamily F) P m q U V Lm) : Prop :=
+  (∀ p ∈ P, CR.uc p = F.L - CL.uc p) ∧ (∀ p ∈ P, ∀ α x, CR.zeta p α (-x) = -CL.zeta p α x) ∧
+    (∀ r, ∀ p ∈ P, ∀ α, CR.muS r p α = CL.muS r p α) ∧ CR.η = CL.η ∧ CR.δ0 = CL.δ0 ∧ CR.N0 = CL.N0
+
 /-! ### The connection matrix `M_-(a)` at the switch `Z = 0` -/
 
 /-- the algebra of `pcSwap_eq_pcMinus` over `R` (`k = kappa_bal`, `G = Gamma(1/2 - a)`, `s, c` the sine and cosine of `pi a`, `r q = 1`). -/
