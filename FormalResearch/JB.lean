@@ -30,6 +30,10 @@ Umbrella for the Lean formalisation of the matrix lemmas of Paper J's Theorem B 
 * `JBOneStepAux`, `JBOneStepChart`, `JBOneStep` : its proof (`jb_onestep : OneStepReduction cs`).
 * `JBThmB` : `thm_B_conditional` (paper quantifier order, `D = L/h`, family of one-step inputs).
 
+Not formalised: the verification of the inputs (I1)-(I5) for actual Jacobi matrices (`prop:thb-inputs`, Theorem A(ii)
+and the charts), so `thm_B_conditional` is conditional on a family of `OneStepInputs`; `rem:thb-entropy`; the sharper
+assembly for orthogonal columns.
+
 The finite
 Schur lemma, ratio lemma, polar repair and fermion bounds of the Jacobi-operator package
 (`FormalResearch.MatrixAnalysis.JacobiOp*`) are reused, not redone.

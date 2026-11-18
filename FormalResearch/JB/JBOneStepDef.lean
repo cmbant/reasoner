@@ -79,9 +79,11 @@ proof of `thm:thb-onestep` uses (`Chart.Ok`, `OneStepInputs`), the explicit smal
 
 ## Not formalised
 
-The passage from `C²` data to the Schur fields, the quantified
-instantiation `thm_B_conditional` (`D = L/(N+1)`, `∃ C h₀ ∀ h ≤ h₀`), and everything that discharges the
-fields.  The toy instance is degenerate (`G = U`), it only shows the hypotheses are consistent.
+The passage from `C²` data to the Schur fields is `JBSchur`; the quantified instantiation
+(`D = L/(N+1)`, `∃ C h₀ ∀ h ≤ h₀`) is `thm_B_conditional` (`JBThmB`).  Not formalised: everything that
+discharges the fields, i.e. `prop:thb-inputs` (I1)-(I5) for actual Jacobi matrices (Theorem A(ii), the charts),
+`rem:thb-entropy`, and any sharper assembly for orthogonal columns.  The toy instance is degenerate (`G = U`),
+it only shows the hypotheses are consistent.
 -/
 
 @[expose] public section
