@@ -3,6 +3,7 @@ module
 public import Mathlib
 public import FormalResearch.JB.JBSchur
 public import FormalResearch.JacobiEigenvectors.Charts.Regularity
+public import FormalResearch.JacobiEigenvectors.Charts.TransferCoefficients
 
 /-!
 # Paper J, Theorem B, L3.5a (Schur part): the `C^2` closure and the Schur bounds of the bulk transfer coefficients
@@ -17,15 +18,16 @@ Source: Paper J `app_thmB.tex`, "(I2) and the changed coefficient: bulk charts" 
   is closed under constants, sums, products and reciprocals of functions bounded away from zero.  The product and reciprocal rules
   give explicit derivatives: `(fg)_t = f_t g + f g_t`, `(fg)_s = f_s g + f g_s`, `(fg)_{ts} = f_{ts} g + f_t g_s + f_s g_t + f g_{ts}`;
   `(1/f)_t = -f_t/f^2`, and similarly for `s` and the mixed derivative (`JB.jb_inv_mixedC2`).
-* `boundedC2_const`, `boundedC2_add`, `boundedC2_mul`, `boundedC2_inv`, `boundedC2_mono`, `boundedC2_congr`: the same closure for the
-  packaged class `Charts.BoundedC2` (a `FullC2` function with `phi, d_u phi, d_X phi, d_u d_X phi` bounded by `S`), with explicit bounds.
-* `schur_inv_exists`, `schur_div_exists`, `schur_C2_exists` (`JB.jb_schur_inv`, `jb_schur_div`, `jb_schur_of_C2` in the existential form:
-  one constant, chosen before the finite families of sample points), `boundedC2_mixed`, `boundedC2_full` (the packaged bounds).
-* `chart_schur_five`: from `BoundedC2` regularity of `A^{[m+1]}, B^{[m+1]}, t_11, t_12, kappa_m` and the lower bounds
+* `boundedC2_const`, `boundedC2_add`, `boundedC2_mul`, `boundedC2_inv`, `boundedC2_mono`, `boundedC2_congr`, `boundedC2_full`,
+  `boundedC2_mixed`: the same closure for the packaged class `Charts.BoundedC2` (a `FullC2` function with `phi, d_u phi, d_X phi, d_u d_X phi`
+  bounded by `S`), with explicit bounds (`S + T`, `4 S T`, `c0^{-1} + 2 S c0^{-2} + 2 S^2 c0^{-3}`), under the rectangle hypotheses only.
+* `schur_inv_bound`, `schur_div_bound`, `schur_C2_bound`: `JB.jb_schur_inv`, `jb_schur_div`, `jb_schur_of_C2` with the constants
+  `schurInvK`, `schurDivK`, `schurC2K` written out, and their nonnegativity.
+* `chart_schur_five`: from `BoundedC2` regularity of `A^{[m+1]}, B^{[m+1]}, t_11, t_12, kappa_m` (bound `S`) and the lower bounds
   `|t_12| >= c_T`, `alpha >= c_alpha` on the rectangle, the five Schur bounds of `JB.Chart.Ok` (`schur_inv_alpha`, `schur_B`,
-  `schur_inv_t12`, `schur_t11`, `schur_kappa`) hold for every finite family of sample points in the rectangle, with one constant `K`
-  chosen before the sample points (and independent of them, of the order, of the step `h` with `|h| <= H`, and of `mu`); the
-  constant is produced by the closure lemmas, so it is not stated explicitly.
+  `schur_inv_t12`, `schur_t11`, `schur_kappa`) hold for every finite family of sample points in the rectangle, with the constant
+  `chartSchurK a b c d S cT cα H`.  This constant is a function of the rectangle and of `S, cT, cα, H` only (`|h| <= H` for the step),
+  so it is the same for every function, order, step and parameter `mu`: the uniformity that `JB.OneStepConsts` needs.
 
 ## Differences from the paper
 
@@ -37,7 +39,7 @@ Source: Paper J `app_thmB.tex`, "(I2) and the changed coefficient: bulk charts" 
 
 * The chart-level bridge: that the matrices `c.t11 n k`, `c.t12 n k`, ... of an actual `JB.Chart` are the sampled values of the functions
   `t_11(u, X)` etc. of `TransferInputs` (`u_n = uNode h (lo + n)`, `X_k` the eigenvalue), and `JB.Chart.Ok`'s other fields (`transfer`,
-  `ext_row`, `overlap_*`, host and matching fields, see `TheoremB/SpliceBulk.lean` and the report).
+  `ext_row`, `overlap_*`, host and matching fields, see the report).
 * The Schur norms as infima (only the bound predicate `JB.IsSchurBdd`).
 -/
 
@@ -47,7 +49,7 @@ noncomputable section
 
 namespace FormalResearch.JacobiEigenvectors.TheoremB
 
-open Set FormalResearch.JB FormalResearch.JacobiEigenvectors.Charts
+open Set FormalResearch.JB FormalResearch.JacobiEigenvectors.Setting FormalResearch.JacobiEigenvectors.Charts
 
 /-! ### 1. `FullC2` closure (derivative rules on the rectangle) -/
 
@@ -246,7 +248,30 @@ theorem boundedC2_inv {f : ℝ → ℝ → ℝ} {a b c d S : ℝ} (hab : a ≤ b
   · linarith
   · linarith
 
-/-! ### 3. The Schur bounds of the bulk transfer coefficients -/
+/-! ### 3. The Schur bounds of the bulk transfer coefficients, with an explicit uniform constant -/
+
+/-- Constant of `JB.jb_schur_inv` for a function bounded by `M` (in `C^2`) and bounded below by `c0` in modulus. -/
+def schurInvK (a b c d M c₀ : ℝ) : ℝ :=
+  c₀⁻¹ + 2 * c₀⁻¹ + (b - a) * (d - c) * (M * c₀⁻¹ * c₀⁻¹ + 2 * M * M * c₀⁻¹ * c₀⁻¹ * c₀⁻¹)
+
+/-- Constant of `JB.jb_schur_div` (numerator bounds `S₁ S₂ S₃`, denominator `M`, `c0`). -/
+def schurDivK (a b c d S₁ S₂ S₃ M c₀ : ℝ) : ℝ :=
+  (S₁ + S₂ + (b - a) * (d - c) * S₃) * schurInvK a b c d M c₀
+
+/-- Constant of `JB.jb_schur_of_C2`. -/
+def schurC2K (a b c d S₁ S₂ S₃ : ℝ) : ℝ := S₁ + S₂ + (b - a) * (d - c) * S₃
+
+/-- The `BoundedC2` bound of `alpha = A - h B t_11 / t_12` (closure: reciprocal of `t_12` with bound `S`, then products with
+`B`, `t_11` and the constant `-h` of bound `H`, then the sum with `A`). -/
+def schurAlphaBound (S cT H : ℝ) : ℝ :=
+  S + 4 * H * (4 * S * (4 * S * (cT⁻¹ + 2 * S * (cT⁻¹ * cT⁻¹) + 2 * S ^ 2 * (cT⁻¹ * cT⁻¹ * cT⁻¹))))
+
+/-- The uniform constant of the five Schur bounds of `JB.Chart.Ok`: a function of the rectangle and of `S, cT, cα, H` only
+(not of the functions, the sample points, the order, the step or `mu`). -/
+def chartSchurK (a b c d S cT cα H : ℝ) : ℝ :=
+  schurInvK a b c d S cT + schurDivK a b c d S (2 * S) S S cT + schurC2K a b c d S (2 * S) S +
+    schurInvK a b c d (schurAlphaBound S cT H) cα +
+    schurDivK a b c d S (2 * S) S (4 * S * schurAlphaBound S cT H) (cT * cα)
 
 /-- A `BoundedC2` function is `FullC2` with its three derivatives bounded by the same `S`. -/
 theorem boundedC2_full {f : ℝ → ℝ → ℝ} {a b c d S : ℝ} (hf : BoundedC2 f a b c d S) :
@@ -273,113 +298,109 @@ theorem boundedC2_mixed {f : ℝ → ℝ → ℝ} {a b c d S : ℝ} (hab : a ≤
     _ ≤ S + S := add_le_add h1 h2
     _ = 2 * S := by ring
 
-/-- **Schur bound of `1/phi`** (`JB.Chart.Ok.schur_inv_t12`, `schur_inv_alpha`): for `FullC2` `phi` with `|phi| >= c_0 > 0`
-and bounds `S`, the Schur bound `c0^{-1} + ...` (`JB.jb_schur_inv`) holds for every finite family of sample points, with one constant. -/
-theorem schur_inv_exists {f : ℝ → ℝ → ℝ} {a b c d S c₀ : ℝ} (hab : a ≤ b) (hcd : c ≤ d) (hc₀ : 0 < c₀)
+/-- **Schur bound of `1/phi`** (`JB.jb_schur_inv`), for a `BoundedC2` function bounded by `S` with `|phi| >= c0`; the constant is `schurInvK`,
+and it is nonnegative (`0 <= schurInvK`, from `JB.IsSchurBdd.nonneg`). -/
+theorem schur_inv_bound {f : ℝ → ℝ → ℝ} {a b c d S c₀ : ℝ} (hab : a ≤ b) (hcd : c ≤ d) (hc₀ : 0 < c₀)
     (hf : BoundedC2 f a b c d S) (hφ : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d, c₀ ≤ |f t s|) :
-    ∃ K : ℝ, 0 ≤ K ∧ ∀ (ι κ : Type) [Fintype ι] [Fintype κ] [DecidableEq ι] [DecidableEq κ]
+    0 ≤ schurInvK a b c d S c₀ ∧ ∀ (ι κ : Type) [Fintype ι] [Fintype κ] [DecidableEq ι] [DecidableEq κ]
       (u : ι → ℝ) (X : κ → ℝ), (∀ n, u n ∈ Icc a b) → (∀ k, X k ∈ Icc c d) →
-        IsSchurBdd (Matrix.of fun n k => (f (u n) (X k))⁻¹) K := by
+        IsSchurBdd (Matrix.of fun n k => (f (u n) (X k))⁻¹) (schurInvK a b c d S c₀) := by
   obtain ⟨f₁, f₂, f₁₂, hF, hfb⟩ := hf
   have h1 : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d, |f₁ t s| ≤ S := fun t ht s hs => (hfb t ht s hs).2.1
   have h2 : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d, |f₂ t s| ≤ S := fun t ht s hs => (hfb t ht s hs).2.2.1
   have h3 : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d, |f₁₂ t s| ≤ S := fun t ht s hs => (hfb t ht s hs).2.2.2
-  refine ⟨_, (jb_schur_inv hab hcd (fun _ : Fin 1 => a) (fun _ : Fin 1 => c) (fun _ => ⟨le_rfl, hab⟩)
-    (fun _ => ⟨le_rfl, hcd⟩) hF hc₀ hφ h1 h2 h3).nonneg, ?_⟩
-  intro ι κ _ _ _ _ u X hu hX
-  exact jb_schur_inv hab hcd u X hu hX hF hc₀ hφ h1 h2 h3
+  have hn := (jb_schur_inv hab hcd (fun _ : Fin 1 => a) (fun _ : Fin 1 => c) (fun _ => ⟨le_rfl, hab⟩)
+    (fun _ => ⟨le_rfl, hcd⟩) hF hc₀ hφ h1 h2 h3).nonneg
+  exact ⟨hn, fun ι κ _ _ _ _ u X hu hX => jb_schur_inv hab hcd u X hu hX hF hc₀ hφ h1 h2 h3⟩
 
-/-- **Schur bound of a quotient** `phi / psi` (`JB.Chart.Ok.schur_t11`, `schur_B`): `phi` with its mixed `C^2` package (bounds `S1, S2, S3`
-as in `JB.jb_schur_of_C2`) and `psi` `FullC2` with `|psi| >= c_0` (bounds `M` as in `JB.jb_schur_inv`). -/
-theorem schur_div_exists {φ φ₁ φ₁₂ ψ ψ₁ ψ₂ ψ₁₂ : ℝ → ℝ → ℝ} {a b c d S₁ S₂ S₃ M c₀ : ℝ}
+/-- **Schur bound of a quotient** `phi / psi` (`JB.jb_schur_div`): `phi` with its mixed `C^2` package and bounds `S1, S2, S3`,
+`psi` `FullC2` with `|psi| >= c0` and derivative bounds `M`. -/
+theorem schur_div_bound {φ φ₁ φ₁₂ ψ ψ₁ ψ₂ ψ₁₂ : ℝ → ℝ → ℝ} {a b c d S₁ S₂ S₃ M c₀ : ℝ}
     (hab : a ≤ b) (hcd : c ≤ d) (hnum : MixedC2 φ φ₁ φ₁₂ a b c d)
     (hS₁ : ∀ t ∈ Icc a b, |φ t c| ≤ S₁) (hS₂ : ∀ s ∈ Icc c d, |φ a s - φ a c| ≤ S₂)
     (hS₃ : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d, |φ₁₂ t s| ≤ S₃)
     (hden : FullC2 ψ ψ₁ ψ₂ ψ₁₂ a b c d) (hc₀ : 0 < c₀) (hψ0 : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d, c₀ ≤ |ψ t s|)
     (hM₁ : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d, |ψ₁ t s| ≤ M) (hM₂ : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d, |ψ₂ t s| ≤ M)
     (hM₁₂ : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d, |ψ₁₂ t s| ≤ M) :
-    ∃ K : ℝ, 0 ≤ K ∧ ∀ (ι κ : Type) [Fintype ι] [Fintype κ] [DecidableEq ι] [DecidableEq κ]
+    0 ≤ schurDivK a b c d S₁ S₂ S₃ M c₀ ∧ ∀ (ι κ : Type) [Fintype ι] [Fintype κ] [DecidableEq ι] [DecidableEq κ]
       (u : ι → ℝ) (X : κ → ℝ), (∀ n, u n ∈ Icc a b) → (∀ k, X k ∈ Icc c d) →
-        IsSchurBdd (Matrix.of fun n k => φ (u n) (X k) / ψ (u n) (X k)) K := by
-  refine ⟨_, (jb_schur_div hab hcd (fun _ : Fin 1 => a) (fun _ : Fin 1 => c) (fun _ => ⟨le_rfl, hab⟩)
-    (fun _ => ⟨le_rfl, hcd⟩) hnum hS₁ hS₂ hS₃ hden hc₀ hψ0 hM₁ hM₂ hM₁₂).nonneg, ?_⟩
-  intro ι κ _ _ _ _ u X hu hX
-  exact jb_schur_div hab hcd u X hu hX hnum hS₁ hS₂ hS₃ hden hc₀ hψ0 hM₁ hM₂ hM₁₂
+        IsSchurBdd (Matrix.of fun n k => φ (u n) (X k) / ψ (u n) (X k)) (schurDivK a b c d S₁ S₂ S₃ M c₀) := by
+  have hn := (jb_schur_div hab hcd (fun _ : Fin 1 => a) (fun _ : Fin 1 => c) (fun _ => ⟨le_rfl, hab⟩)
+    (fun _ => ⟨le_rfl, hcd⟩) hnum hS₁ hS₂ hS₃ hden hc₀ hψ0 hM₁ hM₂ hM₁₂).nonneg
+  exact ⟨hn, fun ι κ _ _ _ _ u X hu hX => jb_schur_div hab hcd u X hu hX hnum hS₁ hS₂ hS₃ hden hc₀ hψ0 hM₁ hM₂ hM₁₂⟩
 
-/-- **Schur bound of a `C^2` multiplier** (`JB.Chart.Ok.schur_κ`): `phi` with its mixed `C^2` package (`JB.jb_schur_of_C2`). -/
-theorem schur_C2_exists {φ φ₁ φ₁₂ : ℝ → ℝ → ℝ} {a b c d S₁ S₂ S₃ : ℝ} (hab : a ≤ b) (hcd : c ≤ d)
+/-- **Schur bound of a `C^2` multiplier** (`JB.jb_schur_of_C2`). -/
+theorem schur_C2_bound {φ φ₁ φ₁₂ : ℝ → ℝ → ℝ} {a b c d S₁ S₂ S₃ : ℝ} (hab : a ≤ b) (hcd : c ≤ d)
     (hφ : MixedC2 φ φ₁ φ₁₂ a b c d)
     (hS₁ : ∀ t ∈ Icc a b, |φ t c| ≤ S₁) (hS₂ : ∀ s ∈ Icc c d, |φ a s - φ a c| ≤ S₂)
     (hS₃ : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d, |φ₁₂ t s| ≤ S₃) :
-    ∃ K : ℝ, 0 ≤ K ∧ ∀ (ι κ : Type) [Fintype ι] [Fintype κ] [DecidableEq ι] [DecidableEq κ]
+    0 ≤ schurC2K a b c d S₁ S₂ S₃ ∧ ∀ (ι κ : Type) [Fintype ι] [Fintype κ] [DecidableEq ι] [DecidableEq κ]
       (u : ι → ℝ) (X : κ → ℝ), (∀ n, u n ∈ Icc a b) → (∀ k, X k ∈ Icc c d) →
-        IsSchurBdd (Matrix.of fun n k => φ (u n) (X k)) K := by
-  refine ⟨_, (jb_schur_of_C2 hab hcd (fun _ : Fin 1 => a) (fun _ : Fin 1 => c) (fun _ => ⟨le_rfl, hab⟩)
-    (fun _ => ⟨le_rfl, hcd⟩) hφ hS₁ hS₂ hS₃).nonneg, ?_⟩
-  intro ι κ _ _ _ _ u X hu hX
-  exact jb_schur_of_C2 hab hcd u X hu hX hφ hS₁ hS₂ hS₃
+        IsSchurBdd (Matrix.of fun n k => φ (u n) (X k)) (schurC2K a b c d S₁ S₂ S₃) := by
+  have hn := (jb_schur_of_C2 hab hcd (fun _ : Fin 1 => a) (fun _ : Fin 1 => c) (fun _ => ⟨le_rfl, hab⟩)
+    (fun _ => ⟨le_rfl, hcd⟩) hφ hS₁ hS₂ hS₃).nonneg
+  exact ⟨hn, fun ι κ _ _ _ _ u X hu hX => jb_schur_of_C2 hab hcd u X hu hX hφ hS₁ hS₂ hS₃⟩
 
 /-- **The five Schur bounds of the bulk transfer coefficients** (`JB.Chart.Ok.schur_inv_alpha`, `schur_B`, `schur_inv_t12`,
-`schur_t11`, `schur_kappa`), from the `BoundedC2` regularity `reg_A1, reg_B1, reg_t11, reg_t12, reg_kappa` of `TransferInputs` and the
-lower bounds `|t_12| >= c_T`, `alpha >= c_alpha` on the rectangle.  `alpha = A - h B t_11 / t_12` (`JB.jbAlpha`), `|h| <= H`.
-One constant `K` serves all finite families of sample points in the rectangle (it depends only on the bounds, not on the samples). -/
-theorem chart_schur_five {A B t11 t12 kap : ℝ → ℝ → ℝ} {a b c d S cT cα H h : ℝ}
-    (hab : a ≤ b) (hcd : c ≤ d) (hH : |h| ≤ H)
-    (hA : BoundedC2 A a b c d S) (hB : BoundedC2 B a b c d S) (ht11 : BoundedC2 t11 a b c d S)
-    (ht12 : BoundedC2 t12 a b c d S) (hk : BoundedC2 kap a b c d S)
-    (hcT : 0 < cT) (ht12lb : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d, cT ≤ |t12 t s|)
-    (hcα : 0 < cα) (hαlb : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d, cα ≤ A t s - h * B t s * t11 t s / t12 t s) :
-    ∃ K : ℝ, 0 ≤ K ∧ ∀ (ι κ : Type) [Fintype ι] [Fintype κ] [DecidableEq ι] [DecidableEq κ]
-      (u : ι → ℝ) (X : κ → ℝ), (∀ n, u n ∈ Icc a b) → (∀ k, X k ∈ Icc c d) →
-        IsSchurBdd (Matrix.of fun n k => 1 / t12 (u n) (X k)) K ∧
-        IsSchurBdd (Matrix.of fun n k => t11 (u n) (X k) / t12 (u n) (X k)) K ∧
-        IsSchurBdd (Matrix.of fun n k => kap (u n) (X k)) K ∧
-        IsSchurBdd (Matrix.of fun n k => 1 / (A (u n) (X k) - h * B (u n) (X k) * t11 (u n) (X k) / t12 (u n) (X k))) K ∧
-        IsSchurBdd (Matrix.of fun n k => B (u n) (X k) /
-          (t12 (u n) (X k) * (A (u n) (X k) - h * B (u n) (X k) * t11 (u n) (X k) / t12 (u n) (X k)))) K := by
-  obtain ⟨Ti, hi12⟩ : ∃ T, BoundedC2 (fun t s => (t12 t s)⁻¹) a b c d T :=
-    ⟨_, boundedC2_inv hab hcd hcT ht12 ht12lb⟩
-  obtain ⟨Tq, hq⟩ : ∃ T, BoundedC2 (fun t s => t11 t s * (t12 t s)⁻¹) a b c d T :=
-    ⟨_, boundedC2_mul hab hcd ht11 hi12⟩
-  obtain ⟨Tbq, hbq⟩ : ∃ T, BoundedC2 (fun t s => B t s * (t11 t s * (t12 t s)⁻¹)) a b c d T :=
-    ⟨_, boundedC2_mul hab hcd hB hq⟩
+`schur_t11`, `schur_kappa`), from the `BoundedC2` regularity `reg_A1, reg_B1, reg_t11, reg_t12, reg_kappa` of `TransferInputs`
+(bound `S`), the lower bounds `|t_12| >= c_T` and `alpha >= c_alpha` on the rectangle, and `|h| <= H`
+(`alpha = A - h B t_11 / t_12`, `JB.jbAlpha`).  The constant `chartSchurK a b c d S cT cα H` depends only on the rectangle and
+`S, cT, cα, H`: it is the same for every function, sample family, order, step and parameter `mu` (the uniformity `JB.OneStepConsts` needs). -/
+theorem chart_schur_five {a b c d S cT cα H : ℝ} (hab : a ≤ b) (hcd : c ≤ d) (hcT : 0 < cT) (hcα : 0 < cα) :
+    ∀ (A B t11 t12 kap : ℝ → ℝ → ℝ) (h : ℝ), |h| ≤ H →
+      BoundedC2 A a b c d S → BoundedC2 B a b c d S → BoundedC2 t11 a b c d S → BoundedC2 t12 a b c d S →
+      BoundedC2 kap a b c d S → (∀ t ∈ Icc a b, ∀ s ∈ Icc c d, cT ≤ |t12 t s|) →
+      (∀ t ∈ Icc a b, ∀ s ∈ Icc c d, cα ≤ A t s - h * B t s * t11 t s / t12 t s) →
+      0 ≤ chartSchurK a b c d S cT cα H ∧
+        ∀ (ι κ : Type) [Fintype ι] [Fintype κ] [DecidableEq ι] [DecidableEq κ] (u : ι → ℝ) (X : κ → ℝ),
+          (∀ n, u n ∈ Icc a b) → (∀ k, X k ∈ Icc c d) →
+          IsSchurBdd (Matrix.of fun n k => 1 / t12 (u n) (X k)) (chartSchurK a b c d S cT cα H) ∧
+          IsSchurBdd (Matrix.of fun n k => t11 (u n) (X k) / t12 (u n) (X k)) (chartSchurK a b c d S cT cα H) ∧
+          IsSchurBdd (Matrix.of fun n k => kap (u n) (X k)) (chartSchurK a b c d S cT cα H) ∧
+          IsSchurBdd (Matrix.of fun n k => 1 / (A (u n) (X k) - h * B (u n) (X k) * t11 (u n) (X k) /
+            t12 (u n) (X k))) (chartSchurK a b c d S cT cα H) ∧
+          IsSchurBdd (Matrix.of fun n k => B (u n) (X k) /
+            (t12 (u n) (X k) * (A (u n) (X k) - h * B (u n) (X k) * t11 (u n) (X k) / t12 (u n) (X k))))
+            (chartSchurK a b c d S cT cα H) := by
+  intro A B t11 t12 kap h hH hA hB ht11 ht12 hk ht12lb hαlb
+  -- (i) reciprocal of t_12, product with t_11, product with B, the constant -h, the sum with A (closure lemmas)
+  have hi12 := boundedC2_inv hab hcd hcT ht12 ht12lb
+  have hq := boundedC2_mul hab hcd ht11 hi12
+  have hbq := boundedC2_mul hab hcd hB hq
   have hmc : BoundedC2 (fun _ _ => -h) a b c d H :=
     boundedC2_mono (boundedC2_const (-h) a b c d) (by rw [abs_neg]; exact hH)
-  obtain ⟨Tm, hmbq⟩ : ∃ T, BoundedC2 (fun t s => (-h) * (B t s * (t11 t s * (t12 t s)⁻¹))) a b c d T :=
-    ⟨_, boundedC2_mul hab hcd hmc hbq⟩
-  obtain ⟨Sa, hal⟩ : ∃ T, BoundedC2 (fun t s => A t s - h * B t s * t11 t s / t12 t s) a b c d T :=
-    ⟨_, boundedC2_congr (boundedC2_add hA hmbq) (fun t s => by ring)⟩
+  have hmbq := boundedC2_mul hab hcd hmc hbq
+  have hal : BoundedC2 (fun t s => A t s - h * B t s * t11 t s / t12 t s) a b c d (schurAlphaBound S cT H) :=
+    boundedC2_congr (boundedC2_add hA hmbq) (fun t s => by ring)
   have hαabs : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d, cα ≤ |A t s - h * B t s * t11 t s / t12 t s| :=
     fun t ht s hs => (hαlb t ht s hs).trans (le_abs_self _)
-  -- (I2) 1/t_12 and the reciprocal of alpha
-  obtain ⟨K1, n1, h1⟩ := schur_inv_exists hab hcd hcT ht12 ht12lb
-  obtain ⟨K4, n4, h4⟩ := schur_inv_exists hab hcd hcα hal hαabs
-  -- t_11 / t_12 and B / (t_12 alpha): quotients with the mixed package of the numerator
+  -- (ii) the five Schur bounds
+  obtain ⟨n1, h1⟩ := schur_inv_bound hab hcd hcT ht12 ht12lb
+  obtain ⟨n4, h4⟩ := schur_inv_bound hab hcd hcα hal hαabs
   obtain ⟨p1, p2, p3, hT12F, hT12b1, hT12b2, hT12b3⟩ := boundedC2_full ht12
   obtain ⟨t11₁, t11₁₂, t11M, t11a, t11b, t11c⟩ := boundedC2_mixed hab hcd ht11
-  obtain ⟨K2, n2, h2⟩ := schur_div_exists hab hcd t11M t11a t11b t11c hT12F hcT ht12lb hT12b1 hT12b2 hT12b3
-  obtain ⟨Mψ, hψ⟩ : ∃ M, BoundedC2 (fun t s => t12 t s * (A t s - h * B t s * t11 t s / t12 t s)) a b c d M :=
-    ⟨_, boundedC2_mul hab hcd ht12 hal⟩
+  obtain ⟨n2, h2⟩ := schur_div_bound hab hcd t11M t11a t11b t11c hT12F hcT ht12lb hT12b1 hT12b2 hT12b3
+  have hψ := boundedC2_mul hab hcd ht12 hal
   obtain ⟨q1, q2, q3, hψF, hψb1, hψb2, hψb3⟩ := boundedC2_full hψ
   have hψlb : ∀ t ∈ Icc a b, ∀ s ∈ Icc c d,
       cT * cα ≤ |t12 t s * (A t s - h * B t s * t11 t s / t12 t s)| := fun t ht s hs => by
     rw [abs_mul]
     exact mul_le_mul (ht12lb t ht s hs) (hαabs t ht s hs) hcα.le (abs_nonneg _)
   obtain ⟨B₁, B₁₂, BM, Ba, Bb, Bc⟩ := boundedC2_mixed hab hcd hB
-  obtain ⟨K5, n5, h5⟩ := schur_div_exists hab hcd BM Ba Bb Bc hψF (mul_pos hcT hcα) hψlb hψb1 hψb2 hψb3
-  -- the changed coefficient kappa_m
+  obtain ⟨n5, h5⟩ := schur_div_bound hab hcd BM Ba Bb Bc hψF (mul_pos hcT hcα) hψlb hψb1 hψb2 hψb3
   obtain ⟨k₁, k₁₂, kM, ka, kb, kc⟩ := boundedC2_mixed hab hcd hk
-  obtain ⟨K3, n3, h3⟩ := schur_C2_exists hab hcd kM ka kb kc
-  refine ⟨K1 + K2 + K3 + K4 + K5, by linarith, ?_⟩
-  intro ι κ _ _ _ _ u X hu hX
-  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  obtain ⟨n3, h3⟩ := schur_C2_bound hab hcd kM ka kb kc
+  have hK : 0 ≤ chartSchurK a b c d S cT cα H := by
+    unfold chartSchurK
+    linarith
+  refine ⟨hK, fun ι κ _ _ _ _ u X hu hX => ⟨?_, ?_, ?_, ?_, ?_⟩⟩
   · simp only [one_div]
-    exact (h1 ι κ u X hu hX).mono (by linarith)
-  · exact (h2 ι κ u X hu hX).mono (by linarith)
-  · exact (h3 ι κ u X hu hX).mono (by linarith)
+    exact (h1 ι κ u X hu hX).mono (by unfold chartSchurK; linarith)
+  · exact (h2 ι κ u X hu hX).mono (by unfold chartSchurK; linarith)
+  · exact (h3 ι κ u X hu hX).mono (by unfold chartSchurK; linarith)
   · simp only [one_div]
-    exact (h4 ι κ u X hu hX).mono (by linarith)
-  · exact (h5 ι κ u X hu hX).mono (by linarith)
+    exact (h4 ι κ u X hu hX).mono (by unfold chartSchurK; linarith)
+  · exact (h5 ι κ u X hu hX).mono (by unfold chartSchurK; linarith)
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.fullC2_add' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -401,8 +422,58 @@ theorem chart_schur_five {A B t11 t12 kap : ℝ → ℝ → ℝ} {a b c d S cT c
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremB.boundedC2_inv
 
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.schur_inv_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.schur_inv_bound
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.schur_div_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.schur_div_bound
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.schur_C2_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.schur_C2_bound
+
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.chart_schur_five' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremB.chart_schur_five
+
+/-- **The five Schur bounds from the frozen `TransferInputs`** (no further hypothesis): for `mu in P`, `N >= N0` and `|h| <= H`
+with `h = F.step N`, the order-`(m+1)` coefficients `A, B, t_11, t_12, kappa_m` of the transfer bundle satisfy the five Schur bounds
+of `JB.Chart.Ok` with the uniform constant `chartSchurK`. -/
+theorem transfer_schur_five {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par}
+    {Jlo Jhi ulo uhi : Par → ℝ} {m : ℕ} {chain0 chain1 : Par → ℝ → ℕ → LadderData} {patch : ℕ}
+    (T : TransferInputs F P Jlo Jhi m chain0 chain1 patch ulo uhi) (H : ℝ) {μ : Par} (hμ : μ ∈ P) {N : ℕ}
+    (hN : T.N0 ≤ N) (hH : |F.step N| ≤ H) :
+    0 ≤ chartSchurK (ulo μ) (uhi μ) (Jlo μ) (Jhi μ) T.S T.cT T.cα H ∧
+      ∀ (ι κ : Type) [Fintype ι] [Fintype κ] [DecidableEq ι] [DecidableEq κ] (u : ι → ℝ) (X : κ → ℝ),
+        (∀ n, u n ∈ Icc (ulo μ) (uhi μ)) → (∀ k, X k ∈ Icc (Jlo μ) (Jhi μ)) →
+        IsSchurBdd (Matrix.of fun n k => 1 / (chain1 μ (X k) N).PiP patch (u n) (F.step N) 0 1)
+          (chartSchurK (ulo μ) (uhi μ) (Jlo μ) (Jhi μ) T.S T.cT T.cα H) ∧
+        IsSchurBdd (Matrix.of fun n k => (chain1 μ (X k) N).PiP patch (u n) (F.step N) 0 0 /
+          (chain1 μ (X k) N).PiP patch (u n) (F.step N) 0 1)
+          (chartSchurK (ulo μ) (uhi μ) (Jlo μ) (Jhi μ) T.S T.cT T.cα H) ∧
+        IsSchurBdd (Matrix.of fun n k => T.κ μ (X k) N (u n))
+          (chartSchurK (ulo μ) (uhi μ) (Jlo μ) (Jhi μ) T.S T.cT T.cα H) ∧
+        IsSchurBdd (Matrix.of fun n k => 1 / ((chain1 μ (X k) N).AA patch (u n) (F.step N) -
+          F.step N * (chain1 μ (X k) N).BB patch (u n) (F.step N) * (chain1 μ (X k) N).PiP patch (u n) (F.step N) 0 0 /
+          (chain1 μ (X k) N).PiP patch (u n) (F.step N) 0 1))
+          (chartSchurK (ulo μ) (uhi μ) (Jlo μ) (Jhi μ) T.S T.cT T.cα H) ∧
+        IsSchurBdd (Matrix.of fun n k => (chain1 μ (X k) N).BB patch (u n) (F.step N) /
+          ((chain1 μ (X k) N).PiP patch (u n) (F.step N) 0 1 *
+            ((chain1 μ (X k) N).AA patch (u n) (F.step N) -
+              F.step N * (chain1 μ (X k) N).BB patch (u n) (F.step N) *
+                (chain1 μ (X k) N).PiP patch (u n) (F.step N) 0 0 / (chain1 μ (X k) N).PiP patch (u n) (F.step N) 0 1)))
+          (chartSchurK (ulo μ) (uhi μ) (Jlo μ) (Jhi μ) T.S T.cT T.cα H) :=
+  chart_schur_five (T.consts_pos.1 μ hμ).1 (T.consts_pos.1 μ hμ).2 T.consts_pos.2.1 T.consts_pos.2.2.1
+    (fun u X => (chain1 μ X N).AA patch u (F.step N)) (fun u X => (chain1 μ X N).BB patch u (F.step N))
+    (fun u X => (chain1 μ X N).PiP patch u (F.step N) 0 0) (fun u X => (chain1 μ X N).PiP patch u (F.step N) 0 1)
+    (fun u X => T.κ μ X N u) (F.step N) hH (T.reg_A1 μ hμ N hN) (T.reg_B1 μ hμ N hN) (T.reg_t11 μ hμ N hN)
+    (T.reg_t12 μ hμ N hN) (T.reg_κ μ hμ N hN)
+    (fun t ht s hs => T.t12_lb μ hμ s hs N hN t ht) (fun t ht s hs => T.alpha_lb μ hμ s hs N hN t ht)
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.transfer_schur_five' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.transfer_schur_five
 
 end FormalResearch.JacobiEigenvectors.TheoremB
