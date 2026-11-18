@@ -3,6 +3,7 @@ module
 public import Mathlib
 public import FormalResearch.JacobiEigenvectors.TheoremA.Count
 public import FormalResearch.JacobiEigenvectors.Setting.EigenSystem
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftEigen
 
 /-!
 # Paper J, Layer 2 (L2.C7): a zero of `casD` is an eigenvalue (the link of Step 6)
@@ -15,7 +16,10 @@ Proved here (axiom-pinned):
 * `casD_zero_exists_eig`: hence for every eigen-system `IsEigenSystem (F.jacobiMat mu N) Xs Um` there is an index `i` with `Xs i = X`
   (`U` is orthogonal, `p_0 = 1`, so the coordinate vector `U^T v` is nonzero and is an eigenvector of `diag Xs`).
 
-Differences from the paper: none.  Not formalised: the converse (every eigenvalue is a zero of `casD`), not needed.
+* `casD_eig_zero`: the converse, every eigenvalue `Xs k` of an eigen-system is a zero of `casD` (the eigen column is `w_0 p` by
+  `rec_fwd_unique`, and its last row is `casD * w_0 = 0` by `green_cas_last`).  Together: the zeros of `casD` are exactly the eigenvalues.
+
+Differences from the paper: none.
 -/
 
 @[expose] public section
@@ -104,10 +108,54 @@ theorem casD_zero_exists_eig (hpos : ∀ n : ℤ, 0 ≤ n → n < (N : ℤ) → 
   simp only [Matrix.mulVec_diagonal, Pi.smul_apply, smul_eq_mul] at this
   exact mul_right_cancel₀ hi this
 
+/-- **An eigenvalue is a zero of `casD`.** -/
+theorem casD_eig_zero (hpos : ∀ n : ℤ, 0 ≤ n → n < (N : ℤ) → 0 < F.bondA μ N n) (hN : 1 ≤ N)
+    (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ)
+    (hE : IsEigenSystem (F.jacobiMat μ N) Xs Um) (k : Fin (N + 1)) : casD F μ N (Xs k) = 0 := by
+  set X := Xs k with hX
+  have hA1 : F.bondA μ N (-1) = 0 := by simp [SymbolFamily.bondA]
+  have hAN : F.bondA μ N N = 0 := by simp [SymbolFamily.bondA]
+  have hJ := eigVec_JacSol F μ N Xs Um hE k
+  have hw0 : 0 < eigVec Um k 0 := by
+    have := hE.pos k
+    simp only [eigVec]
+    rw [dif_pos ⟨le_rfl, by positivity⟩]
+    exact this
+  have hlast := green_cas_last (F.bondA μ N) (F.entryB μ N) X (N : ℤ) (by exact_mod_cast hN) hAN (pZ F μ N X) (qZ F μ N X)
+    (fun i hi => Lop_pZ hpos hN X i (mem_Icc.1 hi).1 (mem_Icc.1 hi).2)
+    (fun i hi => Lop_qZ hpos hN X i (mem_Icc.1 hi).1 (mem_Icc.1 hi).2) (qZ_N X)
+  rw [← casD_eq_cas] at hlast
+  have hfw := rec_fwd_unique (F.bondA μ N) (F.diagQ μ N X) (eigVec Um k) (fun n => eigVec Um k 0 * pZ F μ N X n) (N : ℤ)
+    (fun n h0 h1 => (hpos n h0 h1).ne') hA1
+    (fun n h0 h1 => hJ n h0 (by omega))
+    (fun n h0 h1 => by
+      rw [Lop_smul']
+      have := Lop_pZ hpos hN X n h0 (by omega)
+      have e : F.diagQ μ N X = fun n => X - F.entryB μ N n := rfl
+      rw [e, this, mul_zero])
+    (by simp [pZ_zero])
+  have hN1 := hfw N (by positivity) le_rfl
+  have hN2 := hfw ((N : ℤ) - 1) (by omega) (by omega)
+  have hrow := hJ (N : ℤ) (by positivity) (by omega)
+  unfold Lop at hrow
+  rw [hAN, zero_mul, zero_add] at hrow
+  have e : F.diagQ μ N X (N : ℤ) = X - F.entryB μ N N := rfl
+  rw [e, hN1, hN2] at hrow
+  have h2 : eigVec Um k 0 * casD F μ N X = 0 := by
+    rw [hlast]
+    linear_combination (-1 : ℝ) * hrow
+  rcases mul_eq_zero.mp h2 with h | h
+  · exact absurd h hw0.ne'
+  · exact h
+
 end FormalResearch.JacobiEigenvectors.TheoremA
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.casD_zero_exists_eig' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.casD_zero_exists_eig
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.casD_eig_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.casD_eig_zero
 
 end
