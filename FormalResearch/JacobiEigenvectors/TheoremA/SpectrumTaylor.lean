@@ -19,14 +19,15 @@ Taylor's formula in `t` gives, uniformly on `J`,
 * `Scoef_contDiffOn`: `S_l in C^{M+1}(J)` for `l <= M`, from `JetRegJ (Sigma_j) J t0 (2M+1)` (`JetRegJ` is `ContDiffOn` on `J x [-t0,t0]`): the partial
   derivative in `t` (within the product set, `dtS`) lowers the differentiability class by one (`dtS_contDiffOn`, `dtN_contDiffOn`) and equals
   the one-variable iterated derivative of the slice (`iteratedDeriv_dtN`); evaluation at `t = 0` composes with a `C^infty` map.
+* `taylor_bound_of_Sigma_bdd`: the `t`-derivative bound from the uniform joint norm bound (`Sigma_bdd`).
 * `phase_substitution`: both statements at once; `Scoef_zero`, `Scoef_one`: `S_0 = Sigma_0(.,0)`, `S_1 = Sigma_1(.,0) + d_t Sigma_0(.,0)`.
 
 ## Differences from the paper and findings
 
-* **Uniformity (F-S2-2).**  The remainder needs a bound for `d_t^{M-j+1} Sigma_j` on `J x (-t0,t0)`; the frozen `BulkPhaseInputs.Sigma_reg` (`JetRegJ`) only
-  gives continuity on the *closed* set for each `mu`, hence a bound for each `mu` but not uniform in `mu in K`.  Here the bound is the hypothesis `hC` (one constant `C`
-  for all `X in J`, `j <= M`); in the assembly it is the `t`-derivative part of the proposed field `Sigma_bdd` of `BulkSigmaBdd`'s correction (`TheoremA/BulkPhase.lean`).
-  The `C^{M+1}` *norms* of `S_l` (needed by `SmoothExt`) need the bound of all derivatives of `Sigma_j` of order `<= 2M+1` in `(X,t)`, the same field.
+* **Uniformity (F-S2-2): CONFIRMED, resolved by the field `BulkPhaseInputs.Sigma_bdd` (round 5).**  The remainder needs a bound for `d_t^{M-j+1} Sigma_j` on `J x (-t0,t0)`; `Sigma_reg` (`JetRegJ`) only
+  gives continuity on the *closed* set for each `mu`, hence a bound for each `mu` but not uniform in `mu in K`.  `phase_substitution` keeps the bound as its hypothesis `hC`, and
+  `taylor_bound_of_Sigma_bdd` derives `hC` from the joint norm bound of `Sigma_bdd` (`||iteratedFDerivWithin R i (Sigma_j) (J x [-t0,t0])|| <= C`, `i <= 2M+1`; via `dtN_eq_iterated`, `abs_dtN_le`).
+  The `C^{M+1}` *norms* of `S_l` (needed by `SmoothExt`) need all mixed derivatives of order `<= 2M+1` of `Sigma_j`, i.e. the same field (not formalised here).
 * `t0` is replaced by the open interval `(-t0, t0)` and the threshold is `h < t0` (the closed-interval statement follows by shrinking `t0`); `J` is any set
   with unique derivatives (an interval of positive length), no further condition.
 * The coefficients use `iteratedDeriv` at `t = 0`, an interior point (so it is the derivative of the slice).
@@ -209,6 +210,37 @@ lemma iteratedDeriv_dtN (hs : UniqueDiffOn ℝ s) {g : ℝ × ℝ → ℝ} {X t0
     exact (hasDerivAt_dtS s hd hX ht).deriv
 
 
+/-- The `t`-derivative `dtN` is the iterated Frechet derivative applied to `(0,1)` repeated. -/
+lemma dtN_eq_iterated (hs : UniqueDiffOn ℝ s) {g : ℝ × ℝ → ℝ} (n : ℕ) (hg : ContDiffOn ℝ (n : WithTop ℕ∞) g s) :
+    ∀ p ∈ s, dtN s g n p = iteratedFDerivWithin ℝ n g s p (fun _ => ((0 : ℝ), (1 : ℝ))) := by
+  induction n with
+  | zero => intro p hp; simp [dtN, iteratedFDerivWithin_zero_apply]
+  | succ n ih =>
+    intro p hp
+    have ih' := ih (hg.of_le (by exact_mod_cast Nat.le_succ n))
+    have hdA : DifferentiableOn ℝ (iteratedFDerivWithin ℝ n g s) s :=
+      hg.differentiableOn_iteratedFDerivWithin (by exact_mod_cast Nat.lt_succ_self n) hs
+    show fderivWithin ℝ (dtN s g n) s p ((0 : ℝ), (1 : ℝ)) = _
+    set L : ContinuousMultilinearMap ℝ (fun _ : Fin n => ℝ × ℝ) ℝ →L[ℝ] ℝ :=
+      ContinuousMultilinearMap.apply ℝ (fun _ : Fin n => ℝ × ℝ) ℝ (fun _ => ((0 : ℝ), (1 : ℝ))) with hL
+    have hLd : HasFDerivWithinAt (fun q => L (iteratedFDerivWithin ℝ n g s q)) (L.comp (fderivWithin ℝ (iteratedFDerivWithin ℝ n g s) s p)) s p :=
+      L.hasFDerivAt.comp_hasFDerivWithinAt p (hdA p hp).hasFDerivWithinAt
+    have hev : (fun q => L (iteratedFDerivWithin ℝ n g s q)) = fun q => (iteratedFDerivWithin ℝ n g s q) (fun _ => ((0 : ℝ), (1 : ℝ))) := rfl
+    rw [fderivWithin_congr ih' (ih' p hp), ← hev, hLd.fderivWithin (hs p hp)]
+    rfl
+
+/-- **The `t`-derivative bound from the joint norm bound**: if the `n`-th Frechet derivative of `g` within `s` has norm `<= C` at `(X,t)`, so does the `n`-th derivative of the slice. -/
+lemma abs_dtN_le (hs : UniqueDiffOn ℝ s) {g : ℝ × ℝ → ℝ} (n : ℕ) (hg : ContDiffOn ℝ (n : WithTop ℕ∞) g s) {p : ℝ × ℝ} (hp : p ∈ s) {C : ℝ}
+    (hC : ‖iteratedFDerivWithin ℝ n g s p‖ ≤ C) : |dtN s g n p| ≤ C := by
+  rw [dtN_eq_iterated s hs n hg p hp]
+  have h1 := (iteratedFDerivWithin ℝ n g s p).le_opNorm (fun _ => ((0 : ℝ), (1 : ℝ)))
+  have h2 : ∏ i : Fin n, ‖((fun _ => ((0 : ℝ), (1 : ℝ))) : Fin n → ℝ × ℝ) i‖ = 1 := by
+    simp [Prod.norm_def]
+  rw [h2, mul_one] at h1
+  have h3 : |(iteratedFDerivWithin ℝ n g s p) (fun _ => ((0 : ℝ), (1 : ℝ)))| ≤ ‖iteratedFDerivWithin ℝ n g s p‖ := by
+    simpa [Real.norm_eq_abs] using h1
+  exact h3.trans hC
+
 /-- A `C^k` function of `(X,t)` on `J x [-t0,t0]` has `C^k` slices in `t` on the open interval. -/
 lemma slice_contDiffOn {f : ℝ → ℝ → ℝ} {J : Set ℝ} {t0 : ℝ} {k : ℕ} (hf : JetRegJ f J t0 k) {X : ℝ} (hX : X ∈ J) :
     ContDiffOn ℝ (k : WithTop ℕ∞) (fun t => f X t) (Set.Ioo (-t0) t0) := by
@@ -260,6 +292,24 @@ theorem phase_substitution {Sig : ℕ → ℝ → ℝ → ℝ} {M : ℕ} {J : Se
     (hC X hX)
 
 
+/-- **L2.S3 / F-S2-2 bridge**: the `t`-derivative bound `hC` of `phase_substitution` from the uniform joint norm bound (the field `BulkPhaseInputs.Sigma_bdd`):
+if `||iteratedFDerivWithin R i (Sigma j) (J x [-t0,t0]) p|| <= C` for `i <= 2M+1`, `p` in the set, then `|d_t^{M-j+1} Sigma_j(X, t)| <= C` for `X in J`, `|t| < t0`. -/
+theorem taylor_bound_of_Sigma_bdd {Sig : ℕ → ℝ → ℝ → ℝ} {M : ℕ} {J : Set ℝ} {t0 : ℝ} (hJ : UniqueDiffOn ℝ J) (ht0 : 0 < t0)
+    (hreg : ∀ j ≤ M, JetRegJ (Sig j) J t0 (2 * M + 1)) (C : ℝ)
+    (hb : ∀ j ≤ M, ∀ i ≤ 2 * M + 1, ∀ p ∈ J ×ˢ Set.Icc (-t0) t0,
+      ‖iteratedFDerivWithin ℝ i (fun q : ℝ × ℝ => Sig j q.1 q.2) (J ×ˢ Set.Icc (-t0) t0) p‖ ≤ C) :
+    ∀ X ∈ J, ∀ j ≤ M, ∀ t ∈ Set.Ioo (-t0) t0, |iteratedDeriv (M - j + 1) (fun t => Sig j X t) t| ≤ C := by
+  intro X hX j hj t ht
+  set s : Set (ℝ × ℝ) := J ×ˢ Set.Icc (-t0) t0 with hs
+  have hU : UniqueDiffOn ℝ s := hJ.prod (uniqueDiffOn_Icc (by linarith))
+  have hg : ContDiffOn ℝ ((2 * M + 1 : ℕ) : WithTop ℕ∞) (fun p : ℝ × ℝ => Sig j p.1 p.2) s := hreg j hj
+  have hn : M - j + 1 ≤ 2 * M + 1 := by omega
+  have hg' : ContDiffOn ℝ ((M - j + 1 : ℕ) : WithTop ℕ∞) (fun p : ℝ × ℝ => Sig j p.1 p.2) s :=
+    hg.of_le (by exact_mod_cast hn)
+  rw [iteratedDeriv_dtN s hU (X := X) (t0 := t0) (fun u hu => ⟨hX, Set.Ioo_subset_Icc_self hu⟩) (M - j + 1) hg' t ht]
+  exact abs_dtN_le s hU (M - j + 1) hg' ⟨hX, Set.Ioo_subset_Icc_self ht⟩ (hb j hj _ hn _ ⟨hX, Set.Ioo_subset_Icc_self ht⟩)
+
+
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.taylor_pt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.taylor_pt
@@ -275,5 +325,9 @@ theorem phase_substitution {Sig : ℕ → ℝ → ℝ → ℝ} {M : ℕ} {J : Se
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.phase_substitution' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.phase_substitution
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.taylor_bound_of_Sigma_bdd' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.taylor_bound_of_Sigma_bdd
 
 end FormalResearch.JacobiEigenvectors.TheoremA

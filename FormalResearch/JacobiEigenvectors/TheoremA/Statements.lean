@@ -135,17 +135,20 @@ def ThmAi (F : SymbolFamily Par) (K : Set Par) (M : ℕ) : Prop :=
 
 /-- **thm:smo-spec** (statement, existence, uniqueness and extension independence), derived from the charts at order `max M 1` and the phase inputs (`q = 2 ceil(M/2)`):
 besides `ThmAi`, (b) two families `S, S'` with `SmoothExt` and the rule agree on `[X_s^-, X_s^+]`; (c) a family that agrees with `S` on the band and has `SmoothExt` (any other
-`C^{M+1}` extension) also satisfies the rule, with other constants.  (The statements "`S_j` depends only on jets of order `<= j`" and "`C^infty` if the jets are" are in `PLAN.md`, items L2.S7, L2.S8.) -/
+`C^{M+1}` extension) also satisfies the rule, with other constants.  **Round 5 (finding F-S6-1, confirmed against `thm:smo-spec`, which has `delta > 0`):** the radii `delta, delta'` of (b), (c) are positive (premises
+`0 < delta`, `0 < delta'`): for `delta < 0` the smoothness domain lies inside the band, `S_j` is unconstrained on the end strips (for a one-point `K`, change `S` on the non-eigenvalue points of a strip: the rule, which only
+sees eigenvalues, is unchanged), so uniqueness fails; for `delta = 0` the uniqueness argument (the flat bound at the eigenvalues just outside the band) breaks down.  (F-S6-2, `X_s^- < X_s^+`, and F-S6-3, `DM F K 0`
+from `DM F K M`, are consequences and need no premise: `bandLo_lt_bandHi`, `dm_zero_of_dm` in `TheoremA/BandFacts.lean`.)  (The statements "`S_j` depends only on jets of order `<= j`" and "`C^infty` if the jets are" are in `PLAN.md`, items L2.S7, L2.S8.) -/
 def ThmSmoSpec (F : SymbolFamily Par) (K : Set Par) (M Kidx : ℕ) (t0 : ℝ) (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ)
     (CI : ChartInputs F K Kidx t0 (max M 1) (2 * Kidx) U V cPC CPC)
     (_PI : ∀ ν, BulkPhaseInputs (frozenFamily F Kidx) (paramSet K t0) K t0 (CI.lo ν) (CI.hi ν) M U V (CI.bulkL ν) (CI.bulkR ν)) : Prop :=
   Kidx = (M + 1) / 2 → ThmAi F K M ∧
   (IsCompact K → HypOn F K → DM F K M →
-    ∀ (S S' : ℕ → Par → ℝ → ℝ) (δ δ' Cn Cn' hM hM' C C' : ℝ),
+    ∀ (S S' : ℕ → Par → ℝ → ℝ) (δ δ' Cn Cn' hM hM' C C' : ℝ), 0 < δ → 0 < δ' →
       SmoothExt F K M S δ Cn → EigenRule F K M S hM C → SmoothExt F K M S' δ' Cn' → EigenRule F K M S' hM' C' →
         ∀ μ ∈ K, ∀ j ≤ M, ∀ X ∈ Set.Icc (F.bandLo μ) (F.bandHi μ), S j μ X = S' j μ X) ∧
   (IsCompact K → HypOn F K → DM F K M →
-    ∀ (S S' : ℕ → Par → ℝ → ℝ) (δ δ' Cn Cn' hM C : ℝ),
+    ∀ (S S' : ℕ → Par → ℝ → ℝ) (δ δ' Cn Cn' hM C : ℝ), 0 < δ → 0 < δ' →
       SmoothExt F K M S δ Cn → EigenRule F K M S hM C → SmoothExt F K M S' δ' Cn' →
         (∀ μ ∈ K, ∀ j ≤ M, ∀ X ∈ Set.Icc (F.bandLo μ) (F.bandHi μ), S' j μ X = S j μ X) →
           ∃ hM' C' : ℝ, EigenRule F K M S' hM' C')

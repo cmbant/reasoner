@@ -5,6 +5,8 @@ public import FormalResearch.JacobiEigenvectors.Setting.EigenSystem
 public import FormalResearch.JacobiEigenvectors.TheoremA.Statements
 public import FormalResearch.JacobiEigenvectors.TheoremA.EigenvalueStatements
 public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumUnique
+public import FormalResearch.JacobiEigenvectors.TheoremA.TruncationSM
+public import FormalResearch.JacobiEigenvectors.TheoremA.BandFacts
 
 /-!
 # Paper J, Layer 2: the eigenvalue rule `thm:smo-spec`: the chain of lemmas, and the uniqueness part (L2.S6 (b), (c))
@@ -20,29 +22,30 @@ Source: Paper J `thmA.tex` `thm:smo-spec` (Section "Every eigenvalue"), `app_thm
    Its conclusion enters here as the Prop `BulkWindowLabels` (`TheoremA/BulkPhase.lean`), and (1), (2) are *not* needed by (4) below as formalised: the frozen field
    `BulkPhaseInputs.casoratian` is the all-orders form (4).
 2. **Phase at an eigenvalue, S2** `[P]` `TheoremA/BulkPhase.lean`: `bulk_eigen_sin`, `bulk_eigen_quant`, `bulk_BSr2` = `eq:smo-BSr2` on a bulk block
-   `Sigma(X_k(t), t, h) = pi h (k + 1/2) + O(h^{M+1})`, from `BulkPhaseInputs` (with the prefactor lower bound `BulkCasPre`, finding F-S2-1), `bulkSolutionBound_of_one_le`,
-   positive bonds, `BulkWindowLabels`, `BulkSigmaBdd` (finding F-S2-2).  The soft windows `Sigma_pm` (`PropThaW2` (3)/(4), `muS`) are `[O]` (L2.C7 / L2.S6).
+   `Sigma(X_k(t), t, h) = pi h (k + 1/2) + O(h^{M+1})`, from `BulkPhaseInputs` (whose `casoratian` field now has the prefactor lower bound, finding F-S2-1, and which has the uniform bound field `Sigma_bdd`, F-S2-2), `bulkSolutionBound_of_one_le`,
+   positive bonds, `BulkWindowLabels`.  The soft windows `Sigma_pm` (`PropThaW2` (3)/(4), `muS`) are `[O]` (L2.C7 / L2.S6).
 3. **Taylor substitution `t = h`, S3** `[P]` `TheoremA/SpectrumTaylor.lean`: `phase_substitution`: `S_l = Scoef Sigma l` is `C^{M+1}` and
-   `Sigma(X, h, h) = sum_l h^l S_l(X) + O(h^{M+1})`; on a soft window the same lemma applies to `Sigma_pm` (also `C^{2M+1}`).  Needs the `t`-derivative bound (finding F-S2-2).
+   `Sigma(X, h, h) = sum_l h^l S_l(X) + O(h^{M+1})`; on a soft window the same lemma applies to `Sigma_pm` (also `C^{2M+1}`).  Its `t`-derivative bound is `taylor_bound_of_Sigma_bdd` (from the field `Sigma_bdd`, finding F-S2-2).
 4. **`t = h` is the matrix** `[P]` `frozenFamily_jacobiMat_at_step` (`Setting/JacobiFamily.lean`): `J^{(h)}_h = J_h`; `smo_SM` (`TheoremA/TruncationSM.lean`, L2.S4):
    `|X_k - tilde X_k| <= C h^{M+1}`.  Chain of local statements `[H]`: for each interval `I` of the cover (bulk blocks and the two soft windows) and every eigenvalue `X_k`
    of `tilde J_h` in `I`: `sum_{l<=M} h^l S^I_l(X_k) = pi h (k + 1/2) + O(h^{M+1})` (`eq:smo-BSr3` with 2. and 3.).
 5. **Step 0, density, matching, S5** `[O]` (not mine): `StepZero`/`StepZeroD0` (`EigenvalueStatements.lean`), the density statement `EigDensity` below
    (every point of the band is within `C h` of an eigenvalue: `S_0^I` has `|S_0'| >= c`, the numbers `pi h (k+1/2)` are `pi h`-dense in `[0, pi L]`), and the matching
    `S^I_l = S^{I'}_l` on overlaps (the *same* argument as 6., applied to `d_l = S^I_l - S^{I'}_l` on `I cap I'`, with the eigenvalues of `tilde J_h` in `I cap I'`).
-6. **Uniqueness, extensions, S6 (b), (c)** `[P]` here: `smo_unique`, `smo_extend`, from `unique_core` (`TheoremA/SpectrumUnique.lean`) and the inputs 5.
-7. **Dependence on the jets, S7** `[P]` here (`smo_jets`), from 6., `smo_SM` and the reduction of the rule to a lower order.
+6. **Uniqueness, extensions, S6 (b), (c)** `[P]` here: `smo_unique`, `smo_extend` (= `thmSmoSpec_unique`, `thmSmoSpec_extend`, verbatim conjuncts (b), (c) of `ThmSmoSpec`), from `unique_core` (`TheoremA/SpectrumUnique.lean`) and the inputs 5.
+7. **Dependence on the jets, S7** `[P]` here (`smo_jets`), from 6., `eigClose_of_jets` (`smo_SM`, uniform in `mu`) and the reduction of the rule to a lower order (`rule_truncate`, `rule_transfer`).
 8. **The assembly, S6** `ThmSmoSpec`, `ThmAi` `[O]`: cover the band by `J_nu`, `I_+`, `I_-` (finitely many localising neighbourhoods in `mu`), glue the local `S^I_l` by 5.,
    extend to `[X_s^- - delta, X_s^+ + delta]` as `C^{M+1}` functions (the barrier-side extension of `thm:smo-MPS`), pass from `tilde J_h` to `J_h` by `smo_SM`.
    `C^infty` jets: apply the theorem at every `M' >= M` to `truncSM F M` (needs `smo_jets` and `smo_SM`).
 
-## Statement-level findings (precise minimal corrections; the frozen statements are not edited)
+## Statement-level findings (round 5: all three of agent M's proposals checked against the paper and the corpus)
 
-* **F-S6-1** `ThmSmoSpec` (b), (c) quantify `SmoothExt F K M S delta Cn` with no `0 < delta` (it is in `ThmAi` only).  For `delta <= 0` the smoothness domain
-  `[X_s^- - delta, X_s^+ + delta]` is contained in the band, the eigenvalues just outside the band are unconstrained, and the uniqueness argument (flat bound at the eigenvalues outside the band)
-  breaks down.  **Correction:** add `0 < delta`, `0 < delta'` to (b) and (c).  (`smo_unique`, `smo_extend` have them as hypotheses.)
-* **F-S6-2** (b), (c) need `X_s^- < X_s^+` (a non-degenerate band): it follows from (H1)--(H3) (`f_- < f_+` at the maximiser of `f_+`), not formalised; here a hypothesis `hband`.
-* **F-S6-3** `StepZeroD0`, `EigDensity` take `DM F K 0`; `ThmSmoSpec` has `DM F K M`.  `DM F K 0` follows from `DM F K M` (jets bounded on `[0, L]` by continuity); here a hypothesis `hD0`.
+* **F-S6-1: CONFIRMED, applied to the frozen `ThmSmoSpec`** (`Statements.lean`, small hunk): (b), (c) quantified `SmoothExt F K M S delta Cn` with no `0 < delta` (it is in `ThmAi` only; `thm:smo-spec` has `delta > 0`).
+  They now carry the premises `0 < delta`, `0 < delta'`.  For `delta < 0` the smoothness domain lies inside the band, `S_j` is unconstrained on the end strips and uniqueness fails (one-point `K`: change `S` on the
+  non-eigenvalue points of a strip); for `delta = 0` the flat bound at the eigenvalues outside the band is unavailable.
+* **F-S6-2: CONFIRMED and PROVED, no premise** (`bandLo_lt_bandHi`, `TheoremA/BandFacts.lean`): `X_s^- < X_s^+` follows from (H1), (H3) and continuity of `G_0, B_0` (part of `(D_M)`): `X_s^- <= f_-(u_c^+) < f_+(u_c^+) <= X_s^+`.
+* **F-S6-3: CONFIRMED and PROVED, no premise** (`dm_mono`, `dm_zero_of_dm`, `BandFacts.lean`): `DM F K M` gives `DM F K j` for `j <= M` and compact `K`.  `smo_unique`, `smo_extend` and `smo_jets` take `DM F K M`.
+* **EigClose** is now a theorem, `eigClose_of_jets` (`smo_SM` made uniform in `mu in K`: `TruncationSM.lean` statement changed, constants before `mu`); `smo_jets` lost the hypothesis `EigClose` and the band hypotheses, and takes the equal-jets hypothesis `hjets`.
 
 ## Not formalised
 
@@ -184,11 +187,13 @@ lemma smoothExt_diff {S S' : ℕ → ℝ → ℝ} {a b δ δ' Cn Cn' : ℝ} {M :
 /-- **`thm:smo-spec`, uniqueness of the `S_j` on the band** (`ThmSmoSpec` (b)), from the density of the eigenvalues (`EigDensity`, L2.S5) and Step 0 (`StepZeroD0`, L2.C8):
 two families `S, S'` with `SmoothExt` and `EigenRule` agree on `[X_s^-, X_s^+]`.  `0 < delta, delta'`, `X_s^- < X_s^+` and `DM F K 0` are hypotheses (findings F-S6-1..3). -/
 theorem smo_unique (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (hden : EigDensity F K) (hz : StepZeroD0 F K)
-    (hband : ∀ μ ∈ K, F.bandLo μ < F.bandHi μ) (hK : IsCompact K) (hH : HypOn F K) (hD0 : DM F K 0)
+    (hK : IsCompact K) (hH : HypOn F K) (hD : DM F K M)
     (S S' : ℕ → Par → ℝ → ℝ) (δ δ' Cn Cn' hM hM' C C' : ℝ) (hδ : 0 < δ) (hδ' : 0 < δ')
     (h1 : SmoothExt F K M S δ Cn) (h2 : EigenRule F K M S hM C) (h3 : SmoothExt F K M S' δ' Cn') (h4 : EigenRule F K M S' hM' C') :
     ∀ μ ∈ K, ∀ j ≤ M, ∀ X ∈ Icc (F.bandLo μ) (F.bandHi μ), S j μ X = S' j μ X := by
   classical
+  have hD0 : DM F K 0 := dm_zero_of_dm F K M hK hD
+  have hband : ∀ μ ∈ K, F.bandLo μ < F.bandHi μ := bandLo_lt_bandHi F K M hH hD
   obtain ⟨Cd, hd0, hdp, hdens⟩ := hden hK hH hD0
   obtain ⟨Cz, hz0, hzp, hzero⟩ := hz hK hH hD0
   obtain ⟨he0, hep, hex⟩ := exists_eig_small F K hH hD0
@@ -242,12 +247,14 @@ theorem smo_unique (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (hden : EigDen
 /-- **`thm:smo-spec`, extensions** (`ThmSmoSpec` (c)): a family `S'` with `SmoothExt` that agrees with a family `S` satisfying the rule on the band also satisfies the rule
 (other constants).  From Step 0 (`StepZeroD0`) only (no density needed). -/
 theorem smo_extend (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (hz : StepZeroD0 F K)
-    (hband : ∀ μ ∈ K, F.bandLo μ < F.bandHi μ) (hK : IsCompact K) (hH : HypOn F K) (hD0 : DM F K 0)
+    (hK : IsCompact K) (hH : HypOn F K) (hD : DM F K M)
     (S S' : ℕ → Par → ℝ → ℝ) (δ δ' Cn Cn' hM C : ℝ) (hδ : 0 < δ) (hδ' : 0 < δ')
     (h1 : SmoothExt F K M S δ Cn) (h2 : EigenRule F K M S hM C) (h3 : SmoothExt F K M S' δ' Cn')
     (hag : ∀ μ ∈ K, ∀ j ≤ M, ∀ X ∈ Icc (F.bandLo μ) (F.bandHi μ), S' j μ X = S j μ X) :
     ∃ hM' C' : ℝ, EigenRule F K M S' hM' C' := by
   classical
+  have hD0 : DM F K 0 := dm_zero_of_dm F K M hK hD
+  have hband : ∀ μ ∈ K, F.bandLo μ < F.bandHi μ := bandLo_lt_bandHi F K M hH hD
   obtain ⟨Cz, hz0, hzp, hzero⟩ := hz hK hH hD0
   obtain ⟨hMp, hrS⟩ := h2
   have hδ2 : 0 < min δ δ' := lt_min hδ hδ'
@@ -314,6 +321,35 @@ theorem smo_extend (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (hz : StepZero
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.smo_extend' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.smo_extend
+
+/-- **`ThmSmoSpec` (b), verbatim** (the second conjunct of the frozen statement, with the premises `0 < delta`, `0 < delta'` of finding F-S6-1): uniqueness of the `S_j` on the band,
+from `EigDensity` and `StepZeroD0` only (`X_s^- < X_s^+` and `DM F K 0` are derived, F-S6-2/3). -/
+theorem thmSmoSpec_unique (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (hden : EigDensity F K) (hz : StepZeroD0 F K) :
+    IsCompact K → HypOn F K → DM F K M →
+    ∀ (S S' : ℕ → Par → ℝ → ℝ) (δ δ' Cn Cn' hM hM' C C' : ℝ), 0 < δ → 0 < δ' →
+      SmoothExt F K M S δ Cn → EigenRule F K M S hM C → SmoothExt F K M S' δ' Cn' → EigenRule F K M S' hM' C' →
+        ∀ μ ∈ K, ∀ j ≤ M, ∀ X ∈ Set.Icc (F.bandLo μ) (F.bandHi μ), S j μ X = S' j μ X :=
+  fun hK hH hD S S' δ δ' Cn Cn' hM hM' C C' hδ hδ' h1 h2 h3 h4 =>
+    smo_unique F K M hden hz hK hH hD S S' δ δ' Cn Cn' hM hM' C C' hδ hδ' h1 h2 h3 h4
+
+/-- **`ThmSmoSpec` (c), verbatim** (third conjunct, with `0 < delta`, `0 < delta'`): extension independence, from `StepZeroD0` only. -/
+theorem thmSmoSpec_extend (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (hz : StepZeroD0 F K) :
+    IsCompact K → HypOn F K → DM F K M →
+    ∀ (S S' : ℕ → Par → ℝ → ℝ) (δ δ' Cn Cn' hM C : ℝ), 0 < δ → 0 < δ' →
+      SmoothExt F K M S δ Cn → EigenRule F K M S hM C → SmoothExt F K M S' δ' Cn' →
+        (∀ μ ∈ K, ∀ j ≤ M, ∀ X ∈ Set.Icc (F.bandLo μ) (F.bandHi μ), S' j μ X = S j μ X) →
+          ∃ hM' C' : ℝ, EigenRule F K M S' hM' C' :=
+  fun hK hH hD S S' δ δ' Cn Cn' hM C hδ hδ' h1 h2 h3 hag =>
+    smo_extend F K M hz hK hH hD S S' δ δ' Cn Cn' hM C hδ hδ' h1 h2 h3 hag
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.thmSmoSpec_unique' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.thmSmoSpec_unique
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.thmSmoSpec_extend' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.thmSmoSpec_extend
+
 
 
 /-! ### Dependence on the jets (S7) -/
@@ -395,6 +431,149 @@ def EigClose (F F' : SymbolFamily Par) (K : Set Par) (j : ℕ) : Prop :=
     ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
     ∀ (Xs' : Fin (N + 1) → ℝ) (Um' : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F'.jacobiMat μ N) Xs' Um' →
       ∀ k : Fin (N + 1), |Xs k - Xs' k| ≤ C * F.step N ^ (j + 1)
+
+/-- Lattice nodes of a hard-edge chain lie in `[0, L]`. -/
+lemma sNode_mem_Icc (F : SymbolFamily Par) (N : ℕ) (n : ℤ) (h0 : 0 ≤ n) (h1 : n < N) : sNode (F.step N) n ∈ Icc 0 F.L := by
+  have hst : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
+  have hL := step_mul_succ_aux F N
+  have hn0 : (0 : ℝ) ≤ n := by exact_mod_cast h0
+  have hn1 : (n : ℝ) + 1 ≤ N := by exact_mod_cast (by omega : n + 1 ≤ (N : ℤ))
+  unfold sNode
+  constructor
+  · nlinarith
+  · nlinarith
+
+lemma uNode_mem_Icc (F : SymbolFamily Par) (N : ℕ) (n : ℤ) (h0 : 0 ≤ n) (h1 : n ≤ N) : uNode (F.step N) n ∈ Icc 0 F.L := by
+  have hst : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
+  have hL := step_mul_succ_aux F N
+  have hn0 : (0 : ℝ) ≤ n := by exact_mod_cast h0
+  have hn1 : (n : ℝ) ≤ N := by exact_mod_cast h1
+  unfold uNode
+  constructor
+  · nlinarith
+  · nlinarith
+
+/-- The principal symbols equal on `[0,L]` give the same band ends. -/
+lemma band_eq_of_symbols (F F' : SymbolFamily Par) (μ : Par) (hL : F'.L = F.L)
+    (hG : ∀ s ∈ Icc 0 F.L, F'.G 0 μ s = F.G 0 μ s) (hB : ∀ s ∈ Icc 0 F.L, F'.B 0 μ s = F.B 0 μ s) :
+    F'.bandLo μ = F.bandLo μ ∧ F'.bandHi μ = F.bandHi μ := by
+  constructor
+  · unfold SymbolFamily.bandLo Xsm
+    rw [hL]
+    congr 1
+    apply Set.image_congr
+    intro u hu
+    unfold fMinus E0
+    rw [hG u hu, hB u hu]
+  · unfold SymbolFamily.bandHi Xsp
+    rw [hL]
+    congr 1
+    apply Set.image_congr
+    intro u hu
+    unfold fPlus E0
+    rw [hG u hu, hB u hu]
+
+/-- **Uniform lem:smo-SM for a family satisfying `(H1)`, `(D_j)` on a compact `K`** (the constants of `smo_SM` for `E` and `E`'s truncation, uniform in `mu in K`). -/
+lemma smoSM_of_DM (E : SymbolFamily Par) (K : Set Par) (j : ℕ) (hK : IsCompact K) (hH : HypOn E K) (hD : DM E K j) :
+    ∃ C' h0 : ℝ, 0 < C' ∧ 0 < h0 ∧ ∀ μ ∈ K, ∀ N : ℕ, E.step N ≤ h0 →
+      (∀ n : ℤ, 0 ≤ n → n < N → 0 < E.bondA μ N n ∧ 0 < (truncSM E j).bondA μ N n) ∧
+      (∀ (X X' : Fin (N + 1) → ℝ) (U U' : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
+        IsEigenSystem (E.jacobiMat μ N) X U → IsEigenSystem ((truncSM E j).jacobiMat μ N) X' U' →
+        ∀ k : Fin (N + 1), |X k - X' k| ≤ C' * E.step N ^ (j + 1)) := by
+  obtain ⟨g, hg⟩ := hH
+  obtain ⟨KG, hKG⟩ := jet_bdd K hK E.L j _ E.G (fun i hi => (hD.reg i hi).1)
+  obtain ⟨C0, hC0⟩ := hD.rem
+  by_cases hKe : K = ∅
+  · exact ⟨1, 1, one_pos, one_pos, fun μ hμ => by simp [hKe] at hμ⟩
+  obtain ⟨μ0, hμ0⟩ := Set.nonempty_iff_ne_empty.mpr hKe
+  have hgpos : 0 < g := (hg μ0 hμ0).gstar_pos
+  obtain ⟨C', h0, hC', hh0, hmain⟩ := smo_SM E K j g hgpos (fun μ hμ s hs => (hg μ hμ).G0_lb s hs)
+    (fun i hi => ⟨KG i, fun μ hμ s hs => hKG i hi μ hμ s hs⟩) C0
+    (fun μ hμ N n h0 h1 => (hC0 μ hμ N _ (sNode_mem_Icc E N n h0 h1)).1)
+    (fun μ hμ N n h0 h1 => (hC0 μ hμ N _ (uNode_mem_Icc E N n h0 h1)).2)
+  exact ⟨C', h0, hC', hh0, fun μ hμ N hN => by
+    obtain ⟨h1, -, h3⟩ := hmain μ hμ N hN
+    exact ⟨h1, h3⟩⟩
+
+/-- **`EigClose` from `smo_SM`**: two families with the same `L` and the same jets through order `j` on `[0,L]` (and `(H1)`, `(D_j)` on a compact `K`) have labelled eigenvalues
+differing by `O(h^{j+1})`, uniformly in `mu in K`.  `smo_SM` applied to both and to the common truncated matrix `truncSM F j = truncSM F' j`. -/
+theorem eigClose_of_jets (F F' : SymbolFamily Par) (K : Set Par) (j : ℕ) (hK : IsCompact K) (hH : HypOn F K) (hH' : HypOn F' K)
+    (hD : DM F K j) (hD' : DM F' K j) (hL : F'.L = F.L)
+    (hjets : ∀ μ ∈ K, ∀ i ≤ j, ∀ s ∈ Icc 0 F.L, F'.G i μ s = F.G i μ s ∧ F'.B i μ s = F.B i μ s) : EigClose F F' K j := by
+  classical
+  refine ⟨hL, ?_⟩
+  obtain ⟨C1, h1, hC1, hh1, hF⟩ := smoSM_of_DM F K j hK hH hD
+  obtain ⟨C2, h2, hC2, hh2, hF'⟩ := smoSM_of_DM F' K j hK hH' hD'
+  refine ⟨C1 + C2, min h1 h2, lt_min hh1 hh2, ?_⟩
+  intro μ hμ N hN Xs Um hE Xs' Um' hE' k
+  have hstep : F'.step N = F.step N := by unfold SymbolFamily.step; rw [hL]
+  have hN1 : F.step N ≤ h1 := hN.trans (min_le_left _ _)
+  have hN2 : F'.step N ≤ h2 := by rw [hstep]; exact hN.trans (min_le_right _ _)
+  obtain ⟨hb1, hX1⟩ := hF μ hμ N hN1
+  obtain ⟨-, hX2⟩ := hF' μ hμ N hN2
+  have hT : (truncSM F j).jacobiMat μ N = (truncSM F' j).jacobiMat μ N := by
+    have hB : ∀ n : ℤ, 0 ≤ n → n ≤ N → (truncSM F j).entryB μ N n = (truncSM F' j).entryB μ N n := by
+      intro n h0 h1
+      unfold SymbolFamily.entryB
+      show ∑ i ∈ Finset.range (j + 1), F.step N ^ i * F.B i μ (uNode (F.step N) n)
+        = ∑ i ∈ Finset.range (j + 1), F'.step N ^ i * F'.B i μ (uNode (F'.step N) n)
+      rw [hstep]
+      apply Finset.sum_congr rfl
+      intro i hi
+      rw [(hjets μ hμ i (by have := Finset.mem_range.mp hi; omega) _ (uNode_mem_Icc F N n h0 h1)).2]
+    have hA : ∀ n : ℤ, (truncSM F j).bondA μ N n = (truncSM F' j).bondA μ N n := by
+      intro n
+      unfold SymbolFamily.bondA
+      by_cases hn : 0 ≤ n ∧ n < (N : ℤ)
+      · rw [if_pos hn, if_pos hn]
+        congr 1
+        unfold SymbolFamily.entryE
+        show sNode (F.step N) n * (F.L - sNode (F.step N) n) * ∑ i ∈ Finset.range (j + 1), F.step N ^ i * F.G i μ (sNode (F.step N) n)
+          = sNode (F'.step N) n * (F'.L - sNode (F'.step N) n) * ∑ i ∈ Finset.range (j + 1), F'.step N ^ i * F'.G i μ (sNode (F'.step N) n)
+        rw [hstep, hL]
+        congr 1
+        apply Finset.sum_congr rfl
+        intro i hi
+        rw [(hjets μ hμ i (by have := Finset.mem_range.mp hi; omega) _ (sNode_mem_Icc F N n hn.1 hn.2)).1]
+      · rw [if_neg hn, if_neg hn]
+    unfold SymbolFamily.jacobiMat
+    ext a b
+    simp only [Matrix.of_apply]
+    have haN : (a.val : ℤ) ≤ N := by have := a.isLt; omega
+    rw [hB (a.val : ℤ) (by positivity) haN, hA, hA (b.val : ℤ)]
+  have hGpos : ∀ n : ℤ, 0 ≤ n → n < N → 0 < (truncSM F j).Gh μ ((truncSM F j).step N) (sNode ((truncSM F j).step N) n) := by
+    intro n h0 hn
+    have hbp := (hb1 n h0 hn).2
+    unfold SymbolFamily.bondA at hbp
+    rw [if_pos ⟨h0, hn⟩] at hbp
+    have hEp := Real.sqrt_pos.mp hbp
+    unfold SymbolFamily.entryE at hEp
+    have hs := sNode_mem_Icc F N n h0 hn
+    have hst : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
+    have hL' := step_mul_succ_aux F N
+    have hn0 : (0 : ℝ) ≤ n := by exact_mod_cast h0
+    have hn1 : (n : ℝ) + 1 ≤ N := by exact_mod_cast (by omega : n + 1 ≤ (N : ℤ))
+    have hp : 0 < sNode (F.step N) n * (F.L - sNode (F.step N) n) := by
+      unfold sNode
+      apply mul_pos
+      · nlinarith
+      · nlinarith
+    exact (mul_pos_iff_of_pos_left hp).mp hEp
+  obtain ⟨Xt, Ut, hEt⟩ := exists_eigenSystem (truncSM F j) μ N hGpos
+  have e1 := hX1 Xs Xt Um Ut hE hEt k
+  have e2 := hX2 Xs' Xt Um' Ut hE' (by rw [← hT]; exact hEt) k
+  rw [hstep] at e2
+  have hst : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
+  calc |Xs k - Xs' k| ≤ |Xs k - Xt k| + |Xs' k - Xt k| := by
+        have := abs_sub_abs_le_abs_sub (Xs k - Xt k) (Xs' k - Xt k)
+        calc |Xs k - Xs' k| = |(Xs k - Xt k) - (Xs' k - Xt k)| := by ring_nf
+          _ ≤ _ := abs_sub _ _
+    _ ≤ C1 * F.step N ^ (j + 1) + C2 * F.step N ^ (j + 1) := add_le_add e1 e2
+    _ = (C1 + C2) * F.step N ^ (j + 1) := by ring
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.eigClose_of_jets' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.eigClose_of_jets
 
 /-- **Transfer of the rule between two families with close labelled eigenvalues**: if `S` satisfies the rule for `F` at order `j` and the labelled eigenvalues of `F'`
 are `O(h^{j+1})` from those of `F`, then `S` satisfies the rule for `F'`. -/
@@ -493,17 +672,23 @@ theorem rule_transfer (F F' : SymbolFamily Par) (K : Set Par) (j : ℕ) (hcl : E
     _ = (C + (j + 1) * (Cn * Ccl)) * F.step N ^ (j + 1) := by ring
 
 
-/-- **`thm:smo-spec`: `S_j` depends only on the jets of order `<= j`** (S7).  Let `F, F'` be two families with the same `L` whose labelled eigenvalues differ by `O(h^{j+1})`
-(`EigClose`: this is what equal jets through order `j` give, by `smo_SM` applied to both and the common truncated matrix); let `S` (for `F`, order `M >= j`) and `S'`
-(for `F'`, order `M' >= j`) satisfy the rule with `SmoothExt`.  Then `S_i = S'_i` on the band for `i <= j`.  Inputs: Step 0 for both (`StepZeroD0`), the density for `F'`
-(`EigDensity`, L2.S5), the bands equal (`hbe`: the principal symbols agree). -/
-theorem smo_jets (F F' : SymbolFamily Par) (K : Set Par) (M M' j : ℕ) (hjM : j ≤ M) (hjM' : j ≤ M') (hcl : EigClose F F' K j)
+/-- **`thm:smo-spec`: `S_j` depends only on the jets of order `<= j`** (S7).  Let `F, F'` be two families with the same `L` and the same jets `G_i, B_i` (`i <= j`) on `[0,L]`
+(so the same principal symbols and the same band); let `S` (for `F`, order `M >= j`) and `S'` (for `F'`, order `M' >= j`) satisfy the rule with `SmoothExt`.  Then `S_i = S'_i` on the band
+for `i <= j`.  Inputs: Step 0 for both (`StepZeroD0`), the density for `F'` (`EigDensity`, L2.S5), `(H1)`--`(H3)` for both, `(D_M)`, `(D_{M'})`.  The closeness of the labelled eigenvalues
+(`EigClose`, `O(h^{j+1})`) is *proved* (`eigClose_of_jets`, from `smo_SM`) and no longer a hypothesis. -/
+theorem smo_jets (F F' : SymbolFamily Par) (K : Set Par) (M M' j : ℕ) (hjM : j ≤ M) (hjM' : j ≤ M')
     (hz : StepZeroD0 F K) (hz' : StepZeroD0 F' K) (hden' : EigDensity F' K)
-    (hband : ∀ μ ∈ K, F.bandLo μ < F.bandHi μ) (hbe : ∀ μ ∈ K, F'.bandLo μ = F.bandLo μ ∧ F'.bandHi μ = F.bandHi μ)
-    (hK : IsCompact K) (hH : HypOn F K) (hH' : HypOn F' K) (hD0 : DM F K 0) (hD0' : DM F' K 0)
+    (hK : IsCompact K) (hH : HypOn F K) (hH' : HypOn F' K) (hD : DM F K M) (hD' : DM F' K M') (hL : F'.L = F.L)
+    (hjets : ∀ μ ∈ K, ∀ i ≤ j, ∀ s ∈ Icc 0 F.L, F'.G i μ s = F.G i μ s ∧ F'.B i μ s = F.B i μ s)
     (S S' : ℕ → Par → ℝ → ℝ) (δ δ' Cn Cn' hM hM' C C' : ℝ) (hδ : 0 < δ) (hδ' : 0 < δ')
     (h1 : SmoothExt F K M S δ Cn) (h2 : EigenRule F K M S hM C) (h3 : SmoothExt F' K M' S' δ' Cn') (h4 : EigenRule F' K M' S' hM' C') :
     ∀ μ ∈ K, ∀ i ≤ j, ∀ X ∈ Icc (F.bandLo μ) (F.bandHi μ), S i μ X = S' i μ X := by
+  have hD0 : DM F K 0 := dm_zero_of_dm F K M hK hD
+  have hD0' : DM F' K 0 := dm_zero_of_dm F' K M' hK hD'
+  have hband : ∀ μ ∈ K, F.bandLo μ < F.bandHi μ := bandLo_lt_bandHi F K M hH hD
+  have hbe : ∀ μ ∈ K, F'.bandLo μ = F.bandLo μ ∧ F'.bandHi μ = F.bandHi μ := fun μ hμ =>
+    band_eq_of_symbols F F' μ hL (fun s hs => (hjets μ hμ 0 (Nat.zero_le _) s hs).1) (fun s hs => (hjets μ hμ 0 (Nat.zero_le _) s hs).2)
+  have hcl : EigClose F F' K j := eigClose_of_jets F F' K j hK hH hH' (dm_mono F K hjM hK hD) (dm_mono F' K hjM' hK hD') hL hjets
   have hband' : ∀ μ ∈ K, F'.bandLo μ < F'.bandHi μ := fun μ hμ => by
     rw [(hbe μ hμ).1, (hbe μ hμ).2]; exact hband μ hμ
   obtain ⟨hs1, hMa, Ca, hra⟩ := rule_truncate F K M j hjM hz hband hK hH hD0 S δ Cn hM C hδ h1 h2
@@ -515,9 +700,8 @@ theorem smo_jets (F F' : SymbolFamily Par) (K : Set Par) (M M' j : ℕ) (hjM : j
     rw [(hbe μ hμ).1, (hbe μ hμ).2]
     exact this
   intro μ hμ i hi X hX
-  have := smo_unique F' K j hden' hz' hband' hK hH' hD0' S S' δ δ' Cn Cn' hMc hMb Cc Cb hδ hδ' hsF' hrc hs2 hrb μ hμ i hi X
+  exact smo_unique F' K j hden' hz' hK hH' (dm_mono F' K hjM' hK hD') S S' δ δ' Cn Cn' hMc hMb Cc Cb hδ hδ' hsF' hrc hs2 hrb μ hμ i hi X
     (by rw [(hbe μ hμ).1, (hbe μ hμ).2]; exact hX)
-  exact this
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.rule_truncate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -26,20 +26,19 @@ Source: Paper J `app_thmA.tex`, `lem:smo-bulkphase` (4) (the Casoratian of the t
   overlap pair; the exact Casoratian vanishes; the frozen field `casoratian` of `BulkPhaseInputs` gives the sine.
 * `bulk_eigen_quant` (**L2.S2, second half**): the quantisation `Sigma(X_k, t, h) = pi h (j + 1/2) + O(h^{max M 1 + 1})` with an integer `j`.
 * `bulk_BSr2` (**eq:smo-BSr2 on a bulk block**): `j = k` and `|Sigma(X_k, t, h) - pi h (k + 1/2)| <= C h^{M+1}`, from the windows statement
-  `BulkWindowLabels` (`lem:smo-bulkphase` (3), proved by L2.S1 (3), *not* here) and the bound `Sigma_bdd`.
+  `BulkWindowLabels` (`lem:smo-bulkphase` (3), proved by L2.S1 (3), *not* here) and the bound `bulkSigmaBdd` (from the field `Sigma_bdd`).
 
-## Differences from the paper and findings (precise minimal corrections; the frozen `BulkPhaseInputs` is not edited)
+## Differences from the paper and findings (round 5: both of agent M's proposed corrections confirmed and applied to the structure `BulkPhaseInputs`, `Charts/BulkWeber.lean`)
 
-* **F-S2-1 (prefactor lower bound).**  `BulkPhaseInputs.casoratian` has `exists pre, 0 < pre /\ ...` with no size for `pre`.  Without a lower bound on
-  `pre` the field does not imply that the exact Casoratian (which vanishes at an eigenvalue) forces the sine to be small: the comparison Casoratian
-  is `O(h^m h^{1/2})` (it is `O(h^m)` times the product of two envelopes `<= C h^{1/4}`), so `pre` must be `>= c0 h^{1/2}`.  The paper has this
-  (`pre = a_n w_n e^{Re c/h}`, `w_n ~ |chi_n|^2 ~ rho_L rho_R ~ h^{1/2}`, `lem:smo-bulkphase` (2), (4); `M_osc`).  **Proposed correction:** the field
-  becomes `exists Ccas c0 N0, 0 < c0 /\ forall .., exists pre, c0 * sqrt h <= pre /\ forall n, ...`.  The Prop `BulkCasPre` below is exactly this
-  corrected field, stated beside the frozen structure (it is `BulkPhaseInputs.casoratian` plus the lower bound), and is the hypothesis of the theorems here.
-* **F-S2-2 (uniform bound of the phase coefficients).**  `BulkPhaseInputs.Sigma_reg` (`JetRegJ`) is pointwise in `mu in K`; the eigenvalue rule needs
-  bounds uniform in `mu` (thm:smo-spec: "`C^{M+1}` norms bounded uniformly in `mu`").  Here only `|Sigma_j| <= C` is needed (`Sigma_bdd`, a hypothesis of `bulk_BSr2`);
-  `SpectrumTaylor.lean` needs derivative bounds too.  **Proposed correction:** add the field `Sigma_bdd : exists C, forall mu in K, forall j <= M, forall (X,t) in J x [-t0,t0], forall i <= 2M+1,
-  ||iteratedFDerivWithin R i (Sigma mu j) (J x [-t0,t0]) (X,t)|| <= C` (the paper: continuity in `mu` on a localising neighbourhood plus compactness).
+* **F-S2-1 (prefactor lower bound): CONFIRMED, applied.**  The frozen field had `exists pre, 0 < pre /\ ...`, no size for `pre`.  Without a lower bound the field does not imply
+  that the exact Casoratian (which vanishes at an eigenvalue) forces the sine to be small: the comparison Casoratian is `O(h^m)` times the product of two envelopes `<= C h^{1/4}`,
+  so `pre` must be `>= c0 h^{1/2}`.  The paper has this: `pre = a_n w_n e^{Re c/h}` with `w_n ~ |chi_n|^2`, `|chi_L chi_R| = e^{Re c/h} |chi_L|^2 ~ h^{1/2}` (the Weber branch has amplitude
+  `h^{1/4}`; `lem:smo-bulkphase` (2), (4); `M_osc`), and `a_n >= c > 0` on the overlap (H1).  The field is now `exists Ccas c0 N0, 0 < c0 /\ forall .., exists pre, c0 * sqrt h <= pre /\ forall n, ...`;
+  the auxiliary Prop `BulkCasPre` is deleted and `bulk_eigen_sin`, `bulk_eigen_quant`, `bulk_BSr2` use `PI.casoratian` directly.
+* **F-S2-2 (uniform bound of the phase coefficients): CONFIRMED (not derivable), applied as the field `BulkPhaseInputs.Sigma_bdd`.**  `Sigma_reg` (`JetRegJ`) is pointwise in `mu in K` and no
+  continuity in `mu` is part of the structure, so compactness gives a bound for each `mu` but not uniform in `mu`; the paper's uniformity ("`C^{M+1}` norms bounded uniformly in `mu`", chart norms
+  uniform on a localising neighbourhood, finitely many cover `K`) is therefore a field: `exists C, forall mu in K, j <= M, i <= 2M+1, p in J x [-t0,t0], ||iteratedFDerivWithin R i (Sigma mu j) (J x [-t0,t0]) p|| <= C`.
+  `bulkSigmaBdd` (here) is its `i = 0` part (`|Sigma_j| <= C`); `taylor_bound_of_Sigma_bdd` (`SpectrumTaylor.lean`) is the `t`-derivative bound `hC` of `phase_substitution`.
 * **Positive bonds.**  `bulk_eigen_sin` takes `0 < a_n` (`0 <= n < N`) for the frozen matrix as a hypothesis (it gives `Psi_N != 0`); the paper has it from (H1) and `(D_M)` for
   `h <= h_0`; `PropThaCount` takes the same hypothesis (F-A7).
 * The energy `X_k` is assumed in `[Jlo, Jhi]`, the energy range of the block; the cover and Step 0 (the eigenvalues lie in some block or soft window) are in L2.C8/L2.S6.
@@ -213,17 +212,8 @@ variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily (Par × ℝ)} {P
 def bulkPhaseSum (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) (μ : Par) (t X : ℝ) (N : ℕ) : ℝ :=
   ∑ j ∈ range (M + 1), F.step N ^ j * PI.Sigma μ j X t
 
-/-- **`BulkPhaseInputs.casoratian` with the lower bound of the prefactor** (finding F-S2-1): `pre >= c0 sqrt h`.  Everything else is the frozen field. -/
-def BulkCasPre (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) : Prop :=
-  ∃ Ccas c0 N0 : ℝ, 0 < c0 ∧ ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N : ℕ, N0 ≤ N →
-    ∃ pre : ℝ, c0 * Real.sqrt (F.step N) ≤ pre ∧ ∀ n : ℤ, 0 ≤ n → n < N → CL.c' ≤ uNode (F.step N) n → uNode (F.step N) n ≤ CL.c →
-      |F.bondA (μ, t) N n * (CL.psiHatL (μ, t) X N n * (CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))) -
-          CL.psiHatL (μ, t) X N (n + 1) * (CR.psiHatL (μ, t) X N ((N : ℤ) - n)))
-        - pre * Real.sin (bulkPhaseSum PI μ t X N / F.step N - Real.pi / 2)|
-        ≤ Ccas * F.step N ^ (max M 1) * pre
-
 /-- **L2.S2 (first half): at an eigenvalue the sine of the phase is `O(h^m)`.**  `m = max M 1`. -/
-theorem bulk_eigen_sin (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) (hpre : BulkCasPre PI)
+theorem bulk_eigen_sin (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
     (hP : ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, (μ, t) ∈ P)
     (hcoup : CR.c = F.L - CL.c' ∧ CR.c' = F.L - CL.c) (r : ℕ) (hr : StdAssump F P (max M 1 / 2) r) :
     ∃ Cs h0 : ℝ, 0 < h0 ∧ ∃ N1 : ℕ, ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ N : ℕ, N1 ≤ N → F.step N ≤ h0 →
@@ -232,7 +222,7 @@ theorem bulk_eigen_sin (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) (hpre
         IsEigenSystem (F.jacobiMat (μ, t) N) Xs Um → ∀ k : Fin (N + 1), Xs k ∈ Set.Icc Jlo Jhi →
           |Real.sin (bulkPhaseSum PI μ t (Xs k) N / F.step N - Real.pi / 2)| ≤ Cs * F.step N ^ (max M 1) := by
   classical
-  obtain ⟨Ccas, c0, N0r, hc0, hpre⟩ := hpre
+  obtain ⟨Ccas, c0, N0r, hc0, hpre⟩ := PI.casoratian
   obtain ⟨hPc, hEK, -⟩ := hr
   obtain ⟨CA, hCA0, hCA⟩ := bondA_bound_of_EK F P (max M 1 / 2) r hPc hEK
   have hm1 : 1 ≤ max M 1 := le_max_right _ _
@@ -434,7 +424,7 @@ theorem bulk_eigen_sin (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) (hpre
     hChat hcn
 
 /-- **L2.S2 (second half): quantisation.**  `Sigma(X_k, t, h) = pi h (j + 1/2) + O(h^{max M 1 + 1})` for an integer `j` (the label `k'` of `thm:smo-BSr`). -/
-theorem bulk_eigen_quant (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) (hpre : BulkCasPre PI)
+theorem bulk_eigen_quant (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
     (hP : ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, (μ, t) ∈ P)
     (hcoup : CR.c = F.L - CL.c' ∧ CR.c' = F.L - CL.c) (r : ℕ) (hr : StdAssump F P (max M 1 / 2) r) :
     ∃ Cq h0 : ℝ, 0 < h0 ∧ ∃ N1 : ℕ, ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ N : ℕ, N1 ≤ N → F.step N ≤ h0 →
@@ -443,7 +433,7 @@ theorem bulk_eigen_quant (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) (hp
         IsEigenSystem (F.jacobiMat (μ, t) N) Xs Um → ∀ k : Fin (N + 1), Xs k ∈ Set.Icc Jlo Jhi →
           ∃ j : ℤ, |bulkPhaseSum PI μ t (Xs k) N - Real.pi * F.step N * ((j : ℝ) + 1 / 2)|
             ≤ Cq * F.step N ^ (max M 1 + 1) := by
-  obtain ⟨Cs, h0, hh0, N1, hmain⟩ := bulk_eigen_sin PI hpre hP hcoup r hr
+  obtain ⟨Cs, h0, hh0, N1, hmain⟩ := bulk_eigen_sin PI hP hcoup r hr
   refine ⟨Real.pi / 2 * |Cs|, h0, hh0, N1, ?_⟩
   intro μ hμ t ht N hN hstep hpos Xs Um hE k hXk
   have hst : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
@@ -469,9 +459,14 @@ def BulkWindowLabels (F : SymbolFamily (Par × ℝ)) (K : Set Par) (t0 Jlo Jhi :
       IsEigenSystem (F.jacobiMat (μ, t) N) Xs Um → ∀ k : Fin (N + 1), Xs k ∈ Set.Icc Jlo Jhi →
         |actionS0 F (μ, t) (Xs k) - Real.pi * F.step N * ((k : ℕ) + 1 / 2)| ≤ Cl * F.step N ^ 2
 
-/-- Uniform bound of the phase coefficients (finding F-S2-2): a hypothesis of `bulk_BSr2`. -/
-def BulkSigmaBdd (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) : Prop :=
-  ∃ Cσ : ℝ, 0 ≤ Cσ ∧ ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ X ∈ Set.Icc Jlo Jhi, ∀ j ≤ M, |PI.Sigma μ j X t| ≤ Cσ
+/-- **Uniform bound of the phase coefficients** (`i = 0` part of the field `Sigma_bdd`, finding F-S2-2, now a field of `BulkPhaseInputs`). -/
+theorem bulkSigmaBdd (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) :
+    ∃ Cσ : ℝ, 0 ≤ Cσ ∧ ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ X ∈ Set.Icc Jlo Jhi, ∀ j ≤ M, |PI.Sigma μ j X t| ≤ Cσ := by
+  obtain ⟨C, hC⟩ := PI.Sigma_bdd
+  refine ⟨max C 0, le_max_right _ _, fun μ hμ t ht X hX j hj => ?_⟩
+  have h := hC μ hμ j hj 0 (Nat.zero_le _) (X, t) ⟨hX, ht⟩
+  rw [norm_iteratedFDerivWithin_zero] at h
+  exact (by simpa [Real.norm_eq_abs] using h : |PI.Sigma μ j X t| ≤ C).trans (le_max_left _ _)
 
 /-- `Sigma - Sigma_0 = O(h^2)`: `Sigma_1 = 0` and the other coefficients are bounded. -/
 lemma phaseSum_sub_zero (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) (Cσ : ℝ) (hC : 0 ≤ Cσ) (μ : Par) (hμ : μ ∈ K)
@@ -500,20 +495,20 @@ lemma phaseSum_sub_zero (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) (Cσ
         Finset.sum_le_sum hterm
     _ = M * Cσ * F.step N ^ 2 := by rw [Finset.sum_const, Finset.card_range, nsmul_eq_mul]; ring
 
-/-- **`eq:smo-BSr2` on a bulk block.**  With the labelled windows `BulkWindowLabels` and bounded phase coefficients, `j = k` and
+/-- **`eq:smo-BSr2` on a bulk block.**  With the labelled windows `BulkWindowLabels`, `j = k` and
 `|Sigma(X_k, t, h) - pi h (k + 1/2)| <= C h^{M+1}`. -/
-theorem bulk_BSr2 (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) (hpre : BulkCasPre PI)
+theorem bulk_BSr2 (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
     (hP : ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, (μ, t) ∈ P)
     (hcoup : CR.c = F.L - CL.c' ∧ CR.c' = F.L - CL.c) (r : ℕ) (hr : StdAssump F P (max M 1 / 2) r)
-    (hlab : BulkWindowLabels F K t0 Jlo Jhi) (hbdd : BulkSigmaBdd PI) :
+    (hlab : BulkWindowLabels F K t0 Jlo Jhi) :
     ∃ C h0 : ℝ, 0 < h0 ∧ ∃ N1 : ℕ, ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ N : ℕ, N1 ≤ N → F.step N ≤ h0 →
       (∀ n : ℤ, 0 ≤ n → n < N → 0 < F.bondA (μ, t) N n) →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
         IsEigenSystem (F.jacobiMat (μ, t) N) Xs Um → ∀ k : Fin (N + 1), Xs k ∈ Set.Icc Jlo Jhi →
           |bulkPhaseSum PI μ t (Xs k) N - Real.pi * F.step N * ((k : ℕ) + 1 / 2)| ≤ C * F.step N ^ (M + 1) := by
-  obtain ⟨Cq, h0q, hh0q, N1, hquant⟩ := bulk_eigen_quant PI hpre hP hcoup r hr
+  obtain ⟨Cq, h0q, hh0q, N1, hquant⟩ := bulk_eigen_quant PI hP hcoup r hr
   obtain ⟨Cl, h0l, hh0l, hlab⟩ := hlab
-  obtain ⟨Cσ, hCσ, hσ⟩ := hbdd
+  obtain ⟨Cσ, hCσ, hσ⟩ := bulkSigmaBdd PI
   obtain ⟨C2, hC2⟩ : ∃ x : ℝ, x = M * Cσ + |Cl| + |Cq| := ⟨_, rfl⟩
   have hC2n : 0 ≤ C2 := by rw [hC2]; positivity
   refine ⟨|Cq|, min (min (min h0q h0l) 1) (Real.pi / (2 * (C2 + 1))), ?_, N1, ?_⟩

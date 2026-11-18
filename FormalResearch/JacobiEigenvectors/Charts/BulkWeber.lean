@@ -60,6 +60,8 @@ the coordinate, the corrector row and the *defect* of the comparison sequence.
   with phase `Sigma/h - pi/2`, `Sigma = S_0 + sum_{j >= 2} h^j Sigma_j`; the freeze states the lemma for the comparison sequences instead of the exact edge solutions; the paper passes from one to
   the other by prop:tha-W (1) (`|psi - psi-hat| <= C h^m W M` with `W = 1`, `M^2 ~ h^{1/2} ~ pre`), so nothing is lost.  The right chart's row `N - n` is in its own window since
   `overlap_match` makes the mirrored window equal.  `Sigma_reg` (`C^{2M+1}`) is thm:smo-BSr; `Sigma_zero`, `Sigma_one` as in lem:smo-bulkphase (4).
+  **Round 5 (agent M's proposals F-S2-1, F-S2-2, both confirmed and applied):** the positive prefactor of `casoratian` is bounded below, `pre >= c0 h^{1/2}`; and the
+  uniform-in-`mu` bound of the `C^{2M+1}` norms of the `Sigma_j` is a new field `Sigma_bdd`.
 
 ## Honest differences
 
@@ -201,13 +203,22 @@ structure BulkPhaseInputs {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily
     Sigma μ 0 X t = ∫ u in (0 : ℝ)..F.L, Real.arccos ((X - F.B 0 (μ, t) u) / (2 * Real.sqrt (E0 F.L (F.G 0 (μ, t)) u)))
   /-- `Sigma_1 = 0` (the phase of the left/right comparison sequences has no term of order `h`). -/
   Sigma_one : ∀ μ ∈ K, ∀ X ∈ Set.Icc Jlo Jhi, ∀ t ∈ Set.Icc (-t0) t0, Sigma μ 1 X t = 0
-  /-- the Casoratian of the comparison sequences: `|C_n(psi-hat^L, psi-hat^R) - pi [sin(Sigma/h - pi/2)]| <= Ccas h^m pi` with `pi > 0`
-  (the prefactor), at every overlap row `n`.  `psi-hat^R_n` is the mirror chart sequence at row `N - n`. -/
-  casoratian : ∃ Ccas N0 : ℝ, ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N : ℕ, N0 ≤ N →
-    ∃ pre : ℝ, 0 < pre ∧ ∀ n : ℤ, 0 ≤ n → n < N → CL.c' ≤ uNode (F.step N) n → uNode (F.step N) n ≤ CL.c →
+  /-- the Casoratian of the comparison sequences: `|C_n(psi-hat^L, psi-hat^R) - pre sin(Sigma/h - pi/2)| <= Ccas h^m pre` with a positive prefactor
+  `pre >= c0 h^{1/2}` (`lem:smo-bulkphase` (2), (4): `pre = a_n w_n e^{Re c/h}`, `w_n ~ |chi_n|^2 ~ rho_L rho_R ~ h^{1/2}` since the Weber branch has amplitude
+  `h^{1/4}`, `M_osc`), at every overlap row `n`.  `psi-hat^R_n` is the mirror chart sequence at row `N - n`.  **Round 5 correction F-S2-1** (confirmed against
+  the paper): the frozen field only had `0 < pre`, which does not make the sine small at an eigenvalue (the exact Casoratian vanishes, the comparison Casoratian
+  is `O(h^m h^{1/2})`, so `pre` must not be smaller than `h^{1/2}`). -/
+  casoratian : ∃ Ccas c0 N0 : ℝ, 0 < c0 ∧ ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N : ℕ, N0 ≤ N →
+    ∃ pre : ℝ, c0 * Real.sqrt (F.step N) ≤ pre ∧ ∀ n : ℤ, 0 ≤ n → n < N → CL.c' ≤ uNode (F.step N) n → uNode (F.step N) n ≤ CL.c →
       |F.bondA (μ, t) N n * (CL.psiHatL (μ, t) X N n * (CR.psiHatL (μ, t) X N ((N : ℤ) - (n + 1))) -
           CL.psiHatL (μ, t) X N (n + 1) * (CR.psiHatL (μ, t) X N ((N : ℤ) - n)))
         - pre * Real.sin ((∑ j ∈ range (M + 1), F.step N ^ j * Sigma μ j X t) / F.step N - Real.pi / 2)|
         ≤ Ccas * F.step N ^ (max M 1) * pre
+  /-- **Round 5 correction F-S2-2** (the uniformity in `mu` is not derivable from `Sigma_reg`, which is pointwise in `mu`: no continuity in `mu` is stated):
+  the `C^{2M+1}` norms of the phase coefficients on `[Jlo,Jhi] x [-t0,t0]` are bounded uniformly in `mu in K` (paper: `thm:smo-spec` "`C^{M+1}` norms bounded uniformly in `mu`",
+  from the uniform chart norms on a localising neighbourhood; `Sigma_j` for `j >= 2` is a fixed analytic function of the chart values at one point, `lem:smo-bulkphase` (4)).
+  It gives `|Sigma_j| <= C` (`i = 0`) and the `t`-derivative bound of the Taylor substitution (`TheoremA/SpectrumTaylor.lean`). -/
+  Sigma_bdd : ∃ C : ℝ, ∀ μ ∈ K, ∀ j ≤ M, ∀ i ≤ 2 * M + 1, ∀ p ∈ Set.Icc Jlo Jhi ×ˢ Set.Icc (-t0) t0,
+    ‖iteratedFDerivWithin ℝ i (fun q : ℝ × ℝ => Sigma μ j q.1 q.2) (Set.Icc Jlo Jhi ×ˢ Set.Icc (-t0) t0) p‖ ≤ C
 
 end FormalResearch.JacobiEigenvectors.Charts

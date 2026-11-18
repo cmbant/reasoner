@@ -13,7 +13,7 @@ Plan item L2.S4 of `PLAN.md`.  Namespace `FormalResearch.JacobiEigenvectors.Theo
 
 ## Statement formalised: `smo_SM`
 
-For one parameter `mu` (the paper's constants are uniform in `mu in K`; that uniformity is **not** formalised here), `F : SymbolFamily Par`,
+For a set `Kset` of parameters (round 5: the constants `C', h_0` are uniform in `mu in Kset`, as in the paper; the hypotheses are uniform too), `F : SymbolFamily Par`,
 `J = F.jacobiMat mu N` (the matrix `J_h` with `E_n = s_n(L-s_n) G_h(s_n)`, `B_n = B_h(u_n)`), and `truncSM F M` (`tilde J_h^{[M]}`: the jets
 `G_j, B_j` with `j <= M`, samples of the polynomials, no remainder).  Hypotheses: `G_0 >= g_* > 0` on `[0,L]`; the remainders at the lattice nodes,
 `|G_h(s_n) - sum_{j<=M} h^j G_j(s_n)| <= C h^{M+1}` for `0 <= n < N`, and `|B_h(u_n) - sum_{j<=M} h^j B_j(u_n)| <= C h^{M+1}` for `0 <= n <= N`
@@ -34,7 +34,7 @@ expansion of the Rayleigh quotient).
 
 ## Differences from the paper
 
-* **Added hypothesis `hGbdd` (boundedness of the jets `G_j`, `j <= M`, on `[0,L]`).**  The paper states the lemma for "real `G_j, B_j`", but the claim
+* **Added hypothesis `hGbdd` (boundedness of the jets `G_j`, `j <= M`, on `[0,L]`, uniformly in `mu in Kset`).**  The paper states the lemma for "real `G_j, B_j`", but the claim
   "the truncated factor is `>= g_*/2`" needs `sup |sum_{1<=j<=M} h^j G_j(s_n)| -> 0`, i.e. bounded jets.  Without it the lemma is false: with
   `G_0 = 1`, `M = 1`, `B_j = 0`, `r = q = 0`, and `G_1(s) = -c/(s - L/2)` (`c > 1`, `G_1(L/2) = 0`), at every `N` with `N+1` even the node
   `s = L/2 + h` has `E = s(L-s)(1 - c) < 0`, so the bond is not positive for infinitely many arbitrarily small `h`.  Under `(D_M)` the jets are `C^r([0,L])`,
@@ -50,7 +50,7 @@ expansion of the Rayleigh quotient).
 
 ## Not formalised
 
-* Uniformity in `mu in K` (the paper's constants are uniform; here `mu` is fixed) and the use of `(D_M)` itself (only the displayed hypotheses are used).
+* The use of `(D_M)` itself (only the displayed hypotheses are used); round 5: the statement was made uniform in `mu in Kset` (constants before `mu`), as `EigClose` needs it.
 * The parity-frozen family and the application to `J_h` (`app_thmA` after the lemma) are not part of this module.
 -/
 
@@ -374,17 +374,17 @@ exact form.  `J = F.jacobiMat mu N` is `J_h` with the symbols `E_n = s_n(L-s_n) 
 is `tilde J_h^{[M]}` (jets completed by zero, `r = q = 0`).  Conclusions, for all `N` with `h = L/(N+1) <= h_0`:
 (a) the bonds of `J` and of `tilde J` are positive; (b) `||J - tilde J||_op <= C' h^{M+1}` (in the form `sum_i ((J-tilde J)x)_i^2 <= (C' h^{M+1})^2 sum_i x_i^2`);
 (c) every ordered eigenvalue of `J` and of `tilde J` (`IsEigenSystem`, decreasing order) changes by at most `C' h^{M+1}`. -/
-theorem smo_SM {Par : Type*} (F : SymbolFamily Par) (μ : Par) (M : ℕ) (gstar : ℝ) (hgstar : 0 < gstar)
-    (hG0 : ∀ s ∈ Set.Icc 0 F.L, gstar ≤ F.G 0 μ s)
-    (hGbdd : ∀ j ≤ M, ∃ K : ℝ, ∀ s ∈ Set.Icc 0 F.L, |F.G j μ s| ≤ K)
+theorem smo_SM {Par : Type*} (F : SymbolFamily Par) (Kset : Set Par) (M : ℕ) (gstar : ℝ) (hgstar : 0 < gstar)
+    (hG0 : ∀ μ ∈ Kset, ∀ s ∈ Set.Icc 0 F.L, gstar ≤ F.G 0 μ s)
+    (hGbdd : ∀ j ≤ M, ∃ K : ℝ, ∀ μ ∈ Kset, ∀ s ∈ Set.Icc 0 F.L, |F.G j μ s| ≤ K)
     (C : ℝ)
-    (hrG : ∀ N : ℕ, ∀ n : ℤ, 0 ≤ n → n < N →
+    (hrG : ∀ μ ∈ Kset, ∀ N : ℕ, ∀ n : ℤ, 0 ≤ n → n < N →
       |F.Gh μ (F.step N) (sNode (F.step N) n) -
         ∑ j ∈ Finset.range (M + 1), F.step N ^ j * F.G j μ (sNode (F.step N) n)| ≤ C * F.step N ^ (M + 1))
-    (hrB : ∀ N : ℕ, ∀ n : ℤ, 0 ≤ n → n ≤ N →
+    (hrB : ∀ μ ∈ Kset, ∀ N : ℕ, ∀ n : ℤ, 0 ≤ n → n ≤ N →
       |F.Bh μ (F.step N) (uNode (F.step N) n) -
         ∑ j ∈ Finset.range (M + 1), F.step N ^ j * F.B j μ (uNode (F.step N) n)| ≤ C * F.step N ^ (M + 1)) :
-    ∃ C' h0 : ℝ, 0 < C' ∧ 0 < h0 ∧ ∀ N : ℕ, F.step N ≤ h0 →
+    ∃ C' h0 : ℝ, 0 < C' ∧ 0 < h0 ∧ ∀ μ ∈ Kset, ∀ N : ℕ, F.step N ≤ h0 →
       (∀ n : ℤ, 0 ≤ n → n < N → 0 < F.bondA μ N n ∧ 0 < (truncSM F M).bondA μ N n) ∧
       (∀ x : Fin (N + 1) → ℝ,
         ∑ i, ((F.jacobiMat μ N - (truncSM F M).jacobiMat μ N) *ᵥ x) i ^ 2 ≤
@@ -412,7 +412,7 @@ theorem smo_SM {Par : Type*} (F : SymbolFamily Par) (μ : Par) (M : ℕ) (gstar 
   have hh0pos : 0 < h0 :=
     lt_min (lt_min one_pos (div_pos hgstar (by linarith))) (div_pos hgstar (by linarith))
   refine ⟨C', h0, hC'pos, hh0pos, ?_⟩
-  intro N hN
+  intro μ hμ N hN
   have hh1' : F.step N ≤ 1 := le_trans hN (le_trans (min_le_left _ _) (min_le_left _ _))
   have hhKG' : F.step N ≤ gstar / (2 * (KG + 1)) :=
     le_trans hN (le_trans (min_le_left _ _) (min_le_right _ _))
@@ -457,17 +457,17 @@ theorem smo_SM {Par : Type*} (F : SymbolFamily Par) (μ : Par) (M : ℕ) (gstar 
       gstar / 2 ≤ ∑ j ∈ Finset.range (M + 1), h ^ j * F.G j μ (sNode h n) := by
     intro n h1 h2
     have hb := smo_jet_trunc (fun j s => F.G j μ s) M Kf F.L h hhpos hh1'
-      (fun j hj s hs => hKf j hj s hs) (sNode h n) (hsrange n h1 h2)
+      (fun j hj s hs => hKf j hj μ hμ s hs) (sNode h n) (hsrange n h1 h2)
     have hbd : |∑ j ∈ Finset.range (M + 1), h ^ j * F.G j μ (sNode h n) - F.G 0 μ (sNode h n)| ≤ gstar / 2 :=
       le_trans hb hhKG
-    have hG := hG0 (sNode h n) (hsrange n h1 h2)
+    have hG := hG0 μ hμ (sNode h n) (hsrange n h1 h2)
     linarith [(abs_le.mp hbd).1]
   -- full symbol
   have hGfull : ∀ n : ℤ, 0 ≤ n → n < N →
       |F.Gh μ h (sNode h n) - ∑ j ∈ Finset.range (M + 1), h ^ j * F.G j μ (sNode h n)| ≤ C0 * h ^ (M + 1) := by
     intro n h1 h2
     calc |F.Gh μ h (sNode h n) - ∑ j ∈ Finset.range (M + 1), h ^ j * F.G j μ (sNode h n)|
-        ≤ C * h ^ (M + 1) := hrG N n h1 h2
+        ≤ C * h ^ (M + 1) := hrG μ hμ N n h1 h2
       _ ≤ C0 * h ^ (M + 1) := mul_le_mul_of_nonneg_right hCC0 hpow0
   have hGlow : ∀ n : ℤ, 0 ≤ n → n < N → gstar / 4 ≤ F.Gh μ h (sNode h n) := by
     intro n h1 h2
@@ -534,7 +534,7 @@ theorem smo_SM {Par : Type*} (F : SymbolFamily Par) (μ : Par) (M : ℕ) (gstar 
     split_ifs with h1 h2 h3
     · subst h1
       have hi : ((i : ℕ) : ℤ) ≤ (N : ℤ) := by have := i.isLt; omega
-      have hd := hrB N ((i : ℕ) : ℤ) (by positivity) hi
+      have hd := hrB μ hμ N ((i : ℕ) : ℤ) (by positivity) hi
       change |F.Bh μ h (uNode h ((i : ℕ) : ℤ)) -
         ∑ j ∈ Finset.range (M + 1), h ^ j * F.B j μ (uNode h ((i : ℕ) : ℤ))| ≤ K0 * h ^ (M + 1)
       calc _ ≤ C * h ^ (M + 1) := hd
