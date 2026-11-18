@@ -83,6 +83,7 @@ public import FormalResearch.MatrixAnalysis.TraceDistance
 public import FormalResearch.MatrixAnalysis.KernelQuant
 public import FormalResearch.MatrixAnalysis.ExtremeCriterion
 public import FormalResearch.MatrixAnalysis.JacobiOp
+public import FormalResearch.JB
 public import FormalResearch.QIB.FiniteOrbitExponent
 public import FormalResearch.QIB.BlockExamples
 public import FormalResearch.QIB.BlockAntiunitary
