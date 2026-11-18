@@ -24,6 +24,11 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.SoftProof
 public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryCollision
 public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryMargins
 public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryAll
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoftInt
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoftMorse
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoftUnif
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoftSymbol
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoft
 public import FormalResearch.JacobiEigenvectors.TheoremA.TruncationSM
 
 /-!
