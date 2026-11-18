@@ -27,24 +27,42 @@ Source: Paper J, `Weyl/jacobi_eigenvectors/paper/parts/engine.tex`, Section 2 (`
 * Constants (explicit): `D = (1+C_E²)/c₋`, `κ = 2Λ²(1+C_E²)`, `C_r* = (Λ(1+C_E²))^P (1+C_E²)`,
   `c* = 1/(2DK+1)`, `C = 2DK²C_r*((κ+1)^P + 1)`.  They depend only on `P, K, c₋, C_E, Λ`.
 
-## Differences from the paper (all stated in the report)
-1. **Transfer matrix indices.** The paper writes `M_p := U_{p+1}⁻¹ U_p` with `U_q` the rows of patch `q` at `j_q`; the
-   overlap bond of patches `p, p+1` is `j_p`, so the two factors must be read at the same bond.  Formalised as
-   `M_p = (bondMat (p+1) (j_p))⁻¹ · bondMat p (j_p)` (`transMat`): the change of basis on the bond `j_p`.
-2. **Envelopes.** Formalised with one envelope family `M, W` on all sites (the first clause of (S2)); the paper's
-   patch-dependent envelopes, comparable on overlaps, are not formalised (a special case, hence weaker).
-3. **Upper Casoratian bound** `c₊` is not used by the proof and is omitted.
+## Differences from the paper
+1. **Transfer matrix indices (a typo of the paper, corrected).** The paper prints `M_p := U_{p+1}⁻¹ U_p` with `U_q` "the
+   rows `(φ¹_{q,j}, φ²_{q,j})` at `j = j_q` and `j_q + 1`".  Read literally, `U_{p+1}` lives at the exit bond `j_{p+1}`
+   of patch `p+1`, not at the overlap bond `j_p` on which `ψ̂` is single-valued.  The paper's own proof
+   (`φ^{(α)}_{p+1} = ∑_β φ^{(β)}_p (M_p⁻¹)_{βα}` "there", i.e. on the overlap bond) and its forbidden-overlap computation
+   (both pairs at the common bond) force both factors to be read at the overlap bond `j_p`.  Formalised as
+   `M_p = (bondMat (p+1) (j_p))⁻¹ · bondMat p (j_p)` (`transMat`).  The paper should read: `U_p^{out}` rows at
+   `j_p, j_p+1` of patch `p`, `U_{p+1}^{in}` rows at `j_p, j_p+1` of patch `p+1`, `M_p := (U_{p+1}^{in})⁻¹ U_p^{out}`.
+2. **Envelopes.** (S2) is formalised exactly as printed: one envelope family `M, W` on all sites (the printed parenthesis
+   "on an overlap bond the moduli and weights of the two patches are comparable, and `𝖬, 𝖶` denote either" is the
+   instruction for gluing patch envelopes into this family; the gluing itself is not formalised, see below).
+3. **Upper Casoratian bound** `c₊` is not used by the proof and is omitted (a weaker hypothesis).
 4. **Entry flux.** The paper's `|f¹_p| ≤ a_p ω W_{j_{p-1}}²` is formalised with a weight `V_p`, `V_1 = 0` (the flux of
    patch 1 vanishes by the seed), `V_p = W_{j_{p-1}}` otherwise; the same content.
 5. **Constants** are the explicit values above, not an existential `∃ c*, C`.
 6. The solution `ψ` is a hypothesis (`L_h ψ = 0` on `I°`); existence is not claimed.
+7. **Transfer condition.** (S3) is a hypothesis (`hT`) of `volterra_multi`.  The paper's case (ii), the *forbidden overlap*,
+   is derived: `transfer_of_forbidden_overlap` (`W_{j_p+1} ≤ C_w W_{j_p}`, `𝒜 M_{j_p} M_{j_p+1} ≤ C_ω ω`, both
+   Casoratians `≥ c₋ ω`, envelopes of both pairs on the overlap bond) gives (S3) with `Λ = max 1 (2K²C_wC_ω/c₋)`, and
+   `volterra_multi_forbidden` is the theorem with these hypotheses in place of `hT`.  Only the lower Casoratian bound is
+   used (the paper also uses `c₊` and `M_{j_p} ≍ M_{j_p+1}`; neither is needed).  Case (i), the *bounded overlap*, where
+   `‖M_p^{±1}‖ ≤ Λ` is assumed (it comes from the connection matrix of the parabolic-cylinder chart), remains the
+   hypothesis `hT`.
 
 ## Non-vacuity
-`volterra_multi_instance`: two patches, two-node seed, `A = 1`, `Q = 2cos θ`, the exact pair `cos(iθ), sin(iθ)` on both
-patches (`M_p = I`), `ε = 0`, `ψ = φ¹`; every hypothesis is checked (`sin θ ≠ 0`).
+* `volterra_multi_instance`: two patches, two-node seed, `A = 1`, `Q = 2cos θ`, the exact pair `cos(iθ), sin(iθ)` on both
+  patches (`M_p = I`), `ε = 0`, `ψ = φ¹`: every hypothesis is checked (`sin θ ≠ 0`), the conclusion is `0 ≤ 0`.
+* `volterra_multi_instance_perturbed` (two-node seed) and `volterra_multi_instance_hard_edge` (hard-edge seed,
+  `A_{-1} = 0`, `φ¹ = sin((i+1)θ')`, `φ² = cos((i+1)θ')`, whose second member violates the equation at `i = 0`, the
+  exempted `r²_{1,0}`): `ε = |2cosθ'-2cosθ|/h > 0`, the exact solution `ψ ≠ ψ̂` at an explicit site, and the explicit bound
+  `832 ε Θ` (`C = mvC 1 1 1 1 2 = 832`).  The smallness `εΘ ≤ 1/5` is satisfiable (`volterra_multi_perturbed_params`).
+  Only the weights `W = M = 1` and a trivial transfer `M_p = I` are exercised: no instance has non-constant weights or a
+  non-trivial change of basis.
 
-Not formalised: the hard-edge instance, patch-dependent envelopes, perturbed multi-patch instances, `thm:eng-volterra`(b)
-(see `JEVolterraLadder`).
+Not formalised: patch-dependent envelopes and their gluing into the family `M, W` (see the report), the bounded-overlap case
+of (S3), non-trivial weights in an instance, `thm:eng-volterra`(b) (see `JEVolterraLadder`).
 -/
 
 @[expose] public section

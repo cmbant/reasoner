@@ -24,16 +24,28 @@ identities of `thm:eng-defect` (`JEDefect`) and the multi-patch theorem `volterr
 * `residual_of_defect`, `ladder_residual_interior`, `ladder_residual_hard` (R): `|(L_h ψ̂^{(α)})_k| ≤ ε ρ_k W^{±1}_k M_k`,
   from `thm:eng-defect`(1) (`defect_identity_interior` for `k ≥ 1`, both `α`; `defect_identity_hard` for `k = 0` and `α = 1`
   under `𝒟₋(u₀,h) = 0` and `Π₋ 𝐰⁽¹⁾₀ = 0`).
-* `ladder_pair_stability`: `volterra_multi` for the ladder pairs, with the bounds (S1), (S2), (R) proved from the
-  hypotheses (eq:eng-UC1) and the envelopes; the conclusions are those of `volterra_multi` with the constants above.
+* `ladder_pair_data`: the bounds (S1), (S2), (R) for the ladder pairs of all patches, proved from the hypotheses
+  (eq:eng-UC1) and the envelopes of `𝐰_p` (the part of the stability theorem that does not involve (S3)).
+* `ladder_pair_stability`: `volterra_multi` for the ladder pairs, with (S1), (S2), (R) from `ladder_pair_data` and the
+  transfer condition (S3) a hypothesis `hT` (bounded-overlap case); the conclusions are those of `volterra_multi` with the
+  constants above.
+* `ladder_pair_stability_forbidden`: the same with `hT` replaced by the forbidden-overlap conditions (`𝒜_{j_p} > 0`,
+  `W_{j_p+1} ≤ C_w W_{j_p}`, `𝒜_{j_p} M_{j_p} M_{j_p+1} ≤ C_ω |ω_mod|`), from which (S3) is derived
+  (`transfer_of_forbidden_overlap` in `JEVolterraMulti`).
 
 ## Differences from the paper (all stated in the report)
 1. (eq:eng-UC1) and the lower bound `|𝓕_cas| ≥ c₋` are assumed at every lattice site `k ≥ 0` (the paper: interior sites);
    at the hard-edge site they are needed for the first pair.
 2. The sup norms `‖A‖_∞`, `‖hBρ/ρ̃‖_∞` are replaced by explicit bounds `K_A, K_B` on the sites `k ≥ 0`.
-3. The transfer condition (S3) of the ladder-pair transfer matrices is a hypothesis (not derived from the charts).
-4. The residual at the hard-edge site is claimed for `α = 1` only (the paper: `r²_{1,0}` not required).
-5. The defect bounds and envelopes are hypotheses: the charts of Section 3 (which supply them for the Weber and
+3. The transfer condition (S3) of the ladder-pair transfer matrices is a hypothesis `hT` in `ladder_pair_stability`
+   (derived from the charts in the paper's bounded-overlap case, which is not formalised) and is derived from
+   comparability conditions at forbidden overlaps in `ladder_pair_stability_forbidden`.
+4. The model ladders `𝐰_p` enter through `SymplecticLadder γ dd pp qq PiP PiM (wf p) ω`: the same `Π±`, `𝒟`, `ω_mod` for all
+   patches, with the relations (SM1), (SM2) for `h > 0` only (see `JEDefect`).  No instance of
+   `ladder_pair_stability(_forbidden)` is formalised: the hypotheses are not shown to be jointly satisfiable by a
+   concrete ladder (`constant_ladder` of `JEDefect` has `𝒟 = 1` and no hard edge).
+5. The residual at the hard-edge site is claimed for `α = 1` only (the paper: `r²_{1,0}` not required).
+6. The defect bounds and envelopes are hypotheses: the charts of Section 3 (which supply them for the Weber and
    parabolic-cylinder ladders) and the corrector recursion `thm:eng-corr` are not formalised.
 
 No new analysis: the corollary is `volterra_multi` with the three bounds discharged.
