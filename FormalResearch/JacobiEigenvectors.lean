@@ -33,6 +33,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoftUnif
 public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoftSymbol
 public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoft
 public import FormalResearch.JacobiEigenvectors.TheoremA.TruncationSM
+public import FormalResearch.JacobiEigenvectors.TheoremA.StepZeroCovered
 public import FormalResearch.JacobiEigenvectors.TheoremA.BulkPhase
 public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumTaylor
 public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumUnique
