@@ -357,6 +357,17 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
     |uNode (F.step N) k - uc μ| ≤ 2 * η →
       gm ≤ (chain μ X N).AA 2 (uNode (F.step N) k) (F.step N) ∧
         |(chain μ X N).BB 2 (uNode (F.step N) k) (F.step N)| ≤ CBc
+  /-- **(round 7, F-W2-14; lem:cha-PCcoord (1))** the sign of `zeta` away from the fold: `partial_x zeta > 0` on the whole interval and `zeta(x)^2 >= cz1 > 0` for `|x| >= eta/4`
+  give `zeta <= 0` left and `zeta >= 0` right of the collar core.  (`zeta_far`, `zeta_far_out` constrain only `zeta^2`; the pointwise comparison of the tail needs the sign.) -/
+  zeta_sign_out : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → ∀ x, η / 4 ≤ |x| → 0 ≤ uc μ + x → uc μ + x ≤ F.L →
+    (x < 0 → zeta μ α x ≤ 0) ∧ (0 < x → 0 ≤ zeta μ α x)
+  /-- **(round 7, F-W2-15, G3, G4; lem:cha-PCcoord (2))** two-sided bound on the slope of `mu_0` on `|alpha| <= delta_0`, uniform in `mu in P`: `mu_0'(0) = K(0;0)/2 > 0` and `mu_0` is `C^1`
+  (jointly in `(mu,alpha)` on the compact parameter set, shrinking `delta_0`).  Used for `|mu_0(alpha)| <= C0 |alpha|` (Step 0 gives `a <= a_+`), for the strict monotonicity of the phase `Phi = pi mu~` in `X`
+  and for the window spacing. -/
+  cmu0 : ℝ
+  Cmu0 : ℝ
+  consts_pos5 : 0 < cmu0 ∧ cmu0 ≤ Cmu0
+  mu0_slope : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → cmu0 ≤ deriv (muS 0 μ) α ∧ deriv (muS 0 μ) α ≤ Cmu0
 
 namespace SoftEdgeChart
 
