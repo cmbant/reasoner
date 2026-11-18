@@ -26,7 +26,7 @@ Notation: `C` a soft chart (`CL`, or `CR` of the mirror family, `SoftMirror CL C
 * **E3.3** `soft_win_sums`: the four `l^2` facts in one statement (`0 < m_Omega`, `sum (psi - psi-hat)^2 <= (K eps T)^2 m_Omega`, `sum psi-hat^2 <= (K T)^2 m_Omega`, `(c T)^2 m_Omega <= sum psi-hat^2`).
 * **E5.0** `window_reflect`, `sum_window_reflect`, `wmMass_mirror` (`n in Omega_L <-> N - n in Omega_R`, from `Zof_mirror`, `aOf_mirror`); `match_alg` (`SoftAssemblyAlg.lean`: the `l^2` algebra of Step 4 (b)).
 * **E5** `soft_match`: with `psi^L = kappa psi^R` on the rows, `|kappa| |lam_R| <= C_k |lam_L|` (the premise `hkap` of `soft_quant`), `|lam_L| <= C_k |kappa| |lam_R|`, `|kappa-hat - kappa| <= D_k h^m Lm |kappa|`,
-  `|kappa-hat| |lam_R| <= (1 + D_k) C_k |lam_L|`.
+  `|kappa-hat| |lam_R| <= (1 + D_k) C_k |lam_L|`, and the normalisation lower bound (E7) `c_n (|lam_L|/kappa_b)^2 h^{-1/2} <= hat N^2` (`glueNorm_ge`, `norm_lower_alg`).
 
 ## Differences from the paper
 
@@ -35,7 +35,7 @@ Notation: `C` a soft chart (`CL`, or `CR` of the mirror family, `SoftMirror CL C
 
 ## Not formalised here
 
-The tails and the normalisation (`SoftAssembly2.lean`), the counting (`SoftAssembly3.lean`).
+The envelope sum and its `l^2` bound (`SoftAssembly3.lean`), the pointwise comparison with the exact eigenvector, the off-window relative bound, the counting.
 -/
 
 @[expose] public section
@@ -459,6 +459,88 @@ theorem soft_win_sums {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) 
 end WinSums
 
 
+section GlueNormLower
+
+open scoped Classical in
+/-- the glued vector restricted to a subset `Omega` of the rows has norm at most `hat N`. -/
+lemma glueNorm_ge (aL bR : ℤ → ℝ) (Ω rows : Finset ℤ) (isLeft : ℤ → Prop) (hΩ : Ω ⊆ rows) :
+    nrm Ω (fun n => if isLeft n then aL n else glueKappa aL bR Ω * bR n) ≤ glueNorm aL bR Ω rows isLeft := by
+  unfold nrm glueNorm
+  refine Real.sqrt_le_sqrt ?_
+  rw [← Finset.sum_filter_add_sum_filter_not Ω isLeft]
+  have e1 : ∑ n ∈ Ω.filter isLeft, (if isLeft n then aL n else glueKappa aL bR Ω * bR n) ^ 2 = ∑ n ∈ Ω.filter isLeft, aL n ^ 2 :=
+    Finset.sum_congr rfl (fun n hn => by rw [if_pos (Finset.mem_filter.mp hn).2])
+  have e2 : ∑ n ∈ Ω.filter (fun n => ¬ isLeft n), (if isLeft n then aL n else glueKappa aL bR Ω * bR n) ^ 2 =
+      glueKappa aL bR Ω ^ 2 * ∑ n ∈ Ω.filter (fun n => ¬ isLeft n), bR n ^ 2 := by
+    rw [Finset.mul_sum]
+    exact Finset.sum_congr rfl (fun n hn => by rw [if_neg (Finset.mem_filter.mp hn).2]; ring)
+  rw [e1, e2]
+  have h1 : ∑ n ∈ Ω.filter isLeft, aL n ^ 2 ≤ ∑ n ∈ rows.filter isLeft, aL n ^ 2 :=
+    Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset_filter _ hΩ) (fun n _ _ => sq_nonneg _)
+  have h2 : ∑ n ∈ Ω.filter (fun n => ¬ isLeft n), bR n ^ 2 ≤ ∑ n ∈ rows.filter (fun n => ¬ isLeft n), bR n ^ 2 :=
+    Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset_filter _ hΩ) (fun n _ _ => sq_nonneg _)
+  have h3 := mul_le_mul_of_nonneg_left h2 (sq_nonneg (glueKappa aL bR Ω))
+  linarith
+
+open scoped Classical in
+/-- **E7 (normalisation lower bound, abstract)**: `hat N >= (c/2) T_L sqrt(m)` from the `l^2` closeness of `psi-hat`, `psi` on `Omega`, the matching `psi^L = kappa psi^R`, and `|kappa-hat - kappa| <= D e |kappa|`. -/
+lemma norm_lower_alg (Ω rows : Finset ℤ) (hΩ : Ω ⊆ rows) (isLeft : ℤ → Prop) (aL bR uL uR : ℤ → ℝ)
+    (κ TL TR mm KK KE cc ε Dk Ck : ℝ) (hmm : 0 < mm) (hTL : 0 ≤ TL) (hTR : 0 ≤ TR) (hcc : 0 < cc) (hKK : 0 ≤ KK) (hKE : 0 ≤ KE)
+    (hε : 0 ≤ ε) (hDk : 0 ≤ Dk) (hCk : 0 ≤ Ck) (hrel : ∀ n ∈ Ω, uL n = κ * uR n)
+    (hA : ∑ n ∈ Ω, (uL n - aL n) ^ 2 ≤ ((KE * ε) * TL) ^ 2 * mm)
+    (hB : ∑ n ∈ Ω, (uR n - bR n) ^ 2 ≤ ((KE * ε) * TR) ^ 2 * mm)
+    (hB1 : ∑ n ∈ Ω, bR n ^ 2 ≤ (KK * TR) ^ 2 * mm) (hA0 : (cc * TL) ^ 2 * mm ≤ ∑ n ∈ Ω, aL n ^ 2)
+    (m1 : |κ| * TR ≤ Ck * TL) (c3 : |glueKappa aL bR Ω - κ| ≤ Dk * ε * |κ|)
+    (hcz : (KE + KE * Ck + Dk * KK * Ck) * ε ≤ cc / 2) :
+    (cc / 2) * (TL * Real.sqrt mm) ≤ glueNorm aL bR Ω rows isLeft := by
+  have hSp : 0 < Real.sqrt mm := Real.sqrt_pos.mpr hmm
+  set S := Real.sqrt mm with hS
+  set κh := glueKappa aL bR Ω with hκh
+  have nA := nrm_le_of_sq Ω (fun n => uL n - aL n) (KE * ε * TL) mm (by positivity) hmm.le hA
+  have nB := nrm_le_of_sq Ω (fun n => uR n - bR n) (KE * ε * TR) mm (by positivity) hmm.le hB
+  have nR1 := nrm_le_of_sq Ω bR (KK * TR) mm (by positivity) hmm.le hB1
+  have nL0 := le_nrm_of_sq Ω aL (cc * TL) mm (by positivity) hmm.le hA0
+  have hid : nrm Ω (fun n => aL n - κh * bR n) =
+      nrm Ω (fun n => ((-1) * (uL n - aL n) + κ * (uR n - bR n)) + (κ - κh) * bR n) :=
+    nrm_congr Ω _ _ (fun n hn => by rw [hrel n hn]; ring)
+  have tri := nrm_add_le Ω (fun n => (-1) * (uL n - aL n) + κ * (uR n - bR n)) (fun n => (κ - κh) * bR n)
+  have tri2 := nrm_add_le Ω (fun n => (-1) * (uL n - aL n)) (fun n => κ * (uR n - bR n))
+  rw [nrm_smul, nrm_smul] at tri2
+  rw [nrm_smul] at tri
+  simp only [abs_neg, abs_one, one_mul] at tri2
+  have hb1 : |κ - κh| * nrm Ω bR ≤ (Dk * ε * |κ|) * ((KK * TR) * S) := by
+    rw [abs_sub_comm]
+    exact mul_le_mul c3 nR1 (nrm_nonneg _ _) (by positivity)
+  have hb2 : |κ| * nrm Ω (fun n => uR n - bR n) ≤ |κ| * ((KE * ε * TR) * S) :=
+    mul_le_mul_of_nonneg_left nB (abs_nonneg _)
+  have t1 := mul_le_mul_of_nonneg_left m1 (by positivity : 0 ≤ KE * ε * S)
+  have t2 := mul_le_mul_of_nonneg_left m1 (by positivity : 0 ≤ Dk * ε * KK * S)
+  have hfres : nrm Ω (fun n => aL n - κh * bR n) ≤ ((KE + KE * Ck + Dk * KK * Ck) * ε) * (TL * S) := by
+    rw [hid]
+    have h5 : nrm Ω (fun n => ((-1) * (uL n - aL n) + κ * (uR n - bR n)) + (κ - κh) * bR n) ≤
+        nrm Ω (fun n => uL n - aL n) + |κ| * nrm Ω (fun n => uR n - bR n) + |κ - κh| * nrm Ω bR := by linarith
+    refine h5.trans ?_
+    have h6 : nrm Ω (fun n => uL n - aL n) + |κ| * nrm Ω (fun n => uR n - bR n) + |κ - κh| * nrm Ω bR ≤
+        (KE * ε * TL) * S + |κ| * ((KE * ε * TR) * S) + (Dk * ε * |κ|) * ((KK * TR) * S) := by linarith
+    refine h6.trans ?_
+    nlinarith [t1, t2]
+  have hmono : nrm Ω (fun n => aL n - (if isLeft n then aL n else κh * bR n)) ≤ nrm Ω (fun n => aL n - κh * bR n) := by
+    apply nrm_mono
+    intro n _
+    by_cases hz : isLeft n
+    · simp [hz]
+    · simp [hz]
+  have hge := glueNorm_ge aL bR Ω rows isLeft hΩ
+  have hrev := nrm_sub_le Ω aL (fun n => if isLeft n then aL n else κh * bR n)
+  beta_reduce at hrev
+  have h1 := (abs_le.mp hrev).2
+  have h6 : ((KE + KE * Ck + Dk * KK * Ck) * ε) * (TL * S) ≤ (cc / 2) * (TL * S) :=
+    mul_le_mul_of_nonneg_right hcz (by positivity)
+  have h4 : (cc * TL) * S ≤ nrm Ω aL := nL0
+  linarith
+
+end GlueNormLower
+
 section Match
 
 variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
@@ -468,7 +550,7 @@ variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U 
 `|kappa| |lam_R| <= C_k |lam_L|`, `|lam_L| <= C_k |kappa| |lam_R|`, `|kappa-hat - kappa| <= D_k h^m Lm |kappa|`, and `|kappa-hat| |lam_R| <= (1 + D_k) C_k |lam_L|`. -/
 theorem soft_match {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (hm : 1 ≤ m)
     (hLm : ∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ Lm h) (hM : SoftMirror CL CR) (aplus : ℝ) :
-    ∃ Ck Dk h0 : ℝ, 0 < h0 ∧ 0 ≤ Ck ∧ 0 ≤ Dk ∧ ∀ p ∈ P, ∀ N : ℕ, CL.N0 ≤ N → Fz.step N ≤ h0 → ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 →
+    ∃ Ck Dk cn h0 : ℝ, 0 < h0 ∧ 0 ≤ Ck ∧ 0 ≤ Dk ∧ 0 < cn ∧ ∀ p ∈ P, ∀ N : ℕ, CL.N0 ≤ N → Fz.step N ≤ h0 → ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 →
       CL.aOf p X N ≤ aplus →
       ∀ (ψL ψ' : ℤ → ℝ) (κ : ℝ),
         JacSol Fz p N X (CL.chain p X N).NR ψL → ψL 0 = CL.psiHatL p X N 0 →
@@ -476,31 +558,38 @@ theorem soft_match {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (hm
         (∀ n ∈ rowsOf N, ψL n = κ * ψ' ((N : ℤ) - n)) →
         |κ| * |CR.lamL p X N| ≤ Ck * |CL.lamL p X N| ∧ |CL.lamL p X N| ≤ Ck * (|κ| * |CR.lamL p X N|) ∧
           |softKappa CL CR p X N - κ| ≤ Dk * (Fz.step N ^ m * Lm (Fz.step N)) * |κ| ∧
-          |softKappa CL CR p X N| * |CR.lamL p X N| ≤ (1 + Dk) * Ck * |CL.lamL p X N| := by
+          |softKappa CL CR p X N| * |CR.lamL p X N| ≤ (1 + Dk) * Ck * |CL.lamL p X N| ∧
+          cn * ((|CL.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 * Fz.step N ^ (-(1 : ℝ) / 2)) ≤ softNorm CL CR p X N ^ 2 := by
   obtain ⟨KL, cL, KEL, h0L, hKL, hcL, hKEL, h0Lp, HL⟩ := soft_win_sums CL hf hm hLm aplus
   obtain ⟨KR, cR, KER, h0R, hKR, hcR, hKER, h0Rp, HR⟩ := soft_win_sums CR hf hm hLm aplus
   obtain ⟨CcR, h0aR, clamR, ClamR, h0aRp, hclamR, H1R⟩ := propThaW2_item1 CR hf hm hLm
+  obtain ⟨cM, CM, h0M, hcM, h0Mp, HM⟩ := soft_win_massw CL hf aplus
   set cc : ℝ := min cL cR with hcc
   have hcc0 : 0 < cc := lt_min hcL hcR
   set KK : ℝ := max KL KR with hKK
   have hKK0 : 0 ≤ KK := le_trans hKL (le_max_left _ _)
   set KE : ℝ := max KEL KER with hKE
   have hKE0 : 0 ≤ KE := le_trans hKEL (le_max_left _ _)
-  set eps0 : ℝ := cc / (2 * (KE + 1)) with heps0
-  have heps0p : 0 < eps0 := by positivity
   set Dk : ℝ := KE * ((1 + 2 * (KK + cc / 2) / cc) / cc) with hDk
   set Ck : ℝ := 2 * (KK + cc / 2) / cc with hCk
   have hCk0 : 0 ≤ Ck := by positivity
   have hDk0 : 0 ≤ Dk := by positivity
-  refine ⟨Ck, Dk, min (min h0L h0R) (min h0aR (min (softHL CL eps0) (min (softHL CL 1) (min (asmH0 CL) 1)))), ?_, hCk0, hDk0, ?_⟩
-  · exact lt_min (lt_min h0Lp h0Rp) (lt_min h0aRp (lt_min (softHL_pos CL eps0) (lt_min (softHL_pos CL 1) (lt_min (asmH0_pos CL) one_pos))))
+  set Cz : ℝ := KE + KE * Ck + Dk * KK * Ck with hCz
+  have hCz0 : 0 ≤ Cz := by positivity
+  set Cw : ℝ := KE + 1 + Cz with hCw
+  set eps0 : ℝ := cc / (2 * Cw) with heps0
+  have hCwpos : 0 < Cw := by positivity
+  have heps0p : 0 < eps0 := by positivity
+  refine ⟨Ck, Dk, (cc / 2) ^ 2 * cM, min (min h0L h0R) (min (min h0aR h0M) (min (softHL CL eps0) (min (softHL CL 1) (min (asmH0 CL) 1)))), ?_, hCk0, hDk0, by positivity, ?_⟩
+  · exact lt_min (lt_min h0Lp h0Rp) (lt_min (lt_min h0aRp h0Mp) (lt_min (softHL_pos CL eps0) (lt_min (softHL_pos CL 1) (lt_min (asmH0_pos CL) one_pos))))
   intro p hp N hN hstep X hX ha ψL ψ' κ hJL hsL hJR hsR hrel
   obtain ⟨hNR, hXR⟩ := mirror_ctx hM hp hX hN
   have haR : CR.aOf p X N = CL.aOf p X N := aOf_mirror hM hp X N
   have hstepR : (mirrorFamily Fz).step N = Fz.step N := rfl
   have sL : Fz.step N ≤ h0L := (hstep.trans (min_le_left _ _)).trans (min_le_left _ _)
   have sR : Fz.step N ≤ h0R := (hstep.trans (min_le_left _ _)).trans (min_le_right _ _)
-  have sa : Fz.step N ≤ h0aR := hstep.trans ((min_le_right _ _).trans (min_le_left _ _))
+  have sa : Fz.step N ≤ h0aR := hstep.trans ((min_le_right _ _).trans ((min_le_left _ _).trans (min_le_left _ _)))
+  have sM : Fz.step N ≤ h0M := hstep.trans ((min_le_right _ _).trans ((min_le_left _ _).trans (min_le_right _ _)))
   have se : Fz.step N ≤ softHL CL eps0 := hstep.trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _)))
   have s1 : Fz.step N ≤ softHL CL 1 := hstep.trans ((min_le_right _ _).trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _))))
   have s7 : Fz.step N ≤ 1 := hstep.trans ((min_le_right _ _).trans ((min_le_right _ _).trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_right _ _)))))
@@ -530,15 +619,13 @@ theorem soft_match {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (hm
   have hεeps : ε ≤ eps0 := hεle.trans (softHL_spec CL heps0p hh0 se)
   have hε1 : ε ≤ 1 := hεle.trans (softHL_spec CL one_pos hh0 s1)
   have he0 : 0 ≤ KE * ε := mul_nonneg hKE0 hε0
-  have hec : KE * ε ≤ cc / 2 := by
-    have h1 : KE * ε ≤ KE * eps0 := mul_le_mul_of_nonneg_left hεeps hKE0
-    have h2 : KE * eps0 = cc * (KE / (2 * (KE + 1))) := by rw [heps0]; field_simp
-    have h3 : KE / (2 * (KE + 1)) ≤ 1 / 2 := by
-      rw [div_le_div_iff₀ (by positivity) (by norm_num)]; nlinarith
-    calc KE * ε ≤ KE * eps0 := h1
-      _ = cc * (KE / (2 * (KE + 1))) := h2
-      _ ≤ cc * (1 / 2) := mul_le_mul_of_nonneg_left h3 hcc0.le
-      _ = cc / 2 := by ring
+  have hCwε : Cw * ε ≤ cc / 2 := by
+    calc Cw * ε ≤ Cw * eps0 := mul_le_mul_of_nonneg_left hεeps hCwpos.le
+      _ = cc / 2 := by rw [heps0]; field_simp
+  have hec : KE * ε ≤ cc / 2 :=
+    le_trans (mul_le_mul_of_nonneg_right (by rw [hCw]; linarith [hCz0]) hε0) hCwε
+  have hcz : Cz * ε ≤ cc / 2 :=
+    le_trans (mul_le_mul_of_nonneg_right (by rw [hCw]; linarith [hKE0]) hε0) hCwε
   have hTL0 : 0 ≤ TL := div_nonneg (abs_nonneg _) hκ.le
   have hTRpos : 0 < TR := div_pos hlamRpos hκ
   -- the exact solutions on the window
@@ -592,7 +679,17 @@ theorem soft_match {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (hm
     rw [h]
     refine m3.trans (le_of_eq ?_)
     rw [hDk]; ring
-  refine ⟨c1, c2, c3, ?_⟩
+  have hnorm : ((cc / 2) ^ 2 * cM) * (TL ^ 2 * Fz.step N ^ (-(1 : ℝ) / 2)) ≤ softNorm CL CR p X N ^ 2 := by
+    have hlow := norm_lower_alg Ω (rowsOf N) hΩrows (fun n => CL.Zof p X N n ≤ 0) (CL.psiHatL p X N) (softSeqR CR p X N) ψL
+      (fun n => ψ' ((N : ℤ) - n)) κ TL TR mm KK KE cc ε Dk Ck hmL hTL0 hTRpos.le hcc0 hKK0 hKE0 hε0 hDk0 hCk0 hrelΩ hA hB hB1 hA0 m1 c3 hcz
+    have hSq : Real.sqrt mm ^ 2 = mm := Real.sq_sqrt hmL.le
+    have hmm0 := (HM p hp N hN sM X hX ha).1
+    have hsq := pow_le_pow_left₀ (by positivity : 0 ≤ (cc / 2) * (TL * Real.sqrt mm)) hlow 2
+    calc ((cc / 2) ^ 2 * cM) * (TL ^ 2 * Fz.step N ^ (-(1 : ℝ) / 2)) = (cc / 2) ^ 2 * TL ^ 2 * (cM * Fz.step N ^ (-(1 : ℝ) / 2)) := by ring
+      _ ≤ (cc / 2) ^ 2 * TL ^ 2 * mm := mul_le_mul_of_nonneg_left hmm0 (by positivity)
+      _ = ((cc / 2) * (TL * Real.sqrt mm)) ^ 2 := by rw [mul_pow, mul_pow, hSq]; ring
+      _ ≤ _ := hsq
+  refine ⟨c1, c2, c3, ?_, hnorm⟩
   generalize softKappa CL CR p X N = kh at c3 ⊢
   have hk1 : |kh| ≤ (1 + Dk) * |κ| := by
     have h1 : |kh| ≤ |κ| + |kh - κ| := by
@@ -649,6 +746,14 @@ end Match
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.soft_match' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms soft_match
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.glueNorm_ge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms glueNorm_ge
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.norm_lower_alg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms norm_lower_alg
 
 end FormalResearch.JacobiEigenvectors.TheoremA
 

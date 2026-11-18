@@ -34,6 +34,15 @@ lemma nrm_congr (S : Finset ℤ) (f g : ℤ → ℝ) (h : ∀ n ∈ S, f n = g n
   congr 1
   exact Finset.sum_congr rfl (fun n hn => by rw [h n hn])
 
+lemma nrm_add_le (S : Finset ℤ) (a b : ℤ → ℝ) : nrm S (fun n => a n + b n) ≤ nrm S a + nrm S b :=
+  sqrt_sum_add_le S a b
+
+lemma nrm_mono (S : Finset ℤ) (f g : ℤ → ℝ) (h : ∀ n ∈ S, |f n| ≤ |g n|) : nrm S f ≤ nrm S g := by
+  unfold nrm
+  refine Real.sqrt_le_sqrt (Finset.sum_le_sum (fun n hn => ?_))
+  rw [← sq_abs (f n), ← sq_abs (g n)]
+  exact pow_le_pow_left₀ (abs_nonneg _) (h n hn) 2
+
 /-- from a bound on the sum of squares to a bound on the norm -/
 lemma nrm_le_of_sq (S : Finset ℤ) (f : ℤ → ℝ) (B m : ℝ) (hB : 0 ≤ B) (hm : 0 ≤ m)
     (h : ∑ n ∈ S, f n ^ 2 ≤ B ^ 2 * m) : nrm S f ≤ B * Real.sqrt m := by
