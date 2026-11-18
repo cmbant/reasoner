@@ -57,6 +57,8 @@ collar width `delta`.  For `ThmAii`, `delta`, `t0` are chart data.  Eigen-system
   (no separate statement at the collisions).
 * **F-A7 (lem:tha-count)**: the paper's lemma says "`I` an interval"; `PropThaCount` needs `I.OrdConnected`, and (ii)/(iii) quantified over all real `kappa'` with `p = kappa' q`
   (unique if `q` is not identically zero).
+  **Corrected in the second pass (machine-checked counterexample)**: the lemma is about a Jacobi recurrence with *positive* bonds and at least one bond; without `1 <= N` and
+  `0 < bondA` (a standing assumption of the setting) `PropThaCount` is false (all symbols `0` gives `not PropThaCount F0 _ 0`), so both are now hypotheses of the statement.
 -/
 
 @[expose] public section
@@ -280,6 +282,7 @@ def casD (F : SymbolFamily Par) (μ : Par) (N : ℕ) (X : ℝ) : ℝ :=
 (i) every zero of `D` in `I` lies in some window; (ii) `sign D = sigma (-1)^k` where `Phi = pi h k`; (iii) at a zero in `w_k`, `p = kappa' q` has `sign kappa' = sigma' (-1)^k`.
 Then each window contains at most one zero of `D`, and each `w_k` with `[pi h k, pi h (k+1)] subset Phi(I)` contains exactly one (at least one, together with the at-most-one). -/
 def PropThaCount (F : SymbolFamily Par) (μ : Par) (N : ℕ) : Prop :=
+  1 ≤ N → (∀ n : ℤ, 0 ≤ n → n < N → 0 < F.bondA μ N n) →
   ∀ (I : Set ℝ) (Φ : ℝ → ℝ) (ε : ℝ), I.OrdConnected → ContinuousOn Φ I → (StrictMonoOn Φ I ∨ StrictAntiOn Φ I) →
     0 < ε → ε < Real.pi * F.step N / 4 →
     (∀ X ∈ I, casD F μ N X = 0 → ∃ k : ℕ, |Φ X - Real.pi * F.step N * ((k : ℝ) + 1 / 2)| ≤ ε) →
