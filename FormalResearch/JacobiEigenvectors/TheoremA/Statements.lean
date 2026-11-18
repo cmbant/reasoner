@@ -225,18 +225,21 @@ def PropThaW2 (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ
 
 /-- **lem:tha-win** (statement, items (1), (2), (3), (5)): for `a <= a_+`, `|alpha| <= delta_0`: the lattice facts (`d_- sqrt h <= Z_{n+1} - Z_n <= d_+ sqrt h`, `h k_2 <= C_Lambda^2`, `M_bal` comparable
 at neighbours), the weight bounds `e^{-5/2} <= E_well <= 1` (`a <= 0`) / `E_bar` bounded (`0 < a <= a_+`) on `|Z| <= rho'`, the envelope bounds `|y_i| <= C_1 M_bal`, `|y_i'| <= C_1 k_2^{1/2} M_bal`
-for both pairs, and the window sum `m_0/(2 d_+) h^{-1/2} <= sum_Omega M_bal^2 <= 11/d_- h^{-1/2}`. -/
+for both pairs, and the window sum `m_0/(2 d_+) h^{-1/2} <= sum_Omega M_bal^2 <= 11/d_- h^{-1/2}`.  **Corrected in the second pass (finding F-W1 of the window attempt)**: the neighbour-dependent
+facts (`Z_{n+1} - Z_n` bounds, `M_bal` at neighbours) are asserted only when the neighbouring row also lies on the chart `|u - u_c| <= 2 eta`; at the boundary row the chart gives no control of `Z_{n+1}`. -/
 def PropThaWin (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ)
     (CL : SoftEdgeChart Fz P m q U V) (aplus : ℝ) : Prop :=
   ∀ r, StdAssump Fz P (q / 2) r →
     ∃ h0 CΛ Cnb C1 m0 : ℝ, 0 < h0 ∧ 0 < m0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, CL.N0 ≤ N → Fz.step N ≤ h0 →
       CL.aOf p X N ≤ aplus →
       (∀ n ∈ rowsOf N, |uNode (Fz.step N) n - CL.uc p| ≤ 2 * CL.η →
-        CL.dm * Real.sqrt (Fz.step N) ≤ CL.Zof p X N (n + 1) - CL.Zof p X N n ∧
-        CL.Zof p X N (n + 1) - CL.Zof p X N n ≤ CL.dp * Real.sqrt (Fz.step N) ∧
+        (|uNode (Fz.step N) (n + 1) - CL.uc p| ≤ 2 * CL.η →
+          CL.dm * Real.sqrt (Fz.step N) ≤ CL.Zof p X N (n + 1) - CL.Zof p X N n ∧
+          CL.Zof p X N (n + 1) - CL.Zof p X N n ≤ CL.dp * Real.sqrt (Fz.step N) ∧
+          Mbal (CL.aOf p X N) (CL.Zof p X N (n + 1)) ≤ Cnb * Mbal (CL.aOf p X N) (CL.Zof p X N n)) ∧
         Fz.step N * k2 (CL.aOf p X N) (CL.Zof p X N n) ≤ CΛ ^ 2 ∧
-        Mbal (CL.aOf p X N) (CL.Zof p X N (n + 1)) ≤ Cnb * Mbal (CL.aOf p X N) (CL.Zof p X N n) ∧
-        Mbal (CL.aOf p X N) (CL.Zof p X N (n - 1)) ≤ Cnb * Mbal (CL.aOf p X N) (CL.Zof p X N n) ∧
+        (|uNode (Fz.step N) (n - 1) - CL.uc p| ≤ 2 * CL.η →
+          Mbal (CL.aOf p X N) (CL.Zof p X N (n - 1)) ≤ Cnb * Mbal (CL.aOf p X N) (CL.Zof p X N n)) ∧
         (|CL.Zof p X N n| ≤ rhoWin (CL.aOf p X N) + (1 + max (-CL.aOf p X N) 0) ^ (-(1 : ℝ) / 6) →
           |uNode (Fz.step N) n - CL.uc p| < CL.η / 4)) ∧
       (∀ z : ℝ, |z| ≤ rhoWin (CL.aOf p X N) + (1 + max (-CL.aOf p X N) 0) ^ (-(1 : ℝ) / 6) →
