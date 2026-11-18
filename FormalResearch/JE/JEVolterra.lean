@@ -41,6 +41,17 @@ replaces the discrete Grönwall lemma: the coupling constant is `c ≤ 1`, so ea
    `A > 0`) are not used for the bound.  The bond positivity `A_j > 0` is not needed for the inequality.
 3. The paper's constants `c*, C` are explicit here: `C = volterraC`, `c* = 1/C`.
 
+## Non-vacuity
+* `volterra_instance`: `ε = 0` and `ψ = φ¹` (the conclusion is `0 ≤ 0`); it checks the hypotheses only.
+* `volterra_instance_perturbed`: `A = 1`, `Q = 2cosθ`, the comparison pair `φ¹_j = cos(jθ')`, `φ²_j = sin(jθ')`, so
+  `ε = |2cosθ' - 2cosθ|/h > 0` when `cosθ' ≠ cosθ`, and the exact solution `ψ = pertSol θ θ'`
+  (`ψ_j = cos(jθ) + ((cosθ'-cosθ)/sinθ) sin(jθ)`, `ψ_0 = φ¹_0`, `ψ_1 = φ¹_1`).  The smallness `C ε Θ ≤ 1` is the
+  hypothesis `hsmall`; the conclusion bounds the non-zero error `ψ_j - φ¹_j`.
+* `volterra_instance_perturbed_closed`: `ε Θ = |2cosθ'-2cosθ|(N-1)/|sinθ'|` does not depend on `h`, so the smallness
+  is `4|2cosθ'-2cosθ|(N-1)/|sinθ'| ≤ 1` and the bound is `4|2cosθ'-2cosθ|(N-1)/|sinθ'|`.
+* `volterra_instance_perturbed_nontrivial`: for `N ≥ 2` and `cosθ ≠ cosθ'` the right-hand side is positive; for
+  `cosθ' ≠ 0` the error at `j = 2`, `ψ_2 - cos 2θ' = 2cosθ'(cosθ - cosθ')`, is non-zero, so `ψ ≠ φ¹`.
+
 Not formalised: multi-patch stability, the hard-edge seed, the transfer matrices, and the application to the Weber and
 parabolic-cylinder ladders.
 -/
@@ -320,6 +331,220 @@ theorem volterra_instance (h θ : ℝ) (N : ℤ) (hh : 0 < h) (hN : 1 ≤ N) (h�
     (fun k _ => by rw [Lh, (cos_sin_solutions θ).1 k, mul_zero])
     (by norm_num)
 
+/-! ### A non-trivial instance: the perturbed cosine pair (`ε > 0`, `ψ ≠ φ¹`) -/
+
+/-- The residual of the comparison cosine `φ¹_j = cos(jθ')` for `A = 1`, `Q = 2cosθ`:
+`Lop (cos(·θ')) k = (2cosθ' - 2cosθ) cos(kθ')`. -/
+lemma Lop_cos_pert (θ θ' : ℝ) (k : ℤ) :
+    Lop (fun _ => 1) (fun _ => 2 * Real.cos θ) (fun i : ℤ => Real.cos (i * θ')) k
+      = (2 * Real.cos θ' - 2 * Real.cos θ) * Real.cos (k * θ') := by
+  have h1 : Real.cos (((k + 1 : ℤ) : ℝ) * θ')
+      = Real.cos (k * θ') * Real.cos θ' - Real.sin (k * θ') * Real.sin θ' := by
+    push_cast; rw [add_mul, one_mul, Real.cos_add]
+  have h2 : Real.cos (((k - 1 : ℤ) : ℝ) * θ')
+      = Real.cos (k * θ') * Real.cos θ' + Real.sin (k * θ') * Real.sin θ' := by
+    push_cast; rw [sub_mul, one_mul, Real.cos_sub]
+  simp only [Lop]
+  rw [h1, h2]
+  ring
+
+/-- The residual of the comparison sine `φ²_j = sin(jθ')`: `Lop (sin(·θ')) k = (2cosθ' - 2cosθ) sin(kθ')`. -/
+lemma Lop_sin_pert (θ θ' : ℝ) (k : ℤ) :
+    Lop (fun _ => 1) (fun _ => 2 * Real.cos θ) (fun i : ℤ => Real.sin (i * θ')) k
+      = (2 * Real.cos θ' - 2 * Real.cos θ) * Real.sin (k * θ') := by
+  have h1 : Real.sin (((k + 1 : ℤ) : ℝ) * θ')
+      = Real.sin (k * θ') * Real.cos θ' + Real.cos (k * θ') * Real.sin θ' := by
+    push_cast; rw [add_mul, one_mul, Real.sin_add]
+  have h2 : Real.sin (((k - 1 : ℤ) : ℝ) * θ')
+      = Real.sin (k * θ') * Real.cos θ' - Real.cos (k * θ') * Real.sin θ' := by
+    push_cast; rw [sub_mul, one_mul, Real.sin_sub]
+  simp only [Lop]
+  rw [h1, h2]
+  ring
+
+/-- Size of the residual of `φ¹`: `|Lh φ¹_k| ≤ |2cosθ' - 2cosθ|/h`, since `|cos| ≤ 1`. -/
+lemma abs_Lh_cos_pert (h θ θ' : ℝ) (hh : 0 < h) (k : ℤ) :
+    |Lh h (fun _ => 1) (fun _ => 2 * Real.cos θ) (fun i : ℤ => Real.cos (i * θ')) k|
+      ≤ |2 * Real.cos θ' - 2 * Real.cos θ| / h := by
+  unfold Lh
+  rw [Lop_cos_pert, abs_mul, abs_mul, abs_inv, abs_of_pos hh, div_eq_inv_mul]
+  exact mul_le_mul_of_nonneg_left (mul_le_of_le_one_right (abs_nonneg _) (Real.abs_cos_le_one _))
+    (inv_nonneg.mpr hh.le)
+
+/-- Size of the residual of `φ²`: `|Lh φ²_k| ≤ |2cosθ' - 2cosθ|/h`, since `|sin| ≤ 1`. -/
+lemma abs_Lh_sin_pert (h θ θ' : ℝ) (hh : 0 < h) (k : ℤ) :
+    |Lh h (fun _ => 1) (fun _ => 2 * Real.cos θ) (fun i : ℤ => Real.sin (i * θ')) k|
+      ≤ |2 * Real.cos θ' - 2 * Real.cos θ| / h := by
+  unfold Lh
+  rw [Lop_sin_pert, abs_mul, abs_mul, abs_inv, abs_of_pos hh, div_eq_inv_mul]
+  exact mul_le_mul_of_nonneg_left (mul_le_of_le_one_right (abs_nonneg _) (Real.abs_sin_le_one _))
+    (inv_nonneg.mpr hh.le)
+
+/-- The exact solution `ψ_j = cos(jθ) + ((cosθ' - cosθ)/sinθ) sin(jθ)` of the recurrence
+`ψ_{j+1} + ψ_{j-1} = 2cosθ ψ_j`, with the seed `ψ_0 = 1 = φ¹_0`, `ψ_1 = cosθ' = φ¹_1`. -/
+noncomputable def pertSol (θ θ' : ℝ) (j : ℤ) : ℝ :=
+  Real.cos (j * θ) + ((Real.cos θ' - Real.cos θ) / Real.sin θ) * Real.sin (j * θ)
+
+/-- The seed `ψ_1 = cosθ' = φ¹_1`. -/
+lemma pertSol_one (θ θ' : ℝ) (hθ : Real.sin θ ≠ 0) : pertSol θ θ' 1 = Real.cos θ' := by
+  have hc : (Real.cos θ' - Real.cos θ) / Real.sin θ * Real.sin θ = Real.cos θ' - Real.cos θ :=
+    div_mul_cancel₀ _ hθ
+  simp only [pertSol, Int.cast_one, one_mul]
+  linear_combination hc
+
+/-- `pertSol` solves the recurrence: `Lop (pertSol) k = 0`, i.e. `ψ_{k+1} + ψ_{k-1} - 2cosθ ψ_k = 0`. -/
+lemma Lop_pertSol (θ θ' : ℝ) (k : ℤ) :
+    Lop (fun _ => 1) (fun _ => 2 * Real.cos θ) (pertSol θ θ') k = 0 := by
+  have h1 := (cos_sin_solutions θ).1 k
+  have h2 := (cos_sin_solutions θ).2.1 k
+  simp only [Lop] at h1 h2 ⊢
+  simp only [pertSol]
+  linear_combination h1 + ((Real.cos θ' - Real.cos θ) / Real.sin θ) * h2
+
+lemma Lh_pertSol (h θ θ' : ℝ) (k : ℤ) :
+    Lh h (fun _ => 1) (fun _ => 2 * Real.cos θ) (pertSol θ θ') k = 0 := by
+  unfold Lh
+  rw [Lop_pertSol, mul_zero]
+
+/-- **Perturbed instance of `volterra_single_patch`.** The comparison pair `φ¹_j = cos(jθ')`, `φ²_j = sin(jθ')` for
+`A = 1`, `Q = 2cosθ` (residual `ε = |2cosθ' - 2cosθ|/h`, so `ε > 0` when `cosθ' ≠ cosθ`), with `W = M = ρ = 1`,
+`K = C_E = c₋ = 1`, `ω = |sinθ'|`, and the exact solution `ψ = pertSol θ θ'` (so `ψ_0 = φ¹_0`, `ψ_1 = φ¹_1`).  The
+smallness `C ε Θ ≤ 1` is the hypothesis `hsmall`.  The conclusion bounds the error `ψ_j - φ¹_j`, which is non-zero
+for `cosθ' ≠ cosθ` (see `volterra_instance_perturbed_nontrivial`). -/
+theorem volterra_instance_perturbed (h θ θ' : ℝ) (N : ℤ) (hh : 0 < h) (hN : 1 ≤ N)
+    (hθ : Real.sin θ ≠ 0) (hθ' : Real.sin θ' ≠ 0)
+    (hsmall : volterraC 1 1 1 * (|2 * Real.cos θ' - 2 * Real.cos θ| / h
+      * volterraTheta h |Real.sin θ'| N (fun _ => 1) (fun _ => 1)) ≤ 1) :
+    ∀ j ∈ Icc 0 N, |pertSol θ θ' j - Real.cos (j * θ')|
+      ≤ volterraC 1 1 1 * (|2 * Real.cos θ' - 2 * Real.cos θ| / h
+          * volterraTheta h |Real.sin θ'| N (fun _ => 1) (fun _ => 1)) := by
+  have key := volterra_single_patch h |Real.sin θ'| 1 1 1 (|2 * Real.cos θ' - 2 * Real.cos θ| / h) N
+    (fun _ => 1) (fun _ => 2 * Real.cos θ) (fun i : ℤ => Real.cos (i * θ')) (fun i : ℤ => Real.sin (i * θ'))
+    (pertSol θ θ') (fun _ => 1) (fun _ => 1) (fun _ => 1) hh (abs_pos.mpr hθ') one_pos hN
+    (div_nonneg (abs_nonneg _) hh.le)
+    (fun j _ => by rw [(cos_sin_solutions θ').2.2 j, abs_neg, one_mul])
+    (fun _ _ => one_pos) (fun _ _ => one_pos)
+    (fun _ _ j _ _ => by norm_num)
+    (fun j _ => by simp only [mul_one]; exact Real.abs_cos_le_one _)
+    (fun j _ => by simp only [inv_one, mul_one]; exact Real.abs_sin_le_one _)
+    (fun _ => zero_le_one)
+    (fun k _ => by simp only [mul_one]; exact abs_Lh_cos_pert h θ θ' hh k)
+    (fun k _ => by simp only [mul_one, inv_one]; exact abs_Lh_sin_pert h θ θ' hh k)
+    (by simp [pertSol])
+    (by rw [pertSol_one θ θ' hθ]; simp)
+    (fun k _ => Lh_pertSol h θ θ' k) hsmall
+  intro j hj
+  simpa only [mul_one] using key j hj
+
+/-- `C = volterraC 1 1 1 = (1+1)(1+1)/1 = 4`. -/
+lemma volterraC_one_one_one : volterraC 1 1 1 = 4 := by
+  norm_num [volterraC]
+
+/-- With `ρ = M = 1` the modulus sum is `Θ = (h/ω)(N-1)` (the equation sites `1, …, N-1`). -/
+lemma volterraTheta_const (h ω : ℝ) (N : ℤ) (hN : 1 ≤ N) :
+    volterraTheta h ω N (fun _ => 1) (fun _ => 1) = h / ω * ((N : ℝ) - 1) := by
+  have h6 : (((N - 1).toNat : ℕ) : ℤ) = N - 1 := Int.toNat_of_nonneg (by omega)
+  have hcard : ((Icc 1 (N - 1)).card : ℝ) = (N : ℝ) - 1 := by
+    rw [Int.card_Icc]
+    have h3 : N - 1 + 1 - 1 = N - 1 := by ring
+    rw [h3]
+    exact_mod_cast h6
+  unfold volterraTheta
+  simp only [one_pow, mul_one, Finset.sum_const, nsmul_eq_mul, hcard]
+
+/-- **Closed form of the perturbed instance.** Since `ε Θ = |2cosθ' - 2cosθ| (N-1)/|sinθ'|` does not depend on `h`, the
+smallness is an explicit condition on `θ, θ', N` and the bound is `4 |2cosθ' - 2cosθ| (N-1)/|sinθ'|`. -/
+theorem volterra_instance_perturbed_closed (h θ θ' : ℝ) (N : ℤ) (hh : 0 < h) (hN : 1 ≤ N)
+    (hθ : Real.sin θ ≠ 0) (hθ' : Real.sin θ' ≠ 0)
+    (hsmall : 4 * (|2 * Real.cos θ' - 2 * Real.cos θ| * ((N : ℝ) - 1) / |Real.sin θ'|) ≤ 1) :
+    ∀ j ∈ Icc 0 N, |pertSol θ θ' j - Real.cos (j * θ')|
+      ≤ 4 * (|2 * Real.cos θ' - 2 * Real.cos θ| * ((N : ℝ) - 1) / |Real.sin θ'|) := by
+  have hh' : h ≠ 0 := hh.ne'
+  have hs0 : |Real.sin θ'| ≠ 0 := abs_ne_zero.mpr hθ'
+  have hεΘ : |2 * Real.cos θ' - 2 * Real.cos θ| / h
+      * volterraTheta h |Real.sin θ'| N (fun _ => 1) (fun _ => 1)
+      = |2 * Real.cos θ' - 2 * Real.cos θ| * ((N : ℝ) - 1) / |Real.sin θ'| := by
+    rw [volterraTheta_const h |Real.sin θ'| N hN]
+    field_simp
+  have hs : volterraC 1 1 1 * (|2 * Real.cos θ' - 2 * Real.cos θ| / h
+      * volterraTheta h |Real.sin θ'| N (fun _ => 1) (fun _ => 1)) ≤ 1 := by
+    rw [hεΘ, volterraC_one_one_one]; linarith
+  intro j hj
+  have key := volterra_instance_perturbed h θ θ' N hh hN hθ hθ' hs j hj
+  rw [hεΘ, volterraC_one_one_one] at key
+  linarith
+
+/-- The error at the site `j = 2`: `ψ_2 - cos(2θ') = 2cosθ'(cosθ - cosθ')` (since `ψ_2 = 2cosθ cosθ' - 1`). -/
+lemma pertSol_two (θ θ' : ℝ) (hθ : Real.sin θ ≠ 0) :
+    pertSol θ θ' 2 - Real.cos (2 * θ') = 2 * Real.cos θ' * (Real.cos θ - Real.cos θ') := by
+  have hc : (Real.cos θ' - Real.cos θ) / Real.sin θ * Real.sin θ = Real.cos θ' - Real.cos θ :=
+    div_mul_cancel₀ _ hθ
+  simp only [pertSol]
+  push_cast
+  rw [Real.cos_two_mul, Real.sin_two_mul, Real.cos_two_mul]
+  linear_combination (2 * Real.cos θ) * hc
+
+/-- Non-triviality: if `cosθ' ≠ 0` and `cosθ ≠ cosθ'`, then `ψ_2 ≠ φ¹_2`, so `ψ ≠ φ¹`. -/
+lemma pertSol_two_ne (θ θ' : ℝ) (hθ : Real.sin θ ≠ 0) (h0 : Real.cos θ' ≠ 0)
+    (hne : Real.cos θ ≠ Real.cos θ') :
+    pertSol θ θ' 2 ≠ Real.cos (2 * θ') := by
+  intro heq
+  have h2 := pertSol_two θ θ' hθ
+  rw [heq, sub_self] at h2
+  exact mul_ne_zero (mul_ne_zero two_ne_zero h0) (sub_ne_zero.mpr hne) h2.symm
+
+/-- The error at the site `j = 3` when `cosθ' = 0`: `ψ_3 - cos(3θ') = -2cosθ`, from the recurrence with `ψ_1 = 0`,
+`ψ_2 = -1` and `cos 3θ' = 0`. -/
+lemma pertSol_three_of_cos_zero (θ θ' : ℝ) (hθ : Real.sin θ ≠ 0) (h0 : Real.cos θ' = 0) :
+    pertSol θ θ' 3 - Real.cos (3 * θ') = -2 * Real.cos θ := by
+  have hrec : pertSol θ θ' 3 + pertSol θ θ' 1 - 2 * Real.cos θ * pertSol θ θ' 2 = 0 := by
+    have h := Lop_pertSol θ θ' 2
+    have e3 : ((2 : ℤ) + 1) = 3 := by norm_num
+    have e1 : ((2 : ℤ) - 1) = 1 := by norm_num
+    simp only [Lop, e3, e1] at h
+    linear_combination h
+  have hP1 : pertSol θ θ' 1 = 0 := by rw [pertSol_one θ θ' hθ, h0]
+  have hP2 : pertSol θ θ' 2 = 2 * Real.cos θ * Real.cos θ' - 1 := by
+    have h := pertSol_two θ θ' hθ
+    rw [Real.cos_two_mul] at h
+    linear_combination h
+  rw [h0] at hP2
+  rw [Real.cos_three_mul, h0]
+  linear_combination hrec - hP1 + 2 * Real.cos θ * hP2
+
+/-- Non-triviality of the perturbed error for every `cosθ ≠ cosθ'`: `ψ_2 ≠ φ¹_2` when `cosθ' ≠ 0`, and `ψ_3 ≠ φ¹_3`
+when `cosθ' = 0` (then `cosθ ≠ 0`).  So `ψ ≠ φ¹` as soon as `cosθ ≠ cosθ'`. -/
+lemma pertSol_ne_of_cos_ne (θ θ' : ℝ) (hθ : Real.sin θ ≠ 0) (hne : Real.cos θ ≠ Real.cos θ') :
+    pertSol θ θ' 2 ≠ Real.cos (2 * θ') ∨ pertSol θ θ' 3 ≠ Real.cos (3 * θ') := by
+  by_cases h0 : Real.cos θ' = 0
+  · right
+    intro heq
+    have h3 := pertSol_three_of_cos_zero θ θ' hθ h0
+    rw [heq, sub_self] at h3
+    exact hne (by linarith)
+  · exact Or.inl (pertSol_two_ne θ θ' hθ h0 hne)
+
+/-- **The bound is not trivial.** For `N ≥ 2` and `cosθ ≠ cosθ'` its right-hand side is strictly positive (so it is
+not the trivial `0`); for `cosθ' ≠ 0` the error at `j = 2` is non-zero and is bounded by it. -/
+theorem volterra_instance_perturbed_nontrivial (h θ θ' : ℝ) (N : ℤ) (hh : 0 < h) (hN : 2 ≤ N)
+    (hθ : Real.sin θ ≠ 0) (hθ' : Real.sin θ' ≠ 0) (h0 : Real.cos θ' ≠ 0) (hne : Real.cos θ ≠ Real.cos θ')
+    (hsmall : 4 * (|2 * Real.cos θ' - 2 * Real.cos θ| * ((N : ℝ) - 1) / |Real.sin θ'|) ≤ 1) :
+    0 < 4 * (|2 * Real.cos θ' - 2 * Real.cos θ| * ((N : ℝ) - 1) / |Real.sin θ'|) ∧
+    pertSol θ θ' 2 ≠ Real.cos (2 * θ') ∧
+    |pertSol θ θ' 2 - Real.cos (2 * θ')|
+      ≤ 4 * (|2 * Real.cos θ' - 2 * Real.cos θ| * ((N : ℝ) - 1) / |Real.sin θ'|) := by
+  have ha : 0 < |2 * Real.cos θ' - 2 * Real.cos θ| :=
+    abs_pos.mpr (by intro h'; apply hne; linarith)
+  have hN' : (0 : ℝ) < (N : ℝ) - 1 := by
+    have : (2 : ℝ) ≤ (N : ℝ) := by exact_mod_cast hN
+    linarith
+  have hpos : 0 < 4 * (|2 * Real.cos θ' - 2 * Real.cos θ| * ((N : ℝ) - 1) / |Real.sin θ'|) :=
+    mul_pos (by norm_num) (div_pos (mul_pos ha hN') (abs_pos.mpr hθ'))
+  have hmem : (2 : ℤ) ∈ Icc 0 N := Finset.mem_Icc.mpr ⟨by norm_num, by omega⟩
+  have hb := volterra_instance_perturbed_closed h θ θ' N hh (by omega) hθ hθ' hsmall 2 hmem
+  have e2 : ((2 : ℤ) : ℝ) = 2 := by norm_num
+  rw [e2] at hb
+  exact ⟨hpos, pertSol_two_ne θ θ' hθ h0 hne, hb⟩
 
 -- Axiom pins for the headline statements (checked at build time).
 /-- info: 'FormalResearch.JE.flux_sum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -333,6 +558,22 @@ theorem volterra_instance (h θ : ℝ) (N : ℤ) (hh : 0 < h) (hN : 1 ≤ N) (h�
 /-- info: 'FormalResearch.JE.volterra_instance' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JE.volterra_instance
+
+/-- info: 'FormalResearch.JE.volterra_instance_perturbed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.volterra_instance_perturbed
+
+/-- info: 'FormalResearch.JE.volterra_instance_perturbed_closed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.volterra_instance_perturbed_closed
+
+/-- info: 'FormalResearch.JE.volterra_instance_perturbed_nontrivial' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.volterra_instance_perturbed_nontrivial
+
+/-- info: 'FormalResearch.JE.pertSol_ne_of_cos_ne' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.pertSol_ne_of_cos_ne
 
 
 end FormalResearch.JE
