@@ -5,6 +5,8 @@ public import FormalResearch.JB.JBSchur
 public import FormalResearch.JB.JBRatio
 public import FormalResearch.JB.JBGlue
 public import FormalResearch.JB.JBPolar
+public import FormalResearch.JB.JBFermion
+public import FormalResearch.JB.JBOneStepDef
 
 /-!
 # Paper J, Theorem B reduction (Lean, stage 1)
@@ -18,7 +20,11 @@ Umbrella for the Lean formalisation of the matrix lemmas of Paper J's Theorem B 
 * `JBGlue` : `lem:thb-glue` (`jb_glue`, `jb_glue_rev`).
 * `JBPolar` : `lem:thb-polar` (`jb_polar`).
 
-The `cor:fermions` and the one-step criterion are later tasks; the finite
+* `JBFermion` : `cor:fermions` (`jb_fermions`, parts (i)-(iii) with the paper's constants).
+* `JBOneStepDef` : the one-step criterion `thm:thb-onestep`: `Chart`, `OneStepInputs`, `OneStepReduction`
+  (statement; proof is the next stage) and a toy non-vacuity instance.
+
+The finite
 Schur lemma, ratio lemma, polar repair and fermion bounds of the Jacobi-operator package
 (`FormalResearch.MatrixAnalysis.JacobiOp*`) are reused, not redone.
 -/
