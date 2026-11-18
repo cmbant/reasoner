@@ -6,41 +6,38 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.SoftQuant
 /-!
 # Paper J, Layer 2 (L2.C7): the tails of the soft-edge eigenvector (chain step E6 of `PLAN.md`), `app_thmA` Step 4 (d)
 
-Source: `app_thmA.tex`, "Proof of Proposition prop:tha-W2", Step 4 (d) `(S4tail)`: the sites outside the window `Omega = {|Z_n| <= rho}` contribute `<= C((1+A)^{-1/3} + h^{1/2})` times the mass of `Omega`, `A = max(-a, 0)`.
-The paper splits the sites outside `Omega` into three kinds: (i) parabolic-cylinder sites beyond the Airy layer, (ii) left Weber sites, (iii) right Weber sites (the mirror of (ii)).
+Source: `app_thmA.tex`, "Proof of Proposition prop:tha-W2", Step 4 (d) `(S4tail)`: the sites outside the window `Omega = {|Z_n| <= rho}` contribute `<= C((1+A)^{-1/3} + h^{1/2})` times the mass of `Omega`, `A = max(-a,0)`.
+The paper splits the sites outside `Omega` into three kinds: (i) parabolic-cylinder sites beyond the Airy layer (`SoftTails2.lean`, T3), (ii) left Weber sites
+(`weber_tail`, T1), (iii) right Weber sites, the mirror of (ii) (`weber_tail_right`, T2).
 
-## The exact chain of lemmas (written before the proofs; every hypothesis is listed)
+## The exact chain of lemmas (every hypothesis is listed)
 
-Notation as in `SoftQuant.lean`: `T_0 = |lam_L| / kappa_b`, `V_n` = the numerator of `softEnv` (`softEnvNum`), four pieces (Weber `softEnvWeb CL`; `|lam_L| M_Olv(a,-Z_n)` for `Z_n <= 0`; `|kappa^ lam_R| M_Olv(a,Z_n)` for `Z_n > 0`, `u_n < u_c + eta/2`;
-`|kappa^| softEnvWeb CR` at the mirror row `N - n`).
+Notation as in `SoftQuant.lean`: `T_0 = |lam_L| / kappa_b`, `a = aOf`, `kappa_b = kappaBal a`.
 
-* **T0' (abstract).**  `geom_up`, `geom_down`: `e >= 0`, `e_{n+1} <= theta e_n` (resp. `e_{n-1} <= theta e_n`), `0 <= theta < 1` give `sum e <= e_{n_0}/(1-theta)` (resp. `e_{n_1}/(1-theta)`).  (Used for (i).)
-* **T0 (abstract).**  `sq_sum_geom_le`: `f_n <= r f_{n+1}` on `0 <= n <= n_1`, `f >= 0`, `0 <= r < 1` give `sum_{n <= n_1} f_n^2 <= f_{n_1+1}^2 r^2/(1-r^2)`.  (Used for (ii).)
-* **T1 (Weber tail, one chart), (ii).**  `weber_tail`: for a soft chart `C` (hypotheses: `ParabolicCylinderFacts`, `1 <= m`, `1 <= Lm`), and `psi` the exact solution seeded by `psi-hat^L_0`,
-  `sum_{0 <= n <= n_1} E_Web(n)^2 M_Web(n)^2 <= C_w T_0^2 exp(-c_w/h)` (`n_1 = chainW.NR`, the last row with `u_n <= u_c - eta/2`).  Inputs: `growth_ratio` (the recurrence and `grow_gap`: `psi_{n+1} >= (1 + gamma) psi_n > 0`),
-  `collar_lbW` (the Weber comparison sequence is `>= c_3 E_Web M_Web`) together with the Weber bound of item (1) (`propThaW2_item1`), so `E_Web M_Web <= (2/c_3) psi_n`; the geometric sum `sq_sum_geom_le`;
-  `soft_env_psi` at the row `n_1 + 1` (`|psi_{n_1+1}| <= C_E T_0 E_-(a,Z) M_bal`) and `Eminus_left_small` (`E_-(a, Z_{n_1+1}) <= exp(-c_Q/h)`, `Eminus_decay` towards the margin `zeta(-eta/4)`).
-* **T2 (Weber tail, right side), (iii).**  The same `weber_tail` for the chart `CR` of the mirror family and `psi'`, and the re-indexing `n -> N - n` (`uNode_mirror`): `kappa^`-weighted by the premise `|kappa^| |lam_R| <= C_k |lam_L|`.
-* **T3 (PC sites beyond the Airy layer), (i).**  `Eminus_crude` (exponential smallness from the Liouville--Green margin), `rhoWin_margin` (`rho^2/4 + a >= c_l (1+A)^{1/3}`), `geom_tail` (the geometric
-  bound along consecutive sites `|x_n| < eta/4`, `|Z_n| > rho`), `pc_tail`.
-* **T4 (assembly).**  `softEnv_eq` (`softEnv = softEnvNum / softNorm`), `soft_tail`.
+* **T0' (abstract).**  `geom_up`, `geom_down`: `e >= 0`, `e_{n+1} <= theta e_n` (resp. `e_{n-1} <= theta e_n`), `0 <= theta < 1` give `sum e <= e_{n_0}/(1-theta)` (resp. `e_{n_1}/(1-theta)`).
+* **T0 (abstract).**  `sq_sum_geom_le`: `f_n <= r f_{n+1}` on `0 <= n <= n_1`, `f >= 0`, `0 <= r < 1` give `sum_{n <= n_1} f_n^2 <= f_{n_1+1}^2 r^2/(1-r^2)`.
+* **T1 (Weber tail, one chart), (ii).**  `weber_tail`: for a soft chart `C` (`ParabolicCylinderFacts`, `1 <= m`, `1 <= Lm`) and the exact solution `psi` seeded by `psi-hat^L_0`,
+  `sum_{0 <= n <= n_1} E_Web(n)^2 M_Web(n)^2 <= C_w T_0^2 exp(-c_w/h)`, `n_1 = chainW.NR`.  Inputs: `growth_ratio`, `collar_lbW`, `propThaW2_item1`, `soft_env_psi`, `Eminus_left_small`.
+* **T2 (Weber tail, right side), (iii).**  `weber_tail_right`: `weber_tail` for the mirror chart `CR` (`SoftMirror CL CR`), transported along `n -> N - n` (`sum_Icc_reflect`; inputs `uNode_mirror`,
+  `aOf_mirror`, `shapeW` of `CR`), weighted by `|kappa-hat|` with the premise `|kappa-hat lam_R| <= C_k |lam_L|` (Step 4 (b); an explicit premise, as in `SoftQuant.lean`).
+  The sites are the right Weber rows `{n in rowsOf N : u_n >= u_c + eta/2}`.  The constant is `max Cw 0`, so that the bound is monotone in `Cw`.
+* **T3 (PC sites beyond the Airy layer), (i).**  `SoftTails2.lean`: `pc_tail_left` (`|u_n - u_c| < eta/2`, `Z_n < -rho`) and `pc_tail_right` (`Z_n > rho`, through the mirror chart).
+* **T4 (assembly).**  `softEnv_eq`, `soft_tail`: not done (see *Not formalised*).
 
 ## Differences from the paper
 
-* The Riemann-sum comparison of (i) (`f` monotone, `sum f(Z_n) <= 1 + (d_- sqrt h)^{-1} int f`) is replaced by the **geometric decay of consecutive sites** (`Eminus_decay` with `gamma^2 = rho^2/4 + a`, one step is `exp(-gamma d_- sqrt h)`), which gives
-  `sum <= M_rho^2 (1 + 1/(gamma d_- sqrt h))` with the same order `(1+A)^{-1/3} h^{-1/2}` (no integral, no substitution `S`).
-* The sites with `|x_n| >= eta/4` are bounded crudely by `E <= exp(-c/h)` (the margin of `zeta_far`, `zeta_far_out`) times their number `N + 1`; the paper's single exponential `e^{-c eta^2/h}` is not needed.
+* `weber_tail` and `weber_tail_right` are stated for the chart's own exact solution (`JacSol`) with the seed `psi-hat_0`; the paper's `psi^L`, `psi^R` are that solution.
+* The Riemann-sum comparison of (i) is replaced by a geometric sum over consecutive sites, and the split at `|x| = eta/4` is not needed (`zeta_deriv` holds on all of `|x| <= 2 eta`); see `SoftTails2.lean`.
 
-## Proved here (claim class: proved, no extra hypothesis beyond the chart structure and `ParabolicCylinderFacts`)
+## Proved here
 
-`sq_sum_geom_le`, `geom_up`, `geom_down`, `Mbal_le_one`, `Eminus_left_small`, and **`weber_tail`** (item (ii), T1): for every `p`, `N >= N0`, `h <= h0`, `|X - bandHi| <= delta0` and every exact solution seeded by `psi-hat^L_0`,
-`sum_{0<=n<=chainW.NR} softEnvWeb(n)^2 <= C_w T_0^2 exp(-c_w/h)`.
+`sq_sum_geom_le`, `geom_up`, `geom_down`, `Mbal_le_one`, `Eminus_left_small`, `weber_tail` (T1), `sum_Icc_reflect`, `weber_tail_right` (T2).  Axioms pinned at the end of the file (`[propext, Classical.choice, Quot.sound]`).
 
 ## Not formalised
 
-* T2 (right Weber tail (iii)): `weber_tail` applied to the mirror chart `CR` plus the re-indexing `n -> N - n` and the weight premise `|kappa^| |lam_R| <= C_k |lam_L|`.  Every ingredient is present (`weber_tail` is stated for an arbitrary soft chart, `uNode_mirror`, `jacSol_mirror`, `aOf_mirror`, `Zof_mirror`, `psiL_eq_kappa_psiR`); the transport of the sum is not written.
-* T3 (PC sites beyond the Airy layer (i)): `Eminus_crude`, `rhoWin_margin`, `pc_tail`.  `geom_up`/`geom_down` are the abstract ingredient; the remaining inputs are `Eminus_decay` with `gamma^2 = rho^2/4 + a` and the crude bound for `|x_n| >= eta/4`.  Note the chart constrains only `zeta^2` (`zeta_far_out`) for `x > 2 eta`, not its sign, so the crude bound there must use the margin of `zeta^2`, not monotonicity.
-* T4 (assembly `softEnv_eq`, `soft_tail`, and the relative form `(S4tail)` using the window mass of `PropThaWin` and the E4 premise `hmass`).
+* T4: `softEnv_eq` (`softEnv = softEnvNum / softNorm`) and the relative form `(S4tail)` of `soft_tail`.  This needs the window-mass lower bound `sum_{Omega} V_n^2 >= c |lam_L|^2 kappa^{-2} h^{-1/2}`
+  (`(S4mass)`, `PropThaWin` and `PropThaM`, plan items E3, E4), which is not a chart field and is not proved here; it would enter as an explicit premise.  The conversion of `V_n` to `E_- M` on the
+  PC sites (`molv_upper`, `CPC`) and the sum of T1, T2, T3 are otherwise routine.
 -/
 
 @[expose] public section
@@ -416,6 +413,146 @@ theorem weber_tail {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (hm
 
 end Left
 
+/-! ### T2: the right Weber tail (iii), the mirror of T1 -/
+
+section Right
+
+variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
+  {CL : SoftEdgeChart Fz P m q U V Lm} {CR : SoftEdgeChart (mirrorFamily Fz) P m q U V Lm}
+
+/-- Transport of a finite sum along `n ↦ N - n`: the rows `N - NR ≤ n ≤ N` against the rows `0 ≤ k ≤ NR`. -/
+lemma sum_Icc_reflect (N NR : ℤ) (f : ℤ → ℝ) :
+    ∑ n ∈ Finset.Icc (N - NR) N, f (N - n) = ∑ k ∈ Finset.Icc (0 : ℤ) NR, f k := by
+  apply Finset.sum_nbij' (fun n => N - n) (fun k => N - k)
+  · intro n hn; simp only [Finset.mem_Icc] at hn ⊢; omega
+  · intro k hk; simp only [Finset.mem_Icc] at hk ⊢; omega
+  · intro n _; simp
+  · intro k _; simp
+  · intro n _; rfl
+
+/-- **T2: the right Weber tail** (`app_thmA` Step 4 (d) (iii)).  Apply `weber_tail` to the mirror chart `CR` (its row `k` is the left row `N - k`,
+`uNode_mirror`, `aOf_mirror`), transport the sum along `n ↦ N - n`, and weight by `|kappa-hat|` with the premise
+`|kappa-hat lam_R| <= C_k |lam_L|` (Step 4 (b), an explicit premise as in `SoftQuant.lean`).  The sites are the right Weber rows
+`{n : u_n >= u_c + eta/2}`, i.e. `N - NR <= n <= N` for the last mirror Weber row `NR = CR.chainW.NR` (`shapeW` of `CR`). -/
+theorem weber_tail_right (hM : SoftMirror CL CR) {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC)
+    (hm : 1 ≤ m) (hLm : ∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ Lm h) :
+    ∃ Cw cw h0 : ℝ, 0 < h0 ∧ 0 < cw ∧ ∀ p ∈ P, ∀ N : ℕ, CL.N0 ≤ N → Fz.step N ≤ h0 → ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 →
+      ∀ Ck : ℝ, ∀ ψ : ℤ → ℝ, JacSol (mirrorFamily Fz) p N X (CR.chain p X N).NR ψ → ψ 0 = CR.psiHatL p X N 0 →
+        |softKappa CL CR p X N * CR.lamL p X N| ≤ Ck * |CL.lamL p X N| →
+        ∑ n ∈ (rowsOf N).filter (fun n => CL.uc p + CL.η / 2 ≤ uNode (Fz.step N) n),
+            (|softKappa CL CR p X N| * softEnvWeb CR p X N ((N : ℤ) - n)) ^ 2 ≤
+          Cw * Ck ^ 2 * (|CL.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 * Real.exp (-(cw / Fz.step N)) := by
+  obtain ⟨Cw, cw, h0, h0pos, hcw, H⟩ := weber_tail CR hf hm hLm
+  refine ⟨max Cw 0, cw, h0, h0pos, hcw, ?_⟩
+  intro p hp N hN hstep X hX Ck ψ hJ hseed hk
+  have hN0 : CR.N0 = CL.N0 := hM.2.2.2.2.2
+  have hδ : CR.δ0 = CL.δ0 := hM.2.2.2.2.1
+  have hηe : CR.η = CL.η := hM.2.2.2.1
+  have huc : CR.uc p = Fz.L - CL.uc p := hM.1 p hp
+  have hX' : |X - (mirrorFamily Fz).bandHi p| ≤ CR.δ0 := by
+    rw [bandHi_mirror, hδ]; exact hX
+  have hH : ∑ n ∈ Finset.Icc (0 : ℤ) (CR.chainW p X N).NR, softEnvWeb CR p X N n ^ 2 ≤
+      Cw * (|CR.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 * Real.exp (-(cw / Fz.step N)) := by
+    have h := H p hp N (by rw [hN0]; exact hN) hstep X hX' ψ hJ hseed
+    rw [aOf_mirror hM hp X N] at h
+    exact h
+  have hsh := CR.shapeW p hp X hX' N (by rw [hN0]; exact hN)
+  obtain ⟨-, -, hNR0, hA, hB⟩ := hsh
+  have hL := step_mul_succ Fz N
+  have hh0 : 0 < Fz.step N := SoftEdgeChart.step_pos (F := Fz) N
+  have hmono : ∀ a b : ℤ, a ≤ b → uNode (Fz.step N) a ≤ uNode (Fz.step N) b :=
+    fun a b hab => SoftEdgeChart.uNode_mono_le hh0.le hab
+  have hA' : uNode (Fz.step N) (CR.chainW p X N).NR ≤ Fz.L - CL.uc p - CL.η / 2 := by
+    have h := hA; rw [huc, hηe] at h; exact h
+  have hB' : Fz.L - CL.uc p - CL.η / 2 < uNode (Fz.step N) ((CR.chainW p X N).NR + 1) := by
+    have h := hB; rw [huc, hηe] at h; exact h
+  have hucp := (CL.uc_spec p hp).1
+  have hηp := CL.consts_pos.2.1
+  -- the mirror identity `u_{N-k} = L - u_k`
+  have hrefl : ∀ k : ℤ, uNode (Fz.step N) ((N : ℤ) - k) = Fz.L - uNode (Fz.step N) k :=
+    fun k => uNode_mirror Fz.L (Fz.step N) N k hL
+  set NR : ℤ := (CR.chainW p X N).NR with hNRdef
+  have hNRN : NR ≤ (N : ℤ) := by
+    have h1 := hA'
+    have h2 : (NR : ℝ) < (N : ℝ) + 1 := by
+      unfold uNode at h1
+      have hlt : ((NR : ℝ) + 1 / 2) * Fz.step N < ((N : ℝ) + 1) * Fz.step N := by
+        have : ((N : ℝ) + 1) * Fz.step N = Fz.L := by linarith [hL]
+        nlinarith
+      have := lt_of_mul_lt_mul_right hlt hh0.le
+      linarith
+    have h3 : NR < (N : ℤ) + 1 := by exact_mod_cast h2
+    omega
+  have hset : (rowsOf N).filter (fun n => CL.uc p + CL.η / 2 ≤ uNode (Fz.step N) n) =
+      Finset.Icc ((N : ℤ) - NR) N := by
+    ext n
+    simp only [rowsOf, Finset.mem_filter, Finset.mem_Icc]
+    constructor
+    · rintro ⟨⟨h0n, hnN⟩, hu⟩
+      by_contra hlt
+      have h4 := hmono n ((N : ℤ) - (NR + 1)) (by omega)
+      rw [hrefl (NR + 1)] at h4
+      linarith
+    · rintro ⟨h1, h2⟩
+      refine ⟨⟨by omega, h2⟩, ?_⟩
+      have h4 := hmono ((N : ℤ) - NR) n h1
+      rw [hrefl NR] at h4
+      linarith
+  have e1 : ∑ n ∈ Finset.Icc ((N : ℤ) - NR) N, (|softKappa CL CR p X N| * softEnvWeb CR p X N ((N : ℤ) - n)) ^ 2 =
+      |softKappa CL CR p X N| ^ 2 * ∑ k ∈ Finset.Icc (0 : ℤ) NR, softEnvWeb CR p X N k ^ 2 := by
+    calc ∑ n ∈ Finset.Icc ((N : ℤ) - NR) N, (|softKappa CL CR p X N| * softEnvWeb CR p X N ((N : ℤ) - n)) ^ 2
+        = ∑ n ∈ Finset.Icc ((N : ℤ) - NR) N,
+            (fun k => |softKappa CL CR p X N| ^ 2 * softEnvWeb CR p X N k ^ 2) ((N : ℤ) - n) :=
+          Finset.sum_congr rfl (fun n _ => by dsimp only; ring)
+      _ = ∑ k ∈ Finset.Icc (0 : ℤ) NR, (fun k => |softKappa CL CR p X N| ^ 2 * softEnvWeb CR p X N k ^ 2) k :=
+          sum_Icc_reflect (N : ℤ) NR (fun k => |softKappa CL CR p X N| ^ 2 * softEnvWeb CR p X N k ^ 2)
+      _ = _ := by rw [Finset.mul_sum]
+  rw [hset, e1]
+  have hE : 0 ≤ Real.exp (-(cw / Fz.step N)) := (Real.exp_pos _).le
+  have hkb := kappaBal_pos (CL.aOf p X N)
+  have hm0 : 0 ≤ max Cw 0 := le_max_right _ _
+  have h1 : |softKappa CL CR p X N| ^ 2 * ∑ k ∈ Finset.Icc (0 : ℤ) NR, softEnvWeb CR p X N k ^ 2 ≤
+      |softKappa CL CR p X N| ^ 2 *
+        (Cw * (|CR.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 * Real.exp (-(cw / Fz.step N))) :=
+    mul_le_mul_of_nonneg_left hH (sq_nonneg _)
+  have h2 : |softKappa CL CR p X N| ^ 2 *
+        (Cw * (|CR.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 * Real.exp (-(cw / Fz.step N))) ≤
+      max Cw 0 * (|softKappa CL CR p X N * CR.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 *
+        Real.exp (-(cw / Fz.step N)) := by
+    have hid : |softKappa CL CR p X N| ^ 2 * (|CR.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 =
+        (|softKappa CL CR p X N * CR.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 := by
+      rw [abs_mul]; ring
+    calc |softKappa CL CR p X N| ^ 2 *
+          (Cw * (|CR.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 * Real.exp (-(cw / Fz.step N)))
+        = Cw * (|softKappa CL CR p X N| ^ 2 * (|CR.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2) *
+            Real.exp (-(cw / Fz.step N)) := by ring
+      _ = Cw * (|softKappa CL CR p X N * CR.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 *
+            Real.exp (-(cw / Fz.step N)) := by rw [hid]
+      _ ≤ max Cw 0 * (|softKappa CL CR p X N * CR.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 *
+            Real.exp (-(cw / Fz.step N)) := by
+          apply mul_le_mul_of_nonneg_right _ hE
+          exact mul_le_mul_of_nonneg_right (le_max_left _ _) (sq_nonneg _)
+  have h3 : (|softKappa CL CR p X N * CR.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 ≤
+      Ck ^ 2 * (|CL.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 := by
+    have hc0 : 0 ≤ |softKappa CL CR p X N * CR.lamL p X N| / kappaBal (CL.aOf p X N) := by positivity
+    have hc : |softKappa CL CR p X N * CR.lamL p X N| / kappaBal (CL.aOf p X N) ≤
+        Ck * |CL.lamL p X N| / kappaBal (CL.aOf p X N) := div_le_div_of_nonneg_right hk hkb.le
+    calc (|softKappa CL CR p X N * CR.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2
+        ≤ (Ck * |CL.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 := pow_le_pow_left₀ hc0 hc 2
+      _ = Ck ^ 2 * (|CL.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 := by ring
+  have h4 : max Cw 0 * (|softKappa CL CR p X N * CR.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 *
+        Real.exp (-(cw / Fz.step N)) ≤
+      max Cw 0 * (Ck ^ 2 * (|CL.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2) *
+        Real.exp (-(cw / Fz.step N)) := by
+    apply mul_le_mul_of_nonneg_right _ hE
+    exact mul_le_mul_of_nonneg_left h3 hm0
+  have h5 : max Cw 0 * (Ck ^ 2 * (|CL.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2) *
+      Real.exp (-(cw / Fz.step N)) = max Cw 0 * Ck ^ 2 * (|CL.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 *
+      Real.exp (-(cw / Fz.step N)) := by ring
+  linarith [h1, h2, h4, h5]
+
+end Right
+
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.weber_tail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms weber_tail
@@ -431,6 +568,10 @@ end Left
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.geom_down' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms geom_down
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.weber_tail_right' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms weber_tail_right
 
 end FormalResearch.JacobiEigenvectors.TheoremA
 
