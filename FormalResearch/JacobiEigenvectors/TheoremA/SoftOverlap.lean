@@ -174,6 +174,23 @@ lemma TransferAtΛ_of_linear {h : ℝ} {p : ℕ} {Λ : ℝ} (hΛ : 1 ≤ Λ) (a 
   · rw [t01, abs_neg]; exact hb
   · rw [t10, abs_neg]; exact hc
 
+/-- **The comparison sequences of two patches that differ by a constant unimodular combination agree** (`psi-hat_3 = psi-hat_2`, R2): if the pair of patch `3` is the combination `(a, b; c, d)`, `a d - b c = 1`, of the pair of
+patch `2` at the sites `j_2, j_2 + 1` and at the site `j`, then `psi-hat_3(j) = psi-hat_2(j)` (`c_3 = M_2 c_2`, `M_2 = [[d, -b], [-c, a]]`). -/
+lemma psiHat_three_of_linear (φ1 φ2 : ℕ → ℤ → ℝ) (jj : ℕ → ℤ) (a b c d : ℝ) (hdet : a * d - b * c = 1)
+    (h0 : φ1 3 (jj 2) = a * φ1 2 (jj 2) + c * φ2 2 (jj 2))
+    (h0' : φ1 3 (jj 2 + 1) = a * φ1 2 (jj 2 + 1) + c * φ2 2 (jj 2 + 1))
+    (h1 : φ2 3 (jj 2) = b * φ1 2 (jj 2) + d * φ2 2 (jj 2))
+    (h1' : φ2 3 (jj 2 + 1) = b * φ1 2 (jj 2 + 1) + d * φ2 2 (jj 2 + 1))
+    (hne : φ1 2 (jj 2) * φ2 2 (jj 2 + 1) - φ2 2 (jj 2) * φ1 2 (jj 2 + 1) ≠ 0) (j : ℤ)
+    (hj0 : φ1 3 j = a * φ1 2 j + c * φ2 2 j) (hj1 : φ2 3 j = b * φ1 2 j + d * φ2 2 j) :
+    Engine.psiHat φ1 φ2 jj 3 j = Engine.psiHat φ1 φ2 jj 2 j := by
+  obtain ⟨t00, t01, t10, t11, -⟩ := transMat_of_linear φ1 φ2 jj 2 a b c d hdet h0 h0' h1 h1' hne
+  have hc : cvec φ1 φ2 jj 3 = mulMV (transMat φ1 φ2 jj 2) (cvec φ1 φ2 jj 2) := cvec_succ_succ φ1 φ2 jj 1
+  unfold Engine.psiHat
+  rw [hc, hj0, hj1]
+  simp only [mulMV, Matrix.cons_val_zero, Matrix.cons_val_one, t00, t01, t10, t11]
+  linear_combination (cvec φ1 φ2 jj 2 0 * φ1 2 j + cvec φ1 φ2 jj 2 1 * φ2 2 j) * hdet
+
 end LadderData
 
 end FormalResearch.JacobiEigenvectors.Charts

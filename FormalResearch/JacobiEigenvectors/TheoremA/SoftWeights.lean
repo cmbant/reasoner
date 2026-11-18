@@ -300,6 +300,67 @@ lemma Eminus_decay (a γ : ℝ) {z1 z2 : ℝ} (h12 : z1 ≤ z2) (h2 : z2 ≤ 0) 
       simpa [smul_eq_mul, mul_comm] using h1
     linarith
 
+/-- `E_bar(a,-z) = E_bar(a,z)^{-1}` (the integrand is even). -/
+lemma Ebar_neg (a z : ℝ) : Ebar a (-z) = (Ebar a z)⁻¹ := by
+  have h1 : (∫ t in (0 : ℝ)..z, gBar a (-t)) = ∫ t in (-z)..(-(0 : ℝ)), gBar a t := intervalIntegral.integral_comp_neg (gBar a)
+  have h2 : ∀ t, gBar a (-t) = gBar a t := fun t => by unfold gBar; rw [neg_sq]
+  simp only [h2, neg_zero] at h1
+  have h3 : (∫ t in (0 : ℝ)..(-z), gBar a t) = -∫ t in (0 : ℝ)..z, gBar a t := by
+    rw [intervalIntegral.integral_symm (-z) 0, h1]
+  have e : ∀ w, Ebar a w = Real.exp (-(∫ t in (0 : ℝ)..w, gBar a t)) := fun w => rfl
+  rw [e, e, h3, ← Real.exp_neg]
+
+/-- The weight of `M_Olv`: `W_well(a,Z)` (`a <= 0`) or `E_bar(a,Z)` (`a > 0`). -/
+def Wmol (a z : ℝ) : ℝ := if a ≤ 0 then Wwell a z else Ebar a z
+
+/-- `W_mol(a,-Z) = E_-(a,Z)` on the patch `Z <= 0`. -/
+lemma Wmol_neg_of_nonpos (a : ℝ) {z : ℝ} (hz : z ≤ 0) : Wmol a (-z) = Eminus a z := by
+  unfold Wmol Eminus
+  by_cases ha : a ≤ 0
+  · rw [if_pos ha, if_pos ha]
+    unfold Wwell
+    rw [if_pos (by linarith), abs_of_nonpos hz]
+  · rw [if_neg ha, if_neg ha, Ebar_neg]
+
+/-- `W_mol(a,-Z) = E_swap(a,Z)` on the patch `Z > 0`. -/
+lemma Wmol_neg_of_pos (a : ℝ) {z : ℝ} (hz : 0 < z) : Wmol a (-z) = Eswap a z := by
+  unfold Wmol Eswap
+  by_cases ha : a ≤ 0
+  · rw [if_pos ha, if_pos ha]
+    unfold Wwell
+    rw [if_neg (by linarith), abs_neg, abs_of_pos hz]
+  · rw [if_neg ha, if_neg ha, Ebar_neg]
+
+lemma k2_neg (a z : ℝ) : k2 a (-z) = k2 a z := by unfold k2; rw [neg_sq]
+
+lemma Mbal_neg (a z : ℝ) : Mbal a (-z) = Mbal a z := by unfold Mbal; rw [k2_neg]
+
+/-- **`M_Olv` from below** (R3): `c_PC kappa^{-1} W_mol M_bal <= M_Olv` (`molv_well`, `molv_bar`). -/
+lemma molv_lower {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (a z : ℝ) :
+    cPC * (kappaBal a)⁻¹ * Wmol a z * Mbal a z ≤ Molv U V a z := by
+  unfold Wmol
+  by_cases ha : a ≤ 0
+  · rw [if_pos ha]; exact (hf.molv_well a ha z).1
+  · rw [if_neg ha]; exact (hf.molv_bar a (not_le.mp ha) z).1
+
+/-- `E_swap(a,z) >= 1` for `z >= 0` (the swapped weight is the inverse of a recessive one). -/
+lemma Eswap_ge_one (a : ℝ) {z : ℝ} (hz : 0 ≤ z) : 1 ≤ Eswap a z := by
+  unfold Eswap
+  by_cases ha : a ≤ 0
+  · rw [if_pos ha]
+    exact (one_le_inv₀ (Ewell_pos _ _)).mpr (Ewell_le_one a (abs_nonneg _))
+  · rw [if_neg ha]
+    refine (one_le_inv₀ (Ebar_pos _ _)).mpr ?_
+    unfold Ebar
+    rw [Real.exp_le_one_iff, neg_nonpos]
+    exact intervalIntegral.integral_nonneg hz (fun t _ => Real.sqrt_nonneg _)
+
+lemma Eswap_pos (a z : ℝ) : 0 < Eswap a z := by
+  unfold Eswap
+  split_ifs
+  · exact inv_pos.mpr (Ewell_pos _ _)
+  · exact inv_pos.mpr (Ebar_pos _ _)
+
 /-- `exp(-c/h) <= (m+1)!/c^{m+1} h^{m+1}` for `c, h > 0`. -/
 lemma exp_neg_div_le (c h : ℝ) (hc : 0 < c) (hh : 0 < h) (m : ℕ) :
     Real.exp (-(c / h)) ≤ (Nat.factorial (m + 1) : ℝ) / c ^ (m + 1) * h ^ (m + 1) := by

@@ -75,12 +75,6 @@ lemma kappaBal_pos (a : ℝ) : 0 < kappaBal a := by
       apply Real.Gamma_pos_of_pos
       linarith [not_le.mp h]
 
-lemma Eswap_pos (a z : ℝ) : 0 < Eswap a z := by
-  unfold Eswap
-  split_ifs
-  · exact inv_pos.mpr (Ewell_pos _ _)
-  · exact inv_pos.mpr (Real.exp_pos _)
-
 lemma k2_nonneg (a z : ℝ) : 0 ≤ k2 a z := le_max_of_le_left (abs_nonneg _)
 
 lemma Mbal_nonneg (a z : ℝ) : 0 ≤ Mbal a z := Real.rpow_nonneg (k2_nonneg a z) _
