@@ -3,6 +3,8 @@ module
 public import Mathlib
 public import FormalResearch.JacobiEigenvectors.TheoremA.BulkPhase
 public import FormalResearch.JacobiEigenvectors.TheoremA.Count
+public import FormalResearch.JacobiEigenvectors.TheoremA.BulkPhasesKappa
+public import FormalResearch.JacobiEigenvectors.TheoremA.MonotoneAction
 
 /-!
 # Paper J, Layer 2: the bulk windows (`lem:smo-bulkphase` (2)--(3), L2.S1; what is proved and what is not)
@@ -22,30 +24,32 @@ Source: Paper J `app_thmA.tex`, `lem:smo-bulkphase` ((1) phases, (2) Casoratian,
   (the paper's (i) of `lem:tha-count`; proof: `bulk_exact_cas` at a zero, `exists_int_near`, `Sigma - S_0 = O(h^2)` from `Sigma_one`, `Sigma_zero`, `Sigma_bdd`).
 * **(3), (ii) the sign of `D` at the nodes** `[P]` `bulk_node_sign`: at `S_0(X) = pi h k` one has `sign D = (-1)^k` (so `sigma = +1` in the frozen (ii); `D = -C(p,q)` is minus the
   `C`-Casoratian, `C = pre sin(Sigma/h - pi/2) = -pre (-1)^k cos(O(h))`).
-* **(3) counting** `[P, conditional]` `bulk_count`: `propThaCount` on `I = [Jlo, Jhi]`, `Phi = S_0^{(t)}`, `eps = C h^2`: at most one zero of `D` per window, exactly one when the bracketing interval
-  lies in `S_0(I)`.  Its hypotheses are exactly those of `propThaCount` that are *not* proved here: **(a) `S_0^{(t)}` strictly decreasing on the block** (`hmono`; paper: `S_0' = -int T^{-1/2} < 0`,
-  `lem:tha-geom`; not formalised, no Lean module proves the monotonicity of the action) and **(b) the sign of `kappa'` at a zero in a window** (`(iii)` of `lem:tha-count`, `hkappa`).
+* **(3) counting** `[P]` `bulk_count`: `propThaCount` on `I = [Jlo, Jhi]`, `Phi = S_0^{(t)}`, `eps = C h^2`: at most one zero of `D` per window, exactly one when the bracketing interval
+  lies in `S_0(I)`.  No unproved hypothesis remains besides the named structures (`BulkPhaseInputs`, the chart fields, `ParabolicCylinderFacts`, `StdAssump`): the two former inputs are
+  **(a) `S_0^{(t)}` strictly decreasing on the block**, `bulk_actionS0_strictAnti` (`TheoremA/MonotoneAction.lean`: the integrand is pointwise antitone in `X` and strictly so on a set of positive
+  measure; no differentiation under the integral), and **(b) the sign of `kappa'` at a zero in a window** (`(iii)` of `lem:tha-count`), `bulk_kappa_sign` (below).
+* **(1) phases** `[P]` `bulk_phase_left` (`TheoremA/BulkPhases.lean`, with `TheoremA/BulkPhasesPC.lean`): `psi-hat^L_n = rho [cos(Theta_L(u_n)/h - pi/4) + O(h)]`, `rho >= c1 h^{1/4}`, on every
+  row of the overlap; the right chart is the mirror chart, so the same theorem gives the right phase.  `exact_phase_row` (`TheoremA/BulkPhasesKappa.lean`) transfers it to the exact edge solution
+  (`prop:tha-W` (1)).  Two chart fields were added (findings F-S1-1, F-S1-4 below); the derivative of `phase_osc` (F-S1-2) is derived, not assumed.
+* **(3)(iii) the sign of `kappa'`** `[P]` `bulk_kappa_sign`: for every `Cw`, for `N` large, positive bonds, `|S_0(X) - pi h (k + 1/2)| <= Cw h^2` and `p_n = kappa' q_n` for all `n`:
+  `sign kappa' = sign (-1)^k`.  Proof: (1) for the exact left and mirror solutions at two consecutive overlap rows `n, n+1`; `Theta_L(u) + Theta_R(L - u) = S_0` (`thetaL_add_mirror`) gives
+  `alpha_n + beta_{N-n} = pi k + O(h)`, hence `cos beta = (-1)^k cos alpha + O(h)`; `theta_margin` makes `Theta_L` advance by an angle in `[theta_1, pi - theta_1]` per step, so
+  `cos^2 alpha_n + cos^2 alpha_{n+1} >= 1 - cos theta_1`; at a row with `cos^2 alpha >= eps/2`, `(-1)^k psi^L_n psi^R_n = rho_L rho_R (cos^2 alpha + O(h)) > 0`, and `psi^L_n psi^R_n = kappa' a b q_n^2`.
 * **(3), the labels `k' = k`** `[X]`: `BulkWindowLabels` (`BulkPhase.lean`).  The windows of a block fix `k'` only up to a constant shift (the counting gives a contiguous range); the
-  anchor is the soft-edge window `0` (`PropThaW2` (3), (4); `L2.C7`, not started) together with the count "no eigenvalue above window `0` of the upper soft edge".
-* **(1) phases** `[X]`: `psi-hat^{L,R}_n = rho_{L,R}(u_n) [cos(Theta_{L,R}(u_n)/h - pi/4) + O(h)]`.  Needs (a) the corrector row `A^{[m]}(u_n, h^2) = g_0(u_n) + O(h^2)` with `g_0 > 0` (a field of
-  `BulkWeberChart`: it only has `|A| <= K_A`, `|hB| <= K_B`; `prop:cha-halfrow`/`lem:cha-weber-coord` (3), `thm:eng-corr` give it), (b) the *derivative* expansion of `U` (DLMF 12.10.19) for
-  the term `hB h^{1/2} U'` (`ParabolicCylinderFacts.phase_osc` is the value expansion only), (c) the calculus identity `2 u eta(Y/(2 sqrt u)) = int_Y^{2 sqrt u} sqrt(u - s^2/4) ds`
-  and the lower bound `rho >~ h^{1/4}` (`phase_osc`'s `g(mu)` is existential).  Not proved; findings F-S1-1, F-S1-2 below.
+  anchor is the soft-edge window `0` (`PropThaW2` (3), (4); `L2.C7`) together with the count "no eigenvalue above window `0` of the upper soft edge".  `bulk_kappa_sign` is stated with the
+  *window* label `k` of `S_0`, which is what `propThaCount` uses; it does not identify `k` with the eigenvalue index.
 * **(2) Casoratian with `sin theta`** `[not needed]`: `a rho_L rho_R [sin theta sin(S_0/h - pi/2) + O(h)]` is replaced in the formalisation by (4) with the positive prefactor `pre` (which absorbs
-  `a rho_L rho_R sin theta (1 + O(h))`); the fine structure of `pre` is not used anywhere below.  `(3)(iii)` is the only place where (1) is needed (see below).
+  `a rho_L rho_R sin theta (1 + O(h))`).  The ratio `rho(u_{n+1}) = rho(u_n)(1 + O(h))` and the continuity of `rho` in `X` (used only in the `sin theta` form) are not proved.
 
-## Why `(iii)` and the labels are not reachable from `(4)` alone (finding F-S1-3)
+## Findings (round 6; the frozen statements are not edited here)
 
-`(iii)` is the sign of `D'(X) = kappa' sum q_n^2` at a zero (Green's identity, `Sder_zero`), a statement about the *derivative* of `D`; `(4)` controls `D` only in `C^0` (relative error `O(h^m)`, while
-the oscillation of `D` inside a window of width `O(h^2)` is `O(h)`).  The paper gets the sign of `kappa'` by comparing the phases (1) of the left and right edge solutions at an eigenvalue.
-Equivalently `sign kappa' = (-1)^{index}` (Sturm), which is circular with the labels.
-
-## Findings (precise minimal corrections; the frozen statements are not edited here)
-
-* **F-S1-1** (`BulkWeberChart` lacks the leading corrector): add `A_lead : exists cg > 0, exists Cg, forall mu X N k in the chain, |A(u_k, h^2) - g_0(u_k)| <= Cg h^2, cg <= g_0(u_k)` with `g_0` continuous
-  (paper: `A^{[m]} = g_0 + O(h^2)`, `g_0 > 0`, `lem:smo-bulkphase` (1)).  Without it the phase of `psi-hat` is not determined (the row `(A, hB)` could be rotated).
-* **F-S1-2** (`ParabolicCylinderFacts.phase_osc` has no derivative statement): add DLMF 12.10.19 (`U'(-mu^2/2, mu t sqrt 2)` with the same `g(mu)`, `sin(mu^2 eta - pi/4)`), needed for the `hB U'` term.
-* **F-S1-3** as above: `(iii)` and the label identification need either (1) and the soft-edge windows (the paper's route) or a Sturm oscillation theorem for the Jacobi matrix (not in Mathlib).
+* **F-S1-1 confirmed and refined** (`BulkWeberChart` lacks the leading corrector, so the phase of `psi-hat` is not determined): added the field `corr_lead` (`Charts/BulkWeber.lean`): on the overlap rows
+  the row `(A^{[m]}(u_k, h^2), h B)` equals `(g_0(u_k) + O(h^2), O(h))` with `g_0 = sqrt(E_0) / u` bounded below, and `hB = O(h)` (the paper's `lem:smo-bulkphase` (1) uses both).
+* **F-S1-2 refined (no field)**: the derivative of `phase_osc` (DLMF 12.10.19) is not needed as an input: the envelope bound `E_Web M_Web = O(h^{1/4})` and the phase are obtained from the value expansion
+  `phase_osc` by Landau interpolation on a window of length `1/mu` (`TheoremA/BulkPhasesPC.lean`: `landau_deriv`, `Env2`, `wronsk_le_Env2`, `phase_pack`), together with the Wronskian.
+* **F-S1-3 (Sturm alternative)**: a Sturm oscillation theorem for Jacobi matrices is not in Mathlib; the paper's route via (1) was taken instead and gives `bulk_kappa_sign`.
+* **F-S1-4 (new)**: (iii) needs a *uniform* margin `theta_1 > 0` of the phase increment per step on the overlap, i.e. `|X - B_0| <= (1 - eps) 2 sqrt(E_0)` on `[c', c]` uniformly in `(mu, X)`.  It is not derivable
+  from `overlap_in_well` (which only says `T > 0` with margin `sigma` in the endpoints); added as the field `theta_margin`, a statement of `lem:tha-geom`/`prop:cha-halfrow` (compactness of the block).
 
 ## Differences from the paper
 
@@ -54,7 +58,7 @@ The paper's `I` is the interval `J_nu`; here `I = [Jlo, Jhi]` of the block.  `le
 
 ## Not formalised
 
-(1), (2) in the form with `sin theta`, (3) the labels, the strict monotonicity of `S_0`, the sign `(iii)`: see above.
+(2) in the form with `sin theta`, (3) the labels `k' = k` (soft-edge window `0` anchor): see above.
 -/
 
 @[expose] public section
@@ -382,18 +386,218 @@ lemma actionS0_continuousOn (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) 
     h.continuousOn.comp (continuous_id.prodMk continuous_const).continuousOn (fun X hX => ⟨hX, ht⟩)
   exact hc.congr (fun X hX => (PI.Sigma_zero μ hμ X hX t ht).symm)
 
-/-- **(3), counting** (conditional): `propThaCount` for the block `I = [Jlo, Jhi]`, `Phi = S_0^{(t)}`, `eps = C h^2`.  At most one zero of `D` in each window and exactly one in each window whose
-bracketing interval lies in `S_0(I)`, given (a) `S_0^{(t)}` strictly decreasing on the block and (b) the sign `(iii)` of `kappa'` at the zeros in the windows (the two inputs not proved here, see the
-module docstring).  (i) and (ii) of `lem:tha-count` are `bulk_zero_window`, `bulk_node_sign`. -/
-theorem bulk_count (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
+set_option maxHeartbeats 4000000 in
+/-- **(3) (iii), the sign of `kappa'` at an eigenvalue of a window** (`lem:smo-bulkphase` (3) (iii)): for every window constant `Cw` there is `h0` such that for `X` with
+`|S_0(X) - pi h (k + 1/2)| <= Cw h^2` and `p_n = kappa' q_n` for all rows (`D(X) = 0`), `sign kappa' = sign (-1)^k` (`sigma' = 1`).
+Proof as in the paper: `kappa' = psi^L_n psi^R_n / (psi^R_n)^2 * (positive seeds)`, the exact edge solutions have the phases `Theta_L/h - pi/4`, `Theta_R/h - pi/4`
+(`exact_phase_row`, from `bulk_phase_left` and `prop:tha-W` (1)); at a window `alpha + beta = pi k + O(h)`, so `cos beta = (-1)^k cos alpha + O(h)` and
+`(-1)^k psi^L_n psi^R_n = rho_L rho_R (cos^2 alpha + O(h)) > 0` at a row of the overlap with `cos^2 alpha >= eps/2`; two consecutive rows exist and
+`cos^2 alpha_n + cos^2 alpha_{n+1} >= 1 - cos(theta_1) = eps` (`cos_sq_pair`, from the margin `theta_margin` and `thetaL_incr`). -/
+theorem bulk_kappa_sign {cPC CPC : ℝ} (PC : ParabolicCylinderFacts U V cPC CPC)
+    (hcoup : CR.c = F.L - CL.c' ∧ CR.c' = F.L - CL.c) {Kd r : ℕ} (hr : StdAssump F P Kd r) (Cw : ℝ) :
+    ∃ h0 : ℝ, 0 < h0 ∧ ∃ N1 : ℕ, 1 ≤ N1 ∧ ∀ p ∈ P, ∀ N : ℕ, N1 ≤ N → F.step N ≤ h0 →
+      (∀ n : ℤ, 0 ≤ n → n < N → 0 < F.bondA p N n) → ∀ X ∈ Set.Icc Jlo Jhi, ∀ k : ℕ,
+        |actionS0 F p X - Real.pi * F.step N * ((k : ℝ) + 1 / 2)| ≤ Cw * F.step N ^ 2 → ∀ κ' : ℝ,
+        (∀ n ≤ N, pSol F p N X n = κ' * qSol F p N X (N - n)) →
+          SignType.sign κ' = SignType.sign ((-1 : ℝ) ^ k) := by
+  classical
+  have hm1 : 1 ≤ max M 1 := le_max_right _ _
+  obtain ⟨EL, h0L, hEL, hh0L, hLex⟩ := exact_phase_row CL hm1 PC
+  obtain ⟨ER, h0R, hER, hh0R, hRex⟩ := exact_phase_row CR hm1 PC
+  obtain ⟨ε, hε0, hε1, hmarg⟩ := CL.theta_margin
+  obtain ⟨hc'L, hc'cL, hσL, hcσL, -, -, -, -, -, -⟩ := CL.consts_pos
+  obtain ⟨Cw', hCw'⟩ : ∃ x : ℝ, x = max Cw 0 := ⟨_, rfl⟩
+  have hCw'0 : 0 ≤ Cw' := by rw [hCw']; exact le_max_right _ _
+  have hCwle : Cw ≤ Cw' := by rw [hCw']; exact le_max_left _ _
+  obtain ⟨K1, hK1⟩ : ∃ x : ℝ, x = EL + ER + Cw' + EL * (Cw' + ER) := ⟨_, rfl⟩
+  have hK10 : 0 ≤ K1 := by rw [hK1]; positivity
+  refine ⟨min (min (min h0L h0R) 1) (min (min ((CL.c - CL.c') / 6) CL.σ) ((ε / 2) / (2 * (K1 + 1)))),
+    lt_min (lt_min (lt_min hh0L hh0R) one_pos) (lt_min (lt_min (by linarith) hσL) (by positivity)),
+    max (max CL.N0 CR.N0) 1, le_max_right _ _, ?_⟩
+  intro p hp N hN hstep hpos X hX k hwin κ' hκ'
+  have hN1 : CL.N0 ≤ N := le_trans (le_trans (le_max_left _ _) (le_max_left _ _)) hN
+  have hN2 : CR.N0 ≤ N := le_trans (le_trans (le_max_right _ _) (le_max_left _ _)) hN
+  have hNone : 1 ≤ N := le_trans (le_max_right _ _) hN
+  have hst : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
+  have hstepR : (mirrorFamily F).step N = F.step N := rfl
+  have hhL : F.step N ≤ h0L := hstep.trans (((min_le_left _ _).trans (min_le_left _ _)).trans (min_le_left _ _))
+  have hhR : F.step N ≤ h0R := hstep.trans (((min_le_left _ _).trans (min_le_left _ _)).trans (min_le_right _ _))
+  have hh1 : F.step N ≤ 1 := hstep.trans ((min_le_left _ _).trans (min_le_right _ _))
+  have hhd : F.step N ≤ (CL.c - CL.c') / 6 := hstep.trans ((min_le_right _ _).trans ((min_le_left _ _).trans (min_le_left _ _)))
+  have hhσ : F.step N ≤ CL.σ := hstep.trans ((min_le_right _ _).trans ((min_le_left _ _).trans (min_le_right _ _)))
+  have hhK : F.step N ≤ (ε / 2) / (2 * (K1 + 1)) := hstep.trans ((min_le_right _ _).trans (min_le_right _ _))
+  have hLs : F.step N * ((N : ℝ) + 1) = F.L := step_mul_succ F N
+  obtain ⟨g, hyp, hG2, hB2⟩ := stdAssump_hyp_C2 hr hp
+  -- exact solutions
+  have hα : 0 < CL.psiHatL p X N 0 := by
+    rw [show CL.psiHatL p X N 0 = (CL.chain p X N).phi (F.step N) 0 1 0 from psiHat_one_eq (CL.chain p X N) (F.step N) 0]
+    exact CL.seed_pos _ hp X hX N hN1
+  have hβ : 0 < CR.psiHatL p X N 0 := by
+    rw [show CR.psiHatL p X N 0 = (CR.chain p X N).phi ((mirrorFamily F).step N) 0 1 0 from psiHat_one_eq (CR.chain p X N) ((mirrorFamily F).step N) 0]
+    exact CR.seed_pos _ hp X hX N hN2
+  set α0 := CL.psiHatL p X N 0 with hα0
+  set β0 := CR.psiHatL p X N 0 with hβ0
+  have hJL : JacSol F p N X (CL.chain p X N).NR (fun n => α0 * pZ F p N X n) := by
+    intro n hn0 hn1
+    have h := Lop_pZ hpos hNone X n hn0 (by have := chain_NR_le_N CL p hp X hX N hN1; omega)
+    rw [Lop_smul]
+    exact mul_eq_zero_of_right _ h
+  have hJR : JacSol (mirrorFamily F) p N X (CR.chain p X N).NR (fun i => β0 * qZ F p N X ((N : ℤ) - i)) := by
+    intro n hn0 hn1
+    rw [show (fun i => β0 * qZ F p N X ((N : ℤ) - i)) = fun i => β0 * (fun j => qZ F p N X j) ((N : ℤ) - i) from rfl,
+      Lop_smul, lop_mirror_part F p N X (qZ F p N X)
+        (fun j hj1 hjN => Lop_qZ hpos hNone X j hj1 hjN) n hn0 (by have := chain_NR_le_N CR p hp X hX N hN2; omega), mul_zero]
+  have hseedL : (fun n => α0 * pZ F p N X n) 0 = CL.psiHatL p X N 0 := by
+    show α0 * pZ F p N X 0 = α0
+    rw [pZ_zero, mul_one]
+  have hseedR : (fun i => β0 * qZ F p N X ((N : ℤ) - i)) 0 = CR.psiHatL p X N 0 := by
+    show β0 * qZ F p N X ((N : ℤ) - 0) = β0
+    rw [sub_zero, qZ_N, mul_one]
+  -- two consecutive overlap rows
+  obtain ⟨S, hS, hScard⟩ := count_pairs (F.step N) F.L CL.c' CL.c N hst hLs hc'L hc'cL (by linarith)
+  have h6 : 6 ≤ (CL.c - CL.c') / F.step N := by
+    rw [le_div_iff₀ hst]; linarith
+  have hSne : S.Nonempty := by
+    apply Finset.card_pos.mp
+    have : (0 : ℝ) < (S.card : ℝ) := by linarith
+    exact_mod_cast this
+  obtain ⟨n, hnS⟩ := hSne
+  obtain ⟨hn0, hn1, hc1, hc2⟩ := hS n hnS
+  have hsucc : uNode (F.step N) (n + 1) = uNode (F.step N) n + F.step N := by
+    unfold uNode; push_cast; ring
+  -- the margin and the phase increment
+  have hmargin := hmarg p hp X hX
+  have hε1pos : 0 < Real.arccos (1 - ε) := Real.arccos_pos.mpr (by linarith)
+  have hε1le : Real.arccos (1 - ε) ≤ Real.pi / 2 := Real.arccos_le_pi_div_two.mpr (by linarith)
+  have hcosε1 : Real.cos (Real.arccos (1 - ε)) = 1 - ε := Real.cos_arccos (by linarith) (by linarith)
+  have hcL : CL.c < F.L := by linarith
+  have hinc := thetaL_incr (L := F.L) F.L_pos hyp hG2 hB2 X hc'L hcL hε1 hmargin hc1
+    (show uNode (F.step N) n ≤ uNode (F.step N) (n + 1) by rw [hsucc]; linarith) hc2
+  rw [hsucc] at hinc
+  have hh' : uNode (F.step N) n + F.step N - uNode (F.step N) n = F.step N := by ring
+  rw [hh'] at hinc
+  obtain ⟨θb, hθb⟩ : ∃ θb : ℝ, θb = (thetaL F.L (F.G 0 p) (F.B 0 p) X (uNode (F.step N) (n + 1)) -
+      thetaL F.L (F.G 0 p) (F.B 0 p) X (uNode (F.step N) n)) / F.step N := ⟨_, rfl⟩
+  have hθ1 : Real.arccos (1 - ε) ≤ θb := by
+    rw [hθb, le_div_iff₀ hst]; rw [hsucc]; linarith [hinc.1]
+  have hθ2 : θb ≤ Real.pi - Real.arccos (1 - ε) := by
+    rw [hθb, div_le_iff₀ hst]; rw [hsucc]; linarith [hinc.2]
+  obtain ⟨αn, hαn⟩ : ∃ a : ℝ, a = thetaL F.L (F.G 0 p) (F.B 0 p) X (uNode (F.step N) n) / F.step N - Real.pi / 4 := ⟨_, rfl⟩
+  have hαn1 : thetaL F.L (F.G 0 p) (F.B 0 p) X (uNode (F.step N) (n + 1)) / F.step N - Real.pi / 4 = αn + θb := by
+    rw [hαn, hθb]; field_simp; ring
+  have hpair := cos_sq_pair αn θb (Real.arccos (1 - ε)) hε1pos hε1le hθ1 hθ2
+  rw [hcosε1] at hpair
+  have hpair' : ε ≤ Real.cos αn ^ 2 + Real.cos (αn + θb) ^ 2 := by linarith
+  have hS0 : actionS0 F p X = ∫ v in (0 : ℝ)..F.L, actInt F.L (F.G 0 p) (F.B 0 p) X v := rfl
+  have hpq : ∀ r : ℤ, 0 ≤ r → r ≤ (N : ℤ) → pZ F p N X r = κ' * qZ F p N X r := by
+    intro r hr0 hrN
+    have h1 := hκ' r.toNat (by omega)
+    have e : ((N : ℤ) - r).toNat = N - r.toNat := by omega
+    unfold pZ qZ
+    rw [h1, e]
+  -- the sign at one row
+  have key : ∀ r : ℤ, 0 ≤ r → r ≤ (N : ℤ) → CL.c' ≤ uNode (F.step N) r → uNode (F.step N) r ≤ CL.c →
+      ε / 2 ≤ Real.cos (thetaL F.L (F.G 0 p) (F.B 0 p) X (uNode (F.step N) r) / F.step N - Real.pi / 4) ^ 2 →
+      0 < (-1 : ℝ) ^ k * (α0 * pZ F p N X r * (β0 * qZ F p N X r)) := by
+    intro r hr0 hrN hr1 hr2 hcos2
+    have hrNR : r ≤ (CL.chain p X N).NR := by
+      by_contra hcon
+      rw [not_le] at hcon
+      obtain ⟨-, -, -, -, hlt⟩ := CL.shape p hp X hX N hN1
+      have := uNode_le_of_le hst.le (show (CL.chain p X N).NR + 1 ≤ r by omega)
+      linarith
+    have hum : uNode ((mirrorFamily F).step N) ((N : ℤ) - r) = F.L - uNode (F.step N) r := by
+      show uNode (F.step N) ((N : ℤ) - r) = _
+      unfold uNode; push_cast; linear_combination hLs
+    have hmNR : (N : ℤ) - r ≤ (CR.chain p X N).NR := by
+      by_contra hcon
+      rw [not_le] at hcon
+      obtain ⟨-, -, -, -, hlt⟩ := CR.shape p hp X hX N hN2
+      have h1 := uNode_le_of_le (h := (mirrorFamily F).step N) hst.le (show (CR.chain p X N).NR + 1 ≤ (N : ℤ) - r by omega)
+      rw [hum] at h1
+      rw [hcoup.1] at hlt
+      linarith
+    have hmov : CR.c' ≤ uNode ((mirrorFamily F).step N) ((N : ℤ) - r) := by
+      rw [hum, hcoup.2]; linarith
+    obtain ⟨ρL, hρL, hL1⟩ := hLex p hp X hX N hN1 hhL (fun n => α0 * pZ F p N X n) hJL hseedL r hr0 hrNR hr1
+    obtain ⟨ρR, hρR, hR1⟩ := hRex p hp X hX N hN2 hhR (fun i => β0 * qZ F p N X ((N : ℤ) - i)) hJR hseedR ((N : ℤ) - r) (by omega) hmNR hmov
+    have hL1' : |α0 * pZ F p N X r - ρL * Real.cos (thetaL F.L (F.G 0 p) (F.B 0 p) X (uNode (F.step N) r) / F.step N - Real.pi / 4)|
+        ≤ EL * F.step N * ρL := hL1
+    have e : (N : ℤ) - ((N : ℤ) - r) = r := by ring
+    have hψ : (fun i : ℤ => β0 * qZ F p N X ((N : ℤ) - i)) ((N : ℤ) - r) = β0 * qZ F p N X r := by
+      show β0 * qZ F p N X ((N : ℤ) - ((N : ℤ) - r)) = _
+      rw [e]
+    have hR1' : |β0 * qZ F p N X r - ρR * Real.cos (thetaL F.L (fun s => F.G 0 p (F.L - s)) (fun s => F.B 0 p (F.L - s)) X
+        (F.L - uNode (F.step N) r) / F.step N - Real.pi / 4)| ≤ ER * F.step N * ρR := by
+      have h := hR1
+      rw [e, hum] at h
+      exact h
+    have hrL : uNode (F.step N) r ∈ Set.Icc 0 F.L := ⟨by linarith, by linarith⟩
+    have hadd := thetaL_add_mirror F.L_pos hyp hG2 hB2 X hrL
+    rw [← hS0] at hadd
+    obtain ⟨δ, hδ⟩ : ∃ δ : ℝ, δ = (actionS0 F p X - Real.pi * F.step N * ((k : ℝ) + 1 / 2)) / F.step N := ⟨_, rfl⟩
+    have hδb : |δ| ≤ Cw' * F.step N := by
+      rw [hδ, abs_div, abs_of_pos hst, div_le_iff₀ hst]
+      calc |actionS0 F p X - Real.pi * F.step N * ((k : ℝ) + 1 / 2)| ≤ Cw * F.step N ^ 2 := hwin
+        _ ≤ Cw' * F.step N ^ 2 := mul_le_mul_of_nonneg_right hCwle (by positivity)
+        _ = Cw' * F.step N * F.step N := by ring
+    have hsum : (thetaL F.L (F.G 0 p) (F.B 0 p) X (uNode (F.step N) r) / F.step N - Real.pi / 4) +
+        (thetaL F.L (fun s => F.G 0 p (F.L - s)) (fun s => F.B 0 p (F.L - s)) X (F.L - uNode (F.step N) r) / F.step N - Real.pi / 4)
+        = Real.pi * k + δ := by
+      rw [hδ]
+      have : thetaL F.L (F.G 0 p) (F.B 0 p) X (uNode (F.step N) r) +
+          thetaL F.L (fun s => F.G 0 p (F.L - s)) (fun s => F.B 0 p (F.L - s)) X (F.L - uNode (F.step N) r) = actionS0 F p X := hadd
+      have e1 : ∀ a b : ℝ, (a / F.step N - Real.pi / 4) + (b / F.step N - Real.pi / 4) = (a + b) / F.step N - Real.pi / 2 := fun a b => by ring
+      rw [e1, this]
+      field_simp
+      ring
+    have hrel := cos_beta_rel _ _ δ k hsum
+    have hsmall : F.step N * (EL + ER + Cw' + EL * (Cw' + ER)) < ε / 2 := by
+      rw [← hK1]
+      have h1 : F.step N * K1 ≤ F.step N * (K1 + 1) := by nlinarith
+      have h2 : F.step N * (K1 + 1) ≤ ε / 4 := by
+        have := mul_le_mul_of_nonneg_right hhK (show 0 ≤ 2 * (K1 + 1) by positivity)
+        have e2 : (ε / 2) / (2 * (K1 + 1)) * (2 * (K1 + 1)) = ε / 2 := by field_simp
+        nlinarith
+      linarith
+    refine row_product_pos (s := (-1 : ℝ) ^ k)
+      (y := Real.cos (thetaL F.L (fun s => F.G 0 p (F.L - s)) (fun s => F.B 0 p (F.L - s)) X (F.L - uNode (F.step N) r) / F.step N - Real.pi / 4)) (by rw [← pow_mul, mul_comm, pow_mul]; simp) hρL hρR hL1' ?_ ?_
+      (Real.abs_cos_le_one _) hcos2 hst hh1 hEL hER hCw'0 hsmall
+    · exact hR1'
+    · exact hrel.trans hδb
+  have hfin : ∀ r : ℤ, 0 ≤ r → r ≤ (N : ℤ) → CL.c' ≤ uNode (F.step N) r → uNode (F.step N) r ≤ CL.c →
+      ε / 2 ≤ Real.cos (thetaL F.L (F.G 0 p) (F.B 0 p) X (uNode (F.step N) r) / F.step N - Real.pi / 4) ^ 2 →
+      0 < (-1 : ℝ) ^ k * κ' := by
+    intro r hr0 hrN hr1 hr2 hcos2
+    have h := key r hr0 hrN hr1 hr2 hcos2
+    rw [hpq r hr0 hrN] at h
+    have hA : 0 ≤ α0 * β0 * qZ F p N X r ^ 2 := by positivity
+    have e : (-1 : ℝ) ^ k * (α0 * (κ' * qZ F p N X r) * (β0 * qZ F p N X r)) = (α0 * β0 * qZ F p N X r ^ 2) * ((-1 : ℝ) ^ k * κ') := by ring
+    rw [e] at h
+    by_contra hD
+    push_neg at hD
+    have := mul_nonpos_of_nonneg_of_nonpos hA hD
+    linarith
+  have hcase : ε / 2 ≤ Real.cos αn ^ 2 ∨ ε / 2 ≤ Real.cos (αn + θb) ^ 2 := by
+    by_contra hcon
+    push_neg at hcon
+    linarith [hcon.1, hcon.2]
+  have hD : 0 < (-1 : ℝ) ^ k * κ' := by
+    rcases hcase with h1 | h1
+    · refine hfin n hn0 (by omega) hc1 (by rw [hsucc] at hc2; linarith) ?_
+      rw [← hαn]; exact h1
+    · refine hfin (n + 1) (by omega) hn1 (by rw [hsucc]; linarith) hc2 ?_
+      rw [hαn1]; exact h1
+  exact sign_eq_of_pos_mul hD
+
+/-- **(3), counting** (`lem:smo-bulkphase` (3)): `propThaCount` for the block `I = [Jlo, Jhi]`, `Phi = S_0^{(t)}`, `eps = C h^2`.  At most one zero of `D` in each window and exactly one in each window whose
+bracketing interval lies in `S_0(I)`.  Both former inputs are now proved: `S_0^{(t)}` strictly decreasing on the block (`bulk_actionS0_strictAnti`, `TheoremA/MonotoneAction.lean`) and the sign `(iii)` of
+`kappa'` at the zeros in the windows (`bulk_kappa_sign`, with `sigma' = 1`).  (i) and (ii) of `lem:tha-count` are `bulk_zero_window`, `bulk_node_sign`. -/
+theorem bulk_count (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) {cPC CPC : ℝ} (PC : ParabolicCylinderFacts U V cPC CPC)
     (hP : ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, (μ, t) ∈ P)
-    (hcoup : CR.c = F.L - CL.c' ∧ CR.c' = F.L - CL.c) (r : ℕ) (hr : StdAssump F P (max M 1 / 2) r)
-    (hmono : ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, StrictAntiOn (fun X => actionS0 F (μ, t) X) (Set.Icc Jlo Jhi)) :
+    (hcoup : CR.c = F.L - CL.c' ∧ CR.c' = F.L - CL.c) (r : ℕ) (hr : StdAssump F P (max M 1 / 2) r) :
     ∃ C h0 : ℝ, 0 < C ∧ 0 < h0 ∧ ∃ N1 : ℕ, 1 ≤ N1 ∧ ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ N : ℕ, N1 ≤ N → F.step N ≤ h0 →
       (∀ n : ℤ, 0 ≤ n → n < N → 0 < F.bondA (μ, t) N n) →
-      (∃ σ' : ℝ, (σ' = 1 ∨ σ' = -1) ∧ ∀ X ∈ Set.Icc Jlo Jhi, ∀ k : ℕ, casD F (μ, t) N X = 0 →
-        |actionS0 F (μ, t) X - Real.pi * F.step N * ((k : ℝ) + 1 / 2)| ≤ C * F.step N ^ 2 → ∀ κ' : ℝ,
-          (∀ n ≤ N, pSol F (μ, t) N X n = κ' * qSol F (μ, t) N X (N - n)) → SignType.sign κ' = SignType.sign (σ' * (-1) ^ k)) →
       (∀ k : ℕ, ∀ X ∈ Set.Icc Jlo Jhi, ∀ X' ∈ Set.Icc Jlo Jhi, casD F (μ, t) N X = 0 → casD F (μ, t) N X' = 0 →
         |actionS0 F (μ, t) X - Real.pi * F.step N * ((k : ℝ) + 1 / 2)| ≤ C * F.step N ^ 2 →
         |actionS0 F (μ, t) X' - Real.pi * F.step N * ((k : ℝ) + 1 / 2)| ≤ C * F.step N ^ 2 → X = X') ∧
@@ -403,14 +607,19 @@ theorem bulk_count (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
           |actionS0 F (μ, t) X - Real.pi * F.step N * ((k : ℝ) + 1 / 2)| ≤ C * F.step N ^ 2) := by
   obtain ⟨C1, h1, hC1, hh1, N1, hN1, hwin⟩ := bulk_zero_window PI hP hcoup r hr
   obtain ⟨h2, hh2, N2, hN2, hnode⟩ := bulk_node_sign PI hP hcoup r hr
-  refine ⟨C1, min (min h1 h2) (Real.pi / (8 * C1)), hC1,
-    lt_min (lt_min hh1 hh2) (div_pos Real.pi_pos (by positivity)), max N1 N2, le_trans hN1 (le_max_left _ _), ?_⟩
-  intro μ hμ t ht N hN hstep hpos hkappa
-  have hN1' : N1 ≤ N := le_trans (le_max_left _ _) hN
-  have hN2' : N2 ≤ N := le_trans (le_max_right _ _) hN
+  obtain ⟨h3, hh3, N3, hN3, hkap⟩ := bulk_kappa_sign (CL := CL) (CR := CR) PC hcoup hr C1
+  have hmono := bulk_actionS0_strictAnti CL hP hr
+  refine ⟨C1, min (min (min h1 h2) h3) (Real.pi / (8 * C1)), hC1,
+    lt_min (lt_min (lt_min hh1 hh2) hh3) (div_pos Real.pi_pos (by positivity)), max (max N1 N2) N3,
+    le_trans hN1 ((le_max_left _ _).trans (le_max_left _ _)), ?_⟩
+  intro μ hμ t ht N hN hstep hpos
+  have hN1' : N1 ≤ N := le_trans ((le_max_left _ _).trans (le_max_left _ _)) hN
+  have hN2' : N2 ≤ N := le_trans ((le_max_right _ _).trans (le_max_left _ _)) hN
+  have hN3' : N3 ≤ N := le_trans (le_max_right _ _) hN
   have hst : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
-  have hs1 : F.step N ≤ h1 := hstep.trans ((min_le_left _ _).trans (min_le_left _ _))
-  have hs2 : F.step N ≤ h2 := hstep.trans ((min_le_left _ _).trans (min_le_right _ _))
+  have hs1 : F.step N ≤ h1 := hstep.trans (((min_le_left _ _).trans (min_le_left _ _)).trans (min_le_left _ _))
+  have hs2 : F.step N ≤ h2 := hstep.trans (((min_le_left _ _).trans (min_le_left _ _)).trans (min_le_right _ _))
+  have hs3k : F.step N ≤ h3 := hstep.trans ((min_le_left _ _).trans (min_le_right _ _))
   have hs3 : F.step N ≤ Real.pi / (8 * C1) := hstep.trans (min_le_right _ _)
   have hN1one : 1 ≤ N := le_trans hN1 hN1'
   have hε1 : C1 * F.step N ^ 2 < Real.pi * F.step N / 4 := by
@@ -419,6 +628,7 @@ theorem bulk_count (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
         _ = Real.pi / 8 := by field_simp
     nlinarith [mul_pos Real.pi_pos hst]
   have hε0 : 0 < C1 * F.step N ^ 2 := by positivity
+  have hp : (μ, t) ∈ P := hP μ hμ t ht
   have hcount := propThaCount F (μ, t) N hN1one hpos (Set.Icc Jlo Jhi) (fun X => actionS0 F (μ, t) X) (C1 * F.step N ^ 2)
     Set.ordConnected_Icc (actionS0_continuousOn PI hμ ht) (Or.inr (hmono μ hμ t ht)) hε0 hε1
     (fun X hX hD => by
@@ -428,7 +638,9 @@ theorem bulk_count (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
       have := hnode μ hμ t ht N hN2' hs2 hpos X hX k hk
       rw [one_mul]
       exact sign_eq_of_pos_mul this⟩
-  exact hcount hkappa
+  refine hcount ⟨1, Or.inl rfl, fun X hX k _ hwk κ' hκ' => ?_⟩
+  rw [one_mul]
+  exact hkap (μ, t) hp N hN3' hs3k hpos X hX k hwk κ' hκ'
 
 end Windows
 
@@ -443,6 +655,10 @@ end Windows
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.bulk_node_sign' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.bulk_node_sign
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.bulk_kappa_sign' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.bulk_kappa_sign
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.bulk_count' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
