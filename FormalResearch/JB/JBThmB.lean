@@ -9,7 +9,7 @@ public import FormalResearch.JB.JBOneStep
 Source: Paper J, `/home/user/scratch/paperJ2/thmB.tex`, Theorem `thm:B` (`eq:thmB`) and its proof.
 
 `thm_B_conditional` is the paper's quantifier order (F2): for a family of `OneStepInputs`, one for each
-`N`, with `D = N + 1` columns and step `h = L/(N+1)`, for fixed constants `cs`:
+`N ≥ N₀`, with `D = N + 1` columns and step `h = L/(N+1)`, for fixed constants `cs`:
 
 * there are `C` and `h₀ > 0` with `‖Ĝ_m - U_h‖ ≤ C h^m` for all `N` with `h ≤ h₀`;
 * there is `h_m ≤ h₀` with `C h_m^m < 1` such that for `h ≤ h_m` the polar factor of `Ĝ_m` is orthogonal and
@@ -19,6 +19,10 @@ Where `D = L/h` enters: only in `Small` (`jb_onestep`), as `√D · C h^{m+1} lo
 (`sqrt_mul_eta_le`, using `√(L/h) · h^{m+1/2} log(1/h) ≤ 2 h^m`, from `log(1/h) ≤ 2/√h`) and as
 `2 D ε5 ≤ h^m` for `ε5 ≤ C_ε h^{-K_ε} e^{-c_ε/h}`, i.e. `x^{K_ε + 1 + m} e^{-c_ε x} → 0` for `x = 1/h`
 (`eventually_small_tail`, Mathlib's `tendsto_rpow_mul_exp_neg_mul_atTop_nhds_zero`).
+
+The family is indexed by `N ≥ N₀` only: for `h > 1` the field `host1_col` (`‖·‖ ≤ C h^{m+1} log(1/h) < 0`)
+cannot hold when `C > 0`, so a family over all `N` would exclude every genuine instance when `L > 1`.
+`m ≥ 1` is part of the hypothesis (`OneStepInputs.one_le_m`, nonempty family).
 
 Hypotheses (not proved here): the family of `OneStepInputs` (this is `prop:thb-inputs`, i.e. Theorem A(ii)
 and the charts), with the same constants `cs` for all `N` (uniformity), and the form of (I5):
@@ -160,24 +164,25 @@ theorem small_scalars (cs : OneStepConsts) {m : ℕ} (hm : 1 ≤ m) {L : ℝ} (h
     exact div_le_div_of_nonneg_right key hxm.le
 
 /-- **Theorem B, conditional on the one-step inputs** (Paper J `thm:B`, `eq:thmB`; the paper's quantifier
-order).  For a family `Inp N` of one-step inputs with `D = N + 1` columns, step `h = L/(N+1)` and fixed
+order).  For a family `Inp N` (`N ≥ N₀`) of one-step inputs with `D = N + 1` columns, step `h = L/(N+1)` and fixed
 constants `cs` (this family is `prop:thb-inputs`, an input), with (I5) in the form
 `ε5 ≤ C_ε (1/h)^{K_ε} exp(-c_ε/h)`: there are `C` and `h₀ > 0` with `‖Ĝ_m - U_h‖ ≤ C h^m` for `h ≤ h₀`,
 and `h_m ≤ h₀` with `C h_m^m < 1` such that for `h ≤ h_m` the polar factor
 `Ĝ_m (Ĝ_mᵀ Ĝ_m)^{-1/2}` is orthogonal and within `2 C h^m` of `U_h`.  Not covered: the verification of the
 inputs (Theorem A(ii), the charts). -/
 theorem thm_B_conditional (cs : OneStepConsts) (m : ℕ) {L : ℝ} (hL : 0 < L) (Cε cε : ℝ) (Kε : ℕ)
-    (hcε : 0 < cε) (Inp : ∀ N : ℕ, OneStepInputs cs (N + 1) m (stepSize L N))
-    (hε5 : ∀ N : ℕ, (Inp N).ε5 ≤ Cε * (1 / stepSize L N) ^ Kε * Real.exp (-cε / stepSize L N)) :
+    (hcε : 0 < cε) (N₀ : ℕ) (Inp : ∀ N : ℕ, N₀ ≤ N → OneStepInputs cs (N + 1) m (stepSize L N))
+    (hε5 : ∀ (N : ℕ) (hN : N₀ ≤ N),
+      (Inp N hN).ε5 ≤ Cε * (1 / stepSize L N) ^ Kε * Real.exp (-cε / stepSize L N)) :
     ∃ C h₀ : ℝ, 0 < h₀ ∧
-      (∀ N : ℕ, stepSize L N ≤ h₀ → ‖(Inp N).G0 - (Inp N).U‖ ≤ C * stepSize L N ^ m) ∧
+      (∀ (N : ℕ) (hN : N₀ ≤ N), stepSize L N ≤ h₀ → ‖(Inp N hN).G0 - (Inp N hN).U‖ ≤ C * stepSize L N ^ m) ∧
       ∃ hp : ℝ, 0 < hp ∧ hp ≤ h₀ ∧ C * hp ^ m < 1 ∧
-        ∀ N : ℕ, stepSize L N ≤ hp →
-          ((Inp N).G0 * (CFC.sqrt ((Inp N).G0ᵀ * (Inp N).G0))⁻¹)ᵀ *
-              ((Inp N).G0 * (CFC.sqrt ((Inp N).G0ᵀ * (Inp N).G0))⁻¹) = 1 ∧
-            ‖(Inp N).G0 * (CFC.sqrt ((Inp N).G0ᵀ * (Inp N).G0))⁻¹ - (Inp N).U‖ ≤
+        ∀ (N : ℕ) (hN : N₀ ≤ N), stepSize L N ≤ hp →
+          ((Inp N hN).G0 * (CFC.sqrt ((Inp N hN).G0ᵀ * (Inp N hN).G0))⁻¹)ᵀ *
+              ((Inp N hN).G0 * (CFC.sqrt ((Inp N hN).G0ᵀ * (Inp N hN).G0))⁻¹) = 1 ∧
+            ‖(Inp N hN).G0 * (CFC.sqrt ((Inp N hN).G0ᵀ * (Inp N hN).G0))⁻¹ - (Inp N hN).U‖ ≤
               2 * C * stepSize L N ^ m := by
-  have hm : 1 ≤ m := (Inp 0).one_le_m
+  have hm : 1 ≤ m := (Inp N₀ le_rfl).one_le_m
   obtain ⟨Cstar, hC⟩ := jb_onestep cs m
   obtain ⟨h₁, hh₁, hsm⟩ := small_scalars cs hm hL Cε cε Kε hcε
   have hCn := cs.C_nonneg
@@ -188,39 +193,39 @@ theorem thm_B_conditional (cs : OneStepConsts) (m : ℕ) {L : ℝ} (hL : 0 < L) 
     have : 0 ≤ 2 * cs.C * √L := by positivity
     linarith
   -- the reduction applies for `h ≤ h₁`, with the explicit dependence on `D = L/h`
-  have key : ∀ N : ℕ, stepSize L N ≤ h₁ →
-      ‖(Inp N).G0 - (Inp N).U‖ ≤ C * stepSize L N ^ m ∧
-        (‖(Inp N).G0 - (Inp N).U‖ < 1 →
-          ((Inp N).G0 * (CFC.sqrt ((Inp N).G0ᵀ * (Inp N).G0))⁻¹)ᵀ *
-              ((Inp N).G0 * (CFC.sqrt ((Inp N).G0ᵀ * (Inp N).G0))⁻¹) = 1 ∧
-            ‖(Inp N).G0 * (CFC.sqrt ((Inp N).G0ᵀ * (Inp N).G0))⁻¹ - (Inp N).U‖ ≤
-              2 * ‖(Inp N).G0 - (Inp N).U‖) := by
-    intro N hN
+  have key : ∀ (N : ℕ) (hN0 : N₀ ≤ N), stepSize L N ≤ h₁ →
+      ‖(Inp N hN0).G0 - (Inp N hN0).U‖ ≤ C * stepSize L N ^ m ∧
+        (‖(Inp N hN0).G0 - (Inp N hN0).U‖ < 1 →
+          ((Inp N hN0).G0 * (CFC.sqrt ((Inp N hN0).G0ᵀ * (Inp N hN0).G0))⁻¹)ᵀ *
+              ((Inp N hN0).G0 * (CFC.sqrt ((Inp N hN0).G0ᵀ * (Inp N hN0).G0))⁻¹) = 1 ∧
+            ‖(Inp N hN0).G0 * (CFC.sqrt ((Inp N hN0).G0ᵀ * (Inp N hN0).G0))⁻¹ - (Inp N hN0).U‖ ≤
+              2 * ‖(Inp N hN0).G0 - (Inp N hN0).U‖) := by
+    intro N hN0 hN
     have hpos := stepSize_pos hL N
     obtain ⟨s1, s2, s3, s4, s5, s6⟩ := hsm _ hpos hN
     have hD := card_eq_div hL N
-    have hsmall : (Inp N).Small := by
+    have hsmall : (Inp N hN0).Small := by
       refine ⟨s1, ?_, s3, s4, s5, ?_⟩
       · rw [hD]; exact s2
       · rw [hD]
-        calc 2 * (L / stepSize L N) * (Inp N).ε5
+        calc 2 * (L / stepSize L N) * (Inp N hN0).ε5
             ≤ 2 * (L / stepSize L N) *
               (Cε * (1 / stepSize L N) ^ Kε * Real.exp (-cε / stepSize L N)) := by
-              gcongr; exact hε5 N
+              gcongr; exact hε5 N hN0
           _ ≤ _ := s6
-    obtain ⟨-, r2, r3⟩ := hC (N + 1) (stepSize L N) (Inp N) hsmall
+    obtain ⟨-, r2, r3⟩ := hC (N + 1) (stepSize L N) (Inp N hN0) hsmall
     refine ⟨?_, r3⟩
     have e1 : √(((N + 1 : ℕ) : ℝ)) * (cs.C * stepSize L N ^ (m + 1) * Real.log (1 / stepSize L N)) ≤
         2 * cs.C * √L * stepSize L N ^ m := by
       rw [hD]; exact sqrt_mul_eta_le m hL hpos hCn
     have hhm : 0 ≤ stepSize L N ^ m := by positivity
-    calc ‖(Inp N).G0 - (Inp N).U‖ ≤ Cstar * stepSize L N ^ m +
+    calc ‖(Inp N hN0).G0 - (Inp N hN0).U‖ ≤ Cstar * stepSize L N ^ m +
           √(((N + 1 : ℕ) : ℝ)) * (cs.C * stepSize L N ^ (m + 1) * Real.log (1 / stepSize L N)) := r2
       _ ≤ max Cstar 0 * stepSize L N ^ m + 2 * cs.C * √L * stepSize L N ^ m := by
           gcongr
           exact le_max_left _ _
       _ = C * stepSize L N ^ m := by rw [hCdef]; ring
-  refine ⟨C, h₁, hh₁, fun N hN => (key N hN).1, min h₁ (1 / (C + 1)), lt_min hh₁ (by positivity),
+  refine ⟨C, h₁, hh₁, fun N hN0 hN => (key N hN0 hN).1, min h₁ (1 / (C + 1)), lt_min hh₁ (by positivity),
     min_le_left _ _, ?_, ?_⟩
   · have hp1 : min h₁ (1 / (C + 1)) ≤ 1 / (C + 1) := min_le_right _ _
     have hp0 : 0 < min h₁ (1 / (C + 1)) := lt_min hh₁ (by positivity)
@@ -228,7 +233,7 @@ theorem thm_B_conditional (cs : OneStepConsts) (m : ℕ) {L : ℝ} (hL : 0 < L) 
     have hp1' : min h₁ (1 / (C + 1)) ≤ 1 := by nlinarith
     have : min h₁ (1 / (C + 1)) ^ m ≤ min h₁ (1 / (C + 1)) := pow_le_of_le_one hp0.le hp1' (by omega)
     nlinarith
-  · intro N hN
+  · intro N hN0 hN
     have hN1 : stepSize L N ≤ h₁ := hN.trans (min_le_left _ _)
     have hpos := stepSize_pos hL N
     have hp0 : 0 < min h₁ (1 / (C + 1)) := lt_min hh₁ (by positivity)
@@ -239,7 +244,7 @@ theorem thm_B_conditional (cs : OneStepConsts) (m : ℕ) {L : ℝ} (hL : 0 < L) 
       pow_le_of_le_one hp0.le hp1' (by omega)
     have hhm : stepSize L N ^ m ≤ min h₁ (1 / (C + 1)) ^ m := pow_le_pow_left₀ hpos.le hN m
     have hlt : C * stepSize L N ^ m < 1 := by nlinarith
-    obtain ⟨r1, r2⟩ := key N hN1
+    obtain ⟨r1, r2⟩ := key N hN0 hN1
     obtain ⟨o1, o2⟩ := r2 (r1.trans_lt hlt)
     exact ⟨o1, by nlinarith⟩
 
@@ -249,23 +254,24 @@ theorem thm_B_conditional (cs : OneStepConsts) (m : ℕ) {L : ℝ} (hL : 0 < L) 
 
 /-- The same statement as `thm_B_conditional`, in the form "`∃ C N₀, ∀ N ≥ N₀`" (`h = L/(N+1) ≤ h_m`). -/
 theorem thm_B_conditional_atTop (cs : OneStepConsts) (m : ℕ) {L : ℝ} (hL : 0 < L) (Cε cε : ℝ)
-    (Kε : ℕ) (hcε : 0 < cε) (Inp : ∀ N : ℕ, OneStepInputs cs (N + 1) m (stepSize L N))
-    (hε5 : ∀ N : ℕ, (Inp N).ε5 ≤ Cε * (1 / stepSize L N) ^ Kε * Real.exp (-cε / stepSize L N)) :
-    ∃ (C : ℝ) (N₀ : ℕ), ∀ N : ℕ, N₀ ≤ N →
-      ‖(Inp N).G0 - (Inp N).U‖ ≤ C * stepSize L N ^ m ∧ C * stepSize L N ^ m < 1 ∧
-        ((Inp N).G0 * (CFC.sqrt ((Inp N).G0ᵀ * (Inp N).G0))⁻¹)ᵀ *
-            ((Inp N).G0 * (CFC.sqrt ((Inp N).G0ᵀ * (Inp N).G0))⁻¹) = 1 ∧
-          ‖(Inp N).G0 * (CFC.sqrt ((Inp N).G0ᵀ * (Inp N).G0))⁻¹ - (Inp N).U‖ ≤
+    (Kε : ℕ) (hcε : 0 < cε) (N₀ : ℕ) (Inp : ∀ N : ℕ, N₀ ≤ N → OneStepInputs cs (N + 1) m (stepSize L N))
+    (hε5 : ∀ (N : ℕ) (hN : N₀ ≤ N),
+      (Inp N hN).ε5 ≤ Cε * (1 / stepSize L N) ^ Kε * Real.exp (-cε / stepSize L N)) :
+    ∃ (C : ℝ) (N₁ : ℕ), ∀ (N : ℕ) (hN0 : N₀ ≤ N), N₁ ≤ N →
+      ‖(Inp N hN0).G0 - (Inp N hN0).U‖ ≤ C * stepSize L N ^ m ∧ C * stepSize L N ^ m < 1 ∧
+        ((Inp N hN0).G0 * (CFC.sqrt ((Inp N hN0).G0ᵀ * (Inp N hN0).G0))⁻¹)ᵀ *
+            ((Inp N hN0).G0 * (CFC.sqrt ((Inp N hN0).G0ᵀ * (Inp N hN0).G0))⁻¹) = 1 ∧
+          ‖(Inp N hN0).G0 * (CFC.sqrt ((Inp N hN0).G0ᵀ * (Inp N hN0).G0))⁻¹ - (Inp N hN0).U‖ ≤
             2 * C * stepSize L N ^ m := by
   obtain ⟨C, h₀, hh₀, hb, hp, hp0, hph, hlt, hpol⟩ :=
-    thm_B_conditional cs m hL Cε cε Kε hcε Inp hε5
-  obtain ⟨N₀, hN₀⟩ := exists_nat_ge (L / hp)
-  refine ⟨C, N₀, fun N hN => ?_⟩
+    thm_B_conditional cs m hL Cε cε Kε hcε N₀ Inp hε5
+  obtain ⟨N₂, hN₂⟩ := exists_nat_ge (L / hp)
+  refine ⟨C, N₂, fun N hN0 hN => ?_⟩
   have hle : stepSize L N ≤ hp := by
     unfold stepSize
     rw [div_le_iff₀ (by positivity)]
     have h1 : L / hp ≤ (N : ℝ) + 1 := by
-      have : (N₀ : ℝ) ≤ N := by exact_mod_cast hN
+      have : (N₂ : ℝ) ≤ N := by exact_mod_cast hN
       linarith
     rw [div_le_iff₀ hp0] at h1
     linarith
@@ -277,8 +283,8 @@ theorem thm_B_conditional_atTop (cs : OneStepConsts) (m : ℕ) {L : ℝ} (hL : 0
     · calc C * stepSize L N ^ m ≤ C * hp ^ m := mul_le_mul_of_nonneg_left h2 hC0
         _ < 1 := hlt
     · nlinarith
-  obtain ⟨o1, o2⟩ := hpol N hle
-  exact ⟨hb N (hle.trans hph), hlt', o1, o2⟩
+  obtain ⟨o1, o2⟩ := hpol N hN0 hle
+  exact ⟨hb N hN0 (hle.trans hph), hlt', o1, o2⟩
 
 /-- info: 'FormalResearch.JB.thm_B_conditional_atTop' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
