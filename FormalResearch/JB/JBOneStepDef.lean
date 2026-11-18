@@ -16,7 +16,7 @@ This module contains definitions only: the data of the comparison matrices (`Cha
 proof of `thm:thb-onestep` uses (`Chart.Ok`, `OneStepInputs`), the explicit smallness conditions
 (`OneStepInputs.Small`), the toy instance showing that `OneStepInputs` and `Small` are satisfiable
 (`toyInputs`, `toyInputs_small`), and the statement of the reduction as a proposition
-(`OneStepReduction`, a definition, proved in the next stage).
+(`OneStepReduction`, a definition; proved as `jb_onestep` in `JBOneStep`).
 
 ## Dictionary: Lean setting to paper
 
@@ -79,7 +79,7 @@ proof of `thm:thb-onestep` uses (`Chart.Ok`, `OneStepInputs`), the explicit smal
 
 ## Not formalised
 
-The proof of `OneStepReduction` (Steps 1-5), the passage from `C²` data to the Schur fields, the quantified
+The passage from `C²` data to the Schur fields, the quantified
 instantiation `thm_B_conditional` (`D = L/(N+1)`, `∃ C h₀ ∀ h ≤ h₀`), and everything that discharges the
 fields.  The toy instance is degenerate (`G = U`), it only shows the hypotheses are consistent.
 -/
@@ -277,7 +277,7 @@ is a constant `C*`, depending only on the constants `cs` (and `m`), such that fo
 `OneStepInputs` satisfying `Small`,
 `‖Ĝ^{[m]} - Ĝ^{[m+1]}‖ ≤ C* h^m`, `‖Ĝ^{[m]} - U‖ ≤ C* h^m + √D C h^{m+1} log(1/h)`, and, when this is `< 1`,
 the polar factor `Ĝ^{[m]} (Ĝ^{[m]ᵀ} Ĝ^{[m]})^{-1/2}` is orthogonal and within twice that distance of `U`
-(the third inequality of `eq:thb-onestep`, which is `jb_polar`).  Proved in the next stage. -/
+(the third inequality of `eq:thb-onestep`, which is `jb_polar`).  Proved: `jb_onestep` (`JBOneStep`). -/
 def OneStepReduction (cs : OneStepConsts) : Prop :=
   ∀ m : ℕ, ∃ Cstar : ℝ, ∀ (D : ℕ) (h : ℝ) (I : OneStepInputs cs D m h), I.Small →
     ‖I.G0 - I.G1‖ ≤ Cstar * h ^ m ∧
