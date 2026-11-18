@@ -53,7 +53,7 @@ def glueVec (ψL ψR : ℤ → ℝ) (Ω rows : Finset ℤ) (isLeft : ℤ → Pro
   else glueKappa ψL ψR Ω * ψR n / glueNorm ψL ψR Ω rows isLeft
 
 variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ}
-  {m q : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
+  {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ} {cPC CPC : ℝ}
 
 /-- All rows `0..N`. -/
 def rowsOf (N : ℕ) : Finset ℤ := Finset.Icc (0 : ℤ) (N : ℤ)
@@ -97,25 +97,25 @@ end BulkGlue
 def rhoWin (a : ℝ) : ℝ := 2 * Real.sqrt (max (-a) 0) + (1 + max (-a) 0) ^ (-(1 : ℝ) / 6)
 
 /-- The soft window `Omega = {n : |Z_n| <= rho}` (the well with an Airy layer). -/
-def softWindow {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} (C : SoftEdgeChart Fz P m q U V) (p : Par × ℝ) (X : ℝ)
+def softWindow {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} (C : SoftEdgeChart Fz P m q U V Lm) (p : Par × ℝ) (X : ℝ)
     (N : ℕ) : Finset ℤ :=
   (rowsOf N).filter (fun n => |C.Zof p X N n| ≤ rhoWin (C.aOf p X N))
 
 /-- The Weber barrier weight `E_Web` of the soft chart at row `k` (patch 1). -/
-def softEnvWebW {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} (C : SoftEdgeChart Fz P m q U V) (p : Par × ℝ) (X : ℝ)
+def softEnvWebW {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} (C : SoftEdgeChart Fz P m q U V Lm) (p : Par × ℝ) (X : ℝ)
     (N : ℕ) (k : ℤ) : ℝ :=
   Ewell (-((k : ℝ) + 1 / 2)) |C.Y p X (uNode (Fz.step N) k) / Real.sqrt (Fz.step N)|
 
 /-- The Weber envelope `E_Web M_Web` of the soft chart at row `k` (patch 1). -/
-def softEnvWeb {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} (C : SoftEdgeChart Fz P m q U V) (p : Par × ℝ) (X : ℝ)
+def softEnvWeb {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} (C : SoftEdgeChart Fz P m q U V Lm) (p : Par × ℝ) (X : ℝ)
     (N : ℕ) (k : ℤ) : ℝ :=
   Ewell (-((k : ℝ) + 1 / 2)) |C.Y p X (uNode (Fz.step N) k) / Real.sqrt (Fz.step N)|
     * Mbal (-((k : ℝ) + 1 / 2)) (C.Y p X (uNode (Fz.step N) k) / Real.sqrt (Fz.step N))
 
 section SoftGlue
 
-variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} (CL : SoftEdgeChart Fz P m q U V)
-  (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V)
+variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} (CL : SoftEdgeChart Fz P m q U V Lm)
+  (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V Lm)
 
 /-- The left sequence of the upper soft edge (`psi-hat^L`) and the right one (`psi-hat^R`, mirror chart at row `N - n`). -/
 def softSeqR (p : Par × ℝ) (X : ℝ) (N : ℕ) : ℤ → ℝ := fun n => CR.psiHatL p X N ((N : ℤ) - n)

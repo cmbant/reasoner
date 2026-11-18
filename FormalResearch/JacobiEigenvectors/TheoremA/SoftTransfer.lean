@@ -86,8 +86,8 @@ lemma div_div_self_eq (E m : ℝ) (hE : E ≠ 0) : E / (E / m) = m := by
 
 namespace SoftEdgeChart
 
-variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
-  (C : SoftEdgeChart F P m q U V)
+variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
+  (C : SoftEdgeChart F P m q U V Lm)
 
 lemma step_pos (N : ℕ) : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
 

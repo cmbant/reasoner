@@ -195,10 +195,10 @@ def PropThaW (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (Jlo Jhi : 
 `|lambda_L| ~ lambda kappa_bal(a)`; (2) eigenvectors `|Psi_n - hat Psi_n| <= C h^m V_n/hat N`, `sum V^2/hat N^2 <= C`; (3) quantisation: the label of an eigenvalue in the window is its index and
 `mu_0 + sum_{r=1}^{q/2} h^{2r} mu_{2r} = (k + 1/2) h + O(h^{m+1})`; conversely the eigenvalue of index `k` exists whenever the nominal point lies in `|X - X_s^+| <= delta_0/2`.
 Hypotheses: `(E_{q/2})`, (H1)--(H3) on `P`.  **Corrected in round 3** (findings F-W2-4, F-W2-5, F-W2-9; `Charts/SoftParabolicCylinder.lean`): the paper fixes `m >= 1` (the engine smallness `h^m Theta <= c_*` is unavailable for `m = 0`),
-`Lm` is `1` or `log(1/h)` so it must satisfy `1 <= Lm h` on `(0,1]` (for `Lm = 0` items (1)--(3) are false), and the PC bound of (1) is for `u_c - eta/2 < u_n` (the single row `u_n = u_c - eta/2` carries
+`Lm` (now the parameter of the charts, `SoftEdgeChart .. U V Lm`; F-W2-8) is `1` or `1 + log(1/h)` so it must satisfy `1 <= Lm h` on `(0,1]` (for `Lm = 0` items (1)--(3) are false), and the PC bound of (1) is for `u_c - eta/2 < u_n` (the single row `u_n = u_c - eta/2` carries
 the Weber sequence by definition of `psi-hat^L`). -/
-def PropThaW2 (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ)
-    (CL : SoftEdgeChart Fz P m q U V) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V) (Lm : ℝ → ℝ) : Prop :=
+def PropThaW2 (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ) {Lm : ℝ → ℝ}
+    (CL : SoftEdgeChart Fz P m q U V Lm) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V Lm) : Prop :=
   1 ≤ m → (∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ Lm h) →
   ∀ r, StdAssump Fz P (q / 2) r →
     ∃ Cc h0 clam Clam : ℝ, 0 < h0 ∧ 0 < clam ∧ ∀ p ∈ P, ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 →
@@ -227,8 +227,8 @@ def PropThaW2 (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ
 at neighbours), the weight bounds `e^{-5/2} <= E_well <= 1` (`a <= 0`) / `E_bar` bounded (`0 < a <= a_+`) on `|Z| <= rho'`, the envelope bounds `|y_i| <= C_1 M_bal`, `|y_i'| <= C_1 k_2^{1/2} M_bal`
 for both pairs, and the window sum `m_0/(2 d_+) h^{-1/2} <= sum_Omega M_bal^2 <= 11/d_- h^{-1/2}`.  **Corrected in the second pass (finding F-W1 of the window attempt)**: the neighbour-dependent
 facts (`Z_{n+1} - Z_n` bounds, `M_bal` at neighbours) are asserted only when the neighbouring row also lies on the chart `|u - u_c| <= 2 eta`; at the boundary row the chart gives no control of `Z_{n+1}`. -/
-def PropThaWin (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ)
-    (CL : SoftEdgeChart Fz P m q U V) (aplus : ℝ) : Prop :=
+def PropThaWin (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ) {Lm : ℝ → ℝ}
+    (CL : SoftEdgeChart Fz P m q U V Lm) (aplus : ℝ) : Prop :=
   ∀ r, StdAssump Fz P (q / 2) r →
     ∃ h0 CΛ Cnb C1 m0 : ℝ, 0 < h0 ∧ 0 < m0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, CL.N0 ≤ N → Fz.step N ≤ h0 →
       CL.aOf p X N ≤ aplus →
@@ -255,8 +255,8 @@ def PropThaWin (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : �
 
 /-- **lem:tha-M** (statement): for `a <= a_+` and every cut `|s| <= s_A = sqrt A + l_A/4` (`A = max(-a,0)`, `l_A = (1+A)^{-1/6}`) each half-window carries a fixed fraction of the mass:
 `sum_{Omega, Z_n > s} U(a,Z_n)^2 >= c kappa_bal^{-2} sum_Omega M_bal^2`, and the same for `U(a,-Z_n)` on `Z_n <= s`, and for the corrected `-` sequence `phi^{(1)}_2 / kappa_bal`. -/
-def PropThaM (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ)
-    (CL : SoftEdgeChart Fz P m q U V) (aplus : ℝ) : Prop :=
+def PropThaM (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ) {Lm : ℝ → ℝ}
+    (CL : SoftEdgeChart Fz P m q U V Lm) (aplus : ℝ) : Prop :=
   ∀ r, StdAssump Fz P (q / 2) r →
     ∃ c h0 : ℝ, 0 < c ∧ 0 < h0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, CL.N0 ≤ N → Fz.step N ≤ h0 →
       CL.aOf p X N ≤ aplus → ∀ s : ℝ, |s| ≤ Real.sqrt (max (-CL.aOf p X N) 0) + (1 + max (-CL.aOf p X N) 0) ^ (-(1 : ℝ) / 6) / 4 →

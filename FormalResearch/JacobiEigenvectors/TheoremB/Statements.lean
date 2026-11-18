@@ -87,7 +87,7 @@ def PropThaSpliceBulk {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {J
 
 /-- **prop:tha-splice (b)** (soft edge): the same for every `n_s` in the window `Omega`, and the fold row `n_c = nearestRow u_c` is an admissible splice for every column of the edge. -/
 def PropThaSpliceSoft {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
-    (CL : SoftEdgeChart Fz P m q U V) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V) (η : ℝ → ℝ) : Prop :=
+    (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) (η : ℝ → ℝ) : Prop :=
   ∀ r, StdAssump Fz P (q / 2) r →
     ∃ C h0 : ℝ, 0 < h0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 → CL.aOf p X N ≤ 1 →
       nearestRow (Fz.step N) (CL.uc p) ∈ softWindow CL p X N ∧
@@ -141,7 +141,7 @@ end Splice2
 (flat0) `|Z_{n_c}| <= sqrt(max(-a,0)) + C sqrt h`; (flat1) each half carries a fixed fraction of the window mass, for `U(a,-Z)` on `Omega_-`, `U(a,Z)` on `Omega_+` and for the corrected sequences;
 (flat2) at an eigenvalue of index `k`, `|hat Psi_{n_c}|^2 + |hat Psi_{n_c+1}|^2 <= C sqrt h (1+k)^{-1/2}`. -/
 def PropThaMflat {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
-    (CL : SoftEdgeChart Fz P m q U V) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V) : Prop :=
+    (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) : Prop :=
   ∀ r, StdAssump Fz P (q / 2) r →
     ∃ c C h0 : ℝ, 0 < c ∧ 0 < h0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 → CL.aOf p X N ≤ 1 →
       |CL.Zof p X N (nearestRow (Fz.step N) (CL.uc p))| ≤ Real.sqrt (max (-CL.aOf p X N) 0) + C * Real.sqrt (Fz.step N) ∧
@@ -162,7 +162,7 @@ and the normalised matching-weighted recessive PC profile and its scaled derivat
 and `n_4` (the first row with `u >= u_c + eta/2`, the first row above it) obey the same bound, with fixed `c, C > 0`, uniformly in the eigenvalue and its index.  The lower soft edge is the statement for the
 chart of `negFamily` (the factor `D_- = diag((-1)^n)` does not change moduli).  (Item (2) of the paper is `TransferInputs.t12_lb` and `reg_*` of the soft charts.) -/
 def PropThaCollar {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
-    (CL : SoftEdgeChart Fz P m q U V) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V) : Prop :=
+    (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) : Prop :=
   ∀ r, StdAssump Fz P (q / 2) r →
     ∃ C c h0 : ℝ, 0 < C ∧ 0 < c ∧ 0 < h0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 → CL.aOf p X N ≤ 1 →
       (∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →

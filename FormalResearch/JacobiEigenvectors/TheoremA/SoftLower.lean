@@ -75,8 +75,8 @@ lemma c2h_le_one {C2 h : ℝ} (hC2 : 0 ≤ C2) (hh : h ≤ 1 / (C2 + 1)) : C2 * 
 
 section Lower
 
-variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
-  (C : SoftEdgeChart Fz P m q U V)
+variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
+  (C : SoftEdgeChart Fz P m q U V Lm)
 
 /-- the bonds of the chain do not vanish on `0 <= n < N_R`. -/
 lemma A_ne_zero_rows {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz.bandHi p| ≤ C.δ0) {N : ℕ} (hN : C.N0 ≤ N)
@@ -111,15 +111,16 @@ lemma soft_patch1_err {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) 
     {ψ : ℤ → ℝ} (hJ : JacSol Fz p N X (C.chain p X N).NR ψ) (hseed0 : ψ 0 = C.psiHatL p X N 0)
     {k : ℤ} (hk : k = (C.chain p X N).jj 1 ∨ k = (C.chain p X N).jj 1 + 1) :
     |ψ k - (C.chain p X N).phi (Fz.step N) 0 1 k| ≤
-      softLam C p X N * (softC C 3 * Fz.step N ^ m) * ((C.chain p X N).W k * (C.chain p X N).M k) := by
+      softLam C p X N * (softC C 3 * (Fz.step N ^ m * Lm (Fz.step N))) * ((C.chain p X N).W k * (C.chain p X N).M k) := by
   have hstep0 : Fz.step N ≤ softH0 C := hstep.trans (min_le_left _ _)
   have hstep1 : Fz.step N ≤ C.softH1 := hstep.trans (min_le_right _ _)
   have hVpre : ((C.chain p X N).rescale1 (softLam C p X N)).PreValid C.cs (Fz.step N) m := C.valid p hp X hX N hN
   have hV : ((C.chain p X N).rescale1 (softLam C p X N)).Valid C.csT (Fz.step N) m := C.soft_valid hf hp hX hN hstep1 hVpre
   obtain ⟨hP3, hs0, -⟩ := C.shape p hp X hX N hN
   obtain ⟨hP3, hj0, hj12, hj2NR, -⟩ := C.soft_pos hp hX hN hstep1 hVpre
-  have hθ : (C.chain p X N).theta (Fz.step N) ≤ C.Csum := C.theta_le p hp X hX N hN
+  have hθ : (C.chain p X N).theta (Fz.step N) ≤ C.Csum * Lm (Fz.step N) := C.theta_le p hp X hX N hN
   have hstep_pos : 0 < Fz.step N := FormalResearch.JB.stepSize_pos Fz.L_pos N
+  have hstep1' : Fz.step N ≤ 1 := hstep0.trans (softH0_le_one C)
   have hsmall := soft_small C hm hstep_pos hstep0 hθ
   have hlam : 0 < softLam C p X N := softLam_pos C p X N
   have hsol := sol_chain_rows (C.chain p X N) hs0 (C.A_bond p hp X hX N hN) (C.Q_diag p hp X hX N hN) le_rfl hJ
@@ -144,7 +145,7 @@ lemma soft_patch1_err {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) 
   have h1 := c1 1 hp1 k hkw
   rw [psiHat_one', hP3, abs_of_pos hlam] at h1
   refine le_trans h1 ?_
-  have hBT := soft_engine_le C 3 hstep_pos hθ
+  have hBT := soft_engine_le C 3 hstep_pos hstep1' hθ
   have hkm : 0 ≤ k ∧ k ≤ (C.chain p X N).NR := by rcases hk with rfl | rfl <;> omega
   have hW := hV.W_pos k (mem_Icc.mpr hkm)
   have hM := hV.M_pos k (mem_Icc.mpr hkm)
@@ -153,7 +154,7 @@ lemma soft_patch1_err {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) 
           * (C.chain p X N).W k * (C.chain p X N).M k)
       = softLam C p X N * ((mvC C.cs.cm C.cs.CE (softK C) C.softLamC 3 * (2 * C.cs.KD * C.cs.Kw * Fz.step N ^ m * (C.chain p X N).theta (Fz.step N)))
           * ((C.chain p X N).W k * (C.chain p X N).M k)) := by ring
-    _ ≤ softLam C p X N * ((softC C 3 * Fz.step N ^ m) * ((C.chain p X N).W k * (C.chain p X N).M k)) :=
+    _ ≤ softLam C p X N * ((softC C 3 * (Fz.step N ^ m * Lm (Fz.step N))) * ((C.chain p X N).W k * (C.chain p X N).M k)) :=
         mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hBT hWM) hlam.le
     _ = _ := by ring
 
@@ -165,17 +166,22 @@ lemma softGam_pos : 0 < softGam C := by
   unfold softGam
   positivity
 
-/-- the smallness `softC_3 h (1 + gamma + C_w C_M) <= gamma c_3 / 4`. -/
-def softHε : ℝ := (softGam C * C.c3W / 4) / (softC C 3 * (1 + softGam C + C.tCw * C.CM) + 1)
+/-- the smallness level `(gamma c_3 / 4) / (softC_3 (1 + gamma + C_w C_M) + 1)` for `h Lm(h)`. -/
+def softEε : ℝ := (softGam C * C.c3W / 4) / (softC C 3 * (1 + softGam C + C.tCw * C.CM) + 1)
 
-lemma softHε_pos : 0 < softHε C := by
+lemma softEε_pos : 0 < softEε C := by
   have h3 := C.consts_pos3
   have := softC_nonneg C 3
   have := softGam_pos C
   have hCw : 0 < C.tCw := Real.exp_pos _
-  unfold softHε
+  unfold softEε
   have := h3.2.2.1; have := h3.2.2.2.2
   positivity
+
+/-- the smallness `softC_3 h^m Lm(h) (1 + gamma + C_w C_M) <= gamma c_3 / 4`: `h <= h_1(softEε)`. -/
+def softHε : ℝ := softHL C (softEε C)
+
+lemma softHε_pos : 0 < softHε C := softHL_pos C _
 
 /-- the smallness threshold of `soft_lamL_lower`. -/
 def softH3 : ℝ :=
@@ -253,7 +259,6 @@ theorem soft_f_growth {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) 
   have hγ : 0 < γ := softGam_pos C
   set Dε : ℝ := softC C 3 * (1 + γ + C.tCw * C.CM) + 1 with hDεdef
   have hDε : 0 < Dε := by positivity
-  have hεdef' : softHε C = (γ * C.c3W / 4) / Dε := rfl
   have hstepA : Fz.step N ≤ min (softH0 C) C.softH1 := hstep.trans (min_le_left _ _)
   have hstepE : Fz.step N ≤ softHε C := hstep.trans ((min_le_right _ _).trans (min_le_left _ _))
   have hstepC : Fz.step N ≤ γ / (4 * (C.C2 + 1)) := hstep.trans ((min_le_right _ _).trans ((min_le_right _ _).trans (min_le_left _ _)))
@@ -347,31 +352,33 @@ theorem soft_f_growth {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) 
   -- the Weber sequence grows across the overlap bond
   set f0 := (C.chain p X N).phi (Fz.step N) 0 1 j with hf0def
   set f1 := (C.chain p X N).phi (Fz.step N) 0 1 (j + 1) with hf1def
-  set ε' : ℝ := softC C 3 * Fz.step N ^ m with hε'def
+  set ε' : ℝ := softC C 3 * (Fz.step N ^ m * Lm (Fz.step N)) with hε'def
   have e0' : |ψ j - f0| ≤ ε' * E := by
     refine le_trans e0 (le_of_eq ?_)
     rw [hEdef]; ring
   have e1' : |ψ (j + 1) - f1| ≤ ε' * (C.tCw * C.CM) * E := by
     refine le_trans e1 ?_
-    have hε0 : 0 ≤ ε' := mul_nonneg hCε (pow_nonneg hh0.le m)
+    have hε0 : 0 ≤ ε' := mul_nonneg hCε (powLm_nonneg C hh0 hh1)
     calc lam * ε' * ((C.chain p X N).W (j + 1) * (C.chain p X N).M (j + 1))
         ≤ lam * ε' * (C.tCw * C.CM * ((C.chain p X N).W j * (C.chain p X N).M j)) :=
           mul_le_mul_of_nonneg_left hWM1 (mul_nonneg hlam.le hε0)
       _ = _ := by rw [hEdef]; ring
-  have hhm : Fz.step N ^ m ≤ Fz.step N := pow_le_of_le_one hh0.le hh1 (by omega)
-  have hε'le : ε' ≤ softC C 3 * Fz.step N := mul_le_mul_of_nonneg_left hhm hCε
-  have hε'0 : 0 ≤ ε' := mul_nonneg hCε (pow_nonneg hh0.le m)
+  have hε'0 : 0 ≤ ε' := mul_nonneg hCε (powLm_nonneg C hh0 hh1)
+  have hεt : Fz.step N * Lm (Fz.step N) ≤ softEε C := softHL_spec C (softEε_pos C) hh0 hstepE
+  have hε'le : ε' ≤ softC C 3 * softEε C :=
+    mul_le_mul_of_nonneg_left ((pow_Lm_le C hm hh0 hh1).trans hεt) hCε
   have hsmallε : ε' * (1 + γ + C.tCw * C.CM) ≤ γ * C.c3W / 4 := by
     have h1 : softC C 3 * (1 + γ + C.tCw * C.CM) ≤ Dε := by rw [hDεdef]; linarith
-    have h2 : Fz.step N * Dε ≤ γ * C.c3W / 4 := by
-      have := mul_le_mul_of_nonneg_right hstepE hDε.le
-      rwa [hεdef', div_mul_cancel₀ _ hDε.ne'] at this
+    have h2 : softEε C * Dε = γ * C.c3W / 4 := by
+      have : softEε C = (γ * C.c3W / 4) / Dε := rfl
+      rw [this, div_mul_cancel₀ _ hDε.ne']
     have hpos : 0 ≤ 1 + γ + C.tCw * C.CM := by positivity
-    calc ε' * (1 + γ + C.tCw * C.CM) ≤ (softC C 3 * Fz.step N) * (1 + γ + C.tCw * C.CM) :=
+    have hEε := softEε_pos C
+    calc ε' * (1 + γ + C.tCw * C.CM) ≤ (softC C 3 * softEε C) * (1 + γ + C.tCw * C.CM) :=
           mul_le_mul_of_nonneg_right hε'le hpos
-      _ = Fz.step N * (softC C 3 * (1 + γ + C.tCw * C.CM)) := by ring
-      _ ≤ Fz.step N * Dε := mul_le_mul_of_nonneg_left h1 hh0.le
-      _ ≤ _ := h2
+      _ = softEε C * (softC C 3 * (1 + γ + C.tCw * C.CM)) := by ring
+      _ ≤ softEε C * Dε := mul_le_mul_of_nonneg_left h1 hEε.le
+      _ = _ := h2
   have hC2h : C.C2 * Fz.step N ≤ γ / 4 := c2h_le hC2 hγ hstepC
   have hC2h1 : C.C2 * Fz.step N ≤ 1 := c2h_le_one hC2 hstepC1
   have hf1lb : (1 + C.C2 * Fz.step N) * |f0| + γ / 2 * C.c3W * E ≤ |f1| := by

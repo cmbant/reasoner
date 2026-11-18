@@ -39,8 +39,8 @@ open Finset FormalResearch.JacobiEigenvectors.Setting FormalResearch.JacobiEigen
 variable {Par : Type*} [TopologicalSpace Par]
 
 /-- **`prop:tha-W2` (1)** for the left chart (the item-(1) fragment of `PropThaW2`). -/
-def PropThaW2Item1 (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ)
-    (CL : SoftEdgeChart Fz P m q U V) (Lm : ℝ → ℝ) : Prop :=
+def PropThaW2Item1 (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ) {Lm : ℝ → ℝ}
+    (CL : SoftEdgeChart Fz P m q U V Lm) : Prop :=
   1 ≤ m → (∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ Lm h) →
     ∃ Cc h0 clam Clam : ℝ, 0 < h0 ∧ 0 < clam ∧ ∀ p ∈ P, ∀ N : ℕ, CL.N0 ≤ N → Fz.step N ≤ h0 → ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 →
       (∀ ψ : ℤ → ℝ, JacSol Fz p N X (CL.chain p X N).NR ψ → ψ 0 = CL.psiHatL p X N 0 →
@@ -53,8 +53,8 @@ def PropThaW2Item1 (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q 
 
 section Item1
 
-variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
-  (C : SoftEdgeChart Fz P m q U V)
+variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
+  (C : SoftEdgeChart Fz P m q U V Lm)
 
 /-- `M_Olv >= 0` (from the lower bound `molv_lower` and the positivity of `W_mol`). -/
 lemma molv_nonneg {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (a z : ℝ) : 0 ≤ Molv U V a z := by
@@ -74,9 +74,9 @@ lemma molv_nonneg {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (a z
   linarith
 
 /-- **L2.C6: `prop:tha-W2` (1) on the corrected soft-edge chain.** -/
-theorem propThaW2_item1 {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (Lm : ℝ → ℝ) :
-    PropThaW2Item1 Fz P m q U V C Lm := by
-  intro hm hLm
+theorem propThaW2_item1 {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) :
+    PropThaW2Item1 Fz P m q U V C := by
+  intro hm _
   obtain ⟨Cw, h0, h0pos, H⟩ := soft_through_edge C hf hm
   obtain ⟨Cb, hb0, hb0pos, HB⟩ := soft_pc_bound C hf hm
   obtain ⟨clam, hl0, hclam, hl0pos, HL⟩ := soft_lamL_lower C hf hm
@@ -89,22 +89,20 @@ theorem propThaW2_item1 {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC
   have hsb : Fz.step N ≤ hb0 := hstep.trans ((min_le_left _ _).trans (min_le_right _ _))
   have hsl : Fz.step N ≤ hl0 := hstep.trans ((min_le_right _ _).trans (min_le_left _ _))
   have hs1 : Fz.step N ≤ 1 := hstep.trans ((min_le_right _ _).trans (min_le_right _ _))
-  have hLm1 : 1 ≤ Lm (Fz.step N) := hLm _ hh0 hs1
+  have hpowLm : 0 ≤ Fz.step N ^ m * Lm (Fz.step N) := powLm_nonneg C hh0 hs1
   obtain ⟨hlam, hup, H2⟩ := H p hp X hX N hN hs0
   have hlow := HL p hp X hX N hN hsl
-  have hhm : 0 ≤ Fz.step N ^ m := pow_nonneg hh0.le m
   have hκ := kappaBal_pos (C.aOf p X N)
   refine ⟨fun ψ hJ hseed => ⟨?_, ?_⟩, hlow, hup⟩
   · intro k hk hku
     refine le_trans ((H2 ψ hJ hseed).1 k hk hku) ?_
     have hE := softEnvWeb_nonneg C p X N k
     have h1 : Cw ≤ Cf := le_trans (le_max_left _ _) (le_max_left _ _)
-    have h2 : Cw * Fz.step N ^ m * softEnvWeb C p X N k ≤ Cf * Fz.step N ^ m * softEnvWeb C p X N k :=
-      mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right h1 hhm) hE
-    have h3 : Cf * Fz.step N ^ m * softEnvWeb C p X N k ≤ Cf * Fz.step N ^ m * Lm (Fz.step N) * softEnvWeb C p X N k := by
-      have : 0 ≤ Cf * Fz.step N ^ m * softEnvWeb C p X N k := mul_nonneg (mul_nonneg hCf0 hhm) hE
-      nlinarith [this, hLm1]
-    exact h2.trans h3
+    calc Cw * Fz.step N ^ m * Lm (Fz.step N) * softEnvWeb C p X N k
+        = Cw * (Fz.step N ^ m * Lm (Fz.step N)) * softEnvWeb C p X N k := by ring
+      _ ≤ Cf * (Fz.step N ^ m * Lm (Fz.step N)) * softEnvWeb C p X N k :=
+          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right h1 hpowLm) hE
+      _ = _ := by ring
   · intro k hk hku1 hku2
     refine le_trans (HB p hp X hX N hN hsb ψ hJ hseed k hk hku1) ?_
     have hMo := molv_nonneg hf (C.aOf p X N) (-(C.Zof p X N k))
@@ -113,22 +111,16 @@ theorem propThaW2_item1 {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC
     have hCb : Cb ≤ Cf * clam := by
       have : Cb / clam ≤ Cf := le_max_right _ _
       rwa [div_le_iff₀ hclam] at this
-    have hT : 0 ≤ Fz.step N ^ m * Molv U V (C.aOf p X N) (-(C.Zof p X N k)) := mul_nonneg hhm hMo
+    have hT : 0 ≤ (Fz.step N ^ m * Lm (Fz.step N)) * Molv U V (C.aOf p X N) (-(C.Zof p X N k)) := mul_nonneg hpowLm hMo
     have hlam0 : 0 ≤ softLam C p X N * kappaBal (C.aOf p X N) := mul_nonneg hlam.le hκ.le
-    have hlamL0 : 0 ≤ |C.lamL p X N| := abs_nonneg _
-    calc Cb * Fz.step N ^ m * (softLam C p X N * kappaBal (C.aOf p X N)) * Molv U V (C.aOf p X N) (-(C.Zof p X N k))
-        = Cb * (softLam C p X N * kappaBal (C.aOf p X N)) * (Fz.step N ^ m * Molv U V (C.aOf p X N) (-(C.Zof p X N k))) := by ring
-      _ ≤ (Cf * clam) * (|C.lamL p X N| / clam) * (Fz.step N ^ m * Molv U V (C.aOf p X N) (-(C.Zof p X N k))) := by
+    calc Cb * Fz.step N ^ m * Lm (Fz.step N) * (softLam C p X N * kappaBal (C.aOf p X N)) * Molv U V (C.aOf p X N) (-(C.Zof p X N k))
+        = Cb * (softLam C p X N * kappaBal (C.aOf p X N)) * ((Fz.step N ^ m * Lm (Fz.step N)) * Molv U V (C.aOf p X N) (-(C.Zof p X N k))) := by ring
+      _ ≤ (Cf * clam) * (|C.lamL p X N| / clam) * ((Fz.step N ^ m * Lm (Fz.step N)) * Molv U V (C.aOf p X N) (-(C.Zof p X N k))) := by
           refine mul_le_mul_of_nonneg_right ?_ hT
           calc Cb * (softLam C p X N * kappaBal (C.aOf p X N)) ≤ (Cf * clam) * (softLam C p X N * kappaBal (C.aOf p X N)) :=
                 mul_le_mul_of_nonneg_right hCb hlam0
             _ ≤ _ := mul_le_mul_of_nonneg_left hlk (by positivity)
-      _ = Cf * |C.lamL p X N| * (Fz.step N ^ m * Molv U V (C.aOf p X N) (-(C.Zof p X N k))) := by field_simp
-      _ ≤ Cf * |C.lamL p X N| * Lm (Fz.step N) * (Fz.step N ^ m * Molv U V (C.aOf p X N) (-(C.Zof p X N k))) := by
-          have : 0 ≤ Cf * |C.lamL p X N| * (Fz.step N ^ m * Molv U V (C.aOf p X N) (-(C.Zof p X N k))) :=
-            mul_nonneg (mul_nonneg hCf0 hlamL0) hT
-          nlinarith [this, hLm1]
-      _ = _ := by ring
+      _ = _ := by field_simp
 
 end Item1
 

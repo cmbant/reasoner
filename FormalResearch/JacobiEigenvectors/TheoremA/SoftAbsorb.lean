@@ -30,8 +30,8 @@ open Finset FormalResearch.JacobiEigenvectors.Setting FormalResearch.JacobiEigen
 
 namespace SoftEdgeChart
 
-variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
-  (C : SoftEdgeChart F P m q U V)
+variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
+  (C : SoftEdgeChart F P m q U V Lm)
 
 /-- the smallness threshold of the absorption: `h <= h_1` and `d_+ h <= sqrt(c_{z1})/2`. -/
 def softH2 : ℝ := min C.softH1 (Real.sqrt C.cz1 / (2 * C.dp))

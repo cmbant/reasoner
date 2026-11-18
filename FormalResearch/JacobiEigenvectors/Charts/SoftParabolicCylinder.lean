@@ -58,9 +58,10 @@ sequences" (eq:tha-weber-seq, eq:tha-aPC, eq:tha-PCseq), "The soft edges" (eq:th
 * **F-W2-7 resolved (round 4).**  `LadderData.Valid` is split into `PreValid` (everything but (S3)) and `Valid` (adds `transfer`); `SoftEdgeChart.valid` is `PreValid` and (S3) is *derived* in `TheoremA/SoftTransfer.lean` (`soft_valid`) with the explicit
   `Lambda = softLamC`.  The chart-level inputs that this needed and that were not fields are now fields: `bondA_le` (`a_n <= C_A`) and `muS_bd` for `r = 0` (`|mu_0| <= C_mu`, so that `a h = -tilde mu` is bounded); everything else
   (`k_2 >= c/h`, the one-step ratio of `E_-`, `E_- ~ 1` at `j_2`) is derived from `Y_forb`, `zeta_deriv`, `zeta_far`, `muS_bd`, the definition of `Ewell`/`Ebar` and `pcSwap_eq_pcMinus`.
-* **New, F-W2-8 (item (4), `rho_one`/`theta_le`).**  For odd `m` and `q = m - 1` (one shift short) the paper has `Theta <= C log(1/h)` with defect weights `rho_k` not identically `1`; the structure fixes `rho = rho~ = 1` and
-  `Theta <= Csum`, so a chart in the sense of this structure exists for `q = m - 1` only if the defect bound holds with `rho = 1`, i.e. `PropThaW2` item (4) is, as frozen, vacuous or implied by the full-order statement.  Not changed here (would require a chart-level
-  `Lm` and `theta_le : Theta <= Csum Lm`; the exact proposed change is in `PLAN.md`, F-W2-8); reported.
+* **F-W2-8 (item (4), `rho_one`/`theta_le`) applied (round 6).**  For odd `m` and `q = m - 1` (one shift short) the paper has `Theta <= C log(1/h)` with defect weights `rho_k` not identically `1`; the old structure fixed `rho = rho~ = 1`
+  and `Theta <= Csum`.  Now `SoftEdgeChart F P m q U V Lm` has the parameter `Lm : ℝ → ℝ` (`1` for items (1)--(3), `1 + log(1/h)` for item (4)), `theta_le`/`theta_leW` read `Theta <= Csum * Lm(h)`, and `rho_one`/`rho_oneW` are deleted
+  (they were used only for the soft chart's own `Theta` bound; the bulk chart keeps its own).  **Two chart fields about `Lm` were needed that the proposal in `PLAN.md` did not list**: `Lm_one` (`1 <= Lm` on `(0,1]`, the hypothesis already of `PropThaW2`) and
+  `Lm_small` (`h Lm(h) -> 0`), without which the engine smallness `2 K_D K_w h^m Theta <= c_*` has no threshold for `h` (for `Lm = h^{-10}` the conclusion of `PropThaW2` is false).  `ChartInputs` uses `Lm = fun _ => 1` (Theorem A needs `q >= m`).
 * **New, F-W2-11 (round 5, R4: the lower half of (c)).**  The lower bound `|lambda_L| >= c lambda kappa_bal` (`TheoremA/SoftLower.lean`) uses the paper's Step 3 (i)--(iii); of its inputs `grow_gap` (growth margin of the exact solution, `eq:tha-S4grow`),
   `collar_lbW` (lem:cha-W0 for the Weber chart) and `ratio2` (`r_2 = e^{-theta}(1+O(h))`) were fields of round 4, and the comparison `M_{j_1+1} <= C_M M_{j_1}` ("`M^2_Web ~ h^{1/2}` there") is the new field `ratioM`
   (it needs an upper bound `k_2 <= C/h` at the two rows, which `Y_forb` does not give: `Y` is only bounded below there).  Nothing else was needed: `r_W >= 1 + gamma/2` is *derived* from the exact solution (`growth_ratio`) and the engine bound.
@@ -133,7 +134,7 @@ def softLamVal (step : ℝ) (j1 : ℤ) (Yj a zj : ℝ) : ℝ :=
 
 /-- **The left soft-edge chart at the upper edge, order `m`, shift index `q`** (see the module docstring). -/
 structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (P : Set Par) (m q : ℕ)
-    (U V : ℝ → ℝ → ℝ) where
+    (U V : ℝ → ℝ → ℝ) (Lm : ℝ → ℝ) where
   cs : ChainConsts
   N0 : ℕ
   /-- the energy window `|X - X_s^+| <= delta_0`, the collar half-width `eta`, the PC-chart bounds `d_- <= d_zeta/dx <= d_+`, constants. -/
@@ -226,9 +227,8 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
       ![vt V (-((k : ℝ) + 1 / 2)) (Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)),
         Real.sqrt (F.step N) * (Real.sqrt (Real.pi / 2) * (kappaBal (-((k : ℝ) + 1 / 2)))⁻¹
           * deriv (V (-((k : ℝ) + 1 / 2))) (Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)))]
-  rho_oneW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chainW μ X N).NR,
-    (chainW μ X N).ρ k = 1 ∧ (chainW μ X N).ρt k = 1
-  theta_leW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → (chainW μ X N).theta (F.step N) ≤ Csum
+  /-- **(F-W2-8)** the modulus sum of the Weber chart: `Theta <= C_sum Lm(h)` (`Lm = 1` for `q >= m`; `Lm = log(1/h)` in the one-shift-short case, the defect weights `rho` being free). -/
+  theta_leW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → (chainW μ X N).theta (F.step N) ≤ Csum * Lm (F.step N)
   /-- the weights of `chainW`: `W_k = E_Web = E_well(-(k+1/2), |Z_k|)`, `M_k = M_Web = M_bal(-(k+1/2), Z_k)` (lem:cha-weber-env). -/
   W_defW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chainW μ X N).NR,
     (chainW μ X N).W k = Ewell (-((k : ℝ) + 1 / 2)) |Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)|
@@ -307,11 +307,13 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
     ∀ k ∈ Finset.Icc ((chain μ X N).jj 1 + 1) (chain μ X N).NR,
     (chain μ X N).M k = Mbal (aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X))
       (zeta μ (F.bandHi μ - X) (uNode (F.step N) k - uc μ) / Real.sqrt (F.step N))
-  /-- the modulus sum is bounded: `Theta_h <= C_sum` (the powers of `h` cancel, as in the bulk). -/
-  theta_le : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → (chain μ X N).theta (F.step N) ≤ Csum
-  /-- `rho = rho~ = 1`. -/
-  rho_one : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
-    (chain μ X N).ρ k = 1 ∧ (chain μ X N).ρt k = 1
+  /-- **(F-W2-8)** the modulus sum is bounded by `C_sum Lm(h)` (the powers of `h` cancel, as in the bulk; `Lm = 1` for `q >= m`, `Lm = log(1/h)` for `q = m - 1`, where the defect
+  weights `rho_k` are not identically `1`: app_thmA Step 5 / prop:tha-W2 (4)). -/
+  theta_le : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → (chain μ X N).theta (F.step N) ≤ Csum * Lm (F.step N)
+  /-- **(F-W2-8)** `1 <= Lm h` on `(0, 1]` (the same hypothesis as in `PropThaW2`; for `Lm = 0` items (1)--(3) are false). -/
+  Lm_one : ∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ Lm h
+  /-- **(F-W2-8)** `Lm` grows slower than `1/h`: `h Lm(h) -> 0` (true for `Lm = 1` and `Lm = 1 + log(1/h)`); it makes the engine smallness `h^m C_sum Lm(h) <= c_*` hold for small `h`. -/
+  Lm_small : ∀ ε : ℝ, 0 < ε → ∃ h1 : ℝ, 0 < h1 ∧ ∀ h : ℝ, 0 < h → h ≤ h1 → h * Lm h ≤ ε
   /-- **(round 4)** the bonds are bounded, `a_n <= C_A` (`a_n = sqrt(s_n (L - s_n) G_h(s_n))`, `G_h` bounded: (E_{q/2}); the paper uses `a_n <= C` throughout, e.g. `A M M ~ omega_*` at a forbidden overlap). -/
   bondA_le : ∀ μ ∈ P, ∀ N, N0 ≤ N → ∀ k : ℤ, F.bondA μ N k ≤ CA
   /-- **(round 4; app_thmA Step 3 (i), eq:tha-S4grow)** the growth margin of the exact solution on the left forbidden side: `X - B_n >= a_n + a_{n-1} + nu_1` for `u_n <= u_c - eta/4`
@@ -336,8 +338,8 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
 
 namespace SoftEdgeChart
 
-variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
-  (C : SoftEdgeChart F P m q U V)
+variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
+  (C : SoftEdgeChart F P m q U V Lm)
 
 /-- The PC parameter `a_k = a^{[q]}_PC` at `(mu, X, N)`. -/
 def aOf (μ : Par) (X : ℝ) (N : ℕ) : ℝ := aPC (fun r α' => C.muS r μ α') q (F.step N) (F.bandHi μ - X)

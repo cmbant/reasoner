@@ -45,7 +45,7 @@ def glueNormAt (ψL ψR : ℤ → ℝ) (Ω rows : Finset ℤ) (ns : ℤ) : ℝ :
 
 section Cols
 
-variable {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {Jlo Jhi : ℝ}
+variable {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ} {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {Jlo Jhi : ℝ}
 
 /-- Bulk column at splice row `ns`. -/
 def bulkColAt (CL : BulkWeberChart Fz P Jlo Jhi m U V) (CR : BulkWeberChart (mirrorFamily Fz) P Jlo Jhi m U V)
@@ -53,7 +53,7 @@ def bulkColAt (CL : BulkWeberChart Fz P Jlo Jhi m U V) (CR : BulkWeberChart (mir
   glueVecAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) (fun n => uNode (Fz.step N) n ≤ CL.c) ns
 
 /-- Soft column at splice row `ns`. -/
-def softColAt (CL : SoftEdgeChart Fz P m q U V) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V)
+def softColAt (CL : SoftEdgeChart Fz P m q U V Lm) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V Lm)
     (p : Par × ℝ) (X : ℝ) (N : ℕ) (ns : ℤ) : ℤ → ℝ :=
   glueVecAt (CL.psiHatL p X N) (softSeqR CR p X N) (softWindow CL p X N) (rowsOf N) (fun n => CL.Zof p X N n ≤ 0) ns
 

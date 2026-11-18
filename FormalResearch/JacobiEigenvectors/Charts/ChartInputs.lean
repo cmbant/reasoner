@@ -63,10 +63,10 @@ structure ChartInputs {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par
   hi : Fin nb → ℝ
   bulkL : (ν : Fin nb) → BulkWeberChart (frozenFamily F Kidx) (paramSet K t0) (lo ν) (hi ν) m U V
   bulkR : (ν : Fin nb) → BulkWeberChart (mirrorFamily (frozenFamily F Kidx)) (paramSet K t0) (lo ν) (hi ν) m U V
-  softUpL : SoftEdgeChart (frozenFamily F Kidx) (paramSet K t0) m q U V
-  softUpR : SoftEdgeChart (mirrorFamily (frozenFamily F Kidx)) (paramSet K t0) m q U V
-  softLoL : SoftEdgeChart (negFamily (frozenFamily F Kidx)) (paramSet K t0) m q U V
-  softLoR : SoftEdgeChart (mirrorFamily (negFamily (frozenFamily F Kidx))) (paramSet K t0) m q U V
+  softUpL : SoftEdgeChart (frozenFamily F Kidx) (paramSet K t0) m q U V (fun _ => 1)
+  softUpR : SoftEdgeChart (mirrorFamily (frozenFamily F Kidx)) (paramSet K t0) m q U V (fun _ => 1)
+  softLoL : SoftEdgeChart (negFamily (frozenFamily F Kidx)) (paramSet K t0) m q U V (fun _ => 1)
+  softLoR : SoftEdgeChart (mirrorFamily (negFamily (frozenFamily F Kidx))) (paramSet K t0) m q U V (fun _ => 1)
   /-- the right overlap `[c'_R, c_R]` is the mirror of the left one: `c_R = L - c'_L`, `c'_R = L - c_L`. -/
   overlap_match : ∀ ν, (bulkR ν).c = F.L - (bulkL ν).c' ∧ (bulkR ν).c' = F.L - (bulkL ν).c
   /-- mirror symmetry of the soft charts: `u_c^R = L - u_c`, `zeta_R(-x) = -zeta(x)`, the same shifts `mu_{2r}`, same `eta`, `delta_0`
