@@ -1,0 +1,30 @@
+module
+
+public import FormalResearch.JacobiEigenvectors.Setting.JacobiFamily
+public import FormalResearch.JacobiEigenvectors.Charts.LadderChain
+public import FormalResearch.JacobiEigenvectors.Charts.ParabolicCylinder
+public import FormalResearch.JacobiEigenvectors.Charts.Regularity
+public import FormalResearch.JacobiEigenvectors.Charts.BulkWeber
+public import FormalResearch.JacobiEigenvectors.Charts.SoftParabolicCylinder
+public import FormalResearch.JacobiEigenvectors.Charts.TransferCoefficients
+public import FormalResearch.JacobiEigenvectors.Charts.ChartInputs
+public import FormalResearch.JacobiEigenvectors.TheoremA.Comparison
+public import FormalResearch.JacobiEigenvectors.TheoremA.Statements
+public import FormalResearch.JacobiEigenvectors.TheoremB.ComparisonMatrix
+public import FormalResearch.JacobiEigenvectors.TheoremB.Statements
+
+/-!
+# Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)
+
+Umbrella **stub** for the statement freeze of the Layer 2/3 formalisation of Paper J (every Bohr--Sommerfeld eigenvalue and every eigenvector to all
+orders for slowly varying Jacobi matrices; operator-norm eigenvector matrix).  **Not yet imported by `FormalResearch.lean`.**
+Namespace `FormalResearch.JacobiEigenvectors`; plan, dependency DAG and the Layer-4 residual list: `FormalResearch/JacobiEigenvectors/PLAN.md`.
+
+* `Setting/JacobiFamily`: the Jacobi family `J_h`, (D_M), (E_K), (H1)--(H3), parity freezing, mirror and gauge families.
+* `Charts/*`: the hypothesis structures (`ChartInputs`): engine interface `LadderChain`, parabolic-cylinder facts, bulk Weber chart, soft-edge chart, transfer coefficients.
+* `TheoremA/*`: the comparison vectors and the Prop-valued statements of thm:A, prop:tha-W/W2, lem:tha-win/M/count, prop:l2jets, thm:smo-spec.
+* `TheoremB/*`: the comparison matrices and the statements of prop:tha-splice, lem:tha-Mflat, lem:tha-collar, prop:thb-inputs, thm:B.
+
+The engine is currently `FormalResearch.JE` (to become `FormalResearch.JacobiEigenvectors.Engine`); `FormalResearch.JB` (Theorem B reduction) is to be folded into `TheoremB/` later.
+No placeholder proofs and no added axioms: statements are `def ... : Prop`, to be proved later.
+-/
