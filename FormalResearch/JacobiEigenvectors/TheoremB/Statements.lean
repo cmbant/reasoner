@@ -71,19 +71,21 @@ def splicedVec (ψL ψR : ℤ → ℝ) (Ω rows : Finset ℤ) (ns n : ℤ) : ℝ
 
 /-! ### prop:tha-splice -/
 
-/-- **prop:tha-splice (a)** (bulk), error function `eta` in place of `h^r`: for every splice `n_s` in the window, `|hat N(n_s)/hat N - 1| <= C eta`, `|psi-hat^L - hat kappa psi-hat^R| <= C eta M_Web` on the window,
+/-- **prop:tha-splice (a)** (bulk), error function `eta` in place of `h^r`.  **Corrected in the second pass (finding F-B8, same pattern as F-C3 of `PropThaW`)**: the matching relation `psi^L = kappa psi^R`
+holds *at an eigenvalue*, so the glue-norm clause and the window-matching clause are stated inside the eigen-system clause (as in the paper's proof, which works "at the eigenvalue `X`"); off the spectrum, in a gap between quantisation levels, they fail.  Same for (b). Statement: for every splice `n_s` in the window, `|hat N(n_s)/hat N - 1| <= C eta`, `|psi-hat^L - hat kappa psi-hat^R| <= C eta M_Web` on the window,
 `|Psi_n - hat Psi^{(n_s)}_n| <= C eta V_n / hat N` for all `n`, with `C` independent of `n_s`. -/
 def PropThaSpliceBulk {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {Jlo Jhi : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ}
     (CL : BulkWeberChart Fz P Jlo Jhi m U V) (CR : BulkWeberChart (mirrorFamily Fz) P Jlo Jhi m U V) (η : ℝ → ℝ) : Prop :=
   ∀ r, StdAssump Fz P (m / 2) r →
     ∃ C h0 : ℝ, 0 < h0 ∧ ∀ p ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 →
       ∀ ns ∈ bulkWindow CL N,
-        |glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns / bulkNorm CL CR p X N - 1| ≤ C * η (Fz.step N) ∧
-        (∀ n ∈ bulkWindow CL N, |CL.psiHatL p X N n - bulkKappa CL CR p X N * bulkSeqR CR p X N n| ≤ C * η (Fz.step N) * (CL.chain p X N).M n) ∧
         ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →
-          ∀ k : Fin (N + 1), Xs k = X → ∀ n ∈ rowsOf N,
-            |eigVec Um k n - splicedVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns n|
-              ≤ C * η (Fz.step N) * bulkEnv CL CR p X N n
+          ∀ k : Fin (N + 1), Xs k = X →
+            (|glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns / bulkNorm CL CR p X N - 1| ≤ C * η (Fz.step N) ∧
+              (∀ n ∈ bulkWindow CL N, |CL.psiHatL p X N n - bulkKappa CL CR p X N * bulkSeqR CR p X N n| ≤ C * η (Fz.step N) * (CL.chain p X N).M n)) ∧
+            ∀ n ∈ rowsOf N,
+              |eigVec Um k n - splicedVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns n|
+                ≤ C * η (Fz.step N) * bulkEnv CL CR p X N n
 
 /-- **prop:tha-splice (b)** (soft edge): the same for every `n_s` in the window `Omega`, and the fold row `n_c = nearestRow u_c` is an admissible splice for every column of the edge. -/
 def PropThaSpliceSoft {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
@@ -92,13 +94,14 @@ def PropThaSpliceSoft {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m
     ∃ C h0 : ℝ, 0 < h0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 → CL.aOf p X N ≤ 1 →
       nearestRow (Fz.step N) (CL.uc p) ∈ softWindow CL p X N ∧
       ∀ ns ∈ softWindow CL p X N,
-        |glueNormAt (CL.psiHatL p X N) (softSeqR CR p X N) (softWindow CL p X N) (rowsOf N) ns / softNorm CL CR p X N - 1| ≤ C * η (Fz.step N) ∧
-        (∀ n ∈ softWindow CL p X N, |CL.psiHatL p X N n - softKappa CL CR p X N * softSeqR CR p X N n|
-            ≤ C * η (Fz.step N) * |CL.lamL p X N| * (kappaBal (CL.aOf p X N))⁻¹ * Mbal (CL.aOf p X N) (CL.Zof p X N n)) ∧
         ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →
-          ∀ k : Fin (N + 1), Xs k = X → ∀ n ∈ rowsOf N,
-            |eigVec Um k n - splicedVec (CL.psiHatL p X N) (softSeqR CR p X N) (softWindow CL p X N) (rowsOf N) ns n|
-              ≤ C * η (Fz.step N) * softEnv CL CR p X N n
+          ∀ k : Fin (N + 1), Xs k = X →
+            (|glueNormAt (CL.psiHatL p X N) (softSeqR CR p X N) (softWindow CL p X N) (rowsOf N) ns / softNorm CL CR p X N - 1| ≤ C * η (Fz.step N) ∧
+              (∀ n ∈ softWindow CL p X N, |CL.psiHatL p X N n - softKappa CL CR p X N * softSeqR CR p X N n|
+                ≤ C * η (Fz.step N) * |CL.lamL p X N| * (kappaBal (CL.aOf p X N))⁻¹ * Mbal (CL.aOf p X N) (CL.Zof p X N n))) ∧
+            ∀ n ∈ rowsOf N,
+              |eigVec Um k n - splicedVec (CL.psiHatL p X N) (softSeqR CR p X N) (softWindow CL p X N) (rowsOf N) ns n|
+                ≤ C * η (Fz.step N) * softEnv CL CR p X N n
 
 /-- Two chart bundles at orders `m` and `m+1` with the same shift `q`, the same blocks and the same soft data (the correctors and the coordinate do not depend on the order). -/
 structure ChartPair {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ} where
