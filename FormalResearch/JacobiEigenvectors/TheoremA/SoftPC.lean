@@ -232,6 +232,206 @@ theorem soft_tail3 {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) {p 
 
 end Tail
 
+lemma pc_conv {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) {lam : ℝ} (hlam : 0 ≤ lam) (a z : ℝ) :
+    lam * (Mbal a z * Wmol a (-z)) * cPC ≤ lam * kappaBal a * Molv U V a (-z) := by
+  have hκ := kappaBal_pos a
+  have h := molv_lower hf a (-z)
+  rw [Mbal_neg] at h
+  have h2 := mul_le_mul_of_nonneg_left h hκ.le
+  have e : kappaBal a * (cPC * (kappaBal a)⁻¹ * Wmol a (-z) * Mbal a z) = cPC * Wmol a (-z) * Mbal a z := by
+    field_simp
+  rw [e] at h2
+  calc lam * (Mbal a z * Wmol a (-z)) * cPC = lam * (cPC * Wmol a (-z) * Mbal a z) := by ring
+    _ ≤ lam * (kappaBal a * Molv U V a (-z)) := mul_le_mul_of_nonneg_left h2 hlam
+    _ = _ := by ring
+
+lemma finish_aux {T H Bc c Q R : ℝ} (hc : 0 < c) (hH : 0 ≤ H) (hBc : 0 ≤ Bc) (hT : T * c ≤ Q)
+    (hR : R ≤ T * H * Bc) : R ≤ Bc / c * H * Q := by
+  calc R ≤ T * H * Bc := hR
+    _ = (T * c) * (H * Bc) / c := by field_simp
+    _ ≤ Q * (H * Bc) / c := by gcongr
+    _ = _ := by ring
+
+section PCBound
+
+variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
+  (C : SoftEdgeChart Fz P m q U V)
+
+/-- on the PC rows of patch 2 with `u_k > u_c - eta/2`: `hat Z <= Z_k <= 0`. -/
+lemma Z_range_patch2 {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz.bandHi p| ≤ C.δ0) {N : ℕ} (hN : C.N0 ≤ N)
+    (hh : Fz.step N ≤ C.softH1) {lam : ℝ} (hV : ((C.chain p X N).rescale1 lam).PreValid C.cs (Fz.step N) m)
+    {k : ℤ} (hk : k ≤ (C.chain p X N).jj 2) (hku : C.uc p - C.η / 2 < uNode (Fz.step N) k) :
+    C.zhat p X N ≤ C.Zof p X N k ∧ C.Zof p X N k ≤ 0 := by
+  obtain ⟨hP3, hj0, hj12, hj2NR, hx1, hx2, hx3, hza, hzb⟩ := C.soft_pos hp hX hN hh hV
+  obtain ⟨-, hη, hdm, hdmp, -⟩ := C.consts_pos
+  have hh0 : 0 < Fz.step N := SoftEdgeChart.step_pos (F := Fz) N
+  have hα := C.abs_alpha_le hX
+  have hs : 0 < Real.sqrt (Fz.step N) := Real.sqrt_pos.mpr hh0
+  have hm1 : uNode (Fz.step N) k ≤ uNode (Fz.step N) ((C.chain p X N).jj 2 + 1) :=
+    SoftEdgeChart.uNode_mono_le hh0.le (by omega)
+  have hm2 : uNode (Fz.step N) k ≤ uNode (Fz.step N) ((C.chain p X N).jj 2) := SoftEdgeChart.uNode_mono_le hh0.le hk
+  have hm3 : uNode (Fz.step N) ((C.chain p X N).jj 2) ≤ uNode (Fz.step N) ((C.chain p X N).jj 2 + 1) :=
+    SoftEdgeChart.uNode_mono_le hh0.le (by omega)
+  constructor
+  · have hmvt := C.zeta_mvt (x1 := -(C.η / 2)) (x2 := uNode (Fz.step N) k - C.uc p) hp hα (by linarith) (by linarith) (by linarith)
+    have hd := mul_nonneg hdm.le (sub_nonneg.mpr (by linarith : -(C.η / 2) ≤ uNode (Fz.step N) k - C.uc p))
+    unfold SoftEdgeChart.zhat
+    rw [SoftEdgeChart.Zof_eq]
+    exact div_le_div_of_nonneg_right (by linarith [hmvt.1]) hs.le
+  · have hmvt := C.zeta_mvt (x1 := uNode (Fz.step N) k - C.uc p) (x2 := uNode (Fz.step N) ((C.chain p X N).jj 2) - C.uc p) hp hα
+      (by linarith) (by linarith) (by linarith)
+    have hd := mul_nonneg hdm.le (sub_nonneg.mpr (by linarith : uNode (Fz.step N) k - C.uc p ≤ uNode (Fz.step N) ((C.chain p X N).jj 2) - C.uc p))
+    rw [SoftEdgeChart.Zof_eq]
+    exact div_nonpos_of_nonpos_of_nonneg (by linarith [hmvt.1, hza]) hs.le
+
+/-- **(R1 + R2 + R3) the parabolic-cylinder bound of `prop:tha-W2` (1), before the lower bound of `lambda_L`**: for `h <= h_0`, uniformly in `(p, X, N, psi)`, every row `u_k > u_c - eta/2`
+satisfies `|psi_k - psi-hat^L_k| <= C_b h^m (lambda kappa_bal) M_Olv(a, -Z_k)`. -/
+theorem soft_pc_bound {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (hm : 1 ≤ m) :
+    ∃ Cb h0 : ℝ, 0 < h0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ C.δ0 → ∀ N : ℕ, C.N0 ≤ N → Fz.step N ≤ h0 →
+      ∀ ψ : ℤ → ℝ, JacSol Fz p N X (C.chain p X N).NR ψ → ψ 0 = C.psiHatL p X N 0 →
+        ∀ k ∈ Finset.Icc (0 : ℤ) (C.chain p X N).NR, C.uc p - C.η / 2 < uNode (Fz.step N) k →
+          |ψ k - C.psiHatL p X N k| ≤ Cb * Fz.step N ^ m * (softLam C p X N * kappaBal (C.aOf p X N)) *
+            Molv U V (C.aOf p X N) (-(C.Zof p X N k)) := by
+  obtain ⟨Cc, h0, h0pos, H⟩ := soft_through_edge C hf hm
+  have hcE := C.cE_pos
+  have hcPC := hf.cPC_pos
+  set F0 : ℝ := (Nat.factorial (m + 1) : ℝ) / C.cE ^ (m + 1) with hF0
+  have hF0nn : 0 ≤ F0 := by positivity
+  have hK0 := softK_nonneg C
+  have hΛ := C.softLamC_ge
+  have hBc : 0 ≤ |Cc| + 3 * C.softLamC * softK C * F0 := by positivity
+  refine ⟨(|Cc| + 3 * C.softLamC * softK C * F0) / cPC, min h0 (min C.softH2 1), lt_min h0pos (lt_min C.softH2_pos one_pos), ?_⟩
+  intro p hp X hX N hN hstep ψ hsol hseed k hk hku
+  have hstep0 : Fz.step N ≤ h0 := hstep.trans (min_le_left _ _)
+  have hstep2 : Fz.step N ≤ C.softH2 := hstep.trans ((min_le_right _ _).trans (min_le_left _ _))
+  have hstep1 : Fz.step N ≤ 1 := hstep.trans ((min_le_right _ _).trans (min_le_right _ _))
+  have hh0 : 0 < Fz.step N := SoftEdgeChart.step_pos (F := Fz) N
+  have hhH1 : Fz.step N ≤ C.softH1 := hstep2.trans C.softH2_le_H1
+  obtain ⟨hlam, -, H2⟩ := H p hp X hX N hN hstep0
+  obtain ⟨-, hb2, hb3⟩ := H2 ψ hsol hseed
+  have hVpre : ((C.chain p X N).rescale1 (softLam C p X N)).PreValid C.cs (Fz.step N) m := C.valid p hp X hX N hN
+  obtain ⟨hP3, hj0, hj12, hj2NR, hx1, hx2, hx3, hza, hzb⟩ := C.soft_pos hp hX hN hhH1 hVpre
+  obtain ⟨-, -, -, -, -, -, hNRu, -⟩ := C.shape p hp X hX N hN
+  have hhm : 0 ≤ Fz.step N ^ m := by positivity
+  have hexp := exp_neg_div_le C.cE (Fz.step N) hcE hh0 m
+  have hε : Real.exp (-(C.cE / Fz.step N)) ≤ F0 * Fz.step N ^ m * Fz.step N := by
+    refine le_trans hexp (le_of_eq ?_)
+    rw [hF0]; ring
+  have hcEh : 0 ≤ C.cE / Fz.step N := by positivity
+  have hε1 : Real.exp (-(C.cE / Fz.step N)) ≤ 1 := Real.exp_le_one_iff.mpr (by linarith)
+  have hε0 : 0 ≤ Real.exp (-(C.cE / Fz.step N)) := (Real.exp_pos _).le
+  have hj1 : C.j1 p X N = (C.chain p X N).jj 1 := rfl
+  have hj2 : C.j2 p X N = (C.chain p X N).jj 2 := rfl
+  obtain ⟨hk0, hkN⟩ := mem_Icc.mp hk
+  have hk1 : (C.chain p X N).jj 1 + 1 ≤ k := by
+    by_contra hcon
+    have : uNode (Fz.step N) k ≤ uNode (Fz.step N) ((C.chain p X N).jj 1) := SoftEdgeChart.uNode_mono_le hh0.le (by omega)
+    obtain ⟨-, hη, -⟩ := C.consts_pos
+    linarith
+  have hlam0 : 0 ≤ softLam C p X N := hlam.le
+  have hMb := Mbal_pos (C.aOf p X N) (C.Zof p X N k)
+  have hKΛ : 0 ≤ C.softLamC * softK C := by positivity
+  by_cases hk2 : k ≤ (C.chain p X N).jj 2
+  · -- patch 2
+    have hZ := Z_range_patch2 C hp hX hN hhH1 hVpre hk2 hku
+    have hdec := C.Eminus_j1_decay hp hX hN hstep2 hVpre hZ.1 hZ.2
+    have hb := hb2 k (mem_Icc.mpr ⟨by rw [hj1]; exact hk1, by rw [hj2]; exact hk2⟩) hku
+    set E := Eminus (C.aOf p X N) (C.Zof p X N k) with hE
+    set e1 := Eminus (C.aOf p X N) (C.Zof p X N (C.j1 p X N)) with he1
+    have hdec' : e1 ≤ Real.exp (-(C.cE / Fz.step N)) * E := hdec
+    have hEpos : 0 < E := Eminus_pos _ _
+    have he1pos : 0 ≤ e1 := (Eminus_pos _ _).le
+    set ε := Real.exp (-(C.cE / Fz.step N)) with hεdef
+    have hsq : e1 ^ 2 / E ≤ F0 * Fz.step N ^ m * Fz.step N * E := by
+      rw [div_le_iff₀ hEpos]
+      calc e1 ^ 2 ≤ (ε * E) ^ 2 := pow_le_pow_left₀ he1pos hdec' 2
+        _ = (ε * ε) * (E * E) := by ring
+        _ ≤ ε * (E * E) := mul_le_mul_of_nonneg_right (mul_le_of_le_one_right hε0 hε1) (by positivity)
+        _ ≤ (F0 * Fz.step N ^ m * Fz.step N) * (E * E) := mul_le_mul_of_nonneg_right hε (by positivity)
+        _ = (F0 * Fz.step N ^ m * Fz.step N * E) * E := by ring
+    set Mb := Mbal (C.aOf p X N) (C.Zof p X N k) with hMbdef
+    set lam := softLam C p X N with hlamdef
+    have hbr : Cc * Fz.step N ^ m * E + C.softLamC * softK C * e1 ^ 2 / E
+        ≤ Fz.step N ^ m * E * (|Cc| + 3 * C.softLamC * softK C * F0) := by
+      rw [mul_div_assoc]
+      have h1 : C.softLamC * softK C * (e1 ^ 2 / E) ≤ C.softLamC * softK C * (F0 * Fz.step N ^ m * Fz.step N * E) :=
+        mul_le_mul_of_nonneg_left hsq hKΛ
+      have h2 : Cc * Fz.step N ^ m * E ≤ |Cc| * Fz.step N ^ m * E := by
+        have := mul_le_mul_of_nonneg_right (le_abs_self Cc) hhm
+        exact mul_le_mul_of_nonneg_right this hEpos.le
+      have h3 : C.softLamC * softK C * (F0 * Fz.step N ^ m * Fz.step N * E)
+          ≤ C.softLamC * softK C * (F0 * Fz.step N ^ m * 1 * E) := by
+        have : F0 * Fz.step N ^ m * Fz.step N ≤ F0 * Fz.step N ^ m * 1 :=
+          mul_le_mul_of_nonneg_left hstep1 (by positivity)
+        exact mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right this hEpos.le) hKΛ
+      have h4 : 0 ≤ C.softLamC * softK C * F0 * Fz.step N ^ m * E := by positivity
+      nlinarith [h1, h2, h3, h4]
+    have hfin : |ψ k - C.psiHatL p X N k| ≤ (lam * (Mb * E)) * Fz.step N ^ m * (|Cc| + 3 * C.softLamC * softK C * F0) := by
+      calc _ ≤ lam * Mb * (Cc * Fz.step N ^ m * E + C.softLamC * softK C * e1 ^ 2 / E) := hb
+        _ ≤ lam * Mb * (Fz.step N ^ m * E * (|Cc| + 3 * C.softLamC * softK C * F0)) :=
+            mul_le_mul_of_nonneg_left hbr (by positivity)
+        _ = _ := by ring
+    have hconv := pc_conv hf hlam0 (C.aOf p X N) (C.Zof p X N k)
+    rw [Wmol_neg_of_nonpos _ hZ.2] at hconv
+    refine (finish_aux hcPC hhm hBc hconv hfin).trans (le_of_eq ?_)
+    ring
+  · have hk3 : (C.chain p X N).jj 2 + 1 ≤ k := by omega
+    have hkm : k ∈ Finset.Icc ((C.chain p X N).jj 2 + 1) (C.chain p X N).NR := mem_Icc.mpr ⟨hk3, hkN⟩
+    have hku2 : uNode (Fz.step N) k ≤ C.uc p + 2 * C.η :=
+      le_trans (SoftEdgeChart.uNode_mono_le hh0.le hkN) hNRu
+    have hZpos := Zof_pos_of_gt C hp hX hN hhH1 hVpre hkm hku2
+    have hb := hb3 k (mem_Icc.mpr ⟨by rw [hj2]; exact hk3, hkN⟩)
+    have htail := soft_tail3 C hf hp hX hN hhH1 hkm hku2
+    have hL := psiHatL_of_gt C p X N hku
+    have he1s := C.Eminus_j1_small hp hX hN hstep2 hVpre
+    set e1 := Eminus (C.aOf p X N) (C.Zof p X N (C.j1 p X N)) with he1
+    have he1s' : e1 ≤ Real.exp (-(C.cE / Fz.step N)) := he1s
+    have he1pos : 0 ≤ e1 := (Eminus_pos _ _).le
+    set ε := Real.exp (-(C.cE / Fz.step N)) with hεdef
+    have he1sq : e1 ^ 2 ≤ F0 * Fz.step N ^ m := by
+      calc e1 ^ 2 ≤ ε ^ 2 := pow_le_pow_left₀ he1pos he1s' 2
+        _ ≤ ε := pow_le_of_le_one hε0 hε1 two_ne_zero
+        _ ≤ F0 * Fz.step N ^ m * Fz.step N := hε
+        _ ≤ F0 * Fz.step N ^ m * 1 := mul_le_mul_of_nonneg_left hstep1 (by positivity)
+        _ = _ := mul_one _
+    set Esw := Eswap (C.aOf p X N) (C.Zof p X N k) with hEswdef
+    have hEsw : 0 < Esw := Eswap_pos _ _
+    set Mb := Mbal (C.aOf p X N) (C.Zof p X N k) with hMbdef
+    set lam := softLam C p X N with hlamdef
+    have hP0 : 0 ≤ lam * (Mb * Esw) := by positivity
+    have htri : |ψ k - C.psiHatL p X N k| ≤ |ψ k - (C.chain p X N).psiHat (Fz.step N) 3 k|
+        + |(C.chain p X N).psiHat (Fz.step N) 3 k - C.lamL p X N * ((C.chain p X N).phi (Fz.step N) 0 2 k / kappaBal (C.aOf p X N))| := by
+      rw [hL]; exact abs_sub_le _ _ _
+    have s1 : lam * Mb * (Cc * Fz.step N ^ m * Esw) ≤ (lam * (Mb * Esw)) * (Fz.step N ^ m * |Cc|) := by
+      have : Cc * Fz.step N ^ m ≤ |Cc| * Fz.step N ^ m := mul_le_mul_of_nonneg_right (le_abs_self _) hhm
+      calc _ = (lam * (Mb * Esw)) * (Cc * Fz.step N ^ m) := by ring
+        _ ≤ (lam * (Mb * Esw)) * (|Cc| * Fz.step N ^ m) := mul_le_mul_of_nonneg_left this hP0
+        _ = _ := by ring
+    have s2 : lam * C.softLamC * e1 ^ 2 * (3 * softK C * (Esw * Mb)) ≤
+        (lam * (Mb * Esw)) * (Fz.step N ^ m * (3 * C.softLamC * softK C * F0)) := by
+      have h3 : 0 ≤ 3 * C.softLamC * softK C := by positivity
+      calc _ = (lam * (Mb * Esw)) * ((3 * C.softLamC * softK C) * e1 ^ 2) := by ring
+        _ ≤ (lam * (Mb * Esw)) * ((3 * C.softLamC * softK C) * (F0 * Fz.step N ^ m)) :=
+            mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left he1sq h3) hP0
+        _ = _ := by ring
+    have hfin : |ψ k - C.psiHatL p X N k| ≤ (lam * (Mb * Esw)) * Fz.step N ^ m * (|Cc| + 3 * C.softLamC * softK C * F0) := by
+      calc _ ≤ _ := htri
+        _ ≤ lam * Mb * (Cc * Fz.step N ^ m * Esw) + lam * C.softLamC * e1 ^ 2 * (3 * softK C * (Esw * Mb)) :=
+            add_le_add hb htail
+        _ ≤ (lam * (Mb * Esw)) * (Fz.step N ^ m * |Cc|) + (lam * (Mb * Esw)) * (Fz.step N ^ m * (3 * C.softLamC * softK C * F0)) :=
+            add_le_add s1 s2
+        _ = _ := by ring
+    have hconv := pc_conv hf hlam0 (C.aOf p X N) (C.Zof p X N k)
+    rw [Wmol_neg_of_pos _ hZpos] at hconv
+    refine (finish_aux hcPC hhm hBc hconv hfin).trans (le_of_eq ?_)
+    ring
+
+end PCBound
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.soft_pc_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms soft_pc_bound
+
 end FormalResearch.JacobiEigenvectors.TheoremA
 
 end
