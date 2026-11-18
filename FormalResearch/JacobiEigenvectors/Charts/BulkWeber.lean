@@ -44,6 +44,23 @@ the coordinate, the corrector row and the *defect* of the comparison sequence.
 (`ParabolicCylinderFacts` has none either).  What *is* satisfiable, and checked here, is the engine part: `JE.volterra_multi_instance` and
 `JE.constant_ladder` are instances of the hypotheses of `LadderData.Valid` modulo the lattice normalisation; no new instance is claimed.
 
+## Round 2 audit: `BulkWeberChart` and `BulkPhaseInputs`
+
+* **(a)** `overlap_in_well` is lem:tha-geom (c) *per block* (finding F-geom; the freeze's `ChartInputs` has one chart per block).  `turn_eq`, `Hz_lb` are prop:cha-halfrow (a);
+  `matchF` is eq:tha-matchF with `H` the *unsigned-argument* form: checked by hand that `int_u^{Y^2/4} arccosh(|Y|/(2 sqrt v)) dv = (|Y|/4) sqrt(Y^2 - 4u) - u arccosh(|Y|/(2 sqrt u))`
+  (integration by parts), which is the right side of eq:cha-Z-forb; `matchO` is eq:tha-matchO and is the sign-free unification of eq:cha-Z-osc: with `Theta_L` integrated from `0` and
+  `Real.arccos = Re arccos` (`= pi` on a forbidden collar with `Q_0 < 0`) the two cases `eps = +-1` of eq:cha-Z-osc and eq:cha-Z-0 are one identity (checked: `u [arccos s - s sqrt(1-s^2)]`,
+  `s = Y/(2 sqrt u)`, equals `pi u_- + int_{u_-}^u arccos` when `eps = -1`).  `W_osc`, `M_osc`, `collar_lb`, `theta_le`, `seed_pos` are lem:cha-weber-env (2), (3), lem:cha-W0 and app_thmA Step 2.
+* **FIX (b/c) `W_def`, `M_def` added.**  The weights `W, M` of the chain were only bounded above by `valid.env` and below on the collar by `collar_lb`; in the well they could be inflated
+  on single rows (the modulus sum allows one row of size `h^{-1/4}`), which would weaken `PropThaW (2)` and `ThmAii` (their envelope is `W M`).  They are now pinned to the Weber envelopes
+  exactly as `SoftEdgeChart.W1_def/M1_def` do.  `W_osc`, `M_osc` become consequences (redundant, kept: consistent since `|Z^2/4 - nu| = (u - u_-) H_Z/(4h)`).
+* **(b) consistency.**  `matchF/matchO` determine `Y` uniquely given `turn_eq`; `Y_bound` (`C^2` through `u = 0` and the collisions) is lem:smo-budget (b).  No field refers to an eigenvalue.
+* **`BulkPhaseInputs` (sound).**  `casoratian` is eq:smo-bulkphase for the *comparison* sequences `C_n(psi-hat^L, psi-hat^R) = a_n (psi-hat^L_n psi-hat^R_{n+1} - psi-hat^L_{n+1} psi-hat^R_n)` (the sign of
+  `C = -W` in lem:smo-bulkphase), at every overlap row with an `n`-independent prefactor `pre` (true up to a relative `O(h^m)`: the defect of the comparison sequences is `O(h^{m+1})`),
+  with phase `Sigma/h - pi/2`, `Sigma = S_0 + sum_{j >= 2} h^j Sigma_j`; the freeze states the lemma for the comparison sequences instead of the exact edge solutions; the paper passes from one to
+  the other by prop:tha-W (1) (`|psi - psi-hat| <= C h^m W M` with `W = 1`, `M^2 ~ h^{1/2} ~ pre`), so nothing is lost.  The right chart's row `N - n` is in its own window since
+  `overlap_match` makes the mirrored window equal.  `Sigma_reg` (`C^{2M+1}`) is thm:smo-BSr; `Sigma_zero`, `Sigma_one` as in lem:smo-bulkphase (4).
+
 ## Honest differences
 
 * the paper's `Y_L` for energies at which `X` is a collision energy `B_0(0)`, where `u_- = 0`, is covered by the same fields (`uMinus = 0`).
@@ -128,7 +145,17 @@ structure BulkWeberChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily 
     (chain μ X N).ρ k = 1 ∧ (chain μ X N).ρt k = 1
   /-- lem:cha-weber-env (3): `Theta_h <= C_sum`. -/
   theta_le : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → (chain μ X N).theta (F.step N) ≤ Csum
-  /-- on the overlap `W = 1` (no barrier) and `M ~ h^{1/4}`. -/
+  /-- **(round 2 audit, added)** the global weights are the Weber envelopes: `W_k = E_Web(nu_k, Z_k) = E_well(-(k+1/2), |Z_k|)` and
+  `M_k = M_Web(nu_k, Z_k) = M_bal(-(k+1/2), Z_k)`, `Z_k = h^{-1/2} Y(u_k; X)` (lem:cha-weber-env; `E_Web(nu,z) := E_well(-nu,|z|)`).  Without
+  these two fields `W, M` were free upper bounds (`env`) and the envelope `V_n` of `psiHatVec`/`bulkEnv` could have been inflated on single
+  rows (the sum bound `theta_le` leaves room for one row of size `h^{-1/4}` against the natural `h^{1/4}`), making `PropThaW`/`ThmAii`
+  weaker than the paper's statement; `SoftEdgeChart` already had the analogue (`W1_def`, `M1_def`). -/
+  W_def : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
+    (chain μ X N).W k = Ewell (-((k : ℝ) + 1 / 2)) |Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)|
+  M_def : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
+    (chain μ X N).M k = Mbal (-((k : ℝ) + 1 / 2)) (Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N))
+  /-- on the overlap `W = 1` (no barrier) and `M ~ h^{1/4}` (redundant given `W_def`, `M_def`, `turn_eq`, `Hz_lb`, `Y_bound`, `overlap_in_well`:
+  there `|Z^2/4 - nu| = (u - u_-) H_Z/(4h) ~ 1/h`; kept as a convenience with its own constants `cM, CM`). -/
   W_osc : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
     c' ≤ uNode (F.step N) k → (chain μ X N).W k = 1
   M_osc : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,

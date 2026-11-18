@@ -28,6 +28,16 @@ hypothesis and the five Schur bounds are derived in Layer 3 (`jb_schur_of_C2`, `
 This is *weaker* than the paper's (I2) hypothesis in form but the same in content, and makes the structure minimal.
 
 Satisfiability: as `BulkWeberChart` (no toy: the coefficients are those of a Weber / PC ladder).
+
+## Round 2 audit: `TransferInputs` (verdict: fixed, `ulo, uhi` became parameters)
+
+* **(a)** `same_ladder`, `parity_*` (checked on the corrector index sets: `A^{[m]} = sum_{i <= floor((m-1)/2)} h^{2i} g_{2i}`, `B^{[m]} = sum_{i <= floor(m/2)} h^{2i-2} B_{2i-1}`; for even `m` only `g_m` is
+  added (`eps_m = 0`), for odd `m` only `h^{m-1} B_m` (`h Delta B = h^m B_m`, `eps_m = 1`): eq:thb-parity); `t12_lb`, `alpha_lb` are `|Pi_{+,12}| = V_0/P_0 + O(h) >= c_T` and `alpha = g_0 + O(h) >= c_alpha`
+  (app_thmB (I2)); `reg_*` the `C^2` bounds (lem:smo-budget (b)--(e)); `omega_pos_le` `omega_n = sqrt(s_n) <= sqrt L` (bulk), `1` (soft).
+* **FIX.**  `ulo, uhi` were existential data of the structure: `ulo = uhi` away from all sampled rows satisfied every field and left Layer 3 with nothing to use.  They are parameters now,
+  fixed in `TransferBundle` to the rows the consumer needs (bulk `[0, c + sigma/2]`, soft collar `[u_c - eta/2, u_c + eta/2]`).  The energy rectangle `[Jlo, Jhi]` was already a parameter.
+* **(b)** no field concerns an eigenvector.  Uniformity: `S, c_T, c_alpha, omega_max, N_0` are chosen before `mu, X, N`.  **(c)** `reg_A1/reg_B1` and `parity_*` are not redundant
+  (`kappa` is only the *difference* of the two orders).
 -/
 
 @[expose] public section
@@ -41,12 +51,12 @@ open FormalResearch.JacobiEigenvectors.Setting FormalResearch.JacobiEigenvectors
 /-- `epsilon_m = m mod 2`. -/
 def epsM (m : ℕ) : ℝ := ((m % 2 : ℕ) : ℝ)
 
-/-- Transfer coefficients of patch `patch` of the chains `chain0` (order `m`) and `chain1` (order `m+1`) on the rectangle `[ulo mu, uhi mu] x [Jlo mu, Jhi mu]` (the rectangle may depend on `mu`, e.g. the soft collar). -/
+/-- Transfer coefficients of patch `patch` of the chains `chain0` (order `m`) and `chain1` (order `m+1`) on the rectangle `[ulo mu, uhi mu] x [Jlo mu, Jhi mu]`.
+**Round 2 audit:** `ulo, uhi` are now *parameters* (they were existential data fields: a degenerate rectangle, e.g. `ulo = uhi` outside every sampled row, satisfied the
+structure and left Layer 3 nothing to use).  The consumer (`TransferBundle`) fixes them to the rows it needs: bulk `[0, c + sigma/2]`, soft collar `[u_c - eta/2, u_c + eta/2]`. -/
 structure TransferInputs {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (P : Set Par) (Jlo Jhi : Par → ℝ) (m : ℕ)
-    (chain0 chain1 : Par → ℝ → ℕ → LadderData) (patch : ℕ) where
+    (chain0 chain1 : Par → ℝ → ℕ → LadderData) (patch : ℕ) (ulo uhi : Par → ℝ) where
   N0 : ℕ
-  ulo : Par → ℝ
-  uhi : Par → ℝ
   cT : ℝ
   cα : ℝ
   S : ℝ

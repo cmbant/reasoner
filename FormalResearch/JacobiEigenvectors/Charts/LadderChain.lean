@@ -33,6 +33,21 @@ different ladders); (S1) is the Casoratian lower bound `|F_cas| >= c_-`, (S2) th
 3. the seed is `s0 in {0,1}` (`0`: hard edge; `1`: two-node seed), as in `volterra_multi`.
 
 Satisfiability: see `Charts/BulkWeber.lean` (non-vacuity of the underlying `volterra_multi` hypotheses is `JE.volterra_multi_instance`).
+
+## Round 2 audit: `LadderData.Valid` (verdict: sound; one quantifier remark)
+
+* **(a) fields vs. the paper.**  Every field is one of the hypotheses of `volterra_multi` / `ladder_pair_stability` (thm:eng-volterra (a),(b)) per patch window
+  (S1 `cas_lb`, S2 `env`, `A_bd`, `B_bd`, S3 `transfer`, R `defect*`), or a lattice-normalisation fact of the setting (`jj*`, `shape` of the patches, `A_eq`, `Q_eq`, `A_hard`, `D_hard`,
+  `annih`).  `A_eq` at `k = -1` reads `ladderA(-1) = pp(0) dd(0) = A_{-1} = 0`, so the hard edge is enforced by `dd 1 s = sqrt s` (BulkWeberChart `dd_sqrt`).
+* **`SymplecticLadder` is required for all `h > 0` and all lattice points `j in N`**, not only the sampled ones (`wronsk`, `shift_up`, `shift_dn`, `det_*`, `prod`, `par_*` are
+  `forall h`, `forall u`, `forall j`).  This is satisfiable for a genuine chart: `wf` is then the Weber / PC model pair at every `(u, h)` (`a = -u/h`, resp. `a(h)`), the coordinate `Y`, `zeta`
+  being extended off the sampled range by any monotone extension (the structure constrains them only where the chart lives); `PiP, PiM` are determined on the lattice by (SM2) and
+  completed off it by `PiP = D_+ I`, `PiM = D_- I`, `prod` and `par_*` then hold identically.  This is the content of lem:cha-weber-ladder / the ODE translation `T_pm` (all `h`), so no
+  field is stronger than what the paper proves; but note that the `LadderData` of `chain mu X N` is built for the *fixed* `h = step N` and must nevertheless satisfy the ladder axioms for all `h`.
+* **(b) no conclusion in the hypotheses.**  `defect0/1` bound the residual of the *comparison* sequence (not of an exact solution); `cas_lb` and `seed_pos` (in the chart structures) force the
+  corrector row to be non-zero (a zero row has zero defect but `Fcas = 0`).  `Valid` does not mention an eigenvalue or eigenvector.  Consistency of the numerical constants
+  (`K_D`, `c_-`, `K_A`, `K_B`, `K_w`, `Lambda`) is that of `volterra_multi_instance` (the rotation ladder, `A = 1`, `Q = 2 cos theta`, `Fcas = sin theta`).
+* **(c) redundancy.**  `h_pos`, `P_pos`, `jj0`, `jj_mono`, `jj_last`, `s0_cases` are bookkeeping; `omega_eq` is `|omega_p| = |omega_1|`; none is derivable from the others.
 -/
 
 @[expose] public section

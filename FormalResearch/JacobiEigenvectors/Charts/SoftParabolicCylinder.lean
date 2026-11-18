@@ -35,6 +35,23 @@ The *right* chart is `SoftEdgeChart (mirrorFamily F)`; the lower edge is `SoftEd
 
 As for `BulkWeberChart`: no toy instance (the fields mention the actual parabolic-cylinder functions); the engine hypotheses are non-vacuous (`JE.volterra_multi_instance`).
 
+## Round 2 audit: `SoftEdgeChart` (verdict: fixed, four fields added)
+
+* **(a) fields vs. the paper.**  `zeta_deriv, zeta_zero, zeta_alpha, mu0_*` are lem:cha-PCcoord (1) with `x = u - u_c`; `mu0_S0` is eq:cha-mu0 (`pi mu_0 = ` the well action `S_0 = int_0^L Re arccos`;
+  the `Real.arccos` clamp reproduces `pi |{Q_0 < -2 sqrt E_0}|`, and `geom_far` shows that near `X_s^+` the clamp is `0` outside the well); `Y_forb, matchF_soft` are eq:tha-YLsoft (`arccoshR` is applied
+  to arguments `>= 1`, guaranteed by `geom_far`); `wf1_eq` and `wf2_eq` are eq:cha-weberPC and the `-` pair of eq:tha-PCseq (`pcMinus`: `(u~(a,-Z), -v~(a,-Z))` for `a <= 0`,
+  `(w~_+, -u~_+)` for `a > 0`, so that `phi^{(1)}_2 / kappa_bal = A U(a,-Z) + h B h^{1/2} (U(a,-.))'` is `psi-hat^{PC,-}`); `W1_def ... M2_def` are `W = E_Web/lambda`, `E_-(a,Z)` and
+  `M_Web`, `M_bal` with `lambda = E_Web(j_1)/E_-(j_1)`; `shape`, `dd_one`, `omega_sqrt` the two-patch lattice (Weber hard edge `D = sqrt s`, interior PC patch `D = 1`).
+* **FIX (b) `geom_far`, `ucη_in`.**  `delta_0, eta` are chart *data*; lem:tha-geom (d) holds only for a pair with `delta_0` small against `eta` (the paper: "`eta` first, then `delta_0 < nu/2`").
+  Nothing in the freeze forced that, so `PropThaW2`, `PropThaMflat`, `PropThaCollar` (which use `T < 0, Q_0 > 0` outside the collar for the growth bound (S4grow) and the forbidden margin)
+  would have been *false* for charts with a large `delta_0`: a hypothesis that is too weak, not a conclusion smuggled in.  Now `geom_far` records that pair, and `ucη_in` that the collar `[u_c - 2 eta, u_c + 2 eta]` lies in `(0, L)`.
+* **FIX (b) `zeta_far`, `muS_bd`, `Cmu`, `cz1`.**  `PropThaWin`'s last item of (1) (`|Z_n| <= rho' => |u_n - u_c| < eta/4`) and the exponential smallness of the weight at `n_1 + 1` (Step 4 (d) (ii)) need that
+  the turning points `+-2 sqrt(mu_0)` of `zeta` are inside `|x| < eta/4` with a margin, and that `mu~ = mu_0 + sum h^{2r} mu_{2r}` stays within `O(h^2)` of `mu_0`; both are `delta_0` small / lem:cha-PCcoord (2) and
+  were not in the freeze.  Consistency of the new fields with the old ones: at `alpha = 0`, `zeta' >= d_-` gives `zeta(x)^2 >= d_-^2 eta^2/16`, so `cz1 <= d_-^2 eta^2 / 16` is needed; for `|alpha| <= delta_0` small it persists by `zeta_alpha`.
+* **(b) vacuity check.**  No field mentions an eigenvalue/eigenvector; fields are pairwise consistent for the genuine chart (e.g. the soft edge of the exactly solvable spin family `G_h = 1, B_h = 0`, `L = 1`, fold `u_c = 1/2`).
+  `mu0_deriv` asks `ContDiff 1` on all of `R` for `muS 0 mu` (the paper has it on `[-alpha_0, alpha_0]`; any `C^1` extension serves).
+* **(c) redundancy.**  `uc_spec` partly overlaps `ucη_in`/`geom_far` (the fold is the unique maximiser of `f_+`); `omega_sqrt` for patch 2 and `dd_one` are independent.  `zeta_zero` follows from `zeta_alpha` at `alpha = 0`.
+
 ## Honest differences
 
 * `thm:cha-PC` in the paper states one comparison with the two-pair weights; here the same content is the two-patch chain.  The conclusion in terms of
@@ -78,6 +95,10 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   Csum : ℝ
   cZ : ℝ
   consts_pos : 0 < δ0 ∧ 0 < η ∧ 0 < dm ∧ dm ≤ dp ∧ 0 < Fstar ∧ 0 < cF ∧ 0 ≤ Csum ∧ 0 < cZ
+  /-- **(round 2 audit, added)** a bound `Cmu` for the shifts `mu_{2r}`, `r = 1..q/2`, and the margin `cz1` of `zeta_far`. -/
+  Cmu : ℝ
+  cz1 : ℝ
+  consts_pos2 : 0 ≤ Cmu ∧ 0 < cz1
   /-- the fold `u_c = u_c^+` (the unique maximiser of `f_+`, (H3)). -/
   uc : Par → ℝ
   /-- the coordinate `zeta(x; alpha)` at `(mu, alpha, x)` and the shifts `mu_{2r}(alpha)` at `(r, mu, alpha)` (`muS 0 = mu_0`). -/
@@ -87,10 +108,27 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   Y : Par → ℝ → ℝ → ℝ
   chain : Par → ℝ → ℕ → LadderData
   uc_spec : ∀ μ ∈ P, 0 < uc μ ∧ uc μ < F.L ∧ fPlus F.L (F.G 0 μ) (F.B 0 μ) (uc μ) = F.bandHi μ
+  /-- **(round 2 audit, added; lem:tha-geom (d))** the collar `[u_c - 2 eta, u_c + 2 eta]` lies in `(0, L)`. -/
+  ucη_in : ∀ μ ∈ P, 0 < uc μ - 2 * η ∧ uc μ + 2 * η < F.L
+  /-- **(round 2 audit, added; lem:tha-geom (d), the smallness of `delta_0` against `eta`)**: for `|X - X_s^+| <= delta_0`, outside the collar
+  `|u - u_c| < eta/4`, `T(.;X) < 0` and `Q_0 = X - B_0 > 0` on `[0, L]`.  The paper obtains `eta` first (so that `X_s^+ - f_+ >= nu` outside `(u_c - eta/4, u_c + eta/4)`)
+  and then `delta_0 < nu/2`; the chart constants `(delta_0, eta)` of this structure are such a pair.  Needed for `matchF_soft` (arccosh of an argument `>= 1`),
+  the growth bound `psi^L_{n+1} >= (1 + gamma) psi^L_n` (eq:tha-S4grow) and the forbidden margin of lem:tha-collar; without it `PropThaW2`, `PropThaMflat`,
+  `PropThaCollar` fail for a chart with `delta_0` large against `eta`. -/
+  geom_far : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ u ∈ Set.Icc 0 F.L, η / 4 ≤ |u - uc μ| →
+    Tfun F.L (F.G 0 μ) (F.B 0 μ) X u < 0 ∧ 0 < X - F.B 0 μ u
   /-- lem:cha-PCcoord (1): `d_- <= d_x zeta <= d_+` on `|x| <= 2 eta`, `zeta(0;0) = 0`, `|zeta(0;alpha)| <= c_Z |alpha|`. -/
   zeta_deriv : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → ∀ x, |x| ≤ 2 * η → dm ≤ deriv (zeta μ α) x ∧ deriv (zeta μ α) x ≤ dp
   zeta_zero : ∀ μ ∈ P, zeta μ 0 0 = 0
   zeta_alpha : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → |zeta μ α 0| ≤ cZ * |α|
+  /-- **(round 2 audit, added; lem:cha-PCcoord (2))** the shifts `mu_{2r}`, `1 <= r <= q/2`, are bounded on `|alpha| <= delta_0` (they are `C^{nu_r + 1}` on a compact set); used for
+  `hA = max(mu~, 0)`, `mu~ = mu_0 + O(h^2)` in lem:tha-win (1). -/
+  muS_bd : ∀ r ∈ Finset.Icc 1 (q / 2), ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → |muS r μ α| ≤ Cmu
+  /-- **(round 2 audit, added; lem:tha-win (1), app_thmA Step 4 (d) (ii))** the turning points `+-2 sqrt(mu_0)` of `zeta` lie inside `|x| < eta/4` with margin:
+  `zeta(x;alpha)^2 >= 4 max(mu_0(alpha), 0) + cz1` for `eta/4 <= |x| <= 2 eta`.  This is `delta_0` small (`|zeta(0;alpha)| <= c_Z |alpha|`, `mu_0 <= C |alpha|`,
+  `zeta' >= d_-`); it gives `|u_n - u_c| < eta/4` on `|Z_n| <= rho'` and the exponential smallness `E(a, Z_{n_1+1}) <= e^{-c/h}`. -/
+  zeta_far : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → ∀ x, |x| ≤ 2 * η → η / 4 ≤ |x| →
+    4 * max (muS 0 μ α) 0 + cz1 ≤ zeta μ α x ^ 2
   /-- `mu_0(0) = 0`, `mu_0` is `C^1` with `mu_0'(0) > 0` (so `sgn mu_0 = sgn alpha`), and `pi mu_0(alpha) = S_0(X)` for `alpha >= 0`, `alpha = X_s^+ - X`
   (the physical well action, eq:cha-mu0: `S_0 = pi mu_0` near `X_s^+`). -/
   mu0_zero : ∀ μ ∈ P, muS 0 μ 0 = 0

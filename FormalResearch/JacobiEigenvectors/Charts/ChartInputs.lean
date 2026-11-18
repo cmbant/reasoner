@@ -23,6 +23,19 @@ Order `m + 1` charts (Theorem B) are a second `ChartInputs` with the same `q`; t
 The eigenvalue-rule inputs `BulkPhaseInputs` are separate (they live at order `max M 1`).
 
 Not here: the hypotheses (H1)--(H3), `(D_M)` / `(E_K)` (`Setting`); those are arguments of the statements, so that the chart inputs can be reused for several symbol classes.
+
+## Round 2 audit: `ChartInputs` (verdict: sound)
+
+* `overlap_match` is consistent with the mirrored `overlap_in_well` (`mirrorFamily.uMinus = L - uPlus` since `E_0(L - s) = E_0(s)` for the mirror symbols); the rows of the right chart used by `BulkPhaseInputs.casoratian`
+  (`N - n`, `N - n - 1` for `c' <= u_n <= c`) lie in its window `[c'_R, c_R] = [L - c, L - c']`.
+* `mirror_up/lo` is a *symmetry hypothesis on chart data*: define `zeta_R(x) := -zeta_L(-x)`, same shifts; this is legitimate because `Omega_0^2 = zeta^2/4 - mu_0` is even and
+  `cosh(Omega_0 d zeta/dx) = Upsilon_0` is preserved, so it is a chart for the mirror problem (the Moser coordinate is not claimed unique by the paper).
+* `cover` (checked): `Jhi < X_s^+ <= Jhi + delta_0` and `Jlo - delta_0 <= X_s^-` say that the bulk blocks and the two soft windows cover `[X_s^- , X_s^+]` for every `p` (frozen band), with
+  the window half-widths `delta_0` of the soft charts; Step 0 then makes the three cases of `psiHatVec` exhaust the spectrum.
+* Not a field, by design: the relation between the bulk blocks' own `delta_0` (collisions) and the band; the bulk block charts assume `X in [lo, hi]` only.
+* **Finding F-t0 (proof obligation, not a defect).**  `t0` is chart data (of `CI`), but `StdAssump (frozenFamily F Kidx) (paramSet K t0) Kidx r` (the premise of `PropThaW/W2/...`) holds only for
+  `t0 <= t0(FrozenStandard)`.  The statements `ThmAii`, `ThmB`, ... are true as stated (their conclusions are at `t = h <= h_m`), but the proofs must restrict a `ChartInputs` on `paramSet K t0`
+  to `paramSet K t0'` (all fields are `forall p in P`; a restriction lemma `ChartInputs.restrict` is routine but absent).
 -/
 
 @[expose] public section

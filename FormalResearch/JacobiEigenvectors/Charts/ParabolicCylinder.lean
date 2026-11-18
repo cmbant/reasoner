@@ -32,8 +32,26 @@ comparison sequences (lem:smo-bulkphase (4), DLMF 12.10.35 + Stirling) is *not* 
 ## Honest differences
 
 * `reflect` is required for `a <= 0` only (the paper uses it there); for `a > 0` the connection data enter through `kappaBal` and `Ebar` only.
-* the signs of `shift_V*` follow the DLMF as recalled (12.8.6: `V' - z V/2 - (a-1/2) V(a-1) = 0`; 12.8.7: `V' + z V/2 - V(a+1) = 0`);
-  they must be re-checked against DLMF at the start of Layer 4 (item F-DLMF of `PLAN.md`).
+* the shift relations `shift_V*` are DLMF 12.8.6 (`V' - z V/2 - (a-1/2) V(a-1) = 0`) and 12.8.7 (`V' + z V/2 - V(a+1) = 0`).
+
+## Round 2 audit (soundness and non-vacuity; finding F-DLMF closed)
+
+`U, V` cannot be instantiated in Lean (no definition in Mathlib), so the fields were checked **numerically against the classical functions**
+(mpmath 1.3.0 `pcfu`, with `V(a,z) := (1/pi) Gamma(1/2 + a) [sin(pi a) U(a,z) + U(a,-z)]`, DLMF 12.2.7; 30 digits, `a in {0.3, -1.7, 2.2, -0.25}`, `z in {-1.3, 0.7, 2.1}`):
+
+* `wronsk`, `ode_U`, `ode_V`, `shift_U_up` (DLMF 12.8.2), `shift_U_dn` (12.8.3), `shift_V_dn` (12.8.6), `shift_V_up` (12.8.7), `reflect` (12.2.15--16 with
+  `pi / Gamma(1/2 + a) = cos(pi a) Gamma(1/2 - a)`) hold to `1e-30`; the sign-flipped `shift_V_dn` (`+ (a - 1/2) V(a-1)`) fails (residual `O(1)`).
+  **The signs recalled in the freeze are correct.**
+* `phase_osc` (DLMF 12.10.18): for `mu in {6, 6.3, 12, 12.37, 24}`, `|t| <= 0.8`, the relative error against `2 g/(1-t^2)^{1/4} cos(mu^2 eta - pi/4)` is `0.65/mu^2 .. 0.82/mu^2`
+  (so `C ~ 1` works) and the fitted `g(mu)` is `t`-independent to the displayed precision (`g` is astronomically large, which is why it is existential).
+* `env_well`, `env_bar`, `beyond` (lem:cha-PCenv (1b), (2), (3)): over `a in {-30.13, ..., 0}` (well), `a in {0.05, ..., 30}` (barrier), `Z in [-12, 16]`, the ratios
+  `sqrt(u~^2 + u~'^2/k_2)/(E M_bal) in [0.63, 1.06]`, `sqrt(v~^2 + v~'^2/k_2) E/M_bal in [1.02, 1.58]`, barrier pair `in [0.89, 1.19]`, `kappa_bal |U|/(E M_bal) in [0.43, 0.99]`
+  (barrier `[0.61, 0.99]`), `|U'|/(k_2^{1/2} |U|) in [0.48, 1.16] <= 4`.  So `c_PC <= 1.7 <= sqrt 17 * 0.43` and `C_PC >= 1.6` are simultaneously satisfiable: `cPC_le`
+  and `beyond`'s constant `c_PC/sqrt 17` are consistent.
+
+Redundancy (harmless, kept so that downstream proofs may cite either): `ode_U`, `ode_V` follow from the four shift relations (differentiate `shift_U_dn`, use `shift_U_up` at `a-1`; the same for `V`).
+`smooth_*` is `ContDiff ℝ ⊤`, i.e. analytic in the current Mathlib convention for `⊤ : WithTop ℕ∞`, which `U, V` are.  No field is a conclusion of Theorem A or B; the fields are mutually consistent
+(they all hold for the genuine `U, V`).
 -/
 
 @[expose] public section
@@ -95,7 +113,7 @@ structure ParabolicCylinderFacts (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ) : P
   shift_U_up : ∀ a z, deriv (U a) z + z / 2 * U a z + (a + 1 / 2) * U (a + 1) z = 0
   /-- DLMF 12.8.3. -/
   shift_U_dn : ∀ a z, deriv (U a) z - z / 2 * U a z + U (a - 1) z = 0
-  /-- DLMF 12.8.6 (sign convention to be rechecked). -/
+  /-- DLMF 12.8.6 (signs verified numerically, see the module docstring). -/
   shift_V_dn : ∀ a z, deriv (V a) z - z / 2 * V a z - (a - 1 / 2) * V (a - 1) z = 0
   /-- DLMF 12.8.7. -/
   shift_V_up : ∀ a z, deriv (V a) z + z / 2 * V a z - V (a + 1) z = 0
