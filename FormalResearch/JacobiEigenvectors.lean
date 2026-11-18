@@ -21,6 +21,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.BulkProof
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftRescale
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftProof
 public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryCollision
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryMargins
 
 /-!
 # Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)
