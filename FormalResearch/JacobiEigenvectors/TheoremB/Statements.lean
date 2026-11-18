@@ -20,7 +20,7 @@ Prop-valued definitions only; no placeholder proofs, no added axioms.  (`FormalR
 | `TransferBundle` | the inputs (I2) and the changed coefficient (`TransferInputs` of every chart) | Layer 4 |
 | `PropThaSpliceBulk`, `PropThaSpliceSoft`, `PropThaSpliceTwoOrders` | prop:tha-splice (a), (b), (c) | `PropThaW`, `PropThaW2` (Layer 2) |
 | `PropThaMflat` | lem:tha-Mflat | soft chart |
-| `PropThaCollar` | lem:tha-collar (1) (item (2) is `TransferInputs.t12_lb`/`reg_*`, a chart field) | soft chart |
+| `PropThaCollar` | lem:tha-collar (1), bound `C e^{-c/h}` (item (2) is `TransferInputs.t12_lb`/`reg_*`, a chart field) | soft chart |
 | `PropThbInputs` | prop:thb-inputs: the conclusion is `JB.OneStepInputs` for the explicit matrices (`compMatrix`) | `ChartPair`, `TransferBundle`, `DM F K (q_m+1)` |
 | `ThmB` | thm:B in the form consumed by `JB.jb_onestep` / `thm_B_conditional` | same |
 | `CorThbDm` | cor:thb-Dm (operator norm under `(D_m)` only, chart pair of `truncFamily F m`) | `DM F K m`; proof needs cor:thb-stable (F-B6) |
@@ -32,11 +32,21 @@ Prop-valued definitions only; no placeholder proofs, no added axioms.  (`FormalR
   of the extreme splices, and `hat G^{[m]} - hat G^{[m+1]}` restricted to a chart is that of `H`), (b) the *parity identity* `eq:thb-parity`, (c) the matching of `hat G` with `H` on the used rows, (d) both orders use the same `q`.
   They hold *by construction* (`compMatrix`, `TransferInputs.parity_*`, `ChartPair`), and appear in `OneStepInputs` (`host*_eq`, `match*`, `parity_*`): `PropThbInputs` asserts that `OneStepInputs` exists with `G0, G1 = compMatrix`.
 * **F-B2 (uniformity in `mu`, thm:B)**: `JB.thm_B_conditional` is an existence statement for *one* family of inputs; the paper's constants are uniform in `mu in K`.  `ThmB` quantifies the constants before `mu`;
-  the bridge from `PropThbInputs` (constants `cs, C_eps, c_eps, K_eps` before `mu`) is `jb_onestep cs m` + `small_scalars` (their constants depend only on `cs, m, L, C_eps, c_eps, K_eps`), not the conditional theorem as stated (item L3.B).
+  the bridge from `PropThbInputs` (constants `cs, C_eps, c_eps` before `mu`) is `jb_onestep cs m` + `small_scalars` (their constants depend only on `cs, m, L, C_eps, c_eps`; `K_eps = 0`), not the conditional theorem as stated (item L3.B).
 * **F-B3 (the index range)**: the family of inputs is over `N >= N0` with `h <= t0` (`F.step N <= t0`: the freezing parameter `t = h` must lie in `[-t0, t0]`), cf. the remark in `JBThmB`.
 * **F-B4 (prop:tha-splice (c), even `m`)**: the order-`(m+1)` column bound carries `log(1/h)` (the shift `q = m` is one short at order `m+1`); (I1) for the *final* `hat G^{[m+1]}` is stated in `OneStepInputs.G1_col` with `C h^{m+1} log(1/h)` for both parities
   (weaker than `h^{m+1}` for odd `m`, which is all the criterion uses): `PropThaSpliceTwoOrders` states the sharper `etaR`.
 * **F-B6 (cor:thb-Dm)**: see `CorThbDm`: needs the perturbation lemma cor:thb-stable; the DM budget `r(2K+1) > r(m)` means it is not an instance of `ThmB` for `F`.
+* **F-B7 (reconciliation with the paper of PR 250, round 4)**.  Changes of the paper since the freeze that touch Layer 3, and what was done:
+  (i) lem:tha-collar (1) now has the bound `C e^{-c/h}` *without* `h^{-K}`: `PropThaCollar` has no `Kx`, `PropThbInputs` has no `K_eps` (`I.eps5 <= C_eps e^{-c_eps/h}`; `jb`'s `thm_B_conditional` is applied with `K_eps = 0`);
+  (ii) (I5) is now "remaining rows" (`||Q_{0,Sigma}(G^[m] - G^[m+1]) P_Sigma|| <= C h^m`, vacuous for bulk blocks; outside the collar the column *coincides* with `hat Psi`, so the entries are `O(e^{-c/h})` by lem:tha-collar (1)).
+  `JB.OneStepInputs.outside` (entries of `G0`, `G1`, `U` outside all used chart rows are `<= eps5`) is *stronger* than the new (I5) and is still discharged by lem:tha-collar (1) (`|Psi_n| + |hat Psi_n| <= C e^{-c/h}` outside the collar), so `OneStepInputs` needs no change;
+  (iii) (S1) "blocks, rows of a block in no `I_c` are its remaining rows": the block decomposition is `OneStepInputs.cols/ch/outside`; (iv) (I1) is "columns and reference": `||(G^[m] - U) e_k|| <= C h^m` and the *operator* bound `||G^[m+1] - U|| <= C h^m`;
+  the latter follows from the column bounds of `G^[m+1]` (`OneStepInputs.G1_col`: `C h^{m+1} log(1/h)` per column) by the Frobenius estimate, which `jb_onestep` performs (`sqrt D * C h^{m+1} log(1/h) <= 2 C sqrt(L) h^m`), so the Lean input is the paper's *stronger form* and no field changes;
+  (v) `K` of the paper's constants is now `K_S` (Schur bound; `OneStepConsts.K`); (vi) the lower soft edge: a column of `Sigma^-` is `D_- = diag((-1)^n)` times the upper-edge column of `-D_- J D_-` (= `negFamily`) at the eigenvalue `-X_k` (`compColumn`), the model pair carries the factor
+  `(-1)^n`, so the transfer coefficients are `(-t_11, -t_12)` and the quotients `1/t_12`, `B/(t_12 alpha)` change sign while `alpha`, `t_11/t_12` and all Schur norms are unchanged: `TransferBundle.softLoL/softLoR` (the transfer inputs of the chart of `negFamily` itself) and
+  `JB.Chart.Ok` (`|t_12| >= c`, `IsSchurBdd` is invariant under `M -> -M`) therefore need no change, and `eq:thb-parity` is unchanged; (vii) `a = -(k + 1/2) + O(h^m log(1/h))` (the logarithm only for prop:tha-W2 (4)) enters the proof of `PropThaMflat` (flat2) only.
+  `OneStepInputs` field `G1_col` has `log(1/h)` for both parities (weaker than the paper for odd `m`, harmless; F-B-eps5).
 * **F-B5 (lem:tha-Mflat, `delta_0` small)**: "choose `delta_0` so small" is a constraint on the chart constants (`SoftEdgeChart.delta0`), not part of the conclusion; the statement is for the given chart and `a <= 1`, which covers every eigenvalue (Step 0).
 -/
 
@@ -147,25 +157,26 @@ def PropThaMflat {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : 
           softVec CL CR p X N (nearestRow (Fz.step N) (CL.uc p)) ^ 2 + softVec CL CR p X N (nearestRow (Fz.step N) (CL.uc p) + 1) ^ 2
             ≤ C * Real.sqrt (Fz.step N) * (1 + ((k : ℕ) : ℝ)) ^ (-(1 : ℝ) / 2)
 
-/-- **lem:tha-collar (1)** (statement): outside the collar `|u_n - u_c| < eta/2`, `|Psi_n| + |hat Psi_n| <= C h^{-K} e^{-c/h}`; and the normalised matching-weighted recessive PC profile
-and its scaled derivative at the exterior neighbours `n_1` (last row with `u <= u_c - eta/2`) and `n_4` (first with `u >= u_c + eta/2`) obey the same bound, with fixed `c, C, K > 0`, uniformly in the
-eigenvalue and its index.  (Item (2) of the paper is `TransferInputs.t12_lb` and `reg_*` of the soft charts.) -/
+/-- **lem:tha-collar (1)** (statement): outside the collar `|u_n - u_c| < eta/2`, `|Psi_n| + |hat Psi_n| <= C e^{-c/h}` (**no power `h^{-K}`**: the paper's current form; the earlier freeze carried `h^{-K}`);
+and the normalised matching-weighted recessive PC profile and its scaled derivative at the exterior neighbours `n_1` (the last row with `u <= u_c - eta/2`, i.e. the last row below the collar)
+and `n_4` (the first row with `u >= u_c + eta/2`, the first row above it) obey the same bound, with fixed `c, C > 0`, uniformly in the eigenvalue and its index.  The lower soft edge is the statement for the
+chart of `negFamily` (the factor `D_- = diag((-1)^n)` does not change moduli).  (Item (2) of the paper is `TransferInputs.t12_lb` and `reg_*` of the soft charts.) -/
 def PropThaCollar {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
     (CL : SoftEdgeChart Fz P m q U V) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V) : Prop :=
   ∀ r, StdAssump Fz P (q / 2) r →
-    ∃ C c Kx h0 : ℝ, 0 < C ∧ 0 < c ∧ 0 < h0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 → CL.aOf p X N ≤ 1 →
+    ∃ C c h0 : ℝ, 0 < C ∧ 0 < c ∧ 0 < h0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 → CL.aOf p X N ≤ 1 →
       (∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →
         ∀ k : Fin (N + 1), Xs k = X → ∀ n ∈ rowsOf N, CL.η / 2 ≤ |uNode (Fz.step N) n - CL.uc p| →
-          |eigVec Um k n| + |softVec CL CR p X N n| ≤ C * Fz.step N ^ (-Kx) * Real.exp (-c / Fz.step N)) ∧
+          |eigVec Um k n| + |softVec CL CR p X N n| ≤ C * Real.exp (-c / Fz.step N)) ∧
       (|CL.lamL p X N| / softNorm CL CR p X N *
           |(CL.chain p X N).phi (Fz.step N) 0 2 ⌊(CL.uc p - CL.η / 2) / Fz.step N - 1 / 2⌋ / kappaBal (CL.aOf p X N)|
-          ≤ C * Fz.step N ^ (-Kx) * Real.exp (-c / Fz.step N)) ∧
+          ≤ C * Real.exp (-c / Fz.step N)) ∧
       (|CL.lamL p X N| / softNorm CL CR p X N *
           |(CL.chain p X N).wf 2 0 (uNode (Fz.step N) ⌊(CL.uc p - CL.η / 2) / Fz.step N - 1 / 2⌋) (Fz.step N) 1| / kappaBal (CL.aOf p X N)
-          ≤ C * Fz.step N ^ (-Kx) * Real.exp (-c / Fz.step N)) ∧
+          ≤ C * Real.exp (-c / Fz.step N)) ∧
       (|softKappa CL CR p X N * CR.lamL p X N| / softNorm CL CR p X N *
           |(CR.chain p X N).phi (Fz.step N) 0 2 ((N : ℤ) - ⌈(CL.uc p + CL.η / 2) / Fz.step N - 1 / 2⌉) / kappaBal (CL.aOf p X N)|
-          ≤ C * Fz.step N ^ (-Kx) * Real.exp (-c / Fz.step N))
+          ≤ C * Real.exp (-c / Fz.step N))
 
 /-! ### The transfer inputs of all charts, and prop:thb-inputs -/
 
@@ -196,17 +207,17 @@ structure TransferBundle (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 :=
     (fun p => CP.CI0.softLoR.uc p - CP.CI0.softLoR.η / 2) (fun p => CP.CI0.softLoR.uc p + CP.CI0.softLoR.η / 2)
 
 /-- **prop:thb-inputs** (statement, the Layer-3 target): under `(D_{q_m+1})` and (H1)--(H3), with the charts and transfer inputs, there are constants `cs` (number of blocks and `C, K, omega_max, c_T, c_alpha, c_0, C_4, C_E`),
-`N_0, C_eps, c_eps, K_eps` such that, for every `mu in K`, `N >= N_0` (with `h <= t0`) and every eigen-system `(X, U)` of `J_h`, there is a `JB.OneStepInputs cs (N+1) m h` whose `U` is `U`, whose `G0, G1` are the explicit
-`hat G^{[m]}, hat G^{[m+1]}` (`compMatrix`, fixed splices `spl`), and whose exterior bound `eps5` satisfies `eps5 <= C_eps h^{-K_eps} e^{-c_eps/h}`.  All of (I1)--(I5), the host/submatrix structure (F3 (a), (d)), the
+`N_0, C_eps, c_eps` such that, for every `mu in K`, `N >= N_0` (with `h <= t0`) and every eigen-system `(X, U)` of `J_h`, there is a `JB.OneStepInputs cs (N+1) m h` whose `U` is `U`, whose `G0, G1` are the explicit
+`hat G^{[m]}, hat G^{[m+1]}` (`compMatrix`, fixed splices `spl`), and whose exterior bound `eps5` satisfies `eps5 <= C_eps e^{-c_eps/h}` (no power of `h`, as lem:tha-collar (1) in the current paper).  All of (I1)--(I5), the host/submatrix structure (F3 (a), (d)), the
 parity identity (F3 (b)) and the matching on the used rows are fields of `OneStepInputs`.  The constants are fixed before `mu` (F-B2). -/
 def PropThbInputs (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (_TB : TransferBundle CP) (spl : Fin CP.CI0.nb → ℝ) : Prop :=
   1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → DM F K (2 * Kidx + 1) →
-    ∃ (cs : FormalResearch.JB.OneStepConsts) (N0 : ℕ) (Cε cε : ℝ) (Kε : ℕ), 0 < cε ∧ ∀ μ ∈ K, ∀ N : ℕ, N0 ≤ N → F.step N ≤ t0 →
+    ∃ (cs : FormalResearch.JB.OneStepConsts) (N0 : ℕ) (Cε cε : ℝ), 0 < cε ∧ ∀ μ ∈ K, ∀ N : ℕ, N0 ≤ N → F.step N ≤ t0 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
         ∃ I : FormalResearch.JB.OneStepInputs cs (N + 1) m (F.step N),
           I.U = Um ∧ I.G0 = compMatrix CP.CI0 spl μ N Xs ∧ I.G1 = compMatrix CP.CI1 (CP.spl1 spl) μ N Xs ∧
-          I.ε5 ≤ Cε * (1 / F.step N) ^ Kε * Real.exp (-cε / F.step N)
+          I.ε5 ≤ Cε * Real.exp (-cε / F.step N)
 
 /-- **Theorem B** (statement, the form consumed by `JB.jb_onestep` / `thm_B_conditional`): there are `C` and `h_m` with `C h_m^m < 1` such that for `h <= h_m`, all `mu in K` and every eigen-system,
 `||hat G_m - U_h|| <= C h^m`, and the polar factor of `hat G_m` is orthogonal and within `2 C h^m` of `U_h`.  `hat G_m` is `compMatrix` for the order-`m` bundle. -/
