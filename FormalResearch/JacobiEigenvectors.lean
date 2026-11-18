@@ -15,6 +15,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryStatements
 public import FormalResearch.JacobiEigenvectors.TheoremA.EigenvalueStatements
 public import FormalResearch.JacobiEigenvectors.TheoremB.ComparisonMatrix
 public import FormalResearch.JacobiEigenvectors.TheoremB.Statements
+public import FormalResearch.JacobiEigenvectors.TheoremA.Count
 public import FormalResearch.JacobiEigenvectors.TheoremA.BulkProof
 
 /-!
