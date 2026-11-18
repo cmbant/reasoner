@@ -368,6 +368,20 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   Cmu0 : ℝ
   consts_pos5 : 0 < cmu0 ∧ cmu0 ≤ Cmu0
   mu0_slope : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → cmu0 ≤ deriv (muS 0 μ) α ∧ deriv (muS 0 μ) α ≤ Cmu0
+  /-- **(round 8, F-W2-18; app_thmA Step 4 (f), lem:cha-W0)** the Liouville--Green lower bound off the window: the comparison profile is bounded below by its envelope, `|phi^{(1)}_k| >= c_lb W_k M_k`.
+  On the Weber rows of `chainW` (`u_k <= u_c - eta/2`; the paper's (d)(ii)--(iii): lem:cha-W0 plus the corrector bound) and on the left PC rows of patch 2 with `|Z_k| > rho(a)` (`a <= a_+`, uniform):
+  there it follows from `corr_PC` and `beyond` as in Step 4 (f); stated as a field to avoid redoing the window row analysis off the window. -/
+  clb : ℝ
+  clb_pos : 0 < clb
+  lb_weber : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chainW μ X N).NR,
+    clb * ((chainW μ X N).W k * (chainW μ X N).M k) ≤ |(chainW μ X N).phi (F.step N) 0 1 k|
+  lb_pc : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X) ≤ ((q / 2 : ℕ) : ℝ) * Cmu + 1 →
+    ∀ k ∈ Finset.Icc ((chain μ X N).jj 1 + 1) ((chain μ X N).jj 2),
+      zeta μ (F.bandHi μ - X) (uNode (F.step N) k - uc μ) / Real.sqrt (F.step N) <
+        -(2 * Real.sqrt (max (-(aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X))) 0) +
+          (1 + max (-(aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X))) 0) ^ (-(1 : ℝ) / 6)) →
+      clb * ((chain μ X N).W k * (chain μ X N).M k) ≤ |(chain μ X N).phi (F.step N) 0 2 k|
 
 namespace SoftEdgeChart
 

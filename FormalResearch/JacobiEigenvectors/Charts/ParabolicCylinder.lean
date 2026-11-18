@@ -159,6 +159,9 @@ structure ParabolicCylinderFacts (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ) : P
   for `z >= 2 sqrt(max(-a,0))` (beyond the turning point; every `z >= 0` if `a >= 0`). -/
   V_growth : ∃ cV : ℝ, 0 < cV ∧ ∀ a z, 2 * Real.sqrt (max (-a) 0) ≤ z →
     0 < V a z ∧ cV * Real.sqrt (k2 a z) * V a z ≤ deriv (V a) z
+  /-- **(round 8, F-W2-17; DLMF 12.9.1)** `U(a,z) > 0` beyond the turning point `z >= 2 sqrt(max(-a,0))` (`U(a,z) ~ e^{-z^2/4} z^{-a-1/2}`; `U` has no zeros there, and it is positive for large `z`).
+  Used for the signs of the swapped-pair Casoratian and of `kappa'` in the counting argument (app_thmA Step 6); `beyond` only bounds `|U|`. -/
+  U_pos : ∀ a z, 2 * Real.sqrt (max (-a) 0) ≤ z → 0 < U a z
   /-- lem:cha-PCenv (3): beyond the turning point `Z >= 2 sqrt A`, `A = max(-a,0)`: `|U'| <= 4 k_2^{1/2} |U|` and
   `kappa_bal |U| >= c_3 E M_bal`, `c_3 = c_PC/sqrt 17`. -/
   beyond : ∀ a z, 2 * Real.sqrt (max (-a) 0) ≤ z →
