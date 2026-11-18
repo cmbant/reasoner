@@ -194,16 +194,19 @@ def PropThaW (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (Jlo Jhi : 
 (1) the left solution through the soft edge: Weber bound on `u_n <= u_c - eta/2`, PC bound `|psi - lambda_L psi-hat^{PC,-}| <= C h^m |lambda_L| M_Olv(a,-Z_n)` on `u_c - eta/2 <= u_n <= u_c + 2 eta`, and
 `|lambda_L| ~ lambda kappa_bal(a)`; (2) eigenvectors `|Psi_n - hat Psi_n| <= C h^m V_n/hat N`, `sum V^2/hat N^2 <= C`; (3) quantisation: the label of an eigenvalue in the window is its index and
 `mu_0 + sum_{r=1}^{q/2} h^{2r} mu_{2r} = (k + 1/2) h + O(h^{m+1})`; conversely the eigenvalue of index `k` exists whenever the nominal point lies in `|X - X_s^+| <= delta_0/2`.
-Hypotheses: `(E_{q/2})`, (H1)--(H3) on `P`. -/
+Hypotheses: `(E_{q/2})`, (H1)--(H3) on `P`.  **Corrected in round 3** (findings F-W2-4, F-W2-5, F-W2-9; `Charts/SoftParabolicCylinder.lean`): the paper fixes `m >= 1` (the engine smallness `h^m Theta <= c_*` is unavailable for `m = 0`),
+`Lm` is `1` or `log(1/h)` so it must satisfy `1 <= Lm h` on `(0,1]` (for `Lm = 0` items (1)--(3) are false), and the PC bound of (1) is for `u_c - eta/2 < u_n` (the single row `u_n = u_c - eta/2` carries
+the Weber sequence by definition of `psi-hat^L`). -/
 def PropThaW2 (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (m q : ℕ) (U V : ℝ → ℝ → ℝ)
     (CL : SoftEdgeChart Fz P m q U V) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V) (Lm : ℝ → ℝ) : Prop :=
+  1 ≤ m → (∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ Lm h) →
   ∀ r, StdAssump Fz P (q / 2) r →
     ∃ Cc h0 clam Clam : ℝ, 0 < h0 ∧ 0 < clam ∧ ∀ p ∈ P, ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 →
       (∀ X, |X - Fz.bandHi p| ≤ CL.δ0 →
         (∀ ψ : ℤ → ℝ, JacSol Fz p N X (CL.chain p X N).NR ψ → ψ 0 = CL.psiHatL p X N 0 →
           (∀ k ∈ Finset.Icc (0 : ℤ) (CL.chain p X N).NR, uNode (Fz.step N) k ≤ CL.uc p - CL.η / 2 →
               |ψ k - CL.psiHatL p X N k| ≤ Cc * Fz.step N ^ m * Lm (Fz.step N) * softEnvWeb CL p X N k) ∧
-          (∀ k ∈ Finset.Icc (0 : ℤ) (CL.chain p X N).NR, CL.uc p - CL.η / 2 ≤ uNode (Fz.step N) k → uNode (Fz.step N) k ≤ CL.uc p + 2 * CL.η →
+          (∀ k ∈ Finset.Icc (0 : ℤ) (CL.chain p X N).NR, CL.uc p - CL.η / 2 < uNode (Fz.step N) k → uNode (Fz.step N) k ≤ CL.uc p + 2 * CL.η →
               |ψ k - CL.psiHatL p X N k| ≤ Cc * Fz.step N ^ m * Lm (Fz.step N) * |CL.lamL p X N| * Molv U V (CL.aOf p X N) (-(CL.Zof p X N k)))) ∧
         clam * (softLam CL p X N * kappaBal (CL.aOf p X N)) ≤ |CL.lamL p X N| ∧ |CL.lamL p X N| ≤ Clam * (softLam CL p X N * kappaBal (CL.aOf p X N)) ∧
         (∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →

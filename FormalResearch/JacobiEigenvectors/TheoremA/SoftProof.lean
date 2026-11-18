@@ -5,69 +5,43 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.Statements
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftRescale
 
 /-!
-# Paper J, Layer 2 (L2.C6): the solution through the soft edge, `prop:tha-W2` item (1) -- what is proved and why the frozen statement cannot be proved as it stands
+# Paper J, Layer 2 (L2.C6): the solution through the soft edge, `prop:tha-W2` item (1) -- what is proved
 
 Source: Paper J `thmA.tex` `prop:tha-W2` (1); `app_thmA.tex` "The soft edges: proof of Proposition prop:tha-W2", Steps 1--3; `charts.tex` `thm:cha-PC`; `engine.tex` `thm:eng-volterra` and the
-paragraph on the forbidden overlap.  Statement being proved: `TheoremA.PropThaW2` (item (1)); structure: `Charts.SoftEdgeChart`.
+paragraph on the forbidden overlap.  Statement being proved: `TheoremA.PropThaW2` (item (1)); structure: `Charts.SoftEdgeChart` (**corrected in round 3**, see its docstring for the verdicts on the findings
+F-W2-1..7 of the first attempt: the chain is now three patches, the validity hypothesis is for the *rescaled* chain, there is a separate Step-1 Weber chart `chainW`).
 
-## Chain of lemmas planned (and status)
+## What is proved (all in this file unless stated)
 
-1. (engine) rescaling `(lam^{-1}, lam)` of patch 1 and `stability_rescale1`: **proved** (`SoftRescale.lean`).
-2. (engine) `(M_1)_{11}` as a Casoratian ratio, `psi-hat_2 = (M_1)_{11} phi^{(1)}_2 + (M_1)_{21} phi^{(2)}_2`: **proved** (`SoftRescale.lean`).
-3. `softLam_pos`, `kappaBal_pos`, the weights `W_k = E_Web(k)/lambda` and `W(j_1) = E_-(j_1)` of the chain: **proved** (below).
-4. `lamL_eq_kappa_mul_transMat`: `lambda_L = kappa_bal (M_1^{orig})_{11}`: **proved** (below).
-5. `soft_through_edge` (below): from the engine hypotheses of the **rescaled** chain (`hVal`) and `1 <= m`,
-   (a) the Weber bound `|psi_k - psi-hat^L_k| <= C h^m E_Web M_Web` on the rows `0 <= k <= j_1` (the rows where the chain's patch 1 carries the Weber weights),
-   (b') the pre-absorption collar bound on `u_k > u_c - eta/2`: `|psi_k - psi-hat^L_k| <= lambda M_bal (C h^m E_-(k) + Lambda K E_-(j_1)^2 / E_-(k))`,
-   (c-upper) `0 < lambda` and `|lambda_L| <= Lambda lambda kappa_bal`.
-6. Not proved: see the findings below.
+1. (engine, `SoftRescale.lean`) the reciprocal rescaling `(lam^{-1}, lam)` of the first patch and `stability_rescale1`.
+2. `softLam_pos`, `kappaBal_pos`, the weights `W_k = E_Web(k)/lambda` and `W(j_1) = E_-(j_1)` of the chain; `lamL_eq_kappa_mul_transMat`: `lambda_L = kappa_bal (M_1^{orig})_{11}`;
+   `psiHatL_of_le`, `psiHatL_of_gt`, `chain_phi_one_eq` (the Weber part of `psi-hat^L` is the first patch of the chain).
+3. `soft_through_edge` (**the corrected L2.C6, engine part**): from `SoftEdgeChart.valid` (the rescaled chain) and `validW` and `1 <= m`, there are `Cc, h0` (depending on `cs`, `Csum`, `eta`, `m` only) such that for `h <= h0`, uniformly in `(p, X, N, psi)`,
+   `0 < lambda`, `|lambda_L| <= Lambda lambda kappa_bal`, and the exact solution `psi` seeded by `psi-hat^L_0` satisfies
+   (a) **the Weber bound on all rows `u_k <= u_c - eta/2`** (first bound of `eq:tha-W2-1`: `Cc h^m E_Web M_Web`; Step 1, through `chainW`);
+   (b') the **pre-absorption** bound on the PC rows of patch 2 (`j_1 < k <= j_2`, `u_k > u_c - eta/2`): `|psi_k - psi-hat^L_k| <= lambda M_bal (Cc h^m E_-(k) + Lambda K E_-(j_1)^2 / E_-(k))`;
+   (b'') the engine bound on the rows of patch 3 (`j_2 < k <= N_R`, `Z > 0`) against the patch-3 comparison sequence `psi-hat_3`: `|psi_k - psi-hat_3(k)| <= lambda M_bal Cc h^m E_swap(k)`.
 
-## FINDINGS: the frozen statement `PropThaW2` (1) and the frozen `SoftEdgeChart` do not suffice
+## What remains for `PropThaW2` (1) (precise list)
 
-* **F-W2-1 (the chain is not the rescaled chain).**  `SoftEdgeChart.valid` asks `(chain mu X N).Valid`, with weights `W = E_Web/lambda` on patch 1 (`W1_def`, the rescaled weight) but the model
-  pair `wf 1` the *unrescaled* Weber pair (`wf1_eq`).  `Valid.env` then needs `|wf^{(1)}| <= K E_Web M / lambda` and `|wf^{(2)}| <= K lambda E_Web^{-1} M`, with `|wf^{(1)}| ~ E_Web M`, `|wf^{(2)}| ~ E_Web^{-1} M`
-  (the Wronskian is `sqrt h` by `omega_sqrt` and `wronsk`): this forces `lambda ~ 1`, while the paper says `lambda` "may be exponentially large or small".  Minimal correction: `SoftEdgeChart.valid` should read
-  `((chain mu X N).rescale1 lam).Valid cs (step N) m` with `lam = softLam`, i.e. the engine hypotheses are for the chain whose first pair is rescaled by `(lam^{-1}, lam)` (`LadderData.rescale1`,
-  `SoftRescale.lean`); `wf1_eq` and `lamL`, `psiHatL`, `PropThaW2` then stay as they are (they refer to the unrescaled pair).  `soft_through_edge` takes exactly this as the hypothesis `hVal`.
-* **F-W2-2 (the weight of the second patch for `a <= 0`).**  `W2_def` gives the second patch the weight `Eminus = E_well(a, |Z|)` on *all* of `[j_1+1, N_R]`, which reaches `Z >> 0` (`zeta_far`), and the chain
-  has `P = 2`.  The first member of the `-` pair, `u~(a,-Z)`, grows like `E_well^{-1}` for `Z > 0` (it is the dominant member there), and `E_well(a,|Z|)` is not non-decreasing in `Z` on `Z > 0`:
-  `Valid.env` (S2) and `Valid.W_mono` fail for a genuine chart with `a <= 0`.  The paper uses *three* patches for `a <= 0` (Weber, `-` pair on `Z <= 0` with `E_well`, swapped pair `(v~, -u~)` on `Z >= 0`
-  with `E_well^{-1}`, the transfer matrix at `Z = 0` being `(M_-(a) S)^{-1}`, bounded: Step 2); only `a > 0` has two patches.  Minimal correction: `shape` should read `P = 3` for `a <= 0` (the third patch
-  `(vt a, -ut a)` with weight `(Ewell a |Z|)^{-1}` from the bond `j_2`, `Z_{j_2} <= 0 < Z_{j_2+1}`) and `W2_def`, `wf2_eq`, `M2_def` be split accordingly; `Eminus` is then the weight of the middle patch only.
-  `soft_through_edge` and the bounds below are for the chain as frozen (`P = 2`), i.e. they are about the case where the frozen chain is valid (`a > 0`), and cannot be transferred to `a <= 0` without this correction.
-* **F-W2-3 (Step 1 is a separate chart).**  The Weber bound on `uc - eta <  u_n <= uc - eta/2` (the first bound of item (1)) is Step 1 of the paper, a *single-patch* Weber chain on all of `[0, u_c - eta/2]`
-  (Corollary `cor:cha-I-general`, like `BulkWeberChart`).  The chain of `SoftEdgeChart` has patch 1 only up to the overlap bond `j_1` (`u_{j_1} <= u_c - eta`) and its row `j_1+1` already carries the second
-  patch's weights; between `u_c - eta` and `u_c - eta/2` the engine bound is against the PC pair, whose weight is not comparable to `E_Web/lambda` over that stretch (exponentially different), so (a) cannot
-  be obtained there from the chain.  Minimal correction: add to `SoftEdgeChart` the Step-1 chart `chainW : Par -> R -> N -> LadderData` (`P = 1`, hard-edge seed, window up to `u_c - eta/2`, the Weber
-  `Valid` of `BulkWeberChart` with `W = E_Web`), and state (a) from `bulkSolutionBound_of_one_le`-style application of `LadderData.stability` to it.  `soft_through_edge` (a) is therefore stated for `0 <= k <= j_1` only.
-* **F-W2-4 (`m >= 1`).**  As for the bulk (F-C1), `2 K_D K_w h^m Theta <= c_*` is unavailable for `m = 0`: `PropThaW2` needs the hypothesis `1 <= m` (the paper: "Fix `m >= 1`").
-* **F-W2-5 (`Lm`).**  `PropThaW2` quantifies over an arbitrary `Lm : R -> R`; the claims (a), (b), (c), the eigenvector bound and the quantisation are false for `Lm = 0`.  It needs `forall h in (0,1], 1 <= Lm h`
-  (the paper: `Lm = 1` or `log(1/h)`).
-* **F-W2-6 (analytic facts missing from `ParabolicCylinderFacts`).**  (b) of item (1) and the lower bound `|lambda_L| >= c lambda kappa_bal` are *derived* in the paper from (i) the absorption
-  `Lambda h^{-m} (E_{j_1}/E_n)^2 <= e^{-c/h}` (Step 3, needs `zeta_far`, the action integral in `Ewell`), (ii) the equivalence `lambda W M ~ |lambda_L| M_Olv(a,-Z)` (`eq:cha-MolvEquiv`: a *lower* bound
-  `M_Olv >= c E M_bal / kappa_bal` inside the well, where `ParabolicCylinderFacts.beyond` only gives it for `Z >= 2 sqrt A`), and (iii) the ratio `r_2 = e^{-theta}(1+O(h)) < 1` of the dominant PC member
-  between `j_1` and `j_1+1` (Liouville--Green; no field gives it).  None is derivable from the frozen structure; they are Layer-4 facts (`lem:cha-PCenv` lower bounds, `eq:cha-MolvEquiv`) that must be added to
-  `ParabolicCylinderFacts` (resp. be proved from `ode_U`, `wronsk`) before (b) and the lower half of (c) can be formalised.
-* **F-W2-7 (the derivation of (S3)).**  `Valid.transfer` is a *field*, i.e. (S3) is assumed, not derived from the forbidden overlap.  The derivation is `Engine.transfer_of_forbidden_overlap` (one application),
-  whose hypotheses at `j_1` are: `A_{j_1} M_{j_1} M_{j_1+1} <= C_omega omega` (needs `M^2 <= C h^{1/2}` from `k_2 >= c/h`: `Y_forb` for Weber, `zeta_far` and `muS_bd` for PC, and `A <= C`), `W_{j_1+1} <= C_w W_{j_1}`
-  (needs the log-derivative bound of `Ewell` on a step), the envelope bounds and (S1) (`Valid.phi_bd`, `Valid.cas_lb_site`, exported in `SoftRescale.lean`).  It is not done: the three inputs are
-  chart-level estimates (`bondA` bound, `Ewell` ratio, `k2` lower bound), and with the correction of F-W2-1 the field `transfer` could be dropped from the structure in favour of them.
-
-## What `soft_through_edge` proves, exactly
-
-Hypotheses: `C : SoftEdgeChart` (frozen), `1 <= m`, and `hVal`: for every `(p, X, N)` of the chart, the chain with its first pair rescaled by `(lam^{-1}, lam)`, `lam = softLam`, satisfies `Valid` (this is the corrected
-`valid` of F-W1; for `lam = 1` it is the frozen `valid`).  Conclusion: there are `Cc, h0` (depending only on `cs`, `Csum`, `eta`, `m`) such that for `h <= h0` (constants uniform in `(p, X, N, psi)`), the exact solution `psi`
-of the recurrence on rows `0..N_R` seeded by `psi_0 = psi-hat^L_0` satisfies the three statements above.
+* **(R1) absorption** (Step 3, last paragraph): `Lambda h^{-m} (E_-(j_1)/E_-(k))^2 <= e^{-c/h}` on `Z_k <= 0`, `u_k >= u_c - eta/2`, and `Lambda h^{-m} E_-(j_1)^2 <= e^{-c/h}` on `Z_k > 0` (weight `E_swap`): from `zeta_deriv`,
+  `zeta_far`, `muS_bd`, the definition of `Ewell`/`Ebar` (calculus on explicit integrals; *no* new special-function fact).
+* **(R2) patch 3 against `psi-hat^{PC,-}`**: `psi-hat_3 = psi-hat_2` on rows `>= j_2` (both are the same combination of the same PC functions: `shared_PC`, `wf2_eq`, `wf3_eq` and `ParabolicCylinderFacts.pcSwap_eq_pcMinus`, i.e. `M_-(a)`), so that
+  (b'') reads `|psi - lambda_L psi-hat^{PC,-}| <= ...` there up to the `(M_1)_{21} phi^{(2)}_2` term, bounded by `|phi^{(2)}_2| <= C W_3 M_bal` (the same relation).
+* **(R3) `M_Olv` form**: `lambda W M ~ |lambda_L| M_Olv(a,-Z)` from `molv_well`, `molv_bar` and (c).
+* **(R4) lower bound of (c)**: `|(M_1)_{11}| >= c`: `|psi-hat^{Web}_{j_1}| >= c E M` (the analogue of `BulkWeberChart.collar_lb` for the Weber chart: lem:cha-W0, not a field of `chainW` yet), the growth ratio `r_W >= 1 + gamma/2` (eq:tha-S4grow:
+  recurrence and positivity only), and `r_2 = e^{-theta}(1 + O(h)) < 1` from `ParabolicCylinderFacts.V_growth` and the corrector bound.
+* **(R5) the derivation of (S3)** (F-W2-7): stays inside `valid` (`Valid.transfer`); see the `SoftEdgeChart` docstring for the chart-level inputs that would make it a lemma.
 
 ## Differences from the paper
 
-* `hVal` replaces `SoftEdgeChart.valid` (F-W2-1); `lambda` is positive here (a ratio of positive weights), as in the paper.
-* The bound (b') is the paper's before the absorption step; the conversion to `|lambda_L| M_Olv` is not done (F-W2-6).
+* `lambda` is a ratio of positive weights (`softLam_pos`), as in the paper.  The conclusion (b'), (b'') is the paper's bound *before* the absorption step and in terms of the engine weights; the conversion to `|lambda_L| M_Olv(a,-Z)` is (R1), (R3).
+* (a) is stated on every row `0 <= k <= N_R` with `u_k <= u_c - eta/2` (all of them are rows of `chainW`).
+* the three-patch chain has `P = 3` for every `a` (for `a > 0` patch 3 duplicates patch 2); the engine constant is `mvC ... 3`.
 
 ## Not formalised
 
-(a) on `u_c - eta < u_k <= u_c - eta/2` (F-W2-3); (b) in the form of `PropThaW2` (F-W2-6, F-W2-2 for `a <= 0`); the lower bound of (c) (F-W2-6); the derivation of (S3) from the forbidden overlap (F-W2-7);
-items (2)--(4) of `PropThaW2` (L2.C7).
+(R1)--(R5) above; items (2)--(4) of `PropThaW2` (L2.C7).
 -/
 
 @[expose] public section
@@ -111,6 +85,16 @@ lemma Eminus_pos (a z : ℝ) : 0 < Eminus a z := by
   · exact Ewell_pos _ _
   · exact inv_pos.mpr (Real.exp_pos _)
 
+lemma Eswap_pos (a z : ℝ) : 0 < Eswap a z := by
+  unfold Eswap
+  split_ifs
+  · exact inv_pos.mpr (Ewell_pos _ _)
+  · exact inv_pos.mpr (Real.exp_pos _)
+
+lemma k2_nonneg (a z : ℝ) : 0 ≤ k2 a z := le_max_of_le_left (abs_nonneg _)
+
+lemma Mbal_nonneg (a z : ℝ) : 0 ≤ Mbal a z := Real.rpow_nonneg (k2_nonneg a z) _
+
 section SoftChain
 
 variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
@@ -118,6 +102,9 @@ variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U 
 
 lemma softEnvWebW_pos (p : Par × ℝ) (X : ℝ) (N : ℕ) (k : ℤ) : 0 < softEnvWebW C p X N k :=
   Ewell_pos _ _
+
+lemma softEnvWeb_nonneg (p : Par × ℝ) (X : ℝ) (N : ℕ) (k : ℤ) : 0 ≤ softEnvWeb C p X N k :=
+  mul_nonneg (Ewell_pos _ _).le (Mbal_nonneg _ _)
 
 lemma softLam_pos (p : Par × ℝ) (X : ℝ) (N : ℕ) : 0 < softLam C p X N :=
   div_pos (softEnvWebW_pos C p X N _) (Eminus_pos _ _)
@@ -141,6 +128,24 @@ lemma chain_W_j1 {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz.bandHi 
     = _
   field_simp
 
+/-- The first patch of the soft chain is the Weber patch of `chainW`: the comparison pairs agree on all rows (`patch1_eq`). -/
+lemma chain_phi_one_eq {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz.bandHi p| ≤ C.δ0) {N : ℕ} (hN : C.N0 ≤ N)
+    (α : Fin 2) (k : ℤ) :
+    (C.chain p X N).phi (Fz.step N) α 1 k = (C.chainW p X N).phi (Fz.step N) α 1 k := by
+  obtain ⟨-, -, -, -, -, -, hwf, hAA, hBB⟩ := C.patch1_eq p hp X hX N hN
+  unfold LadderData.phi
+  rw [hwf, hAA, hBB]
+
+lemma psiHatL_of_le (p : Par × ℝ) (X : ℝ) (N : ℕ) {n : ℤ} (hn : uNode (Fz.step N) n ≤ C.uc p - C.η / 2) :
+    C.psiHatL p X N n = (C.chainW p X N).phi (Fz.step N) 0 1 n := by
+  unfold SoftEdgeChart.psiHatL
+  simp only [hn, ↓reduceIte]
+
+lemma psiHatL_of_gt (p : Par × ℝ) (X : ℝ) (N : ℕ) {n : ℤ} (hn : C.uc p - C.η / 2 < uNode (Fz.step N) n) :
+    C.psiHatL p X N n = C.lamL p X N * ((C.chain p X N).phi (Fz.step N) 0 2 n / kappaBal (C.aOf p X N)) := by
+  unfold SoftEdgeChart.psiHatL
+  simp only [not_le.mpr hn, ↓reduceIte]
+
 /-- `lambda_L = kappa_bal (M_1^{orig})_{11}`: the Casoratian definition of `lambda_L` is `kappa_bal` times the `(0,0)` entry of the first transfer matrix of the (unrescaled) chain,
 provided `A_{j_1} != 0`. -/
 lemma lamL_eq_kappa_mul_transMat (p : Par × ℝ) (X : ℝ) (N : ℕ) (hA : (C.chain p X N).A (C.j1 p X N) ≠ 0) :
@@ -160,88 +165,233 @@ lemma lamL_eq_kappa_mul_transMat (p : Par × ℝ) (X : ℝ) (N : ℕ) (hA : (C.c
   show _ = kappaBal (C.aOf p X N) * (_ / _)
   ring
 
+/-! ### Smallness and constants (common to the Weber chart and the soft chain) -/
+
+/-- the engine constant `K = (K_A + K_B) K_w`. -/
+def softK : ℝ := (C.cs.KA + C.cs.KB) * C.cs.Kw
+
+/-- `M_0 = 2 K_D K_w C_sum`: the smallness `2 K_D K_w h^m Theta <= M_0 h^m`. -/
+def softM0 : ℝ := 2 * C.cs.KD * C.cs.Kw * C.Csum
+
+/-- the engine constant of the chain with `P` patches, `mvC * (2 K_D K_w C_sum)`. -/
+def softC (P : ℕ) : ℝ := mvC C.cs.cm C.cs.CE (softK C) C.cs.Λ P * softM0 C
+
+/-- the smallness threshold `h_0 = min(eta, 1, c_*/(M_0 + 1))`. -/
+def softH0 : ℝ := min C.η (min 1 (mvCstar C.cs.cm C.cs.CE (softK C) / (softM0 C + 1)))
+
+lemma softK_nonneg : 0 ≤ softK C := mul_nonneg (add_nonneg C.cs.KA_nonneg C.cs.KB_nonneg) C.cs.Kw_nonneg
+
+lemma softM0_nonneg : 0 ≤ softM0 C :=
+  mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) C.cs.KD_nonneg) C.cs.Kw_nonneg) C.consts_pos.2.2.2.2.2.2.1
+
+lemma mvCstar_pos' : 0 < mvCstar C.cs.cm C.cs.CE (softK C) := by
+  have hq : 0 ≤ 1 + C.cs.CE ^ 2 := by positivity
+  have hcmq : 0 ≤ (1 + C.cs.CE ^ 2) / C.cs.cm := div_nonneg hq C.cs.cm_pos.le
+  unfold mvCstar
+  have h1 : 0 ≤ 2 * ((1 + C.cs.CE ^ 2) / C.cs.cm) * softK C :=
+    mul_nonneg (mul_nonneg (by norm_num) hcmq) (softK_nonneg C)
+  exact div_pos one_pos (by linarith)
+
+lemma softH0_pos : 0 < softH0 C :=
+  lt_min C.consts_pos.2.1 (lt_min one_pos (div_pos (mvCstar_pos' C) (by linarith [softM0_nonneg C])))
+
+lemma mvC_nonneg' (n : ℕ) : 0 ≤ mvC C.cs.cm C.cs.CE (softK C) C.cs.Λ n := by
+  have hq : 0 ≤ 1 + C.cs.CE ^ 2 := by positivity
+  have hcmq : 0 ≤ (1 + C.cs.CE ^ 2) / C.cs.cm := div_nonneg hq C.cs.cm_pos.le
+  have hΛ : 0 ≤ C.cs.Λ := by linarith [C.cs.Λ_ge]
+  unfold mvC mvCrStar mvKappa
+  have hR : 0 ≤ (C.cs.Λ * (1 + C.cs.CE ^ 2)) ^ n * (1 + C.cs.CE ^ 2) :=
+    mul_nonneg (pow_nonneg (mul_nonneg hΛ hq) n) hq
+  have hκ : 0 ≤ (2 * C.cs.Λ ^ 2 * (1 + C.cs.CE ^ 2) + 1) ^ n + 1 := by positivity
+  exact mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) hcmq) (softK_nonneg C))
+    (mul_nonneg (mul_nonneg (softK_nonneg C) hR) hκ)
+
+lemma softC_nonneg (n : ℕ) : 0 ≤ softC C n := mul_nonneg (mvC_nonneg' C n) (softM0_nonneg C)
+
+/-- the engine smallness `2 K_D K_w h^m Theta <= c_*` for `h <= h_0`, `Theta <= C_sum`, `m >= 1`. -/
+lemma soft_small (hm : 1 ≤ m) {h θ : ℝ} (hh : 0 < h) (hh0 : h ≤ softH0 C) (hθ : θ ≤ C.Csum) :
+    2 * C.cs.KD * C.cs.Kw * h ^ m * θ ≤ mvCstar C.cs.cm C.cs.CE (softK C) := by
+  have hE : 0 ≤ 2 * C.cs.KD * C.cs.Kw := mul_nonneg (mul_nonneg (by norm_num) C.cs.KD_nonneg) C.cs.Kw_nonneg
+  have hM0 := softM0_nonneg C
+  have hDst := mvCstar_pos' C
+  have hh1 : h ≤ 1 := le_trans hh0 (le_trans (min_le_right _ _) (min_le_left _ _))
+  have hsmall_h : h ≤ mvCstar C.cs.cm C.cs.CE (softK C) / (softM0 C + 1) :=
+    le_trans hh0 (le_trans (min_le_right _ _) (min_le_right _ _))
+  have hpowle : h ^ m ≤ h := pow_le_of_le_one hh.le hh1 (by omega)
+  have hden : 0 < softM0 C + 1 := by linarith
+  have h1 : 2 * C.cs.KD * C.cs.Kw * h ^ m * θ ≤ 2 * C.cs.KD * C.cs.Kw * h ^ m * C.Csum :=
+    mul_le_mul_of_nonneg_left hθ (mul_nonneg hE (pow_nonneg hh.le m))
+  have h2 : 2 * C.cs.KD * C.cs.Kw * h ^ m * C.Csum ≤ h * softM0 C := by
+    calc 2 * C.cs.KD * C.cs.Kw * h ^ m * C.Csum = softM0 C * h ^ m := by unfold softM0; ring
+      _ ≤ softM0 C * h := mul_le_mul_of_nonneg_left hpowle hM0
+      _ = h * softM0 C := by ring
+  have h3 : h * softM0 C ≤ mvCstar C.cs.cm C.cs.CE (softK C) := by
+    have hs := mul_le_mul_of_nonneg_right hsmall_h hM0
+    have hfrac : mvCstar C.cs.cm C.cs.CE (softK C) / (softM0 C + 1) * softM0 C ≤ mvCstar C.cs.cm C.cs.CE (softK C) := by
+      rw [div_mul_eq_mul_div, div_le_iff₀ hden]
+      nlinarith [hDst]
+    linarith
+  linarith
+
+/-- `h_0 <= eta` and `h_0 <= 1`. -/
+lemma softH0_le_eta : softH0 C ≤ C.η := min_le_left _ _
+
+/-- the exact solution with the Weber seed is a solution of the chain's recurrence on the rows `s_0 .. N_R - 1` of any chain whose operator is the family's. -/
+lemma sol_chain_rows {p : Par × ℝ} {X : ℝ} {N : ℕ} (D : LadderData) (hs0 : D.s0 = 0)
+    (hA : ∀ k ∈ Finset.Icc (-1 : ℤ) D.NR, D.A k = Fz.bondA p N k)
+    (hQ : ∀ k ∈ Finset.Icc (0 : ℤ) D.NR, D.Q k = Fz.diagQ p N X k)
+    {NR : ℤ} (hle : D.NR ≤ NR) {ψ : ℤ → ℝ} (hJ : JacSol Fz p N X NR ψ) :
+    ∀ j ∈ Icc D.s0 (D.NR - 1), Lh (Fz.step N) D.A D.Q ψ j = 0 := by
+  intro j hj
+  rw [hs0] at hj
+  obtain ⟨hj0, hj1⟩ := mem_Icc.mp hj
+  have hL : Lop (Fz.bondA p N) (Fz.diagQ p N X) ψ j = 0 := hJ j hj0 (by omega)
+  have hA0 : D.A j = Fz.bondA p N j := hA j (mem_Icc.mpr ⟨by omega, by omega⟩)
+  have hA1 : D.A (j - 1) = Fz.bondA p N (j - 1) := hA (j - 1) (mem_Icc.mpr ⟨by omega, by omega⟩)
+  have hQ0 : D.Q j = Fz.diagQ p N X j := hQ j (mem_Icc.mpr ⟨hj0, by omega⟩)
+  rw [Lh_congr_site hA0 hA1 hQ0]
+  unfold Lh
+  rw [hL, mul_zero]
+
+/-- the engine constant times the smallness factor is at most `softC * h^n`. -/
+lemma soft_engine_le (n : ℕ) {h θ : ℝ} (hh : 0 < h) (hθ : θ ≤ C.Csum) :
+    mvC C.cs.cm C.cs.CE (softK C) C.cs.Λ n * (2 * C.cs.KD * C.cs.Kw * h ^ m * θ) ≤ softC C n * h ^ m := by
+  have hE : 0 ≤ 2 * C.cs.KD * C.cs.Kw := mul_nonneg (mul_nonneg (by norm_num) C.cs.KD_nonneg) C.cs.Kw_nonneg
+  have := mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hθ (mul_nonneg hE (pow_nonneg hh.le m)))
+    (mvC_nonneg' C n)
+  calc _ ≤ mvC C.cs.cm C.cs.CE (softK C) C.cs.Λ n * (2 * C.cs.KD * C.cs.Kw * h ^ m * C.Csum) := this
+    _ = softC C n * h ^ m := by unfold softC softM0; ring
+
 end SoftChain
 
-/-! ### The theorem -/
+/-! ### Step 1: the Weber bound on all rows `u_k <= u_c - eta/2` -/
 
-/-- **L2.C6 (partial): the solution through the soft edge** (`prop:tha-W2` (1), `thm:cha-PC`, `app_thmA` Steps 1--3), see the module docstring for what is and is not covered.
-`hVal` is the corrected validity of the chain (`rescale1`, finding F-W2-1). -/
-theorem soft_through_edge {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
-    (C : SoftEdgeChart Fz P m q U V) (hm : 1 ≤ m)
-    (hVal : ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ C.δ0 → ∀ N : ℕ, C.N0 ≤ N →
-      ((C.chain p X N).rescale1 (softLam C p X N)).Valid C.cs (Fz.step N) m) :
+section Step1
+
+variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
+  (C : SoftEdgeChart Fz P m q U V)
+
+/-- the first row of the lattice is inside the Weber region: `u_0 <= u_c - eta/2` once `h <= eta`. -/
+lemma uNode_zero_le {p : Par × ℝ} (hp : p ∈ P) {N : ℕ} (hstep : Fz.step N ≤ C.η) :
+    uNode (Fz.step N) 0 ≤ C.uc p - C.η / 2 := by
+  have huc := (C.ucη_in p hp).1
+  have hη := C.consts_pos.2.1
+  unfold uNode
+  simp only [Int.cast_zero, zero_add]
+  linarith
+
+/-- **Step 1** (`app_thmA` Step 1, `cor:cha-I-general`): the exact solution seeded by `psi-hat^L_0` obeys `|psi_k - psi-hat^L_k| <= C h^m E_Web M_Web` on every row `0 <= k <= N_R` with `u_k <= u_c - eta/2`. -/
+theorem soft_weber_bound (hm : 1 ≤ m) {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz.bandHi p| ≤ C.δ0) {N : ℕ}
+    (hN : C.N0 ≤ N) (hstep : Fz.step N ≤ softH0 C) (ψ : ℤ → ℝ) (hJ : JacSol Fz p N X (C.chain p X N).NR ψ)
+    (hseed0 : ψ 0 = C.psiHatL p X N 0) :
+    ∀ k ∈ Finset.Icc (0 : ℤ) (C.chain p X N).NR, uNode (Fz.step N) k ≤ C.uc p - C.η / 2 →
+      |ψ k - C.psiHatL p X N k| ≤ softC C 1 * Fz.step N ^ m * softEnvWeb C p X N k := by
+  intro k hk hku
+  obtain ⟨hk0, hkNR⟩ := mem_Icc.mp hk
+  have hstep_pos : 0 < Fz.step N := FormalResearch.JB.stepSize_pos Fz.L_pos N
+  have hη := C.consts_pos.2.1
+  have hVW := C.validW p hp X hX N hN
+  obtain ⟨hP1, hs0, hNR0, hNRu, hNRv⟩ := C.shapeW p hp X hX N hN
+  obtain ⟨-, -, -, -, -, -, hNRmu, hNRmv⟩ := C.shape p hp X hX N hN
+  set DW := C.chainW p X N with hDW
+  have hkW : k ≤ DW.NR := by
+    by_contra hcon
+    have h1 : DW.NR + 1 ≤ k := by omega
+    have := uNode_mono' hstep_pos.le h1
+    linarith
+  have hNRle : DW.NR ≤ (C.chain p X N).NR := by
+    by_contra hcon
+    have h1 : (C.chain p X N).NR + 1 ≤ DW.NR := by omega
+    have := uNode_mono' hstep_pos.le h1
+    linarith
+  have hsol := sol_chain_rows DW hs0 (C.A_bondW p hp X hX N hN) (C.Q_diagW p hp X hX N hN) hNRle hJ
+  have hseed : ∀ j ∈ Icc (0 : ℤ) DW.s0, ψ j = DW.phi (Fz.step N) 0 1 j := by
+    intro j hj
+    rw [hs0] at hj
+    have hj0 : j = 0 := by
+      obtain ⟨h1, h2⟩ := mem_Icc.mp hj
+      omega
+    subst hj0
+    rw [hseed0, psiHatL_of_le C p X N (uNode_zero_le C hp (le_trans hstep (softH0_le_eta C)))]
+  have hθ : DW.theta (Fz.step N) ≤ C.Csum := C.theta_leW p hp X hX N hN
+  have hsmall := soft_small C hm hstep_pos hstep hθ
+  have hst := LadderData.stability DW C.cs (Fz.step N) m hVW ψ hsol hseed hsmall
+  obtain ⟨c1, -, -⟩ := hst
+  have hkw : k ∈ Icc (eqLo DW.s0 DW.jj 1) (DW.jj 1 + 1) := by
+    have hl : DW.jj DW.P = DW.NR - 1 := hVW.jj_last
+    rw [hP1] at hl
+    rw [eqLo_one, hs0]
+    exact mem_Icc.mpr ⟨hk0, by omega⟩
+  have h1 := c1 1 (mem_Icc.mpr ⟨le_rfl, by show 1 ≤ DW.P; omega⟩) k hkw
+  rw [hP1] at h1
+  have hpsi1 : DW.psiHat (Fz.step N) 1 k = DW.phi (Fz.step N) 0 1 k := by
+    unfold LadderData.psiHat Engine.psiHat
+    rw [cvec_one]
+    simp
+  have hψL := psiHatL_of_le C p X N hku
+  have hkk : k ∈ Finset.Icc (0 : ℤ) DW.NR := mem_Icc.mpr ⟨hk0, hkW⟩
+  have hW := C.W_defW p hp X hX N hN k hkk
+  have hM := C.M_defW p hp X hX N hN k hkk
+  rw [hψL, ← hpsi1]
+  refine le_trans h1 ?_
+  rw [hW, hM]
+  have hEM : 0 ≤ softEnvWeb C p X N k := softEnvWeb_nonneg C p X N k
+  have hEM' : softEnvWeb C p X N k = Ewell (-((k : ℝ) + 1 / 2)) |C.Y p X (uNode (Fz.step N) k) / Real.sqrt (Fz.step N)| *
+      Mbal (-((k : ℝ) + 1 / 2)) (C.Y p X (uNode (Fz.step N) k) / Real.sqrt (Fz.step N)) := rfl
+  have hA : mvC C.cs.cm C.cs.CE (softK C) C.cs.Λ 1 * (2 * C.cs.KD * C.cs.Kw * Fz.step N ^ m * DW.theta (Fz.step N))
+      ≤ softC C 1 * Fz.step N ^ m := by
+    have hE : 0 ≤ 2 * C.cs.KD * C.cs.Kw := mul_nonneg (mul_nonneg (by norm_num) C.cs.KD_nonneg) C.cs.Kw_nonneg
+    have := mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hθ (mul_nonneg hE (pow_nonneg hstep_pos.le m)))
+      (mvC_nonneg' C 1)
+    calc _ ≤ mvC C.cs.cm C.cs.CE (softK C) C.cs.Λ 1 * (2 * C.cs.KD * C.cs.Kw * Fz.step N ^ m * C.Csum) := this
+      _ = softC C 1 * Fz.step N ^ m := by unfold softC softM0; ring
+  rw [mul_assoc, ← hEM']
+  exact mul_le_mul_of_nonneg_right hA hEM
+
+end Step1
+
+/-! ### Step 3: through the soft edge (engine part) -/
+
+section Step3
+
+variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
+  (C : SoftEdgeChart Fz P m q U V)
+
+/-- **L2.C6 (engine part): the solution through the soft edge** (`prop:tha-W2` (1), `thm:cha-PC`, `app_thmA` Steps 1--3), see the module docstring for what is and is not covered. -/
+theorem soft_through_edge (hm : 1 ≤ m) :
     ∃ Cc h0 : ℝ, 0 < h0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ C.δ0 → ∀ N : ℕ, C.N0 ≤ N → Fz.step N ≤ h0 →
       0 < softLam C p X N ∧
       |C.lamL p X N| ≤ C.cs.Λ * (softLam C p X N * kappaBal (C.aOf p X N)) ∧
       ∀ ψ : ℤ → ℝ, JacSol Fz p N X (C.chain p X N).NR ψ → ψ 0 = C.psiHatL p X N 0 →
-        (∀ k ∈ Finset.Icc (0 : ℤ) (C.j1 p X N),
+        (∀ k ∈ Finset.Icc (0 : ℤ) (C.chain p X N).NR, uNode (Fz.step N) k ≤ C.uc p - C.η / 2 →
           |ψ k - C.psiHatL p X N k| ≤ Cc * Fz.step N ^ m * softEnvWeb C p X N k) ∧
-        (∀ k ∈ Finset.Icc (C.j1 p X N + 1) (C.chain p X N).NR, C.uc p - C.η / 2 < uNode (Fz.step N) k →
+        (∀ k ∈ Finset.Icc (C.j1 p X N + 1) (C.j2 p X N), C.uc p - C.η / 2 < uNode (Fz.step N) k →
           |ψ k - C.psiHatL p X N k| ≤ softLam C p X N * Mbal (C.aOf p X N) (C.Zof p X N k) *
             (Cc * Fz.step N ^ m * Eminus (C.aOf p X N) (C.Zof p X N k)
-              + C.cs.Λ * ((C.cs.KA + C.cs.KB) * C.cs.Kw) * Eminus (C.aOf p X N) (C.Zof p X N (C.j1 p X N)) ^ 2
-                / Eminus (C.aOf p X N) (C.Zof p X N k))) := by
+              + C.cs.Λ * softK C * Eminus (C.aOf p X N) (C.Zof p X N (C.j1 p X N)) ^ 2
+                / Eminus (C.aOf p X N) (C.Zof p X N k))) ∧
+        (∀ k ∈ Finset.Icc (C.j2 p X N + 1) (C.chain p X N).NR,
+          |ψ k - (C.chain p X N).psiHat (Fz.step N) 3 k| ≤ softLam C p X N * Mbal (C.aOf p X N) (C.Zof p X N k) *
+            (Cc * Fz.step N ^ m * Eswap (C.aOf p X N) (C.Zof p X N k))) := by
   obtain ⟨-, hη, -, -, -, -, hCsum, -⟩ := C.consts_pos
   set cs := C.cs with hcs
-  set K : ℝ := (cs.KA + cs.KB) * cs.Kw with hK
-  have hKnn : 0 ≤ K := mul_nonneg (add_nonneg cs.KA_nonneg cs.KB_nonneg) cs.Kw_nonneg
-  have hE : 0 ≤ 2 * cs.KD * cs.Kw := mul_nonneg (mul_nonneg (by norm_num) cs.KD_nonneg) cs.Kw_nonneg
-  have hq : 0 ≤ 1 + cs.CE ^ 2 := by positivity
-  have hcmq : 0 ≤ (1 + cs.CE ^ 2) / cs.cm := div_nonneg hq cs.cm_pos.le
-  have hDst : 0 < mvCstar cs.cm cs.CE K := by
-    unfold mvCstar
-    have h1 : 0 ≤ 2 * ((1 + cs.CE ^ 2) / cs.cm) * K :=
-      mul_nonneg (mul_nonneg (by norm_num) hcmq) hKnn
-    exact div_pos one_pos (by linarith)
-  set M0 : ℝ := 2 * cs.KD * cs.Kw * C.Csum with hM0
-  have hM0nn : 0 ≤ M0 := mul_nonneg hE hCsum
-  have hden : 0 < M0 + 1 := by linarith
-  set h0 : ℝ := min C.η (min 1 (mvCstar cs.cm cs.CE K / (M0 + 1))) with hh0
-  have hh0pos : 0 < h0 := lt_min hη (lt_min one_pos (div_pos hDst hden))
-  have hmvC : 0 ≤ mvC cs.cm cs.CE K cs.Λ 2 := by
-    unfold mvC mvCrStar mvKappa
-    have hΛ : 0 ≤ cs.Λ := by linarith [cs.Λ_ge]
-    have hR : 0 ≤ (cs.Λ * (1 + cs.CE ^ 2)) ^ 2 * (1 + cs.CE ^ 2) :=
-      mul_nonneg (pow_nonneg (mul_nonneg hΛ hq) 2) hq
-    have hκ : 0 ≤ (2 * cs.Λ ^ 2 * (1 + cs.CE ^ 2) + 1) ^ 2 + 1 := by positivity
-    exact mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) hcmq) hKnn)
-      (mul_nonneg (mul_nonneg hKnn hR) hκ)
-  refine ⟨mvC cs.cm cs.CE K cs.Λ 2 * (2 * cs.KD * cs.Kw * C.Csum), h0, hh0pos, ?_⟩
+  refine ⟨softC C 1 + softC C 3, softH0 C, softH0_pos C, ?_⟩
   intro p hp X hX N hN hstep
-  have hV : ((C.chain p X N).rescale1 (softLam C p X N)).Valid cs (Fz.step N) m := hVal p hp X hX N hN
-  obtain ⟨hP2, hs0, hj1u, hj1v, hNRu, hNRv⟩ := C.shape p hp X hX N hN
+  have hV : ((C.chain p X N).rescale1 (softLam C p X N)).Valid cs (Fz.step N) m := C.valid p hp X hX N hN
+  obtain ⟨hP3, hs0, hj1u, hj1v, hZa, hZb, hNRu, hNRv⟩ := C.shape p hp X hX N hN
   have hθ : (C.chain p X N).theta (Fz.step N) ≤ C.Csum := C.theta_le p hp X hX N hN
   have hstep_pos : 0 < Fz.step N := FormalResearch.JB.stepSize_pos Fz.L_pos N
-  have hstepη : Fz.step N ≤ C.η := le_trans hstep (min_le_left _ _)
-  have hstep1 : Fz.step N ≤ 1 := le_trans hstep (le_trans (min_le_right _ _) (min_le_left _ _))
-  have hsmall_h : Fz.step N ≤ mvCstar cs.cm cs.CE K / (M0 + 1) :=
-    le_trans hstep (le_trans (min_le_right _ _) (min_le_right _ _))
-  have hpowle : (Fz.step N) ^ m ≤ Fz.step N := pow_le_of_le_one hstep_pos.le hstep1 (by omega)
+  have hsmall := soft_small C hm hstep_pos hstep hθ
   have hlam : 0 < softLam C p X N := softLam_pos C p X N
-  -- smallness
-  have hsmall : 2 * cs.KD * cs.Kw * (Fz.step N) ^ m * (C.chain p X N).theta (Fz.step N)
-      ≤ mvCstar cs.cm cs.CE K := by
-    have hpow0 : 0 ≤ (Fz.step N) ^ m := pow_nonneg hstep_pos.le m
-    have h1 : 2 * cs.KD * cs.Kw * (Fz.step N) ^ m * (C.chain p X N).theta (Fz.step N)
-        ≤ 2 * cs.KD * cs.Kw * (Fz.step N) ^ m * C.Csum :=
-      mul_le_mul_of_nonneg_left hθ (mul_nonneg hE hpow0)
-    have h2 : 2 * cs.KD * cs.Kw * (Fz.step N) ^ m * C.Csum ≤ Fz.step N * M0 := by
-      calc 2 * cs.KD * cs.Kw * (Fz.step N) ^ m * C.Csum = M0 * (Fz.step N) ^ m := by rw [hM0]; ring
-        _ ≤ M0 * Fz.step N := mul_le_mul_of_nonneg_left hpowle hM0nn
-        _ = Fz.step N * M0 := by ring
-    have h3 : Fz.step N * M0 ≤ mvCstar cs.cm cs.CE K := by
-      have hs := mul_le_mul_of_nonneg_right hsmall_h hM0nn
-      have hfrac : mvCstar cs.cm cs.CE K / (M0 + 1) * M0 ≤ mvCstar cs.cm cs.CE K := by
-        rw [div_mul_eq_mul_div, div_le_iff₀ hden]
-        nlinarith [hDst]
-      linarith
-    linarith
+  have hC1 := softC_nonneg C 1
+  have hC3 := softC_nonneg C 3
   set D := C.chain p X N with hD
   set lam := softLam C p X N with hlamdef
-  have hNRD : (C.chain p X N).NR = D.NR := rfl
   have hj1D : C.j1 p X N = D.jj 1 := rfl
+  have hj2D : C.j2 p X N = D.jj 2 := rfl
   have hjj0' : 0 ≤ D.jj 1 := hV.jj_nonneg (by show 1 ≤ D.P; omega)
   have hjj12 : D.jj 1 < D.jj 2 := hV.jj_mono 1 (by show 1 < D.P; omega)
+  have hjj23 : D.jj 2 < D.jj 3 := hV.jj_mono 2 (by show 2 < D.P; omega)
   have hphi2 : ∀ α : Fin 2, (D.rescale1 lam).phi (Fz.step N) α 2 = D.phi (Fz.step N) α 2 :=
     fun α => funext (LadderData.phi_rescale1_of_ne D lam _ α (by norm_num))
   -- `A_{j_1} != 0` from the Casoratian of the second pair
@@ -286,30 +436,12 @@ theorem soft_through_edge {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)
       _ ≤ (kappaBal (C.aOf p X N) * lam) * cs.Λ := mul_le_mul_of_nonneg_left t00' (by positivity)
       _ = cs.Λ * (lam * kappaBal (C.aOf p X N)) := by ring
   refine ⟨hlam, hup, ?_⟩
-  intro ψ hJ0 hseed0
-  have hJ : JacSol Fz p N X D.NR ψ := hJ0
+  intro ψ hJ hseed0
+  have hCc : softC C 1 ≤ softC C 1 + softC C 3 := le_add_of_nonneg_right hC3
+  have hCc3 : softC C 3 ≤ softC C 1 + softC C 3 := le_add_of_nonneg_left hC1
+  have hpow := pow_nonneg hstep_pos.le m
   -- the exact solution satisfies the engine's equations
-  have hsol : ∀ j ∈ Icc D.s0 (D.NR - 1), Lh (Fz.step N) D.A D.Q ψ j = 0 := by
-    intro j hj
-    rw [hs0] at hj
-    obtain ⟨hj0, hj1⟩ := mem_Icc.mp hj
-    have hL : Lop (Fz.bondA p N) (Fz.diagQ p N X) ψ j = 0 :=
-      hJ j hj0 (by show j < D.NR; omega)
-    have hA0 : D.A j = Fz.bondA p N j :=
-      C.A_bond p hp X hX N hN j (mem_Icc.mpr ⟨by omega, by omega⟩)
-    have hA1 : D.A (j - 1) = Fz.bondA p N (j - 1) :=
-      C.A_bond p hp X hX N hN (j - 1) (mem_Icc.mpr ⟨by omega, by omega⟩)
-    have hQ0 : D.Q j = Fz.diagQ p N X j :=
-      C.Q_diag p hp X hX N hN j (mem_Icc.mpr ⟨hj0, by omega⟩)
-    rw [Lh_congr_site hA0 hA1 hQ0]
-    unfold Lh
-    rw [hL, mul_zero]
-  -- the seed
-  have huc := (C.ucη_in p hp).1
-  have hu0 : uNode (Fz.step N) 0 ≤ C.uc p - C.η / 2 := by
-    unfold uNode
-    simp only [Int.cast_zero, zero_add]
-    linarith
+  have hsol := sol_chain_rows D hs0 (C.A_bond p hp X hX N hN) (C.Q_diag p hp X hX N hN) le_rfl hJ
   have hseed : ∀ j ∈ Icc (0 : ℤ) D.s0, ψ j = D.phi (Fz.step N) 0 1 j := by
     intro j hj
     rw [hs0] at hj
@@ -317,86 +449,40 @@ theorem soft_through_edge {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)
       obtain ⟨h1, h2⟩ := mem_Icc.mp hj
       omega
     subst hj0
-    rw [hseed0]
-    unfold SoftEdgeChart.psiHatL
-    simp only [hu0, ↓reduceIte]
-    rfl
+    rw [hseed0, psiHatL_of_le C p X N (uNode_zero_le C hp (le_trans hstep (softH0_le_eta C))),
+      chain_phi_one_eq C hp hX hN]
   have hst := LadderData.stability_rescale1 D cs (Fz.step N) m lam hlam.ne' hV ψ hsol hseed hsmall
   obtain ⟨c1, -, -⟩ := hst
-  have hTT : 2 * cs.KD * cs.Kw * (Fz.step N) ^ m * D.theta (Fz.step N) ≤ 2 * cs.KD * cs.Kw * (Fz.step N) ^ m * C.Csum :=
-    mul_le_mul_of_nonneg_left hθ (mul_nonneg hE (pow_nonneg hstep_pos.le m))
-  have hBT : mvC cs.cm cs.CE K cs.Λ 2 * (2 * cs.KD * cs.Kw * (Fz.step N) ^ m * D.theta (Fz.step N))
-      ≤ mvC cs.cm cs.CE K cs.Λ 2 * (2 * cs.KD * cs.Kw * C.Csum) * (Fz.step N) ^ m := by
-    calc _ ≤ mvC cs.cm cs.CE K cs.Λ 2 * (2 * cs.KD * cs.Kw * (Fz.step N) ^ m * C.Csum) :=
-          mul_le_mul_of_nonneg_left hTT hmvC
-      _ = _ := by ring
-  refine ⟨?_, ?_⟩
-  · -- (a): Weber bound on the rows `0 <= k <= j_1`
-    intro k hk
-    obtain ⟨hk0, hkj⟩ := mem_Icc.mp hk
-    have hkw : k ∈ Icc (eqLo D.s0 D.jj 1) (D.jj 1 + 1) := by
-      rw [eqLo_one, hs0]
-      exact mem_Icc.mpr ⟨hk0, by show k ≤ D.jj 1 + 1; omega⟩
-    have h1 := c1 1 (mem_Icc.mpr ⟨le_rfl, by show 1 ≤ D.P; omega⟩) k hkw
-    rw [hP2] at h1
-    have hukk : uNode (Fz.step N) k ≤ C.uc p - C.η / 2 := by
-      have hkj' : k ≤ D.jj 1 := hkj
-      have := uNode_mono' hstep_pos.le hkj'
-      linarith
-    have hψL : C.psiHatL p X N k = D.phi (Fz.step N) 0 1 k := by
-      unfold SoftEdgeChart.psiHatL
-      simp only [hukk, ↓reduceIte]
-      rfl
-    have hpsi1 : D.psiHat (Fz.step N) 1 k = D.phi (Fz.step N) 0 1 k := by
-      unfold LadderData.psiHat Engine.psiHat
-      rw [cvec_one]
-      simp
-    have hkw1 : k ∈ Finset.Icc (0 : ℤ) ((C.chain p X N).jj 1) := mem_Icc.mpr ⟨hk0, hkj⟩
-    have hW := chain_W_one C hp hX hN hkw1
-    have hM := C.M1_def p hp X hX N hN k hkw1
-    have hEk := softEnvWebW_pos C p X N k
-    have hjjle1 : D.jj 1 ≤ D.NR - 1 := hV.jj_le (p := 1) (by show 1 ≤ D.P; omega)
-    have hkj'' : k ≤ D.jj 1 := hkj
-    have hMk : 0 < D.M k := hV.M_pos k (mem_Icc.mpr ⟨hk0, by show k ≤ D.NR; omega⟩)
-    have hSE : softEnvWeb C p X N k = softEnvWebW C p X N k *
-        Mbal (-((k : ℝ) + 1 / 2)) (C.Y p X (uNode (Fz.step N) k) / Real.sqrt (Fz.step N)) := rfl
-    rw [hψL]
-    rw [← hpsi1]
-    refine le_trans h1 ?_
-    rw [abs_of_pos hlam, hW, hSE, ← hM]
-    have key : lam * (mvC cs.cm cs.CE K cs.Λ 2 * (2 * cs.KD * cs.Kw * (Fz.step N) ^ m * D.theta (Fz.step N))
-        * (softEnvWebW C p X N k / lam) * D.M k)
-        = (mvC cs.cm cs.CE K cs.Λ 2 * (2 * cs.KD * cs.Kw * (Fz.step N) ^ m * D.theta (Fz.step N)))
-          * (softEnvWebW C p X N k * D.M k) := by
-      field_simp
-    rw [key]
-    exact mul_le_mul hBT le_rfl (mul_nonneg hEk.le hMk.le)
-      (mul_nonneg (mul_nonneg hmvC (mul_nonneg hE hCsum)) (pow_nonneg hstep_pos.le m))
-  · -- (b'): the collar bound before absorption
+  have hjl : D.jj 3 = D.NR - 1 := by
+    have := hV.jj_last
+    change D.jj D.P = D.NR - 1 at this
+    rw [hP3] at this
+    exact this
+  refine ⟨?_, ?_, ?_⟩
+  · -- (a): Weber bound on all rows `u_k <= u_c - eta/2`
+    intro k hk hku
+    refine le_trans (soft_weber_bound C hm hp hX hN hstep ψ hJ hseed0 k hk hku) ?_
+    exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hCc hpow) (softEnvWeb_nonneg C p X N k)
+  · -- (b'): the collar bound before absorption, patch 2
     intro k hk hkuc
     obtain ⟨hk1, hk2⟩ := mem_Icc.mp hk
+    rw [hj1D] at hk1
+    rw [hj2D] at hk2
     have e1 : eqLo D.s0 D.jj 2 = D.jj 1 + 1 := eqLo_succ D.s0 D.jj 1 le_rfl
-    have e2 : D.jj 2 + 1 = D.NR := by
-      have := hV.jj_last
-      change D.jj D.P = D.NR - 1 at this
-      rw [hP2] at this
-      omega
     have hkw : k ∈ Icc (eqLo D.s0 D.jj 2) (D.jj 2 + 1) := by
-      rw [e1, e2]
-      exact mem_Icc.mpr ⟨hk1, hk2⟩
+      rw [e1]
+      exact mem_Icc.mpr ⟨hk1, by omega⟩
     have hp2 : 2 ∈ Icc 1 D.P := mem_Icc.mpr ⟨by norm_num, by omega⟩
     have h1 := c1 2 hp2 k hkw
-    rw [hP2] at h1
-    have hkNR : k ∈ Finset.Icc (D.jj 1 + 1) (C.chain p X N).NR := mem_Icc.mpr ⟨hk1, hk2⟩
-    have hW : D.W k = Eminus (C.aOf p X N) (C.Zof p X N k) := C.W2_def p hp X hX N hN k hkNR
+    rw [hP3] at h1
+    have hkNR : k ∈ Finset.Icc (D.jj 1 + 1) D.NR := mem_Icc.mpr ⟨hk1, by omega⟩
+    have hkW2 : k ∈ Finset.Icc (D.jj 1 + 1) (D.jj 2) := mem_Icc.mpr ⟨hk1, hk2⟩
+    have hW : D.W k = Eminus (C.aOf p X N) (C.Zof p X N k) := C.W2_def p hp X hX N hN k hkW2
     have hM : D.M k = Mbal (C.aOf p X N) (C.Zof p X N k) := C.M2_def p hp X hX N hN k hkNR
     have hk0 : 0 ≤ k := by omega
-    have hWk : 0 < D.W k := hV.W_pos k (mem_Icc.mpr ⟨hk0, hk2⟩)
-    have hMk : 0 < D.M k := hV.M_pos k (mem_Icc.mpr ⟨hk0, hk2⟩)
-    have hψL : C.psiHatL p X N k = C.lamL p X N * (D.phi (Fz.step N) 0 2 k / kappaBal (C.aOf p X N)) := by
-      unfold SoftEdgeChart.psiHatL
-      simp only [not_le.mpr hkuc, ↓reduceIte]
-      rfl
+    have hWk : 0 < D.W k := hV.W_pos k (mem_Icc.mpr ⟨hk0, by show k ≤ D.NR; omega⟩)
+    have hMk : 0 < D.M k := hV.M_pos k (mem_Icc.mpr ⟨hk0, by show k ≤ D.NR; omega⟩)
+    have hψL := psiHatL_of_gt C p X N hkuc
     have hpsi2 := LadderData.psiHat_two D (Fz.step N) k
     have hdecomp : ψ k - C.psiHatL p X N k
         = (ψ k - D.psiHat (Fz.step N) 2 k)
@@ -406,17 +492,16 @@ theorem soft_through_edge {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)
       ring
     -- the envelope of the second member of the second pair
     have hwin : k ∈ Icc (D.jj (2 - 1)) (D.jj 2 + 1) := by
-      rw [e2]
-      exact mem_Icc.mpr ⟨by show D.jj 1 ≤ k; omega, hk2⟩
+      exact mem_Icc.mpr ⟨by show D.jj 1 ≤ k; omega, by omega⟩
     have hb := (hV.phi_bd (p := 2) hp2 hwin).2
     rw [hphi2] at hb
-    have hb' : |D.phi (Fz.step N) 1 2 k| ≤ K * (D.W k)⁻¹ * D.M k := hb
+    have hb' : |D.phi (Fz.step N) 1 2 k| ≤ softK C * (D.W k)⁻¹ * D.M k := hb
     have hWj := chain_W_j1 C hp hX hN hjj0'
     have hbM : |transMat (D.phi (Fz.step N) 0) (D.phi (Fz.step N) 1) D.jj 1 1 0| ≤ lam * (cs.Λ * D.W (D.jj 1) ^ 2) := by
       rw [hM10, abs_mul, abs_of_pos hlam]
       exact mul_le_mul_of_nonneg_left t10' hlam.le
     have hterm : |transMat (D.phi (Fz.step N) 0) (D.phi (Fz.step N) 1) D.jj 1 1 0 * D.phi (Fz.step N) 1 2 k|
-        ≤ lam * (cs.Λ * D.W (D.jj 1) ^ 2) * (K * (D.W k)⁻¹ * D.M k) := by
+        ≤ lam * (cs.Λ * D.W (D.jj 1) ^ 2) * (softK C * (D.W k)⁻¹ * D.M k) := by
       rw [abs_mul]
       exact mul_le_mul hbM hb' (abs_nonneg _) (mul_nonneg hlam.le (mul_nonneg (by linarith [cs.Λ_ge]) (sq_nonneg _)))
     rw [abs_of_pos hlam, hW, hM] at h1
@@ -426,29 +511,73 @@ theorem soft_through_edge {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)
     rw [hW, hM, hWj]
     have hE := Eminus_pos (C.aOf p X N) (C.Zof p X N k)
     have hMb : 0 < Mbal (C.aOf p X N) (C.Zof p X N k) := hM ▸ hMk
-    have e1 : lam * (mvC cs.cm cs.CE K cs.Λ 2 * (2 * cs.KD * cs.Kw * (Fz.step N) ^ m * D.theta (Fz.step N))
+    have hBT := soft_engine_le C 3 hstep_pos hθ
+    have hBT' : mvC cs.cm cs.CE (softK C) cs.Λ 3 * (2 * cs.KD * cs.Kw * (Fz.step N) ^ m * D.theta (Fz.step N))
+        ≤ (softC C 1 + softC C 3) * (Fz.step N) ^ m :=
+      le_trans hBT (mul_le_mul_of_nonneg_right hCc3 hpow)
+    have e1' : lam * (mvC cs.cm cs.CE (softK C) cs.Λ 3 * (2 * cs.KD * cs.Kw * (Fz.step N) ^ m * D.theta (Fz.step N))
           * Eminus (C.aOf p X N) (C.Zof p X N k) * Mbal (C.aOf p X N) (C.Zof p X N k))
         ≤ lam * Mbal (C.aOf p X N) (C.Zof p X N k)
-          * (mvC cs.cm cs.CE K cs.Λ 2 * (2 * cs.KD * cs.Kw * C.Csum) * (Fz.step N) ^ m
-              * Eminus (C.aOf p X N) (C.Zof p X N k)) := by
+          * ((softC C 1 + softC C 3) * (Fz.step N) ^ m * Eminus (C.aOf p X N) (C.Zof p X N k)) := by
       calc _ = lam * Mbal (C.aOf p X N) (C.Zof p X N k)
-              * ((mvC cs.cm cs.CE K cs.Λ 2 * (2 * cs.KD * cs.Kw * (Fz.step N) ^ m * D.theta (Fz.step N)))
+              * ((mvC cs.cm cs.CE (softK C) cs.Λ 3 * (2 * cs.KD * cs.Kw * (Fz.step N) ^ m * D.theta (Fz.step N)))
                   * Eminus (C.aOf p X N) (C.Zof p X N k)) := by ring
-        _ ≤ _ := mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hBT hE.le) (by positivity)
-    have e2 : lam * (cs.Λ * Eminus (C.aOf p X N) (C.Zof p X N (C.j1 p X N)) ^ 2)
-          * (K * (Eminus (C.aOf p X N) (C.Zof p X N k))⁻¹ * Mbal (C.aOf p X N) (C.Zof p X N k))
+        _ ≤ _ := mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hBT' hE.le) (by positivity)
+    have e2' : lam * (cs.Λ * Eminus (C.aOf p X N) (C.Zof p X N (C.j1 p X N)) ^ 2)
+          * (softK C * (Eminus (C.aOf p X N) (C.Zof p X N k))⁻¹ * Mbal (C.aOf p X N) (C.Zof p X N k))
         = lam * Mbal (C.aOf p X N) (C.Zof p X N k)
-          * (cs.Λ * K * Eminus (C.aOf p X N) (C.Zof p X N (C.j1 p X N)) ^ 2 / Eminus (C.aOf p X N) (C.Zof p X N k)) := by
+          * (cs.Λ * softK C * Eminus (C.aOf p X N) (C.Zof p X N (C.j1 p X N)) ^ 2 / Eminus (C.aOf p X N) (C.Zof p X N k)) := by
       field_simp
-    calc _ ≤ _ := add_le_add e1 e2.le
+    calc _ ≤ _ := add_le_add e1' e2'.le
       _ = _ := by ring
+  · -- (b''): the engine bound on the rows of patch 3
+    intro k hk
+    obtain ⟨hk1, hk2⟩ := mem_Icc.mp hk
+    rw [hj2D] at hk1
+    have e1 : eqLo D.s0 D.jj 3 = D.jj 2 + 1 := eqLo_succ D.s0 D.jj 2 (by norm_num)
+    have hkw : k ∈ Icc (eqLo D.s0 D.jj 3) (D.jj 3 + 1) := by
+      rw [e1]
+      exact mem_Icc.mpr ⟨hk1, by omega⟩
+    have hp3 : 3 ∈ Icc 1 D.P := mem_Icc.mpr ⟨by norm_num, by omega⟩
+    have h1 := c1 3 hp3 k hkw
+    rw [hP3] at h1
+    have hkW3 : k ∈ Finset.Icc (D.jj 2 + 1) D.NR := mem_Icc.mpr ⟨hk1, hk2⟩
+    have hkM : k ∈ Finset.Icc (D.jj 1 + 1) D.NR := mem_Icc.mpr ⟨by omega, hk2⟩
+    have hW : D.W k = Eswap (C.aOf p X N) (C.Zof p X N k) := C.W3_def p hp X hX N hN k hkW3
+    have hM : D.M k = Mbal (C.aOf p X N) (C.Zof p X N k) := C.M2_def p hp X hX N hN k hkM
+    rw [abs_of_pos hlam, hW, hM] at h1
+    refine le_trans h1 ?_
+    have hE := Eswap_pos (C.aOf p X N) (C.Zof p X N k)
+    have hMb := Mbal_nonneg (C.aOf p X N) (C.Zof p X N k)
+    have hBT := soft_engine_le C 3 hstep_pos hθ
+    have hBT' : mvC cs.cm cs.CE (softK C) cs.Λ 3 * (2 * cs.KD * cs.Kw * (Fz.step N) ^ m * D.theta (Fz.step N))
+        ≤ (softC C 1 + softC C 3) * (Fz.step N) ^ m :=
+      le_trans hBT (mul_le_mul_of_nonneg_right hCc3 hpow)
+    calc lam * (mvC cs.cm cs.CE (softK C) cs.Λ 3 * (2 * cs.KD * cs.Kw * (Fz.step N) ^ m * D.theta (Fz.step N))
+          * Eswap (C.aOf p X N) (C.Zof p X N k) * Mbal (C.aOf p X N) (C.Zof p X N k))
+        = lam * Mbal (C.aOf p X N) (C.Zof p X N k)
+          * ((mvC cs.cm cs.CE (softK C) cs.Λ 3 * (2 * cs.KD * cs.Kw * (Fz.step N) ^ m * D.theta (Fz.step N)))
+              * Eswap (C.aOf p X N) (C.Zof p X N k)) := by ring
+      _ ≤ lam * Mbal (C.aOf p X N) (C.Zof p X N k)
+          * ((softC C 1 + softC C 3) * (Fz.step N) ^ m * Eswap (C.aOf p X N) (C.Zof p X N k)) :=
+        mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hBT' hE.le) (by positivity)
+
+end Step3
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.soft_through_edge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.soft_through_edge
 
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.soft_weber_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.soft_weber_bound
+
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.lamL_eq_kappa_mul_transMat' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.lamL_eq_kappa_mul_transMat
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.pcSwap_eq_pcMinus' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Charts.pcSwap_eq_pcMinus
 
 end FormalResearch.JacobiEigenvectors.TheoremA

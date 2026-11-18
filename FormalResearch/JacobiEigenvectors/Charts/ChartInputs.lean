@@ -14,7 +14,8 @@ the parity-freezing depth `Kidx` (so `2 Kidx = q_m`-ish) and `t0`, it contains, 
 
 * `pc`: `ParabolicCylinderFacts` (Layer 4: DLMF/Olver);
 * `bulkL ν`, `bulkR ν`: the left / right Weber charts at order `m` on the bulk block `[lo ν, hi ν]` (`BulkWeberChart`; `bulkR` is a chart of the mirror family); the blocks cover `[Jlo, Jhi]`;
-* `softUpL`, `softUpR`, `softLoL`, `softLoR`: the soft-edge charts at the upper edge (left and right solution) and, through the gauge `negFamily`, the lower edge;
+* `softUpL`, `softUpR`, `softLoL`, `softLoR`: the soft-edge charts at the upper edge (left and right solution) and, through the gauge `negFamily`, the lower edge (each is a `SoftEdgeChart`: since round 3 a
+  Step-1 Weber chain `chainW` and a **three-patch** march `chain`, valid after the `(lam^{-1}, lam)` rescaling of its first patch; see `Charts/SoftParabolicCylinder.lean`; the `TransferBundle` patch `2` is the PC ladder, shared by patches 2 and 3);
   order `m`, shift index `q` (admissibility `2 ceil(m/2) <= q <= 2 floor(m/2) + 2` is a hypothesis of the statements, not a field: for the pair of orders `m, m+1` of
   Theorem B the *same* `q` is used and is one shift short at even `m + 1`);
 * `cover`: the bulk range and the soft windows cover the band (`J = [X_s^- + delta_0, X_s^+ - delta_0]` and `|X - X_s^pm| <= delta_0`), for all `mu in K`, `|t| <= t0`.

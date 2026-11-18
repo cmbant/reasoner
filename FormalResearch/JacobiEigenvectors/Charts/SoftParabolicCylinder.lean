@@ -6,42 +6,74 @@ public import FormalResearch.JacobiEigenvectors.Charts.LadderChain
 public import FormalResearch.JacobiEigenvectors.Charts.ParabolicCylinder
 public import FormalResearch.JacobiEigenvectors.Charts.Regularity
 public import FormalResearch.JacobiEigenvectors.Charts.BulkWeber
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftRescale
 
 /-!
 # Paper J, charts: the soft-edge (parabolic-cylinder) chart
 
 Source: Paper J `charts.tex`: `lem:cha-PCcoord` (coordinate `zeta`, quantised shifts `mu_{2r}`), `thm:cha-PC` (comparison through coalescence;
 **derived** in Layer 2 from this structure and the engine), `lem:cha-PCenv` (in `ParabolicCylinderFacts`); `thmA.tex` Sections "The comparison
-sequences" (eq:tha-weber-seq, eq:tha-aPC, eq:tha-PCseq), "The soft edges" (eq:tha-YLsoft), `lem:tha-geom` (d), `prop:tha-W2`.
+sequences" (eq:tha-weber-seq, eq:tha-aPC, eq:tha-PCseq), "The soft edges" (eq:tha-YLsoft), `lem:tha-geom` (d), `prop:tha-W2`;
+`app_thmA.tex` "The soft edges: proof of Proposition prop:tha-W2" Steps 1--3.
 
 `SoftEdgeChart F P m q U V` is the hypothesis that the *left* soft-edge chart exists at the upper band edge `X_s^+` for all `mu in P`, all
-`X` with `|X - X_s^+| <= delta_0`, all `N >= N0`: a ladder chain with **two patches** -- patch 1 the turning-point-free Weber ladder
-on `[0, u_c - eta/2]` (coordinate `Y`, eq:tha-YLsoft), patch 2 the parabolic-cylinder ladder `-pair` on `[u_c - 2 eta, u_c + 2 eta]` with parameter
-`a = a^{[q]}_PC` (eq:tha-aPC) and coordinate `Z_n = h^{-1/2} zeta(u_n - u_c; alpha)` -- overlapping at the bond `j_1`, `u_{j_1} <= u_c - eta < u_{j_1+1}`.
-The *right* chart is `SoftEdgeChart (mirrorFamily F)`; the lower edge is `SoftEdgeChart (negFamily F)` (gauge `(-1)^n`, energy `-X`).
+`X` with `|X - X_s^+| <= delta_0`, all `N >= N0`.  It consists of **two** ladder chains (corrected in round 3, findings F-W2-1..3):
+
+* `chainW` (Step 1): the single-patch, turning-point-free Weber chart on `[0, u_c - eta/2]` (coordinate `Y`, eq:tha-YLsoft), with weights `E_Web, M_Web`;
+  its comparison sequence `phi^{(1)}_1` is the `psi-hat^{L,Web}` of `prop:tha-W2`.
+* `chain` (Step 3): the march (Weber patch) -> (PC patch on `Z <= 0`) -> (PC patch on `Z >= 0`), **three patches**, hard-edge seed.  Patch 1 is the Weber patch of `chainW` up to the overlap bond
+  `j_1` (`u_{j_1} <= u_c - eta < u_{j_1+1}`, **forbidden** for both charts); patch 2 carries the `-` pair `(u~(a,-Z), -v~(a,-Z))` with weight `E_-(a,Z) = E_well(a,|Z|)`
+  (`a <= 0`) resp. `E_bar(a,Z)^{-1}` (`a > 0`); patch 3 the *swapped* pair `(v~, -u~)` (dominant member first) with weight `E_well(a,Z)^{-1}` resp. `E_bar^{-1}`, the switch at the bond `j_2`
+  with `Z_{j_2} <= 0 < Z_{j_2+1}` (the transfer matrix there is `(M_-(a) S)^{-1}`, bounded: `pcSwap_eq_pcMinus`).  For `a > 0` the paper uses one PC pair; here patch 3 carries the **same** pair
+  and weight as patch 2 (so `M_2 = 1`), which makes the chain uniform (`P = 3` for every `a`).  Patches 2 and 3 share the ladder and the corrector rows (`shared_PC`), as in the paper (one chart `A^{[m]}, B^{[m]}`).
+
+`zeta` is the coordinate `Z_n = h^{-1/2} zeta(u_n - u_c; alpha)`, `a = a^{[q]}_PC` (eq:tha-aPC).  The *right* chart is `SoftEdgeChart (mirrorFamily F)`; the lower edge is `SoftEdgeChart (negFamily F)` (gauge `(-1)^n`, energy `-X`).
 
 ## Fields, with statement and discharging result
 
-* `valid`: engine hypotheses for the two-patch chain: (SM1)--(SM3) for the Weber ladder (`lem:cha-weber-ladder`) and for the PC ladder (`SM` for the ODE translation
-  `T_pm`, `thm:cha-PC` proof); defect bounds `eq:eng-UC1` of both patches (`thm:eng-corr` with the quantised shifts solving the solvability condition:
-  **the corrector/defect output**, later Layer-1 module); `env` (`lem:cha-weber-env`, `lem:cha-PCenv`); `W_mono` and `transfer` (S3) (the forbidden-overlap argument after `thm:eng-volterra`).
-* `zeta_*`, `muS_*`, `mu0_*`: `lem:cha-PCcoord` (the real two-turn Moser coordinate `zeta` and the shifts `mu_{2r}` of the quantisation condition; `thm:smo-MPS`, `thm:smo-TPC`, `thm:smo-WT2`); Layer 4.
-* `Y_*`, `matchF_soft`: the turning-point-free Weber coordinate `Y_L` (`prop:cha-halfrow`(b)), defined by eq:tha-YLsoft.
-* `W1_def`, `W2_def`, `M1_def`, `M2_def`: the global weights of the chain are the Weber weights (patch 1, rescaled by `lambda^{-1}`) and the PC recessive weights
-  (patch 2) -- the rescaling convention of `thm:eng-volterra` (remark after (S3)); `lam` is derived, not a field.
-* `wf1_eq`, `wf2_eq`: the model pairs are the Weber / PC functions of `ParabolicCylinderFacts`.
+* `valid` (**corrected, F-W2-1**): the engine hypotheses for the three-patch chain **with its first pair rescaled by `(lam^{-1}, lam)`**, `lam = softLamVal` (`LadderData.rescale1`, `SoftRescale.lean`):
+  (SM1)--(SM3) for the Weber ladder (`lem:cha-weber-ladder`) and the PC ladder (`T_pm`, `thm:cha-PC` proof), defect bounds `eq:eng-UC1` (`thm:eng-corr`; Layer-1 output),
+  `env` (`lem:cha-weber-env`, `lem:cha-PCenv`), `W_mono` and `transfer` (S3: the forbidden-overlap argument after `thm:eng-volterra` at `j_1`, the bounded overlap `(M_- S)^{-1}` at `j_2`; kept a field, see F-W2-7).
+* `validW` etc.: the same for `chainW` (`P = 1`, no (S3)); `patch1_eq`: the first patch of `chain` is that of `chainW` (same ladder, pair and corrector rows).
+* `zeta_*`, `muS_*`, `mu0_*`: `lem:cha-PCcoord` (the real two-turn Moser coordinate `zeta` and the shifts `mu_{2r}`; `thm:smo-MPS`, `thm:smo-TPC`, `thm:smo-WT2`); Layer 4.
+* `Y_*`, `matchF_soft`: the turning-point-free Weber coordinate `Y_L` (`prop:cha-halfrow`(b)), eq:tha-YLsoft.
+* `wfW_eq`, `wf2_eq`, `wf3_eq`: the model pairs are the Weber / PC functions of `ParabolicCylinderFacts` (both members of each pair).
+* `W1_def`, `W2_def`, `W3_def`, `M1_def`, `M2_def`: the global weights of `chain` are `E_Web/lam`, `E_-`, `E_swap = E_well(a,.)^{-1}` and `M_Web`, `M_bal`; `lam = E_Web(j_1)/E_-(j_1)` is *derived* (`softLamVal`), not a field.
+  `W_defW`, `M_defW`: `E_Web`, `M_Web` for `chainW`.
+
+## Round 3 (first proof attempt of `PropThaW2` (1), `TheoremA/SoftProof.lean`): verdicts on the findings F-W2-1..7 (each checked against `app_thmA` Steps 1--3, `charts.tex` `thm:cha-PC`, `engine.tex` after `thm:eng-volterra`)
+
+* **F-W2-1 confirmed, fixed.**  The frozen `valid` asked `Valid` for the unrescaled chain whose patch-1 weight is `E_Web/lam`; `Valid.env` then forces `lam ~ 1`, but the paper (Step 3, (W2)) says `lam` "may be exponentially large or
+  small" and rescales the Weber pair by `(lam^{-1}, lam)`.  `valid` is now about `(chain).rescale1 lam`; `wfW_eq`, `lamL`, `psiHatL`, `PropThaW2` still refer to the unrescaled pair.
+* **F-W2-2 confirmed (paper: Step 2), fixed.**  For `a <= 0` the pair `(u_-, v_-)` is recessive-first only for `Z <= 0`; the weight `E_well(a,|Z|)` is not non-decreasing for `Z > 0`, so `env`/`W_mono` fail for a genuine chart with two patches.
+  The paper uses three patches for `a <= 0` and the swapped pair with `E_well^{-1}` for `Z >= 0`.  Fixed uniformly: `P = 3` always (for `a > 0` patch 3 = patch 2), the new weight `Eswap`, the new pair `pcSwap`,
+  the bond `j_2`, and `W2_def/W3_def/wf2_eq/wf3_eq` split accordingly.  `pcSwap_eq_pcMinus` proves `(v~, -u~) = (u_-, v_-) M_-(a) S` from `ParabolicCylinderFacts.reflect, reflect_V`.
+* **F-W2-3 confirmed (paper: Step 1 is a separate chart, `cor:cha-I-general`), fixed.**  `chainW` (`P = 1`) with the Weber `Valid` and the weights `E_Web, M_Web`; `psiHatL` takes its Weber part from `chainW` on all of `u <= u_c - eta/2`
+  (the chain `chain` has the Weber patch only up to `j_1`).  `patch1_eq` makes the two Weber patches one.
+* **F-W2-4, F-W2-5 confirmed** (paper: "Fix `m >= 1`", `Lm = 1` or `log(1/h)`): `PropThaW2` now assumes `1 <= m` and `forall h in (0,1], 1 <= Lm h` (`TheoremA/Statements.lean`).
+* **F-W2-6 refined.**  (i) the absorption `Lambda h^{-m} (E_{j_1}/E_n)^2 <= e^{-c/h}` follows from the chart fields (`zeta_deriv`, `zeta_far`, `muS_bd`) and the definition of `Ewell`: **not** added;
+  (ii) `eq:cha-MolvEquiv` (two-sided `M_Olv ~ kappa^{-1} W_well M_bal`, lower bound inside the well) and (iii) the growth of the dominant member (`r_2 < 1`) are classical (Olver, Riccati) and were added to
+  `ParabolicCylinderFacts` (`molv_well`, `molv_bar`, `V_growth`, plus `reflect_V` for `M_-(a)`), numerically checked (see there).
+* **F-W2-7 refined, kept a field.**  (S3) is the field `Valid.transfer` of `LadderData.Valid` (`Charts/LadderChain.lean`, outside this round's files).  Deriving it is `Engine.transfer_of_forbidden_overlap` at `j_1` (rescaled pair) and the bounded
+  overlap at `j_2`; the chart-level inputs are: `bondA` bound and `bondA > 0`, `k_2 >= c/h` at `j_1, j_1+1` (from `Y_forb`, resp. `zeta_far, muS_bd`), the one-step ratio of `Ewell`/`Ebar` and of `E_Web`, and `win (2)--(3)` at `j_2`.
+  None is a field of any structure; so (S3) stays inside `valid` until `Valid` is split (proposal: `Valid` without `transfer` plus a lemma from these inputs).
+* **New, F-W2-8 (item (4), `rho_one`/`theta_le`).**  For odd `m` and `q = m - 1` (one shift short) the paper has `Theta <= C log(1/h)` with defect weights `rho_k` not identically `1`; the structure fixes `rho = rho~ = 1` and
+  `Theta <= Csum`, so a chart in the sense of this structure exists for `q = m - 1` only if the defect bound holds with `rho = 1`, i.e. `PropThaW2` item (4) is, as frozen, vacuous or implied by the full-order statement.  Not changed here (would require a chart-level
+  `Lm` and `theta_le : Theta <= Csum Lm`); reported.
+* **New, F-W2-9 (endpoint).**  `prop:tha-W2` (1) displays the PC range as `u_c - eta/2 <= u_n`, `psi-hat^L` is Weber for `u_n <= u_c - eta/2` (item (2)); the two ranges overlap at one row.  `PropThaW2` now has the strict `u_c - eta/2 < u_n` in the PC bound.
+* **New, F-W2-10 (wf 1 1).**  The second member of the Weber pair was not pinned in the soft chart (only `wf 1 0`); `wfW_eq` pins both (as `BulkWeberChart.wf_eq`).
 
 ## Satisfiability
 
-As for `BulkWeberChart`: no toy instance (the fields mention the actual parabolic-cylinder functions); the engine hypotheses are non-vacuous (`JE.volterra_multi_instance`).
+As for `BulkWeberChart`: no toy instance (the fields mention the actual parabolic-cylinder functions); the engine hypotheses are non-vacuous (`JE.volterra_multi_instance`); rescaling preserves (SM1)--(SM3) and the Casoratians (`SoftRescale.lean`),
+and the new `shared_PC`, `patch1_eq` are the paper's identifications (one corrector row for one chart).  `lam` may be any positive number: `W_mono` and `env` for the rescaled chain are the paper's.
 
 ## Round 2 audit: `SoftEdgeChart` (verdict: fixed, four fields added)
 
 * **(a) fields vs. the paper.**  `zeta_deriv, zeta_zero, zeta_alpha, mu0_*` are lem:cha-PCcoord (1) with `x = u - u_c`; `mu0_S0` is eq:cha-mu0 (`pi mu_0 = ` the well action `S_0 = int_0^L Re arccos`;
   the `Real.arccos` clamp reproduces `pi |{Q_0 < -2 sqrt E_0}|`, and `geom_far` shows that near `X_s^+` the clamp is `0` outside the well); `Y_forb, matchF_soft` are eq:tha-YLsoft (`arccoshR` is applied
-  to arguments `>= 1`, guaranteed by `geom_far`); `wf1_eq` and `wf2_eq` are eq:cha-weberPC and the `-` pair of eq:tha-PCseq (`pcMinus`: `(u~(a,-Z), -v~(a,-Z))` for `a <= 0`,
-  `(w~_+, -u~_+)` for `a > 0`, so that `phi^{(1)}_2 / kappa_bal = A U(a,-Z) + h B h^{1/2} (U(a,-.))'` is `psi-hat^{PC,-}`); `W1_def ... M2_def` are `W = E_Web/lambda`, `E_-(a,Z)` and
-  `M_Web`, `M_bal` with `lambda = E_Web(j_1)/E_-(j_1)`; `shape`, `dd_one`, `omega_sqrt` the two-patch lattice (Weber hard edge `D = sqrt s`, interior PC patch `D = 1`).
+  to arguments `>= 1`, guaranteed by `geom_far`); `pcMinus`: `(u~(a,-Z), -v~(a,-Z))` for `a <= 0`,
+  `(w~_+, -u~_+)` for `a > 0`, so that `phi^{(1)}_2 / kappa_bal = A U(a,-Z) + h B h^{1/2} (U(a,-.))'` is `psi-hat^{PC,-}`.
 * **FIX (b) `geom_far`, `ucη_in`.**  `delta_0, eta` are chart *data*; lem:tha-geom (d) holds only for a pair with `delta_0` small against `eta` (the paper: "`eta` first, then `delta_0 < nu/2`").
   Nothing in the freeze forced that, so `PropThaW2`, `PropThaMflat`, `PropThaCollar` (which use `T < 0, Q_0 > 0` outside the collar for the growth bound (S4grow) and the forbidden margin)
   would have been *false* for charts with a large `delta_0`: a hypothesis that is too weak, not a conclusion smuggled in.  Now `geom_far` records that pair, and `ucη_in` that the collar `[u_c - 2 eta, u_c + 2 eta]` lies in `(0, L)`.
@@ -50,12 +82,13 @@ As for `BulkWeberChart`: no toy instance (the fields mention the actual paraboli
   were not in the freeze.  Consistency of the new fields with the old ones: at `alpha = 0`, `zeta' >= d_-` gives `zeta(x)^2 >= d_-^2 eta^2/16`, so `cz1 <= d_-^2 eta^2 / 16` is needed; for `|alpha| <= delta_0` small it persists by `zeta_alpha`.
 * **(b) vacuity check.**  No field mentions an eigenvalue/eigenvector; fields are pairwise consistent for the genuine chart (e.g. the soft edge of the exactly solvable spin family `G_h = 1, B_h = 0`, `L = 1`, fold `u_c = 1/2`).
   `mu0_deriv` asks `ContDiff 1` on all of `R` for `muS 0 mu` (the paper has it on `[-alpha_0, alpha_0]`; any `C^1` extension serves).
-* **(c) redundancy.**  `uc_spec` partly overlaps `ucη_in`/`geom_far` (the fold is the unique maximiser of `f_+`); `omega_sqrt` for patch 2 and `dd_one` are independent.  `zeta_zero` follows from `zeta_alpha` at `alpha = 0`.
+* **(c) redundancy.**  `uc_spec` partly overlaps `ucη_in`/`geom_far` (the fold is the unique maximiser of `f_+`); `zeta_zero` follows from `zeta_alpha` at `alpha = 0`.
 
 ## Honest differences
 
-* `thm:cha-PC` in the paper states one comparison with the two-pair weights; here the same content is the two-patch chain.  The conclusion in terms of
+* `thm:cha-PC` in the paper states one comparison with the two-pair weights; here the same content is the three-patch chain.  The conclusion in terms of
   `lambda_L`, `M_Olv` (prop:tha-W2 (1)) is the *Layer-2* statement `TheoremA.PropThaW2`, derived from `LadderData.Stability`.
+* for `a > 0` the chain has a dummy third patch (same pair and weight as patch 2); the engine bound for it is the paper's two-patch bound with `P = 3` in the constant `mvC`.
 * the lower edge is obtained by `negFamily`; no separate structure.
 -/
 
@@ -73,12 +106,26 @@ def pcMinus (U V : ℝ → ℝ → ℝ) (a : ℝ) : Fin 2 → ℝ → ℝ
   | 0 => fun z => if a ≤ 0 then ut U a (-z) else kappaBal a * U a (-z)
   | 1 => fun z => if a ≤ 0 then -vt V a (-z) else -(kappaBal a * U a z)
 
-/-- The recessive weight of the `-` pair: `E_well(a,|Z|)` (`a <= 0`) or `E_bar(a,Z)^{-1}` (`a > 0`). -/
+/-- The swapped pair of patch 3 (`Z >= 0`, dominant member first): `a <= 0`: `(v~(a,Z), -u~(a,Z))` (app_thmA Step 2);
+`a > 0`: the same pair as `pcMinus` (`(w~_+, -u~_+)` serves on the whole chart). -/
+def pcSwap (U V : ℝ → ℝ → ℝ) (a : ℝ) : Fin 2 → ℝ → ℝ
+  | 0 => fun z => if a ≤ 0 then vt V a z else kappaBal a * U a (-z)
+  | 1 => fun z => if a ≤ 0 then -ut U a z else -(kappaBal a * U a z)
+
+/-- The recessive weight of the `-` pair (patch 2): `E_well(a,|Z|)` (`a <= 0`) or `E_bar(a,Z)^{-1}` (`a > 0`). -/
 def Eminus (a z : ℝ) : ℝ := if a ≤ 0 then Ewell a |z| else (Ebar a z)⁻¹
+
+/-- The weight of the swapped pair (patch 3): `E_well(a,Z)^{-1}` (`a <= 0`, `Z >= 0`) or `E_bar(a,Z)^{-1}` (`a > 0`, so `Eswap = Eminus` there). -/
+def Eswap (a z : ℝ) : ℝ := if a ≤ 0 then (Ewell a |z|)⁻¹ else (Ebar a z)⁻¹
 
 /-- The soft-edge PC parameter `a^{[q]}_PC = -(1/h)(mu_0(alpha) + sum_{r=1}^{q/2} h^{2r} mu_{2r}(alpha))` (eq:tha-aPC), `muS r` = `mu_{2r}`. -/
 def aPC (muS : ℕ → ℝ → ℝ) (q : ℕ) (h α : ℝ) : ℝ :=
   -(1 / h) * (muS 0 α + ∑ r ∈ Icc 1 (q / 2), h ^ (2 * r) * muS r α)
+
+/-- `lambda = E_Web(j_1)/E_-(j_1)` (app_thmA Step 3 (W2)): the ratio of the Weber barrier weight to that of the PC pair entering from `Z < 0`, at the overlap bond `j_1`
+(`step` the step `h`, `Yj, zj` the coordinates `Y(u_{j_1}), zeta(u_{j_1} - u_c)`, `a` the PC parameter). -/
+def softLamVal (step : ℝ) (j1 : ℤ) (Yj a zj : ℝ) : ℝ :=
+  Ewell (-((j1 : ℝ) + 1 / 2)) |Yj / Real.sqrt step| / Eminus a (zj / Real.sqrt step)
 
 /-- **The left soft-edge chart at the upper edge, order `m`, shift index `q`** (see the module docstring). -/
 structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (P : Set Par) (m q : ℕ)
@@ -106,6 +153,9 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   muS : ℕ → Par → ℝ → ℝ
   /-- the turning-point-free Weber coordinate `Y_L(u; X)` (eq:tha-YLsoft) on `[0, u_c - eta/2]`. -/
   Y : Par → ℝ → ℝ → ℝ
+  /-- **(round 3, F-W2-3)** the Step-1 chain: one Weber patch on `[0, u_c - eta/2]`. -/
+  chainW : Par → ℝ → ℕ → LadderData
+  /-- the three-patch march of Step 3 (Weber, PC on `Z <= 0`, PC on `Z >= 0`). -/
   chain : Par → ℝ → ℕ → LadderData
   uc_spec : ∀ μ ∈ P, 0 < uc μ ∧ uc μ < F.L ∧ fPlus F.L (F.G 0 μ) (F.B 0 μ) (uc μ) = F.bandHi μ
   /-- **(round 2 audit, added; lem:tha-geom (d))** the collar `[u_c - 2 eta, u_c + 2 eta]` lies in `(0, L)`. -/
@@ -141,28 +191,73 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   matchF_soft : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ u ∈ Set.Icc 0 (uc μ - η / 2),
     (∫ v in u..(Y μ X u ^ 2 / 4), arccoshR (Y μ X u / (2 * Real.sqrt v)))
       = Fstar + ∫ v in u..(uc μ - η / 2), arccoshR ((X - F.B 0 μ v) / (2 * Real.sqrt (E0 F.L (F.G 0 μ) v)))
-  /-- the shape of the two-patch chain: hard-edge seed, overlap bond `j_1` with `u_{j_1} <= u_c - eta < u_{j_1+1}`, last row `N_R` with `u_{N_R} <= u_c + 2 eta < u_{N_R+1}`. -/
+  -- Step 1: the Weber chart `chainW` on `[0, u_c - eta/2]` (single patch, hard-edge seed)
+  /-- shape of `chainW`: one patch, hard-edge seed, last row `N_W` with `u_{N_W} <= u_c - eta/2 < u_{N_W+1}`. -/
+  shapeW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    (chainW μ X N).P = 1 ∧ (chainW μ X N).s0 = 0 ∧ 0 ≤ (chainW μ X N).NR ∧
+      uNode (F.step N) (chainW μ X N).NR ≤ uc μ - η / 2 ∧ uc μ - η / 2 < uNode (F.step N) ((chainW μ X N).NR + 1)
+  /-- the engine hypotheses of the Weber chart (`eq:eng-UC1`, (SM1)--(SM3), envelopes; no transfer for `P = 1`). -/
+  validW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → (chainW μ X N).Valid cs (F.step N) m
+  A_bondW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (-1 : ℤ) (chainW μ X N).NR,
+    (chainW μ X N).A k = F.bondA μ N k
+  Q_diagW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chainW μ X N).NR,
+    (chainW μ X N).Q k = F.diagQ μ N X k
+  /-- Weber ladder: `D = sqrt s`, `omega_mod = h^{1/2}`. -/
+  dd_sqrtW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ s h', (chainW μ X N).dd 1 s h' = Real.sqrt s
+  omega_sqrtW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → (chainW μ X N).ω 1 (F.step N) = Real.sqrt (F.step N)
+  /-- the model pair of `chainW`: both Weber functions at `Z = h^{-1/2} Y(u_k)`, `a = -(k+1/2)` (cha-weberPC). -/
+  wfW_eq : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) ((chainW μ X N).NR + 1),
+    (chainW μ X N).wf 1 0 (uNode (F.step N) k) (F.step N) =
+      ![ut U (-((k : ℝ) + 1 / 2)) (Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)),
+        Real.sqrt (F.step N) * (kappaBal (-((k : ℝ) + 1 / 2)) * deriv (U (-((k : ℝ) + 1 / 2)))
+          (Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)))] ∧
+    (chainW μ X N).wf 1 1 (uNode (F.step N) k) (F.step N) =
+      ![vt V (-((k : ℝ) + 1 / 2)) (Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)),
+        Real.sqrt (F.step N) * (Real.sqrt (Real.pi / 2) * (kappaBal (-((k : ℝ) + 1 / 2)))⁻¹
+          * deriv (V (-((k : ℝ) + 1 / 2))) (Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)))]
+  rho_oneW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chainW μ X N).NR,
+    (chainW μ X N).ρ k = 1 ∧ (chainW μ X N).ρt k = 1
+  theta_leW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → (chainW μ X N).theta (F.step N) ≤ Csum
+  /-- the weights of `chainW`: `W_k = E_Web = E_well(-(k+1/2), |Z_k|)`, `M_k = M_Web = M_bal(-(k+1/2), Z_k)` (lem:cha-weber-env). -/
+  W_defW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chainW μ X N).NR,
+    (chainW μ X N).W k = Ewell (-((k : ℝ) + 1 / 2)) |Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)|
+  M_defW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chainW μ X N).NR,
+    (chainW μ X N).M k = Mbal (-((k : ℝ) + 1 / 2)) (Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N))
+  /-- `psi-hat_0 > 0` (Weber seed). -/
+  seed_posW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → 0 < (chainW μ X N).phi (F.step N) 0 1 0
+  /-- **the first patch of the soft chain is the Weber patch of `chainW`** (the same corrected Weber pair, one corrector row `A^{[m]}, B^{[m]}`; the model pair, ladder and `omega` are fixed by `wfW_eq`,
+  `dd_sqrtW`, `omega_sqrtW`). -/
+  patch1_eq : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    (chain μ X N).dd 1 = (chainW μ X N).dd 1 ∧ (chain μ X N).pp 1 = (chainW μ X N).pp 1 ∧ (chain μ X N).qq 1 = (chainW μ X N).qq 1 ∧
+    (chain μ X N).PiP 1 = (chainW μ X N).PiP 1 ∧ (chain μ X N).PiM 1 = (chainW μ X N).PiM 1 ∧ (chain μ X N).ω 1 = (chainW μ X N).ω 1 ∧
+    (chain μ X N).wf 1 = (chainW μ X N).wf 1 ∧ (chain μ X N).AA 1 = (chainW μ X N).AA 1 ∧ (chain μ X N).BB 1 = (chainW μ X N).BB 1
+  -- Step 3: the three-patch chain
+  /-- the shape of the chain: hard-edge seed, three patches, overlap bond `j_1` with `u_{j_1} <= u_c - eta < u_{j_1+1}` (forbidden for both charts), the switch bond `j_2` with
+  `Z_{j_2} <= 0 < Z_{j_2+1}`, last row `N_R` with `u_{N_R} <= u_c + 2 eta < u_{N_R+1}`. -/
   shape : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
-    (chain μ X N).P = 2 ∧ (chain μ X N).s0 = 0 ∧
+    (chain μ X N).P = 3 ∧ (chain μ X N).s0 = 0 ∧
       uNode (F.step N) ((chain μ X N).jj 1) ≤ uc μ - η ∧ uc μ - η < uNode (F.step N) ((chain μ X N).jj 1 + 1) ∧
+      zeta μ (F.bandHi μ - X) (uNode (F.step N) ((chain μ X N).jj 2) - uc μ) / Real.sqrt (F.step N) ≤ 0 ∧
+      0 < zeta μ (F.bandHi μ - X) (uNode (F.step N) ((chain μ X N).jj 2 + 1) - uc μ) / Real.sqrt (F.step N) ∧
       uNode (F.step N) (chain μ X N).NR ≤ uc μ + 2 * η ∧ uc μ + 2 * η < uNode (F.step N) ((chain μ X N).NR + 1)
-  valid : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → (chain μ X N).Valid cs (F.step N) m
+  /-- **(round 3, F-W2-1)** the engine hypotheses for the chain with its first pair rescaled by `(lam^{-1}, lam)`, `lam = E_Web(j_1)/E_-(j_1)` (`softLamVal`): the rescaling of
+  `engine.tex` after `thm:eng-volterra`; `lam` may be exponentially large or small. -/
+  valid : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    ((chain μ X N).rescale1 (softLamVal (F.step N) ((chain μ X N).jj 1) (Y μ X (uNode (F.step N) ((chain μ X N).jj 1)))
+      (aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X))
+      (zeta μ (F.bandHi μ - X) (uNode (F.step N) ((chain μ X N).jj 1) - uc μ)))).Valid cs (F.step N) m
   A_bond : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (-1 : ℤ) (chain μ X N).NR,
     (chain μ X N).A k = F.bondA μ N k
   Q_diag : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
     (chain μ X N).Q k = F.diagQ μ N X k
-  /-- patch 1: `D = sqrt s` (hard edge); patch 2: `D = 1` (interior lattice); `omega_mod = h^{1/2}` for both. -/
-  dd_one : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
-    (∀ s h', (chain μ X N).dd 1 s h' = Real.sqrt s) ∧ (∀ s h', (chain μ X N).dd 2 s h' = 1)
-  omega_sqrt : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ p ∈ Finset.Icc 1 2,
-    (chain μ X N).ω p (F.step N) = Real.sqrt (F.step N)
-  /-- patch 1 model pair: Weber functions at `Z = h^{-1/2} Y(u_k)`, `a = -(k+1/2)`. -/
-  wf1_eq : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) ((chain μ X N).jj 1 + 1),
-    (chain μ X N).wf 1 0 (uNode (F.step N) k) (F.step N) =
-      ![ut U (-((k : ℝ) + 1 / 2)) (Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)),
-        Real.sqrt (F.step N) * (kappaBal (-((k : ℝ) + 1 / 2)) * deriv (U (-((k : ℝ) + 1 / 2)))
-          (Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)))]
-  /-- patch 2 model pair: the `-` pair of `U, V` at `a = a^{[q]}_PC`, `Z = h^{-1/2} zeta(u_k - u_c; alpha)`, `alpha = X_s^+ - X`. -/
+  /-- the PC patches: `D = 1` (interior lattice), `omega_mod = h^{1/2}`; patches 2 and 3 are **one ladder with one corrector row** (the pair changes at `Z = 0`, nothing else). -/
+  shared_PC : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    (∀ s h', (chain μ X N).dd 2 s h' = 1) ∧ (chain μ X N).ω 2 (F.step N) = Real.sqrt (F.step N) ∧
+    (chain μ X N).dd 3 = (chain μ X N).dd 2 ∧ (chain μ X N).pp 3 = (chain μ X N).pp 2 ∧ (chain μ X N).qq 3 = (chain μ X N).qq 2 ∧
+    (chain μ X N).PiP 3 = (chain μ X N).PiP 2 ∧ (chain μ X N).PiM 3 = (chain μ X N).PiM 2 ∧ (chain μ X N).ω 3 = (chain μ X N).ω 2 ∧
+    (chain μ X N).AA 3 = (chain μ X N).AA 2 ∧ (chain μ X N).BB 3 = (chain μ X N).BB 2
+  /-- patch 2 model pair: the `-` pair of `U, V` at `a = a^{[q]}_PC`, `Z = h^{-1/2} zeta(u_k - u_c; alpha)`, `alpha = X_s^+ - X`, on all rows `j_1 .. N_R + 1` (the comparison sequence
+  `psi-hat^{PC,-}` lives on the whole collar). -/
   wf2_eq : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
     ∀ k ∈ Finset.Icc ((chain μ X N).jj 1) ((chain μ X N).NR + 1), ∀ α : Fin 2,
     (chain μ X N).wf 2 α (uNode (F.step N) k) (F.step N) =
@@ -170,19 +265,31 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
           (zeta μ (F.bandHi μ - X) (uNode (F.step N) k - uc μ) / Real.sqrt (F.step N)),
         Real.sqrt (F.step N) * deriv (pcMinus U V (aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X)) α)
           (zeta μ (F.bandHi μ - X) (uNode (F.step N) k - uc μ) / Real.sqrt (F.step N))]
-  /-- the global weights: `W = E_Web / lambda`, `M = M_Web` on patch 1; `W = E_minus(a, Z)`, `M = M_bal(a,Z)` on patch 2
-  (`lambda = E_Web(j_1)/E_minus(j_1)`, so the weight is continuous at the overlap). -/
+  /-- patch 3 model pair: the swapped pair `pcSwap` (`(v~, -u~)` for `a <= 0`) on the rows `j_2 .. N_R + 1`. -/
+  wf3_eq : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    ∀ k ∈ Finset.Icc ((chain μ X N).jj 2) ((chain μ X N).NR + 1), ∀ α : Fin 2,
+    (chain μ X N).wf 3 α (uNode (F.step N) k) (F.step N) =
+      ![pcSwap U V (aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X)) α
+          (zeta μ (F.bandHi μ - X) (uNode (F.step N) k - uc μ) / Real.sqrt (F.step N)),
+        Real.sqrt (F.step N) * deriv (pcSwap U V (aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X)) α)
+          (zeta μ (F.bandHi μ - X) (uNode (F.step N) k - uc μ) / Real.sqrt (F.step N))]
+  /-- the global weights: patch 1: `W = E_Web / lambda`, `M = M_Web` (`lambda = E_Web(j_1)/E_minus(j_1)`, so the weight is continuous at the overlap);
+  patch 2: `W = E_minus(a, Z)`; patch 3: `W = E_swap(a, Z)`; patches 2, 3: `M = M_bal(a,Z)`. -/
   W1_def : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) ((chain μ X N).jj 1),
     (chain μ X N).W k =
       Ewell (-((k : ℝ) + 1 / 2)) |Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)|
-        / (Ewell (-(((chain μ X N).jj 1 : ℝ) + 1 / 2)) |Y μ X (uNode (F.step N) ((chain μ X N).jj 1)) / Real.sqrt (F.step N)|
-          / Eminus (aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X))
-              (zeta μ (F.bandHi μ - X) (uNode (F.step N) ((chain μ X N).jj 1) - uc μ) / Real.sqrt (F.step N)))
+        / softLamVal (F.step N) ((chain μ X N).jj 1) (Y μ X (uNode (F.step N) ((chain μ X N).jj 1)))
+            (aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X))
+            (zeta μ (F.bandHi μ - X) (uNode (F.step N) ((chain μ X N).jj 1) - uc μ))
   M1_def : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) ((chain μ X N).jj 1),
     (chain μ X N).M k = Mbal (-((k : ℝ) + 1 / 2)) (Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N))
   W2_def : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
-    ∀ k ∈ Finset.Icc ((chain μ X N).jj 1 + 1) (chain μ X N).NR,
+    ∀ k ∈ Finset.Icc ((chain μ X N).jj 1 + 1) ((chain μ X N).jj 2),
     (chain μ X N).W k = Eminus (aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X))
+      (zeta μ (F.bandHi μ - X) (uNode (F.step N) k - uc μ) / Real.sqrt (F.step N))
+  W3_def : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    ∀ k ∈ Finset.Icc ((chain μ X N).jj 2 + 1) (chain μ X N).NR,
+    (chain μ X N).W k = Eswap (aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X))
       (zeta μ (F.bandHi μ - X) (uNode (F.step N) k - uc μ) / Real.sqrt (F.step N))
   M2_def : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
     ∀ k ∈ Finset.Icc ((chain μ X N).jj 1 + 1) (chain μ X N).NR,
@@ -193,14 +300,11 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   /-- `rho = rho~ = 1`. -/
   rho_one : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
     (chain μ X N).ρ k = 1 ∧ (chain μ X N).ρt k = 1
-  /-- `psi-hat_0 > 0` (Weber seed). -/
-  seed_pos : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → 0 < (chain μ X N).phi (F.step N) 0 1 0
 
 namespace SoftEdgeChart
 
 variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
   (C : SoftEdgeChart F P m q U V)
-
 
 /-- The PC parameter `a_k = a^{[q]}_PC` at `(mu, X, N)`. -/
 def aOf (μ : Par) (X : ℝ) (N : ℕ) : ℝ := aPC (fun r α' => C.muS r μ α') q (F.step N) (F.bandHi μ - X)
@@ -209,8 +313,11 @@ def aOf (μ : Par) (X : ℝ) (N : ℕ) : ℝ := aPC (fun r α' => C.muS r μ α'
 def Zof (μ : Par) (X : ℝ) (N : ℕ) (n : ℤ) : ℝ :=
   C.zeta μ (F.bandHi μ - X) (uNode (F.step N) n - C.uc μ) / Real.sqrt (F.step N)
 
-/-- The overlap bond `j_1`. -/
+/-- The overlap bond `j_1` (Weber -> PC). -/
 def j1 (μ : Par) (X : ℝ) (N : ℕ) : ℤ := (C.chain μ X N).jj 1
+
+/-- The switch bond `j_2` (`Z_{j_2} <= 0 < Z_{j_2+1}`). -/
+def j2 (μ : Par) (X : ℝ) (N : ℕ) : ℤ := (C.chain μ X N).jj 2
 
 /-- `lambda_L := W_{j_1}(psi-hat^{L,Web}, psi-hat^{(2)}) / W_{j_1}(psi-hat^{PC,-}, psi-hat^{(2)})` (prop:tha-W2 (1)); `psi-hat^{PC,-} = phi^{(1)}_2 / kappa_bal`
 and `psi-hat^{(2)} = phi^{(2)}_2` is the second-branch sequence.  (`cas` is the paper's Casoratian `W` with the same sign.) -/
@@ -219,12 +326,57 @@ def lamL (μ : Par) (X : ℝ) (N : ℕ) : ℝ :=
     cas (C.chain μ X N).A (fun n => (C.chain μ X N).phi (F.step N) 0 2 n / kappaBal (C.aOf μ X N))
       ((C.chain μ X N).phi (F.step N) 1 2) (C.j1 μ X N)
 
-/-- The left sequence through the soft edge (the vector `psi-hat^L` of prop:tha-W2 (2)): Weber on `u_n <= u_c - eta/2`,
+/-- The left sequence through the soft edge (the vector `psi-hat^L` of prop:tha-W2 (2)): the Weber comparison sequence of `chainW` on `u_n <= u_c - eta/2`,
 `lambda_L psi-hat^{PC,-}` on the collar. -/
 def psiHatL (μ : Par) (X : ℝ) (N : ℕ) (n : ℤ) : ℝ :=
-  if uNode (F.step N) n ≤ C.uc μ - C.η / 2 then (C.chain μ X N).phi (F.step N) 0 1 n
+  if uNode (F.step N) n ≤ C.uc μ - C.η / 2 then (C.chainW μ X N).phi (F.step N) 0 1 n
   else C.lamL μ X N * ((C.chain μ X N).phi (F.step N) 0 2 n / kappaBal (C.aOf μ X N))
 
 end SoftEdgeChart
+
+/-! ### The connection matrix `M_-(a)` at the switch `Z = 0` -/
+
+/-- the algebra of `pcSwap_eq_pcMinus` over `R` (`k = kappa_bal`, `G = Gamma(1/2 - a)`, `s, c` the sine and cosine of `pi a`, `r q = 1`). -/
+lemma swap_alg (k G s c U V r q : ℝ) (hG : 0 < G) (hkkG : k * k * G = 1) (hs : s ^ 2 + c ^ 2 = 1) (hrq : r * q = 1) :
+    r * k⁻¹ * V = r * c * (k * (-s * U + c * G * V)) - s * -(r * k⁻¹ * (c / G * U + s * V)) ∧
+    -(k * U) = s * (k * (-s * U + c * G * V)) + q * c * -(r * k⁻¹ * (c / G * U + s * V)) := by
+  have hk0 : k * k ≠ 0 := by
+    intro h0
+    rw [h0, zero_mul] at hkkG
+    exact zero_ne_one hkkG
+  have hk : k ≠ 0 := fun h0 => hk0 (by rw [h0, zero_mul])
+  have hG' : G = (k * k)⁻¹ := by
+    field_simp
+    linarith
+  subst hG'
+  constructor
+  · field_simp
+    linear_combination (-(r * V)) * hs
+  · field_simp
+    linear_combination (k ^ 2 * U) * hs + (k ^ 2 * U * c ^ 2 + s * c * V) * hrq
+
+/-- **The swapped pair is the `-` pair times `M_-(a) S`** (app_thmA Step 2, `lem:cha-PCenv` (1a), eq:cha-Mminus): for `a <= 0`, from the connection formulas of `ParabolicCylinderFacts`,
+`pcSwap = (sqrt(pi/2) cos(pi a) y_1 - sin(pi a) y_2, sin(pi a) y_1 + sqrt(2/pi) cos(pi a) y_2)` with `(y_1, y_2) = pcMinus`.  The matrix has determinant `1`
+and entries bounded by `1 + sqrt(pi/2) < 2.26`. -/
+theorem pcSwap_eq_pcMinus {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) {a : ℝ} (ha : a ≤ 0) (z : ℝ) :
+    pcSwap U V a 0 z = Real.sqrt (Real.pi / 2) * Real.cos (Real.pi * a) * pcMinus U V a 0 z - Real.sin (Real.pi * a) * pcMinus U V a 1 z ∧
+    pcSwap U V a 1 z = Real.sin (Real.pi * a) * pcMinus U V a 0 z + Real.sqrt (2 / Real.pi) * Real.cos (Real.pi * a) * pcMinus U V a 1 z := by
+  have hG : 0 < Real.Gamma (1 / 2 - a) := Real.Gamma_pos_of_pos (by linarith)
+  have hkdef : kappaBal a = Real.Gamma (1 / 2 - a) ^ (-(1 : ℝ) / 2) := by
+    unfold kappaBal
+    simp [ha]
+  have hkkG : kappaBal a * kappaBal a * Real.Gamma (1 / 2 - a) = 1 := by
+    rw [hkdef, ← Real.rpow_add hG]
+    have : -(1 : ℝ) / 2 + -(1 : ℝ) / 2 = -1 := by norm_num
+    rw [this, Real.rpow_neg_one]
+    exact inv_mul_cancel₀ hG.ne'
+  have hs := Real.sin_sq_add_cos_sq (Real.pi * a)
+  have hsq1 : Real.sqrt (Real.pi / 2) * Real.sqrt (2 / Real.pi) = 1 := by
+    rw [← Real.sqrt_mul (by positivity)]
+    have : Real.pi / 2 * (2 / Real.pi) = 1 := by field_simp
+    rw [this, Real.sqrt_one]
+  simp only [pcSwap, pcMinus, ha, ite_true, ut, vt]
+  rw [hf.reflect a ha z, hf.reflect_V a ha z]
+  exact swap_alg _ _ _ _ _ _ _ _ hG hkkG hs hsq1
 
 end FormalResearch.JacobiEigenvectors.Charts
