@@ -31,9 +31,10 @@ sequences" (eq:tha-weber-seq, eq:tha-aPC, eq:tha-PCseq), "The soft edges" (eq:th
 
 ## Fields, with statement and discharging result
 
-* `valid` (**corrected, F-W2-1**): the engine hypotheses for the three-patch chain **with its first pair rescaled by `(lam^{-1}, lam)`**, `lam = softLamVal` (`LadderData.rescale1`, `SoftRescale.lean`):
+* `valid` (**corrected, F-W2-1; round 4: `PreValid`**): the engine hypotheses *without (S3)* for the three-patch chain **with its first pair rescaled by `(lam^{-1}, lam)`**, `lam = softLamVal` (`LadderData.rescale1`, `SoftRescale.lean`):
   (SM1)--(SM3) for the Weber ladder (`lem:cha-weber-ladder`) and the PC ladder (`T_pm`, `thm:cha-PC` proof), defect bounds `eq:eng-UC1` (`thm:eng-corr`; Layer-1 output),
-  `env` (`lem:cha-weber-env`, `lem:cha-PCenv`), `W_mono` and `transfer` (S3: the forbidden-overlap argument after `thm:eng-volterra` at `j_1`, the bounded overlap `(M_- S)^{-1}` at `j_2`; kept a field, see F-W2-7).
+  `env` (`lem:cha-weber-env`, `lem:cha-PCenv`), `W_mono`.  **(S3) is derived** (`TheoremA/SoftTransfer.lean`, `soft_valid`): at `j_1` (forbidden overlap, `PreValid.transferAt_forbidden`) from `bondA_le`, the margin `k_2 >= c/h`
+  (`Y_forb`, `zeta_far`, `muS_bd`) and the one-step comparison of `E_-`; at `j_2` (bounded overlap) from `pcSwap_eq_pcMinus`.
 * `validW` etc.: the same for `chainW` (`P = 1`, no (S3)); `patch1_eq`: the first patch of `chain` is that of `chainW` (same ladder, pair and corrector rows).
 * `zeta_*`, `muS_*`, `mu0_*`: `lem:cha-PCcoord` (the real two-turn Moser coordinate `zeta` and the shifts `mu_{2r}`; `thm:smo-MPS`, `thm:smo-TPC`, `thm:smo-WT2`); Layer 4.
 * `Y_*`, `matchF_soft`: the turning-point-free Weber coordinate `Y_L` (`prop:cha-halfrow`(b)), eq:tha-YLsoft.
@@ -54,9 +55,9 @@ sequences" (eq:tha-weber-seq, eq:tha-aPC, eq:tha-PCseq), "The soft edges" (eq:th
 * **F-W2-6 refined.**  (i) the absorption `Lambda h^{-m} (E_{j_1}/E_n)^2 <= e^{-c/h}` follows from the chart fields (`zeta_deriv`, `zeta_far`, `muS_bd`) and the definition of `Ewell`: **not** added;
   (ii) `eq:cha-MolvEquiv` (two-sided `M_Olv ~ kappa^{-1} W_well M_bal`, lower bound inside the well) and (iii) the growth of the dominant member (`r_2 < 1`) are classical (Olver, Riccati) and were added to
   `ParabolicCylinderFacts` (`molv_well`, `molv_bar`, `V_growth`, plus `reflect_V` for `M_-(a)`), numerically checked (see there).
-* **F-W2-7 refined, kept a field.**  (S3) is the field `Valid.transfer` of `LadderData.Valid` (`Charts/LadderChain.lean`, outside this round's files).  Deriving it is `Engine.transfer_of_forbidden_overlap` at `j_1` (rescaled pair) and the bounded
-  overlap at `j_2`; the chart-level inputs are: `bondA` bound and `bondA > 0`, `k_2 >= c/h` at `j_1, j_1+1` (from `Y_forb`, resp. `zeta_far, muS_bd`), the one-step ratio of `Ewell`/`Ebar` and of `E_Web`, and `win (2)--(3)` at `j_2`.
-  None is a field of any structure; so (S3) stays inside `valid` until `Valid` is split (proposal: `Valid` without `transfer` plus a lemma from these inputs).
+* **F-W2-7 resolved (round 4).**  `LadderData.Valid` is split into `PreValid` (everything but (S3)) and `Valid` (adds `transfer`); `SoftEdgeChart.valid` is `PreValid` and (S3) is *derived* in `TheoremA/SoftTransfer.lean` (`soft_valid`) with the explicit
+  `Lambda = softLamC`.  The chart-level inputs that this needed and that were not fields are now fields: `bondA_le` (`a_n <= C_A`) and `muS_bd` for `r = 0` (`|mu_0| <= C_mu`, so that `a h = -tilde mu` is bounded); everything else
+  (`k_2 >= c/h`, the one-step ratio of `E_-`, `E_- ~ 1` at `j_2`) is derived from `Y_forb`, `zeta_deriv`, `zeta_far`, `muS_bd`, the definition of `Ewell`/`Ebar` and `pcSwap_eq_pcMinus`.
 * **New, F-W2-8 (item (4), `rho_one`/`theta_le`).**  For odd `m` and `q = m - 1` (one shift short) the paper has `Theta <= C log(1/h)` with defect weights `rho_k` not identically `1`; the structure fixes `rho = rho~ = 1` and
   `Theta <= Csum`, so a chart in the sense of this structure exists for `q = m - 1` only if the defect bound holds with `rho = 1`, i.e. `PropThaW2` item (4) is, as frozen, vacuous or implied by the full-order statement.  Not changed here (would require a chart-level
   `Lm` and `theta_le : Theta <= Csum Lm`); reported.
@@ -146,6 +147,12 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   Cmu : ℝ
   cz1 : ℝ
   consts_pos2 : 0 ≤ Cmu ∧ 0 < cz1
+  /-- **(round 4)** the bond bound `CA`, the growth margin `nu1`, the collar lower-bound constant `c3W`, the ratio constant `C2` (fields `bondA_le`, `grow_gap`, `collar_lbW`, `ratio2`). -/
+  CA : ℝ
+  nu1 : ℝ
+  c3W : ℝ
+  C2 : ℝ
+  consts_pos3 : 0 ≤ CA ∧ 0 < nu1 ∧ 0 < c3W ∧ 0 ≤ C2
   /-- the fold `u_c = u_c^+` (the unique maximiser of `f_+`, (H3)). -/
   uc : Par → ℝ
   /-- the coordinate `zeta(x; alpha)` at `(mu, alpha, x)` and the shifts `mu_{2r}(alpha)` at `(r, mu, alpha)` (`muS 0 = mu_0`). -/
@@ -171,9 +178,9 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   zeta_deriv : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → ∀ x, |x| ≤ 2 * η → dm ≤ deriv (zeta μ α) x ∧ deriv (zeta μ α) x ≤ dp
   zeta_zero : ∀ μ ∈ P, zeta μ 0 0 = 0
   zeta_alpha : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → |zeta μ α 0| ≤ cZ * |α|
-  /-- **(round 2 audit, added; lem:cha-PCcoord (2))** the shifts `mu_{2r}`, `1 <= r <= q/2`, are bounded on `|alpha| <= delta_0` (they are `C^{nu_r + 1}` on a compact set); used for
-  `hA = max(mu~, 0)`, `mu~ = mu_0 + O(h^2)` in lem:tha-win (1). -/
-  muS_bd : ∀ r ∈ Finset.Icc 1 (q / 2), ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → |muS r μ α| ≤ Cmu
+  /-- **(round 2 audit, added; lem:cha-PCcoord (2); round 4: also `r = 0`)** the shifts `mu_{2r}`, `0 <= r <= q/2`, are bounded on `|alpha| <= delta_0` (they are `C^{nu_r + 1}` on a compact set; `mu_0 <= C delta_0`
+  is used in app_thmA Step 3 for `a h = -tilde mu`); used for `hA = max(mu~, 0)`, `mu~ = mu_0 + O(h^2)` in lem:tha-win (1) and for the bounds `|Z^2/4 + a| h`, `a h <= C` of the overlaps (`SoftTransfer.lean`). -/
+  muS_bd : ∀ r ∈ Finset.Icc 0 (q / 2), ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → |muS r μ α| ≤ Cmu
   /-- **(round 2 audit, added; lem:tha-win (1), app_thmA Step 4 (d) (ii))** the turning points `+-2 sqrt(mu_0)` of `zeta` lie inside `|x| < eta/4` with margin:
   `zeta(x;alpha)^2 >= 4 max(mu_0(alpha), 0) + cz1` for `eta/4 <= |x| <= 2 eta`.  This is `delta_0` small (`|zeta(0;alpha)| <= c_Z |alpha|`, `mu_0 <= C |alpha|`,
   `zeta' >= d_-`); it gives `|u_n - u_c| < eta/4` on `|Z_n| <= rho'` and the exponential smallness `E(a, Z_{n_1+1}) <= e^{-c/h}`. -/
@@ -240,12 +247,13 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
       zeta μ (F.bandHi μ - X) (uNode (F.step N) ((chain μ X N).jj 2) - uc μ) / Real.sqrt (F.step N) ≤ 0 ∧
       0 < zeta μ (F.bandHi μ - X) (uNode (F.step N) ((chain μ X N).jj 2 + 1) - uc μ) / Real.sqrt (F.step N) ∧
       uNode (F.step N) (chain μ X N).NR ≤ uc μ + 2 * η ∧ uc μ + 2 * η < uNode (F.step N) ((chain μ X N).NR + 1)
-  /-- **(round 3, F-W2-1)** the engine hypotheses for the chain with its first pair rescaled by `(lam^{-1}, lam)`, `lam = E_Web(j_1)/E_-(j_1)` (`softLamVal`): the rescaling of
-  `engine.tex` after `thm:eng-volterra`; `lam` may be exponentially large or small. -/
+  /-- **(round 3, F-W2-1; round 4: `PreValid`)** the engine hypotheses *without (S3)* for the chain with its first pair rescaled by `(lam^{-1}, lam)`, `lam = E_Web(j_1)/E_-(j_1)` (`softLamVal`): the rescaling of
+  `engine.tex` after `thm:eng-volterra`; `lam` may be exponentially large or small.  (S3) at `j_1` (forbidden overlap) and at `j_2` (bounded overlap, `M_-(a)`) is **derived** in `TheoremA/SoftTransfer.lean`
+  from `bondA_le`, `zeta_*`, `muS_bd`, `Y_forb`, `pcSwap_eq_pcMinus`. -/
   valid : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
     ((chain μ X N).rescale1 (softLamVal (F.step N) ((chain μ X N).jj 1) (Y μ X (uNode (F.step N) ((chain μ X N).jj 1)))
       (aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X))
-      (zeta μ (F.bandHi μ - X) (uNode (F.step N) ((chain μ X N).jj 1) - uc μ)))).Valid cs (F.step N) m
+      (zeta μ (F.bandHi μ - X) (uNode (F.step N) ((chain μ X N).jj 1) - uc μ)))).PreValid cs (F.step N) m
   A_bond : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (-1 : ℤ) (chain μ X N).NR,
     (chain μ X N).A k = F.bondA μ N k
   Q_diag : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
@@ -300,6 +308,23 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   /-- `rho = rho~ = 1`. -/
   rho_one : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
     (chain μ X N).ρ k = 1 ∧ (chain μ X N).ρt k = 1
+  /-- **(round 4)** the bonds are bounded, `a_n <= C_A` (`a_n = sqrt(s_n (L - s_n) G_h(s_n))`, `G_h` bounded: (E_{q/2}); the paper uses `a_n <= C` throughout, e.g. `A M M ~ omega_*` at a forbidden overlap). -/
+  bondA_le : ∀ μ ∈ P, ∀ N, N0 ≤ N → ∀ k : ℤ, F.bondA μ N k ≤ CA
+  /-- **(round 4; app_thmA Step 3 (i), eq:tha-S4grow)** the growth margin of the exact solution on the left forbidden side: `X - B_n >= a_n + a_{n-1} + nu_1` for `u_n <= u_c - eta/4`
+  (lem:tha-geom (d): `Q_0 - 2 sqrt(E_0) >= nu_1'` there, uniformly by compactness; `|B_n - B_0(u_n)| <= C h^2`, `a_n + a_{n-1} <= 2 sqrt(E_0(u_n)) + C sqrt h`; `h` small is `N >= N_0`). -/
+  grow_gap : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ n : ℤ, 0 ≤ n → uNode (F.step N) n ≤ uc μ - η / 4 →
+    F.bondA μ N n + F.bondA μ N (n - 1) + nu1 ≤ F.diagQ μ N X n
+  /-- **(round 4; lem:cha-W0 for the turning-point-free Weber chart, app_thmA Step 3 (i))** relative lower bound of the Weber comparison sequence on `[0, u_c - eta/2]`: `|psi-hat^{Web}_k| >= c_3 E_Web M_Web`
+  (the analogue of `BulkWeberChart.collar_lb`: lem:cha-W0 with the corrector bound `O(h E M)` and `A^{[m]} >= (1/2) min g_0`; the whole range is forbidden since `Y^2 - 4u >= c_F`). -/
+  collar_lbW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chainW μ X N).NR,
+    uNode (F.step N) k ≤ uc μ - η / 2 →
+      c3W * (chainW μ X N).W k * (chainW μ X N).M k ≤ |(chainW μ X N).phi (F.step N) 0 1 k|
+  /-- **(round 4; app_thmA Step 3 (ii))** the forward ratio of the dominant (second) member of the first PC pair across the overlap bond: `|phi^{(2)}_{2,j_1+1}| <= (1 + C_2 h) |phi^{(2)}_{2,j_1}|`
+  (`r_2 = e^{-theta}(1 + O(h))`: the explicit function `v~(a,|Z|)` (resp. `U(a,Z)`) decreases as `|Z|` decreases in its Liouville--Green zone, `V_growth`, with the corrector bound `O(h)`; a statement about the
+  model comparison member only). -/
+  ratio2 : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    |(chain μ X N).phi (F.step N) 1 2 ((chain μ X N).jj 1 + 1)| ≤
+      (1 + C2 * F.step N) * |(chain μ X N).phi (F.step N) 1 2 ((chain μ X N).jj 1)|
 
 namespace SoftEdgeChart
 

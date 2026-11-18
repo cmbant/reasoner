@@ -21,7 +21,7 @@ by `lambda`"); `app_thmA.tex`, "The soft edges: proof of Proposition prop:tha-W2
 * `stability_rescale1` (**the rescaling theorem**): if the *rescaled* chain satisfies the engine hypotheses (`Valid`), then for every solution `psi` with the *original* seed
   `psi_j = phi^{(1)}_{1,j}` the multi-patch bound holds for the original comparison sequence with the constant multiplied by `|lam|`
   (`|psi_j - psi-hat_{p,j}| <= |lam| C eps Theta W_j M_j`).  The proof applies `LadderData.stability` (L1.1) to `psi / lam`.
-* `Valid.cas_lb_site`, `Valid.phi_bd`: the (S1) Casoratian bound and the (S2) envelopes of the pairs (the two derived facts of the proof of `LadderData.stability`, exported).
+* `PreValid.cas_lb_site`, `PreValid.phi_bd`: the (S1) Casoratian bound and the (S2) envelopes of the pairs (the two derived facts of the proof of `LadderData.stability`, exported).
 * `transMat_zero_zero_eq_cas_div`, `cvec_two`, `psiHat_two`: `(M_p)_{11} = W(phi^{(1)}_p, phi^{(2)}_{p+1}) / W(phi^{(1)}_{p+1}, phi^{(2)}_{p+1})` at the overlap bond (the identity
   behind `lambda_L = kappa (M_1)_{11}` in `app_thmA`), and `psi-hat_2 = (M_1)_{11} phi^{(1)}_2 + (M_1)_{21} phi^{(2)}_2`.
 
@@ -29,9 +29,8 @@ by `lambda`"); `app_thmA.tex`, "The soft edges: proof of Proposition prop:tha-W2
 
 * The paper rescales "the pairs of the earlier patches"; here exactly patch 1 (the only earlier patch of the two-patch soft-edge chain).  For a chain of more patches the later overlaps
   would need the same lemma at their patch.
-* No hypothesis on the weights at the overlap is *used* by `stability_rescale1`: the hypotheses are the whole `Valid` of the rescaled chain, which contains (S3).  The paper's derivation of (S3) at a forbidden
-  overlap from the comparability `W_{j+1} <= C_w W_j`, `A M M <= C_omega omega`, the envelope bounds and (S1) is `Engine.transfer_of_forbidden_overlap`
-  (one application to `D.phi`); verifying its hypotheses for the Weber and parabolic-cylinder pairs is the chart-level part (not done, see `SoftProof.lean`).
+* No hypothesis on the weights at the overlap is *used* by `stability_rescale1`: the hypotheses are the whole `Valid` of the rescaled chain, which contains (S3).  (S3) is derived for the soft-edge chain from chart inputs in `SoftTransfer.lean`
+  (`soft_valid`) via `SoftOverlap.lean` (`PreValid.transferAt_forbidden` = `Engine.transfer_of_forbidden_overlap` applied to the `PreValid` fields).
 
 ## Not formalised
 
@@ -195,22 +194,22 @@ lemma transMat_zero_zero_eq_cas_div (φ1 φ2 : ℕ → ℤ → ℝ) (jj : ℕ �
       = A (jj p) * (-(φ1 (p + 1) (jj p) * φ2 (p + 1) (jj p + 1) - φ2 (p + 1) (jj p) * φ1 (p + 1) (jj p + 1))) := by ring
   rw [n1, n2, mul_div_mul_left _ _ hA, neg_div_neg_eq]
 
-/-! ### The engine hypotheses, exported: (S1) and (S2) of the pairs -/
+/-! ### The engine hypotheses, exported: (S1) and (S2) of the pairs (for `PreValid`, hence also for `Valid`) -/
 
-lemma Valid.jj_nonneg {D : LadderData} {cs : ChainConsts} {h : ℝ} {m : ℕ} (hV : D.Valid cs h m) {p : ℕ} (hp : p ≤ D.P) :
+lemma PreValid.jj_nonneg {D : LadderData} {cs : ChainConsts} {h : ℝ} {m : ℕ} (hV : D.PreValid cs h m) {p : ℕ} (hp : p ≤ D.P) :
     0 ≤ D.jj p := by
   have := jj_mono_le D.jj D.P hV.jj_mono 0 p (Nat.zero_le _) hp
   rw [hV.jj0] at this
   exact this
 
-lemma Valid.jj_le {D : LadderData} {cs : ChainConsts} {h : ℝ} {m : ℕ} (hV : D.Valid cs h m) {p : ℕ} (hp : p ≤ D.P) :
+lemma PreValid.jj_le {D : LadderData} {cs : ChainConsts} {h : ℝ} {m : ℕ} (hV : D.PreValid cs h m) {p : ℕ} (hp : p ≤ D.P) :
     D.jj p ≤ D.NR - 1 := by
   have := jj_mono_le D.jj D.P hV.jj_mono p D.P hp le_rfl
   rw [hV.jj_last] at this
   exact this
 
 /-- **(S1)** of the pair of patch `p` on its bonds: `c_- omega_* <= |W_j(phi^{(1)}_p, phi^{(2)}_p)|`. -/
-lemma Valid.cas_lb_site {D : LadderData} {cs : ChainConsts} {h : ℝ} {m : ℕ} (hV : D.Valid cs h m) {p : ℕ}
+lemma PreValid.cas_lb_site {D : LadderData} {cs : ChainConsts} {h : ℝ} {m : ℕ} (hV : D.PreValid cs h m) {p : ℕ}
     (hp : p ∈ Icc 1 D.P) {j : ℤ} (hj : j ∈ Icc (D.jj (p - 1)) (D.jj p)) :
     cs.cm * |D.ω 1 h| ≤ |cas D.A (D.phi h 0 p) (D.phi h 1 p) j| := by
   have hpP := mem_Icc.mp hp
@@ -229,7 +228,7 @@ lemma Valid.cas_lb_site {D : LadderData} {cs : ChainConsts} {h : ℝ} {m : ℕ} 
   exact hS
 
 /-- **(S2)** envelopes of the pair of patch `p` on its window: `|phi^{(1)}| <= K W M`, `|phi^{(2)}| <= K W^{-1} M`, `K = (K_A+K_B) K_w`. -/
-lemma Valid.phi_bd {D : LadderData} {cs : ChainConsts} {h : ℝ} {m : ℕ} (hV : D.Valid cs h m) {p : ℕ}
+lemma PreValid.phi_bd {D : LadderData} {cs : ChainConsts} {h : ℝ} {m : ℕ} (hV : D.PreValid cs h m) {p : ℕ}
     (hp : p ∈ Icc 1 D.P) {j : ℤ} (hj : j ∈ Icc (D.jj (p - 1)) (D.jj p + 1)) :
     |D.phi h 0 p j| ≤ (cs.KA + cs.KB) * cs.Kw * D.W j * D.M j ∧
     |D.phi h 1 p j| ≤ (cs.KA + cs.KB) * cs.Kw * (D.W j)⁻¹ * D.M j := by

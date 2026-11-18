@@ -26,6 +26,12 @@ different ladders); (S1) is the Casoratian lower bound `|F_cas| >= c_-`, (S2) th
   for one shared ladder it is `ladder_pair_stability`; for per-patch ladders the same proof applies, since `ladder_S1`, `ladder_S2`,
   `ladder_residual_interior/hard` are patchwise and only the final call is `volterra_multi`.
 
+## `PreValid` and `Valid` (round 4, finding F-W2-7 resolved)
+
+`Valid` = `PreValid` (all hypotheses of `thm:eng-volterra` except the transfer condition (S3)) plus `transfer` (`TransferAt` at every overlap).  `LadderData.stability` needs the full `Valid`; a chart whose overlaps are
+*forbidden* (case (ii) after `thm:eng-volterra`) or bounded (case (i)) can state only `PreValid` and derive (S3) from chart-level inputs (`Engine.transfer_of_forbidden_overlap`,
+`TheoremA/SoftTransfer.lean`).  `PreValid` does not mention `cs.Λ`, so a derived (S3) may use a larger `Λ` (`PreValid.toValid`).  Charts with one patch (`BulkWeberChart`) keep `Valid` (`transfer` is vacuous for `P = 1`).
+
 ## Differences from `ladder_pair_stability` (all fields are what the proofs use)
 
 1. per-patch ladders and rows (see above); one common operator `(A, Q)`, tied to every patch ladder on the window by `A_eq`, `Q_eq`.
@@ -114,8 +120,9 @@ def theta (h : ℝ) : ℝ := volTheta h |D.ω 1 h| D.s0 D.jj D.P D.ρ D.M
 /-- The single-valued comparison sequence `psi-hat` of the chain (`psiHat` of `VolterraMulti`) on patch `p`. -/
 def psiHat (h : ℝ) (p : ℕ) (j : ℤ) : ℝ := FormalResearch.JacobiEigenvectors.Engine.psiHat (D.phi h 0) (D.phi h 1) D.jj p j
 
-/-- The hypotheses of `thm:eng-volterra` for the chain, at step `h` and order `m` (see the module docstring). -/
-structure Valid (cs : ChainConsts) (h : ℝ) (m : ℕ) : Prop where
+/-- The hypotheses of `thm:eng-volterra` for the chain **without the transfer condition (S3)**, at step `h` and order `m` (see the module docstring).  Everything in `Valid` except `Valid.transfer`;
+(S3) is then either assumed (`Valid`) or derived at a forbidden or bounded overlap (`TheoremA/SoftTransfer.lean`).  Nothing in `PreValid` mentions the constant `cs.Λ`. -/
+structure PreValid (cs : ChainConsts) (h : ℝ) (m : ℕ) : Prop where
   h_pos : 0 < h
   P_pos : 1 ≤ D.P
   jj0 : D.jj 0 = 0
@@ -161,13 +168,23 @@ structure Valid (cs : ChainConsts) (h : ℝ) (m : ℕ) : Prop where
     |D.wf p 1 (((k : ℝ) + 1 / 2) * h) h 0| ≤ cs.Kw * (D.W k)⁻¹ * D.M k ∧
     D.ρt k * |D.wf p 0 (((k : ℝ) + 1 / 2) * h) h 1| ≤ cs.Kw * D.ρ k * D.W k * D.M k ∧
     D.ρt k * |D.wf p 1 (((k : ℝ) + 1 / 2) * h) h 1| ≤ cs.Kw * D.ρ k * (D.W k)⁻¹ * D.M k
+
+/-- **(S3)** at the overlap bond `j_p` with constant `Λ`: the transfer matrix `M_p = transMat p` of the overlap `p, p+1` is `Λ`-bounded and its off-diagonal entries are weighted by `W(j_p)^{±2}`. -/
+def TransferAtΛ (Λ h : ℝ) (p : ℕ) : Prop :=
+  Λ⁻¹ ≤ |(transMat (D.phi h 0) (D.phi h 1) D.jj p).det| ∧
+    |transMat (D.phi h 0) (D.phi h 1) D.jj p 0 0| ≤ Λ ∧
+    |transMat (D.phi h 0) (D.phi h 1) D.jj p 1 1| ≤ Λ ∧
+    |transMat (D.phi h 0) (D.phi h 1) D.jj p 0 1| ≤ Λ * (D.W (D.jj p) ^ 2)⁻¹ ∧
+    |transMat (D.phi h 0) (D.phi h 1) D.jj p 1 0| ≤ Λ * D.W (D.jj p) ^ 2
+
+/-- (S3) at the overlap `p` with the constant `cs.Λ`. -/
+def TransferAt (cs : ChainConsts) (h : ℝ) (p : ℕ) : Prop := D.TransferAtΛ cs.Λ h p
+
+/-- The hypotheses of `thm:eng-volterra` for the chain, at step `h` and order `m`: `PreValid` and the transfer condition (S3) at every overlap
+(`transfer`: `Lambda`-bounded, weighted by `W^{+-2}`; derived from chart-level inputs at the overlaps of a soft-edge chain in `TheoremA/SoftTransfer.lean`). -/
+structure Valid (cs : ChainConsts) (h : ℝ) (m : ℕ) : Prop extends D.PreValid cs h m where
   /-- (S3) transfer matrices of the overlaps (`Lambda`-bounded, weighted by `W^{+-2}`). -/
-  transfer : ∀ p, 1 ≤ p → p < D.P →
-    cs.Λ⁻¹ ≤ |(transMat (D.phi h 0) (D.phi h 1) D.jj p).det| ∧
-    |transMat (D.phi h 0) (D.phi h 1) D.jj p 0 0| ≤ cs.Λ ∧
-    |transMat (D.phi h 0) (D.phi h 1) D.jj p 1 1| ≤ cs.Λ ∧
-    |transMat (D.phi h 0) (D.phi h 1) D.jj p 0 1| ≤ cs.Λ * (D.W (D.jj p) ^ 2)⁻¹ ∧
-    |transMat (D.phi h 0) (D.phi h 1) D.jj p 1 0| ≤ cs.Λ * D.W (D.jj p) ^ 2
+  transfer : ∀ p, 1 ≤ p → p < D.P → D.TransferAt cs h p
 
 /-- The conclusion of `thm:eng-volterra` for the chain (as in `volterra_multi`, with `K = (K_A+K_B) K_w`, `eps = 2 K_D K_w h^m`):
 the global bound `|psi_j - psi-hat_{p,j}| <= C eps Theta W_j M_j` on every patch window, single-valuedness on overlaps,
