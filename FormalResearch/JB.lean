@@ -3,6 +3,8 @@ module
 public import FormalResearch.JB.JBDefs
 public import FormalResearch.JB.JBSchur
 public import FormalResearch.JB.JBRatio
+public import FormalResearch.JB.JBGlue
+public import FormalResearch.JB.JBPolar
 
 /-!
 # Paper J, Theorem B reduction (Lean, stage 1)
@@ -13,8 +15,10 @@ Umbrella for the Lean formalisation of the matrix lemmas of Paper J's Theorem B 
 * `JBDefs` : the Schur multiplier bound `IsSchurBdd` and its closure properties.
 * `JBSchur` : `lem:thb-schur`, `C²` form (`jb_schur_of_C2`, reciprocals and quotients).
 * `JBRatio` : `lem:thb-ratio` (`jb_ratio`).
+* `JBGlue` : `lem:thb-glue` (`jb_glue`, `jb_glue_rev`).
+* `JBPolar` : `lem:thb-polar` (`jb_polar`).
 
-The `lem:thb-glue`, `lem:thb-polar`, `cor:fermions` and the one-step criterion are later tasks; the finite
+The `cor:fermions` and the one-step criterion are later tasks; the finite
 Schur lemma, ratio lemma, polar repair and fermion bounds of the Jacobi-operator package
 (`FormalResearch.MatrixAnalysis.JacobiOp*`) are reused, not redone.
 -/
