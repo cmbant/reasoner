@@ -191,6 +191,12 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   `zeta' >= d_-`); it gives `|u_n - u_c| < eta/4` on `|Z_n| <= rho'` and the exponential smallness `E(a, Z_{n_1+1}) <= e^{-c/h}`. -/
   zeta_far : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → ∀ x, |x| ≤ 2 * η → η / 4 ≤ |x| →
     4 * max (muS 0 μ α) 0 + cz1 ≤ zeta μ α x ^ 2
+  /-- **(round 7, F-PW5; lem:cha-PCcoord (1))** the same margin on the rest of the lattice interval, `2 eta <= |x|`, `0 <= u_c + x <= L`.  The paper's `zeta` is defined on all of
+  `[x_min, x_max]` with `partial_x zeta > 0` and sends the turning points `+-sqrt(alpha)` to `+-2 sqrt(mu_0)`, so `|zeta|` only grows beyond the collar; the freeze constrained `zeta`
+  only on `|x| <= 2 eta`, and a `zeta` vanishing outside the collar made the upper window mass bound of `PropThaWin` (5) false (rows beyond the collar sit in `Omega`).  This field gives
+  `|Z_n| > rho(a)` there. -/
+  zeta_far_out : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → ∀ x, 2 * η ≤ |x| → 0 ≤ uc μ + x → uc μ + x ≤ F.L →
+    4 * max (muS 0 μ α) 0 + cz1 ≤ zeta μ α x ^ 2
   /-- `mu_0(0) = 0`, `mu_0` is `C^1` with `mu_0'(0) > 0` (so `sgn mu_0 = sgn alpha`), and `pi mu_0(alpha) = S_0(X)` for `alpha >= 0`, `alpha = X_s^+ - X`
   (the physical well action, eq:cha-mu0: `S_0 = pi mu_0` near `X_s^+`). -/
   mu0_zero : ∀ μ ∈ P, muS 0 μ 0 = 0
