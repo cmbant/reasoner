@@ -13,13 +13,13 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.BulkNormalisation
 Paper source: app_thmA, proof of prop:tha-W2, Step 0 and the bond positivity used in Steps 3-6.
 
 Proved here:
-* `aOf_le_of_step0`: Step 0 (`X <= bandHi + Cs0 h^2`) gives `a <= asmAplus`, from the explicit
-  one-sided Lipschitz hypothesis `Mu0Lip` (finding F-W2-15).
+* `mu0Lip`: one-sided Lipschitz bound of `mu_0` on `[-delta_0, 0]` from `mu0_slope`, `mu0_zero` (mean value theorem).
+* `aOf_le_of_step0`: Step 0 (`X <= bandHi + Cs0 h^2`) gives `a <= asmAplus` (no extra hypothesis).
+* `Zof_pos_of_far`, `lt_of_Zof_nonpos`: `Z_n > 0` once `u_n - u_c >= eta/4` (`zeta_far`, `zeta_far_out`, `zeta_sign_out`).
 * `bondA_pos_all`: all bonds `A_n`, `0 <= n < N`, are positive for a `SoftMirror` pair (left chart on
   the left patches, mirror chart on the right).
 
-Differences from the paper: `Mu0Lip` (bounded derivative of `mu_0` at `0` on `alpha <= 0`,
-lem:cha-PCcoord (2)) is not a field of `SoftEdgeChart`, so it is an explicit hypothesis.
+Differences from the paper: none (chart fields `mu0_slope`, `zeta_sign_out` carry lem:cha-PCcoord).
 
 Not formalised: the pointwise envelope comparison off the window (needs the zeta-sign hypothesis,
 finding F-W2-14), the T4 tail sum, E7 and the final assembly of `PropThaW2` (2)-(4).
@@ -41,17 +41,36 @@ section StepZeroA
 variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
   (C : SoftEdgeChart Fz P m q U V Lm)
 
-/-- the one-sided Lipschitz bound of `mu_0` at `0` on `alpha <= 0` (**chart fact missing from `SoftEdgeChart`**, finding F-W2-14; lem:cha-PCcoord (2): `mu_0` is `C^1` with bounded derivative). -/
+/-- the one-sided Lipschitz bound of `mu_0` at `0` on `alpha <= 0`. -/
 def Mu0Lip : Prop := ∃ cL : ℝ, 0 ≤ cL ∧ ∀ μ ∈ P, ∀ α : ℝ, -C.δ0 ≤ α → α ≤ 0 → -(cL * |α|) ≤ C.muS 0 μ α
+
+/-- `Mu0Lip` from `mu0_slope`, `mu0_zero` and `mu0_deriv` (mean value theorem on `[-delta_0, 0]`). -/
+theorem mu0Lip : Mu0Lip C := by
+  have hc := C.consts_pos5
+  refine ⟨C.Cmu0, by linarith [hc.1, hc.2], ?_⟩
+  intro μ hμ α hα1 hα0
+  have hdiff : Differentiable ℝ (C.muS 0 μ) :=
+    ((C.mu0_deriv μ hμ).1.differentiable (by norm_num))
+  have hD : Convex ℝ (Set.Icc (-C.δ0) 0) := convex_Icc _ _
+  have hδ : 0 ≤ C.δ0 := by linarith
+  have hmv := hD.image_sub_le_mul_sub_of_deriv_le (f := C.muS 0 μ) (C := C.Cmu0) hdiff.continuous.continuousOn
+    hdiff.differentiableOn
+    (fun x hx => by
+      rw [interior_Icc] at hx
+      exact ((C.mu0_slope μ hμ x (abs_le.mpr ⟨hx.1.le, by linarith [hx.2]⟩)).2))
+    α (Set.mem_Icc.mpr ⟨hα1, hα0⟩) 0 (Set.mem_Icc.mpr ⟨by linarith, le_refl 0⟩) hα0
+  rw [C.mu0_zero μ hμ] at hmv
+  rw [abs_of_nonpos hα0]
+  linarith
 
 /-- the `a_+` of the assembly. -/
 def asmAplus : ℝ := ((q / 2 : ℕ) : ℝ) * C.Cmu + 1
 
 /-- **Step 0 consequence**: an energy with `X <= X_s^+ + Cs0 h^2` has `a <= a_+` (`a = -mu~/h`, `mu_0 >= 0` for `alpha >= 0` by `mu0_S0`, `mu_0 >= -cL |alpha|` for `alpha <= 0`). -/
-theorem aOf_le_of_step0 (hL : Mu0Lip C) (Cs0 : ℝ) :
+theorem aOf_le_of_step0 (Cs0 : ℝ) :
     ∃ h0 : ℝ, 0 < h0 ∧ ∀ p ∈ P, ∀ N : ℕ, Fz.step N ≤ h0 → ∀ X, |X - Fz.bandHi p| ≤ C.δ0 →
       X ≤ Fz.bandHi p + Cs0 * Fz.step N ^ 2 → C.aOf p X N ≤ asmAplus C := by
-  obtain ⟨cL, hcL, HL⟩ := hL
+  obtain ⟨cL, hcL, HL⟩ := mu0Lip C
   refine ⟨min 1 (1 / (cL * |Cs0| + 1)), lt_min one_pos (by positivity), ?_⟩
   intro p hp N hstep X hX hX0
   have hh0 : 0 < Fz.step N := SoftEdgeChart.step_pos (F := Fz) N
@@ -97,6 +116,53 @@ theorem aOf_le_of_step0 (hL : Mu0Lip C) (Cs0 : ℝ) :
 
 end StepZeroA
 
+
+section ZSign
+
+variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
+  (C : SoftEdgeChart Fz P m q U V Lm)
+
+/-- a row has `0 <= u_n <= L`. -/
+lemma uNode_row_mem {N : ℕ} {n : ℤ} (hn : n ∈ rowsOf N) : 0 ≤ uNode (Fz.step N) n ∧ uNode (Fz.step N) n ≤ Fz.L := by
+  have hn' := Finset.mem_Icc.mp hn
+  have hh0 : 0 < Fz.step N := SoftEdgeChart.step_pos (F := Fz) N
+  have hL := step_mul_succ Fz N
+  unfold uNode
+  have h1 : (0 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn'.1
+  have h2 : (n : ℝ) ≤ (N : ℝ) := by exact_mod_cast hn'.2
+  constructor
+  · positivity
+  · rw [← hL]; nlinarith
+
+/-- **(F-W2-14, used by T4)** `Z_n > 0` as soon as `x_n = u_n - u_c >= eta/4` (`zeta_far`, `zeta_far_out` for `zeta^2 > 0`, `zeta_sign_out` for the sign). -/
+theorem Zof_pos_of_far {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz.bandHi p| ≤ C.δ0) {N : ℕ} {n : ℤ} (hn : n ∈ rowsOf N)
+    (hx : C.η / 4 ≤ uNode (Fz.step N) n - C.uc p) : 0 < C.Zof p X N n := by
+  have hα := C.abs_alpha_le hX
+  have hh0 : 0 < Fz.step N := SoftEdgeChart.step_pos (F := Fz) N
+  have hη := C.consts_pos.2.1
+  have hcz := C.consts_pos2.2
+  obtain ⟨hn0, hnL⟩ := uNode_row_mem (Fz := Fz) hn
+  have hxabs : C.η / 4 ≤ |uNode (Fz.step N) n - C.uc p| := le_trans hx (le_abs_self _)
+  have hz2 : 0 < C.zeta p (Fz.bandHi p - X) (uNode (Fz.step N) n - C.uc p) ^ 2 := by
+    have hmax : 0 ≤ 4 * max (C.muS 0 p (Fz.bandHi p - X)) 0 := by positivity
+    by_cases h2 : |uNode (Fz.step N) n - C.uc p| ≤ 2 * C.η
+    · have := C.zeta_far p hp _ hα _ h2 hxabs
+      linarith
+    · have := C.zeta_far_out p hp _ hα _ (by linarith [not_le.mp h2]) (by linarith) (by linarith)
+      linarith
+  have hsg := (C.zeta_sign_out p hp _ hα _ hxabs (by linarith) (by linarith)).2 (by linarith)
+  have hne : C.zeta p (Fz.bandHi p - X) (uNode (Fz.step N) n - C.uc p) ≠ 0 := by
+    intro h; rw [h] at hz2; simp at hz2
+  unfold SoftEdgeChart.Zof
+  exact div_pos (lt_of_le_of_ne hsg (Ne.symm hne)) (Real.sqrt_pos.mpr hh0)
+
+/-- `Z_n <= 0` forces `x_n < eta/4`. -/
+theorem lt_of_Zof_nonpos {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz.bandHi p| ≤ C.δ0) {N : ℕ} {n : ℤ} (hn : n ∈ rowsOf N)
+    (hZ : C.Zof p X N n ≤ 0) : uNode (Fz.step N) n - C.uc p < C.η / 4 := by
+  by_contra h
+  exact absurd (Zof_pos_of_far C hp hX hn (not_lt.mp h)) (not_lt.mpr hZ)
+
+end ZSign
 
 section BondPos
 
@@ -162,6 +228,18 @@ end BondPos
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.bondA_pos_all' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms bondA_pos_all
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.mu0Lip' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms mu0Lip
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.Zof_pos_of_far' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Zof_pos_of_far
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.lt_of_Zof_nonpos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lt_of_Zof_nonpos
 
 end FormalResearch.JacobiEigenvectors.TheoremA
 
