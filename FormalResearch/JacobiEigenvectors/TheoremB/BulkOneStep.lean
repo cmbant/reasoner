@@ -40,12 +40,10 @@ of `OneStepInputs` (`H^{[m+1]}_c` of the block-`nu` chart is a submatrix of `com
 `lo_eq`, `hi_eq` of `ChartPair` then make the choices for the two orders correspond (`blockIdx_cast`, `blockOf_cast` in `BulkOneStep2.lean`).  `TwoOrdersBulk` (`compMatrix_bulk_col`) was changed only to use `blockIdx_spec` in place of `Classical.choose_spec`;
 its headline theorems and axiom pins are unchanged.  `host0_eq` (one order) needed no change; `host1_eq` is in `BulkOneStep2.lean`.
 
-## Not formalised
+## Not formalised here
 
-`host0_col`, `host1_col` (the host columns for **every** column: bulk columns are `twoOrders_bulk_columns` at the extreme splices; soft columns are the soft half), `ext_row`
-(`||(omega sigma y_ext)|| <= C_E`: `sqrt(#cols) sup |omega sigma y_ext|` with `sigma ~ h^{1/4}` and the envelope of `y` at the exterior row), `overlap_lb` (window mass of `Psi_k`), `overlap_ub`
-(`||P_k y|| + ||P_k y~|| <= C ||P_k phi^{[m+1]}||`: envelope `env` of the model pair against the window mass `overlap_sum_lower` / `chart_pair_bound`); and in `OneStepInputs`: `match0/1`, `outside`, `G1_col`, `eps5`, `U_orth`
-(`IsEigenSystem.orth`), the choice of `lo`, `R`, `used`, `P_k`, the extreme splices `n^pm_nu` and the existence of the constants `cs`.
+`host1_eq`, `match0/1`, `ext_row`, `overlap_lb`, `overlap_ub` for the bulk charts are in `BulkOneStep2.lean` (with the exact remaining assembly items listed there).  Still open: `host0_col`, `host1_col` for the soft columns (the soft half),
+`OneStepInputs.outside`, `G1_col`, `eps5`, the choice of `lo`, `R`, `used`, `P_k`, the extreme splices `n^pm_nu` and the existence of the constants `cs`.
 -/
 
 @[expose] public section
