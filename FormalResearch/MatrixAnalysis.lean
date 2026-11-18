@@ -36,4 +36,6 @@ Hoffman–Wielandt (`HoffmanWielandt`), their matrix forms (`WeylMatrix`), Weyl 
 
 The masked-Frobenius, spectral-residual and sign-locking lemmas (`MaskedFrobenius`, `SpectralResidual`,
 `SignLocking`) belong to the Jacobi programme and are imported by the aggregate `FormalResearch.Jacobi`.
+The `JacobiOp*` modules (Paper J operator package: Schur multiplier, normalisation ratio, polar-factor repair,
+free-fermion bounds) are likewise outside this aggregate; their umbrella is `FormalResearch.MatrixAnalysis.JacobiOp`.
 -/
