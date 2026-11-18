@@ -68,6 +68,13 @@ sequences" (eq:tha-weber-seq, eq:tha-aPC, eq:tha-PCseq), "The soft edges" (eq:th
 * **New, F-W2-9 (endpoint).**  `prop:tha-W2` (1) displays the PC range as `u_c - eta/2 <= u_n`, `psi-hat^L` is Weber for `u_n <= u_c - eta/2` (item (2)); the two ranges overlap at one row.  `PropThaW2` now has the strict `u_c - eta/2 < u_n` in the PC bound.
 * **New, F-W2-10 (wf 1 1).**  The second member of the Weber pair was not pinned in the soft chart (only `wf 1 0`); `wfW_eq` pins both (as `BulkWeberChart.wf_eq`).
 
+## Round 9 (the sign analysis of app_thmA Step 6; `TheoremA/SoftSigns*.lean`)
+
+* **F-W2-19 `lamL_cont`**: `lambda_L` is continuous in `X` on the energy window (paper: "`lambda_L`, `lambda_R` are real, continuous and non-vanishing in `X`, so `sigma_0` is constant on the range `a <= 0`").  The sign of `lambda_L` is then constant on the
+  window by the intermediate value theorem (non-vanishing: `soft_lamL_lower`).  The constant signs `sigma`, `sigma'` of `lem:tha-count` are *constant signs*, not `+1`: they are `sign lambda_L` and `sign (lambda_L lambda_R)`.
+* **F-W2-20 `grow3`** (`cgr`, `Cgr`): the growing member `phi^{(1)}_3` of the swapped pair is positive, `>= c_gr W M` and non-decreasing up to `1 + C_gr h` on two consecutive right rows (paper: Step 5, "`|A v~ + h B h^{1/2} v~'| >= c E^{-1} M`"; Step 6 (ii),
+  "a sign fixed up to `cos pi a`").  Nothing else about the chart was needed: the right solution `psi^R` is positive and decaying by `growth_ratio` for the mirror chart (exact), and `psi^L` is compared with `f` at those rows by item (1).
+
 ## Satisfiability
 
 As for `BulkWeberChart`: no toy instance (the fields mention the actual parabolic-cylinder functions); the engine hypotheses are non-vacuous (`JE.volterra_multi_instance`); rescaling preserves (SM1)--(SM3) and the Casoratians (`SoftRescale.lean`),
@@ -382,6 +389,30 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
         -(2 * Real.sqrt (max (-(aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X))) 0) +
           (1 + max (-(aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X))) 0) ^ (-(1 : ℝ) / 6)) →
       clb * ((chain μ X N).W k * (chain μ X N).M k) ≤ |(chain μ X N).phi (F.step N) 0 2 k|
+  /-- **(round 9, F-W2-19; app_thmA Step 6: "`lambda_L`, `lambda_R` are real, continuous and non-vanishing in `X`")** `lambda_L` (the explicit quotient of two Casoratians of the chain, the body
+  of `SoftEdgeChart.lamL`) is continuous in `X` on the whole energy window, for fixed `mu` and `N`.  Non-vanishing is `soft_lamL_lower`; with it the sign of `lambda_L` is constant on the window
+  (intermediate value theorem), which is what the counting lemma `lem:tha-count` (ii), (iii) needs (`TheoremA/SoftSigns*.lean`).  The chain depends on `X` through the PC parameter `a` and
+  the coordinate `Z_n` only; the normalisations (`kappa_bal`, the second member of the PC pair) are positive scalars that cancel in the quotient across `a = 0`. -/
+  lamL_cont : ∀ μ ∈ P, ∀ N, N0 ≤ N → ContinuousOn (fun X =>
+      cas (chain μ X N).A ((chain μ X N).phi (F.step N) 0 1) ((chain μ X N).phi (F.step N) 1 2) ((chain μ X N).jj 1) /
+      cas (chain μ X N).A
+        (fun n => (chain μ X N).phi (F.step N) 0 2 n / kappaBal (aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X)))
+        ((chain μ X N).phi (F.step N) 1 2) ((chain μ X N).jj 1))
+    {X | |X - F.bandHi μ| ≤ δ0}
+  /-- **(round 9, F-W2-20; app_thmA Step 5 "the growing part `A v~ + h B h^{1/2} v~'` has size `>= c E^{-1} M`", Step 6 (ii) "a sign fixed up to `cos(pi a)`")** the constants of `grow3`. -/
+  cgr : ℝ
+  Cgr : ℝ
+  consts_pos6 : 0 < cgr ∧ 0 ≤ Cgr
+  /-- **(round 9, F-W2-20)** the growing member `f = phi^{(1)}_3 = A^{[m]} v~ + h B^{[m]} h^{1/2} v~'` of the swapped pair is positive, bounded below by its envelope and non-decreasing up to `1 + C_gr h`
+  at two consecutive rows `k, k+1` of patch 3 on the right forbidden side (`u_k >= u_c + eta/4`), for `a <= a_+` (`v~ > 0`, `v~' >= c_V k_2^{1/2} v~` by `V_growth`, the Liouville--Green lower bound of `v~`
+  of app:cha-PCenv, `A^{[m]} >= g_- / 2` and `|A^{[m]}_{k+1} - A^{[m]}_k| <= C h`, `|B^{[m]}| <= C_B`; for `a > 0` the first member of the shared pair).  Used for the sign of the Casoratian `D(X)` at `a = -k` in Step 6 (ii)
+  (`TheoremA/SoftSigns2.lean`), where `psi^L = lambda_L kappa_b^{-1} sqrt(2/pi) cos(pi a) f (1 + O(h^m))` at these rows against the decaying exact right solution. -/
+  grow3 : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X) ≤ ((q / 2 : ℕ) : ℝ) * Cmu + 1 →
+    ∀ k : ℤ, (chain μ X N).jj 2 + 1 ≤ k → k + 1 ≤ (chain μ X N).NR → uc μ + η / 4 ≤ uNode (F.step N) k →
+      cgr * ((chain μ X N).W k * (chain μ X N).M k) ≤ (chain μ X N).phi (F.step N) 0 3 k ∧
+      cgr * ((chain μ X N).W (k + 1) * (chain μ X N).M (k + 1)) ≤ (chain μ X N).phi (F.step N) 0 3 (k + 1) ∧
+      (chain μ X N).phi (F.step N) 0 3 k ≤ (1 + Cgr * F.step N) * (chain μ X N).phi (F.step N) 0 3 (k + 1)
 
 namespace SoftEdgeChart
 
@@ -413,6 +444,11 @@ def lamL (μ : Par) (X : ℝ) (N : ℕ) : ℝ :=
 def psiHatL (μ : Par) (X : ℝ) (N : ℕ) (n : ℤ) : ℝ :=
   if uNode (F.step N) n ≤ C.uc μ - C.η / 2 then (C.chainW μ X N).phi (F.step N) 0 1 n
   else C.lamL μ X N * ((C.chain μ X N).phi (F.step N) 0 2 n / kappaBal (C.aOf μ X N))
+
+/-- `lambda_L` is continuous in `X` on the energy window (the field `lamL_cont`). -/
+lemma lamL_continuousOn (μ : Par) (hμ : μ ∈ P) (N : ℕ) (hN : C.N0 ≤ N) :
+    ContinuousOn (fun X => C.lamL μ X N) {X | |X - F.bandHi μ| ≤ C.δ0} :=
+  C.lamL_cont μ hμ N hN
 
 end SoftEdgeChart
 
