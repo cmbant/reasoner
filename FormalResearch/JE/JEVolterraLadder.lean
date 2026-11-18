@@ -78,10 +78,10 @@ lemma ladder_cas_eq (dd pp AA BB : ℝ → ℝ → ℝ) (w : Fin 2 → ℝ → �
 /-- **(S1)** of `thm:eng-volterra`(b): the lower Casoratian bound `|𝒲_k(φ¹,φ²)| ≥ c_- |ω_mod|` from the
 ladder identity `𝒲 = ω_mod 𝓕_cas` (`casSite_eq_omega_Fcas`) and `|𝓕_cas| ≥ c_-`. -/
 theorem ladder_S1 {γ h c : ℝ} {ω : ℝ → ℝ} {dd pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2}
-    (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (AA BB : ℝ → ℝ → ℝ) (k : ℤ) (hk : 0 ≤ k)
+    (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (AA BB : ℝ → ℝ → ℝ) (hh : 0 < h) (k : ℤ) (hk : 0 ≤ k)
     (hF : c ≤ |Fcas pp AA BB PiM (((k : ℝ) + γ) * h + h / 2) h|) :
     |ω h| * c ≤ |cas (ladderA dd pp γ h) (ladderSeq AA BB w γ h 0) (ladderSeq AA BB w γ h 1) k| := by
-  rw [ladder_cas_eq, casSite_eq_omega_Fcas L _ _ (isSite_of_nonneg k hk), abs_mul]
+  rw [ladder_cas_eq, casSite_eq_omega_Fcas L _ _ hh (isSite_of_nonneg k hk), abs_mul]
   exact mul_le_mul_of_nonneg_left hF (abs_nonneg _)
 
 /-- **(S2)** envelope of a ladder pair: `|ψ̂^{(α)}_k| ≤ (K_A + K_B) K_w W^{±} M` from `|A| ≤ K_A`,
@@ -167,7 +167,7 @@ theorem ladder_residual_interior {γ h : ℝ} {ω : ℝ → ℝ} {dd pp qq : ℝ
   have hLop : Lop (ladderA dd pp γ h) (ladderQ qq γ h) (ladderSeq AA BB w γ h α) k
       = siteLop dd pp qq AA BB w α (((k : ℝ) + γ) * h) h :=
     Lop_seq_eq_siteLop dd pp qq AA BB w α γ h k
-  have hid := defect_identity_interior L AA BB α (((k : ℝ) + γ) * h) h (isSitePos_of_pos k hk)
+  have hid := defect_identity_interior L AA BB α (((k : ℝ) + γ) * h) h hh (isSitePos_of_pos k hk)
   unfold Lh
   rw [hLop]
   exact residual_of_defect h m KD Kw _ _ _ _ _ ρk ρtk Wα Mk hh hKD hKw hρk hWα hMk hid hD0 hD1 hw0 hw1
@@ -192,7 +192,7 @@ theorem ladder_residual_hard {γ h : ℝ} {ω : ℝ → ℝ} {dd pp qq : ℝ →
   have hLop : Lop (ladderA dd pp γ h) (ladderQ qq γ h) (ladderSeq AA BB w γ h 0) 0
       = siteLop dd pp qq AA BB w 0 (γ * h) h := by
     rw [hLop0, e0]
-  have hid := defect_identity_hard L AA BB 0 (γ * h) h (by simp) hD hann
+  have hid := defect_identity_hard L AA BB 0 (γ * h) h hh (by simp) hD hann
   unfold Lh
   rw [hLop]
   exact residual_of_defect h m KD Kw _ _ _ _ _ ρk ρtk Wα Mk hh hKD hKw hρk hWα hMk hid hD0 hD1 hw0 hw1
@@ -286,7 +286,7 @@ theorem ladder_pair_stability (γ h Λ CE cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp
     have h1 := hjjge P le_rfl
     rw [hjjP] at h1
     omega
-  have hωpos : 0 < |ω h| := abs_pos.mpr ((hL 1).wronsk_ne h)
+  have hωpos : 0 < |ω h| := abs_pos.mpr ((hL 1).wronsk_ne h hh)
   have hA : s0 = 0 → ladderA dd pp γ h (-1) = 0 := by
     intro h0
     have e : ((((-1 : ℤ) : ℝ) + γ) * h) = γ * h - h := by push_cast; ring
@@ -299,7 +299,7 @@ theorem ladder_pair_stability (γ h Λ CE cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp
     intro p hp j hj
     have hpP := (mem_Icc.mp hp)
     have hj0 : 0 ≤ j := le_trans (hsite0 p hpP.1 hpP.2) (mem_Icc.mp hj).1
-    have := ladder_S1 (hL p) AA BB j hj0 (hUCa j hj0)
+    have := ladder_S1 (hL p) AA BB hh j hj0 (hUCa j hj0)
     rw [mul_comm] at this
     exact this
   have hφ1 : ∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p + 1),
