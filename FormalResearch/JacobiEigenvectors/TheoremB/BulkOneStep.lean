@@ -4,35 +4,48 @@ public import Mathlib
 public import FormalResearch.JB.JBOneStepDef
 public import FormalResearch.JacobiEigenvectors.TheoremB.BulkSchur
 public import FormalResearch.JacobiEigenvectors.TheoremB.BulkWindow
+public import FormalResearch.JacobiEigenvectors.TheoremB.Statements
 
 /-!
-# Paper J, Theorem B, L3.5a (bulk charts to `JB.Chart`): the coefficient fields of `JB.Chart.Ok`
+# Paper J, Theorem B, L3.5a (bulk charts to `JB.Chart`): the coefficient fields of `JB.Chart.Ok`, host entries
 
 Source: Paper J `app_thmB.tex`, "(I2) and the changed coefficient: bulk charts" (the exact model transfer, `omega_n = sqrt(s_n)`, `|t_12| >= c_T`, `alpha >= c_alpha`, the five Schur multipliers),
-`thmB.tex` `eq:thb-parity`, `def:thb-inputs` (I2).
+`thmB.tex` `eq:thb-parity`, `eq:thb-bulkcol`, `def:thb-inputs` (I2).
 
 ## Proved here
 
-* `bulkJBChart`: the `JB.Chart` of a bulk Weber chart pair `(C, C1)` (orders `m`, `m + 1` on the same ladder), sampled at the energies `Xc k`, `k in cols`, with the rows `chartRow` (`tau = true`: the chain rows `lo + n`;
-  `tau = false`, the mirror chart: the chain rows `N - (lo + n)` of the mirror family), the model pair `y, y~ = wf` of the order-`m` chain, `omega_n = sqrt(u_n + h/2)` (`= D_+(u_n)`, `dd_sqrt`),
-  `t_11, t_12 = Pi_{+,00}, Pi_{+,01}`, the corrector rows `A^{[r]}, B^{[r]}` of the two chains and `kappa` of the `TransferInputs`, the exterior row `y_ext` at the chain row next to the chart, and the
+* `bulkJBChart`: the `JB.Chart` of a bulk Weber chart pair `(C, C1)` (orders `m`, `m + 1` on the same ladder, `TransferInputs` `TI`), sampled at the energies `Xc k`, `k in cols`, with the rows `chartRow` (`tau = true`: the chain
+  rows `lo + n`; `tau = false`, the mirror chart: the chain rows `N - (lo + n)` of the mirror family), the model pair `y, y~ = wf` of the order-`m` chain, `omega_n = sqrt(u_n + h/2)` (`= D_+(u_n)`, `dd_sqrt`),
+  `t_11, t_12 = Pi_{+,00}, Pi_{+,01}`, the corrector rows `A^{[r]}, B^{[r]}` of the two chains and `kappa` of `TI`, the exterior row `y_ext` at the chain row next to the chart (`chartExtRow`), and the
   *design data* (`used`, `P_k`, `sigma^{[r]}`, hosts) as parameters.
-* `ChartOkCoeff`: the fields of `JB.Chart.Ok` that depend only on the coefficients and not on the design data: `omega_pos`, `transfer`, `t12_lb`, `alpha_lb`, the five `schur_*`, `parity_A`, `parity_B`.
-* `bulkJBChart_coeff`: **all of `ChartOkCoeff` for `bulkJBChart`**, for every design data, from `TransferInputs` (chart inputs `reg_*`, `t12_lb`, `alpha_lb`, `parity_*`, `omega_pos_le`), `SymplecticLadder.shift_up`
-  (`shift_up_comp`, the exact model transfer) and `chart_schur_five` (BulkSchur).
+* `chart_transfer_row`, `bulkJBChart_shifted`: the exact model transfer `omega_n y_{n+tau} = t_11 y_n + t_12 y~_n` (`SymplecticLadder.shift_up`, first component), including the exterior row, for both directions.
+* `ChartOkCoeff`: the fields of `JB.Chart.Ok` that depend only on the coefficients: `omega_pos`, `transfer`, `t12_lb`, `alpha_lb`, the five `schur_*`, `parity_A`, `parity_B`.
+* `bulkJBChart_coeff`: **all of `ChartOkCoeff` for `bulkJBChart`**, for every design data, from `TransferInputs` (`reg_*`, `t12_lb`, `alpha_lb`, `parity_*`, `omega_pos_le`, `same_ladder`), `shift_up` and `chart_schur_five` (BulkSchur).
 * `ChartOkCoeff.ok`: `JB.Chart.Ok` from `ChartOkCoeff` and the seven design fields (`host0_eq`, `host1_eq`, `host0_col`, `host1_col`, `ext_row`, `overlap_lb`, `overlap_ub`).
+* Host entries: `bulkJBChart_H0`, `bulkJBChart_H1` (`H^{[r]}_c = sigma psi-hat` on the chart rows), `blockOf`, `blockCols`, `blockCols_disjoint` (**`cols_disjoint`**), `compMatrix_bulk_entry` (the entry of `compMatrix` on a bulk column is
+  `psi-hat^L/hat N` for rows `<= n_nu`, `hat kappa psi-hat^R/hat N` beyond: eq:thb-bulkcol), and **`host0_eq`** for the left chart (`bulk_host0_eq_left`, `sigma = 1/hat N`, rows `<= n_nu`) and the right chart
+  (`bulk_host0_eq_right`, mirror, `sigma = hat kappa/hat N`, rows `> n_nu`), with the host `compMatrix CI0 spl`.
 
 ## Differences from the paper
 
 * `omega_n` is `sqrt(u_n + h/2)` (the Weber ladder has `D(s,h) = sqrt s`), the same for both orders and every column.
-* The Schur constant `cs.K` must dominate `chartSchurK 0 (c + sigma/2) Jlo Jhi S c_T c_alpha H` (`|h| <= H`): hypothesis `hK`.  The constants `c_T, c_alpha, omega_max` of `cs` must be below/above those of `TransferInputs`.
+* The Schur constant `cs.K` must dominate `chartSchurK 0 (c + sigma/2) Jlo Jhi S c_T c_alpha H` (`|h| <= H`); `c_T`, `c_alpha`, `omega_max` of `cs` are below/above those of `TransferInputs` (hypotheses of `bulkJBChart_coeff`).
+* The chart `C1` of order `m + 1` has its own energy interval `[Jlo1, Jhi1]`, assumed equal to the one of `C` (`ChartPair.lo_eq`, `hi_eq`).
 
-## Not formalised (the design fields, and the assembly)
+## FINDING F-B11 (block choice for the second order; `compColumn` in `ComparisonMatrix.lean`, not changed here)
 
-`host0_eq`, `host1_eq` (the sigma-scaled profile on the chart rows equals the host `compMatrix` entry: needs the splice row `>=` the last chart row and `sigma = 1/hat N`, `phi = psiHatL`), `host0_col`, `host1_col`
-(the host columns for **every** column: bulk columns are `twoOrders_bulk_columns` at the extreme splices; soft columns are the soft half), `ext_row` (`||(omega sigma y_ext)|| <= C_E`: `sqrt(#cols) sup |omega sigma y_ext|` with
-`sigma ~ h^{1/4}`, the envelope of `y` at the exterior row), `overlap_lb` (window mass of `Psi_k`), `overlap_ub` (`||P_k y|| + ||P_k y~|| <= C ||P_k phi^{[m+1]}||`: envelope of the model pair `env` against the window mass
-`overlap_sum_lower`); and in `OneStepInputs`: `match0/1`, `outside`, `G1_col`, `cols_disjoint`, `eps5`.
+`compColumn CI spl mu N X` picks the bulk block of the energy `X` by `Classical.choose` of `exists nu, lo nu <= X <= hi nu`, separately for `CI0` and `CI1`.  When blocks overlap the two choices need not correspond under `Fin.cast CP.nb_eq`,
+and then the column of `compMatrix CI1` of a block-`nu` column of `compMatrix CI0` is built from a different block (its profile is `psi-hat` of another overlap window, equal only up to `O(h^m)`), so `host1_eq` / `match1`
+of `OneStepInputs` (`H^{[m+1]}_c` of the block-`nu` chart is a submatrix of `compMatrix CI1`) fails for such columns.  **Minimal correction**: replace `Classical.choose` by the *least* block index (`Fin.find` / `Nat.find` on the
+existence statement): then `lo_eq`, `hi_eq` of `ChartPair` make the choices for the two orders correspond under `Fin.cast`, and `blockOf CI1 X = some (Fin.cast _ nu)` whenever `blockOf CI0 X = some nu`.  (`TwoOrdersBulk` is unaffected: it handles each order separately.)
+`host0_eq` (order `m`, one `CI`) needs no change; `host1_eq` does.
+
+## Not formalised
+
+`host1_eq` (needs F-B11), `host0_col`, `host1_col` (the host columns for **every** column: bulk columns are `twoOrders_bulk_columns` at the extreme splices; soft columns are the soft half), `ext_row`
+(`||(omega sigma y_ext)|| <= C_E`: `sqrt(#cols) sup |omega sigma y_ext|` with `sigma ~ h^{1/4}` and the envelope of `y` at the exterior row), `overlap_lb` (window mass of `Psi_k`), `overlap_ub`
+(`||P_k y|| + ||P_k y~|| <= C ||P_k phi^{[m+1]}||`: envelope `env` of the model pair against the window mass `overlap_sum_lower` / `chart_pair_bound`); and in `OneStepInputs`: `match0/1`, `outside`, `G1_col`, `eps5`, `U_orth`
+(`IsEigenSystem.orth`), the choice of `lo`, `R`, `used`, `P_k`, the extreme splices `n^pm_nu` and the existence of the constants `cs`.
 -/
 
 @[expose] public section
@@ -44,6 +57,8 @@ namespace FormalResearch.JacobiEigenvectors.TheoremB
 open Finset FormalResearch.JacobiEigenvectors.Setting FormalResearch.JacobiEigenvectors.Charts FormalResearch.JacobiEigenvectors.TheoremA
   FormalResearch.JacobiEigenvectors.Engine
 
+open scoped Classical
+
 /-- The chain row of the chart row `n` of a chart with global rows `lo .. lo + R - 1`: the row itself (`tau = true`), or its mirror `N - (lo + n)` (`tau = false`, the mirror chart). -/
 def chartRow (N lo R : ℕ) (τ : Bool) (n : Fin R) : ℤ := if τ then (lo : ℤ) + n else (N : ℤ) - ((lo : ℤ) + n)
 
@@ -52,8 +67,8 @@ def chartExtRow (N lo R : ℕ) (τ : Bool) : ℤ := if τ then (lo : ℤ) + R el
 
 /-- **The `JB.Chart` of a bulk chart pair** `(C, C1)` (orders `m`, `m+1` on the same ladder, with `TransferInputs` `TI`), sampled at the energies `Xc k`, `k in cols`; see the module docstring.
 The design data (`used`, `Pk`, `sigma0`, `sigma1`, `host0`, `host1`) are parameters. -/
-def bulkJBChart {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {Jlo Jhi : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ}
-    (C : BulkWeberChart G P Jlo Jhi m U V) (C1 : BulkWeberChart G P Jlo Jhi (m + 1) U V)
+def bulkJBChart {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {Jlo Jhi Jlo1 Jhi1 : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ}
+    (C : BulkWeberChart G P Jlo Jhi m U V) (C1 : BulkWeberChart G P Jlo1 Jhi1 (m + 1) U V)
     (TI : TransferInputs G P (fun _ => Jlo) (fun _ => Jhi) m C.chain C1.chain 1 (fun _ => 0) (fun _ => C.c + C.σ / 2))
     (p : Par × ℝ) (N : ℕ) (Xc : Fin (N + 1) → ℝ) (cols : Finset (Fin (N + 1))) (lo R : ℕ) (hlo : lo + R ≤ N + 1) (τ : Bool)
     (used : Finset (Fin R)) (Pk : cols → Finset (Fin R)) (σ0 σ1 : cols → ℝ)
@@ -157,8 +172,8 @@ theorem chart_transfer_row {Par : Type*} [TopologicalSpace Par] {G : SymbolFamil
   exact h1
 
 /-- The shifted carrier of the sampled chart: `y_{n + tau}` is the model pair at the chain row next to `chartRow n`. -/
-theorem bulkJBChart_shifted {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {Jlo Jhi : ℝ} {m : ℕ}
-    {U V : ℝ → ℝ → ℝ} (C : BulkWeberChart G P Jlo Jhi m U V) (C1 : BulkWeberChart G P Jlo Jhi (m + 1) U V)
+theorem bulkJBChart_shifted {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {Jlo Jhi Jlo1 Jhi1 : ℝ} {m : ℕ}
+    {U V : ℝ → ℝ → ℝ} (C : BulkWeberChart G P Jlo Jhi m U V) (C1 : BulkWeberChart G P Jlo1 Jhi1 (m + 1) U V)
     (TI : TransferInputs G P (fun _ => Jlo) (fun _ => Jhi) m C.chain C1.chain 1 (fun _ => 0) (fun _ => C.c + C.σ / 2))
     (p : Par × ℝ) (N : ℕ) (Xc : Fin (N + 1) → ℝ) (cols : Finset (Fin (N + 1))) (lo R : ℕ) (hlo : lo + R ≤ N + 1) (τ : Bool)
     (used : Finset (Fin R)) (Pk : cols → Finset (Fin R)) (σ0 σ1 : cols → ℝ)
@@ -196,18 +211,19 @@ set_option maxHeartbeats 4000000 in
 /-- **The coefficient fields of `JB.Chart.Ok` for a bulk chart** (all design data arbitrary): `omega_pos`, the exact model `transfer`, `t12_lb`, `alpha_lb`, the five Schur bounds and the parity identities,
 from `TransferInputs` (the primitive `C^2`, lower-bound and parity inputs), `shift_up` (`chart_transfer_row`) and `chart_schur_five`.  The chart rows must be rows of the chain (`0 <= row`, `u_row <= c`);
 `cs` dominates the chart constants (`c_T`, `c_alpha`, `omega_max`, and the Schur constant `chartSchurK ..` for `|h| <= H`). -/
-theorem bulkJBChart_coeff {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {Jlo Jhi : ℝ} {m : ℕ}
-    {U V : ℝ → ℝ → ℝ} (C : BulkWeberChart G P Jlo Jhi m U V) (C1 : BulkWeberChart G P Jlo Jhi (m + 1) U V)
+theorem bulkJBChart_coeff {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {Jlo Jhi Jlo1 Jhi1 : ℝ} {m : ℕ}
+    {U V : ℝ → ℝ → ℝ} (C : BulkWeberChart G P Jlo Jhi m U V) (C1 : BulkWeberChart G P Jlo1 Jhi1 (m + 1) U V)
     (TI : TransferInputs G P (fun _ => Jlo) (fun _ => Jhi) m C.chain C1.chain 1 (fun _ => 0) (fun _ => C.c + C.σ / 2))
     (cs : FormalResearch.JB.OneStepConsts) {p : Par × ℝ} (hp : p ∈ P) (N : ℕ) (hN : max C.N0 C1.N0 ≤ N) (hNT : TI.N0 ≤ N)
     (Xc : Fin (N + 1) → ℝ) (cols : Finset (Fin (N + 1))) (lo R : ℕ) (hlo : lo + R ≤ N + 1) (τ : Bool)
     (used : Finset (Fin R)) (Pk : cols → Finset (Fin R)) (σ0 σ1 : cols → ℝ)
     (host0 host1 : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ)
-    (hX : ∀ k : cols, Xc k ∈ Set.Icc Jlo Jhi)
+    (hX : ∀ k : cols, Xc k ∈ Set.Icc Jlo Jhi) (hJ1 : Jlo = Jlo1) (hJ2 : Jhi = Jhi1)
     (hrows : ∀ n : Fin R, 0 ≤ chartRow N lo R τ n ∧ uNode (G.step N) (chartRow N lo R τ n) ≤ C.c)
     (H : ℝ) (hH : |G.step N| ≤ H) (hcT : cs.cT ≤ TI.cT) (hcα : cs.cα ≤ TI.cα) (hω : TI.ωmax ≤ cs.ωmax)
     (hK : chartSchurK 0 (C.c + C.σ / 2) Jlo Jhi TI.S TI.cT TI.cα H ≤ cs.K) :
     ChartOkCoeff cs m (G.step N) (bulkJBChart C C1 TI p N Xc cols lo R hlo τ used Pk σ0 σ1 host0 host1) := by
+  subst hJ1 hJ2
   have hN0 : C.N0 ≤ N := le_trans (le_max_left _ _) hN
   have hN1 : C1.N0 ≤ N := le_trans (le_max_right _ _) hN
   have hst : 0 < G.step N := FormalResearch.JB.stepSize_pos G.L_pos N
@@ -272,6 +288,149 @@ theorem bulkJBChart_coeff {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily
     exact hcα.trans (TI.alpha_lb p hp (Xc k) (hX k) N hNT _ (hu n))
   exacts [b4.mono hK, b5.mono hK, b1.mono hK, b2.mono hK, b3.mono hK]
 
+/-! ### Host entries: `H^{[m]}_c` is a submatrix of `compMatrix` -/
+
+/-- **The model-profile identity**: `H^{[m]}_c = sigma_k psi-hat^L_{row n}` for the chart of a bulk chart `C` (any `sigma`): the profile `A y + h B y~` is the comparison sequence `psi-hat` (`phi = v . w`). -/
+theorem bulkJBChart_H0 {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {Jlo Jhi Jlo1 Jhi1 : ℝ} {m : ℕ}
+    {U V : ℝ → ℝ → ℝ} (C : BulkWeberChart G P Jlo Jhi m U V) (C1 : BulkWeberChart G P Jlo1 Jhi1 (m + 1) U V)
+    (TI : TransferInputs G P (fun _ => Jlo) (fun _ => Jhi) m C.chain C1.chain 1 (fun _ => 0) (fun _ => C.c + C.σ / 2))
+    (p : Par × ℝ) (N : ℕ) (Xc : Fin (N + 1) → ℝ) (cols : Finset (Fin (N + 1))) (lo R : ℕ) (hlo : lo + R ≤ N + 1) (τ : Bool)
+    (used : Finset (Fin R)) (Pk : cols → Finset (Fin R)) (σ0 σ1 : cols → ℝ)
+    (host0 host1 : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) (n : Fin R) (k : cols) :
+    (bulkJBChart C C1 TI p N Xc cols lo R hlo τ used Pk σ0 σ1 host0 host1).H0 (G.step N) n k =
+      σ0 k * C.psiHatL p (Xc k) N (chartRow N lo R τ n) := by
+  simp only [FormalResearch.JB.Chart.H0_apply, FormalResearch.JB.Chart.phi0_apply, bulkJBChart, Matrix.of_apply]
+  congr 1
+  unfold BulkWeberChart.psiHatL
+  rw [psiHat_one_eq]
+  unfold LadderData.phi ladderSeq vrow dot uNode
+  simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
+  ring
+
+/-- Same for order `m + 1`, with the chart `C1`. -/
+theorem bulkJBChart_H1 {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {Jlo Jhi Jlo1 Jhi1 : ℝ} {m : ℕ}
+    {U V : ℝ → ℝ → ℝ} (C : BulkWeberChart G P Jlo Jhi m U V) (C1 : BulkWeberChart G P Jlo1 Jhi1 (m + 1) U V)
+    (TI : TransferInputs G P (fun _ => Jlo) (fun _ => Jhi) m C.chain C1.chain 1 (fun _ => 0) (fun _ => C.c + C.σ / 2))
+    (p : Par × ℝ) (hp : p ∈ P) (N : ℕ) (hNT : TI.N0 ≤ N) (Xc : Fin (N + 1) → ℝ) (cols : Finset (Fin (N + 1))) (lo R : ℕ)
+    (hlo : lo + R ≤ N + 1) (τ : Bool)
+    (used : Finset (Fin R)) (Pk : cols → Finset (Fin R)) (σ0 σ1 : cols → ℝ)
+    (host0 host1 : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) (hX : ∀ k : cols, Xc k ∈ Set.Icc Jlo Jhi) (n : Fin R) (k : cols) :
+    (bulkJBChart C C1 TI p N Xc cols lo R hlo τ used Pk σ0 σ1 host0 host1).H1 (G.step N) n k =
+      σ1 k * C1.psiHatL p (Xc k) N (chartRow N lo R τ n) := by
+  simp only [FormalResearch.JB.Chart.H1_apply, FormalResearch.JB.Chart.phi1_apply, bulkJBChart, Matrix.of_apply]
+  congr 1
+  unfold BulkWeberChart.psiHatL
+  rw [psiHat_one_eq]
+  unfold LadderData.phi ladderSeq vrow dot uNode
+  simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
+  have hw : (C.chain p (Xc k) N).wf 1 = (C1.chain p (Xc k) N).wf 1 := (TI.same_ladder p hp (Xc k) (hX k) N hNT).2.1
+  have hw := congrFun hw 0
+  rw [← hw]
+  ring
+
+
+section HostEntries
+
+variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
+
+/-- The block that `compColumn` assigns to the energy `X` (`Classical.choose` of the existence, `none` for a soft energy). -/
+def blockOf (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (X : ℝ) : Option (Fin CI.nb) :=
+  if h : ∃ ν, CI.lo ν ≤ X ∧ X ≤ CI.hi ν then some (Classical.choose h) else none
+
+/-- The columns of the block `nu` (disjoint for different blocks: `blockOf` is a function). -/
+def blockCols (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (N : ℕ) (Xs : Fin (N + 1) → ℝ) (ν : Fin CI.nb) : Finset (Fin (N + 1)) :=
+  Finset.univ.filter fun k => blockOf CI (Xs k) = some ν
+
+theorem blockCols_disjoint (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (N : ℕ) (Xs : Fin (N + 1) → ℝ) (ν ν' : Fin CI.nb) (h : ν ≠ ν') :
+    Disjoint (blockCols CI N Xs ν) (blockCols CI N Xs ν') := by
+  rw [Finset.disjoint_left]
+  intro k hk hk'
+  simp only [blockCols, Finset.mem_filter, Finset.mem_univ, true_and] at hk hk'
+  exact h (Option.some.inj (hk.symm.trans hk'))
+
+/-- **The entries of `compMatrix` on a bulk column** (`eq:thb-bulkcol`): for `blockOf CI (Xs k) = some nu`, the entry in row `i` is `psi-hat^L_i / hat N` if `i <= n_nu` and `hat kappa psi-hat^R_i / hat N` otherwise
+(`n_nu = nearestRow h (spl nu)`, `psi-hat^R_i = psi-hat^{L,mirror}_{N - i}`). -/
+theorem compMatrix_bulk_entry (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (spl : Fin CI.nb → ℝ) (μ : Par) (N : ℕ)
+    (Xs : Fin (N + 1) → ℝ) (ν : Fin CI.nb) (k : Fin (N + 1)) (hk : blockOf CI (Xs k) = some ν) (i : Fin (N + 1)) :
+    compMatrix CI spl μ N Xs i k =
+      if ((i : ℕ) : ℤ) ≤ nearestRow (F.step N) (spl ν) then
+        (CI.bulkL ν).psiHatL (atStep F μ N) (Xs k) N i / bulkNorm (CI.bulkL ν) (CI.bulkR ν) (atStep F μ N) (Xs k) N
+      else bulkKappa (CI.bulkL ν) (CI.bulkR ν) (atStep F μ N) (Xs k) N *
+        (CI.bulkR ν).psiHatL (atStep F μ N) (Xs k) N ((N : ℤ) - ((i : ℕ) : ℤ)) / bulkNorm (CI.bulkL ν) (CI.bulkR ν) (atStep F μ N) (Xs k) N := by
+  unfold blockOf at hk
+  by_cases hex : ∃ ν', CI.lo ν' ≤ Xs k ∧ Xs k ≤ CI.hi ν'
+  · rw [dif_pos hex] at hk
+    have hν : Classical.choose hex = ν := Option.some.inj hk
+    simp only [compMatrix, Matrix.of_apply, compColumn, dif_pos hex]
+    rw [hν]
+    unfold bulkColAt glueVecAt
+    split_ifs <;> rfl
+  · rw [dif_neg hex] at hk
+    exact absurd hk (by simp)
+
+end HostEntries
+
+section HostEq
+
+variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
+
+/-- **`host0_eq` for the left chart of a block** (rows `0 .. R-1` of the left chart, all `<= n_nu`; direction `+`; `sigma_k = 1/hat N`): `H^{[m]}_c = sigma psi-hat^L` is the entry of the host
+`compMatrix CI0 spl` (the host at the fixed splice `spl`; for the extreme splices `n^+_nu` take `spl` there).  The columns are those of the block (`blockOf`). -/
+theorem bulk_host0_eq_left (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
+    (TB : TransferBundle CP) (spl : Fin CP.CI0.nb → ℝ) (μ : Par) (N : ℕ) (Xs : Fin (N + 1) → ℝ) (ν : Fin CP.CI0.nb)
+    (cols : Finset (Fin (N + 1))) (hcols : ∀ k ∈ cols, blockOf CP.CI0 (Xs k) = some ν) (R : ℕ) (hlo : 0 + R ≤ N + 1)
+    (hR : ((R : ℤ) - 1) ≤ nearestRow (F.step N) (spl ν)) (used : Finset (Fin R)) (Pk : cols → Finset (Fin R))
+    (σ1 : cols → ℝ) (host1 : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) :
+    ∀ n k, (bulkJBChart (CP.CI0.bulkL ν) (CP.CI1.bulkL (Fin.cast CP.nb_eq.symm ν)) (TB.bulkL ν) (atStep F μ N) N Xs cols 0 R hlo true used Pk
+        (fun k => 1 / bulkNorm (CP.CI0.bulkL ν) (CP.CI0.bulkR ν) (atStep F μ N) (Xs k) N) σ1 (compMatrix CP.CI0 spl μ N Xs) host1).H0
+          (F.step N) n k =
+      (bulkJBChart (CP.CI0.bulkL ν) (CP.CI1.bulkL (Fin.cast CP.nb_eq.symm ν)) (TB.bulkL ν) (atStep F μ N) N Xs cols 0 R hlo true used Pk
+        (fun k => 1 / bulkNorm (CP.CI0.bulkL ν) (CP.CI0.bulkR ν) (atStep F μ N) (Xs k) N) σ1 (compMatrix CP.CI0 spl μ N Xs) host1).host0
+        ((bulkJBChart (CP.CI0.bulkL ν) (CP.CI1.bulkL (Fin.cast CP.nb_eq.symm ν)) (TB.bulkL ν) (atStep F μ N) N Xs cols 0 R hlo true used Pk
+        (fun k => 1 / bulkNorm (CP.CI0.bulkL ν) (CP.CI0.bulkR ν) (atStep F μ N) (Xs k) N) σ1 (compMatrix CP.CI0 spl μ N Xs) host1).row n) k := by
+  intro n k
+  erw [bulkJBChart_H0]
+  have hk := hcols k k.2
+  simp only [bulkJBChart, FormalResearch.JB.Chart.row]
+  rw [compMatrix_bulk_entry CP.CI0 spl μ N Xs ν k hk]
+  have hn : ((((0 : ℕ) + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (spl ν) := by
+    have := n.isLt
+    omega
+  rw [if_pos hn]
+  have hcr : chartRow N 0 R true n = (((0 : ℕ) + n.val : ℕ) : ℤ) := by simp [chartRow]
+  rw [hcr]
+  ring
+
+/-- **`host0_eq` for the right chart of a block** (mirror chart, direction `-`, rows `lo .. lo + R - 1`, all `> n_nu`; `sigma_k = hat kappa/hat N`). -/
+theorem bulk_host0_eq_right (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
+    (TB : TransferBundle CP) (spl : Fin CP.CI0.nb → ℝ) (μ : Par) (N : ℕ) (Xs : Fin (N + 1) → ℝ) (ν : Fin CP.CI0.nb)
+    (cols : Finset (Fin (N + 1))) (hcols : ∀ k ∈ cols, blockOf CP.CI0 (Xs k) = some ν) (lo R : ℕ) (hlo : lo + R ≤ N + 1)
+    (hR : nearestRow (F.step N) (spl ν) < (lo : ℤ)) (used : Finset (Fin R)) (Pk : cols → Finset (Fin R))
+    (σ1 : cols → ℝ) (host1 : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) :
+    ∀ n k, (bulkJBChart (CP.CI0.bulkR ν) (CP.CI1.bulkR (Fin.cast CP.nb_eq.symm ν)) (TB.bulkR ν) (atStep F μ N) N Xs cols lo R hlo false used Pk
+        (fun k => bulkKappa (CP.CI0.bulkL ν) (CP.CI0.bulkR ν) (atStep F μ N) (Xs k) N /
+          bulkNorm (CP.CI0.bulkL ν) (CP.CI0.bulkR ν) (atStep F μ N) (Xs k) N) σ1 (compMatrix CP.CI0 spl μ N Xs) host1).H0
+          (F.step N) n k =
+      (bulkJBChart (CP.CI0.bulkR ν) (CP.CI1.bulkR (Fin.cast CP.nb_eq.symm ν)) (TB.bulkR ν) (atStep F μ N) N Xs cols lo R hlo false used Pk
+        (fun k => bulkKappa (CP.CI0.bulkL ν) (CP.CI0.bulkR ν) (atStep F μ N) (Xs k) N /
+          bulkNorm (CP.CI0.bulkL ν) (CP.CI0.bulkR ν) (atStep F μ N) (Xs k) N) σ1 (compMatrix CP.CI0 spl μ N Xs) host1).host0
+        ((bulkJBChart (CP.CI0.bulkR ν) (CP.CI1.bulkR (Fin.cast CP.nb_eq.symm ν)) (TB.bulkR ν) (atStep F μ N) N Xs cols lo R hlo false used Pk
+        (fun k => bulkKappa (CP.CI0.bulkL ν) (CP.CI0.bulkR ν) (atStep F μ N) (Xs k) N /
+          bulkNorm (CP.CI0.bulkL ν) (CP.CI0.bulkR ν) (atStep F μ N) (Xs k) N) σ1 (compMatrix CP.CI0 spl μ N Xs) host1).row n) k := by
+  intro n k
+  erw [bulkJBChart_H0]
+  have hk := hcols k k.2
+  simp only [bulkJBChart, FormalResearch.JB.Chart.row]
+  rw [compMatrix_bulk_entry CP.CI0 spl μ N Xs ν k hk]
+  have hn : ¬ ((((lo + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (spl ν)) := by
+    omega
+  rw [if_neg hn]
+  have hcr : chartRow N lo R false n = (N : ℤ) - (((lo + n.val : ℕ) : ℤ)) := by simp [chartRow]
+  rw [hcr]
+  ring
+
+end HostEq
+
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.chart_transfer_row' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremB.chart_transfer_row
@@ -287,5 +446,29 @@ theorem bulkJBChart_coeff {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.ChartOkCoeff.ok' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremB.ChartOkCoeff.ok
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.bulkJBChart_H0' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.bulkJBChart_H0
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.bulkJBChart_H1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.bulkJBChart_H1
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.compMatrix_bulk_entry' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.compMatrix_bulk_entry
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.blockCols_disjoint' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.blockCols_disjoint
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.bulk_host0_eq_left' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.bulk_host0_eq_left
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.bulk_host0_eq_right' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.bulk_host0_eq_right
 
 end FormalResearch.JacobiEigenvectors.TheoremB
