@@ -23,6 +23,9 @@ proof of `lem:eng-transport`.  Branch `agents/m7-m1-global-racah` of QIprojects.
   derivative identity `2(u-u*)S' + S = G(u)` (differentiation under the integral sign and one integration by parts),
   for `f, W` of class `C¹` on an open interval containing `u*` and `u`, with `W > 0` there.
 
+* `transport_solution`: the two combined: `B = -4S/√W` is differentiable at every point of the interval (also at `u*`)
+  and solves `q B' + (1/2) q' B = -2 f` there (existence part of `lem:eng-transport`(b)).
+
 Not formalised: the holomorphic dependence, the regularity statements of `lem:eng-transport` and of
 `prop:eng-corr1`, and the bounded-solution uniqueness (`(b)` "exactly one solution bounded at `u*`").
 
@@ -339,6 +342,25 @@ theorem transport_key (a b ustar : ℝ) (hJ : ustar ∈ Ioo a b) (f f' W W' : �
   rw [hL, hR, hEnd] at ibp'
   linarith
 
+/-- **Transport formula, assembled** (`lem:eng-transport`(b), `eq:eng-G8`, existence part): for `f, W` of class `C¹` on an
+open interval `(a,b)` containing `u*`, with `W > 0`, the function `B(v) = -4 S(v)/√(W v)`,
+`S(v) = ∫_0^1 G(u*+(v-u*)t²) dt`, `G = f/√W`, is differentiable at every `u ∈ (a,b)` (including `u = u*`, where `B` is
+bounded) and solves `q B' + (1/2) q' B = -2 f` there, with `q = (u-u*) W`, `q' = W + (u-u*) W'`.  This combines
+`transport_key` and `transport_alg`.  Not formalised: the uniqueness of the solution bounded at `u*` and part (a). -/
+theorem transport_solution (a b ustar : ℝ) (hJ : ustar ∈ Ioo a b) (f f' W W' : ℝ → ℝ)
+    (hWpos : ∀ y ∈ Ioo a b, 0 < W y) (hWd : ∀ y ∈ Ioo a b, HasDerivAt W (W' y) y)
+    (hWc : ContinuousOn W' (Ioo a b))
+    (hfd : ∀ y ∈ Ioo a b, HasDerivAt f (f' y) y) (hfc : ContinuousOn f' (Ioo a b))
+    (u : ℝ) (hu : u ∈ Ioo a b) :
+    ∃ B' : ℝ, HasDerivAt (fun v => -4 * transportS ustar f W v / Real.sqrt (W v)) B' u ∧
+      ((u - ustar) * W u) * B' + (1 / 2) * (W u + (u - ustar) * W' u)
+          * (-4 * transportS ustar f W u / Real.sqrt (W u)) = -2 * f u := by
+  obtain ⟨hS, hkey⟩ := transport_key a b ustar hJ f f' W W' hWpos hWd hWc hfd hfc u hu
+  obtain ⟨hd, heq⟩ := transport_alg ustar u W f (transportS ustar f W) (W' u)
+    (∫ t in (0:ℝ)..1, transportGd f f' W W' (transportP ustar u t) * t ^ 2)
+    (hWpos u hu) (hWd u hu) hS hkey
+  exact ⟨_, hd, heq⟩
+
 end Analytic
 
 -- Axiom pins for the headline statements (checked at build time).
@@ -357,6 +379,10 @@ end Analytic
 /-- info: 'FormalResearch.JE.transport_key' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JE.transport_key
+
+/-- info: 'FormalResearch.JE.transport_solution' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.transport_solution
 
 /-- info: 'FormalResearch.JE.transportG_hasDerivAt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
