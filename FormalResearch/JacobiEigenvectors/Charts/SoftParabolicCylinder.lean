@@ -60,7 +60,7 @@ sequences" (eq:tha-weber-seq, eq:tha-aPC, eq:tha-PCseq), "The soft edges" (eq:th
   (`k_2 >= c/h`, the one-step ratio of `E_-`, `E_- ~ 1` at `j_2`) is derived from `Y_forb`, `zeta_deriv`, `zeta_far`, `muS_bd`, the definition of `Ewell`/`Ebar` and `pcSwap_eq_pcMinus`.
 * **New, F-W2-8 (item (4), `rho_one`/`theta_le`).**  For odd `m` and `q = m - 1` (one shift short) the paper has `Theta <= C log(1/h)` with defect weights `rho_k` not identically `1`; the structure fixes `rho = rho~ = 1` and
   `Theta <= Csum`, so a chart in the sense of this structure exists for `q = m - 1` only if the defect bound holds with `rho = 1`, i.e. `PropThaW2` item (4) is, as frozen, vacuous or implied by the full-order statement.  Not changed here (would require a chart-level
-  `Lm` and `theta_le : Theta <= Csum Lm`); reported.
+  `Lm` and `theta_le : Theta <= Csum Lm`; the exact proposed change is in `PLAN.md`, F-W2-8); reported.
 * **New, F-W2-11 (round 5, R4: the lower half of (c)).**  The lower bound `|lambda_L| >= c lambda kappa_bal` (`TheoremA/SoftLower.lean`) uses the paper's Step 3 (i)--(iii); of its inputs `grow_gap` (growth margin of the exact solution, `eq:tha-S4grow`),
   `collar_lbW` (lem:cha-W0 for the Weber chart) and `ratio2` (`r_2 = e^{-theta}(1+O(h))`) were fields of round 4, and the comparison `M_{j_1+1} <= C_M M_{j_1}` ("`M^2_Web ~ h^{1/2}` there") is the new field `ratioM`
   (it needs an upper bound `k_2 <= C/h` at the two rows, which `Y_forb` does not give: `Y` is only bounded below there).  Nothing else was needed: `r_W >= 1 + gamma/2` is *derived* from the exact solution (`growth_ratio`) and the engine bound.

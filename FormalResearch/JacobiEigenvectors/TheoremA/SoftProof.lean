@@ -24,16 +24,14 @@ F-W2-1..7 of the first attempt: the chain is now three patches, the validity hyp
    (b') the **pre-absorption** bound on the PC rows of patch 2 (`j_1 < k <= j_2`, `u_k > u_c - eta/2`): `|psi_k - psi-hat^L_k| <= lambda M_bal (Cc h^m E_-(k) + Lambda K E_-(j_1)^2 / E_-(k))`;
    (b'') the engine bound on the rows of patch 3 (`j_2 < k <= N_R`, `Z > 0`) against the patch-3 comparison sequence `psi-hat_3`: `|psi_k - psi-hat_3(k)| <= lambda M_bal Cc h^m E_swap(k)`.
 
-## What remains for `PropThaW2` (1) (precise list)
+## What was left for `PropThaW2` (1) after this file, and where it is now
 
-* **(R1) absorption** (Step 3, last paragraph): `Lambda h^{-m} (E_-(j_1)/E_-(k))^2 <= e^{-c/h}` on `Z_k <= 0`, `u_k >= u_c - eta/2`, and `Lambda h^{-m} E_-(j_1)^2 <= e^{-c/h}` on `Z_k > 0` (weight `E_swap`): from `zeta_deriv`,
-  `zeta_far`, `muS_bd`, the definition of `Ewell`/`Ebar` (calculus on explicit integrals; *no* new special-function fact).
-* **(R2) patch 3 against `psi-hat^{PC,-}`**: `psi-hat_3 = psi-hat_2` on rows `>= j_2` (both are the same combination of the same PC functions: `shared_PC`, `wf2_eq`, `wf3_eq` and `ParabolicCylinderFacts.pcSwap_eq_pcMinus`, i.e. `M_-(a)`), so that
-  (b'') reads `|psi - lambda_L psi-hat^{PC,-}| <= ...` there up to the `(M_1)_{21} phi^{(2)}_2` term, bounded by `|phi^{(2)}_2| <= C W_3 M_bal` (the same relation).
-* **(R3) `M_Olv` form**: `lambda W M ~ |lambda_L| M_Olv(a,-Z)` from `molv_well`, `molv_bar` and (c).
-* **(R4) lower bound of (c)**: `|(M_1)_{11}| >= c`: `|psi-hat^{Web}_{j_1}| >= c E M` (the analogue of `BulkWeberChart.collar_lb` for the Weber chart: lem:cha-W0, not a field of `chainW` yet), the growth ratio `r_W >= 1 + gamma/2` (eq:tha-S4grow:
-  recurrence and positivity only), and `r_2 = e^{-theta}(1 + O(h)) < 1` from `ParabolicCylinderFacts.V_growth` and the corrector bound.
-* **(R5) the derivation of (S3)** (F-W2-7): **done** (round 4): `LadderData.Valid` is split into `PreValid` and `Valid`; `SoftEdgeChart.soft_valid` (`SoftTransfer.lean`) derives (S3) at `j_1` and `j_2`; `soft_through_edge` uses it (and takes `hf : ParabolicCylinderFacts` for `M_-(a)`).
+* **(R1) absorption** `E_-(Z_{j_1}) <= exp(-c_E/h) E_-(Z)` on `hat Z <= Z <= 0`: `SoftAbsorb.lean` (`Eminus_j1_decay`, `Eminus_j1_small`).
+* **(R2) patch 3 against `psi-hat^{PC,-}`**: `SoftOverlap.lean` (`psiHat_three_of_linear`) and `SoftPC.lean` (`soft_tail3`).
+* **(R3) `M_Olv` form**: `SoftWeights.lean` (`molv_lower`) and `SoftPC.lean` (`soft_pc_bound`).
+* **(R4) lower bound of (c)**: `SoftGrowth.lean` and `SoftLower.lean` (`soft_lamL_lower`).
+* **(R5) the derivation of (S3)**: `SoftTransfer.lean` (`soft_valid`).
+* The assembled item (1): `SoftItem1.lean` (`propThaW2_item1`).
 
 ## Differences from the paper
 
@@ -43,7 +41,7 @@ F-W2-1..7 of the first attempt: the chain is now three patches, the validity hyp
 
 ## Not formalised
 
-(R1)--(R5) above; items (2)--(4) of `PropThaW2` (L2.C7).
+Items (2)--(4) of `PropThaW2` (L2.C7).
 -/
 
 @[expose] public section
