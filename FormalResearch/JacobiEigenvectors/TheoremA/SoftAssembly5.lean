@@ -11,7 +11,7 @@ Source: app_thmA, proof of prop:tha-W2, Step 4 (f).
 Proved here (all axiom-pinned):
 * `left_lb`: for one chart, off the window, `V_k <= C |psi-hat^L_k|` on the Weber rows and on the left PC rows with `Z_k < -rho(a)` (from the chart fields `lb_weber`, `lb_pc`, F-W2-18).
 * `soft_row_lb`: the four-branch version for the glued numerator.
-* `soft_eigen_rel`: at an eigenvalue obeying Step 0, `softEnv_n <= Cc |softVec_n|` for `n` off the window.
+* `soft_rel`: for `X <= bandHi + Cs0 h^2`, `softEnv_n <= Cc |softVec_n|` for `n` off the window; `soft_eigen_clause`: the whole eigen-system clause of `PropThaW2` (2) with one constant.
 
 Differences from the paper: the lower bounds on the rows are the chart fields `lb_weber`, `lb_pc` (paper: lem:cha-W0 and `corr_PC`, `beyond`, Step 4 (f)).
 
@@ -242,6 +242,50 @@ end Rel
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.soft_rel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms soft_rel
+
+section Clause
+
+variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
+  (CL : SoftEdgeChart Fz P m q U V Lm) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V Lm)
+
+/-- **the eigen-system clause of `PropThaW2` (2), complete**: the three conjuncts of the frozen statement (row-wise error, `l^2` bound, off-window relative form) with one constant. -/
+theorem soft_eigen_clause (hM : SoftMirror CL CR) {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (hm : 1 ≤ m)
+    (hLm : ∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ Lm h) (Cs0 : ℝ) :
+    ∃ Cc h0 : ℝ, 0 < h0 ∧ ∀ p ∈ P, ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 →
+      ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →
+        (∀ i, Xs i ≤ Fz.bandHi p + Cs0 * Fz.step N ^ 2) → ∀ k : Fin (N + 1), |Xs k - Fz.bandHi p| ≤ CL.δ0 →
+          (∀ n ∈ rowsOf N, |eigVec Um k n - softVec CL CR p (Xs k) N n| ≤ Cc * Fz.step N ^ m * Lm (Fz.step N) * softEnv CL CR p (Xs k) N n) ∧
+          ∑ n ∈ rowsOf N, softEnv CL CR p (Xs k) N n ^ 2 ≤ Cc ∧
+          (∀ n ∈ rowsOf N, n ∉ softWindow CL p (Xs k) N → softEnv CL CR p (Xs k) N n ≤ Cc * |softVec CL CR p (Xs k) N n|) := by
+  obtain ⟨C1, h1, h1p, H1⟩ := soft_eigen_main CL CR hM hf hm hLm Cs0
+  obtain ⟨C2, h2, h2p, H2⟩ := soft_rel CL CR hM hf Cs0
+  refine ⟨max C1 (max C2 0), min (min h1 h2) CL.softH2, lt_min (lt_min h1p h2p) CL.softH2_pos, ?_⟩
+  intro p hp N hN hstep Xs Um hE hs0 k hX
+  have hs1 : Fz.step N ≤ h1 := (hstep.trans (min_le_left _ _)).trans (min_le_left _ _)
+  have hs2 : Fz.step N ≤ h2 := (hstep.trans (min_le_left _ _)).trans (min_le_right _ _)
+  have hs3 : Fz.step N ≤ CL.softH2 := hstep.trans (min_le_right _ _)
+  obtain ⟨ha, hb⟩ := H1 p hp N hN hs1 Xs Um hE hs0 k hX
+  have hh0 : 0 < Fz.step N := SoftEdgeChart.step_pos (F := Fz) N
+  have hh1 : Fz.step N ≤ 1 := hs3.trans (CL.softH2_le_H1.trans CL.softH1_le_one)
+  have hε : 0 ≤ Fz.step N ^ m * Lm (Fz.step N) := powLm_nonneg CL hh0 hh1
+  have hC1 : C1 ≤ max C1 (max C2 0) := le_max_left _ _
+  have hC2 : C2 ≤ max C1 (max C2 0) := (le_max_left _ _).trans (le_max_right _ _)
+  refine ⟨?_, hb.trans hC1, ?_⟩
+  · intro n hn
+    have e : max C1 (max C2 0) * Fz.step N ^ m * Lm (Fz.step N) * softEnv CL CR p (Xs k) N n =
+        max C1 (max C2 0) * (Fz.step N ^ m * Lm (Fz.step N)) * softEnv CL CR p (Xs k) N n := by ring
+    rw [e]
+    refine (ha n hn).trans ?_
+    exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hC1 hε) (softEnv_nonneg CL CR hf p (Xs k) N n)
+  · intro n hn hΩ
+    have := H2 p hp N hN hs2 (Xs k) hX (hs0 k) n hn hΩ
+    exact this.trans (mul_le_mul_of_nonneg_right hC2 (abs_nonneg _))
+
+end Clause
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.soft_eigen_clause' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms soft_eigen_clause
 
 end FormalResearch.JacobiEigenvectors.TheoremA
 
