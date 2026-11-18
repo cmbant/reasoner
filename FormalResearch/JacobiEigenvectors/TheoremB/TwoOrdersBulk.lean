@@ -22,7 +22,7 @@ Source: Paper J `thmB.tex` `prop:tha-splice` (c) and `app_thmB.tex`, proof of `p
   a new such field must be added there**): this is the `ChartInputs.restrict` step of finding F-t0, for bulk charts.
 * Bridge (d): `(frozenFamily F Kidx).jacobiMat (mu, h) N = F.jacobiMat mu N` (`frozenFamily_jacobiMat_at_step`) transports the eigen-system.
 * `nearestRow_mem_window`: for `c' < s < c`, `nearestRow h s` lies in the window `{c' <= u_n <= c}` once `h <= min (2(s-c'), 2(c-s), c')`.
-* `bulk_block_columns`, `compMatrix_bulk_col`: the above for one block and, uniformly over the finitely many blocks, for every column `j` of `compMatrix CI spl` whose energy lies in a block (`compColumn` unfolds to `bulkColAt` of the chosen block).
+* `bulk_block_columns`, `compMatrix_bulk_col`: the above for one block and, uniformly over the finitely many blocks, for every column `j` of `compMatrix CI spl` whose energy lies in a block (`compColumn` unfolds to `bulkColAt` of the least block containing the energy, `blockIdx`; finding F-B11 applied).
 * `twoOrders_bulk_columns`: both conjuncts of `PropThaSpliceTwoOrders` for the bulk columns, with `etaR` (`h^m`, and `h^{m+1} <= etaR m (m+1) h` for `h <= e^{-1}`), from `CP : ChartPair` with `SplicesInWindow`.
 
 ## Differences from the paper
@@ -633,8 +633,8 @@ theorem compMatrix_bulk_col {Par : Type*} [TopologicalSpace Par] {F : SymbolFami
     positivity
   intro μ hμ N hN hNt Xs Um hE j hj
   have hst : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
-  set ν := Classical.choose hj with hνdef
-  obtain ⟨hν1, hν2⟩ := Classical.choose_spec hj
+  set ν := blockIdx CI (Xs j) hj with hνdef
+  obtain ⟨hν1, hν2⟩ := blockIdx_spec CI (Xs j) hj
   have hcol : ∀ i : Fin (N + 1), compMatrix CI spl μ N Xs i j =
       bulkColAt (CI.bulkL ν) (CI.bulkR ν) (atStep F μ N) (Xs j) N (nearestRow (F.step N) (spl ν)) ((i : ℕ) : ℤ) := by
     intro i

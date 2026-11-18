@@ -68,11 +68,30 @@ structure Splices (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) where
   spl : Fin CI.nb → ℝ
   spl_mem : ∀ ν, (CI.bulkL ν).c' ≤ spl ν ∧ spl ν ≤ (CI.bulkL ν).c
 
-/-- Column of `hat G^{[r]}` at the energy `X` (row `n`): the three cases as in `psiHatVec`, with the fixed splice rows. -/
+/-- The **least** bulk block containing the energy `X` (given that there is one).  *Finding F-B11 (applied)*: the block of an energy used by `compColumn` must be chosen canonically, by the least index,
+so that for the two orders `m`, `m + 1` of a `ChartPair` (same `lo`, `hi`, `lo_eq`, `hi_eq`) the choices correspond under `Fin.cast nb_eq` (`blockIdx_cast`, in `BulkOneStep.lean`); a choice by
+`Classical.choose` made separately for the two orders need not correspond when the blocks overlap. -/
+def blockIdx (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (X : ℝ) (h : ∃ ν : Fin CI.nb, CI.lo ν ≤ X ∧ X ≤ CI.hi ν) : Fin CI.nb :=
+  wellFounded_lt.min {ν : Fin CI.nb | CI.lo ν ≤ X ∧ X ≤ CI.hi ν} h
+
+theorem blockIdx_spec (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (X : ℝ) (h : ∃ ν : Fin CI.nb, CI.lo ν ≤ X ∧ X ≤ CI.hi ν) :
+    CI.lo (blockIdx CI X h) ≤ X ∧ X ≤ CI.hi (blockIdx CI X h) :=
+  wellFounded_lt.min_mem {ν : Fin CI.nb | CI.lo ν ≤ X ∧ X ≤ CI.hi ν} h
+
+/-- Minimality: no block of smaller index contains `X`. -/
+theorem blockIdx_min (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (X : ℝ) (h : ∃ ν : Fin CI.nb, CI.lo ν ≤ X ∧ X ≤ CI.hi ν) {ν : Fin CI.nb}
+    (hν : CI.lo ν ≤ X ∧ X ≤ CI.hi ν) : blockIdx CI X h ≤ ν :=
+  not_lt.mp (wellFounded_lt.not_lt_min {ν : Fin CI.nb | CI.lo ν ≤ X ∧ X ≤ CI.hi ν} hν)
+
+/-- The block that `compColumn` assigns to the energy `X` (the least block containing it, `none` for a soft energy). -/
+def blockOf (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (X : ℝ) : Option (Fin CI.nb) :=
+  if h : ∃ ν : Fin CI.nb, CI.lo ν ≤ X ∧ X ≤ CI.hi ν then some (blockIdx CI X h) else none
+
+/-- Column of `hat G^{[r]}` at the energy `X` (row `n`): the three cases as in `psiHatVec`, with the fixed splice rows.  The bulk block of `X` is the least one (`blockIdx`, finding F-B11). -/
 def compColumn (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (spl : Fin CI.nb → ℝ) (μ : Par) (N : ℕ) (X : ℝ) (n : ℤ) : ℝ :=
-  if h : ∃ ν, CI.lo ν ≤ X ∧ X ≤ CI.hi ν then
-    bulkColAt (CI.bulkL (Classical.choose h)) (CI.bulkR (Classical.choose h)) (atStep F μ N) X N
-      (nearestRow (F.step N) (spl (Classical.choose h))) n
+  if h : ∃ ν : Fin CI.nb, CI.lo ν ≤ X ∧ X ≤ CI.hi ν then
+    bulkColAt (CI.bulkL (blockIdx CI X h)) (CI.bulkR (blockIdx CI X h)) (atStep F μ N) X N
+      (nearestRow (F.step N) (spl (blockIdx CI X h))) n
   else if CI.Jhi < X then
     softColAt CI.softUpL CI.softUpR (atStep F μ N) X N (nearestRow (F.step N) (CI.softUpL.uc (atStep F μ N))) n
   else (-1 : ℝ) ^ n *
@@ -84,5 +103,13 @@ def compMatrix (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (spl : Fin CI.nb �
   Matrix.of fun i k => compColumn CI spl μ N (X k) ((i : ℕ) : ℤ)
 
 end Matrix
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.blockIdx_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.blockIdx_spec
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.blockIdx_min' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.blockIdx_min
 
 end FormalResearch.JacobiEigenvectors.TheoremB

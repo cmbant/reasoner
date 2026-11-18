@@ -22,7 +22,7 @@ Source: Paper J `app_thmB.tex`, "(I2) and the changed coefficient: bulk charts" 
 * `ChartOkCoeff`: the fields of `JB.Chart.Ok` that depend only on the coefficients: `omega_pos`, `transfer`, `t12_lb`, `alpha_lb`, the five `schur_*`, `parity_A`, `parity_B`.
 * `bulkJBChart_coeff`: **all of `ChartOkCoeff` for `bulkJBChart`**, for every design data, from `TransferInputs` (`reg_*`, `t12_lb`, `alpha_lb`, `parity_*`, `omega_pos_le`, `same_ladder`), `shift_up` and `chart_schur_five` (BulkSchur).
 * `ChartOkCoeff.ok`: `JB.Chart.Ok` from `ChartOkCoeff` and the seven design fields (`host0_eq`, `host1_eq`, `host0_col`, `host1_col`, `ext_row`, `overlap_lb`, `overlap_ub`).
-* Host entries: `bulkJBChart_H0`, `bulkJBChart_H1` (`H^{[r]}_c = sigma psi-hat` on the chart rows), `blockOf`, `blockCols`, `blockCols_disjoint` (**`cols_disjoint`**), `compMatrix_bulk_entry` (the entry of `compMatrix` on a bulk column is
+* Host entries: `bulkJBChart_H0`, `bulkJBChart_H1` (`H^{[r]}_c = sigma psi-hat` on the chart rows), `blockCols`, `blockCols_disjoint` (**`cols_disjoint`**), `compMatrix_bulk_entry` (the entry of `compMatrix` on a bulk column is
   `psi-hat^L/hat N` for rows `<= n_nu`, `hat kappa psi-hat^R/hat N` beyond: eq:thb-bulkcol), and **`host0_eq`** for the left chart (`bulk_host0_eq_left`, `sigma = 1/hat N`, rows `<= n_nu`) and the right chart
   (`bulk_host0_eq_right`, mirror, `sigma = hat kappa/hat N`, rows `> n_nu`), with the host `compMatrix CI0 spl`.
 
@@ -32,17 +32,17 @@ Source: Paper J `app_thmB.tex`, "(I2) and the changed coefficient: bulk charts" 
 * The Schur constant `cs.K` must dominate `chartSchurK 0 (c + sigma/2) Jlo Jhi S c_T c_alpha H` (`|h| <= H`); `c_T`, `c_alpha`, `omega_max` of `cs` are below/above those of `TransferInputs` (hypotheses of `bulkJBChart_coeff`).
 * The chart `C1` of order `m + 1` has its own energy interval `[Jlo1, Jhi1]`, assumed equal to the one of `C` (`ChartPair.lo_eq`, `hi_eq`).
 
-## FINDING F-B11 (block choice for the second order; `compColumn` in `ComparisonMatrix.lean`, not changed here)
+## FINDING F-B11 (block choice for the second order; **applied**: `blockIdx` in `ComparisonMatrix.lean`)
 
-`compColumn CI spl mu N X` picks the bulk block of the energy `X` by `Classical.choose` of `exists nu, lo nu <= X <= hi nu`, separately for `CI0` and `CI1`.  When blocks overlap the two choices need not correspond under `Fin.cast CP.nb_eq`,
+`compColumn CI spl mu N X` used to pick the bulk block of the energy `X` by `Classical.choose` of `exists nu, lo nu <= X <= hi nu`, separately for `CI0` and `CI1`.  When blocks overlap the two choices need not correspond under `Fin.cast CP.nb_eq`,
 and then the column of `compMatrix CI1` of a block-`nu` column of `compMatrix CI0` is built from a different block (its profile is `psi-hat` of another overlap window, equal only up to `O(h^m)`), so `host1_eq` / `match1`
-of `OneStepInputs` (`H^{[m+1]}_c` of the block-`nu` chart is a submatrix of `compMatrix CI1`) fails for such columns.  **Minimal correction**: replace `Classical.choose` by the *least* block index (`Fin.find` / `Nat.find` on the
-existence statement): then `lo_eq`, `hi_eq` of `ChartPair` make the choices for the two orders correspond under `Fin.cast`, and `blockOf CI1 X = some (Fin.cast _ nu)` whenever `blockOf CI0 X = some nu`.  (`TwoOrdersBulk` is unaffected: it handles each order separately.)
-`host0_eq` (order `m`, one `CI`) needs no change; `host1_eq` does.
+of `OneStepInputs` (`H^{[m+1]}_c` of the block-`nu` chart is a submatrix of `compMatrix CI1`) fails for such columns.  **Applied correction**: `compColumn` and `blockOf` take the *least* block index (`blockIdx`, `blockIdx_spec`, `blockIdx_min`);
+`lo_eq`, `hi_eq` of `ChartPair` then make the choices for the two orders correspond (`blockIdx_cast`, `blockOf_cast` in `BulkOneStep2.lean`).  `TwoOrdersBulk` (`compMatrix_bulk_col`) was changed only to use `blockIdx_spec` in place of `Classical.choose_spec`;
+its headline theorems and axiom pins are unchanged.  `host0_eq` (one order) needed no change; `host1_eq` is in `BulkOneStep2.lean`.
 
 ## Not formalised
 
-`host1_eq` (needs F-B11), `host0_col`, `host1_col` (the host columns for **every** column: bulk columns are `twoOrders_bulk_columns` at the extreme splices; soft columns are the soft half), `ext_row`
+`host0_col`, `host1_col` (the host columns for **every** column: bulk columns are `twoOrders_bulk_columns` at the extreme splices; soft columns are the soft half), `ext_row`
 (`||(omega sigma y_ext)|| <= C_E`: `sqrt(#cols) sup |omega sigma y_ext|` with `sigma ~ h^{1/4}` and the envelope of `y` at the exterior row), `overlap_lb` (window mass of `Psi_k`), `overlap_ub`
 (`||P_k y|| + ||P_k y~|| <= C ||P_k phi^{[m+1]}||`: envelope `env` of the model pair against the window mass `overlap_sum_lower` / `chart_pair_bound`); and in `OneStepInputs`: `match0/1`, `outside`, `G1_col`, `eps5`, `U_orth`
 (`IsEigenSystem.orth`), the choice of `lo`, `R`, `used`, `P_k`, the extreme splices `n^pm_nu` and the existence of the constants `cs`.
@@ -333,10 +333,6 @@ section HostEntries
 
 variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
 
-/-- The block that `compColumn` assigns to the energy `X` (`Classical.choose` of the existence, `none` for a soft energy). -/
-def blockOf (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (X : ℝ) : Option (Fin CI.nb) :=
-  if h : ∃ ν, CI.lo ν ≤ X ∧ X ≤ CI.hi ν then some (Classical.choose h) else none
-
 /-- The columns of the block `nu` (disjoint for different blocks: `blockOf` is a function). -/
 def blockCols (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (N : ℕ) (Xs : Fin (N + 1) → ℝ) (ν : Fin CI.nb) : Finset (Fin (N + 1)) :=
   Finset.univ.filter fun k => blockOf CI (Xs k) = some ν
@@ -360,7 +356,7 @@ theorem compMatrix_bulk_entry (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (sp
   unfold blockOf at hk
   by_cases hex : ∃ ν', CI.lo ν' ≤ Xs k ∧ Xs k ≤ CI.hi ν'
   · rw [dif_pos hex] at hk
-    have hν : Classical.choose hex = ν := Option.some.inj hk
+    have hν : blockIdx CI (Xs k) hex = ν := Option.some.inj hk
     simp only [compMatrix, Matrix.of_apply, compColumn, dif_pos hex]
     rw [hν]
     unfold bulkColAt glueVecAt
