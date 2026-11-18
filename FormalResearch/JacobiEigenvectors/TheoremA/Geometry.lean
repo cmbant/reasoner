@@ -1207,11 +1207,738 @@ theorem hypMorseEquiv : HypMorseEquiv := by
     have hPpn := crit_of_A hG hg hL hG2 hB2n hA' hqn' hXpn hdegn
     exact ⟨hPp, Pm_iff_neg.2 hPpn⟩
 
+/-! ### (L2.G2) openness: the derivative form of (M) and its stability -/
+
+/-- `G'` on `[0, L]` (one-sided at the ends); it is the derivative for `u` in `(0, L)`. -/
+def d1 (L : ℝ) (G : ℝ → ℝ) (u : ℝ) : ℝ := iteratedDerivWithin 1 G (Icc 0 L) u
+
+/-- `G''` on `[0, L]`. -/
+def d2 (L : ℝ) (G : ℝ → ℝ) (u : ℝ) : ℝ := iteratedDerivWithin 2 G (Icc 0 L) u
+
+/-- `E_0' = (L - 2u) G + u (L - u) G'`. -/
+def Epf (L : ℝ) (G : ℝ → ℝ) (u : ℝ) : ℝ := (L - 2 * u) * G u + u * (L - u) * d1 L G u
+
+/-- `E_0'' = -2 G + 2 (L - 2u) G' + u (L - u) G''`. -/
+def Epp (L : ℝ) (G : ℝ → ℝ) (u : ℝ) : ℝ :=
+  -2 * G u + 2 * (L - 2 * u) * d1 L G u + u * (L - u) * d2 L G u
+
+/-- `h = B' sqrt(E) + E'`: `f_+' = h / sqrt(E)`. -/
+def hf (L : ℝ) (G B : ℝ → ℝ) (u : ℝ) : ℝ := d1 L B u * Real.sqrt (E0 L G u) + Epf L G u
+
+/-- `h' = B'' sqrt(E) + B' E' / (2 sqrt(E)) + E''`. -/
+def hder (L : ℝ) (G B : ℝ → ℝ) (u : ℝ) : ℝ :=
+  d2 L B u * Real.sqrt (E0 L G u) + d1 L B u * (Epf L G u / (2 * Real.sqrt (E0 L G u))) + Epp L G u
+
+/-- `Q = 2 sqrt(E) h' = 2 B'' E + B' E' + 2 sqrt(E) E''` (division free). -/
+def Qf (L : ℝ) (G B : ℝ → ℝ) (u : ℝ) : ℝ :=
+  2 * d2 L B u * E0 L G u + d1 L B u * Epf L G u + 2 * Real.sqrt (E0 L G u) * Epp L G u
+
+lemma d1_eq_deriv {G : ℝ → ℝ} {L u : ℝ} (hu : u ∈ Ioo 0 L) : d1 L G u = deriv G u := by
+  unfold d1
+  rw [iteratedDerivWithin_one, derivWithin_of_mem_nhds (Icc_mem_nhds hu.1 hu.2)]
+
+lemma d2_eq_deriv_deriv {G : ℝ → ℝ} {L u : ℝ} (hu : u ∈ Ioo 0 L) : d2 L G u = deriv (deriv G) u := by
+  unfold d2
+  have h2 : iteratedDerivWithin (1 + 1) G (Icc 0 L) u =
+      derivWithin (iteratedDerivWithin 1 G (Icc 0 L)) (Icc 0 L) u := by
+    rw [iteratedDerivWithin_succ]
+  rw [show (2 : ℕ) = 1 + 1 from rfl, h2, derivWithin_of_mem_nhds (Icc_mem_nhds hu.1 hu.2)]
+  have hev : iteratedDerivWithin 1 G (Icc 0 L) =ᶠ[𝓝 u] deriv G :=
+    Filter.eventually_of_mem (isOpen_Ioo.mem_nhds hu) (fun v hv => d1_eq_deriv hv)
+  exact hev.deriv_eq
+
+lemma hasDerivAt_of_C2 {G : ℝ → ℝ} {L : ℝ} (hG : ContDiffOn ℝ 2 G (Icc 0 L)) {u : ℝ} (hu : u ∈ Ioo 0 L) :
+    HasDerivAt G (d1 L G u) u := by
+  have hd : DifferentiableAt ℝ G u :=
+    (hG.differentiableOn (by norm_num) u (Ioo_subset_Icc_self hu)).differentiableAt (Icc_mem_nhds hu.1 hu.2)
+  rw [d1_eq_deriv hu]
+  exact hd.hasDerivAt
+
+lemma hasDerivAt_d1_of_C2 {G : ℝ → ℝ} {L : ℝ} (hG : ContDiffOn ℝ 2 G (Icc 0 L)) {u : ℝ} (hu : u ∈ Ioo 0 L) :
+    HasDerivAt (d1 L G) (d2 L G u) u := by
+  have hGo : ContDiffOn ℝ 2 G (Ioo 0 L) := hG.mono Ioo_subset_Icc_self
+  have hc1 : ContDiffOn ℝ 1 (deriv G) (Ioo 0 L) :=
+    ((contDiffOn_succ_iff_deriv_of_isOpen (n := 1) isOpen_Ioo).1 (by norm_num; exact hGo)).2.2
+  have hdd : DifferentiableAt ℝ (deriv G) u :=
+    (hc1.differentiableOn (by norm_num) u hu).differentiableAt (isOpen_Ioo.mem_nhds hu)
+  have hev : d1 L G =ᶠ[𝓝 u] deriv G :=
+    Filter.eventually_of_mem (isOpen_Ioo.mem_nhds hu) (fun v hv => d1_eq_deriv hv)
+  rw [d2_eq_deriv_deriv hu]
+  exact (hdd.hasDerivAt).congr_of_eventuallyEq hev
+
+lemma hasDerivAt_E0 {G : ℝ → ℝ} {L : ℝ} (hG : ContDiffOn ℝ 2 G (Icc 0 L)) {u : ℝ} (hu : u ∈ Ioo 0 L) :
+    HasDerivAt (E0 L G) (Epf L G u) u := by
+  have h1 : HasDerivAt (fun v => v * (L - v) * G v) (Epf L G u) u := by
+    have := ((hasDerivAt_id' u).mul ((hasDerivAt_const u L).sub (hasDerivAt_id' u))).mul
+      (hasDerivAt_of_C2 hG hu)
+    convert this using 1
+    try simp only [Pi.mul_apply, Pi.sub_apply, Pi.add_apply]
+    unfold Epf
+    ring
+  exact h1
+
+lemma hasDerivAt_Epf {G : ℝ → ℝ} {L : ℝ} (hG : ContDiffOn ℝ 2 G (Icc 0 L)) {u : ℝ} (hu : u ∈ Ioo 0 L) :
+    HasDerivAt (Epf L G) (Epp L G u) u := by
+  have h1 : HasDerivAt (fun v => (L - 2 * v) * G v + v * (L - v) * d1 L G v) (Epp L G u) u := by
+    have a1 : HasDerivAt (fun v => (L - 2 * v) * G v) ((-2) * G u + (L - 2 * u) * d1 L G u) u := by
+      have := ((hasDerivAt_const u L).sub ((hasDerivAt_id' u).const_mul 2)).mul (hasDerivAt_of_C2 hG hu)
+      convert this using 1
+      try simp only [Pi.mul_apply, Pi.sub_apply, Pi.add_apply]
+      ring
+    have a2 := ((hasDerivAt_id' u).mul ((hasDerivAt_const u L).sub (hasDerivAt_id' u))).mul
+        (hasDerivAt_d1_of_C2 hG hu)
+    have := a1.add a2
+    convert this using 1
+    try simp only [Pi.mul_apply, Pi.sub_apply, Pi.add_apply]
+    unfold Epp
+    ring
+  exact h1
+
+lemma hasDerivAt_sqrtE0 {G : ℝ → ℝ} {L : ℝ} (hG : ContDiffOn ℝ 2 G (Icc 0 L)) {u : ℝ} (hu : u ∈ Ioo 0 L)
+    (hpos : 0 < E0 L G u) :
+    HasDerivAt (fun v => Real.sqrt (E0 L G v)) (Epf L G u / (2 * Real.sqrt (E0 L G u))) u :=
+  (hasDerivAt_E0 hG hu).sqrt hpos.ne'
+
+lemma hasDerivAt_hf {G B : ℝ → ℝ} {L : ℝ} (hG : ContDiffOn ℝ 2 G (Icc 0 L)) (hB : ContDiffOn ℝ 2 B (Icc 0 L))
+    {u : ℝ} (hu : u ∈ Ioo 0 L) (hpos : 0 < E0 L G u) :
+    HasDerivAt (hf L G B) (hder L G B u) u := by
+  have h1 : HasDerivAt (fun v => d1 L B v * Real.sqrt (E0 L G v))
+      (d2 L B u * Real.sqrt (E0 L G u) + d1 L B u * (Epf L G u / (2 * Real.sqrt (E0 L G u)))) u :=
+    (hasDerivAt_d1_of_C2 hB hu).mul (hasDerivAt_sqrtE0 hG hu hpos)
+  have h2 := h1.add (hasDerivAt_Epf hG hu)
+  unfold hder
+  exact h2
+
+lemma hasDerivAt_fPlus' {G B : ℝ → ℝ} {L : ℝ} (hG : ContDiffOn ℝ 2 G (Icc 0 L)) (hB : ContDiffOn ℝ 2 B (Icc 0 L))
+    {u : ℝ} (hu : u ∈ Ioo 0 L) (hpos : 0 < E0 L G u) :
+    HasDerivAt (fPlus L G B) (hf L G B u / Real.sqrt (E0 L G u)) u := by
+  have hB' : HasDerivAt B (d1 L B u) u := hasDerivAt_of_C2 hB hu
+  have h2 := hB'.add ((hasDerivAt_sqrtE0 hG hu hpos).const_mul 2)
+  have hs : 0 < Real.sqrt (E0 L G u) := Real.sqrt_pos.2 hpos
+  have e : fPlus L G B = fun v => B v + 2 * Real.sqrt (E0 L G v) := rfl
+  rw [e]
+  convert h2 using 1
+  unfold hf
+  field_simp
+
+lemma Qf_eq {G B : ℝ → ℝ} {L u : ℝ} (hpos : 0 < E0 L G u) :
+    Qf L G B u = 2 * Real.sqrt (E0 L G u) * hder L G B u := by
+  have hs : Real.sqrt (E0 L G u) ^ 2 = E0 L G u := Real.sq_sqrt hpos.le
+  have hs0 : Real.sqrt (E0 L G u) ≠ 0 := (Real.sqrt_pos.2 hpos).ne'
+  unfold Qf hder
+  generalize Real.sqrt (E0 L G u) = s at hs hs0 ⊢
+  rw [← hs]
+  field_simp
+
+lemma E0_pos_Ioo {G : ℝ → ℝ} {L u : ℝ} (hGpos : ∀ v ∈ Ioo 0 L, 0 < G v) (hu : u ∈ Ioo 0 L) :
+    0 < E0 L G u :=
+  mul_pos (mul_pos hu.1 (sub_pos.2 hu.2)) (hGpos u hu)
+
+/-- The derivative form `(M)` of `f_+`: the zeros of `h = hf` in `(0, L)` form one point `uc` with `Q(uc) < 0`. -/
+def HPprop (L : ℝ) (G B : ℝ → ℝ) : Prop :=
+  ∃ uc ∈ Ioo 0 L, {u ∈ Ioo 0 L | hf L G B u = 0} = {uc} ∧ Qf L G B uc < 0
+
+lemma pp_iff_HP {G B : ℝ → ℝ} {L : ℝ} (hG : ContDiffOn ℝ 2 G (Icc 0 L)) (hB : ContDiffOn ℝ 2 B (Icc 0 L))
+    (hGpos : ∀ v ∈ Ioo 0 L, 0 < G v) : PpProp L G B ↔ HPprop L G B := by
+  have hfp : ∀ v ∈ Ioo 0 L, deriv (fPlus L G B) v = hf L G B v / Real.sqrt (E0 L G v) :=
+    fun v hv => (hasDerivAt_fPlus' hG hB hv (E0_pos_Ioo hGpos hv)).deriv
+  have hsq : ∀ v ∈ Ioo 0 L, Real.sqrt (E0 L G v) ≠ 0 :=
+    fun v hv => (Real.sqrt_pos.2 (E0_pos_Ioo hGpos hv)).ne'
+  constructor
+  · rintro ⟨uc, huc, hset, hneg⟩
+    have hzero : {u ∈ Ioo 0 L | hf L G B u = 0} = {uc} := by
+      ext v
+      constructor
+      · rintro ⟨hv, hz⟩
+        have h0 : deriv (fPlus L G B) v = 0 := by rw [hfp v hv, hz, zero_div]
+        exact Set.mem_singleton_iff.2 (Set.mem_singleton_iff.1 ((Set.ext_iff.1 hset v).1 ⟨hv, h0⟩))
+      · intro hv
+        rw [Set.mem_singleton_iff] at hv
+        subst hv
+        have h0 : deriv (fPlus L G B) v = 0 := ((Set.ext_iff.1 hset v).2 (Set.mem_singleton v)).2
+        rw [hfp v huc] at h0
+        have hz : hf L G B v = 0 := by
+          rcases div_eq_zero_iff.1 h0 with h | h
+          · exact h
+          · exact absurd h (hsq v huc)
+        exact ⟨huc, hz⟩
+    have hz_uc : hf L G B uc = 0 := by
+      have : uc ∈ {u ∈ Ioo 0 L | hf L G B u = 0} := by rw [hzero]; exact Set.mem_singleton uc
+      exact this.2
+    have hEv : deriv (fPlus L G B) =ᶠ[𝓝 uc] fun v => hf L G B v / Real.sqrt (E0 L G v) :=
+      Filter.eventually_of_mem (isOpen_Ioo.mem_nhds huc) hfp
+    have hdd : deriv (deriv (fPlus L G B)) uc = deriv (fun v => hf L G B v / Real.sqrt (E0 L G v)) uc :=
+      hEv.deriv_eq
+    have hquot : HasDerivAt (fun v => hf L G B v / Real.sqrt (E0 L G v))
+        ((hder L G B uc * Real.sqrt (E0 L G uc) - hf L G B uc *
+          (Epf L G uc / (2 * Real.sqrt (E0 L G uc)))) / (Real.sqrt (E0 L G uc)) ^ 2) uc :=
+      (hasDerivAt_hf hG hB huc (E0_pos_Ioo hGpos huc)).div
+        (hasDerivAt_sqrtE0 hG huc (E0_pos_Ioo hGpos huc)) (hsq uc huc)
+    have hkey : deriv (deriv (fPlus L G B)) uc = hder L G B uc / Real.sqrt (E0 L G uc) := by
+      rw [hdd, hquot.deriv, hz_uc, zero_mul, sub_zero]
+      have hs := hsq uc huc
+      field_simp
+    have hsp : 0 < Real.sqrt (E0 L G uc) := Real.sqrt_pos.2 (E0_pos_Ioo hGpos huc)
+    have hder_neg : hder L G B uc < 0 := by
+      rw [hkey] at hneg
+      exact (div_neg_iff.1 hneg).elim (fun h => absurd h.2 (not_lt.2 hsp.le)) (fun h => h.1)
+    refine ⟨uc, huc, hzero, ?_⟩
+    rw [Qf_eq (E0_pos_Ioo hGpos huc)]
+    exact mul_neg_of_pos_of_neg (by positivity) hder_neg
+  · rintro ⟨uc, huc, hzero, hQ⟩
+    have hz_uc : hf L G B uc = 0 := by
+      have : uc ∈ {u ∈ Ioo 0 L | hf L G B u = 0} := by rw [hzero]; exact Set.mem_singleton uc
+      exact this.2
+    have hzeroD : {u ∈ Ioo 0 L | deriv (fPlus L G B) u = 0} = {uc} := by
+      ext v
+      constructor
+      · rintro ⟨hv, h0⟩
+        rw [hfp v hv] at h0
+        have hz : hf L G B v = 0 := by
+          rcases div_eq_zero_iff.1 h0 with h | h
+          · exact h
+          · exact absurd h (hsq v hv)
+        have : v ∈ {u ∈ Ioo 0 L | hf L G B u = 0} := ⟨hv, hz⟩
+        rw [hzero] at this
+        exact this
+      · intro hv
+        rw [Set.mem_singleton_iff] at hv
+        subst hv
+        refine ⟨huc, ?_⟩
+        rw [hfp v huc, hz_uc, zero_div]
+    have hEv : deriv (fPlus L G B) =ᶠ[𝓝 uc] fun v => hf L G B v / Real.sqrt (E0 L G v) :=
+      Filter.eventually_of_mem (isOpen_Ioo.mem_nhds huc) hfp
+    have hdd : deriv (deriv (fPlus L G B)) uc = deriv (fun v => hf L G B v / Real.sqrt (E0 L G v)) uc :=
+      hEv.deriv_eq
+    have hquot : HasDerivAt (fun v => hf L G B v / Real.sqrt (E0 L G v))
+        ((hder L G B uc * Real.sqrt (E0 L G uc) - hf L G B uc *
+          (Epf L G uc / (2 * Real.sqrt (E0 L G uc)))) / (Real.sqrt (E0 L G uc)) ^ 2) uc :=
+      (hasDerivAt_hf hG hB huc (E0_pos_Ioo hGpos huc)).div
+        (hasDerivAt_sqrtE0 hG huc (E0_pos_Ioo hGpos huc)) (hsq uc huc)
+    have hkey : deriv (deriv (fPlus L G B)) uc = hder L G B uc / Real.sqrt (E0 L G uc) := by
+      rw [hdd, hquot.deriv, hz_uc, zero_mul, sub_zero]
+      have hs := hsq uc huc
+      field_simp
+    have hsp : 0 < Real.sqrt (E0 L G uc) := Real.sqrt_pos.2 (E0_pos_Ioo hGpos huc)
+    have hder_neg : hder L G B uc < 0 := by
+      rw [Qf_eq (E0_pos_Ioo hGpos huc)] at hQ
+      nlinarith
+    refine ⟨uc, huc, hzeroD, ?_⟩
+    rw [hkey]
+    exact div_neg_of_neg_of_pos hder_neg hsp
+
+/-! ### Uniform continuity of the jet expressions -/
+
+/-- `h` as a function of the jets `(u, G(u), G'(u), B'(u))`. -/
+def hfJ (L u g0 g1 b1 : ℝ) : ℝ := b1 * Real.sqrt (u * (L - u) * g0) + ((L - 2 * u) * g0 + u * (L - u) * g1)
+
+/-- `Q` as a function of the jets `(u, G, G', G'', B', B'')`. -/
+def QfJ (L u g0 g1 g2 b1 b2 : ℝ) : ℝ :=
+  2 * b2 * (u * (L - u) * g0) + b1 * ((L - 2 * u) * g0 + u * (L - u) * g1) +
+    2 * Real.sqrt (u * (L - u) * g0) * (-2 * g0 + 2 * (L - 2 * u) * g1 + u * (L - u) * g2)
+
+lemma hfJ_continuous (L : ℝ) :
+    Continuous (fun p : ℝ × ℝ × ℝ × ℝ => hfJ L p.1 p.2.1 p.2.2.1 p.2.2.2) := by
+  unfold hfJ
+  fun_prop
+
+lemma QfJ_continuous (L : ℝ) :
+    Continuous (fun p : ℝ × ℝ × ℝ × ℝ × ℝ × ℝ => QfJ L p.1 p.2.1 p.2.2.1 p.2.2.2.1 p.2.2.2.2.1 p.2.2.2.2.2) := by
+  unfold QfJ
+  fun_prop
+
+lemma hfJ_unif (L M η : ℝ) (hη : 0 < η) :
+    ∃ δ > 0, ∀ u ∈ Icc 0 L, ∀ g0 g1 b1 g0' g1' b1' : ℝ,
+      g0 ∈ Icc (-M) M → g1 ∈ Icc (-M) M → b1 ∈ Icc (-M) M → g0' ∈ Icc (-M) M → g1' ∈ Icc (-M) M →
+      b1' ∈ Icc (-M) M → |g0' - g0| < δ → |g1' - g1| < δ → |b1' - b1| < δ →
+      |hfJ L u g0' g1' b1' - hfJ L u g0 g1 b1| < η := by
+  set K : Set (ℝ × ℝ × ℝ × ℝ) := Icc 0 L ×ˢ (Icc (-M) M ×ˢ Icc (-M) M ×ˢ Icc (-M) M) with hKdef
+  have hK : IsCompact K := isCompact_Icc.prod (isCompact_Icc.prod (isCompact_Icc.prod isCompact_Icc))
+  have hU := hK.uniformContinuousOn_of_continuous (hfJ_continuous L).continuousOn
+  obtain ⟨δ, hδ, hF⟩ := Metric.uniformContinuousOn_iff.1 hU η hη
+  refine ⟨δ, hδ, fun u hu g0 g1 b1 g0' g1' b1' h0 h1 hb0 h0' h1' hb0' d0 d1 db => ?_⟩
+  have hx : (u, g0, g1, b1) ∈ K := ⟨hu, h0, h1, hb0⟩
+  have hy : (u, g0', g1', b1') ∈ K := ⟨hu, h0', h1', hb0'⟩
+  have hd : dist ((u, g0, g1, b1) : ℝ × ℝ × ℝ × ℝ) (u, g0', g1', b1') < δ := by
+    rw [Prod.dist_eq, Prod.dist_eq, Prod.dist_eq]
+    simp only [dist_self, Real.dist_eq]
+    rw [abs_sub_comm g0, abs_sub_comm g1, abs_sub_comm b1]
+    exact max_lt hδ (max_lt (by linarith [abs_nonneg (g0 - g0')]) (max_lt (by linarith) (by linarith)))
+  have := hF _ hx _ hy hd
+  simp only [Real.dist_eq] at this
+  rw [abs_sub_comm]
+  exact this
+
+lemma QfJ_unif (L M η : ℝ) (hη : 0 < η) :
+    ∃ δ > 0, ∀ u ∈ Icc 0 L, ∀ g0 g1 g2 b1 b2 g0' g1' g2' b1' b2' : ℝ,
+      g0 ∈ Icc (-M) M → g1 ∈ Icc (-M) M → g2 ∈ Icc (-M) M → b1 ∈ Icc (-M) M → b2 ∈ Icc (-M) M →
+      g0' ∈ Icc (-M) M → g1' ∈ Icc (-M) M → g2' ∈ Icc (-M) M → b1' ∈ Icc (-M) M → b2' ∈ Icc (-M) M →
+      |g0' - g0| < δ → |g1' - g1| < δ → |g2' - g2| < δ → |b1' - b1| < δ → |b2' - b2| < δ →
+      |QfJ L u g0' g1' g2' b1' b2' - QfJ L u g0 g1 g2 b1 b2| < η := by
+  set K : Set (ℝ × ℝ × ℝ × ℝ × ℝ × ℝ) :=
+    Icc 0 L ×ˢ (Icc (-M) M ×ˢ Icc (-M) M ×ˢ Icc (-M) M ×ˢ Icc (-M) M ×ˢ Icc (-M) M) with hKdef
+  have hK : IsCompact K :=
+    isCompact_Icc.prod (isCompact_Icc.prod (isCompact_Icc.prod (isCompact_Icc.prod
+      (isCompact_Icc.prod isCompact_Icc))))
+  have hU := hK.uniformContinuousOn_of_continuous (QfJ_continuous L).continuousOn
+  obtain ⟨δ, hδ, hF⟩ := Metric.uniformContinuousOn_iff.1 hU η hη
+  refine ⟨δ, hδ, fun u hu g0 g1 g2 b1 b2 g0' g1' g2' b1' b2' h0 h1 h2 hb1 hb2 h0' h1' h2' hb1' hb2'
+    d0 d1 d2 db1 db2 => ?_⟩
+  have hx : (u, g0, g1, g2, b1, b2) ∈ K := ⟨hu, h0, h1, h2, hb1, hb2⟩
+  have hy : (u, g0', g1', g2', b1', b2') ∈ K := ⟨hu, h0', h1', h2', hb1', hb2'⟩
+  have hd : dist ((u, g0, g1, g2, b1, b2) : ℝ × ℝ × ℝ × ℝ × ℝ × ℝ) (u, g0', g1', g2', b1', b2') < δ := by
+    rw [Prod.dist_eq, Prod.dist_eq, Prod.dist_eq, Prod.dist_eq, Prod.dist_eq]
+    simp only [dist_self, Real.dist_eq]
+    rw [abs_sub_comm g0, abs_sub_comm g1, abs_sub_comm g2, abs_sub_comm b1, abs_sub_comm b2]
+    exact max_lt hδ (max_lt (by linarith [abs_nonneg (g0 - g0')]) (max_lt (by linarith)
+      (max_lt (by linarith) (max_lt (by linarith) (by linarith)))))
+  have := hF _ hx _ hy hd
+  simp only [Real.dist_eq] at this
+  rw [abs_sub_comm]
+  exact this
+
+lemma hf_eq_hfJ (L u : ℝ) (G B : ℝ → ℝ) :
+    hf L G B u = hfJ L u (G u) (d1 L G u) (d1 L B u) := rfl
+
+lemma Qf_eq_QfJ (L u : ℝ) (G B : ℝ → ℝ) :
+    Qf L G B u = QfJ L u (G u) (d1 L G u) (d2 L G u) (d1 L B u) (d2 L B u) := rfl
+
+lemma continuousOn_d1 {G : ℝ → ℝ} {L : ℝ} (hL : 0 < L) (hG : ContDiffOn ℝ 2 G (Icc 0 L)) :
+    ContinuousOn (d1 L G) (Icc 0 L) :=
+  hG.continuousOn_iteratedDerivWithin (m := 1) (by norm_num) (uniqueDiffOn_Icc hL)
+
+lemma continuousOn_d2 {G : ℝ → ℝ} {L : ℝ} (hL : 0 < L) (hG : ContDiffOn ℝ 2 G (Icc 0 L)) :
+    ContinuousOn (d2 L G) (Icc 0 L) :=
+  hG.continuousOn_iteratedDerivWithin (m := 2) (by norm_num) (uniqueDiffOn_Icc hL)
+
+lemma continuousOn_hf {G B : ℝ → ℝ} {L : ℝ} (hL : 0 < L) (hG : ContDiffOn ℝ 2 G (Icc 0 L))
+    (hB : ContDiffOn ℝ 2 B (Icc 0 L)) : ContinuousOn (hf L G B) (Icc 0 L) := by
+  have h1 := continuousOn_d1 hL hG
+  have h2 := continuousOn_d1 hL hB
+  have hE : ContinuousOn (E0 L G) (Icc 0 L) := (contDiffOn_E0 hG).continuousOn
+  have hs : ContinuousOn (fun u => Real.sqrt (E0 L G u)) (Icc 0 L) :=
+    Real.continuous_sqrt.comp_continuousOn hE
+  have hEp : ContinuousOn (Epf L G) (Icc 0 L) :=
+    ((continuousOn_const.sub (continuousOn_const.mul continuousOn_id)).mul hG.continuousOn).add
+      ((continuousOn_id.mul (continuousOn_const.sub continuousOn_id)).mul h1)
+  unfold hf
+  exact (h2.mul hs).add hEp
+
+lemma continuousOn_Qf {G B : ℝ → ℝ} {L : ℝ} (hL : 0 < L) (hG : ContDiffOn ℝ 2 G (Icc 0 L))
+    (hB : ContDiffOn ℝ 2 B (Icc 0 L)) : ContinuousOn (Qf L G B) (Icc 0 L) := by
+  have h1 := continuousOn_d1 hL hG
+  have h2 := continuousOn_d2 hL hG
+  have h3 := continuousOn_d1 hL hB
+  have h4 := continuousOn_d2 hL hB
+  have hE : ContinuousOn (E0 L G) (Icc 0 L) := (contDiffOn_E0 hG).continuousOn
+  have hs : ContinuousOn (fun u => Real.sqrt (E0 L G u)) (Icc 0 L) :=
+    Real.continuous_sqrt.comp_continuousOn hE
+  have hEp : ContinuousOn (Epf L G) (Icc 0 L) :=
+    ((continuousOn_const.sub (continuousOn_const.mul continuousOn_id)).mul hG.continuousOn).add
+      ((continuousOn_id.mul (continuousOn_const.sub continuousOn_id)).mul h1)
+  have hEpp : ContinuousOn (Epp L G) (Icc 0 L) := by
+    have hA : ContinuousOn (fun u => -2 * G u + 2 * (L - 2 * u) * d1 L G u) (Icc 0 L) :=
+      (continuousOn_const.mul hG.continuousOn).add
+        ((continuousOn_const.mul (continuousOn_const.sub (continuousOn_const.mul continuousOn_id))).mul h1)
+    exact hA.add ((continuousOn_id.mul (continuousOn_const.sub continuousOn_id)).mul h2)
+  unfold Qf
+  exact (((continuousOn_const.mul h4).mul hE).add (h3.mul hEp)).add ((continuousOn_const.mul hs).mul hEpp)
+
+/-- The sign of `h` for the base data: positive before `uc`, negative after. -/
+lemma base_sign {G B : ℝ → ℝ} {L g : ℝ} (hL : 0 < L) (hg : 0 < g) (hG : ContDiffOn ℝ 2 G (Icc 0 L))
+    (hB : ContDiffOn ℝ 2 B (Icc 0 L)) (hGg : ∀ u ∈ Icc 0 L, g ≤ G u) {uc : ℝ} (huc : uc ∈ Ioo 0 L)
+    (hzero : {u ∈ Ioo 0 L | hf L G B u = 0} = {uc}) :
+    (∀ u ∈ Icc 0 L, u < uc → 0 < hf L G B u) ∧ (∀ u ∈ Icc 0 L, uc < u → hf L G B u < 0) := by
+  have hcont := continuousOn_hf hL hG hB
+  have hE0 : ∀ v, E0 L G v = v * (L - v) * G v := fun v => rfl
+  have h0 : 0 < hf L G B 0 := by
+    have e1 : E0 L G 0 = 0 := by rw [hE0]; ring
+    have e2 : Epf L G 0 = L * G 0 := by unfold Epf; ring
+    unfold hf
+    rw [e1, Real.sqrt_zero, mul_zero, zero_add, e2]
+    exact mul_pos hL (lt_of_lt_of_le hg (hGg 0 ⟨le_rfl, hL.le⟩))
+  have hLn : hf L G B L < 0 := by
+    have e1 : E0 L G L = 0 := by rw [hE0]; ring
+    have e2 : Epf L G L = -(L * G L) := by unfold Epf; ring
+    unfold hf
+    rw [e1, Real.sqrt_zero, mul_zero, zero_add, e2]
+    have := hGg L ⟨hL.le, le_rfl⟩
+    have : 0 < L * G L := mul_pos hL (lt_of_lt_of_le hg this)
+    linarith
+  constructor
+  · intro u hu hlt
+    by_contra hcon
+    push_neg at hcon
+    have hsub : Icc 0 u ⊆ Icc 0 L := Icc_subset_Icc le_rfl hu.2
+    obtain ⟨z, hz, hfz⟩ := intermediate_value_Icc' hu.1 (hcont.mono hsub) ⟨hcon, h0.le⟩
+    have hz0 : z ≠ 0 := by
+      rintro rfl
+      linarith
+    have hzI : z ∈ Ioo 0 L := ⟨lt_of_le_of_ne hz.1 (Ne.symm hz0), lt_of_le_of_lt hz.2 (hlt.trans huc.2)⟩
+    have hzmem : z ∈ {u ∈ Ioo 0 L | hf L G B u = 0} := ⟨hzI, hfz⟩
+    rw [hzero, Set.mem_singleton_iff] at hzmem
+    linarith [hz.2]
+  · intro u hu hgt
+    by_contra hcon
+    push_neg at hcon
+    have hsub : Icc u L ⊆ Icc 0 L := Icc_subset_Icc hu.1 le_rfl
+    obtain ⟨z, hz, hfz⟩ := intermediate_value_Icc' hu.2 (hcont.mono hsub) ⟨hLn.le, hcon⟩
+    have hzL : z ≠ L := by
+      rintro rfl
+      linarith
+    have hzI : z ∈ Ioo 0 L := ⟨lt_of_lt_of_le (huc.1.trans hgt) hz.1, lt_of_le_of_ne hz.2 hzL⟩
+    have hzmem : z ∈ {u ∈ Ioo 0 L | hf L G B u = 0} := ⟨hzI, hfz⟩
+    rw [hzero, Set.mem_singleton_iff] at hzmem
+    linarith [hz.1]
+
+/-- A bound for the jets `G, G', G'', B', B''` on `[0, L]`. -/
+lemma jets_bounded {G B : ℝ → ℝ} {L : ℝ} (hL : 0 < L) (hG : ContDiffOn ℝ 2 G (Icc 0 L))
+    (hB : ContDiffOn ℝ 2 B (Icc 0 L)) :
+    ∃ M : ℝ, ∀ u ∈ Icc 0 L, |G u| ≤ M ∧ |d1 L G u| ≤ M ∧ |d2 L G u| ≤ M ∧ |d1 L B u| ≤ M ∧ |d2 L B u| ≤ M := by
+  have hK : IsCompact (Icc 0 L) := isCompact_Icc
+  have hG0 : ContinuousOn G (Icc 0 L) := hG.continuousOn
+  obtain ⟨C1, hC1⟩ := hK.exists_bound_of_continuousOn hG0
+  obtain ⟨C2, hC2⟩ := hK.exists_bound_of_continuousOn (continuousOn_d1 hL hG)
+  obtain ⟨C3, hC3⟩ := hK.exists_bound_of_continuousOn (continuousOn_d2 hL hG)
+  obtain ⟨C4, hC4⟩ := hK.exists_bound_of_continuousOn (continuousOn_d1 hL hB)
+  obtain ⟨C5, hC5⟩ := hK.exists_bound_of_continuousOn (continuousOn_d2 hL hB)
+  refine ⟨|C1| + |C2| + |C3| + |C4| + |C5|, fun u hu => ?_⟩
+  have a1 := hC1 u hu
+  have a2 := hC2 u hu
+  have a3 := hC3 u hu
+  have a4 := hC4 u hu
+  have a5 := hC5 u hu
+  simp only [Real.norm_eq_abs] at a1 a2 a3 a4 a5
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  · linarith [le_abs_self C1, abs_nonneg C2, abs_nonneg C3, abs_nonneg C4, abs_nonneg C5]
+  · linarith [le_abs_self C2, abs_nonneg C1, abs_nonneg C3, abs_nonneg C4, abs_nonneg C5]
+  · linarith [le_abs_self C3, abs_nonneg C1, abs_nonneg C2, abs_nonneg C4, abs_nonneg C5]
+  · linarith [le_abs_self C4, abs_nonneg C1, abs_nonneg C2, abs_nonneg C3, abs_nonneg C5]
+  · linarith [le_abs_self C5, abs_nonneg C1, abs_nonneg C2, abs_nonneg C3, abs_nonneg C4]
+
+/-- **Stability of (M) (derivative form).**  If `h` has a unique zero `uc` in `(0, L)` with `Q(uc) < 0` for the base data, then
+every `C^2`-perturbation within a small `ε` (in the jets of order `≤ 2`, on `[0, L]`) of `G, B` has the same property. -/
+lemma HP_stable {G B : ℝ → ℝ} {L g : ℝ} (hL : 0 < L) (hg : 0 < g) (hG : ContDiffOn ℝ 2 G (Icc 0 L))
+    (hB : ContDiffOn ℝ 2 B (Icc 0 L)) (hGg : ∀ u ∈ Icc 0 L, g ≤ G u) (hH : HPprop L G B) :
+    ∃ ε > 0, ∀ G' B' : ℝ → ℝ, ContDiffOn ℝ 2 G' (Icc 0 L) → ContDiffOn ℝ 2 B' (Icc 0 L) →
+      (∀ i ≤ 2, ∀ u ∈ Icc 0 L,
+        |iteratedDerivWithin i G' (Icc 0 L) u - iteratedDerivWithin i G (Icc 0 L) u| ≤ ε ∧
+        |iteratedDerivWithin i B' (Icc 0 L) u - iteratedDerivWithin i B (Icc 0 L) u| ≤ ε) →
+      HPprop L G' B' := by
+  obtain ⟨uc, huc, hzero, hQuc⟩ := hH
+  have hucI : uc ∈ Icc 0 L := ⟨huc.1.le, huc.2.le⟩
+  have hQc := continuousOn_Qf hL hG hB
+  obtain ⟨δQ0, hδQ0, hQn⟩ := cont_upper_nbhd hQc hucI (by linarith : Qf L G B uc < 0)
+  -- the radius `η` of the interval `I = [uc - η, uc + η]`
+  have hmin_pos : 0 < min (min δQ0 uc) (L - uc) := lt_min (lt_min hδQ0 huc.1) (sub_pos.2 huc.2)
+  have hmin1 : min (min δQ0 uc) (L - uc) ≤ min δQ0 uc := min_le_left _ _
+  have hmin2 : min (min δQ0 uc) (L - uc) ≤ L - uc := min_le_right _ _
+  have hmin3 : min δQ0 uc ≤ δQ0 := min_le_left _ _
+  have hmin4 : min δQ0 uc ≤ uc := min_le_right _ _
+  obtain ⟨η, hη, hηQ, hηuc, hηL⟩ : ∃ η : ℝ, 0 < η ∧ η < δQ0 ∧ η < uc ∧ η < L - uc :=
+    ⟨min (min δQ0 uc) (L - uc) / 2, by linarith, by linarith, by linarith, by linarith⟩
+  have hI_sub : Icc (uc - η) (uc + η) ⊆ Ioo 0 L := fun u hu =>
+    ⟨by linarith [hu.1], by linarith [hu.2]⟩
+  have hI_Icc : Icc (uc - η) (uc + η) ⊆ Icc 0 L := fun u hu => ⟨(hI_sub hu).1.le, (hI_sub hu).2.le⟩
+  have hQneg_I : ∀ u ∈ Icc (uc - η) (uc + η), Qf L G B u < 0 := by
+    intro u hu
+    apply hQn u (hI_Icc hu)
+    rw [abs_lt]
+    constructor <;> linarith [hu.1, hu.2]
+  -- the outer set `K_out = [0, uc - η] ∪ [uc + η, L]` where `h` has a fixed sign
+  set Kout : Set ℝ := Icc 0 (uc - η) ∪ Icc (uc + η) L with hKout
+  have hKout_Icc : Kout ⊆ Icc 0 L := by
+    intro u hu
+    rcases hu with hu | hu
+    · exact ⟨hu.1, by linarith [hu.2]⟩
+    · exact ⟨by linarith [hu.1], hu.2⟩
+  have hKout_cpt : IsCompact Kout := isCompact_Icc.union isCompact_Icc
+  have hcontB := continuousOn_hf hL hG hB
+  have hsign := base_sign hL hg hG hB hGg huc hzero
+  have hsign_out : ∀ u ∈ Kout, (0 < hf L G B u ∧ u < uc) ∨ (hf L G B u < 0 ∧ uc < u) := by
+    intro u hu
+    rcases hu with hu | hu
+    · exact Or.inl ⟨hsign.1 u (hKout_Icc (Or.inl hu)) (by linarith [hu.2]), by linarith [hu.2]⟩
+    · exact Or.inr ⟨hsign.2 u (hKout_Icc (Or.inr hu)) (by linarith [hu.1]), by linarith [hu.1]⟩
+  have hne_out : Kout.Nonempty := ⟨0, Or.inl ⟨le_rfl, by linarith⟩⟩
+  obtain ⟨p, hp, hpmin⟩ := hKout_cpt.exists_isMinOn hne_out
+    ((hcontB.mono hKout_Icc).abs)
+  set m1 : ℝ := |hf L G B p| with hm1
+  have hm1pos : 0 < m1 := by
+    have := hsign_out p hp
+    rw [hm1]
+    rcases this with h | h
+    · exact abs_pos.2 h.1.ne'
+    · exact abs_pos.2 h.1.ne
+  have hm1_le : ∀ u ∈ Kout, m1 ≤ |hf L G B u| := fun u hu => hpmin hu
+  -- the maximum of `-Q` on `I`
+  have hI_cpt : IsCompact (Icc (uc - η) (uc + η)) := isCompact_Icc
+  have hI_ne : (Icc (uc - η) (uc + η)).Nonempty := ⟨uc, by constructor <;> linarith⟩
+  obtain ⟨q, hq, hqmax⟩ := hI_cpt.exists_isMaxOn hI_ne ((hQc.mono hI_Icc))
+  have hQmax : Qf L G B q < 0 := hQneg_I q hq
+  set κ : ℝ := -Qf L G B q with hκ
+  have hκpos : 0 < κ := by rw [hκ]; linarith
+  have hQle : ∀ u ∈ Icc (uc - η) (uc + η), Qf L G B u ≤ Qf L G B q := fun u hu => hqmax hu
+  -- bounds on the jets
+  obtain ⟨M, hM⟩ := jets_bounded hL hG hB
+  set M' : ℝ := |M| + 1 with hM'
+  have hMM' : ∀ u ∈ Icc 0 L, |G u| ≤ M' ∧ |d1 L G u| ≤ M' ∧ |d2 L G u| ≤ M' ∧ |d1 L B u| ≤ M' ∧
+      |d2 L B u| ≤ M' := by
+    intro u hu
+    obtain ⟨a, b, c, d, e⟩ := hM u hu
+    have hM0 : M ≤ M' := by linarith [le_abs_self M]
+    exact ⟨by linarith, by linarith, by linarith, by linarith, by linarith⟩
+  -- the uniform estimates for `h` and `Q`
+  obtain ⟨δh, hδh, hhf⟩ := hfJ_unif L M' (m1 / 2) (by linarith)
+  obtain ⟨δQ, hδQ, hQJ⟩ := QfJ_unif L M' (κ / 2) (by linarith)
+  set ε : ℝ := min (min δh δQ) (min 1 (g / 2)) / 2 with hεdef
+  have hεpos0 : 0 < min (min δh δQ) (min 1 (g / 2)) :=
+    lt_min (lt_min hδh hδQ) (lt_min one_pos (half_pos hg))
+  have hε1 : min (min δh δQ) (min 1 (g / 2)) ≤ min δh δQ := min_le_left _ _
+  have hε2 : min (min δh δQ) (min 1 (g / 2)) ≤ min 1 (g / 2) := min_le_right _ _
+  have hε3 : min δh δQ ≤ δh := min_le_left _ _
+  have hε4 : min δh δQ ≤ δQ := min_le_right _ _
+  have hε5 : min 1 (g / 2) ≤ 1 := min_le_left _ _
+  have hε6 : min 1 (g / 2) ≤ g / 2 := min_le_right _ _
+  have hεpos : 0 < ε := by rw [hεdef]; linarith
+  have hεh : ε < δh := by rw [hεdef]; linarith
+  have hεQ : ε < δQ := by rw [hεdef]; linarith
+  have hε1' : ε ≤ 1 := by rw [hεdef]; linarith
+  have hεg : ε ≤ g / 2 := by rw [hεdef]; linarith
+  refine ⟨ε, hεpos, fun G' B' hG' hB' hclose => ?_⟩
+  have cG : ∀ u ∈ Icc 0 L, |G' u - G u| ≤ ε := fun u hu => by
+    have := (hclose 0 (by norm_num) u hu).1
+    simpa using this
+  have cG1 : ∀ u ∈ Icc 0 L, |d1 L G' u - d1 L G u| ≤ ε := fun u hu => (hclose 1 (by norm_num) u hu).1
+  have cG2 : ∀ u ∈ Icc 0 L, |d2 L G' u - d2 L G u| ≤ ε := fun u hu => (hclose 2 le_rfl u hu).1
+  have cB1 : ∀ u ∈ Icc 0 L, |d1 L B' u - d1 L B u| ≤ ε := fun u hu => (hclose 1 (by norm_num) u hu).2
+  have cB2 : ∀ u ∈ Icc 0 L, |d2 L B' u - d2 L B u| ≤ ε := fun u hu => (hclose 2 le_rfl u hu).2
+  have hpos' : ∀ u ∈ Icc 0 L, g / 2 ≤ G' u := fun u hu => by
+    have h1 := abs_le.1 (cG u hu)
+    linarith [hGg u hu]
+  have hboxM : ∀ u ∈ Icc 0 L, ∀ a b : ℝ, |a| ≤ M → |b - a| ≤ ε → |b| ≤ M' := by
+    intro u hu a b ha hb
+    obtain ⟨h1a, h1b⟩ := abs_le.1 ha
+    obtain ⟨h2a, h2b⟩ := abs_le.1 hb
+    rw [abs_le]
+    constructor <;> linarith [le_abs_self M]
+  have hmemM : ∀ x : ℝ, |x| ≤ M' → x ∈ Icc (-M') M' := fun x hx => abs_le.1 hx
+  -- closeness of `h`
+  have hfclose : ∀ u ∈ Icc 0 L, |hf L G' B' u - hf L G B u| < m1 / 2 := by
+    intro u hu
+    rw [hf_eq_hfJ, hf_eq_hfJ]
+    obtain ⟨b0, b1, b2, b3, b4⟩ := hMM' u hu
+    exact hhf u hu (G u) (d1 L G u) (d1 L B u) (G' u) (d1 L G' u) (d1 L B' u)
+      (hmemM _ b0) (hmemM _ b1) (hmemM _ b3)
+      (hmemM _ (hboxM u hu _ _ (hM u hu).1 (cG u hu)))
+      (hmemM _ (hboxM u hu _ _ (hM u hu).2.1 (cG1 u hu)))
+      (hmemM _ (hboxM u hu _ _ (hM u hu).2.2.2.1 (cB1 u hu)))
+      (lt_of_le_of_lt (cG u hu) hεh)
+      (lt_of_le_of_lt (cG1 u hu) hεh)
+      (lt_of_le_of_lt (cB1 u hu) hεh)
+  -- closeness of `Q` on `I`
+  have hQclose : ∀ u ∈ Icc (uc - η) (uc + η), |Qf L G' B' u - Qf L G B u| < κ / 2 := by
+    intro u hu
+    have huI := hI_Icc hu
+    rw [Qf_eq_QfJ, Qf_eq_QfJ]
+    obtain ⟨b0, b1, b2, b3, b4⟩ := hMM' u huI
+    exact hQJ u huI (G u) (d1 L G u) (d2 L G u) (d1 L B u) (d2 L B u)
+      (G' u) (d1 L G' u) (d2 L G' u) (d1 L B' u) (d2 L B' u)
+      (hmemM _ b0) (hmemM _ b1) (hmemM _ b2) (hmemM _ b3) (hmemM _ b4)
+      (hmemM _ (hboxM u huI _ _ (hM u huI).1 (cG u huI)))
+      (hmemM _ (hboxM u huI _ _ (hM u huI).2.1 (cG1 u huI)))
+      (hmemM _ (hboxM u huI _ _ (hM u huI).2.2.1 (cG2 u huI)))
+      (hmemM _ (hboxM u huI _ _ (hM u huI).2.2.2.1 (cB1 u huI)))
+      (hmemM _ (hboxM u huI _ _ (hM u huI).2.2.2.2 (cB2 u huI)))
+      (lt_of_le_of_lt (cG u huI) hεQ) (lt_of_le_of_lt (cG1 u huI) hεQ)
+      (lt_of_le_of_lt (cG2 u huI) hεQ) (lt_of_le_of_lt (cB1 u huI) hεQ)
+      (lt_of_le_of_lt (cB2 u huI) hεQ)
+  -- `Q' < 0` on `I`
+  have hQneg' : ∀ u ∈ Icc (uc - η) (uc + η), Qf L G' B' u < 0 := fun u hu => by
+    have h1 := (abs_sub_lt_iff.1 (hQclose u hu)).1
+    have h2 := hQle u hu
+    linarith
+  -- signs of `h'` on the outer set
+  have hout_pos : ∀ u ∈ Icc 0 (uc - η), 0 < hf L G' B' u := fun u hu => by
+    have hu' : u ∈ Kout := Or.inl hu
+    have hm := hm1_le u hu'
+    have hs := hsign.1 u (hKout_Icc hu') (by linarith [hu.2])
+    rw [abs_of_pos hs] at hm
+    have h3 := (abs_sub_lt_iff.1 (hfclose u (hKout_Icc hu'))).2
+    linarith
+  have hout_neg : ∀ u ∈ Icc (uc + η) L, hf L G' B' u < 0 := fun u hu => by
+    have hu' : u ∈ Kout := Or.inr hu
+    have hm := hm1_le u hu'
+    have hs := hsign.2 u (hKout_Icc hu') (by linarith [hu.1])
+    rw [abs_of_neg hs] at hm
+    have h3 := (abs_sub_lt_iff.1 (hfclose u (hKout_Icc hu'))).1
+    linarith
+  -- existence of a zero of `h'` in `I`
+  have hcont' : ContinuousOn (hf L G' B') (Icc 0 L) := continuousOn_hf hL hG' hB'
+  have hfa : 0 < hf L G' B' (uc - η) := hout_pos (uc - η) ⟨by linarith, le_rfl⟩
+  have hfb : hf L G' B' (uc + η) < 0 := hout_neg (uc + η) ⟨by linarith, by linarith⟩
+  obtain ⟨ut, hut, hfut⟩ :=
+    intermediate_value_Icc' (by linarith : uc - η ≤ uc + η) (hcont'.mono hI_Icc) ⟨hfb.le, hfa.le⟩
+  -- `h'` is strictly decreasing on `I`
+  have hanti : StrictAntiOn (hf L G' B') (Icc (uc - η) (uc + η)) := by
+    apply strictAntiOn_of_deriv_neg (convex_Icc _ _) (hcont'.mono hI_Icc)
+    intro x hx
+    rw [interior_Icc] at hx
+    have hxo : x ∈ Ioo 0 L := hI_sub (Ioo_subset_Icc_self hx)
+    have hE : 0 < E0 L G' x :=
+      E0_pos_Ioo (fun v hv => lt_of_lt_of_le (half_pos hg) (hpos' v (Ioo_subset_Icc_self hv))) hxo
+    rw [(hasDerivAt_hf hG' hB' hxo hE).deriv]
+    have hQx := hQneg' x (Ioo_subset_Icc_self hx)
+    rw [Qf_eq hE] at hQx
+    have hs : 0 < Real.sqrt (E0 L G' x) := Real.sqrt_pos.2 hE
+    nlinarith
+  -- the zero set
+  have hzeroF : {u ∈ Ioo 0 L | hf L G' B' u = 0} = {ut} := by
+    ext u
+    constructor
+    · rintro ⟨hu, hz⟩
+      rcases le_total u (uc - η) with h1 | h1
+      · exfalso
+        have := hout_pos u ⟨hu.1.le, h1⟩
+        linarith
+      rcases le_total (uc + η) u with h2 | h2
+      · exfalso
+        have := hout_neg u ⟨h2, hu.2.le⟩
+        linarith
+      have huI : u ∈ Icc (uc - η) (uc + η) := ⟨h1, h2⟩
+      exact Set.mem_singleton_iff.2 (hanti.injOn huI hut (by rw [hz, hfut]))
+    · intro hu
+      rw [Set.mem_singleton_iff] at hu
+      rw [hu]
+      exact ⟨hI_sub hut, hfut⟩
+  exact ⟨ut, hI_sub hut, hzeroF, hQneg' ut hut⟩
+
+/-- (A) gives the form of `H2` of `Hyp` (the endpoint values of `T` vanish). -/
+lemma H2_of_AProp {G0 B0 : ℝ → ℝ} {L g : ℝ} (hL : 0 < L) (hG : ContDiffOn ℝ 2 G0 (Icc 0 L))
+    (hB : ContDiffOn ℝ 2 B0 (Icc 0 L)) (hGg : ∀ u ∈ Icc 0 L, g ≤ G0 u) (hg : 0 < g) (hA : AProp L G0 B0) :
+    ∀ X, Xsm L G0 B0 < X → X < Xsp L G0 B0 →
+      ∃ a b : ℝ, 0 ≤ a ∧ a ≤ b ∧ b ≤ L ∧ (Icc 0 L ∩ {u | 0 ≤ Tfun L G0 B0 X u}) = Icc a b ∧
+        (0 < a → Tfun L G0 B0 X a = 0 ∧ deriv (Tfun L G0 B0 X) a ≠ 0) ∧
+        (b < L → Tfun L G0 B0 X b = 0 ∧ deriv (Tfun L G0 B0 X) b ≠ 0) ∧
+        (a = 0 → X = B0 0) ∧ (b = L → X = B0 L) := by
+  intro X hX1 hX2
+  obtain ⟨a, b, ha0, hab, hbL, hS, hda, hdb, ha0B, hbLB⟩ := hA X hX1 hX2
+  have hTc : ContinuousOn (Tfun L G0 B0 X) (Icc 0 L) := by
+    unfold Tfun
+    exact (continuousOn_const.mul (contDiffOn_E0 hG).continuousOn).sub
+      ((continuousOn_const.sub hB.continuousOn).pow 2)
+  have hmemS : ∀ u ∈ Icc 0 L, u ∈ Icc a b ↔ 0 ≤ Tfun L G0 B0 X u := by
+    intro u hu
+    constructor
+    · intro h
+      have : u ∈ Icc 0 L ∩ {u | 0 ≤ Tfun L G0 B0 X u} := by rw [hS]; exact h
+      exact this.2
+    · intro h
+      have : u ∈ Icc 0 L ∩ {u | 0 ≤ Tfun L G0 B0 X u} := ⟨hu, h⟩
+      rw [hS] at this
+      exact this
+  refine ⟨a, b, ha0, hab, hbL, hS, ?_, ?_, ha0B, hbLB⟩
+  · intro hpos
+    refine ⟨?_, hda hpos⟩
+    have hTa : 0 ≤ Tfun L G0 B0 X a := (hmemS a ⟨ha0, le_trans hab hbL⟩).1 ⟨le_rfl, hab⟩
+    by_contra hne
+    have hpos' : 0 < Tfun L G0 B0 X a := lt_of_le_of_ne hTa (Ne.symm hne)
+    obtain ⟨δ, hδ, hn⟩ := cont_lower_nbhd hTc ⟨ha0, le_trans hab hbL⟩ hpos'
+    have hmpos : 0 < min (δ / 2) (a / 2) := lt_min (by linarith) (by linarith)
+    have hm1 : min (δ / 2) (a / 2) ≤ a / 2 := min_le_right _ _
+    have hm2 : min (δ / 2) (a / 2) ≤ δ / 2 := min_le_left _ _
+    have hu : a - min (δ / 2) (a / 2) ∈ Icc 0 L := ⟨by linarith, by linarith⟩
+    have hd := hn _ hu (by rw [abs_lt]; constructor <;> linarith)
+    have hnot : a - min (δ / 2) (a / 2) ∉ Icc a b := fun h => by linarith [h.1]
+    exact hnot ((hmemS _ hu).2 (le_of_lt hd))
+  · intro hpos
+    refine ⟨?_, hdb hpos⟩
+    have hTb : 0 ≤ Tfun L G0 B0 X b := (hmemS b ⟨le_trans ha0 hab, hbL⟩).1 ⟨hab, le_rfl⟩
+    by_contra hne
+    have hpos' : 0 < Tfun L G0 B0 X b := lt_of_le_of_ne hTb (Ne.symm hne)
+    obtain ⟨δ, hδ, hn⟩ := cont_lower_nbhd hTc ⟨le_trans ha0 hab, hbL⟩ hpos'
+    have hmpos : 0 < min (δ / 2) ((L - b) / 2) := lt_min (by linarith) (by linarith)
+    have hm1 : min (δ / 2) ((L - b) / 2) ≤ (L - b) / 2 := min_le_right _ _
+    have hm2 : min (δ / 2) ((L - b) / 2) ≤ δ / 2 := min_le_left _ _
+    have hu : b + min (δ / 2) ((L - b) / 2) ∈ Icc 0 L := ⟨by linarith, by linarith⟩
+    have hd := hn _ hu (by rw [abs_lt]; constructor <;> linarith)
+    have hnot : b + min (δ / 2) ((L - b) / 2) ∉ Icc a b := fun h => by linarith [h.2]
+    exact hnot ((hmemS _ hu).2 (le_of_lt hd))
+
+/-- **lem:hyp-morse, openness** (`HypOpen`), proved. -/
+theorem hypOpen : HypOpen := by
+  intro L G0 B0 g hyp hG2 hB2
+  have hL : 0 < L := by
+    obtain ⟨uc, h0, h1, -, -⟩ := hyp.H3p
+    linarith
+  have hg : 0 < g := hyp.gstar_pos
+  have hGg : ∀ u ∈ Icc 0 L, g ≤ G0 u := hyp.G0_lb
+  have hA : AProp L G0 B0 := fun X h1 h2 => by
+    obtain ⟨a, b, ha, hab, hbL, hS, hda, hdb, ha0, hbL'⟩ := hyp.H2 X h1 h2
+    exact ⟨a, b, ha, hab, hbL, hS, fun h => (hda h).2, fun h => (hdb h).2, ha0, hbL'⟩
+  have hBp : BpProp L G0 B0 := hyp.H3p
+  have hBm : BmProp L G0 B0 := hyp.H3m
+  obtain ⟨hPp, hPm⟩ := (HypMorse.hypMorseEquiv L G0 B0 g hL hg hGg hG2 hB2).2 ⟨hA, hBp, hBm⟩
+  have hGpos : ∀ v ∈ Ioo 0 L, 0 < G0 v := fun v hv => lt_of_lt_of_le hg (hGg v (Ioo_subset_Icc_self hv))
+  have hB2n : ContDiffOn ℝ 2 (fun u => -B0 u) (Icc 0 L) := hB2.neg
+  have hHP1 := (HypMorse.pp_iff_HP hG2 hB2 hGpos).1 hPp
+  have hHP2 := (HypMorse.pp_iff_HP hG2 hB2n hGpos).1 (HypMorse.Pm_iff_neg.1 hPm)
+  obtain ⟨ε1, hε1, hst1⟩ := HypMorse.HP_stable hL hg hG2 hB2 hGg hHP1
+  obtain ⟨ε2, hε2, hst2⟩ := HypMorse.HP_stable hL hg hG2 hB2n hGg hHP2
+  have hεpos : 0 < min (min ε1 ε2) (g / 2) := lt_min (lt_min hε1 hε2) (half_pos hg)
+  have hε_le1 : min (min ε1 ε2) (g / 2) ≤ ε1 := le_trans (min_le_left _ _) (min_le_left _ _)
+  have hε_le2 : min (min ε1 ε2) (g / 2) ≤ ε2 := le_trans (min_le_left _ _) (min_le_right _ _)
+  have hε_leg : min (min ε1 ε2) (g / 2) ≤ g / 2 := min_le_right _ _
+  refine ⟨min (min ε1 ε2) (g / 2), hεpos, fun G0' B0' hG' hB' hclose => ?_⟩
+  have hcl1 : ∀ i ≤ 2, ∀ u ∈ Icc 0 L,
+      |iteratedDerivWithin i G0' (Icc 0 L) u - iteratedDerivWithin i G0 (Icc 0 L) u| ≤ ε1 ∧
+      |iteratedDerivWithin i B0' (Icc 0 L) u - iteratedDerivWithin i B0 (Icc 0 L) u| ≤ ε1 := fun i hi u hu =>
+    ⟨le_trans (hclose i hi u hu).1 hε_le1, le_trans (hclose i hi u hu).2 hε_le1⟩
+  have hnegB : ∀ i u, iteratedDerivWithin i (fun u => -B0' u) (Icc 0 L) u =
+      -iteratedDerivWithin i B0' (Icc 0 L) u := fun i u => by
+    show iteratedDerivWithin i (-B0') (Icc 0 L) u = _
+    exact iteratedDerivWithin_neg B0'
+  have hnegB0 : ∀ i u, iteratedDerivWithin i (fun u => -B0 u) (Icc 0 L) u =
+      -iteratedDerivWithin i B0 (Icc 0 L) u := fun i u => by
+    show iteratedDerivWithin i (-B0) (Icc 0 L) u = _
+    exact iteratedDerivWithin_neg B0
+  have hcl2 : ∀ i ≤ 2, ∀ u ∈ Icc 0 L,
+      |iteratedDerivWithin i G0' (Icc 0 L) u - iteratedDerivWithin i G0 (Icc 0 L) u| ≤ ε2 ∧
+      |iteratedDerivWithin i (fun u => -B0' u) (Icc 0 L) u -
+        iteratedDerivWithin i (fun u => -B0 u) (Icc 0 L) u| ≤ ε2 := fun i hi u hu => by
+    refine ⟨le_trans (hclose i hi u hu).1 hε_le2, ?_⟩
+    rw [hnegB, hnegB0, neg_sub_neg, abs_sub_comm]
+    exact le_trans (hclose i hi u hu).2 hε_le2
+  have hB2n' : ContDiffOn ℝ 2 (fun u => -B0' u) (Icc 0 L) := hB'.neg
+  have hH1 := hst1 G0' B0' hG' hB' hcl1
+  have hH2 := hst2 G0' (fun u => -B0' u) hG' hB2n' hcl2
+  have hG0'lb : ∀ u ∈ Icc 0 L, g / 2 ≤ G0' u := by
+    intro u hu
+    have h1 := abs_le.1 (hclose 0 (by norm_num) u hu).1
+    have h2 : iteratedDerivWithin 0 G0' (Icc 0 L) u = G0' u := by simp
+    have h3 : iteratedDerivWithin 0 G0 (Icc 0 L) u = G0 u := by simp
+    have := (hclose 0 (by norm_num) u hu).1
+    rw [h2, h3] at this
+    have h4 := abs_le.1 this
+    linarith [hGg u hu, h4.1]
+  have hGpos' : ∀ v ∈ Ioo 0 L, 0 < G0' v := fun v hv =>
+    lt_of_lt_of_le (half_pos hg) (hG0'lb v (Ioo_subset_Icc_self hv))
+  have hPp' : PpProp L G0' B0' := (HypMorse.pp_iff_HP hG' hB' hGpos').2 hH1
+  have hPpn : PpProp L G0' (fun u => -B0' u) := (HypMorse.pp_iff_HP hG' hB2n' hGpos').2 hH2
+  have hPm' : PmProp L G0' B0' := HypMorse.Pm_iff_neg.2 hPpn
+  obtain ⟨hA', hBp', hBm'⟩ :=
+    (HypMorse.hypMorseEquiv L G0' B0' (g / 2) hL (half_pos hg) hG0'lb hG' hB').1 ⟨hPp', hPm'⟩
+  exact ⟨half_pos hg, hG0'lb, HypMorse.H2_of_AProp hL hG' hB' hG0'lb (half_pos hg) hA', hBp', hBm'⟩
+
 end HypMorse
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.hypMorseEquiv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.hypMorseEquiv
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.hypOpen' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.hypOpen
 
 end FormalResearch.JacobiEigenvectors.TheoremA
 
