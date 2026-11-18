@@ -224,22 +224,20 @@ lemma eqLo_ge_one_of (s0 : ℤ) (jj : ℕ → ℤ) (p : ℕ) (hp : p ≠ 1) (hj 
   rw [if_neg hp]
   omega
 
-/-- **Ladder-pair stability** (`thm:eng-volterra`(b) combined with `thm:eng-volterra`(a), no new analysis).
-
-The comparison pairs of patch `p` are the ladder pairs `φ^{(α)}_p = v(u_k,h)·𝐰^{(α)}_p(u_k)` of one row `v = (A, hB)`
-and of the model ladders `𝐰_p` (one symplectic ladder structure per patch, `hL`, with the same `Π±`, `ω_mod`).  The
-defect bounds (eq:eng-UC1) and the envelopes of `𝐰_p` give (S1) with `ω_* = |ω_mod(h)|`, `c₋ = cm`, (S2) with
-`K = (K_A + K_B) K_w` and the residuals with `ε = 2 K_𝔇 K_w h^m`; then `volterra_multi` applies. -/
-theorem ladder_pair_stability (γ h Λ CE cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp qq : ℝ → ℝ → ℝ)
+/-- **The bounds (S1), (S2), (R) of a family of ladder pairs** (`thm:eng-volterra`(b)): for the pairs
+`φ^{(α)}_p = v·𝐰^{(α)}_p` of one row `v = (A,hB)` and the model ladders `𝐰_p`, the lower Casoratian bound with
+`ω_* = |ω_mod(h)|`, `c₋ = cm`; the envelopes with `K = (K_A+K_B)K_w`; and the residuals with `ε = 2K_𝔇K_w h^m`, from the
+defect bounds (eq:eng-UC1) and the envelopes of `𝐰_p`.  This is the part of `ladder_pair_stability` that does not
+involve the transfer condition (S3). -/
+theorem ladder_pair_data (γ h cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp qq : ℝ → ℝ → ℝ)
     (PiP PiM : ℝ → ℝ → M2) (ω : ℝ → ℝ) (AA BB : ℝ → ℝ → ℝ) (wf : ℕ → Fin 2 → ℝ → ℝ → V2)
-    (ρ ρt W M ψ : ℤ → ℝ) (s0 NR : ℤ) (P : ℕ) (jj : ℕ → ℤ)
-    (hh : 0 < h) (hcm : 0 < cm) (hKD : 0 ≤ KD) (hKw : 0 ≤ Kw) (hKA : 0 ≤ KA) (hKB : 0 ≤ KB) (hΛ : 1 ≤ Λ)
+    (ρ ρt W M : ℤ → ℝ) (s0 NR : ℤ) (P : ℕ) (jj : ℕ → ℤ)
+    (hh : 0 < h) (hKD : 0 ≤ KD) (hKw : 0 ≤ Kw)
     (hL : ∀ p, SymplecticLadder γ dd pp qq PiP PiM (wf p) ω)
-    (hP : 1 ≤ P) (hjj0 : jj 0 = 0) (hjjmono : ∀ p < P, jj p < jj (p + 1)) (hjjP : jj P = NR - 1)
+    (hjj0 : jj 0 = 0) (hjjmono : ∀ p < P, jj p < jj (p + 1)) (hjjP : jj P = NR - 1)
     (hs0 : s0 = 0 ∨ s0 = 1)
     (hρ : ∀ k, 0 ≤ ρ k) (hρt : ∀ k : ℤ, 0 ≤ k → 0 < ρt k)
     (hMpos : ∀ j ∈ Icc 0 NR, 0 < M j) (hWpos : ∀ j ∈ Icc 0 NR, 0 < W j)
-    (hmono : ∀ k ∈ Icc 0 NR, ∀ j ∈ Icc 0 NR, k ≤ j → W k ≤ CE * W j)
     (hUCa : ∀ k : ℤ, 0 ≤ k → cm ≤ |Fcas pp AA BB PiM (((k : ℝ) + γ) * h + h / 2) h|)
     (hUCb : ∀ k : ℤ, 0 ≤ k → |defectRow pp qq AA BB PiP PiM (((k : ℝ) + γ) * h) h 0| ≤ KD * h ^ (m + 1) * ρ k)
     (hUCc : ∀ k : ℤ, 0 ≤ k → |defectRow pp qq AA BB PiP PiM (((k : ℝ) + γ) * h) h 1| ≤ KD * h ^ (m + 1) * ρt k)
@@ -251,25 +249,20 @@ theorem ladder_pair_stability (γ h Λ CE cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp
       ρt k * |wf p 0 (((k : ℝ) + γ) * h) h 1| ≤ Kw * ρ k * W k * M k ∧
       ρt k * |wf p 1 (((k : ℝ) + γ) * h) h 1| ≤ Kw * ρ k * (W k)⁻¹ * M k)
     (hDhard : s0 = 0 → Dm dd (γ * h) h = 0)
-    (hannih : s0 = 0 → colMul (PiM (γ * h) h) (wf 1 0 (γ * h) h) = 0)
-    (hT : ∀ p, 1 ≤ p → p < P → Λ⁻¹ ≤ |(transMat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p).det| ∧
-      |transMat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p 0 0| ≤ Λ ∧
-      |transMat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p 1 1| ≤ Λ ∧
-      |transMat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p 0 1| ≤ Λ * (W (jj p) ^ 2)⁻¹ ∧
-      |transMat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p 1 0| ≤ Λ * W (jj p) ^ 2)
-    (hsol : ∀ k ∈ Icc s0 (NR - 1), Lh h (ladderA dd pp γ h) (ladderQ qq γ h) ψ k = 0)
-    (hseed : ∀ j ∈ Icc 0 s0, ψ j = ladderPairFun AA BB wf γ h 0 1 j)
-    (hsmall : 2 * KD * Kw * h ^ m * volTheta h |ω h| s0 jj P ρ M
-      ≤ mvCstar cm CE ((KA + KB) * Kw)) :
-    (∀ p ∈ Icc 1 P, ∀ j ∈ Icc (eqLo s0 jj p) (jj p + 1),
-      |ψ j - psiHat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p j|
-        ≤ mvC cm CE ((KA + KB) * Kw) Λ P * (2 * KD * Kw * h ^ m * volTheta h |ω h| s0 jj P ρ M) * W j * M j) ∧
-    (∀ p, 1 ≤ p → p < P → ∀ j ∈ Icc (jj p) (jj p + 1),
-      psiHat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p j
-        = psiHat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj (p + 1) j) ∧
-    (∀ j ∈ Icc 0 NR, ∃ p ∈ Icc 1 P,
-      |ψ j - psiHat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p j|
-        ≤ mvC cm CE ((KA + KB) * Kw) Λ P * (2 * KD * Kw * h ^ m * volTheta h |ω h| s0 jj P ρ M) * W j * M j) := by
+    (hannih : s0 = 0 → colMul (PiM (γ * h) h) (wf 1 0 (γ * h) h) = 0) :
+    0 < |ω h| ∧ (s0 = 0 → ladderA dd pp γ h (-1) = 0) ∧
+    (∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p),
+      cm * |ω h| ≤ |cas (ladderA dd pp γ h) (ladderPairFun AA BB wf γ h 0 p) (ladderPairFun AA BB wf γ h 1 p) j|) ∧
+    (∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p + 1),
+      |ladderPairFun AA BB wf γ h 0 p j| ≤ (KA + KB) * Kw * W j * M j) ∧
+    (∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p + 1),
+      |ladderPairFun AA BB wf γ h 1 p j| ≤ (KA + KB) * Kw * (W j)⁻¹ * M j) ∧
+    (∀ p ∈ Icc 1 P, ∀ k ∈ Icc (eqLo s0 jj p) (jj p),
+      |Lh h (ladderA dd pp γ h) (ladderQ qq γ h) (ladderPairFun AA BB wf γ h 0 p) k|
+        ≤ 2 * KD * Kw * h ^ m * ρ k * W k * M k) ∧
+    (∀ p ∈ Icc 1 P, ∀ k ∈ Icc (eqLo s0 jj p) (jj p), k ≠ 0 →
+      |Lh h (ladderA dd pp γ h) (ladderQ qq γ h) (ladderPairFun AA BB wf γ h 1 p) k|
+        ≤ 2 * KD * Kw * h ^ m * ρ k * (W k)⁻¹ * M k) := by
   have hjjge : ∀ p, p ≤ P → 0 ≤ jj p := fun p hp => by
     have := jj_mono_le jj P hjjmono 0 p (Nat.zero_le _) hp
     rw [hjj0] at this
@@ -384,13 +377,115 @@ theorem ladder_pair_stability (γ h Λ CE cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp
       hKD hKw (hρ k) (inv_nonneg.mpr hWk.le) hMk.le (hUCb k hk0) (hUCc k hk0) e1 e3
     calc _ ≤ _ := hpart
       _ = _ := by ring
-  have hφ1' : ∀ p ∈ Icc 1 P, ∀ j ∈ Icc (jj (p - 1)) (jj p + 1),
-      |ladderPairFun AA BB wf γ h 0 p j| ≤ (KA + KB) * Kw * W j * M j := hφ1
+  exact ⟨hωpos, hA, hS1, hφ1, hφ2, hr1, hr2⟩
+
+/-- **Ladder-pair stability** (`thm:eng-volterra`(b) combined with `thm:eng-volterra`(a), no new analysis).
+
+The comparison pairs of patch `p` are the ladder pairs `φ^{(α)}_p = v(u_k,h)·𝐰^{(α)}_p(u_k)` of one row `v = (A, hB)`
+and of the model ladders `𝐰_p` (one symplectic ladder structure per patch, `hL`, with the same `Π±`, `ω_mod`).  The
+defect bounds (eq:eng-UC1) and the envelopes of `𝐰_p` give (S1) with `ω_* = |ω_mod(h)|`, `c₋ = cm`, (S2) with
+`K = (K_A + K_B) K_w` and the residuals with `ε = 2 K_𝔇 K_w h^m`; then `volterra_multi` applies. -/
+theorem ladder_pair_stability (γ h Λ CE cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp qq : ℝ → ℝ → ℝ)
+    (PiP PiM : ℝ → ℝ → M2) (ω : ℝ → ℝ) (AA BB : ℝ → ℝ → ℝ) (wf : ℕ → Fin 2 → ℝ → ℝ → V2)
+    (ρ ρt W M ψ : ℤ → ℝ) (s0 NR : ℤ) (P : ℕ) (jj : ℕ → ℤ)
+    (hh : 0 < h) (hcm : 0 < cm) (hKD : 0 ≤ KD) (hKw : 0 ≤ Kw) (hKA : 0 ≤ KA) (hKB : 0 ≤ KB) (hΛ : 1 ≤ Λ)
+    (hL : ∀ p, SymplecticLadder γ dd pp qq PiP PiM (wf p) ω)
+    (hP : 1 ≤ P) (hjj0 : jj 0 = 0) (hjjmono : ∀ p < P, jj p < jj (p + 1)) (hjjP : jj P = NR - 1)
+    (hs0 : s0 = 0 ∨ s0 = 1)
+    (hρ : ∀ k, 0 ≤ ρ k) (hρt : ∀ k : ℤ, 0 ≤ k → 0 < ρt k)
+    (hMpos : ∀ j ∈ Icc 0 NR, 0 < M j) (hWpos : ∀ j ∈ Icc 0 NR, 0 < W j)
+    (hmono : ∀ k ∈ Icc 0 NR, ∀ j ∈ Icc 0 NR, k ≤ j → W k ≤ CE * W j)
+    (hUCa : ∀ k : ℤ, 0 ≤ k → cm ≤ |Fcas pp AA BB PiM (((k : ℝ) + γ) * h + h / 2) h|)
+    (hUCb : ∀ k : ℤ, 0 ≤ k → |defectRow pp qq AA BB PiP PiM (((k : ℝ) + γ) * h) h 0| ≤ KD * h ^ (m + 1) * ρ k)
+    (hUCc : ∀ k : ℤ, 0 ≤ k → |defectRow pp qq AA BB PiP PiM (((k : ℝ) + γ) * h) h 1| ≤ KD * h ^ (m + 1) * ρt k)
+    (hKa : ∀ k : ℤ, 0 ≤ k → |AA (((k : ℝ) + γ) * h) h| ≤ KA)
+    (hKb : ∀ k : ℤ, 0 ≤ k → |h * BB (((k : ℝ) + γ) * h) h| * (ρ k / ρt k) ≤ KB)
+    (henv : ∀ p ∈ Icc 1 P, ∀ k ∈ Icc (jj (p - 1)) (jj p + 1),
+      |wf p 0 (((k : ℝ) + γ) * h) h 0| ≤ Kw * W k * M k ∧
+      |wf p 1 (((k : ℝ) + γ) * h) h 0| ≤ Kw * (W k)⁻¹ * M k ∧
+      ρt k * |wf p 0 (((k : ℝ) + γ) * h) h 1| ≤ Kw * ρ k * W k * M k ∧
+      ρt k * |wf p 1 (((k : ℝ) + γ) * h) h 1| ≤ Kw * ρ k * (W k)⁻¹ * M k)
+    (hDhard : s0 = 0 → Dm dd (γ * h) h = 0)
+    (hannih : s0 = 0 → colMul (PiM (γ * h) h) (wf 1 0 (γ * h) h) = 0)
+    (hT : ∀ p, 1 ≤ p → p < P → Λ⁻¹ ≤ |(transMat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p).det| ∧
+      |transMat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p 0 0| ≤ Λ ∧
+      |transMat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p 1 1| ≤ Λ ∧
+      |transMat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p 0 1| ≤ Λ * (W (jj p) ^ 2)⁻¹ ∧
+      |transMat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p 1 0| ≤ Λ * W (jj p) ^ 2)
+    (hsol : ∀ k ∈ Icc s0 (NR - 1), Lh h (ladderA dd pp γ h) (ladderQ qq γ h) ψ k = 0)
+    (hseed : ∀ j ∈ Icc 0 s0, ψ j = ladderPairFun AA BB wf γ h 0 1 j)
+    (hsmall : 2 * KD * Kw * h ^ m * volTheta h |ω h| s0 jj P ρ M
+      ≤ mvCstar cm CE ((KA + KB) * Kw)) :
+    (∀ p ∈ Icc 1 P, ∀ j ∈ Icc (eqLo s0 jj p) (jj p + 1),
+      |ψ j - psiHat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p j|
+        ≤ mvC cm CE ((KA + KB) * Kw) Λ P * (2 * KD * Kw * h ^ m * volTheta h |ω h| s0 jj P ρ M) * W j * M j) ∧
+    (∀ p, 1 ≤ p → p < P → ∀ j ∈ Icc (jj p) (jj p + 1),
+      psiHat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p j
+        = psiHat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj (p + 1) j) ∧
+    (∀ j ∈ Icc 0 NR, ∃ p ∈ Icc 1 P,
+      |ψ j - psiHat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p j|
+        ≤ mvC cm CE ((KA + KB) * Kw) Λ P * (2 * KD * Kw * h ^ m * volTheta h |ω h| s0 jj P ρ M) * W j * M j) := by
+  obtain ⟨hωpos, hA, hS1, hφ1, hφ2, hr1, hr2⟩ := ladder_pair_data γ h cm KD Kw KA KB m dd pp qq PiP PiM ω AA BB
+    wf ρ ρt W M s0 NR P jj hh hKD hKw hL hjj0 hjjmono hjjP hs0 hρ hρt hMpos hWpos hUCa hUCb hUCc hKa hKb henv
+    hDhard hannih
   exact volterra_multi h (|ω h|) cm CE ((KA + KB) * Kw) (2 * KD * Kw * h ^ m) Λ (ladderA dd pp γ h)
     (ladderQ qq γ h) ψ ρ M W s0 NR P jj (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1)
     hh hωpos hcm (by positivity) (by positivity) hΛ hP hjj0 hjjmono hjjP hs0 hA hS1 hMpos hWpos hmono
-    hφ1' hφ2 hρ hr1 hr2 hT hsol hseed hsmall
+    hφ1 hφ2 hρ hr1 hr2 hT hsol hseed hsmall
 
+/-- **Ladder-pair stability with the transfer condition derived at forbidden overlaps** (`thm:eng-volterra`(b) with (a),
+case (ii) of the remark after (S3)).  As `ladder_pair_stability`, but the transfer hypothesis `hT` is replaced by the
+overlap conditions at each `j_p` (`p < P`): `𝒜_h(s_{j_p}) > 0`, `W_{j_p+1} ≤ C_w W_{j_p}`, and
+`𝒜_h(s_{j_p}) M_{j_p} M_{j_p+1} ≤ C_ω |ω_mod(h)|` (the paper's `𝒜_h(s_{j_p}) 𝖬 𝖬 ≍ ω_*`); (S3) then holds with
+`Λ = max 1 (2K² max(C_w,C_E) C_ω/c₋)`, `K = (K_A+K_B)K_w`, by `transfer_of_forbidden_overlap`.  The case of a bounded
+(oscillatory) overlap, where (S3) is assumed, is `ladder_pair_stability`. -/
+theorem ladder_pair_stability_forbidden (γ h CE Cw Cω cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp qq : ℝ → ℝ → ℝ)
+    (PiP PiM : ℝ → ℝ → M2) (ω : ℝ → ℝ) (AA BB : ℝ → ℝ → ℝ) (wf : ℕ → Fin 2 → ℝ → ℝ → V2)
+    (ρ ρt W M ψ : ℤ → ℝ) (s0 NR : ℤ) (P : ℕ) (jj : ℕ → ℤ)
+    (hh : 0 < h) (hcm : 0 < cm) (hKD : 0 ≤ KD) (hKw : 0 ≤ Kw) (hKA : 0 ≤ KA) (hKB : 0 ≤ KB)
+    (hL : ∀ p, SymplecticLadder γ dd pp qq PiP PiM (wf p) ω)
+    (hP : 1 ≤ P) (hjj0 : jj 0 = 0) (hjjmono : ∀ p < P, jj p < jj (p + 1)) (hjjP : jj P = NR - 1)
+    (hs0 : s0 = 0 ∨ s0 = 1)
+    (hρ : ∀ k, 0 ≤ ρ k) (hρt : ∀ k : ℤ, 0 ≤ k → 0 < ρt k)
+    (hMpos : ∀ j ∈ Icc 0 NR, 0 < M j) (hWpos : ∀ j ∈ Icc 0 NR, 0 < W j)
+    (hmono : ∀ k ∈ Icc 0 NR, ∀ j ∈ Icc 0 NR, k ≤ j → W k ≤ CE * W j)
+    (hUCa : ∀ k : ℤ, 0 ≤ k → cm ≤ |Fcas pp AA BB PiM (((k : ℝ) + γ) * h + h / 2) h|)
+    (hUCb : ∀ k : ℤ, 0 ≤ k → |defectRow pp qq AA BB PiP PiM (((k : ℝ) + γ) * h) h 0| ≤ KD * h ^ (m + 1) * ρ k)
+    (hUCc : ∀ k : ℤ, 0 ≤ k → |defectRow pp qq AA BB PiP PiM (((k : ℝ) + γ) * h) h 1| ≤ KD * h ^ (m + 1) * ρt k)
+    (hKa : ∀ k : ℤ, 0 ≤ k → |AA (((k : ℝ) + γ) * h) h| ≤ KA)
+    (hKb : ∀ k : ℤ, 0 ≤ k → |h * BB (((k : ℝ) + γ) * h) h| * (ρ k / ρt k) ≤ KB)
+    (henv : ∀ p ∈ Icc 1 P, ∀ k ∈ Icc (jj (p - 1)) (jj p + 1),
+      |wf p 0 (((k : ℝ) + γ) * h) h 0| ≤ Kw * W k * M k ∧
+      |wf p 1 (((k : ℝ) + γ) * h) h 0| ≤ Kw * (W k)⁻¹ * M k ∧
+      ρt k * |wf p 0 (((k : ℝ) + γ) * h) h 1| ≤ Kw * ρ k * W k * M k ∧
+      ρt k * |wf p 1 (((k : ℝ) + γ) * h) h 1| ≤ Kw * ρ k * (W k)⁻¹ * M k)
+    (hDhard : s0 = 0 → Dm dd (γ * h) h = 0)
+    (hannih : s0 = 0 → colMul (PiM (γ * h) h) (wf 1 0 (γ * h) h) = 0)
+    (hover : ∀ p, 1 ≤ p → p < P → 0 < ladderA dd pp γ h (jj p) ∧ W (jj p + 1) ≤ Cw * W (jj p) ∧
+      ladderA dd pp γ h (jj p) * (M (jj p) * M (jj p + 1)) ≤ Cω * |ω h|)
+    (hsol : ∀ k ∈ Icc s0 (NR - 1), Lh h (ladderA dd pp γ h) (ladderQ qq γ h) ψ k = 0)
+    (hseed : ∀ j ∈ Icc 0 s0, ψ j = ladderPairFun AA BB wf γ h 0 1 j)
+    (hsmall : 2 * KD * Kw * h ^ m * volTheta h |ω h| s0 jj P ρ M
+      ≤ mvCstar cm CE ((KA + KB) * Kw)) :
+    (∀ p ∈ Icc 1 P, ∀ j ∈ Icc (eqLo s0 jj p) (jj p + 1),
+      |ψ j - psiHat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p j|
+        ≤ mvC cm CE ((KA + KB) * Kw) (max 1 (2 * ((KA + KB) * Kw) ^ 2 * max Cw CE * Cω / cm)) P
+          * (2 * KD * Kw * h ^ m * volTheta h |ω h| s0 jj P ρ M) * W j * M j) ∧
+    (∀ p, 1 ≤ p → p < P → ∀ j ∈ Icc (jj p) (jj p + 1),
+      psiHat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p j
+        = psiHat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj (p + 1) j) ∧
+    (∀ j ∈ Icc 0 NR, ∃ p ∈ Icc 1 P,
+      |ψ j - psiHat (ladderPairFun AA BB wf γ h 0) (ladderPairFun AA BB wf γ h 1) jj p j|
+        ≤ mvC cm CE ((KA + KB) * Kw) (max 1 (2 * ((KA + KB) * Kw) ^ 2 * max Cw CE * Cω / cm)) P
+          * (2 * KD * Kw * h ^ m * volTheta h |ω h| s0 jj P ρ M) * W j * M j) := by
+  obtain ⟨hωpos, hA, hS1, hφ1, hφ2, hr1, hr2⟩ := ladder_pair_data γ h cm KD Kw KA KB m dd pp qq PiP PiM ω AA BB
+    wf ρ ρt W M s0 NR P jj hh hKD hKw hL hjj0 hjjmono hjjP hs0 hρ hρt hMpos hWpos hUCa hUCb hUCc hKa hKb henv
+    hDhard hannih
+  exact volterra_multi_forbidden h (|ω h|) cm CE ((KA + KB) * Kw) (2 * KD * Kw * h ^ m) Cw Cω
+    (ladderA dd pp γ h) (ladderQ qq γ h) ψ ρ M W s0 NR P jj (ladderPairFun AA BB wf γ h 0)
+    (ladderPairFun AA BB wf γ h 1)
+    hh hωpos hcm (by positivity) (by positivity) hP hjj0 hjjmono hjjP hs0 hA hS1 hMpos hWpos hmono
+    hφ1 hφ2 hρ hr1 hr2 hover hsol hseed hsmall
 
 /-- info: 'FormalResearch.JE.ladder_S1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -411,6 +506,14 @@ theorem ladder_pair_stability (γ h Λ CE cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp
 /-- info: 'FormalResearch.JE.ladder_residual_hard' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JE.ladder_residual_hard
+
+/-- info: 'FormalResearch.JE.ladder_pair_data' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.ladder_pair_data
+
+/-- info: 'FormalResearch.JE.ladder_pair_stability_forbidden' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.ladder_pair_stability_forbidden
 
 /-- info: 'FormalResearch.JE.ladder_pair_stability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
