@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.JacobiEigenvectors.TheoremA.Statements
 public import FormalResearch.JacobiEigenvectors.Engine.LadderStability
+public import FormalResearch.JacobiEigenvectors.TheoremA.BulkNormalisation
 
 /-!
 # Paper J, Layer 2: the bulk comparison bound (L2.C1, `BulkSolutionBound`) and the collar part of the bulk eigenvector statement (L2.C2, `PropThaW`)
@@ -211,21 +212,6 @@ theorem uMinus_mirror {Par : Type*} (F : SymbolFamily Par) (μ : Par) (X : ℝ)
   rw [hSm]
   exact key.symm
 
-
-lemma uNode_le_of_le {h : ℝ} (hh : 0 ≤ h) {a b : ℤ} (hab : a ≤ b) : uNode h a ≤ uNode h b := by
-  unfold uNode
-  have : (a : ℝ) ≤ b := by exact_mod_cast hab
-  nlinarith
-
-lemma uNode_mirror (L h : ℝ) (N : ℕ) (n : ℤ) (hL : h * ((N : ℝ) + 1) = L) :
-    uNode h ((N : ℤ) - n) = L - uNode h n := by
-  unfold uNode
-  push_cast
-  linear_combination hL
-
-lemma step_mul_succ {Par : Type*} (F : SymbolFamily Par) (N : ℕ) : F.step N * ((N : ℝ) + 1) = F.L := by
-  unfold SymbolFamily.step FormalResearch.JB.stepSize
-  exact div_mul_cancel₀ F.L (by positivity)
 
 /-- A collar bound `c3 W M <= |x|` gives `W M <= |x| / mn` for any `0 < mn <= c3`. -/
 lemma env_le_of_collar {W M c3 mn x : ℝ} (hmn : 0 < mn) (hmin : mn ≤ c3) (hWM : 0 ≤ W * M)
