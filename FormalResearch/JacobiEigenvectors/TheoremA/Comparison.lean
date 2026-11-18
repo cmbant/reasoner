@@ -60,34 +60,36 @@ def rowsOf (N : ℕ) : Finset ℤ := Finset.Icc (0 : ℤ) (N : ℤ)
 
 /-! ### Bulk -/
 
-/-- The overlap window `Omega_nu = {n : c' <= u_n <= c}` of the bulk chart. -/
-def bulkWindow (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (N : ℕ) : Finset ℤ :=
-  (rowsOf N).filter (fun n => CI.bulkL.c' ≤ uNode (F.step N) n ∧ uNode (F.step N) n ≤ CI.bulkL.c)
+section BulkGlue
 
-/-- Left sequence of the bulk chart. -/
-def bulkL (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (p : Par × ℝ) (X : ℝ) (N : ℕ) : ℤ → ℝ :=
-  CI.bulkL.psiHatL p X N
+variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {Jlo Jhi : ℝ} (CL : BulkWeberChart Fz P Jlo Jhi m U V)
+  (CR : BulkWeberChart (mirrorFamily Fz) P Jlo Jhi m U V)
+
+/-- The overlap window `Omega_nu = {n : c' <= u_n <= c}` of the bulk chart. -/
+def bulkWindow (N : ℕ) : Finset ℤ :=
+  (rowsOf N).filter (fun n => CL.c' ≤ uNode (Fz.step N) n ∧ uNode (Fz.step N) n ≤ CL.c)
 
 /-- Right sequence of the bulk chart: the left sequence of the mirror chart at row `N - n`. -/
-def bulkR (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (p : Par × ℝ) (X : ℝ) (N : ℕ) : ℤ → ℝ :=
-  fun n => CI.bulkR.psiHatL p X N ((N : ℤ) - n)
+def bulkSeqR (p : Par × ℝ) (X : ℝ) (N : ℕ) : ℤ → ℝ := fun n => CR.psiHatL p X N ((N : ℤ) - n)
 
 /-- `hat kappa` of prop:tha-W (2). -/
-def bulkKappa (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (p : Par × ℝ) (X : ℝ) (N : ℕ) : ℝ :=
-  glueKappa (bulkL CI p X N) (bulkR CI p X N) (bulkWindow CI N)
+def bulkKappa (p : Par × ℝ) (X : ℝ) (N : ℕ) : ℝ :=
+  glueKappa (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N)
 
 /-- `hat N` of prop:tha-W (2). -/
-def bulkNorm (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (p : Par × ℝ) (X : ℝ) (N : ℕ) : ℝ :=
-  glueNorm (bulkL CI p X N) (bulkR CI p X N) (bulkWindow CI N) (rowsOf N) (fun n => uNode (F.step N) n ≤ CI.bulkL.c)
+def bulkNorm (p : Par × ℝ) (X : ℝ) (N : ℕ) : ℝ :=
+  glueNorm (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) (fun n => uNode (Fz.step N) n ≤ CL.c)
 
 /-- `hat Psi` of prop:tha-W (2). -/
-def bulkVec (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (p : Par × ℝ) (X : ℝ) (N : ℕ) : ℤ → ℝ :=
-  glueVec (bulkL CI p X N) (bulkR CI p X N) (bulkWindow CI N) (rowsOf N) (fun n => uNode (F.step N) n ≤ CI.bulkL.c)
+def bulkVec (p : Par × ℝ) (X : ℝ) (N : ℕ) : ℤ → ℝ :=
+  glueVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) (fun n => uNode (Fz.step N) n ≤ CL.c)
 
 /-- `V_n / hat N` of eq:tha-G14: `E^L M^L` for `u_n <= c`, `|hat kappa| E^R M^R` beyond. -/
-def bulkEnv (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (p : Par × ℝ) (X : ℝ) (N : ℕ) (n : ℤ) : ℝ :=
-  (if uNode (F.step N) n ≤ CI.bulkL.c then CI.bulkL.envL p X N n
-   else |bulkKappa CI p X N| * CI.bulkR.envL p X N ((N : ℤ) - n)) / bulkNorm CI p X N
+def bulkEnv (p : Par × ℝ) (X : ℝ) (N : ℕ) (n : ℤ) : ℝ :=
+  (if uNode (Fz.step N) n ≤ CL.c then CL.envL p X N n
+   else |bulkKappa CL CR p X N| * CR.envL p X N ((N : ℤ) - n)) / bulkNorm CL CR p X N
+
+end BulkGlue
 
 /-! ### Soft edge (upper) -/
 
@@ -99,14 +101,21 @@ def softWindow {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} (C : Soft
     (N : ℕ) : Finset ℤ :=
   (rowsOf N).filter (fun n => |C.Zof p X N n| ≤ rhoWin (C.aOf p X N))
 
+/-- The Weber barrier weight `E_Web` of the soft chart at row `k` (patch 1). -/
+def softEnvWebW {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} (C : SoftEdgeChart Fz P m q U V) (p : Par × ℝ) (X : ℝ)
+    (N : ℕ) (k : ℤ) : ℝ :=
+  Ewell (-((k : ℝ) + 1 / 2)) |C.Y p X (uNode (Fz.step N) k) / Real.sqrt (Fz.step N)|
+
 /-- The Weber envelope `E_Web M_Web` of the soft chart at row `k` (patch 1). -/
 def softEnvWeb {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} (C : SoftEdgeChart Fz P m q U V) (p : Par × ℝ) (X : ℝ)
     (N : ℕ) (k : ℤ) : ℝ :=
   Ewell (-((k : ℝ) + 1 / 2)) |C.Y p X (uNode (Fz.step N) k) / Real.sqrt (Fz.step N)|
     * Mbal (-((k : ℝ) + 1 / 2)) (C.Y p X (uNode (Fz.step N) k) / Real.sqrt (Fz.step N))
 
-variable (CL : SoftEdgeChart (frozenFamily F Kidx) (paramSet K t0) m q U V)
-  (CR : SoftEdgeChart (mirrorFamily (frozenFamily F Kidx)) (paramSet K t0) m q U V)
+section SoftGlue
+
+variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} (CL : SoftEdgeChart Fz P m q U V)
+  (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V)
 
 /-- The left sequence of the upper soft edge (`psi-hat^L`) and the right one (`psi-hat^R`, mirror chart at row `N - n`). -/
 def softSeqR (p : Par × ℝ) (X : ℝ) (N : ℕ) : ℤ → ℝ := fun n => CR.psiHatL p X N ((N : ℤ) - n)
@@ -125,28 +134,37 @@ def softVec (p : Par × ℝ) (X : ℝ) (N : ℕ) : ℤ → ℝ :=
 
 /-- `V_n / hat N` of eq:tha-W2-2: four pieces (Weber, left PC, right PC, right Weber). -/
 def softEnv (p : Par × ℝ) (X : ℝ) (N : ℕ) (n : ℤ) : ℝ :=
-  (if uNode ((frozenFamily F Kidx).step N) n ≤ CL.uc p - CL.η / 2 then softEnvWeb CL p X N n
+  (if uNode (Fz.step N) n ≤ CL.uc p - CL.η / 2 then softEnvWeb CL p X N n
    else if CL.Zof p X N n ≤ 0 then |CL.lamL p X N| * Molv U V (CL.aOf p X N) (-(CL.Zof p X N n))
-   else if uNode ((frozenFamily F Kidx).step N) n < CL.uc p + CL.η / 2 then
+   else if uNode (Fz.step N) n < CL.uc p + CL.η / 2 then
      |softKappa CL CR p X N * CR.lamL p X N| * Molv U V (CL.aOf p X N) (CL.Zof p X N n)
    else |softKappa CL CR p X N| * softEnvWeb CR p X N ((N : ℤ) - n)) / softNorm CL CR p X N
+
+/-- `lambda = E_Web(j_1)/E_minus(j_1)`: the ratio of the Weber barrier weight to that of the parabolic-cylinder pair entering from `Z < 0`
+at the overlap bond (prop:tha-W2 (1)). -/
+def softLam (p : Par × ℝ) (X : ℝ) (N : ℕ) : ℝ :=
+  softEnvWebW CL p X N (CL.j1 p X N) / Eminus (CL.aOf p X N) (CL.Zof p X N (CL.j1 p X N))
+
+end SoftGlue
 
 /-! ### The three cases of `def:tha-Psihat` -/
 
 /-- The frozen parameter `(mu, t = h)` at which the vectors are evaluated (`h = L/(N+1)`). -/
 def atStep (F : SymbolFamily Par) (μ : Par) (N : ℕ) : Par × ℝ := (μ, F.step N)
 
-/-- `hat Psi^{(m)}`: for the energy `X` (an eigenvalue of `J_h`), the vector of prop:tha-W (2) if `X in [Jlo, Jhi]`, of prop:tha-W2 (2) at
+/-- `hat Psi^{(m)}`: for the energy `X` (an eigenvalue of `J_h`), the vector of prop:tha-W (2) for a bulk block containing `X` (the first one chosen by `Classical.choose`; any block gives the same vector up to `O(h^m)` relative, prop:tha-splice (a) and its block analogue) if `X in [Jlo, Jhi]`, of prop:tha-W2 (2) at
 the upper edge if `X > Jhi`, and the gauge vector `(-1)^n hat Psi` of the family `-(-1)^n J (-1)^n` at energy `-X` if `X < Jlo`
 (`def:tha-Psihat`; the three cases exhaust the eigenvalues, `Step 0` of app_thmA). -/
 def psiHatVec (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (μ : Par) (N : ℕ) (X : ℝ) (n : ℤ) : ℝ :=
-  if CI.Jlo ≤ X ∧ X ≤ CI.Jhi then bulkVec CI (atStep F μ N) X N n
+  if h : ∃ ν, CI.lo ν ≤ X ∧ X ≤ CI.hi ν then
+    bulkVec (CI.bulkL (Classical.choose h)) (CI.bulkR (Classical.choose h)) (atStep F μ N) X N n
   else if CI.Jhi < X then softVec CI.softUpL CI.softUpR (atStep F μ N) X N n
   else (-1 : ℝ) ^ n * softVec CI.softLoL CI.softLoR (atStep F μ N) (-X) N n
 
 /-- The envelope `V_{k,n} = V_n / hat N` of `def:tha-Psihat`. -/
 def envVec (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (μ : Par) (N : ℕ) (X : ℝ) (n : ℤ) : ℝ :=
-  if CI.Jlo ≤ X ∧ X ≤ CI.Jhi then bulkEnv CI (atStep F μ N) X N n
+  if h : ∃ ν, CI.lo ν ≤ X ∧ X ≤ CI.hi ν then
+    bulkEnv (CI.bulkL (Classical.choose h)) (CI.bulkR (Classical.choose h)) (atStep F μ N) X N n
   else if CI.Jhi < X then softEnv CI.softUpL CI.softUpR (atStep F μ N) X N n
   else softEnv CI.softLoL CI.softLoR (atStep F μ N) (-X) N n
 

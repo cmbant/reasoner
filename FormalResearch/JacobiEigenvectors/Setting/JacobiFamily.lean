@@ -306,4 +306,24 @@ theorem negFamily_JacSol {Par : Type*} (F : SymbolFamily Par) (μ : Par) (N : �
   simp only [e1, e2]
   linear_combination (-(-1 : ℝ) ^ n) * h0
 
+/-- info: 'FormalResearch.JacobiEigenvectors.Setting.frozenFamily_Gh_at_step' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Setting.frozenFamily_Gh_at_step
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Setting.frozenFamily_Bh_at_step' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Setting.frozenFamily_Bh_at_step
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Setting.frozenFamily_jacobiMat_at_step' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Setting.frozenFamily_jacobiMat_at_step
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Setting.negFamily_diagQ' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Setting.negFamily_diagQ
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Setting.negFamily_JacSol' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Setting.negFamily_JacSol
+
 end FormalResearch.JacobiEigenvectors.Setting

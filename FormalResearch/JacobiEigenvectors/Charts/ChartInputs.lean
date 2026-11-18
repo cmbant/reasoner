@@ -13,7 +13,7 @@ the parity-freezing depth `Kidx` (so `2 Kidx = q_m`-ish) and `t0`, it contains, 
 `K x [-t0, t0]` (the second component is the freezing parameter `t`, evaluated at `t = h` at the end, `Setting.frozenFamily_jacobiMat_at_step`):
 
 * `pc`: `ParabolicCylinderFacts` (Layer 4: DLMF/Olver);
-* `bulkL`, `bulkR`: the left / right Weber charts at order `m` on the bulk energy range `[Jlo, Jhi]` (`BulkWeberChart`; `bulkR` is a chart of the mirror family);
+* `bulkL ν`, `bulkR ν`: the left / right Weber charts at order `m` on the bulk block `[lo ν, hi ν]` (`BulkWeberChart`; `bulkR` is a chart of the mirror family); the blocks cover `[Jlo, Jhi]`;
 * `softUpL`, `softUpR`, `softLoL`, `softLoR`: the soft-edge charts at the upper edge (left and right solution) and, through the gauge `negFamily`, the lower edge;
   order `m`, shift index `q` (admissibility `2 ceil(m/2) <= q <= 2 floor(m/2) + 2` is a hypothesis of the statements, not a field: for the pair of orders `m, m+1` of
   Theorem B the *same* `q` is used and is one shift short at even `m + 1`);
@@ -42,14 +42,19 @@ structure ChartInputs {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par
   pc : ParabolicCylinderFacts U V cPC CPC
   Jlo : ℝ
   Jhi : ℝ
-  bulkL : BulkWeberChart (frozenFamily F Kidx) (paramSet K t0) Jlo Jhi m U V
-  bulkR : BulkWeberChart (mirrorFamily (frozenFamily F Kidx)) (paramSet K t0) Jlo Jhi m U V
+  /-- the bulk blocks: finitely many energy intervals `[lo nu, hi nu]` covering `[Jlo, Jhi]`, each with its **own** oscillatory overlap (finding F-geom: a single
+  overlap `[c', c]` for all of `J` does not exist in general, lem:tha-geom (c) holds per energy, hence per block). -/
+  nb : ℕ
+  lo : Fin nb → ℝ
+  hi : Fin nb → ℝ
+  bulkL : (ν : Fin nb) → BulkWeberChart (frozenFamily F Kidx) (paramSet K t0) (lo ν) (hi ν) m U V
+  bulkR : (ν : Fin nb) → BulkWeberChart (mirrorFamily (frozenFamily F Kidx)) (paramSet K t0) (lo ν) (hi ν) m U V
   softUpL : SoftEdgeChart (frozenFamily F Kidx) (paramSet K t0) m q U V
   softUpR : SoftEdgeChart (mirrorFamily (frozenFamily F Kidx)) (paramSet K t0) m q U V
   softLoL : SoftEdgeChart (negFamily (frozenFamily F Kidx)) (paramSet K t0) m q U V
   softLoR : SoftEdgeChart (mirrorFamily (negFamily (frozenFamily F Kidx))) (paramSet K t0) m q U V
   /-- the right overlap `[c'_R, c_R]` is the mirror of the left one: `c_R = L - c'_L`, `c'_R = L - c_L`. -/
-  overlap_match : bulkR.c = F.L - bulkL.c' ∧ bulkR.c' = F.L - bulkL.c
+  overlap_match : ∀ ν, (bulkR ν).c = F.L - (bulkL ν).c' ∧ (bulkR ν).c' = F.L - (bulkL ν).c
   /-- mirror symmetry of the soft charts: `u_c^R = L - u_c`, `zeta_R(-x) = -zeta(x)`, the same shifts `mu_{2r}`, same `eta`, `delta_0`
   (the right chart of the soft edge is the mirror image of the left one; `Z_R(N-n) = -Z(n)`, `a_R = a`). -/
   mirror_up : (∀ p ∈ paramSet K t0, softUpR.uc p = F.L - softUpL.uc p) ∧
@@ -61,6 +66,8 @@ structure ChartInputs {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par
     (∀ r, ∀ p ∈ paramSet K t0, ∀ α, softLoR.muS r p α = softLoL.muS r p α) ∧
     softLoR.η = softLoL.η ∧ softLoR.δ0 = softLoL.δ0 ∧ softLoR.N0 = softLoL.N0
   /-- the bulk range lies inside the band and, with the two soft windows, covers it. -/
+  cover_bulk : ∀ X, Jlo ≤ X → X ≤ Jhi → ∃ ν, lo ν ≤ X ∧ X ≤ hi ν
+  blocks_in_J : ∀ ν, Jlo ≤ lo ν ∧ lo ν ≤ hi ν ∧ hi ν ≤ Jhi
   cover : ∀ p ∈ paramSet K t0,
     (frozenFamily F Kidx).bandLo p < Jlo ∧ Jlo ≤ Jhi ∧ Jhi < (frozenFamily F Kidx).bandHi p ∧
     (frozenFamily F Kidx).bandHi p ≤ Jhi + softUpL.δ0 ∧ Jlo - softLoL.δ0 ≤ (frozenFamily F Kidx).bandLo p
