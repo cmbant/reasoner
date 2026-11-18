@@ -1869,6 +1869,394 @@ theorem volterra_multi_instance (θ : ℝ) (hθ : Real.sin θ ≠ 0) :
   simpa using h1
 
 
+/-! ### Perturbed instances (`ε > 0`, `ψ ≠ ψ̂`), two-node and hard-edge seeds -/
+
+lemma mvC_inst : mvC 1 1 1 1 2 = 832 := by
+  norm_num [mvC, mvCrStar, mvKappa]
+
+lemma mvCstar_inst : mvCstar 1 1 1 = 1 / 5 := by
+  norm_num [mvCstar]
+
+lemma volTheta_two_node (h ω : ℝ) :
+    volTheta h ω 1 (fun n : ℕ => (n : ℤ)) 2 (fun _ => 1) (fun _ => 1) = h / ω * 2 := by
+  have e1 : eqLo 1 (fun n : ℕ => (n : ℤ)) 1 = 1 := eqLo_one _ _
+  have e2 : eqLo 1 (fun n : ℕ => (n : ℤ)) 2 = 2 := by
+    rw [show (2:ℕ) = 1 + 1 from rfl, eqLo_succ _ _ 1 le_rfl]; simp
+  unfold volTheta
+  have : Icc 1 2 = ({1, 2} : Finset ℕ) := by decide
+  rw [this, Finset.sum_pair (by norm_num), e1, e2]
+  norm_num
+
+lemma volTheta_hard_edge (h ω : ℝ) :
+    volTheta h ω 0 (fun n : ℕ => (n : ℤ)) 2 (fun _ => 1) (fun _ => 1) = h / ω * 3 := by
+  have e1 : eqLo 0 (fun n : ℕ => (n : ℤ)) 1 = 0 := eqLo_one _ _
+  have e2 : eqLo 0 (fun n : ℕ => (n : ℤ)) 2 = 2 := by
+    rw [show (2:ℕ) = 1 + 1 from rfl, eqLo_succ _ _ 1 le_rfl]; simp
+  unfold volTheta
+  have : Icc 1 2 = ({1, 2} : Finset ℕ) := by decide
+  rw [this, Finset.sum_pair (by norm_num), e1, e2]
+  norm_num [Finset.sum_const, Int.card_Icc]
+
+
+/-- If the transfer matrix `M_1` is the identity, then `ψ̂_p = φ¹_p` on the two patches (`c_1 = c_2 = (1,0)`). -/
+lemma psiHat_eq_phi1_of_trans_one (φ1 φ2 : ℕ → ℤ → ℝ) (jj : ℕ → ℤ)
+    (hT : transMat φ1 φ2 jj 1 = 1) (p : ℕ) (hp : p = 1 ∨ p = 2) (j : ℤ) :
+    psiHat φ1 φ2 jj p j = φ1 p j := by
+  rcases hp with rfl | rfl
+  · unfold psiHat
+    rw [cvec_one]
+    simp
+  · unfold psiHat
+    have hc : cvec φ1 φ2 jj 2 = mulMV (transMat φ1 φ2 jj 1) (cvec φ1 φ2 jj 1) := cvec_succ_succ φ1 φ2 jj 0
+    rw [hc, hT, cvec_one]
+    simp [mulMV]
+
+/-- The trigonometric pair has the identity transfer matrix `M_1` (same pair on both patches). -/
+lemma transMat_trig_one (θ' : ℝ) (hθ' : Real.sin θ' ≠ 0) :
+    transMat (fun _ i => Real.cos (i * θ')) (fun _ i => Real.sin (i * θ')) (fun n : ℕ => (n : ℤ)) 1 = 1 := by
+  have hdetB : (bondMat (fun _ i => Real.cos (i * θ')) (fun _ i => Real.sin (i * θ')) 1 ((1 : ℕ) : ℤ)).det
+      = Real.sin θ' := by
+    unfold bondMat
+    rw [Matrix.det_fin_two_of]
+    have e := Real.sin_sub (2 * θ') θ'
+    rw [show 2 * θ' - θ' = θ' by ring] at e
+    push_cast
+    norm_num
+    linear_combination (-1 : ℝ) * e
+  unfold transMat
+  have hU : (bondMat (fun _ i => Real.cos (i * θ')) (fun _ i => Real.sin (i * θ')) (1 + 1)
+      (((1 : ℕ) : ℤ))).det ≠ 0 := by
+    show (bondMat (fun _ i => Real.cos (i * θ')) (fun _ i => Real.sin (i * θ')) 1 ((1 : ℕ) : ℤ)).det ≠ 0
+    rw [hdetB]
+    exact hθ'
+  exact Matrix.nonsing_inv_mul _ (isUnit_iff_ne_zero.mpr hU)
+
+/-- **Perturbed multi-patch instance, two-node seed** (`ε > 0`, `ψ ≠ ψ̂`).  Two patches (`j_p = p`, `N_R = 3`), `A = 1`,
+`Q = 2cosθ`, the pair `φ¹ = cos(iθ')`, `φ² = sin(iθ')` on both patches (`M_1 = I`, `ψ̂_p = φ¹`), the exact solution
+`ψ = pertSol θ θ'` with the seed `ψ_0 = φ¹_0`, `ψ_1 = φ¹_1`, and the residual size
+`ε = |2cosθ'-2cosθ|/h > 0`.  Here `εΘ = 2|2cosθ'-2cosθ|/|sinθ'|` is independent of `h`; the smallness `εΘ ≤ c* = 1/5` is the
+hypothesis `hsmall` (satisfiable, see `volterra_multi_perturbed_params`).  The conclusion is the bound of
+`volterra_multi` with the explicit constant `C = 832`, together with the non-vanishing of the error at some site. -/
+theorem volterra_multi_instance_perturbed (h θ θ' : ℝ) (hh : 0 < h) (hθ : Real.sin θ ≠ 0)
+    (hθ' : Real.sin θ' ≠ 0) (hne : Real.cos θ ≠ Real.cos θ')
+    (hsmall : 2 * (|2 * Real.cos θ' - 2 * Real.cos θ| / |Real.sin θ'|) ≤ 1 / 5) :
+    0 < |2 * Real.cos θ' - 2 * Real.cos θ| / h ∧
+    (∀ p ∈ Icc 1 2, ∀ j ∈ Icc (eqLo 1 (fun n : ℕ => (n : ℤ)) p) ((p : ℤ) + 1),
+      |pertSol θ θ' j - psiHat (fun _ i => Real.cos (i * θ')) (fun _ i => Real.sin (i * θ'))
+          (fun n : ℕ => (n : ℤ)) p j|
+        ≤ 832 * (2 * (|2 * Real.cos θ' - 2 * Real.cos θ| / |Real.sin θ'|))) ∧
+    (∃ p ∈ Icc 1 2, ∃ j ∈ Icc (eqLo 1 (fun n : ℕ => (n : ℤ)) p) ((p : ℤ) + 1),
+      pertSol θ θ' j ≠ psiHat (fun _ i => Real.cos (i * θ')) (fun _ i => Real.sin (i * θ'))
+          (fun n : ℕ => (n : ℤ)) p j) := by
+  have hω : 0 < |Real.sin θ'| := abs_pos.mpr hθ'
+  have hT1 := transMat_trig_one θ' hθ'
+  have hεpos : 0 < |2 * Real.cos θ' - 2 * Real.cos θ| / h :=
+    div_pos (abs_pos.mpr (by intro h'; apply hne; linarith)) hh
+  have hεΘ : |2 * Real.cos θ' - 2 * Real.cos θ| / h * (h / |Real.sin θ'| * 2)
+      = 2 * (|2 * Real.cos θ' - 2 * Real.cos θ| / |Real.sin θ'|) := by
+    field_simp
+  have key := volterra_multi (h := h) (ω := |Real.sin θ'|) (cm := 1) (CE := 1) (K := 1)
+    (ε := |2 * Real.cos θ' - 2 * Real.cos θ| / h) (Λ := 1)
+    (A := fun _ => 1) (Q := fun _ => 2 * Real.cos θ) (ψ := pertSol θ θ')
+    (ρ := fun _ => 1) (M := fun _ => 1) (W := fun _ => 1) (s0 := 1) (NR := 3) (P := 2)
+    (jj := fun n : ℕ => (n : ℤ)) (φ1 := fun _ i => Real.cos (i * θ')) (φ2 := fun _ i => Real.sin (i * θ'))
+    (hh := hh) (hω := hω) (hcm := one_pos) (hK := zero_le_one) (hε := hεpos.le) (hΛ := le_rfl)
+    (hP := by norm_num) (hjj0 := rfl) (hjjmono := fun p _ => by simp) (hjjP := by norm_num)
+    (hs0 := Or.inr rfl) (hA := fun h0 => absurd h0 (by norm_num))
+    (hS1 := fun p _ j _ => by
+      show 1 * |Real.sin θ'| ≤ |cas (fun _ => (1 : ℝ)) (fun i : ℤ => Real.cos (i * θ'))
+        (fun i : ℤ => Real.sin (i * θ')) j|
+      rw [(cos_sin_solutions θ').2.2 j, one_mul, abs_neg])
+    (hMpos := fun j _ => one_pos) (hWpos := fun j _ => one_pos)
+    (hmono := fun k _ j _ _ => by norm_num)
+    (hφ1 := fun p _ j _ => by
+      show |Real.cos (j * θ')| ≤ 1 * 1 * 1
+      rw [mul_one, mul_one]
+      exact Real.abs_cos_le_one _)
+    (hφ2 := fun p _ j _ => by
+      show |Real.sin (j * θ')| ≤ 1 * (1 : ℝ)⁻¹ * 1
+      rw [inv_one, mul_one, mul_one]
+      exact Real.abs_sin_le_one _)
+    (hρ := fun _ => zero_le_one)
+    (hr1 := fun p _ k _ => by
+      show |Lh h (fun _ => (1 : ℝ)) (fun _ => 2 * Real.cos θ) (fun i : ℤ => Real.cos (i * θ')) k|
+        ≤ |2 * Real.cos θ' - 2 * Real.cos θ| / h * 1 * 1 * 1
+      simpa only [mul_one] using abs_Lh_cos_pert h θ θ' hh k)
+    (hr2 := fun p _ k _ _ => by
+      show |Lh h (fun _ => (1 : ℝ)) (fun _ => 2 * Real.cos θ) (fun i : ℤ => Real.sin (i * θ')) k|
+        ≤ |2 * Real.cos θ' - 2 * Real.cos θ| / h * 1 * (1 : ℝ)⁻¹ * 1
+      simpa only [mul_one, inv_one] using abs_Lh_sin_pert h θ θ' hh k)
+    (hT := fun p hp1 hp2 => by
+      have hp : p = 1 := by omega
+      subst hp
+      rw [hT1, Matrix.det_one]
+      simp)
+    (hsol := fun k _ => Lh_pertSol h θ θ' k)
+    (hseed := fun j hj => by
+      have hj' := Finset.mem_Icc.mp hj
+      rcases (show j = 0 ∨ j = 1 by omega) with rfl | rfl
+      · simp [pertSol]
+      · rw [pertSol_one θ θ' hθ]; simp)
+    (hsmall := by
+      rw [volTheta_two_node, hεΘ, mvCstar_inst]
+      exact hsmall)
+  have hψ := psiHat_eq_phi1_of_trans_one (fun _ i => Real.cos (i * θ')) (fun _ i => Real.sin (i * θ'))
+    (fun n : ℕ => (n : ℤ)) hT1
+  refine ⟨hεpos, ?_, ?_⟩
+  · intro p hp j hj
+    have hb := key.1 p hp j hj
+    rw [volTheta_two_node, hεΘ, mvC_inst] at hb
+    simpa using hb
+  · rcases pertSol_ne_of_cos_ne θ θ' hθ hne with h2 | h3
+    · refine ⟨1, by simp, 2, ?_, ?_⟩
+      · simp [eqLo_one]
+      · rw [hψ 1 (Or.inl rfl) 2]
+        simpa using h2
+    · refine ⟨2, by simp, 3, ?_, ?_⟩
+      · rw [Finset.mem_Icc]
+        constructor
+        · have : eqLo 1 (fun n : ℕ => (n : ℤ)) 2 = 2 := by
+            rw [show (2:ℕ) = 1 + 1 from rfl, eqLo_succ _ _ 1 le_rfl]; simp
+          rw [this]; norm_num
+        · norm_num
+      · rw [hψ 2 (Or.inr rfl) 3]
+        simpa using h3
+
+
+/-- The smallness hypothesis of `volterra_multi_instance_perturbed` is satisfiable with `ε > 0`: `θ = π/2` and `cos θ' = 1/100`. -/
+lemma volterra_multi_perturbed_params :
+    ∃ θ θ' : ℝ, Real.sin θ ≠ 0 ∧ Real.sin θ' ≠ 0 ∧ Real.cos θ ≠ Real.cos θ' ∧
+      2 * (|2 * Real.cos θ' - 2 * Real.cos θ| / |Real.sin θ'|) ≤ 1 / 5 := by
+  refine ⟨Real.pi / 2, Real.arccos (1 / 100), ?_, ?_, ?_, ?_⟩
+  · simp
+  · rw [Real.sin_arccos]
+    have : (0 : ℝ) < 1 - (1 / 100) ^ 2 := by norm_num
+    exact (Real.sqrt_pos.mpr this).ne'
+  · rw [Real.cos_arccos (by norm_num) (by norm_num)]
+    simp
+  · rw [Real.cos_arccos (by norm_num) (by norm_num), Real.cos_pi_div_two, Real.sin_arccos]
+    have hs : (1 / 2 : ℝ) ≤ Real.sqrt (1 - (1 / 100) ^ 2) := by
+      apply Real.le_sqrt_of_sq_le
+      norm_num
+    have hpos : 0 < Real.sqrt (1 - (1 / 100) ^ 2) := lt_of_lt_of_le (by norm_num) hs
+    rw [abs_of_pos hpos]
+    rw [show |2 * (1 / 100 : ℝ) - 2 * 0| = 1 / 50 by norm_num]
+    rw [← mul_div_assoc, div_le_iff₀ hpos]
+    nlinarith
+
+/-- A constant pair with a nonzero Casoratian determinant has the identity transfer matrix. -/
+lemma transMat_const_one (f g : ℤ → ℝ) (jj : ℕ → ℤ)
+    (hdet : f (jj 1) * g (jj 1 + 1) - g (jj 1) * f (jj 1 + 1) ≠ 0) :
+    transMat (fun _ => f) (fun _ => g) jj 1 = 1 := by
+  unfold transMat
+  have hU : (bondMat (fun _ => f) (fun _ => g) (1 + 1) (jj 1)).det ≠ 0 := by
+    show (bondMat (fun _ => f) (fun _ => g) 1 (jj 1)).det ≠ 0
+    unfold bondMat
+    rw [Matrix.det_fin_two_of]
+    exact hdet
+  exact Matrix.nonsing_inv_mul _ (isUnit_iff_ne_zero.mpr hU)
+
+/-! ### A hard-edge instance (`s₀ = 0`, `A(-1) = 0`) -/
+
+/-- The hard-edge bond coefficient: `A_j = 1` except `A_{-1} = 0`. -/
+def heA (j : ℤ) : ℝ := if j = -1 then 0 else 1
+
+/-- The hard-edge solution family `i ↦ sin((i+1)α)` (it vanishes at the ghost site `i = -1`). -/
+noncomputable def heSin (α : ℝ) (i : ℤ) : ℝ := Real.sin (((i : ℝ) + 1) * α)
+
+/-- The second family `i ↦ cos((i+1)α)`. -/
+noncomputable def heCos (α : ℝ) (i : ℤ) : ℝ := Real.cos (((i : ℝ) + 1) * α)
+
+lemma heA_nonneg (k : ℤ) (hk : 0 ≤ k) : heA k = 1 := by
+  unfold heA
+  split_ifs with h0
+  · omega
+  · rfl
+
+lemma heA_pred (k : ℤ) (hk : 1 ≤ k) : heA (k - 1) = 1 := by
+  unfold heA
+  split_ifs with h0
+  · omega
+  · rfl
+
+lemma Lop_heSin (θ α : ℝ) (k : ℤ) (hk : 0 ≤ k) :
+    Lop heA (fun _ => 2 * Real.cos θ) (heSin α) k = (2 * Real.cos α - 2 * Real.cos θ) * Real.sin (((k : ℝ) + 1) * α) := by
+  have e1 : (((k + 1 : ℤ) : ℝ) + 1) * α = ((k : ℝ) + 1) * α + α := by push_cast; ring
+  have e2 : (((k - 1 : ℤ) : ℝ) + 1) * α = ((k : ℝ) + 1) * α - α := by push_cast; ring
+  have hghost : heA (k - 1) * heSin α (k - 1) = heSin α (k - 1) := by
+    by_cases h0 : k = 0
+    · subst h0
+      simp [heSin]
+    · rw [heA_pred k (by omega), one_mul]
+  unfold Lop
+  rw [heA_nonneg k hk, hghost]
+  simp only [heSin, e1, e2, Real.sin_add, Real.sin_sub]
+  ring
+
+lemma Lop_heCos (θ α : ℝ) (k : ℤ) (hk : 1 ≤ k) :
+    Lop heA (fun _ => 2 * Real.cos θ) (heCos α) k = (2 * Real.cos α - 2 * Real.cos θ) * Real.cos (((k : ℝ) + 1) * α) := by
+  have e1 : (((k + 1 : ℤ) : ℝ) + 1) * α = ((k : ℝ) + 1) * α + α := by push_cast; ring
+  have e2 : (((k - 1 : ℤ) : ℝ) + 1) * α = ((k : ℝ) + 1) * α - α := by push_cast; ring
+  unfold Lop
+  rw [heA_nonneg k (by omega), heA_pred k hk]
+  simp only [heCos, e1, e2, Real.cos_add, Real.cos_sub]
+  ring
+
+lemma cas_heSin_heCos (α : ℝ) (j : ℤ) (hj : 0 ≤ j) : cas heA (heSin α) (heCos α) j = Real.sin α := by
+  unfold cas
+  rw [heA_nonneg j hj]
+  have e1 : (((j + 1 : ℤ) : ℝ) + 1) * α = ((j : ℝ) + 1) * α + α := by push_cast; ring
+  simp only [heSin, heCos, e1, Real.sin_add, Real.cos_add]
+  have := Real.sin_sq_add_cos_sq (((j : ℝ) + 1) * α)
+  linear_combination (Real.sin α) * this
+
+lemma abs_Lh_heSin (h θ α : ℝ) (hh : 0 < h) (k : ℤ) (hk : 0 ≤ k) :
+    |Lh h heA (fun _ => 2 * Real.cos θ) (heSin α) k| ≤ |2 * Real.cos α - 2 * Real.cos θ| / h := by
+  unfold Lh
+  rw [Lop_heSin θ α k hk, abs_mul, abs_mul, abs_inv, abs_of_pos hh, div_eq_inv_mul]
+  exact mul_le_mul_of_nonneg_left (mul_le_of_le_one_right (abs_nonneg _) (Real.abs_sin_le_one _))
+    (inv_nonneg.mpr hh.le)
+
+lemma abs_Lh_heCos (h θ α : ℝ) (hh : 0 < h) (k : ℤ) (hk : 1 ≤ k) :
+    |Lh h heA (fun _ => 2 * Real.cos θ) (heCos α) k| ≤ |2 * Real.cos α - 2 * Real.cos θ| / h := by
+  unfold Lh
+  rw [Lop_heCos θ α k hk, abs_mul, abs_mul, abs_inv, abs_of_pos hh, div_eq_inv_mul]
+  exact mul_le_mul_of_nonneg_left (mul_le_of_le_one_right (abs_nonneg _) (Real.abs_cos_le_one _))
+    (inv_nonneg.mpr hh.le)
+
+/-- The exact hard-edge solution `ψ_i = (sinθ'/sinθ) sin((i+1)θ)`, seed `ψ_0 = sinθ' = φ¹_0`. -/
+noncomputable def heSol (θ θ' : ℝ) (i : ℤ) : ℝ := (Real.sin θ' / Real.sin θ) * heSin θ i
+
+lemma Lh_heSol (h θ θ' : ℝ) (k : ℤ) (hk : 0 ≤ k) :
+    Lh h heA (fun _ => 2 * Real.cos θ) (heSol θ θ') k = 0 := by
+  unfold Lh
+  have : Lop heA (fun _ => 2 * Real.cos θ) (heSol θ θ') k
+      = (Real.sin θ' / Real.sin θ) * Lop heA (fun _ => 2 * Real.cos θ) (heSin θ) k := by
+    simp only [Lop, heSol]; ring
+  rw [this, Lop_heSin θ θ k hk]
+  simp
+
+/-- **Perturbed multi-patch instance, hard-edge seed** (`s₀ = 0`, `A_{-1} = 0`; `ε > 0`, `ψ ≠ ψ̂`).  Two patches
+(`j_p = p`, `N_R = 3`, equation sites `[0,1]` and `[2,2]`), `A = heA`, `Q = 2cosθ`, the pair `φ¹ = sin((i+1)θ')`,
+`φ² = cos((i+1)θ')` on both patches (`M_1 = I`, `ψ̂_p = φ¹`; the second member does not solve the hard-edge equation at
+`i = 0`, which is the exempted residual `r²_{1,0}`), and the exact hard-edge solution `ψ_i = (sinθ'/sinθ) sin((i+1)θ)`
+with seed `ψ_0 = φ¹_0`.  `εΘ = 3|2cosθ'-2cosθ|/|sinθ'|`; the smallness `εΘ ≤ 1/5` is a hypothesis. -/
+theorem volterra_multi_instance_hard_edge (h θ θ' : ℝ) (hh : 0 < h) (hθ : Real.sin θ ≠ 0)
+    (hθ' : Real.sin θ' ≠ 0) (hne : Real.cos θ ≠ Real.cos θ')
+    (hsmall : 3 * (|2 * Real.cos θ' - 2 * Real.cos θ| / |Real.sin θ'|) ≤ 1 / 5) :
+    0 < |2 * Real.cos θ' - 2 * Real.cos θ| / h ∧
+    (∀ p ∈ Icc 1 2, ∀ j ∈ Icc (eqLo 0 (fun n : ℕ => (n : ℤ)) p) ((p : ℤ) + 1),
+      |heSol θ θ' j - psiHat (fun _ => heSin θ') (fun _ => heCos θ') (fun n : ℕ => (n : ℤ)) p j|
+        ≤ 832 * (3 * (|2 * Real.cos θ' - 2 * Real.cos θ| / |Real.sin θ'|))) ∧
+    (∃ p ∈ Icc 1 2, ∃ j ∈ Icc (eqLo 0 (fun n : ℕ => (n : ℤ)) p) ((p : ℤ) + 1),
+      heSol θ θ' j ≠ psiHat (fun _ => heSin θ') (fun _ => heCos θ') (fun n : ℕ => (n : ℤ)) p j) := by
+  have hω : 0 < |Real.sin θ'| := abs_pos.mpr hθ'
+  have hεpos : 0 < |2 * Real.cos θ' - 2 * Real.cos θ| / h :=
+    div_pos (abs_pos.mpr (by intro h'; apply hne; linarith)) hh
+  have hdet : heSin θ' (((fun n : ℕ => (n : ℤ)) 1)) * heCos θ' (((fun n : ℕ => (n : ℤ)) 1) + 1)
+      - heCos θ' (((fun n : ℕ => (n : ℤ)) 1)) * heSin θ' (((fun n : ℕ => (n : ℤ)) 1) + 1) ≠ 0 := by
+    have h1 : cas heA (heSin θ') (heCos θ') 1 = Real.sin θ' := cas_heSin_heCos θ' 1 (by norm_num)
+    unfold cas at h1
+    rw [heA_nonneg 1 (by norm_num), one_mul] at h1
+    intro h0
+    apply hθ'
+    simp only [Nat.cast_one] at h0
+    linarith
+  have hT1 := transMat_const_one (heSin θ') (heCos θ') (fun n : ℕ => (n : ℤ)) hdet
+  have hεΘ : |2 * Real.cos θ' - 2 * Real.cos θ| / h * (h / |Real.sin θ'| * 3)
+      = 3 * (|2 * Real.cos θ' - 2 * Real.cos θ| / |Real.sin θ'|) := by
+    field_simp
+  have heqLo : ∀ p ∈ Icc 1 2, 0 ≤ eqLo 0 (fun n : ℕ => (n : ℤ)) p := by
+    intro p hp
+    have hp' := Finset.mem_Icc.mp hp
+    rcases (show p = 1 ∨ p = 2 by omega) with rfl | rfl
+    · rw [eqLo_one]
+    · rw [show (2:ℕ) = 1 + 1 from rfl, eqLo_succ _ _ 1 le_rfl]; simp
+  have key := volterra_multi (h := h) (ω := |Real.sin θ'|) (cm := 1) (CE := 1) (K := 1)
+    (ε := |2 * Real.cos θ' - 2 * Real.cos θ| / h) (Λ := 1)
+    (A := heA) (Q := fun _ => 2 * Real.cos θ) (ψ := heSol θ θ')
+    (ρ := fun _ => 1) (M := fun _ => 1) (W := fun _ => 1) (s0 := 0) (NR := 3) (P := 2)
+    (jj := fun n : ℕ => (n : ℤ)) (φ1 := fun _ => heSin θ') (φ2 := fun _ => heCos θ')
+    (hh := hh) (hω := hω) (hcm := one_pos) (hK := zero_le_one) (hε := hεpos.le) (hΛ := le_rfl)
+    (hP := by norm_num) (hjj0 := rfl) (hjjmono := fun p _ => by simp) (hjjP := by norm_num)
+    (hs0 := Or.inl rfl) (hA := fun _ => by simp [heA])
+    (hS1 := fun p _ j hj => by
+      have hj0 : 0 ≤ j := by
+        have := (Finset.mem_Icc.mp hj).1
+        have h0 : (0:ℤ) ≤ ((fun n : ℕ => (n : ℤ)) (p - 1)) := by simp
+        exact h0.trans this
+      show 1 * |Real.sin θ'| ≤ |cas heA (heSin θ') (heCos θ') j|
+      rw [cas_heSin_heCos θ' j hj0, one_mul])
+    (hMpos := fun j _ => one_pos) (hWpos := fun j _ => one_pos)
+    (hmono := fun k _ j _ _ => by norm_num)
+    (hφ1 := fun p _ j _ => by
+      show |Real.sin (((j : ℝ) + 1) * θ')| ≤ 1 * 1 * 1
+      rw [mul_one, mul_one]
+      exact Real.abs_sin_le_one _)
+    (hφ2 := fun p _ j _ => by
+      show |Real.cos (((j : ℝ) + 1) * θ')| ≤ 1 * (1 : ℝ)⁻¹ * 1
+      rw [inv_one, mul_one, mul_one]
+      exact Real.abs_cos_le_one _)
+    (hρ := fun _ => zero_le_one)
+    (hr1 := fun p hp k hk => by
+      have hk0 : 0 ≤ k := (heqLo p hp).trans (Finset.mem_Icc.mp hk).1
+      show |Lh h heA (fun _ => 2 * Real.cos θ) (heSin θ') k| ≤ |2 * Real.cos θ' - 2 * Real.cos θ| / h * 1 * 1 * 1
+      simpa only [mul_one] using abs_Lh_heSin h θ θ' hh k hk0)
+    (hr2 := fun p hp k hk hk0' => by
+      have hk1 : 1 ≤ k := by
+        have := (heqLo p hp).trans (Finset.mem_Icc.mp hk).1
+        omega
+      show |Lh h heA (fun _ => 2 * Real.cos θ) (heCos θ') k|
+        ≤ |2 * Real.cos θ' - 2 * Real.cos θ| / h * 1 * (1 : ℝ)⁻¹ * 1
+      simpa only [mul_one, inv_one] using abs_Lh_heCos h θ θ' hh k hk1)
+    (hT := fun p hp1 hp2 => by
+      have hp : p = 1 := by omega
+      subst hp
+      rw [hT1, Matrix.det_one]
+      simp)
+    (hsol := fun k hk => Lh_heSol h θ θ' k (Finset.mem_Icc.mp hk).1)
+    (hseed := fun j hj => by
+      have hj' := Finset.mem_Icc.mp hj
+      have hj0 : j = 0 := by omega
+      subst hj0
+      show (Real.sin θ' / Real.sin θ) * Real.sin ((((0:ℤ) : ℝ) + 1) * θ) = Real.sin ((((0:ℤ) : ℝ) + 1) * θ')
+      simp [div_mul_cancel₀ _ hθ])
+    (hsmall := by
+      rw [volTheta_hard_edge, hεΘ, mvCstar_inst]
+      exact hsmall)
+  have hψ := psiHat_eq_phi1_of_trans_one (fun _ => heSin θ') (fun _ => heCos θ')
+    (fun n : ℕ => (n : ℤ)) hT1
+  refine ⟨hεpos, ?_, ?_⟩
+  · intro p hp j hj
+    have hb := key.1 p hp j hj
+    rw [volTheta_hard_edge, hεΘ, mvC_inst] at hb
+    simpa using hb
+  · refine ⟨1, by simp, 1, ?_, ?_⟩
+    · rw [eqLo_one]; simp
+    · rw [hψ 1 (Or.inl rfl) 1]
+      intro heq
+      have hs2 : Real.sin (2 * θ) = 2 * Real.sin θ * Real.cos θ := Real.sin_two_mul θ
+      have hs2' : Real.sin (2 * θ') = 2 * Real.sin θ' * Real.cos θ' := Real.sin_two_mul θ'
+      simp only [heSol, heSin, Int.cast_one] at heq
+      rw [show ((1:ℝ) + 1) * θ = 2 * θ by ring, show ((1:ℝ) + 1) * θ' = 2 * θ' by ring, hs2, hs2'] at heq
+      apply hne
+      have h3 := heq
+      field_simp at h3
+      exact h3
+
+
+/-- info: 'FormalResearch.JE.volterra_multi_instance_perturbed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.volterra_multi_instance_perturbed
+
+/-- info: 'FormalResearch.JE.volterra_multi_instance_hard_edge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.volterra_multi_instance_hard_edge
+
+/-- info: 'FormalResearch.JE.volterra_multi_perturbed_params' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JE.volterra_multi_perturbed_params
+
 /-- info: 'FormalResearch.JE.volterra_multi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JE.volterra_multi
