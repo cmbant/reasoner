@@ -168,9 +168,11 @@ def BulkSolutionBound {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {J
       ∀ k ∈ Finset.Icc (0 : ℤ) (C.NRL p X N), |ψ k - C.psiHatL p X N k| ≤ Cc * Fz.step N ^ m * C.envL p X N k
 
 /-- **prop:tha-W**: (1) left and right solutions, (2) normalised eigenvectors: `hat N ~ h^{-1/4}`, `|hat kappa| ~ 1`, `|Psi_n - hat Psi_n| <= C h^m V_n / hat N` for every row, and the relative form
-on the forbidden collars `u_n <= u_- - delta`, `u_n >= u_+ + delta` (constant depending on `delta`).  Hypotheses: `(E_{floor(m/2)})` and (H1)--(H3) on `P`. -/
+on the forbidden collars `u_n <= u_- - delta`, `u_n >= u_+ + delta` (constant depending on `delta`).  Hypotheses: `(E_{floor(m/2)})` and (H1)--(H3) on `P`.  **Corrected in the second pass** (agent finding F-C1, F-C2): the paper fixes `m >= 1` (the engine smallness `h^m Theta <= c_*` is unavailable for `m = 0`),
+and the glue of the two solutions needs the right overlap to be the mirror of the left one (`ChartInputs.overlap_match`); both are now hypotheses. -/
 def PropThaW (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (Jlo Jhi : ℝ) (m : ℕ) (U V : ℝ → ℝ → ℝ)
     (CL : BulkWeberChart Fz P Jlo Jhi m U V) (CR : BulkWeberChart (mirrorFamily Fz) P Jlo Jhi m U V) : Prop :=
+  1 ≤ m → (CR.c = Fz.L - CL.c' ∧ CR.c' = Fz.L - CL.c) →
   ∀ r, StdAssump Fz P (m / 2) r →
     BulkSolutionBound CL ∧ BulkSolutionBound CR ∧
     (∃ Cc h0 cN CN cκ Cκ : ℝ, 0 < h0 ∧ 0 < cN ∧ 0 < cκ ∧ ∀ p ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 →
