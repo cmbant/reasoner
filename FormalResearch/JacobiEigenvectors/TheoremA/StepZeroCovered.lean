@@ -230,7 +230,8 @@ theorem spectrumCovered {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily P
       have hXJ : X k ≤ CI.Jhi := not_lt.mp hJ
       have hXlt : X k < CI.Jlo := by
         by_contra hcon
-        exact hb (CI.cover_bulk _ (not_lt.mp hcon) hXJ)
+        obtain ⟨ν, h1, h2, -⟩ := CI.cover_bulk _ (not_lt.mp hcon) hXJ
+        exact hb ⟨ν, h1, h2⟩
       rw [negFamily_bandHi, abs_le]
       constructor
       · linarith

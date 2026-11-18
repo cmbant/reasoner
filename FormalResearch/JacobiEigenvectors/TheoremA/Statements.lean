@@ -28,7 +28,7 @@ implication, the setting hypotheses (`StdAssump`: compactness, `(E_K)`, `(H1)`--
 | `PropThaM` | lem:tha-M | soft chart |
 | `PropThaCount` | lem:tha-count | none (Jacobi recurrence only) |
 | `PropL2Jets` | prop:l2jets | `ChartInputs` for the truncated family, `DM F K m` |
-| `ThmSmoSpec` | thm:smo-spec (existence, uniqueness, extensions) | `ChartInputs` at order `max M 1`, `BulkPhaseInputs` |
+| `ThmSmoSpec` | thm:smo-spec (existence, uniqueness, extensions) | `ChartInputs` of `truncFamily F M` at order `max M 1`, `BulkPhaseInputs` |
 
 ## Quantifier structure (what constants depend on, uniformity in what)
 
@@ -111,6 +111,15 @@ def FrozenStandard (F : SymbolFamily Par) (K : Set Par) (Kidx : ℕ) : Prop :=
 
 /-! ### thm:smo-spec and thm:A (i): the eigenvalue rule -/
 
+/-- The truncated family `tilde J_h` of eq:l2-tilde: `tilde E_n = s_n(L-s_n) sum_{j<=m} h^j G_j(s_n)`, `tilde B_n = sum_{j<=m} h^j B_j(u_n)`, jets completed by zero beyond `m`. -/
+def truncFamily (F : SymbolFamily Par) (m : ℕ) : SymbolFamily Par where
+  L := F.L
+  L_pos := F.L_pos
+  Gh := fun μ h s => ∑ j ∈ range (m + 1), h ^ j * F.G j μ s
+  Bh := fun μ h u => ∑ j ∈ range (m + 1), h ^ j * F.B j μ u
+  G := fun j μ s => if j ≤ m then F.G j μ s else 0
+  B := fun j μ s => if j ≤ m then F.B j μ s else 0
+
 /-- The rule eq:smo-specBS for a candidate family `S` of coefficient functions: `sum_{j<=M} h^j S_j(X_k) = pi h (k + 1/2) + O(h^{M+1})`, uniformly in `mu in K`, `k`, and all `N` with `h <= hM`. -/
 def EigenRule (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (S : ℕ → Par → ℝ → ℝ) (hM C : ℝ) : Prop :=
   0 < hM ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hM → ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
@@ -138,10 +147,11 @@ besides `ThmAi`, (b) two families `S, S'` with `SmoothExt` and the rule agree on
 `C^{M+1}` extension) also satisfies the rule, with other constants.  **Round 5 (finding F-S6-1, confirmed against `thm:smo-spec`, which has `delta > 0`):** the radii `delta, delta'` of (b), (c) are positive (premises
 `0 < delta`, `0 < delta'`): for `delta < 0` the smoothness domain lies inside the band, `S_j` is unconstrained on the end strips (for a one-point `K`, change `S` on the non-eigenvalue points of a strip: the rule, which only
 sees eigenvalues, is unchanged), so uniqueness fails; for `delta = 0` the uniqueness argument (the flat bound at the eigenvalues just outside the band) breaks down.  (F-S6-2, `X_s^- < X_s^+`, and F-S6-3, `DM F K 0`
-from `DM F K M`, are consequences and need no premise: `bandLo_lt_bandHi`, `dm_zero_of_dm` in `TheoremA/BandFacts.lean`.)  (The statements "`S_j` depends only on jets of order `<= j`" and "`C^infty` if the jets are" are in `PLAN.md`, items L2.S7, L2.S8.) -/
+from `DM F K M`, are consequences and need no premise: `bandLo_lt_bandHi`, `dm_zero_of_dm` in `TheoremA/BandFacts.lean`.)  **Round 8 (finding F-S6-5, confirmed against `app_thmA.tex`, "Setting" of `thm:smo-BSr`):** the charts `CI`, `_PI` are those of `tilde J_h = truncFamily F M` (jets `G_j = B_j = 0` for `M < j <= 2 Kidx + 1`), not of `F`:
+for `F` itself the frozen family uses jets above `M` that `(D_M)` does not constrain; the conclusion is still about `F`.  (The statements "`S_j` depends only on jets of order `<= j`" and "`C^infty` if the jets are" are in `PLAN.md`, items L2.S7, L2.S8.) -/
 def ThmSmoSpec (F : SymbolFamily Par) (K : Set Par) (M Kidx : ℕ) (t0 : ℝ) (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ)
-    (CI : ChartInputs F K Kidx t0 (max M 1) (2 * Kidx) U V cPC CPC)
-    (_PI : ∀ ν, BulkPhaseInputs (frozenFamily F Kidx) (paramSet K t0) K t0 (CI.lo ν) (CI.hi ν) M U V (CI.bulkL ν) (CI.bulkR ν)) : Prop :=
+    (CI : ChartInputs (truncFamily F M) K Kidx t0 (max M 1) (2 * Kidx) U V cPC CPC)
+    (_PI : ∀ ν, BulkPhaseInputs (frozenFamily (truncFamily F M) Kidx) (paramSet K t0) K t0 (CI.lo ν) (CI.hi ν) M U V (CI.bulkL ν) (CI.bulkR ν)) : Prop :=
   Kidx = (M + 1) / 2 → ThmAi F K M ∧
   (IsCompact K → HypOn F K → DM F K M →
     ∀ (S S' : ℕ → Par → ℝ → ℝ) (δ δ' Cn Cn' hM hM' C C' : ℝ), 0 < δ → 0 < δ' →
@@ -316,15 +326,6 @@ def PropThaCount (F : SymbolFamily Par) (μ : Par) (N : ℕ) : Prop :=
         ∃ X ∈ I, casD F μ N X = 0 ∧ |Φ X - Real.pi * F.step N * ((k : ℝ) + 1 / 2)| ≤ ε)
 
 /-! ### prop:l2jets -/
-
-/-- The truncated family `tilde J_h` of eq:l2-tilde: `tilde E_n = s_n(L-s_n) sum_{j<=m} h^j G_j(s_n)`, `tilde B_n = sum_{j<=m} h^j B_j(u_n)`, jets completed by zero beyond `m`. -/
-def truncFamily (F : SymbolFamily Par) (m : ℕ) : SymbolFamily Par where
-  L := F.L
-  L_pos := F.L_pos
-  Gh := fun μ h s => ∑ j ∈ range (m + 1), h ^ j * F.G j μ s
-  Bh := fun μ h u => ∑ j ∈ range (m + 1), h ^ j * F.B j μ u
-  G := fun j μ s => if j ≤ m then F.G j μ s else 0
-  B := fun j μ s => if j ≤ m then F.B j μ s else 0
 
 /-- **prop:l2jets** (statement): under (H1)--(H3) and only `(D_m)`, the comparison vectors `P^{(m)}_k` built (def:tha-Psihat) for the truncated family at its own eigenvalues `tilde X_k`
 satisfy `sup_k ||Psi_k - P^{(m)}_k||_2 <= C h^m`.  The charts `CI` are those of the truncated family (frozen at `Kidx = ceil(m/2)`, `q = 2 Kidx`), which satisfies `(E_Kidx)` with no remainder. -/

@@ -28,7 +28,9 @@ For `u` in `[0, L]`, `T X u = (fp u - X) (X - fm u)` (`T_eq`), so `T X u >= 0` i
 
 ## Differences from the paper
 
-None in the statement.  (The paper's proof of lem:hyp-morse is not reproduced; the argument above is an independent one.)
+None in the statement.  `frozenStandard_of_reg` (finding F-S6-7, round 8): `sec:tha-standing` holds under the weaker hypothesis `FrozenReg` (the regularity `r >= regBudget (max (2 Kidx - 1) 0)` of the jets `2j, 2j+1`, `j <= Kidx`,
+and the remainder after the jet `2 Kidx + 1`), which `DM F K (2 Kidx + 1)` implies (`frozenReg_of_dm`; `frozenStandard` is the corollary) and which the truncated family `tilde J_h^{[M]}` satisfies with only `(D_M)`.
+(The paper's proof of lem:hyp-morse is not reproduced; the argument above is an independent one.)
 
 ## Not formalised
 
@@ -2238,20 +2240,37 @@ lemma frozen_identity_B {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   rw [hA, hB, hBh]
   ring
 
-/-- `(E_K)` for the frozen family on `paramSet K t0`, with the regularity `r = regBudget (2 K + 1)`. -/
-lemma EK_frozen {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} (t0 : ℝ)
-    (hDM : DM F K (2 * Kidx + 1)) : EK (frozenFamily F Kidx) (paramSet K t0) Kidx (regBudget (2 * Kidx + 1)) := by
-  have hbud : regBudget (max (2 * Kidx - 1) 0) ≤ regBudget (2 * Kidx + 1) := by
-    unfold regBudget
-    omega
-  refine EK.mk hbud ?_ ?_
-  · intro j hj
-    have hG := hDM.reg (2 * j) (by omega)
+/-- **The part of `(D_{2 Kidx+1})` that `sec:tha-standing` uses** (finding F-S6-7).  For the jets `G_{2j}, G_{2j+1}, B_{2j}, B_{2j+1}` (`j <= Kidx`) the regularity `C^{r - 10 j}` with
+`r >= regBudget (max (2 Kidx - 1) 0)` (so `C^2` and continuity for the jets `0, 1`), and the remainder `G_h - sum_{i <= 2 Kidx + 1} h^i G_i = O(h^{2 Kidx + 2})`.  `DM F K (2 Kidx + 1)` gives it with
+`r = regBudget (2 Kidx + 1)` (`frozenReg_of_dm`); the truncated family `tilde J_h^{[M]}` (jets `0` beyond `M`, no remainder), which has only `(D_M)`, `M >= 2 Kidx - 1`, satisfies it with `r = regBudget M`
+(`frozenReg_trunc`, `TheoremA/SpectrumAssemblyBulk.lean`). -/
+structure FrozenReg {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K : Set Par) (Kidx r : ℕ) : Prop where
+  budget : regBudget (max (2 * Kidx - 1) 0) ≤ r
+  reg : ∀ j ≤ Kidx, JetReg (F.G (2 * j)) K F.L (r - 10 * j) ∧ JetReg (F.B (2 * j)) K F.L (r - 10 * j) ∧
+    JetReg (F.G (2 * j + 1)) K F.L (r - 10 * j) ∧ JetReg (F.B (2 * j + 1)) K F.L (r - 10 * j)
+  rem : ∃ C : ℝ, ∀ μ ∈ K, ∀ N : ℕ, ∀ s ∈ Icc 0 F.L,
+    |F.Gh μ (F.step N) s - ∑ i ∈ Finset.range (2 * Kidx + 1 + 1), F.step N ^ i * F.G i μ s| ≤ C * F.step N ^ (2 * Kidx + 2) ∧
+    |F.Bh μ (F.step N) s - ∑ i ∈ Finset.range (2 * Kidx + 1 + 1), F.step N ^ i * F.B i μ s| ≤ C * F.step N ^ (2 * Kidx + 2)
+
+/-- `DM F K (2 Kidx + 1)` gives `FrozenReg` (with `r = regBudget (2 Kidx + 1)`). -/
+theorem frozenReg_of_dm {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ}
+    (hDM : DM F K (2 * Kidx + 1)) : FrozenReg F K Kidx (regBudget (2 * Kidx + 1)) := by
+  refine ⟨?_, fun j hj => ?_, hDM.rem⟩
+  · unfold regBudget; omega
+  · have hG := hDM.reg (2 * j) (by omega)
     have hG1 := hDM.reg (2 * j + 1) (by omega)
     have e1 : (2 * j) / 2 = j := by omega
     have e2 : (2 * j + 1) / 2 = j := by omega
     rw [e1] at hG
     rw [e2] at hG1
+    exact ⟨hG.1, hG.2, hG1.1, hG1.2⟩
+
+/-- `(E_K)` for the frozen family on `paramSet K t0`, with the regularity `r` of `FrozenReg`. -/
+lemma EK_frozen_of_reg {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx r : ℕ} (t0 : ℝ)
+    (hR : FrozenReg F K Kidx r) : EK (frozenFamily F Kidx) (paramSet K t0) Kidx r := by
+  refine EK.mk hR.budget ?_ ?_
+  · intro j hj
+    have hG := hR.reg j hj
     have hfunG : (frozenFamily F Kidx).G (2 * j) =
         fun ν : Par × ℝ => fun s => F.G (2 * j) ν.1 s + ν.2 * F.G (2 * j + 1) ν.1 s :=
       funext (fun ν => frozen_G_eq F Kidx j hj ν)
@@ -2259,8 +2278,8 @@ lemma EK_frozen {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K :
         fun ν : Par × ℝ => fun s => F.B (2 * j) ν.1 s + ν.2 * F.B (2 * j + 1) ν.1 s :=
       funext (fun ν => frozen_B_eq F Kidx j hj ν)
     rw [hfunG, hfunB]
-    exact ⟨jetReg_comb F.L_pos t0 hG.1 hG1.1, jetReg_comb F.L_pos t0 hG.2 hG1.2⟩
-  · obtain ⟨C, hC⟩ := hDM.rem
+    exact ⟨jetReg_comb F.L_pos t0 hG.1 hG.2.2.1, jetReg_comb F.L_pos t0 hG.2.1 hG.2.2.2⟩
+  · obtain ⟨C, hC⟩ := hR.rem
     refine ⟨C, fun ν hν N s hs => ?_⟩
     obtain ⟨hG, hB⟩ := hC ν.1 hν.1 N s hs
     constructor
@@ -2271,42 +2290,40 @@ lemma EK_frozen {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K :
       rw [show (frozenFamily F Kidx).step N = F.step N from rfl, e]
       exact hB
 
-/-- **sec:tha-standing** (`FrozenStandard`), proved: the frozen family satisfies `(E_K)` and `(H1)`--`(H3)` on
-`K × [-t0, t0]` for a suitable `t0 > 0`. -/
-theorem frozenStandard {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K : Set Par) (Kidx : ℕ) :
-    FrozenStandard F K Kidx := by
-  intro hK hHypOn hDM
+/-- **sec:tha-standing** under the weakened hypothesis `FrozenReg` (finding F-S6-7): for compact `K`, `(H1)`--`(H3)` on `K` and `FrozenReg F K Kidx r`, there is `t0 > 0` such that the frozen
+family satisfies `(E_Kidx)` with regularity `r`, and `(H1)`--`(H3)` uniformly on `K x [-t0, t0]`.  Applies to the truncated family `tilde J_h^{[M]}`, which satisfies only `(D_M)`. -/
+theorem frozenStandard_of_reg {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K : Set Par) (Kidx r : ℕ)
+    (hK : IsCompact K) (hHypOn : HypOn F K) (hR : FrozenReg F K Kidx r) :
+    ∃ t0 : ℝ, 0 < t0 ∧ StdAssump (frozenFamily F Kidx) (paramSet K t0) Kidx r := by
   obtain ⟨g0, hg0⟩ := hHypOn
-  have hreg0 : ∀ μ ∈ K, ∀ j ≤ 1, ContDiffOn ℝ 2 (F.G j μ) (Icc 0 F.L) ∧ ContDiffOn ℝ 2 (F.B j μ) (Icc 0 F.L) := by
-    intro μ hμ j hj
-    have hr : (2 : WithTop ℕ∞) ≤ ((regBudget (2 * Kidx + 1) - 10 * (j / 2) : ℕ) : WithTop ℕ∞) := by
-      have : (2 : ℕ) ≤ regBudget (2 * Kidx + 1) - 10 * (j / 2) := by
-        unfold regBudget
+  have hreg0 : ∀ μ ∈ K, ContDiffOn ℝ 2 (F.G 0 μ) (Icc 0 F.L) ∧ ContDiffOn ℝ 2 (F.G 1 μ) (Icc 0 F.L) ∧
+      ContDiffOn ℝ 2 (F.B 0 μ) (Icc 0 F.L) ∧ ContDiffOn ℝ 2 (F.B 1 μ) (Icc 0 F.L) := by
+    intro μ hμ
+    have hJ := hR.reg 0 (Nat.zero_le _)
+    have h2 : (2 : WithTop ℕ∞) ≤ ((r - 10 * 0 : ℕ) : WithTop ℕ∞) := by
+      have : (2 : ℕ) ≤ r - 10 * 0 := by
+        have := hR.budget
+        unfold regBudget at this
         omega
       exact_mod_cast this
-    have hJ := hDM.reg j (by omega)
-    exact ⟨(hJ.1.1 μ hμ).of_le hr, (hJ.2.1 μ hμ).of_le hr⟩
-  have hC2 : ∀ μ ∈ K, ContDiffOn ℝ 2 (F.G 0 μ) (Icc 0 F.L) ∧ ContDiffOn ℝ 2 (F.G 1 μ) (Icc 0 F.L) ∧
-      ContDiffOn ℝ 2 (F.B 0 μ) (Icc 0 F.L) ∧ ContDiffOn ℝ 2 (F.B 1 μ) (Icc 0 F.L) := fun μ hμ =>
-    ⟨(hreg0 μ hμ 0 (by norm_num)).1, (hreg0 μ hμ 1 (by norm_num)).1,
-      (hreg0 μ hμ 0 (by norm_num)).2, (hreg0 μ hμ 1 (by norm_num)).2⟩
+    simp only [mul_zero, add_zero] at hJ
+    exact ⟨(hJ.1.1 μ hμ).of_le h2, (hJ.2.2.1.1 μ hμ).of_le h2, (hJ.2.1.1 μ hμ).of_le h2, (hJ.2.2.2.1 μ hμ).of_le h2⟩
   have hcont : ∀ i ≤ 2, ContinuousOn (fun p : Par × ℝ => iteratedDerivWithin i (F.G 0 p.1) (Icc 0 F.L) p.2) (K ×ˢ Icc 0 F.L) ∧
       ContinuousOn (fun p : Par × ℝ => iteratedDerivWithin i (F.G 1 p.1) (Icc 0 F.L) p.2) (K ×ˢ Icc 0 F.L) ∧
       ContinuousOn (fun p : Par × ℝ => iteratedDerivWithin i (F.B 0 p.1) (Icc 0 F.L) p.2) (K ×ˢ Icc 0 F.L) ∧
       ContinuousOn (fun p : Par × ℝ => iteratedDerivWithin i (F.B 1 p.1) (Icc 0 F.L) p.2) (K ×ˢ Icc 0 F.L) := by
     intro i hi
-    have hle : i ≤ regBudget (2 * Kidx + 1) - 10 * (0 / 2) := by
-      unfold regBudget at *
+    have hle : i ≤ r - 10 * 0 := by
+      have := hR.budget
+      unfold regBudget at this
       omega
-    have hle1 : i ≤ regBudget (2 * Kidx + 1) - 10 * (1 / 2) := by
-      unfold regBudget at *
-      omega
-    have hJ0 := hDM.reg 0 (by omega)
-    have hJ1 := hDM.reg 1 (by omega)
-    exact ⟨hJ0.1.2 i hle, hJ1.1.2 i hle1, hJ0.2.2 i hle, hJ1.2.2 i hle1⟩
+    have hJ := hR.reg 0 (Nat.zero_le _)
+    simp only [mul_zero, add_zero] at hJ
+    exact ⟨hJ.1.2 i (by simpa using hle), hJ.2.2.1.2 i (by simpa using hle), hJ.2.1.2 i (by simpa using hle),
+      hJ.2.2.2.2 i (by simpa using hle)⟩
   obtain ⟨t0, ht0, hT⟩ := hyp_uniform F.L_pos hK (fun μ => F.G 0 μ) (fun μ => F.G 1 μ) (fun μ => F.B 0 μ)
-    (fun μ => F.B 1 μ) (fun μ hμ => hC2 μ hμ) (fun i hi => hcont i hi) (fun μ hμ => hg0 μ hμ)
-  refine ⟨t0 / 2, by positivity, regBudget (2 * Kidx + 1), ⟨?_, EK_frozen (t0 / 2) hDM, ?_⟩⟩
+    (fun μ => F.B 1 μ) (fun μ hμ => hreg0 μ hμ) (fun i hi => hcont i hi) (fun μ hμ => hg0 μ hμ)
+  refine ⟨t0 / 2, by positivity, ⟨?_, EK_frozen_of_reg (t0 / 2) hR, ?_⟩⟩
   · exact hK.prod isCompact_Icc
   · refine ⟨g0 / 2, fun ν hν => ?_⟩
     obtain ⟨hμ, ht⟩ := hν
@@ -2321,6 +2338,14 @@ theorem frozenStandard {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Pa
       rw [abs_lt]
       constructor <;> linarith [ht.1, ht.2]
     exact hT ν.2 hab ν.1 hμ
+
+/-- **sec:tha-standing** (`FrozenStandard`), proved: the frozen family satisfies `(E_K)` and `(H1)`--`(H3)` on
+`K × [-t0, t0]` for a suitable `t0 > 0`.  (The corollary of `frozenStandard_of_reg` for `DM F K (2 Kidx + 1)`.) -/
+theorem frozenStandard {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K : Set Par) (Kidx : ℕ) :
+    FrozenStandard F K Kidx := by
+  intro hK hHypOn hDM
+  obtain ⟨t0, ht0, h⟩ := frozenStandard_of_reg F K Kidx _ hK hHypOn (frozenReg_of_dm hDM)
+  exact ⟨t0, ht0, _, h⟩
 
 /-! ### L2.G4 (a): the bulk statement `GeomBulk` -/
 
@@ -2590,6 +2615,14 @@ end HypMorse
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.hypOpen' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.hypOpen
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.frozenStandard_of_reg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.frozenStandard_of_reg
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.frozenReg_of_dm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.frozenReg_of_dm
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.HypMorse.frozenStandard' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
