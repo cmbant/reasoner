@@ -169,7 +169,9 @@ def BulkSolutionBound {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {J
 
 /-- **prop:tha-W**: (1) left and right solutions, (2) normalised eigenvectors: `hat N ~ h^{-1/4}`, `|hat kappa| ~ 1`, `|Psi_n - hat Psi_n| <= C h^m V_n / hat N` for every row, and the relative form
 on the forbidden collars `u_n <= u_- - delta`, `u_n >= u_+ + delta` (constant depending on `delta`).  Hypotheses: `(E_{floor(m/2)})` and (H1)--(H3) on `P`.  **Corrected in the second pass** (agent finding F-C1, F-C2): the paper fixes `m >= 1` (the engine smallness `h^m Theta <= c_*` is unavailable for `m = 0`),
-and the glue of the two solutions needs the right overlap to be the mirror of the left one (`ChartInputs.overlap_match`); both are now hypotheses. -/
+and the glue of the two solutions needs the right overlap to be the mirror of the left one (`ChartInputs.overlap_match`); both are now hypotheses.  **Third correction (finding F-C3)**: the lower bound `c_kappa <= |hat kappa|` holds *at eigenvalues* only (`hat kappa(X)` is a least-squares overlap ratio
+of the two glued solutions; it changes sign between consecutive eigenvalues, numerically `min|kappa|/max|kappa| -> 0` as `N` grows), so it is stated inside the eigenvector clause; the upper bound, the norm bounds and the
+row-wise comparison are claimed for every `X`.  (The paper's `|hat kappa| ~ 1` is a statement about eigenvalues.) -/
 def PropThaW (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (Jlo Jhi : ℝ) (m : ℕ) (U V : ℝ → ℝ → ℝ)
     (CL : BulkWeberChart Fz P Jlo Jhi m U V) (CR : BulkWeberChart (mirrorFamily Fz) P Jlo Jhi m U V) : Prop :=
   1 ≤ m → (CR.c = Fz.L - CL.c' ∧ CR.c' = Fz.L - CL.c) →
@@ -178,9 +180,9 @@ def PropThaW (Fz : SymbolFamily (Par × ℝ)) (P : Set (Par × ℝ)) (Jlo Jhi : 
     (∃ Cc h0 cN CN cκ Cκ : ℝ, 0 < h0 ∧ 0 < cN ∧ 0 < cκ ∧ ∀ p ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 →
       0 < bulkNorm CL CR p X N ∧
       cN * Fz.step N ^ (-(1 : ℝ) / 4) ≤ bulkNorm CL CR p X N ∧ bulkNorm CL CR p X N ≤ CN * Fz.step N ^ (-(1 : ℝ) / 4) ∧
-      cκ ≤ |bulkKappa CL CR p X N| ∧ |bulkKappa CL CR p X N| ≤ Cκ ∧
+      |bulkKappa CL CR p X N| ≤ Cκ ∧
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →
-        ∀ k : Fin (N + 1), Xs k = X → ∀ n ∈ rowsOf N,
+        ∀ k : Fin (N + 1), Xs k = X → cκ ≤ |bulkKappa CL CR p X N| ∧ ∀ n ∈ rowsOf N,
           |eigVec Um k n - bulkVec CL CR p X N n| ≤ Cc * Fz.step N ^ m * bulkEnv CL CR p X N n) ∧
     (∀ δ : ℝ, 0 < δ → ∃ Cδ h0 : ℝ, 0 < h0 ∧ ∀ p ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h0 →
       ∀ n ∈ rowsOf N, (uNode (Fz.step N) n ≤ Fz.uMinus p X - δ ∨ Fz.uPlus p X + δ ≤ uNode (Fz.step N) n) →
