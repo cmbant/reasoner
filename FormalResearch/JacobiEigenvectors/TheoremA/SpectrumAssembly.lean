@@ -47,24 +47,25 @@ labels `BulkWindowLabels` (`SpectrumAssemblyBulk.lean`, premise `hlabels`); for 
 
 ## Differences from the paper and findings
 
-* **F-S6-4 (positive-length overlaps).**  The paper's cover has "consecutive ones overlapping in intervals of positive length" (also with `I_+-`); `ChartInputs.cover_bulk` and `cover` only say the
-  blocks cover `[Jlo, Jhi]` and `Jhi < X_s^+ <= Jhi + delta_0` (`<=`, so `I_+ cap [.., Jhi]` may be the single point `Jhi`).  The gluing needs the relative-interior cover `hcov`; it is an
-  explicit hypothesis of the assembly theorems (the paper's own statement), not derivable from the fields.
-* **F-S6-5 (the charts must be those of `tilde J_h = truncSM F M`).**  `ThmSmoSpec` takes `CI : ChartInputs F K Kidx ..` for the frozen family of `F`, which uses the jets `G_j`, `j <= 2 Kidx + 1`,
-  and `Kidx = (M+1)/2` gives `2 Kidx + 1 >= M + 1`: jets above `M` that `(D_M)` does not constrain, and the standing assumptions of the frozen family (`frozenStandard` needs `DM F K (2 Kidx + 1)`) are not
-  available.  The paper uses the charts of `tilde J_h` (jets `0` beyond `M`, Setting paragraph of `thm:smo-BSr`) and passes to `J_h` by `lem:smo-SM`.  Minimal correction: `CI`, `_PI` for the family
-  `truncSM F M` (see `ThmSmoSpecTrunc` in `SpectrumAssemblyBulk.lean`); the conclusion stays about `F`.
-* **F-S6-6 (soft windows lack a phase-regularity input).**  The frozen `SoftEdgeChart` has `muS_bd`, `mu0_deriv` (`C^1`, slope positive at `0` only) and no joint `C^{2M+1}` regularity in `(X, t)` of `mu_0, mu_{2r}`
-  nor of `X_s^+(t)`, no uniform norm bound, no uniform slope bound: the soft analogue of `BulkPhaseInputs` (`Sigma_reg`, `Sigma_bdd`, the slope) is missing.  It is the paper's own
-  statement (`thm:smo-BSr`, "Soft windows": `Sigma_{+,j} in C^{2M+1}`, uniform) and enters here as the soft `WindowPhase`.
-* **F-S6-7 (`StdAssump` of the frozen family).**  `FrozenStandard` has the hypothesis `DM F K (2 Kidx + 1)`, false for `truncSM F M` when `M < 2 Kidx + 1` (the budget `regBudget (2 Kidx + 1) > regBudget M`);
-  the proof of `frozenStandard` uses only `C^2` of the jets `0, 1`, the budget `regBudget (max (2 Kidx - 1) 0)` and the remainder.  `SpectrumAssemblyBulk.lean` takes `StdAssump (frozenFamily ..) (paramSet K t0) ..` for the
-  chart's own `t0` as the premise `hstd` (it also settles F-t0).
+* **F-S6-4 (positive-length overlaps): CONFIRMED against `app_thmA.tex` ("Setting" of `thm:smo-BSr`: "consecutive ones overlapping in intervals of positive length", "two intervals of this cover meet, if at all, in an interval of positive length"), APPLIED (round 8).**
+  `ChartInputs.cover_bulk` now puts every point of `[Jlo, Jhi]` in the relative interior of a block (`lo nu < X` or `lo nu = Jlo`, and `X < hi nu` or `hi nu = Jhi`, the form of `WindowCover.cov`), and
+  `ChartInputs.cover` has strict ends (`bandHi < Jhi + delta_0`, `Jlo - delta_0 < bandLo`).  The gluing still takes the cover of the *windows* as the hypothesis `hcov : WindowCover` (it involves the
+  soft window radii, which are not chart fields); the chart fields now imply the bulk-bulk and bulk-soft overlaps of positive length (`overlap_pos`), but the derivation of `hcov` from them is not done.
+* **F-S6-5 (the charts must be those of `tilde J_h = truncSM F M`): CONFIRMED against `app_thmA.tex` ("Setting": "`G_j = B_j := 0` for `M < j <= 2K+1`", the frozen family of `tilde J_h`), APPLIED (round 8).**
+  `ThmSmoSpec` now takes `CI`, `_PI` for `truncFamily F M` (moved before `ThmSmoSpec` in `Statements.lean`); the conclusion is about `F`.  `thmSmoSpec` (`SpectrumAssemblyBulk.lean`) proves it modulo `hlabels`, `WS`, `hcov`.
+* **F-S6-6 (soft windows lack a phase-regularity input).**  The frozen `SoftEdgeChart` has `muS_bd`, `mu0_deriv`, `mu0_slope` and no joint `C^{2M+1}` regularity in `(X, t)` of `mu_0, mu_{2r}` nor of `X_s^+(t)`,
+  no uniform norm bound: the soft analogue of `BulkPhaseInputs` is the new structure `SoftPhaseInputs` (`Charts/SoftPhaseInputs.lean`); `softUpWindow` (`SpectrumAssemblySoft.lean`) builds the upper soft `WindowPhase`
+  from it and the labels `SoftLabels` (= `PropThaW2` (3) after Step 0, in the form of `eq:smo-BSr2`).
+* **F-S6-7 (`StdAssump` of the frozen family): CONFIRMED, APPLIED (round 8).**  `FrozenStandard` has the hypothesis `DM F K (2 Kidx + 1)`, false for `truncSM F M` when `M < 2 Kidx + 1`; the proof of `frozenStandard` uses only the
+  regularity `r >= regBudget (max (2 Kidx - 1) 0)` of the jets `2j, 2j+1` (`j <= Kidx`) and the remainder after the jet `2 Kidx + 1`.  That is the new structure `HypMorse.FrozenReg`; `frozenStandard_of_reg` proves
+  `sec:tha-standing` under it, `frozenReg_of_dm` shows `DM F K (2 Kidx + 1)` implies it (so `frozenStandard` is a corollary, the frozen `FrozenStandard` statement is unchanged), `frozenReg_trunc` shows the truncated family
+  satisfies it with only `(D_M)`.  The premise `hstd` is therefore proved in `thmSmoSpec`.
+* **F-t0 (applied to this assembly).**  The chart data of `ThmSmoSpec` are on `paramSet K t0` with `t0` given, but the standing assumptions hold only for `t0 <= t1`: `thmSmoSpec` restricts the bulk charts, their phase inputs and the
+  windows to `min t0 t1` (`SpectrumRestrict.lean`).
 
 ## Not formalised
 
-Soft windows (`WindowPhase` for `I_+-` from `PropThaW2` (3) and `thm:smo-MPS/TPC/WT2` regularity); the slope bound `|S_0'| >= c` on a bulk block (`WindowPhase.slope`; the proof is
-`arccos' <= -1` on the overlap `[c', c]` with `theta_margin`, not done); `C^infty` jets.
+The lower soft window (`WindowPhase` for `I_-`, via the reversal of eigen-systems of `negFamily`); `C^infty` jets.  (The slope bound `|S_0'| >= c` on a bulk block is `bulk_slope`, `BulkSlope.lean`, proved in round 8.)
 -/
 
 @[expose] public section
