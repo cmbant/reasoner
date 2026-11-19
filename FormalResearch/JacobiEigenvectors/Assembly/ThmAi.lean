@@ -18,7 +18,7 @@ Source: Paper J `thmA.tex`, proof of `thm:A (i)` ("Location and labels", "Bulk p
   * `PI`: the bulk phase inputs of every block (`BulkPhaseInputs`: Weber charts and the phase `Sigma` with its regularity, zero data and uniform `C^{2M+1}` bound);
   * `SIu`, `SIl`: the soft phase inputs of the two band ends (`SoftPhaseInputs`: closeness `rho`, regularity of `X_s^+(t)` and `mu_{2r}`, the `C^{2M+1}` bound), with one common half-width `hw : SIl.w = SIu.w`;
   * `ht0 : 0 < t0`, `hKidx : Kidx = (M + 1) / 2`;
-  * the geometric relations of the cover: `hlt` (blocks of positive length), `hJhi` (the soft windows reach into the bulk range, uniformly: `X_s^+ - w + eps <= J_hi`), `hJlo`, `hwb` (`w <= X_s^+ - X_s^-`).
+  * the geometric relations of the cover: `hlt` (blocks of positive length), `hJhi`, `hJlo` (the soft windows reach into the bulk range: `X_s^+ - w < J_hi`, `J_lo < X_s^- + w`; the uniform margin that the labels need is derived from the continuity of `X_s^+` in `mu` on the compact `K`), `hwb` (`w <= X_s^+ - X_s^-`).
   Everything else is proved: the standing assumptions `StdAssump` (obtained for `t0' = min t0 t1 t2`, the charts being restricted to it by `ChartInputs.restrict`, so the paper's "`t_0` small" is no premise),
   the soft labels `SoftLabels`, `SoftLabelsLo` (`SoftLabels.lean`), the soft windows `WS` (`softUpWindow`, `softLoWindow`), the cover `hcov` (`WindowCoverProof.lean`) and **the bulk labels `hlabels`**
   (`BulkWindowLabels`, `bulkLabels_core` in `Labels.lean`).
@@ -31,7 +31,7 @@ the anchor at the soft window `0` from `PropThaW2` (3) and `pi mu_0 = S_0` (`Lab
 
 ## Differences from the paper
 
-* `BulkWindowLabels` is stated at `t = h` only (the only case used).  The geometric relation `hJhi` is the uniform-in-`mu` form of the paper's strict overlap of the soft window with the last bulk block.
+* `BulkWindowLabels` is stated at `t = h` only (the only case used).  The relations `hJhi`, `hJlo`, `hwb` are the choice of the soft half-width `w` against the cover (`w` large enough to reach into the bulk range, small enough for `w <= X_s^+ - X_s^-`); they cannot be derived from the chart fields, which do not constrain `w`.
 
 ## Not formalised
 
@@ -60,6 +60,19 @@ def softEnds (T : SymbolFamily Par) (Kidx : ℕ) (wu wl : ℝ) : (Bool → Par �
       | true => (frozenFamily T Kidx).bandHi (μ, 0) + wu
       | false => T.bandLo μ + wl)
 
+/-- The band end `mu -> X_s^+(mu)` is continuous on a compact `K` (`CoreReg.contBandHi`, from `(D_M)`), so a pointwise strict margin is uniform. -/
+lemma uniform_margin_bandHi {T : SymbolFamily Par} {K : Set Par} {M : ℕ} (hK : IsCompact K) (hD : DM T K M) (w J : ℝ)
+    (h : ∀ μ ∈ K, T.bandHi μ - w < J) : ∃ ε : ℝ, 0 < ε ∧ ∀ μ ∈ K, T.bandHi μ - w + ε ≤ J := by
+  by_cases hKe : K.Nonempty
+  · have hc : ContinuousOn (fun μ => T.bandHi μ) K :=
+      continuousOn_iff_continuous_restrict.mpr (coreReg_of_DM hK hD).contBandHi
+    obtain ⟨μ0, hμ0, hmin⟩ := hK.exists_isMinOn hKe (continuousOn_const.sub (hc.sub continuousOn_const) : ContinuousOn (fun μ => J - (T.bandHi μ - w)) K)
+    refine ⟨J - (T.bandHi μ0 - w), by have := h μ0 hμ0; linarith, fun μ hμ => ?_⟩
+    have := hmin hμ
+    simp only [Set.mem_setOf_eq, Pi.sub_apply] at this
+    linarith
+  · exact ⟨1, one_pos, fun μ hμ => absurd ⟨μ, hμ⟩ hKe⟩
+
 /-- **`ThmAi` (thm:A (i)) from the charts and the Layer-4 phase inputs.**  Everything between the chart fields and `thmSmoSpec`'s premises `hlabels`, `WS`, `hcov` is proved here
 (`bulkLabels_core`, `softLabels_of_chart`, `softLabelsLo_of_chart`, `softUpWindow`, `softLoWindow`, `windowCover_of_charts`); the standing assumptions are obtained for `t0' = min t0 t1 t2` and the charts
 restricted to it (`ChartInputs.restrict`), so there is no `hstdK`. -/
@@ -70,7 +83,7 @@ theorem thmAi_assembled (G : SymbolFamily Par) (K : Set Par) (M Kidx : ℕ) (t0 
     (SIu : SoftPhaseInputs (frozenFamily (truncSM G M) Kidx) (paramSet K t0) K t0 M CI.softUpL)
     (SIl : SoftPhaseInputs (negFamily (frozenFamily (truncSM G M) Kidx)) (paramSet K t0) K t0 M CI.softLoL)
     (hw : SIl.w = SIu.w) (hlt : ∀ ν, CI.lo ν < CI.hi ν)
-    (hJhi : ∃ ε : ℝ, 0 < ε ∧ ∀ μ ∈ K, (truncSM G M).bandHi μ - SIu.w + ε ≤ CI.Jhi)
+    (hJhi : ∀ μ ∈ K, (truncSM G M).bandHi μ - SIu.w < CI.Jhi)
     (hJlo : ∀ μ ∈ K, CI.Jlo < (truncSM G M).bandLo μ + SIu.w)
     (hwb : ∀ μ ∈ K, SIu.w ≤ (truncSM G M).bandHi μ - (truncSM G M).bandLo μ)
     (hKidx : Kidx = (M + 1) / 2) : ThmAi G K M := by
@@ -103,7 +116,7 @@ theorem thmAi_assembled (G : SymbolFamily Par) (K : Set Par) (M Kidx : ℕ) (t0 
   have hposT : ∃ h1 : ℝ, 0 < h1 ∧ ∀ μ ∈ K, ∀ N : ℕ, (truncSM G M).step N ≤ h1 → ∀ n : ℤ, 0 ≤ n → n < N → 0 < (truncSM G M).bondA μ N n :=
     ⟨h1, hh1, fun μ hμ N hN n hn1 hn2 => ((hpos1 μ hμ N hN).1 n hn1 hn2).2⟩
   -- the zone of the last block
-  obtain ⟨ε, hε, hJε⟩ := hJhi
+  obtain ⟨ε, hε, hJε⟩ := uniform_margin_bandHi (T := truncSM G M) hK hDT SIu.w CI.Jhi hJhi
   have hzone : ∃ e : ℝ, 0 < e ∧ ∀ μ ∈ K, ∀ t ∈ Icc (-t0') t0',
       (frozenFamily (truncSM G M) Kidx).bandHi (μ, t) - CI.softUpL.δ0 + e ≤ CI.Jhi := by
     refine ⟨ε, hε, fun μ hμ t ht => ?_⟩
@@ -126,7 +139,7 @@ theorem thmAi_assembled (G : SymbolFamily Par) (K : Set Par) (M Kidx : ℕ) (t0 
     (fun μ => by show (frozenFamily (truncSM G M) Kidx).bandHi (μ, 0) + SIu.w = _; rw [frozen_bandHi_zero])
     (fun μ => by show (truncSM G M).bandLo μ - SIl.w = (truncSM G M).bandLo μ - SIu.w; rw [hw])
     (fun μ => by show (truncSM G M).bandLo μ + SIl.w = (truncSM G M).bandLo μ + SIu.w; rw [hw]) hlt
-    (fun μ hμ => by have := hJε μ hμ; linarith) hJlo hwb
+    hJhi hJlo hwb
   exact (thmSmoSpec G K M Kidx t0 U V cPC CPC CI PI ht0 hlabels aS bS WS SIu.w SIu.w_pos hcov hK hH hD hKidx).1 hK hH hD
 
 /-- **Theorem A (i) and (ii)** with the reduced premise list of `thmAi_assembled` for `ThmAi`; `ThmAii` is `thmAii_proved` (no premises). -/
@@ -137,7 +150,7 @@ theorem thmA_of_layer4 (G : SymbolFamily Par) (K : Set Par) (M Kidx : ℕ) (t0 :
     (SIu : SoftPhaseInputs (frozenFamily (truncSM G M) Kidx) (paramSet K t0) K t0 M CItr.softUpL)
     (SIl : SoftPhaseInputs (negFamily (frozenFamily (truncSM G M) Kidx)) (paramSet K t0) K t0 M CItr.softLoL)
     (hw : SIl.w = SIu.w) (hlt : ∀ ν, CItr.lo ν < CItr.hi ν)
-    (hJhi : ∃ ε : ℝ, 0 < ε ∧ ∀ μ ∈ K, (truncSM G M).bandHi μ - SIu.w + ε ≤ CItr.Jhi)
+    (hJhi : ∀ μ ∈ K, (truncSM G M).bandHi μ - SIu.w < CItr.Jhi)
     (hJlo : ∀ μ ∈ K, CItr.Jlo < (truncSM G M).bandLo μ + SIu.w)
     (hwb : ∀ μ ∈ K, SIu.w ≤ (truncSM G M).bandHi μ - (truncSM G M).bandLo μ)
     (hKidx : Kidx = (M + 1) / 2) (m Kidx' : ℕ) (t0' : ℝ) (CI : ChartInputs G K Kidx' t0' m (2 * Kidx') U V cPC CPC) :
