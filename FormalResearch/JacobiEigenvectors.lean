@@ -113,6 +113,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.SoftFlat1
 public import FormalResearch.JacobiEigenvectors.TheoremB.SoftOverlap
 public import FormalResearch.JacobiEigenvectors.TheoremB.SoftMirrorEig
 public import FormalResearch.JacobiEigenvectors.TheoremB.SoftOverlapRight
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftExtChart
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableWeyl
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableSchur
 
