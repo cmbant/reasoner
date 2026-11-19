@@ -205,7 +205,6 @@ theorem bulkJBChart_shifted {Par : Type*} [TopologicalSpace Par] {G : SymbolFami
       refine key _ _ ?_
       omega
 
-set_option maxHeartbeats 4000000 in
 /-- **The coefficient fields of `JB.Chart.Ok` for a bulk chart** (all design data arbitrary): `omega_pos`, the exact model `transfer`, `t12_lb`, `alpha_lb`, the five Schur bounds and the parity identities,
 from `TransferInputs` (the primitive `C^2`, lower-bound and parity inputs), `shift_up` (`chart_transfer_row`) and `chart_schur_five`.  The chart rows must be rows of the chain (`0 <= row`, `u_row <= c`);
 `cs` dominates the chart constants (`c_T`, `c_alpha`, `omega_max`, and the Schur constant `chartSchurK ..` for `|h| <= H`). -/
