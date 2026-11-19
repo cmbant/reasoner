@@ -92,6 +92,55 @@ theorem mbal_seam (a z k : ℝ) (hk : k ≤ max (-a) 0) (hk0 : 0 ≤ k) (hz : 1 
   calc 2 / Real.sqrt (1 + A) ≤ 2 / Real.sqrt (1 + k) := this
     _ = 2 * (Real.sqrt (1 + k))⁻¹ := by ring
 
+/-- the hypothesis of `mbal_seam`: `z^2 <= 2 A` when `A >= 1` and `|z| <= sqrt A + 2/5`. -/
+lemma mflat_seam_z {A z : ℝ} (hA : 1 ≤ A) (hz : |z| ≤ Real.sqrt A + 2 / 5) : z ^ 2 ≤ 2 * A := by
+  have hsA1 : 1 ≤ Real.sqrt A := Real.one_le_sqrt.mpr hA
+  have hsA2 : Real.sqrt A * Real.sqrt A = A := Real.mul_self_sqrt (by linarith)
+  have h1 : z ^ 2 ≤ (Real.sqrt A + 2 / 5) ^ 2 := by
+    rw [← sq_abs]; exact pow_le_pow_left₀ (abs_nonneg _) hz 2
+  have h2 : (Real.sqrt A + 2 / 5) ^ 2 = Real.sqrt A * Real.sqrt A + 4 / 5 * Real.sqrt A + 4 / 25 := by ring
+  have h3 : (1 : ℝ) / 5 ≤ Real.sqrt A - 4 / 5 := by linarith
+  have h4 : 1 * (1 / 5 : ℝ) ≤ Real.sqrt A * (Real.sqrt A - 4 / 5) :=
+    mul_le_mul hsA1 h3 (by norm_num) (by linarith)
+  have h5 : Real.sqrt A * (Real.sqrt A - 4 / 5) = Real.sqrt A * Real.sqrt A - 4 / 5 * Real.sqrt A := by ring
+  linarith only [h1, h2, h4, h5, hsA2]
+
+/-- the seam constant: `Cl s^(m+1) <= s/2` for `m >= 1`, `s <= 1` and `s <= 1/(2(|Cl|+1))`. -/
+lemma mflat_small_Cl {m : ℕ} (hm : 1 ≤ m) {s Cl : ℝ} (hs0 : 0 < s) (hs1 : s ≤ 1)
+    (hsCl : s ≤ 1 / (2 * (|Cl| + 1))) : Cl * s ^ (m + 1) ≤ s / 2 := by
+  have h1 : s ^ (m + 1) ≤ s * s := by
+    calc s ^ (m + 1) ≤ s ^ 2 := pow_le_pow_of_le_one hs0.le hs1 (by omega)
+      _ = s * s := by ring
+  have h2 : |Cl| * s ≤ 1 / 2 := by
+    refine (mul_le_mul_of_nonneg_left hsCl (abs_nonneg Cl)).trans ?_
+    rw [mul_one_div, div_le_div_iff₀ (by positivity) (by norm_num)]
+    linarith only [abs_nonneg Cl]
+  calc Cl * s ^ (m + 1) ≤ |Cl| * (s * s) := mul_le_mul (le_abs_self _) h1 (pow_nonneg hs0.le _) (abs_nonneg _)
+    _ = (|Cl| * s) * s := by ring
+    _ ≤ (1 / 2) * s := mul_le_mul_of_nonneg_right h2 hs0.le
+    _ = s / 2 := by ring
+
+/-- the label bound of a seam row: `mu >= k s` from the count estimate, and `-a = mu / s`. -/
+lemma mflat_label {k mu Cl s a : ℝ} {m : ℕ} (hs0 : 0 < s) (hCl : Cl * s ^ (m + 1) ≤ s / 2)
+    (hlk : -(Cl * s ^ (m + 1)) ≤ mu - (k + 1 / 2) * s) (hae : a = -(1 / s) * mu) : k ≤ -a := by
+  have hmu : k * s ≤ mu := by linarith only [hCl, hlk]
+  rw [hae, show -(-(1 / s) * mu) = mu / s by ring, le_div_iff₀ hs0]
+  exact hmu
+
+/-- the quotient bound of a seam row: `(num/den)^2 <= (K^2/cn) sqrt s M^2` from `|num| <= K T M` and
+`cn T^2 s^(-1/2) <= den^2`. -/
+lemma mflat_quot_sq {num den K cn T s M : ℝ} (hs0 : 0 < s) (hT : 0 < T) (hcn : 0 < cn)
+    (hnum : |num| ≤ K * (T * M)) (hden : cn * (T ^ 2 * s ^ (-(1 : ℝ) / 2)) ≤ den ^ 2) :
+    num ^ 2 / den ^ 2 ≤ (K ^ 2 / cn) * Real.sqrt s * M ^ 2 := by
+  have hsq : num ^ 2 ≤ (K * (T * M)) ^ 2 := by
+    rw [← sq_abs]; exact pow_le_pow_left₀ (abs_nonneg _) hnum 2
+  have hBpos : 0 < cn * (T ^ 2 * s ^ (-(1 : ℝ) / 2)) :=
+    mul_pos hcn (mul_pos (pow_pos hT 2) (Real.rpow_pos_of_pos hs0 _))
+  refine (div_le_div₀ (sq_nonneg _) hsq hBpos hden).trans (le_of_eq ?_)
+  have hs' : 0 < Real.sqrt s := Real.sqrt_pos.mpr hs0
+  rw [rpow_half_eq hs0]
+  field_simp
+
 end Seam
 
 section Rows
@@ -232,7 +281,6 @@ section Main
 
 variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
 
-set_option maxHeartbeats 4000000 in
 /-- **`lem:tha-Mflat`** (`PropThaMflat CL CR cPC CPC`; the premises `ParabolicCylinderFacts`, `1 <= m`, `SoftMirror` are part of the statement since round 10, finding F-B14 applied; `SoftFoldSmall` is the chart field `delta0_small`;
 `SoftCountHyps` is `softCountHyps_proved`). -/
 theorem propThaMflat_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (fun _ => 1))
@@ -330,28 +378,9 @@ theorem propThaMflat_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (fu
   -- label: k <= A
   have hkA : (k : ℝ) ≤ max (-a) 0 := by
     have hmt : CL.muTilde p (Xs k) N = CL.muS 0 p (Fz.bandHi p - Xs k) + ∑ s ∈ Finset.Icc 1 (q / 2), Fz.step N ^ (2 * s) * CL.muS s p (Fz.bandHi p - Xs k) := rfl
-    have hae : a = -(1 / Fz.step N) * CL.muTilde p (Xs k) N := CL.aOf_eq p (Xs k) N
     have hlk' := (abs_le.mp hlk).1
     rw [← hmt] at hlk'
-    have hCl : Cl * Fz.step N ^ (m + 1) ≤ Fz.step N / 2 := by
-      have h1 : Fz.step N ^ (m + 1) ≤ Fz.step N * Fz.step N := by
-        calc Fz.step N ^ (m + 1) ≤ Fz.step N ^ 2 := pow_le_pow_of_le_one hh0.le hh1 (by omega)
-          _ = Fz.step N * Fz.step N := by ring
-      have h2 : |Cl| * Fz.step N ≤ 1 / 2 := by
-        have := mul_le_mul_of_nonneg_left sCl (abs_nonneg Cl)
-        refine this.trans ?_
-        rw [mul_one_div, div_le_div_iff₀ (by positivity) (by norm_num)]; nlinarith [abs_nonneg Cl]
-      calc Cl * Fz.step N ^ (m + 1) ≤ |Cl| * (Fz.step N * Fz.step N) :=
-            mul_le_mul (le_abs_self _) h1 (by positivity) (abs_nonneg _)
-        _ = (|Cl| * Fz.step N) * Fz.step N := by ring
-        _ ≤ (1 / 2) * Fz.step N := mul_le_mul_of_nonneg_right h2 hh0.le
-        _ = Fz.step N / 2 := by ring
-    have hmu : (k : ℝ) * Fz.step N ≤ CL.muTilde p (Xs k) N := by linarith
-    have : (k : ℝ) ≤ -a := by
-      rw [hae]
-      have : -(-(1 / Fz.step N) * CL.muTilde p (Xs k) N) = CL.muTilde p (Xs k) N / Fz.step N := by field_simp
-      rw [this, le_div_iff₀ hh0]; exact hmu
-    exact this.trans (le_max_left _ _)
+    exact (mflat_label hh0 (mflat_small_Cl hm hh0 hh1 sCl) hlk' (CL.aOf_eq p (Xs k) N)).trans (le_max_left _ _)
   have hk0 : (0 : ℝ) ≤ (k : ℕ) := Nat.cast_nonneg _
   have hsqk : 0 < Real.sqrt (1 + ((k : ℕ) : ℝ)) := Real.sqrt_pos.mpr (by linarith)
   -- one seam row
@@ -359,39 +388,21 @@ theorem propThaMflat_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (fu
       Cp * Real.sqrt (Fz.step N) ≤ 2 / 5 →
       softVec CL CR p (Xs k) N n ^ 2 ≤ (K ^ 2 / cn) * Real.sqrt (Fz.step N) * (2 * (Real.sqrt (1 + ((k : ℕ) : ℝ)))⁻¹) := by
     intro n hn hZ hCps
-    have hMn := mbal_seam a (CL.Zof p (Xs k) N n) (k : ℕ) hkA hk0 (by
-      intro hA1'
-      set A := max (-a) 0 with hAd
-      have hsA1 : 1 ≤ Real.sqrt A := by rw [Real.one_le_sqrt]; exact hA1'
-      have hsA2 : Real.sqrt A * Real.sqrt A = A := Real.mul_self_sqrt (by linarith)
-      have hzz : |CL.Zof p (Xs k) N n| ≤ Real.sqrt A + 2 / 5 := by linarith
-      have : CL.Zof p (Xs k) N n ^ 2 ≤ (Real.sqrt A + 2 / 5) ^ 2 := by
-        rw [← sq_abs]; exact pow_le_pow_left₀ (abs_nonneg _) hzz 2
-      nlinarith [hsA1, hsA2])
+    have hMn := mbal_seam a (CL.Zof p (Xs k) N n) (k : ℕ) hkA hk0
+      (fun hA1' => mflat_seam_z hA1' (by linarith only [hZ, hCps]))
     have hnum : |softNum CL CR p (Xs k) N n| ≤ K * (T * Mbal a (CL.Zof p (Xs k) N n)) := by
       have h3 := E3 n hn
       unfold softNum
       by_cases hz : CL.Zof p (Xs k) N n ≤ 0
-      · rw [if_pos hz]; linarith [abs_nonneg (softKappa CL CR p (Xs k) N), abs_nonneg (softSeqR CR p (Xs k) N n),
-          mul_nonneg (abs_nonneg (softKappa CL CR p (Xs k) N)) (abs_nonneg (softSeqR CR p (Xs k) N n))]
-      · rw [if_neg hz, abs_mul]; linarith [abs_nonneg (CL.psiHatL p (Xs k) N n)]
-    have hE0 : 0 < Fz.step N ^ (-(1 : ℝ) / 2) := Real.rpow_pos_of_pos hh0 _
-    have hBpos : 0 < cn * (T ^ 2 * Fz.step N ^ (-(1 : ℝ) / 2)) := by positivity
-    have hvec : softVec CL CR p (Xs k) N n = softNum CL CR p (Xs k) N n / softNorm CL CR p (Xs k) N := softVec_eq CL CR _ _ _ _
+      · rw [if_pos hz]
+        linarith only [h3, mul_nonneg (abs_nonneg (softKappa CL CR p (Xs k) N)) (abs_nonneg (softSeqR CR p (Xs k) N n))]
+      · rw [if_neg hz, abs_mul]
+        linarith only [h3, abs_nonneg (CL.psiHatL p (Xs k) N n)]
+    have hvec : softVec CL CR p (Xs k) N n = softNum CL CR p (Xs k) N n / softNorm CL CR p (Xs k) N :=
+      softVec_eq CL CR _ _ _ _
     rw [hvec, div_pow]
-    have hsq : softNum CL CR p (Xs k) N n ^ 2 ≤ (K * (T * Mbal a (CL.Zof p (Xs k) N n))) ^ 2 := by
-      rw [← sq_abs]; exact pow_le_pow_left₀ (abs_nonneg _) hnum 2
-    have h5 := E5
-    calc softNum CL CR p (Xs k) N n ^ 2 / softNorm CL CR p (Xs k) N ^ 2
-        ≤ (K * (T * Mbal a (CL.Zof p (Xs k) N n))) ^ 2 / (cn * (T ^ 2 * Fz.step N ^ (-(1 : ℝ) / 2))) :=
-          div_le_div₀ (sq_nonneg _) hsq hBpos h5
-      _ = (K ^ 2 / cn) * Real.sqrt (Fz.step N) * Mbal a (CL.Zof p (Xs k) N n) ^ 2 := by
-          rw [rpow_half_eq hh0]
-          have hs0 : 0 < Real.sqrt (Fz.step N) := Real.sqrt_pos.mpr hh0
-          have hT0 : 0 < T := hT
-          field_simp
-      _ ≤ (K ^ 2 / cn) * Real.sqrt (Fz.step N) * (2 * (Real.sqrt (1 + ((k : ℕ) : ℝ)))⁻¹) :=
-          mul_le_mul_of_nonneg_left hMn (by positivity)
+    exact (mflat_quot_sq hh0 hT hcn hnum E5).trans
+      (mul_le_mul_of_nonneg_left hMn (mul_nonneg (div_nonneg (sq_nonneg K) hcn.le) (Real.sqrt_nonneg _)))
   obtain ⟨hn0W, hn1W, hZ0, hZ1, hCps⟩ := Hp p hp (Xs k) hX N hN1 sp ha nc hnc
   have s0 := seam nc hn0W hZ0 hCps
   have s1 := seam (nc + 1) hn1W hZ1 hCps
