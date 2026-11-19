@@ -80,6 +80,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenBase
 public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenCount
 public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenInverse
 public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenWindows
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenGapM
 public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblyRel
 public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblySoft
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftWindowProof

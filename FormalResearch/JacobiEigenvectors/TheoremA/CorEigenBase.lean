@@ -38,6 +38,10 @@ only used through these three, which is how `CorEigen*` quantify); Step 0 (`step
   statement).  Minimal correction: add `exists Cx, forall mu in K, forall r <= M, forall i <= M + 1 - r, forall y, |iteratedDerivWithin i (x r mu) (Icc 0 (pi L)) y| <= Cx` to `InvExpansion`.
   (Not used by the proofs of this round; see the "Not formalised" of `CorEigenInverse.lean`.)
 
+## Remaining items
+
+`CorEigenGapM.lean` proves the general-order gap expansion from the expansion data and lists, with the chain, the exact statements still missing for `CorEigenS1`, `InvS0` (edge values) and `InvCoeffs` (the `x_r` recursion).
+
 ## Proved here (axiom-pinned)
 
 `actionS0_bandHi`, `actionS0_bandLo` (B1); `SmoothExt.lip_zero`, `.diffAt`, `.deriv_bound`, `.deriv_continuousOn`, `.deriv_lip` (B4); `BandSlope.sub_ge`, `.strictAnti`, `.surj` (B2, B3);
