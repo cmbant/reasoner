@@ -10,9 +10,13 @@ Source: Paper J `charts.tex`: Section "The model ladders and their envelopes" (`
 (`app_engine.tex`, `app:cha-PCenv`).
 
 This file defines the envelope functions (`k2`, `Mbal`, `Ewell`, `Ebar`, `kappaBal`, `Molv`) concretely and collects, in one Prop-valued
-structure `ParabolicCylinderFacts`, **all facts about the functions `U(a,z), V(a,z)` that Layers 2--3 use**.  Nothing in Mathlib
-defines `U, V`; they are data of the structure (`pc.U`, `pc.V`).  Layer 4 supplies the instance: define `U, V` (DLMF 12.2) and prove
-the fields.  A toy instance does not exist: every field concerns the actual parabolic-cylinder functions (the envelope and
+structure `ParabolicCylinderFacts`, **all facts about the functions `U(a,z), V(a,z)` that Layers 2--3 use**.  Mathlib does not define
+`U, V`, but the vendored lean-DLMF closure does (`ThirdParty/lean-dlmf`: `DLMF.Confluent.parabolicCylinderU`, `parabolicCylinderV`, DLMF 12.2).
+The structure still takes `U, V` as data (`pc.U`, `pc.V`), and no instance is built here.  The closure proves the Wronskian (DLMF 12.2.10),
+Weber's equation (12.2.2), the recurrences 12.8.2, 12.8.3, 12.8.6 and 12.8.7, the connection formulas 12.2.15 and 12.2.16, entire dependence
+on `z`, and, for real `a` and `z`, reality.  It does not prove entire dependence on the parameter `a` (hence not the joint smoothness in
+`smooth_U`, `smooth_V`), nor the envelope, `beyond`, `molv_*`, `U_pos` and `V_growth` estimates, nor the oscillatory expansion `phase_osc`
+(DLMF 12.10).  A toy instance does not exist: every field concerns the actual parabolic-cylinder functions (the envelope and
 connection fields fail for any other pair, since they pin down the Wronskian, the recurrences and the oscillation).
 
 ## Fields, with the statement each stands for and the Layer-4 result that discharges it
@@ -24,7 +28,7 @@ connection fields fail for any other pair, since they pin down the Wronskian, th
 | `reflect`, `reflect_V` | connection formula `U(a,-z) = -sin(pi a) U + cos(pi a) Gamma(1/2-a) V`, and its companion `V(a,-z) = cos(pi a)/Gamma(1/2-a) U + sin(pi a) V`, `a <= 0` (eq:tha-conn, `M_-(a)` of lem:cha-PCenv (1a)) | DLMF 12.2.15--16 with 12.2.7 |
 | `env_well`, `env_bar`, `beyond` | `lem:cha-PCenv` (1b), (2), (3) | Olver 1997, Ch. 11 Thm 3.1, Ch. 6 Thm 2.2; Riccati comparison |
 | `molv_well`, `molv_bar` | `eq:cha-MolvEquiv`, `eq:cha-envbar` (the two-sided equivalence of `M_Olv` with `kappa^{-1} W M_bal`; lower bound inside the well) | Olver, as `env_well`; **added in round 3** (finding F-W2-6) |
-| `V_growth` | the growing solution `V` is positive and `V'/V >= c_V k_2^{1/2}` beyond the turning point (the forward ratio `r_2 = e^{-theta}(1+O(h)) < 1` of the dominant member, app_thmA Step 3 (ii)) | Riccati comparison / Olver; **added in round 3** (finding F-W2-6) |
+| `V_growth` | the growing solution `V` is positive and `V'/V >= c_V k_2^{1/2}` beyond the turning point and for `z >= 1` (the forward ratio `r_2 = e^{-theta}(1+O(h)) < 1` of the dominant member, app_thmA Step 3 (ii)); the unrestricted form is false (finding F-PC1) | Riccati comparison / Olver; **added in round 3** (finding F-W2-6) |
 | `phase_osc` | oscillatory phase expansion of the Weber branch on `|t| <= 1 - eps` (lem:smo-bulkphase (1)) | DLMF 12.10.18 |
 
 `phase_osc` is about the model functions only (no eigenvalue or eigenvector estimate).  The all-order phase expansion of the
@@ -36,9 +40,13 @@ comparison sequences (lem:smo-bulkphase (4), DLMF 12.10.35 + Stirling) is *not* 
 `reflect_V`, `molv_well`, `molv_bar`, `V_growth` were added because the corrected soft-edge chain (three patches for `a <= 0`, swapped pair `(v~, -u~)` after `Z = 0`) and the conversion
 of the engine bound to the paper's `lambda_L M_Olv(a,-Z)` need them and they follow from no other field.  All four are classical facts about `U, V` (no eigenvalue or eigenvector content) and were
 checked numerically with mpmath 1.3.0 (scratch, not committed; `V(a,z) := Gamma(1/2+a)/pi (sin(pi a) U(a,z) + U(a,-z))`):
-`reflect_V` to `2e-31` (`a in {0, -0.25, -0.3, -1.7, -2.2, -5.37}`, `z in {-1.3, 0, 0.7, 2.1}`); `molv_well`: `M_Olv kappa / (W_well M_bal) in [0.63, 1.74]` (`a in {-0.01, ..., -15.3}` incl. `a = -n - 1/2 + 10^{-5}` near resonance, `z in [-12, 12]`),
-so `c_PC <= 0.63`, `C_PC >= 1.74` (compatible with `cPC_le` and the audit values above: `c_PC <= 1.7` is replaced by `c_PC <= 0.63`); `molv_bar`: ratio `in [0.89, 1.19]`; `V_growth`: `V > 0` and `V'/(V k_2^{1/2}) in [0.095, 1.003]` on `z >= 2 sqrt(max(-a,0))` (`a in {-20.3, ..., 30}`),
-so `c_V = 0.09` works.  The *absorption* `Lambda h^{-m} (E_{j_1}/E_n)^2 <= e^{-c/h}` is **not** a field: it follows from the chart fields (`zeta_deriv`, `zeta_far`, `muS_bd`) and the definition of `Ewell` (an integral of an explicit function).
+`reflect_V` to `2e-31` (`a in {0, -0.25, -0.3, -1.7, -2.2, -5.37}`, `z in {-1.3, 0, 0.7, 2.1}`); `molv_well` and `molv_bar`: see the constants note below; `V_growth`: see finding F-PC1 below.
+
+**Constants (phase B2 scan; `FormalResearch/JacobiEigenvectors/LAYER4_PCF_PLAN.md`, Finding 5; mpmath, scratch).** Over `|a| <= 300`, all `z`, the `kappa^{-1}`-normalised ratio `M_Olv / (W_well M_bal)` lies in `[0.632, 1.755]` at non-resonant `a` and reaches `1.788` at `a` in `{-0.5, -1.5, -5.5, -20.5, -60.5}` and at the integers.  Hence `cPC <= 0.632` and **`CPC >= 1.79`**.  The round-3 sample `[0.63, 1.74]` (`a in {-0.01, ..., -15.3}`, `z in [-12, 12]`) avoided the resonances and is not a bound.
+
+**Finding F-PC1 (phase B2).** `V_growth` is stated for `max(2 sqrt(max(-a,0)), 1) <= z`; the constant `cV` stays existential.  Numerically (mpmath, scratch; `a` on a grid of step `0.01`), the minimum of `V'/(V k_2^{1/2})` is `0.3717` on `a` in `(0, 1.5]` at `z = 1` (near `a = 0.14`), `0.3970` on `a` in `[-1, 0)` at `z = 1`, and at least `0.69` on the sampled `a <= -1` at `z = 2 sqrt(-a)`.  So `cV = 0.37` is admissible, and `V > 0` at all sampled points.  The unrestricted statement is false: `V(1/2, z) = sqrt(2/pi) e^{z^2/4}` (DLMF 12.7.5 with 12.2.7) gives `V'(1/2, 0) = 0`, and `V(3/2, 0) = 0` since `1 + sin(3 pi/2) = 0`.  No proof uses `V_growth`.
+
+The *absorption* `Lambda h^{-m} (E_{j_1}/E_n)^2 <= e^{-c/h}` is **not** a field: it follows from the chart fields (`zeta_deriv`, `zeta_far`, `muS_bd`) and the definition of `Ewell` (an integral of an explicit function).
 
 ## Honest differences
 
@@ -57,8 +65,8 @@ so `c_V = 0.09` works.  The *absorption* `Lambda h^{-m} (E_{j_1}/E_n)^2 <= e^{-c
   (so `C ~ 1` works) and the fitted `g(mu)` is `t`-independent to the displayed precision (`g` is astronomically large, which is why it is existential).
 * `env_well`, `env_bar`, `beyond` (lem:cha-PCenv (1b), (2), (3)): over `a in {-30.13, ..., 0}` (well), `a in {0.05, ..., 30}` (barrier), `Z in [-12, 16]`, the ratios
   `sqrt(u~^2 + u~'^2/k_2)/(E M_bal) in [0.63, 1.06]`, `sqrt(v~^2 + v~'^2/k_2) E/M_bal in [1.02, 1.58]`, barrier pair `in [0.89, 1.19]`, `kappa_bal |U|/(E M_bal) in [0.43, 0.99]`
-  (barrier `[0.61, 0.99]`), `|U'|/(k_2^{1/2} |U|) in [0.48, 1.16] <= 4`.  So `c_PC <= 1.7 <= sqrt 17 * 0.43` and `C_PC >= 1.6` are simultaneously satisfiable: `cPC_le`
-  and `beyond`'s constant `c_PC/sqrt 17` are consistent.
+  (barrier `[0.61, 0.99]`), `|U'|/(k_2^{1/2} |U|) in [0.48, 1.16] <= 4`.  At the constants of the constants note (`cPC <= 0.632`, `CPC >= 1.79`), `beyond`'s constant `c_PC/sqrt 17 <= 0.153`
+  is consistent with these ratios, and `cPC_le` does not conflict with it.
 
 Redundancy (harmless, kept so that downstream proofs may cite either): `ode_U`, `ode_V` follow from the four shift relations (differentiate `shift_U_dn`, use `shift_U_up` at `a-1`; the same for `V`).
 `smooth_*` is `ContDiff ℝ ⊤`, i.e. analytic in the current Mathlib convention for `⊤ : WithTop ℕ∞`, which `U, V` are.  No field is a conclusion of Theorem A or B; the fields are mutually consistent
@@ -155,9 +163,10 @@ structure ParabolicCylinderFacts (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ) : P
   /-- eq:cha-envbar (**round 3**), `a > 0`, all `Z`: `c_PC kappa^{-1} E_bar M_bal <= M_Olv <= C_PC kappa^{-1} E_bar M_bal`. -/
   molv_bar : ∀ a, 0 < a → ∀ z, cPC * (kappaBal a)⁻¹ * Ebar a z * Mbal a z ≤ Molv U V a z ∧
     Molv U V a z ≤ CPC * (kappaBal a)⁻¹ * Ebar a z * Mbal a z
-  /-- growth of the dominant solution (**round 3**; app_thmA Step 3 (ii): `r_2 = e^{-theta}(1 + O(h)) < 1`): there is `c_V > 0` with `V(a,z) > 0` and `V'(a,z) >= c_V k_2^{1/2} V(a,z)`
-  for `z >= 2 sqrt(max(-a,0))` (beyond the turning point; every `z >= 0` if `a >= 0`). -/
-  V_growth : ∃ cV : ℝ, 0 < cV ∧ ∀ a z, 2 * Real.sqrt (max (-a) 0) ≤ z →
+  /-- growth of the dominant solution (**round 3**; app_thmA Step 3 (ii): `r_2 = e^{-theta}(1 + O(h)) < 1`; finding F-PC1): there is `c_V > 0`
+  with `V(a,z) > 0` and `V'(a,z) >= c_V k_2^{1/2} V(a,z)` for `max (2 sqrt(max(-a,0))) 1 <= z` (beyond the turning point, and `z >= 1`).
+  The restriction `z >= 1` is needed: `V(1/2,z) = sqrt(2/pi) e^{z^2/4}` has `V'(1/2,0) = 0`. -/
+  V_growth : ∃ cV : ℝ, 0 < cV ∧ ∀ a z, max (2 * Real.sqrt (max (-a) 0)) 1 ≤ z →
     0 < V a z ∧ cV * Real.sqrt (k2 a z) * V a z ≤ deriv (V a) z
   /-- **(round 8, F-W2-17; DLMF 12.9.1)** `U(a,z) > 0` beyond the turning point `z >= 2 sqrt(max(-a,0))` (`U(a,z) ~ e^{-z^2/4} z^{-a-1/2}`; `U` has no zeros there, and it is positive for large `z`).
   Used for the signs of the swapped-pair Casoratian and of `kappa'` in the counting argument (app_thmA Step 6); `beyond` only bounds `|U|`. -/
