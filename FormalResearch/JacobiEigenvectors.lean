@@ -129,6 +129,11 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.SoftExtChart
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbBlocks
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableWeyl
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableSchur
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableMult
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableCore
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableGauge
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStable
+public import FormalResearch.JacobiEigenvectors.TheoremB.CorThbDm
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbConstants
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbRestrict
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbGeom

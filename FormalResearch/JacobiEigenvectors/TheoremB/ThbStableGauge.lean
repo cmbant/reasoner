@@ -101,11 +101,11 @@ theorem adjugate_eigen_proj {A W : CMat N} (hW : Wᴴ * W = 1) {μ : Fin (N + 1)
         if l = k then c else 0 := by
       intro l
       by_cases hl : l = k
-      · subst hl; rw [if_pos rfl]; exact hc
-      · rw [if_neg hl]
+      · subst hl; simp only [↓reduceIte]; exact hc
+      · simp only [hl, ↓reduceIte]
         exact Finset.prod_eq_zero (Finset.mem_erase.2 ⟨Ne.symm hl, Finset.mem_univ _⟩) (by simp)
     simp only [Matrix.mul_diagonal, ha, Matrix.conjTranspose_apply, RCLike.star_def]
-    simp only [mul_ite, mul_zero, ite_mul, zero_mul, Finset.sum_ite_eq', Finset.mem_univ, if_true]
+    simp only [mul_ite, mul_zero, ite_mul, zero_mul, Finset.sum_ite_eq', Finset.mem_univ, ite_true]
     linear_combination c * W i k * (starRingEnd ℂ) (W j k) * hdet
   exact key
 
@@ -326,10 +326,10 @@ theorem thb_jacobi_gauge_diag_pos {J J' U U' : Matrix (Fin (N + 1)) (Fin (N + 1)
     exact Continuous.matrix_adjugate ((hlamcont k).smul continuous_const |>.sub hAcont)
   have hcccont : Continuous cc := by
     simp only [hcc]
-    exact continuous_finset_prod _ fun l _ => (hlamcont k).sub (hlamcont l)
+    exact continuous_finsetProd _ fun l _ => (hlamcont k).sub (hlamcont l)
   have hρcont : Continuous ρ := by
     simp only [hρ]
-    refine hcccont.mul (continuous_finset_sum _ fun i _ => continuous_const.mul ?_)
+    refine hcccont.mul (continuous_finsetSum _ fun i _ => continuous_const.mul ?_)
     exact (hQcont.matrix_elem i 0)
   have hform : ∀ (t : ℝ) (W : CMat N), Wᴴ * W = 1 →
       cplx (A t) * W = W * diagonal (fun l => (lam l t : ℂ)) →

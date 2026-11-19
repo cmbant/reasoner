@@ -189,7 +189,7 @@ theorem thb_stable_family {F : SymbolFamily Par} {K : Set Par} {m : ℕ} {t0 C h
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
         IsEigenSystem (F.jacobiMat μ N) Xs Um → ‖G μ N Xs - Um‖ ≤ C * F.step N ^ m)
     (hgap : EigGapBound F K) (K0 : ℝ) (hK0 : 0 ≤ K0) :
-    ∃ Cs h' : ℝ, 0 < h' ∧ h' ≤ hm ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h' → F.step N ≤ t0 →
+    ∃ Cs h' : ℝ, 0 ≤ Cs ∧ 0 < h' ∧ h' ≤ hm ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h' → F.step N ≤ t0 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
         IsEigenSystem (F.jacobiMat μ N) Xs Um →
           ThbStableAt (F.jacobiMat μ N) (G μ N Xs) (K0 * F.step N ^ (m + 1))
@@ -198,7 +198,8 @@ theorem thb_stable_family {F : SymbolFamily Par} {K : Set Par} {m : ℕ} {t0 C h
   have hcf := thbCf_nonneg
   set M : ℝ := c / (8 * (K0 + 1) * (thbCf + 1)) with hM
   have hMpos : 0 < M := by rw [hM]; positivity
-  refine ⟨2 * thbCf / c, min (min hm h0) (min 1 M), lt_min (lt_min hmpos hh0) (lt_min one_pos hMpos),
+  refine ⟨2 * thbCf / c, min (min hm h0) (min 1 M), by positivity,
+    lt_min (lt_min hmpos hh0) (lt_min one_pos hMpos),
     (min_le_left _ _).trans (min_le_left _ _), fun μ hμ N hN hN0 Xs Um hE => ?_⟩
   set h := F.step N with hh
   have hhpos : 0 < h := FormalResearch.JB.stepSize_pos F.L_pos N
@@ -248,17 +249,17 @@ theorem corThbStable (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0)
     (h1m : 1 ≤ m) (hK : Kidx = (m + 1) / 2) (hq : q = 2 * Kidx) (hcpt : IsCompact K) (hH : HypOn F K)
     (hD : DM F K (2 * Kidx + 1)) (hspl : CP.SplicesInWindow spl) (hgap : EigGapBound F K)
     (K0 : ℝ) (hK0 : 0 ≤ K0) :
-    ∃ C hm Cs h' : ℝ, 0 < hm ∧ C * hm ^ m < 1 ∧ 0 < h' ∧ h' ≤ hm ∧
+    ∃ C hm Cs h' : ℝ, 0 < hm ∧ C * hm ^ m < 1 ∧ 0 ≤ Cs ∧ 0 < h' ∧ h' ≤ hm ∧
       ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h' → F.step N ≤ t0 →
         ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
           IsEigenSystem (F.jacobiMat μ N) Xs Um →
             ThbStableAt (F.jacobiMat μ N) (compMatrix CP.CI0 spl μ N Xs) (K0 * F.step N ^ (m + 1))
               ((C + Cs * K0) * F.step N ^ m) := by
   obtain ⟨C, hm, hmpos, hCm, hall⟩ := hB h1m hK hq hcpt hH hD hspl
-  obtain ⟨Cs, h', hh', hh'm, hfam⟩ := thb_stable_family (F := F) (K := K) (m := m) (t0 := t0) (C := C) (hm := hm)
+  obtain ⟨Cs, h', hCs, hh', hh'm, hfam⟩ := thb_stable_family (F := F) (K := K) (m := m) (t0 := t0) (C := C) (hm := hm)
     (fun μ N Xs => compMatrix CP.CI0 spl μ N Xs) h1m hmpos
     (fun μ hμ N hN hN0 Xs Um hE => (hall μ hμ N hN hN0 Xs Um hE).1) hgap K0 hK0
-  exact ⟨C, hm, Cs, h', hmpos, hCm, hh', hh'm, hfam⟩
+  exact ⟨C, hm, Cs, h', hmpos, hCm, hCs, hh', hh'm, hfam⟩
 
 end Cor
 

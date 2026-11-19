@@ -213,7 +213,8 @@ lemma offdiag_eq_hadamard {J J' U U' : CMat N} {X X' : Fin (N + 1) → ℝ} {γ 
   · subst hjk
     rw [fG_of_small hγ (hdiag j)]
     simp
-  · rw [if_neg hjk, fG_of_large hγ (hsep j k hjk)]
+  · simp only [hjk, ↓reduceIte]
+    rw [fG_of_large hγ (hsep j k hjk)]
     have hne : ((X j - X' k : ℝ) : ℂ) ≠ 0 := by
       have := hsep j k hjk
       have h0 : X j - X' k ≠ 0 := by
