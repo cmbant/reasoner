@@ -13,6 +13,16 @@ The rows of the charts of the assembly are chosen from `nearestRow h x = round(x
 * `nearestRow_bounds`: `x - h/2 <= u_{nearestRow h x} <= x + h/2`.
 * `bulk_geom`: for a splice `s` in the open overlap `(c', c)` of a bulk chart (`c + sigma < L = (N+1) h`, `h` small): the splice row `n_s` satisfies `0 <= n_s`, `n_s + 1 <= N`, and the nodes of the rows
   `n_s`, `n_s + 1` lie in `[c', c]` (exterior rows of the two bulk charts).
+
+Source: Paper J `app_thmB.tex`, proof of `prop:thb-inputs`, choice of the splice row and of the rows of the two bulk charts of a block.
+
+## Differences from the paper
+
+None (the paper's "`n_s` lies in the window" is made explicit: `h <= sigma`, `h <= 2 (c - s)/3`, `h <= 2 (s - c')`, `c + sigma < L`).
+
+## Not formalised
+
+Nothing.
 -/
 
 @[expose] public section
