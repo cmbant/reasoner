@@ -102,6 +102,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.Collar
 public import FormalResearch.JacobiEigenvectors.TheoremB.SoftOneStep
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThmBProof
 public import FormalResearch.JacobiEigenvectors.TheoremB.HostCols
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftExtRow
 
 /-!
 # Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)
