@@ -10,6 +10,7 @@ public import FormalResearch.JacobiEigenvectors.Charts.PCLaplace
 public import FormalResearch.JacobiEigenvectors.Charts.PCPositive
 public import FormalResearch.JacobiEigenvectors.Charts.PCEnergyWell
 public import FormalResearch.JacobiEigenvectors.Charts.PCEnergyAiry
+public import FormalResearch.JacobiEigenvectors.Charts.PCEnergyAiryEnv
 public import FormalResearch.JacobiEigenvectors.Charts.PCPhase
 public import FormalResearch.JacobiEigenvectors.Charts.PCSmooth
 public import FormalResearch.JacobiEigenvectors.Charts.PCActual
