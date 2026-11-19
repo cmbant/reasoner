@@ -23,7 +23,6 @@ Chain of lemmas: `CorEigenBase.lean` (B1--B5).
 ## Differences from the paper
 
 * Premises added: `0 < delta` (F-BB-1) and `BandSlope` (F-BB-2).  `delta' <= delta/2` (so that `I'` lies in the interior of the smoothness domain and `deriv` is the two-sided derivative); `InvLevel` only asks `delta' <= delta`.
-* `maxHeartbeats` is raised for the two long theorems (as elsewhere in the repository).
 
 ## Not formalised (exact missing statements)
 
@@ -117,7 +116,6 @@ section Level2
 
 variable {F : SymbolFamily Par} {K : Set Par} {S : ℕ → Par → ℝ → ℝ} {M : ℕ} {δ Cn : ℝ}
 
-set_option maxHeartbeats 1000000 in
 /-- **cor:eigen (b), parts (i) first conjunct and (ii)** (`InvLevel`): the truncated action `F_M(., h)` is strictly decreasing on `I'` with `-F_M' >= c_0`, and its level equation at
 `y_k` has exactly one solution in `I'`, within `(|C|/c_0) h^{M+1}` of `X_k`.  Hypotheses: `M >= 1`, `0 < delta` (F-BB-1), `BandSlope` (F-BB-2). -/
 theorem invLevel_of_slope (hK : IsCompact K) (hH : HypOn F K) (hD : DM F K M) (hM : 1 ≤ M)
@@ -289,7 +287,6 @@ section Gap
 
 variable {F : SymbolFamily Par} {K : Set Par} {S : ℕ → Par → ℝ → ℝ} {δ Cn : ℝ}
 
-set_option maxHeartbeats 4000000 in
 /-- **cor:eigen (c), first part** (`CorEigenGap1`): `X_k - X_{k+1} = pi h/(-S_0'(x_0(y_k))) + O(h^2)` and `c h <= X_k - X_{k+1} <= C h`, from the level equation of `(b)` with `M = 1`
 (mean value theorem for `F_1(., h)` between the two roots; no `x_1` is needed).  Hypotheses: `(D_1)`, `0 < delta` (F-BB-1), `BandSlope` (F-BB-2). -/
 theorem corEigenGap1_of_slope (hK : IsCompact K) (hH : HypOn F K) (hD : DM F K 1)
@@ -355,11 +352,11 @@ theorem corEigenGap1_of_slope (hK : IsCompact K) (hH : HypOn F K) (hD : DM F K 1
     have hL : h * ((N : ℝ) + 1) = F.L := step_mul_succ_aux F N
     have hk1 : ((k : ℕ) : ℝ) + 1 / 2 ≤ (N : ℝ) + 1 := by
       have : ((k : ℕ) : ℝ) ≤ N := by exact_mod_cast Nat.lt_succ_iff.mp k.isLt
-      linarith
+      linarith only [this]
     refine ⟨by positivity, ?_⟩
     rw [← hL]
     have := mul_le_mul_of_nonneg_left hk1 (mul_nonneg Real.pi_pos.le hpos.le)
-    nlinarith
+    linarith only [this]
   have hyd : Real.pi * h * (((j : ℕ) : ℝ) + 1 / 2) - Real.pi * h * (((i : ℕ) : ℝ) + 1 / 2) = Real.pi * h := by
     rw [hij]; push_cast; ring
   obtain ⟨hZm, hZe⟩ := hx0 μ hμ _ (hk1 i)
@@ -371,7 +368,7 @@ theorem corEigenGap1_of_slope (hK : IsCompact K) (hH : HypOn F K) (hD : DM F K 1
     have hle : Xi ≤ Xj := not_lt.mp hcon
     have := hFanti.antitoneOn hXi hXj hle
     rw [hXiF, hXjF] at this
-    nlinarith [Real.pi_pos, hpos, hyd]
+    linarith only [this, hyd, mul_pos Real.pi_pos hpos]
   -- the mean value point
   obtain ⟨ξ, hξ, hξd⟩ := exists_deriv_eq_slope Fh hXji (hFcont.mono (Icc_subset_Icc (by linarith [hXj.1]) (by linarith [hXi.2])))
     (fun z hz => (hFdiff z ⟨by linarith [hXj.1, hz.1], by linarith [hXi.2, hz.2]⟩).differentiableWithinAt)
@@ -382,7 +379,8 @@ theorem corEigenGap1_of_slope (hK : IsCompact K) (hH : HypOn F K) (hD : DM F K 1
   set P := -deriv Fh ξ with hP
   have hPG : P * G = Real.pi * h := by
     rw [hP, hξd, hXiF, hXjF]
-    have : Real.pi * h * (((i : ℕ) : ℝ) + 1 / 2) - Real.pi * h * (((j : ℕ) : ℝ) + 1 / 2) = -(Real.pi * h) := by linarith
+    have : Real.pi * h * (((i : ℕ) : ℝ) + 1 / 2) - Real.pi * h * (((j : ℕ) : ℝ) + 1 / 2) = -(Real.pi * h) := by
+      linarith only [hyd]
     rw [this]
     field_simp
   have hPc : c ≤ P := by rw [hP]; linarith [hFle ξ hξI]
@@ -396,8 +394,8 @@ theorem corEigenGap1_of_slope (hK : IsCompact K) (hH : HypOn F K) (hD : DM F K 1
     have h0' := (abs_le.mp hd0).1
     have h1 := (abs_le.mp hd1).1
     have h1' := (abs_le.mp hd1).2
-    have : h * Cn' ≤ Cn' := by nlinarith
-    nlinarith [mul_le_mul_of_nonneg_left h1 hpos.le, mul_le_mul_of_nonneg_left h1' hpos.le]
+    have : h * Cn' ≤ Cn' := mul_le_of_le_one_left hCn0 hN2
+    linarith only [h0', mul_le_mul_of_nonneg_left h1 hpos.le, this, hU, hCn0]
   have hPpos : 0 < P := lt_of_lt_of_le hc hPc
   have hGeq : G = Real.pi * h / P := by field_simp; linarith
   have hGup : G ≤ Real.pi * h / c := by
@@ -461,7 +459,9 @@ theorem corEigenGap1_of_slope (hK : IsCompact K) (hH : HypOn F K) (hD : DM F K 1
       congr 1
       ring
     rw [e, abs_div, abs_mul, abs_of_pos (by positivity : 0 < Real.pi * h), abs_of_pos (mul_pos hPpos hAposv), div_le_iff₀ (mul_pos hPpos hAposv)]
-    have h1 : 2 * c0 * c ≤ P * (-deriv (S 0 μ) Z) := by nlinarith
+    have h1 : 2 * c0 * c ≤ P * (-deriv (S 0 μ) Z) := by
+      have := mul_le_mul hAge hPc hc.le hAposv.le
+      linarith only [this]
     calc Real.pi * h * |(-deriv (S 0 μ) Z) - P| ≤ Real.pi * h * (h * E) := mul_le_mul_of_nonneg_left hAP (by positivity)
       _ = Real.pi * E * h ^ 2 := by ring
       _ = Real.pi * E / (2 * c0 * c) * h ^ 2 * (2 * c0 * c) := by field_simp
@@ -482,7 +482,7 @@ theorem corEigenGap1_of_slope (hK : IsCompact K) (hH : HypOn F K) (hD : DM F K 1
       rw [h3, h4]
       apply mul_le_mul_of_nonneg_left _ hpos.le
       rw [le_div_iff₀ (by positivity)]
-      nlinarith
+      linarith only [this]
     have h5 : Real.pi * h / U = 2 * (Real.pi * h / (2 * U)) := by field_simp
     show Real.pi / (2 * U) * h ≤ X i - X j
     have : Real.pi / (2 * U) * h = Real.pi * h / (2 * U) := by ring
