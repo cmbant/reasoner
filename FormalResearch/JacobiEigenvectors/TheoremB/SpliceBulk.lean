@@ -123,7 +123,6 @@ theorem rpow_quarter_neg_sq (h : ℝ) (hh : 0 < h) : (h ^ (-(1 : ℝ) / 4)) ^ 2 
   rw [← Real.rpow_natCast, ← Real.rpow_mul hh.le, Real.sqrt_eq_rpow, ← Real.rpow_neg hh.le]
   norm_num
 
-set_option maxHeartbeats 2000000 in
 /-- **Clause (i) of `prop:tha-splice` (a), bulk, at an eigenvalue** (normaliser ratio): the glued normaliser of the splice `ns`
 over the bulk window differs from the standard normaliser by `C h^m` relatively, uniformly in `ns`, `X`, `N`, the eigenvector. -/
 theorem bulk_norm_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
@@ -295,8 +294,8 @@ theorem bulk_norm_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily
         (fun j _ _ => sq_nonneg _)
     have hs : 0 < Real.sqrt (Fz.step N) := Real.sqrt_pos.mpr hst
     have hsq : Real.sqrt (Fz.step N) ≤ 1 / Real.sqrt (Fz.step N) := by
-      rw [le_div_iff₀ hs]
-      nlinarith [Real.sq_sqrt hst.le]
+      rw [le_div_iff₀ hs, Real.mul_self_sqrt hst.le]
+      exact hs1
     have hrow' := hrow.2
     have e : SM / Real.sqrt (Fz.step N) = CL.Csum / Real.sqrt (Fz.step N) +
         CL.CM ^ 2 * (1 / Real.sqrt (Fz.step N)) := by
@@ -429,7 +428,6 @@ theorem div_pair_bound (v N0 N1 e : ℝ) (hN0 : 0 < N0) (hN1 : 0 < N1) (hr : |N1
     _ ≤ 2 * e * |v| * N1 * N0 := h3
     _ = 2 * e * |v| * (N1 * N0) := by ring
 
-set_option maxHeartbeats 4000000 in
 /-- **Clause (iii) of `prop:tha-splice` (a), bulk, at an eigenvalue**: the eigenvector is compared with the spliced vector
 `splicedVec ns` within `C h^m bulkEnv`, uniformly in `ns` (the splice-independence of the comparison vector). -/
 theorem bulk_vec_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
@@ -653,7 +651,7 @@ theorem bulk_vec_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily 
             linarith
           have hsub : |CL.psiHatL p X N n - bulkKappa CL CR p X N * bulkSeqR CR p X N n| ≤
               |Cm| * CL.envL p X N n := hmt'.trans hη1'
-          nlinarith [hA2, hA1, hsub]
+          linarith only [hA2, hA1, hsub]
         have h2 := div_pair_bound (bulkKappa CL CR p X N * bulkSeqR CR p X N n) (bulkNorm CL CR p X N)
           (glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns)
           (|Cn| * Fz.step N ^ m) hyPos hN1pos hr1' hCnη
@@ -675,8 +673,7 @@ theorem bulk_vec_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily 
               rw [hCsp]
               have h1' := mul_nonneg (abs_nonneg Cn) hKgR0.le
               have h3 := abs_nonneg Cm
-              have h4 := mul_nonneg (abs_nonneg Cn) (abs_nonneg Cm)
-              nlinarith
+              linarith only [h1', h3]
       · -- case 4: the splice is right and the standard split is right (outside the window)
         have hcn_up : CL.c < uNode (Fz.step N) n := not_le.mp hcn
         have hjn0 : 0 ≤ (N : ℤ) - n := by omega
@@ -727,7 +724,7 @@ theorem bulk_vec_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily 
               have h1' := mul_nonneg (abs_nonneg Cn) (abs_nonneg Cm)
               have h3 := mul_nonneg (abs_nonneg Cn) hKgL0.le
               have h4 := abs_nonneg Cm
-              nlinarith
+              linarith only [h1', h3, h4]
   -- the eigenvector comparison: the bulk part and the splice part
   have heig := ((hκall p hp X hX N hN hsk).2.2.2.2 Xs Um hE k hk).2 n hn
   have hB0 := hsplice.2
@@ -802,7 +799,6 @@ theorem chart_envL_nonneg {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily
   unfold BulkWeberChart.envL
   exact (mul_pos hW hM).le
 
-set_option maxHeartbeats 4000000 in
 /-- **`PropThaSpliceBulk` for `eta(h) = h^m`** (prop:tha-splice (a), bulk), assembled from the three clauses: the normaliser
 ratio (`bulk_norm_clause`), the window matching (`bulk_matching_eig`) and the eigenvector comparison (`bulk_vec_clause`), with
 the one constant `C = |Cn| + |Cm| + |C3|`.  The hypotheses `1 <= m` and the mirror overlap `hcoup` are now part of the statement
