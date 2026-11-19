@@ -107,7 +107,9 @@ public import FormalResearch.JacobiEigenvectors.Assembly.LabelsAbstract
 public import FormalResearch.JacobiEigenvectors.Assembly.LabelsSlope
 public import FormalResearch.JacobiEigenvectors.Assembly.LabelsSoft
 public import FormalResearch.JacobiEigenvectors.Assembly.Labels
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenZero
 public import FormalResearch.JacobiEigenvectors.Assembly.ThmAi
+public import FormalResearch.JacobiEigenvectors.Assembly.CorEigen
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftMflat
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftMflat2
 public import FormalResearch.JacobiEigenvectors.TheoremB.SpliceSoftFacts

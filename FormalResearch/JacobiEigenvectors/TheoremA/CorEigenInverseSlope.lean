@@ -16,11 +16,11 @@ Source: Paper J `thmA.tex`, `cor:eigen` (b).
 
 ## Differences from the paper
 
-The premises `0 < delta` and `BandSlope` are added to the frozen `CorEigenInverse` (findings F-BB-1, F-BB-2).
+The premise `0 < delta` is now part of the frozen `CorEigenInverse` (finding F-BB-1); `BandSlope` is *not* (F-BB-2): `corEigen_proved` (`Assembly/CorEigen.lean`) supplies it from the windows.
 
 ## Not formalised
 
-`BandSlope` itself (from the windows: `CorEigenWindows.bandSlope_of_windows`).
+`BandSlope` itself (from the windows: `CorEigenWindows.bandSlope_of_windows`, `bandSlope_of_layer4`).
 -/
 
 @[expose] public section

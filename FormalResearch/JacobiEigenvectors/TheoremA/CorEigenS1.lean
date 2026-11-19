@@ -2,14 +2,17 @@ module
 
 public import Mathlib
 public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumAssembly
+public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumAssemblyBulk
 public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeDt
 
 /-!
 # `CorEigenS1` from the phase windows (paper: `thmA.tex`, proof of `cor:eigen` (a))
 
-Proved, with no `sorry`/axiom (pins at the end):
+Proved, with no placeholder proofs and no added axiom (pins at the end):
 
 * `thmAi_of_windows_spec`: `thmAi_of_windows` together with the identification `S_l = Scoef (Sigma)` of the glued coefficients on every window.
+* `corEigenS1_of_trunc_windows`: the same for `S` of `G` itself from windows of the truncation `truncSM G 1` (the windows that the assembly produces), through `thmAi_of_trunc` and `eigDensity_of_trunc`; the chart-level premises are discharged in `Assembly/ThmAi.lean`
+  (`layer4_windows`: bulk by `BulkPhaseInputs.Sigma_one/Sigma_zero`, soft by `CorEigenZero.lean`) and `CorEigen.lean`.
 * `corEigenS1_of_windows`: if the windows have `Sigma_1(X, 0) = 0` and `Sigma_0(X, t) = S_0^{(t)}(X)` for small `t` on the open band, then every `S` with `SmoothExt`, the
   rule and the action formula (`M = 1`) has `S_1(mu, X) = d_t S_0^{(t)}(X)|_{t=0} = int_{u_-}^{u_+} (B_1 + (X - B_0) G_1 / (2 G_0)) T^{-1/2} du`.
   Route: `thmSmoSpec_unique` against the glued `Scoef`, `Scoef_one` (`S_1 = Sigma_1(., 0) + d_t Sigma_0(., 0)`) and `actionS0_frozen_hasDerivAt` (`eq:cp-dt`).
@@ -17,8 +20,8 @@ Proved, with no `sorry`/axiom (pins at the end):
 Differences from the paper: the chart-level facts (parity freezing `Sigma_1 = 0` at `t = 0`, `Sigma_0 = S_0^{(t)}` near `t = 0`) enter as the window premises `hone`/`hzero`
 rather than being read off the bulk, soft-upper and soft-lower chart structures.
 
-Not formalised: the discharge of `hone`/`hzero` for the chart-built windows (bulk: `BulkPhaseInputs.Sigma_one`/`Sigma_zero`; soft-upper: `softSigma` with `mu0_S0`;
-soft-lower: `softLoSigma`, whose `t`-neighbourhood form needs the mirror family) and the final assembly into `CorEigenS1` for the whole band.
+Not formalised: nothing at this level.  The discharge of `hone`/`hzero` for the chart-built windows (bulk: `BulkPhaseInputs.Sigma_one`/`Sigma_zero`; soft-upper: `softSigma` with `mu0_S0`; soft-lower: `softLoSigma` through the mirror family, `actionS0_neg`)
+is `layer4_windows` (`Assembly/ThmAi.lean`, using `CorEigenZero.lean`) and the whole-band `CorEigenS1` is part of `corEigen_proved` (`Assembly/CorEigen.lean`).
 -/
 
 @[expose] public section
@@ -139,11 +142,55 @@ theorem corEigenS1_of_windows {ι : Type*} [Fintype ι] {F : SymbolFamily Par} {
     rw [huniq, hSg, Scoef_one, hone i μ hμ X ⟨hi1, hi2⟩ hX, hderiv, hd.deriv, zero_add]
   exact ⟨hS1 ▸ hd, hint, hS1⟩
 
+/-- **`CorEigenS1` for `G` from windows of the truncation `truncSM G 1`** (the form in which the assembly of `thmSmoSpec_core` produces the windows): the same as `corEigenS1_of_windows`, with `S` an `S` for `G` itself.  The glued
+`S* = Scoef (Sigma)` is an `S` for `truncSM G 1` (`thmAi_of_windows_spec`), hence for `G` (`thmAi_of_trunc`); `thmSmoSpec_unique` for `G` (with `EigDensity` from `eigDensity_of_trunc`) identifies `S` with `S*` on the band.  The chart-level
+premises `hone`, `hzero` are stated for the frozen family of `G` at index `0` (`G_0 + t G_1`, `B_0 + t B_1`), which is the one `eq:cp-dt` differentiates. -/
+theorem corEigenS1_of_trunc_windows {ι : Type*} [Fintype ι] {G : SymbolFamily Par} {K : Set Par} {t0 : ℝ} {a b : ι → Par → ℝ} {δ : ℝ}
+    (W : ∀ i, WindowPhase (truncSM G 1) K t0 1 (a i) (b i)) (ht0 : 0 < t0) (hδ : 0 < δ) (hcov : WindowCover (truncSM G 1) K a b δ)
+    (hone : ∀ i, ∀ μ ∈ K, ∀ X ∈ Icc (a i μ) (b i μ), X ∈ Ioo (G.bandLo μ) (G.bandHi μ) → (W i).Sigma μ 1 X 0 = 0)
+    (hzero : ∀ i, ∀ μ ∈ K, ∀ X ∈ Icc (a i μ) (b i μ), X ∈ Ioo (G.bandLo μ) (G.bandHi μ) →
+      ∀ᶠ t in 𝓝 (0 : ℝ), (W i).Sigma μ 0 X t = actionS0 (frozenFamily G 0) (μ, t) X) :
+    IsCompact K → HypOn G K → DM G K 1 →
+    ∀ (S : ℕ → Par → ℝ → ℝ) (δ' Cn hM C : ℝ), 0 < δ' → SmoothExt G K 1 S δ' Cn → EigenRule G K 1 S hM C → ActionFormula G K S →
+      ∀ μ ∈ K, ∀ X ∈ Ioo (G.bandLo μ) (G.bandHi μ),
+        HasDerivAt (fun t : ℝ => actionS0 (frozenFamily G 0) (μ, t) X) (S 1 μ X) 0 ∧
+        IntervalIntegrable (fun u => (G.B 1 μ u + (X - G.B 0 μ u) * G.G 1 μ u / (2 * G.G 0 μ u)) /
+          Real.sqrt (Tfun G.L (G.G 0 μ) (G.B 0 μ) X u)) MeasureTheory.volume (G.uMinus μ X) (G.uPlus μ X) ∧
+        S 1 μ X = ∫ u in (G.uMinus μ X)..(G.uPlus μ X), (G.B 1 μ u + (X - G.B 0 μ u) * G.G 1 μ u / (2 * G.G 0 μ u)) /
+          Real.sqrt (Tfun G.L (G.G 0 μ) (G.B 0 μ) X u) := by
+  intro hK hH hD S δ' Cn hM C hδ' hsm hrule _hact μ hμ X hX
+  have hHT := hypOn_truncSM G K 1 hH
+  have hDT := dm_truncSM G K 1 hD
+  have hD0T : DM (truncSM G 1) K 0 := dm_zero_of_dm _ K 1 hK hDT
+  have hb : (truncSM G 1).bandLo μ = G.bandLo μ ∧ (truncSM G 1).bandHi μ = G.bandHi μ := band_truncSM G 1 μ
+  obtain ⟨δ2, Cn2, C2, hM2, Sg, hδ2, hsm2, hact2, hrule2, hspec⟩ := thmAi_of_windows_spec W ht0 hδ hcov hK hHT hDT
+  obtain ⟨hM2', C2', hsm2', -, hrule2'⟩ := thmAi_of_trunc G K 1 hK hH hD Sg δ2 Cn2 hM2 C2 hδ2 hsm2 hact2 hrule2
+  have hden : EigDensity G K := eigDensity_of_trunc G K 1 hK hH hD (density_of_windows W ht0 hδ hcov hK hHT hD0T)
+  have huniq := thmSmoSpec_unique G K 1 hden (stepZeroD0 G K) hK hH hD S Sg δ' δ2 Cn Cn2 hM hM2' C C2' hδ' hδ2
+    hsm hrule hsm2' hrule2' μ hμ 1 le_rfl X ⟨hX.1.le, hX.2.le⟩
+  have hXU : X ∈ Icc ((truncSM G 1).bandLo μ - δ) ((truncSM G 1).bandHi μ + δ) :=
+    ⟨by rw [hb.1]; linarith [hX.1], by rw [hb.2]; linarith [hX.2]⟩
+  obtain ⟨i, hi1, hi2, -, -⟩ := hcov.cov μ hμ X hXU
+  have hSg : Sg 1 μ X = Scoef ((W i).Sigma μ) 1 X := hspec i μ hμ 1 le_rfl X ⟨hi1, hi2⟩
+  have hev := hzero i μ hμ X ⟨hi1, hi2⟩ hX
+  obtain ⟨hd, hint⟩ := actionS0_frozen_hasDerivAt G K hH hD hμ hX
+  have hderiv : iteratedDeriv 1 (fun t => (W i).Sigma μ 0 X t) 0 = deriv (fun t : ℝ => actionS0 (frozenFamily G 0) (μ, t) X) 0 := by
+    rw [iteratedDeriv_one]
+    exact Filter.EventuallyEq.deriv_eq hev
+  have hS1 : S 1 μ X = ∫ u in (G.uMinus μ X)..(G.uPlus μ X), (G.B 1 μ u + (X - G.B 0 μ u) * G.G 1 μ u / (2 * G.G 0 μ u)) /
+      Real.sqrt (Tfun G.L (G.G 0 μ) (G.B 0 μ) X u) := by
+    rw [huniq, hSg, Scoef_one, hone i μ hμ X ⟨hi1, hi2⟩ hX, hderiv, hd.deriv, zero_add]
+  exact ⟨hS1 ▸ hd, hint, hS1⟩
+
 end Assembly
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.thmAi_of_windows_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.thmAi_of_windows_spec
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.corEigenS1_of_trunc_windows' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.corEigenS1_of_trunc_windows
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.corEigenS1_of_windows' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -21,13 +21,13 @@ Chain of lemmas: see `CorEigenBase.lean` (B1--B5); this file is B5 and Step 6.
 
 ## Differences from the paper
 
-* Premises added: `0 < delta` (finding F-BB-1) and the slope input `BandSlope F K S` (F-BB-2); see `CorEigenBase.lean`.  Everything else of the frozen `CorEigenCount` is the conclusion.
+* Premises of the theorems here: `0 < delta` (finding F-BB-1, now also a premise of the frozen `CorEigenCount`) and the slope input `BandSlope F K S` (F-BB-2; discharged from the windows in `Assembly/CorEigen.lean`); see `CorEigenBase.lean`.  Everything else of the frozen `CorEigenCount` is the conclusion.
 * The paper takes a linear `C^1` extension of `S_0` beyond the band; here `S` is the given extension and Step 6's monotonicity is applied at the nearest band point `Xc_k` (the extension moves `S_0` by
   at most `Cn C_z h`, since `|X_k - Xc_k| <= C_z h`), so no property of the extension beyond `SmoothExt` is used.  The constant of `eq:cor-dos` is `|C_z| + C_2/(2 c_0) + pi/(4 c_0)`.
 
 ## Not formalised
 
-The slope `|S_0'| >= 2 c_0` itself (hypothesis `BandSlope`; discharged from the window data of the assembly in `CorEigenWindows.lean`).
+The slope `|S_0'| >= 2 c_0` itself (hypothesis `BandSlope`; discharged from the window data of the assembly: `CorEigenWindows.lean`, `bandSlope_of_layer4` in `Assembly/CorEigen.lean`).
 -/
 
 @[expose] public section

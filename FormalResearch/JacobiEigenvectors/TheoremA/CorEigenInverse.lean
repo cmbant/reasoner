@@ -22,13 +22,12 @@ Chain of lemmas: `CorEigenBase.lean` (B1--B5).
 
 ## Differences from the paper
 
-* Premises added: `0 < delta` (F-BB-1) and `BandSlope` (F-BB-2).  `delta' <= delta/2` (so that `I'` lies in the interior of the smoothness domain and `deriv` is the two-sided derivative); `InvLevel` only asks `delta' <= delta`.
+* Premises of the theorems here: `0 < delta` (F-BB-1, now also a premise of the frozen statements) and `BandSlope` (F-BB-2; discharged from the windows in `Assembly/CorEigen.lean`, `bandSlope_of_layer4`).  `delta' <= delta/2` (so that `I'` lies in the interior of the smoothness domain and `deriv` is the two-sided derivative); `InvLevel` only asks `delta' <= delta`.
 
 ## Not formalised (exact missing statements)
 
 * `InvCoeffs` and the edge values of `InvS0` are proved in `InvCoeffs.lean` and `ActionDerivativeEdgeS0.lean`, and bundled in `CorEigenInverseSlope.lean` (`corEigenInverse_of_slope`) under `0 < delta` and `BandSlope`.
-* `CorEigenS1` is proved at window level in `CorEigenS1.lean` (`corEigenS1_of_windows`); the chart-level premises `hone`, `hzero` (bulk, soft windows) are not discharged.
-* `CorEigenInverse` with exactly the frozen hypotheses (without `0 < delta`, `BandSlope`; F-BB-1, F-BB-2) is not assembled.
+* Nothing of cor:eigen (a)-(d) remains modulo the Layer-4 chart inputs: `corEigen_proved` (`Assembly/CorEigen.lean`) proves the frozen `CorEigen` (with `0 < delta`) from `Layer4Inputs`; here `BandSlope` is still an explicit premise of the theorems of this file.
 -/
 
 @[expose] public section

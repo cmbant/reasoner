@@ -44,6 +44,11 @@ Source: Paper J `app_thmA.tex` (Step 0 of Section "The soft edges: proof of Prop
   needs `delta' <= delta` (the domain of the extensions); that is part of the quantifier `exists delta'`.
 * **F-E3 (cor:eigen (d), counting)**: the paper states the density-of-states bound for "every Lipschitz function on a fixed neighbourhood"; the sum `sum_k g(X_k)` needs `X_k` inside it, which is `StepZeroD0`; the Lean statement
   quantifies the neighbourhood radius `delta'` before `g` and the Lipschitz constant `Lg` explicitly.
+* **F-BB-1 (`0 < δ` in cor:eigen (a), (b), (c) first part, (d); applied)**: the paper's `S_j` live on a `δ`-neighbourhood with `δ > 0` (thm:smo-spec).  Without `0 < δ` the smoothness domain `[X_s^- - δ, X_s^+ + δ]` lies inside the band, `S_j` is unconstrained on the
+  end strips (as for `ThmSmoSpec`, F-S6-1), the identification `S_1 = ∂_t S_0^{(t)}` and the uniqueness arguments fail, and `CorEigenInverse` is false (`InvLevel` asks `0 < δ' <= δ`).  `CorEigenS1`, `CorEigenInverse`, `CorEigenGap1`, `CorEigenCount` now carry the premise
+  `0 < δ` right after the quantifier of `δ` (`CorEigenGapM` needs no `δ`: it is a consequence of `InvExpansion` alone and is unchanged).
+* **F-BB-2 (the slope `-S_0' >= 2 c_0` is not a premise)**: it is not added to the frozen statements; it is derived from the phase windows of the assembly (`bandSlope_of_windows`), so the statements are proved with their own premises plus the Layer-4 chart inputs
+  (`corEigen_proved`, `Assembly/CorEigen.lean`).
 * **F-E4 (cor:eigen (c) under `(D_1)` only)**: `x_0 in C^2`, `x_1 in C^1` are used; the first part needs only `x_0`, so `CorEigenGap1` quantifies an arbitrary inverse `x_0` of `S_0` and does not mention `x_1`.
 -/
 
@@ -96,7 +101,7 @@ def SpectrumCovered {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ}
 `actionS0 (frozenFamily F 0) (mu, t) X`) and `S_1(X) = int_{u_-}^{u_+} (B_1 + (X - B_0) G_1/(2 G_0)) T^{-1/2} du`, an absolutely convergent integral (also at the collision energies). -/
 def CorEigenS1 (F : SymbolFamily Par) (K : Set Par) : Prop :=
   IsCompact K → HypOn F K → DM F K 1 →
-    ∀ (S : ℕ → Par → ℝ → ℝ) (δ Cn hM C : ℝ), SmoothExt F K 1 S δ Cn → EigenRule F K 1 S hM C → ActionFormula F K S →
+    ∀ (S : ℕ → Par → ℝ → ℝ) (δ Cn hM C : ℝ), 0 < δ → SmoothExt F K 1 S δ Cn → EigenRule F K 1 S hM C → ActionFormula F K S →
       ∀ μ ∈ K, ∀ X ∈ Ioo (F.bandLo μ) (F.bandHi μ),
         HasDerivAt (fun t : ℝ => actionS0 (frozenFamily F 0) (μ, t) X) (S 1 μ X) 0 ∧
         IntervalIntegrable (fun u => (F.B 1 μ u + (X - F.B 0 μ u) * F.G 1 μ u / (2 * F.G 0 μ u)) /
@@ -150,14 +155,14 @@ def InvCoeffs (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (S : ℕ → Par �
 /-- **cor:eigen (b)** (statement), `M >= 1`, `(D_M)`, for the `S` of thm:A (i): (i) `InvS0`; (ii) `InvLevel`; (iii) `InvCoeffs`. -/
 def CorEigenInverse (F : SymbolFamily Par) (K : Set Par) (M : ℕ) : Prop :=
   1 ≤ M → IsCompact K → HypOn F K → DM F K M →
-    ∀ (S : ℕ → Par → ℝ → ℝ) (δ Cn hM C : ℝ), SmoothExt F K M S δ Cn → EigenRule F K M S hM C → ActionFormula F K S →
+    ∀ (S : ℕ → Par → ℝ → ℝ) (δ Cn hM C : ℝ), 0 < δ → SmoothExt F K M S δ Cn → EigenRule F K M S hM C → ActionFormula F K S →
       InvS0 F K S ∧ InvLevel F K M S δ ∧ InvCoeffs F K M S
 
 /-- **cor:eigen (c), first part** (statement), `(D_1)`: for any inverse `x_0` of `S_0` on `[0, pi L]`, `X_k - X_{k+1} = pi h/(-S_0'(x_0(y_k))) + O(h^2)` and `c h <= X_k - X_{k+1} <= C h`,
 uniformly in `mu in K`, `0 <= k < N`. -/
 def CorEigenGap1 (F : SymbolFamily Par) (K : Set Par) : Prop :=
   IsCompact K → HypOn F K → DM F K 1 →
-    ∀ (S : ℕ → Par → ℝ → ℝ) (δ Cn hM C : ℝ), SmoothExt F K 1 S δ Cn → EigenRule F K 1 S hM C → ActionFormula F K S →
+    ∀ (S : ℕ → Par → ℝ → ℝ) (δ Cn hM C : ℝ), 0 < δ → SmoothExt F K 1 S δ Cn → EigenRule F K 1 S hM C → ActionFormula F K S →
       ∀ x0 : Par → ℝ → ℝ, (∀ μ ∈ K, ∀ y ∈ Icc 0 (Real.pi * F.L), x0 μ y ∈ Icc (F.bandLo μ) (F.bandHi μ) ∧ S 0 μ (x0 μ y) = y) →
         ∃ C1 c1 C2 h0 : ℝ, 0 < h0 ∧ 0 < c1 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h0 →
           ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
@@ -184,7 +189,7 @@ def CorEigenGapM (F : SymbolFamily Par) (K : Set Par) (M : ℕ) : Prop :=
 (constant `Lg >= 0`) on `[X_s^- - delta', X_s^+ + delta']`, `|(h/L) sum_k g(X_k) - (1/(pi L)) int_{X_s^-}^{X_s^+} g(X) (-S_0'(X)) dX| <= C h Lg`. -/
 def CorEigenCount (F : SymbolFamily Par) (K : Set Par) : Prop :=
   IsCompact K → HypOn F K → DM F K 0 →
-    ∀ (S : ℕ → Par → ℝ → ℝ) (δ Cn hM C : ℝ), SmoothExt F K 0 S δ Cn → EigenRule F K 0 S hM C → ActionFormula F K S →
+    ∀ (S : ℕ → Par → ℝ → ℝ) (δ Cn hM C : ℝ), 0 < δ → SmoothExt F K 0 S δ Cn → EigenRule F K 0 S hM C → ActionFormula F K S →
       (∃ C1 h0 : ℝ, 0 < h0 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h0 →
         ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
           ∀ Y ∈ Icc (F.bandLo μ) (F.bandHi μ),

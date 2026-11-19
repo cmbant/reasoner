@@ -22,7 +22,7 @@ the slope bound `partial_X Sigma_0(., 0) <= -c` on the open window and `Sigma_0(
 ## Differences from the paper
 
 None; this is the paper's density-step slope for the glued function, restricted to the band.  The windows and the cover are the *premises* of `thmSmoSpec_core`
-(`hlabels`, `WS`, `hcov`); with them every `CorEigen*` theorem of `CorEigenCount.lean`, `CorEigenInverse.lean` follows.
+(`hlabels`, `WS`, `hcov`), which `layer4_windows` (`Assembly/ThmAi.lean`) now proves from the Layer-4 inputs; with them every `CorEigen*` theorem of `CorEigenCount.lean`, `CorEigenInverse.lean` follows (`corEigen_proved`, `Assembly/CorEigen.lean`).
 
 ## Not formalised
 
@@ -92,13 +92,13 @@ theorem BandSlope.of_band {F F' : SymbolFamily Par} {K : Set Par} {S : ℕ → P
   obtain ⟨c0, hc0, h⟩ := h
   exact ⟨c0, hc0, fun μ hμ X hX => h μ hμ X (by rw [(hb μ hμ).1, (hb μ hμ).2]; exact hX)⟩
 
-/-- **The slope input for the families of `thmSmoSpec_core`**: windows of `truncSM G M`, and any `S` that is `C^{M+1}` on a `delta_1`-neighbourhood of the band with `S_0 = actionS0 G` there. -/
-theorem bandSlope_of_windows_trunc {ι : Type*} [Fintype ι] {G : SymbolFamily Par} {K : Set Par} {t0 : ℝ} {M : ℕ} {a b : ι → Par → ℝ} {δ : ℝ}
-    (W : ∀ i, WindowPhase (truncSM G M) K t0 M (a i) (b i)) (hδ : 0 < δ) (hcov : WindowCover (truncSM G M) K a b δ)
+/-- **The slope input for the families of `thmSmoSpec_core`**: windows of `truncSM G M'` (any order `M'`), and any `S` that is `C^{M+1}` (any `M`) on a `delta_1`-neighbourhood of the band with `S_0 = actionS0 G` there. -/
+theorem bandSlope_of_windows_trunc {ι : Type*} [Fintype ι] {G : SymbolFamily Par} {K : Set Par} {t0 : ℝ} {M' M : ℕ} {a b : ι → Par → ℝ} {δ : ℝ}
+    (W : ∀ i, WindowPhase (truncSM G M') K t0 M' (a i) (b i)) (hδ : 0 < δ) (hcov : WindowCover (truncSM G M') K a b δ)
     (hlt : ∀ μ ∈ K, G.bandLo μ < G.bandHi μ) {S : ℕ → Par → ℝ → ℝ} {δ1 Cn : ℝ} (hδ1 : 0 < δ1)
     (hS : SmoothExt G K M S δ1 Cn) (hA : ActionFormula G K S) : BandSlope G K S := by
-  have hb : ∀ μ ∈ K, (truncSM G M).bandLo μ = G.bandLo μ ∧ (truncSM G M).bandHi μ = G.bandHi μ :=
-    fun μ _ => band_truncSM G M μ
+  have hb : ∀ μ ∈ K, (truncSM G M').bandLo μ = G.bandLo μ ∧ (truncSM G M').bandHi μ = G.bandHi μ :=
+    fun μ _ => band_truncSM G M' μ
   have h := bandSlope_of_windows W hδ hcov (fun μ hμ => by rw [(hb μ hμ).1, (hb μ hμ).2]; exact hlt μ hμ) hδ1
     (S := S) (fun μ hμ => by
       rw [(hb μ hμ).1, (hb μ hμ).2]
@@ -106,7 +106,7 @@ theorem bandSlope_of_windows_trunc {ι : Type*} [Fintype ι] {G : SymbolFamily P
     (fun μ hμ X hX => by
       rw [(hb μ hμ).1, (hb μ hμ).2] at hX
       rw [hA μ hμ X hX, actionS0_truncSM])
-  exact BandSlope.of_band (F := truncSM G M) (F' := G) hb h
+  exact BandSlope.of_band (F := truncSM G M') (F' := G) hb h
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.bandSlope_of_windows' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

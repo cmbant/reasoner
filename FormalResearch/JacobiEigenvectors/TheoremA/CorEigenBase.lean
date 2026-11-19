@@ -29,10 +29,11 @@ only used through these three, which is how `CorEigen*` quantify); Step 0 (`step
 
 * **F-BB-1 (`0 < delta` is missing from every cor:eigen statement).**  The paper's `S_j` are given on a `delta`-neighbourhood, `delta > 0`.  The frozen `CorEigenS1`, `CorEigenInverse`,
   `CorEigenGap1`, `CorEigenGapM`, `CorEigenCount` quantify over `delta : ℝ` without `0 < delta`; for `delta <= 0` the smoothness domain lies inside the band, `S_j` is unconstrained on the end
-  strips (as for `ThmSmoSpec`, finding F-S6-1), and `CorEigenInverse` is then false (its `InvLevel` asks for `0 < delta' <= delta`).  **Minimal correction: add the premise `0 < delta`.**
-  All theorems below carry it.
+  strips (as for `ThmSmoSpec`, finding F-S6-1), and `CorEigenInverse` is then false (its `InvLevel` asks for `0 < delta' <= delta`).  **Minimal correction, applied to the frozen statements `CorEigenS1`,
+  `CorEigenInverse`, `CorEigenGap1`, `CorEigenCount`: the premise `0 < delta`** (`CorEigenGapM` has no `delta` and is unchanged).  All theorems below carry it.
 * **F-BB-2 (the slope `-S_0' >= 2 c_0` is not a consequence of the rule and is not in `ThmSmoSpec`).**  Step 3 of the paper computes `S_0' = -int T^{-1/2} du` (PLAN: "not formalised", `MonotoneAction.lean`).
-  Here it is the explicit hypothesis `BandSlope F K S`; it is *discharged from the window data* of the assembly in `CorEigenWindows.lean` (`bandSlope_of_windows`: the glued `S_0` has slope `<= -c`).
+  Here it is the explicit hypothesis `BandSlope F K S` of the theorems of this chain, *not* a premise of the frozen statements; it is *discharged from the window data* of the assembly in `CorEigenWindows.lean`
+  (`bandSlope_of_windows`: the glued `S_0` has slope `<= -c`) and `bandSlope_of_layer4` (`Assembly/CorEigen.lean`).
 * **F-BB-3 (`InvExpansion` has no uniform norm bound on `x_r`).**  `CorEigenGapM` quantifies over any `x` with `InvExpansion`, which carries `ContDiffOn` of each `x_r(mu, .)` but no bound on its
   derivatives uniform in `mu`; the Taylor remainder in `CorEigenGapM` needs one (it holds for the actual `x_r`, by uniqueness and the recursion, but not for an arbitrary `x` read off the frozen
   statement).  **Applied** (`InvExpansion` now has the field): `exists Cx, forall mu in K, forall r <= M, forall i <= M + 1 - r, forall y, |iteratedDerivWithin i (x r mu) (Icc 0 (pi L)) y| <= Cx` to `InvExpansion`.
@@ -41,7 +42,7 @@ only used through these three, which is how `CorEigen*` quantify); Step 0 (`step
 ## Remaining items
 
 `CorEigenGapM.lean` proves the general-order gap expansion from the expansion data; `ActionDerivative*.lean`, `CorEigenS1.lean`, `InvCoeffs.lean` and `CorEigenInverseSlope.lean` prove `eq:cp-S0p`, `eq:cp-dt`,
-`CorEigenS1` at window level, the `InvS0` edge values and `InvCoeffs`; the exact residual list is in the docstring of `CorEigenGapM.lean`.
+`CorEigenS1` at window level, the `InvS0` edge values and `InvCoeffs`; `Assembly/CorEigen.lean` (`corEigen_proved`) assembles the frozen `CorEigen` from the Layer-4 inputs (no residual premise).
 
 ## Proved here (axiom-pinned)
 

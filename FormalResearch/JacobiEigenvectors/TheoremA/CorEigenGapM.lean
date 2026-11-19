@@ -22,8 +22,8 @@ proved here: the general-order gap expansion given the expansion data.  The four
    Route deviation from the paper: no implicit function theorem; `x_0` is the explicit inverse of `S_0` on the extended band, and `x_r` are given by the coefficient recursion (`InvAlg`) with a bounded-derivative
    class (`InvBounded`, `InvPoly`) giving the uniform bound `Cx` (F-BB-3).
 
-Still not assembled: the chart-level `hone`/`hzero` for the bulk, soft-upper and soft-lower windows (the soft-lower `softLoSigma` is valid only at `t = 0` and needs the mirror family), the whole-band `CorEigenS1`,
-and `CorEigenInverse` with exactly the frozen hypotheses (no `0 < delta` or `BandSlope` premises; findings F-BB-1, F-BB-2).
+Assembled: the chart-level `hone`/`hzero` for the bulk, soft-upper and soft-lower windows (`layer4_windows`, `Assembly/ThmAi.lean`, with `CorEigenZero.lean`), the whole-band `CorEigenS1` and `CorEigenInverse` and the other `CorEigen*` with exactly the frozen premises
+(`0 < delta` is now a premise of the frozen statements, F-BB-1; `BandSlope` is derived, F-BB-2): `corEigen_proved` (`Assembly/CorEigen.lean`), modulo the Layer-4 inputs `Layer4Inputs G K 0`, `Layer4Inputs G K 1`.
 
 ## Proved here (axiom-pinned)
 
@@ -38,7 +38,7 @@ The paper's uniformity "on the closed interval" is the hypothesis `Cx` (the pape
 
 ## Not formalised
 
-The chart-level premises `hone`, `hzero` of `corEigenS1_of_windows`, and the assembly listed under "Still not assembled" above.
+The Layer-4 inputs of `corEigen_proved` (see `Assembly/CorEigen.lean`).
 -/
 
 @[expose] public section
