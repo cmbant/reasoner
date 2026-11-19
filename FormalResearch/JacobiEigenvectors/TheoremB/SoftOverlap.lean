@@ -292,7 +292,6 @@ lemma sqrt_sum_le_env (S Ω : Finset ℤ) (hSΩ : S ⊆ Ω) (f M : ℤ → ℝ) 
     _ ≤ B ^ 2 * ∑ j ∈ Ω, M j ^ 2 :=
         mul_le_mul_of_nonneg_left (Finset.sum_le_sum_of_subset_of_nonneg hSΩ (fun _ _ _ => sq_nonneg _)) (sq_nonneg _)
 
-set_option maxHeartbeats 4000000 in
 /-- **The eigenvector mass on the left half-window** (`overlap_lb`, (I4) lower, chain level): at an eigenvalue `X_k` near the edge with `a <= 1` (and Step 0),
 `c_0 <= sqrt(sum_{S} Psi_{k,j}^2)` for `S = Omega cap {n <= n_c}`.  Route: `Psi = hat Psi + O(h^m env)` (`soft_eigen_main`), `hat Psi = hat psi^L/hat N` on `S` up to `C_m h^m T M_bal / hat N` (window matching of `soft_splice_facts`),
 `sum_S (psi-hat^L)^2 = T^2 sum_S phi^2 >= c T^2 m_Omega` (flat1), `c_n T^2 h^{-1/2} <= hat N^2 <= D T^2 h^{-1/2}` (`soft_splice_facts`, `softNorm_sq`, `soft_env_sum`), `c_M h^{-1/2} <= m_Omega` (`soft_win_massw`). -/
@@ -371,8 +370,10 @@ theorem soft_window_eig_lower {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V c
       _ ≤ Cenv ^ 2 * ((C0 + C1 * Ck ^ 2) * T ^ 2 * w) := mul_le_mul_of_nonneg_left hvs (sq_nonneg _)
       _ ≤ D1 * (T ^ 2 * w) := by
           have : 0 ≤ T ^ 2 * w := mul_nonneg (sq_nonneg _) hwp.le
-          have h2 : 0 ≤ Cenv ^ 2 * (C0 + C1 * Ck ^ 2) := mul_nonneg (sq_nonneg _) (add_nonneg hC0 (mul_nonneg hC1 (sq_nonneg _)))
-          nlinarith [mul_nonneg h2 this]
+          rw [hD1]
+          calc Cenv ^ 2 * ((C0 + C1 * Ck ^ 2) * T ^ 2 * w) = (Cenv ^ 2 * (C0 + C1 * Ck ^ 2)) * (T ^ 2 * w) := by ring
+            _ ≤ (Cenv ^ 2 * (C0 + C1 * Ck ^ 2) + 1) * (T ^ 2 * w) :=
+                mul_le_mul_of_nonneg_right (le_add_of_nonneg_right zero_le_one) this
   -- the window rows are above `u_c - eta/2`
   have hSΩ : S ⊆ softWindow CL p (Xs k) N := Finset.filter_subset _ _
   have hSrows : S ⊆ rowsOf N := hSΩ.trans (Finset.filter_subset _ _)
@@ -460,8 +461,7 @@ theorem soft_window_eig_lower {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V c
       rw [mul_pow, div_pow, Real.sq_sqrt hwm0, div_mul_eq_mul_div, div_le_div_iff₀ (pow_pos hNpos 2) hcn]
       have hm1 : wm ≤ CM'' * w := hmU.trans (mul_le_mul_of_nonneg_right (le_max_left _ _) hwp.le)
       calc T ^ 2 * wm * cn ≤ T ^ 2 * (CM'' * w) * cn := by
-            have := mul_le_mul_of_nonneg_left hm1 hT2p.le
-            nlinarith [this, hcn]
+            exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hm1 hT2p.le) hcn.le
         _ = CM'' * (cn * (T ^ 2 * w)) := by ring
         _ ≤ CM'' * Nh ^ 2 := mul_le_mul_of_nonneg_left hNlow hCM''0
     calc Cm * Fz.step N ^ m * T / Nh * Real.sqrt wm = Cm * Fz.step N ^ m * (T / Nh * Real.sqrt wm) := by ring
@@ -478,7 +478,7 @@ theorem soft_window_eig_lower {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V c
         _ ≤ Cc' * Fz.step N ^ m * softEnv CL CR p (Xs k) N j := by
             have : Cc ≤ Cc' := le_max_left _ _
             have h2 : 0 ≤ Fz.step N ^ m * softEnv CL CR p (Xs k) N j := mul_nonneg hhm0 hen
-            nlinarith [mul_le_mul_of_nonneg_right this h2]
+            linarith only [mul_le_mul_of_nonneg_right this h2]
     have h1 := sqrt_sum_le_env S (rowsOf N) hSrows _ _ (mul_nonneg hCc'0 hhm0) hrow
     refine h1.trans ?_
     have : Real.sqrt (∑ j ∈ rowsOf N, softEnv CL CR p (Xs k) N j ^ 2) ≤ Real.sqrt Cc' :=
@@ -498,7 +498,7 @@ theorem soft_window_eig_lower {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V c
       _ ≤ c1 / (2 * (E + 1)) * E := mul_le_mul_of_nonneg_right sc hE0
       _ ≤ c1 / 2 := by
           rw [div_mul_eq_mul_div, div_le_div_iff₀ (by positivity) (by norm_num)]
-          nlinarith [hc1p]
+          linarith only [hc1p]
   have habs := (abs_le.mp hmink).1
   have hupper := hadd
   linarith [hA, hB, hC, hEtot, hmE]
@@ -516,7 +516,6 @@ theorem eigVec_row {N : ℕ} (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) (k : 
   rw [dif_pos this]
   congr 1
 
-set_option maxHeartbeats 1000000 in
 /-- **`overlap_lb` of the left soft half, chart rows**: `||P_k Psi_k|| >= c_0` for `P_k = softPk` over the left half-window (chain rows = global rows, `tau = false`), at the eigenvalue columns of the chart,
 see `soft_window_eig_lower`.  The chart is sampled at the energies `Xc k = Xs (kc k)` and the matrix `Wm` has the columns `Um (.) (kc k)` up to sign (`(Wm n k)^2 = (Um n (kc k))^2`); the upper edge is `kc = id`, `Wm = Um`,
 and the lower edge (chart of `negFamily`, eigen-system `(negX X, negU U)`, `kc = rev`, `Wm = U`) is the same statement. -/
