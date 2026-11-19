@@ -42,6 +42,13 @@ srcDir = "ThirdParty/lean-dlmf"
 globs = ["DLMFMathlib.+"]
 leanOptions = {autoImplicit = false, relaxedAutoImplicit = false}
 
+# Parabolic-cylinder closure of DLMF.ParabolicCylinder.Basic.Wronskians (explicit modules only; see ThirdParty/lean-dlmf/NOTICE.md).
+[[lean_lib]]
+name = "DLMF"
+srcDir = "ThirdParty/lean-dlmf"
+globs = ["DLMF.Confluent.Basic.KummerContiguous", "DLMF.Confluent.Basic.KummerM", "DLMF.Confluent.Basic.KummerProperties", "DLMF.Confluent.Basic.Tricomi", "DLMF.Core.Basic", "DLMF.Hypergeometric.Basic.GaussCoefficients", "DLMF.Hypergeometric.Basic.GaussSeries", "DLMF.Hypergeometric.Basic.Pochhammer", "DLMF.ParabolicCylinder.Basic.Functions", "DLMF.ParabolicCylinder.Basic.WeberEquation", "DLMF.ParabolicCylinder.Basic.Wronskians"]
+leanOptions = {autoImplicit = false, relaxedAutoImplicit = false}
+
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
