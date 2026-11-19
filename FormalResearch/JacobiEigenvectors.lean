@@ -87,6 +87,10 @@ public import FormalResearch.JacobiEigenvectors.Assembly.ChartRestrict
 public import FormalResearch.JacobiEigenvectors.Assembly.ThmA
 public import FormalResearch.JacobiEigenvectors.Assembly.SoftLabels
 public import FormalResearch.JacobiEigenvectors.Assembly.WindowCoverProof
+public import FormalResearch.JacobiEigenvectors.Assembly.LabelsAbstract
+public import FormalResearch.JacobiEigenvectors.Assembly.LabelsSlope
+public import FormalResearch.JacobiEigenvectors.Assembly.LabelsSoft
+public import FormalResearch.JacobiEigenvectors.Assembly.Labels
 public import FormalResearch.JacobiEigenvectors.Assembly.ThmAi
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftMflat
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftMflat2

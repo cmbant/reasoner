@@ -24,7 +24,7 @@ Source: Paper J `thmA.tex`, proof of `thm:A (ii)` and "The relative statement"; 
 * `thmA_assembled`: `ThmAi G K M /\ ThmAii G K m Kidx' t0' .. CI`.  The two parts live on different chart data (`ThmAi`: `truncFamily G M` at order `max M 1`; `ThmAii`: `G` at order `m`), so the wrapper takes both.
   `ThmAii` needs nothing more; `ThmAi` is `thmSmoSpec` (existence part) under its named premises: the bulk phase inputs `PI`, `hlabels` (labels = indices in the bulk windows), the window phases `WS`
   with their cover `hcov`, `0 < t0` (all of `thmSmoSpec`).
-  The reduced premise list (`PI`, `SoftPhaseInputs`, geometric relations, `hlabels` only) is `thmA_of_layer4` in `Assembly/ThmAi.lean`.
+  The reduced premise list (`PI`, `SoftPhaseInputs` and the geometric relations of the cover only: `hlabels`, `WS`, `hcov` and the standing assumptions are proved) is `thmA_of_layer4` in `Assembly/ThmAi.lean`.
 
 ## Differences from the paper
 
