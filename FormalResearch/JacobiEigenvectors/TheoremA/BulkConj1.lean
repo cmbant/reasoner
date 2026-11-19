@@ -260,7 +260,6 @@ lemma final_right (d Cr cK Cε hm Kg Ca Cc K W ε : ℝ) (hCr : 0 ≤ Cr) (hcK :
     mul_nonneg (mul_nonneg (by linarith [mul_nonneg hKg hCa]) hK0) hX
   linarith [hd, hL, hR, h2', h3]
 
-set_option maxHeartbeats 2000000 in
 /-- **Conjunct 1 of `PropThaW`** (bulk normalisation, the kappa bounds, and the eigenvector comparison). -/
 theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
     {Jlo Jhi : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ}
@@ -387,18 +386,18 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
   have hst : 0 < h := FormalResearch.JB.stepSize_pos Fz.L_pos N
   have hLs : h * ((N : ℝ) + 1) = Fz.L := step_mul_succ Fz N
   have hh_le1 : h ≤ 1 := hstepN.trans hh1_one
-  have hhcL : h ≤ CL.c - CL.c' := by linarith [hstepN, hh1_d]
+  have hhcL : h ≤ CL.c - CL.c' := by linarith only [hstepN, hh1_d, hD0]
   have hhcR : h ≤ CR.c - CR.c' := by rw [hcoupc]; exact hhcL
-  have hcL : CL.c + h ≤ Fz.L := by linarith [hstepN, hh1_σ, hcσL]
+  have hcL : CL.c + h ≤ Fz.L := by linarith only [hstepN, hh1_σ, hcσL]
   -- the bond bound
   have hA_L : ∀ j : ℤ, 0 ≤ j → j ≤ (CL.chain p X N).NR - 1 → |(CL.chain p X N).A j| ≤ CAg := by
     intro j hj0 hjN
     rw [CL.A_bond p hp X hX N hN1 j (Finset.mem_Icc.mpr ⟨by omega, by omega⟩)]
-    exact (hCAe p hp N j).trans (by rw [hCAg]; linarith)
+    exact (hCAe p hp N j).trans (by rw [hCAg]; exact le_add_of_nonneg_right zero_le_one)
   have hA_R : ∀ j : ℤ, 0 ≤ j → j ≤ (CR.chain p X N).NR - 1 → |(CR.chain p X N).A j| ≤ CAg := by
     intro j hj0 hjN
     rw [CR.A_bond p hp X hX N hN2 j (Finset.mem_Icc.mpr ⟨by omega, by omega⟩), bondA_mirror]
-    exact (hCAe p hp N _).trans (by rw [hCAg]; linarith)
+    exact (hCAe p hp N _).trans (by rw [hCAg]; exact le_add_of_nonneg_right zero_le_one)
   -- the chart facts of both charts
   obtain ⟨LA, LB, LC, LD, LE⟩ := chart_side_facts CL p hp X hX N hN1 hhcL Kg CEg CMg cmg Csg CAg hKg0 hCEg0 hCMg0
     hcmg0 hCAg0 hKgL hCEgL hCMgL hcmgL hCsgL hA_L
@@ -415,15 +414,15 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
   -- the overlap pairs
   obtain ⟨S, hSprop, hScard⟩ := count_pairs h Fz.L CL.c' CL.c N hst hLs hc'L hc'cL hcL
   have hSmall : (CL.c - CL.c') / (2 * h) ≤ (S.card : ℝ) := by
-    have h6 : 6 ≤ (CL.c - CL.c') / h := by rw [le_div_iff₀ hst]; linarith [hh1_d, hstepN]
+    have h6 : 6 ≤ (CL.c - CL.c') / h := by rw [le_div_iff₀ hst]; linarith only [hh1_d, hstepN]
     have e : (CL.c - CL.c') / (2 * h) = ((CL.c - CL.c') / h) / 2 := by rw [div_div, mul_comm]
-    rw [e]; linarith
+    rw [e]; linarith only [hScard, h6]
   have hPL : ∀ n ∈ S, cl * q ≤ |CL.psiHatL p X N n| + |CL.psiHatL p X N (n + 1)| := by
     intro n hn
     obtain ⟨hn0, hn1, hc1, hc2⟩ := hSprop n hn
     have hk := LE n hn0 (le_NR_of CL p hp X hX N hN1 hst (n + 1) hc2) hc1 hc2
     rw [hcl, div_mul_eq_mul_div, div_le_iff₀ (by positivity)]
-    linarith [hk]
+    linarith only [hk]
   have hPR : ∀ n ∈ S, cl * q ≤ |CR.psiHatL p X N ((N : ℤ) - (n + 1))| + |CR.psiHatL p X N ((N : ℤ) - n)| := by
     intro n hn
     obtain ⟨hn0, hn1, hc1, hc2⟩ := hSprop n hn
@@ -432,15 +431,15 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
     have e : (N : ℤ) - (n + 1) + 1 = (N : ℤ) - n := by ring
     have hj1 : (N : ℤ) - n ≤ (CR.chain p X N).NR :=
       le_NR_of CR p hp X hX N hN2 hst ((N : ℤ) - n) (show uNode h ((N : ℤ) - n) ≤ CR.c by
-        rw [hm1]; linarith [hcoup.1])
+        rw [hm1]; linarith only [hcoup.1, hc1])
     have hRE' := RE ((N : ℤ) - (n + 1)) (by omega) (by omega)
-      (show CR.c' ≤ uNode h ((N : ℤ) - (n + 1)) by rw [hm2]; linarith [hcoup.2])
-      (show uNode h ((N : ℤ) - (n + 1) + 1) ≤ CR.c by rw [e, hm1]; linarith [hcoup.1])
+      (show CR.c' ≤ uNode h ((N : ℤ) - (n + 1)) by rw [hm2]; linarith only [hcoup.2, hc2])
+      (show uNode h ((N : ℤ) - (n + 1) + 1) ≤ CR.c by rw [e, hm1]; linarith only [hcoup.1, hc1])
     rw [e] at hRE'
     have hRE2 : cmg * q ≤ CAg * Kg * CMg * (|CR.psiHatL p X N ((N : ℤ) - (n + 1))| + |CR.psiHatL p X N ((N : ℤ) - n)|) :=
       hRE'
     rw [hcl, div_mul_eq_mul_div, div_le_iff₀ (by positivity)]
-    linarith [hRE2]
+    linarith only [hRE2]
   -- the overlap window
   have hmemΩ : ∀ n : ℤ, n ∈ bulkWindow CL N ↔ (n ∈ rowsOf N ∧ CL.c' ≤ uNode h n ∧ uNode h n ≤ CL.c) := by
     intro n
@@ -454,8 +453,8 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
     intro n hn
     obtain ⟨hn0, hn1, hc1, hc2⟩ := hSprop n hn
     have hle : uNode h n ≤ uNode h (n + 1) := uNode_le_of_le hst.le (by omega)
-    exact ⟨(hmemΩ n).mpr ⟨(hmemR n).mpr ⟨hn0, by omega⟩, hc1, by linarith⟩,
-      (hmemΩ (n + 1)).mpr ⟨(hmemR (n + 1)).mpr ⟨by omega, hn1⟩, by linarith, hc2⟩⟩
+    exact ⟨(hmemΩ n).mpr ⟨(hmemR n).mpr ⟨hn0, by omega⟩, hc1, by linarith only [hle, hc2]⟩,
+      (hmemΩ (n + 1)).mpr ⟨(hmemR (n + 1)).mpr ⟨by omega, hn1⟩, by linarith only [hle, hc1], hc2⟩⟩
   -- the left overlap sum
   have hΩℓ : cΩ / q ^ 2 ≤ ∑ m ∈ bulkWindow CL N, CL.psiHatL p X N m ^ 2 := by
     have hov := overlap_sum_lower (fun n => CL.psiHatL p X N n) (bulkWindow CL N) S (cl * q)
@@ -468,7 +467,7 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
     have e2 : cΩ / q ^ 2 = (CL.c - CL.c') * cl ^ 2 / (2 * q ^ 2) / 4 := by
       rw [hcΩ]; field_simp; ring
     rw [e2]
-    linarith [hk1, e, hov']
+    linarith only [hk1, e, hov']
   -- the right overlap sum
   have hΩr : cΩ / q ^ 2 ≤ ∑ m ∈ bulkWindow CL N, CR.psiHatL p X N ((N : ℤ) - m) ^ 2 := by
     have hpair' : ∀ n ∈ S, cl * q ≤ |(fun n : ℤ => CR.psiHatL p X N ((N : ℤ) - n)) n|
@@ -476,7 +475,8 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
       intro n hn
       have := hPR n hn
       simp only
-      linarith [this]
+      linarith only [this]
+
     have hov := overlap_sum_lower (fun n : ℤ => CR.psiHatL p X N ((N : ℤ) - n)) (bulkWindow CL N) S (cl * q)
       (by positivity) hSΩ hpair'
     have hov' : (S.card : ℝ) * (cl * q) ^ 2 ≤ 4 * ∑ m ∈ bulkWindow CL N, CR.psiHatL p X N ((N : ℤ) - m) ^ 2 := hov
@@ -487,7 +487,7 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
     have e2 : cΩ / q ^ 2 = (CL.c - CL.c') * cl ^ 2 / (2 * q ^ 2) / 4 := by
       rw [hcΩ]; field_simp; ring
     rw [e2]
-    linarith [hk1, e, hov']
+    linarith only [hk1, e, hov']
   -- the envelope sums on the rows of each chart
   have hELsum : ∑ j ∈ Finset.Icc (0 : ℤ) (CL.chain p X N).NR, CL.envL p X N j ^ 2 ≤ CE2 / q ^ 2 := by
     have hh := LC
@@ -528,7 +528,7 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
     have h4 : Kg ^ 2 * ∑ j ∈ Finset.Icc (0 : ℤ) (CL.chain p X N).NR, CL.envL p X N j ^ 2 ≤ Kg ^ 2 * (CE2 / q ^ 2) :=
       mul_le_mul_of_nonneg_left hELsum (sq_nonneg _)
     have e : CT / q ^ 2 = Kg ^ 2 * (CE2 / q ^ 2) := by rw [hCT]; ring
-    linarith
+    linarith only [h1, h2, h3, h4, e]
   have hSRup : ∑ n ∈ (rowsOf N).filter (fun n => ¬ uNode h n ≤ CL.c), CR.psiHatL p X N ((N : ℤ) - n) ^ 2
       ≤ CT / q ^ 2 := by
     have h1 : ∑ n ∈ (rowsOf N).filter (fun n => ¬ uNode h n ≤ CL.c), CR.psiHatL p X N ((N : ℤ) - n) ^ 2
@@ -541,7 +541,7 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
       have hcn : CL.c < uNode h n := lt_of_not_ge hc
       have hlow : uNode h ((N : ℤ) - n) ≤ CR.c := by
         rw [uNode_mirror Fz.L h N n hLs, hcoup.1]
-        linarith [hc'cL, hcn]
+        linarith only [hc'cL, hcn]
       have hle := RA ((N : ℤ) - n) (by omega) (le_NR_of CR p hp X hX N hN2 hst ((N : ℤ) - n) hlow)
       show CR.psiHatL p X N ((N : ℤ) - n) ^ 2 ≤ Kg ^ 2 * CR.envL p X N ((N : ℤ) - n) ^ 2
       calc CR.psiHatL p X N ((N : ℤ) - n) ^ 2 = |CR.psiHatL p X N ((N : ℤ) - n)| ^ 2 := (sq_abs _).symm
@@ -555,7 +555,7 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
       have hcn : CL.c < uNode h n := lt_of_not_ge hc
       have hlow : uNode h ((N : ℤ) - n) ≤ CR.c := by
         rw [uNode_mirror Fz.L h N n hLs, hcoup.1]
-        linarith [hc'cL, hcn]
+        linarith only [hc'cL, hcn]
       exact Finset.mem_Icc.mpr ⟨by omega, le_NR_of CR p hp X hX N hN2 hst ((N : ℤ) - n) hlow⟩
     have hinj' : Set.InjOn (fun n : ℤ => (N : ℤ) - n) ↑((rowsOf N).filter (fun n => ¬ uNode h n ≤ CL.c)) := by
       intro a _ b _ hab
@@ -571,7 +571,7 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
     have h4 : Kg ^ 2 * ∑ k ∈ Finset.Icc (0 : ℤ) (CR.chain p X N).NR, CR.envL p X N k ^ 2 ≤ Kg ^ 2 * (CE2 / q ^ 2) :=
       mul_le_mul_of_nonneg_left hERsum (sq_nonneg _)
     have e : CT / q ^ 2 = Kg ^ 2 * (CE2 / q ^ 2) := by rw [hCT]; ring
-    linarith
+    linarith only [h1, h2, h3, h4, e]
   -- the bulk normaliser as a function of the glued coefficient
   have hκdef : bulkKappa CL CR p X N = (∑ n ∈ bulkWindow CL N, CL.psiHatL p X N n * CR.psiHatL p X N ((N : ℤ) - n))
       / (∑ n ∈ bulkWindow CL N, CR.psiHatL p X N ((N : ℤ) - n) ^ 2) := rfl
@@ -603,10 +603,10 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
     have hD := LD n hn0 (le_NR_of CL p hp X hX N hN1 hst n hc2) hc1
     have hlowR : uNode h ((N : ℤ) - n) ≤ CR.c := by
       rw [uNode_mirror Fz.L h N n hLs, hcoup.1]
-      linarith
+      linarith only [hc1]
     have hhigh : CR.c' ≤ uNode h ((N : ℤ) - n) := by
       rw [uNode_mirror Fz.L h N n hLs, hcoup.2]
-      linarith
+      linarith only [hc2]
     have hj := le_NR_of CR p hp X hX N hN2 hst ((N : ℤ) - n) hlowR
     have hRA' := RA ((N : ℤ) - n) (by omega) hj
     have hRD' := RD ((N : ℤ) - n) (by omega) hj hhigh
@@ -640,7 +640,7 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
       have hcardR : ((bulkWindow CL N).card : ℝ) ≤ (N : ℝ) + 1 := by exact_mod_cast hcardN
       have h4 : ((bulkWindow CL N).card : ℝ) * (Kg * (CMg * q)) ^ 2 ≤ ((N : ℝ) + 1) * (Kg * (CMg * q)) ^ 2 :=
         mul_le_mul_of_nonneg_right hcardR (sq_nonneg _)
-      linarith [h1, h2, h3, h4]
+      linarith only [h1, h2, h3, h4]
     have hSpos : 0 < ∑ n ∈ bulkWindow CL N, CR.psiHatL p X N ((N : ℤ) - n) ^ 2 := lt_of_lt_of_le hSΩpos hSΩ'
     rw [abs_div, abs_of_pos hSpos, div_le_iff₀ hSpos]
     have e1 : ((N : ℝ) + 1) * (Kg * (CMg * q)) ^ 2 = Fz.L * Kg ^ 2 * CMg ^ 2 / q ^ 2 := by
@@ -660,7 +660,7 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
     apply Real.sqrt_le_sqrt
     have : 0 ≤ bulkKappa CL CR p X N ^ 2 * (∑ n ∈ (rowsOf N).filter (fun n => ¬ uNode h n ≤ CL.c),
           CR.psiHatL p X N ((N : ℤ) - n) ^ 2) := mul_nonneg (sq_nonneg _) hSRnn
-    linarith
+    linarith only [hTLlow, this]
   have hnn_hi : bulkNorm CL CR p X N ≤ Real.sqrt (CT + Cκall ^ 2 * CT) / q := by
     rw [hnorm, show Real.sqrt (CT + Cκall ^ 2 * CT) / q = Real.sqrt ((CT + Cκall ^ 2 * CT) / q ^ 2) by
       rw [Real.sqrt_div (by positivity), Real.sqrt_sq hq0.le]]
@@ -673,8 +673,9 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
       mul_le_mul hk2 hSRup hSRnn (sq_nonneg _)
     have e : (CT + Cκall ^ 2 * CT) / q ^ 2 = CT / q ^ 2 + Cκall ^ 2 * (CT / q ^ 2) := by ring
     rw [e]
-    linarith
-  have hpow' : h ^ (-(1 : ℝ) / 4) = q⁻¹ := by
+    linarith only [hTLup, h5]
+  have hpow'
+ : h ^ (-(1 : ℝ) / 4) = q⁻¹ := by
     rw [hqdef, show -(1 : ℝ) / 4 = -((1 : ℝ) / 4) by ring, Real.rpow_neg hst.le, one_div]
   refine ⟨?_, ?_, ?_, hκ_all, ?_⟩
   · exact lt_of_lt_of_le (div_pos (Real.sqrt_pos.mpr hcΩ0) hq0) hnn_lo
@@ -739,24 +740,24 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
     rw [hε]
     apply mul_le_mul_of_nonneg_right _ (pow_nonneg hst.le m)
     rw [hCε]
-    linarith [abs_nonneg CcR]
+    linarith only [abs_nonneg CcR]
   have hεR : |CcR| * h ^ m ≤ ε := by
     rw [hε]
     apply mul_le_mul_of_nonneg_right _ (pow_nonneg hst.le m)
     rw [hCε]
-    linarith [abs_nonneg CcL]
+    linarith only [abs_nonneg CcL]
   have hsmP : 4 * ε * CMg ≤ cl := by
     have := mul_le_mul_of_nonneg_right hεs' (by positivity : (0 : ℝ) ≤ 4 * CMg)
-    linarith [hsm_pair]
+    linarith only [this, hsm_pair]
   have hsm1' : (1 + CKu ^ 2) * Cenv * ε ≤ cΩ / 2 := by
     have := mul_le_mul_of_nonneg_left hεs' (by positivity : (0 : ℝ) ≤ (1 + CKu ^ 2) * Cenv)
-    linarith [hsm1]
+    linarith only [this, hsm1]
   have hsm2' : Cκe * ε * (1 + CKu) ≤ cK / 2 := by
     have := mul_le_mul_of_nonneg_left hεs' (by positivity : (0 : ℝ) ≤ Cκe * (1 + CKu))
-    linarith [hsm2]
+    linarith only [this, hsm2]
   have hCaε : Ca * ε ≤ 1 := by
     have := mul_le_mul_of_nonneg_left hεs' (by positivity : (0 : ℝ) ≤ Ca + 1)
-    linarith [hsm_Ca, hε0]
+    linarith only [this, hsm_Ca, hε0]
   -- the sign of psi_N and the right scale `b = psi_N / psihat^R_0`
   have hψN : ψ (N : ℤ) ≠ 0 := by
     intro hN0
@@ -771,7 +772,7 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
       rw [hA0, zero_mul, abs_zero] at hcas
       have hpos : 0 < CR.cs.cm * Real.sqrt ((mirrorFamily Fz).step N) :=
         mul_pos CR.cs.cm_pos (Real.sqrt_pos.mpr hst)
-      linarith
+      linarith only [hcas, hpos]
     have hJmR := jacSol_mono hJm (chain_NR_le CR p hp X hX N hN2)
     have hz := seed_zero_eq_zero hJmR hA (by
       show ψ ((N : ℤ) - 0) = 0
@@ -786,12 +787,12 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
       exact this
     -- the overlap pair of the window
     have h3 : (3 : ℝ) ≤ (CL.c - CL.c') / (2 * h) := by
-      have h6 : 6 ≤ (CL.c - CL.c') / h := by rw [le_div_iff₀ hst]; linarith [hh1_d, hstepN]
+      have h6 : 6 ≤ (CL.c - CL.c') / h := by rw [le_div_iff₀ hst]; linarith only [hh1_d, hstepN]
       have e : (CL.c - CL.c') / (2 * h) = ((CL.c - CL.c') / h) / 2 := by rw [div_div, mul_comm]
-      rw [e]; linarith
+      rw [e]; linarith only [hScard, h6]
     have hSne : S.Nonempty := by
       apply Finset.card_pos.mp
-      have : (0 : ℝ) < (S.card : ℝ) := by linarith [hSmall]
+      have : (0 : ℝ) < (S.card : ℝ) := by linarith only [hSmall, h3]
       exact_mod_cast this
     obtain ⟨n0, hn0S⟩ := hSne
     obtain ⟨hΩ0, hΩ1⟩ := hSΩ n0 hn0S
@@ -803,7 +804,8 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
       apply hzero j hj0 hjN
       have hlow : uNode h ((N : ℤ) - j) ≤ CR.c := by
         rw [uNode_mirror Fz.L h N j hLs, hcoup.1]
-        linarith
+        linarith only [hc1]
+
       exact le_NR_of CR p hp X hX N hN2 hst ((N : ℤ) - j) hlow
     -- the left comparison then bounds `|psihat|` on the window by the envelope
     have hleft_small : ∀ j : ℤ, j ∈ bulkWindow CL N →
@@ -836,10 +838,10 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
         mul_le_mul hεL hEn0 hE0 hε0
       have k1 : |CcL| * h ^ m * CL.envL p X N (n0 + 1) ≤ ε * (CMg * q) :=
         mul_le_mul hεL hEn1 hE1 hε0
-      linarith [hpair, h1, k0, k1]
+      linarith only [hpair, h1, k0, k1]
     have hcl_le : cl ≤ 2 * ε * CMg :=
-      le_of_mul_le_mul_right (by linarith [hsum] : cl * q ≤ 2 * ε * CMg * q) hq0
-    linarith [hsmP, hcl0]
+      le_of_mul_le_mul_right (by linarith only [hsum] : cl * q ≤ 2 * ε * CMg * q) hq0
+    linarith only [hsmP, hcl_le, hcl0]
   -- the right scale `b = psi_N / psihat^R_0` and the right comparison
   obtain ⟨r0, hr0def⟩ : ∃ x : ℝ, x = CR.psiHatL p X N 0 := ⟨_, rfl⟩
   have hr0' : 0 < r0 := by rw [hr0def]; exact hr0
@@ -899,7 +901,7 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
     have hcn : CL.c < uNode h n := lt_of_not_ge hc
     have hlow : uNode h ((N : ℤ) - n) ≤ CR.c := by
       rw [uNode_mirror Fz.L h N n hLs, hcoup.1]
-      linarith [hc'cL, hcn]
+      linarith only [hc'cL, hcn]
     exact Finset.mem_Icc.mpr ⟨by omega, le_NR_of CR p hp X hX N hN2 hst ((N : ℤ) - n) hlow⟩
   have hELsum' : ∑ n ∈ (rowsOf N).filter (fun n => uNode h n ≤ CL.c), CL.envL p X N n ^ 2 ≤ CE2 / q ^ 2 :=
     (Finset.sum_le_sum_of_subset_of_nonneg hLftSub (fun j _ _ => sq_nonneg _)).trans hELsum
@@ -921,7 +923,8 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
       have hv := LA n hn0 hnN
       have hE := (LB n hn0 hnN).1
       exact sq_perturb (ψ n) (CL.psiHatL p X N n) a (|CcL| * h ^ m) (CL.envL p X N n) Kg ε
-        (by positivity) hεL hε1 hE hKg0.le hv (by rw [abs_of_pos ha0]; linarith [hu])
+        (by positivity) hεL hε1 hE hKg0.le hv (by rw [abs_of_pos ha0]; linarith only [hu])
+
     rw [eq1]
     calc |∑ n ∈ (rowsOf N).filter (fun n => uNode h n ≤ CL.c), (ψ n ^ 2 - a ^ 2 * CL.psiHatL p X N n ^ 2)|
         ≤ ∑ n ∈ (rowsOf N).filter (fun n => uNode h n ≤ CL.c),
@@ -977,10 +980,10 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
     have hu := hLeft n hn0 hlN
     have hlowR : uNode h ((N : ℤ) - n) ≤ CR.c := by
       rw [uNode_mirror Fz.L h N n hLs, hcoup.1]
-      linarith
+      linarith only [hc1]
     have hhigh : CR.c' ≤ uNode h ((N : ℤ) - n) := by
       rw [uNode_mirror Fz.L h N n hLs, hcoup.2]
-      linarith
+      linarith only [hc2]
     have hj := le_NR_of CR p hp X hX N hN2 hst ((N : ℤ) - n) hlowR
     have hv := hRight n hn0 hnN hj
     have hEL := hEmax n hn
@@ -1014,7 +1017,7 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
       rw [h2] at hA1
       have h3 : a * (|Kt| * (|CcR| * h ^ m * CR.envL p X N ((N : ℤ) - n)))
           ≤ a * (|Kt| * (ε * (CMg * q))) := mul_le_mul_of_nonneg_left hK' ha0.le
-      linarith [hA1, h1, h3]
+      linarith only [hA1, h1, h3]
     exact le_of_mul_le_mul_left hfin ha0
   -- the glued coefficient is close to `Kt`
   have hΩr' : cΩ / q ^ 2 ≤ SΩr := by rw [hSΩr]; exact hΩr
@@ -1066,17 +1069,17 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
         ring
       have hC : Cκe * ε * (1 + |Kt|) * (cΩ / q ^ 2) ≤ Cκe * ε * (1 + |Kt|) * SΩr :=
         mul_le_mul_of_nonneg_left hΩr' (by positivity)
-      linarith [hA, hB, hC]
+      linarith only [hA, hB, hC]
     rw [e, abs_div, abs_of_pos hSΩpos, div_le_iff₀ hSΩpos]
     exact hbig
   -- the ratio `Kt` is bounded above and below, through one overlap pair
   have hSne : S.Nonempty := by
     apply Finset.card_pos.mp
     have h3 : (3 : ℝ) ≤ (CL.c - CL.c') / (2 * h) := by
-      have h6 : 6 ≤ (CL.c - CL.c') / h := by rw [le_div_iff₀ hst]; linarith [hh1_d, hstepN]
+      have h6 : 6 ≤ (CL.c - CL.c') / h := by rw [le_div_iff₀ hst]; linarith only [hh1_d, hstepN]
       have e : (CL.c - CL.c') / (2 * h) = ((CL.c - CL.c') / h) / 2 := by rw [div_div, mul_comm]
-      rw [e]; linarith
-    have : (0 : ℝ) < (S.card : ℝ) := by linarith [hSmall]
+      rw [e]; linarith only [hScard, h6]
+    have : (0 : ℝ) < (S.card : ℝ) := by linarith only [hSmall, h3]
     exact_mod_cast this
   obtain ⟨n0, hn0S⟩ := hSne
   obtain ⟨hΩ0, hΩ1⟩ := hSΩ n0 hn0S
@@ -1091,7 +1094,7 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
     have h1 := abs_add_le (CL.psiHatL p X N j - Kt * CR.psiHatL p X N ((N : ℤ) - j))
       (Kt * CR.psiHatL p X N ((N : ℤ) - j))
     rw [sub_add_cancel, abs_mul] at h1
-    linarith [h1, hd]
+    linarith only [h1, hd]
   have hdown : ∀ j : ℤ, j ∈ bulkWindow CL N →
       |Kt| * |CR.psiHatL p X N ((N : ℤ) - j)| ≤ |CL.psiHatL p X N j| + ε * (1 + |Kt|) * (CMg * q) := by
     intro j hj
@@ -1102,7 +1105,7 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
     have e2 : CL.psiHatL p X N j + -(CL.psiHatL p X N j - Kt * CR.psiHatL p X N ((N : ℤ) - j))
         = Kt * CR.psiHatL p X N ((N : ℤ) - j) := by ring
     rw [e2, abs_mul] at h1
-    linarith [h1, hd]
+    linarith only [h1, hd]
   have hKtB := kt_bounds_pure q ε Kg CMg cl |CL.psiHatL p X N n0| |CL.psiHatL p X N (n0 + 1)|
     |CR.psiHatL p X N ((N : ℤ) - n0)| |CR.psiHatL p X N ((N : ℤ) - (n0 + 1))| |Kt| hq0 hε0 hε1 hKg0.le
     hCMg0 hcl0 hsmP (abs_nonneg _) (abs_nonneg _) (abs_nonneg _) (abs_nonneg _) (abs_nonneg _)
@@ -1128,14 +1131,15 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
   have hkb : cK / 2 ≤ |bulkKappa CL CR p X N| := by rw [hκeq]; exact hk1
   have hAa' : |a * nn - 1| ≤ Ca * ε := by rw [hCa]; exact hAa
   have hCaε : Ca * ε ≤ 1 := by
-    have h1 : ε * (Ca + 1) ≤ εs * (Ca + 1) := mul_le_mul_of_nonneg_right hεs' (by linarith)
+    have h1 : ε * (Ca + 1) ≤ εs * (Ca + 1) := mul_le_mul_of_nonneg_right hεs' (by linarith only [hCa0])
     have e : ε * (Ca + 1) = Ca * ε + ε := by ring
-    linarith
+    linarith only [h1, e, hsm_Ca, hε0]
   have hCr0 : 0 ≤ Cr := by
     rw [hCr]
     have h1 := mul_nonneg hKg0.le (add_nonneg (mul_nonneg hCKu0.le hCa0)
-      (mul_nonneg hCκe0.le (by linarith : (0 : ℝ) ≤ 1 + CKu)))
-    linarith
+      (mul_nonneg hCκe0.le (by linarith only [hCKu0] : (0 : ℝ) ≤ 1 + CKu)))
+    linarith only [h1, hCKu0]
+
   rw [← hψ]
   refine ⟨hkb, fun n hn => ?_⟩
   obtain ⟨hn0, hnN⟩ := Finset.mem_Icc.mp hn
