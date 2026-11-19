@@ -48,6 +48,7 @@ Proved = a Lean theorem with an axiom pin, under the hypotheses stated in its mo
 | `Charts/LadderChain.lean` | `LadderData`, `.Valid` (engine hypotheses, eq:eng-UC1), `.Concl`, `.Stability` (statement of thm:eng-volterra for per-patch ladders) |
 | `Charts/ParabolicCylinder.lean` | `k2, Mbal, Ewell, Ebar, kappaBal, Molv`; `ParabolicCylinderFacts` = `PCExactFacts`, `PCSmoothFacts`, `PCPhaseFact`, `PCEnvelopeFacts` (DLMF 12.2/12.8, Olver envelopes, connection) |
 | `Charts/PCExact.lean`, `PCSmooth.lean`, `PCPhase.lean`, `PCActual.lean` | the actual `pcU, pcV` and the proofs of `PCExactFacts`, `PCSmoothFacts`, `PCPhaseFact`; `ParabolicCylinderFacts.ofEnvelope` |
+| `Charts/PCOrigin.lean`, `PCLaplace.lean` | phase B2 stage 1: Gamma normalisation of `pcU, pcV` at `z = 0` (origin envelopes, absolute constants); Laplace representation DLMF 12.5.1 and decay of `pcU` (`tendsto_pcU`); first inputs of `PCEnvelopeFacts` (`U_pos`, `env_*`); see `LAYER4_PCF_PLAN.md` |
 | `Charts/Regularity.lean` | `BoundedC2`, `JetRegJ` (plain regularity bounds replacing lem:smo-budget) |
 | `Charts/BulkWeber.lean` | `BulkWeberChart` (hard-edge Weber chart, per energy block), `BulkPhaseInputs` (lem:smo-bulkphase (4)) |
 | `Charts/SoftParabolicCylinder.lean` | `SoftEdgeChart` (Step-1 Weber chain `chainW` + three-patch chain Weber / PC(`Z<=0`) / PC(`Z>=0`), validity of the rescaled chain), `pcMinus`, `pcSwap`, `Eminus`, `Eswap`, `aPC`, `lamL`, `psiHatL`, `pcSwap_eq_pcMinus` |
