@@ -150,7 +150,7 @@ variable {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ
 /-- **prop:tha-splice (c)** (two orders, one shift) in matrix form: with the same `q = 2 ceil(m/2)`, for every spectrum and every column `j`,
 `||(hat G^{[m]} - U) e_j||_2 <= C eta_m` and `||(hat G^{[m+1]} - U) e_j||_2 <= C eta_{m+1}` (the splices of `hat G` are the fixed ones `spl`).
 **Corrected (finding F-B10, applied)**: the paper's constants are "uniformly in the splice `n_nu in [n^-_nu, n^+_nu]`", so the splice positions must lie in the bulk overlap of both orders (`ChartPair.SplicesInWindow`, a premise: for a
-splice outside the window the column is not close to the eigenvector).  (`ThmB`, `PropThbInputs`, `CorThbDm` take the same `spl` and have the same gap: they need the same premise.) -/
+splice outside the window the column is not close to the eigenvector).  (`ThmB`, `PropThbInputs`, `CorThbDm` take the same `spl` and now carry the same premise `CP.SplicesInWindow spl`: F-B10 applied to them as well.) -/
 def PropThaSpliceTwoOrders (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) : Prop :=
   1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → DM F K (2 * Kidx + 1) → CP.SplicesInWindow spl →
@@ -241,7 +241,7 @@ structure TransferBundle (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 :=
 parity identity (F3 (b)) and the matching on the used rows are fields of `OneStepInputs`.  The constants are fixed before `mu` (F-B2). -/
 def PropThbInputs (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (_TB : TransferBundle CP) (spl : Fin CP.CI0.nb → ℝ) : Prop :=
-  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → DM F K (2 * Kidx + 1) →
+  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → DM F K (2 * Kidx + 1) → CP.SplicesInWindow spl →
     ∃ (cs : FormalResearch.JB.OneStepConsts) (N0 : ℕ) (Cε cε : ℝ), 0 < cε ∧ ∀ μ ∈ K, ∀ N : ℕ, N0 ≤ N → F.step N ≤ t0 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
         ∃ I : FormalResearch.JB.OneStepInputs cs (N + 1) m (F.step N),
@@ -252,7 +252,7 @@ def PropThbInputs (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m
 `||hat G_m - U_h|| <= C h^m`, and the polar factor of `hat G_m` is orthogonal and within `2 C h^m` of `U_h`.  `hat G_m` is `compMatrix` for the order-`m` bundle. -/
 def ThmB (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) : Prop :=
-  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → DM F K (2 * Kidx + 1) →
+  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → DM F K (2 * Kidx + 1) → CP.SplicesInWindow spl →
     ∃ C hm : ℝ, 0 < hm ∧ C * hm ^ m < 1 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hm → F.step N ≤ t0 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
         ‖compMatrix CP.CI0 spl μ N Xs - Um‖ ≤ C * F.step N ^ m ∧
@@ -278,7 +278,7 @@ applied to `truncFamily F m` alone, because the conclusion compares with the eig
 def CorThbDm {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
     (CP : ChartPair (F := truncFamily F m) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) : Prop :=
-  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → DM F K m →
+  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → DM F K m → CP.SplicesInWindow spl →
     ∃ C hm : ℝ, 0 < hm ∧ C * hm ^ m < 1 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hm → F.step N ≤ t0 →
       ∀ (Xt : Fin (N + 1) → ℝ) (Ut : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem ((truncFamily F m).jacobiMat μ N) Xt Ut →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
