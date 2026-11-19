@@ -82,6 +82,9 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenInverse
 public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenWindows
 public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblyRel
 public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblySoft
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftWindowProof
+public import FormalResearch.JacobiEigenvectors.Assembly.ChartRestrict
+public import FormalResearch.JacobiEigenvectors.Assembly.ThmA
 
 /-!
 # Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)

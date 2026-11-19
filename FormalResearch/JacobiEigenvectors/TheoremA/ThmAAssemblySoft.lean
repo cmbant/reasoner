@@ -72,18 +72,19 @@ variable {F : SymbolFamily Par} {K : Set Par} {m Kidx : ℕ} {t0 : ℝ} {U V : �
 /-- **Upper soft window, absolute clause** (`ThmAii` case 2): `propThaW2_proved` (items (2), (3.sum)) at `Cs0` of `stepZero`, for the frozen family at `t = h`. -/
 theorem softUpper_data (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (hm : 1 ≤ m)
     (hstdK : ∃ r, StdAssump (frozenFamily F Kidx) (paramSet K t0) Kidx r) :
-    ∃ C hm : ℝ, 0 < hm ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hm → F.step N ≤ t0 →
+    ∃ C hm Cs0 : ℝ, 0 < hm ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hm → F.step N ≤ t0 →
       ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
         ∀ k : Fin (N + 1), (¬ ∃ ν, CI.lo ν ≤ X k ∧ X k ≤ CI.hi ν) → CI.Jhi < X k →
-          |X k - (frozenFamily F Kidx).bandHi (atStep F μ N)| ≤ CI.softUpL.δ0 → AiiAbs CI C μ N X Um k ∧
-            ∀ n ∈ rowsOf N, n ∉ softWindow CI.softUpL (atStep F μ N) (X k) N → envVec CI μ N (X k) n ≤ C * |psiHatVec CI μ N (X k) n| := by
+          |X k - (frozenFamily F Kidx).bandHi (atStep F μ N)| ≤ CI.softUpL.δ0 → (AiiAbs CI C μ N X Um k ∧
+            ∀ n ∈ rowsOf N, n ∉ softWindow CI.softUpL (atStep F μ N) (X k) N → envVec CI μ N (X k) n ≤ C * |psiHatVec CI μ N (X k) n|) ∧
+          X k ≤ (frozenFamily F Kidx).bandHi (atStep F μ N) + Cs0 * F.step N ^ 2 := by
   obtain ⟨r, hr⟩ := hstdK
   obtain ⟨Cs, hs0, hs0p, hsp⟩ := stepZero (frozenFamily F Kidx) (paramSet K t0) Kidx r hr
   have hr2 : StdAssump (frozenFamily F Kidx) (paramSet K t0) (2 * Kidx / 2) r := by rw [two_mul_div_two_nat]; exact hr
   obtain ⟨Cc, h0, clam, Clam, hh0, hclam, H⟩ :=
     propThaW2_proved CI.softUpL CI.softUpR Cs cPC CPC CI.pc hm (fun h _ _ => le_rfl) CI.mirror_up r hr2
   set n0 : ℕ := max CI.softUpL.N0 CI.softUpR.N0 with hn0
-  refine ⟨Cc, min (min h0 hs0) (F.L / ((n0 : ℝ) + 1)), lt_min (lt_min hh0 hs0p) (div_pos F.L_pos (by positivity)), ?_⟩
+  refine ⟨Cc, min (min h0 hs0) (F.L / ((n0 : ℝ) + 1)), Cs, lt_min (lt_min hh0 hs0p) (div_pos F.L_pos (by positivity)), ?_⟩
   intro μ hμ N hN hNt X Um hE k hk hJ hwin
   have hpos : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
   have hN1 : F.step N ≤ h0 := hN.trans ((min_le_left _ _).trans (min_le_left _ _))
@@ -102,7 +103,7 @@ theorem softUpper_data (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (
     intro n; unfold psiHatVec; rw [dif_neg hk, if_pos hJ]
   have e2 : ∀ n, envVec CI μ N (X k) n = softEnv CI.softUpL CI.softUpR (atStep F μ N) (X k) N n := by
     intro n; unfold envVec; rw [dif_neg hk, if_pos hJ]
-  refine ⟨⟨fun n hn => ?_, ?_⟩, fun n hn hnw => ?_⟩
+  refine ⟨⟨⟨fun n hn => ?_, ?_⟩, fun n hn hnw => ?_⟩, ?_⟩
   · rw [e1, e2]
     have := h1 n hn
     simp only [mul_one] at this
@@ -110,16 +111,18 @@ theorem softUpper_data (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (
   · have h2' : ∑ n ∈ rowsOf N, softEnv CI.softUpL CI.softUpR (atStep F μ N) (X k) N n ^ 2 ≤ Cc := h2
     simpa only [e2] using h2'
   · rw [e1, e2]; exact h3 n hn hnw
+  · exact hS0 k
 
 /-- **Lower soft window, absolute clause** (`ThmAii` case 3): the gauge transport `NegTransport` (`IsEigenSystem.neg_frozen`, `eigVec_negU_rev`) reduces it to `propThaW2_proved` for the chart family
 `negFamily (frozenFamily F Kidx)` at the energy `-X_k`, whose Step 0 premise is the *lower* bound of `stepZero`. -/
 theorem softLower_data (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (hm : 1 ≤ m)
     (hstdK : ∃ r, StdAssump (frozenFamily F Kidx) (paramSet K t0) Kidx r) :
-    ∃ C hm : ℝ, 0 < hm ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hm → F.step N ≤ t0 →
+    ∃ C hm Cs0 : ℝ, 0 < hm ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hm → F.step N ≤ t0 →
       ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
         ∀ k : Fin (N + 1), (¬ ∃ ν, CI.lo ν ≤ X k ∧ X k ≤ CI.hi ν) → ¬ CI.Jhi < X k →
-          |-X k - (negFamily (frozenFamily F Kidx)).bandHi (atStep F μ N)| ≤ CI.softLoL.δ0 → AiiAbs CI C μ N X Um k ∧
-            ∀ n ∈ rowsOf N, n ∉ softWindow CI.softLoL (atStep F μ N) (-X k) N → envVec CI μ N (X k) n ≤ C * |psiHatVec CI μ N (X k) n| := by
+          |-X k - (negFamily (frozenFamily F Kidx)).bandHi (atStep F μ N)| ≤ CI.softLoL.δ0 → (AiiAbs CI C μ N X Um k ∧
+            ∀ n ∈ rowsOf N, n ∉ softWindow CI.softLoL (atStep F μ N) (-X k) N → envVec CI μ N (X k) n ≤ C * |psiHatVec CI μ N (X k) n|) ∧
+          -X k ≤ (negFamily (frozenFamily F Kidx)).bandHi (atStep F μ N) + Cs0 * F.step N ^ 2 := by
   obtain ⟨r, hr⟩ := hstdK
   obtain ⟨Cs, hs0, hs0p, hsp⟩ := stepZero (frozenFamily F Kidx) (paramSet K t0) Kidx r hr
   have hrn : StdAssump (negFamily (frozenFamily F Kidx)) (paramSet K t0) (2 * Kidx / 2) r := by
@@ -127,7 +130,7 @@ theorem softLower_data (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (
   obtain ⟨Cc, h0, clam, Clam, hh0, hclam, H⟩ :=
     propThaW2_proved CI.softLoL CI.softLoR Cs cPC CPC CI.pc hm (fun h _ _ => le_rfl) CI.mirror_lo r hrn
   set n0 : ℕ := max CI.softLoL.N0 CI.softLoR.N0 with hn0
-  refine ⟨Cc, min (min h0 hs0) (F.L / ((n0 : ℝ) + 1)), lt_min (lt_min hh0 hs0p) (div_pos F.L_pos (by positivity)), ?_⟩
+  refine ⟨Cc, min (min h0 hs0) (F.L / ((n0 : ℝ) + 1)), Cs, lt_min (lt_min hh0 hs0p) (div_pos F.L_pos (by positivity)), ?_⟩
   intro μ hμ N hN hNt X Um hE k hk hJ hwin
   have hpos : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
   have hN1 : F.step N ≤ h0 := hN.trans ((min_le_left _ _).trans (min_le_left _ _))
@@ -157,7 +160,7 @@ theorem softLower_data (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (
     intro n; unfold psiHatVec; rw [dif_neg hk, if_neg hJ]
   have e2 : ∀ n, envVec CI μ N (X k) n = softEnv CI.softLoL CI.softLoR (atStep F μ N) (-X k) N n := by
     intro n; unfold envVec; rw [dif_neg hk, if_neg hJ]
-  refine ⟨⟨fun n hn => ?_, ?_⟩, fun n hn hnw => ?_⟩
+  refine ⟨⟨⟨fun n hn => ?_, ?_⟩, fun n hn hnw => ?_⟩, ?_⟩
   · rw [e1, e2, abs_sub_sign]
     have := h1 n hn
     rw [eigVec_negU_rev] at this
@@ -166,17 +169,22 @@ theorem softLower_data (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (
   · have h2' : ∑ n ∈ rowsOf N, softEnv CI.softLoL CI.softLoR (atStep F μ N) (-X k) N n ^ 2 ≤ Cc := h2
     simpa only [e2] using h2'
   · rw [e1, e2, abs_sign_mul]; exact h3 n hn hnw
+  · have := hS0 (Fin.rev k)
+    rw [negX_rev] at this
+    exact this
 
 /-- **The soft relative window lemma** (named premise, *not formalised*; finding F-BB-5): at a site `n` of the soft window `Omega = {|Z_n| <= rho(a)}` the allowed-region function satisfies
 `T(u_n; X) >= -eps` for small `h`: the window is the classically allowed well plus an Airy layer of width `O(sqrt h)` in `u`, and `T` has a simple zero at the turning points (`HypMorse`).  In the contrapositive form used by
 `ThmAii` R1: `T(u_n; X) <= -eps` puts `n` off the window.  (Upper window at `X`; lower window at `-X` for the gauge family.) -/
 def SoftWindowT {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
     (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) : Prop :=
-  (∀ ε : ℝ, 0 < ε → ∃ h1 : ℝ, 0 < h1 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h1 → F.step N ≤ t0 → ∀ X : ℝ,
-      |X - (frozenFamily F Kidx).bandHi (atStep F μ N)| ≤ CI.softUpL.δ0 → ∀ n ∈ rowsOf N,
+  (∀ Cs0 ε : ℝ, 0 < ε → ∃ h1 : ℝ, 0 < h1 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h1 → F.step N ≤ t0 → ∀ X : ℝ,
+      |X - (frozenFamily F Kidx).bandHi (atStep F μ N)| ≤ CI.softUpL.δ0 →
+      X ≤ (frozenFamily F Kidx).bandHi (atStep F μ N) + Cs0 * F.step N ^ 2 → ∀ n ∈ rowsOf N,
       Tfun F.L (F.G 0 μ) (F.B 0 μ) X (uNode (F.step N) n) ≤ -ε → n ∉ softWindow CI.softUpL (atStep F μ N) X N) ∧
-  (∀ ε : ℝ, 0 < ε → ∃ h1 : ℝ, 0 < h1 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h1 → F.step N ≤ t0 → ∀ X : ℝ,
-      |-X - (negFamily (frozenFamily F Kidx)).bandHi (atStep F μ N)| ≤ CI.softLoL.δ0 → ∀ n ∈ rowsOf N,
+  (∀ Cs0 ε : ℝ, 0 < ε → ∃ h1 : ℝ, 0 < h1 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h1 → F.step N ≤ t0 → ∀ X : ℝ,
+      |-X - (negFamily (frozenFamily F Kidx)).bandHi (atStep F μ N)| ≤ CI.softLoL.δ0 →
+      -X ≤ (negFamily (frozenFamily F Kidx)).bandHi (atStep F μ N) + Cs0 * F.step N ^ 2 → ∀ n ∈ rowsOf N,
       Tfun F.L (F.G 0 μ) (F.B 0 μ) X (uNode (F.step N) n) ≤ -ε → n ∉ softWindow CI.softLoL (atStep F μ N) (-X) N)
 
 theorem aiiAbs_upper (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (hm : 1 ≤ m)
@@ -185,8 +193,8 @@ theorem aiiAbs_upper (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (hm
       ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
         ∀ k : Fin (N + 1), (¬ ∃ ν, CI.lo ν ≤ X k ∧ X k ≤ CI.hi ν) → CI.Jhi < X k →
           |X k - (frozenFamily F Kidx).bandHi (atStep F μ N)| ≤ CI.softUpL.δ0 → AiiAbs CI C μ N X Um k := by
-  obtain ⟨C, h, hp, H⟩ := softUpper_data CI hm hstdK
-  exact ⟨C, h, hp, fun μ hμ N hN hNt X Um hE k hk hJ hw => (H μ hμ N hN hNt X Um hE k hk hJ hw).1⟩
+  obtain ⟨C, h, Cs0, hp, H⟩ := softUpper_data CI hm hstdK
+  exact ⟨C, h, hp, fun μ hμ N hN hNt X Um hE k hk hJ hw => (H μ hμ N hN hNt X Um hE k hk hJ hw).1.1⟩
 
 theorem aiiAbs_lower (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (hm : 1 ≤ m)
     (hstdK : ∃ r, StdAssump (frozenFamily F Kidx) (paramSet K t0) Kidx r) :
@@ -194,8 +202,8 @@ theorem aiiAbs_lower (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (hm
       ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
         ∀ k : Fin (N + 1), (¬ ∃ ν, CI.lo ν ≤ X k ∧ X k ≤ CI.hi ν) → ¬ CI.Jhi < X k →
           |-X k - (negFamily (frozenFamily F Kidx)).bandHi (atStep F μ N)| ≤ CI.softLoL.δ0 → AiiAbs CI C μ N X Um k := by
-  obtain ⟨C, h, hp, H⟩ := softLower_data CI hm hstdK
-  exact ⟨C, h, hp, fun μ hμ N hN hNt X Um hE k hk hJ hw => (H μ hμ N hN hNt X Um hE k hk hJ hw).1⟩
+  obtain ⟨C, h, Cs0, hp, H⟩ := softLower_data CI hm hstdK
+  exact ⟨C, h, hp, fun μ hμ N hN hNt X Um hE k hk hJ hw => (H μ hμ N hN hNt X Um hE k hk hJ hw).1.1⟩
 
 /-- **`ThmAii` R1, upper soft case**: `T <= -eps` puts `n` off the window (`SoftWindowT`), where `propThaW2_proved` (item (2), off-window clause R2) gives `V_n/hat N <= C |hat Psi_n|`. -/
 theorem relUpper (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (hm : 1 ≤ m)
@@ -206,11 +214,11 @@ theorem relUpper (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (hm : 1
           |X k - (frozenFamily F Kidx).bandHi (atStep F μ N)| ≤ CI.softUpL.δ0 → ∀ n ∈ rowsOf N,
           Tfun F.L (F.G 0 μ) (F.B 0 μ) (X k) (uNode (F.step N) n) ≤ -ε → envVec CI μ N (X k) n ≤ Cε * |psiHatVec CI μ N (X k) n| := by
   intro ε hε
-  obtain ⟨C, h, hp, H⟩ := softUpper_data CI hm hstdK
-  obtain ⟨h1, h1p, HT⟩ := hT.1 ε hε
+  obtain ⟨C, h, Cs0, hp, H⟩ := softUpper_data CI hm hstdK
+  obtain ⟨h1, h1p, HT⟩ := hT.1 Cs0 ε hε
   refine ⟨C, min h h1, lt_min hp h1p, fun μ hμ N hN hNt X Um hE k hk hJ hw n hn hTn => ?_⟩
-  exact (H μ hμ N (hN.trans (min_le_left _ _)) hNt X Um hE k hk hJ hw).2 n hn
-    (HT μ hμ N (hN.trans (min_le_right _ _)) hNt (X k) hw n hn hTn)
+  have H' := H μ hμ N (hN.trans (min_le_left _ _)) hNt X Um hE k hk hJ hw
+  exact H'.1.2 n hn (HT μ hμ N (hN.trans (min_le_right _ _)) hNt (X k) hw H'.2 n hn hTn)
 
 /-- **`ThmAii` R1, lower soft case** (through the gauge transport; `SoftWindowT`, second clause). -/
 theorem relLower (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (hm : 1 ≤ m)
@@ -221,11 +229,11 @@ theorem relLower (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (hm : 1
           |-X k - (negFamily (frozenFamily F Kidx)).bandHi (atStep F μ N)| ≤ CI.softLoL.δ0 → ∀ n ∈ rowsOf N,
           Tfun F.L (F.G 0 μ) (F.B 0 μ) (X k) (uNode (F.step N) n) ≤ -ε → envVec CI μ N (X k) n ≤ Cε * |psiHatVec CI μ N (X k) n| := by
   intro ε hε
-  obtain ⟨C, h, hp, H⟩ := softLower_data CI hm hstdK
-  obtain ⟨h1, h1p, HT⟩ := hT.2 ε hε
+  obtain ⟨C, h, Cs0, hp, H⟩ := softLower_data CI hm hstdK
+  obtain ⟨h1, h1p, HT⟩ := hT.2 Cs0 ε hε
   refine ⟨C, min h h1, lt_min hp h1p, fun μ hμ N hN hNt X Um hE k hk hJ hw n hn hTn => ?_⟩
-  exact (H μ hμ N (hN.trans (min_le_left _ _)) hNt X Um hE k hk hJ hw).2 n hn
-    (HT μ hμ N (hN.trans (min_le_right _ _)) hNt (X k) hw n hn hTn)
+  have H' := H μ hμ N (hN.trans (min_le_left _ _)) hNt X Um hE k hk hJ hw
+  exact H'.1.2 n hn (HT μ hμ N (hN.trans (min_le_right _ _)) hNt (X k) hw H'.2 n hn hTn)
 
 /-- **The bulk envelope-sum clause** (named premise; finding F-BB-4): the missing conjunct of `PropThaW`, `sum_n (V_n/hat N)^2 <= C` uniformly in `X` of the block (paper: `sum (E M)^2 <= sum M_Web^2 <= C h^{-1/2}`
 while `hat N^2 ~ h^{-1/2}`).  Used in the first clause of `ThmAii` for bulk eigenvalues. -/

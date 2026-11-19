@@ -75,6 +75,11 @@ sequences" (eq:tha-weber-seq, eq:tha-aPC, eq:tha-PCseq), "The soft edges" (eq:th
 * **F-W2-20 `grow3`** (`cgr`, `Cgr`): the growing member `phi^{(1)}_3` of the swapped pair is positive, `>= c_gr W M` and non-decreasing up to `1 + C_gr h` on two consecutive right rows (paper: Step 5, "`|A v~ + h B h^{1/2} v~'| >= c E^{-1} M`"; Step 6 (ii),
   "a sign fixed up to `cos pi a`").  Nothing else about the chart was needed: the right solution `psi^R` is positive and decaying by `growth_ratio` for the mirror chart (exact), and `psi^L` is compared with `f` at those rows by item (1).
 
+## Round 10 (the soft relative window lemma; `TheoremA/SoftWindowProof.lean`)
+
+* **F-BB-5 `zeta_T`** (`cT`): `zeta^2/4 - mu_0 >= c_T (-T(u_c + x; X))` on the collar where `T <= 0` (paper: lem:cha-PCcoord (1), `cosh(Omega_0 d_x zeta) = Upsilon_0` with `Omega_0^2 = zeta^2/4 - mu_0`, `T = 4 E_0 (1 - Upsilon_0^2)`, `d_x zeta <= d_+`).
+  With `zeta_far_out`, `mu0_slope`, `muS_bd` it shows that a row with `T(u_n; X) <= -eps` at an energy `X <= X_s^+ + C h^2` is off the window `Omega`.
+
 ## Satisfiability
 
 As for `BulkWeberChart`: no toy instance (the fields mention the actual parabolic-cylinder functions); the engine hypotheses are non-vacuous (`JE.volterra_multi_instance`); rescaling preserves (SM1)--(SM3) and the Casoratians (`SoftRescale.lean`),
@@ -413,6 +418,14 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
       cgr * ((chain μ X N).W k * (chain μ X N).M k) ≤ (chain μ X N).phi (F.step N) 0 3 k ∧
       cgr * ((chain μ X N).W (k + 1) * (chain μ X N).M (k + 1)) ≤ (chain μ X N).phi (F.step N) 0 3 (k + 1) ∧
       (chain μ X N).phi (F.step N) 0 3 k ≤ (1 + Cgr * F.step N) * (chain μ X N).phi (F.step N) 0 3 (k + 1)
+  /-- **(round 10, F-BB-5; lem:cha-PCcoord (1), the turning-point structure of `zeta`)** the Weber coordinate sends the turning points of the symbol to `zeta = +-2 sqrt(mu_0)` with
+  `Omega_0^2 = zeta^2/4 - mu_0` of the sign of `-T`: from `cosh(Omega_0 d_x zeta) = Upsilon_0` (`T = 4 E_0 (1 - Upsilon_0^2)`), `d_x zeta <= d_+` and the boundedness of `E_0`, `X - B_0` on the collar,
+  `zeta^2/4 - mu_0 >= c_T (-T)` wherever `T(u_c + x; X) <= 0` (`|x| <= 2 eta`).  It gives `|Z_n| > rho(a)` at the rows with `T <= -eps` (`TheoremA/SoftWindowProof.lean`). -/
+  cT : ℝ
+  cT_pos : 0 < cT
+  zeta_T : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → ∀ x, |x| ≤ 2 * η → 0 ≤ uc μ + x → uc μ + x ≤ F.L →
+    Tfun F.L (F.G 0 μ) (F.B 0 μ) (F.bandHi μ - α) (uc μ + x) ≤ 0 →
+    cT * (-Tfun F.L (F.G 0 μ) (F.B 0 μ) (F.bandHi μ - α) (uc μ + x)) ≤ zeta μ α x ^ 2 / 4 - muS 0 μ α
 
 namespace SoftEdgeChart
 
