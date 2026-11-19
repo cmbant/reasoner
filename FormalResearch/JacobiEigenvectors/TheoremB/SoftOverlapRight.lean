@@ -63,7 +63,6 @@ theorem softMirror_symm (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CR : Sof
   · rw [c5, h5]
   · rw [c6, h6]
 
-set_option maxHeartbeats 1000000 in
 theorem soft_window_eig_lower_right {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC)
     (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1))
     (hM : SoftMirror CL CR) (hm : 1 ≤ m) (Cs0 : ℝ) :
@@ -106,7 +105,6 @@ section RightChart
 
 variable {Jlo Jhi : (Par × ℝ) → ℝ} {ulo uhi : (Par × ℝ) → ℝ}
 
-set_option maxHeartbeats 1000000 in
 /-- **`overlap_lb` of the right soft half, chart rows** (`tau = true`, the chart `softJBChart CR CR1 ...` of the mirror family): `||P_k Psi_k|| >= c_0` for `P_k = softPk` over the mirror half-window
 `Omega_R cap {j <= n_c^R}` (the chain row `j` of the chart row `n` is `N - (lo + n)`, i.e. the global row `lo + n`); see `soft_window_eig_lower_right`.  Columns and gauge as in `softJBChart_overlap_lb_left`
 (`Xc k = Xs (kc k)`, `(Wm n k)^2 = (Um n (kc k))^2`). -/
