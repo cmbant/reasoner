@@ -95,6 +95,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.SpliceSoft
 public import FormalResearch.JacobiEigenvectors.TheoremB.CollarPC
 public import FormalResearch.JacobiEigenvectors.TheoremB.CollarGlue
 public import FormalResearch.JacobiEigenvectors.TheoremB.Collar
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftOneStep
 
 /-!
 # Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)
