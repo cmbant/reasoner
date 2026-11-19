@@ -11,7 +11,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.Statements
 /-!
 # Paper J, Theorem B, L3.4: `lem:tha-collar` (1) (`PropThaCollar`)
 
-Source: Paper J `app_thmB.tex`, proof of `lem:tha-collar` (1).  Frozen statement: `PropThaCollar` (`TheoremB/Statements.lean`, unchanged).
+Source: Paper J `app_thmB.tex`, proof of `lem:tha-collar` (1).  Statement: `PropThaCollar CL CR cPC CPC` (`TheoremB/Statements.lean`; F-B15 applied in round 10).
 
 ## Chain of lemmas (checked against the paper)
 
@@ -25,13 +25,13 @@ Source: Paper J `app_thmB.tex`, proof of `lem:tha-collar` (1).  Frozen statement
 
 ## Proved here
 
-`propThaCollar_proved : PropThaCollar CL CR`, under `ParabolicCylinderFacts U V cPC CPC`, `1 <= m` and `SoftMirror CL CR`.  No `SoftFoldSmall`, no `SoftCountHyps`.
+`propThaCollar_proved : PropThaCollar CL CR cPC CPC`, no premise beyond the statement's own (`ParabolicCylinderFacts`, `1 <= m`, `SoftMirror`).  No `SoftFoldSmall`, no `SoftCountHyps`.
 
 ## Differences from the paper
 
-* **F-B15 (frozen statement insufficient, minimal correction).**  `PropThaCollar` has no premises `1 <= m`, `SoftMirror CL CR` and `ParabolicCylinderFacts U V cPC CPC`; the first conjunct is about the eigenvector against `softVec CL CR` (built from the mirror chart `CR`), whose
-  comparison (`soft_eigen_main`) needs the engine smallness `h^m Theta <= c_*` (false for `m = 0`) and the facts on `U, V` (the chart fields constrain `U, V` only at chain rows); for an unrelated `CR` conjuncts 1 and 4 are false.  Same pattern as F-B9, F-B14.  Correction:
-  `PropThaCollar` should start `ParabolicCylinderFacts U V cPC CPC -> 1 <= m -> SoftMirror CL CR ->`.  Here the frozen statement is proved with these three facts as hypotheses of the theorem.
+* **F-B15 (applied).**  `PropThaCollar` lacked the premises `ParabolicCylinderFacts U V cPC CPC`, `1 <= m`, `SoftMirror CL CR`; the first conjunct compares the eigenvector with `softVec CL CR` (built from the mirror chart `CR`), whose
+  comparison (`soft_eigen_main`) needs the engine smallness `h^m Theta <= c_*` (false for `m = 0`) and the facts on `U, V` (the chart fields constrain `U, V` only at chain rows); for an unrelated `CR` conjuncts 1 and 4 are false.  Same pattern as F-B9, F-B14.
+  The statement now starts `ParabolicCylinderFacts U V cPC CPC -> 1 <= m -> SoftMirror CL CR ->`.
 * **Conjuncts 2-4 hold at every `X` near the edge (no eigenvalue).**  The frozen statement quantifies them over all `X` with `|X - bandHi| <= delta_0`, `a <= 1` (not only eigenvalues, as in the paper); the proof is chart-level (`soft_norm_lb`, `soft_kappa_bound`).
 
 ## Not formalised
@@ -145,12 +145,11 @@ section Main
 variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
 
 set_option maxHeartbeats 8000000 in
-/-- **`lem:tha-collar` (1)** (`PropThaCollar`), under `ParabolicCylinderFacts`, `1 <= m` and `SoftMirror CL CR` (premises that the frozen statement lacks: finding F-B15, see the module docstring). -/
+/-- **`lem:tha-collar` (1)** (`PropThaCollar CL CR cPC CPC`; the premises `ParabolicCylinderFacts`, `1 <= m`, `SoftMirror CL CR` are part of the statement since round 10: finding F-B15 applied). -/
 theorem propThaCollar_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (fun _ => 1))
-    (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) (hf : ParabolicCylinderFacts U V cPC CPC) (hm : 1 ≤ m)
-    (hM : SoftMirror CL CR) : PropThaCollar CL CR := by
+    (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) : PropThaCollar CL CR cPC CPC := by
   unfold PropThaCollar
-  intro r hr
+  intro hf hm hM r hr
   have hLm : ∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ (fun _ : ℝ => (1 : ℝ)) h := fun _ _ _ => le_rfl
   obtain ⟨cn, hn0, hcn, hn0p, Hn⟩ := soft_norm_lb CL CR hf r hr
   obtain ⟨Ck, hk0, hCk, hk0p, Hk⟩ := soft_kappa_bound CL CR hM hf

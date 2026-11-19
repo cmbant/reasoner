@@ -9,11 +9,11 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.Statements
 # Paper J, Theorem B, L3.1 soft: independence of the splice at a soft edge (`prop:tha-splice` (b))
 
 Source: Paper J `thmB.tex` `prop:tha-splice` (b) and `app_thmB.tex`, proof of `prop:tha-splice` (`eq:tha-spl1`--`eq:tha-spl3`, "The fixed row `n_c` is a splice for every column").
-Frozen statement: `PropThaSpliceSoft` (`TheoremB/Statements.lean`, unchanged).
+Statement: `PropThaSpliceSoft CL CR eta cPC CPC` (`TheoremB/Statements.lean`; the premise `ParabolicCylinderFacts` was added in round 10, as in `PropThaW2`).
 
 ## Proved here
 
-`propThaSpliceSoft_proved : PropThaSpliceSoft CL CR (fun h => h ^ m)`, for every soft chart pair, under `ParabolicCylinderFacts U V cPC CPC` and the chart-constant smallness `SoftFoldSmall CL`.
+`propThaSpliceSoft_proved : PropThaSpliceSoft CL CR (fun h => h ^ m) cPC CPC`, for every soft chart pair; no premise beyond the statement's own (`ParabolicCylinderFacts U V cPC CPC`, `1 <= m`, `SoftMirror CL CR`).  The smallness `SoftFoldSmall CL` is the chart field `delta0_small`.
 Chain (as in the paper, with the three clauses of the statement):
 1. `n_c = nearestRow u_c` lies in the window (`fold_in_window`, flat0 of `lem:tha-Mflat`);
 2. window matching `|psi-hat^L - hat kappa psi-hat^R| <= C h^m |lambda_L| kappa_bal^{-1} M_bal` (`soft_splice_facts`: `soft_win_err` for both charts and the mirror window, `right_alg`, `soft_match`);
@@ -23,8 +23,7 @@ Chain (as in the paper, with the three clauses of the statement):
 
 ## Differences from the paper
 
-* Hypotheses added to the frozen statement: `ParabolicCylinderFacts U V cPC CPC` (the pattern of `PropThaW2`'s proofs: the statement carries none, the special-function facts are the named Layer-4 structure), and
-  `SoftFoldSmall CL` (finding of `SoftMflat.lean`: the chart constants `delta_0, c_Z, cmu0, Cmu0` must be compatible, the paper's "choose `delta_0` small"; without it `n_c` is not in the window).
+* None.  The statement carries `ParabolicCylinderFacts` (finding F-B14/F-B15 pattern, applied to the definition); the chart-constant smallness (`delta_0` against `c_Z, cmu0, Cmu0`, the paper's "choose `delta_0` small") is the chart field `delta0_small` (without it `n_c` is not in the window).
 * The window membership of `n_c` is the first conjunct of the statement and is independent of the eigen-system.
 
 ## Not formalised
@@ -162,12 +161,13 @@ section Main
 variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
 
 set_option maxHeartbeats 4000000 in
-/-- **`prop:tha-splice` (b)** (`PropThaSpliceSoft`) with `eta(h) = h^m`, under `ParabolicCylinderFacts` and the chart-constant smallness `SoftFoldSmall CL`. -/
+/-- **`prop:tha-splice` (b)** (`PropThaSpliceSoft`) with `eta(h) = h^m`, (the statement carries the premises `ParabolicCylinderFacts`, `1 <= m`, `SoftMirror`; the chart-constant smallness is the chart field `delta0_small`). -/
 theorem propThaSpliceSoft_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (fun _ => 1))
-    (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) (hf : ParabolicCylinderFacts U V cPC CPC) (hfold : SoftFoldSmall CL) :
-    PropThaSpliceSoft CL CR (fun h => h ^ m) := by
+    (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) :
+    PropThaSpliceSoft CL CR (fun h => h ^ m) cPC CPC := by
   unfold PropThaSpliceSoft
-  intro hm hM r hr
+  intro hf hm hM r hr
+  have hfold : SoftFoldSmall CL := CL.delta0_small
   have hLm : ∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ (fun _ : ℝ => (1 : ℝ)) h := fun _ _ _ => le_rfl
   obtain ⟨Cenv, Cm, K, CM, cn, clb, hF0, hCenv, hCm, hK, hCM, hcn, hclb, hF0p, Hf⟩ := soft_splice_facts CL CR hM hf hm hLm
   obtain ⟨Cz, hz0, hz0p, Hz⟩ := stepZero Fz P (q / 2) r hr

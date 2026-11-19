@@ -23,7 +23,7 @@ Chain of lemmas (checked against the paper):
 * **FINDING (chart constants).**  The paper chooses `delta_0` with `C_Z sqrt(C_mu delta_0) <= 1` ("choosing `delta_0` ..."); in `SoftEdgeChart` the data `delta_0, c_Z, cmu0, Cmu0` are
   unrelated, and for `a <= 0` and a chart with `2 c_Z^2 Cmu0 delta_0 > cmu0^2` (take `zeta(0;alpha) = c_Z alpha`, `mu_0 = cmu0 alpha`, all other fields unchanged) one has
   `|Z_{n_c}| ~ c_Z alpha/sqrt h` against `2 sqrt A ~ 2 sqrt(cmu0 alpha/h)`, so `n_c` is **not** in the window and flat0 fails.  The hypothesis is made explicit as the
-  chart-constant statement `SoftFoldSmall C : 2 c_Z^2 Cmu0 delta_0 <= cmu0^2`; minimal correction: add it to `SoftEdgeChart` as a field (paper's form: `delta_0` small against the chart constants).
+  chart-constant statement `SoftFoldSmall C : 2 c_Z^2 Cmu0 delta_0 <= cmu0^2`; applied (round 10): it is now the `SoftEdgeChart` field `delta0_small` (paper's form: `delta_0` small against the chart constants).
 * The theorems are stated for any row `n_0` with `|u_{n_0} - u_c| <= h/2` (`nearestRow` lives in `TheoremB`); `SoftMflat2` specialises.
 
 ## Not formalised

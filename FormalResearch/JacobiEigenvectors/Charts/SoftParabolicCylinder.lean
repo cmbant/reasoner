@@ -380,6 +380,10 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   Cmu0 : ℝ
   consts_pos5 : 0 < cmu0 ∧ cmu0 ≤ Cmu0
   mu0_slope : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → cmu0 ≤ deriv (muS 0 μ) α ∧ deriv (muS 0 μ) α ≤ Cmu0
+  /-- **(F-B5/F-B13, round 10; lem:tha-Mflat, "choose `delta_0` so small that `C_Z sqrt(C_mu delta_0) <= 1`")** the paper's smallness of `delta_0` against the chart constants
+  `c_Z, cmu0, Cmu0` (`delta_0` is chart data, like the pair `(delta_0, eta)` of `geom_far`): `2 c_Z^2 C_mu0 delta_0 <= cmu0^2`.  Used for the fold row `n_c` in the window (flat0 of `lem:tha-Mflat`, `prop:tha-splice` (b)).
+  `P`-independent, so `SoftEdgeChart.restrictSub` inherits it. -/
+  delta0_small : 2 * cZ ^ 2 * Cmu0 * δ0 ≤ cmu0 ^ 2
   /-- **(round 8, F-W2-18; app_thmA Step 4 (f), lem:cha-W0)** the Liouville--Green lower bound off the window: the comparison profile is bounded below by its envelope, `|phi^{(1)}_k| >= c_lb W_k M_k`.
   On the Weber rows of `chainW` (`u_k <= u_c - eta/2`; the paper's (d)(ii)--(iii): lem:cha-W0 plus the corrector bound) and on the left PC rows of patch 2 with `|Z_k| > rho(a)` (`a <= a_+`, uniform):
   there it follows from `corr_PC` and `beyond` as in Step 4 (f); stated as a field to avoid redoing the window row analysis off the window. -/

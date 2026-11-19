@@ -120,11 +120,11 @@ end Reduction
 /-- **The soft column with the fixed fold row is within `C eta` of the eigenvector in `l^2`** (prop:tha-splice (b), (c) for one soft edge and one order; `app_thmB`: the column is
 `(hat N(n_c)/hat N) hat Psi^{(n_c)}`).  Premises: `PropThaSpliceSoft CL CR eta` (the paper's own intermediate statement, proved by the soft assembly), and the `l^2` bound `sum softEnv^2 <= CS` of `PropThaW2` (2); `eta` nonnegative on `(0,1]` and
 small.  `softColAt .. n_c` has the standard normaliser `softNorm` and standard `hat kappa`, so it equals `rho * splicedVec` with `rho = hat N(n_c)/hat N`, `|rho - 1| <= C eta` (first clause of `PropThaSpliceSoft`). -/
-theorem soft_col_clause {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
-    (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) (η : ℝ → ℝ)
+theorem soft_col_clause {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
+    (hf : ParabolicCylinderFacts U V cPC CPC) (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) (η : ℝ → ℝ)
     (hη0 : ∀ h : ℝ, 0 < h → h ≤ 1 → 0 ≤ η h)
     (hetas : ∀ ε : ℝ, 0 < ε → ∃ h1 : ℝ, 0 < h1 ∧ ∀ h : ℝ, 0 < h → h ≤ h1 → |η h| ≤ ε)
-    (hS : PropThaSpliceSoft CL CR η) (hm : 1 ≤ m) (hmir : SoftMirror CL CR) (r : ℕ) (hr : StdAssump Fz P (q / 2) r)
+    (hS : PropThaSpliceSoft CL CR η cPC CPC) (hm : 1 ≤ m) (hmir : SoftMirror CL CR) (r : ℕ) (hr : StdAssump Fz P (q / 2) r)
     (hEnv : ∃ CS h1 : ℝ, 0 < h1 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h1 → CL.aOf p X N ≤ 1 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →
         ∀ k : Fin (N + 1), Xs k = X → ∑ n ∈ rowsOf N, softEnv CL CR p X N n ^ 2 ≤ CS) :
@@ -133,7 +133,7 @@ theorem soft_col_clause {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} 
         ∀ k : Fin (N + 1), Xs k = X →
           FormalResearch.JB.jbL2 Finset.univ (fun i : Fin (N + 1) =>
             softColAt CL CR p X N (nearestRow (Fz.step N) (CL.uc p)) ((i : ℕ) : ℤ) - Um i k) ≤ C * η (Fz.step N) := by
-  obtain ⟨C0, h0, hh0, hmain⟩ := hS hm hmir r hr
+  obtain ⟨C0, h0, hh0, hmain⟩ := hS hf hm hmir r hr
   obtain ⟨CS, h1, hh1, hSum⟩ := hEnv
   obtain ⟨hη1, hhη1, hηsmall⟩ := hetas (1 / (2 * (|C0| + 1))) (by positivity)
   refine ⟨|C0| * Real.sqrt (8 * |CS| + 2), min (min (min h0 h1) hη1) 1, lt_min (lt_min (lt_min hh0 hh1) hhη1) one_pos, ?_⟩
@@ -277,7 +277,7 @@ The proof is the transport: the eigen-system `(negX X, negU U)` of the matrix of
 theorem compMatrix_lower_col (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (spl : Fin CI.nb → ℝ) (η : ℝ → ℝ)
     (hη0 : ∀ h : ℝ, 0 < h → h ≤ 1 → 0 ≤ η h)
     (hetas : ∀ ε : ℝ, 0 < ε → ∃ h1 : ℝ, 0 < h1 ∧ ∀ h : ℝ, 0 < h → h ≤ h1 → |η h| ≤ ε)
-    (hS : PropThaSpliceSoft CI.softLoL CI.softLoR η) (hm : 1 ≤ m) (r : ℕ)
+    (hS : PropThaSpliceSoft CI.softLoL CI.softLoR η cPC CPC) (hm : 1 ≤ m) (r : ℕ)
     (hr : StdAssump (negFamily (frozenFamily F Kidx)) (paramSet K t0) (q / 2) r)
     (hEnv : ∃ CS h1 : ℝ, 0 < h1 ∧ ∀ p ∈ paramSet K t0, ∀ X, |X - (negFamily (frozenFamily F Kidx)).bandHi p| ≤ CI.softLoL.δ0 →
       ∀ N : ℕ, max CI.softLoL.N0 CI.softLoR.N0 ≤ N → (negFamily (frozenFamily F Kidx)).step N ≤ h1 → CI.softLoL.aOf p X N ≤ 1 →
@@ -293,7 +293,7 @@ theorem compMatrix_lower_col (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (spl
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
         ∀ j : Fin (N + 1), (¬ ∃ ν : Fin CI.nb, CI.lo ν ≤ Xs j ∧ Xs j ≤ CI.hi ν) → ¬ CI.Jhi < Xs j →
           FormalResearch.JB.jbL2 Finset.univ (fun i : Fin (N + 1) => compMatrix CI spl μ N Xs i j - Um i j) ≤ C * η (F.step N) := by
-  obtain ⟨C, h1, hh1, hcl⟩ := soft_col_clause CI.softLoL CI.softLoR η hη0 hetas hS hm CI.mirror_lo r hr hEnv
+  obtain ⟨C, h1, hh1, hcl⟩ := soft_col_clause CI.pc CI.softLoL CI.softLoR η hη0 hetas hS hm CI.mirror_lo r hr hEnv
   obtain ⟨h0c, hh0c, hcov⟩ := spectrumCovered CI hKidx hK hH hD
   obtain ⟨hA0, hhA0, hAh⟩ := hA1
   have hLp : 0 < F.L / ((max CI.softLoL.N0 CI.softLoR.N0 : ℕ) + 1 : ℝ) := div_pos F.L_pos (by positivity)

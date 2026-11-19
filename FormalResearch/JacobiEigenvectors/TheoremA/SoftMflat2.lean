@@ -3,36 +3,36 @@ module
 public import Mathlib
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftMflat
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftCountChart
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftSigns3
 public import FormalResearch.JacobiEigenvectors.TheoremB.SpliceSoft
 public import FormalResearch.JacobiEigenvectors.TheoremB.Statements
 
 /-!
 # Paper J, Layer 3 (L3.3, part 2): `lem:tha-Mflat` (`PropThaMflat`)
 
-Source: Paper J `app_thmB.tex`, proof of `lem:tha-Mflat` (*The fold row*, *Half-windows*, *Seam rows*).  Frozen statement: `PropThaMflat` (`TheoremB/Statements.lean`, unchanged).
+Source: Paper J `app_thmB.tex`, proof of `lem:tha-Mflat` (*The fold row*, *Half-windows*, *Seam rows*).  Statement: `PropThaMflat CL CR cPC CPC` (`TheoremB/Statements.lean`; F-B14 applied in round 10).
 
 ## Proved here
 
-`propThaMflat_proved : PropThaMflat CL CR`, under `ParabolicCylinderFacts U V cPC CPC`, `SoftFoldSmall CL` (finding of `SoftMflat.lean`) and `hS : forall Cs0, SoftCountHyps CL CR Cs0`
-(the sign analysis of Step 6, label = index; `soft_count_chart`).
+`propThaMflat_proved : PropThaMflat CL CR cPC CPC`, with no premise beyond the statement's own (`ParabolicCylinderFacts`, `1 <= m`, `SoftMirror`).  `SoftFoldSmall CL` is the chart field `delta0_small`; the sign analysis of Step 6
+(label = index, `soft_count_chart`) uses `softCountHyps_proved`.
 * flat0: `fold_Z_bound` (`SoftMflat.lean`) for `n_c = nearestRow u_c`.
 * flat1: `propThaM_of_facts` at the cut `s = Z_{n_c}` (`fold_in_window`: `|s| <= s_A`); the half-windows `Omega_- = {n <= n_c}`, `Omega_+ = {n > n_c}` are `{Z_n <= s}`, `{Z_n > s}` on `Omega` (`Zof_le`, `Zof_incr` on the collar).
 * flat2: the seam rows `n_c, n_c + 1` lie in `Omega` (`fold_pair`, `Zof_succ_le`), `|softNum| <= K T M_bal` and `hat N^2 >= c_n T^2 h^{-1/2}` (`soft_splice_facts`), and `M_bal(a,Z_n)^2 <= 2 (1+k)^{-1/2}` (`mbal_seam`: `k_2 >= (1+A)/4`, `A >= k` from the label `a = -(k+1/2) + O(h^m)`, `soft_count_chart`).
 
 ## Differences from the paper
 
-Hypotheses `ParabolicCylinderFacts`, `SoftFoldSmall`, `SoftCountHyps` (as for `PropThaW2`: the frozen statement has none; the paper's proof uses Olver's bounds, `delta_0` small, and Step 6).  Otherwise as in the paper.
+None of substance: the paper's proof uses Olver's bounds (`ParabolicCylinderFacts`), `delta_0` small (the chart field `delta0_small`) and Step 6 (`softCountHyps_proved`).
 
 ## Findings
 
-* **F-B14 (frozen statement insufficient, minimal correction).**  `PropThaMflat` has no premises `1 <= m` and `SoftMirror CL CR`, but flat2 is about `softVec CL CR` (built from the *mirror* chart `CR`) and needs the eigenvector/matching estimates, whose engine smallness
-  `h^m Theta <= c_*` is unavailable for `m = 0` (cf. F-W2-4); for an unrelated `CR` flat2 is false.  Same pattern as F-B9.  Correction: `PropThaMflat` should start `1 <= m -> SoftMirror CL CR ->`.
-  Here the frozen statement is proved *given* these two facts as hypotheses of the theorem (flat0, flat1 do not use them).
-* **chart constants**: `SoftFoldSmall` (see `SoftMflat.lean`).
+* **F-B14 (applied).**  `PropThaMflat` lacked the premises `1 <= m` and `SoftMirror CL CR` (and `ParabolicCylinderFacts`), but flat2 is about `softVec CL CR` (built from the *mirror* chart `CR`) and needs the eigenvector/matching estimates, whose engine smallness
+  `h^m Theta <= c_*` is unavailable for `m = 0` (cf. F-W2-4); for an unrelated `CR` flat2 is false.  Same pattern as F-B9.  The statement now starts `ParabolicCylinderFacts U V cPC CPC -> 1 <= m -> SoftMirror CL CR ->` (flat0, flat1 do not use the last two).
+* **chart constants** (applied): the field `SoftEdgeChart.delta0_small` (`SoftFoldSmall`, see `SoftMflat.lean`).
 
 ## Not formalised
 
-Nothing beyond the hypotheses.
+Nothing.
 -/
 
 @[expose] public section
@@ -233,12 +233,13 @@ section Main
 variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
 
 set_option maxHeartbeats 4000000 in
-/-- **`lem:tha-Mflat`** (`PropThaMflat`), under `1 <= m`, `SoftMirror CL CR` (premises that the frozen statement lacks: finding F-B14, see the module docstring), `ParabolicCylinderFacts`, `SoftFoldSmall CL` and `SoftCountHyps`. -/
+/-- **`lem:tha-Mflat`** (`PropThaMflat CL CR cPC CPC`; the premises `ParabolicCylinderFacts`, `1 <= m`, `SoftMirror` are part of the statement since round 10, finding F-B14 applied; `SoftFoldSmall` is the chart field `delta0_small`;
+`SoftCountHyps` is `softCountHyps_proved`). -/
 theorem propThaMflat_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (fun _ => 1))
-    (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) (hf : ParabolicCylinderFacts U V cPC CPC) (hfold : SoftFoldSmall CL)
-    (hS : ∀ Cs0 : ℝ, SoftCountHyps CL CR Cs0) (hm : 1 ≤ m) (hM : SoftMirror CL CR) : PropThaMflat CL CR := by
+    (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) : PropThaMflat CL CR cPC CPC := by
   unfold PropThaMflat
-  intro r hr
+  intro hf hm hM r hr
+  have hfold : SoftFoldSmall CL := CL.delta0_small
   have hLm : ∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ (fun _ : ℝ => (1 : ℝ)) h := fun _ _ _ => le_rfl
   obtain ⟨cM, hM0, hcM, hM0p, HM⟩ := propThaM_of_facts (cPC := cPC) (CPC := CPC) CL 1 hf r hr
   obtain ⟨Cp, hp0, hCp, hp0p, Hp⟩ := fold_pair CL hfold
@@ -246,7 +247,7 @@ theorem propThaMflat_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (fu
   obtain ⟨Cf, hf1, hCf, hf1p, Hf'⟩ := fold_Z_bound CL hfold
   obtain ⟨Cenv, Cm, K, CM, cn, clb, hF0, hCenv, hCm, hK, hCM, hcn, hclb, hF0p, Hf⟩ := soft_splice_facts CL CR hM hf hm hLm
   obtain ⟨Cz, hz0, hz0p, Hz⟩ := stepZero Fz P (q / 2) r hr
-  obtain ⟨Cl, hl0, hl0p, Hl⟩ := soft_count_chart CL CR hM hf hm hLm Cz (hS Cz)
+  obtain ⟨Cl, hl0, hl0p, Hl⟩ := soft_count_chart CL CR hM hf hm hLm Cz (softCountHyps_proved CL CR hM hf hm hLm Cz)
   have hC0 : 0 ≤ 4 * K ^ 2 / cn := by positivity
   refine ⟨cM, max Cf (4 * K ^ 2 / cn),
     min (min (min hp0 hM0) (min hw0 hf1)) (min (min (min hF0 hl0) (min hz0 CL.softH1)) (min (min CR.softH1 CL.η) (min CR.η (min (asmH0 CL) (1 / (2 * (|Cl| + 1))))))),

@@ -85,6 +85,13 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblySoft
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftWindowProof
 public import FormalResearch.JacobiEigenvectors.Assembly.ChartRestrict
 public import FormalResearch.JacobiEigenvectors.Assembly.ThmA
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftMflat
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftMflat2
+public import FormalResearch.JacobiEigenvectors.TheoremB.SpliceSoftFacts
+public import FormalResearch.JacobiEigenvectors.TheoremB.SpliceSoft
+public import FormalResearch.JacobiEigenvectors.TheoremB.CollarPC
+public import FormalResearch.JacobiEigenvectors.TheoremB.CollarGlue
+public import FormalResearch.JacobiEigenvectors.TheoremB.Collar
 
 /-!
 # Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)
