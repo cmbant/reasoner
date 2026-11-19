@@ -420,6 +420,83 @@ theorem hasDerivAt_shiftAction {L : ℝ} (hL : 0 < L) {E B E1 B1 : ℝ → ℝ}
     _ = ε' / 2 := by field_simp
     _ < ε' := by linarith
 
+/-- Integrability of `q / sqrt T_0` for the base energy alone (the stable structure for a one-point parameter space). -/
+theorem intervalIntegrable_base {L : ℝ} {E B E1 B1 q : ℝ → ℝ}
+    (hEd : ∀ u ∈ Icc 0 L, HasDerivWithinAt E (E1 u) (Icc 0 L) u) (hE1c : ContinuousOn E1 (Icc 0 L))
+    (hBd : ∀ u ∈ Icc 0 L, HasDerivWithinAt B (B1 u) (Icc 0 L) u) (hB1c : ContinuousOn B1 (Icc 0 L))
+    (hE0 : E 0 = 0) (hEL : E L = 0) (hq : ContinuousOn q (Icc 0 L))
+    {X a0 b0 : ℝ} (ha0 : 0 ≤ a0) (hab : a0 < b0) (hb0 : b0 ≤ L)
+    (hza : 4 * E a0 - (X - B a0) ^ 2 = 0) (hzb : 4 * E b0 - (X - B b0) ^ 2 = 0)
+    (hneg : ∀ u ∈ Icc 0 L, u ∉ Icc a0 b0 → 4 * E u - (X - B u) ^ 2 < 0)
+    (hpos : ∀ u ∈ Ioo a0 b0, 0 < 4 * E u - (X - B u) ^ 2)
+    (hda : 0 < 4 * E1 a0 + 2 * (X - B a0) * B1 a0) (hdb : 4 * E1 b0 + 2 * (X - B b0) * B1 b0 < 0) :
+    IntervalIntegrable (fun u => q u / Real.sqrt (4 * E u - (X - B u) ^ 2)) volume 0 L := by
+  have hEcont : ContinuousOn E (Icc 0 L) := fun u hu => (hEd u hu).continuousWithinAt
+  have hBcont : ContinuousOn B (Icc 0 L) := fun u hu => (hBd u hu).continuousWithinAt
+  set f : ℝ → Unit → ℝ := fun u _ => 4 * E u - (X - B u) ^ 2 with hf
+  set f1 : ℝ → Unit → ℝ := fun u _ => 4 * E1 u + 2 * (X - B u) * B1 u with hf1
+  have hSE : ∀ (g : ℝ → ℝ), ContinuousOn g (Icc 0 L) →
+      ContinuousOn (fun p : ℝ × Unit => g p.1) (Icc 0 L ×ˢ univ) := fun g hg =>
+    hg.comp continuous_fst.continuousOn (fun p hp => hp.1)
+  have hfc : ContinuousOn (fun p : ℝ × Unit => f p.1 p.2) (Icc 0 L ×ˢ univ) :=
+    (continuousOn_const.mul (hSE E hEcont)).sub (ContinuousOn.pow (continuousOn_const.sub (hSE B hBcont)) 2)
+  have hf1c : ContinuousOn (fun p : ℝ × Unit => f1 p.1 p.2) (Icc 0 L ×ˢ univ) :=
+    (continuousOn_const.mul (hSE E1 hE1c)).add
+      ((continuousOn_const.mul (continuousOn_const.sub (hSE B hBcont))).mul (hSE B1 hB1c))
+  have hfd : ∀ l : Unit, ∀ u ∈ Icc 0 L, HasDerivWithinAt (fun v => f v l) (f1 u l) (Icc 0 L) u := by
+    intro l u hu
+    have h1 := ((hEd u hu).const_mul 4).sub (((hasDerivWithinAt_const u (Icc 0 L) X).sub (hBd u hu)).pow 2)
+    refine h1.congr_deriv ?_
+    simp only [hf1, Pi.sub_apply]
+    ring
+  obtain ⟨V, hVo, hl0V, a, b, c, hc0, hab', hprop⟩ := stable_structure (l0 := ()) hfc hfd hf1c
+    (fun l => by show 4 * E 0 - (X - B 0) ^ 2 ≤ 0; rw [hE0]; nlinarith [sq_nonneg (X - B 0)])
+    (fun l => by show 4 * E L - (X - B L) ^ 2 ≤ 0; rw [hEL]; nlinarith [sq_nonneg (X - B L)])
+    ha0 hab hb0 hza hzb hneg hpos hda hdb
+  have hq' : ContinuousOn (fun p : ℝ × Unit => q p.1) (Icc 0 L ×ˢ univ) := hSE q hq
+  exact (integral_inv_sqrt_continuousAt (q := fun u (_ : Unit) => q u) hfc hq' hc0 hVo
+    (fun l hl => hab' l hl) (fun l hl => hprop l hl) () hl0V).1
+
+/-- The shift theorem with a `C^1` weight `rho` (jointly in `(u, t)`), and `C^1` data `E`, `B`: the derivatives are taken within `[0, L]`. -/
+theorem hasDerivAt_shiftAction_C1 {L : ℝ} (hL : 0 < L) {E B : ℝ → ℝ}
+    (hE : ContDiffOn ℝ 1 E (Icc 0 L)) (hB : ContDiffOn ℝ 1 B (Icc 0 L))
+    (hE0 : E 0 = 0) (hEL : E L = 0) (hEpos : ∀ u ∈ Ioo 0 L, 0 < E u)
+    {ρ : ℝ → ℝ → ℝ} (hρ : ContDiffOn ℝ 1 (fun p : ℝ × ℝ => ρ p.1 p.2) (Icc 0 L ×ˢ univ))
+    {X a0 b0 : ℝ} (ha0 : 0 ≤ a0) (hab : a0 < b0) (hb0 : b0 ≤ L)
+    (hza : 4 * E a0 - (X - B a0) ^ 2 = 0) (hzb : 4 * E b0 - (X - B b0) ^ 2 = 0)
+    (hneg : ∀ u ∈ Icc 0 L, u ∉ Icc a0 b0 → 4 * E u - (X - B u) ^ 2 < 0)
+    (hpos : ∀ u ∈ Ioo a0 b0, 0 < 4 * E u - (X - B u) ^ 2)
+    (hda : 0 < 4 * derivWithin E (Icc 0 L) a0 + 2 * (X - B a0) * derivWithin B (Icc 0 L) a0)
+    (hdb : 4 * derivWithin E (Icc 0 L) b0 + 2 * (X - B b0) * derivWithin B (Icc 0 L) b0 < 0) :
+    HasDerivAt (fun t : ℝ => ∫ u in (0 : ℝ)..L, Real.arccos ((X + t * ρ u t - B u) / (2 * Real.sqrt (E u))))
+      (-∫ u in (0 : ℝ)..L, ρ u 0 / Real.sqrt (4 * E u - (X - B u) ^ 2)) 0 := by
+  have hS : UniqueDiffOn ℝ (Icc 0 L ×ˢ (univ : Set ℝ)) := (uniqueDiffOn_Icc hL).prod uniqueDiffOn_univ
+  refine hasDerivAt_shiftAction hL (E1 := derivWithin E (Icc 0 L)) (B1 := derivWithin B (Icc 0 L))
+    (ρ := ρ) (ρ1 := fun u t => fderivWithin ℝ (fun p : ℝ × ℝ => ρ p.1 p.2) (Icc 0 L ×ˢ univ) (u, t) (1, 0))
+    (fun u hu => (hE.differentiableOn one_ne_zero u hu).hasDerivWithinAt)
+    (hE.continuousOn_derivWithin (uniqueDiffOn_Icc hL) le_rfl)
+    (fun u hu => (hB.differentiableOn one_ne_zero u hu).hasDerivWithinAt)
+    (hB.continuousOn_derivWithin (uniqueDiffOn_Icc hL) le_rfl) hE0 hEL hEpos hρ.continuousOn ?_ ?_
+    ha0 hab hb0 hza hzb hneg hpos hda hdb
+  · intro t u hu
+    have hdiff : DifferentiableWithinAt ℝ (fun p : ℝ × ℝ => ρ p.1 p.2) (Icc 0 L ×ˢ univ) (u, t) :=
+      hρ.differentiableOn one_ne_zero (u, t) ⟨hu, mem_univ _⟩
+    have hF := hdiff.hasFDerivWithinAt
+    have hf : HasDerivWithinAt (fun v : ℝ => (v, t)) ((1 : ℝ), (0 : ℝ)) (Icc 0 L) u :=
+      (hasDerivWithinAt_id u _).prodMk (hasDerivWithinAt_const u _ t)
+    exact hF.comp_hasDerivWithinAt u hf (fun v (hv : v ∈ Icc 0 L) => (⟨hv, mem_univ _⟩ : (v, t) ∈ Icc 0 L ×ˢ (univ : Set ℝ)))
+  · exact (hρ.continuousOn_fderivWithin hS le_rfl).clm_apply continuousOn_const
+
+
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.ActionDeriv.hasDerivAt_shiftAction_C1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.ActionDeriv.hasDerivAt_shiftAction_C1
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.ActionDeriv.intervalIntegrable_base' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.ActionDeriv.intervalIntegrable_base
+
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.ActionDeriv.arccos_sub_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.ActionDeriv.arccos_sub_eq
