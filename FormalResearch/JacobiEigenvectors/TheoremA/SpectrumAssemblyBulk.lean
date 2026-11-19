@@ -209,7 +209,7 @@ def bulkPhaseWindow {T : SymbolFamily Par} {K : Set Par} {t0 : ℝ} {M Kidx : �
       linarith
     have hE' : IsEigenSystem ((frozenFamily T Kidx).jacobiMat (μ, T.step N) N) Xs Um := by
       rw [frozenFamily_jacobiMat_at_step]; exact hE
-    exact hmain μ hμ (T.step N) ⟨by linarith, hNt⟩ N hN1N hN0 (fun n hn1 hn2 => by
+    exact hmain μ hμ (T.step N) ⟨by linarith, hNt⟩ N hN1N hN0 rfl (fun n hn1 hn2 => by
       rw [frozen_bondA_at_step]; exact hposT μ hμ N hN1' n hn1 hn2) Xs Um hE' k hk
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.thmAi_of_trunc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -379,7 +379,7 @@ theorem thmSmoSpec (G : SymbolFamily Par) (K : Set Par) (M Kidx : ℕ) (t0 : ℝ
     aS bS (fun s => (WS s).restrictT0 (fun μ hμ => (hcov.sub μ hμ (Sum.inr s)).2.1) ht0' hle0) δ hδ hcov hK hH hD
   intro ν
   obtain ⟨Cl, h0, hh0, hl⟩ := hlabels ν
-  exact ⟨Cl, h0, hh0, fun μ hμ t ht => hl μ hμ t ⟨by linarith [ht.1], by linarith [ht.2]⟩⟩
+  exact ⟨Cl, h0, hh0, fun μ hμ t ht N hN htN => hl μ hμ t ⟨by linarith [ht.1], by linarith [ht.2]⟩ N hN htN⟩
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.bulkPhaseWindow' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

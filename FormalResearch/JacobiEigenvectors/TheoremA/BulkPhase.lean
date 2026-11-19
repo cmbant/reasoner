@@ -511,10 +511,10 @@ theorem bulk_eigen_quant (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
       ≤ F.step N * (Real.pi / 2 * (|Cs| * F.step N ^ (max M 1))) := mul_le_mul_of_nonneg_left hj hst.le
     _ = Real.pi / 2 * |Cs| * F.step N ^ (max M 1 + 1) := by ring
 
-/-- **`lem:smo-bulkphase` (3), the labelled windows, for the frozen matrices** (the *input* of `bulk_BSr2`, not proved here):
-at an eigenvalue `X_k(t)` in the block, `S_0^{(t)}(X_k(t)) = pi h (k + 1/2) + O(h^2)` with `k` its index from the top. -/
+/-- **`lem:smo-bulkphase` (3), the labelled windows, for the frozen matrices** (the *input* of `bulk_BSr2`; proved in `Assembly/Labels.lean`):
+at an eigenvalue `X_k(t)` in the block, `S_0^{(t)}(X_k(t)) = pi h (k + 1/2) + O(h^2)` with `k` its index from the top, at `t = h = F.step N` (the only case `bulk_BSr2` uses: the frozen matrix at `t = h` is the original one). -/
 def BulkWindowLabels (F : SymbolFamily (Par × ℝ)) (K : Set Par) (t0 Jlo Jhi : ℝ) : Prop :=
-  ∃ Cl h0 : ℝ, 0 < h0 ∧ ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ N : ℕ, F.step N ≤ h0 →
+  ∃ Cl h0 : ℝ, 0 < h0 ∧ ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ N : ℕ, F.step N ≤ h0 → t = F.step N →
     ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
       IsEigenSystem (F.jacobiMat (μ, t) N) Xs Um → ∀ k : Fin (N + 1), Xs k ∈ Set.Icc Jlo Jhi →
         |actionS0 F (μ, t) (Xs k) - Real.pi * F.step N * ((k : ℕ) + 1 / 2)| ≤ Cl * F.step N ^ 2
@@ -561,7 +561,7 @@ theorem bulk_BSr2 (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
     (hP : ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, (μ, t) ∈ P)
     (hcoup : CR.c = F.L - CL.c' ∧ CR.c' = F.L - CL.c) (r : ℕ) (hr : StdAssump F P (max M 1 / 2) r)
     (hlab : BulkWindowLabels F K t0 Jlo Jhi) :
-    ∃ C h0 : ℝ, 0 < h0 ∧ ∃ N1 : ℕ, ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ N : ℕ, N1 ≤ N → F.step N ≤ h0 →
+    ∃ C h0 : ℝ, 0 < h0 ∧ ∃ N1 : ℕ, ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ N : ℕ, N1 ≤ N → F.step N ≤ h0 → t = F.step N →
       (∀ n : ℤ, 0 ≤ n → n < N → 0 < F.bondA (μ, t) N n) →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
         IsEigenSystem (F.jacobiMat (μ, t) N) Xs Um → ∀ k : Fin (N + 1), Xs k ∈ Set.Icc Jlo Jhi →
@@ -573,14 +573,14 @@ theorem bulk_BSr2 (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR)
   have hC2n : 0 ≤ C2 := by rw [hC2]; positivity
   refine ⟨|Cq|, min (min (min h0q h0l) 1) (Real.pi / (2 * (C2 + 1))), ?_, N1, ?_⟩
   · refine lt_min (lt_min (lt_min hh0q hh0l) one_pos) (div_pos Real.pi_pos (by linarith))
-  intro μ hμ t ht N hN hstep hpos Xs Um hE k hXk
+  intro μ hμ t ht N hN hstep htN hpos Xs Um hE k hXk
   have hst : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
   have hhq : F.step N ≤ h0q := hstep.trans ((min_le_left _ _).trans ((min_le_left _ _).trans (min_le_left _ _)))
   have hhl : F.step N ≤ h0l := hstep.trans ((min_le_left _ _).trans ((min_le_left _ _).trans (min_le_right _ _)))
   have hh1 : F.step N ≤ 1 := hstep.trans ((min_le_left _ _).trans (min_le_right _ _))
   have hhp : F.step N ≤ Real.pi / (2 * (C2 + 1)) := hstep.trans (min_le_right _ _)
   obtain ⟨j, hj⟩ := hquant μ hμ t ht N hN hhq hpos Xs Um hE k hXk
-  have hl := hlab μ hμ t ht N hhl Xs Um hE k hXk
+  have hl := hlab μ hμ t ht N hhl htN Xs Um hE k hXk
   have hS0 : PI.Sigma μ 0 (Xs k) t = actionS0 F (μ, t) (Xs k) := PI.Sigma_zero μ hμ (Xs k) hXk t ht
   have hSig := phaseSum_sub_zero PI Cσ hCσ μ hμ t ht (Xs k) hXk N (fun i hi => hσ μ hμ t ht (Xs k) hXk i hi) hh1
   rw [hS0] at hSig

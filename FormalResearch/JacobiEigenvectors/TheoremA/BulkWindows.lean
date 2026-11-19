@@ -592,12 +592,14 @@ theorem bulk_kappa_sign {cPC CPC : ℝ} (PC : ParabolicCylinderFacts U V cPC CPC
 
 /-- **(3), counting** (`lem:smo-bulkphase` (3)): `propThaCount` for the block `I = [Jlo, Jhi]`, `Phi = S_0^{(t)}`, `eps = C h^2`.  At most one zero of `D` in each window and exactly one in each window whose
 bracketing interval lies in `S_0(I)`.  Both former inputs are now proved: `S_0^{(t)}` strictly decreasing on the block (`bulk_actionS0_strictAnti`, `TheoremA/MonotoneAction.lean`) and the sign `(iii)` of
-`kappa'` at the zeros in the windows (`bulk_kappa_sign`, with `sigma' = 1`).  (i) and (ii) of `lem:tha-count` are `bulk_zero_window`, `bulk_node_sign`. -/
+`kappa'` at the zeros in the windows (`bulk_kappa_sign`, with `sigma' = 1`).  The conclusion also records (i) (`bulk_zero_window` with the same constant `C`: every zero of `D` in the block lies in a window).  (i) and (ii) of `lem:tha-count` are `bulk_zero_window`, `bulk_node_sign`. -/
 theorem bulk_count (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) {cPC CPC : ℝ} (PC : ParabolicCylinderFacts U V cPC CPC)
     (hP : ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, (μ, t) ∈ P)
     (hcoup : CR.c = F.L - CL.c' ∧ CR.c' = F.L - CL.c) (r : ℕ) (hr : StdAssump F P (max M 1 / 2) r) :
     ∃ C h0 : ℝ, 0 < C ∧ 0 < h0 ∧ ∃ N1 : ℕ, 1 ≤ N1 ∧ ∀ μ ∈ K, ∀ t ∈ Set.Icc (-t0) t0, ∀ N : ℕ, N1 ≤ N → F.step N ≤ h0 →
       (∀ n : ℤ, 0 ≤ n → n < N → 0 < F.bondA (μ, t) N n) →
+      (∀ X ∈ Set.Icc Jlo Jhi, casD F (μ, t) N X = 0 →
+        ∃ j : ℕ, |actionS0 F (μ, t) X - Real.pi * F.step N * ((j : ℝ) + 1 / 2)| ≤ C * F.step N ^ 2) ∧
       (∀ k : ℕ, ∀ X ∈ Set.Icc Jlo Jhi, ∀ X' ∈ Set.Icc Jlo Jhi, casD F (μ, t) N X = 0 → casD F (μ, t) N X' = 0 →
         |actionS0 F (μ, t) X - Real.pi * F.step N * ((k : ℝ) + 1 / 2)| ≤ C * F.step N ^ 2 →
         |actionS0 F (μ, t) X' - Real.pi * F.step N * ((k : ℝ) + 1 / 2)| ≤ C * F.step N ^ 2 → X = X') ∧
@@ -638,7 +640,7 @@ theorem bulk_count (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) {cPC CPC 
       have := hnode μ hμ t ht N hN2' hs2 hpos X hX k hk
       rw [one_mul]
       exact sign_eq_of_pos_mul this⟩
-  refine hcount ⟨1, Or.inl rfl, fun X hX k _ hwk κ' hκ' => ?_⟩
+  refine ⟨fun X hX hD => hwin μ hμ t ht N hN1' hs1 hpos X hX hD, hcount ⟨1, Or.inl rfl, fun X hX k _ hwk κ' hκ' => ?_⟩⟩
   rw [one_mul]
   exact hkap (μ, t) hp N hN3' hs3k hpos X hX k hwk κ' hκ'
 
