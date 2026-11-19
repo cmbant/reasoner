@@ -7,13 +7,13 @@
 Two closures are included, nothing else from upstream:
 
 1. **Liouville–Green and Sturm** (`DLMFMathlib`): the import closure of the seven modules `DLMFMathlib.Analysis.ODE.{LiouvilleGreen, LiouvilleGreenReal, LiouvilleGreenExpansion, LiouvilleGreenFinite, SturmComparison, SturmCount, SturmOscillation}`, 15 files.
-2. **Parabolic cylinder functions** (`DLMF` and three further `DLMFMathlib` files): the import closure of `DLMF.ParabolicCylinder.Basic.Wronskians`, 14 files.
+2. **Parabolic cylinder functions** (`DLMF`, 13 files, and three further `DLMFMathlib` files): the import closure of `DLMF.ParabolicCylinder.Basic.Wronskians` (14 files), plus `DLMF.Confluent.ParabolicCylinder.WronskiansAndConnections` (one file, phase B1) and `DLMF.ParabolicCylinder.ElementaryPropertiesCore` (one file, an extraction; see below). 16 files.
 
 Every file imports only Mathlib or other vendored modules: no TauCeti, no sibling repository.
 
 ## Files and line counts
 
-Total 29 files, 9974 lines (as vendored, after patches).
+Total 31 files, 10536 lines (as vendored, after patches).
 
 `DLMFMathlib/` (18 files, 7112 lines; library `DLMFMathlib`, glob `DLMFMathlib.+`):
 
@@ -38,7 +38,7 @@ Total 29 files, 9974 lines (as vendored, after patches).
 | 107 | `Analysis/Complex/NonInteger.lean` |
 | 85 | `Analysis/Complex/SegmentPrimitive.lean` |
 
-`DLMF/` (11 files, 2862 lines; library `DLMF`, explicit module globs, so that only this closure is in it):
+`DLMF/` (13 files, 3424 lines; library `DLMF`, explicit module globs, so that only this closure is in it):
 
 | lines | file |
 |---:|---|
@@ -46,6 +46,7 @@ Total 29 files, 9974 lines (as vendored, after patches).
 | 81 | `Confluent/Basic/KummerM.lean` |
 | 363 | `Confluent/Basic/KummerProperties.lean` |
 | 96 | `Confluent/Basic/Tricomi.lean` |
+| 476 | `Confluent/ParabolicCylinder/WronskiansAndConnections.lean` (upstream 475 lines, patch 8) |
 | 238 | `Core/Basic.lean` |
 | 46 | `Hypergeometric/Basic/GaussCoefficients.lean` |
 | 347 | `Hypergeometric/Basic/GaussSeries.lean` |
@@ -53,12 +54,13 @@ Total 29 files, 9974 lines (as vendored, after patches).
 | 129 | `ParabolicCylinder/Basic/Functions.lean` |
 | 456 | `ParabolicCylinder/Basic/WeberEquation.lean` |
 | 492 | `ParabolicCylinder/Basic/Wronskians.lean` |
+| 86 | `ParabolicCylinder/ElementaryPropertiesCore.lean` (extraction from upstream 697-line file, patch 9) |
 
 Used by `FormalResearch/Special/VendoredDlmfSmoke.lean` (headline axiom pins only; not imported by `FormalResearch.lean`).
 
 ## Patches
 
-Patched for Lean v4.35.0 and Mathlib `56a005855ea17e0b0958f73ec801ae140b0a1679` (this repository's pins). Every patch is marked `-- PATCH` in the source. Seven patch sites in six files:
+Patched for Lean v4.35.0 and Mathlib `56a005855ea17e0b0958f73ec801ae140b0a1679` (this repository's pins). Every patch is marked `-- PATCH` in the source. Nine patch sites in eight files (items 1–7 are the original seven, in six files):
 
 1. `DLMFMathlib/Analysis/ODE/SturmDeformation.lean`, proof of `SturmDeformation.local`: the two arguments
    `(by simpa [Function.uncurry_def] using hcY.neg)` and `(by simpa [Function.uncurry_def] using hcY'.neg)` are
@@ -85,13 +87,42 @@ Patched for Lean v4.35.0 and Mathlib `56a005855ea17e0b0958f73ec801ae140b0a1679` 
      it was not compared with TauCeti's original text, which is not available here. The name is not in Mathlib v4.35.
 
    These are new proofs in vendored code, not upstream proofs. They are verified only by this repository's build.
+8. `DLMF/Confluent/ParabolicCylinder/WronskiansAndConnections.lean`, lines 10–11: removed
+   `public import DLMF.Confluent.ParabolicCylinder.EquationAndIntegrals` (upstream, not vendored) and put a two-line
+   `-- PATCH` comment in its place. None of the 13 declarations of that file is used in `WronskiansAndConnections.lean`
+   (checked by a name search over the upstream file); the import is therefore dropped and nothing else changed.
+9. `DLMF/ParabolicCylinder/ElementaryPropertiesCore.lean`: an extraction, marked `-- PATCH: extracted` in its header
+   (see the next section). The copied declarations are unchanged.
+
+## Extraction: `ElementaryPropertiesCore`
+
+`DLMF/ParabolicCylinder/ElementaryProperties.lean` (upstream, 697 lines) imports `DLMF.Confluent.Coulomb` and
+`DLMF.Confluent.ParabolicCylinder`, which are not vendored. Only the following nine declarations are copied, verbatim
+with their proofs, from upstream lines 103–107, 139–144, 146–149, 151–154, 156–160, 162–167, 169–172, 174–178 and
+196–199 (namespace `DLMF.Confluent`):
+
+- `parabolicCylinderU_entire` (`U(a,·)` is entire, lines 103–107) and `parabolicCylinderV_entire` (lines 174–178);
+- `conj_two_cpow`, `conj_parabolicCylinderEven`, `conj_parabolicCylinderOdd`, `conj_parabolicCylinderU`, `conj_parabolicCylinderV`;
+- `parabolicCylinderU_real` and `parabolicCylinderV_real`: `Im U(a,x) = 0` and `Im V(a,x) = 0` for real `a`, `x`.
+
+The extracted file imports only `DLMF.ParabolicCylinder.Basic.Wronskians` and `DLMF.Confluent.Basic.KummerContiguous`.
+
+**Not extracted (blocked):** the entire dependence on the parameter `a` (`differentiable_parabolicCylinderEven_order`,
+`differentiable_parabolicCylinderOdd_order`, `parabolicCylinderU_entire_order`, `parabolicCylinderV_entire_order`, upstream
+lines 109–137 and 180–194). Their `fun_prop` proofs need `differentiable_regularizedConfluent_comp`, which is `@[fun_prop]`
+in upstream `DLMF/Confluent/Regularized.lean`. That file's import closure is 42 upstream modules and also imports TauCeti and
+Carlson (lean-codes) modules, so it is not vendored. Consequently joint smoothness of `(a, z) ↦ U(a, z)` and `V(a, z)` is not
+available from this closure. The derivative conjugation lemmas (upstream lines 201–224), `parabolicCylinderD_ode`,
+the modulus–phase, rotated-connection and series results are not extracted either.
 
 ## Checks
 
 - `lake build DLMFMathlib` builds all 18 files on the pins: no errors, no warnings from the vendored files apart from
   upstream linter warnings that were already present (`ParamHolomorphic.lean` line 240, unused `simp` argument).
-- `lake build DLMF` (clean rebuild of the 11 files) builds on the pins: no errors and no warnings.
-- `lake build FormalResearch.Special.VendoredDlmfSmoke` builds and the seven axiom pins match. Each of the following
+- `lake build DLMF` builds all 13 files on the pins: no errors and no warnings from the two new modules
+  (`WronskiansAndConnections` built in 7.8 s; `ElementaryPropertiesCore` built after its import set was reduced to the two above).
+  The other 11 modules were already built and were not rebuilt in this step.
+- `lake build FormalResearch.Special.VendoredDlmfSmoke` builds and the 13 axiom pins match. Each of the following
   depends on exactly `[propext, Classical.choice, Quot.sound]`:
   - `ODE.sturm_comparison`;
   - `LiouvilleGreen.exists_solution_expansion_oscillatory_finite_endpoint`;
@@ -99,7 +130,11 @@ Patched for Lean v4.35.0 and Mathlib `56a005855ea17e0b0958f73ec801ae140b0a1679` 
   - `DLMF.Confluent.isWeberSolution_parabolicCylinderU` and `DLMF.Confluent.isWeberSolution_parabolicCylinderV`
     (Weber's equation `f'' = (z²/4 + a) f` for `U` and `V`, DLMF 12.2.2);
   - `DLMF.Confluent.parabolicCylinderD_nat` (DLMF 12.7.2, `D_n(z) = e^{-z²/4} He_n(z)`);
-  - `DLMF.Confluent.hermite_add_two` (patch 7).
+  - `DLMF.Confluent.hermite_add_two` (patch 7);
+  - `DLMF.Confluent.parabolicCylinderU_neg_eq` (DLMF 12.2.15, `U(a,-z) = -sin(πa) U + π/Γ(1/2+a) V`, every `a`);
+  - `DLMF.Confluent.parabolicCylinderV_neg_eq` (DLMF 12.2.16, `V(a,-z) = cos(πa)/Γ(1/2-a) U + sin(πa) V`, every `a`);
+  - `DLMF.Confluent.parabolicCylinderV_recurrence_add` (DLMF 12.8.7) and `DLMF.Confluent.parabolicCylinderV_recurrence_sub` (DLMF 12.8.6);
+  - `DLMF.Confluent.parabolicCylinderU_real` and `DLMF.Confluent.parabolicCylinderV_real` (reality for real `a`, `x`).
 - No placeholder-proof token (CI scan word), no `axiom` and no `native_decide` appears in any vendored `.lean` file.
 - Every import in the vendored files is Mathlib or a vendored module.
 
@@ -107,10 +142,12 @@ Patched for Lean v4.35.0 and Mathlib `56a005855ea17e0b0958f73ec801ae140b0a1679` 
 
 `lakefile.toml` has two `[[lean_lib]]` stanzas for this tree, both not default targets, both with
 `leanOptions = {autoImplicit = false, relaxedAutoImplicit = false}`, as upstream's `lakefile.toml` does:
-`DLMFMathlib` (`globs = ["DLMFMathlib.+"]`) and `DLMF` (the 11 module names listed above, explicitly).
+`DLMFMathlib` (`globs = ["DLMFMathlib.+"]`) and `DLMF` (the 13 module names listed above, explicitly).
 
 ## Not attempted
 
-Step 3 targets (`DLMF/Confluent/ParabolicCylinder/WronskiansAndConnections.lean`, `DLMF/ParabolicCylinder/ElementaryProperties.lean`,
-`DLMF/ParabolicCylinder/Hermite.lean`, `DLMF/ParabolicCylinder/Integrals/Representations.lean`) are not vendored. Their closures
-are much larger (hundreds of modules) and contain unproved declarations; the import structure is being scoped separately.
+- `DLMF/ParabolicCylinder/Hermite.lean` and `DLMF/ParabolicCylinder/Integrals/Representations.lean` (Step 3 targets) are not
+  vendored. Their closures are much larger (hundreds of modules) and contain unproved declarations; the import structure is
+  being scoped separately.
+- The parameter-entire results of `ElementaryProperties.lean` (blocked, see *Extraction*).
+- `DLMF/ParabolicCylinder/ElementaryProperties.lean` as a whole (only the core above is vendored).
