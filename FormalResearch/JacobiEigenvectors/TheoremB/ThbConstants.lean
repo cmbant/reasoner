@@ -119,16 +119,21 @@ theorem exists_consts_join {ι : Type*} [Finite ι] (f : ι → OneStepConsts) :
   refine ⟨⟨0, C, K, ω + 1, cT, cα, c0, C4, CE, hC0, hK0, by linarith, hcT0, hcα0, hc00, hC40, hCE0⟩, fun i => ?_⟩
   exact ⟨hC i, hK i, (hω i).trans (by simp), hcT i, hcα i, hc0 i, hC4 i, hCE i⟩
 
-/-- One block of `OneStepInputs` for the columns `cols`: the two charts with `Chart.Ok`, `match0/1` on the used rows, and the entries of `G0`, `G1`, `U` on the columns of the block outside all used rows
-of its two charts bounded by `Cε exp(-cε/h)` (this becomes `OneStepInputs.outside`). -/
+/-- One block of `OneStepInputs` for the columns `cols`: its two charts (left/right) with `Chart.Ok`, `match0/1` on the used rows, and the entries of `G0`, `G1`, `U` on the columns of the block outside all used
+rows of its two charts bounded by `Cε exp(-cε/h)` (this becomes `OneStepInputs.outside`). -/
 structure ThbBlock (cs : OneStepConsts) (N m : ℕ) (h : ℝ) (Um G0 G1 : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ)
     (cols : Finset (Fin (N + 1))) (Cε cε : ℝ) where
-  R : Fin 2 → ℕ
-  ch : (j : Fin 2) → Chart (N + 1) (R j) cols
-  ok : ∀ j, (ch j).Ok cs m h Um
-  match0 : ∀ (j : Fin 2) (n : Fin (R j)), n ∈ (ch j).used → ∀ k : cols, G0 ((ch j).row n) k = (ch j).H0 h n k
-  match1 : ∀ (j : Fin 2) (n : Fin (R j)), n ∈ (ch j).used → ∀ k : cols, G1 ((ch j).row n) k = (ch j).H1 h n k
-  cover : ∀ k ∈ cols, ∀ i : Fin (N + 1), (¬ ∃ (j : Fin 2) (n : Fin (R j)), n ∈ (ch j).used ∧ (ch j).row n = i) →
+  RL : ℕ
+  RR : ℕ
+  chL : Chart (N + 1) RL cols
+  chR : Chart (N + 1) RR cols
+  okL : chL.Ok cs m h Um
+  okR : chR.Ok cs m h Um
+  match0L : ∀ n : Fin RL, n ∈ chL.used → ∀ k : cols, G0 (chL.row n) k = chL.H0 h n k
+  match0R : ∀ n : Fin RR, n ∈ chR.used → ∀ k : cols, G0 (chR.row n) k = chR.H0 h n k
+  match1L : ∀ n : Fin RL, n ∈ chL.used → ∀ k : cols, G1 (chL.row n) k = chL.H1 h n k
+  match1R : ∀ n : Fin RR, n ∈ chR.used → ∀ k : cols, G1 (chR.row n) k = chR.H1 h n k
+  cover : ∀ k ∈ cols, ∀ i : Fin (N + 1), (¬ ∃ n : Fin RL, n ∈ chL.used ∧ chL.row n = i) → (¬ ∃ n : Fin RR, n ∈ chR.used ∧ chR.row n = i) →
     |G0 i k| ≤ Cε * Real.exp (-cε / h) ∧ |G1 i k| ≤ Cε * Real.exp (-cε / h) ∧ |Um i k| ≤ Cε * Real.exp (-cε / h)
 
 /-- `ThbBlock` is monotone in the constants (`0 ≤ Cε`, `cε' ≤ cε`, `0 < h ≤ 1`). -/
@@ -136,12 +141,17 @@ def ThbBlock.mono {cs cs' : OneStepConsts} (hle : cs.Le cs') {N m : ℕ} {h : �
     {Um G0 G1 : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ} {cols : Finset (Fin (N + 1))} {Cε cε Cε' cε' : ℝ}
     (hC0 : 0 ≤ Cε) (hC : Cε ≤ Cε') (hc : cε' ≤ cε) (B : ThbBlock cs N m h Um G0 G1 cols Cε cε) :
     ThbBlock cs' N m h Um G0 G1 cols Cε' cε' where
-  R := B.R
-  ch := B.ch
-  ok := fun j => (B.ok j).mono hle h0 h1
-  match0 := B.match0
-  match1 := B.match1
-  cover := fun k hk i hi => by
+  RL := B.RL
+  RR := B.RR
+  chL := B.chL
+  chR := B.chR
+  okL := B.okL.mono hle h0 h1
+  okR := B.okR.mono hle h0 h1
+  match0L := B.match0L
+  match0R := B.match0R
+  match1L := B.match1L
+  match1R := B.match1R
+  cover := fun k hk i hi1 hi2 => by
     have hexp : Real.exp (-cε / h) ≤ Real.exp (-cε' / h) := by
       apply Real.exp_le_exp.mpr
       have : cε' / h ≤ cε / h := div_le_div_of_nonneg_right hc h0.le
@@ -149,7 +159,7 @@ def ThbBlock.mono {cs cs' : OneStepConsts} (hle : cs.Le cs') {N m : ℕ} {h : �
     have hexp0 : 0 ≤ Real.exp (-cε / h) := (Real.exp_pos _).le
     have key : Cε * Real.exp (-cε / h) ≤ Cε' * Real.exp (-cε' / h) :=
       mul_le_mul hC hexp hexp0 (hC0.trans hC)
-    obtain ⟨a, b, c⟩ := B.cover k hk i hi
+    obtain ⟨a, b, c⟩ := B.cover k hk i hi1 hi2
     exact ⟨a.trans key, b.trans key, c.trans key⟩
 
 /-- **Uniform constants over a finite family of blocks.**  If for every index `i` the family of blocks exists with its own constants for `N ≥ N0`, `h ≤ h0`, then there are common constants. -/
@@ -194,23 +204,34 @@ def oneStepInputs_of_blocks (cs : OneStepConsts) (Um G0 G1 : Matrix (Fin (N + 1)
   G0 := G0
   G1 := G1
   cols := colsf
-  R := fun ν j => (B ν).R j
-  ch := fun ν j => (B ν).ch j
+  R := fun ν j => match j with | 0 => (B ν).RL | 1 => (B ν).RR
+  ch := fun ν j => match j with | 0 => (B ν).chL | 1 => (B ν).chR
   ε5 := Cε * Real.exp (-cε / h)
   h_pos := hh
   one_le_m := hm
   U_orth := horth
   cols_disjoint := hdisj
-  chart_ok := fun ν j => (B ν).ok j
+  chart_ok := fun ν j => by
+    fin_cases j
+    · exact (B ν).okL
+    · exact (B ν).okR
   G1_col := hG1
-  match0 := fun ν j n hn k => (B ν).match0 j n hn k
-  match1 := fun ν j n hn k => (B ν).match1 j n hn k
+  match0 := fun ν j => by
+    fin_cases j
+    · exact fun n hn k => (B ν).match0L n hn k
+    · exact fun n hn k => (B ν).match0R n hn k
+  match1 := fun ν j => by
+    fin_cases j
+    · exact fun n hn k => (B ν).match1L n hn k
+    · exact fun n hn k => (B ν).match1R n hn k
   ε5_nonneg := mul_nonneg hC0 (Real.exp_pos _).le
   outside := fun i k hnot => by
     obtain ⟨ν, hν⟩ := hcov k
-    refine (B ν).cover k hν i ?_
-    rintro ⟨j, n, hn, hr⟩
-    exact hnot ⟨ν, j, n, hn, hr, hν⟩
+    refine (B ν).cover k hν i ?_ ?_
+    · rintro ⟨n, hn, hr⟩
+      exact hnot ⟨ν, 0, n, hn, hr, hν⟩
+    · rintro ⟨n, hn, hr⟩
+      exact hnot ⟨ν, 1, n, hn, hr, hν⟩
 
 end Assembly
 
