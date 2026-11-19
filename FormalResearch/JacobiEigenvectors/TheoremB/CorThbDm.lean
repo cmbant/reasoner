@@ -33,8 +33,9 @@ Claim class: **proved under explicit hypotheses** (the two premises below).
    `FrozenReg` (the paper's `(E_Kbar)` of the frozen truncated matrices, budget `r(m) >= r(max(2 Kbar - 1, 0))`, remainder after the jet `2 Kidx + 1`).  `stdDM_trunc` derives it from `DM F K m`, `1 <= m`, `Kidx = (m+1)/2`.
    (`DM (truncFamily F m) K (2 Kidx + 1)` itself is **not** a consequence of `DM F K m`: the truncated jets keep the regularity `C^{r(m) - 10 floor(j/2)}` of `F`, whereas it asks `C^{r(2 Kidx + 1) - 10 floor(j/2)}` and
    `r(2 Kidx + 1) > r(m)` (`regBudget`); this is why the frozen `ThmB` is stated with `StdDM`.)  `corThbDm_of_thmB` takes `ThmBConcl CP spl`; it is discharged by `thmBConcl_of_thmB` from `ThmB CP spl`.
-2. `EigGapBound (truncFamily F m) K`: the gap bound `c h ≤ X_i - X_{i+1}` for `tilde J_h`, i.e. the conclusion of `CorEigenGap1 (truncFamily F m) K` (`eigGapBound_of_corEigenGap1`; `corEigen_proved` gives `CorEigen`
-   from the Layer-4 inputs `Layer4Inputs (truncFamily F m) K 0, 1`).  Using it needs an admissible `S` (`ThmAi (truncFamily F m) K 1`), an inverse `x_0` of `S_0`, and `DM (truncFamily F m) K 1` (`stdDM_trunc`, `.d1`).
+2. `EigGapBound (truncFamily F m) K`: the gap bound `c h ≤ X_i - X_{i+1}` for `tilde J_h`, i.e. the conclusion of `CorEigenGap1 (truncFamily F m) K`.  `CorThbGap.lean` (`eigGapBound_of_layer4`) derives it from the Layer-4 chart
+   inputs `Layer4Inputs (truncFamily F m) K 1` (`thmAi_assembled` gives `S`, `bandSlope_of_layer4` the slope, `BandSlope.surj` the inverse `x_0`) and `DM (truncFamily F m) K 1` (`stdDM_trunc`, `.d1`); `CorThbFinal.lean`
+   (`corThbDm_proved`) takes the Layer-4 inputs, `corThbDm_of_gap` the gap bound itself.
 
 ## Differences from the paper
 

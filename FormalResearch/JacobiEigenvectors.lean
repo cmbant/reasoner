@@ -151,6 +151,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftUp
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbGauge
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftLo
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbFinal
+public import FormalResearch.JacobiEigenvectors.TheoremB.CorThbGap
 public import FormalResearch.JacobiEigenvectors.TheoremB.CorThbFinal
 
 /-!
