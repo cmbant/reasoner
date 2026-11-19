@@ -94,4 +94,42 @@ structure TransferInputs {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily 
     0 < Dp ((chain1 μ X N).dd patch) (uNode (F.step N) k) (F.step N) ∧
       Dp ((chain1 μ X N).dd patch) (uNode (F.step N) k) (F.step N) ≤ ωmax
 
+/-- **Transfer coefficients of the downward chart** (finding F-B16).  The soft half-collars of the paper (`thmB.tex`, table of charts) have direction `tau = -1` (left half, exterior row `n_L - 1`, forbidden) resp. `+1` (right half, exterior row `n_R + 1`,
+forbidden): in the index of the chain of the half (the mirror chain for the right half) the chart steps **down**, `omega_n y_{n-1} = t_11 y_n + t_12 y~_n` with `(t_11, t_12) = (Pi_{-,00}, Pi_{-,01})(u_n)`, `omega_n = D_-(u_n)` (`shift_dn`).
+`TransferInputs` records the upward coefficients `Pi_+`; for a down chart the facts of (I2) are about `Pi_-` (`Pi_-(u_{n}) = adj Pi_+(u_{n-1})` when `D = 1`, so `t_12 = -Pi_{+,01}(u_{n-1})`, but `t_11 = Pi_{+,11}(u_{n-1})` and `alpha = A - h B t_11/t_12` are new data).
+The fields are those of `TransferInputs` with `Pi_+, D_+` replaced by `Pi_-, D_-`. -/
+structure TransferInputsDn {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (P : Set Par) (Jlo Jhi : Par → ℝ) (m : ℕ)
+    (chain0 chain1 : Par → ℝ → ℕ → LadderData) (patch : ℕ) (ulo uhi : Par → ℝ) where
+  N0 : ℕ
+  cT : ℝ
+  cα : ℝ
+  S : ℝ
+  ωmax : ℝ
+  κ : Par → ℝ → ℕ → ℝ → ℝ
+  consts_pos : (∀ μ ∈ P, ulo μ ≤ uhi μ ∧ Jlo μ ≤ Jhi μ) ∧ 0 < cT ∧ 0 < cα ∧ 0 ≤ S ∧ 0 < ωmax
+  same_ladder : ∀ μ ∈ P, ∀ X ∈ Set.Icc (Jlo μ) (Jhi μ), ∀ N, N0 ≤ N →
+    (chain0 μ X N).PiM patch = (chain1 μ X N).PiM patch ∧ (chain0 μ X N).wf patch = (chain1 μ X N).wf patch ∧
+      (chain0 μ X N).dd patch = (chain1 μ X N).dd patch
+  parity_A : ∀ μ ∈ P, ∀ X ∈ Set.Icc (Jlo μ) (Jhi μ), ∀ N, N0 ≤ N → ∀ u ∈ Set.Icc (ulo μ) (uhi μ),
+    (chain1 μ X N).AA patch u (F.step N) - (chain0 μ X N).AA patch u (F.step N)
+      = (1 - epsM m) * F.step N ^ m * κ μ X N u
+  parity_B : ∀ μ ∈ P, ∀ X ∈ Set.Icc (Jlo μ) (Jhi μ), ∀ N, N0 ≤ N → ∀ u ∈ Set.Icc (ulo μ) (uhi μ),
+    F.step N * ((chain1 μ X N).BB patch u (F.step N) - (chain0 μ X N).BB patch u (F.step N))
+      = epsM m * F.step N ^ m * κ μ X N u
+  reg_t11 : ∀ μ ∈ P, ∀ N, N0 ≤ N →
+    BoundedC2 (fun u X => (chain1 μ X N).PiM patch u (F.step N) 0 0) (ulo μ) (uhi μ) (Jlo μ) (Jhi μ) S
+  reg_t12 : ∀ μ ∈ P, ∀ N, N0 ≤ N →
+    BoundedC2 (fun u X => (chain1 μ X N).PiM patch u (F.step N) 0 1) (ulo μ) (uhi μ) (Jlo μ) (Jhi μ) S
+  reg_A1 : ∀ μ ∈ P, ∀ N, N0 ≤ N → BoundedC2 (fun u X => (chain1 μ X N).AA patch u (F.step N)) (ulo μ) (uhi μ) (Jlo μ) (Jhi μ) S
+  reg_B1 : ∀ μ ∈ P, ∀ N, N0 ≤ N → BoundedC2 (fun u X => (chain1 μ X N).BB patch u (F.step N)) (ulo μ) (uhi μ) (Jlo μ) (Jhi μ) S
+  reg_κ : ∀ μ ∈ P, ∀ N, N0 ≤ N → BoundedC2 (fun u X => κ μ X N u) (ulo μ) (uhi μ) (Jlo μ) (Jhi μ) S
+  t12_lb : ∀ μ ∈ P, ∀ X ∈ Set.Icc (Jlo μ) (Jhi μ), ∀ N, N0 ≤ N → ∀ u ∈ Set.Icc (ulo μ) (uhi μ),
+    cT ≤ |(chain1 μ X N).PiM patch u (F.step N) 0 1|
+  alpha_lb : ∀ μ ∈ P, ∀ X ∈ Set.Icc (Jlo μ) (Jhi μ), ∀ N, N0 ≤ N → ∀ u ∈ Set.Icc (ulo μ) (uhi μ),
+    cα ≤ (chain1 μ X N).AA patch u (F.step N) - F.step N * (chain1 μ X N).BB patch u (F.step N)
+      * (chain1 μ X N).PiM patch u (F.step N) 0 0 / (chain1 μ X N).PiM patch u (F.step N) 0 1
+  omega_pos_le : ∀ μ ∈ P, ∀ X ∈ Set.Icc (Jlo μ) (Jhi μ), ∀ N, N0 ≤ N → ∀ k : ℤ, ulo μ ≤ uNode (F.step N) k → uNode (F.step N) k ≤ uhi μ →
+    0 < Dm ((chain1 μ X N).dd patch) (uNode (F.step N) k) (F.step N) ∧
+      Dm ((chain1 μ X N).dd patch) (uNode (F.step N) k) (F.step N) ≤ ωmax
+
 end FormalResearch.JacobiEigenvectors.Charts

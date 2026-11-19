@@ -214,7 +214,9 @@ section Inputs
 variable {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
 
 /-- The transfer inputs (I2) of **every** chart of `hat G^{[m]}, hat G^{[m+1]}`: the left and right Weber charts of each bulk block (patch 1; the exact transfer is `Pi_+` of the Weber ladder, `omega_n = sqrt(s_n)`),
-and the left and right PC halves of each soft edge (patch 2 of the soft chain on the collar, `omega = 1`; the right half is the left half of the mirror family).  Layer 4: `lem:smo-budget`, `lem:cha-weber-coord`, `lem:cha-PCcoord`, `lem:tha-collar` (2). -/
+and the left and right PC halves of each soft edge (patch 2 of the soft chain on the collar, `omega = 1`; the right half is the left half of the mirror family).  Layer 4: `lem:smo-budget`, `lem:cha-weber-coord`, `lem:cha-PCcoord`, `lem:tha-collar` (2).
+**Corrected (finding F-B16, applied)**: the soft halves have direction `tau = -1` (left, exterior row `n_L - 1`) and `+1` (right, exterior row `n_R + 1`), both in the forbidden region (`thmB.tex`, table of charts), i.e. they step *down* in the index of the chain of the half;
+their transfer data are those of `Pi_-` (`TransferInputsDn`), not of `Pi_+` (`TransferInputs`, which describes an upward chart with its exterior row at the edge, where `y_ext` is not exponentially small and (I3) fails).  The bulk fields stay `TransferInputs`. -/
 structure TransferBundle (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC)) where
   bulkL : ∀ ν, TransferInputs (frozenFamily F Kidx) (paramSet K t0) (fun _ => CP.CI0.lo ν) (fun _ => CP.CI0.hi ν) m
     (CP.CI0.bulkL ν).chain ((CP.CI1.bulkL (Fin.cast CP.nb_eq.symm ν))).chain 1
@@ -222,16 +224,16 @@ structure TransferBundle (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 :=
   bulkR : ∀ ν, TransferInputs (mirrorFamily (frozenFamily F Kidx)) (paramSet K t0) (fun _ => CP.CI0.lo ν) (fun _ => CP.CI0.hi ν) m
     (CP.CI0.bulkR ν).chain ((CP.CI1.bulkR (Fin.cast CP.nb_eq.symm ν))).chain 1
     (fun _ => 0) (fun _ => (CP.CI0.bulkR ν).c + (CP.CI0.bulkR ν).σ / 2)
-  softUpL : TransferInputs (frozenFamily F Kidx) (paramSet K t0) (fun p => (frozenFamily F Kidx).bandHi p - CP.CI0.softUpL.δ0)
+  softUpL : TransferInputsDn (frozenFamily F Kidx) (paramSet K t0) (fun p => (frozenFamily F Kidx).bandHi p - CP.CI0.softUpL.δ0)
     (fun p => (frozenFamily F Kidx).bandHi p + CP.CI0.softUpL.δ0) m CP.CI0.softUpL.chain CP.CI1.softUpL.chain 2
     (fun p => CP.CI0.softUpL.uc p - CP.CI0.softUpL.η / 2) (fun p => CP.CI0.softUpL.uc p + CP.CI0.softUpL.η / 2)
-  softUpR : TransferInputs (mirrorFamily (frozenFamily F Kidx)) (paramSet K t0) (fun p => (frozenFamily F Kidx).bandHi p - CP.CI0.softUpL.δ0)
+  softUpR : TransferInputsDn (mirrorFamily (frozenFamily F Kidx)) (paramSet K t0) (fun p => (frozenFamily F Kidx).bandHi p - CP.CI0.softUpL.δ0)
     (fun p => (frozenFamily F Kidx).bandHi p + CP.CI0.softUpL.δ0) m CP.CI0.softUpR.chain CP.CI1.softUpR.chain 2
     (fun p => CP.CI0.softUpR.uc p - CP.CI0.softUpR.η / 2) (fun p => CP.CI0.softUpR.uc p + CP.CI0.softUpR.η / 2)
-  softLoL : TransferInputs (negFamily (frozenFamily F Kidx)) (paramSet K t0) (fun p => (negFamily (frozenFamily F Kidx)).bandHi p - CP.CI0.softLoL.δ0)
+  softLoL : TransferInputsDn (negFamily (frozenFamily F Kidx)) (paramSet K t0) (fun p => (negFamily (frozenFamily F Kidx)).bandHi p - CP.CI0.softLoL.δ0)
     (fun p => (negFamily (frozenFamily F Kidx)).bandHi p + CP.CI0.softLoL.δ0) m CP.CI0.softLoL.chain CP.CI1.softLoL.chain 2
     (fun p => CP.CI0.softLoL.uc p - CP.CI0.softLoL.η / 2) (fun p => CP.CI0.softLoL.uc p + CP.CI0.softLoL.η / 2)
-  softLoR : TransferInputs (mirrorFamily (negFamily (frozenFamily F Kidx))) (paramSet K t0) (fun p => (negFamily (frozenFamily F Kidx)).bandHi p - CP.CI0.softLoL.δ0)
+  softLoR : TransferInputsDn (mirrorFamily (negFamily (frozenFamily F Kidx))) (paramSet K t0) (fun p => (negFamily (frozenFamily F Kidx)).bandHi p - CP.CI0.softLoL.δ0)
     (fun p => (negFamily (frozenFamily F Kidx)).bandHi p + CP.CI0.softLoL.δ0) m CP.CI0.softLoR.chain CP.CI1.softLoR.chain 2
     (fun p => CP.CI0.softLoR.uc p - CP.CI0.softLoR.η / 2) (fun p => CP.CI0.softLoR.uc p + CP.CI0.softLoR.η / 2)
 
