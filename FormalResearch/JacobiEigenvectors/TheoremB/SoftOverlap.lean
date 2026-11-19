@@ -3,6 +3,7 @@ module
 public import Mathlib
 public import FormalResearch.JacobiEigenvectors.TheoremB.SoftExtRow
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftMflat2
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftFlat1
 
 /-!
 # Paper J, Theorem B, L3.5b (soft halves), part 6: the overlap bound `overlap_ub` (I4, upper) of the soft charts
@@ -65,10 +66,8 @@ variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U 
 
 theorem soft_overlap_ub {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC)
     (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CL1 : SoftEdgeChart Fz P (m + 1) q U V (fun _ => 1))
-    (CR1 : SoftEdgeChart (mirrorFamily Fz) P (m + 1) q U V (fun _ => 1)) (hM1 : SoftMirror CL1 CR1)
-    (hz : CL1.zeta = CL.zeta) (hmu : CL1.muS = CL.muS) (huc : CL1.uc = CL.uc) (hδ1 : CL1.δ0 = CL.δ0)
-    (r : ℕ) (hr : StdAssump Fz P (q / 2) r) :
-    ∃ C4 h1 : ℝ, 0 ≤ C4 ∧ 0 < h1 ∧ ∀ p ∈ P, ∀ N : ℕ, max (max CL.N0 CL1.N0) CR1.N0 ≤ N → Fz.step N ≤ h1 → ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 →
+    (hz : CL1.zeta = CL.zeta) (hmu : CL1.muS = CL.muS) (huc : CL1.uc = CL.uc) (hδ1 : CL1.δ0 = CL.δ0) :
+    ∃ C4 h1 : ℝ, 0 ≤ C4 ∧ 0 < h1 ∧ ∀ p ∈ P, ∀ N : ℕ, max CL.N0 CL1.N0 ≤ N → Fz.step N ≤ h1 → ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 →
       CL.aOf p X N ≤ 1 →
       Real.sqrt (∑ j ∈ (softWindow CL p X N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p)),
           ((CL.chain p X N).wf 2 0 (uNode (Fz.step N) j) (Fz.step N) 0) ^ 2) +
@@ -76,7 +75,7 @@ theorem soft_overlap_ub {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC
           ((CL.chain p X N).wf 2 0 (uNode (Fz.step N) j) (Fz.step N) 1) ^ 2) ≤
       C4 * Real.sqrt (∑ j ∈ (softWindow CL p X N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p)),
           ((CL1.chain p X N).phi (Fz.step N) 0 2 j) ^ 2) := by
-  obtain ⟨c, C, h0, hc, hh0, Hf⟩ := propThaMflat_proved (cPC := cPC) (CPC := CPC) CL1 CR1 hf (by omega) hM1 r hr
+  obtain ⟨c, h0, hc, hh0, Hf⟩ := soft_flat1_phi hf CL1
   have hCPC : 0 < CPC := lt_of_lt_of_le hf.cPC_pos hf.cPC_le
   have hB : 0 < winCB CPC 1 := by unfold winCB; positivity
   have hΛ := winCLam_nonneg CL
@@ -84,17 +83,15 @@ theorem soft_overlap_ub {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC
   refine ⟨winCB CPC 1 * (1 + winCLam CL) / Real.sqrt c, min h0 (asmH0 CL), by positivity, lt_min hh0 (by
     unfold asmH0; exact lt_min (winH1_pos CL) (farThr_pos CL)), ?_⟩
   intro p hp N hN hstep X hX ha
-  have hN1 : CL.N0 ≤ N := (le_max_left _ _).trans ((le_max_left _ _).trans hN)
-  have hN1' : CL1.N0 ≤ N := (le_max_right _ _).trans ((le_max_left _ _).trans hN)
-  have hN2 : CR1.N0 ≤ N := (le_max_right _ _).trans hN
+  have hN1 : CL.N0 ≤ N := (le_max_left _ _).trans hN
+  have hN1' : CL1.N0 ≤ N := (le_max_right _ _).trans hN
   have s0 : Fz.step N ≤ h0 := hstep.trans (min_le_left _ _)
   have sA : Fz.step N ≤ asmH0 CL := hstep.trans (min_le_right _ _)
   have hs1 : Fz.step N ≤ winH1 CL := sA.trans (min_le_left _ _)
   obtain ⟨hA1, hZ1, hW1⟩ := softChart_data_eq CL CL1 hz hmu huc p X N
   have hX1 : |X - Fz.bandHi p| ≤ CL1.δ0 := by rw [hδ1]; exact hX
-  have hN12 : max CL1.N0 CR1.N0 ≤ N := max_le hN1' hN2
   -- lower bound for the `phi^{[m+1]}` mass
-  have hflat := (Hf p hp X hX1 N hN12 s0 (by rw [hA1]; exact ha)).2.2.2.1
+  have hflat := Hf p hp X hX1 N hN1' s0 (by rw [hA1]; exact ha)
   set S := (softWindow CL p X N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p)) with hS
   have hκ := kappaBal_pos (CL.aOf p X N)
   have hi : 0 < (kappaBal (CL.aOf p X N))⁻¹ ^ 2 := by positivity
@@ -233,10 +230,8 @@ theorem softJBChart_phi1 (C : SoftEdgeChart Fz P m q U V (fun _ => 1)) (C1 : Sof
 /-- **`overlap_ub` of the soft charts** (chart rows, `P_k` the rows over the half-window `S_k`; needs the chart to cover `S_k`): see `soft_overlap_ub`. -/
 theorem softJBChart_overlap_ub {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC)
     (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CL1 : SoftEdgeChart Fz P (m + 1) q U V (fun _ => 1))
-    (CR1 : SoftEdgeChart (mirrorFamily Fz) P (m + 1) q U V (fun _ => 1)) (hM1 : SoftMirror CL1 CR1)
-    (hz : CL1.zeta = CL.zeta) (hmu : CL1.muS = CL.muS) (huc : CL1.uc = CL.uc) (hδ1 : CL1.δ0 = CL.δ0)
-    (r : ℕ) (hr : StdAssump Fz P (q / 2) r) :
-    ∃ C4 h1 : ℝ, 0 ≤ C4 ∧ 0 < h1 ∧ ∀ p ∈ P, ∀ N : ℕ, max (max CL.N0 CL1.N0) CR1.N0 ≤ N → Fz.step N ≤ h1 →
+    (hz : CL1.zeta = CL.zeta) (hmu : CL1.muS = CL.muS) (huc : CL1.uc = CL.uc) (hδ1 : CL1.δ0 = CL.δ0) :
+    ∃ C4 h1 : ℝ, 0 ≤ C4 ∧ 0 < h1 ∧ ∀ p ∈ P, ∀ N : ℕ, max CL.N0 CL1.N0 ≤ N → Fz.step N ≤ h1 →
       ∀ (TI : TransferInputsDn Fz P Jlo Jhi m CL.chain CL1.chain 2 ulo uhi) (Xc : Fin (N + 1) → ℝ) (cols : Finset (Fin (N + 1))) (lo R : ℕ)
         (hlo : lo + R ≤ N + 1) (τ : Bool) (used : Finset (Fin R)) (σ0 σ1 : cols → ℝ) (host0 host1 : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
       (∀ k : cols, |Xc k - Fz.bandHi p| ≤ CL.δ0) → (∀ k : cols, CL.aOf p (Xc k) N ≤ 1) →
@@ -253,7 +248,7 @@ theorem softJBChart_overlap_ub {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V 
           C4 * FormalResearch.JB.jbL2 (softPk N lo R τ ((softWindow CL p (Xc k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p))))
             (fun n => (softJBChart CL CL1 TI p N Xc cols lo R hlo τ used
               (fun k => softPk N lo R τ ((softWindow CL p (Xc k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p)))) σ0 σ1 host0 host1).phi1 (Fz.step N) n k) := by
-  obtain ⟨C4, h1, hC4, hh1, H⟩ := soft_overlap_ub hf CL CL1 CR1 hM1 hz hmu huc hδ1 r hr
+  obtain ⟨C4, h1, hC4, hh1, H⟩ := soft_overlap_ub hf CL CL1 hz hmu huc hδ1
   refine ⟨C4, h1, hC4, hh1, ?_⟩
   intro p hp N hN hstep TI Xc cols lo R hlo τ used σ0 σ1 host0 host1 hX ha hsame hcov k
   have h := H p hp N hN hstep (Xc k) (hX k) (ha k)
@@ -302,7 +297,7 @@ set_option maxHeartbeats 4000000 in
 `sum_S (psi-hat^L)^2 = T^2 sum_S phi^2 >= c T^2 m_Omega` (flat1), `c_n T^2 h^{-1/2} <= hat N^2 <= D T^2 h^{-1/2}` (`soft_splice_facts`, `softNorm_sq`, `soft_env_sum`), `c_M h^{-1/2} <= m_Omega` (`soft_win_massw`). -/
 theorem soft_window_eig_lower {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC)
     (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1))
-    (hM : SoftMirror CL CR) (hm : 1 ≤ m) (r : ℕ) (hr : StdAssump Fz P (q / 2) r) (Cs0 : ℝ) :
+    (hM : SoftMirror CL CR) (hm : 1 ≤ m) (Cs0 : ℝ) :
     ∃ c0 h1 : ℝ, 0 < c0 ∧ 0 < h1 ∧ ∀ p ∈ P, ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h1 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →
         (∀ i, Xs i ≤ Fz.bandHi p + Cs0 * Fz.step N ^ 2) → ∀ k : Fin (N + 1), |Xs k - Fz.bandHi p| ≤ CL.δ0 → CL.aOf p (Xs k) N ≤ 1 →
@@ -313,7 +308,7 @@ theorem soft_window_eig_lower {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V c
   obtain ⟨Ck, hk0, hCk, hk0p, Hk⟩ := soft_kappa_bound CL CR hM hf
   obtain ⟨C0, C1, he1, he1p, hC0, hC1, Hv⟩ := soft_env_sum CL CR hM hf hm hLm 1
   obtain ⟨cM, CM', hw0, hcM, hw0p, HW⟩ := soft_win_massw CL hf 1
-  obtain ⟨cf, Cf, hf0, hcf, hf0p, Hf⟩ := propThaMflat_proved (cPC := cPC) (CPC := CPC) CL CR hf hm hM r hr
+  obtain ⟨cf, hf0, hcf, hf0p, Hf⟩ := soft_flat1_phi hf CL
   have hηe : CR.η = CL.η := hM.2.2.2.1
   have hN0 : CR.N0 = CL.N0 := hM.2.2.2.2.2
   have hη := CL.consts_pos.2.1
@@ -345,7 +340,7 @@ theorem soft_window_eig_lower {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V c
   have hkb := Hk p hp N hN1 sK (Xs k) hX ha
   have hvs := Hv p hp N hN1 sV (Xs k) hX ha Ck hCk ψL ψ' hJL hsL hJR hsR hkb
   obtain ⟨hmL, hmU⟩ := HW p hp N hN1 sW (Xs k) hX ha
-  have hflat := (Hf p hp (Xs k) hX N hN sF ha).2.2.2.1
+  have hflat := Hf p hp (Xs k) hX N hN1 sF ha
   -- notation
   set w : ℝ := Fz.step N ^ (-(1 : ℝ) / 2) with hw
   have hwp : 0 < w := Real.rpow_pos_of_pos hh0 _
@@ -526,7 +521,7 @@ set_option maxHeartbeats 1000000 in
 theorem softJBChart_overlap_lb_left {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC)
     (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1))
     (CL1 : SoftEdgeChart Fz P (m + 1) q U V (fun _ => 1))
-    (hM : SoftMirror CL CR) (hm : 1 ≤ m) (r : ℕ) (hr : StdAssump Fz P (q / 2) r) (Cs0 : ℝ) :
+    (hM : SoftMirror CL CR) (hm : 1 ≤ m) (Cs0 : ℝ) :
     ∃ c0 h1 : ℝ, 0 < c0 ∧ 0 < h1 ∧ ∀ p ∈ P, ∀ N : ℕ, max CL.N0 CR.N0 ≤ N → Fz.step N ≤ h1 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →
       (∀ i, Xs i ≤ Fz.bandHi p + Cs0 * Fz.step N ^ 2) →
@@ -539,7 +534,7 @@ theorem softJBChart_overlap_lb_left {cPC CPC : ℝ} (hf : ParabolicCylinderFacts
         c0 ≤ FormalResearch.JB.jbL2 (softPk N lo R false ((softWindow CL p (Xs k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p))))
             (fun n => Um ((softJBChart CL CL1 TI p N Xs cols lo R hlo false used
               (fun k => softPk N lo R false ((softWindow CL p (Xs k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p)))) σ0 σ1 host0 host1).row n) k) := by
-  obtain ⟨c0, h1, hc0, hh1, H⟩ := soft_window_eig_lower hf CL CR hM hm r hr Cs0
+  obtain ⟨c0, h1, hc0, hh1, H⟩ := soft_window_eig_lower hf CL CR hM hm Cs0
   refine ⟨c0, h1, hc0, hh1, ?_⟩
   intro p hp N hN hstep Xs Um hE hs0 TI cols lo R hlo used σ0 σ1 host0 host1 hX ha hcov k
   have h := H p hp N hN hstep Xs Um hE hs0 k (hX k) (ha k)

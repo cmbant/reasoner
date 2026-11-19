@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import FormalResearch.JacobiEigenvectors.TheoremB.SoftOverlap
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftMflat2
 
 /-!
 # Paper J, Theorem B, L3.5b (soft halves), part 9: `lem:tha-Mflat` (flat1, corrected sequence) as a single-chart lemma
