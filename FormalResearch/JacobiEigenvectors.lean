@@ -142,6 +142,9 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftLeft
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftRight
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftBlock
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftUp
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbGauge
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftLo
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbFinal
 
 /-!
 # Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)

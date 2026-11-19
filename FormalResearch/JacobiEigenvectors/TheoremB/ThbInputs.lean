@@ -23,11 +23,12 @@ Source: Paper J `app_thmB.tex`, proof of `prop:thb-inputs`: (S1) the blocks, the
 
 ## Differences from the paper
 
-The soft blocks are premises (`SoftBlockUp`, `SoftBlockLo`); see the module docstring of the report.  `N_0` replaces `h <= h_0` (F-B3).
+`N_0` replaces `h <= h_0` (F-B3).  The two soft blocks are stated here (`SoftBlockUp`, `SoftBlockLo`) and proved in `ThbSoftUp.lean` (`softBlockUp_proved`) and `ThbSoftLo.lean` (`softBlockLo_proved`); `ThbFinal.lean` discharges the premises of
+`propThbInputs_of_soft` and `thmB_of_soft` (`propThbInputs_proved`, `thmB_proved`).
 
 ## Not formalised
 
-The soft blocks themselves.
+Nothing in this module beyond its statements (the soft blocks are proved in `ThbSoftUp.lean`, `ThbSoftLo.lean`).
 -/
 
 @[expose] public section
