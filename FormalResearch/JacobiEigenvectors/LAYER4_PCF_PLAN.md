@@ -28,6 +28,21 @@ Numerics: mpmath 1.3.0, 40-60 digits, scratchpad only, not committed. "Consumed"
   * **(c) E1: not started** (stopped before it).  Chosen route unchanged (plan section 3, E1, E4): `exists_solution_exp_of_pos` with `f = p`; recessive identification now only needs `tendsto_pcU` (+ the Wronskian argument), which is proved.  First concrete lemma: the explicit variation bound `int_{z2}^inf |p^{-1/4}(p^{-1/4})''| <= C` for `a >= 1`, `z2 = 0`, i.e. the case with no turning point (plan item 7); then `env_bar`, `molv_bar` with E0's `origin_env_bar` as the normalisation at `z = 0` (the constants `[1/2, 2]` are absolute).  No numerical range was changed; the plan's constants (`cPC <= 0.632`, `CPC >= 1.79`, `A^{1/3}` floor) are unaffected.
 * **Remaining special-function premise: `PCEnvelopeFacts U V cPC CPC`** (`cPC_*`, `env_well`, `env_bar`, `molv_well`, `molv_bar`, `V_growth`, `U_pos`, `beyond`), the B2 block of sections 3 and 5 below.  `ParabolicCylinderFacts.ofEnvelope` (`Charts/PCActual.lean`) turns it into `ParabolicCylinderFacts pcU pcV cPC CPC`.
 
+## Next steps (proposed, at the merge of `lean/paper-j-layer4` to `master`)
+
+Everything proved so far is on `master`; the work paused after phase B2 stage 1. Remaining, in dependency order (item numbers refer to section 5):
+1. **Finish `U_pos`** (two short lemmas, about 150 L, one round; Haiku-sized with the recipe in the status block above): no zero beyond the turning point (`g = U U'`, `g' >= 0`, `tendsto_pcU`, `pc_wronsk`), then constant sign by continuity in `a` (`pcSmoothFacts.cont_U`) from `pcU_zero_zero_pos`.
+2. **E1 for `a >= 1`** (no turning point; item 6): explicit variation bound for `p^{-1/4}(p^{-1/4})''`, `p = z^2/4 + a`, for the vendored `exists_solution_exp_of_pos`; with the numerical negative regression of the plan. This is the main technical risk (Sonnet).
+3. **E4 for `a >= 1`**: `env_bar`, `molv_bar` (item 7; recessive identification by `tendsto_pcU` + Wronskian; normalise at `z = 0` by `origin_env_bar`). Then `a in (0,1)` by compactness (item 9 part).
+4. **Oscillatory, Airy and exponential zones for `a <= -A0`** (item 8, 3 rounds): `env_well`, `molv_well`, `beyond` (Sonnet; E2 finite-endpoint oscillatory LG, E3 regularised-energy bound, `|U'|` Riccati barrier).
+5. **Constants and compact range** (item 9) and far-region `V` facts (item 10): joint continuity + positivity on the compact range; then `PCEnvelopeFacts pcU pcV cPC CPC` and, by `ParabolicCylinderFacts.ofEnvelope`, `ParabolicCylinderFacts pcU pcV cPC CPC`.
+Parallel or later:
+* `UpstreamFacts` structure (one field per assumed upstream statement, exact transcription, provenance, numerical check) only when a first real entry exists (none needed so far).
+* Full joint `ContDiff` of `(a,z) -> U, V` (500-800 L, optional; consumers use the weak form).
+* The other Layer-4 inputs (`PLAN.md`, Layer-4 list items 2-6): `BulkWeberChart`, `SoftEdgeChart`, `BulkPhaseInputs`, `TransferBundle`, the cover/mirror fields of `ChartInputs`, and `Layer4Inputs` for the truncated family; each needs the Weber envelope theorem above (the chart fields are estimates built on it) and the Casoratian-Volterra engine already proved.
+* Satisfiability check (an explicit family with all hypotheses discharged) once `PCEnvelopeFacts` is proved.
+* Paper side: the findings of `PLAN.md` (`delta > 0` in cor:eigen, right-chart start F-CC1, `StdDM`/(E_Kbar) in thm:B, `V_growth` F-PC1, lattice `phase_osc` F-PC2, weak `smooth` F-PC3, the fermion constant 8) for the next paper revision.
+
 ## 0. Summary
 
 * The structure has 21 fields (`U_pos` and `beyond` included). 13 are consumed by a Lean proof (`cPC_*`, `smooth_*`, `ode_U`,
