@@ -8,7 +8,28 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.Statements
 public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenBase
 
 /-!
-placeholder
+# Paper J, Layer 2: the derivative of the action, `eq:cp-S0p` (L2.E, Step 1 of cor:eigen, part 3)
+
+Source: Paper J `thmA.tex`, proof of `cor:eigen`, Step 1: `S_0'(X) = -int_{u_-}^{u_+} du/sqrt(T)` on the open band.  Frozen statements: `actionS0` (`TheoremA/Statements.lean`); the use is `CorEigenS1`, `InvS0` (`EigenvalueStatements.lean`).
+
+## Proved here
+
+* `deriv_pos_of_left_neg`, `deriv_neg_of_right_neg`: sign of a simple zero from the sign pattern next to it.
+* `E1G`, `hasDerivWithinAt_E0`, `continuousOn_E1G`: `E_0' = (L - 2u) G + u (L - u) G'` within `[0, L]`.
+* **`base_data`** (lem:tha-geom (a) in the form needed): for `X` in the open band, `a_0 = u_-(X)`, `b_0 = u_+(X)` satisfy `0 <= a_0 < b_0 <= L`, `T(a_0) = T(b_0) = 0`, `T > 0` on `(a_0, b_0)`, `T < 0` on `[0, L]` outside `[a_0, b_0]`, and `T'(a_0) > 0 > T'(b_0)`
+  (one-sided at the hard edges, where the collision `X = B_0(0)` gives `T'(0) = 4 L G_0(0)`).  From `HypMorse.geomBulk`.
+* **`actionS0_hasDerivAt_sym`** (`eq:cp-S0p`): `d/dX int_0^L arccos((X - B_0)/(2 sqrt E_0)) du = - int_0^L T^{-1/2} du` at every `X` of the open band (including the collision energies).
+* `integral_zero_L_eq`, `intervalIntegrable_inv_sqrtT`: `int_0^L q T^{-1/2} = int_{u_-}^{u_+} q T^{-1/2}`, and the integrand is interval integrable (for continuous `q`).
+* **`actionS0_hasDerivAt`** (family form): `HasDerivAt (actionS0 F mu) (- int_{u_-}^{u_+} 1/sqrt T) X` for `mu in K`, `X` in the open band, with `HypOn F K`, `DM F K 0`; `deriv_S0_of_eq` for any `S_0` equal to `actionS0` on the band.
+
+## Differences from the paper
+
+No implicit function theorem and no differentiation under the integral sign: the derivative is obtained from `ActionDerivativeShift.lean` (fundamental theorem of calculus for `arccos` in the energy variable, Fubini,
+continuity of `int T^{-1/2}` from `ActionDerivativeStable.lean`).  The convention `x/sqrt y = 0` for `y <= 0` is used in the integrands (so the integrals over `[0, L]` and `[u_-, u_+]` agree, `integral_zero_L_eq`).
+
+## Not formalised
+
+The edge values `-S_0'(X_s^pm) = pi sqrt(2/(kappa_pm d_pm))` (limit `eq:cp-edgelim`); see `CorEigenGapM.lean`.
 -/
 
 @[expose] public section
@@ -257,5 +278,29 @@ theorem deriv_S0_of_eq (F : SymbolFamily Par) (K : Set Par) (hH : HypOn F K) (hD
   exact hS Y (Ioo_subset_Icc_self hY)
 
 end Family
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.base_data' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.base_data
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.actionS0_hasDerivAt_sym' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.actionS0_hasDerivAt_sym
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.integral_zero_L_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.integral_zero_L_eq
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.intervalIntegrable_inv_sqrtT' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.intervalIntegrable_inv_sqrtT
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.actionS0_hasDerivAt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.actionS0_hasDerivAt
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.deriv_S0_of_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.deriv_S0_of_eq
 
 end FormalResearch.JacobiEigenvectors.TheoremA
