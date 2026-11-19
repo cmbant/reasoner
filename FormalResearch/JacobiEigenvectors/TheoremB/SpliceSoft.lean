@@ -160,7 +160,6 @@ section Main
 
 variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
 
-set_option maxHeartbeats 4000000 in
 /-- **`prop:tha-splice` (b)** (`PropThaSpliceSoft`) with `eta(h) = h^m`, (the statement carries the premises `ParabolicCylinderFacts`, `1 <= m`, `SoftMirror`; the chart-constant smallness is the chart field `delta0_small`). -/
 theorem propThaSpliceSoft_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (fun _ => 1))
     (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) :
