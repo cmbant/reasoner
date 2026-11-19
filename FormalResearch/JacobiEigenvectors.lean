@@ -85,6 +85,8 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeStable
 public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeShift
 public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivative
 public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeDt
+public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeEdge
+public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeEdgeS0
 public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenS1
 public import FormalResearch.JacobiEigenvectors.TheoremA.InvBounded
 public import FormalResearch.JacobiEigenvectors.TheoremA.InvAlg
@@ -94,8 +96,6 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.InvReg
 public import FormalResearch.JacobiEigenvectors.TheoremA.InvExpand
 public import FormalResearch.JacobiEigenvectors.TheoremA.InvCoeffs
 public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenInverseSlope
-public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeEdge
-public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeEdgeS0
 public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblyRel
 public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblySoft
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftWindowProof
