@@ -113,7 +113,7 @@ theorem propThbInputs_of_soft
     (hLo : ∀ {t0' : ℝ} (h : t0' ≤ t0), SoftBlockLo (CP.restrict h) (TB.restrict h) spl) :
     PropThbInputs CP TB spl := by
   intro hm hK hq hKc hH hDM hs
-  obtain ⟨t1, ht1, r, hr⟩ := stdAssump_frozen_all F K Kidx hKc hH hDM
+  obtain ⟨t1, ht1, r, hr⟩ := stdAssump_frozen_all_of_stdDM F K Kidx hKc hH hDM
   by_cases ht0 : 0 < t0
   swap
   · refine ⟨⟨0, 0, 0, 1, 1, 1, 1, 0, 0, le_rfl, le_rfl, one_pos, one_pos, one_pos, one_pos, le_rfl, le_rfl⟩, 0, 0, 1, one_pos, ?_⟩

@@ -46,7 +46,7 @@ theorem etaR_next_le {m : ℕ} {h : ℝ} (hh : 0 < h) (hl : Real.exp (-1) ≥ h)
 /-- **host0_col, host1_col from prop:tha-splice (c)**: see the module docstring. -/
 theorem hostCols_of_twoOrders (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) (hS : PropThaSpliceTwoOrders CP spl) (hm : 1 ≤ m) (hK : Kidx = (m + 1) / 2) (hq : q = 2 * Kidx) (hKc : IsCompact K)
-    (hH : HypOn F K) (hD : DM F K (2 * Kidx + 1)) (hs : CP.SplicesInWindow spl) :
+    (hH : HypOn F K) (hD : StdDM F K Kidx) (hs : CP.SplicesInWindow spl) :
     ∃ C h0 : ℝ, 0 ≤ C ∧ 0 < h0 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h0 → F.step N ≤ t0 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
         ∀ j : Fin (N + 1),

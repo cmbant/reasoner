@@ -247,7 +247,7 @@ for `h ≤ h'_m` and every eigen-system of `J_h`, `ThbStableAt J_h Ĝ_m (K0 h^{m
 theorem corThbStable (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) (hB : ThmB CP spl)
     (h1m : 1 ≤ m) (hK : Kidx = (m + 1) / 2) (hq : q = 2 * Kidx) (hcpt : IsCompact K) (hH : HypOn F K)
-    (hD : DM F K (2 * Kidx + 1)) (hspl : CP.SplicesInWindow spl) (hgap : EigGapBound F K)
+    (hD : StdDM F K Kidx) (hspl : CP.SplicesInWindow spl) (hgap : EigGapBound F K)
     (K0 : ℝ) (hK0 : 0 ≤ K0) :
     ∃ C hm Cs h' : ℝ, 0 < hm ∧ C * hm ^ m < 1 ∧ 0 ≤ Cs ∧ 0 < h' ∧ h' ≤ hm ∧
       ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h' → F.step N ≤ t0 →

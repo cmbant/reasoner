@@ -3,6 +3,7 @@ module
 public import Mathlib
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStable
 public import FormalResearch.JacobiEigenvectors.TheoremA.SmoothSpectrum
+public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumAssemblyBulk
 public import FormalResearch.JB.JBPolar
 
 /-!
@@ -26,31 +27,25 @@ Claim class: **proved under explicit hypotheses** (the two premises below).
 * `thmBConcl_of_thmB`: `ThmB CP spl` is `hypotheses → ThmBConcl CP spl`.
 * `jacobiMat_trunc_norm_le`: `‖J_h - tilde J_h‖_op ≤ C' h^{m+1}` (eq:l2-trunc) under `(H1)`, `(D_m)` on a compact `K`.
 
-## The two premises (and why they are premises)
+## The two premises
 
-1. `ThmBConcl CP spl` for `CP : ChartPair` of `truncFamily F m`: `ThmB CP spl` needs `DM (truncFamily F m) K (2 Kidx + 1)`, which is
-   **not** a consequence of `DM F K m` (finding **F-DD1**): the truncated jets keep the regularity `C^{r(m) - 10 floor(j/2)}` of `F`,
-   whereas `DM ... (2 Kidx + 1)` asks `C^{r(2 Kidx + 1) - 10 floor(j/2)}` and `r(2 Kidx + 1) > r(m)` (`regBudget`).  The paper uses of `(D_{q_m+1})` only
-   the consequences `(E_Kbar)` of the frozen truncated matrices, with the budget `r(m) >= r(max(2 Kbar - 1, 0))`; the frozen `ThmB`
-   does not state this weaker input.  So `ThmB` is applied to the truncated chart pair as a premise: it is discharged by
-   `thmBConcl_of_thmB` as soon as `ThmB CP spl` and its hypotheses (including that `DM` for the truncated family) are available.
-2. `EigGapBound (truncFamily F m) K`: the gap bound `c h ≤ X_i - X_{i+1}` for `tilde J_h`, i.e. the conclusion of
-   `CorEigenGap1 (truncFamily F m) K` (`eigGapBound_of_corEigenGap1`; `corEigen_proved` gives `CorEigen` from the Layer-4 inputs
-   `Layer4Inputs (truncFamily F m) K 0, 1`).  Using it still needs an admissible `S` (`ThmAi (truncFamily F m) K 1`) and an inverse `x_0`
-   of `S_0`; and `DM (truncFamily F m) K 1` (from `DM F K m`, `1 ≤ m`: the first two jets and an `O(h^2)` remainder; `lem:smo-budget (e)`,
-   not formalised here).
+1. `ThmBConcl CP spl` for `CP : ChartPair` of `truncFamily F m`.  `ThmB CP spl` needs the hypothesis `StdDM (truncFamily F m) K Kidx` (finding **F-DD1**): the consequences of `(D_{2 Kidx+1})` that the proof uses, namely `(D_1)` and
+   `FrozenReg` (the paper's `(E_Kbar)` of the frozen truncated matrices, budget `r(m) >= r(max(2 Kbar - 1, 0))`, remainder after the jet `2 Kidx + 1`).  `stdDM_trunc` derives it from `DM F K m`, `1 <= m`, `Kidx = (m+1)/2`.
+   (`DM (truncFamily F m) K (2 Kidx + 1)` itself is **not** a consequence of `DM F K m`: the truncated jets keep the regularity `C^{r(m) - 10 floor(j/2)}` of `F`, whereas it asks `C^{r(2 Kidx + 1) - 10 floor(j/2)}` and
+   `r(2 Kidx + 1) > r(m)` (`regBudget`); this is why the frozen `ThmB` is stated with `StdDM`.)  `corThbDm_of_thmB` takes `ThmBConcl CP spl`; it is discharged by `thmBConcl_of_thmB` from `ThmB CP spl`.
+2. `EigGapBound (truncFamily F m) K`: the gap bound `c h ≤ X_i - X_{i+1}` for `tilde J_h`, i.e. the conclusion of `CorEigenGap1 (truncFamily F m) K` (`eigGapBound_of_corEigenGap1`; `corEigen_proved` gives `CorEigen`
+   from the Layer-4 inputs `Layer4Inputs (truncFamily F m) K 0, 1`).  Using it needs an admissible `S` (`ThmAi (truncFamily F m) K 1`), an inverse `x_0` of `S_0`, and `DM (truncFamily F m) K 1` (`stdDM_trunc`, `.d1`).
 
 ## Differences from the paper
 
 * The constants: `C = max(C_m, 0) + C_* C'`, `h_m` small enough that `C h_m^m < 1`.  `C_* = 2 c_f / c` with `c_f` of `ThbStableMult`.
 * `Ĝ^{jet}_m` is `compMatrix CP.CI0 spl μ N Xt`, built from the eigenvalues `Xt` of `tilde J_h` (an eigen-system `(Xt, Ut)` of `tilde J_h` is
   only used through its eigenvalues and the estimate of `ThmBConcl`), as in the frozen statement.
-* The final `Corollary cor:fermions holds with Ĝ^{jet}_m` part of the paper's statement is not part of `CorThbDm`.
+* The final `Corollary cor:fermions holds with Ĝ^{jet}_m` part of the paper's statement is not yet part of `CorThbDm` (see `PLAN.md`).
 
 ## Not formalised
 
-`DM (truncFamily F m) K (2 Kidx + 1)` (not a consequence of `DM F K m`, F-DD1), the existence of `S`, `x_0` for the truncated family (so `EigGapBound`
-is a premise), and `Corollary cor:fermions` for `Ĝ^{jet}_m`.
+Nothing beyond the premises above.
 -/
 
 @[expose] public section
@@ -111,6 +106,13 @@ theorem jacobiMat_trunc_norm_le (E : SymbolFamily Par) (K : Set Par) (j : ℕ) (
 
 section Dm
 
+/-- **F-DD1 discharged**: `(D_m)`, `1 <= m` and `Kidx = (m+1)/2` give `StdDM (truncFamily F m) K Kidx`, the part of `(D_{2 Kidx+1})` that `ThmB` uses, for the truncated family `tilde J_h`
+(jets beyond `m` zero, no remainder; `(D_1)` by `dm_truncSM`, `dm_mono`; the regularity and remainder data of the frozen matrices by `frozenReg_trunc`, with the budget `r(m) >= r(max(2 Kidx - 1, 0))`).
+`DM (truncFamily F m) K (2 Kidx + 1)` is not a consequence of `DM F K m`. -/
+theorem stdDM_trunc {F : SymbolFamily Par} {K : Set Par} {m Kidx : ℕ} (h1m : 1 ≤ m) (hKidx : Kidx = (m + 1) / 2) (hK : IsCompact K)
+    (hD : DM F K m) : StdDM (truncFamily F m) K Kidx :=
+  ⟨dm_mono _ K h1m hK (dm_truncSM F K m hD), regBudget m, frozenReg_trunc F K m Kidx hKidx hD⟩
+
 variable {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
 
 /-- The conclusion of `ThmB` for a chart pair (without the hypotheses of `ThmB`): constants `C`, `h_m` with `C h_m^m < 1`
@@ -128,7 +130,7 @@ def ThmBConcl (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := 
 
 theorem thmBConcl_of_thmB (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) (hB : ThmB CP spl) (h1m : 1 ≤ m) (hK : Kidx = (m + 1) / 2) (hq : q = 2 * Kidx)
-    (hcpt : IsCompact K) (hH : HypOn F K) (hD : DM F K (2 * Kidx + 1)) (hspl : CP.SplicesInWindow spl) :
+    (hcpt : IsCompact K) (hH : HypOn F K) (hD : StdDM F K Kidx) (hspl : CP.SplicesInWindow spl) :
     ThmBConcl CP spl :=
   hB h1m hK hq hcpt hH hD hspl
 

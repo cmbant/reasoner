@@ -17,7 +17,7 @@ Source: Paper J `thmB.tex` `prop:tha-splice` (c) and `app_thmB.tex`, proof of `p
   **any row of the window**) satisfies `||bulkColAt - Psi_k||_2 <= C h^m` at every eigenvalue `X = X_k` in the block, uniformly in `n_s`.  Route: the column differs from `bulkVec` only on the rows between `n_s` and the
   standard split, where `|psi^L - hat kappa psi^R| <= Cm h^m M = Cm h^m envL` (`bulk_matching_eig`, `W = 1` on the window), and `|Psi - bulkVec| <= Cc h^m bulkEnv` (`bulk_conj1`).  The normaliser ratio
   `hat N(n_s)/hat N` of `prop:tha-splice` (a) is **not** needed for the matrix columns (they use the standard normaliser), so bridge item (b) (`glueVecAt` versus `splicedVec`) is not used.
-* Bridge (a) `StdAssump` of the frozen family: `EK_mono_set`, `EK_mono_idx` (lowering the index of `(E_K)` on a compact set), `stdAssump_frozen_all` (from `frozenStandard`, `TheoremA/Geometry.lean`:
+* Bridge (a) `StdAssump` of the frozen family: `EK_mono_set`, `EK_mono_idx` (lowering the index of `(E_K)` on a compact set), `stdAssump_frozen_all_of_stdDM` (from `frozenStandard_of_reg`, `TheoremA/Geometry.lean`; `stdAssump_frozen_all` is the version for `DM F K (2 Kidx + 1)`:
   `StdAssump (frozenFamily F Kidx) (paramSet K t') Kd r` for all `0 < t' <= t1`, `Kd <= Kidx`), and `BulkWeberChart.restrict` (restriction of a chart to a smaller parameter set; **it lists every `P`-dependent field of `BulkWeberChart`,
   a new such field must be added there**): this is the `ChartInputs.restrict` step of finding F-t0, for bulk charts.
 * Bridge (d): `(frozenFamily F Kidx).jacobiMat (mu, h) N = F.jacobiMat mu N` (`frozenFamily_jacobiMat_at_step`) transports the eigen-system.
@@ -444,20 +444,28 @@ theorem EK_mono_idx {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} 
     exact ⟨hmain _ (fun j => F.G (2 * j) μ s) (fun j hj => ((hCj j hj μ hμ s hs).1).trans ((le_abs_self _).trans (hCJj j hj))) hG,
       hmain _ (fun j => F.B (2 * j) μ s) (fun j hj => ((hCj j hj μ hμ s hs).2).trans ((le_abs_self _).trans (hCJj j hj))) hB⟩
 
-/-- **Bridge (a)**: from `DM F K (2 Kidx + 1)`, `IsCompact K`, `HypOn F K` (the hypotheses of `PropThaSpliceTwoOrders`), the frozen family satisfies the standing
-assumptions `StdAssump (frozenFamily F Kidx) (paramSet K t0') Kd r` for every `t0' <= t1` and every `Kd <= Kidx` (with one `r`): `frozenStandard` (`TheoremA/Geometry.lean`), then monotonicity in `t0` and in the index. -/
-theorem stdAssump_frozen_all {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K : Set Par) (Kidx : ℕ)
-    (hK : IsCompact K) (hH : HypOn F K) (hDM : DM F K (2 * Kidx + 1)) :
+/-- **Bridge (a)**: from `StdDM F K Kidx` (the consequences of `DM F K (2 Kidx + 1)` that the chain uses, finding F-DD1), `IsCompact K`, `HypOn F K` (the hypotheses of `PropThaSpliceTwoOrders`), the frozen family satisfies the standing
+assumptions `StdAssump (frozenFamily F Kidx) (paramSet K t0') Kd r` for every `t0' <= t1` and every `Kd <= Kidx` (with one `r`): `frozenStandard_of_reg` (`TheoremA/Geometry.lean`), then monotonicity in `t0` and in the index. -/
+theorem stdAssump_frozen_all_of_stdDM {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K : Set Par) (Kidx : ℕ)
+    (hK : IsCompact K) (hH : HypOn F K) (hS : StdDM F K Kidx) :
     ∃ t1 : ℝ, 0 < t1 ∧ ∃ r : ℕ, ∀ t' : ℝ, 0 < t' → t' ≤ t1 → ∀ Kd : ℕ, Kd ≤ Kidx →
       StdAssump (frozenFamily F Kidx) (paramSet K t') Kd r := by
-  obtain ⟨t1, ht1, r, hr⟩ := HypMorse.frozenStandard F K Kidx hK hH hDM
-  refine ⟨t1, ht1, r, fun t' ht' ht'1 Kd hKd => ?_⟩
+  obtain ⟨r0, hr0⟩ := hS.frozen
+  obtain ⟨t1, ht1, hr⟩ := HypMorse.frozenStandard_of_reg F K Kidx r0 hK hH hr0
+  refine ⟨t1, ht1, r0, fun t' ht' ht'1 Kd hKd => ?_⟩
   obtain ⟨hPc, hEK, hHyp⟩ := hr
   have hsub : paramSet K t' ⊆ paramSet K t1 :=
     Set.prod_mono subset_rfl (Set.Icc_subset_Icc (by linarith) ht'1)
   refine ⟨hK.prod isCompact_Icc, EK_mono_set (EK_mono_idx hPc hEK hKd) hsub, ?_⟩
   obtain ⟨g, hg⟩ := hHyp
   exact ⟨g, fun μ hμ => hg μ (hsub hμ)⟩
+
+/-- `stdAssump_frozen_all_of_stdDM` from `DM F K (2 Kidx + 1)` (`stdDM_of_dm`). -/
+theorem stdAssump_frozen_all {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K : Set Par) (Kidx : ℕ)
+    (hK : IsCompact K) (hH : HypOn F K) (hDM : DM F K (2 * Kidx + 1)) :
+    ∃ t1 : ℝ, 0 < t1 ∧ ∃ r : ℕ, ∀ t' : ℝ, 0 < t' → t' ≤ t1 → ∀ Kd : ℕ, Kd ≤ Kidx →
+      StdAssump (frozenFamily F Kidx) (paramSet K t') Kd r :=
+  stdAssump_frozen_all_of_stdDM F K Kidx hK hH (stdDM_of_dm hK hDM)
 
 /-! ### Restriction of a bulk chart to a smaller parameter set -/
 
@@ -551,7 +559,7 @@ an eigenvalue `X` of the block is within `C h^M` of the eigenvector in `l^2`, un
 The standing assumptions of the frozen family come from `stdAssump_frozen_all`, the passage from the chart's `t0` to the smaller `t0'` of `frozenStandard` by `BulkWeberChart.restrict`
 (finding F-t0), and the frozen matrix at `t = h` is `J_h` (`frozenFamily_jacobiMat_at_step`). -/
 theorem bulk_block_columns {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K : Set Par) (Kidx : ℕ) (t0 : ℝ)
-    (hK : IsCompact K) (hH : HypOn F K) (hDM : DM F K (2 * Kidx + 1)) {Jlo Jhi : ℝ} {M : ℕ} {U V : ℝ → ℝ → ℝ}
+    (hK : IsCompact K) (hH : HypOn F K) (hDM : StdDM F K Kidx) {Jlo Jhi : ℝ} {M : ℕ} {U V : ℝ → ℝ → ℝ}
     (hM : 1 ≤ M) (hMK : M / 2 ≤ Kidx)
     (CL : BulkWeberChart (frozenFamily F Kidx) (paramSet K t0) Jlo Jhi M U V)
     (CR : BulkWeberChart (mirrorFamily (frozenFamily F Kidx)) (paramSet K t0) Jlo Jhi M U V)
@@ -569,7 +577,7 @@ theorem bulk_block_columns {Par : Type*} [TopologicalSpace Par] (F : SymbolFamil
     exfalso
     have := FormalResearch.JB.stepSize_pos F.L_pos N
     exact absurd (this.trans_le hle) (not_lt.mpr (not_lt.mp ht0))
-  obtain ⟨t1, ht1, r, hstd⟩ := stdAssump_frozen_all F K Kidx hK hH hDM
+  obtain ⟨t1, ht1, r, hstd⟩ := stdAssump_frozen_all_of_stdDM F K Kidx hK hH hDM
   have ht2 : 0 < min t0 t1 := lt_min ht0 ht1
   have hsub : paramSet K (min t0 t1) ⊆ paramSet K t0 :=
     Set.prod_mono subset_rfl (Set.Icc_subset_Icc (by linarith [min_le_left t0 t1]) (min_le_left _ _))
@@ -610,7 +618,7 @@ theorem bulk_block_columns {Par : Type*} [TopologicalSpace Par] (F : SymbolFamil
 for splices `spl nu` in the open overlap of the block. -/
 theorem compMatrix_bulk_col {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {M q : ℕ}
     {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ} (CI : ChartInputs F K Kidx t0 M q U V cPC CPC) (spl : Fin CI.nb → ℝ)
-    (hK : IsCompact K) (hH : HypOn F K) (hDM : DM F K (2 * Kidx + 1)) (hM : 1 ≤ M) (hMK : M / 2 ≤ Kidx)
+    (hK : IsCompact K) (hH : HypOn F K) (hDM : StdDM F K Kidx) (hM : 1 ≤ M) (hMK : M / 2 ≤ Kidx)
     (hspl : ∀ ν, (CI.bulkL ν).c' < spl ν ∧ spl ν < (CI.bulkL ν).c) :
     ∃ C h0 : ℝ, 0 < h0 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h0 → F.step N ≤ t0 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
@@ -674,13 +682,13 @@ theorem etaR_self (m : ℕ) (h : ℝ) : etaR m m h = h ^ m := by
   rw [if_pos rfl]
 
 /-- **`PropThaSpliceTwoOrders`, bulk columns** (`prop:tha-splice` (c) for the columns whose energy lies in a bulk block): with the hypotheses of the frozen statement (`1 <= m`, `Kidx = (m+1)/2`,
-`q = 2 Kidx`, `IsCompact K`, `HypOn F K`, `DM F K (2 Kidx + 1)`, `SplicesInWindow`), there are `C`, `h0` such that for every `mu in K`, `N` with `h <= h0`, `h <= t0`, every eigen-system and every column `j` with `X_j` in a block,
+`q = 2 Kidx`, `IsCompact K`, `HypOn F K`, `StdDM F K Kidx`, `SplicesInWindow`), there are `C`, `h0` such that for every `mu in K`, `N` with `h <= h0`, `h <= t0`, every eigen-system and every column `j` with `X_j` in a block,
 `||(hat G^{[m]} - U) e_j||_2 <= C eta_m` and `||(hat G^{[m+1]} - U) e_j||_2 <= C eta_{m+1}`.  The soft columns (`X_j` outside all blocks) are the soft half (`PropThaSpliceSoft`). -/
 theorem twoOrders_bulk_columns {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ}
     {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
     (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) (hm : 1 ≤ m) (hK : Kidx = (m + 1) / 2) (hKc : IsCompact K) (hH : HypOn F K)
-    (hDM : DM F K (2 * Kidx + 1)) (hspl : CP.SplicesInWindow spl) :
+    (hDM : StdDM F K Kidx) (hspl : CP.SplicesInWindow spl) :
     ∃ C h0 : ℝ, 0 < h0 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h0 → F.step N ≤ t0 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
         ∀ j : Fin (N + 1), (∃ ν, CP.CI0.lo ν ≤ Xs j ∧ Xs j ≤ CP.CI0.hi ν) →
@@ -727,6 +735,10 @@ theorem twoOrders_bulk_columns {Par : Type*} [TopologicalSpace Par] {F : SymbolF
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.stdAssump_frozen_all' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremB.stdAssump_frozen_all
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.stdAssump_frozen_all_of_stdDM' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.stdAssump_frozen_all_of_stdDM
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.bulk_block_columns' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

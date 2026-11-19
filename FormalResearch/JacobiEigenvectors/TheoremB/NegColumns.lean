@@ -288,13 +288,13 @@ theorem compMatrix_lower_col (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (spl
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
         ∀ j : Fin (N + 1), (¬ ∃ ν : Fin CI.nb, CI.lo ν ≤ Xs j ∧ Xs j ≤ CI.hi ν) → ¬ CI.Jhi < Xs j →
           CI.softLoL.aOf (atStep F μ N) (-(Xs j)) N ≤ 1)
-    (hKidx : Kidx = (m + 1) / 2) (hK : IsCompact K) (hH : HypOn F K) (hD : DM F K (2 * Kidx + 1)) :
+    (hK : IsCompact K) (hH : HypOn F K) (hD : DM F K 1) :
     ∃ C h0 : ℝ, 0 < h0 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h0 → F.step N ≤ t0 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
         ∀ j : Fin (N + 1), (¬ ∃ ν : Fin CI.nb, CI.lo ν ≤ Xs j ∧ Xs j ≤ CI.hi ν) → ¬ CI.Jhi < Xs j →
           FormalResearch.JB.jbL2 Finset.univ (fun i : Fin (N + 1) => compMatrix CI spl μ N Xs i j - Um i j) ≤ C * η (F.step N) := by
   obtain ⟨C, h1, hh1, hcl⟩ := soft_col_clause CI.pc CI.softLoL CI.softLoR η hη0 hetas hS hm CI.mirror_lo r hr hEnv
-  obtain ⟨h0c, hh0c, hcov⟩ := spectrumCovered CI hKidx hK hH hD
+  obtain ⟨h0c, hh0c, hcov⟩ := spectrumCovered_of_dm1 CI hK hH hD
   obtain ⟨hA0, hhA0, hAh⟩ := hA1
   have hLp : 0 < F.L / ((max CI.softLoL.N0 CI.softLoR.N0 : ℕ) + 1 : ℝ) := div_pos F.L_pos (by positivity)
   refine ⟨C, min (min (min h1 h0c) hA0) (F.L / (((max CI.softLoL.N0 CI.softLoR.N0 : ℕ) : ℝ) + 1)),

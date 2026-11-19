@@ -102,9 +102,9 @@ def SoftCovers (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) : Prop :=
           ((¬ ∃ ν, CI.lo ν ≤ X k ∧ X k ≤ CI.hi ν) ∧ ¬ CI.Jhi < X k ∧
             |-X k - (negFamily (frozenFamily F Kidx)).bandHi (atStep F μ N)| ≤ CI.softLoL.δ0)
 
-theorem softCovers_of_spectrumCovered (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (hKidx : Kidx = (m + 1) / 2) (hK : IsCompact K)
-    (hH : HypOn F K) (hD : DM F K (2 * Kidx + 1)) : SoftCovers CI :=
-  spectrumCovered CI hKidx hK hH hD
+theorem softCovers_of_dm1 (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (hK : IsCompact K)
+    (hH : HypOn F K) (hD : DM F K 1) : SoftCovers CI :=
+  spectrumCovered_of_dm1 CI hK hH hD
 
 theorem SoftCovers.restrict {CI : ChartInputs F K Kidx t0 m q U V cPC CPC} (h : SoftCovers CI) {t0' : ℝ} (ht : t0' ≤ t0) :
     SoftCovers (CI.restrict ht) := by
@@ -247,14 +247,14 @@ theorem softCovers_pair (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := 
 /-- **The soft columns of both orders** (F-t0: the standing assumptions hold on `paramSet K (min t0 t1)`, to which the charts are restricted). -/
 theorem twoOrders_soft_columns (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) (hm : 1 ≤ m) (hK : Kidx = (m + 1) / 2) (hq : q = 2 * Kidx) (hKc : IsCompact K) (hH : HypOn F K)
-    (hDM : DM F K (2 * Kidx + 1)) :
+    (hDM : StdDM F K Kidx) :
     ∃ C h0 : ℝ, 0 < h0 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h0 → F.step N ≤ t0 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
         ∀ j : Fin (N + 1), (¬ ∃ ν, CP.CI0.lo ν ≤ Xs j ∧ Xs j ≤ CP.CI0.hi ν) →
           FormalResearch.JB.jbL2 Finset.univ (fun i => compMatrix CP.CI0 spl μ N Xs i j - Um i j) ≤ C * etaR m m (F.step N) ∧
           FormalResearch.JB.jbL2 Finset.univ (fun i => compMatrix CP.CI1 (CP.spl1 spl) μ N Xs i j - Um i j) ≤ C * etaR m (m + 1) (F.step N) := by
-  obtain ⟨t1, ht1, r, hr⟩ := stdAssump_frozen_all F K Kidx hKc hH hDM
-  have hcov0 : SoftCovers CP.CI0 := softCovers_of_spectrumCovered CP.CI0 hK hKc hH hDM
+  obtain ⟨t1, ht1, r, hr⟩ := stdAssump_frozen_all_of_stdDM F K Kidx hKc hH hDM
+  have hcov0 : SoftCovers CP.CI0 := softCovers_of_dm1 CP.CI0 hKc hH hDM.d1
   have hcov1 : SoftCovers CP.CI1 := softCovers_pair CP hcov0
   by_cases ht0 : 0 < t0
   swap

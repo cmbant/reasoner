@@ -4,6 +4,7 @@ public import Mathlib
 public import FormalResearch.JB.JBThmB
 public import FormalResearch.JacobiEigenvectors.TheoremA.Statements
 public import FormalResearch.JacobiEigenvectors.TheoremB.ComparisonMatrix
+public import FormalResearch.JacobiEigenvectors.TheoremB.StdDM
 
 /-!
 # Paper J, Layer 3: statement freeze for Theorem B from the chart hypotheses
@@ -21,7 +22,7 @@ Prop-valued definitions only; no placeholder proofs, no added axioms.  (`FormalR
 | `PropThaSpliceBulk`, `PropThaSpliceSoft`, `PropThaSpliceTwoOrders` | prop:tha-splice (a), (b), (c) | `PropThaW`, `PropThaW2` (Layer 2) |
 | `PropThaMflat` | lem:tha-Mflat | soft chart |
 | `PropThaCollar` | lem:tha-collar (1), bound `C e^{-c/h}` (item (2) is `TransferInputs.t12_lb`/`reg_*`, a chart field) | soft chart |
-| `PropThbInputs` | prop:thb-inputs: the conclusion is `JB.OneStepInputs` for the explicit matrices (`compMatrix`) | `ChartPair`, `TransferBundle`, `DM F K (q_m+1)` |
+| `PropThbInputs` | prop:thb-inputs: the conclusion is `JB.OneStepInputs` for the explicit matrices (`compMatrix`) | `ChartPair`, `TransferBundle`, `StdDM F K Kidx` (the consequences of `(D_{q_m+1})` that the proof uses; `stdDM_of_dm`) |
 | `ThmB` | thm:B in the form consumed by `JB.jb_onestep` / `thm_B_conditional` | same |
 | `CorThbDm` | cor:thb-Dm (operator norm under `(D_m)` only, chart pair of `truncFamily F m`) | `DM F K m`; proof needs cor:thb-stable (F-B6) |
 | `etaR` | `eta_m = h^m`, `eta_{m+1} = h^{m+1} log(1/h)` (`m` even) / `h^{m+1}` (`m` odd) | -- |
@@ -37,6 +38,7 @@ Prop-valued definitions only; no placeholder proofs, no added axioms.  (`FormalR
 * **F-B4 (prop:tha-splice (c), even `m`)**: the order-`(m+1)` column bound carries `log(1/h)` (the shift `q = m` is one short at order `m+1`); (I1) for the *final* `hat G^{[m+1]}` is stated in `OneStepInputs.G1_col` with `C h^{m+1} log(1/h)` for both parities
   (weaker than `h^{m+1}` for odd `m`, which is all the criterion uses): `PropThaSpliceTwoOrders` states the sharper `etaR`.
 * **F-B6 (cor:thb-Dm)**: see `CorThbDm`: needs the perturbation lemma cor:thb-stable; the DM budget `r(2K+1) > r(m)` means it is not an instance of `ThmB` for `F`.
+* **F-DD1 (the hypothesis `(D_{q_m+1})` of prop:tha-splice (c), prop:thb-inputs, thm:B; applied)**: the proofs use `(D_{2 Kidx+1})` only through `FrozenReg` (the paper's `(E_Kidx)` of the frozen matrices with budget `r >= r(max(2 Kidx-1, 0))`) and `(D_1)`; these are the premise `StdDM F K Kidx` (`TheoremB/StdDM.lean`) of `PropThaSpliceTwoOrders`, `PropThbInputs` and `ThmB`, which follows from `DM F K (2 Kidx + 1)` (`stdDM_of_dm`, so the statements are the paper's, strengthened) and, for the truncated family `truncFamily F m`, from `DM F K m` (`stdDM_trunc`, `CorThbDm.lean`), whereas `DM (truncFamily F m) K (2 Kidx + 1)` does not follow (`regBudget`).
 * **F-B7 (reconciliation with the paper of PR 250, round 4)**.  Changes of the paper since the freeze that touch Layer 3, and what was done:
   (i) lem:tha-collar (1) now has the bound `C e^{-c/h}` *without* `h^{-K}`: `PropThaCollar` has no `Kx`, `PropThbInputs` has no `K_eps` (`I.eps5 <= C_eps e^{-c_eps/h}`; `jb`'s `thm_B_conditional` is applied with `K_eps = 0`);
   (ii) (I5) is now "remaining rows" (`||Q_{0,Sigma}(G^[m] - G^[m+1]) P_Sigma|| <= C h^m`, vacuous for bulk blocks; outside the collar the column *coincides* with `hat Psi`, so the entries are `O(e^{-c/h})` by lem:tha-collar (1)).
@@ -153,7 +155,7 @@ variable {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ
 splice outside the window the column is not close to the eigenvector).  (`ThmB`, `PropThbInputs`, `CorThbDm` take the same `spl` and now carry the same premise `CP.SplicesInWindow spl`: F-B10 applied to them as well.) -/
 def PropThaSpliceTwoOrders (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) : Prop :=
-  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → DM F K (2 * Kidx + 1) → CP.SplicesInWindow spl →
+  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → StdDM F K Kidx → CP.SplicesInWindow spl →
     ∃ C h0 : ℝ, 0 < h0 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h0 → F.step N ≤ t0 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
         ∀ j : Fin (N + 1),
@@ -243,7 +245,7 @@ structure TransferBundle (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 :=
 parity identity (F3 (b)) and the matching on the used rows are fields of `OneStepInputs`.  The constants are fixed before `mu` (F-B2). -/
 def PropThbInputs (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (_TB : TransferBundle CP) (spl : Fin CP.CI0.nb → ℝ) : Prop :=
-  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → DM F K (2 * Kidx + 1) → CP.SplicesInWindow spl →
+  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → StdDM F K Kidx → CP.SplicesInWindow spl →
     ∃ (cs : FormalResearch.JB.OneStepConsts) (N0 : ℕ) (Cε cε : ℝ), 0 < cε ∧ ∀ μ ∈ K, ∀ N : ℕ, N0 ≤ N → F.step N ≤ t0 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
         ∃ I : FormalResearch.JB.OneStepInputs cs (N + 1) m (F.step N),
@@ -254,7 +256,7 @@ def PropThbInputs (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m
 `||hat G_m - U_h|| <= C h^m`, and the polar factor of `hat G_m` is orthogonal and within `2 C h^m` of `U_h`.  `hat G_m` is `compMatrix` for the order-`m` bundle. -/
 def ThmB (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) : Prop :=
-  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → DM F K (2 * Kidx + 1) → CP.SplicesInWindow spl →
+  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → StdDM F K Kidx → CP.SplicesInWindow spl →
     ∃ C hm : ℝ, 0 < hm ∧ C * hm ^ m < 1 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hm → F.step N ≤ t0 →
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
         ‖compMatrix CP.CI0 spl μ N Xs - Um‖ ≤ C * F.step N ^ m ∧
@@ -268,15 +270,15 @@ def ThmB (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q
 pair of eigen-systems `(tilde X, tilde U)` of `tilde J_h` and `(X, U)` of `J_h`: `||compMatrix CP.CI0 spl mu N tilde X - U|| <= C h^m` (so `hat G^{jet}_m` is built from `tilde X`, the eigenvalues of the truncated matrix, and no eigenvector),
 the polar factor of `hat G^{jet}_m` is orthogonal and within `2 C h^m` of `U` (Corollary cor:fermions follows from these two bounds alone).
 
-**Proof route (not formalised here; the DM budget differs from `ThmB`).**  `tilde J_h` satisfies `(E_Kidx)` with no remainder and (H1)--(H3), so `ThmB` / `PropThbInputs` for `truncFamily F m` give
+**Proof route** (`corThbDm_of_thmB`, `corThbDm_proved`, `TheoremB/CorThbDm.lean`, `CorThbFinal.lean`).  `tilde J_h` satisfies `(E_Kidx)` with no remainder and (H1)--(H3), so `ThmB` / `PropThbInputs` for `truncFamily F m` give
 `||hat G^{jet}_m - tilde U|| <= C h^m`; `tilde J_h` satisfies `(D_1)` and (H1)--(H3), so its gaps are `>= c h` (`CorEigenGap1`); `||J_h - tilde J_h|| <= C' h^{m+1}` (`DM F K m`); and the Fourier--Schur argument of cor:thb-stable
-(a lemma of the paper not in the DAG: item L3.D of `PLAN.md`) gives `||U - tilde U|| <= C_* C' h^m` in the gauge `(Psi_k)_0 > 0`.  Polar: lemma `lem:thb-polar` (`JB`).
+(`ThbStable.lean`) gives `||U - tilde U|| <= C_* C' h^m` in the gauge `(Psi_k)_0 > 0`.  Polar: lemma `lem:thb-polar` (`JB`).
 
-**Differences from the paper**: the paper states the hypotheses (H1)--(H3), (D_m) for `F` and builds `hat G^{jet}_m` from the truncated matrix; the Lean statement takes the chart pair of `truncFamily F m` as data (`CP`), so
-`DM (truncFamily F m) K (2 Kidx + 1)` (the hypothesis of `ThmB`, which is **not** a consequence of `DM F K m`, finding F-DD1; the truncated jets vanish beyond `m` and keep the regularity `r(m)` of `F`, less than the `r(2 Kidx + 1)` of `DM` at order `2 Kidx + 1`) is *not* repeated.  **Finding F-B6**: `cor:thb-Dm` is **not** an instance of `ThmB`
+**Differences from the paper**: the paper states the hypotheses (H1)--(H3), (D_m) for `F` and builds `hat G^{jet}_m` from the truncated matrix; the Lean statement takes the chart pair of `truncFamily F m` as data (`CP`).  `ThmB` for `truncFamily F m`
+needs `StdDM (truncFamily F m) K Kidx` (finding F-DD1), which follows from `DM F K m` (`stdDM_trunc`) although `DM (truncFamily F m) K (2 Kidx + 1)` does not (the truncated jets vanish beyond `m` and keep the regularity `r(m)` of `F`, less than the
+`r(2 Kidx + 1)` of `DM` at order `2 Kidx + 1`).  **Finding F-B6**: `cor:thb-Dm` is **not** an instance of `ThmB`
 applied to `truncFamily F m` alone, because the conclusion compares with the eigenvectors of `J_h`, not of `tilde J_h`; it needs cor:thb-stable (perturbation of the matrix, at the level of `U`), which is also what gives
-`ThmB` for matrices within `O(h^{m+1})`.  **Finding F-t0**: `t0` is chart data; the passage to the truncated chart needs a `ChartInputs.restrict` step.  Not formalised: the `(E_K)` budget `r >= r(max(2K-1,0))`, the DM class bookkeeping
-(`lem:smo-budget (e)`). -/
+`ThmB` for matrices within `O(h^{m+1})`.  **Finding F-t0**: `t0` is chart data; the passage to the truncated chart needs a `ChartInputs.restrict` step.  The corollary `cor:fermions` for `hat G^{jet}_m` is `CorThbDmFermions` (`CorThbDm.lean`). -/
 def CorThbDm {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
     (CP : ChartPair (F := truncFamily F m) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) : Prop :=

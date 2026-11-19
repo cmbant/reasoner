@@ -15,18 +15,18 @@ Source: Paper J `thmB.tex`, `cor:thb-stable`, `cor:thb-Dm`.  Claim class: **prov
   inputs are the transfer bundle `TB` of the charts, as for `thmB_proved`, and the gap bound `EigGapBound F K` of
   `cor:eigen (c)`).
 * `corThbDm_proved`: the frozen `CorThbDm CP spl` for the chart pair `CP` of `truncFamily F m`, with `ThmB` for `CP` supplied by
-  `thmB_proved CP TB spl`; extra premises: the transfer bundle `TB`, `hDt : DM (truncFamily F m) K (2 Kidx + 1)` (the hypothesis of
-  `ThmB` for the truncated family; **not** a consequence of `DM F K m`, finding F-DD1 in `CorThbDm.lean`), and `EigGapBound (truncFamily F m) K`.
+  `thmB_proved CP TB spl`; extra premises: the transfer bundle `TB` and `EigGapBound (truncFamily F m) K`.  The hypothesis of `ThmB` for the truncated family is `StdDM (truncFamily F m) K Kidx` (the
+  consequences of `(D_{2 Kidx+1})` that the proof uses), which `stdDM_trunc` derives from `DM F K m` (finding F-DD1: `DM (truncFamily F m) K (2 Kidx + 1)` itself does not follow).
 * `hypOn_truncFamily`: `HypOn F K` gives `HypOn (truncFamily F m) K` (same principal symbols).
 
 ## Differences from the paper
 
-`corThbDm_proved` assumes `DM (truncFamily F m) K (2 Kidx + 1)` where the paper uses only `(E_Kbar)` of the frozen truncated matrices
-(see `CorThbDm.lean`, premise 1); it holds, for instance, when `F` itself satisfies `DM F K (2 Kidx + 1)` (not formalised here).
+The `ThmB` hypothesis is `StdDM` (`(D_1)` and the regularity and remainder of the frozen matrices, the paper's `(E_Kbar)` with budget `r(m) >= r(max(2 Kbar - 1, 0))`), as in the paper's proof; the frozen
+`ThmB` is stated with `StdDM` in place of `(D_{q_m+1})` (it implies the paper's: `stdDM_of_dm`).
 
 ## Not formalised
 
-The transfer bundle `TB`, the gap bound, and the truncated `DM` budget (above).
+The transfer bundle `TB` and the gap bound.
 -/
 
 @[expose] public section
@@ -57,7 +57,7 @@ theorem corThbStable_proved
     (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (TB : TransferBundle CP) (spl : Fin CP.CI0.nb → ℝ)
     (h1m : 1 ≤ m) (hK : Kidx = (m + 1) / 2) (hq : q = 2 * Kidx) (hcpt : IsCompact K) (hH : HypOn F K)
-    (hD : DM F K (2 * Kidx + 1)) (hspl : CP.SplicesInWindow spl) (hgap : EigGapBound F K)
+    (hD : StdDM F K Kidx) (hspl : CP.SplicesInWindow spl) (hgap : EigGapBound F K)
     (K0 : ℝ) (hK0 : 0 ≤ K0) :
     ∃ C hm Cs h' : ℝ, 0 < hm ∧ C * hm ^ m < 1 ∧ 0 ≤ Cs ∧ 0 < h' ∧ h' ≤ hm ∧
       ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h' → F.step N ≤ t0 →
@@ -67,15 +67,14 @@ theorem corThbStable_proved
               ((C + Cs * K0) * F.step N ^ m) :=
   corThbStable CP spl (thmB_proved CP TB spl) h1m hK hq hcpt hH hD hspl hgap K0 hK0
 
-/-- **`cor:thb-Dm`** (`CorThbDm`) with `ThmB` for the truncated chart pair from `thmB_proved`. -/
+/-- **`cor:thb-Dm`** (`CorThbDm`) with `ThmB` for the truncated chart pair from `thmB_proved`, given the gap bound of the truncated family. -/
 theorem corThbDm_proved
     (CP : ChartPair (F := truncFamily F m) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
-    (TB : TransferBundle CP) (spl : Fin CP.CI0.nb → ℝ)
-    (hDt : DM (truncFamily F m) K (2 * Kidx + 1)) (hgap : EigGapBound (truncFamily F m) K) :
+    (TB : TransferBundle CP) (spl : Fin CP.CI0.nb → ℝ) (hgap : EigGapBound (truncFamily F m) K) :
     CorThbDm CP spl := by
   intro h1m hK hq hcpt hH hD hspl
   exact corThbDm_of_thmB CP spl
-    (thmBConcl_of_thmB CP spl (thmB_proved CP TB spl) h1m hK hq hcpt (hypOn_truncFamily m hH) hDt hspl)
+    (thmBConcl_of_thmB CP spl (thmB_proved CP TB spl) h1m hK hq hcpt (hypOn_truncFamily m hH) (stdDM_trunc h1m hK hcpt hD) hspl)
     hgap h1m hK hq hcpt hH hD hspl
 
 end Final

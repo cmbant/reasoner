@@ -2,6 +2,7 @@ module
 
 public import Mathlib
 public import FormalResearch.JacobiEigenvectors.TheoremA.StepZero
+public import FormalResearch.JacobiEigenvectors.TheoremA.BandFacts
 
 /-!
 # Paper J, Layer 2: the three cases exhaust the spectrum (`SpectrumCovered`)
@@ -10,10 +11,10 @@ Source: Paper J `thmA.tex`, proof of thm:A (ii) ("Step 0 ... so the three cases 
 
 ## Proved
 
-* `spectrumCovered : SpectrumCovered CI` for every `CI : ChartInputs F K Kidx t0 m q U V cPC CPC`.
+* `spectrumCovered_of_dm1`: the three cases from `(D_1)` alone (only the jets `0, 1` enter); `spectrumCovered : SpectrumCovered CI` for every `CI : ChartInputs F K Kidx t0 m q U V cPC CPC` is its corollary for `(D_{2 Kidx+1})`.
 * `fPlus_close`, `Xsp_le_add`, `bddAbove_fPlus`, `frozen_bandHi`, `frozen_bandLo`: the frozen band at `t = h` is `O(h)` from the plain band, in the one-sided form used.
 
-Chain: `eigen_loc` with `e = 1` (the `O(h)` location of the eigenvalues, from `(D_{2 Kidx+1})`; `coreReg_of_DM`) gives `X_k in [bandLo - C h, bandHi + C h]`; `fPlus_close` (for
+Chain: `eigen_loc` with `e = 1` (the `O(h)` location of the eigenvalues, from `(D_1)`; `coreReg_of_DM`) gives `X_k in [bandLo - C h, bandHi + C h]`; `fPlus_close` (for
 `G_0 + h G_1`, `B_0 + h B_1`, `h` small: the factor `s (L-s)` cancels in the square root) and `Xsp_le_add` give `bandHi <= bandHi^{frozen}(mu,h) + c h`, `bandLo^{frozen}(mu,h) <= bandLo + c h`;
 the chart field `CI.cover` (`bandHi^{frozen} <= Jhi + delta_0`, `Jlo - delta_0 <= bandLo^{frozen}`, `Jlo <= Jhi`) and `CI.cover_bulk` then place every `X_k` in a block, or above `Jhi`
 within the upper window, or below `Jlo` within the lower window (`negFamily_bandHi`).
@@ -133,22 +134,29 @@ lemma frozen_bandLo (F : SymbolFamily Par) (Kd : ℕ) (μ : Par) (t : ℝ) :
 
 end Frozen
 
-/-- **The three cases of `def:tha-Psihat` exhaust the spectrum** (frozen statement `SpectrumCovered`): proved from the `O(h)` location of the eigenvalues
-(`eigen_loc` with `e = 1`, i.e. `StepZeroD0`) and the `O(h)` distance between the plain band and the frozen band at `t = h` (`Xsp_le_add`, `fPlus_close`); the
-cover property `CI.cover` of the chart data does the rest. -/
-theorem spectrumCovered {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ}
-    {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ} (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) : SpectrumCovered CI := by
-  intro _ hK hH hD
+/-- **The three cases of `def:tha-Psihat` exhaust the spectrum, from `(D_1)` alone** (the content of the frozen statement `SpectrumCovered`, which asks `(D_{2 Kidx+1})`; see `spectrumCovered`): proved from
+the `O(h)` location of the eigenvalues (`eigen_loc` with `e = 1`, i.e. `StepZeroD0`) and the `O(h)` distance between the plain band and the frozen band at `t = h` (`Xsp_le_add`, `fPlus_close`); the
+cover property `CI.cover` of the chart data does the rest.  Only the jets `G_0, G_1, B_0, B_1` of `F` enter (continuity and bounds), so `(D_1)` suffices (finding F-DD1). -/
+theorem spectrumCovered_of_dm1 {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ}
+    {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ} (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (hK : IsCompact K) (hH : HypOn F K) (hD : DM F K 1) :
+    ∃ h0 : ℝ, 0 < h0 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h0 → F.step N ≤ t0 →
+      ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
+        ∀ k : Fin (N + 1),
+          (∃ ν, CI.lo ν ≤ X k ∧ X k ≤ CI.hi ν) ∨
+          ((¬ ∃ ν, CI.lo ν ≤ X k ∧ X k ≤ CI.hi ν) ∧ CI.Jhi < X k ∧
+            |X k - (frozenFamily F Kidx).bandHi (atStep F μ N)| ≤ CI.softUpL.δ0) ∨
+          ((¬ ∃ ν, CI.lo ν ≤ X k ∧ X k ≤ CI.hi ν) ∧ ¬ CI.Jhi < X k ∧
+            |-X k - (negFamily (frozenFamily F Kidx)).bandHi (atStep F μ N)| ≤ CI.softLoL.δ0) := by
   rcases K.eq_empty_or_nonempty with hKe | ⟨μ0, hμ0⟩
   · exact ⟨1, one_pos, fun μ hμ => by simp [hKe] at hμ⟩
   obtain ⟨g, hg⟩ := hH
   have hgpos : 0 < g := (hg μ0 hμ0).gstar_pos
   obtain ⟨C1, h1, hh1, H1⟩ := eigen_loc (coreReg_of_DM hK hD) (by norm_num) (upHyp_of_hypOn ⟨g, hg⟩)
     (upHyp_neg_of_hypOn ⟨g, hg⟩)
-  obtain ⟨Mg, hMg⟩ := jets_bound_choose hK (n := 2 * Kidx + 1) (fun j => F.G j)
-    (fun j => regBudget (2 * Kidx + 1) - 10 * (j / 2)) (fun j hj => (hD.reg j hj).1)
-  obtain ⟨Mb, hMb⟩ := jets_bound_choose hK (n := 2 * Kidx + 1) (fun j => F.B j)
-    (fun j => regBudget (2 * Kidx + 1) - 10 * (j / 2)) (fun j hj => (hD.reg j hj).2)
+  obtain ⟨Mg, hMg⟩ := jets_bound_choose hK (n := 1) (fun j => F.G j)
+    (fun j => regBudget 1 - 10 * (j / 2)) (fun j hj => (hD.reg j hj).1)
+  obtain ⟨Mb, hMb⟩ := jets_bound_choose hK (n := 1) (fun j => F.B j)
+    (fun j => regBudget 1 - 10 * (j / 2)) (fun j hj => (hD.reg j hj).2)
   have hL := F.L_pos
   have hsg : 0 < Real.sqrt (g / 2) := Real.sqrt_pos.mpr (by positivity)
   set c2 : ℝ := |Mb 1| + F.L * |Mg 1| / (2 * Real.sqrt (g / 2)) with hc2
@@ -236,6 +244,15 @@ theorem spectrumCovered {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily P
       constructor
       · linarith
       · linarith
+
+/-- **The three cases of `def:tha-Psihat` exhaust the spectrum** (frozen statement `SpectrumCovered`): `spectrumCovered_of_dm1` with `(D_1)` from `(D_{2 Kidx+1})`. -/
+theorem spectrumCovered {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ}
+    {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ} (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) : SpectrumCovered CI :=
+  fun _ hK hH hD => spectrumCovered_of_dm1 CI hK hH (dm_mono F K (by omega) hK hD)
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.spectrumCovered_of_dm1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.spectrumCovered_of_dm1
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.spectrumCovered' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

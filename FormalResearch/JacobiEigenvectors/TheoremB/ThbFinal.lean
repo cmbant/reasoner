@@ -10,7 +10,7 @@ Source: Paper J `app_thmB.tex`, `prop:thb-inputs` (proof: the blocks, (I1)--(I5)
 
 ## Proved here
 
-* **`propThbInputs_proved : PropThbInputs CP TB spl`** (the frozen statement of `Statements.lean`, with its own premises `1 <= m`, `Kidx = (m+1)/2`, `q = 2 Kidx`, `K` compact, `HypOn`, `DM F K (2 Kidx + 1)`, `SplicesInWindow`): from `propThbInputs_of_soft`
+* **`propThbInputs_proved : PropThbInputs CP TB spl`** (the frozen statement of `Statements.lean`, with its own premises `1 <= m`, `Kidx = (m+1)/2`, `q = 2 Kidx`, `K` compact, `HypOn`, `StdDM F K Kidx` (the consequences of `DM F K (2 Kidx + 1)` that the proof uses, `stdDM_of_dm`; finding F-DD1), `SplicesInWindow`): from `propThbInputs_of_soft`
   with the bulk blocks (`bulk_block`), the upper soft block (`softBlockUp_proved`) and the lower soft block (`softBlockLo_proved`), for every restriction `t0' <= t0` of the chart data (F-t0).
 * **`thmB_proved : ThmB CP spl`** (`thm:B`): `thmB_of_propThbInputs` applied to `propThbInputs_proved`.
 

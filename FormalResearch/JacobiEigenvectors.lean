@@ -14,6 +14,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.Statements
 public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryStatements
 public import FormalResearch.JacobiEigenvectors.TheoremA.EigenvalueStatements
 public import FormalResearch.JacobiEigenvectors.TheoremB.ComparisonMatrix
+public import FormalResearch.JacobiEigenvectors.TheoremB.StdDM
 public import FormalResearch.JacobiEigenvectors.TheoremB.Statements
 public import FormalResearch.JacobiEigenvectors.TheoremB.BulkSchur
 public import FormalResearch.JacobiEigenvectors.TheoremB.SpliceBulk
