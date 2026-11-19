@@ -160,7 +160,6 @@ lemma thetaL_eq (C : BulkWeberChart F P Jlo Jhi m U V) {μ : Par} (hμ : μ ∈ 
   rw [e] at this
   exact this
 
-set_option maxHeartbeats 2000000 in
 /-- **`lem:smo-bulkphase` (1), the left bulk comparison sequence has phase `Theta_L/h - pi/4`.**  There are `c1 > 0`, `C1 >= 0`, `h0 > 0` such that for every `mu in P`, `X` in the energy range, `N >= N0` with `h = F.step N <= h0`
 and every row `0 <= n <= N_R` of the oscillatory overlap (`c' <= u_n`; automatically `u_n <= c`) there is an amplitude `rho >= c1 h^{1/4}` with
 `|psi-hat^L_n - rho cos(Theta_L(u_n)/h - pi/4)| <= C1 h rho`.  The amplitude is `rho = A^{[m]}(u_n) kappa_bal 2 g(mu) (1 - t^2)^{-1/4}` (`mu^2 = 2n+1`, `t = Y/(2 sqrt u_n)`).
@@ -227,12 +226,12 @@ theorem bulk_phase_left (C : BulkWeberChart F P Jlo Jhi m U V) {cPC CPC : ℝ} (
   rw [← htdef] at ht2 hth
   have ht2' : t ^ 2 ≤ 1 - δ := by rw [hδ]; exact ht2
   have htabs : |t| ≤ 1 - ε0 := by
-    refine abs_le_of_sq_le_sq ?_ (by linarith)
-    nlinarith
-  have ht1 : |t| ≤ 1 := by linarith
-  have ht1sq : t ^ 2 < 1 := by
-    have := abs_le.mp htabs
-    nlinarith
+    have hsq : (1 - ε0) ^ 2 = 1 - 2 * ε0 + ε0 ^ 2 := by ring
+    refine abs_le_of_sq_le_sq ?_ (by linarith only [hε0lt])
+    rw [hsq]
+    linarith only [ht2', hε0δ, sq_nonneg ε0]
+  have ht1 : |t| ≤ 1 := by linarith only [htabs, hε0pos]
+  have ht1sq : t ^ 2 < 1 := by linarith only [ht2', hδpos]
   obtain ⟨q, hq⟩ : ∃ q : ℝ, q = Real.sqrt ((n : ℝ) + 1 / 2) := ⟨_, rfl⟩
   have hqpos : 0 < q := by rw [hq]; exact Real.sqrt_pos.mpr hn12
   have hq2 : q ^ 2 = (n : ℝ) + 1 / 2 := by rw [hq]; exact Real.sq_sqrt hn12.le
@@ -249,7 +248,9 @@ theorem bulk_phase_left (C : BulkWeberChart F P Jlo Jhi m U V) {cPC CPC : ℝ} (
   have hμh : μv ^ 2 * h = 2 * u := by rw [hμv2, hu_eq]; ring
   have hμge : μ1 ≤ μv := by
     have h2 : h * μ1 ^ 2 ≤ 2 * C.c' := (le_div_iff₀ (by positivity : (0 : ℝ) < μ1 ^ 2)).mp hhB
-    have h4 : μ1 ^ 2 * h ≤ μv ^ 2 * h := by nlinarith
+    have h4 : μ1 ^ 2 * h ≤ μv ^ 2 * h := by
+      rw [hμh]
+      linarith only [h2, hov]
     have h5 : μ1 ^ 2 ≤ μv ^ 2 := le_of_mul_le_mul_right h4 hhpos
     exact (pow_le_pow_iff_left₀ hμ1pos.le hμvpos.le (by norm_num)).mp h5
   have ha_eq : -(μv ^ 2) / 2 = -((n : ℝ) + 1 / 2) := by rw [hμv2]; ring
