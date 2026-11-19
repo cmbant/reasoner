@@ -25,7 +25,6 @@ open Finset FormalResearch.JacobiEigenvectors.Setting FormalResearch.JacobiEigen
 
 variable {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
 
-set_option maxHeartbeats 1000000 in
 theorem propThaM_phi_nostd {cPC CPC : ℝ} (pc : ParabolicCylinderFacts U V cPC CPC) (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (aplus : ℝ) :
     ∃ c h0 : ℝ, 0 < c ∧ 0 < h0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ CL.δ0 → ∀ N : ℕ, CL.N0 ≤ N → Fz.step N ≤ h0 →
       CL.aOf p X N ≤ aplus → ∀ s : ℝ, |s| ≤ Real.sqrt (max (-CL.aOf p X N) 0) + (1 + max (-CL.aOf p X N) 0) ^ (-(1 : ℝ) / 6) / 4 →
@@ -60,7 +59,6 @@ theorem propThaM_phi_nostd {cPC CPC : ℝ} (pc : ParabolicCylinderFacts U V cPC 
   rw [Finset.mem_filter] at hn ⊢
   exact ⟨hn.1, le_trans hn.2 (by linarith [hsl.1])⟩
 
-set_option maxHeartbeats 1000000 in
 /-- **flat1 (corrected sequence) of one soft chart**: for `a <= 1`, `c kappa_bal(a)^{-2} sum_Omega M_bal^2 <= sum_{Omega cap {n <= n_c}} (phi^{(2)} / kappa_bal)^2`, `n_c = nearestRow u_c`. -/
 theorem soft_flat1_phi {cPC CPC : ℝ} (pc : ParabolicCylinderFacts U V cPC CPC) (C : SoftEdgeChart Fz P m q U V (fun _ => 1)) :
     ∃ c h0 : ℝ, 0 < c ∧ 0 < h0 ∧ ∀ p ∈ P, ∀ X, |X - Fz.bandHi p| ≤ C.δ0 → ∀ N : ℕ, C.N0 ≤ N → Fz.step N ≤ h0 → C.aOf p X N ≤ 1 →
