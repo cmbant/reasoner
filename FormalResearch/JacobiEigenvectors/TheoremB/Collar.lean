@@ -144,7 +144,6 @@ section Main
 
 variable {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} {m q : ℕ} {U V : ℝ → ℝ → ℝ}
 
-set_option maxHeartbeats 8000000 in
 /-- **`lem:tha-collar` (1)** (`PropThaCollar CL CR cPC CPC`; the premises `ParabolicCylinderFacts`, `1 <= m`, `SoftMirror CL CR` are part of the statement since round 10: finding F-B15 applied). -/
 theorem propThaCollar_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (fun _ => 1))
     (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1)) : PropThaCollar CL CR cPC CPC := by
@@ -282,7 +281,7 @@ theorem propThaCollar_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (f
               apply mul_le_mul_of_nonneg_right _ hEnv0
               exact mul_le_mul (le_abs_self _) hh1 (by positivity) (abs_nonneg _)
           _ = _ := by ring
-      nlinarith [hvec, h1, h2]
+      linarith only [hvec, h1, h2]
     have hnum2 : cn * (|CL.lamL p (Xs k) N| / kappaBal (CL.aOf p (Xs k) N)) ^ 2 ≤ softNorm CL CR p (Xs k) N ^ 2 := hnorm
     set T := |CL.lamL p (Xs k) N| / kappaBal (CL.aOf p (Xs k) N) with hTdef
     have hT2 : 0 < T ^ 2 := by positivity
@@ -291,7 +290,7 @@ theorem propThaCollar_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (f
       have hn1 := mem_Icc.mp (show n ∈ rowsOf N from hn)
       rcases le_abs'.mp hfar with hl | hr'
       · -- left
-        have hb1 : uNode (Fz.step N) n ≤ CL.uc p - CL.η / 2 := by linarith
+        have hb1 : uNode (Fz.step N) n ≤ CL.uc p - CL.η / 2 := by linarith only [hl]
         have hmem : n ∈ Finset.Icc (0 : ℤ) (CL.chainW p (Xs k) N).NR := by
           refine mem_Icc.mpr ⟨hn1.1, ?_⟩
           obtain ⟨-, -, -, -, hB⟩ := CL.shapeW p hp (Xs k) hX0 N hN1
@@ -321,10 +320,10 @@ theorem propThaCollar_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (f
               mul_le_mul_of_nonneg_left (exp_mono_c (cw / 2) c0 _ hh0 hc0c) (Real.sqrt_nonneg _)
           _ ≤ _ := mul_le_mul_of_nonneg_right (le_max_left _ _) hex0.le
       · -- right
-        have hxn : CL.η / 4 ≤ uNode (Fz.step N) n - CL.uc p := by linarith
+        have hxn : CL.η / 4 ≤ uNode (Fz.step N) n - CL.uc p := by linarith only [hr', hη]
         have hZ : 0 < CL.Zof p (Xs k) N n := Zof_pos_of_far CL hp hX0 hn hxn
         have hmem : n ∈ (rowsOf N).filter (fun n => CL.uc p + CL.η / 2 ≤ uNode (Fz.step N) n) :=
-          Finset.mem_filter.mpr ⟨hn, by linarith⟩
+          Finset.mem_filter.mpr ⟨hn, by linarith only [hr']⟩
         have hsumr : ∑ i ∈ (rowsOf N).filter (fun n => CL.uc p + CL.η / 2 ≤ uNode (Fz.step N) n),
             (|softKappa CL CR p (Xs k) N| * softEnvWeb CR p (Xs k) N ((N : ℤ) - i)) ^ 2 ≤
             Cr' * Ck ^ 2 * T ^ 2 * Real.exp (-(cr / Fz.step N)) := by
@@ -339,7 +338,9 @@ theorem propThaCollar_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (f
             (fun i _ => sq_nonneg _) hmem
         have hse : softEnv CL CR p (Xs k) N n = |softKappa CL CR p (Xs k) N| * softEnvWeb CR p (Xs k) N ((N : ℤ) - n) / softNorm CL CR p (Xs k) N := by
           unfold softEnv
-          rw [if_neg (by linarith), if_neg (not_le.mpr hZ), if_neg (by linarith)]
+          have hA1 : ¬ uNode (Fz.step N) n ≤ CL.uc p - CL.η / 2 := not_le.mpr (by linarith only [hr', hη])
+          have hA3 : ¬ uNode (Fz.step N) n < CL.uc p + CL.η / 2 := not_lt.mpr (by linarith only [hr'])
+          rw [if_neg hA1, if_neg (not_le.mpr hZ), if_neg hA3]
         have hD : 0 ≤ Cr' * Ck ^ 2 / cn := by positivity
         have hsq : softEnv CL CR p (Xs k) N n ^ 2 ≤ (Cr' * Ck ^ 2 / cn) * Real.exp (-cr / Fz.step N) := by
           rw [hse, div_pow, div_le_iff₀ (by positivity)]
@@ -361,11 +362,11 @@ theorem propThaCollar_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (f
       _ ≤ (1 + D1L + D1R + D2 + D4) * Real.exp (-c0 / Fz.step N) := by
           have hmx : (|Cc| + 2 * Cenv) * max (Real.sqrt (Cw' / cn)) (Real.sqrt (Cr' * Ck ^ 2 / cn)) ≤ D1L + D1R := by
             rcases max_choice (Real.sqrt (Cw' / cn)) (Real.sqrt (Cr' * Ck ^ 2 / cn)) with h | h
-            · rw [h]; linarith
-            · rw [h]; linarith
+            · rw [h]; linarith only [hD1L, hD1R0]
+            · rw [h]; linarith only [hD1R, hD1L0]
           rw [← mul_assoc]
           apply mul_le_mul_of_nonneg_right _ hex0.le
-          linarith
+          linarith only [hmx, hD20, hD40]
   · -- conjunct 2
     have hq := hratio
     have e : |CL.lamL p X N| / softNorm CL CR p X N * |(CL.chain p X N).phi (Fz.step N) 0 2 ⌊(CL.uc p - CL.η / 2) / Fz.step N - 1 / 2⌋ / kappaBal (CL.aOf p X N)|
@@ -378,7 +379,7 @@ theorem propThaCollar_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (f
       _ ≤ (1 / Real.sqrt cn) * (extB CL CPC * Real.exp (-c0 / Fz.step N)) :=
           mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hexpL hBL) (by positivity)
       _ = D2 * Real.exp (-c0 / Fz.step N) := by rw [hD2]; ring
-      _ ≤ _ := hCfin _ hD20 (by linarith)
+      _ ≤ _ := hCfin _ hD20 (by linarith only [hD1L0, hD1R0, hD40])
   · -- conjunct 3
     have hq := hratio
     have e : |CL.lamL p X N| / softNorm CL CR p X N * |(CL.chain p X N).wf 2 0 (uNode (Fz.step N) ⌊(CL.uc p - CL.η / 2) / Fz.step N - 1 / 2⌋) (Fz.step N) 1| / kappaBal (CL.aOf p X N)
@@ -390,7 +391,7 @@ theorem propThaCollar_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (f
       _ ≤ (1 / Real.sqrt cn) * (extB CL CPC * Real.exp (-c0 / Fz.step N)) :=
           mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hexpL hBL) (by positivity)
       _ = D2 * Real.exp (-c0 / Fz.step N) := by rw [hD2]; ring
-      _ ≤ _ := hCfin _ hD20 (by linarith)
+      _ ≤ _ := hCfin _ hD20 (by linarith only [hD1L0, hD1R0, hD40])
   · -- conjunct 4
     have hq := hratio
     have hrow : (N : ℤ) - ⌈(CL.uc p + CL.η / 2) / Fz.step N - 1 / 2⌉ =
@@ -419,7 +420,7 @@ theorem propThaCollar_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (f
       _ ≤ (Ck * (1 / Real.sqrt cn)) * (extB CR CPC * Real.exp (-c0 / Fz.step N)) :=
           mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hexpR hBR) (by positivity)
       _ = D4 * Real.exp (-c0 / Fz.step N) := by rw [hD4]; ring
-      _ ≤ _ := hCfin _ hD40 (by linarith)
+      _ ≤ _ := hCfin _ hD40 (by linarith only [hD1L0, hD1R0, hD20])
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.propThaCollar_proved' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
