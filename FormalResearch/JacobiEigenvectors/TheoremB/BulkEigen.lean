@@ -334,7 +334,6 @@ theorem matching_arith (pL pR κe κh xn yn Mn hm qq cM CcL CcR Kk D1 kL kM kKg 
     _ = (CcL * kL + (2 * Kk + 1) * CcR * kM + D1 * (2 + 2 * Kk) * kKg * kM) / cM * hm * Mn := by
         field_simp
 
-set_option maxHeartbeats 2000000 in
 /-- **Clause (ii) of `prop:tha-splice` (a), bulk, at an eigenvalue** (matching of the comparison profiles on the window):
 `|psihat^L_n - kappa-hat psihat^R_n| <= Cm h^m M_n` for `X = Xs k` an eigenvalue and `n` in the window `Omega`, for `h <= h1`. -/
 theorem bulk_matching_eig {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
