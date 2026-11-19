@@ -51,7 +51,6 @@ open Finset FormalResearch.JacobiEigenvectors.Setting FormalResearch.JacobiEigen
 
 open scoped Classical
 
-set_option maxHeartbeats 4000000 in
 /-- **The envelope is bounded in `l^2`**: `sum_{n=0}^{N} bulkEnv_n^2 <= C`, uniformly in `p`, `X`, `N` (small `h`).  This is `sum V_n^2/hat N^2 <= C` of eq:tha-G14 for the bulk. -/
 theorem bulk_env_sq_sum {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
     {Jlo Jhi : ℝ} {m : ℕ} {U V : ℝ → ℝ → ℝ}
@@ -199,7 +198,6 @@ theorem bulk_env_sq_sum {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily 
           (cN ^ 2 / Real.sqrt (Fz.step N)) := div_le_div_of_nonneg_left hnum0 hD hnn2
     _ = _ := by field_simp
 
-set_option maxHeartbeats 4000000 in
 /-- **The bulk column of `hat G^{[m]}`, for any splice row in the window, is within `C h^m` of the eigenvector in `l^2`** (`prop:tha-splice` (c) for one bulk block and one order).
 `bulkColAt .. ns` is the column of `compMatrix` for a bulk energy with the splice row `ns` (standard normaliser and standard `hat kappa`, eq:thb-bulkcol). -/
 theorem bulk_col_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)}
@@ -548,7 +546,6 @@ theorem nearestRow_mem_window {Par : Type*} [TopologicalSpace Par] {Fz : SymbolF
 
 /-! ### One bulk block at one order, for the frozen family on `K` -/
 
-set_option maxHeartbeats 4000000 in
 /-- **A bulk block (left chart `CL`, mirror chart `CR` on `paramSet K t0`) at order `M`, `1 <= M`, `M/2 <= Kidx`**: for the splice row `nearestRow h s` with `c' < s < c`, the column of `hat G^{[M]}` for
 an eigenvalue `X` of the block is within `C h^M` of the eigenvector in `l^2`, uniformly in `mu in K`, `N` (with `h` small and `h <= t0`), the eigen-system.
 The standing assumptions of the frozen family come from `stdAssump_frozen_all`, the passage from the chart's `t0` to the smaller `t0'` of `frozenStandard` by `BulkWeberChart.restrict`
@@ -609,7 +606,6 @@ theorem bulk_block_columns {Par : Type*} [TopologicalSpace Par] (F : SymbolFamil
 
 /-! ### The columns of `compMatrix` for bulk energies -/
 
-set_option maxHeartbeats 4000000 in
 /-- **Bulk columns of `hat G^{[M]}` (one order)**: for every column `j` whose energy lies in a bulk block, `||(hat G^{[M]} - U) e_j||_2 <= C h^M`, uniformly in `mu in K`, `N` and the eigen-system,
 for splices `spl nu` in the open overlap of the block. -/
 theorem compMatrix_bulk_col {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {M q : ℕ}
@@ -677,7 +673,6 @@ theorem etaR_self (m : ℕ) (h : ℝ) : etaR m m h = h ^ m := by
   unfold etaR
   rw [if_pos rfl]
 
-set_option maxHeartbeats 4000000 in
 /-- **`PropThaSpliceTwoOrders`, bulk columns** (`prop:tha-splice` (c) for the columns whose energy lies in a bulk block): with the hypotheses of the frozen statement (`1 <= m`, `Kidx = (m+1)/2`,
 `q = 2 Kidx`, `IsCompact K`, `HypOn F K`, `DM F K (2 Kidx + 1)`, `SplicesInWindow`), there are `C`, `h0` such that for every `mu in K`, `N` with `h <= h0`, `h <= t0`, every eigen-system and every column `j` with `X_j` in a block,
 `||(hat G^{[m]} - U) e_j||_2 <= C eta_m` and `||(hat G^{[m+1]} - U) e_j||_2 <= C eta_{m+1}`.  The soft columns (`X_j` outside all blocks) are the soft half (`PropThaSpliceSoft`). -/
