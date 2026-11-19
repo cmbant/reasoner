@@ -9,25 +9,21 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.EigenvalueStatements
 Source: Paper J `thmA.tex`, proof of `cor:eigen`, Step 5 ("for `eq:cor-gapM`, (b) gives `X_k - X_{k+1} = sum_{r <= M} h^r [x_r(y_k) - x_r(y_k + pi h)] + O(h^{M+1})` ... Taylor's formula for `x_r in C^{M+1-r}([0, pi L])`
 to order `M - r` has remainder `O(h^{M+1-r})`, uniformly on the closed interval ... collecting the powers `h^{r+q}`, `q >= 1`, gives `eq:cor-gapM`").  Frozen statement: `CorEigenGapM` (`TheoremA/EigenvalueStatements.lean`).
 
-## What remains of cor:eigen after the proved items (exact missing statements)
+## What remains of cor:eigen after the proved items
 
-Proved elsewhere: `BandSlope` (`CorEigenWindows.lean`), `invLevel_of_slope` (b)(ii), `corEigenGap1_of_slope` (c) first part, `corEigenCount_of_slope` (d) (`CorEigenInverse.lean`, `CorEigenCount.lean`); proved here: the general-order gap expansion given the expansion data.
-The following are *not* proved; each is stopped at the exact statement below.
+Proved elsewhere: `BandSlope` from the windows (`CorEigenWindows.lean`), `invLevel_of_slope` (b)(ii), `corEigenGap1_of_slope` (c) first part, `corEigenCount_of_slope` (d) (`CorEigenInverse.lean`, `CorEigenCount.lean`);
+proved here: the general-order gap expansion given the expansion data.  The four items formerly listed here are now proved, each under the premises named:
 
-1. **Step 1, the derivative of the action** (`eq:cp-S0p`, `eq:cp-dt`): for `X` in the open band that is not a collision energy, `S_0'(X) = -int_{u_-}^{u_+} du/sqrt(T(u;X))` and
-   `d/dt actionS0 (frozenFamily F 0) (mu, t) X |_{t=0} = int_{u_-}^{u_+} (B_1 + (X - B_0) G_1/(2 G_0)) T^{-1/2} du`, with the integral absolutely convergent (also at the collisions).  Chain in the paper: Hadamard division
-   `d_lambda zeta = s(1-s) kappa`, `1 - zeta^2 = s(1-s) H` after the substitution `u = u_- + (u_+ - u_-) s`, so that `d_lambda arccos zeta` is bounded and continuous and differentiation under the integral is legitimate; the boundary terms
-   cancel since `arccos zeta(0) = pi l_-`, `arccos zeta(1) = pi l_+`.  This needs (i) smooth dependence of the turning points `u_pm(lambda)` (implicit function theorem for the simple zeros of `T`), (ii) the Hadamard
-   division lemma with continuity of the quotient, (iii) Leibniz differentiation under the integral with a dominating function.  None of it is in the repository (`MonotoneAction.lean` only proves that `S_0` is strictly decreasing).
-2. **`CorEigenS1`**: its first conjunct `HasDerivAt (t |-> actionS0 (frozenFamily F 0) (mu, t) X) (S_1 mu X) 0` additionally needs the *identification* `S_1 = Sigma_1(., 0) + d_t Sigma_0(., 0)` for an arbitrary `S` satisfying the three
-   properties of the frozen conclusion (uniqueness `thmSmoSpec_unique` against the glued `Scoef`, `Scoef_one`), and `Sigma_0(X, t) = S_0^{(t)}(X)` for `X` in the open band and small `t` (the field `Sigma_zero` of the bulk phase inputs
-   for all `t`; for the soft windows `mu0_S0` at `(mu, t)` with the closeness `bandHi_close`).  Both are statements about the Layer-4 data, not about `S`; they are not in `ThmSmoSpec`, so a proof must take the charts as premises (as `thmAi_assembled` does).
-3. **`InvS0` edge values** `-S_0'(X_s^pm) = pi sqrt(2/(kappa_pm d_pm))`: the limit `eq:cp-edgelim` of item 1 as `alpha -> 0` (substitution `tau = sqrt(alpha) s`, joint continuity of the integrand in `(sqrt(alpha), s, mu)` with the dominating
-   function `C/sqrt(1-s^2)`); the soft chart has `mu0_deriv : 0 < deriv (muS 0 mu) 0` but no value for it (it is *derived* from `eq:cp-S0p` in the paper, not a chart fact).
-4. **`InvCoeffs`, the recursion `x_r`** (b)(iii): the root `X(y, h)` of `F_M(x, h) = y` is `C^{M+1}` in `(y, h)` (implicit function theorem on the compact set `[0, pi L] x [0, h_*]`, `-partial_x F_M >= c`), `x_r = d_h^r X(., 0)/r!`;
-   the coefficient of `h^r` in `F_M(sum_s h^s x_s, h) = y` gives `x_1 = -S_1(x_0)/S_0'(x_0)` and the stated `x_2`.  Needed in Lean: a *global* `C^{M+1-r}` implicit function on a compact set (Mathlib has the local one), and the uniform
-   bound `Cx` on all derivatives (finding F-BB-3, **applied**: `InvExpansion` now carries `exists Cx, forall mu in K, forall r <= M, forall i <= M+1-r, forall y in [0, pi L], |iteratedDerivWithin i (x r mu) (Icc 0 (pi L)) y| <= Cx`;
-   it is true for the actual `x_r` by compactness and joint continuity of the derivatives of `X`).
+1. **Step 1, the derivative of the action** (`eq:cp-S0p`, `eq:cp-dt`): `ActionDerivative*.lean` (stable difference quotients, shift, `S_0'`, `d/dt`).
+2. **`CorEigenS1`**: `corEigenS1_of_windows` (`CorEigenS1.lean`), from the window identification `thmAi_of_windows_spec`, under the two *chart-level* premises `hone` (`Sigma_1(X, 0) = 0`) and
+   `hzero` (`Sigma_0 = actionS0 (frozenFamily F 0) (mu, t)` for small `t`).
+3. **`InvS0` edge values** `-S_0'(X_s^pm) = pi sqrt(2/(kappa_pm d_pm))`: `invS0_edges` (`ActionDerivativeEdge*.lean`; the limit `eq:cp-edgelim` by dominated convergence with `C/sqrt(s(1-s))`).
+4. **`InvCoeffs`, the recursion `x_r`** (b)(iii): `invCoeffs_of_slope` (`InvCoeffs.lean`), bundled with the others as `corEigenInverse_of_slope` (`CorEigenInverseSlope.lean`) under `0 < delta` and `BandSlope`.
+   Route deviation from the paper: no implicit function theorem; `x_0` is the explicit inverse of `S_0` on the extended band, and `x_r` are given by the coefficient recursion (`InvAlg`) with a bounded-derivative
+   class (`InvBounded`, `InvPoly`) giving the uniform bound `Cx` (F-BB-3).
+
+Still not assembled: the chart-level `hone`/`hzero` for the bulk, soft-upper and soft-lower windows (the soft-lower `softLoSigma` is valid only at `t = 0` and needs the mirror family), the whole-band `CorEigenS1`,
+and `CorEigenInverse` with exactly the frozen hypotheses (no `0 < delta` or `BandSlope` premises; findings F-BB-1, F-BB-2).
 
 ## Proved here (axiom-pinned)
 
@@ -42,7 +38,7 @@ The paper's uniformity "on the closed interval" is the hypothesis `Cx` (the pape
 
 ## Not formalised
 
-Items 1--4 above.
+The chart-level premises `hone`, `hzero` of `corEigenS1_of_windows`, and the assembly listed under "Still not assembled" above.
 -/
 
 @[expose] public section

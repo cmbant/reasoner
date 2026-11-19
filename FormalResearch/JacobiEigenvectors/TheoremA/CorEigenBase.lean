@@ -40,7 +40,8 @@ only used through these three, which is how `CorEigen*` quantify); Step 0 (`step
 
 ## Remaining items
 
-`CorEigenGapM.lean` proves the general-order gap expansion from the expansion data and lists, with the chain, the exact statements still missing for `CorEigenS1`, `InvS0` (edge values) and `InvCoeffs` (the `x_r` recursion).
+`CorEigenGapM.lean` proves the general-order gap expansion from the expansion data; `ActionDerivative*.lean`, `CorEigenS1.lean`, `InvCoeffs.lean` and `CorEigenInverseSlope.lean` prove `eq:cp-S0p`, `eq:cp-dt`,
+`CorEigenS1` at window level, the `InvS0` edge values and `InvCoeffs`; the exact residual list is in the docstring of `CorEigenGapM.lean`.
 
 ## Proved here (axiom-pinned)
 

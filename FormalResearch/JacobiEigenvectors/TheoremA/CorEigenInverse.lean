@@ -26,11 +26,9 @@ Chain of lemmas: `CorEigenBase.lean` (B1--B5).
 
 ## Not formalised (exact missing statements)
 
-* `InvCoeffs` (cor:eigen (b) part (iii), the expansion `hat X_k = sum h^r x_r(y_k) + O(h^{M+1})`, the regularity `x_r in C^{M+1-r}`, and `x_1`, `x_2`) and `CorEigenGapM`: they need the recursively defined
-  `x_r` with `C^{M+1-r}` norm bounds uniform in `mu` (finding F-BB-3: `InvExpansion` as frozen has no such bound).
-* `InvS0`, edge values `-S_0'(X_s^pm) = pi sqrt(2/(kappa_pm d_pm))`: the soft chart has `mu0_deriv : 0 < deriv (muS 0 mu) 0` but not its value; it needs the value of `mu_0'(0)` (lem:cha-PCcoord) as a chart field.
-* `CorEigenS1`: needs `Sigma_1 = 0` (no `h^1` term in the bulk phase, even shifts at the edges) for the frozen family, the parametric `ThmSmoSpec` on `paramSet K t0`, and the calculus of
-  `t -> actionS0 (frozenFamily F 0) (mu, t) X` (Step 1: Hadamard division, differentiation under the integral through the turning points); none of it is in the frozen `ThmSmoSpec` conclusion.
+* `InvCoeffs` and the edge values of `InvS0` are proved in `InvCoeffs.lean` and `ActionDerivativeEdgeS0.lean`, and bundled in `CorEigenInverseSlope.lean` (`corEigenInverse_of_slope`) under `0 < delta` and `BandSlope`.
+* `CorEigenS1` is proved at window level in `CorEigenS1.lean` (`corEigenS1_of_windows`); the chart-level premises `hone`, `hzero` (bulk, soft windows) are not discharged.
+* `CorEigenInverse` with exactly the frozen hypotheses (without `0 < delta`, `BandSlope`; F-BB-1, F-BB-2) is not assembled.
 -/
 
 @[expose] public section
