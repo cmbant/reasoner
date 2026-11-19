@@ -85,6 +85,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeStable
 public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeShift
 public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivative
 public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeDt
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenS1
 public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblyRel
 public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblySoft
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftWindowProof
