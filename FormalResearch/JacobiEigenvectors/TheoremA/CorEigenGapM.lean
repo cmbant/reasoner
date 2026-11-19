@@ -26,15 +26,15 @@ The following are *not* proved; each is stopped at the exact statement below.
    function `C/sqrt(1-s^2)`); the soft chart has `mu0_deriv : 0 < deriv (muS 0 mu) 0` but no value for it (it is *derived* from `eq:cp-S0p` in the paper, not a chart fact).
 4. **`InvCoeffs`, the recursion `x_r`** (b)(iii): the root `X(y, h)` of `F_M(x, h) = y` is `C^{M+1}` in `(y, h)` (implicit function theorem on the compact set `[0, pi L] x [0, h_*]`, `-partial_x F_M >= c`), `x_r = d_h^r X(., 0)/r!`;
    the coefficient of `h^r` in `F_M(sum_s h^s x_s, h) = y` gives `x_1 = -S_1(x_0)/S_0'(x_0)` and the stated `x_2`.  Needed in Lean: a *global* `C^{M+1-r}` implicit function on a compact set (Mathlib has the local one), and the uniform
-   bound `Cx` on all derivatives (finding F-BB-3: `InvExpansion` has no such bound; **minimal correction**: add `exists Cx, forall mu in K, forall r <= M, forall i <= M+1-r, forall y in [0, pi L], |iteratedDerivWithin i (x r mu) (Icc 0 (pi L)) y| <= Cx`
-   to `InvExpansion`; it is true for the actual `x_r` by compactness and joint continuity of the derivatives of `X`).  With that field `corEigenGapM_of_bound` below is the whole of `CorEigenGapM`.
+   bound `Cx` on all derivatives (finding F-BB-3, **applied**: `InvExpansion` now carries `exists Cx, forall mu in K, forall r <= M, forall i <= M+1-r, forall y in [0, pi L], |iteratedDerivWithin i (x r mu) (Icc 0 (pi L)) y| <= Cx`;
+   it is true for the actual `x_r` by compactness and joint continuity of the derivatives of `X`).
 
 ## Proved here (axiom-pinned)
 
 * `contDiffOn_iteratedDerivWithin_nat`: a `C^n` function on a set with unique derivatives has `C^{n-q}` `q`-th iterated derivatives.
 * `taylor_Icc`: Lagrange Taylor on a subinterval of `[a, b]`, with the iterated derivatives *within `[a, b]`* and a bound for the `(n+1)`-th one.
-* `corEigenGapM_of_bound`: **`CorEigenGapM` for every expansion `x` that carries the uniform derivative bound `Cx`** (the conclusion of `CorEigenGapM`, with `d_p` as stated, `d_p in C^{M+1-p}`).  The hypotheses `IsCompact K`, `HypOn`, `DM`, `SmoothExt`, `EigenRule`
-  of the frozen statement are not used: the gap expansion is a consequence of the expansion `InvExpansion` and the bound alone.
+* `corEigenGapM_of_expansion`, **`corEigenGapM : CorEigenGapM F K M`** (the frozen statement, with `d_p` as stated and `d_p in C^{M+1-p}`).  The hypotheses `IsCompact K`, `HypOn`, `DM`, `SmoothExt`, `EigenRule`
+  of the frozen statement are not used: the gap expansion is a consequence of the expansion `InvExpansion` (including its uniform derivative bound `Cx`) alone.
 
 ## Differences from the paper
 
@@ -136,10 +136,9 @@ lemma sum_reindex_gap (M : ℕ) (f : ℕ → ℕ → ℝ) :
   · rintro ⟨p, r⟩ h
     rfl
 
-/-- **`CorEigenGapM` for expansions with the uniform derivative bound** (cor:eigen (c), general order; see the module docstring for the one missing field of `InvExpansion`). -/
-theorem corEigenGapM_of_bound (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (S : ℕ → Par → ℝ → ℝ) (x : ℕ → Par → ℝ → ℝ)
-    (hx : InvExpansion F K M S x) (Cx : ℝ)
-    (hCx : ∀ μ ∈ K, ∀ r ≤ M, ∀ i ≤ M + 1 - r, ∀ y ∈ Icc 0 (Real.pi * F.L), |iteratedDerivWithin i (x r μ) (Icc 0 (Real.pi * F.L)) y| ≤ Cx) :
+/-- **`CorEigenGapM` for an expansion `x`** (cor:eigen (c), general order): only `InvExpansion` is used. -/
+theorem corEigenGapM_of_expansion (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (S : ℕ → Par → ℝ → ℝ) (x : ℕ → Par → ℝ → ℝ)
+    (hx : InvExpansion F K M S x) :
     ∃ d : ℕ → Par → ℝ → ℝ,
       (∀ μ ∈ K, ∀ p ∈ Finset.Icc 1 M, ContDiffOn ℝ ((M + 1 - p : ℕ) : WithTop ℕ∞) (d p μ) (Set.Icc 0 (Real.pi * F.L)) ∧
         ∀ y ∈ Icc 0 (Real.pi * F.L), d p μ y =
@@ -148,7 +147,7 @@ theorem corEigenGapM_of_bound (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (S 
         ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
           ∀ i j : Fin (N + 1), (j : ℕ) = (i : ℕ) + 1 →
             |(X i - X j) - ∑ p ∈ Finset.Icc 1 M, F.step N ^ p * d p μ (Real.pi * F.step N * ((i : ℕ) + 1 / 2))| ≤ Cc * F.step N ^ (M + 1) := by
-  obtain ⟨hreg, -, C, h0, hh0, hexp⟩ := hx
+  obtain ⟨hreg, ⟨Cx, hCx⟩, -, C, h0, hh0, hexp⟩ := hx
   have hL := F.L_pos
   have hpiL : 0 < Real.pi * F.L := mul_pos Real.pi_pos hL
   have hUs : UniqueDiffOn ℝ (Icc 0 (Real.pi * F.L)) := uniqueDiffOn_Icc hpiL
@@ -293,6 +292,11 @@ theorem corEigenGapM_of_bound (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (S 
           add_le_add ((abs_sub _ _).trans (add_le_add hEi' hEj')) hsumb
       _ = _ := by ring
 
+/-- **`CorEigenGapM`** (cor:eigen (c), general order), the frozen statement, with the uniform derivative bound now a field of `InvExpansion` (finding F-BB-3 applied). -/
+theorem corEigenGapM (F : SymbolFamily Par) (K : Set Par) (M : ℕ) : CorEigenGapM F K M :=
+  fun _ _ _ _ S _ _ _ _ _ _ _ x hx => corEigenGapM_of_expansion F K M S x hx
+
+
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.contDiffOn_iteratedDerivWithin_nat' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.contDiffOn_iteratedDerivWithin_nat
@@ -301,9 +305,13 @@ theorem corEigenGapM_of_bound (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (S 
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremA.taylor_Icc
 
-/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.corEigenGapM_of_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.corEigenGapM' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.JacobiEigenvectors.TheoremA.corEigenGapM_of_bound
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.corEigenGapM
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.corEigenGapM_of_expansion' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.corEigenGapM_of_expansion
 
 end FormalResearch.JacobiEigenvectors.TheoremA
 

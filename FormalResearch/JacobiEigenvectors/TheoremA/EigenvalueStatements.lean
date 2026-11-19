@@ -105,9 +105,11 @@ def CorEigenS1 (F : SymbolFamily Par) (K : Set Par) : Prop :=
           Real.sqrt (Tfun F.L (F.G 0 μ) (F.B 0 μ) X u)
 
 /-- The expansion data of the inverse quantisation (cor:eigen (b)): `x_r(mu; .) in C^{M+1-r}([0, pi L])`, `x_0` an inverse of `S_0` (`x_0(y) in [X_s^-, X_s^+]`, `S_0(x_0(y)) = y`), and the
-eigenvalues `X_k = sum_{r <= M} h^r x_r(y_k) + O(h^{M+1})` uniformly in `mu in K`, `k`, `h <= h_0`, `y_k = pi h (k + 1/2)`.  (Such `x` is unique: the `y_k` become dense in `[0, pi L]`.) -/
+eigenvalues `X_k = sum_{r <= M} h^r x_r(y_k) + O(h^{M+1})` uniformly in `mu in K`, `k`, `h <= h_0`, `y_k = pi h (k + 1/2)`.  The derivatives of `x_r` up to order `M + 1 - r` are bounded uniformly in `mu in K` (finding F-BB-3: the paper's `x_r` are `C^{M+1-r}` on the compact `[0, pi L]`, jointly in the parameters; the bound is what the Taylor remainder of `CorEigenGapM` needs).  (Such `x` is unique: the `y_k` become dense in `[0, pi L]`.) -/
 def InvExpansion (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (S : ℕ → Par → ℝ → ℝ) (x : ℕ → Par → ℝ → ℝ) : Prop :=
   (∀ μ ∈ K, ∀ r ≤ M, ContDiffOn ℝ ((M + 1 - r : ℕ) : WithTop ℕ∞) (x r μ) (Icc 0 (Real.pi * F.L))) ∧
+  (∃ Cx : ℝ, ∀ μ ∈ K, ∀ r ≤ M, ∀ i ≤ M + 1 - r, ∀ y ∈ Icc 0 (Real.pi * F.L),
+    |iteratedDerivWithin i (x r μ) (Icc 0 (Real.pi * F.L)) y| ≤ Cx) ∧
   (∀ μ ∈ K, ∀ y ∈ Icc 0 (Real.pi * F.L), x 0 μ y ∈ Icc (F.bandLo μ) (F.bandHi μ) ∧ S 0 μ (x 0 μ y) = y) ∧
   ∃ C h0 : ℝ, 0 < h0 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h0 →
     ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →

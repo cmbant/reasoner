@@ -35,7 +35,7 @@ only used through these three, which is how `CorEigen*` quantify); Step 0 (`step
   Here it is the explicit hypothesis `BandSlope F K S`; it is *discharged from the window data* of the assembly in `CorEigenWindows.lean` (`bandSlope_of_windows`: the glued `S_0` has slope `<= -c`).
 * **F-BB-3 (`InvExpansion` has no uniform norm bound on `x_r`).**  `CorEigenGapM` quantifies over any `x` with `InvExpansion`, which carries `ContDiffOn` of each `x_r(mu, .)` but no bound on its
   derivatives uniform in `mu`; the Taylor remainder in `CorEigenGapM` needs one (it holds for the actual `x_r`, by uniqueness and the recursion, but not for an arbitrary `x` read off the frozen
-  statement).  Minimal correction: add `exists Cx, forall mu in K, forall r <= M, forall i <= M + 1 - r, forall y, |iteratedDerivWithin i (x r mu) (Icc 0 (pi L)) y| <= Cx` to `InvExpansion`.
+  statement).  **Applied** (`InvExpansion` now has the field): `exists Cx, forall mu in K, forall r <= M, forall i <= M + 1 - r, forall y, |iteratedDerivWithin i (x r mu) (Icc 0 (pi L)) y| <= Cx` to `InvExpansion`.
   (Not used by the proofs of this round; see the "Not formalised" of `CorEigenInverse.lean`.)
 
 ## Remaining items
