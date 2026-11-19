@@ -56,6 +56,26 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.BulkSlope
 public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumRestrict
 public import FormalResearch.JacobiEigenvectors.Charts.SoftPhaseInputs
 public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumAssemblySoft
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssembly
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssemblyAlg
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssembly2
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssembly3
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssembly4
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssembly5
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssembly6
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftCountHyps
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftCountLink
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftCountOrder
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftCount
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftCountChart
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftW2
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftSigns
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftSigns2
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftSigns3
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftW2Proved
+public import FormalResearch.JacobiEigenvectors.TheoremA.NegTransport
+public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumAssemblyLower
+public import FormalResearch.JacobiEigenvectors.TheoremB.NegColumns
 
 /-!
 # Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)
