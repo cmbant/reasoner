@@ -40,7 +40,7 @@ identities of `thm:eng-defect` (`Defect`) and the multi-patch theorem `volterra_
 3. The transfer condition (S3) of the ladder-pair transfer matrices is a hypothesis `hT` in `ladder_pair_stability`
    (derived from the charts in the paper's bounded-overlap case, which is not formalised) and is derived from
    comparability conditions at forbidden overlaps in `ladder_pair_stability_forbidden`.
-4. The model ladders `𝐰_p` enter through `SymplecticLadder γ dd pp qq PiP PiM (wf p) ω`: the same `Π±`, `𝒟`, `ω_mod` for all
+4. The model ladders `𝐰_p` enter through `SymplecticLadder γ dd d2 pp qq PiP PiM (wf p) ω`: the same `Π±`, `𝒟`, `ω_mod` for all
    patches, with the relations (SM1), (SM2) for `h > 0` only (see `Defect`).  No instance of
    `ladder_pair_stability(_forbidden)` is formalised: the hypotheses are not shown to be jointly satisfiable by a
    concrete ladder (`constant_ladder` of `Defect` has `𝒟 = 1` and no hard edge).
@@ -91,8 +91,8 @@ lemma ladder_cas_eq (dd pp AA BB : ℝ → ℝ → ℝ) (w : Fin 2 → ℝ → �
 
 /-- **(S1)** of `thm:eng-volterra`(b): the lower Casoratian bound `|𝒲_k(φ¹,φ²)| ≥ c_- |ω_mod|` from the
 ladder identity `𝒲 = ω_mod 𝓕_cas` (`casSite_eq_omega_Fcas`) and `|𝓕_cas| ≥ c_-`. -/
-theorem ladder_S1 {γ h c : ℝ} {ω : ℝ → ℝ} {dd pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2}
-    (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (AA BB : ℝ → ℝ → ℝ) (hh : 0 < h) (k : ℤ) (hk : 0 ≤ k)
+theorem ladder_S1 {γ h c : ℝ} {ω : ℝ → ℝ} {dd d2 pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2}
+    (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (AA BB : ℝ → ℝ → ℝ) (hh : 0 < h) (k : ℤ) (hk : 0 ≤ k)
     (hF : c ≤ |Fcas pp AA BB PiM (((k : ℝ) + γ) * h + h / 2) h|) :
     |ω h| * c ≤ |cas (ladderA dd pp γ h) (ladderSeq AA BB w γ h 0) (ladderSeq AA BB w γ h 1) k| := by
   rw [ladder_cas_eq, casSite_eq_omega_Fcas L _ _ hh (isSite_of_nonneg k hk), abs_mul]
@@ -168,8 +168,8 @@ theorem residual_of_defect (h : ℝ) (m : ℕ) (KD Kw Lval D0 D1 w0 w1 ρk ρtk 
         field_simp
 
 /-- **(R)** the residual of a ladder pair at an interior site `k ≥ 1` (`thm:eng-defect`(1) and `residual_of_defect`). -/
-theorem ladder_residual_interior {γ h : ℝ} {ω : ℝ → ℝ} {dd pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2}
-    {w : Fin 2 → ℝ → ℝ → V2} (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (AA BB : ℝ → ℝ → ℝ)
+theorem ladder_residual_interior {γ h : ℝ} {ω : ℝ → ℝ} {dd d2 pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2}
+    {w : Fin 2 → ℝ → ℝ → V2} (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (AA BB : ℝ → ℝ → ℝ)
     (α : Fin 2) (k : ℤ) (hk : 1 ≤ k) (hh : 0 < h) (m : ℕ) (KD Kw ρk ρtk Wα Mk : ℝ)
     (hKD : 0 ≤ KD) (hKw : 0 ≤ Kw) (hρk : 0 ≤ ρk) (hWα : 0 ≤ Wα) (hMk : 0 ≤ Mk)
     (hD0 : |defectRow pp qq AA BB PiP PiM (((k : ℝ) + γ) * h) h 0| ≤ KD * h ^ (m + 1) * ρk)
@@ -188,8 +188,8 @@ theorem ladder_residual_interior {γ h : ℝ} {ω : ℝ → ℝ} {dd pp qq : ℝ
 
 /-- **(R)** the residual of the first pair at the hard-edge site `k = 0` (`defect_identity_hard`, with the hard-edge
 annihilation `Π₋ 𝐰⁽¹⁾₀ = 0` and `𝒟₋(u₀,h) = 0`). -/
-theorem ladder_residual_hard {γ h : ℝ} {ω : ℝ → ℝ} {dd pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2}
-    {w : Fin 2 → ℝ → ℝ → V2} (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (AA BB : ℝ → ℝ → ℝ)
+theorem ladder_residual_hard {γ h : ℝ} {ω : ℝ → ℝ} {dd d2 pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2}
+    {w : Fin 2 → ℝ → ℝ → V2} (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (AA BB : ℝ → ℝ → ℝ)
     (hh : 0 < h) (m : ℕ) (KD Kw ρk ρtk Wα Mk : ℝ)
     (hKD : 0 ≤ KD) (hKw : 0 ≤ Kw) (hρk : 0 ≤ ρk) (hWα : 0 ≤ Wα) (hMk : 0 ≤ Mk)
     (hD : Dm dd (γ * h) h = 0) (hann : colMul (PiM (γ * h) h) (w 0 (γ * h) h) = 0)
@@ -243,11 +243,11 @@ lemma eqLo_ge_one_of (s0 : ℤ) (jj : ℕ → ℤ) (p : ℕ) (hp : p ≠ 1) (hj 
 `ω_* = |ω_mod(h)|`, `c₋ = cm`; the envelopes with `K = (K_A+K_B)K_w`; and the residuals with `ε = 2K_𝔇K_w h^m`, from the
 defect bounds (eq:eng-UC1) and the envelopes of `𝐰_p`.  This is the part of `ladder_pair_stability` that does not
 involve the transfer condition (S3). -/
-theorem ladder_pair_data (γ h cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp qq : ℝ → ℝ → ℝ)
+theorem ladder_pair_data (γ h cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp qq : ℝ → ℝ → ℝ) {d2 : ℝ → ℝ → ℝ}
     (PiP PiM : ℝ → ℝ → M2) (ω : ℝ → ℝ) (AA BB : ℝ → ℝ → ℝ) (wf : ℕ → Fin 2 → ℝ → ℝ → V2)
     (ρ ρt W M : ℤ → ℝ) (s0 NR : ℤ) (P : ℕ) (jj : ℕ → ℤ)
     (hh : 0 < h) (hKD : 0 ≤ KD) (hKw : 0 ≤ Kw)
-    (hL : ∀ p, SymplecticLadder γ dd pp qq PiP PiM (wf p) ω)
+    (hL : ∀ p, SymplecticLadder γ dd d2 pp qq PiP PiM (wf p) ω)
     (hjj0 : jj 0 = 0) (hjjmono : ∀ p < P, jj p < jj (p + 1)) (hjjP : jj P = NR - 1)
     (hs0 : s0 = 0 ∨ s0 = 1)
     (hρ : ∀ k, 0 ≤ ρ k) (hρt : ∀ k : ℤ, 0 ≤ k → 0 < ρt k)
@@ -399,11 +399,11 @@ The comparison pairs of patch `p` are the ladder pairs `φ^{(α)}_p = v(u_k,h)·
 and of the model ladders `𝐰_p` (one symplectic ladder structure per patch, `hL`, with the same `Π±`, `ω_mod`).  The
 defect bounds (eq:eng-UC1) and the envelopes of `𝐰_p` give (S1) with `ω_* = |ω_mod(h)|`, `c₋ = cm`, (S2) with
 `K = (K_A + K_B) K_w` and the residuals with `ε = 2 K_𝔇 K_w h^m`; then `volterra_multi` applies. -/
-theorem ladder_pair_stability (γ h Λ CE cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp qq : ℝ → ℝ → ℝ)
+theorem ladder_pair_stability (γ h Λ CE cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp qq : ℝ → ℝ → ℝ) {d2 : ℝ → ℝ → ℝ}
     (PiP PiM : ℝ → ℝ → M2) (ω : ℝ → ℝ) (AA BB : ℝ → ℝ → ℝ) (wf : ℕ → Fin 2 → ℝ → ℝ → V2)
     (ρ ρt W M ψ : ℤ → ℝ) (s0 NR : ℤ) (P : ℕ) (jj : ℕ → ℤ)
     (hh : 0 < h) (hcm : 0 < cm) (hKD : 0 ≤ KD) (hKw : 0 ≤ Kw) (hKA : 0 ≤ KA) (hKB : 0 ≤ KB) (hΛ : 1 ≤ Λ)
-    (hL : ∀ p, SymplecticLadder γ dd pp qq PiP PiM (wf p) ω)
+    (hL : ∀ p, SymplecticLadder γ dd d2 pp qq PiP PiM (wf p) ω)
     (hP : 1 ≤ P) (hjj0 : jj 0 = 0) (hjjmono : ∀ p < P, jj p < jj (p + 1)) (hjjP : jj P = NR - 1)
     (hs0 : s0 = 0 ∨ s0 = 1)
     (hρ : ∀ k, 0 ≤ ρ k) (hρt : ∀ k : ℤ, 0 ≤ k → 0 < ρt k)
@@ -453,11 +453,11 @@ overlap conditions at each `j_p` (`p < P`): `𝒜_h(s_{j_p}) > 0`, `W_{j_p+1} �
 `𝒜_h(s_{j_p}) M_{j_p} M_{j_p+1} ≤ C_ω |ω_mod(h)|` (the paper's `𝒜_h(s_{j_p}) 𝖬 𝖬 ≍ ω_*`); (S3) then holds with
 `Λ = max 1 (2K² max(C_w,C_E) C_ω/c₋)`, `K = (K_A+K_B)K_w`, by `transfer_of_forbidden_overlap`.  The case of a bounded
 (oscillatory) overlap, where (S3) is assumed, is `ladder_pair_stability`. -/
-theorem ladder_pair_stability_forbidden (γ h CE Cw Cω cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp qq : ℝ → ℝ → ℝ)
+theorem ladder_pair_stability_forbidden (γ h CE Cw Cω cm KD Kw KA KB : ℝ) (m : ℕ) (dd pp qq : ℝ → ℝ → ℝ) {d2 : ℝ → ℝ → ℝ}
     (PiP PiM : ℝ → ℝ → M2) (ω : ℝ → ℝ) (AA BB : ℝ → ℝ → ℝ) (wf : ℕ → Fin 2 → ℝ → ℝ → V2)
     (ρ ρt W M ψ : ℤ → ℝ) (s0 NR : ℤ) (P : ℕ) (jj : ℕ → ℤ)
     (hh : 0 < h) (hcm : 0 < cm) (hKD : 0 ≤ KD) (hKw : 0 ≤ Kw) (hKA : 0 ≤ KA) (hKB : 0 ≤ KB)
-    (hL : ∀ p, SymplecticLadder γ dd pp qq PiP PiM (wf p) ω)
+    (hL : ∀ p, SymplecticLadder γ dd d2 pp qq PiP PiM (wf p) ω)
     (hP : 1 ≤ P) (hjj0 : jj 0 = 0) (hjjmono : ∀ p < P, jj p < jj (p + 1)) (hjjP : jj P = NR - 1)
     (hs0 : s0 = 0 ∨ s0 = 1)
     (hρ : ∀ k, 0 ≤ ρ k) (hρt : ∀ k : ℤ, 0 ≤ k → 0 < ρt k)

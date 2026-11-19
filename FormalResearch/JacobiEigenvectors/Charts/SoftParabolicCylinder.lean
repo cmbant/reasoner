@@ -233,7 +233,8 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   Q_diagW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chainW μ X N).NR,
     (chainW μ X N).Q k = F.diagQ μ N X k
   /-- Weber ladder: `D = sqrt s`, `omega_mod = h^{1/2}`. -/
-  dd_sqrtW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ s h', (chainW μ X N).dd 1 s h' = Real.sqrt s
+  dd_sqrtW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ s h',
+    (chainW μ X N).dd 1 s h' = Real.sqrt s ∧ (chainW μ X N).d2 1 s h' = s
   omega_sqrtW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → (chainW μ X N).ω 1 (F.step N) = Real.sqrt (F.step N)
   /-- the model pair of `chainW`: both Weber functions at `Z = h^{-1/2} Y(u_k)`, `a = -(k+1/2)` (cha-weberPC). -/
   wfW_eq : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) ((chainW μ X N).NR + 1),
@@ -291,6 +292,10 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
     (chain μ X N).dd 3 = (chain μ X N).dd 2 ∧ (chain μ X N).pp 3 = (chain μ X N).pp 2 ∧ (chain μ X N).qq 3 = (chain μ X N).qq 2 ∧
     (chain μ X N).PiP 3 = (chain μ X N).PiP 2 ∧ (chain μ X N).PiM 3 = (chain μ X N).PiM 2 ∧ (chain μ X N).ω 3 = (chain μ X N).ω 2 ∧
     (chain μ X N).AA 3 = (chain μ X N).AA 2 ∧ (chain μ X N).BB 3 = (chain μ X N).BB 2
+  /-- the PC patches have `D = 1`, hence `D^2 = 1` (the paper's real extension `d2` of the PC ladder, at all `s`), and patch 3 has the
+  `d2` of patch 2. -/
+  d2_PC : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    (∀ s h', (chain μ X N).d2 2 s h' = 1) ∧ (chain μ X N).d2 3 = (chain μ X N).d2 2
   /-- patch 2 model pair: the `-` pair of `U, V` at `a = a^{[q]}_PC`, `Z = h^{-1/2} zeta(u_k - u_c; alpha)`, `alpha = X_s^+ - X`, on all rows `j_1 .. N_R + 1` (the comparison sequence
   `psi-hat^{PC,-}` lives on the whole collar). -/
   wf2_eq : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →

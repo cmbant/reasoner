@@ -16,8 +16,8 @@ Proved = a Lean theorem with an axiom pin, under the hypotheses stated in its mo
 
 | id | status | Lean name (file) | main restriction |
 |---|---|---|---|
-| L1.1 | proved | `LadderData.stability` (`Engine/LadderStability.lean`) | `Valid` (incl. (S3) `transfer`) is a hypothesis |
-| L1.2 | proved under data | `eng_corr`, `eng_corr_full`, `eng_corr_site`, `transport_corrector`, `ex_eng_corr` (`Engine/Corrector*.lean`) | global domain `u in R`; `SymbolExp` (Taylor expansions) and the correctors with relations (a)_k, (b)_k are *data*; `nondeg` (bonds `D != 0` everywhere) excludes a hard-edge bond, so the theorem is **not applicable to the Weber ladder as it stands**: the chart fields `Valid.defect0/1` are not derived from it (Layer 4) |
+| L1.1 | proved | `LadderData.stability` (`Engine/LadderStability.lean`) | `Valid` (incl. (S3) `transfer`) is a hypothesis; the argument uses only lattice data (`dd` in the shift relations, `ladderA`, `Dm dd (γh) h = 0` at the hard edge), never `d2` |
+| L1.2 | proved under data | `eng_corr`, `eng_corr_full`, `eng_corr_site`, `transport_corrector`, `ex_eng_corr` (`Engine/Corrector*.lean`) | global domain `u in R`; `SymbolExp` (Taylor expansions) and the correctors with relations (a)_k, (b)_k are *data*; the ladder is `SymplecticLadder dd d2`: `dd` is the real lattice factor (shift relations), `d2 = 𝒟²` (real, negative off the lattice for the Weber ladder, `d2 = dd²` at the lattice nodes) carries `det Π±`, `Π₋Π₊`, (SM3); `nondeg` is `d2 s h ≠ 0` (the paper's `D² != 0`), which still excludes the hard-edge bond (`d2 s h = s`), so the theorem is **not applicable to the Weber ladder as it stands**: the chart fields `Valid.defect0/1` are not derived from it (Layer 4) |
 | L1.3 | proved | `exists_eigenSystem`, `eigVec_JacSol`, `bondA_pos` (`Setting/EigenSystem.lean`) | `bondA_pos` needs `G_h > 0` at the nodes (hypothesis) |
 | L1.4 | proved | `green_cas_const`, `green_cas_last`, `green_hasDerivAt` (`Engine/Green.lean`) | none |
 | L2.G1--G3 | proved | `hypMorseEquiv`, `hypOpen`, `frozenStandard` (`TheoremA/Geometry.lean`) | none |

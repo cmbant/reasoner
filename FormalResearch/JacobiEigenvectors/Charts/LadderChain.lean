@@ -92,6 +92,8 @@ structure LadderData where
   A : ℤ → ℝ
   Q : ℤ → ℝ
   dd : ℕ → ℝ → ℝ → ℝ
+  /-- the real function `𝒟²` of each patch (`SymplecticLadder.d2`); `d2 = dd²` at the lattice points, and `d2` may be negative off the lattice. -/
+  d2 : ℕ → ℝ → ℝ → ℝ
   pp : ℕ → ℝ → ℝ → ℝ
   qq : ℕ → ℝ → ℝ → ℝ
   PiP : ℕ → ℝ → ℝ → M2
@@ -130,7 +132,7 @@ structure PreValid (cs : ChainConsts) (h : ℝ) (m : ℕ) : Prop where
   jj_last : D.jj D.P = D.NR - 1
   s0_cases : D.s0 = 0 ∨ D.s0 = 1
   /-- (SM1)--(SM3) for the model ladder of every patch (`def:eng-ladder`). -/
-  ladder : ∀ p ∈ Icc 1 D.P, SymplecticLadder (1 / 2) (D.dd p) (D.pp p) (D.qq p) (D.PiP p) (D.PiM p) (D.wf p) (D.ω p)
+  ladder : ∀ p ∈ Icc 1 D.P, SymplecticLadder (1 / 2) (D.dd p) (D.d2 p) (D.pp p) (D.qq p) (D.PiP p) (D.PiM p) (D.wf p) (D.ω p)
   /-- all patches have the same Wronskian modulus `omega_*`. -/
   omega_eq : ∀ p ∈ Icc 1 D.P, |D.ω p h| = |D.ω 1 h|
   /-- the common operator: bond and diagonal of every patch ladder agree with `A, Q` on the window. -/

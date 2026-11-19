@@ -61,6 +61,7 @@ def SoftEdgeChart.restrictSub {Par : Type*} [TopologicalSpace Par] {F : SymbolFa
     A_bond := fun μ hμ => C.A_bond μ (h hμ)
     Q_diag := fun μ hμ => C.Q_diag μ (h hμ)
     shared_PC := fun μ hμ => C.shared_PC μ (h hμ)
+    d2_PC := fun μ hμ => C.d2_PC μ (h hμ)
     wf2_eq := fun μ hμ => C.wf2_eq μ (h hμ)
     wf3_eq := fun μ hμ => C.wf3_eq μ (h hμ)
     W1_def := fun μ hμ => C.W1_def μ (h hμ)

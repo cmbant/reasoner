@@ -42,7 +42,7 @@ proof in `app_engine.tex`, "Proof of Theorem `thm:eng-corr`" (hypotheses `(H_k)`
    (Paper: constants depend on sup norms over `I_u`.)  Together with the global form of the identities of `SymplecticLadder`.
 2. **Analytic input `SymbolExp`** (see `CorrectorDefect`): the Taylor expansions of the composite symbol functions are a hypothesis, not
    derived from `C^r` regularity of `P_{2i}, Q_{2i}, Π_±`.
-3. **Bond nondegeneracy** `∃ δ_D, ∀ s, 0 < |h| < δ_D → 𝒟(s,h) ≠ 0` (used by the exact inverse formula `Π₊ = adj Π₋(·+h)`; implicit in the paper).
+3. **Bond nondegeneracy** `∃ δ_D, ∀ s, 0 < |h| < δ_D → 𝒟²(s,h) ≠ 0`, i.e. `d2 s h ≠ 0` with the real function `d2 = 𝒟²` (the paper's hypothesis; used by the exact inverse formula `Π₊ = adj Π₋(·+h)`).
 4. **Correctors as data.**  The correctors are given with their regularity (`BSmooth (2K+3)`, i.e. derivatives up to order `m+2` bounded for `m = 2K+1`
    as in the paper) and the relations (a)_k, (b)_k; existence/regularity of `b_k` for one simple turning point is `prop:eng-corr1` (not formalised;
    the solvability formula is `transport_corrector`).  The paper's "for any constant `c_{2k}`" is the sequence `c`.  The uniform positivity `g₀ ≥ m₀` replaces "`g₀ > 0` on `I_u`".
@@ -100,18 +100,18 @@ def Bhat (b : ℕ → ℝ → ℝ) (m : ℕ) : ℝ → ℝ → ℝ := Bans b (m 
 /-! ### The standing hypotheses -/
 
 /-- The standing hypotheses of `thm:eng-corr` on the ladder and the symbols (see the module docstring). -/
-structure CorrSetting (K : ℕ) (γ : ℝ) (dd pp qq : ℝ → ℝ → ℝ) (PiP PiM : ℝ → ℝ → M2)
+structure CorrSetting (K : ℕ) (γ : ℝ) (dd d2 pp qq : ℝ → ℝ → ℝ) (PiP PiM : ℝ → ℝ → M2)
     (w : Fin 2 → ℝ → ℝ → V2) (ω : ℝ → ℝ) : Prop where
   /-- (SM1)--(SM3) of `def:eng-ladder`. -/
-  ladder : SymplecticLadder γ dd pp qq PiP PiM w ω
+  ladder : SymplecticLadder γ dd d2 pp qq PiP PiM w ω
   /-- `P_h` even in `h` (the polynomial part of (eq:eng-factor)). -/
   pp_even : ∀ s h, pp s (-h) = pp s h
   /-- `𝒬_h` even in `h`. -/
   qq_even : ∀ u h, qq u (-h) = qq u h
   /-- The analytic input: Taylor expansions of the symbols to order `2K + 3 = m + 2` for `m = 2K+1`. -/
   exp : SymbolExp (2 * K + 3) pp qq PiP PiM
-  /-- Nondegenerate bonds. -/
-  nondeg : ∃ δD : ℝ, 0 < δD ∧ ∀ s h, 0 < |h| → |h| < δD → dd s h ≠ 0
+  /-- Nondegenerate bonds: `𝒟²(s,h) ≠ 0` for `0 < |h| < δD` (the paper's `D^2 != 0`). -/
+  nondeg : ∃ δD : ℝ, 0 < δD ∧ ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0
   /-- (eq:eng-langer): `P₀ (Π₊₁₁ + Π₋₁₁)(·,0) = Q₀`. -/
   langer : ∀ u, pp u 0 * (PiP u 0 0 0 + PiM u 0 0 0) = qq u 0
   /-- `M₀ = P₀ Π₋(·,0)₂₁ = Ω₀²V₀` (eq:eng-omega) is `C²` with bounded derivatives. -/
@@ -140,32 +140,32 @@ structure Correctors (K : ℕ) (pp qq : ℝ → ℝ → ℝ) (PiP PiM : ℝ → 
 
 section Main
 
-variable {K : ℕ} {γ : ℝ} {dd pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
+variable {K : ℕ} {γ : ℝ} {dd d2 pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
   {g b : ℕ → ℝ → ℝ} {c : ℕ → ℝ}
 
-lemma CorrSetting.dA_even (S : CorrSetting K γ dd pp qq PiP PiM w ω) (k l : ℕ) (u h : ℝ) :
+lemma CorrSetting.dA_even (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (k l : ℕ) (u h : ℝ) :
     dA pp qq PiP PiM g b k l u (-h) = dA pp qq PiP PiM g b k l u h :=
   (defectRow_parity S.ladder S.pp_even S.qq_even (Aans_even g k) (Bans_even b l) u h).1
 
-lemma CorrSetting.dB_odd (S : CorrSetting K γ dd pp qq PiP PiM w ω) (k l : ℕ) (u h : ℝ) :
+lemma CorrSetting.dB_odd (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (k l : ℕ) (u h : ℝ) :
     dB pp qq PiP PiM g b k l u (-h) = -dB pp qq PiP PiM g b k l u h :=
   (defectRow_parity S.ladder S.pp_even S.qq_even (Aans_even g k) (Bans_even b l) u h).2
 
-lemma CorrSetting.FF_even (S : CorrSetting K γ dd pp qq PiP PiM w ω) {δD : ℝ}
-    (hD : ∀ s h, 0 < |h| → |h| < δD → dd s h ≠ 0) (k l : ℕ) (s h : ℝ) (hh : |h| < δD) :
+lemma CorrSetting.FF_even (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) {δD : ℝ}
+    (hD : ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0) (k l : ℕ) (s h : ℝ) (hh : |h| < δD) :
     FF pp PiM g b k l s (-h) = FF pp PiM g b k l s h := by
   by_cases h0 : h = 0
   · subst h0; simp
   · exact Fcas_even S.ladder S.pp_even (Aans_even g k) (Bans_even b l) s h (hD s h (abs_pos.mpr h0) hh)
 
-lemma CorrSetting.dB_zero (S : CorrSetting K γ dd pp qq PiP PiM w ω) (k l : ℕ) (u : ℝ) :
+lemma CorrSetting.dB_zero (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (k l : ℕ) (u : ℝ) :
     dB pp qq PiP PiM g b k l u 0 = 0 := by
   have := S.dB_odd (g := g) (b := b) k l u 0
   rw [neg_zero] at this
   linarith
 
 /-- Expansions of the defect components and of `F_cas` of the ansatz. -/
-lemma CorrSetting.ans_papprox (S : CorrSetting K γ dd pp qq PiP PiM w ω)
+lemma CorrSetting.ans_papprox (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω)
     (C : Correctors K pp qq PiP PiM g b c) {k l : ℕ} (hk : k ≤ K + 1) (hl : l ≤ K) :
     PApprox (2 * K + 3) (dA pp qq PiP PiM g b k l) ∧ PApprox (2 * K + 3) (dB pp qq PiP PiM g b k l) ∧
       PApprox (2 * K + 3) (FF pp PiM g b k l) := by
@@ -186,7 +186,7 @@ lemma CorrSetting.ans_papprox (S : CorrSetting K γ dd pp qq PiP PiM w ω)
 
 /-- **The Green bound.** If `F_cas - P(h) = O(h^n)` (`P` independent of `u`) and `h B 𝔄 = O(h^n)`, then `𝔅^tot = O(h^n)`:
 the Casoratian--Green identity (eq:eng-green) divides by `A ≥ m > 0`. -/
-lemma CorrSetting.D1_bound (S : CorrSetting K γ dd pp qq PiP PiM w ω) {AA BB : ℝ → ℝ → ℝ}
+lemma CorrSetting.D1_bound (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) {AA BB : ℝ → ℝ → ℝ}
     (hAe : ∀ u h, AA u (-h) = AA u h) (hBe : ∀ u h, BB u (-h) = BB u h) {n : ℕ} (_hn : 1 ≤ n)
     (hlow : ∃ m δ : ℝ, 0 < m ∧ 0 < δ ∧ ∀ u h, |h| < δ → m ≤ |AA u h|)
     (hBD : UO n (fun u h => h * BB u h * defectRow pp qq AA BB PiP PiM u h 0))
@@ -204,13 +204,13 @@ lemma CorrSetting.D1_bound (S : CorrSetting K γ dd pp qq PiP PiM w ω) {AA BB :
       rw [neg_zero] at this
       have h1 : defectRow pp qq AA BB PiP PiM u 0 1 = 0 := by linarith
       simp [h1]
-    · have hD' : Dp dd u h ≠ 0 := hD (u + h / 2) h (abs_pos.mpr h0) hh
+    · have hD' : Dp d2 u h ≠ 0 := hD (u + h / 2) h (abs_pos.mpr h0) hh
       have := green_identity (AA := AA) (BB := BB) S.ladder u h hD'
       linear_combination (-1 : ℝ) * this
   exact UO.div_of_lower hlow hAD
 
 /-- Odd lift for `𝔅^tot`. -/
-lemma CorrSetting.D1_lift (S : CorrSetting K γ dd pp qq PiP PiM w ω) {AA BB : ℝ → ℝ → ℝ}
+lemma CorrSetting.D1_lift (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) {AA BB : ℝ → ℝ → ℝ}
     (hAe : ∀ u h, AA u (-h) = AA u h) (hBe : ∀ u h, BB u (-h) = BB u h) {n : ℕ} (hn : Even n)
     (hpa : PApprox (n + 1) (fun u h => defectRow pp qq AA BB PiP PiM u h 1))
     (h0 : UO n (fun u h => defectRow pp qq AA BB PiP PiM u h 1)) :
@@ -255,7 +255,7 @@ lemma Correctors.Bans_bdd (C : Correctors K pp qq PiP PiM g b c) {l : ℕ} (hl :
   exact (Bans_papprox_zero hbl).bdd
 
 /-- **Base case `m = 1`**: the ansatz `(g₀, 0)`. -/
-theorem PInv_zero (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) :
+theorem PInv_zero (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) :
     UO 2 (dA pp qq PiP PiM g b 1 0) ∧ UO 3 (dB pp qq PiP PiM g b 1 0) ∧
       UO 2 (fun s h => FF pp PiM g b 1 0 s h - Pc c 1 h) := by
   obtain ⟨δD, hδD, hD⟩ := S.nondeg
@@ -303,12 +303,12 @@ def QInv (pp qq : ℝ → ℝ → ℝ) (PiP PiM : ℝ → ℝ → M2) (g b : ℕ
   UO (2 * j + 4) (dA pp qq PiP PiM g b (j + 1) (j + 1)) ∧ UO (2 * j + 3) (dB pp qq PiP PiM g b (j + 1) (j + 1)) ∧
     UO (2 * j + 2) (fun s h => FF pp PiM g b (j + 1) (j + 1) s h - Pc c (j + 1) h)
 
-theorem PInv_base (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) :
+theorem PInv_base (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) :
     PInv pp qq PiP PiM g b c 0 := PInv_zero S C
 
 /-- **Step (a)_{j+1}**: adding `h^{2j+1} b_{j+1}` to the second entry (the transport equation) removes the order `h^{2j+2}` of `𝔄^tot`;
 the Green identity gives `𝔅^tot = O(h^{2j+2})` and parity `O(h^{2j+3})`. -/
-theorem PInv_to_QInv (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) {j : ℕ}
+theorem PInv_to_QInv (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) {j : ℕ}
     (hj : j + 1 ≤ K) (hP : PInv pp qq PiP PiM g b c j) : QInv pp qq PiP PiM g b c j := by
   obtain ⟨hD0, hD1, hF⟩ := hP
   obtain ⟨δD, hδD, hD⟩ := S.nondeg
@@ -364,7 +364,7 @@ theorem PInv_to_QInv (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Corrector
 
 /-- **Step (b)_{j+1}**: adding `h^{2j+2} g_{j+1}` to `A` with `g_{j+1} = (c_{j+1} - F^{kn})/(2V₀g₀)` makes the order `h^{2j+2}` of
 `F_cas` the constant `c_{j+1}`; the Green identity and parity give `𝔅^tot = O(h^{2j+5})`. -/
-theorem QInv_to_PInv (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) {j : ℕ}
+theorem QInv_to_PInv (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) {j : ℕ}
     (hj : j + 1 ≤ K) (hQ : QInv pp qq PiP PiM g b c j) : PInv pp qq PiP PiM g b c (j + 1) := by
   obtain ⟨hq0, hq1, hqF⟩ := hQ
   obtain ⟨δD, hδD, hD⟩ := S.nondeg
@@ -445,7 +445,7 @@ theorem QInv_to_PInv (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Corrector
   exact ⟨hd0, S.D1_lift hAe hBe (n := 2 * (j + 1) + 2) ⟨j + 2, by ring⟩ (hpaD1'.mono (by omega)) h2, hF2⟩
 
 /-- Induction over `m`: all odd stages. -/
-theorem PInv_all (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) :
+theorem PInv_all (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) :
     ∀ j, j ≤ K → PInv pp qq PiP PiM g b c j := by
   intro j
   induction j with
@@ -455,7 +455,7 @@ theorem PInv_all (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correctors K 
     exact QInv_to_PInv S C (by omega) (PInv_to_QInv S C (by omega) (ih (by omega)))
 
 /-- Induction over `m`: all even stages. -/
-theorem QInv_all (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) :
+theorem QInv_all (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) :
     ∀ j, j + 1 ≤ K → QInv pp qq PiP PiM g b c j :=
   fun j hj => PInv_to_QInv S C hj (PInv_all S C j (by omega))
 
@@ -475,7 +475,7 @@ lemma Bhat_even (b : ℕ → ℝ → ℝ) (j : ℕ) : Bhat b (2 * j + 2) = Bans 
 `v^{[m]} = (A^{[m]}, h B^{[m]})` built from the correctors has defect components
 `m` odd: `𝔄^tot = O(h^{m+1})`, `𝔅^tot = O(h^{m+2})`; `m` even: `𝔄^tot = O(h^{m+2})`, `𝔅^tot = O(h^{m+1})`,
 uniformly in `u`. -/
-theorem eng_corr (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) {m : ℕ}
+theorem eng_corr (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) {m : ℕ}
     (hm1 : 1 ≤ m) (hm : m ≤ 2 * K + 1) :
     (Odd m → UO (m + 1) (fun u h => defectRow pp qq (Ahat g m) (Bhat b m) PiP PiM u h 0) ∧
         UO (m + 2) (fun u h => defectRow pp qq (Ahat g m) (Bhat b m) PiP PiM u h 1)) ∧
@@ -508,7 +508,7 @@ lemma Correctors.ans_bdd (C : Correctors K pp qq PiP PiM g b c) {k l : ℕ} (hk 
 /-- **`thm:eng-corr` with the remainders of (eq:eng-factor).**  Let `P_h = P + h^{2K+2} R_P`, `𝒬_h = Q + h^{2K+2} R_Q` with bounded
 `R_P, R_Q` (no regularity).  For `m ≤ 2K` the orders of `eng_corr` are unchanged; for `m = 2K+1`, `𝔄^tot = O(h^{m+1})` and the
 remainders add `O(h^{m+1})` to `𝔅^tot`; in all cases both components of the defect are `O(h^{m+1})`. -/
-theorem eng_corr_full (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c)
+theorem eng_corr_full (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c)
     {RP RQ : ℝ → ℝ → ℝ} (hRP : UO 0 RP) (hRQ : UO 0 RQ) {m : ℕ} (hm1 : 1 ≤ m) (hm : m ≤ 2 * K + 1) :
     (∀ k : Fin 2, UO (m + 1) (fun u h => defectRow (fun s h => pp s h + h ^ (2 * K + 2) * RP s h)
         (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h) (Ahat g m) (Bhat b m) PiP PiM u h k)) ∧
@@ -559,15 +559,15 @@ theorem eng_corr_full (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correcto
     exact ⟨key 0 (m + 2) (by omega) h0, key 1 (m + 1) (by omega) h1⟩
 
 /-- The ladder fields do not depend on the symbols `P`, `Q`. -/
-lemma SymplecticLadder.of_symbols {γ : ℝ} {dd pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2}
-    {ω : ℝ → ℝ} (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (pp' qq' : ℝ → ℝ → ℝ) :
-    SymplecticLadder γ dd pp' qq' PiP PiM w ω :=
-  ⟨L.wronsk, L.wronsk_ne, L.shift_up, L.shift_dn, L.det_up, L.det_dn, L.prod, L.par_D, L.par_Pi⟩
+lemma SymplecticLadder.of_symbols {γ : ℝ} {dd d2 pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2}
+    {ω : ℝ → ℝ} (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (pp' qq' : ℝ → ℝ → ℝ) :
+    SymplecticLadder γ dd d2 pp' qq' PiP PiM w ω :=
+  ⟨L.wronsk, L.wronsk_ne, L.shift_up, L.shift_dn, L.d2_up, L.d2_dn, L.det_up, L.det_dn, L.prod, L.par_D, L.par_Pi⟩
 
 /-- **The comparison sequence.**  At interior lattice sites (`IsSitePos`) the sequence `ψ̂^{(α)}_j = v^{[m]}(u_j,h)·𝐰^{(α)}_j` satisfies
 `|h (L_h ψ̂)_j| ≤ C h^{m+1} (|w_j| + |w̃_j|)`, i.e. `(L_h ψ̂)_j = O(h^m)` times the size of `w_j, w̃_j` (`siteLop = h (L_h ψ̂)_j`), for the full
 symbols `P_h = P + h^{2K+2} R_P`, `𝒬_h = Q + h^{2K+2} R_Q`. -/
-theorem eng_corr_site (S : CorrSetting K γ dd pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c)
+theorem eng_corr_site (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c)
     {RP RQ : ℝ → ℝ → ℝ} (hRP : UO 0 RP) (hRQ : UO 0 RQ) {m : ℕ} (hm1 : 1 ≤ m) (hm : m ≤ 2 * K + 1) :
     ∃ C₁ δ : ℝ, 0 < δ ∧ ∀ (α : Fin 2) (u h : ℝ), 0 < h → h < δ → IsSitePos γ h u →
       |siteLop dd (fun s h => pp s h + h ^ (2 * K + 2) * RP s h) (fun u h => qq u h + h ^ (2 * K + 2) * RQ u h)

@@ -38,8 +38,8 @@ the conclusions that matter (Langer, parity, the transport operator) are derived
 ## Differences from the paper
 * Uniformity over all `u ∈ ℝ` (see `CorrectorOrder`).
 * Bond nondegeneracy: the exact identities `Π₊(u,h) = adj Π₋(u+h,h)` (used by `lB_UO3`, `Fcas_even`, `green_identity`) need
-  `𝒟(s,h) ≠ 0`; the paper's proof uses them silently at every bond.  Here: `∃ δ_D > 0, ∀ s, 0 < |h| < δ_D → 𝒟(s,h) ≠ 0`.
-  (At a hard-edge bond `𝒟 = 0` this fails; the all-order bound is then formalised for interior bonds only.)
+  `𝒟²(s,h) = d2 s h ≠ 0` (the paper's hypothesis, with the real function `d2 = 𝒟²`); the paper's proof uses them silently at every bond.  Here: `∃ δ_D > 0, ∀ s, 0 < |h| < δ_D → d2 s h ≠ 0`.
+  (At a hard-edge bond `𝒟² = 0` this fails; the all-order bound is then formalised for interior bonds only.)
 * The parity of `M(s,h) = P_h(s) Π₋(s+h/2,h)₂₁` (paper: "`M` is even in `h`") is derived from `Π₊ = adj Π₋(·+h)` and (SM3).
 -/
 
@@ -183,9 +183,9 @@ lemma UO.shift_neg_one {n : ℕ} {f : ℝ → ℝ → ℝ} (hf : UO n f) : UO n 
 
 section Claims
 
-variable {γ : ℝ} {dd pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
+variable {γ : ℝ} {dd d2 pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
 
-lemma lA_even (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h)
+lemma lA_even (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h)
     (hQ : ∀ u h, qq u (-h) = qq u h) (g : ℝ → ℝ) (u h : ℝ) :
     lA pp qq PiP PiM g u (-h) = lA pp qq PiP PiM g u h := by
   obtain ⟨p00, p01, p10, p11, m00, m01, m10, m11⟩ := par_Pi_entries L u h
@@ -196,7 +196,7 @@ lemma lA_even (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (hP : ∀ s h, pp 
   simp only [lA, e1, e2, e3, e4, hP, hQ, p00, m00]
   ring
 
-lemma lB_odd (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h)
+lemma lB_odd (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h)
     (b : ℝ → ℝ) (u h : ℝ) :
     lB pp PiP PiM b u (-h) = -lB pp PiP PiM b u h := by
   obtain ⟨p00, p01, p10, p11, m00, m01, m10, m11⟩ := par_Pi_entries L u h
@@ -214,7 +214,7 @@ lemma uo1_of_zero {f : ℝ → ℝ → ℝ} (hf : PApprox 1 f) (h0 : ∀ u, f u 
 
 /-- **(i)** `L_A[g] = O(h²)` for `g ∈ BSmooth 2`: parity of `lA` and the Langer condition (eq:eng-langer). -/
 theorem lA_UO2 {N : ℕ} (hN : 2 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
-    (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h)
+    (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h)
     (hQ : ∀ u h, qq u (-h) = qq u h)
     (hlang : ∀ u, pp u 0 * (PiP u 0 0 0 + PiM u 0 0 0) = qq u 0) {g : ℝ → ℝ} (hg : BSmooth 2 g) :
     UO 2 (lA pp qq PiP PiM g) := by
@@ -236,13 +236,13 @@ theorem lA_UO2 {N : ℕ} (hN : 2 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
 
 /-! ### (ii) the odd bracket and the transport operator -/
 
-lemma Mfun_even (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h) {δD : ℝ}
-    (hD : ∀ s h, 0 < |h| → |h| < δD → dd s h ≠ 0) (s h : ℝ) (hh : |h| < δD) :
+lemma Mfun_even (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h) {δD : ℝ}
+    (hD : ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0) (s h : ℝ) (hh : |h| < δD) :
     Mfun pp PiM s (-h) = Mfun pp PiM s h := by
   by_cases h0 : h = 0
   · subst h0; simp
   · obtain ⟨u, rfl⟩ : ∃ u, s = u + h / 2 := ⟨s - h / 2, by ring⟩
-    have hD' : Dp dd u h ≠ 0 := hD (u + h / 2) h (abs_pos.mpr h0) hh
+    have hD' : Dp d2 u h ≠ 0 := hD (u + h / 2) h (abs_pos.mpr h0) hh
     obtain ⟨_, _, p10, _⟩ := Pp_entries_of_prod L u h hD'
     obtain ⟨_, _, _, _, _, _, m10, _⟩ := par_Pi_entries L u h
     have e1 : u + h / 2 + -h / 2 = u := by ring
@@ -252,8 +252,8 @@ lemma Mfun_even (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (hP : ∀ s h, p
 
 /-- `M(s,h) = M₀(s) + O(h²)` uniformly in `s` (the paper: "`M` is even in `h`", `M(s,0) = Ω₀²V₀`). -/
 lemma Mdev {N : ℕ} (hN : 2 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
-    (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h) {δD : ℝ} (hδD : 0 < δD)
-    (hD : ∀ s h, 0 < |h| → |h| < δD → dd s h ≠ 0) :
+    (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h) {δD : ℝ} (hδD : 0 < δD)
+    (hD : ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0) :
     UO 2 (fun s h => Mfun pp PiM s h - M0fun pp PiM s) := by
   have hf : PApprox 2 (Mfun pp PiM) := (hS.cM 1 0).mono hN
   have hval : ∀ s, Mfun pp PiM s 0 = M0fun pp PiM s := by intro s; simp [Mfun, M0fun]
@@ -268,8 +268,8 @@ lemma Mdev {N : ℕ} (hN : 2 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
   exact PApprox.lift (n := 1) (σ := 1) (δ0 := δD) (by norm_num) hg h1 hδD
     (fun s h hh => by simp [Mfun_even L hP hD s h hh])
 
-lemma lB_eq (L : SymplecticLadder γ dd pp qq PiP PiM w ω) {δD : ℝ}
-    (hD : ∀ s h, 0 < |h| → |h| < δD → dd s h ≠ 0) (b : ℝ → ℝ) (u h : ℝ) (hh : |h| < δD) :
+lemma lB_eq (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) {δD : ℝ}
+    (hD : ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0) (b : ℝ → ℝ) (u h : ℝ) (hh : |h| < δD) :
     lB pp PiP PiM b u h =
       -(Mfun pp PiM (u + h / 2) h) * b (u + h) + Mfun pp PiM (u - h / 2) h * b (u - h) := by
   by_cases h0 : h = 0
@@ -278,7 +278,7 @@ lemma lB_eq (L : SymplecticLadder γ dd pp qq PiP PiM w ω) {δD : ℝ}
     rw [neg_zero] at p10
     simp only [lB, Mfun, zero_div, add_zero, sub_zero, p10]
     ring
-  · have hD' : Dp dd u h ≠ 0 := hD (u + h / 2) h (abs_pos.mpr h0) hh
+  · have hD' : Dp d2 u h ≠ 0 := hD (u + h / 2) h (abs_pos.mpr h0) hh
     obtain ⟨_, _, p10, _⟩ := Pp_entries_of_prod L u h hD'
     have e1 : u + h / 2 + h / 2 = u + h := by ring
     have e2 : u - h / 2 + h / 2 = u := by ring
@@ -314,8 +314,8 @@ lemma transportOp_bdd {M0 b : ℝ → ℝ} (hM0 : BSmooth 1 M0) (hb : BSmooth 1 
 /-- **(ii)** `lB b - h 𝒯[b] = O(h³)`: the odd bracket gives the transport operator `𝒯[b] = -(2 M₀ b' + M₀' b)` at
 leading order, and parity removes the `h²` term. -/
 theorem lB_UO3 {N : ℕ} (hN : 3 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
-    (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h) {δD : ℝ} (hδD : 0 < δD)
-    (hD : ∀ s h, 0 < |h| → |h| < δD → dd s h ≠ 0)
+    (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h) {δD : ℝ} (hδD : 0 < δD)
+    (hD : ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0)
     (hM0 : BSmooth 2 (M0fun pp PiM)) {b : ℝ → ℝ} (hb : BSmooth 3 b) :
     UO 3 (fun u h => lB pp PiP PiM b u h - h * transportOp (M0fun pp PiM) b u) := by
   have hMd := Mdev (by omega : 2 ≤ N) hS L hP hδD hD

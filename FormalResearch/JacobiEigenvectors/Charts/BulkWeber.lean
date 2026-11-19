@@ -136,8 +136,10 @@ structure BulkWeberChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily 
   /-- the chain's operator is the Jacobi operator of the family at energy `X`. -/
   A_bond : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (-1 : ℤ) (chain μ X N).NR, (chain μ X N).A k = F.bondA μ N k
   Q_diag : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR, (chain μ X N).Q k = F.diagQ μ N X k
-  /-- the Weber ladder: `D(s,h) = sqrt s` (exact square-root hard edge) and `omega_mod(h) = h^{1/2}`. -/
-  dd_sqrt : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ s h', (chain μ X N).dd 1 s h' = Real.sqrt s
+  /-- the Weber ladder: `D(s,h) = sqrt s` (exact square-root hard edge; the real lattice factor, used at the lattice points) and
+  `D^2(s,h) = s` (the paper's real extension `d2`, negative for `s < 0`; `d2 = dd^2` at the lattice points), and `omega_mod(h) = h^{1/2}`. -/
+  dd_sqrt : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ s h',
+    (chain μ X N).dd 1 s h' = Real.sqrt s ∧ (chain μ X N).d2 1 s h' = s
   omega_sqrt : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → (chain μ X N).ω 1 (F.step N) = Real.sqrt (F.step N)
   /-- the model pair is the Weber functions of `ParabolicCylinderFacts` at `a = -(k + 1/2)`, `Z = h^{-1/2} Y(u_k)` (cha-weberPC). -/
   wf_eq : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) ((chain μ X N).NR + 1),

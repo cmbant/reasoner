@@ -128,8 +128,8 @@ lemma exW_wronsk (u h : ℝ) : colDet (exW 0 u h) (exW 1 u h) = 1 := by
   nlinarith
 
 /-- The quarter-turn ladder is a symplectic model ladder (shift `γ = 0`). -/
-theorem exLadder : SymplecticLadder 0 exDD exPP exQQ exPiP exPiM exW (fun _ => (1 : ℝ)) := by
-  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+theorem exLadder : SymplecticLadder 0 exDD exDD exPP exQQ exPiP exPiM exW (fun _ => (1 : ℝ)) := by
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · intro h _ j
     exact exW_wronsk _ _
   · intro h _; norm_num
@@ -139,6 +139,8 @@ theorem exLadder : SymplecticLadder 0 exDD exPP exQQ exPiP exPiM exW (fun _ => (
   · intro α h hh j _
     simp only [Dm, exDD, one_smul]
     exact exW_dn α _ h hh.ne'
+  · intro h _ j; simp [Dp, exDD]
+  · intro h _ j _; simp [Dm, exDD]
   · intro u h; simp [Dp, exDD, exPiP, Matrix.det_fin_two]
   · intro u h; simp [Dm, exDD, exPiM, Matrix.det_fin_two]
   · intro u h
@@ -156,7 +158,7 @@ lemma exM0 : M0fun exPP exPiM = fun _ => (1 : ℝ) := funext fun s => by simp [M
 lemma exV0 (u : ℝ) : V0fun exPP exPiM u = -1 := by simp [V0fun, exPP, exPiM]
 
 /-- The standing hypotheses of `thm:eng-corr` hold for the quarter-turn ladder with `𝒬_h = h² cos u` (`K = 1`). -/
-theorem exCorrSetting : CorrSetting 1 0 exDD exPP exQQ exPiP exPiM exW (fun _ => (1 : ℝ)) where
+theorem exCorrSetting : CorrSetting 1 0 exDD exDD exPP exQQ exPiP exPiM exW (fun _ => (1 : ℝ)) where
   ladder := exLadder
   pp_even := fun _ _ => rfl
   qq_even := fun u h => by simp [exQQ]

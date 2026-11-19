@@ -15,7 +15,10 @@ ladder, (SM1)--(SM3)), `eq:eng-ansatz`, `thm:eng-defect` (1)--(3); proofs in `ap
 * Lattice points are real numbers `u` (the paper's `u_j = (j+γ)h`); `Z_j = ζ_h(u_j)` is absorbed into the model
   columns: `w α u h : Fin 2 → ℝ` is `𝐰^{(α)}_j(Z_j) = (w^{(α)}_j(Z_j), w̃^{(α)}_j(Z_j))` at `u = u_j`.  For fixed `h`
   the index `j` is determined by `u_j`, so this loses nothing.
-* `dd s h` is `𝒟(s,h)`; `Dp u h := dd (u+h/2) h`, `Dm u h := dd (u-h/2) h` (the paper's `𝒟_±`).
+* `dd s h` is `𝒟(s,h)` (the real lattice factor, used by the shift relations at the lattice points only);
+  `d2 s h` is `𝒟(s,h)²` (the paper's real extension, used by the algebraic identities at every `u`; `d2 = dd²` at the lattice
+  points, and `d2` may be negative off the lattice).  `Dp d u h := d (u+h/2) h`, `Dm d u h := d (u-h/2) h` for `d = dd` or `d2`
+  (the paper's `𝒟_±`, resp. `𝒟_±²`).
 * `pp s h` is `P_h(s)`, `qq u h` is `𝒬_h(u)`, `AA u h = A(u,h²)`, `BB u h = B(u,h²)`, `v(u,h) = (A, hB)` (`vrow`).
 * `PiP u h = Π₊(u,h)`, `PiM u h = Π₋(u,h)` (`M2 = Matrix (Fin 2) (Fin 2) ℝ`), `Sg = Σ = diag(1,-1)`.
 * Row vectors multiply matrices on the right (`rowMul v M`), column vectors on the left (`colMul M x`); the
@@ -46,14 +49,14 @@ ladder, (SM1)--(SM3)), `eq:eng-ansatz`, `thm:eng-defect` (1)--(3); proofs in `ap
   point with `𝒟(u+h/2,h) ≠ 0`.
 * `Lop_seq_eq_siteLop`: the bridge to the sequence operator `FormalResearch.JacobiEigenvectors.Engine.Lop` of `Casoratian` (with
   `u_j = (j+γ)h`, `A j = 𝒜_h(s_j)`, `Q j = 𝒬_h(u_j)`): the defect identity holds for `Lop` itself.
-* `constant_ladder`: non-vacuity, the constant instance (`𝒟 ≡ P ≡ 1`, `Q ≡ 0`, `Π± = I`, `𝐰^{(1)} = e_1`,
+* `constant_ladder`: non-vacuity, the constant instance (`𝒟 ≡ 𝒟² ≡ P ≡ 1`, `Q ≡ 0`, `Π± = I`, `𝐰^{(1)} = e_1`,
   `𝐰^{(2)} = e_2`, `ω_mod = 1`, `A ≡ 1`, `B ≡ 0`) satisfies every field of `SymplecticLadder`.
 
 ## Differences from the paper (all deliberate, all minor)
-1. **Bond nondegeneracy.** `(3b)` and `(3c)` are stated under `𝒟(s,h) ≠ 0` at the bond concerned; for real `𝒟` this is
-   the paper's `𝒟²(s,h) ≠ 0`.  The paper extends both to the closure of this set by continuity (for the polynomial
+1. **Bond nondegeneracy.** `(3b)` and `(3c)` are stated under `𝒟²(s,h) = d2 s h ≠ 0` at the bond concerned, as in the
+   paper.  The paper extends both to the closure of this set by continuity (for the polynomial
    parts of `P_h`, `𝒬_h`, or any continuous `P_h`); that extension is not formalised.  For `(3c)` the identity
-   `Π₊(u) = adj Π₋(u+h)` (from `Π₋(u+h)Π₊(u) = D₊²I`) requires `D₊(u,h) ≠ 0`, and when `D₊ = 0` the products vanish.
+   `Π₊(u) = adj Π₋(u+h)` (from `Π₋(u+h)Π₊(u) = D₊²I`) requires `D₊(u,h)² ≠ 0`, and when `D₊² = 0` the products vanish.
    `(3a)` needs no such hypothesis: its proof uses the lower shift at `u_{j+1}` (available for every `j ≥ 0`) and no
    division.  Every bond with `𝒜_h(s_j) ≠ 0` (in particular all bonds of the ladder) satisfies the hypothesis.
 2. **Lower shift relation.** `SymplecticLadder.shift_dn` is assumed at every `j ≥ 1`, with no guard on `𝒟₋`, as in the
@@ -168,10 +171,13 @@ lemma IsSite.add_h_pos {γ h u : ℝ} (hu : IsSite γ h u) : IsSitePos γ h (u +
   exact ⟨j + 1, by omega, by push_cast; ring⟩
 
 /-- **Symplectic model ladder** (`def:eng-ladder`) with shift parameter `γ`: the hypotheses (SM1)--(SM3), one named
-field each.  The functions are those of `Defect` (see the module docstring for the lattice-point convention).  The
-Wronskian and the upper shift relation are required at the lattice points `u_j = (j+γ)h`, `j ∈ ℕ`; the lower shift
-relation at those with `j ≥ 1` (the paper's `j > j_min`), with no guard on `𝒟₋`. -/
-structure SymplecticLadder (γ : ℝ) (dd pp qq : ℝ → ℝ → ℝ) (PiP PiM : ℝ → ℝ → M2) (w : Fin 2 → ℝ → ℝ → V2)
+field each.  The functions are those of `Defect` (see the module docstring for the lattice-point convention).  `dd` is the
+real bond factor `𝒟`, which enters the shift relations (SM2); these are required only at the lattice points.  `d2` is the
+real function `𝒟²` of the paper, which enters the algebraic identities (`det Π±`, `Π₋Π₊`, (SM3)) at every `u`.  It need
+not be nonnegative off the lattice (Weber ladder: `d2 s h = s`, negative for `s < 0`); at the lattice points it is the
+square of `dd` (fields `d2_up`, `d2_dn`).  The Wronskian and the upper shift relation are required at the lattice points
+`u_j = (j+γ)h`, `j ∈ ℕ`; the lower shift relation at those with `j ≥ 1` (the paper's `j > j_min`), with no guard on `𝒟₋`. -/
+structure SymplecticLadder (γ : ℝ) (dd d2 pp qq : ℝ → ℝ → ℝ) (PiP PiM : ℝ → ℝ → M2) (w : Fin 2 → ℝ → ℝ → V2)
     (ω : ℝ → ℝ) : Prop where
   /-- (SM1) constant model Wronskian at the lattice points: `det[𝐰^{(1)}|𝐰^{(2)}] = ω_mod(h)` at `u_j = (j+γ)h`. -/
   wronsk : ∀ (h : ℝ), 0 < h → ∀ (j : ℕ), colDet (w 0 (((j : ℝ) + γ) * h) h) (w 1 (((j : ℝ) + γ) * h) h) = ω h
@@ -187,14 +193,18 @@ structure SymplecticLadder (γ : ℝ) (dd pp qq : ℝ → ℝ → ℝ) (PiP PiM 
   shift_dn : ∀ (α : Fin 2) (h : ℝ), 0 < h → ∀ (j : ℕ), 1 ≤ j →
     Dm dd (((j : ℝ) + γ) * h) h • w α (((j : ℝ) + γ) * h - h) h
       = colMul (PiM (((j : ℝ) + γ) * h) h) (w α (((j : ℝ) + γ) * h) h)
-  /-- (SM2) `det Π₊(u,h) = 𝒟₊(u,h)²`. -/
-  det_up : ∀ u h, (PiP u h).det = Dp dd u h ^ 2
+  /-- (SM2) lattice tie: `𝒟₊(u_j,h)² = d2(u_j + h/2, h)`, the square of the lattice factor, for every `j ∈ ℕ`. -/
+  d2_up : ∀ (h : ℝ), 0 < h → ∀ (j : ℕ), Dp d2 (((j : ℝ) + γ) * h) h = Dp dd (((j : ℝ) + γ) * h) h ^ 2
+  /-- (SM2) lattice tie for the lower bond, at the lattice points with `j ≥ 1`. -/
+  d2_dn : ∀ (h : ℝ), 0 < h → ∀ (j : ℕ), 1 ≤ j → Dm d2 (((j : ℝ) + γ) * h) h = Dm dd (((j : ℝ) + γ) * h) h ^ 2
+  /-- (SM2) `det Π₊(u,h) = 𝒟₊(u,h)²` (with `𝒟²` the real function `d2`). -/
+  det_up : ∀ u h, (PiP u h).det = Dp d2 u h
   /-- (SM2) `det Π₋(u,h) = 𝒟₋(u,h)²`. -/
-  det_dn : ∀ u h, (PiM u h).det = Dm dd u h ^ 2
+  det_dn : ∀ u h, (PiM u h).det = Dm d2 u h
   /-- (SM2) `Π₋(u+h,h) Π₊(u,h) = 𝒟₊(u,h)² I₂`. -/
-  prod : ∀ u h, PiM (u + h) h * PiP u h = Dp dd u h ^ 2 • (1 : M2)
-  /-- (SM3) `𝒟₊(u,-h) = 𝒟₋(u,h)`. -/
-  par_D : ∀ u h, Dp dd u (-h) = Dm dd u h
+  prod : ∀ u h, PiM (u + h) h * PiP u h = Dp d2 u h • (1 : M2)
+  /-- (SM3) `𝒟₊(u,-h)² = 𝒟₋(u,h)²`. -/
+  par_D : ∀ u h, Dp d2 u (-h) = Dm d2 u h
   /-- (SM3) `Π₊(u,-h) = Σ Π₋(u,h) Σ`. -/
   par_Pi : ∀ u h, PiP u (-h) = Sg * PiM u h * Sg
 
@@ -255,22 +265,22 @@ end Algebra
 
 section SiteAccess
 
-variable {γ : ℝ} {dd pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
+variable {γ : ℝ} {dd d2 pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
 
 /-- The Wronskian relation at a lattice point `u = u_j`. -/
-lemma SymplecticLadder.wronsk_at (L : SymplecticLadder γ dd pp qq PiP PiM w ω) {u h : ℝ} (hh : 0 < h)
+lemma SymplecticLadder.wronsk_at (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) {u h : ℝ} (hh : 0 < h)
     (hu : IsSite γ h u) : colDet (w 0 u h) (w 1 u h) = ω h := by
   obtain ⟨j, rfl⟩ := hu
   exact L.wronsk h hh j
 
 /-- The upper shift relation at a lattice point `u = u_j`. -/
-lemma SymplecticLadder.shift_up_at (L : SymplecticLadder γ dd pp qq PiP PiM w ω) {u h : ℝ} (hh : 0 < h)
+lemma SymplecticLadder.shift_up_at (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) {u h : ℝ} (hh : 0 < h)
     (hu : IsSite γ h u) (α : Fin 2) : Dp dd u h • w α (u + h) h = colMul (PiP u h) (w α u h) := by
   obtain ⟨j, rfl⟩ := hu
   exact L.shift_up α h hh j
 
 /-- The lower shift relation at a lattice point `u = u_j` with `j ≥ 1`. -/
-lemma SymplecticLadder.shift_dn_at (L : SymplecticLadder γ dd pp qq PiP PiM w ω) {u h : ℝ} (hh : 0 < h)
+lemma SymplecticLadder.shift_dn_at (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) {u h : ℝ} (hh : 0 < h)
     (hu : IsSitePos γ h u) (α : Fin 2) : Dm dd u h • w α (u - h) h = colMul (PiM u h) (w α u h) := by
   obtain ⟨j, hj, rfl⟩ := hu
   exact L.shift_dn α h hh j hj
@@ -279,10 +289,10 @@ end SiteAccess
 
 section Shifts
 
-variable {γ : ℝ} {dd pp qq AA BB : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
+variable {γ : ℝ} {dd d2 pp qq AA BB : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
 
 /-- The componentwise upper shift relation at a lattice point. -/
-lemma shift_up_comp (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (α : Fin 2) (u h : ℝ) (hh : 0 < h)
+lemma shift_up_comp (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (α : Fin 2) (u h : ℝ) (hh : 0 < h)
     (hu : IsSite γ h u) :
     Dp dd u h * w α (u + h) h 0 = PiP u h 0 0 * w α u h 0 + PiP u h 0 1 * w α u h 1 ∧
     Dp dd u h * w α (u + h) h 1 = PiP u h 1 0 * w α u h 0 + PiP u h 1 1 * w α u h 1 := by
@@ -290,7 +300,7 @@ lemma shift_up_comp (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (α : Fin 2)
   exact ⟨congrFun this 0, congrFun this 1⟩
 
 /-- The componentwise lower shift relation at a lattice point with `j ≥ 1`. -/
-lemma shift_dn_comp (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (α : Fin 2) (u h : ℝ) (hh : 0 < h)
+lemma shift_dn_comp (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (α : Fin 2) (u h : ℝ) (hh : 0 < h)
     (hu : IsSitePos γ h u) :
     Dm dd u h * w α (u - h) h 0 = PiM u h 0 0 * w α u h 0 + PiM u h 0 1 * w α u h 1 ∧
     Dm dd u h * w α (u - h) h 1 = PiM u h 1 0 * w α u h 0 + PiM u h 1 1 * w α u h 1 := by
@@ -301,10 +311,10 @@ end Shifts
 
 section Parities
 
-variable {γ : ℝ} {dd pp qq AA BB : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
+variable {γ : ℝ} {dd d2 pp qq AA BB : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
 
 /-- The entries of `Π±(u,-h)` in terms of `Π∓(u,h)` (from (SM3) and `Σ² = I`). -/
-lemma par_Pi_entries (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (u h : ℝ) :
+lemma par_Pi_entries (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h : ℝ) :
     PiP u (-h) 0 0 = PiM u h 0 0 ∧ PiP u (-h) 0 1 = -PiM u h 0 1 ∧
     PiP u (-h) 1 0 = -PiM u h 1 0 ∧ PiP u (-h) 1 1 = PiM u h 1 1 ∧
     PiM u (-h) 0 0 = PiP u h 0 0 ∧ PiM u (-h) 0 1 = -PiP u h 0 1 ∧
@@ -336,19 +346,18 @@ lemma par_Pi_entries (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (u h : ℝ)
     exact this.symm
 
 /-- The entries of `Π₊(u,h) = adj Π₋(u+h,h)` at a point with `𝒟₊(u,h) ≠ 0`. -/
-lemma Pp_entries_of_prod (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (u h : ℝ) (hD : Dp dd u h ≠ 0) :
+lemma Pp_entries_of_prod (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h : ℝ) (hD : Dp d2 u h ≠ 0) :
     PiP u h 0 0 = PiM (u + h) h 1 1 ∧ PiP u h 0 1 = -PiM (u + h) h 0 1 ∧
     PiP u h 1 0 = -PiM (u + h) h 1 0 ∧ PiP u h 1 1 = PiM (u + h) h 0 0 := by
-  have hmDp : Dm dd (u + h) h = Dp dd u h := by
+  have hmDp : Dm d2 (u + h) h = Dp d2 u h := by
     simp only [Dm, Dp]; congr 1; ring
   have hdet := L.det_dn (u + h) h
   rw [hmDp, Matrix.det_fin_two] at hdet
-  exact adj_entries_of_prod (PiM (u + h) h) (PiP u h) (Dp dd u h ^ 2) (pow_ne_zero 2 hD)
-    hdet (L.prod u h)
+  exact adj_entries_of_prod (PiM (u + h) h) (PiP u h) (Dp d2 u h) hD hdet (L.prod u h)
 
 /-- Parity (`thm:eng-defect`(2)): `𝔄^tot(u,-h) = 𝔄^tot(u,h)` and `𝔅^tot(u,-h) = -𝔅^tot(u,h)`, for `P`, `Q`, `A`, `B`
 even in `h`. -/
-theorem defectRow_parity (L : SymplecticLadder γ dd pp qq PiP PiM w ω)
+theorem defectRow_parity (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω)
     (hP : ∀ s h, pp s (-h) = pp s h) (hQ : ∀ u h, qq u (-h) = qq u h)
     (hAe : ∀ u h, AA u (-h) = AA u h) (hBe : ∀ u h, BB u (-h) = BB u h) (u h : ℝ) :
     defectRow pp qq AA BB PiP PiM u (-h) 0 = defectRow pp qq AA BB PiP PiM u h 0 ∧
@@ -369,13 +378,13 @@ theorem Fcas_zero (pp AA BB : ℝ → ℝ → ℝ) (PiM : ℝ → ℝ → M2) (s
   ring
 
 /-- Evenness of `F_cas` in `h` (`thm:eng-defect`(3b)), at a bond with `𝒟(s,h) ≠ 0`. -/
-theorem Fcas_even (L : SymplecticLadder γ dd pp qq PiP PiM w ω)
+theorem Fcas_even (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω)
     (hP : ∀ s h, pp s (-h) = pp s h)
     (hAe : ∀ u h, AA u (-h) = AA u h) (hBe : ∀ u h, BB u (-h) = BB u h) (s h : ℝ)
-    (hD : dd s h ≠ 0) :
+    (hD : d2 s h ≠ 0) :
     Fcas pp AA BB PiM s (-h) = Fcas pp AA BB PiM s h := by
   obtain ⟨u, rfl⟩ : ∃ u, s = u + h / 2 := ⟨s - h / 2, by ring⟩
-  have hD' : Dp dd u h ≠ 0 := hD
+  have hD' : Dp d2 u h ≠ 0 := hD
   obtain ⟨p00, p01, p10, p11⟩ := Pp_entries_of_prod L u h hD'
   obtain ⟨_, _, _, _, m00, m01, m10, m11⟩ := par_Pi_entries L u h
   have e1 : u + h / 2 + -h / 2 = u := by ring
@@ -390,11 +399,11 @@ end Parities
 
 section Casoratian
 
-variable {γ : ℝ} {dd pp qq AA BB : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
+variable {γ : ℝ} {dd d2 pp qq AA BB : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
 
 /-- The lower shift at the lattice point `u+h`, rewritten at the lattice point `u` (`IsSite γ h u`, `j ≥ 0`); the
 lower relation at `u+h` has index `j+1 ≥ 1`, so no bond hypothesis is needed. -/
-lemma lower_shift_at_succ (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (u h : ℝ) (hh : 0 < h)
+lemma lower_shift_at_succ (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h : ℝ) (hh : 0 < h)
     (hu : IsSite γ h u) (α : Fin 2) :
     Dp dd u h * w α u h 0 = PiM (u + h) h 0 0 * w α (u + h) h 0 + PiM (u + h) h 0 1 * w α (u + h) h 1 ∧
     Dp dd u h * w α u h 1 = PiM (u + h) h 1 0 * w α (u + h) h 0 + PiM (u + h) h 1 1 * w α (u + h) h 1 := by
@@ -407,7 +416,7 @@ lemma lower_shift_at_succ (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (u h :
 
 /-- **Casoratian identity** (`thm:eng-defect`(3a)): `𝒲_j(ψ̂¹,ψ̂²) = ω_mod(h) 𝓕^tot_cas(s_j,h)` at every lattice point
 `u = u_j`, `j ≥ 0` (`IsSite γ h u`), where `s_j = u + h/2`. -/
-theorem casSite_eq_omega_Fcas (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (u h : ℝ) (hh : 0 < h)
+theorem casSite_eq_omega_Fcas (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h : ℝ) (hh : 0 < h)
     (hu : IsSite γ h u) :
     casSite dd pp AA BB w u h = ω h * Fcas pp AA BB PiM (u + h / 2) h := by
   obtain ⟨k00, k01⟩ := lower_shift_at_succ L u h hh hu 0
@@ -437,11 +446,11 @@ end Casoratian
 
 section Green
 
-variable {γ : ℝ} {dd pp qq AA BB : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
+variable {γ : ℝ} {dd d2 pp qq AA BB : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
 
 /-- **Casoratian--Green identity** (`thm:eng-defect`(3c), `eq:eng-green`), at a point with `𝒟(u+h/2,h) ≠ 0`:
 `A(u,h²) 𝔅^tot(u,h) - h B(u,h²) 𝔄^tot(u,h) = -[𝓕_cas(u+h/2,h) - 𝓕_cas(u-h/2,h)]`. -/
-theorem green_identity (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (u h : ℝ) (hD : Dp dd u h ≠ 0) :
+theorem green_identity (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h : ℝ) (hD : Dp d2 u h ≠ 0) :
     AA u h * defectRow pp qq AA BB PiP PiM u h 1 - h * BB u h * defectRow pp qq AA BB PiP PiM u h 0 =
       -(Fcas pp AA BB PiM (u + h / 2) h - Fcas pp AA BB PiM (u - h / 2) h) := by
   obtain ⟨p00, p01, p10, p11⟩ := Pp_entries_of_prod L u h hD
@@ -457,11 +466,11 @@ end Green
 
 section Defect
 
-variable {γ : ℝ} {dd pp qq AA BB : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
+variable {γ : ℝ} {dd d2 pp qq AA BB : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
 
 /-- **Defect identity, interior form** (`thm:eng-defect`(1), interior `j ≥ 1`): `h (L_h ψ̂)_j = 𝔄^tot w_j + 𝔅^tot w̃_j`,
 in the convention `siteLop = h (L_h ψ̂)_j`. -/
-theorem defect_identity_interior (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (AA' BB' : ℝ → ℝ → ℝ)
+theorem defect_identity_interior (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (AA' BB' : ℝ → ℝ → ℝ)
     (α : Fin 2) (u h : ℝ) (hh : 0 < h) (hu : IsSitePos γ h u) :
     siteLop dd pp qq AA' BB' w α u h =
       defectRow pp qq AA' BB' PiP PiM u h 0 * w α u h 0 + defectRow pp qq AA' BB' PiP PiM u h 1 * w α u h 1 := by
@@ -476,7 +485,7 @@ theorem defect_identity_interior (L : SymplecticLadder γ dd pp qq PiP PiM w ω)
 
 /-- **Defect identity, hard-edge form** (`thm:eng-defect`(1) at `j = 0`, the site `u = γh`): with `𝒟₋(u_0,h) = 0` the
 lower bond is absent, and the identity holds for `α = 1` under the annihilation `Π₋(u_0,h) 𝐰^{(1)}_0 = 0`. -/
-theorem defect_identity_hard (L : SymplecticLadder γ dd pp qq PiP PiM w ω) (AA' BB' : ℝ → ℝ → ℝ)
+theorem defect_identity_hard (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (AA' BB' : ℝ → ℝ → ℝ)
     (α : Fin 2) (u h : ℝ) (hh : 0 < h) (hu : u = γ * h) (hD : Dm dd u h = 0) (hann : colMul (PiM u h) (w α u h) = 0) :
     siteLop dd pp qq AA' BB' w α u h =
       defectRow pp qq AA' BB' PiP PiM u h 0 * w α u h 0 + defectRow pp qq AA' BB' PiP PiM u h 1 * w α u h 1 := by
@@ -523,14 +532,14 @@ end Bridge
 /-- Non-vacuity of `SymplecticLadder`: for every shift `γ`, the constant ladder (`𝒟 ≡ P ≡ 1`, `Q ≡ 0`, `Π± = I`,
 `𝐰^{(1)} = e₁`, `𝐰^{(2)} = e₂`, `ω_mod ≡ 1`) satisfies every field. -/
 theorem constant_ladder (γ : ℝ) :
-    SymplecticLadder γ (fun _ _ => (1 : ℝ)) (fun _ _ => (1 : ℝ)) (fun _ _ => (0 : ℝ))
+    SymplecticLadder γ (fun _ _ => (1 : ℝ)) (fun _ _ => (1 : ℝ)) (fun _ _ => (1 : ℝ)) (fun _ _ => (0 : ℝ))
       (fun _ _ => (1 : M2)) (fun _ _ => (1 : M2))
       (fun α _ _ => if α = 0 then ![1, 0] else ![0, 1]) (fun _ => (1 : ℝ)) := by
   have colMul_one : ∀ x : V2, colMul (1 : M2) x = x := by
     intro x; funext i; fin_cases i <;> simp [colMul]
   have SgSg : Sg * (1 : M2) * Sg = 1 := by
     ext i j; fin_cases i <;> fin_cases j <;> simp [Sg, Matrix.mul_apply, Fin.sum_univ_two]
-  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · intro h _ j
     simp [colDet]
   · intro h _; norm_num
@@ -538,10 +547,12 @@ theorem constant_ladder (γ : ℝ) :
     simp only [Dp, one_smul, colMul_one]
   · intro α h _ j _
     simp only [Dm, one_smul, colMul_one]
+  · intro h _ j; simp [Dp]
+  · intro h _ j _; simp [Dm]
   · intro u h; simp [Dp]
   · intro u h; simp [Dm]
   · intro u h; simp [Dp]
-  · intro u h; rfl
+  · intro u h; simp [Dp, Dm]
   · intro u h; rw [SgSg]
 
 -- Axiom pins for the headline statements (checked at build time).

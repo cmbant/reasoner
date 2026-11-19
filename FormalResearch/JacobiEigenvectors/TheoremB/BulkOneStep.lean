@@ -165,7 +165,7 @@ theorem chart_transfer_row {Par : Type*} [TopologicalSpace Par] {G : SymbolFamil
   rw [e] at h1
   have hd : Dp ((C.chain p X N).dd 1) (uNode (G.step N) r) (G.step N) = Real.sqrt (uNode (G.step N) r + G.step N / 2) := by
     unfold Dp
-    exact C.dd_sqrt p hp X hX N hN _ _
+    exact (C.dd_sqrt p hp X hX N hN _ _).1
   rw [hd] at h1
   exact h1
 
@@ -267,7 +267,7 @@ theorem bulkJBChart_coeff {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily
       have hd : Dp ((C1.chain p Jlo N).dd 1) (uNode (G.step N) (chartRow N lo R τ n)) (G.step N) =
           Real.sqrt (uNode (G.step N) (chartRow N lo R τ n) + G.step N / 2) := by
         unfold Dp
-        exact C1.dd_sqrt p hp Jlo hJlo N hN1 _ _
+        exact (C1.dd_sqrt p hp Jlo hJlo N hN1 _ _).1
       rw [hd] at h2
       exact h2.trans hω
   · intro n k
