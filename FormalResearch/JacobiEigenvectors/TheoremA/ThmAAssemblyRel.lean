@@ -191,7 +191,6 @@ lemma collar_of_Tneg {L g : ℝ} {G0 B0 : ℝ → ℝ} (hL : 0 < L) (hyp : Hyp L
       nlinarith
     linarith
 
-set_option maxHeartbeats 4000000 in
 /-- **The bulk case of the relative clause of `ThmAii`** (paper, "The relative statement", *Bulk case*): for every `eps > 0` there are `delta > 0` and `h_1 > 0` such that for `mu in K`, `h = step N <= min h_1 t0`,
 every energy `X in [Jlo, Jhi]` of the bulk range and every row `n` with `T(u_n; X) <= -eps` (`T` of the principal symbols of `F` itself) lies in the `delta`-collar of the frozen allowed interval:
 `u_n <= u_-^{(h)}(X) - delta` or `u_+^{(h)}(X) + delta <= u_n` (`u_pm^{(h)}` the turning points of the frozen family at `(mu, h)`), which is where the collar clause of `PropThaW` applies.
