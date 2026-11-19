@@ -13,6 +13,9 @@ public import FormalResearch.JacobiEigenvectors.Charts.PCEnergyAiry
 public import FormalResearch.JacobiEigenvectors.Charts.PCEnergyAiryEnv
 public import FormalResearch.JacobiEigenvectors.Charts.PCEnvBar
 public import FormalResearch.JacobiEigenvectors.Charts.PCEnvWellFar
+public import FormalResearch.JacobiEigenvectors.Charts.PCEnvCompact
+public import FormalResearch.JacobiEigenvectors.Charts.PCMolv
+public import FormalResearch.JacobiEigenvectors.Charts.PCBeyond
 public import FormalResearch.JacobiEigenvectors.Charts.PCPhase
 public import FormalResearch.JacobiEigenvectors.Charts.PCSmooth
 public import FormalResearch.JacobiEigenvectors.Charts.PCActual
