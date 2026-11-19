@@ -36,7 +36,7 @@ Source: Paper J `thmB.tex` `prop:tha-splice` (c) and `app_thmB.tex`, proof of `p
 The conjunct for the columns outside all blocks (`X_j` in the soft windows) needs, **from the soft half (agents S, T)**: (i) `PropThaSpliceSoft` proved (it also gives `nearestRow u_c in softWindow`) for the upper edge, for
 `CI.softUpL/softUpR` and for `negFamily (frozenFamily F Kidx)` at `-X` (lower edge), at `m` and `m+1` with the common shift `q`, with `StdAssump` for the soft families (bridge (a) for `negFamily`, `mirrorFamily`; `q/2 = Kidx`, and the
 `log(1/h)` of `prop:tha-W2 (4)` for even `m` at order `m+1`); (ii) `sum_n softEnv_n^2 <= C` (this is the second clause of `PropThaW2 (2)`); (iii) the sign factor `(-1)^n` and the identification of the eigenvector of
-`negFamily (frozenFamily F Kidx)` at `-X_k` with `D_- Psi_k` (`negFamily_JacSol`, a lemma not yet in the tree); (iv) the soft analogue of `bulk_col_clause`: `softColAt` has the standard soft normaliser and `hat kappa`, so it differs
+`negFamily (frozenFamily F Kidx)` at `-X_k` with `D_- Psi_k` (`negFamily_JacSol`, `Setting/JacobiFamily.lean`: the sign-twisted solution `(-1)^n f_n` solves the negated family at `-X`); (iv) the soft analogue of `bulk_col_clause`: `softColAt` has the standard soft normaliser and `hat kappa`, so it differs
 from `softVec` only between the fold row and the standard split `Z <= 0`, by the matching bound of `PropThaSpliceSoft` (second clause).  The final `propThaSpliceTwoOrders` is the combination of `twoOrders_bulk_columns` and that soft half
 (a column is bulk or not: `compColumn` splits on `exists nu, lo nu <= X <= hi nu`, then `Jhi < X`).
 -/

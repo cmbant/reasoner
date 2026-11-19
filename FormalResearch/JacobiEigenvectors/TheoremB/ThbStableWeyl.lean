@@ -28,8 +28,7 @@ Claim class: **proved** (no hypothesis beyond Hermitian, no new axiom).
 No new analysis.  `thb_weyl_abs_sub_le` is the repository theorem
 `FormalResearch.MatrixAnalysis.Spectral.herm_abs_eigenvalues₀_sub_le_norm`
 (`MatrixAnalysis/Spectral/WeylMatrix.lean`, from the Courant--Fischer min-max in `Spectral/MinMax.lean`), re-indexed
-by `Fin (N+1)`.  The Mathlib audit recorded in `CorThbStableNote.lean` is right about Mathlib, which has no Weyl
-inequality, but the repository already proves one.
+by `Fin (N+1)`.  No Mathlib result is used: the repository proves Weyl's inequality itself.
 
 ## Differences from the paper
 

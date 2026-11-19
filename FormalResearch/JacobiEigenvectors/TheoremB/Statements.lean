@@ -273,7 +273,7 @@ the polar factor of `hat G^{jet}_m` is orthogonal and within `2 C h^m` of `U` (C
 (a lemma of the paper not in the DAG: item L3.D of `PLAN.md`) gives `||U - tilde U|| <= C_* C' h^m` in the gauge `(Psi_k)_0 > 0`.  Polar: lemma `lem:thb-polar` (`JB`).
 
 **Differences from the paper**: the paper states the hypotheses (H1)--(H3), (D_m) for `F` and builds `hat G^{jet}_m` from the truncated matrix; the Lean statement takes the chart pair of `truncFamily F m` as data (`CP`), so
-`DM (truncFamily F m) K (2 Kidx + 1)` (the hypothesis of `ThmB`, which is a consequence of `DM F K m`: the truncated jets vanish beyond `m`) is *not* repeated.  **Finding F-B6**: `cor:thb-Dm` is **not** an instance of `ThmB`
+`DM (truncFamily F m) K (2 Kidx + 1)` (the hypothesis of `ThmB`, which is **not** a consequence of `DM F K m`, finding F-DD1; the truncated jets vanish beyond `m` and keep the regularity `r(m)` of `F`, less than the `r(2 Kidx + 1)` of `DM` at order `2 Kidx + 1`) is *not* repeated.  **Finding F-B6**: `cor:thb-Dm` is **not** an instance of `ThmB`
 applied to `truncFamily F m` alone, because the conclusion compares with the eigenvectors of `J_h`, not of `tilde J_h`; it needs cor:thb-stable (perturbation of the matrix, at the level of `U`), which is also what gives
 `ThmB` for matrices within `O(h^{m+1})`.  **Finding F-t0**: `t0` is chart data; the passage to the truncated chart needs a `ChartInputs.restrict` step.  Not formalised: the `(E_K)` budget `r >= r(max(2K-1,0))`, the DM class bookkeeping
 (`lem:smo-budget (e)`). -/

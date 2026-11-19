@@ -50,11 +50,12 @@ ladder, (SM1)--(SM3)), `eq:eng-ansatz`, `thm:eng-defect` (1)--(3); proofs in `ap
   `𝐰^{(2)} = e_2`, `ω_mod = 1`, `A ≡ 1`, `B ≡ 0`) satisfies every field of `SymplecticLadder`.
 
 ## Differences from the paper (all deliberate, all minor)
-1. **Bond nondegeneracy.** `(3b)` and `(3c)` are stated under `𝒟(s,h) ≠ 0` at the bond concerned.  The paper
-   states them for every bond; they need it.  For `(3c)` the identity `Π₊(u) = adj Π₋(u+h)` (from
-   `Π₋(u+h)Π₊(u) = D₊²I`) requires `D₊(u,h) ≠ 0`, and when `D₊ = 0` the products vanish.  `(3a)` needs no such
-   hypothesis: its proof uses the lower shift at `u_{j+1}` (available for every `j ≥ 0`) and no division.
-   Every bond with `𝒜_h(s_j) ≠ 0` (in particular all bonds of the ladder) satisfies the hypothesis.
+1. **Bond nondegeneracy.** `(3b)` and `(3c)` are stated under `𝒟(s,h) ≠ 0` at the bond concerned; for real `𝒟` this is
+   the paper's `𝒟²(s,h) ≠ 0`.  The paper extends both to the closure of this set by continuity (for the polynomial
+   parts of `P_h`, `𝒬_h`, or any continuous `P_h`); that extension is not formalised.  For `(3c)` the identity
+   `Π₊(u) = adj Π₋(u+h)` (from `Π₋(u+h)Π₊(u) = D₊²I`) requires `D₊(u,h) ≠ 0`, and when `D₊ = 0` the products vanish.
+   `(3a)` needs no such hypothesis: its proof uses the lower shift at `u_{j+1}` (available for every `j ≥ 0`) and no
+   division.  Every bond with `𝒜_h(s_j) ≠ 0` (in particular all bonds of the ladder) satisfies the hypothesis.
 2. **Lower shift relation.** `SymplecticLadder.shift_dn` is assumed at every `j ≥ 1`, with no guard on `𝒟₋`, as in the
    paper.  At the hard edge `j = 0` the defect identity uses the hypotheses `𝒟₋(u_0,h) = 0` and the annihilation
    `Π₋ 𝐰^{(1)}_0 = 0` directly (`defect_identity_hard`), and `α = 2` is not claimed there.

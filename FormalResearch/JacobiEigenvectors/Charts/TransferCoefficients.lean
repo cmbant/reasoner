@@ -18,7 +18,7 @@ For one chart (a patch of a ladder chain), at orders `m` and `m+1` on the **same
   (the exact one-step transfer `omega_n y_{n+1} = t_11 y_n + t_12 y~_n` is then the first row of (SM2), `SymplecticLadder.shift_up`: Layer 3, easy);
 * jointly `C^2` in `(u, X)` with all of `phi, d_u phi, d_X phi, d_u d_X phi` bounded, uniformly in `h` and `mu` (`reg_*`; Layer 4: `lem:smo-budget` (b)--(e), `lem:cha-weber-coord`, `lem:cha-PCcoord`),
   for `t_11, t_12`, the order-`(m+1)` corrector row `A^{[m+1]}, B^{[m+1]}` and the changed coefficient `kappa_m`;
-* `|t_12| >= c_T` (`Pi_{+,12} = -V_0/P_0 + O(h)`, `V_0 > 0`; `lem:tha-collar` (2) for the soft halves) and `alpha = A^{[m+1]} - h B^{[m+1]} t_11/t_12 >= c_alpha` (`alpha = g_0 + O(h)`);
+* `|t_12| >= c_T` (`Pi_{+,12} = -V_0/P_0 + O(h)`, with the ladder oriented so that `V_0 > 0` for the Weber ladder; for the parabolic-cylinder ladder `V_0 < 0` and `lem:cha-PCcoord` writes `|V_0|`, so the fields below use `|t_12|` and are sign-free; `lem:tha-collar` (2) for the soft halves) and `alpha = A^{[m+1]} - h B^{[m+1]} t_11/t_12 >= c_alpha` (`alpha = g_0 + O(h)`);
 * the parity identity `eq:thb-parity` between the rows of orders `m` and `m+1` (`parity_A`, `parity_B`): the structural fact that `def:thb-inputs` omitted
   (finding F3 of the previous round, restated in `PLAN.md`);
 * `0 < omega <= omega_max` (`omega_n = sqrt(s_n) <= sqrt L` in the bulk, `1` at a soft edge).

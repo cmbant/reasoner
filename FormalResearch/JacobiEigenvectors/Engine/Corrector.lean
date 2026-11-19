@@ -49,10 +49,11 @@ proof in `app_engine.tex`, "Proof of Theorem `thm:eng-corr`" (hypotheses `(H_k)`
 5. **`𝒟 ≥ 0` and `Ω₀²`.** Neither is used: `V₀ ≠ 0` (through `c₀/V₀ > 0`) and `M₀ = Ω₀²V₀` are all that enter.  (eq:eng-omega) is the definition of `Ω₀²`.
 6. The Langer condition is stated with the 0-based entries `(0,0)` of `Π_±`.
 
-7. **Proof route for the last order of `𝔅^tot`.**  The paper's proof of (b)_k says that `F_cas = c₀ + … + c_{2k}h^{2k} + O(h^{2k+2})` has a centred difference
-   `O(h^{2k+3})`; with only the stated expansion the centred difference is `O(h^{2k+2})` (the `h^{2k+2}` coefficient is evaluated at `u ± h/2`).  The
-   missing order comes from the parity of `𝔅^tot` (odd in `h`), which is what `D1_lift` uses (`PApprox.lift` with `σ = -1`); the same applies to (a)_k.  The statement is
-   unaffected.
+7. **Order of the last term of `𝔅^tot`.**  The centred difference in `eq:eng-green` must be `O(h^{2k+3})`, while the
+   stated expansion `F_cas = c₀ + … + c_{2k}h^{2k} + O(h^{2k+2})` alone gives only `O(h^{2k+2})` (the `h^{2k+2}`
+   coefficient is evaluated at `u ± h/2`).  The missing order comes from the parity of `𝔅^tot` (odd in `h`,
+   `defectRow_parity`), which is what `D1_lift` uses (`PApprox.lift` with `σ = -1`); the same applies to (a)_k.  This
+   is a proof route; the statement is unaffected.
 
 Not formalised: derivation of `SymbolExp` from `C^r` data, `prop:eng-corr1` (regularity `C^{p-3k+1}`, holomorphic extension, dependence on `μ`), localisation to an interval `I_u`,
 the hard-edge bond (`𝒟 = 0`), and the identification of `(A^{[m]}, hB^{[m]})` with a specific chart.

@@ -49,7 +49,7 @@ Claim class: **proved under explicit hypotheses** (the two premises below).
 
 ## Not formalised
 
-`DM (truncFamily F m) K (2 Kidx + 1)` (false in general, F-DD1), the existence of `S`, `x_0` for the truncated family (so `EigGapBound`
+`DM (truncFamily F m) K (2 Kidx + 1)` (not a consequence of `DM F K m`, F-DD1), the existence of `S`, `x_0` for the truncated family (so `EigGapBound`
 is a premise), and `Corollary cor:fermions` for `Ĝ^{jet}_m`.
 -/
 

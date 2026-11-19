@@ -8,8 +8,8 @@ public import FormalResearch.MatrixAnalysis.JacobiOpFermions
 /-!
 # Paper J, Theorem B reduction: free-fermion correlation matrices (`cor:fermions`)
 
-Source: Paper J, `/home/user/scratch/paperJ2/main_results.tex`, Corollary `cor:fermions` (proof in
-`thmB.tex`).  The paper's constants are `ε = C_m h^m` (the hypothesis `‖Ĝ_m − U_h‖ ≤ C_m h^m`, Theorem B),
+Source: Paper J, `Weyl/jacobi_eigenvectors/paper/parts/main_results.tex` (`cor:fermions`; proof in `thmB.tex`),
+on branch `agents/m7-m1-global-racah` of QIprojects.  The paper's constants are `ε = C_m h^m` (the hypothesis `‖Ĝ_m − U_h‖ ≤ C_m h^m`, Theorem B),
 and `ε = 2 C_m h^m` for the polar factor.
 
 `jb_fermions` restates, with the paper's constants, all three parts of the corollary:
@@ -19,7 +19,8 @@ and `ε = 2 C_m h^m` for the polar factor.
 * (ii) the `j`-th eigenvalues (`eigenvalues₀`, which Mathlib lists in decreasing order) of the compressions to
   the coordinates `e : m → n` differ by at most `3 C h^m`;
 * (iii) for `0 < τ ≤ 1/2`, `6 C h^m ≤ τ` and `ν_j ∈ [τ, 1 − τ]` the entanglement energies differ by at
-  most `9 C h^m / τ`.
+  most `9 C h^m / τ`.  The paper states `8 C h^m / τ` (`thmB.tex`, the mean-value bound on `[τ/2, 1 − τ/2]`); the
+  constant `9` proved here is weaker, and the sharper `8` is not formalised.
 
 All of it is derived from the Jacobi-operator package (`jop_fermion_compression_bound`,
 `jop_fermion_eigenvalue_bound`, `jop_fermion_energy_bound`, `jop_polar_repair_matrix`); only the form of the

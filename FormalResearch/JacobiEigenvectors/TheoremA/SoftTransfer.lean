@@ -22,7 +22,7 @@ Source: Paper J `app_thmA.tex` "The soft edges: proof of Proposition prop:tha-W2
 
 ## Differences from the paper
 
-* `Lambda` is an explicit constant depending on `(K_A, K_B, K_w, c_-, C_E, C_A, C_M, C_w)` and `max(Lambda_chart, 2)`; the paper says `Lambda < 2.26` for the bounded overlap and "depends on the constants" for the forbidden one.
+* `Lambda` is the explicit constant `softLamC = max(cs.Λ, tΛ1, 2)`, where `cs.Λ` and `tΛ1` depend on `(K_A, K_B, K_w, c_-, C_E, C_A, C_M, C_w)`.  The number `2.26` of the paper is not a bound on this `Λ`: it is the operator-norm bound `‖M_-(a)‖_op ≤ 1 + √(π/2) < 2.26` of `charts.tex` (entries at most `√(π/2) < 2`, which the constant `2` dominates entrywise).
 * The soft chart now carries `bondA_le` (`a_n <= C_A`) and `muS_bd` for `r = 0` as fields (they are used implicitly by the paper); (S3) is no longer a field.
 
 ## Not formalised
