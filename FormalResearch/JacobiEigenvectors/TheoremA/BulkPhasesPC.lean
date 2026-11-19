@@ -147,11 +147,11 @@ and `mu >= mu0`, `mu >= 1`.  Then for `|t| <= 1 - eps`, `mu^2 >= 2/eps` and `mu 
 `|U(-mu^2/2, mu t sqrt 2)| <= B G` and `|U'(-mu^2/2, mu t sqrt 2)| <= 3 B mu G`, `B = (2/eps)^{1/4} (1 + C)`. -/
 lemma phase_value_deriv_bound (PC : ParabolicCylinderFacts U V cPC CPC) {ε C μ0 : ℝ} {g : ℝ → ℝ} (hε0 : 0 < ε) (hε1 : ε < 1)
     (hg : ∀ μ, 0 < g μ)
-    (hph : ∀ μ : ℝ, μ0 ≤ μ → ∀ t : ℝ, |t| ≤ 1 - ε / 2 →
+    (hph : ∀ μ : ℝ, μ0 ≤ μ → (∃ n : ℕ, μ ^ 2 = 2 * n + 1) → ∀ t : ℝ, |t| ≤ 1 - ε / 2 →
       |U (-(μ ^ 2) / 2) (μ * t * Real.sqrt 2) - 2 * g μ / (1 - t ^ 2) ^ ((1 : ℝ) / 4)
         * Real.cos (μ ^ 2 * ((Real.arccos t - t * Real.sqrt (1 - t ^ 2)) / 2) - Real.pi / 4)|
         ≤ C * μ⁻¹ ^ 2 * (2 * g μ / (1 - t ^ 2) ^ ((1 : ℝ) / 4)))
-    (hC : 0 ≤ C) {μ t : ℝ} (hμ0 : μ0 ≤ μ) (hμ1 : 1 ≤ μ) (hμε : 2 / ε ≤ μ ^ 2) (ht : |t| ≤ 1 - ε) :
+    (hC : 0 ≤ C) {μ t : ℝ} (hμ0 : μ0 ≤ μ) (hμL : ∃ n : ℕ, μ ^ 2 = 2 * n + 1) (hμ1 : 1 ≤ μ) (hμε : 2 / ε ≤ μ ^ 2) (ht : |t| ≤ 1 - ε) :
     |U (-(μ ^ 2) / 2) (μ * t * Real.sqrt 2)| ≤ (2 / ε) ^ ((1 : ℝ) / 4) * (1 + C) * (2 * g μ) ∧
     |deriv (U (-(μ ^ 2) / 2)) (μ * t * Real.sqrt 2)| ≤ 3 * ((2 / ε) ^ ((1 : ℝ) / 4) * (1 + C) * (2 * g μ)) * μ := by
   set B : ℝ := (2 / ε) ^ ((1 : ℝ) / 4) * (1 + C) * (2 * g μ) with hB
@@ -160,7 +160,7 @@ lemma phase_value_deriv_bound (PC : ParabolicCylinderFacts U V cPC CPC) {ε C μ
   -- bound on the window `t' in [-(1-eps/2), 1-eps/2]`
   have hwin : ∀ t' : ℝ, |t'| ≤ 1 - ε / 2 → |U (-(μ ^ 2) / 2) (μ * t' * Real.sqrt 2)| ≤ B := by
     intro t' ht'
-    have h := hph μ hμ0 t' ht'
+    have h := hph μ hμ0 hμL t' ht'
     have h1t : 0 < 1 - t' ^ 2 := by nlinarith [abs_nonneg t', sq_abs t']
     have hlow : ε / 2 ≤ 1 - t' ^ 2 := by
       have : t' ^ 2 ≤ (1 - ε / 2) ^ 2 := by
@@ -601,7 +601,7 @@ lemma pack_Mbal (PC : ParabolicCylinderFacts U V cPC CPC) {ε μ t B : ℝ} (hε
 (iii) `M_bal(a, Z) <= Cm kappa_bal(a) G`. -/
 theorem phase_pack (PC : ParabolicCylinderFacts U V cPC CPC) {ε : ℝ} (hε0 : 0 < ε) (hε1 : ε < 1) :
     ∃ C Cd Cm μ1 : ℝ, ∃ g : ℝ → ℝ, 0 ≤ C ∧ 0 ≤ Cd ∧ 0 ≤ Cm ∧ 1 ≤ μ1 ∧ (∀ μ, 0 < g μ) ∧
-      ∀ μ : ℝ, μ1 ≤ μ → ∀ t : ℝ, |t| ≤ 1 - ε →
+      ∀ μ : ℝ, μ1 ≤ μ → (∃ n : ℕ, μ ^ 2 = 2 * n + 1) → ∀ t : ℝ, |t| ≤ 1 - ε →
         |U (-(μ ^ 2) / 2) (μ * t * Real.sqrt 2) - 2 * g μ / (1 - t ^ 2) ^ ((1 : ℝ) / 4)
           * Real.cos (μ ^ 2 * ((Real.arccos t - t * Real.sqrt (1 - t ^ 2)) / 2) - Real.pi / 4)|
           ≤ C * μ⁻¹ ^ 2 * (2 * g μ / (1 - t ^ 2) ^ ((1 : ℝ) / 4)) ∧
@@ -610,12 +610,12 @@ theorem phase_pack (PC : ParabolicCylinderFacts U V cPC CPC) {ε : ℝ} (hε0 : 
   obtain ⟨C0, μ0, g, hg, hph⟩ := PC.phase_osc (ε / 2) (by positivity) (by linarith)
   set C := max C0 0 with hCdef
   have hC : 0 ≤ C := le_max_right _ _
-  have hph' : ∀ μ : ℝ, μ0 ≤ μ → ∀ t : ℝ, |t| ≤ 1 - ε / 2 →
+  have hph' : ∀ μ : ℝ, μ0 ≤ μ → (∃ n : ℕ, μ ^ 2 = 2 * n + 1) → ∀ t : ℝ, |t| ≤ 1 - ε / 2 →
       |U (-(μ ^ 2) / 2) (μ * t * Real.sqrt 2) - 2 * g μ / (1 - t ^ 2) ^ ((1 : ℝ) / 4)
         * Real.cos (μ ^ 2 * ((Real.arccos t - t * Real.sqrt (1 - t ^ 2)) / 2) - Real.pi / 4)|
         ≤ C * μ⁻¹ ^ 2 * (2 * g μ / (1 - t ^ 2) ^ ((1 : ℝ) / 4)) := by
-    intro μ hμ t ht
-    refine (hph μ hμ t ht).trans ?_
+    intro μ hμ hL t ht
+    refine (hph μ hμ hL t ht).trans ?_
     have hpos : 0 ≤ μ⁻¹ ^ 2 * (2 * g μ / (1 - t ^ 2) ^ ((1 : ℝ) / 4)) := by
       have h1t : 0 < 1 - t ^ 2 := by nlinarith [abs_nonneg t, sq_abs t]
       have := hg μ
@@ -630,16 +630,16 @@ theorem phase_pack (PC : ParabolicCylinderFacts U V cPC CPC) {ε : ℝ} (hε0 : 
   have hc10 : 0 ≤ c1 := by rw [hc1]; positivity
   refine ⟨C, 3 * B', c1 * B' * Real.sqrt (1 + 18 / ε), max (max μ0 1) (2 / ε), g, hC, by positivity,
     by positivity, le_trans (le_max_right _ _) (le_max_left _ _), hg, ?_⟩
-  intro μ hμ t ht
+  intro μ hμ hμL t ht
   have hμ0 : μ0 ≤ μ := le_trans (le_trans (le_max_left _ _) (le_max_left _ _)) hμ
   have hμ1 : 1 ≤ μ := le_trans (le_trans (le_max_right _ _) (le_max_left _ _)) hμ
   have hμ2 : 2 / ε ≤ μ := le_trans (le_max_right _ _) hμ
   have hμpos : 0 < μ := by linarith
   have hμε : 2 / ε ≤ μ ^ 2 := by nlinarith
   have htε : |t| ≤ 1 - ε / 2 := by linarith
-  obtain ⟨hv, hd⟩ := phase_value_deriv_bound PC hε0 hε1 hg hph' hC hμ0 hμ1 hμε ht
+  obtain ⟨hv, hd⟩ := phase_value_deriv_bound PC hε0 hε1 hg hph' hC hμ0 hμL hμ1 hμε ht
   have hgpos := hg μ
-  refine ⟨hph' μ hμ0 t htε, ?_, ?_⟩
+  refine ⟨hph' μ hμ0 hμL t htε, ?_, ?_⟩
   · have : 3 * ((2 / ε) ^ ((1 : ℝ) / 4) * (1 + C) * (2 * g μ)) * μ = 3 * B' * μ * (2 * g μ) := by rw [hB']; ring
     rw [← this] at *
     simpa [hB'] using hd

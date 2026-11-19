@@ -1,6 +1,7 @@
 module
 
 public import Mathlib
+public import FormalResearch.JacobiEigenvectors.Charts.ParabolicCylinder
 public import DLMF.ParabolicCylinder.ElementaryPropertiesCore
 public import DLMF.Confluent.ParabolicCylinder.WronskiansAndConnections
 
@@ -206,6 +207,23 @@ lemma not_pi_div_Gamma_half_add_half :
   exact Real.pi_ne_zero h
 
 
+/-- **The exact part of `ParabolicCylinderFacts` holds for the actual functions**: `PCExactFacts pcU pcV`. -/
+theorem pcExactFacts : PCExactFacts pcU pcV where
+  ode_U := pcU_ode
+  ode_V := pcV_ode
+  wronsk := pc_wronsk
+  shift_U_up := pc_shift_U_up
+  shift_U_dn := pc_shift_U_dn
+  shift_V_dn := pc_shift_V_dn
+  shift_V_up := pc_shift_V_up
+  reflect := fun a ha z => pc_reflect a ha z
+  reflect_V := fun a _ z => pc_reflect_V a z
+
+/-- For the actual functions, `ParabolicCylinderFacts` is exactly its non-exact part: smoothness, phase and envelope facts. -/
+theorem ParabolicCylinderFacts.ofActual {cPC CPC : ℝ} (hs : PCSmoothFacts pcU pcV) (hp : PCPhaseFact pcU)
+    (he : PCEnvelopeFacts pcU pcV cPC CPC) : ParabolicCylinderFacts pcU pcV cPC CPC :=
+  { pcExactFacts, hs, hp, he with }
+
 /-- info: 'FormalResearch.JacobiEigenvectors.Charts.pcU_ode' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms pcU_ode
@@ -245,5 +263,13 @@ lemma not_pi_div_Gamma_half_add_half :
 /-- info: 'FormalResearch.JacobiEigenvectors.Charts.pc_reflect_V' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms pc_reflect_V
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.pcExactFacts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms pcExactFacts
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.ParabolicCylinderFacts.ofActual' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ParabolicCylinderFacts.ofActual
 
 end FormalResearch.JacobiEigenvectors.Charts

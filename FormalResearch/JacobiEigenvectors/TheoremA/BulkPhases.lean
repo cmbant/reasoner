@@ -258,7 +258,10 @@ theorem bulk_phase_left (C : BulkWeberChart F P Jlo Jhi m U V) {cPC CPC : ℝ} (
     rw [htdef, hsqu, hμv, ← hs]
     field_simp
     linear_combination Y * hsq2
-  obtain ⟨hval, hder, hMb⟩ := hpack μv hμge t htabs
+  have hμvL : ∃ k : ℕ, μv ^ 2 = 2 * k + 1 :=
+    ⟨n.toNat, by rw [hμv2]; have : ((n.toNat : ℕ) : ℝ) = n := by exact_mod_cast Int.toNat_of_nonneg hn0
+                 rw [this]; ring⟩
+  obtain ⟨hval, hder, hMb⟩ := hpack μv hμge hμvL t htabs
   rw [ha_eq, hZ_eq] at hval hder hMb
   clear hpack hcorr
   have hμinv : μv ^ 2 = 2 * u / h := by field_simp; linarith [hμh]

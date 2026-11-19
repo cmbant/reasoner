@@ -9,27 +9,30 @@ Source: Paper J `charts.tex`: Section "The model ladders and their envelopes" (`
 `lem:cha-weber-env`, `lem:cha-W0`), `thmA.tex` (eq:tha-conn).  Proofs of the paper: DLMF 12.2, 12.8, Olver's uniform expansions
 (`app_engine.tex`, `app:cha-PCenv`).
 
-This file defines the envelope functions (`k2`, `Mbal`, `Ewell`, `Ebar`, `kappaBal`, `Molv`) concretely and collects, in one Prop-valued
-structure `ParabolicCylinderFacts`, **all facts about the functions `U(a,z), V(a,z)` that Layers 2--3 use**.  Mathlib does not define
-`U, V`, but the vendored lean-DLMF closure does (`ThirdParty/lean-dlmf`: `DLMF.Confluent.parabolicCylinderU`, `parabolicCylinderV`, DLMF 12.2).
-The structure still takes `U, V` as data (`pc.U`, `pc.V`), and no instance is built here.  The closure proves the Wronskian (DLMF 12.2.10),
-Weber's equation (12.2.2), the recurrences 12.8.2, 12.8.3, 12.8.6 and 12.8.7, the connection formulas 12.2.15 and 12.2.16, entire dependence
-on `z`, and, for real `a` and `z`, reality.  It does not prove entire dependence on the parameter `a` (hence not the joint smoothness in
-`smooth_U`, `smooth_V`), nor the envelope, `beyond`, `molv_*`, `U_pos` and `V_growth` estimates, nor the oscillatory expansion `phase_osc`
-(DLMF 12.10).  A toy instance does not exist: every field concerns the actual parabolic-cylinder functions (the envelope and
+This file defines the envelope functions (`k2`, `Mbal`, `Ewell`, `Ebar`, `kappaBal`, `Molv`) concretely and collects **all facts about the functions `U(a,z), V(a,z)` that Layers 2--3 use**
+in `ParabolicCylinderFacts`, which extends four Prop-valued structures:
+
+* `PCExactFacts U V` (`ode_U`, `ode_V`, `wronsk`, `shift_*`, `reflect`, `reflect_V`): **proved for the actual functions** `pcU, pcV` (`Charts/PCExact.lean`, `pcExactFacts`);
+* `PCSmoothFacts U V` (`smooth_U`, `smooth_V`): joint smoothness in `(a, z)`;
+* `PCPhaseFact U` (`phase_osc`): DLMF 12.10.18;
+* `PCEnvelopeFacts U V cPC CPC` (`cPC_pos`, `cPC_le`, `env_well`, `env_bar`, `molv_well`, `molv_bar`, `V_growth`, `U_pos`, `beyond`): Olver's envelope estimates, the only block with no proof in the corpus.
+
+The structure still takes `U, V` as data (`pc.U`, `pc.V`).  The actual functions are `pcU a z = Re U(a,z)`, `pcV a z = Re V(a,z)` of the vendored lean-DLMF closure
+(`ThirdParty/lean-dlmf`: `DLMF.Confluent.parabolicCylinderU`, `parabolicCylinderV`, DLMF 12.2; no rescaling); `ParabolicCylinderFacts.ofActual` (`PCExact.lean`) builds
+`ParabolicCylinderFacts pcU pcV cPC CPC` from the three remaining Props.  A toy instance does not exist: every field concerns the actual parabolic-cylinder functions (the envelope and
 connection fields fail for any other pair, since they pin down the Wronskian, the recurrences and the oscillation).
 
 ## Fields, with the statement each stands for and the Layer-4 result that discharges it
 
 | field | statement | discharged by |
 |---|---|---|
-| `smooth`, `ode_U`, `ode_V`, `wronsk` | `U,V` entire, `y'' = (z^2/4 + a) y`, `Wr{U,V} = sqrt(2/pi)` | DLMF 12.2.2, 12.2.4, 12.2.10 |
+| `smooth`, `ode_U`, `ode_V`, `wronsk` | `U,V` entire, `y'' = (z^2/4 + a) y`, `Wr{U,V} = sqrt(2/pi)` | DLMF 12.2.2, 12.2.4, 12.2.10 (all but `smooth` proved for `pcU, pcV`, `Charts/PCExact.lean`) |
 | `shift_*` | the four `a`-shift relations (lem:cha-weber-ladder (2)) | DLMF 12.8.2, 12.8.3, 12.8.6, 12.8.7 |
 | `reflect`, `reflect_V` | connection formula `U(a,-z) = -sin(pi a) U + cos(pi a) Gamma(1/2-a) V`, and its companion `V(a,-z) = cos(pi a)/Gamma(1/2-a) U + sin(pi a) V`, `a <= 0` (eq:tha-conn, `M_-(a)` of lem:cha-PCenv (1a)) | DLMF 12.2.15--16 with 12.2.7 |
 | `env_well`, `env_bar`, `beyond` | `lem:cha-PCenv` (1b), (2), (3) | Olver 1997, Ch. 11 Thm 3.1, Ch. 6 Thm 2.2; Riccati comparison |
 | `molv_well`, `molv_bar` | `eq:cha-MolvEquiv`, `eq:cha-envbar` (the two-sided equivalence of `M_Olv` with `kappa^{-1} W M_bal`; lower bound inside the well) | Olver, as `env_well`; **added in round 3** (finding F-W2-6) |
 | `V_growth` | the growing solution `V` is positive and `V'/V >= c_V k_2^{1/2}` beyond the turning point and for `z >= 1` (the forward ratio `r_2 = e^{-theta}(1+O(h)) < 1` of the dominant member, app_thmA Step 3 (ii)); the unrestricted form is false (finding F-PC1) | Riccati comparison / Olver; **added in round 3** (finding F-W2-6) |
-| `phase_osc` | oscillatory phase expansion of the Weber branch on `|t| <= 1 - eps` (lem:smo-bulkphase (1)) | DLMF 12.10.18 |
+| `phase_osc` | oscillatory phase expansion of the Weber branch on `|t| <= 1 - eps`, **on the lattice `mu^2 = 2n+1`** (lem:smo-bulkphase (1)) | DLMF 12.10.18; proved for the actual `pcU` from Hermite Plancherel-Rotach (`Charts/PCPhase.lean`) |
 
 `phase_osc` is about the model functions only (no eigenvalue or eigenvector estimate).  The all-order phase expansion of the
 comparison sequences (lem:smo-bulkphase (4), DLMF 12.10.35 + Stirling) is *not* a field here: it needs the chart data and is the field
@@ -50,12 +53,13 @@ The *absorption* `Lambda h^{-m} (E_{j_1}/E_n)^2 <= e^{-c/h}` is **not** a field:
 
 ## Honest differences
 
+* `phase_osc` is stated on the lattice `mu^2 = 2n+1` only (restated in the Layer-4 phase B1, finding: the all-real-`mu` form has no proof upstream, whose 12.10.18-21 are unproved, and every consumer instantiates the lattice).
 * `reflect` is required for `a <= 0` only (the paper uses it there); for `a > 0` the connection data enter through `kappaBal` and `Ebar` only.
 * the shift relations `shift_V*` are DLMF 12.8.6 (`V' - z V/2 - (a-1/2) V(a-1) = 0`) and 12.8.7 (`V' + z V/2 - V(a+1) = 0`).
 
 ## Round 2 audit (soundness and non-vacuity; finding F-DLMF closed)
 
-`U, V` cannot be instantiated in Lean (no definition in Mathlib), so the fields were checked **numerically against the classical functions**
+The fields were also checked **numerically against the classical functions** (before the vendored lean-DLMF `U, V` were wired in; the exact fields are now proved, `PCExact.lean`)
 (mpmath 1.3.0 `pcfu`, with `V(a,z) := (1/pi) Gamma(1/2 + a) [sin(pi a) U(a,z) + U(a,-z)]`, DLMF 12.2.7; 30 digits, `a in {0.3, -1.7, 2.2, -0.25}`, `z in {-1.3, 0.7, 2.1}`):
 
 * `wronsk`, `ode_U`, `ode_V`, `shift_U_up` (DLMF 12.8.2), `shift_U_dn` (12.8.3), `shift_V_dn` (12.8.6), `shift_V_up` (12.8.7), `reflect` (12.2.15--16 with
@@ -121,13 +125,9 @@ def Molv (U V : ℝ → ℝ → ℝ) (a z : ℝ) : ℝ :=
   if 0 ≤ z ∨ 0 < a then EU z
   else Real.sqrt (EU z ^ 2 + Real.Gamma (1 / 2 - a) ^ 2 * EV |z| ^ 2)
 
-/-- **The special-function facts of Layers 2--3** (see the module docstring for the table).  `cPC, CPC` are the universal
-constants of lem:cha-PCenv. -/
-structure ParabolicCylinderFacts (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ) : Prop where
-  cPC_pos : 0 < cPC
-  cPC_le : cPC ≤ CPC
-  smooth_U : ContDiff ℝ ⊤ (fun p : ℝ × ℝ => U p.1 p.2)
-  smooth_V : ContDiff ℝ ⊤ (fun p : ℝ × ℝ => V p.1 p.2)
+/-- **The exact identities of `U, V`** (DLMF 12.2.2, 12.2.10, 12.2.15-16, 12.8.2-3, 12.8.6-7): Weber's equation, the Wronskian, the four `a`-shifts and the
+connection formulas.  Proved for the actual functions `pcU, pcV` (`Charts/PCExact.lean`, `pcExactFacts`). -/
+structure PCExactFacts (U V : ℝ → ℝ → ℝ) : Prop where
   ode_U : ∀ a z, deriv (deriv (U a)) z = (z ^ 2 / 4 + a) * U a z
   ode_V : ∀ a z, deriv (deriv (V a)) z = (z ^ 2 / 4 + a) * V a z
   wronsk : ∀ a z, U a z * deriv (V a) z - deriv (U a) z * V a z = Real.sqrt (2 / Real.pi)
@@ -146,6 +146,29 @@ structure ParabolicCylinderFacts (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ) : P
   (no singularity at the resonances `cos(pi a) = 0`).  With `reflect` it is the matrix `M_-(a)` of lem:cha-PCenv (1a) (see `pcSwap_eq_pcMinus`). -/
   reflect_V : ∀ a ≤ 0, ∀ z, V a (-z) = Real.cos (Real.pi * a) / Real.Gamma (1 / 2 - a) * U a z
       + Real.sin (Real.pi * a) * V a z
+
+/-- **Joint smoothness of `U, V`** in `(a, z)` (entire in both variables). -/
+structure PCSmoothFacts (U V : ℝ → ℝ → ℝ) : Prop where
+  smooth_U : ContDiff ℝ ⊤ (fun p : ℝ × ℝ => U p.1 p.2)
+  smooth_V : ContDiff ℝ ⊤ (fun p : ℝ × ℝ => V p.1 p.2)
+
+/-- **The oscillatory phase expansion** of the Weber branch on the lattice `mu^2 = 2n+1` (DLMF 12.10.18; lem:smo-bulkphase (1)). -/
+structure PCPhaseFact (U : ℝ → ℝ → ℝ) : Prop where
+  /-- the oscillatory phase expansion of the Weber branch (lem:smo-bulkphase (1), DLMF 12.10.18): for `t in [-1+eps, 1-eps]`,
+  `mu^2 = 2n+1` (**the lattice only**: every consumer uses `mu = sqrt(2n+1)`, and for real `mu` the expansion has no proof in the vendored lean-DLMF, whose 12.10.18-21 are unproved), `U(-mu^2/2, mu t sqrt 2) = 2 g(mu)/(1-t^2)^{1/4} [cos(mu^2 eta(t) - pi/4) + O(mu^{-2})]`, `eta = (arccos t - t sqrt(1-t^2))/2`,
+  with `g(mu) > 0` independent of `t`, uniformly on compacts. -/
+  phase_osc : ∀ eps : ℝ, 0 < eps → eps < 1 → ∃ C μ0 : ℝ, ∃ g : ℝ → ℝ, (∀ μ, 0 < g μ) ∧ ∀ μ : ℝ, μ0 ≤ μ →
+    (∃ n : ℕ, μ ^ 2 = 2 * n + 1) → ∀ t : ℝ, |t| ≤ 1 - eps →
+      |U (-(μ ^ 2) / 2) (μ * t * Real.sqrt 2) - 2 * g μ / (1 - t ^ 2) ^ ((1 : ℝ) / 4)
+        * Real.cos (μ ^ 2 * ((Real.arccos t - t * Real.sqrt (1 - t ^ 2)) / 2) - Real.pi / 4)|
+        ≤ C * μ⁻¹ ^ 2 * (2 * g μ / (1 - t ^ 2) ^ ((1 : ℝ) / 4))
+
+/-- **The envelope facts of Olver's theory** (lem:cha-PCenv, eq:cha-MolvEquiv, eq:cha-envbar, DLMF 12.9.1 and 12.10): the constants `cPC, CPC`, the envelopes
+`env_well`, `env_bar`, the two-sided `M_Olv` bounds, `beyond`, positivity `U_pos` and the growth of `V`.  The only part of `ParabolicCylinderFacts` with no proof
+in the corpus. -/
+structure PCEnvelopeFacts (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ) : Prop where
+  cPC_pos : 0 < cPC
+  cPC_le : cPC ≤ CPC
   /-- lem:cha-PCenv (1b), `a <= 0`, `Z >= 0`: `sqrt(u~^2 + u~'^2/k_2) <= C E_well M_bal` and the same for `v~` with `E_well^{-1}`. -/
   env_well : ∀ a ≤ 0, ∀ z, 0 ≤ z →
     Real.sqrt (ut U a z ^ 2 + (kappaBal a * deriv (U a) z) ^ 2 / k2 a z) ≤ CPC * Ewell a z * Mbal a z ∧
@@ -176,13 +199,11 @@ structure ParabolicCylinderFacts (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ) : P
   beyond : ∀ a z, 2 * Real.sqrt (max (-a) 0) ≤ z →
     |deriv (U a) z| ≤ 4 * Real.sqrt (k2 a z) * |U a z| ∧
     cPC / Real.sqrt 17 * Erec a z * Mbal a z ≤ |kappaBal a * U a z|
-  /-- the oscillatory phase expansion of the Weber branch (lem:smo-bulkphase (1), DLMF 12.10.18): for `t in [-1+eps, 1-eps]`,
-  `mu^2 = 2n+1`, `U(-mu^2/2, mu t sqrt 2) = 2 g(mu)/(1-t^2)^{1/4} [cos(mu^2 eta(t) - pi/4) + O(mu^{-2})]`, `eta = (arccos t - t sqrt(1-t^2))/2`,
-  with `g(mu) > 0` independent of `t`, uniformly on compacts. -/
-  phase_osc : ∀ eps : ℝ, 0 < eps → eps < 1 → ∃ C μ0 : ℝ, ∃ g : ℝ → ℝ, (∀ μ, 0 < g μ) ∧ ∀ μ : ℝ, μ0 ≤ μ → ∀ t : ℝ,
-    |t| ≤ 1 - eps →
-      |U (-(μ ^ 2) / 2) (μ * t * Real.sqrt 2) - 2 * g μ / (1 - t ^ 2) ^ ((1 : ℝ) / 4)
-        * Real.cos (μ ^ 2 * ((Real.arccos t - t * Real.sqrt (1 - t ^ 2)) / 2) - Real.pi / 4)|
-        ≤ C * μ⁻¹ ^ 2 * (2 * g μ / (1 - t ^ 2) ^ ((1 : ℝ) / 4))
+
+/-- **The special-function facts of Layers 2--3** (see the module docstring for the table).  `cPC, CPC` are the universal
+constants of lem:cha-PCenv.  It is the conjunction of four Props, stated as an `extends` so that every field is a projection of it:
+`PCExactFacts` (proved for the actual `pcU, pcV`), `PCSmoothFacts`, `PCPhaseFact` and `PCEnvelopeFacts`. -/
+structure ParabolicCylinderFacts (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ) : Prop
+    extends PCExactFacts U V, PCSmoothFacts U V, PCPhaseFact U, PCEnvelopeFacts U V cPC CPC
 
 end FormalResearch.JacobiEigenvectors.Charts
