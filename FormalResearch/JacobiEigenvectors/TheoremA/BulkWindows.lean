@@ -386,7 +386,6 @@ lemma actionS0_continuousOn (PI : BulkPhaseInputs F P K t0 Jlo Jhi M U V CL CR) 
     h.continuousOn.comp (continuous_id.prodMk continuous_const).continuousOn (fun X hX => ⟨hX, ht⟩)
   exact hc.congr (fun X hX => (PI.Sigma_zero μ hμ X hX t ht).symm)
 
-set_option maxHeartbeats 4000000 in
 /-- **(3) (iii), the sign of `kappa'` at an eigenvalue of a window** (`lem:smo-bulkphase` (3) (iii)): for every window constant `Cw` there is `h0` such that for `X` with
 `|S_0(X) - pi h (k + 1/2)| <= Cw h^2` and `p_n = kappa' q_n` for all rows (`D(X) = 0`), `sign kappa' = sign (-1)^k` (`sigma' = 1`).
 Proof as in the paper: `kappa' = psi^L_n psi^R_n / (psi^R_n)^2 * (positive seeds)`, the exact edge solutions have the phases `Theta_L/h - pi/4`, `Theta_R/h - pi/4`
@@ -554,12 +553,14 @@ theorem bulk_kappa_sign {cPC CPC : ℝ} (PC : ParabolicCylinderFacts U V cPC CPC
     have hrel := cos_beta_rel _ _ δ k hsum
     have hsmall : F.step N * (EL + ER + Cw' + EL * (Cw' + ER)) < ε / 2 := by
       rw [← hK1]
-      have h1 : F.step N * K1 ≤ F.step N * (K1 + 1) := by nlinarith
+      have h1 : F.step N * K1 ≤ F.step N * (K1 + 1) :=
+        mul_le_mul_of_nonneg_left (le_add_of_nonneg_right zero_le_one) hst.le
       have h2 : F.step N * (K1 + 1) ≤ ε / 4 := by
-        have := mul_le_mul_of_nonneg_right hhK (show 0 ≤ 2 * (K1 + 1) by positivity)
-        have e2 : (ε / 2) / (2 * (K1 + 1)) * (2 * (K1 + 1)) = ε / 2 := by field_simp
-        nlinarith
-      linarith
+        have := mul_le_mul_of_nonneg_right hhK (show 0 ≤ 2 * (K1 + 1) by linarith only [hK10])
+        have e2 : (ε / 2) / (2 * (K1 + 1)) * (2 * (K1 + 1)) = ε / 2 := by
+          field_simp
+        linarith only [this, e2]
+      linarith only [h1, h2, hε0]
     refine row_product_pos (s := (-1 : ℝ) ^ k)
       (y := Real.cos (thetaL F.L (fun s => F.G 0 p (F.L - s)) (fun s => F.B 0 p (F.L - s)) X (F.L - uNode (F.step N) r) / F.step N - Real.pi / 4)) (by rw [← pow_mul, mul_comm, pow_mul]; simp) hρL hρR hL1' ?_ ?_
       (Real.abs_cos_le_one _) hcos2 hst hh1 hEL hER hCw'0 hsmall
