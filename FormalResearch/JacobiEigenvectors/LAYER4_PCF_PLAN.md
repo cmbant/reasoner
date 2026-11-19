@@ -1,9 +1,19 @@
 # Paper J, Layer 4 phase B2: plan to prove `ParabolicCylinderFacts U V cPC CPC` for the actual functions
 
-Scoping note (no Lean changed). Branch `lean/paper-j-layer4`, head `812de42`. Sources read: `Charts/ParabolicCylinder.lean`,
+Scoping note, with the status of phase B1 below. Branch `lean/paper-j-layer4`; scoped at head `812de42`. Sources read: `Charts/ParabolicCylinder.lean`,
 `Charts/SoftParabolicCylinder.lean`, `Charts/TransferCoefficients.lean`, upstream `bjbraams/lean-DLMF` @ `7edc630` (read-only, untrusted
 data), `ThirdParty/lean-dlmf` (vendored: LG/Sturm closure and `Basic.{Functions,WeberEquation,Wronskians}`), `FormalResearch/Special`.
 Numerics: mpmath 1.3.0, 40-60 digits, scratchpad only, not committed. "Consumed" below is a `grep` of `.field` in `JacobiEigenvectors/`.
+
+## Status after phase B1 (what is true now)
+
+* **Proved for the actual `pcU a z = Re U(a,z)`, `pcV a z = Re V(a,z)`** (no rescaling): `PCExactFacts` (`ode_U/V`, `wronsk`, `shift_*`, `reflect` for `a <= 0` with the Gamma bridge, `reflect_V`; `Charts/PCExact.lean`, `pcExactFacts`), `PCSmoothFacts`
+  (`Charts/PCSmooth.lean`, `pcSmoothFacts`), `PCPhaseFact` (`Charts/PCPhase.lean`, `pcPhaseFact`).  All axiom-pinned to `[propext, Classical.choice, Quot.sound]`.
+* **Statements changed** (findings, `PLAN.md` F-PC2, F-PC3): `phase_osc` is on the lattice `mu^2 = 2n+1` only (every consumer instantiates it; real `mu` needs the oscillatory Olver theory, unproved upstream);
+  `smooth_U/V` are weakened to slice smoothness + joint continuity (what the consumers use).  No sign or constant error was found in `shift_*`, `reflect`, `reflect_V`, `wronsk`, `ode_*`: they are proved as stated.
+* **Joint `ContDiff ℝ ⊤` of `(a, z) -> U, V` (paper's statement, not used)**: not proved.  Entire dependence in `z` and in `a` is vendored separately; Mathlib has no Osgood/Hartogs; the route is Kummer's series, jointly:
+  either iterated-derivative bounds for `contDiff_tsum` on the terms `(alpha(a))_n z^{2n} / ((c)_n n!)` (polynomial in `a`), or an Osgood lemma (continuous + separately entire => Cauchy integral in `a` => jointly `C^1`, then induction on the order).  Estimate 500-800 L.
+* **Remaining special-function premise: `PCEnvelopeFacts U V cPC CPC`** (`cPC_*`, `env_well`, `env_bar`, `molv_well`, `molv_bar`, `V_growth`, `U_pos`, `beyond`), the B2 block of sections 3 and 5 below.  `ParabolicCylinderFacts.ofEnvelope` (`Charts/PCActual.lean`) turns it into `ParabolicCylinderFacts pcU pcV cPC CPC`.
 
 ## 0. Summary
 
@@ -14,9 +24,9 @@ Numerics: mpmath 1.3.0, 40-60 digits, scratchpad only, not committed. "Consumed"
   real restriction) or need one new lemma (`smooth_*`, B1); `phase_osc` is DERIVABLE from our Hermite Plancherel-Rotach **only on the lattice
   `mu^2 = 2n+1`** (the field says all real `mu`: HARD as stated, but every consumer uses the lattice); `env_well`, `env_bar`, `molv_well`, `molv_bar`,
   `beyond`, `U_pos` are B2 (one new "Weber envelope theorem", the only large item); `V_growth` is **false as stated** (Finding 1).
-* Upstream does **not** contain the uniform envelope estimates: 12.10.18-21 (oscillatory), 12.10.5-6 (V, `t > 1`), 12.10.35-38 (Airy) are `sorry`
+* Upstream does **not** contain the uniform envelope estimates: 12.10.18-21 (oscillatory), 12.10.5-6 (V, `t > 1`), 12.10.35-38 (Airy) are unproved
   (`Uniform/ExpansionData.lean`, `TurningPoint.lean`); what is proved (`UniformLG`, `UniformLG2`: 12.10.3-4, 12.10.25, 12.10.29, 12.10.31) is for fixed
-  `delta`, `mu -> infinity`, with unquantified normaliser `g(mu)` (`IsBigO`), and its closure (150k lines, 20 TauCeti imports, `sorry` upstream) is not
+  `delta`, `mu -> infinity`, with unquantified normaliser `g(mu)` (`IsBigO`), and its closure (150k lines, 20 TauCeti imports, unproved upstream) is not
   vendorable. The reusable upstream tool is the *abstract* LG theorem set already vendored (`LiouvilleGreenReal`, `LiouvilleGreenFinite`).
 
 ## 1. Conventions: how our `U, V` relate to DLMF and upstream
@@ -53,7 +63,7 @@ Verdict key: **NOW** = glue from vendored/own Lean; **B1** = exact identity, nee
 | `shift_V_dn/up` | `V' - z/2 V - (a-1/2) V(a-1) = 0`; `V' + z/2 V - V(a+1) = 0` | 12.8.6, 12.8.7 | `parabolicCylinderV_recurrence_sub/add` (WronskiansAndConnections 363-460, proofs by `IsWeberSolution.eq_zero` and Gamma functional equation) | B1, 40 L (+ extraction) |
 | `reflect` | `U(a,-z) = -sin(pi a) U + cos(pi a) Gamma(1/2-a) V`, `a <= 0` | 12.2.15 | `parabolicCylinderU_neg_eq` (all complex `a`) + Gamma bridge of section 1 | B1, 50 L |
 | `reflect_V` | `V(a,-z) = cos(pi a)/Gamma(1/2-a) U + sin(pi a) V`, `a <= 0` | 12.2.16 | `parabolicCylinderV_neg_eq`, no bridge needed (`Gamma(1/2-a)` is the same symbol). Sign check: residual `2e-38` at `a in {0,-0.5,-1.5,-0.3,-2.2,-6.5,-9.9}`, `z in {-2.3,0.4,1.9,3.3}`; the matrix `M_-(a)` has det `1` | B1, 30 L |
-| `phase_osc` | `U(-mu^2/2, mu t sqrt 2) = 2g(mu)(1-t^2)^{-1/4}[cos(mu^2 eta - pi/4) + O(mu^{-2})]`, `|t| <= 1-eps`, **all real `mu >= mu0`** | 12.10.18 | upstream `pcf_oscillatory_parameter_uniform` is `sorry`. For `mu^2 = 2n+1`: `U(-n-1/2, z) = e^{-z^2/4} He_n(z)` (vendored `parabolicCylinderD_nat`) `= pi^{1/4} sqrt(n!) phi_n(z/sqrt 2)` (`HermiteFunction.hermitePhi`) and `HermiteBulkMain.hermite_bulk_PR` (`|R| <= C/(n+1)`, `|x| <= (1-eps) sqrt(2n+1)`) gives the field with `2 g(mu) = pi^{1/4} sqrt(n!) sqrt(2/pi) mu^{-1/2}`. Checked at `n = 5, 30, 200`: `mu^2 |rel err| <= 0.66`. Not derivable for non-lattice `mu` without Olver's oscillatory uniform theory | **NOW on the lattice** (200 L); HARD for real `mu` (Finding 2) |
+| `phase_osc` | `U(-mu^2/2, mu t sqrt 2) = 2g(mu)(1-t^2)^{-1/4}[cos(mu^2 eta - pi/4) + O(mu^{-2})]`, `|t| <= 1-eps`, **all real `mu >= mu0`** | 12.10.18 | upstream `pcf_oscillatory_parameter_uniform` is unproved. For `mu^2 = 2n+1`: `U(-n-1/2, z) = e^{-z^2/4} He_n(z)` (vendored `parabolicCylinderD_nat`) `= pi^{1/4} sqrt(n!) phi_n(z/sqrt 2)` (`HermiteFunction.hermitePhi`) and `HermiteBulkMain.hermite_bulk_PR` (`|R| <= C/(n+1)`, `|x| <= (1-eps) sqrt(2n+1)`) gives the field with `2 g(mu) = pi^{1/4} sqrt(n!) sqrt(2/pi) mu^{-1/2}`. Checked at `n = 5, 30, 200`: `mu^2 |rel err| <= 0.66`. Not derivable for non-lattice `mu` without Olver's oscillatory uniform theory | **NOW on the lattice** (200 L); HARD for real `mu` (Finding 2) |
 | `env_well` | `a <= 0, z >= 0`: `sqrt(u~^2 + u~'^2/k2) <= C E_well M_bal`, `sqrt(v~^2 + v~'^2/k2) <= C E_well^{-1} M_bal` | lem:cha-PCenv (1b); Olver Ch.11 Thm 3.1 | no upstream/own Lean for non-integer `a`. Our `HermiteKappaEnvelope.weber_envelope` is the crude template for integer `a` only (needs `WeberData`, an `L^2` mass) | **B2** (section 3) |
 | `env_bar` | `a > 0`, all `z`: `kappa U(a,z)` and `kappa U(a,-z)` envelopes with `E_bar^{±1}` | (2) | LG recessive at `+infty` on all of `ℝ` for `a >= 1` (section 3, E4); `a in (0,1)` compact | **B2** |
 | `molv_well`, `molv_bar` | `M_Olv` two-sided `~ kappa^{-1} W_well M_bal` resp. `kappa^{-1} E_bar M_bal`, all `z` | eq:cha-MolvEquiv, eq:cha-envbar | upper half = `env_*`; lower half needs lower bounds of `E_U` (E0 + E2 + `beyond`) and `E_V(|z|)` for `z < 0`, `a <= 0` | **B2** |
@@ -110,7 +120,7 @@ Alternatives considered and rejected: (i) Hermite Plancherel-Rotach for all `a` 
 1. **`V_growth` is false.** For `a = 1/2`: `V(1/2, z) = sqrt(2/pi) e^{z^2/4}` (checked to `8e-51`), so `V'(1/2,0) = 0 < cV sqrt(k2) V(1/2,0)`. For `a = 3/2, 7/2` (all `a = n + 1/2`, `n` odd) `V(a,0) = 0`, so even `0 < V a z` fails at `z = 0`
    (`V(a,0)` has `1/Gamma(3/4 - a/2)^2 = 0`; `V'(a,0)` has `1/Gamma(1/4 - a/2)^2 = 0` at `a = 1/2 + 2k`). Numerically `V'/(V sqrt k2)` over `a > 0`: min `0` for `z >= 0`, `0.217` for `z >= 0.5`, `0.373` for `z >= 1`, `0.704` for `z >= 2`
    (docstring's `c_V = 0.09` was checked on `a in {-20.3,...,30}` at points that missed the resonances). For `a <= 0` (`a` down to `-400`, `z >= z_t`) the minimum is `0.429`. **Fix:** hypothesis `z >= max(2 sqrt(max(-a,0)), 1)`, or drop (unconsumed; the chart fields `grow3`, `ratio2` are used only for `z^2 - 4A >= c/h`).
-2. **`phase_osc` is stronger than its use**: all consumers (`phase_pack`, `BulkPhases.lean` line 181) instantiate `mu^2 = 2n+1`. Upstream proves nothing for real `mu`. Restating the field for `mu = sqrt(2n+1)` makes it NOW (Hermite P-R, 200 L); keeping real `mu` makes it HARD (the oscillatory Olver expansion is `sorry` upstream and absent here).
+2. **`phase_osc` is stronger than its use**: all consumers (`phase_pack`, `BulkPhases.lean` line 181) instantiate `mu^2 = 2n+1`. Upstream proves nothing for real `mu`. Restating the field for `mu = sqrt(2n+1)` makes it NOW (Hermite P-R, 200 L); keeping real `mu` makes it HARD (the oscillatory Olver expansion is unproved upstream and absent here).
 3. **Docstring "Nothing in Mathlib defines `U, V`" is outdated**: `U, V` are defined and their Wronskian, ODE, recurrences vendored (`ThirdParty/lean-dlmf`); the `ParabolicCylinderFacts` module docstring and `PLAN.md` item 1 should say so.
 4. Joint smoothness (`smooth_U/V`) is *not* upstream (only separate holomorphy). The consumers need less; see table.
 5. **Constants.** Over `|a| <= 300`, all `z`: `kappa^{-1}`-normalised `M_Olv` ratio in `[0.632, 1.755]` (non-resonant) and `[0.632, 1.788]` at `a in {-0.5,-1.5,-5.5,-20.5,-60.5}` and integers; so `cPC <= 0.632`, **`CPC >= 1.79`** (docstring: `1.74`, taken from non-resonant points). `env_well` U-part `[0.632,1.049]`, V-part `[1.0,1.585]`; barrier `a in [1e-4,200]`: `env_bar` `[0.841,1.281]`/`[0.841,1.288]`, `molv_bar` `[0.841,1.281]`.

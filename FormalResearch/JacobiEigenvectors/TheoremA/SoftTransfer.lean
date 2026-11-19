@@ -574,11 +574,9 @@ lemma phi_swap_rel {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) {μ
   set z := C.Zof μ X N k with hz
   set h := F.step N with hhdef
   have hU : ∀ b, Differentiable ℝ (U b) := fun b => by
-    have := hf.smooth_U.comp (contDiff_const.prodMk contDiff_id : ContDiff ℝ ⊤ (fun w : ℝ => (b, w)))
-    exact this.differentiable (by simp)
+    exact (hf.slice_U b).differentiable (by simp)
   have hV' : ∀ b, Differentiable ℝ (V b) := fun b => by
-    have := hf.smooth_V.comp (contDiff_const.prodMk contDiff_id : ContDiff ℝ ⊤ (fun w : ℝ => (b, w)))
-    exact this.differentiable (by simp)
+    exact (hf.slice_V b).differentiable (by simp)
   have hw3' : ∀ α : Fin 2, (C.chain μ X N).wf 3 α (uNode h k) h = ![pcSwap U V a α z, √h * deriv (pcSwap U V a α) z] := hw3
   have hw2' : ∀ α : Fin 2, (C.chain μ X N).wf 2 α (uNode h k) h = ![pcMinus U V a α z, √h * deriv (pcMinus U V a α) z] := hw2
   have hphi : ∀ (α : Fin 2) (p : ℕ), (C.chain μ X N).phi h α p k =

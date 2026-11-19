@@ -17,7 +17,7 @@ Source: app_thmA "Window mass", lemma `lem:tha-M` (steps 1-3 of its proof).  Fro
 * **(M1i) continuous mass, large A** (paper Step 1(i)): `wm_mass_region`.  Proved.
 * **(M1ii), (M1iii) compactness** (paper Step 1(ii), (iii)): `wm_c1`.  There is `c_1 > 0` with
   `int_s^rho (kappaBal U)^2 >= c_1` for all `a <= a_+` and `|s| <= s_A`.  Proved: large `A` by `wm_mass_region`, the
-  compact range `[-A_0, 0]` by continuity of the parametric integral (`pc.smooth_U` gives joint smoothness of `U`,
+  compact range `[-A_0, 0]` by continuity of the parametric integral (`pc.cont_U` gives joint continuity of `U`,
   `Gamma` is continuous and positive on `(0, inf)`; the discontinuity of `kappaBal` at `a = 0` is handled by the two
   continuous branches `wmK1`, `wmK2`) and positivity (`U(a, .)` cannot vanish on an interval by `wronsk`), and `0 < a <= a_+`
   likewise.  No extra chart fact is needed.
@@ -63,8 +63,7 @@ section Virial
 variable {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
 
 lemma wm_slice_smooth (hf : ParabolicCylinderFacts U V cPC CPC) (a : ℝ) : ContDiff ℝ ⊤ (U a) := by
-  have h := hf.smooth_U.comp (contDiff_const.prodMk contDiff_id : ContDiff ℝ ⊤ (fun w : ℝ => (a, w)))
-  exact h
+  exact hf.slice_U a
 
 lemma wm_deriv_smooth (hf : ParabolicCylinderFacts U V cPC CPC) (a : ℝ) :
     ContDiff ℝ ⊤ (deriv (U a)) :=
@@ -470,7 +469,7 @@ lemma wm_param_pos (hf : ParabolicCylinderFacts U V cPC CPC) (κ : ℝ) (hκ : �
 
 lemma wm_param_cont (hf : ParabolicCylinderFacts U V cPC CPC) (κ c : ℝ → ℝ) (hκ : Continuous κ) (hc : Continuous c)
     (l : ℝ) : Continuous (fun a : ℝ => ∫ t in (0 : ℝ)..l, (κ a * U a (c a + t)) ^ 2) := by
-  have hU := hf.smooth_U.continuous
+  have hU := hf.cont_U
   refine intervalIntegral.continuous_parametric_intervalIntegral_of_continuous'
     (f := fun a t => (κ a * U a (c a + t)) ^ 2) ?_ 0 l
   have h1 : Continuous (fun p : ℝ × ℝ => U p.1 (c p.1 + p.2)) :=

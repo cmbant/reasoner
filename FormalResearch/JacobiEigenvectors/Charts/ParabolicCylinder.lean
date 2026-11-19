@@ -13,20 +13,20 @@ This file defines the envelope functions (`k2`, `Mbal`, `Ewell`, `Ebar`, `kappaB
 in `ParabolicCylinderFacts`, which extends four Prop-valued structures:
 
 * `PCExactFacts U V` (`ode_U`, `ode_V`, `wronsk`, `shift_*`, `reflect`, `reflect_V`): **proved for the actual functions** `pcU, pcV` (`Charts/PCExact.lean`, `pcExactFacts`);
-* `PCSmoothFacts U V` (`smooth_U`, `smooth_V`): joint smoothness in `(a, z)`;
+* `PCSmoothFacts U V` (`slice_U`, `slice_V`, `cont_U`, `cont_V`): smoothness in `z` and joint continuity (the weakening of the former `smooth_U`, `smooth_V`: joint `ContDiff ℝ ⊤`; proved for the actual functions, `Charts/PCSmooth.lean`);
 * `PCPhaseFact U` (`phase_osc`): DLMF 12.10.18;
 * `PCEnvelopeFacts U V cPC CPC` (`cPC_pos`, `cPC_le`, `env_well`, `env_bar`, `molv_well`, `molv_bar`, `V_growth`, `U_pos`, `beyond`): Olver's envelope estimates, the only block with no proof in the corpus.
 
 The structure still takes `U, V` as data (`pc.U`, `pc.V`).  The actual functions are `pcU a z = Re U(a,z)`, `pcV a z = Re V(a,z)` of the vendored lean-DLMF closure
-(`ThirdParty/lean-dlmf`: `DLMF.Confluent.parabolicCylinderU`, `parabolicCylinderV`, DLMF 12.2; no rescaling); `ParabolicCylinderFacts.ofActual` (`PCExact.lean`) builds
-`ParabolicCylinderFacts pcU pcV cPC CPC` from the three remaining Props.  A toy instance does not exist: every field concerns the actual parabolic-cylinder functions (the envelope and
+(`ThirdParty/lean-dlmf`: `DLMF.Confluent.parabolicCylinderU`, `parabolicCylinderV`, DLMF 12.2; no rescaling); `ParabolicCylinderFacts.ofEnvelope` (`PCActual.lean`) builds
+`ParabolicCylinderFacts pcU pcV cPC CPC` from `PCEnvelopeFacts pcU pcV cPC CPC` alone.  A toy instance does not exist: every field concerns the actual parabolic-cylinder functions (the envelope and
 connection fields fail for any other pair, since they pin down the Wronskian, the recurrences and the oscillation).
 
 ## Fields, with the statement each stands for and the Layer-4 result that discharges it
 
 | field | statement | discharged by |
 |---|---|---|
-| `smooth`, `ode_U`, `ode_V`, `wronsk` | `U,V` entire, `y'' = (z^2/4 + a) y`, `Wr{U,V} = sqrt(2/pi)` | DLMF 12.2.2, 12.2.4, 12.2.10 (all but `smooth` proved for `pcU, pcV`, `Charts/PCExact.lean`) |
+| `slice_*`, `cont_*`, `ode_U`, `ode_V`, `wronsk` | `U,V` entire, `y'' = (z^2/4 + a) y`, `Wr{U,V} = sqrt(2/pi)` | DLMF 12.2.2, 12.2.4, 12.2.10 (all but `smooth` proved for `pcU, pcV`, `Charts/PCExact.lean`) |
 | `shift_*` | the four `a`-shift relations (lem:cha-weber-ladder (2)) | DLMF 12.8.2, 12.8.3, 12.8.6, 12.8.7 |
 | `reflect`, `reflect_V` | connection formula `U(a,-z) = -sin(pi a) U + cos(pi a) Gamma(1/2-a) V`, and its companion `V(a,-z) = cos(pi a)/Gamma(1/2-a) U + sin(pi a) V`, `a <= 0` (eq:tha-conn, `M_-(a)` of lem:cha-PCenv (1a)) | DLMF 12.2.15--16 with 12.2.7 |
 | `env_well`, `env_bar`, `beyond` | `lem:cha-PCenv` (1b), (2), (3) | Olver 1997, Ch. 11 Thm 3.1, Ch. 6 Thm 2.2; Riccati comparison |
@@ -73,7 +73,7 @@ The fields were also checked **numerically against the classical functions** (be
   is consistent with these ratios, and `cPC_le` does not conflict with it.
 
 Redundancy (harmless, kept so that downstream proofs may cite either): `ode_U`, `ode_V` follow from the four shift relations (differentiate `shift_U_dn`, use `shift_U_up` at `a-1`; the same for `V`).
-`smooth_*` is `ContDiff ℝ ⊤`, i.e. analytic in the current Mathlib convention for `⊤ : WithTop ℕ∞`, which `U, V` are.  No field is a conclusion of Theorem A or B; the fields are mutually consistent
+The slices `U(a, .)`, `V(a, .)` are `ContDiff ℝ ⊤`, i.e. analytic in the current Mathlib convention for `⊤ : WithTop ℕ∞`, which they are.  No field is a conclusion of Theorem A or B; the fields are mutually consistent
 (they all hold for the genuine `U, V`).
 -/
 
@@ -147,10 +147,14 @@ structure PCExactFacts (U V : ℝ → ℝ → ℝ) : Prop where
   reflect_V : ∀ a ≤ 0, ∀ z, V a (-z) = Real.cos (Real.pi * a) / Real.Gamma (1 / 2 - a) * U a z
       + Real.sin (Real.pi * a) * V a z
 
-/-- **Joint smoothness of `U, V`** in `(a, z)` (entire in both variables). -/
+/-- **Regularity of `U, V`**: smooth in `z` for each `a` (`U(a, .)`, `V(a, .)` are entire), and jointly continuous in `(a, z)`.  This is what Layers 2--3 use (slice
+smoothness for the ODE and Landau estimates, joint continuity for the parametric integrals of `wm_param_cont`).  The paper's statement is joint smoothness of `(a, z) -> U, V`
+(entire in both variables); it is not used and has no proof here (finding: Mathlib has no Osgood theorem, so entire dependence in `a` and in `z` separately does not give it). -/
 structure PCSmoothFacts (U V : ℝ → ℝ → ℝ) : Prop where
-  smooth_U : ContDiff ℝ ⊤ (fun p : ℝ × ℝ => U p.1 p.2)
-  smooth_V : ContDiff ℝ ⊤ (fun p : ℝ × ℝ => V p.1 p.2)
+  slice_U : ∀ a, ContDiff ℝ ⊤ (U a)
+  slice_V : ∀ a, ContDiff ℝ ⊤ (V a)
+  cont_U : Continuous (fun p : ℝ × ℝ => U p.1 p.2)
+  cont_V : Continuous (fun p : ℝ × ℝ => V p.1 p.2)
 
 /-- **The oscillatory phase expansion** of the Weber branch on the lattice `mu^2 = 2n+1` (DLMF 12.10.18; lem:smo-bulkphase (1)). -/
 structure PCPhaseFact (U : ℝ → ℝ → ℝ) : Prop where

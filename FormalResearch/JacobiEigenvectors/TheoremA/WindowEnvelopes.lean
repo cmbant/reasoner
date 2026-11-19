@@ -757,16 +757,10 @@ lemma alg_two (κ Γ r α β u v : ℝ) (hκ : κ ≠ 0) (hΓ : Γ ≠ 0) (hκΓ
   field_simp
 
 lemma pc_diffU (pc : ParabolicCylinderFacts U V cPC CPC) (a : ℝ) : Differentiable ℝ (U a) := by
-  have h := pc.smooth_U.differentiable (by simp)
-  have hpair : Differentiable ℝ (fun z : ℝ => ((a, z) : ℝ × ℝ)) :=
-    (differentiable_const a).prodMk differentiable_id
-  exact h.comp hpair
+  exact (pc.slice_U a).differentiable (by simp)
 
 lemma pc_diffV (pc : ParabolicCylinderFacts U V cPC CPC) (a : ℝ) : Differentiable ℝ (V a) := by
-  have h := pc.smooth_V.differentiable (by simp)
-  have hpair : Differentiable ℝ (fun z : ℝ => ((a, z) : ℝ × ℝ)) :=
-    (differentiable_const a).prodMk differentiable_id
-  exact h.comp hpair
+  exact (pc.slice_V a).differentiable (by simp)
 
 /-- The derivative of the connection formula `U(a,-z) = -sin U(a,z) + cos Gamma V(a,z)`, at `-w`. -/
 lemma deriv_reflect_U (pc : ParabolicCylinderFacts U V cPC CPC) (a : ℝ) (ha : a ≤ 0) (w : ℝ) :

@@ -134,9 +134,7 @@ section Phase
 variable {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
 
 lemma U_differentiable (PC : ParabolicCylinderFacts U V cPC CPC) (a : ℝ) : ContDiff ℝ ⊤ (U a) := by
-  have h : ContDiff ℝ ⊤ (fun z : ℝ => U a z) :=
-    PC.smooth_U.comp (contDiff_const.prodMk contDiff_id)
-  exact h
+  exact PC.slice_U a
 
 lemma U_deriv_differentiable (PC : ParabolicCylinderFacts U V cPC CPC) (a : ℝ) : Differentiable ℝ (deriv (U a)) := by
   have h2 : ContDiff ℝ ((1 : WithTop ℕ∞) + 1) (U a) := (U_differentiable PC a).of_le le_top
@@ -345,7 +343,7 @@ section Lower
 variable {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
 
 lemma V_differentiable (PC : ParabolicCylinderFacts U V cPC CPC) (a : ℝ) : ContDiff ℝ ⊤ (V a) :=
-  PC.smooth_V.comp (contDiff_const.prodMk contDiff_id)
+  PC.slice_V a
 
 lemma kappaBal_nonpos {a : ℝ} (ha : a ≤ 0) :
     0 < kappaBal a ∧ kappaBal a ^ 2 * Real.Gamma (1 / 2 - a) = 1 := by

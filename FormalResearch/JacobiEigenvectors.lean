@@ -6,6 +6,8 @@ public import FormalResearch.JacobiEigenvectors.Charts.LadderChain
 public import FormalResearch.JacobiEigenvectors.Charts.ParabolicCylinder
 public import FormalResearch.JacobiEigenvectors.Charts.PCExact
 public import FormalResearch.JacobiEigenvectors.Charts.PCPhase
+public import FormalResearch.JacobiEigenvectors.Charts.PCSmooth
+public import FormalResearch.JacobiEigenvectors.Charts.PCActual
 public import FormalResearch.JacobiEigenvectors.Charts.Regularity
 public import FormalResearch.JacobiEigenvectors.Charts.BulkWeber
 public import FormalResearch.JacobiEigenvectors.Charts.SoftParabolicCylinder

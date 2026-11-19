@@ -219,10 +219,6 @@ theorem pcExactFacts : PCExactFacts pcU pcV where
   reflect := fun a ha z => pc_reflect a ha z
   reflect_V := fun a _ z => pc_reflect_V a z
 
-/-- For the actual functions, `ParabolicCylinderFacts` is exactly its non-exact part: smoothness, phase and envelope facts. -/
-theorem ParabolicCylinderFacts.ofActual {cPC CPC : ℝ} (hs : PCSmoothFacts pcU pcV) (hp : PCPhaseFact pcU)
-    (he : PCEnvelopeFacts pcU pcV cPC CPC) : ParabolicCylinderFacts pcU pcV cPC CPC :=
-  { pcExactFacts, hs, hp, he with }
 
 /-- info: 'FormalResearch.JacobiEigenvectors.Charts.pcU_ode' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -268,8 +264,5 @@ theorem ParabolicCylinderFacts.ofActual {cPC CPC : ℝ} (hs : PCSmoothFacts pcU 
 #guard_msgs (whitespace := lax) in
 #print axioms pcExactFacts
 
-/-- info: 'FormalResearch.JacobiEigenvectors.Charts.ParabolicCylinderFacts.ofActual' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms ParabolicCylinderFacts.ofActual
 
 end FormalResearch.JacobiEigenvectors.Charts
