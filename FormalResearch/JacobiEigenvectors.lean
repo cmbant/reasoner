@@ -76,6 +76,12 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.SoftW2Proved
 public import FormalResearch.JacobiEigenvectors.TheoremA.NegTransport
 public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumAssemblyLower
 public import FormalResearch.JacobiEigenvectors.TheoremB.NegColumns
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenBase
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenCount
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenInverse
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenWindows
+public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblyRel
+public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblySoft
 
 /-!
 # Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)
