@@ -64,7 +64,6 @@ lemma rhoWin_sq_le (a : ℝ) : rhoWin a ^ 2 ≤ 4 * max (-a) 0 + 4 * Real.sqrt (
   rw [← hA]
   nlinarith [mul_le_mul_of_nonneg_left hw1 ht0, mul_le_mul hw1 hw1 hw0 zero_le_one]
 
-set_option maxHeartbeats 1600000 in
 /-- **pure window exclusion**: if `zeta^2 >= 4 m0 + c` with `m0 <= Mm`, `m0 >= -Lb h^2`, `a = -(m0 + S)/h`, `|S| <= R h^2`, and `h` small, then `|zeta / sqrt h| > rho(a)`. -/
 lemma window_excl_pure {h c R Mm Lb m0 S ζ : ℝ} (hR : 0 ≤ R) (hLb : 0 ≤ Lb) (hc : 0 < c)
     (h0 : 0 < h) (h1 : h ≤ 1) (hs : Real.sqrt h ≤ c / (2 * winK R Mm Lb))
@@ -75,13 +74,14 @@ lemma window_excl_pure {h c R Mm Lb m0 S ζ : ℝ} (hR : 0 ≤ R) (hLb : 0 ≤ L
   have hs0 : 0 < s := Real.sqrt_pos.mpr h0
   have hs2 : s ^ 2 = h := Real.sq_sqrt h0.le
   have hs1 : s ≤ 1 := by rw [hsdef]; exact Real.sqrt_le_one.mpr h1  
-  have hhs : h ≤ s := by nlinarith
-  have hh2s : h ^ 2 ≤ s := by nlinarith [mul_nonneg h0.le h0.le]
+  have hss : s * s = h := by rw [← sq]; exact hs2
+  have hhs : h ≤ s := by rw [← hss]; exact mul_le_of_le_one_left hs0.le hs1
+  have hh2s : h ^ 2 ≤ s := (pow_le_of_le_one h0.le h1 (by norm_num)).trans hhs
   have hKs : winK R Mm Lb * s ≤ c / 2 := by
     rw [le_div_iff₀ (by positivity)] at hs
-    nlinarith
+    linarith only [hs]
   set a := -(1 / h) * (m0 + S) with ha
-  have hna : -a = (m0 + S) / h := by rw [ha]; field_simp
+  have hna : -a = (m0 + S) / h := by rw [ha]; ring
   set A := max (-a) 0 with hA
   have hA0 : 0 ≤ A := le_max_right _ _
   set t := Real.sqrt A with ht
@@ -97,11 +97,12 @@ lemma window_excl_pure {h c R Mm Lb m0 S ζ : ℝ} (hR : 0 ≤ R) (hLb : 0 ≤ L
     rcases le_or_gt 0 m0 with hm | hm
     · have hAu : A ≤ (m0 + R * h ^ 2) / h := by
         apply max_le
-        · rw [hna]; exact div_le_div_of_nonneg_right (by linarith) h0.le
-        · exact div_nonneg (by nlinarith [sq_nonneg h]) h0.le
+        · rw [hna]; exact div_le_div_of_nonneg_right (by linarith only [hSu]) h0.le
+        · exact div_nonneg (add_nonneg hm (mul_nonneg hR (sq_nonneg h))) h0.le
       have hhA : h * A ≤ m0 + R * h ^ 2 := by
-        rw [le_div_iff₀ h0] at hAu; linarith
-      have hhA' : h * A ≤ Mm + R := by nlinarith [sq_nonneg h]
+        rw [le_div_iff₀ h0] at hAu; linarith only [hAu]
+      have hR2 : R * h ^ 2 ≤ R := mul_le_of_le_one_right hR (pow_le_one₀ h0.le h1)
+      have hhA' : h * A ≤ Mm + R := by linarith only [hhA, hm0u, hR2]
       have hst : s * t ≤ Real.sqrt (Mm + R) := by
         apply le_trans (le_abs_self _) 
         apply Real.abs_le_sqrt
@@ -113,11 +114,11 @@ lemma window_excl_pure {h c R Mm Lb m0 S ζ : ℝ} (hR : 0 ≤ R) (hLb : 0 ≤ L
       have e1 : R * h ^ 2 ≤ R * s := mul_le_mul_of_nonneg_left hh2s hR
       have hb : 4 * (R * s) + 4 * (s * Real.sqrt (Mm + R)) + s ≤ c / 2 := by
         have := hKs; unfold winK at this
-        nlinarith [mul_nonneg hsqR hs0.le, mul_nonneg hLb hs0.le]
-      nlinarith
+        linarith only [this, mul_nonneg hsqR hs0.le, mul_nonneg hLb hs0.le]
+      linarith only [hhA, e1, hht, hhs, hb, hc]
     · have hAu : A ≤ R * h := by
         apply max_le
-        · rw [hna, div_le_iff₀ h0]; nlinarith
+        · rw [hna, div_le_iff₀ h0]; linarith only [hSu, hm]
         · exact mul_nonneg hR h0.le
       have hhA : h * A ≤ R * h ^ 2 := by
         calc h * A ≤ h * (R * h) := mul_le_mul_of_nonneg_left hAu h0.le
@@ -132,22 +133,18 @@ lemma window_excl_pure {h c R Mm Lb m0 S ζ : ℝ} (hR : 0 ≤ R) (hLb : 0 ≤ L
       have hb : 4 * (R * s) + 4 * (s * Real.sqrt R) + s + 4 * (Lb * s) ≤ c / 2 := by
         have := hKs; unfold winK at this
         have h5 : 0 ≤ Real.sqrt (Mm + R) * s := mul_nonneg hsqM hs0.le
-        linarith
+        linarith only [this, h5]
       have e4 : h * (4 * A + 4 * t + 1) = 4 * (h * A) + 4 * (h * t) + h := by ring
       rw [e4]
-      linarith
+      linarith only [hhA, e1, e2, hhs, hb, hm0l, e3, hc]
   have hy : 0 ≤ |ζ / s| := abs_nonneg _
   have hy2 : |ζ / s| ^ 2 = ζ ^ 2 / h := by rw [sq_abs, div_pow, hs2]
   by_contra hcon
   replace hcon := not_lt.mp hcon
-  have hρ0 : 0 ≤ rhoWin a := by
-    unfold rhoWin
-    have := Real.sqrt_nonneg (max (-a) 0)
-    have : 0 ≤ (1 + max (-a) 0) ^ (-(1 : ℝ) / 6) := Real.rpow_nonneg (by linarith [le_max_right (-a) 0]) _
-    linarith
   have h2 : |ζ / s| ^ 2 ≤ rhoWin a ^ 2 := pow_le_pow_left₀ hy hcon 2
   rw [hy2, div_le_iff₀ h0] at h2
-  nlinarith
+  have hfin := mul_le_mul_of_nonneg_right hρ h0.le
+  linarith only [h2, hfin, key, hζ]
 
 /-- Lower bound of the leading shift for `alpha >= -beta`: `mu_0(alpha) >= -C_{mu0} beta` (`mu_0(0) = 0`, `0 < c_{mu0} <= mu_0' <= C_{mu0}` on `|alpha| <= delta_0`; mean value theorem). -/
 lemma muS0_lower {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
@@ -347,7 +344,6 @@ lemma uNode_mem_Icc_rows (F : SymbolFamily Par) {N : ℕ} {n : ℤ} (hn : n ∈ 
 lemma tfun_neg (L : ℝ) (G B : ℝ → ℝ) (X u : ℝ) : Tfun L G (fun s => -B s) (-X) u = Tfun L G B X u := by
   unfold Tfun; ring
 
-set_option maxHeartbeats 4000000 in
 /-- **The soft relative window lemma `SoftWindowT`, proved** (finding F-BB-5; `T(u_n; X) <= -eps` puts `n` off the soft window `Omega` for small `h`, at energies with Step 0): from `softWindow_excl`
 for the charts `CI.softUpL` (frozen family) and `CI.softLoL` (its gauge `negFamily`, where `T^{neg}(-X; u) = T(X; u)`), and `|T^{(h)} - T| <= C h` (`frozenT_le`). -/
 theorem softWindowT_of_chart {F : SymbolFamily Par} {K : Set Par} {m Kidx : ℕ} {t0 : ℝ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
