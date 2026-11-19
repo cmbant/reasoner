@@ -23,7 +23,7 @@ and the same in the shape of the `PCEnvelopeFacts` fields at `z = 0` (`origin_en
 The constants `1/2, 2` are absolute.  For `a <= 0` the proof is resonance-free: by the reflection formula `U(a,0)` and `U'(a,0)` carry the factors `sin theta`,
 `cos theta`, `theta = pi (1/4 - a/2)`, so that `E_U^2` is a convex combination of two terms of the same size (`sin^2 + cos^2 = 1`, `convex_bounds`); the sizes compare through
 `Gamma(x+3/4) / Gamma(x+1/4) ~ sqrt(k_2)` (`Gamma_ratio_origin`, with `7/25 <= t <= 7/4`) and the duplication formula (`Gamma_dup_origin`).
-`kappaBal` jumps by `2^{1/4}` at `a = 0` (finding F6 of the plan), hence the two ranges.  mpmath check (scratch): `kappa E_U / M_bal` lies in `[0.88, 1.28]` over `a in [-300, 300]`.
+`kappaBal` jumps by the factor `(pi/2)^{1/4}` at `a = 0` (`pi^{-1/4}` from the left, `(2 pi)^{-1/4} pi^{1/4}` from the right) (finding F6 of the plan), hence the two ranges.  mpmath check (scratch): `kappa E_U / M_bal` lies in `[0.88, 1.28]` over `a in [-300, 300]`.
 Also `pcU_zero_zero_pos : 0 < U(0,0)`, the sign anchor for `U_pos`.
 
 All statements are *proved* (no hypothesis).

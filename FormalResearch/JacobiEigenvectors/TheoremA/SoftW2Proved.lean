@@ -12,7 +12,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.SoftSigns3
 (`SoftW2.lean`) with its premise `SoftCountHyps` discharged by `softCountHyps_proved` (`SoftSigns3.lean`, Step 6 (ii), (iii)).
 `1 <= m`, `SoftMirror` and `Lm >= 1` are premises of the frozen statement itself; `StdAssump` is one too (unused).
 Differences from the paper: counting windows `Phi = pi mu_0`, `eps = pi h/8` instead of `pi mu~`, `C h^{m+1}` (see `SoftCountHyps`);
-chart fields added in rounds 7-9 (F-W2-17..20) in `SoftEdgeChart`, `ParabolicCylinderFacts.U_pos`.
+chart fields added in rounds 7-9 (F-W2-17..20) in `SoftEdgeChart`, `ParabolicCylinderFacts.U_pos` (stated there, not used here).
 -/
 
 @[expose] public section

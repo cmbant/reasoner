@@ -26,7 +26,7 @@ connection fields fail for any other pair, since they pin down the Wronskian, th
 
 | field | statement | discharged by |
 |---|---|---|
-| `slice_*`, `cont_*`, `ode_U`, `ode_V`, `wronsk` | `U,V` entire, `y'' = (z^2/4 + a) y`, `Wr{U,V} = sqrt(2/pi)` | DLMF 12.2.2, 12.2.4, 12.2.10 (all but `smooth` proved for `pcU, pcV`, `Charts/PCExact.lean`) |
+| `slice_*`, `cont_*`, `ode_U`, `ode_V`, `wronsk` | `U,V` entire, `y'' = (z^2/4 + a) y`, `Wr{U,V} = sqrt(2/pi)` | DLMF 12.2.2, 12.2.4, 12.2.10 (proved for `pcU, pcV`: `Charts/PCExact.lean`, `Charts/PCSmooth.lean`) |
 | `shift_*` | the four `a`-shift relations (lem:cha-weber-ladder (2)) | DLMF 12.8.2, 12.8.3, 12.8.6, 12.8.7 |
 | `reflect`, `reflect_V` | connection formula `U(a,-z) = -sin(pi a) U + cos(pi a) Gamma(1/2-a) V`, and its companion `V(a,-z) = cos(pi a)/Gamma(1/2-a) U + sin(pi a) V`, `a <= 0` (eq:tha-conn, `M_-(a)` of lem:cha-PCenv (1a)) | DLMF 12.2.15--16 with 12.2.7 |
 | `env_well`, `env_bar`, `beyond` | `lem:cha-PCenv` (1b), (2), (3) | Olver 1997, Ch. 11 Thm 3.1, Ch. 6 Thm 2.2; Riccati comparison |
@@ -45,7 +45,7 @@ of the engine bound to the paper's `lambda_L M_Olv(a,-Z)` need them and they fol
 checked numerically with mpmath 1.3.0 (scratch, not committed; `V(a,z) := Gamma(1/2+a)/pi (sin(pi a) U(a,z) + U(a,-z))`):
 `reflect_V` to `2e-31` (`a in {0, -0.25, -0.3, -1.7, -2.2, -5.37}`, `z in {-1.3, 0, 0.7, 2.1}`); `molv_well` and `molv_bar`: see the constants note below; `V_growth`: see finding F-PC1 below.
 
-**Constants (phase B2 scan; `FormalResearch/JacobiEigenvectors/LAYER4_PCF_PLAN.md`, Finding 5; mpmath, scratch).** Over `|a| <= 300`, all `z`, the `kappa^{-1}`-normalised ratio `M_Olv / (W_well M_bal)` lies in `[0.632, 1.755]` at non-resonant `a` and reaches `1.788` at `a` in `{-0.5, -1.5, -5.5, -20.5, -60.5}` and at the integers.  Hence `cPC <= 0.632` and **`CPC >= 1.79`**.  The round-3 sample `[0.63, 1.74]` (`a in {-0.01, ..., -15.3}`, `z in [-12, 12]`) avoided the resonances and is not a bound.
+**Constants (phase B2 scan; `FormalResearch/JacobiEigenvectors/LAYER4_PCF_PLAN.md`, Finding 5; mpmath, scratch).** Over `|a| <= 300`, all `z`, the `kappa^{-1}`-normalised ratio `M_Olv / (W_well M_bal)` lies in `[0.631, 1.755]` at non-resonant `a` and reaches `1.788` at `a` in `{-0.5, -1.5, -5.5, -20.5, -60.5}` and at the integers.  Hence `cPC <= 0.631` and **`CPC >= 1.79`**.  The round-3 sample `[0.63, 1.74]` (`a in {-0.01, ..., -15.3}`, `z in [-12, 12]`) avoided the resonances and is not a bound.
 
 **Finding F-PC1 (phase B2).** `V_growth` is stated for `max(2 sqrt(max(-a,0)), 1) <= z`; the constant `cV` stays existential.  Numerically (mpmath, scratch; `a` on a grid of step `0.01`), the minimum of `V'/(V k_2^{1/2})` is `0.3717` on `a` in `(0, 1.5]` at `z = 1` (near `a = 0.14`), `0.3970` on `a` in `[-1, 0)` at `z = 1`, and at least `0.69` on the sampled `a <= -1` at `z = 2 sqrt(-a)`.  So `cV = 0.37` is admissible, and `V > 0` at all sampled points.  The unrestricted statement is false: `V(1/2, z) = sqrt(2/pi) e^{z^2/4}` (DLMF 12.7.5 with 12.2.7) gives `V'(1/2, 0) = 0`, and `V(3/2, 0) = 0` since `1 + sin(3 pi/2) = 0`.  No proof uses `V_growth`.
 
@@ -69,11 +69,11 @@ The fields were also checked **numerically against the classical functions** (be
   (so `C ~ 1` works) and the fitted `g(mu)` is `t`-independent to the displayed precision (`g` is astronomically large, which is why it is existential).
 * `env_well`, `env_bar`, `beyond` (lem:cha-PCenv (1b), (2), (3)): over `a in {-30.13, ..., 0}` (well), `a in {0.05, ..., 30}` (barrier), `Z in [-12, 16]`, the ratios
   `sqrt(u~^2 + u~'^2/k_2)/(E M_bal) in [0.63, 1.06]`, `sqrt(v~^2 + v~'^2/k_2) E/M_bal in [1.02, 1.58]`, barrier pair `in [0.89, 1.19]`, `kappa_bal |U|/(E M_bal) in [0.43, 0.99]`
-  (barrier `[0.61, 0.99]`), `|U'|/(k_2^{1/2} |U|) in [0.48, 1.16] <= 4`.  At the constants of the constants note (`cPC <= 0.632`, `CPC >= 1.79`), `beyond`'s constant `c_PC/sqrt 17 <= 0.153`
+  (barrier `[0.61, 0.99]`), `|U'|/(k_2^{1/2} |U|) in [0.48, 1.16] <= 4`.  At the constants of the constants note (`cPC <= 0.631`, `CPC >= 1.79`), `beyond`'s constant `c_PC/sqrt 17 <= 0.153`
   is consistent with these ratios, and `cPC_le` does not conflict with it.
 
 Redundancy (harmless, kept so that downstream proofs may cite either): `ode_U`, `ode_V` follow from the four shift relations (differentiate `shift_U_dn`, use `shift_U_up` at `a-1`; the same for `V`).
-The slices `U(a, .)`, `V(a, .)` are `ContDiff ℝ ⊤`, i.e. analytic in the current Mathlib convention for `⊤ : WithTop ℕ∞`, which they are.  No field is a conclusion of Theorem A or B; the fields are mutually consistent
+The slices `U(a, .)`, `V(a, .)` are `ContDiff ℝ ⊤`, i.e. `C^∞` (Mathlib's `ω` is analyticity; the slices are in fact entire).  No field is a conclusion of Theorem A or B; the fields are mutually consistent
 (they all hold for the genuine `U, V`).
 -/
 

@@ -121,6 +121,8 @@ Legend of hypotheses: LS = `LadderData.Stability`, BW/SE = bulk/soft chart, PC =
 * Layer 3 after L2: **Agent 7** `TheoremB/Splice.lean` (L3.1, L3.2), `TheoremB/Mflat.lean` (L3.3); **Agent 8** `TheoremB/Collar.lean` (L3.4); **Agent 9** `TheoremB/InputsBulk.lean`, `TheoremB/InputsSoft.lean` (L3.5a/b); `TheoremB/Assembly.lean`, `TheoremB/ThmB.lean` (L3.5c, L3.B) by the reviewer.
 * Critical path: L1.2 and L1.1 -> L2.C1 -> L2.C6 -> L2.C7 -> L2.S6 -> L2.E -> L2.J; and L2.C7 -> L3.4 -> L3.5b -> L3.5c -> L3.B.
 
+Scoping of items 2-6 after the parabolic-cylinder block: `LAYER4_REMAINING_SCOPE.md` (field verdicts and work packages; advice, partly unverified).
+
 ## The Layer-4 list (residual hypotheses of the whole pipeline) and the exact paper statement behind each
 
 1. `ParabolicCylinderFacts` (DLMF 12.2.2, 12.2.4, 12.2.10, 12.8.2-3, 12.8.6-7, 12.2.15-16; Olver Ch.11 Thm 3.1, Ch.6 Thm 2.2): lem:cha-PCenv (1b), (2), (3); eq:tha-conn (`M_-(a)`).
