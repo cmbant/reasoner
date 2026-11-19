@@ -150,7 +150,6 @@ theorem softJBChart_shifted (C : SoftEdgeChart G P m q U V (fun _ => 1)) (C1 : S
       refine key _ _ ?_
       omega
 
-set_option maxHeartbeats 4000000 in
 /-- **The coefficient fields of `JB.Chart.Ok` for a soft chart** (all design data arbitrary): `omega_pos`, the exact model `transfer`, `t12_lb`, `alpha_lb`, the five Schur bounds and the parity identities, from `TransferInputs`
 (the primitive `C^2`, lower-bound and parity inputs), `soft_transfer_row` and `chart_schur_five`.  The chart rows must be rows of the chain on the collar rectangle (`0 <= row`, `ulo <= u_row <= uhi`); `cs` dominates the chart
 constants (`c_T`, `c_alpha`, `omega_max`, and the Schur constant `chartSchurK ..` for `|h| <= H`). -/
