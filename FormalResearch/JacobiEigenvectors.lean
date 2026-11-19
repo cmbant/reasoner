@@ -109,7 +109,10 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.SoftOneStep
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThmBProof
 public import FormalResearch.JacobiEigenvectors.TheoremB.HostCols
 public import FormalResearch.JacobiEigenvectors.TheoremB.SoftExtRow
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftFlat1
 public import FormalResearch.JacobiEigenvectors.TheoremB.SoftOverlap
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftMirrorEig
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftOverlapRight
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableWeyl
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableSchur
 

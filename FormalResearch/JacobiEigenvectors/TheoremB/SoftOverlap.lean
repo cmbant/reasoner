@@ -15,7 +15,7 @@ Source: Paper J `app_thmB.tex`, (I4) for the soft half-collars: `||P y|| + ||P y
 * `softChart_data_eq`: two soft charts with the same `zeta`, `muS`, `u_c` (orders `m`, `m+1`, `ChartPair.soft_up_eq`) have the same `a`, `Z_n`, window and fold row.
 * `softPk`, `sum_chart_rows`, `softJBChart_phi1`, `softJBChart_overlap_ub`: the same for the chart rows `P_k = softPk` (the chart rows whose chain row lies in the half-window; the chart must cover it).
 * `eigVec_row`, `softJBChart_overlap_lb_left`: `overlap_lb` of the left half at the chart rows `P_k` (`Xc = Xs`).
-* `soft_window_eig_lower` (`overlap_lb`, chain level, left half): at an eigenvalue near the edge with `a <= 1` and Step 0, `c_0 <= sqrt(sum_{S} Psi_{k,j}^2)`, `S = Omega cap {n <= n_c}` (route in its docstring).
+* `soft_window_eig_lower` (`overlap_lb`, chain level, left half; no `StdAssump`): at an eigenvalue near the edge with `a <= 1` and Step 0, `c_0 <= sqrt(sum_{S} Psi_{k,j}^2)`, `S = Omega cap {n <= n_c}` (route in its docstring).
 * `soft_overlap_ub`: at chain level (any soft chart, so also the mirror and negated ones): with `S = Omega cap {n <= n_c}`,
   `sqrt(sum_S y^2) + sqrt(sum_S y~^2) <= C_4 sqrt(sum_S (phi^{[m+1]})^2)`.  Upper: `|y| <= C_B M_bal`, `|y~| <= C_B C_Lambda M_bal` on the window (`wm_env_two`, `wm_rowfacts`), so `<= C_B (1 + C_Lambda) sqrt(m_Omega)`;
   lower: `sum_S phi^2 >= c m_Omega` (`lem:tha-Mflat` flat1 for the order-`(m+1)` chart, `propThaMflat_proved`).
@@ -26,7 +26,8 @@ None of substance (`P_k` is the half-window `Omega_-`, the same for every column
 
 ## Not formalised here
 
-`overlap_lb` for the **right** half (the same with the mirror chart: needs `|hat kappa lambda_R| >= c |lambda_L|`, the identification of the global half-window `{i > n_c}` with the mirror half-window `{j <= n_c^R}` (`Zof_mirror`; `n_c^R = N - n_c` or `N - n_c + 1`), and flat1 for the mirror chart), the lower soft edge.
+Nothing of the overlap bounds at the chart level: the **right** half is `SoftOverlapRight.lean` (mirror transport, `soft_window_eig_lower_right`, `softJBChart_overlap_lb_right`), the lower soft edge is the same statements for
+the charts of `negFamily` (the lower-edge forms of the lower bounds take `Xc = Xs (kc .)`, `Wm` up to sign; the upper bound is a statement about the chart only).  `overlap_ub`/`overlap_lb` need no `StdAssump` (flat1 is `soft_flat1_phi`).
 -/
 
 @[expose] public section
@@ -516,8 +517,9 @@ theorem eigVec_row {N : ℕ} (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) (k : 
   congr 1
 
 set_option maxHeartbeats 1000000 in
-/-- **`overlap_lb` of the left soft half, chart rows**: `||P_k Psi_k|| >= c_0` for `P_k = softPk` over the left half-window (chain rows = global rows, `tau = false`), at the eigenvalue columns `k` of the chart
-(`Xc = Xs`); see `soft_window_eig_lower`. -/
+/-- **`overlap_lb` of the left soft half, chart rows**: `||P_k Psi_k|| >= c_0` for `P_k = softPk` over the left half-window (chain rows = global rows, `tau = false`), at the eigenvalue columns of the chart,
+see `soft_window_eig_lower`.  The chart is sampled at the energies `Xc k = Xs (kc k)` and the matrix `Wm` has the columns `Um (.) (kc k)` up to sign (`(Wm n k)^2 = (Um n (kc k))^2`); the upper edge is `kc = id`, `Wm = Um`,
+and the lower edge (chart of `negFamily`, eigen-system `(negX X, negU U)`, `kc = rev`, `Wm = U`) is the same statement. -/
 theorem softJBChart_overlap_lb_left {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC)
     (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CR : SoftEdgeChart (mirrorFamily Fz) P m q U V (fun _ => 1))
     (CL1 : SoftEdgeChart Fz P (m + 1) q U V (fun _ => 1))
@@ -526,33 +528,37 @@ theorem softJBChart_overlap_lb_left {cPC CPC : ℝ} (hf : ParabolicCylinderFacts
       ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (Fz.jacobiMat p N) Xs Um →
       (∀ i, Xs i ≤ Fz.bandHi p + Cs0 * Fz.step N ^ 2) →
       ∀ (TI : TransferInputsDn Fz P Jlo Jhi m CL.chain CL1.chain 2 ulo uhi) (cols : Finset (Fin (N + 1))) (lo R : ℕ)
-        (hlo : lo + R ≤ N + 1) (used : Finset (Fin R)) (σ0 σ1 : cols → ℝ) (host0 host1 : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
-      (∀ k : cols, |Xs k - Fz.bandHi p| ≤ CL.δ0) → (∀ k : cols, CL.aOf p (Xs k) N ≤ 1) →
-      (∀ k : cols, ∀ j ∈ (softWindow CL p (Xs k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p)),
+        (hlo : lo + R ≤ N + 1) (used : Finset (Fin R)) (σ0 σ1 : cols → ℝ) (host0 host1 : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ)
+        (Xc : Fin (N + 1) → ℝ) (kc : Fin (N + 1) → Fin (N + 1)) (Wm : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ),
+      (∀ k : cols, Xc k = Xs (kc k)) → (∀ n k : Fin (N + 1), (Wm n k) ^ 2 = (Um n (kc k)) ^ 2) →
+      (∀ k : cols, |Xc k - Fz.bandHi p| ≤ CL.δ0) → (∀ k : cols, CL.aOf p (Xc k) N ≤ 1) →
+      (∀ k : cols, ∀ j ∈ (softWindow CL p (Xc k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p)),
         ∃ n : Fin R, chartRowDn N lo R false n = j) →
       ∀ k : cols,
-        c0 ≤ FormalResearch.JB.jbL2 (softPk N lo R false ((softWindow CL p (Xs k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p))))
-            (fun n => Um ((softJBChart CL CL1 TI p N Xs cols lo R hlo false used
-              (fun k => softPk N lo R false ((softWindow CL p (Xs k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p)))) σ0 σ1 host0 host1).row n) k) := by
+        c0 ≤ FormalResearch.JB.jbL2 (softPk N lo R false ((softWindow CL p (Xc k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p))))
+            (fun n => Wm ((softJBChart CL CL1 TI p N Xc cols lo R hlo false used
+              (fun k => softPk N lo R false ((softWindow CL p (Xc k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p)))) σ0 σ1 host0 host1).row n) k) := by
   obtain ⟨c0, h1, hc0, hh1, H⟩ := soft_window_eig_lower hf CL CR hM hm Cs0
   refine ⟨c0, h1, hc0, hh1, ?_⟩
-  intro p hp N hN hstep Xs Um hE hs0 TI cols lo R hlo used σ0 σ1 host0 host1 hX ha hcov k
-  have h := H p hp N hN hstep Xs Um hE hs0 k (hX k) (ha k)
+  intro p hp N hN hstep Xs Um hE hs0 TI cols lo R hlo used σ0 σ1 host0 host1 Xc kc Wm hXc hW hX ha hcov k
+  have hXk := hXc k
+  have h := H p hp N hN hstep Xs Um hE hs0 (kc k) (by rw [← hXk]; exact hX k) (by rw [← hXk]; exact ha k)
+  rw [← hXk] at h
   refine h.trans (le_of_eq ?_)
   unfold FormalResearch.JB.jbL2
   congr 1
-  set S := (softWindow CL p (Xs k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p)) with hS
+  set S := (softWindow CL p (Xc k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p)) with hS
   have e := sum_chart_rows (chartRowDn N lo R false) (chartRowDn_injective N lo R false) S (hcov k)
-    (fun j => (eigVec Um k j) ^ 2)
+    (fun j => (eigVec Um (kc k) j) ^ 2)
   beta_reduce at e
   unfold softPk
   rw [← e]
   refine Finset.sum_congr rfl (fun n _ => ?_)
-  have hr1 : chartRowDn N lo R false n = ((FormalResearch.JB.Chart.row (softJBChart CL CL1 TI p N Xs cols lo R hlo false used
-      (fun k => softPk N lo R false ((softWindow CL p (Xs k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p)))) σ0 σ1 host0 host1) n : Fin (N + 1)) : ℤ) := by
+  have hr1 : chartRowDn N lo R false n = ((FormalResearch.JB.Chart.row (softJBChart CL CL1 TI p N Xc cols lo R hlo false used
+      (fun k => softPk N lo R false ((softWindow CL p (Xc k) N).filter (fun n => n ≤ nearestRow (Fz.step N) (CL.uc p)))) σ0 σ1 host0 host1) n : Fin (N + 1)) : ℤ) := by
     simp [chartRowDn, FormalResearch.JB.Chart.row, softJBChart]
   simp only [hr1, eigVec_row]
-  rfl
+  exact (hW _ k).symm
 
 end LBChart
 
