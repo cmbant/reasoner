@@ -42,11 +42,13 @@ srcDir = "ThirdParty/lean-dlmf"
 globs = ["DLMFMathlib.+"]
 leanOptions = {autoImplicit = false, relaxedAutoImplicit = false}
 
-# Parabolic-cylinder closure of DLMF.ParabolicCylinder.Basic.Wronskians, its connection formulas and the extracted core of ElementaryProperties (explicit modules only; see ThirdParty/lean-dlmf/NOTICE.md).
+# Import closure of DLMF.Confluent.Regularized (with the parabolic-cylinder modules) and the lean-codes / TauCeti
+# modules it needs (ComplexAnalysis.HalfPlane, ComplexAnalysis.Pow, TauCeti.Analysis.Complex.SlitPlane,
+# TauCeti.Analysis.SpecialFunctions.Erf). Explicit modules only; see ThirdParty/lean-dlmf/NOTICE.md.
 [[lean_lib]]
 name = "DLMF"
 srcDir = "ThirdParty/lean-dlmf"
-globs = ["DLMF.Confluent.Basic.KummerContiguous", "DLMF.Confluent.Basic.KummerM", "DLMF.Confluent.Basic.KummerProperties", "DLMF.Confluent.Basic.Tricomi", "DLMF.Confluent.ParabolicCylinder.WronskiansAndConnections", "DLMF.Core.Basic", "DLMF.Hypergeometric.Basic.GaussCoefficients", "DLMF.Hypergeometric.Basic.GaussSeries", "DLMF.Hypergeometric.Basic.Pochhammer", "DLMF.ParabolicCylinder.Basic.Functions", "DLMF.ParabolicCylinder.Basic.WeberEquation", "DLMF.ParabolicCylinder.Basic.Wronskians", "DLMF.ParabolicCylinder.ElementaryPropertiesCore"]
+globs = ["ComplexAnalysis.HalfPlane", "ComplexAnalysis.Pow", "DLMF.Confluent.Basic", "DLMF.Confluent.Basic.Buchholz", "DLMF.Confluent.Basic.ErrorFunctions", "DLMF.Confluent.Basic.ExpansionData", "DLMF.Confluent.Basic.ExponentialIntegralSeries", "DLMF.Confluent.Basic.ExponentialIntegrals", "DLMF.Confluent.Basic.IncompleteGamma", "DLMF.Confluent.Basic.KummerContiguous", "DLMF.Confluent.Basic.KummerM", "DLMF.Confluent.Basic.KummerProperties", "DLMF.Confluent.Basic.Tricomi", "DLMF.Confluent.Basic.TricomiLogarithmic", "DLMF.Confluent.Basic.Whittaker", "DLMF.Confluent.Basic.WhittakerLogarithmic", "DLMF.Confluent.KummerProperties", "DLMF.Confluent.ParabolicCylinder.WronskiansAndConnections", "DLMF.Confluent.Regularized", "DLMF.Core.Basic", "DLMF.ErrorFunctions.Basic.Functions", "DLMF.ErrorFunctions.Basic.Properties", "DLMF.Hypergeometric.Basic.AppellF4", "DLMF.Hypergeometric.Basic.CutPlane", "DLMF.Hypergeometric.Basic.GaussCoefficients", "DLMF.Hypergeometric.Basic.GaussEquation", "DLMF.Hypergeometric.Basic.GaussSeries", "DLMF.Hypergeometric.Basic.ParameterAnalyticity", "DLMF.Hypergeometric.Basic.Pochhammer", "DLMF.Hypergeometric.Basic.PrincipalBranch", "DLMF.Hypergeometric.Basic.RealPochhammer", "DLMF.Hypergeometric.Basic.SpecialValues", "DLMF.Hypergeometric.Contiguous", "DLMF.Hypergeometric.Continuation", "DLMF.Hypergeometric.Derivatives", "DLMF.Hypergeometric.DiffEq", "DLMF.Hypergeometric.EulerIntegral", "DLMF.Hypergeometric.Transformations", "DLMF.ParabolicCylinder.Basic.Functions", "DLMF.ParabolicCylinder.Basic.WeberEquation", "DLMF.ParabolicCylinder.Basic.Wronskians", "DLMF.ParabolicCylinder.ElementaryPropertiesCore", "TauCeti.Analysis.Complex.SlitPlane", "TauCeti.Analysis.SpecialFunctions.Erf"]
 leanOptions = {autoImplicit = false, relaxedAutoImplicit = false}
 
 [[require]]

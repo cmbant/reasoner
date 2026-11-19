@@ -4,15 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bastiaan J Braams
 -/
 -- PATCH: extracted from upstream `DLMF/ParabolicCylinder/ElementaryProperties.lean` (bjbraams/lean-DLMF,
--- commit 7edc630), lines 103-107, 139-144, 146-149, 151-154, 156-160, 162-167, 169-172, 174-178, 196-199. The listed declarations are copied verbatim, proofs included.
--- Not extracted: the parameter-entire lemmas `differentiable_parabolicCylinder{Even,Odd}_order` and
--- `parabolicCylinder{U,V}_entire_order`, whose `fun_prop` proofs need `differentiable_regularizedConfluent_comp`
--- (upstream `DLMF/Confluent/Regularized.lean`, whose import closure is 42 upstream modules and imports TauCeti and
--- Carlson modules; not vendored). The derivative conjugation lemmas and the rest of the file are not extracted either.
+-- commit 7edc630), lines 103-107, 109-137, 139-144, 146-149, 151-154, 156-160, 162-167, 169-172, 174-178, 180-194,
+-- 196-199. The listed declarations are copied verbatim, proofs included.
+-- The parameter-entire lemmas `differentiable_parabolicCylinder{Even,Odd}_order` and `parabolicCylinder{U,V}_entire_order`
+-- (lines 109-137, 180-194) use `differentiable_regularizedConfluent_comp`, vendored with `DLMF/Confluent/Regularized.lean`.
+-- Not extracted: the derivative conjugation lemmas and the rest of the upstream file.
 module
 
 public import DLMF.ParabolicCylinder.Basic.Wronskians
 public import DLMF.Confluent.Basic.KummerContiguous
+public import DLMF.Confluent.Regularized
 
 /-!
 # Parabolic cylinder functions: entire dependence in the argument, conjugation and reality
@@ -22,8 +23,8 @@ functions `U(a,z)` and `V(a,z)` are entire in the argument `z`, they commute wit
 and they are real for real `a` and `z` (`parabolicCylinderU_real`, `parabolicCylinderV_real`). The
 statements and proofs are those of the upstream file.
 
-Entire dependence on the parameter `a` is not proved here (see the `-- PATCH` note above), so joint
-smoothness of `(a, z) ↦ U(a, z)` is not a consequence of these results.
+Entire dependence on the parameter `a` is proved for each fixed `z` (`differentiable_parabolicCylinder{Even,Odd}_order`,
+`parabolicCylinder{U,V}_entire_order`); joint smoothness of `(a, z) ↦ U(a, z)` is not derived here.
 -/
 
 public noncomputable section
@@ -82,5 +83,53 @@ theorem parabolicCylinderV_entire (a : ℂ) :
 theorem parabolicCylinderV_real (a x : ℝ) :
     (parabolicCylinderV a x).im=0 := by
   rw [← Complex.conj_eq_iff_im, conj_parabolicCylinderV, Complex.conj_ofReal, Complex.conj_ofReal]
+
+-- PATCH: extracted from upstream lines 109-137 (verbatim, proofs included)
+/-- The even Kummer basis is entire in the cylinder parameter. -/
+theorem differentiable_parabolicCylinderEven_order (z : ℂ) :
+    Differentiable ℂ (fun a => parabolicCylinderEven a z) := by
+  unfold parabolicCylinderEven
+  simp_rw [kummerM_eq_mul_regularizedHGFun Complex.one_div_two_ne_neg_natCast]
+  fun_prop
+
+/-- The odd Kummer basis is entire in the cylinder parameter. -/
+theorem differentiable_parabolicCylinderOdd_order (z : ℂ) :
+    Differentiable ℂ (fun a => parabolicCylinderOdd a z) := by
+  unfold parabolicCylinderOdd
+  simp_rw [kummerM_eq_mul_regularizedHGFun Complex.three_div_two_ne_neg_natCast]
+  fun_prop
+
+/-- Entire dependence on the parameter. -/
+theorem parabolicCylinderU_entire_order (z : ℂ) :
+    Differentiable ℂ (fun a => parabolicCylinderU a z) := by
+  have he := differentiable_parabolicCylinderEven_order z
+  have ho := differentiable_parabolicCylinderOdd_order z
+  have hG1 : Differentiable ℂ (fun a : ℂ => (Gamma (3/4+a/2))⁻¹) :=
+    differentiable_one_div_Gamma.comp (by fun_prop)
+  have hG2 : Differentiable ℂ (fun a : ℂ => (Gamma (1/4+a/2))⁻¹) :=
+    differentiable_one_div_Gamma.comp (by fun_prop)
+  have hG3 : Differentiable ℂ (fun a : ℂ => (Gamma (3/4-a/2))⁻¹) :=
+    differentiable_one_div_Gamma.comp (by fun_prop)
+  have hG4 : Differentiable ℂ (fun a : ℂ => (Gamma (1/4-a/2))⁻¹) :=
+    differentiable_one_div_Gamma.comp (by fun_prop)
+  unfold parabolicCylinderU
+  fun_prop
+
+-- PATCH: extracted from upstream lines 180-194 (verbatim, proofs included)
+/-- Entire dependence on the parameter. -/
+theorem parabolicCylinderV_entire_order (z : ℂ) :
+    Differentiable ℂ (fun a => parabolicCylinderV a z) := by
+  have he := differentiable_parabolicCylinderEven_order z
+  have ho := differentiable_parabolicCylinderOdd_order z
+  have hG1 : Differentiable ℂ (fun a : ℂ => (Gamma (3/4+a/2))⁻¹) :=
+    differentiable_one_div_Gamma.comp (by fun_prop)
+  have hG2 : Differentiable ℂ (fun a : ℂ => (Gamma (1/4+a/2))⁻¹) :=
+    differentiable_one_div_Gamma.comp (by fun_prop)
+  have hG3 : Differentiable ℂ (fun a : ℂ => (Gamma (3/4-a/2))⁻¹) :=
+    differentiable_one_div_Gamma.comp (by fun_prop)
+  have hG4 : Differentiable ℂ (fun a : ℂ => (Gamma (1/4-a/2))⁻¹) :=
+    differentiable_one_div_Gamma.comp (by fun_prop)
+  unfold parabolicCylinderV parabolicCylinderVZero parabolicCylinderVDerivZero
+  fun_prop
 
 end DLMF.Confluent

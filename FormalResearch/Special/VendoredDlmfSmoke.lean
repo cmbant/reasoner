@@ -23,6 +23,8 @@ Re-states the headline results of the closures vendored under `ThirdParty/lean-d
 * Connection formulas and recurrences (DLMF 12.2.15, 12.2.16, 12.8.6, 12.8.7; `WronskiansAndConnections.lean`),
   and reality of `U` and `V` for real parameter and argument (`ElementaryPropertiesCore.lean`, extracted from
   `ElementaryProperties.lean`).
+* Entire dependence on the parameter `a` (`parabolicCylinderU_entire_order`, `parabolicCylinderV_entire_order`),
+  through `differentiable_regularizedConfluent_comp` (`DLMF/Confluent/Regularized.lean`, vendored with its closure).
 -/
 
 @[expose] public section
@@ -40,6 +42,8 @@ Re-states the headline results of the closures vendored under `ThirdParty/lean-d
 #check @DLMF.Confluent.parabolicCylinderV_recurrence_sub
 #check @DLMF.Confluent.parabolicCylinderU_real
 #check @DLMF.Confluent.parabolicCylinderV_real
+#check @DLMF.Confluent.parabolicCylinderU_entire_order
+#check @DLMF.Confluent.parabolicCylinderV_entire_order
 
 /-- info: 'ODE.sturm_comparison' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -92,3 +96,11 @@ Re-states the headline results of the closures vendored under `ThirdParty/lean-d
 /-- info: 'DLMF.Confluent.parabolicCylinderV_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms DLMF.Confluent.parabolicCylinderV_real
+
+/-- info: 'DLMF.Confluent.parabolicCylinderU_entire_order' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms DLMF.Confluent.parabolicCylinderU_entire_order
+
+/-- info: 'DLMF.Confluent.parabolicCylinderV_entire_order' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms DLMF.Confluent.parabolicCylinderV_entire_order
