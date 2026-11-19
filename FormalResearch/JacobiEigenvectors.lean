@@ -110,6 +110,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.HostCols
 public import FormalResearch.JacobiEigenvectors.TheoremB.SoftExtRow
 public import FormalResearch.JacobiEigenvectors.TheoremB.SoftOverlap
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableWeyl
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableSchur
 
 /-!
 # Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)
