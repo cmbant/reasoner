@@ -69,6 +69,12 @@ theorem corThbStable_proved
               ((C + Cs * K0) * F.step N ^ m) :=
   corThbStable CP spl (thmB_proved CP TB spl) h1m hK hq hcpt hH hD hspl hgap K0 hK0
 
+/-- **`cor:fermions`** (`CorFermions`) with `ThmB` from `thmB_proved`. -/
+theorem corFermions_proved
+    (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
+    (TB : TransferBundle CP) (spl : Fin CP.CI0.nb → ℝ) : CorFermions CP spl :=
+  corFermions_of_thmB CP spl (thmB_proved CP TB spl)
+
 /-- **`cor:thb-Dm`** (`CorThbDm`) with `ThmB` for the truncated chart pair from `thmB_proved`, given the gap bound of the truncated family (`EigGapBound`; `corThbDm_proved` derives it from the Layer-4
 chart inputs). -/
 theorem corThbDm_of_gap
@@ -98,6 +104,10 @@ end FormalResearch.JacobiEigenvectors.TheoremB
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.corThbStable_proved' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.TheoremB.corThbStable_proved
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.corFermions_proved' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.corFermions_proved
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.corThbDm_of_gap' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

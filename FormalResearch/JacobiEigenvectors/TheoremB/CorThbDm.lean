@@ -5,6 +5,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStable
 public import FormalResearch.JacobiEigenvectors.TheoremA.SmoothSpectrum
 public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumAssemblyBulk
 public import FormalResearch.JB.JBPolar
+public import FormalResearch.JB.JBFermion
 
 /-!
 # Paper J, Theorem B, L3.Dm: `cor:thb-Dm` (`CorThbDm`) from `ThmB` for the truncated family and `cor:thb-stable`
@@ -25,6 +26,7 @@ Claim class: **proved under explicit hypotheses** (the two premises below).
   `‖Ĝ^{jet}_m - U_h‖ ≤ (C_m + C_* C') h^m`; then `lem:thb-polar` (`FormalResearch.JB.jb_polar`) gives the orthogonal polar factor and
   the bound `2 C h^m`, once `C h_m^m < 1`.
 * `thmBConcl_of_thmB`: `ThmB CP spl` is `hypotheses → ThmBConcl CP spl`.
+* `corFermions_of_thmB : ThmB CP spl → CorFermions CP spl` (`cor:fermions` for `Ĝ_m`, from `jb_fermions`).
 * `jacobiMat_trunc_norm_le`: `‖J_h - tilde J_h‖_op ≤ C' h^{m+1}` (eq:l2-trunc) under `(H1)`, `(D_m)` on a compact `K`.
 
 ## The two premises
@@ -42,7 +44,8 @@ Claim class: **proved under explicit hypotheses** (the two premises below).
 * The constants: `C = max(C_m, 0) + C_* C'`, `h_m` small enough that `C h_m^m < 1`.  `C_* = 2 c_f / c` with `c_f` of `ThbStableMult`.
 * `Ĝ^{jet}_m` is `compMatrix CP.CI0 spl μ N Xt`, built from the eigenvalues `Xt` of `tilde J_h` (an eigen-system `(Xt, Ut)` of `tilde J_h` is
   only used through its eigenvalues and the estimate of `ThmBConcl`), as in the frozen statement.
-* The final `Corollary cor:fermions holds with Ĝ^{jet}_m` part of the paper's statement is not yet part of `CorThbDm` (see `PLAN.md`).
+* The final `Corollary cor:fermions holds with Ĝ^{jet}_m and its polar factor` part of the paper's statement is the last conjunct of `CorThbDm`: `JB.FermionConcl Ĝ^{jet}_m U_h (C h^m)` (`FormalResearch/JB/JBFermion.lean`:
+  the compression bounds `3 C h^m` and, for the polar factor, `4 C h^m`; the eigenvalue comparison `3 C h^m`; the entanglement energies `8 C h^m/τ`), from the two bounds of (D_m) by `jb_fermions`.  Real `F`, `P`, `J` only (the paper allows complex `F`).
 
 ## Not formalised
 
@@ -135,6 +138,21 @@ theorem thmBConcl_of_thmB (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 :
     ThmBConcl CP spl :=
   hB h1m hK hq hcpt hH hD hspl
 
+/-- **`cor:fermions`** (`CorFermions`) from `ThmB` (`‖Ĝ_m - U_h‖ ≤ C h^m < 1`) by the matrix statement `JB.jb_fermions`. -/
+theorem corFermions_of_thmB (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
+    (spl : Fin CP.CI0.nb → ℝ) (hB : ThmB CP spl) : CorFermions CP spl := by
+  intro h1m hK hq hcpt hH hD hspl
+  obtain ⟨C, hm, hm0, hCm, hall⟩ := hB h1m hK hq hcpt hH hD hspl
+  refine ⟨C, hm, hm0, hCm, fun μ hμ N hN hN0 Xs Um hE => ?_⟩
+  have hb := (hall μ hμ N hN hN0 Xs Um hE).1
+  have hst : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
+  have hlt : C * F.step N ^ m < 1 := by
+    rcases le_or_gt 0 C with hC | hC
+    · exact (mul_le_mul_of_nonneg_left (pow_le_pow_left₀ hst.le hN m) hC).trans_lt hCm
+    · have : C * F.step N ^ m ≤ 0 := mul_nonpos_of_nonpos_of_nonneg hC.le (by positivity)
+      linarith
+  exact FormalResearch.JB.jb_fermions _ Um hE.orth hb hlt
+
 /-- **`cor:thb-Dm`** (`CorThbDm`, frozen in `Statements.lean`) from `ThmB` for the truncated chart pair (`ThmBConcl`), the gap bound of
 `cor:eigen (c)` for the truncated family (`EigGapBound`), and the cor:thb-stable argument (`thb_stable_family`, Jacobi gauge
 `Δ = I`) with `J_h := tilde J_h`, `J'_h := J_h`, `‖J_h - tilde J_h‖ ≤ C' h^{m+1}` (`jacobiMat_trunc_norm_le`), then the polar lemma
@@ -180,8 +198,7 @@ theorem corThbDm_of_thmB
       refine hG.trans (mul_le_mul_of_nonneg_right ?_ hpow)
       have := le_max_left C0 0
       linarith
-    have hlt : ‖compMatrix CP.CI0 spl μ N Xt - Um‖ < 1 := by
-      refine hGf.trans_lt ?_
+    have hε1 : Cf * F.step N ^ m < 1 := by
       have : Cf * F.step N ^ m ≤ Cf * hf ^ m :=
         mul_le_mul_of_nonneg_left (pow_le_pow_left₀ hst.le hhf' m) hCf0
       refine this.trans_lt ?_
@@ -190,13 +207,18 @@ theorem corThbDm_of_thmB
       refine h1.trans_lt ?_
       rw [mul_one_div, div_lt_one (by positivity)]
       linarith
+    have hlt : ‖compMatrix CP.CI0 spl μ N Xt - Um‖ < 1 := hGf.trans_lt hε1
     obtain ⟨-, horth, -, -, hpol, -⟩ := FormalResearch.JB.jb_polar (compMatrix CP.CI0 spl μ N Xt) Um hEs.orth hlt
-    refine ⟨hGf, horth, hpol.trans ?_⟩
+    refine ⟨hGf, horth, hpol.trans ?_, FormalResearch.JB.jb_fermions _ Um hEs.orth hGf hε1⟩
     nlinarith
 
 end Dm
 
 end FormalResearch.JacobiEigenvectors.TheoremB
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.corFermions_of_thmB' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremB.corFermions_of_thmB
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.corThbDm_of_thmB' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

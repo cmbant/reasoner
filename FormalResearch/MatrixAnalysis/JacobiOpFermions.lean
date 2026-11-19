@@ -19,7 +19,7 @@ occupation `F = diag f`, `0 ≤ f ≤ 1`, and a coordinate projection.
   with `4ε`; this uses `‖Q - U‖ ≤ 2ε` (`jop_polar_repair_matrix`).
 * `jop_fermion_eigenvalue_bound`: the `k`-th eigenvalues (decreasing: `eigenvalues₀`) of the principal
   submatrices on the rows `f : m → n` of `P` of `U F Uᵀ` and `G F Gᵀ` differ by at most `3ε` (Weyl).
-* `jop_entanglement_energy_bound`: the logarithmic estimate `9ε/τ` (mean value theorem), and its
+* `jop_entanglement_energy_bound`: the logarithmic estimate `8ε/τ` (mean value theorem), and its
   combination with the eigenvalue bound, `jop_fermion_energy_bound`.
 
 Not formalised: the identification of `U`, `G` with the Jacobi eigenvector matrix and its approximant (the
@@ -68,11 +68,11 @@ lemma jop_energy_lipschitz {τ x y : ℝ} (hτ : 0 < τ) (hτ2 : τ ≤ 1 / 2)
   simpa [Real.norm_eq_abs] using key
 
 /-- **Entanglement-energy estimate** (Paper J `cor:fermions`).  If `6ε ≤ τ ≤ 1/2`, `ν ∈ [τ, 1 - τ]`
-and `|ν - ν̂| ≤ 3ε` then `|log((1-ν)/ν) - log((1-ν̂)/ν̂)| ≤ 9ε/τ`.  (The proof gives the slightly
-better constant `8ε/τ`; the paper's `3d/τ` with `d = 3ε` is `9ε/τ`.) -/
+and `|ν - ν̂| ≤ 3ε` then `|log((1-ν)/ν) - log((1-ν̂)/ν̂)| ≤ 8ε/τ`: the mean value theorem on `[τ/2, 1 - τ/2]`
+with the Lipschitz constant `8/(3τ)` (`jop_energy_lipschitz`) and `d = 3ε`, as in the paper's proof of `cor:fermions`. -/
 theorem jop_entanglement_energy_bound {τ ε ν ν' : ℝ} (hε : 0 ≤ ε) (hτ : 6 * ε ≤ τ) (hτ2 : τ ≤ 1 / 2)
     (hτ0 : 0 < τ) (hν : ν ∈ Set.Icc τ (1 - τ)) (hνν : |ν - ν'| ≤ 3 * ε) :
-    |Real.log ((1 - ν) / ν) - Real.log ((1 - ν') / ν')| ≤ 9 * ε / τ := by
+    |Real.log ((1 - ν) / ν) - Real.log ((1 - ν') / ν')| ≤ 8 * ε / τ := by
   have h3 := abs_le.1 hνν
   have hx : ν ∈ Set.Icc (τ / 2) (1 - τ / 2) := ⟨by linarith [hν.1], by linarith [hν.2]⟩
   have hy : ν' ∈ Set.Icc (τ / 2) (1 - τ / 2) :=
@@ -81,7 +81,6 @@ theorem jop_entanglement_energy_bound {τ ε ν ν' : ℝ} (hε : 0 ≤ ε) (hτ
   calc _ ≤ 8 / (3 * τ) * |ν - ν'| := this
     _ ≤ 8 / (3 * τ) * (3 * ε) := by gcongr
     _ = 8 * ε / τ := by field_simp
-    _ ≤ 9 * ε / τ := by gcongr; linarith
 
 end Energy
 
@@ -221,7 +220,7 @@ theorem jop_fermion_eigenvalue_bound {m : Type*} [Fintype m] [DecidableEq m] (e 
 /-- **Free-fermion entanglement energies** (Paper J `cor:fermions`, last clause).  With `ν_k`, `ν̂_k` the
 `k`-th eigenvalues of the compressions of `U F Uᵀ` and `G F Gᵀ` to the coordinates `e`, `‖G - U‖ ≤ ε`,
 `0 < τ ≤ 1/2` and `6ε ≤ τ`: `|ν_k - ν̂_k| ≤ 3ε`, and if `ν_k ∈ [τ, 1 - τ]` the energies
-`log ((1-ν)/ν)` differ by at most `9ε/τ`. -/
+`log ((1-ν)/ν)` differ by at most `8ε/τ`. -/
 theorem jop_fermion_energy_bound {m : Type*} [Fintype m] [DecidableEq m] (e : m → n)
     (he : Function.Injective e) (G U : Matrix n n ℝ) (f : n → ℝ) (hf : ∀ i, 0 ≤ f i ∧ f i ≤ 1)
     (hU : Uᵀ * U = 1) {ε τ : ℝ} (hGU : ‖G - U‖ ≤ ε) (hτ0 : 0 < τ) (hτ : 6 * ε ≤ τ)
@@ -232,7 +231,7 @@ theorem jop_fermion_energy_bound {m : Type*} [Fintype m] [DecidableEq m] (e : m 
         |Real.log ((1 - ((jop_isHermitian_sandwich U f).submatrix e).eigenvalues₀ k) /
               ((jop_isHermitian_sandwich U f).submatrix e).eigenvalues₀ k) -
           Real.log ((1 - ((jop_isHermitian_sandwich G f).submatrix e).eigenvalues₀ k) /
-              ((jop_isHermitian_sandwich G f).submatrix e).eigenvalues₀ k)| ≤ 9 * ε / τ) := by
+              ((jop_isHermitian_sandwich G f).submatrix e).eigenvalues₀ k)| ≤ 8 * ε / τ) := by
   have hε : 0 ≤ ε := (norm_nonneg _).trans hGU
   have h := jop_fermion_eigenvalue_bound e he G U f hf hU hGU (by linarith) k
   exact ⟨h, fun hν => jop_entanglement_energy_bound hε hτ hτ2 hτ0 hν h⟩

@@ -5,6 +5,7 @@ public import FormalResearch.JB.JBThmB
 public import FormalResearch.JacobiEigenvectors.TheoremA.Statements
 public import FormalResearch.JacobiEigenvectors.TheoremB.ComparisonMatrix
 public import FormalResearch.JacobiEigenvectors.TheoremB.StdDM
+public import FormalResearch.JB.JBFermion
 
 /-!
 # Paper J, Layer 3: statement freeze for Theorem B from the chart hypotheses
@@ -24,7 +25,8 @@ Prop-valued definitions only; no placeholder proofs, no added axioms.  (`FormalR
 | `PropThaCollar` | lem:tha-collar (1), bound `C e^{-c/h}` (item (2) is `TransferInputs.t12_lb`/`reg_*`, a chart field) | soft chart |
 | `PropThbInputs` | prop:thb-inputs: the conclusion is `JB.OneStepInputs` for the explicit matrices (`compMatrix`) | `ChartPair`, `TransferBundle`, `StdDM F K Kidx` (the consequences of `(D_{q_m+1})` that the proof uses; `stdDM_of_dm`) |
 | `ThmB` | thm:B in the form consumed by `JB.jb_onestep` / `thm_B_conditional` | same |
-| `CorThbDm` | cor:thb-Dm (operator norm under `(D_m)` only, chart pair of `truncFamily F m`) | `DM F K m`; proof needs cor:thb-stable (F-B6) |
+| `CorFermions` | cor:fermions (`JB.FermionConcl` for `hat G_m`) | same as `ThmB` |
+| `CorThbDm` | cor:thb-Dm (operator norm under `(D_m)` only, chart pair of `truncFamily F m`, with the fermion part) | `DM F K m`; proof needs cor:thb-stable (F-B6) |
 | `etaR` | `eta_m = h^m`, `eta_{m+1} = h^{m+1} log(1/h)` (`m` even) / `h^{m+1}` (`m` odd) | -- |
 
 ## FINDINGS
@@ -265,10 +267,21 @@ def ThmB (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q
         ‖compMatrix CP.CI0 spl μ N Xs * (CFC.sqrt ((compMatrix CP.CI0 spl μ N Xs)ᵀ * compMatrix CP.CI0 spl μ N Xs))⁻¹ - Um‖
           ≤ 2 * C * F.step N ^ m
 
+/-- **cor:fermions** (statement; main_results.tex, proof in thmB.tex, "Free-fermion correlation matrices"): under the hypotheses of `ThmB` there are `C, h_m` with `C h_m^m < 1` such that for `h <= h_m`, `mu in K` and every eigen-system `(X, U)` of `J_h`,
+`JB.FermionConcl hat G_m U (C h^m)`: for every `F` with `||F|| <= 1` and every orthogonal projection `P`, `||P (hat G_m F hat G_m^T - U F U^T) P|| <= 3 C h^m` (`4 C h^m` for the polar factor `tilde U_m`), the `k`-th eigenvalues of the
+compressions to the range of `P` of `U F U^T`, `hat G_m F hat G_m^T` differ by at most `3 C h^m`, and the entanglement energies by at most `8 C h^m / tau` (`6 C h^m <= tau <= 1/2`, `nu_k in [tau, 1 - tau]`).  Real matrices only (`JBFermion.lean`). -/
+def CorFermions (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
+    (spl : Fin CP.CI0.nb → ℝ) : Prop :=
+  1 ≤ m → Kidx = (m + 1) / 2 → q = 2 * Kidx → IsCompact K → HypOn F K → StdDM F K Kidx → CP.SplicesInWindow spl →
+    ∃ C hm : ℝ, 0 < hm ∧ C * hm ^ m < 1 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hm → F.step N ≤ t0 →
+      ∀ (Xs : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) Xs Um →
+        FormalResearch.JB.FermionConcl (compMatrix CP.CI0 spl μ N Xs) Um (C * F.step N ^ m)
+
 /-- **cor:thb-Dm** (statement; thmB.tex, "Stability under perturbation", on `origin/agents/m7-m1-global-racah`): under (H1)--(H3) and **only** `(D_m)`, `m >= 1`, let `CP` be the chart pair of the *truncated* family
 `truncFamily F m` (`tilde J_h` of eq:l2-tilde; `G_j = B_j := 0` for `m < j <= q_m + 1`), frozen at `Kidx = ceil(m/2)`, `q = 2 Kidx`.  Then there are `C, h_m` with `C h_m^m < 1` such that for `h <= h_m`, `mu in K` and every
 pair of eigen-systems `(tilde X, tilde U)` of `tilde J_h` and `(X, U)` of `J_h`: `||compMatrix CP.CI0 spl mu N tilde X - U|| <= C h^m` (so `hat G^{jet}_m` is built from `tilde X`, the eigenvalues of the truncated matrix, and no eigenvector),
-the polar factor of `hat G^{jet}_m` is orthogonal and within `2 C h^m` of `U` (Corollary cor:fermions follows from these two bounds alone).
+the polar factor of `hat G^{jet}_m` is orthogonal and within `2 C h^m` of `U`, and Corollary cor:fermions holds with `hat G^{jet}_m` and its polar factor in place of `hat G_m` and `tilde U_m`: `JB.FermionConcl hat G^{jet}_m U (C h^m)`
+(`JBFermion.lean`: the compression bounds `3 C h^m` and `4 C h^m`, the eigenvalue comparison `3 C h^m` and the entanglement energies `8 C h^m / tau`; it follows from the two bounds alone, `JB.jb_fermions`).
 
 **Proof route** (`corThbDm_of_thmB`, `corThbDm_proved`, `TheoremB/CorThbDm.lean`, `CorThbFinal.lean`).  `tilde J_h` satisfies `(E_Kidx)` with no remainder and (H1)--(H3), so `ThmB` / `PropThbInputs` for `truncFamily F m` give
 `||hat G^{jet}_m - tilde U|| <= C h^m`; `tilde J_h` satisfies `(D_1)` and (H1)--(H3), so its gaps are `>= c h` (`CorEigenGap1`); `||J_h - tilde J_h|| <= C' h^{m+1}` (`DM F K m`); and the Fourier--Schur argument of cor:thb-stable
@@ -278,7 +291,7 @@ the polar factor of `hat G^{jet}_m` is orthogonal and within `2 C h^m` of `U` (C
 needs `StdDM (truncFamily F m) K Kidx` (finding F-DD1), which follows from `DM F K m` (`stdDM_trunc`) although `DM (truncFamily F m) K (2 Kidx + 1)` does not (the truncated jets vanish beyond `m` and keep the regularity `r(m)` of `F`, less than the
 `r(2 Kidx + 1)` of `DM` at order `2 Kidx + 1`).  **Finding F-B6**: `cor:thb-Dm` is **not** an instance of `ThmB`
 applied to `truncFamily F m` alone, because the conclusion compares with the eigenvectors of `J_h`, not of `tilde J_h`; it needs cor:thb-stable (perturbation of the matrix, at the level of `U`), which is also what gives
-`ThmB` for matrices within `O(h^{m+1})`.  **Finding F-t0**: `t0` is chart data; the passage to the truncated chart needs a `ChartInputs.restrict` step.  The corollary `cor:fermions` for `hat G^{jet}_m` is `CorThbDmFermions` (`CorThbDm.lean`). -/
+`ThmB` for matrices within `O(h^{m+1})`.  **Finding F-t0**: `t0` is chart data; the passage to the truncated chart needs a `ChartInputs.restrict` step.  The fermion part is the last conjunct (`JB.FermionConcl`, whose restrictions to real `F`, `P` are listed in `JBFermion.lean`). -/
 def CorThbDm {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
     (CP : ChartPair (F := truncFamily F m) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := U) (V := V) (cPC := cPC) (CPC := CPC))
     (spl : Fin CP.CI0.nb → ℝ) : Prop :=
@@ -290,7 +303,8 @@ def CorThbDm {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q :
         (compMatrix CP.CI0 spl μ N Xt * (CFC.sqrt ((compMatrix CP.CI0 spl μ N Xt)ᵀ * compMatrix CP.CI0 spl μ N Xt))⁻¹)ᵀ *
             (compMatrix CP.CI0 spl μ N Xt * (CFC.sqrt ((compMatrix CP.CI0 spl μ N Xt)ᵀ * compMatrix CP.CI0 spl μ N Xt))⁻¹) = 1 ∧
         ‖compMatrix CP.CI0 spl μ N Xt * (CFC.sqrt ((compMatrix CP.CI0 spl μ N Xt)ᵀ * compMatrix CP.CI0 spl μ N Xt))⁻¹ - Um‖
-          ≤ 2 * C * F.step N ^ m
+          ≤ 2 * C * F.step N ^ m ∧
+        FormalResearch.JB.FermionConcl (compMatrix CP.CI0 spl μ N Xt) Um (C * F.step N ^ m)
 
 end Inputs
 
