@@ -20,7 +20,7 @@ Source: Paper J `thmA.tex`, proof of `thm:A (ii)` and "The relative statement" (
   frozen allowed interval at `(mu, h)`.  Uses `DM F K 1` (jets of order <= 1), `StdAssump` of the frozen family, `CI.cover`.
 * `thmAii_bulk_relative`: **the bulk case of the relative clause of `ThmAii`** (`envVec <= C_eps |psiHatVec|` for eigenvalues in a bulk block) from the collar clause of `PropThaW` for every block.
 * `AiiAbs`, `thmAii_of_cases` / `thmAii_of_cases'` (frozen form): `ThmAii` from its three cases (bulk block, upper soft window, lower soft window), with `spectrumCovered` (proved) giving the case split, constants combined by `max`
-  (needs `hnn`, nonnegativity of the envelopes).  `thmAi_of_smoSpec`: `ThmAi` from `ThmSmoSpec`.
+  (needs `hnn`, nonnegativity of the envelopes for small `h`, an `exists h_n` premise discharged in `ThmAAssemblySoft.lean`).  `thmAi_of_smoSpec`: `ThmAi` from `ThmSmoSpec`.
 
 ## Differences from the paper / findings
 
@@ -453,7 +453,7 @@ lemma AiiAbs.mono {F : SymbolFamily Par} {K : Set Par} {m Kidx : ℕ} {t0 : ℝ}
 constants combined by `max`; the envelopes are nonnegative (`hnn`: `softEnv_nonneg`, `bulkEnv_nonneg_rows`).  The relative clause is assembled the same way from its three cases (`rB`, `rU`, `rL`). -/
 theorem thmAii_of_cases {F : SymbolFamily Par} {K : Set Par} {m Kidx : ℕ} {t0 : ℝ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
     (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC)
-    (hnn : ∀ μ ∈ K, ∀ N : ℕ, ∀ (X : Fin (N + 1) → ℝ) (k : Fin (N + 1)), ∀ n ∈ rowsOf N, 0 ≤ envVec CI μ N (X k) n)
+    (hnn : ∃ hn : ℝ, 0 < hn ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hn → F.step N ≤ t0 → ∀ x : ℝ, ∀ n ∈ rowsOf N, 0 ≤ envVec CI μ N x n)
     (hB : ∃ C hm : ℝ, 0 < hm ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hm → F.step N ≤ t0 →
       ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
         ∀ k : Fin (N + 1), (∃ ν, CI.lo ν ≤ X k ∧ X k ≤ CI.hi ν) → AiiAbs CI C μ N X Um k)
@@ -495,15 +495,16 @@ theorem thmAii_of_cases {F : SymbolFamily Par} {K : Set Par} {m Kidx : ℕ} {t0 
   · obtain ⟨Cb, hb, hbp, Hb⟩ := hB
     obtain ⟨Cu, hu, hup, Hu⟩ := hU
     obtain ⟨Cl, hl, hlp, Hl⟩ := hL
-    refine ⟨max (max Cb Cu) Cl, min (min hb hu) (min hl hc0), lt_min (lt_min hbp hup) (lt_min hlp hc0p), ?_⟩
+    obtain ⟨hn0, hn0p, hnn'⟩ := hnn
+    refine ⟨max (max Cb Cu) Cl, min (min (min hb hu) (min hl hc0)) hn0, lt_min (lt_min (lt_min hbp hup) (lt_min hlp hc0p)) hn0p, ?_⟩
     intro μ hμ N hN hNt X Um hE k
     have hpos : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
-    have h1 : F.step N ≤ hb := hN.trans ((min_le_left _ _).trans (min_le_left _ _))
-    have h2 : F.step N ≤ hu := hN.trans ((min_le_left _ _).trans (min_le_right _ _))
-    have h3 : F.step N ≤ hl := hN.trans ((min_le_right _ _).trans (min_le_left _ _))
-    have h4 : F.step N ≤ hc0 := hN.trans ((min_le_right _ _).trans (min_le_right _ _))
+    have h1 : F.step N ≤ hb := hN.trans ((min_le_left _ _).trans ((min_le_left _ _).trans (min_le_left _ _)))
+    have h2 : F.step N ≤ hu := hN.trans ((min_le_left _ _).trans ((min_le_left _ _).trans (min_le_right _ _)))
+    have h3 : F.step N ≤ hl := hN.trans ((min_le_left _ _).trans ((min_le_right _ _).trans (min_le_left _ _)))
+    have h4 : F.step N ≤ hc0 := hN.trans ((min_le_left _ _).trans ((min_le_right _ _).trans (min_le_right _ _)))
     have h5 : F.step N ≤ t0 := hNt
-    have hnnk := hnn μ hμ N X k
+    have hnnk := hnn' μ hμ N (hN.trans (min_le_right _ _)) h5 (X k)
     have key : AiiAbs CI (max (max Cb Cu) Cl) μ N X Um k := by
       rcases hcover μ hμ N h4 h5 X Um hE k with hb' | hu' | hl'
       · exact (Hb μ hμ N h1 h5 X Um hE k hb').mono ((le_max_left _ _).trans (le_max_left _ _)) hnnk hpos
@@ -540,7 +541,7 @@ theorem thmAi_of_smoSpec {F : SymbolFamily Par} {K : Set Par} {M Kidx : ℕ} {t0
 /-- **`ThmAii` modulo its cases, in the frozen form**: `thmAii_of_cases` with `spectrumCovered CI` (proved) plugged in, under the hypotheses of `ThmAii`. -/
 theorem thmAii_of_cases' {F : SymbolFamily Par} {K : Set Par} {m Kidx : ℕ} {t0 : ℝ} {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ}
     (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC)
-    (hnn : ∀ μ ∈ K, ∀ N : ℕ, ∀ (X : Fin (N + 1) → ℝ) (k : Fin (N + 1)), ∀ n ∈ rowsOf N, 0 ≤ envVec CI μ N (X k) n)
+    (hnn : ∃ hn : ℝ, 0 < hn ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hn → F.step N ≤ t0 → ∀ x : ℝ, ∀ n ∈ rowsOf N, 0 ≤ envVec CI μ N x n)
     (hB : ∃ C hm : ℝ, 0 < hm ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ hm → F.step N ≤ t0 →
       ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
         ∀ k : Fin (N + 1), (∃ ν, CI.lo ν ≤ X k ∧ X k ≤ CI.hi ν) → AiiAbs CI C μ N X Um k)
