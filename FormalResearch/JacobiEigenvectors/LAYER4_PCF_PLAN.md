@@ -31,7 +31,7 @@ Numerics: mpmath 1.3.0, 40-60 digits, scratchpad only, not committed. "Consumed"
 ## Next steps (proposed, at the merge of `lean/paper-j-layer4` to `master`)
 
 Everything proved so far is on `master`; the work paused after phase B2 stage 1. Remaining, in dependency order (item numbers refer to section 5):
-1. **Finish `U_pos`** (two short lemmas, about 150 L, one round; Haiku-sized with the recipe in the status block above): no zero beyond the turning point (`g = U U'`, `g' >= 0`, `tendsto_pcU`, `pc_wronsk`), then constant sign by continuity in `a` (`pcSmoothFacts.cont_U`) from `pcU_zero_zero_pos`.
+1. **`U_pos`: done** (`Charts/PCPositive.lean`: `pcU_ne_zero_beyond`, `pcU_pos_beyond` = the field `U_pos` for `pcU`; also `cont_pcUD`, `cont_pcVD`, joint continuity of the derivatives). Axioms `[propext, Classical.choice, Quot.sound]`.
 2. **E1 for `a >= 1`** (no turning point; item 6): explicit variation bound for `p^{-1/4}(p^{-1/4})''`, `p = z^2/4 + a`, for the vendored `exists_solution_exp_of_pos`; with the numerical negative regression of the plan. This is the main technical risk (Sonnet).
 3. **E4 for `a >= 1`**: `env_bar`, `molv_bar` (item 7; recessive identification by `tendsto_pcU` + Wronskian; normalise at `z = 0` by `origin_env_bar`). Then `a in (0,1)` by compactness (item 9 part).
 4. **Oscillatory, Airy and exponential zones for `a <= -A0`** (item 8, 3 rounds): `env_well`, `molv_well`, `beyond` (Sonnet; E2 finite-endpoint oscillatory LG, E3 regularised-energy bound, `|U'|` Riccati barrier).
