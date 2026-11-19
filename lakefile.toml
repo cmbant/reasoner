@@ -35,6 +35,13 @@ name = "ThreeCopyQutritWerner"
 srcDir = "ThirdParty/math-lab/ThirdParty/PSI"
 globs = ["ThreeCopyQutritWerner.+"]
 
+# Vendored import closures of bjbraams/lean-DLMF (Apache-2.0; see ThirdParty/lean-dlmf/NOTICE.md). Optional: not a default target.
+[[lean_lib]]
+name = "DLMFMathlib"
+srcDir = "ThirdParty/lean-dlmf"
+globs = ["DLMFMathlib.+"]
+leanOptions = {autoImplicit = false, relaxedAutoImplicit = false}
+
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
