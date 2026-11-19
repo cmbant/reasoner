@@ -22,6 +22,7 @@ the soft columns of `eq:thb-bulkcol`.  Model: `BulkOneStep.lean` (the bulk analo
 * `softJBChart_coeff`: **all of `ChartOkCoeff` for `softJBChart`** (every design data), from `TransferInputs`, `soft_transfer_row`, `chart_schur_five`.
 * `softJBChart_H0`, `softJBChart_H1`: `H^{[r]}_c = sigma phi^{[r]}_2` on the chart rows.
 * `compMatrix_softUp_entry`: the entry of `compMatrix` in a column of an upper soft energy (`blockOf = none`, `Jhi < X`) is `psi-hat^L_n/hat N` for rows `n <= n_c` and `hat kappa psi-hat^R_n/hat N` beyond, `n_c = nearestRow u_c`.
+* `softUp_host1_eq_left`, `softUp_host1_eq_right`: `host1_eq` of the two halves (order `m+1` chart `C1`, `softJBChart_H1`, host `compMatrix CI1 spl1`).
 * `softUp_host0_eq_left`, `softUp_host0_eq_right`: `host0_eq` of the two halves of the upper soft edge, with `sigma = lambda_L/(kappa_bal hat N)` (left, rows `<= n_c`, `psi-hat^L = lambda_L phi_2/kappa_bal` on the collar)
   and `sigma = hat kappa lambda_R/(kappa_bal hat N)` (right).
 
@@ -31,7 +32,7 @@ None of substance.  The soft chart uses the **whole collar ladder** (patch 2 for
 
 ## Not formalised here
 
-The lower soft edge (the gauge `D_-`: `y, y~ -> (-1)^n (y, y~)`, `(t_11, t_12) -> (-t_11, -t_12)`), `host1_eq`, `host*_col`, `match0/1`, `ext_row`, `overlap_lb/ub` (see the report), and the choice of `lo, R, used, P_k`.
+The lower soft edge (the gauge `D_-`: `y, y~ -> (-1)^n (y, y~)`, `(t_11, t_12) -> (-t_11, -t_12)`), `host*_col`, `match0/1`, `ext_row`, `overlap_lb/ub` (see the report), and the choice of `lo, R, used, P_k`.
 -/
 
 @[expose] public section
@@ -336,6 +337,88 @@ theorem softUp_host0_eq_right (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (CI
   rw [e]
   ring
 
+/-- **`host1_eq` for the left half of the upper soft edge**: `H^{[m+1]}_c = sigma^{[m+1]} phi^{[m+1]}_2` is the entry of the order-`(m+1)` host `compMatrix CI1 spl1` (`sigma^{[m+1]}_k = lambda_L^{[m+1]}/(kappa_bal^{[m+1]} hat N^{[m+1]})`);
+the row conditions are those of the order-`(m+1)` chart (`n_c, u_c, eta` of `CI1`). -/
+theorem softUp_host1_eq_left (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (CI1 : ChartInputs F K Kidx t0 (m + 1) q U V cPC CPC)
+    {Jlo Jhi ulo uhi : (Par × ℝ) → ℝ}
+    (TI : TransferInputs (frozenFamily F Kidx) (paramSet K t0) Jlo Jhi m CI.softUpL.chain CI1.softUpL.chain 2 ulo uhi)
+    (spl1 : Fin CI1.nb → ℝ) (μ : Par) (N : ℕ) (hp : atStep F μ N ∈ paramSet K t0) (hNT : TI.N0 ≤ N) (Xs : Fin (N + 1) → ℝ)
+    (cols : Finset (Fin (N + 1))) (hcols : ∀ k ∈ cols, (¬ ∃ ν : Fin CI1.nb, CI1.lo ν ≤ Xs k ∧ Xs k ≤ CI1.hi ν) ∧ CI1.Jhi < Xs k)
+    (hX : ∀ k : cols, Xs k ∈ Set.Icc (Jlo (atStep F μ N)) (Jhi (atStep F μ N)))
+    (lo R : ℕ) (hlo : lo + R ≤ N + 1)
+    (hle : ∀ n : Fin R, ((lo : ℤ) + n) ≤ nearestRow (F.step N) (CI1.softUpL.uc (atStep F μ N)))
+    (hgt : ∀ n : Fin R, CI1.softUpL.uc (atStep F μ N) - CI1.softUpL.η / 2 < uNode (F.step N) ((lo : ℤ) + n))
+    (used : Finset (Fin R)) (Pk : cols → Finset (Fin R)) (σ0 : cols → ℝ) (host0 : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) :
+    ∀ n k, (softJBChart CI.softUpL CI1.softUpL TI (atStep F μ N) N Xs cols lo R hlo true used Pk σ0
+        (fun k => CI1.softUpL.lamL (atStep F μ N) (Xs k) N /
+          (kappaBal (CI1.softUpL.aOf (atStep F μ N) (Xs k) N) * softNorm CI1.softUpL CI1.softUpR (atStep F μ N) (Xs k) N))
+        host0 (compMatrix CI1 spl1 μ N Xs)).H1 (F.step N) n k =
+      (softJBChart CI.softUpL CI1.softUpL TI (atStep F μ N) N Xs cols lo R hlo true used Pk σ0
+        (fun k => CI1.softUpL.lamL (atStep F μ N) (Xs k) N /
+          (kappaBal (CI1.softUpL.aOf (atStep F μ N) (Xs k) N) * softNorm CI1.softUpL CI1.softUpR (atStep F μ N) (Xs k) N))
+        host0 (compMatrix CI1 spl1 μ N Xs)).host1
+        ((softJBChart CI.softUpL CI1.softUpL TI (atStep F μ N) N Xs cols lo R hlo true used Pk σ0
+          (fun k => CI1.softUpL.lamL (atStep F μ N) (Xs k) N /
+            (kappaBal (CI1.softUpL.aOf (atStep F μ N) (Xs k) N) * softNorm CI1.softUpL CI1.softUpR (atStep F μ N) (Xs k) N))
+          host0 (compMatrix CI1 spl1 μ N Xs)).row n) k := by
+  intro n k
+  erw [softJBChart_H1 CI.softUpL CI1.softUpL TI (atStep F μ N) hp N hNT Xs cols lo R hlo true used Pk _ _ _ _ hX]
+  have hk := hcols k k.2
+  simp only [softJBChart, FormalResearch.JB.Chart.row]
+  rw [compMatrix_softUp_entry CI1 spl1 μ N Xs k hk.1 hk.2]
+  have hn : ((((lo + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (CI1.softUpL.uc (atStep F μ N))) := by
+    have := hle n
+    push_cast; exact this
+  rw [if_pos hn]
+  have hcr : chartRow N lo R true n = (((lo + n.val : ℕ) : ℤ)) := by simp [chartRow]
+  rw [hcr]
+  have hg := hgt n
+  have hg' : CI1.softUpL.uc (atStep F μ N) - CI1.softUpL.η / 2 < uNode (F.step N) (((lo + n.val : ℕ) : ℤ)) := by
+    push_cast; exact hg
+  rw [psiHatL_of_gt _ _ _ _ hg']
+  ring
+
+/-- **`host1_eq` for the right half of the upper soft edge** (mirror chart; `sigma^{[m+1]}_k = hat kappa^{[m+1]} lambda_R^{[m+1]}/(kappa_bal^{[m+1]} hat N^{[m+1]})`). -/
+theorem softUp_host1_eq_right (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (CI1 : ChartInputs F K Kidx t0 (m + 1) q U V cPC CPC)
+    {Jlo Jhi ulo uhi : (Par × ℝ) → ℝ}
+    (TI : TransferInputs (mirrorFamily (frozenFamily F Kidx)) (paramSet K t0) Jlo Jhi m CI.softUpR.chain CI1.softUpR.chain 2 ulo uhi)
+    (spl1 : Fin CI1.nb → ℝ) (μ : Par) (N : ℕ) (hp : atStep F μ N ∈ paramSet K t0) (hNT : TI.N0 ≤ N) (Xs : Fin (N + 1) → ℝ)
+    (cols : Finset (Fin (N + 1))) (hcols : ∀ k ∈ cols, (¬ ∃ ν : Fin CI1.nb, CI1.lo ν ≤ Xs k ∧ Xs k ≤ CI1.hi ν) ∧ CI1.Jhi < Xs k)
+    (hX : ∀ k : cols, Xs k ∈ Set.Icc (Jlo (atStep F μ N)) (Jhi (atStep F μ N)))
+    (lo R : ℕ) (hlo : lo + R ≤ N + 1)
+    (hgtn : ∀ n : Fin R, nearestRow (F.step N) (CI1.softUpL.uc (atStep F μ N)) < (lo : ℤ) + n)
+    (hgt : ∀ n : Fin R, CI1.softUpR.uc (atStep F μ N) - CI1.softUpR.η / 2 < uNode (F.step N) ((N : ℤ) - ((lo : ℤ) + n)))
+    (used : Finset (Fin R)) (Pk : cols → Finset (Fin R)) (σ0 : cols → ℝ) (host0 : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) :
+    ∀ n k, (softJBChart CI.softUpR CI1.softUpR TI (atStep F μ N) N Xs cols lo R hlo false used Pk σ0
+        (fun k => softKappa CI1.softUpL CI1.softUpR (atStep F μ N) (Xs k) N * CI1.softUpR.lamL (atStep F μ N) (Xs k) N /
+          (kappaBal (CI1.softUpR.aOf (atStep F μ N) (Xs k) N) * softNorm CI1.softUpL CI1.softUpR (atStep F μ N) (Xs k) N))
+        host0 (compMatrix CI1 spl1 μ N Xs)).H1 (F.step N) n k =
+      (softJBChart CI.softUpR CI1.softUpR TI (atStep F μ N) N Xs cols lo R hlo false used Pk σ0
+        (fun k => softKappa CI1.softUpL CI1.softUpR (atStep F μ N) (Xs k) N * CI1.softUpR.lamL (atStep F μ N) (Xs k) N /
+          (kappaBal (CI1.softUpR.aOf (atStep F μ N) (Xs k) N) * softNorm CI1.softUpL CI1.softUpR (atStep F μ N) (Xs k) N))
+        host0 (compMatrix CI1 spl1 μ N Xs)).host1
+        ((softJBChart CI.softUpR CI1.softUpR TI (atStep F μ N) N Xs cols lo R hlo false used Pk σ0
+          (fun k => softKappa CI1.softUpL CI1.softUpR (atStep F μ N) (Xs k) N * CI1.softUpR.lamL (atStep F μ N) (Xs k) N /
+            (kappaBal (CI1.softUpR.aOf (atStep F μ N) (Xs k) N) * softNorm CI1.softUpL CI1.softUpR (atStep F μ N) (Xs k) N))
+          host0 (compMatrix CI1 spl1 μ N Xs)).row n) k := by
+  intro n k
+  erw [softJBChart_H1 CI.softUpR CI1.softUpR TI (atStep F μ N) hp N hNT Xs cols lo R hlo false used Pk _ _ _ _ hX]
+  have hk := hcols k k.2
+  simp only [softJBChart, FormalResearch.JB.Chart.row]
+  rw [compMatrix_softUp_entry CI1 spl1 μ N Xs k hk.1 hk.2]
+  have hn : ¬ ((((lo + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (CI1.softUpL.uc (atStep F μ N))) := by
+    have := hgtn n
+    push_cast; omega
+  rw [if_neg hn]
+  have hcr : chartRow N lo R false n = (N : ℤ) - (((lo + n.val : ℕ) : ℤ)) := by simp [chartRow]
+  rw [hcr]
+  have hg' : CI1.softUpR.uc (atStep F μ N) - CI1.softUpR.η / 2 < uNode (F.step N) ((N : ℤ) - (((lo + n.val : ℕ) : ℤ))) := by
+    push_cast; exact hgt n
+  have e := psiHatL_of_gt CI1.softUpR (atStep F μ N) (Xs k) N hg'
+  simp only [Fin.val_mk]
+  rw [e]
+  ring
+
 end HostEntries
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.soft_transfer_row' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -370,6 +453,13 @@ end HostEntries
 #guard_msgs (whitespace := lax) in
 #print axioms softUp_host0_eq_right
 
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.softUp_host1_eq_left' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms softUp_host1_eq_left
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremB.softUp_host1_eq_right' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms softUp_host1_eq_right
 
 end FormalResearch.JacobiEigenvectors.TheoremB
 
