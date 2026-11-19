@@ -97,6 +97,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.CollarGlue
 public import FormalResearch.JacobiEigenvectors.TheoremB.Collar
 public import FormalResearch.JacobiEigenvectors.TheoremB.SoftOneStep
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThmBProof
+public import FormalResearch.JacobiEigenvectors.TheoremB.HostCols
 
 /-!
 # Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)
