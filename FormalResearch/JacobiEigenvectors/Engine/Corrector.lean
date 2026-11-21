@@ -15,7 +15,8 @@ proof in `app_engine.tex`, "Proof of Theorem `thm:eng-corr`" (hypotheses `(H_k)`
 `CorrSetting K` collects the standing hypotheses of the theorem and `Correctors K` the recursively defined correctors:
 
 * `CorrSetting`: a symplectic ladder (SM1)--(SM3) for the smooth parts `P, Q` (`ladder`), the polynomial parts `P, Q` even in `h`,
-  the Langer condition (eq:eng-langer) (`langer`), bond nondegeneracy (`nondeg`), `M₀ := P₀ Π₋(·,0)₂₁ = Ω₀²V₀ ∈ BSmooth 2`
+  the Langer condition (eq:eng-langer) (`langer`), the exact adjugate relation `Π₊(u,h) = adj Π₋(u+h,h)` (`adj_Pi`, replacing
+  `nondeg` in WP0b so hard-edge Weber bonds `𝒟² = s` are included), `M₀ := P₀ Π₋(·,0)₂₁ = Ω₀²V₀ ∈ BSmooth 2`
   (eq:eng-omega; the paper's `Ω₀²` is `M₀/V₀`, and `q_V = -4 M₀`), and `SymbolExp (2K+3)`: the analytic input (finitely many Taylor
   expansions of the symbols; see `CorrectorDefect`).
 * `Correctors`: `g₀ = √(c₀/V₀)` with `c₀/V₀ > 0` and `g₀ ≥ m₀ > 0`; `g_i ∈ BSmooth (2K+3)` (`i ≤ K`), `b_i = B_{2i-1} ∈ BSmooth (2K+3)`
@@ -42,7 +43,7 @@ proof in `app_engine.tex`, "Proof of Theorem `thm:eng-corr`" (hypotheses `(H_k)`
    (Paper: constants depend on sup norms over `I_u`.)  Together with the global form of the identities of `SymplecticLadder`.
 2. **Analytic input `SymbolExp`** (see `CorrectorDefect`): the Taylor expansions of the composite symbol functions are a hypothesis, not
    derived from `C^r` regularity of `P_{2i}, Q_{2i}, Π_±`.
-3. **Bond nondegeneracy** `∃ δ_D, ∀ s, 0 < |h| < δ_D → 𝒟²(s,h) ≠ 0`, i.e. `d2 s h ≠ 0` with the real function `d2 = 𝒟²` (the paper's hypothesis; used by the exact inverse formula `Π₊ = adj Π₋(·+h)`).
+3. **Adjugate inverse formula (`adj_Pi`)**: `∀ u h, Π₊(u,h) = adj Π₋(u+h,h)`, derived away from zeros by `Pp_eq_adj_of_prod` and extending across hard-edge bonds where `𝒟² = 0` (WP0b).
 4. **Correctors as data.**  The correctors are given with their regularity (`BSmooth (2K+3)`, i.e. derivatives up to order `m+2` bounded for `m = 2K+1`
    as in the paper) and the relations (a)_k, (b)_k; existence/regularity of `b_k` for one simple turning point is `prop:eng-corr1` (not formalised;
    the solvability formula is `transport_corrector`).  The paper's "for any constant `c_{2k}`" is the sequence `c`.  The uniform positivity `g₀ ≥ m₀` replaces "`g₀ > 0` on `I_u`".
@@ -110,8 +111,8 @@ structure CorrSetting (K : ℕ) (γ : ℝ) (dd d2 pp qq : ℝ → ℝ → ℝ) (
   qq_even : ∀ u h, qq u (-h) = qq u h
   /-- The analytic input: Taylor expansions of the symbols to order `2K + 3 = m + 2` for `m = 2K+1`. -/
   exp : SymbolExp (2 * K + 3) pp qq PiP PiM
-  /-- Nondegenerate bonds: `𝒟²(s,h) ≠ 0` for `0 < |h| < δD` (the paper's `D^2 != 0`). -/
-  nondeg : ∃ δD : ℝ, 0 < δD ∧ ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0
+  /-- Exact adjugate relation `Π₊(u,h) = adj Π₋(u+h,h)` for all `(u,h)` (WP0b: replaces bond nondegeneracy `d2 ≠ 0` so hard-edge Weber bonds `d2 s h = s` are included). -/
+  adj_Pi : ∀ u h, PiP u h = Matrix.adjugate (PiM (u + h) h)
   /-- (eq:eng-langer): `P₀ (Π₊₁₁ + Π₋₁₁)(·,0) = Q₀`. -/
   langer : ∀ u, pp u 0 * (PiP u 0 0 0 + PiM u 0 0 0) = qq u 0
   /-- `M₀ = P₀ Π₋(·,0)₂₁ = Ω₀²V₀` (eq:eng-omega) is `C²` with bounded derivatives. -/
@@ -151,12 +152,10 @@ lemma CorrSetting.dB_odd (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (k l : 
     dB pp qq PiP PiM g b k l u (-h) = -dB pp qq PiP PiM g b k l u h :=
   (defectRow_parity S.ladder S.pp_even S.qq_even (Aans_even g k) (Bans_even b l) u h).2
 
-lemma CorrSetting.FF_even (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) {δD : ℝ}
-    (hD : ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0) (k l : ℕ) (s h : ℝ) (hh : |h| < δD) :
-    FF pp PiM g b k l s (-h) = FF pp PiM g b k l s h := by
-  by_cases h0 : h = 0
-  · subst h0; simp
-  · exact Fcas_even S.ladder S.pp_even (Aans_even g k) (Bans_even b l) s h (hD s h (abs_pos.mpr h0) hh)
+lemma CorrSetting.FF_even (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (k l : ℕ) (s h : ℝ) :
+    FF pp PiM g b k l s (-h) = FF pp PiM g b k l s h :=
+  Fcas_even_of_adj S.ladder.par_Pi S.pp_even (Aans_even g k) (Bans_even b l) s h
+    (by have := S.adj_Pi (s - h / 2) h; rwa [show s - h / 2 + h = s + h / 2 by ring] at this)
 
 lemma CorrSetting.dB_zero (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (k l : ℕ) (u : ℝ) :
     dB pp qq PiP PiM g b k l u 0 = 0 := by
@@ -187,26 +186,18 @@ lemma CorrSetting.ans_papprox (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω)
 /-- **The Green bound.** If `F_cas - P(h) = O(h^n)` (`P` independent of `u`) and `h B 𝔄 = O(h^n)`, then `𝔅^tot = O(h^n)`:
 the Casoratian--Green identity (eq:eng-green) divides by `A ≥ m > 0`. -/
 lemma CorrSetting.D1_bound (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) {AA BB : ℝ → ℝ → ℝ}
-    (hAe : ∀ u h, AA u (-h) = AA u h) (hBe : ∀ u h, BB u (-h) = BB u h) {n : ℕ} (_hn : 1 ≤ n)
+    {n : ℕ} (_hn : 1 ≤ n)
     (hlow : ∃ m δ : ℝ, 0 < m ∧ 0 < δ ∧ ∀ u h, |h| < δ → m ≤ |AA u h|)
     (hBD : UO n (fun u h => h * BB u h * defectRow pp qq AA BB PiP PiM u h 0))
     {P : ℝ → ℝ} (hF : UO n (fun s h => Fcas pp AA BB PiM s h - P h)) :
     UO n (fun u h => defectRow pp qq AA BB PiP PiM u h 1) := by
-  obtain ⟨δD, hδD, hD⟩ := S.nondeg
   have hX : UO n (fun u h => h * BB u h * defectRow pp qq AA BB PiP PiM u h 0
       - ((Fcas pp AA BB PiM (u + h / 2) h - P h) - (Fcas pp AA BB PiM (u - h / 2) h - P h))) :=
     hBD.sub (hF.shift_half.sub hF.shift_neg_half)
   have hAD : UO n (fun u h => AA u h * defectRow pp qq AA BB PiP PiM u h 1) := by
-    refine UO.congr_loc hX hδD (fun u h hh => ?_)
-    by_cases h0 : h = 0
-    · subst h0
-      have := (defectRow_parity S.ladder S.pp_even S.qq_even hAe hBe u 0).2
-      rw [neg_zero] at this
-      have h1 : defectRow pp qq AA BB PiP PiM u 0 1 = 0 := by linarith
-      simp [h1]
-    · have hD' : Dp d2 u h ≠ 0 := hD (u + h / 2) h (abs_pos.mpr h0) hh
-      have := green_identity (AA := AA) (BB := BB) S.ladder u h hD'
-      linear_combination (-1 : ℝ) * this
+    refine hX.congr (fun u h => ?_)
+    have := green_identity_of_adj pp qq AA BB PiP PiM u h (S.adj_Pi u h)
+    linear_combination (-1 : ℝ) * this
   exact UO.div_of_lower hlow hAD
 
 /-- Odd lift for `𝔅^tot`. -/
@@ -258,7 +249,6 @@ lemma Correctors.Bans_bdd (C : Correctors K pp qq PiP PiM g b c) {l : ℕ} (hl :
 theorem PInv_zero (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) :
     UO 2 (dA pp qq PiP PiM g b 1 0) ∧ UO 3 (dB pp qq PiP PiM g b 1 0) ∧
       UO 2 (fun s h => FF pp PiM g b 1 0 s h - Pc c 1 h) := by
-  obtain ⟨δD, hδD, hD⟩ := S.nondeg
   have hd0 : UO 2 (dA pp qq PiP PiM g b 1 0) := by
     refine (lA_UO2 (N := 2 * K + 3) (by omega) S.exp S.ladder S.pp_even S.qq_even S.langer
       ((C.g_reg 0 (by omega)).mono (by omega))).congr fun u h => ?_
@@ -280,13 +270,13 @@ theorem PInv_zero (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Corrector
       rw [hF0, hP1]
     have hpa : PApprox 2 (fun s h => FF pp PiM g b 1 0 s h - Pc c 1 h) :=
       (hpaF.mono (by omega)).sub ((Pc_papprox c 1 2))
-    exact PApprox.lift (n := 1) (σ := 1) (δ0 := δD) (by norm_num) hpa h1 hδD
-      (fun s h hh => by rw [one_mul, S.FF_even hD 1 0 s h hh, Pc_even])
+    exact PApprox.lift (n := 1) (σ := 1) (δ0 := 1) (by norm_num) hpa h1 one_pos
+      (fun s h _ => by rw [one_mul, S.FF_even 1 0 s h, Pc_even])
   refine ⟨hd0, ?_, hFP⟩
   have hAe := Aans_even g 1
   have hBe := Bans_even b 0
   have h2 : UO 2 (dB pp qq PiP PiM g b 1 0) := by
-    refine S.D1_bound (AA := Aans g 1) (BB := Bans b 0) hAe hBe (by norm_num) (C.lower le_rfl (by omega)) ?_ hFP
+    refine S.D1_bound (AA := Aans g 1) (BB := Bans b 0) (by norm_num) (C.lower le_rfl (by omega)) ?_ hFP
     refine (UO.zero 2).congr fun u h => ?_
     simp [Bans]
   exact S.D1_lift hAe hBe (n := 2) (by decide) (hpaD1.mono (by omega)) h2
@@ -311,7 +301,6 @@ the Green identity gives `𝔅^tot = O(h^{2j+2})` and parity `O(h^{2j+3})`. -/
 theorem PInv_to_QInv (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) {j : ℕ}
     (hj : j + 1 ≤ K) (hP : PInv pp qq PiP PiM g b c j) : QInv pp qq PiP PiM g b c j := by
   obtain ⟨hD0, hD1, hF⟩ := hP
-  obtain ⟨δD, hδD, hD⟩ := S.nondeg
   have hN4 : 2 * j + 4 ≤ 2 * K + 3 := by omega
   have ⟨hpaD0, _, hpaF⟩ := S.ans_papprox C (k := j + 1) (l := j) (by omega) (by omega)
   have ⟨_, hpaD1', hpaF'⟩ := S.ans_papprox C (k := j + 1) (l := j + 1) (by omega) (by omega)
@@ -326,7 +315,7 @@ theorem PInv_to_QInv (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correc
     refine ha.congr fun u h => ?_
     simp only [Nat.add_sub_cancel]
     rw [show 2 * (j + 1) = 2 * j + 2 by ring]
-  have hlB := lB_UO3 (N := 2 * K + 3) (by omega) S.exp S.ladder S.pp_even hδD hD S.M0_smooth
+  have hlB := lB_UO3_of_adj (N := 2 * K + 3) (by omega) S.exp S.ladder.par_Pi S.adj_Pi S.pp_even S.M0_smooth
     ((C.b_reg (j + 1) (by omega) hj).mono (by omega))
   -- 𝔄 of the new ansatz
   have hq0 : UO (2 * j + 4) (dA pp qq PiP PiM g b (j + 1) (j + 1)) := by
@@ -345,9 +334,9 @@ theorem PInv_to_QInv (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correc
       (fun i hi => C.g_reg i (by omega)) (fun i h1 h2 => C.b_reg i h1 (by omega))
     have hpa : PApprox (2 * j + 1 + 1) (fun s h => FF pp PiM g b (j + 1) (j + 1) s h - FF pp PiM g b (j + 1) j s h) :=
       (hpaF'.mono (by omega)).sub (hpaF.mono (by omega))
-    exact PApprox.lift (n := 2 * j + 1) (σ := 1) (δ0 := δD)
-      (by rw [(show Odd (2 * j + 1) from ⟨j, rfl⟩).neg_one_pow]; norm_num) hpa h1 hδD
-      (fun s h hh => by rw [one_mul, S.FF_even hD _ _ s h hh, S.FF_even hD _ _ s h hh])
+    exact PApprox.lift (n := 2 * j + 1) (σ := 1) (δ0 := 1)
+      (by rw [(show Odd (2 * j + 1) from ⟨j, rfl⟩).neg_one_pow]; norm_num) hpa h1 one_pos
+      (fun s h _ => by rw [one_mul, S.FF_even _ _ s h, S.FF_even _ _ s h])
   have hq2 : UO (2 * j + 2) (fun s h => FF pp PiM g b (j + 1) (j + 1) s h - Pc c (j + 1) h) :=
     (hF.add hΔ).congr fun s h => by ring
   refine ⟨hq0, ?_, hq2⟩
@@ -359,7 +348,7 @@ theorem PInv_to_QInv (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correc
     have := ((hh.mul (C.Bans_bdd (l := j + 1) hj)).mul hq0)
     exact this.mono (by omega)
   have h2 : UO (2 * j + 2) (dB pp qq PiP PiM g b (j + 1) (j + 1)) :=
-    S.D1_bound (AA := Aans g (j + 1)) (BB := Bans b (j + 1)) hAe hBe (by omega) (C.lower (by omega) (by omega)) hBD hq2
+    S.D1_bound (AA := Aans g (j + 1)) (BB := Bans b (j + 1)) (by omega) (C.lower (by omega) (by omega)) hBD hq2
   exact S.D1_lift hAe hBe (n := 2 * j + 2) ⟨j + 1, by ring⟩ (hpaD1'.mono (by omega)) h2
 
 /-- **Step (b)_{j+1}**: adding `h^{2j+2} g_{j+1}` to `A` with `g_{j+1} = (c_{j+1} - F^{kn})/(2V₀g₀)` makes the order `h^{2j+2}` of
@@ -367,16 +356,15 @@ theorem PInv_to_QInv (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correc
 theorem QInv_to_PInv (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correctors K pp qq PiP PiM g b c) {j : ℕ}
     (hj : j + 1 ≤ K) (hQ : QInv pp qq PiP PiM g b c j) : PInv pp qq PiP PiM g b c (j + 1) := by
   obtain ⟨hq0, hq1, hqF⟩ := hQ
-  obtain ⟨δD, hδD, hD⟩ := S.nondeg
   have hN4 : 2 * j + 4 ≤ 2 * K + 3 := by omega
   have ⟨_, _, hpaF⟩ := S.ans_papprox C (k := j + 1) (l := j + 1) (by omega) (by omega)
   have ⟨hpaD0', hpaD1', hpaF'⟩ := S.ans_papprox C (k := j + 2) (l := j + 1) (by omega) (by omega)
   -- the coefficient `f` of `h^{2j+2}` in `F_cas`
   have hpaFP : PApprox (2 * j + 2 + 2) (fun s h => FF pp PiM g b (j + 1) (j + 1) s h - Pc c (j + 1) h) :=
     (hpaF.mono (by omega)).sub (Pc_papprox c (j + 1) _)
-  obtain ⟨f, _, hf⟩ := PApprox.exists_coeff (n := 2 * j + 2) (σ := 1) (δ0 := δD)
-    (by rw [(show Even (2 * j + 2) from ⟨j + 1, by ring⟩).neg_one_pow]; norm_num) hpaFP hqF hδD
-    (fun s h hh => by rw [one_mul, S.FF_even hD _ _ s h hh, Pc_even])
+  obtain ⟨f, _, hf⟩ := PApprox.exists_coeff (n := 2 * j + 2) (σ := 1) (δ0 := 1)
+    (by rw [(show Even (2 * j + 2) from ⟨j + 1, by ring⟩).neg_one_pow]; norm_num) hpaFP hqF one_pos
+    (fun s h _ => by rw [one_mul, S.FF_even _ _ s h, Pc_even])
   have hfl : ∀ s, 2 * V0fun pp PiM s * g 0 s * g (j + 1) s = c (j + 1) - f s := by
     refine C.flux (j + 1) (by omega) hj f ?_
     have e : 2 * (j + 1) + 2 = 2 * j + 2 + 2 := by ring
@@ -409,11 +397,11 @@ theorem QInv_to_PInv (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correc
   have hX : UO (2 * (j + 1) + 1 + 1) (fun s h => Fcas pp (Aans g (j + 1 + 1)) (Bans b (j + 1)) PiM s h
       - Fcas pp (Aans g (j + 1)) (Bans b (j + 1)) PiM s h
       - h ^ (2 * (j + 1)) * (2 * V0fun pp PiM s * g 0 s * g (j + 1) s)) :=
-    PApprox.lift (n := 2 * (j + 1) + 1) (σ := 1) (δ0 := δD)
-      (by rw [(show Odd (2 * (j + 1) + 1) from ⟨j + 1, rfl⟩).neg_one_pow]; norm_num) hXpa hX1 hδD
-      (fun s h hh => by
-        have e1 := S.FF_even (g := g) (b := b) hD (j + 1 + 1) (j + 1) s h hh
-        have e2 := S.FF_even (g := g) (b := b) hD (j + 1) (j + 1) s h hh
+    PApprox.lift (n := 2 * (j + 1) + 1) (σ := 1) (δ0 := 1)
+      (by rw [(show Odd (2 * (j + 1) + 1) from ⟨j + 1, rfl⟩).neg_one_pow]; norm_num) hXpa hX1 one_pos
+      (fun s h _ => by
+        have e1 := S.FF_even (g := g) (b := b) (j + 1 + 1) (j + 1) s h
+        have e2 := S.FF_even (g := g) (b := b) (j + 1) (j + 1) s h
         simp only [FF] at e1 e2
         rw [one_mul, e1, e2]
         simp [pow_mul])
@@ -440,7 +428,7 @@ theorem QInv_to_PInv (S : CorrSetting K γ dd d2 pp qq PiP PiM w ω) (C : Correc
     have := ((hh.mul (C.Bans_bdd (l := j + 1) hj)).mul hd0)
     exact this.mono (by omega)
   have h2 : UO (2 * (j + 1) + 2) (dB pp qq PiP PiM g b (j + 1 + 1) (j + 1)) :=
-    S.D1_bound (AA := Aans g (j + 1 + 1)) (BB := Bans b (j + 1)) hAe hBe (by omega)
+    S.D1_bound (AA := Aans g (j + 1 + 1)) (BB := Bans b (j + 1)) (by omega)
       (C.lower (by omega) (by omega)) hBD (P := Pc c (j + 1 + 1)) hF2
   exact ⟨hd0, S.D1_lift hAe hBe (n := 2 * (j + 1) + 2) ⟨j + 2, by ring⟩ (hpaD1'.mono (by omega)) h2, hF2⟩
 

@@ -15,8 +15,8 @@ public import FormalResearch.JacobiEigenvectors.Charts.PCBeyond
 # Paper J, Layer 4: Assembling `PCEnvelopeFacts` and `ParabolicCylinderFacts` for `pcU, pcV`
 
 This module assembles all banked Layer-4 envelope results for the actual parabolic-cylinder
-functions `pcU, pcV` into `PCEnvelopeFacts pcU pcV cPC CPC` and `ParabolicCylinderFacts pcU pcV cPC CPC`,
-modulo the single unproved field `V_growth` (`pcEnvelopeFacts_of_vGrowth`, `parabolicCylinderFacts_of_vGrowth`).
+functions `pcU, pcV` unconditionally into `PCEnvelopeFacts pcU pcV cPC CPC` (`pcEnvelopeFacts`)
+and `ParabolicCylinderFacts pcU pcV cPC CPC` (`parabolicCylinderFacts`).
 
 ## What is proved here
 * `pc_env_well`: `env_well` for all `a ≤ 0` and `0 ≤ z` with a single absolute constant, combining
@@ -28,11 +28,8 @@ modulo the single unproved field `V_growth` (`pcEnvelopeFacts_of_vGrowth`, `para
 * `pc_molv_well`, `pc_molv_bar`: two-sided `Molv` bounds from `Charts/PCMolv.lean`.
 * `pc_beyond`: both conjuncts of `beyond` for `z ≥ 2 * sqrt(max(-a, 0))`, combining
   `pcU_beyond_deriv_abs` (`Charts/PCBeyond.lean`) with `pc_molv_well` / `pc_molv_bar`.
-* `pcEnvelopeFacts_of_vGrowth`, `parabolicCylinderFacts_of_vGrowth`: full assembly given `V_growth`.
-
-## What is NOT proved here
-* `V_growth` remains an explicit hypothesis (`hV`), because the near-turning-point sign/growth of `pcV`
-  is Airy-hard and unconsumed by any downstream proof in Layers 2–3.
+* `pcEnvelopeFacts`, `parabolicCylinderFacts`: full unconditional assembly (`V_growth` is not
+  needed by `PCEnvelopeFacts` or Layers 2–3; far-region `pcV` growth is proved in `Charts/PCVFarGrowth.lean`).
 -/
 
 @[expose] public section
@@ -250,14 +247,10 @@ theorem pc_beyond : ∃ c : ℝ, 0 < c ∧ ∀ a z, 2 * Real.sqrt (max (-a) 0) �
       _ = c2 * (kappaBal a)⁻¹ * Ebar a z * Mbal a z := by ring
       _ ≤ Molv pcU pcV a z := (hmb a ha z).1
 
-/-- **`PCEnvelopeFacts` for the actual `pcU, pcV` given `V_growth`.**
-Proves `cPC_pos`, `cPC_le`, `env_well`, `env_bar`, `molv_well`, `molv_bar`, `U_pos`, and `beyond`
-for a single universal pair `(cPC, CPC)` with `0 < cPC ≤ CPC`.
-`V_growth` is kept as an explicit hypothesis `hV` (it is Airy-hard near the turning point and
-unconsumed by any downstream proof in Layers 2–3). -/
-theorem pcEnvelopeFacts_of_vGrowth
-    (hV : ∃ cV : ℝ, 0 < cV ∧ ∀ a z, max (2 * Real.sqrt (max (-a) 0)) 1 ≤ z →
-      0 < pcV a z ∧ cV * Real.sqrt (k2 a z) * pcV a z ≤ deriv (pcV a) z) :
+/-- **Unconditional `PCEnvelopeFacts` for the actual `pcU, pcV`.**
+Assembles `pc_env_well`, `pc_env_bar`, `pc_molv_well`, `pc_molv_bar`, `pcU_pos_beyond`, and `pc_beyond_of_molv`
+for a single universal pair `(cPC, CPC)` with `0 < cPC ≤ CPC`. -/
+theorem pcEnvelopeFacts :
     ∃ cPC CPC : ℝ, PCEnvelopeFacts pcU pcV cPC CPC := by
   obtain ⟨C_w, hC_w_pos, h_well⟩ := pc_env_well
   obtain ⟨C_b, hC_b_pos, h_bar⟩ := pc_env_bar
@@ -343,19 +336,15 @@ theorem pcEnvelopeFacts_of_vGrowth
           h2.trans (by rw [mul_assoc, mul_assoc]; exact mul_le_mul_of_nonneg_right hCb_le hEiM)⟩
       molv_well := h_molv_well_c
       molv_bar := h_molv_bar_c
-      V_growth := hV
       U_pos := pcU_pos_beyond
       beyond := pc_beyond_of_molv (fun a ha z => (h_molv_well_c a ha z).1)
         (fun a ha z => (h_molv_bar_c a ha z).1) }
 
-/-- **`ParabolicCylinderFacts` for the actual `pcU, pcV` given `V_growth`.**
-Combines `pcEnvelopeFacts_of_vGrowth` with `ParabolicCylinderFacts.ofEnvelope` (`Charts/PCActual.lean`).
-`V_growth` remains an explicit hypothesis `hV`. -/
-theorem parabolicCylinderFacts_of_vGrowth
-    (hV : ∃ cV : ℝ, 0 < cV ∧ ∀ a z, max (2 * Real.sqrt (max (-a) 0)) 1 ≤ z →
-      0 < pcV a z ∧ cV * Real.sqrt (k2 a z) * pcV a z ≤ deriv (pcV a) z) :
+/-- **Unconditional `ParabolicCylinderFacts` for the actual `pcU, pcV`.**
+Combines `pcEnvelopeFacts` with `ParabolicCylinderFacts.ofEnvelope` (`Charts/PCActual.lean`). -/
+theorem parabolicCylinderFacts :
     ∃ cPC CPC : ℝ, ParabolicCylinderFacts pcU pcV cPC CPC := by
-  obtain ⟨cPC, CPC, he⟩ := pcEnvelopeFacts_of_vGrowth hV
+  obtain ⟨cPC, CPC, he⟩ := pcEnvelopeFacts
   exact ⟨cPC, CPC, ParabolicCylinderFacts.ofEnvelope he⟩
 
 /-- info: 'FormalResearch.JacobiEigenvectors.Charts.pc_env_well' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -382,12 +371,12 @@ theorem parabolicCylinderFacts_of_vGrowth
 #guard_msgs (whitespace := lax) in
 #print axioms pc_beyond
 
-/-- info: 'FormalResearch.JacobiEigenvectors.Charts.pcEnvelopeFacts_of_vGrowth' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.pcEnvelopeFacts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms pcEnvelopeFacts_of_vGrowth
+#print axioms pcEnvelopeFacts
 
-/-- info: 'FormalResearch.JacobiEigenvectors.Charts.parabolicCylinderFacts_of_vGrowth' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.parabolicCylinderFacts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms parabolicCylinderFacts_of_vGrowth
+#print axioms parabolicCylinderFacts
 
 end FormalResearch.JacobiEigenvectors.Charts

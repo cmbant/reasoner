@@ -169,6 +169,14 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftLo
 public import FormalResearch.JacobiEigenvectors.TheoremB.ThbFinal
 public import FormalResearch.JacobiEigenvectors.TheoremB.CorThbGap
 public import FormalResearch.JacobiEigenvectors.TheoremB.CorThbFinal
+public import FormalResearch.JacobiEigenvectors.Engine.CorrectorLocal
+public import FormalResearch.JacobiEigenvectors.Charts.ODEFlow
+public import FormalResearch.JacobiEigenvectors.Charts.PCLadder
+public import FormalResearch.JacobiEigenvectors.Charts.SoftLamCont
+public import FormalResearch.JacobiEigenvectors.Charts.WeberLadder
+public import FormalResearch.JacobiEigenvectors.Charts.PCVFarGrowth
+public import FormalResearch.JacobiEigenvectors.Charts.SoftBounds
+public import FormalResearch.JacobiEigenvectors.Charts.LocalGeometry
 
 /-!
 # Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)

@@ -170,7 +170,7 @@ theorem exCorrSetting : CorrSetting 1 0 exDD exDD exPP exQQ exPiP exPiM exW (fun
       cM := fun i j => (PApprox.const (exPiM 0 0 i j)).congr (fun u h => by simp [exPP, exPiM])
       bddP := fun i j => UO.of_bdd (C := |exPiP 0 0 i j|) (fun u h => le_rfl)
       bddM := fun i j => UO.of_bdd (C := |exPiM 0 0 i j|) (fun u h => le_rfl) }
-  nondeg := ⟨1, one_pos, fun s h _ _ => by simp [exDD]⟩
+  adj_Pi := fun u h => Pp_eq_adj_of_prod exLadder u h (by simp [Dp, exDD])
   langer := fun u => by simp [exPP, exPiP, exPiM, exQQ]
   M0_smooth := by rw [exM0]; exact bsmooth_const 1 2
 

@@ -15,7 +15,7 @@ in `ParabolicCylinderFacts`, which extends four Prop-valued structures:
 * `PCExactFacts U V` (`ode_U`, `ode_V`, `wronsk`, `shift_*`, `reflect`, `reflect_V`): **proved for the actual functions** `pcU, pcV` (`Charts/PCExact.lean`, `pcExactFacts`);
 * `PCSmoothFacts U V` (`slice_U`, `slice_V`, `cont_U`, `cont_V`): smoothness in `z` and joint continuity (the weakening of the former `smooth_U`, `smooth_V`: joint `ContDiff ℝ ⊤`; proved for the actual functions, `Charts/PCSmooth.lean`);
 * `PCPhaseFact U` (`phase_osc`): DLMF 12.10.18;
-* `PCEnvelopeFacts U V cPC CPC` (`cPC_pos`, `cPC_le`, `env_well`, `env_bar`, `molv_well`, `molv_bar`, `V_growth`, `U_pos`, `beyond`): Olver's envelope estimates, the only block with no proof in the corpus.
+* `PCEnvelopeFacts U V cPC CPC` (`cPC_pos`, `cPC_le`, `env_well`, `env_bar`, `molv_well`, `molv_bar`, `U_pos`, `beyond`): Olver's envelope estimates (`Charts/PCEnvelopeAssembled.lean`).
 
 The structure still takes `U, V` as data (`pc.U`, `pc.V`).  The actual functions are `pcU a z = Re U(a,z)`, `pcV a z = Re V(a,z)` of the vendored lean-DLMF closure
 (`ThirdParty/lean-dlmf`: `DLMF.Confluent.parabolicCylinderU`, `parabolicCylinderV`, DLMF 12.2; no rescaling); `ParabolicCylinderFacts.ofEnvelope` (`PCActual.lean`) builds
@@ -31,7 +31,6 @@ connection fields fail for any other pair, since they pin down the Wronskian, th
 | `reflect`, `reflect_V` | connection formula `U(a,-z) = -sin(pi a) U + cos(pi a) Gamma(1/2-a) V`, and its companion `V(a,-z) = cos(pi a)/Gamma(1/2-a) U + sin(pi a) V`, `a <= 0` (eq:tha-conn, `M_-(a)` of lem:cha-PCenv (1a)) | DLMF 12.2.15--16 with 12.2.7 |
 | `env_well`, `env_bar`, `beyond` | `lem:cha-PCenv` (1b), (2), (3) | Olver 1997, Ch. 11 Thm 3.1, Ch. 6 Thm 2.2; Riccati comparison |
 | `molv_well`, `molv_bar` | `eq:cha-MolvEquiv`, `eq:cha-envbar` (the two-sided equivalence of `M_Olv` with `kappa^{-1} W M_bal`; lower bound inside the well) | Olver, as `env_well`; **added in round 3** (finding F-W2-6) |
-| `V_growth` | the growing solution `V` is positive and `V'/V >= c_V k_2^{1/2}` beyond the turning point and for `z >= 1` (the forward ratio `r_2 = e^{-theta}(1+O(h)) < 1` of the dominant member, app_thmA Step 3 (ii)); the unrestricted form is false (finding F-PC1) | Riccati comparison / Olver; **added in round 3** (finding F-W2-6) |
 | `phase_osc` | oscillatory phase expansion of the Weber branch on `|t| <= 1 - eps`, **on the lattice `mu^2 = 2n+1`** (lem:smo-bulkphase (1)) | DLMF 12.10.18; proved for the actual `pcU` from Hermite Plancherel-Rotach (`Charts/PCPhase.lean`) |
 
 `phase_osc` is about the model functions only (no eigenvalue or eigenvector estimate).  The all-order phase expansion of the
@@ -40,14 +39,13 @@ comparison sequences (lem:smo-bulkphase (4), DLMF 12.10.35 + Stirling) is *not* 
 
 ## Round 3 additions (finding F-W2-6; `Charts/SoftParabolicCylinder.lean`, `TheoremA/SoftProof.lean`)
 
-`reflect_V`, `molv_well`, `molv_bar`, `V_growth` were added because the corrected soft-edge chain (three patches for `a <= 0`, swapped pair `(v~, -u~)` after `Z = 0`) and the conversion
-of the engine bound to the paper's `lambda_L M_Olv(a,-Z)` need them and they follow from no other field.  All four are classical facts about `U, V` (no eigenvalue or eigenvector content) and were
+`reflect_V`, `molv_well`, `molv_bar` were added because the corrected soft-edge chain (three patches for `a <= 0`, swapped pair `(v~, -u~)` after `Z = 0`) and the conversion
+of the engine bound to the paper's `lambda_L M_Olv(a,-Z)` need them and they follow from no other field.  (`V_growth` was removed in Layer 4 WP0a as unconsumed by Layers 2–3;
+far-zone `V` positivity/growth for `SoftEdgeChart` belongs to `SoftEdgeChart.ratio2`/`grow3`.)  All remaining fields are classical facts about `U, V` (no eigenvalue or eigenvector content) and were
 checked numerically with mpmath 1.3.0 (scratch, not committed; `V(a,z) := Gamma(1/2+a)/pi (sin(pi a) U(a,z) + U(a,-z))`):
-`reflect_V` to `2e-31` (`a in {0, -0.25, -0.3, -1.7, -2.2, -5.37}`, `z in {-1.3, 0, 0.7, 2.1}`); `molv_well` and `molv_bar`: see the constants note below; `V_growth`: see finding F-PC1 below.
+`reflect_V` to `2e-31` (`a in {0, -0.25, -0.3, -1.7, -2.2, -5.37}`, `z in {-1.3, 0, 0.7, 2.1}`); `molv_well` and `molv_bar`: see the constants note below.
 
 **Constants (phase B2 scan; `FormalResearch/JacobiEigenvectors/LAYER4_PCF_PLAN.md`, Finding 5; mpmath, scratch).** Over `|a| <= 300`, all `z`, the `kappa^{-1}`-normalised ratio `M_Olv / (W_well M_bal)` lies in `[0.631, 1.755]` at non-resonant `a` and reaches `1.788` at `a` in `{-0.5, -1.5, -5.5, -20.5, -60.5}` and at the integers.  Hence `cPC <= 0.631` and **`CPC >= 1.79`**.  The round-3 sample `[0.63, 1.74]` (`a in {-0.01, ..., -15.3}`, `z in [-12, 12]`) avoided the resonances and is not a bound.
-
-**Finding F-PC1 (phase B2).** `V_growth` is stated for `max(2 sqrt(max(-a,0)), 1) <= z`; the constant `cV` stays existential.  Numerically (mpmath, scratch; `a` on a grid of step `0.01`), the minimum of `V'/(V k_2^{1/2})` is `0.3717` on `a` in `(0, 1.5]` at `z = 1` (near `a = 0.14`), `0.3970` on `a` in `[-1, 0)` at `z = 1`, and at least `0.69` on the sampled `a <= -1` at `z = 2 sqrt(-a)`.  So `cV = 0.37` is admissible, and `V > 0` at all sampled points.  The unrestricted statement is false: `V(1/2, z) = sqrt(2/pi) e^{z^2/4}` (DLMF 12.7.5 with 12.2.7) gives `V'(1/2, 0) = 0`, and `V(3/2, 0) = 0` since `1 + sin(3 pi/2) = 0`.  No proof uses `V_growth`.
 
 The *absorption* `Lambda h^{-m} (E_{j_1}/E_n)^2 <= e^{-c/h}` is **not** a field: it follows from the chart fields (`zeta_deriv`, `zeta_far`, `muS_bd`) and the definition of `Ewell` (an integral of an explicit function).
 
@@ -168,8 +166,7 @@ structure PCPhaseFact (U : ℝ → ℝ → ℝ) : Prop where
         ≤ C * μ⁻¹ ^ 2 * (2 * g μ / (1 - t ^ 2) ^ ((1 : ℝ) / 4))
 
 /-- **The envelope facts of Olver's theory** (lem:cha-PCenv, eq:cha-MolvEquiv, eq:cha-envbar, DLMF 12.9.1 and 12.10): the constants `cPC, CPC`, the envelopes
-`env_well`, `env_bar`, the two-sided `M_Olv` bounds, `beyond`, positivity `U_pos` and the growth of `V`.  The only part of `ParabolicCylinderFacts` with no proof
-in the corpus. -/
+`env_well`, `env_bar`, the two-sided `M_Olv` bounds, `U_pos` and `beyond`.  Proved unconditionally for `pcU, pcV` in `Charts/PCEnvelopeAssembled.lean`. -/
 structure PCEnvelopeFacts (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ) : Prop where
   cPC_pos : 0 < cPC
   cPC_le : cPC ≤ CPC
@@ -190,11 +187,6 @@ structure PCEnvelopeFacts (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ) : Prop whe
   /-- eq:cha-envbar (**round 3**), `a > 0`, all `Z`: `c_PC kappa^{-1} E_bar M_bal <= M_Olv <= C_PC kappa^{-1} E_bar M_bal`. -/
   molv_bar : ∀ a, 0 < a → ∀ z, cPC * (kappaBal a)⁻¹ * Ebar a z * Mbal a z ≤ Molv U V a z ∧
     Molv U V a z ≤ CPC * (kappaBal a)⁻¹ * Ebar a z * Mbal a z
-  /-- growth of the dominant solution (**round 3**; app_thmA Step 3 (ii): `r_2 = e^{-theta}(1 + O(h)) < 1`; finding F-PC1): there is `c_V > 0`
-  with `V(a,z) > 0` and `V'(a,z) >= c_V k_2^{1/2} V(a,z)` for `max (2 sqrt(max(-a,0))) 1 <= z` (beyond the turning point, and `z >= 1`).
-  The restriction `z >= 1` is needed: `V(1/2,z) = sqrt(2/pi) e^{z^2/4}` has `V'(1/2,0) = 0`. -/
-  V_growth : ∃ cV : ℝ, 0 < cV ∧ ∀ a z, max (2 * Real.sqrt (max (-a) 0)) 1 ≤ z →
-    0 < V a z ∧ cV * Real.sqrt (k2 a z) * V a z ≤ deriv (V a) z
   /-- **(round 8, F-W2-17; DLMF 12.9.1)** `U(a,z) > 0` beyond the turning point `z >= 2 sqrt(max(-a,0))` (`U(a,z) ~ e^{-z^2/4} z^{-a-1/2}`; `U` has no zeros there, and it is positive for large `z`).
   Used for the signs of the swapped-pair Casoratian and of `kappa'` in the counting argument (app_thmA Step 6); `beyond` only bounds `|U|`. -/
   U_pos : ∀ a z, 2 * Real.sqrt (max (-a) 0) ≤ z → 0 < U a z

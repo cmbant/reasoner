@@ -256,6 +256,20 @@ lemma adj_entries_of_prod (M N : M2) (δ : ℝ) (hδ : δ ≠ 0)
     linarith
   exact ⟨n00, n01, n10, n11⟩
 
+/-- Entrywise reading of `N = Matrix.adjugate M` on `2 × 2` matrices. -/
+lemma adj_entries (M N : M2) (h : N = Matrix.adjugate M) :
+    N 0 0 = M 1 1 ∧ N 0 1 = -M 0 1 ∧ N 1 0 = -M 1 0 ∧ N 1 1 = M 0 0 := by
+  subst h
+  simp [Matrix.adjugate_fin_two]
+
+/-- `Π₋ Π₊ = δ I` and `det Π₋ = δ ≠ 0` implies `Π₊ = adj Π₋`. -/
+lemma adj_eq_of_prod (M N : M2) (δ : ℝ) (hδ : δ ≠ 0)
+    (hdet : M 0 0 * M 1 1 - M 0 1 * M 1 0 = δ) (hprod : M * N = δ • (1 : M2)) :
+    N = Matrix.adjugate M := by
+  obtain ⟨h00, h01, h10, h11⟩ := adj_entries_of_prod M N δ hδ hdet hprod
+  ext i j
+  fin_cases i <;> fin_cases j <;> simp [Matrix.adjugate_fin_two, h00, h01, h10, h11]
+
 /-- Binet--Cauchy in dimension 2: `(a·x)(b·y) - (b·x)(a·y) = det[a;b] det[x|y]`. -/
 lemma binet_cauchy (a b x y : V2) :
     dot a x * dot b y - dot b x * dot a y = rowDet a b * colDet x y := by
@@ -313,17 +327,16 @@ section Parities
 
 variable {γ : ℝ} {dd d2 pp qq AA BB : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
 
-/-- The entries of `Π±(u,-h)` in terms of `Π∓(u,h)` (from (SM3) and `Σ² = I`). -/
-lemma par_Pi_entries (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h : ℝ) :
+/-- The entries of `Π±(u,-h)` in terms of `Π∓(u,h)`, assuming only the `(SM3)` identity `Π₊(u,-h) = Σ Π₋(u,h) Σ`. -/
+lemma par_Pi_entries_of_par {PiP PiM : ℝ → ℝ → M2} (hpar : ∀ u h, PiP u (-h) = Sg * PiM u h * Sg) (u h : ℝ) :
     PiP u (-h) 0 0 = PiM u h 0 0 ∧ PiP u (-h) 0 1 = -PiM u h 0 1 ∧
     PiP u (-h) 1 0 = -PiM u h 1 0 ∧ PiP u (-h) 1 1 = PiM u h 1 1 ∧
     PiM u (-h) 0 0 = PiP u h 0 0 ∧ PiM u (-h) 0 1 = -PiP u h 0 1 ∧
     PiM u (-h) 1 0 = -PiP u h 1 0 ∧ PiM u (-h) 1 1 = PiP u h 1 1 := by
-  have h1 := L.par_Pi u h
-  have h2 := L.par_Pi u (-h)
+  have h1 := hpar u h
+  have h2 := hpar u (-h)
   rw [neg_neg] at h2
   obtain ⟨a1, b1, c1, d1⟩ := sg_conj_entries (PiM u h)
-  obtain ⟨a2, b2, c2, d2⟩ := sg_conj_entries (PiP u h)
   obtain ⟨a3, b3, c3, d3⟩ := sg_conj_entries (PiM u (-h))
   have e1 : PiP u (-h) = Sg * PiM u h * Sg := h1
   have e2 : PiP u h = Sg * PiM u (-h) * Sg := h2
@@ -345,15 +358,28 @@ lemma par_Pi_entries (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h : �
     rw [d3] at this
     exact this.symm
 
-/-- The entries of `Π₊(u,h) = adj Π₋(u+h,h)` at a point with `𝒟₊(u,h) ≠ 0`. -/
-lemma Pp_entries_of_prod (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h : ℝ) (hD : Dp d2 u h ≠ 0) :
-    PiP u h 0 0 = PiM (u + h) h 1 1 ∧ PiP u h 0 1 = -PiM (u + h) h 0 1 ∧
-    PiP u h 1 0 = -PiM (u + h) h 1 0 ∧ PiP u h 1 1 = PiM (u + h) h 0 0 := by
+/-- The entries of `Π±(u,-h)` in terms of `Π∓(u,h)` (from (SM3) and `Σ² = I`). -/
+lemma par_Pi_entries (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h : ℝ) :
+    PiP u (-h) 0 0 = PiM u h 0 0 ∧ PiP u (-h) 0 1 = -PiM u h 0 1 ∧
+    PiP u (-h) 1 0 = -PiM u h 1 0 ∧ PiP u (-h) 1 1 = PiM u h 1 1 ∧
+    PiM u (-h) 0 0 = PiP u h 0 0 ∧ PiM u (-h) 0 1 = -PiP u h 0 1 ∧
+    PiM u (-h) 1 0 = -PiP u h 1 0 ∧ PiM u (-h) 1 1 = PiP u h 1 1 :=
+  par_Pi_entries_of_par L.par_Pi u h
+
+/-- `Π₊(u,h) = adj Π₋(u+h,h)` at a point with `𝒟₊(u,h) ≠ 0`. -/
+lemma Pp_eq_adj_of_prod (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h : ℝ) (hD : Dp d2 u h ≠ 0) :
+    PiP u h = Matrix.adjugate (PiM (u + h) h) := by
   have hmDp : Dm d2 (u + h) h = Dp d2 u h := by
     simp only [Dm, Dp]; congr 1; ring
   have hdet := L.det_dn (u + h) h
   rw [hmDp, Matrix.det_fin_two] at hdet
-  exact adj_entries_of_prod (PiM (u + h) h) (PiP u h) (Dp d2 u h) hD hdet (L.prod u h)
+  exact adj_eq_of_prod (PiM (u + h) h) (PiP u h) (Dp d2 u h) hD hdet (L.prod u h)
+
+/-- The entries of `Π₊(u,h) = adj Π₋(u+h,h)` at a point with `𝒟₊(u,h) ≠ 0`. -/
+lemma Pp_entries_of_prod (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h : ℝ) (hD : Dp d2 u h ≠ 0) :
+    PiP u h 0 0 = PiM (u + h) h 1 1 ∧ PiP u h 0 1 = -PiM (u + h) h 0 1 ∧
+    PiP u h 1 0 = -PiM (u + h) h 1 0 ∧ PiP u h 1 1 = PiM (u + h) h 0 0 :=
+  adj_entries (PiM (u + h) h) (PiP u h) (Pp_eq_adj_of_prod L u h hD)
 
 /-- Parity (`thm:eng-defect`(2)): `𝔄^tot(u,-h) = 𝔄^tot(u,h)` and `𝔅^tot(u,-h) = -𝔅^tot(u,h)`, for `P`, `Q`, `A`, `B`
 even in `h`. -/
@@ -377,16 +403,20 @@ theorem Fcas_zero (pp AA BB : ℝ → ℝ → ℝ) (PiM : ℝ → ℝ → M2) (s
   simp [Fcas, vrow, rowDet, rowMul]
   ring
 
-/-- Evenness of `F_cas` in `h` (`thm:eng-defect`(3b)), at a bond with `𝒟(s,h) ≠ 0`. -/
-theorem Fcas_even (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω)
-    (hP : ∀ s h, pp s (-h) = pp s h)
+/-- Evenness of `F_cas` in `h` (`thm:eng-defect`(3b)) from `(SM3)` parity and `Π₊(s-h/2,h) = adj Π₋(s+h/2,h)`,
+with no bond nondegeneracy assumption. -/
+theorem Fcas_even_of_adj {pp : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2}
+    (hpar : ∀ u h, PiP u (-h) = Sg * PiM u h * Sg)
+    (hP : ∀ s h, pp s (-h) = pp s h) {AA BB : ℝ → ℝ → ℝ}
     (hAe : ∀ u h, AA u (-h) = AA u h) (hBe : ∀ u h, BB u (-h) = BB u h) (s h : ℝ)
-    (hD : d2 s h ≠ 0) :
+    (hadj : PiP (s - h / 2) h = Matrix.adjugate (PiM (s + h / 2) h)) :
     Fcas pp AA BB PiM s (-h) = Fcas pp AA BB PiM s h := by
   obtain ⟨u, rfl⟩ : ∃ u, s = u + h / 2 := ⟨s - h / 2, by ring⟩
-  have hD' : Dp d2 u h ≠ 0 := hD
-  obtain ⟨p00, p01, p10, p11⟩ := Pp_entries_of_prod L u h hD'
-  obtain ⟨_, _, _, _, m00, m01, m10, m11⟩ := par_Pi_entries L u h
+  have e0 : u + h / 2 - h / 2 = u := by ring
+  have e0' : u + h / 2 + h / 2 = u + h := by ring
+  rw [e0, e0'] at hadj
+  obtain ⟨p00, p01, p10, p11⟩ := adj_entries (PiM (u + h) h) (PiP u h) hadj
+  obtain ⟨_, _, _, _, m00, m01, m10, m11⟩ := par_Pi_entries_of_par hpar u h
   have e1 : u + h / 2 + -h / 2 = u := by ring
   have e2 : u + h / 2 - -h / 2 = u + h := by ring
   have e3 : u + h / 2 + h / 2 = u + h := by ring
@@ -394,6 +424,16 @@ theorem Fcas_even (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω)
   simp only [Fcas, e1, e2, e3, e4, hP, vrow, hAe, hBe, rowMul, rowDet, m00, m01, m10, m11, p00, p01, p10, p11,
     Matrix.cons_val_zero, Matrix.cons_val_one]
   ring
+
+/-- Evenness of `F_cas` in `h` (`thm:eng-defect`(3b)), at a bond with `𝒟(s,h) ≠ 0`. -/
+theorem Fcas_even (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω)
+    (hP : ∀ s h, pp s (-h) = pp s h)
+    (hAe : ∀ u h, AA u (-h) = AA u h) (hBe : ∀ u h, BB u (-h) = BB u h) (s h : ℝ)
+    (hD : d2 s h ≠ 0) :
+    Fcas pp AA BB PiM s (-h) = Fcas pp AA BB PiM s h := by
+  obtain ⟨u, rfl⟩ : ∃ u, s = u + h / 2 := ⟨s - h / 2, by ring⟩
+  have hadj := Pp_eq_adj_of_prod L u h hD
+  exact Fcas_even_of_adj L.par_Pi hP hAe hBe (u + h / 2) h (by ring_nf at hadj ⊢; simpa using hadj)
 
 end Parities
 
@@ -448,12 +488,13 @@ section Green
 
 variable {γ : ℝ} {dd d2 pp qq AA BB : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
 
-/-- **Casoratian--Green identity** (`thm:eng-defect`(3c), `eq:eng-green`), at a point with `𝒟(u+h/2,h) ≠ 0`:
+/-- **Casoratian--Green identity** (`thm:eng-defect`(3c), `eq:eng-green`), assuming `Π₊(u,h) = adj Π₋(u+h,h)`:
 `A(u,h²) 𝔅^tot(u,h) - h B(u,h²) 𝔄^tot(u,h) = -[𝓕_cas(u+h/2,h) - 𝓕_cas(u-h/2,h)]`. -/
-theorem green_identity (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h : ℝ) (hD : Dp d2 u h ≠ 0) :
+theorem green_identity_of_adj (pp qq AA BB : ℝ → ℝ → ℝ) (PiP PiM : ℝ → ℝ → M2) (u h : ℝ)
+    (hadj : PiP u h = Matrix.adjugate (PiM (u + h) h)) :
     AA u h * defectRow pp qq AA BB PiP PiM u h 1 - h * BB u h * defectRow pp qq AA BB PiP PiM u h 0 =
       -(Fcas pp AA BB PiM (u + h / 2) h - Fcas pp AA BB PiM (u - h / 2) h) := by
-  obtain ⟨p00, p01, p10, p11⟩ := Pp_entries_of_prod L u h hD
+  obtain ⟨p00, p01, p10, p11⟩ := adj_entries (PiM (u + h) h) (PiP u h) hadj
   have e1 : u + h / 2 + h / 2 = u + h := by ring
   have e2 : u + h / 2 - h / 2 = u := by ring
   have e3 : u - h / 2 + h / 2 = u := by ring
@@ -461,6 +502,13 @@ theorem green_identity (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h :
   simp only [defectRow, Fcas, e1, e2, e3, e4, vrow, rowMul, rowDet, p00, p01, p10, p11,
     Matrix.cons_val_zero, Matrix.cons_val_one]
   ring
+
+/-- **Casoratian--Green identity** (`thm:eng-defect`(3c), `eq:eng-green`), at a point with `𝒟(u+h/2,h) ≠ 0`:
+`A(u,h²) 𝔅^tot(u,h) - h B(u,h²) 𝔄^tot(u,h) = -[𝓕_cas(u+h/2,h) - 𝓕_cas(u-h/2,h)]`. -/
+theorem green_identity (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (u h : ℝ) (hD : Dp d2 u h ≠ 0) :
+    AA u h * defectRow pp qq AA BB PiP PiM u h 1 - h * BB u h * defectRow pp qq AA BB PiP PiM u h 0 =
+      -(Fcas pp AA BB PiM (u + h / 2) h - Fcas pp AA BB PiM (u - h / 2) h) :=
+  green_identity_of_adj pp qq AA BB PiP PiM u h (Pp_eq_adj_of_prod L u h hD)
 
 end Green
 
@@ -564,6 +612,10 @@ theorem constant_ladder (γ : ℝ) :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.Engine.Fcas_zero
 
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.Fcas_even_of_adj' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Engine.Fcas_even_of_adj
+
 /-- info: 'FormalResearch.JacobiEigenvectors.Engine.Fcas_even' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.Engine.Fcas_even
@@ -571,6 +623,10 @@ theorem constant_ladder (γ : ℝ) :
 /-- info: 'FormalResearch.JacobiEigenvectors.Engine.casSite_eq_omega_Fcas' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.Engine.casSite_eq_omega_Fcas
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.green_identity_of_adj' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Engine.green_identity_of_adj
 
 /-- info: 'FormalResearch.JacobiEigenvectors.Engine.green_identity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

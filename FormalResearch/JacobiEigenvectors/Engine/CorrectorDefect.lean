@@ -185,10 +185,11 @@ section Claims
 
 variable {γ : ℝ} {dd d2 pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} {w : Fin 2 → ℝ → ℝ → V2} {ω : ℝ → ℝ}
 
-lemma lA_even (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h)
+lemma lA_even_of_par {pp qq : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2}
+    (hpar : ∀ u h, PiP u (-h) = Sg * PiM u h * Sg) (hP : ∀ s h, pp s (-h) = pp s h)
     (hQ : ∀ u h, qq u (-h) = qq u h) (g : ℝ → ℝ) (u h : ℝ) :
     lA pp qq PiP PiM g u (-h) = lA pp qq PiP PiM g u h := by
-  obtain ⟨p00, p01, p10, p11, m00, m01, m10, m11⟩ := par_Pi_entries L u h
+  obtain ⟨p00, p01, p10, p11, m00, m01, m10, m11⟩ := par_Pi_entries_of_par hpar u h
   have e1 : u + -h / 2 = u - h / 2 := by ring
   have e2 : u - -h / 2 = u + h / 2 := by ring
   have e3 : u + -h = u - h := by ring
@@ -196,16 +197,27 @@ lemma lA_even (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, 
   simp only [lA, e1, e2, e3, e4, hP, hQ, p00, m00]
   ring
 
-lemma lB_odd (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h)
+lemma lA_even (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h)
+    (hQ : ∀ u h, qq u (-h) = qq u h) (g : ℝ → ℝ) (u h : ℝ) :
+    lA pp qq PiP PiM g u (-h) = lA pp qq PiP PiM g u h :=
+  lA_even_of_par L.par_Pi hP hQ g u h
+
+lemma lB_odd_of_par {pp : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2}
+    (hpar : ∀ u h, PiP u (-h) = Sg * PiM u h * Sg) (hP : ∀ s h, pp s (-h) = pp s h)
     (b : ℝ → ℝ) (u h : ℝ) :
     lB pp PiP PiM b u (-h) = -lB pp PiP PiM b u h := by
-  obtain ⟨p00, p01, p10, p11, m00, m01, m10, m11⟩ := par_Pi_entries L u h
+  obtain ⟨p00, p01, p10, p11, m00, m01, m10, m11⟩ := par_Pi_entries_of_par hpar u h
   have e1 : u + -h / 2 = u - h / 2 := by ring
   have e2 : u - -h / 2 = u + h / 2 := by ring
   have e3 : u + -h = u - h := by ring
   have e4 : u - -h = u + h := by ring
   simp only [lB, e1, e2, e3, e4, hP, p10, m10]
   ring
+
+lemma lB_odd (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h)
+    (b : ℝ → ℝ) (u h : ℝ) :
+    lB pp PiP PiM b u (-h) = -lB pp PiP PiM b u h :=
+  lB_odd_of_par L.par_Pi hP b u h
 
 /-- A `PApprox 1` function vanishing at `h = 0` is `O(h)`. -/
 lemma uo1_of_zero {f : ℝ → ℝ → ℝ} (hf : PApprox 1 f) (h0 : ∀ u, f u 0 = 0) : UO 1 f := by
@@ -236,24 +248,32 @@ theorem lA_UO2 {N : ℕ} (hN : 2 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
 
 /-! ### (ii) the odd bracket and the transport operator -/
 
+lemma Mfun_even_of_adj {pp : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2}
+    (hpar : ∀ u h, PiP u (-h) = Sg * PiM u h * Sg) (hP : ∀ s h, pp s (-h) = pp s h)
+    (s h : ℝ) (hadj : PiP (s - h / 2) h = Matrix.adjugate (PiM (s + h / 2) h)) :
+    Mfun pp PiM s (-h) = Mfun pp PiM s h := by
+  obtain ⟨u, rfl⟩ : ∃ u, s = u + h / 2 := ⟨s - h / 2, by ring⟩
+  have e0 : u + h / 2 - h / 2 = u := by ring
+  have e0' : u + h / 2 + h / 2 = u + h := by ring
+  rw [e0, e0'] at hadj
+  obtain ⟨_, _, p10, _⟩ := adj_entries (PiM (u + h) h) (PiP u h) hadj
+  obtain ⟨_, _, _, _, _, _, m10, _⟩ := par_Pi_entries_of_par hpar u h
+  have e1 : u + h / 2 + -h / 2 = u := by ring
+  have e2 : u + h / 2 + h / 2 = u + h := by ring
+  simp only [Mfun, e1, e2, hP, m10, p10]
+  ring
+
 lemma Mfun_even (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h) {δD : ℝ}
     (hD : ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0) (s h : ℝ) (hh : |h| < δD) :
     Mfun pp PiM s (-h) = Mfun pp PiM s h := by
   by_cases h0 : h = 0
   · subst h0; simp
   · obtain ⟨u, rfl⟩ : ∃ u, s = u + h / 2 := ⟨s - h / 2, by ring⟩
-    have hD' : Dp d2 u h ≠ 0 := hD (u + h / 2) h (abs_pos.mpr h0) hh
-    obtain ⟨_, _, p10, _⟩ := Pp_entries_of_prod L u h hD'
-    obtain ⟨_, _, _, _, _, _, m10, _⟩ := par_Pi_entries L u h
-    have e1 : u + h / 2 + -h / 2 = u := by ring
-    have e2 : u + h / 2 + h / 2 = u + h := by ring
-    simp only [Mfun, e1, e2, hP, m10, p10]
-    ring
+    have hadj := Pp_eq_adj_of_prod L u h (hD (u + h / 2) h (abs_pos.mpr h0) hh)
+    exact Mfun_even_of_adj L.par_Pi hP (u + h / 2) h (by ring_nf at hadj ⊢; simpa using hadj)
 
-/-- `M(s,h) = M₀(s) + O(h²)` uniformly in `s` (the paper: "`M` is even in `h`", `M(s,0) = Ω₀²V₀`). -/
-lemma Mdev {N : ℕ} (hN : 2 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
-    (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h) {δD : ℝ} (hδD : 0 < δD)
-    (hD : ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0) :
+private lemma Mdev_of_even {N : ℕ} (hN : 2 ≤ N) (hS : SymbolExp N pp qq PiP PiM) {δ0 : ℝ} (hδ0 : 0 < δ0)
+    (heven : ∀ s h, |h| < δ0 → Mfun pp PiM s (-h) = Mfun pp PiM s h) :
     UO 2 (fun s h => Mfun pp PiM s h - M0fun pp PiM s) := by
   have hf : PApprox 2 (Mfun pp PiM) := (hS.cM 1 0).mono hN
   have hval : ∀ s, Mfun pp PiM s 0 = M0fun pp PiM s := by intro s; simp [Mfun, M0fun]
@@ -265,8 +285,34 @@ lemma Mdev {N : ℕ} (hN : 2 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
   have h1 : UO 1 (fun s h => Mfun pp PiM s h - M0fun pp PiM s) := by
     have := (hf.mono (by norm_num : 1 ≤ 2)).order1
     simpa [hval] using this
-  exact PApprox.lift (n := 1) (σ := 1) (δ0 := δD) (by norm_num) hg h1 hδD
-    (fun s h hh => by simp [Mfun_even L hP hD s h hh])
+  exact PApprox.lift (n := 1) (σ := 1) (δ0 := δ0) (by norm_num) hg h1 hδ0
+    (fun s h hh => by simp [heven s h hh])
+
+/-- `M(s,h) = M₀(s) + O(h²)` uniformly in `s` from `Π₊ = adj Π₋(·+h)` (no `𝒟² ≠ 0` hypothesis). -/
+lemma Mdev_of_adj {N : ℕ} (hN : 2 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
+    (hpar : ∀ u h, PiP u (-h) = Sg * PiM u h * Sg)
+    (hadj : ∀ u h, PiP u h = Matrix.adjugate (PiM (u + h) h))
+    (hP : ∀ s h, pp s (-h) = pp s h) :
+    UO 2 (fun s h => Mfun pp PiM s h - M0fun pp PiM s) :=
+  Mdev_of_even hN hS one_pos (fun s h _ => Mfun_even_of_adj hpar hP s h
+    (by have := hadj (s - h / 2) h; rwa [show s - h / 2 + h = s + h / 2 by ring] at this))
+
+/-- `M(s,h) = M₀(s) + O(h²)` uniformly in `s` (the paper: "`M` is even in `h`", `M(s,0) = Ω₀²V₀`). -/
+lemma Mdev {N : ℕ} (hN : 2 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
+    (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h) {δD : ℝ} (hδD : 0 < δD)
+    (hD : ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0) :
+    UO 2 (fun s h => Mfun pp PiM s h - M0fun pp PiM s) :=
+  Mdev_of_even hN hS hδD (fun s h hh => Mfun_even L hP hD s h hh)
+
+lemma lB_eq_of_adj {pp : ℝ → ℝ → ℝ} {PiP PiM : ℝ → ℝ → M2} (b : ℝ → ℝ) (u h : ℝ)
+    (hadj : PiP u h = Matrix.adjugate (PiM (u + h) h)) :
+    lB pp PiP PiM b u h =
+      -(Mfun pp PiM (u + h / 2) h) * b (u + h) + Mfun pp PiM (u - h / 2) h * b (u - h) := by
+  obtain ⟨_, _, p10, _⟩ := adj_entries (PiM (u + h) h) (PiP u h) hadj
+  have e1 : u + h / 2 + h / 2 = u + h := by ring
+  have e2 : u - h / 2 + h / 2 = u := by ring
+  simp only [lB, Mfun, e1, e2, p10]
+  ring
 
 lemma lB_eq (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) {δD : ℝ}
     (hD : ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0) (b : ℝ → ℝ) (u h : ℝ) (hh : |h| < δD) :
@@ -278,12 +324,7 @@ lemma lB_eq (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) {δD : ℝ}
     rw [neg_zero] at p10
     simp only [lB, Mfun, zero_div, add_zero, sub_zero, p10]
     ring
-  · have hD' : Dp d2 u h ≠ 0 := hD (u + h / 2) h (abs_pos.mpr h0) hh
-    obtain ⟨_, _, p10, _⟩ := Pp_entries_of_prod L u h hD'
-    have e1 : u + h / 2 + h / 2 = u + h := by ring
-    have e2 : u - h / 2 + h / 2 = u := by ring
-    simp only [lB, Mfun, e1, e2, p10]
-    ring
+  · exact lB_eq_of_adj b u h (Pp_eq_adj_of_prod L u h (hD (u + h / 2) h (abs_pos.mpr h0) hh))
 
 lemma UO.h_mul {n : ℕ} {f : ℝ → ℝ → ℝ} (hf : UO n f) : UO (n + 1) (fun u h => h * f u h) := by
   have := UO.hpow_mul 1 hf
@@ -311,14 +352,14 @@ lemma transportOp_bdd {M0 b : ℝ → ℝ} (hM0 : BSmooth 1 M0) (hb : BSmooth 1 
     exact mul_le_mul a3 a4 (abs_nonneg _) (abs_nonneg _)
   exact (abs_add_le _ _).trans (add_le_add t1 t2)
 
-/-- **(ii)** `lB b - h 𝒯[b] = O(h³)`: the odd bracket gives the transport operator `𝒯[b] = -(2 M₀ b' + M₀' b)` at
-leading order, and parity removes the `h²` term. -/
-theorem lB_UO3 {N : ℕ} (hN : 3 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
-    (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h) {δD : ℝ} (hδD : 0 < δD)
-    (hD : ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0)
-    (hM0 : BSmooth 2 (M0fun pp PiM)) {b : ℝ → ℝ} (hb : BSmooth 3 b) :
+private lemma lB_UO3_aux {N : ℕ} (hN : 3 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
+    (hM0 : BSmooth 2 (M0fun pp PiM)) {b : ℝ → ℝ} (hb : BSmooth 3 b)
+    (hMd : UO 2 (fun s h => Mfun pp PiM s h - M0fun pp PiM s))
+    {δ0 : ℝ} (hδ0 : 0 < δ0)
+    (hlB_eq : ∀ u h, |h| < δ0 → lB pp PiP PiM b u h =
+      -(Mfun pp PiM (u + h / 2) h) * b (u + h) + Mfun pp PiM (u - h / 2) h * b (u - h))
+    (hlB_odd : ∀ u h, lB pp PiP PiM b u (-h) = -lB pp PiP PiM b u h) :
     UO 3 (fun u h => lB pp PiP PiM b u h - h * transportOp (M0fun pp PiM) b u) := by
-  have hMd := Mdev (by omega : 2 ≤ N) hS L hP hδD hD
   have hb2 : BSmooth 2 b := hb.mono (by norm_num)
   have εp : UO 2 (fun u h => Mfun pp PiM (u + h / 2) h - M0fun pp PiM (u + h / 2)) := hMd.shift_half
   have εm : UO 2 (fun u h => Mfun pp PiM (u - h / 2) h - M0fun pp PiM (u - h / 2)) := hMd.shift_neg_half
@@ -372,8 +413,8 @@ theorem lB_UO3 {N : ℕ} (hN : 3 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
     have T8' := T8.mono (by norm_num : 2 ≤ 2 + 2)
     exact ((((((T1.neg.add T2).add T3).sub T4').add T5).sub T6').add T7').sub T8'
   have h2 : UO 2 (fun u h => lB pp PiP PiM b u h - h * transportOp (M0fun pp PiM) b u) := by
-    refine UO.congr_loc key hδD (fun u h hh => ?_)
-    rw [lB_eq L hD b u h hh]
+    refine UO.congr_loc key hδ0 (fun u h hh => ?_)
+    rw [hlB_eq u h hh]
     simp only [transportOp]
     ring
   have hpa : PApprox 3 (fun u h => lB pp PiP PiM b u h - h * transportOp (M0fun pp PiM) b u) := by
@@ -385,7 +426,27 @@ theorem lB_UO3 {N : ℕ} (hN : 3 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
     exact ((((hS.sP 1 0).mono hN).mul s1).add (((hS.sM 1 0).mono hN).mul s2)).sub
       ((PApprox.hpow 1).mul hT |>.congr fun u h => by simp)
   exact PApprox.lift (n := 2) (σ := -1) (δ0 := 1) (by norm_num) hpa h2 one_pos
-    (fun u h _ => by rw [lB_odd L hP]; ring)
+    (fun u h _ => by rw [hlB_odd]; ring)
+
+/-- **(ii)** `lB b - h 𝒯[b] = O(h³)` from `Π₊ = adj Π₋(·+h)` (no `𝒟² ≠ 0` hypothesis). -/
+theorem lB_UO3_of_adj {N : ℕ} (hN : 3 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
+    (hpar : ∀ u h, PiP u (-h) = Sg * PiM u h * Sg)
+    (hadj : ∀ u h, PiP u h = Matrix.adjugate (PiM (u + h) h))
+    (hP : ∀ s h, pp s (-h) = pp s h)
+    (hM0 : BSmooth 2 (M0fun pp PiM)) {b : ℝ → ℝ} (hb : BSmooth 3 b) :
+    UO 3 (fun u h => lB pp PiP PiM b u h - h * transportOp (M0fun pp PiM) b u) :=
+  lB_UO3_aux hN hS hM0 hb (Mdev_of_adj (by omega : 2 ≤ N) hS hpar hadj hP) one_pos
+    (fun u h _ => lB_eq_of_adj b u h (hadj u h)) (lB_odd_of_par hpar hP b)
+
+/-- **(ii)** `lB b - h 𝒯[b] = O(h³)`: the odd bracket gives the transport operator `𝒯[b] = -(2 M₀ b' + M₀' b)` at
+leading order, and parity removes the `h²` term. -/
+theorem lB_UO3 {N : ℕ} (hN : 3 ≤ N) (hS : SymbolExp N pp qq PiP PiM)
+    (L : SymplecticLadder γ dd d2 pp qq PiP PiM w ω) (hP : ∀ s h, pp s (-h) = pp s h) {δD : ℝ} (hδD : 0 < δD)
+    (hD : ∀ s h, 0 < |h| → |h| < δD → d2 s h ≠ 0)
+    (hM0 : BSmooth 2 (M0fun pp PiM)) {b : ℝ → ℝ} (hb : BSmooth 3 b) :
+    UO 3 (fun u h => lB pp PiP PiM b u h - h * transportOp (M0fun pp PiM) b u) :=
+  lB_UO3_aux hN hS hM0 hb (Mdev (by omega : 2 ≤ N) hS L hP hδD hD) hδD
+    (lB_eq L hD b) (lB_odd L hP b)
 
 /-! ### (iii) the even flux `F_cas` -/
 
@@ -656,6 +717,10 @@ end Claims
 /-- info: 'FormalResearch.JacobiEigenvectors.Engine.lA_UO2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.Engine.lA_UO2
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Engine.lB_UO3_of_adj' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Engine.lB_UO3_of_adj
 
 /-- info: 'FormalResearch.JacobiEigenvectors.Engine.lB_UO3' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
