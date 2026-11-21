@@ -8,8 +8,7 @@ public import Mathlib.Analysis.Calculus.Deriv.Add
 /-!
 # A product of two resolvent factors as an average of squared resolvents (CR.18)
 
-Source: `CFT/notes/ce_cardinal_resolvent.tex`, identity (CR.18) (label `cecr:CR.18`), in the Cohn–Elkies
-modular-bootstrap material; queue row CEQ18 of `CFT/modular_bootstrap/notes/CE_MISSING_QUEUE.md`.
+Source: `CFT/sign_uncertainty/paper/ce_cardinal_resolvent.tex`, identity (CR.18) (label `cecr:CR.18`).
 
 **Statement proved** (`resolvent_product_eq_integral`, proved): for real `s r h E` with `0 < 1 + s h E` and
 `0 < 1 + r h E`,
@@ -24,8 +23,8 @@ no division by `s - r` appears.
 `1 + r h E` and `1 + s h E` at the endpoints, this holds exactly when those two numbers have the same strict sign;
 the hypotheses here are the paper's (both positive). `h`, `E` need not be non-negative.
 
-**Not covered.** The positive measure `Λ_{h,p}` and the mixture identities (CR.19)–(CR.20) that use this average
-are not formalised; this module is only the scalar identity (CR.18).
+See `FormalResearch.CohnElkies.StieltjesMixture` for the positive measure `Λ_{h,p}` and mixture identities
+(CR.19)–(CR.20) built on top of this scalar identity.
 -/
 
 @[expose] public section

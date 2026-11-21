@@ -4,20 +4,28 @@ public import FormalResearch.CohnElkies.ResolventAverage
 public import FormalResearch.CohnElkies.FourierL1Interp
 public import FormalResearch.CohnElkies.CardinalTruncation
 public import FormalResearch.CohnElkies.ClosedResolvent
+public import FormalResearch.CohnElkies.StieltjesMixture
+public import FormalResearch.CohnElkies.CardinalAsymptotics
+public import FormalResearch.CohnElkies.MellinAiryToolkit
 
 /-!
-# Cohn–Elkies elementary lemmas (umbrella)
+# Cohn–Elkies / CFT Paper I elementary and toolkit lemmas (umbrella)
 
-Elementary lemmas from the Cohn–Elkies / CFT modular-bootstrap material, formalised in Mathlib and the Airy library
-(queue rows CEQ18, CEQ19, CEQ20, CEQ22 of `CFT/modular_bootstrap/notes/CE_MISSING_QUEUE.md`):
+Formalised lemmas for CFT Paper I (`CFT/sign_uncertainty/paper/sign_uncertainty_core.tex` and components) in Mathlib
+and the Airy library:
 
-* `FormalResearch.CohnElkies.ResolventAverage`: the scalar identity (CR.18), product of two resolvent factors as an
-  average of squared resolvents.
-* `FormalResearch.CohnElkies.FourierL1Interp`: `∫|f̂| ≤ 2π (‖g‖₂‖g'‖₂)^{1/2}` for Schwartz `g` (FG.3, PF.2).
-* `FormalResearch.CohnElkies.CardinalTruncation`: `‖H_N² − H²‖₁ ≤ (‖H_N‖₂ + ‖H‖₂)‖H_N − H‖₂` and its limit form (GT.0).
-* `FormalResearch.CohnElkies.ClosedResolvent`: Theorem CR.1 (closed diagonal Airy resolvent, eq. CR.2, with the Riccati
-  equation, CR.4 and the diagonal derivative step, CR.3 and the removable case `z = a`), from the library's
-  Mittag-Leffler expansion of `Ai'/Ai`; no hypothesis beyond the displayed ones.
+* `FormalResearch.CohnElkies.ResolventAverage`: scalar resolvent-product average identity `(CR.18)`.
+* `FormalResearch.CohnElkies.FourierL1Interp`: `∫|f̂| ≤ 2π (‖f‖₂‖f'‖₂)^{1/2}` for Schwartz and `H¹(ℝ)` functions
+  (Lemma T.5 / `(FG.3c)`), exact Fourier-multiplier representation `(FG.3b)`, and uniform `‖T_c f‖_∞` bound (Lemma FG.3).
+* `FormalResearch.CohnElkies.CardinalTruncation`: `‖H_N² − H²‖₁ ≤ (‖H_N‖₂ + ‖H‖₂)‖H_N − H‖₂` and uniform `H^∞`
+  convergence `(GT.0)` for Airy-class functions.
+* `FormalResearch.CohnElkies.ClosedResolvent`: Theorem CR.1 (closed diagonal Airy resolvent `(CR.2)`, Riccati equation,
+  `(CR.4)` diagonal derivative step, `(CR.3)`, and removable case `z = a`).
+* `FormalResearch.CohnElkies.StieltjesMixture`: Stieltjes mixture identities `(CR.19a)`, `(CR.8)`, `(CR.6b)`, `(CR.20)`,
+  `(CR.7)`, and `(CR.9)`.
+* `FormalResearch.CohnElkies.CardinalAsymptotics`: Proposition CR.3 asymptotics `(CR.11)–(CR.13)` and Theorem CR.4 Step 1
+  `(CR.14a)–(CR.15)`.
+* `FormalResearch.CohnElkies.MellinAiryToolkit`: Mellin–Airy toolkit Lemmas T.4(a)–(f) and T.3(1), T.3(3).
 
 This umbrella is deliberately not imported by `FormalResearch.lean`.
 -/

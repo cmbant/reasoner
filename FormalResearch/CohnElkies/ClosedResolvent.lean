@@ -6,8 +6,8 @@ public import FormalResearch.Special.AiryCft2FirstDerivZero
 /-!
 # The closed diagonal Airy resolvent (CR.1, CR.2, CR.3 and the Riccati/derivative step)
 
-Source: `CFT/notes/ce_cardinal_resolvent.tex`, Theorem CR.1 (label `cecr:CR1`; equations `cecr:CR.1`, `cecr:CR.2`,
-`cecr:CR.3`, and the proof's (CR.4)–(CR.6a)); queue row CEQ19 of `CFT/modular_bootstrap/notes/CE_MISSING_QUEUE.md`.
+Source: `CFT/sign_uncertainty/paper/ce_cardinal_resolvent.tex`, Theorem CR.1 (label `cecr:CR1`; equations `cecr:CR.1`, `cecr:CR.2`,
+`cecr:CR.3`, and the proof's (CR.4)–(CR.6a)).
 
 Notation (as in the note, `a_n = airyZero n`, `n ≥ 1`, indexed here by `n : ℕ` as `airyZero (n+1)`):
 `m(w) = Ai'(w)/Ai(w)` (`cohnM`), `R_2(v,w) = (m(w) - m(v))/(v - w)` (`cohnR2`), `a` a real zero of `Ai'`,
@@ -42,7 +42,8 @@ of `R_3` itself (CR.6, CR.6a as a statement about `∂_a ∂_u`) is not stated.
 
 **Differences in generality.** The paper fixes `a = a_1'` (the largest zero of `Ai'`); the theorems here allow any
 real zero `a` of `Ai'` (then `Ai(a) ≠ 0` by the Wronskian), which includes the paper's case.  `u` is not restricted to
-`u < a_1`: any real `u ∉ {a, z}` is allowed.  Not formalised: the Stieltjes-measure corollaries CR.2–CR.4 of the note.
+`u < a_1`: any real `u ∉ {a, z}` is allowed. The Stieltjes-measure and asymptotic follow-ons CR.2–CR.4 live in
+`FormalResearch.CohnElkies.StieltjesMixture` and `FormalResearch.CohnElkies.CardinalAsymptotics`.
 -/
 
 @[expose] public section
