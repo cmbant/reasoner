@@ -15,6 +15,13 @@ public import FormalResearch.CohnElkies.CardinalPositiveAxis
 public import FormalResearch.CohnElkies.CardinalSymbolBounds
 public import FormalResearch.CohnElkies.AiryTwistedLaplace
 public import FormalResearch.CohnElkies.OriginMellinAndS0
+public import FormalResearch.CohnElkies.SaddleGeometry
+public import FormalResearch.CohnElkies.LobeSaddleCore
+public import FormalResearch.CohnElkies.LobeSaddleBounds
+public import FormalResearch.CohnElkies.FiniteGaussianBase
+public import FormalResearch.CohnElkies.FiniteDimensionCrossings
+public import FormalResearch.CohnElkies.LaguerreJacobiSpectral
+public import FormalResearch.CohnElkies.LaguerreSublinearLimit
 
 /-!
 # Cohn–Elkies / CFT Paper I elementary and toolkit lemmas (umbrella)
@@ -52,6 +59,20 @@ and the Airy library:
   Lemma `P.1(1)` / `(cel:3.2)`).
 * `FormalResearch.CohnElkies.OriginMellinAndS0`: positive source `S₀` two-sided floor (`P.1(2)`) and
   origin Mellin kernel bounds (`ce_rate.tex` Lemma `P.2(1)` / `(cel:4.6)`).
+* `FormalResearch.CohnElkies.SaddleGeometry`: elementary `cos²` averaging (`P.5`), strip function
+  reflection, saddle scales, and local vertical curvature (`ce_rate.tex` Lemma `P.3(2)–(3)`).
+* `FormalResearch.CohnElkies.LobeSaddleCore`: vertical phase derivative, `LobeSaddleAmp`,
+  saddle-line integrability, and inner saddle window error bound (`ce_rate.tex` Prop `P.4` core).
+* `FormalResearch.CohnElkies.LobeSaddleBounds`: outer tail & additional damping estimates,
+  uniform lobe saddle asymptotic (`ce_rate.tex` Prop `P.4`, Remark `P.4a`), and `lobeSaddleAmp_nonvacuous`.
+* `FormalResearch.CohnElkies.FiniteGaussianBase`: Cohn–Elkies admissibility, radial Schwartz
+  Gaussian Fourier transforms, and quadratic Gaussian Theorem `E.1` (`ce_finite_bounds.tex`).
+* `FormalResearch.CohnElkies.FiniteDimensionCrossings`: Stirling–Robbins and dyadic log bounds,
+  quadratic dimension crossings (`E.2`), and cubic Laguerre Gaussian bounds (`E.2'`).
+* `FormalResearch.CohnElkies.LaguerreJacobiSpectral`: Laguerre orthogonal basis `laguerreHat`,
+  three-term recurrence, Hermitian Jacobi matrix, and Rayleigh spectral lower bound.
+* `FormalResearch.CohnElkies.LaguerreSublinearLimit`: `[0, ∞)`-SOS factorization, exact finite
+  lower bound, sublinear-degree limitation (`E.3a`), and `κ_Gauss` attainment.
 
 This umbrella is deliberately not imported by `FormalResearch.lean`.
 -/
