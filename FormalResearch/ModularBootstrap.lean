@@ -4,6 +4,8 @@ public import FormalResearch.ModularBootstrap.Constants
 public import FormalResearch.ModularBootstrap.Crossing.Setup
 public import FormalResearch.ModularBootstrap.Crossing.SumRule
 public import FormalResearch.ModularBootstrap.Crossing.Bridge
+public import FormalResearch.ModularBootstrap.Crossing.MehlerOddClosure
+public import FormalResearch.ModularBootstrap.Crossing.MehlerOddMoment
 public import FormalResearch.ModularBootstrap.Bessel.Defs
 public import FormalResearch.ModularBootstrap.Bessel.IntegralRep
 public import FormalResearch.ModularBootstrap.Bessel.VSeries
@@ -48,6 +50,10 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `Crossing.Bridge`: Virasoro bridge into `WeaklyFeasibleTest` (proving `hKa_ub` with
   `C_K = √(15/4)` and `hHalfMass`, isolating `LemmaPJInput`/`LemmaGapInput`) and Theorem `A`
   for `T_weak`, `T_V`, and `Delta_best`.
+* `Crossing.MehlerOddClosure`, `Crossing.MehlerOddMoment`: proof of `MehlerOddMomentInput` for every `w`
+  (thermal differences are dense in the Fourier-odd radial `L²` functions; the Mehler kernel maps
+  thermal differences to thermal differences and is `L²` in `y`), and the `_unconditional` forms of
+  Lemma `FW-A`, Lemma `FW-X` and Theorem `FW-C`.
 * `Bessel.*`: Lemma B (`vlo:Bessel`), pure-Bessel parts: `I₀, I₁, I₂` by power series
   (`Defs`), the integral representation (`IntegralRep`), `V = K_a - 2K_{a-1} + K_{a-2}` and
   part (a) (`VSeries`), Laplace asymptotics of `I₀` (`LaplaceAux`, `Laplace`), part (c) for real `x`
