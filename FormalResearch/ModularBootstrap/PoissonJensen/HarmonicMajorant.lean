@@ -3243,10 +3243,10 @@ private lemma growth_domination_by_barrier {ε : ℝ} (hε : 0 < ε) :
         dsimp [M_ε]; gcongr
       linarith
 
-/-- Identification `h = U` (`HarmonicMajorantIdentification`, Lemma G, `vlo:Gap`). -/
-theorem harmonicMajorantIdentification : HarmonicMajorantIdentification := by
-  have hpointwise : ∀ z₀ : ℂ, 0 < z₀.im → majorant2D (confB z₀) = (schwarzSlit z₀).im := by
-    intro z₀ hz₀
+/-- Complex-`b` harmonic majorant identification (`h = U` at every `z₀` in the upper half-plane,
+`vlo:Gap` / `vlo:PJ`). -/
+theorem majorant2D_confB_eq_schwarzSlit_im (z₀ : ℂ) (hz₀ : 0 < z₀.im) :
+    majorant2D (confB z₀) = (schwarzSlit z₀).im := by
     let Δ : ℂ → ℂ := fun z => majorantHolomorphic (confB z) - schwarzSlit z
     have hΔ_diff : DifferentiableOn ℂ Δ {z : ℂ | 0 < z.im} := by
       intro z hz
@@ -3543,6 +3543,24 @@ theorem harmonicMajorantIdentification : HarmonicMajorantIdentification := by
     have him0 : (Δ z₀).im = 0 := by linarith [h1, h2]
     have hdz := hΔ_im z₀
     linarith [hdz, him0]
+
+/-- Complex-`b` harmonic majorant identification written as a Poisson integral over
+`slitPreimage` for any `z₀ ∈ ℍ` (`U(𝓑(z₀)) = -∫_{slitPreimage} L(𝓑_∂(σ)) P(z₀, σ) dσ`). -/
+theorem harmonicMajorantIdentification_complex {z₀ : ℂ} (hz₀ : 0 < z₀.im) :
+    majorant2D (confB z₀) =
+      -∫ σ in slitPreimage, slitL (slitBoundaryMap σ) * poissonKernel z₀.re z₀.im σ := by
+  rw [majorant2D_confB_eq_schwarzSlit_im z₀ hz₀, schwarzSlit_im hz₀]
+
+/--
+info: 'FormalResearch.ModularBootstrap.PoissonJensen.harmonicMajorantIdentification_complex' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+-/
+#guard_msgs (whitespace := lax) in
+#print axioms harmonicMajorantIdentification_complex
+
+/-- Identification `h = U` (`HarmonicMajorantIdentification`, Lemma G, `vlo:Gap`). -/
+theorem harmonicMajorantIdentification : HarmonicMajorantIdentification := by
   -- Specialize to `z₀ = realSliceData.xUHP (xiStar - x) + I * realSliceData.yUHP (xiStar - x)`
   intro x hx
   have hx_mem : xiStar - x ∈ Ioc 0 xiStar := ⟨sub_pos.mpr hx.2, by linarith [hx.1]⟩
@@ -3555,7 +3573,7 @@ theorem harmonicMajorantIdentification : HarmonicMajorantIdentification := by
   have hcb : confB z₀ = (x : ℂ) := by
     have hp := realSliceData_preimage hx_mem
     simpa [z₀, sub_sub_cancel] using hp.2
-  have hpt := hpointwise z₀ hz₀_im
+  have hpt := majorant2D_confB_eq_schwarzSlit_im z₀ hz₀_im
   rw [hcb, majorant2D_ofReal (by rw [abs_of_nonneg hx.1]; exact hx.2.le),
     schwarzSlit_im hz₀_im] at hpt
   simpa [z₀] using hpt

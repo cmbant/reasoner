@@ -100,6 +100,7 @@ structure BlowupTest (inp : StripBootstrapInputs) (c' : ℝ) where
   hM_int : IntegrableOn (fun t => |g t| * V t) (Ioi 0)
   hM_eq : ∫ t in Ioi 0, |g t| * V t = M
   hg_nonneg_tail : ∀ t, t₁ ≤ t → 0 ≤ g t
+  ht₁_least : t₁ = sInf {T : ℝ | 0 ≤ T ∧ ∀ t : ℝ, T ≤ t → 0 ≤ g t}
   hVac_int : IntegrableOn (fun t => g t * V t) (Ioi 0)
   hVac_eq : ∫ t in Ioi 0, g t * V t = -gVac / (2 * π)
   hV_le_two_Ka : ∀ x ∈ Icc (0.05 : ℝ) xiStar, V (c' * x ^ 2 / 3) ≤ 2 * K_a (c' * x ^ 2 / 3)

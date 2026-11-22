@@ -56,6 +56,17 @@ public import FormalResearch.ModularBootstrap.Mellin.HankelMellin
 public import FormalResearch.ModularBootstrap.StripBand.StripPoissonRep
 public import FormalResearch.ModularBootstrap.StripBand.BandReductionBV
 public import FormalResearch.ModularBootstrap.StripBand.BandReduction
+public import FormalResearch.ModularBootstrap.Chart.Basic
+public import FormalResearch.ModularBootstrap.Chart.EdgeFunctions
+public import FormalResearch.ModularBootstrap.Chart.MidpointAndUpsilon
+public import FormalResearch.ModularBootstrap.Chart.Upsilon
+public import FormalResearch.ModularBootstrap.Chart.ExponentAndSaddle
+public import FormalResearch.ModularBootstrap.Chart.EvenAndFactorization
+public import FormalResearch.ModularBootstrap.Chart.Langer
+public import FormalResearch.ModularBootstrap.TipFront.ComplexMajorant
+public import FormalResearch.ModularBootstrap.TipFront.ComplexPoissonJensen
+public import FormalResearch.ModularBootstrap.TipFront.ConcreteBlowup
+public import FormalResearch.ModularBootstrap.TipFront.GeneralGapLemmaG
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -174,4 +185,25 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `StripBand.BandReduction`: **Proposition TE.3(1)** (`teb:mellin`), the universal strip band
   reduction (`teb_band_reduction`, `teb_band_reduction_quantified`) with non-vacuity
   (`bandReductionInstance_nonvacuous`).
+* `Chart.Basic`, `Chart.EdgeFunctions`, `Chart.MidpointAndUpsilon`, `Chart.Upsilon`:
+  Mellin chart functions `chartB`, `chartQ`, `chartOmega`, midpoint `√s · A(±s)` analyticity,
+  primitive `Υ(ζ)` on `0 ≤ Re ζ ≤ 1/2` (Lemma S3, `vlo:S3`), and left-edge dispersion/bounds
+  `x₀`, `y₀`, `μ`, `ν`, `m_V` (Lemma J4.0, `vlo:J40`).
+* `Chart.ExponentAndSaddle`: Saddle derivative `∂_ζ Φ_V = 2 log(b(ζ)/b) ω'(ζ)` (Lemma S5 first
+  claim, `vlo:S5`, `lemma_S5_deriv`) and crude exponent `E_c` representation, strict convexity in `μ`,
+  and left-edge identity (E2–E3, `vlo:E2`, `lemma_E2_E3`).
+* `Chart.EvenAndFactorization`: Even tip expansion `b(ζ) = bEven(ζ²)` (`chartB_even_expansion`),
+  midpoint `ω'(0) = 0`, and bivariate holomorphic factorization `2 log(b(w)/b(s)) ω'(w) = (π²/6)(w² - s²)(1 + η)`
+  (Lemma F, `vlo:F`, `lemma_F`).
+* `Chart.Langer`: Langer chart comparability `ζ₊`, `σ₊`, `Im b(ζ₊) ≤ 0` and left-edge band
+  (Lemma S6, `vlo:S6`, `lemma_S6`) assuming `LangerChartSpec` (`langerChartSpec_nonvacuous`).
+* `TipFront.ComplexMajorant`: concrete `LemmaGPotentialInput` witness with `U = majorant2D`
+  (`lemmaGPotentialInput_virasoro_exists`, Lemma `T2`, `bl:T2`).
+* `TipFront.ComplexPoissonJensen`: complex-`b` Poisson--Jensen inequality in the tip neighborhood
+  (`stripPoissonJensen_complex`, Lemma `vlo:PJ`) and unconditional `virasoroStripBootstrapInputs`.
+* `TipFront.ConcreteBlowup`: least threshold `leastThreshold`, concrete `BlowupTest` constructor
+  `blowupTest_of_concrete`, unconditional `blowupFamilyPackage_of_concrete_tests` and
+  `rigidityFamilyPackage_of_concrete_tests`, and concrete Theorems `C`, `(R1)`--`(R3)`.
+* `TipFront.GeneralGapLemmaG`: general-`δ` Lemma `G` (`lemmaG_general_delta`, `vlo:Gap`) for all
+  `δ ∈ (0, ξ_*)`.
 -/

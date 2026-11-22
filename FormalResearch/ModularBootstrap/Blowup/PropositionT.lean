@@ -1631,14 +1631,12 @@ theorem isThreshold_imp_g_t1_eq_zero {g : ℝ → ℝ} {t₁ : ℝ}
     exact csInf_le ⟨0, fun _ hT => hT.1⟩ hT'_mem
   linarith
 
-/-- Construct a full `RigidityFamilyPackage ι p` from a family of `BlowupTest`s plus the
-minimal-threshold condition `∀ᶠ n, 0 < (tests n).t₁ → (tests n).g (tests n).t₁ = 0`
-(cf. `isThreshold_imp_g_t1_eq_zero`). -/
+/-- Construct a full `RigidityFamilyPackage ι p` from a family of `BlowupTest`s
+(deriving `0 < t₁ → g t₁ = 0` from `ht₁_least` via `isThreshold_imp_g_t1_eq_zero`). -/
 noncomputable def rigidityFamilyPackage_of_tests {ι : Type*} {p : Filter ι}
     (hI0 : BesselI0Asymptotic) (inp : StripBootstrapInputs)
     {c' : ι → ℝ} (hc' : Tendsto c' p atTop)
-    (tests : ∀ n : ι, BlowupTest inp (c' n))
-    (hg_t1_zero : ∀ᶠ n in p, 0 < (tests n).t₁ → (tests n).g (tests n).t₁ = 0) :
+    (tests : ∀ n : ι, BlowupTest inp (c' n)) :
     RigidityFamilyPackage ι p where
   toBlowupFamilyPackage := blowupFamilyPackage_of_tests hI0 inp hc' tests
   domain_integrable := by
@@ -1698,11 +1696,13 @@ noncomputable def rigidityFamilyPackage_of_tests {ι : Type*} {p : Filter ι}
       filter_upwards [hc'.eventually (eventually_ge_atTop (1 : ℝ)), hsub] with n hn hs
       exact (hs hn).symm
     filter_upwards [hc'.eventually (eventually_ge_atTop c_A),
-      hpos_t1.eventually (eventually_gt_atTop (0 : ℝ)), hg_t1_zero] with n hc'n hlb hzero
+      hpos_t1.eventually (eventually_gt_atTop (0 : ℝ))] with n hc'n hlb
     have hc'0 : 0 < c' n := lt_of_lt_of_le (by linarith) hc'n
     have ht1_pos : 0 < (tests n).t₁ :=
       lt_of_lt_of_le hlb (hA hc'n ((tests n).toWeaklyFeasibleTest hc'0.le))
-    have hg0 : (tests n).g (tests n).t₁ = 0 := hzero ht1_pos
+    have hg0 : (tests n).g (tests n).t₁ = 0 :=
+      isThreshold_imp_g_t1_eq_zero (tests n).hg_cont ht1_pos (tests n).ht₁_least
+        (tests n).hg_nonneg_tail
     have ht_eq : tipTReal (c' n) (tipS₁ (c' n) (tests n)) = (tests n).t₁ := by
       unfold tipTReal tipBReal tipS₁
       have hε : tipEps (c' n) ≠ 0 := (tipEps_pos hc'0).ne'
@@ -1735,9 +1735,8 @@ theorem blowup_theorem_R1 {ι : Type*} {p : Filter ι} [p.IsCountablyGenerated]
 theorem blowup_theorem_R2 {ι : Type*} {p : Filter ι} [p.NeBot] [p.IsCountablyGenerated]
     (hI0 : BesselI0Asymptotic) (inp : StripBootstrapInputs)
     {c' : ι → ℝ} (hc' : Tendsto c' p atTop) (tests : ∀ n : ι, BlowupTest inp (c' n))
-    (hg_t1_zero : ∀ᶠ n in p, 0 < (tests n).t₁ → (tests n).g (tests n).t₁ = 0)
     (hAtt : Att (blowupFamilyPackage_of_tests hI0 inp hc' tests)) :
-    let R := rigidityFamilyPackage_of_tests hI0 inp hc' tests hg_t1_zero
+    let R := rigidityFamilyPackage_of_tests hI0 inp hc' tests
     Tendsto (fun n => ∫ s : ℝ, ‖phiExt R n s - phiStar (s : ℂ)‖) p (nhds 0) ∧
     (∀ ε : ℝ, 0 < ε → ∃ R₀ : ℝ, 0 < R₀ ∧
       ∀ᶠ n in p, ∫ s in Ioi R₀ ∪ Iio (-R₀), ‖phiExt R n s‖ < ε) ∧
@@ -1751,9 +1750,8 @@ theorem blowup_theorem_R2 {ι : Type*} {p : Filter ι} [p.NeBot] [p.IsCountablyG
 theorem blowup_theorem_R3 {ι : Type*} {p : Filter ι} [p.NeBot] [p.IsCountablyGenerated]
     (hI0 : BesselI0Asymptotic) (inp : StripBootstrapInputs)
     {c' : ι → ℝ} (hc' : Tendsto c' p atTop) (tests : ∀ n : ι, BlowupTest inp (c' n))
-    (hg_t1_zero : ∀ᶠ n in p, 0 < (tests n).t₁ → (tests n).g (tests n).t₁ = 0)
     (hAtt : Att (blowupFamilyPackage_of_tests hI0 inp hc' tests)) :
-    let R := rigidityFamilyPackage_of_tests hI0 inp hc' tests hg_t1_zero
+    let R := rigidityFamilyPackage_of_tests hI0 inp hc' tests
     (∃ r₀ > 0, ∀ r, 0 < r → r ≤ r₀ → ∀ᶠ n in p,
       zeroCount (R.Φ n) (s1 : ℂ) r = 1 ∧ (R.s₁ n : ℂ) ∈ ball (s1 : ℂ) r ∧
       R.Φ n (R.s₁ n : ℂ) = 0 ∧ analyticOrderNatAt (R.Φ n) (R.s₁ n : ℂ) = 1 ∧
