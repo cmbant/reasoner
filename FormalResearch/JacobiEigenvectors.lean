@@ -1,0 +1,195 @@
+module
+
+public import FormalResearch.JacobiEigenvectors.Setting.JacobiFamily
+public import FormalResearch.JacobiEigenvectors.Setting.EigenSystem
+public import FormalResearch.JacobiEigenvectors.Charts.LadderChain
+public import FormalResearch.JacobiEigenvectors.Charts.ParabolicCylinder
+public import FormalResearch.JacobiEigenvectors.Charts.PCExact
+public import FormalResearch.JacobiEigenvectors.Charts.PCOrigin
+public import FormalResearch.JacobiEigenvectors.Charts.PCLaplace
+public import FormalResearch.JacobiEigenvectors.Charts.PCPositive
+public import FormalResearch.JacobiEigenvectors.Charts.PCEnergyWell
+public import FormalResearch.JacobiEigenvectors.Charts.PCEnergyAiry
+public import FormalResearch.JacobiEigenvectors.Charts.PCEnergyAiryEnv
+public import FormalResearch.JacobiEigenvectors.Charts.PCEnvBar
+public import FormalResearch.JacobiEigenvectors.Charts.PCEnvWellFar
+public import FormalResearch.JacobiEigenvectors.Charts.PCEnvCompact
+public import FormalResearch.JacobiEigenvectors.Charts.PCMolv
+public import FormalResearch.JacobiEigenvectors.Charts.PCBeyond
+public import FormalResearch.JacobiEigenvectors.Charts.PCEnvelopeAssembled
+public import FormalResearch.JacobiEigenvectors.Charts.PCPhase
+public import FormalResearch.JacobiEigenvectors.Charts.PCSmooth
+public import FormalResearch.JacobiEigenvectors.Charts.PCActual
+public import FormalResearch.JacobiEigenvectors.Charts.Regularity
+public import FormalResearch.JacobiEigenvectors.Charts.BulkWeber
+public import FormalResearch.JacobiEigenvectors.Charts.SoftParabolicCylinder
+public import FormalResearch.JacobiEigenvectors.Charts.TransferCoefficients
+public import FormalResearch.JacobiEigenvectors.Charts.ChartInputs
+public import FormalResearch.JacobiEigenvectors.TheoremA.Comparison
+public import FormalResearch.JacobiEigenvectors.TheoremA.Statements
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryStatements
+public import FormalResearch.JacobiEigenvectors.TheoremA.EigenvalueStatements
+public import FormalResearch.JacobiEigenvectors.TheoremB.ComparisonMatrix
+public import FormalResearch.JacobiEigenvectors.TheoremB.StdDM
+public import FormalResearch.JacobiEigenvectors.TheoremB.Statements
+public import FormalResearch.JacobiEigenvectors.TheoremB.BulkSchur
+public import FormalResearch.JacobiEigenvectors.TheoremB.SpliceBulk
+public import FormalResearch.JacobiEigenvectors.TheoremB.TwoOrdersBulk
+public import FormalResearch.JacobiEigenvectors.TheoremB.BulkOneStep
+public import FormalResearch.JacobiEigenvectors.TheoremA.Count
+public import FormalResearch.JacobiEigenvectors.TheoremA.Geometry
+public import FormalResearch.JacobiEigenvectors.TheoremA.BulkProof
+public import FormalResearch.JacobiEigenvectors.TheoremA.BulkConj1
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftRescale
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftProof
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftItem1
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftEigen
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryCollision
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryMargins
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometryAll
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoftInt
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoftMorse
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoftUnif
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoftSymbol
+public import FormalResearch.JacobiEigenvectors.TheoremA.GeometrySoft
+public import FormalResearch.JacobiEigenvectors.TheoremA.TruncationSM
+public import FormalResearch.JacobiEigenvectors.TheoremA.WindowEnvelopes
+public import FormalResearch.JacobiEigenvectors.TheoremA.WindowMass
+public import FormalResearch.JacobiEigenvectors.TheoremA.WindowMass2
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftQuant
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftTails
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftTails2
+public import FormalResearch.JacobiEigenvectors.TheoremA.StepZeroCovered
+public import FormalResearch.JacobiEigenvectors.TheoremA.BulkPhase
+public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumTaylor
+public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumUnique
+public import FormalResearch.JacobiEigenvectors.TheoremA.SmoothSpectrum
+public import FormalResearch.JacobiEigenvectors.TheoremA.BulkWindows
+public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumGlue
+public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumNorms
+public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumAssembly
+public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumAssemblyBulk
+public import FormalResearch.JacobiEigenvectors.TheoremA.BulkSlope
+public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumRestrict
+public import FormalResearch.JacobiEigenvectors.Charts.SoftPhaseInputs
+public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumAssemblySoft
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssembly
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssemblyAlg
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssembly2
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssembly3
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssembly4
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssembly5
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftAssembly6
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftCountHyps
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftCountLink
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftCountOrder
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftCount
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftCountChart
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftW2
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftSigns
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftSigns2
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftSigns3
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftW2Proved
+public import FormalResearch.JacobiEigenvectors.TheoremA.NegTransport
+public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumAssemblyLower
+public import FormalResearch.JacobiEigenvectors.TheoremB.NegColumns
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenBase
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenCount
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenInverse
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenWindows
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenGapM
+public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeStable
+public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeShift
+public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivative
+public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeDt
+public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeEdge
+public import FormalResearch.JacobiEigenvectors.TheoremA.ActionDerivativeEdgeS0
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenS1
+public import FormalResearch.JacobiEigenvectors.TheoremA.InvBounded
+public import FormalResearch.JacobiEigenvectors.TheoremA.InvAlg
+public import FormalResearch.JacobiEigenvectors.TheoremA.InvPoly
+public import FormalResearch.JacobiEigenvectors.TheoremA.InvX0
+public import FormalResearch.JacobiEigenvectors.TheoremA.InvReg
+public import FormalResearch.JacobiEigenvectors.TheoremA.InvExpand
+public import FormalResearch.JacobiEigenvectors.TheoremA.InvCoeffs
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenInverseSlope
+public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblyRel
+public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblySoft
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftWindowProof
+public import FormalResearch.JacobiEigenvectors.Assembly.ChartRestrict
+public import FormalResearch.JacobiEigenvectors.Assembly.ThmA
+public import FormalResearch.JacobiEigenvectors.Assembly.SoftLabels
+public import FormalResearch.JacobiEigenvectors.Assembly.WindowCoverProof
+public import FormalResearch.JacobiEigenvectors.Assembly.LabelsAbstract
+public import FormalResearch.JacobiEigenvectors.Assembly.LabelsSlope
+public import FormalResearch.JacobiEigenvectors.Assembly.LabelsSoft
+public import FormalResearch.JacobiEigenvectors.Assembly.Labels
+public import FormalResearch.JacobiEigenvectors.TheoremA.CorEigenZero
+public import FormalResearch.JacobiEigenvectors.Assembly.ThmAi
+public import FormalResearch.JacobiEigenvectors.Assembly.CorEigen
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftMflat
+public import FormalResearch.JacobiEigenvectors.TheoremA.SoftMflat2
+public import FormalResearch.JacobiEigenvectors.TheoremB.SpliceSoftFacts
+public import FormalResearch.JacobiEigenvectors.TheoremB.SpliceSoft
+public import FormalResearch.JacobiEigenvectors.TheoremB.CollarPC
+public import FormalResearch.JacobiEigenvectors.TheoremB.CollarGlue
+public import FormalResearch.JacobiEigenvectors.TheoremB.Collar
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftOneStep
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThmBProof
+public import FormalResearch.JacobiEigenvectors.TheoremB.HostCols
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftExtRow
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftFlat1
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftOverlap
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftMirrorEig
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftOverlapRight
+public import FormalResearch.JacobiEigenvectors.TheoremB.SoftExtChart
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbBlocks
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableWeyl
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableSchur
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableMult
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableCore
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStableGauge
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbStable
+public import FormalResearch.JacobiEigenvectors.TheoremB.CorThbDm
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbConstants
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbRestrict
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbGeom
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbBulk
+public import FormalResearch.JacobiEigenvectors.TheoremB.TwoOrdersSoft
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbInputs
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftOvP
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftGeom
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftDiff
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftLeft
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftRight
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftBlock
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftUp
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbGauge
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbSoftLo
+public import FormalResearch.JacobiEigenvectors.TheoremB.ThbFinal
+public import FormalResearch.JacobiEigenvectors.TheoremB.CorThbGap
+public import FormalResearch.JacobiEigenvectors.TheoremB.CorThbFinal
+public import FormalResearch.JacobiEigenvectors.Engine.CorrectorLocal
+public import FormalResearch.JacobiEigenvectors.Charts.ODEFlow
+public import FormalResearch.JacobiEigenvectors.Charts.PCLadder
+public import FormalResearch.JacobiEigenvectors.Charts.SoftLamCont
+public import FormalResearch.JacobiEigenvectors.Charts.WeberLadder
+public import FormalResearch.JacobiEigenvectors.Charts.PCVFarGrowth
+public import FormalResearch.JacobiEigenvectors.Charts.SoftBounds
+public import FormalResearch.JacobiEigenvectors.Charts.LocalGeometry
+
+/-!
+# Paper J (Jacobi eigenvectors): conditional pipeline, statement freeze (Lean)
+
+Umbrella **stub** for the statement freeze of the Layer 2/3 formalisation of Paper J (every Bohr--Sommerfeld eigenvalue and every eigenvector to all
+orders for slowly varying Jacobi matrices; operator-norm eigenvector matrix).  **Not yet imported by `FormalResearch.lean`.**
+Namespace `FormalResearch.JacobiEigenvectors`; plan, dependency DAG and the Layer-4 residual list: `FormalResearch/JacobiEigenvectors/PLAN.md`.
+
+* `Setting/JacobiFamily`: the Jacobi family `J_h`, (D_M), (E_K), (H1)--(H3), parity freezing, mirror and gauge families.
+* `Charts/*`: the hypothesis structures (`ChartInputs`): engine interface `LadderChain`, parabolic-cylinder facts, bulk Weber chart, soft-edge chart, transfer coefficients.
+* `TheoremA/*`: the comparison vectors and the Prop-valued statements of thm:A, prop:tha-W/W2, lem:tha-win/M/count, prop:l2jets, thm:smo-spec; `GeometryStatements` (lem:tha-geom (a)--(d) per block); `EigenvalueStatements` (Step 0 of app_thmA, cor:eigen (a)--(d)).
+* `TheoremB/*`: the comparison matrices and the statements of prop:tha-splice, lem:tha-Mflat, lem:tha-collar, prop:thb-inputs, thm:B, cor:thb-Dm.
+
+The engine is currently `FormalResearch.JE` (to become `FormalResearch.JacobiEigenvectors.Engine`); `FormalResearch.JB` (Theorem B reduction) is to be folded into `TheoremB/` later.
+No placeholder proofs and no added axioms: statements are `def ... : Prop`, to be proved later.
+-/

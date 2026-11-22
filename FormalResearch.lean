@@ -84,6 +84,8 @@ public import FormalResearch.MatrixAnalysis.KernelQuant
 public import FormalResearch.MatrixAnalysis.ExtremeCriterion
 public import FormalResearch.MatrixAnalysis.JacobiOp
 public import FormalResearch.JB
+public import FormalResearch.JacobiEigenvectors
+public import FormalResearch.CohnElkies
 public import FormalResearch.QIB.FiniteOrbitExponent
 public import FormalResearch.QIB.BlockExamples
 public import FormalResearch.QIB.BlockAntiunitary
@@ -769,6 +771,7 @@ public import FormalResearch.PPTThreeQubit
 public import FormalResearch.GurvitsBarnum
 public import FormalResearch.Jacobi
 public import FormalResearch.EuclTet
+public import FormalResearch.JacobiEigenvectors.Engine
 
 
 @[expose] public section

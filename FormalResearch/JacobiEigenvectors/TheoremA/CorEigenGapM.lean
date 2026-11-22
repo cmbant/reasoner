@@ -1,0 +1,314 @@
+module
+
+public import Mathlib
+public import FormalResearch.JacobiEigenvectors.TheoremA.EigenvalueStatements
+
+/-!
+# Paper J, Layer 2: cor:eigen (c), general order, from the expansion data (L2.E; F-BB-3)
+
+Source: Paper J `thmA.tex`, proof of `cor:eigen`, Step 5 ("for `eq:cor-gapM`, (b) gives `X_k - X_{k+1} = sum_{r <= M} h^r [x_r(y_k) - x_r(y_k + pi h)] + O(h^{M+1})` ... Taylor's formula for `x_r in C^{M+1-r}([0, pi L])`
+to order `M - r` has remainder `O(h^{M+1-r})`, uniformly on the closed interval ... collecting the powers `h^{r+q}`, `q >= 1`, gives `eq:cor-gapM`").  Frozen statement: `CorEigenGapM` (`TheoremA/EigenvalueStatements.lean`).
+
+## What remains of cor:eigen after the proved items
+
+Proved elsewhere: `BandSlope` from the windows (`CorEigenWindows.lean`), `invLevel_of_slope` (b)(ii), `corEigenGap1_of_slope` (c) first part, `corEigenCount_of_slope` (d) (`CorEigenInverse.lean`, `CorEigenCount.lean`);
+proved here: the general-order gap expansion given the expansion data.  The four items formerly listed here are now proved, each under the premises named:
+
+1. **Step 1, the derivative of the action** (`eq:cp-S0p`, `eq:cp-dt`): `ActionDerivative*.lean` (stable difference quotients, shift, `S_0'`, `d/dt`).
+2. **`CorEigenS1`**: `corEigenS1_of_windows` (`CorEigenS1.lean`), from the window identification `thmAi_of_windows_spec`, under the two *chart-level* premises `hone` (`Sigma_1(X, 0) = 0`) and
+   `hzero` (`Sigma_0 = actionS0 (frozenFamily F 0) (mu, t)` for small `t`).
+3. **`InvS0` edge values** `-S_0'(X_s^pm) = pi sqrt(2/(kappa_pm d_pm))`: `invS0_edges` (`ActionDerivativeEdge*.lean`; the limit `eq:cp-edgelim` by dominated convergence with `C/sqrt(s(1-s))`).
+4. **`InvCoeffs`, the recursion `x_r`** (b)(iii): `invCoeffs_of_slope` (`InvCoeffs.lean`), bundled with the others as `corEigenInverse_of_slope` (`CorEigenInverseSlope.lean`) under `0 < delta` and `BandSlope`.
+   Route deviation from the paper: no implicit function theorem; `x_0` is the explicit inverse of `S_0` on the extended band, and `x_r` are given by the coefficient recursion (`InvAlg`) with a bounded-derivative
+   class (`InvBounded`, `InvPoly`) giving the uniform bound `Cx` (F-BB-3).
+
+Assembled: the chart-level `hone`/`hzero` for the bulk, soft-upper and soft-lower windows (`layer4_windows`, `Assembly/ThmAi.lean`, with `CorEigenZero.lean`), the whole-band `CorEigenS1` and `CorEigenInverse` and the other `CorEigen*` with exactly the frozen premises
+(`0 < delta` is now a premise of the frozen statements, F-BB-1; `BandSlope` is derived, F-BB-2): `corEigen_proved` (`Assembly/CorEigen.lean`), modulo the Layer-4 inputs `Layer4Inputs G K 0`, `Layer4Inputs G K 1`.
+
+## Proved here (axiom-pinned)
+
+* `contDiffOn_iteratedDerivWithin_nat`: a `C^n` function on a set with unique derivatives has `C^{n-q}` `q`-th iterated derivatives.
+* `taylor_Icc`: Lagrange Taylor on a subinterval of `[a, b]`, with the iterated derivatives *within `[a, b]`* and a bound for the `(n+1)`-th one.
+* `corEigenGapM_of_expansion`, **`corEigenGapM : CorEigenGapM F K M`** (the frozen statement, with `d_p` as stated and `d_p in C^{M+1-p}`).  The hypotheses `IsCompact K`, `HypOn`, `DM`, `SmoothExt`, `EigenRule`
+  of the frozen statement are not used: the gap expansion is a consequence of the expansion `InvExpansion` (including its uniform derivative bound `Cx`) alone.
+
+## Differences from the paper
+
+The paper's uniformity "on the closed interval" is the hypothesis `Cx` (the paper takes it from the compactness of `[0, pi L] x [0, h_*]`).
+
+## Not formalised
+
+The Layer-4 inputs of `corEigen_proved` (see `Assembly/CorEigen.lean`).
+-/
+
+@[expose] public section
+
+noncomputable section
+
+namespace FormalResearch.JacobiEigenvectors.TheoremA
+
+open Finset Set FormalResearch.JacobiEigenvectors.Setting
+
+variable {Par : Type*} [TopologicalSpace Par]
+
+lemma contDiffOn_iteratedDerivWithin_nat {f : ℝ → ℝ} {s : Set ℝ} (hs : UniqueDiffOn ℝ s) :
+    ∀ (q n : ℕ), q ≤ n → ContDiffOn ℝ (n : WithTop ℕ∞) f s →
+      ContDiffOn ℝ ((n - q : ℕ) : WithTop ℕ∞) (iteratedDerivWithin q f s) s := by
+  intro q
+  induction q generalizing f with
+  | zero => intro n _ hf; simpa using hf
+  | succ q ih =>
+    intro n hq hf
+    rw [iteratedDerivWithin_succ']
+    have h1 : ContDiffOn ℝ ((n - 1 : ℕ) : WithTop ℕ∞) (derivWithin f s) s :=
+      hf.derivWithin hs (by
+        have : n - 1 + 1 = n := by omega
+        exact_mod_cast this.le)
+    have := ih (f := derivWithin f s) (n - 1) (by omega) h1
+    have e : n - 1 - q = n - (q + 1) := by omega
+    rwa [e] at this
+
+lemma taylor_Icc {a b : ℝ} (hab : a < b) {f : ℝ → ℝ} (n : ℕ) (hf : ContDiffOn ℝ ((n + 1 : ℕ) : WithTop ℕ∞) f (Icc a b)) {C : ℝ}
+    (hC : ∀ z ∈ Icc a b, |iteratedDerivWithin (n + 1) f (Icc a b) z| ≤ C) {y y' : ℝ} (hy : y ∈ Icc a b) (hy' : y' ∈ Icc a b)
+    (hyy : y ≤ y') :
+    |f y' - ∑ i ∈ range (n + 1), (i.factorial : ℝ)⁻¹ * (y' - y) ^ i * iteratedDerivWithin i f (Icc a b) y| ≤
+      C * (y' - y) ^ (n + 1) / ((n + 1).factorial : ℝ) := by
+  rcases eq_or_lt_of_le hyy with e | hlt
+  · subst e
+    simp [Finset.sum_range_succ', zero_pow, iteratedDerivWithin_zero]
+  have hsub : Icc y y' ⊆ Icc a b := Icc_subset_Icc hy.1 hy'.2
+  have hUt : UniqueDiffOn ℝ (Icc y y') := uniqueDiffOn_Icc hlt
+  have hUs : UniqueDiffOn ℝ (Icc a b) := uniqueDiffOn_Icc hab
+  have hft : ContDiffOn ℝ n f (Icc y y') := (hf.mono hsub).of_le (by exact_mod_cast Nat.le_succ n)
+  have hf0 : ContDiffOn ℝ n f (Set.uIcc y y') := by rw [Set.uIcc_of_le hlt.le]; exact hft
+  have hf' : DifferentiableOn ℝ (iteratedDerivWithin n f (Set.uIcc y y')) (Set.uIoo y y') := by
+    rw [Set.uIcc_of_le hlt.le, Set.uIoo_of_le hlt.le]
+    exact ((hf.mono hsub).differentiableOn_iteratedDerivWithin (by exact_mod_cast Nat.lt_succ_self n) hUt).mono Ioo_subset_Icc_self
+  obtain ⟨x', hx', hT⟩ := taylor_mean_remainder_lagrange (n := n) (ne_of_lt hlt) hf0 hf'
+  rw [Set.uIcc_of_le hlt.le] at hT
+  rw [Set.uIoo_of_le hlt.le] at hx'
+  rw [taylor_within_apply] at hT
+  have hconv : ∀ k : ℕ, k ≤ n + 1 → ∀ z ∈ Icc y y', iteratedDerivWithin k f (Icc y y') z = iteratedDerivWithin k f (Icc a b) z := by
+    intro k hk z hz
+    rw [iteratedDerivWithin_eq_iteratedFDerivWithin, iteratedDerivWithin_eq_iteratedFDerivWithin,
+      iteratedFDerivWithin_subset hsub hUt hUs (hf.of_le (by exact_mod_cast hk)) hz]
+  have hsum : ∑ k ∈ range (n + 1), ((k.factorial : ℝ)⁻¹ * (y' - y) ^ k) • iteratedDerivWithin k f (Icc y y') y =
+      ∑ i ∈ range (n + 1), (i.factorial : ℝ)⁻¹ * (y' - y) ^ i * iteratedDerivWithin i f (Icc a b) y := by
+    refine Finset.sum_congr rfl (fun k hk => ?_)
+    rw [smul_eq_mul, hconv k (by have := Finset.mem_range.mp hk; omega) y ⟨le_rfl, hlt.le⟩]
+  rw [hsum] at hT
+  rw [hT, hconv (n + 1) le_rfl x' (Ioo_subset_Icc_self hx'), abs_div, abs_mul, abs_of_nonneg (pow_nonneg (sub_nonneg.2 hyy) _),
+    abs_of_pos (by positivity : (0 : ℝ) < ((n + 1).factorial : ℝ))]
+  refine div_le_div_of_nonneg_right ?_ (by positivity)
+  exact mul_le_mul_of_nonneg_right (hC x' (hsub (Ioo_subset_Icc_self hx'))) (pow_nonneg (sub_nonneg.2 hyy) _)
+
+/-- splitting off the `q = 0` term -/
+lemma sum_range_succ_Icc (n : ℕ) (g : ℕ → ℝ) : ∑ q ∈ range (n + 1), g q = g 0 + ∑ q ∈ Finset.Icc 1 n, g q := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Finset.sum_range_succ, ih, Finset.sum_Icc_succ_top (by omega)]
+    ring
+
+/-- the reindexing `q = p - r` of the double sum -/
+lemma sum_reindex_gap (M : ℕ) (f : ℕ → ℕ → ℝ) :
+    ∑ p ∈ Finset.Icc 1 M, ∑ r ∈ range p, f r (p - r) = ∑ r ∈ range (M + 1), ∑ q ∈ Finset.Icc 1 (M - r), f r q := by
+  rw [Finset.sum_sigma', Finset.sum_sigma']
+  refine Finset.sum_bij' (fun x _ => ⟨x.2, x.1 - x.2⟩) (fun x _ => ⟨x.1 + x.2, x.1⟩) ?_ ?_ ?_ ?_ ?_
+  · rintro ⟨p, r⟩ h
+    simp only [Finset.mem_sigma, Finset.mem_Icc, Finset.mem_range] at h ⊢
+    omega
+  · rintro ⟨r, q⟩ h
+    simp only [Finset.mem_sigma, Finset.mem_Icc, Finset.mem_range] at h ⊢
+    omega
+  · rintro ⟨p, r⟩ h
+    simp only [Finset.mem_sigma, Finset.mem_Icc, Finset.mem_range] at h
+    simp only [Sigma.mk.injEq, heq_eq_eq, and_true, true_and]
+    omega
+  · rintro ⟨r, q⟩ h
+    simp only [Finset.mem_sigma, Finset.mem_Icc, Finset.mem_range] at h
+    simp only [Sigma.mk.injEq, heq_eq_eq, and_true, true_and]
+    omega
+  · rintro ⟨p, r⟩ h
+    rfl
+
+/-- **`CorEigenGapM` for an expansion `x`** (cor:eigen (c), general order): only `InvExpansion` is used. -/
+theorem corEigenGapM_of_expansion (F : SymbolFamily Par) (K : Set Par) (M : ℕ) (S : ℕ → Par → ℝ → ℝ) (x : ℕ → Par → ℝ → ℝ)
+    (hx : InvExpansion F K M S x) :
+    ∃ d : ℕ → Par → ℝ → ℝ,
+      (∀ μ ∈ K, ∀ p ∈ Finset.Icc 1 M, ContDiffOn ℝ ((M + 1 - p : ℕ) : WithTop ℕ∞) (d p μ) (Set.Icc 0 (Real.pi * F.L)) ∧
+        ∀ y ∈ Icc 0 (Real.pi * F.L), d p μ y =
+          -∑ r ∈ range p, Real.pi ^ (p - r) / ((p - r).factorial : ℝ) * iteratedDerivWithin (p - r) (x r μ) (Icc 0 (Real.pi * F.L)) y) ∧
+      ∃ Cc h0 : ℝ, 0 < h0 ∧ ∀ μ ∈ K, ∀ N : ℕ, F.step N ≤ h0 →
+        ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
+          ∀ i j : Fin (N + 1), (j : ℕ) = (i : ℕ) + 1 →
+            |(X i - X j) - ∑ p ∈ Finset.Icc 1 M, F.step N ^ p * d p μ (Real.pi * F.step N * ((i : ℕ) + 1 / 2))| ≤ Cc * F.step N ^ (M + 1) := by
+  obtain ⟨hreg, ⟨Cx, hCx⟩, -, C, h0, hh0, hexp⟩ := hx
+  have hL := F.L_pos
+  have hpiL : 0 < Real.pi * F.L := mul_pos Real.pi_pos hL
+  have hUs : UniqueDiffOn ℝ (Icc 0 (Real.pi * F.L)) := uniqueDiffOn_Icc hpiL
+  refine ⟨fun p μ y => -∑ r ∈ range p, Real.pi ^ (p - r) / ((p - r).factorial : ℝ) *
+    iteratedDerivWithin (p - r) (x r μ) (Icc 0 (Real.pi * F.L)) y, ?_, ?_⟩
+  · intro μ hμ p hp
+    have hp' := Finset.mem_Icc.mp hp
+    refine ⟨?_, fun y _ => rfl⟩
+    refine (ContDiffOn.sum (fun r hr => ?_)).neg
+    have hr' : r < p := Finset.mem_range.mp hr
+    have := contDiffOn_iteratedDerivWithin_nat hUs (p - r) (M + 1 - r) (by omega) (hreg μ hμ r (by omega))
+    have e : M + 1 - r - (p - r) = M + 1 - p := by omega
+    rw [e] at this
+    exact contDiffOn_const.mul this
+  · refine ⟨2 * |C| + (M + 1) * |Cx| * Real.pi ^ (M + 1), min h0 1, lt_min hh0 one_pos, ?_⟩
+    intro μ hμ N hN X Um hE i j hij
+    have hst : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
+    have hh1 : F.step N ≤ 1 := hN.trans (min_le_right _ _)
+    have hh0' : F.step N ≤ h0 := hN.trans (min_le_left _ _)
+    set h := F.step N with hh
+    have hmul : h * ((N : ℝ) + 1) = F.L := by
+      rw [hh]; unfold SymbolFamily.step FormalResearch.JB.stepSize; field_simp
+    have hpi := Real.pi_pos
+    have hpi1 : 1 ≤ Real.pi := by linarith [Real.pi_gt_three]
+    have hjN : (j : ℕ) ≤ N := by have := j.isLt; omega
+    set y : ℝ := Real.pi * h * (((i : ℕ) : ℝ) + 1 / 2) with hy
+    set y' : ℝ := Real.pi * h * (((j : ℕ) : ℝ) + 1 / 2) with hy'
+    have hyy : y' - y = Real.pi * h := by rw [hy, hy', hij]; push_cast; ring
+    have hy0 : 0 ≤ y := by positivity
+    have hyy' : y ≤ y' := by have := mul_pos hpi hst; linarith
+    have hy'L : y' ≤ Real.pi * F.L := by
+      rw [← hmul]
+      have : ((j : ℕ) : ℝ) ≤ N := by exact_mod_cast hjN
+      rw [hy']
+      nlinarith [mul_pos hpi hst]
+    have hyI : y ∈ Icc 0 (Real.pi * F.L) := ⟨hy0, hyy'.trans hy'L⟩
+    have hy'I : y' ∈ Icc 0 (Real.pi * F.L) := ⟨hy0.trans hyy', hy'L⟩
+    -- the Taylor expansion of each `x_r` between `y` and `y'`
+    have hd : ∀ r ∈ range (M + 1), |(x r μ y - x r μ y') + ∑ q ∈ Finset.Icc 1 (M - r), (Real.pi * h) ^ q / (q.factorial : ℝ) *
+        iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y| ≤ |Cx| * Real.pi ^ (M + 1) * h ^ (M - r + 1) := by
+      intro r hr
+      have hr' : r ≤ M := by have := Finset.mem_range.mp hr; omega
+      have hf : ContDiffOn ℝ ((M - r + 1 : ℕ) : WithTop ℕ∞) (x r μ) (Icc 0 (Real.pi * F.L)) := by
+        have := hreg μ hμ r hr'
+        rwa [show M + 1 - r = M - r + 1 by omega] at this
+      have hC : ∀ z ∈ Icc 0 (Real.pi * F.L), |iteratedDerivWithin (M - r + 1) (x r μ) (Icc 0 (Real.pi * F.L)) z| ≤ Cx :=
+        fun z hz => hCx μ hμ r hr' (M - r + 1) (by omega) z hz
+      have ht := taylor_Icc hpiL (M - r) hf hC hyI hy'I hyy'
+      rw [sum_range_succ_Icc, hyy] at ht
+      simp only [Nat.factorial_zero, Nat.cast_one, inv_one, pow_zero, one_mul, iteratedDerivWithin_zero] at ht
+      have e : (x r μ y - x r μ y') + ∑ q ∈ Finset.Icc 1 (M - r), (Real.pi * h) ^ q / (q.factorial : ℝ) *
+          iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y
+          = -(x r μ y' - (x r μ y + ∑ q ∈ Finset.Icc 1 (M - r), ((q.factorial : ℝ)⁻¹ * (Real.pi * h) ^ q *
+            iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y))) := by
+        have : ∀ q ∈ Finset.Icc 1 (M - r), (Real.pi * h) ^ q / (q.factorial : ℝ) * iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y
+            = (q.factorial : ℝ)⁻¹ * (Real.pi * h) ^ q * iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y := by
+          intro q _; rw [div_eq_inv_mul]
+        rw [Finset.sum_congr rfl this]; ring
+      rw [e, abs_neg]
+      refine ht.trans ?_
+      have hfac : (1 : ℝ) ≤ ((M - r + 1).factorial : ℝ) := by exact_mod_cast Nat.one_le_iff_ne_zero.mpr (Nat.factorial_ne_zero _)
+      have hpw : Real.pi ^ (M - r + 1) ≤ Real.pi ^ (M + 1) := pow_le_pow_right₀ hpi1 (by omega)
+      have hhp : 0 ≤ h ^ (M - r + 1) := by positivity
+      calc Cx * (Real.pi * h) ^ (M - r + 1) / ((M - r + 1).factorial : ℝ)
+          ≤ |Cx| * (Real.pi * h) ^ (M - r + 1) := by
+            rw [div_le_iff₀ (by positivity)]
+            have : 0 ≤ |Cx| * (Real.pi * h) ^ (M - r + 1) := by positivity
+            nlinarith [le_abs_self Cx, pow_nonneg (mul_pos hpi hst).le (M - r + 1)]
+        _ = |Cx| * Real.pi ^ (M - r + 1) * h ^ (M - r + 1) := by rw [mul_pow]; ring
+        _ ≤ |Cx| * Real.pi ^ (M + 1) * h ^ (M - r + 1) := by
+            refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hpw (abs_nonneg _)) hhp
+    have hEi := hexp μ hμ N hh0' X Um hE i
+    have hEj := hexp μ hμ N hh0' X Um hE j
+    -- regrouping of the Taylor sums
+    have hreg_eq : ∑ r ∈ range (M + 1), h ^ r * ∑ q ∈ Finset.Icc 1 (M - r), (Real.pi * h) ^ q / (q.factorial : ℝ) *
+          iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y
+        = ∑ p ∈ Finset.Icc 1 M, h ^ p * ∑ r ∈ range p, Real.pi ^ (p - r) / ((p - r).factorial : ℝ) *
+          iteratedDerivWithin (p - r) (x r μ) (Icc 0 (Real.pi * F.L)) y := by
+      have key := sum_reindex_gap M (fun r q => h ^ (r + q) * (Real.pi ^ q / (q.factorial : ℝ) *
+        iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y))
+      have e1 : ∑ p ∈ Finset.Icc 1 M, h ^ p * ∑ r ∈ range p, Real.pi ^ (p - r) / ((p - r).factorial : ℝ) *
+          iteratedDerivWithin (p - r) (x r μ) (Icc 0 (Real.pi * F.L)) y
+          = ∑ p ∈ Finset.Icc 1 M, ∑ r ∈ range p, h ^ (r + (p - r)) * (Real.pi ^ (p - r) / ((p - r).factorial : ℝ) *
+            iteratedDerivWithin (p - r) (x r μ) (Icc 0 (Real.pi * F.L)) y) := by
+        refine Finset.sum_congr rfl (fun p hp => ?_)
+        rw [Finset.mul_sum]
+        refine Finset.sum_congr rfl (fun r hr => ?_)
+        have : r + (p - r) = p := by have := Finset.mem_range.mp hr; omega
+        rw [this]
+      have e2 : ∑ r ∈ range (M + 1), h ^ r * ∑ q ∈ Finset.Icc 1 (M - r), (Real.pi * h) ^ q / (q.factorial : ℝ) *
+          iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y
+          = ∑ r ∈ range (M + 1), ∑ q ∈ Finset.Icc 1 (M - r), h ^ (r + q) * (Real.pi ^ q / (q.factorial : ℝ) *
+            iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y) := by
+        refine Finset.sum_congr rfl (fun r hr => ?_)
+        rw [Finset.mul_sum]
+        refine Finset.sum_congr rfl (fun q hq => ?_)
+        rw [mul_pow, pow_add]; ring
+      rw [e1, e2]
+      exact key.symm
+    show |(X i - X j) - ∑ p ∈ Finset.Icc 1 M, h ^ p * (-∑ r ∈ range p, Real.pi ^ (p - r) / ((p - r).factorial : ℝ) *
+      iteratedDerivWithin (p - r) (x r μ) (Icc 0 (Real.pi * F.L)) y)| ≤ _
+    have hneg : ∑ p ∈ Finset.Icc 1 M, h ^ p * (-∑ r ∈ range p, Real.pi ^ (p - r) / ((p - r).factorial : ℝ) *
+        iteratedDerivWithin (p - r) (x r μ) (Icc 0 (Real.pi * F.L)) y)
+        = -∑ r ∈ range (M + 1), h ^ r * ∑ q ∈ Finset.Icc 1 (M - r), (Real.pi * h) ^ q / (q.factorial : ℝ) *
+          iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y := by
+      rw [hreg_eq, ← Finset.sum_neg_distrib]
+      exact Finset.sum_congr rfl (fun p _ => by ring)
+    rw [hneg]
+    have hid : (X i - X j) - -∑ r ∈ range (M + 1), h ^ r * ∑ q ∈ Finset.Icc 1 (M - r), (Real.pi * h) ^ q / (q.factorial : ℝ) *
+          iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y
+        = (X i - ∑ r ∈ range (M + 1), h ^ r * x r μ y) - (X j - ∑ r ∈ range (M + 1), h ^ r * x r μ y')
+          + ∑ r ∈ range (M + 1), h ^ r * ((x r μ y - x r μ y') + ∑ q ∈ Finset.Icc 1 (M - r), (Real.pi * h) ^ q / (q.factorial : ℝ) *
+            iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y) := by
+      simp only [mul_add, Finset.sum_add_distrib, mul_sub, Finset.sum_sub_distrib]
+      ring
+    rw [hid]
+    have hsumb : |∑ r ∈ range (M + 1), h ^ r * ((x r μ y - x r μ y') + ∑ q ∈ Finset.Icc 1 (M - r), (Real.pi * h) ^ q / (q.factorial : ℝ) *
+          iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y)| ≤ (M + 1) * |Cx| * Real.pi ^ (M + 1) * h ^ (M + 1) := by
+      refine (Finset.abs_sum_le_sum_abs _ _).trans ?_
+      have : ∀ r ∈ range (M + 1), |h ^ r * ((x r μ y - x r μ y') + ∑ q ∈ Finset.Icc 1 (M - r), (Real.pi * h) ^ q / (q.factorial : ℝ) *
+          iteratedDerivWithin q (x r μ) (Icc 0 (Real.pi * F.L)) y)| ≤ |Cx| * Real.pi ^ (M + 1) * h ^ (M + 1) := by
+        intro r hr
+        have hr' : r ≤ M := by have := Finset.mem_range.mp hr; omega
+        rw [abs_mul, abs_of_pos (pow_pos hst r)]
+        calc h ^ r * |_| ≤ h ^ r * (|Cx| * Real.pi ^ (M + 1) * h ^ (M - r + 1)) :=
+              mul_le_mul_of_nonneg_left (hd r hr) (pow_pos hst r).le
+          _ = |Cx| * Real.pi ^ (M + 1) * h ^ (M + 1) := by
+              have : h ^ r * h ^ (M - r + 1) = h ^ (M + 1) := by rw [← pow_add]; congr 1; omega
+              calc h ^ r * (|Cx| * Real.pi ^ (M + 1) * h ^ (M - r + 1)) = |Cx| * Real.pi ^ (M + 1) * (h ^ r * h ^ (M - r + 1)) := by ring
+                _ = _ := by rw [this]
+      refine (Finset.sum_le_sum this).trans ?_
+      rw [Finset.sum_const, Finset.card_range, nsmul_eq_mul]
+      push_cast
+      ring_nf
+      exact le_rfl
+    have hEi' : |X i - ∑ r ∈ range (M + 1), h ^ r * x r μ y| ≤ |C| * h ^ (M + 1) :=
+      hEi.trans (mul_le_mul_of_nonneg_right (le_abs_self C) (pow_nonneg hst.le _))
+    have hEj' : |X j - ∑ r ∈ range (M + 1), h ^ r * x r μ y'| ≤ |C| * h ^ (M + 1) :=
+      hEj.trans (mul_le_mul_of_nonneg_right (le_abs_self C) (pow_nonneg hst.le _))
+    calc _ ≤ |(X i - ∑ r ∈ range (M + 1), h ^ r * x r μ y) - (X j - ∑ r ∈ range (M + 1), h ^ r * x r μ y')| + _ := abs_add_le _ _
+      _ ≤ (|C| * h ^ (M + 1) + |C| * h ^ (M + 1)) + (M + 1) * |Cx| * Real.pi ^ (M + 1) * h ^ (M + 1) :=
+          add_le_add ((abs_sub _ _).trans (add_le_add hEi' hEj')) hsumb
+      _ = _ := by ring
+
+/-- **`CorEigenGapM`** (cor:eigen (c), general order), the frozen statement, with the uniform derivative bound now a field of `InvExpansion` (finding F-BB-3 applied). -/
+theorem corEigenGapM (F : SymbolFamily Par) (K : Set Par) (M : ℕ) : CorEigenGapM F K M :=
+  fun _ _ _ _ S _ _ _ _ _ _ _ x hx => corEigenGapM_of_expansion F K M S x hx
+
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.contDiffOn_iteratedDerivWithin_nat' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.contDiffOn_iteratedDerivWithin_nat
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.taylor_Icc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.taylor_Icc
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.corEigenGapM' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.corEigenGapM
+
+/-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.corEigenGapM_of_expansion' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.TheoremA.corEigenGapM_of_expansion
+
+end FormalResearch.JacobiEigenvectors.TheoremA
+
+end
