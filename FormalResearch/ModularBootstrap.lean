@@ -3,6 +3,9 @@ module
 public import FormalResearch.ModularBootstrap.Constants
 public import FormalResearch.ModularBootstrap.Crossing.Setup
 public import FormalResearch.ModularBootstrap.Crossing.SumRule
+public import FormalResearch.ModularBootstrap.Crossing.LemmaInputs
+public import FormalResearch.ModularBootstrap.Crossing.BesselBridge
+public import FormalResearch.ModularBootstrap.Crossing.GapFromPJ
 public import FormalResearch.ModularBootstrap.Crossing.Bridge
 public import FormalResearch.ModularBootstrap.Crossing.MehlerOddClosure
 public import FormalResearch.ModularBootstrap.Crossing.MehlerOddMoment
@@ -26,10 +29,8 @@ public import FormalResearch.ModularBootstrap.Blowup.TipMap
 public import FormalResearch.ModularBootstrap.Blowup.PotentialAndWeight
 public import FormalResearch.ModularBootstrap.Blowup.Majorant
 public import FormalResearch.ModularBootstrap.Blowup.PropositionT
-public import FormalResearch.ModularBootstrap.Integration.BesselBridge
 public import FormalResearch.ModularBootstrap.Integration.HankelBounds
 public import FormalResearch.ModularBootstrap.Integration.StripKernel
-public import FormalResearch.ModularBootstrap.Integration.GapFromPJ
 public import FormalResearch.ModularBootstrap.Integration.StripTheoremA
 
 /-!
@@ -47,8 +48,15 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `Crossing.SumRule`: `I_n` estimates and Cardy density sandwich, Mehler kernel regularisation,
   Lemma `FW-A` (isolating `MehlerOddMomentInput`), counting bound `fw:counting`, Lemma `FW-X`,
   and Theorem `FW-C` certification.
+* `Crossing.LemmaInputs`: the uniform estimates `LemmaPJInput` (Lemma `PJ`, the one unproved analytic
+  input of Theorem `A`) and `LemmaGapInput` (Lemma `G`, a consequence of `LemmaPJInput`).
+* `Crossing.BesselBridge`: `kernelK 1 = besselK`, `virasoroProblem.cardyV = besselV`, and the transfer of
+  Lemma B (a) and the pure-Bessel part of (d) to the concrete kernels.
+* `Crossing.GapFromPJ`: Lemma `G` (`vlo:Gap`, `x₀ = 0.05`) derived from Lemma `PJ`:
+  `LemmaPJInput → LemmaGapInput` (`lemmaGapInput_of_lemmaPJInput`).
 * `Crossing.Bridge`: Virasoro bridge into `WeaklyFeasibleTest` (proving `hKa_ub` with
-  `C_K = √(15/4)` and `hHalfMass`, isolating `LemmaPJInput`/`LemmaGapInput`) and Theorem `A`
+  `C_K = √(15/4)` and `hHalfMass`; `VirasoroStripInput` is the strip geometry plus `LemmaPJInput`, and the
+  deep-lobe estimate is derived from it by `lemmaGapInput_of_lemmaPJInput`) and Theorem `A`
   for `T_weak`, `T_V`, and `Delta_best`.
 * `Crossing.MehlerOddClosure`, `Crossing.MehlerOddMoment`: proof of `MehlerOddMomentInput` for every `w`
   (thermal differences are dense in the Fourier-odd radial `L²` functions; the Mehler kernel maps
@@ -82,16 +90,11 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (i)–(vi) (`proposition_T`), construction of `BlowupFamilyPackage` / `RigidityFamilyPackage`
   discharging `propT_subseq`, and concrete test corollaries `blowup_theorem_C`,
   `blowup_theorem_R1`–`blowup_theorem_R3`.
-* `Integration.BesselBridge`: `Crossing.besselI = Bessel.besselI`, `kernelK 1 = besselK`,
-  `virasoroProblem.cardyV = besselV`, and the transfer of Lemma B (a) and the pure-Bessel part of (d)
-  to the concrete kernels.
 * `Integration.HankelBounds`: Lemma B (b) (`∫|g| ≤ (4/π²) M[g]`, `sup|g| ≤ (8/π) M[g]`) and the integral
   bound of (d) (`∫|g| K_a ≤ 2e⁹² c'² M[g]`) for the concrete test class.
 * `Integration.StripKernel`: Lemma B (d), second bound: `|G(b)| ≤ 4π e⁹² c'² M[g]` on `|Im b| ≤ 1/2` for the
   Hankel continuation `G` defined by its integral (agreement with `g(c'b²/3)` on the real axis, i.e. Hankel
   inversion, is not formalised).
-* `Integration.GapFromPJ`: Lemma `G` (`vlo:Gap`, `x₀ = 0.05`) derived from Lemma `PJ`:
-  `LemmaPJInput → LemmaGapInput` (`lemmaGapInput_of_lemmaPJInput`).
 * `Integration.StripTheoremA`: Theorem `A` for `T_weak`, `T_V` and the optimal gap `Δ_best`
   (`theoremA_Delta_best`) with the proved slit-strip geometry; the only remaining hypothesis is
   `StripPoissonJensen` (Lemma PJ for `realSliceData`, `majorantReal`).

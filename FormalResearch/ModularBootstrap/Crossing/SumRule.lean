@@ -1,5 +1,6 @@
 module
 
+public import FormalResearch.ModularBootstrap.Bessel.Defs
 public import FormalResearch.ModularBootstrap.Crossing.Setup
 public import Mathlib.Analysis.PSeries
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
@@ -29,10 +30,19 @@ namespace FormalResearch.ModularBootstrap.Crossing
 
 /-! ### Section 1: Modified Bessel function `I_n` and Cardy density comparison -/
 
-/-- Modified Bessel function of the first kind `I_n(z)` of nonnegative integer order `n`,
-defined by its entire power series `∑_{k ≥ 0} (z / 2)^{2k + n} / (k! (k + n)!)`. -/
-noncomputable def besselI (n : ℕ) (z : ℝ) : ℝ :=
-  ∑' k : ℕ, (z / 2) ^ (2 * k + n) / ((k.factorial : ℝ) * ((k + n).factorial : ℝ))
+/-- The power series of `Bessel.besselI n z`: `∑_{k ≥ 0} (z / 2)^{2k + n} / (k! (k + n)!)`. -/
+lemma besselI_eq_tsum (n : ℕ) (z : ℝ) :
+    Bessel.besselI n z =
+      ∑' k : ℕ, (z / 2) ^ (2 * k + n) / ((k.factorial : ℝ) * ((k + n).factorial : ℝ)) := by
+  unfold Bessel.besselI Bessel.besselS Bessel.besselTerm
+  rw [← tsum_mul_left]
+  refine tsum_congr fun k => ?_
+  have h : (z / 2) ^ (2 * k + n) = (z / 2) ^ n * (z ^ 2 / 4) ^ k := by
+    rw [pow_add, pow_mul, mul_comm]
+    congr 2
+    ring
+  rw [h]
+  ring
 
 lemma summable_besselITerm (n : ℕ) (z : ℝ) :
     Summable fun k : ℕ => (z / 2) ^ (2 * k + n) / ((k.factorial : ℝ) * ((k + n).factorial : ℝ)) := by
@@ -48,14 +58,12 @@ lemma summable_besselITerm (n : ℕ) (z : ℝ) :
   refine div_le_div_of_nonneg_left (pow_nonneg (sq_nonneg _) _) hk1 ?_
   nlinarith
 
-lemma besselI_nonneg (n : ℕ) {z : ℝ} (hz : 0 ≤ z) : 0 ≤ besselI n z :=
-  tsum_nonneg fun _ => by positivity
-
-/-- Link between the bootstrap kernel `kernelK w α t` (`w ≥ 1`) and `besselI (w - 1)`. -/
+/-- Link between the bootstrap kernel `kernelK w α t` (`w ≥ 1`) and `Bessel.besselI (w - 1)`. -/
 lemma kernelK_eq_besselI {w : ℕ} (hw : 1 ≤ w) {α t : ℝ} (hα : 0 < α) (ht : 0 < t) :
     kernelK w α t =
-      Real.sqrt (t / α) ^ (w - 1) * besselI (w - 1) (4 * π * Real.sqrt (α * t)) := by
-  unfold kernelK besselI kernelKTerm
+      Real.sqrt (t / α) ^ (w - 1) * Bessel.besselI (w - 1) (4 * π * Real.sqrt (α * t)) := by
+  unfold kernelK kernelKTerm
+  rw [besselI_eq_tsum]
   have hw_eq : (2 * π * t) ^ (w - 1) =
       Real.sqrt (t / α) ^ (w - 1) * (4 * π * Real.sqrt (α * t) / 2) ^ (w - 1) := by
     rw [← mul_pow]
@@ -199,7 +207,7 @@ private lemma integral_cos_pow_mul_cos_negPi_pi (m n : ℕ) :
 
 /-- Integral representation `I_n(z) = (1 / π) ∫₀^π exp(z cos θ) cos(n θ) dθ` (`n ∈ ℕ`, `z ∈ ℝ`). -/
 theorem besselI_eq_integral (n : ℕ) (z : ℝ) :
-    besselI n z = (1 / π) * ∫ θ in (0 : ℝ)..π, Real.exp (z * Real.cos θ) * Real.cos (n * θ) := by
+    Bessel.besselI n z = (1 / π) * ∫ θ in (0 : ℝ)..π, Real.exp (z * Real.cos θ) * Real.cos (n * θ) := by
   have hpi_le : -π ≤ π := by linarith [Real.pi_pos]
   have heven : ∫ θ in (-π)..π, Real.exp (z * Real.cos θ) * Real.cos (n * θ) =
       2 * ∫ θ in (0 : ℝ)..π, Real.exp (z * Real.cos θ) * Real.cos (n * θ) := by
@@ -282,9 +290,10 @@ theorem besselI_eq_integral (n : ℕ) (z : ℝ) :
           congr 2
           rw [← hfacR]
           field_simp
-  have hhas : HasSum term (2 * π * besselI n z) := by
-    have hsub_has : HasSum (fun k => term (2 * k + n)) (2 * π * besselI n z) := by
+  have hhas : HasSum term (2 * π * Bessel.besselI n z) := by
+    have hsub_has : HasSum (fun k => term (2 * k + n)) (2 * π * Bessel.besselI n z) := by
       simp_rw [hf_sub]
+      rw [besselI_eq_tsum]
       exact (summable_besselITerm n z).hasSum.mul_left (2 * π)
     refine (Function.Injective.hasSum_iff (f := term) (g := fun k : ℕ => 2 * k + n)
       (fun a b h => by dsimp only at h; omega) ?_).mp hsub_has
@@ -295,7 +304,7 @@ theorem besselI_eq_integral (n : ℕ) (z : ℝ) :
       apply hm
       exact ⟨(m - n) / 2, by dsimp only; omega⟩
     simp only [hnex, ↓reduceIte, mul_zero]
-  have hterms : ∑' m : ℕ, term m = 2 * π * besselI n z := hhas.tsum_eq
+  have hterms : ∑' m : ℕ, term m = 2 * π * Bessel.besselI n z := hhas.tsum_eq
   have hsum_eq : ∑' m : ℕ, (z ^ m / (m.factorial : ℝ)) *
       ∫ θ in (-π)..π, Real.cos θ ^ m * Real.cos (n * θ) = ∑' m : ℕ, term m := by
     refine tsum_congr fun m => ?_
@@ -303,8 +312,8 @@ theorem besselI_eq_integral (n : ℕ) (z : ℝ) :
   rw [hsum_eq, hterms] at heven
   have hpi_ne : π ≠ 0 := Real.pi_pos.ne'
   linarith [show (1 / π) * (2 * ∫ θ in (0 : ℝ)..π, Real.exp (z * Real.cos θ) * Real.cos (n * θ)) =
-      (1 / π) * (2 * π * besselI n z) from congrArg (fun x => (1 / π) * x) heven.symm,
-    show (1 / π) * (2 * π * besselI n z) = 2 * besselI n z by field_simp,
+      (1 / π) * (2 * π * Bessel.besselI n z) from congrArg (fun x => (1 / π) * x) heven.symm,
+    show (1 / π) * (2 * π * Bessel.besselI n z) = 2 * Bessel.besselI n z by field_simp,
     show (1 / π) * (2 * ∫ θ in (0 : ℝ)..π, Real.exp (z * Real.cos θ) * Real.cos (n * θ)) =
       2 * ((1 / π) * ∫ θ in (0 : ℝ)..π, Real.exp (z * Real.cos θ) * Real.cos (n * θ)) by ring]
 
@@ -315,7 +324,7 @@ private lemma one_sub_cos_eq (θ : ℝ) : 1 - Real.cos θ = 2 * Real.sin (θ / 2
   linarith
 
 /-- Uniform order domination `I_n(z) ≤ I_0(z)` for all `n ∈ ℕ` and `z ∈ ℝ`. -/
-lemma besselI_le_zero (n : ℕ) (z : ℝ) : besselI n z ≤ besselI 0 z := by
+lemma besselI_le_zero (n : ℕ) (z : ℝ) : Bessel.besselI n z ≤ Bessel.besselI 0 z := by
   rw [besselI_eq_integral n z, besselI_eq_integral 0 z]
   refine mul_le_mul_of_nonneg_left ?_ (by positivity)
   refine intervalIntegral.integral_mono_on Real.pi_pos.le
@@ -326,7 +335,7 @@ lemma besselI_le_zero (n : ℕ) (z : ℝ) : besselI n z ≤ besselI 0 z := by
 
 /-- Uniform Gaussian-saddle upper bound `I_0(z) ≤ √(π / 8) * exp z / √z` for all `z > 0`. -/
 theorem besselI_zero_le_exp_div_sqrt {z : ℝ} (hz : 0 < z) :
-    besselI 0 z ≤ Real.sqrt (π / 8) * Real.exp z / Real.sqrt z := by
+    Bessel.besselI 0 z ≤ Real.sqrt (π / 8) * Real.exp z / Real.sqrt z := by
   rw [besselI_eq_integral 0 z]
   have hpt : ∀ θ ∈ Ioc (0 : ℝ) π,
       Real.exp (z * Real.cos θ) * Real.cos ((0 : ℕ) * θ) ≤
@@ -386,7 +395,7 @@ theorem besselI_zero_le_exp_div_sqrt {z : ℝ} (hz : 0 < z) :
 
 /-- Asymptotic lower bound `besselI n z ≥ c * exp z / √z` for sufficiently large `z`. -/
 theorem besselI_ge_exp_div_sqrt (n : ℕ) :
-    ∃ c z₀ : ℝ, 0 < c ∧ 1 ≤ z₀ ∧ ∀ z : ℝ, z₀ ≤ z → c * Real.exp z / Real.sqrt z ≤ besselI n z := by
+    ∃ c z₀ : ℝ, 0 < c ∧ 1 ≤ z₀ ∧ ∀ z : ℝ, z₀ ≤ z → c * Real.exp z / Real.sqrt z ≤ Bessel.besselI n z := by
   let θ₀ : ℝ := π / (3 * ((n : ℝ) + 1))
   have hθ₀_pos : 0 < θ₀ := by positivity
   have hθ₀_le : θ₀ ≤ π / 3 := by
@@ -758,7 +767,7 @@ theorem FixedWeightProblem.rhoDensity_le_cardyWeight (prob : FixedWeightProblem)
     have ht_pow_pos : 0 < t ^ (prob.w - 1) := pow_pos ht_pos _
     have hred_le : prob.cardyVReduced a t ≤
         (2 : ℝ) ^ prob.m * (Real.sqrt (t / a) ^ (prob.w - 1) *
-          besselI (prob.w - 1) (4 * π * Real.sqrt (a * t))) / t ^ (prob.w - 1) := by
+          Bessel.besselI (prob.w - 1) (4 * π * Real.sqrt (a * t))) / t ^ (prob.w - 1) := by
       rw [le_div_iff₀ ht_pow_pos, mul_comm (prob.cardyVReduced a t)]
       exact hV_le
     have hbes := (besselI_le_zero (prob.w - 1) (4 * π * Real.sqrt (a * t))).trans
@@ -784,7 +793,7 @@ theorem FixedWeightProblem.rhoDensity_le_cardyWeight (prob : FixedWeightProblem)
       calc prob.rhoDensity a t
           ≤ ((prob.w - 1).factorial : ℝ) / (2 * π) ^ prob.w * (2 * π) *
               ((2 : ℝ) ^ prob.m * (Real.sqrt (t / a) ^ (prob.w - 1) *
-                besselI (prob.w - 1) (4 * π * Real.sqrt (a * t))) / t ^ (prob.w - 1)) := by
+                Bessel.besselI (prob.w - 1) (4 * π * Real.sqrt (a * t))) / t ^ (prob.w - 1)) := by
             rw [hrho_eq]
             exact mul_le_mul_of_nonneg_left hred_le (by positivity)
         _ ≤ ((prob.w - 1).factorial : ℝ) / (2 * π) ^ prob.w * (2 * π) *
@@ -862,7 +871,7 @@ theorem FixedWeightProblem.rhoDensity_ge_cardyWeight_large (prob : FixedWeightPr
       _ = Real.sqrt (t / a) ^ (prob.w - 1) *
             (c_b * Real.exp (4 * π * Real.sqrt (a * t)) / Real.sqrt (4 * π * Real.sqrt (a * t))) := by
           rw [← hpref]; ring
-      _ ≤ Real.sqrt (t / a) ^ (prob.w - 1) * besselI (prob.w - 1) (4 * π * Real.sqrt (a * t)) :=
+      _ ≤ Real.sqrt (t / a) ^ (prob.w - 1) * Bessel.besselI (prob.w - 1) (4 * π * Real.sqrt (a * t)) :=
           mul_le_mul_of_nonneg_left hbes (pow_nonneg (Real.sqrt_nonneg _) _)
   have hV_half_Ka : ∃ T_V : ℝ, 1 ≤ T_V ∧ ∀ t : ℝ, T_V ≤ t →
       (1 / 2 : ℝ) * kernelK prob.w a t ≤ prob.cardyV a t := by
@@ -925,7 +934,7 @@ theorem FixedWeightProblem.rhoDensity_ge_cardyWeight_large (prob : FixedWeightPr
         have hbes := (besselI_le_zero (prob.w - 1) (4 * π * Real.sqrt (α₁ * t))).trans
           (besselI_zero_le_exp_div_sqrt (by positivity : 0 < 4 * π * Real.sqrt (α₁ * t)))
         have hpref := rpow_bessel_prefactor prob.hw hα₁_pos ht_pos
-        calc Real.sqrt (t / α₁) ^ (prob.w - 1) * besselI (prob.w - 1) (4 * π * Real.sqrt (α₁ * t))
+        calc Real.sqrt (t / α₁) ^ (prob.w - 1) * Bessel.besselI (prob.w - 1) (4 * π * Real.sqrt (α₁ * t))
             ≤ Real.sqrt (t / α₁) ^ (prob.w - 1) *
                 (Real.sqrt (π / 8) * Real.exp (4 * π * Real.sqrt (α₁ * t)) /
                   Real.sqrt (4 * π * Real.sqrt (α₁ * t))) :=

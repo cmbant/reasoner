@@ -1,5 +1,6 @@
 module
 
+public import FormalResearch.ModularBootstrap.Crossing.GapFromPJ
 public import FormalResearch.ModularBootstrap.Crossing.SumRule
 public import FormalResearch.ModularBootstrap.SlitStrip.EntropyAndDeficit
 
@@ -14,17 +15,19 @@ Formalizes the bridge from concrete weakly feasible Virasoro tests
 * `virasoro_Ka_ub`: Direct proof of the Bessel upper bound `hKa_ub` for
   `K_a = kernelK 1 (c' / 12)` on `x ∈ [0.05, xiStar]` with explicit constant
   `C_K = √(15 / 4)`, using `besselI_zero_le_exp_div_sqrt` from `Crossing/SumRule.lean`.
-* `LemmaPJInput` and `LemmaGapInput`: Named unproved analytic hypotheses corresponding
-  respectively to Lemma `PJ` (`vlo:PJ`, strip Poisson--Jensen bound uniform over nonzero
-  `TestClass virasoroProblem (c' / 12)`) and Lemma `G` (`vlo:Gap`, fixed-gap deep-lobe
-  concentration at `x₀ = 0.05` uniform over `TestClass virasoroProblem (c' / 12)`).
 * `VirasoroStripParams` and `virasoroStripParams_nonvacuous`: Consistency / non-vacuity
   of the geometric slice parameters (`RealSliceData`, `PoissonJensenInput` with
-  `C_K = √(15 / 4)`, `FixedGapInput`).
+  `C_K = √(15 / 4)`).
+* `VirasoroStripInput`: the geometry together with the single unproved analytic hypothesis
+  `LemmaPJInput` (Lemma `PJ`, `vlo:PJ`; `Crossing/LemmaInputs.lean`).  Lemma `G` (`LemmaGapInput`,
+  `vlo:Gap`, the fixed-gap deep-lobe concentration at `x₀ = 0.05`) is not an input: it is derived
+  from `LemmaPJInput` (`Integration.lemmaGapInput_of_lemmaPJInput`, `Crossing/GapFromPJ.lean`),
+  which yields `VirasoroStripInput.fixedGap` and `VirasoroStripInput.lemmaGap`.
 * `weaklyFeasibleTestOfConcrete`: Construction of `WeaklyFeasibleTest pj fg c'` from any
   concrete `virasoroProblem.IsWeaklyFeasible (c' / 12) T g` (`0 ≤ T`, `24 ≤ c'`),
   proving `hM_pos` (continuity + `V > 0` on `(0, ∞)`), `hV_nonneg`, `hV_cont`,
-  `hV_le_two_Ka`, `hKa_ub`, and `hHalfMass` directly from the crossing sign conditions.
+  `hV_le_two_Ka`, `hKa_ub`, and `hHalfMass` directly from the crossing sign conditions, and
+  `hPJ`, `hDeepLobe` from `VirasoroStripInput.hPJ` and `VirasoroStripInput.lemmaGap`.
 * `theorem_A_T_weak`, `theorem_A_T_V`, and `theorem_A_Delta_best`: Theorem A for the
   actual Virasoro LP thresholds `T_weak(c')`, `T_V(c')`, and `Delta_best(c')`.
 -/
@@ -72,41 +75,17 @@ theorem virasoro_Ka_ub {c' : ℝ} (hc' : 0 < c') {x : ℝ} (hx : x ∈ Icc (0.05
       field_simp; ring
     rw [h1, div_le_div_iff₀ (by positivity) (by norm_num)]
     linarith [hx.1]
-  calc besselI 0 z ≤ Real.sqrt (π / 8) * Real.exp z / Real.sqrt z := hbes
+  calc Bessel.besselI 0 z ≤ Real.sqrt (π / 8) * Real.exp z / Real.sqrt z := hbes
     _ = (Real.sqrt (π / 8) / Real.sqrt z) * Real.exp z := by ring
     _ ≤ (Real.sqrt (15 / 4) / Real.sqrt c') * Real.exp z :=
         mul_le_mul_of_nonneg_right hpref (Real.exp_pos z).le
     _ = Real.sqrt (15 / 4) * Real.exp (c' * ((2 * π / 3) * x)) / Real.sqrt c' := by
         dsimp [z]; ring
 
-/-! ### Named unproved analytic inputs (`Lemma PJ` and `Lemma G`) -/
+/-! ### The strip input: geometry and Lemma `PJ` -/
 
-/-- **Unproved analytic input (`Lemma PJ`, `lower_o1_two_edge.tex`, `vlo:PJ`):**
-Uniform slit-strip Poisson--Jensen estimate on `x ∈ [0, xiStar)` over all nonzero concrete
-Virasoro tests `g ∈ TestClass virasoroProblem (c' / 12)` for `c' ≥ c_PJ`.
-Not proved in this module. -/
-def LemmaPJInput (rs : RealSliceData) (c_PJ C_PJ : ℝ) (U : ℝ → ℝ) : Prop :=
-  ∀ {c' : ℝ}, c_PJ ≤ c' → ∀ {g : ℝ → ℝ},
-    TestClass virasoroProblem (c' / 12) g →
-    0 < virasoroProblem.cardyNorm (c' / 12) g →
-    ∀ x ∈ Ico 0 xiStar, g (c' * x ^ 2 / 3) ≠ 0 →
-      Real.log |g (c' * x ^ 2 / 3)| ≤
-        c' * U x + Real.log (virasoroProblem.cardyNorm (c' / 12) g) - (1 / 2 : ℝ) * Real.log c' +
-          (5 / 2 : ℝ) * (1 - rs.slitMassAt x) * Real.log c' + rs.slitEntropyAt x + C_PJ
-
-/-- **Unproved analytic input (`Lemma G`, `lower_o1_two_edge.tex`, `vlo:Gap` at `x₀ = 0.05`):**
-Uniform fixed-gap exponential concentration of `|g| V` on `[0, c' · 0.05² / 3]` over all
-concrete Virasoro tests `g ∈ TestClass virasoroProblem (c' / 12)` for `c' ≥ fg.c_deep`.
-Not proved in this module. -/
-def LemmaGapInput (fg : FixedGapInput) : Prop :=
-  ∀ {c' : ℝ}, fg.c_deep ≤ c' → ∀ {g : ℝ → ℝ},
-    TestClass virasoroProblem (c' / 12) g →
-    ∫ t in (0 : ℝ)..(c' * (0.05 : ℝ) ^ 2 / 3), |g t| * virasoroProblem.cardyV (c' / 12) t ≤
-      fg.C_deep * Real.exp (-fg.κ_deep * c') * virasoroProblem.cardyNorm (c' / 12) g
-
-/-- Geometric slice and threshold parameters for the Virasoro strip bridge, bundling the
-geometric part of `PoissonJensenInput` (with `C_K = √(15 / 4)` proved in `virasoro_Ka_ub`)
-and `FixedGapInput`. -/
+/-- Geometric slice parameters for the Virasoro strip bridge, bundling the geometric part of
+`PoissonJensenInput` (with `C_K = √(15 / 4)` proved in `virasoro_Ka_ub`). -/
 structure VirasoroStripParams where
   rs : RealSliceData
   c_PJ : ℝ
@@ -114,7 +93,6 @@ structure VirasoroStripParams where
   U : ℝ → ℝ
   hc_PJ : 1 ≤ c_PJ
   g_deficit : ∀ x ∈ Ico 0 xiStar, U x + (2 * π / 3) * x ≤ -slitDeficit (xiStar - x)
-  fg : FixedGapInput
 
 /-- Convert `VirasoroStripParams` to `PoissonJensenInput` with proved constant `C_K = √(15 / 4)`. -/
 noncomputable def VirasoroStripParams.toPoissonJensenInput (p : VirasoroStripParams) :
@@ -128,17 +106,29 @@ noncomputable def VirasoroStripParams.toPoissonJensenInput (p : VirasoroStripPar
   hC_K := by positivity
   g_deficit := p.g_deficit
 
-/-- Bundled Virasoro strip analytic input combining `VirasoroStripParams` with the two
-unproved analytic estimates `LemmaPJInput` and `LemmaGapInput`. Not proved in this module. -/
+/-- Bundled Virasoro strip input: the geometry `VirasoroStripParams` together with the unproved
+analytic estimate `LemmaPJInput` (Lemma `PJ`). Not proved in this module.  The deep-lobe estimate
+(Lemma `G`) is derived from `hPJ`, see `VirasoroStripInput.lemmaGap`. -/
 structure VirasoroStripInput extends VirasoroStripParams where
   hPJ : LemmaPJInput rs c_PJ C_PJ U
-  hDeepLobe : LemmaGapInput fg
+
+/-- The fixed-gap constants produced from `hPJ` by `Integration.lemmaGapInput_of_lemmaPJInput`
+(Lemma `G` from Lemma `PJ`). -/
+noncomputable def VirasoroStripInput.fixedGap (input : VirasoroStripInput) : FixedGapInput :=
+  (Integration.lemmaGapInput_of_lemmaPJInput input.rs input.U input.hc_PJ input.g_deficit
+    input.hPJ).choose
+
+/-- The deep-lobe estimate (Lemma `G`) for `VirasoroStripInput.fixedGap`, derived from `hPJ`. -/
+theorem VirasoroStripInput.lemmaGap (input : VirasoroStripInput) :
+    LemmaGapInput input.fixedGap :=
+  (Integration.lemmaGapInput_of_lemmaPJInput input.rs input.U input.hc_PJ input.g_deficit
+    input.hPJ).choose_spec
 
 /-- Non-vacuity of the parameter bundle `VirasoroStripParams` (and hence of the induced
-`PoissonJensenInput` with `C_K = √(15 / 4)` and `FixedGapInput`), matching the slit-strip
-witness of `slitStrip_hypotheses_nonvacuous`.
-(Note: `LemmaPJInput` and `LemmaGapInput` themselves quantify over all `g ∈ TestClass` and
-constitute the unproved analytic Lemma PJ / Lemma G inputs of `lower_o1_two_edge.tex`.) -/
+`PoissonJensenInput` with `C_K = √(15 / 4)`), matching the slit-strip witness of
+`slitStrip_hypotheses_nonvacuous`.
+(Note: `LemmaPJInput` itself quantifies over all `g ∈ TestClass` and constitutes the unproved
+analytic Lemma PJ input of `lower_o1_two_edge.tex`.) -/
 theorem virasoroStripParams_nonvacuous :
     ∃ p : VirasoroStripParams, p.toPoissonJensenInput.C_K = Real.sqrt (15 / 4) := by
   let rs : RealSliceData :=
@@ -153,81 +143,16 @@ theorem virasoroStripParams_nonvacuous :
       re_bound := fun _ _ => by simp
       im_lower := fun _ _ => by simp
       im_upper := fun _ _ => by simp }
-  let fg : FixedGapInput :=
-    { c_deep := 1
-      C_deep := 1
-      κ_deep := 1
-      hc_deep := le_rfl
-      hC_deep := zero_le_one
-      hκ_deep := zero_lt_one }
   let p : VirasoroStripParams :=
     { rs := rs
       c_PJ := 1
       C_PJ := Real.log 3
       U := fun x => -(2 * π / 3) * x - slitDeficit (xiStar - x)
       hc_PJ := le_rfl
-      g_deficit := fun x _ => by linarith
-      fg := fg }
+      g_deficit := fun x _ => by linarith }
   exact ⟨p, rfl⟩
 
 /-! ### Constructing `WeaklyFeasibleTest` from concrete Virasoro tests -/
-
-lemma cardyNorm_pos_of_nonzero {a : ℝ} (ha : virasoroProblem.totalShift ≤ a)
-    {g : ℝ → ℝ} (hg : TestClass virasoroProblem a g) (hnonzero : ∃ t ≥ 0, g t ≠ 0) :
-    0 < virasoroProblem.cardyNorm a g := by
-  unfold FixedWeightProblem.cardyNorm
-  have hint : IntegrableOn (fun t => |g t| * virasoroProblem.cardyV a t) (Ioi 0) := hg.int_cardy
-  have hcont : ContinuousOn (fun t => |g t| * virasoroProblem.cardyV a t) (Ioi 0) :=
-    (hg.cont.abs.mul (continuous_cardyV virasoroProblem a).continuousOn).mono Ioi_subset_Ici_self
-  have hnn : 0 ≤ ∫ t in Ioi 0, |g t| * virasoroProblem.cardyV a t :=
-    setIntegral_nonneg measurableSet_Ioi fun t ht =>
-      mul_nonneg (abs_nonneg _) (virasoroProblem.cardyV_nonneg ha (Set.mem_Ioi.mp ht).le)
-  rcases hnn.eq_or_lt with heq | hlt
-  · exfalso
-    have hzero_ae : (fun t => |g t| * virasoroProblem.cardyV a t) =ᵐ[volume.restrict (Ioi 0)] 0 := by
-      refine (integral_eq_zero_iff_of_nonneg_ae ?_ hint).mp heq.symm
-      filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
-      exact mul_nonneg (abs_nonneg _) (virasoroProblem.cardyV_nonneg ha (Set.mem_Ioi.mp ht).le)
-    have hpos_ae : ∀ t ∈ Ioi (0 : ℝ), |g t| * virasoroProblem.cardyV a t = 0 := by
-      intro t ht
-      by_contra hne
-      have hpos : 0 < |g t| * virasoroProblem.cardyV a t :=
-        lt_of_le_of_ne (mul_nonneg (abs_nonneg _) (virasoroProblem.cardyV_nonneg ha ht.le))
-          (Ne.symm hne)
-      obtain ⟨r, hr_pos, hr_lt⟩ := Metric.continuousAt_iff.mp
-        (hcont.continuousAt (Ioi_mem_nhds ht))
-        ((|g t| * virasoroProblem.cardyV a t) / 2) (half_pos hpos)
-      have hopen : (Metric.ball t r ∩ Ioi (0 : ℝ)).Nonempty := ⟨t, Metric.mem_ball_self hr_pos, ht⟩
-      have hmeas_pos : 0 < (volume.restrict (Ioi (0 : ℝ))) (Metric.ball t r ∩ Ioi (0 : ℝ)) := by
-        rw [Measure.restrict_apply (measurableSet_ball.inter measurableSet_Ioi), Set.inter_assoc,
-          Set.inter_self]
-        exact (Metric.isOpen_ball.inter isOpen_Ioi).measure_pos _ hopen
-      have hsub_null : Metric.ball t r ∩ Ioi (0 : ℝ) ⊆
-          {s | |g s| * virasoroProblem.cardyV a s ≠ 0} := by
-        intro s hs hzero
-        have hdist := hr_lt (Metric.mem_ball.mp hs.1)
-        rw [hzero, Real.dist_eq, zero_sub, abs_neg, abs_of_pos hpos] at hdist
-        linarith
-      have hnull : (volume.restrict (Ioi (0 : ℝ))) (Metric.ball t r ∩ Ioi (0 : ℝ)) = 0 :=
-        measure_mono_null hsub_null (ae_iff.mp hzero_ae)
-      exact hmeas_pos.ne' hnull
-    have hg_pos : ∀ t : ℝ, 0 < t → g t = 0 := fun t ht => by
-      have hmul := hpos_ae t ht
-      rcases mul_eq_zero.mp hmul with h1 | h2
-      · exact abs_eq_zero.mp h1
-      · exfalso
-        exact (virasoroProblem.cardyV_pos ha ht).ne' h2
-    have hg_zero_at_0 : g 0 = 0 := by
-      have htend : Tendsto g (𝓝[>] 0) (𝓝 (g 0)) :=
-        (hg.cont 0 (le_refl 0)).mono_left (nhdsWithin_mono 0 Ioi_subset_Ici_self)
-      exact tendsto_nhds_unique htend (tendsto_const_nhds.congr' (by
-        filter_upwards [self_mem_nhdsWithin] with t ht
-        exact (hg_pos t ht).symm))
-    obtain ⟨t₀, ht₀, hne⟩ := hnonzero
-    rcases eq_or_lt_of_le ht₀ with rfl | ht₀_pos
-    · exact hne hg_zero_at_0
-    · exact hne (hg_pos t₀ ht₀_pos)
-  · exact hlt
 
 lemma half_mass_of_weak_sign {a T : ℝ} (ha : virasoroProblem.totalShift ≤ a)
     (hT : 0 ≤ T) {g : ℝ → ℝ} (hg : TestClass virasoroProblem a g)
@@ -278,12 +203,12 @@ lemma half_mass_of_weak_sign {a T : ℝ} (ha : virasoroProblem.totalShift ≤ a)
 
 /-- Bridge constructor: from a concrete weakly feasible Virasoro test
 `virasoroProblem.IsWeaklyFeasible (c' / 12) T g` (with `0 ≤ T` and `24 ≤ c'`) and
-a `VirasoroStripInput`, build a `WeaklyFeasibleTest input.toPoissonJensenInput input.fg c'`
-with `t₁ = T`. -/
+a `VirasoroStripInput`, build a `WeaklyFeasibleTest input.toPoissonJensenInput input.fixedGap c'`
+with `t₁ = T`; the deep-lobe field is `VirasoroStripInput.lemmaGap`, derived from `input.hPJ`. -/
 noncomputable def weaklyFeasibleTestOfConcrete (input : VirasoroStripInput)
     {c' T : ℝ} (hc' : 24 ≤ c') (hcPJ : input.c_PJ ≤ c') (hT : 0 ≤ T) {g : ℝ → ℝ}
     (hg : virasoroProblem.IsWeaklyFeasible (c' / 12) T g) :
-    WeaklyFeasibleTest input.toPoissonJensenInput input.fg c' :=
+    WeaklyFeasibleTest input.toPoissonJensenInput input.fixedGap c' :=
   let a : ℝ := c' / 12
   have ha : virasoroProblem.totalShift ≤ a := by
     rw [virasoroProblem_totalShift]; dsimp [a]; linarith
@@ -307,19 +232,19 @@ noncomputable def weaklyFeasibleTestOfConcrete (input : VirasoroStripInput)
       virasoro_cardyV_le_two_Ka ha2 (by positivity)
     hKa_ub := fun _ hx => virasoro_Ka_ub hc'_pos hx
     hPJ := fun x hx hne => input.hPJ hcPJ hg.1 hM_pos x hx hne
-    hDeepLobe := fun hcd => input.hDeepLobe hcd hg.1
+    hDeepLobe := fun hcd => input.lemmaGap hcd hg.1
     hHalfMass := half_mass_of_weak_sign ha hT hg.1 hg.2.2.1 hg.2.2.2 }
 
 /-! ### Theorem A for the real Virasoro crossing thresholds -/
 
 /-- **Theorem A for `T_weak` (`log_free_optimality.tex`, Theorem A):**
-Conditional on `VirasoroStripInput` (Lemma PJ and Lemma G), there exist absolute constants
+Conditional on `VirasoroStripInput` (Lemma PJ; Lemma G is derived from it), there exist absolute constants
 `C_A > 0` and `c_A ≥ 24` such that `virasoroProblem.T_weak c' ≥ xiBar * c' - C_A * c'^{1/3}`
 for every `c' ≥ c_A`. -/
 theorem theorem_A_T_weak (input : VirasoroStripInput) :
     ∃ C_A c_A : ℝ, 0 < C_A ∧ 24 ≤ c_A ∧ ∀ {c' : ℝ}, c_A ≤ c' →
       xiBar * c' - C_A * c' ^ ((1 : ℝ) / 3) ≤ virasoroProblem.T_weak c' := by
-  obtain ⟨C_A, c_A, hCA_pos, _, hthm⟩ := theorem_A input.toPoissonJensenInput input.fg
+  obtain ⟨C_A, c_A, hCA_pos, _, hthm⟩ := theorem_A input.toPoissonJensenInput input.fixedGap
   refine ⟨C_A, max 24 (max input.c_PJ c_A), hCA_pos, le_max_left _ _, fun {c'} hc' => ?_⟩
   have hc24 : 24 ≤ c' := (le_max_left _ _).trans hc'
   have hcPJ : input.c_PJ ≤ c' := ((le_max_left _ _).trans (le_max_right _ _)).trans hc'
@@ -337,7 +262,7 @@ theorem theorem_A_T_weak (input : VirasoroStripInput) :
   exact hbound
 
 /-- **Theorem A for `T_V` (`log_free_optimality.tex`, Theorem A; `modular_bootstrap_main.tex`):**
-Conditional on `VirasoroStripInput` (Lemma PJ and Lemma G), there exist absolute constants
+Conditional on `VirasoroStripInput` (Lemma PJ; Lemma G is derived from it), there exist absolute constants
 `C_A > 0` and `c_A ≥ 24` such that `virasoroProblem.T_V c' ≥ xiBar * c' - C_A * c'^{1/3}`
 for every `c' ≥ c_A`. -/
 theorem theorem_A_T_V (input : VirasoroStripInput) :

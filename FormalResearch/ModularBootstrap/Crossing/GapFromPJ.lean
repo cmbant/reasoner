@@ -1,7 +1,8 @@
 module
 
-public import FormalResearch.ModularBootstrap.Crossing.Bridge
-public import FormalResearch.ModularBootstrap.Integration.BesselBridge
+public import FormalResearch.ModularBootstrap.Crossing.LemmaInputs
+public import FormalResearch.ModularBootstrap.Crossing.BesselBridge
+public import FormalResearch.ModularBootstrap.SlitStrip.EntropyAndDeficit
 
 /-!
 # Lemma G from Lemma PJ (fixed gap `x₀ = 0.05`)
@@ -9,7 +10,7 @@ public import FormalResearch.ModularBootstrap.Integration.BesselBridge
 Source: `CFT/modular_bootstrap/paper/lower_o1_two_edge.tex`, Lemma G (`vlo:Gap`), last paragraph
 "Poisson--Jensen and integration" of its proof.
 
-`Crossing.LemmaGapInput fg` is the uniform deep-lobe estimate
+`Crossing.LemmaGapInput fg` (`Crossing.LemmaInputs`) is the uniform deep-lobe estimate
 `∫₀^{c'·0.05²/3} |g| V dt ≤ C_deep e^{-κ_deep c'} M[g]` over all concrete Virasoro tests.  The paper
 derives it from the strip Poisson--Jensen bound, the deficit `(G-deficit)` and the Bessel bound
 `V ≤ 2 e^{c' L(x)}`; this file carries that derivation out:
@@ -20,10 +21,10 @@ derives it from the strip Poisson--Jensen bound, the deficit `(G-deficit)` and t
   `C_deep` from `Proposition M` and `exists_rpow_le_mul_exp`).
 
 The proof uses `proposition_M` (Lemma E + Lemma S for the mass and entropy terms), the proved deficit
-bound `slitDeficit_ge`, and `cardyV_le_two_exp` from `Integration.BesselBridge`.  Consequently the
-`hDeepLobe` field of `Crossing.VirasoroStripInput` is redundant for the concrete Virasoro problem: it
-follows from `hPJ`.  (`WeaklyFeasibleTest.hDeepLobe` itself stays a field there, because that structure
-is abstract in `V` and `K_a`.)
+bound `slitDeficit_ge`, and `cardyV_le_two_exp` from `Crossing.BesselBridge`.  Consequently
+`Crossing.VirasoroStripInput` carries no deep-lobe field: `Crossing.Bridge` derives it from `hPJ`.
+(`WeaklyFeasibleTest.hDeepLobe` itself stays a field there, because that structure is abstract in
+`V` and `K_a`.)
 
 Covered: the whole derivation for the fixed gap `x₀ = 0.05`.  The paper's Lemma G for every
 `δ ∈ (0, ξ_*)` is the same computation with `0.05` replaced by `ξ_* - δ`; only `0.05` is formalised,

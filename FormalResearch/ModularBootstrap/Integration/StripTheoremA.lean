@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.ModularBootstrap.Integration.GapFromPJ
+public import FormalResearch.ModularBootstrap.Crossing.Bridge
 public import FormalResearch.ModularBootstrap.SlitStrip.PoissonJensenInput
 
 /-!
@@ -10,12 +10,12 @@ Source: `CFT/modular_bootstrap/paper/log_free_optimality.tex`, Theorem A; inputs
 `CFT/modular_bootstrap/paper/lower_o1_two_edge.tex`, Lemma G (`vlo:Gap`) and Lemma PJ (`vlo:PJ`).
 
 `Crossing.theorem_A_Delta_best` needs a `VirasoroStripInput`, i.e. the geometric data of the slit strip
-*and* the two unproved analytic inputs `LemmaPJInput` and `LemmaGapInput`.  Here:
+and the unproved analytic input `LemmaPJInput`.  (The deep-lobe estimate `LemmaGapInput` is derived from
+`LemmaPJInput` inside `Crossing.Bridge`, by `lemmaGapInput_of_lemmaPJInput` of `Crossing.GapFromPJ`, so
+that the `FixedGapInput` constants are produced, not assumed.)  Here:
 
 * the geometry is the proved one: `rs = realSliceData` (`SlitStrip.RealSlice`), `U = majorantReal` with
   `(G-deficit)` proved (`majorantReal_g_deficit`, `SlitStrip.Majorant`);
-* `LemmaGapInput` is no longer an input: it is derived from `LemmaPJInput` (`lemmaGapInput_of_lemmaPJInput`,
-  `Integration.GapFromPJ`), so that the `FixedGapInput` constants are produced, not assumed;
 * the single remaining analytic hypothesis is `StripPoissonJensen`: Lemma PJ for the actual slit strip,
   `∃ c_PJ C_PJ, 1 ≤ c_PJ ∧ LemmaPJInput realSliceData c_PJ C_PJ majorantReal`.
 
@@ -51,20 +51,16 @@ def StripPoissonJensen : Prop :=
   ∃ c_PJ C_PJ : ℝ, 1 ≤ c_PJ ∧ LemmaPJInput realSliceData c_PJ C_PJ majorantReal
 
 /-- The `VirasoroStripInput` built from `LemmaPJInput` for `realSliceData` and `majorantReal` alone:
-`g_deficit` is proved and the deep-lobe estimate is derived (`lemmaGapInput_of_lemmaPJInput`). -/
+`g_deficit` is proved. -/
 noncomputable def virasoroStripInputOfPJ {c_PJ C_PJ : ℝ} (hc_PJ : 1 ≤ c_PJ)
     (hPJ : LemmaPJInput realSliceData c_PJ C_PJ majorantReal) : VirasoroStripInput :=
-  let hgap := lemmaGapInput_of_lemmaPJInput realSliceData majorantReal hc_PJ
-    (fun _ hx => majorantReal_g_deficit hx) hPJ
   { rs := realSliceData
     c_PJ := c_PJ
     C_PJ := C_PJ
     U := majorantReal
     hc_PJ := hc_PJ
     g_deficit := fun _ hx => majorantReal_g_deficit hx
-    fg := hgap.choose
-    hPJ := hPJ
-    hDeepLobe := hgap.choose_spec }
+    hPJ := hPJ }
 
 /-- **Theorem A for `T_weak`** (`log_free_optimality.tex`), conditional only on Lemma PJ for the slit
 strip (`StripPoissonJensen`): `T_weak(c') ≥ ξ̄ c' - C_A c'^{1/3}` for `c' ≥ c_A`. -/

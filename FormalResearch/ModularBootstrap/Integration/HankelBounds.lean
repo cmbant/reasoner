@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.ModularBootstrap.Integration.BesselBridge
+public import FormalResearch.ModularBootstrap.Crossing.BesselBridge
 
 /-!
 # Lemma B (b) and the integral part of (d): the test-class estimates
