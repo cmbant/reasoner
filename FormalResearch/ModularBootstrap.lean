@@ -67,6 +67,9 @@ public import FormalResearch.ModularBootstrap.TipFront.ComplexMajorant
 public import FormalResearch.ModularBootstrap.TipFront.ComplexPoissonJensen
 public import FormalResearch.ModularBootstrap.TipFront.ConcreteBlowup
 public import FormalResearch.ModularBootstrap.TipFront.GeneralGapLemmaG
+public import FormalResearch.ModularBootstrap.ChartGeometry.HalfStripAsymptotics
+public import FormalResearch.ModularBootstrap.ChartGeometry.MidlineAndJunction
+public import FormalResearch.ModularBootstrap.ChartGeometry.QuadrantMonotonicity
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -206,4 +209,10 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `rigidityFamilyPackage_of_concrete_tests`, and concrete Theorems `C`, `(R1)`--`(R3)`.
 * `TipFront.GeneralGapLemmaG`: general-`δ` Lemma `G` (`lemmaG_general_delta`, `vlo:Gap`) for all
   `δ ∈ (0, ξ_*)`.
+* `ChartGeometry.HalfStripAsymptotics`, `ChartGeometry.MidlineAndJunction`: **Lemma `J7`** (`lemma_J7_asymptotics`,
+  `lemma_J7_midline`): large-height asymptotics of `ω`, `ω'`, `ω''` and `Υ` on the strip, strip bounds,
+  zero set of `ω`, the exact midline parametrisation (`Re ω = 0`, `Im ω` strictly monotone), midline
+  decay of `Re Φ*` and the unique junction `x_L` (`existsUnique_junction_xL`).
+* `ChartGeometry.QuadrantMonotonicity`: **Lemma `J7Q`** (`lemma_J7Q`, `vlo:J7Q`): quadrant monotonicity
+  of the Mellin chart.
 -/
