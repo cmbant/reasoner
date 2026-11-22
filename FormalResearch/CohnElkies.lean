@@ -8,8 +8,13 @@ public import FormalResearch.CohnElkies.StieltjesMixture
 public import FormalResearch.CohnElkies.CardinalAsymptotics
 public import FormalResearch.CohnElkies.MellinAiryToolkit
 public import FormalResearch.CohnElkies.MellinPhaseBounds
+public import FormalResearch.CohnElkies.MellinKernel
 public import FormalResearch.CohnElkies.AiryNicholsonIntegral
 public import FormalResearch.CohnElkies.AirySymbolWKB
+public import FormalResearch.CohnElkies.CardinalPositiveAxis
+public import FormalResearch.CohnElkies.CardinalSymbolBounds
+public import FormalResearch.CohnElkies.AiryTwistedLaplace
+public import FormalResearch.CohnElkies.OriginMellinAndS0
 
 /-!
 # Cohn–Elkies / CFT Paper I elementary and toolkit lemmas (umbrella)
@@ -31,11 +36,22 @@ and the Airy library:
 * `FormalResearch.CohnElkies.MellinAiryToolkit`: Mellin–Airy toolkit Lemmas T.4(a)–(f) and T.3(1), T.3(3).
 * `FormalResearch.CohnElkies.MellinPhaseBounds`: Mellin–Airy toolkit exact imaginary identity `T.3(3)`,
   Gaussian vertical-line bounds `T.3(4)–(5)`, and phase facts `T.4(e)` `(P1)–(P4)`.
+* `FormalResearch.CohnElkies.MellinKernel`: Binet-remainder bridge (Lemma `T.1(a)`), Mellin-strip kernel
+  identity (Lemma `T.2(1)` / `(e33)`), integrated tail `|R̃_5(iτ)|` (Lemma `T.4(b)` / `(e34)`), and combined
+  `(P2)`/`(P4)` vertical bounds.
 * `FormalResearch.CohnElkies.AiryNicholsonIntegral`: unconditional Nicholson integral error `E(x)` and
   phase correction `ϖ(x)` symbol/asymptotic bounds (Lemmas `W.3(a)` and `W.4(a)`).
 * `FormalResearch.CohnElkies.AirySymbolWKB`: negative-axis Airy WKB representation, oscillation
   extraction, and `(CR.14)` all-order symbol decomposition (Lemmas `W.2(b)–(c)`, `W.3(b)`, `W.4(b)`,
   Props `W.5`, `W.6`).
+* `FormalResearch.CohnElkies.CardinalPositiveAxis`: Bessel `K_{1/3}/K_{2/3}` model (`W.1`), Euler
+  derivative bounds, and positive-axis `(CR.16)` bounds for `F(t)`.
+* `FormalResearch.CohnElkies.CardinalSymbolBounds`: Theorem `CR.4` Steps 2–4 (`(CR.17)`, `(CR.21)`
+  uniformly in probability measure `Λ`, and `theorem_CR4_symbol_decomp`).
+* `FormalResearch.CohnElkies.AiryTwistedLaplace`: real-axis twisted Airy Laplace asymptotic (`ce_rate.tex`
+  Lemma `P.1(1)` / `(cel:3.2)`).
+* `FormalResearch.CohnElkies.OriginMellinAndS0`: positive source `S₀` two-sided floor (`P.1(2)`) and
+  origin Mellin kernel bounds (`ce_rate.tex` Lemma `P.2(1)` / `(cel:4.6)`).
 
 This umbrella is deliberately not imported by `FormalResearch.lean`.
 -/
