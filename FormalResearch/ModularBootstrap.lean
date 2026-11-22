@@ -32,6 +32,16 @@ public import FormalResearch.ModularBootstrap.Blowup.PropositionT
 public import FormalResearch.ModularBootstrap.Integration.HankelBounds
 public import FormalResearch.ModularBootstrap.Integration.StripKernel
 public import FormalResearch.ModularBootstrap.Integration.StripTheoremA
+public import FormalResearch.ModularBootstrap.Duality.CrossingMeasure
+public import FormalResearch.ModularBootstrap.Duality.Farkas
+public import FormalResearch.ModularBootstrap.Duality.DualMajorant
+public import FormalResearch.ModularBootstrap.Duality.MomentProblem
+public import FormalResearch.ModularBootstrap.Duality.MeasureCompactness
+public import FormalResearch.ModularBootstrap.Duality.Coordinates
+public import FormalResearch.ModularBootstrap.Duality.Compactness
+public import FormalResearch.ModularBootstrap.Duality.LimitMeasure
+public import FormalResearch.ModularBootstrap.Duality.StrongDuality
+public import FormalResearch.ModularBootstrap.Duality.OptimalMeasure
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -98,4 +108,15 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `Integration.StripTheoremA`: Theorem `A` for `T_weak`, `T_V` and the optimal gap `Δ_best`
   (`theoremA_Delta_best`) with the proved slit-strip geometry; the only remaining hypothesis is
   `StripPoissonJensen` (Lemma PJ for `realSliceData`, `majorantReal`).
+* `Duality.CrossingMeasure`: crossing measures at a gap, Proposition `D1` (`proposition_D1`), and the
+  measure-theoretic forms of the spectral Propositions 1, 2 (`proposition_P1`, `proposition_P2`).
+* `Duality.DualMajorant`: Lemma `M` (`lemma_M`): the dual majorant `h = 2 ∫ Ξ_β ϑ(dβ)`, `w_*`, `C₀`
+  (without the `ψ_k / w_*` clause).
+* `Duality.Farkas`, `Duality.MomentProblem`, `Duality.MeasureCompactness`, `Duality.Coordinates`,
+  `Duality.Compactness`, `Duality.LimitMeasure`: the proof of Theorem `E` (finite moment problems in the
+  family `Ξ_β` by separation, weak compactness on the compactification `[T₀, ∞] ≅ [0, 1]`, transport).
+* `Duality.StrongDuality`: Theorem `E` (`theorem_E`: crossing measures for `T < T_V`, the limit measure with
+  `min supp = T_V`, and `T_V = max {τ : a crossing measure at gap τ exists}`).
+* `Duality.OptimalMeasure`: Corollary `E1` as far as it follows without Theorem `C15`
+  (`corollary_E1_exact_gap`, `corollary_E1_of_stripPJ`).
 -/
