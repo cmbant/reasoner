@@ -71,6 +71,17 @@ public import FormalResearch.ModularBootstrap.ChartGeometry.HalfStripAsymptotics
 public import FormalResearch.ModularBootstrap.ChartGeometry.MidlineAndJunction
 public import FormalResearch.ModularBootstrap.ChartGeometry.QuadrantMonotonicity
 public import FormalResearch.ModularBootstrap.ChartGeometry.CompactEscape
+public import FormalResearch.ModularBootstrap.StripMultiplier.LemmaS4
+public import FormalResearch.ModularBootstrap.StripMultiplier.EdgeKernel
+public import FormalResearch.ModularBootstrap.StripMultiplier.BandBound
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.LangerChart
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.LemmaQ
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.AiryDiscBounds
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.QuantC1Airy
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.QuadratureBounds
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.ArcBounds
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.BootstrapHB
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.TheoremJ
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -219,4 +230,26 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `ChartGeometry.CompactEscape`: **Lemma `J10`** (`lemma_J10_compact_escape`, `vlo:J10escape`,
   `j10H_p_le`): the explicit three-segment compact escape `p → y_δ(1+i) → ½(1+i) → ½ + iT₀` with
   `Re Φ* ≤ −(π²/36)δ³`, for every `0 < δ ≤ 1/72` and `T₀ ≥ ½`; no numerical certificate.
+* `StripMultiplier.LemmaS4`: **Lemma `S4`** (`lemma_S4`, `tildeWV`, `tildeWV_reflect`, `vlo:S4`):
+  bounded antisymmetric strip multiplier `W̃_V(ζ) = e^{-c'Υ(ζ)} m_g(½ + c'ω(ζ))`, holomorphic on
+  `stripOpen`, continuous on `stripClosed`, `W̃_V(1-ζ) = -W̃_V(ζ)`, and `sup |W̃_V| ≤ C M[g]` via
+  Phragmén–Lindelöf (`PhragmenLindelof.vertical_strip`).
+* `StripMultiplier.EdgeKernel`: **Lemmas `J4.1` and `J4.2`** (`lemma_J4_1`, `lemma_J4_2`, `edgeKernelK`,
+  `edgeHV`, `edgeA1`, `wFactor`, `edgeA2`, `edgeRV`, `edgePhi`, `edgeTheta`, `vlo:J41`, `vlo:J42`):
+  left-edge kernel integral representation of `W̃_V(iτ)`, damped strip Poisson identity for `H_V`,
+  kernel factorization `K(τ, t) = A₁(τ) A₂(t) e^{c'(R_V + iΘ)}`, uniform `‖A₁‖`, `‖A₁'‖`, `|A₂|` bounds
+  (plus `wFactor` at general weight `w ≥ 1`), phase oddness/derivative, unimodality of `R_V`, and
+  exponential sub-Cardy bound on `0 < x ≤ ξ_*/2`.
+* `StripMultiplier.BandBound`: **Propositions `Y_V` and `X_V`** (`proposition_YV`, `proposition_YV_inst`,
+  `proposition_XV_of_bootstrap`, `yvBandParams`, `yvBandInstance`, `langerDelta`, `langerNegV`,
+  `vlo:YV`, `vlo:XV`): full `(MS1)–(MS2)` `BandReductionInstance` from a weakly feasible `g`,
+  the annulus sector band bound via `teb_band_reduction`, and `B₁ + B₂ ≤ C_X (1 + log L) c'^{-1/3}`
+  from `TwoEdgeBootstrap.BootstrapInstance` via `teb_bootstrap_part1`.
+* `ConcreteBootstrap.LangerChart`, `ConcreteBootstrap.LemmaQ`, `ConcreteBootstrap.AiryDiscBounds`,
+  `ConcreteBootstrap.QuantC1Airy`, `ConcreteBootstrap.QuadratureBounds`,
+  `ConcreteBootstrap.ArcBounds`, `ConcreteBootstrap.BootstrapHB`, `ConcreteBootstrap.TheoremJ`:
+  concrete `(P, Q) = (1, 0)` Virasoro fixed-weight bootstrap (`wone:Q`, `teb:quant_c1_hb`,
+  `wone:ftlfw`, `wone:genlower(1)`, `vlo:J`) reducing **Theorem `J`**
+  (`theoremJ_of_YV`, `theoremJ_T_weak`, `theoremJ_T_V`, `theoremJ_Delta_best`) to the single
+  named band-feedback input `YVInput` (`vlo:YV`, with non-vacuity `yvInputAt_nonvacuous`).
 -/
