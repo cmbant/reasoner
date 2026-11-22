@@ -42,6 +42,10 @@ public import FormalResearch.ModularBootstrap.Duality.Compactness
 public import FormalResearch.ModularBootstrap.Duality.LimitMeasure
 public import FormalResearch.ModularBootstrap.Duality.StrongDuality
 public import FormalResearch.ModularBootstrap.Duality.OptimalMeasure
+public import FormalResearch.ModularBootstrap.ComplexBessel.BesselI0Sector
+public import FormalResearch.ModularBootstrap.ComplexBessel.ComplexExpansion
+public import FormalResearch.ModularBootstrap.ComplexBessel.StirlingOmega
+public import FormalResearch.ModularBootstrap.ComplexBessel.LemmaS2
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -119,4 +123,14 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `min supp = T_V`, and `T_V = max {τ : a crossing measure at gap τ exists}`).
 * `Duality.OptimalMeasure`: Corollary `E1` as far as it follows without Theorem `C15`
   (`corollary_E1_exact_gap`, `corollary_E1_of_stripPJ`).
+* `ComplexBessel.BesselI0Sector`: Complex `I₀` sector asymptotic (`besselI0C_sector_asymptotic`),
+  bridge `integration_besselI0C_eq_blowup`, proof of `BesselI0Asymptotic` (`besselI0Asymptotic`), and
+  unconditional Lemma `T3` corollaries (`lemma_T3_unconditional`, `lemma_T3_W_bound_unconditional`).
+* `ComplexBessel.ComplexExpansion`: Complex Cardy expansion and Cauchy derivative bounds
+  for `besselErrC`, proving `BesselComplexExpansion` (`besselComplexExpansion`).
+* `ComplexBessel.StirlingOmega`: Stirling factorization (`vlo:stirling`) in `ω` (`gamma_mul_two_pi_t_cpow_neg`)
+  with uniform `O(1/(c'|ω|))` remainder bound (`norm_stirlingS_sub_one_le`) and `ω`-derivative bound
+  `O(1/(c'|ω|²))` (`norm_deriv_stirlingLogS_le`) down to `Re ω ≥ 0`.
+* `ComplexBessel.LemmaS2`: Crude Legendre bound (`vlo:S2`, `lemma_S2`) via log-convexity/concavity of
+  `s ↦ log V(e^s)` and the `x_c = ξ_*/2` derivative bound from `besselComplexExpansion`.
 -/
