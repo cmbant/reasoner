@@ -24,6 +24,11 @@ public import FormalResearch.ModularBootstrap.Blowup.TipMap
 public import FormalResearch.ModularBootstrap.Blowup.PotentialAndWeight
 public import FormalResearch.ModularBootstrap.Blowup.Majorant
 public import FormalResearch.ModularBootstrap.Blowup.PropositionT
+public import FormalResearch.ModularBootstrap.Integration.BesselBridge
+public import FormalResearch.ModularBootstrap.Integration.HankelBounds
+public import FormalResearch.ModularBootstrap.Integration.StripKernel
+public import FormalResearch.ModularBootstrap.Integration.GapFromPJ
+public import FormalResearch.ModularBootstrap.Integration.StripTheoremA
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -71,4 +76,17 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (i)–(vi) (`proposition_T`), construction of `BlowupFamilyPackage` / `RigidityFamilyPackage`
   discharging `propT_subseq`, and concrete test corollaries `blowup_theorem_C`,
   `blowup_theorem_R1`–`blowup_theorem_R3`.
+* `Integration.BesselBridge`: `Crossing.besselI = Bessel.besselI`, `kernelK 1 = besselK`,
+  `virasoroProblem.cardyV = besselV`, and the transfer of Lemma B (a) and the pure-Bessel part of (d)
+  to the concrete kernels.
+* `Integration.HankelBounds`: Lemma B (b) (`∫|g| ≤ (4/π²) M[g]`, `sup|g| ≤ (8/π) M[g]`) and the integral
+  bound of (d) (`∫|g| K_a ≤ 2e⁹² c'² M[g]`) for the concrete test class.
+* `Integration.StripKernel`: Lemma B (d), second bound: `|G(b)| ≤ 4π e⁹² c'² M[g]` on `|Im b| ≤ 1/2` for the
+  Hankel continuation `G` defined by its integral (agreement with `g(c'b²/3)` on the real axis, i.e. Hankel
+  inversion, is not formalised).
+* `Integration.GapFromPJ`: Lemma `G` (`vlo:Gap`, `x₀ = 0.05`) derived from Lemma `PJ`:
+  `LemmaPJInput → LemmaGapInput` (`lemmaGapInput_of_lemmaPJInput`).
+* `Integration.StripTheoremA`: Theorem `A` for `T_weak`, `T_V` and the optimal gap `Δ_best`
+  (`theoremA_Delta_best`) with the proved slit-strip geometry; the only remaining hypothesis is
+  `StripPoissonJensen` (Lemma PJ for `realSliceData`, `majorantReal`).
 -/
