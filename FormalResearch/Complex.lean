@@ -27,11 +27,12 @@ public import FormalResearch.Complex.ArgumentPrinciple
 public import FormalResearch.Complex.Rouche
 public import FormalResearch.Complex.Hurwitz
 public import FormalResearch.Complex.Montel
+public import FormalResearch.Complex.StripPoisson
 
 /-!
-# Complex analysis: Hadamard factorization, Fejér–Riesz arc bounds, Chebyshev coefficients, entire division, argument principle, Rouché, Hurwitz, Montel
+# Complex analysis: Hadamard factorization, Fejér–Riesz arc bounds, Chebyshev coefficients, entire division, argument principle, Rouché, Hurwitz, Montel, strip Poisson kernels
 
-Aggregate module for `FormalResearch/Complex/` (namespaces `FormalResearch.Hadamard`, `FormalResearch.Hardy`, `FormalResearch.Chebyshev`, `FormalResearch.EntireDiv`, `FormalResearch.ArgPrinciple` and `FormalResearch.Montel`).  Mathlib has Jensen's formula,
+Aggregate module for `FormalResearch/Complex/` (namespaces `FormalResearch.Hadamard`, `FormalResearch.Hardy`, `FormalResearch.Chebyshev`, `FormalResearch.EntireDiv`, `FormalResearch.ArgPrinciple`, `FormalResearch.Montel`, and `FormalResearch.StripPoisson`).  Mathlib has Jensen's formula,
 Borel–Carathéodory and the canonical decomposition of an entire function, but no Hadamard factorization theorem; this
 directory proves it, and applies it to the Airy function.  It also holds an elementary Fejér–Riesz inequality on the disc and its
 half-plane arc form (`Hardy*`, Airy-free).
@@ -98,7 +99,10 @@ half-plane arc form (`Hardy*`, Airy-free).
 * `Montel`: Montel's theorem (namespace `FormalResearch.Montel`): a locally uniformly bounded family of holomorphic functions on an open `U ⊆ ℂ` is
   equicontinuous (`equicontinuous`, Cauchy estimates), every sequence has a locally uniformly convergent subsequence with holomorphic limit
   (`montel`), and the normal-family form (`montel_family`); via Mathlib's Arzelà–Ascoli on `C(↥U, ℂ)`.
-  Not formalised in these four modules: the meromorphic argument principle (`N − P`), general contours and winding numbers, symmetric Rouché,
+* `StripPoisson`: analytic strip Poisson kernels on `0 < Re ζ < 1` (namespace `FormalResearch.StripPoisson`): unit masses
+  (`stripPoissonP_integral`, `stripPoissonP1_integral`), pointwise/derivative bounds `(K1)`–`(K3)`, and TV/far-field bounds `(K4)`,
+  `(Q-a)`, `(Q-b)`.
+  Not formalised in these five modules: the meromorphic argument principle (`N − P`), general contours and winding numbers, symmetric Rouché,
   Hurwitz for univalent limits, Montel's omitted-values (Fatou) form, spherical normal families.
 
 Layering: only `HadamardAiry` imports `FormalResearch.Special.Airy*` modules; no module of the `Airy` aggregate imports this

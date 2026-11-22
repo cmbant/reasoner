@@ -4,9 +4,6 @@ public import Mathlib.Analysis.SpecialFunctions.Trigonometric.ArctanDeriv
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp
 public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
-public import Mathlib.Analysis.SpecialFunctions.Gamma.Basic
-public import Mathlib.Analysis.SpecialFunctions.Gamma.BohrMollerup
-public import Mathlib.Analysis.SpecialFunctions.Stirling
 public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 public import Mathlib.Analysis.Calculus.MeanValue
 public import Mathlib.Analysis.Real.Pi.Bounds
@@ -15,22 +12,13 @@ public import Mathlib.Analysis.BoundedVariation
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 
 /-!
-# Universal Two-Edge Bootstrap Core: Strip Poisson Bounds, Stirling Bound, and Fixed-Point Closures
+# Analytic Strip Poisson Kernels (`0 < Re ζ < 1`)
 
-Source: `CFT/common/two_edge_bootstrap.tex` (shared by CFT Papers I and II).
+Source: `CFT/common/two_edge_bootstrap.tex` (Lemma `TE.1`).
 
-## Main components
-
-1. **Lemma TE.1 (`stripPoissonP`, `stripPoissonP1`, `stripPoissonQ`, `stripPoissonCalQ`):**
-   * Positivity, evenness, unimodality, and exact `ℝ`-integrals `1 - σ₀` and `σ₀` for `0 < σ₀ < 1`.
-   * Pointwise and derivative bounds `(K1)`–`(K3)` for `0 < σ₀ ≤ 0.04`.
-   * Total variation and derivative integral bounds `(K4)`, `(Q-a)`, and `(Q-b)`.
-2. **Stirling bound `(TE.7)` (`gamma_add_half_le`, `teb_stirling_bound`):**
-   * `Real.Gamma (k + 1 / 2) ≤ √(2 * π) * k ^ k * Real.exp (-k)` for `k ≥ 1`.
-   * `2 ^ (k + 1) * Real.Gamma (k + 1 / 2) * (π / (4 * ℓ * a)) ^ (k + 1 / 2) ≤ 4 * Real.exp (-k)` for `ℓ * a ≥ (π / 2) * k`.
-3. **Theorem TE.2 fixed-point closures (`log_bootstrap_bound`, `poly_absorption_bound_rpow`, `poly_absorption_bound`):**
-   * Explicit upper bound `L ≤ 2 * Cstar * Real.log (2 * Cstar)` from `L ≤ Cstar * (1 + Real.log L)`.
-   * Polynomial absorption bound `K ≤ max 1 (max (2 * A) ((2 * A * L♯) ^ (1 / (k₀ + 3 / 2))))` from `K ≤ A * (1 + L♯ * K ^ (-(k₀ + 1 / 2)))`.
+* Positivity, evenness, unimodality, and exact `ℝ`-integrals `1 - σ₀` and `σ₀` for `0 < σ₀ < 1`.
+* Pointwise and derivative bounds `(K1)`–`(K3)` for `0 < σ₀ ≤ 0.04`.
+* Total variation and derivative integral bounds `(K4)`, `(Q-a)`, and `(Q-b)`.
 -/
 
 @[expose] public section
@@ -38,7 +26,7 @@ Source: `CFT/common/two_edge_bootstrap.tex` (shared by CFT Papers I and II).
 open MeasureTheory Filter Topology Set
 open scoped Real ENNReal NNReal Interval Nat
 
-namespace FormalResearch.CFT
+namespace FormalResearch.StripPoisson
 
 /-! ### Part 1: Lemma TE.1 — Strip Poisson Kernels and Bounds -/
 
@@ -1428,284 +1416,59 @@ theorem integral_abs_deriv_stripPoissonQ_block_le {σ₀ : ℝ} (h0 : 0 < σ₀)
 
 end StripPoissonPartB
 
-/-! ### Part 2: Stirling and Factorial Bound `(TE.7)` -/
-
-section StirlingHalfInt
-
-private lemma gamma_add_half_eq_factorial (k : ℕ) :
-    Real.Gamma ((k : ℝ) + 1 / 2) = ((2 * k)! : ℝ) / ((4 : ℝ) ^ k * ((k)! : ℝ)) * √π := by
-  induction k with
-  | zero =>
-    rw [Nat.cast_zero, zero_add, mul_zero, Nat.factorial_zero, pow_zero, Nat.cast_one, mul_one,
-      div_one, Real.Gamma_one_half_eq, one_mul]
-  | succ k ih =>
-    have hne : (k : ℝ) + 1 / 2 ≠ 0 := by positivity
-    have heq : ((k + 1 : ℕ) : ℝ) + 1 / 2 = ((k : ℝ) + 1 / 2) + 1 := by push_cast; ring
-    rw [heq, Real.Gamma_add_one hne, ih]
-    have hfac : ((2 * (k + 1))! : ℝ) = (2 * (k : ℝ) + 2) * (2 * (k : ℝ) + 1) * ((2 * k)! : ℝ) := by
-      rw [show 2 * (k + 1) = (2 * k + 1) + 1 by ring, Nat.factorial_succ, Nat.factorial_succ]
-      push_cast; ring
-    have hfac_k : ((k + 1)! : ℝ) = ((k : ℝ) + 1) * ((k)! : ℝ) := by
-      rw [Nat.factorial_succ]; push_cast; ring
-    rw [hfac, hfac_k, pow_succ]
-    have hk_ne : ((k)! : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (Nat.factorial_ne_zero k)
-    field_simp
-    ring
-
-/-- Stirling upper bound for half-integers: `Γ(k + 1/2) ≤ √(2π) k^k e^{-k}` for all `k ≥ 1`. -/
-theorem gamma_add_half_le {k : ℕ} (hk : 1 ≤ k) :
-    Real.Gamma ((k : ℝ) + 1 / 2) ≤ √(2 * π) * (k : ℝ) ^ k * Real.exp (-(k : ℝ)) := by
-  rw [gamma_add_half_eq_factorial]
-  have hk_pos : (0 : ℝ) < k := Nat.cast_pos.mpr hk
-  have hst_k : ((k)! : ℝ) =
-      Stirling.stirlingSeq k * (√(2 * (k : ℝ)) * ((k : ℝ) / Real.exp 1) ^ k) := by
-    have hden : √(2 * (k : ℝ)) * ((k : ℝ) / Real.exp 1) ^ k ≠ 0 := by positivity
-    rw [Stirling.stirlingSeq, div_mul_cancel₀ _ hden]
-  have hst_2k : ((2 * k)! : ℝ) =
-      Stirling.stirlingSeq (2 * k) * (√(2 * ((2 * k : ℕ) : ℝ)) * (((2 * k : ℕ) : ℝ) / Real.exp 1) ^ (2 * k)) := by
-    have hden : √(2 * ((2 * k : ℕ) : ℝ)) * (((2 * k : ℕ) : ℝ) / Real.exp 1) ^ (2 * k) ≠ 0 := by
-      positivity
-    rw [Stirling.stirlingSeq, div_mul_cancel₀ _ hden]
-  have hst_mono : Stirling.stirlingSeq (2 * k) ≤ Stirling.stirlingSeq k := by
-    obtain ⟨m, rfl⟩ : ∃ m, k = m + 1 := ⟨k - 1, by omega⟩
-    have hm : m ≤ 2 * m + 1 := by omega
-    have := Stirling.stirlingSeq'_antitone hm
-    simpa [Function.comp_apply, show 2 * (m + 1) = (2 * m + 1) + 1 by ring] using this
-  have hst_k_pos : 0 < Stirling.stirlingSeq k := by
-    obtain ⟨m, rfl⟩ : ∃ m, k = m + 1 := ⟨k - 1, by omega⟩
-    exact Stirling.stirlingSeq'_pos m
-  have h_ratio_eq : ((2 * k)! : ℝ) / ((4 : ℝ) ^ k * ((k)! : ℝ)) * √π =
-      (Stirling.stirlingSeq (2 * k) / Stirling.stirlingSeq k) *
-        (√(2 * π) * (k : ℝ) ^ k * Real.exp (-(k : ℝ))) := by
-    rw [hst_2k, hst_k]
-    have hsqrt_rel : √(2 * ((2 * k : ℕ) : ℝ)) / √(2 * (k : ℝ)) = √2 := by
-      have : (2 * ((2 * k : ℕ) : ℝ)) = 2 * (2 * (k : ℝ)) := by push_cast; ring
-      rw [this, Real.sqrt_mul zero_le_two, mul_div_cancel_right₀ _ (Real.sqrt_ne_zero'.mpr (by positivity))]
-    have hexp_k : (Real.exp 1) ^ k = Real.exp (k : ℝ) := by
-      rw [← Real.exp_nat_mul, mul_one]
-    have hexp_2k : (Real.exp 1) ^ (2 * k) = Real.exp (2 * (k : ℝ)) := by
-      rw [← Real.exp_nat_mul, mul_one]; push_cast; rfl
-    have hexp_neg : Real.exp (-(k : ℝ)) = (Real.exp (k : ℝ))⁻¹ := Real.exp_neg _
-    have hexp_2k_sq : Real.exp (2 * (k : ℝ)) = Real.exp (k : ℝ) ^ 2 := by
-      rw [← Real.exp_nat_mul]; congr 1
-    have hk_pow : (k : ℝ) ^ (2 * k) = (k : ℝ) ^ k * (k : ℝ) ^ k := by
-      rw [two_mul, pow_add]
-    have h4_eq : (4 : ℝ) ^ k = (2 : ℝ) ^ (2 * k) := by
-      rw [pow_mul]; norm_num
-    have hsqrt_2pi : √(2 * π) = √2 * √π := Real.sqrt_mul zero_le_two π
-    push_cast
-    rw [div_pow, div_pow, mul_pow, hexp_k, hexp_2k, hexp_2k_sq, hk_pow, h4_eq, hexp_neg, hsqrt_2pi]
-    have hsqrt_2k_eq : √(2 * (2 * (k : ℝ))) = √2 * √(2 * (k : ℝ)) :=
-      Real.sqrt_mul zero_le_two (2 * (k : ℝ))
-    rw [hsqrt_2k_eq]
-    have hnz1 : √(2 * (k : ℝ)) ≠ 0 := (Real.sqrt_pos.mpr (by positivity)).ne'
-    have hnz2 : Real.exp (k : ℝ) ≠ 0 := (Real.exp_pos _).ne'
-    have hnz3 : (k : ℝ) ^ k ≠ 0 := pow_ne_zero _ hk_pos.ne'
-    have hnz4 : (2 : ℝ) ^ (2 * k) ≠ 0 := by positivity
-    have hnz5 : Stirling.stirlingSeq k ≠ 0 := hst_k_pos.ne'
-    field_simp
-  rw [h_ratio_eq]
-  calc (Stirling.stirlingSeq (2 * k) / Stirling.stirlingSeq k) *
-        (√(2 * π) * (k : ℝ) ^ k * Real.exp (-(k : ℝ)))
-      ≤ 1 * (√(2 * π) * (k : ℝ) ^ k * Real.exp (-(k : ℝ))) := by
-        gcongr
-        exact (div_le_one hst_k_pos).mpr hst_mono
-    _ = √(2 * π) * (k : ℝ) ^ k * Real.exp (-(k : ℝ)) := one_mul _
-
-/-- Combined Stirling-arc bound `(TE.7)`:
-`2 ^ (k + 1) * Γ(k + 1/2) * (π / (4 * ℓ * a)) ^ (k + 1/2) ≤ 4 * exp(-k)` for `k ≥ 1`, `ℓ * a ≥ (π / 2) * k`. -/
-theorem teb_stirling_bound {k : ℕ} {ℓ a : ℝ} (hk : 1 ≤ k) (hℓ : 0 < ℓ) (ha : 0 < a)
-    (hla : (π / 2) * (k : ℝ) ≤ ℓ * a) :
-    (2 : ℝ) ^ (k + 1) * Real.Gamma ((k : ℝ) + 1 / 2) * (π / (4 * ℓ * a)) ^ ((k : ℝ) + 1 / 2) ≤
-      4 * Real.exp (-(k : ℝ)) := by
-  have hk_pos : (0 : ℝ) < k := Nat.cast_pos.mpr hk
-  have h_arg_le : π / (4 * ℓ * a) ≤ 1 / (2 * (k : ℝ)) := by
-    rw [div_le_div_iff₀ (by positivity) (by positivity)]
-    linarith
-  have hpow_le : (π / (4 * ℓ * a)) ^ ((k : ℝ) + 1 / 2) ≤ (1 / (2 * (k : ℝ))) ^ ((k : ℝ) + 1 / 2) :=
-    Real.rpow_le_rpow (by positivity) h_arg_le (by positivity)
-  have hgam := gamma_add_half_le hk
-  have hgam_nn : 0 ≤ Real.Gamma ((k : ℝ) + 1 / 2) := (Real.Gamma_pos_of_pos (by positivity)).le
-  have h_id : (2 : ℝ) ^ (k + 1) * (√(2 * π) * (k : ℝ) ^ k * Real.exp (-(k : ℝ))) *
-      (1 / (2 * (k : ℝ))) ^ ((k : ℝ) + 1 / 2) =
-      2 * √π / √(k : ℝ) * Real.exp (-(k : ℝ)) := by
-    rw [Real.rpow_add (by positivity : 0 < 1 / (2 * (k : ℝ))), Real.rpow_natCast,
-      one_div_pow, mul_pow, one_div (2 * (k : ℝ)), Real.inv_rpow (by positivity),
-      ← Real.sqrt_eq_rpow]
-    simp_rw [Real.sqrt_mul zero_le_two]
-    have hk_pow_ne : (k : ℝ) ^ k ≠ 0 := pow_ne_zero _ hk_pos.ne'
-    have hk_sqrt_ne : √(k : ℝ) ≠ 0 := (Real.sqrt_pos.mpr hk_pos).ne'
-    have h2_pow_ne : (2 : ℝ) ^ k ≠ 0 := by positivity
-    have h2_sqrt_sq : √2 * √2 = 2 := Real.mul_self_sqrt zero_le_two
-    rw [pow_succ]
-    field_simp
-  have hsqrt_k_ge : 1 ≤ √(k : ℝ) := by
-    rw [← Real.sqrt_one]; exact Real.sqrt_le_sqrt (by exact_mod_cast hk)
-  have h2sqrt_pi_le : 2 * √π ≤ 4 := by
-    have : √π ≤ 2 := by
-      rw [Real.sqrt_le_left (by norm_num)]
-      nlinarith [Real.pi_lt_four]
-    linarith
-  calc (2 : ℝ) ^ (k + 1) * Real.Gamma ((k : ℝ) + 1 / 2) * (π / (4 * ℓ * a)) ^ ((k : ℝ) + 1 / 2)
-      ≤ (2 : ℝ) ^ (k + 1) * (√(2 * π) * (k : ℝ) ^ k * Real.exp (-(k : ℝ))) *
-          (1 / (2 * (k : ℝ))) ^ ((k : ℝ) + 1 / 2) := by
-        gcongr
-    _ = 2 * √π / √(k : ℝ) * Real.exp (-(k : ℝ)) := h_id
-    _ ≤ 4 / 1 * Real.exp (-(k : ℝ)) := by gcongr
-    _ = 4 * Real.exp (-(k : ℝ)) := by ring
-
-end StirlingHalfInt
-
-/-! ### Part 3: Theorem TE.2 Fixed-Point Closures -/
-
-section FixedPointClosures
-
-/-- Explicit logarithmic fixed-point bound `L♯(C_*) = 2 C_* log(2 C_*)`. -/
-noncomputable def tebLogSharp (Cstar : ℝ) : ℝ :=
-  2 * Cstar * Real.log (2 * Cstar)
-
-lemma one_le_tebLogSharp {Cstar : ℝ} (hC : 1 ≤ Cstar) : 1 ≤ tebLogSharp Cstar := by
-  unfold tebLogSharp
-  have h2 : (2 : ℝ) ≤ 2 * Cstar := by linarith
-  have hlog : 1 / 2 ≤ Real.log (2 * Cstar) := by
-    have h1 : Real.log 2 ≤ Real.log (2 * Cstar) := Real.log_le_log (by norm_num) h2
-    have h2' : 1 / 2 < Real.log 2 := lt_trans (by norm_num) Real.log_two_gt_d9
-    linarith
-  nlinarith
-
-/-- Theorem TE.2(2) logarithmic bootstrap closure:
-if `1 ≤ Cstar`, `1 ≤ L`, and `L ≤ Cstar * (1 + log L)`, then `L ≤ tebLogSharp Cstar`. -/
-theorem log_bootstrap_bound {Cstar L : ℝ} (hC : 1 ≤ Cstar) (hL : 1 ≤ L)
-    (hle : L ≤ Cstar * (1 + Real.log L)) :
-    L ≤ tebLogSharp Cstar := by
-  unfold tebLogSharp
-  have hC_pos : 0 < Cstar := by linarith
-  have hL_pos : 0 < L := by linarith
-  have h2C_pos : 0 < 2 * Cstar := by linarith
-  have hlog := Real.log_le_sub_one_of_pos (div_pos hL_pos h2C_pos)
-  rw [Real.log_div hL_pos.ne' h2C_pos.ne'] at hlog
-  have hlogL : Real.log L ≤ Real.log (2 * Cstar) + L / (2 * Cstar) - 1 := by linarith
-  have h1 : L ≤ Cstar * (1 + (Real.log (2 * Cstar) + L / (2 * Cstar) - 1)) :=
-    hle.trans (mul_le_mul_of_nonneg_left (by linarith) hC_pos.le)
-  have h2 : Cstar * (1 + (Real.log (2 * Cstar) + L / (2 * Cstar) - 1)) =
-      Cstar * Real.log (2 * Cstar) + L / 2 := by
-    field_simp [hC_pos.ne']
-    ring
-  linarith
-
-/-- General real-exponent polynomial absorption bound:
-if `A > 0`, `L♯ ≥ 0`, `r ≥ 0`, `K > 0`, and `K ≤ A * (1 + L♯ * K ^ (-r))`, then
-`K ≤ max (2 * A) ((2 * A * L♯) ^ (1 / (r + 1)))`. -/
-theorem poly_absorption_bound_rpow {A Lsharp K r : ℝ} (hA : 0 < A) (hL : 0 ≤ Lsharp)
-    (hr : 0 ≤ r) (hK : 0 < K) (hle : K ≤ A * (1 + Lsharp * K ^ (-r))) :
-    K ≤ max (2 * A) ((2 * A * Lsharp) ^ (1 / (r + 1))) := by
-  have _ := hL
-  have hKr_pos : 0 < K ^ r := Real.rpow_pos_of_pos hK r
-  have hmul : K ^ (r + 1) ≤ A * (K ^ r + Lsharp) := by
-    calc K ^ (r + 1) = K * K ^ r := by rw [Real.rpow_add hK, Real.rpow_one, mul_comm]
-      _ ≤ A * (1 + Lsharp * K ^ (-r)) * K ^ r := mul_le_mul_of_nonneg_right hle hKr_pos.le
-      _ = A * (K ^ r + Lsharp * (K ^ (-r) * K ^ r)) := by ring
-      _ = A * (K ^ r + Lsharp) := by
-          rw [← Real.rpow_add hK, neg_add_cancel, Real.rpow_zero, mul_one]
-  rcases le_or_gt Lsharp (K ^ r) with hbr | hbr
-  · have h2 : K * K ^ r ≤ (2 * A) * K ^ r := by
-      have : K ^ (r + 1) = K * K ^ r := by rw [Real.rpow_add hK, Real.rpow_one, mul_comm]
-      linarith [mul_le_mul_of_nonneg_left (add_le_add_left hbr (K ^ r)) hA.le]
-    exact le_trans (le_of_mul_le_mul_right h2 hKr_pos) (le_max_left _ _)
-  · have h2 : K ^ (r + 1) ≤ 2 * A * Lsharp := by
-      have : A * (K ^ r + Lsharp) ≤ A * (Lsharp + Lsharp) := by nlinarith
-      linarith
-    have hr1_pos : 0 < r + 1 := by linarith
-    have hpow := Real.rpow_le_rpow (Real.rpow_nonneg hK.le _) h2 (by positivity : 0 ≤ 1 / (r + 1))
-    rw [← Real.rpow_mul hK.le, mul_one_div_cancel hr1_pos.ne', Real.rpow_one] at hpow
-    exact hpow.trans (le_max_right _ _)
-
-/-- Theorem TE.2(3) polynomial absorption bound:
-if `A > 0`, `L♯ ≥ 0`, `K > 0`, and `K ≤ A * (1 + L♯ * K ^ (-(k₀ + 1/2)))`, then
-`K ≤ max 1 (max (2 * A) ((2 * A * L♯) ^ (1 / (k₀ + 3/2))))`. -/
-theorem poly_absorption_bound {A Lsharp K : ℝ} (k₀ : ℕ) (hA : 0 < A) (hL : 0 ≤ Lsharp)
-    (hK : 0 < K) (hle : K ≤ A * (1 + Lsharp * K ^ (-((k₀ : ℝ) + 1 / 2)))) :
-    K ≤ max 1 (max (2 * A) ((2 * A * Lsharp) ^ (1 / ((k₀ : ℝ) + 3 / 2)))) := by
-  have h := poly_absorption_bound_rpow (r := (k₀ : ℝ) + 1 / 2) hA hL (by positivity) hK hle
-  have heq : (k₀ : ℝ) + 1 / 2 + 1 = (k₀ : ℝ) + 3 / 2 := by ring
-  rw [heq] at h
-  exact h.trans (le_max_right _ _)
-
-end FixedPointClosures
-
-
 /-! ### Axiom Verification -/
 
-/-- info: 'FormalResearch.CFT.stripPoissonP_integral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.StripPoisson.stripPoissonP_integral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.stripPoissonP_integral
+#print axioms FormalResearch.StripPoisson.stripPoissonP_integral
 
-/-- info: 'FormalResearch.CFT.stripPoissonP1_integral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.StripPoisson.stripPoissonP1_integral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.stripPoissonP1_integral
+#print axioms FormalResearch.StripPoisson.stripPoissonP1_integral
 
-/-- info: 'FormalResearch.CFT.stripPoissonP_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.StripPoisson.stripPoissonP_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.stripPoissonP_le
+#print axioms FormalResearch.StripPoisson.stripPoissonP_le
 
-/-- info: 'FormalResearch.CFT.abs_deriv_stripPoissonP_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.StripPoisson.abs_deriv_stripPoissonP_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.abs_deriv_stripPoissonP_le
+#print axioms FormalResearch.StripPoisson.abs_deriv_stripPoissonP_le
 
-/-- info: 'FormalResearch.CFT.stripPoissonP1_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.StripPoisson.stripPoissonP1_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.stripPoissonP1_le
+#print axioms FormalResearch.StripPoisson.stripPoissonP1_le
 
-/-- info: 'FormalResearch.CFT.abs_deriv_stripPoissonP1_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.StripPoisson.abs_deriv_stripPoissonP1_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.abs_deriv_stripPoissonP1_le
+#print axioms FormalResearch.StripPoisson.abs_deriv_stripPoissonP1_le
 
-/-- info: 'FormalResearch.CFT.eVariationOn_stripPoissonQ_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.StripPoisson.eVariationOn_stripPoissonQ_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.eVariationOn_stripPoissonQ_le
+#print axioms FormalResearch.StripPoisson.eVariationOn_stripPoissonQ_le
 
-/-- info: 'FormalResearch.CFT.stripPoissonQ_tv_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.StripPoisson.stripPoissonQ_tv_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.stripPoissonQ_tv_le
+#print axioms FormalResearch.StripPoisson.stripPoissonQ_tv_le
 
-/-- info: 'FormalResearch.CFT.stripPoissonCalQ_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.StripPoisson.stripPoissonCalQ_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.stripPoissonCalQ_le
+#print axioms FormalResearch.StripPoisson.stripPoissonCalQ_le
 
-/-- info: 'FormalResearch.CFT.integral_abs_deriv_stripPoissonQ_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.StripPoisson.integral_abs_deriv_stripPoissonQ_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.integral_abs_deriv_stripPoissonQ_le
+#print axioms FormalResearch.StripPoisson.integral_abs_deriv_stripPoissonQ_le
 
-/-- info: 'FormalResearch.CFT.stripPoissonCalQ_le_of_two_mul_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.StripPoisson.stripPoissonCalQ_le_of_two_mul_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.stripPoissonCalQ_le_of_two_mul_le
+#print axioms FormalResearch.StripPoisson.stripPoissonCalQ_le_of_two_mul_le
 
-/-- info: 'FormalResearch.CFT.abs_deriv_stripPoissonQ_le_of_two_mul_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.StripPoisson.abs_deriv_stripPoissonQ_le_of_two_mul_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.abs_deriv_stripPoissonQ_le_of_two_mul_le
+#print axioms FormalResearch.StripPoisson.abs_deriv_stripPoissonQ_le_of_two_mul_le
 
-/-- info: 'FormalResearch.CFT.integral_abs_deriv_stripPoissonQ_block_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.StripPoisson.integral_abs_deriv_stripPoissonQ_block_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.integral_abs_deriv_stripPoissonQ_block_le
+#print axioms FormalResearch.StripPoisson.integral_abs_deriv_stripPoissonQ_block_le
 
-/-- info: 'FormalResearch.CFT.gamma_add_half_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.gamma_add_half_le
 
-/-- info: 'FormalResearch.CFT.teb_stirling_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.teb_stirling_bound
-
-/-- info: 'FormalResearch.CFT.log_bootstrap_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.log_bootstrap_bound
-
-/-- info: 'FormalResearch.CFT.poly_absorption_bound_rpow' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.poly_absorption_bound_rpow
-
-/-- info: 'FormalResearch.CFT.poly_absorption_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.poly_absorption_bound
-
-end FormalResearch.CFT
+end FormalResearch.StripPoisson

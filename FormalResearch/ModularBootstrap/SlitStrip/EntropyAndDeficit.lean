@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.CFT.PaperII.Constants
+public import FormalResearch.ModularBootstrap.Constants
 public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.InverseDeriv
@@ -36,7 +36,7 @@ Formalizes `CFT/modular_bootstrap/paper/log_free_optimality.tex`:
 open Complex MeasureTheory Filter Topology Set
 open scoped Real ENNReal Interval
 
-namespace FormalResearch.CFT.PaperII
+namespace FormalResearch.ModularBootstrap
 
 /-! ### Elementary numerical bounds and helper lemmas -/
 
@@ -2323,52 +2323,52 @@ theorem slitStrip_hypotheses_nonvacuous :
 
 /-! ### Axiom checks for all headline theorems -/
 
-/-- info: 'FormalResearch.CFT.PaperII.slitBoundaryMap_slitInv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.slitBoundaryMap_slitInv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.slitBoundaryMap_slitInv
+#print axioms FormalResearch.ModularBootstrap.slitBoundaryMap_slitInv
 
-/-- info: 'FormalResearch.CFT.PaperII.invJacobian_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.invJacobian_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.invJacobian_le
+#print axioms FormalResearch.ModularBootstrap.invJacobian_le
 
-/-- info: 'FormalResearch.CFT.PaperII.lemmaE_complex' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.lemmaE_complex' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.lemmaE_complex
+#print axioms FormalResearch.ModularBootstrap.lemmaE_complex
 
-/-- info: 'FormalResearch.CFT.PaperII.lemmaE_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.lemmaE_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.lemmaE_real
+#print axioms FormalResearch.ModularBootstrap.lemmaE_real
 
-/-- info: 'FormalResearch.CFT.PaperII.lemmaS_poisson_log_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.lemmaS_poisson_log_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.lemmaS_poisson_log_bound
+#print axioms FormalResearch.ModularBootstrap.lemmaS_poisson_log_bound
 
-/-- info: 'FormalResearch.CFT.PaperII.lemmaS_complex' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.lemmaS_complex' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.lemmaS_complex
+#print axioms FormalResearch.ModularBootstrap.lemmaS_complex
 
-/-- info: 'FormalResearch.CFT.PaperII.lemmaS_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.lemmaS_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.lemmaS_real
+#print axioms FormalResearch.ModularBootstrap.lemmaS_real
 
-/-- info: 'FormalResearch.CFT.PaperII.slitDeficit_ge_exact' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.slitDeficit_ge_exact' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.slitDeficit_ge_exact
+#print axioms FormalResearch.ModularBootstrap.slitDeficit_ge_exact
 
-/-- info: 'FormalResearch.CFT.PaperII.slitDeficit_ge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.slitDeficit_ge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.slitDeficit_ge
+#print axioms FormalResearch.ModularBootstrap.slitDeficit_ge
 
-/-- info: 'FormalResearch.CFT.PaperII.proposition_M' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.proposition_M' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.proposition_M
+#print axioms FormalResearch.ModularBootstrap.proposition_M
 
-/-- info: 'FormalResearch.CFT.PaperII.theorem_A' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.theorem_A' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.theorem_A
+#print axioms FormalResearch.ModularBootstrap.theorem_A
 
-/-- info: 'FormalResearch.CFT.PaperII.slitStrip_hypotheses_nonvacuous' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.slitStrip_hypotheses_nonvacuous' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.slitStrip_hypotheses_nonvacuous
+#print axioms FormalResearch.ModularBootstrap.slitStrip_hypotheses_nonvacuous
 
-end FormalResearch.CFT.PaperII
+end FormalResearch.ModularBootstrap
