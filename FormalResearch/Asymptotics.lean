@@ -10,6 +10,8 @@ public import FormalResearch.Asymptotics.LogSeries
 public import FormalResearch.Asymptotics.GeometricExpansion
 public import FormalResearch.Asymptotics.ExpExpansion
 public import FormalResearch.Asymptotics.StirlingHalfInt
+public import FormalResearch.Asymptotics.BinetRemainder
+public import FormalResearch.Asymptotics.SymbolClass
 
 /-!
 # Uniform asymptotic expansions in a parameter
@@ -32,5 +34,9 @@ Aggregate module for `FormalResearch/Asymptotics/`:
 * `ExpExpansion`: `exp` of an expansion with `a_0 = 0` is an expansion with the coefficients of the
   formal exponential (`HasExpansionAlong.exp`, `expCoeff`);
 * `StirlingHalfInt`: half-integer Gamma and factorial Stirling bounds (`gamma_add_half_le`,
-  `teb_stirling_bound`).
+  `teb_stirling_bound`);
+* `BinetRemainder`: Binet's integral remainder `B_Bin(w)`, all-order derivative bounds, and vertical
+  strip bounds (`binetRem_iteratedDeriv_norm_le`, `binetDiff_*`);
+* `SymbolClass`: classical Airy symbol classes `𝒮_β` / `𝒬_β` (`IsSymbolOn`, `IsSymbol`,
+  `IsWeightedSymbolOn`) and algebra/composition closure (Lemma `W.0`).
 -/

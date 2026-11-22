@@ -9,7 +9,8 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 
 Source: `CFT/common/two_edge_bootstrap.tex` (shared by CFT Papers I and II).
 Splits `TwoEdgePoissonCore` (Parts 1–3) and `TwoEdgeVanDerCorput` (van der Corput IBP/estimates)
-from the dyadic oscillatory edge estimate `teb_edge_osc_interval`, `teb_edge_osc`, and `teb_edge_osc_id`.
+from the dyadic oscillatory edge estimate `teb_edge_osc_interval`, `teb_edge_osc_tendsto`
+(improper Riemann–Stieltjes limit matching `8f29b5221` without `IntegrableOn`), `teb_edge_osc`, and `teb_edge_osc_id`.
 -/
 
 @[expose] public section
@@ -657,6 +658,87 @@ lemma tebOscConst_pos {b₀ : ℝ} (hb₀ : 0 < b₀) (N : ℝ) : 0 < tebOscCons
     positivity
   exact lt_of_lt_of_le h1 (le_max_left _ _)
 
+private lemma teb_osc_continuousOn {w w' φ φ' : ℝ → ℝ} {h : ℝ → ℂ} (c : ℝ)
+    (hw : ∀ τ, 0 < τ → HasDerivAt w (w' τ) τ)
+    (hw_cont : ContinuousOn w' (Ioi 0))
+    (hφ : ∀ y ∈ w '' Ioi 0, HasDerivAt φ (φ' y) y)
+    (hh_cont : ContinuousOn h (Ioi 0)) :
+    ContinuousOn
+      (fun τ => h τ * (w' τ : ℂ) * Complex.exp (Complex.I * (c : ℂ) * (φ (w τ) : ℂ)))
+      (Ioi 0) := by
+  have hw_cont_val : ContinuousOn w (Ioi 0) := fun τ hτ => (hw τ hτ).continuousAt.continuousWithinAt
+  have hφ_cont : ContinuousOn φ (w '' Ioi 0) := by
+    rintro _ ⟨τ, hτ, rfl⟩
+    exact (hφ (w τ) ⟨τ, hτ, rfl⟩).continuousAt.continuousWithinAt
+  refine (hh_cont.mul (Complex.continuous_ofReal.continuousOn.comp hw_cont (mapsTo_univ _ _))).mul ?_
+  exact Complex.continuous_exp.continuousOn.comp (continuousOn_const.mul
+    (Complex.continuous_ofReal.continuousOn.comp
+      (hφ_cont.comp hw_cont_val (fun τ hτ => ⟨τ, hτ, rfl⟩)) (mapsTo_univ _ _)))
+    (mapsTo_univ _ _)
+
+private lemma teb_osc_intervalIntegrable {w w' φ φ' : ℝ → ℝ} {h : ℝ → ℂ} (c : ℝ) {u v : ℝ}
+    (hw : ∀ τ, 0 < τ → HasDerivAt w (w' τ) τ)
+    (hw_cont : ContinuousOn w' (Ioi 0))
+    (hφ : ∀ y ∈ w '' Ioi 0, HasDerivAt φ (φ' y) y)
+    (hh_cont : ContinuousOn h (Ioi 0))
+    (hu : 0 < u) (hv : 0 < v) :
+    IntervalIntegrable
+      (fun τ => h τ * (w' τ : ℂ) * Complex.exp (Complex.I * (c : ℂ) * (φ (w τ) : ℂ)))
+      volume u v := by
+  have hsub : uIcc u v ⊆ Ioi 0 := fun τ hτ => lt_of_lt_of_le (lt_min hu hv) hτ.1
+  exact ((teb_osc_continuousOn c hw hw_cont hφ hh_cont).mono hsub).intervalIntegrable
+
+private lemma teb_osc_vdc1_block {w w' φ φ' φ'' : ℝ → ℝ} {h : ℝ → ℂ}
+    {N M c u v s lam : ℝ}
+    (hc_pos : 0 < c)
+    (hw : ∀ τ, 0 < τ → HasDerivAt w (w' τ) τ)
+    (hw_cont : ContinuousOn w' (Ioi 0))
+    (hw_pos : ∀ τ, 0 < τ → 0 < w' τ)
+    (hφ : ∀ y ∈ w '' Ioi 0, HasDerivAt φ (φ' y) y)
+    (hφ' : ∀ y ∈ w '' Ioi 0, HasDerivAt φ' (φ'' y) y)
+    (hφ'_mono : MonotoneOn φ' (w '' Ioi 0) ∨ AntitoneOn φ' (w '' Ioi 0))
+    (hh_cont : ContinuousOn h (Ioi 0))
+    (hh_bv : ∀ s > 0, BoundedVariationOn h (Icc s (2 * s)) ∧
+      ∀ τ ∈ Icc s (2 * s), ‖h τ‖ + (eVariationOn h (Icc s (2 * s))).toReal ≤
+        M * s ^ (5 / 2 : ℝ) * (1 + s) ^ N * Real.exp (-s ^ 2))
+    (hs : 0 < s) (hsu : s ≤ u) (huv : u ≤ v) (hv2s : v ≤ 2 * s) (hlam : 0 < lam)
+    (hlb : ∀ τ ∈ Icc u v, lam ≤ |φ' (w τ)|) :
+    ‖∫ τ in u..v, h τ * (w' τ : ℂ) * Complex.exp (Complex.I * (c : ℂ) * (φ (w τ) : ℂ))‖ ≤
+      (3 / (c * lam)) * M * s ^ (5 / 2 : ℝ) * (1 + s) ^ N * Real.exp (-s ^ 2) := by
+  have hw_cont_val : ContinuousOn w (Ioi 0) := fun τ hτ => (hw τ hτ).continuousAt.continuousWithinAt
+  have hφ'_cont : ContinuousOn φ' (w '' Ioi 0) := by
+    rintro _ ⟨τ, hτ, rfl⟩
+    exact (hφ' (w τ) ⟨τ, hτ, rfl⟩).continuousAt.continuousWithinAt
+  have hu_pos : 0 < u := lt_of_lt_of_le hs hsu
+  have hsub_0 : Icc u v ⊆ Ioi 0 := fun τ hτ => lt_of_lt_of_le hu_pos hτ.1
+  have hsub_s : Icc u v ⊆ Icc s (2 * s) := Icc_subset_Icc hsu hv2s
+  have hsub_w : Icc (w u) (w v) ⊆ w '' Ioi 0 := by
+    intro y hy
+    obtain ⟨τ, hτ, rfl⟩ := intermediate_value_Icc huv (hw_cont_val.mono hsub_0) hy
+    exact ⟨τ, hsub_0 hτ, rfl⟩
+  obtain ⟨hbv_s, hbound_s⟩ := hh_bv s hs
+  have hbv_uv : BoundedVariationOn h (Icc u v) := hbv_s.mono hsub_s
+  have htv_uv : (eVariationOn h (Icc u v)).toReal ≤ (eVariationOn h (Icc s (2 * s))).toReal :=
+    ENNReal.toReal_mono hbv_s (eVariationOn.mono h hsub_s)
+  have h_vdc := van_der_corput_first_comp
+    (M := M * s ^ (5 / 2 : ℝ) * (1 + s) ^ N * Real.exp (-s ^ 2) -
+      (eVariationOn h (Icc s (2 * s))).toReal)
+    huv hc_pos hlam
+    (fun τ hτ => hw τ (hsub_0 hτ)) (hw_cont.mono hsub_0) (fun τ hτ => (hw_pos τ (hsub_0 hτ)).le)
+    (fun y hy => hφ y (hsub_w hy)) (hφ'_cont.mono hsub_w)
+    (Or.elim hφ'_mono (fun hm => Or.inl (hm.mono hsub_w)) (fun ha => Or.inr (ha.mono hsub_w)))
+    hlb (hh_cont.mono hsub_0) hbv_uv
+    (fun τ hτ => by
+      have h1 := hbound_s τ (hsub_s hτ)
+      linarith)
+  calc ‖∫ τ in u..v, h τ * (w' τ : ℂ) * Complex.exp (Complex.I * (c : ℂ) * (φ (w τ) : ℂ))‖
+      ≤ 3 * ((M * s ^ (5 / 2 : ℝ) * (1 + s) ^ N * Real.exp (-s ^ 2) -
+          (eVariationOn h (Icc s (2 * s))).toReal) + (eVariationOn h (Icc u v)).toReal) / (c * lam) :=
+        h_vdc
+    _ ≤ 3 * (M * s ^ (5 / 2 : ℝ) * (1 + s) ^ N * Real.exp (-s ^ 2)) / (c * lam) := by
+        gcongr; linarith
+    _ = (3 / (c * lam)) * M * s ^ (5 / 2 : ℝ) * (1 + s) ^ N * Real.exp (-s ^ 2) := by ring
+
 /-- Lemma TE.1a on compact subintervals `[a, b] ⊆ (0, ∞)` (uniform in `a, b`, no global `Ioi 0`
 integrability needed). -/
 theorem teb_edge_osc_interval {w w' φ φ' φ'' : ℝ → ℝ} {h : ℝ → ℂ}
@@ -682,71 +764,23 @@ theorem teb_edge_osc_interval {w w' φ φ' φ'' : ℝ → ℝ} {h : ℝ → ℂ}
         (c⁻¹ + c ^ (-(1 / 2 : ℝ)) * min (τ₀ ^ 2) 1 * if A * c ^ (-(1 / 3 : ℝ)) < τ₀ then 1 else 0) := by
   have hc_pos : 0 < c := by linarith
   have hM_nn : 0 ≤ M := nonneg_of_hh_bv_unit hh_bv
-  have hw_mono : MonotoneOn w (Ioi 0) := by
-    refine monotoneOn_of_deriv_nonneg (convex_Ioi 0)
-      (fun τ hτ => (hw τ hτ).continuousAt.continuousWithinAt)
-      (fun τ hτ => (hw τ (by simpa [interior_Ioi] using hτ)).differentiableAt.differentiableWithinAt) ?_
-    intro τ hτ
-    rw [interior_Ioi] at hτ
-    rw [(hw τ hτ).deriv]
-    exact (hw_pos τ hτ).le
-  have hφ_cont : ContinuousOn φ (w '' Ioi 0) := by
-    rintro _ ⟨τ, hτ, rfl⟩
-    exact (hφ (w τ) ⟨τ, hτ, rfl⟩).continuousAt.continuousWithinAt
   have hφ'_cont : ContinuousOn φ' (w '' Ioi 0) := by
     rintro _ ⟨τ, hτ, rfl⟩
     exact (hφ' (w τ) ⟨τ, hτ, rfl⟩).continuousAt.continuousWithinAt
   have hw_cont_val : ContinuousOn w (Ioi 0) := fun τ hτ => (hw τ hτ).continuousAt.continuousWithinAt
   let F_osc : ℝ → ℂ := fun τ =>
     h τ * (w' τ : ℂ) * Complex.exp (Complex.I * (c : ℂ) * (φ (w τ) : ℂ))
-  have hF_int : ∀ u v, 0 < u → u ≤ v → IntervalIntegrable F_osc volume u v := fun u v hu huv => by
-    have hsub : Icc u v ⊆ Ioi 0 := fun τ hτ => lt_of_lt_of_le hu hτ.1
-    have hsub_w : MapsTo w (Icc u v) (w '' Ioi 0) := fun τ hτ => ⟨τ, hsub hτ, rfl⟩
-    have hcont : ContinuousOn F_osc (Icc u v) := by
-      refine ((hh_cont.mono hsub).mul (Complex.continuous_ofReal.continuousOn.comp
-        (hw_cont.mono hsub) (mapsTo_univ _ _))).mul ?_
-      exact Complex.continuous_exp.continuousOn.comp (continuousOn_const.mul
-        (Complex.continuous_ofReal.continuousOn.comp (hφ_cont.comp (hw_cont_val.mono hsub) hsub_w)
-          (mapsTo_univ _ _))) (mapsTo_univ _ _)
-    exact hcont.intervalIntegrable_of_Icc huv
+  have hF_int : ∀ u v, 0 < u → u ≤ v → IntervalIntegrable F_osc volume u v := fun u v hu huv =>
+    teb_osc_intervalIntegrable c hw hw_cont hφ hh_cont hu (lt_of_lt_of_le hu huv)
   set eps := 2 * A * c ^ (-(1 / 3 : ℝ))
   have heps_pos : 0 < eps := by positivity
   -- Helper to bound `F_osc` on a first-derivative subinterval `[u, v] ⊆ [s, 2s]`
   have vdc1_block : ∀ {u v s lam : ℝ}, 0 < s → s ≤ u → u ≤ v → v ≤ 2 * s → 0 < lam →
       (∀ τ ∈ Icc u v, lam ≤ |φ' (w τ)|) →
       ‖∫ τ in u..v, F_osc τ‖ ≤
-        (3 / (c * lam)) * M * s ^ (5 / 2 : ℝ) * (1 + s) ^ N * Real.exp (-s ^ 2) := by
-    intro u v s lam hs hsu huv hv2s hlam hlb
-    have hu_pos : 0 < u := lt_of_lt_of_le hs hsu
-    have hsub_0 : Icc u v ⊆ Ioi 0 := fun τ hτ => lt_of_lt_of_le hu_pos hτ.1
-    have hsub_s : Icc u v ⊆ Icc s (2 * s) := Icc_subset_Icc hsu hv2s
-    have hsub_w : Icc (w u) (w v) ⊆ w '' Ioi 0 := by
-      intro y hy
-      have hw_cont_uv := hw_cont_val.mono hsub_0
-      obtain ⟨τ, hτ, rfl⟩ := intermediate_value_Icc huv hw_cont_uv hy
-      exact ⟨τ, hsub_0 hτ, rfl⟩
-    obtain ⟨hbv_s, hbound_s⟩ := hh_bv s hs
-    have hbv_uv : BoundedVariationOn h (Icc u v) := hbv_s.mono hsub_s
-    have htv_uv : (eVariationOn h (Icc u v)).toReal ≤ (eVariationOn h (Icc s (2 * s))).toReal :=
-      ENNReal.toReal_mono hbv_s (eVariationOn.mono h hsub_s)
-    have h_vdc := van_der_corput_first_comp
-      (M := M * s ^ (5 / 2 : ℝ) * (1 + s) ^ N * Real.exp (-s ^ 2) -
-        (eVariationOn h (Icc s (2 * s))).toReal)
-      huv hc_pos hlam
-      (fun τ hτ => hw τ (hsub_0 hτ)) (hw_cont.mono hsub_0) (fun τ hτ => (hw_pos τ (hsub_0 hτ)).le)
-      (fun y hy => hφ y (hsub_w hy)) (hφ'_cont.mono hsub_w)
-      (Or.elim hφ'_mono (fun hm => Or.inl (hm.mono hsub_w)) (fun ha => Or.inr (ha.mono hsub_w)))
-      hlb (hh_cont.mono hsub_0) hbv_uv
-      (fun τ hτ => by
-        have h1 := hbound_s τ (hsub_s hτ)
-        linarith)
-    calc ‖∫ τ in u..v, F_osc τ‖
-        ≤ 3 * ((M * s ^ (5 / 2 : ℝ) * (1 + s) ^ N * Real.exp (-s ^ 2) -
-            (eVariationOn h (Icc s (2 * s))).toReal) + (eVariationOn h (Icc u v)).toReal) / (c * lam) :=
-          h_vdc
-      _ ≤ 3 * (M * s ^ (5 / 2 : ℝ) * (1 + s) ^ N * Real.exp (-s ^ 2)) / (c * lam) := by
-          gcongr; linarith
-      _ = (3 / (c * lam)) * M * s ^ (5 / 2 : ℝ) * (1 + s) ^ N * Real.exp (-s ^ 2) := by ring
+        (3 / (c * lam)) * M * s ^ (5 / 2 : ℝ) * (1 + s) ^ N * Real.exp (-s ^ 2) :=
+    fun hs hsu huv hv2s hlam hlb =>
+      teb_osc_vdc1_block hc_pos hw hw_cont hw_pos hφ hφ' hφ'_mono hh_cont hh_bv hs hsu huv hv2s hlam hlb
   -- Truncate `[a, b]` to `[max a eps, b]` if `eps < b`, else `0`
   rcases le_or_gt b eps with hb_le | h_eps_lt
   · have hzero : ∫ τ in a..b, F_osc τ = 0 := by
@@ -1132,6 +1166,159 @@ theorem teb_edge_osc {w w' φ φ' φ'' : ℝ → ℝ} {h : ℝ → ℂ}
       h_upper h_lower h_mid hh_cont hh_vanish hh_bv
   exact le_of_tendsto (htend.norm) h_ev
 
+/-- **Lemma TE.1a (`teb:edge-osc`)**, improper Riemann–Stieltjes limit form (`8f29b5221`):
+the truncated integrals converge as `a ↘ 0`, `b → ∞` without assuming `IntegrableOn` or any
+growth bound on `w'`, and the limit satisfies the same oscillatory edge bound. -/
+theorem teb_edge_osc_tendsto {w w' φ φ' φ'' : ℝ → ℝ} {h : ℝ → ℂ}
+    {τ₀ A b₀ N M c : ℝ}
+    (hτ₀ : 0 ≤ τ₀) (hA : 0 < A) (hb₀ : 0 < b₀) (hc : 1 ≤ c)
+    (hw : ∀ τ, 0 < τ → HasDerivAt w (w' τ) τ)
+    (hw_cont : ContinuousOn w' (Ioi 0))
+    (hw_pos : ∀ τ, 0 < τ → 0 < w' τ)
+    (hφ : ∀ y ∈ w '' Ioi 0, HasDerivAt φ (φ' y) y)
+    (hφ' : ∀ y ∈ w '' Ioi 0, HasDerivAt φ' (φ'' y) y)
+    (hφ'_mono : MonotoneOn φ' (w '' Ioi 0) ∨ AntitoneOn φ' (w '' Ioi 0))
+    (h_upper : ∀ τ, 2 * τ₀ < τ → b₀ * min (τ ^ 2) 1 ≤ |φ' (w τ)|)
+    (h_lower : ∀ τ, 0 < τ → τ < τ₀ / 2 → b₀ * min (τ₀ ^ 2) 1 ≤ |φ' (w τ)|)
+    (h_mid : 0 < τ₀ → ∀ τ, τ₀ / 2 ≤ τ → τ ≤ 2 * τ₀ →
+      b₀ * τ₀ / (1 + τ₀ ^ 3) ≤ |φ'' (w τ)|)
+    (hh_cont : ContinuousOn h (Ioi 0))
+    (hh_vanish : ∀ τ, 0 < τ → τ ≤ 2 * A * c ^ (-(1 / 3 : ℝ)) → h τ = 0)
+    (hh_bv : ∀ s > 0, BoundedVariationOn h (Icc s (2 * s)) ∧
+      ∀ τ ∈ Icc s (2 * s), ‖h τ‖ + (eVariationOn h (Icc s (2 * s))).toReal ≤
+        M * s ^ (5 / 2 : ℝ) * (1 + s) ^ N * Real.exp (-s ^ 2)) :
+    ∃ L : ℂ,
+      Filter.Tendsto
+        (fun p : ℝ × ℝ =>
+          ∫ τ in p.1..p.2, h τ * (w' τ : ℂ) * Complex.exp (Complex.I * (c : ℂ) * (φ (w τ) : ℂ)))
+        (𝓝[>] (0 : ℝ) ×ˢ Filter.atTop) (𝓝 L) ∧
+      ‖L‖ ≤ tebOscConst b₀ N * M *
+        (c⁻¹ + c ^ (-(1 / 2 : ℝ)) * min (τ₀ ^ 2) 1 * (if A * c ^ (-(1 / 3 : ℝ)) < τ₀ then 1 else 0)) := by
+  have hc_pos : 0 < c := by linarith
+  have hM_nn : 0 ≤ M := nonneg_of_hh_bv_unit hh_bv
+  let F_osc : ℝ → ℂ := fun τ =>
+    h τ * (w' τ : ℂ) * Complex.exp (Complex.I * (c : ℂ) * (φ (w τ) : ℂ))
+  let F_int : ℝ × ℝ → ℂ := fun p => ∫ τ in p.1..p.2, F_osc τ
+  have hF_int : ∀ x y, 0 < x → 0 < y → IntervalIntegrable F_osc volume x y :=
+    fun _ _ hx hy => teb_osc_intervalIntegrable c hw hw_cont hφ hh_cont hx hy
+  set eps := 2 * A * c ^ (-(1 / 3 : ℝ))
+  have heps_pos : 0 < eps := by positivity
+  set a_max := min (1 : ℝ) eps
+  have ha_max_pos : 0 < a_max := lt_min one_pos heps_pos
+  set R₀ := max (2 * τ₀ + 1) (max 2 (eps + 1))
+  have hR₀_ge2 : 2 ≤ R₀ := (le_max_left _ _).trans (le_max_right _ _)
+  have hR₀_pos : 0 < R₀ := by linarith
+  set C_poly1 : ℝ :=
+    4 * (2 : ℝ) ^ max (N + 1) 0 + (2 : ℝ) ^ max (N + 1) 0 *
+      (Nat.factorial (Nat.ceil ((5 / 2 + max (N + 1) 0 + 1) / 2)) : ℝ)
+  set K_tail : ℝ := 6 * M / (c * b₀) * C_poly1
+  have hK_nn : 0 ≤ K_tail := by positivity
+  -- Upper tail bound: `O(1 / b₁)` on `[b₁, b₂]` for `R₀ ≤ b₁ ≤ b₂`
+  have h_upper_tail : ∀ {b₁ b₂ : ℝ}, R₀ ≤ b₁ → b₁ ≤ b₂ →
+      ‖∫ τ in b₁..b₂, F_osc τ‖ ≤ K_tail / b₁ := by
+    intro b₁ b₂ hb₁ hb₁₂
+    have hb₁_ge2 : 2 ≤ b₁ := hR₀_ge2.trans hb₁
+    have hb₁_pos : 0 < b₁ := by linarith
+    have h_dyadic := dyadic_upper_sum_le (N + 1) hb₁_pos hb₁₂ F_osc
+      (g := fun _ => 6 * M / (c * b₀ * b₁))
+      (fun s hs u v hbu hvb hsu huv hv2s => by
+        have hs_ge_one : 1 ≤ s := by linarith
+        have hs_min : min (s ^ 2) 1 = 1 := min_eq_right (by nlinarith)
+        have h1s_pos : 0 < 1 + s := by linarith
+        have h_extra : 1 ≤ (2 / b₁) * (1 + s) := by
+          have hb1_le_2s : b₁ ≤ 2 * s := hbu.trans (huv.trans hv2s)
+          rw [div_mul_eq_mul_div, one_le_div hb₁_pos]
+          linarith
+        have hlb : ∀ τ ∈ Icc u v, b₀ ≤ |φ' (w τ)| := fun τ hτ => by
+          have h2τ₀ : 2 * τ₀ < τ := by linarith [le_max_left (2 * τ₀ + 1) (max 2 (eps + 1)), hbu.trans hτ.1]
+          have hτ1 : 1 ≤ τ := by linarith [hbu.trans hτ.1]
+          have hmin : min (τ ^ 2) 1 = 1 := min_eq_right (by nlinarith)
+          simpa [hmin] using h_upper τ h2τ₀
+        have hvdc := teb_osc_vdc1_block hc_pos hw hw_cont hw_pos hφ hφ' hφ'_mono hh_cont hh_bv
+          hs hsu huv hv2s hb₀ hlb
+        have hpow_succ : (1 + s) ^ N * (1 + s) = (1 + s) ^ (N + 1) := by
+          rw [Real.rpow_add h1s_pos, Real.rpow_one]
+        calc ‖∫ τ in u..v, F_osc τ‖
+            ≤ (3 / (c * b₀)) * M * s ^ (5 / 2 : ℝ) * ((1 + s) ^ N * 1) * Real.exp (-s ^ 2) := by
+                simpa only [mul_one] using hvdc
+          _ ≤ (3 / (c * b₀)) * M * s ^ (5 / 2 : ℝ) * ((1 + s) ^ N * ((2 / b₁) * (1 + s))) *
+                Real.exp (-s ^ 2) := by gcongr
+          _ = (6 * M / (c * b₀ * b₁)) * s ^ (5 / 2 : ℝ) * ((1 + s) ^ N * (1 + s)) *
+                Real.exp (-s ^ 2) := by ring
+          _ = (6 * M / (c * b₀ * b₁)) * s ^ (5 / 2 : ℝ) * (1 + s) ^ (N + 1) *
+                Real.exp (-s ^ 2) / min (s ^ 2) 1 := by
+              rw [hpow_succ, hs_min, div_one])
+      (by positivity) (fun _ _ => le_rfl) (hF_int b₁ b₂ hb₁_pos (hb₁_pos.trans_le hb₁₂))
+    refine h_dyadic.trans_eq ?_
+    dsimp [K_tail, C_poly1]
+    ring
+  -- Lower tail vanishes on `(0, a_max]`
+  have h_lower_vanish : ∀ {a₁ a₂ : ℝ}, 0 < a₁ → a₁ ≤ a_max → 0 < a₂ → a₂ ≤ a_max →
+      ∫ τ in a₁..a₂, F_osc τ = 0 := by
+    intro a₁ a₂ ha₁ ha₁m ha₂ ha₂m
+    have hzero : EqOn F_osc (fun _ => 0) (uIcc a₁ a₂) := fun τ hτ => by
+      have hτ_pos : 0 < τ := lt_of_lt_of_le (lt_min ha₁ ha₂) hτ.1
+      have hτ_le : τ ≤ eps := hτ.2.trans ((max_le ha₁m ha₂m).trans (min_le_right _ _))
+      dsimp [F_osc]
+      rw [hh_vanish τ hτ_pos hτ_le, zero_mul, zero_mul]
+    rw [intervalIntegral.integral_congr hzero, intervalIntegral.integral_zero]
+  -- `F_int` is Cauchy along `𝓝[>] 0 ×ˢ Filter.atTop`
+  have hCauchy : Cauchy (Filter.map F_int (𝓝[>] (0 : ℝ) ×ˢ Filter.atTop)) := by
+    rw [Metric.cauchy_iff]
+    refine ⟨inferInstance, fun ε hε => ?_⟩
+    set B : ℝ := max R₀ (2 * K_tail / ε + 1)
+    have hB_pos : 0 < B := lt_of_lt_of_le hR₀_pos (le_max_left _ _)
+    have hS_mem : Ioo (0 : ℝ) a_max ×ˢ Ici B ∈ 𝓝[>] (0 : ℝ) ×ˢ Filter.atTop :=
+      Filter.prod_mem_prod (Ioo_mem_nhdsGT ha_max_pos) (Ici_mem_atTop B)
+    refine ⟨F_int '' (Ioo (0 : ℝ) a_max ×ˢ Ici B), Filter.image_mem_map hS_mem, ?_⟩
+    rintro _ ⟨p, hp, rfl⟩ _ ⟨q, hq, rfl⟩
+    rcases hp with ⟨⟨hp1_pos, hp1_lt⟩, hp2⟩
+    rcases hq with ⟨⟨hq1_pos, hq1_lt⟩, hq2⟩
+    have hp2_pos : 0 < p.2 := lt_of_lt_of_le hB_pos hp2
+    have hq2_pos : 0 < q.2 := lt_of_lt_of_le hB_pos hq2
+    have h_add1 := intervalIntegral.integral_add_adjacent_intervals
+      (hF_int p.1 q.1 hp1_pos hq1_pos) (hF_int q.1 p.2 hq1_pos hp2_pos)
+    have h_add2 := intervalIntegral.integral_add_adjacent_intervals
+      (hF_int q.1 p.2 hq1_pos hp2_pos) (hF_int p.2 q.2 hp2_pos hq2_pos)
+    have h_diff : F_int p - F_int q =
+        (∫ τ in p.1..q.1, F_osc τ) - (∫ τ in p.2..q.2, F_osc τ) := by
+      dsimp [F_int]
+      rw [← h_add1, ← h_add2]
+      ring
+    have h_low : ∫ τ in p.1..q.1, F_osc τ = 0 :=
+      h_lower_vanish hp1_pos hp1_lt.le hq1_pos hq1_lt.le
+    have h_tail_lt : K_tail / B < ε := by
+      have hB_gt : 2 * K_tail / ε < B := by linarith [le_max_right R₀ (2 * K_tail / ε + 1)]
+      rw [div_lt_iff₀ hB_pos]
+      have h1 : 2 * K_tail < B * ε := (div_lt_iff₀ hε).mp hB_gt
+      linarith
+    have h_hi : ‖∫ τ in p.2..q.2, F_osc τ‖ ≤ K_tail / B := by
+      rcases le_total p.2 q.2 with hpq | hqp
+      · have h1 := h_upper_tail ((le_max_left _ _).trans hp2) hpq
+        exact h1.trans (div_le_div_of_nonneg_left hK_nn hB_pos hp2)
+      · have h1 := h_upper_tail ((le_max_left _ _).trans hq2) hqp
+        rw [intervalIntegral.integral_symm, norm_neg]
+        exact h1.trans (div_le_div_of_nonneg_left hK_nn hB_pos hq2)
+    rw [dist_eq_norm, h_diff, h_low, zero_sub, norm_neg]
+    exact h_hi.trans_lt h_tail_lt
+  obtain ⟨L, hL⟩ := cauchy_map_iff_exists_tendsto.mp hCauchy
+  refine ⟨L, hL, ?_⟩
+  have h_ev : ∀ᶠ p : ℝ × ℝ in 𝓝[>] (0 : ℝ) ×ˢ Filter.atTop,
+      ‖F_int p‖ ≤ tebOscConst b₀ N * M *
+        (c⁻¹ + c ^ (-(1 / 2 : ℝ)) * min (τ₀ ^ 2) 1 * if A * c ^ (-(1 / 3 : ℝ)) < τ₀ then 1 else 0) := by
+    have hS_mem : Ioo (0 : ℝ) a_max ×ˢ Ici R₀ ∈ 𝓝[>] (0 : ℝ) ×ˢ Filter.atTop :=
+      Filter.prod_mem_prod (Ioo_mem_nhdsGT ha_max_pos) (Ici_mem_atTop R₀)
+    filter_upwards [hS_mem] with p hp
+    rcases hp with ⟨⟨hp1_pos, hp1_lt⟩, hp2⟩
+    have hp1_le : p.1 ≤ p.2 := by
+      have ha_le : a_max ≤ eps := min_le_right _ _
+      have heps_le : eps ≤ R₀ := by
+        linarith [le_max_right (2 * τ₀ + 1) (max 2 (eps + 1)), le_max_right (2 : ℝ) (eps + 1)]
+      linarith [mem_Ici.mp hp2]
+    exact teb_edge_osc_interval hτ₀ hA hb₀ hc hp1_pos hp1_le hw hw_cont hw_pos hφ hφ' hφ'_mono
+      h_upper h_lower h_mid hh_cont hh_vanish hh_bv
+  exact le_of_tendsto hL.norm h_ev
+
 /-- Specialization of **Lemma TE.1a** to `w = id` (`dw(τ) = dτ`), with integrability proved
 automatically from the Gaussian decay hypothesis. -/
 theorem teb_edge_osc_id {φ φ' φ'' : ℝ → ℝ} {h : ℝ → ℂ}
@@ -1240,6 +1427,10 @@ end EdgeOscEstimate
 /-- info: 'FormalResearch.TwoEdgeBootstrap.teb_edge_osc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.TwoEdgeBootstrap.teb_edge_osc
+
+/-- info: 'FormalResearch.TwoEdgeBootstrap.teb_edge_osc_tendsto' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.TwoEdgeBootstrap.teb_edge_osc_tendsto
 
 /-- info: 'FormalResearch.TwoEdgeBootstrap.teb_edge_osc_id' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
