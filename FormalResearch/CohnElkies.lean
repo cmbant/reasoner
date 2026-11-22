@@ -22,6 +22,10 @@ public import FormalResearch.CohnElkies.FiniteGaussianBase
 public import FormalResearch.CohnElkies.FiniteDimensionCrossings
 public import FormalResearch.CohnElkies.LaguerreJacobiSpectral
 public import FormalResearch.CohnElkies.LaguerreSublinearLimit
+public import FormalResearch.CohnElkies.TwoSaddleContraction
+public import FormalResearch.CohnElkies.CohnElkiesRadius
+public import FormalResearch.CohnElkies.CardinalFractionalSource
+public import FormalResearch.CohnElkies.PreEdgeAndSplineFloor
 
 /-!
 # Cohn–Elkies / CFT Paper I elementary and toolkit lemmas (umbrella)
@@ -73,6 +77,17 @@ and the Airy library:
   three-term recurrence, Hermitian Jacobi matrix, and Rayleigh spectral lower bound.
 * `FormalResearch.CohnElkies.LaguerreSublinearLimit`: `[0, ∞)`-SOS factorization, exact finite
   lower bound, sublinear-degree limitation (`E.3a`), and `κ_Gauss` attainment.
+* `FormalResearch.CohnElkies.TwoSaddleContraction`: Airy–Curie–Weiss two-saddle contraction (`O.11aw`),
+  infinite Airy-cardinal identity and `L²(ℝ)` Parseval (`O.11f`), `PF.3` positive-argument kernel bound,
+  and `PF.5` worst-phase & interval margin (`ce_o1_route.tex`, `ce_physical_log_far.tex`).
+* `FormalResearch.CohnElkies.CohnElkiesRadius`: Cohn–Elkies density-volume Stirling asymptotic (`7.12a`),
+  equivalence of `L¹` and Schwartz infima (`7.12`), and conditional Airy-order radius gluing (`ce_radius.tex`).
+* `FormalResearch.CohnElkies.CardinalFractionalSource`: balanced/unbalanced fractional Stieltjes cardinal
+  source, closed-form `J_{2,p}`, exact mass `∫ P_h = M, ∫ Q_h = 0`, `D_h` Airy-zero asymptotic, and `η̂_h`
+  bound (`ce_o1_route.tex` Lemma `O.11h`).
+* `FormalResearch.CohnElkies.PreEdgeAndSplineFloor`: uniform B-spline averaging floor (`O.0`, `O.1`),
+  Airy Riccati monotonicity (`PE.1`), two-scale Dirichlet floor (`cepe:dirichlet-floor`), and `B_c^*`
+  Hölder bound (`cepe:PE3a`) (`u1c_o1_upper.tex`, `ce_o1_pre_edge.tex`).
 
 This umbrella is deliberately not imported by `FormalResearch.lean`.
 -/
