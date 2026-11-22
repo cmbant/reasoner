@@ -79,7 +79,7 @@ private lemma tebLambda0_eq (P : BootstrapParams) :
     tebLambda0 P = max (Real.pi / (2 * P.b)) (P.D_1 / (P.k_0 : ℝ)) := by
   simp [tebLambda0, Nat.ne_of_gt P.hk0]
 
-private lemma tebLambda0_pos (P : BootstrapParams) : 0 < tebLambda0 P := by
+lemma tebLambda0_pos (P : BootstrapParams) : 0 < tebLambda0 P := by
   rw [tebLambda0_eq]
   exact lt_of_lt_of_le (div_pos Real.pi_pos (by linarith [P.hb])) (le_max_left _ _)
 
@@ -202,7 +202,7 @@ private lemma teb_exp_error_absorption (P : BootstrapParams) {c R r_inf C_line_e
     _ = c ^ (-(1 / 3 : ℝ)) := by
         rw [mul_right_comm, ← Real.exp_add, show P.κ * c + -P.κ * c = 0 by ring, Real.exp_zero, one_mul]
 
-private lemma tebCThresh_spec (P : BootstrapParams) :
+lemma tebCThresh_spec (P : BootstrapParams) :
     ∀ {c L R r_inf C_line_err : ℝ},
       tebCThresh P ≤ c → 1 ≤ L → L ≤ P.C_L * c ^ P.γ →
       P.b ^ 2 * c ^ (2 / 3 : ℝ) ≤ R → R ≤ 2 * P.b ^ 2 * c ^ (2 / 3 : ℝ) + 1 →
