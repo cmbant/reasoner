@@ -51,6 +51,8 @@ public import FormalResearch.ModularBootstrap.PoissonJensen.HalfPlaneJensen
 public import FormalResearch.ModularBootstrap.PoissonJensen.HarmonicMajorant
 public import FormalResearch.ModularBootstrap.PoissonJensen.SlitMassAndDensity
 public import FormalResearch.ModularBootstrap.PoissonJensen.LemmaPJAssembly
+public import FormalResearch.ModularBootstrap.Mellin.MellinConvergence
+public import FormalResearch.ModularBootstrap.Mellin.HankelMellin
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -154,4 +156,10 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `Integration.StripTheoremA`: unconditional **Theorem `A`** for `T_weak`, `T_V` and the optimal gap
   `Δ_best` (`theoremA_T_weak`, `theoremA_T_V`, `theoremA_Delta_best`), discharging
   `StripPoissonJensen` via `PoissonJensen.stripPoissonJensen`.
+* `Mellin.MellinConvergence`: convergence (`integrableOn_mellinTransformG`) and holomorphy
+  (`differentiableOn_mellinTransformG`, `differentiableOn_mellinMG`) of `Mg(z)` and `m_g(z)`
+  on `Re z > 0` for `2 ≤ a`.
+* `Mellin.HankelMellin`: **Lemma `S1`** (`vlo:S1`, `lemma_S1`, `lemma_S1_of_ge_two`), proving
+  reflection antisymmetry `m_g(1 - z) = -m_g(z)` on `0 < Re z < 1` via Gaussian-mixture
+  Laplace duality (`laplacePairG_inv_symmetry`) and entire extension `mellinMGEntire`.
 -/
