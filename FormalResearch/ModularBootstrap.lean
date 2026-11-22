@@ -70,6 +70,7 @@ public import FormalResearch.ModularBootstrap.TipFront.GeneralGapLemmaG
 public import FormalResearch.ModularBootstrap.ChartGeometry.HalfStripAsymptotics
 public import FormalResearch.ModularBootstrap.ChartGeometry.MidlineAndJunction
 public import FormalResearch.ModularBootstrap.ChartGeometry.QuadrantMonotonicity
+public import FormalResearch.ModularBootstrap.ChartGeometry.CompactEscape
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -215,4 +216,7 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   decay of `Re Φ*` and the unique junction `x_L` (`existsUnique_junction_xL`).
 * `ChartGeometry.QuadrantMonotonicity`: **Lemma `J7Q`** (`lemma_J7Q`, `vlo:J7Q`): quadrant monotonicity
   of the Mellin chart.
+* `ChartGeometry.CompactEscape`: **Lemma `J10`** (`lemma_J10_compact_escape`, `vlo:J10escape`,
+  `j10H_p_le`): the explicit three-segment compact escape `p → y_δ(1+i) → ½(1+i) → ½ + iT₀` with
+  `Re Φ* ≤ −(π²/36)δ³`, for every `0 < δ ≤ 1/72` and `T₀ ≥ ½`; no numerical certificate.
 -/
