@@ -53,6 +53,9 @@ public import FormalResearch.ModularBootstrap.PoissonJensen.SlitMassAndDensity
 public import FormalResearch.ModularBootstrap.PoissonJensen.LemmaPJAssembly
 public import FormalResearch.ModularBootstrap.Mellin.MellinConvergence
 public import FormalResearch.ModularBootstrap.Mellin.HankelMellin
+public import FormalResearch.ModularBootstrap.StripBand.StripPoissonRep
+public import FormalResearch.ModularBootstrap.StripBand.BandReductionBV
+public import FormalResearch.ModularBootstrap.StripBand.BandReduction
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -162,4 +165,13 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `Mellin.HankelMellin`: **Lemma `S1`** (`vlo:S1`, `lemma_S1`, `lemma_S1_of_ge_two`), proving
   reflection antisymmetry `m_g(1 - z) = -m_g(z)` on `0 < Re z < 1` via Gaussian-mixture
   Laplace duality (`laplacePairG_inv_symmetry`) and entire extension `mellinMGEntire`.
+* `StripBand.StripPoissonRep`: **Lemma TE.1(a)** (`teb:kernel`), the strip Cauchy/Poisson integral
+  representation (`stripPoisson_representation_split`, `stripPoisson_representation`) and its
+  reflection-folded form (`stripPoisson_representation_symm`) on `0 < Re ζ₀ < 1`.
+* `StripBand.BandReductionBV`: total-variation product rules (`eVariationOn_mul_le`,
+  `bv_norm_add_tv_mul`), unimodal and derivative BV bounds, the cutoff `tebCutoff`, the prefactor
+  `tebPrefactor` and the amplitude block bound `tebAmp0_block_bv_le`.
+* `StripBand.BandReduction`: **Proposition TE.3(1)** (`teb:mellin`), the universal strip band
+  reduction (`teb_band_reduction`, `teb_band_reduction_quantified`) with non-vacuity
+  (`bandReductionInstance_nonvacuous`).
 -/
