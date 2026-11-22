@@ -46,6 +46,11 @@ public import FormalResearch.ModularBootstrap.ComplexBessel.BesselI0Sector
 public import FormalResearch.ModularBootstrap.ComplexBessel.ComplexExpansion
 public import FormalResearch.ModularBootstrap.ComplexBessel.StirlingOmega
 public import FormalResearch.ModularBootstrap.ComplexBessel.LemmaS2
+public import FormalResearch.ModularBootstrap.PoissonJensen.HankelInversion
+public import FormalResearch.ModularBootstrap.PoissonJensen.HalfPlaneJensen
+public import FormalResearch.ModularBootstrap.PoissonJensen.HarmonicMajorant
+public import FormalResearch.ModularBootstrap.PoissonJensen.SlitMassAndDensity
+public import FormalResearch.ModularBootstrap.PoissonJensen.LemmaPJAssembly
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -107,11 +112,11 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `Integration.HankelBounds`: Lemma B (b) (`∫|g| ≤ (4/π²) M[g]`, `sup|g| ≤ (8/π) M[g]`) and the integral
   bound of (d) (`∫|g| K_a ≤ 2e⁹² c'² M[g]`) for the concrete test class.
 * `Integration.StripKernel`: Lemma B (d), second bound: `|G(b)| ≤ 4π e⁹² c'² M[g]` on `|Im b| ≤ 1/2` for the
-  Hankel continuation `G` defined by its integral (agreement with `g(c'b²/3)` on the real axis, i.e. Hankel
-  inversion, is not formalised).
+  Hankel continuation `G` defined by its integral (agreement with `g(c'b²/3)` on the real axis is
+  `PoissonJensen.hankelContinuation_ofReal`).
 * `Integration.StripTheoremA`: Theorem `A` for `T_weak`, `T_V` and the optimal gap `Δ_best`
-  (`theoremA_Delta_best`) with the proved slit-strip geometry; the only remaining hypothesis is
-  `StripPoissonJensen` (Lemma PJ for `realSliceData`, `majorantReal`).
+  (`theoremA_Delta_best`), unconditional: Lemma PJ for `realSliceData`, `majorantReal` is
+  `stripPoissonJensen`.
 * `Duality.CrossingMeasure`: crossing measures at a gap, Proposition `D1` (`proposition_D1`), and the
   measure-theoretic forms of the spectral Propositions 1, 2 (`proposition_P1`, `proposition_P2`).
 * `Duality.DualMajorant`: Lemma `M` (`lemma_M`): the dual majorant `h = 2 ∫ Ξ_β ϑ(dβ)`, `w_*`, `C₀`
@@ -122,7 +127,7 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `Duality.StrongDuality`: Theorem `E` (`theorem_E`: crossing measures for `T < T_V`, the limit measure with
   `min supp = T_V`, and `T_V = max {τ : a crossing measure at gap τ exists}`).
 * `Duality.OptimalMeasure`: Corollary `E1` as far as it follows without Theorem `C15`
-  (`corollary_E1_exact_gap`, `corollary_E1_of_stripPJ`).
+  (`corollary_E1_exact_gap`, `corollary_E1_lower_bound`).
 * `ComplexBessel.BesselI0Sector`: Complex `I₀` sector asymptotic (`besselI0C_sector_asymptotic`),
   bridge `integration_besselI0C_eq_blowup`, proof of `BesselI0Asymptotic` (`besselI0Asymptotic`), and
   unconditional Lemma `T3` corollaries (`lemma_T3_unconditional`, `lemma_T3_W_bound_unconditional`).
@@ -133,4 +138,20 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `O(1/(c'|ω|²))` (`norm_deriv_stirlingLogS_le`) down to `Re ω ≥ 0`.
 * `ComplexBessel.LemmaS2`: Crude Legendre bound (`vlo:S2`, `lemma_S2`) via log-convexity/concavity of
   `s ↦ log V(e^s)` and the `x_c = ξ_*/2` derivative bound from `besselComplexExpansion`.
+* `PoissonJensen.HankelInversion`: Hankel inversion `G(b) = g(c'b²/3)` on `ℝ` (`hankelContinuation_ofReal`),
+  holomorphy of `G` on `|Im b| < 1/2` (`differentiableOn_hankelContinuation`), and closed-strip
+  continuity (`continuousOn_hankelContinuation`).
+* `PoissonJensen.HalfPlaneJensen`: upper half-plane Poisson--Jensen inequality for bounded holomorphic
+  functions via Möbius transport to the unit disc (`halfPlane_poissonJensen`).
+* `PoissonJensen.HarmonicMajorant`: proof of `HarmonicMajorantIdentification` (`h = U`, Lemma G
+  `vlo:Gap`) via Phragmén--Lindelöf on the right half-plane.
+* `PoissonJensen.SlitMassAndDensity`: `eSlitMass`, slit pullback change of variables
+  (`setIntegral_slitPreimage_div_slitDensity`), entropy upper bound
+  (`setIntegral_poisson_mul_log_slitDensity_le_entropy`), and a.e. nonvanishing of `G` on the slit
+  preimage (`hankelContinuation_bdy_ne_zero_ae`).
+* `PoissonJensen.LemmaPJAssembly`: full proof of `StripPoissonJensen` (Lemma `PJ`, `vlo:PJ`,
+  `PoissonJensen.stripPoissonJensen`).
+* `Integration.StripTheoremA`: unconditional **Theorem `A`** for `T_weak`, `T_V` and the optimal gap
+  `Δ_best` (`theoremA_T_weak`, `theoremA_T_V`, `theoremA_Delta_best`), discharging
+  `StripPoissonJensen` via `PoissonJensen.stripPoissonJensen`.
 -/

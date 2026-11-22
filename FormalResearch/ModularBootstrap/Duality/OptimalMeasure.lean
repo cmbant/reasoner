@@ -13,8 +13,7 @@ Proved here, without C15:
 * `corollary_E1_exact_gap`: whenever `T_V(c̃) > 0`, a crossing measure `ν_*(c)` exists whose gap
   is exactly `T_V(c̃)` (`ν_*` charges every `[T_V, T_V + ε)`), so `Δ_best = a + (gap of ν_*)`: the
   optimal bootstrap gap is attained by a (positive, exactly crossing-symmetric) measure;
-* `corollary_E1_of_stripPJ`: combined with `Integration.theoremA_T_V` (conditional on
-  `StripPoissonJensen`), for all large `c'` such a measure exists and its gap is
+* `corollary_E1_lower_bound`: combined with the unconditional `Integration.theoremA_T_V`, for all large `c'` such a measure exists and its gap is
   `≥ ξ̄ c' - C_A c'^{1/3}`.
 
 Not covered (needs the constant-term/comb transfer theorem C15 or further inputs): the matching
@@ -77,17 +76,17 @@ theorem corollary_E1_exact_gap {cTilde : ℝ} (hc : 12 * virasoroProblem.totalSh
   obtain ⟨meas, h1, h2, _⟩ := theorem_E_c S
   exact ⟨meas, h1, h2, rfl⟩
 
-/-- **Corollary E1, lower-bound form.** Conditional only on `StripPoissonJensen` (Theorem A): there
+/-- **Corollary E1, lower-bound form** (Theorem A, unconditional): there
 are `C_A > 0` and `c₁ ≥ 24` such that for every `c' ≥ c₁`, `T_V(c') ≥ ξ̄ c' - C_A c'^{1/3} > 0` and
 there is a crossing measure with gap exactly `T_V(c')`. -/
-theorem corollary_E1_of_stripPJ (h : Integration.StripPoissonJensen) :
+theorem corollary_E1_lower_bound :
     ∃ C_A c₁ : ℝ, 0 < C_A ∧ 24 ≤ c₁ ∧ ∀ {c' : ℝ}, c₁ ≤ c' →
       0 < xiBar * c' - C_A * c' ^ ((1 : ℝ) / 3) ∧
       xiBar * c' - C_A * c' ^ ((1 : ℝ) / 3) ≤ virasoroProblem.T_V c' ∧
       ∃ meas : AdmissibleCrossingMeasure virasoroProblem (c' / 12),
         meas.ν (Iio (virasoroProblem.T_V c')) = 0 ∧
         ∀ ε : ℝ, 0 < ε → 0 < meas.ν (Iio (virasoroProblem.T_V c' + ε)) := by
-  obtain ⟨C_A, c_A, hCA, hc_A, hTV⟩ := Integration.theoremA_T_V h
+  obtain ⟨C_A, c_A, hCA, hc_A, hTV⟩ := Integration.theoremA_T_V
   have hxi : 0 < xiBar := by unfold xiBar; have := xiStar_pos; positivity
   set M : ℝ := C_A / xiBar + 1 with hM
   have hM1 : 1 < M := by have : 0 < C_A / xiBar := div_pos hCA hxi; linarith
@@ -127,20 +126,20 @@ theorem corollary_E1_of_stripPJ (h : Integration.StripPoissonJensen) :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.ModularBootstrap.Duality.corollary_E1_exact_gap
 
-/-- info: 'FormalResearch.ModularBootstrap.Duality.corollary_E1_of_stripPJ' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.Duality.corollary_E1_lower_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.ModularBootstrap.Duality.corollary_E1_of_stripPJ
+#print axioms FormalResearch.ModularBootstrap.Duality.corollary_E1_lower_bound
 
 /-- info: 'FormalResearch.ModularBootstrap.Duality.exists_beta0' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.ModularBootstrap.Duality.exists_beta0
 
-/-- Non-vacuity of the standing hypotheses `DualSetup` of Theorem E: conditional only on
-`StripPoissonJensen` (Theorem A, which gives `T_V(c') > 0` for large `c'`), the structure
+/-- Non-vacuity of the standing hypotheses `DualSetup` of Theorem E: by
+Theorem A (which gives `T_V(c') > 0` for large `c'`), the structure
 `DualSetup` is satisfied by some `(c̃, β₀, T₀)`. -/
-theorem dualSetup_nonvacuous (h : Integration.StripPoissonJensen) :
+theorem dualSetup_nonvacuous :
     ∃ cTilde β₀ T₀ : ℝ, DualSetup cTilde β₀ T₀ := by
-  obtain ⟨C_A, c₁, _, hc₁, hall⟩ := corollary_E1_of_stripPJ h
+  obtain ⟨C_A, c₁, _, hc₁, hall⟩ := corollary_E1_lower_bound
   obtain ⟨hpos, hbound, _⟩ := hall (le_refl c₁)
   have hTV : 0 < virasoroProblem.T_V c₁ := lt_of_lt_of_le hpos hbound
   have hshift : 12 * virasoroProblem.totalShift ≤ c₁ := by
