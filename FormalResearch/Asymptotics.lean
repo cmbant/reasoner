@@ -9,6 +9,7 @@ public import FormalResearch.Asymptotics.CenteredPowerSum
 public import FormalResearch.Asymptotics.LogSeries
 public import FormalResearch.Asymptotics.GeometricExpansion
 public import FormalResearch.Asymptotics.ExpExpansion
+public import FormalResearch.Asymptotics.StirlingHalfInt
 
 /-!
 # Uniform asymptotic expansions in a parameter
@@ -29,5 +30,7 @@ Aggregate module for `FormalResearch/Asymptotics/`:
 * `GeometricExpansion`: a convergent power series with geometrically bounded coefficients is a
   `HasUniformExpansion`;
 * `ExpExpansion`: `exp` of an expansion with `a_0 = 0` is an expansion with the coefficients of the
-  formal exponential (`HasExpansionAlong.exp`, `expCoeff`).
+  formal exponential (`HasExpansionAlong.exp`, `expCoeff`);
+* `StirlingHalfInt`: half-integer Gamma and factorial Stirling bounds (`gamma_add_half_le`,
+  `teb_stirling_bound`).
 -/

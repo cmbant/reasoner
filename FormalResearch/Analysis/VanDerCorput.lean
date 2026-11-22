@@ -23,7 +23,7 @@ Source: `CFT/common/two_edge_bootstrap.tex` (used by Lemma TE.1a).
 open Complex MeasureTheory Filter Topology Set
 open scoped Real ENNReal NNReal Interval
 
-namespace FormalResearch.CFT
+namespace FormalResearch.Analysis
 
 /-! ### Part 4: Lemma TE.1a — Van der Corput and Oscillatory Edge Estimate -/
 
@@ -772,12 +772,12 @@ end VanDerCorput
 
 /-! ### Axiom Verification -/
 
-/-- info: 'FormalResearch.CFT.van_der_corput_first' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.Analysis.van_der_corput_first' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.van_der_corput_first
+#print axioms FormalResearch.Analysis.van_der_corput_first
 
-/-- info: 'FormalResearch.CFT.van_der_corput_second' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.Analysis.van_der_corput_second' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.van_der_corput_second
+#print axioms FormalResearch.Analysis.van_der_corput_second
 
-end FormalResearch.CFT
+end FormalResearch.Analysis

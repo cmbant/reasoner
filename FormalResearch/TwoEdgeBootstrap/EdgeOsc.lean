@@ -1,7 +1,6 @@
 module
 
-public import FormalResearch.CFT.TwoEdgePoissonCore
-public import FormalResearch.CFT.TwoEdgeVanDerCorput
+public import FormalResearch.Analysis.VanDerCorput
 public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 public import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
 
@@ -18,7 +17,9 @@ from the dyadic oscillatory edge estimate `teb_edge_osc_interval`, `teb_edge_osc
 open Complex MeasureTheory Filter Topology Set
 open scoped Real ENNReal NNReal Interval
 
-namespace FormalResearch.CFT
+namespace FormalResearch.TwoEdgeBootstrap
+
+open FormalResearch.Analysis
 
 /-! ### Part 4b: Lemma TE.1a — Dyadic Oscillatory Edge Estimate -/
 
@@ -1232,16 +1233,16 @@ end EdgeOscEstimate
 
 /-! ### Axiom Verification -/
 
-/-- info: 'FormalResearch.CFT.teb_edge_osc_interval' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.TwoEdgeBootstrap.teb_edge_osc_interval' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.teb_edge_osc_interval
+#print axioms FormalResearch.TwoEdgeBootstrap.teb_edge_osc_interval
 
-/-- info: 'FormalResearch.CFT.teb_edge_osc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.TwoEdgeBootstrap.teb_edge_osc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.teb_edge_osc
+#print axioms FormalResearch.TwoEdgeBootstrap.teb_edge_osc
 
-/-- info: 'FormalResearch.CFT.teb_edge_osc_id' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.TwoEdgeBootstrap.teb_edge_osc_id' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.teb_edge_osc_id
+#print axioms FormalResearch.TwoEdgeBootstrap.teb_edge_osc_id
 
-end FormalResearch.CFT
+end FormalResearch.TwoEdgeBootstrap

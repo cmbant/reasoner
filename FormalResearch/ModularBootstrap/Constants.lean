@@ -4,7 +4,7 @@ public import FormalResearch.Special.AiryCftSignUncertainty
 public import Mathlib.Analysis.SpecialFunctions.Arsinh
 
 /-!
-# Shared constants and local Airy extremal for Paper II
+# Shared constants and local Airy extremal for the Spinless Virasoro Modular Bootstrap
 
 Source: `CFT/modular_bootstrap/paper/local_airy_model.tex` and
 `CFT/modular_bootstrap/notes/AIRY_SCALE.md`.
@@ -21,7 +21,7 @@ normalized unit-$L^1$ rigidity profile `phiStar`.
 open Complex MeasureTheory Filter Topology Set
 open scoped Real
 
-namespace FormalResearch.CFT.PaperII
+namespace FormalResearch.ModularBootstrap
 
 open FormalResearch.Special
 
@@ -343,12 +343,12 @@ lemma phiStar_norm_integral : ∫ s : ℝ, ‖phiStar (s : ℂ)‖ = 1 := by
     linarith [LStar_eq_half_norm_integral]
   rw [hL, inv_mul_cancel₀ h2L.ne']
 
-/-- info: 'FormalResearch.CFT.PaperII.Aopt_eq_closed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.Aopt_eq_closed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.Aopt_eq_closed
+#print axioms FormalResearch.ModularBootstrap.Aopt_eq_closed
 
-/-- info: 'FormalResearch.CFT.PaperII.phiStar_norm_integral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.ModularBootstrap.phiStar_norm_integral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.CFT.PaperII.phiStar_norm_integral
+#print axioms FormalResearch.ModularBootstrap.phiStar_norm_integral
 
-end FormalResearch.CFT.PaperII
+end FormalResearch.ModularBootstrap
