@@ -82,6 +82,11 @@ public import FormalResearch.ModularBootstrap.ConcreteBootstrap.QuadratureBounds
 public import FormalResearch.ModularBootstrap.ConcreteBootstrap.ArcBounds
 public import FormalResearch.ModularBootstrap.ConcreteBootstrap.BootstrapHB
 public import FormalResearch.ModularBootstrap.ConcreteBootstrap.TheoremJ
+public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
+public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
+public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
+public import FormalResearch.ModularBootstrap.FixedWeight.StrongDuality
+public import FormalResearch.ModularBootstrap.FixedWeight.OptimalMeasure
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -252,4 +257,16 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `wone:ftlfw`, `wone:genlower(1)`, `vlo:J`) reducing **Theorem `J`**
   (`theoremJ_of_YV`, `theoremJ_T_weak`, `theoremJ_T_V`, `theoremJ_Delta_best`) to the single
   named band-feedback input `YVInput` (`vlo:YV`, with non-vacuity `yvInputAt_nonvacuous`).
+* `FixedWeight.CrossingMeasure`: general `(w, Q)` Proposition `D1` (`proposition_D1`), measure-form
+  `D1` sum rules (`sumRule_of_comb_decay`), and finiteness `T_V < ∞` (`explicit_feasible_thermal_test`,
+  `T_V_lt_top`) for `c̃ > 0`, `c̃ ≥ 12 S`.
+* `FixedWeight.DualMajorant`: general `(w, Q)` Lemma `M` (`lemma_M`, `t0_mono` for all `w`,
+  `t0Star`, `hMaj`, `dualC0`, and `tendsto_genLaguerrePsi_div_wStar` for `ψ_k / w_* → 0`).
+* `FixedWeight.MomentProblem`, `FixedWeight.StrongDuality`: general `(w, Q)` `DualSetup`,
+  `exists_atomic_approx`, and Theorem `E` (`theorem_E_b`, `theorem_E_c`, `theorem_E`), plus
+  Virasoro instance recovery (`virasoro_lemma_M`, `virasoro_theorem_E`).
+* `FixedWeight.OptimalMeasure`: general `(w, Q)` Corollary `E1` (`corollary_E1_exact_gap`,
+  unconditional; `corollary_E1` given named hypotheses `FixedWeightLowerBoundInput` from
+  Theorem `W1'(1)` and `TheoremC15UpperInput` from Theorem `C15`/`ctu.5`), with non-vacuity and
+  Virasoro instances (`virasoro_lowerBoundInput_of_YV`, `virasoro_corollary_E1_of_YV`).
 -/
