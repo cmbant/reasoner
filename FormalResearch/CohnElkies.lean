@@ -7,6 +7,9 @@ public import FormalResearch.CohnElkies.ClosedResolvent
 public import FormalResearch.CohnElkies.StieltjesMixture
 public import FormalResearch.CohnElkies.CardinalAsymptotics
 public import FormalResearch.CohnElkies.MellinAiryToolkit
+public import FormalResearch.CohnElkies.MellinPhaseBounds
+public import FormalResearch.CohnElkies.AiryNicholsonIntegral
+public import FormalResearch.CohnElkies.AirySymbolWKB
 
 /-!
 # Cohn–Elkies / CFT Paper I elementary and toolkit lemmas (umbrella)
@@ -26,6 +29,13 @@ and the Airy library:
 * `FormalResearch.CohnElkies.CardinalAsymptotics`: Proposition CR.3 asymptotics `(CR.11)–(CR.13)` and Theorem CR.4 Step 1
   `(CR.14a)–(CR.15)`.
 * `FormalResearch.CohnElkies.MellinAiryToolkit`: Mellin–Airy toolkit Lemmas T.4(a)–(f) and T.3(1), T.3(3).
+* `FormalResearch.CohnElkies.MellinPhaseBounds`: Mellin–Airy toolkit exact imaginary identity `T.3(3)`,
+  Gaussian vertical-line bounds `T.3(4)–(5)`, and phase facts `T.4(e)` `(P1)–(P4)`.
+* `FormalResearch.CohnElkies.AiryNicholsonIntegral`: unconditional Nicholson integral error `E(x)` and
+  phase correction `ϖ(x)` symbol/asymptotic bounds (Lemmas `W.3(a)` and `W.4(a)`).
+* `FormalResearch.CohnElkies.AirySymbolWKB`: negative-axis Airy WKB representation, oscillation
+  extraction, and `(CR.14)` all-order symbol decomposition (Lemmas `W.2(b)–(c)`, `W.3(b)`, `W.4(b)`,
+  Props `W.5`, `W.6`).
 
 This umbrella is deliberately not imported by `FormalResearch.lean`.
 -/
