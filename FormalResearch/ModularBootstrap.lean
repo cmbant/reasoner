@@ -87,6 +87,11 @@ public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
 public import FormalResearch.ModularBootstrap.FixedWeight.StrongDuality
 public import FormalResearch.ModularBootstrap.FixedWeight.OptimalMeasure
+public import FormalResearch.ModularBootstrap.WeightAxioms.BesselGeneral
+public import FormalResearch.ModularBootstrap.WeightAxioms.KernelAndPositivity
+public import FormalResearch.ModularBootstrap.WeightAxioms.ComplexAsymptotics
+public import FormalResearch.ModularBootstrap.WeightAxioms.HankelContinuation
+public import FormalResearch.ModularBootstrap.WeightAxioms.Axioms
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -269,4 +274,14 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   unconditional; `corollary_E1` given named hypotheses `FixedWeightLowerBoundInput` from
   Theorem `W1'(1)` and `TheoremC15UpperInput` from Theorem `C15`/`ctu.5`), with non-vacuity and
   Virasoro instances (`virasoro_lowerBoundInput_of_YV`, `virasoro_corollary_E1_of_YV`).
+* `WeightAxioms.BesselGeneral`, `WeightAxioms.KernelAndPositivity`, `WeightAxioms.ComplexAsymptotics`,
+  `WeightAxioms.HankelContinuation`, `WeightAxioms.Axioms`: unconditional proof of the fixed-weight
+  axioms `(W1)–(W4)` (`FixedWeightAxioms`, `FixedWeightUniformAxioms`), Proposition P `(P0)–(P3)`
+  (`PropositionPAxioms`, `FixedWeightUniformP`), and Lemma 4 `(a)–(f)` (`lemma4_summary`) for every
+  fixed-weight chiral-algebra problem `(w, Q)` (`fixedWeightAxioms_of_problem`,
+  `fixedWeightAxioms_of_problem_sharp_pK`, plus named instances `virasoro_fixedWeightAxioms`,
+  `n1SuperVirasoro_fixedWeightAxioms`, `trivialProduct_fixedWeightAxioms`), including integer-order
+  modified Bessel `I_n` sector/real asymptotics, Peano positivity and log-convexity, complex-disc
+  Cauchy asymptotics, and unconditional general-`w` Hankel continuation (`hankelContinuationW_ofReal`)
+  by spherical reduction.
 -/
