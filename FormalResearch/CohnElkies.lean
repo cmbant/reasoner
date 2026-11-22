@@ -26,6 +26,9 @@ public import FormalResearch.CohnElkies.TwoSaddleContraction
 public import FormalResearch.CohnElkies.CohnElkiesRadius
 public import FormalResearch.CohnElkies.CardinalFractionalSource
 public import FormalResearch.CohnElkies.PreEdgeAndSplineFloor
+public import FormalResearch.CohnElkies.AiryGaussianTransform
+public import FormalResearch.CohnElkies.AirySeedFloors
+public import FormalResearch.CohnElkies.CardinalSignRegions
 
 /-!
 # Cohn–Elkies / CFT Paper I elementary and toolkit lemmas (umbrella)
@@ -88,6 +91,16 @@ and the Airy library:
 * `FormalResearch.CohnElkies.PreEdgeAndSplineFloor`: uniform B-spline averaging floor (`O.0`, `O.1`),
   Airy Riccati monotonicity (`PE.1`), two-scale Dirichlet floor (`cepe:dirichlet-floor`), and `B_c^*`
   Hölder bound (`cepe:PE3a`) (`u1c_o1_upper.tex`, `ce_o1_pre_edge.tex`).
+* `FormalResearch.CohnElkies.AiryGaussianTransform`: fractional Stieltjes measure `dμ_p`, `Z_p`, `𝒢_p`,
+  `B_p` (`O.11j`, `O.11n`), reproducing identity & exact Airy-square Gaussian transform (`(ceo:O11n.2)`),
+  and uniform vertical-line bound (`(ceo:O11n.11)` `j = 0`).
+* `FormalResearch.CohnElkies.AirySeedFloors`: positive Airy seed `S_b` & rational–Airy `(e22)`–`(e23)`
+  floor (`U.4a`), Hermite–Biehler mass-prescribed seed family `F_δ` (`lem:hb-seed-mass` with `N = Ai`
+  non-vacuity witness & smoothing-gain corollary), and small-`L` cubic normal-form scale `κ₀(L)` +
+  real-axis derivative floor (`O.4` `(1)` & `(3)`).
+* `FormalResearch.CohnElkies.CardinalSignRegions`: exact Stieltjes resolvent `H_{s,h}`, `J(w)` asymptotic,
+  and physical sign `Q_h > 0` across all three regions covering `u < a₁` (`O.11p`) and on the full
+  moving far half-line `x ≥ t₀ / h` (`O.11j`, `(ceo:O11j.2)`, `(ceo:O11j.5)`–`(ceo:O11j.10)`).
 
 This umbrella is deliberately not imported by `FormalResearch.lean`.
 -/
