@@ -257,6 +257,19 @@ public import FormalResearch.ModularBootstrap.Upper.Assembly.PsiWindow
 public import FormalResearch.ModularBootstrap.Upper.Assembly.DesignWindow
 public import FormalResearch.ModularBootstrap.Upper.Assembly.Wire
 public import FormalResearch.ModularBootstrap.Upper.Assembly.Families
+public import FormalResearch.ModularBootstrap.Upper.Ramped.ParamIntegral
+public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerTau
+public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerTauForms
+public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerTauSpec
+public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerTauInv
+public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerTauDeriv
+public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerTauBounds
+public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerSites
+public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerKernel
+public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerKernelAux
+public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerKernelDeriv
+public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerKernelBounds
+public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerChart
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -788,4 +801,18 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `virasoro_sigma_of_threshold`); the remaining inputs are the named `DesignTailBounds`
   (`virasoro_sigmaZero_of_tailBounds`, non-vacuity `sameSiteTailBounds_nonvacuous`) and, for `Σ`, the
   displaced/omitted design families.
+
+* `Upper.Ramped.{ParamIntegral, LangerTau, LangerTauForms, LangerTauSpec, LangerTauInv, LangerTauDeriv,
+  LangerTauBounds, LangerSites, LangerKernel, LangerKernelAux, LangerKernelDeriv, LangerKernelBounds,
+  LangerChart}`: the **Langer coordinate `τ`** of the comb transfer (`remainder.tex`, Proposition 1.2(1)
+  and the inputs `(F1)`, `(F2)` of Proposition 1.2(2)), unconditional.  `langerH`, `langerJ`, `langerTau`
+  (`τ(ξ_* + r) = r (J(r)/(2k_tip))^{2/3}`); `langerTau_spec`: `τ` is `C^m` on `(0, ∞)` for every `m`
+  (smooth through `r = 0` by the reparametrised Hadamard integral `hadIntA`), `τ(ξ_*) = 0`,
+  `τ'(ξ_*) = 1`, `τ' > 0`, `N = k_tip τ^{3/2}` on `[ξ_*, ∞)` and `-(U + L) = 2π k_tip |τ|^{3/2}` on
+  `(0, ξ_*]`; the inverse `langerTauInv` with `langerTauInv_expansion` (`τ^{-1}(s) = ξ_* + s + O(s²)`) and the
+  site identification `chiQuantile_eq_langerTauInv` (`χ_a = τ^{-1}(λ Φ_a)`); `langerChart_F1` (`τ' ≥ 4/5` on
+  `[ξ_*, ∞)`, `c_τ ≤ τ'` on `[ξ_*/2, ∞)`, `τ'/τ ≲ 1/y` and `|τ''|/τ ≲ 1/y²` for large `y`, two-sided
+  `siteGap c' k ≍ λ k^{-1/3}` in the tip window, `χ_a'^2 (1 + (log ρ_U)') ≲ λ a^{-4/3}`) and `langerChart_F2`
+  (`Q(x,y) = tanh(π(x-y)/2)/(τ(x) - τ(y))` smooth and positive with `Q(x,x) = π/(2τ'(x))`, and
+  `|∂_y^j K(x,y)| ≤ C (1+y)^{-j}`, `j = 1, 2`, for `K = log Q + log tanh(π(x+y)/2)`).
 -/
