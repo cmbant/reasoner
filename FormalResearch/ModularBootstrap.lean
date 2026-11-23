@@ -97,6 +97,12 @@ public import FormalResearch.ModularBootstrap.Upper.Comb.EdgePhase
 public import FormalResearch.ModularBootstrap.Upper.Comb.Riesz
 public import FormalResearch.ModularBootstrap.Upper.Window.Product
 public import FormalResearch.ModularBootstrap.Upper.Window.Quadrature
+public import FormalResearch.ModularBootstrap.Upper.Saddle.GaussianMoments
+public import FormalResearch.ModularBootstrap.Upper.Saddle.EdgeNormalForm
+public import FormalResearch.ModularBootstrap.Upper.Saddle.TwoSaddleContour
+public import FormalResearch.ModularBootstrap.Upper.Saddle.SDVprime
+public import FormalResearch.ModularBootstrap.Upper.Saddle.SDV
+public import FormalResearch.ModularBootstrap.Upper.Saddle.FWSD
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -344,4 +350,11 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `lemma_G_circle_ratio`), **Lemma `V`** (`ut:V`: `lemma_V_hasSum`, `lemma_V_eval_one`,
   `lemma_V_eval_succ`, `lemma_V_identity`) and **Lemma `E`** (`ut:E`: `lemma_E`, the `Π_n(0)`, `E_0`,
   `R_1` bounds), unconditional.
+* `Upper.Saddle.GaussianMoments`, `Upper.Saddle.EdgeNormalForm`, `Upper.Saddle.TwoSaddleContour`,
+  `Upper.Saddle.SDVprime`, `Upper.Saddle.SDV`, `Upper.Saddle.FWSD`:
+  two-saddle steepest-descent uniform remainders, normal-form edge phase `(SD.2)`, `(SD.5)–(SD.7)`,
+  five-piece contour estimates `(i)–(iii)`, abstract **Lemma `SD_V'`** (`esd:lemmap`, `lemma_SD_V_prime`),
+  order-zero specialization **Lemma `SD_V`** (`esd:lemma`, `lemma_SD_V`), and fixed-order `p`
+  specialization **Lemma `FW-SD` part (2)** (`fw:SDp`, `lemma_FW_SD_part2`), with non-vacuity
+  witnesses for all hypotheses.
 -/
