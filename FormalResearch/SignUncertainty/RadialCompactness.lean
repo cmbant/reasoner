@@ -94,14 +94,57 @@ structure RadialCompactness : Prop where
       (∀ u : ℝ, (F (u : ℂ)).im = 0)
 
 
+/-- `profile_compactness` for the mass-normalised profiles `Ψ_{f_n,c_n}/M[f_n]` of any sequence of
+eigenfunctions (rescale `f_n ↦ f_n/M[f_n]` and take `M₀ = 1`). -/
+theorem RadialCompactness.normalized_compactness (H : RadialCompactness) (ε : ℝ)
+    (hε : ε = 1 ∨ ε = -1) (c : ℕ → ℝ) (f : ℕ → ℝ → ℝ) (hc : Tendsto c atTop atTop)
+    (hf : ∀ n, IsHankelEigenfn (c n) ε (f n)) :
+    ∃ (ms : ℕ → ℕ) (F : ℂ → ℂ) (C ν : ℝ),
+      StrictMono ms ∧
+      TendstoLocallyUniformlyOn (fun k u => hankelWindowProfile (c (ms k)) (f (ms k)) u /
+          hankelMass (c (ms k)) (f (ms k))) (fun u : ℝ => (F (u : ℂ)).re) atTop univ ∧
+      (∀ R : ℝ, ∀ᶠ k in atTop, ContDiffOn ℝ 1 (fun u => hankelWindowProfile (c (ms k)) (f (ms k)) u /
+          hankelMass (c (ms k)) (f (ms k))) (Ioo (-R) R)) ∧
+      TendstoLocallyUniformlyOn (fun k u => deriv (fun v => hankelWindowProfile (c (ms k)) (f (ms k)) v /
+          hankelMass (c (ms k)) (f (ms k))) u)
+        (fun u : ℝ => deriv (fun x : ℝ => (F (x : ℂ)).re) u) atTop univ ∧
+      Differentiable ℂ F ∧ Integrable (fun u : ℝ => F (u : ℂ)) ∧ 0 ≤ C ∧
+      (∀ z : ℂ, ‖F z‖ ≤ C * (1 + ‖z‖) ^ ν * airyEnv z) ∧ (∀ u : ℝ, (F (u : ℂ)).im = 0) := by
+  let g : ℕ → ℝ → ℝ := fun k Δ => (hankelMass (c k) (f k))⁻¹ * f k Δ
+  have hg_eig : ∀ k, IsHankelEigenfn (c k) ε (g k) := fun k => (hf k).smul _
+  have hg_mass : ∀ k, hankelMass (c k) (g k) ≤ 1 := by
+    intro k
+    show hankelMass _ (fun Δ => (hankelMass (c k) (f k))⁻¹ * f k Δ) ≤ 1
+    rw [hankelMass_smul]
+    calc |(hankelMass (c k) (f k))⁻¹| * hankelMass (c k) (f k)
+        ≤ |(hankelMass (c k) (f k))⁻¹| * |hankelMass (c k) (f k)| :=
+          mul_le_mul_of_nonneg_left (le_abs_self _) (abs_nonneg _)
+      _ = |(hankelMass (c k) (f k))⁻¹ * hankelMass (c k) (f k)| := (abs_mul _ _).symm
+      _ ≤ 1 := by
+          by_cases h0 : hankelMass (c k) (f k) = 0
+          · simp [h0]
+          · simp [h0]
+  have hΨ : ∀ k, hankelWindowProfile (c k) (g k) = fun u => hankelWindowProfile (c k) (f k) u /
+      hankelMass (c k) (f k) := fun k => by
+    funext u
+    show hankelWindowProfile (c k) (fun Δ => (hankelMass (c k) (f k))⁻¹ * f k Δ) u = _
+    rw [hankelWindowProfile_smul, div_eq_inv_mul]
+  obtain ⟨ms, F, C, ν, hms, hloc, hC1, hder, hFd, hFi, hC, hFb, hFreal⟩ :=
+    H.profile_compactness 1 ε hε c g hc hg_eig hg_mass
+  refine ⟨ms, F, C, ν, hms, ?_, ?_, ?_, hFd, hFi, hC, hFb, hFreal⟩
+  · simpa only [hΨ] using hloc
+  · intro R
+    simpa only [hΨ] using hC1 R
+  · simpa only [hΨ] using hder
+
 /-! ### `gt:7.5`, lower half at one level, from `RadialCompactness` -/
 
 /-- A sequence of `(-1)`-feasible pairs along `c_n → ∞` fits the Airy `RadialRigidityPackage`
 once `RadialCompactness` supplies the compactness field. -/
-private theorem exists_airy_package (H : RadialCompactness) (c : ℕ → ℝ) (hc : Tendsto c atTop atTop)
+theorem exists_airy_package (H : RadialCompactness) (c : ℕ → ℝ) (hc : Tendsto c atTop atTop)
     (T : ℕ → ℝ) (f : ℕ → ℝ → ℝ) (hfeas : ∀ n, IsHankelFeasible (c n) (-1) (T n) (f n)) :
     ∃ R : RadialRigidityPackage ℕ atTop HermiteBiehlerData.airy,
-      R.c = c ∧ R.T = T := by
+      R.c = c ∧ R.T = T ∧ R.f = f := by
   have hc_pos : ∀ᶠ n in atTop, 0 < c n := hc.eventually (eventually_gt_atTop 0)
   have h_origin : ∀ᶠ n in atTop, (-1 : ℝ) * f n 0 = ∫ Δ in Ioi 0, f n Δ * hankelRho0 (c n) Δ := by
     filter_upwards [hc_pos] with n hn
@@ -134,27 +177,12 @@ private theorem exists_airy_package (H : RadialCompactness) (c : ℕ → ℝ) (h
     Eventually.of_forall fun n => (hfeas n).tail_nonneg,
     fun t ht => absurd (by simpa [HermiteBiehlerData.airy] using t.2) ht,
     fun t ht => absurd (by simpa [HermiteBiehlerData.airy] using t.2) ht,
-    h_deep, ?_⟩, rfl, rfl⟩
+    h_deep, ?_⟩, rfl, rfl, rfl⟩
   intro ns hns hB
   obtain ⟨B, hB⟩ := hB
-  let M : ℕ → ℝ := fun n => hankelMass (c n) (f n)
-  let g : ℕ → ℝ → ℝ := fun k Δ => (M (ns k))⁻¹ * f (ns k) Δ
-  have hg_eig : ∀ k, IsHankelEigenfn (c (ns k)) (-1) (g k) := fun k =>
-    (hfeas (ns k)).toIsHankelEigenfn.smul _
-  have hg_mass : ∀ k, hankelMass (c (ns k)) (g k) ≤ 1 := by
-    intro k
-    show hankelMass _ (fun Δ => (M (ns k))⁻¹ * f (ns k) Δ) ≤ 1
-    rw [hankelMass_smul]
-    show |(M (ns k))⁻¹| * M (ns k) ≤ 1
-    calc |(M (ns k))⁻¹| * M (ns k) ≤ |(M (ns k))⁻¹| * |M (ns k)| :=
-          mul_le_mul_of_nonneg_left (le_abs_self _) (abs_nonneg _)
-      _ = |(M (ns k))⁻¹ * M (ns k)| := (abs_mul _ _).symm
-      _ ≤ 1 := by
-          by_cases h0 : M (ns k) = 0
-          · simp [h0]
-          · simp [h0]
   obtain ⟨ms1, F, C, ν, hms1, hloc, -, -, hFd, hFi, hC, hFb, hFreal⟩ :=
-    H.profile_compactness 1 (-1) (Or.inr rfl) (fun k => c (ns k)) g (hc.comp hns) hg_eig hg_mass
+    H.normalized_compactness (-1) (Or.inr rfl) (fun k => c (ns k)) (fun k => f (ns k))
+      (hc.comp hns) (fun k => (hfeas (ns k)).toIsHankelEigenfn)
   have hlow : ∀ᶠ k in atTop, B₀ ≤ c (ns (ms1 k)) ^ (-(1 / 3 : ℝ)) *
       (T (ns (ms1 k)) - c (ns (ms1 k)) / π ^ 2) :=
     (hns.comp hms1.tendsto_atTop).eventually hB₀
@@ -167,19 +195,9 @@ private theorem exists_airy_package (H : RadialCompactness) (c : ℕ → ℝ) (h
     tendsto_atTop_mono (fun j => Nat.le_add_right _ _) hφ.tendsto_atTop
   refine ⟨fun j => ms1 (φ j + k0), a, F, C, ν, hms1.comp (hφ.add_const k0), hφlim, ?_, hFd, hFi,
     hC, hFb, hFreal⟩
-  have hsub : TendstoLocallyUniformlyOn
-      (fun j u => hankelWindowProfile (c (ns (ms1 (φ j + k0)))) (g (ms1 (φ j + k0))) u)
-      (fun u : ℝ => (F (u : ℂ)).re) atTop univ := by
-    intro u hu x hx
-    obtain ⟨t, ht, h'⟩ := hloc u hu x hx
-    exact ⟨t, ht, hgi.eventually h'⟩
-  refine hsub.congr (fun j u _ => ?_)
-  show hankelWindowProfile (c (ns (ms1 (φ j + k0)))) (fun Δ => (M (ns (ms1 (φ j + k0))))⁻¹ *
-      f (ns (ms1 (φ j + k0))) Δ) u =
-    hankelWindowProfile (c (ns (ms1 (φ j + k0)))) (f (ns (ms1 (φ j + k0)))) u /
-      hankelMass (c (ns (ms1 (φ j + k0)))) (f (ns (ms1 (φ j + k0))))
-  rw [hankelWindowProfile_smul, div_eq_inv_mul]
-
+  intro u hu x hx
+  obtain ⟨t, ht, h'⟩ := hloc u hu x hx
+  exact ⟨t, ht, hgi.eventually h'⟩
 
 /-- **`gt:7.5`, lower half, one level, `ε = -1`** (`radial_rigidity_lower` of `SeparationInputs`), from
 `lem:radial-compactness`: `liminf c^{-1/3}(T_c - c/π²) ≥ A = |a₁|/β₁`, in the form
@@ -198,7 +216,7 @@ theorem radial_rigidity_lower_of_compactness (H : RadialCompactness) :
     exact ⟨T, f, hf, hT⟩
   obtain ⟨ns, hns, hns_prop⟩ := exists_seq_forall_of_frequently hfreq
   choose T f hfeas hT using hns_prop
-  obtain ⟨R, hRc, hRT⟩ := exists_airy_package H ns hns T f hfeas
+  obtain ⟨R, hRc, hRT, -⟩ := exists_airy_package H ns hns T f hfeas
   have hge := radial_rigidity_liminf_ereal R
   have hD : -(HermiteBiehlerData.airy.tm / hankelBeta1) = airyOrderCoeff := by
     show -(airyZero 1 / hankelBeta1) = |airyZero 1| / hankelBeta1

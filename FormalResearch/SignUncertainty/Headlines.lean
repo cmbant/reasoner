@@ -15,8 +15,7 @@ proved from an input structure whose fields are, one-to-one, the TeX theorems th
 (field names are the TeX labels where the paper has one: `hb_thresholds_lower/upper`, `shell_reduction`,
 `shell_gap_limit`, `ce_hb_lift`, `radial_compactness`, ...; some are not labels: `hankel_euclid_dictionary` is the proof of
 `gt:7.9` (Euclidean radii as Hankel thresholds), `one_profile_envelope` is `gt:3.1` as used in
-`prop:ce-one-profile`, and `radial_profile_c1` is `gt:7.5` with the `C¹` clause of
-`lem:radial-compactness`).
+`prop:ce-one-profile`).
 **A field is an open theorem about the concrete objects**; progress is the number of open fields, and a
 field is discharged only by proving it (then it is dropped from the structure). The input structures
 deliberately have no `*_nonvacuous` witness: each field is an open theorem of the paper, so a witness
@@ -35,8 +34,9 @@ Headlines and their inputs (open fields in bold):
   origin option `constrained_threshold_eq_unconstrained`, the density expansion `ce_volume_expansion`.
 * `thm_intro_separation` (`thm:intro-separation`, `gt:7.9c`), from `SeparationInputs`:
   **`radial_compactness`** (`lem:radial-compactness`: deep lobe, compactness),
-  **`hb_thresholds_upper`** (`u1co:O9p`, one level), **`radial_profile_c1`** (`gt:7.5` profile
-  identification together with the `C¹` clause of `lem:radial-compactness`). Proved here from these:
+  **`hb_thresholds_upper`** (`u1co:O9p`, one level); `radial_rigidity_lower` and `radial_profile_c1`
+  (`gt:7.5`, lower half and profile identification with the `C¹` clause) are derived from
+  `radial_compactness`. Proved here from these:
   the Hardy–Mellin intertwiner argument (`sign_separation_eventually_le`, via
   `SignSeparationPackage.langer_approx` built from the `C¹` field). The Euclidean statement (2)
   additionally uses `EuclidDictionary` (`hankel_euclid_dictionary`; `laguerre_odd_mode` is proved).
@@ -195,16 +195,6 @@ structure SeparationInputs : Prop where
   radial_compactness : RadialCompactness
   /-- `u1co:O9p` at one level. -/
   hb_thresholds_upper : HbThresholdsUpper
-  /-- `gt:7.5` (identification of the limit) with `lem:radial-compactness` (`C¹` clause): the window
-  profile `Ψ_{f,c}/M[f]` of a near-optimal `(-1)`-feasible `f` is `C¹` and converges to
-  `G_Ai/‖G_Ai‖₁` together with its first derivative, locally uniformly. -/
-  radial_profile_c1 : ∀ R η : ℝ, 0 < η → ∀ᶠ c : ℝ in atTop, ∀ (T : ℝ) (f : ℝ → ℝ),
-    IsHankelFeasible c (-1) T f → hankelT (-1) c ≤ T → T ≤ hankelT (-1) c + 1 / c →
-      ContDiffOn ℝ 1 (fun u => hankelWindowProfile c f u / hankelMass c f) (Ioo (-R) R) ∧
-      ∀ u ∈ Ioo (-R) R,
-        |hankelWindowProfile c f u / hankelMass c f - HermiteBiehlerData.airy.normG u| ≤ η ∧
-        |deriv (fun v => hankelWindowProfile c f v / hankelMass c f) u -
-          deriv HermiteBiehlerData.airy.normG u| ≤ η
 
 /-- `gt:7.5`, first claim, one level, `ε = -1`: `liminf c^{-1/3}(T_c - c/π²) ≥ A`
 (from `radial_compactness` via `radial_rigidity_liminf_ereal`). -/
@@ -422,6 +412,93 @@ private lemma hankelT_neg_airy_order :
     rw [mul_assoc, hinv, mul_one] at h1
     nlinarith [h1, hle, hT₀]
 
+/-- `gt:7.5` profile identification with the `C¹` clause of `lem:radial-compactness`: the window profile
+`Ψ_{f,c}/M[f]` of a near-optimal `(-1)`-feasible `f` is `C¹` on each window and converges to
+`G_Ai/‖G_Ai‖₁` together with its first derivative, locally uniformly. Derived from
+`radial_compactness` (the `C¹` clause and the derivative convergence) and `radial_rigidity_profile`
+(identification of the limit) along a sequence of counterexamples. -/
+theorem SeparationInputs.radial_profile_c1 :
+    ∀ R η : ℝ, 0 < η → ∀ᶠ c : ℝ in atTop, ∀ (T : ℝ) (f : ℝ → ℝ),
+      IsHankelFeasible c (-1) T f → hankelT (-1) c ≤ T → T ≤ hankelT (-1) c + 1 / c →
+        ContDiffOn ℝ 1 (fun u => hankelWindowProfile c f u / hankelMass c f) (Ioo (-R) R) ∧
+        ∀ u ∈ Ioo (-R) R,
+          |hankelWindowProfile c f u / hankelMass c f - HermiteBiehlerData.airy.normG u| ≤ η ∧
+          |deriv (fun v => hankelWindowProfile c f v / hankelMass c f) u -
+            deriv HermiteBiehlerData.airy.normG u| ≤ η := by
+  intro R η hη
+  by_contra hcon
+  have hfreq : ∃ᶠ c : ℝ in atTop, ∃ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c (-1) T f ∧
+      hankelT (-1) c ≤ T ∧ T ≤ hankelT (-1) c + 1 / c ∧
+      ¬ (ContDiffOn ℝ 1 (fun u => hankelWindowProfile c f u / hankelMass c f) (Ioo (-R) R) ∧
+        ∀ u ∈ Ioo (-R) R,
+          |hankelWindowProfile c f u / hankelMass c f - HermiteBiehlerData.airy.normG u| ≤ η ∧
+          |deriv (fun v => hankelWindowProfile c f v / hankelMass c f) u -
+            deriv HermiteBiehlerData.airy.normG u| ≤ η) := by
+    rw [Filter.not_eventually] at hcon
+    refine hcon.mono fun c hc => ?_
+    by_contra h
+    apply hc
+    intro T f hf h1 h2
+    by_contra hD
+    exact h ⟨T, f, hf, h1, h2, hD⟩
+  obtain ⟨ns, hns, hns_prop⟩ := exists_seq_forall_of_frequently hfreq
+  choose T f hfeas hlo hhi hbad using hns_prop
+  obtain ⟨Rk, hRc, hRT, hRf⟩ := exists_airy_package I.radial_compactness ns hns T f hfeas
+  have hD : -(HermiteBiehlerData.airy.tm / hankelBeta1) = airyOrderCoeff := by
+    show -(airyZero 1 / hankelBeta1) = |airyZero 1| / hankelBeta1
+    rw [abs_of_neg (airyZero_neg 1), neg_div]
+  have hpos : ∀ᶠ n in atTop, 0 < ns n := hns.eventually (eventually_gt_atTop 0)
+  have hmul : ∀ c x : ℝ, 0 < c → c ^ (-(1 / 3 : ℝ)) * x = x / c ^ (1 / 3 : ℝ) := fun c x hc => by
+    rw [Real.rpow_neg hc.le, inv_mul_eq_div]
+  have hAtt0 : Tendsto (fun n => (ns n) ^ (-(1 / 3 : ℝ)) * (T n - ns n / π ^ 2)) atTop
+      (𝓝 airyOrderCoeff) := by
+    have h1 : Tendsto (fun n => (hankelT (-1) (ns n) - ns n / π ^ 2) / (ns n) ^ (1 / 3 : ℝ))
+        atTop (𝓝 airyOrderCoeff) := (hankelT_neg_airy_order I).comp hns
+    have h2 : Tendsto (fun n => (ns n) ^ (-(1 / 3 : ℝ)) * (1 / ns n)) atTop (𝓝 0) := by
+      have h3 := (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 3)).comp hns
+      have h4 := tendsto_inv_atTop_zero.comp hns
+      simpa [Function.comp] using h3.mul h4
+    have h5 := h1.add h2
+    rw [add_zero] at h5
+    refine tendsto_of_tendsto_of_tendsto_of_le_of_le' h1 h5 ?_ ?_
+    · filter_upwards [hpos] with n hn
+      rw [hmul _ _ hn]
+      exact div_le_div_of_nonneg_right (by linarith [hlo n]) (Real.rpow_nonneg hn.le _)
+    · filter_upwards [hpos] with n hn
+      rw [hmul _ _ hn, hmul _ _ hn, ← add_div]
+      exact div_le_div_of_nonneg_right (by linarith [hhi n]) (Real.rpow_nonneg hn.le _)
+  have hAtt : Tendsto (fun n => (Rk.c n) ^ (-(1 / 3 : ℝ)) * (Rk.T n - Rk.c n / π ^ 2)) atTop
+      (𝓝 (-(HermiteBiehlerData.airy.tm / hankelBeta1))) := by
+    rw [hD, hRc, hRT]; exact hAtt0
+  have hloc := (radial_rigidity_profile Rk hAtt).1
+  simp only [hRc, hRf] at hloc
+  obtain ⟨ms, F, C, ν, hms, hloc2, hC1, hder, -, -, -, -, -⟩ :=
+    I.radial_compactness.normalized_compactness (-1) (Or.inr rfl) ns f hns
+      (fun n => (hfeas n).toIsHankelEigenfn)
+  have hloc3 : TendstoLocallyUniformlyOn (fun k u => hankelWindowProfile (ns (ms k)) (f (ms k)) u /
+      hankelMass (ns (ms k)) (f (ms k))) HermiteBiehlerData.airy.normG atTop univ := by
+    intro u hu x hx
+    obtain ⟨t, ht, h'⟩ := hloc u hu x hx
+    exact ⟨t, ht, hms.tendsto_atTop.eventually h'⟩
+  have hFre : (fun u : ℝ => (F (u : ℂ)).re) = HermiteBiehlerData.airy.normG := by
+    funext u
+    exact tendsto_nhds_unique (hloc2.tendsto_at (mem_univ u)) (hloc3.tendsto_at (mem_univ u))
+  rw [hFre] at hloc2 hder
+  have e1 := Metric.tendstoUniformlyOn_iff.mp
+    ((tendstoLocallyUniformlyOn_iff_forall_isCompact isOpen_univ).mp hloc2 (Icc (-R) R)
+      (subset_univ _) isCompact_Icc) η hη
+  have e2 := Metric.tendstoUniformlyOn_iff.mp
+    ((tendstoLocallyUniformlyOn_iff_forall_isCompact isOpen_univ).mp hder (Icc (-R) R)
+      (subset_univ _) isCompact_Icc) η hη
+  obtain ⟨k, hk1, hk2, hk3⟩ := (e1.and (e2.and (hC1 R))).exists
+  refine hbad (ms k) ⟨hk3, fun u hu => ⟨?_, ?_⟩⟩
+  · have := hk1 u (Ioo_subset_Icc_self hu)
+    rw [Real.dist_eq, abs_sub_comm] at this
+    exact this.le
+  · have := hk2 u (Ioo_subset_Icc_self hu)
+    rw [Real.dist_eq, abs_sub_comm] at this
+    exact this.le
+
 /-- The package of `SignSeparationPackage` built from `SeparationInputs`, with its thresholds. -/
 private lemma exists_package : ∃ P : SignSeparationPackage, ∀ c : ℝ, P.c₀ ≤ c →
     P.Tpos c = hankelT 1 c ∧ P.Tneg c = hankelT (-1) c := by
@@ -442,7 +519,7 @@ private lemma exists_package : ∃ P : SignSeparationPackage, ∀ c : ℝ, P.c�
       Tneg_airy_order := by
         refine (hankelT_neg_airy_order I).congr' ?_
         filter_upwards [eventually_ge_atTop (max 1 c_u)] with c hc
-        simp only [dite_cond_eq_true (eq_true hc), (Classical.choose (bessel_kernel_data c (hc1 c hc))).threshold_eq
+        simp only [hc, ↓reduceDIte, (Classical.choose (bessel_kernel_data c (hc1 c hc))).threshold_eq
           (hK c hc)]
       c1_profile := fun R η hη => by
         filter_upwards [I.radial_profile_c1 R η hη] with c hcev hc T f hf hT1 hT2
@@ -452,13 +529,14 @@ private lemma exists_package : ∃ P : SignSeparationPackage, ∀ c : ℝ, P.c�
         exact hcev T f hf hT1 hT2 }
   refine ⟨P, fun c hc => ?_⟩
   have hKc := hK c hc
+  have hc' : max 1 c_u ≤ c := hc
   constructor
   · show (if hc' : max 1 c_u ≤ c then hankelThreshold c
         (Classical.choose (bessel_kernel_data c (hc1 c hc'))) 1 else 0) = _
-    rw [dite_cond_eq_true (eq_true hc), (Classical.choose (bessel_kernel_data c (hc1 c hc))).threshold_eq hKc]
+    simp only [hc', ↓reduceDIte, (Classical.choose (bessel_kernel_data c (hc1 c hc))).threshold_eq hKc]
   · show (if hc' : max 1 c_u ≤ c then hankelThreshold c
         (Classical.choose (bessel_kernel_data c (hc1 c hc'))) (-1) else 0) = _
-    rw [dite_cond_eq_true (eq_true hc), (Classical.choose (bessel_kernel_data c (hc1 c hc))).threshold_eq hKc]
+    simp only [hc', ↓reduceDIte, (Classical.choose (bessel_kernel_data c (hc1 c hc))).threshold_eq hKc]
 
 /-- Theorem 7.9c(1) in quantitative form: `T_c^{+1} - T_c^{-1} ≤ -2/π² + ε₀` eventually. -/
 private lemma separation_eventually (ε₀ : ℝ) (hε₀ : 0 < ε₀) :
@@ -471,8 +549,8 @@ private lemma separation_eventually (ε₀ : ℝ) (hε₀ : 0 < ε₀) :
 /-- **Headline S, Hankel form (`gt:7.9c(1)`, `thm:intro-separation`, first line):**
 `limsup_{c→∞} (T_c^{+1} - T_c^{-1}) ≤ -2/π²` (limsup in `EReal`, so no coboundedness is assumed).
 
-Proved from `SeparationInputs`: `radial_compactness` (`radial_rigidity_lower` derived), `hb_thresholds_upper`,
-`radial_profile_c1`, with the Hardy–Mellin intertwiner argument of `sign_separation_eventually_le`. -/
+Proved from `SeparationInputs`: `radial_compactness` (`radial_rigidity_lower` and `radial_profile_c1` derived), `hb_thresholds_upper`,
+`radial_profile_c1` (derived), with the Hardy–Mellin intertwiner argument of `sign_separation_eventually_le`. -/
 theorem thm_intro_separation_hankel :
     Filter.limsup (fun c : ℝ => ((hankelT 1 c - hankelT (-1) c : ℝ) : EReal)) atTop ≤
       ((-(2 / π ^ 2) : ℝ) : EReal) := by
