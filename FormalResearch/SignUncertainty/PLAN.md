@@ -61,8 +61,9 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
 - **Every new module must close or shrink a skeleton field.** Existing packages are either wired into a field's
   proof (instantiated with the real Airy cardinal kernel and real CE data) or deleted (git keeps them). Toy
   witnesses do not count as progress.
-- **Order by sharing.** Do the layer used by the most headlines first. The first milestone is `thm:intro-radii` at one
-  level (`gt:7.9` + `gt:7.12`, unconditional); the others reuse most of it.
+- **Cheapest unconditional headlines first, then by sharing.** The strict gap and the separation need only the Hankel
+  layer and the one-level upper bound, so they come before the Langer/bootstrap lower half. `thm:intro-radii` at one
+  level (`gt:7.9` + `gt:7.12`) is the main target and reuses all of it.
 
 ## 4. TeX changes made first (QIprojects branch `papers/p1-route-cleanup`)
 
@@ -84,70 +85,102 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
     the natural M0 skeleton statement for Headline D, with `m = 1` being the CE radius.
   - App F (general de Branges) and E.2–E.3a moved to the supplement. They are not in Lean scope.
 
+- **T6: shorter routes after an external review (agy, checked by independent referees).**
+  - `gt:7.9c` no longer uses Langer transport or `thm:hb-thresholds`: `lem:radial-compactness` now converges with first
+    derivatives, and the upper half is the one-level O.9′.
+  - The hb-lift source is a left-shifted convolution of `g₁` (branch `papers/p1-conv-source`); the Dirichlet diagonal,
+    CR.1–4, PF.2L, PF.T and W.0–W.6 move to the supplement with Route I.
+  - U.3(3)/O.3(2) by real-line integration by parts and Fresnel; O.4(2) by a Banach contraction with a certified bound
+    (branch `papers/p1-u3-o4`).
+  - H.14a now also gives Laplace-positive odd families, so `thm:intro-gap` (iii) occurs at every odd `m`; intro (ii)
+    states the bound `−u_LP/β₁`.
+
 ## 5. Milestones (S < 500 lines, M 500–2000, L > 2000; calibration: the Virasoro lower half took about 29k lines)
+
+The order puts the cheapest unconditional headlines first. The strict gap (M3 below) and the separation (Headline S) need only
+the Hankel layer, the one-level upper bound and pieces that already exist; the heavy analysis (O-chain, Langer,
+bootstrap) comes after them.
 
 **M0 Skeleton (S–M).**
 - Concrete definitions and the four headline statements, each proved from its input structure.
-- Delete or merge the dead packages that the skeleton does not use.
+- Fix two semantic gaps in existing packages: `SignSeparation.lean` defines `A_sign(d)` as `√(2 T_{d/2})` (the Hankel
+  threshold), not the Euclidean infimum; `ShellGapPackage` enforces exact zero-offset shells and quantifies over one
+  package, not the infimal `R_d^{CE}` with `o(c^{1/3})` offsets.
+- `LangerSignSeparationPackage.langer_approx` is no longer needed (TeX `gt:7.9c` no longer uses Langer); replace it by
+  the `C¹` compactness field.
+- Delete or archive the dead packages: `GT4CoverageBands`, the PF.2/PF.5 consumers, `MovingDiagFarTail`, the CR.4 and
+  PF.2L packages once the convolution source lands.
 - Rename overclaiming names (`theorem_H14_strict_gap` → `…_core`; `teb_mellin_o1_lower` docstring).
 
 **M1 Classical leaves (parallel; independent of everything else).**
-- `hBesselRatio` (DLMF 9.6.2–3; about 0.6–0.8k; route: Bessel ODE for `√z K_{1/3}`, decay, uniqueness).
-- `hNicholson` (DLMF 9.11.4; about 0.7–1.1k; third-order ODE `w''' + 4xw' + 2w = 0`, solution span, asymptotics).
-- Bessel `J_ν` for real `ν`: bounds and Weber integral DLMF 10.22.43; Laguerre-mode eigen-identity (M–L).
-- Radial Fourier transform on `Euc d` for all `d` (M).
+- Bessel `J_ν` for real `ν`: bounds and Weber integral DLMF 10.22.43; Laguerre modes `(4πΔ/c−1)e^{−2πΔ}` (eigenvalue
+  −1) and `e^{−2πΔ}` (+1) (M–L).
+- Radial Fourier transform on `Euc d`: even `d` exists (`ModularBootstrap/.../HankelFormula.lean`,
+  `fourier_radialLift_apply_eq`); close even-`d` headlines first and do odd `d` in parallel (M). `O(d)` averaging.
+- `hNicholson` and `hBesselRatio` are dropped: they served only the Dirichlet-diagonal source (CR.4, W.0–W.6), which
+  the convolution source replaces.
 
-**M2 Hankel layer (used by all four headlines; L).**
-- Concrete `HankelKernelData` from M1.
-- `gt:7.4` (strip reflection, majorant, three lines).
-- `lem:radial-compactness` (deep lobe, tail, compactness).
-- This discharges the compactness fields of `RadialRigidityPackage` and feeds the H.14 and separation packages.
+**M2 Hankel layer (used by every headline; L).**
+- Concrete `HankelKernelData` from M1; `gt:7.4` (strip reflection, majorant, three lines).
+- `lem:radial-compactness` with the `C¹` clause (the kernel's `s`-derivative is the same integrand times `(w−ε²)/ξ_c`).
+- `gt:7.5` (blow-up limit via `hb_uniqueness`, which exists).
 
-**M3 Upper O-chain at one level (shared: Hankel upper half and CE upper half; L, technical core).**
-- U.1, U.2 (or only the T2 span), U.3, GT.2a, O.3(2), O.4(2)–(3), O.5, O.6, O.11ak (Mellin-lift hub), O.9′ at `m = 1`.
-- Highest risk: O.3(2) (V-ray contour deformation, Puiseux) and O.5/O.6. Before starting, look for a shorter TeX
-  route to O.3(2).
+**M3 Headline C′: strict gap `thm:intro-gap` (ii) (M–L).**
+- Laplace limit L.6 (Stirling and majorants); compactness for `p_c`, `q_c`; `o(c^{1/3})` offsets and the infimal
+  radius; the one-profile bound `−u_LP/β₁` (`prop:ce-one-profile`). Downstream (`ShellHBData`, `even_m_laplace_sign`,
+  `OddShellFamily`) exists. Needs only M2.
 
-**M4 Hankel lower half at one level (L).**
-- Langer chart `gt:7.7b/c/p` (Rouché exists).
-- TE.0 at one level: check whether `teb_quant_c1_typeII` adapts (type I vs type II envelope; open question).
-- TE.3 Hankel window and `BandReductionInstance`.
-- Discharge the `BootstrapCore/Instance` fields (refactor the Virasoro `ArcBounds`/`QuadratureBounds`).
-- L.2/L.6 at one level; chart inversion into `teb_mellin_o1_lower`.
+**M4 Upper O-chain at one level (shared by everything below; L, technical core).**
+- U.2 for `{f₁, g₁, g₁'}`, U.3, GT.2a (on its Fourier-side hypotheses), O.5, O.6, O.11ak (Mellin-lift hub), O.9′ at `m = 1`.
+- O.3(2)/U.3(3): real-line subtraction of the `x^{−3/2}` tail, two integrations by parts and the Fresnel integral (no
+  Puiseux, no V-ray). U.1 only in its closed-half-plane form.
+- O.4(2): Banach contraction for the cubic normal form (`ContractingWith.fixedPoint`), with the certified bound on the
+  circle as an interval-arithmetic input; no branched cover or monodromy.
 
-**Headline A, `gt:7.9`:** M2 + M3 + M4 + the Euclidean reduction (BCK/CG, averaging, finite `d` via E.1; M).
+**Headline S: separation `gt:7.9c` (S–M after M2, M4).** `gt:7.5` + `C¹` compactness + one-level O.9′ give the slope
+window; the intertwiner and its tail positivity exist (`HardyMellinIntertwiner`, `sign_separation_*`). No Langer chart,
+no bootstrap.
 
-**M5 CE upper, Route II at `m₀ = 1` (M–L).**
-- CR.4 closure: link `(CR.19)` `Λ_h → cohnS`, expose `Λ`-uniform constants, giving `MovingDiagFarTail`.
-- GT.3b with real PF.T and PF2L.2: only the fields Route II uses.
-- `thm:ce-post-edge`; `cepe:general` with the real Airy cardinal kernel (`PreEdgeGeneralData.h_saddle`).
-- hb-lift assembly (seed mass `m₀ = 1` exists); lift to `Euc d`. This gives `hhi`.
+**M5 Hankel lower half at one level (L).**
+- Langer chart `gt:7.7b/c/p` (Rouché exists). The Type (I) cut bound follows by subharmonic averaging as in Step 0 of
+  TE.0, so the separate `Re ζ = c^{−1/3}` contour shift can be skipped in Lean.
+- TE.0 at one level: adapt `teb_quant_c1_typeII` (already a compactness argument) to Type (I). This is non-effective,
+  which is fine for Lean; the TeX keeps the effective version (Paper II needs it).
+- TE.3 Hankel window and `BandReductionInstance`; discharge the `BootstrapCore/Instance` fields (refactor the Virasoro
+  `ArcBounds`/`QuadratureBounds`); L.2/L.6 at one level.
 
-**M6 CE lower (M).** Shell reduction `m = 1`, `O(d)` averaging, and the Hankel lower half from M4 give `hlo`.
+**Headline A, `gt:7.9`:** M2 + M4 + M5 + the Euclidean reduction (BCK/CG, averaging, finite `d` via E.1; M).
+
+**M6 CE upper, `thm:ce-hb-lift` at `m₀ = 1` with the convolution source (M).**
+- Source `S_c = ∫₀^∞ w_c(y) g₁(u+y) dy`: product formula for its twisted transform, symbol bounds of the weight, far
+  transfer GT.3b by Fourier–Sobolev, pre-edge bounds from the single-term Gaussian identity (exists:
+  `airySquare_gaussian_transform`).
+- `thm:ce-post-edge` and `cepe:general` stated for a general source; hb-lift assembly (seed mass `m₀ = 1` exists); lift
+  to `Euc d`. This gives `hhi`.
+
+**M7 CE lower (M).** Shell reduction `m = 1`, `O(d)` averaging, and the Hankel lower half from M5 give `hlo`.
 
 **Headline B, `gt:7.12` + `gt:7.12a`, unconditional.** This completes `thm:intro-radii`.
 
-**M7 Separation `gt:7.9c` (M).** Assemble `LangerSignSeparationPackage.langer_approx` from M2 and M4 (gt:7.5,
-7.7b/c/p, Montel, slope); `Tneg_asymp` comes from M3/M4.
-
-**M8 Strict gap H.14 (L).**
-- Laplace limit L.6 (Stirling and majorants); compactness for `p_c`, `q_c`.
-- `o(c^{1/3})` offsets and the infimal `R_d^{CE}` quantification.
-- HB–CE.L contributes only its short non-vanishing step.
-
-**M9 All levels (L).**
-- TE.0′ and TE.2(4) instance; general `HBSeedSpec` (`gt:1.0pp`); multilevel L.2.
-- This gives `thm:intro-hb`, and general `thm:ce-hb-lift` (for the `intro-gap` interpretation).
+**M8 All levels (L).**
+- TE.0′ by the same compactness argument for all `(P, Q)` (`hb_uniqueness` exists); TE.2(4) instance; general
+  `HBSeedSpec` (`gt:1.0pp`); multilevel L.2.
+- This gives `thm:intro-hb`, general `thm:ce-hb-lift`, and `thm:intro-gap` (iii) with its odd-level examples (H.14a).
 
 **Deferred (not on any headline path):**
-- Route I (`thm:ce-lift`, GT.4 bands, PF.2/PF.5, `prop:ce-pre-edge`; now in the supplement);
+- Route I (`thm:ce-lift`, GT.4 bands, PF.2/PF.5, `prop:ce-pre-edge`) and the Dirichlet-diagonal machinery it still uses
+  (CR.1–4, O.11 diagonal lemmas, PF.2L, PF.T, W.0–W.6); all in the TeX supplement;
 - SE.1–SE.5 general de Branges and `PW·PW`;
 - Theorem 3.1(c) (tempered distributions);
 - fold-tip universality instances;
 - `gt:7.10` (owner-deferred).
 
-**Parallelism.** M1 (4 independent tasks) can run alongside M0. M2 and M3 are independent of each other. M4 needs M2.
-M5 needs M1 and M3. With two or three agents, Headline B is the critical path: M0 → M2 ∥ M3 → M4/M5 → M6.
+**Not a cheap headline.** An "Airy-order `o(d^{1/3})` radius theorem at fixed δ" is not a shortcut: the fixed-δ U.3
+route needs a seed with the two-sided fill (e38) that no exhibited seed satisfies, and the honest upper half is O.9′,
+i.e. M4.
+
+**Parallelism.** M1 runs alongside M0. M2 and M4 are independent. M3 needs M2 only. With two or three agents the order
+is M0 ∥ M1 → M2 ∥ M4 → M3, Headline S → M5 ∥ M6 → M7 → M8.
 
 ## 6. Bookkeeping
 
