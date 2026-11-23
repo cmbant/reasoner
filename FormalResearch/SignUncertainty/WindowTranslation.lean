@@ -613,8 +613,13 @@ theorem dual_bound_window (m : ℕ) (hm : 1 ≤ m) (CD : ℝ) (hCD : 0 < CD) :
 the main seed `X` (through `‖W_X(w)‖ ≤ C_W (1 + |Im w|)^{-5/2}`) and of the dual seed `D` (`‖D̃(c_s w)‖ ≤ C_D ‖1 + w‖^{-5/2}`), there is
 `C` such that for `δ₀ ≥ 0`, `c ≥ 32768`, `ξ > 0` and `|S_eff(ξ)| ≤ S_w`,
 `|I_main[X] + I_dual[D] - (k β₁/(π² ξ)) F_ψ(-β₁ S - ε/(2 c_s))| ≤ C ξ⁻¹ [ε² + (1 + δ₀ c^{1/3})^{-m} c^{-1/2}]`.
-`C` depends only on `(m, S_w, C_W, C_D)`, so it is uniform over every family of seeds with these constants.  The threshold `c ≥ 32768`
-(`ε ≤ 1/32`) replaces the paper's `c ≥ 200`. -/
+`C` is chosen after `(m, S_w, C_W, C_D)` and before `X, D, δ₀, c, ξ`, so it is uniform over every family of seeds with these constants.
+Differences from the paper statement: the threshold `c ≥ 32768` (`ε ≤ 1/32`) replaces `c ≥ 200` (the range `200 ≤ c < 32768` is not
+formalised; the paper's later uses of `(e5)` are asymptotic in `c`); `δ₀ ≥ 0` is arbitrary (paper: `δ₀ ∈ (0, 2]`) and `S_w` is any real
+(paper: `S_w ≥ 1`); the seed `X` is assumed continuous (used by `airy_reference_identity`); the dual seed `D` enters only through the
+stated bound (no `HasU2 D` is needed here); `HasU2 X` is used only qualitatively (integrability, holomorphy), never through a constant.
+The bounded-family constants `C_W, C_D` are hypotheses: deriving them from a family (the Phragmén–Lindelöf step of `u1c:U2`) is not
+part of this file (for one fixed seed see `window_translation_seed`). -/
 theorem window_translation (m : ℕ) (hm : 1 ≤ m) (Sw CW CD : ℝ) (hCW : 0 < CW) (hCD : 0 < CD) :
     ∃ C : ℝ, 0 < C ∧ ∀ {X D : ℝ → ℝ}, HasU2 X → Continuous X →
       (∀ {δ₀ : ℝ} {w : ℂ}, 0 ≤ δ₀ → 0 ≤ w.re → ‖liftSymbol X δ₀ m w‖ ≤ CW * (1 + |w.im|) ^ (-(5 / 2 : ℝ))) →
@@ -677,7 +682,9 @@ theorem window_translation (m : ℕ) (hm : 1 ≤ m) (Sw CW CD : ℝ) (hCW : 0 < 
             _ = _ := by field_simp
         nlinarith [mul_le_mul_of_nonneg_left this hξ0]
 
-/-- **`O.5`(1), `(e5)`, for fixed seeds.** -/
+/-- **`O.5`(1), `(e5)`, for fixed seeds.**  For seeds `X, D` with `HasU2` (and `X` continuous), `m ≥ 1` and any `S_w`, there is
+`C` (depending on `X, D, m, S_w`) with the estimate of `window_translation` for all `δ₀ ≥ 0`, `c ≥ 32768`, `ξ > 0`, `|S_eff(ξ)| ≤ S_w`;
+the constants `C_W, C_D` come from `hasU2_norm_liftSymbol_le_unif` and `HasU2.rhp`. -/
 theorem window_translation_seed {X D : ℝ → ℝ} (hX : HasU2 X) (hXc : Continuous X) (hD : HasU2 D) (m : ℕ) (hm : 1 ≤ m) (Sw : ℝ) :
     ∃ C : ℝ, 0 < C ∧ ∀ {δ₀ c ξ : ℝ}, 0 ≤ δ₀ → 32768 ≤ c → 0 < ξ → |hbS c ξ| ≤ Sw →
       ‖iMain X δ₀ m c ξ + iDual D δ₀ m c ξ -
