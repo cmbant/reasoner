@@ -59,10 +59,10 @@ def ThresholdLowerBoundAt (T : ℝ → ℝ) (shift : ℝ) : Prop :=
   ∃ c₁ D_minus : ℝ, max 1 (12 * shift) ≤ c₁ ∧ 0 ≤ D_minus ∧
     ∀ {cTilde : ℝ}, c₁ ≤ cTilde → TStar cTilde - D_minus ≤ T cTilde
 
-/-- **Unproved input (Theorem W1'(1), `lower_o1_two_edge.tex`, `wone:genlower(1)`)**:
+/-- **Theorem W1'(1) (`lower_o1_two_edge.tex`, `wone:genlower(1)`)**:
 for a fixed-weight problem `prob`, there exist `c₁ ≥ max 1 (12 S)` and `D_- ≥ 0` such that
-`T_V(c̃) ≥ T_*(c̃) - D_-` for all `c̃ ≥ c₁`. (At `virasoroProblem`, proved conditionally on
-`YVInput` by `ConcreteBootstrap.theoremJ_T_V`; not yet formalised at general `(w, Q)`.) -/
+`T_V(c̃) ≥ T_*(c̃) - D_-` for all `c̃ ≥ c₁`. (Proved for every `prob` by
+`FixedWeightBand.fixedWeightLowerBoundInput_of_problem`.) -/
 def FixedWeightLowerBoundInput (prob : FixedWeightProblem) : Prop :=
   ThresholdLowerBoundAt prob.T_V prob.totalShift
 

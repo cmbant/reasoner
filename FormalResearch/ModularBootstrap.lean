@@ -217,6 +217,18 @@ public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWZSeg
 public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWZCombine
 public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWZ
 public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWBridge
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWData
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWSchwarz
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWQuad
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWLine
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWArc
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWBand
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWNodes
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWHB
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWMain
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWYVBand
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWYV
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWInterface
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -697,6 +709,17 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   against weight one: the Stirling^(w) prefactor `(3ω/(2π b²))^{(w-1)/2}`, the threshold `stirThr w / c_Γ`, and the
   chart-disc cap `|b - ξ_*| ≤ r₁` for the complex weight bound `cardyVC_inner_bound`.  Bridge: `lemma_Dp_of_W`,
   `lemma_Z_of_W` (Virasoro statements at `w = 1`), `lemma_Z_W_band` (annulus form).  The weight-`w` band-feedback
-  bridge `YVInputFor` and the scale choice (`VirasoroBridge`, `VirasoroScaleChoice`) need the weight-`w`
-  Proposition `Y_V` and are not formalised.
+  bridge `YVInputFor` and the scale choice (`VirasoroBridge`, `VirasoroScaleChoice`) are in
+  `FixedWeightBand.BootstrapW*` below.
+
+* `FixedWeightBand.BootstrapW{Data, Schwarz, Quad, Line, Arc, Band, Nodes, HB, Main, YVBand, YV, Interface}`:
+  the concrete bootstrap at every fixed `(w, Q)` (Theorem `FT-L.FW` `wone:ftlfw`, Theorem `J` `vlo:J`),
+  unconditional.  `LemmaQData prob` packages the full-scale Lemma `Q` data; the ported Virasoro chain
+  (`psiTilde_conj`, `line_boundW`, `quad_arc_boundW`, `band_sums_leW`, `pnodes_lb_and_thetaW`,
+  `bootstrapHB_of_YVForW`) gives `theoremFTLFW_W_of_YVFor` from `YVInputForW prob b`; `BootstrapWYVBand` and
+  `BootstrapWYV` prove `YVInputForW prob b` (`LemmaQData.yvInputForW_of_scaleCompat`) from `proposition_YV_W`,
+  `lemma_Z_W_band` and `LemmaQData.scaleThresh`, the scale `LemmaQData.bvChoice` is chosen last, and
+  `BootstrapWInterface` concludes `LemmaQData.theoremJ_T_V_W` and `fixedWeightLowerBoundInput_of_problem`
+  (`FixedWeightLowerBoundInput prob` for every `prob`).  This supplies the weight-`w` band-feedback bridge and
+  scale choice mentioned as not formalised in the previous bullet.
 -/
