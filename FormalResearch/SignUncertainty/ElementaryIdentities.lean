@@ -243,8 +243,9 @@ for `Re w > 0`, with principal branches,
 The paper states `k ∫ F_lead(u) e^{w̃u} du = γ_* ((1+w̃)^{1/2} - w̃^{1/2})` with
 `F_lead(u) = (β_∞(F_0)/2π) 1_{u<0} (1 - e^u)(-u)^{-3/2}` and `γ_* = k β_∞(F_0)/√π`. Dividing by
 `k β_∞(F_0)/(2π)` and substituting `x = -u` gives the integral stated here. Covered: part (1)
-only. Not covered: parts (2) and (3) of Lemma U.1 (the square-root expansion of `W̃_0`
-and the rational-Airy hypotheses). -/
+only, and only for `Re w > 0`: the paper's closed half-plane `Re w ≥ 0` (boundary values,
+e.g. `w = 0`, `∫ (1 - e^{-x}) x^{-3/2} dx = 2√π`) is not covered. Not covered: part (2) of
+Lemma U.1 (the square-root expansion of `W̃_0` and the rational-Airy hypotheses). -/
 theorem u1c_U1_one_integral {w : ℂ} (hw : 0 < w.re) :
     ∫ x in Ioi (0 : ℝ), ((1 - Real.exp (-x) : ℝ) : ℂ) * (x : ℂ) ^ (-(3 / 2 : ℂ)) *
         cexp (-(w * x)) =
@@ -287,7 +288,9 @@ noncomputable def radialXi (ε t : ℝ) : ℝ := 1 / π ^ 2 + ε ^ 2 * t
 /-- **Step 3 of `lem:radial-compactness`** (`CFT/sign_uncertainty/paper/fourier_mellin_proofs.tex`).
 For real `c > 0`, `ε = c^{-1/3}` (so `c ε³ = 1`), complex `w`, and a point `s` with
 `ξ(s) = 1/π² + ε² s > 0`, the map `s ↦ ξ(s)^{-1} ξ(s)^{cεw}` (principal branch, `ξ(s)` cast to `ℂ`)
-has derivative `ξ(s)^{-1} (w - ε²) ξ(s)^{-1} ξ(s)^{cεw}` at `s`.
+has derivative `ξ(s)^{-1} (w - ε²) ξ(s)^{-1} ξ(s)^{cεw}` at `s`. This is the `s`-dependent part of
+`ξ_c^{-1} K_c(w, s)`: the other factors of `K_c` (Gamma factors, `(2πc)^{cεw}`, `e^{c𝓗(εw)}`) do not
+depend on `s`, so they only multiply both sides.
 
 Covered: this derivative formula at each point with `ξ(s) > 0`. Not covered: the compactness
 argument in which Step 3 is used. -/
