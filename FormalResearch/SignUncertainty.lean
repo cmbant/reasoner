@@ -21,6 +21,9 @@ public import FormalResearch.SignUncertainty.ShellGapWitness
 public import FormalResearch.SignUncertainty.ShellLaplaceZeros
 public import FormalResearch.SignUncertainty.OddShellFamily
 public import FormalResearch.SignUncertainty.ElementaryIdentities
+public import FormalResearch.SignUncertainty.Radii
+public import FormalResearch.SignUncertainty.RadialCompactness
+public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
 /-!
@@ -60,6 +63,15 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   configurations (`ce_shells.tex`, Corollary `H.14a` / `thm:ce-odd-family`) for every odd `m ≥ 3`.
 * `FormalResearch.SignUncertainty.ElementaryIdentities`: the O.4(2) contraction algebra (`u1co:O4`),
   and the Laplace-type integral of Lemma U.1(1) (`u1c:U1`).
+* `FormalResearch.SignUncertainty.Radii`: concrete Euclidean radii `A_sign^±(d)`, the prescribed-shell
+  Cohn–Elkies class and `u_LP`, the Bessel-kernel Hankel thresholds, and the bridge to the abstract
+  `HankelKernelData` development (`sign_uncertainty_core.tex`, introduction).
+* `FormalResearch.SignUncertainty.RadialCompactness`: `lem:radial-compactness` as an input structure
+  (`RadialCompactness`: deep-lobe mass bound, window-profile compactness with the `C¹` clause) and the
+  lower half of `gt:7.5` at one level derived from it (`radial_rigidity_lower_of_compactness`).
+* `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
+  `thm_intro_separation`, `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
+  whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
 * `FormalResearch.CohnElkies`: Stieltjes/cardinal resolvent, Mellin–Airy, lobe saddle,
   finite-dimensional Gaussian, and Fourier interpolation lemmas.
 -/

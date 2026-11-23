@@ -35,6 +35,8 @@ public import FormalResearch.CohnElkies.PhysicalAndFarTransfer
 public import FormalResearch.CohnElkies.CoherentSectorialLimit
 public import FormalResearch.CohnElkies.DualPhaseAndO3
 public import FormalResearch.CohnElkies.CancelledSymbolAndLaplace
+public import FormalResearch.CohnElkies.AirySeedSymbols
+public import FormalResearch.CohnElkies.CubicNormalFormContraction
 public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
 
@@ -115,8 +117,9 @@ and the Airy library:
   exact Mellin main-edge kernel `O.11ae` (`H²`, `L¹ = O(c^{-1/2})`, `y⁻² c⁻²` decay, Fubini bridge),
   and Lemma `GT.2b(1)–(2)` rank-`∞` Gaussian derivative bounds (`β ∈ {0, 1}` and `(ceo:O11n.11)`).
 * `FormalResearch.CohnElkies.PhysicalAndFarTransfer`: unconditional Lemma `FG.3` (`‖T_c f‖_∞` multiplier bound),
-  unconditional `PF.T(1)` omitted-region bound, `GT.3b` far-Fourier transfer, `PF.2` far physical sign,
-  `PF.5` compact-interval physical sign, and `GT.4` exact leading tip offset & 8-band global coverage.
+  unconditional `PF.T(1)` omitted-region bound, `GT.3b` far-Fourier transfer (with the pruned
+  `MacroscopicTransferPackage`), and the `GT.4` exact leading tip offset. The Route I consumers
+  `PF.2`, `PF.5` and the `GT4CoverageBands` package were removed.
 * `FormalResearch.CohnElkies.CoherentSectorialLimit`: unconditional Lemma `O.11n` Dirichlet resolvent `(ceo:O11n.8)`,
   Stieltjes mixture `(ceo:O11n.10)`, uniform `L^∞` bounds `(ceo:O11n.4)`/`(ceo:O11n.9)`/`(ceo:O11n.11)`,
   boundary-layer limit `(ceo:O11n.3)`, complex sectorial & `C²` limits `(ceo:O11n.5)–(ceo:O11n.6)`, and `PE.1`
@@ -128,6 +131,10 @@ and the Airy library:
 * `FormalResearch.CohnElkies.CancelledSymbolAndLaplace`: unconditional Gaussian transforms & Gaussian-IBP `y^{-9/2}`
   expansions (`ceF1`, `ceG1`, `ceG1Deriv`), Lemma `O.11c` (`(ceo:O11c.1)–(2)`), `P.1(2)`/`U.2` RHP and dual-line
   bounds for `ceS0`/`ceSb`, and unconditional `twoScaleQ0_real_laplace_bound`.
+* `FormalResearch.CohnElkies.AirySeedSymbols`: `U.2` for the one-level seeds `a f₁ + b g₁ + c g₁'` (`HasU2`, closed under
+  linear combinations; RHP and dual-line bounds; the `m₀ = 1` Hermite–Biehler seed).
+* `FormalResearch.CohnElkies.CubicNormalFormContraction`: `O.4(2)` fixed-point step (`o4G`, `o4_fixed_point`): Banach
+  contraction on `D(0, 0.22)` for an abstract holomorphic `F` under the named hypothesis `‖F‖ ≤ 0.13` on `D(0, 0.25)`.
 * `FormalResearch.CohnElkies.PreEdgeCriterion`: unconditional concrete `GT.2b(1)–(3)` & `O.11y(3)`/`GT.4` tip offset
   for `twoScaleS`, unconditional `PE.3` reference & measure Mellin inversion (`pe3_reference_mellin_inversion`,
   `pe3_measure_inversion`), `pe3_remainder_integral_bound` (`O(c^{-2/3})`), `pe3_compact_origin_pos`, and

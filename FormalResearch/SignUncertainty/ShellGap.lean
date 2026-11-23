@@ -13,6 +13,14 @@ Source: `CFT/sign_uncertainty/paper/ce_shells.tex` (PR 240, commit `58dd780c8`).
 * `ShellGapPackage`, `theorem_H14_subseq_bounds`, `theorem_H14_strict_gap`: conditional
   subsequential core of Theorem `H.14` (`thm:ce-shell-gap`).
 
+**Status (M0 skeleton).** These packages are not on a headline path. `Headlines.lean` states the
+faithful Euclidean form of the extraction step (`ShellGapLimit D`: sequences of admissible pairs in
+every dimension `d_k → ∞`, shell offsets `o(c^{1/3})`, thresholds only up to `o(c^{1/3})`, conclusion
+`TwoProfileFeasible D u_*`), and `thm_intro_gap_ii` derives the infimal-radius statement from it. The
+two semantic gaps of `ShellGapPackage` below (exact zero-offset shell signs `h_nonpos_shell`, pointwise
+rather than locally uniform convergence `P_tendsto_pt`/`Q_tendsto_pt`, and a single package instead of
+all sequences) remain; repairing them means rewriting `ShellGapWitness.lean` and is part of PLAN M3.
+
 **Scope boundary:** `ShellReductionPackage` and `ShellGapPackage` package the boundedness ratios
 (`h0_ratio_bdd`, `pq_ratio_bdd`), extracted subsequence `φ`, limits `P_inf`/`Q_inf`, pointwise
 convergence, right-tail envelope, Mellin–Laplace limits, convergent threshold `u_thresh_tendsto`,
