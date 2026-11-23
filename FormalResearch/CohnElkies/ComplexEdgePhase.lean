@@ -227,6 +227,54 @@ lemma edgePhiC_deriv_ofReal (L : ℝ) {τ : ℝ} (hτ : |τ| < 1) :
 lemma stripG_I_mul_neg (τ : ℂ) : stripG (Complex.I * -τ) = stripG (Complex.I * τ) := by
   rw [show Complex.I * -τ = -(Complex.I * τ) by ring, stripG_even]
 
+/-! ### Reflection symmetry `Φ_L(conj τ) = conj Φ_L(τ)` -/
+
+lemma stripQ_conj (ζ : ℂ) : stripQ ((starRingEnd ℂ) ζ) = (starRingEnd ℂ) (stripQ ζ) := by
+  by_cases hζ : ζ = 0
+  · subst hζ; simp [stripQ_zero]
+  · have hc : (starRingEnd ℂ) ζ ≠ 0 := by simpa using hζ
+    rw [stripQ_of_ne hζ, stripQ_of_ne hc]
+    have : (π : ℂ) * (starRingEnd ℂ) ζ / 2 = (starRingEnd ℂ) ((π : ℂ) * ζ / 2) := by
+      simp [map_mul, map_div₀, Complex.conj_ofReal, map_ofNat]
+    rw [this, Complex.tan_conj, ← map_div₀]
+
+lemma stripG_conj {ζ : ℂ} (h : |ζ.re| < 1) :
+    stripG ((starRingEnd ℂ) ζ) = (starRingEnd ℂ) (stripG ζ) := by
+  rw [stripG_eq_log_stripQ, stripG_eq_log_stripQ, stripQ_conj]
+  refine Complex.log_conj _ ?_
+  intro harg
+  have := stripQ_re_pos h
+  rw [Complex.arg_eq_pi_iff] at harg
+  linarith [harg.1]
+
+lemma stripS0Tilde_conj {ζ : ℂ} (hζ : ‖ζ‖ < 1) :
+    stripS0Tilde ((starRingEnd ℂ) ζ) = (starRingEnd ℂ) (stripS0Tilde ζ) := by
+  unfold stripS0Tilde
+  rw [intervalIntegral.integral_of_le zero_le_one, intervalIntegral.integral_of_le zero_le_one,
+    ← integral_conj]
+  refine MeasureTheory.setIntegral_congr_fun measurableSet_Ioc fun s hs => ?_
+  have hre : |((s : ℂ) * ζ).re| < 1 := by
+    have : ‖(s : ℂ) * ζ‖ < 1 := by
+      rw [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1.le]
+      calc s * ‖ζ‖ ≤ 1 * ‖ζ‖ := mul_le_mul_of_nonneg_right hs.2 (norm_nonneg _)
+        _ < 1 := by linarith
+    exact lt_of_le_of_lt (Complex.abs_re_le_norm _) this
+  have := stripG_conj hre
+  rw [map_mul, ← this]
+  simp [map_mul, Complex.conj_ofReal]
+
+lemma edgePrim_conj {ζ : ℂ} (hζ : ‖ζ‖ < 1) : edgePrim ((starRingEnd ℂ) ζ) = (starRingEnd ℂ) (edgePrim ζ) := by
+  rw [← stripS0Tilde_eq_edgePrim (by simpa using hζ), ← stripS0Tilde_eq_edgePrim hζ, stripS0Tilde_conj hζ]
+
+lemma edgePhiC_conj (L : ℝ) {τ : ℂ} (hτ : ‖τ‖ < 1) :
+    edgePhiC L ((starRingEnd ℂ) τ) = (starRingEnd ℂ) (edgePhiC L τ) := by
+  unfold edgePhiC
+  have hI : ‖Complex.I * τ‖ < 1 := by simpa using hτ
+  have h1 : Complex.I * (starRingEnd ℂ) τ = -((starRingEnd ℂ) (Complex.I * τ)) := by
+    simp [map_mul]
+  rw [h1, edgePrim_neg (by simpa using hI), edgePrim_conj hI]
+  simp [map_sub, map_mul, Complex.conj_ofReal]
+
 /-- info: 'FormalResearch.CohnElkies.differentiableOn_stripG' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms differentiableOn_stripG
@@ -250,5 +298,9 @@ lemma stripG_I_mul_neg (τ : ℂ) : stripG (Complex.I * -τ) = stripG (Complex.I
 /-- info: 'FormalResearch.CohnElkies.edgePhiC_deriv_ofReal' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms edgePhiC_deriv_ofReal
+
+/-- info: 'FormalResearch.CohnElkies.edgePhiC_conj' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms edgePhiC_conj
 
 end FormalResearch.CohnElkies

@@ -262,7 +262,8 @@ theorem o4_quotient_ext (hL0 : 0 < L) (hL2 : L ≤ 0.002) (hM : O4QuotientBound 
     ∃ F : ℂ → ℂ, DifferentiableOn ℂ F (ball 0 0.25) ∧ (∀ θ ∈ ball (0 : ℂ) 0.25, ‖F θ‖ ≤ 0.13) ∧
       (∀ θ ∈ ball (0 : ℂ) 0.25, o4PhiHat L θ - o4PhiMod L θ =
         θ * (θ ^ 2 - (o4Theta0Sq L : ℂ)) ^ 2 * F θ) ∧
-      (∀ θ ∈ ball (0 : ℂ) 0.25, F (-θ) = F θ) := by
+      (∀ θ ∈ ball (0 : ℂ) 0.25, F (-θ) = F θ) ∧
+      (∀ θ ∈ ball (0 : ℂ) 0.25, F ((starRingEnd ℂ) θ) = (starRingEnd ℂ) (F θ)) := by
   classical
   set t0 : ℝ := o4Theta0 L with ht0
   have ht0pos : 0 < t0 := o4Theta0_pos hL0
@@ -310,7 +311,39 @@ theorem o4_quotient_ext (hL0 : 0 < L) (hL2 : L ≤ 0.002) (hM : O4QuotientBound 
       have := hden θ hz
       have h2 := div_mul_cancel₀ (o4PhiHat L θ - o4PhiMod L θ) this
       linear_combination -h2
-  refine ⟨F, hF, fun θ hθ => hFb θ hθ, hid, ?_⟩
+  have hdense : ball (0 : ℂ) 0.25 ⊆ closure (ball (0 : ℂ) 0.25 \ (pts : Set ℂ)) := by
+    have hd : Dense ((pts : Set ℂ)ᶜ) := (pts.countable_toSet).dense_compl ℝ
+    have := hd.open_subset_closure_inter (isOpen_ball (x := (0 : ℂ)) (ε := 0.25))
+    rwa [← Set.sdiff_eq] at this
+  refine ⟨F, hF, fun θ hθ => hFb θ hθ, hid, ?_, ?_⟩
+  swap
+  · -- reflection symmetry
+    have hmemc : ∀ θ ∈ ball (0 : ℂ) 0.25, (starRingEnd ℂ) θ ∈ ball (0 : ℂ) 0.25 := fun θ hθ => by simpa using hθ
+    have hEqc : EqOn (fun θ => F ((starRingEnd ℂ) θ)) (fun θ => (starRingEnd ℂ) (F θ)) (ball (0 : ℂ) 0.25 \ (pts : Set ℂ)) := by
+      intro θ hθ
+      have hθ' : (starRingEnd ℂ) θ ∈ ball (0 : ℂ) 0.25 \ (pts : Set ℂ) := by
+        refine ⟨hmemc θ hθ.1, ?_⟩
+        obtain ⟨h1, h2, h3⟩ := (hpts θ).mp hθ.2
+        rw [hpts]
+        refine ⟨by simpa using h1, fun h => h2 ?_, fun h => h3 ?_⟩
+        · have := congrArg (starRingEnd ℂ) h; simpa [Complex.conj_ofReal] using this
+        · have := congrArg (starRingEnd ℂ) h; simpa [Complex.conj_ofReal] using this
+      simp only
+      rw [hFeq _ hθ', hFeq θ hθ]
+      have hnorm : ‖θ‖ < 0.25 := by simpa using hθ.1
+      have hn2 : ‖(starRingEnd ℂ) θ‖ < 0.25 := by simpa using hnorm
+      unfold o4Quot o4PhiHat o4PhiMod
+      have hc1 : (o4Sigma0 L : ℂ) * (starRingEnd ℂ) θ = (starRingEnd ℂ) ((o4Sigma0 L : ℂ) * θ) := by
+        simp [map_mul, Complex.conj_ofReal]
+      rw [hc1, edgePhiC_conj L (o4_sigma_norm_lt hL0 hL2 hnorm)]
+      simp [map_sub, map_mul, map_div₀, map_pow, Complex.conj_ofReal, map_ofNat]
+    have hc1 : ContinuousOn (fun θ => F ((starRingEnd ℂ) θ)) (ball (0 : ℂ) 0.25) :=
+      hF.continuousOn.comp Complex.continuous_conj.continuousOn (fun θ hθ => hmemc θ hθ)
+    have hc2 : ContinuousOn (fun θ => (starRingEnd ℂ) (F θ)) (ball (0 : ℂ) 0.25) :=
+      Complex.continuous_conj.comp_continuousOn hF.continuousOn
+    intro θ hθ
+    exact (Set.EqOn.of_subset_closure hEqc hc1 hc2 Set.sdiff_subset hdense) hθ
+
   -- evenness: both sides continuous, equal off the three points, which are nowhere dense
   have hmem : ∀ θ ∈ ball (0 : ℂ) 0.25, -θ ∈ ball (0 : ℂ) 0.25 := fun θ hθ => by simpa using hθ
   have hEq : EqOn (fun θ => F (-θ)) F (ball (0 : ℂ) 0.25 \ (pts : Set ℂ)) := by
@@ -356,15 +389,28 @@ lemma o4_algebra (θ η t F : ℂ) (hpi : (π : ℂ) ≠ 0) :
   field_simp
   ring
 
+/-- The conclusions of Lemma `O.4(2)` for a map `τ` (see `o4_normal_form`). -/
+structure O4NormalForm (L : ℝ) (τ : ℂ → ℂ) : Prop where
+  differentiableOn : DifferentiableOn ℂ τ (ball 0 0.22)
+  zero : τ 0 = 0
+  norm_lt : ∀ θ ∈ ball (0 : ℂ) 0.22, ‖τ θ‖ < 0.45
+  phase : ∀ θ ∈ ball (0 : ℂ) 0.22, edgePhiC L (τ θ) = o4PhiMod L θ
+  at_theta0 : τ (o4Theta0 L : ℂ) = (tau0 L : ℂ)
+  at_neg_theta0 : τ (-(o4Theta0 L : ℂ)) = -(tau0 L : ℂ)
+  odd : ∀ θ ∈ ball (0 : ℂ) 0.22, τ (-θ) = -τ θ
+  hasDerivAt_zero : HasDerivAt τ (edgeKappa0 L : ℂ) 0
+  /-- the fixed-point profile `η`, `‖η‖ ≤ 1/5`, with `τ = σ₀ θ (1 + (θ² - θ₀²) η)` -/
+  eta : ∃ η : ℂ → ℂ, DifferentiableOn ℂ η (ball 0 0.22) ∧
+    ∀ θ ∈ ball (0 : ℂ) 0.22, ‖η θ‖ ≤ 1 / 5 ∧
+      τ θ = (o4Sigma0 L : ℂ) * (θ * (1 + (θ ^ 2 - (o4Theta0Sq L : ℂ)) * η θ))
+  real : ∀ θ : ℝ, |θ| < 0.22 → (starRingEnd ℂ) (τ (θ : ℂ)) = τ (θ : ℂ)
+
 /-- **Lemma `O.4(2)` (`u1co:O4`), existence and normal form, under the named hypothesis
 `O4QuotientBound L` (`M_F ≤ 0.13`).** For `L ∈ (0, 0.002]` there is a holomorphic `τ` on `D(0, 0.22)` with
-`τ(0) = 0`, `|τ| < 0.45`, `Φ_L(τ(θ)) = Φ_mod(θ)`, `τ(±θ₀) = ±τ₀`, `τ` odd and `τ'(0) = κ₀`. -/
+`τ(0) = 0`, `|τ| < 0.45`, `Φ_L(τ(θ)) = Φ_mod(θ)`, `τ(±θ₀) = ±τ₀`, `τ` odd, real on `ℝ` and `τ'(0) = κ₀`. -/
 theorem o4_normal_form {L : ℝ} (hL0 : 0 < L) (hL2 : L ≤ 0.002) (hM : O4QuotientBound L) :
-    ∃ τ : ℂ → ℂ, DifferentiableOn ℂ τ (ball 0 0.22) ∧ τ 0 = 0 ∧
-      (∀ θ ∈ ball (0 : ℂ) 0.22, ‖τ θ‖ < 0.45 ∧ edgePhiC L (τ θ) = o4PhiMod L θ) ∧
-      τ (o4Theta0 L : ℂ) = (tau0 L : ℂ) ∧ τ (-(o4Theta0 L : ℂ)) = -(tau0 L : ℂ) ∧
-      (∀ θ ∈ ball (0 : ℂ) 0.22, τ (-θ) = -τ θ) ∧ HasDerivAt τ (edgeKappa0 L : ℂ) 0 := by
-  obtain ⟨F, hFd, hFb, hFid, hFe⟩ := o4_quotient_ext hL0 hL2 hM
+    ∃ τ : ℂ → ℂ, O4NormalForm L τ := by
+  obtain ⟨F, hFd, hFb, hFid, hFe, hFc⟩ := o4_quotient_ext hL0 hL2 hM
   have hth0 := o4Theta0Sq_pos hL0
   obtain ⟨η, hηd, hηfix, hηuniq⟩ := o4_fixed_point (θ0sq := o4Theta0Sq L) hth0.le
     (o4Theta0Sq_le hL0 hL2) hFd hFb
@@ -454,7 +500,15 @@ theorem o4_normal_form {L : ℝ} (hL0 : 0 < L) (hL2 : L ≤ 0.002) (hM : O4Quoti
       rw [eq_div_iff hL]
       linear_combination heq
     rw [hd] at hτd; exact hτd
-  refine ⟨τ, hτdiff, hτ00, fun θ hθ => ⟨hτb θ hθ, hPhi θ hθ⟩, ?_, ?_, ?_, hderiv⟩
+  have hreal : ∀ θ : ℝ, |θ| < 0.22 → (starRingEnd ℂ) (τ (θ : ℂ)) = τ (θ : ℂ) := by
+    intro θ hθ
+    have hr : (starRingEnd ℂ) (η (θ : ℂ)) = η (θ : ℂ) :=
+      o4_fixed_point_real (F := F) hth0.le (o4Theta0Sq_le hL0 hL2) hFc
+        (fun θ hθ => hηfix θ hθ) hηuniq hθ
+    simp only [τ]
+    simp [map_mul, map_add, map_sub, map_pow, Complex.conj_ofReal, hr]
+  refine ⟨τ, ⟨hτdiff, hτ00, hτb, hPhi, ?_, ?_, ?_, hderiv,
+    ⟨η, hηd, fun θ hθ => ⟨(hηfix θ hθ).1, rfl⟩⟩, hreal⟩⟩
   · show (σ : ℂ) * ((o4Theta0 L : ℂ) * (1 + ((o4Theta0 L : ℂ) ^ 2 - (t : ℂ)) * η (o4Theta0 L : ℂ))) = _
     rw [ht0sq, sub_self, zero_mul, add_zero, mul_one, hσθ]
   · show (σ : ℂ) * (-(o4Theta0 L : ℂ) * (1 + ((-(o4Theta0 L : ℂ)) ^ 2 - (t : ℂ)) * η (-(o4Theta0 L : ℂ)))) = _
@@ -462,6 +516,168 @@ theorem o4_normal_form {L : ℝ} (hL0 : 0 < L) (hL2 : L ≤ 0.002) (hM : O4Quoti
   · intro θ hθ
     show (σ : ℂ) * (-θ * (1 + ((-θ) ^ 2 - (t : ℂ)) * η (-θ))) = -((σ : ℂ) * (θ * (1 + (θ ^ 2 - (t : ℂ)) * η θ)))
     rw [hηe θ hθ, neg_sq]; ring
+
+lemma o4Sigma0_ge {L : ℝ} (hL0 : 0 < L) (hL2 : L ≤ 0.002) : 0.9997 ≤ o4Sigma0 L := by
+  have hτ := tau0_pos hL0
+  have hκ := edgeKappa0_bounds hL0 hL2
+  have hα : edgeAlphaTilde L ≤ L * (1 + L / 4) := by
+    have := hκ.2; unfold edgeKappa0 at this
+    rw [div_le_iff₀ hL0] at this; linarith
+  have hg := tau0_gt_sqrt hL0 hτ (ceEll_tau0 hL0)
+  have hpi := Real.pi_pos
+  have hτ2 : (12 / π ^ 2) * L < tau0 L ^ 2 := by
+    have h0 : 0 ≤ (2 * Real.sqrt 3 / π) * Real.sqrt L := by positivity
+    have := pow_lt_pow_left₀ hg h0 (by norm_num : (2 : ℕ) ≠ 0)
+    calc (12 / π ^ 2) * L = ((2 * Real.sqrt 3 / π) * Real.sqrt L) ^ 2 := by
+          rw [mul_pow, div_pow, mul_pow, Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 3), Real.sq_sqrt hL0.le]; ring
+      _ < _ := this
+  have hθ : o4Theta0Sq L ≤ (12 / π ^ 2) * (L * (1 + L / 4)) := by
+    unfold o4Theta0Sq; exact mul_le_mul_of_nonneg_left hα (by positivity)
+  have hσ2 : 0.9995 ≤ o4Sigma0 L ^ 2 := by
+    unfold o4Sigma0
+    rw [div_pow, o4Theta0_sq hL0, le_div_iff₀ (o4Theta0Sq_pos hL0)]
+    have h12 : 0 < 12 / π ^ 2 := by positivity
+    nlinarith [mul_pos h12 hL0]
+  nlinarith [o4Sigma0_pos hL0]
+
+/-- `O.4(3)`, ratio bounds, from the contraction ball: `0.989 < τ(θ)/θ < 1.013` for real `0 < |θ| < 0.22`
+(stronger than the paper's `0.95 < τ/θ < 1.05` on `[0.08, 0.2]` and `0.59 < τ/θ < 1.42` near `0`). -/
+theorem O4NormalForm.ratio {L : ℝ} {τ : ℂ → ℂ} (h : O4NormalForm L τ) (hL0 : 0 < L) (hL2 : L ≤ 0.002)
+    {θ : ℝ} (hθ0 : θ ≠ 0) (hθ : |θ| < 0.22) :
+    0.989 < (τ (θ : ℂ)).re / θ ∧ (τ (θ : ℂ)).re / θ < 1.013 := by
+  obtain ⟨η, -, hη⟩ := h.eta
+  have hmem : (θ : ℂ) ∈ ball (0 : ℂ) 0.22 := by simpa [Complex.norm_real] using hθ
+  obtain ⟨hηb, hτeq⟩ := hη _ hmem
+  have hreal : (τ (θ : ℂ)) = ((τ (θ : ℂ)).re : ℂ) := by
+    have := h.real θ hθ
+    exact (Complex.conj_eq_iff_re.mp this).symm
+  set r : ℝ := (τ (θ : ℂ)).re / θ with hr
+  have hrc : (r : ℂ) = (o4Sigma0 L : ℂ) * (1 + ((θ : ℂ) ^ 2 - (o4Theta0Sq L : ℂ)) * η θ) := by
+    rw [hr]; push_cast
+    rw [← hreal, hτeq]
+    have : (θ : ℂ) ≠ 0 := by exact_mod_cast hθ0
+    field_simp
+  have hσ := o4Sigma0_pos hL0
+  have hp : ‖((θ : ℂ) ^ 2 - (o4Theta0Sq L : ℂ))‖ ≤ 0.0484 := by
+    have hts := o4Theta0Sq_le hL0 hL2
+    have hth := o4Theta0Sq_pos hL0
+    have h2 : (θ : ℝ) ^ 2 < 0.0484 := by nlinarith [abs_nonneg θ, sq_abs θ]
+    rw [show ((θ : ℂ) ^ 2 - (o4Theta0Sq L : ℂ)) = ((θ ^ 2 - o4Theta0Sq L : ℝ) : ℂ) by push_cast; ring,
+      Complex.norm_real, Real.norm_eq_abs, abs_le]
+    constructor <;> nlinarith
+  have hd : |r - o4Sigma0 L| ≤ o4Sigma0 L * (0.0484 * (1 / 5)) := by
+    have : ((r - o4Sigma0 L : ℝ) : ℂ) = (o4Sigma0 L : ℂ) *
+        (((θ : ℂ) ^ 2 - (o4Theta0Sq L : ℂ)) * η θ) := by push_cast; rw [hrc]; ring
+    rw [← Real.norm_eq_abs, ← Complex.norm_real, this, norm_mul, Complex.norm_real, Real.norm_eq_abs,
+      abs_of_pos hσ, norm_mul]
+    gcongr
+  have h1 := o4Sigma0_le hL0 hL2
+  have h2 := o4Sigma0_ge hL0 hL2
+  rw [abs_le] at hd
+  constructor <;> nlinarith
+
+/-- Cauchy estimate for the fixed-point profile: `‖η'‖ ≤ (1/5)/0.019` on `‖z‖ ≤ 0.2`. -/
+lemma eta_deriv_bound {η : ℂ → ℂ} (hηd : DifferentiableOn ℂ η (ball 0 0.22))
+    (hηb : ∀ θ ∈ ball (0 : ℂ) 0.22, ‖η θ‖ ≤ 1 / 5) {z : ℂ} (hz : ‖z‖ ≤ 0.2) :
+    ‖deriv η z‖ ≤ (1 / 5) / 0.019 := by
+  have hsub : closedBall z 0.019 ⊆ ball (0 : ℂ) 0.22 := by
+    intro w hw
+    rw [mem_closedBall, dist_eq_norm] at hw
+    rw [mem_ball_zero_iff]
+    calc ‖w‖ = ‖(w - z) + z‖ := by rw [sub_add_cancel]
+      _ ≤ ‖w - z‖ + ‖z‖ := norm_add_le _ _
+      _ < 0.22 := by linarith
+  exact Complex.norm_deriv_le_of_forall_mem_sphere_norm_le (by norm_num)
+    (hηd.diffContOnCl_ball hsub) fun w hw => hηb w (hsub (sphere_subset_closedBall hw))
+
+/-- **Monotonicity of `τ` on the real axis (`O.4(2)`)**: `τ` is strictly increasing on `[-0.2, 0.2]`
+(`τ' ≥ 0.88 σ₀ > 0`, from `‖η‖ ≤ 1/5` and the Cauchy estimate for `η'`). -/
+theorem O4NormalForm.strictMonoOn {L : ℝ} {τ : ℂ → ℂ} (h : O4NormalForm L τ) (hL0 : 0 < L)
+    (hL2 : L ≤ 0.002) : StrictMonoOn (fun θ : ℝ => (τ (θ : ℂ)).re) (Icc (-0.2) 0.2) := by
+  obtain ⟨η, hηd, hη⟩ := h.eta
+  have hηb : ∀ θ ∈ ball (0 : ℂ) 0.22, ‖η θ‖ ≤ 1 / 5 := fun θ hθ => (hη θ hθ).1
+  have hσ := o4Sigma0_pos hL0
+  have hts := o4Theta0Sq_le hL0 hL2
+  have hth := o4Theta0Sq_pos hL0
+  set t : ℝ := o4Theta0Sq L with ht
+  have hball : ∀ x : ℝ, |x| < 0.22 → (x : ℂ) ∈ ball (0 : ℂ) 0.22 := fun x hx => by
+    simpa [Complex.norm_real] using hx
+  -- complex derivative of τ at a real point of `(-0.2, 0.2)`
+  have hderiv : ∀ x : ℝ, x ∈ Ioo (-0.2 : ℝ) 0.2 → ∃ d : ℂ, HasDerivAt τ d (x : ℂ) ∧ 0 < d.re := by
+    intro x hx
+    have hxn : ‖(x : ℂ)‖ ≤ 0.2 := by
+      rw [Complex.norm_real, Real.norm_eq_abs, abs_le]; constructor <;> linarith [hx.1, hx.2]
+    have hxm : (x : ℂ) ∈ ball (0 : ℂ) 0.22 := hball x (by rw [abs_lt]; constructor <;> linarith [hx.1, hx.2])
+    have hηx : HasDerivAt η (deriv η x) x :=
+      (hηd.differentiableAt (isOpen_ball.mem_nhds hxm)).hasDerivAt
+    set e' := deriv η (x : ℂ)
+    have hp : HasDerivAt (fun θ : ℂ => θ ^ 2 - (t : ℂ)) (2 * (x : ℂ)) x := by
+      simpa using ((hasDerivAt_id (x : ℂ)).pow 2).sub_const (t : ℂ)
+    have hg : HasDerivAt (fun θ : ℂ => (o4Sigma0 L : ℂ) * (θ * (1 + (θ ^ 2 - (t : ℂ)) * η θ)))
+        ((o4Sigma0 L : ℂ) * ((1 + ((x : ℂ) ^ 2 - (t : ℂ)) * η x) +
+          (x : ℂ) * (2 * (x : ℂ) * η x + ((x : ℂ) ^ 2 - (t : ℂ)) * e'))) x := by
+      have h1 := ((hp.mul hηx).const_add 1)
+      have h2 := (hasDerivAt_id (x : ℂ)).mul h1
+      have h3 := h2.const_mul (o4Sigma0 L : ℂ)
+      convert h3 using 1
+      · funext θ; simp only [Pi.mul_apply, id]
+      · simp only [Pi.mul_apply, id]; ring
+    have hτg : HasDerivAt τ ((o4Sigma0 L : ℂ) * ((1 + ((x : ℂ) ^ 2 - (t : ℂ)) * η x) +
+          (x : ℂ) * (2 * (x : ℂ) * η x + ((x : ℂ) ^ 2 - (t : ℂ)) * e'))) x := by
+      refine hg.congr_of_eventuallyEq ?_
+      filter_upwards [isOpen_ball.mem_nhds hxm] with θ hθ
+      exact (hη θ hθ).2
+    refine ⟨_, hτg, ?_⟩
+    -- real part positive
+    have hηx_b := hηb _ hxm
+    have he' := eta_deriv_bound hηd hηb hxn
+    set D : ℂ := (1 + ((x : ℂ) ^ 2 - (t : ℂ)) * η x) +
+          (x : ℂ) * (2 * (x : ℂ) * η x + ((x : ℂ) ^ 2 - (t : ℂ)) * e') with hD
+    have hxa : |x| ≤ 0.2 := by rw [abs_le]; constructor <;> linarith [hx.1, hx.2]
+    have hx2 : ‖(x : ℂ) ^ 2‖ ≤ 0.04 := by
+      rw [norm_pow, Complex.norm_real, Real.norm_eq_abs]; nlinarith [abs_nonneg x]
+    have hpn : ‖(x : ℂ) ^ 2 - (t : ℂ)‖ ≤ 0.04244 := by
+      calc ‖(x : ℂ) ^ 2 - (t : ℂ)‖ ≤ ‖(x : ℂ) ^ 2‖ + ‖(t : ℂ)‖ := norm_sub_le _ _
+        _ ≤ 0.04 + 0.00244 := by
+            rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hth]; linarith
+        _ = 0.04244 := by norm_num
+    have hDm : ‖D - 1‖ ≤ 0.12 := by
+      have e1 : D - 1 = ((x : ℂ) ^ 2 - (t : ℂ)) * η x +
+          (x : ℂ) * (2 * (x : ℂ) * η x + ((x : ℂ) ^ 2 - (t : ℂ)) * e') := by rw [hD]; ring
+      have a1 : ‖((x : ℂ) ^ 2 - (t : ℂ)) * η x‖ ≤ 0.04244 * (1 / 5) := by
+        rw [norm_mul]; exact mul_le_mul hpn hηx_b (norm_nonneg _) (by norm_num)
+      have a2 : ‖(x : ℂ) * (2 * (x : ℂ) * η x + ((x : ℂ) ^ 2 - (t : ℂ)) * e')‖ ≤
+          0.2 * (2 * 0.2 * (1 / 5) + 0.04244 * ((1 / 5) / 0.019)) := by
+        rw [norm_mul]
+        refine mul_le_mul hxn ((norm_add_le _ _).trans (add_le_add ?_ ?_)) (norm_nonneg _) (by norm_num)
+        · rw [norm_mul, norm_mul]
+          have h2' : ‖(2 : ℂ)‖ = 2 := by simp
+          rw [h2']; gcongr
+        · rw [norm_mul]; exact mul_le_mul hpn he' (norm_nonneg _) (by norm_num)
+      rw [e1]
+      calc _ ≤ _ := norm_add_le _ _
+        _ ≤ 0.04244 * (1 / 5) + 0.2 * (2 * 0.2 * (1 / 5) + 0.04244 * ((1 / 5) / 0.019)) := add_le_add a1 a2
+        _ ≤ 0.12 := by norm_num
+    have hre : 0 < D.re := by
+      have := Complex.abs_re_le_norm (D - 1)
+      have h1 : -(0.12 : ℝ) ≤ (D - 1).re := by linarith [abs_le.mp (this.trans hDm)]
+      simp only [Complex.sub_re, Complex.one_re] at h1
+      linarith
+    show 0 < ((o4Sigma0 L : ℂ) * D).re
+    rw [Complex.re_ofReal_mul]; exact mul_pos hσ hre
+  -- real derivative
+  have hT : ∀ x ∈ interior (Icc (-0.2 : ℝ) 0.2), 0 < deriv (fun θ : ℝ => (τ (θ : ℂ)).re) x := by
+    intro x hx
+    rw [interior_Icc] at hx
+    obtain ⟨d, hd, hpos⟩ := hderiv x hx
+    have h3 : HasDerivAt (fun y : ℝ => (τ (y : ℂ)).re) d.re x := hd.real_of_complex
+    rw [h3.deriv]; exact hpos
+  refine strictMonoOn_of_deriv_pos (convex_Icc _ _) ?_ hT
+  intro x hx
+  have hxm : (x : ℂ) ∈ ball (0 : ℂ) 0.22 := hball x (by rw [abs_lt]; constructor <;> linarith [(Set.mem_Icc.mp hx).1, (Set.mem_Icc.mp hx).2])
+  have hcont : ContinuousAt τ (x : ℂ) :=
+    (h.differentiableOn.differentiableAt (isOpen_ball.mem_nhds hxm)).continuousAt
+  exact ((Complex.continuous_re.continuousAt.comp (hcont.comp Complex.continuous_ofReal.continuousAt))).continuousWithinAt
 
 /-- info: 'FormalResearch.CohnElkies.removable_finite' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
@@ -474,5 +690,13 @@ theorem o4_normal_form {L : ℝ} (hL0 : 0 < L) (hL2 : L ≤ 0.002) (hM : O4Quoti
 /-- info: 'FormalResearch.CohnElkies.o4_normal_form' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms o4_normal_form
+
+/-- info: 'FormalResearch.CohnElkies.O4NormalForm.ratio' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms O4NormalForm.ratio
+
+/-- info: 'FormalResearch.CohnElkies.O4NormalForm.strictMonoOn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms O4NormalForm.strictMonoOn
 
 end FormalResearch.CohnElkies
