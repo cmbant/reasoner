@@ -24,6 +24,7 @@ public import FormalResearch.SignUncertainty.OddShellFamily
 public import FormalResearch.SignUncertainty.ElementaryIdentities
 public import FormalResearch.SignUncertainty.Radii
 public import FormalResearch.SignUncertainty.HankelLangerChart
+public import FormalResearch.SignUncertainty.HankelLangerChartMain
 public import FormalResearch.SignUncertainty.HankelLangerReal
 public import FormalResearch.SignUncertainty.HankelLangerU
 public import FormalResearch.SignUncertainty.HankelLangerY
