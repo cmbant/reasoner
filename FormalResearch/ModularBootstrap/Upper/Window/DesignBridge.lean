@@ -10,9 +10,11 @@ public import FormalResearch.ModularBootstrap.Upper.Design.PerturbP
 `σ_f + δ` (the proof of Lemma R, `ut:R`, divides by `σ - σ_f` before the window limit: this is done by
 comparing with the modification whose zero is at `σ_f - 1`).
 
-* `designMod`: the design `D(N, η_*, d)` (`designComb c' 1 N (1/4) (designSigma1 d) (designWidth1 c' η_*)`)
-  as `ModifiedCombData 1 N`, with widths `ε̂_k(c') = min(M_ε, η_* ℓ_k / λ)`; `designMod_family` is the
-  one-member compact family; `designComb_eq_modifiedCombB` identifies the two forms for large `c'`.
+* `sigMod`: the comb `designComb c' 1 N (1/4) σ (designWidth1 c' η_*)` with arbitrary offsets `σ` as
+  `ModifiedCombData 1 N`, with widths `ε̂_k(c') = min(M_ε, η_* ℓ_k / λ)`; `sigModFamily` is the one-member
+  compact family; `sigComb_eq_modifiedCombB` identifies the two forms for large `c'`.  `designMod`,
+  `designModFamily`, `designComb_eq_modifiedCombB` are the case `σ = designSigma1 d` (the design
+  `D(N, η_*, d)`).
 
 All results are proved unconditionally.
 -/
@@ -104,15 +106,20 @@ lemma siteGap_div_lambda_close (k : ℕ) (hk : 1 ≤ k) :
   refine this.trans (le_of_eq ?_)
   ring
 
-/-- The design `D(N, η_*, d)` as `ModifiedCombData 1 N`: widths `min(M_ε, η_* ℓ_k / λ)`. -/
-noncomputable def designMod (N : ℕ) (η d : ℝ) : ModifiedCombData 1 N where
-  sigmaF _ := designSigma1 d 1
-  sigmaK _ k := designSigma1 d k
+/-- The `f = 1` finite modification with offsets `σ` (first site `σ_1`, sites `σ_2, …, σ_N` arbitrary), widths
+`η_* ℓ_k` and `η₀ = 1/4` as `ModifiedCombData 1 N`: widths `min(M_ε, η_* ℓ_k / λ)`. -/
+noncomputable def sigMod (N : ℕ) (η : ℝ) (σ : ℕ → ℝ) : ModifiedCombData 1 N where
+  sigmaF _ := σ 1
+  sigmaK _ k := σ k
   epsHat c' k := min (phiWKB (N + 1) + 1) (η * siteGap c' k / lambdaComb c')
   eta0 := 1 / 4
-  sigmaFLim := designSigma1 d 1
-  sigmaKLim k := designSigma1 d k
+  sigmaFLim := σ 1
+  sigmaKLim k := σ k
   epsHatLim k := η * (phiWKB (k + 1) - phiWKB k)
+
+/-- The design `D(N, η_*, d)` as `ModifiedCombData 1 N`: widths `min(M_ε, η_* ℓ_k / λ)`
+(`sigMod` at `σ = designSigma1 d`). -/
+noncomputable def designMod (N : ℕ) (η d : ℝ) : ModifiedCombData 1 N := sigMod N η (designSigma1 d)
 
 lemma phiWKB_nonneg {k : ℕ} (hk : 1 ≤ k) : 0 ≤ phiWKB k := by
   unfold phiWKB
@@ -191,93 +198,93 @@ lemma designMod_eps_eventually (N : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η
     have := (abs_le.mp h6).2
     linarith
 
-/-- The one-member compact family `{D(N, η_*, d)}` in window form. -/
-noncomputable def designModFamily (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4)
-    (d : ℝ) : CompactCombFamily 1 N where
-  members := {designMod N η d}
+/-- The one-member compact family `{sigMod N η σ}` in window form. -/
+noncomputable def sigModFamily (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4)
+    (σ : ℕ → ℝ) : CompactCombFamily 1 N where
+  members := {sigMod N η σ}
   hf := le_rfl
   hN := hN
-  M := (∑ k ∈ Finset.Icc 1 N, |designSigma1 d k|) + phiWKB (N + 1) + 1
+  M := (∑ k ∈ Finset.Icc 1 N, |σ k|) + phiWKB (N + 1) + 1
   hM := by
     have := phiWKB_nonneg (k := N + 1) (by omega)
-    have : 0 ≤ ∑ k ∈ Finset.Icc 1 N, |designSigma1 d k| := Finset.sum_nonneg fun _ _ => abs_nonneg _
+    have : 0 ≤ ∑ k ∈ Finset.Icc 1 N, |σ k| := Finset.sum_nonneg fun _ _ => abs_nonneg _
     linarith
   eta0_bounds := by
     rintro _ rfl
-    norm_num [designMod]
+    norm_num [sigMod]
   finite_bounds := by
     rintro _ rfl c' hc'
     have hP := phiWKB_nonneg (k := N + 1) (by omega)
-    have hS : ∀ k ∈ Finset.Icc 1 N, |designSigma1 d k| ≤ ∑ j ∈ Finset.Icc 1 N, |designSigma1 d j| :=
-      fun k hk => Finset.single_le_sum (f := fun j => |designSigma1 d j|) (fun _ _ => abs_nonneg _) hk
+    have hS : ∀ k ∈ Finset.Icc 1 N, |σ k| ≤ ∑ j ∈ Finset.Icc 1 N, |σ j| :=
+      fun k hk => Finset.single_le_sum (f := fun j => |σ j|) (fun _ _ => abs_nonneg _) hk
     refine ⟨?_, fun k hk => ?_⟩
     · have := hS 1 (Finset.mem_Icc.mpr ⟨le_rfl, hN⟩)
-      show |designSigma1 d 1| ≤ _
+      show |σ 1| ≤ _
       linarith
     · have hk' := Finset.mem_Icc.mp hk
       have hk2 : 2 ≤ k := by omega
       have hkN : k ∈ Finset.Icc 1 N := Finset.mem_Icc.mpr ⟨by omega, hk'.2⟩
       have := hS k hkN
       have hlam : 0 < lambdaComb c' := Real.rpow_pos_of_pos (mul_pos kTip_pos hc') _
-      refine ⟨by simpa [designMod] using this.trans (by linarith), ?_, ?_⟩
+      refine ⟨by simpa [sigMod] using this.trans (by linarith), ?_, ?_⟩
       · show 0 ≤ min (phiWKB (N + 1) + 1) (η * siteGap c' k / lambdaComb c')
         refine le_min (by linarith) ?_
         have := siteGap_nonneg hc' (by omega : 1 ≤ k)
         positivity
       · exact (min_le_left _ _).trans (by linarith [Finset.sum_nonneg (fun j (_ : j ∈ Finset.Icc 1 N) =>
-          abs_nonneg (designSigma1 d j))])
+          abs_nonneg (σ j))])
   lim_bounds := by
     rintro _ rfl
     have hP := phiWKB_nonneg (k := N + 1) (by omega)
-    have hS : ∀ k ∈ Finset.Icc 1 N, |designSigma1 d k| ≤ ∑ j ∈ Finset.Icc 1 N, |designSigma1 d j| :=
-      fun k hk => Finset.single_le_sum (f := fun j => |designSigma1 d j|) (fun _ _ => abs_nonneg _) hk
+    have hS : ∀ k ∈ Finset.Icc 1 N, |σ k| ≤ ∑ j ∈ Finset.Icc 1 N, |σ j| :=
+      fun k hk => Finset.single_le_sum (f := fun j => |σ j|) (fun _ _ => abs_nonneg _) hk
     refine ⟨?_, fun k hk => ?_⟩
     · have := hS 1 (Finset.mem_Icc.mpr ⟨le_rfl, hN⟩)
-      show |designSigma1 d 1| ≤ _
+      show |σ 1| ≤ _
       linarith
     · have hk' := Finset.mem_Icc.mp hk
       have hkN : k ∈ Finset.Icc 1 N := Finset.mem_Icc.mpr ⟨by omega, hk'.2⟩
       have := hS k hkN
-      refine ⟨by simpa [designMod] using this.trans (by linarith), ?_, ?_⟩
+      refine ⟨by simpa [sigMod] using this.trans (by linarith), ?_, ?_⟩
       · exact mul_nonneg hη0 (phiWKB_succ_sub_nonneg (by omega))
       · have h1 := phiWKB_succ_sub_le (k := k) (N := N) (by omega) hk'.2
         have h2 := phiWKB_succ_sub_nonneg (k := k) (by omega)
         show η * (phiWKB (k + 1) - phiWKB k) ≤ _
         have h3 : η * (phiWKB (k + 1) - phiWKB k) ≤ 1 * phiWKB (N + 1) :=
           mul_le_mul (hη1.trans (by norm_num)) h1 h2 (by norm_num)
-        have := Finset.sum_nonneg (fun j (_ : j ∈ Finset.Icc 1 N) => abs_nonneg (designSigma1 d j))
+        have := Finset.sum_nonneg (fun j (_ : j ∈ Finset.Icc 1 N) => abs_nonneg (σ j))
         linarith
   uniform_tendsto := by
     intro ε hε
     obtain ⟨C₀, hC₀⟩ := eventually_atTop.mp (designMod_eps_eventually N hη0 hη1 hε)
     refine ⟨max C₀ 1, lt_of_lt_of_le one_pos (le_max_right _ _), fun {c'} hc' m hm => ?_⟩
     subst hm
-    refine ⟨by simp [designMod, hε.le], fun k hk => ⟨by simp [designMod, hε.le], ?_⟩⟩
+    refine ⟨by simp [sigMod, hε.le], fun k hk => ⟨by simp [sigMod, hε.le], ?_⟩⟩
     have hk2 : k ∈ Finset.Icc 2 N := hk
     obtain ⟨hA, hB⟩ := hC₀ c' ((le_max_left _ _).trans hc') k hk2
     show |min (phiWKB (N + 1) + 1) (η * siteGap c' k / lambdaComb c') -
       η * (phiWKB (k + 1) - phiWKB k)| ≤ ε
     rwa [min_eq_right hA]
 
-lemma designModFamily_mem (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
-    designMod N η d ∈ (designModFamily N hN hη0 hη1 d).members := rfl
+lemma sigModFamily_mem (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σ : ℕ → ℝ) :
+    sigMod N η σ ∈ (sigModFamily N hN hη0 hη1 σ).members := rfl
 
-/-- The design comb equals `modifiedCombB` of `designMod` for large `c'`. -/
-lemma designComb_eq_modifiedCombB (N : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
+/-- The comb equals `modifiedCombB` of `sigMod` for large `c'`. -/
+lemma sigComb_eq_modifiedCombB (N : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σ : ℕ → ℝ) :
     ∀ᶠ c' in atTop, ∀ z : ℂ,
-      designComb c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) z =
-        modifiedCombB 1 N (designMod N η d) c' z := by
+      designComb c' 1 N (1 / 4) (σ) (designWidth1 c' η) z =
+        modifiedCombB 1 N (sigMod N η σ) c' z := by
   filter_upwards [designMod_eps_eventually N hη0 hη1 one_pos, eventually_gt_atTop (0 : ℝ)]
     with c' h hc' z
   have hlam : 0 < lambdaComb c' := Real.rpow_pos_of_pos (mul_pos kTip_pos hc') _
   unfold designComb modifiedCombB
-  have hprod : (∏ i ∈ Finset.range (N - 1), pairT (designSite c' (designSigma1 d) (1 + 1 + i))
+  have hprod : (∏ i ∈ Finset.range (N - 1), pairT (designSite c' (σ) (1 + 1 + i))
         (designWidth1 c' η (1 + 1 + i)) z) =
       ∏ k ∈ Finset.Icc (1 + 1) N,
-        blaschkeT (((xiStar + lambdaComb c' * (designMod N η d).sigmaK c' k : ℝ) : ℂ) +
-          ((lambdaComb c' * (designMod N η d).epsHat c' k : ℝ) : ℂ) * Complex.I) z *
-        blaschkeT (((xiStar + lambdaComb c' * (designMod N η d).sigmaK c' k : ℝ) : ℂ) -
-          ((lambdaComb c' * (designMod N η d).epsHat c' k : ℝ) : ℂ) * Complex.I) z := by
+        blaschkeT (((xiStar + lambdaComb c' * (sigMod N η σ).sigmaK c' k : ℝ) : ℂ) +
+          ((lambdaComb c' * (sigMod N η σ).epsHat c' k : ℝ) : ℂ) * Complex.I) z *
+        blaschkeT (((xiStar + lambdaComb c' * (sigMod N η σ).sigmaK c' k : ℝ) : ℂ) -
+          ((lambdaComb c' * (sigMod N η σ).epsHat c' k : ℝ) : ℂ) * Complex.I) z := by
     have hIcc : Finset.Icc (1 + 1) N = Finset.Ico (1 + 1) (N + 1) := by
       ext k; simp only [Finset.mem_Icc, Finset.mem_Ico]; omega
     rw [hIcc, Finset.prod_Ico_eq_prod_range]
@@ -287,7 +294,7 @@ lemma designComb_eq_modifiedCombB (N : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 :
     have hi' := Finset.mem_range.mp hi
     have hmem : 1 + 1 + i ∈ Finset.Icc 2 N := Finset.mem_Icc.mpr ⟨by omega, by omega⟩
     have hle := (h _ hmem).1
-    have hε : lambdaComb c' * (designMod N η d).epsHat c' (1 + 1 + i) =
+    have hε : lambdaComb c' * (sigMod N η σ).epsHat c' (1 + 1 + i) =
         designWidth1 c' η (1 + 1 + i) := by
       show lambdaComb c' * min (phiWKB (N + 1) + 1) (η * siteGap c' (1 + 1 + i) / lambdaComb c') = _
       rw [min_eq_right hle]
@@ -296,12 +303,31 @@ lemma designComb_eq_modifiedCombB (N : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 :
     unfold pairT designSite
     simp only [hε]
     rfl
-  have hprod' : (∏ i ∈ Finset.range (N - 1), pairT (designSite c' (designSigma1 d) (1 + 1 + i))
+  have hprod' : (∏ i ∈ Finset.range (N - 1), pairT (designSite c' (σ) (1 + 1 + i))
         (designWidth1 c' η (1 + 1 + i)) z) = _ := hprod
   rw [hprod']
   rfl
 
+/-- The one-member compact family `{D(N, η_*, d)}` in window form. -/
+noncomputable def designModFamily (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4)
+    (d : ℝ) : CompactCombFamily 1 N :=
+  sigModFamily N hN hη0 hη1 (designSigma1 d)
+
+lemma designModFamily_mem (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
+    designMod N η d ∈ (designModFamily N hN hη0 hη1 d).members := rfl
+
+/-- The design comb equals `modifiedCombB` of `designMod` for large `c'`. -/
+lemma designComb_eq_modifiedCombB (N : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
+    ∀ᶠ c' in atTop, ∀ z : ℂ,
+      designComb c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) z =
+        modifiedCombB 1 N (designMod N η d) c' z :=
+  sigComb_eq_modifiedCombB N hη0 hη1 (designSigma1 d)
+
 /-! ### Axiom checks -/
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Window.sigComb_eq_modifiedCombB' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sigComb_eq_modifiedCombB
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Window.designComb_eq_modifiedCombB' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

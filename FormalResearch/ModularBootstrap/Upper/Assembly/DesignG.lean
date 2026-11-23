@@ -42,36 +42,53 @@ open FormalResearch.ModularBootstrap FormalResearch.ModularBootstrap.Crossing
   FormalResearch.ModularBootstrap.Upper.Holes FormalResearch.ModularBootstrap.Upper.Membership
   FormalResearch.ModularBootstrap.Upper.Positivity
 
+/-- The comb of the `f = 1` finite modification with offsets `σs` at `c`. -/
+noncomputable def sigBc (N : ℕ) (η : ℝ) (σs : ℕ → ℝ) (c : ℝ) : ℂ → ℂ :=
+  designComb c 1 N (1 / 4) σs (designWidth1 c η)
+
+/-- `g = ½ (h₀ - ĥ₀)` of the modification with offsets `σs` at `c`. -/
+noncomputable def sigG (N : ℕ) (η : ℝ) (σs : ℕ → ℝ) (c : ℝ) : ℝ → ℝ :=
+  pairOdd (combProfile c (sigBc N η σs c))
+    (hankelTransform 1 (combProfile c (sigBc N η σs c)))
+
+/-- `t_f = c χ'_1² / 3`, `χ'_1 = ξ_* + λ σ_1` the first site of the modification. -/
+noncomputable def sigTf (σs : ℕ → ℝ) (c : ℝ) : ℝ := c * designSite c σs 1 ^ 2 / 3
+
 /-- The comb `B_D` of the design `D(N, η_*, d)` at `c`. -/
-noncomputable def designBc (N : ℕ) (η d c : ℝ) : ℂ → ℂ :=
-  designComb c 1 N (1 / 4) (designSigma1 d) (designWidth1 c η)
+noncomputable def designBc (N : ℕ) (η d c : ℝ) : ℂ → ℂ := sigBc N η (designSigma1 d) c
 
 /-- `g = ½ (h₀ - ĥ₀)` of the design `D(N, η_*, d)` at `c`. -/
-noncomputable def designG (N : ℕ) (η d c : ℝ) : ℝ → ℝ :=
-  pairOdd (combProfile c (designBc N η d c))
-    (hankelTransform 1 (combProfile c (designBc N η d c)))
+noncomputable def designG (N : ℕ) (η d c : ℝ) : ℝ → ℝ := sigG N η (designSigma1 d) c
 
 /-- `t_f = c χ'_1² / 3`, `χ'_1 = ξ_* + λ σ_1` the first site of the design. -/
 noncomputable def designTf (d c : ℝ) : ℝ := c * designSite c (designSigma1 d) 1 ^ 2 / 3
 
+lemma designTf_eq_sig (d c : ℝ) : designTf d c = sigTf (designSigma1 d) c := rfl
+
+lemma sigGVac_eq (N : ℕ) (η : ℝ) (σs : ℕ → ℝ) (c : ℝ) :
+    sigGVac N η σs c = virasoroProblem.gVac (c / 12) (sigG N η σs c) := rfl
+
 lemma designGVac_eq (N : ℕ) (η d c : ℝ) :
     designGVac N η d c = virasoroProblem.gVac (c / 12) (designG N η d c) := rfl
 
-/-- The conclusion of Lemma `K7` and `InnerCombHyp` for the design comb. -/
-def DesignGood (N : ℕ) (η d c : ℝ) : Prop :=
-  0 < c ∧ InnerCombHyp c (designBc N η d c) ∧ K7Conclusion virasoroProblem c (designBc N η d c)
+/-- The conclusion of Lemma `K7` and `InnerCombHyp` for the modification comb. -/
+def SigGood (N : ℕ) (η : ℝ) (σs : ℕ → ℝ) (c : ℝ) : Prop :=
+  0 < c ∧ InnerCombHyp c (sigBc N η σs c) ∧ K7Conclusion virasoroProblem c (sigBc N η σs c)
 
-lemma designGood_eventually (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
-    ∀ᶠ c in atTop, DesignGood N η d c := by
-  obtain ⟨M, hM⟩ : ∃ M : ℝ, ∀ k, 1 ≤ k → k ≤ N → |designSigma1 d k| ≤ M :=
-    ⟨∑ k ∈ Finset.Icc 1 N, |designSigma1 d k|, fun k hk hkN =>
-      Finset.single_le_sum (f := fun j => |designSigma1 d j|) (fun _ _ => abs_nonneg _)
+/-- The conclusion of Lemma `K7` and `InnerCombHyp` for the design comb. -/
+def DesignGood (N : ℕ) (η d c : ℝ) : Prop := SigGood N η (designSigma1 d) c
+
+lemma sigGood_eventually (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
+    ∀ᶠ c in atTop, SigGood N η σs c := by
+  obtain ⟨M, hM⟩ : ∃ M : ℝ, ∀ k, 1 ≤ k → k ≤ N → |σs k| ≤ M :=
+    ⟨∑ k ∈ Finset.Icc 1 N, |σs k|, fun k hk hkN =>
+      Finset.single_le_sum (f := fun j => |σs j|) (fun _ _ => abs_nonneg _)
         (Finset.mem_Icc.mpr ⟨hk, hkN⟩)⟩
   obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
-  filter_upwards [design1_k7_membership_vacuum (prob := virasoroProblem) rfl N hN hη0 hη1 d M hM,
+  filter_upwards [sig1_k7_membership_vacuum (prob := virasoroProblem) rfl N hN hη0 hη1 σs M hM,
     designComb_innerCombHyp 1 N le_rfl hN M Cg (by norm_num : (0 : ℝ) ≤ 1 / 4) le_rfl, h_ev,
     eventually_gt_atTop (0 : ℝ)] with c hK7 hInner ⟨hgap_k, hgap_1_bd, hcd1_bd, _⟩ hpos
-  refine ⟨hpos, hInner (designSigma1 d) (designWidth1 c η) (fun k hk hkN => hM k hk hkN)
+  refine ⟨hpos, hInner (σs) (designWidth1 c η) (fun k hk hkN => hM k hk hkN)
     (fun k hk hkN => ⟨mul_nonneg hη0 (siteGap_nonneg hpos (by omega)), ?_⟩), hK7⟩
   have hgk := (hgap_k k (by omega)).trans (hgap_1_bd.trans hcd1_bd)
   unfold designWidth1
@@ -79,10 +96,18 @@ lemma designGood_eventually (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η
         mul_le_mul (hη1.trans (by norm_num)) hgk (siteGap_nonneg hpos (by omega)) (by norm_num)
     _ = Cg * lambdaComb c := one_mul _
 
-lemma DesignGood.testClass {N : ℕ} {η d c : ℝ} (h : DesignGood N η d c) :
-    TestClass virasoroProblem (c / 12) (designG N η d c) := by
+lemma designGood_eventually (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
+    ∀ᶠ c in atTop, DesignGood N η d c :=
+  sigGood_eventually N hN hη0 hη1 (designSigma1 d)
+
+lemma SigGood.testClass {N : ℕ} {η c : ℝ} {σs : ℕ → ℝ} (h : SigGood N η σs c) :
+    TestClass virasoroProblem (c / 12) (sigG N η σs c) := by
   obtain ⟨-, -, C, -, -, -, hT, -⟩ := h
   exact hT
+
+lemma DesignGood.testClass {N : ℕ} {η d c : ℝ} (h : DesignGood N η d c) :
+    TestClass virasoroProblem (c / 12) (designG N η d c) :=
+  SigGood.testClass h
 
 /-- `c · (2π x / 3) = 4π √((c/12) t)` for `x = √(3t/c)`. -/
 lemma decay_exponent_eq {c t : ℝ} (hc : 0 < c) (ht : 0 ≤ t) :
@@ -95,9 +120,9 @@ lemma decay_exponent_eq {c t : ℝ} (hc : 0 < c) (ht : 0 ≤ t) :
   rw [h, Real.sqrt_sq (by positivity)]
   ring
 
-lemma DesignGood.decay {N : ℕ} {η d c : ℝ} (h : DesignGood N η d c) :
+lemma SigGood.decay {N : ℕ} {η c : ℝ} {σs : ℕ → ℝ} (h : SigGood N η σs c) :
     ∃ C : ℝ, 0 ≤ C ∧ ∀ t : ℝ, 0 ≤ t →
-      |designG N η d c t| ≤ C * Real.exp (-4 * π * √(c / 12 * t) - π * √(3 * t / c)) := by
+      |sigG N η σs c t| ≤ C * Real.exp (-4 * π * √(c / 12 * t) - π * √(3 * t / c)) := by
   obtain ⟨hc, -, C, hC, hd1, hd2, -⟩ := h
   refine ⟨C, hC, fun t ht => ?_⟩
   have := (hd1.pairOdd hd2) t ht
@@ -108,15 +133,21 @@ lemma DesignGood.decay {N : ℕ} {η d c : ℝ} (h : DesignGood N η d c) :
   rw [e] at this
   exact this
 
-/-- **(P2) positivity of `g`**: for `η_* ∈ (0, 1/4]` and large `c`, `g(t) ≥ 0` (indeed `> 0`) for every
-`t ≥ t_f + 1` (`ut:III` at `w = 1`: Proposition I and Proposition II). -/
-theorem designG_nonneg (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
-    ∀ᶠ c in atTop, 0 < c ∧ ∀ t : ℝ, designTf d c + 1 ≤ t → 0 < designG N η d c t := by
-  filter_upwards [designGood_eventually N hN hη0.le hη1 d, proposition_I_design_t N hN hη0 hη1 d]
+lemma DesignGood.decay {N : ℕ} {η d c : ℝ} (h : DesignGood N η d c) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ t : ℝ, 0 ≤ t →
+      |designG N η d c t| ≤ C * Real.exp (-4 * π * √(c / 12 * t) - π * √(3 * t / c)) :=
+  SigGood.decay h
+
+/-- **(P2) positivity of `g`** for the `f = 1` finite modifications with arbitrary offsets `σs`: for
+`η_* ∈ (0, 1/4]` and large `c`, `g(t) > 0` for every `t ≥ t_f + 1` (`ut:III` at `w = 1`: Proposition I and
+Proposition II). -/
+theorem sigG_nonneg (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
+    ∀ᶠ c in atTop, 0 < c ∧ ∀ t : ℝ, sigTf σs c + 1 ≤ t → 0 < sigG N η σs c t := by
+  filter_upwards [sigGood_eventually N hN hη0.le hη1 σs, proposition_I_sig_t N hN hη0 hη1 σs]
     with c hgood hI
   obtain ⟨hc, hInner, C, hC, hd1, hd2, -⟩ := hgood
   refine ⟨hc, fun t ht => ?_⟩
-  have htf : 0 ≤ designTf d c := by unfold designTf; positivity
+  have htf : 0 ≤ sigTf σs c := by unfold sigTf; positivity
   have ht0 : 0 < t := by linarith
   set x : ℝ := xOf c t with hxdef
   have hx0 : 0 ≤ x := Real.sqrt_nonneg _
@@ -127,29 +158,51 @@ theorem designG_nonneg (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1
   have hpos := hI x hx0 (by rw [hxt]; exact ht)
   unfold twoG at hpos
   have hedge := hInner.edgeHankel_eq hc hd1 ht0
-  have hh : designProfile c 1 N (1 / 4) (designSigma1 d) (designWidth1 c η) (x : ℂ) =
-      ((combProfile c (designBc N η d c) t : ℝ) : ℂ) := by
+  have hh : designProfile c 1 N (1 / 4) (σs) (designWidth1 c η) (x : ℂ) =
+      ((combProfile c (sigBc N η σs c) t : ℝ) : ℂ) := by
     have := hInner.combProfile_eq (s := t) ht0
-    unfold designBc at this ⊢
+    unfold sigBc at this ⊢
     rw [← combH0_designComb]
     convert this using 3
     rfl
   rw [hxt] at hpos
   rw [hh] at hpos
-  have e2 : edgeHankel c (designProfile c 1 N (1 / 4) (designSigma1 d) (designWidth1 c η)) t =
-      ((hankelTransform 1 (combProfile c (designBc N η d c)) t : ℝ) : ℂ) := by
+  have e2 : edgeHankel c (designProfile c 1 N (1 / 4) (σs) (designWidth1 c η)) t =
+      ((hankelTransform 1 (combProfile c (sigBc N η σs c)) t : ℝ) : ℂ) := by
     rw [← combH0_designComb]; exact hedge
   rw [e2] at hpos
   simp only [Complex.sub_re, Complex.ofReal_re] at hpos
-  unfold designG pairOdd
+  unfold sigG pairOdd
   linarith
+
+/-- **(P2) positivity of `g`**: for `η_* ∈ (0, 1/4]` and large `c`, `g(t) ≥ 0` (indeed `> 0`) for every
+`t ≥ t_f + 1` (`ut:III` at `w = 1`: Proposition I and Proposition II). -/
+theorem designG_nonneg (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
+    ∀ᶠ c in atTop, 0 < c ∧ ∀ t : ℝ, designTf d c + 1 ≤ t → 0 < designG N η d c t :=
+  sigG_nonneg N hN hη0 hη1 (designSigma1 d)
+
+/-- **Proposition V (ii) for `g`** with arbitrary offsets `σs`: if `V < 0`, then `g_vac > 0` for large `c`. -/
+theorem sigG_gVac_pos (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
+    (hV : windowIntegralSig N η σs < 0) :
+    ∀ᶠ c in atTop, 0 < virasoroProblem.gVac (c / 12) (sigG N η σs c) := by
+  filter_upwards [proposition_V_ii_sig N hN hη0 hη1 σs hV] with c hc
+  exact hc.1
 
 /-- **Proposition V (ii) for `g`**: if `V_D < 0`, then `g_vac > 0` for large `c`. -/
 theorem designG_gVac_pos (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ)
     (hV : windowIntegralVD N η d < 0) :
-    ∀ᶠ c in atTop, 0 < virasoroProblem.gVac (c / 12) (designG N η d c) := by
-  filter_upwards [proposition_V_ii N hN hη0 hη1 d hV] with c hc
-  exact hc.1
+    ∀ᶠ c in atTop, 0 < virasoroProblem.gVac (c / 12) (designG N η d c) :=
+  by
+  rw [windowIntegralVD_eq_sig] at hV
+  exact sigG_gVac_pos N hN hη0 hη1 (designSigma1 d) hV
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.sigGood_eventually' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sigGood_eventually
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.sigG_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sigG_nonneg
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.designGood_eventually' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

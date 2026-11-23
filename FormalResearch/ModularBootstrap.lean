@@ -313,6 +313,8 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwoGeom
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwoNear
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwoMacro
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwo
+public import FormalResearch.ModularBootstrap.Upper.Assembly.DisplacedDesign
+public import FormalResearch.ModularBootstrap.Upper.Assembly.FarFirstSite
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -909,8 +911,8 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `Π_n = profPi d n`, `V = -d R_1 + ∑ Π_n(d)` and the sign law (`profWin_pi_pos/neg/eq_zero`); `displacedClass` is
   the class `𝒟x` of the designs with finitely many displaced sites (`|d| < d_0`), and `displacedFamily : DisplacedFamily
   displacedClass`, `displacedFamily_union : DisplacedFamily (designClass ∪ displacedClass)` (all fields proved: `pi_lower`
-  from `designFac_tail_lower` and `hasProd_ge_half_of_tail_lower`, `rest_small` from `profPi0_le_unif`).  What remains
-  of `Σ` is `DesignPropertyP S.μS displacedClass` (`Σ3`) and `OmittedFamily` (`Σ4`).
+  from `designFac_tail_lower` and `hasProd_ge_half_of_tail_lower`, `rest_small` from `profPi0_le_unif`).  `Σ3` and `Σ4`
+  are proved in `Upper.Assembly.{DisplacedDesign, FarFirstSite}` (below).
 
 * `Upper.Ramped.{RampedDesign, RampedDesignPhase, RampedDesignShiftCore, RampedDesignShift, RampedDesignNearTip,
   RampedFarBand, RampedThreshold}`: the **ramped comb `D_*`** of `rem:thmU` (the parameters `RampedParams`, the sites and
@@ -931,4 +933,11 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `n ≤ n_cap + 6`: amplitude `C_2 (n/c')^{5/6}`, choice of `C_mid` independent of `C_I`); `RampedRegionTwoMacro`:
   `rampedMacro` (cells `n ≥ n_cap + 7`: `ρ_k = 1` on the hole, `S = O(λ)`, margin `0.158 - o(1)`); `RampedRegionTwo`:
   `rampedRegionII` (`0 < twoG` for all `x ≥ ξ_I`, `d ∈ [0, 1]`), unconditional.
+
+* `Upper.Assembly.{DisplacedDesign, FarFirstSite}`: `Σ3` and `Σ4`, unconditional.  `displacedClassX` is the class of the
+  profile windows with every first-site shift `d ∈ ℝ` and finitely many displaced sites (`dispSigma`);
+  `displacedPropertyP_virasoro : DesignPropertyP S.μS displacedClassX` is the `designClass` chain generalised in place
+  (the `sig*` lemmas, with the `design*` declarations re-derived as corollaries).  `farFamily : OmittedFamily
+  (designClass ∪ displacedClassX)` consists of far-first-site windows (`f = 1`, first site `a_{f+1}`, sites `2, …, f`
+  displaced by `farRho f`), and `virasoro_sigma_unconditional` is Theorem `Σ` at Virasoro with no hypothesis.
 -/

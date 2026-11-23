@@ -9,6 +9,9 @@ Source: `CFT/modular_bootstrap/paper/upper_transfer.tex`, Proposition I (`ut:I`)
 "Region I and II overlap, so `g > 0` on `t ≥ t_f + 1` at `w = 1`".  For the designs `D(N, η_*, d)`
 (`f = 1`, `η_* ∈ (0, 1/4]`) and `c'` large:
 
+* `proposition_I_sig`, `proposition_I_sig_t`: the same for the finite modifications with arbitrary offsets
+  `σs` (sites `2..N` displaced, first site arbitrary); `proposition_I_design`, `proposition_I_design_t` are the
+  case `σs = designSigma1 d`.
 * `proposition_I_design`: there is `C > 0` such that `2 g(c' x²/3) > 0` for every
   `x ≥ χ'_1 + C λ c'^{-1/2}` (`χ'_1 = designSite c' (designSigma1 d) 1`): Region I (a), (b) and Region II
   (`proposition_II_design`, `levComb_pos`);
@@ -52,20 +55,21 @@ lemma sqrt_gap_lower {c' x χ B : ℝ} (hc' : 0 < c') (_hχ : 0 < χ) (hχB : χ
   rw [div_le_iff₀ hc'] at h4
   nlinarith
 
-/-- **Proposition I, Region I ∪ Region II** (`ut:I`, `ut:II`): for the designs `D(N, η_*, d)`, there is
-`C > 0` such that for large `c'` and every `x ≥ χ'_1 + C λ c'^{-1/2}`, `2 g(c' x²/3) > 0`. -/
-theorem proposition_I_design (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
+/-- **Proposition I, Region I ∪ Region II** (`ut:I`, `ut:II`) for the `f = 1` finite modifications at
+fixed sites `σs` (first site `σs 1`, sites `2..N` arbitrary): see `proposition_I_design`, the case
+`σs = designSigma1 d`. -/
+theorem proposition_I_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
     ∃ C : ℝ, 0 < C ∧ ∀ᶠ c' in atTop, ∀ x : ℝ,
-      designSite c' (designSigma1 d) 1 + C * lambdaComb c' * c' ^ (-(1 / 2 : ℝ)) ≤ x →
-      0 < twoG c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) x := by
-  obtain ⟨Sg0, hSg0, hb⟩ := proposition_I_b N hN hη0 hη1 d
-  obtain ⟨C, hC, ha⟩ := proposition_I_a N hN hη0 hη1 d Sg0
-  obtain ⟨M, hM⟩ : ∃ M : ℝ, ∀ k, 1 ≤ k → k ≤ N → |designSigma1 d k| ≤ M :=
-    ⟨∑ k ∈ Finset.Icc 1 N, |designSigma1 d k|, fun k hk hkN =>
-      Finset.single_le_sum (f := fun j => |designSigma1 d j|) (fun _ _ => abs_nonneg _)
+      designSite c' (σs) 1 + C * lambdaComb c' * c' ^ (-(1 / 2 : ℝ)) ≤ x →
+      0 < twoG c' 1 N (1 / 4) (σs) (designWidth1 c' η) x := by
+  obtain ⟨Sg0, hSg0, hb⟩ := proposition_I_b_sig N hN hη0 hη1 σs
+  obtain ⟨C, hC, ha⟩ := proposition_I_a_sig N hN hη0 hη1 σs Sg0
+  obtain ⟨M, hM⟩ : ∃ M : ℝ, ∀ k, 1 ≤ k → k ≤ N → |σs k| ≤ M :=
+    ⟨∑ k ∈ Finset.Icc 1 N, |σs k|, fun k hk hkN =>
+      Finset.single_le_sum (f := fun j => |σs j|) (fun _ _ => abs_nonneg _)
         (Finset.mem_Icc.mpr ⟨hk, hkN⟩)⟩
   refine ⟨C, hC, ?_⟩
-  filter_upwards [ha, hb, proposition_II_design N hN hη0.le hη1 d M hM,
+  filter_upwards [ha, hb, proposition_II_sig N hN hη0.le hη1 σs M hM,
     eventually_gt_atTop (0 : ℝ)] with c' hac hbc hIIc hcpos x hx
   by_cases h1 : x ≤ xiStar + lambdaComb c' * Sg0
   · exact hac x hx h1
@@ -75,19 +79,27 @@ theorem proposition_I_design (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η)
     · push Not at h2
       have h := hIIc x h2.le
       have hlev := levComb_pos c' 1 x
-      have : 0 < twoG c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) x / levComb c' 1 x :=
+      have : 0 < twoG c' 1 N (1 / 4) (σs) (designWidth1 c' η) x / levComb c' 1 x :=
         lt_of_lt_of_le (by norm_num) h
       exact (div_pos_iff_of_pos_right hlev).mp this
 
-/-- **Proposition I, form `t ≥ t_f + 1`** (`ut:I`): for the designs `D(N, η_*, d)` and large `c'`,
-`2 g(t) > 0` for all `t = c' x²/3` (`x ≥ 0`) with `t ≥ t_f + 1`, `t_f = c' χ'_1²/3`. -/
-theorem proposition_I_design_t (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
+/-- **Proposition I, Region I ∪ Region II** (`ut:I`, `ut:II`): for the designs `D(N, η_*, d)`, there is
+`C > 0` such that for large `c'` and every `x ≥ χ'_1 + C λ c'^{-1/2}`, `2 g(c' x²/3) > 0`. -/
+theorem proposition_I_design (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
+    ∃ C : ℝ, 0 < C ∧ ∀ᶠ c' in atTop, ∀ x : ℝ,
+      designSite c' (designSigma1 d) 1 + C * lambdaComb c' * c' ^ (-(1 / 2 : ℝ)) ≤ x →
+      0 < twoG c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) x :=
+  proposition_I_sig N hN hη0 hη1 (designSigma1 d)
+
+/-- **Proposition I, form `t ≥ t_f + 1`** (`ut:I`) for the `f = 1` finite modifications at fixed sites `σs`:
+see `proposition_I_design_t`, the case `σs = designSigma1 d`. -/
+theorem proposition_I_sig_t (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
     ∀ᶠ c' in atTop, ∀ x : ℝ, 0 ≤ x →
-      c' * designSite c' (designSigma1 d) 1 ^ 2 / 3 + 1 ≤ c' * x ^ 2 / 3 →
-      0 < twoG c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) x := by
-  obtain ⟨C, hC, hI⟩ := proposition_I_design N hN hη0 hη1 d
-  have hs1 : Tendsto (fun c' : ℝ => lambdaComb c' * |designSigma1 d 1|) atTop (𝓝 0) := by
-    simpa using tendsto_lambdaComb_atTop.mul_const |designSigma1 d 1|
+      c' * designSite c' (σs) 1 ^ 2 / 3 + 1 ≤ c' * x ^ 2 / 3 →
+      0 < twoG c' 1 N (1 / 4) (σs) (designWidth1 c' η) x := by
+  obtain ⟨C, hC, hI⟩ := proposition_I_sig N hN hη0 hη1 σs
+  have hs1 : Tendsto (fun c' : ℝ => lambdaComb c' * |σs 1|) atTop (𝓝 0) := by
+    simpa using tendsto_lambdaComb_atTop.mul_const |σs 1|
   have hxi := xiStar_pos
   obtain ⟨B, hB⟩ : ∃ B : ℝ, B = xiStar + 1 + 1 := ⟨_, rfl⟩
   have hB1 : 1 ≤ B := by rw [hB]; linarith
@@ -99,18 +111,18 @@ theorem proposition_I_design_t (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < �
     eventually_gt_atTop (1 : ℝ)] with c' hIc hs1c hs2c hlc hc1 x hx0 hx
   have hcpos : 0 < c' := by linarith
   have hlam : 0 < lambdaComb c' := Real.rpow_pos_of_pos (mul_pos kTip_pos hcpos) _
-  have hσ : |designSigma1 d 1| ≥ designSigma1 d 1 := le_abs_self _
-  have hσ' : -|designSigma1 d 1| ≤ designSigma1 d 1 := neg_abs_le _
-  have hχ : designSite c' (designSigma1 d) 1 = xiStar + lambdaComb c' * designSigma1 d 1 := rfl
-  have hl1 : lambdaComb c' * designSigma1 d 1 ≤ lambdaComb c' * |designSigma1 d 1| :=
+  have hσ : |σs 1| ≥ σs 1 := le_abs_self _
+  have hσ' : -|σs 1| ≤ σs 1 := neg_abs_le _
+  have hχ : designSite c' (σs) 1 = xiStar + lambdaComb c' * σs 1 := rfl
+  have hl1 : lambdaComb c' * σs 1 ≤ lambdaComb c' * |σs 1| :=
     mul_le_mul_of_nonneg_left hσ hlam.le
-  have hl2 : -(lambdaComb c' * |designSigma1 d 1|) ≤ lambdaComb c' * designSigma1 d 1 := by
+  have hl2 : -(lambdaComb c' * |σs 1|) ≤ lambdaComb c' * σs 1 := by
     have := mul_le_mul_of_nonneg_left hσ' hlam.le
     linarith
-  have hχpos : 0 < designSite c' (designSigma1 d) 1 := by rw [hχ]; linarith
-  have hχB : designSite c' (designSigma1 d) 1 ≤ B := by rw [hχ, hB]; linarith
+  have hχpos : 0 < designSite c' (σs) 1 := by rw [hχ]; linarith
+  have hχB : designSite c' (σs) 1 ≤ B := by rw [hχ, hB]; linarith
   refine hIc x ?_
-  set χ := designSite c' (designSigma1 d) 1 with hχdef
+  set χ := designSite c' (σs) 1 with hχdef
   have hxsq : c' * χ ^ 2 + 3 ≤ c' * x ^ 2 := by linarith
   have hχx : χ ≤ x := by
     by_contra hlt
@@ -135,7 +147,23 @@ theorem proposition_I_design_t (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < �
       rw [div_le_one hB3]; nlinarith
     linarith
 
+/-- **Proposition I, form `t ≥ t_f + 1`** (`ut:I`): for the designs `D(N, η_*, d)` and large `c'`,
+`2 g(t) > 0` for all `t = c' x²/3` (`x ≥ 0`) with `t ≥ t_f + 1`, `t_f = c' χ'_1²/3`. -/
+theorem proposition_I_design_t (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
+    ∀ᶠ c' in atTop, ∀ x : ℝ, 0 ≤ x →
+      c' * designSite c' (designSigma1 d) 1 ^ 2 / 3 + 1 ≤ c' * x ^ 2 / 3 →
+      0 < twoG c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) x :=
+  proposition_I_sig_t N hN hη0 hη1 (designSigma1 d)
+
 /-! ### Axiom checks -/
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.proposition_I_sig' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms proposition_I_sig
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.proposition_I_sig_t' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms proposition_I_sig_t
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.proposition_I_design' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

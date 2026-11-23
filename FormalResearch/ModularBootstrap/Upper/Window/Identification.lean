@@ -26,7 +26,8 @@ This module proves **Lemma ID** (`ut:ID`) of `upper_transfer.tex` (lines 521–5
   and `refApproxLimit 0 = C_* Ai(0)^2`, so `refApproxLimit σ = C_* Ai(-κ σ)^2` for all `σ : ℝ`;
 * `lemma_ID` (**Step 4**): for any finite modification `(σ_f^*, σ_k^*, ε̂_k^*)` satisfying the
   reference tail bounds, `W̃^{±(f)}(σ) = C_*^{(f)} κ (W^{(f)}(-κ σ)).re` for all `σ : ℝ`;
-* `lemma_ID_design`: specialization to the `f = 1` design `designWindowW N etaStar d`.
+* `lemma_ID_mod`: `f = 1`, any finite modification `ModifiedCombData 1 N`; `lemma_ID_design`: specialization to
+  the `f = 1` design `designWindowW N etaStar d`.
 -/
 
 namespace FormalResearch.ModularBootstrap.Upper.Window
@@ -1027,7 +1028,7 @@ private lemma airyProdTailExcept_congr {f n : ℕ} {uSite₁ uSite₂ epsU₁ ep
   · rfl
   · rw [hu (f + 1 + m) (by omega), he (f + 1 + m) (by omega)]
 
-private lemma airyWindowProd_congr {f : ℕ} {uF : ℝ} {uSite₁ uSite₂ epsU₁ epsU₂ : ℕ → ℝ}
+lemma airyWindowProd_congr {f : ℕ} {uF : ℝ} {uSite₁ uSite₂ epsU₁ epsU₂ : ℕ → ℝ}
     (hu : ∀ k : ℕ, f < k → uSite₁ k = uSite₂ k)
     (he : ∀ k : ℕ, f < k → epsU₁ k = epsU₂ k) (u : ℂ) :
     airyWindowProd f uF uSite₁ epsU₁ u = airyWindowProd f uF uSite₂ epsU₂ u := by
@@ -1040,6 +1041,33 @@ private lemma airyWindowProd_congr {f : ℕ} {uF : ℝ} {uSite₁ uSite₂ epsU�
         airyProdTailExcept_congr hu he u]
   · simp only [h1, ↓reduceDIte, airyProdTail_congr hu he u]
 
+/-- **Lemma ID (`ut:ID`), `f = 1`, any finite modification** (`ModifiedCombData 1 N` with `η₀ ∈ [0, 1/4]`):
+`W̃^{±(1)}(σ) = C_* κ Re(W(-κ σ))`, `W` the Airy product with first site `-κ σ_1`, sites `-κ σ_k` (`k ≤ N`,
+`σ_k` arbitrary) and the reference tail. -/
+theorem lemma_ID_mod (N : ℕ) (hN : 1 ≤ N) (dc : ModifiedCombData 1 N) (hη0 : 0 ≤ dc.eta0)
+    (hη1 : dc.eta0 ≤ 1 / 4) (σ : ℝ) :
+    tildeW 1 dc.sigmaFLim dc.allSigmaLim dc.allEpsLim σ =
+      CStar * kappaAiry *
+        (airyWindowProd 1 (-kappaAiry * dc.sigmaFLim) (fun k => -kappaAiry * dc.allSigmaLim k)
+          (fun k => kappaAiry * dc.allEpsLim k) ((-kappaAiry * σ : ℝ) : ℂ)).re := by
+  set M : ℝ := |dc.sigmaFLim| + 1 +
+    (Finset.Icc 2 N).sum (fun k => |dc.allSigmaLim k| + |dc.allEpsLim k|)
+  have hM : 0 < M := by
+    have hs : 0 ≤ (Finset.Icc 2 N).sum (fun k => |dc.allSigmaLim k| + |dc.allEpsLim k|) :=
+      Finset.sum_nonneg fun _ _ => by positivity
+    dsimp [M]; positivity
+  have hσf : |dc.sigmaFLim| ≤ M := by
+    have hs : 0 ≤ (Finset.Icc 2 N).sum (fun k => |dc.allSigmaLim k| + |dc.allEpsLim k|) :=
+      Finset.sum_nonneg fun _ _ => by positivity
+    dsimp [M]; linarith
+  have hmod : ∀ k ∈ Finset.Icc 2 N, |dc.allSigmaLim k| ≤ M ∧ |dc.allEpsLim k| ≤ M := by
+    intro k hk
+    have hle := Finset.single_le_sum (f := fun j => |dc.allSigmaLim j| + |dc.allEpsLim j|)
+      (fun _ _ => by positivity) hk
+    constructor <;> dsimp [M] <;> linarith [abs_nonneg dc.sigmaFLim, abs_nonneg (dc.allSigmaLim k), abs_nonneg (dc.allEpsLim k)]
+  have hid := lemma_ID 1 N le_rfl hN hM one_pos hσf hmod (dc.tail_bound_all hη0 hη1) σ
+  rw [hid, CStarF_one]
+
 /-- **Lemma ID (`ut:ID`), `f = 1` design specialization** (`designWindowW`):
 For every `N ≥ 1`, `η_* ∈ ℝ`, `d ∈ ℝ`, and `σ : ℝ`, the window limit of `designCombData N etaStar d`
 equals `C_* κ Re(designWindowW N etaStar d (-κ σ))`. -/
@@ -1050,70 +1078,7 @@ theorem lemma_ID_design (N : ℕ) (hN : 1 ≤ N) (etaStar d σ : ℝ) :
   intro dc
   have hκ := kappaAiry_pos
   have hκ_ne : kappaAiry ≠ 0 := hκ.ne'
-  set M : ℝ := |dc.sigmaFLim| + 1 +
-    (Finset.Icc 2 N).sum (fun k => |dc.allSigmaLim k| + |dc.allEpsLim k|)
-  have hM : 0 < M := by
-    have hs : 0 ≤ (Finset.Icc 2 N).sum (fun k => |dc.allSigmaLim k| + |dc.allEpsLim k|) :=
-      Finset.sum_nonneg fun _ _ => by positivity
-    dsimp [M]; positivity
-  obtain ⟨C₀, hC₀, hδ⟩ := deltaWKB_le_exists
-  set C_t : ℝ := max (C₀ / kappaAiry) (1 / 3 : ℝ)
-  have hCt : 0 < C_t := by positivity
-  have hσf : |dc.sigmaFLim| ≤ M := by
-    have hs : 0 ≤ (Finset.Icc 2 N).sum (fun k => |dc.allSigmaLim k| + |dc.allEpsLim k|) :=
-      Finset.sum_nonneg fun _ _ => by positivity
-    dsimp [M]; linarith
-  have hmod : ∀ k ∈ Finset.Icc 2 N, |dc.allSigmaLim k| ≤ M ∧ |dc.allEpsLim k| ≤ M := by
-    intro k hk
-    have hle := Finset.single_le_sum (f := fun j => |dc.allSigmaLim j| + |dc.allEpsLim j|)
-      (fun _ _ => by positivity) hk
-    constructor <;> dsimp [M] <;> linarith [abs_nonneg dc.sigmaFLim, abs_nonneg (dc.allSigmaLim k), abs_nonneg (dc.allEpsLim k)]
-  have htail : ∀ k : ℕ, N < k →
-      |dc.allSigmaLim k - phiWKB k| ≤ C_t * (k : ℝ) ^ (-(4 / 3 : ℝ)) ∧
-        |dc.allEpsLim k| ≤ C_t * (k : ℝ) ^ (-(1 / 3 : ℝ)) := by
-    intro k hk
-    have hnot : ¬ k ≤ N := by omega
-    simp only [dc, ModifiedCombData.allSigmaLim, ModifiedCombData.allEpsLim, designCombData,
-      hnot, ↓reduceIte, sub_self, abs_zero]
-    refine ⟨by positivity, ?_⟩
-    have hk_pos : (0 : ℝ) < (k : ℝ) := by exact_mod_cast (by omega : 0 < k)
-    have hk1 : (1 : ℝ) ≤ (k : ℝ) := by exact_mod_cast (by omega : 1 ≤ k)
-    have hphi_gap : 0 ≤ phiWKB (k + 1) - phiWKB k ∧
-        phiWKB (k + 1) - phiWKB k ≤ (4 / 3 : ℝ) * (k : ℝ) ^ (-(1 / 3 : ℝ)) := by
-      have hgap := (gapWKB_bounds (by omega : 1 ≤ k)).2
-      have h_ge : (1 : ℝ) ≤ (k : ℝ) := hk1
-      have h_eq : phiWKB (k + 1) - phiWKB k = gapWKB k / kappaAiry := by
-        unfold gapWKB uWKB; field_simp [hκ_ne]; ring
-      have hk_half : (k : ℝ) / 2 ≤ (k : ℝ) - 1 / 4 := by linarith
-      have h_low : (0 : ℝ) ≤ phiWKB (k + 1) - phiWKB k := by
-        unfold phiWKB
-        exact sub_nonneg.mpr (Real.rpow_le_rpow (by linarith) (by push_cast; linarith) (by norm_num))
-      refine ⟨h_low, ?_⟩
-      rw [h_eq]
-      calc gapWKB k / kappaAiry ≤ ((2 / 3 : ℝ) * kappaAiry * ((k : ℝ) - 1 / 4) ^ (-(1 / 3 : ℝ))) / kappaAiry :=
-            div_le_div_of_nonneg_right hgap hκ.le
-        _ = (2 / 3 : ℝ) * ((k : ℝ) - 1 / 4) ^ (-(1 / 3 : ℝ)) := by field_simp [hκ_ne]
-        _ ≤ (2 / 3 : ℝ) * ((k : ℝ) / 2) ^ (-(1 / 3 : ℝ)) :=
-            mul_le_mul_of_nonneg_left
-              (Real.rpow_le_rpow_of_nonpos (div_pos hk_pos zero_lt_two) hk_half (by norm_num))
-              (by norm_num)
-        _ = (2 / 3 : ℝ) * (2 : ℝ) ^ (1 / 3 : ℝ) * (k : ℝ) ^ (-(1 / 3 : ℝ)) := by
-            rw [div_eq_mul_inv (k : ℝ) 2, Real.mul_rpow hk_pos.le (by positivity),
-              show ((2 : ℝ)⁻¹) ^ (-(1 / 3 : ℝ)) = (2 : ℝ) ^ (1 / 3 : ℝ) by
-                rw [Real.inv_rpow (by positivity), Real.rpow_neg (by positivity), inv_inv]]
-            ring
-        _ ≤ (4 / 3 : ℝ) * (k : ℝ) ^ (-(1 / 3 : ℝ)) := by
-            have h2_13 : (2 : ℝ) ^ (1 / 3 : ℝ) ≤ 2 := by
-              simpa [Real.rpow_one] using Real.rpow_le_rpow_of_exponent_le (by norm_num : (1 : ℝ) ≤ 2) (by norm_num : (1 / 3 : ℝ) ≤ 1)
-            have hk_nneg : 0 ≤ (k : ℝ) ^ (-(1 / 3 : ℝ)) := by positivity
-            nlinarith
-    rw [abs_mul, abs_of_pos (by norm_num : (0 : ℝ) < 1 / 4), abs_of_nonneg hphi_gap.1]
-    calc (1 / 4 : ℝ) * (phiWKB (k + 1) - phiWKB k)
-        ≤ (1 / 4 : ℝ) * ((4 / 3 : ℝ) * (k : ℝ) ^ (-(1 / 3 : ℝ))) := mul_le_mul_of_nonneg_left hphi_gap.2 (by norm_num)
-      _ = (1 / 3 : ℝ) * (k : ℝ) ^ (-(1 / 3 : ℝ)) := by ring
-      _ ≤ C_t * (k : ℝ) ^ (-(1 / 3 : ℝ)) := by
-          gcongr; exact le_max_right _ _
-  have hid := lemma_ID 1 N le_rfl hN hM hCt hσf hmod htail σ
+  have hid := lemma_ID_mod N hN dc (by norm_num [dc, designCombData]) (by norm_num [dc, designCombData]) σ
   have huF_eq : -kappaAiry * dc.sigmaFLim = airyZero 1 - d := by
     dsimp [dc, designCombData]
     unfold sNodeAiry
@@ -1132,7 +1097,7 @@ theorem lemma_ID_design (N : ℕ) (hN : 1 ≤ N) (etaStar d σ : ℝ) :
     dsimp [dc, ModifiedCombData.allEpsLim, designCombData]
     unfold designWidthU gapWKB uWKB
     split_ifs <;> ring
-  rw [hid, CStarF_one, huF_eq]
+  rw [hid, huF_eq]
   unfold designWindowW
   rw [airyWindowProd_congr huSite_eq heps_eq ((-kappaAiry * σ : ℝ) : ℂ)]
 
@@ -1147,6 +1112,10 @@ theorem lemma_ID_design (N : ℕ) (hN : 1 ≤ N) (etaStar d σ : ℝ) :
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Window.lemma_ID' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms lemma_ID
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Window.lemma_ID_mod' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lemma_ID_mod
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Window.lemma_ID_design' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

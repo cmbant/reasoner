@@ -26,8 +26,9 @@ for all large `c'`:
   (no side condition on the shift: `a = c'/12 ≥ S` holds eventually) and every member of the family,
   `g = ½(h₀ - ĥ₀) ∈ Ā` with `|h₀| + |ĥ₀| ≤ C(c') e^{-c' L - πx}`, the vacuum identity
   `g_vac = ½ h_{0,vac} - π ∫ h₀ V` and `|½ h_{0,vac}| ≤ 2^m` (`|h_{0,vac}| ≤ 8` for `m = 2`).
-* `design1_k7_membership_vacuum`: the same for the `f = 1` designs `D(N, η_*, d)`
-  (`designSigma1`, `designWidth1`, `η₀ = 1/4`) of `lemma_P_a_fixedN`.
+* `sig1_k7_membership_vacuum`: the same for the `f = 1` combs with arbitrary offsets `σ` (sites `2..N`
+  displaced, first site arbitrary), `designWidth1`, `η₀ = 1/4`; `design1_k7_membership_vacuum` is the case
+  `σ = designSigma1 d` (the designs `D(N, η_*, d)` of `lemma_P_a_fixedN`).
 
 All results are proved unconditionally (no named hypothesis remains: the amplitude input is supplied by
 `Design.CombTransform`).  The explicit `N`-dependence of `ut:P`(a) for growing `N` is not covered.
@@ -463,6 +464,27 @@ theorem design_family_nonempty (f N : ℕ) {M E : ℝ} (hM : 0 ≤ M) (hE : 0 �
   ⟨fun _ => 0, fun _ => 0, fun k _ _ => by simpa using hM, fun k _ _ =>
     ⟨le_rfl, mul_nonneg hE (lambdaComb_pos_of_pos hc').le⟩⟩
 
+/-- **Lemma `K7` for the `f = 1` finite modifications at fixed sites** (`η₀ = 1/4`, widths
+`ε = designWidth1 c' η_*` of `lemma_P_a_fixedN`, arbitrary offsets `σ` bounded by `M` on `1 ≤ k ≤ N`: the
+sites `σ_2, …, σ_N` may be displaced and the first site `σ_1` arbitrary): for all large `c'` the conclusion
+of Lemma `K7` holds.  `design1_k7_membership_vacuum` is the case `σ = designSigma1 d`. -/
+theorem sig1_k7_membership_vacuum {prob : FixedWeightProblem} (hw : prob.w = 1) (N : ℕ)
+    (hN : 1 ≤ N) {etaStar : ℝ} (hη0 : 0 ≤ etaStar) (hη1 : etaStar ≤ 1 / 4) (σ : ℕ → ℝ) (M : ℝ)
+    (hM : ∀ k, 1 ≤ k → k ≤ N → |σ k| ≤ M) :
+    ∀ᶠ c' in atTop,
+      K7Conclusion prob c' (designComb c' 1 N (1 / 4) σ (designWidth1 c' etaStar)) := by
+  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
+  filter_upwards [design_k7_membership_vacuum hw 1 N le_rfl hN M Cg hCg.le
+    (by norm_num : (0 : ℝ) ≤ 1 / 4) le_rfl, h_ev, eventually_gt_atTop (0 : ℝ)]
+    with c' hc' ⟨hgap_k, hgap_1_bd, hcd1_bd, _⟩ hpos
+  refine hc' σ (designWidth1 c' etaStar) (fun k hk hkN => hM k hk hkN)
+    (fun k hk hkN => ⟨mul_nonneg hη0 (siteGap_nonneg hpos (by omega)), ?_⟩)
+  have hgk := (hgap_k k (by omega)).trans (hgap_1_bd.trans hcd1_bd)
+  unfold designWidth1
+  calc etaStar * siteGap c' k ≤ 1 * (Cg * lambdaComb c') :=
+        mul_le_mul (hη1.trans (by norm_num)) hgk (siteGap_nonneg hpos (by omega)) (by norm_num)
+    _ = Cg * lambdaComb c' := one_mul _
+
 /-- **Lemma `K7` for the designs `D(N, η_*, d)`** (`f = 1`, `η₀ = 1/4`, `σ = designSigma1 d`,
 `ε = designWidth1 c' η_*` of `lemma_P_a_fixedN`), with `M` a bound for the finitely many offsets
 `σ_1, …, σ_N`: for all large `c'` the conclusion of Lemma `K7` holds. -/
@@ -470,18 +492,8 @@ theorem design1_k7_membership_vacuum {prob : FixedWeightProblem} (hw : prob.w = 
     (hN : 1 ≤ N) {etaStar : ℝ} (hη0 : 0 ≤ etaStar) (hη1 : etaStar ≤ 1 / 4) (d M : ℝ)
     (hM : ∀ k, 1 ≤ k → k ≤ N → |designSigma1 d k| ≤ M) :
     ∀ᶠ c' in atTop,
-      K7Conclusion prob c' (designComb c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' etaStar)) := by
-  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
-  filter_upwards [design_k7_membership_vacuum hw 1 N le_rfl hN M Cg hCg.le
-    (by norm_num : (0 : ℝ) ≤ 1 / 4) le_rfl, h_ev, eventually_gt_atTop (0 : ℝ)]
-    with c' hc' ⟨hgap_k, hgap_1_bd, hcd1_bd, _⟩ hpos
-  refine hc' (designSigma1 d) (designWidth1 c' etaStar) (fun k hk hkN => hM k hk hkN)
-    (fun k hk hkN => ⟨mul_nonneg hη0 (siteGap_nonneg hpos (by omega)), ?_⟩)
-  have hgk := (hgap_k k (by omega)).trans (hgap_1_bd.trans hcd1_bd)
-  unfold designWidth1
-  calc etaStar * siteGap c' k ≤ 1 * (Cg * lambdaComb c') :=
-        mul_le_mul (hη1.trans (by norm_num)) hgk (siteGap_nonneg hpos (by omega)) (by norm_num)
-    _ = Cg * lambdaComb c' := one_mul _
+      K7Conclusion prob c' (designComb c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' etaStar)) :=
+  sig1_k7_membership_vacuum hw N hN hη0 hη1 (designSigma1 d) M hM
 
 /-! ### Axiom checks -/
 
@@ -500,6 +512,10 @@ theorem design1_k7_membership_vacuum {prob : FixedWeightProblem} (hw : prob.w = 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.design_k7_membership_vacuum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms design_k7_membership_vacuum
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.sig1_k7_membership_vacuum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sig1_k7_membership_vacuum
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.design1_k7_membership_vacuum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
