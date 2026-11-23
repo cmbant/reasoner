@@ -18,7 +18,7 @@ open scoped Real
 
 namespace FormalResearch.SignUncertainty
 
-lemma one_add_mem_slitPlane {y : ℂ} (hy : ‖y‖ < 1) : (1 + y) ∈ slitPlane := by
+lemma one_add_mem_slitPlane_of_norm_lt {y : ℂ} (hy : ‖y‖ < 1) : (1 + y) ∈ slitPlane := by
   rw [mem_slitPlane_iff]
   left
   have : |y.re| ≤ ‖y‖ := Complex.abs_re_le_norm y
@@ -53,7 +53,7 @@ lemma norm_one_add_cpow_sub_one_le {α : ℝ} (hα : 0 < α) (hα1 : α ≤ 1) {
       HasDerivAt (fun y : ℂ => (1 + y) ^ (α : ℂ)) ((α : ℂ) * (1 + y) ^ ((α : ℂ) - 1) * 1) y := by
     intro y hy
     have hy1 : ‖y‖ < 1 := lt_of_le_of_lt (by simpa using mem_closedBall_zero_iff.1 hy) ht
-    have := ((hasDerivAt_id y).const_add (1 : ℂ)).cpow_const (c := (α : ℂ)) (one_add_mem_slitPlane hy1)
+    have := ((hasDerivAt_id y).const_add (1 : ℂ)).cpow_const (c := (α : ℂ)) (one_add_mem_slitPlane_of_norm_lt hy1)
     simpa using this
   have hb : ∀ y ∈ closedBall (0 : ℂ) t, ‖(α : ℂ) * (1 + y) ^ ((α : ℂ) - 1) * 1‖ ≤ α / (1 - t) := by
     intro y hy

@@ -42,14 +42,14 @@ lemma chartM_conj (h : LangerEta η) {u : ℂ} (hu : ‖u‖ ≤ 0.035 ^ 2) :
     chartM η (conj u) = conj (chartM η u) := by
   have hx := norm_psW_aE_sub_one_u h hu
   have hs : psW (aE η) u ∈ slitPlane := by
-    have := one_add_mem_slitPlane (y := psW (aE η) u - 1) (lt_of_le_of_lt hx (by norm_num))
+    have := one_add_mem_slitPlane_of_norm_lt (y := psW (aE η) u - 1) (lt_of_le_of_lt hx (by norm_num))
     simpa using this
   have harg : (psW (aE η) u).arg ≠ π := (Complex.mem_slitPlane_iff_arg.1 hs).1
   unfold chartM powMapU
   rw [psW_conj, Complex.conj_cpow _ _ harg, Complex.conj_ofReal, map_mul]
 
 lemma chartVofW_conj {w : ℂ} (hw : ‖w‖ ≤ 1e-3) : chartVofW (conj w) = conj (chartVofW w) := by
-  have hs : (1 + w) ∈ slitPlane := one_add_mem_slitPlane (lt_of_le_of_lt hw (by norm_num))
+  have hs : (1 + w) ∈ slitPlane := one_add_mem_slitPlane_of_norm_lt (lt_of_le_of_lt hw (by norm_num))
   have harg : (1 + w).arg ≠ π := (Complex.mem_slitPlane_iff_arg.1 hs).1
   unfold chartVofW
   rw [map_mul, Complex.conj_ofReal, map_neg, ← Complex.log_conj _ harg, map_add, map_one]

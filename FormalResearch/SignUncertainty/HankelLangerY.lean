@@ -159,7 +159,7 @@ lemma one_add_ne_zero_of_small {w : ℂ} (hw : ‖w‖ ≤ 1e-3) : (1 + w) ≠ 0
 lemma hasDerivAt_chartVofW {w : ℂ} (hw : ‖w‖ ≤ 1e-3) :
     HasDerivAt chartVofW (((12 / π ^ 2 : ℝ) : ℂ) * (-(1 + w)⁻¹)) w := by
   have h1 : HasDerivAt (fun w : ℂ => 1 + w) 1 w := (hasDerivAt_id w).const_add 1
-  have hs : (1 + w) ∈ slitPlane := one_add_mem_slitPlane (lt_of_le_of_lt hw (by norm_num))
+  have hs : (1 + w) ∈ slitPlane := one_add_mem_slitPlane_of_norm_lt (lt_of_le_of_lt hw (by norm_num))
   have h2 := (h1.clog hs)
   have h3 := (h2.neg).const_mul (((12 / π ^ 2 : ℝ) : ℂ))
   unfold chartVofW

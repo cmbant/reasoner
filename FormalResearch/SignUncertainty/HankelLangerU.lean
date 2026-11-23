@@ -164,7 +164,7 @@ lemma hasDerivAt_chartM (h : LangerEta η) {u : ℂ} (hu : ‖u‖ ≤ 0.035 ^ 2
   have hd : HasDerivAt (psW (aE η)) (psWD (aE η) u) u := hasDerivAt_psW (B := 1) (abs_aE_le_one h) h1
   have hx := norm_psW_aE_sub_one_u h hu
   have hs : psW (aE η) u ∈ slitPlane := by
-    have := one_add_mem_slitPlane (y := psW (aE η) u - 1) (lt_of_le_of_lt hx (by norm_num))
+    have := one_add_mem_slitPlane_of_norm_lt (y := psW (aE η) u - 1) (lt_of_le_of_lt hx (by norm_num))
     simpa using this
   exact hasDerivAt_powMapU (F := psW (aE η)) (F' := psWD (aE η)) (2 / 3) hd hs
 
