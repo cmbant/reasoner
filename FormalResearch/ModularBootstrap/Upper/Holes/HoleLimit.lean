@@ -666,7 +666,10 @@ private lemma abs_integral_log_abs_sub_diff {A B c₁ c₂ : ℝ}
       ⟨by rw [hm_eq], by rw [hM_eq]; exact hle⟩
     simpa [mul_comm] using h_sub
 
-private lemma quantile_linearization_K5 {c' : ℝ} (hc' : 0 < c') {j n : ℕ}
+/-- Linearization of the quantile sites around `χ_n` on the window `|b - n| ≤ j + 1`: the derivative
+`χ'_a` and the gaps `ℓ_m` stay within `1 ± 4(j+1)/n` of `ℓ_n`, and `χ_b - χ_n - (b-n)ℓ_n` is
+`O(j²ℓ_n/n)`. -/
+lemma quantile_linearization_K5 {c' : ℝ} (hc' : 0 < c') {j n : ℕ}
     (hj : 1 ≤ j) (hn : 4 * (j + 1) ≤ n) :
     let ℓ := siteGap c' n
     0 < ℓ ∧
@@ -2270,6 +2273,88 @@ theorem hole_limit_K5 {j : ℕ} {η₀ : ℝ} (hj : 1 ≤ j) (hη₀0 : 0 < η�
   have h_alg := hole_limit_K5_combine hj_pos.le hn_pos hℓ_pos hℓ1 hη₀0
   exact h_tri1.trans ((add_le_add (add_le_add (add_le_add h_sum1 h_sum2) hE2) hL2).trans h_alg)
 
+/-- **General reference floor** (`cmb:K5`, `comb_estimates.tex`, line 217): the hole limit `hole_limit_K5`
+turned into a floor for any quantity `B ≥ 0` (a norm `‖B_D(x)‖` of a comb) that satisfies the exponential
+lower bound `exp(𝓗_{n,j} - 2𝓔_left + W) ≤ B e^{c' L - c' P^{(f)} - J_end}` with a modification term `W ∈ ℝ`:
+`μ_j (1 - C(1/n + ℓ_n)) e^{-2𝓔_left + W} ≤ ¼ B e^{c' L} e^{-(c' P^{(f)} + J_end)}`.
+`hole_floor_K5` is the case of the reference comb (`B = ‖B_ref(x)‖`, `W = 0`) and
+`Upper.Holes.designComb_floor` the case of a finite modification. -/
+theorem hole_floor_general {j : ℕ} {η₀ : ℝ} (hj : 1 ≤ j) (hη₀0 : 0 < η₀) (hη₀1 : η₀ ≤ 1 / 4) :
+    ∃ (N_j : ℕ) (C : ℝ), 1 ≤ N_j ∧ 0 < C ∧
+      ∀ᶠ c' in atTop, ∀ (f n : ℕ) (x : ℝ), 1 ≤ f → max N_j (f + j) ≤ n → inCell c' n x →
+        ∀ B W : ℝ, 0 ≤ B →
+          Real.exp (holeH c' η₀ n j x - 2 * eLeftComb c' f n j x + W) ≤
+            B * Real.exp (c' * slitL x) * Real.exp (-(c' * combPf c' f x + jEndComb c' x f)) →
+          muHole j η₀ * (1 - C * (1 / (n : ℝ) + siteGap c' n)) *
+              Real.exp (-2 * eLeftComb c' f n j x + W) ≤
+            (1 / 4 : ℝ) * (B * Real.exp (c' * slitL x) *
+              Real.exp (-(c' * combPf c' f x + jEndComb c' x f))) := by
+  obtain ⟨N_j, C, hNj, hC_pos, h_ev⟩ := hole_limit_K5 hj hη₀0 hη₀1
+  refine ⟨N_j, C, hNj, hC_pos, ?_⟩
+  filter_upwards [h_ev, eventually_gt_atTop (0 : ℝ)] with c' h_lim hc'
+  intro f n x hf hn_max hx B W hB0 hB
+  have hn_Nj : N_j ≤ n := (le_max_left _ _).trans hn_max
+  have hfnj : f + j ≤ n := (le_max_right _ _).trans hn_max
+  have hf1 : (1 : ℝ) ≤ (f : ℝ) := by exact_mod_cast hf
+  have hfn : (f : ℝ) < (n : ℝ) := by exact_mod_cast (by omega : f < n)
+  have h_hole_lim := h_lim n x hn_Nj hx
+  set u := (x - chiQuantile c' n) / siteGap c' n
+  have hu_mem : u ∈ Icc (0 : ℝ) 1 := by
+    refine ⟨div_nonneg (sub_nonneg.mpr hx.1) (by
+      unfold siteGap
+      exact sub_nonneg.mpr ((chiQuantile_strictMonoOn hc').monotoneOn
+        (Set.mem_Ici.mpr (by linarith)) (Set.mem_Ici.mpr (by linarith)) (by linarith))), ?_⟩
+    have hℓ_pos : 0 < siteGap c' n := by
+      unfold siteGap
+      exact sub_pos.mpr (chiQuantile_strictMonoOn hc' (Set.mem_Ici.mpr (by linarith))
+        (Set.mem_Ici.mpr (by linarith)) (by linarith))
+    rw [div_le_one hℓ_pos]
+    unfold siteGap
+    have h_cast : chiQuantile c' ((n + 1 : ℕ) : ℝ) = chiQuantile c' ((n : ℝ) + 1) := by
+      push_cast; rfl
+    rw [← h_cast]; linarith [hx.2]
+  have h_mu_le : muHole j η₀ ≤ (1 / 4 : ℝ) * Real.exp (holeModel j u η₀) := by
+    unfold muHole
+    exact csInf_le ⟨0, by rintro _ ⟨v, _, rfl⟩; positivity⟩ ⟨u, hu_mem, rfl⟩
+  have h_lin_exp : 1 - C * (1 / (n : ℝ) + siteGap c' n) ≤
+      Real.exp (-(C * (1 / (n : ℝ) + siteGap c' n))) := by
+    linarith [Real.add_one_le_exp (-(C * (1 / (n : ℝ) + siteGap c' n)))]
+  have h_hole_ge : holeModel j u η₀ - C * (1 / (n : ℝ) + siteGap c' n) ≤ holeH c' η₀ n j x :=
+    by linarith [(abs_le.mp h_hole_lim).1]
+  have h_exp_hole : Real.exp (holeModel j u η₀) * (1 - C * (1 / (n : ℝ) + siteGap c' n)) ≤
+      Real.exp (holeH c' η₀ n j x) := by
+    calc Real.exp (holeModel j u η₀) * (1 - C * (1 / (n : ℝ) + siteGap c' n))
+        ≤ Real.exp (holeModel j u η₀) * Real.exp (-(C * (1 / (n : ℝ) + siteGap c' n))) :=
+          mul_le_mul_of_nonneg_left h_lin_exp (Real.exp_pos _).le
+      _ = Real.exp (holeModel j u η₀ - C * (1 / (n : ℝ) + siteGap c' n)) := by
+          rw [← Real.exp_add, ← sub_eq_add_neg]
+      _ ≤ Real.exp (holeH c' η₀ n j x) := Real.exp_le_exp.mpr h_hole_ge
+  have h_mu_nn : 0 ≤ muHole j η₀ := by
+    unfold muHole; exact le_csInf ⟨_, ⟨0, ⟨le_rfl, zero_le_one⟩, rfl⟩⟩ fun _ ⟨_, _, h⟩ => h ▸ by positivity
+  by_cases hpos : 0 ≤ 1 - C * (1 / (n : ℝ) + siteGap c' n)
+  · calc muHole j η₀ * (1 - C * (1 / (n : ℝ) + siteGap c' n)) * Real.exp (-2 * eLeftComb c' f n j x + W)
+        ≤ ((1 / 4 : ℝ) * Real.exp (holeModel j u η₀)) * (1 - C * (1 / (n : ℝ) + siteGap c' n)) *
+            Real.exp (-2 * eLeftComb c' f n j x + W) :=
+          mul_le_mul_of_nonneg_right
+            (mul_le_mul_of_nonneg_right h_mu_le hpos) (Real.exp_pos _).le
+      _ = (1 / 4 : ℝ) * (Real.exp (holeModel j u η₀) * (1 - C * (1 / (n : ℝ) + siteGap c' n))) *
+            Real.exp (-2 * eLeftComb c' f n j x + W) := by ring
+      _ ≤ (1 / 4 : ℝ) * Real.exp (holeH c' η₀ n j x) * Real.exp (-2 * eLeftComb c' f n j x + W) := by
+            gcongr
+      _ = (1 / 4 : ℝ) * Real.exp (holeH c' η₀ n j x - 2 * eLeftComb c' f n j x + W) := by
+            rw [mul_assoc, ← Real.exp_add]; congr 2; ring
+      _ ≤ (1 / 4 : ℝ) * (B * Real.exp (c' * slitL x) *
+            Real.exp (-(c' * combPf c' f x + jEndComb c' x f))) := by
+            gcongr
+  · push Not at hpos
+    have h_lhs_np : muHole j η₀ * (1 - C * (1 / (n : ℝ) + siteGap c' n)) *
+        Real.exp (-2 * eLeftComb c' f n j x + W) ≤ 0 :=
+      mul_nonpos_of_nonpos_of_nonneg (mul_nonpos_of_nonneg_of_nonpos h_mu_nn hpos.le) (Real.exp_pos _).le
+    have h_rhs_nn : 0 ≤ (1 / 4 : ℝ) * (B * Real.exp (c' * slitL x) *
+        Real.exp (-(c' * combPf c' f x + jEndComb c' x f))) := by positivity
+    exact h_lhs_np.trans h_rhs_nn
+
+
 /-- Reference floor (`cmb:K5`, `comb_estimates.tex`, line 217):
 for fixed $j \ge 1$ and $\eta_0 \in (0, \tfrac14]$, there exist $N_j \ge 1$ and $C > 0$
 independent of $f$ such that for large $c'$, every $f \ge 1$, every $n \ge \max(N_j, f + j)$,
@@ -2281,10 +2366,10 @@ theorem hole_floor_K5 {j : ℕ} {η₀ : ℝ} (hj : 1 ≤ j) (hη₀0 : 0 < η�
         muHole j η₀ * (1 - C * (1 / (n : ℝ) + siteGap c' n)) *
             Real.exp (-2 * eLeftComb c' f n j x) ≤
           h0Comb c' f η₀ x / levComb c' f x := by
-  obtain ⟨N_j, C, hNj, hC_pos, h_ev⟩ := hole_limit_K5 hj hη₀0 hη₀1
+  obtain ⟨N_j, C, hNj, hC_pos, h_ev⟩ := hole_floor_general hj hη₀0 hη₀1
   obtain ⟨_, _, hgap_ev⟩ := siteGap_eventually_le
   refine ⟨N_j, C, hNj, hC_pos, ?_⟩
-  filter_upwards [h_ev, hgap_ev, eventually_gt_atTop (0 : ℝ)] with c' h_lim hgap_c hc'
+  filter_upwards [h_ev, hgap_ev, eventually_gt_atTop (0 : ℝ)] with c' h_gen hgap_c hc'
   have hgap1 : siteGap c' 1 ≤ 1 / 2 := hgap_c.2.2.2
   intro f n x hf hn_max hx
   have hn_Nj : N_j ≤ n := (le_max_left _ _).trans hn_max
@@ -2410,62 +2495,9 @@ theorem hole_floor_K5 {j : ℕ} {η₀ : ℝ} (hj : 1 ≤ j) (hη₀0 : 0 < η�
       rw [sub_eq_add_neg, Real.exp_add, Real.exp_add, Real.exp_log href_pos]
     exact h1.trans_eq heq_rhs
   rw [h_quot_eq]
-  have h_hole_lim := h_lim n x hn_Nj hx
-  set u := (x - chiQuantile c' n) / siteGap c' n
-  have hu_mem : u ∈ Icc (0 : ℝ) 1 := by
-    refine ⟨div_nonneg (sub_nonneg.mpr hx.1) (by
-      unfold siteGap
-      exact sub_nonneg.mpr ((chiQuantile_strictMonoOn hc').monotoneOn
-        (Set.mem_Ici.mpr (by linarith)) (Set.mem_Ici.mpr (by linarith)) (by linarith))), ?_⟩
-    have hℓ_pos : 0 < siteGap c' n := by
-      unfold siteGap
-      exact sub_pos.mpr (chiQuantile_strictMonoOn hc' (Set.mem_Ici.mpr (by linarith))
-        (Set.mem_Ici.mpr (by linarith)) (by linarith))
-    rw [div_le_one hℓ_pos]
-    unfold siteGap
-    have h_cast : chiQuantile c' ((n + 1 : ℕ) : ℝ) = chiQuantile c' ((n : ℝ) + 1) := by
-      push_cast; rfl
-    rw [← h_cast]; linarith [hx.2]
-  have h_mu_le : muHole j η₀ ≤ (1 / 4 : ℝ) * Real.exp (holeModel j u η₀) := by
-    unfold muHole
-    exact csInf_le ⟨0, by rintro _ ⟨v, _, rfl⟩; positivity⟩ ⟨u, hu_mem, rfl⟩
-  have h_lin_exp : 1 - C * (1 / (n : ℝ) + siteGap c' n) ≤
-      Real.exp (-(C * (1 / (n : ℝ) + siteGap c' n))) := by
-    linarith [Real.add_one_le_exp (-(C * (1 / (n : ℝ) + siteGap c' n)))]
-  have h_hole_ge : holeModel j u η₀ - C * (1 / (n : ℝ) + siteGap c' n) ≤ holeH c' η₀ n j x :=
-    by linarith [(abs_le.mp h_hole_lim).1]
-  have h_exp_hole : Real.exp (holeModel j u η₀) * (1 - C * (1 / (n : ℝ) + siteGap c' n)) ≤
-      Real.exp (holeH c' η₀ n j x) := by
-    calc Real.exp (holeModel j u η₀) * (1 - C * (1 / (n : ℝ) + siteGap c' n))
-        ≤ Real.exp (holeModel j u η₀) * Real.exp (-(C * (1 / (n : ℝ) + siteGap c' n))) :=
-          mul_le_mul_of_nonneg_left h_lin_exp (Real.exp_pos _).le
-      _ = Real.exp (holeModel j u η₀ - C * (1 / (n : ℝ) + siteGap c' n)) := by
-          rw [← Real.exp_add, ← sub_eq_add_neg]
-      _ ≤ Real.exp (holeH c' η₀ n j x) := Real.exp_le_exp.mpr h_hole_ge
-  have h_mu_nn : 0 ≤ muHole j η₀ := by
-    unfold muHole; exact le_csInf ⟨_, ⟨0, ⟨le_rfl, zero_le_one⟩, rfl⟩⟩ fun _ ⟨_, _, h⟩ => h ▸ by positivity
-  by_cases hpos : 0 ≤ 1 - C * (1 / (n : ℝ) + siteGap c' n)
-  · calc muHole j η₀ * (1 - C * (1 / (n : ℝ) + siteGap c' n)) * Real.exp (-2 * eLeftComb c' f n j x)
-        ≤ ((1 / 4 : ℝ) * Real.exp (holeModel j u η₀)) * (1 - C * (1 / (n : ℝ) + siteGap c' n)) *
-            Real.exp (-2 * eLeftComb c' f n j x) :=
-          mul_le_mul_of_nonneg_right
-            (mul_le_mul_of_nonneg_right h_mu_le hpos) (Real.exp_pos _).le
-      _ = (1 / 4 : ℝ) * (Real.exp (holeModel j u η₀) * (1 - C * (1 / (n : ℝ) + siteGap c' n))) *
-            Real.exp (-2 * eLeftComb c' f n j x) := by ring
-      _ ≤ (1 / 4 : ℝ) * Real.exp (holeH c' η₀ n j x) * Real.exp (-2 * eLeftComb c' f n j x) := by
-            gcongr
-      _ = (1 / 4 : ℝ) * Real.exp (holeH c' η₀ n j x - 2 * eLeftComb c' f n j x) := by
-            rw [mul_assoc, ← Real.exp_add]; congr 2; ring
-      _ ≤ (1 / 4 : ℝ) * (‖refComb c' f η₀ (x : ℂ)‖ * Real.exp (c' * slitL x) *
-            Real.exp (-(c' * combPf c' f x + jEndComb c' x f))) := by
-            gcongr
-  · push Not at hpos
-    have h_lhs_np : muHole j η₀ * (1 - C * (1 / (n : ℝ) + siteGap c' n)) *
-        Real.exp (-2 * eLeftComb c' f n j x) ≤ 0 :=
-      mul_nonpos_of_nonpos_of_nonneg (mul_nonpos_of_nonneg_of_nonpos h_mu_nn hpos.le) (Real.exp_pos _).le
-    have h_rhs_nn : 0 ≤ (1 / 4 : ℝ) * (‖refComb c' f η₀ (x : ℂ)‖ * Real.exp (c' * slitL x) *
-        Real.exp (-(c' * combPf c' f x + jEndComb c' x f))) := by positivity
-    exact h_lhs_np.trans h_rhs_nn
+  have hg := h_gen f n x hf hn_max hx ‖refComb c' f η₀ (x : ℂ)‖ 0 (norm_nonneg _)
+    (by rw [add_zero]; exact h_exp_low)
+  rwa [add_zero] at hg
 
 /-- Band $j = 1$ overshoot (`cmb:K5`, `comb_estimates.tex`, line 222):
 for fixed $\eta_0 \in (0, \tfrac14]$, there exist $N_{\mathrm{ov}} \ge 1$ and $c_T > 0$
@@ -2711,6 +2743,10 @@ theorem band_overshoot_K5 {η₀ : ℝ} (hη₀0 : 0 < η₀) (hη₀1 : η₀ �
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Holes.band_overshoot_K5' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms band_overshoot_K5
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Holes.hole_floor_general' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.Upper.Holes.hole_floor_general
 
 end FormalResearch.ModularBootstrap.Upper.Holes
 

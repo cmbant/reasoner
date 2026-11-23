@@ -30,9 +30,9 @@ U6_PLAN §1, unchanged; TeX re-checked against `origin/main`):
 | R1 | P_unif, profile Lemma V/E/G | done |
 | R2a | Langer chart τ, τ⁻¹, (F1), (F2) | done |
 | R3a | Phase machinery uniform in N: squared pair-change bound (PC) `‖∂^iΔ_D‖ ≤ K Σ(|ε_j²−ε0_j²| + 2|χ'_j−χ_j|)`, N-free `combTail_K1a`, SDV hypotheses / Lemma Φ transform / global bound / K7 for an abstract design with c'-independent constants | done (`Ramped/PhaseUniform`, in-place generalisation of `Design/*`, `Membership/DesignMembership`) |
-| R4 | Hole comparison: Λ-form of K4 for an arbitrary comb, comparison `log|B_D| ≥ log|B_ref| − S + Σ_H log ρ_k`, `R(t)` discriminant lemma, seven-pair product, near-tip ratio `vρ_∞ ≤ C_v r^{5/4}` | ready |
-| R2b | Prop 1.2(2) comb-to-Airy identity, uniform over designs, error `O(c'^{-2/3})` | ready (R2a done) |
-| R3b | Ramped instantiation (sites, heights, PC sums, SDV, Φ transform θ=3/5, K7, far-band comparison) | R3a, R4 defs |
+| R4 | Hole comparison: Λ-form of K4 for an arbitrary comb, comparison `log|B_D| ≥ log|B_ref| − S + Σ_H log ρ_k`, `R(t)` discriminant lemma, seven-pair product, near-tip ratio `vρ_∞ ≤ C_v r^{5/4}` | done except the named `ShiftSumEstimate` (Lemma-E summation; discharge in R3b) |
+| R2b | Prop 1.2(2) comb-to-Airy identity, uniform over designs, error `O(c'^{-2/3})` | done (`Ramped/CombToAiry*`, for `combBD`; bridge to the ramped `designComb` in R5/R7) |
+| R3b | Ramped instantiation (sites, heights, PC sums, SDV, Φ transform θ=3/5, K7, far-band comparison) | R3a, R4 done; also discharges `ShiftSumEstimate` |
 | R5 | Region I | R1, R2b, R3b |
 | R6 | Region II near-tip + macroscopic | R3b, R4 |
 | R7 | Vacuum | R1, R2b, R3b |

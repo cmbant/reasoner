@@ -41,6 +41,19 @@ public import FormalResearch.SignUncertainty.DeepLobeNumerics
 public import FormalResearch.SignUncertainty.DeepLobeRegionII
 public import FormalResearch.SignUncertainty.DeepLobeRegionI
 public import FormalResearch.SignUncertainty.DeepLobeMass
+public import FormalResearch.SignUncertainty.MontelHol
+public import FormalResearch.SignUncertainty.StripGExpansion
+public import FormalResearch.SignUncertainty.RadialKernelLimit
+public import FormalResearch.SignUncertainty.RadialXiRepr
+public import FormalResearch.SignUncertainty.RadialXiMain
+public import FormalResearch.SignUncertainty.ParamIntegral
+public import FormalResearch.SignUncertainty.RadialDomination
+public import FormalResearch.SignUncertainty.RadialIntegrand
+public import FormalResearch.SignUncertainty.RadialValueLimit
+public import FormalResearch.SignUncertainty.RadialValueMain
+public import FormalResearch.SignUncertainty.RadialDerivative
+public import FormalResearch.SignUncertainty.RadialDerivMain
+public import FormalResearch.SignUncertainty.RadialDerivLimit
 public import FormalResearch.SignUncertainty.RadialCompactness
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
@@ -109,6 +122,13 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `DeepLobeRegionII`, `DeepLobeRegionI`, `DeepLobeMass`: Step 2 of `lem:radial-compactness`: the vertical decay of the
   exact Mellin kernel `‖K₀(s+iτ,ξ)‖`, the lobe integral, the pointwise bound `ρ₀|f|(cξ)` (`rho0_abs_f_le`), and the
   deep-lobe mass bound `deep_lobe_mass_thm` (`c ≥ 56`, `R ≥ 1`: `≤ 8 M[f] (e^{-5R^{3/2}} + e^{-c/25})`).
+* `FormalResearch.SignUncertainty.MontelHol`, `StripGExpansion`, `RadialKernelLimit`, `RadialXiRepr`, `RadialXiMain`,
+  `ParamIntegral`, `RadialDomination`, `RadialIntegrand`, `RadialValueLimit`, `RadialValueMain`, `RadialDerivative`,
+  `RadialDerivMain`, `RadialDerivLimit`: Steps 3 of `lem:radial-compactness`: Montel's theorem on `{Re w > 0}`
+  (`montel_rightHalfPlane`), `‖S̃₀(ζ) - π² ζ³/36‖ ≤ 10‖ζ‖⁵`, the rescaled kernel and its limit
+  (`radialK_tendsto`, `radialK_norm_le`), the representation `Ξ_c(s) = ∫ radialA` (`radial_xi_repr`), and the locally
+  uniform limits `radial_value_limit`, `radial_deriv_limit` of `Ξ_c`, `Ξ_c'` along a sequence with
+  `W_{c_k} → W`.
 * `FormalResearch.SignUncertainty.RadialCompactness`: `lem:radial-compactness` as an input structure
   (`RadialCompactness`: window-profile compactness with the `C¹` clause; the deep-lobe mass bound is a theorem) and the
   lower half of `gt:7.5` at one level derived from it (`radial_rigidity_lower_of_compactness`).
