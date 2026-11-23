@@ -195,6 +195,12 @@ public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaQScaleBridge
 public import FormalResearch.ModularBootstrap.FixedWeightBand.EdgeKernelWFactor
 public import FormalResearch.ModularBootstrap.FixedWeightBand.EdgeKernelW
 public import FormalResearch.ModularBootstrap.FixedWeightBand.EdgeKernelWBridge
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BandBoundWAux
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BandBoundWDensity
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BandBoundWInstance
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BandBoundW
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BandBoundWBridge
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BandBoundWWitness
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -640,4 +646,19 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `|K| ≤ C e^{-κc'}` on `x ≤ ξ*/2`, uniformly in `τ` (second clause of `kernelBound_W`).  Bridge `EdgeKernelWBridge`: the Virasoro
   `StripMultiplier.lemma_J4_1`, `lemma_J4_2` as the `w = 1` instances (`lemma_J4_1_of_W`, `lemma_J4_2_of_W`), non-vacuity
   `lemma_J4_1_W_thermalDiff`.
+
+* `FixedWeightBand.{BandBoundWAux, BandBoundWDensity, BandBoundWInstance, BandBoundW, BandBoundWBridge, BandBoundWWitness}`:
+  **Proposition `Y_V` (band bound, `vlo:YV`) and Proposition `X_V` (`vlo:XV`)** at every fixed `(w, Q)`, unconditional.
+  `ywBandInstance` builds the `StripBand.BandReductionInstance` for `W̃_V/M[g]` from `lemma_S4_W` (`(MS1)`, `M = 0`),
+  `lemma_J4_1_W` (edge identity `∫ K dmPos - ∫ K dmNeg`, `BandBoundWDensity`), `lemma_J4_2_W` (factorization,
+  `|A₁|, |A₁'| ≤ C`, `0 ≤ A₂ ≤ C`, sub-Cardy bound) and the weight-free Lemma `J4.0` and Langer bookkeeping of
+  `StripMultiplier.BandBound` (`langerDelta_props`, `langerNegV_*`, imported; `BandBoundWAux` holds the weight-free `τ₀`
+  and `ν` hypotheses).  The reduction hypothesis `ha_0_bd` (`‖a₀‖ + ‖a₀'‖ ≤ C_a`, `M = 0`) needs only `|A₁'| ≤ C_w/(1+|τ|)`
+  (no `1/c'` decay), so the weight-free `teb_band_reduction` applies unchanged and no `TwoEdgeBootstrap` edit is needed.
+  `proposition_YV_W`: for `c' ≥ c₀(prob, A_thr)`, `R ∈ [b² c'^{2/3}, b² c'^{2/3}+1]`, `g ∈ TestClass prob (c'/12)` with
+  `M[g] > 0`, `g ≥ 0` on `[T, ∞)`, `Δ(0) ≤ T ≤ Δ(-A_thr)`: `‖W̃_V(ζ₀)‖ ≤ M C_Y c'^{-5/6}(c'^{1/3}(B₁+B₂) + c'^{-1/6})/cos ψ`
+  on `S`, with `B₁, B₂` the explicit band moments and `ũ(Δ(u)) = u`; `proposition_YV_of_spec_W` for any `LangerChartSpec`;
+  `proposition_XV_W` (`B₁ + B₂ ≤ C_X (1 + log L) c'^{-1/3}`, the weight-free `teb_bootstrap_part1`) and the combination
+  `proposition_YV_XV_W`.  `BandBoundWBridge`: `StripMultiplier.proposition_YV` is the `w = 1` instance
+  (`proposition_YV_of_W`); `BandBoundWWitness`: non-vacuity of the `g`-hypotheses (`yvHypotheses_thermalDiff`).
 -/
