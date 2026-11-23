@@ -310,8 +310,10 @@ lemma window_ne_zero_pos {c : ℝ} {g : ℝ → ℝ} {u : ℝ} (h : hankelWindow
   by_contra hneg
   apply h
   unfold hankelWindowProfile
-  rw [if_neg]
-  exact hneg
+  dsimp only
+  split_ifs with hpos
+  · exact absurd hpos hneg
+  · rfl
 
 lemma abs_window_div_weight {c y μ : ℝ} (hc : 0 < c) (hy : 0 ≤ y) (hζ : laplaceZeta c y < 1)
     (hμ : 0 < μ) (g : ℝ → ℝ) (u : ℝ) :

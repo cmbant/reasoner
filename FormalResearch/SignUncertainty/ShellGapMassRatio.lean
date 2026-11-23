@@ -3,6 +3,7 @@ module
 public import FormalResearch.SignUncertainty.ShellGapHankel
 public import FormalResearch.SignUncertainty.RadialCompactnessProof
 public import FormalResearch.SignUncertainty.DeepLobeMass
+public import FormalResearch.SignUncertainty.ShellGapLaplace
 
 /-!
 # `thm:ce-shell-gap`, step (a): the mass ratios `M[p]/M[q]` are bounded
@@ -98,33 +99,6 @@ lemma window_lower_tail_le {c : ℝ} (hc : 0 < c) {T u₁ : ℝ}
     _ = hankelMass c q := hgint
 
 /-! ### Boundedness of `M[p]/M[q]` -/
-
-private lemma setIntegral_Icc_tendsto_of_tendstoUniformlyOn
-    {g : ℕ → ℝ → ℝ} {G : ℝ → ℝ} {a b : ℝ} (hab : a ≤ b)
-    (hunif : TendstoUniformlyOn g G atTop (Icc a b))
-    (hg_int : ∀ᶠ k in atTop, IntegrableOn (g k) (Icc a b))
-    (hG_int : IntegrableOn G (Icc a b)) :
-    Tendsto (fun k => ∫ u in Icc a b, g k u) atTop (𝓝 (∫ u in Icc a b, G u)) := by
-  rw [Metric.tendsto_nhds]
-  intro ε hε
-  let δ := ε / (b - a + 1)
-  have hδ : 0 < δ := div_pos hε (by linarith)
-  have hunif' := Metric.tendstoUniformlyOn_iff.mp hunif δ hδ
-  filter_upwards [hg_int, hunif'] with k hki hku
-  rw [Real.dist_eq, ← integral_sub hki hG_int]
-  have h1 : |∫ u in Icc a b, (g k u - G u)| ≤ ∫ u in Icc a b, |g k u - G u| :=
-    by simpa only [Real.norm_eq_abs] using norm_integral_le_integral_norm (fun u => g k u - G u)
-  have h2 : ∫ u in Icc a b, |g k u - G u| ≤ ∫ _u in Icc a b, δ := by
-    refine setIntegral_mono_on (hki.sub hG_int).abs continuousOn_const.integrableOn_Icc
-      measurableSet_Icc fun u hu => ?_
-    simpa [Real.dist_eq, abs_sub_comm] using (hku u hu).le
-  have h3 : ∫ _u in Icc a b, δ = (b - a) * δ := by
-    rw [setIntegral_const, smul_eq_mul, Measure.real_def, Real.volume_Icc,
-      ENNReal.toReal_ofReal (by linarith)]
-  have h4 : (b - a) * δ < ε := by
-    dsimp [δ]; rw [mul_div_assoc', div_lt_iff₀ (by linarith)]; nlinarith
-  linarith
-
 
 lemma bdd_of_eventually {a b : ℕ → ℝ} (ha : ∀ k, 0 ≤ a k) (hb : ∀ k, 0 < b k) {C : ℝ}
     (h : ∀ᶠ k in atTop, a k ≤ C * b k) : ∃ C' : ℝ, ∀ k, a k ≤ C' * b k := by
@@ -313,7 +287,7 @@ theorem mass_ratio_bdd (H : RadialCompactness) {c : ℕ → ℝ} (hc : Tendsto c
       |hankelWindowProfile (c (K k)) (p (K k)) u / hankelMass (c (K k)) (p (K k))|) atTop
       (𝓝 (∫ u in Icc α β, |(F (u : ℂ)).re|)) := by
     intro α β hαβ
-    refine setIntegral_Icc_tendsto_of_tendstoUniformlyOn hαβ (hunifabs α β) ?_
+    refine setIntegral_Icc_tendsto_unif hαβ (hunifabs α β) ?_
       hc_cont.abs.continuousOn.integrableOn_Icc
     exact Eventually.of_forall fun k =>
       (((integrable_hankelWindowProfile_iff (hcpos (K k)) _).mpr (hp (K k)).int).div_const _).abs.integrableOn
