@@ -44,6 +44,7 @@ public import FormalResearch.CohnElkies.CubicNormalFormH
 public import FormalResearch.CohnElkies.MellinLiftIntegrals
 public import FormalResearch.CohnElkies.AiryWindowInversion
 public import FormalResearch.CohnElkies.FresnelBranch
+public import FormalResearch.CohnElkies.PieceCDecomposition
 public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
 
@@ -156,6 +157,8 @@ and the Airy library:
   Airy inversion / reference identity (`HasU2.airy_inversion`, `airy_window_inversion`, `airy_reference_identity`).
 * `FormalResearch.CohnElkies.FresnelBranch`: the branch-point term of `u1c:U3`(3) Piece C / `O.3(2)`: `∫ φ (iv)^{1/2} e^{iAv} dv =
   -√π φ(0) A^{-3/2} + O(A^{-2})` for `C²` amplitudes (`fresnel_branch`), by improper integration by parts and the Gaussian integral.
+* `FormalResearch.CohnElkies.PieceCDecomposition`: exact decomposition `K₀ W = g e^{iψ} G_sm − γ₀ H_c (iv)^{1/2} χ₁ e^{iAv}` and the
+  conditional assembly `pieceC_main_term` of `I_C = γ₀ A^{-3/2}/(2√π ξ) + O(ξ⁻¹A⁻²)` (smooth part and `C²` regularity of `χ₁H_c` as named hypotheses).
 * `FormalResearch.CohnElkies.PreEdgeCriterion`: unconditional concrete `GT.2b(1)–(3)` & `O.11y(3)`/`GT.4` tip offset
   for `twoScaleS`, unconditional `PE.3` reference & measure Mellin inversion (`pe3_reference_mellin_inversion`,
   `pe3_measure_inversion`), `pe3_remainder_integral_bound` (`O(c^{-2/3})`), `pe3_compact_origin_pos`, and
