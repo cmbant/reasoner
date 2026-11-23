@@ -315,6 +315,13 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwoMacro
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwo
 public import FormalResearch.ModularBootstrap.Upper.Assembly.DisplacedDesign
 public import FormalResearch.ModularBootstrap.Upper.Assembly.FarFirstSite
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneAiry
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneProd
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneWindow
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneDesign
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneGeom
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneAmp
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOne
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -940,4 +947,12 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (the `sig*` lemmas, with the `design*` declarations re-derived as corollaries).  `farFamily : OmittedFamily
   (designClass ∪ displacedClassX)` consists of far-first-site windows (`f = 1`, first site `a_{f+1}`, sites `2, …, f`
   displaced by `farRho f`), and `virasoro_sigma_unconditional` is Theorem `Σ` at Virasoro with no hypothesis.
+* `Upper.Ramped.RampedRegionOne*`: **Region I of Lemma U\*** (`rem:thmU` Step (2)).  `RampedRegionOneAiry`/`Prod`/`Window`:
+  the elementary lower bound for the Airy window product on the real line (concavity of `±Ai` on the cells between
+  consecutive zeros, no asymptotics), `window_lower`; `RampedRegionOneDesign`: `ramped_window_lower` for `W_D`,
+  `rho_lower`, `etaSq_div_lower` (origin of `η_k² ≥ C_I² k/√c'`); `RampedRegionOneGeom`: `regionI_gap`
+  (`u_f - u ≥ c c'^{-1/3}` from `t ≥ t_* + 1`); `RampedRegionOneAmp`: `regionI_twoG_of_W` (amplitude of
+  `rampedComb_amplitude` against the global bound `SD_G`); `RampedRegionOne`: `regionI_W_lower` and `rampedRegionI`
+  (`0 < twoG` for `t_* + 1 ≤ t ≤ t(ξ_I)`, `d ∈ [0, d_0]`, `C_I` absolute and chosen first) and `rampedPositive_tstar` (Regions I and II
+  together: `0 < twoG` for `t ≥ t_* + 1`), unconditional.
 -/
