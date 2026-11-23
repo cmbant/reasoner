@@ -22,6 +22,7 @@ public import FormalResearch.SignUncertainty.ShellLaplaceZeros
 public import FormalResearch.SignUncertainty.OddShellFamily
 public import FormalResearch.SignUncertainty.ElementaryIdentities
 public import FormalResearch.SignUncertainty.Radii
+public import FormalResearch.SignUncertainty.HankelMellinKernel
 public import FormalResearch.SignUncertainty.RadialCompactness
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
@@ -66,6 +67,9 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.Radii`: concrete Euclidean radii `A_sign^±(d)`, the prescribed-shell
   Cohn–Elkies class and `u_LP`, the Bessel-kernel Hankel thresholds, and the bridge to the abstract
   `HankelKernelData` development (`sign_uncertainty_core.tex`, introduction).
+* `FormalResearch.SignUncertainty.HankelMellinKernel`: the Mellin transform `Φ_c(z)` of the Hankel kernel, the
+  Mellin–Fubini identity for `𝓗_c` and Weber's integral in product form (from the Laguerre eigenfunction),
+  the first step of `gt:7.4(1)` (`fourier_mellin_proofs.tex`).
 * `FormalResearch.SignUncertainty.RadialCompactness`: `lem:radial-compactness` as an input structure
   (`RadialCompactness`: deep-lobe mass bound, window-profile compactness with the `C¹` clause) and the
   lower half of `gt:7.5` at one level derived from it (`radial_rigidity_lower_of_compactness`).
