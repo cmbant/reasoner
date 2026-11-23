@@ -16,7 +16,8 @@ Source: `CFT/modular_bootstrap/paper/lower_o1_two_edge.tex`, Theorem `FT-L.FW` (
   the band-feedback input supplied by Proposition `Y_V` (`proposition_YV_W`), Lemma `D'` and Lemma `Z`
   at weight `w` (`lemma_Z_W_band`) and the scale choice `LemmaQData.bvChoice`.
 
-Not formalised here: `corollary_E1` needs an upper bound (Theorem C15) as well.
+`corollary_E1` also needs the upper bound `TheoremC15UpperInput prob`; at Virasoro it is
+`Upper.Ramped.theoremC15UpperInput_virasoro`.
 -/
 
 @[expose] public section
