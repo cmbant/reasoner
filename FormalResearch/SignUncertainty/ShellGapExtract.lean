@@ -500,4 +500,20 @@ theorem hankelShellGapLimit_proved (D : ShellHBData) : HankelShellGapLimit D := 
     rw [integral_const_mul]
     positivity
 
+/-- info: 'FormalResearch.SignUncertainty.extract_two' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms extract_two
+
+/-- info: 'FormalResearch.SignUncertainty.limit_laplace' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms limit_laplace
+
+/-- info: 'FormalResearch.SignUncertainty.limit_transport' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms limit_transport
+
+/-- info: 'FormalResearch.SignUncertainty.hankelShellGapLimit_proved' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelShellGapLimit_proved
+
 end FormalResearch.SignUncertainty

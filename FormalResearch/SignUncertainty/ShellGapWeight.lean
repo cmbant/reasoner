@@ -521,4 +521,16 @@ theorem right_tail_weighted {y : ℝ} (hy : 0 ≤ y) {η : ℝ} (hη : 0 < η) :
     _ ≤ M * η + 16 * M * Real.exp (-(10 * R)) := add_le_add hIIb hI
     _ = M * (16 * Real.exp (-(10 * R)) + η) := by ring
 
+/-- info: 'FormalResearch.SignUncertainty.regionII_weighted' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms regionII_weighted
+
+/-- info: 'FormalResearch.SignUncertainty.regionI_weighted' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms regionI_weighted
+
+/-- info: 'FormalResearch.SignUncertainty.right_tail_weighted' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms right_tail_weighted
+
 end FormalResearch.SignUncertainty

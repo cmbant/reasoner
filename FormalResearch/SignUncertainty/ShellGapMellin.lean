@@ -164,4 +164,16 @@ theorem weighted_nonneg {c y : ℝ} (hc : 56 ≤ c) (hy : 0 < y) (hζ : laplaceZ
           rw [r2]; ring
         rw [r1', r2']; ring
 
+/-- info: 'FormalResearch.SignUncertainty.mellinK_reflect' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms mellinK_reflect
+
+/-- info: 'FormalResearch.SignUncertainty.integral_laplaceWeight_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms integral_laplaceWeight_eq
+
+/-- info: 'FormalResearch.SignUncertainty.weighted_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms weighted_nonneg
+
 end FormalResearch.SignUncertainty

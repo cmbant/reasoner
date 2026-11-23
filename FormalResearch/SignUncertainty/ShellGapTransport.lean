@@ -198,4 +198,8 @@ theorem mass_transport {Φ : ℕ → ℝ → ℝ} {Q : ℝ → ℝ} {ustar : ℝ
         _ = g / 4 := by field_simp
     linarith
 
+/-- info: 'FormalResearch.SignUncertainty.mass_transport' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms mass_transport
+
 end FormalResearch.SignUncertainty

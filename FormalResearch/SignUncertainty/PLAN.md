@@ -17,19 +17,19 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
   - `CohnElkiesRadius.ce_radius_airy_order_of_bounds` is only the gluing step. Its hypotheses `hlo` and `hhi` *are* the
     two halves of the theorem, and the module imports none of the Airy or Mellin machinery.
 - **Waves 4–9 (about 25k lines) feed only leaves.** About 30 hypothesis packages (`MacroscopicTransferPackage`,
-  `GT4CoverageBands`, `PE3OriginData`, `PreEdgeGeneralData`, `AiryTailSymbolSeed`, `MovingDiagFarTail`, `ShellGapPackage`,
-  …) have only toy non-vacuity witnesses (all functions 0, constants 1, or degenerate parameters), and none has a real
+  `GT4CoverageBands`, `PE3OriginData`, `PreEdgeGeneralData`, `AiryTailSymbolSeed`, `MovingDiagFarTail`, …) have only toy non-vacuity witnesses (all functions 0, constants 1, or degenerate parameters), and none has a real
   instance. `MovingDiagFarTail` has no instance at all. Theorems such as GT.2b, GT.3b, GT.4, PE.3 and `cepe:general` are
   stated for an abstract `fhat` that carries the paper's estimates as hypotheses. Nothing builds `W_S`, `W_D` from `Ai`,
   or `h_mellin` from a CE pair.
-- Open skeleton fields in `Headlines.lean` (7): `hb_thresholds_lower`, `hb_thresholds_upper`, `shell_reduction_m1`,
-  `ce_hb_lift_m1`, `shell_reduction`, `hankel_shell_gap_limit` (the Hankel-level form of `shell_gap_limit`; the Euclidean
-  statement follows by `shellGapLimit_of_hankel`), `ce_hb_lift`. `radial_compactness`, `one_profile_envelope` and the
+- Open skeleton fields in `Headlines.lean` (6): `hb_thresholds_lower`, `hb_thresholds_upper`, `shell_reduction_m1`,
+  `ce_hb_lift_m1`, `shell_reduction`, `ce_hb_lift`. The Hankel form `HankelShellGapLimit` of `thm:ce-shell-gap` is the
+  theorem `hankelShellGapLimit_proved`, and the Euclidean statement follows by `shellGapLimit_of_hankel`. `radial_compactness`, `one_profile_envelope` and the
   Euclidean-to-Hankel dictionary `hankel_euclid_dictionary` (`gt:7.9`) are theorems and no longer inputs.
-- `hankel_shell_gap_limit` route (`ShellGapHankel.lean`, `ShellGapMassRatio.lean`): step (a), the mass ratio `M[p]/M[q]` bounded
-  (`mass_ratio_bdd`, `hankelShell_mass_ratio_bdd`), is proved. Open: the common-subsequence extraction of `P∞, Q∞`; the
-  mass-transport constraints (`∫ 2Q∞ ≤ 0`, negative mass `≥ 1/2` beyond `u_*`); and the Laplace-weight limit (`thm:ce-shell-gap`
-  L.6, needing `LaplaceWeight`). The three-lines/origin-floor estimate is not on this route (it feeds only the `h(0)` clause).
+- `thm:ce-shell-gap` route (`ShellGapHankel.lean`, `ShellGapMassRatio.lean`, `ShellGapWeight.lean`, `ShellGapLaplace.lean`,
+  `ShellGapMellin.lean`, `ShellGapTransport.lean`, `ShellGapExtract.lean`): the extraction and constraint system
+  `eq:ce-laplace-constraint` is proved (`hankelShellGapLimit_proved`): mass ratio, common-subsequence extraction,
+  signs, mass transport, and the Laplace limit with the Mellin reflection. Not part of it and still open: the origin
+  floor `liminf h_c(0)/M[f_c] ≥ sup_y L_y(2Q∞)` and `u_* ≤ t_m` (`thm:ce-shell-reduction`, `prop:ce-one-profile`).
 - What is genuinely closed and reusable:
   - the Airy base: Theorems D, Q and B with its equality case, Clark two-node, Hermite–Biehler quadrature and
     `at47_*`, and Airy PWS (a)⇔(b);

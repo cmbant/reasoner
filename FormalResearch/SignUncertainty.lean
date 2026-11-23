@@ -17,8 +17,6 @@ public import FormalResearch.SignUncertainty.HankelBesselNat
 public import FormalResearch.SignUncertainty.HankelBesselLaguerre
 public import FormalResearch.SignUncertainty.RadialCompactnessKernel
 public import FormalResearch.SignUncertainty.ShellLaplaceBase
-public import FormalResearch.SignUncertainty.ShellGap
-public import FormalResearch.SignUncertainty.ShellGapWitness
 public import FormalResearch.SignUncertainty.ShellLaplaceZeros
 public import FormalResearch.SignUncertainty.OddShellFamily
 public import FormalResearch.SignUncertainty.ElementaryIdentities
@@ -82,6 +80,11 @@ public import FormalResearch.SignUncertainty.EuclidRadialProjection
 public import FormalResearch.SignUncertainty.HankelInversion
 public import FormalResearch.SignUncertainty.ShellGapHankel
 public import FormalResearch.SignUncertainty.ShellGapMassRatio
+public import FormalResearch.SignUncertainty.ShellGapWeight
+public import FormalResearch.SignUncertainty.ShellGapLaplace
+public import FormalResearch.SignUncertainty.ShellGapMellin
+public import FormalResearch.SignUncertainty.ShellGapTransport
+public import FormalResearch.SignUncertainty.ShellGapExtract
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
@@ -112,10 +115,6 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   clause of `lem:radial-compactness`; the compactness argument itself is not formalised).
 * `FormalResearch.SignUncertainty.ShellLaplaceBase`: Airy–Laplace transform, `ShellHBData`,
   even-`m` Laplace sign, factored ODE, and one-profile LP reduction (`ce_shells.tex`, Prop `H.14'`).
-* `FormalResearch.SignUncertainty.ShellGap`: conditional Mellin origin-floor (`shell_reduction_lower`)
-  and packaged subsequential core of Theorem `H.14` (`theorem_H14_subseq_bounds`, `theorem_H14_strict_gap`).
-* `FormalResearch.SignUncertainty.ShellGapWitness`: explicit `ShellHBData.airy` (`m = 1`)
-  consistency witnesses for `ShellGapPackage` and `ShellReductionPackage`.
 * `FormalResearch.SignUncertainty.ShellLaplaceZeros`: positive zero multiplicity `≤ m - 1`,
   near-`0⁺` and large-`y` positivity, and `m = 3` trichotomy (`ce_shells.tex`, Corollary `H.14b`).
 * `FormalResearch.SignUncertainty.OddShellFamily`: analytic odd-level Hermite–Biehler shell gap
@@ -190,6 +189,15 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.ShellGapMassRatio`: `thm:ce-shell-gap` step (a), `mass_ratio_bdd` (the ratio `M[p]/M[q]` is bounded when
   `T ≤ c/π² - (u₀/β₁)c^{1/3} + o(c^{1/3})`, via `normalized_compactness`, `deep_lobe_mass_thm` and the identity theorem), and its Hankel-profile
   form `hankelShell_mass_ratio_bdd`, with `h(0) = M[ĥ]`, `∫ f = 0` and `q ≠ 0` for `HankelShellProfile`.
+* `FormalResearch.SignUncertainty.ShellGapWeight`: weighted tails of Hankel eigenfunctions against the Laplace weight
+  `laplaceWeight` (regions I and II of the proof of `eq:ce-laplace-limit`; `right_tail_weighted`).
+* `FormalResearch.SignUncertainty.ShellGapLaplace`: window-variable bridges and the Laplace limit `laplace_limit`
+  (`eq:ce-laplace-limit`: `∫ g ρ₀ W / μ → ∫ G e^{-y³/12 + yu}`).
+* `FormalResearch.SignUncertainty.ShellGapMellin`: the Mellin reflection gives `∫ (p - q) ρ₀ W ≥ 0` (`weighted_nonneg`).
+* `FormalResearch.SignUncertainty.ShellGapTransport`: mass transport for the limit profile (`mass_transport`:
+  `‖Q‖₁ ≤ 1`, `∫ Q ≤ 0`, `∫_{u_*}^∞ Q_- ≥ 1/2`).
+* `FormalResearch.SignUncertainty.ShellGapExtract`: `extract_two` and `hankelShellGapLimit_proved`, the theorem
+  `thm:ce-shell-gap` (Hankel form) with all constraints of `eq:ce-laplace-constraint`.
 * `FormalResearch.SignUncertainty.RadialCompactness`: the statement of `lem:radial-compactness` (`RadialCompactness`:
   window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it

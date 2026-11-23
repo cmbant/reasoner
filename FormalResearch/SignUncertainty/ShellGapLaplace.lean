@@ -495,4 +495,24 @@ theorem laplace_limit {c : ℕ → ℝ} (hc : Tendsto c atTop atTop) {ε : ℝ} 
   have hmain := tendsto_integral_of_tails hAint haint hloc' htail
   exact hmain.congr' (hid.mono fun k hk => hk.symm)
 
+/-- info: 'FormalResearch.SignUncertainty.tail_weighted_u' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms tail_weighted_u
+
+/-- info: 'FormalResearch.SignUncertainty.left_tail_weighted_u' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms left_tail_weighted_u
+
+/-- info: 'FormalResearch.SignUncertainty.integrable_weighted_window' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms integrable_weighted_window
+
+/-- info: 'FormalResearch.SignUncertainty.tendsto_integral_of_tails' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms tendsto_integral_of_tails
+
+/-- info: 'FormalResearch.SignUncertainty.laplace_limit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms laplace_limit
+
 end FormalResearch.SignUncertainty
