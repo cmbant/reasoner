@@ -155,7 +155,7 @@ window; the intertwiner and its tail positivity exist (`HardyMellinIntertwiner`,
 no bootstrap.
 
 **M5 Hankel lower half at one level (L).**
-- Langer chart `gt:7.7b/c/p` (Rouché exists). `gt:7.7b` (0)-(iv) is done (`HankelLangerU/Y/Real/ChartMain`, formulated in `u = ζ²`, where `g(ζ) = s` is `K(u) = 12s/π²`, so no square roots or sign choices); still open: the link of `g`, `S̃` to `log(tan(πζ/2)/(πζ/2))` and the exact inversion `T.2` (`gt:7.7c` setup), then `gt:7.7c`, `gt:7.7p`. The Type (I) cut bound follows by subharmonic averaging as in Step 0 of
+- Langer chart `gt:7.7b/c/p` (Rouché exists). `gt:7.7b` (0)-(iv) is done (`HankelLangerU/Y/Real/ChartMain`, formulated in `u = ζ²`, where `g(ζ) = s` is `K(u) = 12s/π²`, so no square roots or sign choices); the strip setup (`g`, `S̃` as series = `log(tan/..)`, exact inversion on `Re ζ = σ`) and `gt:7.7c` are done at the level of the local integral (`HankelStrip*`, `HankelLocalPhase/Density/Envelope/Holo`: Cauchy shift, Gaussian peak, connectors, envelope `(e71)` in `ũ`, entire in `ℓ = log π²ξ`); still open: reality of the local density (`HankelWtConj`, Haiku queue `m5_wt_conj.md`), the gluing `Ψ̃(ũ) = -cξ'(ũ)(fρ₀)_loc(cξ(ũ))` with the chart (Rouché surjectivity), then `gt:7.7p`. The Type (I) cut bound follows by subharmonic averaging as in Step 0 of
   TE.0, so the separate `Re ζ = c^{−1/3}` contour shift can be skipped in Lean.
 - TE.0 at one level: adapt `teb_quant_c1_typeII` (already a compactness argument) to Type (I). This is non-effective,
   which is fine for Lean; the TeX keeps the effective version (Paper II needs it).
