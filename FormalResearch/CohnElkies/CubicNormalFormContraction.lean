@@ -387,9 +387,72 @@ theorem o4_fixed_point (h0 : 0 ≤ θ0sq) (h1 : θ0sq ≤ 0.00244)
 
 end fixedpoint
 
+section symmetry
+
+variable {θ0sq : ℝ} {F : ℂ → ℂ}
+
+/-- `G(-θ, e) = G(θ, e)` for even `F` (on the arguments that occur). -/
+lemma o4G_neg (h0 : 0 ≤ θ0sq) (h1 : θ0sq ≤ 0.00244) {θ e : ℂ} (hθ : ‖θ‖ < 0.22) (he : ‖e‖ ≤ 1 / 5)
+    (hFe : ∀ z ∈ ball (0 : ℂ) 0.25, F (-z) = F z) :
+    o4G θ0sq F (-θ) e = o4G θ0sq F θ e := by
+  have hw := (o4_bounds h0 h1 hθ he).2.2.2.2.2
+  unfold o4G
+  have : (-θ) * (1 + ((-θ) ^ 2 - θ0sq) * e) = -(θ * (1 + (θ ^ 2 - θ0sq) * e)) := by ring
+  rw [this, hFe _ (by rw [mem_ball_zero_iff]; linarith)]
+  simp only [neg_sq]
+
+/-- **`η` is even** (uniqueness of the fixed point plus `G(-θ, ·) = G(θ, ·)`), for even `F`. -/
+theorem o4_fixed_point_even (h0 : 0 ≤ θ0sq) (h1 : θ0sq ≤ 0.00244)
+    (hFe : ∀ z ∈ ball (0 : ℂ) 0.25, F (-z) = F z) {η : ℂ → ℂ}
+    (hfix : ∀ θ ∈ ball (0 : ℂ) 0.22, ‖η θ‖ ≤ 1 / 5 ∧ η θ = o4G θ0sq F θ (η θ))
+    (huniq : ∀ θ ∈ ball (0 : ℂ) 0.22, ∀ z : ℂ, ‖z‖ ≤ 1 / 5 → z = o4G θ0sq F θ z → z = η θ) :
+    ∀ θ ∈ ball (0 : ℂ) 0.22, η (-θ) = η θ := by
+  intro θ hθ
+  have hθ' : ‖θ‖ < 0.22 := by simpa using hθ
+  have hmem : -θ ∈ ball (0 : ℂ) 0.22 := by simpa using hθ
+  obtain ⟨hn, hf⟩ := hfix (-θ) hmem
+  refine huniq θ hθ _ hn ?_
+  rw [← o4G_neg h0 h1 hθ' hn hFe]; exact hf
+
+/-- `G(θ, conj e) = conj G(θ, e)` for real `θ` and `F` real on the real-symmetric ball. -/
+lemma o4G_conj {θ : ℝ} (e : ℂ) (hFr : ∀ z ∈ ball (0 : ℂ) 0.25, F ((starRingEnd ℂ) z) = (starRingEnd ℂ) (F z))
+    (h0 : 0 ≤ θ0sq) (h1 : θ0sq ≤ 0.00244) (hθ : |θ| < 0.22) (he : ‖e‖ ≤ 1 / 5) :
+    o4G θ0sq F θ ((starRingEnd ℂ) e) = (starRingEnd ℂ) (o4G θ0sq F θ e) := by
+  have hθ' : ‖(θ : ℂ)‖ < 0.22 := by simpa [Complex.norm_real] using hθ
+  have hw := (o4_bounds h0 h1 hθ' he).2.2.2.2.2
+  have hc : (starRingEnd ℂ) (θ * (1 + ((θ : ℂ) ^ 2 - θ0sq) * e)) = θ * (1 + ((θ : ℂ) ^ 2 - θ0sq) * (starRingEnd ℂ) e) := by
+    simp [map_mul, map_add, map_sub, map_pow, Complex.conj_ofReal]
+  unfold o4G
+  have hF := hFr _ (show (θ : ℂ) * (1 + ((θ : ℂ) ^ 2 - θ0sq) * e) ∈ ball (0 : ℂ) 0.25 by
+    rw [mem_ball_zero_iff]; linarith)
+  rw [hc] at hF
+  rw [hF]
+  simp [map_mul, map_add, map_sub, map_pow, map_div₀, Complex.conj_ofReal, map_ofNat]
+
+/-- **`η` is real on `ℝ`**, for `F` real on the real-symmetric ball. -/
+theorem o4_fixed_point_real (h0 : 0 ≤ θ0sq) (h1 : θ0sq ≤ 0.00244)
+    (hFr : ∀ z ∈ ball (0 : ℂ) 0.25, F ((starRingEnd ℂ) z) = (starRingEnd ℂ) (F z)) {η : ℂ → ℂ}
+    (hfix : ∀ θ ∈ ball (0 : ℂ) 0.22, ‖η θ‖ ≤ 1 / 5 ∧ η θ = o4G θ0sq F θ (η θ))
+    (huniq : ∀ θ ∈ ball (0 : ℂ) 0.22, ∀ z : ℂ, ‖z‖ ≤ 1 / 5 → z = o4G θ0sq F θ z → z = η θ)
+    {θ : ℝ} (hθ : |θ| < 0.22) : (starRingEnd ℂ) (η θ) = η θ := by
+  have hmem : (θ : ℂ) ∈ ball (0 : ℂ) 0.22 := by simpa [Complex.norm_real] using hθ
+  obtain ⟨hn, hf⟩ := hfix θ hmem
+  refine huniq θ hmem _ (by simpa using hn) ?_
+  rw [o4G_conj _ hFr h0 h1 hθ hn, ← hf]
+
+end symmetry
+
 /-- info: 'FormalResearch.CohnElkies.o4_fixed_point' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms o4_fixed_point
 
+
+/-- info: 'FormalResearch.CohnElkies.o4_fixed_point_even' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4_fixed_point_even
+
+/-- info: 'FormalResearch.CohnElkies.o4_fixed_point_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4_fixed_point_real
 
 end FormalResearch.CohnElkies
