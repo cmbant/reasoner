@@ -113,6 +113,13 @@ public import FormalResearch.ModularBootstrap.Upper.Hankel.ContourShift
 public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeRepresentation
 public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeGlobalBound
 public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeExample
+public import FormalResearch.ModularBootstrap.Upper.Hankel.HankelOrderP
+public import FormalResearch.ModularBootstrap.Upper.Hankel.HankelOrderPAsym
+public import FormalResearch.ModularBootstrap.Upper.Hankel.BesselJNat
+public import FormalResearch.ModularBootstrap.Upper.Hankel.OrderRaising
+public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeRepresentationP
+public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeGlobalBoundP
+public import FormalResearch.ModularBootstrap.Upper.Hankel.HankelOrderPFields
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.Dictionary
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.VagueLimit
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.Nodes
@@ -519,4 +526,21 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   for `μ_S`, with the named inputs `DesignPropertyP` (reduced to comb data by `CombDesignData`,
   `designPropertyP_of_comb`, with `sr:P1` supplying the summation part of `(P1)`) and the family
   structures; the upper threshold bound is not used.
+* `Upper.Hankel.{HankelOrderP, HankelOrderPAsym, HankelOrderPFields, BesselJNat, OrderRaising,
+  EdgeRepresentationP, EdgeGlobalBoundP}`: the **order-`p` edge machinery of `fw:s1` and `FW-SD` (1)**: `H_p¹ = hankelOrd p`
+  (Laplace form `K_p`), `d/dz [z^{-p} H_p] = -z^{-p} H_{p+1}` (`hasDerivAt_hankelOrd_ratio`) and its
+  `x`-form `fw:e1.2` (`hasDerivAt_hankelOrd_scaled`); the expansion
+  `H_p¹(z) = (2/(π z))^{1/2} e^{i(z - pπ/2 - π/4)} (1 + ε_p(z))` with `‖ε_p‖ ≤ C_p/‖z‖`
+  (`hankelOrd_expansion`, `exists_hankelEpsOrd_bounds`, Cauchy derivative bounds in `Im z`,
+  `hankelEpsOrd_sector_bound`; the `FWSDHypotheses` Hankel-side fields for `1 + ε_p(k b)`,
+  `exists_hankelEpsOrd_fwsd_fields`) and `‖H_p¹(z)‖ ≤ C_p ‖z‖^{-1/2} e^{-Im z}` (`exists_norm_hankelOrd_le`);
+  `J_p` for natural `p` (`besselJ_nat_eq`, `norm_besselJ_nat_le_one`, kernel identity
+  `besselJ_kernel_eq`); exact order raising `𝓗_{p+2} = -D_t 𝓗_{p+1}` and `𝓗_w = (-D_t)^p 𝓗_1`
+  (`hasDerivAt_hankelTransformOrd`, `hankelTransformOrd_eq_iterate`, non-vacuity
+  `orderRaisingHyp_nonvacuous`); the order-`p` edge representation `fw:e1.2a`
+  `𝓗_w h₀(c' x²/3) = (2π c'/3) ∫_{E₊} h₀(b) (b/x)^p H_p¹(k_x b) b db` for `EdgeHankelHyp` profiles
+  (`edge_hankel_representation_P`, by differentiating the order-`0` identity `p` times under `∫_{E₊}`;
+  no real-axis boundary value of `H_p¹` is needed), `edgeHankelP_eq_iterate`, and the global bound
+  `e^{c' L(x)} |𝓗_w h₀(c' x²/3)| ≤ K_p C_E √(c'/x) x^{-p}` (`edge_global_bound_P`,
+  `edge_global_bound_P_xiStar`), unconditional.
 -/
