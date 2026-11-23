@@ -34,7 +34,7 @@ U6_PLAN §1, unchanged; TeX re-checked against `origin/main`):
 | R2b | Prop 1.2(2) comb-to-Airy identity, uniform over designs, error `O(c'^{-2/3})` | done (`Ramped/CombToAiry*`, for `combBD`; bridge to the ramped `designComb` in R5/R7) |
 | R3b | Ramped instantiation (sites, heights, PC sums, SDV, Φ transform θ=3/5, K7, far-band comparison) | done (`Ramped/RampedDesign*`, `RampedFarBand`, `RampedThreshold`) |
 | R5 | Region I | R1, R2b, R3b |
-| R6 | Region II near-tip + macroscopic | R3b, R4 |
+| R6 | Region II near-tip + macroscopic | done (`Ramped/RampedRegionTwo*`, `rampedRegionII`; bridge `Ramped/CombBridge` for R5/R7) |
 | R7 | Vacuum | R1, R2b, R3b |
 | R8 | Assembly `theoremC15UpperInput_virasoro`, `IsFeasible.mono_T`, `t_*` expansion; E1 with O(1) | all |
 
