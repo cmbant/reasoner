@@ -88,10 +88,10 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
 - **T6: shorter routes after an external review (agy, checked by independent referees).**
   - `gt:7.9c` no longer uses Langer transport or `thm:hb-thresholds`: `lem:radial-compactness` now converges with first
     derivatives, and the upper half is the one-level O.9′.
-  - The hb-lift source is a left-shifted convolution of `g₁` (branch `papers/p1-conv-source`); the Dirichlet diagonal,
+  - The hb-lift source is a left-shifted convolution of `g₁` (merged, QIprojects `4d1eeda37`); the Dirichlet diagonal,
     CR.1–4, PF.2L, PF.T and W.0–W.6 move to the supplement with Route I.
   - U.3(3)/O.3(2) by real-line integration by parts and Fresnel; O.4(2) by a Banach contraction with a certified bound
-    (branch `papers/p1-u3-o4`).
+    (merged).
   - H.14a now also gives Laplace-positive odd families, so `thm:intro-gap` (iii) occurs at every odd `m`; intro (ii)
     states the bound `−u_LP/β₁`.
 
@@ -173,7 +173,8 @@ no bootstrap.
 - SE.1–SE.5 general de Branges and `PW·PW`;
 - Theorem 3.1(c) (tempered distributions);
 - fold-tip universality instances;
-- `gt:7.10` (owner-deferred).
+- `gt:7.10` (owner-deferred);
+- the Neumann shell `thm:ce-neumann` (two-sided O(1); its proof is still being moved from notes into the TeX).
 
 **Not a cheap headline.** An "Airy-order `o(d^{1/3})` radius theorem at fixed δ" is not a shortcut: the fixed-δ U.3
 route needs a seed with the two-sided fill (e38) that no exhibited seed satisfies, and the honest upper half is O.9′,
