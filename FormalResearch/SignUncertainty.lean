@@ -15,6 +15,7 @@ public import FormalResearch.SignUncertainty.HankelLocalPhase
 public import FormalResearch.SignUncertainty.HankelLocalDensity
 public import FormalResearch.SignUncertainty.HankelLocalEnvelope
 public import FormalResearch.SignUncertainty.HankelLocalHolo
+public import FormalResearch.SignUncertainty.HankelTail
 public import FormalResearch.SignUncertainty.HankelWtBasics
 public import FormalResearch.SignUncertainty.HardyMellinIntertwiner
 public import FormalResearch.SignUncertainty.HankelCpowBounds
@@ -206,6 +207,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.HankelLocalDensity`: the local integrand `J = (1-ζ)^{-1/2} e^{B_c} e^{cΦ} W̃_c` (`hankelJ`; equals `K₀ W̃_c` for real `ξ`), its holomorphy and bound `‖J‖ ≤ 2e^{c Re Φ}` on the contour rectangle, and `hankel_local_density_bound`: `‖∫_{|τ|≤1/3} J(1/10+iτ)dτ‖ ≤ 200 (cσ₊)^{-1/2} e^{c Re Φ(ζ₊)}` (rectangle Cauchy shift to `Re ζ = σ₊`, Gaussian vertical bound, connector decay).
 * `FormalResearch.SignUncertainty.HankelLocalEnvelope`: `hankel_local_density_envelope`, the envelope `(e71)` of `gt:7.7c`: `‖(fρ₀)_loc‖ ≤ 200 c^{-1/3} (Re √ũ)^{-1/2} |e^{-(4/3)ũ^{3/2}}|` at `ℓ = -g(ζ₊)`, `ζ₊ = u^{1/2}`, `ũ = c^{2/3}μ²M(u)`.
 * `FormalResearch.SignUncertainty.HankelLocalHolo`: `hankelLocal c f ℓ = ∫_{|τ|≤1/3} J` is entire in `ℓ = log(π²ξ)` (`gt:7.7c` (a)).
+* `FormalResearch.SignUncertainty.HankelTail`: the tail bound `(T)` (`hankel_tail_le`: `‖∫_{|τ|>1/3} K₀W̃‖ ≤ 6 I₀ e^{-c/40000}` for `c ≥ 5000`, `log π²ξ ≤ 1/1000`; the exponent is weaker than the paper's `2·10⁻³c`, see the module docstring) and the split `hankel_rho0_split`: `(ρ₀f)(cξ) = (2πξ)⁻¹((fρ₀)_loc + tail)`.
 * `FormalResearch.SignUncertainty.NoshiroRouche`: Noshiro–Warschawski injectivity on a convex set (`injOn_of_re_deriv_pos`), unique root of a perturbation of the identity via Rouché (`exists_unique_root_of_perturb`), and the regression `not_injOn_sq`; used by the Hankel Langer chart (`gt:7.7b`).
 * `FormalResearch.SignUncertainty.HankelLangerSeries`: coefficient facts for the Hankel Langer chart (`gt:7.7b` (0)): `etaC j = η(2j+2)` with `0 < etaC j < 1` and `etaC 0 = π²/12`, the normalised coefficients `langerA`, `langerB` and their bounds, the tail bounds `abs_eps_le` (`≤ 7.46e-4`) and `abs_E_sub_one_le_035` (`≤ 8.95e-4`) on `‖z‖ ≤ 0.035`, and the binomial bound `‖(1+x)^α - 1‖ ≤ 1 - (1-‖x‖)^α`. The series identity `π/sin(πz) - 1/z = 2∑η(2j+2)z^{2j+1}` is not formalised here.
 * `FormalResearch.SignUncertainty.MiddleBandNumerics`, `MiddleBandIbp`, `MiddleBandPowers`, `MiddleBandVdc`: scalar and analytic tools for the middle-band estimate GT.2a (cubic phase `ψ(u) = a u − π²u³/36`: derivative and monotonicity bounds on the inner, far and outer zones, `ε u₀ < 0.05`; the two-integrations-by-parts bound for either sign of `ψ'`; power integrals and `ε`-power algebra; van der Corput on `[α, β]` and `[−β, −α]` for the cubic phase). The GT.2a assembly itself is not formalised.
