@@ -6,8 +6,12 @@ public import FormalResearch.SignUncertainty.HankelFiveHalvesWitness
 /-!
 # `HankelKernelData` for the concrete Hankel kernel
 
-`hankelKernelData`: the concrete `HankelKernelData c` with `φ = hankelPhi c`
-(`FormalResearch/SignUncertainty/HankelBessel.lean`).
+`hankelKernelData hc : HankelKernelData c` for every `c > 1/2` with `φ = hankelPhi c`
+(`HankelBessel.lean`), unconditionally: the antiderivative fields are `hankel_antideriv_bound` and
+`hankel_antideriv_tendsto` (`∫_0^R J_{c-1} → 1`), from `HankelAntiderivCalculus` (integration by parts),
+`HankelAntiderivLimit` (decay, `Special/BesselDecay.lean`) and `HankelAntiderivValue` (value via the `+1`
+Laguerre mode and Fubini).  Also `integral_eq_eps_mul_origin` (`ε f(0) = ∫ f ρ₀` on `𝒜_c^ε`),
+`hankelThresholdBessel` (`T_c^ε`) and the cross-check `hankelPhi_fiveHalves` with the explicit `c = 5/2` witness.
 -/
 
 @[expose] public section
