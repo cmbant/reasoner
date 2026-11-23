@@ -6,8 +6,10 @@ public import FormalResearch.SignUncertainty.HankelInversion
 /-!
 # `thm:ce-shell-gap` (Theorem H.14): the Euclidean statement and its Hankel-level form
 
-* `ShellGapLimit D`: the extraction and constraint system `eq:ce-laplace-constraint` for radial
-  Cohn-Elkies pairs on `ℝ^d` (statement of `thm:ce-shell-gap`, first half).
+* `ShellGapLimit D`: the existence of a solution of the constraint system `eq:ce-laplace-constraint`
+  (`TwoProfileFeasible`) for radial Cohn-Elkies pairs on `ℝ^d`. This is only the part of `thm:ce-shell-gap`
+  that the one-profile reduction consumes: the origin floor, the positivity of `H` far to the right and the
+  endpoint case `u_* = t_m` are not stated here.
 * `HankelShellGapLimit D`: the same statement for Hankel profiles (`HankelShellProfile`): `G` is the profile of
   `h`, `𝓗_c G` that of `ĥ`, with `ĥ ≥ 0`, `h(0) = ĥ(0) > 0`, `h ≤ 0` beyond `T` and at the shells.
 * `shellGapLimit_of_hankel : HankelShellGapLimit D → ShellGapLimit D`: the Euclidean statement from the
@@ -27,8 +29,10 @@ open FormalResearch.CohnElkies
 /-- `thm:ce-shell-gap` (Theorem H.14), extraction and constraint system `eq:ce-laplace-constraint`:
 along any sequence of dimensions `d_k → ∞` and admissible pairs (shell offsets `o(c^{1/3})`) whose
 thresholds satisfy `R_k²/2 ≤ d_k/(2π²) - (u_*/β₁) c_k^{1/3} + o(c_k^{1/3})` for a fixed real `u_*`,
-the window profiles of `p_k = (ĥ+h)/2`, `q_k = (ĥ-h)/2`, normalised by `M[2q_k]`, have limits
-`P_∞, Q_∞ ∈ 𝒢` satisfying the two-profile system at `u_*` (`TwoProfileFeasible D u_*`). -/
+the window profiles of `p_k = (ĥ+h)/2`, `q_k = (ĥ-h)/2`, normalised by `M[2q_k]`, have (along a subsequence)
+limits `P_∞, Q_∞ ∈ 𝒢`; the statement asserts only the conclusion, that the two-profile system at `u_*` is
+feasible (`TwoProfileFeasible D u_*`, whose `P` is the paper's `S = P_∞ + Q_∞`, so that `S - 2Q = P_∞ - Q_∞`
+is the limit of `h`). The extraction itself is `extract_two` (`ShellGapExtract.lean`). -/
 def ShellGapLimit (D : ShellHBData) : Prop :=
   ∀ r : ℝ → ℕ → ℝ, (∀ t : ℝ, Tendsto (fun d : ℕ => r t d / ((d : ℝ) / 2) ^ (1 / 3 : ℝ)) atTop (𝓝 0)) →
     ∀ (u_star : ℝ) (dk : ℕ → ℕ), Tendsto dk atTop atTop →
@@ -54,8 +58,8 @@ structure HankelShellProfile (c T : ℝ) (G : ℝ → ℝ) : Prop where
 
 /-- **`thm:ce-shell-gap`, Hankel form** (dimensions `d_k ≥ 2`, `c_k = d_k/2`): the Hankel profiles `G_k`
 with thresholds `T_k ≤ c_k/π² - (u_*/β₁) c_k^{1/3} + o(c_k^{1/3})`, `G_k ≤ 0` at the (nonnegative) shell
-sites, have window profiles of `p_k = (G_k + 𝓗 G_k)/2`, `q_k = (𝓗 G_k - G_k)/2` converging to a solution of
-the two-profile system at `u_*`. -/
+sites, have window profiles of `p_k = (G_k + 𝓗 G_k)/2`, `q_k = (𝓗 G_k - G_k)/2` that have, along a
+subsequence, limits solving the two-profile system at `u_*` (the same conclusion as `ShellGapLimit`). -/
 def HankelShellGapLimit (D : ShellHBData) : Prop :=
   ∀ r : ℝ → ℕ → ℝ, (∀ t : ℝ, Tendsto (fun d : ℕ => r t d / ((d : ℝ) / 2) ^ (1 / 3 : ℝ)) atTop (𝓝 0)) →
     ∀ (u_star : ℝ) (dk : ℕ → ℕ), Tendsto dk atTop atTop → (∀ k, 2 ≤ dk k) →

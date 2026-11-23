@@ -260,7 +260,7 @@ noncomputable def regionIThreshold (y : ℝ) : ℝ := max 2 (2 * (2 * kappaY y /
 lemma kappaY_nonneg {y : ℝ} (hy : 0 ≤ y) : 0 ≤ kappaY y :=
   div_nonneg (by linarith) laplaceCs_pos.le
 
-lemma five_half_pow_ge {κ s : ℝ} (hκ : 0 ≤ κ) (hs : 2 * (2 * κ / 5) ^ 2 ≤ s) :
+lemma five_half_pow_ge {κ s : ℝ} (hs : 2 * (2 * κ / 5) ^ 2 ≤ s) :
     κ * s ≤ 5 * (s / 2) ^ ((3 : ℝ) / 2) := by
   have hs0 : 0 ≤ s := le_trans (by positivity) hs
   have h2 : 0 ≤ s / 2 := by positivity
@@ -326,7 +326,6 @@ lemma regionI_weighted {c y ε : ℝ} {g : ℝ → ℝ} (hc : 56 ≤ c) (hy : 0 
   have hM0 : 0 ≤ M := hankelMass_nonneg hc0 g
   set WP : ℝ := laplaceWeight c y P with hWPdef
   have hWP0 : 0 < WP := laplaceWeight_pos hc0 hy hζ1 hP0
-  have hκ0 := kappaY_nonneg hy
   set K : ℝ := 160 * M / t with hKdef
   have hK0 : 0 ≤ K := by positivity
   have hpt : ∀ Δ ∈ Ioo Δ₁ U, |g Δ| * hankelRho0 c Δ * laplaceWeight c y Δ ≤
@@ -345,7 +344,7 @@ lemma regionI_weighted {c y ε : ℝ} {g : ℝ → ℝ} (hc : 56 ≤ c) (hy : 0 
     have hratio := weight_ratio_le hc0 hy (le_trans hΔ₁ge hΔ.1.le)
       (by have := hΔ.2; rw [hU] at this; nlinarith)
     rw [← hP, ← htdef, ← hs] at hratio
-    have hκs := five_half_pow_ge hκ0 (le_trans hRκ hsR.le)
+    have hκs := five_half_pow_ge (le_trans hRκ hsR.le)
     have hexp1 : Real.exp (-(5 * (s / 2) ^ ((3 : ℝ) / 2))) * Real.exp (kappaY y * s) ≤ 1 := by
       rw [← Real.exp_add]; apply Real.exp_le_one_iff.mpr; linarith
     have hwb : laplaceWeight c y Δ ≤ 2 * Real.exp (kappaY y * s) := by
@@ -410,7 +409,7 @@ lemma regionI_weighted {c y ε : ℝ} {g : ℝ → ℝ} (hc : 56 ≤ c) (hy : 0 
 
 /-! ### The right tail -/
 
-lemma exp_decay_cbrt {a : ℝ} (ha : 0 ≤ a) :
+lemma exp_decay_cbrt {a : ℝ} :
     Tendsto (fun c : ℝ => Real.exp (-(c / 25) + a * (c ^ (1 / 3 : ℝ)) ^ 2)) atTop (𝓝 0) := by
   have hexp : Tendsto (fun c : ℝ => Real.exp (-(c / 50))) atTop (𝓝 0) :=
     Real.tendsto_exp_atBot.comp (tendsto_neg_atTop_atBot.comp
@@ -453,7 +452,7 @@ theorem right_tail_weighted {y : ℝ} (hy : 0 ≤ y) {η : ℝ} (hη : 0 < η) :
     exact (h.eventually (gt_mem_nhds hlt)).mono fun c hc => hc.le
   have e4 : ∀ᶠ c : ℝ in atTop,
       32 * Real.exp (-(c / 25) + (kappaY y / 48) * (c ^ (1 / 3 : ℝ)) ^ 2) ≤ η := by
-    have h := (exp_decay_cbrt (a := kappaY y / 48) (by positivity)).const_mul 32
+    have h := (exp_decay_cbrt (a := kappaY y / 48)).const_mul 32
     rw [mul_zero] at h
     exact h.eventually (Iic_mem_nhds hη)
   obtain ⟨c₁, hc₁⟩ := eventually_atTop.mp (e1.and (e2.and (e3.and e4)))

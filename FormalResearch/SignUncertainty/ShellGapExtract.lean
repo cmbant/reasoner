@@ -148,7 +148,7 @@ lemma limit_left {c μ T ε : ℕ → ℝ} {p q : ℕ → ℝ → ℝ} (hcpos : 
     {ustar : ℝ} (hε : Tendsto ε atTop (𝓝 0))
     (hT : ∀ k, T k ≤ c k / Real.pi ^ 2 - (ustar / hankelBeta1) * c k ^ (1 / 3 : ℝ) +
       ε k * c k ^ (1 / 3 : ℝ))
-    (hT0 : ∀ k, 0 < T k) (hdom : ∀ k Δ, T k ≤ Δ → |p k Δ| ≤ q k Δ) {P Q : ℝ → ℝ}
+    (hdom : ∀ k Δ, T k ≤ Δ → |p k Δ| ≤ q k Δ) {P Q : ℝ → ℝ}
     (hP : TendstoLocallyUniformlyOn
       (fun n u => hankelWindowProfile (c n) (p n) u / μ n) P atTop univ)
     (hQ : TendstoLocallyUniformlyOn
@@ -183,7 +183,7 @@ lemma limit_transport {c μ T ε : ℕ → ℝ} {q : ℕ → ℝ → ℝ} {ustar
     (hε : Tendsto ε atTop (𝓝 0))
     (hT : ∀ k, T k ≤ c k / Real.pi ^ 2 - (ustar / hankelBeta1) * c k ^ (1 / 3 : ℝ) +
       ε k * c k ^ (1 / 3 : ℝ))
-    (hT0 : ∀ k, 0 < T k) (hqnn : ∀ k Δ, T k ≤ Δ → 0 ≤ q k Δ) {Q : ℝ → ℝ}
+    (hqnn : ∀ k Δ, T k ≤ Δ → 0 ≤ q k Δ) {Q : ℝ → ℝ}
     (hQc : Continuous Q) (hQi : Integrable Q)
     (hQ : TendstoLocallyUniformlyOn
       (fun n u => hankelWindowProfile (c n) (q n) u / μ n) Q atTop univ) :
@@ -362,8 +362,10 @@ lemma shell_window_point {t : ℝ} {r : ℕ → ℝ}
 lemma two_mul_half (z : ℂ) : (2 : ℂ) * (((1 / 2 : ℝ) : ℂ) * z) = z := by
   push_cast; ring
 
-/-- **`thm:ce-shell-gap`, Hankel form** (the open input `hankel_shell_gap_limit` of `Headlines.lean`):
-proved from `radial_compactness`, the mass-ratio bound, the Mellin reflection and the Laplace limit. -/
+/-- **`thm:ce-shell-gap`, Hankel form** (`HankelShellGapLimit`, the extraction and constraint system
+`eq:ce-laplace-constraint`; not the origin floor or the endpoint case): proved from `radial_compactness`,
+the mass-ratio bound `mass_ratio_bdd`, the Mellin reflection `weighted_nonneg`, the mass transport
+`mass_transport` and the Laplace limit `laplace_limit`. -/
 theorem hankelShellGapLimit_proved (D : ShellHBData) : HankelShellGapLimit D := by
   have H := radial_compactness
   intro r hr u_star dk hdk h2 ε hε G T hP hshell hT
@@ -394,7 +396,6 @@ theorem hankelShellGapLimit_proved (D : ShellHBData) : HankelShellGapLimit D := 
       ε k * c k ^ (1 / 3 : ℝ) := fun k => by
     have := hT k
     rwa [show (dk k : ℝ) / (2 * Real.pi ^ 2) = ((dk k : ℝ) / 2) / Real.pi ^ 2 by rw [div_div]] at this
-  have hT0 : ∀ k, 0 < T k := fun k => (hP k).T_pos
   have hdom : ∀ k Δ, T k ≤ Δ → |p k Δ| ≤ q k Δ := fun k Δ hΔ => (hP k).abs_plus_le_minus hΔ
   have hqnn : ∀ k Δ, T k ≤ Δ → 0 ≤ q k Δ := fun k Δ hΔ => (abs_nonneg _).trans (hdom k Δ hΔ)
   have hhat : ∀ k Δ, 0 ≤ Δ → 0 ≤ p k Δ + q k Δ := fun k Δ hΔ => by
@@ -423,11 +424,11 @@ theorem hankelShellGapLimit_proved (D : ShellHBData) : HankelShellGapLimit D := 
   have hleft : ∀ u ≤ u_star, Pr u - Qr u ≤ 0 :=
     limit_left (c := fun n => c (K n)) (μ := fun n => μ (K n)) (p := fun n => p (K n))
       (q := fun n => q (K n)) (T := fun n => T (K n)) (ε := fun n => ε (K n)) hcpos' hμpos'
-      hε' (fun n => hTc (K n)) (fun n => hT0 _) (fun n => hdom (K n)) hlocp hlocq hPc hQc
+      hε' (fun n => hTc (K n)) (fun n => hdom (K n)) hlocp hlocq hPc hQc
   have htrans := limit_transport (c := fun n => c (K n)) (μ := fun n => μ (K n))
     (q := fun n => q (K n)) (T := fun n => T (K n)) (ε := fun n => ε (K n)) hc' hcpos'
     (fun n => hq (K n)) (fun n => rfl) hμpos' (fun n => hzero (K n)) hε' (fun n => hTc (K n))
-    (fun n => hT0 _) (fun n => hqnn (K n)) hQc hQi hlocq
+    (fun n => hqnn (K n)) hQc hQi hlocq
   have hshellP : ∀ t ∈ D.S, t ≠ D.tm → Pr t - Qr t ≤ 0 := by
     intro t ht htm
     obtain ⟨u, hut, huw, hpos⟩ := shell_window_point (t := t) (r := r t) (hr t)
