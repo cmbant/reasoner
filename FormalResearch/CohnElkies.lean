@@ -46,6 +46,7 @@ public import FormalResearch.CohnElkies.AiryWindowInversion
 public import FormalResearch.CohnElkies.FresnelBranch
 public import FormalResearch.CohnElkies.PieceCDecomposition
 public import FormalResearch.CohnElkies.PieceCPhase
+public import FormalResearch.CohnElkies.PieceCRegularity
 public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
 
@@ -161,6 +162,7 @@ and the Airy library:
 * `FormalResearch.CohnElkies.PieceCDecomposition`: exact decomposition `K₀ W = g e^{iψ} G_sm − γ₀ H_c (iv)^{1/2} χ₁ e^{iAv}` and the
   conditional assembly `pieceC_main_term` of `I_C = γ₀ A^{-3/2}/(2√π ξ) + O(ξ⁻¹A⁻²)` (smooth part and `C²` regularity of `χ₁H_c` as named hypotheses).
 * `FormalResearch.CohnElkies.PieceCPhase`: the phase bounds `(u1c:psibd)` for `ψ = c Φ_Ph(εv; L)` (`pcPhase_psibd`: `ψ' ≥ A/2` on `|εv| ≤ τ_*`, `|ψ''| ≤ min(π²|v|/6, c^{2/3}/|v|)`, `|ψ'''| ≤ π²/3`).
+* `FormalResearch.CohnElkies.PieceCRegularity`: `φ = χ₁ H_c` is `C²` with compact support in `[-1,1]` and has finite bounds `M` (`contDiff_pcH`, `exists_bounds_chi_pcH`; qualitative, `M` depends on `(c, δ₀, m)`).
 * `FormalResearch.CohnElkies.PreEdgeCriterion`: unconditional concrete `GT.2b(1)–(3)` & `O.11y(3)`/`GT.4` tip offset
   for `twoScaleS`, unconditional `PE.3` reference & measure Mellin inversion (`pe3_reference_mellin_inversion`,
   `pe3_measure_inversion`), `pe3_remainder_integral_bound` (`O(c^{-2/3})`), `pe3_compact_origin_pos`, and
