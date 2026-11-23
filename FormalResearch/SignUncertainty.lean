@@ -7,6 +7,8 @@ public import FormalResearch.SignUncertainty.HardyMellinIntertwiner
 public import FormalResearch.SignUncertainty.HankelFiveHalvesWitness
 public import FormalResearch.SignUncertainty.SignSeparation
 public import FormalResearch.SignUncertainty.HankelBessel
+public import FormalResearch.SignUncertainty.HankelBesselMoments
+public import FormalResearch.SignUncertainty.HankelBesselData
 public import FormalResearch.SignUncertainty.HankelBesselNat
 public import FormalResearch.SignUncertainty.HankelBesselLaguerre
 public import FormalResearch.SignUncertainty.RadialCompactnessKernel
