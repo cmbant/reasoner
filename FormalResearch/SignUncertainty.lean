@@ -6,6 +6,9 @@ public import FormalResearch.SignUncertainty.RadialRigidity
 public import FormalResearch.SignUncertainty.HardyMellinIntertwiner
 public import FormalResearch.SignUncertainty.HankelFiveHalvesWitness
 public import FormalResearch.SignUncertainty.SignSeparation
+public import FormalResearch.SignUncertainty.HankelBessel
+public import FormalResearch.SignUncertainty.HankelBesselNat
+public import FormalResearch.SignUncertainty.HankelBesselLaguerre
 public import FormalResearch.SignUncertainty.ShellLaplaceBase
 public import FormalResearch.SignUncertainty.ShellGap
 public import FormalResearch.SignUncertainty.ShellGapWitness
@@ -30,6 +33,11 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `J_{3/2}` non-vacuity witness for Proposition 7.9a.
 * `FormalResearch.SignUncertainty.SignSeparation`: odd Laguerre origin constraint (`Prop 7.9b`)
   and sign separation of bounded remainders (`Thm 7.9c`, `general_theorems.tex`).
+* `FormalResearch.SignUncertainty.HankelBessel`, `HankelBesselNat`, `HankelBesselLaguerre`: the concrete
+  real-order Bessel Hankel kernel `K^{(c)}` of `fourier_mellin.tex` (`|K| ≤ 1`, the transform `𝓗_c` and
+  `|𝓗_c f| ≤ M[f]`, `HankelKernelData` from `HankelAntiderivFacts`, agreement with the natural-order
+  Bessel function) and the Laguerre modes `𝓗_c e^{-2πΔ} = e^{-2πΔ}`, `𝓗_c u₀ = -u₀`
+  (`general_theorems.tex`, Prop 7.9b input).
 * `FormalResearch.SignUncertainty.ShellLaplaceBase`: Airy–Laplace transform, `ShellHBData`,
   even-`m` Laplace sign, factored ODE, and one-profile LP reduction (`ce_shells.tex`, Prop `H.14'`).
 * `FormalResearch.SignUncertainty.ShellGap`: conditional Mellin origin-floor (`shell_reduction_lower`)
