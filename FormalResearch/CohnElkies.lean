@@ -38,6 +38,7 @@ public import FormalResearch.CohnElkies.CancelledSymbolAndLaplace
 public import FormalResearch.CohnElkies.AirySeedSymbols
 public import FormalResearch.CohnElkies.CubicNormalFormContraction
 public import FormalResearch.CohnElkies.ComplexEdgePhase
+public import FormalResearch.CohnElkies.CubicNormalFormBridge
 public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
 
@@ -138,6 +139,8 @@ and the Airy library:
   contraction on `D(0, 0.22)` for an abstract holomorphic `F` under the named hypothesis `‖F‖ ≤ 0.13` on `D(0, 0.25)`.
 * `FormalResearch.CohnElkies.ComplexEdgePhase`: holomorphic edge phase `Φ_L` on `D(0, 1)` (`stripQ`, `differentiableOn_stripG`,
   `edgePrim`, `edgePhiC`: derivative, oddness, agreement with the real `edgePhi`).
+* `FormalResearch.CohnElkies.CubicNormalFormBridge`: `O.4(2)` normal form `τ(θ)` from the fixed point (`removable_finite`,
+  `o4_quotient_ext`, `o4_normal_form`), under the named hypothesis `O4QuotientBound` (`M_F ≤ 0.13`).
 * `FormalResearch.CohnElkies.PreEdgeCriterion`: unconditional concrete `GT.2b(1)–(3)` & `O.11y(3)`/`GT.4` tip offset
   for `twoScaleS`, unconditional `PE.3` reference & measure Mellin inversion (`pe3_reference_mellin_inversion`,
   `pe3_measure_inversion`), `pe3_remainder_integral_bound` (`O(c^{-2/3})`), `pe3_compact_origin_pos`, and
