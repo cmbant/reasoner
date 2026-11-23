@@ -31,6 +31,8 @@ public import FormalResearch.SignUncertainty.MellinGrowth
 public import FormalResearch.SignUncertainty.MellinHGrowth
 public import FormalResearch.SignUncertainty.MellinMajorant
 public import FormalResearch.SignUncertainty.MellinMajorantBound
+public import FormalResearch.SignUncertainty.MellinDecay
+public import FormalResearch.SignUncertainty.MellinInversion
 public import FormalResearch.SignUncertainty.RadialCompactness
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
@@ -91,6 +93,10 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   the edge bounds `|W| ≤ M[f] e^{1/(6c)}` and Phragmén–Lindelöf, giving
   `|M̃_f(c(1-ζ))| ≤ M[f] |1+ζ|^{1/2} exp(c Re ℋ(ζ) + 1/(6c))` on `0 ≤ Re ζ < 1`
   (`norm_mellinStrip_le_majorant`, and `..._stripH` with `ℋ = stripH`).
+* `FormalResearch.SignUncertainty.MellinDecay`, `MellinInversion`: Step 1 of `lem:radial-compactness`: left-edge decay
+  `|mellinRaw f (x₁+iy)| ≲ (1+|y|)^{-(c-2x₁)}` (reflection + Stirling), three-lines (Mathlib Hadamard) power decay on
+  `x₁ ≤ Re z ≤ c`, integrability on `Re z = σ`, `σ+1 < c`, and Mellin inversion `mellin_inversion_f`
+  `f(Δ) = (1/2π) ∫ Δ^{-(σ+iy)} mellinRaw f (σ+iy) dy`.
 * `FormalResearch.SignUncertainty.RadialCompactness`: `lem:radial-compactness` as an input structure
   (`RadialCompactness`: deep-lobe mass bound, window-profile compactness with the `C¹` clause) and the
   lower half of `gt:7.5` at one level derived from it (`radial_rigidity_lower_of_compactness`).
