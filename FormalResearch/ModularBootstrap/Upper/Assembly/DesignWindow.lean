@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.ModularBootstrap.Upper.Assembly.PsiWindow
+public import FormalResearch.ModularBootstrap.Upper.Assembly.ProfWinDef
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.Wiring
 public import FormalResearch.ModularBootstrap.Upper.Window.AiryProdPositive
 
@@ -53,49 +54,26 @@ lemma designWidthU_ne_zero (N : ℕ) {η : ℝ} (hη : 0 < η) {k : ℕ} (hk : 1
   exact mul_ne_zero h this.ne'
 
 lemma designWinW_nonneg_of_le (N : ℕ) {η : ℝ} (hη : 0 < η) (d : ℝ) {u : ℝ}
-    (hu : u ≤ airyZero 1 - d) : 0 ≤ designWinW N η d u := by
-  unfold designWinW designWindowW
-  have hH := design_tail_hypothesis N η
-  have hε : ∀ k : ℕ, 1 < k → designWidthU N η k ≠ 0 := fun k hk => designWidthU_ne_zero N hη hk
-  rcases hu.lt_or_eq with h | h
-  · exact (airyWindowProd_re_pos (f := 1) (airyZero 1 - d) hH hε h).le
-  · rw [h]
-    exact ((airyWindowProd_re_eq_zero_iff (f := 1) (airyZero 1 - d) hH hε _).2 rfl).ge
+    (hu : u ≤ airyZero 1 - d) : 0 ≤ designWinW N η d u :=
+  profWre_nonneg_of_le (designSiteU N) (designWidthU N η) (design_tail_hypothesis N η) d
+    (fun _ hk => designWidthU_ne_zero N hη hk) hu
 
 lemma continuous_designWinW (N : ℕ) (η d : ℝ) : Continuous (designWinW N η d) :=
-  continuous_designWindowRe N η d
+  continuous_profWre (designSiteU N) (designWidthU N η) (design_tail_hypothesis N η) d
 
 lemma integrable_designWinW (N : ℕ) (η d : ℝ) : Integrable (designWinW N η d) :=
-  (lemma_G_integrable N η d).re
+  integrable_profWre (designSiteU N) (designWidthU N η) (design_tail_hypothesis N η) d
 
 lemma designWinW_hasSum (N : ℕ) (η d : ℝ) :
     HasSum (fun i : ℕ => designWinW N η d (airyNode i) * airyNodeWeight i)
-      (∫ u, designWinW N η d u) := by
-  obtain ⟨h, -⟩ := lemma_V_hasSum N η d
-  have h1 := Complex.reCLM.hasSum h
-  have h3 : ∫ x : ℝ, (designWindowW N η d (x : ℂ)).re =
-      (∫ x : ℝ, designWindowW N η d (x : ℂ)).re := by
-    simpa using integral_re (lemma_G_integrable N η d)
-  have h2 : Complex.reCLM (∫ x : ℝ, designWindowW N η d (x : ℂ)) = ∫ u, designWinW N η d u := by
-    simp only [Complex.reCLM_apply]
-    exact h3.symm
-  rw [h2] at h1
-  convert h1 using 2 with i
-  have hd : deriv airyAiC (airyZero (i + 1) : ℂ) = (airyAi' (airyZero (i + 1)) : ℂ) :=
-    deriv_airyAiC_ofReal _
-  have hnode : airyNode i = airyZero (i + 1) := rfl
-  simp only [Complex.reCLM_apply, designWinW, airyNodeWeight, hnode]
-  rw [hd, ← Complex.ofReal_pow, Complex.div_ofReal_re]
-  ring
+      (∫ u, designWinW N η d u) :=
+  profWre_hasSum (designSiteU N) (designWidthU N η) (design_tail_hypothesis N η) d
 
-/-- The abstract window `W_D` of the design `D(N, η_*, d)`, `η_* > 0`. -/
-noncomputable def designWin (N : ℕ) {η : ℝ} (hη : 0 < η) (d : ℝ) : Window where
-  W := designWinW N η d
-  uF := airyZero 1 - d
-  continuous := continuous_designWinW N η d
-  integrable := integrable_designWinW N η d
-  nonneg_left := fun _ hu => designWinW_nonneg_of_le N hη d hu
-  hasSum := designWinW_hasSum N η d
+/-- The abstract window `W_D` of the design `D(N, η_*, d)`, `η_* > 0`: the profile window `profWin` of the
+profile `(designSiteU N, designWidthU N η)`. -/
+noncomputable def designWin (N : ℕ) {η : ℝ} (hη : 0 < η) (d : ℝ) : Window :=
+  profWin (designSiteU N) (designWidthU N η) (design_tail_hypothesis N η)
+    (fun _ hk => designWidthU_ne_zero N hη hk) d
 
 lemma designWin_V (N : ℕ) {η : ℝ} (hη : 0 < η) (d : ℝ) :
     (designWin N hη d).V = windowIntegralVD N η d := rfl

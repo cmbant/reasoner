@@ -298,6 +298,9 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryAsm3
 public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryCont
 public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiry
 public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryMain
+public import FormalResearch.ModularBootstrap.Upper.Assembly.ProfWinDef
+public import FormalResearch.ModularBootstrap.Upper.Assembly.ProfileWindow
+public import FormalResearch.ModularBootstrap.Upper.Assembly.DisplacedFamily
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -887,4 +890,13 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `[ξ_*/2, ξ_* + 1/2]`, extended to the real zeros by continuity), `combToAiry_log_rate` (`C c'^{-2/3}` logarithmic form
   for `B_D(x) ≠ 0`) and `combToAiry_amplitude` (the `(2√2/(πλ))^{3/2} e^{-(3/2)K_s} C_* κ ‖W_D‖ exp(O(c'^{-2/3}))`
   form).
+
+* `Upper.Assembly.{ProfWinDef, ProfileWindow, DisplacedFamily}`: the profile window class and the displaced family of
+  `sr:Sigma` Step 5 (`Σ1`, `Σ2`), unconditional.  `profWin` is the abstract `Window` of an arbitrary admissible
+  profile with all `ε_k ≠ 0` (`designWin` is its case `(designSiteU N, designWidthU N η)`), with `Π_1 = -d R_1`,
+  `Π_n = profPi d n`, `V = -d R_1 + ∑ Π_n(d)` and the sign law (`profWin_pi_pos/neg/eq_zero`); `displacedClass` is
+  the class `𝒟x` of the designs with finitely many displaced sites (`|d| < d_0`), and `displacedFamily : DisplacedFamily
+  displacedClass`, `displacedFamily_union : DisplacedFamily (designClass ∪ displacedClass)` (all fields proved: `pi_lower`
+  from `designFac_tail_lower` and `hasProd_ge_half_of_tail_lower`, `rest_small` from `profPi0_le_unif`).  What remains
+  of `Σ` is `DesignPropertyP S.μS displacedClass` (`Σ3`) and `OmittedFamily` (`Σ4`).
 -/
