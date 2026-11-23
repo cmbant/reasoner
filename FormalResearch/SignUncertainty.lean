@@ -66,6 +66,7 @@ public import FormalResearch.SignUncertainty.RadialProfileDeriv
 public import FormalResearch.SignUncertainty.RadialProfileFatou
 public import FormalResearch.SignUncertainty.RadialCompactness
 public import FormalResearch.SignUncertainty.RadialCompactnessProof
+public import FormalResearch.SignUncertainty.OneProfileEnvelope
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
@@ -147,6 +148,9 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `‖F(z)‖ ≤ C (1+|z|)^{1/2} e(z)` (`radialF_airy_bound`), the identification of the window profiles with `Re Ξ_c` and
   the locally uniform convergence of profiles and derivatives, Fatou for the `L¹` clause, and the assembly
   `profile_compactness_thm`, `radial_compactness`.
+* `FormalResearch.SignUncertainty.OneProfileEnvelope`: `gt:3.1` in the form used by `prop:ce-one-profile`: every `H ∈ 𝒢`
+  with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
+  `one_profile_envelope`.
 * `FormalResearch.SignUncertainty.RadialCompactness`: the statement of `lem:radial-compactness` (`RadialCompactness`:
   window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it

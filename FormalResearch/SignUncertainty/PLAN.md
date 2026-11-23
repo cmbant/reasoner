@@ -22,9 +22,9 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
   instance. `MovingDiagFarTail` has no instance at all. Theorems such as GT.2b, GT.3b, GT.4, PE.3 and `cepe:general` are
   stated for an abstract `fhat` that carries the paper's estimates as hypotheses. Nothing builds `W_S`, `W_D` from `Ai`,
   or `h_mellin` from a CE pair.
-- Open skeleton fields in `Headlines.lean` (9): `hankel_euclid_dictionary`, `hb_thresholds_lower`,
+- Open skeleton fields in `Headlines.lean` (8): `hankel_euclid_dictionary`, `hb_thresholds_lower`,
   `hb_thresholds_upper`, `shell_reduction_m1`, `ce_hb_lift_m1`, `shell_reduction`, `shell_gap_limit`,
-  `one_profile_envelope`, `ce_hb_lift`. `radial_compactness` is a theorem and no longer an input.
+  `ce_hb_lift`. `radial_compactness` and `one_profile_envelope` are theorems and no longer inputs.
 - What is genuinely closed and reusable:
   - the Airy base: Theorems D, Q and B with its equality case, Clark two-node, Hermite–Biehler quadrature and
     `at47_*`, and Airy PWS (a)⇔(b);
