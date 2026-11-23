@@ -42,6 +42,7 @@ public import FormalResearch.CohnElkies.ComplexEdgePhase
 public import FormalResearch.CohnElkies.CubicNormalFormBridge
 public import FormalResearch.CohnElkies.MellinLiftIntegrals
 public import FormalResearch.CohnElkies.AiryWindowInversion
+public import FormalResearch.CohnElkies.FresnelBranch
 public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
 
@@ -150,6 +151,8 @@ and the Airy library:
   `liftSymbol`), `K₀` on the imaginary axis (`mellinK0_imag_eq`) and their integrability for `HasU2` seeds.
 * `FormalResearch.CohnElkies.AiryWindowInversion`: window smoothing `F_ψ` (`windowSmooth`), `W_X(w) = F̃_ψ(i c_s w)`, and the exact
   Airy inversion / reference identity (`HasU2.airy_inversion`, `airy_window_inversion`, `airy_reference_identity`).
+* `FormalResearch.CohnElkies.FresnelBranch`: the branch-point term of `u1c:U3`(3) Piece C / `O.3(2)`: `∫ φ (iv)^{1/2} e^{iAv} dv =
+  -√π φ(0) A^{-3/2} + O(A^{-2})` for `C²` amplitudes (`fresnel_branch`), by improper integration by parts and the Gaussian integral.
 * `FormalResearch.CohnElkies.PreEdgeCriterion`: unconditional concrete `GT.2b(1)–(3)` & `O.11y(3)`/`GT.4` tip offset
   for `twoScaleS`, unconditional `PE.3` reference & measure Mellin inversion (`pe3_reference_mellin_inversion`,
   `pe3_measure_inversion`), `pe3_remainder_integral_bound` (`O(c^{-2/3})`), `pe3_compact_origin_pos`, and
