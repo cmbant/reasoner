@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.SignUncertainty.Radii
 public import FormalResearch.SignUncertainty.RadialCompactnessProof
+public import FormalResearch.SignUncertainty.OneProfileEnvelope
 
 /-!
 # Paper I headline theorems from one input structure each (M0 skeleton)
@@ -14,8 +15,7 @@ the prescribed-shell class, the Bessel-kernel Hankel thresholds) with the paper'
 proved from an input structure whose fields are, one-to-one, the TeX theorems the paper's proof cites
 (field names are the TeX labels where the paper has one: `hb_thresholds_lower/upper`, `shell_reduction`,
 `shell_gap_limit`, `ce_hb_lift`, ...; some are not labels: `hankel_euclid_dictionary` is the proof of
-`gt:7.9` (Euclidean radii as Hankel thresholds), `one_profile_envelope` is `gt:3.1` as used in
-`prop:ce-one-profile`).
+`gt:7.9` (Euclidean radii as Hankel thresholds)).
 **A field is an open theorem about the concrete objects**; progress is the number of open fields, and a
 field is discharged only by proving it (then it is dropped from the structure). The input structures
 deliberately have no `*_nonvacuous` witness: each field is an open theorem of the paper, so a witness
@@ -42,9 +42,9 @@ Headlines and their inputs (open fields in bold):
   additionally uses `EuclidDictionary` (`hankel_euclid_dictionary`; `laguerre_odd_mode` is proved).
 * `thm_intro_gap_i/ii/iii` (`thm:intro-gap`), from `ShellGapInputs D`:
   **`shell_reduction`** (`thm:ce-shell-reduction`), **`shell_gap_limit`** (`thm:ce-shell-gap`,
-  extraction and constraint system `eq:ce-laplace-constraint`), **`one_profile_envelope`**
-  (`gt:3.1` envelope used in `prop:ce-one-profile`), **`ce_hb_lift`** (`thm:ce-hb-lift`). Proved here
-  from these: `one_profile_feasible_iff`, `one_profile_maximizer_exists`,
+  extraction and constraint system `eq:ce-laplace-constraint`), **`ce_hb_lift`** (`thm:ce-hb-lift`).
+  `one_profile_envelope` (`gt:3.1` envelope used in `prop:ce-one-profile`) is a theorem
+  (`OneProfileEnvelope.lean`). Proved here from these: `one_profile_feasible_iff`, `one_profile_maximizer_exists`,
   `one_profile_threshold_le_and_endpoint_iff` (`prop:ce-one-profile`), `even_m_laplace_sign`.
 
 Conventions. `c = d/2`, `A = |a₁|/β₁` (`airyOrderCoeff`), `airyOrderModel d = d/(2π²) + A (d/2)^{1/3}`.
@@ -156,6 +156,9 @@ def OneProfileEnvelope (D : ShellHBData) : Prop :=
     ∀ H : ℂ → ℂ, OneProfileFeasibleWitness D u H → (∫ x : ℝ, ‖H (x : ℂ)‖) = 1 →
       ∀ z : ℂ, ‖H z‖ ≤ C * (1 + ‖z‖) ^ ν * airyEnv z
 
+/-- `prop:ce-one-profile`, attainment step: proved (`one_profile_envelope_aux`, `OneProfileEnvelope.lean`). -/
+theorem one_profile_envelope (D : ShellHBData) : OneProfileEnvelope D := one_profile_envelope_aux D
+
 /-! ### Input structures -/
 
 /-- The concrete Bessel kernel `hankelPhi c` is a `HankelKernelData c` for `c ≥ 1`: proved
@@ -204,7 +207,6 @@ theorem radial_rigidity_lower :
 structure ShellGapInputs (D : ShellHBData) : Prop where
   shell_reduction : ShellReduction D
   shell_gap_limit : ShellGapLimit D
-  one_profile_envelope : OneProfileEnvelope D
   ce_hb_lift : CeHbLift D
 
 
@@ -665,7 +667,7 @@ then
   radius has `shellNormRadius d R ≥ s`; and
 * `u_LP < t_m`, i.e. `-u_LP/β₁ > -t_m/β₁`.
 
-Proved from `shell_gap_limit` (extraction), `one_profile_envelope` (attainment) and the proved
+Proved from `shell_gap_limit` (extraction), the theorem `one_profile_envelope` (attainment) and the proved
 one-profile reduction (`one_profile_feasible_iff`, `one_profile_maximizer_exists`,
 `one_profile_threshold_le_and_endpoint_iff`). -/
 theorem thm_intro_gap_ii
@@ -701,7 +703,7 @@ theorem thm_intro_gap_ii
     linarith
   · by_cases hfeas : ∃ u : ℝ, OneProfileFeasible D u
     · obtain ⟨u₀, hu₀⟩ := hfeas
-      obtain ⟨C, ν, hC, hbound⟩ := I.one_profile_envelope u₀ hu₀
+      obtain ⟨C, ν, hC, hbound⟩ := one_profile_envelope D u₀ hu₀
       obtain ⟨u_s, hu_s⟩ := one_profile_maximizer_exists D
         { u₀ := u₀, u₀_feasible := hu₀, C₀ := C, ν₀ := ν, hC₀ := hC,
           uniform_env := fun {u H} hu hH hn z => hbound u hu H hH hn z }
