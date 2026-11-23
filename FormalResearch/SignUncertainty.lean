@@ -5,6 +5,7 @@ public import FormalResearch.SignUncertainty.HermiteBiehlerUniq
 public import FormalResearch.SignUncertainty.RadialRigidity
 public import FormalResearch.SignUncertainty.HankelPowerSeries
 public import FormalResearch.SignUncertainty.HankelStripInversion
+public import FormalResearch.SignUncertainty.HankelWtBasics
 public import FormalResearch.SignUncertainty.HardyMellinIntertwiner
 public import FormalResearch.SignUncertainty.HankelCpowBounds
 public import FormalResearch.SignUncertainty.HankelFiveHalvesWitness
@@ -177,6 +178,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.LaplaceWeight`: the real Laplace weight `W_c(y,Δ) = Re(1/K₀(ζ_c, Δ/c))` of the proof of Theorem `H.14` (`eq:ce-laplace-limit`): positivity, the Gamma form, the exact scaling in `Δ`, and the limit `exp(-y³/12 + y u)` at `Δ = c/π² - (u/β₁)c^{1/3}` (from `radialK_tendsto`).
 * `FormalResearch.SignUncertainty.HankelPowerSeries`, `HankelCpowBounds`, `HankelLangerChart`, `HankelLangerU`, `HankelLangerY`, `HankelLangerReal`: the Hankel Langer chart of `gt:7.7b` (0)-(iv), step 1 of the Hankel lower half (M5). In the variable `u = ζ²` the saddle equation `g(ζ) = s` is `K(u) = 12 s/π²` with `K(u) = u G(u)`; `K` is injective with a holomorphic inverse on `ball 0 q` (`q = 0.035²`, Noshiro + Rouché) and `ũ = c^{2/3} κ y(w)`, `y = (π²/12) M(K^{-1}(12 s/π²))`, `M(u) = u E(u)^{2/3}`: `|y + w| ≤ 1.9e-3 |w|`, `|y' + 1| ≤ 4e-3`, `y` injective, onto small discs, real and strictly decreasing on the real axis, `y(0) = 0` (coefficient hypothesis `LangerEta`: `0 < η_j ≤ 1`, `η_0 = π²/12`).
 * `FormalResearch.SignUncertainty.HankelStripInversion`: `hankelWt` (`W̃_c`) and `hankel_inversion_line`, the exact inversion `(ρ₀ f)(cξ) = (2πξ)^{-1} ∫ K₀(σ+iτ, ξ) W̃_c(σ+iτ) dτ` on any line `Re ζ = σ` with `cσ > 1` (`mat:T2`(2), `(e32)`; `radial_xi_repr` is the case `σ = ε_c`).
+* `FormalResearch.SignUncertainty.HankelWtBasics`: `‖W̃_c(ζ)‖ ≤ M[f] ‖1+ζ‖^{1/2} e^{1/(6c)}` on `0 ≤ Re ζ < 1` and holomorphy of `W̃_c` on `0 < Re ζ < 1`.
 * `FormalResearch.SignUncertainty.NoshiroRouche`: Noshiro–Warschawski injectivity on a convex set (`injOn_of_re_deriv_pos`), unique root of a perturbation of the identity via Rouché (`exists_unique_root_of_perturb`), and the regression `not_injOn_sq`; used by the Hankel Langer chart (`gt:7.7b`).
 * `FormalResearch.SignUncertainty.HankelLangerSeries`: coefficient facts for the Hankel Langer chart (`gt:7.7b` (0)): `etaC j = η(2j+2)` with `0 < etaC j < 1` and `etaC 0 = π²/12`, the normalised coefficients `langerA`, `langerB` and their bounds, the tail bounds `abs_eps_le` (`≤ 7.46e-4`) and `abs_E_sub_one_le_035` (`≤ 8.95e-4`) on `‖z‖ ≤ 0.035`, and the binomial bound `‖(1+x)^α - 1‖ ≤ 1 - (1-‖x‖)^α`. The series identity `π/sin(πz) - 1/z = 2∑η(2j+2)z^{2j+1}` is not formalised here.
   with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
