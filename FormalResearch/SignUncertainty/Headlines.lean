@@ -36,7 +36,7 @@ Headlines and their inputs (open fields in bold):
   **`hb_thresholds_upper`** (`u1co:O9p`, one level). `radial_compactness` (`lem:radial-compactness`: deep
   lobe, compactness) is a theorem (`RadialCompactnessProof.lean`), and `radial_rigidity_lower` and
   `radial_profile_c1` (`gt:7.5`, lower half and profile identification with the `C¹` clause) are
-  derived from it. Proved here from these:
+  derived from it (the latter also from `hb_thresholds_upper`). Proved here from these:
   the Hardy–Mellin intertwiner argument (`sign_separation_eventually_le`, via
   `SignSeparationPackage.langer_approx` built from the `C¹` field). The Euclidean statement (2)
   additionally uses `EuclidDictionary` (`hankel_euclid_dictionary`; `laguerre_odd_mode` is proved).
@@ -412,10 +412,10 @@ private lemma hankelT_neg_airy_order :
 /-- `gt:7.5` profile identification with the `C¹` clause of `lem:radial-compactness`: the window profile
 `Ψ_{f,c}/M[f]` of a near-optimal `(-1)`-feasible `f` is `C¹` on each window and converges to
 `G_Ai/‖G_Ai‖₁` together with its first derivative, locally uniformly. Derived from
-`radial_compactness` (the `C¹` clause and the derivative convergence) and `radial_rigidity_profile`
-(identification of the limit) along a sequence of counterexamples. -/
-omit I in
-theorem radial_profile_c1 :
+`radial_compactness` (the `C¹` clause and the derivative convergence), `radial_rigidity_profile`
+(identification of the limit) and the threshold asymptotics from `hb_thresholds_upper`, along a sequence of
+counterexamples. -/
+theorem SeparationInputs.radial_profile_c1 :
     ∀ R η : ℝ, 0 < η → ∀ᶠ c : ℝ in atTop, ∀ (T : ℝ) (f : ℝ → ℝ),
       IsHankelFeasible c (-1) T f → hankelT (-1) c ≤ T → T ≤ hankelT (-1) c + 1 / c →
         ContDiffOn ℝ 1 (fun u => hankelWindowProfile c f u / hankelMass c f) (Ioo (-R) R) ∧
@@ -520,7 +520,7 @@ private lemma exists_package : ∃ P : SignSeparationPackage, ∀ c : ℝ, P.c�
         simp only [hc, ↓reduceDIte, (Classical.choose (bessel_kernel_data c (hc1 c hc))).threshold_eq
           (hK c hc)]
       c1_profile := fun R η hη => by
-        filter_upwards [radial_profile_c1 R η hη] with c hcev hc T f hf hT1 hT2
+        filter_upwards [I.radial_profile_c1 R η hη] with c hcev hc T f hf hT1 hT2
         have hKc := hK c hc
         rw [(Classical.choose (bessel_kernel_data c (hc1 c hc))).isFeasible_iff hKc] at hf
         simp only [(Classical.choose (bessel_kernel_data c (hc1 c hc))).threshold_eq hKc] at hT1 hT2
