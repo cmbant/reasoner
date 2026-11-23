@@ -151,6 +151,8 @@ public import FormalResearch.ModularBootstrap.Upper.Membership.CombDecay
 public import FormalResearch.ModularBootstrap.Upper.Membership.RefComb
 public import FormalResearch.ModularBootstrap.Upper.Membership.SaddleTail
 public import FormalResearch.ModularBootstrap.Upper.Membership.DesignMembership
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.CrossingDictionary
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.Wiring
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -502,4 +504,19 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `c'` uniformly over the family (`design_k7_membership_vacuum`: decay, `g = ½(h₀ - ĥ₀) ∈ Ā` at `w = 1`,
   vacuum identity, `|h_{0,vac}| ≤ 8`) and for the designs `D(N, η_*, d)` (`design1_k7_membership_vacuum`),
   unconditional.
+* `Upper.Rigidity.{CrossingDictionary, Wiring}`: from crossing measures to the spectral measure and
+  `Σ₀`, `Σ` for `ν_*(c_j)` (`spectral_rigidity.tex` §1).  The inverse Airy chart `tAiry`, the window
+  test function `psiAiry` (`Ψ_g = g V J`) with `∫ Ψ_g du = ∫₀^∞ g V dt` (`integral_psiAiry`), the
+  spectral measure `spectralMeasure` of an `AdmissibleCrossingMeasure` (`μ_S = u_*(ν/(2πVJ))`; discrete
+  form `spectralMeasure_sum_dirac`), **Proposition `sr:P1`** (`spectral_poisson_summation`,
+  `spectral_poisson_summation_comb`: `Ψ_g ∈ L¹(μ_S)`, `∫ Ψ_g dμ_S = ∫ Ψ_g du = -g_vac/(2π)`) and
+  **Proposition `sr:P2`** (`spectral_complementary_slackness`), local finiteness and support of `μ_S`
+  at a positive gap; `CrossingSequence` (with `spectralData` an instance of `SpectralData` under
+  (Gap)), (Gap) from the lower bound alone (`gapCondition_of_lowerBound`; via `corollary_E1_littleO`:
+  `gapCondition_of_littleO`), the extremal measures `ν_*(c_j)` as a crossing sequence
+  (`exists_optimalCrossingSequence`, Virasoro: `virasoro_exists_optimalCrossingSequence`), and
+  `theorem_sigma_crossing`, `theorem_sigma_zero_crossing` (+ `_optimal`, `virasoro_` forms): `Σ₀`, `Σ`
+  for `μ_S`, with the named inputs `DesignPropertyP` (reduced to comb data by `CombDesignData`,
+  `designPropertyP_of_comb`, with `sr:P1` supplying the summation part of `(P1)`) and the family
+  structures; the upper threshold bound is not used.
 -/
