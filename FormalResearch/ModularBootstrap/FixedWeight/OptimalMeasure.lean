@@ -3,6 +3,7 @@ module
 public import FormalResearch.ModularBootstrap.FixedWeight.StrongDuality
 public import FormalResearch.ModularBootstrap.Duality.OptimalMeasure
 public import FormalResearch.ModularBootstrap.ConcreteBootstrap.TheoremJ
+public import FormalResearch.ModularBootstrap.Contour.VirasoroScaleChoice
 
 /-!
 # Fixed-Weight Corollary E1 (`dual_spectrum.tex`, `ds:E1`)
@@ -14,8 +15,8 @@ Generalises `Duality.OptimalMeasure` to every fixed-weight problem `prob : Fixed
 * Explicit named hypotheses (`Prop`) for the `T_V(c̃) = T_*(c̃) + O_{w,Q}(1)` inputs of
   Corollary E1 (`dual_spectrum.tex`, `ds:E1`):
   - `FixedWeightLowerBoundInput prob` (Theorem W1'(1), `wone:genlower(1)`, not yet formalised
-    at general `(w, Q)`; proved for `virasoroProblem` conditionally on `YVInput` by
-    `ConcreteBootstrap.theoremJ_T_V`);
+    at general `(w, Q)`; proved unconditionally for `virasoroProblem` by `virasoro_lowerBoundInput`
+    via `Contour.theoremJ_T_V`);
   - `TheoremC15UpperInput prob` (Theorem C15 / Theorem ctu.5, `thm:fixed-weight-expansion`,
     not yet formalised in Lean);
   - `WeakThresholdLowerBoundAt` (satisfied unconditionally at `virasoroProblem` by
@@ -26,8 +27,8 @@ Generalises `Duality.OptimalMeasure` to every fixed-weight problem `prob : Fixed
   `sr:Sigma`) proved given `FixedWeightLowerBoundInput prob` and `TheoremC15UpperInput prob`.
 * `dualSetup_nonvacuous`: non-vacuity of `FixedWeight.DualSetup` (unconditional witness at
   `virasoroProblem`).
-* Virasoro instances `virasoro_corollary_E1_exact_gap`, `virasoro_corollary_E1_lower_bound`,
-  `virasoro_corollary_E1_of_YV`.
+* Virasoro instances `virasoro_lowerBoundInput`, `virasoro_corollary_E1_exact_gap`,
+  `virasoro_corollary_E1_lower_bound`, `virasoro_corollary_E1`, and legacy `_of_YV` bridges.
 -/
 
 @[expose] public section
@@ -98,6 +99,18 @@ theorem weakThresholdLowerBound_virasoro :
   refine ⟨c_A, C_A, ?_, hCA, fun hc => hTV hc⟩
   rw [virasoroProblem_totalShift]
   exact max_le (by linarith) (by linarith)
+
+/-- Unconditional witness of `FixedWeightLowerBoundInput` for `virasoroProblem` via
+`Contour.theoremJ_T_V` (Theorem J / Theorem W1'(1)). -/
+theorem virasoro_lowerBoundInput :
+    FixedWeightLowerBoundInput virasoroProblem := by
+  obtain ⟨c_2, C, hc2, hC, hTV⟩ := Contour.theoremJ_T_V
+  refine ⟨c_2, C, ?_, hC, fun {cTilde} hc => ?_⟩
+  · have hc24 : 24 ≤ c_2 :=
+      ((by norm_num : (24 : ℝ) ≤ 10000).trans ConcreteBootstrap.virasoroCQEnv_ge).trans hc2
+    rw [virasoroProblem_totalShift]
+    exact max_le (by linarith) (by linarith)
+  · exact hTV hc
 
 /-- Bridge from `ConcreteBootstrap.YVInput` + `theoremJ_T_V` to `FixedWeightLowerBoundInput`
 for `virasoroProblem`. -/
@@ -327,6 +340,30 @@ theorem virasoro_corollary_E1_lower_bound :
     linarith
   exact ⟨C_A, c₀, hCA, hc24, fun hc => hall hc⟩
 
+/-- Spinless Virasoro full Corollary E1 given `TheoremC15UpperInput virasoroProblem`
+(with the lower bound `FixedWeightLowerBoundInput virasoroProblem` supplied unconditionally by
+`virasoro_lowerBoundInput`). -/
+theorem virasoro_corollary_E1 (hC15 : TheoremC15UpperInput virasoroProblem) :
+    ∃ c₀ C : ℝ, 24 ≤ c₀ ∧ 0 ≤ C ∧
+      (∀ {c' : ℝ}, c₀ ≤ c' →
+        0 < virasoroProblem.T_V c' ∧
+        |virasoroProblem.T_V c' - TStar c'| ≤ C ∧
+        |virasoroProblem.Delta_best c' - (c' / lambdaV + Aopt * c' ^ ((1 : ℝ) / 3))| ≤ C ∧
+        ∃ meas : AdmissibleCrossingMeasure virasoroProblem (c' / 12),
+          meas.ν (Iio (virasoroProblem.T_V c')) = 0 ∧
+          (∀ ε : ℝ, 0 < ε → 0 < meas.ν (Iio (virasoroProblem.T_V c' + ε))) ∧
+          virasoroProblem.Delta_best c' = c' / 12 + virasoroProblem.T_V c') ∧
+      (∀ cSeq : ℕ → ℝ, Tendsto cSeq atTop atTop →
+        Tendsto (fun j => (virasoroProblem.T_V (cSeq j) - TStar (cSeq j)) /
+          (cSeq j) ^ ((1 : ℝ) / 3)) atTop (𝓝 0)) := by
+  obtain ⟨c₀, C, hc₀, hC, hall, hlim⟩ :=
+    corollary_E1 virasoroProblem virasoro_lowerBoundInput hC15
+  have hc24 : 24 ≤ c₀ := by
+    have := (le_max_right (1 : ℝ) (12 * virasoroProblem.totalShift)).trans hc₀
+    rw [virasoroProblem_totalShift] at this
+    linarith
+  exact ⟨c₀, C, hc24, hC, hall, hlim⟩
+
 /-- Spinless Virasoro full Corollary E1 given `ConcreteBootstrap.YVInput` and
 `TheoremC15UpperInput virasoroProblem`. -/
 theorem virasoro_corollary_E1_of_YV (hYV : ConcreteBootstrap.YVInput)
@@ -351,7 +388,7 @@ theorem virasoro_corollary_E1_of_YV (hYV : ConcreteBootstrap.YVInput)
     linarith
   exact ⟨c₀, C, hc24, hC, hall, hlim⟩
 
-/-! ### Axiom checks -/
+/-! ### Verification -/
 
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeight.corollary_E1_exact_gap' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -380,6 +417,14 @@ theorem virasoro_corollary_E1_of_YV (hYV : ConcreteBootstrap.YVInput)
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeight.dualSetup_nonvacuous' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.ModularBootstrap.FixedWeight.dualSetup_nonvacuous
+
+/-- info: 'FormalResearch.ModularBootstrap.FixedWeight.virasoro_lowerBoundInput' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.FixedWeight.virasoro_lowerBoundInput
+
+/-- info: 'FormalResearch.ModularBootstrap.FixedWeight.virasoro_corollary_E1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.FixedWeight.virasoro_corollary_E1
 
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeight.virasoro_corollary_E1_of_YV' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

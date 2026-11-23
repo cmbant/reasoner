@@ -152,25 +152,34 @@ lemma virasoroBandB2_nonneg {c' R T : ℝ} (hc' : virasoroCQEnv ≤ c')
   exact mul_nonneg (hg.2.2.2 t (hΔ_T_le.trans ht)) (virasoroProblem.cardyV_nonneg ha (hΔ_nn.trans ht))
 
 /-- Abstracted `(P, Q) = (1, 0)` band-feedback conclusion `vlo:YV` + `TE.3(2)-(3)` for a family
-`Ψ c' g`, at fixed feedback factor `C_fb ≥ 1` and threshold `c_YV ≥ virasoroCQEnv`.
-When `Ψ = virasoroPsiTilde`, this is the unproved analytic input `YVInput`. -/
-def YVInputAt (Ψ : ℝ → (ℝ → ℝ) → ℂ → ℂ) (C_fb c_YV : ℝ) : Prop :=
+`Ψ c' g`, at scale `b > 0`, fixed feedback factor `C_fb ≥ 1`, and threshold `c_YV ≥ virasoroCQEnv`. -/
+def YVInputAtFor (b : ℝ) (Ψ : ℝ → (ℝ → ℝ) → ℂ → ℂ) (C_fb c_YV : ℝ) : Prop :=
   ∀ ⦃c' T R : ℝ⦄, c_YV ≤ c' →
     virasoroAThr ≤ R →
-    virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ) ≤ R →
-    R + 1 ≤ virasoroAC c' ^ 2 →
+    b ^ 2 * c' ^ (2 / 3 : ℝ) ≤ R →
+    R + 1 ≤ virasoroACAt b c' ^ 2 →
     ∀ ⦃g : ℝ → ℝ⦄, virasoroProblem.IsWeaklyFeasible (c' / 12) T g →
     virasoroDeltaChart c' 0 ≤ T →
     T ≤ virasoroDeltaChart c' (-virasoroAThr) →
     YVEnvBound (Ψ c' g) c' R
       (C_fb * (c' ^ (1 / 3 : ℝ) * (virasoroBandB1 c' R T g + virasoroBandB2 c' R g) + 1))
 
+/-- Abstracted `(P, Q) = (1, 0)` band-feedback conclusion `vlo:YV` + `TE.3(2)-(3)` for a family
+`Ψ c' g`, at fixed feedback factor `C_fb ≥ 1` and threshold `c_YV ≥ virasoroCQEnv`.
+When `Ψ = virasoroPsiTilde`, this is the unproved analytic input `YVInput`. -/
+def YVInputAt (Ψ : ℝ → (ℝ → ℝ) → ℂ → ℂ) (C_fb c_YV : ℝ) : Prop :=
+  YVInputAtFor virasoroBV Ψ C_fb c_YV
+
+/-- Scale-parametrised `YVInput` at chart scale `b > 0`. -/
+def YVInputFor (b : ℝ) : Prop :=
+  ∃ C_fb c_YV : ℝ, 1 ≤ C_fb ∧ virasoroCQEnv ≤ c_YV ∧ YVInputAtFor b virasoroPsiTilde C_fb c_YV
+
 /-- **Unproved analytic input (Proposition `Y_V`, `lower_o1_two_edge.tex` `vlo:YV`, together with
 `TE.3(2)-(3)`)** at threshold `A_thr = |a₁| + 1`: existence of `C_fb ≥ 1` and `c_YV ≥ virasoroCQEnv`
 such that every weakly feasible test `g` with `T ∈ [Δ(0), Δ(-A_thr)]` (equivalently
 `-A_thr ≤ u_T ≤ 0` in the chart) satisfies `(Env_{L'})` with `L' = C_fb (c'^{1/3}(B₁ + B₂) + 1)`. -/
 def YVInput : Prop :=
-  ∃ C_fb c_YV : ℝ, 1 ≤ C_fb ∧ virasoroCQEnv ≤ c_YV ∧ YVInputAt virasoroPsiTilde C_fb c_YV
+  YVInputFor virasoroBV
 
 /-- Non-vacuity of `YVInputAt`: the feedback specification and envelope domain are consistent. -/
 theorem yvInputAt_nonvacuous :
@@ -178,6 +187,7 @@ theorem yvInputAt_nonvacuous :
       1 ≤ C_fb ∧ virasoroCQEnv ≤ c_YV ∧ YVInputAt Ψ C_fb c_YV := by
   refine ⟨fun _ _ _ => 0, 1, virasoroCQEnv, le_rfl, le_rfl, ?_⟩
   intro c' T R hc' hR_thr _ hR_ub g hg hT_lo hT_hi u _ hRl _ hsin
+  rw [virasoroACAt_virasoroBV] at hR_ub
   have hR_pos : 2 ≤ R := by linarith [virasoroAThr_gt_two]
   have hu_pos : 0 < ‖u‖ := by linarith
   have hc'_pos : 0 < c' := lt_of_lt_of_le (by have := virasoroCQEnv_ge; linarith) hc'

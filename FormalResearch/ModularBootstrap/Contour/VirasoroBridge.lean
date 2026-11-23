@@ -127,20 +127,20 @@ private noncomputable def yvBandParamsAt (b_R : ℝ) (hb_R : 0 < b_R) : BandRedu
     b := b_R
     hb := hb_R }
 
-private noncomputable def yvUniformBandConst : ℝ :=
+private noncomputable def yvUniformBandConstFor (b : ℝ) : ℝ :=
   let P := yvP0
-  let ρ_min_lo := kappaV * virasoroBV / 3
+  let ρ_min_lo := kappaV * b / 3
   let C_pf_lo := ρ_min_lo ^ (5 / 2 : ℝ) * (0.965 : ℝ) ^ (5 / 2 : ℝ) * Real.exp (-0.04)
   let C_gauss5 := ∫ τ : ℝ, (1 + |τ|) ^ (5 : ℝ) * Real.exp (-τ ^ 2)
   let C_core := 8 * P.A_0 * (4 * P.A_0) ^ (5 / 2 : ℝ) * (1 + 4 * P.A_0) ^ (P.M + 5 / 2) * P.C_W
   let C_sub := P.C_a * C_gauss5 / P.κ_sub
   let C_tail := C_core + C_sub + 2 * tebBandOscConst P
-  let C_band_hi := tebBandOscConst P * max (P.C_τ * (2 * virasoroBV ^ 2 + 1)) 1
+  let C_band_hi := tebBandOscConst P * max (P.C_τ * (2 * b ^ 2 + 1)) 1
   max C_tail C_band_hi / (C_pf_lo * ρ_min_lo)
 
-private lemma tebBandConst_yvBandParamsAt_le {b_R : ℝ} (hb_R : 0 < b_R)
-    (hb_lo : virasoroBV ≤ b_R) (hb_sq_hi : b_R ^ 2 ≤ 2 * virasoroBV ^ 2) :
-    tebBandConst (yvBandParamsAt b_R hb_R) ≤ yvUniformBandConst := by
+private lemma tebBandConst_yvBandParamsAt_leFor {b b_R : ℝ} (hb_pos : 0 < b) (hb_R : 0 < b_R)
+    (hb_lo : b ≤ b_R) (hb_sq_hi : b_R ^ 2 ≤ 2 * b ^ 2) :
+    tebBandConst (yvBandParamsAt b_R hb_R) ≤ yvUniformBandConstFor b := by
   let P := yvP0
   have hosc_pos : 0 < tebBandOscConst P := by
     unfold tebBandOscConst
@@ -148,10 +148,10 @@ private lemma tebBandConst_yvBandParamsAt_le {b_R : ℝ} (hb_R : 0 < b_R)
     have := tebOscConst_pos hb₀ (P.M + 11 / 2)
     have := P.hC_a; have := P.hC_ν
     positivity
-  set ρ_min_lo : ℝ := kappaV * virasoroBV / 3
+  set ρ_min_lo : ℝ := kappaV * b / 3
   set ρ_min_R : ℝ := kappaV * b_R / 3
   have hρ_lo_pos : 0 < ρ_min_lo := by
-    dsimp [ρ_min_lo]; have := kappaV_pos; have := virasoroBV_pos; positivity
+    dsimp [ρ_min_lo]; have := kappaV_pos; positivity
   have hρ_le : ρ_min_lo ≤ ρ_min_R := by
     dsimp [ρ_min_lo, ρ_min_R]; have := kappaV_pos; gcongr
   have hρ_R_pos : 0 < ρ_min_R := lt_of_lt_of_le hρ_lo_pos hρ_le
@@ -169,7 +169,7 @@ private lemma tebBandConst_yvBandParamsAt_le {b_R : ℝ} (hb_R : 0 < b_R)
   set C_sub : ℝ := P.C_a * C_gauss5 / P.κ_sub
   set C_tail : ℝ := C_core + C_sub + 2 * tebBandOscConst P
   set C_band_R : ℝ := tebBandOscConst P * max (P.C_τ * (b_R ^ 2 + 1)) 1
-  set C_band_hi : ℝ := tebBandOscConst P * max (P.C_τ * (2 * virasoroBV ^ 2 + 1)) 1
+  set C_band_hi : ℝ := tebBandOscConst P * max (P.C_τ * (2 * b ^ 2 + 1)) 1
   have hband_hi_pos : 0 < C_band_hi := by
     dsimp [C_band_hi]
     exact mul_pos hosc_pos (lt_of_lt_of_le zero_lt_one (le_max_right _ _))
@@ -183,7 +183,7 @@ private lemma tebBandConst_yvBandParamsAt_le {b_R : ℝ} (hb_R : 0 < b_R)
     max_le_max_left C_tail hband_le
   have hlhs_eq : tebBandConst (yvBandParamsAt b_R hb_R) =
       max C_tail C_band_R / (C_pf_R * ρ_min_R) := rfl
-  have hrhs_eq : yvUniformBandConst =
+  have hrhs_eq : yvUniformBandConstFor b =
       max C_tail C_band_hi / (C_pf_lo * ρ_min_lo) := rfl
   rw [hlhs_eq, hrhs_eq]
   calc max C_tail C_band_R / (C_pf_R * ρ_min_R)
@@ -192,15 +192,16 @@ private lemma tebBandConst_yvBandParamsAt_le {b_R : ℝ} (hb_R : 0 < b_R)
     _ ≤ max C_tail C_band_hi / (C_pf_lo * ρ_min_lo) :=
         div_le_div_of_nonneg_left hnum_hi_pos.le hden_lo_pos hden_le
 
-/-! ### 3. Rescaled `BandReductionInstance` and moment bridge across `[b_V^2 c'^{2/3}, A_{c'}^2 - 1]` -/
+/-! ### 3. Rescaled `BandReductionInstance` and moment bridge across `[b^2 c'^{2/3}, A_{c'}(b)^2 - 1]` -/
 
-private lemma virasoro_uniform_band_bound (hScale : VirasoroBVScaleCompat)
+private lemma virasoro_uniform_band_boundFor {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ virasoroBV)
+    (hScale : 2 * b ^ 2 ≤ virasoroScaleThresh)
     {c' R T : ℝ}
     (hc'_yv : yvThresh langerChartSpec_virasoro virasoroAThr ≤ c')
     (hc'_cq : virasoroCQEnv ≤ c')
     (hR_thr : virasoroAThr ≤ R)
-    (hR_lo : virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ) ≤ R)
-    (hR_hi : R + 1 ≤ virasoroAC c' ^ 2)
+    (hR_lo : b ^ 2 * c' ^ (2 / 3 : ℝ) ≤ R)
+    (hR_hi : R + 1 ≤ virasoroACAt b c' ^ 2)
     {g : ℝ → ℝ} (hg_wf : virasoroProblem.IsWeaklyFeasible (c' / 12) T g)
     (hT_lo : virasoroDeltaChart c' 0 ≤ T)
     (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr)) :
@@ -212,7 +213,7 @@ private lemma virasoro_uniform_band_bound (hScale : VirasoroBVScaleCompat)
       ‖ζ‖ ≤ 2 * (kappaV * c' ^ (-(1 / 3 : ℝ)) * Real.sqrt R) →
       c' ^ (-(1 / 12 : ℝ)) * ‖ζ‖ ≤ ζ.re →
       ‖tildeWV c' g ζ‖ ≤ M *
-        (max yvUniformBandConst 1 * (c' ^ (1 / 3 : ℝ) * (B₁ + B₂) + 1) *
+        (max (yvUniformBandConstFor b) 1 * (c' ^ (1 / 3 : ℝ) * (B₁ + B₂) + 1) *
           c' ^ (-(5 / 6 : ℝ)) * ‖ζ‖ / ζ.re) := by
   dsimp only
   let pg := langerChartSpec_virasoro
@@ -228,11 +229,14 @@ private lemma virasoro_uniform_band_bound (hScale : VirasoroBVScaleCompat)
   have hM_pos : 0 < virasoroProblem.cardyNorm (c' / 12) g :=
     cardyNorm_pos_of_nonzero hshift hg_wf.1 hg_wf.2.1
   have hg_nn : ∀ t ∈ Ici T, 0 ≤ g t := hg_wf.2.2.2
-  have h2bV_c0 : 2 * virasoroBV ^ 2 ≤ w.c₀ / 2 :=
+  have h2bV_c0 : 2 * b ^ 2 ≤ w.c₀ / 2 :=
     hScale.trans (min_le_left _ _)
-  have hAC_sq : virasoroAC c' ^ 2 = 2 * virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ) :=
-    virasoroAC_sq c' hc'_pos.le
-  have hR_le_AC : R ≤ virasoroAC c' ^ 2 := by linarith only [hR_hi]
+  have hACb_sq : virasoroACAt b c' ^ 2 = 2 * b ^ 2 * c' ^ (2 / 3 : ℝ) :=
+    virasoroACAt_sq b c' hc'_pos.le
+  have hACb_le_AC : virasoroACAt b c' ^ 2 ≤ virasoroAC c' ^ 2 :=
+    virasoroACAt_sq_le hb_pos.le hb_le hc'_pos.le
+  have hR_le_ACb : R ≤ virasoroACAt b c' ^ 2 := by linarith only [hR_hi]
+  have hR_le_AC : R ≤ virasoroAC c' ^ 2 := hR_le_ACb.trans hACb_le_AC
   have hA_pos : 0 < A_thr := virasoroAThr_pos
   have hR_pos : 0 < R := lt_of_lt_of_le hA_pos hR_thr
   -- Compatibility of `langerDelta pg c'` with `virasoroDeltaChart c'` at `0`, `-A_thr`, `-R`
@@ -252,8 +256,8 @@ private lemma virasoro_uniform_band_bound (hScale : VirasoroBVScaleCompat)
   have hR_le_Rstar : R ≤ R_star := by
     dsimp [R_star]
     rw [hP0_b_sq]
-    calc R ≤ virasoroAC c' ^ 2 := hR_le_AC
-      _ = 2 * virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ) := hAC_sq
+    calc R ≤ virasoroACAt b c' ^ 2 := hR_le_ACb
+      _ = 2 * b ^ 2 * c' ^ (2 / 3 : ℝ) := hACb_sq
       _ ≤ (w.c₀ / 2) * c' ^ (2 / 3 : ℝ) :=
           mul_le_mul_of_nonneg_right h2bV_c0 (Real.rpow_nonneg hc'_pos.le _)
   have hRstar_ub : R_star ≤ yvP0.b ^ 2 * c' ^ (2 / 3 : ℝ) + 1 := by
@@ -265,25 +269,25 @@ private lemma virasoro_uniform_band_bound (hScale : VirasoroBVScaleCompat)
   have hProps₀ := langerDelta_props hc'_yv (R := R_star) le_rfl hRstar_ub
   have hDelta_le : langerDelta pg c' (-R) ≤ langerDelta pg c' (-R_star) :=
     hProps₀.2.2.2.2.1.monotoneOn ⟨hR_pos.le, hR_le_Rstar⟩ ⟨hProps₀.1.le, le_rfl⟩ hR_le_Rstar
-  -- Rescaled `b_R := √(R * c'^(-2/3))` in `[virasoroBV, √2 * virasoroBV]`
+  -- Rescaled `b_R := √(R * c'^(-2/3))` in `[b, √2 * b]`
   set b_R : ℝ := Real.sqrt (R * c' ^ (-(2 / 3 : ℝ)))
   have hb_R_sq : b_R ^ 2 = R * c' ^ (-(2 / 3 : ℝ)) :=
     Real.sq_sqrt (mul_nonneg hR_pos.le (Real.rpow_nonneg hc'_pos.le _))
-  have hb_R_lo : virasoroBV ≤ b_R := by
+  have hb_R_lo : b ≤ b_R := by
     refine Real.le_sqrt_of_sq_le ?_
-    calc virasoroBV ^ 2
-        = (virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ)) * c' ^ (-(2 / 3 : ℝ)) := by
+    calc b ^ 2
+        = (b ^ 2 * c' ^ (2 / 3 : ℝ)) * c' ^ (-(2 / 3 : ℝ)) := by
           rw [mul_assoc, ← Real.rpow_add hc'_pos, add_neg_cancel, Real.rpow_zero, mul_one]
       _ ≤ R * c' ^ (-(2 / 3 : ℝ)) :=
           mul_le_mul_of_nonneg_right hR_lo (Real.rpow_nonneg hc'_pos.le _)
-  have hb_R_pos : 0 < b_R := lt_of_lt_of_le virasoroBV_pos hb_R_lo
-  have hb_R_sq_hi : b_R ^ 2 ≤ 2 * virasoroBV ^ 2 := by
+  have hb_R_pos : 0 < b_R := lt_of_lt_of_le hb_pos hb_R_lo
+  have hb_R_sq_hi : b_R ^ 2 ≤ 2 * b ^ 2 := by
     rw [hb_R_sq]
     calc R * c' ^ (-(2 / 3 : ℝ))
-        ≤ (2 * virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ)) * c' ^ (-(2 / 3 : ℝ)) :=
-          mul_le_mul_of_nonneg_right (by linarith only [hR_le_AC, hAC_sq])
+        ≤ (2 * b ^ 2 * c' ^ (2 / 3 : ℝ)) * c' ^ (-(2 / 3 : ℝ)) :=
+          mul_le_mul_of_nonneg_right (by linarith only [hR_le_ACb, hACb_sq])
             (Real.rpow_nonneg hc'_pos.le _)
-      _ = 2 * virasoroBV ^ 2 := by
+      _ = 2 * b ^ 2 := by
           rw [mul_assoc, ← Real.rpow_add hc'_pos, add_neg_cancel, Real.rpow_zero, mul_one]
   have hb_R_R : b_R ^ 2 * c' ^ (2 / 3 : ℝ) = R := by
     rw [hb_R_sq, mul_assoc, ← Real.rpow_add hc'_pos, neg_add_cancel, Real.rpow_zero, mul_one]
@@ -499,8 +503,8 @@ private lemma virasoro_uniform_band_bound (hScale : VirasoroBVScaleCompat)
   rw [hW_eq, hB1_eq, hB2_eq] at hred
   have hmul_M := mul_le_mul_of_nonneg_left hred hM_pos.le
   rw [← mul_assoc, mul_inv_cancel₀ hM_pos.ne', one_mul] at hmul_M
-  have hCY_le : tebBandConst P_R ≤ max yvUniformBandConst 1 :=
-    (tebBandConst_yvBandParamsAt_le hb_R_pos hb_R_lo hb_R_sq_hi).trans (le_max_left _ _)
+  have hCY_le : tebBandConst P_R ≤ max (yvUniformBandConstFor b) 1 :=
+    (tebBandConst_yvBandParamsAt_leFor hb_pos hb_R_pos hb_R_lo hb_R_sq_hi).trans (le_max_left _ _)
   have hc16_le1 : c' ^ (-(1 / 6 : ℝ)) ≤ 1 :=
     Real.rpow_le_one_of_one_le_of_nonpos hc'_ge1 (by norm_num)
   have hB1_nn := virasoroBandB1_nonneg hc'_cq hR_thr hR_le_AC hg_wf hT_lo hT_hi
@@ -510,31 +514,31 @@ private lemma virasoro_uniform_band_bound (hScale : VirasoroBVScaleCompat)
       ≤ M * (tebBandConst P_R * c' ^ (-(5 / 6 : ℝ)) *
           (c' ^ (1 / 3 : ℝ) * (virasoroBandB1 c' R T g + virasoroBandB2 c' R g) +
             c' ^ (-(1 / 6 : ℝ))) / Real.cos ψ) := hmul_M
-    _ ≤ M * (max yvUniformBandConst 1 * c' ^ (-(5 / 6 : ℝ)) *
+    _ ≤ M * (max (yvUniformBandConstFor b) 1 * c' ^ (-(5 / 6 : ℝ)) *
           (c' ^ (1 / 3 : ℝ) * (virasoroBandB1 c' R T g + virasoroBandB2 c' R g) + 1) /
           Real.cos ψ) := by
         gcongr
-    _ = M * (max yvUniformBandConst 1 *
+    _ = M * (max (yvUniformBandConstFor b) 1 *
           (c' ^ (1 / 3 : ℝ) * (virasoroBandB1 c' R T g + virasoroBandB2 c' R g) + 1) *
           c' ^ (-(5 / 6 : ℝ)) * ‖ζ‖ / ζ.re) := by
         rw [hcos_eq_div]
         field_simp [hζ_pos.ne', hζ_re_pos.ne']
 
-/-! ### 4. Proof of `YVInput` and Theorem J Corollaries -/
+/-! ### 4. Proof of `YVInputFor` / `YVInput` and Theorem J Corollaries -/
 
-/-- **Proposition `Y_V` + Lemma `Z` ⇒ `YVInput`** (`lower_o1_two_edge.tex`, `vlo:YV`, `vlo:Z`,
-`vlo:L`): under `VirasoroBVScaleCompat`, the ConcreteBootstrap band-feedback input `YVInput` holds
-with `C_fb = C_B * max C_{Y, unif} 1 ≥ 1`. -/
-theorem yvInput_of_scaleCompat (hScale : VirasoroBVScaleCompat) : YVInput := by
-  have hb_lo : 0 < virasoroBV := virasoroBV_pos
-  have hb_le : virasoroBV ≤ Real.sqrt 2 * virasoroBV :=
-    le_mul_of_one_le_left hb_lo.le (by rw [Real.one_le_sqrt]; norm_num)
-  have hb_hi_sq : (Real.sqrt 2 * virasoroBV) ^ 2 = 2 * virasoroBV ^ 2 := by
+/-- **Proposition `Y_V` + Lemma `Z` ⇒ `YVInputFor b`** (`lower_o1_two_edge.tex`, `vlo:YV`, `vlo:Z`,
+`vlo:L`): for any `0 < b ≤ virasoroBV` satisfying `2 * b ^ 2 ≤ virasoroScaleThresh`, the
+band-feedback input `YVInputFor b` holds with `C_fb = C_B * max (C_{Y, unif}(b)) 1 ≥ 1`. -/
+theorem yvInputFor_of_scaleCompat {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ virasoroBV)
+    (hScale : 2 * b ^ 2 ≤ virasoroScaleThresh) : YVInputFor b := by
+  have hb_sqrt2 : b ≤ Real.sqrt 2 * b :=
+    le_mul_of_one_le_left hb_pos.le (by rw [Real.one_le_sqrt]; norm_num)
+  have hb_hi_sq : (Real.sqrt 2 * b) ^ 2 = 2 * b ^ 2 := by
     rw [mul_pow, Real.sq_sqrt zero_le_two]
-  have hb_cap : (Real.sqrt 2 * virasoroBV) ^ 2 ≤ zScaleCap :=
+  have hb_cap : (Real.sqrt 2 * b) ^ 2 ≤ zScaleCap :=
     hb_hi_sq.le.trans (hScale.trans (min_le_right _ _))
-  obtain ⟨c_Z, C_B, _hc_Z_ge, hC_B_ge1, hZ⟩ := lemma_Z hb_lo hb_le hb_cap
-  set C_Y1 : ℝ := max yvUniformBandConst 1
+  obtain ⟨c_Z, C_B, _hc_Z_ge, hC_B_ge1, hZ⟩ := lemma_Z hb_pos hb_sqrt2 hb_cap
+  set C_Y1 : ℝ := max (yvUniformBandConstFor b) 1
   have hCY1_ge1 : 1 ≤ C_Y1 := le_max_right _ _
   obtain ⟨C_fb, hC_fb_eq⟩ : ∃ x : ℝ, x = C_B * C_Y1 := ⟨_, rfl⟩
   obtain ⟨c_YV, hc_YV_eq⟩ : ∃ x : ℝ,
@@ -556,9 +560,11 @@ theorem yvInput_of_scaleCompat (hScale : VirasoroBVScaleCompat) : YVInput := by
     linarith only [this, hc'_cq]
   have hM_pos : 0 < virasoroProblem.cardyNorm (c' / 12) g :=
     cardyNorm_pos_of_nonzero hshift hg_wf.1 hg_wf.2.1
-  have hR_hi_Z : R + 1 ≤ (Real.sqrt 2 * virasoroBV) ^ 2 * c' ^ (2 / 3 : ℝ) := by
-    rwa [hb_hi_sq, ← virasoroAC_sq c' hc'_pos.le]
-  have hR_le_AC : R ≤ virasoroAC c' ^ 2 := by linarith only [hR_hi]
+  have hR_hi_Z : R + 1 ≤ (Real.sqrt 2 * b) ^ 2 * c' ^ (2 / 3 : ℝ) := by
+    rwa [hb_hi_sq, ← virasoroACAt_sq b c' hc'_pos.le]
+  have hR_le_AC : R ≤ virasoroAC c' ^ 2 :=
+    (by linarith only [hR_hi] : R ≤ virasoroACAt b c' ^ 2).trans
+      (virasoroACAt_sq_le hb_pos.le hb_le hc'_pos.le)
   have hB1_nn := virasoroBandB1_nonneg hc'_cq hR_thr hR_le_AC hg_wf hT_lo hT_hi
   have hB2_nn := virasoroBandB2_nonneg hc'_cq hR_thr hR_le_AC hg_wf hT_hi
   set Λ : ℝ := C_Y1 * (c' ^ (1 / 3 : ℝ) * (virasoroBandB1 c' R T g + virasoroBandB2 c' R g) + 1)
@@ -569,13 +575,19 @@ theorem yvInput_of_scaleCompat (hScale : VirasoroBVScaleCompat) : YVInput := by
       linarith only [hnn]
     dsimp [Λ]
     nlinarith only [hCY1_ge1, h1]
-  have hband := virasoro_uniform_band_bound hScale hc'_yv hc'_cq hR_thr hR_lo hR_hi
+  have hband := virasoro_uniform_band_boundFor hb_pos hb_le hScale hc'_yv hc'_cq hR_thr hR_lo hR_hi
     hg_wf hT_lo hT_hi
   have henv := hZ hc'_Z hΛ_ge1 hR_lo hR_hi_Z hg_wf.1 hM_pos hband
   have hL_eq : C_B * Λ =
       C_fb * (c' ^ (1 / 3 : ℝ) * (virasoroBandB1 c' R T g + virasoroBandB2 c' R g) + 1) := by
     rw [hC_fb_eq]; dsimp [Λ]; ring
   rwa [← hL_eq]
+
+/-- **Proposition `Y_V` + Lemma `Z` ⇒ `YVInput`** (`lower_o1_two_edge.tex`, `vlo:YV`, `vlo:Z`,
+`vlo:L`): under `VirasoroBVScaleCompat`, the ConcreteBootstrap band-feedback input `YVInput` holds
+with `C_fb = C_B * max C_{Y, unif} 1 ≥ 1`. -/
+theorem yvInput_of_scaleCompat (hScale : VirasoroBVScaleCompat) : YVInput :=
+  yvInputFor_of_scaleCompat virasoroBV_pos le_rfl hScale
 
 /-- **Theorem `J` / Theorem `W1'(1)` for weakly feasible nonzero Virasoro tests**
 (`lower_o1_two_edge.tex`, `vlo:J` & `wone:genlower(1)`), with `YVInput` discharged via
@@ -612,7 +624,7 @@ theorem theoremJ_Delta_best_of_scaleCompat (hScale : VirasoroBVScaleCompat) :
         c' / lambdaV + Aopt * c' ^ (1 / 3 : ℝ) - C ≤ virasoroProblem.Delta_best c' :=
   theoremJ_Delta_best (yvInput_of_scaleCompat hScale)
 
-/-! ### Axiom Verification -/
+/-! ### Foundation Verification -/
 
 /-- info: 'FormalResearch.ModularBootstrap.Contour.lemma_S6_virasoro' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -621,6 +633,10 @@ theorem theoremJ_Delta_best_of_scaleCompat (hScale : VirasoroBVScaleCompat) :
 /-- info: 'FormalResearch.ModularBootstrap.Contour.virasoroBVScaleCompat_nonvacuous' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms virasoroBVScaleCompat_nonvacuous
+
+/-- info: 'FormalResearch.ModularBootstrap.Contour.yvInputFor_of_scaleCompat' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms yvInputFor_of_scaleCompat
 
 /-- info: 'FormalResearch.ModularBootstrap.Contour.yvInput_of_scaleCompat' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

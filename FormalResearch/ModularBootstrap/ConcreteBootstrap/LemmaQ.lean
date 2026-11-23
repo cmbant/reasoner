@@ -48,6 +48,60 @@ noncomputable def virasoroDeltaLobe (c' : ℝ) (g : ℝ → ℝ) : ℝ :=
     ∫ t in (0 : ℝ)..(virasoroDeltaChart c' (virasoroAC c' ^ 2)),
       |g t| * virasoroProblem.cardyV (c' / 12) t
 
+/-- Parameterised chart radius `A_{c'}(b) = √2 b c'^{1/3}` for any scale parameter `b > 0`. -/
+noncomputable def virasoroACAt (b c' : ℝ) : ℝ := √2 * b * c' ^ (1 / 3 : ℝ)
+
+lemma virasoroACAt_virasoroBV (c' : ℝ) : virasoroACAt virasoroBV c' = virasoroAC c' := rfl
+
+lemma virasoroACAt_sq (b c' : ℝ) (hc' : 0 ≤ c') :
+    virasoroACAt b c' ^ 2 = 2 * b ^ 2 * c' ^ (2 / 3 : ℝ) := by
+  unfold virasoroACAt
+  rw [mul_pow, mul_pow, Real.sq_sqrt (by norm_num), ← Real.rpow_natCast (c' ^ (1 / 3 : ℝ)) 2,
+    ← Real.rpow_mul hc']
+  norm_num
+
+lemma virasoroACAt_pos {b c' : ℝ} (hb : 0 < b) (hc' : 0 < c') : 0 < virasoroACAt b c' := by
+  unfold virasoroACAt; positivity
+
+lemma virasoroACAt_sq_le {b c' : ℝ} (hb : 0 ≤ b) (hle : b ≤ virasoroBV) (hc' : 0 ≤ c') :
+    virasoroACAt b c' ^ 2 ≤ virasoroAC c' ^ 2 := by
+  rw [virasoroACAt_sq b c' hc', virasoroAC_sq c' hc']
+  have hsq : b ^ 2 ≤ virasoroBV ^ 2 := pow_le_pow_left₀ hb hle 2
+  exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hsq zero_le_two)
+    (Real.rpow_nonneg hc' _)
+
+/-- Far-lobe normalized mass at scale `b`: `M[g]⁻¹ ∫_0^{Δ(2 b² c'^{2/3})} |g| V dt`. -/
+noncomputable def virasoroDeltaLobeAt (b c' : ℝ) (g : ℝ → ℝ) : ℝ :=
+  (virasoroProblem.cardyNorm (c' / 12) g)⁻¹ *
+    ∫ t in (0 : ℝ)..(virasoroDeltaChart c' (virasoroACAt b c' ^ 2)),
+      |g t| * virasoroProblem.cardyV (c' / 12) t
+
+lemma virasoroDeltaLobe_eq (c' : ℝ) (g : ℝ → ℝ) :
+    virasoroDeltaLobe c' g = virasoroDeltaLobeAt virasoroBV c' g := rfl
+
+lemma virasoroDeltaLobe_le_virasoroDeltaLobeAt {b c' : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ virasoroBV)
+    (hc' : 24 ≤ c') {g : ℝ → ℝ} (hg : TestClass virasoroProblem (c' / 12) g)
+    (hM_pos : 0 < virasoroProblem.cardyNorm (c' / 12) g) :
+    virasoroDeltaLobe c' g ≤ virasoroDeltaLobeAt b c' g := by
+  have hc'_pos : 0 < c' := by linarith
+  have ha : virasoroProblem.totalShift ≤ c' / 12 := by
+    rw [virasoroProblem_totalShift]; linarith
+  have hA2_le := virasoroACAt_sq_le hb_pos.le hb_le hc'_pos.le
+  have hΔ_lo : 0 ≤ virasoroDeltaChart c' (virasoroAC c' ^ 2) :=
+    (virasoroDeltaChart_pos hc'_pos (abs_of_nonneg (sq_nonneg _)).le).le
+  have hΔ_le : virasoroDeltaChart c' (virasoroAC c' ^ 2) ≤
+      virasoroDeltaChart c' (virasoroACAt b c' ^ 2) :=
+    (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
+      ⟨by linarith [sq_nonneg (virasoroACAt b c')], hA2_le⟩
+      ⟨by linarith [sq_nonneg (virasoroAC c')], le_rfl⟩ hA2_le
+  rw [virasoroDeltaLobe, virasoroDeltaLobeAt]
+  refine mul_le_mul_of_nonneg_left ?_ (inv_nonneg.mpr hM_pos.le)
+  rw [intervalIntegral.integral_of_le hΔ_lo, intervalIntegral.integral_of_le (hΔ_lo.trans hΔ_le)]
+  refine setIntegral_mono_set (hg.int_cardy.mono_set Ioc_subset_Ioi_self) ?_
+    (Eventually.of_forall fun t ht => ⟨ht.1, ht.2.trans hΔ_le⟩)
+  filter_upwards [ae_restrict_mem measurableSet_Ioc] with t ht
+  exact mul_nonneg (abs_nonneg _) (virasoroProblem.cardyV_nonneg ha ht.1.le)
+
 /-- Chart image of the sign-change threshold `u_T := u_{c'}(T / c')` (`wone:Q`). -/
 noncomputable def virasoroUT (c' T : ℝ) : ℝ :=
   virasoroUChart c' (T / c')
@@ -721,96 +775,112 @@ theorem virasoroPsiTilde_typeII_envelope {c' : ℝ} (hc' : virasoroCQEnv ≤ c')
 
 /-! ### Section 4: Lemma Q (`wone:Q`) parts (1)–(3) -/
 
-private noncomputable def virasoroDeltaGap : ℝ :=
-  xiStar - Real.sqrt (3 * (virasoroXiInf ((2 * virasoroBV ^ 2 : ℝ) : ℂ)).re)
+private noncomputable def virasoroDeltaGapAt (b : ℝ) : ℝ :=
+  xiStar - Real.sqrt (3 * (virasoroXiInf ((2 * b ^ 2 : ℝ) : ℂ)).re)
 
-private lemma virasoroDeltaGap_mem : virasoroDeltaGap ∈ Ioo (0 : ℝ) xiStar := by
-  have h0_pos : 0 < virasoroDeltaChart 1 (virasoroAC 1 ^ 2) := by
+private lemma virasoroDeltaGapAt_mem {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ virasoroBV) :
+    virasoroDeltaGapAt b ∈ Ioo (0 : ℝ) xiStar := by
+  have hac_le : virasoroACAt b 1 ^ 2 ≤ virasoroAC 1 ^ 2 :=
+    virasoroACAt_sq_le hb_pos.le hb_le zero_le_one
+  have h0_pos : 0 < virasoroDeltaChart 1 (virasoroACAt b 1 ^ 2) := by
     apply virasoroDeltaChart_pos one_pos
     rw [abs_of_nonneg (sq_nonneg _)]
-  have hac1 : virasoroAC 1 ^ 2 = 2 * virasoroBV ^ 2 := by
-    rw [virasoroAC_sq 1 zero_le_one]; simp
-  have hΔ1_eq : virasoroDeltaChart 1 (virasoroAC 1 ^ 2) =
-      (virasoroXiInf ((2 * virasoroBV ^ 2 : ℝ) : ℂ)).re := by
+    exact hac_le
+  have hac1 : virasoroACAt b 1 ^ 2 = 2 * b ^ 2 := by
+    rw [virasoroACAt_sq b 1 zero_le_one]; simp
+  have hΔ1_eq : virasoroDeltaChart 1 (virasoroACAt b 1 ^ 2) =
+      (virasoroXiInf ((2 * b ^ 2 : ℝ) : ℂ)).re := by
     unfold virasoroDeltaChart virasoroXiChartC
     rw [hac1]; simp
-  have hxi_pos : 0 < (virasoroXiInf ((2 * virasoroBV ^ 2 : ℝ) : ℂ)).re := by
+  have hxi_pos : 0 < (virasoroXiInf ((2 * b ^ 2 : ℝ) : ℂ)).re := by
     linarith
-  have hstrict : virasoroDeltaChart 1 (virasoroAC 1 ^ 2) < virasoroDeltaChart 1 0 := by
+  have hstrict : virasoroDeltaChart 1 (virasoroACAt b 1 ^ 2) < virasoroDeltaChart 1 0 := by
     apply virasoroDeltaChart_strictAnti one_pos
     · rw [mem_Icc]; constructor <;> linarith [sq_nonneg (virasoroAC 1)]
-    · rw [mem_Icc, hac1]; exact ⟨by linarith [sq_nonneg virasoroBV], le_rfl⟩
-    · rw [hac1]; exact mul_pos two_pos (sq_pos_of_pos virasoroBV_pos)
+    · rw [mem_Icc]; exact ⟨by linarith [sq_nonneg (virasoroAC 1), sq_nonneg (virasoroACAt b 1)], hac_le⟩
+    · rw [hac1]; exact mul_pos two_pos (sq_pos_of_pos hb_pos)
   have hΔ0 : virasoroDeltaChart 1 0 = xiBar := by
     rw [virasoroDeltaChart_zero, mul_one]
-  have hlt_xiBar : (virasoroXiInf ((2 * virasoroBV ^ 2 : ℝ) : ℂ)).re < xiBar := by
+  have hlt_xiBar : (virasoroXiInf ((2 * b ^ 2 : ℝ) : ℂ)).re < xiBar := by
     linarith
-  have h3lt : 3 * (virasoroXiInf ((2 * virasoroBV ^ 2 : ℝ) : ℂ)).re < xiStar ^ 2 := by
+  have h3lt : 3 * (virasoroXiInf ((2 * b ^ 2 : ℝ) : ℂ)).re < xiStar ^ 2 := by
     unfold xiBar at hlt_xiBar; linarith
-  have hsqrt_pos : 0 < Real.sqrt (3 * (virasoroXiInf ((2 * virasoroBV ^ 2 : ℝ) : ℂ)).re) :=
+  have hsqrt_pos : 0 < Real.sqrt (3 * (virasoroXiInf ((2 * b ^ 2 : ℝ) : ℂ)).re) :=
     Real.sqrt_pos.mpr (by positivity)
-  have hsqrt_lt : Real.sqrt (3 * (virasoroXiInf ((2 * virasoroBV ^ 2 : ℝ) : ℂ)).re) < xiStar :=
+  have hsqrt_lt : Real.sqrt (3 * (virasoroXiInf ((2 * b ^ 2 : ℝ) : ℂ)).re) < xiStar :=
     (Real.sqrt_lt' xiStar_pos).mpr h3lt
-  unfold virasoroDeltaGap
+  unfold virasoroDeltaGapAt
   exact ⟨by linarith, by linarith⟩
 
-private lemma virasoroDeltaChart_top_eq (c' : ℝ) (hc' : 0 < c') :
-    virasoroDeltaChart c' (virasoroAC c' ^ 2) =
-      c' * (xiStar - virasoroDeltaGap) ^ 2 / 3 := by
-  have hxi_nn : 0 ≤ 3 * (virasoroXiInf ((2 * virasoroBV ^ 2 : ℝ) : ℂ)).re := by
-    have h0_pos : 0 < virasoroDeltaChart 1 (virasoroAC 1 ^ 2) :=
-      virasoroDeltaChart_pos one_pos (by rw [abs_of_nonneg (sq_nonneg _)])
-    have hac1 : virasoroAC 1 ^ 2 = 2 * virasoroBV ^ 2 := by
-      rw [virasoroAC_sq 1 zero_le_one]; simp
-    have hΔ1_eq : virasoroDeltaChart 1 (virasoroAC 1 ^ 2) =
-        (virasoroXiInf ((2 * virasoroBV ^ 2 : ℝ) : ℂ)).re := by
+private lemma virasoroDeltaChart_top_eqAt {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ virasoroBV)
+    (c' : ℝ) (hc' : 0 < c') :
+    virasoroDeltaChart c' (virasoroACAt b c' ^ 2) =
+      c' * (xiStar - virasoroDeltaGapAt b) ^ 2 / 3 := by
+  have hac_le1 : virasoroACAt b 1 ^ 2 ≤ virasoroAC 1 ^ 2 :=
+    virasoroACAt_sq_le hb_pos.le hb_le zero_le_one
+  have hxi_nn : 0 ≤ 3 * (virasoroXiInf ((2 * b ^ 2 : ℝ) : ℂ)).re := by
+    have h0_pos : 0 < virasoroDeltaChart 1 (virasoroACAt b 1 ^ 2) :=
+      virasoroDeltaChart_pos one_pos (by rw [abs_of_nonneg (sq_nonneg _)]; exact hac_le1)
+    have hac1 : virasoroACAt b 1 ^ 2 = 2 * b ^ 2 := by
+      rw [virasoroACAt_sq b 1 zero_le_one]; simp
+    have hΔ1_eq : virasoroDeltaChart 1 (virasoroACAt b 1 ^ 2) =
+        (virasoroXiInf ((2 * b ^ 2 : ℝ) : ℂ)).re := by
       unfold virasoroDeltaChart virasoroXiChartC; rw [hac1]; simp
     linarith
-  have hsub : xiStar - virasoroDeltaGap =
-      Real.sqrt (3 * (virasoroXiInf ((2 * virasoroBV ^ 2 : ℝ) : ℂ)).re) := by
-    unfold virasoroDeltaGap; ring
+  have hsub : xiStar - virasoroDeltaGapAt b =
+      Real.sqrt (3 * (virasoroXiInf ((2 * b ^ 2 : ℝ) : ℂ)).re) := by
+    unfold virasoroDeltaGapAt; ring
   rw [hsub, Real.sq_sqrt hxi_nn]
   unfold virasoroDeltaChart virasoroXiChartC
-  have hac : virasoroAC c' ^ 2 * c' ^ (-(2 / 3 : ℝ)) = 2 * virasoroBV ^ 2 := by
-    rw [virasoroAC_sq c' hc'.le, mul_assoc, ← Real.rpow_add hc', add_neg_cancel,
+  have hac : virasoroACAt b c' ^ 2 * c' ^ (-(2 / 3 : ℝ)) = 2 * b ^ 2 := by
+    rw [virasoroACAt_sq b c' hc'.le, mul_assoc, ← Real.rpow_add hc', add_neg_cancel,
       Real.rpow_zero, mul_one]
-  rw [show (((virasoroAC c' ^ 2 : ℝ) : ℂ) * ((c' ^ (-(2 / 3 : ℝ)) : ℝ) : ℂ)) =
-      (((virasoroAC c' ^ 2 * c' ^ (-(2 / 3 : ℝ)) : ℝ)) : ℂ) by push_cast; rfl, hac]
+  rw [show (((virasoroACAt b c' ^ 2 : ℝ) : ℂ) * ((c' ^ (-(2 / 3 : ℝ)) : ℝ) : ℂ)) =
+      (((virasoroACAt b c' ^ 2 * c' ^ (-(2 / 3 : ℝ)) : ℝ)) : ℂ) by push_cast; rfl, hac]
   ring
 
-/-- **Unconditional deep-lobe decay for `virasoroDeltaLobe`** (`lower_o1_two_edge.tex`, `wone:Q` part (1)):
-uses the fixed gap `virasoroDeltaGap ∈ (0, ξ_*)` and `TipFront.lemmaG_general_delta` directly. -/
-theorem virasoro_deltaLobe_gap :
+/-- Deep-lobe decay for `virasoroDeltaLobeAt b` at any chart scale `0 < b ≤ virasoroBV`. -/
+theorem virasoro_deltaLobe_gapAt {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ virasoroBV) :
     ∃ c_gap C_gap κ_gap : ℝ, 24 ≤ c_gap ∧ 0 < C_gap ∧ 0 < κ_gap ∧
       ∀ {c' : ℝ}, c_gap ≤ c' → ∀ {g : ℝ → ℝ},
         TestClass virasoroProblem (c' / 12) g →
         0 < virasoroProblem.cardyNorm (c' / 12) g →
-          virasoroDeltaLobe c' g ≤ C_gap * Real.exp (-κ_gap * c') := by
-  obtain ⟨c_gap, C_gap, κ_gap, hc_gap, hC, hκ, hbd⟩ := lemmaG_general_delta virasoroDeltaGap_mem
+          virasoroDeltaLobeAt b c' g ≤ C_gap * Real.exp (-κ_gap * c') := by
+  obtain ⟨c_gap, C_gap, κ_gap, hc_gap, hC, hκ, hbd⟩ :=
+    lemmaG_general_delta (virasoroDeltaGapAt_mem hb_pos hb_le)
   refine ⟨c_gap, C_gap, κ_gap, hc_gap, hC, hκ, fun {c'} hc' {g} hg hM_pos => ?_⟩
   have hc'_pos : 0 < c' := by linarith
-  unfold virasoroDeltaLobe
-  rw [virasoroDeltaChart_top_eq c' hc'_pos]
+  unfold virasoroDeltaLobeAt
+  rw [virasoroDeltaChart_top_eqAt hb_pos hb_le c' hc'_pos]
   have h1 := hbd hc' hg
   calc (virasoroProblem.cardyNorm (c' / 12) g)⁻¹ *
-        ∫ t in (0 : ℝ)..(c' * (xiStar - virasoroDeltaGap) ^ 2 / 3),
+        ∫ t in (0 : ℝ)..(c' * (xiStar - virasoroDeltaGapAt b) ^ 2 / 3),
           |g t| * virasoroProblem.cardyV (c' / 12) t
       ≤ (virasoroProblem.cardyNorm (c' / 12) g)⁻¹ *
           (C_gap * Real.exp (-κ_gap * c') * virasoroProblem.cardyNorm (c' / 12) g) :=
         mul_le_mul_of_nonneg_left h1 (inv_nonneg.mpr hM_pos.le)
     _ = C_gap * Real.exp (-κ_gap * c') := by field_simp [hM_pos.ne']
 
-/-- **Lemma Q (`wone:Q`), part (1)**: `δ_lobe ≤ C_gap exp(-κ_gap c') < 1/2` and `T > Δ(A_{c'}^2)`
-for all `c' ≥ c_Q1`. -/
-theorem lemmaQ_part1 :
+/-- **Unconditional deep-lobe decay for `virasoroDeltaLobe`** (`lower_o1_two_edge.tex`, `wone:Q` part (1)):
+uses the fixed gap `virasoroDeltaGapAt virasoroBV ∈ (0, ξ_*)` and `TipFront.lemmaG_general_delta` directly. -/
+theorem virasoro_deltaLobe_gap :
+    ∃ c_gap C_gap κ_gap : ℝ, 24 ≤ c_gap ∧ 0 < C_gap ∧ 0 < κ_gap ∧
+      ∀ {c' : ℝ}, c_gap ≤ c' → ∀ {g : ℝ → ℝ},
+        TestClass virasoroProblem (c' / 12) g →
+        0 < virasoroProblem.cardyNorm (c' / 12) g →
+          virasoroDeltaLobe c' g ≤ C_gap * Real.exp (-κ_gap * c') :=
+  virasoro_deltaLobe_gapAt virasoroBV_pos le_rfl
+
+/-- **Lemma Q (`wone:Q`), part (1)** at scale `0 < b ≤ virasoroBV`. -/
+theorem lemmaQ_part1At {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ virasoroBV) :
     ∃ c_Q1 C_gap κ_gap : ℝ, virasoroCQEnv ≤ c_Q1 ∧ 0 < C_gap ∧ 0 < κ_gap ∧
       ∀ {c' T : ℝ}, c_Q1 ≤ c' → ∀ {g : ℝ → ℝ},
         virasoroProblem.IsWeaklyFeasible (c' / 12) T g →
         virasoroProblem.cardyNorm (c' / 12) g > 0 ∧
-        virasoroDeltaLobe c' g ≤ C_gap * Real.exp (-κ_gap * c') ∧
-        virasoroDeltaLobe c' g < 1 / 2 ∧
-        virasoroDeltaChart c' (virasoroAC c' ^ 2) < T := by
-  obtain ⟨c_gap, C_gap, κ_gap, hc_gap, hC, hκ, hbd⟩ := virasoro_deltaLobe_gap
+        virasoroDeltaLobeAt b c' g ≤ C_gap * Real.exp (-κ_gap * c') ∧
+        virasoroDeltaLobeAt b c' g < 1 / 2 ∧
+        virasoroDeltaChart c' (virasoroACAt b c' ^ 2) < T := by
+  obtain ⟨c_gap, C_gap, κ_gap, hc_gap, hC, hκ, hbd⟩ := virasoro_deltaLobe_gapAt hb_pos hb_le
   let c_Q1 : ℝ := max virasoroCQEnv (max c_gap ((Real.log (2 * C_gap) + 1) / κ_gap))
   refine ⟨c_Q1, C_gap, κ_gap, le_max_left _ _, hC, hκ, fun {c' T} hc' {g} hg => ?_⟩
   have h10000 : 10000 ≤ c' :=
@@ -823,7 +893,7 @@ theorem lemmaQ_part1 :
     rw [virasoroProblem_totalShift]; linarith
   have hM_pos : 0 < virasoroProblem.cardyNorm (c' / 12) g :=
     cardyNorm_pos_of_nonzero ha hg.1 hg.2.1
-  have hdl_bd : virasoroDeltaLobe c' g ≤ C_gap * Real.exp (-κ_gap * c') :=
+  have hdl_bd : virasoroDeltaLobeAt b c' g ≤ C_gap * Real.exp (-κ_gap * c') :=
     hbd hc_gap' hg.1 hM_pos
   have hexp_half : C_gap * Real.exp (-κ_gap * c') < 1 / 2 := by
     have hmul : Real.log (2 * C_gap) + 1 ≤ κ_gap * c' := by
@@ -835,20 +905,21 @@ theorem lemmaQ_part1 :
     calc C_gap * Real.exp (-κ_gap * c') < C_gap * (2 * C_gap)⁻¹ :=
           mul_lt_mul_of_pos_left hexp hC
       _ = 1 / 2 := by field_simp [hC.ne']
-  have hdl_half : virasoroDeltaLobe c' g < 1 / 2 := hdl_bd.trans_lt hexp_half
-  have hT_gt : virasoroDeltaChart c' (virasoroAC c' ^ 2) < T := by
+  have hdl_half : virasoroDeltaLobeAt b c' g < 1 / 2 := hdl_bd.trans_lt hexp_half
+  have hT_gt : virasoroDeltaChart c' (virasoroACAt b c' ^ 2) < T := by
     by_contra hle
     push Not at hle
     have hc'_pos : 0 < c' := by linarith
-    have hΔ_pos : 0 < virasoroDeltaChart c' (virasoroAC c' ^ 2) :=
-      virasoroDeltaChart_pos hc'_pos (by rw [abs_of_nonneg (sq_nonneg _)])
+    have hA2_le := virasoroACAt_sq_le hb_pos.le hb_le hc'_pos.le
+    have hΔ_pos : 0 < virasoroDeltaChart c' (virasoroACAt b c' ^ 2) :=
+      virasoroDeltaChart_pos hc'_pos (by rw [abs_of_nonneg (sq_nonneg _)]; exact hA2_le)
     let T' : ℝ := max 0 T
     have hT'_nn : 0 ≤ T' := le_max_left _ _
-    have hT'_le : T' ≤ virasoroDeltaChart c' (virasoroAC c' ^ 2) := max_le hΔ_pos.le hle
+    have hT'_le : T' ≤ virasoroDeltaChart c' (virasoroACAt b c' ^ 2) := max_le hΔ_pos.le hle
     have htail' : ∀ t ≥ T', 0 ≤ g t := fun t ht => hg.2.2.2 t ((le_max_right 0 T).trans ht)
     have hhalf := half_mass_of_weak_sign ha hT'_nn hg.1 hg.2.2.1 htail'
     have hint_le : ∫ t in (0 : ℝ)..T', |g t| * virasoroProblem.cardyV (c' / 12) t ≤
-        ∫ t in (0 : ℝ)..(virasoroDeltaChart c' (virasoroAC c' ^ 2)),
+        ∫ t in (0 : ℝ)..(virasoroDeltaChart c' (virasoroACAt b c' ^ 2)),
           |g t| * virasoroProblem.cardyV (c' / 12) t := by
       rw [intervalIntegral.integral_of_le hT'_nn, intervalIntegral.integral_of_le hΔ_pos.le]
       have hM_int : IntegrableOn (fun t => |g t| * virasoroProblem.cardyV (c' / 12) t) (Ioi 0) :=
@@ -857,14 +928,26 @@ theorem lemmaQ_part1 :
         (Eventually.of_forall fun t ht => ⟨ht.1, ht.2.trans hT'_le⟩)
       filter_upwards [ae_restrict_mem measurableSet_Ioc] with t ht
       exact mul_nonneg (abs_nonneg _) (virasoroProblem.cardyV_nonneg ha ht.1.le)
-    have hdiv_le : (1 / 2 : ℝ) ≤ virasoroDeltaLobe c' g := by
-      unfold virasoroDeltaLobe
+    have hdiv_le : (1 / 2 : ℝ) ≤ virasoroDeltaLobeAt b c' g := by
+      unfold virasoroDeltaLobeAt
       have h1 := mul_le_mul_of_nonneg_left (hhalf.trans hint_le) (inv_nonneg.mpr hM_pos.le)
       have h2 : (virasoroProblem.cardyNorm (c' / 12) g)⁻¹ *
           (virasoroProblem.cardyNorm (c' / 12) g / 2) = 1 / 2 := by field_simp [hM_pos.ne']
       linarith
     linarith
   exact ⟨hM_pos, hdl_bd, hdl_half, hT_gt⟩
+
+/-- **Lemma Q (`wone:Q`), part (1)**: `δ_lobe ≤ C_gap exp(-κ_gap c') < 1/2` and `T > Δ(A_{c'}^2)`
+for all `c' ≥ c_Q1`. -/
+theorem lemmaQ_part1 :
+    ∃ c_Q1 C_gap κ_gap : ℝ, virasoroCQEnv ≤ c_Q1 ∧ 0 < C_gap ∧ 0 < κ_gap ∧
+      ∀ {c' T : ℝ}, c_Q1 ≤ c' → ∀ {g : ℝ → ℝ},
+        virasoroProblem.IsWeaklyFeasible (c' / 12) T g →
+        virasoroProblem.cardyNorm (c' / 12) g > 0 ∧
+        virasoroDeltaLobe c' g ≤ C_gap * Real.exp (-κ_gap * c') ∧
+        virasoroDeltaLobe c' g < 1 / 2 ∧
+        virasoroDeltaChart c' (virasoroAC c' ^ 2) < T :=
+  lemmaQ_part1At virasoroBV_pos le_rfl
 
 /-- **Lemma Q (`wone:Q`), part (2)**: packages holomorphy on `virasoroPsiDom c' ⊇ closedBall 0 (virasoroAC c'^2)`,
 real-axis values & sign of `g(Δ(u))`, oriented change of variables, and the type-(II) envelope. -/
@@ -1022,21 +1105,23 @@ lemma virasoroPsiTilde_norm_integral_eq {c' a b : ℝ} (hc' : 24 ≤ c') {g : �
   rw [h1, hsub, intervalIntegral.integral_symm (virasoroDeltaChart c' b) (virasoroDeltaChart c' a)]
   ring
 
-private lemma virasoroUT_mem_Icc_of_between {c' T : ℝ} (hc' : 0 < c')
-    (hlo : virasoroDeltaChart c' (virasoroAC c' ^ 2) ≤ T)
-    (hhi : T ≤ virasoroDeltaChart c' (-(virasoroAC c' ^ 2))) :
-    virasoroUT c' T ∈ Icc (-(virasoroAC c' ^ 2)) (virasoroAC c' ^ 2) ∧
+private lemma virasoroUT_mem_Icc_of_betweenAt {b c' T : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ virasoroBV)
+    (hc' : 0 < c')
+    (hlo : virasoroDeltaChart c' (virasoroACAt b c' ^ 2) ≤ T)
+    (hhi : T ≤ virasoroDeltaChart c' (-(virasoroACAt b c' ^ 2))) :
+    virasoroUT c' T ∈ Icc (-(virasoroACAt b c' ^ 2)) (virasoroACAt b c' ^ 2) ∧
       virasoroDeltaChart c' (virasoroUT c' T) = T := by
-  have hanti := virasoroDeltaChart_strictAnti hc'
-  have hmono : AntitoneOn (virasoroDeltaChart c')
-      (Icc (-(virasoroAC c' ^ 2)) (virasoroAC c' ^ 2)) := hanti.antitoneOn
+  have hA2_le := virasoroACAt_sq_le hb_pos.le hb_le hc'.le
+  have hsub : Icc (-(virasoroACAt b c' ^ 2)) (virasoroACAt b c' ^ 2) ⊆
+      Icc (-(virasoroAC c' ^ 2)) (virasoroAC c' ^ 2) :=
+    fun _ hu => ⟨by linarith [hu.1], hu.2.trans hA2_le⟩
   have hcont : ContinuousOn (virasoroDeltaChart c')
-      (Icc (-(virasoroAC c' ^ 2)) (virasoroAC c' ^ 2)) := fun u hu =>
-    (virasoroDeltaChart_hasDerivAt hc' (abs_le.mpr hu)).continuousAt.continuousWithinAt
-  have himg := intermediate_value_Icc' (show -(virasoroAC c' ^ 2) ≤ virasoroAC c' ^ 2 by
-      linarith [sq_nonneg (virasoroAC c')]) hcont ⟨hlo, hhi⟩
+      (Icc (-(virasoroACAt b c' ^ 2)) (virasoroACAt b c' ^ 2)) := fun u hu =>
+    (virasoroDeltaChart_hasDerivAt hc' (abs_le.mpr (hsub hu))).continuousAt.continuousWithinAt
+  have himg := intermediate_value_Icc' (show -(virasoroACAt b c' ^ 2) ≤ virasoroACAt b c' ^ 2 by
+      linarith [sq_nonneg (virasoroACAt b c')]) hcont ⟨hlo, hhi⟩
   obtain ⟨u, hu_mem, hu_eq⟩ := himg
-  have hu_abs : |u| ≤ virasoroAC c' ^ 2 := abs_le.mpr hu_mem
+  have hu_abs : |u| ≤ virasoroAC c' ^ 2 := abs_le.mpr (hsub hu_mem)
   have hu_eq' : virasoroUT c' T = u := by
     unfold virasoroUT
     rw [← hu_eq]
@@ -1044,11 +1129,12 @@ private lemma virasoroUT_mem_Icc_of_between {c' T : ℝ} (hc' : 0 < c')
   rw [hu_eq']
   exact ⟨hu_mem, hu_eq⟩
 
-/-- **Lemma Q (`wone:Q`), part (3)**: real-axis sign, total L¹ mass `≤ 1`, half-mass negative
-tail, and top-tail integral bound supplying hypothesis `(Q2)` with `r_∞ = 0` and `(B1)`. -/
-theorem lemmaQ_part3 {c' T : ℝ} (hc' : virasoroCQEnv ≤ c') {g : ℝ → ℝ}
+/-- **Lemma Q (`wone:Q`), part (3)** at scale `0 < b ≤ virasoroBV`: real-axis sign, total L¹ mass
+`≤ 1`, half-mass negative tail, and top-tail integral bound on `[-A_{c'}(b)^2, A_{c'}(b)^2]`. -/
+theorem lemmaQ_part3At {b c' T : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ virasoroBV)
+    (hc' : virasoroCQEnv ≤ c') {g : ℝ → ℝ}
     (hg : virasoroProblem.IsWeaklyFeasible (c' / 12) T g) :
-    let A2 := virasoroAC c' ^ 2
+    let A2 := virasoroACAt b c' ^ 2
     let M := virasoroProblem.cardyNorm (c' / 12) g
     (∀ u : ℝ, |u| ≤ A2 → T ≤ virasoroDeltaChart c' u →
       0 ≤ (virasoroPsiTilde c' g (u : ℂ)).re) ∧
@@ -1060,13 +1146,13 @@ theorem lemmaQ_part3 {c' T : ℝ} (hc' : virasoroCQEnv ≤ c') {g : ℝ → ℝ}
       virasoroDeltaChart c' A2 ≤ T →
       virasoroUT c' T ∈ Icc (-A2) A2 ∧
       (∀ u ∈ Icc (-A2) (virasoroUT c' T), 0 ≤ (virasoroPsiTilde c' g (u : ℂ)).re) ∧
-      ((1 / 2 : ℝ) - virasoroDeltaLobe c' g ≤
+      ((1 / 2 : ℝ) - virasoroDeltaLobeAt b c' g ≤
         ∫ u in (virasoroUT c' T)..A2, max 0 (-(virasoroPsiTilde c' g (u : ℂ)).re))) ∧
     (∀ R' : ℝ, 0 ≤ R' → R' ≤ A2 → T ≤ virasoroDeltaChart c' (-R') →
       ∫ u in (-R')..A2, (virasoroPsiTilde c' g (u : ℂ)).re =
         M⁻¹ * ∫ t in (virasoroDeltaChart c' A2)..(virasoroDeltaChart c' (-R')),
           g t * virasoroProblem.cardyV (c' / 12) t ∧
-      ∫ u in (-R')..A2, (virasoroPsiTilde c' g (u : ℂ)).re ≤ virasoroDeltaLobe c' g) := by
+      ∫ u in (-R')..A2, (virasoroPsiTilde c' g (u : ℂ)).re ≤ virasoroDeltaLobeAt b c' g) := by
   have hc'_10000 : 10000 ≤ c' :=
     (by unfold c_PJ_complex; norm_num : (10000 : ℝ) ≤ c_PJ_complex).trans
       (c_PJ_complex_le_virasoroCQEnv.trans hc')
@@ -1078,6 +1164,9 @@ theorem lemmaQ_part3 {c' T : ℝ} (hc' : virasoroCQEnv ≤ c') {g : ℝ → ℝ}
     cardyNorm_pos_of_nonzero ha hg.1 hg.2.1
   have hV_nonneg : ∀ t, 0 ≤ t → 0 ≤ virasoroProblem.cardyV (c' / 12) t := fun t ht =>
     virasoroProblem.cardyV_nonneg ha ht
+  have hA2_le : virasoroACAt b c' ^ 2 ≤ virasoroAC c' ^ 2 :=
+    virasoroACAt_sq_le hb_pos.le hb_le hc'_pos.le
+  have hA2_nn : 0 ≤ virasoroACAt b c' ^ 2 := sq_nonneg _
   have hgv_int : IntegrableOn (fun t => g t * virasoroProblem.cardyV (c' / 12) t) (Ioi 0) :=
     hg.1.int_cardy.norm.mono'
       (((hg.1.cont.mul (continuous_cardyV virasoroProblem (c' / 12)).continuousOn).mono
@@ -1089,22 +1178,23 @@ theorem lemmaQ_part3 {c' T : ℝ} (hc' : virasoroCQEnv ≤ c') {g : ℝ → ℝ}
   dsimp only
   refine ⟨?_, ?_, ?_, ?_, ?_⟩
   · intro u hu hT_le
-    exact (lemmaQ_part2 hc' hg.1 hM_pos).2.1 u hu |>.2.mp (hg.2.2.2 _ hT_le)
-  · have hA2_nn : 0 ≤ virasoroAC c' ^ 2 := sq_nonneg _
-    rw [virasoroPsiTilde_norm_integral_eq hc'_24 hg.1 hM_pos le_rfl le_rfl (by linarith)]
-    have hΔ_hi : virasoroDeltaChart c' (virasoroAC c' ^ 2) ≤
-        virasoroDeltaChart c' (-(virasoroAC c' ^ 2)) :=
+    exact (lemmaQ_part2 hc' hg.1 hM_pos).2.1 u (hu.trans hA2_le) |>.2.mp (hg.2.2.2 _ hT_le)
+  · rw [virasoroPsiTilde_norm_integral_eq hc'_24 hg.1 hM_pos (by linarith [hA2_le]) hA2_le
+      (by linarith [hA2_nn])]
+    have hΔ_hi : virasoroDeltaChart c' (virasoroACAt b c' ^ 2) ≤
+        virasoroDeltaChart c' (-(virasoroACAt b c' ^ 2)) :=
       (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
-        (Set.mem_Icc.mpr ⟨le_rfl, by linarith⟩) (Set.mem_Icc.mpr ⟨by linarith, le_rfl⟩)
-        (by linarith)
-    have hΔ_pos : 0 ≤ virasoroDeltaChart c' (virasoroAC c' ^ 2) :=
-      (virasoroDeltaChart_pos hc'_pos (by rw [abs_of_nonneg hA2_nn])).le
-    have hint_le : ∫ t in (virasoroDeltaChart c' (virasoroAC c' ^ 2))..(virasoroDeltaChart c' (-(virasoroAC c' ^ 2))),
+        (Set.mem_Icc.mpr ⟨by linarith [hA2_le], by linarith [hA2_nn, hA2_le]⟩)
+        (Set.mem_Icc.mpr ⟨by linarith [hA2_nn, hA2_le], hA2_le⟩)
+        (by linarith [hA2_nn])
+    have hΔ_pos : 0 ≤ virasoroDeltaChart c' (virasoroACAt b c' ^ 2) :=
+      (virasoroDeltaChart_pos hc'_pos (by rw [abs_of_nonneg hA2_nn]; exact hA2_le)).le
+    have hint_le : ∫ t in (virasoroDeltaChart c' (virasoroACAt b c' ^ 2))..(virasoroDeltaChart c' (-(virasoroACAt b c' ^ 2))),
           |g t| * virasoroProblem.cardyV (c' / 12) t ≤
         virasoroProblem.cardyNorm (c' / 12) g := by
       rw [intervalIntegral.integral_of_le hΔ_hi]
-      change ∫ t in Ioc (virasoroDeltaChart c' (virasoroAC c' ^ 2))
-          (virasoroDeltaChart c' (-(virasoroAC c' ^ 2))),
+      change ∫ t in Ioc (virasoroDeltaChart c' (virasoroACAt b c' ^ 2))
+          (virasoroDeltaChart c' (-(virasoroACAt b c' ^ 2))),
           |g t| * virasoroProblem.cardyV (c' / 12) t ≤
         ∫ t in Ioi (0 : ℝ), |g t| * virasoroProblem.cardyV (c' / 12) t
       refine setIntegral_mono_set hM_int ?_
@@ -1112,36 +1202,38 @@ theorem lemmaQ_part3 {c' T : ℝ} (hc' : virasoroCQEnv ≤ c') {g : ℝ → ℝ}
       filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
       exact mul_nonneg (abs_nonneg _) (hV_nonneg t ht.le)
     calc (virasoroProblem.cardyNorm (c' / 12) g)⁻¹ *
-          ∫ t in (virasoroDeltaChart c' (virasoroAC c' ^ 2))..(virasoroDeltaChart c' (-(virasoroAC c' ^ 2))),
+          ∫ t in (virasoroDeltaChart c' (virasoroACAt b c' ^ 2))..(virasoroDeltaChart c' (-(virasoroACAt b c' ^ 2))),
             |g t| * virasoroProblem.cardyV (c' / 12) t
         ≤ (virasoroProblem.cardyNorm (c' / 12) g)⁻¹ * virasoroProblem.cardyNorm (c' / 12) g :=
           mul_le_mul_of_nonneg_left hint_le (inv_nonneg.mpr hM_pos.le)
       _ = 1 := inv_mul_cancel₀ hM_pos.ne'
   · intro hT_hi hT_lo
-    obtain ⟨huT_mem, huT_eq⟩ := virasoroUT_mem_Icc_of_between hc'_pos hT_lo.le hT_hi.le
+    obtain ⟨huT_mem, huT_eq⟩ := virasoroUT_mem_Icc_of_betweenAt hb_pos hb_le hc'_pos hT_lo.le hT_hi.le
     exact ⟨lt_of_le_of_ne huT_mem.1 (fun h => by rw [← huT_eq, ← h] at hT_hi; exact absurd hT_hi (lt_irrefl _)),
       lt_of_le_of_ne huT_mem.2 (fun h => by rw [← huT_eq, h] at hT_lo; exact absurd hT_lo (lt_irrefl _))⟩
   · intro hT_hi hT_lo
-    obtain ⟨huT_mem, huT_eq⟩ := virasoroUT_mem_Icc_of_between hc'_pos hT_lo hT_hi.le
+    obtain ⟨huT_mem, huT_eq⟩ := virasoroUT_mem_Icc_of_betweenAt hb_pos hb_le hc'_pos hT_lo hT_hi.le
     refine ⟨huT_mem, fun u hu => ?_, ?_⟩
-    · have hu_abs : |u| ≤ virasoroAC c' ^ 2 := abs_le.mpr ⟨hu.1, hu.2.trans huT_mem.2⟩
+    · have hu_abs : |u| ≤ virasoroAC c' ^ 2 :=
+        (abs_le.mpr ⟨hu.1, hu.2.trans huT_mem.2⟩).trans hA2_le
       have hT_le : T ≤ virasoroDeltaChart c' u := by
         rw [← huT_eq]
         exact (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
-          ⟨hu.1, hu.2.trans huT_mem.2⟩ huT_mem hu.2
+          ⟨by linarith [hu.1, hA2_le], (hu.2.trans huT_mem.2).trans hA2_le⟩
+          ⟨by linarith [huT_mem.1, hA2_le], huT_mem.2.trans hA2_le⟩ hu.2
       exact (lemmaQ_part2 hc' hg.1 hM_pos).2.1 u hu_abs |>.2.mp (hg.2.2.2 _ hT_le)
     · -- Oriented change of variables for `max 0 (-Ψ̃)` on `[u_T, A2]`
-      set t_lo := virasoroDeltaChart c' (virasoroAC c' ^ 2)
-      have hu_mem : ∀ u ∈ Icc (virasoroUT c' T) (virasoroAC c' ^ 2), |u| ≤ virasoroAC c' ^ 2 :=
-        fun u hu => abs_le.mpr ⟨huT_mem.1.trans hu.1, hu.2⟩
-      have hneg_eq : ∫ u in (virasoroUT c' T)..(virasoroAC c' ^ 2),
+      set t_lo := virasoroDeltaChart c' (virasoroACAt b c' ^ 2)
+      have hu_mem : ∀ u ∈ Icc (virasoroUT c' T) (virasoroACAt b c' ^ 2), |u| ≤ virasoroAC c' ^ 2 :=
+        fun u hu => (abs_le.mpr ⟨huT_mem.1.trans hu.1, hu.2⟩).trans hA2_le
+      have hneg_eq : ∫ u in (virasoroUT c' T)..(virasoroACAt b c' ^ 2),
             max 0 (-(virasoroPsiTilde c' g (u : ℂ)).re) =
           (virasoroProblem.cardyNorm (c' / 12) g)⁻¹ *
             ∫ t in t_lo..T, max 0 (-g t) * virasoroProblem.cardyV (c' / 12) t := by
-        have h1 : ∫ u in (virasoroUT c' T)..(virasoroAC c' ^ 2),
+        have h1 : ∫ u in (virasoroUT c' T)..(virasoroACAt b c' ^ 2),
               max 0 (-(virasoroPsiTilde c' g (u : ℂ)).re) =
             -((virasoroProblem.cardyNorm (c' / 12) g)⁻¹ *
-              ∫ u in (virasoroUT c' T)..(virasoroAC c' ^ 2),
+              ∫ u in (virasoroUT c' T)..(virasoroACAt b c' ^ 2),
                 (max 0 (-g (virasoroDeltaChart c' u)) *
                   virasoroProblem.cardyV (c' / 12) (virasoroDeltaChart c' u)) *
                 deriv (virasoroDeltaChart c') u) := by
@@ -1175,35 +1267,34 @@ theorem lemmaQ_part3 {c' T : ℝ} (hc' : virasoroCQEnv ≤ c') {g : ℝ → ℝ}
               virasoroProblem.cardyV (c' / 12) (virasoroDeltaChart c' u))]
           rw [← mul_max_of_nonneg _ _ hfac_nn]
           ring
-        have hsub : ∫ u in (virasoroUT c' T)..(virasoroAC c' ^ 2),
+        have hsub : ∫ u in (virasoroUT c' T)..(virasoroACAt b c' ^ 2),
               (max 0 (-g (virasoroDeltaChart c' u)) *
                 virasoroProblem.cardyV (c' / 12) (virasoroDeltaChart c' u)) *
               deriv (virasoroDeltaChart c') u =
             ∫ t in T..t_lo, max 0 (-g t) * virasoroProblem.cardyV (c' / 12) t := by
           have hcont_gV : ContinuousOn
               (fun t : ℝ => max 0 (-g t) * virasoroProblem.cardyV (c' / 12) t)
-              (virasoroDeltaChart c' '' Set.uIcc (virasoroUT c' T) (virasoroAC c' ^ 2)) := by
+              (virasoroDeltaChart c' '' Set.uIcc (virasoroUT c' T) (virasoroACAt b c' ^ 2)) := by
             refine ((ContinuousOn.sup continuousOn_const hg.1.cont.neg).mul
               (continuous_cardyV virasoroProblem (c' / 12)).continuousOn).mono ?_
             rintro t ⟨u, hu, rfl⟩
             rw [Set.uIcc_of_le huT_mem.2] at hu
             exact (virasoroDeltaChart_pos hc'_pos (hu_mem u hu)).le
-          have hderiv_at : ∀ u ∈ Set.uIcc (virasoroUT c' T) (virasoroAC c' ^ 2),
+          have hderiv_at : ∀ u ∈ Set.uIcc (virasoroUT c' T) (virasoroACAt b c' ^ 2),
               HasDerivAt (virasoroDeltaChart c') (deriv (virasoroDeltaChart c') u) u := fun u hu => by
             rw [Set.uIcc_of_le huT_mem.2] at hu
             have hd := virasoroDeltaChart_hasDerivAt hc'_pos (hu_mem u hu)
             exact hd.deriv ▸ hd
           have hcov := intervalIntegral.integral_comp_mul_deriv' hderiv_at
-            (continuousOn_deriv_virasoroDeltaChart hc'_pos huT_mem.1 le_rfl huT_mem.2) hcont_gV
+            (continuousOn_deriv_virasoroDeltaChart hc'_pos (by linarith [huT_mem.1, hA2_le]) hA2_le huT_mem.2)
+            hcont_gV
           simpa [huT_eq, t_lo] using hcov
         rw [h1, hsub, intervalIntegral.integral_symm t_lo T]
         ring
-      -- Now relate `∫ t in t_lo..T, max 0 (-g t) V t` to `half_mass_of_weak_sign` and `deltaLobe`
       rw [hneg_eq]
       have ht_lo_pos : 0 ≤ t_lo :=
-        (virasoroDeltaChart_pos hc'_pos (by rw [abs_of_nonneg (sq_nonneg _)])).le
+        (virasoroDeltaChart_pos hc'_pos (by rw [abs_of_nonneg hA2_nn]; exact hA2_le)).le
       have hT_nn : 0 ≤ T := ht_lo_pos.trans hT_lo
-      have hhalf := half_mass_of_weak_sign ha hT_nn hg.1 hg.2.2.1 hg.2.2.2
       have hgv_int_0T : IntervalIntegrable (fun t => g t * virasoroProblem.cardyV (c' / 12) t)
           volume 0 T :=
         ((hg.1.cont.mul (continuous_cardyV virasoroProblem (c' / 12)).continuousOn).mono
@@ -1279,7 +1370,7 @@ theorem lemmaQ_part3 {c' T : ℝ} (hc' : virasoroCQEnv ≤ c') {g : ℝ → ℝ}
             ∫ t in (0 : ℝ)..t_lo, |g t| * virasoroProblem.cardyV (c' / 12) t ≤
             ∫ t in t_lo..T, max 0 (-g t) * virasoroProblem.cardyV (c' / 12) t by linarith)
         (inv_nonneg.mpr hM_pos.le)
-      unfold virasoroDeltaLobe
+      unfold virasoroDeltaLobeAt
       have hnorm_eq : (virasoroProblem.cardyNorm (c' / 12) g)⁻¹ *
             (virasoroProblem.cardyNorm (c' / 12) g / 2 -
               ∫ t in (0 : ℝ)..t_lo, |g t| * virasoroProblem.cardyV (c' / 12) t) =
@@ -1288,19 +1379,19 @@ theorem lemmaQ_part3 {c' T : ℝ} (hc' : virasoroCQEnv ≤ c') {g : ℝ → ℝ}
         field_simp [hM_pos.ne']
       linarith [hmul_inv, hnorm_eq]
   · intro R' hR'0 hR'A hT_le
-    have hR'_le : -(virasoroAC c' ^ 2) ≤ -R' := by linarith
-    have hA2_nn : 0 ≤ virasoroAC c' ^ 2 := sq_nonneg _
-    have hle_ends : -R' ≤ virasoroAC c' ^ 2 := by linarith
-    have heq := virasoroPsiTilde_integral_eq hc'_24 hg.1 hR'_le le_rfl hle_ends
+    have hR'_le : -(virasoroAC c' ^ 2) ≤ -R' := by linarith [hR'A, hA2_le]
+    have hle_ends : -R' ≤ virasoroACAt b c' ^ 2 := by linarith [hR'0, hA2_nn]
+    have heq := virasoroPsiTilde_integral_eq hc'_24 hg.1 hR'_le hA2_le hle_ends
     refine ⟨heq, ?_⟩
     rw [heq]
-    set t_lo := virasoroDeltaChart c' (virasoroAC c' ^ 2)
+    set t_lo := virasoroDeltaChart c' (virasoroACAt b c' ^ 2)
     set t_hi := virasoroDeltaChart c' (-R')
     have ht_lo_pos : 0 < t_lo :=
-      virasoroDeltaChart_pos hc'_pos (by rw [abs_of_nonneg hA2_nn])
+      virasoroDeltaChart_pos hc'_pos (by rw [abs_of_nonneg hA2_nn]; exact hA2_le)
     have ht_lo_le_hi : t_lo ≤ t_hi :=
       (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
-        (Set.mem_Icc.mpr ⟨hR'_le, hle_ends⟩) (Set.mem_Icc.mpr ⟨by linarith, le_rfl⟩) hle_ends
+        (Set.mem_Icc.mpr ⟨hR'_le, hle_ends.trans hA2_le⟩)
+        (Set.mem_Icc.mpr ⟨by linarith [hA2_nn, hA2_le], hA2_le⟩) hle_ends
     have hgVac_le0 : ∫ t in Ioi (0 : ℝ), g t * virasoroProblem.cardyV (c' / 12) t ≤ 0 := by
       have := hg.2.2.1
       unfold FixedWeightProblem.gVac at this
@@ -1335,8 +1426,33 @@ theorem lemmaQ_part3 {c' T : ℝ} (hc' : virasoroCQEnv ≤ c') {g : ℝ → ℝ}
         ∫ t in (0 : ℝ)..t_lo, |g t| * virasoroProblem.cardyV (c' / 12) t := by
       rw [intervalIntegral.integral_of_le ht_lo_le_hi]
       linarith [hgVac_le0, hsplit1, hsplit2, htail_nn, hneg_head]
-    unfold virasoroDeltaLobe
+    unfold virasoroDeltaLobeAt
     exact mul_le_mul_of_nonneg_left hmain_le (inv_nonneg.mpr hM_pos.le)
+
+/-- **Lemma Q (`wone:Q`), part (3)**: real-axis sign, total L¹ mass `≤ 1`, half-mass negative
+tail, and top-tail integral bound supplying hypothesis `(Q2)` with `r_∞ = 0` and `(B1)`. -/
+theorem lemmaQ_part3 {c' T : ℝ} (hc' : virasoroCQEnv ≤ c') {g : ℝ → ℝ}
+    (hg : virasoroProblem.IsWeaklyFeasible (c' / 12) T g) :
+    let A2 := virasoroAC c' ^ 2
+    let M := virasoroProblem.cardyNorm (c' / 12) g
+    (∀ u : ℝ, |u| ≤ A2 → T ≤ virasoroDeltaChart c' u →
+      0 ≤ (virasoroPsiTilde c' g (u : ℂ)).re) ∧
+    (∫ u in (-A2)..A2, ‖virasoroPsiTilde c' g (u : ℂ)‖ ≤ 1) ∧
+    (T < virasoroDeltaChart c' (-A2) →
+      virasoroDeltaChart c' A2 < T →
+      virasoroUT c' T ∈ Ioo (-A2) A2) ∧
+    (T < virasoroDeltaChart c' (-A2) →
+      virasoroDeltaChart c' A2 ≤ T →
+      virasoroUT c' T ∈ Icc (-A2) A2 ∧
+      (∀ u ∈ Icc (-A2) (virasoroUT c' T), 0 ≤ (virasoroPsiTilde c' g (u : ℂ)).re) ∧
+      ((1 / 2 : ℝ) - virasoroDeltaLobe c' g ≤
+        ∫ u in (virasoroUT c' T)..A2, max 0 (-(virasoroPsiTilde c' g (u : ℂ)).re))) ∧
+    (∀ R' : ℝ, 0 ≤ R' → R' ≤ A2 → T ≤ virasoroDeltaChart c' (-R') →
+      ∫ u in (-R')..A2, (virasoroPsiTilde c' g (u : ℂ)).re =
+        M⁻¹ * ∫ t in (virasoroDeltaChart c' A2)..(virasoroDeltaChart c' (-R')),
+          g t * virasoroProblem.cardyV (c' / 12) t ∧
+      ∫ u in (-R')..A2, (virasoroPsiTilde c' g (u : ℂ)).re ≤ virasoroDeltaLobe c' g) :=
+  lemmaQ_part3At virasoroBV_pos le_rfl hc' hg
 
 end FormalResearch.ModularBootstrap.ConcreteBootstrap
 

@@ -89,6 +89,7 @@ public import FormalResearch.ModularBootstrap.Contour.InnerTipBounds
 public import FormalResearch.ModularBootstrap.Contour.TruncationError
 public import FormalResearch.ModularBootstrap.Contour.WindowEnvelope
 public import FormalResearch.ModularBootstrap.Contour.VirasoroBridge
+public import FormalResearch.ModularBootstrap.Contour.VirasoroScaleChoice
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -284,7 +285,8 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `FixedWeight.OptimalMeasure`: general `(w, Q)` Corollary `E1` (`corollary_E1_exact_gap`,
   unconditional; `corollary_E1` given named hypotheses `FixedWeightLowerBoundInput` from
   Theorem `W1'(1)` and `TheoremC15UpperInput` from Theorem `C15`/`ctu.5`), with non-vacuity and
-  Virasoro instances (`virasoro_lowerBoundInput_of_YV`, `virasoro_corollary_E1_of_YV`).
+  Virasoro instances (`virasoro_lowerBoundInput`, `virasoro_corollary_E1`,
+  `virasoro_lowerBoundInput_of_YV`, `virasoro_corollary_E1_of_YV`).
 * `WeightAxioms.BesselGeneral`, `WeightAxioms.KernelAndPositivity`, `WeightAxioms.ComplexAsymptotics`,
   `WeightAxioms.HankelContinuation`, `WeightAxioms.Axioms`: unconditional proof of the fixed-weight
   axioms `(W1)–(W4)` (`FixedWeightAxioms`, `FixedWeightUniformAxioms`), Proposition P `(P0)–(P3)`
@@ -311,10 +313,10 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `c' Re Φ_V(ζ₊; b) = -(4/3) Re ũ^{3/2}` (`vlo:esaddle`), Type-II `Ψ̃_V` envelope, Mellin critical-line
   tail and real-diameter Fourier-Mellin inversion, upper half-disc Poisson-Jensen interpolation, and
   **Lemma `D'`** (`vlo:Dp`, `lemma_Dp`, `truncatedMellinP`).
-* `Contour.WindowEnvelope`, `Contour.VirasoroBridge`: **Lemma `Z`** (`vlo:Z`, `lemma_Z`), proving
-  that the sector strip-multiplier bound implies `YVEnvBound`, uniform rescaling of Proposition `Y_V`
-  across `[b_V^2 c'^{2/3}, A_{c'}^2 - 1]`, proof of `YVInput` (`yvInput_of_scaleCompat`) under the
-  scalar parameter cap `VirasoroBVScaleCompat` (`virasoroBVScaleCompat_nonvacuous`), and Theorem `J`
-  corollaries (`theoremJ_of_scaleCompat`, `theoremJ_T_weak_of_scaleCompat`,
-  `theoremJ_T_V_of_scaleCompat`, `theoremJ_Delta_best_of_scaleCompat`).
+* `Contour.WindowEnvelope`, `Contour.VirasoroBridge`, `Contour.VirasoroScaleChoice`:
+  **Lemma `Z`** (`vlo:Z`, `lemma_Z`), proving that the sector strip-multiplier bound implies
+  `YVEnvBound`, uniform rescaling of Proposition `Y_V` across `[b^2 c'^{2/3}, A_{c'}(b)^2 - 1]`,
+  proof of `YVInputFor` (`yvInputFor_of_scaleCompat`), explicit compatible scale selection
+  `virasoroBVChoice`, and **unconditional Theorem `J`** (`theoremJ_unconditional`,
+  `theoremJ_T_weak`, `theoremJ_T_V`, `theoremJ_Delta_best`).
 -/

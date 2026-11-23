@@ -34,12 +34,13 @@ open FormalResearch.ModularBootstrap.TipFront
 
 /-! ### Section 1: Concrete `BootstrapParams` and Large-`c'` Asymptotic Thresholds -/
 
-/-- Concrete `BootstrapParams` for `(P, Q) = (1, 0)` on Virasoro (`N = Ai`, `m₀ = 1`, `k₀ = 5`). -/
-noncomputable def virasoroBootstrapParams
+/-- Concrete `BootstrapParams` for `(P, Q) = (1, 0)` on Virasoro at scale `b > 0`. -/
+noncomputable def virasoroBootstrapParamsFor
+    (b : ℝ) (hb : 0 < b)
     (C_fb : ℝ) (hC_fb : 1 ≤ C_fb)
     (C_gap κ_gap : ℝ) (_hC_gap : 0 < C_gap) (hκ_gap : 0 < κ_gap) :
     BootstrapParams where
-  b := virasoroBV
+  b := b
   C_a := max virasoroArcCovConst (4 * Real.exp (6 / 5) + 3 * virasoroEnvC0)
   C_unc := virasoroArcUncConst
   C_1 := quantC1C1
@@ -55,7 +56,7 @@ noncomputable def virasoroBootstrapParams
   C_L := 4 * C_fb
   γ := 1
   k_0 := 5
-  hb := virasoroBV_pos
+  hb := hb
   hCa := le_trans virasoroArcCovConst_pos.le (le_max_left _ _)
   hCunc := virasoroArcUncConst_pos.le
   hC1 := quantC1C1_pos
@@ -71,6 +72,13 @@ noncomputable def virasoroBootstrapParams
   hCL := by linarith
   hγ := zero_le_one
   hk0 := by omega
+
+/-- Concrete `BootstrapParams` for `(P, Q) = (1, 0)` on Virasoro (`N = Ai`, `m₀ = 1`, `k₀ = 5`). -/
+noncomputable def virasoroBootstrapParams
+    (C_fb : ℝ) (hC_fb : 1 ≤ C_fb)
+    (C_gap κ_gap : ℝ) (hC_gap : 0 < C_gap) (hκ_gap : 0 < κ_gap) :
+    BootstrapParams :=
+  virasoroBootstrapParamsFor virasoroBV virasoroBV_pos C_fb hC_fb C_gap κ_gap hC_gap hκ_gap
 
 private lemma rpow_neg_inv_mul_log_le {c' α : ℝ} (hc' : 1 ≤ c') (hα : 0 < α) :
     c' ^ (-α) * Real.log c' ≤ (2 / α) * c' ^ (-(α / 2)) := by
@@ -112,26 +120,26 @@ private lemma virasoroSigma_tendsto_zero :
           mul_le_mul_of_nonneg_left hbd virasoroEnvC1_pos.le
       _ = (6 * virasoroEnvC1) * c' ^ (-(1 / 6 : ℝ)) := by ring
 
-private lemma virasoroSigma_arc_eventually :
+private lemma virasoroSigma_arc_eventuallyFor {b : ℝ} (hb : 0 < b) :
     ∀ᶠ c' : ℝ in atTop,
       (3 * π) ^ (12 : ℕ) ≤ c' ∧
-      48 ≤ virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ) ∧
+      48 ≤ b ^ 2 * c' ^ (2 / 3 : ℝ) ∧
       virasoroSigma c' ≤ 1 / 2 ∧
-      virasoroSigma c' * (3 * π * √2 * virasoroBV * c' ^ (1 / 4 : ℝ) + 1) ≤ 1 := by
+      virasoroSigma c' * (3 * π * √2 * b * c' ^ (1 / 4 : ℝ) + 1) ≤ 1 := by
   have h1 : ∀ᶠ c' : ℝ in atTop, (3 * π) ^ (12 : ℕ) ≤ c' :=
     eventually_ge_atTop _
-  have h2 : ∀ᶠ c' : ℝ in atTop, 48 ≤ virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ) := by
-    have ht : Tendsto (fun c' : ℝ => virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ)) atTop atTop :=
+  have h2 : ∀ᶠ c' : ℝ in atTop, 48 ≤ b ^ 2 * c' ^ (2 / 3 : ℝ) := by
+    have ht : Tendsto (fun c' : ℝ => b ^ 2 * c' ^ (2 / 3 : ℝ)) atTop atTop :=
       (tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 2 / 3)).const_mul_atTop
-        (pow_pos virasoroBV_pos 2)
+        (pow_pos hb 2)
     exact ht.eventually_ge_atTop 48
   have h3 : ∀ᶠ c' : ℝ in atTop, virasoroSigma c' ≤ 1 / 2 :=
     virasoroSigma_tendsto_zero.eventually (Iic_mem_nhds (by norm_num))
   have h4 : ∀ᶠ c' : ℝ in atTop,
-      virasoroSigma c' * (3 * π * √2 * virasoroBV * c' ^ (1 / 4 : ℝ) + 1) ≤ 1 := by
-    let M : ℝ := 24 * virasoroEnvC1 * (3 * π * √2 * virasoroBV + 1)
+      virasoroSigma c' * (3 * π * √2 * b * c' ^ (1 / 4 : ℝ) + 1) ≤ 1 := by
+    let M : ℝ := 24 * virasoroEnvC1 * (3 * π * √2 * b + 1)
     have hM_nn : 0 ≤ M := by
-      dsimp [M]; have := virasoroEnvC1_pos; have := virasoroBV_pos; positivity
+      dsimp [M]; have := virasoroEnvC1_pos; positivity
     have ht : Tendsto (fun c' : ℝ => M * c' ^ (-(1 / 24 : ℝ))) atTop (𝓝 0) := by
       simpa only [mul_zero] using
         (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 24)).const_mul M
@@ -147,33 +155,41 @@ private lemma virasoroSigma_arc_eventually :
     have hc13_le : c' ^ (-(1 / 3 : ℝ)) ≤ c' ^ (-(1 / 12 : ℝ)) :=
       Real.rpow_le_rpow_of_exponent_le hc' (by norm_num)
     have hlog_nn : 0 ≤ Real.log c' := Real.log_nonneg hc'
-    have hsig_le : virasoroSigma c' * (3 * π * √2 * virasoroBV * c' ^ (1 / 4 : ℝ) + 1) ≤
-        virasoroEnvC1 * (3 * π * √2 * virasoroBV + 1) * (c' ^ (-(1 / 12 : ℝ)) * Real.log c') := by
+    have hsig_le : virasoroSigma c' * (3 * π * √2 * b * c' ^ (1 / 4 : ℝ) + 1) ≤
+        virasoroEnvC1 * (3 * π * √2 * b + 1) * (c' ^ (-(1 / 12 : ℝ)) * Real.log c') := by
       unfold virasoroSigma
       have hterm1 : (virasoroEnvC1 * c' ^ (-(1 / 3 : ℝ)) * Real.log c') *
-          (3 * π * √2 * virasoroBV * c' ^ (1 / 4 : ℝ)) =
-          virasoroEnvC1 * (3 * π * √2 * virasoroBV) * (c' ^ (-(1 / 12 : ℝ)) * Real.log c') := by
+          (3 * π * √2 * b * c' ^ (1 / 4 : ℝ)) =
+          virasoroEnvC1 * (3 * π * √2 * b) * (c' ^ (-(1 / 12 : ℝ)) * Real.log c') := by
         calc (virasoroEnvC1 * c' ^ (-(1 / 3 : ℝ)) * Real.log c') *
-              (3 * π * √2 * virasoroBV * c' ^ (1 / 4 : ℝ))
-            = virasoroEnvC1 * (3 * π * √2 * virasoroBV) *
+              (3 * π * √2 * b * c' ^ (1 / 4 : ℝ))
+            = virasoroEnvC1 * (3 * π * √2 * b) *
                 ((c' ^ (-(1 / 3 : ℝ)) * c' ^ (1 / 4 : ℝ)) * Real.log c') := by ring
-          _ = virasoroEnvC1 * (3 * π * √2 * virasoroBV) * (c' ^ (-(1 / 12 : ℝ)) * Real.log c') := by
+          _ = virasoroEnvC1 * (3 * π * √2 * b) * (c' ^ (-(1 / 12 : ℝ)) * Real.log c') := by
               rw [h12]
       have hterm2 : virasoroEnvC1 * c' ^ (-(1 / 3 : ℝ)) * Real.log c' ≤
           virasoroEnvC1 * 1 * (c' ^ (-(1 / 12 : ℝ)) * Real.log c') := by
         have := virasoroEnvC1_pos.le
         nlinarith [mul_le_mul_of_nonneg_right hc13_le hlog_nn]
       linarith
-    have hbound : virasoroEnvC1 * (3 * π * √2 * virasoroBV + 1) *
+    have hbound : virasoroEnvC1 * (3 * π * √2 * b + 1) *
         (c' ^ (-(1 / 12 : ℝ)) * Real.log c') ≤ M * c' ^ (-(1 / 24 : ℝ)) := by
-      have hpos : 0 ≤ virasoroEnvC1 * (3 * π * √2 * virasoroBV + 1) := by
-        have := virasoroEnvC1_pos; have := virasoroBV_pos; positivity
-      calc virasoroEnvC1 * (3 * π * √2 * virasoroBV + 1) * (c' ^ (-(1 / 12 : ℝ)) * Real.log c')
-          ≤ virasoroEnvC1 * (3 * π * √2 * virasoroBV + 1) * (24 * c' ^ (-(1 / 24 : ℝ))) :=
+      have hpos : 0 ≤ virasoroEnvC1 * (3 * π * √2 * b + 1) := by
+        have := virasoroEnvC1_pos; positivity
+      calc virasoroEnvC1 * (3 * π * √2 * b + 1) * (c' ^ (-(1 / 12 : ℝ)) * Real.log c')
+          ≤ virasoroEnvC1 * (3 * π * √2 * b + 1) * (24 * c' ^ (-(1 / 24 : ℝ))) :=
             mul_le_mul_of_nonneg_left hlog hpos
         _ = M * c' ^ (-(1 / 24 : ℝ)) := by dsimp [M]; ring
     exact hsig_le.trans (hbound.trans hMc')
   exact h1.and (h2.and (h3.and h4))
+
+private lemma virasoroSigma_arc_eventually :
+    ∀ᶠ c' : ℝ in atTop,
+      (3 * π) ^ (12 : ℕ) ≤ c' ∧
+      48 ≤ virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ) ∧
+      virasoroSigma c' ≤ 1 / 2 ∧
+      virasoroSigma c' * (3 * π * √2 * virasoroBV * c' ^ (1 / 4 : ℝ) + 1) ≤ 1 :=
+  virasoroSigma_arc_eventuallyFor virasoroBV_pos
 
 /-! ### Section 2: Unconditional Band-Moment Bounds `B₁ ≤ 1`, `B₂ ≤ 2` -/
 
@@ -666,24 +682,150 @@ lemma virasoro_pnodes_lb_and_theta {c' R T : ℝ} {N : ℕ}
 
 /-! ### Section 4: Building `BootstrapHBInstance` and Theorem `FT-L.FW` at `(1, 0)` -/
 
-/-- Construct the concrete `BootstrapHBInstance P 0` (together with `(B3)`) for any Virasoro
-violator `T < Δ(a₁)` at sufficiently large `c'`, assuming `YVInputAt`. -/
-noncomputable def virasoro_bootstrapHB_of_YV
-    {C_fb c_YV C_gap κ_gap : ℝ} (hC_fb : 1 ≤ C_fb) (_hc_YV : virasoroCQEnv ≤ c_YV)
-    (hYVat : YVInputAt virasoroPsiTilde C_fb c_YV)
-    (hC_gap : 0 < C_gap) (hκ_gap : 0 < κ_gap)
-    {c' T : ℝ} (hc'_Qenv : virasoroCQEnv ≤ c') (hc'_YV : c_YV ≤ c')
-    (h_c12 : (3 * π) ^ (12 : ℕ) ≤ c')
-    (h_b48 : 48 ≤ virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ))
-    (hς_half : virasoroSigma c' ≤ 1 / 2)
-    (hς_arc : virasoroSigma c' * (3 * π * √2 * virasoroBV * c' ^ (1 / 4 : ℝ) + 1) ≤ 1)
+lemma virasoro_lobe_scale_down {b C_gap κ_gap c' T : ℝ}
+    (hb_pos : 0 < b) (hb_le : b ≤ virasoroBV) (hc'_Qenv : virasoroCQEnv ≤ c')
     {g : ℝ → ℝ} (hg : virasoroProblem.IsWeaklyFeasible (c' / 12) T g)
-    (hdl_bd : virasoroDeltaLobe c' g ≤ C_gap * Real.exp (-κ_gap * c'))
-    (hdl_half : virasoroDeltaLobe c' g < 1 / 2)
+    (hdl_bd : virasoroDeltaLobeAt b c' g ≤ C_gap * Real.exp (-κ_gap * c'))
+    (hdl_half : virasoroDeltaLobeAt b c' g < 1 / 2)
+    (hT_A2 : virasoroDeltaChart c' (virasoroACAt b c' ^ 2) < T) :
+    virasoroACAt b c' ^ 2 ≤ virasoroAC c' ^ 2 ∧
+    virasoroDeltaLobe c' g ≤ C_gap * Real.exp (-κ_gap * c') ∧
+    virasoroDeltaLobe c' g < 1 / 2 ∧
+    virasoroDeltaChart c' (virasoroAC c' ^ 2) < T := by
+  have hc'_10000 : 10000 ≤ c' :=
+    (by unfold c_PJ_complex; norm_num : (10000 : ℝ) ≤ c_PJ_complex).trans
+      (c_PJ_complex_le_virasoroCQEnv.trans hc'_Qenv)
+  have hc'_24 : 24 ≤ c' := by linarith
+  have hc'_pos : 0 < c' := by linarith
+  have ha : virasoroProblem.totalShift ≤ c' / 12 := by
+    rw [virasoroProblem_totalShift]; linarith
+  have hM_pos : 0 < virasoroProblem.cardyNorm (c' / 12) g :=
+    cardyNorm_pos_of_nonzero ha hg.1 hg.2.1
+  have hA2_le : virasoroACAt b c' ^ 2 ≤ virasoroAC c' ^ 2 :=
+    virasoroACAt_sq_le hb_pos.le hb_le hc'_pos.le
+  have hdl_le_at : virasoroDeltaLobe c' g ≤ virasoroDeltaLobeAt b c' g :=
+    virasoroDeltaLobe_le_virasoroDeltaLobeAt hb_pos hb_le hc'_24 hg.1 hM_pos
+  have hT_A2_full : virasoroDeltaChart c' (virasoroAC c' ^ 2) < T := by
+    have hΔ_le : virasoroDeltaChart c' (virasoroAC c' ^ 2) ≤
+        virasoroDeltaChart c' (virasoroACAt b c' ^ 2) :=
+      (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
+        ⟨by linarith [sq_nonneg (virasoroACAt b c')], hA2_le⟩
+        ⟨by linarith [sq_nonneg (virasoroAC c')], le_rfl⟩ hA2_le
+    exact hΔ_le.trans_lt hT_A2
+  exact ⟨hA2_le, hdl_le_at.trans hdl_bd, hdl_le_at.trans_lt hdl_half, hT_A2_full⟩
+
+lemma virasoro_uT_range_of_violator {c' R T : ℝ}
+    (hc'_Qenv : virasoroCQEnv ≤ c') (hR_thr : virasoroAThr ≤ R)
+    (hR_ub : R + 1 ≤ virasoroAC c' ^ 2)
+    {g : ℝ → ℝ} (hg : virasoroProblem.IsWeaklyFeasible (c' / 12) T g)
     (hT_A2 : virasoroDeltaChart c' (virasoroAC c' ^ 2) < T)
     (hT_a1 : T < virasoroDeltaChart c' (airyZero 1))
     (hB2 : QuantC1B2Holds (virasoroPsiTilde c' g) (virasoroUT c' T)) :
-    let P := virasoroBootstrapParams C_fb hC_fb C_gap κ_gap hC_gap hκ_gap
+    airyZero 1 < virasoroUT c' T ∧
+    virasoroUT c' T ≤ -1 ∧
+    virasoroDeltaChart c' (-1) ≤ T ∧
+    virasoroDeltaChart c' 0 ≤ T ∧
+    T ≤ virasoroDeltaChart c' (-virasoroAThr) ∧
+    T ≤ virasoroDeltaChart c' (-R) := by
+  have hc'_10000 : 10000 ≤ c' :=
+    (by unfold c_PJ_complex; norm_num : (10000 : ℝ) ≤ c_PJ_complex).trans
+      (c_PJ_complex_le_virasoroCQEnv.trans hc'_Qenv)
+  have hc'_pos : 0 < c' := by linarith
+  have hAThr_lt : virasoroAThr < 3.4 := by
+    obtain ⟨ha1, ha2⟩ := airyZero_one
+    unfold virasoroAThr; rw [abs_of_neg (by linarith)]; linarith
+  have hR_pos : 0 < R := lt_of_lt_of_le virasoroAThr_pos hR_thr
+  have hA2_ge4 : 4 ≤ virasoroAC c' ^ 2 := by linarith [virasoroAThr_gt_two]
+  have huT_Ioo : virasoroUT c' T ∈ Ioo (-(virasoroAC c' ^ 2)) (virasoroAC c' ^ 2) :=
+    (lemmaQ_part3 hc'_Qenv hg).2.2.1
+      (hT_a1.trans ((virasoroDeltaChart_strictAnti hc'_pos)
+        ⟨le_rfl, by linarith⟩
+        ⟨by linarith [airyZero_one.1], by linarith [airyZero_one.2]⟩
+        (by linarith [airyZero_one.1])))
+      hT_A2
+  have hu_mem := virasoroUT_between hc'_pos
+    (by linarith [huT_Ioo.1]) (by linarith [huT_Ioo.2])
+    (by linarith [huT_Ioo.1, huT_Ioo.2] : -(virasoroAC c' ^ 2) ≤ virasoroAC c' ^ 2)
+    hT_A2.le
+    (hT_a1.le.trans ((virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
+      ⟨by linarith, by linarith⟩
+      ⟨by linarith [airyZero_one.1], by linarith [airyZero_one.2]⟩
+      (by linarith [airyZero_one.1])))
+  set u_T := virasoroUT c' T
+  have hΔ_uT : virasoroDeltaChart c' u_T = T := hu_mem.2
+  have ha1_lt_uT : airyZero 1 < u_T := by
+    by_contra hle
+    have := (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
+      ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩
+      ⟨by linarith [airyZero_one.1], by linarith [airyZero_one.2]⟩
+      (not_lt.mp hle)
+    linarith [hΔ_uT]
+  have huT_le_m1 : u_T ≤ -1 := by
+    have := (hB2.1).trans ((min_le_left _ _).trans quantC1DeltaStar_le)
+    linarith [airyZero_one.2]
+  have hT_lo_m1 : virasoroDeltaChart c' (-1) ≤ T := by
+    rw [← hΔ_uT]
+    exact (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
+      ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩ ⟨by linarith, by linarith⟩ huT_le_m1
+  have hT_lo_0 : virasoroDeltaChart c' 0 ≤ T := by
+    rw [← hΔ_uT]
+    exact (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
+      ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩ ⟨by linarith, by linarith⟩ (by linarith)
+  have hT_hi_AThr : T ≤ virasoroDeltaChart c' (-virasoroAThr) := by
+    rw [← hΔ_uT]
+    have hAThr_eq : virasoroAThr = -airyZero 1 + 1 := by
+      unfold virasoroAThr; rw [abs_of_neg (by linarith [airyZero_one.2])]
+    exact (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
+      ⟨by linarith, by linarith [virasoroAThr_pos]⟩ ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩
+      (by linarith [ha1_lt_uT, hAThr_eq])
+  have hT_hi_R : T ≤ virasoroDeltaChart c' (-R) :=
+    hT_hi_AThr.trans ((virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
+      ⟨by linarith, by linarith⟩ ⟨by linarith, by linarith [virasoroAThr_pos]⟩ (by linarith))
+  exact ⟨ha1_lt_uT, huT_le_m1, hT_lo_m1, hT_lo_0, hT_hi_AThr, hT_hi_R⟩
+
+lemma virasoro_sigma_arc_of_scale {b c' R : ℝ} (hb_pos : 0 < b) (hc'_ge1 : 1 ≤ c')
+    (hR_ub_b : R + 1 ≤ virasoroACAt b c' ^ 2)
+    (hς_arc : virasoroSigma c' * (3 * π * √2 * b * c' ^ (1 / 4 : ℝ) + 1) ≤ 1) :
+    virasoroSigma c' * (3 * π * √R * c' ^ (-(1 / 12 : ℝ)) + 1) ≤ 1 := by
+  have hc'_pos : 0 < c' := lt_of_lt_of_le zero_lt_one hc'_ge1
+  have hsig_nn := virasoroSigma_nonneg hc'_ge1
+  have hR_le_ac : R ≤ 2 * b ^ 2 * c' ^ (2 / 3 : ℝ) := by
+    rw [← virasoroACAt_sq b c' hc'_pos.le]; linarith [hR_ub_b]
+  have hsqrtR : √R ≤ √2 * b * c' ^ (1 / 3 : ℝ) := by
+    calc √R ≤ √(2 * b ^ 2 * c' ^ (2 / 3 : ℝ)) := Real.sqrt_le_sqrt hR_le_ac
+      _ = √(virasoroACAt b c' ^ 2) := by rw [virasoroACAt_sq b c' hc'_pos.le]
+      _ = virasoroACAt b c' := Real.sqrt_sq (virasoroACAt_pos hb_pos hc'_pos).le
+      _ = √2 * b * c' ^ (1 / 3 : ℝ) := rfl
+  have hc14 : c' ^ (1 / 3 : ℝ) * c' ^ (-(1 / 12 : ℝ)) = c' ^ (1 / 4 : ℝ) := by
+    rw [← Real.rpow_add hc'_pos]; norm_num
+  have h3pi : 3 * π * √R * c' ^ (-(1 / 12 : ℝ)) + 1 ≤
+      3 * π * √2 * b * c' ^ (1 / 4 : ℝ) + 1 := by
+    calc 3 * π * √R * c' ^ (-(1 / 12 : ℝ)) + 1
+        ≤ 3 * π * (√2 * b * c' ^ (1 / 3 : ℝ)) * c' ^ (-(1 / 12 : ℝ)) + 1 := by gcongr
+      _ = 3 * π * √2 * b * (c' ^ (1 / 3 : ℝ) * c' ^ (-(1 / 12 : ℝ))) + 1 := by ring
+      _ = 3 * π * √2 * b * c' ^ (1 / 4 : ℝ) + 1 := by rw [hc14]
+  exact (mul_le_mul_of_nonneg_left h3pi hsig_nn).trans hς_arc
+
+/-- Construct the concrete `BootstrapHBInstance P 0` (together with `(B3)`) at scale
+`0 < b ≤ virasoroBV` for any Virasoro violator `T < Δ(a₁)` at sufficiently large `c'`,
+assuming `YVInputAtFor b`. -/
+noncomputable def virasoro_bootstrapHB_of_YVFor
+    {b C_fb c_YV C_gap κ_gap : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ virasoroBV)
+    (hC_fb : 1 ≤ C_fb) (_hc_YV : virasoroCQEnv ≤ c_YV)
+    (hYVat : YVInputAtFor b virasoroPsiTilde C_fb c_YV)
+    (hC_gap : 0 < C_gap) (hκ_gap : 0 < κ_gap)
+    {c' T : ℝ} (hc'_Qenv : virasoroCQEnv ≤ c') (hc'_YV : c_YV ≤ c')
+    (h_c12 : (3 * π) ^ (12 : ℕ) ≤ c')
+    (h_b48 : 48 ≤ b ^ 2 * c' ^ (2 / 3 : ℝ))
+    (hς_half : virasoroSigma c' ≤ 1 / 2)
+    (hς_arc : virasoroSigma c' * (3 * π * √2 * b * c' ^ (1 / 4 : ℝ) + 1) ≤ 1)
+    {g : ℝ → ℝ} (hg : virasoroProblem.IsWeaklyFeasible (c' / 12) T g)
+    (hdl_bd : virasoroDeltaLobeAt b c' g ≤ C_gap * Real.exp (-κ_gap * c'))
+    (hdl_half : virasoroDeltaLobeAt b c' g < 1 / 2)
+    (hT_A2 : virasoroDeltaChart c' (virasoroACAt b c' ^ 2) < T)
+    (hT_a1 : T < virasoroDeltaChart c' (airyZero 1))
+    (hB2 : QuantC1B2Holds (virasoroPsiTilde c' g) (virasoroUT c' T)) :
+    let P := virasoroBootstrapParamsFor b hb_pos C_fb hC_fb C_gap κ_gap hC_gap hκ_gap
     { I : BootstrapHBInstance P 0 //
       I.L ≤ P.C_fb * (I.c ^ (1 / 3 : ℝ) * (I.B_1 + I.B_2) + 1) ∧
       I.c = c' ∧ I.x_tilde = virasoroUT c' T - airyZero 1 } := by
@@ -693,10 +835,12 @@ noncomputable def virasoro_bootstrapHB_of_YV
       (c_PJ_complex_le_virasoroCQEnv.trans hc'_Qenv)
   have hc'_pos : 0 < c' := by linarith
   have hc'_ge1 : 1 ≤ c' := by linarith
-  let k₀ : ℕ := ⌈virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ)⌉₊
+  obtain ⟨hA2_le, hdl_bd_full, hdl_half_full, hT_A2_full⟩ :=
+    virasoro_lobe_scale_down hb_pos hb_le hc'_Qenv hg hdl_bd hdl_half hT_A2
+  let k₀ : ℕ := ⌈b ^ 2 * c' ^ (2 / 3 : ℝ)⌉₊
   have hk₀_ge48 : 48 ≤ k₀ := by
     dsimp [k₀]
-    have : (48 : ℝ) ≤ (⌈virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ)⌉₊ : ℝ) :=
+    have : (48 : ℝ) ≤ (⌈b ^ 2 * c' ^ (2 / 3 : ℝ)⌉₊ : ℝ) :=
       h_b48.trans (Nat.le_ceil _)
     exact_mod_cast this
   have h_circ := good_circle_exists k₀ (by omega : 10 ≤ k₀)
@@ -707,13 +851,14 @@ noncomputable def virasoro_bootstrapHB_of_YV
   have hR_low := hR_spec.2.2
   have hR_48 : 48 ≤ R := (by exact_mod_cast hk₀_ge48 : (48 : ℝ) ≤ k₀).trans hR_lb
   have hR_pos : 0 < R := by linarith
-  have hR_bv : virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ) ≤ R := (Nat.le_ceil _).trans hR_lb
-  have hR_ub_ceil : R ≤ virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ) + 2 := by
-    have hlt := Nat.ceil_lt_add_one (by positivity : 0 ≤ virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ))
+  have hR_bv : b ^ 2 * c' ^ (2 / 3 : ℝ) ≤ R := (Nat.le_ceil _).trans hR_lb
+  have hR_ub_ceil : R ≤ b ^ 2 * c' ^ (2 / 3 : ℝ) + 2 := by
+    have hlt := Nat.ceil_lt_add_one (by positivity : 0 ≤ b ^ 2 * c' ^ (2 / 3 : ℝ))
     linarith
-  have hR_ub_2b : R ≤ 2 * virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ) + 1 := by linarith
-  have hR_ub : R + 1 ≤ virasoroAC c' ^ 2 := by
-    rw [virasoroAC_sq c' hc'_pos.le]; linarith
+  have hR_ub_2b : R ≤ 2 * b ^ 2 * c' ^ (2 / 3 : ℝ) + 1 := by linarith
+  have hR_ub_b : R + 1 ≤ virasoroACAt b c' ^ 2 := by
+    rw [virasoroACAt_sq b c' hc'_pos.le]; linarith
+  have hR_ub : R + 1 ≤ virasoroAC c' ^ 2 := hR_ub_b.trans hA2_le
   have hAThr_lt : virasoroAThr < 3.4 := by
     obtain ⟨ha1, ha2⟩ := airyZero_one
     unfold virasoroAThr; rw [abs_of_neg (by linarith)]; linarith
@@ -738,53 +883,10 @@ noncomputable def virasoro_bootstrapHB_of_YV
   have hRm : ∀ w : ℂ, ‖w‖ = R → w.im ≤ 0 →
       ‖(airyBiC w + I * airyAiC w) / airyAiC w‖ * airyEnv w ≤ 30 * √π :=
     fun w hw him => airy_Rminus_bound him (hw ▸ hR_low w hw)
-  -- `u_T` and `T` range bounds
-  have huT_Ioo : virasoroUT c' T ∈ Ioo (-(virasoroAC c' ^ 2)) (virasoroAC c' ^ 2) :=
-    (lemmaQ_part3 hc'_Qenv hg).2.2.1
-      (hT_a1.trans ((virasoroDeltaChart_strictAnti hc'_pos)
-        ⟨le_rfl, by linarith [sq_nonneg (virasoroAC c' ^ 2)]⟩
-        ⟨by linarith [airyZero_one.1], by linarith [airyZero_one.2, sq_nonneg (virasoroAC c' ^ 2)]⟩
-        (by linarith [airyZero_one.1])))
-      hT_A2
-  have hu_mem := virasoroUT_between hc'_pos
-    (by linarith [huT_Ioo.1]) (by linarith [huT_Ioo.2])
-    (by linarith [huT_Ioo.1, huT_Ioo.2] : -(virasoroAC c' ^ 2) ≤ virasoroAC c' ^ 2)
-    hT_A2.le
-    (hT_a1.le.trans ((virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
-      ⟨by linarith [sq_nonneg (virasoroAC c' ^ 2)], by linarith⟩
-      ⟨by linarith [airyZero_one.1], by linarith [airyZero_one.2, sq_nonneg (virasoroAC c' ^ 2)]⟩
-      (by linarith [airyZero_one.1])))
+  obtain ⟨ha1_lt_uT, huT_le_m1, hT_lo_m1, hT_lo_0, hT_hi_AThr, hT_hi_R⟩ :=
+    virasoro_uT_range_of_violator hc'_Qenv hR_thr hR_ub hg hT_A2_full hT_a1 hB2
   set u_T := virasoroUT c' T
-  have hΔ_uT : virasoroDeltaChart c' u_T = T := hu_mem.2
-  have ha1_lt_uT : airyZero 1 < u_T := by
-    by_contra hle
-    have := (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
-      ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩
-      ⟨by linarith [airyZero_one.1], by linarith [airyZero_one.2, sq_nonneg (virasoroAC c' ^ 2)]⟩
-      (not_lt.mp hle)
-    linarith [hΔ_uT]
-  have huT_le_m1 : u_T ≤ -1 := by
-    have := (hB2.1).trans ((min_le_left _ _).trans quantC1DeltaStar_le)
-    linarith [airyZero_one.2]
-  have hT_lo_m1 : virasoroDeltaChart c' (-1) ≤ T := by
-    rw [← hΔ_uT]
-    exact (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
-      ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩ ⟨by linarith, by linarith⟩ huT_le_m1
-  have hT_lo_0 : virasoroDeltaChart c' 0 ≤ T := by
-    rw [← hΔ_uT]
-    exact (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
-      ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩ ⟨by linarith, by linarith⟩ (by linarith)
-  have hT_hi_AThr : T ≤ virasoroDeltaChart c' (-virasoroAThr) := by
-    rw [← hΔ_uT]
-    have hAThr_eq : virasoroAThr = -airyZero 1 + 1 := by
-      unfold virasoroAThr; rw [abs_of_neg (by linarith [airyZero_one.2])]
-    exact (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
-      ⟨by linarith, by linarith [virasoroAThr_pos]⟩ ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩
-      (by linarith [ha1_lt_uT, hAThr_eq])
-  have hT_hi_R : T ≤ virasoroDeltaChart c' (-R) :=
-    hT_hi_AThr.trans ((virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
-      ⟨by linarith, by linarith⟩ ⟨by linarith, by linarith [virasoroAThr_pos]⟩ (by linarith))
-  have hB_sums := virasoro_band_sums_le hc'_Qenv hR_thr hR_ub hg hdl_half hT_lo_0 hT_hi_AThr
+  have hB_sums := virasoro_band_sums_le hc'_Qenv hR_thr hR_ub hg hdl_half_full hT_lo_0 hT_hi_AThr
   have hB1_nn : 0 ≤ virasoroBandB1 c' R T g :=
     virasoroBandB1_nonneg hc'_Qenv hR_thr (by linarith) hg hT_lo_0 hT_hi_AThr
   have hB2_nn : 0 ≤ virasoroBandB2 c' R g :=
@@ -809,33 +911,15 @@ noncomputable def virasoro_bootstrapHB_of_YV
           ≤ c' * 3 + c' := add_le_add
               (mul_le_mul hc13_le hB3_le (by linarith) hc'_pos.le) hc'_ge1
         _ = 4 * c' := by ring
-    dsimp [L, P, virasoroBootstrapParams]
+    dsimp [L, P, virasoroBootstrapParamsFor]
     rw [Real.rpow_one]
     calc C_fb * (c' ^ (1 / 3 : ℝ) * (B_1 + B_2) + 1)
         ≤ C_fb * (4 * c') := mul_le_mul_of_nonneg_left h1 (by linarith)
       _ = 4 * C_fb * c' := by ring
-  have hς_arc' : virasoroSigma c' * (3 * π * √R * c' ^ (-(1 / 12 : ℝ)) + 1) ≤ 1 := by
-    have hsig_nn := virasoroSigma_nonneg hc'_ge1
-    have hR_le_ac : R ≤ 2 * virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ) := by linarith
-    have hsqrtR : √R ≤ √2 * virasoroBV * c' ^ (1 / 3 : ℝ) := by
-      calc √R ≤ √(2 * virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ)) := Real.sqrt_le_sqrt hR_le_ac
-        _ = √(virasoroAC c' ^ 2) := by rw [virasoroAC_sq c' hc'_pos.le]
-        _ = virasoroAC c' := Real.sqrt_sq (virasoroAC_pos hc'_pos).le
-        _ = √2 * virasoroBV * c' ^ (1 / 3 : ℝ) := rfl
-    have hc14 : c' ^ (1 / 3 : ℝ) * c' ^ (-(1 / 12 : ℝ)) = c' ^ (1 / 4 : ℝ) := by
-      rw [← Real.rpow_add hc'_pos]; norm_num
-    have h3pi : 3 * π * √R * c' ^ (-(1 / 12 : ℝ)) + 1 ≤
-        3 * π * √2 * virasoroBV * c' ^ (1 / 4 : ℝ) + 1 := by
-      have hc12_nn : 0 ≤ c' ^ (-(1 / 12 : ℝ)) := Real.rpow_nonneg hc'_pos.le _
-      calc 3 * π * √R * c' ^ (-(1 / 12 : ℝ)) + 1
-          ≤ 3 * π * (√2 * virasoroBV * c' ^ (1 / 3 : ℝ)) * c' ^ (-(1 / 12 : ℝ)) + 1 := by
-            gcongr
-        _ = 3 * π * √2 * virasoroBV * (c' ^ (1 / 3 : ℝ) * c' ^ (-(1 / 12 : ℝ))) + 1 := by ring
-        _ = 3 * π * √2 * virasoroBV * c' ^ (1 / 4 : ℝ) + 1 := by rw [hc14]
-    exact (mul_le_mul_of_nonneg_left h3pi hsig_nn).trans hς_arc
+  have hς_arc' := virasoro_sigma_arc_of_scale hb_pos hc'_ge1 hR_ub_b hς_arc
   have hYV_env : YVEnvBound (virasoroPsiTilde c' g) c' R L :=
-    hYVat hc'_YV hR_thr hR_bv hR_ub hg hT_lo_0 hT_hi_AThr
-  have hPN := virasoro_pnodes_lb_and_theta hc'_Qenv hR_48 hR_ub hg hT_hi_AThr hT_A2.le hT_a1 hB2 hN
+    hYVat hc'_YV hR_thr hR_bv hR_ub_b hg hT_lo_0 hT_hi_AThr
+  have hPN := virasoro_pnodes_lb_and_theta hc'_Qenv hR_48 hR_ub hg hT_hi_AThr hT_A2_full.le hT_a1 hB2 hN
     P rfl rfl rfl rfl rfl rfl
   refine ⟨{
     c := c'
@@ -850,8 +934,8 @@ noncomputable def virasoro_bootstrapHB_of_YV
     hc := by linarith
     ha_lb := by
       calc P.b * c' ^ (1 / 3 : ℝ)
-          = √(virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ)) := by
-            rw [Real.sqrt_mul (sq_nonneg _), Real.sqrt_sq virasoroBV_pos.le,
+          = √(b ^ 2 * c' ^ (2 / 3 : ℝ)) := by
+            rw [Real.sqrt_mul (sq_nonneg _), Real.sqrt_sq hb_pos.le,
               show c' ^ (2 / 3 : ℝ) = (c' ^ (1 / 3 : ℝ)) ^ 2 by
                 rw [← Real.rpow_natCast (c' ^ (1 / 3 : ℝ)) 2, ← Real.rpow_mul hc'_pos.le]; norm_num,
               Real.sqrt_sq (Real.rpow_nonneg hc'_pos.le _)]
@@ -875,7 +959,7 @@ noncomputable def virasoro_bootstrapHB_of_YV
     I_line := fun k ℓ => ∫ x in (-R)..R, (virasoroShiftedFun c' R ℓ g k (x : ℂ)).re
     Arc_cov := fun k ℓ => virasoroArcCov c' R T L ℓ g k
     Arc_unc := virasoroArcUncConst * c' ^ (-(3 / 8 : ℝ))
-    hB1k_nn := fun k _ _ => virasoroBandB1k_nonneg hc'_Qenv hR_pos.le (by linarith) hg hT_A2.le
+    hB1k_nn := fun k _ _ => virasoroBandB1k_nonneg hc'_Qenv hR_pos.le (by linarith) hg hT_A2_full.le
       hT_hi_R (by linarith [huT_le_m1]) k
     hB2'_nn := fun _ _ _ => hB2_nn
     hB_sum := fun k _ _ => by
@@ -910,7 +994,7 @@ noncomputable def virasoro_bootstrapHB_of_YV
       have h_exp_le : virasoroDeltaLobe c' g ≤ C_gap * c' * Real.exp (-P.κ * c') := by
         have hκ_eq : P.κ = κ_gap := rfl
         rw [hκ_eq]
-        calc virasoroDeltaLobe c' g ≤ C_gap * Real.exp (-κ_gap * c') := hdl_bd
+        calc virasoroDeltaLobe c' g ≤ C_gap * Real.exp (-κ_gap * c') := hdl_bd_full
           _ = 1 * (C_gap * Real.exp (-κ_gap * c')) := (one_mul _).symm
           _ ≤ c' * (C_gap * Real.exp (-κ_gap * c')) :=
               mul_le_mul_of_nonneg_right hc'_ge1 (mul_nonneg hC_gap.le (Real.exp_pos _).le)
@@ -923,23 +1007,48 @@ noncomputable def virasoro_bootstrapHB_of_YV
       simpa using hPN.2 hk0_R hℓ_mem
   }, le_rfl, rfl, rfl⟩
 
+/-- Construct the concrete `BootstrapHBInstance P 0` (together with `(B3)`) for any Virasoro
+violator `T < Δ(a₁)` at sufficiently large `c'`, assuming `YVInputAt`. -/
+noncomputable def virasoro_bootstrapHB_of_YV
+    {C_fb c_YV C_gap κ_gap : ℝ} (hC_fb : 1 ≤ C_fb) (hc_YV : virasoroCQEnv ≤ c_YV)
+    (hYVat : YVInputAt virasoroPsiTilde C_fb c_YV)
+    (hC_gap : 0 < C_gap) (hκ_gap : 0 < κ_gap)
+    {c' T : ℝ} (hc'_Qenv : virasoroCQEnv ≤ c') (hc'_YV : c_YV ≤ c')
+    (h_c12 : (3 * π) ^ (12 : ℕ) ≤ c')
+    (h_b48 : 48 ≤ virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ))
+    (hς_half : virasoroSigma c' ≤ 1 / 2)
+    (hς_arc : virasoroSigma c' * (3 * π * √2 * virasoroBV * c' ^ (1 / 4 : ℝ) + 1) ≤ 1)
+    {g : ℝ → ℝ} (hg : virasoroProblem.IsWeaklyFeasible (c' / 12) T g)
+    (hdl_bd : virasoroDeltaLobe c' g ≤ C_gap * Real.exp (-κ_gap * c'))
+    (hdl_half : virasoroDeltaLobe c' g < 1 / 2)
+    (hT_A2 : virasoroDeltaChart c' (virasoroAC c' ^ 2) < T)
+    (hT_a1 : T < virasoroDeltaChart c' (airyZero 1))
+    (hB2 : QuantC1B2Holds (virasoroPsiTilde c' g) (virasoroUT c' T)) :
+    let P := virasoroBootstrapParams C_fb hC_fb C_gap κ_gap hC_gap hκ_gap
+    { I : BootstrapHBInstance P 0 //
+      I.L ≤ P.C_fb * (I.c ^ (1 / 3 : ℝ) * (I.B_1 + I.B_2) + 1) ∧
+      I.c = c' ∧ I.x_tilde = virasoroUT c' T - airyZero 1 } :=
+  virasoro_bootstrapHB_of_YVFor virasoroBV_pos le_rfl hC_fb hc_YV hYVat hC_gap hκ_gap
+    hc'_Qenv hc'_YV h_c12 h_b48 hς_half hς_arc hg hdl_bd hdl_half hT_A2 hT_a1 hB2
+
 /-- **Theorem `FT-L.FW` at `(P, Q) = (1, 0)`** (`CFT/modular_bootstrap/paper/lower_o1_two_edge.tex`,
-`wone:ftlfw`) from `YVInput`: Steps 0–5 give `c₂ ≥ virasoroCQEnv` and `C ≥ 0` such that every
-weakly feasible Virasoro test `g` at `(c'/12, T)` with `c' ≥ c₂` obeys
-`T ≥ ξ̄ c' + A_opt c'^{1/3} - C`. -/
-theorem theoremFTLFW_oneZero_of_YV (hYV : YVInput) :
+`wone:ftlfw`) at scale `0 < b ≤ virasoroBV` from `YVInputFor b`: Steps 0–5 give
+`c₂ ≥ virasoroCQEnv` and `C ≥ 0` such that every weakly feasible Virasoro test `g` at
+`(c'/12, T)` with `c' ≥ c₂` obeys `T ≥ ξ̄ c' + A_opt c'^{1/3} - C`. -/
+theorem theoremFTLFW_oneZero_of_YVFor {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ virasoroBV)
+    (hYV : YVInputFor b) :
     ∃ c_2 C : ℝ, virasoroCQEnv ≤ c_2 ∧ 0 ≤ C ∧
       ∀ {c' T : ℝ}, c_2 ≤ c' → ∀ {g : ℝ → ℝ},
         virasoroProblem.IsWeaklyFeasible (c' / 12) T g →
         xiBar * c' + Aopt * c' ^ (1 / 3 : ℝ) - C ≤ T := by
   obtain ⟨C_fb, c_YV, hC_fb, hc_YV, hYVat⟩ := hYV
-  obtain ⟨c_Q1, C_gap, κ_gap, hc_Q1, hC_gap, hκ_gap, hQ1⟩ := lemmaQ_part1
-  let P := virasoroBootstrapParams C_fb hC_fb C_gap κ_gap hC_gap hκ_gap
+  obtain ⟨c_Q1, C_gap, κ_gap, hc_Q1, hC_gap, hκ_gap, hQ1⟩ := lemmaQ_part1At hb_pos hb_le
+  let P := virasoroBootstrapParamsFor b hb_pos C_fb hC_fb C_gap κ_gap hC_gap hκ_gap
   have hQ_typeII := teb_quant_c1_typeII virasoroEnvC0_pos
-    (fun c' => virasoroAC c' ^ 2) virasoroSigma (fun c' => C_gap * Real.exp (-κ_gap * c'))
+    (fun c' => virasoroACAt b c' ^ 2) virasoroSigma (fun c' => C_gap * Real.exp (-κ_gap * c'))
     ((tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 2 / 3)).const_mul_atTop
-      (mul_pos two_pos (pow_pos virasoroBV_pos 2)) |>.congr'
-        (by filter_upwards [eventually_ge_atTop (0 : ℝ)] with c' hc'; rw [virasoroAC_sq c' hc']))
+      (mul_pos two_pos (pow_pos hb_pos 2)) |>.congr'
+        (by filter_upwards [eventually_ge_atTop (0 : ℝ)] with c' hc'; rw [virasoroACAt_sq b c' hc']))
     (by filter_upwards [eventually_ge_atTop (1 : ℝ)] with c' hc'; exact virasoroSigma_nonneg hc')
     virasoroSigma_tendsto_zero
     (Eventually.of_forall fun c' => mul_nonneg hC_gap.le (Real.exp_pos _).le)
@@ -950,10 +1059,10 @@ theorem theoremFTLFW_oneZero_of_YV (hYV : YVInput) :
   obtain ⟨c_1, hc_1, hQuant⟩ := hQ_typeII
   have h_asymp : ∀ᶠ c' : ℝ in atTop,
       (3 * π) ^ (12 : ℕ) ≤ c' ∧
-      48 ≤ virasoroBV ^ 2 * c' ^ (2 / 3 : ℝ) ∧
+      48 ≤ b ^ 2 * c' ^ (2 / 3 : ℝ) ∧
       virasoroSigma c' ≤ 1 / 2 ∧
-      virasoroSigma c' * (3 * π * √2 * virasoroBV * c' ^ (1 / 4 : ℝ) + 1) ≤ 1 :=
-    virasoroSigma_arc_eventually
+      virasoroSigma c' * (3 * π * √2 * b * c' ^ (1 / 4 : ℝ) + 1) ≤ 1 :=
+    virasoroSigma_arc_eventuallyFor hb_pos
   rw [eventually_atTop] at h_asymp
   obtain ⟨c_asymp, hc_asymp⟩ := h_asymp
   let c_2 : ℝ := max virasoroCQEnv (max c_YV (max c_Q1 (max c_1 (max (tebC2 P) c_asymp))))
@@ -993,8 +1102,11 @@ theorem theoremFTLFW_oneZero_of_YV (hYV : YVInput) :
     rw [Real.rpow_neg hc'_pos.le]
     exact inv_le_one_of_one_le₀ (Real.one_le_rpow hc'_ge1 (by norm_num))
   obtain ⟨ha1_lo, ha1_hi⟩ := airyZero_one
-  have hA2_48 : 48 ≤ virasoroAC c' ^ 2 := by
-    rw [virasoroAC_sq c' hc'_pos.le]; linarith
+  have hA2_le : virasoroACAt b c' ^ 2 ≤ virasoroAC c' ^ 2 :=
+    virasoroACAt_sq_le hb_pos.le hb_le hc'_pos.le
+  have hA2_b48 : 48 ≤ virasoroACAt b c' ^ 2 := by
+    rw [virasoroACAt_sq b c' hc'_pos.le]; linarith
+  have hA2_48 : 48 ≤ virasoroAC c' ^ 2 := hA2_b48.trans hA2_le
   have hAopt_eq : Aopt = -cStar * airyZero 1 := by
     unfold Aopt
     rw [abs_of_neg (by linarith)]
@@ -1019,42 +1131,47 @@ theorem theoremFTLFW_oneZero_of_YV (hYV : YVInput) :
     linarith [hT_ge, hinv, hmul_a1, herr_bd]
   · -- Case 2: `T < Δ(a₁)` (Steps 1–5)
     obtain ⟨hM_pos, hdl_bd, hdl_half, hT_A2⟩ := hQ1 hc'_Q1 hg
-    have huT_Ioo : virasoroUT c' T ∈ Ioo (-(virasoroAC c' ^ 2)) (virasoroAC c' ^ 2) :=
-      (lemmaQ_part3 hc'_Qenv hg).2.2.1
+    have hQ3_b := lemmaQ_part3At hb_pos hb_le hc'_Qenv hg
+    have huT_Ioo : virasoroUT c' T ∈ Ioo (-(virasoroACAt b c' ^ 2)) (virasoroACAt b c' ^ 2) :=
+      hQ3_b.2.2.1
         (hT_lt.trans ((virasoroDeltaChart_strictAnti hc'_pos)
-          ⟨le_rfl, by linarith [sq_nonneg (virasoroAC c' ^ 2)]⟩
+          ⟨by linarith [hA2_le], by linarith [sq_nonneg (virasoroACAt b c'), hA2_le]⟩
           ⟨by linarith, by linarith⟩ (by linarith)))
         hT_A2
     have hu_mem := virasoroUT_between hc'_pos
-      (a := -(virasoroAC c' ^ 2)) (b := virasoroAC c' ^ 2)
-      le_rfl le_rfl (by linarith [sq_nonneg (virasoroAC c')])
+      (a := -(virasoroACAt b c' ^ 2)) (b := virasoroACAt b c' ^ 2)
+      (by linarith [hA2_le]) hA2_le (by linarith [sq_nonneg (virasoroACAt b c')])
       hT_A2.le
       (hT_lt.le.trans ((virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
-        ⟨by linarith [sq_nonneg (virasoroAC c' ^ 2)], by linarith⟩
+        ⟨by linarith [hA2_le], by linarith [sq_nonneg (virasoroACAt b c'), hA2_le]⟩
         ⟨by linarith, by linarith⟩ (by linarith)))
     set u_T := virasoroUT c' T
     have ha1_lt_uT : airyZero 1 < u_T := by
       by_contra hle
       have := (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
-        ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩ ⟨by linarith, by linarith⟩ (not_lt.mp hle)
+        ⟨by linarith [huT_Ioo.1, hA2_le], huT_Ioo.2.le.trans hA2_le⟩
+        ⟨by linarith, by linarith⟩ (not_lt.mp hle)
       linarith [hu_mem.2]
     have hQ2 := lemmaQ_part2 hc'_Qenv hg.1 hM_pos
-    have hQ3 := lemmaQ_part3 hc'_Qenv hg
     have hB2 : QuantC1B2Holds (virasoroPsiTilde c' g) u_T := by
       refine hQuant c' hc'_1 (virasoroPsiTilde c' g) u_T ?_ ?_ ?_ ha1_lt_uT huT_Ioo.2.le ?_
-        hQ3.2.1 ?_ ?_
-      · exact hQ2.1.mono fun z hz => virasoro_closedBall_subset_psiDom hc'_pos hz
-      · intro x hx; exact (hQ2.2.1 x (abs_le.mpr hx)).1
-      · exact hQ2.2.2
+        hQ3_b.2.1 ?_ ?_
+      · exact hQ2.1.mono fun z hz => virasoro_closedBall_subset_psiDom hc'_pos
+          (Metric.closedBall_subset_closedBall hA2_le hz)
+      · intro x hx
+        exact (hQ2.2.1 x ((abs_le.mpr hx).trans hA2_le)).1
+      · intro u hu hcut
+        exact hQ2.2.2 u (Metric.closedBall_subset_closedBall hA2_le hu) hcut
       · intro x hx
         have hT_le : T ≤ virasoroDeltaChart c' x := by
           rw [← hu_mem.2]
           exact (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
-            ⟨hx.1, hx.2.trans huT_Ioo.2.le⟩ ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩ hx.2
-        exact hQ3.1 x (abs_le.mpr ⟨hx.1, hx.2.trans huT_Ioo.2.le⟩) hT_le
-      · have h_half := hQ3.2.2.2.1
+            ⟨by linarith [hx.1, hA2_le], (hx.2.trans huT_Ioo.2.le).trans hA2_le⟩
+            ⟨by linarith [huT_Ioo.1, hA2_le], huT_Ioo.2.le.trans hA2_le⟩ hx.2
+        exact hQ3_b.1 x (abs_le.mpr ⟨hx.1, hx.2.trans huT_Ioo.2.le⟩) hT_le
+      · have h_half := hQ3_b.2.2.2.1
           (hT_lt.trans ((virasoroDeltaChart_strictAnti hc'_pos)
-            ⟨le_rfl, by linarith [sq_nonneg (virasoroAC c' ^ 2)]⟩
+            ⟨by linarith [hA2_le], by linarith [sq_nonneg (virasoroACAt b c'), hA2_le]⟩
             ⟨by linarith, by linarith⟩ (by linarith)))
           hT_A2.le
         linarith [h_half.2.2, hdl_bd]
@@ -1062,11 +1179,11 @@ theorem theoremFTLFW_oneZero_of_YV (hYV : YVInput) :
         have hT_le_R' : T ≤ virasoroDeltaChart c' (-R') := by
           rw [← hu_mem.2]
           exact (virasoroDeltaChart_strictAnti hc'_pos).antitoneOn
-            ⟨by linarith [hR'_mem.2], by linarith [hR'_mem.1, hR'_mem.2]⟩
-            ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩ hR'_uT
-        exact (hQ3.2.2.2.2 R' hR'_mem.1 hR'_mem.2 hT_le_R').2.trans hdl_bd
-    obtain ⟨I, hB3, hIc, hIx⟩ := virasoro_bootstrapHB_of_YV hC_fb hc_YV hYVat hC_gap hκ_gap
-      hc'_Qenv hc'_YV h_c12 h_b48 hς_half hς_arc hg hdl_bd hdl_half hT_A2 hT_lt hB2
+            ⟨by linarith [hR'_mem.2, hA2_le], by linarith [hR'_mem.1, hR'_mem.2, hA2_le]⟩
+            ⟨by linarith [huT_Ioo.1, hA2_le], huT_Ioo.2.le.trans hA2_le⟩ hR'_uT
+        exact (hQ3_b.2.2.2.2 R' hR'_mem.1 hR'_mem.2 hT_le_R').2.trans hdl_bd
+    obtain ⟨I, hB3, hIc, hIx⟩ := virasoro_bootstrapHB_of_YVFor hb_pos hb_le hC_fb hc_YV hYVat
+      hC_gap hκ_gap hc'_Qenv hc'_YV h_c12 h_b48 hς_half hς_arc hg hdl_bd hdl_half hT_A2 hT_lt hB2
     have hboot := (teb_bootstrap_hb P I (by rw [hIc]; exact hc'_teb)).2 hB3
     have hK_le : c' ^ (1 / 3 : ℝ) * (u_T - airyZero 1) ≤ K₀ := by
       simpa only [hIc, hIx] using hboot.2
@@ -1088,7 +1205,8 @@ theorem theoremFTLFW_oneZero_of_YV (hYV : YVInput) :
       · have : 0 ≤ |airyZero 1| + airyZero 1 := by
           rw [abs_of_neg (by linarith)]; ring_nf; linarith
         linarith
-    have hinv := virasoro_deltaChart_inversion hc'_pos (abs_le.mpr ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩)
+    have hinv := virasoro_deltaChart_inversion hc'_pos
+      ((abs_le.mpr ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩).trans hA2_le)
     rw [hu_mem.2] at hinv
     have herr_bd : chartParams.C_xi * c' ^ (-(1 / 3 : ℝ)) * u_T ^ 2 ≤
         chartParams.C_xi * (|airyZero 1| + K₀) ^ 2 := by
@@ -1105,6 +1223,25 @@ theorem theoremFTLFW_oneZero_of_YV (hYV : YVInput) :
     have hK_cstar : cStar * (c' ^ (1 / 3 : ℝ) * (u_T - airyZero 1)) ≤ cStar * K₀ :=
       mul_le_mul_of_nonneg_left hK_le cStar_pos.le
     linarith [hinv, herr_bd, h_split_u, hK_cstar]
+
+/-- **Theorem `FT-L.FW` at `(P, Q) = (1, 0)`** (`CFT/modular_bootstrap/paper/lower_o1_two_edge.tex`,
+`wone:ftlfw`) from `YVInput`: Steps 0–5 give `c₂ ≥ virasoroCQEnv` and `C ≥ 0` such that every
+weakly feasible Virasoro test `g` at `(c'/12, T)` with `c' ≥ c₂` obeys
+`T ≥ ξ̄ c' + A_opt c'^{1/3} - C`. -/
+theorem theoremFTLFW_oneZero_of_YV (hYV : YVInput) :
+    ∃ c_2 C : ℝ, virasoroCQEnv ≤ c_2 ∧ 0 ≤ C ∧
+      ∀ {c' T : ℝ}, c_2 ≤ c' → ∀ {g : ℝ → ℝ},
+        virasoroProblem.IsWeaklyFeasible (c' / 12) T g →
+        xiBar * c' + Aopt * c' ^ (1 / 3 : ℝ) - C ≤ T :=
+  theoremFTLFW_oneZero_of_YVFor virasoroBV_pos le_rfl hYV
+
+/-- info: 'FormalResearch.ModularBootstrap.ConcreteBootstrap.virasoro_bootstrapHB_of_YVFor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms virasoro_bootstrapHB_of_YVFor
+
+/-- info: 'FormalResearch.ModularBootstrap.ConcreteBootstrap.theoremFTLFW_oneZero_of_YVFor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms theoremFTLFW_oneZero_of_YVFor
 
 /-- info: 'FormalResearch.ModularBootstrap.ConcreteBootstrap.virasoro_bootstrapHB_of_YV' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
