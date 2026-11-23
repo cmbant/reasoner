@@ -91,7 +91,7 @@ private lemma norm_one_sub_I_mul_half_ge {τ : ℝ} {ω : ℂ} (hdist : ‖ω - 
   have h1_ge : 1 ≤ ‖1 - Complex.I * (τ : ℂ)‖ := hτ_norm ▸ Real.one_le_sqrt.mpr (by linarith [sq_nonneg τ])
   linarith
 
-private lemma norm_iteratedDeriv_mul_le {f g : ℝ → ℂ} {N j : ℕ} {τ A B : ℝ} (hA : 0 ≤ A) (hB : 0 ≤ B) (hj : j ≤ N)
+lemma norm_iteratedDeriv_mul_le {f g : ℝ → ℂ} {N j : ℕ} {τ A B : ℝ} (hA : 0 ≤ A) (hB : 0 ≤ B) (hj : j ≤ N)
     (hf_cd : ContDiff ℝ N f) (hg_cd : ContDiff ℝ N g) (hf : ∀ i ≤ j, ‖iteratedDeriv i f τ‖ ≤ A) (hg : ∀ i ≤ j, ‖iteratedDeriv i g τ‖ ≤ B) :
     ‖iteratedDeriv j (fun t => f t * g t) τ‖ ≤ (2 : ℝ) ^ N * A * B := by
   rw [iteratedDeriv_fun_mul (hf_cd.contDiffAt.of_le (by exact_mod_cast hj)) (hg_cd.contDiffAt.of_le (by exact_mod_cast hj))]
@@ -170,7 +170,7 @@ private lemma iteratedDeriv_bsplineE1_imag {β : ℝ} (l : ℕ) (v : ℝ) :
     have hd := (hdiff.hasDerivAt.comp v haff).const_mul ((Complex.I * (β : ℂ)) ^ k)
     dsimp only [Function.comp_def] at hd; rw [hd.deriv, pow_succ]; ring
 
-private lemma bsplineE1_imag_pow_deriv_bound :
+lemma bsplineE1_imag_pow_deriv_bound :
     ∀ (m k : ℕ), ∃ C > 0, ∀ {β : ℝ}, 0 < β → ∀ v : ℝ,
       ‖iteratedDeriv k (fun u : ℝ => bsplineE1 (Complex.I * (β : ℂ) * (u : ℂ)) ^ m) v‖ ≤ C * β ^ k * (1 + β * |v|) ^ (-(m : ℝ)) := by
   intro m; induction m with
@@ -316,7 +316,7 @@ private lemma edgePhi_contDiff (L : ℝ) : ContDiff ℝ 3 (edgePhi L) := by
   rw [show edgePhi L = fun τ => L * τ - Real.pi ^ 2 / 36 * τ ^ 3 + edgeR τ from funext (edgePhi_eq_cubic_add_ceHth L)]
   exact (((contDiff_const.mul contDiff_id).sub (contDiff_const.mul (contDiff_id.pow 3))).add edgeR_contDiff)
 
-private lemma hasDerivAt_edgePhiDeriv (L τ : ℝ) : HasDerivAt (edgePhiDeriv L) (edgePhiDeriv2 τ) τ := by
+lemma hasDerivAt_edgePhiDeriv (L τ : ℝ) : HasDerivAt (edgePhiDeriv L) (edgePhiDeriv2 τ) τ := by
   have hcd : ContDiff ℝ 2 (edgePhiDeriv L) := by
     rw [show edgePhiDeriv L = deriv (edgePhi L) from funext fun t => (hasDerivAt_edgePhi L t).deriv.symm]; exact (edgePhi_contDiff L).deriv'
   have hdiff : DifferentiableAt ℝ (edgePhiDeriv L) τ := (hcd.differentiable (by decide)).differentiableAt
@@ -680,7 +680,7 @@ private lemma tau0_lt_bound {L : ℝ} (hL : 0 < L) (hL8 : L ≤ 8) : tau0 L < 50
       (mem_Ioi.mpr (div_pos (mul_pos Real.pi_pos (tau0_pos hL)) two_pos)) hge)
   nlinarith [Real.pi_gt_three]
 
-private lemma dual_phase_integrable {a : ℝ → ℂ} {A c L : ℝ} (ha_cd : ContDiff ℝ 2 a) (hA : 0 ≤ A)
+lemma dual_phase_integrable {a : ℝ → ℂ} {A c L : ℝ} (ha_cd : ContDiff ℝ 2 a) (hA : 0 ≤ A)
     (ha_bd : ∀ r ≤ 2, ∀ τ : ℝ, ‖iteratedDeriv r a τ‖ ≤ A * (1 + τ ^ 2) ^ (-(3 / 2 : ℝ))) :
     Continuous (fun τ : ℝ => a τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))) ∧
       Integrable (fun τ : ℝ => a τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))) := by
@@ -916,7 +916,7 @@ noncomputable def dualEdgeIntegral (c L : ℝ) (W : ℝ → ℂ) : ℂ :=
     ∫ τ : ℝ, ((1 - Complex.I * (τ : ℂ)) ^ (-(1 / 2 : ℂ)) * Complex.exp (binetDiff c (Complex.I * (τ : ℂ))) * W τ) *
       Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))
 
-private lemma cpow_mul_binet_deriv_bound {μ c : ℝ} (hμ : 0 < μ) (hc : 2 ≤ c) :
+lemma cpow_mul_binet_deriv_bound {μ c : ℝ} (hμ : 0 < μ) (hc : 2 ≤ c) :
     ContDiff ℝ (⊤ : ℕ∞) (fun τ : ℝ => (1 - Complex.I * (τ : ℂ)) ^ (-(μ : ℂ)) * Complex.exp (binetDiff c (Complex.I * (τ : ℂ)))) ∧
       ∀ r ≤ 2, ∀ τ : ℝ, ‖iteratedDeriv r (fun t : ℝ => (1 - Complex.I * (t : ℂ)) ^ (-(μ : ℂ)) * Complex.exp (binetDiff c (Complex.I * (t : ℂ)))) τ‖ ≤
         (8 * (2 ^ μ * Real.exp 1)) * (1 + τ ^ 2) ^ (-(μ / 2)) := by
@@ -1029,7 +1029,7 @@ private lemma S_ge_one_implies_cL {c L : ℝ} (hc : 0 < c) (_hL : 0 < L) (hS : 1
   exact (one_le_pow₀ (by linarith [Real.pi_gt_three] : (1 : ℝ) ≤ Real.pi)).trans
     ((by field_simp [hc.ne'] : Real.pi ^ 3 = c * (Real.pi ^ 3 * c⁻¹)).trans_le (mul_le_mul_of_nonneg_left hpow hc.le))
 
-private lemma min_rpow_antitone {L L' : ℝ} (hL : 0 < L) (hLL' : L ≤ L') :
+lemma min_rpow_antitone {L L' : ℝ} (hL : 0 < L) (hLL' : L ≤ L') :
     min (L' ^ (-(1 / 4 : ℝ))) (L' ^ (-(3 / 2 : ℝ))) ≤ min (L ^ (-(1 / 4 : ℝ))) (L ^ (-(3 / 2 : ℝ))) :=
   le_min ((min_le_left _ _).trans (Real.rpow_le_rpow_of_nonpos hL hLL' (by norm_num))) ((min_le_right _ _).trans (Real.rpow_le_rpow_of_nonpos hL hLL' (by norm_num)))
 

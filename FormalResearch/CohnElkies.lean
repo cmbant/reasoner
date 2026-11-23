@@ -45,9 +45,16 @@ public import FormalResearch.CohnElkies.MellinLiftIntegrals
 public import FormalResearch.CohnElkies.AiryWindowInversion
 public import FormalResearch.CohnElkies.FresnelBranch
 public import FormalResearch.CohnElkies.PieceCDecomposition
+public import FormalResearch.CohnElkies.PieceCPhase
+public import FormalResearch.CohnElkies.PieceCRegularity
+public import FormalResearch.CohnElkies.PieceCUniform
+public import FormalResearch.CohnElkies.PieceCSmooth
+public import FormalResearch.CohnElkies.MainOuterBound
 public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
 public import FormalResearch.CohnElkies.TwoIBPPhase
+public import FormalResearch.CohnElkies.GaussKernelHeat
+public import FormalResearch.CohnElkies.ParametricIterated
 
 /-!
 # Cohn–Elkies / CFT Paper I elementary and toolkit lemmas (umbrella)
@@ -160,6 +167,11 @@ and the Airy library:
   -√π φ(0) A^{-3/2} + O(A^{-2})` for `C²` amplitudes (`fresnel_branch`), by improper integration by parts and the Gaussian integral.
 * `FormalResearch.CohnElkies.PieceCDecomposition`: exact decomposition `K₀ W = g e^{iψ} G_sm − γ₀ H_c (iv)^{1/2} χ₁ e^{iAv}` and the
   conditional assembly `pieceC_main_term` of `I_C = γ₀ A^{-3/2}/(2√π ξ) + O(ξ⁻¹A⁻²)` (smooth part and `C²` regularity of `χ₁H_c` as named hypotheses).
+* `FormalResearch.CohnElkies.PieceCPhase`: the phase bounds `(u1c:psibd)` for `ψ = c Φ_Ph(εv; L)` (`pcPhase_psibd`: `ψ' ≥ A/2` on `|εv| ≤ τ_*`, `|ψ''| ≤ min(π²|v|/6, c^{2/3}/|v|)`, `|ψ'''| ≤ π²/3`).
+* `FormalResearch.CohnElkies.PieceCRegularity`: `φ = χ₁ H_c` is `C²` with compact support in `[-1,1]` and has finite bounds `M` (`contDiff_pcH`, `exists_bounds_chi_pcH`; qualitative, `M` depends on `(c, δ₀, m)`).
+* `FormalResearch.CohnElkies.PieceCUniform`: `|H_c| + |H_c'| + |H_c''| ≤ C` on `[-1,1]` and `C²` bounds of `g` on `ℝ`, uniform in `c ≥ 2`, `δ₀ ∈ (0,4]` (`pcAmp_bd2`, `pcH_bd2`, `exists_uniform_bounds_chi_pcH`).
+* `FormalResearch.CohnElkies.PieceCSmooth`: the smooth part of Piece C by `two_ibp_phase` (`smooth_ibp_bound`, `pieceC_hsmooth`) and `pieceC_main_term_smooth`, `pieceC_main_term` with `hsmooth` discharged from the regularity `SmoothSymbol` of `G_sm` (the seed data `U.1`/`(e27)` is the remaining input).
+* `FormalResearch.CohnElkies.MainOuterBound`: the `(1 - χ_ξ)`-part of `I_main` for `O.3(2)`/`(e4)`, by the binomial expansion of `E₁(iκτ)^m` and the core dual-phase bound (`main_outer_phase_bound`, `iMain_outer_bound`); the amplitude bounds `(e27)` are hypotheses.
 * `FormalResearch.CohnElkies.PreEdgeCriterion`: unconditional concrete `GT.2b(1)–(3)` & `O.11y(3)`/`GT.4` tip offset
   for `twoScaleS`, unconditional `PE.3` reference & measure Mellin inversion (`pe3_reference_mellin_inversion`,
   `pe3_measure_inversion`), `pe3_remainder_integral_bound` (`O(c^{-2/3})`), `pe3_compact_origin_pos`, and
@@ -168,6 +180,9 @@ and the Airy library:
   `airyMorseY`), Lemma `GT.1s` (`gt1s_scalar_airy_symbol_transfer`), and Lemma `GT.1` (`gt1_high_freq` and
   `gt1_low_freq`, with `airyTailSymbolSeed_nonvacuous`).
 * `FormalResearch.CohnElkies.TwoIBPPhase`: two integrations by parts against a variable phase, Piece C smooth part (`two_ibp_phase`): `|∫ a e^{iψ}|` bounded by `|a''|/ψ'²`, `|a'||ψ''|/ψ'³`, `|a||ψ'''|/ψ'³`, `|a|ψ''²/ψ'⁴`, with no boundary terms; a standard estimate, proved unconditionally.
+* `FormalResearch.CohnElkies.GaussKernelHeat`: `y`-derivatives of the Gaussian kernel `gaussKern y u = exp(-u²/(4y))`: the heat equation
+  `∂_y K = ∂_u² K + K/(2y)` (`deriv_y_gaussKern_eq`), `∂_y` commuting with `∂_u^n` up to `1/(2y)` (`hasDerivAt_iteratedDeriv_gaussKern_y`), and uniform bounds of the first and second `y`-derivatives on `{Re y > 0, |y| ≥ 1}` (`norm_deriv_y_iteratedDeriv_gaussKern_le`).
+* `FormalResearch.CohnElkies.ParametricIterated`: thin wrappers of Mathlib's `hasDerivAt_integral_of_dominated_loc_of_deriv_le` for a complex parameter over `(0,∞)` (`hasDerivAt_integral_Ioi`) and the iterated integral over `(0,∞)²` (`hasDerivAt_iterated_integral_Ioi`, with an extra integrability-near-`y₀` hypothesis).
 
 This umbrella is deliberately not imported by `FormalResearch.lean`.
 -/

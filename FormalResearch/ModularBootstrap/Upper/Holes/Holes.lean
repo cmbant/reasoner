@@ -1024,15 +1024,17 @@ theorem lambdaHole_summable_and_le {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 
       · exact pairModQ_pos_of_ne hc' hη₀0 hη₀1 hgap (by omega) hx hkn
     exact (refComb_norm_log_eq_tsum hc' hx0 hf hη₀0 hη₀1 hgap hf_ne hq_all).2
 
-private lemma DK_split_identity {c' η₀ x : ℝ} (hc' : 0 < c') {f n j K : ℕ}
+private lemma DK_split_identity {c' x : ℝ} (hc' : 0 < c') (w : ℕ → ℝ) {f n j K : ℕ}
     (hf : 1 ≤ f) (hj : 1 ≤ j) (hfnj : f + j ≤ n) (hK : n + j ≤ K) (hx : inCell c' n x) :
-    phiVar c' x f + (∑ k ∈ Finset.Icc (f + 1) K, Real.log (pairModQ c' η₀ x k)) -
+    phiVar c' x f + (∑ k ∈ Finset.Icc (f + 1) K, w k) -
         2 * ∫ a in (f : ℝ)..((K : ℝ) + 1 / 2), phiVar c' x a =
-      jEndComb c' x f + holeH c' η₀ n j x +
+      jEndComb c' x f +
+        ((∑ k ∈ Finset.Icc (n - j + 1) (n + j), w k) -
+          2 * ∫ a in ((n : ℝ) - (j : ℝ) + 1 / 2)..((n : ℝ) + (j : ℝ) + 1 / 2), phiVar c' x a) +
         (∑ k ∈ Finset.Icc (f + 1) (n - j),
-          (Real.log (pairModQ c' η₀ x k) - 2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a)) +
+          (w k - 2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a)) +
         ∑ k ∈ Finset.Icc (n + j + 1) K,
-          (Real.log (pairModQ c' η₀ x k) - 2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a) := by
+          (w k - 2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a) := by
   have hn1 : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast (by omega : 1 ≤ n)
   have hx0 : 0 ≤ x := (xiStar_pos.le.trans (chiQuantile_spec hc' (by linarith)).1).trans hx.1
   obtain ⟨_, hint_14, _, _, _⟩ := riesz_real_identities hc' hx0 f hf
@@ -1041,10 +1043,10 @@ private lemma DK_split_identity {c' η₀ x : ℝ} (hc' : 0 < c') {f n j K : ℕ
     exact (intervalIntegrable_iff_integrableOn_Ioc_of_le hab).mpr
       (hint_14.mono_set (Ioc_subset_Ioi_self.trans (Ioi_subset_Ioi ha.le)))
   have h_sum_split :
-      (∑ k ∈ Finset.Icc (f + 1) K, Real.log (pairModQ c' η₀ x k)) =
-        (∑ k ∈ Finset.Icc (n - j + 1) (n + j), Real.log (pairModQ c' η₀ x k)) +
-          (∑ k ∈ Finset.Icc (f + 1) (n - j), Real.log (pairModQ c' η₀ x k)) +
-          ∑ k ∈ Finset.Icc (n + j + 1) K, Real.log (pairModQ c' η₀ x k) := by
+      (∑ k ∈ Finset.Icc (f + 1) K, w k) =
+        (∑ k ∈ Finset.Icc (n - j + 1) (n + j), w k) +
+          (∑ k ∈ Finset.Icc (f + 1) (n - j), w k) +
+          ∑ k ∈ Finset.Icc (n + j + 1) K, w k := by
     have h1 : Finset.Icc (f + 1) K = Finset.Icc (f + 1) (n + j) ∪ Finset.Icc (n + j + 1) K := by
       ext k; simp only [Finset.mem_Icc, Finset.mem_union]; omega
     have hd1 : Disjoint (Finset.Icc (f + 1) (n + j)) (Finset.Icc (n + j + 1) K) := by
@@ -1121,45 +1123,78 @@ private lemma DK_split_identity {c' η₀ x : ℝ} (hc' : 0 < c') {f n j K : ℕ
     have s2 := intervalIntegral.integral_add_adjacent_intervals (hi1.trans hi2) hi3
     have s3 := intervalIntegral.integral_add_adjacent_intervals ((hi1.trans hi2).trans hi3) hi4
     linarith
-  unfold jEndComb holeH
+  unfold jEndComb
   simp only [Finset.sum_sub_distrib, ← Finset.mul_sum]
   rw [h_sum_split, h_left_int, h_right_int, h_int_split]
   ring
 
-private lemma left_cell_lower_K4 {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4)
-    (hgap : siteGap c' 1 ≤ 1 / 2) {f n j k : ℕ} (hf : 1 ≤ f) (hj : 1 ≤ j)
-    (hx : inCell c' n x) (hk : k ∈ Finset.Icc (f + 1) (n - j)) :
+private lemma DK_split_identity_log {c' η₀ x : ℝ} (hc' : 0 < c') {f n j K : ℕ}
+    (hf : 1 ≤ f) (hj : 1 ≤ j) (hfnj : f + j ≤ n) (hK : n + j ≤ K) (hx : inCell c' n x) :
+    phiVar c' x f + (∑ k ∈ Finset.Icc (f + 1) K, Real.log (pairModQ c' η₀ x k)) -
+        2 * ∫ a in (f : ℝ)..((K : ℝ) + 1 / 2), phiVar c' x a =
+      jEndComb c' x f + holeH c' η₀ n j x +
+        (∑ k ∈ Finset.Icc (f + 1) (n - j),
+          (Real.log (pairModQ c' η₀ x k) -
+            2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a)) +
+        ∑ k ∈ Finset.Icc (n + j + 1) K,
+          (Real.log (pairModQ c' η₀ x k) -
+            2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a) := by
+  rw [DK_split_identity hc' (fun k => Real.log (pairModQ c' η₀ x k)) hf hj hfnj hK hx]
+  unfold holeH
+  ring
+
+/-- `x ≥ 0` in a cell of index `n ≥ 1`. -/
+private lemma inCell_nonneg {c' x : ℝ} (hc' : 0 < c') {n : ℕ} (hn : 1 ≤ n) (hx : inCell c' n x) :
+    0 ≤ x := by
+  have hn1 : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn
+  exact (xiStar_pos.le.trans (chiQuantile_spec hc' (by linarith)).1).trans hx.1
+
+/-- A site `χ_k` with `k ≠ n` is never the point `x` of the cell `[χ_n, χ_{n+1})`. -/
+theorem ne_chiQuantile_of_inCell {c' x : ℝ} (hc' : 0 < c') {n k : ℕ} (hn : 1 ≤ n) (hk : 1 ≤ k)
+    (hx : inCell c' n x) (hne : k ≠ n) : x ≠ chiQuantile c' k := by
+  have hk1 : (1 : ℝ) ≤ (k : ℝ) := by exact_mod_cast hk
+  have hn1 : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn
+  rcases lt_or_gt_of_ne hne with hlt | hgt
+  · have hk_lt : (k : ℝ) < (n : ℝ) := by exact_mod_cast hlt
+    have hχ_lt := chiQuantile_strictMonoOn hc' (Set.mem_Ici.mpr (by linarith))
+      (Set.mem_Ici.mpr (by linarith)) hk_lt
+    exact (hχ_lt.trans_le hx.1).ne'
+  · have hn1' : ((n + 1 : ℕ) : ℝ) ≤ (k : ℝ) := by exact_mod_cast hgt
+    have hχ_le := (chiQuantile_strictMonoOn hc').monotoneOn
+      (Set.mem_Ici.mpr (by push_cast; linarith))
+      (Set.mem_Ici.mpr (by linarith)) hn1'
+    exact (hx.2.trans_le hχ_le).ne
+
+/-- Outside the point of the cell, every pair satisfies `q_k ≥ T_{χ_k}(x)²`, i.e.
+`2 φ(k) ≤ log q_k` for `k ≠ n` (this is the only way the sites outside a hole enter the
+lower bound of `cmb:K4`). -/
+theorem two_phiVar_le_log_pairModQ {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 0 ≤ η₀)
+    (hη₀1 : η₀ ≤ 1 / 4) (hgap : siteGap c' 1 ≤ 1 / 2) {n k : ℕ} (hn : 1 ≤ n) (hk : 1 ≤ k)
+    (hx : inCell c' n x) (hne : k ≠ n) :
+    2 * phiVar c' x k ≤ Real.log (pairModQ c' η₀ x k) := by
+  rw [log_pairModQ_eq_phiVar_add_delta hc' hη₀0 hη₀1 hgap hk hx hne]
+  have hk1 : (1 : ℝ) ≤ (k : ℝ) := by exact_mod_cast hk
+  have hχk_nn : 0 ≤ chiQuantile c' k := xiStar_pos.le.trans (chiQuantile_spec hc' (by linarith)).1
+  have hgk_nn : 0 ≤ siteGap c' k := by
+    unfold siteGap
+    exact sub_nonneg.mpr ((chiQuantile_strictMonoOn hc').monotoneOn
+      (Set.mem_Ici.mpr (by linarith)) (Set.mem_Ici.mpr (by linarith)) (by linarith))
+  have hgk_le : siteGap c' k ≤ siteGap c' 1 := by
+    have hanti := (siteGap_strictAnti hc').antitone (show 0 ≤ k - 1 by omega)
+    have heq : (k - 1) + 1 = k := by omega
+    simpa [heq] using hanti
+  have hd_nn := (deltaDetune_bounds_universal hχk_nn (inCell_nonneg hc' hn hx)
+    (ne_chiQuantile_of_inCell hc' hn hk hx hne) (mul_nonneg hη₀0 hgk_nn) (by nlinarith)).1
+  linarith
+
+private lemma left_cell_phiVar_lower_K4 {c' x : ℝ} (hc' : 0 < c') {f n j k : ℕ} (hf : 1 ≤ f)
+    (hj : 1 ≤ j) (hx : inCell c' n x) (hk : k ∈ Finset.Icc (f + 1) (n - j)) :
     -2 * eLeftCell c' x k ≤
-      Real.log (pairModQ c' η₀ x k) -
-        2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a := by
+      2 * phiVar c' x k - 2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a := by
   have hk_mem := Finset.mem_Icc.mp hk
   have hk2 : 2 ≤ k := by omega
   have hk_lt_n : k < n := by omega
   have hne_idx : k ≠ n := hk_lt_n.ne
-  have h_log_ge : 2 * phiVar c' x k ≤ Real.log (pairModQ c' η₀ x k) := by
-    rw [log_pairModQ_eq_phiVar_add_delta hc' hη₀0 hη₀1 hgap (by omega) hx hne_idx]
-    have hk1 : (1 : ℝ) ≤ (k : ℝ) := by exact_mod_cast (by omega : 1 ≤ k)
-    have hχk_nn : 0 ≤ chiQuantile c' k := xiStar_pos.le.trans (chiQuantile_spec hc' (by linarith)).1
-    have hn1 : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast (by omega : 1 ≤ n)
-    have hx0 : 0 ≤ x := by
-      have hkn : (k : ℝ) < (n : ℝ) := by exact_mod_cast hk_lt_n
-      exact hχk_nn.trans ((chiQuantile_strictMonoOn hc' (Set.mem_Ici.mpr (by linarith))
-        (Set.mem_Ici.mpr (by linarith)) hkn).le.trans hx.1)
-    have hne_val : x ≠ chiQuantile c' k := by
-      have hk_lt : (k : ℝ) < (n : ℝ) := by exact_mod_cast hk_lt_n
-      exact ((chiQuantile_strictMonoOn hc' (Set.mem_Ici.mpr (by linarith))
-        (Set.mem_Ici.mpr (by linarith)) hk_lt).trans_le hx.1).ne'
-    have hgk_nn : 0 ≤ siteGap c' k := by
-      unfold siteGap
-      exact sub_nonneg.mpr ((chiQuantile_strictMonoOn hc').monotoneOn
-        (Set.mem_Ici.mpr (by linarith)) (Set.mem_Ici.mpr (by linarith)) (by linarith))
-    have hgk_le : siteGap c' k ≤ siteGap c' 1 := by
-      have hanti := (siteGap_strictAnti hc').antitone (show 0 ≤ k - 1 by omega)
-      have heq : (k - 1) + 1 = k := by omega
-      simpa [heq] using hanti
-    have hd_nn := (deltaDetune_bounds_universal hχk_nn hx0 hne_val (mul_nonneg hη₀0 hgk_nn)
-      (by nlinarith)).1
-    linarith
   have hk2_r : (2 : ℝ) ≤ (k : ℝ) := by exact_mod_cast hk2
   have ha14 : 1 / 4 < (k : ℝ) - 1 / 2 := by linarith
   have hχk12_lt : chiQuantile c' ((k : ℝ) + 1 / 2) < x := by
@@ -1217,15 +1252,12 @@ private lemma left_cell_lower_K4 {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 0 
   unfold eLeftCell
   linarith
 
-private lemma right_cell_lower_K4 {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4)
-    (hgap : siteGap c' 1 ≤ 1 / 2) {n j k : ℕ} (hj : 1 ≤ j) (hk : n + j + 1 ≤ k)
-    (hx : inCell c' n x) :
-    0 ≤ Real.log (pairModQ c' η₀ x k) -
-      2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a := by
+
+private lemma right_cell_phiVar_lower_K4 {c' x : ℝ} (hc' : 0 < c') {n j k : ℕ} (hj : 1 ≤ j)
+    (hk : n + j + 1 ≤ k) (hx : inCell c' n x) :
+    0 ≤ 2 * phiVar c' x k - 2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a := by
   have hk_ge3 : 2 ≤ k := by omega
   have hk3_r : (2 : ℝ) ≤ (k : ℝ) := by exact_mod_cast hk_ge3
-  have hne_idx : k ≠ n := by omega
-  have hχk_nn : 0 ≤ chiQuantile c' k := xiStar_pos.le.trans (chiQuantile_spec hc' (by linarith)).1
   have hn1 : ((n + 1 : ℕ) : ℝ) ≤ (k : ℝ) - 1 / 2 := by
     have hle_nat : (n + 2 : ℕ) ≤ k := by omega
     have hle_r : ((n + 2 : ℕ) : ℝ) ≤ (k : ℝ) := by exact_mod_cast hle_nat
@@ -1241,22 +1273,6 @@ private lemma right_cell_lower_K4 {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 0
     · unfold inCell at hx; rw [chiQuantile_nat_zero] at hx; exact xiStar_pos.le.trans hx.1
     · have : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn_pos
       exact (xiStar_pos.le.trans (chiQuantile_spec hc' (by linarith)).1).trans hx.1
-  have h_log_ge : 2 * phiVar c' x k ≤ Real.log (pairModQ c' η₀ x k) := by
-    rw [log_pairModQ_eq_phiVar_add_delta hc' hη₀0 hη₀1 hgap (by omega) hx hne_idx]
-    have hgk_nn : 0 ≤ siteGap c' k := by
-      unfold siteGap
-      exact sub_nonneg.mpr ((chiQuantile_strictMonoOn hc').monotoneOn
-        (Set.mem_Ici.mpr (by linarith)) (Set.mem_Ici.mpr (by linarith)) (by linarith))
-    have hgk_le : siteGap c' k ≤ siteGap c' 1 := by
-      have hanti := (siteGap_strictAnti hc').antitone (show 0 ≤ k - 1 by omega)
-      have heq : (k - 1) + 1 = k := by omega
-      simpa [heq] using hanti
-    have hχk_gt : x < chiQuantile c' k := hx_lt_k12.trans
-      (chiQuantile_strictMonoOn hc' (Set.mem_Ici.mpr (by linarith))
-        (Set.mem_Ici.mpr (by linarith)) (by linarith))
-    have hd_nn := (deltaDetune_bounds_universal hχk_nn hx0 hχk_gt.ne (mul_nonneg hη₀0 hgk_nn)
-      (by nlinarith)).1
-    linarith
   have ha14 : 1 / 4 < (k : ℝ) - 1 / 2 := by linarith
   have hχ_gt_Icc : ∀ a ∈ Icc ((k : ℝ) - 1 / 2) ((k : ℝ) + 1 / 2), x < chiQuantile c' a := fun a ha => by
     rcases eq_or_lt_of_le ha.1 with rfl | hgt
@@ -1276,9 +1292,75 @@ private lemma right_cell_lower_K4 {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 0
     hM_bd
   linarith
 
+
+/-- The summand of the Λ-form: `log q_k` on the hole `[n-j+1, n+j]` and `2 φ(k) = 2 f_x(χ_k)`
+elsewhere. The functional `Λ_{n,j}^{(f)}(x) = φ(f) + Σ_{k > f} λ_k` of `cmb:K4`. -/
+noncomputable def lambdaTerm (c' η₀ x : ℝ) (n j k : ℕ) : ℝ :=
+  if k ∈ Finset.Icc (n - j + 1) (n + j) then Real.log (pairModQ c' η₀ x k)
+  else 2 * phiVar c' x k
+
+/-- **Λ-form of the lower bound of `cmb:K4`** (partial sums): the hole pairs enter exactly, every
+other pair only through `2 f_x(χ_k)`:
+`𝓗_{n,j} + J_end - 2 𝓔_left ≤ φ(f) + Σ_{k=f+1}^K λ_k - 2∫_f^{K+1/2} φ` for every `K ≥ n + j`.
+The pair data inside the hole is arbitrary here (it enters only through `holeH`). -/
+theorem lambdaForm_partial_lower {c' η₀ x : ℝ} (hc' : 0 < c') {f n j K : ℕ} (hf : 1 ≤ f)
+    (hj : 1 ≤ j) (hfnj : f + j ≤ n) (hK : n + j ≤ K) (hx : inCell c' n x) :
+    holeH c' η₀ n j x + jEndComb c' x f - 2 * eLeftComb c' f n j x ≤
+      phiVar c' x f + (∑ k ∈ Finset.Icc (f + 1) K, lambdaTerm c' η₀ x n j k) -
+        2 * ∫ a in (f : ℝ)..((K : ℝ) + 1 / 2), phiVar c' x a := by
+  rw [DK_split_identity hc' (lambdaTerm c' η₀ x n j) hf hj hfnj hK hx]
+  have hH : (∑ k ∈ Finset.Icc (n - j + 1) (n + j), lambdaTerm c' η₀ x n j k) -
+      2 * ∫ a in ((n : ℝ) - (j : ℝ) + 1 / 2)..((n : ℝ) + (j : ℝ) + 1 / 2), phiVar c' x a =
+      holeH c' η₀ n j x := by
+    unfold holeH
+    congr 1
+    refine Finset.sum_congr rfl fun k hk => ?_
+    simp [lambdaTerm, hk]
+  have hL : -2 * eLeftComb c' f n j x ≤ ∑ k ∈ Finset.Icc (f + 1) (n - j),
+      (lambdaTerm c' η₀ x n j k - 2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a) := by
+    unfold eLeftComb
+    rw [Finset.mul_sum]
+    refine Finset.sum_le_sum fun k hk => ?_
+    have hk' := Finset.mem_Icc.mp hk
+    have hnot : k ∉ Finset.Icc (n - j + 1) (n + j) := by
+      simp only [Finset.mem_Icc]; omega
+    have h1 : lambdaTerm c' η₀ x n j k = 2 * phiVar c' x k := by
+      simp [lambdaTerm, hnot]
+    rw [h1]
+    exact left_cell_phiVar_lower_K4 hc' hf hj hx hk
+  have hR : 0 ≤ ∑ k ∈ Finset.Icc (n + j + 1) K,
+      (lambdaTerm c' η₀ x n j k - 2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a) := by
+    refine Finset.sum_nonneg fun k hk => ?_
+    have hk' := Finset.mem_Icc.mp hk
+    have hnot : k ∉ Finset.Icc (n - j + 1) (n + j) := by
+      simp only [Finset.mem_Icc]; omega
+    have h1 : lambdaTerm c' η₀ x n j k = 2 * phiVar c' x k := by
+      simp [lambdaTerm, hnot]
+    rw [h1]
+    exact right_cell_phiVar_lower_K4 hc' hj hk'.1 hx
+  linarith
+
+/-- `2∫_f^{K+1/2} φ → -c' L(x) + c' P^{(f)}(x)` for `x ≥ ξ_*`. -/
+theorem tendsto_two_integral_phiVar {c' x : ℝ} (hc' : 0 < c') (hx_xi : xiStar ≤ x) {f : ℕ}
+    (hf : 1 ≤ f) :
+    Tendsto (fun K : ℕ => 2 * ∫ a in (f : ℝ)..((K : ℝ) + 1 / 2), phiVar c' x a)
+      atTop (𝓝 (-c' * slitL x + c' * combPf c' f x)) := by
+  have hx0 : 0 ≤ x := xiStar_pos.le.trans hx_xi
+  obtain ⟨_, hint_14, _, _, hriesz⟩ := riesz_real_identities hc' hx0 f hf
+  have h_riesz_f := (hriesz hx_xi).2
+  have hf1 : (1 : ℝ) ≤ (f : ℝ) := by exact_mod_cast hf
+  have hint_f : IntegrableOn (phiVar c' x) (Ioi (f : ℝ)) volume :=
+    hint_14.mono_set (Ioi_subset_Ioi (by linarith))
+  rw [← h_riesz_f]
+  exact tendsto_const_nhds.mul
+    (intervalIntegral_tendsto_integral_Ioi (f : ℝ) hint_f
+      (tendsto_natCast_atTop_atTop.atTop_add tendsto_const_nhds))
+
 /-- Lower hole comparison (`cmb:K4` lower bound, `comb_estimates.tex`, line 146):
 valid unconditionally for all $\eta_0 \in [0, \frac14]$ and $x \in [\chi_n, \chi_{n+1})$,
-even at $(\eta_0 = 0, x = \chi_n)$, for both `lambdaHole` and `Real.log ‖refComb‖`. -/
+even at $(\eta_0 = 0, x = \chi_n)$, for both `lambdaHole` and `Real.log ‖refComb‖`.
+It is the pair-by-pair consequence `log q_k ≥ 2 φ(k)` (`k ∉ hole`) of the Λ-form
+`lambdaForm_partial_lower`. -/
 theorem hole_lower_K4 {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4)
     (hgap : siteGap c' 1 ≤ 1 / 2) {f n j : ℕ} (hf : 1 ≤ f) (hj : 1 ≤ j) (hfnj : f + j ≤ n)
     (hx : inCell c' n x) :
@@ -1288,23 +1370,23 @@ theorem hole_lower_K4 {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 0 ≤ η₀) 
         Real.log ‖refComb c' f η₀ (x : ℂ)‖ + c' * slitL x - c' * combPf c' f x := by
   have hn1 : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast (by omega : 1 ≤ n)
   have hx_xi : xiStar ≤ x := (chiQuantile_spec hc' (by linarith)).1.trans hx.1
-  have hx0 : 0 ≤ x := xiStar_pos.le.trans hx_xi
   obtain ⟨hsum_q, hlam_le, _⟩ := lambdaHole_summable_and_le hc' hη₀0 hη₀1 hgap hf (by omega) hx
   have h_part : ∀ K ≥ n + j,
       holeH c' η₀ n j x + jEndComb c' x f - 2 * eLeftComb c' f n j x ≤
         phiVar c' x f + (∑ k ∈ Finset.Icc (f + 1) K, Real.log (pairModQ c' η₀ x k)) -
           2 * ∫ a in (f : ℝ)..((K : ℝ) + 1 / 2), phiVar c' x a := by
     intro K hK
-    rw [DK_split_identity hc' hf hj hfnj hK hx]
-    have hL : -2 * eLeftComb c' f n j x ≤ ∑ k ∈ Finset.Icc (f + 1) (n - j),
-        (Real.log (pairModQ c' η₀ x k) - 2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a) := by
-      unfold eLeftComb
-      rw [Finset.mul_sum]
-      exact Finset.sum_le_sum fun k hk => left_cell_lower_K4 hc' hη₀0 hη₀1 hgap hf hj hx hk
-    have hR : 0 ≤ ∑ k ∈ Finset.Icc (n + j + 1) K,
-        (Real.log (pairModQ c' η₀ x k) - 2 * ∫ a in ((k : ℝ) - 1 / 2)..((k : ℝ) + 1 / 2), phiVar c' x a) :=
-      Finset.sum_nonneg fun k hk =>
-        right_cell_lower_K4 hc' hη₀0 hη₀1 hgap hj (Finset.mem_Icc.mp hk).1 hx
+    refine (lambdaForm_partial_lower (η₀ := η₀) hc' hf hj hfnj hK hx).trans ?_
+    have hsum : ∑ k ∈ Finset.Icc (f + 1) K, lambdaTerm c' η₀ x n j k ≤
+        ∑ k ∈ Finset.Icc (f + 1) K, Real.log (pairModQ c' η₀ x k) := by
+      refine Finset.sum_le_sum fun k hk => ?_
+      have hk' := Finset.mem_Icc.mp hk
+      unfold lambdaTerm
+      split_ifs with hH
+      · exact le_rfl
+      · have hkn : k ≠ n := by
+          intro h; apply hH; simp only [Finset.mem_Icc]; omega
+        exact two_phiVar_le_log_pairModQ hc' hη₀0 hη₀1 hgap (by omega) (by omega) hx hkn
     linarith
   have hsum_tend : Tendsto (fun K : ℕ =>
       phiVar c' x f + ∑ k ∈ Finset.Icc (f + 1) K, Real.log (pairModQ c' η₀ x k))
@@ -1327,17 +1409,7 @@ theorem hole_lower_K4 {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 0 ≤ η₀) 
       tendsto_atTop_atTop.mpr fun N => ⟨N + f, fun K hK => Nat.le_sub_of_add_le hK⟩
     exact (hts.comp h_sub_tend).congr'
       (by filter_upwards [eventually_ge_atTop f] with K hK; exact (h_shift K hK).symm)
-  obtain ⟨_, hint_14, _, _, hriesz⟩ := riesz_real_identities hc' hx0 f hf
-  have h_riesz_f := (hriesz hx_xi).2
-  have hf1 : (1 : ℝ) ≤ (f : ℝ) := by exact_mod_cast hf
-  have hint_f : IntegrableOn (phiVar c' x) (Ioi (f : ℝ)) volume :=
-    hint_14.mono_set (Ioi_subset_Ioi (by linarith))
-  have h_int_tend : Tendsto (fun K : ℕ => 2 * ∫ a in (f : ℝ)..((K : ℝ) + 1 / 2), phiVar c' x a)
-      atTop (𝓝 (-c' * slitL x + c' * combPf c' f x)) := by
-    rw [← h_riesz_f]
-    exact tendsto_const_nhds.mul
-      (intervalIntegral_tendsto_integral_Ioi (f : ℝ) hint_f
-        (tendsto_natCast_atTop_atTop.atTop_add tendsto_const_nhds))
+  have h_int_tend := tendsto_two_integral_phiVar hc' hx_xi hf
   have h_DK_tend : Tendsto (fun K : ℕ =>
       phiVar c' x f + (∑ k ∈ Finset.Icc (f + 1) K, Real.log (pairModQ c' η₀ x k)) -
         2 * ∫ a in (f : ℝ)..((K : ℝ) + 1 / 2), phiVar c' x a)
@@ -2194,7 +2266,7 @@ theorem hole_upper_K4_log :
           2 * ∫ a in (f : ℝ)..((K : ℝ) + 1 / 2), phiVar c' x a ≤
         jEndComb c' x f + holeH c' η₀ n j x + C_U := by
     intro K hK
-    rw [DK_split_identity hc' hf hj hfnj hK hx_cell]
+    rw [DK_split_identity_log hc' hf hj hfnj hK hx_cell]
     have hR := right_sum_upper_K4 hc' hη₀0 hη₀1 hgap hC_δ @hdet hj hn3 hK hx_cell
     have hL := left_sum_upper_K4 hc' hη₀0 hη₀1 hgap hC_neg hC_δ @hneg @hdet hf hj hfnj hx_cell
     dsimp [C_U]
@@ -2256,3 +2328,11 @@ theorem hole_upper_K4 :
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Holes.hole_upper_K4' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.ModularBootstrap.Upper.Holes.hole_upper_K4
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Holes.lambdaForm_partial_lower' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.Upper.Holes.lambdaForm_partial_lower
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Holes.tendsto_two_integral_phiVar' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.Upper.Holes.tendsto_two_integral_phiVar
