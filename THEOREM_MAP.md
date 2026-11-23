@@ -2098,3 +2098,8 @@ the paper's dimension count. Layers (module docstrings in `QVCheck/All.lean` des
   `cor:seven-global-from-fivecopy`), `purity_gap_ge_of_dual`.
 - `SevenFiveCopyTangent.lean`: `lem:fivecopy-tangent-line` in abstract form (`tangent_line`, `tangent_line_normalised`; equality assertion `tangent_line_eq`), and `equality_moment`, `equality_moment_centred` (the tangent-line step of `thm:fivecopy-family-equality` with the invariant-square argument).
   The certificate FP5-1 itself is not formalised.
+
+
+## Upper side: reference Blaschke comb I (`Upper/Comb/*.lean`)
+
+- `Upper/Comb/{Factors,ZeroLaw,Tip,EdgePhase,Riesz}.lean` (`comb_estimates.tex`, `remainder.tex`; unconditional, pinned axioms `[propext, Classical.choice, Quot.sound]`): Lemma `K1` (`cmb:K1`: `blaschkeT`, pair modulus `blaschkePairQ`, detuning `deltaDetune_*`, `realLogT_deriv_bounds`, strip branch `phiZeta` with `iteratedDeriv_phiZeta_le`), Lemma `K0` (`cmb:K0`: `rhoU`, `chiQuantile`, `siteGap`, `siteRadius_bounds`, `refComb_K1a`), Lemma `A_tip` (`rem:analytictip`: `rhoU_tip_asymptotic`, `quantile_tip_bounds`, `eL_tip_consequences`), Lemma `K3` (`cmb:K3`: `edgePhase_bounds`, `logRefComb_eq_comb_decomp`, Euler–Maclaurin remainder `emRem`), Lemma `K2` (`cmb:K2`: `riesz_representation`, `riesz_representation_slitStrip`, `combPf_eq_quantile_integral`). K2 is proved without distributions: analytic continuation of the Blaschke log to the open unit strip, differentiation under the integral, identity theorem.

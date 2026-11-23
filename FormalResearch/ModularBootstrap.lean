@@ -90,6 +90,11 @@ public import FormalResearch.ModularBootstrap.Contour.TruncationError
 public import FormalResearch.ModularBootstrap.Contour.WindowEnvelope
 public import FormalResearch.ModularBootstrap.Contour.VirasoroBridge
 public import FormalResearch.ModularBootstrap.Contour.VirasoroScaleChoice
+public import FormalResearch.ModularBootstrap.Upper.Comb.Factors
+public import FormalResearch.ModularBootstrap.Upper.Comb.ZeroLaw
+public import FormalResearch.ModularBootstrap.Upper.Comb.Tip
+public import FormalResearch.ModularBootstrap.Upper.Comb.EdgePhase
+public import FormalResearch.ModularBootstrap.Upper.Comb.Riesz
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -319,4 +324,15 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   proof of `YVInputFor` (`yvInputFor_of_scaleCompat`), explicit compatible scale selection
   `virasoroBVChoice`, and **unconditional Theorem `J`** (`theoremJ_unconditional`,
   `theoremJ_T_weak`, `theoremJ_T_V`, `theoremJ_Delta_best`).
+* `Upper.Comb.Factors`, `Upper.Comb.ZeroLaw`, `Upper.Comb.Tip`, `Upper.Comb.EdgePhase`,
+  `Upper.Comb.Riesz`: unconditional reference Blaschke comb I (`comb_estimates.tex`, `remainder.tex`):
+  Lemma `K1` (`cmb:K1`: Blaschke factor algebra, pair modulus `q`, detuning shift `δ`, real log-modulus
+  concavity/derivative bounds, and strip branch `φ_ζ` with `1 ≤ i + j ≤ 4` mixed partial bounds),
+  Lemma `K0` (`cmb:K0`: zero-law density `ρ_U`, cumulative count `N`, quantiles `χ_a`, cell gaps `ℓ_k`,
+  and `B^{(f)}` convergence), Lemma `A_tip` (`rem:analytictip`: tip density/count asymptotics,
+  sharp `(log ρ_U)'` sandwich, tip-neighbourhood quantile bounds, and `e_L` scaling consequences),
+  Lemma `K3` (`cmb:K3`: edge phase `log B^{(f)} = c' Φ_0 + Φ_1^{(f)}`, second-order Euler--Maclaurin
+  remainder `R_EM^{(f)}`, `Re Φ_1^{(f)} = 0` on `Im b = 1/2`, and `i = 0, 1, 2` derivative bounds),
+  and Lemma `K2` (`cmb:K2`: closed-strip Riesz representation `∫ ρ_U log |T_y(b)| dy = U(b)`,
+  `P^{(f)}` quantile integral, and real-axis slit identities).
 -/
