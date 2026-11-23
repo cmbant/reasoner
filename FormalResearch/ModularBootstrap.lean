@@ -104,6 +104,15 @@ public import FormalResearch.ModularBootstrap.Upper.Saddle.SDVprime
 public import FormalResearch.ModularBootstrap.Upper.Saddle.SDV
 public import FormalResearch.ModularBootstrap.Upper.Saddle.FWSD
 public import FormalResearch.ModularBootstrap.Upper.Saddle.EdgePhaseZero
+public import FormalResearch.ModularBootstrap.Upper.Hankel.HankelDef
+public import FormalResearch.ModularBootstrap.Upper.Hankel.HankelLaplace
+public import FormalResearch.ModularBootstrap.Upper.Hankel.HankelAsym
+public import FormalResearch.ModularBootstrap.Upper.Hankel.HankelBoundary
+public import FormalResearch.ModularBootstrap.Upper.Hankel.HankelNearZero
+public import FormalResearch.ModularBootstrap.Upper.Hankel.ContourShift
+public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeRepresentation
+public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeGlobalBound
+public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeExample
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -364,4 +373,19 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `Φ₀'(v+i/2) = -(4πi/3) F(v)` (`edgePhi0Blaschke_deriv_edge`, proved from Lemma `K2` and the closed
   form of the harmonic-majorant completion, without the strip Poisson identity), and
   `edgePhaseData_blaschke` : `EdgePhaseData δ C₃ C₄ Φ₀` for all `δ ∈ (0, 1/4)`, unconditional.
+* `Upper.Hankel.HankelDef`, `Upper.Hankel.HankelLaplace`, `Upper.Hankel.HankelAsym`,
+  `Upper.Hankel.HankelBoundary`, `Upper.Hankel.HankelNearZero`: the order-zero Hankel function
+  `hankel0 z = (2/(π i)) K₀(-i z)` on `Im z > 0` (Laplace form; holomorphy, reflection
+  `H₀¹(-z̄) = -conj H₀¹(z)`), the uniform large-argument expansion
+  `H₀¹(z) = (2/(π z))^{1/2} e^{i(z-π/4)}(1 + ε_H)`, `‖ε_H‖ ≤ 1/(4‖z‖)` (`hankel0_expansion`),
+  `‖H₀¹(z)‖ ≤ √(2/π) ‖z‖^{-1/2} e^{-Im z}` (`norm_hankel0_le`), log growth near `0`
+  (`norm_hankel0_log_le`), the rotated boundary form on the positive real axis and the
+  Mehler–Sonine relation `H₀¹(x+i0) + conj H₀¹(x+i0) = 2 J₀(x)` (`hankelRay_add_conj`),
+  unconditional.
+* `Upper.Hankel.ContourShift`, `Upper.Hankel.EdgeRepresentation`, `Upper.Hankel.EdgeGlobalBound`,
+  `Upper.Hankel.EdgeExample`: **Lemma `SD_H`** (`esd:hankel`, `edge_hankel_representation`: upper-edge
+  Hankel representation of `ĥ(t) = 2π∫₀^∞ h(√(3s/c'))J₀(4π√(st)) ds` at order `0`), **Lemma `SD_G`**
+  (`esd:global`, `edge_global_bound`, `edge_global_bound_xiStar`: `e^{c'L(x)}‖ĥ(c'x²/3)‖ ≤ K C_E √(c'/x)`
+  with an absolute constant `K`, for every `c' > 0`), and non-vacuity for `h₀ = sech²(π b/2)`
+  (`edgeHankelHyp_sech`, `edge_global_bound_sech`), unconditional.
 -/
