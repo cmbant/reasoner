@@ -48,6 +48,7 @@ public import FormalResearch.CohnElkies.PieceCDecomposition
 public import FormalResearch.CohnElkies.PieceCPhase
 public import FormalResearch.CohnElkies.PieceCRegularity
 public import FormalResearch.CohnElkies.PieceCUniform
+public import FormalResearch.CohnElkies.PieceCSmooth
 public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
 public import FormalResearch.CohnElkies.TwoIBPPhase
@@ -166,6 +167,7 @@ and the Airy library:
 * `FormalResearch.CohnElkies.PieceCPhase`: the phase bounds `(u1c:psibd)` for `ψ = c Φ_Ph(εv; L)` (`pcPhase_psibd`: `ψ' ≥ A/2` on `|εv| ≤ τ_*`, `|ψ''| ≤ min(π²|v|/6, c^{2/3}/|v|)`, `|ψ'''| ≤ π²/3`).
 * `FormalResearch.CohnElkies.PieceCRegularity`: `φ = χ₁ H_c` is `C²` with compact support in `[-1,1]` and has finite bounds `M` (`contDiff_pcH`, `exists_bounds_chi_pcH`; qualitative, `M` depends on `(c, δ₀, m)`).
 * `FormalResearch.CohnElkies.PieceCUniform`: `|H_c| + |H_c'| + |H_c''| ≤ C` on `[-1,1]` and `C²` bounds of `g` on `ℝ`, uniform in `c ≥ 2`, `δ₀ ∈ (0,4]` (`pcAmp_bd2`, `pcH_bd2`, `exists_uniform_bounds_chi_pcH`).
+* `FormalResearch.CohnElkies.PieceCSmooth`: the smooth part of Piece C by `two_ibp_phase` (`smooth_ibp_bound`, `pieceC_hsmooth`) and `pieceC_main_term_smooth`, `pieceC_main_term` with `hsmooth` discharged from the regularity `SmoothSymbol` of `G_sm` (the seed data `U.1`/`(e27)` is the remaining input).
 * `FormalResearch.CohnElkies.PreEdgeCriterion`: unconditional concrete `GT.2b(1)–(3)` & `O.11y(3)`/`GT.4` tip offset
   for `twoScaleS`, unconditional `PE.3` reference & measure Mellin inversion (`pe3_reference_mellin_inversion`,
   `pe3_measure_inversion`), `pe3_remainder_integral_bound` (`O(c^{-2/3})`), `pe3_compact_origin_pos`, and
