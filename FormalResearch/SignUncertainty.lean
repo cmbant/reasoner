@@ -4,7 +4,17 @@ public import FormalResearch.SignUncertainty.ClarkTwoNode
 public import FormalResearch.SignUncertainty.HermiteBiehlerUniq
 public import FormalResearch.SignUncertainty.RadialRigidity
 public import FormalResearch.SignUncertainty.HankelPowerSeries
+public import FormalResearch.SignUncertainty.HankelPhaseSeries
 public import FormalResearch.SignUncertainty.HankelStripInversion
+public import FormalResearch.SignUncertainty.HankelStripSeries
+public import FormalResearch.SignUncertainty.HankelGaussPeak
+public import FormalResearch.SignUncertainty.HankelConnectorBound
+public import FormalResearch.SignUncertainty.HankelLangerMu
+public import FormalResearch.SignUncertainty.HankelLangerRoot
+public import FormalResearch.SignUncertainty.HankelLocalPhase
+public import FormalResearch.SignUncertainty.HankelLocalDensity
+public import FormalResearch.SignUncertainty.HankelLocalEnvelope
+public import FormalResearch.SignUncertainty.HankelLocalHolo
 public import FormalResearch.SignUncertainty.HankelWtBasics
 public import FormalResearch.SignUncertainty.HardyMellinIntertwiner
 public import FormalResearch.SignUncertainty.HankelCpowBounds
@@ -190,6 +200,16 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.HankelPowerSeries`, `HankelCpowBounds`, `HankelLangerChart`, `HankelLangerU`, `HankelLangerY`, `HankelLangerReal`: the Hankel Langer chart of `gt:7.7b` (0)-(iv), step 1 of the Hankel lower half (M5). In the variable `u = ζ²` the saddle equation `g(ζ) = s` is `K(u) = 12 s/π²` with `K(u) = u G(u)`; `K` is injective with a holomorphic inverse on `ball 0 q` (`q = 0.035²`, Noshiro + Rouché) and `ũ = c^{2/3} κ y(w)`, `y = (π²/12) M(K^{-1}(12 s/π²))`, `M(u) = u E(u)^{2/3}`: `|y + w| ≤ 1.9e-3 |w|`, `|y' + 1| ≤ 4e-3`, `y` injective, onto small discs, real and strictly decreasing on the real axis, `y(0) = 0` (coefficient hypothesis `LangerEta`: `0 < η_j ≤ 1`, `η_0 = π²/12`).
 * `FormalResearch.SignUncertainty.HankelStripInversion`: `hankelWt` (`W̃_c`) and `hankel_inversion_line`, the exact inversion `(ρ₀ f)(cξ) = (2πξ)^{-1} ∫ K₀(σ+iτ, ξ) W̃_c(σ+iτ) dτ` on any line `Re ζ = σ` with `cσ > 1` (`mat:T2`(2), `(e32)`; `radial_xi_repr` is the case `σ = ε_c`).
 * `FormalResearch.SignUncertainty.HankelWtBasics`: `‖W̃_c(ζ)‖ ≤ M[f] ‖1+ζ‖^{1/2} e^{1/(6c)}` on `0 ≤ Re ζ < 1` and holomorphy of `W̃_c` on `0 < Re ζ < 1`.
+* `FormalResearch.SignUncertainty.HankelPhaseSeries`: `gSer` (`g = ∑ η_j/(j+1) ζ^{2j+2}`), its derivative `2ζ ∑ η_j ζ^{2j}`, and the curvature `Re g'(σ+iτ) ≥ (4/5)σ` for `0 < σ ≤ 0.04`, `|τ| ≤ 1/3` (inequality (V) of `gt:7.7c` with constant `4/5` in place of `π²/12`).
+* `FormalResearch.SignUncertainty.HankelStripSeries`: `stripG ζ = gSer etaC ζ` and `stripS0Tilde ζ = SSer etaC ζ` on `‖ζ‖ ≤ 0.35`, `Re ζ > 0` (identity theorem from `HankelLangerIdentity`; `tan(πζ/2)/(πζ/2) = exp g(ζ)` on the half disc).
+* `FormalResearch.SignUncertainty.HankelGaussPeak`: quadratic peak lemma (`φ'' ≤ -m` on `[-L,L]` with critical point `τ₀` gives `φ t ≤ φ τ₀ - m/2 (t-τ₀)²`).
+* `FormalResearch.SignUncertainty.HankelConnectorBound`: connector margin (C) of `gt:7.7c`: `Re g(σ+i/3) ≤ -0.0755` for `0 ≤ σ ≤ 0.1`.
+* `FormalResearch.SignUncertainty.HankelLangerMu`: `𝗆(ζ) = ζ E(ζ²)^{1/3}` power-series cube root and `|𝗆' - 1| ≤ 9e-4`.
+* `FormalResearch.SignUncertainty.HankelLangerRoot`: saddle root `ζ₊ = u^{1/2}`, `S̃ - ζ g = -(π²/18) ζ³ E(ζ²)`, `ũ^{1/2} = c^{1/3} μ 𝗆(ζ₊)` and the saddle phase `c(S̃ - ζ₊ g(ζ₊)) = -(4/3) ũ^{3/2}`.
+* `FormalResearch.SignUncertainty.HankelLocalPhase`: `Φ(ζ;ℓ) = S̃(ζ) + ζℓ` (`hankelLocPhi`), the vertical Gaussian peak `Re Φ(σ+iτ) ≤ Re Φ(ζ₊) - (2/5)σ(τ-τ₊)²`, the connector slope `∂_σ Re Φ ≤ -0.07` and the elementary integrals used in `gt:7.7c`.
+* `FormalResearch.SignUncertainty.HankelLocalDensity`: the local integrand `J = (1-ζ)^{-1/2} e^{B_c} e^{cΦ} W̃_c` (`hankelJ`; equals `K₀ W̃_c` for real `ξ`), its holomorphy and bound `‖J‖ ≤ 2e^{c Re Φ}` on the contour rectangle, and `hankel_local_density_bound`: `‖∫_{|τ|≤1/3} J(1/10+iτ)dτ‖ ≤ 200 (cσ₊)^{-1/2} e^{c Re Φ(ζ₊)}` (rectangle Cauchy shift to `Re ζ = σ₊`, Gaussian vertical bound, connector decay).
+* `FormalResearch.SignUncertainty.HankelLocalEnvelope`: `hankel_local_density_envelope`, the envelope `(e71)` of `gt:7.7c`: `‖(fρ₀)_loc‖ ≤ 200 c^{-1/3} (Re √ũ)^{-1/2} |e^{-(4/3)ũ^{3/2}}|` at `ℓ = -g(ζ₊)`, `ζ₊ = u^{1/2}`, `ũ = c^{2/3}μ²M(u)`.
+* `FormalResearch.SignUncertainty.HankelLocalHolo`: `hankelLocal c f ℓ = ∫_{|τ|≤1/3} J` is entire in `ℓ = log(π²ξ)` (`gt:7.7c` (a)).
 * `FormalResearch.SignUncertainty.NoshiroRouche`: Noshiro–Warschawski injectivity on a convex set (`injOn_of_re_deriv_pos`), unique root of a perturbation of the identity via Rouché (`exists_unique_root_of_perturb`), and the regression `not_injOn_sq`; used by the Hankel Langer chart (`gt:7.7b`).
 * `FormalResearch.SignUncertainty.HankelLangerSeries`: coefficient facts for the Hankel Langer chart (`gt:7.7b` (0)): `etaC j = η(2j+2)` with `0 < etaC j < 1` and `etaC 0 = π²/12`, the normalised coefficients `langerA`, `langerB` and their bounds, the tail bounds `abs_eps_le` (`≤ 7.46e-4`) and `abs_E_sub_one_le_035` (`≤ 8.95e-4`) on `‖z‖ ≤ 0.035`, and the binomial bound `‖(1+x)^α - 1‖ ≤ 1 - (1-‖x‖)^α`. The series identity `π/sin(πz) - 1/z = 2∑η(2j+2)z^{2j+1}` is not formalised here.
 * `FormalResearch.SignUncertainty.MiddleBandNumerics`, `MiddleBandIbp`, `MiddleBandPowers`, `MiddleBandVdc`: scalar and analytic tools for the middle-band estimate GT.2a (cubic phase `ψ(u) = a u − π²u³/36`: derivative and monotonicity bounds on the inner, far and outer zones, `ε u₀ < 0.05`; the two-integrations-by-parts bound for either sign of `ψ'`; power integrals and `ε`-power algebra; van der Corput on `[α, β]` and `[−β, −α]` for the cubic phase). The GT.2a assembly itself is not formalised.
