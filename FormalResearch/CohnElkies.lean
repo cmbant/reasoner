@@ -9,6 +9,7 @@ public import FormalResearch.CohnElkies.CardinalAsymptotics
 public import FormalResearch.CohnElkies.MellinAiryToolkit
 public import FormalResearch.CohnElkies.MellinPhaseBounds
 public import FormalResearch.CohnElkies.MellinKernel
+public import FormalResearch.CohnElkies.MellinEdgeValues
 public import FormalResearch.CohnElkies.AiryNicholsonIntegral
 public import FormalResearch.CohnElkies.AirySymbolWKB
 public import FormalResearch.CohnElkies.CardinalPositiveAxis
@@ -35,6 +36,8 @@ public import FormalResearch.CohnElkies.PhysicalAndFarTransfer
 public import FormalResearch.CohnElkies.CoherentSectorialLimit
 public import FormalResearch.CohnElkies.DualPhaseAndO3
 public import FormalResearch.CohnElkies.CancelledSymbolAndLaplace
+public import FormalResearch.CohnElkies.AirySeedSymbols
+public import FormalResearch.CohnElkies.CubicNormalFormContraction
 public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
 
@@ -61,6 +64,8 @@ and the Airy library:
 * `FormalResearch.CohnElkies.MellinKernel`: Binet-remainder bridge (Lemma `T.1(a)`), Mellin-strip kernel
   identity (Lemma `T.2(1)` / `(e33)`), integrated tail `|R̃_5(iτ)|` (Lemma `T.4(b)` / `(e34)`), and combined
   `(P2)`/`(P4)` vertical bounds.
+* `FormalResearch.CohnElkies.MellinEdgeValues`: left-edge value `Re ℋ(iτ)` of the strip function and the
+  Γ-ratio bound on the edge (`gt:7.4(2)` inputs).
 * `FormalResearch.CohnElkies.AiryNicholsonIntegral`: unconditional Nicholson integral error `E(x)` and
   phase correction `ϖ(x)` symbol/asymptotic bounds (Lemmas `W.3(a)` and `W.4(a)`).
 * `FormalResearch.CohnElkies.AirySymbolWKB`: negative-axis Airy WKB representation, oscillation
@@ -129,6 +134,10 @@ and the Airy library:
 * `FormalResearch.CohnElkies.CancelledSymbolAndLaplace`: unconditional Gaussian transforms & Gaussian-IBP `y^{-9/2}`
   expansions (`ceF1`, `ceG1`, `ceG1Deriv`), Lemma `O.11c` (`(ceo:O11c.1)–(2)`), `P.1(2)`/`U.2` RHP and dual-line
   bounds for `ceS0`/`ceSb`, and unconditional `twoScaleQ0_real_laplace_bound`.
+* `FormalResearch.CohnElkies.AirySeedSymbols`: `U.2` for the one-level seeds `a f₁ + b g₁ + c g₁'` (`HasU2`, closed under
+  linear combinations; RHP and dual-line bounds; the `m₀ = 1` Hermite–Biehler seed).
+* `FormalResearch.CohnElkies.CubicNormalFormContraction`: `O.4(2)` fixed-point step (`o4G`, `o4_fixed_point`): Banach
+  contraction on `D(0, 0.22)` for an abstract holomorphic `F` under the named hypothesis `‖F‖ ≤ 0.13` on `D(0, 0.25)`.
 * `FormalResearch.CohnElkies.PreEdgeCriterion`: unconditional concrete `GT.2b(1)–(3)` & `O.11y(3)`/`GT.4` tip offset
   for `twoScaleS`, unconditional `PE.3` reference & measure Mellin inversion (`pe3_reference_mellin_inversion`,
   `pe3_measure_inversion`), `pe3_remainder_integral_bound` (`O(c^{-2/3})`), `pe3_compact_origin_pos`, and

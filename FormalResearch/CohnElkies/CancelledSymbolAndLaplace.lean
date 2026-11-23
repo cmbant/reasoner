@@ -202,27 +202,27 @@ lemma airyTwistedLaplaceC_regularity {X : ℝ → ℝ} (hX_cont : Continuous X) 
     unfold airyTwistedLaplaceC; rw [norm_mul, norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_pos ceK_pos]
     exact (mul_le_mul (mul_le_mul_of_nonneg_left hexp ceK_pos.le) hint_bd (norm_nonneg _) (mul_nonneg ceK_pos.le (Real.exp_pos 1).le)).trans (le_add_of_nonneg_right zero_le_one)
 
-private lemma integrable_const_mul_ofReal {b : ℝ} {X : ℝ → ℝ} {y : ℂ} (hX : Integrable (fun u : ℝ => (X u : ℂ) * Complex.exp (y * (u : ℂ)))) :
+lemma integrable_const_mul_ofReal {b : ℝ} {X : ℝ → ℝ} {y : ℂ} (hX : Integrable (fun u : ℝ => (X u : ℂ) * Complex.exp (y * (u : ℂ)))) :
     Integrable (fun u : ℝ => ((b * X u : ℝ) : ℂ) * Complex.exp (y * (u : ℂ))) := (hX.const_mul (b : ℂ)).congr (ae_of_all _ fun u => by push_cast; ring)
 
-private lemma airyTwistedLaplaceC_sub {X Y : ℝ → ℝ} {y : ℂ} (hX : Integrable (fun u : ℝ => (X u : ℂ) * Complex.exp (y * (u : ℂ))))
+lemma airyTwistedLaplaceC_sub {X Y : ℝ → ℝ} {y : ℂ} (hX : Integrable (fun u : ℝ => (X u : ℂ) * Complex.exp (y * (u : ℂ))))
     (hY : Integrable (fun u : ℝ => (Y u : ℂ) * Complex.exp (y * (u : ℂ)))) :
     airyTwistedLaplaceC (fun u => X u - Y u) y = airyTwistedLaplaceC X y - airyTwistedLaplaceC Y y := by
   unfold airyTwistedLaplaceC; rw [show (fun u : ℝ => ((X u - Y u : ℝ) : ℂ) * Complex.exp (y * (u : ℂ))) =
     fun u => (X u : ℂ) * Complex.exp (y * (u : ℂ)) - (Y u : ℂ) * Complex.exp (y * (u : ℂ)) from funext fun u => by push_cast; ring, integral_sub hX hY, mul_sub]
 
-private lemma airyTwistedLaplaceC_add {X Y : ℝ → ℝ} {y : ℂ} (hX : Integrable (fun u : ℝ => (X u : ℂ) * Complex.exp (y * (u : ℂ))))
+lemma airyTwistedLaplaceC_add {X Y : ℝ → ℝ} {y : ℂ} (hX : Integrable (fun u : ℝ => (X u : ℂ) * Complex.exp (y * (u : ℂ))))
     (hY : Integrable (fun u : ℝ => (Y u : ℂ) * Complex.exp (y * (u : ℂ)))) :
     airyTwistedLaplaceC (fun u => X u + Y u) y = airyTwistedLaplaceC X y + airyTwistedLaplaceC Y y := by
   unfold airyTwistedLaplaceC; rw [show (fun u : ℝ => ((X u + Y u : ℝ) : ℂ) * Complex.exp (y * (u : ℂ))) =
     fun u => (X u : ℂ) * Complex.exp (y * (u : ℂ)) + (Y u : ℂ) * Complex.exp (y * (u : ℂ)) from funext fun u => by push_cast; ring, integral_add hX hY, mul_add]
 
-private lemma airyTwistedLaplaceC_const_mul (b : ℝ) (X : ℝ → ℝ) (y : ℂ) :
+lemma airyTwistedLaplaceC_const_mul (b : ℝ) (X : ℝ → ℝ) (y : ℂ) :
     airyTwistedLaplaceC (fun u => b * X u) y = (b : ℂ) * airyTwistedLaplaceC X y := by
   unfold airyTwistedLaplaceC; rw [show (fun u : ℝ => ((b * X u : ℝ) : ℂ) * Complex.exp (y * (u : ℂ))) =
     fun u => (b : ℂ) * ((X u : ℂ) * Complex.exp (y * (u : ℂ))) from funext fun u => by push_cast; ring, integral_const_mul]; ring
 
-private lemma rhp_extend_to_boundary {F : ℂ → ℂ} {p C : ℝ} (hcont : ContinuousOn F {y : ℂ | 0 ≤ y.re})
+lemma rhp_extend_to_boundary {F : ℂ → ℂ} {p C : ℝ} (hcont : ContinuousOn F {y : ℂ | 0 ≤ y.re})
     (hbd : ∀ w : ℂ, 0 < w.re → ‖F ((ceCs : ℂ) * w)‖ ≤ C * ‖1 + w‖ ^ (-p)) :
     ∀ w : ℂ, 0 ≤ w.re → ‖F ((ceCs : ℂ) * w)‖ ≤ C * ‖1 + w‖ ^ (-p) := fun w hw => by
   rcases hw.lt_or_eq with hw_pos | hw_zero
@@ -243,7 +243,7 @@ private lemma rhp_extend_to_boundary {F : ℂ → ℂ} {p C : ℝ} (hcont : Cont
       simpa [g] using hg1.tendsto.mono_left nhdsWithin_le_nhds
     exact le_of_tendsto_of_tendsto hLHS hRHS (eventually_of_mem self_mem_nhdsWithin fun δ (hδ : 0 < δ) => hbd (g δ) (by simp [g, ← hw_zero, hδ]))
 
-private lemma rhp_bound_of_unit_and_tail {F : ℂ → ℂ} {p C_lo C_hi : ℝ} (hp : 0 ≤ p) (hC_lo : 0 < C_lo)
+lemma rhp_bound_of_unit_and_tail {F : ℂ → ℂ} {p C_lo C_hi : ℝ} (hp : 0 ≤ p) (hC_lo : 0 < C_lo)
     (hlo : ∀ y : ℂ, 0 < y.re → ‖y‖ ≤ 1 → ‖F y‖ ≤ C_lo) (hhi : ∀ y : ℂ, 0 < y.re → 1 ≤ ‖y‖ → ‖F y‖ ≤ C_hi * ‖y‖ ^ (-p)) :
     ∃ C > 0, ∀ w : ℂ, 0 < w.re → ‖F ((ceCs : ℂ) * w)‖ ≤ C * ‖1 + w‖ ^ (-p) := by
   let M_cs : ℝ := 1 + ceCs⁻¹; have hM_cs : 1 ≤ M_cs := by dsimp [M_cs]; linarith [inv_pos.mpr ceCs_pos]
@@ -480,12 +480,12 @@ private lemma ceF1_tail_exp_rpow32 : ∃ C > 0, ∀ u : ℝ, 0 ≤ u → |ceF1 u
     _ = (C₀ ^ 2 / (-airyZero 1)) * Real.exp (-u ^ (3 / 2 : ℝ)) := by rw [mul_pow, ← Real.exp_nat_mul]; ring_nf
     _ ≤ (C₀ ^ 2 / (-airyZero 1)) * Real.exp (-(2 / 3 : ℝ) * u ^ (3 / 2 : ℝ)) := mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr (by linarith [Real.rpow_nonneg hu (3 / 2 : ℝ)])) (by positivity)
 
-private lemma ceG1_tail_exp_rpow32 : ∃ C > 0, ∀ u : ℝ, 0 ≤ u → |ceG1 (airyZero 1) u| ≤ C * Real.exp (-(2 / 3 : ℝ) * u ^ (3 / 2 : ℝ)) :=
+lemma ceG1_tail_exp_rpow32 : ∃ C > 0, ∀ u : ℝ, 0 ≤ u → |ceG1 (airyZero 1) u| ≤ C * Real.exp (-(2 / 3 : ℝ) * u ^ (3 / 2 : ℝ)) :=
   let ⟨C₀, hC₀, hbd⟩ := airyAi_and_deriv_rpow32_decay
   ⟨C₀ ^ 2 / airyZero 1 ^ 2, div_pos (sq_pos_of_pos hC₀) (sq_pos_of_neg (airyZero_neg 1)), fun u hu => by
     rw [ceG1, abs_of_nonneg (sq_nonneg _)]; exact dslope_sq_tail_of_zero (airyZero_neg 1) hC₀ (airyAi_airyZero 1) (fun v hv => (hbd v hv).1) u hu⟩
 
-private lemma ceG1Deriv_tail_exp_rpow32 : ∃ C > 0, ∀ u : ℝ, 0 ≤ u → |ceG1Deriv airyDerivFirstZero u| ≤ C * Real.exp (-(2 / 3 : ℝ) * u ^ (3 / 2 : ℝ)) :=
+lemma ceG1Deriv_tail_exp_rpow32 : ∃ C > 0, ∀ u : ℝ, 0 ≤ u → |ceG1Deriv airyDerivFirstZero u| ≤ C * Real.exp (-(2 / 3 : ℝ) * u ^ (3 / 2 : ℝ)) :=
   let ⟨C₀, hC₀, hbd⟩ := airyAi_and_deriv_rpow32_decay
   ⟨C₀ ^ 2 / airyDerivFirstZero ^ 2, div_pos (sq_pos_of_pos hC₀) (sq_pos_of_neg airyDerivFirstZero_spec.2.1), fun u hu => by
     rw [ceG1Deriv, abs_of_nonneg (sq_nonneg _)]; exact dslope_sq_tail_of_zero airyDerivFirstZero_spec.2.1 hC₀ airyDerivFirstZero_spec.2.2 (fun v hv => (hbd v hv).2) u hu⟩
@@ -1141,12 +1141,12 @@ private lemma ceCancelE_regularity :
   exact airyTwistedLaplaceC_regularity (continuous_ceF1.sub (continuous_ceG1Deriv _)) (ceF1_integral_eq_zero.1.sub ceG1Deriv_integral_eq_M.1)
     (add_pos hC1 hC2) fun u hu => ((abs_sub _ _).trans (add_le_add (hF1 u hu) (hG1' u hu))).trans_eq (by ring)
 
-private lemma ceF1_regularity :
+lemma ceF1_regularity :
     (∀ y : ℂ, 0 ≤ y.re → Integrable (fun u : ℝ => (ceF1 u : ℂ) * Complex.exp (y * (u : ℂ)))) ∧ ContinuousOn (airyTwistedLaplaceC ceF1) {y : ℂ | 0 ≤ y.re} ∧
     DifferentiableOn ℂ (airyTwistedLaplaceC ceF1) {y : ℂ | 0 < y.re} ∧ ∃ C_bd > 0, ∀ {y : ℂ}, 0 ≤ y.re → ‖y‖ ≤ 1 → ‖airyTwistedLaplaceC ceF1 y‖ ≤ C_bd :=
   let ⟨_, hC1, hF1⟩ := ceF1_tail_exp_rpow32; airyTwistedLaplaceC_regularity continuous_ceF1 ceF1_integral_eq_zero.1 hC1 hF1
 
-private lemma ceS0_regularity :
+lemma ceS0_regularity :
     (∀ y : ℂ, 0 ≤ y.re → Integrable (fun u : ℝ => (ceS0 (airyZero 1) airyDerivFirstZero u : ℂ) * Complex.exp (y * (u : ℂ)))) ∧
     ContinuousOn (airyTwistedLaplaceC (ceS0 (airyZero 1) airyDerivFirstZero)) {y : ℂ | 0 ≤ y.re} ∧
     DifferentiableOn ℂ (airyTwistedLaplaceC (ceS0 (airyZero 1) airyDerivFirstZero)) {y : ℂ | 0 < y.re} ∧
@@ -1178,12 +1178,12 @@ theorem airyTwistedLaplaceC_ceCancelE_dual_deriv_bound :
   intro j; obtain ⟨C_j, hC_j, hbd⟩ := h j
   exact ⟨C_j, hC_j, fun hc τ => by simpa [show -(9 / 2 : ℝ) / 3 = -(3 / 2 : ℝ) by norm_num, show -(9 / 2 : ℝ) / 2 = -(9 / 4 : ℝ) by norm_num] using hbd hc τ⟩
 
-private lemma rhp_bound_52_of_asymp {X : ℝ → ℝ} (hX_cont : ContinuousOn (airyTwistedLaplaceC X) {y : ℂ | 0 ≤ y.re}) {C_lo : ℝ} (hC_lo : 0 < C_lo)
+lemma rhp_bound_52_of_asymp {X : ℝ → ℝ} (hX_cont : ContinuousOn (airyTwistedLaplaceC X) {y : ℂ | 0 ≤ y.re}) {C_lo : ℝ} (hC_lo : 0 < C_lo)
     (hlo : ∀ {y : ℂ}, 0 ≤ y.re → ‖y‖ ≤ 1 → ‖airyTwistedLaplaceC X y‖ ≤ C_lo) {C_a : ℝ} (hhi : ∀ {y : ℂ}, 0 < y.re → 1 ≤ ‖y‖ → ‖airyTwistedLaplaceC X y‖ ≤ C_a * ‖y‖ ^ (-(5 / 2 : ℝ))) :
     ∃ C > 0, ∀ w : ℂ, 0 ≤ w.re → ‖airyTwistedLaplaceC X ((ceCs : ℂ) * w)‖ ≤ C * ‖1 + w‖ ^ (-(5 / 2 : ℝ)) :=
   let ⟨C, hC, hpos⟩ := rhp_bound_of_unit_and_tail (by norm_num : (0 : ℝ) ≤ 5 / 2) hC_lo (fun y hy => hlo hy.le) (fun y hy => hhi hy); ⟨C, hC, rhp_extend_to_boundary hX_cont hpos⟩
 
-private lemma norm_le_add_norm_sub_52 {F : ℂ → ℂ} {y : ℂ} (hy : 0 < y.re) (hy1 : 1 ≤ ‖y‖) {C_e : ℝ}
+lemma norm_le_add_norm_sub_52 {F : ℂ → ℂ} {y : ℂ} (hy : 0 < y.re) (hy1 : 1 ≤ ‖y‖) {C_e : ℝ}
     (h_asymp : ‖F y - (2 * ceK / Real.sqrt π : ℂ) * y ^ (-(5 / 2 : ℂ))‖ ≤ C_e * ‖y‖ ^ (-(9 / 2 : ℝ))) : ‖F y‖ ≤ (2 * ceK / Real.sqrt π + C_e) * ‖y‖ ^ (-(5 / 2 : ℝ)) := by
   have hceK := ceK_pos; have hy_ne : y ≠ 0 := fun h => by simp [h] at hy
   have hL : ‖(2 * ceK / Real.sqrt π : ℂ) * y ^ (-(5 / 2 : ℂ))‖ = (2 * ceK / Real.sqrt π) * ‖y‖ ^ (-(5 / 2 : ℝ)) := by
@@ -1196,7 +1196,7 @@ private lemma norm_le_add_norm_sub_52 {F : ℂ → ℂ} {y : ℂ} (hy : 0 < y.re
     _ ≤ (2 * ceK / Real.sqrt π) * ‖y‖ ^ (-(5 / 2 : ℝ)) + C_e * ‖y‖ ^ (-(9 / 2 : ℝ)) := by rw [hL]; exact add_le_add le_rfl h_asymp
     _ ≤ (2 * ceK / Real.sqrt π + C_e) * ‖y‖ ^ (-(5 / 2 : ℝ)) := by nlinarith
 
-private lemma airyTwistedLaplaceC_ceF1_rhp :
+lemma airyTwistedLaplaceC_ceF1_rhp :
     ∃ C > 0, ∀ w : ℂ, 0 ≤ w.re → ‖airyTwistedLaplaceC ceF1 ((ceCs : ℂ) * w)‖ ≤ C * ‖1 + w‖ ^ (-(5 / 2 : ℝ)) := by
   obtain ⟨_, h_cont, _, C_lo, hC_lo, hlo⟩ := ceF1_regularity; obtain ⟨CF, _, hF_asymp⟩ := airyTwistedLaplaceC_ceF1_asymp
   exact rhp_bound_52_of_asymp h_cont hC_lo hlo fun {y} hy hy1 => norm_le_add_norm_sub_52 hy hy1 (hF_asymp hy hy1)
@@ -1228,7 +1228,7 @@ theorem airyTwistedLaplaceC_ceSb_bound (b : ℝ) :
     _ ≤ C0 * ‖1 + w‖ ^ (-(5 / 2 : ℝ)) + |b| * (CF * ‖1 + w‖ ^ (-(5 / 2 : ℝ))) := add_le_add (hS0 w hw) (mul_le_mul_of_nonneg_left (hF1 w hw) (abs_nonneg b))
     _ = (C0 + |b| * CF) * ‖1 + w‖ ^ (-(5 / 2 : ℝ)) := by ring
 
-private lemma dual_deriv_bound_52 {X : ℝ → ℝ} (hdiff : DifferentiableOn ℂ (airyTwistedLaplaceC X) {y : ℂ | 0 < y.re})
+lemma dual_deriv_bound_52 {X : ℝ → ℝ} (hdiff : DifferentiableOn ℂ (airyTwistedLaplaceC X) {y : ℂ | 0 < y.re})
     (hbd : ∃ C > 0, ∀ w : ℂ, 0 ≤ w.re → ‖airyTwistedLaplaceC X ((ceCs : ℂ) * w)‖ ≤ C * ‖1 + w‖ ^ (-(5 / 2 : ℝ))) :
     ∀ j : ℕ, ∃ C_j > 0, ∀ {c : ℝ}, 2 ≤ c → ∀ τ : ℝ,
       ‖iteratedDeriv j (fun t : ℝ => airyTwistedLaplaceC X (((ceCs * c ^ (1 / 3 : ℝ) : ℝ) : ℂ) * (1 - Complex.I * (t : ℂ)))) τ‖ ≤ C_j * c ^ (-(5 / 6 : ℝ)) * (1 + τ ^ 2) ^ (-(5 / 4 : ℝ)) := by
