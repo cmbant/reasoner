@@ -11,6 +11,7 @@ public import FormalResearch.SignUncertainty.ShellGap
 public import FormalResearch.SignUncertainty.ShellGapWitness
 public import FormalResearch.SignUncertainty.ShellLaplaceZeros
 public import FormalResearch.SignUncertainty.OddShellFamily
+public import FormalResearch.SignUncertainty.ElementaryIdentities
 public import FormalResearch.CohnElkies
 
 /-!
@@ -40,6 +41,9 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   near-`0⁺` and large-`y` positivity, and `m = 3` trichotomy (`ce_shells.tex`, Corollary `H.14b`).
 * `FormalResearch.SignUncertainty.OddShellFamily`: analytic odd-level Hermite–Biehler shell gap
   configurations (`ce_shells.tex`, Corollary `H.14a` / `thm:ce-odd-family`) for every odd `m ≥ 3`.
+* `FormalResearch.SignUncertainty.ElementaryIdentities`: the O.4(2) contraction algebra (`u1co:O4`),
+  the Laplace-type integral of Lemma U.1(1) (`u1c:U1`), and the Step 3 derivative of
+  `lem:radial-compactness` (`fourier_mellin_proofs.tex`).
 * `FormalResearch.CohnElkies`: Stieltjes/cardinal resolvent, Mellin–Airy, lobe saddle,
   finite-dimensional Gaussian, and Fourier interpolation lemmas.
 -/
