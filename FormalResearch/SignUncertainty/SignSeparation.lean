@@ -840,7 +840,7 @@ private lemma langer_intertwiner_pos_near_thresh
   exact mul_nonneg (Real.rpow_nonneg hΔ.le _) hIoi_nn
 
 /-- Analytic package of hypotheses for Theorem 7.9c (`gt:7.9c`): a family of Hankel kernels
-`K c` (`c ≥ c₀`) admitting `(-1)`-feasible eigenfunctions whose one-level thresholds have the Airy
+`K c` (`c ≥ c₀`) having `(-1)`-feasible eigenfunctions whose one-level thresholds have the Airy
 order `T_c^{-1} = c/π² + (|a₁|/β₁) c^{1/3} + o(c^{1/3})` (`gt:7.5` lower bound with the one-level
 `O.9'`), and whose near-optimal `(-1)`-feasible eigenfunctions have window profiles
 `Ψ_{f,c}/M[f]` converging to the normalised Airy extremal `G_Ai/‖G_Ai‖₁` locally uniformly together

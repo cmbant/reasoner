@@ -18,8 +18,8 @@ structure). Nothing here is a hypothesis-satisfiability exercise: the fields are
 Headlines and their inputs (open fields in bold):
 
 * `thm_intro_radii` (`thm:intro-radii`, `gt:7.9`, `gt:7.12`, `gt:7.12a`), from `RadiiInputs`:
-  **`bessel_kernel_data`** (Weber/Poisson facts for the Bessel kernel, `fourier_mellin.tex`),
-  **`laguerre_odd_mode`** (`gt:7.9b`), **`hankel_euclid_dictionary`** (`gt:7.9`: radial averaging,
+  **`hankel_antideriv_facts`** (Weber limit and boundedness for the Bessel kernel; proved for
+  `c = 5/2`, `HankelBessel.lean`), **`hankel_euclid_dictionary`** (`gt:7.9`: radial averaging,
   Bochner, BCK/CG reduction, all integer `d ≥ 2`), **`hb_thresholds_lower`**, **`hb_thresholds_upper`**
   (`thm:hb-thresholds` at `(P,Q) = (1,0)`, i.e. `u1cl:multilevel` and `u1co:O9p`),
   **`shell_reduction_m1`** (`thm:ce-shell-reduction`, `m = 1`, with `O(d)` averaging),
@@ -27,12 +27,12 @@ Headlines and their inputs (open fields in bold):
   `shellLaplaceF_m1_pos`). Proved here from these: the gluing `ce_radius_airy_order_of_bounds`, the
   origin option `constrained_threshold_eq_unconstrained`, the density expansion `ce_volume_expansion`.
 * `thm_intro_separation` (`thm:intro-separation`, `gt:7.9c`), from `SeparationInputs`:
-  **`bessel_kernel_data`**, **`radial_rigidity_lower`** (`gt:7.5`, one level, `ε = -1`),
+  **`hankel_antideriv_facts`**, **`radial_rigidity_lower`** (`gt:7.5`, one level, `ε = -1`),
   **`hb_thresholds_upper`** (`u1co:O9p`, one level), **`radial_profile_c1`** (`gt:7.5` profile
   identification together with the `C¹` clause of `lem:radial-compactness`). Proved here from these:
   the Hardy–Mellin intertwiner argument (`sign_separation_eventually_le`, via
   `SignSeparationPackage.langer_approx` built from the `C¹` field). The Euclidean statement (2)
-  additionally uses `EuclidDictionary` (`laguerre_odd_mode`, `hankel_euclid_dictionary`).
+  additionally uses `EuclidDictionary` (`hankel_euclid_dictionary`; `laguerre_odd_mode` is proved).
 * `thm_intro_gap_i/ii/iii` (`thm:intro-gap`), from `ShellGapInputs D`:
   **`shell_reduction`** (`thm:ce-shell-reduction`), **`shell_gap_limit`** (`thm:ce-shell-gap`,
   extraction and constraint system `eq:ce-laplace-constraint`), **`one_profile_envelope`**
@@ -151,20 +151,26 @@ def OneProfileEnvelope (D : ShellHBData) : Prop :=
 
 /-! ### Input structures -/
 
-/-- The Bessel kernel `hankelPhi c` is a `HankelKernelData` for `c ≥ 1`: `φ(0) = 1`, `|φ| ≤ 1`
-(Poisson integral) and the Weber-type limit `(2π)^c/Γ(c) ∫_0^X w^{c/2-1} φ(w) dw → 1`
-(DLMF 10.22.43). PLAN milestone M1/M2. -/
+/-- `hankel_antideriv_facts`: for `c ≥ 1` the two analytic facts about `φ_c = hankelPhi c` of
+`HankelBessel.lean` (boundedness and Weber limit `(2π)^c/Γ(c) ∫_0^X w^{c/2-1} φ_c → 1`,
+DLMF 10.22.43). Everything else making `hankelPhi c` a `HankelKernelData` (`φ(0) = 1`, continuity,
+`|φ| ≤ 1`) is proved (`hankelKernelData`). Being discharged by a parallel agent. -/
 structure HankelKernelFacts : Prop where
-  bessel_kernel_data : ∀ c : ℝ, 1 ≤ c → ∃ K : HankelKernelData c, K.φ = hankelPhi c
+  hankel_antideriv_facts : ∀ c : ℝ, 1 ≤ c → HankelAntiderivFacts c
 
-/-- The Euclidean/Hankel layer. `laguerre_odd_mode` (`gt:7.9b`): for `c ≥ 1` the odd Laguerre mode
-`(4πΔ/c - 1) e^{-2πΔ}` is a `(-1)`-eigenfunction of the Bessel Hankel transform (`L_1^{(c-1)}(x) = c - x`).
+/-- With `HankelAntiderivFacts c` the concrete Bessel kernel is a `HankelKernelData c`
+(`hankelKernelData`, with `φ_zero`, `φ_cont`, `φ_bound` proved). -/
+theorem HankelKernelFacts.bessel_kernel_data (I : HankelKernelFacts) (c : ℝ) (hc : 1 ≤ c) :
+    ∃ K : HankelKernelData c, K.φ = hankelPhi c :=
+  ⟨hankelKernelData (by linarith) (I.hankel_antideriv_facts c hc), rfl⟩
+
+/-- The Euclidean/Hankel layer. (`gt:7.9b`, the odd Laguerre mode is a `(-1)`-eigenfunction, is proved:
+`laguerre_odd_mode`.)
 `hankel_euclid_dictionary` (`gt:7.9`, proof): for every integer `d ≥ 2`,
 `A_sign^+(d)²/2 = T_{d/2}^{+1}` and `A_sign^-(d)²/2 = T_{d/2}^{-1}` with the origin condition `f(0) = 0`
 (radial averaging over `O(d)`, the radial Fourier transform in every dimension including odd `d`, and
 the compact-support uncertainty argument that the average is nonzero). -/
 structure EuclidDictionary : Prop where
-  laguerre_odd_mode : ∀ c : ℝ, 1 ≤ c → IsHankelEigenfn c (-1) (oddLaguerreMode c)
   hankel_euclid_dictionary : ∀ d : ℕ, 2 ≤ d →
     aSignPos d ^ 2 / 2 = hankelT 1 ((d : ℝ) / 2) ∧ aSignNeg d ^ 2 / 2 = hankelT0 ((d : ℝ) / 2)
 
@@ -256,7 +262,7 @@ private lemma sign_radii_tail :
       (hup c (by linarith) ε hε)
   have hT0 : hankelT0 c = hankelT (-1) c := by
     refine hankelT0_eq_hankelT hc0 (I.bessel_kernel_data c (by linarith))
-      (I.laguerre_odd_mode c (by linarith)) (hnonneg (-1) (Or.inr rfl)) ?_
+      (laguerre_odd_mode (by linarith)) (hnonneg (-1) (Or.inr rfl)) ?_
     have hmodel : 0 ≤ airyOrderCoeff * c ^ (1 / 3 : ℝ) :=
       mul_nonneg airyOrderCoeff_pos.le (Real.rpow_nonneg hc0.le _)
     have hlo : c / π ^ 2 + airyOrderCoeff * c ^ (1 / 3 : ℝ) - C₁ ≤ hankelT (-1) c :=
@@ -292,7 +298,7 @@ include I
 `A_sign^±(d)²/2 = d/(2π²) + A (d/2)^{1/3} + O(1)` with `A = |a₁|/β₁`.
 
 Proved from `RadiiInputs`; see the module docstring for the open fields used
-(`bessel_kernel_data`, `laguerre_odd_mode`, `hankel_euclid_dictionary`, `hb_thresholds_lower`,
+(`hankel_antideriv_facts`, `hankel_euclid_dictionary`, `hb_thresholds_lower`,
 `hb_thresholds_upper`). The second asymptotic form of `gt:7.9` (`A_sign(d)/√d`) is not restated. -/
 theorem thm_intro_radii_sign :
     (∃ C : ℝ, ∀ d : ℕ, 2 ≤ d → |aSignPos d ^ 2 / 2 - airyOrderModel d| ≤ C) ∧
@@ -457,7 +463,7 @@ private lemma separation_eventually (ε₀ : ℝ) (hε₀ : 0 < ε₀) :
 /-- **Headline S, Hankel form (`gt:7.9c(1)`, `thm:intro-separation`, first line):**
 `limsup_{c→∞} (T_c^{+1} - T_c^{-1}) ≤ -2/π²` (limsup in `EReal`, so no coboundedness is assumed).
 
-Proved from `SeparationInputs`: `bessel_kernel_data`, `radial_rigidity_lower`, `hb_thresholds_upper`,
+Proved from `SeparationInputs`: `hankel_antideriv_facts`, `radial_rigidity_lower`, `hb_thresholds_upper`,
 `radial_profile_c1`, with the Hardy–Mellin intertwiner argument of `sign_separation_eventually_le`. -/
 theorem thm_intro_separation_hankel :
     Filter.limsup (fun c : ℝ => ((hankelT 1 c - hankelT (-1) c : ℝ) : EReal)) atTop ≤
@@ -484,7 +490,7 @@ private lemma neg_T0_eq_ev : ∀ᶠ c : ℝ in atTop, hankelT0 c = hankelT (-1) 
     eventually_ge_atTop (max 1 c_u), eventually_gt_atTop (0 : ℝ)] with c hc hcu hc0
   have hc1 : 1 ≤ c := le_trans (le_max_left _ _) hcu
   have hne := hc_u c (le_trans (le_max_right _ _) hcu)
-  refine hankelT0_eq_hankelT hc0 (I.bessel_kernel_data c hc1) (E.laguerre_odd_mode c hc1) hne ?_
+  refine hankelT0_eq_hankelT hc0 (I.bessel_kernel_data c hc1) (laguerre_odd_mode (by linarith)) hne ?_
   have hge : c / π ^ 2 + (airyOrderCoeff - airyOrderCoeff) * c ^ (1 / 3 : ℝ) ≤ hankelT (-1) c :=
     le_csInf hne fun T ⟨f, hf⟩ => hc T f hf
   have h4 : 1 / (4 * π) < 1 / π ^ 2 := by
@@ -499,8 +505,8 @@ private lemma neg_T0_eq_ev : ∀ᶠ c : ℝ in atTop, hankelT0 c = hankelT (-1) 
 /-- **Headline S, Euclidean form (`gt:7.9c(2)`, `thm:intro-separation`, second line):**
 `limsup_{d→∞} ½(A_sign^+(d)² - A_sign^-(d)²) ≤ -2/π²` (integer `d`, limsup in `EReal`).
 
-From `thm_intro_separation_hankel`'s inputs and `EuclidDictionary` (`laguerre_odd_mode`,
-`hankel_euclid_dictionary`): `A_sign^+(d)²/2 = T_{d/2}^{+1}` and `A_sign^-(d)²/2 = T_{d/2}^{-1,0} =
+From `thm_intro_separation_hankel`'s inputs and `EuclidDictionary`
+(`hankel_euclid_dictionary`): `A_sign^+(d)²/2 = T_{d/2}^{+1}` and `A_sign^-(d)²/2 = T_{d/2}^{-1,0} =
 T_{d/2}^{-1}` for large `d`. -/
 theorem thm_intro_separation_radii :
     Filter.limsup (fun d : ℕ => (((aSignPos d ^ 2 - aSignNeg d ^ 2) / 2 : ℝ) : EReal)) atTop ≤
@@ -696,12 +702,8 @@ end ShellGap
 #guard_msgs (whitespace := lax) in
 #print axioms hankelT0_eq_hankelT
 
-/-- info: 'FormalResearch.SignUncertainty.hankelPhi_five_halves' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.SignUncertainty.laguerre_odd_mode' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms hankelPhi_five_halves
-
-/-- info: 'FormalResearch.SignUncertainty.hankelKernelData_five_halves' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms hankelKernelData_five_halves
+#print axioms laguerre_odd_mode
 
 end FormalResearch.SignUncertainty

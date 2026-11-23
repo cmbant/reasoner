@@ -2,6 +2,8 @@ module
 
 public import FormalResearch.SignUncertainty.SignSeparation
 public import FormalResearch.SignUncertainty.HankelFiveHalvesWitness
+public import FormalResearch.SignUncertainty.HankelBessel
+public import FormalResearch.SignUncertainty.HankelBesselLaguerre
 public import FormalResearch.SignUncertainty.ShellLaplaceBase
 public import FormalResearch.CohnElkies.CohnElkiesRadius
 
@@ -26,9 +28,9 @@ Bessel kernel.
   `|x|²/2 = shellSite t (r t) d` (`t ∈ D.S`, `t ≠ D.tm`) and `h ≤ 0` for `‖x‖ ≥ R`.
   `R_d^{CE}` is the infimum of `ceShellRadiusSet D r d` (`+∞` if it is empty); statements below
   quantify over the members of the set instead, which is the same thing for lower bounds.
-* `hankelPhi`, `IsHankelFeasible`, `hankelT`, `hankelT0`: the Hankel problem of
-  `fourier_mellin.tex` with the Bessel kernel `K^{(c)}(Δ,s) = Γ(c)(2π√(Δs))^{1-c} J_{c-1}(4π√(Δs))`
-  written through Poisson's integral for `J_{c-1}` (valid for `c > 1/2`).
+* `IsHankelFeasible`, `hankelT`, `hankelT0`: the Hankel problem of
+  `fourier_mellin.tex` with the Bessel kernel `hankelPhi` and transform `besselHankelTransform` of
+  `HankelBessel.lean` (`K^{(c)}(Δ,s) = Γ(c)(2π√(Δs))^{1-c} J_{c-1}(4π√(Δs))`).
   `hankelT ε c` is `T_c^ε` and `hankelT0 c` is `T_c^{-1}` with the extra condition `f(0) = 0`.
 * The bridge `HankelKernelData.threshold_eq`: for a `HankelKernelData c` whose kernel is `hankelPhi c`
   the earlier abstract definitions (`hankelThreshold`, `hankelThresholdZeroOrigin`) agree with the
@@ -112,23 +114,11 @@ noncomputable def uLP (D : ShellHBData) : EReal :=
 
 /-! ### The Hankel problem with the real-order Bessel kernel -/
 
-/-- The normalised Bessel kernel `K^{(c)}(Δ, s) = φ_c(Δ s)` through Poisson's integral
-`J_ν(x) = (x/2)^ν (√π Γ(ν + 1/2))⁻¹ ∫_{-1}^1 (1-t²)^{ν-1/2} cos(xt) dt` with `ν = c - 1`
-(`c > 1/2`; the paper uses `c ≥ 1`):
-`φ_c(w) = Γ(c) (√π Γ(c - 1/2))⁻¹ ∫_{-1}^1 (1-t²)^{c-3/2} cos(4π √w t) dt`. -/
-noncomputable def hankelPhi (c w : ℝ) : ℝ :=
-  Real.Gamma c / (√π * Real.Gamma (c - 1 / 2)) *
-    ∫ t in (-1 : ℝ)..1, (1 - t ^ 2) ^ (c - 3 / 2) * Real.cos (4 * π * √w * t)
-
-/-- The Hankel transform of `eq:hankel` with the Bessel kernel, `(T_c f)(Δ) = ∫ f ρ₀ φ_c(Δ s) ds`. -/
-noncomputable def besselTransform (c : ℝ) (f : ℝ → ℝ) (Δ : ℝ) : ℝ :=
-  ∫ s in Ioi (0 : ℝ), f s * hankelRho0 c s * hankelPhi c (Δ * s)
-
 /-- `f ∈ 𝒜_c^ε`: continuous, `M[f] < ∞` and `f̂ = ε f` for the Bessel kernel. -/
 structure IsHankelEigenfn (c ε : ℝ) (f : ℝ → ℝ) : Prop where
   cont : ContinuousOn f (Ici 0)
   int : IntegrableOn (fun Δ => f Δ * hankelRho0 c Δ) (Ioi 0)
-  eigen : ∀ Δ ∈ Ici (0 : ℝ), besselTransform c f Δ = ε * f Δ
+  eigen : ∀ Δ ∈ Ici (0 : ℝ), besselHankelTransform c f Δ = ε * f Δ
 
 /-- Feasibility at threshold `T` (`fourier_mellin.tex`): `f ∈ 𝒜_c^ε`, `f ≠ 0`, `ε f(0) ≤ 0` and
 `f ≥ 0` on `[T, ∞)`. -/
@@ -144,6 +134,23 @@ noncomputable def hankelT (ε c : ℝ) : ℝ := sInf {T : ℝ | ∃ f, IsHankelF
 noncomputable def hankelT0 (c : ℝ) : ℝ :=
   sInf {T : ℝ | ∃ f, IsHankelFeasible c (-1) T f ∧ f 0 = 0}
 
+/-- **`gt:7.9b`, eigenvalue `-1`** (proved, from `HankelBesselLaguerre`): for `c > 1/2` the odd Laguerre
+mode `(4πΔ/c - 1) e^{-2πΔ}` lies in `𝒜_c^{-1}` for the concrete Bessel transform; unconditional. -/
+theorem laguerre_odd_mode {c : ℝ} (hc : 1 / 2 < c) : IsHankelEigenfn c (-1) (oddLaguerreMode c) where
+  cont := (oddLaguerreMode_continuous c).continuousOn
+  int := by
+    have hc0 : 0 < c := by linarith
+    rw [oddLaguerreMode_eq]
+    have h : IntegrableOn (fun s : ℝ => (4 * π / c) * (s * Real.exp (-(2 * π * s)) * hankelRho0 c s) -
+        Real.exp (-(2 * π * s)) * hankelRho0 c s) (Ioi 0) :=
+      ((integrableOn_linear_exp_rho0 hc0).const_mul (4 * π / c)).sub (integrableOn_exp_rho0 hc0)
+    refine h.congr_fun (fun s _ => ?_) measurableSet_Ioi
+    simp only
+    ring
+  eigen Δ hΔ := by
+    rw [besselHankelTransform_oddLaguerreMode hc hΔ]
+    ring
+
 /-! ### Bridge to the abstract `HankelKernelData` development -/
 
 section Bridge
@@ -151,8 +158,8 @@ section Bridge
 variable {c : ℝ} (K : HankelKernelData c)
 
 lemma HankelKernelData.hankelTransform_eq (hK : K.φ = hankelPhi c) (f : ℝ → ℝ) (Δ : ℝ) :
-    hankelTransform c K f Δ = besselTransform c f Δ := by
-  unfold hankelTransform besselTransform
+    hankelTransform c K f Δ = besselHankelTransform c f Δ := by
+  unfold hankelTransform besselHankelTransform hankelKernel
   rw [hK]
 
 lemma HankelKernelData.isRadialEigenfn_iff (hK : K.φ = hankelPhi c) (ε : ℝ) (f : ℝ → ℝ) :
@@ -198,47 +205,6 @@ theorem hankelT0_eq_hankelT {c : ℝ} (hc : 0 < c) (hK : ∃ K : HankelKernelDat
     (by obtain ⟨T, f, hf⟩ := hne; exact ⟨T, f, (K.isFeasible_iff hK _ _ _).2 hf⟩)
     (by rwa [K.threshold_eq hK])
   rwa [K.thresholdZeroOrigin_eq hK, K.threshold_eq hK] at h
-
-/-! ### Consistency check at `c = 5/2` (`d = 5`, `J_{3/2}`) -/
-
-/-- The concrete kernel at `c = 5/2` is the explicit `J_{3/2}` kernel `phi52` of
-`HankelFiveHalvesWitness` (Poisson integral with `(1 - t²)¹`). -/
-theorem hankelPhi_five_halves (w : ℝ) : hankelPhi (5 / 2) w = phi52 w := by
-  unfold hankelPhi phi52
-  have hG : Real.Gamma (5 / 2) = 3 / 4 * √π := by
-    have h1 : Real.Gamma (5 / 2) = 3 / 2 * Real.Gamma (3 / 2) := by
-      rw [show (5 / 2 : ℝ) = 3 / 2 + 1 by norm_num, Real.Gamma_add_one (by norm_num)]
-    have h2 : Real.Gamma (3 / 2) = 1 / 2 * Real.Gamma (1 / 2) := by
-      rw [show (3 / 2 : ℝ) = 1 / 2 + 1 by norm_num, Real.Gamma_add_one (by norm_num)]
-    rw [h1, h2, Real.Gamma_one_half_eq]; ring
-  have hG2 : Real.Gamma (5 / 2 - 1 / 2) = 1 := by
-    rw [show (5 / 2 - 1 / 2 : ℝ) = 2 by norm_num]
-    exact Real.Gamma_two
-  have hexp : ∀ t : ℝ, (1 - t ^ 2) ^ ((5 / 2 : ℝ) - 3 / 2) = 1 - t ^ 2 := fun t => by
-    rw [show (5 / 2 : ℝ) - 3 / 2 = 1 by norm_num, Real.rpow_one]
-  simp_rw [hexp]
-  set g : ℝ → ℝ := fun t => (1 - t ^ 2) * Real.cos (4 * π * √w * t) with hg
-  have hgc : Continuous g := by
-    refine ((continuous_const.sub (continuous_id.pow 2)).mul ?_)
-    exact Real.continuous_cos.comp (continuous_const.mul continuous_id)
-  have hsplit : ∫ t in (-1 : ℝ)..1, g t = 2 * ∫ t in (0 : ℝ)..1, g t := by
-    rw [← intervalIntegral.integral_add_adjacent_intervals (b := 0)
-      (hgc.intervalIntegrable _ _) (hgc.intervalIntegrable _ _)]
-    have : ∫ t in (-1 : ℝ)..0, g t = ∫ t in (0 : ℝ)..1, g t := by
-      have h := intervalIntegral.integral_comp_neg (a := 0) (b := 1) (fun t => g t)
-      rw [neg_zero] at h
-      simp only [hg, neg_sq, Real.cos_neg, mul_neg] at h ⊢
-      rw [← h]
-    rw [this]; ring
-  rw [hsplit, hG, hG2]
-  have hπ : √π ≠ 0 := (Real.sqrt_pos.2 Real.pi_pos).ne'
-  field_simp
-  ring
-
-/-- Consistency of the concrete kernel with the earlier explicit development: at `c = 5/2` the
-statement `bessel_kernel_data` is a theorem. -/
-theorem hankelKernelData_five_halves : ∃ K : HankelKernelData (5 / 2), K.φ = hankelPhi (5 / 2) :=
-  ⟨hankelKernel_fiveHalves, by funext w; exact (hankelPhi_five_halves w).symm⟩
 
 end Bridge
 
