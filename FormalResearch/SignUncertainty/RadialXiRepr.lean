@@ -122,4 +122,12 @@ lemma radialW_differentiableOn {c ε : ℝ} (hc : 0 < c) {f : ℝ → ℝ} (hf :
     refine ⟨?_, ?_⟩ <;> simp only [hre] <;> nlinarith [hw.1, hw.2, mul_pos he0 hw.1]
   exact ((hH.const_mul (c : ℂ)).neg.cexp).mul hM
 
+/-- info: 'FormalResearch.SignUncertainty.radialW_norm_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms radialW_norm_le
+
+/-- info: 'FormalResearch.SignUncertainty.radialW_differentiableOn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms radialW_differentiableOn
+
 end FormalResearch.SignUncertainty
