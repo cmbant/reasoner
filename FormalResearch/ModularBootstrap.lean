@@ -174,7 +174,11 @@ public import FormalResearch.ModularBootstrap.WeightAxioms.Axioms
 public import FormalResearch.ModularBootstrap.FixedWeightTip.PoissonJensenGeneral
 public import FormalResearch.ModularBootstrap.FixedWeightTip.PropositionP
 public import FormalResearch.ModularBootstrap.FixedWeightTip.BlowupAndRigidity
-public import FormalResearch.ModularBootstrap.FixedWeightBand.StirlingW
+public import FormalResearch.ModularBootstrap.FixedWeightBand.MellinGrowthW
+public import FormalResearch.ModularBootstrap.FixedWeightBand.GaussianPairingW
+public import FormalResearch.ModularBootstrap.FixedWeightBand.MellinConvergenceW
+public import FormalResearch.ModularBootstrap.FixedWeightBand.MellinW
+public import FormalResearch.ModularBootstrap.FixedWeightBand.MellinWBridge
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -544,15 +548,15 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   no real-axis boundary value of `H_p¹` is needed), `edgeHankelP_eq_iterate`, and the global bound
   `e^{c' L(x)} |𝓗_w h₀(c' x²/3)| ≤ K_p C_E √(c'/x) x^{-p}` (`edge_global_bound_P`,
   `edge_global_bound_P_xiStar`), unconditional.
-
-* `FixedWeightBand/StirlingW`: the Stirling expansion `vlo:stirling` at natural weight `w ≥ 1`
-  (`stirlingFW`, `stirlingLogSW`, `stirlingSW`, `stirlingPrefW`; `S^{(w)}_{c'}(ω)` for `z = w/2 + c'ω`):
-  the exact factorisation `Γ(z)(2πt)^{-z} = (3ω/(2πb²))^{(w-1)/2} t^{-1/2} e^{c'J} S^{(w)}`
-  (`gamma_mul_two_pi_t_cpow_neg_W`), the uniform bounds `|log S| ≤ C_w/(c'|ω|)`,
-  `|∂_ω log S| ≤ C_w/(c'|ω|²)`, `|S^{±1}| ≤ e^{C_w}`, `|S-1| = O_w((c'|ω|)^{-1})` for `c'|ω| ≥ 1`
-  (`norm_stirlingLogSW_le`, `norm_deriv_stirlingLogSW_le`, `norm_stirlingSW_le`,
-  `norm_stirlingSW_inv_le`, `norm_stirlingSW_sub_one_le`), explicit constants for `c'|ω| ≥ w`, the absolute
-  bound `|S^{±1}| ≤ 2` for `c'|ω| ≥ max(w, 2(w²+2))` (`norm_stirlingSW_abs_bounds`; the paper's `48` covers
-  `w ≤ 4`), and the weight-one specialisation (`stirlingLogSW_one`, `stirlingSW_one`, `stirlingPrefW_one`);
-  unconditional.
+* `FixedWeightBand.{MellinGrowthW, GaussianPairingW, MellinConvergenceW, MellinW, MellinWBridge}`: **Lemma `S1`**
+  (`vlo:S1`, `lower_o1_two_edge.tex` §J2) at every fixed weight `w ≥ 1` and every `Q`, unconditional.
+  `polyDom_cardyV`: `V = prob.cardyV a` dominates every power on `[1, ∞)` for `S ≤ a`, `0 < a`
+  (half-step Peano bound `listDiff_pow_ge_half`, `cardyV_ge_pow`); `mellinTransformW g z = ∫₀^∞ g t^{z-1} dt`
+  converges absolutely and is holomorphic on `Re z > 0` (`integrableOn_mellinW`,
+  `differentiableOn_mellinTransformW`, `TestClass.differentiableOn_mellinMG`); Gaussian pairing on `ℝ^{2w}`
+  `Φ(1/λ) = -λ^w Φ(λ)` (`fourier_radial_exp_W`, `laplacePairW_inv`), the Mellin–Laplace Fubini identity
+  (`mellin_laplacePairW_eq`), `m_g(w - z) = -m_g(z)` on `0 < Re z < w` (`mellinMGW_reflection`) and the entire
+  extension `m_g` with `F (w - z) = -F z` on `ℂ` (`lemma_S1_W`, `lemma_S1_W_of_c'`). Bridge `MellinWBridge`:
+  `mellinMGEntireW 1 = Mellin.mellinMGEntire`, `Mellin.lemma_S1_of_ge_two` as the `w = 1` instance
+  (`lemma_S1_of_ge_two_of_W`), non-vacuity `lemma_S1_W_thermalDiff`.
 -/
