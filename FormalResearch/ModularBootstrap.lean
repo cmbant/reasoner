@@ -95,6 +95,8 @@ public import FormalResearch.ModularBootstrap.Upper.Comb.ZeroLaw
 public import FormalResearch.ModularBootstrap.Upper.Comb.Tip
 public import FormalResearch.ModularBootstrap.Upper.Comb.EdgePhase
 public import FormalResearch.ModularBootstrap.Upper.Comb.Riesz
+public import FormalResearch.ModularBootstrap.Upper.Window.Product
+public import FormalResearch.ModularBootstrap.Upper.Window.Quadrature
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -335,4 +337,11 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   remainder `R_EM^{(f)}`, `Re Φ_1^{(f)} = 0` on `Im b = 1/2`, and `i = 0, 1, 2` derivative bounds),
   and Lemma `K2` (`cmb:K2`: closed-strip Riesz representation `∫ ρ_U log |T_y(b)| dy = U(b)`,
   `P^{(f)}` quantile integral, and real-axis slit identities).
+* `Upper.Window.Product`, `Upper.Window.Quadrature`: the Airy window of the fixed designs
+  (`upper_transfer.tex`): Airy-scale coordinates, the WKB reference sites and gaps (`airyGap_kernel_sum`),
+  the entire Airy product `W^{(f)}` (`airyWindowProd`) and the design product `W` (`designWindowW`),
+  **Lemma `G`** (`ut:G`: `lemma_G_bound` `|W(u)| ≤ C(1+|u|)^{-3/2}e(u)`, `lemma_G_integrable`,
+  `lemma_G_circle_ratio`), **Lemma `V`** (`ut:V`: `lemma_V_hasSum`, `lemma_V_eval_one`,
+  `lemma_V_eval_succ`, `lemma_V_identity`) and **Lemma `E`** (`ut:E`: `lemma_E`, the `Π_n(0)`, `E_0`,
+  `R_1` bounds), unconditional.
 -/
