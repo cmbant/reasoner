@@ -847,8 +847,8 @@ order `T_c^{-1} = c/π² + (|a₁|/β₁) c^{1/3} + o(c^{1/3})` (`gt:7.5` lower 
 with the first derivative (`gt:7.5`, identification of the limit, and `lem:radial-compactness`, whose
 `C¹` clause is the content of this field). The Langer chart is not used (`gt:7.9c` no longer needs it).
 
-Open content of the fields: see `Headlines.lean` (`radial_rigidity_lower`, `hb_thresholds_upper`,
-`radial_profile_c1`). -/
+Content of the fields: see `Headlines.lean` (`radial_rigidity_lower` and `radial_profile_c1` are theorems
+there, from `radial_compactness`; `hb_thresholds_upper` is the one open input). -/
 structure SignSeparationPackage where
   c₀ : ℝ
   hc₀ : 0 < c₀

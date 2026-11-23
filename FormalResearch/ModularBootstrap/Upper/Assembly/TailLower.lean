@@ -225,37 +225,20 @@ lemma designFac_tail_lower {C_Z : ℝ} (hC_Z : 0 < C_Z)
   rw [← heq] at hsq
   linarith
 
-/-- For `-r ≤ u` away from the Airy zeros, `Q(u) ≥ 1/2` for every design with `N ≥ J(r)`. -/
-lemma exists_designFac_lower (r : ℝ) :
-    ∃ J : ℕ, ∀ N : ℕ, J ≤ N → ∀ (η u : ℝ), -r ≤ u → (∀ n : ℕ, 1 ≤ n → u ≠ airyZero n) →
-      ∀ T : ℝ, HasProd (fun m : ℕ => designFac N η u (m + 2)) T → 1 / 2 ≤ T := by
-  obtain ⟨C_Z, hC_Z, hZ⟩ := deltaWKB_le_exists
-  refine ⟨⌈max (max (4 * C_Z) ((2 * r) ^ 3)) 2⌉₊, fun N hN η u hur hu T hT => ?_⟩
-  have hNge : max (max (4 * C_Z) ((2 * r) ^ 3)) 2 ≤ (N : ℝ) :=
-    (Nat.le_ceil _).trans (by exact_mod_cast hN)
-  have hNC : 4 * C_Z ≤ N := (le_max_left _ _).trans ((le_max_left _ _).trans hNge)
-  have hNr : (2 * r) ^ 3 ≤ N := (le_max_right _ _).trans ((le_max_left _ _).trans hNge)
-  have hN2' : (2 : ℝ) ≤ N := (le_max_right _ _).trans hNge
-  have hN2 : 2 ≤ N := by exact_mod_cast hN2'
-  have hNpos : (0 : ℝ) < N := by linarith
-  have hfac : ∀ m : ℕ, (if m + 2 ≤ N then (1 : ℝ)
-      else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) ≤ designFac N η u (m + 2) := by
-    intro m
-    split_ifs with h
-    · unfold designFac
-      have hs : designSiteU N (m + 2) = airyZero (m + 2) := by simp [designSiteU, h]
-      rw [hs]
-      have hne : 0 < (u - airyZero (m + 2)) ^ 2 := by
-        have := sub_ne_zero.mpr (hu (m + 2) (by omega))
-        positivity
-      rw [le_div_iff₀ hne]
-      nlinarith [sq_nonneg (designWidthU N η (m + 2))]
-    · exact designFac_tail_lower hC_Z hZ (by omega) hN2 hNC hNr η u hur
-  have hge : ∀ s : Finset ℕ, 1 / 2 ≤ ∏ m ∈ s, designFac N η u (m + 2) := by
+/-- **Product lower bound.**  If `HasProd g T` and the factor `g m` is at least `1` for `m + 2 ≤ N` and at least
+`exp(-4 (C_Z/2)/(m+2)²)` beyond, with `4 C_Z ≤ N`, then `T ≥ 1/2` (the summation step of
+`exists_designFac_lower`, for an arbitrary factor sequence). -/
+lemma hasProd_ge_half_of_tail_lower {C_Z : ℝ} (hC_Z : 0 < C_Z) {N : ℕ} (hN2 : 2 ≤ N)
+    (hNC : 4 * C_Z ≤ N) {g : ℕ → ℝ} {T : ℝ} (hT : HasProd g T)
+    (hfac : ∀ m : ℕ, (if m + 2 ≤ N then (1 : ℝ)
+      else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) ≤ g m) :
+    1 / 2 ≤ T := by
+  have hNpos : (0 : ℝ) < N := by exact_mod_cast (by omega : 0 < N)
+  have hge : ∀ s : Finset ℕ, 1 / 2 ≤ ∏ m ∈ s, g m := by
     intro s
     have h1 : ∏ m ∈ s, (if m + 2 ≤ N then (1 : ℝ)
           else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) ≤
-        ∏ m ∈ s, designFac N η u (m + 2) :=
+        ∏ m ∈ s, g m :=
       Finset.prod_le_prod₀ (fun m _ => by split_ifs; exact zero_le_one; exact (Real.exp_pos _).le)
         (fun m _ => hfac m)
     refine le_trans ?_ h1
@@ -286,6 +269,33 @@ lemma exists_designFac_lower (r : ℝ) :
           have := Real.add_one_le_exp (-(1 / 2) : ℝ); linarith
       _ ≤ _ := Real.exp_le_exp.mpr (by rw [h3]; linarith)
   exact ge_of_tendsto hT (Eventually.of_forall hge)
+
+/-- For `-r ≤ u` away from the Airy zeros, `Q(u) ≥ 1/2` for every design with `N ≥ J(r)`. -/
+lemma exists_designFac_lower (r : ℝ) :
+    ∃ J : ℕ, ∀ N : ℕ, J ≤ N → ∀ (η u : ℝ), -r ≤ u → (∀ n : ℕ, 1 ≤ n → u ≠ airyZero n) →
+      ∀ T : ℝ, HasProd (fun m : ℕ => designFac N η u (m + 2)) T → 1 / 2 ≤ T := by
+  obtain ⟨C_Z, hC_Z, hZ⟩ := deltaWKB_le_exists
+  refine ⟨⌈max (max (4 * C_Z) ((2 * r) ^ 3)) 2⌉₊, fun N hN η u hur hu T hT => ?_⟩
+  have hNge : max (max (4 * C_Z) ((2 * r) ^ 3)) 2 ≤ (N : ℝ) :=
+    (Nat.le_ceil _).trans (by exact_mod_cast hN)
+  have hNC : 4 * C_Z ≤ N := (le_max_left _ _).trans ((le_max_left _ _).trans hNge)
+  have hNr : (2 * r) ^ 3 ≤ N := (le_max_right _ _).trans ((le_max_left _ _).trans hNge)
+  have hN2' : (2 : ℝ) ≤ N := (le_max_right _ _).trans hNge
+  have hN2 : 2 ≤ N := by exact_mod_cast hN2'
+  have hfac : ∀ m : ℕ, (if m + 2 ≤ N then (1 : ℝ)
+      else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) ≤ designFac N η u (m + 2) := by
+    intro m
+    split_ifs with h
+    · unfold designFac
+      have hs : designSiteU N (m + 2) = airyZero (m + 2) := by simp [designSiteU, h]
+      rw [hs]
+      have hne : 0 < (u - airyZero (m + 2)) ^ 2 := by
+        have := sub_ne_zero.mpr (hu (m + 2) (by omega))
+        positivity
+      rw [le_div_iff₀ hne]
+      nlinarith [sq_nonneg (designWidthU N η (m + 2))]
+    · exact designFac_tail_lower hC_Z hZ (by omega) hN2 hNC hNr η u hur
+  exact hasProd_ge_half_of_tail_lower hC_Z hN2 hNC hT hfac
 
 /-- **The lower bound field of `SameSiteTailBounds (Gd N₀)`**: `Q_k ≥ 1/2` on compacta below `a_1` for
 large `k`, for every `N₀`. -/

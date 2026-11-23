@@ -4,19 +4,19 @@ public import FormalResearch.SignUncertainty.Radii
 public import FormalResearch.SignUncertainty.DeepLobeMass
 
 /-!
-# `lem:radial-compactness` as an input structure, and `gt:7.5` (lower half) from it
+# `lem:radial-compactness` (statement), and `gt:7.5` (lower half) from it
 
 `RadialCompactness` states `lem:radial-compactness` (`fourier_mellin.tex`; proof in
 `fourier_mellin_proofs.tex`: Mellin inversion, the deep lobe, Airy rescaling with domination, the
 limiting entire function) for the concrete Hankel problem (`IsHankelEigenfn`, `hankelWindowProfile`).
-The deep-lobe mass bound (the absolute mass of `f ρ₀` below `c/π² - R c^{1/3}` is
-`≤ C M[f] (e^{-5 R^{3/2}} + e^{-κ c})`, Step 2) is proved (`deep_lobe_mass_thm`, `DeepLobeMass.lean`) and
-used below. The one remaining field is open (not proved here):
+It is **proved**: `radial_compactness : RadialCompactness` (`RadialCompactnessProof.lean`). The
+deep-lobe mass bound (the absolute mass of `f ρ₀` below `c/π² - R c^{1/3}` is
+`≤ C M[f] (e^{-5 R^{3/2}} + e^{-κ c})`) is `deep_lobe_mass_thm` (`DeepLobeMass.lean`), used below.
 
 * `profile_compactness`: on every sequence `c_n → ∞` with `M[f_n] ≤ M₀`, a subsequence of the window
   profiles converges locally uniformly, together with its first derivative, to the restriction of a
   real entire `F` of the Airy class (`‖F(z)‖ ≤ C (1+|z|)^ν e(z)`, `F ∈ L¹`); the `C¹` clause
-  includes that the profiles are `C¹` on each window eventually (Steps 3-4). The bound
+  includes that the profiles are `C¹` on each window eventually. The bound
   `‖F‖₁ ≤ liminf M[f_n]` of the TeX statement is Fatou and is recovered downstream.
 
 `radial_rigidity_lower_of_compactness` derives the lower half of `gt:7.5` at one level, `ε = -1`:
@@ -70,7 +70,8 @@ lemma hankelMass_smul (c a : ℝ) (f : ℝ → ℝ) :
 /-! ### The input structure -/
 
 /-- **`lem:radial-compactness`** (`fourier_mellin.tex`) for the concrete Hankel problem, minus the
-deep-lobe mass bound, which is `deep_lobe_mass_thm`; the field is an open theorem. See the module docstring. -/
+deep-lobe mass bound, which is `deep_lobe_mass_thm`; proved as `radial_compactness`
+(`RadialCompactnessProof.lean`). See the module docstring. -/
 structure RadialCompactness : Prop where
   profile_compactness : ∀ (M₀ ε : ℝ), (ε = 1 ∨ ε = -1) → ∀ (c : ℕ → ℝ) (f : ℕ → ℝ → ℝ),
     Tendsto c atTop atTop → (∀ n, IsHankelEigenfn (c n) ε (f n)) →
@@ -194,7 +195,7 @@ theorem exists_airy_package (H : RadialCompactness) (c : ℕ → ℝ) (hc : Tend
   obtain ⟨t, ht, h'⟩ := hloc u hu x hx
   exact ⟨t, ht, hgi.eventually h'⟩
 
-/-- **`gt:7.5`, lower half, one level, `ε = -1`** (`radial_rigidity_lower` of `SeparationInputs`), from
+/-- **`gt:7.5`, lower half, one level, `ε = -1`** (`radial_rigidity_lower` in `Headlines.lean`), from
 `lem:radial-compactness`: `liminf c^{-1/3}(T_c - c/π²) ≥ A = |a₁|/β₁`, in the form
 "for all large `c` every feasible `T` is `≥ c/π² + (A - δ) c^{1/3}`". -/
 theorem radial_rigidity_lower_of_compactness (H : RadialCompactness) :

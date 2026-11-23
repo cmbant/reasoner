@@ -30,9 +30,9 @@ U6_PLAN §1, unchanged; TeX re-checked against `origin/main`):
 | R1 | P_unif, profile Lemma V/E/G | done |
 | R2a | Langer chart τ, τ⁻¹, (F1), (F2) | done |
 | R3a | Phase machinery uniform in N: squared pair-change bound (PC) `‖∂^iΔ_D‖ ≤ K Σ(|ε_j²−ε0_j²| + 2|χ'_j−χ_j|)`, N-free `combTail_K1a`, SDV hypotheses / Lemma Φ transform / global bound / K7 for an abstract design with c'-independent constants | done (`Ramped/PhaseUniform`, in-place generalisation of `Design/*`, `Membership/DesignMembership`) |
-| R4 | Hole comparison: Λ-form of K4 for an arbitrary comb, comparison `log|B_D| ≥ log|B_ref| − S + Σ_H log ρ_k`, `R(t)` discriminant lemma, seven-pair product, near-tip ratio `vρ_∞ ≤ C_v r^{5/4}` | done except the named `ShiftSumEstimate` (Lemma-E summation; discharge in R3b) |
+| R4 | Hole comparison: Λ-form of K4 for an arbitrary comb, comparison `log|B_D| ≥ log|B_ref| − S + Σ_H log ρ_k`, `R(t)` discriminant lemma, seven-pair product, near-tip ratio `vρ_∞ ≤ C_v r^{5/4}` | done (`ShiftSumEstimate` proved in R3b) |
 | R2b | Prop 1.2(2) comb-to-Airy identity, uniform over designs, error `O(c'^{-2/3})` | done (`Ramped/CombToAiry*`, for `combBD`; bridge to the ramped `designComb` in R5/R7) |
-| R3b | Ramped instantiation (sites, heights, PC sums, SDV, Φ transform θ=3/5, K7, far-band comparison) | R3a, R4 done; also discharges `ShiftSumEstimate` |
+| R3b | Ramped instantiation (sites, heights, PC sums, SDV, Φ transform θ=3/5, K7, far-band comparison) | done (`Ramped/RampedDesign*`, `RampedFarBand`, `RampedThreshold`) |
 | R5 | Region I | R1, R2b, R3b |
 | R6 | Region II near-tip + macroscopic | R3b, R4 |
 | R7 | Vacuum | R1, R2b, R3b |
@@ -58,16 +58,16 @@ Revisions made in this audit (cleaner implementation, checked against the TeX):
 5. R2b fallback only if blocked: a named `CombToAiryInput` with the literal TeX quantifiers and a non-vacuity theorem.
 
 **B. Σ at Virasoro** (from the `sn_u5t2` sketch; constructions in `spectral_rigidity.tex` `sr:Sigma`):
-- Σ1 profile window class `𝒟x` (per-site heights, one displaced finite site) packaged as `Window` (S, from
-  `profW`, `profV_*`, `pUnif_bound`, template `designWin`).
-- Σ2 `DisplacedFamily`: sites `a_n + e`, heights → 0, `d = −κ`; `pi_nonneg` needs `profV_identity` for `d < 0`
-  (`Π_n(d) = Π_n(0)(1+κ/|a_n−a_1|)`), `pi_lower` from `designFac_tail_lower` with `j ≠ n` (S–M).
-- Σ3 Property (P) for `𝒟x`: generalise Lemma R, Prop I, Lemma W/ID, Prop V and K7 from the global-η class to
-  profile windows (M–L). **Do in place** as in A.1: the design-side theorems take a profile, `designClass` becomes a
-  special case. Shares Region I/vacuum machinery with R5/R7; schedule after R5/R7 statements are fixed.
-- Σ4 `OmittedFamily` (`f ≥ 2`, first `f−1` sites omitted): general-`f` quadrature and Lemmas V/E/G, Lemma Z for
-  modified sites, Property (P) for `f ≥ 2` (L). First a scout: does `sr:Sigma` need the omitted family, or does a
-  displaced family with `e` large enough replace it?
+- Σ1, Σ2 done: `profWin`, `displacedClass`, `displacedFamily_union`; `virasoro_sigma_of_omitted` reduces Σ to Σ3 and Σ4.
+- Σ3 Property (P) for `displacedClass` (and its far-first-site widening, below): generalise in place from
+  `(N, η, d)` to general sites `(σ, ε)` the chain (P1) `designGood_eventually` ← `design_k7_membership_vacuum`;
+  (P2) `designG_nonneg` ← `proposition_I_a/b`, `lemma_R`, `proposition_II`; (P3) `design_psi_uniform` ←
+  `tildeW_designMod`, `lemma_W_measure`, `lemma_ID`; (P4) `proposition_V_i` ← `vacuum_core`. About 600–1000 lines.
+- Σ4 `OmittedFamily` by **far-first-site designs** (scout result): `f = 1`, first site `u_f = a_{m+1}`
+  (`d = a_1 − a_{m+1}`), sites `2..m` displaced by fixed `e_i`; the sign law of `profWin` gives `Π_i < 0` (i ≤ m),
+  `Π_{m+1} = 0`, `Π_i ≥ 0` beyond; `pi_lower` and `tail_small` as for the displaced family (`Assembly/FarFirstSite.lean`,
+  ~300 lines, after Σ3 covers the widened `d` range). This avoids the `f ≥ 2` combs (size L). The paper uses `f ≥ 2`
+  omitted designs (`sr:Sigma` Step 6, `sr:P` clause `f ≥ 2`); replacing them in the TeX is an owner decision.
 
 **C. N = 1 super-Virasoro (`n1SuperVirasoroProblem`, `w = 1`, `μ = (1/2,1/2)`).**
 - C1 done: `FixedWeightBand.n1_lowerBoundInput`, `n1_T_V_lower` (unconditional).

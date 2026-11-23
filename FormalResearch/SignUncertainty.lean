@@ -54,7 +54,19 @@ public import FormalResearch.SignUncertainty.RadialValueMain
 public import FormalResearch.SignUncertainty.RadialDerivative
 public import FormalResearch.SignUncertainty.RadialDerivMain
 public import FormalResearch.SignUncertainty.RadialDerivLimit
+public import FormalResearch.SignUncertainty.RadialLimitW
+public import FormalResearch.SignUncertainty.RadialLimitXi
+public import FormalResearch.SignUncertainty.RadialContour
+public import FormalResearch.SignUncertainty.RadialXiEntire
+public import FormalResearch.SignUncertainty.RadialShift
+public import FormalResearch.SignUncertainty.RadialAiryReal
+public import FormalResearch.SignUncertainty.RadialAiryBound
+public import FormalResearch.SignUncertainty.RadialProfileValue
+public import FormalResearch.SignUncertainty.RadialProfileDeriv
+public import FormalResearch.SignUncertainty.RadialProfileFatou
 public import FormalResearch.SignUncertainty.RadialCompactness
+public import FormalResearch.SignUncertainty.RadialCompactnessProof
+public import FormalResearch.SignUncertainty.OneProfileEnvelope
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
@@ -129,9 +141,20 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   (`radialK_tendsto`, `radialK_norm_le`), the representation `Ξ_c(s) = ∫ radialA` (`radial_xi_repr`), and the locally
   uniform limits `radial_value_limit`, `radial_deriv_limit` of `Ξ_c`, `Ξ_c'` along a sequence with
   `W_{c_k} → W`.
-* `FormalResearch.SignUncertainty.RadialCompactness`: `lem:radial-compactness` as an input structure
-  (`RadialCompactness`: window-profile compactness with the `C¹` clause; the deep-lobe mass bound is a theorem) and the
-  lower half of `gt:7.5` at one level derived from it (`radial_rigidity_lower_of_compactness`).
+* `FormalResearch.SignUncertainty.RadialLimitW`, `RadialLimitXi`, `RadialContour`, `RadialXiEntire`, `RadialShift`,
+  `RadialAiryReal`, `RadialAiryBound`, `RadialProfileValue`, `RadialProfileDeriv`, `RadialProfileFatou`,
+  `RadialCompactnessProof`: Step 4 of `lem:radial-compactness`: the Montel limit `W` (`exists_radialW_limit`), the
+  entire limit `Ξ_W` (`differentiable_XiL`), contour independence (`limInt_integral_shift`), the Airy-class bound
+  `‖F(z)‖ ≤ C (1+|z|)^{1/2} e(z)` (`radialF_airy_bound`), the identification of the window profiles with `Re Ξ_c` and
+  the locally uniform convergence of profiles and derivatives, Fatou for the `L¹` clause, and the assembly
+  `profile_compactness_thm`, `radial_compactness`.
+* `FormalResearch.SignUncertainty.OneProfileEnvelope`: `gt:3.1` in the form used by `prop:ce-one-profile`: every `H ∈ 𝒢`
+  with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
+  `one_profile_envelope`.
+* `FormalResearch.SignUncertainty.RadialCompactness`: the statement of `lem:radial-compactness` (`RadialCompactness`:
+  window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
+  `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it
+  (`radial_rigidity_lower_of_compactness`).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_separation`, `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
   whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
