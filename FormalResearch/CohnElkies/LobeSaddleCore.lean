@@ -331,7 +331,8 @@ private lemma stripG_conj {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1) :
       Complex.tan_conj, ← map_div₀]
   rw [hq, Complex.log_conj _ harg]
 
-private lemma mellinK0_conj {c ξ : ℝ} (hξ : 0 < ξ) {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1) :
+/-- `K₀(conj ζ, ξ) = conj K₀(ζ, ξ)` on `0 < Re ζ < 1`. -/
+lemma mellinK0_conj {c ξ : ℝ} (hξ : 0 < ξ) {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1) :
     mellinK0 c (starRingEnd ℂ ζ) ξ = starRingEnd ℂ (mellinK0 c ζ ξ) := by
   have h1z_re : 0 < (1 - ζ).re := by simp [h1]
   have h1z_arg : (1 - ζ).arg ≠ π := by

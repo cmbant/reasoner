@@ -288,7 +288,8 @@ private lemma sin_taylor7_lower {x : ℝ} (hx : 0 ≤ x) :
         ((hasDerivAt_pow 3 s).div_const 6)).fun_add ((hasDerivAt_pow 5 s).div_const 120)).fun_sub
         ((hasDerivAt_pow 7 s).div_const 5040))).congr_deriv (by norm_num; ring)) d7 hx
 
-private lemma stripGReal_lt_four_thirds_sq {σ : ℝ} (hσ0 : 0 < σ) (hσ1 : σ ≤ 1 / 2) :
+/-- `g(σ) < (4/3) σ²` on `(0, 1/2]`. -/
+lemma stripGReal_lt_four_thirds_sq {σ : ℝ} (hσ0 : 0 < σ) (hσ1 : σ ≤ 1 / 2) :
     stripGReal σ < (4 / 3 : ℝ) * σ ^ 2 := by
   have hg'_lt : ∀ {u : ℝ}, 0 < u → u ≤ 1 / 2 → stripGDerivReal u < (8 / 3 : ℝ) * u := by
     intro u hu0 hu1

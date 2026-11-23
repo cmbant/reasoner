@@ -34,6 +34,13 @@ public import FormalResearch.SignUncertainty.MellinMajorant
 public import FormalResearch.SignUncertainty.MellinMajorantBound
 public import FormalResearch.SignUncertainty.MellinDecay
 public import FormalResearch.SignUncertainty.MellinInversion
+public import FormalResearch.SignUncertainty.DeepLobeKernel
+public import FormalResearch.SignUncertainty.DeepLobeIntegral
+public import FormalResearch.SignUncertainty.DeepLobePointwise
+public import FormalResearch.SignUncertainty.DeepLobeNumerics
+public import FormalResearch.SignUncertainty.DeepLobeRegionII
+public import FormalResearch.SignUncertainty.DeepLobeRegionI
+public import FormalResearch.SignUncertainty.DeepLobeMass
 public import FormalResearch.SignUncertainty.RadialCompactness
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
@@ -98,8 +105,12 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `|mellinRaw f (x₁+iy)| ≲ (1+|y|)^{-(c-2x₁)}` (reflection + Stirling), three-lines (Mathlib Hadamard) power decay on
   `x₁ ≤ Re z ≤ c`, integrability on `Re z = σ`, `σ+1 < c`, and Mellin inversion `mellin_inversion_f`
   `f(Δ) = (1/2π) ∫ Δ^{-(σ+iy)} mellinRaw f (σ+iy) dy`.
+* `FormalResearch.SignUncertainty.DeepLobeKernel`, `DeepLobeIntegral`, `DeepLobePointwise`, `DeepLobeNumerics`,
+  `DeepLobeRegionII`, `DeepLobeRegionI`, `DeepLobeMass`: Step 2 of `lem:radial-compactness`: the vertical decay of the
+  exact Mellin kernel `‖K₀(s+iτ,ξ)‖`, the lobe integral, the pointwise bound `ρ₀|f|(cξ)` (`rho0_abs_f_le`), and the
+  deep-lobe mass bound `deep_lobe_mass_thm` (`c ≥ 56`, `R ≥ 1`: `≤ 8 M[f] (e^{-5R^{3/2}} + e^{-c/25})`).
 * `FormalResearch.SignUncertainty.RadialCompactness`: `lem:radial-compactness` as an input structure
-  (`RadialCompactness`: deep-lobe mass bound, window-profile compactness with the `C¹` clause) and the
+  (`RadialCompactness`: window-profile compactness with the `C¹` clause; the deep-lobe mass bound is a theorem) and the
   lower half of `gt:7.5` at one level derived from it (`radial_rigidity_lower_of_compactness`).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_separation`, `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
