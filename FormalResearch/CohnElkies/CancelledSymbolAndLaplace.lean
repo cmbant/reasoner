@@ -103,7 +103,7 @@ private lemma mul_exp_le_inv_of_nonpos {c u : ℝ} (hc : 0 < c) (hu : u ≤ 0) :
     _ ≤ c⁻¹ * 1 := mul_le_mul_of_nonneg_left h2 (inv_nonneg.mpr hc.le)
     _ = c⁻¹ := mul_one _
 
-private lemma rpow_neg_half_mul_four_pi {y : ℂ} (hy : 0 < y.re) :
+lemma rpow_neg_half_mul_four_pi {y : ℂ} (hy : 0 < y.re) :
     (4 * (π : ℂ) * y) ^ (-(1 / 2 : ℂ)) = (((2 * Real.sqrt π)⁻¹ : ℝ) : ℂ) * y ^ (-(1 / 2 : ℂ)) := by
   have hy_ne : y ≠ 0 := fun h => by simp [h] at hy
   have h4pi_pos : (0 : ℝ) < 4 * π := by positivity
@@ -119,7 +119,7 @@ private lemma rpow_neg_half_mul_four_pi {y : ℂ} (hy : 0 < y.re) :
     rw [Real.rpow_neg h4pi_pos.le, ← Real.sqrt_eq_rpow, show (4 : ℝ) * π = (2 * Real.sqrt π) ^ 2 by rw [mul_pow, Real.sq_sqrt Real.pi_pos.le]; ring, Real.sqrt_sq (by positivity)]
   rw [hsplit, hc4pi]
 
-private lemma norm_cpow_ofReal_exponent {y : ℂ} (hy : y ≠ 0) (r : ℝ) : ‖y ^ (r : ℂ)‖ = ‖y‖ ^ r := by
+lemma norm_cpow_ofReal_exponent {y : ℂ} (hy : y ≠ 0) (r : ℝ) : ‖y ^ (r : ℂ)‖ = ‖y‖ ^ r := by
   rw [Complex.norm_cpow_of_ne_zero hy (r : ℂ), Complex.ofReal_re, Complex.ofReal_im, mul_zero, Real.exp_zero, div_one]
 
 private lemma integrable_if_neg_pos {g h : ℝ → ℝ} (hg : IntegrableOn g (Iio 0))
@@ -427,21 +427,21 @@ private lemma iteratedDeriv_airyAi_shift_decay (z : ℝ) (n k : ℕ) {c : ℝ} (
       _ ≤ C_pos * Real.exp (-c * t) := (mul_le_mul_of_nonneg_left (hexp₁ (z + t) hzt_nn) (by positivity)).trans_eq (by dsimp [C_pos]; rw [show -c * (z + t) = -c * z + -c * t by ring, Real.exp_add]; ring)
       _ ≤ (max C₀ C_pos + 1) * Real.exp (-c * t) := by gcongr; linarith [le_max_right C₀ C_pos]
 
-private lemma contDiff_dirichletPhi0 : ContDiff ℝ ⊤ (dirichletPhi 0) := (contDiff_airyAi.comp (contDiff_id.add contDiff_const)).div_const _
+lemma contDiff_dirichletPhi0 : ContDiff ℝ ⊤ (dirichletPhi 0) := (contDiff_airyAi.comp (contDiff_id.add contDiff_const)).div_const _
 
-private lemma contDiff_airyRatio (z : ℝ) : ContDiff ℝ ⊤ (airyRatio z) := (contDiff_airyAi.comp (contDiff_const.add contDiff_id)).div_const _
+lemma contDiff_airyRatio (z : ℝ) : ContDiff ℝ ⊤ (airyRatio z) := (contDiff_airyAi.comp (contDiff_const.add contDiff_id)).div_const _
 
 private lemma iteratedDeriv_shift_div_eq (z d : ℝ) (n : ℕ) (t : ℝ) : iteratedDeriv n (fun s => airyAi (z + s) / d) t = iteratedDeriv n (fun s => airyAi (z + s)) t / d := by
   rw [show (fun s => airyAi (z + s) / d) = fun s => d⁻¹ * airyAi (z + s) from funext fun _ => by ring, iteratedDeriv_const_mul_field]; ring
 
-private lemma airyAi_shift_div_decay (z : ℝ) {d : ℝ} (hd : d ≠ 0) (n k : ℕ) {c : ℝ} (hc : 0 < c) :
+lemma airyAi_shift_div_decay (z : ℝ) {d : ℝ} (hd : d ≠ 0) (n k : ℕ) {c : ℝ} (hc : 0 < c) :
     ∃ C > 0, ∀ t : ℝ, 0 ≤ t → (1 + t) ^ k * ‖iteratedDeriv n (fun s => airyAi (z + s) / d) t‖ ≤ C * Real.exp (-c * t) := by
   obtain ⟨C, hC, hbd⟩ := iteratedDeriv_airyAi_shift_decay z n k hc; refine ⟨C * |d|⁻¹, mul_pos hC (inv_pos.mpr (abs_pos.mpr hd)), fun t ht => ?_⟩
   rw [iteratedDeriv_shift_div_eq, norm_div, Real.norm_eq_abs, div_eq_mul_inv]
   exact ((by ring : (1 + t) ^ k * (‖iteratedDeriv n (fun s => airyAi (z + s)) t‖ * |d|⁻¹) = ((1 + t) ^ k * ‖iteratedDeriv n (fun s => airyAi (z + s)) t‖) * |d|⁻¹).trans_le
     (mul_le_mul_of_nonneg_right (hbd t ht) (by positivity))).trans_eq (by ring)
 
-private lemma dirichletPhi0_vals_at_zero :
+lemma dirichletPhi0_vals_at_zero :
     dirichletPhi 0 0 = 0 ∧ deriv (dirichletPhi 0) 0 = 1 ∧ iteratedDeriv 2 (dirichletPhi 0) 0 = 0 ∧ iteratedDeriv 3 (dirichletPhi 0) 0 = airyZero 1 := by
   have hfn : dirichletPhi 0 = fun s => airyAi (airyZero 1 + s) / airyAi' (airyZero 1) := by ext s; unfold dirichletPhi; ring_nf
   have hne : airyAi' (airyZero 1) ≠ 0 := airyAi'_first_pos.ne'
@@ -600,7 +600,7 @@ noncomputable def gaussPoly : ℕ → ℂ → Polynomial ℂ
   | 0, _ => 1
   | n + 1, a => (gaussPoly n a).derivative - Polynomial.C a * Polynomial.X * gaussPoly n a
 
-private lemma norm_gaussKern_le {y : ℂ} (hy : 0 < y.re) (u : ℝ) : ‖gaussKern y u‖ ≤ 1 := by
+lemma norm_gaussKern_le {y : ℂ} (hy : 0 < y.re) (u : ℝ) : ‖gaussKern y u‖ ≤ 1 := by
   unfold gaussKern; rw [Complex.norm_exp, Real.exp_le_one_iff]
   have hre : (-((u : ℂ) ^ 2) / (4 * y)).re = -(u ^ 2 / 4 * (y.re / Complex.normSq y)) := by
     rw [neg_div, Complex.neg_re, show ((u : ℂ) ^ 2) = ((u ^ 2 : ℝ) : ℂ) by push_cast; ring, show (4 : ℂ) * y = ((4 : ℝ) : ℂ) * y by norm_num,
@@ -669,7 +669,7 @@ lemma norm_iteratedDeriv_gaussKern_le (n : ℕ) :
       _ = ((n + 1 : ℝ) * M) * (1 + |u|) ^ n := by simp [Finset.sum_const, nsmul_eq_mul]; ring
   exact (mul_le_mul hpoly (norm_gaussKern_le hy u) (norm_nonneg _) (by positivity)).trans_eq (mul_one _)
 
-private lemma iteratedDeriv_ofReal_comp {f : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f) (n : ℕ) (t : ℝ) : iteratedDeriv n (fun s => (f s : ℂ)) t = ((iteratedDeriv n f t : ℝ) : ℂ) := by
+lemma iteratedDeriv_ofReal_comp {f : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f) (n : ℕ) (t : ℝ) : iteratedDeriv n (fun s => (f s : ℂ)) t = ((iteratedDeriv n f t : ℝ) : ℂ) := by
   induction n generalizing t with
   | zero => simp
   | succ k ih =>
@@ -708,7 +708,7 @@ private lemma iteratedDeriv_add_nat (h : ℝ → ℂ) (j i : ℕ) (x : ℝ) : it
   | zero => simp
   | succ k ih => rw [iteratedDeriv_succ, show iteratedDeriv k (iteratedDeriv i h) = iteratedDeriv (k + i) h from funext ih, ← iteratedDeriv_succ, Nat.succ_add]
 
-private lemma integrableOn_Ioi_exp_neg_quarter (C : ℝ) : IntegrableOn (fun t : ℝ => C * Real.exp (-(1 / 4 : ℝ) * t)) (Ioi 0) :=
+lemma integrableOn_Ioi_exp_neg_quarter (C : ℝ) : IntegrableOn (fun t : ℝ => C * Real.exp (-(1 / 4 : ℝ) * t)) (Ioi 0) :=
   (integrableOn_exp_mul_Ioi (by norm_num : -(1 / 4 : ℝ) < 0) 0).const_mul C
 
 private lemma norm_Ioi_integral_exp_quarter_le {φ : ℝ → ℂ} {C : ℝ} (hbd : ∀ t : ℝ, 0 ≤ t → ‖φ t‖ ≤ C * Real.exp (-(1 / 4 : ℝ) * t)) :
@@ -716,7 +716,7 @@ private lemma norm_Ioi_integral_exp_quarter_le {φ : ℝ → ℂ} {C : ℝ} (hbd
   have hI : ∫ t in Ioi (0 : ℝ), C * Real.exp (-(1 / 4 : ℝ) * t) = 4 * C := by rw [integral_const_mul, integral_exp_mul_Ioi (by norm_num : -(1 / 4 : ℝ) < 0) 0]; norm_num; ring
   rw [← hI]; exact norm_integral_le_of_norm_le (integrableOn_Ioi_exp_neg_quarter C) (ae_restrict_mem measurableSet_Ioi |>.mono fun t ht => hbd t (mem_Ioi.mp ht).le)
 
-private lemma norm_exp_neg_mul_half_le {y : ℂ} (hy : 0 < y.re) {t : ℝ} (ht : 0 ≤ t) : ‖Complex.exp (-y * (t : ℂ) / 2)‖ ≤ 1 := by
+lemma norm_exp_neg_mul_half_le {y : ℂ} (hy : 0 < y.re) {t : ℝ} (ht : 0 ≤ t) : ‖Complex.exp (-y * (t : ℂ) / 2)‖ ≤ 1 := by
   rw [Complex.norm_exp, Real.exp_le_one_iff, show (-y * (t : ℂ) / 2).re = -y.re * t / 2 by simp [Complex.div_ofNat_re]]; nlinarith
 
 private lemma ibp_Ioi_exp_mul {φ : ℝ → ℂ} {y : ℂ} (hy : 0 < y.re) (hdiff : Differentiable ℝ φ) (hcont_deriv : Continuous (deriv φ))
@@ -846,6 +846,98 @@ theorem airyTwistedLaplaceC_ceF1_asymp :
   rw [hL, h4_eq, mul_add, ibp_main_term_mul hy_ne 1, Complex.ofReal_one, mul_one, add_sub_cancel_left]
   exact (ibp_rem_norm_le hy hy1 hrem_bd).trans (mul_le_mul_of_nonneg_right (by linarith) (Real.rpow_nonneg (norm_nonneg _) _))
 
+/-- Derivative bound for `φ · gaussKern y` from the `exp(-t/4)` decay of all derivatives of `φ`. -/
+private lemma gen_kernel_deriv_bound {φ : ℝ → ℝ} (hφ : ContDiff ℝ ⊤ φ)
+    (hφ_dec : ∀ n k : ℕ, ∃ C > 0, ∀ t : ℝ, 0 ≤ t → (1 + t) ^ k * ‖iteratedDeriv n φ t‖ ≤ C * Real.exp (-(1 / 4 : ℝ) * t)) :
+    ∃ M > 0, ∀ {y : ℂ}, 0 < y.re → 1 ≤ ‖y‖ → ∀ n ≤ 4, ∀ t : ℝ, 0 ≤ t →
+      ‖iteratedDeriv n (fun x : ℝ => (φ x : ℂ) * gaussKern y x) t‖ ≤ M * Real.exp (-(1 / 4 : ℝ) * t) := by
+  have hget : ∀ a b : ℕ, ∃ C > 0, ∀ {y : ℂ}, 0 < y.re → 1 ≤ ‖y‖ → ∀ t : ℝ, 0 ≤ t →
+      |iteratedDeriv a φ t| * ‖iteratedDeriv b (gaussKern y) t‖ ≤ C * Real.exp (-(1 / 4 : ℝ) * t) := fun a b => by
+    obtain ⟨C₁, hC₁, hφ'⟩ := hφ_dec a b
+    obtain ⟨B, hB, hG⟩ := norm_iteratedDeriv_gaussKern_le b
+    refine ⟨C₁ * B, mul_pos hC₁ hB, fun {y} hy hy1 t ht => ?_⟩
+    have h2 : (1 + t) ^ b * |iteratedDeriv a φ t| ≤ C₁ * Real.exp (-(1 / 4 : ℝ) * t) := by simpa [Real.norm_eq_abs] using hφ' t ht
+    calc |iteratedDeriv a φ t| * ‖iteratedDeriv b (gaussKern y) t‖ ≤ |iteratedDeriv a φ t| * (B * (1 + |t|) ^ b) := mul_le_mul_of_nonneg_left (hG hy hy1 t) (abs_nonneg _)
+      _ = ((1 + t) ^ b * |iteratedDeriv a φ t|) * B := by rw [abs_of_nonneg ht]; ring
+      _ ≤ C₁ * B * Real.exp (-(1 / 4 : ℝ) * t) := (mul_le_mul_of_nonneg_right h2 hB.le).trans_eq (by ring)
+  choose C_ab hC_ab hbd_ab using hget
+  let M : ℝ := ∑ n ∈ Finset.range 5, ∑ a ∈ Finset.range (n + 1), (n.choose a : ℝ) * C_ab a (n - a) + 1
+  have hM_pos : 0 < M := add_pos_of_nonneg_of_pos (Finset.sum_nonneg fun m _ => Finset.sum_nonneg fun a _ => mul_nonneg (Nat.cast_nonneg _) (hC_ab a (m - a)).le) zero_lt_one
+  refine ⟨M, hM_pos, fun {y} hy hy1 n hn t ht => ?_⟩
+  have hy_ne : y ≠ 0 := fun h => by simp [h] at hy
+  have h1 : ContDiff ℝ ⊤ (fun x : ℝ => (φ x : ℂ)) := Complex.ofRealCLM.contDiff.comp hφ; have h2 := contDiff_gaussKern hy_ne
+  rw [iteratedDeriv_fun_mul (h1.contDiffAt.of_le (by simp)) (h2.contDiffAt.of_le (by simp))]
+  calc ‖∑ a ∈ Finset.range (n + 1), _‖ ≤ ∑ a ∈ Finset.range (n + 1), (n.choose a : ℝ) * C_ab a (n - a) * Real.exp (-(1 / 4 : ℝ) * t) :=
+        (norm_sum_le _ _).trans (Finset.sum_le_sum fun a _ => by
+          rw [norm_mul, norm_mul, Complex.norm_natCast, iteratedDeriv_ofReal_comp hφ a t, Complex.norm_real, Real.norm_eq_abs, mul_assoc]
+          exact (mul_le_mul_of_nonneg_left (hbd_ab a (n - a) hy hy1 t ht) (Nat.cast_nonneg _)).trans_eq (by ring))
+    _ = (∑ a ∈ Finset.range (n + 1), (n.choose a : ℝ) * C_ab a (n - a)) * Real.exp (-(1 / 4 : ℝ) * t) := (Finset.sum_mul _ _ _).symm
+    _ ≤ M * Real.exp (-(1 / 4 : ℝ) * t) := mul_le_mul_of_nonneg_right (le_trans (Finset.single_le_sum (s := Finset.range 5)
+        (f := fun m => ∑ a ∈ Finset.range (m + 1), (m.choose a : ℝ) * C_ab a (m - a))
+        (fun m _ => Finset.sum_nonneg fun a _ => mul_nonneg (Nat.cast_nonneg _) (hC_ab a (m - a)).le)
+        (Finset.mem_range.mpr (by omega))) (by dsimp [M]; linarith)) (Real.exp_pos _).le
+
+/-- **Generic 1-dimensional (4-fold) Gaussian IBP expansion** (no vanishing hypotheses): for `φ` smooth with the
+`exp(-t/4)` decay of all derivatives, uniformly on `{Re y > 0, ‖y‖ ≥ 1}`,
+`∫_0^∞ φ(t) e^{-yt/2 - t²/(4y)} dt = 2 φ(0)/y + 4 φ'(0)/y² + 8 φ''(0)/y³ + O(‖y‖⁻⁴)`. -/
+theorem gaussian_1d_ibp_general {φ : ℝ → ℝ} (hφ : ContDiff ℝ ⊤ φ)
+    (hφ_dec : ∀ n k : ℕ, ∃ C > 0, ∀ t : ℝ, 0 ≤ t → (1 + t) ^ k * ‖iteratedDeriv n φ t‖ ≤ C * Real.exp (-(1 / 4 : ℝ) * t)) :
+    ∃ C > 0, ∀ {y : ℂ}, 0 < y.re → 1 ≤ ‖y‖ →
+      ‖(∫ t in Ioi (0 : ℝ), (φ t : ℂ) * Complex.exp (-y * (t : ℂ) / 2 - (t : ℂ) ^ 2 / (4 * y))) -
+        (2 / y * (φ 0 : ℂ) + 4 / y ^ 2 * (iteratedDeriv 1 φ 0 : ℝ) + 8 / y ^ 3 * (iteratedDeriv 2 φ 0 : ℝ))‖ ≤ C * ‖y‖ ^ (-4 : ℝ) := by
+  obtain ⟨M, hM, hkern⟩ := gen_kernel_deriv_bound hφ hφ_dec
+  refine ⟨16 * (M + 4 * M) + 4 * |φ 0| + 1, by positivity, fun {y} hy hy1 => ?_⟩
+  have hy_ne : y ≠ 0 := fun h => by simp [h] at hy
+  let H : ℝ → ℂ := fun t => (φ t : ℂ) * gaussKern y t
+  have h1 : ContDiff ℝ ⊤ (fun x : ℝ => (φ x : ℂ)) := Complex.ofRealCLM.contDiff.comp hφ
+  have h2 := contDiff_gaussKern hy_ne; have hH_cd : ContDiff ℝ ⊤ H := h1.mul h2
+  have hibp_step : ∀ k < 4, ∫ t in Ioi (0 : ℝ), iteratedDeriv k H t * Complex.exp (-y * (t : ℂ) / 2) =
+      (2 / y) * iteratedDeriv k H 0 + (2 / y) * ∫ t in Ioi (0 : ℝ), iteratedDeriv (k + 1) H t * Complex.exp (-y * (t : ℂ) / 2) := fun k hk => by
+    have hderiv_eq : deriv (iteratedDeriv k H) = iteratedDeriv (k + 1) H := iteratedDeriv_succ.symm
+    have hc : Continuous (deriv (iteratedDeriv k H)) := hderiv_eq ▸ hH_cd.continuous_iteratedDeriv (k + 1) (by simp)
+    rw [← hderiv_eq]; exact ibp_Ioi_exp_mul hy (hH_cd.differentiable_iteratedDeriv k (by simp)) hc hM.le fun t ht =>
+      ⟨hkern hy hy1 k (by omega) t ht, by rw [hderiv_eq]; exact hkern hy hy1 (k + 1) (by omega) t ht⟩
+  have hg0 : gaussKern y 0 = 1 := by simp [gaussKern]
+  have hg1 : iteratedDeriv 1 (gaussKern y) 0 = 0 := by rw [iteratedDeriv_gaussKern_eq hy_ne]; simp [gaussPoly]
+  have hg2 : iteratedDeriv 2 (gaussKern y) 0 = -(2 * y)⁻¹ := by rw [iteratedDeriv_gaussKern_eq hy_ne]; simp [gaussPoly, gaussKern]
+  have hH_iter : ∀ n : ℕ, iteratedDeriv n H 0 = ∑ a ∈ Finset.range (n + 1), (n.choose a : ℂ) * ((iteratedDeriv a φ 0 : ℝ) : ℂ) * iteratedDeriv (n - a) (gaussKern y) 0 := fun n => by
+    rw [show H = fun x => (φ x : ℂ) * gaussKern y x from rfl, iteratedDeriv_fun_mul (h1.contDiffAt.of_le (by simp)) (h2.contDiffAt.of_le (by simp))]
+    exact Finset.sum_congr rfl fun a _ => by rw [iteratedDeriv_ofReal_comp hφ a 0]
+  have hs0 : H 0 = (φ 0 : ℂ) := by simp [H, hg0]
+  have hs1 : iteratedDeriv 1 H 0 = ((iteratedDeriv 1 φ 0 : ℝ) : ℂ) := by simp [hH_iter 1, Finset.sum_range_succ, hg0, hg1]
+  have hs2 : iteratedDeriv 2 H 0 = ((iteratedDeriv 2 φ 0 : ℝ) : ℂ) - (φ 0 : ℂ) * (2 * y)⁻¹ := by
+    simp [hH_iter 2, Finset.sum_range_succ, hg0, hg1, hg2]; ring
+  have h4_eq : ∫ t in Ioi (0 : ℝ), H t * Complex.exp (-y * (t : ℂ) / 2) =
+      2 / y * (φ 0 : ℂ) + 4 / y ^ 2 * ((iteratedDeriv 1 φ 0 : ℝ) : ℂ) + 8 / y ^ 3 * ((iteratedDeriv 2 φ 0 : ℝ) : ℂ) +
+        (8 / y ^ 3 * (-(φ 0 : ℂ) * (2 * y)⁻¹) + (16 / y ^ 4) * (iteratedDeriv 3 H 0 + ∫ t in Ioi (0 : ℝ), iteratedDeriv 4 H t * Complex.exp (-y * (t : ℂ) / 2))) := by
+    have s0 := hibp_step 0 (by norm_num); rw [iteratedDeriv_zero] at s0
+    rw [s0, hibp_step 1 (by norm_num), hibp_step 2 (by norm_num), hibp_step 3 (by norm_num), hs0, hs1, hs2]
+    field_simp; ring
+  have hint4_bd := norm_Ioi_integral_exp_quarter_le (φ := fun t => iteratedDeriv 4 H t * Complex.exp (-y * (t : ℂ) / 2)) fun t ht => calc
+    ‖iteratedDeriv 4 H t * Complex.exp (-y * (t : ℂ) / 2)‖ = ‖iteratedDeriv 4 H t‖ * ‖Complex.exp (-y * (t : ℂ) / 2)‖ := norm_mul _ _
+    _ ≤ M * Real.exp (-(1 / 4 : ℝ) * t) * 1 := mul_le_mul (hkern hy hy1 4 le_rfl t ht) (norm_exp_neg_mul_half_le hy ht) (norm_nonneg _) (mul_nonneg hM.le (Real.exp_pos _).le)
+    _ = M * Real.exp (-(1 / 4 : ℝ) * t) := mul_one _
+  have hH3 : ‖iteratedDeriv 3 H 0‖ ≤ M := by simpa using hkern hy hy1 3 (by norm_num) 0 le_rfl
+  have hy4 : ‖y‖ ^ (-4 : ℝ) = (‖y‖ ^ 4)⁻¹ := by
+    rw [show (-4 : ℝ) = -((4 : ℕ) : ℝ) by norm_num, Real.rpow_neg (norm_nonneg y), Real.rpow_natCast]
+  have hy_pos : 0 < ‖y‖ := by linarith
+  have hrem1 : ‖8 / y ^ 3 * (-(φ 0 : ℂ) * (2 * y)⁻¹)‖ ≤ 4 * |φ 0| * ‖y‖ ^ (-4 : ℝ) := by
+    rw [hy4, norm_mul, norm_div, norm_pow, norm_mul, norm_neg, norm_inv, norm_mul, Complex.norm_real, Real.norm_eq_abs,
+      show ‖(8 : ℂ)‖ = 8 by norm_num, show ‖(2 : ℂ)‖ = 2 by norm_num]
+    refine le_of_eq ?_
+    field_simp
+    ring
+  have hrem2 : ‖(16 / y ^ 4) * (iteratedDeriv 3 H 0 + ∫ t in Ioi (0 : ℝ), iteratedDeriv 4 H t * Complex.exp (-y * (t : ℂ) / 2))‖ ≤ 16 * (M + 4 * M) * ‖y‖ ^ (-4 : ℝ) := by
+    rw [hy4, norm_mul, norm_div, show ‖(16 : ℂ)‖ = 16 by norm_num, norm_pow, div_eq_mul_inv]
+    exact (mul_le_mul_of_nonneg_left ((norm_add_le _ _).trans (add_le_add hH3 hint4_bd)) (by positivity)).trans_eq (by ring)
+  have hL : (∫ t in Ioi (0 : ℝ), (φ t : ℂ) * Complex.exp (-y * (t : ℂ) / 2 - (t : ℂ) ^ 2 / (4 * y))) = ∫ t in Ioi (0 : ℝ), H t * Complex.exp (-y * (t : ℂ) / 2) := by
+    refine setIntegral_congr_fun measurableSet_Ioi fun t _ => ?_; dsimp [H, gaussKern]; rw [mul_assoc, ← Complex.exp_add]; congr 2; ring
+  rw [hL, h4_eq, add_sub_cancel_left]
+  have hpos : 0 ≤ ‖y‖ ^ (-4 : ℝ) := Real.rpow_nonneg hy_pos.le _
+  calc _ ≤ _ := norm_add_le _ _
+    _ ≤ 4 * |φ 0| * ‖y‖ ^ (-4 : ℝ) + 16 * (M + 4 * M) * ‖y‖ ^ (-4 : ℝ) := add_le_add hrem1 hrem2
+    _ ≤ _ := by nlinarith [hpos]
+
 /-! #### Generic 2-dimensional 3+3+1 Gaussian IBP theorem (`ceG1Deriv` & `ceG1`) -/
 
 private noncomputable def twoDimK (f g : ℝ → ℝ) (y : ℂ) (t s : ℝ) : ℂ := (f t : ℂ) * (g s : ℂ) * gaussKern y (t - s)
@@ -925,8 +1017,8 @@ private lemma twoDimKD_norm_le {f g : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f) (hg
         simp only [← Finset.sum_mul]
     _ ≤ M * Real.exp (-(1 / 4 : ℝ) * t) * Real.exp (-(1 / 4 : ℝ) * s) := by gcongr; dsimp [M]; linarith
 
-private lemma twoDimKD_zero_vals {f g : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f) (hg : ContDiff ℝ ⊤ g) {y : ℂ} (hy : y ≠ 0) (hf0 : f 0 * deriv g 0 = 0) (hg0 : deriv f 0 * g 0 = 0) :
-    twoDimKD f g y 0 0 0 0 = (f 0 * g 0 : ℂ) ∧ twoDimKD f g y 0 1 0 0 = 0 ∧ twoDimKD f g y 1 0 0 0 = 0 := by
+private lemma twoDimKD_zero_vals {f g : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f) (hg : ContDiff ℝ ⊤ g) {y : ℂ} (hy : y ≠ 0) :
+    twoDimKD f g y 0 0 0 0 = (f 0 * g 0 : ℂ) ∧ twoDimKD f g y 0 1 0 0 = ((f 0 * deriv g 0 : ℝ) : ℂ) ∧ twoDimKD f g y 1 0 0 0 = ((deriv f 0 * g 0 : ℝ) : ℂ) := by
   have hg_0 : gaussKern y 0 = 1 := by simp [gaussKern]
   have hg_1 : deriv (gaussKern y) 0 = 0 := by rw [← iteratedDeriv_one, iteratedDeriv_gaussKern_eq hy]; simp [gaussPoly]
   have hG_d : HasDerivAt (gaussKern y) 0 0 := by rw [← hg_1]; exact ((contDiff_gaussKern hy).differentiable (by simp)).differentiableAt.hasDerivAt
@@ -938,7 +1030,7 @@ private lemma twoDimKD_zero_vals {f g : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f) (
       hG_d.congr_of_eventuallyEq (Filter.Eventually.of_forall fun r => by dsimp [gaussKern]; rw [zero_sub, Complex.ofReal_neg, neg_sq])
     have hd_tot : HasDerivAt (fun r => (f 0 : ℂ) * ((g r : ℂ) * gaussKern y (0 - r))) ((f 0 * deriv g 0 : ℝ) : ℂ) 0 :=
       ((hd_g.mul hd_G).const_mul (f 0 : ℂ)).congr_deriv (by simp [hg_0])
-    rw [hfun, hd_tot.deriv, hf0, Complex.ofReal_zero]
+    rw [hfun, hd_tot.deriv]
   · unfold twoDimKD; simp only [iteratedDeriv_zero, iteratedDeriv_one]
     have hfun : (fun x => twoDimK f g y x 0) = fun x => ((f x : ℂ) * (g 0 : ℂ)) * gaussKern y (x - 0) := funext fun x => by unfold twoDimK; ring
     have hd_f := (hf.differentiable (by simp) 0).hasDerivAt.ofReal_comp
@@ -946,7 +1038,7 @@ private lemma twoDimKD_zero_vals {f g : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f) (
       hG_d.congr_of_eventuallyEq (Filter.Eventually.of_forall fun x => by simp)
     have hd_tot : HasDerivAt (fun x => ((f x : ℂ) * (g 0 : ℂ)) * gaussKern y (x - 0)) ((deriv f 0 * g 0 : ℝ) : ℂ) 0 :=
       ((hd_f.mul_const (g 0 : ℂ)).mul hd_G).congr_deriv (by simp [hg_0])
-    rw [hfun, hd_tot.deriv, hg0, Complex.ofReal_zero]
+    rw [hfun, hd_tot.deriv]
 
 private lemma twoDimKD_prod_integrable {f g : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f) (hg : ContDiff ℝ ⊤ g) {y : ℂ} (hy : 0 < y.re) {M : ℝ}
     (hM : ∀ t s : ℝ, 0 ≤ t → 0 ≤ s → ‖twoDimKD f g y i j t s‖ ≤ M * Real.exp (-(1 / 4 : ℝ) * t) * Real.exp (-(1 / 4 : ℝ) * s)) :
@@ -1000,16 +1092,19 @@ private lemma twoDimKD_ibp_s {f g : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f) (hg :
     ⟨(hMb i j hy hy1 t s ht hs).trans (by dsimp [Cmax]; exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (le_max_left _ _) (Real.exp_pos _).le) (Real.exp_pos _).le),
       by rw [hderiv_eq s]; exact (hMb i (j + 1) hy hy1 t s ht hs).trans (by dsimp [Cmax]; exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (le_max_right _ _) (Real.exp_pos _).le) (Real.exp_pos _).le)⟩
 
-private lemma gaussian_2d_ibp_asymp {f g : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f) (hg : ContDiff ℝ ⊤ g)
+/-- **Generic 2-dimensional (3+3+1)-fold Gaussian IBP expansion** (no vanishing hypotheses): for `f, g` smooth with
+the `exp(-t/4)` decay of all derivatives, uniformly on `{Re y > 0, ‖y‖ ≥ 1}`,
+`∫_0^∞∫_0^∞ f(t) g(s) e^{-y(t+s)/2 - (t-s)²/(4y)} ds dt = 4 f(0) g(0)/y² + 8 (f(0) g'(0) + f'(0) g(0))/y³ + O(‖y‖⁻⁴)`. -/
+theorem gaussian_2d_ibp_general {f g : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f) (hg : ContDiff ℝ ⊤ g)
     (hf_dec : ∀ n k : ℕ, ∃ C > 0, ∀ t : ℝ, 0 ≤ t → (1 + t) ^ k * ‖iteratedDeriv n f t‖ ≤ C * Real.exp (-(1 / 4 : ℝ) * t))
-    (hg_dec : ∀ n k : ℕ, ∃ C > 0, ∀ s : ℝ, 0 ≤ s → (1 + s) ^ k * ‖iteratedDeriv n g s‖ ≤ C * Real.exp (-(1 / 4 : ℝ) * s))
-    (hf0 : f 0 * deriv g 0 = 0) (hg0 : deriv f 0 * g 0 = 0) :
+    (hg_dec : ∀ n k : ℕ, ∃ C > 0, ∀ s : ℝ, 0 ≤ s → (1 + s) ^ k * ‖iteratedDeriv n g s‖ ≤ C * Real.exp (-(1 / 4 : ℝ) * s)) :
     ∃ C > 0, ∀ {y : ℂ}, 0 < y.re → 1 ≤ ‖y‖ →
-      ‖(ceK : ℂ) * ((4 * (π : ℂ) * y) ^ (-(1 / 2 : ℂ))) * (∫ t in Ioi (0 : ℝ), ∫ s in Ioi (0 : ℝ), ((f t * g s : ℝ) : ℂ) *
-        Complex.exp (-y * ((t + s : ℝ) : ℂ) / 2 - ((t - s : ℝ) : ℂ) ^ 2 / (4 * y))) - (2 * ceK / Real.sqrt π * (f 0 * g 0) : ℂ) * y ^ (-(5 / 2 : ℂ))‖ ≤ C * ‖y‖ ^ (-(9 / 2 : ℝ)) := by
+      ‖(∫ t in Ioi (0 : ℝ), ∫ s in Ioi (0 : ℝ), ((f t * g s : ℝ) : ℂ) *
+        Complex.exp (-y * ((t + s : ℝ) : ℂ) / 2 - ((t - s : ℝ) : ℂ) ^ 2 / (4 * y))) -
+        (4 / y ^ 2 * ((f 0 * g 0 : ℝ) : ℂ) + 8 / y ^ 3 * ((f 0 * deriv g 0 + deriv f 0 * g 0 : ℝ) : ℂ))‖ ≤ C * ‖y‖ ^ (-4 : ℝ) := by
   choose M hM_pos hM_bd using twoDimKD_norm_le hf hg hf_dec hg_dec
   let M_all := 16 * (M 0 2 + M 1 1 + M 2 0 + 4 * (M 0 3 + M 1 2 + M 2 1 + M 3 0 + 4 * M 3 1))
-  have hceK := ceK_pos; refine ⟨ceK / (2 * Real.sqrt π) * M_all + 1, by
+  refine ⟨M_all + 1, by
     have := hM_pos 0 2; have := hM_pos 1 1; have := hM_pos 2 0; have := hM_pos 0 3; have := hM_pos 1 2; have := hM_pos 2 1; have := hM_pos 3 0; have := hM_pos 3 1; positivity, fun {y} hy hy1 => ?_⟩
   have hy_ne : y ≠ 0 := fun h => by simp [h] at hy
   let E : ℝ → ℂ := fun t => Complex.exp (-y * (t : ℂ) / 2)
@@ -1067,13 +1162,13 @@ private lemma gaussian_2d_ibp_asymp {f g : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f
       rw [show (fun t => ∫ s in Ioi (0 : ℝ), twoDimKD f g y 3 1 t s * E s * E t) = fun t => ∫ s in Ioi (0 : ℝ), twoDimKD f g y 3 1 t s * E t * E s from funext fun t => setIntegral_congr_fun measurableSet_Ioi fun _ _ => by ring]
       exact hint31.integral_prod_left
     rw [setIntegral_congr_fun measurableSet_Ioi hin, integral_add (hint_t0.const_mul _) (hint_t31.const_mul _), integral_const_mul, integral_const_mul]
-  obtain ⟨hK00, hK01, hK10⟩ := twoDimKD_zero_vals hf hg hy_ne hf0 hg0
+  obtain ⟨hK00, hK01, hK10⟩ := twoDimKD_zero_vals hf hg hy_ne
   let rem : ℂ := ((twoDimKD f g y 0 2 0 0 + twoDimKD f g y 1 1 0 0 + twoDimKD f g y 2 0 0 0) +
     (∫ s in Ioi (0 : ℝ), twoDimKD f g y 0 3 0 s * E s) + (∫ s in Ioi (0 : ℝ), twoDimKD f g y 1 2 0 s * E s) +
     (∫ s in Ioi (0 : ℝ), twoDimKD f g y 2 1 0 s * E s) + (∫ t in Ioi (0 : ℝ), twoDimKD f g y 3 0 t 0 * E t) +
     (∫ t in Ioi (0 : ℝ), ∫ s in Ioi (0 : ℝ), twoDimKD f g y 3 1 t s * E s * E t))
   have hexpand : ∫ t in Ioi (0 : ℝ), ∫ s in Ioi (0 : ℝ), ((f t * g s : ℝ) : ℂ) * Complex.exp (-y * ((t + s : ℝ) : ℂ) / 2 - ((t - s : ℝ) : ℂ) ^ 2 / (4 * y)) =
-      4 / y ^ 2 * ((f 0 * g 0 : ℝ) : ℂ) + (16 / y ^ 4) * rem := by
+      4 / y ^ 2 * ((f 0 * g 0 : ℝ) : ℂ) + 8 / y ^ 3 * ((f 0 * deriv g 0 + deriv f 0 * g 0 : ℝ) : ℂ) + (16 / y ^ 4) * rem := by
     rw [hswap0, houter]; dsimp only [E, rem]
     rw [hibp_s 0 0 le_rfl, hibp_s 0 1 le_rfl, hibp_s 0 2 le_rfl, hibp_s 1 0 le_rfl, hibp_s 1 1 le_rfl, hibp_s 2 0 le_rfl]
     erw [hterm3]; rw [hK00, hK01, hK10]; push_cast; ring
@@ -1105,10 +1200,29 @@ private lemma gaussian_2d_ibp_asymp {f g : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f
         (add_le_add ((norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans (add_le_add hK02 hK11)) hK20)) (h1d_s 0 3))) (h1d_s 1 2))) (h1d_s 2 1))) h1d_t)) h2d).trans_eq (by ring))
     rw [norm_mul, norm_div, show ‖(16 : ℂ)‖ = 16 by norm_num, norm_pow, div_eq_mul_inv, show ‖y‖ ^ (-4 : ℝ) = (‖y‖ ^ 4)⁻¹ by rw [show (-4 : ℝ) = -((4 : ℕ) : ℝ) by norm_num, Real.rpow_neg (norm_nonneg y), Real.rpow_natCast]]
     exact (mul_le_mul_of_nonneg_left htri (by positivity)).trans_eq (by dsimp [M_all]; ring)
-  rw [hexpand, rpow_neg_half_mul_four_pi hy,
-    show (ceK : ℂ) * ((((2 * Real.sqrt π)⁻¹ : ℝ) : ℂ) * y ^ (-(1 / 2 : ℂ))) = ((ceK / (2 * Real.sqrt π) : ℝ) : ℂ) * y ^ (-(1 / 2 : ℂ)) by push_cast; ring,
-    mul_add, ibp_main_term_mul hy_ne (f 0 * g 0), Complex.ofReal_mul, add_sub_cancel_left]
-  exact (ibp_rem_norm_le hy hy1 hrem_norm).trans (mul_le_mul_of_nonneg_right (by linarith) (Real.rpow_nonneg (norm_nonneg _) _))
+  rw [hexpand, add_sub_cancel_left]
+  exact hrem_norm.trans (mul_le_mul_of_nonneg_right (by linarith) (Real.rpow_nonneg (norm_nonneg _) _))
+
+private lemma gaussian_2d_ibp_asymp {f g : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f) (hg : ContDiff ℝ ⊤ g)
+    (hf_dec : ∀ n k : ℕ, ∃ C > 0, ∀ t : ℝ, 0 ≤ t → (1 + t) ^ k * ‖iteratedDeriv n f t‖ ≤ C * Real.exp (-(1 / 4 : ℝ) * t))
+    (hg_dec : ∀ n k : ℕ, ∃ C > 0, ∀ s : ℝ, 0 ≤ s → (1 + s) ^ k * ‖iteratedDeriv n g s‖ ≤ C * Real.exp (-(1 / 4 : ℝ) * s))
+    (hf0 : f 0 * deriv g 0 = 0) (hg0 : deriv f 0 * g 0 = 0) :
+    ∃ C > 0, ∀ {y : ℂ}, 0 < y.re → 1 ≤ ‖y‖ →
+      ‖(ceK : ℂ) * ((4 * (π : ℂ) * y) ^ (-(1 / 2 : ℂ))) * (∫ t in Ioi (0 : ℝ), ∫ s in Ioi (0 : ℝ), ((f t * g s : ℝ) : ℂ) *
+        Complex.exp (-y * ((t + s : ℝ) : ℂ) / 2 - ((t - s : ℝ) : ℂ) ^ 2 / (4 * y))) - (2 * ceK / Real.sqrt π * (f 0 * g 0) : ℂ) * y ^ (-(5 / 2 : ℂ))‖ ≤ C * ‖y‖ ^ (-(9 / 2 : ℝ)) := by
+  obtain ⟨C, hC, hbd⟩ := gaussian_2d_ibp_general hf hg hf_dec hg_dec
+  have hceK := ceK_pos
+  refine ⟨ceK / (2 * Real.sqrt π) * C, by positivity, fun {y} hy hy1 => ?_⟩
+  have hy_ne : y ≠ 0 := fun h => by simp [h] at hy
+  have h := hbd hy hy1
+  rw [hf0, hg0, add_zero, Complex.ofReal_zero, mul_zero, add_zero] at h
+  rw [rpow_neg_half_mul_four_pi hy,
+    show (ceK : ℂ) * ((((2 * Real.sqrt π)⁻¹ : ℝ) : ℂ) * y ^ (-(1 / 2 : ℂ))) = ((ceK / (2 * Real.sqrt π) : ℝ) : ℂ) * y ^ (-(1 / 2 : ℂ)) by push_cast; ring]
+  generalize (∫ t in Ioi (0 : ℝ), ∫ s in Ioi (0 : ℝ), ((f t * g s : ℝ) : ℂ) * Complex.exp (-y * ((t + s : ℝ) : ℂ) / 2 - ((t - s : ℝ) : ℂ) ^ 2 / (4 * y))) = J at h ⊢
+  rw [show J = 4 / y ^ 2 * ((f 0 * g 0 : ℝ) : ℂ) + (J - 4 / y ^ 2 * ((f 0 * g 0 : ℝ) : ℂ)) by ring, mul_add,
+    ibp_main_term_mul hy_ne (f 0 * g 0), Complex.ofReal_mul, add_sub_cancel_left]
+  rw [Complex.ofReal_mul] at h
+  exact ibp_rem_norm_le hy hy1 h
 
 /-- Uniform (3+3+1)-fold Gaussian IBP asymptotic for `ceG1Deriv` on `{Re y > 0, ‖y‖ ≥ 1}`. -/
 theorem airyTwistedLaplaceC_ceG1Deriv_asymp :
@@ -1359,3 +1473,11 @@ theorem twoScaleQ0_real_laplace_bound :
 /-- info: 'FormalResearch.CohnElkies.twoScaleQ0_real_laplace_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms twoScaleQ0_real_laplace_bound
+
+/-- info: 'FormalResearch.CohnElkies.gaussian_1d_ibp_general' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms gaussian_1d_ibp_general
+
+/-- info: 'FormalResearch.CohnElkies.gaussian_2d_ibp_general' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms gaussian_2d_ibp_general

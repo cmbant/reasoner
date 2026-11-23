@@ -50,6 +50,7 @@ public import FormalResearch.CohnElkies.PieceCRegularity
 public import FormalResearch.CohnElkies.PieceCUniform
 public import FormalResearch.CohnElkies.PieceCSmooth
 public import FormalResearch.CohnElkies.MainOuterBound
+public import FormalResearch.CohnElkies.SeedSymbolDerivs
 public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
 public import FormalResearch.CohnElkies.TwoIBPPhase
@@ -172,6 +173,7 @@ and the Airy library:
 * `FormalResearch.CohnElkies.PieceCUniform`: `|H_c| + |H_c'| + |H_c''| ≤ C` on `[-1,1]` and `C²` bounds of `g` on `ℝ`, uniform in `c ≥ 2`, `δ₀ ∈ (0,4]` (`pcAmp_bd2`, `pcH_bd2`, `exists_uniform_bounds_chi_pcH`).
 * `FormalResearch.CohnElkies.PieceCSmooth`: the smooth part of Piece C by `two_ibp_phase` (`smooth_ibp_bound`, `pieceC_hsmooth`) and `pieceC_main_term_smooth`, `pieceC_main_term` with `hsmooth` discharged from the regularity `SmoothSymbol` of `G_sm` (the seed data `U.1`/`(e27)` is the remaining input).
 * `FormalResearch.CohnElkies.MainOuterBound`: the `(1 - χ_ξ)`-part of `I_main` for `O.3(2)`/`(e4)`, by the binomial expansion of `E₁(iκτ)^m` and the core dual-phase bound (`main_outer_phase_bound`, `iMain_outer_bound`); the amplitude bounds `(e27)` are hypotheses.
+* `FormalResearch.CohnElkies.SeedSymbolDerivs`: `y`-derivative bounds `T = O(‖y‖^{-5/2})`, `T' = O(‖y‖^{-7/2})`, `T'' = O(‖y‖^{-9/2})` on `{Re y > 0, ‖y‖ ≥ 1}` for the Gaussian transforms of the seeds `f₁`, `g₁`, `g₁'` (`ceF1_symbolBounds`, `ceG1_symbolBounds`, `ceG1Deriv_symbolBounds`), by differentiating under the integral (polynomial weights, `hasDerivAt_Jp`, `hasDerivAt_J1p`) and the generic IBP expansions `gaussian_2d_ibp_general`, `gaussian_1d_ibp_general` of `CancelledSymbolAndLaplace`.
 * `FormalResearch.CohnElkies.PreEdgeCriterion`: unconditional concrete `GT.2b(1)–(3)` & `O.11y(3)`/`GT.4` tip offset
   for `twoScaleS`, unconditional `PE.3` reference & measure Mellin inversion (`pe3_reference_mellin_inversion`,
   `pe3_measure_inversion`), `pe3_remainder_integral_bound` (`O(c^{-2/3})`), `pe3_compact_origin_pos`, and
