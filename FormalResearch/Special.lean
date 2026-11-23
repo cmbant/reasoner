@@ -14,6 +14,8 @@ public import FormalResearch.Special.GammaRatio
 public import FormalResearch.Special.JacobiMehlerHeine
 public import FormalResearch.Special.JacobiMehlerHeineRate
 public import FormalResearch.Special.JacobiBessel
+public import FormalResearch.Special.BesselNormalized
+public import FormalResearch.Special.BesselPoisson
 public import FormalResearch.Special.LaguerreHardEdge
 public import FormalResearch.Special.LaguerreUniqueness
 public import FormalResearch.Special.Airy
@@ -116,7 +118,7 @@ Jacobi polynomials `P_n^{(α,β)}` (DLMF 18): explicit-sum definition, different
 derivative, reflection, three-term recurrence, orthogonality and norm (natural and real
 parameters `α, β > -1`), zeros, Christoffel–Darboux, Rodrigues, and the Legendre, Chebyshev and
 Gegenbauer special cases; the Mehler–Heine formula `n^{-α} P_n^{(α,β)}(cos(z/n)) → (z/2)^{-α} J_α(z)`
-(`JacobiMehlerHeine`, `JacobiBessel`); the Laguerre recurrence of the hard-edge factor
+(`JacobiMehlerHeine`, `JacobiBessel`); the normalised Bessel function `Γ(ν+1)(x/2)^{-ν} J_ν(x)` of real order, its entire series, Poisson integral and bound `|·| ≤ 1` for `ν > -1/2` (`BesselNormalized`, `BesselPoisson`); the Laguerre recurrence of the hard-edge factor
 (`LaguerreHardEdge`, with uniqueness of that solution up to scale in `LaguerreUniqueness`); the Airy function on `ℂ` and `ℝ`: definition by an absolutely convergent
 contour integral, entire, `Ai'' = z Ai`, explicit decay, positivity on `[0,∞)`, real negative zeros, rotation
 identity and `Bi` (`Airy`); Sturm and Prüfer theory of `y'' = q y` (`q` continuous, in particular the Airy

@@ -6,11 +6,16 @@ public import FormalResearch.SignUncertainty.RadialRigidity
 public import FormalResearch.SignUncertainty.HardyMellinIntertwiner
 public import FormalResearch.SignUncertainty.HankelFiveHalvesWitness
 public import FormalResearch.SignUncertainty.SignSeparation
+public import FormalResearch.SignUncertainty.HankelBessel
+public import FormalResearch.SignUncertainty.HankelBesselNat
+public import FormalResearch.SignUncertainty.HankelBesselLaguerre
+public import FormalResearch.SignUncertainty.RadialCompactnessKernel
 public import FormalResearch.SignUncertainty.ShellLaplaceBase
 public import FormalResearch.SignUncertainty.ShellGap
 public import FormalResearch.SignUncertainty.ShellGapWitness
 public import FormalResearch.SignUncertainty.ShellLaplaceZeros
 public import FormalResearch.SignUncertainty.OddShellFamily
+public import FormalResearch.SignUncertainty.ElementaryIdentities
 public import FormalResearch.SignUncertainty.Radii
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
@@ -31,6 +36,15 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.HankelFiveHalvesWitness`: explicit `c = 5/2` (`d = 5`) Bessel
   `J_{3/2}` non-vacuity witness for Proposition 7.9a.
 * `FormalResearch.SignUncertainty.SignSeparation`: odd Laguerre origin constraint (`Prop 7.9b`)
+  and sign separation of bounded remainders (`Thm 7.9c`, `general_theorems.tex`).
+* `FormalResearch.SignUncertainty.HankelBessel`, `HankelBesselNat`, `HankelBesselLaguerre`: the concrete
+  real-order Bessel Hankel kernel `K^{(c)}` of `fourier_mellin.tex` (`|K| ≤ 1`, the transform `𝓗_c` and
+  `|𝓗_c f| ≤ M[f]`, `HankelKernelData` from `HankelAntiderivFacts`, agreement with the natural-order
+  Bessel function) and the Laguerre modes `𝓗_c e^{-2πΔ} = e^{-2πΔ}`, `𝓗_c u₀ = -u₀`
+  (`general_theorems.tex`, Prop 7.9b input).
+* `FormalResearch.SignUncertainty.RadialCompactnessKernel`: the `s`-derivative identity
+  `∂_s(ξ_c^{-1} K_c(w,s)) = ξ_c^{-1}(w - ε_c²) ξ_c^{-1} K_c(w,s)` of the Mellin kernel (kernel level of the `C¹`
+  clause of `lem:radial-compactness`; the compactness argument itself is not formalised).
   and sign separation of bounded remainders (`Thm 7.9c`, `general_theorems.tex`) from
   `SignSeparationPackage` (Airy-order thresholds and `C¹` profile convergence; no Langer chart).
 * `FormalResearch.SignUncertainty.ShellLaplaceBase`: Airy–Laplace transform, `ShellHBData`,
@@ -43,6 +57,8 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   near-`0⁺` and large-`y` positivity, and `m = 3` trichotomy (`ce_shells.tex`, Corollary `H.14b`).
 * `FormalResearch.SignUncertainty.OddShellFamily`: analytic odd-level Hermite–Biehler shell gap
   configurations (`ce_shells.tex`, Corollary `H.14a` / `thm:ce-odd-family`) for every odd `m ≥ 3`.
+* `FormalResearch.SignUncertainty.ElementaryIdentities`: the O.4(2) contraction algebra (`u1co:O4`),
+  and the Laplace-type integral of Lemma U.1(1) (`u1c:U1`).
 * `FormalResearch.SignUncertainty.Radii`: concrete Euclidean radii `A_sign^±(d)`, the prescribed-shell
   Cohn–Elkies class and `u_LP`, the Bessel-kernel Hankel thresholds, and the bridge to the abstract
   `HankelKernelData` development (`sign_uncertainty_core.tex`, introduction).

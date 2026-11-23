@@ -229,6 +229,25 @@ public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWMain
 public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWYVBand
 public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWYV
 public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWInterface
+public import FormalResearch.ModularBootstrap.Upper.Ramped.GapDisc
+public import FormalResearch.ModularBootstrap.Upper.Ramped.ProfileBound
+public import FormalResearch.ModularBootstrap.Upper.Ramped.ProfileProducts
+public import FormalResearch.ModularBootstrap.Upper.Ramped.ProfileProdBound
+public import FormalResearch.ModularBootstrap.Upper.Ramped.ProfileR1
+public import FormalResearch.ModularBootstrap.Upper.Ramped.ProfileV
+public import FormalResearch.ModularBootstrap.Upper.Ramped.AiryProfile
+public import FormalResearch.ModularBootstrap.Upper.Ramped.PUnif
+public import FormalResearch.ModularBootstrap.Upper.Window.AiryProdPositive
+public import FormalResearch.ModularBootstrap.Upper.Window.DesignBridge
+public import FormalResearch.ModularBootstrap.Upper.Window.LemmaR
+public import FormalResearch.ModularBootstrap.Upper.Positivity.RegionOne
+public import FormalResearch.ModularBootstrap.Upper.Positivity.RegionOneAssembly
+public import FormalResearch.ModularBootstrap.Upper.Positivity.VacuumPrelim
+public import FormalResearch.ModularBootstrap.Upper.Positivity.VacuumWindow
+public import FormalResearch.ModularBootstrap.Upper.Positivity.VacuumCore
+public import FormalResearch.ModularBootstrap.Upper.Positivity.VacuumDesign
+public import FormalResearch.ModularBootstrap.Upper.Positivity.VacuumMain
+public import FormalResearch.ModularBootstrap.Upper.Positivity.Vacuum
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -722,4 +741,34 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `BootstrapWInterface` concludes `LemmaQData.theoremJ_T_V_W` and `fixedWeightLowerBoundInput_of_problem`
   (`FixedWeightLowerBoundInput prob` for every `prob`).  This supplies the weight-`w` band-feedback bridge and
   scale choice mentioned as not formalised in the previous bullet.
+
+* `Upper.Ramped.{GapDisc, ProfileBound, ProfileProducts, ProfileProdBound, ProfileR1, ProfileV, AiryProfile, PUnif}`:
+  **Lemma `P_unif`** (`rem:profile`, `n2_ramped_comb.tex`) and the profile versions of Lemmas G, V, E
+  (`ut:G`, `ut:V`, `ut:E`), unconditional.  `ProfHyp C₀ u ε` (sites `|u_k - a_k| ≤ C₀ k^{-4/3}`, widths
+  `0 ≤ ε_k ≤ C₀ k^{-1/3}`, `k ≥ 2`); `pUnif_bound` (`‖W(u)‖ ≤ C (1 + ‖u‖)^{-3/2} e(u)` uniformly over
+  `ProfHyp C₀` and `d ∈ [0, 1]`, from `airyWindowProd_bound_unif` and the maximum-principle extension
+  `norm_le_of_gap_disc_extension`); `profPi0_le_unif` (`Π_n(0) ≤ C ((a_n - u_n)² + ε_n²) n^{-2/3}`),
+  `profR1_bounds_unif` (`1/2 ≤ R_1 ≤ C` for `N ≥ N₀`), `profV_identity` (`∫ W = -d R_1 + ∑_{n ≥ 2} Π_n(d)`,
+  `Π_n(d) = Π_n(0)(1 - d/|a_n - a_1|) ≥ 0`, `∫ W ≤ -d R_1 + E_0`); for the ramped profile
+  (`designSiteU N`, `rampedWidthU η`, `AdmHeights η`) `pUnif_E0`
+  (`E_0 ≤ C (∑_{n=2}^N η_n² n^{-4/3} + ∑_{n>N} (η_n² n^{-4/3} + n^{-10/3}))`), `pUnif_V_ramped`,
+  `lemma_P_unif`, `pUnif_integral_le` (`∫ W ≤ -d/2 + E_0`) and `lemma_G_bound_unif` (Lemma G with a constant
+  independent of `N`, `η_*`, `d`).
+
+* `Upper.Window.AiryProdPositive`, `Upper.Window.DesignBridge`, `Upper.Window.LemmaR`: **Lemma R** (`ut:R`):
+  sign structure of the Airy window product (`airyWindowProd_eq_neg_mul_pos`: `W^{(f)} = -(u - u_f) S`, `S > 0`,
+  one simple real zero), the design as `ModifiedCombData` (`designMod`, `designModFamily`,
+  `designComb_eq_modifiedCombB`), and `lemma_R` / `lemma_R_lower` (`h₀ e^{c'L} = K̃_c (σ - σ_f) w_c(σ)`, `w_c → w_∞ ≥ w₀ > 0`
+  uniformly, the division by `σ - σ_f` done before the limit through the shifted zero), all unconditional.
+
+* `Upper.Positivity.RegionOne`, `Upper.Positivity.RegionOneAssembly`: **Proposition I** (`ut:I`) for the
+  Virasoro designs `D(N, η_*, d)`: `proposition_I_a` (Lemma R against `SD_G`), `proposition_I_b` (`lemma_P_b` and the
+  `K5` overshoot, exponent `3/5 > 1/2`), `proposition_I_design` (with `proposition_II_design`: `2g > 0` for
+  `x ≥ χ'_1 + C λ c'^{-1/2}`) and `proposition_I_design_t` (`2g > 0` on `t ≥ t_f + 1`), unconditional.
+
+* `Upper.Positivity.{VacuumPrelim, VacuumWindow, VacuumCore, VacuumDesign, VacuumMain, Vacuum}`:
+  **Proposition V** (`ut:Vac`) for the Virasoro designs: `vacuum_core` (`V_c ≤ FK_c (C_* V_D + ε)` from `lemma_T`,
+  `lemma_W_measure`, `lemma_ID`, the sign argument `design_lobe_nonpos`), `proposition_V_i`
+  (`(2/FK_c) ∫Ψ_g du - C_* V_D ≤ ε`, with `∫Ψ_g du = -g_vac/(2π)`) and `proposition_V_ii`
+  (`V_D < 0 ⇒ g_vac ≥ π C_* |V_D| FK_c / 4`), unconditional.
 -/
