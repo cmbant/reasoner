@@ -93,6 +93,7 @@ public import FormalResearch.SignUncertainty.MiddleBandIbp
 public import FormalResearch.SignUncertainty.MiddleBandPowers
 public import FormalResearch.SignUncertainty.MiddleBandVdc
 public import FormalResearch.SignUncertainty.HankelLangerIdentity
+public import FormalResearch.SignUncertainty.HankelWtConj
 public import FormalResearch.SignUncertainty.EuclidSplit
 public import FormalResearch.SignUncertainty.EuclidRadialSlice
 public import FormalResearch.SignUncertainty.EuclidRadialFourier
@@ -215,6 +216,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.HankelLangerSeries`: coefficient facts for the Hankel Langer chart (`gt:7.7b` (0)): `etaC j = η(2j+2)` with `0 < etaC j < 1` and `etaC 0 = π²/12`, the normalised coefficients `langerA`, `langerB` and their bounds, the tail bounds `abs_eps_le` (`≤ 7.46e-4`) and `abs_E_sub_one_le_035` (`≤ 8.95e-4`) on `‖z‖ ≤ 0.035`, and the binomial bound `‖(1+x)^α - 1‖ ≤ 1 - (1-‖x‖)^α`. The series identity `π/sin(πz) - 1/z = 2∑η(2j+2)z^{2j+1}` is not formalised here.
 * `FormalResearch.SignUncertainty.MiddleBandNumerics`, `MiddleBandIbp`, `MiddleBandPowers`, `MiddleBandVdc`: scalar and analytic tools for the middle-band estimate GT.2a (cubic phase `ψ(u) = a u − π²u³/36`: derivative and monotonicity bounds on the inner, far and outer zones, `ε u₀ < 0.05`; the two-integrations-by-parts bound for either sign of `ψ'`; power integrals and `ε`-power algebra; van der Corput on `[α, β]` and `[−β, −α]` for the cubic phase). The GT.2a assembly itself is not formalised.
 * `FormalResearch.SignUncertainty.HankelLangerIdentity`: the series identity `π/sin(πz) - 1/z = 2∑η(2j+2)z^{2j+1}` for `0 < ‖z‖ < 1` (`langer_eta_identity`) and, for `‖z‖ < 1/8`, `log(tan(πz/2)/(πz/2)) = ∑η(2j+2)/(j+1) z^{2j+2}` with its derivative (`langer_g_hasSum`, `langer_g_eq_tsum`, `langer_g_hasDerivAt`).
+* `FormalResearch.SignUncertainty.HankelWtConj`: complex-conjugation symmetry of `W̃_c` and of the local density integrand (`hankelMellinStrip_conj`, `hankelHInt_conj`, `hankelWt_conj`, `hankelJ_conj`), and reality of the local density for real `ℓ` (`hankelLocal_im_eq_zero`).
   with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
   `one_profile_envelope`.
 * `FormalResearch.SignUncertainty.EuclidSplit`, `EuclidRadialSlice`, `EuclidRadialFourier`, `EuclidRadialHankel`: the

@@ -1,10 +1,8 @@
 # Paper II (modular bootstrap at large c) — Lean plan
 
 Source: QIprojects `CFT/modular_bootstrap/paper/` (`airy_scale_core.tex` and its appendices, the technical supplement)
-and the notes `CFT/notes/n2_ramped_comb.tex` (Lemma U*, `rem:thmU`). Audit 2026-11-23, reasoner `24b2022`,
+and the notes `CFT/notes/n2_ramped_comb.tex` (Lemma U*, `rem:thmU`). Audit 2026-11-23 (after A–C), reasoner `9a465bf`,
 QIprojects `origin/main`. The paper status line for readers is the Paper II section of QIprojects `docs/lean_status.md`.
-Earlier detailed plans (`U6_PLAN.md`, `UPPER_PLAN.md` in the working session's scratch) are superseded by this file
-except for the step-level reuse tables of U6, recalled where needed below.
 
 ## 1. Proved on master (unconditional, pinned axioms `[propext, Classical.choice, Quot.sound]`)
 
@@ -15,70 +13,56 @@ except for the step-level reuse tables of U6, recalled where needed below.
 | **O(1) two-sided law at Virasoro** `Δ_best = c/Λ_V + A_opt c^{1/3} + O(1)` (O(1) upper half of C15 via Lemma U*) | `n2_ramped_comb.tex` `rem:thmU`, `ds:E1` | `Upper.Ramped.theoremC15UpperInput_virasoro`, `virasoro_corollary_E1_unconditional` |
 | Property (P) for the `f = 1` designs `D(N,η_*,d)`, `η_* > 0` (Lemmas W, ID, A_V, T, R; Props I, II, V; K7) | `upper_transfer.tex`, `spectral_rigidity.tex` `sr:P` | `designPropertyP_virasoro` |
 | Σ₀ and Σ at Virasoro for the extremal measures | `spectral_rigidity.tex` `sr:Sigma0`, `sr:Sigma` | `Upper.Assembly.virasoro_sigmaZero_unconditional`, `virasoro_sigma_unconditional` |
-| O(1)-upper inputs so far: Lemma P_unif (R1), Langer coordinate Prop 1.2(1), (F1), (F2) (R2a) | `n2_ramped_comb.tex`, `remainder.tex` | `Ramped.lemma_P_unif`, `Ramped.langerTau_spec`, `langerChart_F1/F2`, `langerTauInv_expansion`, `siteGap_two_sided` |
+| O(1) upper bound and two-sided law for every `w = 1` problem; N = 1 corollaries | `n2_ramped_comb.tex`, `n1_super_virasoro.tex` | `Ramped.theoremC15UpperInput_prob`, `Assembly.n1_corollary_E1_unconditional`, `n1_sigma_unconditional` |
 
-Conditional: Σ (`virasoro_sigma`) needs `DisplacedFamily` and `OmittedFamily` for a design class with Property (P).
+Σ₀, Σ also for every `w = 1` problem (`sigma_unconditional_prob`).
 
-## 2. Targets, in order
+## 2. Done packages (record)
 
-**A. O(1) upper bound at Virasoro: `TheoremC15UpperInput virasoroProblem`** (route U*, w = 1 only, no bump, FW-U
-retired; the docstring cites `rem:thmU` of `n2_ramped_comb.tex`). With the lower bound this gives
-`Δ_best = c/Λ_V + A_opt c^{1/3} + O(1)` two-sided. Packages under `Upper/Ramped/` (statement chain S0–S10 of
-U6_PLAN §1, unchanged; TeX re-checked against `origin/main`):
+- **A. O(1) upper bound at w = 1** (route U*, `Upper/Ramped/`, R1–R8; `theoremC15UpperInput_virasoro`). Lessons kept:
+  generalise in place (state the general lemma in our own file, re-derive the old declaration with the same name);
+  finite rational hole product (no Euler products); statements uniform in `d` and `C_I, C_mid`.
+- **B. Σ₀, Σ** (`Upper/Rigidity`, `Upper/Assembly`): Property (P) for any bounded offsets; the omitted family uses
+  `f = 1` far-first-site designs (`farFamily`); the TeX keeps its `f ≥ 2` Step 6 with an internal note (owner decision).
+- **C. N = 1** (`FixedWeightBand.n1_lowerBoundInput`, `Upper/Assembly/N1.lean`).
+- Already in Lean before this plan, not to be redone: Prop T, Theorems C, R1–R3 at every integer `(w,Q)`
+  (`FixedWeightTip/BlowupAndRigidity`, `Blowup/PropositionT`, `Rigidity/AiryRigidity`); strong duality D1, Lemma M,
+  F_sep, Theorem E (`Duality/`, `FixedWeight/StrongDuality`); FW-A/X/C (`Crossing/`); Clark two-node theorem gt:1.2
+  and the Clark quadrature (Paper I: `SignUncertainty/ClarkTwoNode`, `Special/AiryClark*`).
 
-| pkg | content | state / depends |
-|---|---|---|
-| R1 | P_unif, profile Lemma V/E/G | done |
-| R2a | Langer chart τ, τ⁻¹, (F1), (F2) | done |
-| R3a | Phase machinery uniform in N: squared pair-change bound (PC) `‖∂^iΔ_D‖ ≤ K Σ(|ε_j²−ε0_j²| + 2|χ'_j−χ_j|)`, N-free `combTail_K1a`, SDV hypotheses / Lemma Φ transform / global bound / K7 for an abstract design with c'-independent constants | done (`Ramped/PhaseUniform`, in-place generalisation of `Design/*`, `Membership/DesignMembership`) |
-| R4 | Hole comparison: Λ-form of K4 for an arbitrary comb, comparison `log|B_D| ≥ log|B_ref| − S + Σ_H log ρ_k`, `R(t)` discriminant lemma, seven-pair product, near-tip ratio `vρ_∞ ≤ C_v r^{5/4}` | done (`ShiftSumEstimate` proved in R3b) |
-| R2b | Prop 1.2(2) comb-to-Airy identity, uniform over designs, error `O(c'^{-2/3})` | done (`Ramped/CombToAiry*`, for `combBD`; bridge to the ramped `designComb` in R5/R7) |
-| R3b | Ramped instantiation (sites, heights, PC sums, SDV, Φ transform θ=3/5, K7, far-band comparison) | done (`Ramped/RampedDesign*`, `RampedFarBand`, `RampedThreshold`) |
-| R5 | Region I | done (`Ramped/RampedRegionOne*`, `rampedRegionI`, `rampedPositive_tstar`) |
-| R6 | Region II near-tip + macroscopic | done (`Ramped/RampedRegionTwo*`, `rampedRegionII`; bridge `Ramped/CombBridge` for R5/R7) |
-| R7 | Vacuum | done (`Ramped/RampedVacuum*`, `rampedVacuum`; virasoroProblem, C2 generalises) |
-| R8 | Assembly `theoremC15UpperInput_virasoro`, `IsFeasible.mono_T`, `t_*` expansion; E1 with O(1) | done (`Ramped/RampedFinal`: `theoremC15UpperInput_virasoro`, `virasoro_corollary_E1_unconditional`) |
+## 3. Targets (audit 2026-11-23, after A–C)
 
-Revisions made in this audit (cleaner implementation, checked against the TeX):
-1. **Generalise in place, do not copy.** R3a and R4 reopen proofs that are ours (`Upper/Design/PerturbPhi.lean`
-   `iteratedDeriv_designDelta_le`, `Upper/Design/CombTransform.lean` `designProfile_sdvHypotheses`,
-   `Upper/Design/DesignCombProps.lean` `combTail_K1a`, `Upper/Holes/Holes.lean` `hole_lower_K4`). State the general
-   lemma (squared PC; N-free constants; Λ-form for an arbitrary comb, the internal `h_part` made public) and re-derive
-   the existing declaration as a corollary with the same name and statement. No parallel copy under `Ramped/`.
-   Only the new ramped-specific statements go in `Ramped/`.
-2. **Hole product: finite and rational.** U* uses `c_fl` only through `c_fl > 0` (`C_mid² ≥ C_2/(8c_fl)`, N2R
-   l.209). The seven other hole pairs give `∏ρ_k ≥ (1−C/n)·16647192576/23591176505` (= 0.70565…, recomputed exactly;
-   TeX issue 136 verified). No Euler product identities in Lean. TeX: replace the infinite product display by the
-   finite one (R4 makes this edit).
-3. **Reuse the design-side packages now on master.** R5 reuses `Upper/Positivity/RegionOne*` (case split and
-   `airyWindowProd` sign/zero facts, `Window/AiryProdPositive`, `Window/LemmaR`); R7 reuses the `Vacuum*` assembly
-   pattern and `Window/CardyWindow` (two-sided A_V still to add); R2b reuses `lemma_ID` (exact identity, any site and
-   height sequences) and Prop 1.1.
-4. **Uniformity in d.** State S5–S9 for all `d ∈ [0, min(1,(a_1−a_2)/8)]` and all `C_I, C_mid ≥ 1` (TeX l.173–177),
-   so that the general-weight bump route (target D) can reuse them.
-5. R2b fallback only if blocked: a named `CombToAiryInput` with the literal TeX quantifiers and a non-vacuity theorem.
+**TL. Two-level Clark curve** (`virasoro_two_level.tex`; new directory `TwoLevel/`).
 
-**B. Σ at Virasoro** (from the `sn_u5t2` sketch; constructions in `spectral_rigidity.tex` `sr:Sigma`):
-- **Done:** Σ1–Σ4. `virasoro_sigma_unconditional` (Theorem Σ at Virasoro, no hypothesis). Property (P) is proved for
-  combs with any bounded offset vector (`displacedPropertyP_virasoro`, the `sig*` chain, generalised in place), and the
-  omitted family uses `f = 1` far-first-site designs (`farFamily`) instead of the paper's `f ≥ 2` designs. Whether the TeX
-  switches `sr:Sigma` Step 6 to that route is an owner decision.
+| pkg | content | size | depends | state |
+|---|---|---|---|---|
+| TL1 | `A2star` (definition via `clarkNode α 2`, monotone, range, endpoints) and Theorem 2.1 `gt:2.1` (liminf ≥ A₂*, equality case → c·g_α) at every integer (w,Q) | M | Prop T, gt:1.2 | running |
+| TL2 | Prop 2.3 `gt:2.3` qualitative: `u₂*(K) < z₂`, `→ z₂` (rate skipped) | S–M | gt:1.2, `airyNC_quadrature` | running |
+| TL3 | Constrained strong duality on `{t₁} ∪ [τ,∞)` (generalise `theorem_E` in place), Cor 2.4 `gt:2.4` | M | TL1, Theorem E, C15 upper (w = 1) | next |
+| TL4 | Thm 2.5 `gt:2.5` and Thm 2.6 `gt:2.6` from a named `TwoSimpleZeroTransfer` Prop (T2, with non-vacuity) | M–L | TL1, TL2, FW-X, Property (P), `Upper/Rigidity` | after TL1/TL2 |
+| TL5 | Theorem T2 `ut:T2` (f = 2 reference comb, tanh factor, Regions I/II, window limit); discharges TL4's Prop | L (4–6k) | R3a/R4 machinery; first scout whether f = 2 hole floors/K4–K8 exist | later |
+| TL6 | Two-level lower bound W1′(2) (`wone:ftlfw`, m₀ = 2): TE.0′ at α ≠ 0, Lemma Q and arc bounds at ψ_α, two-node `P_theta_bound`; then `se:3.2` | L (3–5k) | `BootstrapHBInstance`; TE.0′ overlaps Paper I M8 (coordinate) | later |
 
-**C. N = 1 super-Virasoro (`n1SuperVirasoroProblem`, `w = 1`, `μ = (1/2,1/2)`).**
-- C1 done: `FixedWeightBand.n1_lowerBoundInput`, `n1_T_V_lower` (unconditional).
-- C2 **done**: the upper/design side for every `prob` with `prob.w = 1` (generalised in place), `theoremC15UpperInput_prob`, and the N=1 corollaries in `Upper/Assembly/N1.lean` (Property P, little-o and O(1) two-term law, Σ₀, Σ).
+**FT. Fold-tip theorem** (Appendix D: `fold_tip_universality.tex` FT, `fold_tip_two_edge.tex` FT-2E; new directory
+`FoldTip/`). For Paper II's own instances (Virasoro, N = 1, fixed (w,Q)) the conclusions C1, C2, C3 (O(1) form), C5a,
+C5b, and C5c at w = 1 are already proved by other routes; FT reuses those proofs (no refactor of Prop T / Theorem R /
+Σ through FT: ~8k lines at stake for little gain).
 
-**D. Later, not scheduled:** designs and bump at general `(w,Q)` (`w > 1`, W1.4); real `w ≥ 1` and N=(2,2)
-(the abstract framework allows real `w`; plug in through the W1–W4 interface); two-level Clark curve
-(`virasoro_two_level.tex`); continuous spin (`spinning_dual.tex`). **Out of scope:** the sharp five-term expansion
-C15/ctu.5, integer spin (computer-assisted), the fold-tip theorem FT/FT-2E (Appendix D; the Lean route replaces its
-compactness step by `teb:quant_c1_hb`, `lower_o1_two_edge.tex` l.931, and uses only Proposition P, which is done).
+| pkg | content | size | depends | state |
+|---|---|---|---|---|
+| FT-0 | Concordance: one bundle theorem per instance (fixed weight: C1, C2, C3-O(1), C5a, C5b, C4/C2-full with H3 = `TheoremC15UpperInput` as hypothesis, C5c at w = 1; N = 1 unconditional) | S | none | next |
+| FT-1 | `FoldTipScale`, hypothesis structures H1, H2 (H2hol), H2+, H3, H4a, H4b; `ofFixedWeight` from `proposition_P_of_problem`; chart bridge `Upper/Rigidity/Dictionary` | M | FT-0 | next |
+| FT-2 | FT-2E and FT-Sub over `teb_bootstrap_part3/_hb`, `teb_mellin_o1_lower`, `WeakFeedback` (import only) | S–M | none | next |
+| FT-3..6 | Abstract chart-form compactness (Lemmas 1–2) for arbitrary instances, C5d m ≥ 2, Lemma FT-R log rate | L | only useful for Paper I instances; a shared package with Paper I's `RadialRigidityPackage` is a cross-session decision | deferred |
+| FT-7 | Modular Clark/HB FT-2E (m₀ = 2) | L | = TL6 | with TL6 |
 
-## 3. Schedule (at most two Sonnet agents; stop launching below 2.5 GB free disk)
-1. R3a ∥ R4 (both generalise our own Design/Holes files; disjoint files).
-2. R2b, then R3b, alongside C1 (Haiku).
-3. R5 ∥ R7, then R6, then R8. C2 scout when a slot is free.
-4. Σ1, Σ2, then Σ3 (after R5/R7), Σ4 scout.
+**D. Later, not scheduled:** designs and bump at w > 1 (W1.4, Prop III, FW-M; makes H3/C15 and Σ unconditional for
+w > 1), soft-edge slope `se:3.1`, continuous spin (`spinning_dual.tex`, nothing in Lean), real w and N = (2,2)
+(weights outside (H_w)). **Out of scope:** five-term expansions C15/ctu.5, integer spin (computer-assisted), numerical
+constants (0.4837…, 0.2070…, 1.2180…).
+
+**Schedule.** Sonnet high for TL1, TL3–TL6; Sonnet medium for TL2, FT-1, FT-2; Haiku for FT-0, docs and THEOREM_MAP.
+At most two Sonnet-high agents at once. Launch while ≥ ~1.5 GB disk is free.
 
 ## 4. Boundary with the Paper I session (checked 2026-11-23)
 - Paper I owns `SignUncertainty/`, `CohnElkies/`, `TwoEdgeBootstrap/`, `Special/Airy*`, `Complex/`, `Analysis*`,
@@ -90,7 +74,8 @@ compactness step by `teb:quant_c1_hb`, `lower_o1_two_edge.tex` l.931, and uses o
 - Langer charts are separate objects (Paper I: Hankel/Bessel density, `gt:7.7b/c/p`; Paper II: the Virasoro comb
   density, `Ramped/LangerTau*`). Mellin strips likewise (`SignUncertainty/MellinStrip*` for the Hankel kernel,
   `FixedWeightBand/Mellin*W` for the weight-`w` Bessel weight). No duplication.
-- Fold-tip FT moved from Paper I to Paper II (QIprojects `45564ae42`). Paper I's plan defers it; it stays out of
-  scope here too (§2 D). `TwoEdgeBootstrap/FoldTipSeed.lean` (seed lemma) is Paper I's and is unaffected.
+- Fold-tip FT moved from Paper I to Paper II (QIprojects `45564ae42`); Paper II formalises FT-0..FT-2 in `FoldTip/`
+  (imports `TwoEdgeBootstrap`, edits nothing there). `FoldTipSeed.lean` serves only Lemma L (H3 from a lift) and is
+  not used. TE.0′ beyond α = 0 (TL6/FT-7) is Paper I's M8: coordinate before starting.
 - Shared files: the umbrella `FormalResearch/ModularBootstrap.lean` and `THEOREM_MAP.md` (targeted edits after
   merging `origin/master`; never apply an agent's stale umbrella as a diff).
