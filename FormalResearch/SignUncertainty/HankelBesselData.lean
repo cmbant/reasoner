@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.SignUncertainty.HankelBesselMoments
+public import FormalResearch.SignUncertainty.HankelAntiderivValue
 public import FormalResearch.SignUncertainty.HankelFiveHalvesWitness
 
 /-!
@@ -21,45 +21,57 @@ open FormalResearch.Special
 
 /-! ### Instantiating `HankelKernelData` -/
 
-/-- The two analytic facts about `φ_c` left as hypotheses: the `w^{c/2-1}`-weighted antiderivative
-of `φ_c` is bounded and tends to `1` after the normalisation `(2π)^c/Γ(c)` (equivalently
-`∫_0^R J_{c-1}(x) dx` is bounded and tends to `1`, `DLMF 10.22.1`). -/
-def HankelAntiderivFacts (c : ℝ) : Prop :=
-  (∃ M, 0 ≤ M ∧ ∀ X ≥ 0,
-    |((2 * π) ^ c / Real.Gamma c) * ∫ w in Ioc (0 : ℝ) X, w ^ (c / 2 - 1) * hankelPhi c w| ≤ M) ∧
-  Tendsto (fun X => ((2 * π) ^ c / Real.Gamma c) *
-    ∫ w in Ioc (0 : ℝ) X, w ^ (c / 2 - 1) * hankelPhi c w) atTop (𝓝 1)
+/-- The `w^{c/2-1}`-weighted antiderivative of `φ_c`, normalised by `(2π)^c/Γ(c)`, is bounded
+(`∫_0^R J_{c-1}(x) dx` is bounded, `DLMF 10.22.1`). -/
+theorem hankel_antideriv_bound {c : ℝ} (hc : 1 / 2 < c) :
+    ∃ M, 0 ≤ M ∧ ∀ X ≥ 0,
+      |((2 * π) ^ c / Real.Gamma c) * ∫ w in Ioc (0 : ℝ) X, w ^ (c / 2 - 1) * hankelPhi c w| ≤ M := by
+  obtain ⟨M, hM⟩ := hankelPrimitive_bounded hc
+  have hc0 : 0 < c := by linarith
+  have hpos : 0 < (2 * π) ^ c / Real.Gamma c :=
+    div_pos (Real.rpow_pos_of_pos (by positivity) _) (Real.Gamma_pos_of_pos hc0)
+  have hM0 : 0 ≤ M := le_trans (abs_nonneg _) (hM 0 le_rfl)
+  refine ⟨(2 * π) ^ c / Real.Gamma c * M, by positivity, fun X hX => ?_⟩
+  rw [abs_mul, abs_of_pos hpos]
+  exact mul_le_mul_of_nonneg_left (hM X hX) hpos.le
 
-/-- **The concrete Hankel kernel data** at `c > 1/2`, from `HankelAntiderivFacts c`:
-`φ = hankelPhi c`; the fields `φ_zero`, `φ_cont`, `φ_bound` (`C = 1`) are proved. -/
-noncomputable def hankelKernelData {c : ℝ} (hc : 1 / 2 < c) (hA : HankelAntiderivFacts c) :
-    HankelKernelData c where
+/-- ... and it tends to `1` (`∫_0^∞ J_{c-1}(x) dx = 1`). -/
+theorem hankel_antideriv_tendsto {c : ℝ} (hc : 1 / 2 < c) :
+    Tendsto (fun X => ((2 * π) ^ c / Real.Gamma c) *
+      ∫ w in Ioc (0 : ℝ) X, w ^ (c / 2 - 1) * hankelPhi c w) atTop (𝓝 1) := by
+  have h := (hankelPrimitive_tendsto hc).const_mul ((2 * π) ^ c / Real.Gamma c)
+  rw [hankelPrimitive_value hc] at h
+  exact h
+
+/-- **The concrete Hankel kernel data** at `c > 1/2` (`c ≥ 1` in the paper): `φ = hankelPhi c`. All
+five fields are proved: `φ(0) = 1`, continuity, `|φ| ≤ 1`, and the boundedness and limit `1`
+of the normalised `w^{c/2-1}`-antiderivative (`hankel_antideriv_bound`, `hankel_antideriv_tendsto`). -/
+noncomputable def hankelKernelData {c : ℝ} (hc : 1 / 2 < c) : HankelKernelData c where
   φ := hankelPhi c
   φ_zero := hankelPhi_zero (by linarith)
   φ_cont := hankelPhi_continuous c
   φ_bound := ⟨1, zero_le_one, fun w _ => abs_hankelPhi_le_one hc w⟩
-  antideriv_bound := hA.1
-  antideriv_tendsto := hA.2
+  antideriv_bound := hankel_antideriv_bound hc
+  antideriv_tendsto := hankel_antideriv_tendsto hc
 
 /-- For the concrete kernel, `hankelTransform` is `𝓗_c` of `eq:hankel`. -/
-theorem hankelTransform_hankelKernelData {c : ℝ} (hc : 1 / 2 < c) (hA : HankelAntiderivFacts c)
+theorem hankelTransform_hankelKernelData {c : ℝ} (hc : 1 / 2 < c)
     (f : ℝ → ℝ) (Δ : ℝ) :
-    hankelTransform c (hankelKernelData hc hA) f Δ = besselHankelTransform c f Δ := rfl
+    hankelTransform c (hankelKernelData hc) f Δ = besselHankelTransform c f Δ := rfl
 
 /-- The paper's feasibility condition for `f ∈ 𝒜_c^ε`: `ε f(0) = ∫ f ρ₀`. -/
-theorem integral_eq_eps_mul_origin {c : ℝ} (hc : 1 / 2 < c) (hA : HankelAntiderivFacts c)
-    {ε : ℝ} {f : ℝ → ℝ} (hf : IsRadialEigenfn c (hankelKernelData hc hA) ε f) :
+theorem integral_eq_eps_mul_origin {c : ℝ} (hc : 1 / 2 < c)
+    {ε : ℝ} {f : ℝ → ℝ} (hf : IsRadialEigenfn c (hankelKernelData hc) ε f) :
     ∫ s in Ioi (0 : ℝ), f s * hankelRho0 c s = ε * f 0 := by
   have h := hf.eigen 0 Set.self_mem_Ici
   rw [hankelTransform_hankelKernelData, besselHankelTransform_zero (by linarith)] at h
   exact h
 
 /-- The one-level threshold `T_c^ε` of `fourier_mellin.tex` for the concrete kernel. -/
-noncomputable def hankelThresholdBessel {c : ℝ} (hc : 1 / 2 < c) (hA : HankelAntiderivFacts c)
-    (ε : ℝ) : ℝ :=
-  hankelThreshold c (hankelKernelData hc hA) ε
+noncomputable def hankelThresholdBessel {c : ℝ} (hc : 1 / 2 < c) (ε : ℝ) : ℝ :=
+  hankelThreshold c (hankelKernelData hc) ε
 
-/-! ### Non-vacuity at `c = 5/2` -/
+/-! ### Consistency check at `c = 5/2` -/
 
 /-- The explicit `J_{3/2}` kernel `phi52` of `HankelFiveHalvesWitness` is `hankelPhi (5/2)`. -/
 theorem hankelPhi_fiveHalves (w : ℝ) : hankelPhi (5 / 2) w = phi52 w := by
@@ -83,13 +95,6 @@ theorem hankelPhi_fiveHalves (w : ℝ) : hankelPhi (5 / 2) w = phi52 w := by
   field_simp
   ring
 
-/-- Non-vacuity: `HankelAntiderivFacts (5/2)` holds (from the explicit `J_{3/2}` computation). -/
-theorem hankelAntiderivFacts_fiveHalves : HankelAntiderivFacts (5 / 2) := by
-  have hφ : hankelPhi (5 / 2) = phi52 := funext hankelPhi_fiveHalves
-  unfold HankelAntiderivFacts
-  rw [hφ]
-  exact ⟨hankelKernel_fiveHalves.antideriv_bound, hankelKernel_fiveHalves.antideriv_tendsto⟩
-
 /-! ### Axiom guards -/
 
 /-- info: 'FormalResearch.SignUncertainty.abs_hankelPhi_le_one' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -108,9 +113,13 @@ theorem hankelAntiderivFacts_fiveHalves : HankelAntiderivFacts (5 / 2) := by
 #guard_msgs (whitespace := lax) in
 #print axioms hankelKernelData
 
-/-- info: 'FormalResearch.SignUncertainty.hankelAntiderivFacts_fiveHalves' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.SignUncertainty.hankel_antideriv_tendsto' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms hankelAntiderivFacts_fiveHalves
+#print axioms hankel_antideriv_tendsto
+
+/-- info: 'FormalResearch.SignUncertainty.hankel_antideriv_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankel_antideriv_bound
 
 /-- info: 'FormalResearch.SignUncertainty.hankelPhi_fiveHalves' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

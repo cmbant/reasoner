@@ -134,17 +134,18 @@ theorem besselHankelTransform_oddLaguerreMode {c : ℝ} (hc : 1 / 2 < c) {Δ : �
   field_simp
   ring
 
-/-! ### Non-vacuity: the instance at `c = 5/2` -/
+/-! ### The concrete kernel data -/
 
-/-- The concrete kernel data at `c = 5/2`. -/
-noncomputable def hankelKernelData_fiveHalves : HankelKernelData (5 / 2) :=
-  hankelKernelData (by norm_num) hankelAntiderivFacts_fiveHalves
+/-- `e^{-2πΔ} ∈ 𝒜_c^{+1}` for the concrete kernel data (`c > 1/2`). -/
+theorem isRadialEigenfn_exp_bessel {c : ℝ} (hc : 1 / 2 < c) :
+    IsRadialEigenfn c (hankelKernelData hc) 1 (fun s => Real.exp (-(2 * π * s))) :=
+  isRadialEigenfn_exp (by linarith) _ rfl
 
-/-- The odd Laguerre mode is a `(-1)`-eigenfunction for the concrete kernel at `c = 5/2`, i.e. the
-hypothesis `hu₀` of `active_origin_constraint` holds at `c = 5/2`. -/
-theorem isRadialEigenfn_oddLaguerreMode_fiveHalves :
-    IsRadialEigenfn (5 / 2) hankelKernelData_fiveHalves (-1) (oddLaguerreMode (5 / 2)) :=
-  isRadialEigenfn_oddLaguerreMode (by norm_num) _ rfl
+/-- `u₀ ∈ 𝒜_c^{-1}` for the concrete kernel data (`c > 1/2`): the hypothesis `hu₀` of
+`active_origin_constraint` holds for the concrete Hankel kernel. -/
+theorem isRadialEigenfn_oddLaguerreMode_bessel {c : ℝ} (hc : 1 / 2 < c) :
+    IsRadialEigenfn c (hankelKernelData hc) (-1) (oddLaguerreMode c) :=
+  isRadialEigenfn_oddLaguerreMode (by linarith) _ rfl
 
 /-! ### Axiom guards -/
 
@@ -168,8 +169,8 @@ theorem isRadialEigenfn_oddLaguerreMode_fiveHalves :
 #guard_msgs (whitespace := lax) in
 #print axioms besselHankelTransform_oddLaguerreMode
 
-/-- info: 'FormalResearch.SignUncertainty.isRadialEigenfn_oddLaguerreMode_fiveHalves' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.SignUncertainty.isRadialEigenfn_oddLaguerreMode_bessel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms isRadialEigenfn_oddLaguerreMode_fiveHalves
+#print axioms isRadialEigenfn_oddLaguerreMode_bessel
 
 end FormalResearch.SignUncertainty

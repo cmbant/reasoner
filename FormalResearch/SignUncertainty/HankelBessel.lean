@@ -15,16 +15,8 @@ For real `c > 1/2` the normalised Hankel kernel is
   `abs_hankelPhi_le_one`; `hankelPhi_eq_besselJ` (agreement with `Complex.besselJ`).
 * `besselHankelTransform c f Δ = ∫_0^∞ f(s) ρ₀(s) K^{(c)}(Δ,s) ds`, with
   `abs_besselHankelTransform_le : |𝓗_c f(Δ)| ≤ M[f]` and continuity.
-* `HankelAntiderivFacts c`: the two analytic facts about `φ_c` that `HankelKernelData` still asks
-  for beyond the closed fields (`φ_c(0) = 1`, continuity, boundedness): the `w^{c/2-1}`-weighted
-  antiderivative of `φ_c` is bounded and tends to `Γ(c)/(2π)^c`, i.e. `∫_0^R J_{c-1} → 1`.
-  These are **not proved** here; they are an explicit hypothesis.
-* `hankelKernelData c hc hA`: the concrete `HankelKernelData c`, from `hA : HankelAntiderivFacts c`.
-  The classes `𝒜_c^ε` (`IsRadialEigenfn`), feasibility (`IsFeasible`) and the thresholds `T_c^ε`
-  (`hankelThreshold`) of `HardyMellinIntertwiner` are then the paper's, for this kernel.
-* `hankelAntiderivFacts_fiveHalves`: non-vacuity, the hypothesis holds at `c = 5/2`
-  (from the explicit `J_{3/2}` computation); `hankelPhi_fiveHalves` shows the earlier
-  `phi52` is `hankelPhi (5/2)`.
+* The concrete `HankelKernelData` (`hankelKernelData`), with the integral facts `∫_0^R J_{c-1} → 1` it needs,
+  is in `HankelBesselData.lean`, below `HankelAntiderivValue.lean`.
 -/
 
 @[expose] public section
