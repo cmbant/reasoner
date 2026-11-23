@@ -174,6 +174,7 @@ public import FormalResearch.ModularBootstrap.WeightAxioms.Axioms
 public import FormalResearch.ModularBootstrap.FixedWeightTip.PoissonJensenGeneral
 public import FormalResearch.ModularBootstrap.FixedWeightTip.PropositionP
 public import FormalResearch.ModularBootstrap.FixedWeightTip.BlowupAndRigidity
+public import FormalResearch.ModularBootstrap.FixedWeightBand.StirlingW
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -543,4 +544,15 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   no real-axis boundary value of `H_p¹` is needed), `edgeHankelP_eq_iterate`, and the global bound
   `e^{c' L(x)} |𝓗_w h₀(c' x²/3)| ≤ K_p C_E √(c'/x) x^{-p}` (`edge_global_bound_P`,
   `edge_global_bound_P_xiStar`), unconditional.
+
+* `FixedWeightBand/StirlingW`: the Stirling expansion `vlo:stirling` at natural weight `w ≥ 1`
+  (`stirlingFW`, `stirlingLogSW`, `stirlingSW`, `stirlingPrefW`; `S^{(w)}_{c'}(ω)` for `z = w/2 + c'ω`):
+  the exact factorisation `Γ(z)(2πt)^{-z} = (3ω/(2πb²))^{(w-1)/2} t^{-1/2} e^{c'J} S^{(w)}`
+  (`gamma_mul_two_pi_t_cpow_neg_W`), the uniform bounds `|log S| ≤ C_w/(c'|ω|)`,
+  `|∂_ω log S| ≤ C_w/(c'|ω|²)`, `|S^{±1}| ≤ e^{C_w}`, `|S-1| = O_w((c'|ω|)^{-1})` for `c'|ω| ≥ 1`
+  (`norm_stirlingLogSW_le`, `norm_deriv_stirlingLogSW_le`, `norm_stirlingSW_le`,
+  `norm_stirlingSW_inv_le`, `norm_stirlingSW_sub_one_le`), explicit constants for `c'|ω| ≥ w`, the absolute
+  bound `|S^{±1}| ≤ 2` for `c'|ω| ≥ max(w, 2(w²+2))` (`norm_stirlingSW_abs_bounds`; the paper's `48` covers
+  `w ≤ 4`), and the weight-one specialisation (`stirlingLogSW_one`, `stirlingSW_one`, `stirlingPrefW_one`);
+  unconditional.
 -/
