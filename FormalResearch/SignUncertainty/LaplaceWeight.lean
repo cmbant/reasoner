@@ -4,20 +4,27 @@ public import FormalResearch.SignUncertainty.RadialKernelLimit
 public import FormalResearch.SignUncertainty.RadialRigidity
 public import FormalResearch.CohnElkies.LobeSaddleCore
 public import FormalResearch.CohnElkies.MellinKernel
+public import FormalResearch.CohnElkies.AiryTwistedLaplace
 
 /-!
 # The Laplace weight `W_c(y, Δ) = 1 / K₀(ζ_c, Δ/c)` (proof of Thm H.14, eq:ce-laplace-limit)
 
-Statements 1-5 of the Laplace-weight brief. Results are classed as follows.
+Statements 1-5 of the Laplace-weight brief. Results are classed as follows (all proved; the
+non-elementary inputs `mellin_strip_kernel_eq`, `mellinK0_saddle_pos` and `radialK_tendsto` are used
+as existing declarations, not restated).
 
-* `laplaceCs_pos`, `laplaceCs_cube`, `laplaceCs_mul_hankelBeta1`: proved (elementary algebra).
-* `laplaceWeight_pos`: proved (from `mellinK0_saddle_pos` and the `ζ = 0` case).
+* `laplaceCs_pos`, `laplaceCs_cube`, `laplaceCs_mul_hankelBeta1`, `laplaceCs_div_hankelBeta1`: proved
+  (elementary algebra); `laplaceCs_eq_ceCs` records that `c_s` is the existing `ceCs`.
+* `mellinK0_laplace_real`, `laplaceWeight_pos`: proved (from `mellinK0_saddle_pos` and the `ζ = 0` case).
 * `laplaceWeight_gamma_form`, `laplaceWeight_scale`: proved (from `mellin_strip_kernel_eq`).
-* `laplaceWeight_tendsto`: proved (from `radialK_tendsto`; the limit is `exp(-y³/12 + y u)`).
+* `laplaceWeight_tendsto`, `laplaceWeight_tendsto_const`: proved (from `radialK_tendsto`; the limit is
+  `exp(-y³/12 + y u)`).
 
-The weight is the reciprocal of `mellinK0`, so the limit is `exp(-y³/12 + y u)`, not `exp(y u)`:
-the factor `e^{-y³/12}` is the one in `airyLaplace` (`ShellLaplaceBase.lean`). At `y = 0` the
-weight is identically `1`.
+Normalisation. `laplaceWeight` is the full reciprocal `1/K₀`, so it contains the prefactor
+`e^{-c ℋ(ζ_c)} → e^{-y³/12}` of `eq:ce-laplace-limit` as well as the Gamma/power factor that tends to
+`e^{y u}` on fixed windows. Hence the limit is `exp(-y³/12 + y u)`, not `exp(y u)`: the factor
+`e^{-y³/12}` is the one in `airyLaplace` (`ShellLaplaceBase.lean`). At `y = 0` the weight is
+identically `1`.
 -/
 
 @[expose] public section
@@ -31,6 +38,8 @@ open FormalResearch.CohnElkies
 
 /-- `c_s = (π²/3)^{1/3}`. -/
 noncomputable def laplaceCs : ℝ := (Real.pi ^ 2 / 3) ^ (1 / 3 : ℝ)
+
+lemma laplaceCs_eq_ceCs : laplaceCs = ceCs := rfl
 
 /-- `ζ_c(y) = (y / c_s) c^{-1/3} = (y/c_s) * radialEps c`. -/
 noncomputable def laplaceZeta (c y : ℝ) : ℝ := (y / laplaceCs) * radialEps c
@@ -151,6 +160,18 @@ lemma laplaceWeight_gamma_form {c y Δ : ℝ} (hc : 0 < c) (hy : 0 ≤ y)
   rw [Real.rpow_neg h2π, Real.rpow_neg hΔ.le, neg_mul, Real.exp_neg]
   field_simp
 
+/-- Positivity of the weight: `0 < W_c(y, Δ)` for `c, Δ > 0`, `0 ≤ y`, `ζ_c(y) < 1`. -/
+lemma laplaceWeight_pos {c y Δ : ℝ} (hc : 0 < c) (hy : 0 ≤ y)
+    (hζ : laplaceZeta c y < 1) (hΔ : 0 < Δ) : 0 < laplaceWeight c y Δ := by
+  have hζ0 : 0 ≤ laplaceZeta c y := by
+    unfold laplaceZeta
+    exact mul_nonneg (div_nonneg hy laplaceCs_pos.le) (radialEps_pos hc).le
+  have hζ1 : (0 : ℝ) < c * (1 - laplaceZeta c y) := mul_pos hc (by linarith)
+  rw [laplaceWeight_gamma_form hc hy hζ hΔ]
+  have := Real.Gamma_pos_of_pos hc
+  have := Real.Gamma_pos_of_pos hζ1
+  positivity
+
 /-- Statement 4 (exact scaling in `Δ`). Only the factor `(2πΔ)^{cζ}` of `K₀` depends on `Δ`. -/
 lemma laplaceWeight_scale {c y Δ Δ' : ℝ} (hc : 0 < c) (hy : 0 ≤ y)
     (hζ : laplaceZeta c y < 1) (hΔ : 0 < Δ) (hΔ' : 0 < Δ') :
@@ -187,7 +208,7 @@ lemma delta_div_eq_radialXi {c u : ℝ} (hc : 0 < c) :
 
 /-- Weight in terms of the rescaled kernel: `W_c(y, Δ) = re((radialK c (y/c_s) s)⁻¹)` when
 `Δ / c = radialXi c s`. -/
-lemma laplaceWeight_eq_radialK {c y Δ s : ℝ} (hc : 0 < c) (hΔ : Δ / c = radialXi c s) :
+lemma laplaceWeight_eq_radialK {c y Δ s : ℝ} (hΔ : Δ / c = radialXi c s) :
     laplaceWeight c y Δ = ((radialK c ((y / laplaceCs : ℝ) : ℂ) s)⁻¹).re := by
   have hz : (laplaceZeta c y : ℂ) = (radialEps c : ℂ) * ((y / laplaceCs : ℝ) : ℂ) := by
     unfold laplaceZeta; push_cast; ring
@@ -246,7 +267,7 @@ theorem laplaceWeight_tendsto {ι : Type*} {l : Filter ι} {c u : ι → ℝ} {u
   rw [hval] at hT
   refine hT.congr' ?_
   filter_upwards [hcpos] with i hi
-  exact (laplaceWeight_eq_radialK hi (delta_div_eq_radialXi hi)).symm
+  exact (laplaceWeight_eq_radialK (delta_div_eq_radialXi hi)).symm
 
 /-- Statement 5 at fixed `u` (the form of `eq:ce-laplace-limit`). -/
 theorem laplaceWeight_tendsto_const (y u : ℝ) :
@@ -266,6 +287,10 @@ theorem laplaceWeight_tendsto_const (y u : ℝ) :
 /-- info: 'FormalResearch.SignUncertainty.laplaceWeight_gamma_form' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.SignUncertainty.laplaceWeight_gamma_form
+
+/-- info: 'FormalResearch.SignUncertainty.laplaceWeight_pos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.laplaceWeight_pos
 
 /-- info: 'FormalResearch.SignUncertainty.laplaceWeight_scale' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
