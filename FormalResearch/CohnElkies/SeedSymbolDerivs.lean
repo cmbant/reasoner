@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.CohnElkies.CancelledSymbolAndLaplace
+public import FormalResearch.CohnElkies.AirySeedSymbols
 public import FormalResearch.CohnElkies.ParametricIterated
 
 /-!
@@ -523,55 +523,144 @@ lemma Ja'_decay_00 (hf : ExpDec f) (hg : ExpDec g) : DecayOn 3 (Ja' f g 0 0) := 
   refine (hA.add hB).congr fun {y} _ => ?_
   simp only [Ja']; ring
 
-/-- The second `y`-derivative of `J(f,g)`. -/
-noncomputable def Ja'' (f g : ℝ → ℝ) (y : ℂ) : ℂ :=
-  -(1 / 2 : ℂ) * (Ja' f g 1 0 y + Ja' f g 0 1 y) +
-    (-(1 / (2 * y ^ 3))) * (Ja f g 2 0 y - 2 * Ja f g 1 1 y + Ja f g 0 2 y) +
-    (1 / (4 * y ^ 2)) * (Ja' f g 2 0 y - 2 * Ja' f g 1 1 y + Ja' f g 0 2 y)
+/-- The derivative of `Ja' f g a b` (the second `y`-derivative of `Ja f g a b`). -/
+noncomputable def Ja2 (f g : ℝ → ℝ) (a b : ℕ) (y : ℂ) : ℂ :=
+  -(1 / 2 : ℂ) * (Ja' f g (a + 1) b y + Ja' f g a (b + 1) y) +
+    (-(1 / (2 * y ^ 3))) * (Ja f g (a + 2) b y - 2 * Ja f g (a + 1) (b + 1) y + Ja f g a (b + 2) y) +
+    (1 / (4 * y ^ 2)) * (Ja' f g (a + 2) b y - 2 * Ja' f g (a + 1) (b + 1) y + Ja' f g a (b + 2) y)
 
-lemma hasDerivAt_Ja'_00 (hf : ExpDec f) (hg : ExpDec g) {y : ℂ} (hy : 0 < y.re) :
-    HasDerivAt (Ja' f g 0 0) (Ja'' f g y) y := by
+/-- The third `y`-derivative of `Ja f g a b`. -/
+noncomputable def Ja3 (f g : ℝ → ℝ) (a b : ℕ) (y : ℂ) : ℂ :=
+  -(1 / 2 : ℂ) * (Ja2 f g (a + 1) b y + Ja2 f g a (b + 1) y) +
+    (3 / (2 * y ^ 4)) * (Ja f g (a + 2) b y - 2 * Ja f g (a + 1) (b + 1) y + Ja f g a (b + 2) y) +
+    (-(1 / y ^ 3)) * (Ja' f g (a + 2) b y - 2 * Ja' f g (a + 1) (b + 1) y + Ja' f g a (b + 2) y) +
+    (1 / (4 * y ^ 2)) * (Ja2 f g (a + 2) b y - 2 * Ja2 f g (a + 1) (b + 1) y + Ja2 f g a (b + 2) y)
+
+/-- The second `y`-derivative of `J(f,g)`. -/
+noncomputable abbrev Ja'' (f g : ℝ → ℝ) (y : ℂ) : ℂ := Ja2 f g 0 0 y
+
+lemma hasDerivAt_inv_four_sq {y : ℂ} (hy0 : y ≠ 0) :
+    HasDerivAt (fun y : ℂ => 1 / (4 * y ^ 2)) (-(1 / (2 * y ^ 3))) y := by
+  have h4 : HasDerivAt (fun y : ℂ => 4 * y ^ 2) (4 * (2 * y)) y := by
+    simpa using ((hasDerivAt_pow 2 y).const_mul (4 : ℂ))
+  have h4ne : (4 : ℂ) * y ^ 2 ≠ 0 := mul_ne_zero (by norm_num) (pow_ne_zero 2 hy0)
+  have := (hasDerivAt_const y (1 : ℂ)).div h4 h4ne
+  convert this using 1
+  field_simp
+  ring
+
+lemma hasDerivAt_neg_inv_two_cube {y : ℂ} (hy0 : y ≠ 0) :
+    HasDerivAt (fun y : ℂ => -(1 / (2 * y ^ 3))) (3 / (2 * y ^ 4)) y := by
+  have h4 : HasDerivAt (fun y : ℂ => 2 * y ^ 3) (2 * (3 * y ^ 2)) y := by
+    simpa using ((hasDerivAt_pow 3 y).const_mul (2 : ℂ))
+  have h4ne : (2 : ℂ) * y ^ 3 ≠ 0 := mul_ne_zero (by norm_num) (pow_ne_zero 3 hy0)
+  have := ((hasDerivAt_const y (1 : ℂ)).div h4 h4ne).neg
+  convert this using 1
+  field_simp
+  ring
+
+lemma hasDerivAt_Ja' (hf : ExpDec f) (hg : ExpDec g) (a b : ℕ) {y : ℂ} (hy : 0 < y.re) :
+    HasDerivAt (Ja' f g a b) (Ja2 f g a b y) y := by
   have hy0 : y ≠ 0 := fun h => by simp [h] at hy
-  have h10 := hasDerivAt_Ja hf hg 1 0 hy
-  have h01 := hasDerivAt_Ja hf hg 0 1 hy
-  have h20 := hasDerivAt_Ja hf hg 2 0 hy
-  have h11 := hasDerivAt_Ja hf hg 1 1 hy
-  have h02 := hasDerivAt_Ja hf hg 0 2 hy
-  have hc : HasDerivAt (fun y : ℂ => 1 / (4 * y ^ 2)) (-(1 / (2 * y ^ 3))) y := by
-    have h4 : HasDerivAt (fun y : ℂ => 4 * y ^ 2) (4 * (2 * y)) y := by
-      simpa using ((hasDerivAt_pow 2 y).const_mul (4 : ℂ))
-    have h4ne : (4 : ℂ) * y ^ 2 ≠ 0 := mul_ne_zero (by norm_num) (pow_ne_zero 2 hy0)
-    have := (hasDerivAt_const y (1 : ℂ)).div h4 h4ne
-    convert this using 1
-    field_simp
-    ring
-  have hfun : Ja' f g 0 0 = fun y => -(1 / 2 : ℂ) * (Ja f g 1 0 y + Ja f g 0 1 y) +
-      (1 / (4 * y ^ 2)) * (Ja f g 2 0 y - 2 * Ja f g 1 1 y + Ja f g 0 2 y) := by
-    funext y; simp [Ja']
+  have h10 := hasDerivAt_Ja hf hg (a + 1) b hy
+  have h01 := hasDerivAt_Ja hf hg a (b + 1) hy
+  have h20 := hasDerivAt_Ja hf hg (a + 2) b hy
+  have h11 := hasDerivAt_Ja hf hg (a + 1) (b + 1) hy
+  have h02 := hasDerivAt_Ja hf hg a (b + 2) hy
+  have hc := hasDerivAt_inv_four_sq hy0
+  have hfun : Ja' f g a b = fun y => -(1 / 2 : ℂ) * (Ja f g (a + 1) b y + Ja f g a (b + 1) y) +
+      (1 / (4 * y ^ 2)) * (Ja f g (a + 2) b y - 2 * Ja f g (a + 1) (b + 1) y + Ja f g a (b + 2) y) := by
+    funext y; simp only [Ja']
   rw [hfun]
-  have hA : HasDerivAt (fun y => -(1 / 2 : ℂ) * (Ja f g 1 0 y + Ja f g 0 1 y))
-      (-(1 / 2 : ℂ) * (Ja' f g 1 0 y + Ja' f g 0 1 y)) y := (h10.add h01).const_mul _
-  have hB : HasDerivAt (fun y => (1 / (4 * y ^ 2)) * (Ja f g 2 0 y - 2 * Ja f g 1 1 y + Ja f g 0 2 y))
-      (-(1 / (2 * y ^ 3)) * (Ja f g 2 0 y - 2 * Ja f g 1 1 y + Ja f g 0 2 y) +
-        (1 / (4 * y ^ 2)) * (Ja' f g 2 0 y - 2 * Ja' f g 1 1 y + Ja' f g 0 2 y)) y :=
+  have hA : HasDerivAt (fun y => -(1 / 2 : ℂ) * (Ja f g (a + 1) b y + Ja f g a (b + 1) y))
+      (-(1 / 2 : ℂ) * (Ja' f g (a + 1) b y + Ja' f g a (b + 1) y)) y := (h10.add h01).const_mul _
+  have hB : HasDerivAt (fun y => (1 / (4 * y ^ 2)) *
+        (Ja f g (a + 2) b y - 2 * Ja f g (a + 1) (b + 1) y + Ja f g a (b + 2) y))
+      (-(1 / (2 * y ^ 3)) * (Ja f g (a + 2) b y - 2 * Ja f g (a + 1) (b + 1) y + Ja f g a (b + 2) y) +
+        (1 / (4 * y ^ 2)) * (Ja' f g (a + 2) b y - 2 * Ja' f g (a + 1) (b + 1) y + Ja' f g a (b + 2) y)) y :=
     hc.mul ((h20.sub (h11.const_mul 2)).add h02)
   refine (hA.add hB).congr_deriv ?_
-  simp only [Ja'']; ring
+  simp only [Ja2]; ring
 
-lemma Ja''_decay (hf : ExpDec f) (hg : ExpDec g) : DecayOn 4 (Ja'' f g) := by
-  have a1 := Ja'_decay_ge1 hf hg 1 0 (by omega)
-  have a2 := Ja'_decay_ge1 hf hg 0 1 (by omega)
-  have a3 := Ja'_decay_ge1 hf hg 2 0 (by omega)
-  have a4 := Ja'_decay_ge1 hf hg 1 1 (by omega)
-  have a5 := Ja'_decay_ge1 hf hg 0 2 (by omega)
-  have d3 := Ja_decay_ge2 hf hg 2 0 (by omega)
-  have d4 := Ja_decay_ge2 hf hg 1 1 (by omega)
-  have d5 := Ja_decay_ge2 hf hg 0 2 (by omega)
+lemma hasDerivAt_Ja2 (hf : ExpDec f) (hg : ExpDec g) (a b : ℕ) {y : ℂ} (hy : 0 < y.re) :
+    HasDerivAt (Ja2 f g a b) (Ja3 f g a b y) y := by
+  have hy0 : y ≠ 0 := fun h => by simp [h] at hy
+  have h10 := hasDerivAt_Ja' hf hg (a + 1) b hy
+  have h01 := hasDerivAt_Ja' hf hg a (b + 1) hy
+  have h20 := hasDerivAt_Ja' hf hg (a + 2) b hy
+  have h11 := hasDerivAt_Ja' hf hg (a + 1) (b + 1) hy
+  have h02 := hasDerivAt_Ja' hf hg a (b + 2) hy
+  have g20 := hasDerivAt_Ja hf hg (a + 2) b hy
+  have g11 := hasDerivAt_Ja hf hg (a + 1) (b + 1) hy
+  have g02 := hasDerivAt_Ja hf hg a (b + 2) hy
+  have hc2 := hasDerivAt_inv_four_sq hy0
+  have hc3 := hasDerivAt_neg_inv_two_cube hy0
+  have hA : HasDerivAt (fun y => -(1 / 2 : ℂ) * (Ja' f g (a + 1) b y + Ja' f g a (b + 1) y))
+      (-(1 / 2 : ℂ) * (Ja2 f g (a + 1) b y + Ja2 f g a (b + 1) y)) y := (h10.add h01).const_mul _
+  have hB : HasDerivAt (fun y => (-(1 / (2 * y ^ 3))) *
+        (Ja f g (a + 2) b y - 2 * Ja f g (a + 1) (b + 1) y + Ja f g a (b + 2) y))
+      (3 / (2 * y ^ 4) * (Ja f g (a + 2) b y - 2 * Ja f g (a + 1) (b + 1) y + Ja f g a (b + 2) y) +
+        (-(1 / (2 * y ^ 3))) * (Ja' f g (a + 2) b y - 2 * Ja' f g (a + 1) (b + 1) y + Ja' f g a (b + 2) y)) y :=
+    hc3.mul ((g20.sub (g11.const_mul 2)).add g02)
+  have hC : HasDerivAt (fun y => (1 / (4 * y ^ 2)) *
+        (Ja' f g (a + 2) b y - 2 * Ja' f g (a + 1) (b + 1) y + Ja' f g a (b + 2) y))
+      (-(1 / (2 * y ^ 3)) * (Ja' f g (a + 2) b y - 2 * Ja' f g (a + 1) (b + 1) y + Ja' f g a (b + 2) y) +
+        (1 / (4 * y ^ 2)) * (Ja2 f g (a + 2) b y - 2 * Ja2 f g (a + 1) (b + 1) y + Ja2 f g a (b + 2) y)) y :=
+    hc2.mul ((h20.sub (h11.const_mul 2)).add h02)
+  have hfun : Ja2 f g a b = fun y => -(1 / 2 : ℂ) * (Ja' f g (a + 1) b y + Ja' f g a (b + 1) y) +
+      (-(1 / (2 * y ^ 3))) * (Ja f g (a + 2) b y - 2 * Ja f g (a + 1) (b + 1) y + Ja f g a (b + 2) y) +
+      (1 / (4 * y ^ 2)) * (Ja' f g (a + 2) b y - 2 * Ja' f g (a + 1) (b + 1) y + Ja' f g a (b + 2) y) := by
+    funext y; simp only [Ja2]
+  rw [hfun]
+  refine ((hA.add hB).add hC).congr_deriv ?_
+  simp only [Ja3]; ring
+
+lemma Ja2_decay (hf : ExpDec f) (hg : ExpDec g) (a b : ℕ) : DecayOn 4 (Ja2 f g a b) := by
+  have a1 := Ja'_decay_ge1 hf hg (a + 1) b (by omega)
+  have a2 := Ja'_decay_ge1 hf hg a (b + 1) (by omega)
+  have a3 := Ja'_decay_ge1 hf hg (a + 2) b (by omega)
+  have a4 := Ja'_decay_ge1 hf hg (a + 1) (b + 1) (by omega)
+  have a5 := Ja'_decay_ge1 hf hg a (b + 2) (by omega)
+  have d3 := Ja_decay_ge2 hf hg (a + 2) b (by omega)
+  have d4 := Ja_decay_ge2 hf hg (a + 1) (b + 1) (by omega)
+  have d5 := Ja_decay_ge2 hf hg a (b + 2) (by omega)
   have hA := a1.lin2 a2 (-(1 / 2 : ℂ)) (-(1 / 2 : ℂ))
   have hB := ((d3.lin3 d4 d5 1 (-2) 1).inv_cube_mul.mono (k' := 4) (by norm_num)).const_mul (-1 : ℂ)
   have hC := ((a3.lin3 a4 a5 1 (-2) 1).inv_sq_mul.mono (k' := 4) (by norm_num))
   refine ((hA.add hB).add hC).congr fun {y} _ => ?_
-  simp only [Ja'']; ring
+  simp only [Ja2]; ring
+
+/-- Dividing by `y⁴` gains four powers of decay. -/
+lemma DecayOn.inv_four_mul {k : ℝ} {h : ℂ → ℂ} (hh : DecayOn k h) (c : ℂ) :
+    DecayOn (k + 4) (fun y => (c / y ^ 4) * h y) := by
+  have := (hh.div_pow 4).const_mul c
+  refine (this.congr fun {y} _ => ?_)
+  ring
+
+lemma DecayOn.inv_three_mul {k : ℝ} {h : ℂ → ℂ} (hh : DecayOn k h) (c : ℂ) :
+    DecayOn (k + 3) (fun y => (c / y ^ 3) * h y) := by
+  have := (hh.div_pow 3).const_mul c
+  refine (this.congr fun {y} _ => ?_)
+  ring
+
+lemma Ja3_decay (hf : ExpDec f) (hg : ExpDec g) (a b : ℕ) : DecayOn 4 (Ja3 f g a b) := by
+  have a1 := Ja2_decay hf hg (a + 1) b
+  have a2 := Ja2_decay hf hg a (b + 1)
+  have a3 := Ja2_decay hf hg (a + 2) b
+  have a4 := Ja2_decay hf hg (a + 1) (b + 1)
+  have a5 := Ja2_decay hf hg a (b + 2)
+  have b3 := Ja'_decay_ge1 hf hg (a + 2) b (by omega)
+  have b4 := Ja'_decay_ge1 hf hg (a + 1) (b + 1) (by omega)
+  have b5 := Ja'_decay_ge1 hf hg a (b + 2) (by omega)
+  have d3 := Ja_decay_ge2 hf hg (a + 2) b (by omega)
+  have d4 := Ja_decay_ge2 hf hg (a + 1) (b + 1) (by omega)
+  have d5 := Ja_decay_ge2 hf hg a (b + 2) (by omega)
+  have hA := a1.lin2 a2 (-(1 / 2 : ℂ)) (-(1 / 2 : ℂ))
+  have hB := ((d3.lin3 d4 d5 1 (-2) 1).inv_four_mul (3 / 2)).mono (k' := 4) (by norm_num)
+  have hC := ((b3.lin3 b4 b5 1 (-2) 1).inv_three_mul (-1)).mono (k' := 4) (by norm_num)
+  have hD := (a3.lin3 a4 a5 1 (-2) 1).inv_sq_mul.mono (k' := 4) (by norm_num)
+  refine (((hA.add hB).add hC).add hD).congr fun {y} _ => ?_
+  simp only [Ja3]; ring
 
 end assembly
 
@@ -602,13 +691,20 @@ noncomputable def sT1 (c : ℂ) (J J1 : ℂ → ℂ) (y : ℂ) : ℂ :=
 noncomputable def sT2 (c : ℂ) (J J1 J2 : ℂ → ℂ) (y : ℂ) : ℂ :=
   c * ((3 / 4 : ℂ) * (sqf (5 / 2) y * J y) - sqf (3 / 2) y * J1 y + sqf (1 / 2) y * J2 y)
 
-theorem sT_calculus {J J1 J2 : ℂ → ℂ} (c : ℂ)
+noncomputable def sT3 (c : ℂ) (J J1 J2 J3 : ℂ → ℂ) (y : ℂ) : ℂ :=
+  c * (-(15 / 8 : ℂ) * (sqf (7 / 2) y * J y) + (9 / 4 : ℂ) * (sqf (5 / 2) y * J1 y) -
+    (3 / 2 : ℂ) * (sqf (3 / 2) y * J2 y) + sqf (1 / 2) y * J3 y)
+
+theorem sT_calculus {J J1 J2 J3 : ℂ → ℂ} (c : ℂ)
     (h0 : ∀ {y : ℂ}, 0 < y.re → HasDerivAt J (J1 y) y) (h1 : ∀ {y : ℂ}, 0 < y.re → HasDerivAt J1 (J2 y) y)
-    (d0 : DecayOn 2 J) (d1 : DecayOn 3 J1) (d2 : DecayOn 4 J2) :
+    (h2 : ∀ {y : ℂ}, 0 < y.re → HasDerivAt J2 (J3 y) y)
+    (d0 : DecayOn 2 J) (d1 : DecayOn 3 J1) (d2 : DecayOn 4 J2) (d3 : DecayOn 4 J3) :
     (∀ {y : ℂ}, 0 < y.re → HasDerivAt (sT0 c J) (sT1 c J J1 y) y) ∧
     (∀ {y : ℂ}, 0 < y.re → HasDerivAt (sT1 c J J1) (sT2 c J J1 J2 y) y) ∧
-    DecayOn (5 / 2) (sT0 c J) ∧ DecayOn (7 / 2) (sT1 c J J1) ∧ DecayOn (9 / 2) (sT2 c J J1 J2) := by
-  refine ⟨fun {y} hy => ?_, fun {y} hy => ?_, ?_, ?_, ?_⟩
+    (∀ {y : ℂ}, 0 < y.re → HasDerivAt (sT2 c J J1 J2) (sT3 c J J1 J2 J3 y) y) ∧
+    DecayOn (5 / 2) (sT0 c J) ∧ DecayOn (7 / 2) (sT1 c J J1) ∧ DecayOn (9 / 2) (sT2 c J J1 J2) ∧
+    DecayOn (9 / 2) (sT3 c J J1 J2 J3) := by
+  refine ⟨fun {y} hy => ?_, fun {y} hy => ?_, fun {y} hy => ?_, ?_, ?_, ?_, ?_⟩
   · have hq := hasDerivAt_sqf (1 / 2) hy
     have := ((hq.mul (h0 hy)).const_mul c)
     refine this.congr_deriv ?_
@@ -623,6 +719,16 @@ theorem sT_calculus {J J1 J2 : ℂ → ℂ} (c : ℂ)
     have e1 : ((3 / 2 : ℝ) + 1 : ℝ) = 5 / 2 := by norm_num
     have e2 : ((1 / 2 : ℝ) + 1 : ℝ) = 3 / 2 := by norm_num
     rw [e1, e2]; push_cast; try ring
+  · have hq1 := hasDerivAt_sqf (5 / 2) hy
+    have hq2 := hasDerivAt_sqf (3 / 2) hy
+    have hq3 := hasDerivAt_sqf (1 / 2) hy
+    have := (((((hq1.mul (h0 hy)).const_mul (3 / 4 : ℂ)).sub (hq2.mul (h1 hy))).add (hq3.mul (h2 hy))).const_mul c)
+    refine this.congr_deriv ?_
+    simp only [sT3]
+    have e1 : ((5 / 2 : ℝ) + 1 : ℝ) = 7 / 2 := by norm_num
+    have e2 : ((3 / 2 : ℝ) + 1 : ℝ) = 5 / 2 := by norm_num
+    have e3 : ((1 / 2 : ℝ) + 1 : ℝ) = 3 / 2 := by norm_num
+    rw [e1, e2, e3]; push_cast; try ring
   · have := ((d0.cpow_mul (1 / 2)).const_mul c).mono (k' := 5 / 2) (by norm_num)
     exact this.congr fun {y} _ => by simp only [sT0, sqf]
   · have a := ((d0.cpow_mul (3 / 2)).const_mul (-(1 / 2 : ℂ))).mono (k' := 7 / 2) (by norm_num)
@@ -632,6 +738,11 @@ theorem sT_calculus {J J1 J2 : ℂ → ℂ} (c : ℂ)
     have b := ((d1.cpow_mul (3 / 2)).const_mul (-1 : ℂ)).mono (k' := 9 / 2) (by norm_num)
     have e := (d2.cpow_mul (1 / 2)).mono (k' := 9 / 2) (by norm_num)
     exact (((a.add b).add e).const_mul c).congr fun {y} _ => by simp only [sT2, sqf]; try ring
+  · have a := ((d0.cpow_mul (7 / 2)).const_mul (-(15 / 8 : ℂ))).mono (k' := 9 / 2) (by norm_num)
+    have b := ((d1.cpow_mul (5 / 2)).const_mul (9 / 4 : ℂ)).mono (k' := 9 / 2) (by norm_num)
+    have e := ((d2.cpow_mul (3 / 2)).const_mul (-(3 / 2) : ℂ)).mono (k' := 9 / 2) (by norm_num)
+    have f := (d3.cpow_mul (1 / 2)).mono (k' := 9 / 2) (by norm_num)
+    exact (((((a.add b).add e).add f)).const_mul c).congr fun {y} _ => by simp only [sT3, sqf]; try ring
 
 /-! ### The one-dimensional family `J1p φ` (for `ceF1`) -/
 
@@ -838,73 +949,110 @@ lemma J1a'_decay_ge1 (hφ : ExpDec φ) (hφ0 : φ 0 = 0) (a : ℕ) (ha : 1 ≤ a
   have hB := d2.inv_sq_mul.mono (k' := 4) (by norm_num)
   exact (hA.add hB).congr fun {y} _ => by simp only [J1a']
 
+/-- The derivative of `J1a' φ a` (the second `y`-derivative of `J1a φ a`). -/
+noncomputable def J1a2 (φ : ℝ → ℝ) (a : ℕ) (y : ℂ) : ℂ :=
+  -(1 / 2 : ℂ) * J1a' φ (a + 1) y + (-(1 / (2 * y ^ 3))) * J1a φ (a + 2) y + (1 / (4 * y ^ 2)) * J1a' φ (a + 2) y
+
+/-- The third `y`-derivative of `J1a φ a`. -/
+noncomputable def J1a3 (φ : ℝ → ℝ) (a : ℕ) (y : ℂ) : ℂ :=
+  -(1 / 2 : ℂ) * J1a2 φ (a + 1) y + (3 / (2 * y ^ 4)) * J1a φ (a + 2) y + (-(1 / y ^ 3)) * J1a' φ (a + 2) y +
+    (1 / (4 * y ^ 2)) * J1a2 φ (a + 2) y
+
 /-- The second `y`-derivative of `J1(φ)`. -/
-noncomputable def J1a'' (φ : ℝ → ℝ) (y : ℂ) : ℂ :=
-  -(1 / 2 : ℂ) * J1a' φ 1 y + (-(1 / (2 * y ^ 3))) * J1a φ 2 y + (1 / (4 * y ^ 2)) * J1a' φ 2 y
+noncomputable abbrev J1a'' (φ : ℝ → ℝ) (y : ℂ) : ℂ := J1a2 φ 0 y
 
-lemma hasDerivAt_J1a'_0 (hφ : ExpDec φ) {y : ℂ} (hy : 0 < y.re) :
-    HasDerivAt (J1a' φ 0) (J1a'' φ y) y := by
+lemma hasDerivAt_J1a' (hφ : ExpDec φ) (a : ℕ) {y : ℂ} (hy : 0 < y.re) :
+    HasDerivAt (J1a' φ a) (J1a2 φ a y) y := by
   have hy0 : y ≠ 0 := fun h => by simp [h] at hy
-  have h1 := hasDerivAt_J1a hφ 1 hy
-  have h2 := hasDerivAt_J1a hφ 2 hy
-  have hc : HasDerivAt (fun y : ℂ => 1 / (4 * y ^ 2)) (-(1 / (2 * y ^ 3))) y := by
-    have h4 : HasDerivAt (fun y : ℂ => 4 * y ^ 2) (4 * (2 * y)) y := by
-      simpa using ((hasDerivAt_pow 2 y).const_mul (4 : ℂ))
-    have h4ne : (4 : ℂ) * y ^ 2 ≠ 0 := mul_ne_zero (by norm_num) (pow_ne_zero 2 hy0)
-    have := (hasDerivAt_const y (1 : ℂ)).div h4 h4ne
-    convert this using 1
-    field_simp
-    ring
-  have hfun : J1a' φ 0 = fun y => -(1 / 2 : ℂ) * J1a φ 1 y + (1 / (4 * y ^ 2)) * J1a φ 2 y := by
-    funext y; simp [J1a']
+  have h1 := hasDerivAt_J1a hφ (a + 1) hy
+  have h2 := hasDerivAt_J1a hφ (a + 2) hy
+  have hc := hasDerivAt_inv_four_sq hy0
+  have hfun : J1a' φ a = fun y => -(1 / 2 : ℂ) * J1a φ (a + 1) y + (1 / (4 * y ^ 2)) * J1a φ (a + 2) y := by
+    funext y; simp only [J1a']
   rw [hfun]
-  have hA : HasDerivAt (fun y => -(1 / 2 : ℂ) * J1a φ 1 y) (-(1 / 2 : ℂ) * J1a' φ 1 y) y := h1.const_mul _
-  have hB : HasDerivAt (fun y => (1 / (4 * y ^ 2)) * J1a φ 2 y)
-      (-(1 / (2 * y ^ 3)) * J1a φ 2 y + (1 / (4 * y ^ 2)) * J1a' φ 2 y) y := hc.mul h2
+  have hA : HasDerivAt (fun y => -(1 / 2 : ℂ) * J1a φ (a + 1) y) (-(1 / 2 : ℂ) * J1a' φ (a + 1) y) y := h1.const_mul _
+  have hB : HasDerivAt (fun y => (1 / (4 * y ^ 2)) * J1a φ (a + 2) y)
+      (-(1 / (2 * y ^ 3)) * J1a φ (a + 2) y + (1 / (4 * y ^ 2)) * J1a' φ (a + 2) y) y := hc.mul h2
   refine (hA.add hB).congr_deriv ?_
-  simp only [J1a'']; ring
+  simp only [J1a2]; ring
 
-lemma J1a''_decay (hφ : ExpDec φ) (hφ0 : φ 0 = 0) : DecayOn 4 (J1a'' φ) := by
-  have a1 := J1a'_decay_ge1 hφ hφ0 1 le_rfl
-  have a2 := J1a'_decay_ge1 hφ hφ0 2 (by norm_num)
-  have d2 := J1a_decay_ge2 hφ hφ0 2 le_rfl
+lemma hasDerivAt_J1a2 (hφ : ExpDec φ) (a : ℕ) {y : ℂ} (hy : 0 < y.re) :
+    HasDerivAt (J1a2 φ a) (J1a3 φ a y) y := by
+  have hy0 : y ≠ 0 := fun h => by simp [h] at hy
+  have h1 := hasDerivAt_J1a' hφ (a + 1) hy
+  have h2 := hasDerivAt_J1a' hφ (a + 2) hy
+  have g2 := hasDerivAt_J1a hφ (a + 2) hy
+  have hc2 := hasDerivAt_inv_four_sq hy0
+  have hc3 := hasDerivAt_neg_inv_two_cube hy0
+  have hA : HasDerivAt (fun y => -(1 / 2 : ℂ) * J1a' φ (a + 1) y) (-(1 / 2 : ℂ) * J1a2 φ (a + 1) y) y := h1.const_mul _
+  have hB : HasDerivAt (fun y => (-(1 / (2 * y ^ 3))) * J1a φ (a + 2) y)
+      (3 / (2 * y ^ 4) * J1a φ (a + 2) y + (-(1 / (2 * y ^ 3))) * J1a' φ (a + 2) y) y := hc3.mul g2
+  have hC : HasDerivAt (fun y => (1 / (4 * y ^ 2)) * J1a' φ (a + 2) y)
+      (-(1 / (2 * y ^ 3)) * J1a' φ (a + 2) y + (1 / (4 * y ^ 2)) * J1a2 φ (a + 2) y) y := hc2.mul h2
+  have hfun : J1a2 φ a = fun y => -(1 / 2 : ℂ) * J1a' φ (a + 1) y + (-(1 / (2 * y ^ 3))) * J1a φ (a + 2) y +
+      (1 / (4 * y ^ 2)) * J1a' φ (a + 2) y := by
+    funext y; simp only [J1a2]
+  rw [hfun]
+  refine ((hA.add hB).add hC).congr_deriv ?_
+  simp only [J1a3]; ring
+
+lemma J1a2_decay (hφ : ExpDec φ) (hφ0 : φ 0 = 0) (a : ℕ) : DecayOn 4 (J1a2 φ a) := by
+  have a1 := J1a'_decay_ge1 hφ hφ0 (a + 1) (by omega)
+  have a2 := J1a'_decay_ge1 hφ hφ0 (a + 2) (by omega)
+  have d2 := J1a_decay_ge2 hφ hφ0 (a + 2) (by omega)
   have hA := a1.const_mul (-(1 / 2 : ℂ))
   have hB := (d2.inv_cube_mul.mono (k' := 4) (by norm_num)).const_mul (-1 : ℂ)
   have hC := a2.inv_sq_mul.mono (k' := 4) (by norm_num)
   refine ((hA.add hB).add hC).congr fun {y} _ => ?_
-  simp only [J1a'']; ring
+  simp only [J1a2]; ring
+
+lemma J1a3_decay (hφ : ExpDec φ) (hφ0 : φ 0 = 0) (a : ℕ) : DecayOn 4 (J1a3 φ a) := by
+  have a1 := J1a2_decay hφ hφ0 (a + 1)
+  have a2 := J1a2_decay hφ hφ0 (a + 2)
+  have b2 := J1a'_decay_ge1 hφ hφ0 (a + 2) (by omega)
+  have d2 := J1a_decay_ge2 hφ hφ0 (a + 2) (by omega)
+  have hA := a1.const_mul (-(1 / 2 : ℂ))
+  have hB := (d2.inv_four_mul (3 / 2)).mono (k' := 4) (by norm_num)
+  have hC := (b2.inv_three_mul (-1)).mono (k' := 4) (by norm_num)
+  have hD := a2.inv_sq_mul.mono (k' := 4) (by norm_num)
+  refine (((hA.add hB).add hC).add hD).congr fun {y} _ => ?_
+  simp only [J1a3]; ring
 
 end oneD
 
 /-! ### Symbol bounds on the right half-plane -/
 
-/-- `T` is twice complex-differentiable on `Re y > 0` with `T = O(‖y‖^{-5/2})`, `T' = O(‖y‖^{-7/2})`,
-`T'' = O(‖y‖^{-9/2})` on `{Re y > 0, ‖y‖ ≥ 1}` (the half-plane form of `(e27)`, `r ≤ 2`). -/
+/-- `T` is three times complex-differentiable on `Re y > 0` with `T = O(‖y‖^{-5/2})`, `T' = O(‖y‖^{-7/2})`,
+`T'' = O(‖y‖^{-9/2})` and `T''' = O(‖y‖^{-9/2})` on `{Re y > 0, ‖y‖ ≥ 1}` (the half-plane form of `(e27)`, `r ≤ 2`; the
+third derivative is only needed bounded, to pass to the boundary `Re y = 0`). -/
 def SymbolBounds (T : ℂ → ℂ) : Prop :=
-  ∃ T1 T2 : ℂ → ℂ, (∀ {y : ℂ}, 0 < y.re → HasDerivAt T (T1 y) y) ∧
-    (∀ {y : ℂ}, 0 < y.re → HasDerivAt T1 (T2 y) y) ∧
-    DecayOn (5 / 2) T ∧ DecayOn (7 / 2) T1 ∧ DecayOn (9 / 2) T2
+  ∃ T1 T2 T3 : ℂ → ℂ, (∀ {y : ℂ}, 0 < y.re → HasDerivAt T (T1 y) y) ∧
+    (∀ {y : ℂ}, 0 < y.re → HasDerivAt T1 (T2 y) y) ∧ (∀ {y : ℂ}, 0 < y.re → HasDerivAt T2 (T3 y) y) ∧
+    DecayOn (5 / 2) T ∧ DecayOn (7 / 2) T1 ∧ DecayOn (9 / 2) T2 ∧ DecayOn (9 / 2) T3
 
-lemma symbolBounds_of_form {T J J1 J2 : ℂ → ℂ} (c : ℂ) (hT : ∀ {y : ℂ}, 0 < y.re → T y = sT0 c J y)
+lemma symbolBounds_of_form {T J J1 J2 J3 : ℂ → ℂ} (c : ℂ) (hT : ∀ {y : ℂ}, 0 < y.re → T y = sT0 c J y)
     (h0 : ∀ {y : ℂ}, 0 < y.re → HasDerivAt J (J1 y) y) (h1 : ∀ {y : ℂ}, 0 < y.re → HasDerivAt J1 (J2 y) y)
-    (d0 : DecayOn 2 J) (d1 : DecayOn 3 J1) (d2 : DecayOn 4 J2) : SymbolBounds T := by
-  obtain ⟨e0, e1, f0, f1, f2⟩ := sT_calculus c h0 h1 d0 d1 d2
-  refine ⟨sT1 c J J1, sT2 c J J1 J2, fun {y} hy => ?_, fun {y} hy => e1 hy, f0.congr fun {y} hy => (hT hy).symm,
-    f1, f2⟩
+    (h2 : ∀ {y : ℂ}, 0 < y.re → HasDerivAt J2 (J3 y) y)
+    (d0 : DecayOn 2 J) (d1 : DecayOn 3 J1) (d2 : DecayOn 4 J2) (d3 : DecayOn 4 J3) : SymbolBounds T := by
+  obtain ⟨e0, e1, e2, f0, f1, f2, f3⟩ := sT_calculus c h0 h1 h2 d0 d1 d2 d3
+  refine ⟨sT1 c J J1, sT2 c J J1 J2, sT3 c J J1 J2 J3, fun {y} hy => ?_, fun {y} hy => e1 hy, fun {y} hy => e2 hy,
+    f0.congr fun {y} hy => (hT hy).symm, f1, f2, f3⟩
   refine (e0 hy).congr_of_eventuallyEq ?_
   filter_upwards [(isOpen_lt continuous_const Complex.continuous_re).mem_nhds hy] with z hz using hT hz
 
 lemma symbolBounds_two_dim {f g : ℝ → ℝ} (hf : ExpDec f) (hg : ExpDec g) (c : ℂ) {T : ℂ → ℂ}
     (hT : ∀ {y : ℂ}, 0 < y.re → T y = sT0 c (Jp f g) y) : SymbolBounds T :=
-  symbolBounds_of_form c hT (J1 := Ja' f g 0 0) (J2 := Ja'' f g)
-    (fun {y} hy => hasDerivAt_Ja hf hg 0 0 hy) (fun {y} hy => hasDerivAt_Ja'_00 hf hg hy)
-    (Ja_decay_00 hf hg) (Ja'_decay_00 hf hg) (Ja''_decay hf hg)
+  symbolBounds_of_form c hT (J1 := Ja' f g 0 0) (J2 := Ja2 f g 0 0) (J3 := Ja3 f g 0 0)
+    (fun {y} hy => hasDerivAt_Ja hf hg 0 0 hy) (fun {y} hy => hasDerivAt_Ja' hf hg 0 0 hy)
+    (fun {y} hy => hasDerivAt_Ja2 hf hg 0 0 hy)
+    (Ja_decay_00 hf hg) (Ja'_decay_00 hf hg) (Ja2_decay hf hg 0 0) (Ja3_decay hf hg 0 0)
 
 lemma symbolBounds_one_dim {φ : ℝ → ℝ} (hφ : ExpDec φ) (hφ0 : φ 0 = 0) (c : ℂ) {T : ℂ → ℂ}
     (hT : ∀ {y : ℂ}, 0 < y.re → T y = sT0 c (J1p φ) y) : SymbolBounds T :=
-  symbolBounds_of_form c hT (J1 := J1a' φ 0) (J2 := J1a'' φ)
-    (fun {y} hy => hasDerivAt_J1a hφ 0 hy) (fun {y} hy => hasDerivAt_J1a'_0 hφ hy)
-    (J1a_decay_0 hφ hφ0) (J1a'_decay_0 hφ hφ0) (J1a''_decay hφ hφ0)
+  symbolBounds_of_form c hT (J1 := J1a' φ 0) (J2 := J1a2 φ 0) (J3 := J1a3 φ 0)
+    (fun {y} hy => hasDerivAt_J1a hφ 0 hy) (fun {y} hy => hasDerivAt_J1a' hφ 0 hy)
+    (fun {y} hy => hasDerivAt_J1a2 hφ 0 hy)
+    (J1a_decay_0 hφ hφ0) (J1a'_decay_0 hφ hφ0) (J1a2_decay hφ hφ0 0) (J1a3_decay hφ hφ0 0)
 
 /-! ### The seeds -/
 
@@ -946,6 +1094,262 @@ theorem ceG1Deriv_symbolBounds : SymbolBounds (airyTwistedLaplaceC (ceG1Deriv ai
     ← Jp_eq_iterated _ _ expDec_airyRatio expDec_airyRatio hy]
   simp only [sT0]; ring
 
+/-! ### The boundary `Re y = 0` -/
+
+/-- The point `1/(n+1) + ω i` approaching the imaginary axis. -/
+noncomputable def bpt (n : ℕ) (ω : ℝ) : ℂ := ((1 / ((n : ℝ) + 1) : ℝ) : ℂ) + (ω : ℂ) * Complex.I
+
+lemma bpt_re (n : ℕ) (ω : ℝ) : (bpt n ω).re = 1 / ((n : ℝ) + 1) := by
+  simp only [bpt, Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.I_re, Complex.ofReal_im, Complex.I_im]
+  ring
+
+lemma bpt_im (n : ℕ) (ω : ℝ) : (bpt n ω).im = ω := by
+  simp only [bpt, Complex.add_im, Complex.ofReal_im, Complex.mul_im, Complex.I_re, Complex.I_im, Complex.ofReal_re]
+  ring
+
+lemma bpt_norm_ge (n : ℕ) (ω : ℝ) : |ω| ≤ ‖bpt n ω‖ := by
+  calc |ω| = |(bpt n ω).im| := by rw [bpt_im]
+    _ ≤ ‖bpt n ω‖ := Complex.abs_im_le_norm _
+
+lemma hasDerivAt_bpt (n : ℕ) (ω : ℝ) : HasDerivAt (fun ω : ℝ => bpt n ω) Complex.I ω := by
+  unfold bpt
+  have := (((hasDerivAt_id ω).ofReal_comp).mul_const Complex.I).const_add (((1 / ((n : ℝ) + 1) : ℝ) : ℂ))
+  simpa using this
+
+/-- **One step of the boundary passage**: if `F` has derivative `F1` and `F1` has a bounded derivative `F2` on the
+part of the open right half-plane lying over an open set `s` of heights, and `F(1/(n+1) + ω i) → g(ω)`, then
+`F1(1/(n+1) + ω i)` converges to some `h(ω)` and `g` has derivative `i h` on `s`. -/
+lemma boundary_step {F F1 F2 : ℂ → ℂ} {s : Set ℝ} (hs : IsOpen s) {M : ℝ} (hM0 : 0 ≤ M)
+    (hF : ∀ y : ℂ, 0 < y.re → y.im ∈ s → HasDerivAt F (F1 y) y)
+    (hF1 : ∀ y : ℂ, 0 < y.re → y.im ∈ s → HasDerivAt F1 (F2 y) y)
+    (hM : ∀ y : ℂ, 0 < y.re → y.im ∈ s → ‖F2 y‖ ≤ M)
+    {g : ℝ → ℂ} (hg : ∀ ω ∈ s, Tendsto (fun n : ℕ => F (bpt n ω)) atTop (𝓝 (g ω))) :
+    ∃ h : ℝ → ℂ, (∀ ω ∈ s, Tendsto (fun n : ℕ => F1 (bpt n ω)) atTop (𝓝 (h ω))) ∧
+      ∀ ω ∈ s, HasDerivAt g (Complex.I * h ω) ω := by
+  -- Lipschitz in the horizontal direction
+  have hlip : ∀ ω ∈ s, ∀ e e' : ℝ, 0 < e → 0 < e' →
+      ‖F1 ((e' : ℂ) + (ω : ℂ) * Complex.I) - F1 ((e : ℂ) + (ω : ℂ) * Complex.I)‖ ≤ M * ‖e' - e‖ := by
+    intro ω hω e e' he he'
+    have hd : ∀ x ∈ Set.Ioi (0 : ℝ), HasDerivWithinAt (fun x : ℝ => F1 ((x : ℂ) + (ω : ℂ) * Complex.I))
+        (F2 ((x : ℂ) + (ω : ℂ) * Complex.I)) (Set.Ioi 0) x := by
+      intro x hx
+      have hre : 0 < (((x : ℝ) : ℂ) + (ω : ℂ) * Complex.I).re := by simpa using hx
+      have him : (((x : ℝ) : ℂ) + (ω : ℂ) * Complex.I).im ∈ s := by simpa using hω
+      have h1 := hF1 _ hre him
+      have h2 : HasDerivAt (fun z : ℂ => F1 (z + (ω : ℂ) * Complex.I)) (F2 ((x : ℂ) + (ω : ℂ) * Complex.I)) (x : ℂ) :=
+        h1.comp_add_const (x : ℂ) _
+      exact (h2.comp_ofReal).hasDerivWithinAt
+    exact Convex.norm_image_sub_le_of_norm_hasDerivWithin_le hd
+      (fun x hx => hM _ (by simpa using hx) (by simpa using hω)) (convex_Ioi 0) he he'
+  -- uniform Cauchy
+  have hUC : UniformCauchySeqOn (fun (n : ℕ) (ω : ℝ) => F1 (bpt n ω)) atTop s := by
+    rw [Metric.uniformCauchySeqOn_iff]
+    intro ε hε
+    obtain ⟨N, hN⟩ := exists_nat_gt ((M + 1) / ε)
+    refine ⟨N, fun m hm n hn ω hω => ?_⟩
+    rw [dist_eq_norm]
+    have hm1 : 0 < 1 / ((m : ℝ) + 1) := by positivity
+    have hn1 : 0 < 1 / ((n : ℝ) + 1) := by positivity
+    have h := hlip ω hω _ _ hn1 hm1
+    have hN0 : (0 : ℝ) < (N : ℝ) := lt_of_le_of_lt (by positivity) hN
+    have hle : ‖1 / ((m : ℝ) + 1) - 1 / ((n : ℝ) + 1)‖ ≤ 1 / ((N : ℝ) + 1) := by
+      rw [Real.norm_eq_abs, abs_le]
+      have a1 : 1 / ((m : ℝ) + 1) ≤ 1 / ((N : ℝ) + 1) :=
+        one_div_le_one_div_of_le (by positivity) (by exact_mod_cast Nat.succ_le_succ hm)
+      have a2 : 1 / ((n : ℝ) + 1) ≤ 1 / ((N : ℝ) + 1) :=
+        one_div_le_one_div_of_le (by positivity) (by exact_mod_cast Nat.succ_le_succ hn)
+      constructor <;> linarith
+    calc ‖F1 (bpt m ω) - F1 (bpt n ω)‖ ≤ M * ‖1 / ((m : ℝ) + 1) - 1 / ((n : ℝ) + 1)‖ := by
+          have := hlip ω hω _ _ hn1 hm1
+          simpa [bpt, norm_sub_rev] using (by simpa [bpt] using this : ‖F1 (bpt m ω) - F1 (bpt n ω)‖ ≤ M * ‖1 / ((m : ℝ) + 1) - 1 / ((n : ℝ) + 1)‖)
+      _ ≤ M * (1 / ((N : ℝ) + 1)) := mul_le_mul_of_nonneg_left hle hM0
+      _ < ε := by
+          rw [mul_one_div, div_lt_iff₀ (by positivity)]
+          have : (M + 1) / ε < N := hN
+          rw [div_lt_iff₀ hε] at this
+          nlinarith
+  classical
+  have hlim : ∀ ω ∈ s, ∃ a, Tendsto (fun n : ℕ => F1 (bpt n ω)) atTop (𝓝 a) := fun ω hω =>
+    cauchySeq_tendsto_of_complete (hUC.cauchySeq hω)
+  let h : ℝ → ℂ := fun ω => if hω : ω ∈ s then Classical.choose (hlim ω hω) else 0
+  have hh : ∀ ω ∈ s, Tendsto (fun n : ℕ => F1 (bpt n ω)) atTop (𝓝 (h ω)) := by
+    intro ω hω
+    simp only [h, dif_pos hω]
+    exact Classical.choose_spec (hlim ω hω)
+  refine ⟨h, hh, fun ω hω => ?_⟩
+  have hU : TendstoUniformlyOn (fun (n : ℕ) (ω : ℝ) => F1 (bpt n ω)) h atTop s :=
+    hUC.tendstoUniformlyOn_of_tendsto hh
+  have hU' : TendstoUniformlyOn (fun (n : ℕ) (ω : ℝ) => Complex.I * F1 (bpt n ω)) (fun ω => Complex.I * h ω) atTop s := by
+    rw [Metric.tendstoUniformlyOn_iff] at hU ⊢
+    intro ε hε
+    filter_upwards [hU ε hε] with n hn ω hω'
+    have := hn ω hω'
+    rw [dist_eq_norm] at this ⊢
+    rw [← mul_sub, norm_mul, Complex.norm_I, one_mul]
+    exact this
+  have hderiv : ∀ᶠ n : ℕ in atTop, ∀ x : ℝ, x ∈ s →
+      HasDerivAt (fun ω : ℝ => F (bpt n ω)) (Complex.I * F1 (bpt n x)) x := by
+    refine Filter.Eventually.of_forall fun n x hx => ?_
+    have h1 := hF (bpt n x) (by rw [bpt_re]; positivity) (by rw [bpt_im]; exact hx)
+    have := h1.scomp x (hasDerivAt_bpt n x)
+    simpa [Function.comp_def, smul_eq_mul] using this
+  exact hasDerivAt_of_tendstoUniformlyOn hs hU' hderiv hg hω
+
+lemma DecayOn.along_bpt {k : ℝ} (hk : 0 ≤ k) {h : ℂ → ℂ} (hd : DecayOn k h) :
+    ∃ C > 0, ∀ (n : ℕ) (ω : ℝ), 1 < |ω| → ‖h (bpt n ω)‖ ≤ C * |ω| ^ (-k) := by
+  obtain ⟨C, hC, hb⟩ := hd
+  refine ⟨C, hC, fun n ω hω => ?_⟩
+  have hre : 0 < (bpt n ω).re := by rw [bpt_re]; positivity
+  have hge := bpt_norm_ge n ω
+  refine (hb hre (by linarith)).trans (mul_le_mul_of_nonneg_left ?_ hC.le)
+  exact Real.rpow_le_rpow_of_nonpos (by linarith) hge (by linarith)
+
+lemma tendsto_bpt (ω : ℝ) : Tendsto (fun n : ℕ => bpt n ω) atTop (𝓝 ((ω : ℂ) * Complex.I)) := by
+  unfold bpt
+  have h0 : Tendsto (fun n : ℕ => ((1 / ((n : ℝ) + 1) : ℝ) : ℂ)) atTop (𝓝 0) := by
+    have := (Complex.continuous_ofReal.tendsto (0 : ℝ)).comp
+      (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ))
+    rw [Complex.ofReal_zero] at this
+    exact this
+  simpa using h0.add_const ((ω : ℂ) * Complex.I)
+
+/-- The `(e27)` conclusion for `r ≤ 2` on the imaginary axis: `ω ↦ T(i ω)` is twice differentiable for `|ω| > 1`
+with `|T(iω)| ≲ |ω|^{-5/2}`, `|∂_ω T(iω)| ≲ |ω|^{-7/2}`, `|∂_ω² T(iω)| ≲ |ω|^{-9/2}`. -/
+def ImagAxisBounds (T : ℂ → ℂ) : Prop :=
+  ∃ g1 g2 : ℝ → ℂ, (∀ ω : ℝ, 1 < |ω| → HasDerivAt (fun ω : ℝ => T ((ω : ℂ) * Complex.I)) (g1 ω) ω) ∧
+    (∀ ω : ℝ, 1 < |ω| → HasDerivAt g1 (g2 ω) ω) ∧
+    ∃ C > 0, ∀ ω : ℝ, 1 < |ω| → ‖T ((ω : ℂ) * Complex.I)‖ ≤ C * |ω| ^ (-(5 / 2 : ℝ)) ∧
+      ‖g1 ω‖ ≤ C * |ω| ^ (-(7 / 2 : ℝ)) ∧ ‖g2 ω‖ ≤ C * |ω| ^ (-(9 / 2 : ℝ))
+
+/-- **The symbol bounds on the imaginary axis** (`(e27)` for `r ≤ 2`, `|ω| > 1`): if `T` satisfies the half-plane
+`SymbolBounds` and is continuous on `Re y ≥ 0`, then `ω ↦ T(i ω)` is twice differentiable on `|ω| > 1`, with
+`|T(iω)| ≲ |ω|^{-5/2}`, `|∂_ω T(iω)| ≲ |ω|^{-7/2}`, `|∂_ω² T(iω)| ≲ |ω|^{-9/2}`. -/
+theorem SymbolBounds.imagAxis {T : ℂ → ℂ} (hT : SymbolBounds T) (hcont : ContinuousOn T {y : ℂ | 0 ≤ y.re}) :
+    ImagAxisBounds T := by
+  unfold ImagAxisBounds
+  obtain ⟨T1, T2, T3, h1, h2, h3, d0, d1, d2, d3⟩ := hT
+  set s : Set ℝ := {ω | 1 < |ω|} with hs_def
+  have hs : IsOpen s := isOpen_lt continuous_const continuous_abs
+  have hnorm : ∀ y : ℂ, y.im ∈ s → 1 ≤ ‖y‖ := fun y hy => by
+    have : 1 < |y.im| := hy
+    exact (this.trans_le (Complex.abs_im_le_norm y)).le
+  have hbd : ∀ {k : ℝ} {h : ℂ → ℂ}, 0 ≤ k → DecayOn k h →
+      ∃ M ≥ 0, ∀ y : ℂ, 0 < y.re → y.im ∈ s → ‖h y‖ ≤ M := fun {k h} hk hd => by
+    obtain ⟨C, hC, hb⟩ := hd
+    refine ⟨C, hC.le, fun y hy hys => (hb hy (hnorm y hys)).trans ?_⟩
+    have : ‖y‖ ^ (-k) ≤ 1 := Real.rpow_le_one_of_one_le_of_nonpos (hnorm y hys) (by linarith)
+    nlinarith
+  obtain ⟨M2, hM2, hb2⟩ := hbd (k := 9 / 2) (by norm_num) d2
+  obtain ⟨M3, hM3, hb3⟩ := hbd (k := 9 / 2) (by norm_num) d3
+  have hg0 : ∀ ω ∈ s, Tendsto (fun n : ℕ => T (bpt n ω)) atTop (𝓝 (T ((ω : ℂ) * Complex.I))) := by
+    intro ω hω
+    have hmem : ((ω : ℂ) * Complex.I) ∈ {y : ℂ | 0 ≤ y.re} := by simp
+    have ht := (hcont _ hmem).tendsto
+    refine ht.comp ?_
+    refine tendsto_nhdsWithin_iff.mpr ⟨tendsto_bpt ω, Filter.Eventually.of_forall fun n => ?_⟩
+    show 0 ≤ (bpt n ω).re
+    rw [bpt_re]; positivity
+  obtain ⟨hA, hhA, hdA⟩ := boundary_step hs hM2 (fun y hy _ => h1 hy) (fun y hy _ => h2 hy) hb2 hg0
+  obtain ⟨hB, hhB, hdB⟩ := boundary_step hs hM3 (fun y hy _ => h2 hy) (fun y hy _ => h3 hy) hb3 hhA
+  refine ⟨fun ω => Complex.I * hA ω, fun ω => Complex.I * (Complex.I * hB ω), fun ω hω => hdA ω hω,
+    fun ω hω => (hdB ω hω).const_mul Complex.I, ?_⟩
+  obtain ⟨C0, hC0, b0⟩ := d0.along_bpt (by norm_num)
+  obtain ⟨C1, hC1, b1⟩ := d1.along_bpt (by norm_num)
+  obtain ⟨C2, hC2, b2⟩ := d2.along_bpt (by norm_num)
+  refine ⟨C0 + C1 + C2, by positivity, fun ω hω => ?_⟩
+  have hp : ∀ k : ℝ, 0 ≤ |ω| ^ (-k) := fun k => Real.rpow_nonneg (abs_nonneg ω) _
+  have lim : ∀ {u : ℕ → ℂ} {a : ℂ} {B : ℝ}, Tendsto u atTop (𝓝 a) → (∀ n, ‖u n‖ ≤ B) → ‖a‖ ≤ B :=
+    fun {u a B} hu hb => le_of_tendsto (hu.norm) (Filter.Eventually.of_forall hb)
+  have e0 : ‖T ((ω : ℂ) * Complex.I)‖ ≤ C0 * |ω| ^ (-(5 / 2 : ℝ)) := lim (hg0 ω hω) fun n => b0 n ω hω
+  have e1 : ‖hA ω‖ ≤ C1 * |ω| ^ (-(7 / 2 : ℝ)) := lim (hhA ω hω) fun n => b1 n ω hω
+  have e2 : ‖hB ω‖ ≤ C2 * |ω| ^ (-(9 / 2 : ℝ)) := lim (hhB ω hω) fun n => b2 n ω hω
+  refine ⟨?_, ?_, ?_⟩
+  · refine e0.trans ?_
+    nlinarith [hp (5 / 2), hC1, hC2]
+  · rw [norm_mul, Complex.norm_I, one_mul]
+    refine e1.trans ?_
+    nlinarith [hp (7 / 2), hC0, hC2]
+  · rw [norm_mul, norm_mul, Complex.norm_I, one_mul, one_mul]
+    refine e2.trans ?_
+    nlinarith [hp (9 / 2), hC0, hC1]
+
+/-- **`(e27)` for `f₁`** on the imaginary axis, `r ≤ 2`, `|ω| > 1`. -/
+theorem ceF1_imagAxisBounds : ImagAxisBounds (airyTwistedLaplaceC ceF1) :=
+  ceF1_symbolBounds.imagAxis ceF1_regularity.2.1
+
+/-- **`(e27)` for `g₁`** on the imaginary axis, `r ≤ 2`, `|ω| > 1`. -/
+theorem ceG1_imagAxisBounds : ImagAxisBounds (airyTwistedLaplaceC (ceG1 (airyZero 1))) := by
+  obtain ⟨C1, hC1, hG1_t⟩ := ceG1_tail_exp_rpow32
+  have hreg := airyTwistedLaplaceC_regularity (continuous_ceG1 _) ceG1_integrable hC1 hG1_t
+  exact ceG1_symbolBounds.imagAxis hreg.2.1
+
+/-- **`(e27)` for `g₁'`** on the imaginary axis, `r ≤ 2`, `|ω| > 1`. -/
+theorem ceG1Deriv_imagAxisBounds : ImagAxisBounds (airyTwistedLaplaceC (ceG1Deriv airyDerivFirstZero)) := by
+  obtain ⟨C1, hC1, hG_t⟩ := ceG1Deriv_tail_exp_rpow32
+  have hreg := airyTwistedLaplaceC_regularity (continuous_ceG1Deriv _) ceG1Deriv_integral_eq_M.1 hC1 hG_t
+  exact ceG1Deriv_symbolBounds.imagAxis hreg.2.1
+
+/-! ### Linear combinations of seeds -/
+
+lemma ImagAxisBounds.congr_imag {T U : ℂ → ℂ} (h : ImagAxisBounds T) (hTU : ∀ ω : ℝ, T ((ω : ℂ) * Complex.I) = U ((ω : ℂ) * Complex.I)) :
+    ImagAxisBounds U := by
+  obtain ⟨g1, g2, h1, h2, C, hC, hb⟩ := h
+  have hfun : (fun ω : ℝ => T ((ω : ℂ) * Complex.I)) = fun ω : ℝ => U ((ω : ℂ) * Complex.I) := funext hTU
+  refine ⟨g1, g2, fun ω hω => hfun ▸ h1 ω hω, h2, C, hC, fun ω hω => ?_⟩
+  rw [← hTU ω]; exact hb ω hω
+
+lemma ImagAxisBounds.const_mul {T : ℂ → ℂ} (h : ImagAxisBounds T) (c : ℂ) :
+    ImagAxisBounds (fun y => c * T y) := by
+  obtain ⟨g1, g2, h1, h2, C, hC, hb⟩ := h
+  refine ⟨fun ω => c * g1 ω, fun ω => c * g2 ω, fun ω hω => (h1 ω hω).const_mul c, fun ω hω => (h2 ω hω).const_mul c,
+    (‖c‖ + 1) * C, by positivity, fun ω hω => ?_⟩
+  obtain ⟨b0, b1, b2⟩ := hb ω hω
+  have hp : ∀ k : ℝ, 0 ≤ C * |ω| ^ (-k) := fun k => mul_nonneg hC.le (Real.rpow_nonneg (abs_nonneg ω) _)
+  have key : ∀ {x : ℂ} {k : ℝ}, ‖x‖ ≤ C * |ω| ^ (-k) → ‖c * x‖ ≤ (‖c‖ + 1) * C * |ω| ^ (-k) := fun {x k} hx => by
+    rw [norm_mul]
+    have := hp k
+    nlinarith [norm_nonneg c, norm_nonneg x]
+  exact ⟨key b0, key b1, key b2⟩
+
+lemma ImagAxisBounds.add {T U : ℂ → ℂ} (h : ImagAxisBounds T) (h' : ImagAxisBounds U) :
+    ImagAxisBounds (fun y => T y + U y) := by
+  obtain ⟨g1, g2, h1, h2, C, hC, hb⟩ := h
+  obtain ⟨g1', g2', h1', h2', C', hC', hb'⟩ := h'
+  refine ⟨fun ω => g1 ω + g1' ω, fun ω => g2 ω + g2' ω, fun ω hω => (h1 ω hω).add (h1' ω hω),
+    fun ω hω => (h2 ω hω).add (h2' ω hω), C + C', by positivity, fun ω hω => ?_⟩
+  obtain ⟨b0, b1, b2⟩ := hb ω hω
+  obtain ⟨c0, c1, c2⟩ := hb' ω hω
+  have hp : ∀ k : ℝ, 0 ≤ |ω| ^ (-k) := fun k => Real.rpow_nonneg (abs_nonneg ω) _
+  refine ⟨?_, ?_, ?_⟩
+  · exact (norm_add_le _ _).trans (by nlinarith [hp (5 / 2)])
+  · exact (norm_add_le _ _).trans (by nlinarith [hp (7 / 2)])
+  · exact (norm_add_le _ _).trans (by nlinarith [hp (9 / 2)])
+
+lemma airySeedU2_transform (a b c : ℝ) {y : ℂ} (hy : 0 ≤ y.re) :
+    airyTwistedLaplaceC (airySeedU2 a b c) y = (a : ℂ) * airyTwistedLaplaceC ceF1 y +
+      (b : ℂ) * airyTwistedLaplaceC (ceG1 (airyZero 1)) y + (c : ℂ) * airyTwistedLaplaceC (ceG1Deriv airyDerivFirstZero) y := by
+  have i1 := (hasU2_ceF1.smul a).integrable y hy
+  have i2 := (hasU2_ceG1.smul b).integrable y hy
+  have i3 := (hasU2_ceG1Deriv.smul c).integrable y hy
+  have i12 := ((hasU2_ceF1.smul a).add (hasU2_ceG1.smul b)).integrable y hy
+  unfold airySeedU2
+  rw [airyTwistedLaplaceC_add i12 i3, airyTwistedLaplaceC_add i1 i2, airyTwistedLaplaceC_const_mul,
+    airyTwistedLaplaceC_const_mul, airyTwistedLaplaceC_const_mul]
+
+/-- **`(e27)` for the one-level seeds `a f₁ + b g₁ + c g₁'`** (`r ≤ 2`, imaginary axis, `|ω| > 1`). -/
+theorem airySeedU2_imagAxisBounds (a b c : ℝ) : ImagAxisBounds (airyTwistedLaplaceC (airySeedU2 a b c)) := by
+  have h := ((ceF1_imagAxisBounds.const_mul (a : ℂ)).add (ceG1_imagAxisBounds.const_mul (b : ℂ))).add
+    (ceG1Deriv_imagAxisBounds.const_mul (c : ℂ))
+  refine h.congr_imag fun ω => ?_
+  rw [airySeedU2_transform a b c (by simp)]
+
+/-- **`(e27)` for the `m₀ = 1` Hermite–Biehler seed** `-f₁ - γ₁δ g₁ + γ₂δ S_b + r g₁`. -/
+theorem hbSeed_m1_imagAxisBounds (γ₁ γ₂ δ r : ℝ) :
+    ImagAxisBounds (airyTwistedLaplaceC
+      (fun u : ℝ => -ceF1 u - γ₁ * δ * ceG1 (airyZero 1) u + γ₂ * δ * ceSb 1 u + r * ceG1 (airyZero 1) u)) := by
+  rw [hbSeed_m1_eq_airySeedU2]; exact airySeedU2_imagAxisBounds _ _ _
+
+
 /-- info: 'FormalResearch.CohnElkies.hasDerivAt_Jp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms hasDerivAt_Jp
 /-- info: 'FormalResearch.CohnElkies.hasDerivAt_J1p' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -958,5 +1362,23 @@ theorem ceG1Deriv_symbolBounds : SymbolBounds (airyTwistedLaplaceC (ceG1Deriv ai
 #guard_msgs (whitespace := lax) in #print axioms ceG1_symbolBounds
 /-- info: 'FormalResearch.CohnElkies.ceG1Deriv_symbolBounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms ceG1Deriv_symbolBounds
+
+/-- info: 'FormalResearch.CohnElkies.boundary_step' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms boundary_step
+
+/-- info: 'FormalResearch.CohnElkies.SymbolBounds.imagAxis' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms SymbolBounds.imagAxis
+
+/-- info: 'FormalResearch.CohnElkies.ceF1_imagAxisBounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ceF1_imagAxisBounds
+/-- info: 'FormalResearch.CohnElkies.ceG1_imagAxisBounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ceG1_imagAxisBounds
+/-- info: 'FormalResearch.CohnElkies.ceG1Deriv_imagAxisBounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms ceG1Deriv_imagAxisBounds
+
+/-- info: 'FormalResearch.CohnElkies.airySeedU2_imagAxisBounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms airySeedU2_imagAxisBounds
+/-- info: 'FormalResearch.CohnElkies.hbSeed_m1_imagAxisBounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms hbSeed_m1_imagAxisBounds
 
 end FormalResearch.CohnElkies
