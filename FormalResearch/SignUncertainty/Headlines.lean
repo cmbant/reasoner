@@ -3,6 +3,8 @@ module
 public import FormalResearch.SignUncertainty.Radii
 public import FormalResearch.SignUncertainty.RadialCompactnessProof
 public import FormalResearch.SignUncertainty.OneProfileEnvelope
+public import FormalResearch.SignUncertainty.EuclidRadialProjection
+public import FormalResearch.SignUncertainty.ShellGapHankel
 
 /-!
 # Paper I headline theorems from one input structure each (M0 skeleton)
@@ -14,8 +16,8 @@ Each headline is stated on the concrete objects of `Radii.lean` (Euclidean `A_si
 the prescribed-shell class, the Bessel-kernel Hankel thresholds) with the paper's constants, and is
 proved from an input structure whose fields are, one-to-one, the TeX theorems the paper's proof cites
 (field names are the TeX labels where the paper has one: `hb_thresholds_lower/upper`, `shell_reduction`,
-`shell_gap_limit`, `ce_hb_lift`, ...; some are not labels: `hankel_euclid_dictionary` is the proof of
-`gt:7.9` (Euclidean radii as Hankel thresholds)).
+`hankel_shell_gap_limit`, `ce_hb_lift`, ...; `gt:7.9`, the Euclidean radii as Hankel thresholds, is the theorem
+`hankel_euclid_dictionary` and no longer a field).
 **A field is an open theorem about the concrete objects**; progress is the number of open fields, and a
 field is discharged only by proving it (then it is dropped from the structure). The input structures
 deliberately have no `*_nonvacuous` witness: each field is an open theorem of the paper, so a witness
@@ -25,8 +27,7 @@ would be the theorem itself (deliberate deviation from the usual non-vacuity req
 Headlines and their inputs (open fields in bold):
 
 * `thm_intro_radii` (`thm:intro-radii`, `gt:7.9`, `gt:7.12`, `gt:7.12a`), from `RadiiInputs`:
-  **`hankel_euclid_dictionary`** (`gt:7.9`: radial averaging,
-  Bochner, BCK/CG reduction, all integer `d ≥ 2`), **`hb_thresholds_lower`**, **`hb_thresholds_upper`**
+  **`hb_thresholds_lower`**, **`hb_thresholds_upper`**
   (`thm:hb-thresholds` at `(P,Q) = (1,0)`, i.e. `u1cl:multilevel` and `u1co:O9p`),
   **`shell_reduction_m1`** (`thm:ce-shell-reduction`, `m = 1`, with `O(d)` averaging),
   **`ce_hb_lift_m1`** (`thm:ce-hb-lift`, `m₀ = 1`; its Laplace hypothesis is proved here from
@@ -39,9 +40,9 @@ Headlines and their inputs (open fields in bold):
   derived from it (the latter also from `hb_thresholds_upper`). Proved here from these:
   the Hardy–Mellin intertwiner argument (`sign_separation_eventually_le`, via
   `SignSeparationPackage.langer_approx` built from the `C¹` field). The Euclidean statement (2)
-  additionally uses `EuclidDictionary` (`hankel_euclid_dictionary`; `laguerre_odd_mode` is proved).
+  additionally uses the theorems `hankel_euclid_dictionary` (`gt:7.9`) and `laguerre_odd_mode`.
 * `thm_intro_gap_i/ii/iii` (`thm:intro-gap`), from `ShellGapInputs D`:
-  **`shell_reduction`** (`thm:ce-shell-reduction`), **`shell_gap_limit`** (`thm:ce-shell-gap`,
+  **`shell_reduction`** (`thm:ce-shell-reduction`), **`hankel_shell_gap_limit`** (`thm:ce-shell-gap`, Hankel form,
   extraction and constraint system `eq:ce-laplace-constraint`), **`ce_hb_lift`** (`thm:ce-hb-lift`).
   `one_profile_envelope` (`gt:3.1` envelope used in `prop:ce-one-profile`) is a theorem
   (`OneProfileEnvelope.lean`). Proved here from these: `one_profile_feasible_iff`, `one_profile_maximizer_exists`,
@@ -51,8 +52,8 @@ Conventions. `c = d/2`, `A = |a₁|/β₁` (`airyOrderCoeff`), `airyOrderModel d
 Radii whose defining set is empty are `+∞` in the paper; the statements below that involve the
 prescribed-shell radius quantify over the members of `ceShellRadiusSet`. For the Euclidean radii and
 `hankelT` the real `sInf` is used; for `d ≥ 2` the defining sets are nonempty (this is part of the
-open fields: `hb_thresholds_upper` for the Hankel side, `hankel_euclid_dictionary` for the Euclidean
-side), so the junk value `sInf ∅ = 0` never matters for a true statement.
+open field `hb_thresholds_upper` for the Hankel side, and the Euclidean sets are then nonempty by
+`signWitness_of_hankelFeasible`), so the junk value `sInf ∅ = 0` never matters for a true statement.
 -/
 
 @[expose] public section
@@ -134,20 +135,6 @@ def ShellReduction (D : ShellHBData) : Prop :=
       ∀ R ∈ ceShellRadiusSet D r d,
         (d : ℝ) / (2 * π ^ 2) - (D.tm / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) - C ≤ R ^ 2 / 2
 
-/-- `thm:ce-shell-gap` (Theorem H.14), extraction and constraint system `eq:ce-laplace-constraint`:
-along any sequence of dimensions `d_k → ∞` and admissible pairs (shell offsets `o(c^{1/3})`) whose
-thresholds satisfy `R_k²/2 ≤ d_k/(2π²) - (u_*/β₁) c_k^{1/3} + o(c_k^{1/3})` for a fixed real `u_*`,
-the window profiles of `p_k = (ĥ+h)/2`, `q_k = (ĥ-h)/2`, normalised by `M[2q_k]`, have limits
-`P_∞, Q_∞ ∈ 𝒢` satisfying the two-profile system at `u_*` (`TwoProfileFeasible D u_*`). -/
-def ShellGapLimit (D : ShellHBData) : Prop :=
-  ∀ r : ℝ → ℕ → ℝ, (∀ t : ℝ, Tendsto (fun d : ℕ => r t d / ((d : ℝ) / 2) ^ (1 / 3 : ℝ)) atTop (𝓝 0)) →
-    ∀ (u_star : ℝ) (dk : ℕ → ℕ), Tendsto dk atTop atTop →
-      ∀ (ε : ℕ → ℝ), Tendsto ε atTop (𝓝 0) →
-        ∀ (R : ℕ → ℝ), (∀ k, R k ∈ ceShellRadiusSet D r (dk k)) →
-          (∀ k, R k ^ 2 / 2 ≤ (dk k : ℝ) / (2 * π ^ 2) - (u_star / hankelBeta1) * ((dk k : ℝ) / 2) ^ (1 / 3 : ℝ)
-            + ε k * ((dk k : ℝ) / 2) ^ (1 / 3 : ℝ)) →
-          TwoProfileFeasible D u_star
-
 /-- `prop:ce-one-profile`, attainment step (uniform envelope from the proof of `gt:3.1`): normalised
 one-profile witnesses at thresholds above a feasible `u₀` obey a common bound
 `C (1 + |z|)^ν e(z)`. -/
@@ -167,23 +154,13 @@ theorem bessel_kernel_data (c : ℝ) (hc : 1 ≤ c) :
     ∃ K : HankelKernelData c, K.φ = hankelPhi c :=
   ⟨hankelKernelData (by linarith), rfl⟩
 
-/-- The Euclidean/Hankel layer. (`gt:7.9b`, the odd Laguerre mode is a `(-1)`-eigenfunction, is proved:
-`laguerre_odd_mode`.)
-`hankel_euclid_dictionary` (`gt:7.9`, proof): for every integer `d ≥ 2`,
-`A_sign^+(d)²/2 = T_{d/2}^{+1}` and `A_sign^-(d)²/2 = T_{d/2}^{-1}` with the origin condition `f(0) = 0`
-(radial averaging over `O(d)`, the radial Fourier transform in every dimension including odd `d`, and
-the compact-support uncertainty argument that the average is nonzero). -/
-structure EuclidDictionary : Prop where
-  hankel_euclid_dictionary : ∀ d : ℕ, 2 ≤ d →
-    aSignPos d ^ 2 / 2 = hankelT 1 ((d : ℝ) / 2) ∧ aSignNeg d ^ 2 / 2 = hankelT0 ((d : ℝ) / 2)
-
 /-- `thm:hb-thresholds` at one level, both halves (`HbThresholdsLower`, `HbThresholdsUpper`). -/
 structure OneLevelThresholds : Prop where
   hb_thresholds_lower : HbThresholdsLower
   hb_thresholds_upper : HbThresholdsUpper
 
 /-- Inputs of `thm:intro-radii`. -/
-structure RadiiInputs : Prop extends EuclidDictionary, OneLevelThresholds where
+structure RadiiInputs : Prop extends OneLevelThresholds where
   /-- `thm:ce-shell-reduction` at `m = 1` for `r_CE(d)` (after `O(d)` averaging): the negative Fourier
   projection `ĥ - h` is a sign-uncertainty competitor; `r_CE(d)²/2 ≥ d/(2π²) + A (d/2)^{1/3} - O(1)`. -/
   shell_reduction_m1 : ∃ (C : ℝ) (d₀ : ℕ), ∀ d : ℕ, d₀ ≤ d →
@@ -206,8 +183,14 @@ theorem radial_rigidity_lower :
 /-- Inputs of `thm:intro-gap` for the Hermite–Biehler configuration `D`. -/
 structure ShellGapInputs (D : ShellHBData) : Prop where
   shell_reduction : ShellReduction D
-  shell_gap_limit : ShellGapLimit D
+  /-- `thm:ce-shell-gap` in Hankel form (`HankelShellGapLimit`); the Euclidean statement `ShellGapLimit` follows
+  (`shellGapLimit_of_hankel`, via the radial Fourier transform). -/
+  hankel_shell_gap_limit : HankelShellGapLimit D
   ce_hb_lift : CeHbLift D
+
+/-- `thm:ce-shell-gap` for radial Cohn-Elkies pairs on `ℝ^d`. -/
+theorem ShellGapInputs.shell_gap_limit {D : ShellHBData} (I : ShellGapInputs D) : ShellGapLimit D :=
+  shellGapLimit_of_hankel I.hankel_shell_gap_limit
 
 
 /-! ### Headline A and B: `thm:intro-radii` -/
@@ -248,7 +231,7 @@ private lemma sign_radii_tail :
   set c : ℝ := (d : ℝ) / 2 with hc_def
   have hd2 : 2 ≤ d := by omega
   have hc0 : 0 < c := by linarith
-  obtain ⟨hp, hn⟩ := I.hankel_euclid_dictionary d hd2
+  obtain ⟨hp, hn⟩ := hankel_euclid_dictionary d hd2
   have hnonneg : ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ∃ T f, IsHankelFeasible c ε T f :=
     fun ε hε => by obtain ⟨T, f, hf, _⟩ := hup c (by linarith) ε hε; exact ⟨T, f, hf⟩
   have hb : ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
@@ -294,7 +277,7 @@ include I
 `A_sign^±(d)²/2 = d/(2π²) + A (d/2)^{1/3} + O(1)` with `A = |a₁|/β₁`.
 
 Proved from `RadiiInputs`; see the module docstring for the open fields used
-(`hankel_euclid_dictionary`, `hb_thresholds_lower`,
+(`hb_thresholds_lower`,
 `hb_thresholds_upper`). The second asymptotic form of `gt:7.9` (`A_sign(d)/√d`) is not restated. -/
 theorem thm_intro_radii_sign :
     (∃ C : ℝ, ∀ d : ℕ, 2 ≤ d → |aSignPos d ^ 2 / 2 - airyOrderModel d| ≤ C) ∧
@@ -567,10 +550,9 @@ end Separation
 
 section SeparationEuclid
 
-variable (I : SeparationInputs) (E : EuclidDictionary)
-include I E
+variable (I : SeparationInputs)
+include I
 
-omit E in
 /-- For large `c`, the exact origin option does not change `T_c^{-1}` (`gt:7.9b`). -/
 private lemma neg_T0_eq_ev : ∀ᶠ c : ℝ in atTop, hankelT0 c = hankelT (-1) c := by
   obtain ⟨c_u, hc_u⟩ := neg_nonempty_ev I
@@ -593,8 +575,8 @@ private lemma neg_T0_eq_ev : ∀ᶠ c : ℝ in atTop, hankelT0 c = hankelT (-1) 
 /-- **Headline S, Euclidean form (`gt:7.9c(2)`, `thm:intro-separation`, second line):**
 `limsup_{d→∞} ½(A_sign^+(d)² - A_sign^-(d)²) ≤ -2/π²` (integer `d`, limsup in `EReal`).
 
-From `thm_intro_separation_hankel`'s inputs and `EuclidDictionary`
-(`hankel_euclid_dictionary`): `A_sign^+(d)²/2 = T_{d/2}^{+1}` and `A_sign^-(d)²/2 = T_{d/2}^{-1,0} =
+From `thm_intro_separation_hankel`'s inputs and the dictionary `hankel_euclid_dictionary`
+(`EuclidRadialProjection.lean`): `A_sign^+(d)²/2 = T_{d/2}^{+1}` and `A_sign^-(d)²/2 = T_{d/2}^{-1,0} =
 T_{d/2}^{-1}` for large `d`. -/
 theorem thm_intro_separation_radii :
     Filter.limsup (fun d : ℕ => (((aSignPos d ^ 2 - aSignNeg d ^ 2) / 2 : ℝ) : EReal)) atTop ≤
@@ -608,7 +590,7 @@ theorem thm_intro_separation_radii :
   filter_upwards [hc_tend.eventually (separation_eventually I ((r + 2 / π ^ 2) / 2) (by linarith)),
     hc_tend.eventually (neg_T0_eq_ev I), eventually_ge_atTop 2] with d hd hT0 hd2
   refine lt_trans (EReal.coe_lt_coe_iff.2 ?_) hr2
-  obtain ⟨hp, hn⟩ := E.hankel_euclid_dictionary d hd2
+  obtain ⟨hp, hn⟩ := hankel_euclid_dictionary d hd2
   have : (aSignPos d ^ 2 - aSignNeg d ^ 2) / 2 =
       hankelT 1 ((d : ℝ) / 2) - hankelT (-1) ((d : ℝ) / 2) := by
     rw [← hT0, ← hn, ← hp]; ring
@@ -618,12 +600,12 @@ theorem thm_intro_separation_radii :
 end SeparationEuclid
 
 /-- **`thm:intro-separation`** (`gt:7.9c`): both lines of `eq:intro-separation`. -/
-theorem thm_intro_separation (I : SeparationInputs) (E : EuclidDictionary) :
+theorem thm_intro_separation (I : SeparationInputs) :
     Filter.limsup (fun c : ℝ => ((hankelT 1 c - hankelT (-1) c : ℝ) : EReal)) atTop ≤
         ((-(2 / π ^ 2) : ℝ) : EReal) ∧
     Filter.limsup (fun d : ℕ => (((aSignPos d ^ 2 - aSignNeg d ^ 2) / 2 : ℝ) : EReal)) atTop ≤
         ((-(2 / π ^ 2) : ℝ) : EReal) :=
-  ⟨thm_intro_separation_hankel I, thm_intro_separation_radii I E⟩
+  ⟨thm_intro_separation_hankel I, thm_intro_separation_radii I⟩
 
 /-- **`thm:intro-radii`** (`gt:7.9`, `gt:7.12`, `gt:7.12a`): the three radii at Airy order, and the
 volume/density expansion of the Cohn–Elkies ball (`eq:intro-density`). -/

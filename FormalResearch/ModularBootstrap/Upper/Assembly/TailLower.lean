@@ -225,6 +225,97 @@ lemma designFac_tail_lower {C_Z : ℝ} (hC_Z : 0 < C_Z)
   rw [← heq] at hsq
   linarith
 
+/-- The model product of the tail lower bounds: `∏_{m ∈ s} (1 if m + 2 ≤ N, exp(-4 (C_Z/2)/(m+2)²) beyond)`
+is `≥ 1/2` for every finite set `s`, when `4 C_Z ≤ N`. -/
+lemma prod_tailLower_ge_half {C_Z : ℝ} (hC_Z : 0 < C_Z) {N : ℕ} (hN2 : 2 ≤ N) (hNC : 4 * C_Z ≤ N)
+    (s : Finset ℕ) :
+    1 / 2 ≤ ∏ m ∈ s, (if m + 2 ≤ N then (1 : ℝ)
+      else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) := by
+  have hNpos : (0 : ℝ) < N := by exact_mod_cast (by omega : 0 < N)
+  have h2 : ∏ m ∈ s, (if m + 2 ≤ N then (1 : ℝ)
+        else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) =
+      Real.exp (∑ m ∈ s, if m + 2 ≤ N then (0 : ℝ)
+        else -4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2)) := by
+    rw [Real.exp_sum]
+    exact Finset.prod_congr rfl fun m _ => by split_ifs <;> simp
+  rw [h2]
+  set s' := s.filter (fun m => ¬(m + 2 ≤ N)) with hs'
+  have h3 : (∑ m ∈ s, if m + 2 ≤ N then (0 : ℝ)
+        else -4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2)) =
+      -(2 * C_Z) * ∑ m ∈ s', 1 / ((m + 2 : ℕ) : ℝ) ^ 2 := by
+    rw [hs', Finset.sum_filter, Finset.mul_sum]
+    refine Finset.sum_congr rfl fun m _ => ?_
+    split_ifs <;> ring
+  have h4 := sum_inv_sq_le N (by omega) s' (fun m hm => by
+    have := (Finset.mem_filter.mp hm).2
+    omega)
+  have h5 : -(2 * C_Z) * ∑ m ∈ s', 1 / ((m + 2 : ℕ) : ℝ) ^ 2 ≥ -(1 / 2) := by
+    have h6 : 2 * C_Z * ∑ m ∈ s', 1 / ((m + 2 : ℕ) : ℝ) ^ 2 ≤ 2 * C_Z * (1 / (N : ℝ)) :=
+      mul_le_mul_of_nonneg_left h4 (by positivity)
+    have h7 : 2 * C_Z * (1 / (N : ℝ)) ≤ 1 / 2 := by
+      rw [mul_one_div, div_le_iff₀ hNpos]; linarith
+    linarith
+  calc (1 : ℝ) / 2 ≤ Real.exp (-(1 / 2)) := by
+        have := Real.add_one_le_exp (-(1 / 2) : ℝ); linarith
+    _ ≤ _ := Real.exp_le_exp.mpr (by rw [h3]; linarith)
+
+/-- **Product lower bound, with finitely many exceptional factors.**  If `HasProd g T`, `0 < c ≤ 1`,
+`f ≤ N`, and the factor `g m` is at least `c` for `m + 2 ≤ f`, at least `1` for `f < m + 2 ≤ N` and at least
+`exp(-4 (C_Z/2)/(m+2)²)` beyond, with `4 C_Z ≤ N`, then `T ≥ c^f / 2`. -/
+lemma hasProd_ge_pow_half_of_tail_lower {C_Z : ℝ} (hC_Z : 0 < C_Z) {N f : ℕ} (hN2 : 2 ≤ N)
+    (hNC : 4 * C_Z ≤ N) (hfN : f ≤ N) {c : ℝ} (hc0 : 0 < c) (hc1 : c ≤ 1) {g : ℕ → ℝ} {T : ℝ}
+    (hT : HasProd g T)
+    (hfac : ∀ m : ℕ, (if m + 2 ≤ f then c else if m + 2 ≤ N then (1 : ℝ)
+      else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) ≤ g m) :
+    c ^ f / 2 ≤ T := by
+  have hge : ∀ s : Finset ℕ, c ^ f / 2 ≤ ∏ m ∈ s, g m := by
+    intro s
+    have h1 : ∏ m ∈ s, (if m + 2 ≤ f then c else if m + 2 ≤ N then (1 : ℝ)
+          else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) ≤ ∏ m ∈ s, g m :=
+      Finset.prod_le_prod₀ (fun m _ => by
+        split_ifs
+        exacts [hc0.le, zero_le_one, (Real.exp_pos _).le]) (fun m _ => hfac m)
+    refine le_trans ?_ h1
+    have hsplit : ∏ m ∈ s, (if m + 2 ≤ f then c else if m + 2 ≤ N then (1 : ℝ)
+          else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) =
+        c ^ (s.filter (fun m => m + 2 ≤ f)).card * ∏ m ∈ s, (if m + 2 ≤ N then (1 : ℝ)
+          else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) := by
+      rw [← Finset.prod_filter_mul_prod_filter_not s (fun m => m + 2 ≤ f)]
+      rw [← Finset.prod_filter_mul_prod_filter_not s (fun m => m + 2 ≤ f) (f := fun m => if m + 2 ≤ N then (1 : ℝ)
+          else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2)))]
+      have hA : ∏ m ∈ s.filter (fun m => m + 2 ≤ f), (if m + 2 ≤ f then c else if m + 2 ≤ N then (1 : ℝ)
+          else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) =
+          c ^ (s.filter (fun m => m + 2 ≤ f)).card := by
+        rw [← Finset.prod_const]
+        refine Finset.prod_congr rfl fun m hm => ?_
+        simp [(Finset.mem_filter.mp hm).2]
+      have hB : ∏ m ∈ s.filter (fun m => ¬ m + 2 ≤ f), (if m + 2 ≤ f then c else if m + 2 ≤ N then (1 : ℝ)
+          else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) =
+          ∏ m ∈ s.filter (fun m => ¬ m + 2 ≤ f), (if m + 2 ≤ N then (1 : ℝ)
+          else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) := by
+        refine Finset.prod_congr rfl fun m hm => ?_
+        simp [(Finset.mem_filter.mp hm).2]
+      have hC : ∏ m ∈ s.filter (fun m => m + 2 ≤ f), (if m + 2 ≤ N then (1 : ℝ)
+          else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) = 1 := by
+        refine Finset.prod_eq_one fun m hm => ?_
+        have := (Finset.mem_filter.mp hm).2
+        simp [show m + 2 ≤ N by omega]
+      rw [hA, hB, hC, one_mul]
+    rw [hsplit]
+    have hcard : (s.filter (fun m => m + 2 ≤ f)).card ≤ f := by
+      calc (s.filter (fun m => m + 2 ≤ f)).card ≤ (Finset.range f).card :=
+            Finset.card_le_card fun m hm => Finset.mem_range.mpr (by
+              have := (Finset.mem_filter.mp hm).2; omega)
+        _ = f := Finset.card_range f
+    have hpow : c ^ f ≤ c ^ (s.filter (fun m => m + 2 ≤ f)).card := pow_le_pow_of_le_one hc0.le hc1 hcard
+    have hh := prod_tailLower_ge_half hC_Z hN2 hNC s
+    have hcn : 0 ≤ c ^ f := by positivity
+    calc c ^ f / 2 = c ^ f * (1 / 2) := by ring
+      _ ≤ c ^ (s.filter (fun m => m + 2 ≤ f)).card * ∏ m ∈ s, (if m + 2 ≤ N then (1 : ℝ)
+          else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) :=
+        mul_le_mul hpow hh (by norm_num) (by positivity)
+  exact ge_of_tendsto hT (Eventually.of_forall hge)
+
 /-- **Product lower bound.**  If `HasProd g T` and the factor `g m` is at least `1` for `m + 2 ≤ N` and at least
 `exp(-4 (C_Z/2)/(m+2)²)` beyond, with `4 C_Z ≤ N`, then `T ≥ 1/2` (the summation step of
 `exists_designFac_lower`, for an arbitrary factor sequence). -/
@@ -233,42 +324,9 @@ lemma hasProd_ge_half_of_tail_lower {C_Z : ℝ} (hC_Z : 0 < C_Z) {N : ℕ} (hN2 
     (hfac : ∀ m : ℕ, (if m + 2 ≤ N then (1 : ℝ)
       else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) ≤ g m) :
     1 / 2 ≤ T := by
-  have hNpos : (0 : ℝ) < N := by exact_mod_cast (by omega : 0 < N)
-  have hge : ∀ s : Finset ℕ, 1 / 2 ≤ ∏ m ∈ s, g m := by
-    intro s
-    have h1 : ∏ m ∈ s, (if m + 2 ≤ N then (1 : ℝ)
-          else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) ≤
-        ∏ m ∈ s, g m :=
-      Finset.prod_le_prod₀ (fun m _ => by split_ifs; exact zero_le_one; exact (Real.exp_pos _).le)
-        (fun m _ => hfac m)
-    refine le_trans ?_ h1
-    have h2 : ∏ m ∈ s, (if m + 2 ≤ N then (1 : ℝ)
-          else Real.exp (-4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2))) =
-        Real.exp (∑ m ∈ s, if m + 2 ≤ N then (0 : ℝ)
-          else -4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2)) := by
-      rw [Real.exp_sum]
-      exact Finset.prod_congr rfl fun m _ => by split_ifs <;> simp
-    rw [h2]
-    set s' := s.filter (fun m => ¬(m + 2 ≤ N)) with hs'
-    have h3 : (∑ m ∈ s, if m + 2 ≤ N then (0 : ℝ)
-          else -4 * ((C_Z / 2) / ((m + 2 : ℕ) : ℝ) ^ 2)) =
-        -(2 * C_Z) * ∑ m ∈ s', 1 / ((m + 2 : ℕ) : ℝ) ^ 2 := by
-      rw [hs', Finset.sum_filter, Finset.mul_sum]
-      refine Finset.sum_congr rfl fun m _ => ?_
-      split_ifs <;> ring
-    have h4 := sum_inv_sq_le N (by omega) s' (fun m hm => by
-      have := (Finset.mem_filter.mp hm).2
-      omega)
-    have h5 : -(2 * C_Z) * ∑ m ∈ s', 1 / ((m + 2 : ℕ) : ℝ) ^ 2 ≥ -(1 / 2) := by
-      have h6 : 2 * C_Z * ∑ m ∈ s', 1 / ((m + 2 : ℕ) : ℝ) ^ 2 ≤ 2 * C_Z * (1 / (N : ℝ)) :=
-        mul_le_mul_of_nonneg_left h4 (by positivity)
-      have h7 : 2 * C_Z * (1 / (N : ℝ)) ≤ 1 / 2 := by
-        rw [mul_one_div, div_le_iff₀ hNpos]; linarith
-      linarith
-    calc (1 : ℝ) / 2 ≤ Real.exp (-(1 / 2)) := by
-          have := Real.add_one_le_exp (-(1 / 2) : ℝ); linarith
-      _ ≤ _ := Real.exp_le_exp.mpr (by rw [h3]; linarith)
-  exact ge_of_tendsto hT (Eventually.of_forall hge)
+  have h := hasProd_ge_pow_half_of_tail_lower hC_Z hN2 hNC (Nat.zero_le N) one_pos le_rfl hT
+    (f := 0) (fun m => by simpa using hfac m)
+  simpa using h
 
 /-- For `-r ≤ u` away from the Airy zeros, `Q(u) ≥ 1/2` for every design with `N ≥ J(r)`. -/
 lemma exists_designFac_lower (r : ℝ) :

@@ -118,7 +118,7 @@ private lemma splitEuclideanEquiv_symm_inner {w : ℕ} (hw : 1 ≤ w) (u : ℝ)
     rw [h0, Fin.insertNth_apply_same]
   simp [hi0, mul_comm]
 
-private lemma setIntegral_polarCoord_Ioi (H : ℝ × ℝ → ℂ)
+lemma setIntegral_polarCoord_Ioi (H : ℝ × ℝ → ℂ)
     (hH : IntegrableOn H ((univ : Set ℝ) ×ˢ Ioi (0 : ℝ))) (hH_cont : Continuous H) :
     (∫ p in (univ : Set ℝ) ×ˢ Ioi (0 : ℝ), H p) =
       ∫ s in Ioi (0 : ℝ), ∫ θ in Ioo (0 : ℝ) Real.pi,
@@ -200,7 +200,7 @@ private lemma setIntegral_polarCoord_Ioi (H : ℝ × ℝ → ℂ)
   rw [Measure.volume_eq_prod] at hint_pol ⊢
   exact setIntegral_prod _ hint_pol
 
-private lemma setIntegral_sq_div_two_Ioi {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
+lemma setIntegral_sq_div_two_Ioi {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
     [CompleteSpace F] (Φ : ℝ → F) :
     ∫ s in Ioi (0 : ℝ), s • Φ (s ^ 2 / 2) = ∫ t in Ioi (0 : ℝ), Φ t := by
   have him : (fun s : ℝ => s ^ 2 / 2) '' Ioi 0 = Ioi 0 := by

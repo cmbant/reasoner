@@ -39,7 +39,7 @@ namespace FormalResearch.ModularBootstrap.Upper.Assembly
 
 open FormalResearch.Special FormalResearch.ModularBootstrap FormalResearch.ModularBootstrap.Crossing
   FormalResearch.ModularBootstrap.Upper.Rigidity FormalResearch.ModularBootstrap.Upper.Window
-  FormalResearch.ModularBootstrap.Upper.Positivity
+  FormalResearch.ModularBootstrap.Upper.Positivity FormalResearch.ModularBootstrap.Upper.Design
 
 /-! ### The window `D(N, η_*, d)` as an abstract `Window` -/
 
@@ -162,22 +162,48 @@ noncomputable def EventualCombData.toComb {D : Window} (E : EventualCombData D)
       exact h1j }
 
 
-/-- The eventual comb data of the design `D(N, η_*, d)`. -/
-noncomputable def designEventual (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη : 0 < η) (hη1 : η ≤ 1 / 4)
-    (d : ℝ) : EventualCombData (designWin N hη d) where
-  g := designG N η d
+/-- The eventual comb data of any window `D` whose window function is the Airy window `sigWinW N η σs` of
+the `f = 1` finite modification with offsets `σs` (first site `σs 1`, sites `2..N` arbitrary, so displaced
+sites and a first site anywhere on the real line are allowed) and whose first site is `u_f = -κ σ_1`. -/
+noncomputable def sigEventual (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη : 0 < η) (hη1 : η ≤ 1 / 4)
+    (σs : ℕ → ℝ) (D : Window) (hW : D.W = sigWinW N η σs)
+    (hF : D.uF = -(kappaAiry * σs 1)) : EventualCombData D where
+  g := sigG N η σs
   scale := psiScale
-  tf := designTf d
+  tf := sigTf σs
   good := by
-    filter_upwards [designGood_eventually N hN hη.le hη1 d, designG_nonneg N hN hη hη1 d]
+    filter_upwards [sigGood_eventually N hN hη.le hη1 σs, sigG_nonneg N hN hη hη1 σs]
       with c hgood hpos
     refine ⟨hpos.1, psiScale_pos hpos.1, hgood.testClass, hgood.decay, ?_,
       fun t ht => (hpos.2 t ht).le⟩
     have := hpos.1
-    unfold designTf; positivity
-  theta := uAiry_designTf d
-  window := fun R hR ε hε => design_psi_uniform N hN hη hη1 d hR hε
-  limsup := fun ε hε => design_psi_limsup N hN hη.le hη1 d hε
+    unfold sigTf; positivity
+  theta := by rw [hF]; exact uAiry_sigTf σs
+  window := fun R hR ε hε => by
+    rw [hW]; exact sig_psi_uniform N hN hη hη1 σs hR hε
+  limsup := fun ε hε => by
+    have hV : D.V = windowIntegralSig N η σs := by
+      unfold Window.V windowIntegralSig; rw [hW]; rfl
+    rw [hV]; exact sig_psi_limsup N hN hη.le hη1 σs hε
+
+lemma designWin_W_eq_sig (N : ℕ) {η : ℝ} (hη : 0 < η) (d : ℝ) :
+    (designWin N hη d).W = sigWinW N η (designSigma1 d) := by
+  rw [← designWinW_eq_sig]; rfl
+
+lemma designWin_uF_eq_sig (N : ℕ) {η : ℝ} (hη : 0 < η) (d : ℝ) :
+    (designWin N hη d).uF = -(kappaAiry * designSigma1 d 1) := by
+  have hκ := kappaAiry_pos
+  have hσ1def : kappaAiry * designSigma1 d 1 = |airyZero 1| + d := by
+    rw [designSigma1_one]; field_simp
+  rw [hσ1def, abs_of_neg (airyZero_neg 1)]
+  show airyZero 1 - d = _
+  ring
+
+/-- The eventual comb data of the design `D(N, η_*, d)`. -/
+noncomputable def designEventual (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη : 0 < η) (hη1 : η ≤ 1 / 4)
+    (d : ℝ) : EventualCombData (designWin N hη d) :=
+  sigEventual N hN hη hη1 (designSigma1 d) (designWin N hη d) (designWin_W_eq_sig N hη d)
+    (designWin_uF_eq_sig N hη d)
 
 /-- **`(P1)`-`(P4)` for the designs**: `CombDesignData S (designWin N hη d)` for every Virasoro
 crossing sequence `S`. -/

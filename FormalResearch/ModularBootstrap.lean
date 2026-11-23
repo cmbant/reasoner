@@ -308,6 +308,28 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedDesignShift
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedDesignNearTip
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFarBand
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedThreshold
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombBridge
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwoGeom
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwoNear
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwoMacro
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwo
+public import FormalResearch.ModularBootstrap.Upper.Assembly.DisplacedDesign
+public import FormalResearch.ModularBootstrap.Upper.Assembly.FarFirstSite
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneAiry
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneProd
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneWindow
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneDesign
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneGeom
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneAmp
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOne
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumWeight
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumProfile
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumCore
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumWindow
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumBands
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumIntegral
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuum
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFinal
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -904,8 +926,8 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `Π_n = profPi d n`, `V = -d R_1 + ∑ Π_n(d)` and the sign law (`profWin_pi_pos/neg/eq_zero`); `displacedClass` is
   the class `𝒟x` of the designs with finitely many displaced sites (`|d| < d_0`), and `displacedFamily : DisplacedFamily
   displacedClass`, `displacedFamily_union : DisplacedFamily (designClass ∪ displacedClass)` (all fields proved: `pi_lower`
-  from `designFac_tail_lower` and `hasProd_ge_half_of_tail_lower`, `rest_small` from `profPi0_le_unif`).  What remains
-  of `Σ` is `DesignPropertyP S.μS displacedClass` (`Σ3`) and `OmittedFamily` (`Σ4`).
+  from `designFac_tail_lower` and `hasProd_ge_half_of_tail_lower`, `rest_small` from `profPi0_le_unif`).  `Σ3` and `Σ4`
+  are proved in `Upper.Assembly.{DisplacedDesign, FarFirstSite}` (below).
 
 * `Upper.Ramped.{RampedDesign, RampedDesignPhase, RampedDesignShiftCore, RampedDesignShift, RampedDesignNearTip,
   RampedFarBand, RampedThreshold}`: the **ramped comb `D_*`** of `rem:thmU` (the parameters `RampedParams`, the sites and
@@ -915,4 +937,49 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   and `rampedD_nearTip_twoG` (`2g/Lev ≥ c_fl min(1, 16η_n²)(1 - ε) - amp` on the near-tip range), the far band
   `rampedFarBand` (`0 < B_D ≤ (1 + Cλ) B_ref` for `x ≥ ξ_* + 1/2`), and the threshold `rampedThreshold`
   (`t_* = ξ̄c' + A_opt c'^{1/3} + (A_opt/|a_1|) M_0 + O(c'^{-1/3})`) with `rampedD_le`.
+
+* `Upper.Ramped.CombBridge`: the ramped comb is a design of Proposition 1.2(2): `rampedComb_eq_combBD` (the ramped
+  `designComb` equals `combBD` of the extended node and height sequences `rampedNode`, `rampedEta`),
+  `rampedDesignHyp` (`CombDesignHyp` with absolute constants for `0 ≤ d ≤ d_0 = rampedD0`), and `rampedComb_mult`,
+  `rampedComb_amplitude` (`combToAiry_mult`, `combToAiry_amplitude` for `rampedComb` on `[ξ_*/2, ξ_* + 1/2]`, error
+  constant independent of `C_I, C_mid, M_0, d`), unconditional.  `Upper.Ramped.RampedRegionTwo*`: **Region II of Lemma
+  U\*** (`rem:thmU` Steps (3), (4)).  `RampedRegionTwoGeom`: tip
+  geometry (`exists_cell_of_xiI`, `siteRadius_ge_const`); `RampedRegionTwoNear`: `rampedNearTip` (`ξ_I ≤ x`, cell
+  `n ≤ n_cap + 6`: amplitude `C_2 (n/c')^{5/6}`, choice of `C_mid` independent of `C_I`); `RampedRegionTwoMacro`:
+  `rampedMacro` (cells `n ≥ n_cap + 7`: `ρ_k = 1` on the hole, `S = O(λ)`, margin `0.158 - o(1)`); `RampedRegionTwo`:
+  `rampedRegionII` (`0 < twoG` for all `x ≥ ξ_I`, `d ∈ [0, 1]`), unconditional.
+
+* `Upper.Assembly.{DisplacedDesign, FarFirstSite}`: `Σ3` and `Σ4`, unconditional.  `displacedClassX` is the class of the
+  profile windows with every first-site shift `d ∈ ℝ` and finitely many displaced sites (`dispSigma`);
+  `displacedPropertyP_virasoro : DesignPropertyP S.μS displacedClassX` is the `designClass` chain generalised in place
+  (the `sig*` lemmas, with the `design*` declarations re-derived as corollaries).  `farFamily : OmittedFamily
+  (designClass ∪ displacedClassX)` consists of far-first-site windows (`f = 1`, first site `a_{f+1}`, sites `2, …, f`
+  displaced by `farRho f`), and `virasoro_sigma_unconditional` is Theorem `Σ` at Virasoro with no hypothesis.
+* `Upper.Ramped.RampedRegionOne*`: **Region I of Lemma U\*** (`rem:thmU` Step (2)).  `RampedRegionOneAiry`/`Prod`/`Window`:
+  the elementary lower bound for the Airy window product on the real line (concavity of `±Ai` on the cells between
+  consecutive zeros, no asymptotics), `window_lower`; `RampedRegionOneDesign`: `ramped_window_lower` for `W_D`,
+  `rho_lower`, `etaSq_div_lower` (origin of `η_k² ≥ C_I² k/√c'`); `RampedRegionOneGeom`: `regionI_gap`
+  (`u_f - u ≥ c c'^{-1/3}` from `t ≥ t_* + 1`); `RampedRegionOneAmp`: `regionI_twoG_of_W` (amplitude of
+  `rampedComb_amplitude` against the global bound `SD_G`); `RampedRegionOne`: `regionI_W_lower` and `rampedRegionI`
+  (`0 < twoG` for `t_* + 1 ≤ t ≤ t(ξ_I)`, `d ∈ [0, d_0]`, `C_I` absolute and chosen first) and `rampedPositive_tstar` (Regions I and II
+  together: `0 < twoG` for `t ≥ t_* + 1`), unconditional.
+
+* `Upper.Ramped.{RampedVacuumWeight, RampedVacuumProfile, RampedVacuumCore, RampedVacuumWindow, RampedVacuumBands,
+  RampedVacuumIntegral, RampedVacuum}`: the **vacuum step of Lemma U\*** (`rem:thmU` Step (5)) for the ramped comb,
+  unconditional.  `rampedVacuum`: for every `C_I, C_mid ≥ 1` there is `M_0 > 0` such that for every `P : RampedParams`
+  with these `C_I, C_mid` and `P.M0 = M_0`, eventually in `c'`, `0 < virasoroProblem.gVac (c'/12) g` for the test
+  function `g` of `D_*` at `d = rampedD P c' = M_0 c'^{-1/3}`.  Ingredients: `mwt_sub_one_le` (`|M_wt - 1| ≤ Cλ|σ|`),
+  `rampedE0_le` and `rampedW_package` (`E_0 = O(c'^{-1/3})`, `‖W_D(u)‖ ≤ C(1+|u|)^{-3/2}`, `∫ Re W_D ≤ -d/2 + C_E
+  c'^{-1/3}`), `window_core` (truncation and weight-error costs), `rampedWindow_pointwise` (signed amplitude bound with
+  the two-sided `besselV_asymptotic`), `rampedWindow_part` (the Langer window `≤ FK_c C_*(-d/2 + (C_E + T) c'^{-1/3})`),
+  `rampedF_lobe_nonpos`, `rampedF_far_le` (far band `≤ C_far √c'`, from `rampedFarBand`) and `FKc_mul_rpow_eq`
+  (`FK_c c'^{-1/3} = A_0 √c'`).
+
+* `Upper.Ramped.RampedFinal`: **Lemma U\* assembled** (`rem:thmU`), unconditional.  `rampedG_isFeasible`: with `C_I, C_mid`
+  from `rampedPositive_tstar` and `M_0` from `rampedVacuum`, eventually in `c'` the ramped test function `g` is feasible for
+  `virasoroProblem` at `a = c'/12` and gap `t_* + 1` (membership `ramped_k7`, positivity `rampedPositive_tstar` through
+  `twoG = 2g`, vacuum `rampedVacuum`); `threshold_le_rampedTstar`: `T_V ≤ t_* + 1`; **`theoremC15UpperInput_virasoro`**:
+  `TheoremC15UpperInput virasoroProblem` (`T_V ≤ T_* + D_+`, `D_+ = 1 + (A_opt/|a_1|) M_0 + C` from `rampedThreshold`);
+  **`virasoro_corollary_E1_unconditional`**: Corollary E1 at Virasoro with no hypothesis,
+  `Δ_best = c/Λ_V + A_opt c^{1/3} + O(1)` and `T_V = T_* + O(1)`.
 -/

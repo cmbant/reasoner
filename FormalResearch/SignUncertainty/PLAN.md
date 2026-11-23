@@ -22,9 +22,10 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
   instance. `MovingDiagFarTail` has no instance at all. Theorems such as GT.2b, GT.3b, GT.4, PE.3 and `cepe:general` are
   stated for an abstract `fhat` that carries the paper's estimates as hypotheses. Nothing builds `W_S`, `W_D` from `Ai`,
   or `h_mellin` from a CE pair.
-- Open skeleton fields in `Headlines.lean` (8): `hankel_euclid_dictionary`, `hb_thresholds_lower`,
-  `hb_thresholds_upper`, `shell_reduction_m1`, `ce_hb_lift_m1`, `shell_reduction`, `shell_gap_limit`,
-  `ce_hb_lift`. `radial_compactness` and `one_profile_envelope` are theorems and no longer inputs.
+- Open skeleton fields in `Headlines.lean` (7): `hb_thresholds_lower`, `hb_thresholds_upper`, `shell_reduction_m1`,
+  `ce_hb_lift_m1`, `shell_reduction`, `hankel_shell_gap_limit` (the Hankel-level form of `shell_gap_limit`; the Euclidean
+  statement follows by `shellGapLimit_of_hankel`), `ce_hb_lift`. `radial_compactness`, `one_profile_envelope` and the
+  Euclidean-to-Hankel dictionary `hankel_euclid_dictionary` (`gt:7.9`) are theorems and no longer inputs.
 - What is genuinely closed and reusable:
   - the Airy base: Theorems D, Q and B with its equality case, Clark two-node, Hermite–Biehler quadrature and
     `at47_*`, and Airy PWS (a)⇔(b);
@@ -57,11 +58,13 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
 
 - **Skeleton first (M0).** State each headline in Lean with the paper's constants, on concrete objects:
   - `optimalL1CERadius` (exists);
-  - Euclidean `A_sign^±(d)`;
+  - Euclidean `A_sign^±(d)` and its identification with the Hankel thresholds (`hankel_euclid_dictionary`: the radial
+    Fourier transform on `ℝ^d` is the Hankel transform for every integer `d ≥ 2`, radial averaging, compact-support
+    uncertainty);
   - Hankel thresholds `T^±_{m,c}` with the real Bessel kernel.
 
   Prove each headline from one input structure whose fields are, one-to-one, the TeX theorems it cites (for
-  example `hb_thresholds_lower`, `ce_hb_lift_m1`, `shell_reduction_m1`, `hankel_euclid_dictionary`). Progress is the
+  example `hb_thresholds_lower`, `ce_hb_lift_m1`, `shell_reduction_m1`). Progress is the
   number of skeleton fields still open. A field is closed only when it is discharged by a theorem about the concrete
   objects.
 - **Every new module must close or shrink a skeleton field.** Existing packages are either wired into a field's

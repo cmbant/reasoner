@@ -32,7 +32,8 @@ family, relative to `Lev^{(f)}`.
 `0.995` and the upper factor is at most `1.02`: `0.7 · 0.995 - 0.55 · 1.02 > 0.13`.
 
 * `proposition_II`: the compact-family statement.
-* `proposition_II_design`: the designs `D(N, η_*, d)` (`f = 1`, `designSigma1`, `designWidth1`).
+* `proposition_II_sig`: the `f = 1` combs with arbitrary offsets `σ`, `designWidth1`; `proposition_II_design`:
+  the designs `D(N, η_*, d)` (`σ = designSigma1 d`).
 
 All results are proved unconditionally.
 -/
@@ -357,6 +358,25 @@ theorem proposition_II_pos (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ
   rw [le_div_iff₀ hlev] at h
   linarith only [h, hlev]
 
+/-- **Proposition II for the `f = 1` finite modifications at fixed sites** (`ut:II`, `η₀ = 1/4`): the family is
+the single comb with arbitrary offsets `σ` (bounded by `M` on `1 ≤ k ≤ N`) and `ε = designWidth1 c' η_*`.
+`proposition_II_design` is the case `σ = designSigma1 d`. -/
+theorem proposition_II_sig (N : ℕ) (hN : 1 ≤ N) {etaStar : ℝ} (hη0 : 0 ≤ etaStar)
+    (hη1 : etaStar ≤ 1 / 4) (σ : ℕ → ℝ) (M : ℝ) (hM : ∀ k, 1 ≤ k → k ≤ N → |σ k| ≤ M) :
+    ∀ᶠ c' in atTop, ∀ x : ℝ, xiStar + c' ^ (-(2 / 5 : ℝ)) ≤ x →
+      13 / 100 ≤ twoG c' 1 N (1 / 4) σ (designWidth1 c' etaStar) x /
+        levComb c' 1 x := by
+  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
+  filter_upwards [proposition_II 1 N le_rfl hN M Cg hCg.le, h_ev, eventually_gt_atTop (0 : ℝ)]
+    with c' hc' ⟨hgap_k, hgap_1_bd, hcd1_bd, _⟩ hpos
+  refine fun x hx => hc' σ (designWidth1 c' etaStar) (fun k hk hkN => hM k hk hkN)
+    (fun k hk hkN => ⟨mul_nonneg hη0 (siteGap_nonneg hpos (by omega)), ?_⟩) x hx
+  have hgk := (hgap_k k (by omega)).trans (hgap_1_bd.trans hcd1_bd)
+  unfold designWidth1
+  calc etaStar * siteGap c' k ≤ 1 * (Cg * lambdaComb c') :=
+        mul_le_mul (hη1.trans (by norm_num)) hgk (siteGap_nonneg hpos (by omega)) (by norm_num)
+    _ = Cg * lambdaComb c' := one_mul _
+
 /-- **Proposition II for the designs `D(N, η_*, d)`** (`ut:II`, `f = 1`, `η₀ = 1/4`): the family is the
 single design `σ = designSigma1 d`, `ε = designWidth1 c' η_*` of `lemma_P_a_fixedN`, with `M` a bound
 for the finitely many offsets `σ_1, …, σ_N`. -/
@@ -364,17 +384,8 @@ theorem proposition_II_design (N : ℕ) (hN : 1 ≤ N) {etaStar : ℝ} (hη0 : 0
     (hη1 : etaStar ≤ 1 / 4) (d M : ℝ) (hM : ∀ k, 1 ≤ k → k ≤ N → |designSigma1 d k| ≤ M) :
     ∀ᶠ c' in atTop, ∀ x : ℝ, xiStar + c' ^ (-(2 / 5 : ℝ)) ≤ x →
       13 / 100 ≤ twoG c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' etaStar) x /
-        levComb c' 1 x := by
-  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
-  filter_upwards [proposition_II 1 N le_rfl hN M Cg hCg.le, h_ev, eventually_gt_atTop (0 : ℝ)]
-    with c' hc' ⟨hgap_k, hgap_1_bd, hcd1_bd, _⟩ hpos
-  refine fun x hx => hc' (designSigma1 d) (designWidth1 c' etaStar) (fun k hk hkN => hM k hk hkN)
-    (fun k hk hkN => ⟨mul_nonneg hη0 (siteGap_nonneg hpos (by omega)), ?_⟩) x hx
-  have hgk := (hgap_k k (by omega)).trans (hgap_1_bd.trans hcd1_bd)
-  unfold designWidth1
-  calc etaStar * siteGap c' k ≤ 1 * (Cg * lambdaComb c') :=
-        mul_le_mul (hη1.trans (by norm_num)) hgk (siteGap_nonneg hpos (by omega)) (by norm_num)
-    _ = Cg * lambdaComb c' := one_mul _
+        levComb c' 1 x :=
+  proposition_II_sig N hN hη0 hη1 (designSigma1 d) M hM
 
 /-- Non-vacuity of the family: the zero modification (`σ = 0`, `ε = 0`) satisfies the constraints of
 `proposition_II` for every `c' > 0` whenever `M, E ≥ 0`. -/
@@ -394,6 +405,10 @@ theorem proposition_II_family_nonempty (f N : ℕ) {M E : ℝ} (hM : 0 ≤ M) (h
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.proposition_II_pos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms proposition_II_pos
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.proposition_II_sig' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms proposition_II_sig
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.proposition_II_design' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

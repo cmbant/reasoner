@@ -12,8 +12,9 @@ except for the step-level reuse tables of U6, recalled where needed below.
 |---|---|---|
 | Lower bound `T_V ≥ T_* − C` at every integer `(w,Q)` in `(H_w)` (W1'(1), Theorem J) | `lower_o1_two_edge.tex` | `FixedWeightBand.fixedWeightLowerBoundInput_of_problem` |
 | Virasoro two-term law `Δ_best = c/Λ_V + A_opt c^{1/3} + o(c^{1/3})` | `dual_spectrum.tex` E1, FW-C | `Upper.Assembly.virasoro_corollary_E1_littleO_unconditional` |
+| **O(1) two-sided law at Virasoro** `Δ_best = c/Λ_V + A_opt c^{1/3} + O(1)` (O(1) upper half of C15 via Lemma U*) | `n2_ramped_comb.tex` `rem:thmU`, `ds:E1` | `Upper.Ramped.theoremC15UpperInput_virasoro`, `virasoro_corollary_E1_unconditional` |
 | Property (P) for the `f = 1` designs `D(N,η_*,d)`, `η_* > 0` (Lemmas W, ID, A_V, T, R; Props I, II, V; K7) | `upper_transfer.tex`, `spectral_rigidity.tex` `sr:P` | `designPropertyP_virasoro` |
-| Σ₀ at Virasoro for the extremal measures | `spectral_rigidity.tex` `sr:Sigma0` | `Upper.Assembly.virasoro_sigmaZero_unconditional` |
+| Σ₀ and Σ at Virasoro for the extremal measures | `spectral_rigidity.tex` `sr:Sigma0`, `sr:Sigma` | `Upper.Assembly.virasoro_sigmaZero_unconditional`, `virasoro_sigma_unconditional` |
 | O(1)-upper inputs so far: Lemma P_unif (R1), Langer coordinate Prop 1.2(1), (F1), (F2) (R2a) | `n2_ramped_comb.tex`, `remainder.tex` | `Ramped.lemma_P_unif`, `Ramped.langerTau_spec`, `langerChart_F1/F2`, `langerTauInv_expansion`, `siteGap_two_sided` |
 
 Conditional: Σ (`virasoro_sigma`) needs `DisplacedFamily` and `OmittedFamily` for a design class with Property (P).
@@ -33,10 +34,10 @@ U6_PLAN §1, unchanged; TeX re-checked against `origin/main`):
 | R4 | Hole comparison: Λ-form of K4 for an arbitrary comb, comparison `log|B_D| ≥ log|B_ref| − S + Σ_H log ρ_k`, `R(t)` discriminant lemma, seven-pair product, near-tip ratio `vρ_∞ ≤ C_v r^{5/4}` | done (`ShiftSumEstimate` proved in R3b) |
 | R2b | Prop 1.2(2) comb-to-Airy identity, uniform over designs, error `O(c'^{-2/3})` | done (`Ramped/CombToAiry*`, for `combBD`; bridge to the ramped `designComb` in R5/R7) |
 | R3b | Ramped instantiation (sites, heights, PC sums, SDV, Φ transform θ=3/5, K7, far-band comparison) | done (`Ramped/RampedDesign*`, `RampedFarBand`, `RampedThreshold`) |
-| R5 | Region I | R1, R2b, R3b |
-| R6 | Region II near-tip + macroscopic | R3b, R4 |
-| R7 | Vacuum | R1, R2b, R3b |
-| R8 | Assembly `theoremC15UpperInput_virasoro`, `IsFeasible.mono_T`, `t_*` expansion; E1 with O(1) | all |
+| R5 | Region I | done (`Ramped/RampedRegionOne*`, `rampedRegionI`, `rampedPositive_tstar`) |
+| R6 | Region II near-tip + macroscopic | done (`Ramped/RampedRegionTwo*`, `rampedRegionII`; bridge `Ramped/CombBridge` for R5/R7) |
+| R7 | Vacuum | done (`Ramped/RampedVacuum*`, `rampedVacuum`; virasoroProblem, C2 generalises) |
+| R8 | Assembly `theoremC15UpperInput_virasoro`, `IsFeasible.mono_T`, `t_*` expansion; E1 with O(1) | done (`Ramped/RampedFinal`: `theoremC15UpperInput_virasoro`, `virasoro_corollary_E1_unconditional`) |
 
 Revisions made in this audit (cleaner implementation, checked against the TeX):
 1. **Generalise in place, do not copy.** R3a and R4 reopen proofs that are ours (`Upper/Design/PerturbPhi.lean`
@@ -58,22 +59,20 @@ Revisions made in this audit (cleaner implementation, checked against the TeX):
 5. R2b fallback only if blocked: a named `CombToAiryInput` with the literal TeX quantifiers and a non-vacuity theorem.
 
 **B. Σ at Virasoro** (from the `sn_u5t2` sketch; constructions in `spectral_rigidity.tex` `sr:Sigma`):
-- Σ1, Σ2 done: `profWin`, `displacedClass`, `displacedFamily_union`; `virasoro_sigma_of_omitted` reduces Σ to Σ3 and Σ4.
-- Σ3 Property (P) for `displacedClass` (and its far-first-site widening, below): generalise in place from
-  `(N, η, d)` to general sites `(σ, ε)` the chain (P1) `designGood_eventually` ← `design_k7_membership_vacuum`;
-  (P2) `designG_nonneg` ← `proposition_I_a/b`, `lemma_R`, `proposition_II`; (P3) `design_psi_uniform` ←
-  `tildeW_designMod`, `lemma_W_measure`, `lemma_ID`; (P4) `proposition_V_i` ← `vacuum_core`. About 600–1000 lines.
-- Σ4 `OmittedFamily` by **far-first-site designs** (scout result): `f = 1`, first site `u_f = a_{m+1}`
-  (`d = a_1 − a_{m+1}`), sites `2..m` displaced by fixed `e_i`; the sign law of `profWin` gives `Π_i < 0` (i ≤ m),
-  `Π_{m+1} = 0`, `Π_i ≥ 0` beyond; `pi_lower` and `tail_small` as for the displaced family (`Assembly/FarFirstSite.lean`,
-  ~300 lines, after Σ3 covers the widened `d` range). This avoids the `f ≥ 2` combs (size L). The paper uses `f ≥ 2`
-  omitted designs (`sr:Sigma` Step 6, `sr:P` clause `f ≥ 2`); replacing them in the TeX is an owner decision.
+- **Done:** Σ1–Σ4. `virasoro_sigma_unconditional` (Theorem Σ at Virasoro, no hypothesis). Property (P) is proved for
+  combs with any bounded offset vector (`displacedPropertyP_virasoro`, the `sig*` chain, generalised in place), and the
+  omitted family uses `f = 1` far-first-site designs (`farFamily`) instead of the paper's `f ≥ 2` designs. Whether the TeX
+  switches `sr:Sigma` Step 6 to that route is an owner decision.
 
 **C. N = 1 super-Virasoro (`n1SuperVirasoroProblem`, `w = 1`, `μ = (1/2,1/2)`).**
 - C1 done: `FixedWeightBand.n1_lowerBoundInput`, `n1_T_V_lower` (unconditional).
-- C2 (scout, then M): generalise the upper/design side from `virasoroProblem` to every `w = 1` problem (15 files in
-  `Upper/` mention `virasoroProblem`; `Q` should enter only through `V`, `g_vac` and the Cardy window). This gives the
-  N=1 two-term law and Σ₀ (`n1:T3`), and A at N=1 once A is done.
+- C2 (scouted 2026-11-23, M, no blocker): generalise the upper/design side to every `prob` with `hw : prob.w = 1`, in
+  place, the `virasoro_*` names becoming one-line corollaries. 18 files in `Upper/` (Window/{CardyWindow,Tail},
+  Positivity/Vacuum*, Assembly/*, Rigidity/Wiring) plus FixedWeight wrappers; `Upper/Ramped` is already prob-free.
+  New content (~150-200 lines): Cardy window/far band from `cardyV_asymptotic_real` (not `besselV`), the normaliser
+  `windowMeasureNormK prob 1 c' = FKc (qProb prob) 1 c'` with `qProb = nullPoly(e^{-4πξ_*})/(1−e^{-4πξ_*})²`, vacuum
+  constants `2^m` (from K7 `‖½h_{0,vac}‖ ≤ 2^m`, already general). Then N=1 corollaries (Property P, two-term law, Σ₀,
+  Σ, and A once R8 is stated for `prob`). Schedule: after R7 (shares CardyWindow, Vacuum*); R8 stated for `prob`.
 
 **D. Later, not scheduled:** designs and bump at general `(w,Q)` (`w > 1`, W1.4); real `w ≥ 1` and N=(2,2)
 (the abstract framework allows real `w`; plug in through the W1–W4 interface); two-level Clark curve

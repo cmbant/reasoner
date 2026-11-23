@@ -67,6 +67,20 @@ public import FormalResearch.SignUncertainty.RadialProfileFatou
 public import FormalResearch.SignUncertainty.RadialCompactness
 public import FormalResearch.SignUncertainty.RadialCompactnessProof
 public import FormalResearch.SignUncertainty.OneProfileEnvelope
+public import FormalResearch.SignUncertainty.ThreeLinesUnit
+public import FormalResearch.SignUncertainty.LaplaceWeight
+public import FormalResearch.SignUncertainty.EuclidSplit
+public import FormalResearch.SignUncertainty.EuclidRadialSlice
+public import FormalResearch.SignUncertainty.EuclidRadialFourier
+public import FormalResearch.SignUncertainty.EuclidRadialHankel
+public import FormalResearch.SignUncertainty.EuclidHankelDictionary
+public import FormalResearch.SignUncertainty.SphereInvariance
+public import FormalResearch.SignUncertainty.SpherePolar
+public import FormalResearch.SignUncertainty.SphereAverage
+public import FormalResearch.SignUncertainty.FourierCompactSupport
+public import FormalResearch.SignUncertainty.EuclidRadialProjection
+public import FormalResearch.SignUncertainty.HankelInversion
+public import FormalResearch.SignUncertainty.ShellGapHankel
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
@@ -149,8 +163,29 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   the locally uniform convergence of profiles and derivatives, Fatou for the `L¹` clause, and the assembly
   `profile_compactness_thm`, `radial_compactness`.
 * `FormalResearch.SignUncertainty.OneProfileEnvelope`: `gt:3.1` in the form used by `prop:ce-one-profile`: every `H ∈ 𝒢`
+* `FormalResearch.SignUncertainty.ThreeLinesUnit`: Hadamard three lines on the closed unit strip in the hypothesis form of `eq:ce-three-lines` (`three_lines_unit`, a restatement of the Mathlib theorem), boundedness of `mellinW` on the closed strip (`mellinW_bddAbove_strip`, from `norm_mellinW_le`), and two real-power facts. No headline uses it yet; it serves the origin-floor estimate of `thm:ce-shell-gap`.
+* `FormalResearch.SignUncertainty.LaplaceWeight`: the real Laplace weight `W_c(y,Δ) = Re(1/K₀(ζ_c, Δ/c))` of the proof of Theorem `H.14` (`eq:ce-laplace-limit`): positivity, the Gamma form, the exact scaling in `Δ`, and the limit `exp(-y³/12 + y u)` at `Δ = c/π² - (u/β₁)c^{1/3}` (from `radialK_tendsto`).
   with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
   `one_profile_envelope`.
+* `FormalResearch.SignUncertainty.EuclidSplit`, `EuclidRadialSlice`, `EuclidRadialFourier`, `EuclidRadialHankel`: the
+  radial Fourier transform on `ℝ^d` is the Hankel transform for every integer `d ≥ 2` (`gt:7.9`; slicing
+  `ℝ^{n+1} = ℝ × ℝ^n`, polar coordinates in the half plane, the Poisson integral for the Bessel kernel):
+  `fourier_radial_hankel`, `integrable_radialLift_iff`, with the Gaussian as non-vacuity witness.
+* `FormalResearch.SignUncertainty.EuclidHankelDictionary`: the Hankel-to-Euclid half of `gt:7.9`
+  (`signWitness_of_hankelFeasible`), positivity of the competitor radii, and the matching of the infima
+  (`hankel_euclid_dictionary_of_radial_projection`, from the Euclid-to-Hankel statement `RadialProjection`).
+* `FormalResearch.SignUncertainty.SphereInvariance`, `SpherePolar`, `SphereAverage`: rotation invariance of the sphere
+  measure of `ℝ^d`, polar coordinates for integrable functions, and the commutation of radial averaging with `𝓕`
+  (`fourier_radialAvg`).
+* `FormalResearch.SignUncertainty.FourierCompactSupport`: a continuous compactly supported function whose Fourier
+  transform vanishes outside a ball is zero (`fourier_compact_support_eq_zero`).
+* `FormalResearch.SignUncertainty.EuclidRadialProjection`: `radialProjection` (the radial average of a sign-uncertainty
+  competitor is Hankel-feasible at the same threshold) and the theorem `hankel_euclid_dictionary` (`gt:7.9`,
+  `A_sign^±(d)²/2 = T^{±}_{d/2}`, every integer `d ≥ 2`).
+* `FormalResearch.SignUncertainty.HankelInversion`: Hankel inversion `𝓗_c 𝓗_c G = G` (`d = n + 1 ≥ 2`, from Fourier inversion
+  and `fourier_radial_hankel`) and the projections `(G ± 𝓗_c G)/2 ∈ 𝒜_c^{±1}`.
+* `FormalResearch.SignUncertainty.ShellGapHankel`: `ShellGapLimit` (`thm:ce-shell-gap`, Euclidean) and its Hankel-level form
+  `HankelShellGapLimit`; `shellGapLimit_of_hankel` derives the former from the latter in every dimension `d ≥ 2`.
 * `FormalResearch.SignUncertainty.RadialCompactness`: the statement of `lem:radial-compactness` (`RadialCompactness`:
   window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it

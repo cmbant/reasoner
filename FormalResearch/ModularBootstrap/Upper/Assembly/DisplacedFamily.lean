@@ -126,12 +126,13 @@ lemma dispE_self (s : ℕ) (e : ℝ) : dispE s e s = e := by simp [dispE]
 
 lemma dispE_of_ne {s k : ℕ} (e : ℝ) (h : k ≠ s) : dispE s e k = 0 := by simp [dispE, h]
 
-/-- The admissible-profile constant of the displaced designs is uniform in `N` and `η`. -/
-lemma dispProfHyp (s : ℕ) (e : ℝ) :
+/-- The admissible-profile constant of the designs with finitely many displaced sites (`e` supported on the
+finite set `D`) is uniform in `N` and `η`. -/
+lemma dispProfHyp_D (D : Finset ℕ) (e : ℕ → ℝ) (he : ∀ k, k ∉ D → e k = 0) :
     ∃ C0 > 0, ∀ (N : ℕ) (η : ℝ), 0 ≤ η → η ≤ 1 / 4 →
-      ProfHyp C0 (dispSite N (dispE s e)) (designWidthU N η) := by
+      ProfHyp C0 (dispSite N e) (designWidthU N η) := by
   obtain ⟨C0r, hC0r, hprof⟩ := rampedProfile_profHyp
-  refine ⟨C0r + |e| * (s : ℝ) ^ (4 / 3 : ℝ), by positivity, fun N η hη0 hη1 k hk => ?_⟩
+  refine ⟨C0r + ∑ j ∈ D, |e j| * (j : ℝ) ^ (4 / 3 : ℝ), by positivity, fun N η hη0 hη1 k hk => ?_⟩
   have hηf : AdmHeights (fun j => if j ≤ N then η else 1 / 4) := fun j _ => by
     show 0 ≤ (if j ≤ N then η else 1 / 4) ∧ (if j ≤ N then η else 1 / 4) ≤ 1 / 4
     split_ifs
@@ -142,31 +143,141 @@ lemma dispProfHyp (s : ℕ) (e : ℝ) :
   rw [← hw] at h2 h3
   have hk43 : 0 ≤ (k : ℝ) ^ (-(4 / 3 : ℝ)) := by positivity
   have hk13 : 0 ≤ (k : ℝ) ^ (-(1 / 3 : ℝ)) := by positivity
-  have hB : 0 ≤ |e| * (s : ℝ) ^ (4 / 3 : ℝ) := by positivity
+  have hB : 0 ≤ ∑ j ∈ D, |e j| * (j : ℝ) ^ (4 / 3 : ℝ) := Finset.sum_nonneg fun _ _ => by positivity
   refine ⟨?_, h2, h3.trans (mul_le_mul_of_nonneg_right (by linarith) hk13)⟩
-  have hdisp : |dispE s e k| ≤ |e| * (s : ℝ) ^ (4 / 3 : ℝ) * (k : ℝ) ^ (-(4 / 3 : ℝ)) := by
-    by_cases hks : k = s
-    · subst hks
-      rw [dispE_self]
-      have hk0 : (0 : ℝ) < k := by exact_mod_cast (by omega : 0 < k)
-      have : (k : ℝ) ^ (4 / 3 : ℝ) * (k : ℝ) ^ (-(4 / 3 : ℝ)) = 1 := by
+  have hdisp : |e k| ≤ (∑ j ∈ D, |e j| * (j : ℝ) ^ (4 / 3 : ℝ)) * (k : ℝ) ^ (-(4 / 3 : ℝ)) := by
+    by_cases hkD : k ∈ D
+    · have hk0 : (0 : ℝ) < k := by exact_mod_cast (by omega : 0 < k)
+      have hle := Finset.single_le_sum (f := fun j : ℕ => |e j| * (j : ℝ) ^ (4 / 3 : ℝ))
+        (fun _ _ => by positivity) hkD
+      have h1 : (k : ℝ) ^ (4 / 3 : ℝ) * (k : ℝ) ^ (-(4 / 3 : ℝ)) = 1 := by
         rw [← Real.rpow_add hk0]; norm_num
-      rw [mul_assoc, this, mul_one]
-    · rw [dispE_of_ne e hks, abs_zero]
+      calc |e k| = |e k| * (k : ℝ) ^ (4 / 3 : ℝ) * (k : ℝ) ^ (-(4 / 3 : ℝ)) := by
+            rw [mul_assoc, h1, mul_one]
+        _ ≤ _ := mul_le_mul_of_nonneg_right hle (by positivity)
+    · rw [he k hkD, abs_zero]
       positivity
-  calc |dispSite N (dispE s e) k - airyZero k|
-      = |(designSiteU N k - airyZero k) + dispE s e k| := by unfold dispSite; ring_nf
-    _ ≤ |designSiteU N k - airyZero k| + |dispE s e k| := abs_add_le _ _
-    _ ≤ C0r * (k : ℝ) ^ (-(4 / 3 : ℝ)) + |e| * (s : ℝ) ^ (4 / 3 : ℝ) * (k : ℝ) ^ (-(4 / 3 : ℝ)) :=
+  calc |dispSite N e k - airyZero k|
+      = |(designSiteU N k - airyZero k) + e k| := by unfold dispSite; ring_nf
+    _ ≤ |designSiteU N k - airyZero k| + |e k| := abs_add_le _ _
+    _ ≤ C0r * (k : ℝ) ^ (-(4 / 3 : ℝ)) + (∑ j ∈ D, |e j| * (j : ℝ) ^ (4 / 3 : ℝ)) * (k : ℝ) ^ (-(4 / 3 : ℝ)) :=
         add_le_add h1 hdisp
     _ = _ := by ring
 
-lemma dispTailHyp (s : ℕ) (e : ℝ) (N : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) :
-    AiryProdTailHypothesis 1 (dispSite N (dispE s e)) (designWidthU N η) := by
-  obtain ⟨C0, hC0, hP⟩ := dispProfHyp s e
+/-- The admissible-profile constant of the displaced designs is uniform in `N` and `η`. -/
+lemma dispProfHyp (s : ℕ) (e : ℝ) :
+    ∃ C0 > 0, ∀ (N : ℕ) (η : ℝ), 0 ≤ η → η ≤ 1 / 4 →
+      ProfHyp C0 (dispSite N (dispE s e)) (designWidthU N η) :=
+  by
+  obtain ⟨C0, hC0, h⟩ := dispProfHyp_D {s} (dispE s e) (fun k hk => dispE_of_ne e (by simpa using hk))
+  exact ⟨C0, hC0, h⟩
+
+/-- The tail hypothesis for the designs with finitely many displaced sites. -/
+lemma dispTailHyp_D (D : Finset ℕ) (e : ℕ → ℝ) (he : ∀ k, k ∉ D → e k = 0) (N : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) :
+    AiryProdTailHypothesis 1 (dispSite N e) (designWidthU N η) := by
+  obtain ⟨C0, hC0, hP⟩ := dispProfHyp_D D e he
   exact ProfHyp.tailHyp (f := 1) le_rfl hC0 (hP N η hη0 hη1)
 
-/-! ### Lower bound `Π_s(0) ≥ e²/(2|a_s - a_1|)` -/
+lemma dispTailHyp (s : ℕ) (e : ℝ) (N : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) :
+    AiryProdTailHypothesis 1 (dispSite N (dispE s e)) (designWidthU N η) :=
+  dispTailHyp_D {s} (dispE s e) (fun k hk => dispE_of_ne e (by simpa using hk)) N hη0 hη1
+
+/-! ### Lower bounds `Π_s(0) ≥ e²/(2|a_s - a_1|)`, `R_1 ≥ c^f/2` -/
+
+/-- **Product lower bound for the designs with finitely many displaced sites** (`e` supported on `[1, f]`):
+for `N ≥ J(n, f)` (independent of `η` and `e`), if the factors `j ≤ f`, `j ≠ n` of the product at the zero
+`a_n` are `≥ c` (`0 < c ≤ 1`), then the whole product `∏_{j ≥ 2, j ≠ n}` is `≥ c^f / 2` (the factors
+`f < j ≤ N` are `≥ 1`, those `j > N` are `≥ exp(-4 (C_Z/2)/j²)`). -/
+lemma exists_profProd_lower {n : ℕ} (hn : 1 ≤ n) (f : ℕ) :
+    ∃ J : ℕ, f ≤ J ∧ ∀ N : ℕ, J ≤ N → ∀ (η : ℝ) (e : ℕ → ℝ), 0 < η → η ≤ 1 / 4 →
+      (∀ k, f < k → e k = 0) → ∀ c : ℝ, 0 < c → c ≤ 1 →
+      (∀ j : ℕ, 2 ≤ j → j ≤ f → j ≠ n →
+        c ≤ profRealFactor (dispSite N e) (designWidthU N η) n j) →
+      ∀ T : ℝ, HasProd (fun m : ℕ => if m + 2 = n then (1 : ℝ)
+        else profRealFactor (dispSite N e) (designWidthU N η) n (m + 2)) T → c ^ f / 2 ≤ T := by
+  obtain ⟨C_Z, hC_Z, hZ⟩ := deltaWKB_le_exists
+  set r : ℝ := -airyZero n with hr
+  refine ⟨⌈max (max (max (4 * C_Z) ((2 * r) ^ 3)) 2) (f : ℝ)⌉₊, ?_,
+    fun N hN η e hη0 hη1 he c hc0 hc1 hcf T hT => ?_⟩
+  · have h : (f : ℝ) ≤ ⌈max (max (max (4 * C_Z) ((2 * r) ^ 3)) 2) (f : ℝ)⌉₊ :=
+      (le_max_right _ _).trans (Nat.le_ceil _)
+    exact_mod_cast h
+  have hNge : max (max (max (4 * C_Z) ((2 * r) ^ 3)) 2) (f : ℝ) ≤ (N : ℝ) :=
+    (Nat.le_ceil _).trans (by exact_mod_cast hN)
+  have hNC : 4 * C_Z ≤ N := (le_max_left _ _).trans ((le_max_left _ _).trans ((le_max_left _ _).trans hNge))
+  have hNr : (2 * r) ^ 3 ≤ N :=
+    (le_max_right _ _).trans ((le_max_left _ _).trans ((le_max_left _ _).trans hNge))
+  have hN2' : (2 : ℝ) ≤ N := (le_max_right _ _).trans ((le_max_left _ _).trans hNge)
+  have hN2 : 2 ≤ N := by exact_mod_cast hN2'
+  have hfN' : (f : ℝ) ≤ N := (le_max_right _ _).trans hNge
+  have hfN : f ≤ N := by exact_mod_cast hfN'
+  refine hasProd_ge_pow_half_of_tail_lower hC_Z hN2 hNC hfN hc0 hc1 hT fun m => ?_
+  by_cases hm : m + 2 = n
+  · simp only [hm, ↓reduceIte]
+    split_ifs
+    · exact hc1
+    · exact le_rfl
+    · exact Real.exp_le_one_iff.mpr (mul_nonpos_of_nonpos_of_nonneg (by norm_num) (by positivity))
+  · simp only [hm, ↓reduceIte]
+    by_cases h1 : m + 2 ≤ f
+    · simp only [h1, ↓reduceIte]
+      exact hcf (m + 2) (by omega) h1 hm
+    · simp only [h1, ↓reduceIte]
+      have hsite : dispSite N e (m + 2) = designSiteU N (m + 2) :=
+        dispSite_of_eq_zero (he _ (by omega))
+      have hne : airyZero n ≠ airyZero (m + 2) := fun h =>
+        hm (airyZero_injective_on (by omega) (by omega) h).symm
+      have hfac : profRealFactor (dispSite N e) (designWidthU N η) n (m + 2) =
+          designFac N η (airyZero n) (m + 2) := by
+        unfold profRealFactor designFac; rw [hsite]
+      rw [hfac]
+      split_ifs with h
+      · unfold designFac
+        have hs' : designSiteU N (m + 2) = airyZero (m + 2) := by simp [designSiteU, h]
+        rw [hs']
+        have hpos : 0 < (airyZero n - airyZero (m + 2)) ^ 2 := by
+          have := sub_ne_zero.mpr hne
+          positivity
+        rw [le_div_iff₀ hpos]
+        nlinarith [sq_nonneg (designWidthU N η (m + 2))]
+      · exact designFac_tail_lower hC_Z hZ (by omega) hN2 hNC hNr η (airyZero n) (by rw [hr]; linarith)
+
+/-- **`pi_lower`, product part**, finitely many displaced sites: for the site `2 ≤ s ≤ f`, if the other
+factors `j ≤ f` are `≥ c`, then `Π_s(0) ≥ e_s² c^f / (2 |a_s - a_1|)` for every `N ≥ J` and every `η`. -/
+lemma exists_dispPi0_lower_D {s : ℕ} (hs : 2 ≤ s) (f : ℕ) (hsf : s ≤ f) :
+    ∃ J : ℕ, f ≤ J ∧ ∀ N : ℕ, J ≤ N → ∀ (η : ℝ) (e : ℕ → ℝ), 0 < η → η ≤ 1 / 4 →
+      (∀ k, f < k → e k = 0) → ∀ c : ℝ, 0 < c → c ≤ 1 →
+      (∀ j : ℕ, 2 ≤ j → j ≤ f → j ≠ s →
+        c ≤ profRealFactor (dispSite N e) (designWidthU N η) s j) →
+      (e s) ^ 2 * (c ^ f / 2) / |airyZero s - airyZero 1| ≤
+        profPi0 (dispSite N e) (designWidthU N η) s := by
+  obtain ⟨J, hJ, h⟩ := exists_profProd_lower (n := s) (by omega) f
+  refine ⟨J, hJ, fun N hN η e hη0 hη1 he c hc0 hc1 hcf => ?_⟩
+  have hsN : s ≤ N := hsf.trans (hJ.trans hN)
+  have hH := dispTailHyp_D (Finset.range (f + 1)) e (fun k hk => he k (by simpa using hk)) N hη0.le hη1
+  have hp := (profPi0_hasProd (dispSite N e) (designWidthU N η) hH hs).1
+  have hT := h N hN η e hη0 hη1 he c hc0 hc1 hcf _ hp
+  unfold profPi0
+  have hdiag : (e s) ^ 2 / |airyZero s - airyZero 1| ≤
+      ((airyZero s - dispSite N e s) ^ 2 + (designWidthU N η s) ^ 2) / |airyZero s - airyZero 1| := by
+    refine div_le_div_of_nonneg_right ?_ (abs_airyZero_sub_one_pos hs).le
+    have : dispSite N e s = airyZero s + e s := by
+      unfold dispSite; rw [show designSiteU N s = airyZero s by simp [designSiteU, hsN]]
+    rw [this]; nlinarith [sq_nonneg (designWidthU N η s)]
+  have hnn : 0 ≤ (e s) ^ 2 / |airyZero s - airyZero 1| := by positivity
+  calc (e s) ^ 2 * (c ^ f / 2) / |airyZero s - airyZero 1|
+      = (e s) ^ 2 / |airyZero s - airyZero 1| * (c ^ f / 2) := by ring
+    _ ≤ _ := mul_le_mul hdiag hT (by positivity) (hnn.trans hdiag)
+
+lemma one_le_profRealFactor {uSite epsU : ℕ → ℝ} {n j : ℕ} (h : uSite j = airyZero j)
+    (hne : airyZero n ≠ airyZero j) : 1 ≤ profRealFactor uSite epsU n j := by
+  unfold profRealFactor
+  rw [h]
+  have hpos : 0 < (airyZero n - airyZero j) ^ 2 := by
+    have := sub_ne_zero.mpr hne
+    positivity
+  rw [le_div_iff₀ hpos]
+  nlinarith [sq_nonneg (epsU j)]
 
 /-- **`pi_lower`, product part**: the designs with the site `s ≥ 2` displaced by `e` have
 `Π_s(0) ≥ e²/(2|a_s - a_1|)` for every `N ≥ J` and every `η`. -/
@@ -174,58 +285,33 @@ lemma exists_dispPi0_lower {s : ℕ} (hs : 2 ≤ s) :
     ∃ J : ℕ, s ≤ J ∧ ∀ N : ℕ, J ≤ N → ∀ (η e : ℝ), 0 < η → η ≤ 1 / 4 →
       e ^ 2 / (2 * |airyZero s - airyZero 1|) ≤
         profPi0 (dispSite N (dispE s e)) (designWidthU N η) s := by
-  obtain ⟨C_Z, hC_Z, hZ⟩ := deltaWKB_le_exists
-  set r : ℝ := -airyZero s with hr
-  refine ⟨⌈max (max (max (4 * C_Z) ((2 * r) ^ 3)) 2) (s : ℝ)⌉₊, ?_, fun N hN η e hη0 hη1 => ?_⟩
-  · have h : (s : ℝ) ≤ ⌈max (max (max (4 * C_Z) ((2 * r) ^ 3)) 2) (s : ℝ)⌉₊ :=
-      (le_max_right _ _).trans (Nat.le_ceil _)
-    exact_mod_cast h
-  have hNge : max (max (max (4 * C_Z) ((2 * r) ^ 3)) 2) (s : ℝ) ≤ (N : ℝ) :=
-    (Nat.le_ceil _).trans (by exact_mod_cast hN)
-  have hNC : 4 * C_Z ≤ N := (le_max_left _ _).trans ((le_max_left _ _).trans ((le_max_left _ _).trans hNge))
-  have hNr : (2 * r) ^ 3 ≤ N :=
-    (le_max_right _ _).trans ((le_max_left _ _).trans ((le_max_left _ _).trans hNge))
-  have hN2' : (2 : ℝ) ≤ N := (le_max_right _ _).trans ((le_max_left _ _).trans hNge)
-  have hN2 : 2 ≤ N := by exact_mod_cast hN2'
-  have hsN' : (s : ℝ) ≤ N := (le_max_right _ _).trans hNge
-  have hsN : s ≤ N := by exact_mod_cast hsN'
-  have hH := dispTailHyp s e N hη0.le hη1
-  have hp := (profPi0_hasProd (dispSite N (dispE s e)) (designWidthU N η) hH hs).1
-  have hT : (1 : ℝ) / 2 ≤ ∏' m : ℕ, (if m + 2 = s then 1
-      else profRealFactor (dispSite N (dispE s e)) (designWidthU N η) s (m + 2)) := by
-    refine hasProd_ge_half_of_tail_lower hC_Z hN2 hNC hp fun m => ?_
-    by_cases hm : m + 2 = s
-    · simp only [hm, ↓reduceIte, hsN, le_refl]
-    · simp only [hm, ↓reduceIte]
-      have hsite : dispSite N (dispE s e) (m + 2) = designSiteU N (m + 2) :=
-        dispSite_of_eq_zero (dispE_of_ne e hm)
-      have hne : airyZero s ≠ airyZero (m + 2) := fun h =>
-        hm (airyZero_injective_on (by omega) (by omega) h).symm
-      have hfac : profRealFactor (dispSite N (dispE s e)) (designWidthU N η) s (m + 2) =
-          designFac N η (airyZero s) (m + 2) := by
-        unfold profRealFactor designFac; rw [hsite]
-      rw [hfac]
-      split_ifs with h
-      · unfold designFac
-        have hs' : designSiteU N (m + 2) = airyZero (m + 2) := by simp [designSiteU, h]
-        rw [hs']
-        have hpos : 0 < (airyZero s - airyZero (m + 2)) ^ 2 := by
-          have := sub_ne_zero.mpr hne
-          positivity
-        rw [le_div_iff₀ hpos]
-        nlinarith [sq_nonneg (designWidthU N η (m + 2))]
-      · exact designFac_tail_lower hC_Z hZ (by omega) hN2 hNC hNr η (airyZero s) (by rw [hr]; linarith)
-  unfold profPi0
-  have hdiag : e ^ 2 / |airyZero s - airyZero 1| ≤
-      ((airyZero s - dispSite N (dispE s e) s) ^ 2 + (designWidthU N η s) ^ 2) / |airyZero s - airyZero 1| := by
-    refine div_le_div_of_nonneg_right ?_ (abs_airyZero_sub_one_pos hs).le
-    have : dispSite N (dispE s e) s = airyZero s + e := by
-      unfold dispSite; rw [dispE_self, show designSiteU N s = airyZero s by simp [designSiteU, hsN]]
-    rw [this]; nlinarith [sq_nonneg (designWidthU N η s)]
-  have hnn : 0 ≤ e ^ 2 / |airyZero s - airyZero 1| := by positivity
-  calc e ^ 2 / (2 * |airyZero s - airyZero 1|) = e ^ 2 / |airyZero s - airyZero 1| * (1 / 2) := by
-        field_simp
-    _ ≤ _ := mul_le_mul hdiag hT (by norm_num) (hnn.trans hdiag)
+  obtain ⟨J, hJ, h⟩ := exists_dispPi0_lower_D hs s le_rfl
+  refine ⟨J, hJ, fun N hN η e hη0 hη1 => ?_⟩
+  have h1 := h N hN η (dispE s e) hη0 hη1 (fun k hk => dispE_of_ne e (by omega)) 1 one_pos le_rfl
+    (fun j hj2 hjf hjne => by
+      refine one_le_profRealFactor ?_ (fun h => hjne (airyZero_injective_on (by omega) (by omega) h).symm)
+      rw [dispSite_of_eq_zero (dispE_of_ne e hjne)]
+      simp [designSiteU, show j ≤ N by omega])
+  have hpos : 0 < |airyZero s - airyZero 1| := abs_airyZero_sub_one_pos hs
+  rw [dispE_self] at h1
+  calc e ^ 2 / (2 * |airyZero s - airyZero 1|) = e ^ 2 * (1 ^ s / 2) / |airyZero s - airyZero 1| := by
+        rw [one_pow]; field_simp
+    _ ≤ _ := h1
+
+/-- **Lower bound of `R_1`**, finitely many displaced sites: if the factors `2 ≤ j ≤ f` of
+`R_1 = ∏_{j ≥ 2} ((a_1 - u_j)² + ε_j²)/(a_1 - a_j)²` are `≥ c`, then `R_1 ≥ c^f/2` for `N ≥ J`. -/
+lemma exists_dispR1_lower (f : ℕ) :
+    ∃ J : ℕ, f ≤ J ∧ ∀ N : ℕ, J ≤ N → ∀ (η : ℝ) (e : ℕ → ℝ), 0 < η → η ≤ 1 / 4 →
+      (∀ k, f < k → e k = 0) → ∀ c : ℝ, 0 < c → c ≤ 1 →
+      (∀ j : ℕ, 2 ≤ j → j ≤ f →
+        c ≤ profRealFactor (dispSite N e) (designWidthU N η) 1 j) →
+      c ^ f / 2 ≤ profR1 (dispSite N e) (designWidthU N η) := by
+  obtain ⟨J, hJ, h⟩ := exists_profProd_lower (n := 1) le_rfl f
+  refine ⟨J, hJ, fun N hN η e hη0 hη1 he c hc0 hc1 hcf => ?_⟩
+  have hH := dispTailHyp_D (Finset.range (f + 1)) e (fun k hk => he k (by simpa using hk)) N hη0.le hη1
+  have hp := (profR1_hasProd (dispSite N e) (designWidthU N η) hH).1
+  refine h N hN η e hη0 hη1 he c hc0 hc1 (fun j hj hjf _ => hcf j hj hjf) _ ?_
+  simpa [show ∀ m : ℕ, m + 2 ≠ 1 by intro m; omega] using hp
 
 /-! ### The tail sum `∑_{m > N} m^{-4/3}` -/
 
@@ -259,26 +345,27 @@ lemma tsum_tail_z43 (N : ℕ) (hN : 1 ≤ N) :
 
 /-! ### The sum of the other `Π_m` -/
 
-/-- Termwise bound of the weights `Π_m(-κ)`, `m ≠ s`, by `B (η² m^{-4/3} + 1_{m > N} m^{-4/3})`,
-uniformly in `N`, `η`. -/
-lemma exists_dispPi_le (s : ℕ) (e κ : ℝ) (hκ : 0 ≤ κ) :
-    ∃ B > 0, ∀ (N : ℕ) (η : ℝ), 0 ≤ η → η ≤ 1 / 4 → ∀ m : ℕ, m ≠ s → 2 ≤ m →
-      profPi (dispSite N (dispE s e)) (designWidthU N η) (-κ) m ≤
+/-- Termwise bound of the weights `Π_m(-κ)` at the undisplaced sites `m` (`e m = 0`) by
+`B (η² m^{-4/3} + 1_{m > N} m^{-4/3})`, uniformly in `N`, `η`, for the designs with finitely many displaced
+sites. -/
+lemma exists_dispPi_le_D (D : Finset ℕ) (e : ℕ → ℝ) (he : ∀ k, k ∉ D → e k = 0) (κ : ℝ) (hκ : 0 ≤ κ) :
+    ∃ B > 0, ∀ (N : ℕ) (η : ℝ), 0 ≤ η → η ≤ 1 / 4 → ∀ m : ℕ, e m = 0 → 2 ≤ m →
+      profPi (dispSite N e) (designWidthU N η) (-κ) m ≤
         B * (η ^ 2 * (m : ℝ) ^ (-(4 / 3 : ℝ)) + (if N < m then (m : ℝ) ^ (-(4 / 3 : ℝ)) else 0)) := by
-  obtain ⟨C0, hC0, hP⟩ := dispProfHyp s e
+  obtain ⟨C0, hC0, hP⟩ := dispProfHyp_D D e he
   obtain ⟨CP, hCP, hbd⟩ := profPi0_le_unif hC0
   obtain ⟨A, hA, hdiag⟩ := design_diag_le
   have hΔ := gapOne_pos
   have hc : 0 ≤ 1 + κ / (airyZero 1 - airyZero 2) := by positivity
-  refine ⟨(1 + κ / (airyZero 1 - airyZero 2)) * (CP * A), by positivity, fun N η hη0 hη1 m hms hm => ?_⟩
-  have hH := dispTailHyp s e N hη0 hη1
+  refine ⟨(1 + κ / (airyZero 1 - airyZero 2)) * (CP * A), by positivity, fun N η hη0 hη1 m hem hm => ?_⟩
+  have hH := dispTailHyp_D D e he N hη0 hη1
   have h1 := profPi_neg_le hH hκ hm
   have h2 := hbd _ _ (hP N η hη0 hη1) m hm
-  have hsite : dispSite N (dispE s e) m = designSiteU N m := dispSite_of_eq_zero (dispE_of_ne e hms)
+  have hsite : dispSite N e m = designSiteU N m := dispSite_of_eq_zero hem
   rw [hsite] at h2
   have h3 := hdiag N η hη0 hη1 m hm
-  calc profPi (dispSite N (dispE s e)) (designWidthU N η) (-κ) m
-      ≤ (1 + κ / (airyZero 1 - airyZero 2)) * profPi0 (dispSite N (dispE s e)) (designWidthU N η) m := h1
+  calc profPi (dispSite N e) (designWidthU N η) (-κ) m
+      ≤ (1 + κ / (airyZero 1 - airyZero 2)) * profPi0 (dispSite N e) (designWidthU N η) m := h1
     _ ≤ (1 + κ / (airyZero 1 - airyZero 2)) *
           (CP * ((airyZero m - designSiteU N m) ^ 2 + (designWidthU N η m) ^ 2) * (m : ℝ) ^ (-(2 / 3 : ℝ))) :=
         mul_le_mul_of_nonneg_left h2 hc
@@ -290,13 +377,26 @@ lemma exists_dispPi_le (s : ℕ) (e κ : ℝ) (hκ : 0 ≤ κ) :
         mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left h3 hCP.le) hc
     _ = _ := by ring
 
-/-- The sum `∑_{m ≥ 2, m ≠ s} Π_m(-κ)` is `O(η² + N^{-1/3})`. -/
-lemma exists_dispRest_le (s : ℕ) (e κ : ℝ) (hκ : 0 ≤ κ) :
+/-- Termwise bound of the weights `Π_m(-κ)`, `m ≠ s`, by `B (η² m^{-4/3} + 1_{m > N} m^{-4/3})`,
+uniformly in `N`, `η`. -/
+lemma exists_dispPi_le (s : ℕ) (e κ : ℝ) (hκ : 0 ≤ κ) :
+    ∃ B > 0, ∀ (N : ℕ) (η : ℝ), 0 ≤ η → η ≤ 1 / 4 → ∀ m : ℕ, m ≠ s → 2 ≤ m →
+      profPi (dispSite N (dispE s e)) (designWidthU N η) (-κ) m ≤
+        B * (η ^ 2 * (m : ℝ) ^ (-(4 / 3 : ℝ)) + (if N < m then (m : ℝ) ^ (-(4 / 3 : ℝ)) else 0)) :=
+  by
+  obtain ⟨B, hB, h⟩ := exists_dispPi_le_D {s} (dispE s e) (fun k hk => dispE_of_ne e (by simpa using hk)) κ hκ
+  exact ⟨B, hB, fun N η hη0 hη1 m hms hm => h N η hη0 hη1 m (dispE_of_ne e hms) hm⟩
+
+/-- The sum `∑_{m ≥ 2, m ∉ D} Π_m(-κ)` is `O(η² + N^{-1/3})` for the designs with finitely many displaced
+sites (`e` supported on `D`). -/
+lemma exists_dispRest_le_D (D : Finset ℕ) (e : ℕ → ℝ) (he : ∀ k, k ∉ D → e k = 0) (κ : ℝ) (hκ : 0 ≤ κ) :
     ∃ B > 0, ∀ (N : ℕ), 1 ≤ N → ∀ (η : ℝ), 0 ≤ η → η ≤ 1 / 4 →
-      ∑' j : ℕ, (if j + 2 = s then 0 else
-        profPi (dispSite N (dispE s e)) (designWidthU N η) (-κ) (j + 2)) ≤
+      Summable (fun j : ℕ => if j + 2 ∈ D then 0 else
+        profPi (dispSite N e) (designWidthU N η) (-κ) (j + 2)) ∧
+      ∑' j : ℕ, (if j + 2 ∈ D then 0 else
+        profPi (dispSite N e) (designWidthU N η) (-κ) (j + 2)) ≤
         B * (η ^ 2 + (N : ℝ) ^ (-(1 / 3 : ℝ))) := by
-  obtain ⟨B0, hB0, hB⟩ := exists_dispPi_le s e κ hκ
+  obtain ⟨B0, hB0, hB⟩ := exists_dispPi_le_D D e he κ hκ
   set Z : ℝ := ∑' m : ℕ, ((m + 2 : ℕ) : ℝ) ^ (-(4 / 3 : ℝ)) with hZ
   have hZ0 : 0 ≤ Z := tsum_nonneg fun _ => by positivity
   refine ⟨B0 * (Z + 3), by positivity, fun N hN η hη0 hη1 => ?_⟩
@@ -310,24 +410,25 @@ lemma exists_dispRest_le (s : ℕ) (e κ : ℝ) (hκ : 0 ≤ κ) :
     rw [hHdef, (summable_z43.mul_left (η ^ 2)).tsum_add hGs, tsum_mul_left]
   have hH0 : ∀ m, 0 ≤ H m := fun m => by
     simp only [hHdef]; split_ifs <;> positivity
-  have hterm : ∀ j : ℕ, (if j + 2 = s then 0 else
-      profPi (dispSite N (dispE s e)) (designWidthU N η) (-κ) (j + 2)) ≤ B0 * H j := by
+  have hterm : ∀ j : ℕ, (if j + 2 ∈ D then 0 else
+      profPi (dispSite N e) (designWidthU N η) (-κ) (j + 2)) ≤ B0 * H j := by
     intro j
     split_ifs with h
     · exact mul_nonneg hB0.le (hH0 j)
-    · exact hB N η hη0 hη1 (j + 2) h (by omega)
-  have hnonneg : ∀ j : ℕ, 0 ≤ (if j + 2 = s then 0 else
-      profPi (dispSite N (dispE s e)) (designWidthU N η) (-κ) (j + 2)) := by
+    · exact hB N η hη0 hη1 (j + 2) (he _ h) (by omega)
+  have hnonneg : ∀ j : ℕ, 0 ≤ (if j + 2 ∈ D then 0 else
+      profPi (dispSite N e) (designWidthU N η) (-κ) (j + 2)) := by
     intro j
     split_ifs with h
     · exact le_rfl
-    · exact le_trans (profPi0_nonneg _ _ (dispTailHyp s e N hη0 hη1) (by omega))
-        (profPi_ge_profPi0 (dispTailHyp s e N hη0 hη1) hκ (by omega))
-  have hsum : Summable (fun j : ℕ => if j + 2 = s then 0 else
-      profPi (dispSite N (dispE s e)) (designWidthU N η) (-κ) (j + 2)) :=
+    · exact le_trans (profPi0_nonneg _ _ (dispTailHyp_D D e he N hη0 hη1) (by omega))
+        (profPi_ge_profPi0 (dispTailHyp_D D e he N hη0 hη1) hκ (by omega))
+  have hsum : Summable (fun j : ℕ => if j + 2 ∈ D then 0 else
+      profPi (dispSite N e) (designWidthU N η) (-κ) (j + 2)) :=
     Summable.of_nonneg_of_le hnonneg hterm (hHs.mul_left B0)
-  calc ∑' j : ℕ, (if j + 2 = s then 0 else
-          profPi (dispSite N (dispE s e)) (designWidthU N η) (-κ) (j + 2))
+  refine ⟨hsum, ?_⟩
+  calc ∑' j : ℕ, (if j + 2 ∈ D then 0 else
+          profPi (dispSite N e) (designWidthU N η) (-κ) (j + 2))
       ≤ ∑' j, B0 * H j := hsum.tsum_le_tsum hterm (hHs.mul_left B0)
     _ = B0 * ∑' j, H j := tsum_mul_left
     _ = B0 * (η ^ 2 * Z + ∑' m : ℕ,
@@ -341,6 +442,16 @@ lemma exists_dispRest_le (s : ℕ) (e κ : ℝ) (hκ : 0 ≤ κ) :
           nlinarith [sq_nonneg η]
         nlinarith [mul_nonneg hZ0 (sq_nonneg η), mul_nonneg hZ0 hNn, mul_nonneg hB0.le hZ0,
           mul_nonneg hB0.le (sq_nonneg η), mul_nonneg hB0.le hNn]
+
+/-- The sum `∑_{m ≥ 2, m ≠ s} Π_m(-κ)` is `O(η² + N^{-1/3})`. -/
+lemma exists_dispRest_le (s : ℕ) (e κ : ℝ) (hκ : 0 ≤ κ) :
+    ∃ B > 0, ∀ (N : ℕ), 1 ≤ N → ∀ (η : ℝ), 0 ≤ η → η ≤ 1 / 4 →
+      ∑' j : ℕ, (if j + 2 = s then 0 else
+        profPi (dispSite N (dispE s e)) (designWidthU N η) (-κ) (j + 2)) ≤
+        B * (η ^ 2 + (N : ℝ) ^ (-(1 / 3 : ℝ))) :=
+  by
+  obtain ⟨B, hB, h⟩ := exists_dispRest_le_D {s} (dispE s e) (fun k hk => dispE_of_ne e (by simpa using hk)) κ hκ
+  exact ⟨B, hB, fun N hN η hη0 hη1 => by simpa only [Finset.mem_singleton] using (h N hN η hη0 hη1).2⟩
 
 /-! ### The family -/
 
