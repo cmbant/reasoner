@@ -9,6 +9,7 @@ public import FormalResearch.SignUncertainty.SignSeparation
 public import FormalResearch.SignUncertainty.HankelBessel
 public import FormalResearch.SignUncertainty.HankelBesselNat
 public import FormalResearch.SignUncertainty.HankelBesselLaguerre
+public import FormalResearch.SignUncertainty.RadialCompactnessKernel
 public import FormalResearch.SignUncertainty.ShellLaplaceBase
 public import FormalResearch.SignUncertainty.ShellGap
 public import FormalResearch.SignUncertainty.ShellGapWitness
@@ -38,6 +39,9 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `|𝓗_c f| ≤ M[f]`, `HankelKernelData` from `HankelAntiderivFacts`, agreement with the natural-order
   Bessel function) and the Laguerre modes `𝓗_c e^{-2πΔ} = e^{-2πΔ}`, `𝓗_c u₀ = -u₀`
   (`general_theorems.tex`, Prop 7.9b input).
+* `FormalResearch.SignUncertainty.RadialCompactnessKernel`: the `s`-derivative identity
+  `∂_s(ξ_c^{-1} K_c(w,s)) = ξ_c^{-1}(w - ε_c²) ξ_c^{-1} K_c(w,s)` of the Mellin kernel (kernel level of the `C¹`
+  clause of `lem:radial-compactness`; the compactness argument itself is not formalised).
 * `FormalResearch.SignUncertainty.ShellLaplaceBase`: Airy–Laplace transform, `ShellHBData`,
   even-`m` Laplace sign, factored ODE, and one-profile LP reduction (`ce_shells.tex`, Prop `H.14'`).
 * `FormalResearch.SignUncertainty.ShellGap`: conditional Mellin origin-floor (`shell_reduction_lower`)
