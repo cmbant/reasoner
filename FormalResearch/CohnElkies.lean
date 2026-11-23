@@ -40,6 +40,7 @@ public import FormalResearch.CohnElkies.AirySeedSymbols
 public import FormalResearch.CohnElkies.CubicNormalFormContraction
 public import FormalResearch.CohnElkies.ComplexEdgePhase
 public import FormalResearch.CohnElkies.CubicNormalFormBridge
+public import FormalResearch.CohnElkies.CubicNormalFormH
 public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
 
@@ -144,6 +145,8 @@ and the Airy library:
   `edgePrim`, `edgePhiC`: derivative, oddness, agreement with the real `edgePhi`).
 * `FormalResearch.CohnElkies.CubicNormalFormBridge`: `O.4(2)` normal form `τ(θ)` from the fixed point (`removable_finite`,
   `o4_quotient_ext`, `o4_normal_form`), under the named hypothesis `O4QuotientBound` (`M_F ≤ 0.13`).
+* `FormalResearch.CohnElkies.CubicNormalFormH`: `O.4(2)` remainder `H(θ) = θ⁻³(τ(θ) - κ₀θ)` extended holomorphically to `D(0, 0.22)` with `|H| ≤ 1/4`
+  (`even_quotient_differentiableOn`, `even_quotient_bound`, `O4NormalForm.H_bound`), from an `O4NormalForm` (so under `O4QuotientBound`).
 * `FormalResearch.CohnElkies.PreEdgeCriterion`: unconditional concrete `GT.2b(1)–(3)` & `O.11y(3)`/`GT.4` tip offset
   for `twoScaleS`, unconditional `PE.3` reference & measure Mellin inversion (`pe3_reference_mellin_inversion`,
   `pe3_measure_inversion`), `pe3_remainder_integral_bound` (`O(c^{-2/3})`), `pe3_compact_origin_pos`, and
