@@ -185,6 +185,19 @@ lemma HankelKernelData.thresholdZeroOrigin_eq (hK : K.φ = hankelPhi c) :
   ext T
   simp only [Set.mem_ofPred_eq, K.isFeasible_iff hK]
 
+/-- Proposition 7.9b (`gt:7.9b`), exact origin option for the concrete problem: if the Bessel kernel is
+a `HankelKernelData`, the odd Laguerre mode is a `(-1)`-eigenfunction, `(-1)`-feasible thresholds exist
+and `T_c^{-1} > c/(4π)`, then imposing `f(0) = 0` does not change the threshold. -/
+theorem hankelT0_eq_hankelT {c : ℝ} (hc : 0 < c) (hK : ∃ K : HankelKernelData c, K.φ = hankelPhi c)
+    (hlag : IsHankelEigenfn c (-1) (oddLaguerreMode c))
+    (hne : ∃ T f, IsHankelFeasible c (-1) T f) (hT : c / (4 * π) < hankelT (-1) c) :
+    hankelT0 c = hankelT (-1) c := by
+  obtain ⟨K, hK⟩ := hK
+  have h := constrained_threshold_eq_unconstrained hc ((K.isRadialEigenfn_iff hK (-1) _).2 hlag)
+    (by obtain ⟨T, f, hf⟩ := hne; exact ⟨T, f, (K.isFeasible_iff hK _ _ _).2 hf⟩)
+    (by rwa [K.threshold_eq hK])
+  rwa [K.thresholdZeroOrigin_eq hK, K.threshold_eq hK] at h
+
 end Bridge
 
 end FormalResearch.SignUncertainty
