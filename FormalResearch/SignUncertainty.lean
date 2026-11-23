@@ -100,6 +100,7 @@ public import FormalResearch.SignUncertainty.WindowTranslation
 public import FormalResearch.SignUncertainty.HankelMellinIntegrable
 public import FormalResearch.SignUncertainty.MellinLiftInverse
 public import FormalResearch.SignUncertainty.MellinLiftEigen
+public import FormalResearch.SignUncertainty.MellinLiftSymbol
 public import FormalResearch.SignUncertainty.ShellGapMassRatio
 public import FormalResearch.SignUncertainty.ShellGapWeight
 public import FormalResearch.SignUncertainty.ShellGapLaplace
