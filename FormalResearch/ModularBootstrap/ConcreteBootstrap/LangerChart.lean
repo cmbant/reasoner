@@ -3,6 +3,7 @@ module
 public import FormalResearch.ModularBootstrap.TipFront.ComplexMajorant
 public import FormalResearch.ModularBootstrap.TipFront.ConcreteBlowup
 public import FormalResearch.ModularBootstrap.Blowup.TipMap
+public import FormalResearch.ModularBootstrap.Chart.Langer
 public import Mathlib.Analysis.Calculus.InverseFunctionTheorem.Analytic
 
 /-!
@@ -1973,5 +1974,48 @@ lemma virasoro_tip_comparability {c' : ℝ} (hc' : 0 < c') {u : ℂ}
         _ = chartParams.c_tip_lo ^ (3 / 2 : ℝ) * √‖u‖ * (u ^ (1 / 2 : ℂ)).re := by rw [this]
     exact h2.symm.trans_le h1
   exact ⟨hlo1, hhi1, hnorm_lo, hnorm_hi, hdist⟩
+
+/-! ### Section 7: Discharging `Chart.LangerChartSpec` -/
+
+/-- Discharged Virasoro inverse Langer chart `b_L(w) = virasoroBOfXi (virasoroXiInf w)`
+(`lower_o1_two_edge.tex`, §J1 Result R5; `remainder.tex`, lines 468–472). -/
+noncomputable def langerChartSpec_virasoro : Chart.LangerChartSpec where
+  bL := fun w => virasoroBOfXi (virasoroXiInf w)
+  rL := chartParams.r_open_cap
+  hrL_pos := lt_trans (by have := chartParams.hbV_pos; positivity) chartParams.hr_open_cap_gt
+  hbL_an := fun w hw => by
+    have hw_u : w ∈ ball (0 : ℂ) virasoroRUInf :=
+      ball_subset_ball chartParams.hr_open_cap_lt_u.le hw
+    have hmem := virasoroXiInf_mem hw_u
+    have hre := (langerCore.huInf_real_pos _ hmem).1
+    exact (virasoroBOfXi_analyticAt hre).comp_of_eq (virasoroXiInf_an w hw_u) rfl
+  hbL_zero := by
+    rw [virasoroXiInf_zero, virasoroBOfXi_xiBar]
+  hbL_deriv := by
+    have h1 : HasDerivAt virasoroXiInf (-(cStar : ℂ)) 0 := by
+      rw [← virasoroXiInf_deriv_zero]
+      exact (virasoroXiInf_an 0 (mem_ball_self virasoroRUInf_pos)).differentiableAt.hasDerivAt
+    have h2 : HasDerivAt virasoroBOfXi (3 / (2 * (xiStar : ℂ))) (xiBar : ℂ) :=
+      virasoroBOfXi_hasDerivAt_xiBar
+    have hcomp : HasDerivAt (fun w => virasoroBOfXi (virasoroXiInf w))
+        ((3 / (2 * (xiStar : ℂ))) * (-(cStar : ℂ))) 0 :=
+      h2.comp_of_eq 0 h1 virasoroXiInf_zero.symm
+    rw [hcomp.deriv]
+    unfold cStar
+    have hxi : (xiStar : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr xiStar_pos.ne'
+    have hbt : (betaTip : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr betaTip_pos.ne'
+    push_cast; field_simp
+  hbL_real := fun x hx => (chartParams.hbOfW_real x hx).1
+
+lemma langerChartSpec_virasoro_bL_eq (c' : ℝ) (u : ℂ) :
+    langerChartSpec_virasoro.bL (u * ((c' ^ (-(2 / 3 : ℝ)) : ℝ) : ℂ)) = virasoroBChart c' u := by
+  unfold langerChartSpec_virasoro virasoroBChart virasoroXiChartC
+  rfl
+
+/-! ### Axiom Verification -/
+
+/-- info: 'FormalResearch.ModularBootstrap.ConcreteBootstrap.langerChartSpec_virasoro' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms langerChartSpec_virasoro
 
 end FormalResearch.ModularBootstrap.ConcreteBootstrap

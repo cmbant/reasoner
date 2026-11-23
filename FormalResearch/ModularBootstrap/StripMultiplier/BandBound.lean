@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.ModularBootstrap.StripMultiplier.EdgeKernel
 public import FormalResearch.ModularBootstrap.Chart.Langer
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.LangerChart
 public import FormalResearch.ModularBootstrap.StripBand.BandReduction
 public import FormalResearch.TwoEdgeBootstrap.Bootstrap
 
@@ -12,7 +13,9 @@ Source: `CFT/modular_bootstrap/paper/lower_o1_two_edge.tex`, §J2 (`Proposition 
 lines 458–463) and §J4 (`Proposition Y_V`, `vlo:YV`, lines 516–529).
 
 Defines:
-* `langerDelta pg c' u`: inverse Langer energy image `c' (Re b_L(u c'^{-2/3}))^2 / 3`;
+* `langerDelta pg c' u`: inverse Langer energy image `c' (Re b_L(u c'^{-2/3}))^2 / 3`
+  (equal to `ConcreteBootstrap.virasoroDeltaChart c' u` for `pg = langerChartSpec_virasoro`,
+  see `langerDelta_virasoro_eq`);
 * `langerNegV pg c' R t`: canonical nonnegative Langer coordinate `v = -ũ(t) ∈ [0, R]` on
   `[langerDelta pg c' 0, langerDelta pg c' (-R)]`;
 * `yvBandParams pg A_thr` and `yvBandInstance`: full verification of `(MS1)` (from `lemma_S4`),
@@ -22,7 +25,9 @@ Defines:
   `-A_thr ≤ ũ_T ≤ 0`.
 
 Proves:
-* `proposition_YV`: **Proposition `Y_V` (`vlo:YV`)** — the band bound
+* `proposition_YV_of_spec`: parametric form of Proposition `Y_V` for any `pg : LangerChartSpec`;
+* `proposition_YV`: **unconditional Proposition `Y_V` (`vlo:YV`)** obtained by instantiating
+  `pg = ConcreteBootstrap.langerChartSpec_virasoro` — the band bound
   `‖W̃_V(ζ₀)‖ ≤ C_Y c'^{-5/6} (c'^{1/3} (B₁ + B₂) + c'^{-1/6}) / cos ψ`
   on the sector `S = {ρ_R / 3 ≤ |ζ₀| ≤ 2 ρ_R, cos ψ ≥ c'^{-1/12}}`, together with the sector
   bound and explicit integral formulas for `B₁, B₂` and `ũ(Δ(u)) = u`, via `teb_band_reduction`;
@@ -1314,16 +1319,9 @@ theorem proposition_YV_inst (pg : LangerChartSpec) {A_thr c' R T : ℝ}
     rwa [← mul_assoc, mul_inv_cancel₀ hM_pos.ne', one_mul] at h2
   exact ⟨hmul1, hmul2⟩
 
-/-- **Proposition `Y_V` (band bound)** (`lower_o1_two_edge.tex`, §J4, `vlo:YV`, lines 516–529):
-given a Langer chart `pg : LangerChartSpec` and threshold bound `A_thr ≥ 0`, there exist a
-scale threshold `c₀ ≥ 10000`, constant `C_Y > 0`, and band radius parameter `b > 0` such that
-for any `c' ≥ c₀`, any `R ∈ [b^2 c'^{2/3}, b^2 c'^{2/3} + 1]`, any `g ∈ TestClass virasoroProblem (c'/12)`
-with `M[g] > 0`, `g ≥ 0` on `[T, ∞)`, and `T ∈ [Δ(0), Δ(-A_thr)]` (`-A_thr ≤ ũ_T ≤ 0`), on the
-sector `S = {ζ₀ : ρ_R/3 ≤ |ζ₀| ≤ 2 ρ_R, Re ζ₀ = |ζ₀| cos ψ, cos ψ ≥ c'^{-1/12}}` one has
-`‖W̃_V(ζ₀)‖ ≤ C_Y M[g] c'^{-5/6} (c'^{1/3} (B₁ + B₂) + c'^{-1/6}) / cos ψ`
-(and the sector-split bound `... (c'^{1/3}(B₁ + B₂)/cos ψ + c'^{-1/12})`), where `B₁, B₂` are the
-normalized band and tail moments wrt `ũ` (`ũ(Δ(u)) = u` on `[-R, 0]`). -/
-theorem proposition_YV (pg : LangerChartSpec) {A_thr : ℝ} (hA_thr : 0 ≤ A_thr) :
+/-- **Proposition `Y_V` (parametric `LangerChartSpec` form)** (`lower_o1_two_edge.tex`, §J4,
+`vlo:YV`, lines 516–529). -/
+theorem proposition_YV_of_spec (pg : LangerChartSpec) {A_thr : ℝ} (hA_thr : 0 ≤ A_thr) :
     ∃ (c₀ C_Y b : ℝ), 10000 ≤ c₀ ∧ 0 < C_Y ∧ 0 < b ∧
       ∀ {c' R T : ℝ}, c₀ ≤ c' →
         b ^ 2 * c' ^ (2 / 3 : ℝ) ≤ R → R ≤ b ^ 2 * c' ^ (2 / 3 : ℝ) + 1 →
@@ -1364,6 +1362,68 @@ theorem proposition_YV (pg : LangerChartSpec) {A_thr : ℝ} (hA_thr : 0 ≤ A_th
   exact proposition_YV_inst pg hA_thr hc' hR_lb hR_ub hT_lo hT_hi hg hM_pos hg_nonneg
     (hρ_eq.symm ▸ hlo) (hρ_eq.symm ▸ hhi) hcos_eq hcos_lb
 
+/-- On `|u| ≤ virasoroAC c'^2`, `langerDelta ConcreteBootstrap.langerChartSpec_virasoro c' u`
+coincides with `ConcreteBootstrap.virasoroDeltaChart c' u`. -/
+lemma langerDelta_virasoro_eq {c' u : ℝ} (hc' : 0 < c')
+    (hu : |u| ≤ ConcreteBootstrap.virasoroAC c' ^ 2) :
+    langerDelta ConcreteBootstrap.langerChartSpec_virasoro c' u =
+      ConcreteBootstrap.virasoroDeltaChart c' u := by
+  have hb := ConcreteBootstrap.virasoroBChart_ofReal hc' hu
+  have hbL_eq : ConcreteBootstrap.langerChartSpec_virasoro.bL
+      ((u * c' ^ (-(2 / 3 : ℝ)) : ℝ) : ℂ) = ConcreteBootstrap.virasoroBChart c' (u : ℂ) := by
+    rw [← ConcreteBootstrap.langerChartSpec_virasoro_bL_eq c' (u : ℂ)]
+    congr 1
+    push_cast; rfl
+  unfold langerDelta
+  rw [hbL_eq]
+  have hre_sq : ((ConcreteBootstrap.virasoroBChart c' (u : ℂ)).re : ℂ) =
+      ConcreteBootstrap.virasoroBChart c' (u : ℂ) :=
+    Complex.ext rfl hb.1.symm
+  have hc_eq : ((c' * ((ConcreteBootstrap.virasoroBChart c' (u : ℂ)).re) ^ 2 / 3 : ℝ) : ℂ) =
+      (ConcreteBootstrap.virasoroDeltaChart c' u : ℂ) := by
+    push_cast
+    rw [hre_sq]
+    exact hb.2.2.2
+  exact Complex.ofReal_inj.mp hc_eq
+
+/-- **Proposition `Y_V` (band bound, unconditional)** (`lower_o1_two_edge.tex`, §J4, `vlo:YV`,
+lines 516–529): instantiated with `ConcreteBootstrap.langerChartSpec_virasoro`, given
+`A_thr ≥ 0`, there exist `c₀ ≥ 10000`, `C_Y > 0`, and `b > 0` such that for any `c' ≥ c₀`,
+`R ∈ [b^2 c'^{2/3}, b^2 c'^{2/3} + 1]`, `g ∈ TestClass virasoroProblem (c'/12)` with `M[g] > 0`,
+`g ≥ 0` on `[T, ∞)`, and `T ∈ [Δ(0), Δ(-A_thr)]`, on `S` one has the band bound. -/
+theorem proposition_YV {A_thr : ℝ} (hA_thr : 0 ≤ A_thr) :
+    ∃ (c₀ C_Y b : ℝ), 10000 ≤ c₀ ∧ 0 < C_Y ∧ 0 < b ∧
+      ∀ {c' R T : ℝ}, c₀ ≤ c' →
+        b ^ 2 * c' ^ (2 / 3 : ℝ) ≤ R → R ≤ b ^ 2 * c' ^ (2 / 3 : ℝ) + 1 →
+        langerDelta ConcreteBootstrap.langerChartSpec_virasoro c' 0 ≤ T →
+        T ≤ langerDelta ConcreteBootstrap.langerChartSpec_virasoro c' (-A_thr) →
+        ∀ {g : ℝ → ℝ}, TestClass virasoroProblem (c' / 12) g →
+          0 < virasoroProblem.cardyNorm (c' / 12) g →
+          (∀ t ∈ Ici T, 0 ≤ g t) →
+          ∃ u_tilde : ℝ → ℝ,
+            (∀ u ∈ Icc (-R) 0,
+              u_tilde (langerDelta ConcreteBootstrap.langerChartSpec_virasoro c' u) = u) ∧
+            let M := virasoroProblem.cardyNorm (c' / 12) g
+            let B₁ := R⁻¹ * ∫ t in Icc T
+                (langerDelta ConcreteBootstrap.langerChartSpec_virasoro c' (-R)),
+              (-u_tilde t) * (g t * virasoroProblem.cardyV (c' / 12) t / M)
+            let B₂ := ∫ t in Ici
+                (langerDelta ConcreteBootstrap.langerChartSpec_virasoro c' (-R)),
+              g t * virasoroProblem.cardyV (c' / 12) t / M
+            0 ≤ B₁ ∧ 0 ≤ B₂ ∧
+            ∀ {ζ₀ : ℂ} {ψ : ℝ},
+              kappaV * c' ^ (-(1 / 3 : ℝ)) * √R / 3 ≤ ‖ζ₀‖ →
+              ‖ζ₀‖ ≤ 2 * (kappaV * c' ^ (-(1 / 3 : ℝ)) * √R) →
+              ζ₀.re = ‖ζ₀‖ * Real.cos ψ →
+              c' ^ (-(1 / 12 : ℝ)) ≤ Real.cos ψ →
+              ‖tildeWV c' g ζ₀‖ ≤ M *
+                (C_Y * c' ^ (-(5 / 6 : ℝ)) *
+                  (c' ^ (1 / 3 : ℝ) * (B₁ + B₂) + c' ^ (-(1 / 6 : ℝ))) / Real.cos ψ) ∧
+              ‖tildeWV c' g ζ₀‖ ≤ M *
+                (C_Y * c' ^ (-(5 / 6 : ℝ)) *
+                  (c' ^ (1 / 3 : ℝ) * (B₁ + B₂) / Real.cos ψ + c' ^ (-(1 / 12 : ℝ)))) :=
+  proposition_YV_of_spec ConcreteBootstrap.langerChartSpec_virasoro hA_thr
+
 /-- **Proposition `X_V`** (`lower_o1_two_edge.tex`, §J2, `vlo:XV`, lines 458–463):
 any `TwoEdgeBootstrap.BootstrapInstance P` (obtained from `(B1)–(B2)` of `TE.2`) satisfies
 `B₁ + B₂ ≤ C_X (1 + log L) c'^{-1/3}` for `c ≥ tebC2 P`. -/
@@ -1373,6 +1433,10 @@ theorem proposition_XV_of_bootstrap (P : BootstrapParams) (I : BootstrapInstance
   teb_bootstrap_part1 P I hc
 
 /-! ### Axiom Verification -/
+
+/-- info: 'FormalResearch.ModularBootstrap.StripMultiplier.proposition_YV_of_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms proposition_YV_of_spec
 
 /-- info: 'FormalResearch.ModularBootstrap.StripMultiplier.proposition_YV' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

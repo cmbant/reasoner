@@ -82,6 +82,13 @@ public import FormalResearch.ModularBootstrap.ConcreteBootstrap.QuadratureBounds
 public import FormalResearch.ModularBootstrap.ConcreteBootstrap.ArcBounds
 public import FormalResearch.ModularBootstrap.ConcreteBootstrap.BootstrapHB
 public import FormalResearch.ModularBootstrap.ConcreteBootstrap.TheoremJ
+public import FormalResearch.ModularBootstrap.Contour.PathTools
+public import FormalResearch.ModularBootstrap.Contour.RayAndArcBounds
+public import FormalResearch.ModularBootstrap.Contour.SaddleContour
+public import FormalResearch.ModularBootstrap.Contour.InnerTipBounds
+public import FormalResearch.ModularBootstrap.Contour.TruncationError
+public import FormalResearch.ModularBootstrap.Contour.WindowEnvelope
+public import FormalResearch.ModularBootstrap.Contour.VirasoroBridge
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -224,7 +231,8 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   midpoint `ω'(0) = 0`, and bivariate holomorphic factorization `2 log(b(w)/b(s)) ω'(w) = (π²/6)(w² - s²)(1 + η)`
   (Lemma F, `vlo:F`, `lemma_F`).
 * `Chart.Langer`: Langer chart comparability `ζ₊`, `σ₊`, `Im b(ζ₊) ≤ 0` and left-edge band
-  (Lemma S6, `vlo:S6`, `lemma_S6`) assuming `LangerChartSpec` (`langerChartSpec_nonvacuous`).
+  (Lemma S6, `vlo:S6`, `lemma_S6`) from `LangerChartSpec` (`langerChartSpec_nonvacuous`,
+  discharged for Virasoro by `ConcreteBootstrap.langerChartSpec_virasoro`).
 * `TipFront.ComplexMajorant`: concrete `LemmaGPotentialInput` witness with `U = majorant2D`
   (`lemmaGPotentialInput_virasoro_exists`, Lemma `T2`, `bl:T2`).
 * `TipFront.ComplexPoissonJensen`: complex-`b` Poisson--Jensen inequality in the tip neighborhood
@@ -262,9 +270,9 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `ConcreteBootstrap.QuantC1Airy`, `ConcreteBootstrap.QuadratureBounds`,
   `ConcreteBootstrap.ArcBounds`, `ConcreteBootstrap.BootstrapHB`, `ConcreteBootstrap.TheoremJ`:
   concrete `(P, Q) = (1, 0)` Virasoro fixed-weight bootstrap (`wone:Q`, `teb:quant_c1_hb`,
-  `wone:ftlfw`, `wone:genlower(1)`, `vlo:J`) reducing **Theorem `J`**
-  (`theoremJ_of_YV`, `theoremJ_T_weak`, `theoremJ_T_V`, `theoremJ_Delta_best`) to the single
-  named band-feedback input `YVInput` (`vlo:YV`, with non-vacuity `yvInputAt_nonvacuous`).
+  `wone:ftlfw`, `wone:genlower(1)`, `vlo:J`), unconditional `langerChartSpec_virasoro`, and
+  reduction of **Theorem `J`** (`theoremJ_of_YV`, `theoremJ_T_weak`, `theoremJ_T_V`,
+  `theoremJ_Delta_best`) to `YVInput` (`vlo:YV`, with non-vacuity `yvInputAt_nonvacuous`).
 * `FixedWeight.CrossingMeasure`: general `(w, Q)` Proposition `D1` (`proposition_D1`), measure-form
   `D1` sum rules (`sumRule_of_comb_decay`), and finiteness `T_V < ∞` (`explicit_feasible_thermal_test`,
   `T_V_lt_top`) for `c̃ > 0`, `c̃ ≥ 12 S`.
@@ -294,4 +302,19 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (`H1`, `H2-hol`, `H2+`, `H4a`) and item `(4)` (Lemma `Q` `(1)`–`(3)`, with `c'`-free `(2b)^{w-1}`
   factor); and unconditional **Proposition T** (`bl:T`), **Theorem C**, and **Theorem R** `(R1)`–`(R3)`
   (`rig:R`) at every fixed `(w, Q)` under `Att` (plus `FixedWeightLowerBoundInput` compatibility).
+* `Contour.PathTools`, `Contour.RayAndArcBounds`, `Contour.SaddleContour`: piecewise `C¹` contour
+  integrals and convex-ball Cauchy deformation (`contourIntegral_eq_segment_of_ball`), local saddle
+  ray/arc/radial `Re Φ_V` decay bounds, and **Lemma `Z'`** (`vlo:Zp`, `lemma_Zp`) assembling the
+  uniform 12-segment steepest-descent contour through `s = ζ₊` from `lemma_F`, `lemma_J7_*`, and
+  `lemma_J10_compact_escape`.
+* `Contour.InnerTipBounds`, `Contour.TruncationError`: inner Langer-disc potential identity
+  `c' Re Φ_V(ζ₊; b) = -(4/3) Re ũ^{3/2}` (`vlo:esaddle`), Type-II `Ψ̃_V` envelope, Mellin critical-line
+  tail and real-diameter Fourier-Mellin inversion, upper half-disc Poisson-Jensen interpolation, and
+  **Lemma `D'`** (`vlo:Dp`, `lemma_Dp`, `truncatedMellinP`).
+* `Contour.WindowEnvelope`, `Contour.VirasoroBridge`: **Lemma `Z`** (`vlo:Z`, `lemma_Z`), proving
+  that the sector strip-multiplier bound implies `YVEnvBound`, uniform rescaling of Proposition `Y_V`
+  across `[b_V^2 c'^{2/3}, A_{c'}^2 - 1]`, proof of `YVInput` (`yvInput_of_scaleCompat`) under the
+  scalar parameter cap `VirasoroBVScaleCompat` (`virasoroBVScaleCompat_nonvacuous`), and Theorem `J`
+  corollaries (`theoremJ_of_scaleCompat`, `theoremJ_T_weak_of_scaleCompat`,
+  `theoremJ_T_V_of_scaleCompat`, `theoremJ_Delta_best_of_scaleCompat`).
 -/
