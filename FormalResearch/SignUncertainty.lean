@@ -72,6 +72,11 @@ public import FormalResearch.SignUncertainty.EuclidRadialSlice
 public import FormalResearch.SignUncertainty.EuclidRadialFourier
 public import FormalResearch.SignUncertainty.EuclidRadialHankel
 public import FormalResearch.SignUncertainty.EuclidHankelDictionary
+public import FormalResearch.SignUncertainty.SphereInvariance
+public import FormalResearch.SignUncertainty.SpherePolar
+public import FormalResearch.SignUncertainty.SphereAverage
+public import FormalResearch.SignUncertainty.FourierCompactSupport
+public import FormalResearch.SignUncertainty.EuclidRadialProjection
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
@@ -160,10 +165,17 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   radial Fourier transform on `ℝ^d` is the Hankel transform for every integer `d ≥ 2` (`gt:7.9`; slicing
   `ℝ^{n+1} = ℝ × ℝ^n`, polar coordinates in the half plane, the Poisson integral for the Bessel kernel):
   `fourier_radial_hankel`, `integrable_radialLift_iff`, with the Gaussian as non-vacuity witness.
-* `FormalResearch.SignUncertainty.EuclidHankelDictionary`: the Euclidean-to-Hankel dictionary of `gt:7.9`,
-  `A_sign^±(d)²/2 = T^{±}_{d/2}`, from the one open step `RadialProjection` (`O(d)` averaging and the compact-support
-  argument): the Hankel-to-Euclid half (`signWitness_of_hankelFeasible`), positivity of the radii and the matching of
-  the infima are theorems.
+* `FormalResearch.SignUncertainty.EuclidHankelDictionary`: the Hankel-to-Euclid half of `gt:7.9`
+  (`signWitness_of_hankelFeasible`), positivity of the competitor radii, and the matching of the infima
+  (`hankel_euclid_dictionary_of_radial_projection`, from the Euclid-to-Hankel statement `RadialProjection`).
+* `FormalResearch.SignUncertainty.SphereInvariance`, `SpherePolar`, `SphereAverage`: rotation invariance of the sphere
+  measure of `ℝ^d`, polar coordinates for integrable functions, and the commutation of radial averaging with `𝓕`
+  (`fourier_radialAvg`).
+* `FormalResearch.SignUncertainty.FourierCompactSupport`: a continuous compactly supported function whose Fourier
+  transform vanishes outside a ball is zero (`fourier_compact_support_eq_zero`).
+* `FormalResearch.SignUncertainty.EuclidRadialProjection`: `radialProjection` (the radial average of a sign-uncertainty
+  competitor is Hankel-feasible at the same threshold) and the theorem `hankel_euclid_dictionary` (`gt:7.9`,
+  `A_sign^±(d)²/2 = T^{±}_{d/2}`, every integer `d ≥ 2`).
 * `FormalResearch.SignUncertainty.RadialCompactness`: the statement of `lem:radial-compactness` (`RadialCompactness`:
   window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it
