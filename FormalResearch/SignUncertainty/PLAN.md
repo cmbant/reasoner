@@ -11,7 +11,9 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
 - **No headline result of Paper I is Lean-checked, not even conditionally on a TeX theorem.** The four introduction
   theorems are `thm:intro-radii` (sign-uncertainty radii plus `gt:7.12` CE radius), `thm:intro-separation` (`gt:7.9c`),
   `thm:intro-hb` (`thm:hb-thresholds`) and `thm:intro-gap` (`thm:ce-shell-gap`).
-  - The Hankel problem exists only as an abstract `HankelKernelData` (one witness, `c = 5/2`).
+  - The Hankel problem now has its concrete kernel: `hankelKernelData (hc : 1/2 < c)` is unconditional (`HankelBessel*`,
+    real-order Bessel in `Special/Bessel*`), and the `±1` Laguerre modes of `gt:7.9b` are proved eigenfunctions
+    (`HankelBesselLaguerre`).
   - `CohnElkiesRadius.ce_radius_airy_order_of_bounds` is only the gluing step. Its hypotheses `hlo` and `hhi` *are* the
     two halves of the theorem, and the module imports none of the Airy or Mellin machinery.
 - **Waves 4–9 (about 25k lines) feed only leaves.** About 30 hypothesis packages (`MacroscopicTransferPackage`,
