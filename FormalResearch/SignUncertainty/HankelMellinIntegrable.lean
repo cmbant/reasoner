@@ -6,7 +6,7 @@ public import FormalResearch.SignUncertainty.HankelMellinKernel
 # Integrability of the Mellin integrand of a Hankel transform
 
 `mellin_hankel_fubini` (`HankelMellinKernel`) gives the value of `∫ Δ^{z-1} (𝓗_c g)(Δ) dΔ`; its proof contains the integrability of the
-integrand (Tonelli on the double integral), stated here as `integrableOn_mellin_hankel`.  Used by the Hankel eigen-identity of the
+integrand (Tonelli on the double integral), stated here as `integrableOn_mellin_hankel_outer`.  Used by the Hankel eigen-identity of the
 Mellin lifts (`MellinLiftEigen`, `O.11ak`).
 
 Status: proved, unconditional.
@@ -22,7 +22,7 @@ namespace FormalResearch.SignUncertainty
 open FormalResearch.Special
 
 /-- The Mellin integrand `Δ^{z-1} (𝓗_c g)(Δ)` is integrable on `(0, ∞)` for `0 < Re z < c/2 - 1/4`. -/
-theorem integrableOn_mellin_hankel {c : ℝ} (hc : 3 / 2 < c) {z : ℂ} (hz0 : 0 < z.re)
+theorem integrableOn_mellin_hankel_outer {c : ℝ} (hc : 3 / 2 < c) {z : ℂ} (hz0 : 0 < z.re)
     (hz1 : z.re < c / 2 - 1 / 4) {g : ℝ → ℝ} (hgc : ContinuousOn g (Ioi 0))
     (hg : IntegrableOn (fun s : ℝ => |g s| * s ^ (c - 1 - z.re)) (Ioi 0)) :
     IntegrableOn (fun Δ : ℝ => (Δ : ℂ) ^ (z - 1) * (besselHankelTransform c g Δ : ℂ)) (Ioi 0) := by
@@ -111,8 +111,8 @@ theorem integrableOn_mellin_hankel {c : ℝ} (hc : 3 / 2 < c) {z : ℂ} (hz0 : 0
   refine h1.congr (Eventually.of_forall fun Δ => ?_)
   exact hL Δ
 
-/-- info: 'FormalResearch.SignUncertainty.integrableOn_mellin_hankel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.SignUncertainty.integrableOn_mellin_hankel_outer' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.SignUncertainty.integrableOn_mellin_hankel
+#print axioms FormalResearch.SignUncertainty.integrableOn_mellin_hankel_outer
 
 end FormalResearch.SignUncertainty

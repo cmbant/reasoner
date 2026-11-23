@@ -40,12 +40,12 @@ noncomputable def liftPhi (W : ℂ → ℂ) (c σ : ℝ) (z : ℂ) : ℂ :=
 lemma liftXi_pos {c : ℝ} (hc : 0 < c) : 0 < liftXi c := by unfold liftXi; positivity
 
 /-- `Γ(z) e^{cℋ(1 - z/c)} = Γ(c) K₀(1 - z/c, ξ₁)` on `0 < Re z < c`. -/
-theorem gamma_exp_stripH_eq {c : ℝ} (hc : 0 < c) {z : ℂ} (hz0 : 0 < z.re) (hz1 : z.re < c) :
+theorem gamma_exp_stripH_eq {c : ℝ} (hc : 0 < c) {z : ℂ} (hz0 : 0 < z.re) (hz1 : z.re ≤ c) :
     Complex.Gamma z * Complex.exp ((c : ℂ) * stripH (1 - z / c)) =
       Complex.Gamma (c : ℂ) * mellinK0 c (1 - z / c) (liftXi c) := by
   have hζ0 : 0 ≤ (1 - z / (c : ℂ)).re := by
     have : (1 - z / (c : ℂ)).re = 1 - z.re / c := by simp [Complex.div_re, Complex.normSq_ofReal]; field_simp
-    rw [this]; have := (div_lt_one hc).mpr hz1; linarith
+    rw [this]; have := (div_le_one hc).mpr hz1; linarith
   have hζ1 : (1 - z / (c : ℂ)).re < 1 := by
     have : (1 - z / (c : ℂ)).re = 1 - z.re / c := by simp [Complex.div_re, Complex.normSq_ofReal]; field_simp
     rw [this]; have : 0 < z.re / c := by positivity
@@ -64,6 +64,7 @@ theorem gamma_exp_stripH_eq {c : ℝ} (hc : 0 < c) {z : ℂ} (hz0 : 0 < z.re) (h
 /-- The symbol hypotheses: holomorphic on `Re w > 0`, the `U.2` bound on `Re w ≥ 0`, real. -/
 structure LiftSymbolData (W : ℂ → ℂ) : Prop where
   diff : DifferentiableOn ℂ W {w : ℂ | 0 < w.re}
+  cont : ContinuousOn W {w : ℂ | 0 ≤ w.re}
   bound : ∃ B : ℝ, ∀ w : ℂ, 0 ≤ w.re → ‖W w‖ ≤ B * (1 + |w.im|) ^ (-(5 / 2 : ℝ))
   real : ∀ w : ℂ, 0 < w.re → W (starRingEnd ℂ w) = starRingEnd ℂ (W w)
 
@@ -82,7 +83,7 @@ lemma im_div_cpow {c : ℝ} (hc : 0 < c) (z : ℂ) :
     (z / ((c ^ (2 / 3 : ℝ) : ℝ) : ℂ)).im = z.im / c ^ (2 / 3 : ℝ) := by
   rw [Complex.div_ofReal_im]
 
-theorem liftPhi_eq {c : ℝ} (hc : 0 < c) {z : ℂ} (hz0 : 0 < z.re) (hz1 : z.re < c) :
+theorem liftPhi_eq {c : ℝ} (hc : 0 < c) {z : ℂ} (hz0 : 0 < z.re) (hz1 : z.re ≤ c) :
     liftPhi W c σ z = ((2 * Real.pi : ℝ) : ℂ) ^ (-z) * (Complex.Gamma (c : ℂ) * mellinK0 c (1 - z / c) (liftXi c)) *
       liftS W c σ z := by
   unfold liftPhi
@@ -118,7 +119,7 @@ theorem liftPhi_differentiableOn (hW : LiftSymbolData W) {c : ℝ} (hc : 0 < c) 
       rw [re_div_cpow hc]
       exact div_pos hz.1 hcp
   refine ((h1.mul (h2.const_mul (Complex.Gamma (c : ℂ)))).mul h3).congr fun z hz => ?_
-  exact liftPhi_eq hc hz.1 hz.2
+  exact liftPhi_eq hc hz.1 hz.2.le
 
 /-- `mellinMult Φ z = e^{cℋ(1 - z/c)} S(z)`. -/
 theorem mellinMult_liftPhi {c : ℝ} (hc : 0 < c) {z : ℂ} (hz0 : 0 < z.re) :
@@ -195,7 +196,7 @@ theorem liftPhi_conj (hW : LiftSymbolData W) {c : ℝ} (hc : 0 < c) (σ : ℝ) {
     liftPhi W c σ (starRingEnd ℂ z) = starRingEnd ℂ (liftPhi W c σ z) := by
   have hcz0 : 0 < (starRingEnd ℂ z).re := by simpa using hz0
   have hcz1 : (starRingEnd ℂ z).re < c := by simpa using hz1
-  rw [liftPhi_eq hc hcz0 hcz1, liftPhi_eq hc hz0 hz1]
+  rw [liftPhi_eq hc hcz0 hcz1.le, liftPhi_eq hc hz0 hz1.le]
   have hr : (0 : ℝ) < 2 * Real.pi := by positivity
   have hcp : 0 < c ^ (2 / 3 : ℝ) := Real.rpow_pos_of_pos hc _
   simp only [map_mul]
@@ -243,10 +244,20 @@ variable {W : ℂ → ℂ} {c σ : ℝ}
 
 /-- Uniform bound of `K₀` on `Re ζ ∈ (0, 1/2]`. -/
 lemma norm_K0_half_strip_le {c : ℝ} (hc : 0 < c) :
-    ∃ K : ℝ, 0 ≤ K ∧ ∀ s τ : ℝ, 0 < s → s ≤ 1 / 2 →
+    ∃ K : ℝ, 0 ≤ K ∧ ∀ s τ : ℝ, 0 ≤ s → s ≤ 1 / 2 →
       ‖mellinK0 c ((s : ℂ) + (τ : ℂ) * Complex.I) (liftXi c)‖ ≤ K := by
   set L := Real.log (Real.pi ^ 2 * liftXi c) with hL
   refine ⟨2 * Real.exp (1 / (4 * c)) * Real.exp (c * (1 / 18 + |L| / 2)), by positivity, fun s τ hs hs2 => ?_⟩
+  have hK1 : 1 ≤ 2 * Real.exp (1 / (4 * c)) * Real.exp (c * (1 / 18 + |L| / 2)) := by
+    have h1 : 1 ≤ Real.exp (1 / (4 * c)) := Real.one_le_exp (by positivity)
+    have h2 : 1 ≤ Real.exp (c * (1 / 18 + |L| / 2)) := Real.one_le_exp (by positivity)
+    nlinarith
+  rcases hs.eq_or_lt with h0 | hs
+  · subst h0
+    have := (norm_mellinK0_imag_le (c := c) (ξ := liftXi c) hc (liftXi_pos hc) τ).2
+    have e : ((0 : ℝ) : ℂ) + (τ : ℂ) * Complex.I = (τ : ℂ) * Complex.I := by simp
+    rw [e]
+    refine this.trans ((Real.rpow_le_one_of_one_le_of_nonpos (by nlinarith [sq_nonneg τ]) (by norm_num)).trans hK1)
   have h := norm_mellinK0_vert_le (c := c) (ξ := liftXi c) (s := s) (τ := τ) hc (liftXi_pos hc) hs hs2
   refine h.trans ?_
   have hlobe : Real.exp (-(c * (2 * (3 / 56 : ℝ) * s * lobeU τ))) ≤ 1 :=
@@ -270,7 +281,7 @@ lemma norm_K0_half_strip_le {c : ℝ} (hc : 0 < c) :
     _ = _ := by ring
 
 theorem liftPhi_right_bound (hW : LiftSymbolData W) {c : ℝ} (hc : 0 < c) (σ : ℝ) (hσ : |σ| ≤ 1) {a b : ℝ}
-    (ha : c / 2 ≤ a) (hab : a ≤ b) (hb : b < c) :
+    (ha : c / 2 ≤ a) (hab : a ≤ b) (hb : b ≤ c) :
     ∃ B : ℝ, ∀ z : ℂ, a ≤ z.re → z.re ≤ b → ‖liftPhi W c σ z‖ ≤ B * (1 + |z.im|) ^ (-(5 / 2 : ℝ)) := by
   obtain ⟨K, hK0, hK⟩ := norm_K0_half_strip_le hc
   obtain ⟨BW0, hBW0⟩ := hW.bound
@@ -282,7 +293,7 @@ theorem liftPhi_right_bound (hW : LiftSymbolData W) {c : ℝ} (hc : 0 < c) (σ :
   set m : ℝ := (max 1 (c ^ (2 / 3 : ℝ))) ^ (5 / 2 : ℝ) with hm
   refine ⟨‖Complex.Gamma (c : ℂ)‖ * K * (2 * BW * m), fun z hz1 hz2 => ?_⟩
   have hz0 : 0 < z.re := by linarith
-  have hzc : z.re < c := by linarith
+  have hzc : z.re ≤ c := by linarith
   rw [liftPhi_eq hc hz0 hzc, norm_mul, norm_mul, norm_mul]
   have hpw : ‖((2 * Real.pi : ℝ) : ℂ) ^ (-z)‖ ≤ 1 := by
     rw [Complex.norm_cpow_eq_rpow_re_of_pos (by positivity)]
@@ -292,7 +303,7 @@ theorem liftPhi_right_bound (hW : LiftSymbolData W) {c : ℝ} (hc : 0 < c) (σ :
     have e : (1 - z / (c : ℂ)) = ((1 - z.re / c : ℝ) : ℂ) + ((-(z.im / c) : ℝ) : ℂ) * Complex.I := by
       apply Complex.ext <;> simp [Complex.div_re, Complex.div_im, Complex.normSq_ofReal] <;> field_simp
     rw [e]
-    exact hK _ _ (by have := (div_lt_one hc).mpr hzc; linarith)
+    exact hK _ _ (by have := (div_le_one hc).mpr hzc; linarith)
       (by have : 1 / 2 ≤ z.re / c := by rw [le_div_iff₀ hc]; linarith
           linarith)
   have hS : ‖liftS W c σ z‖ ≤ 2 * BW * (m * (1 + |z.im|) ^ (-(5 / 2 : ℝ))) := by
@@ -353,7 +364,7 @@ theorem liftPhi_left_bound (hW : LiftSymbolData W) {c : ℝ} (hc : 3 / 2 < c) (�
   have hc0 : 0 < c := by linarith
   have hσ1 : |σ| ≤ 1 := by rcases hσ with rfl | rfl <;> simp
   obtain ⟨BR, hBR⟩ := liftPhi_right_bound hW hc0 σ hσ1 (a := c / 2) (b := max (c - a) (c / 2)) le_rfl
-    (le_max_right _ _) (max_lt (by linarith) (by linarith))
+    (le_max_right _ _) (max_le (by linarith) (by linarith))
   set D : ℝ := Real.exp (2 * ((c + 1 / 2) * c ^ 2 / 2 + c ^ 3 / 3 + 2)) with hD
   refine ⟨D * (2 * Real.pi) ^ c * |BR|, fun z hz1 hz2 hy => ?_⟩
   have hz0 : 0 < z.re := by linarith
@@ -410,6 +421,69 @@ theorem liftPhi_left_bound (hW : LiftSymbolData W) {c : ℝ} (hc : 3 / 2 < c) (�
     _ = _ := by ring
 
 
+
+/-- Continuity of `Φ_σ` up to the edge `Re z = c`. -/
+theorem liftPhi_continuousOn_edge (hW : LiftSymbolData W) {c : ℝ} (hc : 0 < c) (σ : ℝ) :
+    ContinuousOn (liftPhi W c σ) {z : ℂ | 0 < z.re ∧ z.re ≤ c} := by
+  have hb : (((2 * Real.pi : ℝ) : ℂ)) ≠ 0 := by
+    have : (0 : ℝ) < 2 * Real.pi := by positivity
+    exact_mod_cast this.ne'
+  have hcp : 0 < c ^ (2 / 3 : ℝ) := Real.rpow_pos_of_pos hc _
+  have h1 : ContinuousOn (fun z : ℂ => ((2 * Real.pi : ℝ) : ℂ) ^ (-z)) {z : ℂ | 0 < z.re ∧ z.re ≤ c} :=
+    (Continuous.const_cpow continuous_neg (Or.inl hb)).continuousOn
+  have h2 : ContinuousOn (fun z : ℂ => mellinK0 c (1 - z / c) (liftXi c)) {z : ℂ | 0 < z.re ∧ z.re ≤ c} := by
+    refine ((differentiableOn_mellinK0 hc (liftXi c)).continuousOn).comp
+      ((continuousOn_const.sub (continuousOn_id.div_const _))) fun z hz => ?_
+    show |(1 - z / (c : ℂ)).re| < 1
+    rw [re_one_sub_div hc]
+    have h0 : 0 < z.re / c := by have := hz.1; positivity
+    have h1' : z.re / c ≤ 1 := (div_le_one hc).mpr hz.2
+    rw [abs_lt]; constructor <;> linarith
+  have h3 : ContinuousOn (fun z : ℂ => liftS W c σ z) {z : ℂ | 0 < z.re ∧ z.re ≤ c} := by
+    unfold liftS
+    refine ContinuousOn.add ?_ (ContinuousOn.mul continuousOn_const ?_)
+    · refine hW.cont.comp ((continuousOn_const.sub continuousOn_id).div_const _) fun z hz => ?_
+      show 0 ≤ ((c - z) / ((c ^ (2 / 3 : ℝ) : ℝ) : ℂ)).re
+      rw [re_div_cpow hc]
+      exact div_nonneg (by simp; exact hz.2) hcp.le
+    · refine hW.cont.comp (continuousOn_id.div_const _) fun z hz => ?_
+      show 0 ≤ (z / ((c ^ (2 / 3 : ℝ) : ℝ) : ℂ)).re
+      rw [re_div_cpow hc]
+      exact div_nonneg hz.1.le hcp.le
+  refine ((h1.mul ((continuousOn_const (c := Complex.Gamma (c : ℂ))).mul h2)).mul h3).congr fun z hz => ?_
+  exact liftPhi_eq hc hz.1 hz.2
+
+
+/-- **Contour shift to the edge `Re z = c`**: the lift is also the inverse Mellin integral along `Re z = c`. -/
+theorem mellinInv_liftPhi_edge (hW : LiftSymbolData W) {c : ℝ} (hc : 3 / 2 < c) (σ : ℝ) (hσ : σ = 1 ∨ σ = -1)
+    {Δ : ℝ} (hΔ : 0 < Δ) :
+    mellinInv c (liftPhi W c σ) Δ = mellinInv (c / 2) (liftPhi W c σ) Δ := by
+  have hc0 : 0 < c := by linarith
+  have hσ1 : |σ| ≤ 1 := by rcases hσ with rfl | rfl <;> simp
+  obtain ⟨B, hB⟩ := liftPhi_right_bound hW hc0 σ hσ1 (a := c / 2) (b := c) le_rfl (by linarith) le_rfl
+  have hΔ0 : (Δ : ℂ) ≠ 0 := by exact_mod_cast hΔ.ne'
+  set H : ℂ → ℂ := fun z => (Δ : ℂ) ^ (-z) • liftPhi W c σ z with hH
+  have hcont : ContinuousOn H {w : ℂ | c / 2 ≤ w.re ∧ w.re ≤ c} :=
+    (Continuous.const_cpow continuous_neg (Or.inl hΔ0)).continuousOn.smul
+      ((liftPhi_continuousOn_edge hW hc0 σ).mono fun w hw => ⟨by linarith [hw.1], hw.2⟩)
+  have hd : DifferentiableOn ℂ H {w : ℂ | c / 2 < w.re ∧ w.re < c} :=
+    DifferentiableOn.smul (fun w _ => ((differentiableAt_id.neg).const_cpow (Or.inl hΔ0)).differentiableWithinAt)
+      ((liftPhi_differentiableOn hW hc0 σ).mono fun w hw => ⟨by linarith [hw.1], hw.2⟩)
+  have key := CohnElkies.strip_shift (H := H) (a := c / 2) (b := c) (by linarith) hcont hd
+    (integrable_weight ((Δ ^ (-(c / 2)) + Δ ^ (-c)) * B))
+    (fun w hw1 hw2 => by
+      have h1 := hB w hw1 hw2
+      have h2 := rpow_neg_le_sum hΔ hw1 hw2
+      simp only [hH, norm_smul]
+      rw [Complex.norm_cpow_eq_rpow_re_of_pos hΔ]
+      simp only [Complex.neg_re]
+      calc Δ ^ (-w.re) * ‖liftPhi W c σ w‖ ≤ (Δ ^ (-(c / 2)) + Δ ^ (-c)) * (B * (1 + |w.im|) ^ (-(5 / 2 : ℝ))) :=
+            mul_le_mul h2 h1 (norm_nonneg _) (by positivity)
+        _ = _ := by ring)
+    (tendsto_weight_atTop _) (tendsto_weight_atBot _)
+  unfold mellinInv
+  congr 1
+
 /-- **The strip multiplier `Φ_σ` of a symbol satisfies the hypotheses of the Mellin hub.** -/
 theorem liftPhi_mellinLiftData (hW : LiftSymbolData W) {c : ℝ} (hc : 3 / 2 < c) (σ : ℝ) (hσ : σ = 1 ∨ σ = -1) :
     MellinLiftData c (liftPhi W c σ) where
@@ -420,7 +494,7 @@ theorem liftPhi_mellinLiftData (hW : LiftSymbolData W) {c : ℝ} (hc : 3 / 2 < c
     have hσ1 : |σ| ≤ 1 := by rcases hσ with rfl | rfl <;> simp
     obtain ⟨M, hM⟩ := exists_bound_rect (liftPhi_differentiableOn hW hc0 σ).continuousOn ha hab hb
     obtain ⟨BR, hBR⟩ := liftPhi_right_bound hW hc0 σ hσ1 (a := c / 2) (b := max b (c / 2)) le_rfl
-      (le_max_right _ _) (max_lt hb (by linarith))
+      (le_max_right _ _) (max_le hb.le (by linarith))
     obtain ⟨BL, hBL⟩ := liftPhi_left_bound hW hc σ hσ ha
     refine ⟨4 * |M| + |BR| + |BL|, fun z hz1 hz2 => ?_⟩
     have hw : (1 + |z.im|) ^ (-(5 / 2 : ℝ)) ≤ (1 + |z.im|) ^ (-2 : ℝ) :=
@@ -489,6 +563,7 @@ lemma liftSymbol_conj (X : ℝ → ℝ) (δ₀ : ℝ) (m : ℕ) (w : ℂ) :
 theorem liftSymbolData_of_hasU2 {X : ℝ → ℝ} (h : HasU2 X) {δ₀ : ℝ} (hδ : 0 ≤ δ₀) (m : ℕ) :
     LiftSymbolData (liftSymbol X δ₀ m) where
   diff := liftSymbol_differentiableOn h δ₀ m
+  cont := liftSymbol_continuousOn h δ₀ m
   bound := by
     obtain ⟨C, hC, hb⟩ := hasU2_norm_liftSymbol_le_unif h
     exact ⟨C, fun w hw => hb m hδ hw⟩

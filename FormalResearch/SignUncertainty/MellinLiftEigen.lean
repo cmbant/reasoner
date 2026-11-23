@@ -160,7 +160,7 @@ theorem besselHankelTransform_liftFun (h : MellinLiftData c Φ) (hc : 3 / 2 < c)
       simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.ofReal_im, Complex.I_re,
         Complex.I_im, mul_zero, zero_mul, sub_zero, add_zero]
       rw [show c - x - 1 = c - 1 - x by ring]
-    have := integrableOn_mellin_hankel hc hz0 hz1 hgc hg
+    have := integrableOn_mellin_hankel_outer hc hz0 hz1 hgc hg
     unfold MellinConvergent
     refine this.congr_fun (fun t _ => ?_) measurableSet_Ioi
     simp only [smul_eq_mul]; rfl
