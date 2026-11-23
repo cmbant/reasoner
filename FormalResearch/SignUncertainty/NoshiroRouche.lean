@@ -83,14 +83,13 @@ theorem injOn_of_re_deriv_pos {s : Set ℂ} (hs : Convex ℝ s) {f f' : ℂ → 
   rw [e0, e1, hab] at h01
   exact lt_irrefl _ h01
 
-/-- **Perturbation lemma (root count on a disc).** Let `h` be holomorphic on `ball 0 R`, `r < R`, with
-`‖h z - z‖ ≤ δ` on the circle `‖z‖ = r`, and `‖w‖ + δ < r`.  If `0 < Re h'` on `closedBall 0 r`, then the equation
-`h z = w` has exactly one solution in the open disc `ball 0 r`.  Existence is Rouché's theorem with `g = id`. -/
-theorem exists_unique_root_of_perturb {r R : ℝ} (hr : 0 < r) (hrR : r < R) {h : ℂ → ℂ}
+/-- **Existence half of the perturbation lemma.** Let `h` be holomorphic on `ball 0 R`, `r < R`, with
+`‖h z - z‖ ≤ δ` on the circle `‖z‖ = r`, and `‖w‖ + δ < r`.  Then `h z = w` has a solution in `ball 0 r`
+(Rouché with `g = id`; no derivative hypothesis). -/
+theorem exists_root_of_perturb {r R : ℝ} (hr : 0 < r) (hrR : r < R) {h : ℂ → ℂ}
     (hh : DifferentiableOn ℂ h (Metric.ball 0 R))
-    (δ : ℝ) (hδ : ∀ z : ℂ, ‖z‖ = r → ‖h z - z‖ ≤ δ) {w : ℂ} (hw : ‖w‖ + δ < r)
-    (hpos : ∀ z ∈ Metric.closedBall (0:ℂ) r, 0 < (deriv h z).re) :
-    ∃! z, z ∈ Metric.ball (0:ℂ) r ∧ h z = w := by
+    (δ : ℝ) (hδ : ∀ z : ℂ, ‖z‖ = r → ‖h z - z‖ ≤ δ) {w : ℂ} (hw : ‖w‖ + δ < r) :
+    ∃ z ∈ Metric.ball (0:ℂ) r, h z = w := by
   -- Rouché: `h - w` and `id` have the same zero count in `ball 0 r`
   have hF : DifferentiableOn ℂ (fun z => h z - w) (Metric.ball 0 R) := hh.sub_const w
   have hG : DifferentiableOn ℂ (id : ℂ → ℂ) (Metric.ball 0 R) := differentiableOn_id
@@ -137,7 +136,17 @@ theorem exists_unique_root_of_perturb {r R : ℝ} (hr : 0 < r) (hrR : r < R) {h 
     rw [hcount] at h0
     exact hne0 h0
   obtain ⟨z0, hz0, hz0e⟩ := hex
-  have hz0' : h z0 = w := sub_eq_zero.mp hz0e
+  exact ⟨z0, hz0, sub_eq_zero.mp hz0e⟩
+
+/-- **Perturbation lemma (root count on a disc).** Let `h` be holomorphic on `ball 0 R`, `r < R`, with
+`‖h z - z‖ ≤ δ` on the circle `‖z‖ = r`, and `‖w‖ + δ < r`.  If `0 < Re h'` on `closedBall 0 r`, then the equation
+`h z = w` has exactly one solution in the open disc `ball 0 r`.  Existence is Rouché's theorem with `g = id`. -/
+theorem exists_unique_root_of_perturb {r R : ℝ} (hr : 0 < r) (hrR : r < R) {h : ℂ → ℂ}
+    (hh : DifferentiableOn ℂ h (Metric.ball 0 R))
+    (δ : ℝ) (hδ : ∀ z : ℂ, ‖z‖ = r → ‖h z - z‖ ≤ δ) {w : ℂ} (hw : ‖w‖ + δ < r)
+    (hpos : ∀ z ∈ Metric.closedBall (0:ℂ) r, 0 < (deriv h z).re) :
+    ∃! z, z ∈ Metric.ball (0:ℂ) r ∧ h z = w := by
+  obtain ⟨z0, hz0, hz0'⟩ := exists_root_of_perturb hr hrR hh δ hδ hw
   -- uniqueness: injectivity of `h` on the disc (Noshiro)
   have hdiff : ∀ z ∈ Metric.ball (0:ℂ) r, HasDerivAt h (deriv h z) z := fun z hz =>
     ((hh.differentiableAt (isOpen_ball.mem_nhds (ball_subset_ball hrR.le hz)))).hasDerivAt

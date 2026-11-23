@@ -24,7 +24,9 @@ public import FormalResearch.SignUncertainty.OddShellFamily
 public import FormalResearch.SignUncertainty.ElementaryIdentities
 public import FormalResearch.SignUncertainty.Radii
 public import FormalResearch.SignUncertainty.HankelLangerChart
-public import FormalResearch.SignUncertainty.HankelLangerMaps
+public import FormalResearch.SignUncertainty.HankelLangerReal
+public import FormalResearch.SignUncertainty.HankelLangerU
+public import FormalResearch.SignUncertainty.HankelLangerY
 public import FormalResearch.SignUncertainty.HankelMellinKernel
 public import FormalResearch.SignUncertainty.MellinStrip
 public import FormalResearch.SignUncertainty.MellinStripAnalytic
@@ -170,7 +172,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.OneProfileEnvelope`: `gt:3.1` in the form used by `prop:ce-one-profile`: every `H ∈ 𝒢`
 * `FormalResearch.SignUncertainty.ThreeLinesUnit`: Hadamard three lines on the closed unit strip in the hypothesis form of `eq:ce-three-lines` (`three_lines_unit`, a restatement of the Mathlib theorem), boundedness of `mellinW` on the closed strip (`mellinW_bddAbove_strip`, from `norm_mellinW_le`), and two real-power facts. No headline uses it yet; it serves the origin-floor estimate of `thm:ce-shell-gap`.
 * `FormalResearch.SignUncertainty.LaplaceWeight`: the real Laplace weight `W_c(y,Δ) = Re(1/K₀(ζ_c, Δ/c))` of the proof of Theorem `H.14` (`eq:ce-laplace-limit`): positivity, the Gamma form, the exact scaling in `Δ`, and the limit `exp(-y³/12 + y u)` at `Δ = c/π² - (u/β₁)c^{1/3}` (from `radialK_tendsto`).
-* `FormalResearch.SignUncertainty.HankelPowerSeries`, `HankelCpowBounds`, `HankelLangerChart`, `HankelLangerMaps`: the Hankel Langer chart of `gt:7.7b` (0)-(ii), step 1 of the Hankel lower half (M5): bounded-coefficient series in `w = z²`, mean-value bounds for `(1+x)^α`, the series `1+ε`, `E` of `g` and `V` with the paper's constants (`ε_h ≤ 7.46e-4`, `ε_E ≤ 8.95e-4`), and the odd maps `h = ζ G(ζ²)^{1/2}`, `𝗆 = ζ E(ζ²)^{1/3}` with `|h'-1| ≤ 1.2e-3`, `|𝗆'-1| ≤ 9e-4` on `|ζ| ≤ 0.035` (the coefficient properties `0 < η_j ≤ 1`, `η_0 = π²/12` are the hypothesis `LangerEta`).
+* `FormalResearch.SignUncertainty.HankelPowerSeries`, `HankelCpowBounds`, `HankelLangerChart`, `HankelLangerU`, `HankelLangerY`, `HankelLangerReal`: the Hankel Langer chart of `gt:7.7b` (0)-(iv), step 1 of the Hankel lower half (M5). In the variable `u = ζ²` the saddle equation `g(ζ) = s` is `K(u) = 12 s/π²` with `K(u) = u G(u)`; `K` is injective with a holomorphic inverse on `ball 0 q` (`q = 0.035²`, Noshiro + Rouché) and `ũ = c^{2/3} κ y(w)`, `y = (π²/12) M(K^{-1}(12 s/π²))`, `M(u) = u E(u)^{2/3}`: `|y + w| ≤ 1.9e-3 |w|`, `|y' + 1| ≤ 4e-3`, `y` injective, onto small discs, real and strictly decreasing on the real axis, `y(0) = 0` (coefficient hypothesis `LangerEta`: `0 < η_j ≤ 1`, `η_0 = π²/12`).
 * `FormalResearch.SignUncertainty.NoshiroRouche`: Noshiro–Warschawski injectivity on a convex set (`injOn_of_re_deriv_pos`), unique root of a perturbation of the identity via Rouché (`exists_unique_root_of_perturb`), and the regression `not_injOn_sq`; used by the Hankel Langer chart (`gt:7.7b`).
   with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
   `one_profile_envelope`.
