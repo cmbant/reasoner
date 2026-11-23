@@ -148,8 +148,10 @@ no bootstrap.
   TE.0, so the separate `Re ζ = c^{−1/3}` contour shift can be skipped in Lean.
 - TE.0 at one level: adapt `teb_quant_c1_typeII` (already a compactness argument) to Type (I). This is non-effective,
   which is fine for Lean; the TeX keeps the effective version (Paper II needs it).
-- TE.3 Hankel window and `BandReductionInstance`; discharge the `BootstrapCore/Instance` fields (refactor the Virasoro
-  `ArcBounds`/`QuadratureBounds`); L.2/L.6 at one level.
+- TE.3 Hankel window and `BandReductionInstance`; discharge the `BootstrapCore/Instance` fields starting from the
+  general-weight bootstrap of Paper II (`ModularBootstrap/FixedWeightBand/BootstrapW*`, `BandBoundW*`), which already
+  generalises the Virasoro `ArcBounds`/`QuadratureBounds` instance; do not refactor the Virasoro files. L.2/L.6 at one
+  level. (Paper II's Langer chart and Mellin strip are different objects from the Hankel ones here; no overlap.)
 
 **Headline A, `gt:7.9`:** M2 + M4 + M5 + the Euclidean reduction (BCK/CG, averaging, finite `d` via E.1; M).
 
