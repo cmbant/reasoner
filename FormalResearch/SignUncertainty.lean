@@ -23,6 +23,8 @@ public import FormalResearch.SignUncertainty.OddShellFamily
 public import FormalResearch.SignUncertainty.ElementaryIdentities
 public import FormalResearch.SignUncertainty.Radii
 public import FormalResearch.SignUncertainty.HankelMellinKernel
+public import FormalResearch.SignUncertainty.MellinStrip
+public import FormalResearch.SignUncertainty.MellinStripAnalytic
 public import FormalResearch.SignUncertainty.RadialCompactness
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
@@ -70,6 +72,10 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.HankelMellinKernel`: the Mellin transform `Φ_c(z)` of the Hankel kernel, the
   Mellin–Fubini identity for `𝓗_c` and Weber's integral in product form (from the Laguerre eigenfunction),
   the first step of `gt:7.4(1)` (`fourier_mellin_proofs.tex`).
+* `FormalResearch.SignUncertainty.MellinStrip`, `MellinStripAnalytic`: `gt:7.4(1)` for `f ∈ 𝒜_c^ε`, `c > 3/2`: the
+  Mellin strip `M̃_f` (`mellinStrip`), integrability, reflection `M̃_f(c-z) = ε M̃_f(z)` on `0 < Re z < c`
+  (`mellinStrip_reflection`), continuity on `0 < Re z ≤ c`, holomorphy on `0 < Re z < c` and the edge
+  bound `|M̃_f(c+iy)| ≤ Γ(c) M[f]/|Γ(c+iy)|` (`norm_mellinStrip_edge_le`).
 * `FormalResearch.SignUncertainty.RadialCompactness`: `lem:radial-compactness` as an input structure
   (`RadialCompactness`: deep-lobe mass bound, window-profile compactness with the `C¹` clause) and the
   lower half of `gt:7.5` at one level derived from it (`radial_rigidity_lower_of_compactness`).
