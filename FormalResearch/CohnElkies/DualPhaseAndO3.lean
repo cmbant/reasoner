@@ -316,7 +316,7 @@ private lemma edgePhi_contDiff (L : ℝ) : ContDiff ℝ 3 (edgePhi L) := by
   rw [show edgePhi L = fun τ => L * τ - Real.pi ^ 2 / 36 * τ ^ 3 + edgeR τ from funext (edgePhi_eq_cubic_add_ceHth L)]
   exact (((contDiff_const.mul contDiff_id).sub (contDiff_const.mul (contDiff_id.pow 3))).add edgeR_contDiff)
 
-private lemma hasDerivAt_edgePhiDeriv (L τ : ℝ) : HasDerivAt (edgePhiDeriv L) (edgePhiDeriv2 τ) τ := by
+lemma hasDerivAt_edgePhiDeriv (L τ : ℝ) : HasDerivAt (edgePhiDeriv L) (edgePhiDeriv2 τ) τ := by
   have hcd : ContDiff ℝ 2 (edgePhiDeriv L) := by
     rw [show edgePhiDeriv L = deriv (edgePhi L) from funext fun t => (hasDerivAt_edgePhi L t).deriv.symm]; exact (edgePhi_contDiff L).deriv'
   have hdiff : DifferentiableAt ℝ (edgePhiDeriv L) τ := (hcd.differentiable (by decide)).differentiableAt
