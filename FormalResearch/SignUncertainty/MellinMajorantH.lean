@@ -12,7 +12,7 @@ public import Mathlib.MeasureTheory.Integral.IntervalIntegral.IntegrationByParts
 is `hLog z`, the combination of four copies of the Binet branch `binetLogGamma` of `log Γ`; the symmetry
 `R(1-z) = 1/R(z)` is then the exact identity `hLog (1-z) = - hLog z` (no branch bookkeeping).
 
-* `hLog`, `hLog_one_sub`, `exp_hLog`: the holomorphic log of `R` and its symmetry.
+* `hLog`, `hLog_one_sub`: the holomorphic log of `R` and its symmetry (`exp_hLog` is in `MellinMajorantHId`).
 * `hInt ζ = ∫_0^1 ζ hLog(s ζ) ds` (`ℋ`), `hasDerivAt_hInt`: `ℋ' = hLog` on `-1 < Re ζ < 2`.
 * `hInt_one`, `hInt_one_sub`: `ℋ(1) = 0` and `ℋ(1-ζ) = ℋ(ζ)`.
 -/

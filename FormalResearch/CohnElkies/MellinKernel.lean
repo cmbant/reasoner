@@ -228,7 +228,8 @@ private lemma tan_div_t_re_pos {t : ℂ} (ht0 : 0 ≤ t.re) (ht1 : t.re < 1) (hn
   simp only [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
   exact mul_pos (by positivity) (tan_div_self_re_pos ht0 ht1 hne)
 
-private lemma stripHIntegrand_eq {t : ℂ} (ht0 : 0 ≤ t.re) (ht1 : t.re < 1) :
+/-- `stripHIntegrand t = log (1 - t) + stripG t + log (π / 2)` on `0 ≤ Re t < 1`. -/
+lemma stripHIntegrand_eq {t : ℂ} (ht0 : 0 ≤ t.re) (ht1 : t.re < 1) :
     stripHIntegrand t = Complex.log (1 - t) + stripG t + Complex.log (Real.pi / 2) := by
   by_cases ht : t = 0
   · subst ht
@@ -288,7 +289,8 @@ private lemma tendsto_nhds_of_tendsto_nhdsNE {E : Type*} [TopologicalSpace E]
   · subst hxa; exact (hfa ▸ mem_of_mem_nhds hs : f x ∈ s)
   · exact hus ⟨hx, hxa⟩
 
-private lemma continuousOn_stripG_unit {ζ : ℂ} (hζ0 : 0 ≤ ζ.re) (hζ1 : ζ.re < 1) :
+/-- `s ↦ stripG (s ζ)` is continuous on `[0, 1]` for `0 ≤ Re ζ < 1`. -/
+lemma continuousOn_stripG_unit {ζ : ℂ} (hζ0 : 0 ≤ ζ.re) (hζ1 : ζ.re < 1) :
     ContinuousOn (fun s : ℝ => stripG ((s : ℂ) * ζ)) (Icc 0 1) := by
   by_cases hζ : ζ = 0
   · subst hζ
@@ -374,7 +376,8 @@ private lemma continuousOn_stripG_unit {ζ : ℂ} (hζ0 : 0 ≤ ζ.re) (hζ1 : �
         simp [stripG, hu_ne]
       exact (hlog_cont.congr hev.symm).continuousWithinAt
 
-private lemma continuousOn_log_one_sub_mul {ζ : ℂ} (hζ1 : ζ.re < 1) :
+/-- `s ↦ log (1 - s ζ)` is continuous on `[0, 1]` for `Re ζ < 1`. -/
+lemma continuousOn_log_one_sub_mul {ζ : ℂ} (hζ1 : ζ.re < 1) :
     ContinuousOn (fun s : ℝ => Complex.log (1 - (s : ℂ) * ζ)) (Icc 0 1) := by
   intro s hs
   have hslit : 1 - (s : ℂ) * ζ ∈ Complex.slitPlane :=
