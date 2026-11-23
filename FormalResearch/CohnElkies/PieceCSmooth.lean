@@ -540,6 +540,11 @@ lemma bd2_chi {χ₀ : ℝ → ℝ} {Kχ : ℝ} (hχ : ContDiff ℝ 2 χ₀) (h0
   · rw [hd1]; dsimp only; rw [Complex.norm_real, Real.norm_eq_abs]; exact h1 u
   · rw [hd2, Complex.norm_real, Real.norm_eq_abs]; exact h2 u
 
+lemma contDiff_pcPhase (c ξ : ℝ) : ContDiff ℝ 3 (pcPhase c ξ) := by
+  unfold pcPhase
+  exact ((contDiff_const.mul contDiff_id).sub (contDiff_const.mul (contDiff_id.pow 3))).add
+    (contDiff_const.mul (edgeR_contDiff.comp (contDiff_const.mul contDiff_id)))
+
 /-- **Piece C, smooth part: `hsmooth` of `pieceC_main_term` from `two_ibp_phase`.** The amplitude `a = χ₀(v/v_*) g G` (with
 `G = G_sm` of `SmoothSymbol`), the phase `ψ = pcPhase` with `ψ' ≥ A/2` on `[-v_*, v_*]` (`pcPhase_psibd`, `ε v_* ≤ τ_*(L)`),
 and the case condition `√(1+v_*) ≤ V A²` or `c^{2/3} ≤ A` (`L ≤ 1`, `L > 1` of the paper) give
@@ -606,16 +611,12 @@ theorem pieceC_main_term_smooth (X : ℝ → ℝ) (δ₀ : ℝ) (m : ℕ) {c : �
     (hχ0 : ∀ v, χ₁ v ≠ 0 → χ₀ (v / vs) = 1) (hχ1_0 : χ₁ 0 = 1) (hsupp : ∀ v : ℝ, 1 < |v| → χ₁ v = 0)
     (hχ₀ : ContDiff ℝ 2 χ₀) (hχ₀s : ∀ u : ℝ, 1 < |u| → χ₀ u = 0) {Kχ : ℝ}
     (k0 : ∀ u, |χ₀ u| ≤ Kχ) (k1 : ∀ u, |deriv χ₀ u| ≤ Kχ) (k2 : ∀ u, |deriv (deriv χ₀) u| ≤ Kχ)
+    (hχ₁c : Continuous χ₁)
     (hφ : ContDiff ℝ 2 (fun v : ℝ => (χ₁ v : ℂ) * pcH δ₀ m c v)) {M : ℝ}
     (b0 : ∀ v, ‖(χ₁ v : ℂ) * pcH δ₀ m c v‖ ≤ M)
     (b1 : ∀ v, ‖deriv (fun v : ℝ => (χ₁ v : ℂ) * pcH δ₀ m c v) v‖ ≤ M)
     (b2 : ∀ v, ‖deriv (deriv (fun v : ℝ => (χ₁ v : ℂ) * pcH δ₀ m c v)) v‖ ≤ M)
     {A : ℝ} (hAdef : A = c * liftEps c * Real.log (Real.pi ^ 2 * ξ)) (hA : 1 ≤ A)
-    (hint_s : Integrable fun v : ℝ => (χ₀ (v / vs) : ℂ) * (pcAmp δ₀ m c v * Complex.exp (Complex.I * (pcPhase c ξ v : ℝ)) *
-      (airyTwistedLaplaceC X ((ceCs : ℂ) * ((v : ℂ) * Complex.I)) +
-        (γ₀ : ℂ) * (Complex.I * (v : ℂ)) ^ (1 / 2 : ℂ) * Complex.exp (Complex.I * ((Real.pi ^ 2 / 36 * v ^ 3 : ℝ) : ℂ)) * (χ₁ v : ℂ))))
-    (hint_b : Integrable fun v : ℝ => (χ₀ (v / vs) : ℂ) * ((γ₀ : ℂ) * pcH δ₀ m c v * (Complex.I * (v : ℂ)) ^ (1 / 2 : ℂ) * (χ₁ v : ℂ) *
-      Complex.exp (Complex.I * ((c * liftEps c * Real.log (Real.pi ^ 2 * ξ) : ℝ) : ℂ) * (v : ℂ))))
     {B0 B1 B2 : ℝ} (hg : Bd2 univ (pcAmp δ₀ m c) B0 B1 B2) {CG : ℝ}
     (hG : SmoothSymbol (fun v : ℝ => airyTwistedLaplaceC X ((ceCs : ℂ) * ((v : ℂ) * Complex.I)) +
         (γ₀ : ℂ) * (Complex.I * (v : ℂ)) ^ (1 / 2 : ℂ) * Complex.exp (Complex.I * ((Real.pi ^ 2 / 36 * v ^ 3 : ℝ) : ℂ)) * (χ₁ v : ℂ)) CG)
@@ -625,7 +626,34 @@ theorem pieceC_main_term_smooth (X : ℝ → ℝ) (δ₀ : ℝ) (m : ℕ) {c : �
         ((γ₀ * Real.sqrt Real.pi * A ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) : ℝ) : ℂ)‖ ≤
       (smoothConst (2 * CG * (Kχ * B0 + (Kχ * B0 + Kχ * B1) + (Kχ * B0 + 2 * (Kχ * B1) + Kχ * B2))) V +
         |γ₀| * ((12 * (∫ t in Ioi (0 : ℝ), fresnelDom t) + 2) * M)) / (2 * Real.pi * ξ * A ^ 2) :=
-  pieceC_main_term X δ₀ m (by linarith) hξ γ₀ χ₀ χ₁ vs hχ0 hχ1_0 hsupp hφ b0 b1 b2 hAdef hA hint_s hint_b
+  pieceC_main_term X δ₀ m (by linarith) hξ γ₀ χ₀ χ₁ vs hχ0 hχ1_0 hsupp hφ b0 b1 b2 hAdef hA
+    (by
+      have hc0 : 0 < c := by linarith
+      have hcont : Continuous fun v : ℝ => (χ₀ (v / vs) : ℂ) * (pcAmp δ₀ m c v * Complex.exp (Complex.I * (pcPhase c ξ v : ℝ)) *
+          (airyTwistedLaplaceC X ((ceCs : ℂ) * ((v : ℂ) * Complex.I)) +
+            (γ₀ : ℂ) * (Complex.I * (v : ℂ)) ^ (1 / 2 : ℂ) * Complex.exp (Complex.I * ((Real.pi ^ 2 / 36 * v ^ 3 : ℝ) : ℂ)) * (χ₁ v : ℂ))) :=
+        (Complex.continuous_ofReal.comp (hχ₀.continuous.comp (continuous_id.div_const vs))).mul
+          ((hg.1.continuous.mul (Complex.continuous_exp.comp (continuous_const.mul
+            (Complex.continuous_ofReal.comp (contDiff_pcPhase c ξ).continuous)))).mul hG.contDiff.continuous)
+      refine hcont.integrable_of_hasCompactSupport (HasCompactSupport.intro (isCompact_Icc (a := -vs) (b := vs)) fun v hv => ?_)
+      have hv' : vs < |v| := by
+        by_contra h; exact hv ⟨(abs_le.mp (not_lt.mp h)).1, (abs_le.mp (not_lt.mp h)).2⟩
+      have hx1 : 1 < |v / vs| := by
+        rw [abs_div, abs_of_pos (by linarith : (0 : ℝ) < vs), lt_div_iff₀ (by linarith)]; linarith
+      simp [hχ₀s _ hx1])
+    (by
+      have hcont : Continuous fun v : ℝ => (χ₀ (v / vs) : ℂ) * ((γ₀ : ℂ) * pcH δ₀ m c v * (Complex.I * (v : ℂ)) ^ (1 / 2 : ℂ) * (χ₁ v : ℂ) *
+          Complex.exp (Complex.I * ((c * liftEps c * Real.log (Real.pi ^ 2 * ξ) : ℝ) : ℂ) * (v : ℂ))) := by
+        have hsq : Continuous fun v : ℝ => (Complex.I * (v : ℂ)) ^ (1 / 2 : ℂ) :=
+          continuous_iff_continuousAt.mpr fun v => (Complex.continuousAt_cpow_const_of_re_pos (Or.inl (by simp)) (by norm_num)).comp
+            (by fun_prop : Continuous fun v : ℝ => Complex.I * (v : ℂ)).continuousAt
+        exact (Complex.continuous_ofReal.comp (hχ₀.continuous.comp (continuous_id.div_const vs))).mul
+          ((((continuous_const.mul (contDiff_pcH δ₀ m (by linarith)).continuous).mul hsq).mul
+            (Complex.continuous_ofReal.comp hχ₁c)).mul (by fun_prop))
+      refine hcont.integrable_of_hasCompactSupport (HasCompactSupport.intro (isCompact_Icc (a := (-1 : ℝ)) (b := 1)) fun v hv => ?_)
+      have hv' : 1 < |v| := by
+        by_contra h; exact hv ⟨(abs_le.mp (not_lt.mp h)).1, (abs_le.mp (not_lt.mp h)).2⟩
+      simp [hsupp v hv'])
     (pieceC_hsmooth δ₀ m hc hL χ₀ vs hvs1 hχ₀ hχ₀s k0 k1 k2 hg hG hAdef hA hvsτ hV hcase)
 
 /-- info: 'FormalResearch.CohnElkies.smooth_ibp_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
