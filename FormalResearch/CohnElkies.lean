@@ -53,6 +53,7 @@ public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
 public import FormalResearch.CohnElkies.TwoIBPPhase
 public import FormalResearch.CohnElkies.GaussKernelHeat
+public import FormalResearch.CohnElkies.ParametricIterated
 
 /-!
 # Cohn–Elkies / CFT Paper I elementary and toolkit lemmas (umbrella)
@@ -179,6 +180,7 @@ and the Airy library:
 * `FormalResearch.CohnElkies.TwoIBPPhase`: two integrations by parts against a variable phase, Piece C smooth part (`two_ibp_phase`): `|∫ a e^{iψ}|` bounded by `|a''|/ψ'²`, `|a'||ψ''|/ψ'³`, `|a||ψ'''|/ψ'³`, `|a|ψ''²/ψ'⁴`, with no boundary terms; a standard estimate, proved unconditionally.
 * `FormalResearch.CohnElkies.GaussKernelHeat`: `y`-derivatives of the Gaussian kernel `gaussKern y u = exp(-u²/(4y))`: the heat equation
   `∂_y K = ∂_u² K + K/(2y)` (`deriv_y_gaussKern_eq`), `∂_y` commuting with `∂_u^n` up to `1/(2y)` (`hasDerivAt_iteratedDeriv_gaussKern_y`), and uniform bounds of the first and second `y`-derivatives on `{Re y > 0, |y| ≥ 1}` (`norm_deriv_y_iteratedDeriv_gaussKern_le`).
+* `FormalResearch.CohnElkies.ParametricIterated`: thin wrappers of Mathlib's `hasDerivAt_integral_of_dominated_loc_of_deriv_le` for a complex parameter over `(0,∞)` (`hasDerivAt_integral_Ioi`) and the iterated integral over `(0,∞)²` (`hasDerivAt_iterated_integral_Ioi`, with an extra integrability-near-`y₀` hypothesis).
 
 This umbrella is deliberately not imported by `FormalResearch.lean`.
 -/
