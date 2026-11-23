@@ -170,7 +170,7 @@ private lemma iteratedDeriv_bsplineE1_imag {β : ℝ} (l : ℕ) (v : ℝ) :
     have hd := (hdiff.hasDerivAt.comp v haff).const_mul ((Complex.I * (β : ℂ)) ^ k)
     dsimp only [Function.comp_def] at hd; rw [hd.deriv, pow_succ]; ring
 
-private lemma bsplineE1_imag_pow_deriv_bound :
+lemma bsplineE1_imag_pow_deriv_bound :
     ∀ (m k : ℕ), ∃ C > 0, ∀ {β : ℝ}, 0 < β → ∀ v : ℝ,
       ‖iteratedDeriv k (fun u : ℝ => bsplineE1 (Complex.I * (β : ℂ) * (u : ℂ)) ^ m) v‖ ≤ C * β ^ k * (1 + β * |v|) ^ (-(m : ℝ)) := by
   intro m; induction m with
