@@ -192,6 +192,9 @@ public import FormalResearch.ModularBootstrap.Upper.Window.TailIntegrals
 public import FormalResearch.ModularBootstrap.Upper.Window.Tail
 public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaQScale
 public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaQScaleBridge
+public import FormalResearch.ModularBootstrap.FixedWeightBand.EdgeKernelWFactor
+public import FormalResearch.ModularBootstrap.FixedWeightBand.EdgeKernelW
+public import FormalResearch.ModularBootstrap.FixedWeightBand.EdgeKernelWBridge
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -622,4 +625,19 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   in `shrinkUniformData` and apply `FixedWeightTip.lemmaQ_general_part1`/`3`; the envelope uses the unshrunk data.  Bridge:
   `chartACAt = virasoroACAt`, `psiTilde virasoroProblem = virasoroPsiTilde`, `deltaLobeAt virasoroProblem = virasoroDeltaLobeAt`,
   and `lemmaQ_part1At_of_general`.
+
+* `FixedWeightBand.{EdgeKernelWFactor, EdgeKernelW, EdgeKernelWBridge}`: **Lemmas `J4.1` and `J4.2`** (`vlo:J41`,
+  `vlo:J42`, `lower_o1_two_edge.tex` §J4) at every fixed weight `w ≥ 1` and every `Q`, unconditional (Lemma `J4.0` is the
+  weight-free `Chart.lemma_J4_0`).  `edgeKernelKW prob c' τ t = e^{-c'Υ(iτ)} (2π)^z t^{z-1}/(Γ(z) V(t))`,
+  `z = w/2 + c'ω(iτ)`.  `lemma_J4_1_W`: `W̃_V(iτ) = ∫₀^∞ K(τ,t) g(t) V(t) dt` (`tildeWW_edge_integral`), `H_V(iτ) = 𝒜_V(τ) W̃_V(iτ)`,
+  the strip Poisson identity `H_V(ζ₀) = ∫ Q(τ) H_V(iτ) dτ` (`edgeHV_poisson_of_multiplier`, valid for any bounded, continuous,
+  holomorphic antisymmetric multiplier), `‖Q‖₁ ≤ 1` and `sup|Q| + TV(Q) ≤ 2/Re ζ₀`.  `lemma_J4_2_W`: the factorization
+  `K = A₁ A₂ e^{c'(R_V + iΘ)}` (`edgeKernelKW_factorization`, from the weight-`w` Stirling identity `gamma_mul_two_pi_t_cpow_neg_W`; the
+  prefactor `(3ω/(2πx²))^{(w-1)/2}` splits into `x^{w-1}` of `A₂` and the `ω`-factor of `A₁`, `stirlingPrefW_inv_eq`) with the
+  weight-free `R_V`, `Θ` of `StripMultiplier` (even, odd, unimodal, `∂_τ Θ = 2ν' log(x₀/x)`), `|A₁| ≤ C`,
+  `|A₁'(τ)| ≤ C/(1+|τ|)` (sharp form `edgeA1W_bounds`: `C_S/(c'(1+|τ|)³)` from `S^{(w)}` plus `((w-1)/2) C_F/(1+|τ|)` from the
+  `ω`-factor, which carries no `1/c'` and vanishes at `w = 1`), `0 ≤ A₂ ≤ C` on `x ≥ ξ*/2` (`rho_bounds`), and the sub-Cardy bound
+  `|K| ≤ C e^{-κc'}` on `x ≤ ξ*/2`, uniformly in `τ` (second clause of `kernelBound_W`).  Bridge `EdgeKernelWBridge`: the Virasoro
+  `StripMultiplier.lemma_J4_1`, `lemma_J4_2` as the `w = 1` instances (`lemma_J4_1_of_W`, `lemma_J4_2_of_W`), non-vacuity
+  `lemma_J4_1_W_thermalDiff`.
 -/
