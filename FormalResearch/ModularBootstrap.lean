@@ -125,6 +125,12 @@ public import FormalResearch.ModularBootstrap.Upper.Rigidity.Compactness
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.Concentration
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.Atoms
 public import FormalResearch.ModularBootstrap.Upper.Rigidity.Sigma
+public import FormalResearch.ModularBootstrap.Upper.Holes.AII
+public import FormalResearch.ModularBootstrap.Upper.Holes.K8
+public import FormalResearch.ModularBootstrap.Upper.Holes.Peano
+public import FormalResearch.ModularBootstrap.Upper.Holes.Holes
+public import FormalResearch.ModularBootstrap.Upper.Holes.HoleLimit
+public import FormalResearch.ModularBootstrap.Upper.Holes.BandLobe
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -414,4 +420,14 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (`atomWeight_le_one`, `atomWeight_eq_one`), whole-sequence vague convergence `μ_j → μ_A`
   (`vagueLimit_airyMeasure`) and no escape of pairing mass (`no_escape`), bundled as
   `theorem_Sigma` / `theorem_sigma`.
+* `Upper.Holes.AII`, `Upper.Holes.K8`, `Upper.Holes.Peano`, `Upper.Holes.Holes`,
+  `Upper.Holes.HoleLimit`, `Upper.Holes.BandLobe`: hole/band estimates and reference-comb
+  bounds (`comb_estimates.tex`, `remainder.tex`): Lemma `A_II` (`rem:analyticII`: `hAII_min_at_half`,
+  `muFour_gt : 7 / 10 < muFour`), **Lemma `K8`** (`cmb:K8`: `arsinh_one_gt_five_sixths`,
+  `vRhoInfty_le`, `regionII_margin_gt`), Peano kernel rules and `phiVar`/`DK_limit`,
+  **Lemma `K4`** (`cmb:K4`: two-sided hole comparison `hole_lower_K4`, `hole_upper_K4`,
+  `eLeftComb_bounds`, `jEndComb_bounds`, `combPf_bounds_K4`), **Lemma `K5`** (`cmb:K5`:
+  `hole_limit_K5`, `hole_floor_K5`, `band_overshoot_K5`, `muHole_four_quarter_gt`, `muHole_one_ge`),
+  and **Lemma `K6`** (`cmb:K6`: `band_upper_K6a_mul`, `band_upper_K6a`, `band_upper_K6a_r0`,
+  `band_upper_K6a_bdd`, `lobe_upper_K6b`, `lobe_upper_K6b_blaschke`), all unconditional.
 -/
