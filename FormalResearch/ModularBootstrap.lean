@@ -237,6 +237,17 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.ProfileR1
 public import FormalResearch.ModularBootstrap.Upper.Ramped.ProfileV
 public import FormalResearch.ModularBootstrap.Upper.Ramped.AiryProfile
 public import FormalResearch.ModularBootstrap.Upper.Ramped.PUnif
+public import FormalResearch.ModularBootstrap.Upper.Window.AiryProdPositive
+public import FormalResearch.ModularBootstrap.Upper.Window.DesignBridge
+public import FormalResearch.ModularBootstrap.Upper.Window.LemmaR
+public import FormalResearch.ModularBootstrap.Upper.Positivity.RegionOne
+public import FormalResearch.ModularBootstrap.Upper.Positivity.RegionOneAssembly
+public import FormalResearch.ModularBootstrap.Upper.Positivity.VacuumPrelim
+public import FormalResearch.ModularBootstrap.Upper.Positivity.VacuumWindow
+public import FormalResearch.ModularBootstrap.Upper.Positivity.VacuumCore
+public import FormalResearch.ModularBootstrap.Upper.Positivity.VacuumDesign
+public import FormalResearch.ModularBootstrap.Upper.Positivity.VacuumMain
+public import FormalResearch.ModularBootstrap.Upper.Positivity.Vacuum
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -743,4 +754,21 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (`E_0 ≤ C (∑_{n=2}^N η_n² n^{-4/3} + ∑_{n>N} (η_n² n^{-4/3} + n^{-10/3}))`), `pUnif_V_ramped`,
   `lemma_P_unif`, `pUnif_integral_le` (`∫ W ≤ -d/2 + E_0`) and `lemma_G_bound_unif` (Lemma G with a constant
   independent of `N`, `η_*`, `d`).
+
+* `Upper.Window.AiryProdPositive`, `Upper.Window.DesignBridge`, `Upper.Window.LemmaR`: **Lemma R** (`ut:R`):
+  sign structure of the Airy window product (`airyWindowProd_eq_neg_mul_pos`: `W^{(f)} = -(u - u_f) S`, `S > 0`,
+  one simple real zero), the design as `ModifiedCombData` (`designMod`, `designModFamily`,
+  `designComb_eq_modifiedCombB`), and `lemma_R` / `lemma_R_lower` (`h₀ e^{c'L} = K̃_c (σ - σ_f) w_c(σ)`, `w_c → w_∞ ≥ w₀ > 0`
+  uniformly, the division by `σ - σ_f` done before the limit through the shifted zero), all unconditional.
+
+* `Upper.Positivity.RegionOne`, `Upper.Positivity.RegionOneAssembly`: **Proposition I** (`ut:I`) for the
+  Virasoro designs `D(N, η_*, d)`: `proposition_I_a` (Lemma R against `SD_G`), `proposition_I_b` (`lemma_P_b` and the
+  `K5` overshoot, exponent `3/5 > 1/2`), `proposition_I_design` (with `proposition_II_design`: `2g > 0` for
+  `x ≥ χ'_1 + C λ c'^{-1/2}`) and `proposition_I_design_t` (`2g > 0` on `t ≥ t_f + 1`), unconditional.
+
+* `Upper.Positivity.{VacuumPrelim, VacuumWindow, VacuumCore, VacuumDesign, VacuumMain, Vacuum}`:
+  **Proposition V** (`ut:Vac`) for the Virasoro designs: `vacuum_core` (`V_c ≤ FK_c (C_* V_D + ε)` from `lemma_T`,
+  `lemma_W_measure`, `lemma_ID`, the sign argument `design_lobe_nonpos`), `proposition_V_i`
+  (`(2/FK_c) ∫Ψ_g du - C_* V_D ≤ ε`, with `∫Ψ_g du = -g_vac/(2π)`) and `proposition_V_ii`
+  (`V_D < 0 ⇒ g_vac ≥ π C_* |V_D| FK_c / 4`), unconditional.
 -/
