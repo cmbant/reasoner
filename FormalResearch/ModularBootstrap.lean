@@ -270,6 +270,9 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerKernelAux
 public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerKernelDeriv
 public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerKernelBounds
 public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerChart
+public import FormalResearch.ModularBootstrap.Upper.Assembly.TailLower
+public import FormalResearch.ModularBootstrap.Upper.Assembly.TailLipschitz
+public import FormalResearch.ModularBootstrap.Upper.Assembly.TailBounds
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -798,9 +801,9 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   assembly of Properties `sr:P` (P1)-(P4) for the Virasoro designs `D(N, η_*, d)` (`designPropertyP_virasoro`,
   `combDesignData_design`), FW-C feasibility (`virasoro_thresholdUpperLittleO`,
   `virasoro_corollary_E1_littleO_unconditional`), and `Σ₀`, `Σ` at Virasoro (`virasoro_sigmaZero_of_threshold`,
-  `virasoro_sigma_of_threshold`); the remaining inputs are the named `DesignTailBounds`
-  (`virasoro_sigmaZero_of_tailBounds`, non-vacuity `sameSiteTailBounds_nonvacuous`) and, for `Σ`, the
-  displaced/omitted design families.
+  `virasoro_sigma_of_threshold`); `DesignTailBounds`
+  (`virasoro_sigmaZero_of_tailBounds`) is proved in `Upper.Assembly.TailBounds` (below); for `Σ` the
+  displaced/omitted design families remain.
 
 * `Upper.Ramped.{ParamIntegral, LangerTau, LangerTauForms, LangerTauSpec, LangerTauInv, LangerTauDeriv,
   LangerTauBounds, LangerSites, LangerKernel, LangerKernelAux, LangerKernelDeriv, LangerKernelBounds,
@@ -815,4 +818,11 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `siteGap c' k ≍ λ k^{-1/3}` in the tip window, `χ_a'^2 (1 + (log ρ_U)') ≲ λ a^{-4/3}`) and `langerChart_F2`
   (`Q(x,y) = tanh(π(x-y)/2)/(τ(x) - τ(y))` smooth and positive with `Q(x,x) = π/(2τ'(x))`, and
   `|∂_y^j K(x,y)| ≤ C (1+y)^{-j}`, `j = 1, 2`, for `K = log Q + log tanh(π(x+y)/2)`).
+
+* `Upper.Assembly.{TailLower, TailLipschitz, TailBounds}`: `DesignTailBounds` is proved
+  (`designTailBounds`): the lower bound `Q_k ≥ 1/2` on compacta below `a_1` (`Gd_lower`, `exists_designFac_lower`),
+  and the Lipschitz bound `G_k(u) ≤ G_k(a_1)(1 + C|u - a_1|)` near `a_1` uniformly in `k` (`Gd_upper`: maximum
+  modulus and Schwarz lemma for `G_k = -dslope W_{k,0} a_1`, with `R_1 > 0` for every design); hence
+  `sameSiteFamily_designClass_exists` and `virasoro_sigmaZero_unconditional` (`Σ₀` at Virasoro for the extremal
+  measures, unconditional).  `Σ` still needs the displaced/omitted design families.
 -/
