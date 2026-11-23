@@ -14,11 +14,13 @@ Generalises `Duality.OptimalMeasure` to every fixed-weight problem `prob : Fixed
   existence of a crossing measure `ν_*` with gap `min supp ν_* = T_V(c̃)`, attaining `Δ_best(c̃)`.
 * Explicit named hypotheses (`Prop`) for the `T_V(c̃) = T_*(c̃) + O_{w,Q}(1)` inputs of
   Corollary E1 (`dual_spectrum.tex`, `ds:E1`):
-  - `FixedWeightLowerBoundInput prob` (Theorem W1'(1), `wone:genlower(1)`, not yet formalised
-    at general `(w, Q)`; proved unconditionally for `virasoroProblem` by `virasoro_lowerBoundInput`
-    via `Contour.theoremJ_T_V`);
-  - `TheoremC15UpperInput prob` (Theorem C15 / Theorem ctu.5, `thm:fixed-weight-expansion`,
-    not yet formalised in Lean);
+  - `FixedWeightLowerBoundInput prob` (Theorem W1'(1), `wone:genlower(1)`; proved for every `prob`
+    by `FixedWeightBand.fixedWeightLowerBoundInput_of_problem`, and for `virasoroProblem` also by
+    `virasoro_lowerBoundInput` via `Contour.theoremJ_T_V`);
+  - `TheoremC15UpperInput prob` (the `O(1)` upper half of Theorem C15 / Theorem ctu.5,
+    `thm:fixed-weight-expansion`; proved for `virasoroProblem` by
+    `Upper.Ramped.theoremC15UpperInput_virasoro` through the ramped comb of Lemma U*,
+    `CFT/notes/n2_ramped_comb.tex` `rem:thmU`; open for general `prob`);
   - `WeakThresholdLowerBoundAt` (satisfied unconditionally at `virasoroProblem` by
     `Integration.theoremA_T_V`), with non-vacuity theorems `thresholdLowerBoundAt_nonvacuous`,
     `thresholdUpperBoundAt_nonvacuous`, and `weakThresholdLowerBound_virasoro`.
@@ -73,7 +75,8 @@ def ThresholdUpperBoundAt (T : ℝ → ℝ) (shift : ℝ) : Prop :=
 
 /-- **Unproved input (Theorem C15 / Theorem ctu.5, `thm:fixed-weight-expansion`)**:
 for a fixed-weight problem `prob`, there exist `c₂ ≥ max 1 (12 S)` and `D_+ ≥ 0` such that
-`T_V(c̃) ≤ T_*(c̃) + D_+` for all `c̃ ≥ c₂`. (Not yet formalised in Lean.) -/
+`T_V(c̃) ≤ T_*(c̃) + D_+` for all `c̃ ≥ c₂`. (Proved for `virasoroProblem` by `Upper.Ramped.theoremC15UpperInput_virasoro`, the `O(1)` upper
+half via Lemma U* of `n2_ramped_comb.tex` `rem:thmU`; open for general `prob`.) -/
 def TheoremC15UpperInput (prob : FixedWeightProblem) : Prop :=
   ThresholdUpperBoundAt prob.T_V prob.totalShift
 

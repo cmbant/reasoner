@@ -329,6 +329,7 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumWindow
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumBands
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumIntegral
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuum
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFinal
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -973,4 +974,12 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   the two-sided `besselV_asymptotic`), `rampedWindow_part` (the Langer window `≤ FK_c C_*(-d/2 + (C_E + T) c'^{-1/3})`),
   `rampedF_lobe_nonpos`, `rampedF_far_le` (far band `≤ C_far √c'`, from `rampedFarBand`) and `FKc_mul_rpow_eq`
   (`FK_c c'^{-1/3} = A_0 √c'`).
+
+* `Upper.Ramped.RampedFinal`: **Lemma U\* assembled** (`rem:thmU`), unconditional.  `rampedG_isFeasible`: with `C_I, C_mid`
+  from `rampedPositive_tstar` and `M_0` from `rampedVacuum`, eventually in `c'` the ramped test function `g` is feasible for
+  `virasoroProblem` at `a = c'/12` and gap `t_* + 1` (membership `ramped_k7`, positivity `rampedPositive_tstar` through
+  `twoG = 2g`, vacuum `rampedVacuum`); `threshold_le_rampedTstar`: `T_V ≤ t_* + 1`; **`theoremC15UpperInput_virasoro`**:
+  `TheoremC15UpperInput virasoroProblem` (`T_V ≤ T_* + D_+`, `D_+ = 1 + (A_opt/|a_1|) M_0 + C` from `rampedThreshold`);
+  **`virasoro_corollary_E1_unconditional`**: Corollary E1 at Virasoro with no hypothesis,
+  `Δ_best = c/Λ_V + A_opt c^{1/3} + O(1)` and `T_V = T_* + O(1)`.
 -/

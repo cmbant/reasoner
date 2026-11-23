@@ -12,8 +12,9 @@ except for the step-level reuse tables of U6, recalled where needed below.
 |---|---|---|
 | Lower bound `T_V ≥ T_* − C` at every integer `(w,Q)` in `(H_w)` (W1'(1), Theorem J) | `lower_o1_two_edge.tex` | `FixedWeightBand.fixedWeightLowerBoundInput_of_problem` |
 | Virasoro two-term law `Δ_best = c/Λ_V + A_opt c^{1/3} + o(c^{1/3})` | `dual_spectrum.tex` E1, FW-C | `Upper.Assembly.virasoro_corollary_E1_littleO_unconditional` |
+| **O(1) two-sided law at Virasoro** `Δ_best = c/Λ_V + A_opt c^{1/3} + O(1)` (O(1) upper half of C15 via Lemma U*) | `n2_ramped_comb.tex` `rem:thmU`, `ds:E1` | `Upper.Ramped.theoremC15UpperInput_virasoro`, `virasoro_corollary_E1_unconditional` |
 | Property (P) for the `f = 1` designs `D(N,η_*,d)`, `η_* > 0` (Lemmas W, ID, A_V, T, R; Props I, II, V; K7) | `upper_transfer.tex`, `spectral_rigidity.tex` `sr:P` | `designPropertyP_virasoro` |
-| Σ₀ at Virasoro for the extremal measures | `spectral_rigidity.tex` `sr:Sigma0` | `Upper.Assembly.virasoro_sigmaZero_unconditional` |
+| Σ₀ and Σ at Virasoro for the extremal measures | `spectral_rigidity.tex` `sr:Sigma0`, `sr:Sigma` | `Upper.Assembly.virasoro_sigmaZero_unconditional`, `virasoro_sigma_unconditional` |
 | O(1)-upper inputs so far: Lemma P_unif (R1), Langer coordinate Prop 1.2(1), (F1), (F2) (R2a) | `n2_ramped_comb.tex`, `remainder.tex` | `Ramped.lemma_P_unif`, `Ramped.langerTau_spec`, `langerChart_F1/F2`, `langerTauInv_expansion`, `siteGap_two_sided` |
 
 Conditional: Σ (`virasoro_sigma`) needs `DisplacedFamily` and `OmittedFamily` for a design class with Property (P).
@@ -36,7 +37,7 @@ U6_PLAN §1, unchanged; TeX re-checked against `origin/main`):
 | R5 | Region I | done (`Ramped/RampedRegionOne*`, `rampedRegionI`, `rampedPositive_tstar`) |
 | R6 | Region II near-tip + macroscopic | done (`Ramped/RampedRegionTwo*`, `rampedRegionII`; bridge `Ramped/CombBridge` for R5/R7) |
 | R7 | Vacuum | done (`Ramped/RampedVacuum*`, `rampedVacuum`; virasoroProblem, C2 generalises) |
-| R8 | Assembly `theoremC15UpperInput_virasoro`, `IsFeasible.mono_T`, `t_*` expansion; E1 with O(1) | all |
+| R8 | Assembly `theoremC15UpperInput_virasoro`, `IsFeasible.mono_T`, `t_*` expansion; E1 with O(1) | done (`Ramped/RampedFinal`: `theoremC15UpperInput_virasoro`, `virasoro_corollary_E1_unconditional`) |
 
 Revisions made in this audit (cleaner implementation, checked against the TeX):
 1. **Generalise in place, do not copy.** R3a and R4 reopen proofs that are ours (`Upper/Design/PerturbPhi.lean`
