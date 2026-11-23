@@ -27,6 +27,10 @@ public import FormalResearch.SignUncertainty.MellinStrip
 public import FormalResearch.SignUncertainty.MellinStripAnalytic
 public import FormalResearch.SignUncertainty.MellinMajorantH
 public import FormalResearch.SignUncertainty.MellinMajorantHId
+public import FormalResearch.SignUncertainty.MellinGrowth
+public import FormalResearch.SignUncertainty.MellinHGrowth
+public import FormalResearch.SignUncertainty.MellinMajorant
+public import FormalResearch.SignUncertainty.MellinMajorantBound
 public import FormalResearch.SignUncertainty.RadialCompactness
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
@@ -82,6 +86,11 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `-1 < Re z < 2` from `Γ`-ratio logarithms, with `ℋ̂(1 - z) = ℋ̂(z)`, `ℋ̂(0) = ℋ̂(1) = 0`
   (`hInt_one_sub`), identified with `stripH` on `0 ≤ Re z < 1` (`hInt_eq_stripH`); the input to the
   Phragmén–Lindelöf majorant of `gt:7.4(2)`.
+* `FormalResearch.SignUncertainty.MellinGrowth`, `MellinHGrowth`, `MellinMajorant`, `MellinMajorantBound`:
+  `gt:7.4(2)` for `c > 3/2`, `ε = ±1`, `f ∈ 𝒜_c^ε`: crude growth bounds, the glued function `W = Fm e^{-cℋ̂}(1+ζ)^{-1/2}`,
+  the edge bounds `|W| ≤ M[f] e^{1/(6c)}` and Phragmén–Lindelöf, giving
+  `|M̃_f(c(1-ζ))| ≤ M[f] |1+ζ|^{1/2} exp(c Re ℋ(ζ) + 1/(6c))` on `0 ≤ Re ζ < 1`
+  (`norm_mellinStrip_le_majorant`, and `..._stripH` with `ℋ = stripH`).
 * `FormalResearch.SignUncertainty.RadialCompactness`: `lem:radial-compactness` as an input structure
   (`RadialCompactness`: deep-lobe mass bound, window-profile compactness with the `C¹` clause) and the
   lower half of `gt:7.5` at one level derived from it (`radial_rigidity_lower_of_compactness`).
