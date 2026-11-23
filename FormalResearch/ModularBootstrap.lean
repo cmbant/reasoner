@@ -131,6 +131,12 @@ public import FormalResearch.ModularBootstrap.Upper.Holes.Peano
 public import FormalResearch.ModularBootstrap.Upper.Holes.Holes
 public import FormalResearch.ModularBootstrap.Upper.Holes.HoleLimit
 public import FormalResearch.ModularBootstrap.Upper.Holes.BandLobe
+public import FormalResearch.ModularBootstrap.Upper.Design.PerturbP
+public import FormalResearch.ModularBootstrap.Upper.Design.PerturbPhi
+public import FormalResearch.ModularBootstrap.Upper.Design.HankelEpsDeriv
+public import FormalResearch.ModularBootstrap.Upper.Design.AmplitudeLogDeriv
+public import FormalResearch.ModularBootstrap.Upper.Design.DesignCombProps
+public import FormalResearch.ModularBootstrap.Upper.Design.CombTransform
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -436,4 +442,16 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (`thresholdUpperLittleOAt_nonvacuous`), the implication O(1) to `o(c^{1/3})`
   (`ThresholdUpperBoundAt.littleO`), and the Virasoro instance `virasoro_corollary_E1_littleO`
   (lower bound unconditional by `virasoro_lowerBoundInput`).
+* `Upper.Design.PerturbP`, `Upper.Design.PerturbPhi`: **Lemma `P`** (`ut:P`, `lemma_P_b`, with the
+  fixed-`N` case `lemma_P_a_fixedN`: `|log(|B_D|/|B_ref|)| ≤ C λ/(x-ξ_*)` for the finite modification
+  `designComb` of the reference comb, uniformly over a bounded family) and **Lemma `Φ`**
+  (`ut:Phi`, `lemma_Phi_b`, `lemma_Phi_a_fixedN`: `log B_D = c'Φ₀ + Φ₁ + Δ_D` on `𝒩`,
+  `Re(Φ₁+Δ_D) = 0` on `E₊`, `sup_𝒩 |Δ_D^{(i)}| ≤ Cλ` for `i ≤ 2`), unconditional.
+* `Upper.Design.HankelEpsDeriv`, `Upper.Design.AmplitudeLogDeriv`, `Upper.Design.DesignCombProps`,
+  `Upper.Design.CombTransform`: Cauchy bounds for `ε_H'`, `ε_H''` and the log-derivative bounds of the
+  `SD_V` amplitude (`sdvAmplitude_fields`), the symmetries and `K1(a)` bound of `designComb`, and the
+  consequence of Lemma `Φ`: `designProfile_edgeHankelHyp` (`SD_H`), `designProfile_global_bound`
+  (`SD_G`), `designProfile_sdvHypotheses` (`SD_V` hypotheses with `δ = 1/8`) and
+  `lemma_Phi_transform`: `‖ĥ₀(c'x²/3)‖ ≤ 𝒜_x (1 + C c'^{-1+3θ/2})` for `x ≥ ξ_* + c'^{-θ}`,
+  `0 < θ < 2/3`, unconditional.
 -/
