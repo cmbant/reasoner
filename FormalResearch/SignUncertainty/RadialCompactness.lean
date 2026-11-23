@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.SignUncertainty.Radii
+public import FormalResearch.SignUncertainty.DeepLobeMass
 
 /-!
 # `lem:radial-compactness` as an input structure, and `gt:7.5` (lower half) from it
@@ -8,11 +9,10 @@ public import FormalResearch.SignUncertainty.Radii
 `RadialCompactness` states `lem:radial-compactness` (`fourier_mellin.tex`; proof in
 `fourier_mellin_proofs.tex`: Mellin inversion, the deep lobe, Airy rescaling with domination, the
 limiting entire function) for the concrete Hankel problem (`IsHankelEigenfn`, `hankelWindowProfile`).
-Its two fields are open (not proved here):
+The deep-lobe mass bound (the absolute mass of `f ρ₀` below `c/π² - R c^{1/3}` is
+`≤ C M[f] (e^{-5 R^{3/2}} + e^{-κ c})`, Step 2) is proved (`deep_lobe_mass_thm`, `DeepLobeMass.lean`) and
+used below. The one remaining field is open (not proved here):
 
-* `deep_lobe_mass`: the absolute mass of `f ρ₀` below `c/π² - R c^{1/3}` is
-  `≤ C M[f] (e^{-5 R^{3/2}} + e^{-κ c})` (Step 2; the pointwise form `eq:deep-lobe` is the
-  intermediate bound and is not needed downstream);
 * `profile_compactness`: on every sequence `c_n → ∞` with `M[f_n] ≤ M₀`, a subsequence of the window
   profiles converges locally uniformly, together with its first derivative, to the restriction of a
   real entire `F` of the Airy class (`‖F(z)‖ ≤ C (1+|z|)^ν e(z)`, `F ∈ L¹`); the `C¹` clause
@@ -69,13 +69,9 @@ lemma hankelMass_smul (c a : ℝ) (f : ℝ → ℝ) :
 
 /-! ### The input structure -/
 
-/-- **`lem:radial-compactness`** (`fourier_mellin.tex`) for the concrete Hankel problem; both fields
-are open theorems. See the module docstring for the form of each. -/
+/-- **`lem:radial-compactness`** (`fourier_mellin.tex`) for the concrete Hankel problem, minus the
+deep-lobe mass bound, which is `deep_lobe_mass_thm`; the field is an open theorem. See the module docstring. -/
 structure RadialCompactness : Prop where
-  deep_lobe_mass : ∃ C κ c₀ : ℝ, 0 < C ∧ 0 < κ ∧ ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
-    ∀ f : ℝ → ℝ, IsHankelEigenfn c ε f → ∀ R : ℝ, 1 ≤ R → R * c ^ (1 / 3 : ℝ) < c / π ^ 2 →
-      ∫ Δ in Ioo (0 : ℝ) (c / π ^ 2 - R * c ^ (1 / 3 : ℝ)), |f Δ| * hankelRho0 c Δ ≤
-        C * hankelMass c f * (Real.exp (-5 * R ^ (3 / 2 : ℝ)) + Real.exp (-κ * c))
   profile_compactness : ∀ (M₀ ε : ℝ), (ε = 1 ∨ ε = -1) → ∀ (c : ℕ → ℝ) (f : ℕ → ℝ → ℝ),
     Tendsto c atTop atTop → (∀ n, IsHankelEigenfn (c n) ε (f n)) →
     (∀ n, hankelMass (c n) (f n) ≤ M₀) →
@@ -156,10 +152,9 @@ theorem exists_airy_package (H : RadialCompactness) (c : ℕ → ℝ) (hc : Tend
         ∫ Δ in Ioo (0 : ℝ) (c n / π ^ 2 - R * (c n) ^ (1 / 3 : ℝ)),
           |f n Δ| * hankelRho0 (c n) Δ ≤
             C * hankelMass (c n) (f n) * (Real.exp (-5 * R ^ (3 / 2 : ℝ)) + Real.exp (-κ * c n)) := by
-    obtain ⟨C, κ, c₀, hC, hκ, hlobe⟩ := H.deep_lobe_mass
-    refine ⟨C, κ, hC, hκ, fun R hR => ?_⟩
-    filter_upwards [hc.eventually (eventually_ge_atTop c₀)] with n hn hlt
-    exact hlobe (c n) hn (-1) (Or.inr rfl) (f n) (hfeas n).toIsHankelEigenfn R hR hlt
+    refine ⟨8, 1 / 25, by norm_num, by norm_num, fun R hR => ?_⟩
+    filter_upwards [hc.eventually (eventually_ge_atTop 56)] with n hn hlt
+    exact deep_lobe_mass_thm hn (hfeas n).toIsHankelEigenfn (Or.inr rfl) hR
   have h_nonneg_f : ∀ᶠ n in atTop, ∃ Δ : ℝ, 0 ≤ Δ ∧ f n Δ ≠ 0 :=
     Eventually.of_forall fun n => by
       obtain ⟨Δ, hΔ, hne⟩ := (hfeas n).nonzero
