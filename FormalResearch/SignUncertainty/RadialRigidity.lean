@@ -541,10 +541,23 @@ private lemma setIntegral_Icc_tendsto_of_tendstoUniformlyOn
     dsimp [δ]; rw [mul_div_assoc', div_lt_iff₀ (by linarith)]; nlinarith
   linarith
 
-private lemma RadialRigidityPackage.scaled_threshold_bddBelow {ι : Type*} {p : Filter ι}
-    {D : HermiteBiehlerData} (R : RadialRigidityPackage ι p D) :
-    ∃ B₀ : ℝ, ∀ᶠ n in p, B₀ ≤ (R.c n) ^ (-(1 / 3 : ℝ)) * (R.T n - R.c n / π ^ 2) := by
-  obtain ⟨C, κ, hC, hκ, hlobe⟩ := R.deep_lobe_mass
+/-- Lower bound on the rescaled threshold from the deep-lobe mass bound, on raw data. -/
+theorem scaled_threshold_bddBelow_raw {ι : Type*} {p : Filter ι}
+    (c : ι → ℝ) (eps : ℝ) (f : ι → ℝ → ℝ) (T : ι → ℝ)
+    (h_c_tendsto : Tendsto c p atTop)
+    (h_f_cont : ∀ᶠ n in p, ContinuousOn (f n) (Ici 0))
+    (h_f_int : ∀ᶠ n in p, IntegrableOn (fun Δ => f n Δ * hankelRho0 (c n) Δ) (Ioi 0))
+    (h_f_ne : ∀ᶠ n in p, ∃ Δ : ℝ, 0 ≤ Δ ∧ f n Δ ≠ 0)
+    (h_f_origin_eq : ∀ᶠ n in p, eps * f n 0 = ∫ Δ in Ioi 0, f n Δ * hankelRho0 (c n) Δ)
+    (h_f_origin_le : ∀ᶠ n in p, eps * f n 0 ≤ 0)
+    (h_f_tail_nonneg : ∀ᶠ n in p, ∀ Δ : ℝ, T n ≤ Δ → 0 ≤ f n Δ)
+    (hdeep : ∃ C κ : ℝ, 0 < C ∧ 0 < κ ∧
+      ∀ R : ℝ, 1 ≤ R → ∀ᶠ n in p, R * (c n) ^ (1 / 3 : ℝ) < c n / π ^ 2 →
+        ∫ Δ in Ioo (0 : ℝ) (c n / π ^ 2 - R * (c n) ^ (1 / 3 : ℝ)),
+          |f n Δ| * hankelRho0 (c n) Δ ≤
+            C * hankelMass (c n) (f n) * (Real.exp (-5 * R ^ (3 / 2 : ℝ)) + Real.exp (-κ * c n))) :
+    ∃ B₀ : ℝ, ∀ᶠ n in p, B₀ ≤ (c n) ^ (-(1 / 3 : ℝ)) * (T n - c n / π ^ 2) := by
+  obtain ⟨C, κ, hC, hκ, hlobe⟩ := hdeep
   have htR : Tendsto (fun r : ℝ => C * Real.exp (-5 * r ^ (3 / 2 : ℝ))) atTop (𝓝 0) := by
     simpa using ((Real.tendsto_exp_atBot.comp (tendsto_const_nhds.neg_mul_atTop
       (neg_lt_zero.mpr (by norm_num : (0 : ℝ) < 5))
@@ -553,31 +566,31 @@ private lemma RadialRigidityPackage.scaled_threshold_bddBelow {ι : Type*} {p : 
   let r₀ := max R₀ 1
   have hr₀1 : 1 ≤ r₀ := le_max_right _ _
   have hr₀_lt : C * Real.exp (-5 * r₀ ^ (3 / 2 : ℝ)) < 1 / 4 := hR₀ r₀ (le_max_left _ _)
-  have hexp_c : ∀ᶠ n in p, C * Real.exp (-κ * R.c n) < 1 / 4 := by
-    have ht : Tendsto (fun n => C * Real.exp (-κ * R.c n)) p (𝓝 0) := by
+  have hexp_c : ∀ᶠ n in p, C * Real.exp (-κ * c n) < 1 / 4 := by
+    have ht : Tendsto (fun n => C * Real.exp (-κ * c n)) p (𝓝 0) := by
       simpa using ((Real.tendsto_exp_atBot.comp
-        (tendsto_const_nhds.neg_mul_atTop (neg_lt_zero.mpr hκ) R.c_tendsto)).const_mul C)
+        (tendsto_const_nhds.neg_mul_atTop (neg_lt_zero.mpr hκ) h_c_tendsto)).const_mul C)
     exact ht.eventually (eventually_lt_nhds (by norm_num : (0 : ℝ) < 1 / 4))
-  have hc_dom : ∀ᶠ n in p, 1 ≤ R.c n ∧ r₀ * (R.c n) ^ (1 / 3 : ℝ) < R.c n / π ^ 2 := by
-    have hq : Tendsto (fun n => (R.c n) ^ (2 / 3 : ℝ)) p atTop :=
-      (tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 2 / 3)).comp R.c_tendsto
-    filter_upwards [R.c_tendsto.eventually (eventually_ge_atTop (1 : ℝ)),
+  have hc_dom : ∀ᶠ n in p, 1 ≤ c n ∧ r₀ * (c n) ^ (1 / 3 : ℝ) < c n / π ^ 2 := by
+    have hq : Tendsto (fun n => (c n) ^ (2 / 3 : ℝ)) p atTop :=
+      (tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 2 / 3)).comp h_c_tendsto
+    filter_upwards [h_c_tendsto.eventually (eventually_ge_atTop (1 : ℝ)),
       hq.eventually (eventually_gt_atTop (r₀ * π ^ 2))] with n hc1 hqgt
     refine ⟨hc1, ?_⟩
-    have hc0 : 0 < R.c n := by linarith
+    have hc0 : 0 < c n := by linarith
     have hmul := mul_lt_mul_of_pos_right hqgt (Real.rpow_pos_of_pos hc0 (1 / 3 : ℝ))
     rw [← Real.rpow_add hc0, show (2 / 3 : ℝ) + 1 / 3 = 1 by norm_num, Real.rpow_one] at hmul
     rw [lt_div_iff₀ (sq_pos_of_pos Real.pi_pos)]
     linarith
   refine ⟨-r₀, ?_⟩
-  filter_upwards [hc_dom, hexp_c, hlobe r₀ hr₀1, R.f_cont, R.f_int, R.f_ne,
-    R.f_origin_eq, R.f_origin_le, R.f_tail_nonneg] with
+  filter_upwards [hc_dom, hexp_c, hlobe r₀ hr₀1, h_f_cont, h_f_int, h_f_ne,
+    h_f_origin_eq, h_f_origin_le, h_f_tail_nonneg] with
     n ⟨hc1, hRlt⟩ hexp_lt hlobe_n hcont hint hne horg horg_le htail
-  have hc0 : 0 < R.c n := by linarith
-  have hmass : 0 < hankelMass (R.c n) (R.f n) := hankelMass_pos_of_continuousOn hc0 hcont hint hne
+  have hc0 : 0 < c n := by linarith
+  have hmass : 0 < hankelMass (c n) (f n) := hankelMass_pos_of_continuousOn hc0 hcont hint hne
   by_contra hbad
   push Not at hbad
-  let ψ : ℝ → ℝ := fun u => hankelWindowProfile (R.c n) (R.f n) u / hankelMass (R.c n) (R.f n)
+  let ψ : ℝ → ℝ := fun u => hankelWindowProfile (c n) (f n) u / hankelMass (c n) (f n)
   have hψ_int : Integrable ψ := ((integrable_hankelWindowProfile_iff hc0 _).mpr hint).div_const _
   have hm_int := neg_part_integrable hψ_int
   have hhalf := psi_neg_mass_ge_half hc0 hint hmass (by rw [← horg]; exact horg_le)
@@ -595,16 +608,22 @@ private lemma RadialRigidityPackage.scaled_threshold_bddBelow {ι : Type*} {p : 
     setIntegral_mono_on hm_int.integrableOn hψ_int.abs.integrableOn measurableSet_Ioi fun u _ =>
       max_le (abs_nonneg _) (neg_le_abs _)
   have habs_tail : ∫ u in Ioi (r₀ * hankelBeta1), |ψ u| =
-      (∫ Δ in Ioo (0 : ℝ) (R.c n / π ^ 2 - r₀ * (R.c n) ^ (1 / 3 : ℝ)),
-        |R.f n Δ| * hankelRho0 (R.c n) Δ) / hankelMass (R.c n) (R.f n) := by
-    have heq : (fun u => |ψ u|) = fun u => |hankelWindowProfile (R.c n) (R.f n) u| / hankelMass (R.c n) (R.f n) := by
+      (∫ Δ in Ioo (0 : ℝ) (c n / π ^ 2 - r₀ * (c n) ^ (1 / 3 : ℝ)),
+        |f n Δ| * hankelRho0 (c n) Δ) / hankelMass (c n) (f n) := by
+    have heq : (fun u => |ψ u|) = fun u => |hankelWindowProfile (c n) (f n) u| / hankelMass (c n) (f n) := by
       ext u; simp [ψ, abs_div, abs_of_pos hmass]
-    rw [heq, integral_div, integral_tail_abs_hankelWindowProfile hc0 (R.f n) r₀]
-  have hbd : (∫ Δ in Ioo (0 : ℝ) (R.c n / π ^ 2 - r₀ * (R.c n) ^ (1 / 3 : ℝ)),
-        |R.f n Δ| * hankelRho0 (R.c n) Δ) / hankelMass (R.c n) (R.f n) ≤
-      C * (Real.exp (-5 * r₀ ^ (3 / 2 : ℝ)) + Real.exp (-κ * R.c n)) := by
+    rw [heq, integral_div, integral_tail_abs_hankelWindowProfile hc0 (f n) r₀]
+  have hbd : (∫ Δ in Ioo (0 : ℝ) (c n / π ^ 2 - r₀ * (c n) ^ (1 / 3 : ℝ)),
+        |f n Δ| * hankelRho0 (c n) Δ) / hankelMass (c n) (f n) ≤
+      C * (Real.exp (-5 * r₀ ^ (3 / 2 : ℝ)) + Real.exp (-κ * c n)) := by
     rw [div_le_iff₀ hmass]; linarith [hlobe_n hRlt]
   linarith
+
+private lemma RadialRigidityPackage.scaled_threshold_bddBelow {ι : Type*} {p : Filter ι}
+    {D : HermiteBiehlerData} (R : RadialRigidityPackage ι p D) :
+    ∃ B₀ : ℝ, ∀ᶠ n in p, B₀ ≤ (R.c n) ^ (-(1 / 3 : ℝ)) * (R.T n - R.c n / π ^ 2) :=
+  scaled_threshold_bddBelow_raw R.c R.eps R.f R.T R.c_tendsto R.f_cont R.f_int R.f_ne R.f_origin_eq
+    R.f_origin_le R.f_tail_nonneg R.deep_lobe_mass
 
 private lemma RadialRigidityPackage.subseq_extremal {ι : Type*} {p : Filter ι}
     {D : HermiteBiehlerData} (R : RadialRigidityPackage ι p D)
