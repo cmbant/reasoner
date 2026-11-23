@@ -7,7 +7,7 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
 
 - 64 files, about 64k lines (CohnElkies about 40k, SignUncertainty 14k, TwoEdgeBootstrap 4k, Asymptotics 3k).
   `lake build FormalResearch.SignUncertainty FormalResearch.TwoEdgeBootstrap` passes (9269 jobs, about 9 min). There are no
-  `sorry`s or axioms, and the headline theorems use only the standard three axioms.
+  placeholder proofs or custom axioms, and the headline theorems use only the standard three axioms.
 - **No headline result of Paper I is Lean-checked, not even conditionally on a TeX theorem.** The four introduction
   theorems are `thm:intro-radii` (sign-uncertainty radii plus `gt:7.12` CE radius), `thm:intro-separation` (`gt:7.9c`),
   `thm:intro-hb` (`thm:hb-thresholds`) and `thm:intro-gap` (`thm:ce-shell-gap`).
