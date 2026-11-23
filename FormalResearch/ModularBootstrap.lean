@@ -150,6 +150,7 @@ public import FormalResearch.ModularBootstrap.Upper.Membership.HankelTransform
 public import FormalResearch.ModularBootstrap.Upper.Membership.CombDecay
 public import FormalResearch.ModularBootstrap.Upper.Membership.RefComb
 public import FormalResearch.ModularBootstrap.Upper.Membership.SaddleTail
+public import FormalResearch.ModularBootstrap.Upper.Membership.DesignMembership
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -494,4 +495,11 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `x ≥ x_I` is derived from the named amplitude hypotheses `SDVAmplitudeInput` for `c' ≥ c₀`
   (`saddleTailBound_of_sdv`, `k7_membership_vacuum_of_sdv`), and `refComb` satisfies the
   hypotheses (i), (iii) (`refComb_innerCombHyp`).
+* `Upper.Membership.DesignMembership`: **Lemma `K7` for the finite-modification design combs**
+  (`designComb`, compact family of `lemma_P_b`): hypotheses (i), (iii) (`designComb_innerCombHyp`, via
+  `K1(a)`, `lemma_P_b` and `band_upper_K6a_bdd`), (ii) (`designComb_combPhaseData`) and the amplitude
+  input (`design_sdvAmplitudeInput` = `designProfile_sdvHypotheses`), and the conclusion for all large
+  `c'` uniformly over the family (`design_k7_membership_vacuum`: decay, `g = ½(h₀ - ĥ₀) ∈ Ā` at `w = 1`,
+  vacuum identity, `|h_{0,vac}| ≤ 8`) and for the designs `D(N, η_*, d)` (`design1_k7_membership_vacuum`),
+  unconditional.
 -/
