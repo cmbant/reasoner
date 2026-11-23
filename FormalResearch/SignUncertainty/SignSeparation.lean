@@ -9,8 +9,9 @@ Source: `CFT/sign_uncertainty/paper/general_theorems.tex` (PR 240, commit `c3d8c
 
 * **Proposition 7.9b (`gt:7.9b`):** Explicit odd Laguerre mode `oddLaguerreMode`,
   `active_origin_constraint`, and constrained/unconstrained infimum equality for `T_c^{-1} > c / (4π)`.
-* **Theorem 7.9c (`gt:7.9c`):** `integral_linear_exp_tail_lower`, Langer `C¹` transport
-  reduction, `sign_separation_limsup` (`limsup (T_c^{+1} - T_c^{-1}) ≤ -2 / π²`), integer
+* **Theorem 7.9c (`gt:7.9c`):** `integral_linear_exp_tail_lower`, the `C¹` profile-convergence
+  reduction (`SignSeparationPackage.langer_approx`, derived from `c1_profile`; no Langer chart),
+  `sign_separation_limsup` (`limsup (T_c^{+1} - T_c^{-1}) ≤ -2 / π²`), integer
   `A_+(d) - A_-(d)` and `κ_{+1} - κ_{-1}` corollaries, plus `langerProfileFamily_nonvacuous`.
 -/
 
@@ -839,37 +840,248 @@ private lemma langer_intertwiner_pos_near_thresh
   exact mul_nonneg (Real.rpow_nonneg hΔ.le _) hIoi_nn
 
 /-- Analytic package of hypotheses for Theorem 7.9c (`gt:7.9c`): a family of Hankel kernels
-`K c` (`c ≥ c₀`) admitting `(-1)`-feasible eigenfunctions with `T_c^{-1} / c → 1 / π²` and a uniform
-`C¹` Langer density approximation on near-optimal `(-1)`-feasible eigenfunctions. -/
-structure LangerSignSeparationPackage where
+`K c` (`c ≥ c₀`) admitting `(-1)`-feasible eigenfunctions whose one-level thresholds have the Airy
+order `T_c^{-1} = c/π² + (|a₁|/β₁) c^{1/3} + o(c^{1/3})` (`gt:7.5` lower bound with the one-level
+`O.9'`), and whose near-optimal `(-1)`-feasible eigenfunctions have window profiles
+`Ψ_{f,c}/M[f]` converging to the normalised Airy extremal `G_Ai/‖G_Ai‖₁` locally uniformly together
+with the first derivative (`gt:7.5`, identification of the limit, and `lem:radial-compactness`, whose
+`C¹` clause is the content of this field). The Langer chart is not used (`gt:7.9c` no longer needs it).
+
+Open content of the fields: see `Headlines.lean` (`radial_rigidity_lower`, `hb_thresholds_upper`,
+`radial_profile_c1`). -/
+structure SignSeparationPackage where
   c₀ : ℝ
   hc₀ : 0 < c₀
   K : ∀ c ≥ c₀, HankelKernelData c
   neg_feasible : ∀ (c : ℝ) (hc : c₀ ≤ c), ∃ T f, IsFeasible c (K c hc) (-1) T f
-  Tneg_asymp : Tendsto (fun c : ℝ =>
-    if hc : c₀ ≤ c then hankelThreshold c (K c hc) (-1) / c else 0) atTop (𝓝 (1 / π ^ 2))
-  langer_approx : ∀ (δ M η : ℝ), 0 < δ → 0 ≤ M → 0 < η →
+  Tneg_airy_order : Tendsto (fun c : ℝ =>
+    if hc : c₀ ≤ c then (hankelThreshold c (K c hc) (-1) - c / π ^ 2) / c ^ (1 / 3 : ℝ) else 0)
+    atTop (𝓝 (|airyZero 1| / hankelBeta1))
+  c1_profile : ∀ (R η : ℝ), 0 < η →
     ∀ᶠ c in atTop, ∀ (hc : c₀ ≤ c) (T : ℝ) (f : ℝ → ℝ),
       IsFeasible c (K c hc) (-1) T f →
       hankelThreshold c (K c hc) (-1) ≤ T →
       T ≤ hankelThreshold c (K c hc) (-1) + 1 / c →
+      ContDiffOn ℝ 1 (fun u => hankelWindowProfile c f u / hankelMass c f) (Ioo (-R) R) ∧
+      ∀ u ∈ Ioo (-R) R,
+        |hankelWindowProfile c f u / hankelMass c f - HermiteBiehlerData.airy.normG u| ≤ η ∧
+        |deriv (fun v => hankelWindowProfile c f v / hankelMass c f) u -
+            deriv HermiteBiehlerData.airy.normG u| ≤ η
+
+noncomputable def SignSeparationPackage.Tneg (P : SignSeparationPackage) (c : ℝ) : ℝ :=
+  if hc : P.c₀ ≤ c then hankelThreshold c (P.K c hc) (-1) else 0
+
+noncomputable def SignSeparationPackage.Tpos (P : SignSeparationPackage) (c : ℝ) : ℝ :=
+  if hc : P.c₀ ≤ c then hankelThreshold c (P.K c hc) 1 else 0
+
+/-- The normalised Airy extremal is `C¹` (indeed smooth). -/
+lemma airy_normG_contDiff : ContDiff ℝ 1 HermiteBiehlerData.airy.normG := by
+  have h1 : ContDiff ℝ 1 (fun u : ℝ => airyExtremal (u : ℂ)) :=
+    ((differentiable_airyExtremal.contDiff (n := 1)).restrict_scalars ℝ).comp
+      Complex.ofRealCLM.contDiff
+  have h2 : ContDiff ℝ 1 (fun u : ℝ => (airyExtremal (u : ℂ)).re) :=
+    Complex.reCLM.contDiff.comp h1
+  exact h2.div_const _
+
+/-- `T_c^{-1} / c → 1/π²` follows from the Airy-order asymptotics of `T_c^{-1}`. -/
+theorem SignSeparationPackage.Tneg_asymp (P : SignSeparationPackage) :
+    Tendsto (fun c : ℝ =>
+      if hc : P.c₀ ≤ c then hankelThreshold c (P.K c hc) (-1) / c else 0) atTop (𝓝 (1 / π ^ 2)) := by
+  have h0 : Tendsto (fun c : ℝ => c ^ (-(2 / 3 : ℝ))) atTop (𝓝 0) :=
+    tendsto_rpow_neg_atTop (by norm_num)
+  have h1 := (P.Tneg_airy_order.mul h0).const_add (1 / π ^ 2)
+  rw [mul_zero, add_zero] at h1
+  refine h1.congr' ?_
+  filter_upwards [eventually_ge_atTop P.c₀, eventually_gt_atTop (0 : ℝ)] with c hc hc0
+  rw [dif_pos hc, dif_pos hc]
+  have hab : c ^ (1 / 3 : ℝ) * c ^ (2 / 3 : ℝ) = c := by
+    rw [← Real.rpow_add hc0]; norm_num
+  have h3 : 0 < c ^ (1 / 3 : ℝ) := Real.rpow_pos_of_pos hc0 _
+  have h4 : 0 < c ^ (2 / 3 : ℝ) := Real.rpow_pos_of_pos hc0 _
+  rw [Real.rpow_neg hc0.le]
+  field_simp
+  linear_combination (c - π ^ 2 * hankelThreshold c (P.K c hc) (-1)) * hab
+
+/-- From the `C¹` profile convergence to the two-sided slope window used by Theorem 7.9c: near the
+terminal threshold the density `y ↦ f(T + y) ρ₀(T + y)` of a near-optimal `(-1)`-feasible `f` has
+derivative within a factor `1 ± η` of a fixed positive multiple `K_c` (so `R = 0` below; no Langer
+transport is needed). -/
+theorem SignSeparationPackage.langer_approx (P : SignSeparationPackage) (δ M η : ℝ) (hδ : 0 < δ)
+    (hM : 0 ≤ M) (hη : 0 < η) :
+    ∀ᶠ c in atTop, ∀ (hc : P.c₀ ≤ c) (T : ℝ) (f : ℝ → ℝ),
+      IsFeasible c (P.K c hc) (-1) T f →
+      hankelThreshold c (P.K c hc) (-1) ≤ T →
+      T ≤ hankelThreshold c (P.K c hc) (-1) + 1 / c →
       ∃ (Q Q' R : ℝ → ℝ) (Kc : ℝ),
         0 < Kc ∧
         (∀ y ∈ Icc (-δ) M, f (T + y) * hankelRho0 c (T + y) = Q y + R y) ∧
         (∀ y ∈ Icc (-δ) M, |R y| ≤ η * Kc) ∧
         ContinuousOn Q' (Icc (-δ) M) ∧
         (∀ y ∈ Icc (-δ) M, HasDerivAt Q (Q' y) y) ∧
-        (∀ y ∈ Icc (-δ) M, (1 - η) * Kc ≤ Q' y ∧ Q' y ≤ (1 + η) * Kc)
+        (∀ y ∈ Icc (-δ) M, (1 - η) * Kc ≤ Q' y ∧ Q' y ≤ (1 + η) * Kc) := by
+  classical
+  set N : ℝ → ℝ := HermiteBiehlerData.airy.normG with hN_def
+  set a : ℝ := airyZero 1 with ha_def
+  set g' : ℝ := deriv N a with hg'_def
+  have hg' : g' < 0 := HermiteBiehlerData.normG_airy_deriv_neg
+  have hgabs : 0 < |g'| := abs_pos.mpr hg'.ne
+  have ha_neg : a < 0 := airyZero_neg 1
+  have hNd_cont : Continuous (deriv N) := airy_normG_contDiff.continuous_deriv le_rfl
+  obtain ⟨r, hr, hrN⟩ : ∃ r : ℝ, 0 < r ∧ ∀ u : ℝ, |u - a| < r →
+      |deriv N u - g'| ≤ η * |g'| / 4 := by
+    obtain ⟨r, hr, h⟩ := Metric.continuousAt_iff.mp hNd_cont.continuousAt (η * |g'| / 4)
+      (by positivity)
+    exact ⟨r, hr, fun u hu => by
+      have := h (show dist u a < r by rwa [Real.dist_eq]); rw [Real.dist_eq] at this; exact this.le⟩
+  set ρ : ℝ := min 1 r with hρ
+  have hρpos : 0 < ρ := lt_min one_pos hr
+  have hρ1 : ρ ≤ 1 := min_le_left _ _
+  have hρr : ρ ≤ r := min_le_right _ _
+  set R : ℝ := |a| + 2 with hR_def
+  have h1c := P.c1_profile R (η * |g'| / 4) (by positivity)
+  have hβ := hankelBeta1_pos
+  set β := hankelBeta1 with hβ_def
+  have hTn_def : ∀ c : ℝ, ∀ hc : P.c₀ ≤ c, P.Tneg c = hankelThreshold c (P.K c hc) (-1) := fun c hc => by
+    unfold SignSeparationPackage.Tneg; rw [dif_pos hc]
+  have hT_asymp_real : Tendsto (fun c : ℝ => P.Tneg c / c) atTop (𝓝 (1 / π ^ 2)) :=
+    P.Tneg_asymp.congr' (Eventually.of_forall fun c => by
+      dsimp [SignSeparationPackage.Tneg]; split_ifs <;> simp)
+  have hTinf : Tendsto (fun c : ℝ => P.Tneg c) atTop atTop := by
+    have hmul : Tendsto (fun c : ℝ => (P.Tneg c / c) * c) atTop atTop :=
+      Filter.Tendsto.pos_mul_atTop (by positivity : (0 : ℝ) < 1 / π ^ 2) hT_asymp_real tendsto_id
+    refine hmul.congr' ?_
+    filter_upwards [eventually_gt_atTop (0 : ℝ)] with c hc0
+    rw [div_mul_cancel₀ _ hc0.ne']
+  have hs : Tendsto (fun c : ℝ => (P.Tneg c - c / π ^ 2) / c ^ (1 / 3 : ℝ)) atTop
+      (𝓝 (|a| / β)) :=
+    P.Tneg_airy_order.congr' (by
+      filter_upwards [eventually_ge_atTop P.c₀] with c hc
+      simp only [SignSeparationPackage.Tneg, dif_pos hc])
+  have hs_ev : ∀ᶠ c in atTop, |(P.Tneg c - c / π ^ 2) / c ^ (1 / 3 : ℝ) - |a| / β| < ρ / (2 * β) :=
+    hs.eventually (Metric.ball_mem_nhds (|a| / β) (show 0 < ρ / (2 * β) by positivity)) |>.mono fun c hc => by
+      rwa [Real.dist_eq] at hc
+  have hq0 : Tendsto (fun c : ℝ => β * (1 + δ + M) * c ^ (-(1 / 3 : ℝ))) atTop (𝓝 0) := by
+    simpa using (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 3)).const_mul (β * (1 + δ + M))
+  have hq_ev : ∀ᶠ c in atTop, β * (1 + δ + M) * c ^ (-(1 / 3 : ℝ)) < ρ / 2 :=
+    hq0.eventually (gt_mem_nhds (by positivity))
+  filter_upwards [eventually_ge_atTop (1 : ℝ), hs_ev, hq_ev, hTinf.eventually (eventually_gt_atTop δ),
+    h1c] with c hc1 hsc hqc hTδ h1 hc' T f hf hT1 hT2
+  have hc0 : 0 < c := lt_of_lt_of_le one_pos hc1
+  have hTn := hTn_def c hc'
+  set q : ℝ := c ^ (1 / 3 : ℝ) with hq_def
+  have hq : 0 < q := Real.rpow_pos_of_pos hc0 _
+  have hqinv : c ^ (-(1 / 3 : ℝ)) = q⁻¹ := Real.rpow_neg hc0.le _
+  rw [hqinv] at hqc
+  obtain ⟨hcd, hclose⟩ := h1 hc' T f hf hT1 hT2
+  have hMf : 0 < hankelMass c f :=
+    hankelMass_pos_of_continuousOn hc0 hf.eigenfn.cont hf.eigenfn.int
+      (by obtain ⟨Δ, hΔ, hne⟩ := hf.nonzero; exact ⟨Δ, hΔ, hne⟩)
+  set Mf : ℝ := hankelMass c f with hMf_def
+  set Ψ : ℝ → ℝ := fun v => hankelWindowProfile c f v / Mf with hΨ_def
+  set u : ℝ → ℝ := fun y => β * (c / π ^ 2 - (T + y)) / q with hu_def
+  have hTn_pos : δ < T := by
+    have := hTδ; rw [hTn] at this; linarith [hT1]
+  -- the window in the `u` variable
+  have hu_close : ∀ y ∈ Icc (-δ) M, |u y - a| < ρ := by
+    intro y hy
+    have hs' := hsc
+    rw [hTn] at hs'
+    set s : ℝ := (hankelThreshold c (P.K c hc') (-1) - c / π ^ 2) / q with hs_def
+    have hτ : T = hankelThreshold c (P.K c hc') (-1) + (T - hankelThreshold c (P.K c hc') (-1)) := by ring
+    have hτ0 : 0 ≤ T - hankelThreshold c (P.K c hc') (-1) := by linarith
+    have hτ1 : T - hankelThreshold c (P.K c hc') (-1) ≤ 1 := by
+      have : 1 / c ≤ 1 := (div_le_one hc0).mpr hc1
+      linarith
+    have hid : u y - a = -(β * (s - |a| / β)) - β * ((T - hankelThreshold c (P.K c hc') (-1)) + y) / q := by
+      have hba : β * (|a| / β) = -a := by rw [mul_div_cancel₀ _ hβ.ne', abs_of_neg ha_neg]
+      simp only [hu_def, hs_def, abs_of_neg ha_neg]
+      field_simp
+      ring
+    have hb1 : |β * (s - |a| / β)| < ρ / 2 := by
+      rw [abs_mul, abs_of_pos hβ]
+      calc β * |s - |a| / β| < β * (ρ / (2 * β)) := mul_lt_mul_of_pos_left hs' hβ
+        _ = ρ / 2 := by field_simp
+    have hb2 : |β * ((T - hankelThreshold c (P.K c hc') (-1)) + y) / q| < ρ / 2 := by
+      have hnum : |(T - hankelThreshold c (P.K c hc') (-1)) + y| ≤ 1 + δ + M := by
+        rw [abs_le]; constructor <;> linarith [hy.1, hy.2]
+      rw [abs_div, abs_mul, abs_of_pos hβ, abs_of_pos hq]
+      calc β * |(T - hankelThreshold c (P.K c hc') (-1)) + y| / q
+          ≤ β * (1 + δ + M) / q := by gcongr
+        _ = β * (1 + δ + M) * q⁻¹ := by rw [div_eq_mul_inv]
+        _ < ρ / 2 := hqc
+    rw [hid, abs_sub_comm, sub_neg_eq_add]
+    calc |β * ((T - hankelThreshold c (P.K c hc') (-1)) + y) / q + β * (s - |a| / β)|
+        ≤ |β * ((T - hankelThreshold c (P.K c hc') (-1)) + y) / q| + |β * (s - |a| / β)| :=
+          abs_add_le _ _
+      _ < ρ / 2 + ρ / 2 := add_lt_add hb2 hb1
+      _ = ρ := by ring
+  have hu_mem : ∀ y ∈ Icc (-δ) M, u y ∈ Ioo (-R) R := by
+    intro y hy
+    have h := hu_close y hy
+    rw [abs_lt] at h
+    constructor <;> [skip; skip] <;> (rw [hR_def, abs_of_neg ha_neg]; linarith [h.1, h.2])
+  have hu_cont : Continuous u := by simp only [hu_def]; fun_prop
+  have hu_deriv : ∀ y, HasDerivAt u (β * (-1) / q) y := fun y => by
+    have := ((((hasDerivAt_id y).const_add T).const_sub (c / π ^ 2)).const_mul β).div_const q
+    simpa [hu_def, Function.comp_def] using this
+  have hΨdiff : ∀ v ∈ Ioo (-R) R, DifferentiableAt ℝ Ψ v := fun v hv =>
+    (hcd.differentiableOn one_ne_zero v hv).differentiableAt (Ioo_mem_nhds hv.1 hv.2)
+  have hΨ'cont : ContinuousOn (deriv Ψ) (Ioo (-R) R) :=
+    hcd.continuousOn_deriv_of_isOpen isOpen_Ioo le_rfl
+  set B : ℝ := (β / q) ^ 2 * Mf with hB_def
+  have hB : 0 < B := by positivity
+  set Kc : ℝ := |g'| * B with hKc_def
+  have hKc : 0 < Kc := by positivity
+  refine ⟨fun y => (β / q) * Mf * Ψ (u y), fun y => -B * deriv Ψ (u y), fun _ => 0, Kc, hKc,
+    ?_, ?_, ?_, ?_, ?_⟩
+  · intro y hy
+    have hpos : 0 < T + y := by linarith [hy.1]
+    have hΔeq : c / π ^ 2 - u y / β * q = T + y := by
+      simp only [hu_def]; field_simp; ring
+    have hw : hankelWindowProfile c f (u y) = (q / β) * (f (T + y) * hankelRho0 c (T + y)) := by
+      unfold hankelWindowProfile
+      dsimp only
+      rw [hΔeq, if_pos hpos]
+    simp only [hΨ_def, hw]
+    field_simp
+    ring
+  · intro y hy; simp [mul_nonneg hη.le hKc.le]
+  · refine ContinuousOn.mul continuousOn_const ?_
+    exact hΨ'cont.comp hu_cont.continuousOn (fun y hy => hu_mem y hy)
+  · intro y hy
+    have h := ((hΨdiff _ (hu_mem y hy)).hasDerivAt.comp y (hu_deriv y)).const_mul ((β / q) * Mf)
+    refine h.congr_deriv ?_
+    simp only [hB_def]
+    field_simp
+  · intro y hy
+    have hmem := hu_mem y hy
+    have hclo := (hclose (u y) hmem).2
+    have hNclose : |deriv N (u y) - g'| ≤ η * |g'| / 4 :=
+      hrN _ (lt_of_lt_of_le (hu_close y hy) hρr)
+    have he : |deriv Ψ (u y) - g'| ≤ η * |g'| / 2 := by
+      calc |deriv Ψ (u y) - g'|
+          = |(deriv Ψ (u y) - deriv N (u y)) + (deriv N (u y) - g')| := by ring_nf
+        _ ≤ |deriv Ψ (u y) - deriv N (u y)| + |deriv N (u y) - g'| := abs_add_le _ _
+        _ ≤ η * |g'| / 4 + η * |g'| / 4 := add_le_add hclo hNclose
+        _ = η * |g'| / 2 := by ring
+    have hdec : -B * deriv Ψ (u y) = Kc - B * (deriv Ψ (u y) - g') := by
+      simp only [hKc_def, abs_of_neg hg']; ring
+    have hBe := abs_le.mp he
+    have h1' : B * (deriv Ψ (u y) - g') ≤ B * (η * |g'| / 2) :=
+      mul_le_mul_of_nonneg_left hBe.2 hB.le
+    have h2' : B * (-(η * |g'| / 2)) ≤ B * (deriv Ψ (u y) - g') :=
+      mul_le_mul_of_nonneg_left hBe.1 hB.le
+    have hBη : B * (η * |g'| / 2) = η * Kc / 2 := by simp only [hKc_def]; ring
+    have hBη' : B * (-(η * |g'| / 2)) = -(η * Kc / 2) := by simp only [hKc_def]; ring
+    have hKη : 0 < η * Kc := mul_pos hη hKc
+    show (1 - η) * Kc ≤ -B * deriv Ψ (u y) ∧ -B * deriv Ψ (u y) ≤ (1 + η) * Kc
+    rw [hdec]
+    constructor <;> linarith [hBη, hBη', hKη]
 
-noncomputable def LangerSignSeparationPackage.Tneg (P : LangerSignSeparationPackage) (c : ℝ) : ℝ :=
-  if hc : P.c₀ ≤ c then hankelThreshold c (P.K c hc) (-1) else 0
-
-noncomputable def LangerSignSeparationPackage.Tpos (P : LangerSignSeparationPackage) (c : ℝ) : ℝ :=
-  if hc : P.c₀ ≤ c then hankelThreshold c (P.K c hc) 1 else 0
 
 /-- Theorem 7.9c(1), quantitative form: for every `ε₀ > 0`, eventually as `c → ∞`,
 `T_c^{+1} - T_c^{-1} ≤ -2 / π² + ε₀`. -/
-theorem sign_separation_eventually_le (P : LangerSignSeparationPackage) :
+theorem sign_separation_eventually_le (P : SignSeparationPackage) :
     ∀ ε₀ > 0, ∀ᶠ c in atTop,
       P.Tpos c - P.Tneg c ≤ -(2 / π ^ 2) + ε₀ := by
   intro ε₀ hε₀
@@ -919,7 +1131,7 @@ theorem sign_separation_eventually_le (P : LangerSignSeparationPackage) :
     linarith
   have hT_asymp_real : Tendsto (fun c : ℝ => P.Tneg c / c) atTop (𝓝 (1 / π ^ 2)) :=
     P.Tneg_asymp.congr' (Eventually.of_forall fun c => by
-      dsimp [LangerSignSeparationPackage.Tneg]; split_ifs <;> simp)
+      dsimp [SignSeparationPackage.Tneg]; split_ifs <;> simp)
   have hw_unif := tendsto_rpow_ratio_exp hT_asymp_real hδ hM hηw
   have hlanger := P.langer_approx δ M ηp hδ hM hηp
   have hc_large : ∀ᶠ c in atTop, P.c₀ ≤ c ∧ 0 < c ∧ 1 / c ≤ ε₁ ∧ δ < P.Tneg c := by
@@ -952,9 +1164,9 @@ theorem sign_separation_eventually_le (P : LangerSignSeparationPackage) :
   obtain ⟨Q, Q', R, Kc, hKc, hdecomp, hR_bd, hQ'_cont, hQ_deriv, hQ'_bd⟩ :=
     hl_c hc_ge' T f hf_feas hT_ge hT_le
   have hTneg_eq : P.Tneg c = hankelThreshold c (P.K c hc_ge') (-1) := by
-    dsimp [LangerSignSeparationPackage.Tneg]; split_ifs; rfl
+    dsimp [SignSeparationPackage.Tneg]; split_ifs; rfl
   have hTpos_eq : P.Tpos c = hankelThreshold c (P.K c hc_ge') 1 := by
-    dsimp [LangerSignSeparationPackage.Tpos]; split_ifs; rfl
+    dsimp [SignSeparationPackage.Tpos]; split_ifs; rfl
   have hT_gt_δ : δ < T := by linarith [hTneg_eq, hT_ge, hTgt]
   have hw_c' : ∀ h ∈ Icc (0 : ℝ) δ, ∀ y ∈ Icc (-h) M,
       |((T + y) / (T - h)) ^ (-(c / 2)) - Real.exp (-(π ^ 2 / 2) * (y + h))| ≤ ηw := fun h hh y hy =>
@@ -979,7 +1191,7 @@ theorem sign_separation_eventually_le (P : LangerSignSeparationPackage) :
 
 /-- Theorem 7.9c(1), `limsup` form: under upper/lower coboundedness of `T_c^{+1} - T_c^{-1}`,
 `limsup_{c → ∞} (T_c^{+1} - T_c^{-1}) ≤ -2 / π²`. -/
-theorem sign_separation_limsup (P : LangerSignSeparationPackage)
+theorem sign_separation_limsup (P : SignSeparationPackage)
     (hcob : Filter.IsCoboundedUnder (· ≤ ·) atTop (fun c => P.Tpos c - P.Tneg c)) :
     Filter.limsup (fun c => P.Tpos c - P.Tneg c) atTop ≤ -(2 / π ^ 2) := by
   have hbdd : Filter.IsBoundedUnder (· ≤ ·) atTop (fun c => P.Tpos c - P.Tneg c) :=
@@ -992,7 +1204,7 @@ theorem sign_separation_limsup (P : LangerSignSeparationPackage)
 
 /-- Theorem 7.9c(2), integer dimensions `d → ∞`: for `A_ε(d) = √(2 T_{d/2}^ε)`,
 eventually `(1/2)(A_+(d)² - A_-(d)²) ≤ -2 / π² + ε₀` and `√d (A_+(d) - A_-(d)) ≤ -2 / π + ε₀`. -/
-theorem sign_separation_radii (P : LangerSignSeparationPackage) :
+theorem sign_separation_radii (P : SignSeparationPackage) :
     let Apos : ℕ → ℝ := fun d => Real.sqrt (2 * P.Tpos ((d : ℝ) / 2))
     let Aneg : ℕ → ℝ := fun d => Real.sqrt (2 * P.Tneg ((d : ℝ) / 2))
     (∀ ε₀ > 0, ∀ᶠ d : ℕ in atTop,
@@ -1004,7 +1216,7 @@ theorem sign_separation_radii (P : LangerSignSeparationPackage) :
     tendsto_natCast_atTop_atTop.atTop_div_const (by norm_num : (0 : ℝ) < 2)
   have hT_asymp_real : Tendsto (fun c : ℝ => P.Tneg c / c) atTop (𝓝 (1 / π ^ 2)) :=
     P.Tneg_asymp.congr' (Eventually.of_forall fun c => by
-      dsimp [LangerSignSeparationPackage.Tneg]; split_ifs <;> simp)
+      dsimp [SignSeparationPackage.Tneg]; split_ifs <;> simp)
   have hT_nn : ∀ᶠ d : ℕ in atTop, 0 ≤ P.Tpos ((d : ℝ) / 2) ∧ 0 < P.Tneg ((d : ℝ) / 2) ∧
       P.Tpos ((d : ℝ) / 2) ≤ P.Tneg ((d : ℝ) / 2) := by
     have hTasymp : Tendsto (fun d : ℕ => P.Tneg ((d : ℝ) / 2) / ((d : ℝ) / 2)) atTop (𝓝 (1 / π ^ 2)) :=
@@ -1021,14 +1233,14 @@ theorem sign_separation_radii (P : LangerSignSeparationPackage) :
       exact ⟨hc1, hc2, lt_trans (by positivity : (0 : ℝ) < 1 / (2 * π ^ 2)) htr⟩
     refine hd_large.mono fun d ⟨hc1, hc2, htr⟩ => ?_
     have hpos_nn : 0 ≤ P.Tpos ((d : ℝ) / 2) := by
-      dsimp [LangerSignSeparationPackage.Tpos]
+      dsimp [SignSeparationPackage.Tpos]
       split_ifs
       exact Real.sInf_nonneg fun _ ⟨_, hf⟩ => (feasible_threshold_pos hc2 hf).le
     have hneg_pos : 0 < P.Tneg ((d : ℝ) / 2) := by
       have := mul_pos htr hc2
       rwa [div_mul_cancel₀ _ hc2.ne'] at this
     have hle : P.Tpos ((d : ℝ) / 2) ≤ P.Tneg ((d : ℝ) / 2) := by
-      dsimp [LangerSignSeparationPackage.Tpos, LangerSignSeparationPackage.Tneg]
+      dsimp [SignSeparationPackage.Tpos, SignSeparationPackage.Tneg]
       split_ifs
       exact threshold_pos_le_neg hc2 (P.neg_feasible _ hc1)
     exact ⟨hpos_nn, hneg_pos, hle⟩
@@ -1109,7 +1321,7 @@ theorem sign_separation_radii (P : LangerSignSeparationPackage) :
 
 /-- Theorem 7.9c(3): if `T_c^ε = c / π² + a₁ c^{1/3} + κ_ε + o(1)` for both `ε = ±1`, then
 `κ_{+1} - κ_{-1} ≤ -2 / π²`. -/
-theorem sign_separation_kappa (P : LangerSignSeparationPackage) {a1 κpos κneg : ℝ}
+theorem sign_separation_kappa (P : SignSeparationPackage) {a1 κpos κneg : ℝ}
     (hpos : Tendsto (fun c : ℝ => P.Tpos c - c / π ^ 2 - a1 * c ^ (1 / 3 : ℝ) - κpos) atTop (𝓝 0))
     (hneg : Tendsto (fun c : ℝ => P.Tneg c - c / π ^ 2 - a1 * c ^ (1 / 3 : ℝ) - κneg) atTop (𝓝 0)) :
     κpos - κneg ≤ -(2 / π ^ 2) := by
