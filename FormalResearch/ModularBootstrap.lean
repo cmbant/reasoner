@@ -275,6 +275,16 @@ public import FormalResearch.ModularBootstrap.Upper.Assembly.TailLipschitz
 public import FormalResearch.ModularBootstrap.Upper.Assembly.TailBounds
 public import FormalResearch.ModularBootstrap.FixedWeightBand.N1Lower
 public import FormalResearch.ModularBootstrap.Upper.Ramped.PhaseUniform
+public import FormalResearch.ModularBootstrap.Upper.Holes.HoleComparison
+public import FormalResearch.ModularBootstrap.Upper.Holes.HoleFloor
+public import FormalResearch.ModularBootstrap.Upper.Holes.HoleGeometry
+public import FormalResearch.ModularBootstrap.Upper.Holes.HolePairs
+public import FormalResearch.ModularBootstrap.Upper.Holes.HoleProduct
+public import FormalResearch.ModularBootstrap.Upper.Ramped.NearTipRatio
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedHolePairs
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFloor
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionII
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedShift
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -842,4 +852,15 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `designComb_innerCombHyp_of_admissible`, `designComb_combPhaseData_of_decomp`, `design_sdvAmplitudeInput_of_decomp`,
   `design_k7_of_decomp` (`Membership.DesignMembership`); `PhaseUniform` packages them (`PhaseHyp`, `phase_package`,
   `phase_k7`, `phaseHyp_reference`), unconditional.
+
+* `Upper.Holes.{HoleComparison, HoleFloor, HolePairs, HoleProduct, HoleGeometry}` and
+  `Upper.Ramped.{RampedHolePairs, RampedFloor, NearTipRatio, RampedRegionII, RampedShift}`: the **hole comparison for
+  modified combs** (`rem:thmU` Steps (3)-(4)), unconditional apart from the named `ShiftSumEstimate`.  The Λ-form of K4
+  for an arbitrary comb (`lambdaForm_partial_lower`, from which `hole_lower_K4` is re-derived), the comparison
+  `log|B_D| ≥ log|B_ref| - S + Σ_{k∈H} log ρ_k` (`designComb_lower_hole`, `modLogRatio_ge`, `designComb_floor`), the
+  discriminant lemma `R_lower`, the pair factors `pairQ_ratio_lower`, `pairQ_ratio_other_lower`, the exact finite
+  product `16647192576/23591176505` (`holeProd_eq`, `holeSeven_prod`) and `c_fl = 0.7 · that > 0.493` (`cFl_gt`), the
+  floor `ramped_hole_floor` (`c_fl min(1, 16η_n²)(1 - E)`) and its macroscopic form `ramped_macro_margin`
+  (`2g/Lev ≥ 0.158 - 0.7(A + B) - 0.542 w`), the near-tip ratio `nearTip_ratio` (`vρ_∞(ξ_* + r; 3/4) ≤ C_v r^{5/4}`),
+  and the reduction `holeShiftCost_le_dist` of the shift cost `S` to the Lemma-E summation `ShiftSumEstimate`.
 -/
