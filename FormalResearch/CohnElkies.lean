@@ -9,6 +9,7 @@ public import FormalResearch.CohnElkies.CardinalAsymptotics
 public import FormalResearch.CohnElkies.MellinAiryToolkit
 public import FormalResearch.CohnElkies.MellinPhaseBounds
 public import FormalResearch.CohnElkies.MellinKernel
+public import FormalResearch.CohnElkies.MellinEdgeValues
 public import FormalResearch.CohnElkies.AiryNicholsonIntegral
 public import FormalResearch.CohnElkies.AirySymbolWKB
 public import FormalResearch.CohnElkies.CardinalPositiveAxis
@@ -65,6 +66,8 @@ and the Airy library:
 * `FormalResearch.CohnElkies.MellinKernel`: Binet-remainder bridge (Lemma `T.1(a)`), Mellin-strip kernel
   identity (Lemma `T.2(1)` / `(e33)`), integrated tail `|R̃_5(iτ)|` (Lemma `T.4(b)` / `(e34)`), and combined
   `(P2)`/`(P4)` vertical bounds.
+* `FormalResearch.CohnElkies.MellinEdgeValues`: left-edge value `Re ℋ(iτ)` of the strip function and the
+  Γ-ratio bound on the edge (`gt:7.4(2)` inputs).
 * `FormalResearch.CohnElkies.AiryNicholsonIntegral`: unconditional Nicholson integral error `E(x)` and
   phase correction `ϖ(x)` symbol/asymptotic bounds (Lemmas `W.3(a)` and `W.4(a)`).
 * `FormalResearch.CohnElkies.AirySymbolWKB`: negative-axis Airy WKB representation, oscillation
