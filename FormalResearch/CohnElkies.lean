@@ -117,8 +117,9 @@ and the Airy library:
   exact Mellin main-edge kernel `O.11ae` (`H²`, `L¹ = O(c^{-1/2})`, `y⁻² c⁻²` decay, Fubini bridge),
   and Lemma `GT.2b(1)–(2)` rank-`∞` Gaussian derivative bounds (`β ∈ {0, 1}` and `(ceo:O11n.11)`).
 * `FormalResearch.CohnElkies.PhysicalAndFarTransfer`: unconditional Lemma `FG.3` (`‖T_c f‖_∞` multiplier bound),
-  unconditional `PF.T(1)` omitted-region bound, `GT.3b` far-Fourier transfer, `PF.2` far physical sign,
-  `PF.5` compact-interval physical sign, and `GT.4` exact leading tip offset & 8-band global coverage.
+  unconditional `PF.T(1)` omitted-region bound, `GT.3b` far-Fourier transfer (with the pruned
+  `MacroscopicTransferPackage`), and the `GT.4` exact leading tip offset. The Route I consumers
+  `PF.2`, `PF.5` and the `GT4CoverageBands` package were removed.
 * `FormalResearch.CohnElkies.CoherentSectorialLimit`: unconditional Lemma `O.11n` Dirichlet resolvent `(ceo:O11n.8)`,
   Stieltjes mixture `(ceo:O11n.10)`, uniform `L^∞` bounds `(ceo:O11n.4)`/`(ceo:O11n.9)`/`(ceo:O11n.11)`,
   boundary-layer limit `(ceo:O11n.3)`, complex sectorial & `C²` limits `(ceo:O11n.5)–(ceo:O11n.6)`, and `PE.1`
