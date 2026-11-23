@@ -285,6 +285,19 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedHolePairs
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFloor
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionII
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedShift
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryNearSum
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryDef
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryMid
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAirySm
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryPair
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryXi
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryXiSum
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryAsm1
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryAsm2
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryAsm3
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryCont
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiry
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryMain
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -863,4 +876,15 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   floor `ramped_hole_floor` (`c_fl min(1, 16η_n²)(1 - E)`) and its macroscopic form `ramped_macro_margin`
   (`2g/Lev ≥ 0.158 - 0.7(A + B) - 0.542 w`), the near-tip ratio `nearTip_ratio` (`vρ_∞(ξ_* + r; 3/4) ≤ C_v r^{5/4}`),
   and the reduction `holeShiftCost_le_dist` of the shift cost `S` to the Lemma-E summation `ShiftSumEstimate`.
+
+* `Upper.Ramped.CombToAiry*`: Proposition 1.2(2) of `remainder.tex` (`rem:P1.2`), the uniform comb-to-Airy identity
+  (R2b), unconditional.  `CombToAiryNearSum`, `CombToAiryMid`, `CombToAiryPair`, `CombToAiryXi`, `CombToAiryXiSum`: the
+  four-range near-pair sum `nearSum_le`, the midpoint bound `midpoint_sum_le`, the pair-modulus split
+  `detuneRem_bounds`, `near_log_bound`, `xi_pair_bound` and `xi_sum` (`∑|Ξ_k| ≤ Cλ`); `CombToAirySm`: `sm_design`
+  (`|Sm + (3/2)𝒦_*| ≤ Cλ`); `CombToAiryAsm1-3`: the exact splitting `combEK_eq`, `combEK_tendsto`, `riesz_UL`, Lemma W
+  and ID for designs `window_tendsto`, `tildeW_design`, `abs_tildeW_eq`; `CombToAiryCont`, `CombToAiry`,
+  `CombToAiryMain`: `combToAiry_nonsite`, `combToAiry_mult` (two-sided multiplicative form on all of
+  `[ξ_*/2, ξ_* + 1/2]`, extended to the real zeros by continuity), `combToAiry_log_rate` (`C c'^{-2/3}` logarithmic form
+  for `B_D(x) ≠ 0`) and `combToAiry_amplitude` (the `(2√2/(πλ))^{3/2} e^{-(3/2)K_s} C_* κ ‖W_D‖ exp(O(c'^{-2/3}))`
+  form).
 -/

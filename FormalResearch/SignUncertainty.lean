@@ -8,6 +8,7 @@ public import FormalResearch.SignUncertainty.HankelFiveHalvesWitness
 public import FormalResearch.SignUncertainty.SignSeparation
 public import FormalResearch.SignUncertainty.HankelBessel
 public import FormalResearch.SignUncertainty.HankelBesselMoments
+public import FormalResearch.SignUncertainty.HankelBesselMellin
 public import FormalResearch.SignUncertainty.HankelAntiderivCalculus
 public import FormalResearch.SignUncertainty.HankelAntiderivLimit
 public import FormalResearch.SignUncertainty.HankelAntiderivValue
