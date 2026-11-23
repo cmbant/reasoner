@@ -69,17 +69,22 @@ lemma phiWKB_succ_sub_pos {k : ℕ} (hk : 1 ≤ k) : 0 < phiWKB (k + 1) - phiWKB
     linarith
   · push_cast; linarith
 
-/-- The limit widths of the design `D(N, η_*, d)` are non-zero for `η_* > 0`. -/
-lemma posLimitWidths_designMod (N : ℕ) {η : ℝ} (hη : 0 < η) (d : ℝ) :
-    PosLimitWidths (designMod N η d) := by
+/-- The limit widths of the modification `sigMod N η σs` are non-zero for `η_* > 0`. -/
+lemma posLimitWidths_sigMod (N : ℕ) {η : ℝ} (hη : 0 < η) (σs : ℕ → ℝ) :
+    PosLimitWidths (sigMod N η σs) := by
   intro k hk
   have hk1 : 1 ≤ k := by omega
   have hgap := phiWKB_succ_sub_pos hk1
   by_cases hkN : k ≤ N
-  · simp only [ModifiedCombData.allEpsLim, hkN, ↓reduceIte, designMod]
+  · simp only [ModifiedCombData.allEpsLim, hkN, ↓reduceIte, sigMod]
     exact (mul_pos hη hgap).ne'
-  · simp only [ModifiedCombData.allEpsLim, hkN, ↓reduceIte, designMod]
+  · simp only [ModifiedCombData.allEpsLim, hkN, ↓reduceIte, sigMod]
     exact (mul_pos (by norm_num) hgap).ne'
+
+/-- The limit widths of the design `D(N, η_*, d)` are non-zero for `η_* > 0`. -/
+lemma posLimitWidths_designMod (N : ℕ) {η : ℝ} (hη : 0 < η) (d : ℝ) :
+    PosLimitWidths (designMod N η d) :=
+  posLimitWidths_sigMod N hη (designSigma1 d)
 
 /-- The widths `ε'_k = η_* ℓ_k` of the design lie in the family of `lemma_P_b`. -/
 lemma designWidth1_family (N : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) :
@@ -96,36 +101,41 @@ lemma designWidth1_family (N : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 
         mul_le_mul (hη1.trans (by norm_num)) hgk (siteGap_nonneg hpos (by omega)) (by norm_num)
     _ = Cg * lambdaComb c' := one_mul _
 
+/-- The real part of `h₀ = sech² B` on the real axis is `modifiedH0` of the window form (offsets `σs`). -/
+lemma sigProfile_re_eq_modifiedH0 (N : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
+    ∀ᶠ c' in atTop, ∀ x : ℝ,
+      (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re =
+        modifiedH0 1 N (sigMod N η σs) c' x := by
+  filter_upwards [sigComb_eq_modifiedCombB N hη0 hη1 σs] with c' h x
+  unfold designProfile modifiedH0
+  rw [h, sechSqProfile_ofReal, Complex.re_ofReal_mul]
+
 /-- The real part of `h₀^D = sech² B_D` on the real axis is `modifiedH0` of the window form. -/
 lemma designProfile_re_eq_modifiedH0 (N : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
     ∀ᶠ c' in atTop, ∀ x : ℝ,
       (designProfile c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) (x : ℂ)).re =
-        modifiedH0 1 N (designMod N η d) c' x := by
-  filter_upwards [designComb_eq_modifiedCombB N hη0 hη1 d] with c' h x
-  unfold designProfile modifiedH0
-  rw [h, sechSqProfile_ofReal, Complex.re_ofReal_mul]
+        modifiedH0 1 N (designMod N η d) c' x :=
+  sigProfile_re_eq_modifiedH0 N hη0 hη1 (designSigma1 d)
 
 lemma exp_slitL_eq_edgeL {x : ℝ} (hx : 0 ≤ x) : slitL x = edgeL x := by
   unfold slitL edgeL; rw [abs_of_nonneg hx]
 
 /-! ### 2. Region I(a): the window `[χ'_1 + C λ c'^{-1/2}, ξ_* + λ Σ₀]` -/
 
-/-- **Proposition I (a)** (`ut:I`): for every `Σ₀` there is `C > 0` such that for large `c'` and every
-`x` with `χ'_1 + C λ c'^{1/2 - 4n₁/3} ≤ x ≤ ξ_* + λ Σ₀` (`n₁ = 3/4`, so the exponent is `-1/2`) one has
-`2 g(c' x²/3) > 0`.  Lemma R gives `h₀ e^{c'L} ≥ K̃_c w₀ (σ - σ_1)` and Lemma `SD_G` gives
-`e^{c'L} |ĥ₀| ≤ K √(c'/x)`. -/
-theorem proposition_I_a (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d Sg0 : ℝ) :
+/-- **Proposition I (a)** (`ut:I`) for the `f = 1` finite modifications at fixed sites `σs` (first site `σs 1`
+arbitrary, sites `2..N` arbitrary): see `proposition_I_a`, the case `σs = designSigma1 d`. -/
+theorem proposition_I_a_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) (Sg0 : ℝ) :
     ∃ C : ℝ, 0 < C ∧ ∀ᶠ c' in atTop, ∀ x : ℝ,
-      designSite c' (designSigma1 d) 1 + C * lambdaComb c' * c' ^ (-(1 / 2 : ℝ)) ≤ x →
+      designSite c' σs 1 + C * lambdaComb c' * c' ^ (-(1 / 2 : ℝ)) ≤ x →
       x ≤ xiStar + lambdaComb c' * Sg0 →
-      0 < twoG c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) x := by
-  set 𝒦 := designModFamily N hN hη0.le hη1 d with h𝒦
-  have hd : designMod N η d ∈ 𝒦.members := designModFamily_mem N hN hη0.le hη1 d
-  obtain ⟨w0, hw0, C0, hlow⟩ := lemma_R_lower 𝒦 hd (posLimitWidths_designMod N hη0 d) Sg0
+      0 < twoG c' 1 N (1 / 4) σs (designWidth1 c' η) x := by
+  set 𝒦 := sigModFamily N hN hη0.le hη1 σs with h𝒦
+  have hd : sigMod N η σs ∈ 𝒦.members := sigModFamily_mem N hN hη0.le hη1 σs
+  obtain ⟨w0, hw0, C0, hlow⟩ := lemma_R_lower 𝒦 hd (posLimitWidths_sigMod N hη0 σs) Sg0
   obtain ⟨Cg, hCg, hfam⟩ := designWidth1_family N hη0.le hη1
-  set M : ℝ := ∑ k ∈ Finset.Icc 1 N, |designSigma1 d k| with hMdef
-  have hM : ∀ k, 1 ≤ k → k ≤ N → |designSigma1 d k| ≤ M := fun k hk hkN =>
-    Finset.single_le_sum (f := fun j => |designSigma1 d j|) (fun _ _ => abs_nonneg _)
+  set M : ℝ := ∑ k ∈ Finset.Icc 1 N, |σs k| with hMdef
+  have hM : ∀ k, 1 ≤ k → k ≤ N → |σs k| ≤ M := fun k hk hkN =>
+    Finset.single_le_sum (f := fun j => |σs j|) (fun _ _ => abs_nonneg _)
       (Finset.mem_Icc.mpr ⟨hk, hkN⟩)
   obtain ⟨K, hK0, hK⟩ := designProfile_global_bound 1 N le_rfl hN M Cg
     (η₀ := 1 / 4) (by norm_num) (by norm_num)
@@ -135,24 +145,24 @@ theorem proposition_I_a (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
   set C : ℝ := (A + 1) / (cKtilde * w0) with hC
   have hCpos : 0 < C := by have := cKtilde_pos; positivity
   refine ⟨C, hCpos, ?_⟩
-  have hs1 : |designSigma1 d 1| ≤ M := hM 1 le_rfl hN
-  have hlam1 : ∀ᶠ c' in atTop, lambdaComb c' * |designSigma1 d 1| ≤ xiStar / 2 := by
-    have h := tendsto_lambdaComb_atTop.mul_const |designSigma1 d 1|
+  have hs1 : |σs 1| ≤ M := hM 1 le_rfl hN
+  have hlam1 : ∀ᶠ c' in atTop, lambdaComb c' * |σs 1| ≤ xiStar / 2 := by
+    have h := tendsto_lambdaComb_atTop.mul_const |σs 1|
     rw [zero_mul] at h
     exact h.eventually_le_const (by positivity)
-  filter_upwards [hK, designProfile_re_eq_modifiedH0 N hη0.le hη1 d, hfam, hlam1,
+  filter_upwards [hK, sigProfile_re_eq_modifiedH0 N hη0.le hη1 σs, hfam, hlam1,
     eventually_ge_atTop C0, eventually_gt_atTop (0 : ℝ)]
     with c' hKc hre hfamc hl1 hc0 hcpos x hx1 hx2
   have hlam : 0 < lambdaComb c' := Real.rpow_pos_of_pos (mul_pos kTip_pos hcpos) _
   set σ : ℝ := (x - xiStar) / lambdaComb c' with hσ
   have hxσ : xiStar + lambdaComb c' * σ = x := by rw [hσ]; field_simp; ring
-  have hσ1 : (designMod N η d).sigmaF c' = designSigma1 d 1 := rfl
+  have hσ1 : (sigMod N η σs).sigmaF c' = σs 1 := rfl
   have hc12 : 0 < c' ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hcpos _
-  have hgap : C * c' ^ (-(1 / 2 : ℝ)) ≤ σ - (designMod N η d).sigmaF c' := by
+  have hgap : C * c' ^ (-(1 / 2 : ℝ)) ≤ σ - (sigMod N η σs).sigmaF c' := by
     rw [hσ1, hσ, le_sub_iff_add_le, le_div_iff₀ hlam]
     unfold designSite at hx1
     nlinarith
-  have hσpos : (designMod N η d).sigmaF c' < σ := by
+  have hσpos : (sigMod N η σs).sigmaF c' < σ := by
     have : 0 < C * c' ^ (-(1 / 2 : ℝ)) := by positivity
     linarith
   have hσle : σ ≤ Sg0 := by
@@ -163,13 +173,13 @@ theorem proposition_I_a (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
   have hxhalf : xiStar / 2 ≤ x := by
     unfold designSite at hx1
     have h1 : 0 ≤ C * lambdaComb c' * c' ^ (-(1 / 2 : ℝ)) := by positivity
-    have h2 : -(lambdaComb c' * |designSigma1 d 1|) ≤ lambdaComb c' * designSigma1 d 1 := by
-      have := neg_abs_le (designSigma1 d 1)
+    have h2 : -(lambdaComb c' * |σs 1|) ≤ lambdaComb c' * σs 1 := by
+      have := neg_abs_le (σs 1)
       nlinarith
     linarith
   have hx0 : 0 < x := lt_of_lt_of_le (by positivity) hxhalf
   -- the bound on the transform
-  have hglob := hKc (designSigma1 d) (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
+  have hglob := hKc σs (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
     (fun k hk hkN => hfamc k hk hkN) x hx0
   have hsq : √(c' / x) ≤ √(2 / xiStar) * √c' := by
     rw [← Real.sqrt_mul (by positivity)]
@@ -179,7 +189,7 @@ theorem proposition_I_a (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
       mul_le_mul_of_nonneg_left hxhalf (by positivity)
     have e : 2 / xiStar * c' * (xiStar / 2) = c' := by field_simp
     linarith
-  have hhat : Real.exp (c' * edgeL x) * ‖edgeHankel c' (designProfile c' 1 N (1 / 4) (designSigma1 d)
+  have hhat : Real.exp (c' * edgeL x) * ‖edgeHankel c' (designProfile c' 1 N (1 / 4) (σs)
       (designWidth1 c' η)) (c' * x ^ 2 / 3)‖ ≤ A * √c' := by
     refine hglob.trans ?_
     calc K * √(c' / x) ≤ K * (√(2 / xiStar) * √c') := mul_le_mul_of_nonneg_left hsq hK0
@@ -190,12 +200,12 @@ theorem proposition_I_a (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
   have hsqrt : c' * c' ^ (-(1 / 2 : ℝ)) = √c' := by
     rw [Real.sqrt_eq_rpow, ← Real.rpow_one_add' hcpos.le (by norm_num)]
     norm_num
-  have hlow2 : (A + 1) * √c' ≤ (designProfile c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η)
+  have hlow2 : (A + 1) * √c' ≤ (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η)
       (x : ℂ)).re * Real.exp (c' * edgeL x) := by
     rw [hH]
     refine le_trans ?_ hlow'
     rw [windowNormKTilde_one hcpos]
-    have : cKtilde * c' * w0 * (σ - (designMod N η d).sigmaF c') ≥ cKtilde * c' * w0 * (C * c' ^ (-(1 / 2 : ℝ))) :=
+    have : cKtilde * c' * w0 * (σ - (sigMod N η σs).sigmaF c') ≥ cKtilde * c' * w0 * (C * c' ^ (-(1 / 2 : ℝ))) :=
       mul_le_mul_of_nonneg_left hgap (by have := cKtilde_pos; positivity)
     refine le_trans (le_of_eq ?_) this
     rw [hC]
@@ -206,25 +216,36 @@ theorem proposition_I_a (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
   -- conclusion
   unfold twoG
   rw [Complex.sub_re]
-  have hre_le : (edgeHankel c' (designProfile c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η))
-      (c' * x ^ 2 / 3)).re ≤ ‖edgeHankel c' (designProfile c' 1 N (1 / 4) (designSigma1 d)
+  have hre_le : (edgeHankel c' (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η))
+      (c' * x ^ 2 / 3)).re ≤ ‖edgeHankel c' (designProfile c' 1 N (1 / 4) (σs)
       (designWidth1 c' η)) (c' * x ^ 2 / 3)‖ := Complex.re_le_norm _
   have hexp := Real.exp_pos (c' * edgeL x)
   have hsc : 0 < √c' := Real.sqrt_pos.mpr hcpos
   have hprod : 0 < Real.exp (c' * edgeL x) *
-      ((designProfile c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) (x : ℂ)).re -
-        (edgeHankel c' (designProfile c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η))
+      ((designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re -
+        (edgeHankel c' (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η))
           (c' * x ^ 2 / 3)).re) := by
     have : Real.exp (c' * edgeL x) *
-        ((designProfile c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) (x : ℂ)).re -
-        (edgeHankel c' (designProfile c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η))
+        ((designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re -
+        (edgeHankel c' (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η))
           (c' * x ^ 2 / 3)).re) ≥
-        (designProfile c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) (x : ℂ)).re *
+        (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re *
           Real.exp (c' * edgeL x) - Real.exp (c' * edgeL x) * ‖edgeHankel c' (designProfile c' 1 N
-          (1 / 4) (designSigma1 d) (designWidth1 c' η)) (c' * x ^ 2 / 3)‖ := by
+          (1 / 4) σs (designWidth1 c' η)) (c' * x ^ 2 / 3)‖ := by
       nlinarith [mul_le_mul_of_nonneg_left hre_le hexp.le]
     nlinarith
   exact pos_of_mul_pos_right hprod hexp.le
+
+/-- **Proposition I (a)** (`ut:I`): for every `Σ₀` there is `C > 0` such that for large `c'` and every
+`x` with `χ'_1 + C λ c'^{1/2 - 4n₁/3} ≤ x ≤ ξ_* + λ Σ₀` (`n₁ = 3/4`, so the exponent is `-1/2`) one has
+`2 g(c' x²/3) > 0`.  Lemma R gives `h₀ e^{c'L} ≥ K̃_c w₀ (σ - σ_1)` and Lemma `SD_G` gives
+`e^{c'L} |ĥ₀| ≤ K √(c'/x)`. -/
+theorem proposition_I_a (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d Sg0 : ℝ) :
+    ∃ C : ℝ, 0 < C ∧ ∀ᶠ c' in atTop, ∀ x : ℝ,
+      designSite c' (designSigma1 d) 1 + C * lambdaComb c' * c' ^ (-(1 / 2 : ℝ)) ≤ x →
+      x ≤ xiStar + lambdaComb c' * Sg0 →
+      0 < twoG c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) x :=
+  proposition_I_a_sig N hN hη0 hη1 (designSigma1 d) Sg0
 
 /-! ### 3. Region I(b): the overshoot window `[ξ_* + λ Σ₀, ξ_I]` -/
 
@@ -315,19 +336,16 @@ lemma big_pow_lt {A cc c' : ℝ} (hc' : 0 < c') (h : A + 1 ≤ cc * c' ^ (1 / 10
   rw [h35, ← mul_assoc]
   nlinarith
 
-/-- **Proposition I (b)** (`ut:I`): there is `Σ₀ > 0` such that for large `c'` and every
-`x ∈ [ξ_* + λ Σ₀, ξ_I]`, `ξ_I = ξ_* + c'^{-2/5}`, one has `2 g(c' x²/3) > 0`.  `Σ₀` is chosen so that
-`lemma_P_b` gives `B_D ≥ ½ B_ref` and `x ≥ χ_{max(N_ov, 2)}`; then `band_overshoot_K5` gives
-`h₀^{ref} e^{c'L} ≥ c_T sech²(πx/2) (2/(π(x - ξ_*)))^{2n₁} ≳ c'^{2 n₁ θ} = c'^{3/5}`, `θ = 2/5`, which
-exceeds the `√c'` bound of `SD_G` for `ĥ₀`. -/
-theorem proposition_I_b (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
+/-- **Proposition I (b)** (`ut:I`) for the `f = 1` finite modifications at fixed sites `σs`: see
+`proposition_I_b`, the case `σs = designSigma1 d`. -/
+theorem proposition_I_b_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
     ∃ Sg0 : ℝ, 0 < Sg0 ∧ ∀ᶠ c' in atTop, ∀ x : ℝ, xiStar + lambdaComb c' * Sg0 ≤ x →
       x ≤ xiStar + c' ^ (-(2 / 5 : ℝ)) →
-      0 < twoG c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) x := by
+      0 < twoG c' 1 N (1 / 4) σs (designWidth1 c' η) x := by
   obtain ⟨Cg, hCg, hfam⟩ := designWidth1_family N hη0.le hη1
-  obtain ⟨M, hM0, hM⟩ : ∃ M : ℝ, 0 ≤ M ∧ ∀ k, 1 ≤ k → k ≤ N → |designSigma1 d k| ≤ M :=
-    ⟨∑ k ∈ Finset.Icc 1 N, |designSigma1 d k|, Finset.sum_nonneg fun _ _ => abs_nonneg _,
-      fun k hk hkN => Finset.single_le_sum (f := fun j => |designSigma1 d j|)
+  obtain ⟨M, hM0, hM⟩ : ∃ M : ℝ, 0 ≤ M ∧ ∀ k, 1 ≤ k → k ≤ N → |σs k| ≤ M :=
+    ⟨∑ k ∈ Finset.Icc 1 N, |σs k|, Finset.sum_nonneg fun _ _ => abs_nonneg _,
+      fun k hk hkN => Finset.single_le_sum (f := fun j => |σs j|)
         (fun _ _ => abs_nonneg _) (Finset.mem_Icc.mpr ⟨hk, hkN⟩)⟩
   obtain ⟨CP, hCP, hP⟩ := lemma_P_b 1 N le_rfl hN M Cg
   obtain ⟨Nov, cT, hNov, hcT, hov⟩ := band_overshoot_K5 (η₀ := 1 / 4) (by norm_num) le_rfl
@@ -390,7 +408,7 @@ theorem proposition_I_b (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
           mul_le_mul hη1 hsg1 (siteGap_nonneg hcpos (by omega)) (by norm_num)
       _ ≤ 1 / 2 := by norm_num
   obtain ⟨r, hr, hr0, hrpos⟩ := designComb_ofReal hcpos (by norm_num : (0 : ℝ) ≤ 1 / 4)
-    (by norm_num) hgap_half 1 N (designSigma1 d) (designWidth1 c' η) hsite hεw hN
+    (by norm_num) hgap_half 1 N σs (designWidth1 c' η) hsite hεw hN
   have hχMov : chiQuantile c' (Mov : ℝ) ≤ x := by
     have h := (refSite_bounds hcpos hMov1 (le_refl Mov)).2
     have := mul_le_mul_of_nonneg_left hS3 hlam0
@@ -408,9 +426,9 @@ theorem proposition_I_b (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
   rw [hn1] at hov1
   have hpow := pow_overshoot hcpos hupos huup
   have hsechlow := sech_lower hx0.le (by linarith : x ≤ xiStar + 1)
-  have hnormD : ‖designComb c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) (x : ℂ)‖ = r := by
+  have hnormD : ‖designComb c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)‖ = r := by
     rw [hr, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hr0]
-  have hHre : (designProfile c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) (x : ℂ)).re =
+  have hHre : (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re =
       1 / Real.cosh (π * x / 2) ^ 2 * r := by
     rw [designProfile_ofReal hr, Complex.ofReal_re]
   have hE : 0 < Real.exp (c' * slitL x) := Real.exp_pos _
@@ -428,7 +446,7 @@ theorem proposition_I_b (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
   have hrp : 0 < r := hrpos (htailc x (norm_pos_iff.mp hrefpos))
   have h4s' : xiStar + 4 * max (phiQuantile ((N : ℝ) + 2)) M * lambdaComb c' ≤ x := by
     rw [← hsdef]; linarith
-  have hPbd := hPc (designSigma1 d) (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
+  have hPbd := hPc σs (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
     (fun k hk hkN => hfamc k hk hkN) x h4s'
   rw [hnormD] at hPbd
   have hlogle : |Real.log (r / ‖refComb c' 1 (1 / 4) (x : ℂ)‖)| ≤ Real.log 2 := by
@@ -444,7 +462,7 @@ theorem proposition_I_b (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
   have hr_ge := half_le_of_log_le hrp hrefpos hlogle
   have hex : Real.exp (c' * slitL x) = Real.exp (c' * edgeL x) := by rw [exp_slitL_eq_edgeL hx0.le]
   have hQ : cc * c' ^ (3 / 5 : ℝ) ≤
-      (designProfile c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) (x : ℂ)).re *
+      (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re *
         Real.exp (c' * edgeL x) := by
     rw [hHre, ← hex, hcc]
     have hov2 : cT * (1 / Real.cosh (π * x / 2) ^ 2) * (2 / (π * (x - xiStar))) ^ (3 / 2 : ℝ) ≤
@@ -454,7 +472,7 @@ theorem proposition_I_b (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
     have := lowerH_alg hcT.le hsl (by positivity) hsech.le hE.le hsechlow hpow hov2 hr_ge
     linarith [this]
   have hxhalf : xiStar / 2 ≤ x := by linarith
-  have hglob := hKc (designSigma1 d) (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
+  have hglob := hKc σs (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
     (fun k hk hkN => hfamc k hk hkN) x hx0
   have hhat := edge_bound_sqrt hK0 hcpos hxhalf hglob
   have hlt : K * √(2 / xiStar) * √c' < cc * c' ^ (3 / 5 : ℝ) := by
@@ -464,7 +482,26 @@ theorem proposition_I_b (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
   rw [Complex.sub_re]
   exact sub_pos_of_bounds (Real.exp_pos _) (Complex.re_le_norm _) hQ hhat hlt
 
+/-- **Proposition I (b)** (`ut:I`): there is `Σ₀ > 0` such that for large `c'` and every
+`x ∈ [ξ_* + λ Σ₀, ξ_I]`, `ξ_I = ξ_* + c'^{-2/5}`, one has `2 g(c' x²/3) > 0`.  `Σ₀` is chosen so that
+`lemma_P_b` gives `B_D ≥ ½ B_ref` and `x ≥ χ_{max(N_ov, 2)}`; then `band_overshoot_K5` gives
+`h₀^{ref} e^{c'L} ≥ c_T sech²(πx/2) (2/(π(x - ξ_*)))^{2n₁} ≳ c'^{2 n₁ θ} = c'^{3/5}`, `θ = 2/5`, which
+exceeds the `√c'` bound of `SD_G` for `ĥ₀`. -/
+theorem proposition_I_b (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
+    ∃ Sg0 : ℝ, 0 < Sg0 ∧ ∀ᶠ c' in atTop, ∀ x : ℝ, xiStar + lambdaComb c' * Sg0 ≤ x →
+      x ≤ xiStar + c' ^ (-(2 / 5 : ℝ)) →
+      0 < twoG c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) x :=
+  proposition_I_b_sig N hN hη0 hη1 (designSigma1 d)
+
 /-! ### Axiom checks -/
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.proposition_I_a_sig' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms proposition_I_a_sig
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.proposition_I_b_sig' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms proposition_I_b_sig
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.proposition_I_a' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

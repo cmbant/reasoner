@@ -26,7 +26,8 @@ Lemma `A_V` in window form (`CardyWindowBound`), and the substitution `t = c'x²
 * `lemma_T`: Virasoro (`w = 1`, `Q = (1-q)²`): `V = virasoroProblem.cardyV (c'/12)`, no hypotheses beyond
   those of the paper.  The general `(w, Q)` statement additionally needs the bump `h₀^{(p)}` and the Peano
   bound `fw:e3.6` (`CardyFarBound` with its factor `(1+x)^{m+p}`), which are not formalised.
-* `lemma_T_design1`: the designs `D(N, η_*, d)` (`f = 1`, `η₀ = 1/4`).
+* `lemma_T_sig1`: the `f = 1` finite modifications with arbitrary offsets `σ` (`η₀ = 1/4`);
+  `lemma_T_design1`: the designs `D(N, η_*, d)`, the case `σ = designSigma1 d`.
 
 All results are proved unconditionally.
 -/
@@ -472,6 +473,37 @@ theorem lemma_T {r₀ : ℝ} (hr₀ : 0 < r₀)
     (cardyWindowBound_virasoro hr₀) (cardyFarBound_virasoro (by linarith [xiStar_pos])) f N hf hfN
     M E h0 h1
 
+/-- **Lemma `T` for the `f = 1` finite modifications at fixed sites** (`η₀ = 1/4`, arbitrary offsets `σ`,
+`ε = designWidth1 c' η_*`, `M` a bound for the offsets `σ_1, …, σ_N`; the exponent is `-1/3`).
+`lemma_T_design1` is the case `σ = designSigma1 d`. -/
+theorem lemma_T_sig1 {r₀ : ℝ} (hr₀ : 0 < r₀) (N : ℕ) (hN : 1 ≤ N) {etaStar : ℝ} (hη0 : 0 ≤ etaStar)
+    (hη1 : etaStar ≤ 1 / 4) (σ : ℕ → ℝ) (M : ℝ) (hM : ∀ k, 1 ≤ k → k ≤ N → |σ k| ≤ M) :
+    ∃ N₂ : ℕ, ∃ C_T C_far : ℝ, 0 ≤ C_T ∧ 0 ≤ C_far ∧ ∀ N₁ : ℕ, max 4 N₂ ≤ N₁ →
+      ∀ᶠ c' in atTop,
+        (∫ t in Icc (c' * chiQuantile c' ((N₁ + 1 : ℕ) : ℝ) ^ 2 / 3) (c' * (xiStar + r₀) ^ 2 / 3),
+            |combProfile c' (designComb c' 1 N (1 / 4) σ (designWidth1 c' etaStar)) t| *
+              Crossing.virasoroProblem.cardyV (c' / 12) t) ≤
+          FKc 1 1 c' * C_T * (N₁ : ℝ) ^ (-(1 / 3 : ℝ)) ∧
+        (∫ t in Ici (c' * (xiStar + r₀) ^ 2 / 3),
+            |combProfile c' (designComb c' 1 N (1 / 4) σ (designWidth1 c' etaStar)) t| *
+              Crossing.virasoroProblem.cardyV (c' / 12) t) ≤ C_far * √c' := by
+  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
+  obtain ⟨N₂, C_T, C_far, hCT, hCf, h⟩ := lemma_T hr₀ 1 N le_rfl hN M Cg
+    (by norm_num : (0 : ℝ) ≤ 1 / 4) le_rfl
+  refine ⟨N₂, C_T, C_far, hCT, hCf, fun N₁ hN₁ => ?_⟩
+  have hexp : -((2 / 3 : ℝ) * (2 * ((1 : ℕ) : ℝ) - 3 / 2)) = -(1 / 3 : ℝ) := by norm_num
+  filter_upwards [h N₁ (by simpa using hN₁), h_ev, eventually_gt_atTop (0 : ℝ)]
+    with c' hc' ⟨hgap_k, hgap_1_bd, hcd1_bd, _⟩ hpos
+  have key := hc' σ (designWidth1 c' etaStar) (fun k hk hkN => hM k hk hkN)
+    (fun k hk hkN => ⟨mul_nonneg hη0 (siteGap_nonneg hpos (by omega)), by
+      have hgk := (hgap_k k (by omega)).trans (hgap_1_bd.trans hcd1_bd)
+      unfold designWidth1
+      calc etaStar * siteGap c' k ≤ 1 * (Cg * lambdaComb c') :=
+            mul_le_mul (hη1.trans (by norm_num)) hgk (siteGap_nonneg hpos (by omega)) (by norm_num)
+        _ = Cg * lambdaComb c' := one_mul _⟩)
+  rw [hexp] at key
+  exact key
+
 /-- **Lemma `T` for the designs `D(N, η_*, d)`** (`f = 1`, `η₀ = 1/4`, `σ = designSigma1 d`,
 `ε = designWidth1 c' η_*`, `M` a bound for the offsets `σ_1, …, σ_N`; the exponent is `-1/3`). -/
 theorem lemma_T_design1 {r₀ : ℝ} (hr₀ : 0 < r₀) (N : ℕ) (hN : 1 ≤ N) {etaStar : ℝ} (hη0 : 0 ≤ etaStar)
@@ -484,23 +516,8 @@ theorem lemma_T_design1 {r₀ : ℝ} (hr₀ : 0 < r₀) (N : ℕ) (hN : 1 ≤ N)
           FKc 1 1 c' * C_T * (N₁ : ℝ) ^ (-(1 / 3 : ℝ)) ∧
         (∫ t in Ici (c' * (xiStar + r₀) ^ 2 / 3),
             |combProfile c' (designComb c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' etaStar)) t| *
-              Crossing.virasoroProblem.cardyV (c' / 12) t) ≤ C_far * √c' := by
-  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
-  obtain ⟨N₂, C_T, C_far, hCT, hCf, h⟩ := lemma_T hr₀ 1 N le_rfl hN M Cg
-    (by norm_num : (0 : ℝ) ≤ 1 / 4) le_rfl
-  refine ⟨N₂, C_T, C_far, hCT, hCf, fun N₁ hN₁ => ?_⟩
-  have hexp : -((2 / 3 : ℝ) * (2 * ((1 : ℕ) : ℝ) - 3 / 2)) = -(1 / 3 : ℝ) := by norm_num
-  filter_upwards [h N₁ (by simpa using hN₁), h_ev, eventually_gt_atTop (0 : ℝ)]
-    with c' hc' ⟨hgap_k, hgap_1_bd, hcd1_bd, _⟩ hpos
-  have key := hc' (designSigma1 d) (designWidth1 c' etaStar) (fun k hk hkN => hM k hk hkN)
-    (fun k hk hkN => ⟨mul_nonneg hη0 (siteGap_nonneg hpos (by omega)), by
-      have hgk := (hgap_k k (by omega)).trans (hgap_1_bd.trans hcd1_bd)
-      unfold designWidth1
-      calc etaStar * siteGap c' k ≤ 1 * (Cg * lambdaComb c') :=
-            mul_le_mul (hη1.trans (by norm_num)) hgk (siteGap_nonneg hpos (by omega)) (by norm_num)
-        _ = Cg * lambdaComb c' := one_mul _⟩)
-  rw [hexp] at key
-  exact key
+              Crossing.virasoroProblem.cardyV (c' / 12) t) ≤ C_far * √c' :=
+  lemma_T_sig1 hr₀ N hN hη0 hη1 (designSigma1 d) M hM
 
 /-- **Non-vacuity of the hypotheses of `lemma_T`**: the window and far-band properties hold for the
 Virasoro Cardy kernel, and the compact family of finite modifications is nonempty (it contains the zero
@@ -533,6 +550,10 @@ theorem lemma_T_hypotheses_nonvacuous {r₀ : ℝ} (hr₀ : 0 < r₀) (f N : ℕ
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Tail.lemma_T' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms lemma_T
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Tail.lemma_T_sig1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lemma_T_sig1
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Tail.lemma_T_design1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

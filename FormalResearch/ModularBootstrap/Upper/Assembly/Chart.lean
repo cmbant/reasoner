@@ -86,19 +86,15 @@ lemma jAiry_mul_kappa {c x : ℝ} (hc : 0 < c) (hx : 0 ≤ x) :
   rw [jAiry_eq hc hx]
   field_simp [kappaAiry_pos.ne']
 
-/-- `u(t_f + 1) → a_1 - d` (`θ_j → u_f`). -/
-theorem uAiry_designTf (d : ℝ) :
-    Tendsto (fun c => uAiry c (designTf d c + 1)) atTop (𝓝 (airyZero 1 - d)) := by
+/-- `u(t_f + 1) → -κ σ_1` (`θ_j → u_f`) for the first site `σ_1` of any modification. -/
+theorem uAiry_sigTf (σs : ℕ → ℝ) :
+    Tendsto (fun c => uAiry c (sigTf σs c + 1)) atTop (𝓝 (-(kappaAiry * σs 1))) := by
   have hβ := betaTip_pos
   have hxi := xiStar_pos
-  set σ1 : ℝ := designSigma1 d 1 with hσ1
+  set σ1 : ℝ := σs 1 with hσ1
   have hκ := kappaAiry_pos
-  have hσ1def : kappaAiry * σ1 = |airyZero 1| + d := by
-    rw [hσ1, designSigma1_one]; field_simp
-  have hneg : airyZero 1 - d = -(kappaAiry * σ1) := by
-    rw [hσ1def, abs_of_neg (airyZero_neg 1)]; ring
   -- the error `u(t_f+1) - (a_1 - d) = -β c^{2/3} (√(χ² + 3/c) - χ)`
-  have hmain : ∀ᶠ c : ℝ in atTop, |uAiry c (designTf d c + 1) - (airyZero 1 - d)| ≤
+  have hmain : ∀ᶠ c : ℝ in atTop, |uAiry c (sigTf σs c + 1) - (-(kappaAiry * σ1))| ≤
       (3 * betaTip / xiStar) * c ^ (-((1 : ℝ) / 3)) := by
     have hl : ∀ᶠ c : ℝ in atTop, lambdaComb c * |σ1| ≤ xiStar / 2 := by
       have h := tendsto_lambdaComb_atTop.mul_const |σ1|
@@ -111,10 +107,10 @@ theorem uAiry_designTf (d : ℝ) :
       have := neg_abs_le σ1
       nlinarith
     have hχpos : 0 < χ := by linarith
-    have hT : designTf d c = c * χ ^ 2 / 3 := rfl
-    have hsq : √(3 * (designTf d c + 1) / c) = √(χ ^ 2 + 3 / c) := by
+    have hT : sigTf σs c = c * χ ^ 2 / 3 := rfl
+    have hsq : √(3 * (sigTf σs c + 1) / c) = √(χ ^ 2 + 3 / c) := by
       rw [hT]; congr 1; field_simp
-    have hu : uAiry c (designTf d c + 1) = -betaTip * (√(χ ^ 2 + 3 / c) - χ) * c ^ ((2 : ℝ) / 3) -
+    have hu : uAiry c (sigTf σs c + 1) = -betaTip * (√(χ ^ 2 + 3 / c) - χ) * c ^ ((2 : ℝ) / 3) -
         kappaAiry * σ1 := by
       unfold uAiry
       rw [hsq]
@@ -142,7 +138,7 @@ theorem uAiry_designTf (d : ℝ) :
         field_simp; ring
       rw [this]
       nlinarith [sq_nonneg (3 / (2 * c * χ))]
-    rw [hu, hneg]
+    rw [hu]
     have hc23 : c ^ ((2 : ℝ) / 3) * (3 / (2 * c * χ)) ≤ (3 / xiStar) * c ^ (-((1 : ℝ) / 3)) := by
       have e : c ^ ((2 : ℝ) / 3) * (3 / (2 * c * χ)) = (3 / (2 * χ)) * c ^ (-((1 : ℝ) / 3)) := by
         have : c ^ ((2 : ℝ) / 3) / c = c ^ (-((1 : ℝ) / 3)) := by
@@ -172,6 +168,21 @@ theorem uAiry_designTf (d : ℝ) :
   rw [tendsto_iff_norm_sub_tendsto_zero]
   exact squeeze_zero' (Eventually.of_forall fun _ => norm_nonneg _)
     (hmain.mono fun c hc => by simpa [Real.norm_eq_abs] using hc) hlim
+
+/-- `u(t_f + 1) → a_1 - d` (`θ_j → u_f`). -/
+theorem uAiry_designTf (d : ℝ) :
+    Tendsto (fun c => uAiry c (designTf d c + 1)) atTop (𝓝 (airyZero 1 - d)) := by
+  have hκ := kappaAiry_pos
+  have hσ1def : kappaAiry * designSigma1 d 1 = |airyZero 1| + d := by
+    rw [designSigma1_one]; field_simp
+  have hneg : airyZero 1 - d = -(kappaAiry * designSigma1 d 1) := by
+    rw [hσ1def, abs_of_neg (airyZero_neg 1)]; ring
+  rw [hneg]
+  exact uAiry_sigTf (designSigma1 d)
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.uAiry_sigTf' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms uAiry_sigTf
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.uAiry_designTf' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

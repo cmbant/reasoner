@@ -42,6 +42,24 @@ lemma psiScale_pos {c : ℝ} (hc : 0 < c) : 0 < psiScale c := by
   unfold psiScale; positivity
 
 /-- Pointwise form of `Ψ_c`: `(2/(C_* FK)) g V J = (1/(C_* κ FK)) (h₀ - ĥ₀) V (dt/dσ)` at `u = -κσ`. -/
+lemma psi_eq_sig {c : ℝ} (hc : 0 < c) (N : ℕ) (η : ℝ) (σs : ℕ → ℝ) (u σ : ℝ) (hσ : σ = -u / kappaAiry)
+    (hx : 0 ≤ xiStar + lambdaComb c * σ) :
+    psiScale c * psiAiry virasoroProblem c (sigG N η σs c) u =
+      (1 / (CStar * kappaAiry * FKc 1 1 c)) *
+        ((combProfile c (sigBc N η σs c) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) -
+          hankelTransform 1 (combProfile c (sigBc N η σs c))
+            (c * (xiStar + lambdaComb c * σ) ^ 2 / 3)) *
+          virasoroProblem.cardyV (c / 12) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) *
+          ((2 * c * (xiStar + lambdaComb c * σ) / 3) * lambdaComb c)) := by
+  have hκ := kappaAiry_pos
+  have hCs := CStar_pos
+  have hFK := FKc_pos (q := 1) one_pos 1 hc
+  subst hσ
+  unfold psiScale psiAiry sigG pairOdd
+  rw [tAiry_eq hc hx, jAiry_eq hc hx]
+  field_simp
+
+/-- Pointwise form of `Ψ_c`: `(2/(C_* FK)) g V J = (1/(C_* κ FK)) (h₀ - ĥ₀) V (dt/dσ)` at `u = -κσ`. -/
 lemma psi_eq {c : ℝ} (hc : 0 < c) (N : ℕ) (η d u σ : ℝ) (hσ : σ = -u / kappaAiry)
     (hx : 0 ≤ xiStar + lambdaComb c * σ) :
     psiScale c * psiAiry virasoroProblem c (designG N η d c) u =
@@ -50,20 +68,15 @@ lemma psi_eq {c : ℝ} (hc : 0 < c) (N : ℕ) (η d u σ : ℝ) (hσ : σ = -u /
           hankelTransform 1 (combProfile c (designBc N η d c))
             (c * (xiStar + lambdaComb c * σ) ^ 2 / 3)) *
           virasoroProblem.cardyV (c / 12) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) *
-          ((2 * c * (xiStar + lambdaComb c * σ) / 3) * lambdaComb c)) := by
-  have hκ := kappaAiry_pos
-  have hCs := CStar_pos
-  have hFK := FKc_pos (q := 1) one_pos 1 hc
-  subst hσ
-  unfold psiScale psiAiry designG pairOdd
-  rw [tAiry_eq hc hx, jAiry_eq hc hx]
-  field_simp
+          ((2 * c * (xiStar + lambdaComb c * σ) / 3) * lambdaComb c)) :=
+  psi_eq_sig hc N η (designSigma1 d) u σ hσ hx
 
-/-- **(P3): the window limit of `Ψ_g` for the designs.** -/
-theorem design_psi_uniform (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ)
+/-- **(P3): the window limit of `Ψ_g`** for the finite modifications with arbitrary offsets `σs`: see
+`design_psi_uniform`, the case `σs = designSigma1 d`. -/
+theorem sig_psi_uniform (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
     {R : ℝ} (hR : 0 ≤ R) {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ c in atTop, ∀ u ∈ Icc (-R) R,
-      |psiScale c * psiAiry virasoroProblem c (designG N η d c) u - designWinW N η d u| ≤ ε := by
+      |psiScale c * psiAiry virasoroProblem c (sigG N η σs c) u - sigWinW N η σs u| ≤ ε := by
   have hκ := kappaAiry_pos
   have hCs := CStar_pos
   have hP : 0 < CStar * kappaAiry := mul_pos hCs hκ
@@ -71,14 +84,14 @@ theorem design_psi_uniform (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (
   have hS0 : 0 ≤ S := by positivity
   have hSκ : S * kappaAiry = R := by rw [hS]; field_simp
   obtain ⟨n1, hn1⟩ := (phiWKB_succ_tendsto.eventually_ge_atTop S).exists
-  obtain ⟨K, hK0, hKev⟩ := hat_window_bound N hN hη0.le hη1 d
+  obtain ⟨K, hK0, hKev⟩ := sig_hat_window_bound N hN hη0.le hη1 σs
   set ε' : ℝ := ε * (CStar * kappaAiry) / 2 with hε'
   have hε'0 : 0 < ε' := by positivity
   set δ₂ : ℝ := ε * (CStar * kappaAiry) / (2 * (K + 1)) with hδ₂
   have hδ₂0 : 0 < δ₂ := by positivity
   have hlsq : ∀ᶠ c : ℝ in atTop, lambdaComb c * c ^ (1 / 2 : ℝ) ≤ δ₂ :=
     lambdaComb_mul_sqrt_tendsto.eventually_le_const hδ₂0
-  filter_upwards [design_part1 N hN hη0.le hη1 d hS0 n1 hε'0, hKev, hlsq,
+  filter_upwards [sig_part1 N hN hη0.le hη1 σs hS0 n1 hε'0, hKev, hlsq,
     lambda_mul_le S (half_pos xiStar_pos), FKc_ge_mul_sqrt 1, eventually_gt_atTop (1 : ℝ)]
     with c h1 hK hl hlS hFK hc1 u hu
   have hc0 : 0 < c := lt_trans one_pos hc1
@@ -103,16 +116,16 @@ theorem design_psi_uniform (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (
   have hp1 := h1 σ hσS
   rw [hWu] at hp1
   have hp2 := hK _ hx
-  rw [psi_eq hc0 N η d u σ hσ hx0]
+  rw [psi_eq_sig hc0 N η σs u σ hσ hx0]
   set x : ℝ := xiStar + lambdaComb c * σ with hxdef
   set t : ℝ := c * x ^ 2 / 3 with htdef
-  set h : ℝ := combProfile c (designBc N η d c) t with hhdef
-  set ĥ : ℝ := hankelTransform 1 (combProfile c (designBc N η d c)) t with hĥdef
+  set h : ℝ := combProfile c (sigBc N η σs c) t with hhdef
+  set ĥ : ℝ := hankelTransform 1 (combProfile c (sigBc N η σs c)) t with hĥdef
   set V : ℝ := virasoroProblem.cardyV (c / 12) t with hVdef
   set Dt : ℝ := (2 * c * x / 3) * lambdaComb c with hDt
   set P : ℝ := CStar * kappaAiry with hPdef
   set FK : ℝ := FKc 1 1 c with hFKdef
-  set Wu : ℝ := designWinW N η d u with hWudef
+  set Wu : ℝ := sigWinW N η σs u with hWudef
   have hB : |ĥ * V * Dt| ≤ ε / 2 * (P * FK) := by
     have e1 : ĥ * V * Dt = (ĥ * V * (2 * c * x / 3)) * lambdaComb c := by rw [hDt]; ring
     rw [e1, abs_mul, abs_of_pos hlam]
@@ -152,24 +165,49 @@ theorem design_psi_uniform (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (
     _ ≤ ε / 2 + ε / 2 := add_le_add hA hBB
     _ = ε := by ring
 
+/-- **(P3): the window limit of `Ψ_g` for the designs.** -/
+theorem design_psi_uniform (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ)
+    {R : ℝ} (hR : 0 ≤ R) {ε : ℝ} (hε : 0 < ε) :
+    ∀ᶠ c in atTop, ∀ u ∈ Icc (-R) R,
+      |psiScale c * psiAiry virasoroProblem c (designG N η d c) u - designWinW N η d u| ≤ ε :=
+  by
+  simpa only [designWinW_eq_sig, designG] using sig_psi_uniform N hN hη0 hη1 (designSigma1 d) hR hε
+
+/-- **(P4): the vacuum bound** `∫ Ψ_c du ≤ V + ε` for arbitrary offsets `σs` (`V = windowIntegralSig`): see
+`design_psi_limsup`. -/
+theorem sig_psi_limsup (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
+    {ε : ℝ} (hε : 0 < ε) :
+    ∀ᶠ c in atTop,
+      ∫ u, psiScale c * psiAiry virasoroProblem c (sigG N η σs c) u ≤ windowIntegralSig N η σs + ε := by
+  have hCs := CStar_pos
+  filter_upwards [proposition_V_i_sig N hN hη0 hη1 σs (ε := ε * CStar) (by positivity),
+    eventually_gt_atTop (0 : ℝ)] with c hV hc0
+  have hFK := FKc_pos (q := 1) one_pos 1 hc0
+  rw [integral_const_mul, integral_psiAiry_eq_neg_gVac virasoroProblem hc0]
+  have e : psiScale c * (-virasoroProblem.gVac (c / 12) (sigG N η σs c) / (2 * π)) =
+      (2 * sigPsiIntegral N η σs c / FKc 1 1 c) / CStar := by
+    unfold psiScale sigPsiIntegral
+    rw [sigGVac_eq]
+    field_simp
+  rw [e, div_le_iff₀ hCs]
+  have : windowIntegralSig N η σs * CStar + ε * CStar = CStar * windowIntegralSig N η σs + ε * CStar := by ring
+  linarith
+
 /-- **(P4): the vacuum bound** `∫ Ψ_c du ≤ V_D + ε` (Proposition V (i), `∫ Ψ_g = -g_vac/(2π)`). -/
 theorem design_psi_limsup (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ)
     {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ c in atTop,
-      ∫ u, psiScale c * psiAiry virasoroProblem c (designG N η d c) u ≤ windowIntegralVD N η d + ε := by
-  have hCs := CStar_pos
-  filter_upwards [proposition_V_i N hN hη0 hη1 d (ε := ε * CStar) (by positivity),
-    eventually_gt_atTop (0 : ℝ)] with c hV hc0
-  have hFK := FKc_pos (q := 1) one_pos 1 hc0
-  rw [integral_const_mul, integral_psiAiry_eq_neg_gVac virasoroProblem hc0]
-  have e : psiScale c * (-virasoroProblem.gVac (c / 12) (designG N η d c) / (2 * π)) =
-      (2 * designPsiIntegral N η d c / FKc 1 1 c) / CStar := by
-    unfold psiScale designPsiIntegral
-    rw [designGVac_eq]
-    field_simp
-  rw [e, div_le_iff₀ hCs]
-  have : windowIntegralVD N η d * CStar + ε * CStar = CStar * windowIntegralVD N η d + ε * CStar := by ring
-  linarith
+      ∫ u, psiScale c * psiAiry virasoroProblem c (designG N η d c) u ≤ windowIntegralVD N η d + ε :=
+  by
+  simpa only [windowIntegralVD_eq_sig, designG] using sig_psi_limsup N hN hη0 hη1 (designSigma1 d) hε
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.sig_psi_uniform' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sig_psi_uniform
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.sig_psi_limsup' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sig_psi_limsup
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.design_psi_uniform' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

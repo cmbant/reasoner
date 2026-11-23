@@ -58,16 +58,10 @@ Revisions made in this audit (cleaner implementation, checked against the TeX):
 5. R2b fallback only if blocked: a named `CombToAiryInput` with the literal TeX quantifiers and a non-vacuity theorem.
 
 **B. Σ at Virasoro** (from the `sn_u5t2` sketch; constructions in `spectral_rigidity.tex` `sr:Sigma`):
-- Σ1, Σ2 done: `profWin`, `displacedClass`, `displacedFamily_union`; `virasoro_sigma_of_omitted` reduces Σ to Σ3 and Σ4.
-- Σ3 Property (P) for `displacedClass` (and its far-first-site widening, below): generalise in place from
-  `(N, η, d)` to general sites `(σ, ε)` the chain (P1) `designGood_eventually` ← `design_k7_membership_vacuum`;
-  (P2) `designG_nonneg` ← `proposition_I_a/b`, `lemma_R`, `proposition_II`; (P3) `design_psi_uniform` ←
-  `tildeW_designMod`, `lemma_W_measure`, `lemma_ID`; (P4) `proposition_V_i` ← `vacuum_core`. About 600–1000 lines.
-- Σ4 `OmittedFamily` by **far-first-site designs** (scout result): `f = 1`, first site `u_f = a_{m+1}`
-  (`d = a_1 − a_{m+1}`), sites `2..m` displaced by fixed `e_i`; the sign law of `profWin` gives `Π_i < 0` (i ≤ m),
-  `Π_{m+1} = 0`, `Π_i ≥ 0` beyond; `pi_lower` and `tail_small` as for the displaced family (`Assembly/FarFirstSite.lean`,
-  ~300 lines, after Σ3 covers the widened `d` range). This avoids the `f ≥ 2` combs (size L). The paper uses `f ≥ 2`
-  omitted designs (`sr:Sigma` Step 6, `sr:P` clause `f ≥ 2`); replacing them in the TeX is an owner decision.
+- **Done:** Σ1–Σ4. `virasoro_sigma_unconditional` (Theorem Σ at Virasoro, no hypothesis). Property (P) is proved for
+  combs with any bounded offset vector (`displacedPropertyP_virasoro`, the `sig*` chain, generalised in place), and the
+  omitted family uses `f = 1` far-first-site designs (`farFamily`) instead of the paper's `f ≥ 2` designs. Whether the TeX
+  switches `sr:Sigma` Step 6 to that route is an owner decision.
 
 **C. N = 1 super-Virasoro (`n1SuperVirasoroProblem`, `w = 1`, `μ = (1/2,1/2)`).**
 - C1 done: `FixedWeightBand.n1_lowerBoundInput`, `n1_T_V_lower` (unconditional).
