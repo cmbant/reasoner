@@ -10,9 +10,9 @@ public import Mathlib.MeasureTheory.Integral.IntegralEqImproper
 public import Mathlib.MeasureTheory.Integral.Prod
 
 /-!
-# Elementary Identities for Paper I (`u1co:O4`, `u1c:U1`, `lem:radial-compactness` Step 3)
+# Elementary Identities for Paper I (`u1co:O4`, `u1c:U1`)
 
-Three routine identities from `CFT/sign_uncertainty/paper/`, each as its own theorem:
+Routine identities from `CFT/sign_uncertainty/paper/`, each as its own theorem:
 
 * `O4_phase_increment`, `O4_square_increment`: the polynomial algebra in the contraction step
   of the proof of Lemma O.4(2) (`u1co:O4`, `u1c_estimate_proofs.tex`, step `[O4C (B)]`). Pure
@@ -20,11 +20,10 @@ Three routine identities from `CFT/sign_uncertainty/paper/`, each as its own the
   fixed-point argument itself is not formalised here.
 * `u1c_U1_one_integral`: part (1) of Lemma U.1 (`u1c:U1`, `u1c_o1_upper.tex`) in the form
   `∫_{(0,∞)} (1 - e^{-x}) x^{-3/2} e^{-wx} dx = 2√π((1+w)^{1/2} - w^{1/2})` for `Re w > 0`, with
-  principal branches. Parts (2) and (3) of Lemma U.1 are not formalised here.
-* `radialCompactness_step3_hasDerivAt`: the derivative of the integrand in Step 3 of
-  `lem:radial-compactness` (`fourier_mellin_proofs.tex`), namely that `ξ(s)^{-1} ξ(s)^{cεw}`
-  has derivative `ξ(s)^{-1}(w - ε²) ξ(s)^{-1} ξ(s)^{cεw}` in `s`, where `c ε³ = 1`. The
-  compactness argument of the lemma is not formalised here.
+  principal branches (the boundary `Re w = 0` is not covered). Part (2) of Lemma U.1 is not
+  formalised here.
+(The Step 3 derivative of `lem:radial-compactness` is `hasDerivAt_xi_inv_radialKernel` in
+`RadialCompactnessKernel`.)
 
 Proof of U.1(1) in Lean: `(1 - e^{-x}) = ∫_0^1 x e^{-tx} dt` turns the integral into
 `∫_0^1 ∫_{(0,∞)} x^{-1/2} e^{-(w+t)x} dx dt` (Fubini). The inner integral is the complex-rate
@@ -279,55 +278,5 @@ theorem u1c_U1_one_integral {w : ℂ} (hw : 0 < w.re) :
 /-- info: 'FormalResearch.SignUncertainty.u1c_U1_one_integral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms u1c_U1_one_integral
-
-/-! ### Section 3: The derivative in Step 3 of `lem:radial-compactness` -/
-
-/-- The affine map `s ↦ ξ(s) = 1/π² + ε² s` of Step 3 of `lem:radial-compactness`. -/
-noncomputable def radialXi (ε t : ℝ) : ℝ := 1 / π ^ 2 + ε ^ 2 * t
-
-/-- **Step 3 of `lem:radial-compactness`** (`CFT/sign_uncertainty/paper/fourier_mellin_proofs.tex`).
-For real `c > 0`, `ε = c^{-1/3}` (so `c ε³ = 1`), complex `w`, and a point `s` with
-`ξ(s) = 1/π² + ε² s > 0`, the map `s ↦ ξ(s)^{-1} ξ(s)^{cεw}` (principal branch, `ξ(s)` cast to `ℂ`)
-has derivative `ξ(s)^{-1} (w - ε²) ξ(s)^{-1} ξ(s)^{cεw}` at `s`. This is the `s`-dependent part of
-`ξ_c^{-1} K_c(w, s)`: the other factors of `K_c` (Gamma factors, `(2πc)^{cεw}`, `e^{c𝓗(εw)}`) do not
-depend on `s`, so they only multiply both sides.
-
-Covered: this derivative formula at each point with `ξ(s) > 0`. Not covered: the compactness
-argument in which Step 3 is used. -/
-theorem radialCompactness_step3_hasDerivAt (c : ℝ) (hc : 0 < c) (ε : ℝ)
-    (hε : ε = c ^ (-(1 / 3 : ℝ))) (w : ℂ) (s : ℝ) (hs : 0 < radialXi ε s) :
-    HasDerivAt (fun t : ℝ => ((radialXi ε t : ℝ) : ℂ)⁻¹ *
-        ((radialXi ε t : ℝ) : ℂ) ^ ((c : ℂ) * (ε : ℂ) * w))
-      (((radialXi ε s : ℝ) : ℂ)⁻¹ * (w - (ε : ℂ) ^ 2) * ((radialXi ε s : ℝ) : ℂ)⁻¹ *
-        ((radialXi ε s : ℝ) : ℂ) ^ ((c : ℂ) * (ε : ℂ) * w)) s := by
-  have h3 : ε ^ 3 = c⁻¹ := by
-    rw [hε, ← Real.rpow_natCast, ← Real.rpow_mul hc.le,
-      show -(1 / 3 : ℝ) * ((3 : ℕ) : ℝ) = -1 by norm_num, Real.rpow_neg_one]
-  have hkey : (c : ℂ) * (ε : ℂ) ^ 3 = 1 := by
-    have : c * ε ^ 3 = 1 := by rw [h3, mul_inv_cancel₀ hc.ne']
-    exact_mod_cast this
-  have hz : ((radialXi ε s : ℝ) : ℂ) ≠ 0 := by exact_mod_cast hs.ne'
-  have hslit : ((radialXi ε s : ℝ) : ℂ) ∈ slitPlane := Complex.ofReal_mem_slitPlane.mpr hs
-  have hlin : HasDerivAt (fun t : ℝ => radialXi ε t) (ε ^ 2) s := by
-    unfold radialXi
-    have := ((hasDerivAt_id s).const_mul (ε ^ 2)).const_add (1 / π ^ 2)
-    simpa using this
-  have hg : HasDerivAt (fun t : ℝ => ((radialXi ε t : ℝ) : ℂ)) ((ε : ℂ) ^ 2) s := by
-    have := hlin.ofReal_comp
-    simpa using this
-  have hpow := (Complex.hasStrictDerivAt_cpow_const (c := (c : ℂ) * (ε : ℂ) * w) hslit).hasDerivAt
-  have hcomp := hpow.comp s hg
-  have hinv := hg.inv hz
-  have hprod := hinv.mul hcomp
-  refine hprod.congr_deriv ?_
-  have key : ((c : ℂ) * (ε : ℂ) * w) * (ε : ℂ) ^ 2 = w := by linear_combination w * hkey
-  rw [Complex.cpow_sub _ _ hz, Complex.cpow_one]
-  simp only [Function.comp_apply, Pi.inv_apply]
-  linear_combination (((radialXi ε s : ℝ) : ℂ) ^ ((c : ℂ) * (ε : ℂ) * w) *
-    (((radialXi ε s : ℝ) : ℂ))⁻¹ ^ 2) * key
-
-/-- info: 'FormalResearch.SignUncertainty.radialCompactness_step3_hasDerivAt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms radialCompactness_step3_hasDerivAt
 
 end FormalResearch.SignUncertainty

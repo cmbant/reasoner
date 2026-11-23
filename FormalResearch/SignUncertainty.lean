@@ -42,8 +42,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.OddShellFamily`: analytic odd-level Hermite–Biehler shell gap
   configurations (`ce_shells.tex`, Corollary `H.14a` / `thm:ce-odd-family`) for every odd `m ≥ 3`.
 * `FormalResearch.SignUncertainty.ElementaryIdentities`: the O.4(2) contraction algebra (`u1co:O4`),
-  the Laplace-type integral of Lemma U.1(1) (`u1c:U1`), and the Step 3 derivative of
-  `lem:radial-compactness` (`fourier_mellin_proofs.tex`).
+  and the Laplace-type integral of Lemma U.1(1) (`u1c:U1`).
 * `FormalResearch.CohnElkies`: Stieltjes/cardinal resolvent, Mellin–Airy, lobe saddle,
   finite-dimensional Gaussian, and Fourier interpolation lemmas.
 -/
