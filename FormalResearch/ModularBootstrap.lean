@@ -92,6 +92,9 @@ public import FormalResearch.ModularBootstrap.WeightAxioms.KernelAndPositivity
 public import FormalResearch.ModularBootstrap.WeightAxioms.ComplexAsymptotics
 public import FormalResearch.ModularBootstrap.WeightAxioms.HankelContinuation
 public import FormalResearch.ModularBootstrap.WeightAxioms.Axioms
+public import FormalResearch.ModularBootstrap.FixedWeightTip.PoissonJensenGeneral
+public import FormalResearch.ModularBootstrap.FixedWeightTip.PropositionP
+public import FormalResearch.ModularBootstrap.FixedWeightTip.BlowupAndRigidity
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -284,4 +287,11 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   modified Bessel `I_n` sector/real asymptotics, Peano positivity and log-convexity, complex-disc
   Cauchy asymptotics, and unconditional general-`w` Hankel continuation (`hankelContinuationW_ofReal`)
   by spherical reduction.
+* `FixedWeightTip.PoissonJensenGeneral`, `FixedWeightTip.PropositionP`,
+  `FixedWeightTip.BlowupAndRigidity`: general-`(w, Q)` fixed-weight fold-tip blow-up and rigidity
+  (`FixedWeightProblem` parametrisation): real and complex-`b` Lemma `PJ` (`vlo:PJ`), Theorem `A`,
+  and general-`δ` Lemma `G` (`vlo:Gap`); **Proposition P** (`ft:PP` / `wone:Q`) Steps 1–3
+  (`H1`, `H2-hol`, `H2+`, `H4a`) and item `(4)` (Lemma `Q` `(1)`–`(3)`, with `c'`-free `(2b)^{w-1}`
+  factor); and unconditional **Proposition T** (`bl:T`), **Theorem C**, and **Theorem R** `(R1)`–`(R3)`
+  (`rig:R`) at every fixed `(w, Q)` under `Att` (plus `FixedWeightLowerBoundInput` compatibility).
 -/
