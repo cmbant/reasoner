@@ -26,6 +26,10 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
   `ce_hb_lift_m1`, `shell_reduction`, `hankel_shell_gap_limit` (the Hankel-level form of `shell_gap_limit`; the Euclidean
   statement follows by `shellGapLimit_of_hankel`), `ce_hb_lift`. `radial_compactness`, `one_profile_envelope` and the
   Euclidean-to-Hankel dictionary `hankel_euclid_dictionary` (`gt:7.9`) are theorems and no longer inputs.
+- `hankel_shell_gap_limit` route (`ShellGapHankel.lean`, `ShellGapMassRatio.lean`): step (a), the mass ratio `M[p]/M[q]` bounded
+  (`mass_ratio_bdd`, `hankelShell_mass_ratio_bdd`), is proved. Open: the common-subsequence extraction of `P∞, Q∞`; the
+  mass-transport constraints (`∫ 2Q∞ ≤ 0`, negative mass `≥ 1/2` beyond `u_*`); and the Laplace-weight limit (`thm:ce-shell-gap`
+  L.6, needing `LaplaceWeight`). The three-lines/origin-floor estimate is not on this route (it feeds only the `h(0)` clause).
 - What is genuinely closed and reusable:
   - the Airy base: Theorems D, Q and B with its equality case, Clark two-node, Hermite–Biehler quadrature and
     `at47_*`, and Airy PWS (a)⇔(b);

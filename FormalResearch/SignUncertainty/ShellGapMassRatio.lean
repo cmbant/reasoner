@@ -20,7 +20,7 @@ The Hankel-profile consequences (`h(0) = M[ĥ]`, `∫ f = 0`, `q ≠ 0`) are in 
 @[expose] public section
 
 open Complex MeasureTheory Filter Topology Set
-open scoped Real
+open scoped Real FourierTransform
 
 namespace FormalResearch.SignUncertainty
 
@@ -154,7 +154,7 @@ theorem mass_ratio_bdd (H : RadialCompactness) {c : ℕ → ℝ} (hc : Tendsto c
   push Not at hne
   have hfreq : ∀ n : ℕ, ∃ᶠ k in atTop,
       ((n : ℝ) + 1) * hankelMass (c k) (q k) < hankelMass (c k) (p k) := fun n =>
-    (hne ((n : ℝ) + 1)).mono fun k hk => not_le.1 hk
+    hne ((n : ℝ) + 1)
   obtain ⟨ns, hns, hnsP⟩ := Filter.extraction_forall_of_frequently hfreq
   obtain ⟨ms, F, C, ν, hms, hloc, -, -, hFd, hFi, hC, hFb, hFreal⟩ :=
     H.normalized_compactness 1 (Or.inl rfl) (fun k => c (ns k)) (fun k => p (ns k))
@@ -258,8 +258,8 @@ theorem mass_ratio_bdd (H : RadialCompactness) {c : ℕ → ℝ} (hc : Tendsto c
             mul_le_mul_of_nonneg_left (add_le_add hR₀e h3') hM
         _ = hankelMass (c (K k)) (p (K k)) / 4 := by ring
     have hsplit : ∫ u, |hankelWindowProfile (c (K k)) (p (K k)) u| =
-        ∫ u in Iic u₁, |hankelWindowProfile (c (K k)) (p (K k)) u| +
-          (∫ u in Ioc u₁ b, |hankelWindowProfile (c (K k)) (p (K k)) u| +
+        (∫ u in Iic u₁, |hankelWindowProfile (c (K k)) (p (K k)) u|) +
+          ((∫ u in Ioc u₁ b, |hankelWindowProfile (c (K k)) (p (K k)) u|) +
             ∫ u in Ioi b, |hankelWindowProfile (c (K k)) (p (K k)) u|) := by
       rw [← integral_add_compl measurableSet_Iic hψint, compl_Iic]
       congr 1
@@ -422,7 +422,6 @@ lemma hankelMass_hat {d : ℕ} (hd : 2 ≤ d) (P : HankelShellProfile ((d : ℝ)
   rw [← P.integral_hat_eq hd]
   unfold hankelMass
   refine setIntegral_congr_fun measurableSet_Ioi fun Δ hΔ => ?_
-  simp only
   rw [abs_of_nonneg (P.nonneg_hat Δ (le_of_lt hΔ))]
 
 lemma origin_le_mass {d : ℕ} (hd : 2 ≤ d) (P : HankelShellProfile ((d : ℝ) / 2) T G) :
@@ -473,12 +472,12 @@ lemma minus_ne_zero {d : ℕ} (hd : 2 ≤ d) (P : HankelShellProfile ((d : ℝ) 
   set f : EuclSp (n + 1) → ℂ := fun x => (G (‖x‖ ^ 2 / 2) : ℂ) with hf
   have hfc : Continuous f :=
     Complex.continuous_ofReal.comp (P.cont.comp_continuous
-      ((continuous_norm.pow 2).div_const 2) fun x => by positivity)
+      ((continuous_norm.pow 2).div_const 2) fun x => (by positivity : (0 : ℝ) ≤ ‖x‖ ^ 2 / 2))
   have hfi : Integrable f := (integrable_radialLift_iff n hn G).2 P.int
   have hsupp : HasCompactSupport f := by
     refine HasCompactSupport.intro (isCompact_closedBall (0 : EuclSp (n + 1)) (√(2 * T))) ?_
     intro x hx
-    rw [mem_closedBall, dist_zero_right, not_le] at hx
+    rw [Metric.mem_closedBall, dist_zero_right, not_le] at hx
     have hr0 := Real.sqrt_nonneg (2 * T)
     have hsq := Real.sq_sqrt (by linarith [P.T_pos] : 0 ≤ 2 * T)
     have : T ≤ ‖x‖ ^ 2 / 2 := by nlinarith
@@ -521,5 +520,41 @@ theorem hankelShell_mass_ratio_bdd (H : RadialCompactness) {dk : ℕ → ℕ}
     hε (u₀ := u_star) (T := T) (fun k => ?_) (fun k Δ hΔ => (hP k).abs_plus_le_minus hΔ)
   have := hT k
   rwa [show (dk k : ℝ) / (2 * π ^ 2) = ((dk k : ℝ) / 2) / π ^ 2 by rw [div_div]] at this
+
+/-- info: 'FormalResearch.SignUncertainty.entire_eq_zero_of_zero_on_Icc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms entire_eq_zero_of_zero_on_Icc
+
+/-- info: 'FormalResearch.SignUncertainty.mass_ratio_bdd' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms mass_ratio_bdd
+
+/-- info: 'FormalResearch.SignUncertainty.HankelShellProfile.integral_hat_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms HankelShellProfile.integral_hat_eq
+
+/-- info: 'FormalResearch.SignUncertainty.HankelShellProfile.integral_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms HankelShellProfile.integral_eq
+
+/-- info: 'FormalResearch.SignUncertainty.HankelShellProfile.hankelMass_hat' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms HankelShellProfile.hankelMass_hat
+
+/-- info: 'FormalResearch.SignUncertainty.HankelShellProfile.origin_le_mass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms HankelShellProfile.origin_le_mass
+
+/-- info: 'FormalResearch.SignUncertainty.HankelShellProfile.integral_minus_eq_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms HankelShellProfile.integral_minus_eq_zero
+
+/-- info: 'FormalResearch.SignUncertainty.HankelShellProfile.minus_ne_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms HankelShellProfile.minus_ne_zero
+
+/-- info: 'FormalResearch.SignUncertainty.hankelShell_mass_ratio_bdd' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelShell_mass_ratio_bdd
 
 end FormalResearch.SignUncertainty
