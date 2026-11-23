@@ -21,8 +21,12 @@ For a finite modification `designComb c' f N η₀ σ ε` of the index-`f` refer
 * `Re(Φ₁^{(f)} + Δ_D) = 0` on `E₊ = {Im b = 1/2}`;
 * `‖Δ_D^{(i)}‖ ≤ C λ` on `𝒩` for `i = 0, 1, 2`, `C = C(N, M, E)`.
 
-The estimate is the paper's (PC) argument in its first-order form: Lemma `K1`(d) bounds the
-`ζ`-derivative `∂_b^i ∂_ζ φ_ζ`, and the displacement of each site and width is `O(λ)`.
+The estimate is the paper's (PC) argument in its squared form, uniform in `N`: `iteratedDeriv_designDelta_le_sq`
+bounds `‖∂_b^i Δ_D‖ ≤ K Σ(|ε'² - ε²| + 2|χ' - χ|)` with an absolute `K` (path `(χ, ε) → (χ, ε') → (χ', ε')`;
+the `χ`-step is Lemma `K1`(d) for `∂_ζ φ`, the `ε`-step integrates `∂_{ε²}ψ`, bounded through `∂_ζ² φ`, over `ε²`).
+`designPhiDecomp_of_pairChange` turns it into `DesignPhiDecomp` for any admissible finite modification, with a
+threshold in `c'` independent of `N`; the compact-family `lemma_Phi_b` (the first-order bound with
+`C = C(N, M, E)`) and the linear `iteratedDeriv_designDelta_le` are corollaries.
 * `lemma_Phi_a_fixedN`: item `ut:Phi`(a) for the `f = 1` design `D(N, η_*, d)` at fixed `N`.
 
 Item `ut:Phi`(a) with the explicit `N`-dependence is not formalised (it needs Lemma `Z`).
@@ -78,25 +82,33 @@ lemma convex_combZ : Convex ℝ combZ := by
       _ ≤ a * (1 / 8) + b * (1 / 8) := by gcongr
       _ = 1 / 8 := by rw [← add_mul, hab, one_mul]
 
-/-- Lipschitz bound in `ζ` of the `b`-derivatives `∂_b^i φ_ζ(b)` on `𝒩 × combZ`, `i ≤ 2`. -/
-lemma combPhiDeriv_lipschitz_zeta :
-    ∃ K > 0, ∀ (i : ℕ), i ≤ 2 → ∀ {b ζ ζ' : ℂ}, b ∈ combNMid → ζ ∈ combZ → ζ' ∈ combZ →
-      ‖combPhiDeriv i 0 ζ' b - combPhiDeriv i 0 ζ b‖ ≤ K * ‖ζ' - ζ‖ := by
+/-- Lipschitz bound in `ζ` of the mixed derivatives `∂_b^i ∂_ζ^j φ_ζ(b)` on `𝒩 × combZ`, `i ≤ 2`,
+`j ≤ 1` (the bound `combPhiDeriv_bound` for `i + (j + 1) ≤ 4`). -/
+lemma combPhiDeriv_lipschitz_zeta_le :
+    ∃ K > 0, ∀ (i j : ℕ), i ≤ 2 → j ≤ 1 → ∀ {b ζ ζ' : ℂ}, b ∈ combNMid → ζ ∈ combZ → ζ' ∈ combZ →
+      ‖combPhiDeriv i j ζ' b - combPhiDeriv i j ζ b‖ ≤ K * ‖ζ' - ζ‖ := by
   obtain ⟨C, hC, _, hbd⟩ := combPhiDeriv_bound
-  refine ⟨C, hC, fun i hi b ζ ζ' hb hζ hζ' => ?_⟩
+  refine ⟨C, hC, fun i j hi hj b ζ ζ' hb hζ hζ' => ?_⟩
   have hb' := combNMid_subset_combNOpen hb
   have key := Convex.norm_image_sub_le_of_norm_hasDerivWithin_le
-    (f := fun z => combPhiDeriv i 0 z b) (f' := fun z => combPhiDeriv i 1 z b) (C := C)
+    (f := fun z => combPhiDeriv i j z b) (f' := fun z => combPhiDeriv i (j + 1) z b) (C := C)
     (s := combZ) (x := ζ) (y := ζ')
-    (fun z hz => (hasDerivAt_combPhiDeriv_zeta (i := i) (j := 0) hb'
+    (fun z hz => (hasDerivAt_combPhiDeriv_zeta (i := i) (j := j) hb'
       (combZ_subset_combZOpen hz)).hasDerivWithinAt)
     (fun z hz => by
-      calc ‖combPhiDeriv i 1 z b‖ ≤ C * min 1 (Real.exp (-π * (z.re - |b.re|))) :=
-            hbd i 1 (by omega) hb hz
+      calc ‖combPhiDeriv i (j + 1) z b‖ ≤ C * min 1 (Real.exp (-π * (z.re - |b.re|))) :=
+            hbd i (j + 1) (by omega) hb hz
         _ ≤ C * 1 := by gcongr; exact min_le_left _ _
         _ = C := mul_one C)
     convex_combZ hζ hζ'
   exact key
+
+/-- Lipschitz bound in `ζ` of the `b`-derivatives `∂_b^i φ_ζ(b)` on `𝒩 × combZ`, `i ≤ 2`. -/
+lemma combPhiDeriv_lipschitz_zeta :
+    ∃ K > 0, ∀ (i : ℕ), i ≤ 2 → ∀ {b ζ ζ' : ℂ}, b ∈ combNMid → ζ ∈ combZ → ζ' ∈ combZ →
+      ‖combPhiDeriv i 0 ζ' b - combPhiDeriv i 0 ζ b‖ ≤ K * ‖ζ' - ζ‖ := by
+  obtain ⟨K, hK, h⟩ := combPhiDeriv_lipschitz_zeta_le
+  exact ⟨K, hK, fun i hi _ _ _ hb hζ hζ' => h i 0 hi (by norm_num) hb hζ hζ'⟩
 
 lemma differentiableOn_phiZeta {ζ : ℂ} (hζ : ζ ∈ combZ) :
     DifferentiableOn ℂ (fun b => phiZeta ζ b) combNOpen := fun _ hb =>
@@ -250,17 +262,182 @@ lemma norm_sub_I_sub_le (a b a₀ b₀ : ℝ) :
         rw [norm_mul, Complex.norm_real, Complex.norm_real, Complex.norm_I, mul_one,
           Real.norm_eq_abs, Real.norm_eq_abs]
 
-/-- The `i`-th `b`-derivative of `Δ_D` is bounded by `K` times the total displacement of the zeros. -/
-theorem iteratedDeriv_designDelta_le :
+/-! #### The squared pair-change bound `(PC)` -/
+
+/-- `∂_b^i ψ(χ, ε)`, the `b`-derivative of the pair phase `ψ(χ, ε) = φ_{χ+iε} + φ_{χ-iε}`. -/
+noncomputable def pairDeriv (i : ℕ) (χ ε : ℝ) (b : ℂ) : ℂ :=
+  combPhiDeriv i 0 ((χ : ℂ) + (ε : ℂ) * Complex.I) b +
+    combPhiDeriv i 0 ((χ : ℂ) - (ε : ℂ) * Complex.I) b
+
+lemma pairDeriv_neg (i : ℕ) (χ ε : ℝ) (b : ℂ) : pairDeriv i χ (-ε) b = pairDeriv i χ ε b := by
+  unfold pairDeriv
+  have h1 : (χ : ℂ) + ((-ε : ℝ) : ℂ) * Complex.I = (χ : ℂ) - (ε : ℂ) * Complex.I := by
+    push_cast; ring
+  have h2 : (χ : ℂ) - ((-ε : ℝ) : ℂ) * Complex.I = (χ : ℂ) + (ε : ℂ) * Complex.I := by
+    push_cast; ring
+  rw [h1, h2, add_comm]
+
+lemma pairDeriv_abs (i : ℕ) (χ ε : ℝ) (b : ℂ) : pairDeriv i χ |ε| b = pairDeriv i χ ε b := by
+  rcases abs_choice ε with h | h
+  · rw [h]
+  · rw [h, pairDeriv_neg]
+
+lemma pairDeriv_eq_iteratedDeriv {χ ε : ℝ} {b : ℂ} (hb : b ∈ combNMid) (hχ : 0 ≤ χ)
+    (hε : |ε| ≤ 1 / 8) (i : ℕ) :
+    iteratedDeriv i (fun b => psiPair χ ε b) b = pairDeriv i χ ε b := by
+  have hb' := combNMid_subset_combNOpen hb
+  unfold psiPair pairDeriv
+  rw [iteratedDeriv_fun_add (contDiffAt_phiZeta (memCombZ_of_re_nonneg hχ hε) hb' i)
+    (contDiffAt_phiZeta (memCombZ_of_re_nonneg' hχ hε) hb' i),
+    iteratedDeriv_phiZeta_eq (memCombZ_of_re_nonneg hχ hε) hb' i,
+    iteratedDeriv_phiZeta_eq (memCombZ_of_re_nonneg' hχ hε) hb' i]
+
+/-- The `ε`-step of `(PC)`: for `0 ≤ a ≤ c ≤ 1/8` and `χ ≥ 0`,
+`‖∂_b^i [ψ(χ, c) - ψ(χ, a)]‖ ≤ K (c² - a²)`.  Since `ψ` is even in `ε`,
+`∂_{ε²} ψ = -(1/(2ε)) ∫_{-ε}^{ε} ∂_ζ² φ_{χ+is} ds`, which the mean value argument below replaces by
+`‖∂_ζ^2 φ‖ ≤ K` (`combPhiDeriv_bound`). -/
+lemma pairDeriv_sub_le_of_le :
+    ∃ K > 0, ∀ (i : ℕ), i ≤ 2 → ∀ {χ a c : ℝ} {b : ℂ}, b ∈ combNMid → 0 ≤ χ → 0 ≤ a → a ≤ c →
+      c ≤ 1 / 8 → ‖pairDeriv i χ c b - pairDeriv i χ a b‖ ≤ K * (c ^ 2 - a ^ 2) := by
+  obtain ⟨K, hK, hlip⟩ := combPhiDeriv_lipschitz_zeta_le
+  refine ⟨K, hK, fun i hi χ a c b hb hχ ha hac hc => ?_⟩
+  have hb' := combNMid_subset_combNOpen hb
+  have hz : ∀ t : ℝ, |t| ≤ 1 / 8 →
+      (χ : ℂ) + (t : ℂ) * Complex.I ∈ combZ ∧ (χ : ℂ) - (t : ℂ) * Complex.I ∈ combZ :=
+    fun t ht => ⟨memCombZ_of_re_nonneg hχ ht, memCombZ_of_re_nonneg' hχ ht⟩
+  have hder : ∀ t : ℝ, |t| ≤ 1 / 8 → HasDerivAt (fun t : ℝ => pairDeriv i χ t b)
+      (Complex.I * (combPhiDeriv i 1 ((χ : ℂ) + (t : ℂ) * Complex.I) b -
+        combPhiDeriv i 1 ((χ : ℂ) - (t : ℂ) * Complex.I) b)) t := fun t ht => by
+    have hu1 : HasDerivAt (fun z : ℂ => (χ : ℂ) + z * Complex.I) Complex.I (t : ℂ) := by
+      simpa using ((hasDerivAt_id (t : ℂ)).mul_const Complex.I).const_add (χ : ℂ)
+    have hu2 : HasDerivAt (fun z : ℂ => (χ : ℂ) - z * Complex.I) (-Complex.I) (t : ℂ) := by
+      simpa using ((hasDerivAt_id (t : ℂ)).mul_const Complex.I).const_sub (χ : ℂ)
+    have h1 := (hasDerivAt_combPhiDeriv_zeta (i := i) (j := 0) hb'
+      (combZ_subset_combZOpen (hz t ht).1)).comp (t : ℂ) hu1
+    have h2 := (hasDerivAt_combPhiDeriv_zeta (i := i) (j := 0) hb'
+      (combZ_subset_combZOpen (hz t ht).2)).comp (t : ℂ) hu2
+    have h3 := (h1.add h2).comp_ofReal
+    unfold pairDeriv
+    refine h3.congr_deriv ?_
+    simp only [zero_add]
+    ring
+  have hcont : ContinuousOn (fun t : ℝ => pairDeriv i χ t b - pairDeriv i χ a b) (Set.Icc a c) :=
+    fun t ht => ((hder t (by rw [abs_le]; constructor <;> linarith [ht.1, ht.2])).continuousAt.sub
+      continuousAt_const).continuousWithinAt
+  have key := image_norm_le_of_norm_deriv_right_le_deriv_boundary
+    (f := fun t : ℝ => pairDeriv i χ t b - pairDeriv i χ a b)
+    (f' := fun t : ℝ => Complex.I * (combPhiDeriv i 1 ((χ : ℂ) + (t : ℂ) * Complex.I) b -
+        combPhiDeriv i 1 ((χ : ℂ) - (t : ℂ) * Complex.I) b))
+    (B := fun t : ℝ => K * (t ^ 2 - a ^ 2)) (B' := fun t : ℝ => K * (2 * t))
+    (a := a) (b := c) hcont
+    (fun t ht => ((hder t (by rw [abs_le]; constructor <;> linarith [ht.1, ht.2])).sub_const _
+      ).hasDerivWithinAt)
+    (by simp)
+    (fun t => by
+      have := ((hasDerivAt_id t).pow 2).sub_const (a ^ 2) |>.const_mul K
+      simpa using this)
+    (fun t ht => by
+      have ht0 : 0 ≤ t := ha.trans ht.1
+      have ht1 : |t| ≤ 1 / 8 := by rw [abs_of_nonneg ht0]; linarith [ht.2]
+      rw [norm_mul, Complex.norm_I, one_mul]
+      refine (hlip i 1 hi le_rfl hb (hz t ht1).2 (hz t ht1).1).trans ?_
+      have : ‖((χ : ℂ) + (t : ℂ) * Complex.I) - ((χ : ℂ) - (t : ℂ) * Complex.I)‖ = 2 * t := by
+        have e : ((χ : ℂ) + (t : ℂ) * Complex.I) - ((χ : ℂ) - (t : ℂ) * Complex.I) =
+            ((2 * t : ℝ) : ℂ) * Complex.I := by push_cast; ring
+        rw [e, norm_mul, Complex.norm_I, mul_one, Complex.norm_real, Real.norm_eq_abs,
+          abs_of_nonneg (by linarith)]
+      rw [this])
+  have := key (Set.right_mem_Icc.mpr hac)
+  simpa using this
+
+/-- The pair step of `(PC)`: for `χ, χ' ≥ 0` and `|ε|, |ε'| ≤ 1/8`,
+`‖∂_b^i [ψ(χ', ε') - ψ(χ, ε)]‖ ≤ K |ε'² - ε²| + 2 K |χ' - χ|`
+(path `(χ, ε) → (χ, ε') → (χ', ε')`). -/
+lemma pairDeriv_sub_le :
+    ∃ K > 0, ∀ (i : ℕ), i ≤ 2 → ∀ {χ' χ ε' ε : ℝ} {b : ℂ}, b ∈ combNMid → 0 ≤ χ' → 0 ≤ χ →
+      |ε'| ≤ 1 / 8 → |ε| ≤ 1 / 8 →
+      ‖pairDeriv i χ' ε' b - pairDeriv i χ ε b‖ ≤ K * |ε' ^ 2 - ε ^ 2| + 2 * K * |χ' - χ| := by
+  obtain ⟨K₁, hK₁, hlip⟩ := combPhiDeriv_lipschitz_zeta
+  obtain ⟨K₂, hK₂, hε⟩ := pairDeriv_sub_le_of_le
+  refine ⟨K₁ + K₂, by positivity, fun i hi χ' χ ε' ε b hb hχ' hχ hε' hε0 => ?_⟩
+  have hs1 : ‖pairDeriv i χ' ε' b - pairDeriv i χ ε' b‖ ≤ 2 * K₁ * |χ' - χ| := by
+    unfold pairDeriv
+    have a1 := hlip i hi hb (memCombZ_of_re_nonneg hχ hε') (memCombZ_of_re_nonneg hχ' hε')
+    have a2 := hlip i hi hb (memCombZ_of_re_nonneg' hχ hε') (memCombZ_of_re_nonneg' hχ' hε')
+    have n1 : ‖((χ' : ℂ) + (ε' : ℂ) * Complex.I) - ((χ : ℂ) + (ε' : ℂ) * Complex.I)‖ =
+        |χ' - χ| := by
+      rw [add_sub_add_right_eq_sub, ← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
+    have n2 : ‖((χ' : ℂ) - (ε' : ℂ) * Complex.I) - ((χ : ℂ) - (ε' : ℂ) * Complex.I)‖ =
+        |χ' - χ| := by
+      rw [sub_sub_sub_cancel_right, ← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
+    rw [n1] at a1
+    rw [n2] at a2
+    calc _ = ‖(combPhiDeriv i 0 ((χ' : ℂ) + (ε' : ℂ) * Complex.I) b -
+            combPhiDeriv i 0 ((χ : ℂ) + (ε' : ℂ) * Complex.I) b) +
+          (combPhiDeriv i 0 ((χ' : ℂ) - (ε' : ℂ) * Complex.I) b -
+            combPhiDeriv i 0 ((χ : ℂ) - (ε' : ℂ) * Complex.I) b)‖ := by congr 1; ring
+      _ ≤ _ := (norm_add_le _ _).trans (by linarith)
+  have hs2 : ‖pairDeriv i χ ε' b - pairDeriv i χ ε b‖ ≤ K₂ * |ε' ^ 2 - ε ^ 2| := by
+    rw [← pairDeriv_abs i χ ε' b, ← pairDeriv_abs i χ ε b]
+    have hsq : ∀ u v : ℝ, |u| ^ 2 - |v| ^ 2 = u ^ 2 - v ^ 2 := fun u v => by
+      rw [sq_abs, sq_abs]
+    rcases le_total |ε| |ε'| with h | h
+    · have hnn : 0 ≤ ε' ^ 2 - ε ^ 2 := by
+        have := pow_le_pow_left₀ (abs_nonneg ε) h 2
+        rw [sq_abs, sq_abs] at this
+        linarith
+      have := hε i hi hb hχ (abs_nonneg ε) h hε'
+      rw [hsq] at this
+      rw [abs_of_nonneg hnn]
+      exact this
+    · have hnn : 0 ≤ ε ^ 2 - ε' ^ 2 := by
+        have := pow_le_pow_left₀ (abs_nonneg ε') h 2
+        rw [sq_abs, sq_abs] at this
+        linarith
+      have := hε i hi hb hχ (abs_nonneg ε') h hε0
+      rw [hsq] at this
+      rw [norm_sub_rev, abs_sub_comm, abs_of_nonneg hnn]
+      exact this
+  calc ‖pairDeriv i χ' ε' b - pairDeriv i χ ε b‖
+      = ‖(pairDeriv i χ' ε' b - pairDeriv i χ ε' b) + (pairDeriv i χ ε' b - pairDeriv i χ ε b)‖ := by
+        congr 1; ring
+    _ ≤ _ := (norm_add_le _ _).trans (by
+        have := abs_nonneg (ε' ^ 2 - ε ^ 2)
+        have := abs_nonneg (χ' - χ)
+        nlinarith)
+
+/-- The total pair change `|χ'_f - χ_f| + Σ_j (|ε'_j² - ε_j⁰²| + 2 |χ'_j - χ_j|)` of a finite
+modification (`ut:Phi`, display `ut:PC`, summed over the modified factors). -/
+noncomputable def designPairChange (c' : ℝ) (f N : ℕ) (η₀ : ℝ) (σ ε : ℕ → ℝ) : ℝ :=
+  |designSite c' σ f - chiQuantile c' (f : ℝ)| +
+    ∑ j ∈ Finset.range (N - f),
+      (|ε (f + 1 + j) ^ 2 - (η₀ * siteGap c' (f + 1 + j)) ^ 2| +
+        2 * |designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ)|)
+
+lemma designPairChange_nonneg (c' : ℝ) (f N : ℕ) (η₀ : ℝ) (σ ε : ℕ → ℝ) :
+    0 ≤ designPairChange c' f N η₀ σ ε := by
+  unfold designPairChange
+  positivity
+
+/-- `|ε² - ε₀²| ≤ 2 |ε - ε₀|` for widths `≤ 1/8` (the squared bound is the sharper one). -/
+lemma abs_sq_sub_sq_le {ε ε₀ : ℝ} (h : |ε| ≤ 1 / 8) (h₀ : |ε₀| ≤ 1 / 8) :
+    |ε ^ 2 - ε₀ ^ 2| ≤ 2 * |ε - ε₀| := by
+  have : ε ^ 2 - ε₀ ^ 2 = (ε - ε₀) * (ε + ε₀) := by ring
+  rw [this, abs_mul]
+  have h1 : |ε + ε₀| ≤ 1 / 4 := (abs_add_le _ _).trans (by linarith)
+  nlinarith [abs_nonneg (ε - ε₀), abs_nonneg (ε + ε₀)]
+
+/-- **Squared pair-change bound `(PC)`** (`ut:Phi`, eq. `ut:PC`): for an admissible finite modification,
+`‖∂_b^i Δ_D‖ ≤ K · (|χ'_f - χ_f| + Σ_j (|ε'_j² - ε_j⁰²| + 2 |χ'_j - χ_j|))` on `𝒩` for `i ≤ 2`, with `K`
+absolute: independent of `c'`, `f`, `N`, `η₀` and of the data.  The widths enter only through
+`∂_{ε²} ψ = -(1/(2ε)) ∫_{-ε}^{ε} ∂_ζ² φ_{χ+is} ds`. -/
+theorem iteratedDeriv_designDelta_le_sq :
     ∃ K > 0, ∀ {c' : ℝ} {f N : ℕ} {η₀ : ℝ} {σ ε : ℕ → ℝ} {b : ℂ} (i : ℕ), i ≤ 2 → b ∈ combNMid →
       DesignAdmissible c' f N η₀ σ ε →
-      ‖iteratedDeriv i (designDelta c' f N η₀ σ ε) b‖ ≤
-        K * (|designSite c' σ f - chiQuantile c' (f : ℝ)| +
-          ∑ j ∈ Finset.range (N - f),
-            (2 * |designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ)| +
-              2 * |ε (f + 1 + j) - η₀ * siteGap c' (f + 1 + j)|)) := by
-  obtain ⟨K, hK, hd⟩ := iteratedDeriv_dphi_le
-  refine ⟨K, hK, fun {c' f N η₀ σ ε b} i hi hb hA => ?_⟩
+      ‖iteratedDeriv i (designDelta c' f N η₀ σ ε) b‖ ≤ K * designPairChange c' f N η₀ σ ε := by
+  obtain ⟨K₁, hK₁, hd⟩ := iteratedDeriv_dphi_le
+  obtain ⟨K₂, hK₂, hpair⟩ := pairDeriv_sub_le
+  refine ⟨K₁ + K₂, by positivity, fun {c' f N η₀ σ ε b} i hi hb hA => ?_⟩
   have hb' := combNMid_subset_combNOpen hb
   rw [designDelta_eq_dphi]
   have hzf := ofReal_memCombZ hA.first
@@ -288,6 +465,10 @@ theorem iteratedDeriv_designDelta_le :
       (hcd _ _ (hpl j hj).2.1 (hpl j hj).2.2.2))]
   refine (norm_add_le _ _).trans ?_
   have h1 := (hd i hi hb hzf0 hzf).2
+  have hfirst : ‖((designSite c' σ f : ℂ)) - ((chiQuantile c' (f : ℝ) : ℝ) : ℂ)‖ =
+      |designSite c' σ f - chiQuantile c' (f : ℝ)| := by
+    rw [← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
+  rw [hfirst] at h1
   have h2 : ‖∑ j ∈ Finset.range (N - f), iteratedDeriv i (fun b =>
       dphi ((designSite c' σ (f + 1 + j) : ℂ) + (ε (f + 1 + j) : ℂ) * Complex.I)
         ((chiQuantile c' ((f + 1 + j : ℕ) : ℝ) : ℂ) +
@@ -295,30 +476,91 @@ theorem iteratedDeriv_designDelta_le :
       dphi ((designSite c' σ (f + 1 + j) : ℂ) - (ε (f + 1 + j) : ℂ) * Complex.I)
         ((chiQuantile c' ((f + 1 + j : ℕ) : ℝ) : ℂ) -
           ((η₀ * siteGap c' (f + 1 + j) : ℝ) : ℂ) * Complex.I) b) b‖ ≤
-      ∑ j ∈ Finset.range (N - f), K * (2 * |designSite c' σ (f + 1 + j) -
-          chiQuantile c' ((f + 1 + j : ℕ) : ℝ)| + 2 * |ε (f + 1 + j) - η₀ * siteGap c' (f + 1 + j)|) := by
+      ∑ j ∈ Finset.range (N - f), (K₂ * (|ε (f + 1 + j) ^ 2 - (η₀ * siteGap c' (f + 1 + j)) ^ 2| +
+        2 * |designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ)|)) := by
     refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun j hj => ?_)
     have hcj := hpl j hj
-    rw [iteratedDeriv_fun_add (hcd _ _ hcj.1 hcj.2.2.1) (hcd _ _ hcj.2.1 hcj.2.2.2)]
-    refine (norm_add_le _ _).trans ?_
-    have a1 := (hd i hi hb hcj.2.2.1 hcj.1).2
-    have a2 := (hd i hi hb hcj.2.2.2 hcj.2.1).2
-    have n1 := norm_add_I_sub_le (designSite c' σ (f + 1 + j)) (ε (f + 1 + j))
-      (chiQuantile c' ((f + 1 + j : ℕ) : ℝ)) (η₀ * siteGap c' (f + 1 + j))
-    have n2 := norm_sub_I_sub_le (designSite c' σ (f + 1 + j)) (ε (f + 1 + j))
-      (chiQuantile c' ((f + 1 + j : ℕ) : ℝ)) (η₀ * siteGap c' (f + 1 + j))
-    nlinarith [mul_le_mul_of_nonneg_left n1 hK.le, mul_le_mul_of_nonneg_left n2 hK.le]
-  have hfirst : ‖((designSite c' σ f : ℂ)) - ((chiQuantile c' (f : ℝ) : ℝ) : ℂ)‖ =
-      |designSite c' σ f - chiQuantile c' (f : ℝ)| := by
-    rw [← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
-  rw [hfirst] at h1
-  have hmul : ∑ j ∈ Finset.range (N - f), K * (2 * |designSite c' σ (f + 1 + j) -
-        chiQuantile c' ((f + 1 + j : ℕ) : ℝ)| + 2 * |ε (f + 1 + j) - η₀ * siteGap c' (f + 1 + j)|) =
-      K * ∑ j ∈ Finset.range (N - f), (2 * |designSite c' σ (f + 1 + j) -
-        chiQuantile c' ((f + 1 + j : ℕ) : ℝ)| + 2 * |ε (f + 1 + j) - η₀ * siteGap c' (f + 1 + j)|) :=
+    have hj' := Finset.mem_range.mp hj
+    rw [iteratedDeriv_fun_add (hcd _ _ hcj.1 hcj.2.2.1) (hcd _ _ hcj.2.1 hcj.2.2.2),
+      (hd i hi hb hcj.2.2.1 hcj.1).1, (hd i hi hb hcj.2.2.2 hcj.2.1).1]
+    have hpj := hpair i hi hb (hA.site j hj') (hA.ref_site j hj') (hA.width j hj')
+      (hA.ref_width j hj')
+    have e : (combPhiDeriv i 0 ((designSite c' σ (f + 1 + j) : ℂ) +
+          (ε (f + 1 + j) : ℂ) * Complex.I) b -
+        combPhiDeriv i 0 ((chiQuantile c' ((f + 1 + j : ℕ) : ℝ) : ℂ) +
+          ((η₀ * siteGap c' (f + 1 + j) : ℝ) : ℂ) * Complex.I) b) +
+        (combPhiDeriv i 0 ((designSite c' σ (f + 1 + j) : ℂ) -
+          (ε (f + 1 + j) : ℂ) * Complex.I) b -
+        combPhiDeriv i 0 ((chiQuantile c' ((f + 1 + j : ℕ) : ℝ) : ℂ) -
+          ((η₀ * siteGap c' (f + 1 + j) : ℝ) : ℂ) * Complex.I) b) =
+        pairDeriv i (designSite c' σ (f + 1 + j)) (ε (f + 1 + j)) b -
+          pairDeriv i (chiQuantile c' ((f + 1 + j : ℕ) : ℝ)) (η₀ * siteGap c' (f + 1 + j)) b := by
+      unfold pairDeriv; ring
+    rw [e]
+    refine hpj.trans ?_
+    have := abs_nonneg (ε (f + 1 + j) ^ 2 - (η₀ * siteGap c' (f + 1 + j)) ^ 2)
+    have := abs_nonneg (designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ))
+    nlinarith
+  have hmul : ∑ j ∈ Finset.range (N - f), (K₂ * (|ε (f + 1 + j) ^ 2 -
+        (η₀ * siteGap c' (f + 1 + j)) ^ 2| +
+        2 * |designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ)|)) =
+      K₂ * ∑ j ∈ Finset.range (N - f), (|ε (f + 1 + j) ^ 2 -
+        (η₀ * siteGap c' (f + 1 + j)) ^ 2| +
+        2 * |designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ)|) :=
     (Finset.mul_sum _ _ _).symm
-  rw [mul_add]
+  rw [hmul] at h2
+  unfold designPairChange
+  have hS : 0 ≤ ∑ j ∈ Finset.range (N - f), (|ε (f + 1 + j) ^ 2 -
+        (η₀ * siteGap c' (f + 1 + j)) ^ 2| +
+        2 * |designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ)|) :=
+    Finset.sum_nonneg fun j _ => by positivity
+  have hF := abs_nonneg (designSite c' σ f - chiQuantile c' (f : ℝ))
+  nlinarith
+
+/-- The `i`-th `b`-derivative of `Δ_D` is bounded by `K` times the total displacement of the zeros.
+(The linear form, a corollary of `iteratedDeriv_designDelta_le_sq`: widths are `≤ 1/8`.) -/
+theorem iteratedDeriv_designDelta_le :
+    ∃ K > 0, ∀ {c' : ℝ} {f N : ℕ} {η₀ : ℝ} {σ ε : ℕ → ℝ} {b : ℂ} (i : ℕ), i ≤ 2 → b ∈ combNMid →
+      DesignAdmissible c' f N η₀ σ ε →
+      ‖iteratedDeriv i (designDelta c' f N η₀ σ ε) b‖ ≤
+        K * (|designSite c' σ f - chiQuantile c' (f : ℝ)| +
+          ∑ j ∈ Finset.range (N - f),
+            (2 * |designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ)| +
+              2 * |ε (f + 1 + j) - η₀ * siteGap c' (f + 1 + j)|)) := by
+  obtain ⟨K, hK, hsq⟩ := iteratedDeriv_designDelta_le_sq
+  refine ⟨K, hK, fun {c' f N η₀ σ ε b} i hi hb hA => (hsq i hi hb hA).trans ?_⟩
+  refine mul_le_mul_of_nonneg_left ?_ hK.le
+  unfold designPairChange
+  refine add_le_add le_rfl (Finset.sum_le_sum fun j hj => ?_)
+  have hj' := Finset.mem_range.mp hj
+  have := abs_sq_sub_sq_le (hA.width j hj') (hA.ref_width j hj')
   linarith
+
+/-- The data of a finite modification are admissible for `c'` large, uniformly in the cut `N`, as soon
+as the modified sites are `≥ 0` and the modified widths are `≤ 1/8` (the reference sites and widths
+are then automatically admissible). -/
+theorem designAdmissible_of_nonneg (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀)
+    (hη₀1 : η₀ ≤ 1 / 4) :
+    ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ), f ≤ N → 0 ≤ designSite c' σ f →
+      (∀ i < N - f, 0 ≤ designSite c' σ (f + 1 + i)) → (∀ i < N - f, |ε (f + 1 + i)| ≤ 1 / 8) →
+      DesignAdmissible c' f N η₀ σ ε := by
+  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
+  filter_upwards [h_ev, eventually_gt_atTop 0] with c'
+    ⟨hgap_k, hgap_1_bd, hcd1_bd, hgap_1⟩ hc' N σ ε hfN hs0 hs hε
+  exact
+    { first := hs0
+      ref_first := xiStar_pos.le.trans (refSite_bounds hc' hf hfN).1
+      site := hs
+      width := hε
+      ref_site := fun i hi => xiStar_pos.le.trans
+        (refSite_bounds (k := f + 1 + i) (N := N) hc' (by omega) (by omega)).1
+      ref_width := fun i hi => by
+        have hga := siteGap_nonneg hc' (by omega : 1 ≤ f + 1 + i)
+        rw [abs_of_nonneg (mul_nonneg hη₀0 hga)]
+        have hgk := hgap_k (f + 1 + i) (by omega)
+        calc η₀ * siteGap c' (f + 1 + i) ≤ (1 / 4) * (1 / 2) :=
+              mul_le_mul hη₀1 (hgk.trans hgap_1) hga (by norm_num)
+          _ = 1 / 8 := by norm_num }
 
 /-- Members of the compact family `|σ_k| ≤ M`, `0 ≤ ε'_k ≤ E λ` are admissible for large `c'`. -/
 theorem designAdmissible_eventually (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) {η₀ : ℝ}
@@ -326,39 +568,20 @@ theorem designAdmissible_eventually (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (
     ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
       (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
       DesignAdmissible c' f N η₀ σ ε := by
-  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
-  have hlam_ev : ∀ᶠ c' in atTop, M * lambdaComb c' ≤ xiStar ∧ E * lambdaComb c' ≤ 1 / 8 ∧
-      Cg * lambdaComb c' ≤ 1 / 2 := by
+  have hlam_ev : ∀ᶠ c' in atTop, M * lambdaComb c' ≤ xiStar ∧ E * lambdaComb c' ≤ 1 / 8 := by
     have h1 := tendsto_lambdaComb_atTop.const_mul M
-    have h2 := tendsto_lambdaComb_atTop.const_mul Cg
     have h3 := tendsto_lambdaComb_atTop.const_mul E
-    simp only [mul_zero] at h1 h2 h3
-    exact (h1.eventually_le_const xiStar_pos).and
-      ((h3.eventually_le_const (by norm_num)).and (h2.eventually_le_const (by norm_num)))
-  filter_upwards [h_ev, eventually_gt_atTop 0, hlam_ev] with c'
-    ⟨hgap_k, hgap_1_bd, hcd1_bd, hgap_1⟩ hc' ⟨hMlam, hElam, hCglam⟩ σ ε hσ hε
+    simp only [mul_zero] at h1 h3
+    exact (h1.eventually_le_const xiStar_pos).and (h3.eventually_le_const (by norm_num))
+  filter_upwards [designAdmissible_of_nonneg f hf hη₀0 hη₀1, eventually_gt_atTop 0, hlam_ev] with c'
+    hAd hc' ⟨hMlam, hElam⟩ σ ε hσ hε
   have hlam : 0 < lambdaComb c' := Real.rpow_pos_of_pos (mul_pos kTip_pos hc') _
   have hMl1 : lambdaComb c' * M ≤ xiStar := by linarith [mul_comm M (lambdaComb c')]
-  have hgap_nn : ∀ i : ℕ, 0 ≤ η₀ * siteGap c' (f + 1 + i) ∧
-      η₀ * siteGap c' (f + 1 + i) ≤ Cg / 4 * lambdaComb c' := fun i => by
-    have hga := siteGap_nonneg hc' (by omega : 1 ≤ f + 1 + i)
-    refine ⟨mul_nonneg hη₀0 hga, ?_⟩
-    have hgk := (hgap_k (f + 1 + i) (by omega)).trans (hgap_1_bd.trans hcd1_bd)
-    calc η₀ * siteGap c' (f + 1 + i) ≤ (1 / 4) * (Cg * lambdaComb c') :=
-          mul_le_mul hη₀1 hgk hga (by norm_num)
-      _ = Cg / 4 * lambdaComb c' := by ring
-  exact
-    { first := (designSite_bounds hlam.le (hσ f le_rfl hfN) le_rfl hMl1).1
-      ref_first := xiStar_pos.le.trans (refSite_bounds hc' hf hfN).1
-      site := fun i hi => (designSite_bounds hlam.le (hσ (f + 1 + i) (by omega) (by omega)) le_rfl
-        hMl1).1
-      width := fun i hi => by
-        have h := hε (f + 1 + i) (by omega) (by omega)
-        rw [abs_of_nonneg h.1]; linarith [h.2]
-      ref_site := fun i hi => xiStar_pos.le.trans
-        (refSite_bounds (k := f + 1 + i) (N := N) hc' (by omega) (by omega)).1
-      ref_width := fun i hi => by
-        rw [abs_of_nonneg (hgap_nn i).1]; linarith [(hgap_nn i).2] }
+  refine hAd N σ ε hfN (designSite_bounds hlam.le (hσ f le_rfl hfN) le_rfl hMl1).1
+    (fun i hi => (designSite_bounds hlam.le (hσ (f + 1 + i) (by omega) (by omega)) le_rfl
+      hMl1).1) (fun i hi => ?_)
+  have h := hε (f + 1 + i) (by omega) (by omega)
+  rw [abs_of_nonneg h.1]; linarith [h.2]
 
 /-! ### 4. Lemma `Φ`(b) -/
 
@@ -381,63 +604,24 @@ def DesignPhiDecomp (c' : ℝ) (f N : ℕ) (η₀ : ℝ) (σ ε : ℕ → ℝ) (
   (∀ b : ℂ, b.im = 1 / 2 → (phi1Comb c' f η₀ b + designDelta c' f N η₀ σ ε b).re = 0) ∧
   (∀ i : ℕ, i ≤ 2 → ∀ b ∈ combN, ‖iteratedDeriv i (designDelta c' f N η₀ σ ε) b‖ ≤ B)
 
-/-- **Lemma `Φ`(b)** (`ut:Phi`, compact-family version, before the "Consequently").  Fix `f ≥ 1`,
-`N ≥ f`, `M, E ≥ 0` and `η₀ ∈ [0, 1/4]`.  There is `C = C(N, M, E) ≥ 0` such that for `c'` large and
-every finite modification `B_D^{(f)} = designComb c' f N η₀ σ ε` with `|σ_k| ≤ M` and
-`0 ≤ ε'_k ≤ E λ`, uniformly in the family, `DesignPhiDecomp c' f N η₀ σ ε (C λ)` holds:
-`log B_D^{(f)} = c' Φ₀ + Φ₁^{(f)} + Δ_D` on `𝒩`, `Re (Φ₁^{(f)} + Δ_D) = 0` on `E₊`, and
-`sup_𝒩 |Δ_D^{(i)}| ≤ C λ` for `i = 0, 1, 2`. -/
-theorem lemma_Phi_b (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (hE : 0 ≤ E) {η₀ : ℝ}
-    (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) :
-    ∃ C : ℝ, 0 ≤ C ∧ ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
-      (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
-      DesignPhiDecomp c' f N η₀ σ ε (C * lambdaComb c') := by
-  obtain ⟨K, hK, hKd⟩ := iteratedDeriv_designDelta_le
-  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
-  set s : ℝ := max (phiQuantile ((N : ℝ) + 2)) M with hs_def
-  have hΦpos : 0 < phiQuantile ((N : ℝ) + 2) := by
-    unfold phiQuantile
-    apply Real.rpow_pos_of_pos
-    have : (0 : ℝ) ≤ N := Nat.cast_nonneg N
-    linarith
-  have hs : 0 < s := lt_of_lt_of_le hΦpos (le_max_left _ _)
-  have hMs : M ≤ s := le_max_right _ _
-  have hΦs : phiQuantile ((N : ℝ) + 2) ≤ s := le_max_left _ _
-  refine ⟨K * (2 * s + ((N - f : ℕ) : ℝ) * (4 * s + 2 * E + Cg / 2)), by positivity, ?_⟩
-  have hlam_ev : ∀ᶠ c' in atTop, M * lambdaComb c' ≤ xiStar ∧ E * lambdaComb c' ≤ 1 / 8 ∧
-      Cg * lambdaComb c' ≤ 1 / 2 := by
-    have h1 := tendsto_lambdaComb_atTop.const_mul M
-    have h2 := tendsto_lambdaComb_atTop.const_mul Cg
-    have h3 := tendsto_lambdaComb_atTop.const_mul E
-    simp only [mul_zero] at h1 h2 h3
-    exact (h1.eventually_le_const xiStar_pos).and
-      ((h3.eventually_le_const (by norm_num)).and (h2.eventually_le_const (by norm_num)))
-  filter_upwards [refComb_eq_split f N hfN hη₀0 hη₀1, cexp_logRefComb f hf hη₀0 hη₀1,
-    logRefComb_eq_comb_decomp f hf hη₀0 hη₀1, re_phi1Comb_eq_zero_of_im_half f hf hη₀0 hη₀1,
-    h_ev, eventually_gt_atTop 0, hlam_ev] with c' hsp hexp hdec hre
-    ⟨hgap_k, hgap_1_bd, hcd1_bd, hgap_1⟩ hc' ⟨hMlam, hElam, hCglam⟩ σ ε hσ hε
-  have hlam : 0 < lambdaComb c' := Real.rpow_pos_of_pos (mul_pos kTip_pos hc') _
-  have hMl1 : lambdaComb c' * M ≤ xiStar := by linarith [mul_comm M (lambdaComb c')]
-  have hgap_nn : ∀ i : ℕ, 0 ≤ η₀ * siteGap c' (f + 1 + i) ∧
-      η₀ * siteGap c' (f + 1 + i) ≤ Cg / 4 * lambdaComb c' := fun i => by
-    have hga := siteGap_nonneg hc' (by omega : 1 ≤ f + 1 + i)
-    refine ⟨mul_nonneg hη₀0 hga, ?_⟩
-    have hgk := (hgap_k (f + 1 + i) (by omega)).trans (hgap_1_bd.trans hcd1_bd)
-    calc η₀ * siteGap c' (f + 1 + i) ≤ (1 / 4) * (Cg * lambdaComb c') :=
-          mul_le_mul hη₀1 hgk hga (by norm_num)
-      _ = Cg / 4 * lambdaComb c' := by ring
-  have hA : DesignAdmissible c' f N η₀ σ ε :=
-    { first := (designSite_bounds hlam.le (hσ f le_rfl hfN) le_rfl hMl1).1
-      ref_first := xiStar_pos.le.trans (refSite_bounds hc' hf hfN).1
-      site := fun i hi => (designSite_bounds hlam.le (hσ (f + 1 + i) (by omega) (by omega)) le_rfl
-        hMl1).1
-      width := fun i hi => by
-        have h := hε (f + 1 + i) (by omega) (by omega)
-        rw [abs_of_nonneg h.1]; linarith [h.2]
-      ref_site := fun i hi => xiStar_pos.le.trans
-        (refSite_bounds (k := f + 1 + i) (N := N) hc' (by omega) (by omega)).1
-      ref_width := fun i hi => by
-        rw [abs_of_nonneg (hgap_nn i).1]; linarith [(hgap_nn i).2] }
+/-- `DesignPhiDecomp` is monotone in the derivative bound. -/
+lemma DesignPhiDecomp.mono {c' : ℝ} {f N : ℕ} {η₀ : ℝ} {σ ε : ℕ → ℝ} {B B' : ℝ}
+    (h : DesignPhiDecomp c' f N η₀ σ ε B) (hB : B ≤ B') : DesignPhiDecomp c' f N η₀ σ ε B' :=
+  ⟨h.1, h.2.1, h.2.2.1, fun i hi b hb => (h.2.2.2 i hi b hb).trans hB⟩
+
+/-- **Lemma `Φ`(b), uniform form, from a derivative bound.**  For fixed `f ≥ 1` and `η₀ ∈ [0, 1/4]`
+there is `c₀` such that for every `c' ≥ c₀`, **every cut `N ≥ f`** and every admissible finite
+modification, the first three items of `DesignPhiDecomp` hold, and the fourth with any constant `B`
+bounding `‖∂_b^i Δ_D‖` on `𝒩`.  The threshold does not depend on `N` or on the data. -/
+theorem designPhiDecomp_of_bound (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀)
+    (hη₀1 : η₀ ≤ 1 / 4) :
+    ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ) (B : ℝ), f ≤ N → DesignAdmissible c' f N η₀ σ ε →
+      (∀ i : ℕ, i ≤ 2 → ∀ b ∈ combN,
+        ‖iteratedDeriv i (designDelta c' f N η₀ σ ε) b‖ ≤ B) →
+      DesignPhiDecomp c' f N η₀ σ ε B := by
+  filter_upwards [refComb_eq_split_unif f hη₀0 hη₀1, cexp_logRefComb f hf hη₀0 hη₀1,
+    logRefComb_eq_comb_decomp f hf hη₀0 hη₀1, re_phi1Comb_eq_zero_of_im_half f hf hη₀0 hη₀1]
+    with c' hsp hexp hdec hre N σ ε B hfN hA hbd
   have hlogeq : ∀ b ∈ combN, logRefComb c' f η₀ b + designDelta c' f N η₀ σ ε b =
       (c' : ℂ) * phi0 b + phi1Comb c' f η₀ b + designDelta c' f N η₀ σ ε b := fun b hb => by
     rw [hdec (combN_subset_combNMid hb)]
@@ -446,11 +630,11 @@ theorem lemma_Phi_b (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (hE :
     rw [abs_lt]; constructor <;> linarith
   have hDexp : ∀ b ∈ combN, refComb c' f η₀ b * Complex.exp (designDelta c' f N η₀ σ ε b) =
       designComb c' f N η₀ σ ε b := fun b hb =>
-    refComb_mul_exp_designDelta hb hA (hsp (hbim b hb))
+    refComb_mul_exp_designDelta hb hA (hsp N hfN (hbim b hb))
   have hrefne : ∀ b ∈ combN, refComb c' f η₀ b ≠ 0 := fun b hb => by
     rw [← hexp hb]; exact Complex.exp_ne_zero _
   unfold DesignPhiDecomp
-  refine ⟨fun b hb => ⟨hlogeq b hb, ?_⟩, fun b hb => ?_, fun b hb_im => ?_, fun i hi b hb => ?_⟩
+  refine ⟨fun b hb => ⟨hlogeq b hb, ?_⟩, fun b hb => ?_, fun b hb_im => ?_, hbd⟩
   · rw [Complex.exp_add, hexp hb, hDexp b hb]
   · rw [eq_div_iff (hrefne b hb), mul_comm, hDexp b hb]
   · have hbN : b ∈ combN := by change |b.im - 1 / 2| ≤ 1 / 4; rw [hb_im]; norm_num
@@ -464,40 +648,91 @@ theorem lemma_Phi_b (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (hE :
       rw [Complex.sub_re, re_psiPair_eq_zero hb_im (hA.site j hj') (hA.width j hj'),
         re_psiPair_eq_zero hb_im (hA.ref_site j hj') (hA.ref_width j hj'), sub_zero]
     rw [Complex.add_re, hre hb_im, hD, add_zero]
-  · have hbd := hKd (b := b) i hi (combN_subset_combNMid hb) hA
-    refine hbd.trans ?_
-    have hfirst : |designSite c' σ f - chiQuantile c' (f : ℝ)| ≤ 2 * s * lambdaComb c' :=
-      designSite_dist_le hc' hf hfN (hσ f le_rfl hfN) hMs hΦs
-    have hterm : ∀ j ∈ Finset.range (N - f),
-        2 * |designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ)| +
-          2 * |ε (f + 1 + j) - η₀ * siteGap c' (f + 1 + j)| ≤
-        (4 * s + 2 * E + Cg / 2) * lambdaComb c' := fun j hj => by
-      have hj' := Finset.mem_range.mp hj
-      have h1 := designSite_dist_le hc' (by omega : 1 ≤ f + 1 + j) (by omega)
-        (hσ (f + 1 + j) (by omega) (by omega)) hMs hΦs
-      have h2 := hε (f + 1 + j) (by omega) (by omega)
-      have h3 := hgap_nn j
-      have h4 : |ε (f + 1 + j) - η₀ * siteGap c' (f + 1 + j)| ≤ (E + Cg / 4) * lambdaComb c' := by
-        rw [abs_le]; constructor <;> nlinarith [h2.1, h2.2, h3.1, h3.2]
-      nlinarith [h1, h4]
-    have hsum : ∑ j ∈ Finset.range (N - f),
-        (2 * |designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ)| +
-          2 * |ε (f + 1 + j) - η₀ * siteGap c' (f + 1 + j)|) ≤
-        ((N - f : ℕ) : ℝ) * ((4 * s + 2 * E + Cg / 2) * lambdaComb c') := by
-      calc _ ≤ ∑ _j ∈ Finset.range (N - f), (4 * s + 2 * E + Cg / 2) * lambdaComb c' :=
-            Finset.sum_le_sum hterm
-        _ = _ := by simp
-    have : |designSite c' σ f - chiQuantile c' (f : ℝ)| + ∑ j ∈ Finset.range (N - f),
-        (2 * |designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ)| +
-          2 * |ε (f + 1 + j) - η₀ * siteGap c' (f + 1 + j)|) ≤
-        (2 * s + ((N - f : ℕ) : ℝ) * (4 * s + 2 * E + Cg / 2)) * lambdaComb c' := by
-      nlinarith [hfirst, hsum]
-    calc K * (|designSite c' σ f - chiQuantile c' (f : ℝ)| + ∑ j ∈ Finset.range (N - f),
-        (2 * |designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ)| +
-          2 * |ε (f + 1 + j) - η₀ * siteGap c' (f + 1 + j)|))
-        ≤ K * ((2 * s + ((N - f : ℕ) : ℝ) * (4 * s + 2 * E + Cg / 2)) * lambdaComb c') :=
-          mul_le_mul_of_nonneg_left this hK.le
-      _ = _ := by ring
+
+/-- **Lemma `Φ`(b) from the squared pair-change bound `(PC)`, uniform in the cut `N`.**  There is an
+absolute `K > 0` such that for fixed `f ≥ 1` and `η₀ ∈ [0, 1/4]`, for `c'` large (threshold independent of
+`N` and of the data), every `N ≥ f` and every admissible finite modification whose total pair change
+`designPairChange` is at most `P`, `DesignPhiDecomp c' f N η₀ σ ε (K P)` holds: `log B_D = c' Φ₀ + Φ₁^{(f)} +
+Δ_D` on `𝒩`, `Re (Φ₁^{(f)} + Δ_D) = 0` on `E₊`, `‖Δ_D^{(i)}‖ ≤ K P`, `i ≤ 2`. -/
+theorem designPhiDecomp_of_pairChange :
+    ∃ K > 0, ∀ (f : ℕ), 1 ≤ f → ∀ {η₀ : ℝ}, 0 ≤ η₀ → η₀ ≤ 1 / 4 →
+      ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ) (P : ℝ), f ≤ N → DesignAdmissible c' f N η₀ σ ε →
+        designPairChange c' f N η₀ σ ε ≤ P → DesignPhiDecomp c' f N η₀ σ ε (K * P) := by
+  obtain ⟨K, hK, hsq⟩ := iteratedDeriv_designDelta_le_sq
+  refine ⟨K, hK, fun f hf η₀ hη₀0 hη₀1 => ?_⟩
+  filter_upwards [designPhiDecomp_of_bound f hf hη₀0 hη₀1] with c' h N σ ε P hfN hA hP
+  exact h N σ ε (K * P) hfN hA fun i hi b hb =>
+    (hsq i hi (combN_subset_combNMid hb) hA).trans (mul_le_mul_of_nonneg_left hP hK.le)
+
+/-- The total pair change of a member of the compact family is `≤ C λ`. -/
+lemma designPairChange_le_compact {c' : ℝ} (hc' : 0 < c') {f N : ℕ} (hf : 1 ≤ f) (hfN : f ≤ N)
+    {M E Cg s : ℝ} {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) {σ ε : ℕ → ℝ}
+    (hσ : ∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) (hε : ∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c')
+    (hA : DesignAdmissible c' f N η₀ σ ε) (hMs : M ≤ s) (hΦs : phiQuantile ((N : ℝ) + 2) ≤ s)
+    (hgap : ∀ k : ℕ, 1 ≤ k → siteGap c' k ≤ Cg * lambdaComb c') :
+    designPairChange c' f N η₀ σ ε ≤
+      (2 * s + ((N - f : ℕ) : ℝ) * (4 * s + 2 * E + Cg / 2)) * lambdaComb c' := by
+  have hfirst : |designSite c' σ f - chiQuantile c' (f : ℝ)| ≤ 2 * s * lambdaComb c' :=
+    designSite_dist_le hc' hf hfN (hσ f le_rfl hfN) hMs hΦs
+  have hterm : ∀ j ∈ Finset.range (N - f),
+      |ε (f + 1 + j) ^ 2 - (η₀ * siteGap c' (f + 1 + j)) ^ 2| +
+        2 * |designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ)| ≤
+      (4 * s + 2 * E + Cg / 2) * lambdaComb c' := fun j hj => by
+    have hj' := Finset.mem_range.mp hj
+    have h1 := designSite_dist_le hc' (by omega : 1 ≤ f + 1 + j) (by omega)
+      (hσ (f + 1 + j) (by omega) (by omega)) hMs hΦs
+    have h2 := hε (f + 1 + j) (by omega) (by omega)
+    have h3 : 0 ≤ η₀ * siteGap c' (f + 1 + j) ∧
+        η₀ * siteGap c' (f + 1 + j) ≤ Cg / 4 * lambdaComb c' := by
+      have hga := siteGap_nonneg hc' (by omega : 1 ≤ f + 1 + j)
+      refine ⟨mul_nonneg hη₀0 hga, ?_⟩
+      calc η₀ * siteGap c' (f + 1 + j) ≤ (1 / 4) * (Cg * lambdaComb c') :=
+            mul_le_mul hη₀1 (hgap _ (by omega)) hga (by norm_num)
+        _ = Cg / 4 * lambdaComb c' := by ring
+    have h4 : |ε (f + 1 + j) - η₀ * siteGap c' (f + 1 + j)| ≤ (E + Cg / 4) * lambdaComb c' := by
+      rw [abs_le]; constructor <;> nlinarith [h2.1, h2.2, h3.1, h3.2]
+    have h5 := abs_sq_sub_sq_le (hA.width j hj') (hA.ref_width j hj')
+    nlinarith [h1, h4, h5]
+  have hsum : ∑ j ∈ Finset.range (N - f),
+      (|ε (f + 1 + j) ^ 2 - (η₀ * siteGap c' (f + 1 + j)) ^ 2| +
+        2 * |designSite c' σ (f + 1 + j) - chiQuantile c' ((f + 1 + j : ℕ) : ℝ)|) ≤
+      ((N - f : ℕ) : ℝ) * ((4 * s + 2 * E + Cg / 2) * lambdaComb c') := by
+    calc _ ≤ ∑ _j ∈ Finset.range (N - f), (4 * s + 2 * E + Cg / 2) * lambdaComb c' :=
+          Finset.sum_le_sum hterm
+      _ = _ := by simp
+  unfold designPairChange
+  nlinarith [hfirst, hsum]
+
+/-- **Lemma `Φ`(b)** (`ut:Phi`, compact-family version, before the "Consequently").  Fix `f ≥ 1`,
+`N ≥ f`, `M, E ≥ 0` and `η₀ ∈ [0, 1/4]`.  There is `C = C(N, M, E) ≥ 0` such that for `c'` large and
+every finite modification `B_D^{(f)} = designComb c' f N η₀ σ ε` with `|σ_k| ≤ M` and
+`0 ≤ ε'_k ≤ E λ`, uniformly in the family, `DesignPhiDecomp c' f N η₀ σ ε (C λ)` holds:
+`log B_D^{(f)} = c' Φ₀ + Φ₁^{(f)} + Δ_D` on `𝒩`, `Re (Φ₁^{(f)} + Δ_D) = 0` on `E₊`, and
+`sup_𝒩 |Δ_D^{(i)}| ≤ C λ` for `i = 0, 1, 2`. -/
+theorem lemma_Phi_b (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (hE : 0 ≤ E) {η₀ : ℝ}
+    (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
+      (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
+      DesignPhiDecomp c' f N η₀ σ ε (C * lambdaComb c') := by
+  obtain ⟨K, hK, hKd⟩ := designPhiDecomp_of_pairChange
+  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
+  set s : ℝ := max (phiQuantile ((N : ℝ) + 2)) M with hs_def
+  have hΦpos : 0 < phiQuantile ((N : ℝ) + 2) := by
+    unfold phiQuantile
+    apply Real.rpow_pos_of_pos
+    have : (0 : ℝ) ≤ N := Nat.cast_nonneg N
+    linarith
+  have hs : 0 < s := lt_of_lt_of_le hΦpos (le_max_left _ _)
+  have hMs : M ≤ s := le_max_right _ _
+  have hΦs : phiQuantile ((N : ℝ) + 2) ≤ s := le_max_left _ _
+  refine ⟨K * (2 * s + ((N - f : ℕ) : ℝ) * (4 * s + 2 * E + Cg / 2)), by positivity, ?_⟩
+  filter_upwards [hKd f hf hη₀0 hη₀1, designAdmissible_eventually f N hf hfN M E hη₀0 hη₀1, h_ev,
+    eventually_gt_atTop 0] with c' hD hAd ⟨hgap_k, hgap_1_bd, hcd1_bd, hgap_1⟩ hc' σ ε hσ hε
+  have hA := hAd σ ε hσ hε
+  have hpc := designPairChange_le_compact hc' hf hfN hη₀0 hη₀1 hσ hε hA hMs hΦs
+    (fun k hk => (hgap_k k hk).trans (hgap_1_bd.trans hcd1_bd))
+  rw [mul_assoc]
+  exact hD N σ ε _ hfN hA hpc
 
 /-- **Lemma `Φ`(a) at fixed `N`** (`ut:Phi`(a)): for the `f = 1` design `D(N, η_*, d)` of
 `Design.PerturbP`, `DesignPhiDecomp` holds with the derivative bound `C(N, η_*, d) λ`. -/
@@ -526,5 +761,21 @@ theorem lemma_Phi_a_fixedN (N : ℕ) (hN : 1 ≤ N) {etaStar : ℝ} (hη0 : 0 �
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Design.lemma_Phi_b' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms lemma_Phi_b
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.iteratedDeriv_designDelta_le_sq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms iteratedDeriv_designDelta_le_sq
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.iteratedDeriv_designDelta_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms iteratedDeriv_designDelta_le
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.designPhiDecomp_of_pairChange' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms designPhiDecomp_of_pairChange
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.designAdmissible_of_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms designAdmissible_of_nonneg
 
 end FormalResearch.ModularBootstrap.Upper.Design
