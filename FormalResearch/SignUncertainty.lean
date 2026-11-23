@@ -17,6 +17,7 @@ public import FormalResearch.SignUncertainty.ShellLaplaceZeros
 public import FormalResearch.SignUncertainty.OddShellFamily
 public import FormalResearch.SignUncertainty.ElementaryIdentities
 public import FormalResearch.SignUncertainty.Radii
+public import FormalResearch.SignUncertainty.RadialCompactness
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
@@ -45,8 +46,6 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.RadialCompactnessKernel`: the `s`-derivative identity
   `∂_s(ξ_c^{-1} K_c(w,s)) = ξ_c^{-1}(w - ε_c²) ξ_c^{-1} K_c(w,s)` of the Mellin kernel (kernel level of the `C¹`
   clause of `lem:radial-compactness`; the compactness argument itself is not formalised).
-  and sign separation of bounded remainders (`Thm 7.9c`, `general_theorems.tex`) from
-  `SignSeparationPackage` (Airy-order thresholds and `C¹` profile convergence; no Langer chart).
 * `FormalResearch.SignUncertainty.ShellLaplaceBase`: Airy–Laplace transform, `ShellHBData`,
   even-`m` Laplace sign, factored ODE, and one-profile LP reduction (`ce_shells.tex`, Prop `H.14'`).
 * `FormalResearch.SignUncertainty.ShellGap`: conditional Mellin origin-floor (`shell_reduction_lower`)
@@ -62,6 +61,9 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.Radii`: concrete Euclidean radii `A_sign^±(d)`, the prescribed-shell
   Cohn–Elkies class and `u_LP`, the Bessel-kernel Hankel thresholds, and the bridge to the abstract
   `HankelKernelData` development (`sign_uncertainty_core.tex`, introduction).
+* `FormalResearch.SignUncertainty.RadialCompactness`: `lem:radial-compactness` as an input structure
+  (`RadialCompactness`: deep-lobe mass bound, window-profile compactness with the `C¹` clause) and the
+  lower half of `gt:7.5` at one level derived from it (`radial_rigidity_lower_of_compactness`).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_separation`, `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
   whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).

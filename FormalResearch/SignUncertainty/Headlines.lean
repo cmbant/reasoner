@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.SignUncertainty.Radii
+public import FormalResearch.SignUncertainty.RadialCompactness
 
 /-!
 # Paper I headline theorems from one input structure each (M0 skeleton)
@@ -11,9 +12,16 @@ Source: `CFT/sign_uncertainty/paper/sign_uncertainty_core.tex`, introduction:
 Each headline is stated on the concrete objects of `Radii.lean` (Euclidean `A_sign^±(d)`, `r_CE(d)`,
 the prescribed-shell class, the Bessel-kernel Hankel thresholds) with the paper's constants, and is
 proved from an input structure whose fields are, one-to-one, the TeX theorems the paper's proof cites
-(field name = TeX label). **A field is an open theorem about the concrete objects**; progress is the
-number of open fields, and a field is discharged only by proving it (then it is dropped from the
-structure). Nothing here is a hypothesis-satisfiability exercise: the fields are not witnessed.
+(field names are the TeX labels where the paper has one: `hb_thresholds_lower/upper`, `shell_reduction`,
+`shell_gap_limit`, `ce_hb_lift`, `radial_compactness`, ...; three are not labels and name a cited fact
+instead: `hankel_antideriv_facts` is the Weber/DLMF 10.22.1 antiderivative facts for the Bessel kernel,
+`hankel_euclid_dictionary` is the proof of `gt:7.9` (Euclidean radii as Hankel thresholds), and
+`one_profile_envelope` is `gt:3.1` as used in `prop:ce-one-profile`).
+**A field is an open theorem about the concrete objects**; progress is the number of open fields, and a
+field is discharged only by proving it (then it is dropped from the structure). The input structures
+deliberately have no `*_nonvacuous` witness: each field is an open theorem of the paper, so a witness
+would be the theorem itself (deliberate deviation from the usual non-vacuity requirement). Scope:
+`thm:intro-hb` (all Hermite–Biehler levels) has no Lean headline yet (milestone M8).
 
 Headlines and their inputs (open fields in bold):
 
@@ -27,7 +35,7 @@ Headlines and their inputs (open fields in bold):
   `shellLaplaceF_m1_pos`). Proved here from these: the gluing `ce_radius_airy_order_of_bounds`, the
   origin option `constrained_threshold_eq_unconstrained`, the density expansion `ce_volume_expansion`.
 * `thm_intro_separation` (`thm:intro-separation`, `gt:7.9c`), from `SeparationInputs`:
-  **`hankel_antideriv_facts`**, **`radial_rigidity_lower`** (`gt:7.5`, one level, `ε = -1`),
+  **`hankel_antideriv_facts`**, **`radial_compactness`** (`lem:radial-compactness`: deep lobe, compactness),
   **`hb_thresholds_upper`** (`u1co:O9p`, one level), **`radial_profile_c1`** (`gt:7.5` profile
   identification together with the `C¹` clause of `lem:radial-compactness`). Proved here from these:
   the Hardy–Mellin intertwiner argument (`sign_separation_eventually_le`, via
@@ -190,9 +198,9 @@ structure RadiiInputs : Prop extends HankelKernelFacts, EuclidDictionary, OneLev
 
 /-- Inputs of `thm:intro-separation` (`gt:7.9c`), Hankel side. -/
 structure SeparationInputs : Prop extends HankelKernelFacts where
-  /-- `gt:7.5`, first claim, one level, `ε = -1`: `liminf c^{-1/3}(T_c - c/π²) ≥ A`. -/
-  radial_rigidity_lower : ∀ ε : ℝ, 0 < ε → ∀ᶠ c : ℝ in atTop, ∀ (T : ℝ) (f : ℝ → ℝ),
-    IsHankelFeasible c (-1) T f → c / π ^ 2 + (airyOrderCoeff - ε) * c ^ (1 / 3 : ℝ) ≤ T
+  /-- `lem:radial-compactness` (deep lobe and compactness in the Airy window, with the `C¹` clause);
+  `gt:7.5`'s lower half (`radial_rigidity_lower`) is derived from it. -/
+  radial_compactness : RadialCompactness
   /-- `u1co:O9p` at one level. -/
   hb_thresholds_upper : HbThresholdsUpper
   /-- `gt:7.5` (identification of the limit) with `lem:radial-compactness` (`C¹` clause): the window
@@ -205,6 +213,13 @@ structure SeparationInputs : Prop extends HankelKernelFacts where
         |hankelWindowProfile c f u / hankelMass c f - HermiteBiehlerData.airy.normG u| ≤ η ∧
         |deriv (fun v => hankelWindowProfile c f v / hankelMass c f) u -
           deriv HermiteBiehlerData.airy.normG u| ≤ η
+
+/-- `gt:7.5`, first claim, one level, `ε = -1`: `liminf c^{-1/3}(T_c - c/π²) ≥ A`
+(from `radial_compactness` via `radial_rigidity_liminf_ereal`). -/
+theorem SeparationInputs.radial_rigidity_lower (I : SeparationInputs) :
+    ∀ ε : ℝ, 0 < ε → ∀ᶠ c : ℝ in atTop, ∀ (T : ℝ) (f : ℝ → ℝ),
+      IsHankelFeasible c (-1) T f → c / π ^ 2 + (airyOrderCoeff - ε) * c ^ (1 / 3 : ℝ) ≤ T :=
+  radial_rigidity_lower_of_compactness I.radial_compactness
 
 /-- Inputs of `thm:intro-gap` for the Hermite–Biehler configuration `D`. -/
 structure ShellGapInputs (D : ShellHBData) : Prop where
@@ -309,7 +324,8 @@ theorem thm_intro_radii_sign :
     (exists_abs_bound_nat (f := fun d => aSignNeg d ^ 2 / 2 - airyOrderModel d)
       (fun d hd => (h d hd).2)).imp fun C hC d _ => hC d⟩
 
-/-- **Headline B (`gt:7.12`, `gt:7.12a`, `thm:intro-radii`, Cohn–Elkies radius).** For every integer
+/-- **Headline B (`gt:7.12`, `gt:7.12a`, `thm:intro-radii`, Cohn–Elkies radius).** (In the paper `r_CE(d)`
+is the Schwartz infimum; it equals `optimalL1CERadius d` by `ce_schwartz_radius_eq_L1_radius`.) For every integer
 `d ≥ 2`, `r_CE(d)²/2 = d/(2π²) + A (d/2)^{1/3} + O(1)`, and the ball of radius `r_CE(d)/2` has volume
 `(πd)^{-1/2} (e/(2π))^{d/2} exp(π² A (d/2)^{1/3} + O(1))`, in both the multiplicative
 and the logarithmic form (`eq:intro-density`; the constant `-log π / 2` is absorbed in the `O(1)`).
@@ -434,7 +450,7 @@ private lemma exists_package : ∃ P : SignSeparationPackage, ∀ c : ℝ, P.c�
       Tneg_airy_order := by
         refine (hankelT_neg_airy_order I).congr' ?_
         filter_upwards [eventually_ge_atTop (max 1 c_u)] with c hc
-        simp only [dif_pos hc, (Classical.choose (I.bessel_kernel_data c (hc1 c hc))).threshold_eq
+        simp only [dite_cond_eq_true (eq_true hc), (Classical.choose (I.bessel_kernel_data c (hc1 c hc))).threshold_eq
           (hK c hc)]
       c1_profile := fun R η hη => by
         filter_upwards [I.radial_profile_c1 R η hη] with c hcev hc T f hf hT1 hT2
@@ -447,10 +463,10 @@ private lemma exists_package : ∃ P : SignSeparationPackage, ∀ c : ℝ, P.c�
   constructor
   · show (if hc' : max 1 c_u ≤ c then hankelThreshold c
         (Classical.choose (I.bessel_kernel_data c (hc1 c hc'))) 1 else 0) = _
-    rw [dif_pos hc, (Classical.choose (I.bessel_kernel_data c (hc1 c hc))).threshold_eq hKc]
+    rw [dite_cond_eq_true (eq_true hc), (Classical.choose (I.bessel_kernel_data c (hc1 c hc))).threshold_eq hKc]
   · show (if hc' : max 1 c_u ≤ c then hankelThreshold c
         (Classical.choose (I.bessel_kernel_data c (hc1 c hc'))) (-1) else 0) = _
-    rw [dif_pos hc, (Classical.choose (I.bessel_kernel_data c (hc1 c hc))).threshold_eq hKc]
+    rw [dite_cond_eq_true (eq_true hc), (Classical.choose (I.bessel_kernel_data c (hc1 c hc))).threshold_eq hKc]
 
 /-- Theorem 7.9c(1) in quantitative form: `T_c^{+1} - T_c^{-1} ≤ -2/π² + ε₀` eventually. -/
 private lemma separation_eventually (ε₀ : ℝ) (hε₀ : 0 < ε₀) :
@@ -463,7 +479,7 @@ private lemma separation_eventually (ε₀ : ℝ) (hε₀ : 0 < ε₀) :
 /-- **Headline S, Hankel form (`gt:7.9c(1)`, `thm:intro-separation`, first line):**
 `limsup_{c→∞} (T_c^{+1} - T_c^{-1}) ≤ -2/π²` (limsup in `EReal`, so no coboundedness is assumed).
 
-Proved from `SeparationInputs`: `hankel_antideriv_facts`, `radial_rigidity_lower`, `hb_thresholds_upper`,
+Proved from `SeparationInputs`: `hankel_antideriv_facts`, `radial_compactness` (`radial_rigidity_lower` derived), `hb_thresholds_upper`,
 `radial_profile_c1`, with the Hardy–Mellin intertwiner argument of `sign_separation_eventually_le`. -/
 theorem thm_intro_separation_hankel :
     Filter.limsup (fun c : ℝ => ((hankelT 1 c - hankelT (-1) c : ℝ) : EReal)) atTop ≤
@@ -483,6 +499,7 @@ section SeparationEuclid
 variable (I : SeparationInputs) (E : EuclidDictionary)
 include I E
 
+omit E in
 /-- For large `c`, the exact origin option does not change `T_c^{-1}` (`gt:7.9b`). -/
 private lemma neg_T0_eq_ev : ∀ᶠ c : ℝ in atTop, hankelT0 c = hankelT (-1) c := by
   obtain ⟨c_u, hc_u⟩ := neg_nonempty_ev I
@@ -518,7 +535,7 @@ theorem thm_intro_separation_radii :
   obtain ⟨r, hr1, hr2⟩ := EReal.lt_iff_exists_real_btwn.1 hy
   have hr : -(2 / π ^ 2) < r := EReal.coe_lt_coe_iff.1 hr1
   filter_upwards [hc_tend.eventually (separation_eventually I ((r + 2 / π ^ 2) / 2) (by linarith)),
-    hc_tend.eventually (neg_T0_eq_ev I E), eventually_ge_atTop 2] with d hd hT0 hd2
+    hc_tend.eventually (neg_T0_eq_ev I), eventually_ge_atTop 2] with d hd hT0 hd2
   refine lt_trans (EReal.coe_lt_coe_iff.2 ?_) hr2
   obtain ⟨hp, hn⟩ := E.hankel_euclid_dictionary d hd2
   have : (aSignPos d ^ 2 - aSignNeg d ^ 2) / 2 =
@@ -537,13 +554,25 @@ theorem thm_intro_separation (I : SeparationInputs) (E : EuclidDictionary) :
         ((-(2 / π ^ 2) : ℝ) : EReal) :=
   ⟨thm_intro_separation_hankel I, thm_intro_separation_radii I E⟩
 
-/-- **`thm:intro-radii`** (`gt:7.9`, `gt:7.12`, `gt:7.12a`): the three radii at Airy order, with the
-density expansion. -/
+/-- **`thm:intro-radii`** (`gt:7.9`, `gt:7.12`, `gt:7.12a`): the three radii at Airy order, and the
+volume/density expansion of the Cohn–Elkies ball (`eq:intro-density`). -/
 theorem thm_intro_radii (I : RadiiInputs) :
     ((∃ C : ℝ, ∀ d : ℕ, 2 ≤ d → |aSignPos d ^ 2 / 2 - airyOrderModel d| ≤ C) ∧
       (∃ C : ℝ, ∀ d : ℕ, 2 ≤ d → |aSignNeg d ^ 2 / 2 - airyOrderModel d| ≤ C)) ∧
-    (∃ C : ℝ, ∀ d : ℕ, 2 ≤ d → |optimalL1CERadius d ^ 2 / 2 - airyOrderModel d| ≤ C) :=
-  ⟨thm_intro_radii_sign I, (thm_intro_radii_ce I).1⟩
+
+      (∃ C : ℝ, ∀ d : ℕ, 2 ≤ d → |optimalL1CERadius d ^ 2 / 2 - airyOrderModel d| ≤ C) ∧
+      (∃ c₁ c₂ : ℝ, 0 < c₁ ∧ ∀ d : ℕ, 2 ≤ d →
+        c₁ * ((π * (d : ℝ)) ^ (-(1 / 2 : ℝ)) * (Real.exp 1 / (2 * π)) ^ ((d : ℝ) / 2) *
+            Real.exp (π ^ 2 * airyOrderCoeff * ((d : ℝ) / 2) ^ (1 / 3 : ℝ))) ≤
+          (volume : Measure (Euc d)).real (Metric.ball 0 (optimalL1CERadius d / 2)) ∧
+        (volume : Measure (Euc d)).real (Metric.ball 0 (optimalL1CERadius d / 2)) ≤
+          c₂ * ((π * (d : ℝ)) ^ (-(1 / 2 : ℝ)) * (Real.exp 1 / (2 * π)) ^ ((d : ℝ) / 2) *
+            Real.exp (π ^ 2 * airyOrderCoeff * ((d : ℝ) / 2) ^ (1 / 3 : ℝ)))) ∧
+      (∃ C' : ℝ, ∀ d : ℕ, 2 ≤ d →
+        |Real.log ((volume : Measure (Euc d)).real (Metric.ball 0 (optimalL1CERadius d / 2))) -
+          (((d : ℝ) / 2) * Real.log (Real.exp 1 / (2 * π)) +
+            π ^ 2 * airyOrderCoeff * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) - (1 / 2 : ℝ) * Real.log (d : ℝ))| ≤ C') :=
+  ⟨thm_intro_radii_sign I, thm_intro_radii_ce I⟩
 
 /-! ### Headline C′: `thm:intro-gap` -/
 
