@@ -97,6 +97,8 @@ public import FormalResearch.SignUncertainty.FourierCompactSupport
 public import FormalResearch.SignUncertainty.EuclidRadialProjection
 public import FormalResearch.SignUncertainty.HankelInversion
 public import FormalResearch.SignUncertainty.ShellGapHankel
+public import FormalResearch.SignUncertainty.WindowKernelApprox
+public import FormalResearch.SignUncertainty.WindowTranslation
 public import FormalResearch.SignUncertainty.ShellGapMassRatio
 public import FormalResearch.SignUncertainty.ShellGapWeight
 public import FormalResearch.SignUncertainty.ShellGapLaplace
