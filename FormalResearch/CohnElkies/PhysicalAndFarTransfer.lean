@@ -16,15 +16,14 @@ Formalization of `CFT/sign_uncertainty/paper/ce_physical_log_far.tex` and
   `‖mainTransferOp κ m c f L‖ ≤ ceCs⁻¹ * Real.sqrt (‖f‖₂ * ‖f'‖₂)`.
 * **Section 2 — Theorem `PF.T(1)` (omitted region `X ≤ 2d`):** unconditional `O(c⁻¹ M L⁻²)`
   bound `omittedRegion_bound` for `0 < d < L_min / (8 * ceCs)`.
-* **Section 3 — Macroscopic transfer (`PF.2L`, `PF.T(2)–(4)`) and `GT.3b`, `PF.2`, `PF.5`:**
-  packaged stationary-phase interface `MacroscopicTransferPackage` with non-vacuity witness,
-  unconditional rescaled origin-mass bound `(cegt:GT3d)` from `twoScale_origin_mass`,
-  Lemma `GT.3b` (`(cegt:eqGT3b)` with `κ`-independent floor `b_F (1 + L)^{-3/2}`),
-  Theorem `PF.2` (`(cepf:PF.2)` two-stage choice `L_far` then `c₀`), and
-  Theorem `PF.5` (`(cepf:PF5)` compact `[L₀, L₁] ⊂ (0, ∞)` physical sign).
-* **Section 4 — Section `GT.4` (`thm:ce-lift`):** unconditional exact leading tip offset
-  `b₁² - c₁²` and `F_c^{(0)}(a₁) / (2 Ai'(a₁)²)` (plus origin-tuned `F_c(a₁) / (2 Ai'(a₁)²)`),
-  exact parameter-ordering existence, 8-band global coverage & overlap, and non-vacuity witness.
+* **Section 3 — Macroscopic transfer (`PF.2L`, `PF.T(2)–(4)`) and `GT.3b`:**
+  packaged stationary-phase interface `MacroscopicTransferPackage` (only the fields `GT.3b` uses) with
+  non-vacuity witness, unconditional rescaled origin-mass bound `(cegt:GT3d)` from
+  `twoScale_origin_mass`, and Lemma `GT.3b` (`(cegt:eqGT3b)` with `κ`-independent floor
+  `b_F (1 + L)^{-3/2}`). The Route I consumers (Theorem `PF.2`, Theorem `PF.5`) and the `GT.4`
+  coverage package `GT4CoverageBands` were removed (supplement part `ce_coherent_square_lift.tex`).
+* **Section 4 — `GT.4` leading tip offset (`thm:ce-lift`, Route I):** unconditional exact leading tip
+  offset `b₁² - c₁²` and `F_c^{(0)}(a₁) / (2 Ai'(a₁)²)` (plus origin-tuned `F_c(a₁) / (2 Ai'(a₁)²)`).
 -/
 
 @[expose] public section
@@ -298,7 +297,7 @@ theorem omittedRegion_bound {κ : ℝ} (hκ : 0 < κ) {m : ℕ} (hm : 4 ≤ m)
     _ = ((8 * C₁) / (9 * π)) * c⁻¹ * (∫ X in Iic (2 * d), ‖f X‖) * L ^ (-2 : ℝ) := by
         rw [← hc_mul]; ring
 
-/-! ## Section 3: Macroscopic transfer package (`PF.2L`, `PF.T(2)–(4)`) and `GT.3b`, `PF.2`, `PF.5` -/
+/-! ## Section 3: Macroscopic transfer package (`PF.2L`, `PF.T(2)–(4)`) and `GT.3b` -/
 
 /-- Packaged smooth + coherent stationary-phase transfer interface (`PF.2L`, `PF.T(2)–(4)` of
 `ce_physical_log_far.tex`), leaving the omitted region `X ≤ 2d` unconditional via `omittedRegion_bound`. -/
@@ -310,8 +309,6 @@ structure MacroscopicTransferPackage (κ : ℝ) (m : ℕ) (L_min d : ℝ) where
   B0 : ℝ → ℝ
   B : ℝ → ℝ
   b0 : ℝ → ℝ → ℝ
-  bPlus : ℝ → ℝ → ℂ
-  bMinus : ℝ → ℝ → ℂ
   cutoffOm : ℝ → ℝ
   cutoffOm_measurable : Measurable cutoffOm
   cutoffOm_bound : ∀ X : ℝ, |cutoffOm X| ≤ 1
@@ -322,7 +319,6 @@ structure MacroscopicTransferPackage (κ : ℝ) (m : ℕ) (L_min d : ℝ) where
   M_nonneg : ∀ {c : ℝ}, c_T ≤ c → 0 ≤ M c
   M_spec : ∀ {c : ℝ}, c_T ≤ c → (∫ X in Iic (2 * d), ‖(f c X : ℂ)‖) ≤ M c
   B0_nonneg : ∀ {c : ℝ}, c_T ≤ c → 0 ≤ B0 c
-  B_nonneg : ∀ {c : ℝ}, c_T ≤ c → 0 ≤ B c
   exact_decomp : ∀ {c L : ℝ}, c_T ≤ c → L_min ≤ L →
     (ceK : ℂ) * mainTransferOp κ m c (fun X => (f c X : ℂ)) L =
       ((ceK / ceCs * b0 c (L / ceCs) : ℝ) : ℂ) +
@@ -337,37 +333,19 @@ structure MacroscopicTransferPackage (κ : ℝ) (m : ℕ) (L_min d : ℝ) where
   hC_coh_glob : 0 < C_coh_glob
   coherent_global_bound : ∀ {c L : ℝ}, c_T ≤ c → L_min ≤ L →
     (1 + L) ^ (3 / 2 : ℝ) * ‖T_plus c L + T_minus c L‖ ≤ C_coh_glob * B c
-  L_sharp : ℝ
-  hL_sharp : L_min ≤ L_sharp
-  C_coh_far : ℝ
-  hC_coh_far : 0 < C_coh_far
-  coherent_far_bound : ∀ {c L : ℝ}, c_T ≤ c → L_sharp ≤ L →
-    ‖T_plus c L + T_minus c L‖ ≤ C_coh_far * B c * (c⁻¹ * L ^ (-(3 / 2 : ℝ)) + Real.exp (-((m : ℝ) + 3 / 2) * L / 2))
-  coherent_compact_expand : ∀ {L₀ L₁ : ℝ}, L_min ≤ L₀ → L₀ ≤ L₁ →
-    ∃ C_J > 0, ∃ c_J ≥ c_T, ∃ P_plus P_minus : ℝ → ℝ → ℝ, ∀ {c L : ℝ}, c_J ≤ c → L ∈ Icc L₀ L₁ →
-      let x := π * tau0 L / 2; let X₁ := ceX1 (2 * x / π)
-      ‖T_plus c L - Complex.exp (Complex.I * (c : ℂ) * (P_plus c L : ℂ)) *
-          ((ceK : ℂ) * mainEdgeAmp κ m c (2 * x / π) * bPlus c X₁ / ((ceCs * Real.sqrt (ceEta x) : ℝ) : ℂ))‖ ≤
-        C_J * B c * c ^ (-(1 / 2 : ℝ)) ∧
-      ‖T_minus c L - Complex.exp (Complex.I * (c : ℂ) * (P_minus c L : ℂ)) *
-          ((ceK : ℂ) * mainEdgeAmp κ m c (-(2 * x / π)) * bMinus c X₁ / ((ceCs * Real.sqrt (ceEta x) : ℝ) : ℂ))‖ ≤
-        C_J * B c * c ^ (-(1 / 2 : ℝ))
 
 /-- Explicit non-vacuity witness for `MacroscopicTransferPackage`. -/
 theorem macroscopicTransferPackage_nonvacuous {κ L_min d : ℝ} {m : ℕ} :
     Nonempty (MacroscopicTransferPackage κ m L_min d) :=
   ⟨{ c_T := 2, hc_T := le_rfl, f := fun _ _ => 0, M := fun _ => 0, B0 := fun _ => 0, B := fun _ => 0,
-     b0 := fun _ _ => 0, bPlus := fun _ _ => 0, bMinus := fun _ _ => 0,
+     b0 := fun _ _ => 0,
      cutoffOm := fun _ => 0, cutoffOm_measurable := measurable_const, cutoffOm_bound := fun _ => by norm_num,
      E_sm := fun _ _ => 0, T_plus := fun _ _ => 0, T_minus := fun _ _ => 0,
      f_int_om := fun _ => by simp, M_nonneg := fun _ => le_rfl, M_spec := fun _ => by simp,
-     B0_nonneg := fun _ => le_rfl, B_nonneg := fun _ => le_rfl,
+     B0_nonneg := fun _ => le_rfl,
      exact_decomp := fun _ _ => by simp [mainTransferOp],
      C_sm := 1, hC_sm := one_pos, smooth_bound := fun _ _ => by simp,
-     C_coh_glob := 1, hC_coh_glob := one_pos, coherent_global_bound := fun _ _ => by simp,
-     L_sharp := L_min, hL_sharp := le_rfl, C_coh_far := 1, hC_coh_far := one_pos,
-     coherent_far_bound := fun _ _ => by simp,
-     coherent_compact_expand := fun _ _ => ⟨1, one_pos, 2, le_rfl, fun _ _ => 0, fun _ _ => 0, fun _ _ => by simp⟩ }⟩
+     C_coh_glob := 1, hC_coh_glob := one_pos, coherent_global_bound := fun _ _ => by simp }⟩
 
 private lemma omitted_cutoff_bound {κ : ℝ} (hκ : 0 < κ) {m : ℕ} (hm : 4 ≤ m)
     {L_min d : ℝ} (hLmin : 0 < L_min) (hd0 : 0 < d) (hd_lt : d < L_min / (8 * ceCs))
@@ -416,11 +394,6 @@ private lemma rpow_neg_third_le_of_cube_le {a c : ℝ} (ha : 0 ≤ a) (hc0 : 0 <
 private lemma c_inv_le_neg_third {c : ℝ} (hc1 : 1 ≤ c) : c⁻¹ ≤ c ^ (-(1 / 3 : ℝ)) :=
   (Real.rpow_neg_one c).symm ▸ Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
 
-private lemma c_inv_mul_third_le {c : ℝ} (hc1 : 1 ≤ c) : c⁻¹ * c ^ (1 / 3 : ℝ) ≤ c ^ (-(1 / 3 : ℝ)) := by
-  have hc0 : 0 < c := by linarith
-  rw [← Real.rpow_neg_one, ← Real.rpow_add hc0, show -(1 : ℝ) + 1 / 3 = -(2 / 3 : ℝ) by norm_num]
-  exact Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
-
 private lemma div_rpow_neg_three_halves {L cs : ℝ} (hL : 0 < L) (hcs : 0 < cs) :
     (L / cs) ^ (-(3 / 2 : ℝ)) = cs ^ (3 / 2 : ℝ) * L ^ (-(3 / 2 : ℝ)) := by
   rw [Real.rpow_neg (div_nonneg hL.le hcs.le), Real.div_rpow hL.le hcs.le, inv_div, div_eq_mul_inv,
@@ -461,21 +434,6 @@ private lemma smooth_err_on_tail {L_base C_sm C_B0 c L : ℝ} (hLb : 0 < L_base)
           c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ))) :=
         mul_le_mul (mul_le_mul_of_nonneg_left hB0_bd hCsm.le) hbracket (by positivity) (mul_nonneg hCsm.le (hB0_nn.trans hB0_bd))
     _ = _ := by ring
-
-private lemma pkg_re_lower_bound {κ : ℝ} {m : ℕ} {L_min d c L lead_lb e_om e_sm e_coh e_R R_refl : ℝ}
-    (pkg : MacroscopicTransferPackage κ m L_min d) (hc : pkg.c_T ≤ c) (hL : L_min ≤ L)
-    (hlead : lead_lb ≤ ceK / ceCs * pkg.b0 c (L / ceCs))
-    (hom : ‖(ceK : ℂ) * (((c : ℂ) / (2 * π)) * ∫ X in Iic (2 * d), ((pkg.cutoffOm X * pkg.f c X : ℝ) : ℂ) *
-        mainEdgeKernel (mainEdgeAmp κ m c) c (L - ceCs * X))‖ ≤ e_om)
-    (hsm : ‖pkg.E_sm c L‖ ≤ e_sm) (hcoh : ‖pkg.T_plus c L + pkg.T_minus c L‖ ≤ e_coh) (hR : |R_refl| ≤ e_R) :
-    lead_lb - (e_om + e_sm + e_coh + e_R) ≤
-      ((ceK : ℂ) * mainTransferOp κ m c (fun X => (pkg.f c X : ℂ)) L).re + R_refl := by
-  have hdec := congrArg Complex.re (pkg.exact_decomp hc hL); simp only [Complex.add_re, Complex.ofReal_re] at hdec
-  have hom_ge := (abs_le.mp ((Complex.abs_re_le_norm _).trans hom)).1
-  have hsm_ge := (abs_le.mp ((Complex.abs_re_le_norm (pkg.E_sm c L)).trans hsm)).1
-  have hcoh_ge := (abs_le.mp ((Complex.abs_re_le_norm (pkg.T_plus c L + pkg.T_minus c L)).trans hcoh)).1
-  have hR_ge := (abs_le.mp hR).1
-  rw [hdec]; simp only [Complex.add_re] at hcoh_ge ⊢; linarith
 
 /-- **Unconditional rescaled origin-mass bound `(cegt:GT3d)`:** from `twoScale_origin_mass`,
 for `p ∈ (1/2, 1)`, `lam > 0`, `θ ≥ 0`, `γ ≥ 0`, there is `C_M > 0` such that for all `c ≥ 1`,
@@ -664,292 +622,7 @@ theorem gt3b_far_fourier_transfer {p lam θ κ L_F d : ℝ} {m : ℕ}
   have hfl := hfloor_mono hL
   linarith [mul_le_mul_of_nonneg_right hcerr (Real.rpow_nonneg (by linarith : 0 ≤ 1 + L) (-(3 / 2 : ℝ)))]
 
-/-- **Theorem `PF.2` (`ce_physical_log_far.tex`, `(cepf:PF.2)`):** physical sign
-`-h_c(c e^L / π²) > 0` for `L ≥ L_far` and `c ≥ c₀`, choosing `L_far` first to beat
-`e^{-(m + 3/2) L / 2}` and then `c₀` to beat all relative `O(c^{-1/3})` errors. -/
-theorem pf2_physical_far_sign {κ L_min d : ℝ} {m : ℕ}
-    (hκ : 0 < κ) (hm : 4 ≤ m) (hLmin : 0 < L_min) (hd0 : 0 < d) (hd_lt : d < L_min / (8 * ceCs))
-    (pkg : MacroscopicTransferPackage κ m L_min d)
-    {C_M C_B0 C_B X_far b c₁ C_refl : ℝ}
-    (hCM : 0 < C_M) (hCB0 : 0 < C_B0) (hCB : 0 < C_B) (hCR : 0 < C_refl)
-    (_hXfar : L_min / ceCs ≤ X_far) (hb : 0 < b) (hc₁ : pkg.c_T ≤ c₁)
-    (hM_bd : ∀ {c : ℝ}, c₁ ≤ c → pkg.M c ≤ C_M * c ^ (1 / 3 : ℝ))
-    (hB0_bd : ∀ {c : ℝ}, c₁ ≤ c → pkg.B0 c ≤ C_B0)
-    (hB_bd : ∀ {c : ℝ}, c₁ ≤ c → pkg.B c ≤ C_B)
-    (hb0_floor : ∀ {c X : ℝ}, c₁ ≤ c → X_far ≤ X → b * X ^ (-(3 / 2 : ℝ)) ≤ pkg.b0 c X)
-    (neg_hc R_refl norm_pref : ℝ → ℝ → ℝ)
-    (hnorm_pos : ∀ {c L : ℝ}, c₁ ≤ c → L_min ≤ L → 0 < norm_pref c L)
-    (hlift : ∀ {c L : ℝ}, c₁ ≤ c → L_min ≤ L →
-      norm_pref c L * (((ceK : ℂ) * mainTransferOp κ m c (fun X => (pkg.f c X : ℂ)) L).re +
-        R_refl c L) ≤ neg_hc c (c * Real.exp L / π ^ 2))
-    (hR_refl_bd : ∀ {c L : ℝ}, c₁ ≤ c → L_min ≤ L →
-      |R_refl c L| ≤ C_refl * c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ))) :
-    ∃ L_far ≥ L_min, ∃ c₀ ≥ c₁, ∀ {c L : ℝ}, c₀ ≤ c → L_far ≤ L → 0 < neg_hc c (c * Real.exp L / π ^ 2) := by
-  obtain ⟨C_om, hCom, hEom⟩ := omitted_cutoff_bound hκ hm hLmin hd0 hd_lt pkg
-  let b_floor : ℝ := ceK * b * Real.sqrt ceCs
-  have hb_floor : 0 < b_floor := mul_pos (mul_pos ceK_pos hb) (Real.sqrt_pos.mpr ceCs_pos)
-  let a_exp : ℝ := ((m : ℝ) + 3 / 2) / 2
-  have htend : Tendsto (fun L : ℝ => pkg.C_coh_far * C_B * (L ^ (3 / 2 : ℝ) * Real.exp (-(a_exp * L))))
-      atTop (𝓝 0) := by
-    simpa using (tendsto_rpow_mul_exp_neg_mul_atTop_nhds_zero (3 / 2 : ℝ) a_exp (by positivity)).const_mul
-      (pkg.C_coh_far * C_B)
-  obtain ⟨L_tail, hL_tail⟩ := eventually_atTop.mp (htend.eventually (Iio_mem_nhds (by positivity : (0 : ℝ) < b_floor / 4)))
-  let L_far : ℝ := max 1 (max pkg.L_sharp (max L_min (max (ceCs * X_far) L_tail)))
-  have hLF_sharp : pkg.L_sharp ≤ L_far := (le_max_left _ _).trans (le_max_right _ _)
-  have hLF_min : L_min ≤ L_far := ((le_max_left _ _).trans (le_max_right _ _)).trans (le_max_right _ _)
-  have hLF_X : ceCs * X_far ≤ L_far :=
-    ((le_max_left _ _).trans (le_max_right _ _)).trans ((le_max_right _ _).trans (le_max_right _ _))
-  have hLF_tail : L_tail ≤ L_far :=
-    (le_max_right _ _).trans ((le_max_right _ _).trans ((le_max_right _ _).trans (le_max_right _ _)))
-  have hLF_pos : 0 < L_far := lt_of_lt_of_le one_pos (le_max_left _ _)
-  let C_err : ℝ := C_om * C_M * L_far ^ (-(1 / 2 : ℝ)) +
-    pkg.C_sm * C_B0 * (L_far ^ (-(1 / 2 : ℝ)) + L_far⁻¹ + L_far ^ (-5 : ℝ)) + pkg.C_coh_far * C_B + C_refl + 1
-  have hCerr : 0 < C_err := by have := pkg.hC_sm; have := pkg.hC_coh_far; positivity
-  refine ⟨L_far, hLF_min, max c₁ ((C_err / (b_floor / 4)) ^ (3 : ℝ) + 1), le_max_left _ _, fun {c L} hc hL => ?_⟩
-  have hc_c₁ : c₁ ≤ c := (le_max_left _ _).trans hc; have hc_T : pkg.c_T ≤ c := hc₁.trans hc_c₁
-  have hc1 : 1 ≤ c := by linarith [pkg.hc_T]
-  have hL_min : L_min ≤ L := hLF_min.trans hL; have hL0 : 0 < L := hLF_pos.trans_le hL
-  have hsmooth_fl : b_floor * L ^ (-(3 / 2 : ℝ)) ≤ ceK / ceCs * pkg.b0 c (L / ceCs) := by
-    have hcs_sqrt : ceCs ^ (3 / 2 : ℝ) / ceCs = Real.sqrt ceCs := by
-      rw [Real.sqrt_eq_rpow, show (3 / 2 : ℝ) = 1 / 2 + 1 by norm_num, Real.rpow_add ceCs_pos, Real.rpow_one, mul_div_cancel_right₀ _ ceCs_pos.ne']
-    calc b_floor * L ^ (-(3 / 2 : ℝ)) = (ceK / ceCs) * (b * (ceCs ^ (3 / 2 : ℝ) * L ^ (-(3 / 2 : ℝ)))) := by
-          dsimp [b_floor]; rw [← hcs_sqrt]; ring
-      _ = (ceK / ceCs) * (b * (L / ceCs) ^ (-(3 / 2 : ℝ))) := by rw [div_rpow_neg_three_halves hL0 ceCs_pos]
-      _ ≤ (ceK / ceCs) * pkg.b0 c (L / ceCs) :=
-          mul_le_mul_of_nonneg_left (hb0_floor hc_c₁ ((le_div_iff₀ ceCs_pos).mpr (by linarith))) (div_pos ceK_pos ceCs_pos).le
-  have hcoh_exp : pkg.C_coh_far * C_B * Real.exp (-((m : ℝ) + 3 / 2) * L / 2) ≤ (b_floor / 4) * L ^ (-(3 / 2 : ℝ)) := by
-    have h1 := (hL_tail L (hLF_tail.trans hL)).le; have hL32 : 0 < L ^ (3 / 2 : ℝ) := by positivity
-    rw [show -((m : ℝ) + 3 / 2) * L / 2 = -(a_exp * L) by dsimp [a_exp]; ring]
-    calc pkg.C_coh_far * C_B * Real.exp (-(a_exp * L))
-        = (pkg.C_coh_far * C_B * (L ^ (3 / 2 : ℝ) * Real.exp (-(a_exp * L)))) * (L ^ (3 / 2 : ℝ))⁻¹ := by field_simp [hL32.ne']
-      _ ≤ (b_floor / 4) * L ^ (-(3 / 2 : ℝ)) := by rw [Real.rpow_neg hL0.le]; exact mul_le_mul_of_nonneg_right h1 (by positivity)
-  have hL2_bd : L ^ (-2 : ℝ) ≤ L_far ^ (-(1 / 2 : ℝ)) * L ^ (-(3 / 2 : ℝ)) := by
-    rw [show (-2 : ℝ) = -(1 / 2 : ℝ) + -(3 / 2 : ℝ) by norm_num, Real.rpow_add hL0]
-    exact mul_le_mul_of_nonneg_right (Real.rpow_le_rpow_of_nonpos hLF_pos hL (by norm_num)) (Real.rpow_nonneg hL0.le _)
-  have hEom_bd : ‖(ceK : ℂ) * (((c : ℂ) / (2 * π)) * ∫ X in Iic (2 * d), ((pkg.cutoffOm X * pkg.f c X : ℝ) : ℂ) *
-      mainEdgeKernel (mainEdgeAmp κ m c) c (L - ceCs * X))‖ ≤ (C_om * C_M * L_far ^ (-(1 / 2 : ℝ))) * c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ)) := by
-    calc ‖_‖ ≤ C_om * c⁻¹ * pkg.M c * L ^ (-2 : ℝ) := hEom hc_T hL_min
-      _ ≤ C_om * c⁻¹ * (C_M * c ^ (1 / 3 : ℝ)) * L ^ (-2 : ℝ) := by
-          have := hM_bd hc_c₁; have := Real.rpow_nonneg hL0.le (-2 : ℝ); gcongr
-      _ = C_om * C_M * (c⁻¹ * c ^ (1 / 3 : ℝ)) * L ^ (-2 : ℝ) := by ring
-      _ ≤ C_om * C_M * c ^ (-(1 / 3 : ℝ)) * (L_far ^ (-(1 / 2 : ℝ)) * L ^ (-(3 / 2 : ℝ))) := by
-          have := c_inv_mul_third_le hc1; gcongr
-      _ = _ := by ring
-  have hEsm_bd := smooth_err_on_tail hLF_pos hL hc1 pkg.hC_sm (pkg.B0_nonneg hc_T) (hB0_bd hc_c₁) (pkg.smooth_bound hc_T hL_min)
-  have hCoh_bd : ‖pkg.T_plus c L + pkg.T_minus c L‖ ≤
-      (pkg.C_coh_far * C_B) * c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ)) + (b_floor / 4) * L ^ (-(3 / 2 : ℝ)) := by
-    calc ‖pkg.T_plus c L + pkg.T_minus c L‖
-        ≤ pkg.C_coh_far * pkg.B c * (c⁻¹ * L ^ (-(3 / 2 : ℝ)) + Real.exp (-((m : ℝ) + 3 / 2) * L / 2)) :=
-          pkg.coherent_far_bound hc_T (hLF_sharp.trans hL)
-      _ ≤ pkg.C_coh_far * C_B * (c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ)) + Real.exp (-((m : ℝ) + 3 / 2) * L / 2)) := by
-          have := c_inv_le_neg_third hc1; have := hB_bd hc_c₁; have := pkg.hC_coh_far; have := pkg.B_nonneg hc_T
-          have := Real.rpow_nonneg hL0.le (-(3 / 2 : ℝ)); gcongr
-      _ ≤ _ := by linarith [hcoh_exp]
-  have htot_lb := pkg_re_lower_bound pkg hc_T hL_min hsmooth_fl hEom_bd hEsm_bd hCoh_bd (hR_refl_bd hc_c₁ hL_min)
-  have hq_mul := mul_le_mul_of_nonneg_right
-    (rpow_neg_third_mul_le hCerr (by positivity : 0 < b_floor / 4) ((le_max_right _ _).trans hc))
-    (Real.rpow_nonneg hL0.le (-(3 / 2 : ℝ)))
-  have hεL : 0 ≤ c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ)) :=
-    mul_nonneg (Real.rpow_nonneg (by linarith) _) (Real.rpow_nonneg hL0.le _)
-  have hsum_bd : (C_om * C_M * L_far ^ (-(1 / 2 : ℝ))) * c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ)) +
-      pkg.C_sm * C_B0 * (L_far ^ (-(1 / 2 : ℝ)) + L_far⁻¹ + L_far ^ (-5 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ)) +
-      (pkg.C_coh_far * C_B) * c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ)) + C_refl * c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ)) ≤
-      (b_floor / 4) * L ^ (-(3 / 2 : ℝ)) := by
-    have hle : (C_om * C_M * L_far ^ (-(1 / 2 : ℝ))) * c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ)) +
-        pkg.C_sm * C_B0 * (L_far ^ (-(1 / 2 : ℝ)) + L_far⁻¹ + L_far ^ (-5 : ℝ)) * c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ)) +
-        (pkg.C_coh_far * C_B) * c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ)) + C_refl * c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ)) ≤
-        C_err * c ^ (-(1 / 3 : ℝ)) * L ^ (-(3 / 2 : ℝ)) := by dsimp [C_err]; nlinarith
-    exact hle.trans hq_mul
-  have htot : (b_floor / 2) * L ^ (-(3 / 2 : ℝ)) ≤
-      ((ceK : ℂ) * mainTransferOp κ m c (fun X => (pkg.f c X : ℂ)) L).re + R_refl c L := by linarith
-  exact lt_of_lt_of_le (mul_pos (hnorm_pos hc_c₁ hL_min) (lt_of_lt_of_le (by positivity) htot)) (hlift hc_c₁ hL_min)
-
-private lemma compact_saddle_term_bd {p lam κ : ℝ} {m : ℕ} {c x X₁ B_c C_J C_wkb φ τ P_σ : ℝ}
-    {T_σ b_σ : ℂ} (hc0 : 0 < c) (hX1 : 0 < X₁) (heta : 0 < ceEta x) (hCJ : 0 ≤ C_J) (hB : 0 ≤ B_c) (hc1 : 1 ≤ c)
-    (hdiff : ‖T_σ - Complex.exp (Complex.I * (c : ℂ) * (P_σ : ℂ)) *
-        ((ceK : ℂ) * mainEdgeAmp κ m c τ * b_σ / ((ceCs * Real.sqrt (ceEta x) : ℝ) : ℂ))‖ ≤ C_J * B_c * c ^ (-(1 / 2 : ℝ)))
-    (hb : |2 * π * X₁ ^ (3 / 2 : ℝ) * ‖b_σ‖ - ‖fracZp p (lam * X₁)‖ ^ 2| ≤ C_wkb * c ^ (-(1 / 3 : ℝ)))
-    (hZ : ‖fracZp p (lam * X₁)‖ ^ 2 ≤ φ) :
-    ‖T_σ‖ ≤ ceK / (2 * π * ceCs * X₁ ^ (3 / 2 : ℝ) * Real.sqrt (ceEta x)) * (φ + C_wkb * c ^ (-(1 / 3 : ℝ))) + C_J * B_c * c ^ (-(1 / 3 : ℝ)) := by
-  have hamp := (norm_mainEdgeAmp_le κ m hc0 τ).2; have hceK0 : 0 ≤ ceK := ceK_pos.le
-  have hexp_n : ‖Complex.exp (Complex.I * (c : ℂ) * (P_σ : ℂ))‖ = 1 := by
-    rw [show Complex.I * (c : ℂ) * (P_σ : ℂ) = (((c * P_σ : ℝ) : ℂ) * Complex.I) by push_cast; ring, Complex.norm_exp_ofReal_mul_I]
-  have hden_pos : 0 < ceCs * Real.sqrt (ceEta x) := mul_pos ceCs_pos (Real.sqrt_pos.mpr heta)
-  have hden_n : ‖((ceCs * Real.sqrt (ceEta x) : ℝ) : ℂ)‖ = ceCs * Real.sqrt (ceEta x) := by
-    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_pos hden_pos]
-  have hb_ub : ‖b_σ‖ ≤ (φ + C_wkb * c ^ (-(1 / 3 : ℝ))) / (2 * π * X₁ ^ (3 / 2 : ℝ)) :=
-    (le_div_iff₀' (by positivity [Real.pi_pos])).mpr (by linarith [(abs_le.mp hb).2, hZ])
-  set M_term : ℂ := Complex.exp (Complex.I * (c : ℂ) * (P_σ : ℂ)) *
-    ((ceK : ℂ) * mainEdgeAmp κ m c τ * b_σ / ((ceCs * Real.sqrt (ceEta x) : ℝ) : ℂ))
-  have hmain_n : ‖M_term‖ ≤ ceK / (2 * π * ceCs * X₁ ^ (3 / 2 : ℝ) * Real.sqrt (ceEta x)) * (φ + C_wkb * c ^ (-(1 / 3 : ℝ))) := by
-    dsimp [M_term]; rw [norm_mul, hexp_n, one_mul, norm_div, hden_n, norm_mul, norm_mul, show ‖(ceK : ℂ)‖ = ceK by simp [hceK0]]
-    calc ceK * ‖mainEdgeAmp κ m c τ‖ * ‖b_σ‖ / (ceCs * Real.sqrt (ceEta x))
-        ≤ ceK * 1 * ((φ + C_wkb * c ^ (-(1 / 3 : ℝ))) / (2 * π * X₁ ^ (3 / 2 : ℝ))) / (ceCs * Real.sqrt (ceEta x)) := by
-          have := norm_nonneg b_σ; gcongr
-      _ = _ := by ring
-  have htri : ‖T_σ‖ ≤ ‖T_σ - M_term‖ + ‖M_term‖ := by simpa using norm_add_le (T_σ - M_term) M_term
-  have hc_mul := mul_le_mul_of_nonneg_left (Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num : -(1 / 2 : ℝ) ≤ -(1 / 3 : ℝ))) (mul_nonneg hCJ hB)
-  linarith
-
-/-- **Theorem `PF.5` (`ce_physical_log_far.tex`, `(cepf:PF5)`):** physical sign
-`-h_c(c e^L / π²) > 0` on any compact interval `J = [L₀, L₁] ⊂ (0, ∞)` for `c ≥ c₀(J)`. -/
-theorem pf5_physical_compact_sign {p lam θ κ L₀ L₁ d : ℝ} {m : ℕ}
-    (hp : p ∈ Ioo (1 / 2 : ℝ) 1) (hlam : 0 < lam) (hθ : θ ∈ Icc (0 : ℝ) 1)
-    (hκ : 0 < κ) (hm : 4 ≤ m) (hL₀ : 0 < L₀) (hL₀₁ : L₀ ≤ L₁)
-    (hd0 : 0 < d) (hd_lt : d < L₀ / (8 * ceCs))
-    (pkg : MacroscopicTransferPackage κ m L₀ d)
-    {C_M C_B0 C_B c₁ C_wkb C_refl : ℝ}
-    (hCM : 0 < C_M) (hCB0 : 0 < C_B0) (hCB : 0 < C_B) (hc₁ : pkg.c_T ≤ c₁)
-    (hCwkb : 0 < C_wkb) (hCR : 0 < C_refl)
-    (hM_bd : ∀ {c : ℝ}, c₁ ≤ c → pkg.M c ≤ C_M * c ^ (1 / 3 : ℝ))
-    (hB0_bd : ∀ {c : ℝ}, c₁ ≤ c → pkg.B0 c ≤ C_B0)
-    (hB_bd : ∀ {c : ℝ}, c₁ ≤ c → pkg.B c ≤ C_B)
-    (hWKB : ∀ {c X : ℝ}, c₁ ≤ c → X ∈ Icc (L₀ / ceCs) ((ceCs * Real.exp L₁ / π) ^ 2) →
-      |π * X ^ (3 / 2 : ℝ) * pkg.b0 c X - (2 - θ * movingDiagQ p (lam * X) - ‖fracZp p (lam * X)‖ ^ 2)| ≤
-          C_wkb * c ^ (-(1 / 3 : ℝ)) ∧
-      |2 * π * X ^ (3 / 2 : ℝ) * ‖pkg.bPlus c X‖ - ‖fracZp p (lam * X)‖ ^ 2| ≤ C_wkb * c ^ (-(1 / 3 : ℝ)) ∧
-      |2 * π * X ^ (3 / 2 : ℝ) * ‖pkg.bMinus c X‖ - ‖fracZp p (lam * X)‖ ^ 2| ≤ C_wkb * c ^ (-(1 / 3 : ℝ)))
-    (neg_hc R_refl norm_pref : ℝ → ℝ → ℝ)
-    (hnorm_pos : ∀ {c L : ℝ}, c₁ ≤ c → L ∈ Icc L₀ L₁ → 0 < norm_pref c L)
-    (hlift : ∀ {c L : ℝ}, c₁ ≤ c → L ∈ Icc L₀ L₁ →
-      norm_pref c L * (((ceK : ℂ) * mainTransferOp κ m c (fun X => (pkg.f c X : ℂ)) L).re +
-        R_refl c L) ≤ neg_hc c (c * Real.exp L / π ^ 2))
-    (hR_refl_bd : ∀ {c L : ℝ}, c₁ ≤ c → L ∈ Icc L₀ L₁ → |R_refl c L| ≤ C_refl * c ^ (-(1 / 3 : ℝ))) :
-    ∃ c₀ ≥ c₁, ∀ {c L : ℝ}, c₀ ≤ c → L ∈ Icc L₀ L₁ → 0 < neg_hc c (c * Real.exp L / π ^ 2) := by
-  have hp0 : 0 < p := by linarith [hp.1]
-  have hp_ioo : p ∈ Ioo (0 : ℝ) 1 := ⟨hp0, hp.2⟩
-  obtain ⟨C_om, hCom, hEom⟩ := omitted_cutoff_bound hκ hm hL₀ hd0 hd_lt pkg
-  obtain ⟨C_J, hCJ, c_J, hc_J, P_plus, P_minus, hcoh_exp⟩ := pkg.coherent_compact_expand le_rfl hL₀₁
-  let X_L0 : ℝ := L₀ / ceCs; have hXL0_pos : 0 < X_L0 := div_pos hL₀ ceCs_pos
-  have hX1_ub : ∀ {L : ℝ}, L ∈ Icc L₀ L₁ → ceX1 (2 * (π * tau0 L / 2) / π) ≤ (ceCs * Real.exp L₁ / π) ^ 2 := fun {L} hJ => by
-    have hLpos : 0 < L := hL₀.trans_le hJ.1; have hx : 0 < π * tau0 L / 2 := by positivity [tau0_pos hLpos]
-    have htanh_lt_one : Real.tanh (π * tau0 L / 2) < 1 := by
-      rw [Real.tanh_eq_sinh_div_cosh]; exact (div_lt_one (Real.cosh_pos _)).mpr (Real.sinh_lt_cosh _)
-    have htanh_pos : 0 < Real.tanh (π * tau0 L / 2) := by
-      rw [Real.tanh_eq_sinh_div_cosh]; exact div_pos (Real.sinh_pos_iff.mpr hx) (Real.cosh_pos _)
-    have hdiv : π * tau0 L / 2 < (π * tau0 L / 2) / Real.tanh (π * tau0 L / 2) :=
-      (lt_div_iff₀ htanh_pos).mpr (mul_lt_of_lt_one_right hx htanh_lt_one)
-    have hlog_lt : Real.log (π * tau0 L / 2) < L := by
-      conv_rhs => rw [← ceEll_tau0 hLpos]; unfold ceEll
-      exact Real.log_lt_log hx hdiv
-    have hx_le : π * tau0 L / 2 ≤ Real.exp L₁ := (((Real.log_lt_iff_lt_exp hx).mp hlog_lt).trans_le (Real.exp_le_exp.mpr hJ.2)).le
-    have hpi : π ≠ 0 := Real.pi_ne_zero
-    rw [show ceX1 (2 * (π * tau0 L / 2) / π) = (ceCs * (π * tau0 L / 2) / π) ^ 2 by unfold ceX1; field_simp [hpi]; ring]
-    exact pow_le_pow_left₀ (by positivity [ceCs_pos]) (div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left hx_le ceCs_pos.le) Real.pi_pos.le) 2
-  let mJ : ℝ := (1 - ceVarphiP p (lam * (L₀ / ceCs))) ^ 2
-  let bJ : ℝ := ceK / (π * ceCs * (L₁ / ceCs) ^ (3 / 2 : ℝ))
-  have hmJ_bJ_pos : 0 < bJ * mJ := (pf5_interval_margin_contraction hp0 hlam hL₀ ⟨le_rfl, hL₀₁⟩ hθ.1 hθ.2 one_pos).1
-  let C_pre : ℝ := ceK / (π * ceCs * X_L0 ^ (3 / 2 : ℝ)); have hCpre : 0 < C_pre := by positivity [ceK_pos, ceCs_pos, Real.pi_pos]
-  let C_err : ℝ := C_om * C_M * L₀ ^ (-2 : ℝ) + pkg.C_sm * C_B0 * (L₀ ^ (-(1 / 2 : ℝ)) + L₀⁻¹ + L₀ ^ (-5 : ℝ)) * L₀ ^ (-(3 / 2 : ℝ)) +
-    2 * C_J * C_B + 2 * C_pre * C_wkb + C_refl + 1
-  have hCerr : 0 < C_err := by have := pkg.hC_sm; positivity [ceCs_pos]
-  refine ⟨max (max c₁ c_J) ((C_err / (bJ * mJ / 2)) ^ (3 : ℝ) + 1), (le_max_left _ _).trans (le_max_left _ _), fun {c L} hc hJ => ?_⟩
-  have hc_c₁ : c₁ ≤ c := ((le_max_left _ _).trans (le_max_left _ _)).trans hc
-  have hc_cJ : c_J ≤ c := ((le_max_right _ _).trans (le_max_left _ _)).trans hc
-  have hc_T : pkg.c_T ≤ c := hc₁.trans hc_c₁
-  have hc1 : 1 ≤ c := by linarith [pkg.hc_T]
-  have hc0 : 0 < c := by linarith
-  have hL0 : 0 < L := hL₀.trans_le hJ.1
-  let ε : ℝ := c ^ (-(1 / 3 : ℝ)); let x : ℝ := π * tau0 L / 2
-  have hx : 0 < x := by dsimp [x]; positivity [tau0_pos hL0]
-  have hX0_eq : ceX0 x = L / ceCs := by unfold ceX0; rw [ceEll_tau0 hL0]
-  let X₀ : ℝ := L / ceCs; let X₁ : ℝ := ceX1 (2 * x / π)
-  have hX0_pos : 0 < X₀ := div_pos hL0 ceCs_pos
-  have hX0_lt_X1 : X₀ < X₁ := by dsimp [X₀, X₁]; rw [← hX0_eq]; exact (ceX0_pos_and_lt_ceX1 hx).2
-  have hX1_pos : 0 < X₁ := hX0_pos.trans hX0_lt_X1
-  have hX0_mem : X₀ ∈ Icc (L₀ / ceCs) ((ceCs * Real.exp L₁ / π) ^ 2) :=
-    ⟨div_le_div_of_nonneg_right hJ.1 ceCs_pos.le, hX0_lt_X1.le.trans (hX1_ub hJ)⟩
-  have hX1_mem : X₁ ∈ Icc (L₀ / ceCs) ((ceCs * Real.exp L₁ / π) ^ 2) :=
-    ⟨(div_le_div_of_nonneg_right hJ.1 ceCs_pos.le).trans hX0_lt_X1.le, hX1_ub hJ⟩
-  have hmargin := pf5_interval_margin_contraction hp0 hlam hL₀ hJ hθ.1 hθ.2 hx
-  let φ : ℝ := ceVarphiP p (lam * X₀)
-  have hZ0_le : ‖fracZp p (lam * X₀)‖ ^ 2 ≤ φ := fracZp_norm_sq_le hp_ioo (mul_nonneg hlam.le hX0_pos.le)
-  have hZ1_le : ‖fracZp p (lam * X₁)‖ ^ 2 ≤ φ := by
-    have h1 := fracZp_norm_sq_le hp_ioo (mul_nonneg hlam.le hX1_pos.le)
-    have h2 : ceVarphiP p (lam * X₁) ≤ φ := by
-      unfold ceVarphiP φ; refine inv_anti₀ (by positivity) ?_
-      linarith [Real.rpow_le_rpow (mul_nonneg hlam.le hX0_pos.le) (mul_le_mul_of_nonneg_left hX0_lt_X1.le hlam.le) hp0.le]
-    exact h1.trans h2
-  obtain ⟨hwkb0, _, _⟩ := hWKB hc_c₁ hX0_mem; obtain ⟨_, hwkbp, hwkbm⟩ := hWKB hc_c₁ hX1_mem
-  have hCpre_X0 : ceK / (π * ceCs * X₀ ^ (3 / 2 : ℝ)) ≤ C_pre :=
-    div_le_div_of_nonneg_left ceK_pos.le (by positivity [Real.pi_pos, ceCs_pos])
-      (mul_le_mul_of_nonneg_left (Real.rpow_le_rpow hXL0_pos.le (div_le_div_of_nonneg_right hJ.1 ceCs_pos.le)
-        (by norm_num : (0 : ℝ) ≤ 3 / 2)) (mul_pos Real.pi_pos ceCs_pos).le)
-  have hsmooth_lb : ceK / (π * ceCs * X₀ ^ (3 / 2 : ℝ)) * (2 - θ * movingDiagQ p (lam * X₀) - φ) - C_pre * C_wkb * ε ≤
-      ceK / ceCs * pkg.b0 c X₀ := by
-    have hb0_ge : (2 - θ * movingDiagQ p (lam * X₀) - φ - C_wkb * ε) / (π * X₀ ^ (3 / 2 : ℝ)) ≤ pkg.b0 c X₀ := by
-      rw [div_le_iff₀ (by positivity [Real.pi_pos])]; linarith [(abs_le.mp hwkb0).1, hZ0_le]
-    have hpre_wkb := mul_le_mul_of_nonneg_right hCpre_X0 (mul_nonneg hCwkb.le (by positivity : 0 ≤ ε))
-    have heq_s : ceK / (π * ceCs * X₀ ^ (3 / 2 : ℝ)) * (2 - θ * movingDiagQ p (lam * X₀) - φ) -
-        ceK / (π * ceCs * X₀ ^ (3 / 2 : ℝ)) * (C_wkb * ε) =
-        (ceK / ceCs) * ((2 - θ * movingDiagQ p (lam * X₀) - φ - C_wkb * ε) / (π * X₀ ^ (3 / 2 : ℝ))) := by ring
-    have hmul_s := mul_le_mul_of_nonneg_left hb0_ge (div_pos ceK_pos ceCs_pos).le
-    linarith
-  have hcoh_pm := hcoh_exp hc_cJ hJ; have heta_pos : 0 < ceEta x := (ceEta_pos_and_lt_one hx).1
-  have hratio_eq : 1 / (π * ceCs * X₁ ^ (3 / 2 : ℝ) * Real.sqrt (ceEta x)) =
-      1 / (π * ceCs * X₀ ^ (3 / 2 : ℝ)) * ceTransportRatio x := by
-    unfold ceTransportRatio; dsimp only [X₀, X₁]; rw [← hX0_eq]
-    have hX1p : 0 ≤ ceX1 (2 * x / π) := ((ceX0_pos_and_lt_ceX1 hx).1.trans (ceX0_pos_and_lt_ceX1 hx).2).le
-    rw [Real.sqrt_eq_rpow, Real.rpow_neg heta_pos.le, Real.div_rpow (ceX0_pos_and_lt_ceX1 hx).1.le hX1p]
-    have h1 := (Real.rpow_pos_of_pos (ceX0_pos_and_lt_ceX1 hx).1 (3 / 2 : ℝ)).ne'
-    have h2 := (Real.rpow_pos_of_pos ((ceX0_pos_and_lt_ceX1 hx).1.trans (ceX0_pos_and_lt_ceX1 hx).2) (3 / 2 : ℝ)).ne'
-    have h3 := (Real.rpow_pos_of_pos heta_pos (1 / 2 : ℝ)).ne'
-    field_simp [Real.pi_ne_zero, ceCs_pos.ne', h1, h2, h3]
-  have hT_plus_bd := compact_saddle_term_bd hc0 hX1_pos heta_pos hCJ.le (pkg.B_nonneg hc_T) hc1 hcoh_pm.1 hwkbp hZ1_le
-  have hT_minus_bd := compact_saddle_term_bd hc0 hX1_pos heta_pos hCJ.le (pkg.B_nonneg hc_T) hc1 hcoh_pm.2 hwkbm hZ1_le
-  have hT_sum_bd : ‖pkg.T_plus c L + pkg.T_minus c L‖ ≤
-      ceK / (π * ceCs * X₀ ^ (3 / 2 : ℝ)) * (ceTransportRatio x * φ) + (C_pre * C_wkb + 2 * C_J * C_B) * ε := by
-    have hB_le : 2 * C_J * pkg.B c * ε ≤ 2 * C_J * C_B * ε := by have := hB_bd hc_c₁; gcongr
-    have hratio_le : ceK / (π * ceCs * X₁ ^ (3 / 2 : ℝ) * Real.sqrt (ceEta x)) ≤ C_pre := by
-      rw [show ceK / (π * ceCs * X₁ ^ (3 / 2 : ℝ) * Real.sqrt (ceEta x)) =
-          ceK * (1 / (π * ceCs * X₁ ^ (3 / 2 : ℝ) * Real.sqrt (ceEta x))) by ring, hratio_eq,
-        show ceK * (1 / (π * ceCs * X₀ ^ (3 / 2 : ℝ)) * ceTransportRatio x) =
-          (ceK / (π * ceCs * X₀ ^ (3 / 2 : ℝ))) * ceTransportRatio x by ring]
-      exact (mul_le_mul hCpre_X0 (ceTransportRatio_pos_and_lt_one hx).2.le
-        (ceTransportRatio_pos_and_lt_one hx).1.le hCpre.le).trans_eq (mul_one _)
-    have htwo : ceK / (2 * π * ceCs * X₁ ^ (3 / 2 : ℝ) * Real.sqrt (ceEta x)) * (φ + C_wkb * ε) +
-        ceK / (2 * π * ceCs * X₁ ^ (3 / 2 : ℝ) * Real.sqrt (ceEta x)) * (φ + C_wkb * ε) =
-        ceK / (π * ceCs * X₁ ^ (3 / 2 : ℝ) * Real.sqrt (ceEta x)) * φ +
-          ceK / (π * ceCs * X₁ ^ (3 / 2 : ℝ) * Real.sqrt (ceEta x)) * (C_wkb * ε) := by ring
-    have hphi_eq : ceK / (π * ceCs * X₁ ^ (3 / 2 : ℝ) * Real.sqrt (ceEta x)) * φ =
-        ceK / (π * ceCs * X₀ ^ (3 / 2 : ℝ)) * (ceTransportRatio x * φ) := by
-      rw [show ceK / (π * ceCs * X₁ ^ (3 / 2 : ℝ) * Real.sqrt (ceEta x)) =
-          ceK * (1 / (π * ceCs * X₁ ^ (3 / 2 : ℝ) * Real.sqrt (ceEta x))) by ring, hratio_eq]; ring
-    have hwkb_le := mul_le_mul_of_nonneg_right hratio_le (mul_nonneg hCwkb.le (by positivity : 0 ≤ ε))
-    linarith [norm_add_le (pkg.T_plus c L) (pkg.T_minus c L)]
-  have hEom_bd : ‖(ceK : ℂ) * (((c : ℂ) / (2 * π)) * ∫ X in Iic (2 * d), ((pkg.cutoffOm X * pkg.f c X : ℝ) : ℂ) *
-      mainEdgeKernel (mainEdgeAmp κ m c) c (L - ceCs * X))‖ ≤ C_om * C_M * L₀ ^ (-2 : ℝ) * ε := by
-    calc ‖_‖ ≤ C_om * c⁻¹ * pkg.M c * L ^ (-2 : ℝ) := hEom hc_T hJ.1
-      _ ≤ C_om * c⁻¹ * (C_M * c ^ (1 / 3 : ℝ)) * L₀ ^ (-2 : ℝ) := by
-          have := hM_bd hc_c₁; have := Real.rpow_le_rpow_of_nonpos hL₀ hJ.1 (by norm_num : (-2 : ℝ) ≤ 0); gcongr
-      _ = C_om * C_M * L₀ ^ (-2 : ℝ) * (c⁻¹ * c ^ (1 / 3 : ℝ)) := by ring
-      _ ≤ C_om * C_M * L₀ ^ (-2 : ℝ) * ε := by have := c_inv_mul_third_le hc1; gcongr
-  have hEsm_bd : ‖pkg.E_sm c L‖ ≤
-      pkg.C_sm * C_B0 * (L₀ ^ (-(1 / 2 : ℝ)) + L₀⁻¹ + L₀ ^ (-5 : ℝ)) * L₀ ^ (-(3 / 2 : ℝ)) * ε := by
-    have h1 := smooth_err_on_tail hL₀ hJ.1 hc1 pkg.hC_sm (pkg.B0_nonneg hc_T) (hB0_bd hc_c₁) (pkg.smooth_bound hc_T hJ.1)
-    have hpre_nn : 0 ≤ pkg.C_sm * C_B0 * (L₀ ^ (-(1 / 2 : ℝ)) + L₀⁻¹ + L₀ ^ (-5 : ℝ)) * ε := by
-      have := pkg.hC_sm; positivity
-    exact h1.trans ((mul_le_mul_of_nonneg_left (Real.rpow_le_rpow_of_nonpos hL₀ hJ.1 (by norm_num)) hpre_nn).trans_eq (by ring))
-  have htot_lb := pkg_re_lower_bound pkg hc_T hJ.1 hsmooth_lb hEom_bd hEsm_bd hT_sum_bd (hR_refl_bd hc_c₁ hJ)
-  have hlead_ge : bJ * mJ < ceK / (π * ceCs * X₀ ^ (3 / 2 : ℝ)) * (2 - θ * movingDiagQ p (lam * X₀) - φ) -
-      ceK / (π * ceCs * X₀ ^ (3 / 2 : ℝ)) * (ceTransportRatio x * φ) := by
-    have hcontr := hmargin.2; rw [show movingDiagQ p (lam * X₀) = 1 - φ ^ 2 from rfl]
-    dsimp only [φ, X₀] at hcontr ⊢; linarith
-  have hcerr_half := rpow_neg_third_mul_le hCerr (by positivity : 0 < bJ * mJ / 2) ((le_max_right _ _).trans hc)
-  have htot : (bJ * mJ) / 2 < ((ceK : ℂ) * mainTransferOp κ m c (fun X => (pkg.f c X : ℂ)) L).re + R_refl c L := by
-    have hε0 : 0 ≤ ε := by positivity
-    have hle : C_om * C_M * L₀ ^ (-2 : ℝ) * ε +
-        pkg.C_sm * C_B0 * (L₀ ^ (-(1 / 2 : ℝ)) + L₀⁻¹ + L₀ ^ (-5 : ℝ)) * L₀ ^ (-(3 / 2 : ℝ)) * ε +
-        (C_pre * C_wkb + 2 * C_J * C_B) * ε + C_pre * C_wkb * ε + C_refl * ε ≤ bJ * mJ / 2 := by
-      have h1 : C_om * C_M * L₀ ^ (-2 : ℝ) * ε +
-          pkg.C_sm * C_B0 * (L₀ ^ (-(1 / 2 : ℝ)) + L₀⁻¹ + L₀ ^ (-5 : ℝ)) * L₀ ^ (-(3 / 2 : ℝ)) * ε +
-          (C_pre * C_wkb + 2 * C_J * C_B) * ε + C_pre * C_wkb * ε + C_refl * ε ≤ C_err * ε := by
-        dsimp [C_err]; linarith
-      exact h1.trans hcerr_half
-    linarith
-  exact lt_of_lt_of_le (mul_pos (hnorm_pos hc_c₁ hJ) (lt_trans (by positivity) htot)) (hlift hc_c₁ hJ)
-
-/-! ## Section 4: Section `GT.4` (`thm:ce-lift`) — Leading tip offset and 8-band coverage -/
+/-! ## Section 4: Section `GT.4` (`thm:ce-lift`) — Leading tip offset -/
 
 private lemma cardinalTailSqSum_zero_one {p : ℝ} (hp : 0 < p) :
     cardinalTailSqSum p 0 1 = -airyDerivFirstZero - cohnC airyDerivFirstZero 0 ^ 2 := by
@@ -1164,189 +837,6 @@ theorem twoScaleFc_at_a1_asymptotic {p lam R : ℝ} (hp : p ∈ Ioo (1 / 2 : ℝ
     _ ≤ |twoScaleF0 p lam γ θ R c (airyZero 1) / (2 * airyAi' (airyZero 1) ^ 2) - target| + |twoScaleEta p lam R (Mpsi c) c| := abs_add_le _ _
     _ ≤ (C₀ + C_eta) * (c ^ (-(1 / 3 : ℝ))) ^ (2 * p) := by linarith
 
-/-- Upper bound `|airyZero 1| / ceBeta1 < 1`, ensuring `A_opt < 1 < 100 ≤ S_*` in `GT.4`. -/
-lemma gt4_Aopt_lt_one : |airyZero 1| / ceBeta1 < 1 := by
-  have habs : |airyZero 1| < 2.35 := abs_lt.mpr ⟨airyZero_one.1, by linarith [airyZero_one.2]⟩
-  have hpi3 : (3 : ℝ) < π := Real.pi_gt_three
-  have hsq3 : (1 : ℝ) < Real.sqrt 3 := by rw [← Real.sqrt_one]; exact Real.sqrt_lt_sqrt zero_le_one (by norm_num)
-  have hbase : (9 : ℝ) < π ^ 2 * Real.sqrt 3 := by nlinarith
-  have hbeta3 : (4 : ℝ) ^ 3 < ceBeta1 ^ 3 := by
-    have hpow3 : ceBeta1 ^ 3 = (π ^ 2 * Real.sqrt 3) ^ 2 := by
-      unfold ceBeta1; rw [← Real.rpow_natCast _ 3, ← Real.rpow_mul (by positivity),
-        show (2 / 3 : ℝ) * (3 : ℕ) = (2 : ℕ) by norm_num, Real.rpow_natCast]
-    rw [hpow3]; nlinarith
-  have h4lt : (4 : ℝ) < ceBeta1 := by
-    by_contra hle; exact absurd (pow_le_pow_left₀ ceBeta1_pos.le (not_lt.mp hle) 3) (not_le.mpr hbeta3)
-  exact (div_lt_one ceBeta1_pos).mpr (by linarith)
-
-/-- Packaged 8-band global coverage assumptions for Section `GT.4` (`ce_o1_global_transfer.tex`). -/
-structure GT4CoverageBands (fhat neg_h : ℝ → ℝ → ℝ) where
-  S_star : ℝ
-  hS_star : 100 ≤ S_star
-  L_F : ℝ
-  hL_F : 0 < L_F ∧ L_F ≤ 0.002
-  L_star : ℝ
-  hL_star : 0 < L_star ∧ L_star ≤ 0.002
-  κ : ℝ
-  hκ : 1 ≤ κ
-  L_far : ℝ
-  hL_far : L_star < L_far
-  U : ℝ
-  hU : 1 ≤ U
-  Δ₁ : ℝ
-  hΔ₁ : 1 ≤ Δ₁
-  K_phys : ℝ
-  c_band : ℝ
-  hc_band : 1 ≤ c_band
-  band_F1 : ∀ {c Δ : ℝ}, c_band ≤ c → 0 ≤ Δ →
-    Δ ≤ (c / π ^ 2) * Real.exp (-(π ^ 2 * U * (c ^ (-(1 / 3 : ℝ))) ^ 2)) → 0 < fhat c Δ
-  band_F2 : ∀ {c Δ : ℝ}, c_band ≤ c → 0 < Δ →
-    -U ≤ Real.log (π ^ 2 * Δ / c) / (π ^ 2 * (c ^ (-(1 / 3 : ℝ))) ^ 2) →
-    Real.log (π ^ 2 * Δ / c) / (π ^ 2 * (c ^ (-(1 / 3 : ℝ))) ^ 2) ≤ S_star + 1 → 0 < fhat c Δ
-  band_F3 : ∀ {c Δ : ℝ}, c_band ≤ c → 0 < Δ →
-    S_star ≤ Real.log (π ^ 2 * Δ / c) / (π ^ 2 * (c ^ (-(1 / 3 : ℝ))) ^ 2) →
-    0 < Real.log (π ^ 2 * Δ / c) → Real.log (π ^ 2 * Δ / c) ≤ L_F → 0 < fhat c Δ
-  band_F4 : ∀ {c Δ : ℝ}, c_band ≤ c → 0 < Δ → L_F ≤ Real.log (π ^ 2 * Δ / c) → 0 < fhat c Δ
-  band_P1 : ∀ {c Δ : ℝ}, c_band ≤ c → 0 < Δ →
-    |airyZero 1| / ceBeta1 + K_phys * c ^ (-(1 / 3 : ℝ)) ≤
-      Real.log (π ^ 2 * Δ / c) / (π ^ 2 * (c ^ (-(1 / 3 : ℝ))) ^ 2) →
-    Real.log (π ^ 2 * Δ / c) / (π ^ 2 * (c ^ (-(1 / 3 : ℝ))) ^ 2) ≤ S_star + 1 → 0 < neg_h c Δ
-  band_P2 : ∀ {c Δ : ℝ}, c_band ≤ c → 0 < Δ →
-    S_star ≤ Real.log (π ^ 2 * Δ / c) / (π ^ 2 * (c ^ (-(1 / 3 : ℝ))) ^ 2) →
-    0 < Real.log (π ^ 2 * Δ / c) → Real.log (π ^ 2 * Δ / c) ≤ L_star → 0 < neg_h c Δ
-  band_P3 : ∀ {c Δ : ℝ}, c_band ≤ c → 0 < Δ →
-    L_star ≤ Real.log (π ^ 2 * Δ / c) → Real.log (π ^ 2 * Δ / c) ≤ L_far → 0 < neg_h c Δ
-  band_P4 : ∀ {c Δ : ℝ}, c_band ≤ c → 0 < Δ → L_far ≤ Real.log (π ^ 2 * Δ / c) → 0 < neg_h c Δ
-
-/-- **8-band global coverage & overlap theorem (`GT.4`):** given any `GT4CoverageBands`,
-for all sufficiently large `c`, overlap inequalities hold, `0 < fhat c Δ` for all `Δ ≥ 0`,
-and `0 < neg_h c Δ` for all `Δ ≥ (c / π²) * Real.exp (π² * ε² * (A_opt + K_phys * ε))`. -/
-theorem gt4_coverage_of_bands {fhat neg_h : ℝ → ℝ → ℝ} (B : GT4CoverageBands fhat neg_h) :
-    let A_opt := |airyZero 1| / ceBeta1
-    ∃ c₀ ≥ B.c_band,
-      (∀ {c : ℝ}, c₀ ≤ c →
-        let ε := c ^ (-(1 / 3 : ℝ))
-        B.κ * ε ≤ 1 ∧ π ^ 2 * ε ^ 2 * (B.S_star + 1) ≤ min B.L_F B.L_star ∧ A_opt + B.K_phys * ε ≤ B.S_star) ∧
-      (∀ {c Δ : ℝ}, c₀ ≤ c → 0 ≤ Δ → 0 < fhat c Δ) ∧
-      (∀ {c Δ : ℝ}, c₀ ≤ c →
-        (c / π ^ 2) * Real.exp (π ^ 2 * (c ^ (-(1 / 3 : ℝ))) ^ 2 *
-          (A_opt + B.K_phys * c ^ (-(1 / 3 : ℝ)))) ≤ Δ → 0 < neg_h c Δ) := by
-  dsimp only
-  let A_opt : ℝ := |airyZero 1| / ceBeta1
-  have hgap : 0 < B.S_star - A_opt := by linarith [gt4_Aopt_lt_one, B.hS_star]
-  let L_min := min B.L_F B.L_star; have hLmin_pos : 0 < L_min := lt_min B.hL_F.1 B.hL_star.1
-  let c₀ : ℝ := max B.c_band (max (B.κ ^ 3)
-    (max ((|B.K_phys| / (B.S_star - A_opt)) ^ 3) ((π ^ 2 * (B.S_star + 1) / L_min) ^ (3 / 2 : ℝ))))
-  refine ⟨c₀, le_max_left _ _, ?_, ?_, ?_⟩
-  · intro c hc
-    have hc0 : 0 < c := by linarith [B.hc_band.trans ((le_max_left _ _).trans hc)]
-    have hκε := rpow_neg_third_le_of_cube_le (by linarith [B.hκ]) hc0
-      ((le_max_left _ _).trans ((le_max_right _ _).trans hc))
-    have hε2 : π ^ 2 * (c ^ (-(1 / 3 : ℝ))) ^ 2 * (B.S_star + 1) ≤ L_min := by
-      have h1 : π ^ 2 * (B.S_star + 1) / L_min ≤ c ^ (2 / 3 : ℝ) := by
-        calc π ^ 2 * (B.S_star + 1) / L_min = ((π ^ 2 * (B.S_star + 1) / L_min) ^ (3 / 2 : ℝ)) ^ (2 / 3 : ℝ) := by
-              rw [← Real.rpow_mul (by positivity [B.hS_star])]; norm_num
-          _ ≤ c ^ (2 / 3 : ℝ) := Real.rpow_le_rpow
-              (Real.rpow_nonneg (div_nonneg (mul_nonneg (sq_nonneg _) (by linarith [B.hS_star])) hLmin_pos.le) _)
-              ((le_max_right _ _).trans ((le_max_right _ _).trans ((le_max_right _ _).trans hc))) (by norm_num)
-      have hε2_eq : (c ^ (-(1 / 3 : ℝ))) ^ 2 = (c ^ (2 / 3 : ℝ))⁻¹ := by
-        rw [← Real.rpow_natCast _ 2, ← Real.rpow_mul hc0.le,
-          show (-(1 / 3 : ℝ)) * (2 : ℕ) = -(2 / 3 : ℝ) by norm_num, Real.rpow_neg hc0.le]
-      have hc23 : 0 < c ^ (2 / 3 : ℝ) := Real.rpow_pos_of_pos hc0 _
-      have hmul := (div_le_iff₀ hLmin_pos).mp h1
-      rw [hε2_eq]
-      calc π ^ 2 * (c ^ (2 / 3 : ℝ))⁻¹ * (B.S_star + 1) = (π ^ 2 * (B.S_star + 1)) * (c ^ (2 / 3 : ℝ))⁻¹ := by ring
-        _ ≤ (c ^ (2 / 3 : ℝ) * L_min) * (c ^ (2 / 3 : ℝ))⁻¹ := mul_le_mul_of_nonneg_right hmul (by positivity)
-        _ = L_min := by field_simp [hc23.ne']
-    have hKphys : A_opt + B.K_phys * c ^ (-(1 / 3 : ℝ)) ≤ B.S_star := by
-      have h1 := rpow_neg_third_le_of_cube_le (div_nonneg (abs_nonneg _) hgap.le) hc0
-        ((le_max_left _ _).trans ((le_max_right _ _).trans ((le_max_right _ _).trans hc)))
-      have h2 : |B.K_phys| * c ^ (-(1 / 3 : ℝ)) ≤ B.S_star - A_opt := by
-        rw [div_mul_eq_mul_div, div_le_one hgap] at h1; exact h1
-      linarith [mul_le_mul_of_nonneg_right (le_abs_self B.K_phys) (Real.rpow_nonneg hc0.le (-(1 / 3 : ℝ)))]
-    exact ⟨hκε, hε2, hKphys⟩
-  · intro c Δ hc hΔ0
-    have hc_b : B.c_band ≤ c := (le_max_left _ _).trans hc; have hc0 : 0 < c := by linarith [B.hc_band]
-    let ε : ℝ := c ^ (-(1 / 3 : ℝ)); have hε0 : 0 < ε := by positivity
-    by_cases h1 : Δ ≤ (c / π ^ 2) * Real.exp (-(π ^ 2 * B.U * ε ^ 2))
-    · exact B.band_F1 hc_b hΔ0 h1
-    · have hΔ_gt : (c / π ^ 2) * Real.exp (-(π ^ 2 * B.U * ε ^ 2)) < Δ := lt_of_not_ge h1
-      have hΔ_pos : 0 < Δ := lt_trans (by positivity [Real.pi_pos]) hΔ_gt
-      let L : ℝ := Real.log (π ^ 2 * Δ / c); let S : ℝ := L / (π ^ 2 * ε ^ 2)
-      have harg_gt : Real.exp (-(π ^ 2 * B.U * ε ^ 2)) < π ^ 2 * Δ / c := by
-        have h0 := div_lt_div_of_pos_right hΔ_gt (by positivity [Real.pi_pos] : 0 < c / π ^ 2)
-        rwa [mul_div_cancel_left₀ _ (by positivity [Real.pi_pos] : c / π ^ 2 ≠ 0),
-          show Δ / (c / π ^ 2) = π ^ 2 * Δ / c by field_simp [hc0.ne', Real.pi_ne_zero]] at h0
-      have hL_gt : -(π ^ 2 * B.U * ε ^ 2) < L := by
-        dsimp [L]; rw [← Real.log_exp (-(π ^ 2 * B.U * ε ^ 2))]; exact Real.log_lt_log (Real.exp_pos _) harg_gt
-      have hS_gt : -B.U ≤ S := le_of_lt ((lt_div_iff₀ (by positivity [Real.pi_pos])).mpr (by nlinarith [hL_gt]))
-      by_cases h2 : S ≤ B.S_star + 1
-      · exact B.band_F2 hc_b hΔ_pos hS_gt h2
-      · have hS_ge : B.S_star ≤ S := by linarith [lt_of_not_ge h2]
-        have hL_pos : 0 < L := by
-          rw [show L = S * (π ^ 2 * ε ^ 2) by dsimp [S]; field_simp [Real.pi_ne_zero, hε0.ne']]
-          exact mul_pos (by linarith [B.hS_star]) (by positivity [Real.pi_pos])
-        by_cases h3 : L ≤ B.L_F
-        · exact B.band_F3 hc_b hΔ_pos hS_ge hL_pos h3
-        · exact B.band_F4 hc_b hΔ_pos (le_of_not_ge h3)
-  · intro c Δ hc hΔ
-    have hc_b : B.c_band ≤ c := (le_max_left _ _).trans hc; have hc0 : 0 < c := by linarith [B.hc_band]
-    let ε : ℝ := c ^ (-(1 / 3 : ℝ)); have hε0 : 0 < ε := by positivity
-    have hΔ_pos : 0 < Δ := lt_of_lt_of_le (by positivity [Real.pi_pos]) hΔ
-    let L : ℝ := Real.log (π ^ 2 * Δ / c); let S : ℝ := L / (π ^ 2 * ε ^ 2)
-    have harg_ge : Real.exp (π ^ 2 * ε ^ 2 * (A_opt + B.K_phys * ε)) ≤ π ^ 2 * Δ / c := by
-      have h1 := (div_le_div_of_nonneg_right hΔ (by positivity [Real.pi_pos] : 0 ≤ c / π ^ 2))
-      rwa [mul_div_cancel_left₀ _ (by positivity [Real.pi_pos] : c / π ^ 2 ≠ 0),
-        show Δ / (c / π ^ 2) = π ^ 2 * Δ / c by field_simp [hc0.ne', Real.pi_ne_zero]] at h1
-    have hL_ge : π ^ 2 * ε ^ 2 * (A_opt + B.K_phys * ε) ≤ L := by
-      dsimp [L]; rw [← Real.log_exp (π ^ 2 * ε ^ 2 * (A_opt + B.K_phys * ε))]; exact Real.log_le_log (Real.exp_pos _) harg_ge
-    have hS_ge : A_opt + B.K_phys * ε ≤ S := (le_div_iff₀ (by positivity [Real.pi_pos])).mpr (by linarith)
-    by_cases h1 : S ≤ B.S_star + 1
-    · exact B.band_P1 hc_b hΔ_pos hS_ge h1
-    · have hS_star_le : B.S_star ≤ S := by linarith [lt_of_not_ge h1]
-      have hL_pos : 0 < L := by
-        rw [show L = S * (π ^ 2 * ε ^ 2) by dsimp [S]; field_simp [Real.pi_ne_zero, hε0.ne']]
-        exact mul_pos (by linarith [B.hS_star]) (by positivity [Real.pi_pos])
-      by_cases h2 : L ≤ B.L_star
-      · exact B.band_P2 hc_b hΔ_pos hS_star_le hL_pos h2
-      · by_cases h3 : L ≤ B.L_far
-        · exact B.band_P3 hc_b hΔ_pos (le_of_not_ge h2) h3
-        · exact B.band_P4 hc_b hΔ_pos (le_of_not_ge h3)
-
-/-- **Parameter-ordering existence & 8-band global coverage (`GT.4`):** models the exact
-order of choices in `ce_o1_global_transfer.tex` and outputs global positivity for `fhat` on
-`[0, ∞)` and `neg_h` above the `A_opt + K_phys ε` edge. -/
-theorem gt4_parameter_order_and_coverage {fhat neg_h : ℝ → ℝ → ℝ} (hBands : Nonempty (GT4CoverageBands fhat neg_h)) :
-    ∃ (S_star L_F L_star κ L_far U Δ₁ K_phys c₀ : ℝ),
-      100 ≤ S_star ∧ 0 < L_F ∧ L_F ≤ 0.002 ∧ 0 < L_star ∧ L_star ≤ 0.002 ∧
-      1 ≤ κ ∧ L_star < L_far ∧ 1 ≤ U ∧ 1 ≤ Δ₁ ∧ 1 ≤ c₀ ∧
-      (∀ {c : ℝ}, c₀ ≤ c → κ * c ^ (-(1 / 3 : ℝ)) ≤ 1 ∧ π ^ 2 * (c ^ (-(1 / 3 : ℝ))) ^ 2 * (S_star + 1) ≤ min L_F L_star ∧
-        |airyZero 1| / ceBeta1 + K_phys * c ^ (-(1 / 3 : ℝ)) ≤ S_star) ∧
-      (∀ {c Δ : ℝ}, c₀ ≤ c → 0 ≤ Δ → 0 < fhat c Δ) ∧
-      (∀ {c Δ : ℝ}, c₀ ≤ c → (c / π ^ 2) * Real.exp (π ^ 2 * (c ^ (-(1 / 3 : ℝ))) ^ 2 *
-          (|airyZero 1| / ceBeta1 + K_phys * c ^ (-(1 / 3 : ℝ)))) ≤ Δ → 0 < neg_h c Δ) := by
-  rcases hBands with ⟨B⟩; obtain ⟨c₀, hc₀, hord, hF, hP⟩ := gt4_coverage_of_bands B
-  exact ⟨B.S_star, B.L_F, B.L_star, B.κ, B.L_far, B.U, B.Δ₁, B.K_phys, c₀, B.hS_star, B.hL_F.1, B.hL_F.2,
-    B.hL_star.1, B.hL_star.2, B.hκ, B.hL_far, B.hU, B.hΔ₁, B.hc_band.trans hc₀, hord, hF, hP⟩
-
-/-- Explicit non-vacuity witness for `GT4CoverageBands`, `gt4_coverage_of_bands`, and
-`gt4_parameter_order_and_coverage`. -/
-theorem gt4_coverage_nonvacuous :
-    let fhat : ℝ → ℝ → ℝ := fun _ _ => 1; let neg_h : ℝ → ℝ → ℝ := fun _ _ => 1
-    ∃ B : GT4CoverageBands fhat neg_h, Nonempty (GT4CoverageBands fhat neg_h) ∧
-      (∃ c₀ ≥ B.c_band, (∀ {c Δ : ℝ}, c₀ ≤ c → 0 ≤ Δ → 0 < fhat c Δ) ∧
-        (∀ {c Δ : ℝ}, c₀ ≤ c → (c / π ^ 2) * Real.exp (π ^ 2 * (c ^ (-(1 / 3 : ℝ))) ^ 2 *
-          (|airyZero 1| / ceBeta1 + B.K_phys * c ^ (-(1 / 3 : ℝ)))) ≤ Δ → 0 < neg_h c Δ)) := by
-  let B : GT4CoverageBands (fun _ _ => 1) (fun _ _ => 1) :=
-    { S_star := 100, hS_star := le_rfl, L_F := 0.002, hL_F := ⟨by norm_num, le_rfl⟩, L_star := 0.002,
-      hL_star := ⟨by norm_num, le_rfl⟩, κ := 1, hκ := le_rfl, L_far := 1, hL_far := by norm_num,
-      U := 1, hU := le_rfl, Δ₁ := 1, hΔ₁ := le_rfl, K_phys := 0, c_band := 1, hc_band := le_rfl,
-      band_F1 := fun _ _ _ => one_pos, band_F2 := fun _ _ _ _ => one_pos, band_F3 := fun _ _ _ _ _ => one_pos,
-      band_F4 := fun _ _ _ => one_pos, band_P1 := fun _ _ _ _ => one_pos, band_P2 := fun _ _ _ _ _ => one_pos,
-      band_P3 := fun _ _ _ _ => one_pos, band_P4 := fun _ _ _ => one_pos }
-  obtain ⟨c₀, hc₀, _, hF, hP⟩ := gt4_coverage_of_bands B
-  exact ⟨B, ⟨B⟩, c₀, hc₀, hF, hP⟩
-
 /-! ## Section 5: Axiom hygiene guards -/
 
 /-- info: 'FormalResearch.CohnElkies.norm_mainEdgeAmp_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -1365,22 +855,12 @@ theorem gt4_coverage_nonvacuous :
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.twoScaleS_rescaled_mass_bound
 /-- info: 'FormalResearch.CohnElkies.gt3b_far_fourier_transfer' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.gt3b_far_fourier_transfer
-/-- info: 'FormalResearch.CohnElkies.pf2_physical_far_sign' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.pf2_physical_far_sign
-/-- info: 'FormalResearch.CohnElkies.pf5_physical_compact_sign' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.pf5_physical_compact_sign
 /-- info: 'FormalResearch.CohnElkies.cardinal_b1_sq_sub_c1_sq_asymptotic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.cardinal_b1_sq_sub_c1_sq_asymptotic
 /-- info: 'FormalResearch.CohnElkies.twoScaleF0_at_a1_asymptotic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.twoScaleF0_at_a1_asymptotic
 /-- info: 'FormalResearch.CohnElkies.twoScaleFc_at_a1_asymptotic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.twoScaleFc_at_a1_asymptotic
-/-- info: 'FormalResearch.CohnElkies.gt4_coverage_of_bands' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.gt4_coverage_of_bands
-/-- info: 'FormalResearch.CohnElkies.gt4_parameter_order_and_coverage' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.gt4_parameter_order_and_coverage
-/-- info: 'FormalResearch.CohnElkies.gt4_coverage_nonvacuous' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.gt4_coverage_nonvacuous
 
 end FormalResearch.CohnElkies
 

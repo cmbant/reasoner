@@ -11,6 +11,8 @@ public import FormalResearch.SignUncertainty.ShellGap
 public import FormalResearch.SignUncertainty.ShellGapWitness
 public import FormalResearch.SignUncertainty.ShellLaplaceZeros
 public import FormalResearch.SignUncertainty.OddShellFamily
+public import FormalResearch.SignUncertainty.Radii
+public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
 /-!
@@ -29,7 +31,8 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.HankelFiveHalvesWitness`: explicit `c = 5/2` (`d = 5`) Bessel
   `J_{3/2}` non-vacuity witness for Proposition 7.9a.
 * `FormalResearch.SignUncertainty.SignSeparation`: odd Laguerre origin constraint (`Prop 7.9b`)
-  and sign separation of bounded remainders (`Thm 7.9c`, `general_theorems.tex`).
+  and sign separation of bounded remainders (`Thm 7.9c`, `general_theorems.tex`) from
+  `SignSeparationPackage` (Airy-order thresholds and `C¹` profile convergence; no Langer chart).
 * `FormalResearch.SignUncertainty.ShellLaplaceBase`: Airy–Laplace transform, `ShellHBData`,
   even-`m` Laplace sign, factored ODE, and one-profile LP reduction (`ce_shells.tex`, Prop `H.14'`).
 * `FormalResearch.SignUncertainty.ShellGap`: conditional Mellin origin-floor (`shell_reduction_lower`)
@@ -40,6 +43,12 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   near-`0⁺` and large-`y` positivity, and `m = 3` trichotomy (`ce_shells.tex`, Corollary `H.14b`).
 * `FormalResearch.SignUncertainty.OddShellFamily`: analytic odd-level Hermite–Biehler shell gap
   configurations (`ce_shells.tex`, Corollary `H.14a` / `thm:ce-odd-family`) for every odd `m ≥ 3`.
+* `FormalResearch.SignUncertainty.Radii`: concrete Euclidean radii `A_sign^±(d)`, the prescribed-shell
+  Cohn–Elkies class and `u_LP`, the Bessel-kernel Hankel thresholds, and the bridge to the abstract
+  `HankelKernelData` development (`sign_uncertainty_core.tex`, introduction).
+* `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
+  `thm_intro_separation`, `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
+  whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
 * `FormalResearch.CohnElkies`: Stieltjes/cardinal resolvent, Mellin–Airy, lobe saddle,
   finite-dimensional Gaussian, and Fourier interpolation lemmas.
 -/
