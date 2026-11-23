@@ -19,8 +19,9 @@ Source: `CFT/sign_uncertainty/paper/ce_shells.tex` (PR 240, commit `58dd780c8`).
   `∀ y > 0, 0 ≤ airyLaplace (-G_N) y` (`one_profile_threshold_le_and_endpoint_iff`), and
   attainment of `u_LP` (`one_profile_maximizer_exists` with `airyCompactnessModel_nonvacuous`).
 
-(Companion modules `ShellGap`, `ShellGapWitness`, and `ShellLaplaceZeros` treat the conditional
-Mellin origin-floor / subsequential core of Theorem `H.14` and Corollary `H.14b`.)
+(Companion modules: `ShellGapExtract` proves the extraction and constraint system of Theorem `H.14`
+(`hankelShellGapLimit_proved`, conclusion `TwoProfileFeasible`), and `ShellLaplaceZeros` treats
+Corollary `H.14b`.)
 -/
 
 @[expose] public section

@@ -22,9 +22,9 @@ Source: `CFT/modular_bootstrap/paper/spectral_rigidity.tex` (Property `sr:P`, (P
 * `combDesignData_of_eventually`: comb data `(P1)`-`(P4)` from statements `∀ᶠ c in atTop` about a
   family of functionals `g_c`, for every `CrossingSequence` (the finitely many bad `c_j` are replaced by
   `g_j = 0`).
-* `combDesignData_design`: `CombDesignData S (designWin N hη d)` for every Virasoro crossing sequence.
-* **`designPropertyP_virasoro`**: `DesignPropertyP S.μS designClass` for every `S : CrossingSequence
-  virasoroProblem`, proved from the Lean ingredients (`design1_k7_membership_vacuum`,
+* `combDesignData_design`: `CombDesignData S (designWin N hη d)` for every crossing sequence of a weight-one problem.
+* **`designPropertyP_prob`**: `DesignPropertyP S.μS designClass` for every `S : CrossingSequence prob`, `prob.w = 1`;
+  **`designPropertyP_virasoro`** is `prob = virasoroProblem`.  Proved from the Lean ingredients (`design1_k7_membership_vacuum`,
   `proposition_I_design_t`, `lemma_W_measure`, `lemma_ID`, `proposition_V_i`, `designG_nonneg`).
 
 All results are proved unconditionally.
@@ -88,26 +88,27 @@ lemma designWin_mem {N : ℕ} {η : ℝ} (hη : 0 < η) (hN : 1 ≤ N) (hη1 : �
 /-! ### Comb data from statements for large `c` -/
 
 /-- The statements about `g_c` for large `c` that make up `CombDesignData`. -/
-structure EventualCombData (D : Window) where
+structure EventualCombData (prob : FixedWeightProblem) (D : Window) where
   g : ℝ → ℝ → ℝ
   scale : ℝ → ℝ
   tf : ℝ → ℝ
-  good : ∀ᶠ c in atTop, 0 < c ∧ 0 < scale c ∧ TestClass virasoroProblem (c / 12) (g c) ∧
+  good : ∀ᶠ c in atTop, 0 < c ∧ 0 < scale c ∧ TestClass prob (c / 12) (g c) ∧
     (∃ C : ℝ, 0 ≤ C ∧ ∀ t : ℝ, 0 ≤ t →
       |g c t| ≤ C * Real.exp (-4 * π * √(c / 12 * t) - π * √(3 * t / c))) ∧
     0 ≤ tf c + 1 ∧ ∀ t : ℝ, tf c + 1 ≤ t → 0 ≤ g c t
   theta : Tendsto (fun c => uAiry c (tf c + 1)) atTop (𝓝 D.uF)
   window : ∀ R : ℝ, 0 ≤ R → ∀ ε : ℝ, 0 < ε → ∀ᶠ c in atTop, ∀ u ∈ Icc (-R) R,
-    |scale c * psiAiry virasoroProblem c (g c) u - D.W u| ≤ ε
+    |scale c * psiAiry prob c (g c) u - D.W u| ≤ ε
   limsup : ∀ ε : ℝ, 0 < ε → ∀ᶠ c in atTop,
-    ∫ u, scale c * psiAiry virasoroProblem c (g c) u ≤ D.V + ε
+    ∫ u, scale c * psiAiry prob c (g c) u ≤ D.V + ε
 
 open Classical in
 /-- `(P1)`-`(P4)` for the crossing sequence `S` from the statements for large `c`: the finitely many
 `j` with `c_j` outside the good set get `g_j = 0`. -/
-noncomputable def EventualCombData.toComb {D : Window} (E : EventualCombData D)
-    (S : CrossingSequence virasoroProblem) : CombDesignData S D := by
-  let good : ℝ → Prop := fun c => 0 < c ∧ 0 < E.scale c ∧ TestClass virasoroProblem (c / 12) (E.g c) ∧
+noncomputable def EventualCombData.toComb {prob : FixedWeightProblem} {D : Window}
+    (E : EventualCombData prob D)
+    (S : CrossingSequence prob) : CombDesignData S D := by
+  let good : ℝ → Prop := fun c => 0 < c ∧ 0 < E.scale c ∧ TestClass prob (c / 12) (E.g c) ∧
     (∃ C : ℝ, 0 ≤ C ∧ ∀ t : ℝ, 0 ≤ t →
       |E.g c t| ≤ C * Real.exp (-4 * π * √(c / 12 * t) - π * √(3 * t / c))) ∧
     0 ≤ E.tf c + 1 ∧ ∀ t : ℝ, E.tf c + 1 ≤ t → 0 ≤ E.g c t
@@ -124,7 +125,7 @@ noncomputable def EventualCombData.toComb {D : Window} (E : EventualCombData D)
       by_cases h : good (S.c j)
       · simp only [h, ite_true]; exact h.2.2.1
       · simp only [h, ite_false]
-        simpa using (thermalDiff_mem_TestClass virasoroProblem (S.shift_le j)
+        simpa using (thermalDiff_mem_TestClass prob (S.shift_le j)
           (by norm_num : (0 : ℝ) < 1 / 2)).smul 0
     decay := fun j => by
       by_cases h : good (S.c j)
@@ -165,26 +166,26 @@ noncomputable def EventualCombData.toComb {D : Window} (E : EventualCombData D)
 /-- The eventual comb data of any window `D` whose window function is the Airy window `sigWinW N η σs` of
 the `f = 1` finite modification with offsets `σs` (first site `σs 1`, sites `2..N` arbitrary, so displaced
 sites and a first site anywhere on the real line are allowed) and whose first site is `u_f = -κ σ_1`. -/
-noncomputable def sigEventual (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη : 0 < η) (hη1 : η ≤ 1 / 4)
+noncomputable def sigEventual (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη : 0 < η) (hη1 : η ≤ 1 / 4)
     (σs : ℕ → ℝ) (D : Window) (hW : D.W = sigWinW N η σs)
-    (hF : D.uF = -(kappaAiry * σs 1)) : EventualCombData D where
+    (hF : D.uF = -(kappaAiry * σs 1)) : EventualCombData prob D where
   g := sigG N η σs
-  scale := psiScale
+  scale := psiScale prob
   tf := sigTf σs
   good := by
-    filter_upwards [sigGood_eventually N hN hη.le hη1 σs, sigG_nonneg N hN hη hη1 σs]
+    filter_upwards [sigGood_eventually prob hw N hN hη.le hη1 σs, sigG_nonneg N hN hη hη1 σs]
       with c hgood hpos
-    refine ⟨hpos.1, psiScale_pos hpos.1, hgood.testClass, hgood.decay, ?_,
+    refine ⟨hpos.1, psiScale_pos prob hpos.1, hgood.testClass, hgood.decay, ?_,
       fun t ht => (hpos.2 t ht).le⟩
     have := hpos.1
     unfold sigTf; positivity
   theta := by rw [hF]; exact uAiry_sigTf σs
   window := fun R hR ε hε => by
-    rw [hW]; exact sig_psi_uniform N hN hη hη1 σs hR hε
+    rw [hW]; exact sig_psi_uniform prob hw N hN hη hη1 σs hR hε
   limsup := fun ε hε => by
     have hV : D.V = windowIntegralSig N η σs := by
       unfold Window.V windowIntegralSig; rw [hW]; rfl
-    rw [hV]; exact sig_psi_limsup N hN hη.le hη1 σs hε
+    rw [hV]; exact sig_psi_limsup prob hw N hN hη.le hη1 σs hε
 
 lemma designWin_W_eq_sig (N : ℕ) {η : ℝ} (hη : 0 < η) (d : ℝ) :
     (designWin N hη d).W = sigWinW N η (designSigma1 d) := by
@@ -200,28 +201,40 @@ lemma designWin_uF_eq_sig (N : ℕ) {η : ℝ} (hη : 0 < η) (d : ℝ) :
   ring
 
 /-- The eventual comb data of the design `D(N, η_*, d)`. -/
-noncomputable def designEventual (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη : 0 < η) (hη1 : η ≤ 1 / 4)
-    (d : ℝ) : EventualCombData (designWin N hη d) :=
-  sigEventual N hN hη hη1 (designSigma1 d) (designWin N hη d) (designWin_W_eq_sig N hη d)
+noncomputable def designEventual (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη : 0 < η) (hη1 : η ≤ 1 / 4)
+    (d : ℝ) : EventualCombData prob (designWin N hη d) :=
+  sigEventual prob hw N hN hη hη1 (designSigma1 d) (designWin N hη d) (designWin_W_eq_sig N hη d)
     (designWin_uF_eq_sig N hη d)
 
 /-- **`(P1)`-`(P4)` for the designs**: `CombDesignData S (designWin N hη d)` for every Virasoro
 crossing sequence `S`. -/
-noncomputable def combDesignData_design (S : CrossingSequence virasoroProblem) (N : ℕ) (hN : 1 ≤ N)
+noncomputable def combDesignData_design (prob : FixedWeightProblem) (hw : prob.w = 1)
+    (S : CrossingSequence prob) (N : ℕ) (hN : 1 ≤ N)
     {η : ℝ} (hη : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ) : CombDesignData S (designWin N hη d) :=
-  (designEventual N hN hη hη1 d).toComb S
+  (designEventual prob hw N hN hη hη1 d).toComb S
 
-/-- **Property `sr:P` for the Virasoro designs**: every window `D(N, η_*, d)` of `designClass` carries a
-design test for the spectral measures `μ_S` of every Virasoro crossing sequence. -/
-theorem designPropertyP_virasoro (S : CrossingSequence virasoroProblem) :
+/-- **Property `sr:P` for the designs of every weight-one problem**: every window `D(N, η_*, d)` of
+`designClass` carries a design test for the spectral measures `μ_S` of every crossing sequence `S` of
+`prob` (`prob.w = 1`). -/
+theorem designPropertyP_prob (prob : FixedWeightProblem) (hw : prob.w = 1) (S : CrossingSequence prob) :
     DesignPropertyP S.μS designClass := by
   refine designPropertyP_of_comb S fun D hD => ?_
   obtain ⟨N, η, d, hη, hN, hη1, rfl⟩ := hD
-  exact ⟨combDesignData_design S N hN hη hη1 d⟩
+  exact ⟨combDesignData_design prob hw S N hN hη hη1 d⟩
+
+/-- **Property `sr:P` for the Virasoro designs**: every window `D(N, η_*, d)` of `designClass` carries a
+design test for the spectral measures `μ_S` of every Virasoro crossing sequence `S`. -/
+theorem designPropertyP_virasoro (S : CrossingSequence virasoroProblem) :
+    DesignPropertyP S.μS designClass :=
+  designPropertyP_prob virasoroProblem rfl S
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.designWinW_hasSum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms designWinW_hasSum
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.designPropertyP_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms designPropertyP_prob
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.designPropertyP_virasoro' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

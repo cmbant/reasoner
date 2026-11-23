@@ -116,18 +116,29 @@ lemma profWin_mem_displacedClassX {N : ℕ} {η : ℝ} (hη : 0 < η) {e : ℕ �
       (fun _ hk => designWidthU_ne_zero N hη hk) d ∈ displacedClassX :=
   ⟨N, η, e, d, hη, hH, hN, hη1, he, rfl⟩
 
-/-- **Property `sr:P` for the displaced and far-first-site designs**: every window of `displacedClassX`
-carries a design test for the spectral measures `μ_S` of every Virasoro crossing sequence `S`. -/
-theorem displacedPropertyP_virasoro (S : CrossingSequence virasoroProblem) :
+/-- **Property `sr:P` for the displaced and far-first-site designs**, every weight-one problem: every window
+of `displacedClassX` carries a design test for the spectral measures `μ_S` of every crossing sequence `S` of
+`prob` (`prob.w = 1`). -/
+theorem displacedPropertyP_prob (prob : FixedWeightProblem) (hw : prob.w = 1) (S : CrossingSequence prob) :
     DesignPropertyP S.μS displacedClassX := by
   refine designPropertyP_of_comb S fun D hD => ?_
   obtain ⟨N, η, e, d, hη, hH, hN, hη1, he, rfl⟩ := hD
-  refine ⟨(sigEventual N hN hη hη1 (dispSigma d e) _ ?_ ?_).toComb S⟩
+  refine ⟨(sigEventual prob hw N hN hη hη1 (dispSigma d e) _ ?_ ?_).toComb S⟩
   · funext u
     rw [profWin_W]
     show (profW (dispSite N e) (designWidthU N η) d (u : ℂ)).re = (sigWindowW N η (dispSigma d e) (u : ℂ)).re
     rw [sigWindowW_dispSite N η d e he]
   · rw [profWin_uF, dispSigma_one]
+
+/-- **Property `sr:P` for the displaced and far-first-site designs**: every window of `displacedClassX`
+carries a design test for the spectral measures `μ_S` of every Virasoro crossing sequence `S`. -/
+theorem displacedPropertyP_virasoro (S : CrossingSequence virasoroProblem) :
+    DesignPropertyP S.μS displacedClassX :=
+  displacedPropertyP_prob virasoroProblem rfl S
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.displacedPropertyP_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms displacedPropertyP_prob
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.displacedPropertyP_virasoro' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

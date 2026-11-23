@@ -8,11 +8,19 @@ public import FormalResearch.CohnElkies.OuterWeightedBound
 Source: `CFT/sign_uncertainty/paper/u1c_o1_upper.tex`, Lemma `O.3`(2) (`u1co:O3`, `(e4)`), proof in `u1c_estimate_proofs.tex`: for `δ₀ = β₁ K ε / 2`,
 `K ≥ 1`, `M₁ ≥ 1`, `c ≥ max(2000, 8K³)` and `S ≥ max(100, M₁ K^{-2} c^{2/3})`,
 `|I_main[F](ξ) - 𝒜_F(ξ)| ≤ C_HB [M₁^{-m/2} + K^{-m} + S^{-1/2}] 𝒜_F(ξ)`.
+Here the Lean statements are the absolute form `|I_main - 𝒜| ≤ C [M₁^{-m/2} + K^{-m} + S^{-1/2}] A^{-3/2}/(2π ξ)` with `𝒜 = γ₀ √π A^{-3/2}/(2π ξ)`,
+`A = π² S`, for one fixed seed (`hb_estimate_airySeed`, `hb_estimate_hbSeed_m1`) or for any `X` with square-root data (`hb_estimate_of_sqData`); the
+relative form `≤ C' [...] |𝒜|` needs `γ₀ ≠ 0` (`hb_estimate_airySeed_rel`).
 
 The `χ_ξ`-part is Piece C (`pieceC_main_term_smooth`, with the regularity `SmoothSymbol` of `G_sm` proved in `SeedSqrtForm`); the `(1-χ_ξ)`-part is
 the weighted outer bound (`outer_amplitude`, `outer_bound_small_L`, `outer_bound_large_tau`, with the `(e27)` data of `ImagAxisBounds`).
 
 Status: proved, unconditional.
+
+Not formalised: (i) the identification of the leading coefficient with the paper's `γ₀(F) = c_s^{1/2} 2^{2/3} π^{-1/2} β_∞(F)`: here `γ₀ = -c_s^{1/2} B(0)`
+is the square-root coefficient of the seed's twisted Laplace transform, and the statements only assert that this `γ₀` works (it is unique, since the error
+is relatively `o(1)`); (ii) uniformity of `C` over a bounded family of seeds: `C` depends on the seed (for `hb_estimate_hbSeed_m1`, on `γ₁, γ₂, δ, r`) and on `m`,
+and is independent of `K, M₁, c, ξ` only; (iii) the second claim of `O.3`(2), `|I_main| ≤ C_{L₀}(1 + K^{-m}) ξ^{-1} c^{-1}` for `L ≥ L₀`.
 -/
 
 @[expose] public section
@@ -313,6 +321,9 @@ lemma close_aux {C1 C2 C3 a b R x : ℝ} (hC1 : 0 ≤ C1) (hC2 : 0 ≤ C2) (hC3 
 /-! ### The `(1 - χ_ξ)`-part -/
 
 set_option maxHeartbeats 1600000 in
+/-- **`O.3(2)`, the `(1 - χ_ξ)`-part of `I_main`.** For a symbol with `SymbolTail` data (`(e27)` off `|v| ≤ 1`) and a cut-off `χ`, the outer part
+`(2πξ)⁻¹ ∫ (1 - χ(ε v / τ_*(L))) K₀ W dv` has norm `≤ C (M₁^{-m/2} + K^{-m}) A^{-3/2}/(2π ξ)` in the parameter range of `(e4)` (`δ₀ = β₁ K ε / 2`,
+`K, M₁ ≥ 1`, `c ≥ max(2000, 8K³)`, `S ≥ max(100, M₁ K^{-2} c^{2/3})`); `C` depends on `CG, Kχ, m` only. -/
 theorem hb_outer {X : ℝ → ℝ} {CG : ℝ} (hCG : 0 ≤ CG)
     (hG : SymbolTail (fun v : ℝ => airyTwistedLaplaceC X (yv v)) CG) {χ : ℝ → ℝ} {Kχ : ℝ} (hχ : CutoffData χ Kχ)
     {m : ℕ} (hm : 1 ≤ m) :
@@ -580,6 +591,9 @@ lemma hbA_eq_div {c ξ : ℝ} (hc : 0 < c) : hbA c ξ = Real.log (Real.pi ^ 2 * 
   field_simp
   linear_combination (Real.log (Real.pi ^ 2 * ξ)) * h3
 
+/-- **`O.3(2)`, the `χ_ξ`-part of `I_main` (Piece C).** If the subtracted symbol `G_sm` has `SmoothSymbol` regularity, then
+`(2πξ)⁻¹ ∫ χ(v/v_*) K₀ W dv = γ₀ √π A^{-3/2}/(2π ξ) + O(S^{-1/2} A^{-3/2}/(2π ξ))` for `δ₀ = β₁ K ε / 2`, `K ≥ 1`, `c ≥ max(2000, 8K³)`, `S ≥ 100`,
+with `v_* = τ_*(L)/ε`; `C` depends on `CG`, `γ₀`, `χ`, `Kχ`, `m` only. -/
 theorem hb_inner (X : ℝ → ℝ) (γ₀ CG : ℝ) {χ : ℝ → ℝ} {Kχ : ℝ} (hχ : CutoffData χ Kχ)
     (hG : SmoothSymbol (fun v : ℝ => airyTwistedLaplaceC X ((ceCs : ℂ) * ((v : ℂ) * Complex.I)) +
         (γ₀ : ℂ) * (Complex.I * (v : ℂ)) ^ (1 / 2 : ℂ) * Complex.exp (Complex.I * ((Real.pi ^ 2 / 36 * v ^ 3 : ℝ) : ℂ)) * (χ v : ℂ)) CG)
@@ -747,7 +761,9 @@ theorem hb_estimate_of_sqData {X : ℝ → ℝ} (hU2 : HasU2 X) {A B : ℂ → �
     mul_nonneg (mul_nonneg hCo.le hS12) hP, mul_nonneg (mul_nonneg hCi.le hM1) hP, mul_nonneg (mul_nonneg hCi.le hK1) hP]
 
 /-- **`O.3(2)`, `(e4)`, for every one-level seed** `a f₁ + b g₁ + c g₁'` (absolute form).  The leading coefficient `γ₀` is the square-root
-coefficient `-c_s^{1/2} B(0)` of the seed's twisted Laplace transform; the constants depend on the seed and on `m`, and nothing else is assumed. -/
+coefficient `-c_s^{1/2} B(0)` of the seed's twisted Laplace transform; the constants `γ₀, C` depend on the seed `(a, b, c₀)` and on `m`, and not on
+`K, M₁, c, ξ`. Not formalised: the identification `γ₀ = c_s^{1/2} 2^{2/3} π^{-1/2} β_∞(F)`, uniformity of `C` over a bounded family of seeds, and the `L ≥ L₀`
+second claim of `O.3`(2). -/
 theorem hb_estimate_airySeed (a b c₀ : ℝ) {m : ℕ} (hm : 1 ≤ m) :
     ∃ γ₀ : ℝ, ∃ C > 0, ∀ {K M₁ c ξ : ℝ}, 1 ≤ K → 1 ≤ M₁ → 8 * K ^ 3 ≤ c → 2000 ≤ c → 0 < ξ → 100 ≤ hbS c ξ →
       M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ) ≤ hbS c ξ →
@@ -780,7 +796,8 @@ theorem hb_estimate_airySeed_rel (a b c₀ : ℝ) {m : ℕ} (hm : 1 ≤ m) :
   rw [Complex.norm_real, Real.norm_eq_abs, mul_div_assoc, abs_mul, abs_mul, abs_of_pos hsq, abs_of_nonneg hP]
   field_simp
 
-/-- **`(e4)` for the `m₀ = 1` Hermite–Biehler seed** (the one-level seed `F_δ` with `δ`-dependent coefficients), absolute form. -/
+/-- **`(e4)` for the `m₀ = 1` Hermite–Biehler seed** (the one-level seed `F_δ` with `δ`-dependent coefficients), absolute form. The seed
+parameters `γ₁, γ₂, δ, r` are fixed before `C` is chosen, so `C` is not uniform in `δ` (the paper's `δ = K c^{-1/3}` varies with `c`). -/
 theorem hb_estimate_hbSeed_m1 (γ₁ γ₂ δ r : ℝ) {m : ℕ} (hm : 1 ≤ m) :
     ∃ γ₀ : ℝ, ∃ C > 0, ∀ {K M₁ c ξ : ℝ}, 1 ≤ K → 1 ≤ M₁ → 8 * K ^ 3 ≤ c → 2000 ≤ c → 0 < ξ → 100 ≤ hbS c ξ →
       M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ) ≤ hbS c ξ →

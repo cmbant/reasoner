@@ -3,7 +3,11 @@ module
 public import FormalResearch.SignUncertainty.ClarkTwoNode
 public import FormalResearch.SignUncertainty.HermiteBiehlerUniq
 public import FormalResearch.SignUncertainty.RadialRigidity
+public import FormalResearch.SignUncertainty.HankelPowerSeries
+public import FormalResearch.SignUncertainty.HankelStripInversion
+public import FormalResearch.SignUncertainty.HankelWtBasics
 public import FormalResearch.SignUncertainty.HardyMellinIntertwiner
+public import FormalResearch.SignUncertainty.HankelCpowBounds
 public import FormalResearch.SignUncertainty.HankelFiveHalvesWitness
 public import FormalResearch.SignUncertainty.SignSeparation
 public import FormalResearch.SignUncertainty.HankelBessel
@@ -17,12 +21,15 @@ public import FormalResearch.SignUncertainty.HankelBesselNat
 public import FormalResearch.SignUncertainty.HankelBesselLaguerre
 public import FormalResearch.SignUncertainty.RadialCompactnessKernel
 public import FormalResearch.SignUncertainty.ShellLaplaceBase
-public import FormalResearch.SignUncertainty.ShellGap
-public import FormalResearch.SignUncertainty.ShellGapWitness
 public import FormalResearch.SignUncertainty.ShellLaplaceZeros
 public import FormalResearch.SignUncertainty.OddShellFamily
 public import FormalResearch.SignUncertainty.ElementaryIdentities
 public import FormalResearch.SignUncertainty.Radii
+public import FormalResearch.SignUncertainty.HankelLangerChart
+public import FormalResearch.SignUncertainty.HankelLangerChartMain
+public import FormalResearch.SignUncertainty.HankelLangerReal
+public import FormalResearch.SignUncertainty.HankelLangerU
+public import FormalResearch.SignUncertainty.HankelLangerY
 public import FormalResearch.SignUncertainty.HankelMellinKernel
 public import FormalResearch.SignUncertainty.MellinStrip
 public import FormalResearch.SignUncertainty.MellinStripAnalytic
@@ -69,6 +76,9 @@ public import FormalResearch.SignUncertainty.RadialCompactnessProof
 public import FormalResearch.SignUncertainty.OneProfileEnvelope
 public import FormalResearch.SignUncertainty.ThreeLinesUnit
 public import FormalResearch.SignUncertainty.LaplaceWeight
+public import FormalResearch.SignUncertainty.NoshiroRouche
+public import FormalResearch.SignUncertainty.HankelLangerSeries
+public import FormalResearch.SignUncertainty.HankelLangerIdentity
 public import FormalResearch.SignUncertainty.EuclidSplit
 public import FormalResearch.SignUncertainty.EuclidRadialSlice
 public import FormalResearch.SignUncertainty.EuclidRadialFourier
@@ -83,6 +93,12 @@ public import FormalResearch.SignUncertainty.HankelInversion
 public import FormalResearch.SignUncertainty.ShellGapHankel
 public import FormalResearch.SignUncertainty.WindowKernelApprox
 public import FormalResearch.SignUncertainty.WindowTranslation
+public import FormalResearch.SignUncertainty.ShellGapMassRatio
+public import FormalResearch.SignUncertainty.ShellGapWeight
+public import FormalResearch.SignUncertainty.ShellGapLaplace
+public import FormalResearch.SignUncertainty.ShellGapMellin
+public import FormalResearch.SignUncertainty.ShellGapTransport
+public import FormalResearch.SignUncertainty.ShellGapExtract
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
@@ -113,10 +129,6 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   clause of `lem:radial-compactness`; the compactness argument itself is not formalised).
 * `FormalResearch.SignUncertainty.ShellLaplaceBase`: Airy–Laplace transform, `ShellHBData`,
   even-`m` Laplace sign, factored ODE, and one-profile LP reduction (`ce_shells.tex`, Prop `H.14'`).
-* `FormalResearch.SignUncertainty.ShellGap`: conditional Mellin origin-floor (`shell_reduction_lower`)
-  and packaged subsequential core of Theorem `H.14` (`theorem_H14_subseq_bounds`, `theorem_H14_strict_gap`).
-* `FormalResearch.SignUncertainty.ShellGapWitness`: explicit `ShellHBData.airy` (`m = 1`)
-  consistency witnesses for `ShellGapPackage` and `ShellReductionPackage`.
 * `FormalResearch.SignUncertainty.ShellLaplaceZeros`: positive zero multiplicity `≤ m - 1`,
   near-`0⁺` and large-`y` positivity, and `m = 3` trichotomy (`ce_shells.tex`, Corollary `H.14b`).
 * `FormalResearch.SignUncertainty.OddShellFamily`: analytic odd-level Hermite–Biehler shell gap
@@ -167,6 +179,12 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.OneProfileEnvelope`: `gt:3.1` in the form used by `prop:ce-one-profile`: every `H ∈ 𝒢`
 * `FormalResearch.SignUncertainty.ThreeLinesUnit`: Hadamard three lines on the closed unit strip in the hypothesis form of `eq:ce-three-lines` (`three_lines_unit`, a restatement of the Mathlib theorem), boundedness of `mellinW` on the closed strip (`mellinW_bddAbove_strip`, from `norm_mellinW_le`), and two real-power facts. No headline uses it yet; it serves the origin-floor estimate of `thm:ce-shell-gap`.
 * `FormalResearch.SignUncertainty.LaplaceWeight`: the real Laplace weight `W_c(y,Δ) = Re(1/K₀(ζ_c, Δ/c))` of the proof of Theorem `H.14` (`eq:ce-laplace-limit`): positivity, the Gamma form, the exact scaling in `Δ`, and the limit `exp(-y³/12 + y u)` at `Δ = c/π² - (u/β₁)c^{1/3}` (from `radialK_tendsto`).
+* `FormalResearch.SignUncertainty.HankelPowerSeries`, `HankelCpowBounds`, `HankelLangerChart`, `HankelLangerU`, `HankelLangerY`, `HankelLangerReal`: the Hankel Langer chart of `gt:7.7b` (0)-(iv), step 1 of the Hankel lower half (M5). In the variable `u = ζ²` the saddle equation `g(ζ) = s` is `K(u) = 12 s/π²` with `K(u) = u G(u)`; `K` is injective with a holomorphic inverse on `ball 0 q` (`q = 0.035²`, Noshiro + Rouché) and `ũ = c^{2/3} κ y(w)`, `y = (π²/12) M(K^{-1}(12 s/π²))`, `M(u) = u E(u)^{2/3}`: `|y + w| ≤ 1.9e-3 |w|`, `|y' + 1| ≤ 4e-3`, `y` injective, onto small discs, real and strictly decreasing on the real axis, `y(0) = 0` (coefficient hypothesis `LangerEta`: `0 < η_j ≤ 1`, `η_0 = π²/12`).
+* `FormalResearch.SignUncertainty.HankelStripInversion`: `hankelWt` (`W̃_c`) and `hankel_inversion_line`, the exact inversion `(ρ₀ f)(cξ) = (2πξ)^{-1} ∫ K₀(σ+iτ, ξ) W̃_c(σ+iτ) dτ` on any line `Re ζ = σ` with `cσ > 1` (`mat:T2`(2), `(e32)`; `radial_xi_repr` is the case `σ = ε_c`).
+* `FormalResearch.SignUncertainty.HankelWtBasics`: `‖W̃_c(ζ)‖ ≤ M[f] ‖1+ζ‖^{1/2} e^{1/(6c)}` on `0 ≤ Re ζ < 1` and holomorphy of `W̃_c` on `0 < Re ζ < 1`.
+* `FormalResearch.SignUncertainty.NoshiroRouche`: Noshiro–Warschawski injectivity on a convex set (`injOn_of_re_deriv_pos`), unique root of a perturbation of the identity via Rouché (`exists_unique_root_of_perturb`), and the regression `not_injOn_sq`; used by the Hankel Langer chart (`gt:7.7b`).
+* `FormalResearch.SignUncertainty.HankelLangerSeries`: coefficient facts for the Hankel Langer chart (`gt:7.7b` (0)): `etaC j = η(2j+2)` with `0 < etaC j < 1` and `etaC 0 = π²/12`, the normalised coefficients `langerA`, `langerB` and their bounds, the tail bounds `abs_eps_le` (`≤ 7.46e-4`) and `abs_E_sub_one_le_035` (`≤ 8.95e-4`) on `‖z‖ ≤ 0.035`, and the binomial bound `‖(1+x)^α - 1‖ ≤ 1 - (1-‖x‖)^α`. The series identity `π/sin(πz) - 1/z = 2∑η(2j+2)z^{2j+1}` is not formalised here.
+* `FormalResearch.SignUncertainty.HankelLangerIdentity`: the series identity `π/sin(πz) - 1/z = 2∑η(2j+2)z^{2j+1}` for `0 < ‖z‖ < 1` (`langer_eta_identity`) and, for `‖z‖ < 1/8`, `log(tan(πz/2)/(πz/2)) = ∑η(2j+2)/(j+1) z^{2j+2}` with its derivative (`langer_g_hasSum`, `langer_g_eq_tsum`, `langer_g_hasDerivAt`).
   with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
   `one_profile_envelope`.
 * `FormalResearch.SignUncertainty.EuclidSplit`, `EuclidRadialSlice`, `EuclidRadialFourier`, `EuclidRadialHankel`: the
@@ -188,6 +206,18 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   and `fourier_radial_hankel`) and the projections `(G ± 𝓗_c G)/2 ∈ 𝒜_c^{±1}`.
 * `FormalResearch.SignUncertainty.ShellGapHankel`: `ShellGapLimit` (`thm:ce-shell-gap`, Euclidean) and its Hankel-level form
   `HankelShellGapLimit`; `shellGapLimit_of_hankel` derives the former from the latter in every dimension `d ≥ 2`.
+* `FormalResearch.SignUncertainty.ShellGapMassRatio`: `thm:ce-shell-gap` step (a), `mass_ratio_bdd` (the ratio `M[p]/M[q]` is bounded when
+  `T ≤ c/π² - (u₀/β₁)c^{1/3} + o(c^{1/3})`, via `normalized_compactness`, `deep_lobe_mass_thm` and the identity theorem), and its Hankel-profile
+  form `hankelShell_mass_ratio_bdd`, with `h(0) = M[ĥ]`, `∫ f = 0` and `q ≠ 0` for `HankelShellProfile`.
+* `FormalResearch.SignUncertainty.ShellGapWeight`: weighted tails of Hankel eigenfunctions against the Laplace weight
+  `laplaceWeight` (regions I and II of the proof of `eq:ce-laplace-limit`; `right_tail_weighted`).
+* `FormalResearch.SignUncertainty.ShellGapLaplace`: window-variable bridges and the Laplace limit `laplace_limit`
+  (`eq:ce-laplace-limit`: `∫ g ρ₀ W / μ → ∫ G e^{-y³/12 + yu}`).
+* `FormalResearch.SignUncertainty.ShellGapMellin`: the Mellin reflection gives `∫ (p - q) ρ₀ W ≥ 0` (`weighted_nonneg`).
+* `FormalResearch.SignUncertainty.ShellGapTransport`: mass transport for the limit profile (`mass_transport`:
+  `‖Q‖₁ ≤ 1`, `∫ Q ≤ 0`, `∫_{u_*}^∞ Q_- ≥ 1/2`).
+* `FormalResearch.SignUncertainty.ShellGapExtract`: `extract_two` and `hankelShellGapLimit_proved`, the theorem
+  `thm:ce-shell-gap` (Hankel form) with all constraints of `eq:ce-laplace-constraint`.
 * `FormalResearch.SignUncertainty.RadialCompactness`: the statement of `lem:radial-compactness` (`RadialCompactness`:
   window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it

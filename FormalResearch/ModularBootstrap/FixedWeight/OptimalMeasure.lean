@@ -20,7 +20,8 @@ Generalises `Duality.OptimalMeasure` to every fixed-weight problem `prob : Fixed
   - `TheoremC15UpperInput prob` (the `O(1)` upper half of Theorem C15 / Theorem ctu.5,
     `thm:fixed-weight-expansion`; proved for `virasoroProblem` by
     `Upper.Ramped.theoremC15UpperInput_virasoro` through the ramped comb of Lemma U*,
-    `CFT/notes/n2_ramped_comb.tex` `rem:thmU`; open for general `prob`);
+    `CFT/notes/n2_ramped_comb.tex` `rem:thmU`, and for every `prob` with `prob.w = 1`, in particular
+    `N = 1` super-Virasoro, by `Upper.Ramped.theoremC15UpperInput_prob`; open for `w > 1`);
   - `WeakThresholdLowerBoundAt` (satisfied unconditionally at `virasoroProblem` by
     `Integration.theoremA_T_V`), with non-vacuity theorems `thresholdLowerBoundAt_nonvacuous`,
     `thresholdUpperBoundAt_nonvacuous`, and `weakThresholdLowerBound_virasoro`.
@@ -76,7 +77,7 @@ def ThresholdUpperBoundAt (T : ℝ → ℝ) (shift : ℝ) : Prop :=
 /-- **Unproved input (Theorem C15 / Theorem ctu.5, `thm:fixed-weight-expansion`)**:
 for a fixed-weight problem `prob`, there exist `c₂ ≥ max 1 (12 S)` and `D_+ ≥ 0` such that
 `T_V(c̃) ≤ T_*(c̃) + D_+` for all `c̃ ≥ c₂`. (Proved for `virasoroProblem` by `Upper.Ramped.theoremC15UpperInput_virasoro`, the `O(1)` upper
-half via Lemma U* of `n2_ramped_comb.tex` `rem:thmU`; open for general `prob`.) -/
+half via Lemma U* of `n2_ramped_comb.tex` `rem:thmU`; for every `prob` with `prob.w = 1` by `Upper.Ramped.theoremC15UpperInput_prob`; open for `w > 1`.) -/
 def TheoremC15UpperInput (prob : FixedWeightProblem) : Prop :=
   ThresholdUpperBoundAt prob.T_V prob.totalShift
 
