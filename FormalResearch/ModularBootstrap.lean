@@ -205,6 +205,18 @@ public import FormalResearch.ModularBootstrap.Upper.Window.ContinuumPotential
 public import FormalResearch.ModularBootstrap.Upper.Window.LobeAndTail
 public import FormalResearch.ModularBootstrap.Upper.Window.WindowLimit
 public import FormalResearch.ModularBootstrap.Upper.Window.Identification
+public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWDefs
+public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWAnalytic
+public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWMidline
+public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWReal
+public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWHalfPlane
+public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWContour
+public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWDp
+public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWZWitness
+public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWZSeg
+public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWZCombine
+public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWZ
+public import FormalResearch.ModularBootstrap.FixedWeightBand.TruncationWBridge
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -673,4 +685,18 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `refApproxLimit_eq_exp_mul_airyAi_sq`, `refApproxLimit_eq_cStar_mul_airyAi_sq`, `lemma_ID`, and
   `lemma_ID_design` identifying `tildeW` with `CStarF f * kappaAiry * (airyWindowProd ...).re`
   and `designWindowW`), all unconditional.
+
+* `FixedWeightBand.TruncationW{Defs, Analytic, Midline, Real, HalfPlane, Contour, Dp, ZWitness, ZSeg, ZCombine, Z, Bridge}`:
+  **Lemma D'** (`vlo:Dp`, truncation error of the Mellin integral) and **Lemma Z** (`vlo:Z`) at every fixed
+  `(w, Q)`, unconditional.  `truncatedMellinPW prob` (Mellin line `Re z = w/2`, density
+  `Γ(z)(2π t)^{-z} m_g(z)`, weight `cardyVC`); `lemma_Dp_W` (`D : UniformPropositionPData prob`:
+  `‖P - Ψ̃‖ ≤ C e^{-d c'} airyEnv` on the inner disc, from the midline tail, `truncatedMellinPW_real_err`,
+  the saddle-contour bound `truncatedMellinPW_inner_bound`, and `psiTilde_typeII_envelope_general`); the witness
+  `ZWitnessW D` with `zScaleCapW D`, `lemma_Z_seg_bound_W`, `lemma_Z_combine_envelope_W`, and `lemma_Z_W`
+  (interior bound on `tildeWW prob.w` on the saddle sector `⇒ YVEnvBound (psiTilde prob c' g) c' R (C_B Λ)`).  New
+  against weight one: the Stirling^(w) prefactor `(3ω/(2π b²))^{(w-1)/2}`, the threshold `stirThr w / c_Γ`, and the
+  chart-disc cap `|b - ξ_*| ≤ r₁` for the complex weight bound `cardyVC_inner_bound`.  Bridge: `lemma_Dp_of_W`,
+  `lemma_Z_of_W` (Virasoro statements at `w = 1`), `lemma_Z_W_band` (annulus form).  The weight-`w` band-feedback
+  bridge `YVInputFor` and the scale choice (`VirasoroBridge`, `VirasoroScaleChoice`) need the weight-`w`
+  Proposition `Y_V` and are not formalised.
 -/
