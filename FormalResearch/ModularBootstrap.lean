@@ -182,6 +182,9 @@ public import FormalResearch.ModularBootstrap.FixedWeightBand.MellinWBridge
 public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaS2WKernel
 public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaS2W
 public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaS2WBridge
+public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaS4WGrowth
+public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaS4W
+public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaS4WBridge
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -573,4 +576,15 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (`κ = D(3μ₀/π, ξ_*/2) > 0`); `lemma_S2_W`: for `g ∈ TestClass prob (c'/12)` the Mellin integral converges absolutely and
   `|m_g(w/2 + c'ω)| ≤ C e^{c' B(ω)} M[g]`.  Bridge `LemmaS2WBridge`: `lemma_S2_of_W` (the Virasoro `ComplexBessel.lemma_S2` as the
   `w = 1` instance), non-vacuity `lemma_S2_W_thermalDiff`.
+* `FixedWeightBand.{LemmaS4WGrowth, LemmaS4W, LemmaS4WBridge}`: **Lemma `S4`** (`vlo:S4`, bounded antisymmetric
+  multiplier, `lower_o1_two_edge.tex` §J2) at every fixed weight `w ≥ 1` and every `Q`, unconditional.
+  `tildeWW w c' g ζ = exp(-c'Υ(ζ)) m_g(w/2 + c'ω(ζ))` is holomorphic on `0 < Re ζ < 1`, continuous on the closed strip,
+  antisymmetric under `ζ ↦ 1 - ζ` (the reflection `z ↦ w - z` of `vlo:S1` is `ω ↦ -ω` for `z = w/2 + c'ω`,
+  `tildeWW_reflect`) and bounded by `C M[g]` for `c' ≥ c₀`, `g ∈ TestClass prob (c'/12)` (`lemma_S4_W`; edge bound from
+  `lemma_S2_W` and `Re Υ(iτ) = B(ω(iτ))`, `PhragmenLindelof.vertical_strip`, growth `|tildeWW| ≤ M[g] exp(K(1+|Im ζ|)^4)`
+  in the left half-strip where `Re ω ≥ 0` gives `Re z ≥ w/2`).  `LemmaS4WGrowth`: the explicit-constant Taylor-term
+  bound `cardyV_ge_pow_explicit` (`V(t) ≥ A E^j t^{w-1+m+j}/((m+j+w-1)! j!)`), `rpow_le_exp_mul_cardyV`
+  (`t^{r-1} ≤ exp(K(1+r)²) V(t)` on `[1, ∞)`) and `norm_mellinMGW_le_exp` (`|m_g(z)| ≤ M[g] exp(K(1+|z|)²)` for
+  `Re z ≥ 1/2`).  Bridge `LemmaS4WBridge`: `tildeWW 1 = StripMultiplier.tildeWV`, `StripMultiplier.lemma_S4` as the `w = 1`
+  instance (`lemma_S4_of_W`), non-vacuity `lemma_S4_W_thermalDiff`.
 -/
