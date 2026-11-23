@@ -136,6 +136,7 @@ public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
 public import FormalResearch.ModularBootstrap.FixedWeight.StrongDuality
 public import FormalResearch.ModularBootstrap.FixedWeight.OptimalMeasure
+public import FormalResearch.ModularBootstrap.FixedWeight.LittleOUpper
 public import FormalResearch.ModularBootstrap.WeightAxioms.BesselGeneral
 public import FormalResearch.ModularBootstrap.WeightAxioms.KernelAndPositivity
 public import FormalResearch.ModularBootstrap.WeightAxioms.ComplexAsymptotics
@@ -430,4 +431,9 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `hole_limit_K5`, `hole_floor_K5`, `band_overshoot_K5`, `muHole_four_quarter_gt`, `muHole_one_ge`),
   and **Lemma `K6`** (`cmb:K6`: `band_upper_K6a_mul`, `band_upper_K6a`, `band_upper_K6a_r0`,
   `band_upper_K6a_bdd`, `lobe_upper_K6b`, `lobe_upper_K6b_blaschke`), all unconditional.
+* `FixedWeight.LittleOUpper`: Corollary `E1` with the `o(c^{1/3})` upper bound `ThresholdUpperLittleOAt`
+  in place of the O(1) upper bound `TheoremC15UpperInput` (`corollary_E1_littleO`), its non-vacuity
+  (`thresholdUpperLittleOAt_nonvacuous`), the implication O(1) to `o(c^{1/3})`
+  (`ThresholdUpperBoundAt.littleO`), and the Virasoro instance `virasoro_corollary_E1_littleO`
+  (lower bound unconditional by `virasoro_lowerBoundInput`).
 -/
