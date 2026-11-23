@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.SignUncertainty.SignSeparation
+public import FormalResearch.SignUncertainty.HankelFiveHalvesWitness
 public import FormalResearch.SignUncertainty.ShellLaplaceBase
 public import FormalResearch.CohnElkies.CohnElkiesRadius
 
@@ -197,6 +198,47 @@ theorem hankelT0_eq_hankelT {c : ℝ} (hc : 0 < c) (hK : ∃ K : HankelKernelDat
     (by obtain ⟨T, f, hf⟩ := hne; exact ⟨T, f, (K.isFeasible_iff hK _ _ _).2 hf⟩)
     (by rwa [K.threshold_eq hK])
   rwa [K.thresholdZeroOrigin_eq hK, K.threshold_eq hK] at h
+
+/-! ### Consistency check at `c = 5/2` (`d = 5`, `J_{3/2}`) -/
+
+/-- The concrete kernel at `c = 5/2` is the explicit `J_{3/2}` kernel `phi52` of
+`HankelFiveHalvesWitness` (Poisson integral with `(1 - t²)¹`). -/
+theorem hankelPhi_five_halves (w : ℝ) : hankelPhi (5 / 2) w = phi52 w := by
+  unfold hankelPhi phi52
+  have hG : Real.Gamma (5 / 2) = 3 / 4 * √π := by
+    have h1 : Real.Gamma (5 / 2) = 3 / 2 * Real.Gamma (3 / 2) := by
+      rw [show (5 / 2 : ℝ) = 3 / 2 + 1 by norm_num, Real.Gamma_add_one (by norm_num)]
+    have h2 : Real.Gamma (3 / 2) = 1 / 2 * Real.Gamma (1 / 2) := by
+      rw [show (3 / 2 : ℝ) = 1 / 2 + 1 by norm_num, Real.Gamma_add_one (by norm_num)]
+    rw [h1, h2, Real.Gamma_one_half_eq]; ring
+  have hG2 : Real.Gamma (5 / 2 - 1 / 2) = 1 := by
+    rw [show (5 / 2 - 1 / 2 : ℝ) = 2 by norm_num]
+    exact Real.Gamma_two
+  have hexp : ∀ t : ℝ, (1 - t ^ 2) ^ ((5 / 2 : ℝ) - 3 / 2) = 1 - t ^ 2 := fun t => by
+    rw [show (5 / 2 : ℝ) - 3 / 2 = 1 by norm_num, Real.rpow_one]
+  simp_rw [hexp]
+  set g : ℝ → ℝ := fun t => (1 - t ^ 2) * Real.cos (4 * π * √w * t) with hg
+  have hgc : Continuous g := by
+    refine ((continuous_const.sub (continuous_id.pow 2)).mul ?_)
+    exact Real.continuous_cos.comp (continuous_const.mul continuous_id)
+  have hsplit : ∫ t in (-1 : ℝ)..1, g t = 2 * ∫ t in (0 : ℝ)..1, g t := by
+    rw [← intervalIntegral.integral_add_adjacent_intervals (b := 0)
+      (hgc.intervalIntegrable _ _) (hgc.intervalIntegrable _ _)]
+    have : ∫ t in (-1 : ℝ)..0, g t = ∫ t in (0 : ℝ)..1, g t := by
+      have h := intervalIntegral.integral_comp_neg (a := 0) (b := 1) (fun t => g t)
+      rw [neg_zero] at h
+      simp only [hg, neg_sq, Real.cos_neg, mul_neg] at h ⊢
+      rw [← h]
+    rw [this]; ring
+  rw [hsplit, hG, hG2]
+  have hπ : √π ≠ 0 := (Real.sqrt_pos.2 Real.pi_pos).ne'
+  field_simp
+  ring
+
+/-- Consistency of the concrete kernel with the earlier explicit development: at `c = 5/2` the
+statement `bessel_kernel_data` is a theorem. -/
+theorem hankelKernelData_five_halves : ∃ K : HankelKernelData (5 / 2), K.φ = hankelPhi (5 / 2) :=
+  ⟨hankelKernel_fiveHalves, by funext w; exact (hankelPhi_five_halves w).symm⟩
 
 end Bridge
 
