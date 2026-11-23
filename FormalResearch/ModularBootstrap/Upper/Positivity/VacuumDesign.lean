@@ -51,15 +51,15 @@ lemma combProfile_design_ofReal {c' x : ℝ} (hx : 0 ≤ x) (hc' : 0 < c') (N : 
 
 /-- Lemma `W` with Lemma `ID` for the modifications `sigMod N η σs` (arbitrary offsets): see
 `design_window_pointwise`, the case `σs = designSigma1 d`. -/
-theorem sig_window_pointwise (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
+theorem sig_window_pointwise (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
     {S : ℝ} (hS : 0 ≤ S) (n1 : ℕ) {ε' : ℝ} (hε' : 0 < ε') :
     ∀ᶠ c' in atTop, ∀ σ ∈ Icc (-S) (phiWKB (n1 + 1)),
       combProfile c' (designComb c' 1 N (1 / 4) (σs) (designWidth1 c' η))
           (c' * (xiStar + lambdaComb c' * σ) ^ 2 / 3) *
-        Crossing.virasoroProblem.cardyV (c' / 12) (c' * (xiStar + lambdaComb c' * σ) ^ 2 / 3) *
+        prob.cardyV (c' / 12) (c' * (xiStar + lambdaComb c' * σ) ^ 2 / 3) *
         ((2 * c' * (xiStar + lambdaComb c' * σ) / 3) * lambdaComb c') ≤
-      FKc 1 1 c' * (CStar * kappaAiry * (sigWindowW N η σs ((-kappaAiry * σ : ℝ) : ℂ)).re + ε') := by
-  obtain ⟨C₀, hC₀, hW⟩ := lemma_W_measure Crossing.virasoroProblem
+      FKc (qProb prob) 1 c' * (CStar * kappaAiry * (sigWindowW N η σs ((-kappaAiry * σ : ℝ) : ℂ)).re + ε') := by
+  obtain ⟨C₀, hC₀, hW⟩ := lemma_W_measure prob
     (sigModFamily N hN hη0 hη1 σs) hS n1 ε' hε'
   filter_upwards [eventually_ge_atTop C₀, sigProfile_re_eq_modifiedH0 N hη0 hη1 σs,
     eventually_gt_atTop (0 : ℝ), lambda_mul_le S xiStar_pos] with c' hc hE2 hcpos hlam σ hσ
@@ -69,23 +69,23 @@ theorem sig_window_pointwise (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ �
     nlinarith
   have h := hW hc (sigMod N η σs) (sigModFamily_mem N hN hη0 hη1 σs) σ hσ
   simp only [] at h
-  rw [windowMeasureNormK_virasoro hcpos, tildeW_sigMod N hN η σs σ] at h
-  have hFK := FKc_pos (q := 1) one_pos 1 hcpos
+  rw [windowMeasureNormK_eq prob hw hcpos, tildeW_sigMod N hN η σs σ] at h
+  have hFK := FKc_pos (qProb_pos prob) 1 hcpos
   rw [combProfile_sig_ofReal hx hcpos, hE2]
   have h4 := (div_le_iff₀ hFK).mp (sub_le_iff_le_add.mp (abs_le.mp h).2)
   linarith
 
-theorem design_window_pointwise (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ)
+theorem design_window_pointwise (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ)
     {S : ℝ} (hS : 0 ≤ S) (n1 : ℕ) {ε' : ℝ} (hε' : 0 < ε') :
     ∀ᶠ c' in atTop, ∀ σ ∈ Icc (-S) (phiWKB (n1 + 1)),
       combProfile c' (designComb c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η))
           (c' * (xiStar + lambdaComb c' * σ) ^ 2 / 3) *
-        Crossing.virasoroProblem.cardyV (c' / 12) (c' * (xiStar + lambdaComb c' * σ) ^ 2 / 3) *
+        prob.cardyV (c' / 12) (c' * (xiStar + lambdaComb c' * σ) ^ 2 / 3) *
         ((2 * c' * (xiStar + lambdaComb c' * σ) / 3) * lambdaComb c') ≤
-      FKc 1 1 c' * (CStar * kappaAiry * (designWindowW N η d ((-kappaAiry * σ : ℝ) : ℂ)).re + ε') :=
+      FKc (qProb prob) 1 c' * (CStar * kappaAiry * (designWindowW N η d ((-kappaAiry * σ : ℝ) : ℂ)).re + ε') :=
   by
   simp only [designWindowW_eq_sig]
-  exact sig_window_pointwise N hN hη0 hη1 (designSigma1 d) hS n1 hε'
+  exact sig_window_pointwise prob hw N hN hη0 hη1 (designSigma1 d) hS n1 hε'
 
 lemma xOf_le_of_le {c' t y : ℝ} (hc' : 0 < c') (hy : 0 ≤ y) (ht : t ≤ c' * y ^ 2 / 3) :
     xOf c' t ≤ y := by
@@ -98,15 +98,15 @@ lemma xOf_le_of_le {c' t y : ℝ} (hc' : 0 < c') (hy : 0 ≤ y) (ht : t ≤ c' *
 
 /-- `h₀ V ≤ 0` on the negative lobe `x < χ'_1` for arbitrary offsets `σs` (the pairs `2..N` are positive
 whatever their position): see `design_lobe_nonpos`, the case `σs = designSigma1 d`. -/
-theorem sig_lobe_nonpos (N : ℕ) {η : ℝ} (σs : ℕ → ℝ) {S : ℝ}
+theorem sig_lobe_nonpos (prob : Crossing.FixedWeightProblem) (N : ℕ) {η : ℝ} (σs : ℕ → ℝ) {S : ℝ}
     (hS : |σs 1| < S) :
     ∀ᶠ c' in atTop, ∀ t ∈ Ioc 0 (c' * (xiStar + lambdaComb c' * (-S)) ^ 2 / 3),
       combProfile c' (designComb c' 1 N (1 / 4) (σs) (designWidth1 c' η)) t *
-        Crossing.virasoroProblem.cardyV (c' / 12) t ≤ 0 := by
+        prob.cardyV (c' / 12) t ≤ 0 := by
   obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
   have hS0 : 0 ≤ S := (abs_nonneg _).trans hS.le
   filter_upwards [h_ev, lambda_mul_le S xiStar_pos, eventually_gt_atTop (0 : ℝ),
-    eventually_ge_atTop (24 : ℝ)] with c' ⟨_, _, _, hgap⟩ hlam hcpos hc24 t ht
+    eventually_ge_atTop (12 * prob.totalShift)] with c' ⟨_, _, _, hgap⟩ hlam hcpos hcS t ht
   have hlpos := lambdaComb_pos' hcpos
   have hy0 : 0 ≤ xiStar + lambdaComb c' * (-S) := by linarith
   have hx := xOf_le_of_le hcpos hy0 ht.2
@@ -118,8 +118,8 @@ theorem sig_lobe_nonpos (N : ℕ) {η : ℝ} (σs : ℕ → ℝ) {S : ℝ}
       mul_lt_mul_of_pos_left hσ1 hlpos
     unfold designSite
     linarith
-  have hV : 0 ≤ Crossing.virasoroProblem.cardyV (c' / 12) t :=
-    Crossing.virasoroProblem.cardyV_nonneg (by rw [Crossing.virasoroProblem_totalShift]; linarith) ht.1.le
+  have hV : 0 ≤ prob.cardyV (c' / 12) t :=
+    prob.cardyV_nonneg (by linarith) ht.1.le
   refine mul_nonpos_of_nonpos_of_nonneg ?_ hV
   have hre := designComb_re_nonpos_of_lt hcpos (by norm_num : (0 : ℝ) ≤ 1 / 4) le_rfl hgap N
     (σs) (designWidth1 c' η) (xOf_nonneg c' t) hx1
@@ -127,28 +127,28 @@ theorem sig_lobe_nonpos (N : ℕ) {η : ℝ} (σs : ℕ → ℝ) {S : ℝ}
   rw [sechSqProfile_ofReal, Complex.re_ofReal_mul]
   exact mul_nonpos_of_nonneg_of_nonpos (by positivity) hre
 
-theorem design_lobe_nonpos (N : ℕ) {η : ℝ} (d : ℝ) {S : ℝ}
+theorem design_lobe_nonpos (prob : Crossing.FixedWeightProblem) (N : ℕ) {η : ℝ} (d : ℝ) {S : ℝ}
     (hS : |designSigma1 d 1| < S) :
     ∀ᶠ c' in atTop, ∀ t ∈ Ioc 0 (c' * (xiStar + lambdaComb c' * (-S)) ^ 2 / 3),
       combProfile c' (designComb c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η)) t *
-        Crossing.virasoroProblem.cardyV (c' / 12) t ≤ 0 :=
-  sig_lobe_nonpos N (designSigma1 d) hS
+        prob.cardyV (c' / 12) t ≤ 0 :=
+  sig_lobe_nonpos prob N (designSigma1 d) hS
 
 /-- `h₀ V` is continuous on `[0, ∞)` and integrable on `(0, ∞)` for arbitrary offsets `σs`: see
 `design_integrand_props`, the case `σs = designSigma1 d`. -/
-theorem sig_integrand_props (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) (M : ℝ)
+theorem sig_integrand_props (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) (M : ℝ)
     (hM : ∀ k, 1 ≤ k → k ≤ N → |σs k| ≤ M) :
     ∀ᶠ c' in atTop,
       ContinuousOn (fun t => combProfile c' (designComb c' 1 N (1 / 4) (σs) (designWidth1 c' η)) t *
-        Crossing.virasoroProblem.cardyV (c' / 12) t) (Ici 0) ∧
+        prob.cardyV (c' / 12) t) (Ici 0) ∧
       IntegrableOn
       (fun t => combProfile c' (designComb c' 1 N (1 / 4) (σs) (designWidth1 c' η)) t *
-        Crossing.virasoroProblem.cardyV (c' / 12) t) (Ioi 0) := by
+        prob.cardyV (c' / 12) t) (Ioi 0) := by
   obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
-  filter_upwards [sig1_k7_membership_vacuum (prob := Crossing.virasoroProblem) rfl N hN hη0 hη1 σs M hM,
+  filter_upwards [sig1_k7_membership_vacuum hw N hN hη0 hη1 σs M hM,
     designComb_innerCombHyp 1 N le_rfl hN M Cg (by norm_num : (0 : ℝ) ≤ 1 / 4) le_rfl, h_ev,
-    eventually_gt_atTop (0 : ℝ), eventually_ge_atTop (24 : ℝ)]
-    with c' hK7 hInner ⟨hgap_k, hgap_1_bd, hcd1_bd, _⟩ hpos hc24
+    eventually_gt_atTop (0 : ℝ), eventually_ge_atTop (12 * prob.totalShift)]
+    with c' hK7 hInner ⟨hgap_k, hgap_1_bd, hcd1_bd, _⟩ hpos hcS
   have hI := hInner (σs) (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
     (fun k hk hkN => ⟨mul_nonneg hη0 (siteGap_nonneg hpos (by omega)), by
       have hgk := (hgap_k k (by omega)).trans (hgap_1_bd.trans hcd1_bd)
@@ -158,22 +158,22 @@ theorem sig_integrand_props (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η
         _ = Cg * lambdaComb c' := one_mul _⟩)
   obtain ⟨C, hC0, hdec, -⟩ := hK7
   have hcont := hI.continuousOn_combProfile hpos
-  have hk := kernelIntegrable_of_decay (w := 1) le_rfl hpos hcont hdec
-  exact ⟨hcont.mul (Crossing.continuous_cardyV Crossing.virasoroProblem (c' / 12)).continuousOn,
-    integrableOn_mul_cardyV (prob := Crossing.virasoroProblem)
-      (by rw [Crossing.virasoroProblem_totalShift]; linarith) hcont hk⟩
+  have hk := kernelIntegrable_of_decay (w := prob.w) prob.hw hpos hcont hdec
+  exact ⟨hcont.mul (Crossing.continuous_cardyV prob (c' / 12)).continuousOn,
+    integrableOn_mul_cardyV (prob := prob)
+      (by linarith) hcont hk⟩
 
 /-- `h₀ V` is continuous on `[0, ∞)` and integrable on `(0, ∞)` for the designs (decay of `h₀` and
 Lemma `K7`). -/
-theorem design_integrand_props (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d M : ℝ)
+theorem design_integrand_props (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d M : ℝ)
     (hM : ∀ k, 1 ≤ k → k ≤ N → |designSigma1 d k| ≤ M) :
     ∀ᶠ c' in atTop,
       ContinuousOn (fun t => combProfile c' (designComb c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η)) t *
-        Crossing.virasoroProblem.cardyV (c' / 12) t) (Ici 0) ∧
+        prob.cardyV (c' / 12) t) (Ici 0) ∧
       IntegrableOn
       (fun t => combProfile c' (designComb c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η)) t *
-        Crossing.virasoroProblem.cardyV (c' / 12) t) (Ioi 0) :=
-  sig_integrand_props N hN hη0 hη1 (designSigma1 d) M hM
+        prob.cardyV (c' / 12) t) (Ioi 0) :=
+  sig_integrand_props prob hw N hN hη0 hη1 (designSigma1 d) M hM
 
 /-! ### Axiom checks -/
 

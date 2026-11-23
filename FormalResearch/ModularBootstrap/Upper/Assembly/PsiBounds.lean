@@ -8,7 +8,7 @@ public import FormalResearch.ModularBootstrap.Upper.Assembly.Chart
 Source: `CFT/modular_bootstrap/paper/spectral_rigidity.tex` ((P3), the window limit of `Ψ_g`),
 `upper_transfer.tex` (`ut:W`, `ut:ID`, `ut:G`; `edge_transform_sd.tex`, `esd:global`).
 
-For the design `D(N, η_*, d)`, `t = c x²/3`, `x = ξ_* + λσ`, `dt/dσ = (2 c x/3) λ`, `FK_c = FKc 1 1 c`:
+For the design `D(N, η_*, d)`, `t = c x²/3`, `x = ξ_* + λσ`, `dt/dσ = (2 c x/3) λ`, `FK_c = FKc (qProb prob) 1 c`:
 
 * `design_part1`: `h₀(t) V(t) (dt/dσ) / FK_c → C_* κ Re W(-κσ)`, uniformly for `σ ∈ [-S, Φ_{N₁+1}]`
   (Lemma `W` with Lemma `ID`; two-sided form of `design_window_pointwise`);
@@ -44,14 +44,14 @@ lemma designWinW_eq_sig (N : ℕ) (η d : ℝ) : designWinW N η d = sigWinW N �
 
 /-- **Lemma `W` + Lemma `ID` for the finite modifications with arbitrary offsets, two-sided**: see
 `design_part1`, the case `σs = designSigma1 d`. -/
-theorem sig_part1 (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
+theorem sig_part1 (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
     {S : ℝ} (hS : 0 ≤ S) (n1 : ℕ) {ε' : ℝ} (hε' : 0 < ε') :
     ∀ᶠ c in atTop, ∀ σ ∈ Icc (-S) (phiWKB (n1 + 1)),
       |combProfile c (sigBc N η σs c) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) *
-          virasoroProblem.cardyV (c / 12) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) *
-          ((2 * c * (xiStar + lambdaComb c * σ) / 3) * lambdaComb c) / FKc 1 1 c -
+          prob.cardyV (c / 12) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) *
+          ((2 * c * (xiStar + lambdaComb c * σ) / 3) * lambdaComb c) / FKc (qProb prob) 1 c -
         CStar * kappaAiry * sigWinW N η σs (-kappaAiry * σ)| ≤ ε' := by
-  obtain ⟨C₀, hC₀, hW⟩ := lemma_W_measure virasoroProblem
+  obtain ⟨C₀, hC₀, hW⟩ := lemma_W_measure prob
     (sigModFamily N hN hη0 hη1 σs) hS n1 ε' hε'
   filter_upwards [eventually_ge_atTop C₀, sigProfile_re_eq_modifiedH0 N hη0 hη1 σs,
     eventually_gt_atTop (0 : ℝ), lambda_mul_le S xiStar_pos] with c hc hE2 hcpos hlam σ hσ
@@ -61,29 +61,29 @@ theorem sig_part1 (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : 
     nlinarith
   have h := hW hc (sigMod N η σs) (sigModFamily_mem N hN hη0 hη1 σs) σ hσ
   simp only [] at h
-  rw [windowMeasureNormK_virasoro hcpos, tildeW_sigMod N hN η σs σ] at h
+  rw [windowMeasureNormK_eq prob hw hcpos, tildeW_sigMod N hN η σs σ] at h
   unfold sigBc sigWinW
   rw [combProfile_sig_ofReal hx hcpos, hE2]
   exact h
 
 /-- **Lemma `W` + Lemma `ID` for the designs, two-sided.** -/
-theorem design_part1 (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ)
+theorem design_part1 (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ)
     {S : ℝ} (hS : 0 ≤ S) (n1 : ℕ) {ε' : ℝ} (hε' : 0 < ε') :
     ∀ᶠ c in atTop, ∀ σ ∈ Icc (-S) (phiWKB (n1 + 1)),
       |combProfile c (designBc N η d c) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) *
-          virasoroProblem.cardyV (c / 12) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) *
-          ((2 * c * (xiStar + lambdaComb c * σ) / 3) * lambdaComb c) / FKc 1 1 c -
+          prob.cardyV (c / 12) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) *
+          ((2 * c * (xiStar + lambdaComb c * σ) / 3) * lambdaComb c) / FKc (qProb prob) 1 c -
         CStar * kappaAiry * designWinW N η d (-kappaAiry * σ)| ≤ ε' :=
   by
-  simpa only [designWinW_eq_sig, designBc] using sig_part1 N hN hη0 hη1 (designSigma1 d) hS n1 hε'
+  simpa only [designWinW_eq_sig, designBc] using sig_part1 prob hw N hN hη0 hη1 (designSigma1 d) hS n1 hε'
 
 lemma besselL_eq_edgeL (x : ℝ) : Bessel.besselL x = edgeL x := rfl
 
 /-- **Lemma `SD_G` against the far Cardy bound**, arbitrary offsets `σs`: see `hat_window_bound`. -/
-theorem sig_hat_window_bound (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
+theorem sig_hat_window_bound (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
     ∃ K : ℝ, 0 ≤ K ∧ ∀ᶠ c in atTop, ∀ x : ℝ, xiStar / 2 ≤ x →
       |hankelTransform 1 (combProfile c (sigBc N η σs c)) (c * x ^ 2 / 3) *
-        virasoroProblem.cardyV (c / 12) (c * x ^ 2 / 3) * (2 * c * x / 3)| ≤ K * c := by
+        prob.cardyV (c / 12) (c * x ^ 2 / 3) * (2 * c * x / 3)| ≤ K * c := by
   obtain ⟨M, hM⟩ : ∃ M : ℝ, ∀ k, 1 ≤ k → k ≤ N → |σs k| ≤ M :=
     ⟨∑ k ∈ Finset.Icc 1 N, |σs k|, fun k hk hkN =>
       Finset.single_le_sum (f := fun j => |σs j|) (fun _ _ => abs_nonneg _)
@@ -91,9 +91,9 @@ theorem sig_hat_window_bound (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ �
   obtain ⟨Cg, hCg, hW⟩ := designWidth1_family N hη0 hη1
   obtain ⟨K, hK0, hK⟩ := designProfile_global_bound 1 N le_rfl hN M Cg
     (η₀ := 1 / 4) (by norm_num) le_rfl
-  obtain ⟨C, c₀, hC, hfar⟩ := cardyFarBound_virasoro (x₀ := xiStar / 2) (half_pos xiStar_pos)
+  obtain ⟨C, c₀, hC, hfar⟩ := cardyFarBound_prob prob hw (x₀ := xiStar / 2) (half_pos xiStar_pos)
   refine ⟨K * C, by positivity, ?_⟩
-  filter_upwards [hK, hW, sigGood_eventually N hN hη0 hη1 σs, eventually_ge_atTop c₀,
+  filter_upwards [hK, hW, sigGood_eventually prob hw N hN hη0 hη1 σs, eventually_ge_atTop c₀,
     eventually_gt_atTop (0 : ℝ)] with c hKc hWc hgood hc₀ hcpos x hx
   have hxpos : 0 < x := lt_of_lt_of_le (half_pos xiStar_pos) hx
   obtain ⟨-, hInner, C₀, hC0, hd1, hd2, -⟩ := hgood
@@ -107,7 +107,7 @@ theorem sig_hat_window_bound (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ �
   obtain ⟨hV0, hVb⟩ := hfar c hc₀ x hx
   rw [besselL_eq_edgeL] at hVb
   set A : ℝ := |hankelTransform 1 (combProfile c (sigBc N η σs c)) (c * x ^ 2 / 3)| with hA
-  set V : ℝ := virasoroProblem.cardyV (c / 12) (c * x ^ 2 / 3) with hV
+  set V : ℝ := prob.cardyV (c / 12) (c * x ^ 2 / 3) with hV
   have hA0 : 0 ≤ A := abs_nonneg _
   have hx3 : 0 ≤ 2 * c * x / 3 := by positivity
   rw [abs_mul, abs_mul, abs_of_nonneg hV0, abs_of_nonneg hx3, ← hA]
@@ -131,11 +131,11 @@ theorem sig_hat_window_bound (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ �
   linarith
 
 /-- **Lemma `SD_G` against the far Cardy bound**: `|ĥ₀(t)| V(t) (2 c x/3) ≤ K c` for `x ≥ ξ_*/2`. -/
-theorem hat_window_bound (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
+theorem hat_window_bound (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ) :
     ∃ K : ℝ, 0 ≤ K ∧ ∀ᶠ c in atTop, ∀ x : ℝ, xiStar / 2 ≤ x →
       |hankelTransform 1 (combProfile c (designBc N η d c)) (c * x ^ 2 / 3) *
-        virasoroProblem.cardyV (c / 12) (c * x ^ 2 / 3) * (2 * c * x / 3)| ≤ K * c :=
-  sig_hat_window_bound N hN hη0 hη1 (designSigma1 d)
+        prob.cardyV (c / 12) (c * x ^ 2 / 3) * (2 * c * x / 3)| ≤ K * c :=
+  sig_hat_window_bound prob hw N hN hη0 hη1 (designSigma1 d)
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.sig_part1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

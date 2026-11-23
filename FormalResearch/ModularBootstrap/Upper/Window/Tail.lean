@@ -23,9 +23,10 @@ Lemma `A_V` in window form (`CardyWindowBound`), and the substitution `t = c'x²
 
 * `lemma_T_of_cardy`: the statement for an abstract Cardy weight `V` satisfying the named properties
   `CardyWindowBound V 1 r₀` and `CardyFarBound V (ξ_* + r₀)`;
-* `lemma_T`: Virasoro (`w = 1`, `Q = (1-q)²`): `V = virasoroProblem.cardyV (c'/12)`, no hypotheses beyond
-  those of the paper.  The general `(w, Q)` statement additionally needs the bump `h₀^{(p)}` and the Peano
-  bound `fw:e3.6` (`CardyFarBound` with its factor `(1+x)^{m+p}`), which are not formalised.
+* `lemma_T_prob`: every weight-one problem (`w = 1`, any `Q`): `V = prob.cardyV (c'/12)`, `FK_c = FKc (qProb prob) f c'`
+  (`lemma_T_of_cardy_q` is the abstract statement at the scale `q > 0`); `lemma_T`: Virasoro (`Q = (1-q)²`,
+  `qProb = 1`), no hypotheses beyond those of the paper.  The statement at `w > 1` additionally needs the bump
+  `h₀^{(p)}` and the Peano bound `fw:e3.6` (`CardyFarBound` with its factor `(1+x)^{m+p}`), which are not formalised.
 * `lemma_T_sig1`: the `f = 1` finite modifications with arbitrary offsets `σ` (`η₀ = 1/4`);
   `lemma_T_design1`: the designs `D(N, η_*, d)`, the case `σ = designSigma1 d`.
 
@@ -267,16 +268,17 @@ lemma far_integral_le {c' x1 Cc : ℝ} {B : ℂ → ℂ} {V : ℝ → ℝ → �
     _ = Cc * ∫ x in Ici x1, x ^ (1 / 2 : ℝ) * exp (-π * x) := integral_const_mul _ _
     _ ≤ Cc * farConst := mul_le_mul_of_nonneg_left (integral_Ici_sqrt_exp_le hx1) hCc
 
-/-- **Lemma `T`, intermediate band** (`ut:T`) for an abstract Cardy weight satisfying `CardyWindowBound`. -/
-theorem lemma_T_band_of_cardy {V : ℝ → ℝ → ℝ} {r₀ : ℝ} (hr₀ : 0 < r₀)
-    (hW : CardyWindowBound V 1 r₀)
+/-- **Lemma `T`, intermediate band** (`ut:T`) for an abstract Cardy weight satisfying `CardyWindowBound`
+at the scale `q > 0` (`FV_c = FVc q c'`; `q = 𝔮_{w,Q}(ξ_*)`). -/
+theorem lemma_T_band_of_cardy_q {V : ℝ → ℝ → ℝ} {q r₀ : ℝ} (hq : 0 < q) (hr₀ : 0 < r₀)
+    (hW : CardyWindowBound V q r₀)
     (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) {η₀ : ℝ} (h0 : 0 ≤ η₀) (h1 : η₀ ≤ 1 / 4) :
     ∃ N₂ : ℕ, ∃ C_T : ℝ, 0 ≤ C_T ∧ ∀ N₁ : ℕ, max (4 * f) N₂ ≤ N₁ →
       ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
         (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
         (∫ t in Icc (c' * chiQuantile c' ((N₁ + 1 : ℕ) : ℝ) ^ 2 / 3) (c' * (xiStar + r₀) ^ 2 / 3),
             |combProfile c' (designComb c' f N η₀ σ ε) t| * V c' t) ≤
-          FKc 1 f c' * C_T * (N₁ : ℝ) ^ (-((2 / 3 : ℝ) * (2 * (f : ℝ) - 3 / 2))) := by
+          FKc q f c' * C_T * (N₁ : ℝ) ^ (-((2 / 3 : ℝ) * (2 * (f : ℝ) - 3 / 2))) := by
   obtain ⟨CA, cA, hCA, hWb⟩ := hW
   obtain ⟨CR, hCR, hRb⟩ := refComb_band_bound (f := f) hf (r₀ := r₀) h0 h1
   obtain ⟨K, hK0, hDev⟩ := designComb_norm_le_exp_ref f N hf hfN M E h0 h1
@@ -319,14 +321,14 @@ theorem lemma_T_band_of_cardy {V : ℝ → ℝ → ℝ} {r₀ : ℝ} (hr₀ : 0 
   have hξ := xiStar_pos
   have hgeo := band_geometry hc' hK0 hs hN1 (hr1 hN14s.le) hΦ
   have hξa : xiStar < chiQuantile c' ((N₁ + 1 : ℕ) : ℝ) := xiStar_lt_chiQuantile hc' hN14s
-  have hW0 : 0 < FVc 1 c' := FVc_pos one_pos hc'
+  have hW0 : 0 < FVc q c' := FVc_pos hq hc'
   by_cases hab : chiQuantile c' ((N₁ + 1 : ℕ) : ℝ) ≤ xiStar + r₀
-  · have hKc0 : 0 ≤ 2 * CR * CA * (D / π) ^ p * FVc 1 c' / lambdaComb c' := by positivity
+  · have hKc0 : 0 ≤ 2 * CR * CA * (D / π) ^ p * FVc q c' / lambdaComb c' := by positivity
     have hfin : ∀ x ∈ Icc (chiQuantile c' ((N₁ + 1 : ℕ) : ℝ)) (xiStar + r₀), 0 < x ∧
         0 ≤ V c' (c' * x ^ 2 / 3) ∧
         (2 * c' * x / 3) * (|combProfile c' (designComb c' f N η₀ σ ε) (c' * x ^ 2 / 3)| *
           V c' (c' * x ^ 2 / 3)) ≤
-          2 * CR * CA * (D / π) ^ p * FVc 1 c' / lambdaComb c' * (x - xiStar) ^ (-p) := by
+          2 * CR * CA * (D / π) ^ p * FVc q c' / lambdaComb c' * (x - xiStar) ^ (-p) := by
       intro x hx
       have hxpos : 0 < x := by linarith [hx.1]
       have hxξ0 : 0 < x - xiStar := by linarith [hx.1]
@@ -338,7 +340,7 @@ theorem lemma_T_band_of_cardy {V : ℝ → ℝ → ℝ} {r₀ : ℝ} (hr₀ : 0 
       exact ⟨hxpos, hv0, band_pointwise hc' hxpos hxξ0 rfl hv0 hw hBn hRx hD.le⟩
     refine (band_integral_le hc' hξa hab hp hKc0 hfin).trans ?_
     have halg := band_final_algebra (p := p) (lam := lambdaComb c')
-      (κ := (1 + c1K0) ^ (-(2 / 3 : ℝ))) (W := FVc 1 c') (CR := CR) (CA := CA) (D := D)
+      (κ := (1 + c1K0) ^ (-(2 / 3 : ℝ))) (W := FVc q c') (CR := CR) (CA := CA) (D := D)
       (N1 := (N₁ : ℝ)) (u0 := chiQuantile c' ((N₁ + 1 : ℕ) : ℝ) - xiStar) hp hlam hκ hN1pos
       hW0.le hCR.le hCA.le hD hgeo.1
     have hexp : (2 / 3 : ℝ) * (1 - p) = -((2 / 3 : ℝ) * (2 * (f : ℝ) - 3 / 2)) := by
@@ -354,8 +356,20 @@ theorem lemma_T_band_of_cardy {V : ℝ → ℝ → ℝ} {r₀ : ℝ} (hr₀ : 0 
       have := mul_lt_mul_of_pos_left this hc'
       linarith
     rw [Set.Icc_eq_empty (not_le.mpr hx1), Measure.restrict_empty, integral_zero_measure]
-    have := FKc_pos (q := 1) one_pos f hc'
+    have := FKc_pos hq f hc'
     positivity
+
+/-- **Lemma `T`, intermediate band** (`ut:T`) for an abstract Cardy weight satisfying `CardyWindowBound`. -/
+theorem lemma_T_band_of_cardy {V : ℝ → ℝ → ℝ} {r₀ : ℝ} (hr₀ : 0 < r₀)
+    (hW : CardyWindowBound V 1 r₀)
+    (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) {η₀ : ℝ} (h0 : 0 ≤ η₀) (h1 : η₀ ≤ 1 / 4) :
+    ∃ N₂ : ℕ, ∃ C_T : ℝ, 0 ≤ C_T ∧ ∀ N₁ : ℕ, max (4 * f) N₂ ≤ N₁ →
+      ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
+        (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
+        (∫ t in Icc (c' * chiQuantile c' ((N₁ + 1 : ℕ) : ℝ) ^ 2 / 3) (c' * (xiStar + r₀) ^ 2 / 3),
+            |combProfile c' (designComb c' f N η₀ σ ε) t| * V c' t) ≤
+          FKc 1 f c' * C_T * (N₁ : ℝ) ^ (-((2 / 3 : ℝ) * (2 * (f : ℝ) - 3 / 2))) :=
+  lemma_T_band_of_cardy_q one_pos hr₀ hW f N hf hfN M E h0 h1
 
 /-- **Lemma `T`, far band** (`ut:T`) for an abstract Cardy weight satisfying `CardyFarBound`. -/
 theorem lemma_T_far_of_cardy {V : ℝ → ℝ → ℝ} {r₀ : ℝ} (hr₀ : 0 < r₀)
@@ -427,6 +441,29 @@ theorem lemma_T_far_of_cardy {V : ℝ → ℝ → ℝ} {r₀ : ℝ} (hr₀ : 0 <
   ring
 
 /-- **Lemma `T`** (`ut:T`) for an abstract Cardy weight `V` with the window and far-band bounds of
+Lemma `A_V` (`CardyWindowBound` at the scale `q > 0`, `CardyFarBound`).  Quantifiers as in the paper: for the compact family
+`|σ_k| ≤ M`, `0 ≤ ε'_k ≤ E λ`, there are `N₂, C_T, C_far`, independent of `N₁` and `c'`, such that for every
+`N₁ ≥ max(4f, N₂)` and `c ≥ c₀(𝒦, N₁)`, uniformly on the family, the intermediate band
+`[c'χ_{N₁+1}²/3, c'(ξ_*+r₀)²/3]` (in `t`) carries `∫ |h₀| V dt ≤ FK_c^{(f)} C_T N₁^{-(2/3)(2f-3/2)}`
+and the far band `t ≥ c'(ξ_*+r₀)²/3` carries `∫ |h₀| V dt ≤ C_far √c'`. -/
+theorem lemma_T_of_cardy_q {V : ℝ → ℝ → ℝ} {q r₀ : ℝ} (hq : 0 < q) (hr₀ : 0 < r₀)
+    (hW : CardyWindowBound V q r₀) (hF : CardyFarBound V (xiStar + r₀))
+    (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) {η₀ : ℝ} (h0 : 0 ≤ η₀) (h1 : η₀ ≤ 1 / 4) :
+    ∃ N₂ : ℕ, ∃ C_T C_far : ℝ, 0 ≤ C_T ∧ 0 ≤ C_far ∧ ∀ N₁ : ℕ, max (4 * f) N₂ ≤ N₁ →
+      ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
+        (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
+        (∫ t in Icc (c' * chiQuantile c' ((N₁ + 1 : ℕ) : ℝ) ^ 2 / 3) (c' * (xiStar + r₀) ^ 2 / 3),
+            |combProfile c' (designComb c' f N η₀ σ ε) t| * V c' t) ≤
+          FKc q f c' * C_T * (N₁ : ℝ) ^ (-((2 / 3 : ℝ) * (2 * (f : ℝ) - 3 / 2))) ∧
+        (∫ t in Ici (c' * (xiStar + r₀) ^ 2 / 3),
+            |combProfile c' (designComb c' f N η₀ σ ε) t| * V c' t) ≤ C_far * √c' := by
+  obtain ⟨N₂, C_T, hCT, hband⟩ := lemma_T_band_of_cardy_q hq hr₀ hW f N hf hfN M E h0 h1
+  obtain ⟨C_far, hCf, hfar⟩ := lemma_T_far_of_cardy hr₀ hF f N hf hfN M E h0 h1
+  refine ⟨N₂, C_T, C_far, hCT, hCf, fun N₁ hN₁ => ?_⟩
+  filter_upwards [hband N₁ hN₁, hfar] with c' hb hf' σ ε hσ hε
+  exact ⟨hb σ ε hσ hε, hf' σ ε hσ hε⟩
+
+/-- **Lemma `T`** (`ut:T`) for an abstract Cardy weight `V` with the window and far-band bounds of
 Lemma `A_V` (`CardyWindowBound`, `CardyFarBound`).  Quantifiers as in the paper: for the compact family
 `|σ_k| ≤ M`, `0 ≤ ε'_k ≤ E λ`, there are `N₂, C_T, C_far`, independent of `N₁` and `c'`, such that for every
 `N₁ ≥ max(4f, N₂)` and `c ≥ c₀(𝒦, N₁)`, uniformly on the family, the intermediate band
@@ -442,12 +479,31 @@ theorem lemma_T_of_cardy {V : ℝ → ℝ → ℝ} {r₀ : ℝ} (hr₀ : 0 < r�
             |combProfile c' (designComb c' f N η₀ σ ε) t| * V c' t) ≤
           FKc 1 f c' * C_T * (N₁ : ℝ) ^ (-((2 / 3 : ℝ) * (2 * (f : ℝ) - 3 / 2))) ∧
         (∫ t in Ici (c' * (xiStar + r₀) ^ 2 / 3),
-            |combProfile c' (designComb c' f N η₀ σ ε) t| * V c' t) ≤ C_far * √c' := by
-  obtain ⟨N₂, C_T, hCT, hband⟩ := lemma_T_band_of_cardy hr₀ hW f N hf hfN M E h0 h1
-  obtain ⟨C_far, hCf, hfar⟩ := lemma_T_far_of_cardy hr₀ hF f N hf hfN M E h0 h1
-  refine ⟨N₂, C_T, C_far, hCT, hCf, fun N₁ hN₁ => ?_⟩
-  filter_upwards [hband N₁ hN₁, hfar] with c' hb hf' σ ε hσ hε
-  exact ⟨hb σ ε hσ hε, hf' σ ε hσ hε⟩
+            |combProfile c' (designComb c' f N η₀ σ ε) t| * V c' t) ≤ C_far * √c' :=
+  lemma_T_of_cardy_q one_pos hr₀ hW hF f N hf hfN M E h0 h1
+
+/-- **Lemma `T`** (`ut:T`) for every weight-one problem `prob` (`w = 1`, any null polynomial `Q`): the Cardy
+weight is `V = prob.cardyV (c'/12)`, `FK_c^{(f)} = FKc (qProb prob) f c'`, `h₀ = sech²(πb/2) B_D^{(f)}` (`combProfile`), `r₀ > 0`
+(`r₀ = 3/10` in the paper).  For the compact family `|σ_k| ≤ M`, `0 ≤ ε'_k ≤ E λ` of finite
+modifications `B_D^{(f)} = designComb c' f N η₀ σ ε` of `B_ref^{(f)}` (`ut:P`(b)), there are `N₂`, `C_T`,
+`C_far` independent of `N₁` and `c'` such that for every `N₁ ≥ max(4f, N₂)` and all large `c'`, uniformly
+on the family,
+`∫_{χ_{N₁+1} ≤ x ≤ ξ_*+r₀} |h₀| V dt ≤ FK_c^{(f)} C_T N₁^{-(2/3)(2f-3/2)}` and
+`∫_{x ≥ ξ_*+r₀} |h₀| V dt ≤ C_far √c'` (`t = c'x²/3`; `FK_c^{(f)} = FKc (qProb prob) f c'`). -/
+theorem lemma_T_prob (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) {r₀ : ℝ} (hr₀ : 0 < r₀)
+    (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) {η₀ : ℝ} (h0 : 0 ≤ η₀) (h1 : η₀ ≤ 1 / 4) :
+    ∃ N₂ : ℕ, ∃ C_T C_far : ℝ, 0 ≤ C_T ∧ 0 ≤ C_far ∧ ∀ N₁ : ℕ, max (4 * f) N₂ ≤ N₁ →
+      ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
+        (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
+        (∫ t in Icc (c' * chiQuantile c' ((N₁ + 1 : ℕ) : ℝ) ^ 2 / 3) (c' * (xiStar + r₀) ^ 2 / 3),
+            |combProfile c' (designComb c' f N η₀ σ ε) t| *
+              prob.cardyV (c' / 12) t) ≤
+          FKc (qProb prob) f c' * C_T * (N₁ : ℝ) ^ (-((2 / 3 : ℝ) * (2 * (f : ℝ) - 3 / 2))) ∧
+        (∫ t in Ici (c' * (xiStar + r₀) ^ 2 / 3),
+            |combProfile c' (designComb c' f N η₀ σ ε) t| *
+              prob.cardyV (c' / 12) t) ≤ C_far * √c' :=
+  lemma_T_of_cardy_q (qProb_pos prob) hr₀ (cardyWindowBound_prob prob hw (qProb_pos prob) hr₀)
+    (cardyFarBound_prob prob hw (by linarith [xiStar_pos])) f N hf hfN M E h0 h1
 
 /-- **Lemma `T`** (`ut:T`), Virasoro (`w = 1`, `Q = (1-q)²`, `q = 1`): the Cardy weight is
 `V = virasoroProblem.cardyV (c'/12)`, `h₀ = sech²(πb/2) B_D^{(f)}` (`combProfile`), `r₀ > 0`
@@ -468,10 +524,40 @@ theorem lemma_T {r₀ : ℝ} (hr₀ : 0 < r₀)
           FKc 1 f c' * C_T * (N₁ : ℝ) ^ (-((2 / 3 : ℝ) * (2 * (f : ℝ) - 3 / 2))) ∧
         (∫ t in Ici (c' * (xiStar + r₀) ^ 2 / 3),
             |combProfile c' (designComb c' f N η₀ σ ε) t| *
-              Crossing.virasoroProblem.cardyV (c' / 12) t) ≤ C_far * √c' :=
-  lemma_T_of_cardy (V := fun c' t => Crossing.virasoroProblem.cardyV (c' / 12) t) hr₀
-    (cardyWindowBound_virasoro hr₀) (cardyFarBound_virasoro (by linarith [xiStar_pos])) f N hf hfN
-    M E h0 h1
+              Crossing.virasoroProblem.cardyV (c' / 12) t) ≤ C_far * √c' := by
+  have h := lemma_T_prob Crossing.virasoroProblem rfl hr₀ f N hf hfN M E h0 h1
+  rwa [qProb_virasoro] at h
+
+/-- **Lemma `T` for the `f = 1` finite modifications at fixed sites, every weight-one problem** (`η₀ = 1/4`, arbitrary offsets `σ`,
+`ε = designWidth1 c' η_*`, `M` a bound for the offsets `σ_1, …, σ_N`; the exponent is `-1/3`).
+`lemma_T_design1` is the case `σ = designSigma1 d`. -/
+theorem lemma_T_sig1_prob (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) {r₀ : ℝ} (hr₀ : 0 < r₀) (N : ℕ) (hN : 1 ≤ N) {etaStar : ℝ} (hη0 : 0 ≤ etaStar)
+    (hη1 : etaStar ≤ 1 / 4) (σ : ℕ → ℝ) (M : ℝ) (hM : ∀ k, 1 ≤ k → k ≤ N → |σ k| ≤ M) :
+    ∃ N₂ : ℕ, ∃ C_T C_far : ℝ, 0 ≤ C_T ∧ 0 ≤ C_far ∧ ∀ N₁ : ℕ, max 4 N₂ ≤ N₁ →
+      ∀ᶠ c' in atTop,
+        (∫ t in Icc (c' * chiQuantile c' ((N₁ + 1 : ℕ) : ℝ) ^ 2 / 3) (c' * (xiStar + r₀) ^ 2 / 3),
+            |combProfile c' (designComb c' 1 N (1 / 4) σ (designWidth1 c' etaStar)) t| *
+              prob.cardyV (c' / 12) t) ≤
+          FKc (qProb prob) 1 c' * C_T * (N₁ : ℝ) ^ (-(1 / 3 : ℝ)) ∧
+        (∫ t in Ici (c' * (xiStar + r₀) ^ 2 / 3),
+            |combProfile c' (designComb c' 1 N (1 / 4) σ (designWidth1 c' etaStar)) t| *
+              prob.cardyV (c' / 12) t) ≤ C_far * √c' := by
+  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
+  obtain ⟨N₂, C_T, C_far, hCT, hCf, h⟩ := lemma_T_prob prob hw hr₀ 1 N le_rfl hN M Cg
+    (by norm_num : (0 : ℝ) ≤ 1 / 4) le_rfl
+  refine ⟨N₂, C_T, C_far, hCT, hCf, fun N₁ hN₁ => ?_⟩
+  have hexp : -((2 / 3 : ℝ) * (2 * ((1 : ℕ) : ℝ) - 3 / 2)) = -(1 / 3 : ℝ) := by norm_num
+  filter_upwards [h N₁ (by simpa using hN₁), h_ev, eventually_gt_atTop (0 : ℝ)]
+    with c' hc' ⟨hgap_k, hgap_1_bd, hcd1_bd, _⟩ hpos
+  have key := hc' σ (designWidth1 c' etaStar) (fun k hk hkN => hM k hk hkN)
+    (fun k hk hkN => ⟨mul_nonneg hη0 (siteGap_nonneg hpos (by omega)), by
+      have hgk := (hgap_k k (by omega)).trans (hgap_1_bd.trans hcd1_bd)
+      unfold designWidth1
+      calc etaStar * siteGap c' k ≤ 1 * (Cg * lambdaComb c') :=
+            mul_le_mul (hη1.trans (by norm_num)) hgk (siteGap_nonneg hpos (by omega)) (by norm_num)
+        _ = Cg * lambdaComb c' := one_mul _⟩)
+  rw [hexp] at key
+  exact key
 
 /-- **Lemma `T` for the `f = 1` finite modifications at fixed sites** (`η₀ = 1/4`, arbitrary offsets `σ`,
 `ε = designWidth1 c' η_*`, `M` a bound for the offsets `σ_1, …, σ_N`; the exponent is `-1/3`).
@@ -487,22 +573,23 @@ theorem lemma_T_sig1 {r₀ : ℝ} (hr₀ : 0 < r₀) (N : ℕ) (hN : 1 ≤ N) {e
         (∫ t in Ici (c' * (xiStar + r₀) ^ 2 / 3),
             |combProfile c' (designComb c' 1 N (1 / 4) σ (designWidth1 c' etaStar)) t| *
               Crossing.virasoroProblem.cardyV (c' / 12) t) ≤ C_far * √c' := by
-  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
-  obtain ⟨N₂, C_T, C_far, hCT, hCf, h⟩ := lemma_T hr₀ 1 N le_rfl hN M Cg
-    (by norm_num : (0 : ℝ) ≤ 1 / 4) le_rfl
-  refine ⟨N₂, C_T, C_far, hCT, hCf, fun N₁ hN₁ => ?_⟩
-  have hexp : -((2 / 3 : ℝ) * (2 * ((1 : ℕ) : ℝ) - 3 / 2)) = -(1 / 3 : ℝ) := by norm_num
-  filter_upwards [h N₁ (by simpa using hN₁), h_ev, eventually_gt_atTop (0 : ℝ)]
-    with c' hc' ⟨hgap_k, hgap_1_bd, hcd1_bd, _⟩ hpos
-  have key := hc' σ (designWidth1 c' etaStar) (fun k hk hkN => hM k hk hkN)
-    (fun k hk hkN => ⟨mul_nonneg hη0 (siteGap_nonneg hpos (by omega)), by
-      have hgk := (hgap_k k (by omega)).trans (hgap_1_bd.trans hcd1_bd)
-      unfold designWidth1
-      calc etaStar * siteGap c' k ≤ 1 * (Cg * lambdaComb c') :=
-            mul_le_mul (hη1.trans (by norm_num)) hgk (siteGap_nonneg hpos (by omega)) (by norm_num)
-        _ = Cg * lambdaComb c' := one_mul _⟩)
-  rw [hexp] at key
-  exact key
+  have h := lemma_T_sig1_prob Crossing.virasoroProblem rfl hr₀ N hN hη0 hη1 σ M hM
+  rwa [qProb_virasoro] at h
+
+/-- **Lemma `T` for the designs `D(N, η_*, d)`, every weight-one problem** (`f = 1`, `η₀ = 1/4`, `σ = designSigma1 d`,
+`ε = designWidth1 c' η_*`, `M` a bound for the offsets `σ_1, …, σ_N`; the exponent is `-1/3`). -/
+theorem lemma_T_design1_prob (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) {r₀ : ℝ} (hr₀ : 0 < r₀) (N : ℕ) (hN : 1 ≤ N) {etaStar : ℝ} (hη0 : 0 ≤ etaStar)
+    (hη1 : etaStar ≤ 1 / 4) (d M : ℝ) (hM : ∀ k, 1 ≤ k → k ≤ N → |designSigma1 d k| ≤ M) :
+    ∃ N₂ : ℕ, ∃ C_T C_far : ℝ, 0 ≤ C_T ∧ 0 ≤ C_far ∧ ∀ N₁ : ℕ, max 4 N₂ ≤ N₁ →
+      ∀ᶠ c' in atTop,
+        (∫ t in Icc (c' * chiQuantile c' ((N₁ + 1 : ℕ) : ℝ) ^ 2 / 3) (c' * (xiStar + r₀) ^ 2 / 3),
+            |combProfile c' (designComb c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' etaStar)) t| *
+              prob.cardyV (c' / 12) t) ≤
+          FKc (qProb prob) 1 c' * C_T * (N₁ : ℝ) ^ (-(1 / 3 : ℝ)) ∧
+        (∫ t in Ici (c' * (xiStar + r₀) ^ 2 / 3),
+            |combProfile c' (designComb c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' etaStar)) t| *
+              prob.cardyV (c' / 12) t) ≤ C_far * √c' :=
+  lemma_T_sig1_prob prob hw hr₀ N hN hη0 hη1 (designSigma1 d) M hM
 
 /-- **Lemma `T` for the designs `D(N, η_*, d)`** (`f = 1`, `η₀ = 1/4`, `σ = designSigma1 d`,
 `ε = designWidth1 c' η_*`, `M` a bound for the offsets `σ_1, …, σ_N`; the exponent is `-1/3`). -/
@@ -558,5 +645,25 @@ theorem lemma_T_hypotheses_nonvacuous {r₀ : ℝ} (hr₀ : 0 < r₀) (f N : ℕ
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Tail.lemma_T_design1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms lemma_T_design1
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Tail.lemma_T_band_of_cardy_q' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lemma_T_band_of_cardy_q
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Tail.lemma_T_of_cardy_q' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lemma_T_of_cardy_q
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Tail.lemma_T_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lemma_T_prob
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Tail.lemma_T_sig1_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lemma_T_sig1_prob
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Tail.lemma_T_design1_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lemma_T_design1_prob
 
 end FormalResearch.ModularBootstrap.Upper.Window.Tail

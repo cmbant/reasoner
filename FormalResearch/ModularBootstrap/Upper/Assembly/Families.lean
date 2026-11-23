@@ -251,6 +251,17 @@ theorem sameSiteFamily_designClass (h : DesignTailBounds) : Nonempty (SameSiteFa
     G_lower := hlow
     E_small := tendsto_V_zero hE0 }⟩
 
+/-- **`Σ₀` for a weight-one problem, for the extremal measures, from the tail bounds alone** (given the
+threshold lower bound `hLo`). -/
+theorem sigmaZero_of_tailBounds_prob (prob : FixedWeightProblem) (hw : prob.w = 1)
+    (hLo : FormalResearch.ModularBootstrap.FixedWeight.FixedWeightLowerBoundInput prob) (h : DesignTailBounds) :
+    ∃ c₀ : ℝ, ∀ cSeq : ℕ → ℝ, Tendsto cSeq atTop atTop → (∀ j, c₀ ≤ cSeq j) →
+      ∃ S : CrossingSequence prob, S.c = cSeq ∧
+        (∀ j, S.τ j = prob.T_V (cSeq j)) ∧
+        (∀ j, ∀ ε : ℝ, 0 < ε → 0 < (S.meas j).ν (Iio (S.τ j + ε))) ∧
+        SigmaZeroConclusion S.c S.τ S.μS :=
+  sigmaZero_prob prob hw hLo (sameSiteFamily_designClass h).some
+
 /-- **`Σ₀` at Virasoro for the extremal measures from the tail bounds alone.** -/
 theorem virasoro_sigmaZero_of_tailBounds (h : DesignTailBounds) :
     ∃ c₀ : ℝ, ∀ cSeq : ℕ → ℝ, Tendsto cSeq atTop atTop → (∀ j, c₀ ≤ cSeq j) →
@@ -258,7 +269,7 @@ theorem virasoro_sigmaZero_of_tailBounds (h : DesignTailBounds) :
         (∀ j, S.τ j = virasoroProblem.T_V (cSeq j)) ∧
         (∀ j, ∀ ε : ℝ, 0 < ε → 0 < (S.meas j).ν (Iio (S.τ j + ε))) ∧
         SigmaZeroConclusion S.c S.τ S.μS :=
-  virasoro_sigmaZero (sameSiteFamily_designClass h).some
+  sigmaZero_of_tailBounds_prob virasoroProblem rfl FormalResearch.ModularBootstrap.FixedWeight.virasoro_lowerBoundInput h
 
 /-- **Non-vacuity of `SameSiteTailBounds`**: it holds for `G_k ≡ k + 1` (the lower bound is
 `F(u) = Ai(u)²/(u - a_1)² ≤ sup |Ai'|²` on compacta, by the mean value theorem). -/
@@ -305,5 +316,9 @@ theorem sameSiteTailBounds_nonvacuous : SameSiteTailBounds (fun k _ => (k : ℝ)
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.continuous_Gd' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms continuous_Gd
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.sigmaZero_of_tailBounds_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sigmaZero_of_tailBounds_prob
 
 end FormalResearch.ModularBootstrap.Upper.Assembly
