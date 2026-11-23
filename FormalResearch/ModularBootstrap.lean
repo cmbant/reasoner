@@ -248,6 +248,15 @@ public import FormalResearch.ModularBootstrap.Upper.Positivity.VacuumCore
 public import FormalResearch.ModularBootstrap.Upper.Positivity.VacuumDesign
 public import FormalResearch.ModularBootstrap.Upper.Positivity.VacuumMain
 public import FormalResearch.ModularBootstrap.Upper.Positivity.Vacuum
+public import FormalResearch.ModularBootstrap.Upper.Assembly.DesignG
+public import FormalResearch.ModularBootstrap.Upper.Assembly.TipExpansion
+public import FormalResearch.ModularBootstrap.Upper.Assembly.Feasible
+public import FormalResearch.ModularBootstrap.Upper.Assembly.Chart
+public import FormalResearch.ModularBootstrap.Upper.Assembly.PsiBounds
+public import FormalResearch.ModularBootstrap.Upper.Assembly.PsiWindow
+public import FormalResearch.ModularBootstrap.Upper.Assembly.DesignWindow
+public import FormalResearch.ModularBootstrap.Upper.Assembly.Wire
+public import FormalResearch.ModularBootstrap.Upper.Assembly.Families
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -771,4 +780,12 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `lemma_W_measure`, `lemma_ID`, the sign argument `design_lobe_nonpos`), `proposition_V_i`
   (`(2/FK_c) ∫Ψ_g du - C_* V_D ≤ ε`, with `∫Ψ_g du = -g_vac/(2π)`) and `proposition_V_ii`
   (`V_D < 0 ⇒ g_vac ≥ π C_* |V_D| FK_c / 4`), unconditional.
+
+* `Upper.Assembly.{DesignG, TipExpansion, Feasible, Chart, PsiBounds, PsiWindow, DesignWindow, Wire, Families}`:
+  assembly of Properties `sr:P` (P1)-(P4) for the Virasoro designs `D(N, η_*, d)` (`designPropertyP_virasoro`,
+  `combDesignData_design`), FW-C feasibility (`virasoro_thresholdUpperLittleO`,
+  `virasoro_corollary_E1_littleO_unconditional`), and `Σ₀`, `Σ` at Virasoro (`virasoro_sigmaZero_of_threshold`,
+  `virasoro_sigma_of_threshold`); the remaining inputs are the named `DesignTailBounds`
+  (`virasoro_sigmaZero_of_tailBounds`, non-vacuity `sameSiteTailBounds_nonvacuous`) and, for `Σ`, the
+  displaced/omitted design families.
 -/
