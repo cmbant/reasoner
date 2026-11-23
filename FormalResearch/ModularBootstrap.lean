@@ -103,6 +103,7 @@ public import FormalResearch.ModularBootstrap.Upper.Saddle.TwoSaddleContour
 public import FormalResearch.ModularBootstrap.Upper.Saddle.SDVprime
 public import FormalResearch.ModularBootstrap.Upper.Saddle.SDV
 public import FormalResearch.ModularBootstrap.Upper.Saddle.FWSD
+public import FormalResearch.ModularBootstrap.Upper.Saddle.EdgePhaseZero
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -357,4 +358,10 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   order-zero specialization **Lemma `SD_V`** (`esd:lemma`, `lemma_SD_V`), and fixed-order `p`
   specialization **Lemma `FW-SD` part (2)** (`fw:SDp`, `lemma_FW_SD_part2`), with non-vacuity
   witnesses for all hypotheses.
+* `Upper.Saddle.EdgePhaseZero`: **Lemma `SD_0`** (`esd:phase`, (SD.0), (SD.2)): the explicit leading
+  Blaschke potential `edgePhi0Blaschke` `= ∫_{ξ*}^∞ ρ_U(y) φ_y(b) dy` (branch `phiZeta`, `φ_y = log(-T_y)`)
+  is holomorphic near `E_+`, `Re Φ₀(v+i/2) = 0` (`edgePhi0Blaschke_re_edge`),
+  `Φ₀'(v+i/2) = -(4πi/3) F(v)` (`edgePhi0Blaschke_deriv_edge`, proved from Lemma `K2` and the closed
+  form of the harmonic-majorant completion, without the strip Poisson identity), and
+  `edgePhaseData_blaschke` : `EdgePhaseData δ C₃ C₄ Φ₀` for all `δ ∈ (0, 1/4)`, unconditional.
 -/
