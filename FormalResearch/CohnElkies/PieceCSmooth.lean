@@ -449,8 +449,8 @@ lemma bd2_scale {f : ℝ → ℂ} {B0 B1 B2 vs : ℝ} (hvs : 1 ≤ vs) (hf : Bd2
 
 /-- The regularity of the subtracted symbol `G_sm` needed for the smooth part of Piece C (the `|G_sm| , |G_sm'| ≲ (1+|v|)^{-5/2}`,
 `|G_sm''| ≲ |v|^{-1/2}(1+|v|)^{-2}` bounds of paper Piece C item 1, with `G_sm ∈ C¹` and `G_sm'` differentiable off `0`). This is the interface through which the seed data (`U.1`/`(e27)` for `f₁, g₁, g₁'`, i.e. the square-root
-structure at `v = 0` and the symbol decay `|∂^r G_sm| ≲ |v|^{-5/2-r}`) enters; `smoothSymbol_nonvacuous` shows it is satisfiable by
-a nonzero function. Negative regression: with `γ₀ = 0` (no branch point) the structure asks `G = X̃(i c_s ·)` itself to be `C¹`
+structure at `v = 0` and the symbol decay `|∂^r G_sm| ≲ |v|^{-5/2-r}`) enters; `airySeedU2_smoothSymbol` (`SeedSqrtForm.lean`) proves it for the
+actual `G_sm` of every one-level seed. Negative regression: with `γ₀ = 0` (no branch point) the structure asks `G = X̃(i c_s ·)` itself to be `C¹`
 off no singularity, and `pieceC_main_term_smooth` then has main term `0`, i.e. `I_C = O(ξ⁻¹A⁻²)` with no `A^{-3/2}` term. -/
 structure SmoothSymbol (G : ℝ → ℂ) (CG : ℝ) : Prop where
   contDiff : ContDiff ℝ 1 G
@@ -662,85 +662,5 @@ theorem pieceC_main_term_smooth (X : ℝ → ℝ) (δ₀ : ℝ) (m : ℕ) {c : �
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.pieceC_hsmooth
 /-- info: 'FormalResearch.CohnElkies.pieceC_main_term_smooth' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.pieceC_main_term_smooth
-
-/-- **Non-vacuity of `SmoothSymbol`.** A `C^∞` bump function (value `1` at `0`, support in `[-2, 2]`) satisfies the
-regularity and the weighted bounds of `SmoothSymbol` with a finite constant; in particular the structure is satisfied by a
-nonzero function (a smooth symbol with `G(0) = 1`). The actual `G_sm` of the seeds is the next leaf. -/
-theorem smoothSymbol_nonvacuous : ∃ (G : ℝ → ℂ) (CG : ℝ), G 0 = 1 ∧ SmoothSymbol G CG := by
-  let f : ContDiffBump (0 : ℝ) := ⟨1, 2, one_pos, one_lt_two⟩
-  have hfc : ContDiff ℝ 2 (f : ℝ → ℝ) := f.contDiff
-  have hcs : HasCompactSupport (f : ℝ → ℝ) := f.hasCompactSupport
-  have hdf : ContDiff ℝ 1 (deriv (f : ℝ → ℝ)) := (contDiff_succ_iff_deriv (n := 1)).mp (by simpa [one_add_one_eq_two] using hfc) |>.2.2
-  have hs1 := hcs.deriv; have hs2 := hs1.deriv
-  have hc1 : Continuous (deriv (f : ℝ → ℝ)) := hdf.continuous
-  have hc2 : Continuous (deriv (deriv (f : ℝ → ℝ))) := (contDiff_succ_iff_deriv (n := 0)).mp (by simpa using hdf) |>.2.2.continuous
-  obtain ⟨K0, hK0⟩ := hcs.exists_bound_of_continuous f.continuous
-  obtain ⟨K1, hK1⟩ := hs1.exists_bound_of_continuous hc1
-  obtain ⟨K2, hK2⟩ := hs2.exists_bound_of_continuous hc2
-  set K := max K0 (max K1 K2) with hK
-  have hKn : 0 ≤ K := (norm_nonneg _).trans ((hK0 0).trans (le_max_left _ _))
-  have hB := bd2_chi (χ₀ := (f : ℝ → ℝ)) (Kχ := K) hfc (fun u => (hK0 u).trans (le_max_left _ _))
-    (fun u => (hK1 u).trans ((le_max_left _ _).trans (le_max_right _ _)))
-    (fun u => (hK2 u).trans ((le_max_right _ _).trans (le_max_right _ _)))
-  have hzero : ∀ v : ℝ, 2 < |v| → (f : ℝ → ℝ) v = 0 := fun v hv => by
-    have : v ∉ Function.support (f : ℝ → ℝ) := by
-      rw [f.support_eq]; simp only [Metric.mem_ball, dist_zero_right, Real.norm_eq_abs, not_lt]; exact hv.le
-    simpa using this
-  have hopen : IsOpen {x : ℝ | 2 < |x|} := isOpen_lt continuous_const continuous_abs
-  have hz1 : ∀ v : ℝ, 2 < |v| → deriv (fun u : ℝ => ((f : ℝ → ℝ) u : ℂ)) v = 0 := fun v hv => by
-    have : (fun u : ℝ => ((f : ℝ → ℝ) u : ℂ)) =ᶠ[nhds v] fun _ => 0 :=
-      Filter.eventually_of_mem (hopen.mem_nhds hv) fun x hx => by simp [hzero x hx]
-    rw [this.deriv_eq]; simp
-  have hz2 : ∀ v : ℝ, 2 < |v| → deriv (deriv (fun u : ℝ => ((f : ℝ → ℝ) u : ℂ))) v = 0 := fun v hv => by
-    have : deriv (fun u : ℝ => ((f : ℝ → ℝ) u : ℂ)) =ᶠ[nhds v] fun _ => 0 :=
-      Filter.eventually_of_mem (hopen.mem_nhds hv) fun x hx => hz1 x hx
-    rw [this.deriv_eq]; simp
-  let CG : ℝ := K * ((3 : ℝ) ^ (5 / 2 : ℝ) + (2 : ℝ) ^ (1 / 2 : ℝ) * 9)
-  have hw0 : ∀ v : ℝ, |v| ≤ 2 → K ≤ CG * (1 + |v|) ^ (-(5 / 2 : ℝ)) := fun v hv => by
-    have h0 : 0 < 1 + |v| := by positivity
-    have h1 : (1 + |v|) ^ (5 / 2 : ℝ) ≤ (3 : ℝ) ^ (5 / 2 : ℝ) := Real.rpow_le_rpow h0.le (by linarith) (by norm_num)
-    have e : (1 + |v|) ^ (-(5 / 2 : ℝ)) = ((1 + |v|) ^ (5 / 2 : ℝ))⁻¹ := Real.rpow_neg h0.le _
-    rw [e]
-    have hp : 0 < (1 + |v|) ^ (5 / 2 : ℝ) := by positivity
-    have : K * (1 + |v|) ^ (5 / 2 : ℝ) ≤ CG := by
-      calc K * (1 + |v|) ^ (5 / 2 : ℝ) ≤ K * (3 : ℝ) ^ (5 / 2 : ℝ) := mul_le_mul_of_nonneg_left h1 hKn
-        _ ≤ CG := by simp only [CG]; nlinarith [mul_nonneg hKn (mul_nonneg (Real.rpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) (1 / 2)) (by norm_num : (0 : ℝ) ≤ 9))]
-    rw [← div_eq_mul_inv, le_div_iff₀ hp]; exact this
-  have hCG0 : 0 ≤ CG := by positivity
-  have hW2 : ∀ v : ℝ, v ≠ 0 → |v| ≤ 2 → K ≤ CG * (|v| ^ (-(1 / 2 : ℝ)) * (1 + |v|) ^ (-(2 : ℝ))) := fun v hv0 hv => by
-    have hva : 0 < |v| := abs_pos.mpr hv0
-    have h0 : 0 < 1 + |v| := by positivity
-    have e1 : |v| ^ (-(1 / 2 : ℝ)) = (|v| ^ (1 / 2 : ℝ))⁻¹ := Real.rpow_neg hva.le _
-    have e2 : (1 + |v|) ^ (-(2 : ℝ)) = ((1 + |v|) ^ 2)⁻¹ := by rw [Real.rpow_neg h0.le, Real.rpow_two]
-    rw [e1, e2, ← mul_inv]
-    have h1 : |v| ^ (1 / 2 : ℝ) ≤ (2 : ℝ) ^ (1 / 2 : ℝ) := Real.rpow_le_rpow hva.le hv (by norm_num)
-    have h2 : (1 + |v|) ^ 2 ≤ 9 := by nlinarith [abs_nonneg v]
-    have hp1 : 0 < |v| ^ (1 / 2 : ℝ) := by positivity
-    have hp2 : 0 < (1 + |v|) ^ 2 := by positivity
-    have hr : 0 < (2 : ℝ) ^ (1 / 2 : ℝ) := by positivity
-    have hab : |v| ^ (1 / 2 : ℝ) * (1 + |v|) ^ 2 ≤ (2 : ℝ) ^ (1 / 2 : ℝ) * 9 := mul_le_mul h1 h2 hp2.le hr.le
-    have hinv : ((2 : ℝ) ^ (1 / 2 : ℝ) * 9)⁻¹ ≤ (|v| ^ (1 / 2 : ℝ) * (1 + |v|) ^ 2)⁻¹ := inv_anti₀ (mul_pos hp1 hp2) hab
-    have hK' : K ≤ CG * ((2 : ℝ) ^ (1 / 2 : ℝ) * 9)⁻¹ := by
-      rw [← div_eq_mul_inv, le_div_iff₀ (by positivity)]
-      simp only [CG]
-      nlinarith [mul_nonneg hKn (Real.rpow_nonneg (by norm_num : (0 : ℝ) ≤ 3) (5 / 2))]
-    exact hK'.trans (mul_le_mul_of_nonneg_left hinv hCG0)
-  have hdG : ContDiff ℝ 1 (deriv (fun u : ℝ => ((f : ℝ → ℝ) u : ℂ))) :=
-    (contDiff_succ_iff_deriv (n := 1)).mp (by simpa [one_add_one_eq_two] using hB.1) |>.2.2
-  refine ⟨fun v => ((f : ℝ → ℝ) v : ℂ), CG, ?_, ?_⟩
-  · simp [f.one_of_mem_closedBall (Metric.mem_closedBall_self (by norm_num : (0 : ℝ) ≤ 1))]
-  · refine ⟨Complex.ofRealCLM.contDiff.comp (hfc.of_le (by norm_num)), fun x _ => hdG.differentiable one_ne_zero x, fun v => ?_, fun v => ?_, fun v hv => ?_⟩
-    · by_cases h : |v| ≤ 2
-      · exact (hB.2 v (mem_univ _)).1.trans (hw0 v h)
-      · rw [hzero v (not_le.mp h)]; simp; positivity
-    · by_cases h : |v| ≤ 2
-      · exact (hB.2 v (mem_univ _)).2.1.trans (hw0 v h)
-      · rw [hz1 v (not_le.mp h)]; simp; positivity
-    · by_cases h : |v| ≤ 2
-      · exact (hB.2 v (mem_univ _)).2.2.trans (hW2 v hv h)
-      · rw [hz2 v (not_le.mp h)]; simp; positivity
-
-/-- info: 'FormalResearch.CohnElkies.smoothSymbol_nonvacuous' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.smoothSymbol_nonvacuous
 
 end FormalResearch.CohnElkies

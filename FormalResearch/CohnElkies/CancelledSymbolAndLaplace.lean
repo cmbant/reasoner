@@ -84,7 +84,7 @@ private lemma neg_c_rpow32_add_le {α R u : ℝ} (hα : 0 < α) (hR : 0 ≤ R) (
     have hu_le : u ≤ M ^ 2 := by nlinarith [Real.sqrt_nonneg u, sq_nonneg (M - Real.sqrt u), Real.sq_sqrt hu]
     nlinarith [mul_nonneg hα.le (Real.rpow_nonneg hu (3 / 2 : ℝ))]
 
-private lemma integrableOn_exp_neg_rpow32_add {α R : ℝ} (hα : 0 < α) (hR : 0 ≤ R) :
+lemma integrableOn_exp_neg_rpow32_add {α R : ℝ} (hα : 0 < α) (hR : 0 ≤ R) :
     IntegrableOn (fun u : ℝ => Real.exp (-α * u ^ (3 / 2 : ℝ) + R * u)) (Ici 0) := by
   rw [integrableOn_Ici_iff_integrableOn_Ioi]
   refine ((integrableOn_exp_mul_Ioi (by norm_num : -(1 : ℝ) < 0) 0).const_mul (Real.exp ((R + 1) * ((R + 1) / α) ^ 2))).mono'
@@ -328,7 +328,7 @@ private lemma continuous_airyAi' : Continuous airyAi' := by
   have heq : iteratedDeriv 1 airyAi = airyAi' := funext fun x => by rw [iteratedDeriv_one, deriv_airyAi]
   rw [← heq]; exact contDiff_airyAi.continuous_iteratedDeriv 1 (by simp)
 
-private lemma airyAi_and_deriv_rpow32_decay :
+lemma airyAi_and_deriv_rpow32_decay :
     ∃ C > 0, ∀ x : ℝ, 0 ≤ x → |airyAi x| ≤ C * Real.exp (-(1 / 2 : ℝ) * x ^ (3 / 2 : ℝ)) ∧ |airyAi' x| ≤ C * Real.exp (-(1 / 2 : ℝ) * x ^ (3 / 2 : ℝ)) := by
   obtain ⟨M₀_raw, hbd₀⟩ := isCompact_Icc.exists_bound_of_continuousOn
     ((continuous_airyAi.abs.add continuous_airyAi'.abs).continuousOn : ContinuousOn (fun x => |airyAi x| + |airyAi' x|) (Icc 0 1))
@@ -469,7 +469,7 @@ private lemma dslope_sq_tail_of_zero {g : ℝ → ℝ} {a C₀ : ℝ} (ha : a < 
     _ = (C₀ ^ 2 / a ^ 2) * Real.exp (-u ^ (3 / 2 : ℝ)) := by rw [mul_pow, ← Real.exp_nat_mul]; ring_nf
     _ ≤ (C₀ ^ 2 / a ^ 2) * Real.exp (-(2 / 3 : ℝ) * u ^ (3 / 2 : ℝ)) := mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr (by linarith [Real.rpow_nonneg hu (3 / 2 : ℝ)])) (by positivity)
 
-private lemma ceF1_tail_exp_rpow32 : ∃ C > 0, ∀ u : ℝ, 0 ≤ u → |ceF1 u| ≤ C * Real.exp (-(2 / 3 : ℝ) * u ^ (3 / 2 : ℝ)) := by
+lemma ceF1_tail_exp_rpow32 : ∃ C > 0, ∀ u : ℝ, 0 ≤ u → |ceF1 u| ≤ C * Real.exp (-(2 / 3 : ℝ) * u ^ (3 / 2 : ℝ)) := by
   obtain ⟨C₀, _, hbd⟩ := airyAi_and_deriv_rpow32_decay; have ha1_neg : 0 < -airyZero 1 := neg_pos.mpr (airyZero_neg 1)
   refine ⟨C₀ ^ 2 / (-airyZero 1), by positivity, fun u hu => ?_⟩
   have hF1 : |ceF1 u| ≤ |airyAi u| ^ 2 / (-airyZero 1) := by
