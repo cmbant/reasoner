@@ -229,6 +229,14 @@ public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWMain
 public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWYVBand
 public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWYV
 public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWInterface
+public import FormalResearch.ModularBootstrap.Upper.Ramped.GapDisc
+public import FormalResearch.ModularBootstrap.Upper.Ramped.ProfileBound
+public import FormalResearch.ModularBootstrap.Upper.Ramped.ProfileProducts
+public import FormalResearch.ModularBootstrap.Upper.Ramped.ProfileProdBound
+public import FormalResearch.ModularBootstrap.Upper.Ramped.ProfileR1
+public import FormalResearch.ModularBootstrap.Upper.Ramped.ProfileV
+public import FormalResearch.ModularBootstrap.Upper.Ramped.AiryProfile
+public import FormalResearch.ModularBootstrap.Upper.Ramped.PUnif
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -722,4 +730,17 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `BootstrapWInterface` concludes `LemmaQData.theoremJ_T_V_W` and `fixedWeightLowerBoundInput_of_problem`
   (`FixedWeightLowerBoundInput prob` for every `prob`).  This supplies the weight-`w` band-feedback bridge and
   scale choice mentioned as not formalised in the previous bullet.
+
+* `Upper.Ramped.{GapDisc, ProfileBound, ProfileProducts, ProfileProdBound, ProfileR1, ProfileV, AiryProfile, PUnif}`:
+  **Lemma `P_unif`** (`rem:profile`, `n2_ramped_comb.tex`) and the profile versions of Lemmas G, V, E
+  (`ut:G`, `ut:V`, `ut:E`), unconditional.  `ProfHyp C₀ u ε` (sites `|u_k - a_k| ≤ C₀ k^{-4/3}`, widths
+  `0 ≤ ε_k ≤ C₀ k^{-1/3}`, `k ≥ 2`); `pUnif_bound` (`‖W(u)‖ ≤ C (1 + ‖u‖)^{-3/2} e(u)` uniformly over
+  `ProfHyp C₀` and `d ∈ [0, 1]`, from `airyWindowProd_bound_unif` and the maximum-principle extension
+  `norm_le_of_gap_disc_extension`); `profPi0_le_unif` (`Π_n(0) ≤ C ((a_n - u_n)² + ε_n²) n^{-2/3}`),
+  `profR1_bounds_unif` (`1/2 ≤ R_1 ≤ C` for `N ≥ N₀`), `profV_identity` (`∫ W = -d R_1 + ∑_{n ≥ 2} Π_n(d)`,
+  `Π_n(d) = Π_n(0)(1 - d/|a_n - a_1|) ≥ 0`, `∫ W ≤ -d R_1 + E_0`); for the ramped profile
+  (`designSiteU N`, `rampedWidthU η`, `AdmHeights η`) `pUnif_E0`
+  (`E_0 ≤ C (∑_{n=2}^N η_n² n^{-4/3} + ∑_{n>N} (η_n² n^{-4/3} + n^{-10/3}))`), `pUnif_V_ramped`,
+  `lemma_P_unif`, `pUnif_integral_le` (`∫ W ≤ -d/2 + E_0`) and `lemma_G_bound_unif` (Lemma G with a constant
+  independent of `N`, `η_*`, `d`).
 -/
