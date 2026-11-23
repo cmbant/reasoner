@@ -21,11 +21,12 @@ factor `(u - u_f)`):
   factorisation at `d = 0` and `d = 1`), `R_ge` (`R_1 ≥ 1/2`, `lemma_E`), `E_small`
   (`E_0 ≤ C(η_*² + N^{-1/3}) → 0`, `lemma_E`).
 
-**Not formalised (named hypothesis).**  The two uniform estimates on the product `Q_k` that are
-fields of `SameSiteFamily`: the Lipschitz bound `G_upper` near `a_1` (design-independent constant)
-and the lower bound `Q ≥ 1/2` on compacta `G_lower`.  They are collected in `SameSiteTailBounds G`
-and the named hypothesis `DesignTailBounds` (for the explicit `G_k = Gd N₀ k`); non-vacuity:
-`sameSiteTailBounds_nonvacuous`.
+**The two tail estimates.**  The two uniform estimates on the product `Q_k` that are fields of
+`SameSiteFamily` (the Lipschitz bound `G_upper` near `a_1`, with a design-independent constant, and the
+lower bound `Q ≥ 1/2` on compacta, `G_lower`) are collected in `SameSiteTailBounds G` and
+`DesignTailBounds` (for the explicit `G_k = Gd N₀ k`).  `DesignTailBounds` is proved in
+`Upper.Assembly.TailBounds` (`designTailBounds`), which gives the unconditional forms
+`sameSiteFamily_designClass_exists` and `virasoro_sigmaZero_unconditional`.
 
 * **`sameSiteFamily_designClass`**: `DesignTailBounds → Nonempty (SameSiteFamily designClass)`.
 * **`virasoro_sigmaZero_of_tailBounds`**: `Σ₀` at Virasoro for the extremal measures from
