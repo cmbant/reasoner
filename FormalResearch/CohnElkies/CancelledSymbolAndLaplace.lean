@@ -594,9 +594,9 @@ theorem airyTwistedLaplaceC_ceG1Deriv_eq {y : ℂ} (hy : 0 < y.re) :
 
 /-! ### Section 3: Gaussian kernel IBP asymptotics on `{0 < Re y, 1 ≤ ‖y‖}` -/
 
-private noncomputable def gaussKern (y : ℂ) (u : ℝ) : ℂ := Complex.exp (-((u : ℂ) ^ 2) / (4 * y))
+noncomputable def gaussKern (y : ℂ) (u : ℝ) : ℂ := Complex.exp (-((u : ℂ) ^ 2) / (4 * y))
 
-private noncomputable def gaussPoly : ℕ → ℂ → Polynomial ℂ
+noncomputable def gaussPoly : ℕ → ℂ → Polynomial ℂ
   | 0, _ => 1
   | n + 1, a => (gaussPoly n a).derivative - Polynomial.C a * Polynomial.X * gaussPoly n a
 
@@ -608,7 +608,7 @@ private lemma norm_gaussKern_le {y : ℂ} (hy : 0 < y.re) (u : ℝ) : ‖gaussKe
       Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero, Complex.inv_re]
   rw [hre]; exact neg_nonpos.mpr (mul_nonneg (by positivity) (div_nonneg hy.le (Complex.normSq_nonneg y)))
 
-private lemma contDiff_gaussKern {y : ℂ} (_ : y ≠ 0) : ContDiff ℝ ⊤ (gaussKern y) :=
+lemma contDiff_gaussKern {y : ℂ} (_ : y ≠ 0) : ContDiff ℝ ⊤ (gaussKern y) :=
   (Complex.differentiable_exp.contDiff.restrict_scalars ℝ).comp (((Complex.ofRealCLM.contDiff.pow 2).neg).div_const (4 * y))
 
 private lemma hasDerivAt_gaussPoly_kern {y : ℂ} (hy : y ≠ 0) (P : Polynomial ℂ) (x : ℝ) :
@@ -619,7 +619,7 @@ private lemma hasDerivAt_gaussPoly_kern {y : ℂ} (hy : y ≠ 0) (P : Polynomial
   refine (((P.hasDerivAt (x : ℂ)).comp_ofReal).mul harg.cexp).congr_deriv ?_
   unfold gaussKern; simp only [Polynomial.eval_sub, Polynomial.eval_mul, Polynomial.eval_C, Polynomial.eval_X]; ring
 
-private lemma iteratedDeriv_gaussKern_eq {y : ℂ} (hy : y ≠ 0) (n : ℕ) (u : ℝ) : iteratedDeriv n (gaussKern y) u = (gaussPoly n (2 * y)⁻¹).eval (u : ℂ) * gaussKern y u := by
+lemma iteratedDeriv_gaussKern_eq {y : ℂ} (hy : y ≠ 0) (n : ℕ) (u : ℝ) : iteratedDeriv n (gaussKern y) u = (gaussPoly n (2 * y)⁻¹).eval (u : ℂ) * gaussKern y u := by
   induction n generalizing u with
   | zero => simp only [iteratedDeriv_zero, gaussPoly, Polynomial.eval_one, one_mul]
   | succ k ih => rw [iteratedDeriv_succ, show iteratedDeriv k (gaussKern y) = fun (t : ℝ) => (gaussPoly k (2 * y)⁻¹).eval (t : ℂ) * gaussKern y t from funext ih]; exact (hasDerivAt_gaussPoly_kern hy _ u).deriv
@@ -653,7 +653,7 @@ private lemma gaussPoly_deg_and_coeff (n : ℕ) :
         | succ r => rw [Polynomial.coeff_X_mul]; exact mul_le_mul ha (hcoeff r) (norm_nonneg _) zero_le_one
       exact (norm_sub_le _ _).trans (by linarith)
 
-private lemma norm_iteratedDeriv_gaussKern_le (n : ℕ) :
+lemma norm_iteratedDeriv_gaussKern_le (n : ℕ) :
     ∃ B > 0, ∀ {y : ℂ}, 0 < y.re → 1 ≤ ‖y‖ → ∀ u : ℝ, ‖iteratedDeriv n (gaussKern y) u‖ ≤ B * (1 + |u|) ^ n := by
   obtain ⟨M, hM, hdc⟩ := gaussPoly_deg_and_coeff n; refine ⟨(n + 1 : ℝ) * M, by positivity, fun {y} hy hy1 u => ?_⟩
   have hy_ne : y ≠ 0 := fun h => by simp [h] at hy
