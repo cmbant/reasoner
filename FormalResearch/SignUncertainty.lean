@@ -7,6 +7,11 @@ public import FormalResearch.SignUncertainty.HardyMellinIntertwiner
 public import FormalResearch.SignUncertainty.HankelFiveHalvesWitness
 public import FormalResearch.SignUncertainty.SignSeparation
 public import FormalResearch.SignUncertainty.HankelBessel
+public import FormalResearch.SignUncertainty.HankelBesselMoments
+public import FormalResearch.SignUncertainty.HankelAntiderivCalculus
+public import FormalResearch.SignUncertainty.HankelAntiderivLimit
+public import FormalResearch.SignUncertainty.HankelAntiderivValue
+public import FormalResearch.SignUncertainty.HankelBesselData
 public import FormalResearch.SignUncertainty.HankelBesselNat
 public import FormalResearch.SignUncertainty.HankelBesselLaguerre
 public import FormalResearch.SignUncertainty.RadialCompactnessKernel
@@ -37,7 +42,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   and sign separation of bounded remainders (`Thm 7.9c`, `general_theorems.tex`).
 * `FormalResearch.SignUncertainty.HankelBessel`, `HankelBesselNat`, `HankelBesselLaguerre`: the concrete
   real-order Bessel Hankel kernel `K^{(c)}` of `fourier_mellin.tex` (`|K| ≤ 1`, the transform `𝓗_c` and
-  `|𝓗_c f| ≤ M[f]`, `HankelKernelData` from `HankelAntiderivFacts`, agreement with the natural-order
+  `|𝓗_c f| ≤ M[f]`, unconditional `HankelKernelData` (`∫_0^R J_{c-1} → 1` proved by integration by parts, a Lyapunov decay bound and the `+1` Laguerre mode), agreement with the natural-order
   Bessel function) and the Laguerre modes `𝓗_c e^{-2πΔ} = e^{-2πΔ}`, `𝓗_c u₀ = -u₀`
   (`general_theorems.tex`, Prop 7.9b input).
 * `FormalResearch.SignUncertainty.RadialCompactnessKernel`: the `s`-derivative identity
