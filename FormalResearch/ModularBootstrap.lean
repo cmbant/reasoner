@@ -322,6 +322,13 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneDesign
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneGeom
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOneAmp
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionOne
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumWeight
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumProfile
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumCore
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumWindow
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumBands
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumIntegral
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuum
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -955,4 +962,15 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `rampedComb_amplitude` against the global bound `SD_G`); `RampedRegionOne`: `regionI_W_lower` and `rampedRegionI`
   (`0 < twoG` for `t_* + 1 ≤ t ≤ t(ξ_I)`, `d ∈ [0, d_0]`, `C_I` absolute and chosen first) and `rampedPositive_tstar` (Regions I and II
   together: `0 < twoG` for `t ≥ t_* + 1`), unconditional.
+
+* `Upper.Ramped.{RampedVacuumWeight, RampedVacuumProfile, RampedVacuumCore, RampedVacuumWindow, RampedVacuumBands,
+  RampedVacuumIntegral, RampedVacuum}`: the **vacuum step of Lemma U\*** (`rem:thmU` Step (5)) for the ramped comb,
+  unconditional.  `rampedVacuum`: for every `C_I, C_mid ≥ 1` there is `M_0 > 0` such that for every `P : RampedParams`
+  with these `C_I, C_mid` and `P.M0 = M_0`, eventually in `c'`, `0 < virasoroProblem.gVac (c'/12) g` for the test
+  function `g` of `D_*` at `d = rampedD P c' = M_0 c'^{-1/3}`.  Ingredients: `mwt_sub_one_le` (`|M_wt - 1| ≤ Cλ|σ|`),
+  `rampedE0_le` and `rampedW_package` (`E_0 = O(c'^{-1/3})`, `‖W_D(u)‖ ≤ C(1+|u|)^{-3/2}`, `∫ Re W_D ≤ -d/2 + C_E
+  c'^{-1/3}`), `window_core` (truncation and weight-error costs), `rampedWindow_pointwise` (signed amplitude bound with
+  the two-sided `besselV_asymptotic`), `rampedWindow_part` (the Langer window `≤ FK_c C_*(-d/2 + (C_E + T) c'^{-1/3})`),
+  `rampedF_lobe_nonpos`, `rampedF_far_le` (far band `≤ C_far √c'`, from `rampedFarBand`) and `FKc_mul_rpow_eq`
+  (`FK_c c'^{-1/3} = A_0 √c'`).
 -/

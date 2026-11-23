@@ -35,7 +35,7 @@ U6_PLAN §1, unchanged; TeX re-checked against `origin/main`):
 | R3b | Ramped instantiation (sites, heights, PC sums, SDV, Φ transform θ=3/5, K7, far-band comparison) | done (`Ramped/RampedDesign*`, `RampedFarBand`, `RampedThreshold`) |
 | R5 | Region I | done (`Ramped/RampedRegionOne*`, `rampedRegionI`, `rampedPositive_tstar`) |
 | R6 | Region II near-tip + macroscopic | done (`Ramped/RampedRegionTwo*`, `rampedRegionII`; bridge `Ramped/CombBridge` for R5/R7) |
-| R7 | Vacuum | R1, R2b, R3b |
+| R7 | Vacuum | done (`Ramped/RampedVacuum*`, `rampedVacuum`; virasoroProblem, C2 generalises) |
 | R8 | Assembly `theoremC15UpperInput_virasoro`, `IsFeasible.mono_T`, `t_*` expansion; E1 with O(1) | all |
 
 Revisions made in this audit (cleaner implementation, checked against the TeX):
