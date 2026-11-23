@@ -301,6 +301,13 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.CombToAiryMain
 public import FormalResearch.ModularBootstrap.Upper.Assembly.ProfWinDef
 public import FormalResearch.ModularBootstrap.Upper.Assembly.ProfileWindow
 public import FormalResearch.ModularBootstrap.Upper.Assembly.DisplacedFamily
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedDesign
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedDesignPhase
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedDesignShiftCore
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedDesignShift
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedDesignNearTip
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFarBand
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedThreshold
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -899,4 +906,13 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   displacedClass`, `displacedFamily_union : DisplacedFamily (designClass ∪ displacedClass)` (all fields proved: `pi_lower`
   from `designFac_tail_lower` and `hasProd_ge_half_of_tail_lower`, `rest_small` from `profPi0_le_unif`).  What remains
   of `Σ` is `DesignPropertyP S.μS displacedClass` (`Σ3`) and `OmittedFamily` (`Σ4`).
+
+* `Upper.Ramped.{RampedDesign, RampedDesignPhase, RampedDesignShiftCore, RampedDesignShift, RampedDesignNearTip,
+  RampedFarBand, RampedThreshold}`: the **ramped comb `D_*`** of `rem:thmU` (the parameters `RampedParams`, the sites and
+  heights, `nCap ≤ 0.036 c'`, `|Δ_k| ≤ Cλk^{-4/3}`), unconditionally and with constants independent of `C_I, C_mid` and
+  `d ∈ [0, 1]`: `ramped_phaseHyp`, `ramped_phase_package`, `ramped_k7` (`PhaseHyp`, `θ = 3/5`, `g ∈ Ā`), the shift
+  summation `shiftSumEstimate_of_weights` (so `ShiftSumEstimate` holds for the ramped shifts) with `rampedHoleHyp_D`
+  and `rampedD_nearTip_twoG` (`2g/Lev ≥ c_fl min(1, 16η_n²)(1 - ε) - amp` on the near-tip range), the far band
+  `rampedFarBand` (`0 < B_D ≤ (1 + Cλ) B_ref` for `x ≥ ξ_* + 1/2`), and the threshold `rampedThreshold`
+  (`t_* = ξ̄c' + A_opt c'^{1/3} + (A_opt/|a_1|) M_0 + O(c'^{-1/3})`) with `rampedD_le`.
 -/
