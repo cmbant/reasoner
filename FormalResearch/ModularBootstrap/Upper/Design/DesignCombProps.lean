@@ -27,9 +27,10 @@ open FormalResearch.ModularBootstrap.Upper.Comb
 /-! ### 1. The tail -/
 
 /-- `K1(a)` for the tail `combTail c' N η₀` (the same statements as `refComb_K1a`, with the sites
-`χ_k`, `k > N`), together with multipliability of the tail product on `|Im b| < 7/8`. -/
-theorem combTail_K1a (N : ℕ) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) :
-    ∀ᶠ c' in atTop,
+`χ_k`, `k > N`), together with multipliability of the tail product on `|Im b| < 7/8`; the threshold
+in `c'` does not depend on the cut `N`. -/
+theorem combTail_K1a_unif {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) :
+    ∀ᶠ c' in atTop, ∀ N : ℕ,
       (∀ {b : ℂ}, |b.im| ≤ 1 / 2 → ‖combTail c' N η₀ b‖ ≤ 1) ∧
       (∀ {b : ℂ}, |b.im| = 1 / 2 → ‖combTail c' N η₀ b‖ = 1) ∧
       DifferentiableOn ℂ (combTail c' N η₀) {b : ℂ | |b.im| < 7 / 8} ∧
@@ -37,7 +38,7 @@ theorem combTail_K1a (N : ℕ) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (hη₀1 : 
         Multipliable fun m : ℕ =>
           pairT (chiQuantile c' (N + 1 + m : ℕ)) (η₀ * siteGap c' (N + 1 + m)) b) := by
   obtain ⟨_, _, h_ev⟩ := siteGap_eventually_le
-  filter_upwards [eventually_gt_atTop 0, h_ev] with c' hc' ⟨hgap_k, _, _, hgap_1⟩
+  filter_upwards [eventually_gt_atTop 0, h_ev] with c' hc' ⟨hgap_k, _, _, hgap_1⟩ N
   have hgap_nn : ∀ m : ℕ, 0 ≤ siteGap c' (N + 1 + m) := fun m => siteGap_nonneg hc' (by omega)
   have hε_bd : ∀ m : ℕ, |η₀ * siteGap c' (N + 1 + m)| ≤ 1 / 8 := fun m => by
     rw [abs_of_nonneg (mul_nonneg hη₀0 (hgap_nn m))]
@@ -61,6 +62,17 @@ theorem combTail_K1a (N : ℕ) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (hη₀1 : 
   · exact ((comb_pairProd_hasProdLocallyUniformlyOn
       (fun m : ℕ => chiQuantile c' (N + 1 + m : ℕ)) (fun m : ℕ => η₀ * siteGap c' (N + 1 + m))
       hχ_nn hε_bd hsum).hasProd hb).multipliable
+
+/-- `K1(a)` for the tail `combTail c' N η₀` at a fixed cut `N` (`combTail_K1a_unif`). -/
+theorem combTail_K1a (N : ℕ) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) :
+    ∀ᶠ c' in atTop,
+      (∀ {b : ℂ}, |b.im| ≤ 1 / 2 → ‖combTail c' N η₀ b‖ ≤ 1) ∧
+      (∀ {b : ℂ}, |b.im| = 1 / 2 → ‖combTail c' N η₀ b‖ = 1) ∧
+      DifferentiableOn ℂ (combTail c' N η₀) {b : ℂ | |b.im| < 7 / 8} ∧
+      (∀ {b : ℂ}, |b.im| < 7 / 8 →
+        Multipliable fun m : ℕ =>
+          pairT (chiQuantile c' (N + 1 + m : ℕ)) (η₀ * siteGap c' (N + 1 + m)) b) :=
+  (combTail_K1a_unif hη₀0 hη₀1).mono fun _ h => h N
 
 /-! ### 2. Symmetries -/
 
@@ -174,6 +186,10 @@ theorem designComb_K1a {c' : ℝ} {f N : ℕ} {η₀ : ℝ} {σ ε : ℕ → ℝ
     · exact DifferentiableAt.differentiableWithinAt
         (DifferentiableAt.fun_finsetProd fun i hi =>
           differentiableAt_pairT (hA.width i (Finset.mem_range.mp hi)) hbm)
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.combTail_K1a_unif' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms combTail_K1a_unif
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Design.combTail_K1a' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

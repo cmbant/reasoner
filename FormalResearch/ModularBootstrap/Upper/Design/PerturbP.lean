@@ -61,16 +61,17 @@ noncomputable def designComb (c' : ℝ) (f N : ℕ) (η₀ : ℝ) (σ ε : ℕ �
     (∏ i ∈ Finset.range (N - f), pairT (designSite c' σ (f + 1 + i)) (ε (f + 1 + i)) b) *
     combTail c' N η₀ b
 
-/-- The reference comb as the same finite product times the same tail. -/
-theorem refComb_eq_split (f N : ℕ) (hfN : f ≤ N) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) :
-    ∀ᶠ c' in atTop, ∀ {b : ℂ}, |b.im| < 7 / 8 →
+/-- The reference comb as the same finite product times the same tail, with the threshold in `c'`
+independent of the cut `N`. -/
+theorem refComb_eq_split_unif (f : ℕ) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) :
+    ∀ᶠ c' in atTop, ∀ N : ℕ, f ≤ N → ∀ {b : ℂ}, |b.im| < 7 / 8 →
       refComb c' f η₀ b =
         blaschkeT (chiQuantile c' f : ℂ) b *
           (∏ i ∈ Finset.range (N - f),
             pairT (chiQuantile c' (f + 1 + i : ℕ)) (η₀ * siteGap c' (f + 1 + i)) b) *
           combTail c' N η₀ b := by
   obtain ⟨_, _, h_ev⟩ := siteGap_eventually_le
-  filter_upwards [eventually_gt_atTop 0, h_ev] with c' hc' ⟨hgap_k, _, _, hgap_1⟩ b hb
+  filter_upwards [eventually_gt_atTop 0, h_ev] with c' hc' ⟨hgap_k, _, _, hgap_1⟩ N hfN b hb
   have ha : ∀ k : ℕ, 1 ≤ k → (1 / 4 : ℝ) ≤ (k : ℝ) := fun k hk => by
     have : (1 : ℝ) ≤ k := by exact_mod_cast hk
     linarith
@@ -117,6 +118,16 @@ theorem refComb_eq_split (f N : ℕ) (hfN : f ≤ N) {η₀ : ℝ} (hη₀0 : 0 
         ((η₀ * siteGap c' (f + 1 + m) : ℝ) : ℂ) * Complex.I) b) := rfl
   unfold refComb combTail
   rw [← hfull_eq, ← hsplit, hshift, mul_assoc]
+
+/-- The reference comb as the same finite product times the same tail. -/
+theorem refComb_eq_split (f N : ℕ) (hfN : f ≤ N) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) :
+    ∀ᶠ c' in atTop, ∀ {b : ℂ}, |b.im| < 7 / 8 →
+      refComb c' f η₀ b =
+        blaschkeT (chiQuantile c' f : ℂ) b *
+          (∏ i ∈ Finset.range (N - f),
+            pairT (chiQuantile c' (f + 1 + i : ℕ)) (η₀ * siteGap c' (f + 1 + i)) b) *
+          combTail c' N η₀ b :=
+  (refComb_eq_split_unif f hη₀0 hη₀1).mono fun _ h => h N hfN
 
 
 /-! ### 2. Real-axis logarithms -/
@@ -513,6 +524,10 @@ theorem lemma_P_a_fixedN (N : ℕ) (hN : 1 ≤ N) {etaStar : ℝ} (hη0 : 0 ≤ 
   calc etaStar * siteGap c' k ≤ 1 * (Cg * lambdaComb c') :=
         mul_le_mul (hη1.trans (by norm_num)) hgk (siteGap_nonneg hpos (by omega)) (by norm_num)
     _ = Cg * lambdaComb c' := one_mul _
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.refComb_eq_split_unif' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms refComb_eq_split_unif
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Design.lemma_P_b' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

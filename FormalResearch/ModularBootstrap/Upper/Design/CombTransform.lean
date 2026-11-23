@@ -29,6 +29,11 @@ constants; hence on `x ≥ ξ_I = ξ_* + c'^{-θ}` (any fixed `θ < 2/3`),
 `1/2 - δ ≤ Im b ≤ 1/2` (where `|B_D| ≤ 1`), as in the paper; `SD_H` needs it on all of
 `0 ≤ Im b ≤ 1/2`, again with `|B_D| ≤ 1`; `h` is required continuous up to the real axis.
 
+Each of these has an `_of_decomp` / `_of_admissible` form for an abstract finite modification whose
+`DesignPhiDecomp` carries a derivative bound `B` independent of `c'` and of the cut `N` (the form needed when `N`
+grows with `c'`, e.g. the ramped comb): the thresholds in `c'` and the constants depend on `f`, `B` (and `θ`) only.
+The compact-family statements above are corollaries (with `B = C λ ≤ C` from `lemma_Phi_b`).
+
 All results are proved unconditionally.
 -/
 
@@ -113,6 +118,57 @@ lemma differentiableOn_designDelta {c' : ℝ} {f N : ℕ} {η₀ : ℝ} {σ ε :
   refine (hd _ _ hzf hzf0).add (DifferentiableAt.fun_sum fun j hj => ?_)
   exact (hd _ _ (hpl j hj).1 (hpl j hj).2.2.1).add (hd _ _ (hpl j hj).2.1 (hpl j hj).2.2.2)
 
+/-- **Uniform bounds for `Φ₁^{(f)} + Δ_D`, from a phase decomposition.**  There is `A ≥ 0` (depending on `f`
+only: `A = C₁ n₁^{(f)}`, Lemma `K3`) such that for `c'` large (threshold independent of the cut `N`), every
+admissible finite modification with `DesignPhiDecomp c' f N η₀ σ ε B` (any `B`) has `Φ₁ = Φ₁^{(f)} + Δ_D`
+holomorphic on `combNMid` and its first two derivatives bounded by `A + B` on `𝒩`. -/
+theorem designPhi1_bounds_of_decomp (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀)
+    (hη₀1 : η₀ ≤ 1 / 4) :
+    ∃ A : ℝ, 0 ≤ A ∧ ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ) (B : ℝ),
+      DesignAdmissible c' f N η₀ σ ε → DesignPhiDecomp c' f N η₀ σ ε B →
+      DifferentiableOn ℂ (designPhi1 c' f N η₀ σ ε) combNMid ∧
+      ∀ b ∈ combN, ‖deriv (designPhi1 c' f N η₀ σ ε) b‖ ≤ A + B ∧
+        ‖deriv (deriv (designPhi1 c' f N η₀ σ ε)) b‖ ≤ A + B := by
+  obtain ⟨C₁, hC₁, hK3⟩ := edgePhase_bounds
+  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
+  have hn1 : 0 ≤ n1Comb f := by
+    unfold n1Comb
+    have : (1 : ℝ) ≤ f := by exact_mod_cast hf
+    linarith
+  refine ⟨C₁ * n1Comb f, by positivity, ?_⟩
+  filter_upwards [hK3, h_ev, eventually_gt_atTop 0] with c' hK
+    ⟨hgap_k, hgap_1_bd, hcd1_bd, hgap_1⟩ hc' N σ ε B hA hDec
+  have hphi := differentiableOn_phi1Comb hc' f hf hη₀0 hη₀1 hgap_1 hgap_k
+  have hdelta := differentiableOn_designDelta hA
+  have hΦ1 : DifferentiableOn ℂ (designPhi1 c' f N η₀ σ ε) combNMid := by
+    intro b hb
+    exact (hphi b hb).add ((hdelta.mono combNMid_subset_combNOpen) b hb)
+  refine ⟨hΦ1, fun b hb => ?_⟩
+  have hbm := combN_subset_combNMid hb
+  have hbo := combNMid_subset_combNOpen hbm
+  have hcd1 : ContDiffAt ℂ 2 (phi1Comb c' f η₀) b :=
+    ((hphi.analyticOnNhd isOpen_combNMid) b hbm).contDiffAt
+  have hcd2 : ContDiffAt ℂ 2 (designDelta c' f N η₀ σ ε) b :=
+    ((hdelta.analyticOnNhd isOpen_combNOpen) b hbo).contDiffAt
+  have hsum : ∀ i : ℕ, i ≤ 2 → iteratedDeriv i (designPhi1 c' f N η₀ σ ε) b =
+      iteratedDeriv i (phi1Comb c' f η₀) b + iteratedDeriv i (designDelta c' f N η₀ σ ε) b :=
+    fun i hi => iteratedDeriv_fun_add (hcd1.of_le (by exact_mod_cast hi))
+      (hcd2.of_le (by exact_mod_cast hi))
+  have hbd : ∀ i : ℕ, i ≤ 2 → ‖iteratedDeriv i (designPhi1 c' f N η₀ σ ε) b‖ ≤
+      C₁ * n1Comb f + B := fun i hi => by
+    rw [hsum i hi]
+    refine (norm_add_le _ _).trans ?_
+    have h1 := (hK f hf hη₀0 hη₀1 i hi hb).2.1
+    have h2 := hDec.2.2.2 i hi b hb
+    linarith
+  have e1 : deriv (designPhi1 c' f N η₀ σ ε) b = iteratedDeriv 1 (designPhi1 c' f N η₀ σ ε) b := by
+    rw [iteratedDeriv_one]
+  have e2 : deriv (deriv (designPhi1 c' f N η₀ σ ε)) b =
+      iteratedDeriv 2 (designPhi1 c' f N η₀ σ ε) b := by
+    rw [iteratedDeriv_succ, iteratedDeriv_one]
+  rw [e1, e2]
+  exact ⟨hbd 1 (by norm_num), hbd 2 le_rfl⟩
+
 /-- Uniform bounds for `Φ₁^{(f)} + Δ_D` on `𝒩`: it is holomorphic on `|Im b - 1/2| < 17/64`, and its
 first two derivatives are bounded on `𝒩` uniformly in `c'` and in the family (`K3` for `Φ₁^{(f)}`,
 `lemma_Phi_b` for `Δ_D`). -/
@@ -125,71 +181,30 @@ theorem designPhi1_bounds (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ)
       DesignPhiDecomp c' f N η₀ σ ε B ∧
       ∀ b ∈ combN, ‖deriv (designPhi1 c' f N η₀ σ ε) b‖ ≤ B ∧
         ‖deriv (deriv (designPhi1 c' f N η₀ σ ε)) b‖ ≤ B := by
-  obtain ⟨C₁, hC₁, hK3⟩ := edgePhase_bounds
+  obtain ⟨A, hA0, hAev⟩ := designPhi1_bounds_of_decomp f hf hη₀0 hη₀1
   obtain ⟨CΦ, hCΦ, hΦ⟩ := lemma_Phi_b f N hf hfN M E hE hη₀0 hη₀1
-  obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
-  have hn1 : 0 ≤ n1Comb f := by
-    unfold n1Comb
-    have : (1 : ℝ) ≤ f := by exact_mod_cast hf
-    linarith
-  set B : ℝ := C₁ * n1Comb f + CΦ with hB
-  refine ⟨B, by positivity, ?_⟩
-  filter_upwards [hK3, hΦ, h_ev, designAdmissible_eventually f N hf hfN M E hη₀0 hη₀1,
-    tendsto_lambdaComb_atTop.eventually_le_const (zero_lt_one : (0 : ℝ) < 1),
-    eventually_gt_atTop 0] with c' hK hD ⟨hgap_k, hgap_1_bd, hcd1_bd, hgap_1⟩ hAd hlam1 hc' σ ε hσ hε
+  refine ⟨A + CΦ, by positivity, ?_⟩
+  filter_upwards [hAev, hΦ, designAdmissible_eventually f N hf hfN M E hη₀0 hη₀1,
+    tendsto_lambdaComb_atTop.eventually_le_const (zero_lt_one : (0 : ℝ) < 1)]
+    with c' hAb hD hAd hlam1 σ ε hσ hε
   have hA := hAd σ ε hσ hε
-  have hDec := hD σ ε hσ hε
-  have hphi := differentiableOn_phi1Comb hc' f hf hη₀0 hη₀1 hgap_1 hgap_k
-  have hdelta := differentiableOn_designDelta hA
-  have hlam0 : 0 ≤ lambdaComb c' := (Real.rpow_pos_of_pos (mul_pos kTip_pos hc') _).le
-  have hΦ1 : DifferentiableOn ℂ (designPhi1 c' f N η₀ σ ε) combNMid := by
-    intro b hb
-    exact (hphi b hb).add ((hdelta.mono combNMid_subset_combNOpen) b hb)
-  refine ⟨hA, hΦ1, ?_, ?_⟩
-  · refine ⟨hDec.1, hDec.2.1, hDec.2.2.1, fun i hi b hb => (hDec.2.2.2 i hi b hb).trans ?_⟩
-    have : CΦ * lambdaComb c' ≤ CΦ := by nlinarith
-    have := mul_nonneg hC₁.le hn1
-    linarith
-  · intro b hb
-    have hbm := combN_subset_combNMid hb
-    have hbo := combNMid_subset_combNOpen hbm
-    have hcd1 : ContDiffAt ℂ 2 (phi1Comb c' f η₀) b :=
-      ((hphi.analyticOnNhd isOpen_combNMid) b hbm).contDiffAt
-    have hcd2 : ContDiffAt ℂ 2 (designDelta c' f N η₀ σ ε) b :=
-      ((hdelta.analyticOnNhd isOpen_combNOpen) b hbo).contDiffAt
-    have hsum : ∀ i : ℕ, i ≤ 2 → iteratedDeriv i (designPhi1 c' f N η₀ σ ε) b =
-        iteratedDeriv i (phi1Comb c' f η₀) b + iteratedDeriv i (designDelta c' f N η₀ σ ε) b :=
-      fun i hi => iteratedDeriv_fun_add (hcd1.of_le (by exact_mod_cast hi))
-        (hcd2.of_le (by exact_mod_cast hi))
-    have hbd : ∀ i : ℕ, i ≤ 2 → ‖iteratedDeriv i (designPhi1 c' f N η₀ σ ε) b‖ ≤
-        B := fun i hi => by
-      rw [hsum i hi]
-      refine (norm_add_le _ _).trans ?_
-      have h1 := (hK f hf hη₀0 hη₀1 i hi hb).2.1
-      have h2 := hDec.2.2.2 i hi b hb
-      have : CΦ * lambdaComb c' ≤ CΦ := by nlinarith
-      linarith
-    have e1 : deriv (designPhi1 c' f N η₀ σ ε) b = iteratedDeriv 1 (designPhi1 c' f N η₀ σ ε) b := by
-      rw [iteratedDeriv_one]
-    have e2 : deriv (deriv (designPhi1 c' f N η₀ σ ε)) b =
-        iteratedDeriv 2 (designPhi1 c' f N η₀ σ ε) b := by
-      rw [iteratedDeriv_succ, iteratedDeriv_one]
-    rw [e1, e2]
-    exact ⟨hbd 1 (by norm_num), hbd 2 le_rfl⟩
+  have hDec : DesignPhiDecomp c' f N η₀ σ ε CΦ :=
+    (hD σ ε hσ hε).mono (by nlinarith)
+  obtain ⟨hdiff, hder⟩ := hAb N σ ε CΦ hA hDec
+  exact ⟨hA, hdiff, hDec.mono (by linarith), fun b hb => hder b hb⟩
 
 /-! ### 3. Hypotheses of `SD_H` and `SD_G` -/
 
 /-- The hypotheses of Lemma `SD_H` for `h₀ = sech² B_D^{(f)}` (`a = π`, `C = 8`), and `|B_D| = 1`
-on `E₊` (the input of `SD_G`), uniformly over the compact family. -/
-theorem designProfile_edgeHankelHyp (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) {η₀ : ℝ}
-    (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) :
-    ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
-      (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
+on `E₊` (the input of `SD_G`), for every admissible finite modification, for `c'` large with a threshold
+independent of the cut `N` and of the data. -/
+theorem designProfile_edgeHankelHyp_of_admissible (f : ℕ) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀)
+    (hη₀1 : η₀ ≤ 1 / 4) :
+    ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ), DesignAdmissible c' f N η₀ σ ε →
       EdgeHankelHyp (designProfile c' f N η₀ σ ε) π 8 ∧
       (∀ v : ℝ, ‖designComb c' f N η₀ σ ε ((v : ℂ) + Complex.I / 2)‖ = 1) := by
-  filter_upwards [designAdmissible_eventually f N hf hfN M E hη₀0 hη₀1,
-    combTail_K1a N hη₀0 hη₀1] with c' hAd ⟨hT1, hT2, hT3, _⟩ σ ε hσ hε
-  have hA := hAd σ ε hσ hε
+  filter_upwards [combTail_K1a_unif hη₀0 hη₀1] with c' hT N σ ε hA
+  obtain ⟨hT1, hT2, hT3, _⟩ := hT N
   obtain ⟨hK1, hK2, hK3⟩ := designComb_K1a hA hT1 hT2 hT3
   refine ⟨?_, fun v => hK2 (by simp [abs_of_pos])⟩
   refine ⟨fun r => ?_, ?_, ?_, fun b h0 h1 => ?_⟩
@@ -213,6 +228,36 @@ theorem designProfile_edgeHankelHyp (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (
           mul_le_mul h2 h3 (norm_nonneg _) (by positivity)
       _ = 8 * Real.exp (-π * |b.re|) := mul_one _
 
+/-- The hypotheses of Lemma `SD_H` for `h₀ = sech² B_D^{(f)}` (`a = π`, `C = 8`), and `|B_D| = 1`
+on `E₊` (the input of `SD_G`), uniformly over the compact family. -/
+theorem designProfile_edgeHankelHyp (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) {η₀ : ℝ}
+    (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) :
+    ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
+      (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
+      EdgeHankelHyp (designProfile c' f N η₀ σ ε) π 8 ∧
+      (∀ v : ℝ, ‖designComb c' f N η₀ σ ε ((v : ℂ) + Complex.I / 2)‖ = 1) := by
+  filter_upwards [designAdmissible_eventually f N hf hfN M E hη₀0 hη₀1,
+    designProfile_edgeHankelHyp_of_admissible f hη₀0 hη₀1] with c' hAd h σ ε hσ hε
+  exact h N σ ε (hAd σ ε hσ hε)
+
+/-- **Lemma `SD_G` for `h₀ = sech² B_D^{(f)}`, any admissible finite modification**: with the absolute
+constant `K` of `edge_global_bound`, `e^{c'L(x)} ‖ĥ₀(c'x²/3)‖ ≤ K √(c'/x)` for all `x > 0`, for `c'` large
+(threshold independent of the cut `N` and of the data). -/
+theorem designProfile_global_bound_of_admissible (f : ℕ) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀)
+    (hη₀1 : η₀ ≤ 1 / 4) :
+    ∃ K : ℝ, 0 ≤ K ∧ ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ), DesignAdmissible c' f N η₀ σ ε →
+      ∀ x : ℝ, 0 < x → Real.exp (c' * edgeL x) *
+        ‖edgeHankel c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3)‖ ≤ K * √(c' / x) := by
+  obtain ⟨K, hK0, hK⟩ := edge_global_bound
+  refine ⟨K, hK0, ?_⟩
+  filter_upwards [designProfile_edgeHankelHyp_of_admissible f hη₀0 hη₀1, eventually_gt_atTop 0]
+    with c' hP hc' N σ ε hA x hx
+  obtain ⟨hh, hB⟩ := hP N σ ε hA
+  have hsech : EdgeSechBound (designProfile c' f N η₀ σ ε) 1 :=
+    edgeSechBound_of_unit (B := designComb c' f N η₀ σ ε) hB
+  have := hK (designProfile c' f N η₀ σ ε) π 8 1 Real.pi_pos hh zero_le_one hsech c' x hc' hx
+  simpa using this
+
 /-- **Lemma `SD_G` for `h₀ = sech² B_D^{(f)}`**: with the absolute constant `K` of
 `edge_global_bound`, `e^{c'L(x)} ‖ĥ₀(c'x²/3)‖ ≤ K √(c'/x)` for all `x > 0`, uniformly over the
 compact family and for large `c'`. -/
@@ -222,15 +267,10 @@ theorem designProfile_global_bound (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M
       (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
       ∀ x : ℝ, 0 < x → Real.exp (c' * edgeL x) *
         ‖edgeHankel c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3)‖ ≤ K * √(c' / x) := by
-  obtain ⟨K, hK0, hK⟩ := edge_global_bound
+  obtain ⟨K, hK0, hK⟩ := designProfile_global_bound_of_admissible f hη₀0 hη₀1
   refine ⟨K, hK0, ?_⟩
-  filter_upwards [designProfile_edgeHankelHyp f N hf hfN M E hη₀0 hη₀1, eventually_gt_atTop 0]
-    with c' hP hc' σ ε hσ hε x hx
-  obtain ⟨hh, hB⟩ := hP σ ε hσ hε
-  have hsech : EdgeSechBound (designProfile c' f N η₀ σ ε) 1 :=
-    edgeSechBound_of_unit (B := designComb c' f N η₀ σ ε) hB
-  have := hK (designProfile c' f N η₀ σ ε) π 8 1 Real.pi_pos hh zero_le_one hsech c' x hc' hx
-  simpa using this
+  filter_upwards [designAdmissible_eventually f N hf hfN M E hη₀0 hη₀1, hK] with c' hAd h σ ε hσ hε
+  exact h N σ ε (hAd σ ε hσ hε)
 
 /-! ### 4. Hypotheses of `SD_0` and `SD_V` -/
 
@@ -257,26 +297,25 @@ lemma re_designPhi1_edge {c' : ℝ} {f N : ℕ} {η₀ : ℝ} {σ ε : ℕ → �
     (hDec : DesignPhiDecomp c' f N η₀ σ ε B) {b : ℂ} (hb : b.im = 1 / 2) :
     (designPhi1 c' f N η₀ σ ε b).re = 0 := hDec.2.2.1 b hb
 
-/-- **The hypotheses of Lemma `SD_V` for `h₀ = sech² B_D^{(f)}`.**  There are constants `M₁, M₂`
-such that for `c'` large, uniformly in the compact family and in `x ≥ ξ_*`,
-`SDVHypotheses Φ₀ x c' (1/8) M₁ M₂ sech² Φ₁ H₀¹ ε_H` holds with `Φ₀ = edgePhi0Blaschke`,
-`Φ₁ = Φ₁^{(f)} + Δ_D`. -/
-theorem designProfile_sdvHypotheses (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (hE : 0 ≤ E)
-    {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) :
-    ∃ M₁ M₂ : ℝ, 0 ≤ M₁ ∧ 0 ≤ M₂ ∧ ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ,
-      (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
-      (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
+/-- **The hypotheses of Lemma `SD_V` for `h₀ = sech² B_D^{(f)}`, from a phase decomposition.**  There is
+`A ≥ 0` (depending on `f` only) such that for `c'` large (threshold independent of the cut `N`, of `B` and
+of the data), every `N`, every admissible finite modification with `DesignPhiDecomp c' f N η₀ σ ε B` and every
+`x ≥ ξ_*`, `SDVHypotheses Φ₀ x c' (1/8) (𝒜₀ + A + B) (𝒜₀' + A + B) sech² Φ₁ H₀¹ ε_H` holds with
+`Φ₀ = edgePhi0Blaschke` and `Φ₁ = Φ₁^{(f)} + Δ_D`; `𝒜₀, 𝒜₀'` (`ampM0`, `ampM0'`) are absolute. -/
+theorem designProfile_sdvHypotheses_of_decomp (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀)
+    (hη₀1 : η₀ ≤ 1 / 4) :
+    ∃ A : ℝ, 0 ≤ A ∧ ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ) (B : ℝ),
+      DesignAdmissible c' f N η₀ σ ε → DesignPhiDecomp c' f N η₀ σ ε B →
       ∀ x : ℝ, xiStar ≤ x →
-        SDVHypotheses edgePhi0Blaschke x c' (1 / 8) M₁ M₂ sechSqProfile
-          (designPhi1 c' f N η₀ σ ε) hankel0 hankelEps := by
-  obtain ⟨B, hB, hBev⟩ := designPhi1_bounds f N hf hfN M E hE hη₀0 hη₀1
+        SDVHypotheses edgePhi0Blaschke x c' (1 / 8) (ampM0 + (A + B)) (ampM0' + (A + B))
+          sechSqProfile (designPhi1 c' f N η₀ σ ε) hankel0 hankelEps := by
+  obtain ⟨A, hA0, hBev⟩ := designPhi1_bounds_of_decomp f hf hη₀0 hη₀1
   have hc1 := cosC_pos
-  refine ⟨ampM0 + B, ampM0' + B, ?_, ?_, ?_⟩
-  · unfold ampM0; positivity
-  · unfold ampM0'; positivity
-  filter_upwards [hBev, combTail_K1a N hη₀0 hη₀1,
-    eventually_ge_atTop (6 / (π * xiStar))] with c' hBd ⟨hT1, hT2, hT3, hT4⟩ hbig σ ε hσ hε x hx
-  obtain ⟨hA, hΦ1, hDec, hder⟩ := hBd σ ε hσ hε
+  refine ⟨A, hA0, ?_⟩
+  filter_upwards [hBev, combTail_K1a_unif hη₀0 hη₀1,
+    eventually_ge_atTop (6 / (π * xiStar))] with c' hBd hTd hbig N σ ε B hA hDec x hx
+  obtain ⟨hT1, hT2, hT3, hT4⟩ := hTd N
+  obtain ⟨hΦ1, hder⟩ := hBd N σ ε B hA hDec
   have hc'pos : 0 < c' := lt_of_lt_of_le (by have := xiStar_pos; positivity) hbig
   have hk8 : 8 ≤ sdvWave c' x := by
     unfold sdvWave
@@ -348,6 +387,30 @@ theorem designProfile_sdvHypotheses (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (
     simp only [map_mul]
     ring
 
+/-- **The hypotheses of Lemma `SD_V` for `h₀ = sech² B_D^{(f)}`.**  There are constants `M₁, M₂`
+such that for `c'` large, uniformly in the compact family and in `x ≥ ξ_*`,
+`SDVHypotheses Φ₀ x c' (1/8) M₁ M₂ sech² Φ₁ H₀¹ ε_H` holds with `Φ₀ = edgePhi0Blaschke`,
+`Φ₁ = Φ₁^{(f)} + Δ_D`. -/
+theorem designProfile_sdvHypotheses (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (hE : 0 ≤ E)
+    {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) :
+    ∃ M₁ M₂ : ℝ, 0 ≤ M₁ ∧ 0 ≤ M₂ ∧ ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ,
+      (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
+      (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
+      ∀ x : ℝ, xiStar ≤ x →
+        SDVHypotheses edgePhi0Blaschke x c' (1 / 8) M₁ M₂ sechSqProfile
+          (designPhi1 c' f N η₀ σ ε) hankel0 hankelEps := by
+  obtain ⟨A, hA0, hSDV⟩ := designProfile_sdvHypotheses_of_decomp f hf hη₀0 hη₀1
+  obtain ⟨CΦ, hCΦ, hΦ⟩ := lemma_Phi_b f N hf hfN M E hE hη₀0 hη₀1
+  have hc1 := cosC_pos
+  refine ⟨ampM0 + (A + CΦ), ampM0' + (A + CΦ), ?_, ?_, ?_⟩
+  · unfold ampM0; positivity
+  · unfold ampM0'; positivity
+  filter_upwards [hSDV, hΦ, designAdmissible_eventually f N hf hfN M E hη₀0 hη₀1,
+    tendsto_lambdaComb_atTop.eventually_le_const (zero_lt_one : (0 : ℝ) < 1)]
+    with c' hS hD hAd hlam1 σ ε hσ hε x hx
+  have hDec : DesignPhiDecomp c' f N η₀ σ ε CΦ := (hD σ ε hσ hε).mono (by nlinarith)
+  exact hS N σ ε CΦ (hAd σ ε hσ hε) hDec x hx
+
 /-! ### 5. The transform bound -/
 
 /-- `(SD.1)`: the Hankel transform of `h₀` is the edge integral of `SD_V`. -/
@@ -370,17 +433,23 @@ lemma edgeHankel_designProfile_eq_sdvIntegral {c' : ℝ} {f N : ℕ} {η₀ : �
   rw [this]
   rfl
 
-/-- **Lemma `Φ`, "Consequently"** (`ut:Phi`): for `h₀ = sech²(πb/2) B_D^{(f)}` in a compact family,
-`c'` large, `0 < θ < 2/3` and every `x ≥ ξ_I = ξ_* + c'^{-θ}`,
-`|ĥ₀(c'x²/3)| ≤ 𝒜_x (1 + C c'^{-1+3θ/2})`, with `C` independent of `c'`, `x` and the family. -/
-theorem lemma_Phi_transform (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (hE : 0 ≤ E) {η₀ : ℝ}
-    (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) {θ : ℝ} (hθ0 : 0 < θ) (hθ1 : θ < 2 / 3) :
-    ∃ C : ℝ, 0 ≤ C ∧ ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
-      (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
+/-- **Lemma `Φ`, "Consequently"** (`ut:Phi`), for an abstract finite modification with a phase
+decomposition of derivative bound `B ≥ 0` (independent of `c'` and of the cut `N`): for fixed `f ≥ 1`,
+`η₀ ∈ [0, 1/4]`, `0 < θ < 2/3` there is `C = C(f, B, θ) ≥ 0` such that for `c'` large, **every cut `N`**,
+every admissible finite modification with `DesignPhiDecomp c' f N η₀ σ ε B` and every `x ≥ ξ_I = ξ_* +
+c'^{-θ}`, `|ĥ₀(c'x²/3)| ≤ 𝒜_x (1 + C c'^{-1+3θ/2})`.  Neither `C` nor the threshold depends on `N`, `x`
+or the data.  (The ramped comb uses `θ = 3/5`.) -/
+theorem lemma_Phi_transform_of_decomp (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀)
+    (hη₀1 : η₀ ≤ 1 / 4) {B : ℝ} (hB : 0 ≤ B) {θ : ℝ} (hθ0 : 0 < θ) (hθ1 : θ < 2 / 3) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ), DesignAdmissible c' f N η₀ σ ε →
+      DesignPhiDecomp c' f N η₀ σ ε B →
       ∀ x : ℝ, xiStar + c' ^ (-θ) ≤ x →
         ‖edgeHankel c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3)‖ ≤
           combAmplitude c' x * (1 + C * c' ^ (-1 + 3 * θ / 2)) := by
-  obtain ⟨M₁, M₂, hM₁, hM₂, hSDV⟩ := designProfile_sdvHypotheses f N hf hfN M E hE hη₀0 hη₀1
+  obtain ⟨A, hA0, hSDV⟩ := designProfile_sdvHypotheses_of_decomp f hf hη₀0 hη₀1
+  have hc1' := cosC_pos
+  have hM₁ : 0 ≤ ampM0 + (A + B) := by unfold ampM0; positivity
+  have hM₂ : 0 ≤ ampM0' + (A + B) := by unfold ampM0'; positivity
   obtain ⟨C₃, C₄, hΦ⟩ := edgePhaseData_blaschke
   have hEP := hΦ (1 / 8) (by norm_num) (by norm_num)
   have hC₃ : 0 ≤ C₃ := (norm_nonneg _).trans (hEP.deriv3_bound (Complex.I / 2) (by
@@ -389,17 +458,15 @@ theorem lemma_Phi_transform (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : �
   have hC₄ : 0 ≤ C₄ := (norm_nonneg _).trans (hEP.deriv4_bound (Complex.I / 2) (by
     change |(Complex.I / 2 : ℂ).im - 1 / 2| ≤ 1 / 8
     simp))
-  obtain ⟨N₀, CSD, hN₀, hCSD, hSD⟩ := lemma_SD_V (δ := 1 / 8) (C₃ := C₃) (C₄ := C₄) (M := M₁)
-    (M' := M₂) (by norm_num) (by norm_num) hC₃ hC₄ hM₁ hM₂
+  obtain ⟨N₀, CSD, hN₀, hCSD, hSD⟩ := lemma_SD_V (δ := 1 / 8) (C₃ := C₃) (C₄ := C₄) (M := ampM0 + (A + B))
+    (M' := ampM0' + (A + B)) (by norm_num) (by norm_num) hC₃ hC₄ hM₁ hM₂
   obtain ⟨cm, hcm, hmx⟩ := sdv_uniform_mX_cubed
-  obtain ⟨B, hB, hBev⟩ := designPhi1_bounds f N hf hfN M E hE hη₀0 hη₀1
   have hexp : 0 < 1 - 3 * θ / 2 := by linarith
   refine ⟨CSD / cm, by positivity, ?_⟩
-  filter_upwards [hSDV, hBev, designProfile_edgeHankelHyp f N hf hfN M E hη₀0 hη₀1,
+  filter_upwards [hSDV, designProfile_edgeHankelHyp_of_admissible f hη₀0 hη₀1,
     (tendsto_rpow_atTop hexp).eventually_ge_atTop (N₀ / cm), eventually_ge_atTop (1 : ℝ)]
-    with c' hS hBd hH hbig hc1 σ ε hσ hε x hx
-  obtain ⟨-, -, hDec, -⟩ := hBd σ ε hσ hε
-  obtain ⟨hh, -⟩ := hH σ ε hσ hε
+    with c' hS hH hbig hc1 N σ ε hA hDec x hx
+  obtain ⟨hh, -⟩ := hH N σ ε hA
   have hc'pos : 0 < c' := lt_of_lt_of_le one_pos hc1
   have hxpos : 0 < c' ^ (-θ) := Real.rpow_pos_of_pos hc'pos _
   have hxξ : xiStar < x := by linarith
@@ -426,7 +493,7 @@ theorem lemma_Phi_transform (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : �
   have hN : N₀ ≤ c' * mX x ^ 3 := by
     have := (div_le_iff₀ hcm).1 hbig
     linarith
-  obtain ⟨err, herr, hint⟩ := hSD hxξ hc'pos hN hEP (hS σ ε hσ hε x (by linarith))
+  obtain ⟨err, herr, hint⟩ := hSD hxξ hc'pos hN hEP (hS N σ ε B hA hDec x (by linarith))
   have hre : (designPhi1 c' f N η₀ σ ε (bX x)).re = 0 :=
     re_designPhi1_edge hDec (by simp [bX])
   have hpref : sdvPrefactor c' x sechSqProfile (designPhi1 c' f N η₀ σ ε) hankelEps =
@@ -452,6 +519,24 @@ theorem lemma_Phi_transform (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : �
     _ ≤ 1 + |err| := by gcongr; exact Real.abs_cos_le_one _
     _ ≤ _ := by linarith
 
+/-- **Lemma `Φ`, "Consequently"** (`ut:Phi`): for `h₀ = sech²(πb/2) B_D^{(f)}` in a compact family,
+`c'` large, `0 < θ < 2/3` and every `x ≥ ξ_I = ξ_* + c'^{-θ}`,
+`|ĥ₀(c'x²/3)| ≤ 𝒜_x (1 + C c'^{-1+3θ/2})`, with `C` independent of `c'`, `x` and the family. -/
+theorem lemma_Phi_transform (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (hE : 0 ≤ E) {η₀ : ℝ}
+    (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) {θ : ℝ} (hθ0 : 0 < θ) (hθ1 : θ < 2 / 3) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
+      (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
+      ∀ x : ℝ, xiStar + c' ^ (-θ) ≤ x →
+        ‖edgeHankel c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3)‖ ≤
+          combAmplitude c' x * (1 + C * c' ^ (-1 + 3 * θ / 2)) := by
+  obtain ⟨CΦ, hCΦ, hΦ⟩ := lemma_Phi_b f N hf hfN M E hE hη₀0 hη₀1
+  obtain ⟨C, hC, hT⟩ := lemma_Phi_transform_of_decomp f hf hη₀0 hη₀1 hCΦ hθ0 hθ1
+  refine ⟨C, hC, ?_⟩
+  filter_upwards [hT, hΦ, designAdmissible_eventually f N hf hfN M E hη₀0 hη₀1,
+    tendsto_lambdaComb_atTop.eventually_le_const (zero_lt_one : (0 : ℝ) < 1)]
+    with c' hTc hD hAd hlam1 σ ε hσ hε x hx
+  exact hTc N σ ε (hAd σ ε hσ hε) ((hD σ ε hσ hε).mono (by nlinarith)) x hx
+
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Design.designPhi1_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms designPhi1_bounds
@@ -471,5 +556,25 @@ theorem lemma_Phi_transform (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : �
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Design.lemma_Phi_transform' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms lemma_Phi_transform
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.designPhi1_bounds_of_decomp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms designPhi1_bounds_of_decomp
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.designProfile_edgeHankelHyp_of_admissible' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms designProfile_edgeHankelHyp_of_admissible
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.designProfile_global_bound_of_admissible' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms designProfile_global_bound_of_admissible
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.designProfile_sdvHypotheses_of_decomp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms designProfile_sdvHypotheses_of_decomp
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.lemma_Phi_transform_of_decomp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lemma_Phi_transform_of_decomp
 
 end FormalResearch.ModularBootstrap.Upper.Design

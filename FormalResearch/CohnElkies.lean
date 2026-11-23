@@ -50,6 +50,7 @@ public import FormalResearch.CohnElkies.PieceCRegularity
 public import FormalResearch.CohnElkies.PieceCUniform
 public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
+public import FormalResearch.CohnElkies.TwoIBPPhase
 
 /-!
 # Cohn–Elkies / CFT Paper I elementary and toolkit lemmas (umbrella)
@@ -172,6 +173,7 @@ and the Airy library:
 * `FormalResearch.CohnElkies.AirySymbolTransfer`: unconditional explicit global Morse coordinate (`airyMorseZ`,
   `airyMorseY`), Lemma `GT.1s` (`gt1s_scalar_airy_symbol_transfer`), and Lemma `GT.1` (`gt1_high_freq` and
   `gt1_low_freq`, with `airyTailSymbolSeed_nonvacuous`).
+* `FormalResearch.CohnElkies.TwoIBPPhase`: two integrations by parts against a variable phase, Piece C smooth part (`two_ibp_phase`): `|∫ a e^{iψ}|` bounded by `|a''|/ψ'²`, `|a'||ψ''|/ψ'³`, `|a||ψ'''|/ψ'³`, `|a|ψ''²/ψ'⁴`, with no boundary terms; a standard estimate, proved unconditionally.
 
 This umbrella is deliberately not imported by `FormalResearch.lean`.
 -/
