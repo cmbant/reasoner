@@ -55,6 +55,7 @@ public import FormalResearch.CohnElkies.SeedSqrtForm
 public import FormalResearch.CohnElkies.OuterAmplitude
 public import FormalResearch.CohnElkies.OuterWeightedBound
 public import FormalResearch.CohnElkies.HighBandEstimate
+public import FormalResearch.CohnElkies.HighBandUniform
 public import FormalResearch.CohnElkies.MellinKernelHolomorphic
 public import FormalResearch.CohnElkies.VerticalStripShift
 public import FormalResearch.CohnElkies.PreEdgeCriterion
@@ -183,6 +184,7 @@ and the Airy library:
 * `FormalResearch.CohnElkies.OuterAmplitude`: the large-`|v|` data `SymbolTail` (`|G|, |G'|, |G''| ≲ |v|^{-5/2,-7/2,-9/2}` for `|v| > 1`) of `G(v) = X̃(c_s i v)` from the square-root form and `ImagAxisBounds` (`symbolTail_of_sqData`), and the amplitude `h = (iκτ)^{-m} χ_o(τ) G(τ/ε)` of the outer part with the weighted bounds `‖h^{(r)}‖ ≤ Q|τ|^{-(m+5/2+r)}` for `|τ| ≥ τ₁` (`outer_amplitude`).
 * `FormalResearch.CohnElkies.OuterWeightedBound`: the dual-phase bound from sup and total variation (`dual_phase_mv_bound` in `DualPhaseAndO3`, for `L ≤ 8`) turned into the two outer bounds `outer_bound_large_tau` (`τ₁ ≥ 1`, gains `τ₁^{-m}`) and `outer_bound_small_L` (`L ≤ 8`, weighted amplitude), with the smooth factor `outerK` and its bounds.
 * `FormalResearch.CohnElkies.HighBandEstimate`: `O.3(2)`/`(e4)` for the one-level seeds. `hb_outer` (the `(1-χ_ξ)` part, constants depending only on `m`, `C_G`, `K_χ`) and `hb_inner` (the `χ_ξ` part by `pieceC_main_term_smooth`), assembled in `hb_estimate_of_sqData`, `hb_estimate_airySeed`, `hb_estimate_airySeed_rel` (relative form for `γ₀ ≠ 0`), `hb_estimate_hbSeed_m1`. Unconditional; the only inputs are the seed data of `SeedSqrtForm`/`SeedSymbolDerivs`.
+* `FormalResearch.CohnElkies.HighBandUniform`: `(e4)` uniform over the seed coefficients: `I_main` is linear in `(a, b, c₀)` (`iMain_airySeed_lin`), so `hb_estimate_airySeed_uniform` gives `γ₁, γ₂, γ₃, C` depending only on `m` and the coefficient bound `R` with `γ₀ = aγ₁ + bγ₂ + c₀γ₃`; `hb_estimate_hbSeed_m1_uniform` is the `m₀ = 1` Hermite–Biehler family `F_δ` (uniform in `γ₁, γ₂, δ, r ∈ [-R', R']`). Not formalised: `γ₀ = c_s^{1/2}2^{2/3}π^{-1/2}β_∞(F)`.
 * `FormalResearch.CohnElkies.MellinKernelHolomorphic`: `S̃₀` and `K₀(·, ξ)` are holomorphic on the strip `|Re ζ| < 1` (`differentiableAt_stripS0Tilde`, `differentiableOn_mellinK0`), by differentiation under the integral sign. Used for the contour shift of `O.5`(1).
 * `FormalResearch.CohnElkies.VerticalStripShift`: `strip_shift`, the integral of a function continuous on a closed vertical strip, holomorphic inside and dominated by an integrable `g(Im w) → 0`, is the same on the two boundary lines (Cauchy on `[a,b] × [-V,V]`).
 * `FormalResearch.CohnElkies.PreEdgeCriterion`: unconditional concrete `GT.2b(1)–(3)` & `O.11y(3)`/`GT.4` tip offset
