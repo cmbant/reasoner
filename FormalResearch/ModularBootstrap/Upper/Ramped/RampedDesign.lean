@@ -287,56 +287,62 @@ lemma designSite_ramped_eq_of_gt {c' : ℝ} (hc' : 0 < c') (d : ℝ) {k : ℕ} (
   have h2 : ¬ k ≤ nAi c' := not_le.2 hk
   simp [rampedNode, h1, h2]
 
+/-- The nodes are within `C k^{-4/3}` of the reference exponents: `|s_k - Φ_k| ≤ C k^{-4/3}` for every `k ≥ 1`,
+`d ∈ [0, 1]` (`k = 1` includes the shift `d/κ`), `C` absolute; `s_k = Φ_k` for `k > N_Ai` (Lemma `Z`). -/
+theorem rampedNode_sub_phi_le : ∃ C : ℝ, 0 < C ∧ ∀ c' d : ℝ, 0 ≤ d → d ≤ 1 → ∀ k : ℕ, 1 ≤ k →
+    |rampedNode d c' k - phiWKB k| ≤ C * (k : ℝ) ^ (-(4 / 3 : ℝ)) := by
+  obtain ⟨CZ, hCZ, hZ⟩ := deltaWKB_le_exists
+  have hκ := kappaAiry_pos
+  refine ⟨(CZ + 1) / kappaAiry, by positivity, fun c' d hd hd1 k hk => ?_⟩
+  have hkp : 0 < (k : ℝ) ^ (-(4 / 3 : ℝ)) := by
+    have : (0 : ℝ) < k := by exact_mod_cast hk
+    positivity
+  have hZk := hZ k hk
+  have hZ' : |deltaWKB k| / kappaAiry ≤ CZ / kappaAiry * (k : ℝ) ^ (-(4 / 3 : ℝ)) := by
+    rw [div_mul_eq_mul_div]
+    exact div_le_div_of_nonneg_right hZk hκ.le
+  unfold rampedNode
+  by_cases h1 : k = 1
+  · subst h1
+    simp only [ite_true, Nat.cast_one, Real.one_rpow, mul_one]
+    have e : sNodeAiry 1 + d / kappaAiry - phiWKB 1 = -deltaWKB 1 / kappaAiry + d / kappaAiry := by
+      rw [← sNodeAiry_sub_phiWKB le_rfl]; ring
+    rw [e]
+    have : |-deltaWKB 1 / kappaAiry + d / kappaAiry| ≤ |deltaWKB 1| / kappaAiry + d / kappaAiry := by
+      refine (abs_add_le _ _).trans ?_
+      rw [abs_div, abs_neg, abs_of_pos hκ, abs_of_nonneg (div_nonneg hd hκ.le)]
+    simp only [Nat.cast_one, Real.one_rpow, mul_one] at hZ'
+    have : d / kappaAiry ≤ 1 / kappaAiry := div_le_div_of_nonneg_right hd1 hκ.le
+    have e2 : (CZ + 1) / kappaAiry = CZ / kappaAiry + 1 / kappaAiry := by ring
+    linarith
+  · simp only [h1, ite_false]
+    by_cases h2 : k ≤ nAi c'
+    · simp only [h2, ite_true]
+      rw [sNodeAiry_sub_phiWKB hk, abs_div, abs_neg, abs_of_pos hκ]
+      have : CZ / kappaAiry * (k : ℝ) ^ (-(4 / 3 : ℝ)) ≤
+          (CZ + 1) / kappaAiry * (k : ℝ) ^ (-(4 / 3 : ℝ)) := by
+        gcongr; linarith
+      linarith
+    · simp only [h2, ite_false, sub_self, abs_zero]
+      positivity
+
 /-- `|Δ_k| ≤ C λ k^{-4/3}` for every `k ≥ 1` (`k = 1` includes the shift `d ≤ 1`), with `C` absolute and valid for
 every `c' > 0`, every `d ∈ [0, 1]`; `Δ_k = 0` for `k > N_Ai`. -/
 theorem rampedShift_le : ∃ C : ℝ, 0 < C ∧ ∀ c' : ℝ, 0 < c' → ∀ d : ℝ, 0 ≤ d → d ≤ 1 → ∀ k : ℕ, 1 ≤ k →
     |designSite c' (rampedSigma d c') k - chiQuantile c' (k : ℝ)| ≤
       C * lambdaComb c' * (k : ℝ) ^ (-(4 / 3 : ℝ)) := by
   obtain ⟨L, hL, hlip⟩ := langerTauInv_lip
-  obtain ⟨CZ, hCZ, hZ⟩ := deltaWKB_le_exists
-  have hκ := kappaAiry_pos
-  refine ⟨L * ((CZ + 1) / kappaAiry), by positivity, fun c' hc' d hd hd1 k hk => ?_⟩
+  obtain ⟨Cn, hCn, hnode⟩ := rampedNode_sub_phi_le
+  refine ⟨L * Cn, by positivity, fun c' hc' d hd hd1 k hk => ?_⟩
   have hl := lambdaComb_pos' hc'
   rw [designSite_rampedSigma hc', chiQuantile_nat_eq hc' hk]
   have hn := rampedNode_nonneg hd c' hk
   have hφ := phiWKB_nonneg hk
   refine (hlip _ _ (mul_nonneg hl.le hn) (mul_nonneg hl.le hφ)).trans ?_
   rw [← mul_sub, abs_mul, abs_of_pos hl]
-  have hkp : 0 < (k : ℝ) ^ (-(4 / 3 : ℝ)) := by
-    have : (0 : ℝ) < k := by exact_mod_cast hk
-    positivity
-  have hZk := hZ k hk
-  have hnode : |rampedNode d c' k - phiWKB k| ≤ (CZ + 1) / kappaAiry * (k : ℝ) ^ (-(4 / 3 : ℝ)) := by
-    have hZ' : |deltaWKB k| / kappaAiry ≤ CZ / kappaAiry * (k : ℝ) ^ (-(4 / 3 : ℝ)) := by
-      rw [div_mul_eq_mul_div]
-      exact div_le_div_of_nonneg_right hZk hκ.le
-    unfold rampedNode
-    by_cases h1 : k = 1
-    · subst h1
-      simp only [ite_true, Nat.cast_one, Real.one_rpow, mul_one]
-      have e : sNodeAiry 1 + d / kappaAiry - phiWKB 1 = -deltaWKB 1 / kappaAiry + d / kappaAiry := by
-        rw [← sNodeAiry_sub_phiWKB le_rfl]; ring
-      rw [e]
-      have : |-deltaWKB 1 / kappaAiry + d / kappaAiry| ≤ |deltaWKB 1| / kappaAiry + d / kappaAiry := by
-        refine (abs_add_le _ _).trans ?_
-        rw [abs_div, abs_neg, abs_of_pos hκ, abs_of_nonneg (div_nonneg hd hκ.le)]
-      simp only [Nat.cast_one, Real.one_rpow, mul_one] at hZ'
-      have : d / kappaAiry ≤ 1 / kappaAiry := div_le_div_of_nonneg_right hd1 hκ.le
-      have e2 : (CZ + 1) / kappaAiry = CZ / kappaAiry + 1 / kappaAiry := by ring
-      linarith
-    · simp only [h1, ite_false]
-      by_cases h2 : k ≤ nAi c'
-      · simp only [h2, ite_true]
-        rw [sNodeAiry_sub_phiWKB hk, abs_div, abs_neg, abs_of_pos hκ]
-        have : CZ / kappaAiry * (k : ℝ) ^ (-(4 / 3 : ℝ)) ≤
-            (CZ + 1) / kappaAiry * (k : ℝ) ^ (-(4 / 3 : ℝ)) := by
-          gcongr; linarith
-        linarith
-      · simp only [h2, ite_false, sub_self, abs_zero]
-        positivity
   calc L * (lambdaComb c' * |rampedNode d c' k - phiWKB k|)
-      ≤ L * (lambdaComb c' * ((CZ + 1) / kappaAiry * (k : ℝ) ^ (-(4 / 3 : ℝ)))) :=
-        mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hnode hl.le) hL.le
+      ≤ L * (lambdaComb c' * (Cn * (k : ℝ) ^ (-(4 / 3 : ℝ)))) :=
+        mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left (hnode c' d hd hd1 k hk) hl.le) hL.le
     _ = _ := by ring
 
 

@@ -308,6 +308,11 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedDesignShift
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedDesignNearTip
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFarBand
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedThreshold
+public import FormalResearch.ModularBootstrap.Upper.Ramped.CombBridge
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwoGeom
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwoNear
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwoMacro
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedRegionTwo
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -915,4 +920,15 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   and `rampedD_nearTip_twoG` (`2g/Lev ≥ c_fl min(1, 16η_n²)(1 - ε) - amp` on the near-tip range), the far band
   `rampedFarBand` (`0 < B_D ≤ (1 + Cλ) B_ref` for `x ≥ ξ_* + 1/2`), and the threshold `rampedThreshold`
   (`t_* = ξ̄c' + A_opt c'^{1/3} + (A_opt/|a_1|) M_0 + O(c'^{-1/3})`) with `rampedD_le`.
+
+* `Upper.Ramped.CombBridge`: the ramped comb is a design of Proposition 1.2(2): `rampedComb_eq_combBD` (the ramped
+  `designComb` equals `combBD` of the extended node and height sequences `rampedNode`, `rampedEta`),
+  `rampedDesignHyp` (`CombDesignHyp` with absolute constants for `0 ≤ d ≤ d_0 = rampedD0`), and `rampedComb_mult`,
+  `rampedComb_amplitude` (`combToAiry_mult`, `combToAiry_amplitude` for `rampedComb` on `[ξ_*/2, ξ_* + 1/2]`, error
+  constant independent of `C_I, C_mid, M_0, d`), unconditional.  `Upper.Ramped.RampedRegionTwo*`: **Region II of Lemma
+  U\*** (`rem:thmU` Steps (3), (4)).  `RampedRegionTwoGeom`: tip
+  geometry (`exists_cell_of_xiI`, `siteRadius_ge_const`); `RampedRegionTwoNear`: `rampedNearTip` (`ξ_I ≤ x`, cell
+  `n ≤ n_cap + 6`: amplitude `C_2 (n/c')^{5/6}`, choice of `C_mid` independent of `C_I`); `RampedRegionTwoMacro`:
+  `rampedMacro` (cells `n ≥ n_cap + 7`: `ρ_k = 1` on the hole, `S = O(λ)`, margin `0.158 - o(1)`); `RampedRegionTwo`:
+  `rampedRegionII` (`0 < twoG` for all `x ≥ ξ_I`, `d ∈ [0, 1]`), unconditional.
 -/
