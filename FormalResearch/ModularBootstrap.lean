@@ -190,6 +190,8 @@ public import FormalResearch.ModularBootstrap.Upper.Window.TailGeometry
 public import FormalResearch.ModularBootstrap.Upper.Window.TailBand
 public import FormalResearch.ModularBootstrap.Upper.Window.TailIntegrals
 public import FormalResearch.ModularBootstrap.Upper.Window.Tail
+public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaQScale
+public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaQScaleBridge
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -608,4 +610,16 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   N₁^{-(2/3)(2f-3/2)}` and `∫_{x ≥ ξ_*+r₀} |h₀| V dt ≤ C_far √c'` (`lemma_T_of_cardy` for any weight with the
   two named properties, `lemma_T_design1` for `D(N, η_*, d)`, `lemma_T_hypotheses_nonvacuous`); unconditional
   at `w = 1`; the general `(w, Q)` statement (bump `h₀^{(p)}`, Peano bound `fw:e3.6`) is not formalised.
+
+* `FixedWeightBand.{LemmaQScale, LemmaQScaleBridge}`: **scale-flexible Lemma `Q`** (`wone:Q`, `lower_o1_two_edge.tex`
+  Proposition P and `vlo:order`) at every fixed `(w, Q)`, unconditional.  For the uniform Proposition P data `D` and every
+  scale `0 < b ≤ chartBV D.r_1` (the scale `b_V` is chosen last, below the chart cap): `chartACAt b c' = √2 b c'^{1/3}`,
+  the lobe `deltaLobeAt prob b` (antitone in `b`, `deltaLobe_le_deltaLobeAt`), `lemmaQ_general_part1At` (`δ_lobe(b) ≤
+  C e^{-κ c'} < 1/2`, `Δ(A_{c'}(b)²) < T`; `C, κ` depend on `b`), `lemmaQ_general_part2At` (holomorphy, real-axis sign and
+  type-(II) envelope on the scale-`b` disc, constants independent of `b`), `lemmaQ_general_part3At` (`L¹` mass `≤ 1`,
+  half-mass negative tail, transport identities; threshold depends on `b`), `lemmaQ_general_lobe_scale_down`, and
+  `lemmaQ_scale_of_problem`.  Proof: shrink the disc radius `r₁` of the uniform data to `r' = 2 C_b b²` (so `chartBV r' = b`)
+  in `shrinkUniformData` and apply `FixedWeightTip.lemmaQ_general_part1`/`3`; the envelope uses the unshrunk data.  Bridge:
+  `chartACAt = virasoroACAt`, `psiTilde virasoroProblem = virasoroPsiTilde`, `deltaLobeAt virasoroProblem = virasoroDeltaLobeAt`,
+  and `lemmaQ_part1At_of_general`.
 -/
