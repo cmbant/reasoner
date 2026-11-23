@@ -140,6 +140,16 @@ public import FormalResearch.ModularBootstrap.Upper.Design.CombTransform
 public import FormalResearch.ModularBootstrap.Upper.Positivity.AmplitudeLevel
 public import FormalResearch.ModularBootstrap.Upper.Positivity.DesignReal
 public import FormalResearch.ModularBootstrap.Upper.Positivity.RegionII
+public import FormalResearch.ModularBootstrap.Upper.Membership.RadialFourier
+public import FormalResearch.ModularBootstrap.Upper.Membership.HankelFormula
+public import FormalResearch.ModularBootstrap.Upper.Membership.PairContinuation
+public import FormalResearch.ModularBootstrap.Upper.Membership.Vacuum
+public import FormalResearch.ModularBootstrap.Upper.Membership.DecayIntegrability
+public import FormalResearch.ModularBootstrap.Upper.Membership.FWM
+public import FormalResearch.ModularBootstrap.Upper.Membership.HankelTransform
+public import FormalResearch.ModularBootstrap.Upper.Membership.CombDecay
+public import FormalResearch.ModularBootstrap.Upper.Membership.RefComb
+public import FormalResearch.ModularBootstrap.Upper.Membership.SaddleTail
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -465,4 +475,23 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `x ≥ ξ_* + c'^{-2/5}`, `2g(c'x²/3)/Lev^{(f)}(x) ≥ 13/100` with `2g = h₀^D - ĥ₀` (`twoG`),
   with `proposition_II_pos`, the `f = 1` designs `D(N, η_*, d)` (`proposition_II_design`) and
   `proposition_II_family_nonempty`; unconditional.
+* `Upper.Membership.{RadialFourier, HankelFormula, PairContinuation, Vacuum, DecayIntegrability, FWM,
+  HankelTransform, CombDecay, RefComb, SaddleTail}`:
+  membership in `Ā_w` and the vacuum identity at every weight (**Lemma `FW-M`** `fw:FWM`, items 1-3;
+  at `w = 1` the abstract core of **Lemma `K7`** `cmb:K7`): radial Fourier inversion on `ℝ^{2w}` from
+  Mathlib (`fourier_radialLift_involutive`), `g = ½(h - ĥ)` is Fourier-odd (`pairOdd_fourier_odd`,
+  `pairOdd_testClass`), the Hankel formula `𝓕 (radialLift w u) = -hankelContinuationW w c' u b` without
+  oddness (`fourier_radialLift_apply_eq`, `hankelContinuationW_of_pair`), strip continuity and
+  holomorphy of the continuation for kernel-integrable profiles
+  (`continuousOn_hankelContinuationW_of_integrable`, `differentiableOn_hankelContinuationW_of_integrable`),
+  the identity theorem on the strip and the vacuum identity
+  `g_vac = ½ ∑_s (-1)^{|s|} h₀(b_{a-r_s}) - π ∫ h V` (`fwM_membership_vacuum`), the decay implies
+  integrability step (`radialLift_integrable_of_decay`, `kernelIntegrable_of_decay`), the assembled
+  `fwM_of_decay` and its non-vacuity (`fwM_hypotheses_nonvacuous`), the Hankel transform as the radial
+  Fourier profile (`hankelTransform`, `hankelTransform_one_eq_edgeHankel`), and the weight-one
+  assembly for the comb `h₀ = sech²(πb/2) B` (`k7_membership_vacuum`: decay by `SD_G` and the
+  trivial bound, membership, vacuum identity, `|h_{0,vac}| ≤ 8`); the `SD_V` tail bound for
+  `x ≥ x_I` is derived from the named amplitude hypotheses `SDVAmplitudeInput` for `c' ≥ c₀`
+  (`saddleTailBound_of_sdv`, `k7_membership_vacuum_of_sdv`), and `refComb` satisfies the
+  hypotheses (i), (iii) (`refComb_innerCombHyp`).
 -/
