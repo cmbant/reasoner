@@ -70,7 +70,7 @@ Revisions made in this audit (cleaner implementation, checked against the TeX):
   displaced family with `e` large enough replace it?
 
 **C. N = 1 super-Virasoro (`n1SuperVirasoroProblem`, `w = 1`, `μ = (1/2,1/2)`).**
-- C1 (S): name the lower bound `n1_lowerBoundInput` (an instance of `fixedWeightLowerBoundInput_of_problem`).
+- C1 done: `FixedWeightBand.n1_lowerBoundInput`, `n1_T_V_lower` (unconditional).
 - C2 (scout, then M): generalise the upper/design side from `virasoroProblem` to every `w = 1` problem (15 files in
   `Upper/` mention `virasoroProblem`; `Q` should enter only through `V`, `g_vac` and the Cardy window). This gives the
   N=1 two-term law and Σ₀ (`n1:T3`), and A at N=1 once A is done.
