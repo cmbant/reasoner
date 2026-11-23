@@ -33,7 +33,7 @@ lemma mellinK_pos {s : ℝ} (hs : 0 < s) : 0 < mellinK s := by
   have := Real.Gamma_pos_of_pos hs
   positivity
 
-lemma mellinStrip_real (f : ℝ → ℝ) {s : ℝ} (hs : 0 < s) :
+lemma mellinStrip_real (f : ℝ → ℝ) {s : ℝ} :
     mellinStrip f (s : ℂ) =
       ((mellinK s * ∫ Δ in Ioi (0 : ℝ), f Δ * Δ ^ (s - 1) : ℝ) : ℂ) := by
   have h2π : (0 : ℝ) ≤ 2 * Real.pi := by positivity
@@ -59,7 +59,7 @@ lemma mellinK_reflect {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (hf : IsHa
   have h := mellinStrip_reflection_of_re_lt hc hf (z := (x : ℂ)) (by simpa using hx0)
     (by simpa using hx1)
   rw [show (c : ℂ) - (x : ℂ) = ((c - x : ℝ) : ℂ) by push_cast; ring,
-    mellinStrip_real f (by linarith : 0 < c - x), mellinStrip_real f hx0] at h
+    mellinStrip_real f, mellinStrip_real f] at h
   have h' : ((mellinK (c - x) * ∫ Δ in Ioi (0 : ℝ), f Δ * Δ ^ (c - x - 1) : ℝ) : ℂ) =
       ((ε * (mellinK x * ∫ Δ in Ioi (0 : ℝ), f Δ * Δ ^ (x - 1)) : ℝ) : ℂ) := by
     rw [h]; push_cast; ring
