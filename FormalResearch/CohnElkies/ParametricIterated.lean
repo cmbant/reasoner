@@ -18,7 +18,8 @@ This module adds only the thin wrappers for the iterated integral over `(0,∞)`
 * `hasDerivAt_iterated_integral_Ioi`: the iterated integral over `(0,∞) × (0,∞)`, with product measure `μ.prod μ`.
 
 Status: proved, unconditional, except the extra hypothesis `hint_near` of the iterated wrapper (integrability of the
-product integrand for `y` near `y₀`), which the spec allows and which is not derived here.
+product integrand for `y` near `y₀`), which is not derived here. It is satisfiable (it is automatic for a Gaussian
+integrand) and follows in general from `hint`, `hbd`, `hbi` and a convex ball in `s`.
 -/
 
 @[expose] public section
@@ -52,8 +53,7 @@ theorem hasDerivAt_integral_Ioi {F F' : ℂ → ℝ → ℂ} {y₀ : ℂ} {s : S
 
 /-- Iterated wrapper: differentiation of `∫_{(0,∞)} ∫_{(0,∞)} F y t u du dt` in a complex parameter `y`, the bound
 `bound t u` being uniform on a neighbourhood `s` of `y₀`. The product integral is converted to the iterated one by
-`integral_prod`, which needs integrability for `y` near `y₀` (`hint_near`, the extra hypothesis of this wrapper:
-it is the 2D integrability-near-`y₀` input that the spec allows).
+`integral_prod`, which needs integrability for `y` near `y₀` (`hint_near`, the extra hypothesis of this wrapper).
 Negative regression: as in `hasDerivAt_integral_Ioi`, `hs : s ∈ 𝓝 y₀` is needed, and a bound valid only on the
 closed half-plane `{Re y ≥ 0}` does not give differentiability at the points with `Re y = 0`. -/
 theorem hasDerivAt_iterated_integral_Ioi {F F' : ℂ → ℝ → ℝ → ℂ} {y₀ : ℂ} {s : Set ℂ} (hs : s ∈ 𝓝 y₀)
