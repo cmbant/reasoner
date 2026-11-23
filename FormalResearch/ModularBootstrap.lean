@@ -113,6 +113,18 @@ public import FormalResearch.ModularBootstrap.Upper.Hankel.ContourShift
 public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeRepresentation
 public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeGlobalBound
 public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeExample
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.Dictionary
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.VagueLimit
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.Nodes
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.Design
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.Core
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.Families
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.SigmaZero
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.Weights
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.Compactness
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.Concentration
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.Atoms
+public import FormalResearch.ModularBootstrap.Upper.Rigidity.Sigma
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -388,4 +400,18 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (`esd:global`, `edge_global_bound`, `edge_global_bound_xiStar`: `e^{c'L(x)}‖ĥ(c'x²/3)‖ ≤ K C_E √(c'/x)`
   with an absolute constant `K`, for every `c' > 0`), and non-vacuity for `h₀ = sech²(π b/2)`
   (`edgeHankelHyp_sech`, `edge_global_bound_sech`), unconditional.
+* `Upper.Rigidity.{Dictionary, VagueLimit, Nodes, Design, Core, Families, SigmaZero, Weights,
+  Compactness, Concentration, Atoms, Sigma}`: spectral rigidity at the Airy scale
+  (`spectral_rigidity.tex`: **Theorem `Σ₀`** `sr:Sigma0`, **Theorem `Σ`** `sr:Sigma`) at the abstract
+  measure level.  The Airy chart `u(t), J(t)` and the (Gap) condition (`uAiry`, `GapCondition`,
+  `tendsto_uAiry_shift`, `eventually_uAiry_le_of_gap`); the Airy quadrature measure `airyMeasure`;
+  vague limits via ultrafilters and Riesz–Markov–Kakutani (`exists_vagueLimit`); the design input
+  `(P1)`–`(P4)` of Property `sr:P` as the named hypothesis `DesignPropertyP` (with
+  `designTest_nonvacuous`) and the window algebra of the design families as the named structures
+  `SameSiteFamily`, `DisplacedFamily`, `OmittedFamily` (not formalised); `Σ₀(a)` (`liminf_s_ge`,
+  `theorem_sigma_zero_a`), `Σ₀(b)` (`sigma_zero_b`, `theorem_sigma_zero_b`); `Σ`: compactness
+  (`locallyBounded`), concentration on the Airy zeros (`concentration`), the weights `x_n = 1`
+  (`atomWeight_le_one`, `atomWeight_eq_one`), whole-sequence vague convergence `μ_j → μ_A`
+  (`vagueLimit_airyMeasure`) and no escape of pairing mass (`no_escape`), bundled as
+  `theorem_Sigma` / `theorem_sigma`.
 -/
