@@ -33,6 +33,10 @@ public import FormalResearch.CohnElkies.MovingDiagonalSource
 public import FormalResearch.CohnElkies.MellinMainKernel
 public import FormalResearch.CohnElkies.PhysicalAndFarTransfer
 public import FormalResearch.CohnElkies.CoherentSectorialLimit
+public import FormalResearch.CohnElkies.DualPhaseAndO3
+public import FormalResearch.CohnElkies.CancelledSymbolAndLaplace
+public import FormalResearch.CohnElkies.PreEdgeCriterion
+public import FormalResearch.CohnElkies.AirySymbolTransfer
 
 /-!
 # Cohn–Elkies / CFT Paper I elementary and toolkit lemmas (umbrella)
@@ -117,6 +121,20 @@ and the Airy library:
   Stieltjes mixture `(ceo:O11n.10)`, uniform `L^∞` bounds `(ceo:O11n.4)`/`(ceo:O11n.9)`/`(ceo:O11n.11)`,
   boundary-layer limit `(ceo:O11n.3)`, complex sectorial & `C²` limits `(ceo:O11n.5)–(ceo:O11n.6)`, and `PE.1`
   real-axis Gaussian lower bound.
+* `FormalResearch.CohnElkies.DualPhaseAndO3`: unconditional Lemma `O.2` reflected-line (`2^{r+5/2} r!`) &
+  weighted imaginary-axis `(e29)` bounds, `bsplineMult_binomial_eq`, unconditional `O.3(1)` oscillatory phase
+  bound (`dual_phase_oscillatory_bound`), `GT.2b(3)` / `(cegt:GT3a)` (`gt2b_dual_integral_general`), and `(e3)`
+  (`o3_dual_bound`).
+* `FormalResearch.CohnElkies.CancelledSymbolAndLaplace`: unconditional Gaussian transforms & Gaussian-IBP `y^{-9/2}`
+  expansions (`ceF1`, `ceG1`, `ceG1Deriv`), Lemma `O.11c` (`(ceo:O11c.1)–(2)`), `P.1(2)`/`U.2` RHP and dual-line
+  bounds for `ceS0`/`ceSb`, and unconditional `twoScaleQ0_real_laplace_bound`.
+* `FormalResearch.CohnElkies.PreEdgeCriterion`: unconditional concrete `GT.2b(1)–(3)` & `O.11y(3)`/`GT.4` tip offset
+  for `twoScaleS`, unconditional `PE.3` reference & measure Mellin inversion (`pe3_reference_mellin_inversion`,
+  `pe3_measure_inversion`), `pe3_remainder_integral_bound` (`O(c^{-2/3})`), `pe3_compact_origin_pos`, and
+  Proposition `cepe:general` (`preEdge_general_pos`, with non-vacuity witnesses).
+* `FormalResearch.CohnElkies.AirySymbolTransfer`: unconditional explicit global Morse coordinate (`airyMorseZ`,
+  `airyMorseY`), Lemma `GT.1s` (`gt1s_scalar_airy_symbol_transfer`), and Lemma `GT.1` (`gt1_high_freq` and
+  `gt1_low_freq`, with `airyTailSymbolSeed_nonvacuous`).
 
 This umbrella is deliberately not imported by `FormalResearch.lean`.
 -/
