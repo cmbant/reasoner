@@ -124,4 +124,8 @@ theorem exists_radialW_limit {ε M₀ : ℝ} (hε : ε = 1 ∨ ε = -1) {c : ℕ
   have := le_of_tendsto_of_tendsto ht.norm hlim hle
   simpa using this
 
+/-- info: 'FormalResearch.SignUncertainty.exists_radialW_limit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms exists_radialW_limit
+
 end FormalResearch.SignUncertainty

@@ -152,4 +152,8 @@ theorem limInt_integral_shift {W : ℂ → ℂ} {M₀ : ℝ} (hW : ∀ w : ℂ, 
   have hI : (Complex.I : ℂ) ≠ 0 := Complex.I_ne_zero
   exact smul_right_injective ℂ hI this
 
+/-- info: 'FormalResearch.SignUncertainty.limInt_integral_shift' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms limInt_integral_shift
+
 end FormalResearch.SignUncertainty

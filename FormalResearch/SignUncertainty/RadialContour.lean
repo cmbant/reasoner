@@ -52,4 +52,12 @@ lemma gauss_poly_bound {c d : ℝ} (hc : 0 < c) :
     _ = (1 + 4 / c) * Real.exp (d ^ 2 / c) * Real.exp (-(c / 2) * v ^ 2) := by
         rw [← Real.exp_add]; congr 2; ring
 
+/-- info: 'FormalResearch.SignUncertainty.gauss_lin_integrable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms gauss_lin_integrable
+
+/-- info: 'FormalResearch.SignUncertainty.gauss_poly_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms gauss_poly_bound
+
 end FormalResearch.SignUncertainty

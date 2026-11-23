@@ -92,4 +92,12 @@ lemma airy_choice (p q : ℝ) (hp : 0 ≤ p) :
     have h7 : 0 ≤ p * q ^ 2 := mul_nonneg hp (sq_nonneg q)
     nlinarith
 
+/-- info: 'FormalResearch.SignUncertainty.norm_XiL_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms norm_XiL_le
+
+/-- info: 'FormalResearch.SignUncertainty.airy_choice' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms airy_choice
+
 end FormalResearch.SignUncertainty

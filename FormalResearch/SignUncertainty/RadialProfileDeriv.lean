@@ -106,4 +106,20 @@ theorem hasDerivAt_phi {ε M₀ : ℝ} (hε : ε = 1 ∨ ε = -1) {c : ℕ → �
   rw [Complex.reCLM_apply, Complex.smul_re, smul_eq_mul]
   ring
 
+/-- info: 'FormalResearch.SignUncertainty.hasDerivAt_XiL_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasDerivAt_XiL_real
+
+/-- info: 'FormalResearch.SignUncertainty.hasDerivAt_profTilde' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasDerivAt_profTilde
+
+/-- info: 'FormalResearch.SignUncertainty.profTildeD_tlu' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms profTildeD_tlu
+
+/-- info: 'FormalResearch.SignUncertainty.hasDerivAt_phi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasDerivAt_phi
+
 end FormalResearch.SignUncertainty

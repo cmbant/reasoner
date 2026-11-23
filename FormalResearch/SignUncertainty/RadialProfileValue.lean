@@ -110,4 +110,8 @@ lemma profTilde_tlu {ε M₀ : ℝ} (hε : ε = 1 ∨ ε = -1) {c : ℕ → ℝ}
     rw [XiL_ofReal]
     rfl
 
+/-- info: 'FormalResearch.SignUncertainty.profTilde_tlu' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms profTilde_tlu
+
 end FormalResearch.SignUncertainty

@@ -147,4 +147,12 @@ theorem profile_compactness_thm (M₀ ε : ℝ) (hε : ε = 1 ∨ ε = -1) (c : 
 /-- `lem:radial-compactness` for the concrete Hankel problem (`RadialCompactness`), proved. -/
 theorem radial_compactness : RadialCompactness := ⟨profile_compactness_thm⟩
 
+/-- info: 'FormalResearch.SignUncertainty.profile_compactness_thm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms profile_compactness_thm
+
+/-- info: 'FormalResearch.SignUncertainty.radial_compactness' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms radial_compactness
+
 end FormalResearch.SignUncertainty

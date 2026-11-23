@@ -129,4 +129,8 @@ theorem differentiable_XiL {W : ℂ → ℂ} {M₀ : ℝ} (hW : ∀ w : ℂ, 0 <
     (ae_of_all _ fun v s _ => (hasDerivAt_limInt_s W v s).const_mul _)
   exact key.2.differentiableAt
 
+/-- info: 'FormalResearch.SignUncertainty.differentiable_XiL' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms differentiable_XiL
+
 end FormalResearch.SignUncertainty

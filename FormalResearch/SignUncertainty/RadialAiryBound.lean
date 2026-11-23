@@ -118,4 +118,8 @@ theorem radialF_airy_bound {W : ℂ → ℂ} {M₀ : ℝ} (hW : ∀ w : ℂ, 0 <
         gcongr
     _ = _ := by ring
 
+/-- info: 'FormalResearch.SignUncertainty.radialF_airy_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms radialF_airy_bound
+
 end FormalResearch.SignUncertainty

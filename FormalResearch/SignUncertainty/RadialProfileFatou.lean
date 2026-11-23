@@ -62,4 +62,12 @@ lemma radialF_re (W : ℂ → ℂ) (u : ℝ) :
     (radialF W (u : ℂ)).re = hankelBeta1⁻¹ * (XiL W ((-u / hankelBeta1 : ℝ) : ℂ)).re := by
   rw [radialF_ofReal, Complex.re_ofReal_mul]
 
+/-- info: 'FormalResearch.SignUncertainty.integrable_of_fatou' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms integrable_of_fatou
+
+/-- info: 'FormalResearch.SignUncertainty.XiL_im_eq_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms XiL_im_eq_zero
+
 end FormalResearch.SignUncertainty

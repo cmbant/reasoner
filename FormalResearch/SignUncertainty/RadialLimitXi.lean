@@ -63,4 +63,8 @@ lemma norm_limInt_le {W : ℂ → ℂ} {M₀ : ℝ} (hW : ∀ w : ℂ, 0 < w.re 
   gcongr
   exact hW _ (by simpa using hu)
 
+/-- info: 'FormalResearch.SignUncertainty.norm_limInt_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms norm_limInt_le
+
 end FormalResearch.SignUncertainty
