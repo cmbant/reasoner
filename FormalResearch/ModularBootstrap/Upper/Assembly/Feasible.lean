@@ -37,22 +37,22 @@ open FormalResearch.Special FormalResearch.ModularBootstrap FormalResearch.Modul
   FormalResearch.ModularBootstrap.Upper.Window FormalResearch.ModularBootstrap.Upper.Positivity
 
 /-- **Feasibility of the designs at the gap `t_f + 1`.** -/
-theorem designG_isFeasible (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ)
+theorem designG_isFeasible (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ)
     (hV : windowIntegralVD N η d < 0) :
     ∀ᶠ c in atTop, 0 < designTf d c + 1 ∧
-      virasoroProblem.IsFeasible (c / 12) (designTf d c + 1) (designG N η d c) := by
-  filter_upwards [designGood_eventually N hN hη0.le hη1 d, designG_nonneg N hN hη0 hη1 d,
-    designG_gVac_pos N hN hη0.le hη1 d hV] with c hgood hpos hvac
+      prob.IsFeasible (c / 12) (designTf d c + 1) (designG N η d c) := by
+  filter_upwards [designGood_eventually prob hw N hN hη0.le hη1 d, designG_nonneg N hN hη0 hη1 d,
+    designG_gVac_pos prob hw N hN hη0.le hη1 d hV] with c hgood hpos hvac
   have htf : 0 ≤ designTf d c := by
     have := hgood.1
     unfold designTf; positivity
   exact ⟨by linarith, hgood.testClass, hvac, fun t ht => (hpos.2 t ht).le⟩
 
 /-- `T_V(c) ≤ t_f + 1` for large `c`. -/
-theorem threshold_le_designTf (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ)
+theorem threshold_le_designTf (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ)
     (hV : windowIntegralVD N η d < 0) :
-    ∀ᶠ c in atTop, virasoroProblem.T_V c ≤ designTf d c + 1 := by
-  filter_upwards [designG_isFeasible N hN hη0 hη1 d hV] with c ⟨hT, hfeas⟩
+    ∀ᶠ c in atTop, prob.T_V c ≤ designTf d c + 1 := by
+  filter_upwards [designG_isFeasible prob hw N hN hη0 hη1 d hV] with c ⟨hT, hfeas⟩
   exact csInf_le ⟨0, fun T hT => hT.1.le⟩ ⟨hT, designG N η d c, hfeas⟩
 
 /-- For `d ∈ (0, |a_1 - a_2|)` there is a design `D(N, η_*, d)`, `η_* ∈ (0, 1/4]`, with `V_D < 0`:
@@ -96,10 +96,10 @@ theorem exists_design_negative {d : ℝ} (hd0 : 0 < d) (hd1 : d < |airyZero 1 - 
   unfold windowIntegralVD
   nlinarith
 
-/-- **FW-C at Virasoro**: `T_V(c) ≤ T_*(c) + δ c^{1/3}` for every `δ > 0` and `c` large
+/-- **FW-C for every weight-one problem**: `T_V(c) ≤ T_*(c) + δ c^{1/3}` for every `δ > 0` and `c` large
 (`ThresholdUpperLittleOAt`), from the `f = 1` designs `D(N, η_*, d)` with `d` small, `V_D < 0`. -/
-theorem virasoro_thresholdUpperLittleO :
-    ThresholdUpperLittleOAt virasoroProblem.T_V virasoroProblem.totalShift := by
+theorem thresholdUpperLittleO_prob (prob : FixedWeightProblem) (hw : prob.w = 1) :
+    ThresholdUpperLittleOAt prob.T_V prob.totalShift := by
   intro δ hδ
   have hcs := cStar_pos
   have hgap : 0 < |airyZero 1 - airyZero 2| :=
@@ -114,15 +114,12 @@ theorem virasoro_thresholdUpperLittleO :
   obtain ⟨N, η, hN, hη0, hη1, hV⟩ := exists_design_negative hd0 hd1
   set R : ℝ := 1 + (kTip ^ (-(2 / 3 : ℝ))) ^ 2 * designSigma1 d 1 ^ 2 / 3 with hRdef
   have hR0 : 0 ≤ R := by rw [hRdef]; positivity
-  obtain ⟨c₃, hc₃⟩ := eventually_atTop.1 (threshold_le_designTf N hN hη0 hη1 d hV)
-  refine ⟨max (max c₃ 24) ((2 * R / δ) ^ 3 + 1), ?_, fun {c} hc => ?_⟩
-  · rw [virasoroProblem_totalShift]
-    have h24 : (24 : ℝ) ≤ max (max c₃ 24) ((2 * R / δ) ^ 3 + 1) :=
-      (le_max_right _ _).trans (le_max_left _ _)
-    exact max_le (by linarith) (by linarith)
+  obtain ⟨c₃, hc₃⟩ := eventually_atTop.1 (threshold_le_designTf prob hw N hN hη0 hη1 d hV)
+  refine ⟨max (max c₃ (max 1 (12 * prob.totalShift))) ((2 * R / δ) ^ 3 + 1), ?_, fun {c} hc => ?_⟩
+  · exact (le_max_right _ _).trans (le_max_left _ _)
   · have hc3 : c₃ ≤ c := ((le_max_left _ _).trans (le_max_left _ _)).trans hc
     have hc1 : 1 ≤ c := by
-      have := ((le_max_right _ _).trans (le_max_left _ _)).trans hc
+      have := ((le_max_left 1 (12 * prob.totalShift)).trans ((le_max_right _ _).trans (le_max_left _ _))).trans hc
       linarith
     have hc4 : (2 * R / δ) ^ 3 ≤ c := by
       have := (le_max_right _ _).trans hc
@@ -144,6 +141,12 @@ theorem virasoro_thresholdUpperLittleO :
     have h3 : cStar * d * c ^ ((1 : ℝ) / 3) ≤ δ / 2 * c ^ ((1 : ℝ) / 3) :=
       mul_le_mul_of_nonneg_right hdc ha0
     linarith
+
+/-- **FW-C at Virasoro**: `T_V(c) ≤ T_*(c) + δ c^{1/3}` for every `δ > 0` and `c` large
+(`ThresholdUpperLittleOAt`), from the `f = 1` designs `D(N, η_*, d)` with `d` small, `V_D < 0`. -/
+theorem virasoro_thresholdUpperLittleO :
+    ThresholdUpperLittleOAt virasoroProblem.T_V virasoroProblem.totalShift :=
+  thresholdUpperLittleO_prob virasoroProblem rfl
 
 /-- **Virasoro, Corollary E1 with the `o(c^{1/3})` upper bound, unconditional**: the input
 `ThresholdUpperLittleOAt` of `virasoro_corollary_E1_littleO` is discharged by the designs. -/
@@ -175,6 +178,10 @@ theorem virasoro_corollary_E1_littleO_unconditional :
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.exists_design_negative' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms exists_design_negative
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.thresholdUpperLittleO_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms thresholdUpperLittleO_prob
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.virasoro_thresholdUpperLittleO' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

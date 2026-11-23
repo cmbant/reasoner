@@ -82,18 +82,18 @@ lemma langerTau_xiStar_add_half_pos : 0 < langerTau (xiStar + 1 / 2) :=
 `‖W_D(u)‖ ≤ C_w (1 + |u|)^{-3/2}`, continuity and integrability of `Re W_D`, and the profile bound
 `∫ Re W_D ≤ -d/2 + C_E c'^{-1/3}`), the window part of the vacuum integral satisfies
 `∫_{x ∈ [ξ_*/2, ξ_*+1/2]} h₀ V ≤ FK_c C_* (-d/2 + (C_E + T) c'^{-1/3})`, `T` depending on `C_w` only. -/
-theorem rampedWindow_part (Cw : ℝ) (hCw : 0 < Cw) : ∃ T : ℝ, 0 < T ∧ ∀ (P : RampedParams) (CE : ℝ),
+theorem rampedWindow_part (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) (Cw : ℝ) (hCw : 0 < Cw) : ∃ T : ℝ, 0 < T ∧ ∀ (P : RampedParams) (CE : ℝ),
     (∀ᶠ c' : ℝ in atTop, ∀ d : ℝ, 0 ≤ d → d ≤ 1 →
       (∀ u : ℝ, ‖designAiryW (rampedNode d c') (rampedEta P c') u‖ ≤ Cw * (1 + |u|) ^ (-(3 / 2 : ℝ))) ∧
       Continuous (fun u : ℝ => (designAiryW (rampedNode d c') (rampedEta P c') u).re) ∧
       Integrable (fun u : ℝ => (designAiryW (rampedNode d c') (rampedEta P c') u).re) ∧
       (∫ u : ℝ, (designAiryW (rampedNode d c') (rampedEta P c') u).re) ≤
         -d / 2 + CE * c' ^ (-(1 / 3 : ℝ))) →
-    (∀ᶠ c' : ℝ in atTop, ∀ d : ℝ, 0 ≤ d → d ≤ 1 → ContinuousOn (rampedF P d c') (Ici 0)) →
+    (∀ᶠ c' : ℝ in atTop, ∀ d : ℝ, 0 ≤ d → d ≤ 1 → ContinuousOn (rampedF prob P d c') (Ici 0)) →
     ∀ᶠ c' : ℝ in atTop, ∀ d : ℝ, 0 ≤ d → d ≤ rampedD0 →
-      (∫ t in (c' * (xiStar / 2) ^ 2 / 3)..(c' * (xiStar + 1 / 2) ^ 2 / 3), rampedF P d c' t) ≤
-        FKc 1 1 c' * CStar * (-d / 2 + (CE + T) * c' ^ (-(1 / 3 : ℝ))) := by
-  obtain ⟨c1, c2, hc1, hc2, hpt⟩ := rampedWindow_pointwise
+      (∫ t in (c' * (xiStar / 2) ^ 2 / 3)..(c' * (xiStar + 1 / 2) ^ 2 / 3), rampedF prob P d c' t) ≤
+        FKc (qProb prob) 1 c' * CStar * (-d / 2 + (CE + T) * c' ^ (-(1 / 3 : ℝ))) := by
+  obtain ⟨c1, c2, hc1, hc2, hpt⟩ := rampedWindow_pointwise prob hw
   have hκ := kappaAiry_pos
   have hk := kTip_pos
   have hxs := xiStar_pos
@@ -112,10 +112,10 @@ theorem rampedWindow_part (Cw : ℝ) (hCw : 0 < Cw) : ∃ T : ℝ, 0 < T ∧ ∀
       (a0 ^ (1 / 2 : ℝ) + b0 ^ (1 / 2 : ℝ)) := ⟨_, rfl⟩
   have hS10 : 0 ≤ S1 := by rw [hS1]; positivity
   refine ⟨kappaAiry * S1 * kTip ^ (-(1 / 3 : ℝ)) + c2 * Cw * J + 1, by positivity, fun P CE hW hFc => ?_⟩
-  filter_upwards [hpt P, hW, hFc, eventually_ge_atTop (1 : ℝ)] with c' hp hw hF hc1' d hd0 hdD
+  filter_upwards [hpt P, hW, hFc, eventually_ge_atTop (1 : ℝ)] with c' hp hwin hF hc1' d hd0 hdD
   have hc'0 : 0 < c' := by linarith
   have hd1 : d ≤ 1 := hdD.trans rampedD0_le_one
-  obtain ⟨hbd, hcont, hint, hI⟩ := hw d hd0 hd1
+  obtain ⟨hbd, hcont, hint, hI⟩ := hwin d hd0 hd1
   have hFc' := hF d hd0 hd1
   have hl := lamPos hc'0
   set l : ℝ := lambdaComb c' with hldef
@@ -152,20 +152,20 @@ theorem rampedWindow_part (Cw : ℝ) (hCw : 0 < Cw) : ∃ T : ℝ, 0 < T ∧ ∀
     rw [hb0def]
   rw [hs1, hs2] at hstep3
   -- monotonicity
-  have hlc : ContinuousOn (fun x : ℝ => (2 * c' * x / 3) * rampedF P d c' (c' * x ^ 2 / 3))
+  have hlc : ContinuousOn (fun x : ℝ => (2 * c' * x / 3) * rampedF prob P d c' (c' * x ^ 2 / 3))
       (uIcc (xiStar / 2) (xiStar + 1 / 2)) := by
     refine ContinuousOn.mul (by fun_prop) (hFc'.comp (by fun_prop) fun x _ => ?_)
     exact mem_Ici.mpr (by positivity)
-  have hrc : ContinuousOn (fun x : ℝ => FKc 1 1 c' * (CStar * kappaAiry) *
+  have hrc : ContinuousOn (fun x : ℝ => FKc (qProb prob) 1 c' * (CStar * kappaAiry) *
       (g (sigmaOf c' x) * (deriv langerTau x / l))) (uIcc (xiStar / 2) (xiStar + 1 / 2)) :=
     continuousOn_const.mul ((hgc.comp_continuousOn hsc).mul hdc)
   have hmono := intervalIntegral.integral_mono_on hab (hlc.intervalIntegrable (μ := volume)) (hrc.intervalIntegrable (μ := volume))
     (fun x hx => by
       have := hp d hd0 hdD x hx
       rw [hgx x] at this
-      calc (2 * c' * x / 3) * rampedF P d c' (c' * x ^ 2 / 3)
-          ≤ FKc 1 1 c' * (CStar * kappaAiry) * (deriv langerTau x / lambdaComb c') * g (sigmaOf c' x) := this
-        _ = FKc 1 1 c' * (CStar * kappaAiry) * (g (sigmaOf c' x) * (deriv langerTau x / l)) := by
+      calc (2 * c' * x / 3) * rampedF prob P d c' (c' * x ^ 2 / 3)
+          ≤ FKc (qProb prob) 1 c' * (CStar * kappaAiry) * (deriv langerTau x / lambdaComb c') * g (sigmaOf c' x) := this
+        _ = FKc (qProb prob) 1 c' * (CStar * kappaAiry) * (g (sigmaOf c' x) * (deriv langerTau x / l)) := by
             ring)
   rw [intervalIntegral.integral_const_mul] at hmono
   have hconv : (∫ x in (xiStar / 2)..(xiStar + 1 / 2), g (sigmaOf c' x) * (deriv langerTau x / l)) =
@@ -174,7 +174,7 @@ theorem rampedWindow_part (Cw : ℝ) (hCw : 0 < Cw) : ∃ T : ℝ, 0 < T ∧ ∀
   rw [hstep1]
   refine hmono.trans ?_
   -- the core estimate
-  have hFK := FKc_pos (q := 1) one_pos 1 hc'0
+  have hFK := FKc_pos (qProb_pos prob) 1 hc'0
   have hcore := window_core (w := w) hcont hint hCw.le hκ (E1 := c1 * l) (E2 := c2 * c' ^ (-(2 / 3 : ℝ)))
     (A := a0 / l) (b := b0 / l) (by positivity) (by positivity) (by positivity) (by positivity) hbd'
   have e1 : (kappaAiry * (b0 / l)) ^ (-(1 / 2 : ℝ)) = (kappaAiry * b0) ^ (-(1 / 2 : ℝ)) * l ^ (1 / 2 : ℝ) := by
@@ -217,9 +217,9 @@ theorem rampedWindow_part (Cw : ℝ) (hCw : 0 < Cw) : ∃ T : ℝ, 0 < T ∧ ∀
     linarith only [hI, h1, hr]
   have hκg := mul_le_mul_of_nonneg_left hcore hκ.le
   rw [hmain] at hκg
-  have hK0 : 0 ≤ FKc 1 1 c' * CStar := by positivity
-  calc FKc 1 1 c' * (CStar * kappaAiry) * _ = FKc 1 1 c' * CStar * (kappaAiry * _) := by ring
-    _ ≤ FKc 1 1 c' * CStar * (-d / 2 + (CE + (kappaAiry * S1 * kTip ^ (-(1 / 3 : ℝ)) + c2 * Cw * J + 1)) *
+  have hK0 : 0 ≤ FKc (qProb prob) 1 c' * CStar := by positivity
+  calc FKc (qProb prob) 1 c' * (CStar * kappaAiry) * _ = FKc (qProb prob) 1 c' * CStar * (kappaAiry * _) := by ring
+    _ ≤ FKc (qProb prob) 1 c' * CStar * (-d / 2 + (CE + (kappaAiry * S1 * kTip ^ (-(1 / 3 : ℝ)) + c2 * Cw * J + 1)) *
           c' ^ (-(1 / 3 : ℝ))) := mul_le_mul_of_nonneg_left (hκg.trans hbound) hK0
 
 /-! ### Axiom checks -/

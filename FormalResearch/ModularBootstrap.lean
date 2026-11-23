@@ -330,6 +330,7 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumBands
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumIntegral
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuum
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFinal
+public import FormalResearch.ModularBootstrap.Upper.Assembly.N1
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -982,4 +983,14 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `TheoremC15UpperInput virasoroProblem` (`T_V ≤ T_* + D_+`, `D_+ = 1 + (A_opt/|a_1|) M_0 + C` from `rampedThreshold`);
   **`virasoro_corollary_E1_unconditional`**: Corollary E1 at Virasoro with no hypothesis,
   `Δ_best = c/Λ_V + A_opt c^{1/3} + O(1)` and `T_V = T_* + O(1)`.
+
+* `Upper.Ramped.RampedFinal`, `Upper.Assembly.N1`: **the upper/design side for every weight-one problem** (`w = 1`, any
+  null polynomial `Q`), generalised in place: `Window.Cardy.cardyWindowBound_prob`/`cardyFarBound_prob` (Cardy window and far
+  band from `cardyV_asymptotic_real`), `qProb` (`𝔮 = Q(e^{-4πξ_*})/(1 - e^{-4πξ_*})²`, `FK_c = FKc (qProb prob) 1 c'`),
+  `Window.Tail.lemma_T_prob`, `Positivity.windowMeasureNormK_eq`, `Positivity.vacuum_core`, `designPropertyP_prob`,
+  `thresholdUpperLittleO_prob`, `sigmaZero_unconditional_prob`, `sigma_unconditional_prob`, `Ramped.rampedVacuum_prob`,
+  `Ramped.theoremC15UpperInput_prob` (the `virasoro_*` names are the case `virasoroProblem`).  `Assembly.N1`:
+  `n1_designPropertyP`, `n1_thresholdUpperLittleO`, `n1_theoremC15UpperInput`, `n1_corollary_E1_littleO_unconditional`,
+  `n1_corollary_E1_unconditional` (`Δ_best = c/Λ_V + A_opt c^{1/3} + O(1)` at `N = 1` super-Virasoro, with
+  `FixedWeightBand.n1_lowerBoundInput`), `n1_sigmaZero_unconditional`, `n1_sigma_unconditional`, `n1_rampedVacuum`.
 -/

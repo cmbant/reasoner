@@ -34,49 +34,49 @@ open FormalResearch.Special FormalResearch.ModularBootstrap FormalResearch.Modul
   FormalResearch.ModularBootstrap.Upper.Positivity
 
 /-- The scaling `2 / (C_* FK_c)` of `Ψ_g`. -/
-noncomputable def psiScale (c : ℝ) : ℝ := 2 / (CStar * FKc 1 1 c)
+noncomputable def psiScale (prob : FixedWeightProblem) (c : ℝ) : ℝ := 2 / (CStar * FKc (qProb prob) 1 c)
 
-lemma psiScale_pos {c : ℝ} (hc : 0 < c) : 0 < psiScale c := by
-  have := FKc_pos (q := 1) one_pos 1 hc
+lemma psiScale_pos (prob : FixedWeightProblem) {c : ℝ} (hc : 0 < c) : 0 < psiScale prob c := by
+  have := FKc_pos (qProb_pos prob) 1 hc
   have := CStar_pos
   unfold psiScale; positivity
 
 /-- Pointwise form of `Ψ_c`: `(2/(C_* FK)) g V J = (1/(C_* κ FK)) (h₀ - ĥ₀) V (dt/dσ)` at `u = -κσ`. -/
-lemma psi_eq_sig {c : ℝ} (hc : 0 < c) (N : ℕ) (η : ℝ) (σs : ℕ → ℝ) (u σ : ℝ) (hσ : σ = -u / kappaAiry)
+lemma psi_eq_sig (prob : FixedWeightProblem) {c : ℝ} (hc : 0 < c) (N : ℕ) (η : ℝ) (σs : ℕ → ℝ) (u σ : ℝ) (hσ : σ = -u / kappaAiry)
     (hx : 0 ≤ xiStar + lambdaComb c * σ) :
-    psiScale c * psiAiry virasoroProblem c (sigG N η σs c) u =
-      (1 / (CStar * kappaAiry * FKc 1 1 c)) *
+    psiScale prob c * psiAiry prob c (sigG N η σs c) u =
+      (1 / (CStar * kappaAiry * FKc (qProb prob) 1 c)) *
         ((combProfile c (sigBc N η σs c) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) -
           hankelTransform 1 (combProfile c (sigBc N η σs c))
             (c * (xiStar + lambdaComb c * σ) ^ 2 / 3)) *
-          virasoroProblem.cardyV (c / 12) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) *
+          prob.cardyV (c / 12) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) *
           ((2 * c * (xiStar + lambdaComb c * σ) / 3) * lambdaComb c)) := by
   have hκ := kappaAiry_pos
   have hCs := CStar_pos
-  have hFK := FKc_pos (q := 1) one_pos 1 hc
+  have hFK := FKc_pos (qProb_pos prob) 1 hc
   subst hσ
   unfold psiScale psiAiry sigG pairOdd
   rw [tAiry_eq hc hx, jAiry_eq hc hx]
   field_simp
 
 /-- Pointwise form of `Ψ_c`: `(2/(C_* FK)) g V J = (1/(C_* κ FK)) (h₀ - ĥ₀) V (dt/dσ)` at `u = -κσ`. -/
-lemma psi_eq {c : ℝ} (hc : 0 < c) (N : ℕ) (η d u σ : ℝ) (hσ : σ = -u / kappaAiry)
+lemma psi_eq (prob : FixedWeightProblem) {c : ℝ} (hc : 0 < c) (N : ℕ) (η d u σ : ℝ) (hσ : σ = -u / kappaAiry)
     (hx : 0 ≤ xiStar + lambdaComb c * σ) :
-    psiScale c * psiAiry virasoroProblem c (designG N η d c) u =
-      (1 / (CStar * kappaAiry * FKc 1 1 c)) *
+    psiScale prob c * psiAiry prob c (designG N η d c) u =
+      (1 / (CStar * kappaAiry * FKc (qProb prob) 1 c)) *
         ((combProfile c (designBc N η d c) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) -
           hankelTransform 1 (combProfile c (designBc N η d c))
             (c * (xiStar + lambdaComb c * σ) ^ 2 / 3)) *
-          virasoroProblem.cardyV (c / 12) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) *
+          prob.cardyV (c / 12) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) *
           ((2 * c * (xiStar + lambdaComb c * σ) / 3) * lambdaComb c)) :=
-  psi_eq_sig hc N η (designSigma1 d) u σ hσ hx
+  psi_eq_sig prob hc N η (designSigma1 d) u σ hσ hx
 
 /-- **(P3): the window limit of `Ψ_g`** for the finite modifications with arbitrary offsets `σs`: see
 `design_psi_uniform`, the case `σs = designSigma1 d`. -/
-theorem sig_psi_uniform (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
+theorem sig_psi_uniform (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
     {R : ℝ} (hR : 0 ≤ R) {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ c in atTop, ∀ u ∈ Icc (-R) R,
-      |psiScale c * psiAiry virasoroProblem c (sigG N η σs c) u - sigWinW N η σs u| ≤ ε := by
+      |psiScale prob c * psiAiry prob c (sigG N η σs c) u - sigWinW N η σs u| ≤ ε := by
   have hκ := kappaAiry_pos
   have hCs := CStar_pos
   have hP : 0 < CStar * kappaAiry := mul_pos hCs hκ
@@ -84,19 +84,19 @@ theorem sig_psi_uniform (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
   have hS0 : 0 ≤ S := by positivity
   have hSκ : S * kappaAiry = R := by rw [hS]; field_simp
   obtain ⟨n1, hn1⟩ := (phiWKB_succ_tendsto.eventually_ge_atTop S).exists
-  obtain ⟨K, hK0, hKev⟩ := sig_hat_window_bound N hN hη0.le hη1 σs
+  obtain ⟨K, hK0, hKev⟩ := sig_hat_window_bound prob hw N hN hη0.le hη1 σs
   set ε' : ℝ := ε * (CStar * kappaAiry) / 2 with hε'
   have hε'0 : 0 < ε' := by positivity
   set δ₂ : ℝ := ε * (CStar * kappaAiry) / (2 * (K + 1)) with hδ₂
   have hδ₂0 : 0 < δ₂ := by positivity
   have hlsq : ∀ᶠ c : ℝ in atTop, lambdaComb c * c ^ (1 / 2 : ℝ) ≤ δ₂ :=
     lambdaComb_mul_sqrt_tendsto.eventually_le_const hδ₂0
-  filter_upwards [sig_part1 N hN hη0.le hη1 σs hS0 n1 hε'0, hKev, hlsq,
-    lambda_mul_le S (half_pos xiStar_pos), FKc_ge_mul_sqrt 1, eventually_gt_atTop (1 : ℝ)]
+  filter_upwards [sig_part1 prob hw N hN hη0.le hη1 σs hS0 n1 hε'0, hKev, hlsq,
+    lambda_mul_le S (half_pos xiStar_pos), FKc_ge_mul_sqrt_of_pos (qProb_pos prob) 1, eventually_gt_atTop (1 : ℝ)]
     with c h1 hK hl hlS hFK hc1 u hu
   have hc0 : 0 < c := lt_trans one_pos hc1
   have hlam := lambdaComb_pos' hc0
-  have hFKpos := FKc_pos (q := 1) one_pos 1 hc0
+  have hFKpos := FKc_pos (qProb_pos prob) 1 hc0
   obtain ⟨σ, hσ⟩ : ∃ σ : ℝ, σ = -u / kappaAiry := ⟨_, rfl⟩
   have hσκ : σ * kappaAiry = -u := by rw [hσ]; field_simp
   have hlo : -S ≤ σ := by
@@ -116,15 +116,15 @@ theorem sig_psi_uniform (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
   have hp1 := h1 σ hσS
   rw [hWu] at hp1
   have hp2 := hK _ hx
-  rw [psi_eq_sig hc0 N η σs u σ hσ hx0]
+  rw [psi_eq_sig prob hc0 N η σs u σ hσ hx0]
   set x : ℝ := xiStar + lambdaComb c * σ with hxdef
   set t : ℝ := c * x ^ 2 / 3 with htdef
   set h : ℝ := combProfile c (sigBc N η σs c) t with hhdef
   set ĥ : ℝ := hankelTransform 1 (combProfile c (sigBc N η σs c)) t with hĥdef
-  set V : ℝ := virasoroProblem.cardyV (c / 12) t with hVdef
+  set V : ℝ := prob.cardyV (c / 12) t with hVdef
   set Dt : ℝ := (2 * c * x / 3) * lambdaComb c with hDt
   set P : ℝ := CStar * kappaAiry with hPdef
-  set FK : ℝ := FKc 1 1 c with hFKdef
+  set FK : ℝ := FKc (qProb prob) 1 c with hFKdef
   set Wu : ℝ := sigWinW N η σs u with hWudef
   have hB : |ĥ * V * Dt| ≤ ε / 2 * (P * FK) := by
     have e1 : ĥ * V * Dt = (ĥ * V * (2 * c * x / 3)) * lambdaComb c := by rw [hDt]; ring
@@ -166,40 +166,40 @@ theorem sig_psi_uniform (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
     _ = ε := by ring
 
 /-- **(P3): the window limit of `Ψ_g` for the designs.** -/
-theorem design_psi_uniform (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ)
+theorem design_psi_uniform (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (d : ℝ)
     {R : ℝ} (hR : 0 ≤ R) {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ c in atTop, ∀ u ∈ Icc (-R) R,
-      |psiScale c * psiAiry virasoroProblem c (designG N η d c) u - designWinW N η d u| ≤ ε :=
+      |psiScale prob c * psiAiry prob c (designG N η d c) u - designWinW N η d u| ≤ ε :=
   by
-  simpa only [designWinW_eq_sig, designG] using sig_psi_uniform N hN hη0 hη1 (designSigma1 d) hR hε
+  simpa only [designWinW_eq_sig, designG] using sig_psi_uniform prob hw N hN hη0 hη1 (designSigma1 d) hR hε
 
 /-- **(P4): the vacuum bound** `∫ Ψ_c du ≤ V + ε` for arbitrary offsets `σs` (`V = windowIntegralSig`): see
 `design_psi_limsup`. -/
-theorem sig_psi_limsup (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
+theorem sig_psi_limsup (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
     {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ c in atTop,
-      ∫ u, psiScale c * psiAiry virasoroProblem c (sigG N η σs c) u ≤ windowIntegralSig N η σs + ε := by
+      ∫ u, psiScale prob c * psiAiry prob c (sigG N η σs c) u ≤ windowIntegralSig N η σs + ε := by
   have hCs := CStar_pos
-  filter_upwards [proposition_V_i_sig N hN hη0 hη1 σs (ε := ε * CStar) (by positivity),
+  filter_upwards [proposition_V_i_sig prob hw N hN hη0 hη1 σs (ε := ε * CStar) (by positivity),
     eventually_gt_atTop (0 : ℝ)] with c hV hc0
-  have hFK := FKc_pos (q := 1) one_pos 1 hc0
-  rw [integral_const_mul, integral_psiAiry_eq_neg_gVac virasoroProblem hc0]
-  have e : psiScale c * (-virasoroProblem.gVac (c / 12) (sigG N η σs c) / (2 * π)) =
-      (2 * sigPsiIntegral N η σs c / FKc 1 1 c) / CStar := by
+  have hFK := FKc_pos (qProb_pos prob) 1 hc0
+  rw [integral_const_mul, integral_psiAiry_eq_neg_gVac prob hc0]
+  have e : psiScale prob c * (-prob.gVac (c / 12) (sigG N η σs c) / (2 * π)) =
+      (2 * sigPsiIntegral prob N η σs c / FKc (qProb prob) 1 c) / CStar := by
     unfold psiScale sigPsiIntegral
-    rw [sigGVac_eq]
+    rw [sigGVac_eq prob]
     field_simp
   rw [e, div_le_iff₀ hCs]
   have : windowIntegralSig N η σs * CStar + ε * CStar = CStar * windowIntegralSig N η σs + ε * CStar := by ring
   linarith
 
 /-- **(P4): the vacuum bound** `∫ Ψ_c du ≤ V_D + ε` (Proposition V (i), `∫ Ψ_g = -g_vac/(2π)`). -/
-theorem design_psi_limsup (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ)
+theorem design_psi_limsup (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (d : ℝ)
     {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ c in atTop,
-      ∫ u, psiScale c * psiAiry virasoroProblem c (designG N η d c) u ≤ windowIntegralVD N η d + ε :=
+      ∫ u, psiScale prob c * psiAiry prob c (designG N η d c) u ≤ windowIntegralVD N η d + ε :=
   by
-  simpa only [windowIntegralVD_eq_sig, designG] using sig_psi_limsup N hN hη0 hη1 (designSigma1 d) hε
+  simpa only [windowIntegralVD_eq_sig, designG] using sig_psi_limsup prob hw N hN hη0 hη1 (designSigma1 d) hε
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.sig_psi_uniform' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

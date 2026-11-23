@@ -347,6 +347,19 @@ noncomputable def farFamily : OmittedFamily (designClass ∪ displacedClassX) wh
     exact ⟨ω, hω, Filter.Eventually.of_forall h⟩
   tail_small := fun f hf => farWin_tail hf
 
+/-- **Theorem `Σ` for a weight-one problem, no hypothesis beyond the threshold lower bound `hLo`**
+(`sr:Sigma`): for every `c`-sequence tending to infinity (and above a threshold) there is an extremal
+crossing sequence whose limit measure satisfies the conclusion of `Σ`. -/
+theorem sigma_unconditional_prob (prob : FixedWeightProblem) (hw : prob.w = 1)
+    (hLo : FormalResearch.ModularBootstrap.FixedWeight.FixedWeightLowerBoundInput prob) :
+    ∃ c₀ : ℝ, ∀ cSeq : ℕ → ℝ, Tendsto cSeq atTop atTop → (∀ j, c₀ ≤ cSeq j) →
+      ∃ S : CrossingSequence prob, S.c = cSeq ∧
+        (∀ j, S.τ j = prob.T_V (cSeq j)) ∧
+        (∀ j, ∀ ε : ℝ, 0 < ε → 0 < (S.meas j).ν (Iio (S.τ j + ε))) ∧
+        SigmaConclusion S.μS :=
+  sigma_of_omitted_prob prob hw hLo displacedClass_subset (fun S => displacedPropertyP_prob prob hw S)
+    farFamily
+
 /-- **Theorem `Σ` at Virasoro, no hypothesis** (`sr:Sigma`): for every `c`-sequence tending to infinity (and
 above a threshold) there is an extremal crossing sequence whose limit measure satisfies the conclusion of
 `Σ`. -/
@@ -356,7 +369,7 @@ theorem virasoro_sigma_unconditional :
         (∀ j, S.τ j = virasoroProblem.T_V (cSeq j)) ∧
         (∀ j, ∀ ε : ℝ, 0 < ε → 0 < (S.meas j).ν (Iio (S.τ j + ε))) ∧
         SigmaConclusion S.μS :=
-  virasoro_sigma_of_omitted displacedClass_subset displacedPropertyP_virasoro farFamily
+  sigma_unconditional_prob virasoroProblem rfl FormalResearch.ModularBootstrap.FixedWeight.virasoro_lowerBoundInput
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.farFamily' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -365,5 +378,9 @@ theorem virasoro_sigma_unconditional :
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.virasoro_sigma_unconditional' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms virasoro_sigma_unconditional
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.sigma_unconditional_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sigma_unconditional_prob
 
 end FormalResearch.ModularBootstrap.Upper.Assembly

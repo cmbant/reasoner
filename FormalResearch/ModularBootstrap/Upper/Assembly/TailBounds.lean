@@ -39,6 +39,17 @@ theorem designTailBounds : DesignTailBounds := fun N₀ _ => ⟨Gd_upper N₀, G
 theorem sameSiteFamily_designClass_exists : Nonempty (SameSiteFamily designClass) :=
   sameSiteFamily_designClass designTailBounds
 
+/-- **`Σ₀` for a weight-one problem, for the extremal measures, unconditionally** (given the threshold
+lower bound `hLo`). -/
+theorem sigmaZero_unconditional_prob (prob : FixedWeightProblem) (hw : prob.w = 1)
+    (hLo : FormalResearch.ModularBootstrap.FixedWeight.FixedWeightLowerBoundInput prob) :
+    ∃ c₀ : ℝ, ∀ cSeq : ℕ → ℝ, Tendsto cSeq atTop atTop → (∀ j, c₀ ≤ cSeq j) →
+      ∃ S : CrossingSequence prob, S.c = cSeq ∧
+        (∀ j, S.τ j = prob.T_V (cSeq j)) ∧
+        (∀ j, ∀ ε : ℝ, 0 < ε → 0 < (S.meas j).ν (Set.Iio (S.τ j + ε))) ∧
+        SigmaZeroConclusion S.c S.τ S.μS :=
+  sigmaZero_of_tailBounds_prob prob hw hLo designTailBounds
+
 /-- **`Σ₀` at Virasoro for the extremal measures, unconditionally.** -/
 theorem virasoro_sigmaZero_unconditional :
     ∃ c₀ : ℝ, ∀ cSeq : ℕ → ℝ, Tendsto cSeq atTop atTop → (∀ j, c₀ ≤ cSeq j) →
@@ -46,7 +57,7 @@ theorem virasoro_sigmaZero_unconditional :
         (∀ j, S.τ j = virasoroProblem.T_V (cSeq j)) ∧
         (∀ j, ∀ ε : ℝ, 0 < ε → 0 < (S.meas j).ν (Set.Iio (S.τ j + ε))) ∧
         SigmaZeroConclusion S.c S.τ S.μS :=
-  virasoro_sigmaZero_of_tailBounds designTailBounds
+  sigmaZero_unconditional_prob virasoroProblem rfl FormalResearch.ModularBootstrap.FixedWeight.virasoro_lowerBoundInput
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.designTailBounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -59,5 +70,9 @@ theorem virasoro_sigmaZero_unconditional :
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.virasoro_sigmaZero_unconditional' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms virasoro_sigmaZero_unconditional
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.sigmaZero_unconditional_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sigmaZero_unconditional_prob
 
 end FormalResearch.ModularBootstrap.Upper.Assembly

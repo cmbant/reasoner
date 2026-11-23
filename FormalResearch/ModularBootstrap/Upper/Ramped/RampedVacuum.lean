@@ -39,7 +39,7 @@ open FormalResearch.ModularBootstrap FormalResearch.ModularBootstrap.Upper.Windo
   FormalResearch.ModularBootstrap.Upper.Hankel
 
 /-- `FK_c c'^{-1/3} = A₀ √c'`: the window normalisation is `FK_c ≍ c'^{5/6}`. -/
-lemma FKc_mul_rpow_eq : ∃ A0 : ℝ, 0 < A0 ∧ ∀ c' : ℝ, 0 < c' →
+lemma FKc_one_mul_rpow_eq : ∃ A0 : ℝ, 0 < A0 ∧ ∀ c' : ℝ, 0 < c' →
     FKc 1 1 c' * c' ^ (-(1 / 3 : ℝ)) = A0 * √c' := by
   have hxi := xiStar_pos
   have hπ := Real.pi_pos
@@ -76,6 +76,12 @@ lemma FKc_mul_rpow_eq : ∃ A0 : ℝ, 0 < A0 ∧ ∀ c' : ℝ, 0 < c' →
       = K1 * K2 ^ (3 / 2 : ℝ) * kTip ^ (1 / 3 : ℝ) * √c' * (c' ^ (1 / 3 : ℝ) * c' ^ (-(1 / 3 : ℝ))) := by ring
     _ = _ := by rw [hr]; ring
 
+/-- `FK_c c'^{-1/3} = A₀ √c'` at every scale `q > 0`. -/
+lemma FKc_mul_rpow_eq {q : ℝ} (hq : 0 < q) : ∃ A0 : ℝ, 0 < A0 ∧ ∀ c' : ℝ, 0 < c' →
+    FKc q 1 c' * c' ^ (-(1 / 3 : ℝ)) = A0 * √c' := by
+  obtain ⟨A0, hA0, h⟩ := FKc_one_mul_rpow_eq
+  exact ⟨q * A0, by positivity, fun c' hc' => by rw [FKc_scale, mul_assoc, h c' hc']; ring⟩
+
 lemma rampedEta_congr {P Q : RampedParams} (h1 : P.CI = Q.CI) (h2 : P.Cmid = Q.Cmid) (c' : ℝ) :
     rampedEta P c' = rampedEta Q c' := by
   funext k
@@ -87,22 +93,22 @@ lemma rampedD_nonneg (P : RampedParams) (c' : ℝ) (hc' : 0 < c') : 0 ≤ ramped
   have := P.M0_pos
   positivity
 
-/-- **The vacuum step of Lemma `U*` for the ramped comb** (`rem:thmU` Step (5)): for every `C_I, C_mid ≥ 1`
+/-- **The vacuum step of Lemma `U*` for the ramped comb, every weight-one problem** (`rem:thmU` Step (5)): for every `C_I, C_mid ≥ 1`
 there is `M_0 > 0` such that for every parameter set `P` with these `C_I, C_mid` and `P.M_0 = M_0`, eventually in
 `c'`, the test function `g = ½(h₀ - ĥ₀)` of the ramped design `D_*` at `d = M_0 c'^{-1/3}` has positive vacuum
 value `g_vac > 0`. -/
-theorem rampedVacuum (CI Cmid : ℝ) (hCI : 1 ≤ CI) (hCmid : 1 ≤ Cmid) :
+theorem rampedVacuum_prob (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) (CI Cmid : ℝ) (hCI : 1 ≤ CI) (hCmid : 1 ≤ Cmid) :
     ∃ M0 : ℝ, 0 < M0 ∧ ∀ P : RampedParams, P.CI = CI → P.Cmid = Cmid → P.M0 = M0 →
-      ∀ᶠ c' : ℝ in atTop, 0 < Crossing.virasoroProblem.gVac (c' / 12)
+      ∀ᶠ c' : ℝ in atTop, 0 < prob.gVac (c' / 12)
         (pairOdd (combProfile c' (rampedComb P (rampedD P c') c'))
           (hankelTransform 1 (combProfile c' (rampedComb P (rampedD P c') c')))) := by
-  obtain ⟨Cf, hCf, hfar⟩ := rampedF_far_le
-  obtain ⟨A0, hA0, hFK⟩ := FKc_mul_rpow_eq
-  obtain ⟨K, hK, hk7⟩ := ramped_k7 (prob := Crossing.virasoroProblem) rfl
+  obtain ⟨Cf, hCf, hfar⟩ := rampedF_far_le prob hw
+  obtain ⟨A0, hA0, hFK⟩ := FKc_mul_rpow_eq (qProb_pos prob)
+  obtain ⟨K, hK, hk7⟩ := ramped_k7 hw
   obtain ⟨P0, hP0I, hP0m⟩ : ∃ P0 : RampedParams, P0.CI = CI ∧ P0.Cmid = Cmid :=
     ⟨⟨CI, Cmid, 1, hCI, hCmid, one_pos⟩, rfl, rfl⟩
   obtain ⟨Cw, CE, hCw, hCE, hevW⟩ := rampedW_package P0
-  obtain ⟨T, hT, hwin⟩ := rampedWindow_part Cw hCw
+  obtain ⟨T, hT, hwin⟩ := rampedWindow_part prob hw Cw hCw
   have hCs := CStar_pos
   refine ⟨2 * (CE + T) + 2 + 2 * Cf / (A0 * CStar), by positivity, fun P hPI hPm hPM => ?_⟩
   have hη : ∀ c' : ℝ, rampedEta P c' = rampedEta P0 c' :=
@@ -116,31 +122,30 @@ theorem rampedVacuum (CI Cmid : ℝ) (hCI : 1 ≤ CI) (hCmid : 1 ≤ Cmid) :
     filter_upwards [hevW] with c' h d hd0 hd1
     rw [hη c']
     exact h d hd0 hd1
-  have hFc : ∀ᶠ c' : ℝ in atTop, ∀ d : ℝ, 0 ≤ d → d ≤ 1 → ContinuousOn (rampedF P d c') (Ici 0) := by
-    filter_upwards [rampedF_props P] with c' h d hd0 hd1 using (h d hd0 hd1).1
+  have hFc : ∀ᶠ c' : ℝ in atTop, ∀ d : ℝ, 0 ≤ d → d ≤ 1 → ContinuousOn (rampedF prob P d c') (Ici 0) := by
+    filter_upwards [rampedF_props prob hw P] with c' h d hd0 hd1 using (h d hd0 hd1).1
   have hwinP := hwin P CE hevW' hFc
   have hr0 : Tendsto (fun c' : ℝ => P.M0 * c' ^ (-(1 / 3 : ℝ))) atTop (𝓝 0) := by
     simpa using (tendsto_rpow_neg_atTop (show (0 : ℝ) < 1 / 3 by norm_num)).const_mul P.M0
   have hd_ev : ∀ᶠ c' : ℝ in atTop, rampedD P c' ≤ rampedD0 :=
     hr0.eventually_le_const rampedD0_pos
-  have hbig : ∀ᶠ c' : ℝ in atTop, (4 / (π * (CStar * A0)) + 1) ^ 2 ≤ c' := eventually_ge_atTop _
-  filter_upwards [hwinP, hfar P, rampedF_props P, rampedF_lobe_nonpos P, hk7, hd_ev, hbig,
-    eventually_ge_atTop (24 : ℝ)] with c' hw hf hprops hlobe hK7 hd hc hc24
-  have hc'0 : 0 < c' := by linarith
+  have hbig : ∀ᶠ c' : ℝ in atTop, (2 ^ prob.m / (π * (CStar * A0)) + 1) ^ 2 ≤ c' := eventually_ge_atTop _
+  filter_upwards [hwinP, hfar P, rampedF_props prob hw P, rampedF_lobe_nonpos prob P, hk7, hd_ev, hbig] with c' hwn hf hprops hlobe hK7 hd hc
+  have hc'0 : 0 < c' := lt_of_lt_of_le (by positivity) hc
   have hxs := xiStar_pos
   have hπ := Real.pi_pos
   have hd0 := rampedD_nonneg P c' hc'0
   have hd1 : rampedD P c' ≤ 1 := hd.trans rampedD0_le_one
   obtain ⟨hcont, hint⟩ := hprops (rampedD P c') hd0 hd1
   have hneg := hlobe (rampedD P c') hd0 hd1
-  have hwin' := hw (rampedD P c') hd0 hd
+  have hwin' := hwn (rampedD P c') hd0 hd
   have hfar' := hf (rampedD P c') hd0 hd1
-  have hsplit := split_integral_le (F := rampedF P (rampedD P c') c')
+  have hsplit := split_integral_le (F := rampedF prob P (rampedD P c') c')
     (tS := c' * (xiStar / 2) ^ 2 / 3) (tΦ := c' * (xiStar + 1 / 2) ^ 2 / 3)
     (tN := c' * (xiStar + 1 / 2) ^ 2 / 3) (tR := c' * (xiStar + 1 / 2) ^ 2 / 3)
     (by positivity) (by positivity) (by nlinarith) le_rfl le_rfl hint hneg
   have hmid : (∫ t in Icc (c' * (xiStar + 1 / 2) ^ 2 / 3) (c' * (xiStar + 1 / 2) ^ 2 / 3),
-      |rampedF P (rampedD P c') c' t|) = 0 := by
+      |rampedF prob P (rampedD P c') c' t|) = 0 := by
     rw [Icc_self]
     exact setIntegral_measure_zero _ (by simp)
   rw [hmid, add_zero] at hsplit
@@ -151,9 +156,9 @@ theorem rampedVacuum (CI Cmid : ℝ) (hCI : 1 ≤ CI) (hCmid : 1 ≤ Cmid) :
   have hdM : rampedD P c' = (2 * (CE + T) + 2 + 2 * Cf / (A0 * CStar)) * c' ^ (-(1 / 3 : ℝ)) := by
     unfold rampedD
     rw [hPM]
-  have hIw : (∫ t in Ioi 0, rampedF P (rampedD P c') c' t) ≤ -(CStar * A0) * √c' := by
-    have h1 : FKc 1 1 c' * CStar * (-rampedD P c' / 2 + (CE + T) * c' ^ (-(1 / 3 : ℝ))) =
-        CStar * (FKc 1 1 c' * c' ^ (-(1 / 3 : ℝ))) *
+  have hIw : (∫ t in Ioi 0, rampedF prob P (rampedD P c') c' t) ≤ -(CStar * A0) * √c' := by
+    have h1 : FKc (qProb prob) 1 c' * CStar * (-rampedD P c' / 2 + (CE + T) * c' ^ (-(1 / 3 : ℝ))) =
+        CStar * (FKc (qProb prob) 1 c' * c' ^ (-(1 / 3 : ℝ))) *
           (-(2 * (CE + T) + 2 + 2 * Cf / (A0 * CStar)) / 2 + (CE + T)) := by
       rw [hdM]; ring
     rw [h1, hFKr] at hwin'
@@ -163,39 +168,49 @@ theorem rampedVacuum (CI Cmid : ℝ) (hCI : 1 ≤ CI) (hCmid : 1 ≤ Cmid) :
       ring
     rw [h2] at hwin'
     linarith
-  obtain ⟨C, hC0, -, -, -, hid, -⟩ := hK7 P (rampedD P c') hd0 hd1
-  have hnorm := (hK7 P (rampedD P c') hd0 hd1)
-  have h8 := K7Conclusion.norm_vac_le_eight hnorm Crossing.virasoroProblem_m
+  obtain ⟨C, hC0, -, -, -, hid, hn⟩ := hK7 P (rampedD P c') hd0 hd1
   have hre := congrArg Complex.re hid
   rw [← Complex.ofReal_mul, Complex.sub_re, Complex.ofReal_re, Complex.ofReal_re] at hre
-  have hhalf : |((1 / 2 : ℂ) * ∑ s : Finset (Fin Crossing.virasoroProblem.m), (-1 : ℂ) ^ s.card *
+  have hhalf : |((1 / 2 : ℂ) * ∑ s : Finset (Fin prob.m), (-1 : ℂ) ^ s.card *
       combH0 (rampedComb P (rampedD P c') c')
-        (bAlpha c' (c' / 12 - Crossing.virasoroProblem.shiftSum s))).re| ≤ 4 := by
-    refine (Complex.abs_re_le_norm _).trans ?_
-    rw [norm_mul]
-    norm_num
-    linarith
-  have hsc : 4 / (π * (CStar * A0)) + 1 ≤ √c' := by
-    calc 4 / (π * (CStar * A0)) + 1 = √((4 / (π * (CStar * A0)) + 1) ^ 2) :=
+        (bAlpha c' (c' / 12 - prob.shiftSum s))).re| ≤ 2 ^ prob.m :=
+    (Complex.abs_re_le_norm _).trans hn
+  have hsc : 2 ^ prob.m / (π * (CStar * A0)) + 1 ≤ √c' := by
+    calc 2 ^ prob.m / (π * (CStar * A0)) + 1 = √((2 ^ prob.m / (π * (CStar * A0)) + 1) ^ 2) :=
           (Real.sqrt_sq (by positivity)).symm
       _ ≤ √c' := Real.sqrt_le_sqrt hc
-  have hgoal : 4 < π * ((CStar * A0) * √c') := by
-    have h1 : 4 / (π * (CStar * A0)) < √c' := by linarith
+  have hgoal : (2 : ℝ) ^ prob.m < π * ((CStar * A0) * √c') := by
+    have h1 : 2 ^ prob.m / (π * (CStar * A0)) < √c' := by linarith
     rw [div_lt_iff₀ (by positivity)] at h1
     linarith
   have hgv := abs_le.mp hhalf
-  show 0 < Crossing.virasoroProblem.gVac (c' / 12) _
+  show 0 < prob.gVac (c' / 12) _
   rw [hre]
   have hIw' : (∫ t in Ioi 0, combProfile c' (rampedComb P (rampedD P c') c') t *
-      Crossing.virasoroProblem.cardyV (c' / 12) t) ≤ -(CStar * A0) * √c' := hIw
+      prob.cardyV (c' / 12) t) ≤ -(CStar * A0) * √c' := hIw
   have hpi := mul_le_mul_of_nonneg_left hIw' hπ.le
   linarith only [hpi, hgv.1, hgoal]
+
+/-- **The vacuum step of Lemma `U*` for the ramped comb** (`rem:thmU` Step (5)): for every `C_I, C_mid ≥ 1`
+there is `M_0 > 0` such that for every parameter set `P` with these `C_I, C_mid` and `P.M_0 = M_0`, eventually in
+`c'`, the test function `g = ½(h₀ - ĥ₀)` of the ramped design `D_*` at `d = M_0 c'^{-1/3}` has positive vacuum
+value `g_vac > 0` (Virasoro: `rampedVacuum_prob` at `virasoroProblem`). -/
+theorem rampedVacuum (CI Cmid : ℝ) (hCI : 1 ≤ CI) (hCmid : 1 ≤ Cmid) :
+    ∃ M0 : ℝ, 0 < M0 ∧ ∀ P : RampedParams, P.CI = CI → P.Cmid = Cmid → P.M0 = M0 →
+      ∀ᶠ c' : ℝ in atTop, 0 < Crossing.virasoroProblem.gVac (c' / 12)
+        (pairOdd (combProfile c' (rampedComb P (rampedD P c') c'))
+          (hankelTransform 1 (combProfile c' (rampedComb P (rampedD P c') c')))) :=
+  rampedVacuum_prob Crossing.virasoroProblem rfl CI Cmid hCI hCmid
 
 /-! ### Axiom checks -/
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Ramped.FKc_mul_rpow_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FKc_mul_rpow_eq
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Ramped.rampedVacuum_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms rampedVacuum_prob
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Ramped.rampedVacuum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

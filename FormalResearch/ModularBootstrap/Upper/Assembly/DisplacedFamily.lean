@@ -618,6 +618,21 @@ theorem displacedFamily_exists {𝒟 : Set Window} (h : displacedClass ⊆ 𝒟)
     Nonempty (DisplacedFamily 𝒟) :=
   ⟨DisplacedFamily.mono h displacedFamily⟩
 
+/-- **`Σ` for a weight-one problem, for the extremal measures, with the same-site and displaced families
+proved** (given the threshold lower bound `hLo`): the remaining inputs are Property `sr:P` for the class
+`𝒟x ⊇ displacedClass` and the omitted family. -/
+theorem sigma_of_omitted_prob (prob : FixedWeightProblem) (hw : prob.w = 1)
+    (hLo : FormalResearch.ModularBootstrap.FixedWeight.FixedWeightLowerBoundInput prob) {𝒟x : Set Window} (hsub : displacedClass ⊆ 𝒟x)
+    (hPx : ∀ S : CrossingSequence prob, DesignPropertyP S.μS 𝒟x)
+    (Om : OmittedFamily (designClass ∪ 𝒟x)) :
+    ∃ c₀ : ℝ, ∀ cSeq : ℕ → ℝ, Tendsto cSeq atTop atTop → (∀ j, c₀ ≤ cSeq j) →
+      ∃ S : CrossingSequence prob, S.c = cSeq ∧
+        (∀ j, S.τ j = prob.T_V (cSeq j)) ∧
+        (∀ j, ∀ ε : ℝ, 0 < ε → 0 < (S.meas j).ν (Iio (S.τ j + ε))) ∧
+        SigmaConclusion S.μS :=
+  sigma_prob prob hw hLo hPx sameSiteFamily_designClass_exists.some
+    (DisplacedFamily.mono (hsub.trans Set.subset_union_right) displacedFamily) Om
+
 /-- **`Σ` at Virasoro for the extremal measures with the same-site and displaced families proved**: the
 remaining inputs are Property `sr:P` for the class `𝒟x ⊇ displacedClass` (`Σ3`) and the omitted family
 (`Σ4`). -/
@@ -629,8 +644,7 @@ theorem virasoro_sigma_of_omitted {𝒟x : Set Window} (hsub : displacedClass �
         (∀ j, S.τ j = virasoroProblem.T_V (cSeq j)) ∧
         (∀ j, ∀ ε : ℝ, 0 < ε → 0 < (S.meas j).ν (Iio (S.τ j + ε))) ∧
         SigmaConclusion S.μS :=
-  virasoro_sigma hPx sameSiteFamily_designClass_exists.some
-    (DisplacedFamily.mono (hsub.trans Set.subset_union_right) displacedFamily) Om
+  sigma_of_omitted_prob virasoroProblem rfl FormalResearch.ModularBootstrap.FixedWeight.virasoro_lowerBoundInput hsub hPx Om
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.exists_dispPi0_lower' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -651,5 +665,9 @@ theorem virasoro_sigma_of_omitted {𝒟x : Set Window} (hsub : displacedClass �
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.displacedFamily_union' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms displacedFamily_union
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.sigma_of_omitted_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sigma_of_omitted_prob
 
 end FormalResearch.ModularBootstrap.Upper.Assembly
