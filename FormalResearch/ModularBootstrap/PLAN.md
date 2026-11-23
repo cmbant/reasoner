@@ -33,7 +33,7 @@ U6_PLAN §1, unchanged; TeX re-checked against `origin/main`):
 | R4 | Hole comparison: Λ-form of K4 for an arbitrary comb, comparison `log|B_D| ≥ log|B_ref| − S + Σ_H log ρ_k`, `R(t)` discriminant lemma, seven-pair product, near-tip ratio `vρ_∞ ≤ C_v r^{5/4}` | done (`ShiftSumEstimate` proved in R3b) |
 | R2b | Prop 1.2(2) comb-to-Airy identity, uniform over designs, error `O(c'^{-2/3})` | done (`Ramped/CombToAiry*`, for `combBD`; bridge to the ramped `designComb` in R5/R7) |
 | R3b | Ramped instantiation (sites, heights, PC sums, SDV, Φ transform θ=3/5, K7, far-band comparison) | done (`Ramped/RampedDesign*`, `RampedFarBand`, `RampedThreshold`) |
-| R5 | Region I | R1, R2b, R3b |
+| R5 | Region I | done (`Ramped/RampedRegionOne*`, `rampedRegionI`, `rampedPositive_tstar`) |
 | R6 | Region II near-tip + macroscopic | done (`Ramped/RampedRegionTwo*`, `rampedRegionII`; bridge `Ramped/CombBridge` for R5/R7) |
 | R7 | Vacuum | R1, R2b, R3b |
 | R8 | Assembly `theoremC15UpperInput_virasoro`, `IsFeasible.mono_T`, `t_*` expansion; E1 with O(1) | all |
@@ -65,9 +65,13 @@ Revisions made in this audit (cleaner implementation, checked against the TeX):
 
 **C. N = 1 super-Virasoro (`n1SuperVirasoroProblem`, `w = 1`, `μ = (1/2,1/2)`).**
 - C1 done: `FixedWeightBand.n1_lowerBoundInput`, `n1_T_V_lower` (unconditional).
-- C2 (scout, then M): generalise the upper/design side from `virasoroProblem` to every `w = 1` problem (15 files in
-  `Upper/` mention `virasoroProblem`; `Q` should enter only through `V`, `g_vac` and the Cardy window). This gives the
-  N=1 two-term law and Σ₀ (`n1:T3`), and A at N=1 once A is done.
+- C2 (scouted 2026-11-23, M, no blocker): generalise the upper/design side to every `prob` with `hw : prob.w = 1`, in
+  place, the `virasoro_*` names becoming one-line corollaries. 18 files in `Upper/` (Window/{CardyWindow,Tail},
+  Positivity/Vacuum*, Assembly/*, Rigidity/Wiring) plus FixedWeight wrappers; `Upper/Ramped` is already prob-free.
+  New content (~150-200 lines): Cardy window/far band from `cardyV_asymptotic_real` (not `besselV`), the normaliser
+  `windowMeasureNormK prob 1 c' = FKc (qProb prob) 1 c'` with `qProb = nullPoly(e^{-4πξ_*})/(1−e^{-4πξ_*})²`, vacuum
+  constants `2^m` (from K7 `‖½h_{0,vac}‖ ≤ 2^m`, already general). Then N=1 corollaries (Property P, two-term law, Σ₀,
+  Σ, and A once R8 is stated for `prob`). Schedule: after R7 (shares CardyWindow, Vacuum*); R8 stated for `prob`.
 
 **D. Later, not scheduled:** designs and bump at general `(w,Q)` (`w > 1`, W1.4); real `w ≥ 1` and N=(2,2)
 (the abstract framework allows real `w`; plug in through the W1–W4 interface); two-level Clark curve

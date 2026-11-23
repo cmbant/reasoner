@@ -67,6 +67,8 @@ public import FormalResearch.SignUncertainty.RadialProfileFatou
 public import FormalResearch.SignUncertainty.RadialCompactness
 public import FormalResearch.SignUncertainty.RadialCompactnessProof
 public import FormalResearch.SignUncertainty.OneProfileEnvelope
+public import FormalResearch.SignUncertainty.ThreeLinesUnit
+public import FormalResearch.SignUncertainty.LaplaceWeight
 public import FormalResearch.SignUncertainty.EuclidSplit
 public import FormalResearch.SignUncertainty.EuclidRadialSlice
 public import FormalResearch.SignUncertainty.EuclidRadialFourier
@@ -162,6 +164,8 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   the locally uniform convergence of profiles and derivatives, Fatou for the `L¹` clause, and the assembly
   `profile_compactness_thm`, `radial_compactness`.
 * `FormalResearch.SignUncertainty.OneProfileEnvelope`: `gt:3.1` in the form used by `prop:ce-one-profile`: every `H ∈ 𝒢`
+* `FormalResearch.SignUncertainty.ThreeLinesUnit`: Hadamard three lines on the closed unit strip in the hypothesis form of `eq:ce-three-lines` (`three_lines_unit`, a restatement of the Mathlib theorem), boundedness of `mellinW` on the closed strip (`mellinW_bddAbove_strip`, from `norm_mellinW_le`), and two real-power facts. No headline uses it yet; it serves the origin-floor estimate of `thm:ce-shell-gap`.
+* `FormalResearch.SignUncertainty.LaplaceWeight`: the real Laplace weight `W_c(y,Δ) = Re(1/K₀(ζ_c, Δ/c))` of the proof of Theorem `H.14` (`eq:ce-laplace-limit`): positivity, the Gamma form, the exact scaling in `Δ`, and the limit `exp(-y³/12 + y u)` at `Δ = c/π² - (u/β₁)c^{1/3}` (from `radialK_tendsto`).
   with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
   `one_profile_envelope`.
 * `FormalResearch.SignUncertainty.EuclidSplit`, `EuclidRadialSlice`, `EuclidRadialFourier`, `EuclidRadialHankel`: the
