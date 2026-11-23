@@ -1,14 +1,26 @@
-# Layer 4 remaining inputs: scoping note
+# Layer 4 remaining inputs: status and scoping note
 
-**Status of this file.** Originally an independent scoping run (agy, `gemini-4-hydrogen-high`) reading the chart structures after the parabolic-cylinder block. The **WP0 (`WP0a`, `WP0b`), WP1 (`WP1a`, `WP1b`), and WP2** work packages have now been implemented, audited against Paper J `.tex`, and verified clean under `lake build FormalResearch.JacobiEigenvectors` on branch `agents/paper-j-layer4-wp0-2` (zero `sorry`/`admit`/custom `axiom`/`native_decide`; all headline theorems pinned to `[propext, Classical.choice, Quot.sound]`). The **new paper findings** in section 5 (`thm:eng-corr` needs `Pi_+ = adj Pi_-(u+h)` rather than `D^2 != 0`; `c <= u_+ - 2 sigma`; `V_growth` only needed in the far zone) are recorded as notes only; no `.tex` files were edited.
-**Completed on `agents/paper-j-layer4-wp0-2`:**
-* **WP0a**: `V_growth` dropped from `PCEnvelopeFacts` (`Charts/ParabolicCylinder.lean`); `pcEnvelopeFacts` and `parabolicCylinderFacts` are now unconditional in `Charts/PCEnvelopeAssembled.lean`.
-* **WP0b**: `Engine/Defect.lean`, `CorrectorDefect.lean`, `Corrector.lean`, `CorrectorExample.lean` updated with `adj_Pi` / nonnegativity, and `Engine/CorrectorLocal.lean` proves localized `LocalCorrSetting`/`LocalCorrectors` on `[a, b]` (including the Weber hard-edge `s = 0`).
-* **WP1a**: `Charts/ODEFlow.lean`, `Charts/PCLadder.lean`, `Charts/SoftLamCont.lean`, `Charts/WeberLadder.lean` (exact ODE lattice flows, Weber and 3-patch PC `SymplecticLadder` + `annih` + `env`, `lamL_cont` across `a = 0`).
-* **WP1b**: `Charts/PCVFarGrowth.lean` (`pcV_far_pos_and_growth`, `pcU_neg_pos_and_growth`), `Charts/SoftBounds.lean` (`soft_bondA_le`, `soft_grow_gap`, `soft_ratioM`, `actionWell_ge_of_zeta_lb`, `soft_grow3_of_corr`, `soft_ratio2_of_corr`, `soft_lb_pc_of_corr`, `weber_seed_pos_of_corr`, `weber_collar_lb_of_corr`, `bulk_W_osc_M_osc`, `bulk_theta_le`).
-* **WP2**: `Charts/LocalGeometry.lean` (`local_cover_of_geom`, `local_bulk_cover_of_geom`, `uMinus_mirror_ne`, `uPlus_mirror_ne`, `mirror_bulk_overlap_match`, `softMirror_geom_of_left`, `softPhase_bandHi_close`, `layer4_cover_consts`).
+## Status (reasoner `master` `b6270fc`, assessed 2026-11-23)
 
-Next work: **WP3** (`WP3a`/`WP3b` Langer–Weber coordinates `Y_L`, `Y`), **WP4** (Moser coordinate `zeta`, `mu_{2r}`, `bandHi_reg`), **WP5** (localised `SymbolExp`, `prop:eng-corr1`, `TransferInputs`), and **WP6** (`BulkPhaseInputs`).
+WP0–WP2 were written by an external agent (agy) and merged to `master` in `b90b43f` (imported by `FormalResearch/JacobiEigenvectors.lean`; no placeholder proofs, custom axioms or `native_decide`). A clean-context read-only audit (2026-11-23, nothing rebuilt) found what follows. The roadmap that acts on it is in `PLAN.md`, *Roadmap from here*. The scoping report below it is the original agy run, kept for its field-by-field routes; where it and this section disagree, this section is current.
+
+**Proved and complete.** WP0a: `V_growth` removed from `PCEnvelopeFacts`; `pcEnvelopeFacts`, `parabolicCylinderFacts` (`Charts/PCEnvelopeAssembled.lean`) take no hypothesis, so `ChartInputs.pc` is available for `pcU, pcV`. Far zone: `pcV_far_pos_and_growth`, `pcU_neg_pos_and_growth` (`Charts/PCVFarGrowth.lean`).
+
+**Proved, not yet consumed.** No chart structure field was removed or derived and no theorem outside the new files uses them: the headline theorems still take the full chart bundles. Verdict per lemma (target field: status):
+* `weber_symplecticLadder`, `weber_annih` (patch-1 `valid.ladder`, `annih`): discharge once the chain is built from `weberPiP/PiM`, `wWeb Y`; they hold for every `Y` (no coordinate content). `weber_env_well` (`valid.env`, Weber patches): bulk modulo `Y_bound`; soft needs an upper bound on `Y` that `SoftEdgeChart` lacks.
+* `pc_symplecticLadder` (patches 2, 3): modulo the Wronskian/ODE premises for `pcMinus`, `pcSwap`, which are not instantiated.
+* `localized_eng_corr(_full)` (`valid.defect0/1`): abstract engine only. `LocalCorrectors` (existence of the correctors, `prop:eng-corr1`) is assumed; `SymbolExpOn`, `langer`, `M0_smooth` and **`adj_Pi` for the Weber ladder (including the hard-edge bond) are not proved** (`Pp_eq_adj_of_prod` needs `Dp d2 ≠ 0`; it covers the PC ladder); the `UOOn` constants are per fixed `(μ, X)`, while `Valid` needs them uniform in `μ ∈ P`, `X ∈ [Jlo, Jhi]`. Nothing addresses `cas_lb`, `A_bd`, `B_bd`, `W_mono`, `theta_leW` or the soft `theta_le`.
+* `soft_bondA_le`, `soft_grow_gap`, `mirror_bulk_overlap_match`, `uMinus/uPlus_mirror_ne`: discharge (given the standing `CoreReg`, `GeomSoftConcl` with matching `uc`, and the chart's `N0`).
+* `bulk_W_osc_M_osc`, `bulk_theta_le`: derive the fields from `turn_eq`, `Hz_lb`, `overlap_in_well`, `Y_bound` (coordinate fields, WP3b).
+* `weber_seed_pos_of_corr`, `weber_collar_lb_of_corr`: bulk modulo `corr_lead`, `Y_bound`; **soft (`seed_posW`, `collar_lbW`, `lb_weber`) gap**: `chainW` has no `corr_lead`-type field and no upper bound on `Y`.
+* `soft_lb_pc_of_corr` (`lb_pc`): modulo `corr_PC`. `soft_ratioM`: gap, needs `|Y(u_{j_1})| <= C_Y`.
+* `soft_ratio2_of_corr`, `soft_grow3_of_corr`: gap, need the one-step ratio `A_{k+1} <= (1 + C h) A_k` of `AA 2`, which no field gives (`corr_PC` has only `gm <= A`, `|B| <= CBc`); and `corr_PC`.
+* `lamL_continuousOn_of_coeff` (`lamL_cont`): the `a = 0` cancellation is proved; it needs continuity in `X` of `AA 2`, `BB 2`, `zeta`, `aPC`, the Weber solution and the bond (the soft chart has no regularity fields for `Y`, `zeta`, `mu_{2r}`), and a non-vanishing denominator whose only source, `soft_lamL_lower`, takes a complete `SoftEdgeChart` (circular if used to build one).
+* `local_cover_of_geom`, `local_bulk_cover_of_geom`: give a parameter neighbourhood `K'` with its own `t0, Jlo, Jhi`, not the fixed `K`; no finite-cover gluing exists, and the choice order (`delta0` of the soft charts vs `delta_up, delta_lo` fixing `K'`) must be made non-circular. `softPhase_bandHi_close` gives a new `t0` (no restriction of `SoftPhaseInputs` exists). `layer4_cover_consts`: packaging (its premise carries the content). `softMirror_geom_of_left`: transfers the left chart's coordinate fields to the mirror chart (no reduction of the (H) content).
+
+**Housekeeping found by the audit.** No axiom guard for `uMinus_mirror_ne`, `local_cover_of_geom_strict` and `ODEFlow.lean`; stale `V_growth` comments in `TheoremA/SoftItem1.lean` and `Charts/SoftParabolicCylinder.lean`.
+
+**Paper findings of the agy run (section 5 below):** 1 (`thm:eng-corr` needs `adj_Pi`, not `D² ≠ 0`) is applied in the paper (`Weyl/jacobi_eigenvectors/paper/CORRECTIONS.md`, 2026-11-19); 2 (`c <= u_+ - 2 sigma`) is a choice in the chart construction (the paper's margins `delta_1` already allow it), not a paper error; 3, 4 are remarks, no correction.
 
 # Scoping Report: Remaining Layer-4 Formalisation for Paper J (`FormalResearch/JacobiEigenvectors/`)
 
