@@ -23,7 +23,8 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
   stated for an abstract `fhat` that carries the paper's estimates as hypotheses. Nothing builds `W_S`, `W_D` from `Ai`,
   or `h_mellin` from a CE pair.
 - Open skeleton fields in `Headlines.lean` (7): `hb_thresholds_lower`, `hb_thresholds_upper`, `shell_reduction_m1`,
-  `ce_hb_lift_m1`, `shell_reduction`, `shell_gap_limit`, `ce_hb_lift`. `radial_compactness`, `one_profile_envelope` and the
+  `ce_hb_lift_m1`, `shell_reduction`, `hankel_shell_gap_limit` (the Hankel-level form of `shell_gap_limit`; the Euclidean
+  statement follows by `shellGapLimit_of_hankel`), `ce_hb_lift`. `radial_compactness`, `one_profile_envelope` and the
   Euclidean-to-Hankel dictionary `hankel_euclid_dictionary` (`gt:7.9`) are theorems and no longer inputs.
 - What is genuinely closed and reusable:
   - the Airy base: Theorems D, Q and B with its equality case, Clark two-node, Hermite–Biehler quadrature and
