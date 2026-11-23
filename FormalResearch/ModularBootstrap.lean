@@ -137,6 +137,9 @@ public import FormalResearch.ModularBootstrap.Upper.Design.HankelEpsDeriv
 public import FormalResearch.ModularBootstrap.Upper.Design.AmplitudeLogDeriv
 public import FormalResearch.ModularBootstrap.Upper.Design.DesignCombProps
 public import FormalResearch.ModularBootstrap.Upper.Design.CombTransform
+public import FormalResearch.ModularBootstrap.Upper.Positivity.AmplitudeLevel
+public import FormalResearch.ModularBootstrap.Upper.Positivity.DesignReal
+public import FormalResearch.ModularBootstrap.Upper.Positivity.RegionII
 public import FormalResearch.ModularBootstrap.FixedWeight.CrossingMeasure
 public import FormalResearch.ModularBootstrap.FixedWeight.DualMajorant
 public import FormalResearch.ModularBootstrap.FixedWeight.MomentProblem
@@ -454,4 +457,12 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (`SD_G`), `designProfile_sdvHypotheses` (`SD_V` hypotheses with `δ = 1/8`) and
   `lemma_Phi_transform`: `‖ĥ₀(c'x²/3)‖ ≤ 𝒜_x (1 + C c'^{-1+3θ/2})` for `x ≥ ξ_* + c'^{-θ}`,
   `0 < θ < 2/3`, unconditional.
+* `Upper.Positivity.AmplitudeLevel`, `Upper.Positivity.DesignReal`, `Upper.Positivity.RegionII`:
+  **Proposition `II`** (`ut:II`, Region II positivity of `g` at weight `1`): the `(SD.4)` amplitude
+  against the level, `combAmplitude_le_levComb_frac : 𝒜_x ≤ (55/100) Lev^{(f)}`; the reality and
+  positivity of the finite modification at real `x` (`designComb_ofReal`); and
+  `proposition_II`: for `c'` large, uniformly over the compact family of `lemma_P_b` and every
+  `x ≥ ξ_* + c'^{-2/5}`, `2g(c'x²/3)/Lev^{(f)}(x) ≥ 13/100` with `2g = h₀^D - ĥ₀` (`twoG`),
+  with `proposition_II_pos`, the `f = 1` designs `D(N, η_*, d)` (`proposition_II_design`) and
+  `proposition_II_family_nonempty`; unconditional.
 -/
