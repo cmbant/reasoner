@@ -47,6 +47,50 @@ lemma half_rpow_le {L p : ℝ} (hL : 0 < L) (hp : -(3 / 2 : ℝ) ≤ p) (hp0 : p
   rw [div_eq_mul_inv, Real.mul_rpow hL.le (by norm_num), Real.inv_rpow (by norm_num), ← Real.rpow_neg (by norm_num : (0 : ℝ) ≤ 2), mul_comm]
   exact mul_le_mul_of_nonneg_right (Real.rpow_le_rpow_of_exponent_le (by norm_num) (by linarith)) (by positivity)
 
+/-- **Binomial reduction of the outer integral.** For `h` with every `g_j = k h e^{icΦ(τ; L - jκ/c)}` integrable and
+`‖∫ k h e^{icΦ(τ; L - jκ/c)}‖ ≤ B` (`0 ≤ j ≤ m`), the outer integral
+`∫ (1-iτ)^{-1/2} e^{B_c(iτ)} E₁(iκτ)^m (iκτ)^m h(τ) e^{icΦ(τ;L)} dτ` has norm `≤ 2^m B`. -/
+theorem outer_decomp_bound {m : ℕ} {κ c L B : ℝ} {h : ℝ → ℂ} (hc : 2 ≤ c)
+    (hint : ∀ j ∈ Finset.range (m + 1), Integrable (fun τ : ℝ => ((1 - Complex.I * (τ : ℂ)) ^ (-(1 / 2 : ℂ)) *
+      Complex.exp (binetDiff c (Complex.I * (τ : ℂ))) * h τ) * Complex.exp (Complex.I * (c : ℂ) * (edgePhi (L - (j : ℝ) * κ / c) τ : ℂ))))
+    (hbd : ∀ j ∈ Finset.range (m + 1), ‖∫ τ : ℝ, ((1 - Complex.I * (τ : ℂ)) ^ (-(1 / 2 : ℂ)) *
+      Complex.exp (binetDiff c (Complex.I * (τ : ℂ))) * h τ) * Complex.exp (Complex.I * (c : ℂ) * (edgePhi (L - (j : ℝ) * κ / c) τ : ℂ))‖ ≤ B) :
+    ‖∫ τ : ℝ, ((1 - Complex.I * (τ : ℂ)) ^ (-(1 / 2 : ℂ)) * Complex.exp (binetDiff c (Complex.I * (τ : ℂ))) *
+          (bsplineImag κ m τ * ((Complex.I * (κ : ℂ) * (τ : ℂ)) ^ m * h τ))) *
+            Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))‖ ≤ 2 ^ m * B := by
+  have hc_pos : 0 < c := by linarith
+  let g : ℝ → ℂ := fun τ => (1 - Complex.I * (τ : ℂ)) ^ (-(1 / 2 : ℂ)) * Complex.exp (binetDiff c (Complex.I * (τ : ℂ))) * h τ
+  let s_of : ℕ → ℂ := fun j => (-1 : ℂ) ^ j * (m.choose j : ℂ)
+  let Lj : ℕ → ℝ := fun j => L - (j : ℝ) * κ / c
+  let term : ℕ → ℝ → ℂ := fun j τ => s_of j * g τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi (Lj j) τ : ℂ))
+  have hdecomp : ∀ τ : ℝ, ((1 - Complex.I * (τ : ℂ)) ^ (-(1 / 2 : ℂ)) * Complex.exp (binetDiff c (Complex.I * (τ : ℂ))) *
+      (bsplineImag κ m τ * ((Complex.I * (κ : ℂ) * (τ : ℂ)) ^ m * h τ))) * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ)) =
+      ∑ j ∈ Finset.range (m + 1), term j τ := fun τ => by
+    have hbin := bsplineImag_mul_pow_eq κ m τ
+    have : (1 - Complex.I * (τ : ℂ)) ^ (-(1 / 2 : ℂ)) * Complex.exp (binetDiff c (Complex.I * (τ : ℂ))) *
+        (bsplineImag κ m τ * ((Complex.I * (κ : ℂ) * (τ : ℂ)) ^ m * h τ)) * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ)) =
+        g τ * ((bsplineImag κ m τ * (Complex.I * (κ : ℂ) * (τ : ℂ)) ^ m) * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))) := by
+      simp only [g]; ring
+    rw [this, hbin, Finset.sum_mul, Finset.mul_sum]
+    refine Finset.sum_congr rfl fun j _ => ?_
+    have hphi : Complex.exp (-(Complex.I * ((j : ℝ) * κ : ℂ) * (τ : ℂ))) * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ)) =
+        Complex.exp (Complex.I * (c : ℂ) * (edgePhi (Lj j) τ : ℂ)) := by
+      rw [← Complex.exp_add]; congr 1
+      simp only [Lj]
+      rw [edgePhi_sub_linear]; push_cast; field_simp [hc_pos.ne']; ring
+    simp only [term, s_of]
+    rw [← hphi]; ring
+  have hterm_bd : ∀ j ∈ Finset.range (m + 1), ‖∫ τ : ℝ, term j τ‖ ≤ (m.choose j : ℝ) * B := fun j hj => by
+    have hsj : ‖s_of j‖ = (m.choose j : ℝ) := by simp [s_of]
+    rw [show ∫ τ : ℝ, term j τ = s_of j * ∫ τ : ℝ, g τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi (Lj j) τ : ℂ)) from by
+      simpa [term, mul_assoc] using integral_const_mul (s_of j) _, norm_mul, hsj]
+    exact mul_le_mul_of_nonneg_left (hbd j hj) (Nat.cast_nonneg _)
+  have hterm_int : ∀ j ∈ Finset.range (m + 1), Integrable (term j) := fun j hj =>
+    ((hint j hj).const_mul (s_of j)).congr (ae_of_all _ fun τ => by dsimp [term, g, Lj]; ring)
+  rw [show (fun τ : ℝ => _) = fun τ => ∑ j ∈ Finset.range (m + 1), term j τ from funext hdecomp, integral_finsetSum _ hterm_int]
+  refine (norm_sum_le _ _).trans ((Finset.sum_le_sum hterm_bd).trans_eq ?_)
+  rw [← Finset.sum_mul, show (∑ j ∈ Finset.range (m + 1), (m.choose j : ℝ)) = (2 : ℝ) ^ m by exact_mod_cast Nat.sum_range_choose m]
+
 /-- **Outer part of `I_main` in the variable `τ = εv`.** For `κ > 0`, `m ≥ 1`, `c ≥ 2`, `L > 0` with `mκ ≤ cL/2` and `c (L/2)^{3/2} ≥ 1`,
 and a `C²` amplitude `h` with `‖h^{(r)}‖ ≤ A_h (1+τ²)^{-5/4}` (`r ≤ 2`) (here `h = (iκτ)^{-m} (1-χ_ξ) F̃`),
 `‖∫ (1-iτ)^{-1/2} e^{B_c(iτ)} E₁(iκτ)^m (iκτ)^m h(τ) e^{icΦ(τ;L)} dτ‖ ≤ C 2^m A_h c^{-1/2} min(L^{-1/4}, L^{-3/2})`, with `C` absolute. -/
@@ -77,83 +121,53 @@ theorem main_outer_phase_bound :
       hr (hk_cd.of_le (by simp)) hh_cd (fun i hi => hk_54 i (hi.trans hr) τ) (fun i hi => hh_bd i (hi.trans hr) τ)).trans_eq
       (by rw [show (2 : ℝ) ^ 2 * (C_K * (1 + τ ^ 2) ^ (-(1 / 4 : ℝ))) * (A_h * (1 + τ ^ 2) ^ (-(5 / 4 : ℝ))) =
           C_amp * A_h * ((1 + τ ^ 2) ^ (-(1 / 4 : ℝ)) * (1 + τ ^ 2) ^ (-(5 / 4 : ℝ))) by dsimp [C_amp]; ring, ← Real.rpow_add (by linarith [sq_nonneg τ])]; norm_num)
-  let s_of : ℕ → ℂ := fun j => (-1 : ℂ) ^ j * (m.choose j : ℂ)
   let Lj : ℕ → ℝ := fun j => L - (j : ℝ) * κ / c
-  let term : ℕ → ℝ → ℂ := fun j τ => s_of j * g τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi (Lj j) τ : ℂ))
-  have hdecomp : ∀ τ : ℝ, ((1 - Complex.I * (τ : ℂ)) ^ (-(1 / 2 : ℂ)) * Complex.exp (binetDiff c (Complex.I * (τ : ℂ))) *
-      (bsplineImag κ m τ * ((Complex.I * (κ : ℂ) * (τ : ℂ)) ^ m * h τ))) * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ)) =
-      ∑ j ∈ Finset.range (m + 1), term j τ := fun τ => by
-    have hbin := bsplineImag_mul_pow_eq κ m τ
-    have : (1 - Complex.I * (τ : ℂ)) ^ (-(1 / 2 : ℂ)) * Complex.exp (binetDiff c (Complex.I * (τ : ℂ))) *
-        (bsplineImag κ m τ * ((Complex.I * (κ : ℂ) * (τ : ℂ)) ^ m * h τ)) * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ)) =
-        k τ * h τ * ((bsplineImag κ m τ * (Complex.I * (κ : ℂ) * (τ : ℂ)) ^ m) * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))) := by
-      rw [hk_cast τ]; simp only [k]; ring
-    rw [this, hbin, Finset.sum_mul, Finset.mul_sum]
-    refine Finset.sum_congr rfl fun j _ => ?_
-    have hphi : Complex.exp (-(Complex.I * ((j : ℝ) * κ : ℂ) * (τ : ℂ))) * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ)) =
-        Complex.exp (Complex.I * (c : ℂ) * (edgePhi (Lj j) τ : ℂ)) := by
-      rw [← Complex.exp_add]; congr 1
-      simp only [Lj]
-      rw [edgePhi_sub_linear]; push_cast; field_simp [hc_pos.ne']; ring
-    simp only [term, s_of, g]
-    rw [← hphi]; ring
+  have hk_eq : ∀ τ : ℝ, (1 - Complex.I * (τ : ℂ)) ^ (-(1 / 2 : ℂ)) * Complex.exp (binetDiff c (Complex.I * (τ : ℂ))) * h τ = g τ := fun τ => by
+    simp only [g, k]; rw [hk_cast τ]
   have hLj : ∀ j ∈ Finset.range (m + 1), L / 2 ≤ Lj j := fun j hj => by
     have hjm : (j : ℝ) ≤ m := by exact_mod_cast Nat.lt_succ_iff.mp (Finset.mem_range.mp hj)
     simp only [Lj]
     have : (j : ℝ) * κ / c ≤ L / 2 := by
       rw [div_le_iff₀ hc_pos]; nlinarith [mul_le_mul_of_nonneg_right hjm hκ.le]
     linarith
-  have hterm_bd : ∀ j ∈ Finset.range (m + 1), ‖∫ τ : ℝ, term j τ‖ ≤ (m.choose j : ℝ) *
-      (C_osc * (C_amp * A_h) * c ^ (-(1 / 2 : ℝ)) * ((2 : ℝ) ^ (3 / 2 : ℝ) * min (L ^ (-(1 / 4 : ℝ))) (L ^ (-(3 / 2 : ℝ))))) := fun j hj => by
-    have hLj2 := hLj j hj
-    have hLjpos : 0 < Lj j := by linarith
-    have hosc_j := hosc (L := Lj j) hg_cd (by positivity : 0 ≤ C_amp * A_h) hg_bd hc hLjpos
-      (hcL.trans (mul_le_mul_of_nonneg_left (Real.rpow_le_rpow (by positivity) hLj2 (by norm_num)) hc_pos.le))
-    have hmin : min ((Lj j) ^ (-(1 / 4 : ℝ))) ((Lj j) ^ (-(3 / 2 : ℝ))) ≤ (2 : ℝ) ^ (3 / 2 : ℝ) * min (L ^ (-(1 / 4 : ℝ))) (L ^ (-(3 / 2 : ℝ))) := by
-      refine (min_rpow_antitone (by positivity : 0 < L / 2) hLj2).trans ?_
-      rw [mul_min_of_nonneg _ _ (by positivity : (0 : ℝ) ≤ (2 : ℝ) ^ (3 / 2 : ℝ))]
-      exact min_le_min (half_rpow_le hL (by norm_num) (by norm_num)) (half_rpow_le hL (by norm_num) (by norm_num))
-    have hsj : ‖s_of j‖ = (m.choose j : ℝ) := by
-      simp [s_of]
-    rw [show ∫ τ : ℝ, term j τ = s_of j * ∫ τ : ℝ, g τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi (Lj j) τ : ℂ)) from by
-      simpa [term, mul_assoc] using integral_const_mul (s_of j) _, norm_mul, hsj]
-    exact mul_le_mul_of_nonneg_left (hosc_j.trans (mul_le_mul_of_nonneg_left hmin (by positivity))) (Nat.cast_nonneg _) |>.trans_eq (by ring)
-  have hterm_int : ∀ j ∈ Finset.range (m + 1), Integrable (term j) := fun j hj =>
-    ((dual_phase_integrable (c := c) (L := Lj j) hg_cd (by positivity : 0 ≤ C_amp * A_h) hg_bd).2.const_mul (s_of j)).congr
-      (ae_of_all _ fun τ => by dsimp [term]; ring)
-  rw [show (fun τ : ℝ => _) = fun τ => ∑ j ∈ Finset.range (m + 1), term j τ from funext hdecomp, integral_finsetSum _ hterm_int]
-  refine (norm_sum_le _ _).trans ((Finset.sum_le_sum hterm_bd).trans_eq ?_)
-  rw [← Finset.sum_mul, show (∑ j ∈ Finset.range (m + 1), (m.choose j : ℝ)) = (2 : ℝ) ^ m by exact_mod_cast Nat.sum_range_choose m]
+  have hmain := outer_decomp_bound (m := m) (κ := κ) (L := L) (h := h) (B := C_osc * (C_amp * A_h) * c ^ (-(1 / 2 : ℝ)) *
+    ((2 : ℝ) ^ (3 / 2 : ℝ) * min (L ^ (-(1 / 4 : ℝ))) (L ^ (-(3 / 2 : ℝ))))) hc
+    (fun j hj => by
+      simp only [hk_eq]
+      exact (dual_phase_integrable (c := c) (L := Lj j) hg_cd (by positivity : 0 ≤ C_amp * A_h) hg_bd).2)
+    (fun j hj => by
+      simp only [hk_eq]
+      have hLj2 := hLj j hj
+      have hLjpos : 0 < Lj j := by linarith
+      have hosc_j := hosc (L := Lj j) hg_cd (by positivity : 0 ≤ C_amp * A_h) hg_bd hc hLjpos
+        (hcL.trans (mul_le_mul_of_nonneg_left (Real.rpow_le_rpow (by positivity) hLj2 (by norm_num)) hc_pos.le))
+      have hmin : min ((Lj j) ^ (-(1 / 4 : ℝ))) ((Lj j) ^ (-(3 / 2 : ℝ))) ≤ (2 : ℝ) ^ (3 / 2 : ℝ) * min (L ^ (-(1 / 4 : ℝ))) (L ^ (-(3 / 2 : ℝ))) := by
+        refine (min_rpow_antitone (by positivity : 0 < L / 2) hLj2).trans ?_
+        rw [mul_min_of_nonneg _ _ (by positivity : (0 : ℝ) ≤ (2 : ℝ) ^ (3 / 2 : ℝ))]
+        exact min_le_min (half_rpow_le hL (by norm_num) (by norm_num)) (half_rpow_le hL (by norm_num) (by norm_num))
+      exact hosc_j.trans (mul_le_mul_of_nonneg_left hmin (by positivity)) |>.trans_eq (by ring))
+  refine hmain.trans (le_of_eq ?_)
   ring
-
 
 lemma liftEps_inv {c : ℝ} (hc : 0 < c) : (liftEps c)⁻¹ = c ^ (1 / 3 : ℝ) := by
   unfold liftEps; rw [Real.rpow_neg hc.le, inv_inv]
 
-/-- **`O.3(2)`, the `(1 - χ_ξ)`-part of `I_main` (`(e4)`).** In the notation of `iMainIntegrand`, with `ε = c^{-1/3}`,
-`κ = c_s δ₀ /(m ε)`, `L = log(π² ξ)`, a cut-off `χ_o(τ)` (vanishing near `0`) and `G(v) = X̃(i c_s · iv)`: if the amplitude
-`h(τ) = (iκτ)^{-m} χ_o(τ) G(τ/ε)` (given through `χ_o(τ) G(τ/ε) = (iκτ)^m h(τ)`) is `C²` with `‖h^{(r)}‖ ≤ A_h (1+τ²)^{-5/4}`,
-`r ≤ 2` (this is `(e27)` with `r ≤ 2`), and `mκ ≤ cL/2`, `c (L/2)^{3/2} ≥ 1`, then
-`|(2πξ)^{-1} ∫ χ_o(εv) K₀ W dv| ≤ (2πξ)^{-1} c^{1/3} C 2^m A_h c^{-1/2} min(L^{-1/4}, L^{-3/2})`. -/
-theorem iMain_outer_bound :
-    ∃ C > 0, ∀ {m : ℕ}, 1 ≤ m → ∀ (X : ℝ → ℝ) {δ₀ c ξ A_h : ℝ} (χo : ℝ → ℝ) {h : ℝ → ℂ}, 0 < δ₀ → 2 ≤ c → 0 < ξ →
-      0 < Real.log (Real.pi ^ 2 * ξ) →
-      (m : ℝ) * (ceCs * δ₀ / m / liftEps c) ≤ c * Real.log (Real.pi ^ 2 * ξ) / 2 →
-      1 ≤ c * (Real.log (Real.pi ^ 2 * ξ) / 2) ^ (3 / 2 : ℝ) → 0 ≤ A_h → ContDiff ℝ 2 h →
-      (∀ r ≤ 2, ∀ τ : ℝ, ‖iteratedDeriv r h τ‖ ≤ A_h * (1 + τ ^ 2) ^ (-(5 / 4 : ℝ))) →
-      (∀ τ : ℝ, (χo τ : ℂ) * airyTwistedLaplaceC X ((ceCs : ℂ) * (((τ / liftEps c : ℝ) : ℂ) * Complex.I)) =
-        (Complex.I * ((ceCs * δ₀ / m / liftEps c : ℝ) : ℂ) * (τ : ℂ)) ^ m * h τ) →
-      ‖((2 * Real.pi * ξ : ℝ) : ℂ)⁻¹ * ∫ v : ℝ, (χo (liftEps c * v) : ℂ) * iMainIntegrand X δ₀ m c ξ v‖ ≤
-        (2 * Real.pi * ξ)⁻¹ * c ^ (1 / 3 : ℝ) * (C * 2 ^ m * A_h * c ^ (-(1 / 2 : ℝ)) *
-          min (Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ))) (Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ)))) := by
-  obtain ⟨C, hC, hmain⟩ := main_outer_phase_bound
-  refine ⟨C, hC, fun {m} hm X {δ₀ c ξ A_h} χo {h} hδ hc hξ hL hmκ hcL hA hh_cd hh_bd hrel => ?_⟩
+/-- **Reduction of the outer part of `I_main` to the `τ`-integral.** In the notation of `iMainIntegrand`, with `ε = c^{-1/3}`, `κ = c_s δ₀ /(m ε)`,
+`L = log(π² ξ)` and a cut-off `χ_o(τ)` with `χ_o(τ) G(τ/ε) = (iκτ)^m h(τ)` (`G(v) = X̃(i c_s · iv)`), the outer part
+`(2πξ)^{-1} ∫ χ_o(εv) K₀ W dv` equals `(2πξ)^{-1} c^{1/3}` times the `τ`-integral `∫ (1-iτ)^{-1/2} e^{B_c(iτ)} E₁(iκτ)^m (iκτ)^m h e^{icΦ(τ;L)}`. -/
+theorem iMain_outer_eq {m : ℕ} (hm : 1 ≤ m) (X : ℝ → ℝ) {δ₀ c ξ : ℝ} (χo : ℝ → ℝ) {h : ℝ → ℂ} (hc : 2 ≤ c) (hξ : 0 < ξ)
+    (hrel : ∀ τ : ℝ, (χo τ : ℂ) * airyTwistedLaplaceC X ((ceCs : ℂ) * (((τ / liftEps c : ℝ) : ℂ) * Complex.I)) =
+        (Complex.I * ((ceCs * δ₀ / m / liftEps c : ℝ) : ℂ) * (τ : ℂ)) ^ m * h τ) :
+    ‖((2 * Real.pi * ξ : ℝ) : ℂ)⁻¹ * ∫ v : ℝ, (χo (liftEps c * v) : ℂ) * iMainIntegrand X δ₀ m c ξ v‖ =
+      (2 * Real.pi * ξ)⁻¹ * c ^ (1 / 3 : ℝ) * ‖∫ τ : ℝ, ((1 - Complex.I * (τ : ℂ)) ^ (-(1 / 2 : ℂ)) *
+        Complex.exp (binetDiff c (Complex.I * (τ : ℂ))) * (bsplineImag (ceCs * δ₀ / m / liftEps c) m τ *
+          ((Complex.I * ((ceCs * δ₀ / m / liftEps c : ℝ) : ℂ) * (τ : ℂ)) ^ m * h τ))) *
+            Complex.exp (Complex.I * (c : ℂ) * (edgePhi (Real.log (Real.pi ^ 2 * ξ)) τ : ℂ))‖ := by
   have hc0 : 0 < c := by linarith
   have hε := liftEps_pos hc0
   set ε := liftEps c with hεdef
   set κ : ℝ := ceCs * δ₀ / m / ε with hκdef
   have hm0 : (0 : ℝ) < m := by exact_mod_cast (by omega : 0 < m)
-  have hκ : 0 < κ := by have := ceCs_pos; positivity
   set L := Real.log (Real.pi ^ 2 * ξ) with hLdef
   have hmult : ∀ v : ℝ, liftMultiplier δ₀ m ((v : ℂ) * Complex.I) = bsplineImag κ m (ε * v) := fun v => by
     unfold liftMultiplier bsplineImag; congr 2
@@ -177,15 +191,37 @@ theorem iMain_outer_bound :
   have hint : ∫ v : ℝ, (χo (ε * v) : ℂ) * iMainIntegrand X δ₀ m c ξ v = |ε⁻¹| • ∫ τ : ℝ, Fs τ := by
     rw [integral_congr_ae (ae_of_all _ hF)]
     exact Measure.integral_comp_mul_left Fs ε
-  have h2 := hmain hm hκ hc hL hmκ hcL hA hh_cd hh_bd
   have hεinv : ε⁻¹ = c ^ (1 / 3 : ℝ) := liftEps_inv hc0
   rw [hint, norm_mul, norm_smul, Real.norm_eq_abs, abs_abs, hεinv]
   rw [show ‖(((2 * Real.pi * ξ : ℝ) : ℂ))⁻¹‖ = (2 * Real.pi * ξ)⁻¹ by
     rw [norm_inv, Complex.norm_real, Real.norm_eq_abs, abs_of_pos (by positivity)]]
   rw [abs_of_pos (by positivity : 0 < c ^ (1 / 3 : ℝ))]
-  calc (2 * Real.pi * ξ)⁻¹ * (c ^ (1 / 3 : ℝ) * ‖∫ τ : ℝ, Fs τ‖) ≤ (2 * Real.pi * ξ)⁻¹ * (c ^ (1 / 3 : ℝ) *
-        (C * 2 ^ m * A_h * c ^ (-(1 / 2 : ℝ)) * min (L ^ (-(1 / 4 : ℝ))) (L ^ (-(3 / 2 : ℝ))))) := by gcongr
-    _ = _ := by ring
+  ring
+
+/-- **`O.3(2)`, the `(1 - χ_ξ)`-part of `I_main` (`(e4)`), from the sup-norm amplitude bounds.** If the amplitude
+`h(τ) = (iκτ)^{-m} χ_o(τ) G(τ/ε)` is `C²` with `‖h^{(r)}‖ ≤ A_h (1+τ²)^{-5/4}`, `r ≤ 2`, and `mκ ≤ cL/2`, `c (L/2)^{3/2} ≥ 1`, then
+`|(2πξ)^{-1} ∫ χ_o(εv) K₀ W dv| ≤ (2πξ)^{-1} c^{1/3} C 2^m A_h c^{-1/2} min(L^{-1/4}, L^{-3/2})`. -/
+theorem iMain_outer_bound :
+    ∃ C > 0, ∀ {m : ℕ}, 1 ≤ m → ∀ (X : ℝ → ℝ) {δ₀ c ξ A_h : ℝ} (χo : ℝ → ℝ) {h : ℝ → ℂ}, 0 < δ₀ → 2 ≤ c → 0 < ξ →
+      0 < Real.log (Real.pi ^ 2 * ξ) →
+      (m : ℝ) * (ceCs * δ₀ / m / liftEps c) ≤ c * Real.log (Real.pi ^ 2 * ξ) / 2 →
+      1 ≤ c * (Real.log (Real.pi ^ 2 * ξ) / 2) ^ (3 / 2 : ℝ) → 0 ≤ A_h → ContDiff ℝ 2 h →
+      (∀ r ≤ 2, ∀ τ : ℝ, ‖iteratedDeriv r h τ‖ ≤ A_h * (1 + τ ^ 2) ^ (-(5 / 4 : ℝ))) →
+      (∀ τ : ℝ, (χo τ : ℂ) * airyTwistedLaplaceC X ((ceCs : ℂ) * (((τ / liftEps c : ℝ) : ℂ) * Complex.I)) =
+        (Complex.I * ((ceCs * δ₀ / m / liftEps c : ℝ) : ℂ) * (τ : ℂ)) ^ m * h τ) →
+      ‖((2 * Real.pi * ξ : ℝ) : ℂ)⁻¹ * ∫ v : ℝ, (χo (liftEps c * v) : ℂ) * iMainIntegrand X δ₀ m c ξ v‖ ≤
+        (2 * Real.pi * ξ)⁻¹ * c ^ (1 / 3 : ℝ) * (C * 2 ^ m * A_h * c ^ (-(1 / 2 : ℝ)) *
+          min (Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ))) (Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ)))) := by
+  obtain ⟨C, hC, hmain⟩ := main_outer_phase_bound
+  refine ⟨C, hC, fun {m} hm X {δ₀ c ξ A_h} χo {h} hδ hc hξ hL hmκ hcL hA hh_cd hh_bd hrel => ?_⟩
+  rw [iMain_outer_eq hm X χo hc hξ hrel]
+  have hc0 : 0 < c := by linarith
+  have hκ : 0 < ceCs * δ₀ / m / liftEps c := by
+    have := ceCs_pos; have := liftEps_pos hc0
+    have hm0 : (0 : ℝ) < m := by exact_mod_cast (by omega : 0 < m)
+    positivity
+  have h2 := hmain hm hκ hc hL hmκ hcL hA hh_cd hh_bd
+  gcongr
 
 /-- info: 'FormalResearch.CohnElkies.bsplineImag_mul_pow_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.bsplineImag_mul_pow_eq
@@ -193,5 +229,10 @@ theorem iMain_outer_bound :
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.main_outer_phase_bound
 /-- info: 'FormalResearch.CohnElkies.iMain_outer_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.iMain_outer_bound
+
+/-- info: 'FormalResearch.CohnElkies.iMain_outer_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.iMain_outer_eq
+/-- info: 'FormalResearch.CohnElkies.outer_decomp_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.outer_decomp_bound
 
 end FormalResearch.CohnElkies

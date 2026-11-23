@@ -397,7 +397,7 @@ private lemma hasDerivAt_edgePhiDeriv2 (τ : ℝ) :
     exact htri.trans (by nlinarith [Real.pi_pos, Real.pi_lt_d2])
   exact ⟨hhd, hcd3.continuous_iteratedDeriv 3 le_rfl, hbd3⟩
 
-private lemma eVariationOn_le_integral_norm_deriv {h h' : ℝ → ℂ} {a b : ℝ} (hab : a ≤ b)
+lemma eVariationOn_le_integral_norm_deriv {h h' : ℝ → ℂ} {a b : ℝ} (hab : a ≤ b)
     (hh : ∀ x ∈ Icc a b, HasDerivAt h (h' x) x) (hh' : IntervalIntegrable h' volume a b) :
     eVariationOn h (Icc a b) ≤ ENNReal.ofReal (∫ t in a..b, ‖h' t‖) := by
   have hh'_n : IntervalIntegrable (fun t => ‖h' t‖) volume a b := hh'.norm
@@ -692,13 +692,21 @@ lemma dual_phase_integrable {a : ℝ → ℂ} {A c L : ℝ} (ha_cd : ContDiff �
   have h0 := ha_bd 0 (by decide) τ; rw [iteratedDeriv_zero] at h0
   exact h0.trans (mul_le_mul_of_nonneg_left ((Real.rpow_le_rpow_of_exponent_le (by linarith [sq_nonneg τ]) (by norm_num : -(3 / 2 : ℝ) ≤ -1)).trans_eq (Real.rpow_neg_one _)) hA)
 
-private lemma dual_phase_regime_small :
-    ∃ C > 0, ∀ {a : ℝ → ℂ} {A c L R : ℝ}, ContDiff ℝ 2 a → 0 ≤ A → (∀ r ≤ 2, ∀ τ : ℝ, ‖iteratedDeriv r a τ‖ ≤ A * (1 + τ ^ 2) ^ (-(3 / 2 : ℝ))) →
+lemma dual_phase_cont {a : ℝ → ℂ} {c L : ℝ} (ha_cd : ContDiff ℝ 2 a) :
+    Continuous (fun τ : ℝ => a τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))) :=
+  ha_cd.continuous.mul (Complex.continuous_exp.comp (continuous_const.mul
+    (Complex.continuous_ofReal.comp (continuous_iff_continuousAt.mpr fun t => (hasDerivAt_edgePhi L t).continuousAt))))
+
+/-- **Small-`L` oscillatory bound from sup and variation.** For `0 < L ≤ 8`, `c ≥ 2`, `c L^{3/2} ≥ 1` and a `C²` amplitude `a` with `‖a‖ ≤ M` and
+variation `≤ V` on every interval, `‖∫_{-R}^R a e^{icΦ(τ;L)}‖ ≤ C (M + V) c^{-1/2} L^{-1/4}` for `R ≥ 2 τ₀(L)`. -/
+lemma dual_phase_regime_small_mv :
+    ∃ C > 0, ∀ {a : ℝ → ℂ} {M V c L R : ℝ}, ContDiff ℝ 2 a → (∀ x : ℝ, ‖a x‖ ≤ M) →
+      (∀ u v : ℝ, u ≤ v → (eVariationOn a (Icc u v)).toReal ≤ V) →
       2 ≤ c → 0 < L → L ≤ 8 → 1 ≤ c * L ^ (3 / 2 : ℝ) → 2 * tau0 L ≤ R →
-      ‖∫ τ in -R..R, a τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))‖ ≤ C * A * c ^ (-(1 / 2 : ℝ)) * min (L ^ (-(1 / 4 : ℝ))) (L ^ (-(3 / 2 : ℝ))) := by
+      ‖∫ τ in -R..R, a τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))‖ ≤ C * (M + V) * c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ)) := by
   let ν₁ : ℝ := Real.log (3 / 2) * (149 / 8000); have hν₁ : 0 < ν₁ := mul_pos (Real.log_pos (by norm_num)) (by norm_num)
-  let C₁ : ℝ := 3 * (1 + Real.pi) / ν₁; let c₂ : ℝ := 9 / 1280000000; let C₂ : ℝ := 8 * (1 + Real.pi) / Real.sqrt c₂
-  refine ⟨8 ^ (5 / 4 : ℝ) * (4 * C₁ + 2 * C₂), by positivity, fun {a} {A c L R} ha_cd hA ha_bd hc hL hL8 hcL hR => ?_⟩
+  let C₁ : ℝ := 3 / ν₁; let c₂ : ℝ := 9 / 1280000000; let C₂ : ℝ := 8 / Real.sqrt c₂
+  refine ⟨4 * C₁ + 2 * C₂, by positivity, fun {a} {M V c L R} ha_cd hM hV hc hL hL8 hcL hR => ?_⟩
   let τ₀ := tau0 L; have hτ₀ := tau0_pos hL; have hτ₀_eq := ceEll_tau0 hL
   have hτ₀_lt := tau0_lt_bound hL hL8; have hτ₀_lb := tau0_gt_sqrt hL hτ₀ hτ₀_eq; have hc_pos : 0 < c := by linarith
   have hP2 := edgePhiDeriv_phase_floor_P2 hL hτ₀ hτ₀_eq
@@ -710,16 +718,19 @@ private lemma dual_phase_regime_small :
     have h1 : (c * L)⁻¹ = c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ)) * (c * L ^ (3 / 2 : ℝ)) ^ (-(1 / 2 : ℝ)) := by
       rw [Real.mul_rpow hc_pos.le (Real.rpow_nonneg hL.le _), ← Real.rpow_mul hL.le, mul_inv, hcr, hLr]; norm_num; ring
     rw [h1]; exact mul_le_of_le_one_right (by positivity) (Real.rpow_le_one_of_one_le_of_nonpos hcL (by norm_num))
-  have hM_all : ∀ x : ℝ, ‖a x‖ ≤ A := fun x => by
-    have h0 := ha_bd 0 (by decide) x; rw [iteratedDeriv_zero] at h0
-    exact h0.trans (mul_le_of_le_one_right hA (Real.rpow_le_one_of_one_le_of_nonpos (by linarith [sq_nonneg x]) (by norm_num)))
+  have hM_all : ∀ x : ℝ, ‖a x‖ ≤ M := hM
   let I : ℝ → ℝ → ℂ := fun u v => ∫ τ in u..v, a τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))
   have hvdc1 : ∀ u v : ℝ, u ≤ v → (MonotoneOn (edgePhiDeriv L) (Icc u v) ∨ AntitoneOn (edgePhiDeriv L) (Icc u v)) →
-      (∀ x ∈ Icc u v, ν₁ * L ≤ |edgePhiDeriv L x|) → ‖I u v‖ ≤ C₁ * A * c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ)) := fun u v huv hmono hlb =>
+      (∀ x ∈ Icc u v, ν₁ * L ≤ |edgePhiDeriv L x|) → ‖I u v‖ ≤ C₁ * (M + V) * c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ)) := fun u v huv hmono hlb =>
     (osc_vdc1_bound huv hc_pos (mul_pos hν₁ hL) hmono hlb ha_cd (fun x _ => hM_all x)
-      (eVariationOn_decay_le hA ha_cd ha_bd huv).1 (eVariationOn_decay_ne_top hA ha_cd huv)).trans
-      (by calc 3 * (A + A * Real.pi) / (c * (ν₁ * L)) = C₁ * A * (c * L)⁻¹ := by dsimp [C₁]; ring
-        _ ≤ C₁ * A * (c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ))) := by gcongr
+      (hV u v huv) (eVariationOn_decay_ne_top (A := 0) le_rfl ha_cd huv)).trans
+      (by
+        have hMV : 0 ≤ M + V := by
+          have h1 := (norm_nonneg (a 0)).trans (hM_all 0)
+          have h2 := (ENNReal.toReal_nonneg (a := eVariationOn a (Icc 0 0))).trans (hV 0 0 le_rfl)
+          linarith
+        calc 3 * (M + V) / (c * (ν₁ * L)) = C₁ * (M + V) * (c * L)⁻¹ := by dsimp [C₁]; ring
+        _ ≤ C₁ * (M + V) * (c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ))) := by gcongr
         _ = _ := by ring)
   have hband_lb : ∀ x : ℝ, 3 * τ₀ / 8 ≤ |x| → |x| ≤ 2 * τ₀ → c₂ * Real.sqrt L ≤ |edgePhiDeriv2 x| := fun x hlo hhi => by
     have hu_lb : Real.sqrt L / 4 ≤ 3 * τ₀ / 8 := by
@@ -734,16 +745,16 @@ private lemma dual_phase_regime_small :
       _ ≤ (3 / 16 : ℝ) * (Real.pi ^ 2 * (3 * τ₀ / 8) / (6 + Real.pi ^ 2 * (3 * τ₀ / 8) ^ 2)) := by gcongr
       _ ≤ |edgePhiDeriv2 x| := abs_edgePhiDeriv2_band_ge hτ₀ hlo hhi
   have hvdc2 : ∀ u v : ℝ, u ≤ v → (MonotoneOn (edgePhiDeriv L) (Icc u v) ∨ AntitoneOn (edgePhiDeriv L) (Icc u v)) →
-      (∀ x ∈ Icc u v, 3 * τ₀ / 8 ≤ |x| ∧ |x| ≤ 2 * τ₀) → ‖I u v‖ ≤ C₂ * A * c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ)) := fun u v huv hmono hxy => by
+      (∀ x ∈ Icc u v, 3 * τ₀ / 8 ≤ |x| ∧ |x| ≤ 2 * τ₀) → ‖I u v‖ ≤ C₂ * (M + V) * c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ)) := fun u v huv hmono hxy => by
     have hb := osc_vdc2_bound huv hc_pos (mul_pos (by dsimp [c₂]; positivity) (Real.sqrt_pos.mpr hL)) hmono (fun x hx => hband_lb x (hxy x hx).1 (hxy x hx).2)
-      ha_cd (fun x _ => hM_all x) (eVariationOn_decay_le hA ha_cd ha_bd huv).1 (eVariationOn_decay_ne_top hA ha_cd huv)
+      ha_cd (fun x _ => hM_all x) (hV u v huv) (eVariationOn_decay_ne_top (A := 0) le_rfl ha_cd huv)
     have hsq : Real.sqrt (c * (c₂ * Real.sqrt L)) = Real.sqrt c₂ * c ^ (1 / 2 : ℝ) * L ^ (1 / 4 : ℝ) := by
       rw [show c * (c₂ * Real.sqrt L) = c₂ * (c * Real.sqrt L) by ring, Real.sqrt_mul (by dsimp [c₂]; positivity),
         Real.sqrt_mul hc_pos.le, Real.sqrt_eq_rpow c, Real.sqrt_eq_rpow L, Real.sqrt_eq_rpow (L ^ (1 / 2 : ℝ)), ← Real.rpow_mul hL.le]; norm_num; ring
-    refine hb.trans_eq ?_; rw [hsq, show 8 * (A + A * Real.pi) / (Real.sqrt c₂ * c ^ (1 / 2 : ℝ) * L ^ (1 / 4 : ℝ)) =
-      C₂ * A * (c ^ (1 / 2 : ℝ))⁻¹ * (L ^ (1 / 4 : ℝ))⁻¹ by dsimp [C₂]; ring, ← Real.rpow_neg hc_pos.le, ← Real.rpow_neg hL.le]
+    refine hb.trans_eq ?_; rw [hsq, show 8 * (M + V) / (Real.sqrt c₂ * c ^ (1 / 2 : ℝ) * L ^ (1 / 4 : ℝ)) =
+      C₂ * (M + V) * (c ^ (1 / 2 : ℝ))⁻¹ * (L ^ (1 / 4 : ℝ))⁻¹ by dsimp [C₂]; ring, ← Real.rpow_neg hc_pos.le, ← Real.rpow_neg hL.le]
   have hint : ∀ u v : ℝ, IntervalIntegrable (fun τ => a τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))) volume u v :=
-    fun u v => (dual_phase_integrable ha_cd hA ha_bd).1.intervalIntegrable u v
+    fun u v => (dual_phase_cont ha_cd).intervalIntegrable u v
   have hsplit : I (-R) R = I (-R) (-(2 * τ₀)) + I (-(2 * τ₀)) (-(τ₀ / 2)) + I (-(τ₀ / 2)) 0 + I 0 (τ₀ / 2) + I (τ₀ / 2) (2 * τ₀) + I (2 * τ₀) R := by
     dsimp [I]; rw [intervalIntegral.integral_add_adjacent_intervals (hint _ _) (hint _ _), intervalIntegral.integral_add_adjacent_intervals (hint _ _) (hint _ _),
       intervalIntegral.integral_add_adjacent_intervals (hint _ _) (hint _ _), intervalIntegral.integral_add_adjacent_intervals (hint _ _) (hint _ _),
@@ -760,16 +771,35 @@ private lemma dual_phase_regime_small :
     fun x hx => by dsimp [τ₀] at *; rw [abs_of_nonneg (by linarith [hx.1])]; exact ⟨by linarith [hx.1], by linarith [hx.2]⟩
   have hb6 := hvdc1 (2 * τ₀) R hR (Or.inr (edgePhiDeriv_antitoneOn_nonneg (by linarith)))
     fun x hx => hmin_ge.trans ((hP2.2 x (by dsimp [τ₀] at *; rw [abs_of_nonneg (by linarith [hx.1])]; linarith [hx.1])).trans (neg_le_abs _))
-  have hsum_bd : ‖I (-R) R‖ ≤ (4 * C₁ + 2 * C₂) * A * c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ)) := by
+  have hsum_bd : ‖I (-R) R‖ ≤ (4 * C₁ + 2 * C₂) * (M + V) * c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ)) := by
     rw [hsplit]; have := (norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans
       (add_le_add ((norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans (add_le_add hb1 hb2)) hb3)) hb4)) hb5)) hb6); linarith
+  exact hsum_bd
+
+private lemma dual_phase_regime_small :
+    ∃ C > 0, ∀ {a : ℝ → ℂ} {A c L R : ℝ}, ContDiff ℝ 2 a → 0 ≤ A → (∀ r ≤ 2, ∀ τ : ℝ, ‖iteratedDeriv r a τ‖ ≤ A * (1 + τ ^ 2) ^ (-(3 / 2 : ℝ))) →
+      2 ≤ c → 0 < L → L ≤ 8 → 1 ≤ c * L ^ (3 / 2 : ℝ) → 2 * tau0 L ≤ R →
+      ‖∫ τ in -R..R, a τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))‖ ≤ C * A * c ^ (-(1 / 2 : ℝ)) * min (L ^ (-(1 / 4 : ℝ))) (L ^ (-(3 / 2 : ℝ))) := by
+  obtain ⟨C, hC, hmv⟩ := dual_phase_regime_small_mv
+  refine ⟨8 ^ (5 / 4 : ℝ) * (C * (1 + Real.pi)), by positivity, fun {a} {A c L R} ha_cd hA ha_bd hc hL hL8 hcL hR => ?_⟩
+  have hM_all : ∀ x : ℝ, ‖a x‖ ≤ A := fun x => by
+    have h0 := ha_bd 0 (by decide) x; rw [iteratedDeriv_zero] at h0
+    exact h0.trans (mul_le_of_le_one_right hA (Real.rpow_le_one_of_one_le_of_nonpos (by linarith [sq_nonneg x]) (by norm_num)))
+  have h1 := hmv ha_cd hM_all (fun u v huv => (eVariationOn_decay_le hA ha_cd ha_bd huv).1) hc hL hL8 hcL hR
   have hmin_L : L ^ (-(1 / 4 : ℝ)) ≤ 8 ^ (5 / 4 : ℝ) * min (L ^ (-(1 / 4 : ℝ))) (L ^ (-(3 / 2 : ℝ))) := by
     rcases le_or_gt L 1 with hL1 | hL1
     · rw [min_eq_left (Real.rpow_le_rpow_of_exponent_ge hL hL1 (by norm_num))]; exact le_mul_of_one_le_left (by positivity) (Real.one_le_rpow (by norm_num) (by norm_num))
     · rw [min_eq_right (Real.rpow_le_rpow_of_exponent_le hL1.le (by norm_num)),
         show L ^ (-(1 / 4 : ℝ)) = L ^ (5 / 4 : ℝ) * L ^ (-(3 / 2 : ℝ)) from by rw [← Real.rpow_add hL]; norm_num]
       exact mul_le_mul_of_nonneg_right (Real.rpow_le_rpow hL.le hL8 (by norm_num)) (by positivity)
-  exact hsum_bd.trans ((mul_le_mul_of_nonneg_left hmin_L (by positivity)).trans_eq (by ring))
+  refine h1.trans ?_
+  have : C * (A + A * Real.pi) * c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ)) =
+      C * (1 + Real.pi) * A * c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ)) := by ring
+  rw [this]
+  have hcA : 0 ≤ C * (1 + Real.pi) * A * c ^ (-(1 / 2 : ℝ)) := by positivity
+  calc C * (1 + Real.pi) * A * c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ))
+      ≤ C * (1 + Real.pi) * A * c ^ (-(1 / 2 : ℝ)) * (8 ^ (5 / 4 : ℝ) * min (L ^ (-(1 / 4 : ℝ))) (L ^ (-(3 / 2 : ℝ)))) := mul_le_mul_of_nonneg_left hmin_L hcA
+    _ = _ := by ring
 
 private lemma dual_phase_regime_large :
     ∃ C > 0, ∀ {a : ℝ → ℂ} {A c L R : ℝ}, ContDiff ℝ 2 a → 0 ≤ A → (∀ r ≤ 2, ∀ τ : ℝ, ‖iteratedDeriv r a τ‖ ≤ A * (1 + τ ^ 2) ^ (-(3 / 2 : ℝ))) →
@@ -906,6 +936,24 @@ theorem dual_phase_oscillatory_bound :
   rcases le_or_gt L 8 with hL8 | hL8
   · exact (hs ha_cd hA ha_bd hc hL hL8 hcL hR).trans (by gcongr; exact le_max_left _ _)
   · exact (hl ha_cd hA ha_bd hc hL8 hR).trans (by gcongr; exact le_max_right _ _)
+
+/-- **Small-`L` dual-phase bound from sup and variation.** For `0 < L ≤ 8`, `c ≥ 2`, `c L^{3/2} ≥ 1` and an integrable `C²` amplitude `a` with `‖a‖ ≤ M`
+and variation `≤ V` on every interval: `‖∫ a e^{icΦ(τ;L)} dτ‖ ≤ C (M + V) c^{-1/2} L^{-1/4}`, `C` absolute. -/
+theorem dual_phase_mv_bound :
+    ∃ C > 0, ∀ {a : ℝ → ℂ} {M V c L : ℝ}, ContDiff ℝ 2 a → (∀ x : ℝ, ‖a x‖ ≤ M) →
+      (∀ u v : ℝ, u ≤ v → (eVariationOn a (Icc u v)).toReal ≤ V) →
+      Integrable (fun τ : ℝ => a τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))) →
+      2 ≤ c → 0 < L → L ≤ 8 → 1 ≤ c * L ^ (3 / 2 : ℝ) →
+      ‖∫ τ : ℝ, a τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))‖ ≤ C * (M + V) * c ^ (-(1 / 2 : ℝ)) * L ^ (-(1 / 4 : ℝ)) := by
+  obtain ⟨C, hC, hs⟩ := dual_phase_regime_small_mv
+  refine ⟨C, hC, fun {a} {M V c L} ha_cd hM hV hint hc hL hL8 hcL => ?_⟩
+  have htend : Tendsto (fun R : ℝ => ‖∫ τ in -R..R, a τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))‖)
+      atTop (𝓝 ‖∫ τ : ℝ, a τ * Complex.exp (Complex.I * (c : ℂ) * (edgePhi L τ : ℂ))‖) :=
+    (intervalIntegral_tendsto_integral hint tendsto_neg_atTop_atBot tendsto_id).norm
+  exact le_of_tendsto htend (eventually_atTop.mpr ⟨2 * tau0 L, fun R hR => hs ha_cd hM hV hc hL hL8 hcL hR⟩)
+
+/-- info: 'FormalResearch.CohnElkies.dual_phase_mv_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.dual_phase_mv_bound
 
 /-! ## Section 4: `dualEdgeIntegral`, Lemma `GT.2b(3)` / `(cegt:GT3a)`, and Lemma `O.3(1)` `(e3)` -/
 
