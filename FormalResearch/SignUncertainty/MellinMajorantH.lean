@@ -220,4 +220,49 @@ theorem hasDerivAt_hInt {ζ0 : ℂ} (hζ0 : ζ0 ∈ hStrip) : HasDerivAt hInt (h
     simp only [F', Function.comp, id]
     ring
 
+
+lemma hInt_zero : hInt 0 = 0 := by simp [hInt]
+
+/-- `ℋ(1) = 0`: `∫_0^1 log R = 0` by the antisymmetry `hLog (1 - x) = - hLog x`. -/
+theorem hInt_one : hInt 1 = 0 := by
+  have h1 : hInt 1 = ∫ s in (0 : ℝ)..1, hLog (s : ℂ) := by simp [hInt]
+  have h2 : ∫ s in (0 : ℝ)..1, hLog (s : ℂ) = ∫ s in (0 : ℝ)..1, hLog ((1 - s : ℝ) : ℂ) := by
+    rw [intervalIntegral.integral_comp_sub_left (fun s : ℝ => hLog (s : ℂ)) 1]
+    simp
+  have h3 : ∫ s in (0 : ℝ)..1, hLog ((1 - s : ℝ) : ℂ) = -∫ s in (0 : ℝ)..1, hLog (s : ℂ) := by
+    rw [← intervalIntegral.integral_neg]
+    refine intervalIntegral.integral_congr fun s _ => ?_
+    push_cast
+    exact hLog_one_sub _
+  have h4 := h2.trans h3
+  rw [h1]
+  linear_combination (1 / 2 : ℂ) * h4
+
+/-- `ℋ(1 - ζ) = ℋ(ζ)` on `-1 < Re ζ < 2`. -/
+theorem hInt_one_sub {ζ : ℂ} (hζ : ζ ∈ hStrip) : hInt (1 - ζ) = hInt ζ := by
+  set g : ℂ → ℂ := fun z => hInt (1 - z) - hInt z with hg
+  have hgd : ∀ z ∈ hStrip, HasDerivAt g 0 z := by
+    intro z hz
+    have h1 : HasDerivAt (fun w : ℂ => 1 - w) (-1) z := by
+      simpa using (hasDerivAt_id z).const_sub 1
+    have h2 := (hasDerivAt_hInt (mem_hStrip_one_sub.mpr hz)).comp z h1
+    have h3 := h2.sub (hasDerivAt_hInt hz)
+    refine h3.congr_deriv ?_
+    rw [hLog_one_sub]
+    ring
+  have hconst := isOpen_hStrip.is_const_of_deriv_eq_zero convex_hStrip.isPreconnected
+    (fun x hx => (hgd x hx).differentiableAt.differentiableWithinAt)
+    (fun x hx => (hgd x hx).deriv) hζ zero_mem_hStrip
+  have h0 : g 0 = 0 := by simp [hg, hInt_one, hInt_zero]
+  have := hconst.trans h0
+  simpa [hg, sub_eq_zero] using this
+
+/-- info: 'FormalResearch.SignUncertainty.hasDerivAt_hInt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasDerivAt_hInt
+
+/-- info: 'FormalResearch.SignUncertainty.hInt_one_sub' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hInt_one_sub
+
 end FormalResearch.SignUncertainty

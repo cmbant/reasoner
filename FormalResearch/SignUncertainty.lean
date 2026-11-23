@@ -25,6 +25,7 @@ public import FormalResearch.SignUncertainty.Radii
 public import FormalResearch.SignUncertainty.HankelMellinKernel
 public import FormalResearch.SignUncertainty.MellinStrip
 public import FormalResearch.SignUncertainty.MellinStripAnalytic
+public import FormalResearch.SignUncertainty.MellinMajorantH
 public import FormalResearch.SignUncertainty.RadialCompactness
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
@@ -76,6 +77,9 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   Mellin strip `M̃_f` (`mellinStrip`), integrability, reflection `M̃_f(c-z) = ε M̃_f(z)` on `0 < Re z < c`
   (`mellinStrip_reflection`), continuity on `0 < Re z ≤ c`, holomorphy on `0 < Re z < c` and the edge
   bound `|M̃_f(c+iy)| ≤ Γ(c) M[f]/|Γ(c+iy)|` (`norm_mellinStrip_edge_le`).
+* `FormalResearch.SignUncertainty.MellinMajorantH`: the majorant exponent `ℋ̂` (`hInt`) on the closed strip
+  `-1 < Re z < 2` from `Γ`-ratio logarithms, with `ℋ̂(1 - z) = ℋ̂(z)`, `ℋ̂(0) = ℋ̂(1) = 0`
+  (`hInt_one_sub`), the input to the Phragmén–Lindelöf majorant of `gt:7.4(2)`.
 * `FormalResearch.SignUncertainty.RadialCompactness`: `lem:radial-compactness` as an input structure
   (`RadialCompactness`: deep-lobe mass bound, window-profile compactness with the `C¹` clause) and the
   lower half of `gt:7.5` at one level derived from it (`radial_rigidity_lower_of_compactness`).
