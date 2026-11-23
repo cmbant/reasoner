@@ -54,14 +54,37 @@ lemma designPropertyP_union {μ : ℕ → Measure ℝ} {𝒟 𝒟' : Set Window}
 
 /-! ### `Σ₀` -/
 
+/-- **`Σ₀` for a weight-one problem** and every crossing sequence with `T_V(c_j) ≤ τ_j`, given the
+threshold lower bound `hLo`: only the window algebra `SameSiteFamily designClass` is assumed. -/
+theorem sigmaZero_of_threshold_prob (prob : FixedWeightProblem) (hw : prob.w = 1)
+    (hLo : FixedWeightLowerBoundInput prob) (S : CrossingSequence prob)
+    (hτ : ∀ j, prob.T_V (S.c j) ≤ S.τ j) (F : SameSiteFamily designClass) :
+    SigmaZeroConclusion S.c S.τ S.μS :=
+  theorem_sigma_zero_crossing S
+    (gapCondition_of_lowerBound hLo S.tendsto_c hτ)
+    (designPropertyP_prob prob hw S) F
+
+/-- **`Σ₀` for a weight-one problem for the extremal measures** `ν_*(c_j)` (`T_V(c_j) = τ_j`, gap exactly
+`T_V(c_j)`), for every `c_j → ∞`, `c_j ≥ c₀`, given the threshold lower bound `hLo`. -/
+theorem sigmaZero_prob (prob : FixedWeightProblem) (hw : prob.w = 1)
+    (hLo : FixedWeightLowerBoundInput prob) (F : SameSiteFamily designClass) :
+    ∃ c₀ : ℝ, ∀ cSeq : ℕ → ℝ, Tendsto cSeq atTop atTop → (∀ j, c₀ ≤ cSeq j) →
+      ∃ S : CrossingSequence prob, S.c = cSeq ∧
+        (∀ j, S.τ j = prob.T_V (cSeq j)) ∧
+        (∀ j, ∀ ε : ℝ, 0 < ε → 0 < (S.meas j).ν (Iio (S.τ j + ε))) ∧
+        SigmaZeroConclusion S.c S.τ S.μS := by
+  obtain ⟨c₀, h⟩ := exists_optimalCrossingSequence prob hLo
+  refine ⟨c₀, fun cSeq hc hge => ?_⟩
+  obtain ⟨S, hS, hτ, hchg, -⟩ := h cSeq hc hge
+  exact ⟨S, hS, hτ, hchg,
+    sigmaZero_of_threshold_prob prob hw hLo S (fun j => by rw [hS, hτ j]) F⟩
+
 /-- **`Σ₀` at Virasoro** for every crossing sequence with `T_V(c_j) ≤ τ_j`: only the window algebra
 `SameSiteFamily designClass` is assumed. -/
 theorem virasoro_sigmaZero_of_threshold (S : CrossingSequence virasoroProblem)
     (hτ : ∀ j, virasoroProblem.T_V (S.c j) ≤ S.τ j) (F : SameSiteFamily designClass) :
     SigmaZeroConclusion S.c S.τ S.μS :=
-  theorem_sigma_zero_crossing S
-    (gapCondition_of_lowerBound virasoro_lowerBoundInput S.tendsto_c hτ)
-    (designPropertyP_virasoro S) F
+  sigmaZero_of_threshold_prob virasoroProblem rfl virasoro_lowerBoundInput S hτ F
 
 /-- **`Σ₀` at Virasoro for the extremal measures** `ν_*(c_j)` (`T_V(c_j) = τ_j`, gap exactly
 `T_V(c_j)`), for every `c_j → ∞`, `c_j ≥ c₀`. -/
@@ -70,14 +93,41 @@ theorem virasoro_sigmaZero (F : SameSiteFamily designClass) :
       ∃ S : CrossingSequence virasoroProblem, S.c = cSeq ∧
         (∀ j, S.τ j = virasoroProblem.T_V (cSeq j)) ∧
         (∀ j, ∀ ε : ℝ, 0 < ε → 0 < (S.meas j).ν (Iio (S.τ j + ε))) ∧
-        SigmaZeroConclusion S.c S.τ S.μS := by
-  obtain ⟨c₀, h⟩ := virasoro_exists_optimalCrossingSequence
+        SigmaZeroConclusion S.c S.τ S.μS :=
+  sigmaZero_prob virasoroProblem rfl virasoro_lowerBoundInput F
+
+/-! ### `Σ` -/
+
+/-- **`Σ` for a weight-one problem** for every crossing sequence with `T_V(c_j) ≤ τ_j`, given the threshold
+lower bound `hLo`.  `𝒟x` is the class of the designs outside the Lean class (`f ≥ 2` omitted sites,
+displaced sites); the hypotheses are Property `sr:P` for `𝒟x` and the window algebra on
+`designClass ∪ 𝒟x`. -/
+theorem sigma_of_threshold_prob (prob : FixedWeightProblem) (hw : prob.w = 1)
+    (hLo : FixedWeightLowerBoundInput prob) (S : CrossingSequence prob)
+    (hτ : ∀ j, prob.T_V (S.c j) ≤ S.τ j) {𝒟x : Set Window}
+    (hPx : DesignPropertyP S.μS 𝒟x) (F : SameSiteFamily designClass)
+    (Dis : DisplacedFamily (designClass ∪ 𝒟x)) (Om : OmittedFamily (designClass ∪ 𝒟x)) :
+    SigmaConclusion S.μS :=
+  theorem_sigma_crossing S (gapCondition_of_lowerBound hLo S.tendsto_c hτ)
+    (designPropertyP_union (designPropertyP_prob prob hw S) hPx)
+    (SameSiteFamily.mono Set.subset_union_left F) Dis Om
+
+/-- **`Σ` for a weight-one problem for the extremal measures** `ν_*(c_j)`. -/
+theorem sigma_prob (prob : FixedWeightProblem) (hw : prob.w = 1)
+    (hLo : FixedWeightLowerBoundInput prob) {𝒟x : Set Window}
+    (hPx : ∀ S : CrossingSequence prob, DesignPropertyP S.μS 𝒟x)
+    (F : SameSiteFamily designClass)
+    (Dis : DisplacedFamily (designClass ∪ 𝒟x)) (Om : OmittedFamily (designClass ∪ 𝒟x)) :
+    ∃ c₀ : ℝ, ∀ cSeq : ℕ → ℝ, Tendsto cSeq atTop atTop → (∀ j, c₀ ≤ cSeq j) →
+      ∃ S : CrossingSequence prob, S.c = cSeq ∧
+        (∀ j, S.τ j = prob.T_V (cSeq j)) ∧
+        (∀ j, ∀ ε : ℝ, 0 < ε → 0 < (S.meas j).ν (Iio (S.τ j + ε))) ∧
+        SigmaConclusion S.μS := by
+  obtain ⟨c₀, h⟩ := exists_optimalCrossingSequence prob hLo
   refine ⟨c₀, fun cSeq hc hge => ?_⟩
   obtain ⟨S, hS, hτ, hchg, -⟩ := h cSeq hc hge
   exact ⟨S, hS, hτ, hchg,
-    virasoro_sigmaZero_of_threshold S (fun j => by rw [hS, hτ j]) F⟩
-
-/-! ### `Σ` -/
+    sigma_of_threshold_prob prob hw hLo S (fun j => by rw [hS, hτ j]) (hPx S) F Dis Om⟩
 
 /-- **`Σ` at Virasoro** for every crossing sequence with `T_V(c_j) ≤ τ_j`.  `𝒟x` is the class of the
 designs outside the Lean class (`f ≥ 2` omitted sites, displaced sites); the hypotheses are Property
@@ -87,9 +137,7 @@ theorem virasoro_sigma_of_threshold (S : CrossingSequence virasoroProblem)
     (hPx : DesignPropertyP S.μS 𝒟x) (F : SameSiteFamily designClass)
     (Dis : DisplacedFamily (designClass ∪ 𝒟x)) (Om : OmittedFamily (designClass ∪ 𝒟x)) :
     SigmaConclusion S.μS :=
-  theorem_sigma_crossing S (gapCondition_of_lowerBound virasoro_lowerBoundInput S.tendsto_c hτ)
-    (designPropertyP_union (designPropertyP_virasoro S) hPx)
-    (SameSiteFamily.mono Set.subset_union_left F) Dis Om
+  sigma_of_threshold_prob virasoroProblem rfl virasoro_lowerBoundInput S hτ hPx F Dis Om
 
 /-- **`Σ` at Virasoro for the extremal measures** `ν_*(c_j)`. -/
 theorem virasoro_sigma {𝒟x : Set Window}
@@ -100,12 +148,16 @@ theorem virasoro_sigma {𝒟x : Set Window}
       ∃ S : CrossingSequence virasoroProblem, S.c = cSeq ∧
         (∀ j, S.τ j = virasoroProblem.T_V (cSeq j)) ∧
         (∀ j, ∀ ε : ℝ, 0 < ε → 0 < (S.meas j).ν (Iio (S.τ j + ε))) ∧
-        SigmaConclusion S.μS := by
-  obtain ⟨c₀, h⟩ := virasoro_exists_optimalCrossingSequence
-  refine ⟨c₀, fun cSeq hc hge => ?_⟩
-  obtain ⟨S, hS, hτ, hchg, -⟩ := h cSeq hc hge
-  exact ⟨S, hS, hτ, hchg,
-    virasoro_sigma_of_threshold S (fun j => by rw [hS, hτ j]) (hPx S) F Dis Om⟩
+        SigmaConclusion S.μS :=
+  sigma_prob virasoroProblem rfl virasoro_lowerBoundInput hPx F Dis Om
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.sigmaZero_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sigmaZero_prob
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.sigma_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sigma_prob
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Assembly.virasoro_sigmaZero_of_threshold' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -66,13 +66,7 @@ Revisions made in this audit (cleaner implementation, checked against the TeX):
 
 **C. N = 1 super-Virasoro (`n1SuperVirasoroProblem`, `w = 1`, `μ = (1/2,1/2)`).**
 - C1 done: `FixedWeightBand.n1_lowerBoundInput`, `n1_T_V_lower` (unconditional).
-- C2 (scouted 2026-11-23, M, no blocker): generalise the upper/design side to every `prob` with `hw : prob.w = 1`, in
-  place, the `virasoro_*` names becoming one-line corollaries. 18 files in `Upper/` (Window/{CardyWindow,Tail},
-  Positivity/Vacuum*, Assembly/*, Rigidity/Wiring) plus FixedWeight wrappers; `Upper/Ramped` is already prob-free.
-  New content (~150-200 lines): Cardy window/far band from `cardyV_asymptotic_real` (not `besselV`), the normaliser
-  `windowMeasureNormK prob 1 c' = FKc (qProb prob) 1 c'` with `qProb = nullPoly(e^{-4πξ_*})/(1−e^{-4πξ_*})²`, vacuum
-  constants `2^m` (from K7 `‖½h_{0,vac}‖ ≤ 2^m`, already general). Then N=1 corollaries (Property P, two-term law, Σ₀,
-  Σ, and A once R8 is stated for `prob`). Schedule: after R7 (shares CardyWindow, Vacuum*); R8 stated for `prob`.
+- C2 **done**: the upper/design side for every `prob` with `prob.w = 1` (generalised in place), `theoremC15UpperInput_prob`, and the N=1 corollaries in `Upper/Assembly/N1.lean` (Property P, little-o and O(1) two-term law, Σ₀, Σ).
 
 **D. Later, not scheduled:** designs and bump at general `(w,Q)` (`w > 1`, W1.4); real `w ≥ 1` and N=(2,2)
 (the abstract framework allows real `w`; plug in through the W1–W4 interface); two-level Clark curve

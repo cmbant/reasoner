@@ -7,13 +7,16 @@ public import FormalResearch.ModularBootstrap.Upper.Assembly.DesignG
 public import FormalResearch.ModularBootstrap.FixedWeight.OptimalMeasure
 
 /-!
-# Lemma `U*` assembled: the `O(1)` upper bound `T_V(c̃) ≤ T_*(c̃) + D_+` at Virasoro
+# Lemma `U*` assembled: the `O(1)` upper bound `T_V(c̃) ≤ T_*(c̃) + D_+` for every weight-one problem
 
 Source: `CFT/notes/n2_ramped_comb.tex`, Lemma `U*` (`rem:thmU`), together with `upper_transfer.tex`
 (`ut:Phi`, `ut:III`, `ut:V`).
 
 * `rampedG P c'`: the test function `g = ½(h₀ - ĥ₀)` of the ramped design `D_*` at `d = rampedD P c'`
   (`pairOdd` of the comb profile and its Hankel transform).
+* `rampedG_isFeasible_prob`, `threshold_le_rampedTstar_prob`, **`theoremC15UpperInput_prob`**: the general
+  statements for every `prob` with `prob.w = 1` (vacuum from `rampedVacuum_prob`); the Virasoro forms below are
+  their instances.
 * `rampedG_isFeasible`: there is `P : RampedParams` such that, eventually in `c'`, `rampedG P c'` is feasible
   for `virasoroProblem` at `a = c'/12` and gap `T = t_*(P, c') + 1` (`IsFeasible`): membership from `ramped_k7`,
   `g ≥ 0` on `[t_* + 1, ∞)` from `rampedPositive_tstar` (`twoG = 2 g`, through `InnerCombHyp.edgeHankel_eq`) and
@@ -76,16 +79,15 @@ lemma rampedG_eq_twoG (P : RampedParams) {c' : ℝ} (hc' : 0 < c') {d : ℝ}
   simp only [Complex.sub_re, Complex.ofReal_re]
   ring
 
-/-- **Feasibility of the ramped design at the gap `t_* + 1`** (`rem:thmU`, Steps (1)-(5) combined).  There is a
-parameter set `P` (`C_I, C_mid` from `rampedPositive_tstar`, then `M_0` from `rampedVacuum`) such that for `c'`
-large `g = ½(h₀ - ĥ₀)` of `D_*` is feasible for `virasoroProblem` at `a = c'/12` and `T = t_*(P, c') + 1`:
-`g ∈ Ā` (`ramped_k7`), `g_vac > 0` (`rampedVacuum`), `g ≥ 0` on `[T, ∞)` (`rampedPositive_tstar`). -/
-theorem rampedG_isFeasible : ∃ P : RampedParams, ∀ᶠ c' : ℝ in atTop,
-    0 < rampedTstar P c' + 1 ∧
-      virasoroProblem.IsFeasible (c' / 12) (rampedTstar P c' + 1) (rampedG P c') := by
+/-- **Feasibility of the ramped design at the gap `t_* + 1`, every weight-one problem** (`rem:thmU`, Steps
+(1)-(5)): there is `P` such that for `c'` large `g = ½(h₀ - ĥ₀)` of `D_*` is feasible for `prob` at `a = c'/12`
+and `T = t_*(P, c') + 1`. -/
+theorem rampedG_isFeasible_prob (prob : FixedWeightProblem) (hw : prob.w = 1) :
+    ∃ P : RampedParams, ∀ᶠ c' : ℝ in atTop,
+      0 < rampedTstar P c' + 1 ∧ prob.IsFeasible (c' / 12) (rampedTstar P c' + 1) (rampedG P c') := by
   obtain ⟨CI, Cmid, hCI, hCm, hpos⟩ := rampedPositive_tstar
-  obtain ⟨M0, hM0, hvac⟩ := rampedVacuum CI Cmid hCI hCm
-  obtain ⟨K, hK, hk7⟩ := ramped_k7 (prob := virasoroProblem) rfl
+  obtain ⟨M0, hM0, hvac⟩ := rampedVacuum_prob prob hw CI Cmid hCI hCm
+  obtain ⟨K, hK, hk7⟩ := ramped_k7 hw
   obtain ⟨P, hP1, hP2, hP3⟩ : ∃ P : RampedParams, P.CI = CI ∧ P.Cmid = Cmid ∧ P.M0 = M0 :=
     ⟨⟨CI, Cmid, M0, hCI, hCm, hM0⟩, rfl, rfl, rfl⟩
   refine ⟨P, ?_⟩
@@ -117,34 +119,51 @@ theorem rampedG_isFeasible : ∃ P : RampedParams, ∀ᶠ c' : ℝ in atTop,
     unfold rampedG
     linarith
 
-/-- `T_V(c') ≤ t_*(P, c') + 1` for `c'` large, for the parameters `P` of `rampedG_isFeasible`. -/
-theorem threshold_le_rampedTstar : ∃ P : RampedParams, ∀ᶠ c' : ℝ in atTop,
-    virasoroProblem.T_V c' ≤ rampedTstar P c' + 1 := by
-  obtain ⟨P, hP⟩ := rampedG_isFeasible
+/-- `T_V(c') ≤ t_*(P, c') + 1` for `c'` large, for the parameters `P` of `rampedG_isFeasible_prob`. -/
+theorem threshold_le_rampedTstar_prob (prob : FixedWeightProblem) (hw : prob.w = 1) :
+    ∃ P : RampedParams, ∀ᶠ c' : ℝ in atTop, prob.T_V c' ≤ rampedTstar P c' + 1 := by
+  obtain ⟨P, hP⟩ := rampedG_isFeasible_prob prob hw
   refine ⟨P, ?_⟩
   filter_upwards [hP] with c' ⟨hT, hfeas⟩
   exact csInf_le ⟨0, fun T hT => hT.1.le⟩ ⟨hT, rampedG P c', hfeas⟩
 
-/-- **The `O(1)` upper bound at Virasoro** (`rem:thmU`, Lemma `U*`): `T_V(c̃) ≤ T_*(c̃) + D_+` for `c̃` large, with
-`D_+ = 1 + (A_opt/|a_1|) M_0 + C`.  This is the input `TheoremC15UpperInput virasoroProblem` of Corollary E1. -/
-theorem theoremC15UpperInput_virasoro : TheoremC15UpperInput virasoroProblem := by
-  obtain ⟨P, hTV⟩ := threshold_le_rampedTstar
+/-- **The `O(1)` upper bound for every weight-one problem** (`rem:thmU`, Lemma `U*`): `T_V(c̃) ≤ T_*(c̃) + D_+`
+for `c̃` large, with `D_+ = 1 + (A_opt/|a_1|) M_0 + C`.  This is `TheoremC15UpperInput prob` for every `prob`
+with `prob.w = 1`. -/
+theorem theoremC15UpperInput_prob (prob : FixedWeightProblem) (hw : prob.w = 1) :
+    TheoremC15UpperInput prob := by
+  obtain ⟨P, hTV⟩ := threshold_le_rampedTstar_prob prob hw
   obtain ⟨C, hC, hthr⟩ := rampedThreshold
   have ha1 : 0 < |airyZero 1| := abs_pos.2 (airyZero_neg 1).ne
   have hA : 0 ≤ Aopt := by unfold Aopt; have := cStar_pos; positivity
   have hM : 0 ≤ Aopt / |airyZero 1| * P.M0 := by have := P.M0_pos; positivity
   obtain ⟨c₂, hc₂⟩ := eventually_atTop.1 ((hTV.and (hthr P)).and (eventually_ge_atTop (1 : ℝ)))
-  refine ⟨max c₂ 24, 1 + Aopt / |airyZero 1| * P.M0 + C, ?_, by positivity, fun {c} hc => ?_⟩
-  · rw [virasoroProblem_totalShift]
-    exact max_le (by linarith [le_max_right c₂ 24]) (by linarith [le_max_right c₂ 24])
-  · obtain ⟨⟨h1, h2⟩, h3⟩ := hc₂ c ((le_max_left _ _).trans hc)
-    have hc0 : 0 < c := by linarith
-    have hr : c ^ (-(1 / 3 : ℝ)) ≤ 1 :=
-      Real.rpow_le_one_of_one_le_of_nonpos h3 (by norm_num)
-    have h4 : C * c ^ (-(1 / 3 : ℝ)) ≤ C := by nlinarith
-    have h5 := (abs_le.1 h2).2
-    unfold TStar
-    linarith
+  refine ⟨max c₂ (max 1 (12 * prob.totalShift)), 1 + Aopt / |airyZero 1| * P.M0 + C,
+    le_max_right _ _, by positivity, fun {c} hc => ?_⟩
+  obtain ⟨⟨h1, h2⟩, h3⟩ := hc₂ c ((le_max_left _ _).trans hc)
+  have hc0 : 0 < c := by linarith
+  have hr : c ^ (-(1 / 3 : ℝ)) ≤ 1 :=
+    Real.rpow_le_one_of_one_le_of_nonpos h3 (by norm_num)
+  have h4 : C * c ^ (-(1 / 3 : ℝ)) ≤ C := by nlinarith
+  have h5 := (abs_le.1 h2).2
+  unfold TStar
+  linarith
+
+/-- Feasibility at the gap `t_* + 1` at Virasoro: `rampedG_isFeasible_prob` at `virasoroProblem`. -/
+theorem rampedG_isFeasible : ∃ P : RampedParams, ∀ᶠ c' : ℝ in atTop,
+    0 < rampedTstar P c' + 1 ∧
+      virasoroProblem.IsFeasible (c' / 12) (rampedTstar P c' + 1) (rampedG P c') :=
+  rampedG_isFeasible_prob virasoroProblem rfl
+
+/-- `T_V(c') ≤ t_*(P, c') + 1` for `c'` large at Virasoro. -/
+theorem threshold_le_rampedTstar : ∃ P : RampedParams, ∀ᶠ c' : ℝ in atTop,
+    virasoroProblem.T_V c' ≤ rampedTstar P c' + 1 :=
+  threshold_le_rampedTstar_prob virasoroProblem rfl
+
+/-- **The `O(1)` upper bound at Virasoro** (`rem:thmU`, Lemma `U*`): `T_V(c̃) ≤ T_*(c̃) + D_+` for `c̃` large.
+This is the input `TheoremC15UpperInput virasoroProblem` of Corollary E1. -/
+theorem theoremC15UpperInput_virasoro : TheoremC15UpperInput virasoroProblem :=
+  theoremC15UpperInput_prob virasoroProblem rfl
 
 /-- **Virasoro, Corollary E1, unconditional**: the two-sided `O(1)` law
 `Δ_best = c/Λ_V + A_opt c^{1/3} + O(1)`, `T_V = T_* + O(1)`, the extremal crossing measure and the `(Gap)`
@@ -179,5 +198,17 @@ theorem virasoro_corollary_E1_unconditional :
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Ramped.virasoro_corollary_E1_unconditional' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms virasoro_corollary_E1_unconditional
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Ramped.rampedG_isFeasible_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms rampedG_isFeasible_prob
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Ramped.threshold_le_rampedTstar_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms threshold_le_rampedTstar_prob
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Ramped.theoremC15UpperInput_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms theoremC15UpperInput_prob
 
 end FormalResearch.ModularBootstrap.Upper.Ramped

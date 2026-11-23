@@ -100,6 +100,17 @@ lemma density_identity {c' x Bc lam : ℝ} (hc' : 0 < c') (hx : 0 < x) (hlam : 0
   have hCs : 0 < CStar := by unfold CStar; have := kappaAiry_pos; positivity
   field_simp
 
+/-- `density_identity` at the scale `q > 0`: `FK_c = FKc 1 1 c'` is replaced by `FKc q 1 c' = q FKc 1 1 c'`
+and `Θ` by `Θ / q`. -/
+lemma density_identity_q {c' x Bc lam q : ℝ} (hq : 0 < q) (hc' : 0 < c') (hx : 0 < x) (hlam : 0 < lam)
+    (hlamdef : lam = lambdaComb c') :
+    (1 / cosh (π * x / 2) ^ 2) * (Bc * √c' * √x / (√3 * π)) *
+        ((2 * √2 / (π * lam)) ^ (3 / 2 : ℝ) * Real.exp (-(3 / 2) * kS x) * (CStar * kappaAiry)) =
+      FKc q 1 c' * (CStar * kappaAiry) * (deriv langerTau x / lam) *
+        (mwt x * (Bc / (1 - Real.exp (-(4 * π * x))) ^ 2) / q) := by
+  rw [density_identity hc' hx hlam hlamdef, FKc_scale q 1 c']
+  field_simp
+
 lemma one_sub_exp_pos {x : ℝ} (hx : 0 < x) : 0 < 1 - Real.exp (-(4 * π * x)) := by
   have : Real.exp (-(4 * π * x)) < 1 := by
     rw [Real.exp_lt_one_iff]; have := Real.pi_pos; nlinarith
@@ -128,23 +139,66 @@ lemma Emin_le {x : ℝ} (hx : xiStar / 2 ≤ x) : Emin ≤ (1 - Real.exp (-(4 * 
     linarith
   exact pow_le_pow_left₀ h2.le (by linarith) 2
 
-/-- The bound on `Θ = M_wt(x) · B_c/E(x)` and `Θ (e^δ - 1)`. -/
-theorem theta_bound (Ca : ℝ) (hCa : 0 < Ca) :
+/-- `|E(x) - E(ξ_*)| ≤ 8π |x - ξ_*|` for `E(x) = (1 - e^{-4πx})²`, `x > 0`. -/
+lemma abs_E_sub_le {x : ℝ} (hx : 0 < x) :
+    |(1 - Real.exp (-(4 * π * x))) ^ 2 - (1 - Real.exp (-(4 * π * xiStar))) ^ 2| ≤
+      8 * π * |x - xiStar| := by
+  have hxs := xiStar_pos
+  have hpi := Real.pi_pos
+  have ha0 := Real.exp_pos (-(4 * π * x))
+  have hb0 := Real.exp_pos (-(4 * π * xiStar))
+  have ha1 : Real.exp (-(4 * π * x)) < 1 := by rw [Real.exp_lt_one_iff]; nlinarith
+  have hb1 : Real.exp (-(4 * π * xiStar)) < 1 := by rw [Real.exp_lt_one_iff]; nlinarith
+  have hab := abs_exp_neg_sub_le (u := 4 * π * x) (v := 4 * π * xiStar) (by positivity) (by positivity)
+  have e1 : |4 * π * x - 4 * π * xiStar| = 4 * π * |x - xiStar| := by
+    rw [← mul_sub, abs_mul, abs_of_pos (by positivity : (0 : ℝ) < 4 * π)]
+  rw [e1] at hab
+  set a := Real.exp (-(4 * π * x))
+  set b := Real.exp (-(4 * π * xiStar))
+  have e2 : (1 - a) ^ 2 - (1 - b) ^ 2 = (b - a) * (2 - a - b) := by ring
+  rw [e2, abs_mul]
+  have h2 : |2 - a - b| ≤ 2 := by rw [abs_le]; constructor <;> linarith
+  have h3 : |b - a| ≤ 4 * π * |x - xiStar| := by rw [abs_sub_comm]; exact hab
+  calc |b - a| * |2 - a - b| ≤ (4 * π * |x - xiStar|) * 2 :=
+        mul_le_mul h3 h2 (abs_nonneg _) (by positivity)
+    _ = 8 * π * |x - xiStar| := by ring
+
+/-- The bound on `Θ / q`, `Θ = M_wt(x) · B_c/E(x)`, and `(Θ / q) (e^δ - 1)`, for a Cardy ratio `B_c` within
+`K/c'` of `Q(e^{-4πx})`; `q = qProb prob = Q(e^{-4πξ_*})/E(ξ_*)`. -/
+theorem theta_bound (prob : Crossing.FixedWeightProblem) (K Ca : ℝ) (hK : 0 < K) (hCa : 0 < Ca) :
     ∃ c1 c2 : ℝ, 0 < c1 ∧ 0 < c2 ∧ ∀ᶠ c' : ℝ in atTop, ∀ x ∈ langerX (1 / 2), ∀ Bc δ : ℝ, 0 ≤ Bc →
-      |Bc - (1 - Real.exp (-(4 * π * x))) ^ 2| ≤ (96 + 120 / xiStar) / c' → 0 ≤ δ →
+      |Bc - prob.nullPoly (Real.exp (-4 * π * x))| ≤ K / c' → 0 ≤ δ →
       δ ≤ Ca * c' ^ (-(2 / 3 : ℝ)) → δ ≤ 1 / 2 →
-      |mwt x * (Bc / (1 - Real.exp (-(4 * π * x))) ^ 2) - 1| +
-        mwt x * (Bc / (1 - Real.exp (-(4 * π * x))) ^ 2) * (Real.exp δ - 1) ≤
+      |mwt x * (Bc / (1 - Real.exp (-(4 * π * x))) ^ 2) / qProb prob - 1| +
+        mwt x * (Bc / (1 - Real.exp (-(4 * π * x))) ^ 2) / qProb prob * (Real.exp δ - 1) ≤
         c1 * lambdaComb c' * |langerTau x / lambdaComb c'| + c2 * c' ^ (-(2 / 3 : ℝ)) := by
   obtain ⟨CM, hCM, hMw⟩ := mwt_sub_one_le
   obtain ⟨cτ, hcτ, hτ⟩ := abs_sub_xiStar_le_tau
   have hxs := xiStar_pos
-  set K1 : ℝ := 96 + 120 / xiStar with hK1
-  have hK1p : 0 < K1 := by positivity
+  have hpi := Real.pi_pos
+  have hq := qProb_pos prob
+  have hS := prob.totalShift_nonneg
   have hEm := Emin_pos
+  have hEsp : 0 < (1 - Real.exp (-(4 * π * xiStar))) ^ 2 := by
+    have := one_sub_exp_xiStar_pos; positivity
+  have hQs : prob.nullPoly (Real.exp (-4 * π * xiStar)) =
+      qProb prob * (1 - Real.exp (-(4 * π * xiStar))) ^ 2 := by
+    unfold qProb
+    exact (div_mul_cancel₀ _ hEsp.ne').symm
+  set q : ℝ := qProb prob with hqdef
+  set Es : ℝ := (1 - Real.exp (-(4 * π * xiStar))) ^ 2 with hEs
+  set Qs : ℝ := prob.nullPoly (Real.exp (-4 * π * xiStar)) with hQsdef
+  set Lq : ℝ := 4 * π * prob.totalShift with hLq
+  have hLq0 : 0 ≤ Lq := by rw [hLq]; positivity
+  set C0 : ℝ := (Lq + 8 * π * q) / (Emin * q) with hC0
+  have hC0p : 0 < C0 := by rw [hC0]; positivity
+  set R : ℝ := 2 + C0 * (1 / 2 + xiStar) with hR
+  have hRp : 0 < R := by rw [hR]; positivity
   set Mmax : ℝ := 1 + CM * (1 / 2 + xiStar) with hMmax
-  refine ⟨2 * CM / cτ, K1 / Emin + 4 * Mmax * Ca, by positivity, by positivity, ?_⟩
-  filter_upwards [eventually_ge_atTop (max 1 (K1 / Emin))] with c' hc'
+  set K1 : ℝ := K / (Emin * q) with hK1
+  have hK1p : 0 < K1 := by rw [hK1]; positivity
+  refine ⟨(CM * R + C0) / cτ, K1 + 2 * Mmax * R * Ca, by positivity, by positivity, ?_⟩
+  filter_upwards [eventually_ge_atTop (max 1 K1)] with c' hc'
   have hc'1 : 1 ≤ c' := (le_max_left _ _).trans hc'
   have hc'0 : 0 < c' := by linarith
   have hlam : 0 < lambdaComb c' := lamPos hc'0
@@ -154,35 +208,57 @@ theorem theta_bound (Ca : ℝ) (hCa : 0 < Ca) :
   set Ex : ℝ := (1 - Real.exp (-(4 * π * x))) ^ 2 with hEx
   have hExm : Emin ≤ Ex := Emin_le hxξ
   have hExp : 0 < Ex := hEm.trans_le hExm
-  set ρ : ℝ := Bc / Ex with hρ
-  have hρ0 : 0 ≤ ρ := div_nonneg hBc0 hExp.le
-  have hε1 : K1 / c' ≤ Emin := by
-    rw [div_le_iff₀ hc'0]
-    have := (le_max_right _ _).trans hc'
-    rw [div_le_iff₀ hEm] at this
-    linarith
-  have hρ1 : |ρ - 1| ≤ K1 / c' / Emin := by
-    have : ρ - 1 = (Bc - Ex) / Ex := by rw [hρ]; field_simp
-    rw [this, abs_div, abs_of_pos hExp]
-    calc |Bc - Ex| / Ex ≤ (K1 / c') / Ex := div_le_div_of_nonneg_right hBc hExp.le
-      _ ≤ (K1 / c') / Emin := div_le_div_of_nonneg_left (by positivity) hEm hExm
-  have hρ2 : ρ ≤ 2 := by
-    have := (abs_le.1 hρ1).2
-    have h2 : K1 / c' / Emin ≤ 1 := by rw [div_le_one hEm]; exact hε1
-    linarith
-  have hM1 : |mwt x - 1| ≤ CM * |x - xiStar| := hMw x hx
-  have hxd : |x - xiStar| ≤ 1 / 2 + xiStar := by
+  set ρ : ℝ := Bc / (Ex * q) with hρ
+  have hρ0 : 0 ≤ ρ := div_nonneg hBc0 (by positivity)
+  have hΘ : mwt x * (Bc / Ex) / q = mwt x * ρ := by rw [hρ]; field_simp
+  rw [hΘ]
+  have hd : |x - xiStar| ≤ 1 / 2 + xiStar := by
     rw [abs_le]; constructor <;> linarith [hx.1, hx.2]
+  -- distance bounds
+  have hQ1 : |prob.nullPoly (Real.exp (-4 * π * x)) - Qs| ≤ Lq * |x - xiStar| :=
+    nullPoly_exp_sub_le prob hx0 hxs
+  have hE1 := abs_E_sub_le hx0
+  rw [← hEx, ← hEs] at hE1
+  have hnum : |Bc - Ex * q| ≤ K / c' + (Lq + 8 * π * q) * |x - xiStar| := by
+    have e : Bc - Ex * q = (Bc - prob.nullPoly (Real.exp (-4 * π * x))) +
+        (prob.nullPoly (Real.exp (-4 * π * x)) - Qs) + q * (Es - Ex) := by
+      rw [hQs]; ring
+    rw [e]
+    have h3 : |q * (Es - Ex)| ≤ q * (8 * π * |x - xiStar|) := by
+      rw [abs_mul, abs_of_pos hq, abs_sub_comm]
+      exact mul_le_mul_of_nonneg_left hE1 hq.le
+    calc _ ≤ |Bc - prob.nullPoly (Real.exp (-4 * π * x))| +
+          |prob.nullPoly (Real.exp (-4 * π * x)) - Qs| + |q * (Es - Ex)| := abs_add_three _ _ _
+      _ ≤ K / c' + Lq * |x - xiStar| + q * (8 * π * |x - xiStar|) := by linarith
+      _ = _ := by ring
+  have hρ1 : |ρ - 1| ≤ K / c' / (Emin * q) + C0 * |x - xiStar| := by
+    have : ρ - 1 = (Bc - Ex * q) / (Ex * q) := by rw [hρ]; field_simp
+    rw [this, abs_div, abs_of_pos (by positivity : 0 < Ex * q)]
+    have hden : Emin * q ≤ Ex * q := mul_le_mul_of_nonneg_right hExm hq.le
+    calc |Bc - Ex * q| / (Ex * q) ≤ (K / c' + (Lq + 8 * π * q) * |x - xiStar|) / (Ex * q) :=
+          div_le_div_of_nonneg_right hnum (by positivity)
+      _ ≤ (K / c' + (Lq + 8 * π * q) * |x - xiStar|) / (Emin * q) :=
+          div_le_div_of_nonneg_left (by positivity) (by positivity) hden
+      _ = _ := by rw [hC0]; field_simp
+  have hε1 : K / c' / (Emin * q) ≤ 1 := by
+    have : K1 ≤ c' := (le_max_right _ _).trans hc'
+    rw [div_le_one (by positivity), div_le_iff₀ hc'0]
+    rw [hK1, div_le_iff₀ (by positivity)] at this
+    linarith
+  have hρ2 : ρ ≤ R := by
+    have h1 := (abs_le.1 hρ1).2
+    have h2 : C0 * |x - xiStar| ≤ C0 * (1 / 2 + xiStar) := mul_le_mul_of_nonneg_left hd hC0p.le
+    rw [hR]; linarith
+  have hM1 : |mwt x - 1| ≤ CM * |x - xiStar| := hMw x hx
   have hMle : mwt x ≤ Mmax := by
     have := (abs_le.1 hM1).2
-    have h3 : CM * |x - xiStar| ≤ CM * (1 / 2 + xiStar) := mul_le_mul_of_nonneg_left hxd hCM.le
+    have h3 : CM * |x - xiStar| ≤ CM * (1 / 2 + xiStar) := mul_le_mul_of_nonneg_left hd hCM.le
     rw [hMmax]; linarith
   have hM0 : 0 ≤ mwt x := by
-    have hxp : 0 < x := hx0
     unfold mwt
-    have := mUnn_pos hxp
+    have := mUnn_pos hx0
     have := mUnn_pos hxs
-    have := deriv_langerTau_pos hxp
+    have := deriv_langerTau_pos hx0
     positivity
   have hσ : |x - xiStar| ≤ lambdaComb c' * |langerTau x / lambdaComb c'| / cτ := by
     have h := hτ x hxξ
@@ -193,33 +269,34 @@ theorem theta_bound (Ca : ℝ) (hCa : 0 < Ca) :
   have hexp : Real.exp δ - 1 ≤ 2 * δ := by
     have := exp_le_one_add_two_mul hδ0 hδ12
     linarith
-  -- assemble
   have hT1 : |mwt x * ρ - 1| ≤ |mwt x - 1| * ρ + |ρ - 1| := by
     have : mwt x * ρ - 1 = (mwt x - 1) * ρ + (ρ - 1) := by ring
     rw [this]
     calc |(mwt x - 1) * ρ + (ρ - 1)| ≤ |(mwt x - 1) * ρ| + |ρ - 1| := abs_add_le _ _
       _ = |mwt x - 1| * ρ + |ρ - 1| := by rw [abs_mul, abs_of_nonneg hρ0]
-  have hA : |mwt x - 1| * ρ ≤ 2 * (CM * (lambdaComb c' * |langerTau x / lambdaComb c'| / cτ)) := by
+  have hA : |mwt x - 1| * ρ ≤ R * (CM * (lambdaComb c' * |langerTau x / lambdaComb c'| / cτ)) := by
     have h1 : |mwt x - 1| ≤ CM * (lambdaComb c' * |langerTau x / lambdaComb c'| / cτ) :=
       hM1.trans (mul_le_mul_of_nonneg_left hσ hCM.le)
     have h2 := mul_le_mul h1 hρ2 hρ0 (by positivity)
     linarith
-  have hB : mwt x * ρ * (Real.exp δ - 1) ≤ Mmax * 2 * (2 * (Ca * c' ^ (-(2 / 3 : ℝ)))) := by
+  have hB : mwt x * ρ * (Real.exp δ - 1) ≤ Mmax * R * (2 * (Ca * c' ^ (-(2 / 3 : ℝ)))) := by
     have h0 : 0 ≤ Real.exp δ - 1 := by linarith [Real.add_one_le_exp δ]
-    have h1 : mwt x * ρ ≤ Mmax * 2 := mul_le_mul hMle hρ2 hρ0 (by nlinarith [hM0, hMle])
-    calc mwt x * ρ * (Real.exp δ - 1) ≤ (Mmax * 2) * (2 * (Ca * c' ^ (-(2 / 3 : ℝ)))) :=
-          mul_le_mul h1 (hexp.trans (by linarith)) h0 (by nlinarith [hM0, hMle])
+    have h1 : mwt x * ρ ≤ Mmax * R := mul_le_mul hMle hρ2 hρ0 (hM0.trans hMle)
+    calc mwt x * ρ * (Real.exp δ - 1) ≤ (Mmax * R) * (2 * (Ca * c' ^ (-(2 / 3 : ℝ)))) :=
+          mul_le_mul h1 (hexp.trans (by linarith)) h0 (mul_nonneg (hM0.trans hMle) hRp.le)
       _ = _ := by ring
-  have hC : K1 / c' / Emin ≤ K1 / Emin * c' ^ (-(2 / 3 : ℝ)) := by
+  have hC : K / c' / (Emin * q) ≤ K1 * c' ^ (-(2 / 3 : ℝ)) := by
     have : c'⁻¹ ≤ c' ^ (-(2 / 3 : ℝ)) := by
       rw [← Real.rpow_neg_one]
       exact Real.rpow_le_rpow_of_exponent_le hc'1 (by norm_num)
-    calc K1 / c' / Emin = K1 / Emin * c'⁻¹ := by field_simp
-      _ ≤ K1 / Emin * c' ^ (-(2 / 3 : ℝ)) := mul_le_mul_of_nonneg_left this (by positivity)
-  have hfin : 2 * (CM * (lambdaComb c' * |langerTau x / lambdaComb c'| / cτ)) =
-      2 * CM / cτ * lambdaComb c' * |langerTau x / lambdaComb c'| := by ring
-  nlinarith [hT1, hA, hB, hρ1, hC, hfin]
-
+    calc K / c' / (Emin * q) = K1 * c'⁻¹ := by rw [hK1]; field_simp
+      _ ≤ K1 * c' ^ (-(2 / 3 : ℝ)) := mul_le_mul_of_nonneg_left this (by positivity)
+  have hCd : C0 * |x - xiStar| ≤ C0 * (lambdaComb c' * |langerTau x / lambdaComb c'| / cτ) :=
+    mul_le_mul_of_nonneg_left hσ hC0p.le
+  have hfin : R * (CM * (lambdaComb c' * |langerTau x / lambdaComb c'| / cτ)) +
+      C0 * (lambdaComb c' * |langerTau x / lambdaComb c'| / cτ) =
+      (CM * R + C0) / cτ * lambdaComb c' * |langerTau x / lambdaComb c'| := by ring
+  linarith [hT1, hA, hB, hρ1, hC, hCd, hfin]
 
 lemma combProfile_ofReal_eq {c' x : ℝ} (hc' : 0 < c') (hx : 0 ≤ x) (B : ℂ → ℂ) :
     combProfile c' B (c' * x ^ 2 / 3) = 1 / cosh (π * x / 2) ^ 2 * (B (x : ℂ)).re := by
@@ -256,30 +333,28 @@ lemma rampedW_neg_imp {P : RampedParams} {c' : ℝ} (hc' : 0 < c') (d σ : ℝ)
 /-- **The pointwise window inequality** (`rem:thmU` Step (5), Langer window): for `x ∈ [ξ_*/2, ξ_* + 1/2]`,
 `(2/3) c' x · h₀(c'x²/3) V(c'x²/3) ≤ FK_c C_* κ σ'(x) (w(σ) + |w(σ)| (c₁ λ|σ| + c₂ c'^{-2/3}))`,
 `σ = τ(x)/λ`, `w(σ) = Re W_D(-κσ)` (`σ' = τ'(x)/λ`). -/
-theorem rampedWindow_pointwise : ∃ c1 c2 : ℝ, 0 < c1 ∧ 0 < c2 ∧ ∀ P : RampedParams,
+theorem rampedWindow_pointwise (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) :
+    ∃ c1 c2 : ℝ, 0 < c1 ∧ 0 < c2 ∧ ∀ P : RampedParams,
     ∀ᶠ c' : ℝ in atTop, ∀ d : ℝ, 0 ≤ d → d ≤ rampedD0 → ∀ x ∈ langerX (1 / 2),
       (2 * c' * x / 3) * (combProfile c' (rampedComb P d c') (c' * x ^ 2 / 3) *
-          Crossing.virasoroProblem.cardyV (c' / 12) (c' * x ^ 2 / 3)) ≤
-        FKc 1 1 c' * (CStar * kappaAiry) * (deriv langerTau x / lambdaComb c') *
+          prob.cardyV (c' / 12) (c' * x ^ 2 / 3)) ≤
+        FKc (qProb prob) 1 c' * (CStar * kappaAiry) * (deriv langerTau x / lambdaComb c') *
           (rampedWFun P d c' (sigmaOf c' x) + |rampedWFun P d c' (sigmaOf c' x)| *
             (c1 * lambdaComb c' * |sigmaOf c' x| + c2 * c' ^ (-(2 / 3 : ℝ)))) := by
   obtain ⟨Ca, hCa, hampP⟩ := rampedComb_amplitude
-  obtain ⟨c1, c2, hc1, hc2, hth⟩ := theta_bound Ca hCa
+  obtain ⟨K0, hK0, hKas⟩ := WeightAxioms.cardyV_asymptotic_real prob (half_pos xiStar_pos)
+  obtain ⟨c1, c2, hc1, hc2, hth⟩ := theta_bound prob (K0 + 1) Ca (by linarith) hCa
   refine ⟨c1, c2, hc1, hc2, fun P => ?_⟩
   obtain ⟨_, _, h_ev⟩ := siteGap_eventually_le
   have hδev := eventually_rpow_neg_le (p := 2 / 3) (ε := 1 / (2 * Ca)) (by norm_num) (by positivity)
   filter_upwards [hampP P, hth, ramped_phaseHyp,
     designComb_innerCombHyp_of_admissible 1 le_rfl (η₀ := 1 / 4) (by norm_num) (by norm_num), h_ev, hδev,
-    eventually_ge_atTop (max 24 (48 + 8 / xiStar + 96 + 120 / xiStar)), eventually_ge_atTop (1 : ℝ)]
-    with c' hamp hthc hph hin ⟨_, _, _, hgap⟩ hδ hc hc1 d hd0 hdD x hx
+    eventually_ge_atTop (max 1 (24 * prob.totalShift)), eventually_ge_atTop (1 : ℝ)]
+    with c' hamp hthc hph hin ⟨_, _, _, hgap⟩ hδ hcS hc1 d hd0 hdD x hx
   have hxs := xiStar_pos
   have hc'0 : 0 < c' := by linarith
   have hx0 : 0 < x := by linarith [hx.1]
   have hlam : 0 < lambdaComb c' := lamPos hc'0
-  have hc24 : 24 ≤ c' := (le_max_left _ _).trans hc
-  have hcK : 48 + 8 / xiStar + 96 + 120 / xiStar ≤ c' := (le_max_right _ _).trans hc
-  have h8 : 0 < 8 / xiStar := by positivity
-  have h120 : 0 < 120 / xiStar := by positivity
   have hd1 : d ≤ 1 := hdD.trans rampedD0_le_one
   -- the comb is real on the real axis
   have hPh := hph P d hd0 hd1
@@ -292,7 +367,7 @@ theorem rampedWindow_pointwise : ∃ c1 c2 : ℝ, 0 < c1 ∧ 0 < c2 ∧ ∀ P : 
     conv_lhs => rw [this]
     rw [Complex.norm_real, Real.norm_eq_abs]
   set b : ℝ := (rampedComb P d c' (x : ℂ)).re with hb
-  set w : ℝ := rampedWFun P d c' (sigmaOf c' x) with hw
+  set w : ℝ := rampedWFun P d c' (sigmaOf c' x) with hwdef
   set δ : ℝ := Ca * c' ^ (-(2 / 3 : ℝ)) with hδdef
   have hδ0 : 0 ≤ δ := by positivity
   have hδ12 : δ ≤ 1 / 2 := by
@@ -345,23 +420,20 @@ theorem rampedWindow_pointwise : ∃ c1 c2 : ℝ, 0 < c1 ∧ 0 < c2 ∧ ∀ P : 
     rw [htdef, hamp_def, this]; ring
   have hsigned := signed_amp_le hG0 hlo' hhi' ht hneg
   -- the integrand
-  have hV : Crossing.virasoroProblem.cardyV (c' / 12) (c' * x ^ 2 / 3) =
-      Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) :=
-    Integration.virasoro_cardyV_eq_besselV (by linarith) (by positivity)
-  rw [hV, combProfile_ofReal_eq hc'0 hx0.le]
-  set Vv : ℝ := Bessel.besselV (c' / 12) (c' * x ^ 2 / 3) with hVv
+  rw [combProfile_ofReal_eq hc'0 hx0.le]
+  set Vv : ℝ := prob.cardyV (c' / 12) (c' * x ^ 2 / 3) with hVv
   set Bc : ℝ := Vv / Bessel.besselAs (c' * Bessel.besselL x) with hBc
-  have hx₀ : 0 < xiStar / 2 := by positivity
-  have e60 : 60 / (xiStar / 2) = 120 / xiStar := by field_simp; norm_num
-  have hcB : 96 + 60 / (xiStar / 2) ≤ c' := by rw [e60]; linarith
-  obtain ⟨hBc0, -⟩ := Cardy.besselV_ratio_bounds hx₀ hcB hx.1
-  have hasy : |Bc - (1 - Real.exp (-(4 * π * x))) ^ 2| ≤ (96 + 120 / xiStar) / c' := by
-    have e4 : 4 / (xiStar / 2) = 8 / xiStar := by field_simp; norm_num
-    have := Bessel.besselV_asymptotic (x₀ := xiStar / 2) hx₀ (c' := c') (x := x)
-      (by rw [e4]; linarith) hx.1
-    rw [e60] at this
-    exact this
-  have hdens := Cardy.besselV_density hc'0 hx0
+  have hVv0 : 0 ≤ Vv := prob.cardyV_nonneg (by linarith [prob.totalShift_nonneg, (le_max_right _ _).trans hcS]) (by positivity)
+  have hzA : 0 < c' * Bessel.besselL x := by unfold Bessel.besselL; positivity
+  have hBc0 : 0 ≤ Bc := div_nonneg hVv0 (Bessel.besselAs_pos hzA).le
+  have hasy : |Bc - prob.nullPoly (Real.exp (-4 * π * x))| ≤ (K0 + 1) / c' := by
+    have h := hKas hcS hx.1
+    simp only [hw, Nat.sub_self, pow_zero, one_mul] at h
+    have h2 : Bc = Vv / Bessel.besselAs (c' * (2 * π * x / 3)) := rfl
+    rw [h2]
+    refine h.trans ?_
+    exact div_le_div_of_nonneg_right (by linarith) hc'0.le
+  have hdens := Cardy.cardy_density Vv hc'0 hx0
   have hexp : Real.exp (c' * Bessel.besselL x) * Real.exp (-(c' * Bessel.besselL x)) = 1 := by
     rw [← Real.exp_add]; simp
   have hsech : 0 < 1 / cosh (π * x / 2) ^ 2 := by positivity
@@ -380,8 +452,8 @@ theorem rampedWindow_pointwise : ∃ c1 c2 : ℝ, 0 < c1 ∧ 0 < c2 ∧ ∀ P : 
     calc 1 / cosh (π * x / 2) ^ 2 * t * (Bc * (√c' * √x / (√3 * π)))
         = (1 / cosh (π * x / 2) ^ 2 * (Bc * (√c' * √x / (√3 * π)))) * t := by ring
       _ ≤ _ := this
-  have hid := density_identity (Bc := Bc) hc'0 hx0 hlam rfl
-  set Θ : ℝ := mwt x * (Bc / (1 - Real.exp (-(4 * π * x))) ^ 2) with hΘ
+  have hid := density_identity_q (Bc := Bc) (qProb_pos prob) hc'0 hx0 hlam rfl
+  set Θ : ℝ := mwt x * (Bc / (1 - Real.exp (-(4 * π * x))) ^ 2) / qProb prob with hΘ
   have hΘ0 : 0 ≤ Θ := by
     have hxp := hx0
     have hm : 0 ≤ mwt x := by
@@ -392,12 +464,13 @@ theorem rampedWindow_pointwise : ∃ c1 c2 : ℝ, 0 < c1 ∧ 0 < c2 ∧ ∀ P : 
       positivity
     have hE : 0 < (1 - Real.exp (-(4 * π * x))) ^ 2 := by
       have := one_sub_exp_pos hx0; positivity
+    have hq := qProb_pos prob
     rw [hΘ]; positivity
   have hE := hthc x hx Bc δ hBc0 hasy hδ0 le_rfl hδ12
   have h2 := theta_alg (w := w) hΘ0 hδ0 hE
-  set K : ℝ := FKc 1 1 c' * (CStar * kappaAiry) * (deriv langerTau x / lambdaComb c') with hK
+  set K : ℝ := FKc (qProb prob) 1 c' * (CStar * kappaAiry) * (deriv langerTau x / lambdaComb c') with hK
   have hK0 : 0 ≤ K := by
-    have hF := FKc_pos (q := 1) one_pos 1 hc'0
+    have hF := FKc_pos (qProb_pos prob) 1 hc'0
     have hCs : 0 < CStar := by unfold CStar; have := kappaAiry_pos; positivity
     have := kappaAiry_pos
     have := deriv_langerTau_pos hx0
