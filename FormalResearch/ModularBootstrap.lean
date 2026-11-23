@@ -185,6 +185,11 @@ public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaS2WBridge
 public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaS4WGrowth
 public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaS4W
 public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaS4WBridge
+public import FormalResearch.ModularBootstrap.Upper.Window.CardyWindow
+public import FormalResearch.ModularBootstrap.Upper.Window.TailGeometry
+public import FormalResearch.ModularBootstrap.Upper.Window.TailBand
+public import FormalResearch.ModularBootstrap.Upper.Window.TailIntegrals
+public import FormalResearch.ModularBootstrap.Upper.Window.Tail
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -587,4 +592,20 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (`t^{r-1} ≤ exp(K(1+r)²) V(t)` on `[1, ∞)`) and `norm_mellinMGW_le_exp` (`|m_g(z)| ≤ M[g] exp(K(1+|z|)²)` for
   `Re z ≥ 1/2`).  Bridge `LemmaS4WBridge`: `tildeWW 1 = StripMultiplier.tildeWV`, `StripMultiplier.lemma_S4` as the `w = 1`
   instance (`lemma_S4_of_W`), non-vacuity `lemma_S4_W_thermalDiff`.
+
+* `Upper.Window.{CardyWindow, TailGeometry, TailBand, TailIntegrals, Tail}`: **Lemma `A_V` in window form**
+  and **Lemma `T`** (`rem:cardy`, `ut:T`, `upper_transfer.tex` §5).  `CardyWindow`: the scales
+  `FVc q c'` (`FV_c`) and `FKc q f c'` (`FK_c^{(f)}`); the window bound
+  `V(c'x²/3) e^{-c'L(x)} sech²(πx/2) · dt/dσ ≤ C FV_c` on `ξ_*/2 ≤ x ≤ ξ_* + r₀` and the far-band bound
+  `V e^{-c'L} dt ≤ √c' √x dx` at `w = 1` (`besselV_window_bound`, `besselV_far_bound`, from `vlo:Bessel` (c)),
+  with the abstract named properties `CardyWindowBound`, `CardyFarBound` of a Cardy weight and their
+  non-vacuity (`cardyWindowBound_virasoro`, `cardyFarBound_virasoro`).  `TailGeometry`, `TailBand`,
+  `TailIntegrals`: the `tanh` bounds and the `K0`(c) comparison `r_f ≤ r_{N₁+1}/2` for `N₁ ≥ 4f`, the pointwise
+  comb bounds `K6`(a) + `K4` on the band (`refComb_band_bound`, `refComb_far_bound`) and `Lemma P`(b) in
+  multiplicative form (`designComb_norm_le_exp_ref`), the substitution `t = c'x²/3` and the power integrals.
+  `Tail`: **`lemma_T`** (Virasoro, `V = virasoroProblem.cardyV (c'/12)`; general `f ≥ 1`, compact family of
+  `lemma_P_b`): for `N₁ ≥ max(4f, N₂)` and large `c'`, `∫_{χ_{N₁+1} ≤ x ≤ ξ_*+r₀} |h₀| V dt ≤ FK_c^{(f)} C_T
+  N₁^{-(2/3)(2f-3/2)}` and `∫_{x ≥ ξ_*+r₀} |h₀| V dt ≤ C_far √c'` (`lemma_T_of_cardy` for any weight with the
+  two named properties, `lemma_T_design1` for `D(N, η_*, d)`, `lemma_T_hypotheses_nonvacuous`); unconditional
+  at `w = 1`; the general `(w, Q)` statement (bump `h₀^{(p)}`, Peano bound `fw:e3.6`) is not formalised.
 -/
