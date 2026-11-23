@@ -4,6 +4,7 @@ public import FormalResearch.SignUncertainty.Radii
 public import FormalResearch.SignUncertainty.RadialCompactnessProof
 public import FormalResearch.SignUncertainty.OneProfileEnvelope
 public import FormalResearch.SignUncertainty.EuclidRadialProjection
+public import FormalResearch.SignUncertainty.ShellGapHankel
 
 /-!
 # Paper I headline theorems from one input structure each (M0 skeleton)
@@ -15,7 +16,7 @@ Each headline is stated on the concrete objects of `Radii.lean` (Euclidean `A_si
 the prescribed-shell class, the Bessel-kernel Hankel thresholds) with the paper's constants, and is
 proved from an input structure whose fields are, one-to-one, the TeX theorems the paper's proof cites
 (field names are the TeX labels where the paper has one: `hb_thresholds_lower/upper`, `shell_reduction`,
-`shell_gap_limit`, `ce_hb_lift`, ...; `gt:7.9`, the Euclidean radii as Hankel thresholds, is the theorem
+`hankel_shell_gap_limit`, `ce_hb_lift`, ...; `gt:7.9`, the Euclidean radii as Hankel thresholds, is the theorem
 `hankel_euclid_dictionary` and no longer a field).
 **A field is an open theorem about the concrete objects**; progress is the number of open fields, and a
 field is discharged only by proving it (then it is dropped from the structure). The input structures
@@ -41,7 +42,7 @@ Headlines and their inputs (open fields in bold):
   `SignSeparationPackage.langer_approx` built from the `C¹` field). The Euclidean statement (2)
   additionally uses the theorems `hankel_euclid_dictionary` (`gt:7.9`) and `laguerre_odd_mode`.
 * `thm_intro_gap_i/ii/iii` (`thm:intro-gap`), from `ShellGapInputs D`:
-  **`shell_reduction`** (`thm:ce-shell-reduction`), **`shell_gap_limit`** (`thm:ce-shell-gap`,
+  **`shell_reduction`** (`thm:ce-shell-reduction`), **`hankel_shell_gap_limit`** (`thm:ce-shell-gap`, Hankel form,
   extraction and constraint system `eq:ce-laplace-constraint`), **`ce_hb_lift`** (`thm:ce-hb-lift`).
   `one_profile_envelope` (`gt:3.1` envelope used in `prop:ce-one-profile`) is a theorem
   (`OneProfileEnvelope.lean`). Proved here from these: `one_profile_feasible_iff`, `one_profile_maximizer_exists`,
@@ -134,20 +135,6 @@ def ShellReduction (D : ShellHBData) : Prop :=
       ∀ R ∈ ceShellRadiusSet D r d,
         (d : ℝ) / (2 * π ^ 2) - (D.tm / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) - C ≤ R ^ 2 / 2
 
-/-- `thm:ce-shell-gap` (Theorem H.14), extraction and constraint system `eq:ce-laplace-constraint`:
-along any sequence of dimensions `d_k → ∞` and admissible pairs (shell offsets `o(c^{1/3})`) whose
-thresholds satisfy `R_k²/2 ≤ d_k/(2π²) - (u_*/β₁) c_k^{1/3} + o(c_k^{1/3})` for a fixed real `u_*`,
-the window profiles of `p_k = (ĥ+h)/2`, `q_k = (ĥ-h)/2`, normalised by `M[2q_k]`, have limits
-`P_∞, Q_∞ ∈ 𝒢` satisfying the two-profile system at `u_*` (`TwoProfileFeasible D u_*`). -/
-def ShellGapLimit (D : ShellHBData) : Prop :=
-  ∀ r : ℝ → ℕ → ℝ, (∀ t : ℝ, Tendsto (fun d : ℕ => r t d / ((d : ℝ) / 2) ^ (1 / 3 : ℝ)) atTop (𝓝 0)) →
-    ∀ (u_star : ℝ) (dk : ℕ → ℕ), Tendsto dk atTop atTop →
-      ∀ (ε : ℕ → ℝ), Tendsto ε atTop (𝓝 0) →
-        ∀ (R : ℕ → ℝ), (∀ k, R k ∈ ceShellRadiusSet D r (dk k)) →
-          (∀ k, R k ^ 2 / 2 ≤ (dk k : ℝ) / (2 * π ^ 2) - (u_star / hankelBeta1) * ((dk k : ℝ) / 2) ^ (1 / 3 : ℝ)
-            + ε k * ((dk k : ℝ) / 2) ^ (1 / 3 : ℝ)) →
-          TwoProfileFeasible D u_star
-
 /-- `prop:ce-one-profile`, attainment step (uniform envelope from the proof of `gt:3.1`): normalised
 one-profile witnesses at thresholds above a feasible `u₀` obey a common bound
 `C (1 + |z|)^ν e(z)`. -/
@@ -196,8 +183,14 @@ theorem radial_rigidity_lower :
 /-- Inputs of `thm:intro-gap` for the Hermite–Biehler configuration `D`. -/
 structure ShellGapInputs (D : ShellHBData) : Prop where
   shell_reduction : ShellReduction D
-  shell_gap_limit : ShellGapLimit D
+  /-- `thm:ce-shell-gap` in Hankel form (`HankelShellGapLimit`); the Euclidean statement `ShellGapLimit` follows
+  (`shellGapLimit_of_hankel`, via the radial Fourier transform). -/
+  hankel_shell_gap_limit : HankelShellGapLimit D
   ce_hb_lift : CeHbLift D
+
+/-- `thm:ce-shell-gap` for radial Cohn-Elkies pairs on `ℝ^d`. -/
+theorem ShellGapInputs.shell_gap_limit {D : ShellHBData} (I : ShellGapInputs D) : ShellGapLimit D :=
+  shellGapLimit_of_hankel I.hankel_shell_gap_limit
 
 
 /-! ### Headline A and B: `thm:intro-radii` -/

@@ -78,6 +78,8 @@ public import FormalResearch.SignUncertainty.SpherePolar
 public import FormalResearch.SignUncertainty.SphereAverage
 public import FormalResearch.SignUncertainty.FourierCompactSupport
 public import FormalResearch.SignUncertainty.EuclidRadialProjection
+public import FormalResearch.SignUncertainty.HankelInversion
+public import FormalResearch.SignUncertainty.ShellGapHankel
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
@@ -178,6 +180,10 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.EuclidRadialProjection`: `radialProjection` (the radial average of a sign-uncertainty
   competitor is Hankel-feasible at the same threshold) and the theorem `hankel_euclid_dictionary` (`gt:7.9`,
   `A_sign^±(d)²/2 = T^{±}_{d/2}`, every integer `d ≥ 2`).
+* `FormalResearch.SignUncertainty.HankelInversion`: Hankel inversion `𝓗_c 𝓗_c G = G` (`d = n + 1 ≥ 2`, from Fourier inversion
+  and `fourier_radial_hankel`) and the projections `(G ± 𝓗_c G)/2 ∈ 𝒜_c^{±1}`.
+* `FormalResearch.SignUncertainty.ShellGapHankel`: `ShellGapLimit` (`thm:ce-shell-gap`, Euclidean) and its Hankel-level form
+  `HankelShellGapLimit`; `shellGapLimit_of_hankel` derives the former from the latter in every dimension `d ≥ 2`.
 * `FormalResearch.SignUncertainty.RadialCompactness`: the statement of `lem:radial-compactness` (`RadialCompactness`:
   window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it
