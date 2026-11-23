@@ -179,6 +179,9 @@ public import FormalResearch.ModularBootstrap.FixedWeightBand.GaussianPairingW
 public import FormalResearch.ModularBootstrap.FixedWeightBand.MellinConvergenceW
 public import FormalResearch.ModularBootstrap.FixedWeightBand.MellinW
 public import FormalResearch.ModularBootstrap.FixedWeightBand.MellinWBridge
+public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaS2WKernel
+public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaS2W
+public import FormalResearch.ModularBootstrap.FixedWeightBand.LemmaS2WBridge
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -559,4 +562,15 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   extension `m_g` with `F (w - z) = -F z` on `ℂ` (`lemma_S1_W`, `lemma_S1_W_of_c'`). Bridge `MellinWBridge`:
   `mellinMGEntireW 1 = Mellin.mellinMGEntire`, `Mellin.lemma_S1_of_ge_two` as the `w = 1` instance
   (`lemma_S1_of_ge_two_of_W`), non-vacuity `lemma_S1_W_thermalDiff`.
+* `FixedWeightBand.{LemmaS2WKernel, LemmaS2W, LemmaS2WBridge}`: **Lemma `S2`** (`vlo:S2`, crude Legendre bound,
+  `lower_o1_two_edge.tex` §J2) at every fixed weight `w ≥ 1` and every `Q`, unconditional.  The exact kernel modulus
+  `|(2π)^z t^{z-1}/Γ(z)| = |S^{(w)-1}| (2π x²/(3|ω|))^{(w-1)/2} t^{-1/2} e^{c'(B + L(x) - D(x_*, x))}`, `z = w/2 + c'ω`
+  (`norm_kernel_eq_W`), and the kernel over `V` with the factor `(2x)^{w-1}` of the Cardy asymptote (W3) cancelling the
+  Stirling prefactor (`kernel_div_eq_W`); the three-point concavity lemma (`concave_three_point`) applied to
+  `s ↦ log V(e^s)` (`cardyV_log_convex`) compares `t(x_c)` with the fixed point `t(3μ₀/π)` (replacing the one-point derivative
+  argument of the weight-one proof); `kernelBound_W`: for `μ₀ > π ξ_*/6`, `c' ≥ c₀`, `Re ω ≥ μ₀` and every `t > 0`
+  the kernel is `≤ C e^{c' B(ω)} V(t)`, and `≤ C e^{c' B(ω)} e^{-κ c'} V(t)` on the sub-Cardy region `x ≤ ξ_*/2`
+  (`κ = D(3μ₀/π, ξ_*/2) > 0`); `lemma_S2_W`: for `g ∈ TestClass prob (c'/12)` the Mellin integral converges absolutely and
+  `|m_g(w/2 + c'ω)| ≤ C e^{c' B(ω)} M[g]`.  Bridge `LemmaS2WBridge`: `lemma_S2_of_W` (the Virasoro `ComplexBessel.lemma_S2` as the
+  `w = 1` instance), non-vacuity `lemma_S2_W_thermalDiff`.
 -/
