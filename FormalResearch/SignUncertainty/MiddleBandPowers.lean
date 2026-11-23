@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import FormalResearch.CohnElkies.HighBandEstimate
+public import FormalResearch.CohnElkies.MellinLiftIntegrals
 
 /-!
 # Elementary power integrals and the `ε`-power algebra of the middle-band region estimates (GT.2a G3)
@@ -12,8 +12,8 @@ Elementary facts used by the region estimates of the middle band (`cegt:GT2a`), 
 * `mb_tail_pow`: `∫_R^∞ u^{-s} du = R^{1-s}/(s-1)` for `s > 1`. Restates Mathlib's `integral_Ioi_rpow_of_lt`
   in the form used below.
 * `mb_two_sided_tail`: a function bounded by `|u|^{-s}` and vanishing on `|u| < R` has `|∫ f| ≤ 2R^{1-s}/(s-1)`.
-  Proved from `mb_tail_pow` and the reflection `integral_comp_neg_Ioi`; the hypothesis `hint : Integrable f` is part
-  of the statement as briefed (named `_hint`), and the proof does not use it.
+  Proved from `mb_tail_pow` and the reflection `integral_comp_neg_Ioi`. No integrability or measurability of `f`
+  is assumed (a non-integrable `f` has integral `0`).
 * `mb_outer_exponent`, `mb_liftEps_pow_15_div_2`: exponent identities for `ε = c^{-1/3}` (both exact, proved).
 * `mb_region_c`: `ε² S^{-11/4} ≤ (π² ε² S) S^{-3/2}` for `S ≥ 100`. The brief's side condition `ε² ≤ L` is not
   needed as a hypothesis: it follows from `L = π² ε² S` and `S ≥ 1`, and the proof uses only `S ≥ 100`.
@@ -43,9 +43,9 @@ theorem mb_tail_pow {R s : ℝ} (hR : 0 < R) (hs : 1 < s) :
   rw [show (1 : ℝ) - s = -s + 1 by ring, show s - 1 = -(-s + 1) by ring, div_neg, neg_div]
 
 /-- Two-sided tail bound (`cegt:GT2a` region estimates): if `|f u| ≤ |u|^{-s}`, `f = 0` on `|u| < R`, then
-`|∫ f| ≤ 2 R^{1-s}/(s-1)`. The integrability hypothesis `hint` is kept as briefed; the proof does not use it. -/
+`|∫ f| ≤ 2 R^{1-s}/(s-1)`. No integrability hypothesis is needed: a non-integrable `f` has integral `0`. -/
 theorem mb_two_sided_tail {R s : ℝ} (hR : 0 < R) (hs : 1 < s) (f : ℝ → ℝ) (hf : ∀ u, |f u| ≤ |u| ^ (-s))
-    (hsupp : ∀ u, |u| < R → f u = 0) (_hint : Integrable f) :
+    (hsupp : ∀ u, |u| < R → f u = 0) :
     |∫ u, f u| ≤ 2 * R ^ (1 - s) / (s - 1) := by
   have hi1 : IntegrableOn (fun t : ℝ => t ^ (-s)) (Ici R) := by
     rw [integrableOn_Ici_iff_integrableOn_Ioi]

@@ -1,8 +1,7 @@
 module
 
 public import FormalResearch.CohnElkies.TwoIBPPhase
-public import Mathlib.Analysis.Calculus.Deriv.Star
-public import Mathlib.Analysis.Calculus.FDeriv.Star
+public import FormalResearch.SignUncertainty.MiddleBandNumerics
 
 /-!
 # Two integrations by parts for either sign of the phase derivative (GT.2a G1)
@@ -23,17 +22,20 @@ Proof sketch.
    null, so that identity holds almost everywhere. Classes: proved.
 
 `cubic_two_ibp` specialises to `ψ(x) = a0 x - π² x³/36`, with `ψ' = a0 - π² x²/12`,
-`ψ'' = -π² x/6`, `ψ''' = -π²/6`. Its derivative identities are local copies (prefix `mbi_`) of
-the power-rule facts in `FormalResearch.SignUncertainty.MiddleBandNumerics`. They are not imported,
-so that this module keeps to the brief's single import. Classes: proved, unconditionally in the
-stated hypotheses.
+`ψ'' = -π² x/6`, `ψ''' = -π²/6`; the derivative identities are those of
+`FormalResearch.SignUncertainty.MiddleBandNumerics` (`mb_psi_deriv`, `mb_psi_deriv2`,
+`mb_psi_deriv3`). Classes: proved, unconditionally in the stated hypotheses.
+
+`cubic_two_ibp` has constant amplitude and phase bounds on `[α, β]`: it suits zones where `ψ'` is
+roughly constant (shoulders). Zones where `|ψ'|` grows (far, outer) use `two_ibp_phase_abs`
+directly with pointwise bounds.
 
 Negative regression: the bound needs `ψ' ≠ 0` on `[u, v]`, which `cubic_two_ibp` supplies as
 `p ≤ |ψ'|` on `[α, β]`. Without a lower bound the integrand has a pole at a zero of `ψ'`, and that
 zone is treated separately (`gt2a_vdc_stationary.md`).
 
-Restated from Mathlib and the imported module, without proof here: `two_ibp_phase` (the case
-`ψ' > 0`), `integral_conj`, `intermediate_value_uIcc`, the power rule, and `div_le_div₀`.
+Used without proof here: `two_ibp_phase` (the case `ψ' > 0`, from the imported module),
+`integral_conj`, `intermediate_value_uIcc`, and `div_le_div₀`.
 -/
 
 @[expose] public section
@@ -203,43 +205,6 @@ theorem two_ibp_phase_abs {a : ℝ → ℂ} {ψ : ℝ → ℝ} {u v : ℝ} (huv 
   · exact mbi_abs_pos huv ha s hs ha2 hint hsupp hψ hp
   · exact mbi_abs_neg huv ha s hs ha2 hint hsupp hψ hn
 
-/-- `ψ(x) = a0 x - π² x³/36` has `ψ'(u) = a0 - π² u²/12`. Classes: proved (power rule). -/
-lemma mbi_hasDerivAt_psi (a0 u : ℝ) :
-    HasDerivAt (fun x : ℝ => a0 * x - π ^ 2 / 36 * x ^ 3) (a0 - π ^ 2 * u ^ 2 / 12) u := by
-  have h := ((hasDerivAt_id' u).const_mul a0).sub ((hasDerivAt_pow 3 u).const_mul (π ^ 2 / 36))
-  convert h using 1
-  norm_num
-  ring
-
-lemma mbi_deriv_psi (a0 u : ℝ) :
-    deriv (fun x : ℝ => a0 * x - π ^ 2 / 36 * x ^ 3) u = a0 - π ^ 2 * u ^ 2 / 12 :=
-  (mbi_hasDerivAt_psi a0 u).deriv
-
-lemma mbi_deriv_psi2 (a0 u : ℝ) :
-    deriv (deriv (fun x : ℝ => a0 * x - π ^ 2 / 36 * x ^ 3)) u = -(π ^ 2 * u / 6) := by
-  have h1 : deriv (fun x : ℝ => a0 * x - π ^ 2 / 36 * x ^ 3) =
-      fun x => a0 - π ^ 2 * x ^ 2 / 12 :=
-    funext fun x => mbi_deriv_psi a0 x
-  rw [h1]
-  have h := (((hasDerivAt_pow 2 u).const_mul (π ^ 2)).div_const 12).const_sub a0
-  have h' : HasDerivAt (fun x : ℝ => a0 - π ^ 2 * x ^ 2 / 12) (-(π ^ 2 * u / 6)) u := by
-    convert h using 1
-    norm_num
-    ring
-  exact h'.deriv
-
-lemma mbi_deriv_psi3 (a0 u : ℝ) :
-    deriv (deriv (deriv (fun x : ℝ => a0 * x - π ^ 2 / 36 * x ^ 3))) u = -(π ^ 2 / 6) := by
-  have h1 : deriv (deriv (fun x : ℝ => a0 * x - π ^ 2 / 36 * x ^ 3)) =
-      fun x => -(π ^ 2 * x / 6) :=
-    funext fun x => mbi_deriv_psi2 a0 x
-  rw [h1]
-  have h := (((hasDerivAt_id' u).const_mul (π ^ 2)).div_const 6).neg
-  have h' : HasDerivAt (fun x : ℝ => -(π ^ 2 * x / 6)) (-(π ^ 2 / 6)) u := by
-    convert h using 1
-    ring
-  exact h'.deriv
-
 /-- Cubic-phase corollary of `two_ibp_phase_abs`, with `ψ(x) = a0 x - π² x³/36`. Assume
 `|a| ≤ B0`, `|a'| ≤ B1`, `|a''| ≤ B2` everywhere, a lower bound `p ≤ |ψ'|` on `[α, β]` (this is
 the nonvanishing hypothesis), and `|ψ''| ≤ M2` on `[α, β]`, `|ψ'''| ≤ M3`. Classes: proved. -/
@@ -259,7 +224,7 @@ theorem cubic_two_ibp {a : ℝ → ℂ} {a0 : ℝ} {α β B0 B1 B2 p M2 M3 : ℝ
   have hψ3 : ContDiff ℝ 3 (fun x : ℝ => a0 * x - Real.pi ^ 2 / 36 * x ^ 3) := by fun_prop
   have hne : ∀ x ∈ Set.Icc α β, deriv (fun x : ℝ => a0 * x - Real.pi ^ 2 / 36 * x ^ 3) x ≠ 0 := by
     intro x hx
-    rw [mbi_deriv_psi]
+    rw [mb_psi_deriv]
     intro h
     have hd := hψ' x hx
     rw [h, abs_zero] at hd
@@ -280,7 +245,7 @@ theorem cubic_two_ibp {a : ℝ → ℂ} {a0 : ℝ} {α β B0 B1 B2 p M2 M3 : ℝ
           deriv (fun x : ℝ => a0 * x - Real.pi ^ 2 / 36 * x ^ 3) x ^ 4
         ≤ B2 / p ^ 2 + 3 * B1 * M2 / p ^ 3 + B0 * M3 / p ^ 3 + 3 * B0 * M2 ^ 2 / p ^ 4 := by
     intro x hx
-    rw [mbi_deriv_psi, mbi_deriv_psi2, mbi_deriv_psi3]
+    rw [mb_psi_deriv, mb_psi_deriv2, mb_psi_deriv3]
     have hd := hψ' x hx
     have hdsq : p ^ 2 ≤ (a0 - Real.pi ^ 2 * x ^ 2 / 12) ^ 2 := by
       have h2 : p ^ 2 ≤ |a0 - Real.pi ^ 2 * x ^ 2 / 12| ^ 2 := pow_le_pow_left₀ hp.le hd 2
@@ -347,22 +312,6 @@ theorem cubic_two_ibp {a : ℝ → ℂ} {a0 : ℝ} {α β B0 B1 B2 p M2 M3 : ℝ
 /-- info: 'FormalResearch.SignUncertainty.two_ibp_phase_abs' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms two_ibp_phase_abs
-
-/-- info: 'FormalResearch.SignUncertainty.mbi_hasDerivAt_psi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms mbi_hasDerivAt_psi
-
-/-- info: 'FormalResearch.SignUncertainty.mbi_deriv_psi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms mbi_deriv_psi
-
-/-- info: 'FormalResearch.SignUncertainty.mbi_deriv_psi2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms mbi_deriv_psi2
-
-/-- info: 'FormalResearch.SignUncertainty.mbi_deriv_psi3' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms mbi_deriv_psi3
 
 /-- info: 'FormalResearch.SignUncertainty.cubic_two_ibp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
