@@ -41,8 +41,13 @@ public import FormalResearch.CohnElkies.CubicNormalFormContraction
 public import FormalResearch.CohnElkies.ComplexEdgePhase
 public import FormalResearch.CohnElkies.CubicNormalFormBridge
 public import FormalResearch.CohnElkies.CubicNormalFormH
+public import FormalResearch.CohnElkies.MellinLiftIntegrals
+public import FormalResearch.CohnElkies.AiryWindowInversion
+public import FormalResearch.CohnElkies.FresnelBranch
+public import FormalResearch.CohnElkies.PieceCDecomposition
 public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
+public import FormalResearch.CohnElkies.TwoIBPPhase
 
 /-!
 # Cohn–Elkies / CFT Paper I elementary and toolkit lemmas (umbrella)
@@ -147,6 +152,14 @@ and the Airy library:
   `o4_quotient_ext`, `o4_normal_form`), under the named hypothesis `O4QuotientBound` (`M_F ≤ 0.13`).
 * `FormalResearch.CohnElkies.CubicNormalFormH`: `O.4(2)` remainder `H(θ) = θ⁻³(τ(θ) - κ₀θ)` extended holomorphically to `D(0, 0.22)` with `|H| ≤ 1/4`
   (`even_quotient_differentiableOn`, `even_quotient_bound`, `O4NormalForm.H_bound`), from an `O4NormalForm` (so under `O4QuotientBound`).
+* `FormalResearch.CohnElkies.MellinLiftIntegrals`: the two-edge integrals `I_main[F]`, `I_dual[D]` of a lift (`iMain`, `iDual`,
+  `liftSymbol`), `K₀` on the imaginary axis (`mellinK0_imag_eq`) and their integrability for `HasU2` seeds.
+* `FormalResearch.CohnElkies.AiryWindowInversion`: window smoothing `F_ψ` (`windowSmooth`), `W_X(w) = F̃_ψ(i c_s w)`, and the exact
+  Airy inversion / reference identity (`HasU2.airy_inversion`, `airy_window_inversion`, `airy_reference_identity`).
+* `FormalResearch.CohnElkies.FresnelBranch`: the branch-point term of `u1c:U3`(3) Piece C / `O.3(2)`: `∫ φ (iv)^{1/2} e^{iAv} dv =
+  -√π φ(0) A^{-3/2} + O(A^{-2})` for `C²` amplitudes (`fresnel_branch`), by improper integration by parts and the Gaussian integral.
+* `FormalResearch.CohnElkies.PieceCDecomposition`: exact decomposition `K₀ W = g e^{iψ} G_sm − γ₀ H_c (iv)^{1/2} χ₁ e^{iAv}` and the
+  conditional assembly `pieceC_main_term` of `I_C = γ₀ A^{-3/2}/(2√π ξ) + O(ξ⁻¹A⁻²)` (smooth part and `C²` regularity of `χ₁H_c` as named hypotheses).
 * `FormalResearch.CohnElkies.PreEdgeCriterion`: unconditional concrete `GT.2b(1)–(3)` & `O.11y(3)`/`GT.4` tip offset
   for `twoScaleS`, unconditional `PE.3` reference & measure Mellin inversion (`pe3_reference_mellin_inversion`,
   `pe3_measure_inversion`), `pe3_remainder_integral_bound` (`O(c^{-2/3})`), `pe3_compact_origin_pos`, and
@@ -154,6 +167,7 @@ and the Airy library:
 * `FormalResearch.CohnElkies.AirySymbolTransfer`: unconditional explicit global Morse coordinate (`airyMorseZ`,
   `airyMorseY`), Lemma `GT.1s` (`gt1s_scalar_airy_symbol_transfer`), and Lemma `GT.1` (`gt1_high_freq` and
   `gt1_low_freq`, with `airyTailSymbolSeed_nonvacuous`).
+* `FormalResearch.CohnElkies.TwoIBPPhase`: two integrations by parts against a variable phase, Piece C smooth part (`two_ibp_phase`): `|∫ a e^{iψ}|` bounded by `|a''|/ψ'²`, `|a'||ψ''|/ψ'³`, `|a||ψ'''|/ψ'³`, `|a|ψ''²/ψ'⁴`, with no boundary terms; a standard estimate, proved unconditionally.
 
 This umbrella is deliberately not imported by `FormalResearch.lean`.
 -/

@@ -274,6 +274,7 @@ public import FormalResearch.ModularBootstrap.Upper.Assembly.TailLower
 public import FormalResearch.ModularBootstrap.Upper.Assembly.TailLipschitz
 public import FormalResearch.ModularBootstrap.Upper.Assembly.TailBounds
 public import FormalResearch.ModularBootstrap.FixedWeightBand.N1Lower
+public import FormalResearch.ModularBootstrap.Upper.Ramped.PhaseUniform
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -830,4 +831,15 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `FixedWeightBand.N1Lower`: the `𝒩 = 1` NS super-Virasoro lower bound (`n1:T3`, lower half), unconditional:
   `n1_lowerBoundInput` (Theorem `W1'(1)` at `n1SuperVirasoroProblem`, `μ = (1/2, 1/2)`) and the explicit form
   `n1_T_V_lower` (`T_*(c̃) - D_- ≤ T_V(c̃)`, `c̃ = c - 3/2`).  The `𝒩 = 1` upper bound is not formalised.
+
+* `Upper.Ramped.PhaseUniform`: the phase machinery of the ramped comb, **uniform in the cut `N`** (R3a).  The squared
+  pair-change bound `(PC)` (`ut:Phi`, `eq:ut:PC`) `iteratedDeriv_designDelta_le_sq`
+  (`‖∂_b^i Δ_D‖ ≤ K Σ(|ε'² - ε²| + 2|χ' - χ|)`, `K` absolute, in `Design.PerturbPhi`, from which the linear
+  `iteratedDeriv_designDelta_le` is re-derived) and `designPhiDecomp_of_pairChange`; the `N`-free forms
+  `refComb_eq_split_unif`, `combTail_K1a_unif`, `designPhi1_bounds_of_decomp`,
+  `designProfile_{edgeHankelHyp,global_bound}_of_admissible`, `designProfile_sdvHypotheses_of_decomp`,
+  `lemma_Phi_transform_of_decomp` (`Design.CombTransform`; the compact-family statements are corollaries) and
+  `designComb_innerCombHyp_of_admissible`, `designComb_combPhaseData_of_decomp`, `design_sdvAmplitudeInput_of_decomp`,
+  `design_k7_of_decomp` (`Membership.DesignMembership`); `PhaseUniform` packages them (`PhaseHyp`, `phase_package`,
+  `phase_k7`, `phaseHyp_reference`), unconditional.
 -/
