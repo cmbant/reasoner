@@ -273,6 +273,7 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.LangerChart
 public import FormalResearch.ModularBootstrap.Upper.Assembly.TailLower
 public import FormalResearch.ModularBootstrap.Upper.Assembly.TailLipschitz
 public import FormalResearch.ModularBootstrap.Upper.Assembly.TailBounds
+public import FormalResearch.ModularBootstrap.FixedWeightBand.N1Lower
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -825,4 +826,8 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   modulus and Schwarz lemma for `G_k = -dslope W_{k,0} a_1`, with `R_1 > 0` for every design); hence
   `sameSiteFamily_designClass_exists` and `virasoro_sigmaZero_unconditional` (`Σ₀` at Virasoro for the extremal
   measures, unconditional).  `Σ` still needs the displaced/omitted design families.
+
+* `FixedWeightBand.N1Lower`: the `𝒩 = 1` NS super-Virasoro lower bound (`n1:T3`, lower half), unconditional:
+  `n1_lowerBoundInput` (Theorem `W1'(1)` at `n1SuperVirasoroProblem`, `μ = (1/2, 1/2)`) and the explicit form
+  `n1_T_V_lower` (`T_*(c̃) - D_- ≤ T_V(c̃)`, `c̃ = c - 3/2`).  The `𝒩 = 1` upper bound is not formalised.
 -/
