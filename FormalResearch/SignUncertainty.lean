@@ -68,6 +68,7 @@ public import FormalResearch.SignUncertainty.OneProfileEnvelope
 public import FormalResearch.SignUncertainty.ThreeLinesUnit
 public import FormalResearch.SignUncertainty.LaplaceWeight
 public import FormalResearch.SignUncertainty.NoshiroRouche
+public import FormalResearch.SignUncertainty.HankelLangerSeries
 public import FormalResearch.SignUncertainty.EuclidSplit
 public import FormalResearch.SignUncertainty.EuclidRadialSlice
 public import FormalResearch.SignUncertainty.EuclidRadialFourier
@@ -167,6 +168,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.ThreeLinesUnit`: Hadamard three lines on the closed unit strip in the hypothesis form of `eq:ce-three-lines` (`three_lines_unit`, a restatement of the Mathlib theorem), boundedness of `mellinW` on the closed strip (`mellinW_bddAbove_strip`, from `norm_mellinW_le`), and two real-power facts. No headline uses it yet; it serves the origin-floor estimate of `thm:ce-shell-gap`.
 * `FormalResearch.SignUncertainty.LaplaceWeight`: the real Laplace weight `W_c(y,Δ) = Re(1/K₀(ζ_c, Δ/c))` of the proof of Theorem `H.14` (`eq:ce-laplace-limit`): positivity, the Gamma form, the exact scaling in `Δ`, and the limit `exp(-y³/12 + y u)` at `Δ = c/π² - (u/β₁)c^{1/3}` (from `radialK_tendsto`).
 * `FormalResearch.SignUncertainty.NoshiroRouche`: Noshiro–Warschawski injectivity on a convex set (`injOn_of_re_deriv_pos`), unique root of a perturbation of the identity via Rouché (`exists_unique_root_of_perturb`), and the regression `not_injOn_sq`; used by the Hankel Langer chart (`gt:7.7b`).
+* `FormalResearch.SignUncertainty.HankelLangerSeries`: coefficient facts for the Hankel Langer chart (`gt:7.7b` (0)): `etaC j = η(2j+2)` with `0 < etaC j < 1` and `etaC 0 = π²/12`, the normalised coefficients `langerA`, `langerB` and their bounds, the tail bounds `abs_eps_le` (`≤ 7.46e-4`) and `abs_E_sub_one_le_035` (`≤ 8.95e-4`) on `‖z‖ ≤ 0.035`, and the binomial bound `‖(1+x)^α - 1‖ ≤ 1 - (1-‖x‖)^α`. The series identity `π/sin(πz) - 1/z = 2∑η(2j+2)z^{2j+1}` is not formalised here.
   with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
   `one_profile_envelope`.
 * `FormalResearch.SignUncertainty.EuclidSplit`, `EuclidRadialSlice`, `EuclidRadialFourier`, `EuclidRadialHankel`: the
