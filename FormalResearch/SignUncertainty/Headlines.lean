@@ -3,6 +3,7 @@ module
 public import FormalResearch.SignUncertainty.Radii
 public import FormalResearch.SignUncertainty.RadialCompactnessProof
 public import FormalResearch.SignUncertainty.OneProfileEnvelope
+public import FormalResearch.SignUncertainty.EuclidHankelDictionary
 
 /-!
 # Paper I headline theorems from one input structure each (M0 skeleton)
@@ -14,7 +15,7 @@ Each headline is stated on the concrete objects of `Radii.lean` (Euclidean `A_si
 the prescribed-shell class, the Bessel-kernel Hankel thresholds) with the paper's constants, and is
 proved from an input structure whose fields are, one-to-one, the TeX theorems the paper's proof cites
 (field names are the TeX labels where the paper has one: `hb_thresholds_lower/upper`, `shell_reduction`,
-`shell_gap_limit`, `ce_hb_lift`, ...; some are not labels: `hankel_euclid_dictionary` is the proof of
+`shell_gap_limit`, `ce_hb_lift`, ...; some are not labels: `radial_projection` is the Euclid-to-Hankel step in the proof of
 `gt:7.9` (Euclidean radii as Hankel thresholds)).
 **A field is an open theorem about the concrete objects**; progress is the number of open fields, and a
 field is discharged only by proving it (then it is dropped from the structure). The input structures
@@ -25,8 +26,10 @@ would be the theorem itself (deliberate deviation from the usual non-vacuity req
 Headlines and their inputs (open fields in bold):
 
 * `thm_intro_radii` (`thm:intro-radii`, `gt:7.9`, `gt:7.12`, `gt:7.12a`), from `RadiiInputs`:
-  **`hankel_euclid_dictionary`** (`gt:7.9`: radial averaging,
-  Bochner, BCK/CG reduction, all integer `d ≥ 2`), **`hb_thresholds_lower`**, **`hb_thresholds_upper`**
+  **`radial_projection`** (`gt:7.9`, Euclid to Hankel: `O(d)` radial averaging and the compact-support
+  uncertainty argument that the average is nonzero; the Hankel-to-Euclid half, the radial Fourier
+  transform in every dimension, and the matching of the infima are theorems,
+  `hankel_euclid_dictionary_of_radial_projection`), **`hb_thresholds_lower`**, **`hb_thresholds_upper`**
   (`thm:hb-thresholds` at `(P,Q) = (1,0)`, i.e. `u1cl:multilevel` and `u1co:O9p`),
   **`shell_reduction_m1`** (`thm:ce-shell-reduction`, `m = 1`, with `O(d)` averaging),
   **`ce_hb_lift_m1`** (`thm:ce-hb-lift`, `m₀ = 1`; its Laplace hypothesis is proved here from
@@ -39,7 +42,7 @@ Headlines and their inputs (open fields in bold):
   derived from it (the latter also from `hb_thresholds_upper`). Proved here from these:
   the Hardy–Mellin intertwiner argument (`sign_separation_eventually_le`, via
   `SignSeparationPackage.langer_approx` built from the `C¹` field). The Euclidean statement (2)
-  additionally uses `EuclidDictionary` (`hankel_euclid_dictionary`; `laguerre_odd_mode` is proved).
+  additionally uses `EuclidDictionary` (`radial_projection`; `laguerre_odd_mode` is proved).
 * `thm_intro_gap_i/ii/iii` (`thm:intro-gap`), from `ShellGapInputs D`:
   **`shell_reduction`** (`thm:ce-shell-reduction`), **`shell_gap_limit`** (`thm:ce-shell-gap`,
   extraction and constraint system `eq:ce-laplace-constraint`), **`ce_hb_lift`** (`thm:ce-hb-lift`).
@@ -51,7 +54,7 @@ Conventions. `c = d/2`, `A = |a₁|/β₁` (`airyOrderCoeff`), `airyOrderModel d
 Radii whose defining set is empty are `+∞` in the paper; the statements below that involve the
 prescribed-shell radius quantify over the members of `ceShellRadiusSet`. For the Euclidean radii and
 `hankelT` the real `sInf` is used; for `d ≥ 2` the defining sets are nonempty (this is part of the
-open fields: `hb_thresholds_upper` for the Hankel side, `hankel_euclid_dictionary` for the Euclidean
+open fields: `hb_thresholds_upper` for the Hankel side, `radial_projection` for the Euclidean
 side), so the junk value `sInf ∅ = 0` never matters for a true statement.
 -/
 
@@ -169,13 +172,18 @@ theorem bessel_kernel_data (c : ℝ) (hc : 1 ≤ c) :
 
 /-- The Euclidean/Hankel layer. (`gt:7.9b`, the odd Laguerre mode is a `(-1)`-eigenfunction, is proved:
 `laguerre_odd_mode`.)
-`hankel_euclid_dictionary` (`gt:7.9`, proof): for every integer `d ≥ 2`,
-`A_sign^+(d)²/2 = T_{d/2}^{+1}` and `A_sign^-(d)²/2 = T_{d/2}^{-1}` with the origin condition `f(0) = 0`
-(radial averaging over `O(d)`, the radial Fourier transform in every dimension including odd `d`, and
+`gt:7.9` (proof): for every integer `d ≥ 2`, `A_sign^+(d)²/2 = T_{d/2}^{+1}` and
+`A_sign^-(d)²/2 = T_{d/2}^{-1}` with the origin condition `f(0) = 0`
+(`hankel_euclid_dictionary_of_radial_projection`). The radial Fourier transform in every dimension,
+including odd `d` (`fourier_radial_hankel`), the Hankel-to-Euclid half and the matching of the infima are
+proved; the open field is `RadialProjection`, the Euclid-to-Hankel half (radial averaging over `O(d)` and
 the compact-support uncertainty argument that the average is nonzero). -/
 structure EuclidDictionary : Prop where
-  hankel_euclid_dictionary : ∀ d : ℕ, 2 ≤ d →
-    aSignPos d ^ 2 / 2 = hankelT 1 ((d : ℝ) / 2) ∧ aSignNeg d ^ 2 / 2 = hankelT0 ((d : ℝ) / 2)
+  radial_projection : RadialProjection
+
+theorem EuclidDictionary.hankel_euclid_dictionary (E : EuclidDictionary) (d : ℕ) (hd : 2 ≤ d) :
+    aSignPos d ^ 2 / 2 = hankelT 1 ((d : ℝ) / 2) ∧ aSignNeg d ^ 2 / 2 = hankelT0 ((d : ℝ) / 2) :=
+  hankel_euclid_dictionary_of_radial_projection E.radial_projection d hd
 
 /-- `thm:hb-thresholds` at one level, both halves (`HbThresholdsLower`, `HbThresholdsUpper`). -/
 structure OneLevelThresholds : Prop where
@@ -294,7 +302,7 @@ include I
 `A_sign^±(d)²/2 = d/(2π²) + A (d/2)^{1/3} + O(1)` with `A = |a₁|/β₁`.
 
 Proved from `RadiiInputs`; see the module docstring for the open fields used
-(`hankel_euclid_dictionary`, `hb_thresholds_lower`,
+(`radial_projection`, `hb_thresholds_lower`,
 `hb_thresholds_upper`). The second asymptotic form of `gt:7.9` (`A_sign(d)/√d`) is not restated. -/
 theorem thm_intro_radii_sign :
     (∃ C : ℝ, ∀ d : ℕ, 2 ≤ d → |aSignPos d ^ 2 / 2 - airyOrderModel d| ≤ C) ∧
@@ -594,7 +602,7 @@ private lemma neg_T0_eq_ev : ∀ᶠ c : ℝ in atTop, hankelT0 c = hankelT (-1) 
 `limsup_{d→∞} ½(A_sign^+(d)² - A_sign^-(d)²) ≤ -2/π²` (integer `d`, limsup in `EReal`).
 
 From `thm_intro_separation_hankel`'s inputs and `EuclidDictionary`
-(`hankel_euclid_dictionary`): `A_sign^+(d)²/2 = T_{d/2}^{+1}` and `A_sign^-(d)²/2 = T_{d/2}^{-1,0} =
+(`hankel_euclid_dictionary`, from `radial_projection`): `A_sign^+(d)²/2 = T_{d/2}^{+1}` and `A_sign^-(d)²/2 = T_{d/2}^{-1,0} =
 T_{d/2}^{-1}` for large `d`. -/
 theorem thm_intro_separation_radii :
     Filter.limsup (fun d : ℕ => (((aSignPos d ^ 2 - aSignNeg d ^ 2) / 2 : ℝ) : EReal)) atTop ≤

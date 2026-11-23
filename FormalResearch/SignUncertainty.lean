@@ -67,6 +67,11 @@ public import FormalResearch.SignUncertainty.RadialProfileFatou
 public import FormalResearch.SignUncertainty.RadialCompactness
 public import FormalResearch.SignUncertainty.RadialCompactnessProof
 public import FormalResearch.SignUncertainty.OneProfileEnvelope
+public import FormalResearch.SignUncertainty.EuclidSplit
+public import FormalResearch.SignUncertainty.EuclidRadialSlice
+public import FormalResearch.SignUncertainty.EuclidRadialFourier
+public import FormalResearch.SignUncertainty.EuclidRadialHankel
+public import FormalResearch.SignUncertainty.EuclidHankelDictionary
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
@@ -151,6 +156,14 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.OneProfileEnvelope`: `gt:3.1` in the form used by `prop:ce-one-profile`: every `H ∈ 𝒢`
   with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
   `one_profile_envelope`.
+* `FormalResearch.SignUncertainty.EuclidSplit`, `EuclidRadialSlice`, `EuclidRadialFourier`, `EuclidRadialHankel`: the
+  radial Fourier transform on `ℝ^d` is the Hankel transform for every integer `d ≥ 2` (`gt:7.9`; slicing
+  `ℝ^{n+1} = ℝ × ℝ^n`, polar coordinates in the half plane, the Poisson integral for the Bessel kernel):
+  `fourier_radial_hankel`, `integrable_radialLift_iff`, with the Gaussian as non-vacuity witness.
+* `FormalResearch.SignUncertainty.EuclidHankelDictionary`: the Euclidean-to-Hankel dictionary of `gt:7.9`,
+  `A_sign^±(d)²/2 = T^{±}_{d/2}`, from the one open step `RadialProjection` (`O(d)` averaging and the compact-support
+  argument): the Hankel-to-Euclid half (`signWitness_of_hankelFeasible`), positivity of the radii and the matching of
+  the infima are theorems.
 * `FormalResearch.SignUncertainty.RadialCompactness`: the statement of `lem:radial-compactness` (`RadialCompactness`:
   window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it
