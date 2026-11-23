@@ -201,6 +201,10 @@ public import FormalResearch.ModularBootstrap.FixedWeightBand.BandBoundWInstance
 public import FormalResearch.ModularBootstrap.FixedWeightBand.BandBoundW
 public import FormalResearch.ModularBootstrap.FixedWeightBand.BandBoundWBridge
 public import FormalResearch.ModularBootstrap.FixedWeightBand.BandBoundWWitness
+public import FormalResearch.ModularBootstrap.Upper.Window.ContinuumPotential
+public import FormalResearch.ModularBootstrap.Upper.Window.LobeAndTail
+public import FormalResearch.ModularBootstrap.Upper.Window.WindowLimit
+public import FormalResearch.ModularBootstrap.Upper.Window.Identification
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -661,4 +665,12 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `proposition_XV_W` (`B₁ + B₂ ≤ C_X (1 + log L) c'^{-1/3}`, the weight-free `teb_bootstrap_part1`) and the combination
   `proposition_YV_XV_W`.  `BandBoundWBridge`: `StripMultiplier.proposition_YV` is the `w = 1` instance
   (`proposition_YV_of_W`); `BandBoundWWitness`: non-vacuity of the `g`-hypotheses (`yvHypotheses_thermalDiff`).
+
+* `Upper.Window.ContinuumPotential`, `Upper.Window.LobeAndTail`, `Upper.Window.WindowLimit`,
+  `Upper.Window.Identification`: **Lemma W** (`ut:W`: uniform window convergence `lemma_W_comb` and
+  `lemma_W_measure` via `windowNormKTilde`, `windowMeasureNormK`, `windowFiniteProd`, `tildeW`,
+  `ModifiedCombData`, `CompactCombFamily`, and `designCombFamily`) and **Lemma ID** (`ut:ID`:
+  `refApproxLimit_eq_exp_mul_airyAi_sq`, `refApproxLimit_eq_cStar_mul_airyAi_sq`, `lemma_ID`, and
+  `lemma_ID_design` identifying `tildeW` with `CStarF f * kappaAiry * (airyWindowProd ...).re`
+  and `designWindowW`), all unconditional.
 -/
