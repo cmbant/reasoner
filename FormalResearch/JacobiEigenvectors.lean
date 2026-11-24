@@ -60,6 +60,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.SoftQuant
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftTails
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftTails2
 public import FormalResearch.JacobiEigenvectors.TheoremA.StepZeroCovered
+public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAiLoc
 public import FormalResearch.JacobiEigenvectors.TheoremA.BulkPhase
 public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumTaylor
 public import FormalResearch.JacobiEigenvectors.TheoremA.SpectrumUnique
