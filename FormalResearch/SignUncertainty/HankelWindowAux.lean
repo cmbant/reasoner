@@ -18,6 +18,8 @@ open scoped Real
 
 namespace FormalResearch.SignUncertainty
 
+/-- Powers of `c ≥ 10¹⁴` through `t = c^{1/12} ≥ 14` (`c = t¹²`, `c^{1/3} = t⁴`, `c^{2/3} = t⁸`, `c^{-1/12} = t⁻¹`,
+`c^{-5/6} = t⁻¹⁰`, `log c ≤ 12 t`). -/
 lemma hankel_window_cnum {c : ℝ} (hc : 1e14 ≤ c) :
     ∃ t : ℝ, 14 ≤ t ∧ c = t ^ 12 ∧ c ^ (1 / 3 : ℝ) = t ^ 4 ∧ c ^ (2 / 3 : ℝ) = t ^ 8 ∧
       c ^ (-(1 / 12 : ℝ)) = t⁻¹ ∧ c ^ (-(5 / 6 : ℝ)) = (t ^ 10)⁻¹ ∧ Real.log c ≤ 12 * t := by
@@ -106,5 +108,21 @@ lemma hankel_window_L2 {c N X : ℝ} (hc : 0 < c) (hN : 0 < N) (hNc : N ≤ c ^ 
     _ = (a ^ 3)⁻¹ / (a ^ 2 * a) := by field_simp
     _ ≤ (a ^ 3)⁻¹ / (X * Real.sqrt X) :=
         div_le_div_of_nonneg_left (by positivity) (by positivity) hprod
+
+/-- info: 'FormalResearch.SignUncertainty.hankel_window_cnum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankel_window_cnum
+
+/-- info: 'FormalResearch.SignUncertainty.hankel_window_slit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankel_window_slit
+
+/-- info: 'FormalResearch.SignUncertainty.hankel_window_L1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankel_window_L1
+
+/-- info: 'FormalResearch.SignUncertainty.hankel_window_L2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankel_window_L2
 
 end FormalResearch.SignUncertainty

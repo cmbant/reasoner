@@ -27,6 +27,11 @@ lemma norm_window_diff (σ τ0 y : ℝ) :
       ((y - τ0 : ℝ) : ℂ) * Complex.I := by push_cast; ring
   rw [this, norm_mul, Complex.norm_real, Complex.norm_I, mul_one, Real.norm_eq_abs]
 
+/-- **Window bound on `W̃_c`** (proved from `hankel_band_reduction`): with the hypotheses of the band reduction (`c ≥ 3·10⁶`,
+`M[f] = 1`, `-3 ≤ u_T ≤ 0` taken as hypotheses, tail positivity from feasibility, free radius `R`), for `ζ = σ + iτ₀` with
+`0.9 ρ_R ≤ ‖ζ‖ ≤ 1.1 ρ_R`, `σ ≥ 1.1 c^{-1/12} ‖ζ‖` and `|y - τ₀| ≤ h ≤ ‖ζ‖/10`:
+`‖W̃_c(σ + iy)‖ ≤ C_Y c^{-5/6} (c^{1/3}(B₁ + B₂) + c^{-1/6}) · 1.1 ‖ζ‖/σ`.  The `B₁, B₂` are the exact dm-side moments; no `r_∞`
+enters (`W̃_c` is defined from the exact measure). -/
 theorem hankel_window_Wt_bound {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c)
     (hf : IsHankelFeasible c ε T f) (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1)
     (hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T)

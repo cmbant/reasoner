@@ -22,6 +22,11 @@ namespace FormalResearch.SignUncertainty
 open FormalResearch.ModularBootstrap.StripBand
 
 set_option maxHeartbeats 4000000 in
+/-- **Window geometry** (numerical, `c ≥ 10¹⁴`): for `ũ = ũ(q)` (`q` off the cut, `‖q‖ ≤ 0.035²`) on the annulus `R - 1 ≤ ‖ũ‖ ≤ R + 1`
+with `2 c^{-1/12} √‖ũ‖ ≤ Re ũ^{1/2}` and saddle `ζ₊ = q^{1/2} = σ + iτ₀`, the window half-width `h = √(5 log c/(cσ))` satisfies
+`h ≤ ‖ζ₊‖/10`, `‖ζ₊‖ ∈ [0.9, 1.1] ρ_R` (so the window lies in the band-reduction annulus) and `σ ≥ 1.1 c^{-1/12} ‖ζ₊‖`; also
+`‖ζ₊‖/σ ≤ 1.002 ‖ũ‖^{1/2}/Re ũ^{1/2}`, `Re ũ^{1/2} ≤ c^{1/3} σ` and `c^{1/3} ≤ 0.035 c σ`.  The radius `R` is the free window
+radius `[b² c^{2/3}, b² c^{2/3} + 1]` (`b = 1/100`); inside the proof `R + 1 ≤ langerRadius c`, so the annulus lies in the Langer disc. -/
 theorem hankel_window_saddle {c R : ℝ} {u q : ℂ} (hc : 1e14 ≤ c)
     (hRlb : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ R) (hRub : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1)
     (hlo : R - 1 ≤ ‖u‖) (hhi : ‖u‖ ≤ R + 1)
@@ -188,5 +193,9 @@ theorem hankel_window_saddle {c R : ℝ} {u q : ℂ} (hc : 1e14 ≤ c)
     have h4 : (14 : ℝ) ^ 7 ≤ t ^ 7 := ht11
     have h5 : 0 < t ^ 4 := pow_pos ht0 4
     nlinarith
+
+/-- info: 'FormalResearch.SignUncertainty.hankel_window_saddle' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankel_window_saddle
 
 end FormalResearch.SignUncertainty

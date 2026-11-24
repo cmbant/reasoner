@@ -115,4 +115,12 @@ lemma hankel_pref_le {k : ℝ} (hk : 0 ≤ k) : k / (2 * π * langerKappa) ≤ k
 #guard_msgs (whitespace := lax) in
 #print axioms hankel_saddle_geom
 
+/-- info: 'FormalResearch.SignUncertainty.langerKappa_mul_mu' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms langerKappa_mul_mu
+
+/-- info: 'FormalResearch.SignUncertainty.hankel_pref_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankel_pref_le
+
 end FormalResearch.SignUncertainty

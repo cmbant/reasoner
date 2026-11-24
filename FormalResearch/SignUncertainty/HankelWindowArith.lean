@@ -16,7 +16,7 @@ namespace FormalResearch.SignUncertainty
 /-- Abstract form of the final combination; `X = Re √ũ`, `Xs = √X`, `s = ‖ũ‖^{1/2}`, `G = √(cσ)`,
 `ci = c⁻¹`, `e = exp(-0.035 c σ)`, `N34 = ‖ũ‖^{-3/4}`, `Λ = c^{1/3}(B₁+B₂)+1`, `Cy = C_Y`. -/
 lemma hankel_window_arith {k X Xs s σ nz G W Q Λ Cy N34 ci e : ℝ}
-    (hk : 0 < k) (hX : 0 < X) (hXs : 0 < Xs) (hs : 0 < s) (hσ : 0 < σ) (hnz : 0 ≤ nz)
+    (hk : 0 < k) (hX : 0 < X) (hXs : 0 < Xs) (hs : 0 < s)
     (hG : 0 < G) (hQ : 0 ≤ Q) (hΛ : 1 ≤ Λ) (hCy : 0 < Cy) (hN : 0 ≤ N34) (hci : 0 < ci) (he : 0 ≤ e)
     (hW : W ≤ Q * (11 / 10 * nz / σ)) (hnzσ : nz / σ ≤ 1.002 * s / X) (hQs : Q * s ≤ Cy * Λ * N34)
     (hGk : k * Xs ≤ G) (hci_le : ci ≤ N34 / (X * Xs)) (hkc : k * ci ≤ 1) (hek : e * k ≤ 1)
@@ -80,5 +80,9 @@ lemma hankel_window_arith {k X Xs s σ nz G W Q Λ Cy N34 ci e : ℝ}
   have hΛN : 0 ≤ Cy * Λ * (N34 / D) := by positivity
   have hND : 0 ≤ N34 / D := by positivity
   nlinarith
+
+/-- info: 'FormalResearch.SignUncertainty.hankel_window_arith' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankel_window_arith
 
 end FormalResearch.SignUncertainty
