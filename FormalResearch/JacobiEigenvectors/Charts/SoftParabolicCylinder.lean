@@ -54,7 +54,7 @@ sequences" (eq:tha-weber-seq, eq:tha-aPC, eq:tha-PCseq), "The soft edges" (eq:th
 * **F-W2-4, F-W2-5 confirmed** (paper: "Fix `m >= 1`", `Lm = 1` or `log(1/h)`): `PropThaW2` now assumes `1 <= m` and `forall h in (0,1], 1 <= Lm h` (`TheoremA/Statements.lean`).
 * **F-W2-6 refined.**  (i) the absorption `Lambda h^{-m} (E_{j_1}/E_n)^2 <= e^{-c/h}` follows from the chart fields (`zeta_deriv`, `zeta_far`, `muS_bd`) and the definition of `Ewell`: **not** added;
   (ii) `eq:cha-MolvEquiv` (two-sided `M_Olv ~ kappa^{-1} W_well M_bal`, lower bound inside the well) and (iii) the growth of the dominant member (`r_2 < 1`) are classical (Olver, Riccati) and were added to
-  `ParabolicCylinderFacts` (`molv_well`, `molv_bar`, `V_growth`, plus `reflect_V` for `M_-(a)`), numerically checked (see there).
+  `ParabolicCylinderFacts` (`molv_well`, `molv_bar`, plus `reflect_V` for `M_-(a)`), numerically checked (see there).
 * **F-W2-7 resolved (round 4).**  `LadderData.Valid` is split into `PreValid` (everything but (S3)) and `Valid` (adds `transfer`); `SoftEdgeChart.valid` is `PreValid` and (S3) is *derived* in `TheoremA/SoftTransfer.lean` (`soft_valid`) with the explicit
   `Lambda = softLamC`.  The chart-level inputs that this needed and that were not fields are now fields: `bondA_le` (`a_n <= C_A`) and `muS_bd` for `r = 0` (`|mu_0| <= C_mu`, so that `a h = -tilde mu` is bounded); everything else
   (`k_2 >= c/h`, the one-step ratio of `E_-`, `E_- ~ 1` at `j_2`) is derived from `Y_forb`, `zeta_deriv`, `zeta_far`, `muS_bd`, the definition of `Ewell`/`Ebar` and `pcSwap_eq_pcMinus`.
@@ -354,7 +354,7 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
     uNode (F.step N) k ≤ uc μ - η / 2 →
       c3W * (chainW μ X N).W k * (chainW μ X N).M k ≤ |(chainW μ X N).phi (F.step N) 0 1 k|
   /-- **(round 4; app_thmA Step 3 (ii))** the forward ratio of the dominant (second) member of the first PC pair across the overlap bond: `|phi^{(2)}_{2,j_1+1}| <= (1 + C_2 h) |phi^{(2)}_{2,j_1}|`
-  (`r_2 = e^{-theta}(1 + O(h))`: the explicit function `v~(a,|Z|)` (resp. `U(a,Z)`) decreases as `|Z|` decreases in its Liouville--Green zone, `V_growth`, with the corrector bound `O(h)`; a statement about the
+  (`r_2 = e^{-theta}(1 + O(h))`: the explicit function `v~(a,|Z|)` (resp. `U(a,Z)`) decreases as `|Z|` decreases in its Liouville--Green zone (for the actual `pcV`: `pcV_far_pos_and_growth`), with the corrector bound `O(h)`; a statement about the
   model comparison member only). -/
   ratio2 : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
     |(chain μ X N).phi (F.step N) 1 2 ((chain μ X N).jj 1 + 1)| ≤
@@ -418,7 +418,7 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   Cgr : ℝ
   consts_pos6 : 0 < cgr ∧ 0 ≤ Cgr
   /-- **(round 9, F-W2-20)** the growing member `f = phi^{(1)}_3 = A^{[m]} v~ + h B^{[m]} h^{1/2} v~'` of the swapped pair is positive, bounded below by its envelope and non-decreasing up to `1 + C_gr h`
-  at two consecutive rows `k, k+1` of patch 3 on the right forbidden side (`u_k >= u_c + eta/4`), for `a <= a_+` (`v~ > 0`, `v~' >= c_V k_2^{1/2} v~` by `V_growth`, the Liouville--Green lower bound of `v~`
+  at two consecutive rows `k, k+1` of patch 3 on the right forbidden side (`u_k >= u_c + eta/4`), for `a <= a_+` (`v~ > 0`, `v~' >= c_V k_2^{1/2} v~` (for the actual `pcV`: `pcV_far_pos_and_growth`), the Liouville--Green lower bound of `v~`
   of app:cha-PCenv, `A^{[m]} >= g_- / 2` and `|A^{[m]}_{k+1} - A^{[m]}_k| <= C h`, `|B^{[m]}| <= C_B`; for `a > 0` the first member of the shared pair).  Used for the sign of the Casoratian `D(X)` at `a = -k` in Step 6 (ii)
   (`TheoremA/SoftSigns2.lean`), where `psi^L = lambda_L kappa_b^{-1} sqrt(2/pi) cos(pi a) f (1 + O(h^m))` at these rows against the decaying exact right solution. -/
   grow3 : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →

@@ -268,6 +268,34 @@ theorem odeFund_pc_step {h a v Z₀ Z₁ : ℝ} (hh : 0 < h) (hv : v = -a * h) {
     dsimp [scale]; field_simp [hh.ne']; ring
   simpa only [y, y', hs0, hs1] using hmv
 
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.odeFund_mulVec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Charts.odeFund_mulVec
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.odeFund_det' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Charts.odeFund_det
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.odeFund_right_mul' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Charts.odeFund_right_mul
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.odeFund_conj_sg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Charts.odeFund_conj_sg
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.odeFund_shift' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Charts.odeFund_shift
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.odeFund_shift_mul_cancel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Charts.odeFund_shift_mul_cancel
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.odeFund_pc_step' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Charts.odeFund_pc_step
+
 end FormalResearch.JacobiEigenvectors.Charts
 
 end

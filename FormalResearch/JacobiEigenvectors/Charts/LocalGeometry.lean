@@ -851,4 +851,12 @@ theorem layer4_cover_consts {Par : Type*} (T : SymbolFamily Par) (K : Set Par) (
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.Charts.layer4_cover_consts
 
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.local_cover_of_geom_strict' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Charts.local_cover_of_geom_strict
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.uMinus_mirror_ne' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Charts.uMinus_mirror_ne
+
 end FormalResearch.JacobiEigenvectors.Charts

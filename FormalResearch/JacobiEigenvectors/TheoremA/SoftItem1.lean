@@ -17,7 +17,7 @@ Source: Paper J `app_thmA.tex` "The soft edges: proof of Proposition prop:tha-W2
 
 ## Differences from the paper and from the frozen statement
 
-* `ParabolicCylinderFacts U V cPC CPC` is a **hypothesis** (the frozen `PropThaW2` has none): the two-sided `M_Olv` bounds, `V_growth` (the facts that the paper takes from Olver) enter `M_-(a)`, the Casoratian of the PC pair and `eq:cha-MolvEquiv`.
+* `ParabolicCylinderFacts U V cPC CPC` is a **hypothesis** (the frozen `PropThaW2` has none): the two-sided `M_Olv` bounds (the facts that the paper takes from Olver) enter `M_-(a)`, the Casoratian of the PC pair and `eq:cha-MolvEquiv`.
 * The chart has the new fields `bondA_le`, `grow_gap`, `collar_lbW`, `ratio2`, `ratioM` (see `Charts/SoftParabolicCylinder.lean`, F-W2-7, F-W2-11); the absorption threshold is `h <= softH2` (`d_+ h <= sqrt(c_{z1})/2`).
 * `a <= a_+` is not assumed (the paper's Step 3 implicitly bounds `mu_0`): `muS_bd` for `r = 0` does it.
 * `PropThaW2Item1` drops the hypotheses `StdAssump Fz P (q/2) r` and the right chart `CR` of `PropThaW2` (item (1) uses neither).
