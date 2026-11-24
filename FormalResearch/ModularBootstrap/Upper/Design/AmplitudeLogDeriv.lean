@@ -340,6 +340,121 @@ lemma hankel_part_numeric {k t : ℝ} (hk : 8 ≤ k) (ht : 3 / 8 ≤ t) :
       nlinarith [mul_le_mul h5 h4 (by norm_num) (by positivity)]
     linarith
 
+/-! ### The Hankel-free amplitude `A₀^∘ = ℰ e^{Φ₁} b^{1/2}` -/
+
+/-- The explicit logarithmic derivative of the Hankel-free amplitude `ℰ e^{Φ₁} b^{1/2}`. -/
+noncomputable def circLogD (Φ₁ : ℂ → ℂ) (z : ℂ) : ℂ :=
+  -(π : ℂ) * (Complex.sinh ((π : ℂ) * z / 2) / Complex.cosh ((π : ℂ) * z / 2)) + deriv Φ₁ z +
+    1 / (2 * z)
+
+lemma ampLogD_eq_circLogD_add (Φ₁ : ℂ → ℂ) (k : ℝ) (z : ℂ) :
+    ampLogD Φ₁ k z = circLogD Φ₁ z + hankelLogD k z := by
+  unfold ampLogD circLogD; ring
+
+lemma circ_logDeriv_eq {Φ₁ : ℂ → ℂ} (hΦ : DifferentiableOn ℂ Φ₁ combNMid) {z : ℂ}
+    (hz : z ∈ combNMid) :
+    logDeriv (fun b => sechSqProfile b * Complex.exp (Φ₁ b) * b ^ (1 / 2 : ℂ)) z =
+      circLogD Φ₁ z := by
+  have him := (im_pos_of_mem_combNMid hz).1
+  have him0 : 0 < z.im := by linarith
+  have hΦd : DifferentiableAt ℂ Φ₁ z := (hΦ z hz).differentiableAt (isOpen_combNMid.mem_nhds hz)
+  have d1 : DifferentiableAt ℂ sechSqProfile z := (hasDerivAt_sechSq hz).differentiableAt
+  have d2 : DifferentiableAt ℂ (fun b => Complex.exp (Φ₁ b)) z := hΦd.cexp
+  have d3 : DifferentiableAt ℂ (fun b : ℂ => b ^ (1 / 2 : ℂ)) z :=
+    (hasDerivAt_sqrt_factor him0).differentiableAt
+  have n1 := sechSq_ne_zero hz
+  have n2 := Complex.exp_ne_zero (Φ₁ z)
+  have n3 := sqrt_factor_ne_zero him0
+  have h12 := logDeriv_fun_mul (f := sechSqProfile) (g := fun b => Complex.exp (Φ₁ b)) z n1 n2 d1 d2
+  have h123 := logDeriv_fun_mul (f := fun b => sechSqProfile b * Complex.exp (Φ₁ b))
+    (g := fun b : ℂ => b ^ (1 / 2 : ℂ)) z (mul_ne_zero n1 n2) n3 (d1.mul d2) d3
+  rw [h123, h12, logDeriv_sechSq hz, logDeriv_exp_comp hΦd, logDeriv_sqrt_factor him0]
+  unfold circLogD
+  ring
+
+lemma hasDerivAt_circLogD {Φ₁ : ℂ → ℂ} (hΦ : DifferentiableOn ℂ Φ₁ combNMid) {b : ℂ}
+    (hb : b ∈ combNMid) :
+    HasDerivAt (circLogD Φ₁)
+      (-(π : ℂ) * ((π : ℂ) / 2) / Complex.cosh ((π : ℂ) * b / 2) ^ 2 + deriv (deriv Φ₁) b +
+        (-1 / (2 * b ^ 2))) b := by
+  have him := (im_pos_of_mem_combNMid hb).1
+  have him0 : 0 < b.im := by linarith
+  have hb0 : b ≠ 0 := fun h => by simp [h] at him0
+  have hΦa : AnalyticOnNhd ℂ Φ₁ combNMid := hΦ.analyticOnNhd isOpen_combNMid
+  have hd2 : HasDerivAt (deriv Φ₁) (deriv (deriv Φ₁) b) b :=
+    ((hΦa.deriv b hb).differentiableAt).hasDerivAt
+  have h1 := hasDerivAt_logSech hb
+  have h3 : HasDerivAt (fun z : ℂ => 1 / (2 * z)) (-1 / (2 * b ^ 2)) b := by
+    have := ((hasDerivAt_id b).const_mul (2 : ℂ)).inv (mul_ne_zero two_ne_zero hb0)
+    have e : (fun z : ℂ => 1 / (2 * z)) = fun z : ℂ => (2 * id z)⁻¹ := by
+      funext z; simp
+    rw [e]
+    refine this.congr_deriv ?_
+    simp only [id]
+    field_simp
+  have := (h1.add hd2).add h3
+  unfold circLogD
+  exact this
+
+/-- `‖(log A₀^∘)'‖ ≤ π/cos(5π/16) + B₁ + 2` on `𝒩_{1/8}`. -/
+lemma norm_circLogD_le {Φ₁ : ℂ → ℂ} {B1 : ℝ} (hB1 : ∀ b ∈ edgeStrip (1 / 8), ‖deriv Φ₁ b‖ ≤ B1)
+    {b : ℂ} (hb : b ∈ edgeStrip (1 / 8)) : ‖circLogD Φ₁ b‖ ≤ π / cosC + B1 + 2 := by
+  have hb' : |b.im - 1 / 2| ≤ 1 / 8 := hb
+  have hcpos := cosC_pos
+  have him : 3 / 8 ≤ b.im := by linarith [(abs_le.mp hb').1]
+  have hnb : (1 / 4 : ℝ) ≤ ‖b‖ := mem_edgeStrip_norm_ge_quarter (by norm_num) hb
+  have htanh := norm_tanh_le hb'
+  have t1 : ‖-(π : ℂ) * (Complex.sinh ((π : ℂ) * b / 2) / Complex.cosh ((π : ℂ) * b / 2))‖ ≤
+      π / cosC := by
+    rw [norm_mul, norm_neg, Complex.norm_real, Real.norm_of_nonneg Real.pi_pos.le]
+    have := htanh
+    rw [Complex.tanh_eq_sinh_div_cosh] at this
+    calc π * ‖Complex.sinh ((π : ℂ) * b / 2) / Complex.cosh ((π : ℂ) * b / 2)‖ ≤ π * (1 / cosC) := by
+          gcongr
+      _ = π / cosC := by ring
+  have t3 : ‖(1 : ℂ) / (2 * b)‖ ≤ 2 := by
+    rw [norm_div, norm_one, norm_mul]
+    simp only [Complex.norm_ofNat]
+    rw [div_le_iff₀ (by positivity)]
+    nlinarith
+  unfold circLogD
+  calc _ ≤ ‖-(π : ℂ) * (Complex.sinh ((π : ℂ) * b / 2) / Complex.cosh ((π : ℂ) * b / 2))‖ +
+        ‖deriv Φ₁ b‖ + ‖(1 : ℂ) / (2 * b)‖ := by
+        refine (norm_add_le _ _).trans ?_
+        gcongr
+        exact norm_add_le _ _
+    _ ≤ π / cosC + B1 + 2 := by gcongr; exact hB1 b hb
+
+/-- `‖(log A₀^∘)''‖ ≤ π²/(2cos²(5π/16)) + B₂ + 8` on `𝒩_{1/8}`. -/
+lemma norm_circLogD'_le {Φ₁ : ℂ → ℂ} {B2 : ℝ}
+    (hB2 : ∀ b ∈ edgeStrip (1 / 8), ‖deriv (deriv Φ₁) b‖ ≤ B2) {b : ℂ}
+    (hb : b ∈ edgeStrip (1 / 8)) :
+    ‖-(π : ℂ) * ((π : ℂ) / 2) / Complex.cosh ((π : ℂ) * b / 2) ^ 2 + deriv (deriv Φ₁) b +
+        (-1 / (2 * b ^ 2))‖ ≤ π ^ 2 / (2 * cosC ^ 2) + B2 + 8 := by
+  have hb' : |b.im - 1 / 2| ≤ 1 / 8 := hb
+  have hcpos := cosC_pos
+  have hnb : (1 / 4 : ℝ) ≤ ‖b‖ := mem_edgeStrip_norm_ge_quarter (by norm_num) hb
+  have hcosh := cosC_le_norm_cosh hb'
+  have t1 : ‖-(π : ℂ) * ((π : ℂ) / 2) / Complex.cosh ((π : ℂ) * b / 2) ^ 2‖ ≤
+      π ^ 2 / (2 * cosC ^ 2) := by
+    rw [norm_div, norm_pow, norm_mul, norm_neg, Complex.norm_real, norm_div,
+      Complex.norm_real, Real.norm_of_nonneg Real.pi_pos.le]
+    simp only [Complex.norm_ofNat]
+    calc π * (π / 2) / ‖Complex.cosh ((π : ℂ) * b / 2)‖ ^ 2 ≤ π * (π / 2) / cosC ^ 2 := by
+          gcongr
+      _ = π ^ 2 / (2 * cosC ^ 2) := by field_simp
+  have t3 : ‖(-1 : ℂ) / (2 * b ^ 2)‖ ≤ 8 := by
+    rw [norm_div, norm_neg, norm_one, norm_mul, norm_pow]
+    simp only [Complex.norm_ofNat]
+    rw [div_le_iff₀ (by positivity)]
+    nlinarith
+  calc _ ≤ ‖-(π : ℂ) * ((π : ℂ) / 2) / Complex.cosh ((π : ℂ) * b / 2) ^ 2‖ +
+        ‖deriv (deriv Φ₁) b‖ + ‖(-1 : ℂ) / (2 * b ^ 2)‖ := by
+        refine (norm_add_le _ _).trans ?_
+        gcongr
+        exact norm_add_le _ _
+    _ ≤ π ^ 2 / (2 * cosC ^ 2) + B2 + 8 := by gcongr; exact hB2 b hb
+
 /-- Absolute constants in the log-derivative bounds. -/
 noncomputable def ampM0 : ℝ := π / cosC + 4
 
@@ -361,73 +476,81 @@ theorem amplitude_logDeriv_bounds {Φ₁ : ℂ → ℂ} {k B1 B2 : ℝ} (hk : 8 
   have hbm : b ∈ combNMid := by
     change |b.im - 1 / 2| < 17 / 64
     exact lt_of_le_of_lt hb' (by norm_num)
-  have hcpos := cosC_pos
   have him : 3 / 8 ≤ b.im := by linarith [(abs_le.mp hb').1]
-  have him0 : 0 < b.im := by linarith
   obtain ⟨hkz, hkpos⟩ := one_le_norm_mul_of_mem_combNMid hk hbm
   have hnum := hankel_part_numeric hk him
-  have hnb : (1 / 4 : ℝ) ≤ ‖b‖ := mem_edgeStrip_norm_ge_quarter (by norm_num) hb
-  have hcosh := cosC_le_norm_cosh hb'
-  have htanh := norm_tanh_le hb'
   have hHlog := (norm_hankelLogD_le (by linarith : 0 < k) hkpos hkz).trans hnum.1
   have hHlog2 := (norm_deriv_hankelLogD_le (by linarith : 0 < k) hkpos hkz).trans hnum.2
   constructor
-  · unfold ampLogD
-    have t1 : ‖-(π : ℂ) * (Complex.sinh ((π : ℂ) * b / 2) / Complex.cosh ((π : ℂ) * b / 2))‖ ≤
-        π / cosC := by
-      rw [norm_mul, norm_neg, Complex.norm_real, Real.norm_of_nonneg Real.pi_pos.le]
-      have := htanh
-      rw [Complex.tanh_eq_sinh_div_cosh] at this
-      calc π * ‖Complex.sinh ((π : ℂ) * b / 2) / Complex.cosh ((π : ℂ) * b / 2)‖ ≤ π * (1 / cosC) := by
-            gcongr
-        _ = π / cosC := by ring
-    have t3 : ‖(1 : ℂ) / (2 * b)‖ ≤ 2 := by
-      rw [norm_div, norm_one, norm_mul]
-      simp only [Complex.norm_ofNat]
-      rw [div_le_iff₀ (by positivity)]
-      nlinarith
-    have hlog : hankelLogD k b = hankelLogD k b := rfl
-    calc _ ≤ ‖-(π : ℂ) * (Complex.sinh ((π : ℂ) * b / 2) / Complex.cosh ((π : ℂ) * b / 2))‖ +
-          ‖deriv Φ₁ b‖ + ‖(1 : ℂ) / (2 * b)‖ + ‖hankelLogD k b‖ := by
-          refine (norm_add_le _ _).trans ?_
-          gcongr
-          refine (norm_add_le _ _).trans ?_
-          gcongr
-          exact norm_add_le _ _
-      _ ≤ π / cosC + B1 + 2 + 2 := by gcongr; exact hB1 b hb
+  · rw [ampLogD_eq_circLogD_add]
+    calc _ ≤ ‖circLogD Φ₁ b‖ + ‖hankelLogD k b‖ := norm_add_le _ _
+      _ ≤ π / cosC + B1 + 2 + 2 := add_le_add (norm_circLogD_le hB1 hb) hHlog
       _ = ampM0 + B1 := by unfold ampM0; ring
-  · have t1 : ‖-(π : ℂ) * ((π : ℂ) / 2) / Complex.cosh ((π : ℂ) * b / 2) ^ 2‖ ≤
-        π ^ 2 / (2 * cosC ^ 2) := by
-      rw [norm_div, norm_pow, norm_mul, norm_neg, Complex.norm_real, norm_div,
-        Complex.norm_real, Real.norm_of_nonneg Real.pi_pos.le]
-      simp only [Complex.norm_ofNat]
-      calc π * (π / 2) / ‖Complex.cosh ((π : ℂ) * b / 2)‖ ^ 2 ≤ π * (π / 2) / cosC ^ 2 := by
-            gcongr
-        _ = π ^ 2 / (2 * cosC ^ 2) := by field_simp
-    have t3 : ‖(-1 : ℂ) / (2 * b ^ 2)‖ ≤ 8 := by
-      rw [norm_div, norm_neg, norm_one, norm_mul, norm_pow]
-      simp only [Complex.norm_ofNat]
-      rw [div_le_iff₀ (by positivity)]
-      nlinarith
-    calc _ ≤ ‖-(π : ℂ) * ((π : ℂ) / 2) / Complex.cosh ((π : ℂ) * b / 2) ^ 2‖ +
-          ‖deriv (deriv Φ₁) b‖ + ‖(-1 : ℂ) / (2 * b ^ 2)‖ +
+  · calc _ ≤ ‖-(π : ℂ) * ((π : ℂ) / 2) / Complex.cosh ((π : ℂ) * b / 2) ^ 2 +
+          deriv (deriv Φ₁) b + (-1 / (2 * b ^ 2))‖ +
           ‖(-Complex.I * (k : ℂ)) ^ 2 *
           (deriv (deriv hankelR) (-Complex.I * ((k : ℂ) * b)) /
               hankelR (-Complex.I * ((k : ℂ) * b)) -
             (deriv hankelR (-Complex.I * ((k : ℂ) * b)) /
-              hankelR (-Complex.I * ((k : ℂ) * b))) ^ 2)‖ := by
-          refine (norm_add_le _ _).trans ?_
-          gcongr
-          refine (norm_add_le _ _).trans ?_
-          gcongr
-          exact norm_add_le _ _
-      _ ≤ π ^ 2 / (2 * cosC ^ 2) + B2 + 8 + 28 := by gcongr; exact hB2 b hb
+              hankelR (-Complex.I * ((k : ℂ) * b))) ^ 2)‖ := norm_add_le _ _
+      _ ≤ π ^ 2 / (2 * cosC ^ 2) + B2 + 8 + 28 := add_le_add (norm_circLogD'_le hB2 hb) hHlog2
       _ = ampM0' + B2 := by unfold ampM0'; ring
 
 lemma edgeStrip_eighth_subset : edgeStrip (1 / 8) ⊆ combNMid := fun b hb => by
   have hb' : |b.im - 1 / 2| ≤ 1 / 8 := hb
   change |b.im - 1 / 2| < 17 / 64
   exact lt_of_le_of_lt hb' (by norm_num)
+
+/-- **`SD_V'`-type amplitude fields for the Hankel-free amplitude** `A₀^∘ = ℰ e^{Φ₁} b^{1/2}`
+(`ℰ = sech²(π b/2)`; `fw:SDp`, hypothesis (c)): for `Φ₁` holomorphic on `|Im b - 1/2| < 17/64` with
+`‖Φ₁'‖ ≤ B₁`, `‖Φ₁''‖ ≤ B₂` on `𝒩_{1/8}`, `A₀^∘` is analytic and nonvanishing on `𝒩_{1/8}`,
+`|(log A₀^∘)'| ≤ 𝒜₀ + B₁` and `|(log A₀^∘)''| ≤ 𝒜₀' + B₂`. -/
+theorem circAmplitude_fields {Φ₁ : ℂ → ℂ} {B1 B2 : ℝ} (hΦ : DifferentiableOn ℂ Φ₁ combNMid)
+    (hB1 : ∀ b ∈ edgeStrip (1 / 8), ‖deriv Φ₁ b‖ ≤ B1)
+    (hB2 : ∀ b ∈ edgeStrip (1 / 8), ‖deriv (deriv Φ₁) b‖ ≤ B2) :
+    AnalyticOnNhd ℂ (fun b => sechSqProfile b * Complex.exp (Φ₁ b) * b ^ (1 / 2 : ℂ))
+      (edgeStrip (1 / 8)) ∧
+    (∀ b ∈ edgeStrip (1 / 8), sechSqProfile b * Complex.exp (Φ₁ b) * b ^ (1 / 2 : ℂ) ≠ 0) ∧
+    (∀ b ∈ edgeStrip (1 / 8),
+      ‖deriv (fun b => sechSqProfile b * Complex.exp (Φ₁ b) * b ^ (1 / 2 : ℂ)) b /
+        (sechSqProfile b * Complex.exp (Φ₁ b) * b ^ (1 / 2 : ℂ))‖ ≤ ampM0 + B1) ∧
+    (∀ b ∈ edgeStrip (1 / 8),
+      ‖deriv (fun z => deriv (fun b => sechSqProfile b * Complex.exp (Φ₁ b) * b ^ (1 / 2 : ℂ)) z /
+        (sechSqProfile z * Complex.exp (Φ₁ z) * z ^ (1 / 2 : ℂ))) b‖ ≤ ampM0' + B2) := by
+  have hdiff : ∀ z ∈ combNMid, DifferentiableAt ℂ
+      (fun b => sechSqProfile b * Complex.exp (Φ₁ b) * b ^ (1 / 2 : ℂ)) z := by
+    intro z hz
+    have him0 : 0 < z.im := by linarith [(im_pos_of_mem_combNMid hz).1]
+    have hΦd : DifferentiableAt ℂ Φ₁ z := (hΦ z hz).differentiableAt (isOpen_combNMid.mem_nhds hz)
+    exact ((hasDerivAt_sechSq hz).differentiableAt.mul hΦd.cexp).mul
+      (hasDerivAt_sqrt_factor him0).differentiableAt
+  have hne : ∀ z ∈ combNMid, sechSqProfile z * Complex.exp (Φ₁ z) * z ^ (1 / 2 : ℂ) ≠ 0 := by
+    intro z hz
+    have him0 : 0 < z.im := by linarith [(im_pos_of_mem_combNMid hz).1]
+    exact mul_ne_zero (mul_ne_zero (sechSq_ne_zero hz) (Complex.exp_ne_zero _))
+      (sqrt_factor_ne_zero him0)
+  have hc := cosC_pos
+  refine ⟨?_, fun b hb => hne b (edgeStrip_eighth_subset hb), fun b hb => ?_, fun b hb => ?_⟩
+  · have hD : DifferentiableOn ℂ
+        (fun b => sechSqProfile b * Complex.exp (Φ₁ b) * b ^ (1 / 2 : ℂ)) combNMid :=
+      fun z hz => (hdiff z hz).differentiableWithinAt
+    exact (hD.analyticOnNhd isOpen_combNMid).mono edgeStrip_eighth_subset
+  · have hbm := edgeStrip_eighth_subset hb
+    have := circ_logDeriv_eq hΦ hbm
+    rw [logDeriv_apply] at this
+    rw [this]
+    refine (norm_circLogD_le hB1 hb).trans ?_
+    unfold ampM0; linarith
+  · have hbm := edgeStrip_eighth_subset hb
+    have hev : (fun z => deriv (fun b => sechSqProfile b * Complex.exp (Φ₁ b) * b ^ (1 / 2 : ℂ)) z /
+        (sechSqProfile z * Complex.exp (Φ₁ z) * z ^ (1 / 2 : ℂ))) =ᶠ[𝓝 b] circLogD Φ₁ := by
+      filter_upwards [isOpen_combNMid.mem_nhds hbm] with z hz
+      have := circ_logDeriv_eq hΦ hz
+      rw [logDeriv_apply] at this
+      exact this
+    rw [hev.deriv_eq, (hasDerivAt_circLogD hΦ hbm).deriv]
+    refine (norm_circLogD'_le hB2 hb).trans ?_
+    unfold ampM0'; linarith
 
 /-- **The hypotheses of `SD_V` on the amplitude** (`esd:lemma`): for `Φ₁` holomorphic on
 `|Im b - 1/2| < 17/64` with `‖Φ₁'‖ ≤ B₁`, `‖Φ₁''‖ ≤ B₂` on `𝒩_δ` (`δ = 1/8`) and `k = 4πnx/3 ≥ 8`,

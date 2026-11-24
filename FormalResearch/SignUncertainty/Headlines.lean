@@ -6,6 +6,9 @@ public import FormalResearch.SignUncertainty.OneProfileEnvelope
 public import FormalResearch.SignUncertainty.EuclidRadialProjection
 public import FormalResearch.SignUncertainty.ShellGapHankel
 public import FormalResearch.SignUncertainty.ShellGapExtract
+public import FormalResearch.SignUncertainty.HeadlineDefs
+public import FormalResearch.SignUncertainty.HankelThresholds
+public import FormalResearch.SignUncertainty.CEShellReduction
 
 /-!
 # Paper I headline theorems from one input structure each (M0 skeleton)
@@ -18,7 +21,9 @@ the prescribed-shell class, the Bessel-kernel Hankel thresholds) with the paper'
 proved from an input structure whose fields are, one-to-one, the TeX theorems the paper's proof cites
 (field names are the TeX labels where the paper has one: `hb_thresholds_lower/upper`, `shell_reduction`,
 `ce_hb_lift`, ...; `gt:7.9`, the Euclidean radii as Hankel thresholds, is the theorem
-`hankel_euclid_dictionary` and no longer a field).
+`hankel_euclid_dictionary` and no longer a field; `hb_thresholds_lower` (`HankelThresholds.lean`) and
+`shell_reduction_m1` (`shell_reduction_m1_proved`, `CEShellReduction.lean`) are theorems and no longer fields,
+and `shell_reduction_airy : ShellReduction ShellHBData.airy` is proved).
 **A field is an open theorem about the concrete objects**; progress is the number of open fields, and a
 field is discharged only by proving it (then it is dropped from the structure). The input structures
 deliberately have no `*_nonvacuous` witness: each field is an open theorem of the paper, so a witness
@@ -28,11 +33,9 @@ would be the theorem itself (deliberate deviation from the usual non-vacuity req
 Headlines and their inputs (open fields in bold):
 
 * `thm_intro_radii` (`thm:intro-radii`, `gt:7.9`, `gt:7.12`, `gt:7.12a`), from `RadiiInputs`:
-  **`hb_thresholds_lower`**, **`hb_thresholds_upper`**
-  (`thm:hb-thresholds` at `(P,Q) = (1,0)`, i.e. `u1cl:multilevel` and `u1co:O9p`),
-  **`shell_reduction_m1`** (`thm:ce-shell-reduction`, `m = 1`, with `O(d)` averaging),
+  **`hb_thresholds_upper`** (`thm:hb-thresholds` upper half at `(P,Q) = (1,0)`, i.e. `u1co:O9p`),
   **`ce_hb_lift_m1`** (`thm:ce-hb-lift`, `m₀ = 1`; its Laplace hypothesis is proved here from
-  `shellLaplaceF_m1_pos`). Proved here from these: the gluing `ce_radius_airy_order_of_bounds`, the
+  `shellLaplaceF_m1_pos`). Proved here from these and from `hb_thresholds_lower`, `shell_reduction_m1_proved`: the gluing `ce_radius_airy_order_of_bounds`, the
   origin option `constrained_threshold_eq_unconstrained`, the density expansion `ce_volume_expansion`.
 * `thm_intro_separation` (`thm:intro-separation`, `gt:7.9c`), from `SeparationInputs`:
   **`hb_thresholds_upper`** (`u1co:O9p`, one level). `radial_compactness` (`lem:radial-compactness`: deep
@@ -103,12 +106,6 @@ lemma airyOrderModel_eq (d : ℕ) :
 
 /-! ### Statements of the TeX theorems used as inputs -/
 
-/-- `thm:hb-thresholds` at `(P, Q) = (1, 0)`, lower half (`u1cl:multilevel`, Theorem L.2): every
-feasible threshold, for either eigenvalue, is at least `c/π² + A c^{1/3} - C` once `c` is large. -/
-def HbThresholdsLower : Prop :=
-  ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ∀ (T : ℝ) (f : ℝ → ℝ),
-    IsHankelFeasible c ε T f → c / π ^ 2 + airyOrderCoeff * c ^ (1 / 3 : ℝ) - C ≤ T
-
 /-- `thm:hb-thresholds` at `(P, Q) = (1, 0)`, upper half (`u1co:O9p`, Theorem O.9', the one-level
 construction): for large `c` and either eigenvalue there is a feasible `f` at a threshold at most
 `c/π² + A c^{1/3} + C`. -/
@@ -129,14 +126,6 @@ def CeHbLift (D : ShellHBData) : Prop :=
         ∃ (R : ℝ), R ∈ ceShellRadiusSet D r d ∧
           R ^ 2 / 2 ≤ (d : ℝ) / (2 * π ^ 2) - (D.tm / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) + K₀
 
-/-- `thm:ce-shell-reduction` (Theorem HB--CE.L) for `D`, bounded offsets: every admissible radius
-satisfies `R²/2 ≥ d/(2π²) - (t_m/β₁)(d/2)^{1/3} - O(1)`, uniformly over the allowed offsets. -/
-def ShellReduction (D : ShellHBData) : Prop :=
-  ∀ R_off : ℝ, 0 ≤ R_off → ∃ (C : ℝ) (d₀ : ℕ), ∀ d : ℕ, d₀ ≤ d →
-    ∀ r : ℝ → ℕ → ℝ, (∀ t d', |r t d'| ≤ R_off) →
-      ∀ R ∈ ceShellRadiusSet D r d,
-        (d : ℝ) / (2 * π ^ 2) - (D.tm / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) - C ≤ R ^ 2 / 2
-
 /-- `prop:ce-one-profile`, attainment step (uniform envelope from the proof of `gt:3.1`): normalised
 one-profile witnesses at thresholds above a feasible `u₀` obey a common bound
 `C (1 + |z|)^ν e(z)`. -/
@@ -156,17 +145,13 @@ theorem bessel_kernel_data (c : ℝ) (hc : 1 ≤ c) :
     ∃ K : HankelKernelData c, K.φ = hankelPhi c :=
   ⟨hankelKernelData (by linarith), rfl⟩
 
-/-- `thm:hb-thresholds` at one level, both halves (`HbThresholdsLower`, `HbThresholdsUpper`). -/
+/-- `thm:hb-thresholds` at one level: the lower half `HbThresholdsLower` is the theorem `hb_thresholds_lower`
+(`HankelThresholds.lean`); only the upper half `HbThresholdsUpper` is an open field. -/
 structure OneLevelThresholds : Prop where
-  hb_thresholds_lower : HbThresholdsLower
   hb_thresholds_upper : HbThresholdsUpper
 
 /-- Inputs of `thm:intro-radii`. -/
 structure RadiiInputs : Prop extends OneLevelThresholds where
-  /-- `thm:ce-shell-reduction` at `m = 1` for `r_CE(d)` (after `O(d)` averaging): the negative Fourier
-  projection `ĥ - h` is a sign-uncertainty competitor; `r_CE(d)²/2 ≥ d/(2π²) + A (d/2)^{1/3} - O(1)`. -/
-  shell_reduction_m1 : ∃ (C : ℝ) (d₀ : ℕ), ∀ d : ℕ, d₀ ≤ d →
-    airyOrderModel d - C ≤ optimalL1CERadius d ^ 2 / 2
   /-- `thm:ce-hb-lift` with `m₀ = 1`, `N = Ai` (the paper's route II, `ce_radius.tex`). -/
   ce_hb_lift_m1 : CeHbLift ShellHBData.airy
 
@@ -205,7 +190,7 @@ T^{-}` (the exact origin option, `gt:7.9b`) and `T^±_c` within `O(1)` of `c/π�
 private lemma sign_radii_tail :
     ∃ (C : ℝ) (d₁ : ℕ), 2 ≤ d₁ ∧ ∀ d : ℕ, d₁ ≤ d →
       |aSignPos d ^ 2 / 2 - airyOrderModel d| ≤ C ∧ |aSignNeg d ^ 2 / 2 - airyOrderModel d| ≤ C := by
-  obtain ⟨C₁, c₁, hlow⟩ := I.hb_thresholds_lower
+  obtain ⟨C₁, c₁, hlow⟩ := hb_thresholds_lower
   obtain ⟨C₂, c₂, hup⟩ := I.hb_thresholds_upper
   -- threshold for the exact origin option: `c/π² + A c^{1/3} - C₁ > c/(4π)`
   have hπ : 0 < 1 / π ^ 2 - 1 / (4 * π) := by
@@ -276,9 +261,8 @@ include I
 /-- **Headline A (`gt:7.9`, `thm:intro-radii`, both signs).** For every integer `d ≥ 2`,
 `A_sign^±(d)²/2 = d/(2π²) + A (d/2)^{1/3} + O(1)` with `A = |a₁|/β₁`.
 
-Proved from `RadiiInputs`; see the module docstring for the open fields used
-(`hb_thresholds_lower`,
-`hb_thresholds_upper`). The second asymptotic form of `gt:7.9` (`A_sign(d)/√d`) is not restated. -/
+Proved from `RadiiInputs`; see the module docstring for the open field used
+(`hb_thresholds_upper`; the lower half is the theorem `hb_thresholds_lower`). The second asymptotic form of `gt:7.9` (`A_sign(d)/√d`) is not restated. -/
 theorem thm_intro_radii_sign :
     (∃ C : ℝ, ∀ d : ℕ, 2 ≤ d → |aSignPos d ^ 2 / 2 - airyOrderModel d| ≤ C) ∧
     (∃ C : ℝ, ∀ d : ℕ, 2 ≤ d → |aSignNeg d ^ 2 / 2 - airyOrderModel d| ≤ C) := by
@@ -294,7 +278,7 @@ is the Schwartz infimum; it equals `optimalL1CERadius d` by `ce_schwartz_radius_
 `(πd)^{-1/2} (e/(2π))^{d/2} exp(π² A (d/2)^{1/3} + O(1))`, in both the multiplicative
 and the logarithmic form (`eq:intro-density`; the constant `-log π / 2` is absorbed in the `O(1)`).
 
-Proved from `RadiiInputs` (`shell_reduction_m1`, `ce_hb_lift_m1`) by the gluing
+Proved from `RadiiInputs` (`ce_hb_lift_m1`) and `shell_reduction_m1_proved` by the gluing
 `ce_radius_airy_order_of_bounds` and the Stirling expansion `ce_volume_expansion`. -/
 theorem thm_intro_radii_ce :
     (∃ C : ℝ, ∀ d : ℕ, 2 ≤ d → |optimalL1CERadius d ^ 2 / 2 - airyOrderModel d| ≤ C) ∧
@@ -309,7 +293,7 @@ theorem thm_intro_radii_ce :
       |Real.log ((volume : Measure (Euc d)).real (Metric.ball 0 (optimalL1CERadius d / 2))) -
         (((d : ℝ) / 2) * Real.log (Real.exp 1 / (2 * π)) +
           π ^ 2 * airyOrderCoeff * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) - (1 / 2 : ℝ) * Real.log (d : ℝ))| ≤ C') := by
-  obtain ⟨C_lo, d_lo, hlo0⟩ := I.shell_reduction_m1
+  obtain ⟨C_lo, d_lo, hlo0⟩ := shell_reduction_m1_proved
   -- the upper half from `ce_hb_lift_m1` at `D = airy`, no shells, `R_off = 0`
   obtain ⟨K₀, d_hi, hhi0⟩ := I.ce_hb_lift_m1 (by rw [airy_S_card]; exact odd_one)
     (fun y hy => airy_laplace_negG_pos hy) 0 le_rfl

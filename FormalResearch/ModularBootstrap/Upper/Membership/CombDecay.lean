@@ -3,6 +3,7 @@ module
 public import FormalResearch.ModularBootstrap.Upper.Membership.FWM
 public import FormalResearch.ModularBootstrap.Upper.Membership.HankelTransform
 public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeGlobalBound
+public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeGlobalBoundP
 public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeExample
 
 /-!
@@ -60,14 +61,27 @@ noncomputable def combProfile (c' : ℝ) (B : ℂ → ℂ) (t : ℝ) : ℝ :=
 /-- The threshold `x_I = ξ_* + c'^{-3/5}`. -/
 noncomputable def xI (c' : ℝ) : ℝ := xiStar + c' ^ (-(3 / 5 : ℝ))
 
-/-- **Named hypothesis (conclusion of Lemma `SD_V`).**  The order-zero transform of the comb satisfies
-`‖ĥ₀(c' x²/3)‖ ≤ C(c) e^{-c' L(x) - πx}` for `x ≥ x_I = ξ_* + c'^{-3/5}`, with `ĥ₀ = edgeHankel c' h₀`
-the `J₀`-form of the Hankel transform.  In `comb_estimates.tex` this is `(SD.3)--(SD.4)` of
-`Lemma SD_V` together with `𝒜_x e^{c' L} ≤ C(c) |sech²(π b_x/2)| ≤ C(c) e^{-πx}`. -/
-def SaddleTailBound (c' : ℝ) (B : ℂ → ℂ) : Prop :=
+/-- **Named hypothesis (conclusion of Lemma `FW-SD`, order `p`).**  The order-`p` transform of the comb
+satisfies `‖(𝓗_{p+1} h₀)(c' x²/3)‖ ≤ C(c) e^{-c' L(x) - πx}` for `x ≥ x_I = ξ_* + c'^{-3/5}`, with
+`𝓗_{p+1} h₀ = edgeHankelP p c' h₀` the `J_p`-form of the Hankel transform.  In `upper_transfer.tex` this is
+`fw:e1.4` of Lemma `FW-SD` (`fw:SDp`) with `𝒜_x e^{c' L} ≤ C(c) |sech²(π b_x/2)| ≤ C(c) e^{-πx}` and
+`R_p(x) ≤ C_p`; at `p = 0` it is `(SD.3)--(SD.4)` of `SD_V`.  It is derived from the amplitude hypotheses in
+`SaddleTail.lean` (`saddleTailBoundP_of_fwsd`). -/
+def SaddleTailBoundP (p : ℕ) (c' : ℝ) (B : ℂ → ℂ) : Prop :=
   ∃ C : ℝ, ∀ x : ℝ, xI c' ≤ x →
-    ‖edgeHankel c' (combH0 B) (c' * x ^ 2 / 3)‖ ≤
+    ‖edgeHankelP p c' (combH0 B) (c' * x ^ 2 / 3)‖ ≤
       C * Real.exp (-(c' * (2 * π * x / 3)) - π * x)
+
+/-- **Named hypothesis (conclusion of Lemma `SD_V`).**  The order-zero case of `SaddleTailBoundP`:
+`‖ĥ₀(c' x²/3)‖ ≤ C(c) e^{-c' L(x) - πx}` for `x ≥ x_I = ξ_* + c'^{-3/5}`, with `ĥ₀ = edgeHankel c' h₀`
+the `J₀`-form of the Hankel transform. -/
+def SaddleTailBound (c' : ℝ) (B : ℂ → ℂ) : Prop := SaddleTailBoundP 0 c' B
+
+lemma saddleTailBound_iff (c' : ℝ) (B : ℂ → ℂ) :
+    SaddleTailBound c' B ↔ ∃ C : ℝ, ∀ x : ℝ, xI c' ≤ x →
+      ‖edgeHankel c' (combH0 B) (c' * x ^ 2 / 3)‖ ≤ C * Real.exp (-(c' * (2 * π * x / 3)) - π * x) := by
+  unfold SaddleTailBound SaddleTailBoundP
+  simp only [edgeHankelP_zero]
 
 /-! ### Elementary facts on the comb -/
 
@@ -245,9 +259,13 @@ theorem InnerCombHyp.edgeSechBound (hB : InnerCombHyp c' B) : EdgeSechBound (com
 
 /-! ### The Hankel transform of the comb profile -/
 
+lemma InnerCombHyp.integrable_liftW {w : ℕ} (hw : 1 ≤ w) (hc' : 0 < c') (hB : InnerCombHyp c' B)
+    {C : ℝ} (hd : DecayBound c' C (combProfile c' B)) : Integrable (radialLift w (combProfile c' B)) :=
+  radialLift_integrable_of_decay hw hc' (hB.continuousOn_combProfile hc') hd
+
 lemma InnerCombHyp.integrable_lift (hc' : 0 < c') (hB : InnerCombHyp c' B) {C : ℝ}
     (hd : DecayBound c' C (combProfile c' B)) : Integrable (radialLift 1 (combProfile c' B)) :=
-  radialLift_integrable_of_decay le_rfl hc' (hB.continuousOn_combProfile hc') hd
+  hB.integrable_liftW le_rfl hc' hd
 
 lemma InnerCombHyp.edgeHankel_eq (hc' : 0 < c') (hB : InnerCombHyp c' B) {C : ℝ}
     (hd : DecayBound c' C (combProfile c' B)) {t : ℝ} (ht : 0 < t) :
@@ -255,30 +273,42 @@ lemma InnerCombHyp.edgeHankel_eq (hc' : 0 < c') (hB : InnerCombHyp c' B) {C : �
   hankelTransform_one_eq_edgeHankel hc' (fun s hs => hB.combProfile_eq hs)
     (hB.continuousOn_combProfile hc') (hB.integrable_lift hc' hd) ht
 
-/-- Decay of the Hankel transform of the comb profile, given the `SD_V` input on `x ≥ x_I`
-(`ξ_*/2 ≤ x ≤ x_I` by `SD_G`, `x ≤ ξ_*/2` by the trivial `L¹` bound). -/
-theorem InnerCombHyp.hankelTransform_decay (hc' : 0 < c') (hB : InnerCombHyp c' B)
-    {C₀ : ℝ} (hd : DecayBound c' C₀ (combProfile c' B)) (htail : SaddleTailBound c' B) :
-    ∃ C : ℝ, 0 ≤ C ∧ DecayBound c' C (hankelTransform 1 (combProfile c' B)) := by
+/-- The order-`p` link for the comb: `edgeHankelP p c' h₀ = hankelTransform (p+1) u` on `t > 0`
+(`hankelTransform_eq_edgeHankelP`). -/
+lemma InnerCombHyp.edgeHankelP_eq (p : ℕ) (hc' : 0 < c') (hB : InnerCombHyp c' B) {C : ℝ}
+    (hd : DecayBound c' C (combProfile c' B)) {t : ℝ} (ht : 0 < t) :
+    edgeHankelP p c' (combH0 B) t = (hankelTransform (p + 1) (combProfile c' B) t : ℂ) :=
+  hankelTransform_eq_edgeHankelP p (fun s hs => hB.combProfile_eq hs)
+    (hB.continuousOn_combProfile hc') (hB.integrable_liftW (by omega) hc' hd) ht
+
+/-- **Decay of the order-`p` Hankel transform of the comb profile**, given the `FW-SD` input on `x ≥ x_I`
+(`fw:e1.4`): for `ĥ = 𝓗_{p+1} u = hankelTransform (p+1) u` and `u = combProfile c' B`,
+`|ĥ(t)| ≤ C e^{-c' L(x) - πx}` for all `t ≥ 0` (`t = c' x²/3`).  `x ≤ X₀ = max(ξ_*/2, 3/(4π c'))` by the
+trivial `L¹` bound; `X₀ ≤ x ≤ x_I` by `edge_global_bound_P` (`fw:e1.3`, valid for `k = 4π c' x/3 ≥ 1`, with
+`x^{-p}` bounded by `x ≥ ξ_*/2`) and the link `edgeHankelP = hankelTransform (p+1)`. -/
+theorem InnerCombHyp.hankelTransform_decayP (p : ℕ) (hc' : 0 < c') (hB : InnerCombHyp c' B)
+    {C₀ : ℝ} (hd : DecayBound c' C₀ (combProfile c' B)) (htail : SaddleTailBoundP p c' B) :
+    ∃ C : ℝ, 0 ≤ C ∧ DecayBound c' C (hankelTransform (p + 1) (combProfile c' B)) := by
   set u := combProfile c' B with hu
-  have hint := hB.integrable_lift hc' hd
+  have hw1 : 1 ≤ p + 1 := by omega
+  have hint := hB.integrable_liftW hw1 hc' hd
   obtain ⟨CT, hCT⟩ := htail
-  obtain ⟨K, hK0, hK⟩ := edge_global_bound_xiStar
+  obtain ⟨K, hK0, hK⟩ := edge_global_bound_P p
   set β : ℝ := c' * (2 * π / 3) + π with hβ
   have hβpos : 0 < β := by rw [hβ]; positivity
-  set I₁ : ℝ := ∫ ξ, ‖radialLift 1 u ξ‖ with hI₁
+  set I₁ : ℝ := ∫ ξ, ‖radialLift (p + 1) u ξ‖ with hI₁
   have hI₁0 : 0 ≤ I₁ := integral_nonneg fun _ => norm_nonneg _
   have hxi := xiStar_pos
-  have hxI_gt : xiStar / 2 < xI c' := by
-    unfold xI
-    have : 0 < c' ^ (-(3 / 5 : ℝ)) := Real.rpow_pos_of_pos hc' _
-    linarith
-  have hnorm_bound : ∀ t : ℝ, |hankelTransform 1 u t| ≤ I₁ := fun t => by
+  set X₀ : ℝ := max (xiStar / 2) (3 / (4 * π * c')) with hX₀
+  have hX₀1 : xiStar / 2 ≤ X₀ := le_max_left _ _
+  have hX₀2 : 3 / (4 * π * c') ≤ X₀ := le_max_right _ _
+  have hnorm_bound : ∀ t : ℝ, |hankelTransform (p + 1) u t| ≤ I₁ := fun t => by
     unfold hankelTransform
-    rw [dif_pos le_rfl]
+    rw [dif_pos hw1]
     exact (Complex.abs_re_le_norm _).trans (Real.norm_fourier_le_integral_norm _ _)
-  set C : ℝ := max (max (I₁ * Real.exp (β * (xiStar / 2)))
-      (K * 1 * Real.sqrt c' * Real.exp (π * xI c'))) (max CT 0) with hCdef
+  set K₂ : ℝ := K * 1 * (√(2 / xiStar) * √c' * (2 / xiStar) ^ p) with hK₂
+  have hK₂0 : 0 ≤ K₂ := by rw [hK₂]; positivity
+  set C : ℝ := max (max (I₁ * Real.exp (β * X₀)) (K₂ * Real.exp (π * xI c'))) (max CT 0) with hCdef
   refine ⟨C, le_max_of_le_right (le_max_right _ _), fun t ht => ?_⟩
   unfold decayEnv
   set x := xOf c' t with hx
@@ -287,60 +317,88 @@ theorem InnerCombHyp.hankelTransform_decay (hc' : 0 < c') (hB : InnerCombHyp c' 
     congr 1; rw [hβ]; ring
   rw [hexp]
   have hepos := Real.exp_pos (-β * x)
-  have hC1 : I₁ * Real.exp (β * (xiStar / 2)) ≤ C := (le_max_left _ _).trans (le_max_left _ _)
-  have hC2 : K * 1 * Real.sqrt c' * Real.exp (π * xI c') ≤ C :=
-    (le_max_right _ _).trans (le_max_left _ _)
+  have hC1 : I₁ * Real.exp (β * X₀) ≤ C := (le_max_left _ _).trans (le_max_left _ _)
+  have hC2 : K₂ * Real.exp (π * xI c') ≤ C := (le_max_right _ _).trans (le_max_left _ _)
   have hC3 : CT ≤ C := (le_max_left _ _).trans (le_max_right _ _)
-  rcases le_or_gt x (xiStar / 2) with h1 | h1
+  have hxI_gt : xiStar / 2 < xI c' := by
+    unfold xI
+    have : 0 < c' ^ (-(3 / 5 : ℝ)) := Real.rpow_pos_of_pos hc' _
+    linarith
+  have hlink : ∀ y : ℝ, 0 < y → t = c' * y ^ 2 / 3 → y = x → 0 < t →
+      edgeHankelP p c' (combH0 B) t = (hankelTransform (p + 1) u t : ℂ) := fun y _ _ _ ht0 =>
+    hB.edgeHankelP_eq p hc' hd ht0
+  rcases le_or_gt x X₀ with h1 | h1
   · -- trivial bound on the compact range
-    have : I₁ ≤ I₁ * Real.exp (β * (xiStar / 2)) * Real.exp (-β * x) := by
-      have h3 : 1 ≤ Real.exp (β * (xiStar / 2)) * Real.exp (-β * x) := by
+    have : I₁ ≤ I₁ * Real.exp (β * X₀) * Real.exp (-β * x) := by
+      have h3 : 1 ≤ Real.exp (β * X₀) * Real.exp (-β * x) := by
         rw [← Real.exp_add]; exact Real.one_le_exp (by nlinarith)
       calc I₁ = I₁ * 1 := (mul_one _).symm
-        _ ≤ I₁ * (Real.exp (β * (xiStar / 2)) * Real.exp (-β * x)) :=
+        _ ≤ I₁ * (Real.exp (β * X₀) * Real.exp (-β * x)) :=
             mul_le_mul_of_nonneg_left h3 hI₁0
         _ = _ := by ring
-    calc |hankelTransform 1 u t| ≤ I₁ := hnorm_bound t
-      _ ≤ I₁ * Real.exp (β * (xiStar / 2)) * Real.exp (-β * x) := this
+    calc |hankelTransform (p + 1) u t| ≤ I₁ := hnorm_bound t
+      _ ≤ I₁ * Real.exp (β * X₀) * Real.exp (-β * x) := this
       _ ≤ C * Real.exp (-β * x) := mul_le_mul_of_nonneg_right hC1 hepos.le
-  · rcases le_or_gt x (xI c') with h2 | h2
-    · -- `SD_G` on `ξ_*/2 ≤ x ≤ x_I`
-      have ht0 : 0 < t := by
-        by_contra hneg
-        have : t = 0 := le_antisymm (not_lt.mp hneg) ht
-        have : x = 0 := by rw [hx, this]; simp [xOf]
-        linarith
-      have htx : t = c' * x ^ 2 / 3 := by
-        rw [hx, sq_xOf hc' ht]; field_simp
+  · have hxh : xiStar / 2 < x := lt_of_le_of_lt hX₀1 h1
+    have ht0 : 0 < t := by
+      by_contra hneg
+      have : t = 0 := le_antisymm (not_lt.mp hneg) ht
+      have : x = 0 := by rw [hx, this]; simp [xOf]
+      linarith
+    have htx : t = c' * x ^ 2 / 3 := by
+      rw [hx, sq_xOf hc' ht]; field_simp
+    rcases le_or_gt x (xI c') with h2 | h2
+    · -- `SD_G` of order `p` on `X₀ < x ≤ x_I`
+      have hx_pos : 0 < x := by linarith
+      have hk1 : 1 ≤ 4 * π * c' * x / 3 := by
+        have h3 : 3 / (4 * π * c') < x := lt_of_le_of_lt hX₀2 h1
+        rw [div_lt_iff₀ (by positivity)] at h3
+        nlinarith
       have hsd := hK (combH0 B) π 8 1 Real.pi_pos hB.edgeHankelHyp zero_le_one hB.edgeSechBound
-        c' x hc' h1.le
-      rw [← htx, hB.edgeHankel_eq hc' hd ht0, Complex.norm_real, Real.norm_eq_abs] at hsd
+        c' x hc' hx_pos hk1
+      rw [← htx, hB.edgeHankelP_eq p hc' hd ht0, Complex.norm_real, Real.norm_eq_abs] at hsd
       unfold edgeL at hsd
-      have h4 : |hankelTransform 1 u t| ≤ K * 1 * Real.sqrt c' * Real.exp (-(c' * (2 * π * x / 3))) := by
+      have h1a : √(c' / x) ≤ √(2 / xiStar) * √c' := by
+        rw [← Real.sqrt_mul (by positivity)]
+        apply Real.sqrt_le_sqrt
+        rw [div_le_iff₀ hx_pos]
+        have : 2 / xiStar * c' * x ≥ 2 / xiStar * c' * (xiStar / 2) :=
+          mul_le_mul_of_nonneg_left hxh.le (by positivity)
+        have e : 2 / xiStar * c' * (xiStar / 2) = c' := by field_simp
+        linarith
+      have h1b : (1 / x) ^ p ≤ (2 / xiStar) ^ p := by
+        refine pow_le_pow_left₀ (by positivity) ?_ p
+        rw [div_le_div_iff₀ hx_pos hxi]; linarith
+      have h4 : |hankelTransform (p + 1) u t| ≤
+          K₂ * Real.exp (-(c' * (2 * π * x / 3))) := by
         rw [Real.exp_neg, ← div_eq_mul_inv, le_div_iff₀ (Real.exp_pos _)]
-        have := hsd
-        rw [mul_comm] at this
-        exact this
+        have hsd' : |hankelTransform (p + 1) u t| * Real.exp (c' * (2 * π * x / 3)) ≤
+            K * 1 * √(c' / x) * (1 / x) ^ p := by
+          rw [mul_comm]; exact hsd
+        refine hsd'.trans ?_
+        calc K * 1 * √(c' / x) * (1 / x) ^ p
+            ≤ K * 1 * (√(2 / xiStar) * √c') * (2 / xiStar) ^ p := by gcongr
+          _ = K₂ := by rw [hK₂]; ring
       have h5 : Real.exp (-(c' * (2 * π * x / 3))) =
           Real.exp (π * x) * Real.exp (-β * x) := by
         rw [← Real.exp_add]; congr 1; rw [hβ]; ring
-      calc |hankelTransform 1 u t| ≤ K * 1 * Real.sqrt c' * Real.exp (-(c' * (2 * π * x / 3))) := h4
-        _ = K * 1 * Real.sqrt c' * Real.exp (π * x) * Real.exp (-β * x) := by rw [h5]; ring
-        _ ≤ K * 1 * Real.sqrt c' * Real.exp (π * xI c') * Real.exp (-β * x) := by
-            gcongr
+      calc |hankelTransform (p + 1) u t| ≤ K₂ * Real.exp (-(c' * (2 * π * x / 3))) := h4
+        _ = K₂ * Real.exp (π * x) * Real.exp (-β * x) := by rw [h5]; ring
+        _ ≤ K₂ * Real.exp (π * xI c') * Real.exp (-β * x) := by gcongr
         _ ≤ C * Real.exp (-β * x) := mul_le_mul_of_nonneg_right hC2 hepos.le
     · -- the tail
-      have ht0 : 0 < t := by
-        by_contra hneg
-        have : t = 0 := le_antisymm (not_lt.mp hneg) ht
-        have : x = 0 := by rw [hx, this]; simp [xOf]
-        linarith
-      have htx : t = c' * x ^ 2 / 3 := by
-        rw [hx, sq_xOf hc' ht]; field_simp
       have := hCT x h2.le
-      rw [← htx, hB.edgeHankel_eq hc' hd ht0, Complex.norm_real, Real.norm_eq_abs, hexp] at this
-      calc |hankelTransform 1 u t| ≤ CT * Real.exp (-β * x) := this
+      rw [← htx, hB.edgeHankelP_eq p hc' hd ht0, Complex.norm_real, Real.norm_eq_abs, hexp] at this
+      calc |hankelTransform (p + 1) u t| ≤ CT * Real.exp (-β * x) := this
         _ ≤ C * Real.exp (-β * x) := mul_le_mul_of_nonneg_right hC3 hepos.le
+
+/-- Decay of the Hankel transform of the comb profile, given the `SD_V` input on `x ≥ x_I`
+(`ξ_*/2 ≤ x ≤ x_I` by `SD_G`, `x ≤ ξ_*/2` by the trivial `L¹` bound): the case `p = 0` of
+`hankelTransform_decayP`. -/
+theorem InnerCombHyp.hankelTransform_decay (hc' : 0 < c') (hB : InnerCombHyp c' B)
+    {C₀ : ℝ} (hd : DecayBound c' C₀ (combProfile c' B)) (htail : SaddleTailBound c' B) :
+    ∃ C : ℝ, 0 ≤ C ∧ DecayBound c' C (hankelTransform 1 (combProfile c' B)) :=
+  hB.hankelTransform_decayP 0 hc' hd htail
 
 /-! ### Vacuum values and the assembled Lemma `K7` -/
 
@@ -367,37 +425,39 @@ lemma norm_sechSqProfile_imag_le {y : ℝ} (hy0 : 0 ≤ y) (hy1 : y ≤ 1 / 2) :
   have h3 : 0 ≤ √2 / 2 := by positivity
   nlinarith
 
-/-- **Lemma `K7`** (`cmb:K7`, weight `w = 1`; Lean theorem `k7_membership_vacuum`).
-For an inner Blaschke comb `B` satisfying (i), (iii) (`InnerCombHyp`) and the `SD_V` tail input
-`SaddleTailBound` (derived from `SDVAmplitudeInput` in `SaddleTail.lean`), with `a = c'/12 ≥ S` for a problem `prob` with `w = 1`:
-`h = u`, `ĥ = hankelTransform 1 u` decay like `C e^{-c' L(x) - πx}`, `g = ½ (h - ĥ) ∈ Ā`,
+/-- **Lemma `K7` at every weight** (`cmb:K7`, `fw:FWM`; Lean theorem `k7_membership_vacuumW`).
+For an inner Blaschke comb `B` satisfying (i), (iii) (`InnerCombHyp`) and the order-`(w-1)` tail input
+`SaddleTailBoundP (w-1)` (derived from the `FW-SD` amplitude hypotheses in `SaddleTail.lean`), with
+`a = c'/12 ≥ S` for a problem `prob` of weight `w = prob.w ≥ 1`:
+`h = u`, `ĥ = hankelTransform w u` decay like `C e^{-c' L(x) - πx}`, `g = ½ (h - ĥ) ∈ Ā`,
 and the vacuum identity `g_vac = ½ h_{0,vac} - π ∫ h₀ V` holds with
-`h_{0,vac} = ∑_s (-1)^{|s|} h₀(b_{a - r_s})` (`= h₀(b_a) - 2h₀(b_{a-1}) + h₀(b_{a-2})` for
-`Q = (1-q)²`) and `|½ h_{0,vac}| ≤ 2^m` (so `|h_{0,vac}| ≤ 8` for `m = 2`).
-Not covered: the clause `g_vac` for the specific comb families `B^{(f)}`, `B_D`, `B_2` (hypotheses
-(i)-(iii) there are `K1(a)`, `K3`, `K6(a)`, `ut:Phi`, `ut:T2`). -/
-theorem k7_membership_vacuum {prob : FixedWeightProblem} (hw : prob.w = 1) (hc' : 0 < c')
-    (hS : prob.totalShift ≤ c' / 12) (hB : InnerCombHyp c' B) (htail : SaddleTailBound c' B) :
+`h_{0,vac} = ∑_s (-1)^{|s|} h₀(b_{a - r_s})` and `|½ h_{0,vac}| ≤ 2^m`.  For `w = 1` this is `k7_membership_vacuum`. -/
+theorem k7_membership_vacuumW {prob : FixedWeightProblem} (hc' : 0 < c')
+    (hS : prob.totalShift ≤ c' / 12) (hB : InnerCombHyp c' B)
+    (htail : SaddleTailBoundP (prob.w - 1) c' B) :
     ∃ C : ℝ, 0 ≤ C ∧ DecayBound c' C (combProfile c' B) ∧
-      DecayBound c' C (hankelTransform 1 (combProfile c' B)) ∧
-      TestClass prob (c' / 12) (pairOdd (combProfile c' B) (hankelTransform 1 (combProfile c' B))) ∧
-      ((prob.gVac (c' / 12) (pairOdd (combProfile c' B) (hankelTransform 1 (combProfile c' B))) :
-          ℝ) : ℂ) =
+      DecayBound c' C (hankelTransform prob.w (combProfile c' B)) ∧
+      TestClass prob (c' / 12)
+        (pairOdd (combProfile c' B) (hankelTransform prob.w (combProfile c' B))) ∧
+      ((prob.gVac (c' / 12)
+          (pairOdd (combProfile c' B) (hankelTransform prob.w (combProfile c' B))) : ℝ) : ℂ) =
         (1 / 2 : ℂ) * ∑ s : Finset (Fin prob.m), (-1 : ℂ) ^ s.card *
             combH0 B (bAlpha c' (c' / 12 - prob.shiftSum s)) -
           (π : ℂ) * ((∫ t in Ioi (0 : ℝ), combProfile c' B t * prob.cardyV (c' / 12) t : ℝ) : ℂ) ∧
       ‖(1 / 2 : ℂ) * ∑ s : Finset (Fin prob.m), (-1 : ℂ) ^ s.card *
           combH0 B (bAlpha c' (c' / 12 - prob.shiftSum s))‖ ≤ 2 ^ prob.m := by
   obtain ⟨C₀, hC₀, hd₀⟩ := hB.combProfile_decay hc'
-  obtain ⟨C₁, hC₁, hd₁⟩ := hB.hankelTransform_decay hc' hd₀ htail
+  obtain ⟨C₁, hC₁, hd₁⟩ := hB.hankelTransform_decayP (prob.w - 1) hc' hd₀ htail
+  rw [Nat.sub_add_cancel prob.hw] at hd₁
   set C := max C₀ C₁ with hC
   have hd : DecayBound c' C (combProfile c' B) := hd₀.mono (le_max_left _ _)
-  have hd' : DecayBound c' C (hankelTransform 1 (combProfile c' B)) := hd₁.mono (le_max_right _ _)
+  have hd' : DecayBound c' C (hankelTransform prob.w (combProfile c' B)) :=
+    hd₁.mono (le_max_right _ _)
   have hF : 𝓕 (radialLift prob.w (combProfile c' B)) =
-      radialLift prob.w (hankelTransform 1 (combProfile c' B)) := by
-    rw [hw]; exact fourier_radialLift_eq_hankelTransform le_rfl _
-  have hcont' : ContinuousOn (hankelTransform 1 (combProfile c' B)) (Ici 0) :=
-    continuousOn_hankelTransform le_rfl (hB.integrable_lift hc' hd₀)
+      radialLift prob.w (hankelTransform prob.w (combProfile c' B)) :=
+    fourier_radialLift_eq_hankelTransform prob.hw _
+  have hcont' : ContinuousOn (hankelTransform prob.w (combProfile c' B)) (Ici 0) :=
+    continuousOn_hankelTransform prob.hw (hB.integrable_liftW prob.hw hc' hd₀)
   have hcont : ContinuousOn (combProfile c' B) (Ici 0) := hB.continuousOn_combProfile hc'
   obtain ⟨hmem, -, hvac⟩ := fwM_of_decay hc' hS hcont hcont' hd hd' hF (hB.stripContinuation hc')
   refine ⟨C, le_max_of_le_left hC₀, hd, hd', hmem, hvac, ?_⟩
@@ -420,13 +480,47 @@ theorem k7_membership_vacuum {prob : FixedWeightProblem} (hw : prob.w = 1) (hc' 
           (norm_nonneg _) (by norm_num)
     _ = 2 := by norm_num
 
-/-- Non-vacuity of `SaddleTailBound`: it holds for the zero comb (`h₀ = 0`, `ĥ₀ = 0`); for a genuine
-comb it is the output of Lemma `SD_V` (`saddleTailBound_of_sdv`). -/
-theorem saddleTailBound_zero (c' : ℝ) : SaddleTailBound c' (fun _ => 0) := by
+
+/-- **Lemma `K7`** (`cmb:K7`, weight `w = 1`; Lean theorem `k7_membership_vacuum`).
+For an inner Blaschke comb `B` satisfying (i), (iii) (`InnerCombHyp`) and the `SD_V` tail input
+`SaddleTailBound` (derived from `SDVAmplitudeInput` in `SaddleTail.lean`), with `a = c'/12 ≥ S` for a problem `prob` with `w = 1`:
+`h = u`, `ĥ = hankelTransform 1 u` decay like `C e^{-c' L(x) - πx}`, `g = ½ (h - ĥ) ∈ Ā`,
+and the vacuum identity `g_vac = ½ h_{0,vac} - π ∫ h₀ V` holds with
+`h_{0,vac} = ∑_s (-1)^{|s|} h₀(b_{a - r_s})` (`= h₀(b_a) - 2h₀(b_{a-1}) + h₀(b_{a-2})` for
+`Q = (1-q)²`) and `|½ h_{0,vac}| ≤ 2^m` (so `|h_{0,vac}| ≤ 8` for `m = 2`).
+Not covered: the clause `g_vac` for the specific comb families `B^{(f)}`, `B_D`, `B_2` (hypotheses
+(i)-(iii) there are `K1(a)`, `K3`, `K6(a)`, `ut:Phi`, `ut:T2`). -/
+theorem k7_membership_vacuum {prob : FixedWeightProblem} (hw : prob.w = 1) (hc' : 0 < c')
+    (hS : prob.totalShift ≤ c' / 12) (hB : InnerCombHyp c' B) (htail : SaddleTailBound c' B) :
+    ∃ C : ℝ, 0 ≤ C ∧ DecayBound c' C (combProfile c' B) ∧
+      DecayBound c' C (hankelTransform 1 (combProfile c' B)) ∧
+      TestClass prob (c' / 12) (pairOdd (combProfile c' B) (hankelTransform 1 (combProfile c' B))) ∧
+      ((prob.gVac (c' / 12) (pairOdd (combProfile c' B) (hankelTransform 1 (combProfile c' B))) :
+          ℝ) : ℂ) =
+        (1 / 2 : ℂ) * ∑ s : Finset (Fin prob.m), (-1 : ℂ) ^ s.card *
+            combH0 B (bAlpha c' (c' / 12 - prob.shiftSum s)) -
+          (π : ℂ) * ((∫ t in Ioi (0 : ℝ), combProfile c' B t * prob.cardyV (c' / 12) t : ℝ) : ℂ) ∧
+      ‖(1 / 2 : ℂ) * ∑ s : Finset (Fin prob.m), (-1 : ℂ) ^ s.card *
+          combH0 B (bAlpha c' (c' / 12 - prob.shiftSum s))‖ ≤ 2 ^ prob.m := by
+  have h := k7_membership_vacuumW (prob := prob) hc' hS hB (by rw [hw]; exact htail)
+  rw [hw] at h
+  exact h
+
+/-- Non-vacuity of `SaddleTailBoundP`: it holds for the zero comb at every order `p`. -/
+theorem saddleTailBoundP_zero (p : ℕ) (c' : ℝ) : SaddleTailBoundP p c' (fun _ => 0) := by
   refine ⟨0, fun x _ => ?_⟩
   have : combH0 (fun _ => (0 : ℂ)) = fun _ => 0 := by
     ext b; simp [combH0]
-  simp [this, edgeHankel]
+  simp [this, edgeHankelP, hankelTransformOrd]
+
+/-- Non-vacuity of `SaddleTailBound`: it holds for the zero comb (`h₀ = 0`, `ĥ₀ = 0`); for a genuine
+comb it is the output of Lemma `SD_V` (`saddleTailBound_of_sdv`). -/
+theorem saddleTailBound_zero (c' : ℝ) : SaddleTailBound c' (fun _ => 0) :=
+  saddleTailBoundP_zero 0 c'
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.k7_membership_vacuumW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms k7_membership_vacuumW
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.k7_membership_vacuum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
