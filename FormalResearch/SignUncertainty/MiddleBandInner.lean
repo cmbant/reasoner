@@ -6,11 +6,11 @@ public import FormalResearch.SignUncertainty.MiddleBandZones
 # GT.2a: the inner difference integral
 
 Source: `CFT/sign_uncertainty/paper/u1c_estimate_proofs.tex`, proof of `cegt:GT2a`, "Inner difference" (the decomposition
-`χ = χ_z + χ_st + χ_far` and the four regional estimates).
+`χ = χ_z + χ_st + χ_far` and the four regional estimates).  The outer cutoff `ζ` is any `IsCut` function equal to `1` for `ε|u| ≤ 0.075` and `0` for `ε|u| ≥ 0.18` (so both `ϑ(εu/0.09)` and `ϑ(t(εu)/ρ)` qualify).
 
 * `inner_integral_bound`: for an amplitude `g` with the large-zone bounds `(e8)` (`LargeZone g G L ε`) and the near-zero bounds
   (`g(0) = g₀`, `|g(u) - g₀| ≤ G₀|u|^{1/2}`, `|g'| ≤ G₀|u|^{-1/2}`, `|g''| ≤ G₀|u|^{-3/2}` on `0 < |u| < 3`),
-  `‖∫ ϑ(εu/0.09) g(u) e^{iψ(u)} du‖ ≤ C (G (L + ε²u₀²) + G₀) u₀^{-3}`, `ψ(u) = (π²u₀²/12) u - π²u³/36`.
+  `‖∫ ζ(u) g(u) e^{iψ(u)} du‖ ≤ C (G (L + ε²u₀²) + G₀) u₀^{-3}`, `ψ(u) = (π²u₀²/12) u - π²u³/36`.
 
 Status: proved, unconditional (pointwise hypotheses on `g`).
 -/
@@ -54,22 +54,25 @@ lemma p0_rpow_le {u0 : ℝ} (hu : 34 ≤ u0) : (Real.pi ^ 2 * u0 ^ 2 / 24) ^ (-(
 
 
 /-- **The inner difference integral.** -/
-theorem inner_integral_bound {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) :
-    ∃ C : ℝ, 0 ≤ C ∧ ∀ {u0 ε L G G0 : ℝ} {g : ℝ → ℂ} {g0 : ℂ}, 34 ≤ u0 → 0 < ε → 0 ≤ L → 0 ≤ G → 0 ≤ G0 →
+theorem inner_integral_bound {ϑ : ℝ → ℝ} {K1 K2 Z0 Z1 Z2 : ℝ} (hϑ : Prof ϑ K1 K2) (hZ0 : 0 ≤ Z0) (hZ1 : 0 ≤ Z1)
+    (hZ2 : 0 ≤ Z2) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ {ζ : ℝ → ℝ} {u0 ε L G G0 : ℝ} {g : ℝ → ℂ} {g0 : ℂ}, IsCut ζ Z0 Z1 Z2 →
+      (∀ u, ε * |u| ≤ 0.075 → ζ u = 1) → (∀ u, 0.18 ≤ ε * |u| → ζ u = 0) →
+      34 ≤ u0 → 0 < ε → 0 ≤ L → 0 ≤ G → 0 ≤ G0 →
       ε * u0 ≤ 0.05 → L ≤ ε ^ 2 * u0 ^ 2 → LargeZone g G L ε →
       g 0 = g0 → ‖g0‖ ≤ G0 →
       (∀ u, 0 < |u| → |u| < 3 → ContDiffAt ℝ 2 g u) →
       (∀ u, 0 < |u| → |u| < 3 → ‖g u - g0‖ ≤ G0 * |u| ^ (1 / 2 : ℝ)) →
       (∀ u, 0 < |u| → |u| < 3 → ‖deriv g u‖ ≤ G0 * |u| ^ (-(1 / 2 : ℝ))) →
       (∀ u, 0 < |u| → |u| < 3 → ‖deriv (deriv g) u‖ ≤ G0 * |u| ^ (-(3 / 2 : ℝ))) →
-      ‖oscInt (Real.pi ^ 2 * u0 ^ 2 / 12) (fun u => (ϑ (u / (0.09 / ε)) : ℂ) * g u)‖ ≤
+      ‖oscInt (Real.pi ^ 2 * u0 ^ 2 / 12) (fun u => (ζ u : ℂ) * g u)‖ ≤
         C * (G * (L + ε ^ 2 * u0 ^ 2) + G0) * (1 / u0 ^ 3) := by
   obtain ⟨Cn, hCn0, hn⟩ := near_zero_bound hϑ
   obtain ⟨Cs, hCs0, hs⟩ := zone_shoulder hϑ
   obtain ⟨Ct, hCt0, ht⟩ := zone_stationary hϑ
-  obtain ⟨Cf, hCf0, hf⟩ := zone_far hϑ
+  obtain ⟨Cf, hCf0, hf⟩ := zone_far hϑ hZ0 hZ1 hZ2
   refine ⟨9 * Cn + Cs + Ct + Cf, by positivity, ?_⟩
-  intro u0 ε L G G0 g g0 hu0 hε hL hG hG0 hεu hLe hz hg0 hgG0 hc hH hd1 hd2
+  intro ζ u0 ε L G G0 g g0 hζ hζ1 hζ0 hu0 hε hL hG hG0 hεu hLe hz hg0 hgG0 hc hH hd1 hd2
   have hu0p : 0 < u0 := by linarith
   set a0 : ℝ := Real.pi ^ 2 * u0 ^ 2 / 12 with ha0
   set p0 : ℝ := Real.pi ^ 2 * u0 ^ 2 / 24 with hp0
@@ -87,11 +90,11 @@ theorem inner_integral_bound {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 
   obtain ⟨I1, B1⟩ := hn (a0 := a0) (p0 := p0) (G := G0) hp2 hG0 hg0 hgG0 hgrad hc hH hd1 hd2
   obtain ⟨I2, B2⟩ := hs hu0 hε hL hG hεu' hz
   obtain ⟨I3, B3⟩ := ht hu0 hε hL hG hεu hz
-  obtain ⟨I4, B4⟩ := hf hu0 hε hL hG hεu hLe hz
-  have hsum : oscInt a0 (fun u => (ϑ (u / (0.09 / ε)) : ℂ) * g u) =
+  obtain ⟨I4, B4⟩ := hf hζ hζ1 hζ0 hu0 hε hL hG hεu hLe hz
+  have hsum : oscInt a0 (fun u => (ζ u : ℂ) * g u) =
       oscInt a0 (fun u => (ϑ u : ℂ) * g u) + oscInt a0 (fun u => ((ϑ (u / (u0 / 4)) - ϑ u : ℝ) : ℂ) * g u) +
       oscInt a0 (fun u => ((ϑ (u / (3 * u0 / 2)) - ϑ (u / (u0 / 4)) : ℝ) : ℂ) * g u) +
-      oscInt a0 (fun u => ((ϑ (u / (0.09 / ε)) - ϑ (u / (3 * u0 / 2)) : ℝ) : ℂ) * g u) := by
+      oscInt a0 (fun u => ((ζ u - ϑ (u / (3 * u0 / 2)) : ℝ) : ℂ) * g u) := by
     rw [← oscInt_add4 a0 I1 I2 I3 I4]
     congr 1
     funext u
@@ -107,7 +110,7 @@ theorem inner_integral_bound {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 
   have hE : 0 ≤ G * (L + ε ^ 2 * u0 ^ 2) := by positivity
   calc _ ≤ ‖oscInt a0 (fun u => (ϑ u : ℂ) * g u)‖ + ‖oscInt a0 (fun u => ((ϑ (u / (u0 / 4)) - ϑ u : ℝ) : ℂ) * g u)‖ +
         ‖oscInt a0 (fun u => ((ϑ (u / (3 * u0 / 2)) - ϑ (u / (u0 / 4)) : ℝ) : ℂ) * g u)‖ +
-        ‖oscInt a0 (fun u => ((ϑ (u / (0.09 / ε)) - ϑ (u / (3 * u0 / 2)) : ℝ) : ℂ) * g u)‖ := by
+        ‖oscInt a0 (fun u => ((ζ u - ϑ (u / (3 * u0 / 2)) : ℝ) : ℂ) * g u)‖ := by
         refine (norm_add_le _ _).trans ?_
         gcongr
         refine (norm_add_le _ _).trans ?_

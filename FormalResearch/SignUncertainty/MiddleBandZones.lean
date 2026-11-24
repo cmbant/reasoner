@@ -181,9 +181,9 @@ theorem zone_shoulder {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) :
         _ ≤ Kc * (G * (L + ε ^ 2 * x ^ 2)) := by rw [mul_one]; exact mul_le_mul_of_nonneg_right hcK hGp
         _ ≤ Kc * (G * (L + ε ^ 2 * u0 ^ 2)) := mul_le_mul_of_nonneg_left hG1 hKc0
         _ = B := by rw [hB]; ring
-    refine ⟨h0'.trans (key _ _ (by norm_num) (by rw [hKc]; linarith) q0 r0),
-      h1'.trans (key _ _ (by positivity) (by rw [hKc]; linarith) q1 r1),
-      h2'.trans (key _ _ (by positivity) (by rw [hKc]; linarith) q2 r2)⟩
+    refine ⟨h0'.trans (key _ _ (by norm_num) (by linarith) q0 r0),
+      h1'.trans (key _ _ (by positivity) (by linarith) q1 r1),
+      h2'.trans (key _ _ (by positivity) (by linarith) q2 r2)⟩
   have hp0 : (0 : ℝ) < Real.pi ^ 2 * u0 ^ 2 / 16 := by positivity
   have hmain := ibp_const_sym (a := fun u => (η u : ℂ) * g u) (a0 := Real.pi ^ 2 * u0 ^ 2 / 12) (α := 1) (β := u0 / 2)
     (B := B) (p0 := Real.pi ^ 2 * u0 ^ 2 / 16) one_pos (by linarith) hB0 hp0 hAC
@@ -457,13 +457,14 @@ theorem zone_stationary {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) :
 
 set_option maxHeartbeats 1600000 in
 /-- **Far zone** `3u₀/2 ≤ |u| ≤ 0.18/ε`: two integrations by parts with `|ψ'| ≥ 5π²u²/108`, using `L ≤ ε²u₀²`. -/
-theorem zone_far {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) :
-    ∃ C : ℝ, 0 ≤ C ∧ ∀ {u0 ε L G : ℝ} {g : ℝ → ℂ}, 34 ≤ u0 → 0 < ε → 0 ≤ L → 0 ≤ G → ε * u0 ≤ 0.05 →
+theorem zone_far {ϑ : ℝ → ℝ} {K1 K2 Z0 Z1 Z2 : ℝ} (hϑ : Prof ϑ K1 K2) (hZ0 : 0 ≤ Z0) (hZ1 : 0 ≤ Z1) (hZ2 : 0 ≤ Z2) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ {ζ : ℝ → ℝ} {u0 ε L G : ℝ} {g : ℝ → ℂ}, IsCut ζ Z0 Z1 Z2 → (∀ u, ε * |u| ≤ 0.075 → ζ u = 1) →
+      (∀ u, 0.18 ≤ ε * |u| → ζ u = 0) → 34 ≤ u0 → 0 < ε → 0 ≤ L → 0 ≤ G → ε * u0 ≤ 0.05 →
       L ≤ ε ^ 2 * u0 ^ 2 → LargeZone g G L ε →
-      Integrable (fun u => ((ϑ (u / (0.09 / ε)) - ϑ (u / (3 * u0 / 2)) : ℝ) : ℂ) * g u * Complex.exp (Complex.I * ((Real.pi ^ 2 * u0 ^ 2 / 12 * u - Real.pi ^ 2 / 36 * u ^ 3 : ℝ) : ℂ))) ∧
-      ‖oscInt (Real.pi ^ 2 * u0 ^ 2 / 12) (fun u => ((ϑ (u / (0.09 / ε)) - ϑ (u / (3 * u0 / 2)) : ℝ) : ℂ) * g u)‖ ≤
+      Integrable (fun u => ((ζ u - ϑ (u / (3 * u0 / 2)) : ℝ) : ℂ) * g u * Complex.exp (Complex.I * ((Real.pi ^ 2 * u0 ^ 2 / 12 * u - Real.pi ^ 2 / 36 * u ^ 3 : ℝ) : ℂ))) ∧
+      ‖oscInt (Real.pi ^ 2 * u0 ^ 2 / 12) (fun u => ((ζ u - ϑ (u / (3 * u0 / 2)) : ℝ) : ℂ) * g u)‖ ≤
         C * G * (L + ε ^ 2 * u0 ^ 2) * (1 / u0 ^ 3) := by
-  set Kc : ℝ := 8 * K2 + 8 * K1 + 2 with hKc
+  set Kc : ℝ := (Z2 + 4 * K2) + 2 * (Z1 + 2 * K1) + (Z0 + 1) with hKc
   have hk1 := hϑ.hK1
   have hk2 := hϑ.hK2
   have hKc0 : 0 ≤ Kc := by positivity
@@ -471,37 +472,29 @@ theorem zone_far {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) :
   have hq0p : 0 < q0 := by positivity
   have hcC := cubicC_nonneg hq0p
   refine ⟨8 * Kc * cubicC q0, by positivity, ?_⟩
-  intro u0 ε L G g hu0 hε hL hG hεu hLe hz
+  intro ζ u0 ε L G g hζ hζ1 hζ0 hu0 hε hL hG hεu hLe hz
   have hu0p : 0 < u0 := by linarith
   have hR1 : 0 < 3 * u0 / 2 := by positivity
-  have hRin : 0 < 0.09 / ε := by positivity
-  have hη0 := (hϑ.cut hRin).sub (hϑ.cut hR1)
-  set η : ℝ → ℝ := fun u => ϑ (u / (0.09 / ε)) - ϑ (u / (3 * u0 / 2)) with hηdef
+  have hη0 := hζ.sub (hϑ.cut hR1)
+  set η : ℝ → ℝ := fun u => ζ u - ϑ (u / (3 * u0 / 2)) with hηdef
   have hεR : ε * (3 * u0 / 2) ≤ 0.075 := by nlinarith
   have hηsmall : ∀ u, |u| ≤ 3 * u0 / 2 → η u = 0 := by
     intro u hu
     have h2 : ϑ (u / (3 * u0 / 2)) = 1 := by
       apply hϑ.one
       rw [abs_div, abs_of_pos hR1, div_le_one hR1]; exact hu
-    have h1 : ϑ (u / (0.09 / ε)) = 1 := by
-      apply hϑ.one
-      rw [abs_div, abs_of_pos hRin, div_le_one hRin, le_div_iff₀ hε]
-      nlinarith [abs_nonneg u]
-    have e : η u = ϑ (u / (0.09 / ε)) - ϑ (u / (3 * u0 / 2)) := rfl
+    have h1 : ζ u = 1 := hζ1 u (by nlinarith [abs_nonneg u])
+    have e : η u = ζ u - ϑ (u / (3 * u0 / 2)) := rfl
     rw [e, h1, h2]; ring
   have hηbig : ∀ u, 0.18 / ε ≤ |u| → η u = 0 := by
     intro u hu
     have hu' : 0.18 ≤ ε * |u| := by rwa [div_le_iff₀ hε, mul_comm] at hu
-    have h1 : ϑ (u / (0.09 / ε)) = 0 := by
-      apply hϑ.zero
-      rw [abs_div, abs_of_pos hRin, le_div_iff₀ hRin]
-      have e : 2 * (0.09 / ε) = 0.18 / ε := by field_simp; norm_num
-      rw [e]; exact hu
+    have h1 : ζ u = 0 := hζ0 u hu'
     have h2 : ϑ (u / (3 * u0 / 2)) = 0 := by
       apply hϑ.zero
       rw [abs_div, abs_of_pos hR1, le_div_iff₀ hR1]
       nlinarith
-    have e : η u = ϑ (u / (0.09 / ε)) - ϑ (u / (3 * u0 / 2)) := rfl
+    have e : η u = ζ u - ϑ (u / (3 * u0 / 2)) := rfl
     rw [e, h1, h2]; ring
   have hcd : ∀ u, 3 * u0 / 2 ≤ |u| → |u| ≤ 0.18 / ε → ContDiffAt ℝ 2 g u := fun u h1 h2 =>
     hz.cd u (by linarith) (by rwa [le_div_iff₀ hε, mul_comm] at h2)
@@ -547,9 +540,9 @@ theorem zone_far {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) :
             gcongr
         _ = 2 * Kc * G * ε ^ 2 * (|x| ^ 2 * |x| ^ t) := by rw [hx2']; ring
         _ = B * |x| ^ t' := by rw [hpw, ht, hB]
-    refine ⟨h0'.trans (key _ _ _ (by norm_num) (by rw [hKc]; linarith) (by norm_num)),
-      h1'.trans (key _ _ _ (by positivity) (by rw [hKc]; linarith) (by norm_num)),
-      h2'.trans (key _ _ _ (by positivity) (by rw [hKc]; linarith) (by norm_num))⟩
+    refine ⟨h0'.trans (key _ _ _ (by positivity) (by linarith) (by norm_num)),
+      h1'.trans (key _ _ _ (by positivity) (by linarith) (by norm_num)),
+      h2'.trans (key _ _ _ (by positivity) (by linarith) (by norm_num))⟩
   have hmain := ibp_gen_sym (a := fun u => (η u : ℂ) * g u) (a0 := Real.pi ^ 2 * u0 ^ 2 / 12) (α := 3 * u0 / 2)
     (β := 0.18 / ε) (B := B) (q := q0) (s := 1 / 2) hR1 (by
       rw [le_div_iff₀ hε]; nlinarith) hB0 hq0p (by norm_num) hAC
