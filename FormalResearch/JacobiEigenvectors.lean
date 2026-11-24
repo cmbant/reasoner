@@ -170,6 +170,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.ThbFinal
 public import FormalResearch.JacobiEigenvectors.TheoremB.CorThbGap
 public import FormalResearch.JacobiEigenvectors.TheoremB.CorThbFinal
 public import FormalResearch.JacobiEigenvectors.Engine.CorrectorLocal
+public import FormalResearch.JacobiEigenvectors.Engine.CorrectorUniform
 public import FormalResearch.JacobiEigenvectors.Charts.ODEFlow
 public import FormalResearch.JacobiEigenvectors.Charts.PCLadder
 public import FormalResearch.JacobiEigenvectors.Charts.PCLadderBranches
