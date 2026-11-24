@@ -144,7 +144,7 @@ bootstrap) comes after them.
   `OddShellFamily`) exists. Needs only M2.
 
 **M4 Upper O-chain at one level (shared by everything below; L, technical core).**
-- U.2 for `{f₁, g₁, g₁'}`, U.3, GT.2a (on its Fourier-side hypotheses; `GT.1` symbol bounds now proved, `gt1BasisInput`; `O4QuotientBound` taken as a hypothesis), O.5, O.6, O.11ak (Mellin-lift hub), O.9′ at `m = 1`.
+- U.2 for `{f₁, g₁, g₁'}`, U.3, GT.2a (on its Fourier-side hypotheses; `GT.1` symbol bounds now proved, `gt1BasisInput`; `O4QuotientBound` proved, `o4QuotientBound`), O.5, O.6, O.11ak (Mellin-lift hub), O.9′ at `m = 1`.
 - O.3(2)/U.3(3): real-line subtraction of the `x^{−3/2}` tail, two integrations by parts and the Fresnel integral (no
   Puiseux, no V-ray). U.1 only in its closed-half-plane form.
 - O.4(2): Banach contraction for the cubic normal form (`ContractingWith.fixedPoint`), with the certified bound on the
@@ -205,26 +205,25 @@ is M0 ∥ M1 → M2 ∥ M4 → M3, Headline S → M5 ∥ M6 → M7 → M8.
 - Every Haiku-written module gets a clean-context Sonnet review before it is merged; every large Sonnet development
   (shell gap, the O.3(2) estimate, the window translation, the Hankel chart/density/transport, O.11ak) has had one.
 
-## 7. Status review (2026-11-24, 07:00 UTC, reasoner `master` after GT.1)
+## 7. Status review (2026-11-24, reasoner `master` after the O4 discharge)
 
-Size: `SignUncertainty` about 180 files and `CohnElkies` about 65 files, together over 100k lines. No placeholder proofs,
-no custom axioms. The four headlines in `Headlines.lean` are still **conditional**, now on four inputs:
-`hb_thresholds_upper`, `ce_hb_lift_m1`, `shell_reduction` and `ce_hb_lift` (`hb_thresholds_lower` and `shell_reduction_m1`
-are theorems). `hb_thresholds_upper` is the theorem `hbThresholdsUpper_of_o4` applied to the single remaining named
-hypothesis `O4QuotientBound L` for `0 < L ≤ 0.002`.
+Size: `SignUncertainty` about 200 files and `CohnElkies` about 80 files, together over 110k lines. No placeholder proofs,
+no custom axioms. The four headlines in `Headlines.lean` are still **conditional**, now on three inputs:
+`ce_hb_lift_m1`, `shell_reduction` and `ce_hb_lift` (`hb_thresholds_lower`, `shell_reduction_m1` and
+`hb_thresholds_upper` are theorems; `hbThresholdsUpper` and `o4QuotientBound` are unconditional, the latter by 12,800
+kernel-checked interval boxes from `gen_o4_boxes.py`).
 
 | milestone | state |
 |---|---|
 | M0 skeleton, M1 classical leaves, M2 Hankel layer, M3 extraction half | done |
-| M4 upper O-chain | done except `O4QuotientBound L` (`M_F ≤ 0.13`, interval certificate `certify_u1c_o4_contraction.py`). In progress: the kernel-checked discharge (Haiku modules `O4SigmaBounds`, `O4CircleReduction` done, `O4RhoSeries` running; the ball library, box evaluator and assembly are on the Bessel lane, generator `gen_o4_boxes.py` passes in exact integer arithmetic at 40 x 320 boxes, `|F| ≤ 0.12695`) |
+| M4 upper O-chain | done: `o4QuotientBound`, `hbThresholdsUpper` (`O4SigmaBounds`, `O4CircleReduction`, `O4BernoulliValues`, `O4RhoSeries`, `O4Cert*`, `O4CertRun01..10`, `O4QuotientAssembly`) |
 | M5 Hankel lower half | done (S1–S7: `hb_thresholds_lower` proved) |
 | M6 CE upper half (convolution source, post-edge bounds, lift of a Hankel profile to `ℝ^d`; gives `ce_hb_lift_m1`) | in progress (skeleton lane). Done: `ConvSourceDefs`, `ConvSourceLaplace` (`hasU2_convR`, product formula of `O.12(3)`), `EuclidCELift` (`ceAdmissible_of_hankelPair`), `CeHbLiftAssembly` (`CeHankelPair → CeHbLift ShellHBData.airy`), `MellinLiftGeneral`. Open (several thousand lines): Lemma `O.12` items (1)–(7) on `S_c`, `thm:ce-post-edge` (from `middle_transfer_gt1`, GT.2b, `O.12(7)`), the tail bound for the seeds `D_c ± S_c`, the physical sign for `F_c` and the reflected seed `−S_c` (needs an `O6Est` instance for the dual seed), pre-edge positivity, packaging of `CeHankelPair`. It does not use `hb_thresholds_upper` as a theorem but the same M4 inputs, so it is conditional on `O4QuotientBound` as well |
 | M7 shell reduction | `shell_reduction_m1_proved` and `shell_reduction_airy` done; `ce_hb_lift_m1` is M6 |
-| Headline S (`gt:7.9c`) | needs `hb_thresholds_upper` unconditional (the `O4QuotientBound` discharge) |
+| Headline S (`gt:7.9c`) | its input `hb_thresholds_upper` is now a theorem; what remains is the paper-side closing and `lean_status` |
 | M8 multilevel generalisation (`shell_reduction`, `ce_hb_lift` for general `D`) | not started |
 
-Critical path: `O4QuotientBound` (about 2.5–3.5k lines, kernel time about 5–20 min) unlocks Headline S; M6 then gives
-`ce_hb_lift_m1` and the one-level Euclidean headlines; M8 is the remaining multilevel step. Two Sonnet agents run these
+Critical path: M6 gives `ce_hb_lift_m1` and the one-level Euclidean headlines (`O4QuotientBound` is done); M8 is the remaining multilevel step. Two Sonnet agents run these
 two lanes; Haiku agents implement routine statements, and every Haiku output and every large development gets a
 clean-context Sonnet review before it is merged.
 
@@ -247,10 +246,8 @@ deleted to free disk, so importing an outside module triggers a one-time rebuild
 
 Order of work, by leverage on the four open `Headlines` inputs:
 
-1. `O4QuotientBound L` (kernel-checked interval discharge; unlocks `hb_thresholds_upper` and Headline S). Pieces: `O4SigmaBounds`
-   and `O4CircleReduction` (done), `O4RhoSeries` (Haiku, running), `O4CertBall`, the generated box modules and the assembly
-   (Bessel lane; generator `gen_o4_boxes.py` passes at 40 x 320 boxes).
-2. M6 (`ce_hb_lift_m1` via `CeHankelPair`; shares the M4 inputs, not the theorem `hb_thresholds_upper`): `ConvSource*` (Haiku briefs `m6_*`) and `EuclidCELift`, `CeHbLiftAssembly`
+1. Done: `O4QuotientBound L` (kernel-checked interval discharge; `hb_thresholds_upper` is a theorem).
+2. M6 (`ce_hb_lift_m1` via `CeHankelPair`; needs only `o4QuotientBound`, which is proved): `ConvSource*` (Haiku briefs `m6_*`) and `EuclidCELift`, `CeHbLiftAssembly`
    (skeleton lane); then a clean-context review of the whole M6 development before merge.
 3. M8 (general `D`: `shell_reduction`, `ce_hb_lift` for `m ≥ 2`): start with a dependency list once M6 is merged; it needs the
    multilevel `HbThresholds` (levels `m ≥ 2`) and the shell constraints.
