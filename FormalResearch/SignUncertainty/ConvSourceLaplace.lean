@@ -3,6 +3,7 @@ module
 public import Mathlib
 public import FormalResearch.CohnElkies.AirySeedSymbols
 public import FormalResearch.CohnElkies.ParametricIterated
+public import FormalResearch.SignUncertainty.ConvSourceDefs
 
 /-!
 # Laplace transform of a weight and the product formula for convolution sources (M6)
@@ -32,6 +33,10 @@ noncomputable def lapW (w : ℝ → ℝ) (z : ℂ) : ℂ :=
 
 /-- The right convolution `∫₀^∞ w(y) X(u + y) dy`. -/
 noncomputable def convR (w X : ℝ → ℝ) (u : ℝ) : ℝ := ∫ y in Ioi (0 : ℝ), w y * X (u + y)
+
+/-- The convolution source of `ceo:conv` is the right convolution of `g₁` with the weight `w_c`. -/
+lemma convSource_eq_convR (p γ θ ε h : ℝ) :
+    convSource p γ θ ε h = convR (convWc p γ θ ε h) (ceG1 (airyZero 1)) := rfl
 
 lemma norm_exp_neg_mul_le {z : ℂ} (hz : 0 ≤ z.re) {y : ℝ} (hy : 0 ≤ y) :
     ‖Complex.exp (-(z * (y : ℂ)))‖ ≤ 1 := by
