@@ -11,8 +11,17 @@ positivity of `-G_Ai`, for every large `d` there is a radial profile `G` on `[0,
 `ĝ = 𝓗_{d/2} G ≥ 0`, `G(0) = ĝ(0) > 0`, `G ≤ 0` on `[T, ∞)` and `T ≤ c/π² + A c^{1/3} + K₀` (`c = d/2`).
 `ce_hb_lift_airy_of_hankelPair` shows that this gives `CeHbLift ShellHBData.airy`: the pair lifts to `ℝ^d`
 (`ceAdmissible_of_hankelPair`), the prescribed-shell conditions are vacuous at `m = 1` (`S = {a₁}`, `t_m = a₁`)
-and the offsets play no role.  Proving `CeHankelPair` is the Mellin-lift construction of the paper (convolution
-source, pre-edge, window and post-edge signs).
+and the offsets play no role.
+
+**`CeHankelPair` is NOT proved** (it is only a definition here).  Proving it is the Mellin-lift construction of the paper:
+the convolution source `S_c` (`ceo:conv`), the seeds `X_± = D_c ± S_c`, the eigenfunction lifts (`exists_hankelEigenfn_lift_of_convTail`),
+the tuning of `η_c`, the algebra `ceHankelPair_of_eigenfns` and the sign theorems (pre-edge `cepe:general`, window, post-edge
+`thm:ce-post-edge`, physical sign `u1co:O6`).
+
+**`CeHankelPair` is not proved here.**  It is the open Mellin-lift construction of the paper (convolution source,
+pre-edge, window and post-edge signs); this module only reduces `CeHbLift ShellHBData.airy` to it, so the headline
+field `ce_hb_lift_m1` stays open until `CeHankelPair` is a theorem.  The Laplace premise of `CeHankelPair` is true
+(`shellLaplaceF_m1_pos`) and is kept only to mirror `CeHbLift`.
 -/
 
 @[expose] public section
@@ -24,7 +33,7 @@ namespace FormalResearch.SignUncertainty
 
 open FormalResearch.CohnElkies FormalResearch.Special
 
-/-- The Hankel-level statement of `thm:ce-hb-lift` at `m₀ = 1`, `N = Ai` (`c = d/2`, so the Hankel kernel index is
+/-- The Hankel-level statement of `thm:ce-hb-lift` at `m₀ = 1`, `N = Ai` (**unproved**; `c = d/2`, so the Hankel kernel index is
 `d/2`): the Laplace hypothesis gives `K₀`, `d₀` and, in every dimension `d ≥ d₀`, a Cohn--Elkies pair
 (`G`, `ĝ = 𝓗_{d/2} G`) of threshold `T ≤ c/π² + A c^{1/3} + K₀`. -/
 def CeHankelPair : Prop :=
@@ -38,7 +47,9 @@ def CeHankelPair : Prop :=
       (∀ Δ : ℝ, T ≤ Δ → G Δ ≤ 0) ∧
       T ≤ ((d : ℝ) / 2) / π ^ 2 + airyOrderCoeff * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) + K₀
 
-/-- **`ce_hb_lift_m1` from the Hankel pair.** -/
+/-- **`ce_hb_lift_m1` from the Hankel pair** (`thm:ce-hb-lift`, `m₀ = 1`, `N = Ai`): `CeHankelPair → CeHbLift ShellHBData.airy`.
+Conditional on the open `CeHankelPair`; the odd-card premise is `m = 1`, the shell conditions are vacuous and the offsets
+unused. -/
 theorem ce_hb_lift_airy_of_hankelPair (H : CeHankelPair) : CeHbLift ShellHBData.airy := by
   intro _ hlap R_off _
   obtain ⟨K₀, d₀, hd₀⟩ := H hlap

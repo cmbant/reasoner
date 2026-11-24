@@ -91,6 +91,42 @@ lemma convWc_nonneg {p γ θ ε h : ℝ} (hγ : 0 ≤ γ) (hθ : 0 ≤ θ) (hε 
   positivity
 
 
+/-- info: 'FormalResearch.SignUncertainty.convEta_eq_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convEta_eq_zero
+
+/-- info: 'FormalResearch.SignUncertainty.convEta_eq_one' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convEta_eq_one
+
+/-- info: 'FormalResearch.SignUncertainty.convEta_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convEta_nonneg
+
+/-- info: 'FormalResearch.SignUncertainty.convEta_le_one' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convEta_le_one
+
+/-- info: 'FormalResearch.SignUncertainty.convEta_monotone' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convEta_monotone
+
+/-- info: 'FormalResearch.SignUncertainty.convRho_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convRho_nonneg
+
+/-- info: 'FormalResearch.SignUncertainty.convRho_le_one' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convRho_le_one
+
+/-- info: 'FormalResearch.SignUncertainty.convWh_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convWh_nonneg
+
+/-- info: 'FormalResearch.SignUncertainty.convWh_eq_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convWh_eq_zero
+
 /-- info: 'FormalResearch.SignUncertainty.convWh_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms convWh_le
