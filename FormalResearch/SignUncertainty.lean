@@ -196,6 +196,7 @@ public import FormalResearch.SignUncertainty.CeHbLiftAssembly
 public import FormalResearch.SignUncertainty.MellinLiftGeneral
 public import FormalResearch.SignUncertainty.ConvSourceDefs
 public import FormalResearch.SignUncertainty.ConvSourceLaplace
+public import FormalResearch.SignUncertainty.ConvSourceG1
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
@@ -327,6 +328,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.CeHbLiftAssembly` (M6, Euclidean assembly; proved): `CeHankelPair` (the Hankel-level statement of `thm:ce-hb-lift` at `m₀ = 1`, `N = Ai`) and `ce_hb_lift_airy_of_hankelPair : CeHankelPair → CeHbLift ShellHBData.airy` (shells vacuous at `m = 1`, offsets irrelevant).
 * `FormalResearch.SignUncertainty.MellinLiftGeneral` (M6; proved): `exists_hankelEigenfn_lift_general` (the Hankel eigenfunction lift of any `HasU2` seed, given the tail bound `|I_main + σ I_dual| ≤ C ξ⁻¹ (log π²ξ)^{-3/2}` as a hypothesis; the one-level `exists_hankelEigenfn_lift` is the instance with `iMain_add_iDual_tail`).
 * `FormalResearch.SignUncertainty.ConvSourceDefs`, `ConvSourceLaplace` (M6, convolution source of `ceo:conv`; proved): the cutoff `convEta`, profile `convRho`, weights `convWh`, `convWc` and source `convSource` with their signs and pointwise bounds; the Laplace transform `lapW` of a weight (holomorphic on `Re z > 0`, `|lapW w z| ≤ ‖w‖₁`), the right convolution `convR`, the product formula `airyTwistedLaplaceC_convR` (`O.12(3)`, Fubini `convR_twisted`) and `hasU2_convR` (`HasU2` is preserved by convolution with an integrable weight).
+* `FormalResearch.SignUncertainty.ConvSourceG1` (M6, Haiku; proved): `convG1_nonneg`, `convG1_pos_of_ge` (`g₁ > 0` on `[a₁, ∞)`), `convG1_le_poly` (`g₁(u) ≤ C (1 + |u|)^{-5/2}` on `ℝ`), `convG1_moment_integrable` (`∫ |u| g₁ < ∞`).
 * `FormalResearch.SignUncertainty.HankelWtConj`: complex-conjugation symmetry of `W̃_c` and of the local density integrand (`hankelMellinStrip_conj`, `hankelHInt_conj`, `hankelWt_conj`, `hankelJ_conj`), and reality of the local density for real `ℓ` (`hankelLocal_im_eq_zero`).
   with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
   `one_profile_envelope`.
