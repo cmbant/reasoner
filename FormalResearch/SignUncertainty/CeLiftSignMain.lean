@@ -10,7 +10,10 @@ public import FormalResearch.SignUncertainty.CeLiftEdge
 source-family input `CeSourceFamily`, there are `K₁, c₁` such that for every `c ≥ c₁` there are Hankel eigenfunctions `f₊` (`σ = +1`) and
 `f₋` (`σ = -1`), a threshold `T ≤ c/π² + A c^{1/3} + K₁` (`A` the Airy order coefficient), `f₋(0) = 0 < f₊(0)` and
 `f₊ + f₋ ≤ 0` on `[T, ∞)`.  Then `h = (f₊ + f₋)/2` has `h ≤ 0` beyond `T`, `ĥ = (f₊ - f₋)/2`, `h(0) = ĥ(0) > 0`; the remaining
-input of `CeHankelPair` is the Fourier sign `f₋ ≤ f₊` (not proved here).  Conditional on `O6Bricks 4` and `CeSourceFamily`.
+input of `CeHankelPair` is the Fourier sign `f₋ ≤ f₊` (not proved here, see `ceHankelPair_of_eigenfns`).  Conditional on `O6Bricks 4` and `CeSourceFamily`
+(the latter is not instantiated for `convSource`).  `CeHankelPair` and the headline `ce_hb_lift_m1` remain open.  Proof: the tuning `η` of `ceLift_tune` at the
+edge `c^{1/3}` (its size from the `edge` field and `liftSymbol_edge_bound`), the pair of `ceLift_pair`, and `o6_positivity_dual_Kc` for the main seed
+`-D_η` and the reflected seed `-S_c` (`h = -(I_main[-D_η] + I_dual[-S_c])`, so `f₊ + f₋ = 2h ≤ 0` where `S_eff ≥ s_min`, i.e. `Δ ≥ T`).
 -/
 
 @[expose] public section

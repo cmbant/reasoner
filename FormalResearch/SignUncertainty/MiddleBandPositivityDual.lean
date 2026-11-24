@@ -12,9 +12,12 @@ in `thm:ce-hb-lift`, with `D = -S_c` (convolution source; `O.12(5)` and `GT.2b` 
 * `O6DualEst m D`: the two dual-seed estimates for the family `D K c` (the seed used at width `δ₀ = β₁ K ε / 2`, scale `c`): `e3` (the display `(e3)` for
   `I_dual[D K c]`) and `e5` (the window bound).
 * `o6_positivity_dual`: `Re (I_main[X] + I_dual[D K c]) > 0` for `S_eff ≥ s_min`, `K ≥ K₀`, `c ≥ c₀`, from `O6Est m R g0` for the main seed family and `O6DualEst m D`.
-  Proved (the proof is that of `o6_positivity`).  `O6DualEst` is a hypothesis structure: for `D = -S_c` it is discharged by `O.12(5)` and `GT.2b` (not yet formalised).
-* `o6DualEst_of_oneLevel`: non-vacuity witness, the one-level dual `D K c = σ X` with `X ∈ airySeedU2` obeys `O6DualEst` when `O6Est` holds (the `σ`-shifted
-  seed obeys `e3`; the window bound follows from `e3` since `L ≤ π² ε² S_w` there).
+  Proved (the proof is that of `o6_positivity`).  `O6Est` and `O6DualEst` are hypothesis structures.  For `D = -S_c` the structure `O6DualEst` would be discharged
+  by `O.12(5)` and `GT.2b`; that is not formalised.
+* `o6_positivity_dual_Kc`: the same with main-seed coefficients `fa K c`, `fb K c`, `fc K c` depending on `K` and `c` (the form `ceLift_physical` uses;
+  `o6_positivity_dual` is the case depending on `K ε` only, and its proof is a copy of this one).
+* `o6DualEst_of_oneLevel_family`, `o6DualEst_of_oneLevel`: non-vacuity witnesses, a one-level dual `D K c = X_c`, `X_c ∈ airySeedU2` with bounded coefficients
+  (possibly depending on `c`), obeys `O6DualEst` when `O6Est` holds (`e3` is `O6Est.e3`; the window bound is the difference of the `σ = ±1` instances of `O6Est.e5`).
 -/
 
 @[expose] public section
@@ -1006,25 +1009,27 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
       _ < G * P := by linarith only [mul_pos hGpos hPpos]
       _ ≤ _ := hlead'
 
-/-- **Non-vacuity of `O6DualEst`.**  The constant dual seed family `D K c = X`, `X = airySeedU2 a b c₀` with `|a|, |b|, |c₀| ≤ R`, obeys
-`O6DualEst` whenever `O6Est m R g0` holds: `e3` is `O6Est.e3`, and the window bound is the difference of the `σ = ±1` instances of `O6Est.e5`
-(which gives `‖I_dual[X]‖ ≤ C ξ⁻¹ (ε² + c^{-1/2})`). -/
-theorem o6DualEst_of_oneLevel {m : ℕ} {R g0 : ℝ} (E : O6Est m R g0) {a b c₀ : ℝ} (ha : |a| ≤ R) (hb : |b| ≤ R)
-    (hc : |c₀| ≤ R) : O6DualEst m (fun _ _ => airySeedU2 a b c₀) := by
+/-- **Non-vacuity of `O6DualEst`.**  The one-level dual seed family `D K c = X_c`, `X_c = airySeedU2 (a c) (b c) (c₀ c)` with coefficients
+bounded by `R` (for `c ≥ 2`; they may depend on `c` but not on `K`), obeys `O6DualEst` whenever `O6Est m R g0` holds: `e3` is `O6Est.e3`, and the
+window bound is the difference of the `σ = ±1` instances of `O6Est.e5` (which gives `‖I_dual[X]‖ ≤ C ξ⁻¹ (ε² + c^{-1/2})`). -/
+theorem o6DualEst_of_oneLevel_family {m : ℕ} {R g0 : ℝ} (E : O6Est m R g0) {a b c₀ : ℝ → ℝ}
+    (ha : ∀ c : ℝ, 2 ≤ c → |a c| ≤ R) (hb : ∀ c : ℝ, 2 ≤ c → |b c| ≤ R) (hc : ∀ c : ℝ, 2 ≤ c → |c₀ c| ≤ R) :
+    O6DualEst m (fun _ c => airySeedU2 (a c) (b c) (c₀ c)) := by
   refine ⟨?_, fun Sw => ?_⟩
   · obtain ⟨C, hC, h⟩ := E.e3
-    exact ⟨C, hC, fun {K c ξ} hδ hc2 hξ hS => h ha hb hc hδ hc2 hξ hS⟩
+    exact ⟨C, hC, fun {K c ξ} hδ hc2 hξ hS => h (ha c hc2) (hb c hc2) (hc c hc2) hδ hc2 hξ hS⟩
   · obtain ⟨C, hC, h⟩ := E.e5 Sw
     refine ⟨2 * C, by linarith, fun {K c ξ} hδ hcc hξ hS => ?_⟩
     have hc0 : 0 < c := by linarith
-    have hp := h (a := a) (b := b) (c₀ := c₀) (σ := 1) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
-      ha hb hc (Or.inl rfl) hδ hcc hξ hS
-    have hm := h (a := a) (b := b) (c₀ := c₀) (σ := -1) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
-      ha hb hc (Or.inr rfl) hδ hcc hξ hS
-    set Mn := iMain (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m c ξ
-    set Dx := iDual (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m c ξ
+    have hc2 : 2 ≤ c := by linarith
+    have hp := h (a := a c) (b := b c) (c₀ := c₀ c) (σ := 1) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
+      (ha c hc2) (hb c hc2) (hc c hc2) (Or.inl rfl) hδ hcc hξ hS
+    have hm := h (a := a c) (b := b c) (c₀ := c₀ c) (σ := -1) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
+      (ha c hc2) (hb c hc2) (hc c hc2) (Or.inr rfl) hδ hcc hξ hS
+    set Mn := iMain (airySeedU2 (a c) (b c) (c₀ c)) (ceBeta1 * K * liftEps c / 2) m c ξ
+    set Dx := iDual (airySeedU2 (a c) (b c) (c₀ c)) (ceBeta1 * K * liftEps c / 2) m c ξ
     set T : ℂ := (((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
-      windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a b c₀)
+      windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 (a c) (b c) (c₀ c))
         (-(ceBeta1 * hbS c ξ) - liftEps c / (2 * ceCs)) : ℝ)) : ℂ)
     have hsplit : Dx = (1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) - (Mn + ((-1 : ℝ) : ℂ) * Dx - T)) := by
       push_cast; ring
@@ -1055,6 +1060,16 @@ theorem o6DualEst_of_oneLevel {m : ℕ} {R g0 : ℝ} (E : O6Est m R g0) {a b c�
           have := mul_le_mul_of_nonneg_left hmain (mul_nonneg hC.le hξi.le)
           linarith
       _ = 2 * C * ξ⁻¹ * c ^ (-(1 / 2 : ℝ)) := by ring
+
+/-- **Non-vacuity of `O6DualEst`** for a constant one-level dual seed `X = airySeedU2 a b c₀`, `|a|, |b|, |c₀| ≤ R` (the case of
+`o6DualEst_of_oneLevel_family` with `c`-independent coefficients). -/
+theorem o6DualEst_of_oneLevel {m : ℕ} {R g0 : ℝ} (E : O6Est m R g0) {a b c₀ : ℝ} (ha : |a| ≤ R) (hb : |b| ≤ R)
+    (hc : |c₀| ≤ R) : O6DualEst m (fun _ _ => airySeedU2 a b c₀) :=
+  o6DualEst_of_oneLevel_family E (a := fun _ => a) (b := fun _ => b) (c₀ := fun _ => c₀) (fun _ _ => ha) (fun _ _ => hb)
+    (fun _ _ => hc)
+
+/-- info: 'FormalResearch.SignUncertainty.o6DualEst_of_oneLevel_family' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms o6DualEst_of_oneLevel_family
 
 /-- info: 'FormalResearch.SignUncertainty.o6DualEst_of_oneLevel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms o6DualEst_of_oneLevel
