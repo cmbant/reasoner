@@ -227,8 +227,8 @@ lemma dm1_data (F : SymbolFamily Par) (K : Set Par) (hH : HypOn F K) (hD : DM F 
   obtain ⟨g, hg⟩ := hH
   have h0 := hD.reg 0 (Nat.zero_le _)
   have h1 := hD.reg 1 le_rfl
-  have e0 : (regBudget 1 - 10 * (0 / 2) : ℕ) = 31 := by unfold regBudget; norm_num
-  have e1 : (regBudget 1 - 10 * (1 / 2) : ℕ) = 31 := by unfold regBudget; norm_num
+  have e0 : (regBudget 1 - 10 * (0 / 2) : ℕ) = 23 := by unfold regBudget; norm_num
+  have e1 : (regBudget 1 - 10 * (1 / 2) : ℕ) = 23 := by unfold regBudget; norm_num
   rw [e0] at h0
   rw [e1] at h1
   refine ⟨g, hg μ hμ, (h0.1.1 μ hμ).of_le (by norm_cast), (h0.2.1 μ hμ).of_le (by norm_cast),

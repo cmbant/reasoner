@@ -89,7 +89,7 @@ lemma jets_bound_choose {P : Set Par} (hP : IsCompact P) {L : ℝ} {n : ℕ} (f 
 
 /-- Under `(E_K)` on a compact set the symbols are `O(h^2)`-close to the principal symbols (even jets only), for `h <= 1`. -/
 lemma coreReg_of_EK {F : SymbolFamily Par} {P : Set Par} {Kd r : ℕ} (hP : IsCompact P) (hE : EK F P Kd r) : CoreReg F P 2 := by
-  have hr : 22 ≤ r := le_trans (by unfold regBudget; omega) hE.budget
+  have hr : 14 ≤ r := le_trans (by unfold regBudget; omega) hE.budget
   have hreg0 := hE.reg 0 (Nat.zero_le _)
   simp only [Nat.mul_zero, Nat.sub_zero] at hreg0
   refine ⟨hP, JetReg.mono hreg0.1 (by omega), JetReg.continuousOn0 hreg0.2, ?_⟩

@@ -126,7 +126,7 @@ theorem bulk_slope {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily (Par �
   obtain ⟨ε, hε0, hε1, hmarg⟩ := CL.theta_margin
   obtain ⟨hc'0, hc'c, hσ, hcL, -⟩ := CL.consts_pos
   have hbud := hEK.budget
-  have hr22 : 22 ≤ r := by unfold regBudget at hbud; omega
+  have hr22 : 14 ≤ r := by unfold regBudget at hbud; omega
   have hG0 := hEK.reg 0 (Nat.zero_le _)
   simp only [mul_zero, Nat.sub_zero] at hG0
   obtain ⟨MG, hMG⟩ := jet_bound hPc hG0.1 (k := 0) (Nat.zero_le _)

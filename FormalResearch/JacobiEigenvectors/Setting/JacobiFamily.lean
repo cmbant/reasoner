@@ -23,7 +23,7 @@ the paper is proved here.  The proved lemmas are the exact algebraic identities 
 | `jacobiMat` | `J_h` (eq:J) as a `Matrix (Fin (N+1)) (Fin (N+1)) ℝ` |
 | `IsEigenSystem J X U` | eigenvalues `X_0 > ... > X_N`, orthogonal `U_h = (Psi_0..Psi_N)`, gauge `(Psi_k)_0 > 0` |
 | `JacSol` | the three-term recurrence (eq:tha-rec) on rows `0 <= n < NR`, any energy `X` |
-| `regBudget M` = `9M+22` | `r(M)` of lem:smo-budget |
+| `regBudget M` = `max{14, 14 ceil(M/2) + 9}` | `r(M)` of lem:smo-budget |
 | `JetReg` | `G_j in C^r([0,L])` depending continuously on `mu` in these norms |
 | `DM F K M` | `(D_M)` of def:symbols (jets `C^{r(M)-10 floor(j/2)}`, remainder `O(h^{M+1})`) |
 | `EK F K Kidx r` | `(E_K)` of eq:tha-AK (even jets only, `r >= r(max(2K-1,0))`) |
@@ -64,8 +64,8 @@ namespace FormalResearch.JacobiEigenvectors.Setting
 open Set Finset
 open scoped Matrix
 
-/-- The derivative budget `r(M) = 9M + 22` of lem:smo-budget (sufficient, unoptimised). -/
-def regBudget (M : ℕ) : ℕ := 9 * M + 22
+/-- The derivative budget `r(M) = max {14, 14 ceil(M/2) + 9}` of lem:smo-budget, `eq:smo-rM` (sufficient, unoptimised). -/
+def regBudget (M : ℕ) : ℕ := max 14 (14 * ((M + 1) / 2) + 9)
 
 /-- Lattice nodes `s_n = (n+1) h` (the bond sites). -/
 def sNode (h : ℝ) (n : ℤ) : ℝ := ((n : ℝ) + 1) * h
