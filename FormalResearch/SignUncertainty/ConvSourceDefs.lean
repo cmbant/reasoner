@@ -90,4 +90,17 @@ lemma convWc_nonneg {p γ θ ε h : ℝ} (hγ : 0 ≤ γ) (hθ : 0 ≤ θ) (hε 
   have := convWh_nonneg (p := p) hh hy
   positivity
 
+
+/-- info: 'FormalResearch.SignUncertainty.convWh_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convWh_le
+
+/-- info: 'FormalResearch.SignUncertainty.convWc_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convWc_nonneg
+
+/-- info: 'FormalResearch.SignUncertainty.convEta_contDiff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convEta_contDiff
+
 end FormalResearch.SignUncertainty
