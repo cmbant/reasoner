@@ -199,6 +199,8 @@ public import FormalResearch.SignUncertainty.ConvSourceLaplace
 public import FormalResearch.SignUncertainty.ConvSourceG1
 public import FormalResearch.SignUncertainty.ConvSourceWeight
 public import FormalResearch.SignUncertainty.ConvSourceHasU2
+public import FormalResearch.SignUncertainty.ConvSourceTail
+public import FormalResearch.SignUncertainty.MiddleBandPositivityDual
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
@@ -333,6 +335,8 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.ConvSourceG1` (M6, Haiku; proved): `convG1_nonneg`, `convG1_pos_of_ge` (`g₁ > 0` on `[a₁, ∞)`), `convG1_le_poly` (`g₁(u) ≤ C (1 + |u|)^{-5/2}` on `ℝ`), `convG1_moment_integrable` (`∫ |u| g₁ < ∞`).
 * `FormalResearch.SignUncertainty.ConvSourceWeight` (M6, Haiku; proved, items (a), (b) of the brief): `convW_integrable`, `convW_L1_le` (`∫ w_h ≤ (2 + 1/(p - 1/2)) √h`), `convBp`, `convW_mass` (`|∫ w_h - √h B_p| ≤ C h^p`). The derivative bounds `(ceo:conv.4)` are open.
 * `FormalResearch.SignUncertainty.ConvSourceHasU2` (M6; proved): `convWc_integrableOn`, `hasU2_convSource` (`HasU2 S_c`), `airyTwistedLaplaceC_convSource` (`S̃_c = lapW w_c · g̃₁`).
+* `FormalResearch.SignUncertainty.ConvSourceTail` (M6, step (3); proved, conditional on the hypothesis structure `ConvTailData`): additivity and scalar linearity of `iMain`, `iDual` in `HasU2` seeds (`iMain_add`, `iDual_add`, `iMain_const_mul`, `iDual_const_mul`); `ConvTailData S δ₀ m c` (`HasU2 S` and the `ξ⁻¹ (log π²ξ)^{-3/2}` tails of `I_main[S]`, `I_dual[S]`; for `S = S_c` these are `O.12(7)` and `GT.2b`, not yet formalised), `convTailData_of_oneLevel` (non-vacuity), `convTail_add`, `exists_hankelEigenfn_lift_of_convTail` (the Hankel eigenfunction lift of `D + τ S`, `D` one-level).
+* `FormalResearch.SignUncertainty.MiddleBandPositivityDual` (M6, step (4); proved, conditional on the hypothesis structure `O6DualEst`): `o6_positivity_dual` (`u1co:O6` with a general dual seed family `D K c`: `Re (I_main[X] + I_dual[D K c]) > 0`), `O6DualEst` (the `(e3)` and fixed-window bounds for `D`), `o6DualEst_of_oneLevel` (non-vacuity).
 * `FormalResearch.SignUncertainty.HankelWtConj`: complex-conjugation symmetry of `W̃_c` and of the local density integrand (`hankelMellinStrip_conj`, `hankelHInt_conj`, `hankelWt_conj`, `hankelJ_conj`), and reality of the local density for real `ℓ` (`hankelLocal_im_eq_zero`).
   with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
   `one_profile_envelope`.
