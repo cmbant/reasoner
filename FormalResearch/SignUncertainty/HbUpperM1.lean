@@ -336,6 +336,8 @@ theorem hbThresholdsUpper_of_o4 (h : ∀ L : ℝ, 0 < L → L ≤ 0.002 → O4Qu
 #guard_msgs (whitespace := lax) in #print axioms hbThresholdsUpper_of_bricks
 /-- info: 'FormalResearch.SignUncertainty.o6Bricks_of_inputs' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms o6Bricks_of_inputs
+/-- info: 'FormalResearch.SignUncertainty.middleBandInputs_of_o4' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms middleBandInputs_of_o4
 /-- info: 'FormalResearch.SignUncertainty.hbThresholdsUpper_of_o4' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms hbThresholdsUpper_of_o4
 /-- info: 'FormalResearch.SignUncertainty.hbThresholdsUpper_of_inputs' depends on axioms: [propext, Classical.choice, Quot.sound] -/

@@ -310,6 +310,22 @@ theorem gt1BasisInput (m : ℕ) (hm : 3 ≤ m) : Gt1BasisInput m := by
     rw [e]
     exact h.mono (by nlinarith)
 
+/-- info: 'FormalResearch.SignUncertainty.symBd_negAmpP' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms symBd_negAmpP
+/-- info: 'FormalResearch.SignUncertainty.symBd_negAmpM' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms symBd_negAmpM
+/-- info: 'FormalResearch.SignUncertainty.symBd_negAmpP'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms symBd_negAmpP'
+/-- info: 'FormalResearch.SignUncertainty.symBd_negAmpM'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms symBd_negAmpM'
+/-- info: 'FormalResearch.SignUncertainty.SymBd.nonneg'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms SymBd.nonneg'
+/-- info: 'FormalResearch.SignUncertainty.seed_f1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms seed_f1
+/-- info: 'FormalResearch.SignUncertainty.seed_g1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms seed_g1
+/-- info: 'FormalResearch.SignUncertainty.seed_g1d' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms seed_g1d
 /-- info: 'FormalResearch.SignUncertainty.seed_of_quadratic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms seed_of_quadratic
 /-- info: 'FormalResearch.SignUncertainty.gt1BasisInput' depends on axioms: [propext, Classical.choice, Quot.sound] -/
