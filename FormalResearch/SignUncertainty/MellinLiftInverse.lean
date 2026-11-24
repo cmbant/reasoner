@@ -14,8 +14,8 @@ sub-strip and real (`Φ(z̄) = conj Φ(z)`) has an inverse Mellin lift `f = mell
 * is real, continuous on `(0, ∞)` and bounded by `C_x Δ^{-x}` (`liftFun_*`),
 * has Mellin transform `Φ` on the open strip (`mellinRaw_liftFun`, Fourier inversion).
 
-Status: proved, unconditional.  Not formalised here: behaviour at `Δ → 0` and `Δ → ∞` beyond the power bound (the tail
-`f ρ₀ ∈ L¹` and the Hankel eigen-identity are in `MellinLiftEigen`).
+Status: proved, unconditional.  Not formalised here: behaviour at `Δ → 0` and `Δ → ∞` beyond the power bound (the Hankel
+eigen-identity is in `MellinLiftEigen`, the tail `f ρ₀ ∈ L¹` for the concrete lifts in `MellinLiftTail`).
 -/
 
 @[expose] public section
