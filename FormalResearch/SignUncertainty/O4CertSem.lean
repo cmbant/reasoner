@@ -23,28 +23,28 @@ open Complex
 /-- The complex number of a pair. -/
 noncomputable def CP.toC (z : CP ℝ) : ℂ := (z.re : ℂ) + (z.im : ℂ) * Complex.I
 
-theorem toC_add (a b : CP ℝ) : (CP.add a b).toC = a.toC + b.toC := by
+lemma toC_add (a b : CP ℝ) : (CP.add a b).toC = a.toC + b.toC := by
   apply Complex.ext <;> simp [CP.add, CP.toC]
 
-theorem toC_neg (a : CP ℝ) : (CP.neg a).toC = -a.toC := by
+lemma toC_neg (a : CP ℝ) : (CP.neg a).toC = -a.toC := by
   apply Complex.ext <;> simp [CP.neg, CP.toC]
 
-theorem toC_sub (a b : CP ℝ) : (CP.sub a b).toC = a.toC - b.toC := by
+lemma toC_sub (a b : CP ℝ) : (CP.sub a b).toC = a.toC - b.toC := by
   unfold CP.sub; rw [toC_add, toC_neg]; ring
 
-theorem toC_mul (a b : CP ℝ) : (CP.mul a b).toC = a.toC * b.toC := by
+lemma toC_mul (a b : CP ℝ) : (CP.mul a b).toC = a.toC * b.toC := by
   apply Complex.ext <;> simp [CP.mul, CP.toC] <;> ring
 
-theorem toC_smul (k : ℝ) (a : CP ℝ) : (CP.smul k a).toC = (k : ℂ) * a.toC := by
+lemma toC_smul (k : ℝ) (a : CP ℝ) : (CP.smul k a).toC = (k : ℂ) * a.toC := by
   apply Complex.ext <;> simp [CP.smul, CP.toC]
 
-theorem toC_ofRe (x : ℝ) : (CP.ofRe x).toC = (x : ℂ) := by
+lemma toC_ofRe (x : ℝ) : (CP.ofRe x).toC = (x : ℂ) := by
   apply Complex.ext <;> simp [CP.ofRe, CP.toC, ic]
 
-theorem toC_zero : (⟨ic 0, ic 0⟩ : CP ℝ).toC = 0 := by
+lemma toC_zero : (⟨ic 0, ic 0⟩ : CP ℝ).toC = 0 := by
   apply Complex.ext <;> simp [CP.toC, ic]
 
-theorem toC_horner (X : CP ℝ) (cs : List ℝ) :
+lemma toC_horner (X : CP ℝ) (cs : List ℝ) :
     ∀ acc : CP ℝ, (horner X cs acc).toC = cs.foldl (fun (A : ℂ) (c : ℝ) => A * X.toC + (c : ℂ)) acc.toC := by
   induction cs with
   | nil => intro acc; rfl
@@ -62,13 +62,13 @@ noncomputable def rho13 (τ : ℂ) : ℂ :=
 noncomputable def thC (t : ℝ) : ℂ :=
   ((1 / 4 : ℝ) : ℂ) * (((1 - t ^ 2 : ℝ) : ℂ) + ((2 * t : ℝ) : ℂ) * Complex.I) / ((1 + t ^ 2 : ℝ) : ℂ)
 
-theorem thC_eq (t : ℝ) :
+lemma thC_eq (t : ℝ) :
     thC t = (((1 / 4 : ℝ) * (1 + t ^ 2)⁻¹ : ℝ) : ℂ) * (((1 - t ^ 2 : ℝ) : ℂ) + ((2 * t : ℝ) : ℂ) * Complex.I) := by
   unfold thC
   push_cast
   ring
 
-theorem thV_toC (L s a t er ei : ℝ) : (thV (realInp L s a t er ei)).toC = thC t := by
+lemma thV_toC (L s a t er ei : ℝ) : (thV (realInp L s a t er ei)).toC = thC t := by
   rw [thC_eq]
   apply Complex.ext
   · simp only [thV, realInp, CP.toC, ic, Complex.re_ofReal_mul, Complex.add_re, Complex.ofReal_re, Complex.mul_re,
@@ -80,12 +80,12 @@ theorem thV_toC (L s a t er ei : ℝ) : (thV (realInp L s a t er ei)).toC = thC 
     push_cast
     ring
 
-theorem toC_addR (z : CP ℝ) (er ei : ℝ) :
+lemma toC_addR (z : CP ℝ) (er ei : ℝ) :
     (⟨z.re + er, z.im + ei⟩ : CP ℝ).toC = z.toC + ((er : ℂ) + (ei : ℂ) * Complex.I) := by
   apply Complex.ext <;> simp [CP.toC]
 
 /-- The numerator of the box at real inputs. -/
-theorem numV_toC (L s a t er ei : ℝ) :
+lemma numV_toC (L s a t er ei : ℝ) :
     (numV (realInp L s a t er ei)).toC =
       ((L * s + -a : ℝ) : ℂ) * thC t -
         (((Real.pi * Real.pi) * ((1 : ℤ) / (36 : ℕ) : ℝ) * ((s * s) * s + -1) : ℝ) : ℂ) * (thC t * thC t * thC t) +
@@ -97,10 +97,10 @@ theorem numV_toC (L s a t er ei : ℝ) :
   push_cast
   ring
 
-theorem toC_re0 (x : ℝ) : (⟨x, ic 0⟩ : CP ℝ).toC = (x : ℂ) := toC_ofRe x
+lemma toC_re0 (x : ℝ) : (⟨x, ic 0⟩ : CP ℝ).toC = (x : ℂ) := toC_ofRe x
 
 /-- The denominator of the box at real inputs. -/
-theorem denV_toC (L s a t er ei : ℝ) :
+lemma denV_toC (L s a t er ei : ℝ) :
     (denV (realInp L s a t er ei)).toC =
       thC t * ((thC t * thC t - (((12 : ℤ) * a * (Real.pi * Real.pi)⁻¹ : ℝ) : ℂ)) *
         (thC t * thC t - (((12 : ℤ) * a * (Real.pi * Real.pi)⁻¹ : ℝ) : ℂ))) := by
@@ -108,13 +108,13 @@ theorem denV_toC (L s a t er ei : ℝ) :
   simp only [denV, d1V, th2V, toC_mul, toC_sub, hth, toC_re0]
   simp only [th02V, realInp, ic]
 
-theorem toC_normSq (z : CP ℝ) : ‖z.toC‖ ^ 2 = z.re * z.re + z.im * z.im := by
+lemma toC_normSq (z : CP ℝ) : ‖z.toC‖ ^ 2 = z.re * z.re + z.im * z.im := by
   rw [Complex.sq_norm, Complex.normSq_apply]
   simp [CP.toC]
 
 /-- **The box test, in complex form**: if `checkBox i j = true` and the real parameters lie in the box, then `|N| ≤ 0.13 |D|` and `D ≠ 0`
 for the complex numerator and denominator of the quotient. -/
-theorem box_quot_bound {i j : ℕ} (h : checkBox i j = true) {L s a t er ei : ℝ}
+lemma box_quot_bound {i j : ℕ} (h : checkBox i j = true) {L s a t er ei : ℝ}
     (hL1 : 2 * (i : ℝ) / (1000 * NL) ≤ L) (hL2 : L ≤ 2 * ((i : ℝ) + 1) / (1000 * NL))
     (hs1 : (4000 * (NL : ℝ) - ((i : ℝ) + 1)) / (4000 * NL) ≤ s)
     (hs2 : s ≤ (500000 * (NL : ℝ) + 606 * ((i : ℝ) + 1)) / (500000 * NL))

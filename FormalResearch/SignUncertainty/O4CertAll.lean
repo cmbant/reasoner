@@ -25,7 +25,7 @@ Status: proved.
 
 namespace FormalResearch.SignUncertainty.O4Cert
 
-theorem checkRange_spec {i0 i1 i j : ℕ} (h : checkRange i0 i1 = true) (hi0 : i0 ≤ i) (hi1 : i < i1) (hj : j < NT) :
+lemma checkRange_spec {i0 i1 i j : ℕ} (h : checkRange i0 i1 = true) (hi0 : i0 ≤ i) (hi1 : i < i1) (hj : j < NT) :
     checkBox i j = true := by
   unfold checkRange at h
   rw [List.all_eq_true] at h

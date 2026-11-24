@@ -21,19 +21,19 @@ namespace FormalResearch.SignUncertainty.O4Cert
 /-- The Horner coefficients as reals. -/
 noncomputable def csReal : List ℝ := csData.map fun pq => (pq.1 : ℝ) / pq.2
 
-theorem EncL_rat : ∀ l : List (ℤ × ℕ), (∀ pq ∈ l, 0 < pq.2) →
+lemma EncL_rat : ∀ l : List (ℤ × ℕ), (∀ pq ∈ l, 0 < pq.2) →
     EncL (l.map fun pq => (pq.1 : ℝ) / pq.2) (l.map fun pq => Ball.rat pq.1 pq.2)
   | [], _ => EncL.nil
   | pq :: l, h => EncL.cons (Enc.rat pq.1 pq.2 (h pq (by simp))) (EncL_rat l fun x hx => h x (by simp [hx]))
 
-theorem csData_pos : ∀ pq ∈ csData, 0 < pq.2 := by decide +kernel
+lemma csData_pos : ∀ pq ∈ csData, 0 < pq.2 := by decide +kernel
 
 /-- The real inputs of a box. -/
 noncomputable def realInp (L s a t er ei : ℝ) : Inp ℝ :=
   ⟨L, s, a, t, (1 + t * t)⁻¹, Real.pi, Real.pi⁻¹, (Real.pi * Real.pi)⁻¹, ((1 : ℤ) : ℝ) / ((4 : ℕ) : ℝ),
     ((1 : ℤ) : ℝ) / ((36 : ℕ) : ℝ), er, ei, csReal⟩
 
-theorem Ball.pos_of_leMul {k : ℕ} {a b : Ball} (h : Ball.leMul k a b = true) : b.pos = true := by
+lemma Ball.pos_of_leMul {k : ℕ} {a b : Ball} (h : Ball.leMul k a b = true) : b.pos = true := by
   simp only [Ball.leMul, Bool.and_eq_true, decide_eq_true_eq] at h
   simp only [Ball.pos, Bool.and_eq_true, decide_eq_true_eq]
   exact ⟨h.1.1.2, h.1.2⟩

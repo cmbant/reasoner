@@ -24,7 +24,7 @@ namespace FormalResearch.SignUncertainty
 open FormalResearch.CohnElkies Complex
 open FormalResearch.SignUncertainty.O4Cert
 
-theorem rho13_eq (τ : ℂ) :
+lemma rho13_eq (τ : ℂ) :
     rho13 τ = ∑ n ∈ Finset.Icc 2 13, ((-1 : ℂ) ^ n * ((o4Coef n * Real.pi ^ (2 * n) : ℝ) : ℂ)) * τ ^ (2 * n + 1) := by
   have hπ : (Real.pi : ℂ) ≠ 0 := by exact_mod_cast Real.pi_ne_zero
   rw [show Finset.Icc 2 13 = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13} by decide]
@@ -38,7 +38,7 @@ theorem rho13_eq (τ : ℂ) :
   field_simp
   ring
 
-theorem trunc_error_le (L : ℝ) {τ : ℂ} (hτ : ‖τ‖ ≤ (1 + 0.606 * 0.002) / 4) :
+lemma trunc_error_le (L : ℝ) {τ : ℂ} (hτ : ‖τ‖ ≤ (1 + 0.606 * 0.002) / 4) :
     ‖edgePhiC L τ - ((L : ℂ) * τ - (Real.pi : ℂ) ^ 2 / 36 * τ ^ 3 + rho13 τ)‖ ≤ (tailR : ℝ) / SC := by
   have h := edgePhiC_trunc_tail L hτ (by norm_num)
   have e : edgePhiC L τ - ((L : ℂ) * τ - (Real.pi : ℂ) ^ 2 / 36 * τ ^ 3 + rho13 τ) =

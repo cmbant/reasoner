@@ -16,7 +16,7 @@ Non-vacuity: `gt1Bounds_zero_symbol` (the zero seed symbol is zero, so it satisf
 (the class of seeds of `airyTailSymbolSeed_nonvacuous` is inhabited, and its symbols satisfy the bound with `S = M = 0`).
 
 Status: proved.  No extra hypothesis is needed: `0 ≤ S` and `0 ≤ M` follow from the seed fields.  Not formalised here: the
-that the three basis seeds `f₁, g₁, g₁'` are `AiryTailSymbolSeed`s (`Gt1BasisInput m` of `Gt1Interface.lean`); the identification of `liftW` with
+that the three basis seeds `f₁, g₁, g₁'` are `AiryTailSymbolSeed`s (`Gt1BasisInput m` of `Gt1Interface.lean`, proved in `Gt1NegTail.lean`); the identification of `liftW` with
 `airyWeightedSymbol` is `Gt1Identify.lean` and the composition `Gt1LiftSeed.lean`.
 -/
 

@@ -14,9 +14,10 @@ For `L ∈ (0, 0.002]` put `α̃ = edgeAlphaTilde L`, `θ₀² = 12 α̃ / π²`
 `Φ_L = edgePhiC L` (`ComplexEdgePhase`). The quotient
 `F(θ) = (Φ̂(θ) - Φ_mod(θ)) / (θ (θ² - θ₀²)²)` is the paper's `𝓕`.
 
-**Named hypothesis** `O4QuotientBound L` (the paper's `M_F ≤ 0.13`, `[O4C (B)]`, interval arithmetic in
-`certify_u1c_o4_contraction.py`): `‖F‖ ≤ 0.13` on `D(0, 0.25)` off its three removable singularities.
-Everything below is unconditional given that hypothesis: the removable singularities are filled by
+`O4QuotientBound L` (the paper's `M_F ≤ 0.13`, `[O4C (B)]`) is the statement `‖F‖ ≤ 0.13` on `D(0, 0.25)` off its three removable
+singularities.  It is taken as an explicit hypothesis of the theorems below and is proved for every `L ∈ (0, 0.002]` as
+`FormalResearch.SignUncertainty.o4QuotientBound` (`O4CircleReduction`, `O4QuotientBound`: quarter-arc reduction and a kernel-checked
+interval certificate), so `o4_normal_form` holds for every such `L`.  Given the bound: the removable singularities are filled by
 Riemann's theorem (the bound supplies boundedness), `o4_fixed_point` gives `η`, and
 `τ(θ) = σ₀ θ (1 + (θ² - θ₀²) η(θ))` solves `Φ_L(τ(θ)) = Φ_mod(θ)` on `D(0, 0.22)`.
 -/
@@ -113,8 +114,8 @@ noncomputable def o4PhiHat (L : ℝ) (θ : ℂ) : ℂ := edgePhiC L ((o4Sigma0 L
 noncomputable def o4Quot (L : ℝ) (θ : ℂ) : ℂ :=
   (o4PhiHat L θ - o4PhiMod L θ) / (θ * (θ ^ 2 - (o4Theta0Sq L : ℂ)) ^ 2)
 
-/-- **Named hypothesis** (the paper's `M_F ≤ 0.13`, `[O4C (B)]`): `‖𝓕‖ ≤ 0.13` on `D(0, 0.25)` away from the
-removable singularities `0, ±θ₀`. -/
+/-- The paper's `M_F ≤ 0.13` (`[O4C (B)]`): `‖𝓕‖ ≤ 0.13` on `D(0, 0.25)` away from the removable singularities `0, ±θ₀`.
+It holds for every `L ∈ (0, 0.002]` (`SignUncertainty.o4QuotientBound`); here it is a hypothesis of `o4_quotient_ext`, `o4_normal_form`. -/
 def O4QuotientBound (L : ℝ) : Prop :=
   ∀ θ : ℂ, ‖θ‖ < 0.25 → θ ≠ 0 → θ ≠ (o4Theta0 L : ℂ) → θ ≠ -(o4Theta0 L : ℂ) → ‖o4Quot L θ‖ ≤ 0.13
 
@@ -257,7 +258,7 @@ lemma differentiableOn_o4PhiMod : DifferentiableOn ℂ (o4PhiMod L) univ := by
   unfold o4PhiMod; fun_prop
 
 /-- Holomorphic extension of the quotient `𝓕` to `D(0, 0.25)` with the bound `0.13`, and the identity
-`Φ̂ - Φ_mod = θ (θ² - θ₀²)² 𝓕`. Under the named hypothesis `O4QuotientBound`. -/
+`Φ̂ - Φ_mod = θ (θ² - θ₀²)² 𝓕`, given `O4QuotientBound L`. -/
 theorem o4_quotient_ext (hL0 : 0 < L) (hL2 : L ≤ 0.002) (hM : O4QuotientBound L) :
     ∃ F : ℂ → ℂ, DifferentiableOn ℂ F (ball 0 0.25) ∧ (∀ θ ∈ ball (0 : ℂ) 0.25, ‖F θ‖ ≤ 0.13) ∧
       (∀ θ ∈ ball (0 : ℂ) 0.25, o4PhiHat L θ - o4PhiMod L θ =
@@ -405,8 +406,8 @@ structure O4NormalForm (L : ℝ) (τ : ℂ → ℂ) : Prop where
       τ θ = (o4Sigma0 L : ℂ) * (θ * (1 + (θ ^ 2 - (o4Theta0Sq L : ℂ)) * η θ))
   real : ∀ θ : ℝ, |θ| < 0.22 → (starRingEnd ℂ) (τ (θ : ℂ)) = τ (θ : ℂ)
 
-/-- **Lemma `O.4(2)` (`u1co:O4`), existence and normal form, under the named hypothesis
-`O4QuotientBound L` (`M_F ≤ 0.13`).** For `L ∈ (0, 0.002]` there is a holomorphic `τ` on `D(0, 0.22)` with
+/-- **Lemma `O.4(2)` (`u1co:O4`), existence and normal form, given `O4QuotientBound L` (`M_F ≤ 0.13`; a theorem for every
+`L ∈ (0, 0.002]`, `SignUncertainty.o4QuotientBound`).** For `L ∈ (0, 0.002]` there is a holomorphic `τ` on `D(0, 0.22)` with
 `τ(0) = 0`, `|τ| < 0.45`, `Φ_L(τ(θ)) = Φ_mod(θ)`, `τ(±θ₀) = ±τ₀`, `τ` odd, real on `ℝ` and `τ'(0) = κ₀`. -/
 theorem o4_normal_form {L : ℝ} (hL0 : 0 < L) (hL2 : L ≤ 0.002) (hM : O4QuotientBound L) :
     ∃ τ : ℂ → ℂ, O4NormalForm L τ := by

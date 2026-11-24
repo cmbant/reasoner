@@ -14,7 +14,7 @@ The inner/outer splitting of `I_main` is done in the variable `τ = εv` by a cu
 * `tauCut_isCut`: `ζ` is a scale-invariant cutoff (`IsCut ζ 1 Z₁ Z₂`), equal to `1` for `ε|u| ≤ 0.075`, to `0` for `ε|u| ≥ 0.18`; `Z₁, Z₂` depend
   only on the profile constants.
 
-Status: proved, unconditional given `O4NormalForm L τ` (itself conditional on `O4QuotientBound L`).
+Status: proved, unconditional given `O4NormalForm L τ` (which exists for every `0 < L ≤ 0.002` by `o4_normal_form` and `o4QuotientBound`).
 -/
 
 @[expose] public section

@@ -23,10 +23,10 @@ namespace FormalResearch.SignUncertainty.O4Cert
 
 open FormalResearch.CohnElkies FormalResearch.SignUncertainty Complex
 
-theorem NL_real : (NL : ℝ) = 40 := by norm_num [NL]
-theorem NT_real : (NT : ℝ) = 320 := by norm_num [NT]
+lemma NL_real : (NL : ℝ) = 40 := by norm_num [NL]
+lemma NT_real : (NT : ℝ) = 320 := by norm_num [NT]
 
-theorem exists_index (n : ℕ) (hn : 0 < n) {x : ℝ} (h0 : 0 ≤ x) (h1 : x ≤ n) :
+lemma exists_index (n : ℕ) (hn : 0 < n) {x : ℝ} (h0 : 0 ≤ x) (h1 : x ≤ n) :
     ∃ i : ℕ, i < n ∧ (i : ℝ) ≤ x ∧ x ≤ (i : ℝ) + 1 := by
   by_cases h : ⌊x⌋₊ < n
   · exact ⟨⌊x⌋₊, h, Nat.floor_le h0, (Nat.lt_floor_add_one x).le⟩
@@ -42,7 +42,7 @@ theorem exists_index (n : ℕ) (hn : 0 < n) {x : ℝ} (h0 : 0 ≤ x) (h1 : x ≤
         rw [Nat.cast_sub (by omega)]; simp
       linarith
 
-theorem thC_norm (t : ℝ) : ‖thC t‖ = 1 / 4 := by
+lemma thC_norm (t : ℝ) : ‖thC t‖ = 1 / 4 := by
   have h1 : (0 : ℝ) < 1 + t ^ 2 := by positivity
   unfold thC
   rw [norm_div, norm_mul, Complex.norm_real, Complex.norm_real, Complex.norm_add_mul_I]
@@ -53,7 +53,7 @@ theorem thC_norm (t : ℝ) : ‖thC t‖ = 1 / 4 := by
   field_simp
 
 /-- **The quarter-arc bound from the box certificate.** -/
-theorem o4QuotientBound_of_trunc {L : ℝ} (hL0 : 0 < L) (hL2 : L ≤ 0.002)
+lemma o4QuotientBound_of_trunc {L : ℝ} (hL0 : 0 < L) (hL2 : L ≤ 0.002)
     (hE : ∀ τ : ℂ, ‖τ‖ ≤ (1 + 0.606 * 0.002) / 4 →
       ‖edgePhiC L τ - ((L : ℂ) * τ - (Real.pi : ℂ) ^ 2 / 36 * τ ^ 3 + rho13 τ)‖ ≤ (tailR : ℝ) / SC) :
     O4QuotientBound L := by

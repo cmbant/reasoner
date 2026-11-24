@@ -37,7 +37,7 @@ namespace FormalResearch.SignUncertainty
 
 open FormalResearch.CohnElkies FormalResearch.Special
 
-/-- The single named hypothesis of `O.9'` at `m₀ = 1`: the analytic estimates of `O6Est` for every coefficient bound. -/
+/-- The analytic estimates of `O6Est` for every coefficient bound (a theorem for `m ≥ 3`: `o6Bricks_holds`). -/
 def O6Bricks (m : ℕ) : Prop := ∃ g0 : ℝ, 0 < g0 ∧ ∀ R : ℝ, 0 ≤ R → O6Est m R g0
 
 set_option maxHeartbeats 4000000 in

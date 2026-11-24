@@ -10,7 +10,7 @@ Source: `CFT/sign_uncertainty/paper/u1c_estimate_proofs.tex`, proof of `cegt:GT2
 
 Helper facts on the normal-form map `t = Re τ` used by the change of variables `v = w₁(u) = t(εu)/ε`.
 
-Status: proved, conditional on `O4NormalForm L τ`.
+Status: proved, conditional on `O4NormalForm L τ` (which exists for every `0 < L ≤ 0.002` by `o4_normal_form` and `o4QuotientBound`).
 -/
 
 @[expose] public section

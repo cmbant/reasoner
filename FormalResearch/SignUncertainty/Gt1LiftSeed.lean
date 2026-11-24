@@ -10,9 +10,9 @@ public import FormalResearch.SignUncertainty.Gt1FromSeed
 `AiryTailSymbolSeed`; `liftW_eq_airyWeightedSymbol` (`Gt1Identify.lean`) identifies it with the middle-band symbol `liftW`.  Their
 composition is `gt1Bounds_liftW_of_seed`: the `GT.1` hypothesis of `middle_transfer_gt1` holds for the lift of every seed that carries the
 tail-symbol package.  Discharging `Gt1BasisInput m` (`Gt1Interface.lean`) therefore reduces to exhibiting the three basis seeds
-`f₁, g₁, g₁'` (spline multiplied) as `AiryTailSymbolSeed`s.
+`f₁, g₁, g₁'` (spline multiplied) as `AiryTailSymbolSeed`s (done in `Gt1NegTail.lean`: `seed_f1`, `seed_g1`, `seed_g1d`, `gt1BasisInput`).
 
-Status: proved.  Not formalised here: that `f₁, g₁, g₁'` are `AiryTailSymbolSeed`s.
+Status: proved.  Not formalised here: that `f₁, g₁, g₁'` are `AiryTailSymbolSeed`s (see `Gt1NegTail.lean`).
 -/
 
 @[expose] public section
