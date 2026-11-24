@@ -116,21 +116,21 @@ def TwoEdgeViolatorsHB (Ch : FoldChart) (P : BootstrapParams) (W_top : ℝ)
 lemma one_le_tebK0HB (P : BootstrapParams) (W_top : ℝ) : 1 ≤ tebK0HB P W_top :=
   (le_max_left _ _).trans (le_max_right _ _)
 
-/-- **Theorem FT-2E with fixed Hermite--Biehler data**: the lower bound `(fto1:lower)` with
-`u_* = t_m` and the constant `tebK0HB`. -/
-theorem ft_twoEdge_lower_hb (Ch : FoldChart) (P : BootstrapParams) {W_top : ℝ}
+/-- **Theorem FT-2E with fixed Hermite--Biehler data, explicit constant**: the lower bound `(fto1:lower)` with
+`u_* = t_m` and the explicit remainder `twoEdgeKminus Ch u_* (tebK0HB P W_top) m`, `m = min δ_* (min η₀ 1)`, whose only
+dependence on `u_*` is through `|u_*|` (monotone), so that it is uniform for `u_*` in a bounded set. -/
+theorem ft_twoEdge_lower_hb_explicit (Ch : FoldChart) (P : BootstrapParams) {W_top : ℝ}
     {Feasible : ℝ → ℝ → Prop} {ustar C1 : ℝ} (hu : ustar < 0)
     (hC1 : max Ch.C0 (tebC2 P) ≤ C1) (hU : ∀ C : ℝ, C1 ≤ C → |ustar| ≤ Ch.U C)
     (hcov : Ch.ChartCoverage Feasible ustar C1)
     (hviol : TwoEdgeViolatorsHB Ch P W_top Feasible ustar C1) :
-    ∃ Km : ℝ, 0 ≤ Km ∧ ∀ C : ℝ, C1 ≤ C → ∀ T : ℝ, Feasible C T →
-      Ch.ξs * C + (|ustar| / Ch.β) * C ^ (1 / 3 : ℝ) - Km ≤ T := by
+    ∀ C : ℝ, C1 ≤ C → ∀ T : ℝ, Feasible C T →
+      Ch.ξs * C + (|ustar| / Ch.β) * C ^ (1 / 3 : ℝ) -
+        twoEdgeKminus Ch ustar (tebK0HB P W_top) (min P.δ_star (min P.η_0 1)) ≤ T := by
   have hK0 : 0 ≤ tebK0HB P W_top := zero_le_one.trans (one_le_tebK0HB P W_top)
   have hm : 0 ≤ min P.δ_star (min P.η_0 1) :=
     le_min P.hδ_star.le (le_min P.hη0.le zero_le_one)
-  refine ⟨twoEdgeKminus Ch ustar (tebK0HB P W_top) (min P.δ_star (min P.η_0 1)),
-    twoEdgeKminus_nonneg Ch hK0, ?_⟩
-  exact Ch.lower_of_displacement (κ := fun _ => tebK0HB P W_top) hu hm
+  have h := Ch.lower_of_displacement (κ := fun _ => tebK0HB P W_top) hu hm
     ((le_max_left _ _).trans hC1) hU (fun _ _ => hK0) hcov (by
       intro C hC T u hv
       obtain ⟨I, hIc, hIx, hB3⟩ := hviol C hC T u hv
@@ -139,6 +139,21 @@ theorem ft_twoEdge_lower_hb (Ch : FoldChart) (P : BootstrapParams) {W_top : ℝ}
       refine ⟨by rw [← hIx]; exact I.hx_ub, ?_⟩
       rw [← hIc, ← hIx]
       exact h3)
+  intro C hC T hT
+  exact h C hC T hT
+
+/-- **Theorem FT-2E with fixed Hermite--Biehler data**: the lower bound `(fto1:lower)` with
+`u_* = t_m` and the constant `tebK0HB`. -/
+theorem ft_twoEdge_lower_hb (Ch : FoldChart) (P : BootstrapParams) {W_top : ℝ}
+    {Feasible : ℝ → ℝ → Prop} {ustar C1 : ℝ} (hu : ustar < 0)
+    (hC1 : max Ch.C0 (tebC2 P) ≤ C1) (hU : ∀ C : ℝ, C1 ≤ C → |ustar| ≤ Ch.U C)
+    (hcov : Ch.ChartCoverage Feasible ustar C1)
+    (hviol : TwoEdgeViolatorsHB Ch P W_top Feasible ustar C1) :
+    ∃ Km : ℝ, 0 ≤ Km ∧ ∀ C : ℝ, C1 ≤ C → ∀ T : ℝ, Feasible C T →
+      Ch.ξs * C + (|ustar| / Ch.β) * C ^ (1 / 3 : ℝ) - Km ≤ T :=
+  ⟨twoEdgeKminus Ch ustar (tebK0HB P W_top) (min P.δ_star (min P.η_0 1)),
+    twoEdgeKminus_nonneg Ch (zero_le_one.trans (one_le_tebK0HB P W_top)),
+    ft_twoEdge_lower_hb_explicit Ch P hu hC1 hU hcov hviol⟩
 
 /-- **Theorem FT-2E with fixed Hermite--Biehler data, two-sided expansion** (`fto1:two`). -/
 theorem ft_twoEdge_expansion_hb (Ch : FoldChart) (P : BootstrapParams) {W_top : ℝ}
@@ -234,6 +249,10 @@ theorem twoEdgeViolators_nonvacuous :
 /-- info: 'FormalResearch.ModularBootstrap.FoldTip.ft_twoEdge_expansion' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.ModularBootstrap.FoldTip.ft_twoEdge_expansion
+
+/-- info: 'FormalResearch.ModularBootstrap.FoldTip.ft_twoEdge_lower_hb_explicit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.FoldTip.ft_twoEdge_lower_hb_explicit
 
 /-- info: 'FormalResearch.ModularBootstrap.FoldTip.ft_twoEdge_lower_hb' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
