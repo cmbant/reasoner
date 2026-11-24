@@ -7,8 +7,9 @@ public import FormalResearch.SignUncertainty.HankelLangerU
 
 With `Ξ = M ∘ K^{-1}` (`HankelLangerU`), `s = -log(1+w)` and `v = (12/π²) s`, put
 `y(w) = (π²/12) Ξ(v)`.  Then `ũ = c^{2/3} κ y` with `κ = (3/π²)^{1/3}`.  We prove
-`‖y(w) + w‖ ≤ 1.9·10⁻³ ‖w‖` for `‖w‖ ≤ 10⁻³ ≥ w₀ = π² r₀` (the paper's `θ`), `‖y' + 1‖ ≤ 4·10⁻³`, injectivity, surjectivity onto small discs, and the contraction
-`‖Ξ(v) - v‖ ≤ 1.35·10⁻³ ‖v‖`.
+`‖y(w) + w‖ ≤ 1.9·10⁻³ ‖w‖` (the paper's `θ`) for `‖w‖ ≤ 10⁻³`, which contains the paper's disc
+`‖w‖ ≤ w₀ = π² r₀ ≤ 9.87·10⁻⁴`; `‖y' + 1‖ ≤ 4·10⁻³` there; injectivity; surjectivity onto small discs; and the
+contraction `‖Ξ(v) - v‖ ≤ 1.36·10⁻³ ‖v‖` (`norm_chartXi_sub_le`).
 -/
 
 @[expose] public section
@@ -113,7 +114,7 @@ lemma chartVofW_mem {w : ℂ} (hw : ‖w‖ ≤ 1e-3) : chartVofW w ∈ chartVdi
   have hw0 := norm_nonneg w
   nlinarith
 
-/-- **`gt:7.7b` (iii).** `‖y(w) + w‖ ≤ 1.9·10⁻³ ‖w‖` for `‖w‖ ≤ w₀ = 9.87·10⁻⁴`. -/
+/-- **`gt:7.7b` (iii).** `‖y(w) + w‖ ≤ 1.9·10⁻³ ‖w‖` for `‖w‖ ≤ 10⁻³` (this contains `‖w‖ ≤ w₀ = 9.87·10⁻⁴`). -/
 theorem norm_chartY_add_le (h : LangerEta η) {w : ℂ} (hw : ‖w‖ ≤ 1e-3) :
     ‖chartY η w + w‖ ≤ 1.9e-3 * ‖w‖ := by
   have hv := chartVofW_mem hw
