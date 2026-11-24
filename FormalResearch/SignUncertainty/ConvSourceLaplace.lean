@@ -216,6 +216,26 @@ theorem hasU2_convR {w X : ℝ → ℝ} (hw : IntegrableOn w (Ioi 0)) (hX : Cont
       _ ≤ ((∫ y in Ioi (0 : ℝ), ‖w y‖) * C + 1) * ‖1 + v‖ ^ (-(5 / 2 : ℝ)) := by nlinarith
 
 
+/-- info: 'FormalResearch.SignUncertainty.norm_exp_neg_mul_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms norm_exp_neg_mul_le
+
+/-- info: 'FormalResearch.SignUncertainty.integrableOn_ofReal_weight' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms integrableOn_ofReal_weight
+
+/-- info: 'FormalResearch.SignUncertainty.integrableOn_lapW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms integrableOn_lapW
+
+/-- info: 'FormalResearch.SignUncertainty.hasDerivAt_lapW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasDerivAt_lapW
+
+/-- info: 'FormalResearch.SignUncertainty.convSource_eq_convR' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convSource_eq_convR
+
 /-- info: 'FormalResearch.SignUncertainty.lapW_norm_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms lapW_norm_le
