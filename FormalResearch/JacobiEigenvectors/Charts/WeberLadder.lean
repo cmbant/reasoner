@@ -156,6 +156,59 @@ private lemma weberM_dn_mul_odeFund (u h Z₀ s : ℝ) :
     simp [M, Φ, odeFund_self]
   simpa [M, Φ, hM0] using odeFund_right_mul (continuous_qWeb Z₀ u h) 0 hM s
 
+/-- Intertwining identity for the raising matrix:
+`M_+(u, h; Z₀ + h s) Φ_0(u, h; s) = Φ_+(u, h; s) M_+(u, h; Z₀)`. -/
+private lemma weberM_up_mul_odeFund (u h Z₀ s : ℝ) :
+    weberM_up u h (Z₀ + h * s) * odeFund (qWeb Z₀ u h) (continuous_qWeb _ _ _) 0 s =
+      odeFund (qWeb Z₀ (u + h) h) (continuous_qWeb _ _ _) 0 s * weberM_up u h Z₀ := by
+  let Φ : ℝ → M2 := fun t => odeFund (qWeb Z₀ u h) (continuous_qWeb _ _ _) 0 t
+  let M : ℝ → M2 := fun t => weberM_up u h (Z₀ + h * t) * Φ t
+  have hZ : ∀ t, HasDerivAt (fun x => Z₀ + h * x) h t := fun t => by
+    simpa using ((hasDerivAt_id t).const_mul h).const_add Z₀
+  have hM : ∀ (j : Fin 2) (t : ℝ),
+      HasDerivAt (fun x => M x 0 j) (M t 1 j) t ∧
+      HasDerivAt (fun x => M x 1 j) (qWeb Z₀ (u + h) h t * M t 0 j) t := by
+    intro j t
+    obtain ⟨d0, d1⟩ := odeFund_hasDerivAt (qWeb Z₀ u h) (continuous_qWeb _ _ _) 0 j t
+    have hZ0 : HasDerivAt (fun x => (Z₀ + h * x) / 2) (h / 2) t := (hZ t).div_const 2
+    have hZ2 : HasDerivAt (fun x => -((Z₀ + h * x) ^ 2 / 4 - u) + h / 2)
+        (-(h * (Z₀ + h * t) / 2)) t := by
+      have hd := ((((hZ t).pow 2).div_const 4).sub_const u).neg.add_const (h / 2)
+      refine hd.congr_deriv ?_
+      ring
+    have e0 : (fun x => M x 0 j) = fun x => (Z₀ + h * x) / 2 * Φ x 0 j + -Φ x 1 j :=
+      funext fun x => by
+        fin_cases j <;> simp [M, Φ, weberM_up, Matrix.mul_apply, Fin.sum_univ_two] <;> ring
+    have e1 : (fun x => M x 1 j) = fun x =>
+        (-((Z₀ + h * x) ^ 2 / 4 - u) + h / 2) * Φ x 0 j + (Z₀ + h * x) / 2 * Φ x 1 j :=
+      funext fun x => by
+        fin_cases j <;> simp [M, Φ, weberM_up, Matrix.mul_apply, Fin.sum_univ_two]
+    rw [e0, e1]
+    refine ⟨?_, ?_⟩
+    · refine ((hZ0.mul d0).add d1.neg).congr_deriv ?_
+      change h / 2 * Φ t 0 j + (Z₀ + h * t) / 2 * Φ t 1 j +
+          -(qWeb Z₀ u h t * Φ t 0 j) = M t 1 j
+      fin_cases j <;>
+        (simp only [qWeb, M, Φ, weberM_up, Matrix.mul_apply, Fin.sum_univ_two, Matrix.of_apply,
+          Matrix.cons_val_zero, Matrix.cons_val_one]; ring)
+    · refine ((hZ2.mul d0).add (hZ0.mul d1)).congr_deriv ?_
+      change -(h * (Z₀ + h * t) / 2) * Φ t 0 j +
+          (-((Z₀ + h * t) ^ 2 / 4 - u) + h / 2) * Φ t 1 j +
+          (h / 2 * Φ t 1 j + (Z₀ + h * t) / 2 * (qWeb Z₀ u h t * Φ t 0 j)) =
+          qWeb Z₀ (u + h) h t * M t 0 j
+      fin_cases j <;>
+        (simp only [qWeb, M, Φ, weberM_up, Matrix.mul_apply, Fin.sum_univ_two, Matrix.of_apply,
+          Matrix.cons_val_zero, Matrix.cons_val_one]; ring)
+  have hM0 : M 0 = weberM_up u h Z₀ := by
+    simp [M, Φ, odeFund_self]
+  simpa [M, Φ, hM0] using odeFund_right_mul (continuous_qWeb Z₀ (u + h) h) 0 hM s
+
+lemma weberM_dn_adjugate (u h Z : ℝ) :
+    Matrix.adjugate (weberM_dn (u + h) h Z) = weberM_up u h Z := by
+  rw [Matrix.adjugate_fin_two]
+  ext i j
+  fin_cases i <;> fin_cases j <;> (simp [weberM_dn, weberM_up]; try ring)
+
 /-! ### Exact Weber shifts at half-integer parameters -/
 
 lemma kappaBal_neg_half (j : ℕ) :
@@ -649,6 +702,51 @@ theorem weber_symplecticLadder (Y : ℝ → ℝ) {pp qq : ℝ → ℝ → ℝ} :
               ext i j; fin_cases i <;> fin_cases j <;> simp [Sg, Matrix.mul_apply, Fin.sum_univ_two]
             rw [hSg, Matrix.mul_one, weberPiM]
 
+/-- **Exact adjugate relation of the Weber ladder (WP0b):** `Π₊(u, h) = adj Π₋(u + h, h)` for every
+`u, h` and every coordinate `Y`, including the hard-edge bond `u + h/2 = 0` where `Dp d2Web u h = 0`
+and `Pp_eq_adj_of_prod` does not apply.  This is the `adj_Pi` field of the engine structures
+(`Engine/Corrector.lean`, `Engine/CorrectorLocal.lean`) for the Weber ladder; the paper's
+`thm:eng-corr` uses it in place of `𝒟² ≠ 0` (`CORRECTIONS.md`, 2026-11-19).  Proof: the raising
+matrix intertwines the two flows (`weberM_up_mul_odeFund`), `adj M₋(u+h, h; Z) = M₊(u, h; Z)`, and the
+flow of `Π₋(u+h, h)` is the inverse of the shifted flow (`odeFund_shift_mul_cancel`). -/
+theorem weber_adj_Pi (Y : ℝ → ℝ) (u h : ℝ) :
+    weberPiP Y u h = Matrix.adjugate (weberPiM Y (u + h) h) := by
+  let sP := weberStepUp Y u h
+  have hZ : Y u + h * sP = Y (u + h) := by
+    dsimp [sP, weberStepUp]
+    by_cases hh : h = 0
+    · simp [hh]
+    · simp only [hh, ↓reduceIte]; field_simp [hh]; ring
+  have heq : ∀ t, qWeb (Y (u + h)) u h t = qWeb (Y u) u h (t + sP) := fun t => by
+    dsimp [qWeb]; rw [← hZ]; ring_nf
+  have hstep : weberStepDn Y (u + h) h = -sP := by
+    dsimp [weberStepDn, sP, weberStepUp]
+    by_cases hh : h = 0
+    · simp [hh]
+    · simp [hh, add_sub_cancel_right]; ring
+  have hcancel := odeFund_shift_mul_cancel
+    (continuous_qWeb (Y u) u h) (continuous_qWeb (Y (u + h)) u h) sP heq
+  have hpm : weberPhiM Y (u + h) h =
+      odeFund (qWeb (Y (u + h)) u h) (continuous_qWeb _ _ _) 0 (-sP) := by
+    dsimp [weberPhiM]; rw [hstep]
+    exact congrArg (fun v => odeFund (qWeb (Y (u + h)) v h) (continuous_qWeb _ v h) 0 (-sP))
+      (add_sub_cancel_right u h)
+  -- `adj Φ₋ = Φ₀`, since `Φ₋ Φ₀ = 1` and `det Φ₋ = 1`
+  have hadjΦ : Matrix.adjugate (weberPhiM Y (u + h) h) =
+      odeFund (qWeb (Y u) u h) (continuous_qWeb _ _ _) 0 sP := by
+    have hdet : (weberPhiM Y (u + h) h).det = 1 := by
+      dsimp [weberPhiM]; exact odeFund_det _ _ _ _
+    calc Matrix.adjugate (weberPhiM Y (u + h) h)
+        = Matrix.adjugate (weberPhiM Y (u + h) h) *
+            (weberPhiM Y (u + h) h * odeFund (qWeb (Y u) u h) (continuous_qWeb _ _ _) 0 sP) := by
+          rw [hpm, hcancel, Matrix.mul_one]
+      _ = odeFund (qWeb (Y u) u h) (continuous_qWeb _ _ _) 0 sP := by
+          rw [← Matrix.mul_assoc, Matrix.adjugate_mul, hdet, one_smul, Matrix.one_mul]
+  have hintw := weberM_up_mul_odeFund u h (Y u) sP
+  rw [hZ] at hintw
+  rw [weberPiM, Matrix.adjugate_mul_distrib, weberM_dn_adjugate, hadjΦ, hintw]
+  rfl
+
 /-- **Hard-edge annihilation (`eq:cha-annih`)** at `j = 0`, `u₀ = h / 2`. -/
 theorem weber_annih (Y : ℝ → ℝ) {h : ℝ} (hh : 0 < h) :
     colMul (weberPiM Y ((0 + 1 / 2 : ℝ) * h) h) (wWeb Y 0 ((0 + 1 / 2 : ℝ) * h) h) = 0 := by
@@ -877,5 +975,9 @@ theorem weber_W0 : ∃ c3 : ℝ, 0 < c3 ∧ ∀ (j : ℕ) (z : ℝ),
 /-- info: 'FormalResearch.JacobiEigenvectors.Charts.weber_W0' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.JacobiEigenvectors.Charts.weber_W0
+
+/-- info: 'FormalResearch.JacobiEigenvectors.Charts.weber_adj_Pi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.JacobiEigenvectors.Charts.weber_adj_Pi
 
 end FormalResearch.JacobiEigenvectors.Charts

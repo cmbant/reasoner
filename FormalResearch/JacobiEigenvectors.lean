@@ -172,6 +172,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.CorThbFinal
 public import FormalResearch.JacobiEigenvectors.Engine.CorrectorLocal
 public import FormalResearch.JacobiEigenvectors.Charts.ODEFlow
 public import FormalResearch.JacobiEigenvectors.Charts.PCLadder
+public import FormalResearch.JacobiEigenvectors.Charts.PCLadderBranches
 public import FormalResearch.JacobiEigenvectors.Charts.SoftLamCont
 public import FormalResearch.JacobiEigenvectors.Charts.WeberLadder
 public import FormalResearch.JacobiEigenvectors.Charts.PCVFarGrowth
