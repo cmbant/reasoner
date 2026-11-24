@@ -51,22 +51,22 @@ lemma pcOdePair_U_neg (a c : ℝ) :
     PCOdePair a (fun z => c * pcU a (-z)) (fun z => -(c * pcUD a (-z))) := by
   refine ⟨fun z => ?_, fun z => ?_⟩
   · have h := ((hasDerivAt_pcU a (-z)).comp z (hasDerivAt_neg z)).const_mul c
-    exact h.congr_deriv (by simp [Function.comp_def]; ring)
+    exact h.congr_deriv (by simp <;> ring)
   · have h := (((hasDerivAt_pcUD a (-z)).comp z (hasDerivAt_neg z)).const_mul c).neg
-    exact h.congr_deriv (by simp [Function.comp_def]; ring)
+    exact h.congr_deriv (by simp <;> ring)
 
 lemma pcOdePair_V_neg (a c : ℝ) :
     PCOdePair a (fun z => c * pcV a (-z)) (fun z => -(c * pcVD a (-z))) := by
   refine ⟨fun z => ?_, fun z => ?_⟩
   · have h := ((hasDerivAt_pcV a (-z)).comp z (hasDerivAt_neg z)).const_mul c
-    exact h.congr_deriv (by simp [Function.comp_def]; ring)
+    exact h.congr_deriv (by simp <;> ring)
   · have h := (((hasDerivAt_pcVD a (-z)).comp z (hasDerivAt_neg z)).const_mul c).neg
-    exact h.congr_deriv (by simp [Function.comp_def]; ring)
+    exact h.congr_deriv (by simp <;> ring)
 
 /-- The constant of `vt`. -/
-private def cV (a : ℝ) : ℝ := Real.sqrt (Real.pi / 2) * (kappaBal a)⁻¹
+def cV (a : ℝ) : ℝ := Real.sqrt (Real.pi / 2) * (kappaBal a)⁻¹
 
-private lemma kappaBal_mul_cV (a : ℝ) :
+lemma kappaBal_mul_cV (a : ℝ) :
     kappaBal a * cV a * Real.sqrt (2 / Real.pi) = 1 := by
   have hκ := (kappaBal_pos a).ne'
   have hpi : Real.sqrt (Real.pi / 2) * Real.sqrt (2 / Real.pi) = 1 := by
@@ -108,21 +108,19 @@ lemma pcSwap_one_eq (a : ℝ) : pcSwap pcU pcV a 1 = fun z => -kappaBal a * pcU 
 
 /-! ### ODE facts -/
 
-lemma pcMinus_odePair (α : Fin 2) (a : ℝ) :
-    ∃ g', PCOdePair a (pcMinus pcU pcV a α) g' := by
-  fin_cases α
-  · exact ⟨_, (pcMinus_zero_eq a) ▸ pcOdePair_U_neg a (kappaBal a)⟩
-  · by_cases ha : a ≤ 0
-    · exact ⟨_, (pcMinus_one_eq_of_nonpos ha) ▸ pcOdePair_V_neg a (-cV a)⟩
-    · exact ⟨_, (pcMinus_one_eq_of_pos (not_le.mp ha)) ▸ pcOdePair_U a (-kappaBal a)⟩
+lemma pcMinus_odePair (a : ℝ) : ∀ α : Fin 2, ∃ g', PCOdePair a (pcMinus pcU pcV a α) g'
+  | 0 => ⟨_, by rw [pcMinus_zero_eq]; exact pcOdePair_U_neg a (kappaBal a)⟩
+  | 1 => by
+    by_cases ha : a ≤ 0
+    · exact ⟨_, by rw [pcMinus_one_eq_of_nonpos ha]; exact pcOdePair_V_neg a (-cV a)⟩
+    · exact ⟨_, by rw [pcMinus_one_eq_of_pos (not_le.mp ha)]; exact pcOdePair_U a (-kappaBal a)⟩
 
-lemma pcSwap_odePair (α : Fin 2) (a : ℝ) :
-    ∃ g', PCOdePair a (pcSwap pcU pcV a α) g' := by
-  fin_cases α
-  · by_cases ha : a ≤ 0
-    · exact ⟨_, (pcSwap_zero_eq_of_nonpos ha) ▸ pcOdePair_V a (cV a)⟩
-    · exact ⟨_, (pcSwap_zero_eq_of_pos (not_le.mp ha)) ▸ pcOdePair_U_neg a (kappaBal a)⟩
-  · exact ⟨_, (pcSwap_one_eq a) ▸ pcOdePair_U a (-kappaBal a)⟩
+lemma pcSwap_odePair (a : ℝ) : ∀ α : Fin 2, ∃ g', PCOdePair a (pcSwap pcU pcV a α) g'
+  | 0 => by
+    by_cases ha : a ≤ 0
+    · exact ⟨_, by rw [pcSwap_zero_eq_of_nonpos ha]; exact pcOdePair_V a (cV a)⟩
+    · exact ⟨_, by rw [pcSwap_zero_eq_of_pos (not_le.mp ha)]; exact pcOdePair_U_neg a (kappaBal a)⟩
+  | 1 => ⟨_, by rw [pcSwap_one_eq]; exact pcOdePair_U a (-kappaBal a)⟩
 
 /-! ### Wronskians -/
 
@@ -173,22 +171,22 @@ lemma pcSwap_wronsk (a z : ℝ) :
 a `SymplecticLadder` for every coordinate `ζ` and even shift `μh`, with no further premise. -/
 theorem pcMinus_symplecticLadder {γ : ℝ} (ζ μh : ℝ → ℝ) (hμ_even : ∀ h, μh (-h) = μh h)
     {pp qq : ℝ → ℝ → ℝ} :
-    SymplecticLadder γ ddPC d2PC pp qq (pcPiP ζ μh) (pcPiM ζ μh) (wPC (pcMinus pcU pcV) ζ μh)
+    SymplecticLadder γ ddPC d2PC pp qq (pcPiP ζ μh) (pcPiM ζ μh) (wPC (fun α a => pcMinus pcU pcV a α) ζ μh)
       Real.sqrt :=
-  pc_symplecticLadder ζ μh hμ_even (pcMinus pcU pcV)
-    (fun α a z => ((pcMinus_odePair α a).choose_spec.ladder_facts).1 z)
-    (fun α a z => ((pcMinus_odePair α a).choose_spec.ladder_facts).2 z)
+  pc_symplecticLadder ζ μh hμ_even (fun α a => pcMinus pcU pcV a α)
+    (fun α a z => ((pcMinus_odePair a α).choose_spec.ladder_facts).1 z)
+    (fun α a z => ((pcMinus_odePair a α).choose_spec.ladder_facts).2 z)
     pcMinus_wronsk
 
 /-- **The PC ladder of patch 3 (`charts.tex` `eq:cha-PC`) for the actual swapped pair `pcSwap pcU pcV`**:
 a `SymplecticLadder` for every coordinate `ζ` and even shift `μh`, with no further premise. -/
 theorem pcSwap_symplecticLadder {γ : ℝ} (ζ μh : ℝ → ℝ) (hμ_even : ∀ h, μh (-h) = μh h)
     {pp qq : ℝ → ℝ → ℝ} :
-    SymplecticLadder γ ddPC d2PC pp qq (pcPiP ζ μh) (pcPiM ζ μh) (wPC (pcSwap pcU pcV) ζ μh)
+    SymplecticLadder γ ddPC d2PC pp qq (pcPiP ζ μh) (pcPiM ζ μh) (wPC (fun α a => pcSwap pcU pcV a α) ζ μh)
       Real.sqrt :=
-  pc_symplecticLadder ζ μh hμ_even (pcSwap pcU pcV)
-    (fun α a z => ((pcSwap_odePair α a).choose_spec.ladder_facts).1 z)
-    (fun α a z => ((pcSwap_odePair α a).choose_spec.ladder_facts).2 z)
+  pc_symplecticLadder ζ μh hμ_even (fun α a => pcSwap pcU pcV a α)
+    (fun α a z => ((pcSwap_odePair a α).choose_spec.ladder_facts).1 z)
+    (fun α a z => ((pcSwap_odePair a α).choose_spec.ladder_facts).2 z)
     pcSwap_wronsk
 
 /-- info: 'FormalResearch.JacobiEigenvectors.Charts.pcMinus_symplecticLadder' depends on axioms: [propext, Classical.choice, Quot.sound] -/

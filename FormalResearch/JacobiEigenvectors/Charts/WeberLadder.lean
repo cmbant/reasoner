@@ -178,11 +178,11 @@ private lemma weberM_up_mul_odeFund (u h Z₀ s : ℝ) :
       ring
     have e0 : (fun x => M x 0 j) = fun x => (Z₀ + h * x) / 2 * Φ x 0 j + -Φ x 1 j :=
       funext fun x => by
-        fin_cases j <;> simp [M, Φ, weberM_up, Matrix.mul_apply, Fin.sum_univ_two] <;> ring
+        fin_cases j <;> simp [M, Φ, weberM_up, Matrix.vecMul, dotProduct, Fin.sum_univ_two] <;> ring
     have e1 : (fun x => M x 1 j) = fun x =>
         (-((Z₀ + h * x) ^ 2 / 4 - u) + h / 2) * Φ x 0 j + (Z₀ + h * x) / 2 * Φ x 1 j :=
       funext fun x => by
-        fin_cases j <;> simp [M, Φ, weberM_up, Matrix.mul_apply, Fin.sum_univ_two]
+        fin_cases j <;> simp [M, Φ, weberM_up, Matrix.vecMul, dotProduct, Fin.sum_univ_two] <;> ring
     rw [e0, e1]
     refine ⟨?_, ?_⟩
     · refine ((hZ0.mul d0).add d1.neg).congr_deriv ?_
