@@ -4,12 +4,13 @@ public import Mathlib
 public import FormalResearch.JacobiEigenvectors.Charts.ChartInputs
 public import FormalResearch.JacobiEigenvectors.Charts.SoftEdgeCore
 public import FormalResearch.JacobiEigenvectors.Charts.PCActual
+public import FormalResearch.JacobiEigenvectors.Charts.PCEnvelopeAssembled
 
 /-!
 # Paper J, charts: `ChartInputs` from the cores
 
 `ChartCores` is `ChartInputs` for the model pair `pcU, pcV` with every chart replaced by its core (`BulkWeberCore`, `SoftEdgeCore`), the
-Layer-4 envelope premise `PCEnvelopeFacts` in place of `ParabolicCylinderFacts`, and the standing assumptions `SoftEdgeCore.FamilyInputs`
+envelope constants `pcCs` of the actual `pcU, pcV` (from the proved `pcEnvelopeFacts`, so `ChartCores` has no model premise), and the standing assumptions `SoftEdgeCore.FamilyInputs`
 of the four soft families.  `ChartInputs.ofCore` builds the `ChartInputs`: each chart is `BulkWeberChart.ofCore` / `SoftEdgeChart.ofCore`,
 the soft pairs at a common `N0` (so that `SoftMirror` holds), and the covering, overlap and mirror clauses transfer from the cores
 (`ofCore` changes only `N0`).
@@ -23,6 +24,14 @@ namespace FormalResearch.JacobiEigenvectors.Charts
 
 open FormalResearch.JacobiEigenvectors.Setting
 
+/-- The universal envelope constants `(cPC, CPC)` of the actual `pcU, pcV` (chosen from the proved `pcEnvelopeFacts`). -/
+def pcCs : ℝ × ℝ :=
+  ⟨Classical.choose pcEnvelopeFacts, Classical.choose (Classical.choose_spec pcEnvelopeFacts)⟩
+
+/-- The envelope facts of `pcU, pcV` at `pcCs`. -/
+theorem pcCs_facts : PCEnvelopeFacts pcU pcV pcCs.1 pcCs.2 :=
+  Classical.choose_spec (Classical.choose_spec pcEnvelopeFacts)
+
 /-- `SoftMirror` for cores: `u_c^R = L - u_c`, `zeta_R(-x) = -zeta(x)`, the same shifts, `eta`, `delta_0` and `N_0`. -/
 def SoftEdgeCore.Mirror {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
     (CL : SoftEdgeCore F P m q U V Lm) (CR : SoftEdgeCore (mirrorFamily F) P m q U V Lm) : Prop :=
@@ -31,8 +40,7 @@ def SoftEdgeCore.Mirror {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily P
 
 /-- **The chart hypotheses at the level of cores** (see the module docstring); the fields mirror those of `ChartInputs`. -/
 structure ChartCores {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K : Set Par) (Kidx : ℕ) (t0 : ℝ)
-    (m q : ℕ) (cPC CPC : ℝ) where
-  he : PCEnvelopeFacts pcU pcV cPC CPC
+    (m q : ℕ) where
   Jlo : ℝ
   Jhi : ℝ
   nb : ℕ
@@ -59,8 +67,8 @@ structure ChartCores {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par)
 
 namespace ChartCores
 
-variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ} {cPC CPC : ℝ}
-  (D : ChartCores F K Kidx t0 m q cPC CPC)
+variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ}
+  (D : ChartCores F K Kidx t0 m q)
 
 /-- the common `N0` threshold of the two soft pairs. -/
 def Nup : ℕ := max (D.softUpL.chartN0 D.fam_upL) (D.softUpR.chartN0 D.fam_upR)
@@ -108,8 +116,8 @@ theorem SoftEdgeChart.ofCore_δ0 {Par : Type*} [TopologicalSpace Par] {F : Symbo
 
 /-- **`ChartInputs` from the cores.** -/
 def ChartInputs.ofCore {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ}
-    {cPC CPC : ℝ} (D : ChartCores F K Kidx t0 m q cPC CPC) : ChartInputs F K Kidx t0 m q pcU pcV cPC CPC where
-  pc := ParabolicCylinderFacts.ofEnvelope D.he
+    (D : ChartCores F K Kidx t0 m q) : ChartInputs F K Kidx t0 m q pcU pcV pcCs.1 pcCs.2 where
+  pc := ParabolicCylinderFacts.ofEnvelope pcCs_facts
   Jlo := D.Jlo
   Jhi := D.Jhi
   nb := D.nb

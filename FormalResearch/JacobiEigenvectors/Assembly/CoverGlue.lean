@@ -410,10 +410,10 @@ theorem thmAii_of_local_charts {Par : Type u_1} [TopologicalSpace Par] [RegularS
 open FormalResearch.JacobiEigenvectors.TheoremA in
 /-- **thm:A (ii) from local cores**: the same with chart cores `ChartCores` (the charts are `ChartInputs.ofCore`). -/
 theorem thmAii_of_local_cores {Par : Type u_1} [TopologicalSpace Par] [RegularSpace Par] {F : SymbolFamily Par} {K : Set Par} {m Kidx : ℕ}
-    {cPC CPC : ℝ} (hK : IsCompact K)
-    (hloc : ∀ μ ∈ K, ∃ K' ∈ nhdsWithin μ K, ∃ t0 : ℝ, 0 < t0 ∧ Nonempty (ChartCores F K' Kidx t0 m (2 * Kidx) cPC CPC)) :
-    ∃ (ι : Type u_1) (_ : Finite ι) (Kα : ι → Set Par) (t0α : ι → ℝ) (CI : ∀ i, ChartInputs F (Kα i) Kidx (t0α i) m (2 * Kidx) pcU pcV cPC CPC),
-      ThmAiiCover F K m Kidx pcU pcV cPC CPC Kα t0α CI :=
+    (hK : IsCompact K)
+    (hloc : ∀ μ ∈ K, ∃ K' ∈ nhdsWithin μ K, ∃ t0 : ℝ, 0 < t0 ∧ Nonempty (ChartCores F K' Kidx t0 m (2 * Kidx))) :
+    ∃ (ι : Type u_1) (_ : Finite ι) (Kα : ι → Set Par) (t0α : ι → ℝ) (CI : ∀ i, ChartInputs F (Kα i) Kidx (t0α i) m (2 * Kidx) pcU pcV pcCs.1 pcCs.2),
+      ThmAiiCover F K m Kidx pcU pcV pcCs.1 pcCs.2 Kα t0α CI :=
   thmAii_of_local_charts hK fun μ hμ => by
     obtain ⟨K', hK', t0, ht0, ⟨D⟩⟩ := hloc μ hμ
     exact ⟨K', hK', t0, ht0, ⟨ChartInputs.ofCore D⟩⟩

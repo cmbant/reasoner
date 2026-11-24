@@ -8,7 +8,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremB.CorThbFinal
 /-!
 # Paper J: the headline theorems from the chart cores
 
-`ChartCores` (`Charts/ChartCores.lean`) is the chart data with every derivable field removed; `ChartInputs.ofCore` builds the chart
+`ChartCores` (`Charts/ChartCores.lean`) is the chart data with every derivable field removed (the envelope constants are the fixed `pcCs`); `ChartInputs.ofCore` builds the chart
 inputs.  The headlines keep their statements (on `ChartInputs`, `ChartPair`); the `_of_core` forms below state them for the charts of the
 cores.
 
@@ -43,9 +43,9 @@ theorem SoftEdgeChart.ofCore_coords {Par : Type*} [TopologicalSpace Par] {F : Sy
 
 /-- Two orders of cores with the link fields of `ChartPair` (the same bulk blocks, fold, collar width, window and shifts at order `m` and `m + 1`). -/
 structure ChartPairCores {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ}
-    {cPC CPC : ℝ} where
-  D0 : ChartCores F K Kidx t0 m q cPC CPC
-  D1 : ChartCores F K Kidx t0 (m + 1) q cPC CPC
+    where
+  D0 : ChartCores F K Kidx t0 m q
+  D1 : ChartCores F K Kidx t0 (m + 1) q
   nb_eq : D1.nb = D0.nb
   lo_eq : ∀ ν, D1.lo ν = D0.lo (Fin.cast nb_eq ν)
   hi_eq : ∀ ν, D1.hi ν = D0.hi (Fin.cast nb_eq ν)
@@ -57,8 +57,8 @@ structure ChartPairCores {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily 
 
 /-- **The chart pair of a pair of cores.** -/
 def ChartPair.ofCores {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ}
-    {cPC CPC : ℝ} (D : ChartPairCores (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (cPC := cPC) (CPC := CPC)) :
-    ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := pcU) (V := pcV) (cPC := cPC) (CPC := CPC) where
+    (D : ChartPairCores (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q)) :
+    ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (U := pcU) (V := pcV) (cPC := pcCs.1) (CPC := pcCs.2) where
   CI0 := ChartInputs.ofCore D.D0
   CI1 := ChartInputs.ofCore D.D1
   nb_eq := D.nb_eq
@@ -78,21 +78,21 @@ def ChartPair.ofCores {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par
     exact ⟨(b1.trans c1).trans a1.symm, (b2.trans c2).trans a2.symm, (b3.trans c3).trans a3.symm, (b4.trans c4).trans a4.symm,
       (b5.trans c5).trans a5.symm⟩
 
-variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ} {cPC CPC : ℝ}
+variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {K : Set Par} {Kidx : ℕ} {t0 : ℝ} {m q : ℕ}
 
 /-- **thm:A (ii) from the chart cores**: `ThmAii` for the charts `ChartInputs.ofCore D`. -/
-theorem thmAii_of_core (D : ChartCores F K Kidx t0 m (2 * Kidx) cPC CPC) :
-    ThmAii F K m Kidx t0 pcU pcV cPC CPC (ChartInputs.ofCore D) :=
+theorem thmAii_of_core (D : ChartCores F K Kidx t0 m (2 * Kidx)) :
+    ThmAii F K m Kidx t0 pcU pcV pcCs.1 pcCs.2 (ChartInputs.ofCore D) :=
   thmAii_proved (ChartInputs.ofCore D)
 
 /-- **thm:B from the chart cores**: `ThmB` for the chart pair of `D`, given the transfer bundle. -/
-theorem thmB_of_core (D : ChartPairCores (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (cPC := cPC) (CPC := CPC))
+theorem thmB_of_core (D : ChartPairCores (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q))
     (TB : TransferBundle (ChartPair.ofCores D)) (spl : Fin (ChartPair.ofCores D).CI0.nb → ℝ) :
     ThmB (ChartPair.ofCores D) spl :=
   thmB_proved (ChartPair.ofCores D) TB spl
 
 /-- **cor:fermions from the chart cores**. -/
-theorem corFermions_of_core (D : ChartPairCores (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q) (cPC := cPC) (CPC := CPC))
+theorem corFermions_of_core (D : ChartPairCores (F := F) (K := K) (Kidx := Kidx) (t0 := t0) (m := m) (q := q))
     (TB : TransferBundle (ChartPair.ofCores D)) (spl : Fin (ChartPair.ofCores D).CI0.nb → ℝ) :
     CorFermions (ChartPair.ofCores D) spl :=
   corFermions_proved (ChartPair.ofCores D) TB spl
