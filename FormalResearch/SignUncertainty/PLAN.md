@@ -267,10 +267,11 @@ modules whose source differs from the copied build (the stale-olean trap).
 
 Cross-lane note (fold-tip). `RadialRigidityPackage` (`RadialRigidity.lean`, hypotheses of `gt:7.5`) and the fold-tip
 interface of the modular-bootstrap lane (`ModularBootstrap/FoldTip/Hypotheses.lean`, `FoldTipSetting`, `FTH2`) describe the
-same abstract setting (weight, mass `M[g]`, density `Ψ_g`, feasibility, threshold `T_c`, Airy chart, chart-form
-compactness). The two rigidity proofs differ (profile compactness with Hermite–Biehler uniqueness here, vague limits of
-design measures there), so only the interface should be shared: a base structure for the chart-form compactness clause
-(`compactness_subseq` plus the site and tail positivity), stated for an abstract setting, in a new shared module that
-imports nothing Hankel- or Virasoro-specific. Paper I would add (without editing `RadialRigidity.lean`, which six
-modules import) a converter `RadialRigidityPackage → ChartCompactness`. Not started: it needs the field list agreed with
-the fold-tip lane.
+same abstract setting. The two rigidity proofs differ (profile compactness with Hermite–Biehler uniqueness here, vague limits of
+design measures there), so only the interface is shared. Agreed with the fold-tip lane: (1) `HermiteBiehlerData` now lives in the
+neutral module `SignUncertainty/HermiteBiehlerData.lean` (imports only `HermiteBiehlerUniq`; `RadialRigidity` re-exports it);
+(2) the base structure `ChartCompactness` (`compactness_subseq` plus site and tail positivity, for an abstract setting) is owned by the
+fold-tip lane in a module importing nothing Hankel- or Virasoro-specific; (3) Paper I adds, without editing `RadialRigidity.lean`, a
+converter `RadialRigidityPackage → ChartCompactness`; (4) M8's TE.0′ (compactness for all `(P, Q)`) is planned as a converter into
+`ChartCompactness` plus the shared rigidity theorem, not as a second copy of the argument. Steps (3)-(4) start when `ChartCompactness`
+is on master.
