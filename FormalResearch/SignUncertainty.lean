@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.SignUncertainty.ClarkTwoNode
 public import FormalResearch.SignUncertainty.HermiteBiehlerUniq
+public import FormalResearch.SignUncertainty.HermiteBiehlerData
 public import FormalResearch.SignUncertainty.RadialRigidity
 public import FormalResearch.SignUncertainty.HankelPowerSeries
 public import FormalResearch.SignUncertainty.HankelPhaseSeries
@@ -203,6 +204,8 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   characterization (`CFT/common/clark_airy.tex`, Theorem 1.2).
 * `FormalResearch.SignUncertainty.HermiteBiehlerUniq`: polynomial Hermite–Biehler uniqueness
   and `m = 2` `L^1` norm identity (`CFT/common/clark_airy.tex`, Lemma `H.2a` and `(eq:hb-two-node-norm)`).
+* `FormalResearch.SignUncertainty.HermiteBiehlerData`: the neutral `HermiteBiehlerData` structure (Airy-type extremal profile, sign
+  structure and uniqueness for `AiryPQHB P Q`) and its normalised profile `normG`, imported by `RadialRigidity` and shareable with other lanes.
 * `FormalResearch.SignUncertainty.RadialRigidity`: all-level Hermite–Biehler Airy-scale lower
   bound and profile/origin rigidity (`CFT/sign_uncertainty/paper/general_theorems.tex`, Theorem 7.5).
 * `FormalResearch.SignUncertainty.HardyMellinIntertwiner`: Hardy–Mellin intertwiner
