@@ -8,7 +8,8 @@ public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWBand
 Source: `CFT/common/two_edge_bootstrap.tex` (`teb:bootstrap`, hypotheses `hP_nodes_lb_hb`, `P_theta_bound`)
 and `CFT/modular_bootstrap/paper/lower_o1_two_edge.tex`, Theorem `FT-L.FW` (`wone:ftlfw`), Step 2.
 
-* `pnodes_lower_auxW`, `pnodes_lb_and_thetaW`: for the good-circle node sum
+* `pnodes_lower_auxW_thr`, `pnodes_lb_and_thetaW_thr` (cutoff radius `A_thr ∈ [virasoroAThr, R]`; the unsuffixed
+  `pnodes_lb_and_thetaW` is the case `A_thr = virasoroAThr`): for the good-circle node sum
   `P_nodes = ∑_n Re f_{k,ℓ}(a_n)/Ai'(a_n)²` of the shifted test of `psiTilde prob`, the lower bound from the
   positive weights `Ψ̃(a_n + ℓ) ≥ 0` for zeros `a_n` right of `u_T` and the identity for the `θ`-term
   (the Virasoro `virasoro_pnodes_lb_and_theta`; constants from `Lemma Q (3)`).
@@ -66,10 +67,11 @@ private lemma psiTilde_real_mv_sub {c' R_dom : ℝ} {g : ℝ → ℝ}
       (b - a) * C₁ := h_norm.trans hint_bd
   linarith [hle]
 
-private lemma pnodes_lower_auxW {c' R T ℓ : ℝ} {N : ℕ}
+private lemma pnodes_lower_auxW_thr {A_thr c' R T ℓ : ℝ} {N : ℕ}
+    (hA : virasoroAThr ≤ A_thr) (hA_R : A_thr ≤ R)
     (hc' : Q.cQ ≤ c') (hR_48 : 48 ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
     {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
-    (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr))
+    (hT_hi : T ≤ virasoroDeltaChart c' (-A_thr))
     (hT_A2 : virasoroDeltaChart c' (Q.AC c' ^ 2) ≤ T)
     (hT_a1 : T < virasoroDeltaChart c' (airyZero 1))
     (hB2 : QuantC1B2Holds (psiTilde prob c' g) (virasoroUT c' T))
@@ -86,12 +88,14 @@ private lemma pnodes_lower_auxW {c' R T ℓ : ℝ} {N : ℕ}
   have hA2_nn : 0 ≤ Q.AC c' ^ 2 := sq_nonneg _
   obtain ⟨ha1_lo, ha1_hi⟩ := airyZero_one
   obtain ⟨ha2_lo, ha2_hi⟩ := airyZero_two
-  have hAThr_eq : virasoroAThr = -airyZero 1 + 1 := by
-    unfold virasoroAThr; rw [abs_of_neg (by linarith)]
+  have hAThr_eq : -airyZero 1 + 1 ≤ A_thr := by
+    have : virasoroAThr = -airyZero 1 + 1 := by
+      unfold virasoroAThr; rw [abs_of_neg (by linarith)]
+    linarith
   have hu_mem := Q.UT_between hc'_pos
-    (by linarith : -(Q.AC c' ^ 2) ≤ -virasoroAThr)
+    (by linarith : -(Q.AC c' ^ 2) ≤ -A_thr)
     (le_rfl : Q.AC c' ^ 2 ≤ Q.AC c' ^ 2)
-    (by linarith : -virasoroAThr ≤ Q.AC c' ^ 2) hT_A2 hT_hi
+    (by linarith : -A_thr ≤ Q.AC c' ^ 2) hT_A2 hT_hi
   set u_T := virasoroUT c' T
   have ha1_lt_uT : airyZero 1 < u_T := by
     by_contra hle
@@ -156,10 +160,11 @@ private lemma pnodes_lower_auxW {c' R T ℓ : ℝ} {N : ℕ}
     ring
   linarith [h_sum_split, h_tail_nn, h1_rew]
 
-lemma pnodes_lb_and_thetaW {c' R T : ℝ} {N : ℕ}
+lemma pnodes_lb_and_thetaW_thr {A_thr c' R T : ℝ} {N : ℕ}
+    (hA : virasoroAThr ≤ A_thr) (hA_R : A_thr ≤ R)
     (hc' : Q.cQ ≤ c') (hR_48 : 48 ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
     {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
-    (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr))
+    (hT_hi : T ≤ virasoroDeltaChart c' (-A_thr))
     (hT_A2 : virasoroDeltaChart c' (Q.AC c' ^ 2) ≤ T)
     (hT_a1 : T < virasoroDeltaChart c' (airyZero 1))
     (hB2 : QuantC1B2Holds (psiTilde prob c' g) (virasoroUT c' T))
@@ -182,12 +187,14 @@ lemma pnodes_lb_and_thetaW {c' R T : ℝ} {N : ℕ}
   have hc'_pos : 0 < c' := by linarith
   have hR_pos : 0 < R := by linarith
   obtain ⟨ha1_lo, ha1_hi⟩ := airyZero_one
-  have hAThr_eq : virasoroAThr = -airyZero 1 + 1 := by
-    unfold virasoroAThr; rw [abs_of_neg (by linarith)]
+  have hAThr_eq : -airyZero 1 + 1 ≤ A_thr := by
+    have : virasoroAThr = -airyZero 1 + 1 := by
+      unfold virasoroAThr; rw [abs_of_neg (by linarith)]
+    linarith
   have hu_mem := Q.UT_between hc'_pos
-    (by linarith : -(Q.AC c' ^ 2) ≤ -virasoroAThr)
+    (by linarith : -(Q.AC c' ^ 2) ≤ -A_thr)
     (le_rfl : Q.AC c' ^ 2 ≤ Q.AC c' ^ 2)
-    (by linarith : -virasoroAThr ≤ Q.AC c' ^ 2) hT_A2 hT_hi
+    (by linarith : -A_thr ≤ Q.AC c' ^ 2) hT_A2 hT_hi
   set u_T := virasoroUT c' T
   have ha1_lt_uT : airyZero 1 < u_T := by
     by_contra hle
@@ -243,7 +250,7 @@ lemma pnodes_lb_and_thetaW {c' R T : ℝ} {N : ℕ}
       rw [hP_C1, hP_w, add_zero]
       have : 0 ≤ quantC1C1 / quantC1WStar := div_nonneg quantC1C1_pos.le hw_pos.le
       linarith [show 2 * quantC1C1 * (1 / quantC1WStar) = 2 * (quantC1C1 / quantC1WStar) by ring]
-    have h_main := pnodes_lower_auxW hc' hR_48 hR_ub hg hT_hi hT_A2 hT_a1 hB2 hN hℓ_nn hℓ_le' k hkR
+    have h_main := pnodes_lower_auxW_thr hA hA_R hc' hR_48 hR_ub hg hT_hi hT_A2 hT_a1 hB2 hN hℓ_nn hℓ_le' k hkR
     have hΛ_mul : -tebLambdaN P 0 * ℓ ≤ -(quantC1C1 / quantC1WStar) * ℓ := by nlinarith
     linarith [hΛ_mul, hterm_lb, h_main]
   · -- `P_theta_bound`
@@ -302,9 +309,37 @@ lemma pnodes_lb_and_thetaW {c' R T : ℝ} {N : ℕ}
             (by linarith [quantC1WStar_pos])
         exact mul_le_mul_of_nonneg_right this (by linarith)
       exact h2.trans (div_le_div_of_nonneg_right h1 quantC1WStar_pos.le)
-    have h_main := pnodes_lower_auxW hc' hR_48 hR_ub hg hT_hi hT_A2 hT_a1 hB2 hN hℓ_nn hℓ_le'
+    have h_main := pnodes_lower_auxW_thr hA hA_R hc' hR_48 hR_ub hg hT_hi hT_A2 hT_a1 hB2 hN hℓ_nn hℓ_le'
       P.k_0 hk0_R
     linarith [hterm_lb, h_main]
+
+lemma pnodes_lb_and_thetaW {c' R T : ℝ} {N : ℕ}
+    (hc' : Q.cQ ≤ c') (hR_48 : 48 ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
+    {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
+    (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr))
+    (hT_A2 : virasoroDeltaChart c' (Q.AC c' ^ 2) ≤ T)
+    (hT_a1 : T < virasoroDeltaChart c' (airyZero 1))
+    (hB2 : QuantC1B2Holds (psiTilde prob c' g) (virasoroUT c' T))
+    (hN : ∀ n : ℕ, 1 ≤ n → (n ≤ N ↔ -airyZero n < R))
+    (P : BootstrapParams)
+    (hP_C1 : P.C_1 = quantC1C1) (hP_w : P.w_star = quantC1WStar)
+    (hP_κ : P.κ_star = quantC1KappaStar) (hP_δ : P.δ_star = quantC1DeltaStar)
+    (hP_η : P.η_0 = quantC1Eta0) (hP_k0 : P.k_0 = 5) :
+    (∀ k : ℕ, ∀ ℓ : ℝ, P.k_0 ≤ k → (k : ℝ) ≤ R / 5 →
+      ℓ ∈ Icc (P.D_1 * c' ^ (-(1 / 3 : ℝ))) (min P.δ_star (min P.η_0 1)) →
+      -tebLambdaN P 0 * ℓ - P.C_α * R ^ (3 / 2 : ℝ) * 0 ≤ pNodesW prob c' R ℓ g k N) ∧
+    ((P.k_0 : ℝ) ≤ R / 5 →
+      tebThetaHB P 0 * (virasoroUT c' T - airyZero 1) ∈
+        Icc (P.D_1 * c' ^ (-(1 / 3 : ℝ))) (min P.δ_star (min P.η_0 1)) →
+      (P.κ_star / (4 * P.w_star)) * (virasoroUT c' T - airyZero 1) -
+        P.C_α * R ^ (3 / 2 : ℝ) * 0 ≤
+        pNodesW prob c' R (tebThetaHB P 0 * (virasoroUT c' T - airyZero 1)) g P.k_0 N) :=
+  pnodes_lb_and_thetaW_thr le_rfl (by linarith [virasoroAThr_lt_four]) hc' hR_48 hR_ub hg hT_hi hT_A2 hT_a1 hB2 hN P
+    hP_C1 hP_w hP_κ hP_δ hP_η hP_k0
+
+/-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.pnodes_lb_and_thetaW_thr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms pnodes_lb_and_thetaW_thr
 
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.pnodes_lb_and_thetaW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

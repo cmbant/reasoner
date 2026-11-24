@@ -10,8 +10,8 @@ Source: `CFT/modular_bootstrap/paper/lower_o1_two_edge.tex`, Theorem `FT-L.FW` (
 
 * `LemmaQData.sigma_arc_eventuallyFor`: for fixed `b > 0`, eventually in `c'` the cut-margin rate
   `ς_{c'}` satisfies `ς ≤ 1/2` and `ς (3π√2 b c'^{1/4} + 1) ≤ 1`;
-* `band_sums_leW`: unconditional band bounds `B₁ ≤ 1`, `B₂ ≤ 2` from `Lemma Q (3)` (the Virasoro
-  `virasoro_band_sums_le`).
+* `band_sums_leW_thr`: unconditional band bounds `B₁ ≤ 1`, `B₂ ≤ 2` from `Lemma Q (3)` at every cutoff radius
+  `A_thr > 0` (`band_sums_leW`, the Virasoro `virasoro_band_sums_le`, is `A_thr = virasoroAThr`).
 -/
 
 @[expose] public section
@@ -120,13 +120,13 @@ section Band
 variable [Q : LemmaQData prob]
 
 /-- Unconditional band bounds `B₁ ≤ 1` and `B₂ ≤ 2` (hence `B₁ + B₂ ≤ 3`) for any weakly feasible
-`g` with `T ∈ [Δ(-R), Δ(-A_thr)]` and `deltaLobe prob Q.D.r_1 c' g < 1 / 2` (from Lemma `Q(3)`). -/
-lemma band_sums_leW {c' R T : ℝ} (hc' : Q.cQ ≤ c')
-    (hR_thr : virasoroAThr ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
+`g` and every cutoff radius `A_thr > 0` (`band_sums_leW` is the case `A_thr = virasoroAThr`) with `T ∈ [Δ(-R), Δ(-A_thr)]` and `deltaLobe prob Q.D.r_1 c' g < 1 / 2` (from Lemma `Q(3)`). -/
+lemma band_sums_leW_thr {A_thr c' R T : ℝ} (hA : 0 < A_thr) (hc' : Q.cQ ≤ c')
+    (hR_thr : A_thr ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
     {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
     (hdl : deltaLobe prob Q.D.r_1 c' g < 1 / 2)
     (hT_lo : virasoroDeltaChart c' 0 ≤ T)
-    (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr)) :
+    (hT_hi : T ≤ virasoroDeltaChart c' (-A_thr)) :
     bandB1W prob c' R T g ≤ 1 ∧ bandB2W prob c' R g ≤ 2 := by
   have hc'_10000 : 10000 ≤ c' :=
     (Q.hcQ_10000.trans hc')
@@ -137,12 +137,12 @@ lemma band_sums_leW {c' R T : ℝ} (hc' : Q.cQ ≤ c')
   have hM_pos : 0 < prob.cardyNorm (c' / 12) g :=
     Q.cardyNorm_pos hc' hg
   have hM_nn : 0 ≤ (prob.cardyNorm (c' / 12) g)⁻¹ := inv_nonneg.mpr hM_pos.le
-  have hR_pos : 0 < R := lt_of_lt_of_le virasoroAThr_pos hR_thr
+  have hR_pos : 0 < R := lt_of_lt_of_le hA hR_thr
   have hA2_nn : 0 ≤ Q.AC c' ^ 2 := sq_nonneg _
   have hu_mem := Q.UT_between hc'_pos
     (by linarith : -(Q.AC c' ^ 2) ≤ -R) hA2_nn (by linarith : -R ≤ 0) hT_lo
     (hT_hi.trans ((Q.deltaChart_strictAnti hc'_pos).antitoneOn
-      ⟨by linarith, by linarith⟩ ⟨by linarith, by linarith [virasoroAThr_pos]⟩
+      ⟨by linarith, by linarith⟩ ⟨by linarith, by linarith [hA]⟩
       (by linarith)))
   set u_T := virasoroUT c' T
   have hΔ_uT : virasoroDeltaChart c' u_T = T := hu_mem.2
@@ -320,6 +320,15 @@ lemma band_sums_leW {c' R T : ℝ} (hc' : Q.cQ ≤ c')
     linarith [hmul, h_cov, h_abs, hdl_eq, hdl]
   exact ⟨hB1, hB2⟩
 
+lemma band_sums_leW {c' R T : ℝ} (hc' : Q.cQ ≤ c')
+    (hR_thr : virasoroAThr ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
+    {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
+    (hdl : deltaLobe prob Q.D.r_1 c' g < 1 / 2)
+    (hT_lo : virasoroDeltaChart c' 0 ≤ T)
+    (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr)) :
+    bandB1W prob c' R T g ≤ 1 ∧ bandB2W prob c' R g ≤ 2 :=
+  band_sums_leW_thr virasoroAThr_pos hc' hR_thr hR_ub hg hdl hT_lo hT_hi
+
 /-! ### Section 3: Node-Sum Lower Bounds (`hP_nodes_lb_hb` and `P_theta_bound`) -/
 
 end Band
@@ -327,6 +336,10 @@ end Band
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.LemmaQData.sigma_arc_eventuallyFor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms LemmaQData.sigma_arc_eventuallyFor
+
+/-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.band_sums_leW_thr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms band_sums_leW_thr
 
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.band_sums_leW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
