@@ -172,6 +172,26 @@ no bootstrap.
   `airySquare_gaussian_transform`).
 - `thm:ce-post-edge` and `cepe:general` stated for a general source; hb-lift assembly (seed mass `m₀ = 1` exists); lift
   to `Euc d`. This gives `hhi`.
+- *Dependency list (audit of the Lean tree).* Proved and reusable: the Mellin lift of any `HasU2` seed
+  (`liftSymbolData_of_hasU2`, `liftPhi_mellinLiftData`, `lift_edge_repr`, `exists_isHankelEigenfn_of_lift`), the
+  seed mass and floors (`hb_seed_mass_exists`, `hbSeedSpec_airy_witness`), the B-spline multipliers and main-edge kernel
+  (`MellinMainKernel`), reflected-line and dual-phase bounds (`gt2b_reflected_combined`, `o3_dual_bound`), far transfer
+  (`gt3b_far_fourier_transfer`), the middle band (`middle_transfer_gt1`, conditional on `O4QuotientBound` and the `GT.1`
+  bounds), the pre-edge criterion (`preEdge_general_pos`), `airySquare_gaussian_transform`, `HasU2` for `g₁` and
+  `ceG1`, the radial Hankel transform on `Euc d` (`fourier_radial_hankel`, `integrable_radialLift_iff`). Missing, in
+  order of use: (1) the convolution source `S_c` and Lemma `O.12` items (1)-(7) (`ceo:conv`; nothing exists, items (1)-(3)
+  and the weight bounds `(ceo:conv.4)`-`(ceo:conv.5)` are scalar, item (7) needs `T_c` and the `FG.3` transfer
+  operator, which exist); (2) `thm:ce-post-edge`, assembling `GT.2a`, `GT.2b` and (7) (not in Lean); (3) the two-seed
+  lift `f[S, D]` as a pair, i.e. `h`, `ĥ` as the `σ = ±1` Hankel eigenfunction lifts of `(D ± S)/2`, with finite mass
+  for seeds outside the `airySeedU2` span (`iMain_add_iDual_tail` and `exists_hankelEigenfn_lift` cover only that span,
+  so the general-seed tail and mass bounds must be redone from `lift_edge_repr`); (4) the physical sign `u1co:O6` for the
+  seeds `F_c` and the reflected seed `-S_c` (the `su/upper` lane has `o6_positivity`, conditional on the same
+  `MiddleBandInputs` as `hb_thresholds_upper`), with tuning of `η_c` (`h(0) = ĥ(0) > 0`); (5) the pre-edge hypotheses
+  for `D_c` from `ℒ_y(-G_Ai) > 0` (compact range) and the `u^{-3/2} e^{-4u^{3/2}/3}` tail; (6) the Euclidean lift of the
+  Hankel profile to a radial continuous `L¹` pair with `ĥ ≥ 0` and `h ≤ 0` beyond the radius (the shell conditions are
+  vacuous for `N = Ai`, `m = 1`, so only the final radius `R²/2 ≤ d/(2π²) - (t₁/β₁)(d/2)^{1/3} + K₀` and the offsets
+  `|r| ≤ R_off` bookkeeping remain). Steps (1)-(2) need nothing from M4; (4) and the `GT.1`/`O4` inputs of (2) are the
+  M4 interface, so the assembly takes them as named hypotheses.
 
 **M7 CE lower (M).** Shell reduction `m = 1`, `O(d)` averaging, and the Hankel lower half from M5 give `hlo`. Done (`CEShellReduction`): a normalised continuous `L¹` Cohn–Elkies pair `(h, r)` yields the anti-self-dual competitor `ĥ - h∘(-·)` (`g(0) = 0`, `g ≥ 0` on `‖x‖ ≥ r`, nonzero by the compact-support uncertainty principle), `radialProjection` makes it Hankel-feasible at `r²/2` for `c = d/2`, `ε = -1`, and `hb_thresholds_lower` gives `shell_reduction_m1_proved` and `shell_reduction_airy : ShellReduction ShellHBData.airy` (the shell constraints are vacuous at `m = 1`); the fields `hb_thresholds_lower`, `shell_reduction_m1` are dropped from `RadiiInputs`. General `ShellReduction D` for `m ≥ 2` is M8. Remaining for M7 is `ce_hb_lift_m1` (upper half), which needs M6 (convolution source, post-edge, lift to `Euc d`) and `hb_thresholds_upper` from M4 (O-chain); nothing there is a routine scalar lemma yet, so no Haiku briefs are queued.
 
