@@ -138,4 +138,8 @@ theorem hankelEdge_kernel_inv_eq (c τ ξ : ℝ) (hξ : 0 < ξ) :
 #guard_msgs (whitespace := lax) in
 #print axioms hankelEdge_kernel_inv_eq
 
+/-- info: 'FormalResearch.SignUncertainty.hankelEdge_kernel_pt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelEdge_kernel_pt
+
 end FormalResearch.SignUncertainty

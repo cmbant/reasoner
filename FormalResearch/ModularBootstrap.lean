@@ -359,6 +359,17 @@ public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigiditySequence
 public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeInstance
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroDict
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroDictT
+public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuumNode
+public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuumFamily
+public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuumLimit
+public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuumTail
+public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuum
+public import FormalResearch.ModularBootstrap.Upper.Design.CombTransformAbs
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombT
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombPhase
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombK7
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionTwoFloor
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionTwo
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1083,4 +1094,20 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   family of admissible designs as `CompactCombFamily 2 (n + 2)` (`toModifiedFamily`, uniform bounds and margins), `lemma_ID_modified`
   (`ut:ID` at every level `f`), `tildeW_toModified` (`W̃^{±(2)} = C_*^{(2)} κ Re W^{(2)}`), the identification with `W_2 = -(u - p) W^{(2)}`,
   `lemma_R_lower_two`, and the window asymptotics of `T_{χ(p)}` (`blaschkeT_window_bound`).
+* `TwoLevel.NegativeVacuum{Node,Family,Limit,Tail}`, `TwoLevel.NegativeVacuum` (`virasoro_two_level.tex` Theorem 2.5 `gt:2.5`, Step 1,
+  the window algebra): **`twoZeroNegativeVacuum`** (the former named hypothesis `TwoZeroNegativeVacuum`, now a theorem: for `∫ f_K < 0`
+  at `u₂` the designs `negDesign α K (K + j) η_j u₂` have `∫ W₂ → ∫ f_K`, by the Airy quadrature, Tannery for the node products
+  (`tendsto_nodeC`), `f_K` as the zero-width Airy product (`windowF_eq_winC`) and Lemma E for the nodes `ν > K`
+  (`tail_sum_bound`)) and **`theorem_two_five_of_T2`** (Theorem 2.5 conditional only on `TwoSimpleZeroTransfer`).
+* `TwoLevel.{TwoZeroCombT, TwoZeroCombPhase, TwoZeroCombK7}` and `Upper.Design.CombTransformAbs` (`upper_transfer.tex` Theorem T2 `ut:T2`,
+  "Phase and membership", Regions I and II): the comb `B₂ = T_{χ(p)} B₁` (`TwoZeroDesign.twoZeroComb`), the real-axis `T`-factor lemmas
+  (`T ≤ Cλσ`, `T ≥ c(x - ξ_*)` beyond `Σ₀`, `T_{χ(p)}/T_{ξ_*} = 1 + O(λ/(x - ξ_*))`, positivity for `x > χ(p)`, `φ_{χ(p)} - φ_{ξ_*} = O(λ)`
+  in `C²`), the phase `Φ₁ = designPhi1 + iπ + φ_{χ(p)}` (`CombPhaseData`, `InnerCombHyp`, `SDVAmplitudeInput`, abstract `PhaseComb`),
+  `K7` membership, vacuum identity and decay at `w = 1` (`twoZeroComb_k7_membership_vacuum`) and Lemma `Φ` for `h₂`
+  (`twoZeroComb_phi_transform`), uniformly on a compact family of admissible designs.
+* `TwoLevel.{TwoZeroRegionTwoFloor, TwoZeroRegionTwo}` (`upper_transfer.tex` Lemma II-F `ut:IIF` at `f = 2`, `r = 1`, Theorem T2 `ut:T2`
+  "Region II"): `proposition_II_floor` (the `h₀^D` floor of Proposition II), the `T_{χ(p)}/T_{ξ_*}` comparison on Region II for all
+  `x ≥ ξ_* + c'^{-2/5}` (`twoZeroT_ratio_le`), the exponent shift `vRhoInfty_add_half`, the transform bound `twoZero_hat_bound`
+  (`‖ĥ₂‖ ≤ 0.55·1.02·Lev₂`), and **`twoZero_regionII`** / **`twoZero_regionII_pos`**: `2g/Lev₂ ≥ 13/100`, `g > 0`
+  for `c'` large uniformly on a compact family of admissible designs.
 -/
