@@ -223,6 +223,162 @@ theorem convS_lapW_norm_le {p h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hh : 0 < 
     (hz : 0 ≤ z.re) : ‖lapW (convWh p h) z‖ ≤ 2 :=
   (lapW_norm_le (convW_integrable hp hp1 hh) hz).trans (convS_norm_integral_le hp hp1 hh)
 
+/-- Splitting `(0, ∞)` at `1` for an integrand vanishing on `(0, 1]`. -/
+lemma convS_split_Ioi_one {f : ℝ → ℝ} (hf : IntegrableOn f (Ioi 0))
+    (h0 : ∀ y : ℝ, 0 < y → y ≤ 1 → f y = 0) :
+    ∫ y in Ioi (0 : ℝ), f y = ∫ y in Ioi (1 : ℝ), f y := by
+  rw [← Set.Ioc_union_Ioi_eq_Ioi zero_le_one,
+    setIntegral_union Set.Ioc_disjoint_Ioi_same measurableSet_Ioi
+      (hf.mono_set Set.Ioc_subset_Ioi_self) (hf.mono_set (Ioi_subset_Ioi zero_le_one))]
+  rw [setIntegral_eq_zero_of_forall_eq_zero (fun y hy => h0 y hy.1 hy.2), zero_add]
+
+/-- Integrability of the tail majorant `y^{-3/2} min(a y, 2)` on `(1, ∞)`. -/
+lemma convS_tail_integrableOn {a : ℝ} (ha0 : 0 < a) :
+    IntegrableOn (fun y : ℝ => y ^ (-(3 / 2 : ℝ)) * min (a * y) 2) (Ioi 1) := by
+  have hI : IntegrableOn (fun y : ℝ => y ^ (-(3 / 2 : ℝ))) (Ioi 1) :=
+    integrableOn_Ioi_rpow_of_lt (by norm_num) one_pos
+  refine Integrable.mono' (Integrable.const_mul hI 2) ?_ ?_
+  · exact (by fun_prop : Measurable fun y : ℝ => y ^ (-(3 / 2 : ℝ)) * min (a * y) 2).aestronglyMeasurable
+  · filter_upwards [ae_restrict_mem measurableSet_Ioi] with y hy
+    have hy0 : (0 : ℝ) < y := lt_trans zero_lt_one hy
+    have hnn : 0 ≤ y ^ (-(3 / 2 : ℝ)) * min (a * y) 2 :=
+      mul_nonneg (Real.rpow_nonneg hy0.le _) (le_min (mul_nonneg ha0.le hy0.le) (by norm_num))
+    rw [Real.norm_eq_abs, abs_of_nonneg hnn]
+    show _ ≤ 2 * y ^ (-(3 / 2 : ℝ))
+    calc y ^ (-(3 / 2 : ℝ)) * min (a * y) 2 ≤ y ^ (-(3 / 2 : ℝ)) * 2 :=
+          mul_le_mul_of_nonneg_left (min_le_right _ _) (Real.rpow_nonneg hy0.le _)
+      _ = 2 * y ^ (-(3 / 2 : ℝ)) := mul_comm _ _
+
+/-- The tail estimate `∫_{(1,∞)} y^{-3/2} min(a y, 2) dy ≤ 6 √a` for `0 < a ≤ 1`
+(the exact value of the bound is `4√2 √a`). -/
+lemma convS_tail_le {a : ℝ} (ha0 : 0 < a) (ha1 : a ≤ 1) :
+    ∫ y in Ioi (1 : ℝ), y ^ (-(3 / 2 : ℝ)) * min (a * y) 2 ≤ 6 * a ^ (1 / 2 : ℝ) := by
+  have hT2 : (2 : ℝ) ≤ 2 / a := by rw [le_div_iff₀ ha0]; linarith
+  have hT1 : (1 : ℝ) ≤ 2 / a := by linarith
+  have hT0 : (0 : ℝ) < 2 / a := by linarith
+  have hf := convS_tail_integrableOn ha0
+  have hI : IntegrableOn (fun y : ℝ => y ^ (-(3 / 2 : ℝ))) (Ioi (2 / a)) :=
+    integrableOn_Ioi_rpow_of_lt (by norm_num) hT0
+  have hsplit : ∫ y in Ioi (1 : ℝ), y ^ (-(3 / 2 : ℝ)) * min (a * y) 2
+      = (∫ y in Ioc (1 : ℝ) (2 / a), y ^ (-(3 / 2 : ℝ)) * min (a * y) 2)
+        + ∫ y in Ioi (2 / a), y ^ (-(3 / 2 : ℝ)) * min (a * y) 2 := by
+    rw [← Set.Ioc_union_Ioi_eq_Ioi hT1,
+      setIntegral_union Set.Ioc_disjoint_Ioi_same measurableSet_Ioi
+        (hf.mono_set Set.Ioc_subset_Ioi_self) (hf.mono_set (Ioi_subset_Ioi hT1))]
+  -- piece A: on (1, T], `min (a y, 2) ≤ a y`, so the integrand is at most `a y^{-1/2}`
+  have hA1 : IntegrableOn (fun y : ℝ => a * y ^ (-(1 / 2 : ℝ))) (Ioc (1 : ℝ) (2 / a)) :=
+    Integrable.const_mul
+      ((intervalIntegrable_iff_integrableOn_Ioc_of_le hT1).mp
+        (intervalIntegral.intervalIntegrable_rpow' (by norm_num))) a
+  have hA : ∫ y in Ioc (1 : ℝ) (2 / a), y ^ (-(3 / 2 : ℝ)) * min (a * y) 2
+      ≤ ∫ y in Ioc (1 : ℝ) (2 / a), a * y ^ (-(1 / 2 : ℝ)) := by
+    refine setIntegral_mono_on (hf.mono_set (fun y hy => (show (1 : ℝ) < y from hy.1)))
+      hA1 measurableSet_Ioc (fun y hy => ?_)
+    have hy0 : (0 : ℝ) < y := lt_trans zero_lt_one hy.1
+    have hpow : y ^ (-(1 / 2 : ℝ)) = y ^ (-(3 / 2 : ℝ)) * y := by
+      rw [← Real.rpow_add_one hy0.ne']; norm_num
+    calc y ^ (-(3 / 2 : ℝ)) * min (a * y) 2 ≤ y ^ (-(3 / 2 : ℝ)) * (a * y) :=
+          mul_le_mul_of_nonneg_left (min_le_left _ _) (Real.rpow_nonneg hy0.le _)
+      _ = a * y ^ (-(1 / 2 : ℝ)) := by rw [hpow]; ring
+  -- piece B: on (T, ∞), `min (a y, 2) ≤ 2`
+  have hB : ∫ y in Ioi (2 / a), y ^ (-(3 / 2 : ℝ)) * min (a * y) 2
+      ≤ ∫ y in Ioi (2 / a), 2 * y ^ (-(3 / 2 : ℝ)) := by
+    refine setIntegral_mono_on (hf.mono_set (Ioi_subset_Ioi hT1))
+      (Integrable.const_mul hI 2) measurableSet_Ioi (fun y hy => ?_)
+    have hy0 : (0 : ℝ) < y := lt_trans hT0 hy
+    calc y ^ (-(3 / 2 : ℝ)) * min (a * y) 2 ≤ y ^ (-(3 / 2 : ℝ)) * 2 :=
+          mul_le_mul_of_nonneg_left (min_le_right _ _) (Real.rpow_nonneg hy0.le _)
+      _ = 2 * y ^ (-(3 / 2 : ℝ)) := mul_comm _ _
+  have hAval : ∫ y in Ioc (1 : ℝ) (2 / a), a * y ^ (-(1 / 2 : ℝ))
+      = 2 * a * ((2 / a) ^ (1 / 2 : ℝ) - 1) := by
+    rw [integral_const_mul, ← intervalIntegral.integral_of_le hT1,
+      integral_rpow (Or.inl (by norm_num))]
+    norm_num [Real.one_rpow]
+    ring
+  have hBval : ∫ y in Ioi (2 / a), 2 * y ^ (-(3 / 2 : ℝ)) = 4 * ((2 / a) ^ (1 / 2 : ℝ))⁻¹ := by
+    rw [integral_const_mul, integral_Ioi_rpow_of_lt (by norm_num) hT0]
+    have e : (-(3 / 2 : ℝ) + 1) = -(1 / 2) := by norm_num
+    rw [e, Real.rpow_neg hT0.le]
+    ring
+  rw [hsplit]
+  rw [hAval] at hA
+  rw [hBval] at hB
+  -- algebra: with `s = √a`, `t = (2/a)^{1/2}`, `a t² = 2`, `(st)² = 2`
+  set s : ℝ := a ^ (1 / 2 : ℝ) with hs
+  set t : ℝ := (2 / a) ^ (1 / 2 : ℝ) with ht
+  have hs0 : 0 < s := Real.rpow_pos_of_pos ha0 _
+  have ht0 : 0 < t := Real.rpow_pos_of_pos hT0 _
+  have hs2 : s ^ 2 = a := by
+    rw [hs, ← Real.rpow_natCast, ← Real.rpow_mul ha0.le]; norm_num
+  have ht2 : t ^ 2 = 2 / a := by
+    rw [ht, ← Real.rpow_natCast, ← Real.rpow_mul hT0.le]; norm_num
+  have key : a * t ^ 2 = 2 := by rw [ht2]; field_simp
+  have hinv : t⁻¹ = a * t / 2 := by
+    field_simp
+    nlinarith [key]
+  have hsq : (s * t) ^ 2 = 2 := by rw [mul_pow, hs2, ht2]; field_simp
+  have hst : s * t ≤ 3 / 2 := by nlinarith [mul_pos hs0 ht0, hsq]
+  have hat : a * t = s ^ 2 * t := by rw [hs2]
+  nlinarith [mul_le_mul_of_nonneg_left hst hs0.le, hat, hinv, hA, hB, ha0]
+
+/-- (ii, `ζ`-Hölder part) `‖lapW w_h z - ∫ w_h‖ ≤ 6 ‖z‖^{1/2}` for `Re z > 0`, `‖z‖ ≤ 1`, uniformly in
+`h > 0`. -/
+theorem convS_lapW_sub_le {p h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hh : 0 < h) {z : ℂ}
+    (hz : 0 < z.re) (hz1 : ‖z‖ ≤ 1) :
+    ‖lapW (convWh p h) z - ∫ y in Ioi (0 : ℝ), convWh p h y‖ ≤ 6 * ‖z‖ ^ (1 / 2 : ℝ) := by
+  have hw := convW_integrable hp hp1 hh
+  have hwc := integrableOn_ofReal_weight hw
+  have ha0 : 0 < ‖z‖ := lt_of_lt_of_le hz (Complex.re_le_norm z)
+  have hc : lapW (convWh p h) z - ((∫ y in Ioi (0 : ℝ), convWh p h y : ℝ) : ℂ)
+      = ∫ y in Ioi (0 : ℝ), (convWh p h y : ℂ) * (Complex.exp (-(z * (y : ℂ))) - 1) := by
+    have hI : ∫ y in Ioi (0 : ℝ), (convWh p h y : ℂ)
+        = ((∫ y in Ioi (0 : ℝ), convWh p h y : ℝ) : ℂ) := integral_ofReal
+    unfold lapW
+    rw [← hI, ← integral_sub (integrableOn_lapW hw hz.le) hwc]
+    simp only [mul_sub, mul_one]
+  have hg : IntegrableOn (fun y : ℝ => ‖convWh p h y‖ * min (‖z‖ * y) 2) (Ioi 0) := by
+    refine Integrable.mono' (hw.norm.mul_const 2) ?_ ?_
+    · exact hw.norm.aestronglyMeasurable.mul
+        (by fun_prop : Continuous fun y : ℝ => min (‖z‖ * y) 2).aestronglyMeasurable
+    · filter_upwards [ae_restrict_mem measurableSet_Ioi] with y hy
+      have hy0 : (0 : ℝ) < y := hy
+      rw [Real.norm_eq_abs, abs_of_nonneg (mul_nonneg (norm_nonneg _)
+        (le_min (mul_nonneg ha0.le hy0.le) (by norm_num)))]
+      exact mul_le_mul_of_nonneg_left (min_le_right _ _) (norm_nonneg _)
+  have hpt : ∀ y ∈ Ioi (0 : ℝ), ‖(convWh p h y : ℂ) * (Complex.exp (-(z * (y : ℂ))) - 1)‖
+      ≤ ‖convWh p h y‖ * min (‖z‖ * y) 2 := by
+    intro y hy
+    have hy0 : (0 : ℝ) < y := hy
+    rw [norm_mul, Complex.norm_real]
+    apply mul_le_mul_of_nonneg_left _ (norm_nonneg _)
+    refine le_min ?_ ?_
+    · have hre : (-(z * (y : ℂ))).re = -(z.re * y) := by simp [Complex.mul_re]
+      have hle : (-(z * (y : ℂ))).re ≤ 0 := by rw [hre]; nlinarith
+      calc ‖Complex.exp (-(z * (y : ℂ))) - 1‖ ≤ ‖-(z * (y : ℂ))‖ := convS_exp_sub_one_le hle
+        _ = ‖z‖ * y := by rw [norm_neg, norm_mul, Complex.norm_real, Real.norm_of_nonneg hy0.le]
+    · calc ‖Complex.exp (-(z * (y : ℂ))) - 1‖ ≤ ‖Complex.exp (-(z * (y : ℂ)))‖ + ‖(1 : ℂ)‖ :=
+            norm_sub_le _ _
+        _ ≤ 1 + 1 := add_le_add (norm_exp_neg_mul_le hz.le hy0.le) (by simp)
+        _ = 2 := by norm_num
+  have hJ := convS_tail_integrableOn ha0
+  calc ‖lapW (convWh p h) z - ∫ y in Ioi (0 : ℝ), convWh p h y‖
+      = ‖∫ y in Ioi (0 : ℝ), (convWh p h y : ℂ) * (Complex.exp (-(z * (y : ℂ))) - 1)‖ := by rw [hc]
+    _ ≤ ∫ y in Ioi (0 : ℝ), ‖convWh p h y‖ * min (‖z‖ * y) 2 :=
+        norm_integral_le_of_norm_le hg ((ae_restrict_iff' measurableSet_Ioi).mpr
+          (Eventually.of_forall fun y hy => hpt y hy))
+    _ = ∫ y in Ioi (1 : ℝ), ‖convWh p h y‖ * min (‖z‖ * y) 2 :=
+        convS_split_Ioi_one hg (fun y hy0 hy1 => by
+          show ‖convWh p h y‖ * min (‖z‖ * y) 2 = 0
+          rw [convWh_eq_zero hy1, norm_zero, zero_mul])
+    _ ≤ ∫ y in Ioi (1 : ℝ), y ^ (-(3 / 2 : ℝ)) * min (‖z‖ * y) 2 := by
+        refine setIntegral_mono_on (hg.mono_set (Ioi_subset_Ioi zero_le_one)) hJ measurableSet_Ioi
+          (fun y hy => ?_)
+        have hy0 : (0 : ℝ) < y := lt_trans zero_lt_one hy
+        refine mul_le_mul_of_nonneg_right ?_ (le_min (mul_nonneg ha0.le hy0.le) (by norm_num))
+        rw [Real.norm_of_nonneg (convWh_nonneg hh.le hy0)]
+        exact convWh_le (by linarith) hh.le hy0
+    _ ≤ 6 * ‖z‖ ^ (1 / 2 : ℝ) := convS_tail_le ha0 hz1
+
 /-- info: 'FormalResearch.SignUncertainty.convSD_hasDerivAt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms convSD_hasDerivAt
@@ -242,5 +398,13 @@ theorem convS_lapW_norm_le {p h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hh : 0 < 
 /-- info: 'FormalResearch.SignUncertainty.convS_lapW_norm_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms convS_lapW_norm_le
+
+/-- info: 'FormalResearch.SignUncertainty.convS_lapW_sub_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convS_lapW_sub_le
+
+/-- info: 'FormalResearch.SignUncertainty.convS_tail_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convS_tail_le
 
 end FormalResearch.SignUncertainty
