@@ -21,8 +21,8 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
   instance. `MovingDiagFarTail` has no instance at all. Theorems such as GT.2b, GT.3b, GT.4, PE.3 and `cepe:general` are
   stated for an abstract `fhat` that carries the paper's estimates as hypotheses. Nothing builds `W_S`, `W_D` from `Ai`,
   or `h_mellin` from a CE pair.
-- Open skeleton fields in `Headlines.lean` (6): `hb_thresholds_lower`, `hb_thresholds_upper`, `shell_reduction_m1`,
-  `ce_hb_lift_m1`, `shell_reduction`, `ce_hb_lift`. The Hankel form `HankelShellGapLimit` of `thm:ce-shell-gap` is the
+- Open skeleton fields in `Headlines.lean` (4): `hb_thresholds_upper`, `ce_hb_lift_m1`, `shell_reduction`,
+  `ce_hb_lift` (`hb_thresholds_lower` and `shell_reduction_m1` are proved: `HankelThresholds`, `CEShellReduction`). The Hankel form `HankelShellGapLimit` of `thm:ce-shell-gap` is the
   theorem `hankelShellGapLimit_proved`, and the Euclidean statement follows by `shellGapLimit_of_hankel`. `radial_compactness`, `one_profile_envelope` and the
   Euclidean-to-Hankel dictionary `hankel_euclid_dictionary` (`gt:7.9`) are theorems and no longer inputs.
 - `thm:ce-shell-gap` route (`ShellGapHankel.lean`, `ShellGapMassRatio.lean`, `ShellGapWeight.lean`, `ShellGapLaplace.lean`,
@@ -144,7 +144,7 @@ bootstrap) comes after them.
   `OddShellFamily`) exists. Needs only M2.
 
 **M4 Upper O-chain at one level (shared by everything below; L, technical core).**
-- U.2 for `{f₁, g₁, g₁'}`, U.3, GT.2a (on its Fourier-side hypotheses; `GT.1` symbol bounds and `O4QuotientBound` taken as hypotheses), O.5, O.6, O.11ak (Mellin-lift hub), O.9′ at `m = 1`.
+- U.2 for `{f₁, g₁, g₁'}`, U.3, GT.2a (on its Fourier-side hypotheses; `GT.1` symbol bounds now proved, `gt1BasisInput`; `O4QuotientBound` taken as a hypothesis), O.5, O.6, O.11ak (Mellin-lift hub), O.9′ at `m = 1`.
 - O.3(2)/U.3(3): real-line subtraction of the `x^{−3/2}` tail, two integrations by parts and the Fresnel integral (no
   Puiseux, no V-ray). U.1 only in its closed-half-plane form.
 - O.4(2): Banach contraction for the cubic normal form (`ContractingWith.fixedPoint`), with the certified bound on the
@@ -225,26 +225,28 @@ is M0 ∥ M1 → M2 ∥ M4 → M3, Headline S → M5 ∥ M6 → M7 → M8.
 - Every Haiku-written module gets a clean-context Sonnet review before it is merged; every large Sonnet development
   (shell gap, the O.3(2) estimate, the window translation, the Hankel chart/density/transport, O.11ak) has had one.
 
-## 7. Status review (2026-11-24, reasoner `master` after S4)
+## 7. Status review (2026-11-24, 07:00 UTC, reasoner `master` after GT.1)
 
-Size: `SignUncertainty` 133 files and about 39.8k lines, `CohnElkies` 63 files and about 52.7k lines. No placeholder
-proofs, no custom axioms. The four headlines in `Headlines.lean` are still **conditional**, now on six inputs:
-`hb_thresholds_lower`, `hb_thresholds_upper`, `shell_reduction_m1`, `ce_hb_lift_m1`, `shell_reduction`, `ce_hb_lift`.
+Size: `SignUncertainty` about 180 files and `CohnElkies` about 65 files, together over 100k lines. No placeholder proofs,
+no custom axioms. The four headlines in `Headlines.lean` are still **conditional**, now on four inputs:
+`hb_thresholds_upper`, `ce_hb_lift_m1`, `shell_reduction` and `ce_hb_lift` (`hb_thresholds_lower` and `shell_reduction_m1`
+are theorems). `hb_thresholds_upper` is the theorem `hbThresholdsUpper_of_o4` applied to the single remaining named
+hypothesis `O4QuotientBound L` for `0 < L ≤ 0.002`.
 
 | milestone | state |
 |---|---|
-| M0 skeleton | done |
-| M1 classical leaves (Bessel, Weber, Laguerre modes, odd-`d` radial Fourier, `O(d)`/sphere averaging) | done |
-| M2 Hankel layer (`gt:7.4`, `lem:radial-compactness`, `gt:7.5` input) | done |
-| M3 strict gap, extraction half (`hankelShellGapLimit_proved`) | done; the origin floor and `u_* ≤ t_m` are not on its path |
-| M4 upper O-chain | done: U.2, U.3(3)/O.3(2) = `(e4)` (uniform in seed coefficients), `(e3)`, O.4, `O.5(1)` = `(e5)`, O.11ak existence form, GT.2a: assembly `middle_transfer_gt1` (`MiddleBandTransfer`; outer pieces, `τ(εu)` substitution, `(e7)`/`(e8)`, regions), conditional on the named hypothesis `O4QuotientBound L` (`M_F ≤ 0.13`, interval certificate of `O.4`) and on the `GT.1` symbol bounds for `W(v) = liftSymbol X δ₀ m (v I)` as hypotheses. Also `O.5(2)` = `(e6)` (`o5_e6_airySeed`), `O.6` (`o6_positivity`, `O6Est`) and `O.9′` at `m = 1` (`hbThresholdsUpper_of_inputs : MiddleBandInputs 4 → HbThresholdsUpper`, i.e. `hb_thresholds_upper` conditional on the two named hypotheses). Open: `Gt1BasisInput m` (`GT.1` for the spline-multiplied basis seeds `f₁, g₁, g₁'`; the abstract-seed half `gt1Bounds_liftW_of_seed` and the Schwartz side are done, remaining: the three-phase tail form of the seeds), discharge of `O4QuotientBound L` for `0 < L ≤ 0.002` (interval certificate), after which `hb_thresholds_upper` is unconditional |
-| M5 Hankel lower half | S1–S5 done (Langer chart, local density, tail and transport, type (I) compactness `hankel_quantC1_of_feasible`, strip data and `hankelBandInstance`/`hankel_band_reduction` = `teb:mellin` (1) only). S6a done (`hankelBootHB`: the `BootstrapHBInstance` at a good circle, from the window hypothesis `HankelYVAt`). S6b done (`hankel_yv_at : HankelYVAt hankelWindowC 10¹⁴`, the window lemma `teb:mellin` (2)-(3)). S7 done (`hb_thresholds_lower : HbThresholdsLower`, proved for both eigenvalues; `HankelChartSecond`, `HankelThresholds`). M5 is complete |
-| Headline S (`gt:7.9c`) | needs `hb_thresholds_upper` (M4 end) |
-| M6, M7, M8 | M7 lower half done (`shell_reduction_m1_proved`, `shell_reduction_airy`); M6 (CE upper, convolution source; gives `ce_hb_lift_m1`) needs M4, not started; M8 is the multilevel generalisation |
+| M0 skeleton, M1 classical leaves, M2 Hankel layer, M3 extraction half | done |
+| M4 upper O-chain | done except `O4QuotientBound L` (`M_F ≤ 0.13`, interval certificate `certify_u1c_o4_contraction.py`). In progress: the kernel-checked discharge (Haiku modules `O4SigmaBounds`, `O4CircleReduction` done, `O4RhoSeries` running; the ball library, box evaluator and assembly are on the Bessel lane, generator `gen_o4_boxes.py` passes in exact integer arithmetic at 40 x 320 boxes, `|F| ≤ 0.12695`) |
+| M5 Hankel lower half | done (S1–S7: `hb_thresholds_lower` proved) |
+| M6 CE upper half (convolution source, post-edge bounds, lift of a Hankel profile to `ℝ^d`; gives `ce_hb_lift_m1` from `hb_thresholds_upper`) | in progress (skeleton lane) |
+| M7 shell reduction | `shell_reduction_m1_proved` and `shell_reduction_airy` done; `ce_hb_lift_m1` is M6 |
+| Headline S (`gt:7.9c`) | needs `hb_thresholds_upper` unconditional (the `O4QuotientBound` discharge) |
+| M8 multilevel generalisation (`shell_reduction`, `ce_hb_lift` for general `D`) | not started |
 
-Critical path: M5 S6–S7 and TE.3 (2)-(3) (about 4–5k lines) in parallel with the M4 tail (GT.1 inputs for GT.2a, O.5(2), O.6, O.9′: about
-6–8k lines), then M6 and M7 (M-sized each) and M8. Two Sonnet agents run these two lanes; Haiku agents implement the
-routine statements the Sonnet agents queue.
+Critical path: `O4QuotientBound` (about 2.5–3.5k lines, kernel time about 5–20 min) unlocks Headline S; M6 then gives
+`ce_hb_lift_m1` and the one-level Euclidean headlines; M8 is the remaining multilevel step. Two Sonnet agents run these
+two lanes; Haiku agents implement routine statements, and every Haiku output and every large development gets a
+clean-context Sonnet review before it is merged.
 
 Coverage gaps against the TeX that are recorded rather than closed:
 - the tail exponent of `7.7p`: Lean `c/40000`, TeX `2·10⁻³c` (and two notes quoting consequences); the later steps only
@@ -260,3 +262,35 @@ Environment notes for the agents: single `lake build` slot pairs through `scratc
 shows as "Unknown identifier" or "Application type mismatch" for something that exists: delete that module's build
 files and rebuild; build outputs of reasoner modules outside the closure of `CohnElkies` and `SignUncertainty` were
 deleted to free disk, so importing an outside module triggers a one-time rebuild.
+
+## 8. Revised continuation (2026-11-24)
+
+Order of work, by leverage on the four open `Headlines` inputs:
+
+1. `O4QuotientBound L` (kernel-checked interval discharge; unlocks `hb_thresholds_upper` and Headline S). Pieces: `O4SigmaBounds`
+   and `O4CircleReduction` (done), `O4RhoSeries` (Haiku, running), `O4CertBall`, the generated box modules and the assembly
+   (Bessel lane; generator `gen_o4_boxes.py` passes at 40 x 320 boxes).
+2. M6 (`ce_hb_lift_m1` from `hb_thresholds_upper`): `ConvSource*` (Haiku briefs `m6_*`) and `EuclidCELift`, `CeHbLiftAssembly`
+   (skeleton lane); then a clean-context review of the whole M6 development before merge.
+3. M8 (general `D`: `shell_reduction`, `ce_hb_lift` for `m ≥ 2`): start with a dependency list once M6 is merged; it needs the
+   multilevel `HbThresholds` (levels `m ≥ 2`) and the shell constraints.
+4. Closing the paper side: after the headlines are unconditional, update the manuscript appendix that names Lean
+   declarations (lean skill, step 5.4), the TeX coverage gaps of §7 above, and the `CORRECTIONS.md` lines for any stated
+   result changed by the formalisation.
+
+Process changes: (a) the manager alone edits the status rows of this file; agents report in their handoffs, `THEOREM_MAP.md`
+and the umbrella rows (this removes the repeated `PLAN.md` merge conflicts). (b) A clean-context reviewer builds the headline
+module of its step, not the umbrella; the one umbrella build is the manager's, after each merge round, and merges are
+batched. (c) At most two Sonnet lanes, three Haiku agents and one reviewer build at once (two build slots), finished
+worktrees are removed at hand-back, and new worktrees are made with `scratch/mkwt.sh`, which deletes the build outputs of
+modules whose source differs from the copied build (the stale-olean trap).
+
+Cross-lane note (fold-tip). `RadialRigidityPackage` (`RadialRigidity.lean`, hypotheses of `gt:7.5`) and the fold-tip
+interface of the modular-bootstrap lane (`ModularBootstrap/FoldTip/Hypotheses.lean`, `FoldTipSetting`, `FTH2`) describe the
+same abstract setting (weight, mass `M[g]`, density `Ψ_g`, feasibility, threshold `T_c`, Airy chart, chart-form
+compactness). The two rigidity proofs differ (profile compactness with Hermite–Biehler uniqueness here, vague limits of
+design measures there), so only the interface should be shared: a base structure for the chart-form compactness clause
+(`compactness_subseq` plus the site and tail positivity), stated for an abstract setting, in a new shared module that
+imports nothing Hankel- or Virasoro-specific. Paper I would add (without editing `RadialRigidity.lean`, which six
+modules import) a converter `RadialRigidityPackage → ChartCompactness`. Not started: it needs the field list agreed with
+the fold-tip lane.

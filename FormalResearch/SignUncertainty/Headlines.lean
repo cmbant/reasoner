@@ -261,9 +261,8 @@ include I
 /-- **Headline A (`gt:7.9`, `thm:intro-radii`, both signs).** For every integer `d ≥ 2`,
 `A_sign^±(d)²/2 = d/(2π²) + A (d/2)^{1/3} + O(1)` with `A = |a₁|/β₁`.
 
-Proved from `RadiiInputs`; see the module docstring for the open fields used
-(`hb_thresholds_lower`,
-`hb_thresholds_upper`). The second asymptotic form of `gt:7.9` (`A_sign(d)/√d`) is not restated. -/
+Proved from `RadiiInputs`; see the module docstring for the open field used
+(`hb_thresholds_upper`; the lower half is the theorem `hb_thresholds_lower`). The second asymptotic form of `gt:7.9` (`A_sign(d)/√d`) is not restated. -/
 theorem thm_intro_radii_sign :
     (∃ C : ℝ, ∀ d : ℕ, 2 ≤ d → |aSignPos d ^ 2 / 2 - airyOrderModel d| ≤ C) ∧
     (∃ C : ℝ, ∀ d : ℕ, 2 ≤ d → |aSignNeg d ^ 2 / 2 - airyOrderModel d| ≤ C) := by
