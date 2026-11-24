@@ -364,6 +364,10 @@ public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuumFamily
 public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuumLimit
 public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuumTail
 public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuum
+public import FormalResearch.ModularBootstrap.Upper.Design.CombTransformAbs
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombT
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombPhase
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombK7
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1093,4 +1097,10 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   at `u₂` the designs `negDesign α K (K + j) η_j u₂` have `∫ W₂ → ∫ f_K`, by the Airy quadrature, Tannery for the node products
   (`tendsto_nodeC`), `f_K` as the zero-width Airy product (`windowF_eq_winC`) and Lemma E for the nodes `ν > K`
   (`tail_sum_bound`)) and **`theorem_two_five_of_T2`** (Theorem 2.5 conditional only on `TwoSimpleZeroTransfer`).
+* `TwoLevel.{TwoZeroCombT, TwoZeroCombPhase, TwoZeroCombK7}` and `Upper.Design.CombTransformAbs` (`upper_transfer.tex` Theorem T2 `ut:T2`,
+  "Phase and membership", Regions I and II): the comb `B₂ = T_{χ(p)} B₁` (`TwoZeroDesign.twoZeroComb`), the real-axis `T`-factor lemmas
+  (`T ≤ Cλσ`, `T ≥ c(x - ξ_*)` beyond `Σ₀`, `T_{χ(p)}/T_{ξ_*} = 1 + O(λ/(x - ξ_*))`, positivity for `x > χ(p)`, `φ_{χ(p)} - φ_{ξ_*} = O(λ)`
+  in `C²`), the phase `Φ₁ = designPhi1 + iπ + φ_{χ(p)}` (`CombPhaseData`, `InnerCombHyp`, `SDVAmplitudeInput`, abstract `PhaseComb`),
+  `K7` membership, vacuum identity and decay at `w = 1` (`twoZeroComb_k7_membership_vacuum`) and Lemma `Φ` for `h₂`
+  (`twoZeroComb_phi_transform`), uniformly on a compact family of admissible designs.
 -/
