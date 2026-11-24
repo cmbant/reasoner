@@ -56,9 +56,7 @@ C5b, and C5c at w = 1 are already proved by other routes; FT reuses those proofs
 | FT-3..6 | Abstract chart-form compactness (Lemmas 1–2) for arbitrary instances, C5d m ≥ 2, Lemma FT-R log rate | L | only useful for Paper I instances; a shared package with Paper I's `RadialRigidityPackage` is a cross-session decision | deferred |
 | FT-7 | Modular Clark/HB FT-2E (m₀ = 2) | L | = TL6 | with TL6 |
 
-**D. Later, not scheduled:** designs and bump at w > 1 (W1.4, Prop III, FW-M; makes H3/C15 and Σ unconditional for
-w > 1), soft-edge slope `se:3.1`, continuous spin (`spinning_dual.tex`, nothing in Lean), real w and N = (2,2)
-(weights outside (H_w)). **Out of scope:** five-term expansions C15/ctu.5, integer spin (computer-assisted), numerical
+**D. Bump at w > 1 (in progress, paused by the owner after P1).** Plan: scout report (packages P1–P6). Done on master: P2 order-p comb transform and K7 at every weight (`Upper/Design/CombTransformP`, `PhaseComb`, `Hankel/HankelOrderPSymm`, `K7ConclusionW`, `phase_packageP`); P3 macroscopic bump (`Upper/Bump/*`: `bumpFactor` bounds `fw:e3.3`, `bumped_phaseHyp`, `bump_floor`); P4a R_p calculus (`Upper/Positivity/RpAmplitude*`, `RpParams`); P4 Proposition III at every weight (`Upper/Positivity/PropositionIII*`, `proposition_III`); P1 weight-w bookkeeping (`qProb` with `(2ξ_*)^{w-1}`, `CardyFarBoundP`, Lemma T at every weight with a bounded-multiplier hook). Remaining: P5 (Prop V, (P), Σ, H4b, `ft_fixedWeight` at every w; mostly mechanical) and P6 (H3 at w > 1 via the bumped ramped comb, TeX Lemma U*(w) `fw:Ustar` in `CFT/notes/n2_ramped_comb.tex`; includes the ramped vacuum at w > 1, `RampedVacuumWindow` `theta_bound`). Successor: T2 / Theorems 2.5, 2.6 at w > 1. **Later, not scheduled:** soft-edge slope `se:3.1`, continuous spin (`spinning_dual.tex`, nothing in Lean), real w and N = (2,2) (weights outside (H_w)). **Out of scope:** five-term expansions C15/ctu.5, integer spin (computer-assisted), numerical
 constants (0.4837…, 0.2070…, 1.2180…).
 
 **Schedule.** Sonnet high for TL1, TL3–TL6; Sonnet medium for TL2, FT-1, FT-2; Haiku for FT-0, docs and THEOREM_MAP.
