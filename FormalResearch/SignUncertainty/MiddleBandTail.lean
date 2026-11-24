@@ -9,20 +9,20 @@ The outer reference piece has amplitude with `|a^{(r)}(x)| ≤ B x^{-5/2-r}` for
 `x < α`, and cubic phase `ψ(x) = a0 x - π² x³/36` with `|ψ'| ≥ q x²`. `cubic_two_ibp_power` needs
 the amplitude compactly supported, so the half-line statement is obtained by truncation.
 
-* `cubic_two_ibp_power_tail`: the bound of `cubic_two_ibp_power`, on the half-line, with the constant
-  multiplied by `(1 + K)` for an absolute constant `K ≥ 0` (`K = 4K₁ + 4K₂`, where `K₁, K₂` bound the first
-  and second derivatives of a fixed smooth bump). The exact constant `(2/15) α^{-15/2} B C` is therefore
-  not claimed here: the statement is `∃ K ≥ 0, ‖∫ …‖ ≤ (1 + K) · (2/15) α^{-15/2} B C`. Classes: proved.
-  The application needs only some explicit constant depending on `(α, B, q)`, and this one is
-  `(1 + K)` times the stated one with `K` independent of `α, B, q, a`.
+* `cubic_two_ibp_power_tail`: `∃ K ≥ 0, ∀ a a0 α B q, hypotheses → ‖∫ a e^{iψ}‖ ≤ (1 + K) · (2/15) α^{-15/2} B C`
+  with `C = 1/q² + π²/(2q³) + π²/(6q³) + π⁴/(12q⁴)`. The quantifier order matters: `K` (built from a fixed
+  smooth bump, `K = 4K₁ + 4K₂`) is chosen before `a, a0, α, B, q`, so it is an absolute constant. The sharp
+  constant `K = 0` of `cubic_two_ibp_power` is not claimed. Classes: proved. GT.2a needs only a constant
+  independent of the parameters `ε, S, κ₀`, which this gives.
+* `cubic_two_ibp_power_tail_neg`: the mirror statement on `(-∞, -α]` (same `K`), by `x ↦ -x` and complex
+  conjugation. Classes: proved.
 * Truncation: `a_R(x) = θ(x/R) a(x)` with a fixed bump `θ` (`θ = 1` on `[0, 1]`, `θ = 0` on `[2, ∞)`).
   On `[α, 2R]`, `|a_R^{(r)}| ≤ (1 + K) B x^{-5/2-r}` (the Leibniz terms carry `θ'(x/R)/R ≤ 2K₁/x`,
   `θ''(x/R)/R² ≤ 4K₂/x²`). `cubic_two_ibp_power` gives the bound for `a_R`, and dominated convergence
   (dominating function `B x^{-5/2} 1_{[α,∞)}`) gives `∫ a_R e^{iψ} → ∫ a e^{iψ}` as `R → ∞`.
 
-Restatements of Mathlib: `ContDiffBump`, `Continuous.bounded_above_of_compact_support`,
+Mathlib ingredients (not restated results): `ContDiffBump`, `Continuous.bounded_above_of_compact_support`,
 `tendsto_integral_filter_of_dominated_convergence`, and the product rule `HasDerivAt.mul`.
-The mirror statement on `(-∞, -α]` (`x ↦ -x`) is not stated here.
 -/
 
 @[expose] public section
@@ -67,11 +67,13 @@ lemma mbt_hasDerivAt_scale {f : ℝ → ℝ} (hf : Differentiable ℝ f) (R x : 
 
 /-! ### Norm bounds for the three terms -/
 
+/-- Triangle inequality for `c A + t B'` with real `c, t`. Classes: proved. -/
 lemma mbt_norm_two {c t : ℝ} {A B' : ℂ} :
     ‖(c : ℂ) * A + (t : ℂ) * B'‖ ≤ |c| * ‖A‖ + |t| * ‖B'‖ := by
   refine (norm_add_le _ _).trans ?_
   rw [norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs, Real.norm_eq_abs]
 
+/-- Triangle inequality for `c₂ A + 2 c₁ A₁ + t A₂` with real `c₂, c₁, t`. Classes: proved. -/
 lemma mbt_norm_three {c1 c2 t : ℝ} {A A1 A2 : ℂ} :
     ‖(c2 : ℂ) * A + 2 * (c1 : ℂ) * A1 + (t : ℂ) * A2‖ ≤
       |c2| * ‖A‖ + 2 * |c1| * ‖A1‖ + |t| * ‖A2‖ := by
@@ -227,20 +229,28 @@ lemma mbt_cutoff_bounds {a : ℝ → ℂ} {th : ℝ → ℝ} {α B K1 K2 R : ℝ
 
 /-! ### The half-line bound -/
 
-/-- Two integrations by parts on `[α, ∞)`: the power-law bound of `cubic_two_ibp_power` holds on the
-half-line with the constant multiplied by `(1 + K)`, `K ≥ 0` an absolute constant (see the module
-docstring). Classes: proved (truncation and dominated convergence; the constant `K` is not made explicit). -/
-theorem cubic_two_ibp_power_tail {a : ℝ → ℂ} {a0 α B q : ℝ} (hα : 0 < α) (hB : 0 ≤ B) (hq : 0 < q)
-    (ha : ContDiff ℝ 2 a) (hsupp : ∀ x, x < α → a x = 0)
-    (hb0 : ∀ x ≥ α, ‖a x‖ ≤ B * x ^ (-(5 / 2 : ℝ)))
-    (hb1 : ∀ x ≥ α, ‖deriv a x‖ ≤ B * x ^ (-(7 / 2 : ℝ)))
-    (hb2 : ∀ x ≥ α, ‖deriv (deriv a) x‖ ≤ B * x ^ (-(9 / 2 : ℝ)))
-    (hp : ∀ x ≥ α, q * x ^ 2 ≤ |a0 - Real.pi ^ 2 * x ^ 2 / 12|) :
-    ∃ K : ℝ, 0 ≤ K ∧ ‖∫ x, a x * Complex.exp (Complex.I * ((a0 * x - Real.pi ^ 2 / 36 * x ^ 3 : ℝ) : ℂ))‖ ≤
+/-- Two integrations by parts on `[α, ∞)` (`GT.2a`, outer reference piece). There is an absolute
+constant `K ≥ 0` (it depends on nothing but the fixed bump, and is chosen *before* `a, a0, α, B, q`,
+as the quantifier order records) such that for every amplitude `a ∈ C²` vanishing on `(-∞, α)` with
+`|a^{(r)}(x)| ≤ B x^{-5/2-r}` (`r = 0, 1, 2`) and every `q > 0` with `|ψ'(x)| ≥ q x²` on `[α, ∞)`,
+`ψ(x) = a0 x - π² x³/36`:
+`‖∫ a e^{iψ}‖ ≤ (1 + K) · (2/15) α^{-15/2} B (1/q² + π²/(2q³) + π²/(6q³) + π⁴/(12q⁴))`.
+The sharp constant (`K = 0`) of `cubic_two_ibp_power` is not claimed; the factor `1 + K` comes from the
+Leibniz terms of the truncation. Classes: proved (truncation and dominated convergence; `K = 4K₁ + 4K₂`
+for the first two derivative bounds of the fixed `ContDiffBump`, not made numerically explicit). -/
+theorem cubic_two_ibp_power_tail : ∃ K : ℝ, 0 ≤ K ∧
+    ∀ (a : ℝ → ℂ) (a0 α B q : ℝ), 0 < α → 0 ≤ B → 0 < q → ContDiff ℝ 2 a →
+    (∀ x, x < α → a x = 0) →
+    (∀ x ≥ α, ‖a x‖ ≤ B * x ^ (-(5 / 2 : ℝ))) →
+    (∀ x ≥ α, ‖deriv a x‖ ≤ B * x ^ (-(7 / 2 : ℝ))) →
+    (∀ x ≥ α, ‖deriv (deriv a) x‖ ≤ B * x ^ (-(9 / 2 : ℝ))) →
+    (∀ x ≥ α, q * x ^ 2 ≤ |a0 - Real.pi ^ 2 * x ^ 2 / 12|) →
+    ‖∫ x, a x * Complex.exp (Complex.I * ((a0 * x - Real.pi ^ 2 / 36 * x ^ 3 : ℝ) : ℂ))‖ ≤
       (1 + K) * ((2 / 15) * α ^ (-(15 / 2 : ℝ)) * B * (1 / q ^ 2 + Real.pi ^ 2 / (2 * q ^ 3)
         + Real.pi ^ 2 / (6 * q ^ 3) + Real.pi ^ 4 / (12 * q ^ 4))) := by
   obtain ⟨th, hth, hthc, hth01, hth1, hth0, K1, K2, hK1n, hK2n, hK1, hK2⟩ := mbt_bump_exists
   refine ⟨4 * K1 + 4 * K2, by linarith, ?_⟩
+  intro a a0 α B q hα hB hq ha hsupp hb0 hb1 hb2 hp
   -- the amplitude bound for each truncation, with the constant `(1 + 4K₁ + 4K₂) B`
   have hbound : ∀ R : ℝ, α ≤ R →
       ‖∫ x, (th (x / R) : ℂ) * a x * Complex.exp (Complex.I * ((a0 * x - Real.pi ^ 2 / 36 * x ^ 3 : ℝ) : ℂ))‖
@@ -256,10 +266,7 @@ theorem cubic_two_ibp_power_tail {a : ℝ → ℂ} {a0 α B q : ℝ} (hα : 0 < 
       intro x hx
       by_cases h1 : x < α
       · simp [hsupp x h1]
-      · have h2 : 2 * R < x := by
-          by_contra hc
-          push_neg at hc
-          exact hx ⟨not_lt.1 h1, hc⟩
+      · have h2 : 2 * R < x := lt_of_not_ge fun hc => hx ⟨not_lt.1 h1, hc⟩
         have h3 : 2 ≤ x / R := (le_div_iff₀ hRpos).2 (by linarith)
         simp [hth0 _ h3]
     have hB'0 : 0 ≤ (1 + 4 * K1 + 4 * K2) * B :=
@@ -339,6 +346,79 @@ theorem cubic_two_ibp_power_tail {a : ℝ → ℂ} {a0 α B q : ℝ} (hα : 0 < 
   refine le_of_tendsto hnorm (Filter.eventually_atTop.2 ⟨α, fun R hR => ?_⟩)
   exact (hbound R hR).trans (le_of_eq (by ring))
 
+/-! ### The mirror half-line `(-∞, -α]` -/
+
+/-- Derivative of the reflected conjugate `y ↦ conj (f (-y))`. Classes: proved. -/
+lemma mbt_deriv_reflect {f : ℝ → ℂ} (hf : Differentiable ℝ f) (y : ℝ) :
+    deriv (fun y => star (f (-y))) y = -star (deriv f (-y)) := by
+  have h1 : HasDerivAt (fun y : ℝ => f (-y)) (-deriv f (-y)) y := by
+    have h0 : HasDerivAt (fun y : ℝ => f (-y)) ((-1 : ℝ) • deriv f (-y)) y :=
+      (hf (-y)).hasDerivAt.scomp y (hasDerivAt_neg y)
+    rwa [neg_smul, one_smul] at h0
+  have h2 := h1.star
+  rw [h2.deriv, star_neg]
+
+/-- Mirror of `cubic_two_ibp_power_tail`: with the same absolute `K`, the bound holds for an amplitude
+vanishing on `(-α, ∞)` with `|a^{(r)}(x)| ≤ B (-x)^{-5/2-r}` on `x ≤ -α` and `q x² ≤ |ψ'(x)|` there.
+The reflection `x ↦ -x` sends `∫ a e^{iψ}` to the complex conjugate of `∫ b e^{iψ}` with
+`b(y) = conj (a (-y))` (same `a0`). Classes: proved (from `cubic_two_ibp_power_tail`). -/
+theorem cubic_two_ibp_power_tail_neg : ∃ K : ℝ, 0 ≤ K ∧
+    ∀ (a : ℝ → ℂ) (a0 α B q : ℝ), 0 < α → 0 ≤ B → 0 < q → ContDiff ℝ 2 a →
+    (∀ x, -α < x → a x = 0) →
+    (∀ x ≤ -α, ‖a x‖ ≤ B * (-x) ^ (-(5 / 2 : ℝ))) →
+    (∀ x ≤ -α, ‖deriv a x‖ ≤ B * (-x) ^ (-(7 / 2 : ℝ))) →
+    (∀ x ≤ -α, ‖deriv (deriv a) x‖ ≤ B * (-x) ^ (-(9 / 2 : ℝ))) →
+    (∀ x ≤ -α, q * x ^ 2 ≤ |a0 - Real.pi ^ 2 * x ^ 2 / 12|) →
+    ‖∫ x, a x * Complex.exp (Complex.I * ((a0 * x - Real.pi ^ 2 / 36 * x ^ 3 : ℝ) : ℂ))‖ ≤
+      (1 + K) * ((2 / 15) * α ^ (-(15 / 2 : ℝ)) * B * (1 / q ^ 2 + Real.pi ^ 2 / (2 * q ^ 3)
+        + Real.pi ^ 2 / (6 * q ^ 3) + Real.pi ^ 4 / (12 * q ^ 4))) := by
+  obtain ⟨K, hK0, hK⟩ := cubic_two_ibp_power_tail
+  refine ⟨K, hK0, ?_⟩
+  intro a a0 α B q hα hB hq ha hsupp hb0 hb1 hb2 hp
+  set b : ℝ → ℂ := fun y => star (a (-y)) with hb
+  have haD : Differentiable ℝ a := ha.differentiable (by norm_num)
+  have hda : ContDiff ℝ 1 (deriv a) := ha.deriv'
+  have hdaD : Differentiable ℝ (deriv a) := hda.differentiable (by norm_num)
+  have hbC : ContDiff ℝ 2 b :=
+    (Complex.conjCLE.contDiff.comp (ha.comp contDiff_neg) : ContDiff ℝ 2 (fun y => Complex.conjCLE (a (-y))))
+  have hd1 : ∀ y, deriv b y = -star (deriv a (-y)) := fun y => mbt_deriv_reflect haD y
+  have hd1' : deriv b = fun y => -star (deriv a (-y)) := funext hd1
+  have hd2 : ∀ y, deriv (deriv b) y = star (deriv (deriv a) (-y)) := by
+    intro y
+    rw [hd1']
+    have := mbt_deriv_reflect hdaD y
+    have h3 : deriv (fun y => -star (deriv a (-y))) y = -deriv (fun y => star (deriv a (-y))) y := by
+      rw [deriv.fun_neg]
+    rw [h3, this, neg_neg]
+  have hmain := hK b a0 α B q hα hB hq hbC
+    (fun x hx => by simp [hb, hsupp (-x) (by linarith)])
+    (fun x hx => by
+      have := hb0 (-x) (by linarith)
+      simpa [hb, neg_neg] using this)
+    (fun x hx => by
+      have := hb1 (-x) (by linarith)
+      rw [hd1]; simpa [norm_neg, neg_neg] using this)
+    (fun x hx => by
+      have := hb2 (-x) (by linarith)
+      rw [hd2]; simpa [neg_neg] using this)
+    (fun x hx => by
+      have := hp (-x) (by linarith)
+      simpa [neg_sq] using this)
+  -- reflect the integral
+  have hrefl : ∫ x, a x * Complex.exp (Complex.I * ((a0 * x - Real.pi ^ 2 / 36 * x ^ 3 : ℝ) : ℂ)) =
+      star (∫ y, b y * Complex.exp (Complex.I * ((a0 * y - Real.pi ^ 2 / 36 * y ^ 3 : ℝ) : ℂ))) := by
+    rw [← integral_neg_eq_self, RCLike.star_def, ← integral_conj]
+    refine integral_congr_ae (ae_of_all _ fun y => ?_)
+    have hexp : Complex.exp (Complex.I * ((a0 * -y - Real.pi ^ 2 / 36 * (-y) ^ 3 : ℝ) : ℂ)) =
+        (starRingEnd ℂ) (Complex.exp (Complex.I * ((a0 * y - Real.pi ^ 2 / 36 * y ^ 3 : ℝ) : ℂ))) := by
+      rw [← Complex.exp_conj, map_mul, Complex.conj_I, Complex.conj_ofReal]
+      congr 1
+      push_cast
+      ring
+    simp only [hb, RCLike.star_def, map_mul, Complex.conj_conj, hexp]
+  rw [hrefl, norm_star]
+  exact hmain
+
 /-! `#print axioms` guards. -/
 
 /-- info: 'FormalResearch.SignUncertainty.mbt_bump_exists' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -348,6 +428,14 @@ theorem cubic_two_ibp_power_tail {a : ℝ → ℂ} {a0 α B q : ℝ} (hα : 0 < 
 /-- info: 'FormalResearch.SignUncertainty.mbt_cutoff_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms mbt_cutoff_bounds
+
+/-- info: 'FormalResearch.SignUncertainty.mbt_deriv_reflect' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms mbt_deriv_reflect
+
+/-- info: 'FormalResearch.SignUncertainty.cubic_two_ibp_power_tail_neg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms cubic_two_ibp_power_tail_neg
 
 /-- info: 'FormalResearch.SignUncertainty.cubic_two_ibp_power_tail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
