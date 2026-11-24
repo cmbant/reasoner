@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.ModularBootstrap.Upper.Membership.CombDecay
+public import FormalResearch.ModularBootstrap.Upper.Design.CombTransformP
 public import FormalResearch.ModularBootstrap.Upper.Saddle.SDV
 public import FormalResearch.ModularBootstrap.Upper.Saddle.EdgePhaseZero
 public import FormalResearch.ModularBootstrap.Upper.Hankel.HankelAsym
@@ -85,6 +86,16 @@ lemma edgeV_mono {x y : ℝ} (hx : xiStar < x) (hxy : x ≤ y) : edgeV x ≤ edg
   linarith
 
 
+lemma norm_bX_le {x : ℝ} (hx : xiStar < x) : ‖bX x‖ ≤ x + 1 / 2 := by
+  have hvpos : 0 < edgeV x := edgeV_pos hx
+  unfold bX
+  calc ‖((edgeV x : ℝ) : ℂ) + Complex.I / 2‖ ≤ ‖((edgeV x : ℝ) : ℂ)‖ + ‖Complex.I / 2‖ := norm_add_le _ _
+    _ ≤ x + 1 / 2 := by
+      rw [Complex.norm_real, Real.norm_of_nonneg hvpos.le]
+      have := edgeV_le hx
+      have h2 : ‖Complex.I / 2‖ = 1 / 2 := by simp
+      linarith
+
 /-- Hypothesis (ii) of Lemma `K7`: on `𝒩 = {|Im b - 1/2| ≤ 1/4}`, `log B = c' Φ₀ + Φ₁` with
 `Φ₀ = edgePhi0Blaschke` (Lemma `SD_0`), `Re Φ₁ = 0` on `E_+` and `sup_𝒩 |Φ₁^{(i)}| ≤ M`
 (`i = 0, 1, 2`); written multiplicatively as `B = exp (c' Φ₀ + Φ₁)`. -/
@@ -162,14 +173,7 @@ lemma sdvPrefactor_le {Φ₁ : ℂ → ℂ} {c' x x₀ : ℝ} (hc' : 0 < c') (hx
   have e5 : Real.sqrt (‖bX x‖ / (x * edgeF' v)) ≤
       Real.sqrt ((1 + 1 / (2 * x₀)) / edgeF' (edgeV x₀)) := by
     refine Real.sqrt_le_sqrt ?_
-    have hb : ‖bX x‖ ≤ x + 1 / 2 := by
-      unfold bX
-      calc ‖(v : ℂ) + Complex.I / 2‖ ≤ ‖(v : ℂ)‖ + ‖Complex.I / 2‖ := norm_add_le _ _
-        _ ≤ x + 1 / 2 := by
-          rw [Complex.norm_real, Real.norm_of_nonneg hvpos.le]
-          have := edgeV_le hx
-          have h2 : ‖Complex.I / 2‖ = 1 / 2 := by simp
-          linarith
+    have hb : ‖bX x‖ ≤ x + 1 / 2 := norm_bX_le hx
     have hFp : 0 < edgeF' v := lt_of_lt_of_le hφ hφle
     rw [div_le_div_iff₀ (by positivity) hφ]
     have h1 : ‖bX x‖ * edgeF' (edgeV x₀) ≤ (x + 1 / 2) * edgeF' v :=
@@ -274,6 +278,7 @@ theorem saddleTailBound_of_sdv {M M' : ℝ} (hM : 0 ≤ M) (hM' : 0 ≤ M') :
     unfold xI
     have : 0 < c' ^ (-(3 / 5 : ℝ)) := Real.rpow_pos_of_pos hc0 _
     linarith
+  rw [saddleTailBound_iff]
   refine ⟨2 * (2 * 8 * 3 * 2 * Real.sqrt ((1 + 1 / (2 * xI c')) / edgeF' (edgeV (xI c')))),
     fun x hx => ?_⟩
   have hxx : xiStar < x := lt_of_lt_of_le hxI_gt hx
@@ -320,6 +325,196 @@ theorem saddleTailBound_of_sdv {M M' : ℝ} (hM : 0 ≤ M) (hM' : 0 ≤ M') :
       ≤ (2 * 8 * 3 * 2 * Real.sqrt ((1 + 1 / (2 * xI c')) / edgeF' (edgeV (xI c'))) *
           Real.exp (-(c' * (2 * π * x / 3)) - π * x)) * 2 := by gcongr
     _ = _ := by ring
+
+/-! ### The order-`p` tail from the `FW-SD` amplitude hypotheses -/
+
+/-- **Named hypothesis** (amplitude hypotheses of Lemma `FW-SD`, `fw:SDp`): `FWSDHypotheses` of
+`lemma_FW_SD_part2` for `ℰ = sech²`, `Φ₀ = edgePhi0Blaschke`, `Φ₁`, `H_p = hankelOrd p`,
+`ε_p = hankelEpsOrd p`, at every `x ≥ x_I`.  For a comb with a phase decomposition it is a theorem
+(`fwsdAmplitudeInput_of_phase`). -/
+def FWSDAmplitudeInput (p : ℕ) (c' : ℝ) (Φ₁ : ℂ → ℂ) (δ M M' Cε : ℝ) : Prop :=
+  ∀ x : ℝ, xI c' ≤ x →
+    FWSDHypotheses p edgePhi0Blaschke x c' δ M M' Cε sechSqProfile Φ₁ (hankelOrd p) (hankelEpsOrd p)
+
+lemma fwsdRatio_le {p : ℕ} {x : ℝ} (hx : xiStar < x) :
+    fwsdRatio p x ≤ (1 + 1 / (2 * xiStar)) ^ p := by
+  have hxi := xiStar_pos
+  have hx0 : 0 < x := lt_trans hxi hx
+  unfold fwsdRatio
+  have h1 : ‖bX x‖ / x ≤ 1 + 1 / (2 * xiStar) := by
+    rw [div_le_iff₀ hx0]
+    have hb := norm_bX_le hx
+    have : 1 / (2 * xiStar) * x ≥ 1 / 2 := by
+      rw [ge_iff_le, ← sub_nonneg]
+      have : 1 / (2 * xiStar) * x - 1 / 2 = (x - xiStar) / (2 * xiStar) := by field_simp
+      rw [this]; exact div_nonneg (by linarith) (by positivity)
+    nlinarith
+  exact pow_le_pow_left₀ (by positivity) h1 p
+
+/-- For a comb with a phase decomposition the amplitude hypotheses of `FW-SD` hold at every
+`x ≥ x_I` once `c'` is large (`fwsdHypotheses_of_phase`). -/
+theorem fwsdAmplitudeInput_of_phase (p : ℕ) :
+    ∃ Cε c₁ : ℝ, 0 ≤ Cε ∧ 0 < c₁ ∧ ∀ {c' Mφ : ℝ} {B Φ₁ : ℂ → ℂ}, c₁ ≤ c' →
+      Design.PhaseComb c' Mφ B Φ₁ →
+      FWSDAmplitudeInput p c' Φ₁ (1 / 8) (Design.ampM0 + Mφ) (Design.ampM0' + Mφ) Cε := by
+  obtain ⟨Cε, K₀, hCε, hK₀, hf⟩ := Design.fwsdHypotheses_of_phase p
+  have hxi := xiStar_pos
+  have hpi := Real.pi_pos
+  refine ⟨Cε, 3 * K₀ / (4 * π * xiStar), hCε, by positivity, fun {c' Mφ B Φ₁} hc hP x hx => ?_⟩
+  have hc0 : 0 < c' := lt_of_lt_of_le (by positivity) hc
+  have hxx : xiStar < x := by
+    have : 0 < c' ^ (-(3 / 5 : ℝ)) := Real.rpow_pos_of_pos hc0 _
+    unfold xI at hx; linarith
+  refine hf hP hxx ?_
+  unfold sdvWave
+  have h2 : K₀ ≤ c' * (4 * π * xiStar / 3) := by
+    have h1 : 3 * K₀ / (4 * π * xiStar) * (4 * π * xiStar / 3) = K₀ := by field_simp
+    calc K₀ = 3 * K₀ / (4 * π * xiStar) * (4 * π * xiStar / 3) := h1.symm
+      _ ≤ c' * (4 * π * xiStar / 3) := by gcongr
+  nlinarith [mul_pos hpi hc0, mul_pos (mul_pos hpi hc0) hxi, mul_pos hpi hxi]
+
+/-- **Lemma `K7`, `FW-SD` tail at order `p`** (`cmb:K7`, `fw:e1.3`).  For `0 ≤ M, M', C_ε` there is
+`c₀ > 0` such that for every `c' ≥ c₀`, every comb `B` with (i), (iii) (`InnerCombHyp`), the phase
+decomposition (ii) (`CombPhaseData`) and the amplitude hypotheses of `FW-SD` on `x ≥ x_I`
+(`FWSDAmplitudeInput`, `δ = 1/8`), the order-`p` tail bound `SaddleTailBoundP p c' B` holds.  At `p = 0`
+this is the `FW-SD` form of `saddleTailBound_of_sdv`. -/
+theorem saddleTailBoundP_of_fwsd (p : ℕ) {M M' Cε : ℝ} (hM : 0 ≤ M) (hM' : 0 ≤ M') (hCε : 0 ≤ Cε) :
+    ∃ c₀ : ℝ, 0 < c₀ ∧ ∀ {c' : ℝ} {B Φ₁ : ℂ → ℂ} {Mφ : ℝ}, c₀ ≤ c' → InnerCombHyp c' B →
+      CombPhaseData c' Mφ B Φ₁ → FWSDAmplitudeInput p c' Φ₁ (1 / 8) M M' Cε →
+        SaddleTailBoundP p c' B := by
+  obtain ⟨C₃, C₄, hΦall⟩ := edgePhaseData_blaschke
+  have hΦ := hΦall (1 / 8) (by norm_num) (by norm_num)
+  have hC₃ : 0 ≤ C₃ :=
+    (norm_nonneg _).trans (hΦ.deriv3_bound _ (mem_edgeStrip_edge (by norm_num) 0))
+  have hC₄ : 0 ≤ C₄ :=
+    (norm_nonneg _).trans (hΦ.deriv4_bound _ (mem_edgeStrip_edge (by norm_num) 0))
+  obtain ⟨N₀, Cp, hN₀, hCp, hSD⟩ :=
+    lemma_FW_SD_part2 p (δ := 1 / 8) (C₃ := C₃) (C₄ := C₄) (M₀ := M) (M₀' := M') (C_ε := Cε)
+      (by norm_num) (by norm_num) hC₃ hC₄ hM hM' hCε
+  obtain ⟨cm, hcm, hmX⟩ := sdv_uniform_mX_cubed
+  have hxi := xiStar_pos
+  have hpi := Real.pi_pos
+  set ρ : ℝ := 1 + 1 / (2 * xiStar) with hρ
+  have hρ0 : 0 ≤ ρ := by rw [hρ]; positivity
+  set N : ℝ := max N₀ (Cp * ρ ^ p) with hNdef
+  have hN0 : 0 ≤ N := le_max_of_le_left (by linarith)
+  refine ⟨max (max 1 ((N / cm) ^ 10)) (3 / (4 * π * xiStar)),
+    lt_max_of_lt_left (lt_max_of_lt_left one_pos), ?_⟩
+  intro c' B Φ₁ Mφ hc hB hφ hAmp
+  have hc1 : 1 ≤ c' := (le_max_left _ _).trans ((le_max_left _ _).trans hc)
+  have hc2 : (N / cm) ^ 10 ≤ c' := (le_max_right _ _).trans ((le_max_left _ _).trans hc)
+  have hc3 : 3 / (4 * π * xiStar) ≤ c' := (le_max_right _ _).trans hc
+  have hc0 : 0 < c' := by linarith
+  have hxI_gt : xiStar < xI c' := by
+    unfold xI
+    have : 0 < c' ^ (-(3 / 5 : ℝ)) := Real.rpow_pos_of_pos hc0 _
+    linarith
+  rw [SaddleTailBoundP]
+  refine ⟨2 * (2 * 8 * 3 * 2 * Real.sqrt ((1 + 1 / (2 * xI c')) / edgeF' (edgeV (xI c')))) * (ρ ^ p + 1),
+    fun x hx => ?_⟩
+  have hxx : xiStar < x := lt_of_lt_of_le hxI_gt hx
+  have hxpos : 0 < x := lt_trans hxi hxx
+  have hk1 : 1 ≤ sdvWave c' x := by
+    have h1 : 3 / (4 * π * xiStar) * (4 * π * xiStar) = 3 := by field_simp
+    have h2 : 3 ≤ c' * (4 * π * xiStar) := by
+      calc (3 : ℝ) = 3 / (4 * π * xiStar) * (4 * π * xiStar) := h1.symm
+        _ ≤ c' * (4 * π * xiStar) := by gcongr
+    unfold sdvWave
+    nlinarith [mul_pos hpi hxi, mul_pos hpi hc0, mul_pos (mul_pos hpi hc0) hxi]
+  have hk : 1 / 2 ≤ 4 * π * c' * x / 3 := by
+    unfold sdvWave at hk1; linarith
+  have hnm : N₀ ≤ c' * mX x ^ 3 :=
+    (le_max_left _ _).trans (large_mX_cubed hcm hN0 hmX hc1 hc2 hx)
+  have herr1 : Cp * ρ ^ p ≤ c' * mX x ^ 3 :=
+    (le_max_right _ _).trans (large_mX_cubed hcm hN0 hmX hc1 hc2 hx)
+  have hmpos : 0 < c' * mX x ^ 3 := lt_of_lt_of_le (by linarith) hnm
+  obtain ⟨err, herr, hint⟩ := hSD hxx hc0 hnm hΦ (hAmp x hx)
+  have hR := fwsdRatio_le (p := p) hxx
+  have herr' : |err| ≤ 1 := by
+    refine herr.trans ?_
+    rw [div_le_one hmpos]
+    calc Cp * fwsdRatio p x ≤ Cp * ρ ^ p := by gcongr
+      _ ≤ _ := herr1
+  have hfwint := Design.edgeHankelP_eq_fwsdIntegral_of_eq p (B := B) (Φ₁ := Φ₁)
+    (fun b hb => (hφ.eq b hb).symm) hB.edgeHankelHyp hc0 hxpos
+  have hre : (Φ₁ (bX x)).re = 0 := by unfold bX; exact hφ.re_edge _
+  rw [show edgeHankelP p c' (combH0 B) (c' * x ^ 2 / 3) =
+      edgeHankelP p c' (fun b => sechSqProfile b * B b) (c' * x ^ 2 / 3) from rfl, hfwint, hint,
+    Complex.norm_real, Real.norm_eq_abs, abs_mul]
+  have hpref0 : 0 ≤ fwsdPrefactor0 c' x sechSqProfile Φ₁ := by
+    unfold fwsdPrefactor0; positivity
+  have hpref1 := Design.fwsdPrefactor0_le_combAmplitude (Φ₁ := Φ₁) hk1 hre
+  have hpref2 : Design.combAmplitude c' x ≤
+      2 * 8 * 3 * 2 * Real.sqrt ((1 + 1 / (2 * xI c')) / edgeF' (edgeV (xI c'))) *
+        Real.exp (-(c' * (2 * π * x / 3)) - π * x) := by
+    unfold Design.combAmplitude
+    exact sdvPrefactor_le (Φ₁ := fun _ => 0) hc0 hxI_gt hx hk (fun v => by simp)
+  have hamp0 : 0 ≤ Design.combAmplitude c' x := by
+    unfold Design.combAmplitude sdvPrefactor; positivity
+  have hk1' : 1 / sdvWave c' x ≤ 1 := by rw [div_le_one (by linarith)]; exact hk1
+  have hP : fwsdPrefactor0 c' x sechSqProfile Φ₁ ≤
+      2 * (2 * 8 * 3 * 2 * Real.sqrt ((1 + 1 / (2 * xI c')) / edgeF' (edgeV (xI c'))) *
+        Real.exp (-(c' * (2 * π * x / 3)) - π * x)) := by
+    calc fwsdPrefactor0 c' x sechSqProfile Φ₁ ≤ Design.combAmplitude c' x * (1 + 1 / sdvWave c' x) :=
+          hpref1
+      _ ≤ Design.combAmplitude c' x * 2 := by gcongr; linarith
+      _ ≤ _ := by linarith
+  have hre_le : |(((-Complex.I * (bX x / (x : ℂ))) ^ p *
+      Complex.exp (Complex.I * (fwsdPhase0 edgePhi0Blaschke c' x sechSqProfile Φ₁ : ℂ))).re)| ≤
+        ρ ^ p := by
+    refine (Complex.abs_re_le_norm _).trans ?_
+    rw [norm_mul, norm_pow, Complex.norm_exp]
+    have h1 : ‖-Complex.I * (bX x / (x : ℂ))‖ = ‖bX x‖ / x := by
+      rw [norm_mul, norm_neg, Complex.norm_I, one_mul, norm_div, Complex.norm_real,
+        Real.norm_of_nonneg hxpos.le]
+    rw [h1]
+    simp only [Complex.mul_re, Complex.I_re, Complex.I_im, Complex.ofReal_re, Complex.ofReal_im,
+      zero_mul, mul_zero, sub_zero, Real.exp_zero, mul_one]
+    exact hR
+  have hsum : |(((-Complex.I * (bX x / (x : ℂ))) ^ p *
+      Complex.exp (Complex.I * (fwsdPhase0 edgePhi0Blaschke c' x sechSqProfile Φ₁ : ℂ))).re) + err| ≤
+        ρ ^ p + 1 := (abs_add_le _ _).trans (by linarith)
+  rw [abs_of_nonneg hpref0]
+  calc fwsdPrefactor0 c' x sechSqProfile Φ₁ * _
+      ≤ (2 * (2 * 8 * 3 * 2 * Real.sqrt ((1 + 1 / (2 * xI c')) / edgeF' (edgeV (xI c'))) *
+          Real.exp (-(c' * (2 * π * x / 3)) - π * x))) * (ρ ^ p + 1) := by gcongr
+    _ = _ := by ring
+
+/-- **Lemma `K7` at every weight, with the `FW-SD` tail derived** (`cmb:K7`, `fw:FWM`): for
+`c' ≥ c₀(M, M', C_ε)`, `a = c'/12 ≥ S`, a comb with (i), (iii), the phase decomposition (ii) and the
+amplitude hypotheses of `FW-SD` at order `prob.w - 1`, the decay of `h` and `ĥ = hankelTransform prob.w h`,
+the membership `g = ½ (h - ĥ) ∈ Ā` and the vacuum identity hold. -/
+theorem k7_membership_vacuum_of_fwsd {prob : FixedWeightProblem} {M M' Cε : ℝ} (hM : 0 ≤ M)
+    (hM' : 0 ≤ M') (hCε : 0 ≤ Cε) :
+    ∃ c₀ : ℝ, 0 < c₀ ∧ ∀ {c' : ℝ} {B Φ₁ : ℂ → ℂ} {Mφ : ℝ}, c₀ ≤ c' →
+      prob.totalShift ≤ c' / 12 → InnerCombHyp c' B → CombPhaseData c' Mφ B Φ₁ →
+      FWSDAmplitudeInput (prob.w - 1) c' Φ₁ (1 / 8) M M' Cε →
+      ∃ C : ℝ, 0 ≤ C ∧ DecayBound c' C (combProfile c' B) ∧
+        DecayBound c' C (hankelTransform prob.w (combProfile c' B)) ∧
+        TestClass prob (c' / 12)
+          (pairOdd (combProfile c' B) (hankelTransform prob.w (combProfile c' B))) ∧
+        ((prob.gVac (c' / 12)
+            (pairOdd (combProfile c' B) (hankelTransform prob.w (combProfile c' B))) : ℝ) : ℂ) =
+          (1 / 2 : ℂ) * ∑ s : Finset (Fin prob.m), (-1 : ℂ) ^ s.card *
+              combH0 B (bAlpha c' (c' / 12 - prob.shiftSum s)) -
+            (π : ℂ) * ((∫ t in Ioi (0 : ℝ), combProfile c' B t * prob.cardyV (c' / 12) t : ℝ) : ℂ) ∧
+        ‖(1 / 2 : ℂ) * ∑ s : Finset (Fin prob.m), (-1 : ℂ) ^ s.card *
+            combH0 B (bAlpha c' (c' / 12 - prob.shiftSum s))‖ ≤ 2 ^ prob.m := by
+  obtain ⟨c₀, hc₀, h⟩ := saddleTailBoundP_of_fwsd (prob.w - 1) hM hM' hCε
+  refine ⟨c₀, hc₀, fun {c' B Φ₁ Mφ} hc hS hB hφ hA => ?_⟩
+  exact k7_membership_vacuumW (lt_of_lt_of_le hc₀ hc) hS hB (h hc hB hφ hA)
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.saddleTailBoundP_of_fwsd' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms saddleTailBoundP_of_fwsd
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.fwsdAmplitudeInput_of_phase' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms fwsdAmplitudeInput_of_phase
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.k7_membership_vacuum_of_fwsd' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms k7_membership_vacuum_of_fwsd
 
 /-- Non-vacuity of `CombPhaseData`: `B = exp (c' Φ₀)`, `Φ₁ = 0`. -/
 theorem combPhaseData_nonvacuous (c' : ℝ) :

@@ -75,6 +75,41 @@ lemma K7Conclusion.norm_vac_le_eight {prob : FixedWeightProblem} {c' : ℝ} {B :
   norm_num at hv
   linarith
 
+/-- The conclusion of Lemma `K7` at every weight `w = prob.w ≥ 1`: as `K7Conclusion`, with `ĥ` the
+order-`(w-1)` Hankel transform `hankelTransform prob.w` (as in `k7_membership_vacuumW`). -/
+def K7ConclusionW (prob : FixedWeightProblem) (c' : ℝ) (B : ℂ → ℂ) : Prop :=
+  ∃ C : ℝ, 0 ≤ C ∧ DecayBound c' C (combProfile c' B) ∧
+    DecayBound c' C (hankelTransform prob.w (combProfile c' B)) ∧
+    TestClass prob (c' / 12)
+      (pairOdd (combProfile c' B) (hankelTransform prob.w (combProfile c' B))) ∧
+    ((prob.gVac (c' / 12)
+        (pairOdd (combProfile c' B) (hankelTransform prob.w (combProfile c' B))) : ℝ) : ℂ) =
+      (1 / 2 : ℂ) * ∑ s : Finset (Fin prob.m), (-1 : ℂ) ^ s.card *
+          combH0 B (bAlpha c' (c' / 12 - prob.shiftSum s)) -
+        (π : ℂ) * ((∫ t in Ioi (0 : ℝ), combProfile c' B t * prob.cardyV (c' / 12) t : ℝ) : ℂ) ∧
+    ‖(1 / 2 : ℂ) * ∑ s : Finset (Fin prob.m), (-1 : ℂ) ^ s.card *
+        combH0 B (bAlpha c' (c' / 12 - prob.shiftSum s))‖ ≤ 2 ^ prob.m
+
+/-- At weight `1` the two forms of the conclusion agree. -/
+lemma K7ConclusionW.toK7Conclusion {prob : FixedWeightProblem} (hw : prob.w = 1) {c' : ℝ}
+    {B : ℂ → ℂ} (h : K7ConclusionW prob c' B) : K7Conclusion prob c' B := by
+  unfold K7ConclusionW at h
+  unfold K7Conclusion
+  rw [hw] at h
+  exact h
+
+/-- For `m = 2` the conclusion gives `|h_{0,vac}| ≤ 8` at every weight. -/
+lemma K7ConclusionW.norm_vac_le_eight {prob : FixedWeightProblem} {c' : ℝ} {B : ℂ → ℂ}
+    (h : K7ConclusionW prob c' B) (hm : prob.m = 2) :
+    ‖∑ s : Finset (Fin prob.m), (-1 : ℂ) ^ s.card *
+        combH0 B (bAlpha c' (c' / 12 - prob.shiftSum s))‖ ≤ 8 := by
+  obtain ⟨-, -, -, -, -, -, hv⟩ := h
+  rw [norm_mul] at hv
+  have h4 : (2 : ℝ) ^ prob.m = 4 := by rw [hm]; norm_num
+  rw [h4] at hv
+  norm_num at hv
+  linarith
+
 /-- `h₀ = sech²(πb/2) B_D` is `designProfile`. -/
 lemma combH0_designComb (c' : ℝ) (f N : ℕ) (η₀ : ℝ) (σ ε : ℕ → ℝ) :
     combH0 (designComb c' f N η₀ σ ε) = designProfile c' f N η₀ σ ε := rfl
@@ -411,7 +446,46 @@ theorem design_sdvAmplitudeInput (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E
   have := Real.rpow_pos_of_pos hpos (-(3 / 5 : ℝ))
   linarith
 
+/-- The named amplitude input `FWSDAmplitudeInput` of `saddleTailBoundP_of_fwsd` for an abstract finite
+modification with `DesignPhiDecomp c' f N η₀ σ ε B`, at every order `p` (`δ = 1/8`, constants `𝒜₀ + A + B`,
+`𝒜₀' + A + B`, `C_ε = C_ε(p)`): `fwsdAmplitudeInput_of_phase` for the `PhaseComb` of the design comb. -/
+theorem design_fwsdAmplitudeInput_of_decomp (p f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (h0 : 0 ≤ η₀)
+    (h1 : η₀ ≤ 1 / 4) :
+    ∃ A Cε : ℝ, 0 ≤ A ∧ 0 ≤ Cε ∧ ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ) (B : ℝ),
+      DesignAdmissible c' f N η₀ σ ε → DesignPhiDecomp c' f N η₀ σ ε B →
+      FWSDAmplitudeInput p c' (designPhi1 c' f N η₀ σ ε) (1 / 8) (ampM0 + (A + B))
+        (ampM0' + (A + B)) Cε := by
+  obtain ⟨A, hA0, hPC⟩ := designComb_phaseComb_of_decomp f hf h0 h1
+  obtain ⟨Cε, c₁, hCε, -, hF⟩ := fwsdAmplitudeInput_of_phase p
+  refine ⟨A, Cε, hA0, hCε, ?_⟩
+  filter_upwards [hPC, eventually_ge_atTop c₁] with c' hP hc N σ ε B hA hDec
+  exact hF hc (hP N σ ε B hA hDec)
+
 /-! ### 5. Lemma `K7` for the design combs -/
+
+/-- **Lemma `K7` for an abstract finite modification, uniform in the cut `N`** (`cmb:K7` at every weight
+`w = prob.w`; `ut:Phi`, `fw:FWM`).  Fix `f ≥ 1`, `η₀ ∈ [0, 1/4]`, a fixed-weight problem and `B ≥ 0`.  There is `c₀` such
+that for every `c' ≥ c₀` (threshold independent of `N`), every cut `N ≥ f` and every admissible finite
+modification `designComb c' f N η₀ σ ε` with `DesignPhiDecomp c' f N η₀ σ ε B` (the derivative bound `B` is
+independent of `c'` and `N`): `h₀ = sech²(πb/2) B_D` and `ĥ₀` decay like `C e^{-c' L(x) - πx}` (`C` depends on
+`c'` and the data), `g = ½(h₀ - ĥ₀)` is in the test class (membership in `Ā` at `w = 1`, `a = c'/12`), the
+vacuum identity `g_vac = ½ h_{0,vac} - π ∫ h₀ V` holds and `|½ h_{0,vac}| ≤ 2^m` (`|h_{0,vac}| ≤ 8` for
+`Q = (1-q)²`).  Hypotheses (i), (iii): `designComb_innerCombHyp_of_admissible`; (ii):
+`designComb_combPhaseData_of_decomp`; `FW-SD`: `design_fwsdAmplitudeInput_of_decomp`. -/
+theorem design_k7_of_decompW {prob : FixedWeightProblem} (f : ℕ) (hf : 1 ≤ f)
+    {η₀ : ℝ} (h0 : 0 ≤ η₀) (h1 : η₀ ≤ 1 / 4) {B : ℝ} (hB : 0 ≤ B) :
+    ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ), f ≤ N → DesignAdmissible c' f N η₀ σ ε →
+      DesignPhiDecomp c' f N η₀ σ ε B → K7ConclusionW prob c' (designComb c' f N η₀ σ ε) := by
+  obtain ⟨A, Cε, hA0, hCε, hAmp⟩ := design_fwsdAmplitudeInput_of_decomp (prob.w - 1) f hf h0 h1
+  have hc1 := cosC_pos
+  have hM₁ : 0 ≤ ampM0 + (A + B) := by unfold ampM0; positivity
+  have hM₂ : 0 ≤ ampM0' + (A + B) := by unfold ampM0'; positivity
+  obtain ⟨c₀, hc₀, hK7⟩ := k7_membership_vacuum_of_fwsd (prob := prob) hM₁ hM₂ hCε
+  obtain ⟨A', -, hPh⟩ := designComb_combPhaseData_of_decomp f hf h0 h1
+  filter_upwards [hAmp, hPh, designComb_innerCombHyp_of_admissible f hf h0 h1,
+    eventually_ge_atTop c₀, eventually_ge_atTop (12 * prob.totalShift)]
+    with c' ha hp hi hc hS N σ ε hfN hA hDec
+  exact hK7 hc (by linarith) (hi N σ ε hfN hA) (hp N σ ε B hA hDec) (ha N σ ε B hA hDec)
 
 /-- **Lemma `K7` for an abstract finite modification, uniform in the cut `N`** (`cmb:K7` at `w = 1`;
 `ut:Phi`).  Fix `f ≥ 1`, `η₀ ∈ [0, 1/4]`, a fixed-weight problem with `w = 1` and `B ≥ 0`.  There is `c₀` such
@@ -425,17 +499,28 @@ vacuum identity `g_vac = ½ h_{0,vac} - π ∫ h₀ V` holds and `|½ h_{0,vac}|
 theorem design_k7_of_decomp {prob : FixedWeightProblem} (hw : prob.w = 1) (f : ℕ) (hf : 1 ≤ f)
     {η₀ : ℝ} (h0 : 0 ≤ η₀) (h1 : η₀ ≤ 1 / 4) {B : ℝ} (hB : 0 ≤ B) :
     ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ), f ≤ N → DesignAdmissible c' f N η₀ σ ε →
-      DesignPhiDecomp c' f N η₀ σ ε B → K7Conclusion prob c' (designComb c' f N η₀ σ ε) := by
-  obtain ⟨A, hA0, hAmp⟩ := design_sdvAmplitudeInput_of_decomp f hf h0 h1
-  have hc1 := cosC_pos
-  have hM₁ : 0 ≤ ampM0 + (A + B) := by unfold ampM0; positivity
-  have hM₂ : 0 ≤ ampM0' + (A + B) := by unfold ampM0'; positivity
-  obtain ⟨c₀, hc₀, hK7⟩ := k7_membership_vacuum_of_sdv (prob := prob) hw hM₁ hM₂
-  obtain ⟨A', -, hPh⟩ := designComb_combPhaseData_of_decomp f hf h0 h1
-  filter_upwards [hAmp, hPh, designComb_innerCombHyp_of_admissible f hf h0 h1,
-    eventually_ge_atTop c₀, eventually_ge_atTop (12 * prob.totalShift)]
-    with c' ha hp hi hc hS N σ ε hfN hA hDec
-  exact hK7 hc (by linarith) (hi N σ ε hfN hA) (hp N σ ε B hA hDec) (ha N σ ε B hA hDec)
+      DesignPhiDecomp c' f N η₀ σ ε B → K7Conclusion prob c' (designComb c' f N η₀ σ ε) :=
+  (design_k7_of_decompW (prob := prob) f hf h0 h1 hB).mono fun _ h N σ ε hfN hA hDec =>
+    (h N σ ε hfN hA hDec).toK7Conclusion hw
+
+/-- **Lemma `K7` for the finite-modification design combs** (`cmb:K7` at every weight `w = prob.w`; `ut:Phi`, `ut:P`).
+Fix `f ≥ 1`, `N ≥ f`, `M, E ≥ 0`, `η₀ ∈ [0, 1/4]` and a fixed-weight problem.  For all large
+`c'` and every `designComb c' f N η₀ σ ε` with `|σ_k| ≤ M` and `0 ≤ ε'_k ≤ E λ` (uniformly in the family):
+`h₀ = sech²(πb/2) B_D` and `ĥ₀` decay like `C(c') e^{-c' L(x) - πx}`, `g = ½(h₀ - ĥ₀)` is in the test class
+(membership in `Ā` at `w = 1`, `a = c'/12`), the vacuum identity `g_vac = ½ h_{0,vac} - π ∫ h₀ V` holds and
+`|½ h_{0,vac}| ≤ 2^m` (so `|h_{0,vac}| ≤ 8` for `Q = (1-q)²`).  Hypotheses (i), (iii): `K1(a)`, `P`, `K6(a)`
+(`designComb_innerCombHyp`); (ii): `Φ` (`designComb_combPhaseData`); `FW-SD`: `design_fwsdAmplitudeInput_of_decomp`. -/
+theorem design_k7_membership_vacuumW {prob : FixedWeightProblem} (f N : ℕ)
+    (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (hE : 0 ≤ E) {η₀ : ℝ} (h0 : 0 ≤ η₀) (h1 : η₀ ≤ 1 / 4) :
+    ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
+      (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
+      K7ConclusionW prob c' (designComb c' f N η₀ σ ε) := by
+  obtain ⟨CΦ, hCΦ, hΦ⟩ := lemma_Phi_b f N hf hfN M E hE h0 h1
+  filter_upwards [design_k7_of_decompW (prob := prob) f hf h0 h1 hCΦ, hΦ,
+    designAdmissible_eventually f N hf hfN M E h0 h1,
+    tendsto_lambdaComb_atTop.eventually_le_const (zero_lt_one : (0 : ℝ) < 1)]
+    with c' hK hD hAd hlam1 σ ε hσ hε
+  exact hK N σ ε hfN (hAd σ ε hσ hε) ((hD σ ε hσ hε).mono (by nlinarith))
 
 /-- **Lemma `K7` for the finite-modification design combs** (`cmb:K7` at `w = 1`; `ut:Phi`, `ut:P`).
 Fix `f ≥ 1`, `N ≥ f`, `M, E ≥ 0`, `η₀ ∈ [0, 1/4]` and a fixed-weight problem with `w = 1`.  For all large
@@ -448,13 +533,9 @@ theorem design_k7_membership_vacuum {prob : FixedWeightProblem} (hw : prob.w = 1
     (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (hE : 0 ≤ E) {η₀ : ℝ} (h0 : 0 ≤ η₀) (h1 : η₀ ≤ 1 / 4) :
     ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
       (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
-      K7Conclusion prob c' (designComb c' f N η₀ σ ε) := by
-  obtain ⟨CΦ, hCΦ, hΦ⟩ := lemma_Phi_b f N hf hfN M E hE h0 h1
-  filter_upwards [design_k7_of_decomp hw f hf h0 h1 hCΦ, hΦ,
-    designAdmissible_eventually f N hf hfN M E h0 h1,
-    tendsto_lambdaComb_atTop.eventually_le_const (zero_lt_one : (0 : ℝ) < 1)]
-    with c' hK hD hAd hlam1 σ ε hσ hε
-  exact hK N σ ε hfN (hAd σ ε hσ hε) ((hD σ ε hσ hε).mono (by nlinarith))
+      K7Conclusion prob c' (designComb c' f N η₀ σ ε) :=
+  (design_k7_membership_vacuumW (prob := prob) f N hf hfN M E hE h0 h1).mono fun _ h σ ε hσ hε =>
+    (h σ ε hσ hε).toK7Conclusion hw
 
 /-- Non-vacuity of the family: the zero modification (`σ = 0`, `ε = 0`) belongs to it for `M, E ≥ 0`, so
 `design_k7_membership_vacuum` has instances for every `c' > 0`. -/
@@ -467,14 +548,14 @@ theorem design_family_nonempty (f N : ℕ) {M E : ℝ} (hM : 0 ≤ M) (hE : 0 �
 /-- **Lemma `K7` for the `f = 1` finite modifications at fixed sites** (`η₀ = 1/4`, widths
 `ε = designWidth1 c' η_*` of `lemma_P_a_fixedN`, arbitrary offsets `σ` bounded by `M` on `1 ≤ k ≤ N`: the
 sites `σ_2, …, σ_N` may be displaced and the first site `σ_1` arbitrary): for all large `c'` the conclusion
-of Lemma `K7` holds.  `design1_k7_membership_vacuum` is the case `σ = designSigma1 d`. -/
-theorem sig1_k7_membership_vacuum {prob : FixedWeightProblem} (hw : prob.w = 1) (N : ℕ)
+of Lemma `K7` holds at every weight `prob.w`.  `design1_k7_membership_vacuum` is the case `σ = designSigma1 d`. -/
+theorem sig1_k7_membership_vacuumW {prob : FixedWeightProblem} (N : ℕ)
     (hN : 1 ≤ N) {etaStar : ℝ} (hη0 : 0 ≤ etaStar) (hη1 : etaStar ≤ 1 / 4) (σ : ℕ → ℝ) (M : ℝ)
     (hM : ∀ k, 1 ≤ k → k ≤ N → |σ k| ≤ M) :
     ∀ᶠ c' in atTop,
-      K7Conclusion prob c' (designComb c' 1 N (1 / 4) σ (designWidth1 c' etaStar)) := by
+      K7ConclusionW prob c' (designComb c' 1 N (1 / 4) σ (designWidth1 c' etaStar)) := by
   obtain ⟨Cg, hCg, h_ev⟩ := siteGap_eventually_le
-  filter_upwards [design_k7_membership_vacuum hw 1 N le_rfl hN M Cg hCg.le
+  filter_upwards [design_k7_membership_vacuumW (prob := prob) 1 N le_rfl hN M Cg hCg.le
     (by norm_num : (0 : ℝ) ≤ 1 / 4) le_rfl, h_ev, eventually_gt_atTop (0 : ℝ)]
     with c' hc' ⟨hgap_k, hgap_1_bd, hcd1_bd, _⟩ hpos
   refine hc' σ (designWidth1 c' etaStar) (fun k hk hkN => hM k hk hkN)
@@ -484,6 +565,28 @@ theorem sig1_k7_membership_vacuum {prob : FixedWeightProblem} (hw : prob.w = 1) 
   calc etaStar * siteGap c' k ≤ 1 * (Cg * lambdaComb c') :=
         mul_le_mul (hη1.trans (by norm_num)) hgk (siteGap_nonneg hpos (by omega)) (by norm_num)
     _ = Cg * lambdaComb c' := one_mul _
+
+/-- **Lemma `K7` for the `f = 1` finite modifications at fixed sites** (`η₀ = 1/4`, widths
+`ε = designWidth1 c' η_*` of `lemma_P_a_fixedN`, arbitrary offsets `σ` bounded by `M` on `1 ≤ k ≤ N`: the
+sites `σ_2, …, σ_N` may be displaced and the first site `σ_1` arbitrary): for all large `c'` the conclusion
+of Lemma `K7` holds.  `design1_k7_membership_vacuum` is the case `σ = designSigma1 d`. -/
+theorem sig1_k7_membership_vacuum {prob : FixedWeightProblem} (hw : prob.w = 1) (N : ℕ)
+    (hN : 1 ≤ N) {etaStar : ℝ} (hη0 : 0 ≤ etaStar) (hη1 : etaStar ≤ 1 / 4) (σ : ℕ → ℝ) (M : ℝ)
+    (hM : ∀ k, 1 ≤ k → k ≤ N → |σ k| ≤ M) :
+    ∀ᶠ c' in atTop,
+      K7Conclusion prob c' (designComb c' 1 N (1 / 4) σ (designWidth1 c' etaStar)) :=
+  (sig1_k7_membership_vacuumW (prob := prob) N hN hη0 hη1 σ M hM).mono fun _ h =>
+    h.toK7Conclusion hw
+
+/-- **Lemma `K7` for the designs `D(N, η_*, d)`** (`f = 1`, `η₀ = 1/4`, `σ = designSigma1 d`,
+`ε = designWidth1 c' η_*` of `lemma_P_a_fixedN`), with `M` a bound for the finitely many offsets
+`σ_1, …, σ_N`: for all large `c'` the conclusion of Lemma `K7` holds at every weight `prob.w`. -/
+theorem design1_k7_membership_vacuumW {prob : FixedWeightProblem} (N : ℕ)
+    (hN : 1 ≤ N) {etaStar : ℝ} (hη0 : 0 ≤ etaStar) (hη1 : etaStar ≤ 1 / 4) (d M : ℝ)
+    (hM : ∀ k, 1 ≤ k → k ≤ N → |designSigma1 d k| ≤ M) :
+    ∀ᶠ c' in atTop,
+      K7ConclusionW prob c' (designComb c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' etaStar)) :=
+  sig1_k7_membership_vacuumW (prob := prob) N hN hη0 hη1 (designSigma1 d) M hM
 
 /-- **Lemma `K7` for the designs `D(N, η_*, d)`** (`f = 1`, `η₀ = 1/4`, `σ = designSigma1 d`,
 `ε = designWidth1 c' η_*` of `lemma_P_a_fixedN`), with `M` a bound for the finitely many offsets
@@ -544,5 +647,33 @@ theorem design1_k7_membership_vacuum {prob : FixedWeightProblem} (hw : prob.w = 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.design_k7_of_decomp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms design_k7_of_decomp
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.design_fwsdAmplitudeInput_of_decomp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms design_fwsdAmplitudeInput_of_decomp
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.design_k7_of_decompW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms design_k7_of_decompW
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.design_k7_membership_vacuumW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms design_k7_membership_vacuumW
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.sig1_k7_membership_vacuumW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms sig1_k7_membership_vacuumW
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.design1_k7_membership_vacuumW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms design1_k7_membership_vacuumW
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.K7ConclusionW.toK7Conclusion' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms K7ConclusionW.toK7Conclusion
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.K7ConclusionW.norm_vac_le_eight' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms K7ConclusionW.norm_vac_le_eight
 
 end FormalResearch.ModularBootstrap.Upper.Membership

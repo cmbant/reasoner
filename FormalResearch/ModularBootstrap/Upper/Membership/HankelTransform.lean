@@ -1,7 +1,7 @@
 module
 
 public import FormalResearch.ModularBootstrap.Upper.Membership.Vacuum
-public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeRepresentation
+public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeRepresentationP
 public import Mathlib.Analysis.InnerProductSpace.Projection.Reflection
 
 /-!
@@ -11,9 +11,10 @@ public import Mathlib.Analysis.InnerProductSpace.Projection.Reflection
 (radial symmetry and reality of `𝓕 (radialLift w u)` are proved here from linear-isometry
 invariance, Mathlib's `fourier_comp_linearIsometry`), so that
 `𝓕 (radialLift w u) = radialLift w (hankelTransform w u)` (`fourier_radialLift_eq_hankelTransform`).
-At `w = 1` it is the order-zero Hankel transform `2π ∫₀^∞ u(s) J₀(4π √(s t)) ds` used by the
-edge lemmas (`hankelTransform_one_eq_edgeHankel`: `edgeHankel c' h₀ t = ĥ(t)` for the comb profile
-`u(s) = h₀(√(3s/c'))`), which connects Lemma `SD_H`/`SD_G`/`SD_V` to the membership statement.
+At weight `w = p + 1` it is the order-`p` Hankel transform `2π ∫₀^∞ u(s) (s/t)^{p/2} J_p(4π √(s t)) ds`
+(`hankelTransformOrd_eq_hankelTransform`, the link of `fw:s1`), and for the comb profile `u(s) = h₀(√(3s/c'))`
+it is `edgeHankelP p c' h₀` (`hankelTransform_eq_edgeHankelP`), which connects Lemma `SD_H`/`SD_G`/`SD_V`
+and `FW-SD` to the membership statement; `w = 1` is `hankelTransform_one_eq_edgeHankel` (`edgeHankel`).
 
 All results are proved unconditionally.
 -/
@@ -131,63 +132,59 @@ theorem hankelContinuationW_eq_neg_hankelTransform (hw : 1 ≤ w) {c' : ℝ} (hc
 
 end Symmetry
 
-/-! ### Order zero: `hankelTransform 1` is `edgeHankel` -/
+/-! ### Order `p`: `hankelTransform (p+1)` is the order-`p` Hankel transform `𝓗_{p+1}` -/
 
-lemma integration_besselI0C_neg (z : ℂ) : Integration.besselI0C (-z) = Integration.besselI0C z := by
-  unfold Integration.besselI0C
-  congr 1
-  have hsub := intervalIntegral.integral_comp_sub_left
-    (fun θ : ℝ => Complex.exp (z * (Real.cos θ : ℝ))) Real.pi (a := 0) (b := Real.pi)
-  simp only [sub_zero, sub_self] at hsub
-  rw [← hsub]
-  refine intervalIntegral.integral_congr fun θ _ => ?_
-  simp only [Real.cos_pi_sub, Complex.ofReal_neg, mul_neg, neg_mul]
-
-lemma besselJ_zero_eq_besselI0C (y : ℝ) :
-    Complex.besselJ 0 (y : ℂ) = Integration.besselI0C (Complex.I * y) := by
-  have h1 := ComplexBessel.integration_besselI0C_eq_blowup (-Complex.I * (y : ℂ))
-  have h2 : ModularBootstrap.besselI0C (-Complex.I * (y : ℂ)) = Complex.besselJ 0 (y : ℂ) := by
-    unfold ModularBootstrap.besselI0C
+/-- **Link lemma**: for `u` continuous on `[0, ∞)` with integrable radial lift on `ℝ^{2(p+1)}`, the Fourier
+profile `hankelTransform (p+1) u` is the order-`p` Bessel transform `hankelTransformOrd p u`
+(`(𝓗_{p+1} u)(t) = 2π ∫₀^∞ u(s) (s/t)^{p/2} J_p(4π√(s t)) ds`, `fw:s1`), for `t > 0`.  Both are the Hankel
+formula `fourier_radialLift_apply_eq` with the kernel `kernelKC (p+1)` identified with `besselKern p`. -/
+theorem hankelTransformOrd_eq_hankelTransform (p : ℕ) {u : ℝ → ℝ} (hcont : ContinuousOn u (Ici 0))
+    (hint : Integrable (radialLift (p + 1) u)) {t : ℝ} (ht : 0 < t) :
+    hankelTransformOrd p (fun s => (u s : ℂ)) t = (hankelTransform (p + 1) u t : ℂ) := by
+  have key := hankelContinuationW_eq_neg_hankelTransform (w := p + 1) (by omega) (c' := 3)
+    (by norm_num) hcont hint (Real.sqrt t)
+  have hb : (3 : ℝ) * Real.sqrt t ^ 2 / 3 = t := by rw [Real.sq_sqrt ht.le]; ring
+  rw [hb] at key
+  unfold hankelContinuationW at key
+  have hker : ∀ s ∈ Ioi (0 : ℝ),
+      (u s : ℂ) * kernelKC (p + 1) (-((3 : ℝ) : ℂ) * ((Real.sqrt t : ℝ) : ℂ) ^ 2 / 3) (s : ℂ) =
+        (u s : ℂ) * besselKern p s t := by
+    intro s _
     congr 1
-    rw [← mul_assoc, show Complex.I * -Complex.I = 1 by simp, one_mul]
-  rw [← h2, ← h1, ← integration_besselI0C_neg]
-  congr 1; ring
+    unfold kernelKC besselKern
+    have hsq : ((Real.sqrt t : ℝ) : ℂ) ^ 2 = (t : ℂ) := by
+      exact_mod_cast Real.sq_sqrt ht.le
+    simp only [Nat.add_sub_cancel]
+    congr 2
+    rw [hsq]
+    push_cast
+    ring
+  rw [setIntegral_congr_fun measurableSet_Ioi hker] at key
+  rw [hankelTransformOrd_eq_kern p _ ht]
+  linear_combination (-1 : ℂ) * key
+
+/-- **Order-`p` link**: if `h₀(√(3s/c')) = u(s)` for `s > 0` with `u` real, continuous on `[0, ∞)` with
+integrable radial lift on `ℝ^{2(p+1)}`, then `edgeHankelP p c' h₀ t = ĥ(t)` for `t > 0`, where
+`ĥ = hankelTransform (p+1) u`. -/
+theorem hankelTransform_eq_edgeHankelP (p : ℕ) {c' : ℝ} {h₀ : ℂ → ℂ} {u : ℝ → ℝ}
+    (hu : ∀ s : ℝ, 0 < s → h₀ ((Real.sqrt (3 * s / c') : ℝ) : ℂ) = (u s : ℂ))
+    (hcont : ContinuousOn u (Ici 0)) (hint : Integrable (radialLift (p + 1) u)) {t : ℝ} (ht : 0 < t) :
+    edgeHankelP p c' h₀ t = (hankelTransform (p + 1) u t : ℂ) := by
+  rw [← hankelTransformOrd_eq_hankelTransform p hcont hint ht]
+  unfold edgeHankelP hankelTransformOrd
+  congr 1
+  refine setIntegral_congr_fun measurableSet_Ioi fun s hs => ?_
+  simp only [hu s hs]
 
 /-- **Order-zero link**: if `h₀(√(3s/c')) = u(s)` for `s > 0` with `u` real, continuous on `[0, ∞)`
 with integrable radial lift on `ℝ²`, then `edgeHankel c' h₀ t = ĥ(t)` for `t > 0`,
 where `ĥ = hankelTransform 1 u` (`edgeHankel` is the `J₀` form `2π ∫₀^∞ h₀ J₀(4π√(st)) ds`). -/
-theorem hankelTransform_one_eq_edgeHankel {c' : ℝ} (hc' : 0 < c') {h₀ : ℂ → ℂ} {u : ℝ → ℝ}
+theorem hankelTransform_one_eq_edgeHankel {c' : ℝ} (_hc' : 0 < c') {h₀ : ℂ → ℂ} {u : ℝ → ℝ}
     (hu : ∀ s : ℝ, 0 < s → h₀ ((Real.sqrt (3 * s / c') : ℝ) : ℂ) = (u s : ℂ))
     (hcont : ContinuousOn u (Ici 0)) (hint : Integrable (radialLift 1 u)) {t : ℝ} (ht : 0 < t) :
     edgeHankel c' h₀ t = (hankelTransform 1 u t : ℂ) := by
-  set x : ℝ := Real.sqrt (3 * t / c') with hx
-  have hx0 : 0 ≤ x := Real.sqrt_nonneg _
-  have htx : t = c' * x ^ 2 / 3 := by
-    rw [hx, Real.sq_sqrt (by positivity)]; field_simp
-  have key := hankelContinuationW_eq_neg_hankelTransform le_rfl hc' hcont hint x
-  rw [← htx] at key
-  rw [hankelContinuationW_one_eq hc'.le] at key
-  unfold Integration.hankelContinuation at key
-  unfold edgeHankel
-  have hmul : ∀ s ∈ Ioi (0 : ℝ),
-      h₀ ((Real.sqrt (3 * s / c') : ℝ) : ℂ) * Complex.besselJ 0 ((4 * π * Real.sqrt (s * t) : ℝ) : ℂ) =
-        (u s : ℂ) * Integration.besselI0C (4 * (π : ℂ) * Complex.I * (x : ℂ) *
-          (Real.sqrt (c' * s / 3) : ℝ)) := by
-    intro s hs
-    rw [hu s hs, besselJ_zero_eq_besselI0C]
-    congr 2
-    have hst : Real.sqrt (s * t) = x * Real.sqrt (c' * s / 3) := by
-      rw [← Real.sqrt_mul (by positivity)]
-      congr 1
-      rw [htx]; ring_nf
-      rw [Real.sq_sqrt (by positivity)]
-      field_simp
-    rw [hst]; push_cast; ring
-  rw [setIntegral_congr_fun measurableSet_Ioi hmul]
-  have : -2 * (π : ℂ) * ∫ s in Ioi (0 : ℝ), (u s : ℂ) *
-      Integration.besselI0C (4 * (π : ℂ) * Complex.I * (x : ℂ) * (Real.sqrt (c' * s / 3) : ℝ)) =
-      -(hankelTransform 1 u t : ℂ) := key.symm ▸ rfl
-  linear_combination (-1 : ℂ) * this
+  rw [← edgeHankelP_zero]
+  exact hankelTransform_eq_edgeHankelP 0 hu hcont hint ht
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Membership.fourier_radialLift_eq_hankelTransform' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -5,6 +5,7 @@ public import FormalResearch.ModularBootstrap.Upper.Design.AmplitudeLogDeriv
 public import FormalResearch.ModularBootstrap.Upper.Saddle.EdgePhaseZero
 public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeGlobalBound
 public import FormalResearch.ModularBootstrap.Upper.Design.CombTransformAbs
+public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeGlobalBoundP
 
 /-!
 # Lemma `Φ`, "Consequently": the transform of a finite modification of the comb
@@ -352,12 +353,32 @@ lemma edgeHankel_designProfile_eq_sdvIntegral {c' : ℝ} {f N : ℕ} {η₀ : �
       ((sdvIntegral edgePhi0Blaschke c' x sechSqProfile (designPhi1 c' f N η₀ σ ε) hankel0 : ℂ)) := by
   exact edgeHankel_eq_sdvIntegral_of_eq (fun b hb => exp_designPhi1_eq hDec hb) hh hc hx
 
+/-- **Lemma `Φ`, "Consequently", at order `p`** (`ut:Phi` with `fw:SDp`, `fw:e1.4`), for an abstract finite
+modification with a phase decomposition of derivative bound `B ≥ 0` (independent of `c'` and of the cut `N`):
+for fixed `f ≥ 1`, `η₀ ∈ [0, 1/4]`, `0 < θ < 2/3` there is `C = C(p, f, B, θ) ≥ 0` such that for `c'` large,
+**every cut `N`**, every admissible finite modification with `DesignPhiDecomp c' f N η₀ σ ε B` and every
+`x ≥ ξ_I = ξ_* + c'^{-θ}`, `‖(𝓗_{p+1} h₀)(c'x²/3)‖ ≤ 𝒜_x R_p(x) (1 + C c'^{-1+3θ/2})`, `R_p(x) = (|b_x|/x)^p`.
+Neither `C` nor the threshold depends on `N`, `x` or the data. -/
+theorem lemma_Phi_transform_of_decomp_P (p : ℕ) (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀)
+    (hη₀1 : η₀ ≤ 1 / 4) {B : ℝ} (hB : 0 ≤ B) {θ : ℝ} (hθ0 : 0 < θ) (hθ1 : θ < 2 / 3) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ), DesignAdmissible c' f N η₀ σ ε →
+      DesignPhiDecomp c' f N η₀ σ ε B →
+      ∀ x : ℝ, xiStar + c' ^ (-θ) ≤ x →
+        ‖edgeHankelP p c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3)‖ ≤
+          combAmplitude c' x * fwsdRatio p x * (1 + C * c' ^ (-1 + 3 * θ / 2)) := by
+  obtain ⟨A, hA0, hPC⟩ := designComb_phaseComb_of_decomp f hf hη₀0 hη₀1
+  obtain ⟨C, hC, hT⟩ := lemma_Phi_transform_of_phase_P p (Mφ := A + B) (by positivity) hθ0 hθ1
+  refine ⟨C, hC, ?_⟩
+  filter_upwards [hPC, hT, designProfile_edgeHankelHyp_of_admissible f hη₀0 hη₀1]
+    with c' hP hT' hH N σ ε hA hDec x hx
+  exact hT' _ _ (hP N σ ε B hA hDec) (hH N σ ε hA).1 x hx
+
 /-- **Lemma `Φ`, "Consequently"** (`ut:Phi`), for an abstract finite modification with a phase
 decomposition of derivative bound `B ≥ 0` (independent of `c'` and of the cut `N`): for fixed `f ≥ 1`,
 `η₀ ∈ [0, 1/4]`, `0 < θ < 2/3` there is `C = C(f, B, θ) ≥ 0` such that for `c'` large, **every cut `N`**,
 every admissible finite modification with `DesignPhiDecomp c' f N η₀ σ ε B` and every `x ≥ ξ_I = ξ_* +
 c'^{-θ}`, `|ĥ₀(c'x²/3)| ≤ 𝒜_x (1 + C c'^{-1+3θ/2})`.  Neither `C` nor the threshold depends on `N`, `x`
-or the data.  (The ramped comb uses `θ = 3/5`.) -/
+or the data.  (The ramped comb uses `θ = 3/5`.)  The case `p = 0` of `lemma_Phi_transform_of_decomp_P`. -/
 theorem lemma_Phi_transform_of_decomp (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀)
     (hη₀1 : η₀ ≤ 1 / 4) {B : ℝ} (hB : 0 ≤ B) {θ : ℝ} (hθ0 : 0 < θ) (hθ1 : θ < 2 / 3) :
     ∃ C : ℝ, 0 ≤ C ∧ ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ), DesignAdmissible c' f N η₀ σ ε →
@@ -365,12 +386,31 @@ theorem lemma_Phi_transform_of_decomp (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (h�
       ∀ x : ℝ, xiStar + c' ^ (-θ) ≤ x →
         ‖edgeHankel c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3)‖ ≤
           combAmplitude c' x * (1 + C * c' ^ (-1 + 3 * θ / 2)) := by
-  obtain ⟨A, hA0, hPC⟩ := designComb_phaseComb_of_decomp f hf hη₀0 hη₀1
-  obtain ⟨C, hC, hT⟩ := lemma_Phi_transform_of_phase (Mφ := A + B) (by positivity) hθ0 hθ1
-  refine ⟨C, hC, ?_⟩
-  filter_upwards [hPC, hT, designProfile_edgeHankelHyp_of_admissible f hη₀0 hη₀1]
-    with c' hP hT' hH N σ ε hA hDec x hx
-  exact hT' _ _ (hP N σ ε B hA hDec) (hH N σ ε hA).1 x hx
+  obtain ⟨C, hC, h⟩ := lemma_Phi_transform_of_decomp_P 0 f hf hη₀0 hη₀1 hB hθ0 hθ1
+  refine ⟨C, hC, h.mono fun c' hc' N σ ε hA hDec x hx => ?_⟩
+  have := hc' N σ ε hA hDec x hx
+  simpa [edgeHankelP_zero, fwsdRatio] using this
+
+/-- **Lemma `SD_G` at order `p` for `h₀ = sech² B_D^{(f)}`** (`fw:SDp` (1), `fw:e1.3`; any admissible finite
+modification): with the constant `K = K_p` of `edge_global_bound_P`, for `c'` large (threshold independent of
+the cut `N` and of the data) and every `x > 0` with `4π c' x/3 ≥ 1`,
+`e^{c'L(x)} ‖(𝓗_{p+1} h₀)(c'x²/3)‖ ≤ K √(c'/x) x^{-p}`.  (The order-`0` form, `designProfile_global_bound_of_admissible`,
+needs no condition on `x`: for `p > 0` the Hankel function `H_p¹` is not bounded by `|z|^{-1/2}` near `0`.) -/
+theorem designProfile_global_bound_of_admissible_P (p : ℕ) (f : ℕ) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀)
+    (hη₀1 : η₀ ≤ 1 / 4) :
+    ∃ K : ℝ, 0 ≤ K ∧ ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ), DesignAdmissible c' f N η₀ σ ε →
+      ∀ x : ℝ, 0 < x → 1 ≤ 4 * π * c' * x / 3 → Real.exp (c' * edgeL x) *
+        ‖edgeHankelP p c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3)‖ ≤
+          K * √(c' / x) * (1 / x) ^ p := by
+  obtain ⟨K, hK0, hK⟩ := edge_global_bound_P p
+  refine ⟨K, hK0, ?_⟩
+  filter_upwards [designProfile_edgeHankelHyp_of_admissible f hη₀0 hη₀1, eventually_gt_atTop 0]
+    with c' hP hc' N σ ε hA x hx hk
+  obtain ⟨hh, hB⟩ := hP N σ ε hA
+  have hsech : EdgeSechBound (designProfile c' f N η₀ σ ε) 1 :=
+    edgeSechBound_of_unit (B := designComb c' f N η₀ σ ε) hB
+  have := hK (designProfile c' f N η₀ σ ε) π 8 1 Real.pi_pos hh zero_le_one hsech c' x hc' hx hk
+  simpa using this
 
 /-- **Lemma `Φ`, "Consequently"** (`ut:Phi`): for `h₀ = sech²(πb/2) B_D^{(f)}` in a compact family,
 `c'` large, `0 < θ < 2/3` and every `x ≥ ξ_I = ξ_* + c'^{-θ}`,
@@ -429,5 +469,13 @@ theorem lemma_Phi_transform (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : �
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Design.lemma_Phi_transform_of_decomp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms lemma_Phi_transform_of_decomp
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.lemma_Phi_transform_of_decomp_P' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms lemma_Phi_transform_of_decomp_P
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.designProfile_global_bound_of_admissible_P' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms designProfile_global_bound_of_admissible_P
 
 end FormalResearch.ModularBootstrap.Upper.Design

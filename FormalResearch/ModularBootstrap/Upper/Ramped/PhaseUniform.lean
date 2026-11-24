@@ -43,6 +43,9 @@ constants `𝒜₀ + A + K P`, `𝒜₀' + A + K P` (`A = A(f)`), the transform 
 the global bound `e^{c'L(x)}‖ĥ₀(c'x²/3)‖ ≤ K_G √(c'/x)` and the conclusion of Lemma `K7`
 (`g = ½(h₀ - ĥ₀)` in the test class, `g_vac = ½ h_{0,vac} - π ∫ h₀ V`, `|h_{0,vac}| ≤ 8` for `Q = (1-q)²`).
 
+`phase_packageP` and `phase_k7W` are the order-`p` and every-weight forms (`FW-SD`, `fw:FWM`); `phase_package`
+and `phase_k7` (weight `1`) keep their statements.
+
 All results are proved unconditionally.
 -/
 
@@ -133,6 +136,57 @@ theorem phase_package (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (hη₀0 : 0 ≤ η
   exact ⟨hD, fun x hx => h2 N σ ε (K * P) hA hD x hx, fun x hx => h3 N σ ε hA hD x hx,
     fun x hx => h4 N σ ε hA x hx⟩
 
+/-- **Phase package at every order `p`** (`ut:Phi` with `(PC)`; `FW-SD`, `SD_G` at order `p`; uniform in `N`).
+Fix `p`, `f ≥ 1`, `η₀ ∈ [0, 1/4]`, `P ≥ 0` and `0 < θ < 2/3`.  There are `K, A, C_ε, C, K_G ≥ 0` (`K` absolute)
+and `c₀` such that for every `c' ≥ c₀`, every cut `N` and all data with `PhaseHyp c' f N η₀ σ ε P`:
+
+* `DesignPhiDecomp c' f N η₀ σ ε (K P)`;
+* the amplitude hypotheses of `FW-SD` at order `p` (`FWSDAmplitudeInput`, `δ = 1/8`, constants
+  `𝒜₀ + A + K P`, `𝒜₀' + A + K P`, `C_ε`) at every `x ≥ x_I`;
+* the transform bound `‖(𝓗_{p+1} h₀)(c' x²/3)‖ ≤ 𝒜_x R_p(x) (1 + C c'^{-1+3θ/2})` for `x ≥ ξ_* + c'^{-θ}`;
+* the global bound `e^{c' L(x)} ‖(𝓗_{p+1} h₀)(c' x²/3)‖ ≤ K_G √(c'/x) x^{-p}` for `x > 0` with `4π c' x/3 ≥ 1`.
+
+At `p = 0` the last two are the corresponding parts of `phase_package`. -/
+theorem phase_packageP (p f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) {P : ℝ}
+    (hP : 0 ≤ P) {θ : ℝ} (hθ0 : 0 < θ) (hθ1 : θ < 2 / 3) :
+    ∃ K A Cε C KG : ℝ, 0 < K ∧ 0 ≤ A ∧ 0 ≤ Cε ∧ 0 ≤ C ∧ 0 ≤ KG ∧ ∀ᶠ c' in atTop,
+      ∀ (N : ℕ) (σ ε : ℕ → ℝ), PhaseHyp c' f N η₀ σ ε P →
+        DesignPhiDecomp c' f N η₀ σ ε (K * P) ∧
+        FWSDAmplitudeInput p c' (designPhi1 c' f N η₀ σ ε) (1 / 8) (ampM0 + (A + K * P))
+          (ampM0' + (A + K * P)) Cε ∧
+        (∀ x : ℝ, xiStar + c' ^ (-θ) ≤ x →
+          ‖edgeHankelP p c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3)‖ ≤
+            combAmplitude c' x * fwsdRatio p x * (1 + C * c' ^ (-1 + 3 * θ / 2))) ∧
+        (∀ x : ℝ, 0 < x → 1 ≤ 4 * π * c' * x / 3 → Real.exp (c' * edgeL x) *
+          ‖edgeHankelP p c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3)‖ ≤
+            KG * √(c' / x) * (1 / x) ^ p) := by
+  obtain ⟨K, hK, hdec⟩ := designPhiDecomp_of_pairChange
+  obtain ⟨A, Cε, hA0, hCε, hfw⟩ := design_fwsdAmplitudeInput_of_decomp p f hf hη₀0 hη₀1
+  obtain ⟨C, hC, htr⟩ :=
+    lemma_Phi_transform_of_decomp_P p f hf hη₀0 hη₀1 (mul_nonneg hK.le hP) hθ0 hθ1
+  obtain ⟨KG, hKG, hglob⟩ := designProfile_global_bound_of_admissible_P p f hη₀0 hη₀1
+  refine ⟨K, A, Cε, C, KG, hK, hA0, hCε, hC, hKG, ?_⟩
+  filter_upwards [hdec f hf hη₀0 hη₀1, hfw, htr, hglob] with c' h1 h2 h3 h4 N σ ε ⟨hfN, hA, hpc⟩
+  have hD := h1 N σ ε P hfN hA hpc
+  exact ⟨hD, h2 N σ ε (K * P) hA hD, fun x hx => h3 N σ ε hA hD x hx,
+    fun x hx hk => h4 N σ ε hA x hx hk⟩
+
+/-- **Lemma `K7` for the ramped combs** (`cmb:K7` at every weight `w = prob.w`, uniform in `N`).  For a
+fixed-weight problem, `f ≥ 1`, `η₀ ∈ [0, 1/4]` and `P ≥ 0` there is `K > 0` (absolute) such that for `c'` large, every cut `N` and
+all data with `PhaseHyp c' f N η₀ σ ε P`: `h₀ = sech² B_D` and `ĥ₀` decay like `C e^{-c'L - πx}`,
+`g = ½(h₀ - ĥ₀)` is in the test class (membership in `Ā`), `g_vac = ½ h_{0,vac} - π ∫ h₀ V`, and
+`|½ h_{0,vac}| ≤ 2^m` (`|h_{0,vac}| ≤ 8` for `m = 2`, by `K7ConclusionW.norm_vac_le_eight`). -/
+theorem phase_k7W {prob : FixedWeightProblem} (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ}
+    (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) {P : ℝ} (hP : 0 ≤ P) :
+    ∃ K : ℝ, 0 < K ∧ ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ), PhaseHyp c' f N η₀ σ ε P →
+      K7ConclusionW prob c' (designComb c' f N η₀ σ ε) := by
+  obtain ⟨K, hK, hdec⟩ := designPhiDecomp_of_pairChange
+  refine ⟨K, hK, ?_⟩
+  filter_upwards [hdec f hf hη₀0 hη₀1,
+    design_k7_of_decompW (prob := prob) f hf hη₀0 hη₀1 (mul_nonneg hK.le hP)]
+    with c' h1 h2 N σ ε ⟨hfN, hA, hpc⟩
+  exact h2 N σ ε hfN hA (h1 N σ ε P hfN hA hpc)
+
 /-- **Lemma `K7` for the ramped combs** (`cmb:K7` at `w = 1`, uniform in `N`).  For a fixed-weight problem with
 `w = 1`, `f ≥ 1`, `η₀ ∈ [0, 1/4]` and `P ≥ 0` there is `K > 0` (absolute) such that for `c'` large, every cut `N` and
 all data with `PhaseHyp c' f N η₀ σ ε P`: `h₀ = sech² B_D` and `ĥ₀` decay like `C e^{-c'L - πx}`,
@@ -142,11 +196,8 @@ theorem phase_k7 {prob : FixedWeightProblem} (hw : prob.w = 1) (f : ℕ) (hf : 1
     (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) {P : ℝ} (hP : 0 ≤ P) :
     ∃ K : ℝ, 0 < K ∧ ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ), PhaseHyp c' f N η₀ σ ε P →
       K7Conclusion prob c' (designComb c' f N η₀ σ ε) := by
-  obtain ⟨K, hK, hdec⟩ := designPhiDecomp_of_pairChange
-  refine ⟨K, hK, ?_⟩
-  filter_upwards [hdec f hf hη₀0 hη₀1,
-    design_k7_of_decomp hw f hf hη₀0 hη₀1 (mul_nonneg hK.le hP)] with c' h1 h2 N σ ε ⟨hfN, hA, hpc⟩
-  exact h2 N σ ε hfN hA (h1 N σ ε P hfN hA hpc)
+  obtain ⟨K, hK, h⟩ := phase_k7W (prob := prob) f hf hη₀0 hη₀1 hP
+  exact ⟨K, hK, h.mono fun _ hc N σ ε hph => (hc N σ ε hph).toK7Conclusion hw⟩
 
 /-! ### 3. Non-vacuity -/
 
@@ -183,5 +234,13 @@ theorem phaseHyp_reference (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (hη₀0 : 0 �
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Ramped.phaseHyp_reference' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms phaseHyp_reference
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Ramped.phase_packageP' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms phase_packageP
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Ramped.phase_k7W' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms phase_k7W
 
 end FormalResearch.ModularBootstrap.Upper.Ramped
