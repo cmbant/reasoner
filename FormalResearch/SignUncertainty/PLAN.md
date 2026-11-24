@@ -218,7 +218,7 @@ hypothesis `O4QuotientBound L` for `0 < L ≤ 0.002`.
 | M0 skeleton, M1 classical leaves, M2 Hankel layer, M3 extraction half | done |
 | M4 upper O-chain | done except `O4QuotientBound L` (`M_F ≤ 0.13`, interval certificate `certify_u1c_o4_contraction.py`). In progress: the kernel-checked discharge (Haiku modules `O4SigmaBounds`, `O4CircleReduction` done, `O4RhoSeries` running; the ball library, box evaluator and assembly are on the Bessel lane, generator `gen_o4_boxes.py` passes in exact integer arithmetic at 40 x 320 boxes, `|F| ≤ 0.12695`) |
 | M5 Hankel lower half | done (S1–S7: `hb_thresholds_lower` proved) |
-| M6 CE upper half (convolution source, post-edge bounds, lift of a Hankel profile to `ℝ^d`; gives `ce_hb_lift_m1` from `hb_thresholds_upper`) | in progress (skeleton lane) |
+| M6 CE upper half (convolution source, post-edge bounds, lift of a Hankel profile to `ℝ^d`; gives `ce_hb_lift_m1`) | in progress (skeleton lane). Done: `ConvSourceDefs`, `ConvSourceLaplace` (`hasU2_convR`, product formula of `O.12(3)`), `EuclidCELift` (`ceAdmissible_of_hankelPair`), `CeHbLiftAssembly` (`CeHankelPair → CeHbLift ShellHBData.airy`), `MellinLiftGeneral`. Open (several thousand lines): Lemma `O.12` items (1)–(7) on `S_c`, `thm:ce-post-edge` (from `middle_transfer_gt1`, GT.2b, `O.12(7)`), the tail bound for the seeds `D_c ± S_c`, the physical sign for `F_c` and the reflected seed `−S_c` (needs an `O6Est` instance for the dual seed), pre-edge positivity, packaging of `CeHankelPair`. It does not use `hb_thresholds_upper` as a theorem but the same M4 inputs, so it is conditional on `O4QuotientBound` as well |
 | M7 shell reduction | `shell_reduction_m1_proved` and `shell_reduction_airy` done; `ce_hb_lift_m1` is M6 |
 | Headline S (`gt:7.9c`) | needs `hb_thresholds_upper` unconditional (the `O4QuotientBound` discharge) |
 | M8 multilevel generalisation (`shell_reduction`, `ce_hb_lift` for general `D`) | not started |
@@ -250,7 +250,7 @@ Order of work, by leverage on the four open `Headlines` inputs:
 1. `O4QuotientBound L` (kernel-checked interval discharge; unlocks `hb_thresholds_upper` and Headline S). Pieces: `O4SigmaBounds`
    and `O4CircleReduction` (done), `O4RhoSeries` (Haiku, running), `O4CertBall`, the generated box modules and the assembly
    (Bessel lane; generator `gen_o4_boxes.py` passes at 40 x 320 boxes).
-2. M6 (`ce_hb_lift_m1` from `hb_thresholds_upper`): `ConvSource*` (Haiku briefs `m6_*`) and `EuclidCELift`, `CeHbLiftAssembly`
+2. M6 (`ce_hb_lift_m1` via `CeHankelPair`; shares the M4 inputs, not the theorem `hb_thresholds_upper`): `ConvSource*` (Haiku briefs `m6_*`) and `EuclidCELift`, `CeHbLiftAssembly`
    (skeleton lane); then a clean-context review of the whole M6 development before merge.
 3. M8 (general `D`: `shell_reduction`, `ce_hb_lift` for `m ≥ 2`): start with a dependency list once M6 is merged; it needs the
    multilevel `HbThresholds` (levels `m ≥ 2`) and the shell constraints.
