@@ -14,8 +14,10 @@ part `|τ| ≥ 1/3` is `≤ C e^{-κ' c}` with `κ' > 0` when `|log π²ξ| ≤ 
 
 Lean constants versus the paper: the paper's (T) uses the sharper `Re S̃(1/10 + i/3) + (1/10) log π²ξ < -0.0082`
 (exponent `2·10⁻³ c` after the weight), whereas here the existing crude kernel bound
-`g(σ) < (4/3)σ²` is used, giving a smaller but positive exponent `κ' ≈ 3·10⁻⁵`.  Only `κ' > 0` is used downstream
-(`r_∞ ≤ C c^{1/3} e^{-κ c}`), so no stated result changes.
+`g(σ) < (4/3)σ²` is used, giving a smaller but positive exponent `κ' ≈ 3·10⁻⁵` (proved: `1/40000`).  This does *not*
+reproduce the paper's explicit statements `|(fρ₀)_tail| ≤ C e^{-2·10⁻³c}` and `r_∞ = C c^{1/3} e^{-2·10⁻³c}`
+(`langer_transport.tex`, `gt:7.7p` and Step 0 (T); notes quoting `O(e^{-c/1000})` rest on it).  What is covered is the form
+`r_∞ ≤ C₀ c^{1/3} e^{-κ c}` with an unspecified `κ > 0`, which is all that `teb:Q2` of `two_edge_bootstrap.tex` uses.
 -/
 
 @[expose] public section

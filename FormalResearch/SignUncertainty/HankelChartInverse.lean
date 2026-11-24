@@ -7,7 +7,7 @@ public import FormalResearch.SignUncertainty.HankelLangerReal
 # The analytic inverse of the Langer chart (`gt:7.7b` (iii)--(iv))
 
 `chartYinv η y` is the unique `w` in `ball 0 (10⁻³)` with `y(w) = y` (choice; unique by `injOn_chartY`).  It is analytic
-on `‖y‖ ≤ 4.94·10⁻⁴` (`analyticAt_chartYinv`) with derivative `1/y'(w)`, `‖w‖ ≤ 1.0019‖y‖`.  The disc `‖y‖ ≤ 4.94·10⁻⁴`
+on `‖y‖ ≤ 4.94·10⁻⁴` (`analyticAt_chartYinv`) with derivative `1/y'(w)`, and `‖w‖ ≤ 5·10⁻⁴` there (`norm_chartYinv_le`).  The disc `‖y‖ ≤ 4.94·10⁻⁴`
 is the image of the paper's `|ũ| ≤ A_c²` (`w₀/2 = π² r₀/2 < 4.94·10⁻⁴` at `r₀ = 10⁻⁴`).
 -/
 
@@ -71,6 +71,7 @@ lemma norm_chartYinv_le (h : LangerEta η) {y : ℂ} (hy : ‖y‖ ≤ 4.94e-4) 
       _ = _ := by rw [norm_neg]
   linarith
 
+/-- `chartYinv` is analytic at `y(w₀)` with derivative `1/y'(w₀)` for `‖w₀‖ < 10⁻³`. -/
 theorem analyticAt_chartYinv (h : LangerEta η) {w0 : ℂ} (hw0 : ‖w0‖ < 1e-3) :
     AnalyticAt ℂ (chartYinv η) (chartY η w0) ∧
       HasDerivAt (chartYinv η) (chartYD η w0)⁻¹ (chartY η w0) := by
@@ -95,5 +96,9 @@ theorem analyticAt_chartYinv (h : LangerEta η) {w0 : ℂ} (hw0 : ‖w0‖ < 1e-
   refine ⟨key.1, ?_⟩
   have := key.2
   rwa [(hdiff w0 (mem_ball_zero_iff.2 hw0)).deriv] at this
+
+/-- info: 'FormalResearch.SignUncertainty.analyticAt_chartYinv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms analyticAt_chartYinv
 
 end FormalResearch.SignUncertainty

@@ -9,7 +9,8 @@ For real `ũ = x` in the Langer disc, `ξ(x) = (1 + Re w)/π²` with `w = y⁻¹
 `ξ'(x) = Re (dw/dy) / (π² K)`.  For `c ≥ 5000` and the normalised `f`:
 `|Ψ̃(x) + c ξ'(x) (ρ₀ f)(cξ(x))| ≤ 2 I₀ c^{1/3} e^{-c/40000} =: r_∞` (`hankel_transport_pointwise`), from the split
 `(ρ₀ f)(cξ) = (2πξ)⁻¹((fρ₀)_loc + tail)` and the tail bound `(T)`.  Lean exponent versus paper: `1/40000`
-(`2·10⁻³` in the paper); only positivity of the exponent is used downstream.
+(`2·10⁻³` in the paper, whose explicit exponent is therefore not covered; `teb:Q2` needs only `r_∞ ≤ C₀ c^{1/3} e^{-κ c}`
+with some `κ > 0`).
 -/
 
 @[expose] public section
@@ -75,6 +76,8 @@ lemma langer_pref_eq {c : ℝ} (hc : 0 < c) :
   rw [div_eq_div_iff (by positivity) (by positivity)]
   linear_combination (-(2 * π * langerKappa)) * h1
 
+/-- **Pointwise transport `(b)`** of `gt:7.7p`: for `c ≥ 5000`, normalised `f ∈ 𝒜_c^ε` and real `|x| ≤ langerRadius c`,
+`|Re Ψ̃(x) + c ξ'(x) (ρ₀ f)(c ξ(x))| ≤ 2 I₀ c^{1/3} e^{-c/40000}`. -/
 theorem hankel_transport_pointwise {c ε : ℝ} (hc : 5000 ≤ c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f)
     (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1) {x : ℝ}
     (hx : |x| ≤ langerScale c * 4.94e-4) :

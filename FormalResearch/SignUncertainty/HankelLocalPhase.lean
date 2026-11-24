@@ -166,3 +166,13 @@ theorem hankelLocPhi_conn_le (ℓ : ℂ) (hl : ℓ.re ≤ 1 / 200) {σ1 σ2 τ :
     σ1 ⟨le_rfl, h12⟩ σ2 ⟨h12, le_rfl⟩ h12
   simp only [hψ] at hbound
   linarith
+
+/-- info: 'FormalResearch.SignUncertainty.hankelLocPhi_vert_peak' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelLocPhi_vert_peak
+
+/-- info: 'FormalResearch.SignUncertainty.hankelLocPhi_conn_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelLocPhi_conn_le
+
+end FormalResearch.SignUncertainty

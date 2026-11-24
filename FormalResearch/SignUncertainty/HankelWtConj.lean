@@ -13,7 +13,7 @@ For real `f`, `0 < c`:
 * `hankelHLog_conj`, `hankelHInt_conj`: `ℋ(conj ζ) = conj ℋ(ζ)` on `0 ≤ Re ζ < 1` (through the Binet
   branch `hLog` and `binetLogGamma`, whose conjugation symmetry is proved here from `lap_conj`).
 * `hankelWt_conj`: `W̃_c(conj ζ) = conj W̃_c(ζ)` on `0 < Re ζ < 1`.
-* `hankelJ_conj`: `J(ℓ, conj ζ) = conj J(ℓ, ζ)` at real `ℓ`, `‖ζ‖ < 1`, `0 < Re ζ < 1`.
+* `hankelJ_conj`: `J(ℓ, conj ζ) = conj J(ℓ, ζ)` at real `ℓ`, `0 < Re ζ < 1`.
 * `hankelLocal_im_eq_zero`: the local density `hankelLocal c f ℓ` is real for real `ℓ`.
 
 Proof status and provenance: `hankelMellinStrip_conj`, `hankelBinetRem_conj`, `hankelBinetDiff_conj`,
@@ -21,10 +21,8 @@ Proof status and provenance: `hankelMellinStrip_conj`, `hankelBinetRem_conj`, `h
 proofs are the conjugation computations of `mellinK0_conj` and `stripG_conj` (`LobeSaddleCore`) written
 out for these objects; they restate no Mathlib lemma beyond the `Complex.*` and `integral_conj` rewrites
 they use. `hankelWt_conj`, `hankelJ_conj`, `hankelLocal_im_eq_zero` are the assembled statements.
-Only `f` real is used: `IsHankelEigenfn` is not assumed. The hypotheses `hc : 0 < c` and `hn : ‖ζ‖ < 1` of
-`hankelJ_conj` (and hence `hc` of `hankelLocal_im_eq_zero`) are not used by the proof, which is a formal identity
-valid for every `c` and every `ζ` with `0 < Re ζ < 1`; they are kept as stated so that the statement matches
-the brief.
+Only `f` real is used: `IsHankelEigenfn` is not assumed, and neither `0 < c` nor `‖ζ‖ < 1` is needed (the
+statements are formal identities valid for every real `c` and every `ζ` with `0 < Re ζ < 1`).
 -/
 
 @[expose] public section
@@ -145,9 +143,8 @@ lemma hankelLocPhi_conj (ℓ : ℝ) (ζ : ℂ) :
   unfold hankelLocPhi
   rw [hS, map_add, map_mul, Complex.conj_ofReal]
 
-/-- Conjugation symmetry of the local integrand `J` at real `ℓ`, `‖ζ‖ < 1`, `0 < Re ζ < 1`. -/
-theorem hankelJ_conj {c : ℝ} (hc : 0 < c) (f : ℝ → ℝ) {ℓ : ℝ} {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1)
-    (hn : ‖ζ‖ < 1) :
+/-- Conjugation symmetry of the local integrand `J` at real `ℓ`, `0 < Re ζ < 1`. -/
+theorem hankelJ_conj {c : ℝ} (f : ℝ → ℝ) {ℓ : ℝ} {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1) :
     hankelJ c f (ℓ : ℂ) (starRingEnd ℂ ζ) = starRingEnd ℂ (hankelJ c f (ℓ : ℂ) ζ) := by
   have hz1 : 0 < (1 - ζ).re := by simp [h1]
   have harg : (1 - ζ).arg ≠ Real.pi := by
@@ -163,21 +160,10 @@ theorem hankelJ_conj {c : ℝ} (hc : 0 < c) (f : ℝ → ℝ) {ℓ : ℝ} {ζ : 
   rw [hp, hankelBinetDiff_conj, hankelLocPhi_conj, hankelWt_conj f h0 h1]
   simp only [map_mul, ← Complex.exp_conj, Complex.conj_ofReal]
 
-/-- For `|τ| ≤ 1/3` the point `1/10 + iτ` has norm `< 1`. -/
-lemma hankelNorm_lt_one {τ : ℝ} (hτ : |τ| ≤ 1 / 3) :
-    ‖((1 / 10 : ℝ) : ℂ) + (τ : ℂ) * Complex.I‖ < 1 := by
-  have h := Complex.norm_le_abs_re_add_abs_im (((1 / 10 : ℝ) : ℂ) + (τ : ℂ) * Complex.I)
-  have hre : (((1 / 10 : ℝ) : ℂ) + (τ : ℂ) * Complex.I).re = 1 / 10 := by simp
-  have him : (((1 / 10 : ℝ) : ℂ) + (τ : ℂ) * Complex.I).im = τ := by simp
-  rw [hre, him] at h
-  have h10 : |(1 / 10 : ℝ)| = 1 / 10 := by norm_num
-  have h10' : |((1 / 10 : ℝ))| = 1 / 10 := h10
-  linarith
-
 /-- **Reality of the local density** (`gt:7.7c`): `hankelLocal c f ℓ` is real for real `ℓ`.
 The integrand satisfies `J(conj ζ) = conj J(ζ)` on the segment `1/10 + iτ`, `|τ| ≤ 1/3`, so the
 integral over the symmetric interval is invariant under conjugation. -/
-theorem hankelLocal_im_eq_zero {c : ℝ} (hc : 0 < c) (f : ℝ → ℝ) (ℓ : ℝ) :
+theorem hankelLocal_im_eq_zero {c : ℝ} (f : ℝ → ℝ) (ℓ : ℝ) :
     (hankelLocal c f (ℓ : ℂ)).im = 0 := by
   rw [← Complex.conj_eq_iff_im]
   unfold hankelLocal
@@ -194,10 +180,9 @@ theorem hankelLocal_im_eq_zero {c : ℝ} (hc : 0 < c) (f : ℝ → ℝ) (ℓ : �
     refine intervalIntegral.integral_congr fun τ hτ => ?_
     rw [uIcc_of_le hab] at hτ
     have hτa : |τ| ≤ 1 / 3 := abs_le.mpr ⟨hτ.1, hτ.2⟩
-    have hn := hankelNorm_lt_one hτa
     have hre : (0 : ℝ) < (((1 / 10 : ℝ) : ℂ) + (τ : ℂ) * Complex.I).re := by simp
     have hre1 : (((1 / 10 : ℝ) : ℂ) + (τ : ℂ) * Complex.I).re < 1 := by simp; norm_num
-    have key := hankelJ_conj hc f (ℓ := ℓ) hre hre1 hn
+    have key := hankelJ_conj (c := c) f (ℓ := ℓ) hre hre1
     rw [← key]
     congr 1
     apply Complex.ext <;> simp
