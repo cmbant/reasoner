@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import FormalResearch.SignUncertainty.ConvSourceSymbol
+public import FormalResearch.SignUncertainty.ConvSourceLaplace
 
 /-!
 # Integration by parts against `e^{-zy}`: the general moment bounds (M6, `ceo:conv.5`)
@@ -364,5 +364,41 @@ theorem convS_moment_small {F : ℝ → ℝ} {K s : ℝ} {m : ℕ} (hd : ConvMom
 /-- info: 'FormalResearch.SignUncertainty.convS_moment_small' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms convS_moment_small
+
+/-- info: 'FormalResearch.SignUncertainty.convS_contDiff_iteratedDeriv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convS_contDiff_iteratedDeriv
+
+/-- info: 'FormalResearch.SignUncertainty.convS_hasDerivAt_iteratedDeriv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convS_hasDerivAt_iteratedDeriv
+
+/-- info: 'FormalResearch.SignUncertainty.convS_iteratedDeriv_zero_of_le_gen' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convS_iteratedDeriv_zero_of_le_gen
+
+/-- info: 'FormalResearch.SignUncertainty.convS_integrableOn_rpow_exp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convS_integrableOn_rpow_exp
+
+/-- info: 'FormalResearch.SignUncertainty.convS_integrableOn_poly' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convS_integrableOn_poly
+
+/-- info: 'FormalResearch.SignUncertainty.convS_tendsto_poly' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convS_tendsto_poly
+
+/-- info: 'FormalResearch.SignUncertainty.ConvMomentData.crude' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ConvMomentData.crude
+
+/-- info: 'FormalResearch.SignUncertainty.convS_integral_Ioi_zero_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convS_integral_Ioi_zero_eq
+
+/-- info: 'FormalResearch.SignUncertainty.ConvMomentData.integrableOn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ConvMomentData.integrableOn
 
 end FormalResearch.SignUncertainty

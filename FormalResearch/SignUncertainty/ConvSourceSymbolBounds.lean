@@ -1,6 +1,7 @@
 module
 
 public import Mathlib
+public import FormalResearch.SignUncertainty.ConvSourceSymbol
 public import FormalResearch.SignUncertainty.ConvSourceSymbolIBP
 public import FormalResearch.SignUncertainty.ConvSourceWeightDeriv
 
@@ -18,12 +19,14 @@ function calculus `convWdGood`).
 * `convS_bounds`: the full statement `(ceo:conv.5)` for `1/2 < p < 1`: `‖lapW w_h z‖ ≤ 2`, the decay
   `‖z‖^{-k-1}` for `‖z‖ ≥ 1` and the bound `‖z‖^{1/2-k}` for `‖z‖ ≤ 1` for `k = 1, 2, 3`, and the Hölder
   estimate at `0` (class: proved, unconditional).
-* `convWeightDerivBound_exists`: the structure `ConvWeightDerivBound p C` of `ConvSourceSymbol` has
-  an instance, from `convW_deriv_bound` (class: proved); `convS_k1_decay_uncond` is
-  `convS_k1_decay` with the hypothesis discharged.
 
-The bounds of `(ceo:conv.5)` used here do not go through `ConvWeightDerivBound`: the moments
-`y^k w_h` need the derivative bounds of the product, which `convWdGood` gives directly.
+Not formalised here: the passage `δ ↓ 0` to the boundary `Re z = 0` (`ŵ_h(q) = L w_h(iq)` as a
+derivative of continuous extensions), the term `γ ε/(1+iq)` of `ŵ_c` beyond `convS_lapW_exp`, and the
+Leibniz combination with the seed symbol `W_{g_1}` (item (4) of `ceo:conv`).
+
+The moments `y^k w_h` need the derivative bounds of the product, which the good-function calculus
+`convWdGood` of `ConvSourceWeightDeriv` gives directly (`convS_momentData`), so the bounds do not
+go through a separate hypothesis structure for `ceo:conv.4`.
 -/
 
 @[expose] public section
@@ -124,8 +127,12 @@ theorem convS_moment_bounds {p : ℝ} (hp : 1 / 2 < p) (k : ℕ) (hk : 1 ≤ k) 
     have : 0 ≤ C1 * ‖z‖ ^ (1 / 2 - (k : ℝ)) := mul_nonneg hC1' (Real.rpow_nonneg hzn.le _)
     nlinarith
 
-/-- (ii) `(ceo:conv.5)`: the uniform bounds for the Laplace transform of the weight `w_h`, for
-`1/2 < p < 1`, uniformly in `h > 0` and `Re z > 0`. Unconditional. -/
+/-- `(ceo:conv.5)` for the weight `w_h`, `1/2 < p < 1`, in the variable `z` with `Re z > 0`
+(`z = δ + iq` of the TeX, `‖convSD w_h k z‖ = ‖∂_q^k L w_h(δ + iq)‖`): the constant `C` depends on `p`
+only, not on `h > 0`, `z`, `δ`. It states `‖L w_h‖ ≤ 2` (also for `Re z ≥ 0`), the decay `‖z‖^{-k-1}` for
+`‖z‖ ≥ 1` and the bound `‖z‖^{1/2-k}` for `‖z‖ ≤ 1` for `k = 1, 2, 3`, and the `1/2`-Hölder estimate
+`‖L w_h(z) - L w_h(0)‖ ≤ 6 ‖z‖^{1/2}` for `‖z‖ ≤ 1` (with `L w_h(0) = ∫ w_h`). Not covered: the
+boundary values on `Re z = 0` (the `δ ↓ 0` limit) and the term `γ ε/(1+iq)` of `ŵ_c`. -/
 theorem convS_bounds {p : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) :
     ∃ C : ℝ, 0 ≤ C ∧ ∀ h : ℝ, 0 < h → ∀ z : ℂ, 0 < z.re →
       ‖lapW (convWh p h) z‖ ≤ 2 ∧
@@ -151,28 +158,6 @@ theorem convS_bounds {p : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) :
     · exact ((h2 h hh z hz).2 hz1).trans (by nlinarith)
     · exact ((h3 h hh z hz).2 hz1).trans (by nlinarith)
 
-/-- The hypothesis structure `ConvWeightDerivBound p C` of `ConvSourceSymbol` is instantiated, for
-`1/2 < p < 1`, by `convW_deriv_bound` (the constant is the sum of the absolute values of the
-constants for the orders `r ≤ 4`). -/
-theorem convWeightDerivBound_exists {p : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) :
-    ∃ C : ℝ, ConvWeightDerivBound p C := by
-  choose Cr hCr using fun r : ℕ => convW_deriv_bound hp hp1 r
-  refine ⟨∑ r ∈ Finset.range 5, |Cr r|, ?_, fun h hh => convWh_contDiff hh⟩
-  intro r hr h hh y hy
-  have hy0 : (0 : ℝ) < y := by linarith
-  have hle : |Cr r| ≤ ∑ i ∈ Finset.range 5, |Cr i| :=
-    Finset.single_le_sum (f := fun i => |Cr i|) (fun _ _ => abs_nonneg _)
-      (Finset.mem_range.mpr (by omega))
-  exact (hCr r h hh y hy).trans (mul_le_mul_of_nonneg_right ((le_abs_self _).trans hle)
-    (Real.rpow_nonneg hy0.le _))
-
-/-- `convS_k1_decay` with the derivative hypothesis discharged. -/
-theorem convS_k1_decay_uncond {p : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) :
-    ∃ C : ℝ, ∀ h : ℝ, 0 < h → ∀ z : ℂ, 0 < z.re →
-      ‖convSD (convWh p h) 1 z‖ ≤ C * ‖z‖ ^ (-(1 : ℝ) - 1) := by
-  obtain ⟨C, hC⟩ := convWeightDerivBound_exists hp hp1
-  exact ⟨2 * |C|, fun h hh z hz => convS_k1_decay (by linarith) hC hh hz⟩
-
 /-- info: 'FormalResearch.SignUncertainty.convS_momentData' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms convS_momentData
@@ -188,13 +173,5 @@ theorem convS_k1_decay_uncond {p : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) :
 /-- info: 'FormalResearch.SignUncertainty.convS_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms convS_bounds
-
-/-- info: 'FormalResearch.SignUncertainty.convWeightDerivBound_exists' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms convWeightDerivBound_exists
-
-/-- info: 'FormalResearch.SignUncertainty.convS_k1_decay_uncond' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms convS_k1_decay_uncond
 
 end FormalResearch.SignUncertainty
