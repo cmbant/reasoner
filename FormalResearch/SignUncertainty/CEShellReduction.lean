@@ -64,7 +64,7 @@ theorem ce_admissible_signWitness {d : ℕ} (hd : 1 ≤ d) {r : ℝ} {h : Euc d 
     intro y
     rw [fourier_comp_neg_real hadm.integrable, ← hFdef]
     calc star (F y) = star ((F y).re : ℂ) := by rw [← hFre y]
-      _ = ((F y).re : ℂ) := by simp [Complex.star_def]
+      _ = ((F y).re : ℂ) := by simp
       _ = F y := (hFre y).symm
   have hhI : Integrable (fun x : Euc (n + 1) => h (-x)) := hadm.integrable.comp_neg
   have hhIC : Integrable (fun x : Euc (n + 1) => (h (-x) : ℂ)) := Complex.ofRealCLM.integrable_comp hhI
@@ -153,7 +153,11 @@ theorem ce_admissible_radius_lower :
   have e : (d : ℝ) / 2 / π ^ 2 = (d : ℝ) / (2 * π ^ 2) := by rw [div_div]
   linarith
 
-/-- **`shell_reduction_m1`** (`thm:ce-shell-reduction` at `m = 1`, with `O(d)` averaging; proved). -/
+/-- **`shell_reduction_m1`** (`thm:ce-shell-reduction` at `m = 1`; proved): for `d ≥ d₀`,
+`r_CE(d)²/2 ≥ airyOrderModel d - C`, with `optimalL1CERadius` the infimum over normalised continuous `L¹` pairs.
+The `O(d)` averaging of the paper is not needed: `radialProjection` averages the anti-self-dual competitor.
+`C` and `d₀` are the non-sharp Lean constants inherited from `hb_thresholds_lower` (`d₀ = max 2 ⌈2c₀⌉`);
+the statement covers every `d ≥ d₀`, even or odd. -/
 theorem shell_reduction_m1_proved :
     ∃ (C : ℝ) (d₀ : ℕ), ∀ d : ℕ, d₀ ≤ d →
       airyOrderModel d - C ≤ optimalL1CERadius d ^ 2 / 2 := by
@@ -195,6 +199,18 @@ theorem shell_reduction_airy : ShellReduction ShellHBData.airy := by
     rw [← hA]; ring
   rw [e]
   exact h1
+
+/-- info: 'FormalResearch.SignUncertainty.fourier_comp_neg_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms fourier_comp_neg_real
+
+/-- info: 'FormalResearch.SignUncertainty.ce_admissible_hankelFeasible' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ce_admissible_hankelFeasible
+
+/-- info: 'FormalResearch.SignUncertainty.ce_admissible_radius_lower' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ce_admissible_radius_lower
 
 /-- info: 'FormalResearch.SignUncertainty.ce_admissible_signWitness' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
