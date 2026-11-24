@@ -119,6 +119,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.SoftWindowProof
 public import FormalResearch.JacobiEigenvectors.Assembly.ChartRestrict
 public import FormalResearch.JacobiEigenvectors.Assembly.ThmA
 public import FormalResearch.JacobiEigenvectors.Assembly.HeadlinesOfCore
+public import FormalResearch.JacobiEigenvectors.Assembly.CoverGlue
 public import FormalResearch.JacobiEigenvectors.Assembly.SoftLabels
 public import FormalResearch.JacobiEigenvectors.Assembly.WindowCoverProof
 public import FormalResearch.JacobiEigenvectors.Assembly.LabelsAbstract
