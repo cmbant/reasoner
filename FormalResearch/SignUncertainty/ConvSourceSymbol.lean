@@ -18,7 +18,7 @@ For a weight `w` integrable on `(0, ∞)` and `Re z > 0`, the `k`-th moment tran
   statement proved by `convW_deriv_bound` (another module). Non-vacuity: the bound is a true
   statement about `w_h` for a suitable `C` (the profile `(t/(1+t))^p` has `(t ∂_t)^r` bounded, and
   the cutoff derivatives are bounded on `[1, ∞)`), so the structure has the intended instance;
-  this module does not construct that instance.
+  the instance is constructed in `ConvSourceSymbolBounds` (`convWeightDerivBound_exists`).
 * `convS_lapW_exp`: the Laplace transform of the exponential term `γ ε e^{-y}` (class: proved).
 * `convS_lapW_norm_le`: `‖lapW w_h z‖ ≤ 2` for `Re z ≥ 0`, uniformly in `h > 0` (class: proved).
 * `convS_lapW_sub_le`: `‖lapW w_h z - ∫ w_h‖ ≤ 6 ‖z‖^{1/2}` for `Re z > 0`, `‖z‖ ≤ 1`, uniformly in
@@ -27,7 +27,8 @@ For a weight `w` integrable on `(0, ∞)` and `Re z > 0`, the `k`-th moment tran
   from `ConvWeightDerivBound p C` by two integrations by parts (class: proved, conditional on the
   hypothesis structure).
 
-Not in this module: the `k = 2, 3` bounds of `(ceo:conv.5)` and all `‖z‖ ≤ 1` bounds for `k ≥ 1`.
+The `k = 2, 3` bounds and the `‖z‖ ≤ 1` bounds for `k ≥ 1` of `(ceo:conv.5)`, and the unconditional
+assembly `convS_bounds`, are in `ConvSourceSymbolIBP` and `ConvSourceSymbolBounds`.
 -/
 
 @[expose] public section
