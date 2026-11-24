@@ -372,6 +372,28 @@ public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionTwoFloor
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionTwo
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroWindowNorm
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroWindow
+public import FormalResearch.ModularBootstrap.Upper.Positivity.RegionOneGeneral
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionOneUnif
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionOne
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionOneAssembly
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroPositivity
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityAtoms
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityNodes
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityIdeal
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityLimit
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityAtomic
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityApprox
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityProducts
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityData
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityFamily
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityRatio
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityFamilies
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityConc
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityUp
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityLow
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityMeasure
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidity
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityNonvac
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1118,4 +1140,22 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (`twoZero_hat_window_bound`) and the window limit `F_{2,c}^{-1} Ψ_g → C₂ W₂`, `C₂ = C_* κ/2`, locally uniformly in `u` and
   uniformly on a compact family of admissible designs, including the `ĥ` part (**`twoZero_window_limit`**, `twoZero_window_field`:
   the `window` field of `TwoZeroTransferData`), from `lemma_W_measure` at `f = 2`, `tildeW_toModified_Wr` and `twoZeroT_window_bound`.
+* `TwoLevel.{TwoZeroRegionOneUnif, TwoZeroRegionOne, TwoZeroRegionOneAssembly}` and `Upper.Positivity.RegionOneGeneral` (`upper_transfer.tex`
+  Theorem T2 `ut:T2`, "Region I"): `lemma_R_lower_two_unif` (Lemma R at `f = 2` uniform on a compact family, from `lemma_R_lower` by a
+  diagonal argument on the parameter set), `twoZeroT_ge_window`, `twoZeroComb_global_bound` (`SD_G` for `h₂`), the window
+  `twoZero_regionOne_a` (`σ - σ_q ≥ C c'^{-7/6}`) and the `K5` overshoot `twoZero_regionOne_b` (via the `f`-general
+  `designProfile_overshoot_lower`), `twoZero_regionOne` (`2g > 0` on `χ(q) + Cλc'^{-7/6} ≤ x ≤ ξ_* + c'^{-2/5}`), `twoZero_regionOne_t`
+  (in the form `t ≥ t(q) + 1`) and `twoZero_pos_of_regionTwo` (with the Region II statement as hypothesis: `g > 0` for `t ≥ tAiry c' q + 1`),
+  uniformly on a compact family of admissible designs.
+* `TwoLevel.TwoZeroPositivity` (T2-WP4 with WP3): `twoZero_pos_x`, `twoZero_pos_t` (`g > 0` for every `t ≥ t(q) + 1`, uniformly on a compact admissible family; Regions I and II combined).
+* `TwoLevel.ClarkRigidity{Atoms, Nodes, Ideal, Limit, Atomic, Approx, Products, Data, Family, Ratio, Families, Conc, Up, Low, Measure}`
+  and `TwoLevel.ClarkRigidity` (`virasoro_two_level.tex` Theorem 2.6 `gt:2.6`, node-level Clark rigidity): the Clark kernel
+  `K_n > 0` (`clarkKernel_pos`) and measure `clarkMeasure α = Σ_n δ_{z_n}/K_n`; ideal two-simple-zero windows `IdealDatum` with
+  Clark summation `∫ F_δ = Σ τ_i(δ)`; the ideal inequality from approximating designs (`idealIneq_of_approx`); concentration on
+  the nodes (`concentration_nodes`), the upper and lower weight bounds (`weight_le_one_of_up`, `weight_ge_one_of_low`; Lemma R
+  `ratioFac_prod_uniform`, `win_ratio_bounds`), `measure_eq_clarkMeasure`, `locallyBounded_of_support` and **`theorem_two_six`**
+  (vague convergence of `S.μ` to `clarkMeasure (clarkAngle (-A₁/c_*))`) with its corollary `tendsto_atom_weight` (the atom weight
+  at `t₁` tends to `1/K(u₁, u₁)`), conditional only on `TwoSimpleZeroTransfer` and the
+  named window-limit `Prop` `TwoZeroIdealApprox` (every admissible ideal datum is a limit of two-simple-zero windows; its vacuum
+  half is proved for the data of `f_K` in `ClarkRigidityNonvac.twoZeroApprox_vacuum_nonvacuous`, from `NegativeVacuum.tendsto_intWr`).
 -/
