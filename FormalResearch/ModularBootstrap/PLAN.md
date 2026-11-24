@@ -50,7 +50,7 @@ C5b, and C5c at w = 1 are already proved by other routes; FT reuses those proofs
 
 | pkg | content | size | depends | state |
 |---|---|---|---|---|
-| FT-0 | Concordance: one bundle theorem per instance (fixed weight: C1, C2, C3-O(1), C5a, C5b, C4/C2-full with H3 = `TheoremC15UpperInput` as hypothesis, C5c at w = 1; N = 1 unconditional) | S | none | next |
+| FT-0 | Concordance: one bundle theorem per instance (fixed weight: C1, C2, C3-O(1), C5a, C5b, C4/C2-full with H3 = `TheoremC15UpperInput` as hypothesis, C5c at w = 1; N = 1 unconditional) | S | none | done (`FoldTip/Concordance`) |
 | FT-1 | `FoldTipScale`, hypothesis structures H1, H2 (H2hol), H2+, H3, H4a, H4b; `ofFixedWeight` from `proposition_P_of_problem`; chart bridge `Upper/Rigidity/Dictionary` | M | FT-0 | next |
 | FT-2 | FT-2E and FT-Sub over `teb_bootstrap_part3/_hb`, `teb_mellin_o1_lower`, `WeakFeedback` (import only) | S–M | none | next |
 | FT-3..6 | Abstract chart-form compactness (Lemmas 1–2) for arbitrary instances, C5d m ≥ 2, Lemma FT-R log rate | L | only useful for Paper I instances; a shared package with Paper I's `RadialRigidityPackage` is a cross-session decision | deferred |
