@@ -368,11 +368,9 @@ public import FormalResearch.ModularBootstrap.Upper.Design.CombTransformAbs
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombT
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombPhase
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombK7
-public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionTwoFloor
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionTwo
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroWindowNorm
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroWindow
-public import FormalResearch.ModularBootstrap.Upper.Positivity.RegionOneGeneral
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionOneUnif
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionOne
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionOneAssembly
@@ -1145,8 +1143,8 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   in `C²`), the phase `Φ₁ = designPhi1 + iπ + φ_{χ(p)}` (`CombPhaseData`, `InnerCombHyp`, `SDVAmplitudeInput`, abstract `PhaseComb`),
   `K7` membership, vacuum identity and decay at `w = 1` (`twoZeroComb_k7_membership_vacuum`) and Lemma `Φ` for `h₂`
   (`twoZeroComb_phi_transform`), uniformly on a compact family of admissible designs.
-* `TwoLevel.{TwoZeroRegionTwoFloor, TwoZeroRegionTwo}` (`upper_transfer.tex` Lemma II-F `ut:IIF` at `f = 2`, `r = 1`, Theorem T2 `ut:T2`
-  "Region II"): `proposition_II_floor` (the `h₀^D` floor of Proposition II), the `T_{χ(p)}/T_{ξ_*}` comparison on Region II for all
+* `TwoLevel.TwoZeroRegionTwo` (`upper_transfer.tex` Lemma II-F `ut:IIF` at `f = 2`, `r = 1`, Theorem T2 `ut:T2`
+  "Region II"): `Upper.Positivity.proposition_II_floor` (the `h₀^D` floor of Proposition II, now in `RegionII`), the `T_{χ(p)}/T_{ξ_*}` comparison on Region II for all
   `x ≥ ξ_* + c'^{-2/5}` (`twoZeroT_ratio_le`), the exponent shift `vRhoInfty_add_half`, the transform bound `twoZero_hat_bound`
   (`‖ĥ₂‖ ≤ 0.55·1.02·Lev₂`), and **`twoZero_regionII`** / **`twoZero_regionII_pos`**: `2g/Lev₂ ≥ 13/100`, `g > 0`
   for `c'` large uniformly on a compact family of admissible designs.
@@ -1156,7 +1154,7 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (`twoZero_hat_window_bound`) and the window limit `F_{2,c}^{-1} Ψ_g → C₂ W₂`, `C₂ = C_* κ/2`, locally uniformly in `u` and
   uniformly on a compact family of admissible designs, including the `ĥ` part (**`twoZero_window_limit`**, `twoZero_window_field`:
   the `window` field of `TwoZeroTransferData`), from `lemma_W_measure` at `f = 2`, `tildeW_toModified_Wr` and `twoZeroT_window_bound`.
-* `TwoLevel.{TwoZeroRegionOneUnif, TwoZeroRegionOne, TwoZeroRegionOneAssembly}` and `Upper.Positivity.RegionOneGeneral` (`upper_transfer.tex`
+* `TwoLevel.{TwoZeroRegionOneUnif, TwoZeroRegionOne, TwoZeroRegionOneAssembly}` (`upper_transfer.tex`
   Theorem T2 `ut:T2`, "Region I"): `lemma_R_lower_two_unif` (Lemma R at `f = 2` uniform on a compact family, from `lemma_R_lower` by a
   diagonal argument on the parameter set), `twoZeroT_ge_window`, `twoZeroComb_global_bound` (`SD_G` for `h₂`), the window
   `twoZero_regionOne_a` (`σ - σ_q ≥ C c'^{-7/6}`) and the `K5` overshoot `twoZero_regionOne_b` (via the `f`-general

@@ -2,7 +2,7 @@ module
 
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombK7
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionOneUnif
-public import FormalResearch.ModularBootstrap.Upper.Positivity.RegionOneGeneral
+public import FormalResearch.ModularBootstrap.Upper.Positivity.RegionOne
 
 /-!
 # Region I for the two-zero comb: the window `ut:W`/`ut:R` and the overshoot `K5` at `f = 2` (`upper_transfer.tex`, `ut:T2`)

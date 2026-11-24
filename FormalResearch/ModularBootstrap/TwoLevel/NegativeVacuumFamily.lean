@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuumNode
 public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumLimit
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxTail
 
 /-!
 # The approximating two-simple-zero designs of Theorem 2.5, Step 1
@@ -28,30 +29,21 @@ open scoped Real
 namespace FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuum
 
 open FormalResearch.Special FormalResearch.SignUncertainty FormalResearch.ModularBootstrap.Upper.Window
+open FormalResearch.ModularBootstrap.TwoLevel.IdealApprox
 
 /-- Uniform WKB bounds: `|a_k - u_k^W| ≤ A k^{-4/3}` and `gap_k ≤ A k^{-1/3}`. -/
 lemma exists_uniform_bound : ∃ A : ℝ, 0 < A ∧ ∀ k : ℕ, 1 ≤ k →
-    |airyZero k - uWKB k| ≤ A * (k : ℝ) ^ (-(4 / 3 : ℝ)) ∧ gapWKB k ≤ A * (k : ℝ) ^ (-(1 / 3 : ℝ)) := by
-  obtain ⟨C₀, hC₀, h₀⟩ := deltaWKB_le_exists
-  refine ⟨max C₀ ((2 / 3 : ℝ) * kappaAiry * (4 / 3 : ℝ) ^ (1 / 3 : ℝ)), ?_, fun k hk => ⟨?_, ?_⟩⟩
-  · have := kappaAiry_pos
-    positivity
-  · have := h₀ k hk
-    unfold deltaWKB at this
-    exact this.trans (mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity))
-  · exact (gapWKB_le_mul_rpow hk).trans (mul_le_mul_of_nonneg_right (le_max_right _ _) (by positivity))
+    |airyZero k - uWKB k| ≤ A * (k : ℝ) ^ (-(4 / 3 : ℝ)) ∧ gapWKB k ≤ A * (k : ℝ) ^ (-(1 / 3 : ℝ)) :=
+  uniform_wkb_bound
 
 /-- Sites of the design `negDesign`: `k ∈ [3, n+2]` at `z_k` (`k ≤ K`) or `a_k`, reference beyond. -/
-noncomputable def siteSeq (α : ℝ) (K n : ℕ) (k : ℕ) : ℝ :=
-  if 3 ≤ k ∧ k ≤ n + 2 then (if k ≤ K then clarkNode α k else airyZero k) else uWKB k
+noncomputable def siteSeq (α : ℝ) (K n : ℕ) (k : ℕ) : ℝ := idealSite (clarkNode α) K n k
 
 /-- Half-widths of the design `negDesign`. -/
-noncomputable def widthSeq (n : ℕ) (η : ℝ) (k : ℕ) : ℝ :=
-  (if 3 ≤ k ∧ k ≤ n + 2 then η else 1 / 4) * gapWKB k
+noncomputable def widthSeq (n : ℕ) (η : ℝ) (k : ℕ) : ℝ := idealWidth n η k
 
 /-- The limit sites (`n = ∞`) of the designs; the limit widths are `0`. -/
-noncomputable def siteLim (α : ℝ) (K : ℕ) (k : ℕ) : ℝ :=
-  if 3 ≤ k then (if k ≤ K then clarkNode α k else airyZero k) else uWKB k
+noncomputable def siteLim (α : ℝ) (K : ℕ) (k : ℕ) : ℝ := idealLim (clarkNode α) K k
 
 /-- The approximating design of Theorem 2.5, Step 1. -/
 noncomputable def negDesign (α : ℝ) (K n : ℕ) (η q : ℝ) : TwoZeroDesign n where
@@ -62,7 +54,7 @@ noncomputable def negDesign (α : ℝ) (K n : ℕ) (η q : ℝ) : TwoZeroDesign 
 
 lemma negDesign_site (α : ℝ) (K n : ℕ) (η q : ℝ) : (negDesign α K n η q).site = siteSeq α K n := by
   funext k
-  unfold TwoZeroDesign.site siteSeq
+  unfold TwoZeroDesign.site siteSeq idealSite
   by_cases h : 3 ≤ k ∧ k ≤ n + 2
   · simp only [h, and_self, dite_true, ↓reduceIte, negDesign]
     rw [Nat.sub_add_cancel h.1]
@@ -70,7 +62,7 @@ lemma negDesign_site (α : ℝ) (K n : ℕ) (η q : ℝ) : (negDesign α K n η 
 
 lemma negDesign_width (α : ℝ) (K n : ℕ) (η q : ℝ) : (negDesign α K n η q).width = widthSeq n η := by
   funext k
-  unfold TwoZeroDesign.width widthSeq
+  unfold TwoZeroDesign.width widthSeq idealWidth
   by_cases h : 3 ≤ k ∧ k ≤ n + 2
   · simp only [h, and_self, dite_true, ↓reduceIte, negDesign]
     rw [Nat.sub_add_cancel h.1]
@@ -124,40 +116,13 @@ lemma negDesign_q (α : ℝ) (K n : ℕ) (η q : ℝ) : (negDesign α K n η q).
 
 /-- Tail hypothesis for the design sequences. -/
 lemma tailHyp_siteSeq (α : ℝ) (K n : ℕ) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1) :
-    AiryProdTailHypothesis 2 (siteSeq α K n) (widthSeq n η) := by
-  obtain ⟨A, hA, hb⟩ := exists_uniform_bound
-  refine tailHyp_of_bound (M := K) hA fun k hk => ?_
-  have hk1 : 1 ≤ k := by omega
-  obtain ⟨h1, h2⟩ := hb k hk1
-  have hp : 0 ≤ (k : ℝ) ^ (-(4 / 3 : ℝ)) := by positivity
-  constructor
-  · unfold siteSeq
-    by_cases h : 3 ≤ k ∧ k ≤ n + 2
-    · simp only [h, and_self, ↓reduceIte, show ¬(k ≤ K) by omega]
-      exact h1
-    · simp only [h, ↓reduceIte, sub_self, abs_zero]
-      positivity
-  · unfold widthSeq
-    have hg := (gapWKB_pos hk1).le
-    rw [abs_mul, abs_of_nonneg hg]
-    have hη : |(if 3 ≤ k ∧ k ≤ n + 2 then η else (1 / 4 : ℝ))| ≤ 1 := by
-      split_ifs
-      · rw [abs_of_nonneg hη0]; exact hη1
-      · rw [abs_of_nonneg (by norm_num)]; norm_num
-    calc |(if 3 ≤ k ∧ k ≤ n + 2 then η else (1 / 4 : ℝ))| * gapWKB k ≤ 1 * gapWKB k :=
-        mul_le_mul_of_nonneg_right hη hg
-      _ ≤ A * (k : ℝ) ^ (-(1 / 3 : ℝ)) := by linarith
+    AiryProdTailHypothesis 2 (siteSeq α K n) (widthSeq n η) :=
+  tailHyp_ideal (clarkNode α) K n hη0 hη1 2
 
 /-- Tail hypothesis for the limit data (zero widths). -/
-lemma tailHyp_siteLim (α : ℝ) {K : ℕ} (hK : 3 ≤ K) : AiryProdTailHypothesis 2 (siteLim α K) (fun _ => 0) := by
-  obtain ⟨A, hA, hb⟩ := exists_uniform_bound
-  refine tailHyp_of_bound (M := K) hA fun k hk => ?_
-  have hk1 : 1 ≤ k := by omega
-  obtain ⟨h1, h2⟩ := hb k hk1
-  refine ⟨?_, by simp only [abs_zero]; positivity⟩
-  unfold siteLim
-  simp only [show 3 ≤ k by omega, ↓reduceIte, show ¬(k ≤ K) by omega]
-  exact h1
+lemma tailHyp_siteLim (α : ℝ) {K : ℕ} (hK : 3 ≤ K) : AiryProdTailHypothesis 2 (siteLim α K) (fun _ => 0) :=
+  tailHyp_of_eventually_airy (M₀ := K) (fun _ hk => idealLim_eq_airy (clarkNode α) (by omega) hk)
+    (fun _ _ => rfl) 2
 
 /-- **Deviation of a far factor from `1`.**  For `1 ≤ n ≤ K < k`, a pair with `|s - a_k| ≤ A k^{-4/3}` and
 `|w| ≤ A k^{-1/3}` has factor `((a_n - s)² + w²)/(a_n - a_k)²` within `C / k²` of `1`. -/
@@ -174,15 +139,7 @@ lemma factor_dev {K n : ℕ} (hn : 1 ≤ n) (hnK : n ≤ K) (A : ℝ) (hA : 0 �
   have hr0 : 0 < r := Real.rpow_pos_of_pos hk0 _
   have hr3 : r ^ 3 = k := by
     rw [hr, ← Real.rpow_natCast, ← Real.rpow_mul hk0.le]; norm_num
-  have hr1 : 1 ≤ r := by
-    have : (1 : ℝ) ≤ k := by exact_mod_cast hk1
-    exact Real.one_le_rpow this (by norm_num)
   have e13 : (k : ℝ) ^ (-(1 / 3 : ℝ)) = (r)⁻¹ := by rw [Real.rpow_neg hk0.le]
-  have e43 : (k : ℝ) ^ (-(4 / 3 : ℝ)) = (r ^ 4)⁻¹ := by
-    rw [Real.rpow_neg hk0.le, hr, ← Real.rpow_natCast, ← Real.rpow_mul hk0.le]; norm_num
-  rw [e13] at hw
-  rw [e43] at hs
-  -- lower bound for the distance
   have hD : c * r ^ 2 ≤ |airyZero n - airyZero k| := by
     have hsep := airyZero_abs_sub_ge (k := k) (n := n) hk1 hn (by omega)
     rw [max_eq_right (by omega : n ≤ k)] at hsep
@@ -192,67 +149,19 @@ lemma factor_dev {K n : ℕ} (hn : 1 ≤ n) (hnK : n ≤ K) (A : ℝ) (hA : 0 �
       rw [ge_iff_le, div_le_iff₀ (by positivity)]
       nlinarith
     rw [abs_sub_comm, abs_of_nonneg (by linarith : (0 : ℝ) ≤ (k : ℝ) - n)] at hsep
-    have hkr : (k : ℝ) ^ (-(1 / 3 : ℝ)) = r⁻¹ := e13
-    rw [hkr] at hsep
+    rw [e13] at hsep
     refine le_trans ?_ hsep
     have : c * r ^ 2 = 1.8 * ((k : ℝ) / ((K : ℝ) + 1)) * r⁻¹ := by
       rw [hc, ← hr3]; field_simp
     rw [this]
     have h18 : (0 : ℝ) ≤ 1.8 * r⁻¹ := by positivity
     nlinarith [mul_le_mul_of_nonneg_left hkn h18]
-  set D : ℝ := |airyZero n - airyZero k| with hDdef
-  have hDpos : 0 < D := lt_of_lt_of_le (by positivity) hD
-  have hD2 : (airyZero n - airyZero k) ^ 2 = D ^ 2 := (sq_abs _).symm
-  set t : ℝ := airyZero k - s with ht
-  have htr : |t| * r ^ 4 ≤ A := by
-    have h1 : |t| ≤ A * (r ^ 4)⁻¹ := by rw [ht, abs_sub_comm]; exact hs
-    have := mul_le_mul_of_nonneg_right h1 (by positivity : (0 : ℝ) ≤ r ^ 4)
-    rwa [mul_assoc, inv_mul_cancel₀ (by positivity), mul_one] at this
-  have hwr : |w| * r ≤ A := by
-    have := mul_le_mul_of_nonneg_right hw hr0.le
-    rwa [mul_assoc, inv_mul_cancel₀ hr0.ne', mul_one] at this
-  have hnum : (airyZero n - s) ^ 2 + w ^ 2 - D ^ 2 = 2 * (airyZero n - airyZero k) * t + t ^ 2 + w ^ 2 := by
-    rw [← hD2, ht]; ring
-  have hlhs : ((airyZero n - s) ^ 2 + w ^ 2) / (airyZero n - airyZero k) ^ 2 - 1 =
-      (2 * (airyZero n - airyZero k) * t + t ^ 2 + w ^ 2) / D ^ 2 := by
-    rw [hD2, ← hnum]; field_simp
-  rw [hlhs, abs_div, abs_of_pos (by positivity : 0 < D ^ 2)]
-  have habs : |2 * (airyZero n - airyZero k) * t + t ^ 2 + w ^ 2| ≤ 2 * D * |t| + |t| ^ 2 + |w| ^ 2 := by
-    calc |2 * (airyZero n - airyZero k) * t + t ^ 2 + w ^ 2|
-        ≤ |2 * (airyZero n - airyZero k) * t| + |t ^ 2| + |w ^ 2| := abs_add_three _ _ _
-      _ = 2 * D * |t| + |t| ^ 2 + |w| ^ 2 := by
-          rw [abs_mul, abs_mul, abs_two, abs_pow, abs_pow]
-  have hk2 : (k : ℝ) ^ 2 = r ^ 6 := by rw [← hr3]; ring
-  rw [hk2, div_le_div_iff₀ (by positivity) (by positivity)]
-  have hr2D : r ^ 2 ≤ D / c := by rw [le_div_iff₀ hc0]; linarith
-  have hc2 : c ^ 2 * r ^ 4 ≤ D ^ 2 := by
-    have : c * r ^ 2 ≤ D := hD
-    nlinarith [mul_pos hc0 (by positivity : (0 : ℝ) < r ^ 2)]
-  have ht0 := abs_nonneg t
-  have hw0 := abs_nonneg w
-  have t1 : 2 * D * |t| * r ^ 6 ≤ (2 * A / c) * D ^ 2 := by
-    calc 2 * D * |t| * r ^ 6 = 2 * D * (|t| * r ^ 4) * r ^ 2 := by ring
-      _ ≤ 2 * D * A * r ^ 2 := by gcongr
-      _ ≤ 2 * D * A * (D / c) := by gcongr
-      _ = (2 * A / c) * D ^ 2 := by ring
-  have t2 : |t| ^ 2 * r ^ 6 ≤ (A ^ 2 / c ^ 2) * D ^ 2 := by
-    have h6 : r ^ 6 ≤ r ^ 8 := pow_le_pow_right₀ hr1 (by norm_num)
-    have hcD : c ≤ D := by nlinarith [one_le_pow₀ (n := 2) hr1]
-    have hc2' : c ^ 2 ≤ D ^ 2 := pow_le_pow_left₀ hc0.le hcD 2
-    calc |t| ^ 2 * r ^ 6 ≤ |t| ^ 2 * r ^ 8 := by gcongr
-      _ = (|t| * r ^ 4) ^ 2 := by ring
-      _ ≤ A ^ 2 := by gcongr
-      _ = (A ^ 2 / c ^ 2) * c ^ 2 := by field_simp
-      _ ≤ (A ^ 2 / c ^ 2) * D ^ 2 := mul_le_mul_of_nonneg_left hc2' (by positivity)
-  have t3 : |w| ^ 2 * r ^ 6 ≤ (A ^ 2 / c ^ 2) * D ^ 2 := by
-    calc |w| ^ 2 * r ^ 6 = (|w| * r) ^ 2 * r ^ 4 := by ring
-      _ ≤ A ^ 2 * r ^ 4 := by gcongr
-      _ = (A ^ 2 / c ^ 2) * (c ^ 2 * r ^ 4) := by field_simp
-      _ ≤ (A ^ 2 / c ^ 2) * D ^ 2 := mul_le_mul_of_nonneg_left hc2 (by positivity)
-  calc |2 * (airyZero n - airyZero k) * t + t ^ 2 + w ^ 2| * r ^ 6
-      ≤ (2 * D * |t| + |t| ^ 2 + |w| ^ 2) * r ^ 6 := by gcongr
-    _ = 2 * D * |t| * r ^ 6 + |t| ^ 2 * r ^ 6 + |w| ^ 2 * r ^ 6 := by ring
-    _ ≤ (2 * A / c) * D ^ 2 + (A ^ 2 / c ^ 2) * D ^ 2 + (A ^ 2 / c ^ 2) * D ^ 2 := by linarith
-    _ = (2 * A / c + 2 * A ^ 2 / c ^ 2) * D ^ 2 := by ring
+  have key := factor_dev_core hk1 hA hc0 (u := (airyZero n : ℂ)) (s := s) (w := w)
+    (by rw [← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]; exact hD) hs hw
+  have e : (((airyZero n : ℂ) - (s : ℂ)) ^ 2 + (w : ℂ) ^ 2) / ((airyZero n : ℂ) - (airyZero k : ℂ)) ^ 2 - 1 =
+      ((((airyZero n - s) ^ 2 + w ^ 2) / (airyZero n - airyZero k) ^ 2 - 1 : ℝ) : ℂ) := by
+    push_cast; rfl
+  rw [e, Complex.norm_real, Real.norm_eq_abs] at key
+  exact key
 
 end FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuum

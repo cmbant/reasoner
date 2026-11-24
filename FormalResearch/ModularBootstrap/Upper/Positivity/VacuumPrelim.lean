@@ -36,27 +36,30 @@ lemma nullPoly_virasoro (q : ℝ) : Crossing.virasoroProblem.nullPoly q = (1 - q
   rw [Fin.prod_univ_two]
   simp [sq]
 
-/-- `FK_c` of Lemma `W` at `w = 1` (any null polynomial `Q`) is `FKc (qProb prob) 1 c'`,
+/-- `FK_c^{(f)}` of Lemma `W` at `w = 1` (any null polynomial `Q`) and any level `f` is `FKc (qProb prob) f c'`,
 `𝔮 = Q(e^{-4πξ_*})/(1 - e^{-4πξ_*})²`. -/
-theorem windowMeasureNormK_eq (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) {c' : ℝ}
-    (hc' : 0 < c') : windowMeasureNormK prob 1 c' = FKc (qProb prob) 1 c' := by
+theorem windowMeasureNormK_eq_FKc (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) (f : ℕ) {c' : ℝ}
+    (hc' : 0 < c') : windowMeasureNormK prob f c' = FKc (qProb prob) f c' := by
   have hxi := xiStar_pos
   have hlam := lambdaComb_pos' hc'
   unfold windowMeasureNormK windowNormKTilde
-  rw [FKc_one]
-  unfold FVc qProb
+  unfold FKc FVc qProb
   simp only [hw, Nat.sub_self, pow_zero, one_mul]
   have h3 : √(xiStar / 3) = √xiStar / √3 := Real.sqrt_div hxi.le 3
   rw [h3]
   have e : Real.exp (-4 * π * xiStar) = Real.exp (-(4 * π * xiStar)) := by ring_nf
   rw [e]
-  have hexp' : (2 * (((1 : ℕ) : ℝ) - 1 / 4)) = 3 / 2 := by norm_num
-  rw [hexp']
   have h3' : (0 : ℝ) < √3 := Real.sqrt_pos.mpr (by norm_num)
   have := one_sub_exp_xiStar_pos
   generalize prob.nullPoly (Real.exp (-(4 * π * xiStar))) = Q
   generalize Real.exp (-(4 * π * xiStar)) = E at this ⊢
   field_simp
+
+/-- `FK_c` of Lemma `W` at `w = 1` (any null polynomial `Q`) is `FKc (qProb prob) 1 c'`,
+`𝔮 = Q(e^{-4πξ_*})/(1 - e^{-4πξ_*})²`. -/
+theorem windowMeasureNormK_eq (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) {c' : ℝ}
+    (hc' : 0 < c') : windowMeasureNormK prob 1 c' = FKc (qProb prob) 1 c' :=
+  windowMeasureNormK_eq_FKc prob hw 1 hc'
 
 /-- `FK_c` of Lemma `W` at `w = 1`, `Q = (1-q)²`, is `FKc 1 1 c'`. -/
 theorem windowMeasureNormK_virasoro {c' : ℝ} (hc' : 0 < c') :

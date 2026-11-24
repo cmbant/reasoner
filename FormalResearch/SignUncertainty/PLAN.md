@@ -144,7 +144,7 @@ bootstrap) comes after them.
   `OddShellFamily`) exists. Needs only M2.
 
 **M4 Upper O-chain at one level (shared by everything below; L, technical core).**
-- U.2 for `{f₁, g₁, g₁'}`, U.3, GT.2a (on its Fourier-side hypotheses), O.5, O.6, O.11ak (Mellin-lift hub), O.9′ at `m = 1`.
+- U.2 for `{f₁, g₁, g₁'}`, U.3, GT.2a (on its Fourier-side hypotheses; `GT.1` symbol bounds and `O4QuotientBound` taken as hypotheses), O.5, O.6, O.11ak (Mellin-lift hub), O.9′ at `m = 1`.
 - O.3(2)/U.3(3): real-line subtraction of the `x^{−3/2}` tail, two integrations by parts and the Fresnel integral (no
   Puiseux, no V-ray). U.1 only in its closed-half-plane form.
 - O.4(2): Banach contraction for the cubic normal form (`ContractingWith.fixedPoint`), with the certified bound on the
@@ -217,12 +217,12 @@ proofs, no custom axioms. The four headlines in `Headlines.lean` are still **con
 | M1 classical leaves (Bessel, Weber, Laguerre modes, odd-`d` radial Fourier, `O(d)`/sphere averaging) | done |
 | M2 Hankel layer (`gt:7.4`, `lem:radial-compactness`, `gt:7.5` input) | done |
 | M3 strict gap, extraction half (`hankelShellGapLimit_proved`) | done; the origin floor and `u_* ≤ t_m` are not on its path |
-| M4 upper O-chain | done: U.2, U.3(3)/O.3(2) = `(e4)` (uniform in seed coefficients), `(e3)`, O.4, `O.5(1)` = `(e5)`, O.11ak existence form, GT.2a scalar/IBP/VdC/tail tools. Open: GT.2a assembly (G4–G8: outer pieces, the `τ(εu)` substitution `(e7)`/`(e8)`, regions), `O.5(2)` = `(e6)`, `O.6`, `O.9′` at `m = 1` (discharges `hb_thresholds_upper`), `f(0)` identity of O.11ak |
+| M4 upper O-chain | done: U.2, U.3(3)/O.3(2) = `(e4)` (uniform in seed coefficients), `(e3)`, O.4, `O.5(1)` = `(e5)`, O.11ak existence form, GT.2a: assembly `middle_transfer_gt1` (`MiddleBandTransfer`; outer pieces, `τ(εu)` substitution, `(e7)`/`(e8)`, regions), conditional on the named hypothesis `O4QuotientBound L` (`M_F ≤ 0.13`, interval certificate of `O.4`) and on the `GT.1` symbol bounds for `W(v) = liftSymbol X δ₀ m (v I)` as hypotheses. Open: `GT.1` for the spline-multiplied seeds (to apply `middle_transfer_gt1` to `O.5(2)` = `(e6)`), discharge of `O4QuotientBound`, `O.6`, `O.9′` at `m = 1` (discharges `hb_thresholds_upper`) |
 | M5 Hankel lower half | S1–S5 done (Langer chart, local density, tail and transport, type (I) compactness `hankel_quantC1_of_feasible`, strip data and `hankelBandInstance`/`hankel_band_reduction` = `teb:mellin` (1) only). S6a done (`hankelBootHB`: the `BootstrapHBInstance` at a good circle, from the window hypothesis `HankelYVAt`). S6b done (`hankel_yv_at : HankelYVAt hankelWindowC 10¹⁴`, the window lemma `teb:mellin` (2)-(3)). S7 done (`hb_thresholds_lower : HbThresholdsLower`, proved for both eigenvalues; `HankelChartSecond`, `HankelThresholds`). M5 is complete; `shell_reduction_m1` and the airy instance of `shell_reduction` belong to M7 |
 | Headline S (`gt:7.9c`) | needs `hb_thresholds_upper` (M4 end) |
 | M6, M7, M8 | not started; M6 (CE upper, convolution source) needs M4; M7 needs M5; M8 is the multilevel generalisation |
 
-Critical path: M5 S6–S7 and TE.3 (2)-(3) (about 4–5k lines) in parallel with the M4 tail (GT.2a assembly, O.5(2), O.6, O.9′: about
+Critical path: M5 S6–S7 and TE.3 (2)-(3) (about 4–5k lines) in parallel with the M4 tail (GT.1 inputs for GT.2a, O.5(2), O.6, O.9′: about
 6–8k lines), then M6 and M7 (M-sized each) and M8. Two Sonnet agents run these two lanes; Haiku agents implement the
 routine statements the Sonnet agents queue.
 

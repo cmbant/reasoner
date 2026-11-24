@@ -2565,7 +2565,7 @@ private lemma prod_sub_prod_bound {ι : Type*} [DecidableEq ι] (s : Finset ι) 
     push_cast
     linarith [hsum]
 
-private lemma compactFamily_tildeW_bound {f N K_min : ℕ} (𝒦 : CompactCombFamily f N)
+lemma compactFamily_tildeW_bound {f N K_min : ℕ} (𝒦 : CompactCombFamily f N)
     {C_W S_win : ℝ} (hS_win : 0 ≤ S_win) (hKmin_N : N ≤ K_min) (hKmin_1 : 1 ≤ K_min)
     (hCW_pos : 0 < C_W)
     (hW_rate : ∀ {σf : ℝ} {σSeq εHat : ℕ → ℝ},
@@ -2670,6 +2670,16 @@ private lemma compactFamily_tildeW_bound {f N K_min : ℕ} (𝒦 : CompactCombFa
       |windowFiniteProd f d.sigmaFLim d.allSigmaLim d.allEpsLim K_min σ -
       tildeW f d.sigmaFLim d.allSigmaLim d.allEpsLim σ| := abs_sub_comm _ _
   linarith [h_abs_diff, hrate_d, hMK_bd, hCW_le, hcomm]
+
+/-- `W̃^{±(f)}` is bounded on `[-S, S]` uniformly over a compact family
+(the bound used inside `lemma_W_measure`). -/
+theorem CompactCombFamily.tildeW_bound {f N : ℕ} (𝒦 : CompactCombFamily f N) {S : ℝ} (hS : 0 ≤ S) :
+    ∃ B > 0, ∀ d ∈ 𝒦.members, ∀ σ ∈ Icc (-S) S,
+      |tildeW f d.sigmaFLim d.allSigmaLim d.allEpsLim σ| ≤ B := by
+  obtain ⟨K_min, C_W, hKmin_N, hKmin_1, hCW_pos, hW_rate⟩ :=
+    tendsto_windowFiniteProd_uniform f N 𝒦.hf 𝒦.hN (M := max 𝒦.M 1) (C_t := 1) (S := S)
+      (by have := 𝒦.hM; positivity) zero_lt_one hS
+  exact compactFamily_tildeW_bound 𝒦 hS hKmin_N hKmin_1 hCW_pos hW_rate
 
 private lemma eta_diff_eq (eta0 s1 s0 lam p1 p0 : ℝ) (hlam : lam ≠ 0) :
     eta0 * ((s1 - s0) / lam) - eta0 * (p1 - p0) =

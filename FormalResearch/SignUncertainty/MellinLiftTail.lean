@@ -14,10 +14,12 @@ Source: `CFT/sign_uncertainty/paper/u1c_o1_upper.tex`, Theorem `O.11ak`, `(e1)` 
 
 * `iMain_add_iDual_tail`: the uniform bound `|c^{1/3} ρ₀ f|(cξ) ≲ ξ⁻¹ (log π²ξ)^{-3/2}` from `(e4)` (`hb_estimate_airySeed_uniform`) and `(e3)` (`iDual_bound_e3`).
 * `exists_hankelEigenfn_lift`: for one-level seeds `X = airySeedU2 a b c₀`, `δ₀ = β₁Kε/2`, `c ≥ max(2000, 8K³)`, `m ≥ 3`, `σ = ±1`, there is
-  `f ∈ 𝒜_c^σ` (`IsHankelEigenfn c σ f`) with the edge representation and `f(0) = σ∫fρ₀`.
+  `f ∈ 𝒜_c^σ` (`IsHankelEigenfn c σ f`) with the edge representation, `f(0) = σ∫fρ₀` and `f(0) = W(c^{1/3}) + σW(0)`, `W = liftSymbol X δ₀ m`.
+* `mellinRaw_liftFun_edge`, `liftFun_mass_value`, `liftPhi_edge_value`: the endpoint Mellin transform `∫ f Δ^{c-1} = Φ_σ(c)`
+  (dominated convergence along `x ↑ c`), `∫fρ₀ = (2π)^c/Γ(c) Φ_σ(c)` and `Φ_σ(c) = (2π)^{-c}Γ(c)[W(0) + σW(c^{1/3})]`.
 
 Status: proved, unconditional.
-Not formalised here: the value `f(0) = W(c^{1/3}) + σW(0)` (Mellin transform at the endpoint `z = c`), the general fixed-`c`
+Not formalised here: the general fixed-`c`
 fixed-`δ₀` statement with `K_c ∈ L¹` (Proof 2), and the explicit constants of Remark `O.11ak.a`.
 -/
 
@@ -405,16 +407,152 @@ end
 
 section
 
+variable {c : ℝ} {Φ : ℂ → ℂ}
+
+/-- The Mellin transform of the lift at the edge `z = c`: if `Φ` is continuous from inside at `c` and `|f| Δ^{c-1}` is integrable,
+then `∫ f Δ^{c-1} dΔ = Φ(c)` (dominated convergence along `x ↑ c`). -/
+theorem mellinRaw_liftFun_edge (h : MellinLiftData c Φ) (hc : 0 < c) {x₀ : ℝ} (hx₀ : 0 < x₀) (hx₀' : x₀ < c)
+    (hlim : Tendsto (fun x : ℝ => Φ (x : ℂ)) (𝓝[<] c) (𝓝 (Φ (c : ℂ))))
+    (hmass : IntegrableOn (fun Δ : ℝ => |liftFun Φ x₀ Δ| * Δ ^ (c - 1)) (Ioi 0)) :
+    mellinRaw (liftFun Φ x₀) (c : ℂ) = Φ (c : ℂ) := by
+  set f₀ := liftFun Φ x₀ with hf₀
+  have hcont : ContinuousOn f₀ (Ioi 0) := continuousOn_liftFun h hx₀ hx₀'
+  have hI2 : IntegrableOn (fun Δ : ℝ => |f₀ Δ| * Δ ^ (c / 2 - 1)) (Ioi 0) := by
+    have hm := h.mellinConvergent (x := c / 2) (by linarith) (by linarith)
+    unfold MellinConvergent at hm
+    have hn : IntegrableOn (fun t : ℝ => ‖(t : ℂ) ^ (((c / 2 : ℝ) : ℂ) - 1) • mellinInv (c / 2) Φ t‖) (Ioi 0) :=
+      hm.norm
+    refine IntegrableOn.congr_fun hn (fun Δ hΔ => ?_) measurableSet_Ioi
+    have hΔ0 : 0 < Δ := hΔ
+    have e := ofReal_liftFun h hx₀ hx₀' (x := c / 2) (by linarith) (by linarith) hΔ0
+    simp only [norm_smul, Complex.norm_cpow_eq_rpow_re_of_pos hΔ0]
+    rw [← e, Complex.norm_real, Real.norm_eq_abs]
+    simp only [Complex.sub_re, Complex.ofReal_re, Complex.one_re]
+    ring
+  set F : ℝ → ℝ → ℂ := fun x Δ => (f₀ Δ : ℂ) * (Δ : ℂ) ^ ((x : ℂ) - 1) with hF
+  have hmeas : ∀ x : ℝ, AEStronglyMeasurable (F x) (volume.restrict (Ioi (0 : ℝ))) := by
+    intro x
+    have h1 : ContinuousOn (fun Δ : ℝ => (Δ : ℂ) ^ ((x : ℂ) - 1)) (Ioi 0) :=
+      ContinuousOn.cpow_const (Complex.continuous_ofReal.continuousOn) fun t ht => Complex.ofReal_mem_slitPlane.mpr ht
+    exact ((Complex.continuous_ofReal.comp_continuousOn hcont).mul h1).aestronglyMeasurable measurableSet_Ioi
+  have hbd : ∀ x : ℝ, c / 2 ≤ x → x ≤ c → ∀ Δ : ℝ, 0 < Δ →
+      ‖F x Δ‖ ≤ |f₀ Δ| * Δ ^ (c - 1) + |f₀ Δ| * Δ ^ (c / 2 - 1) := by
+    intro x hx1 hx2 Δ hΔ
+    simp only [hF, norm_mul, Complex.norm_real, Real.norm_eq_abs, Complex.norm_cpow_eq_rpow_re_of_pos hΔ,
+      Complex.sub_re, Complex.ofReal_re, Complex.one_re]
+    have := rpow_neg_le_sum hΔ (x := 1 - c) (x' := 1 - c / 2) (t := 1 - x) (by linarith) (by linarith)
+    have e1 : Δ ^ (-(1 - x)) = Δ ^ (x - 1) := by ring_nf
+    have e2 : Δ ^ (-(1 - c)) = Δ ^ (c - 1) := by ring_nf
+    have e3 : Δ ^ (-(1 - c / 2)) = Δ ^ (c / 2 - 1) := by ring_nf
+    rw [e1, e2, e3] at this
+    rw [← mul_add]
+    exact mul_le_mul_of_nonneg_left this (abs_nonneg _)
+  have hdom := tendsto_integral_filter_of_dominated_convergence (μ := volume.restrict (Ioi (0 : ℝ)))
+    (l := 𝓝[<] c) (F := F) (f := fun Δ => (f₀ Δ : ℂ) * (Δ : ℂ) ^ ((c : ℂ) - 1))
+    (fun Δ => |f₀ Δ| * Δ ^ (c - 1) + |f₀ Δ| * Δ ^ (c / 2 - 1))
+    (Filter.Eventually.of_forall hmeas)
+    (by
+      have hev : ∀ᶠ x in 𝓝[<] c, c / 2 < x := by
+        have : Ioo (c / 2) c ∈ 𝓝[<] c := Ioo_mem_nhdsLT (by linarith)
+        filter_upwards [this] with x hx using hx.1
+      have hev2 : ∀ᶠ x in 𝓝[<] c, x < c := self_mem_nhdsWithin
+      filter_upwards [hev, hev2] with x hx1 hx2
+      filter_upwards [ae_restrict_mem measurableSet_Ioi] with Δ hΔ
+      exact hbd x hx1.le hx2.le Δ hΔ)
+    (hmass.add hI2)
+    (by
+      filter_upwards [ae_restrict_mem measurableSet_Ioi] with Δ hΔ
+      have hΔ0 : 0 < Δ := hΔ
+      have : Continuous (fun x : ℝ => (f₀ Δ : ℂ) * (Δ : ℂ) ^ ((x : ℂ) - 1)) :=
+        continuous_const.mul (Continuous.const_cpow (Complex.continuous_ofReal.sub continuous_const)
+          (Or.inl (by exact_mod_cast hΔ0.ne')))
+      exact (this.continuousAt).tendsto.mono_left nhdsWithin_le_nhds)
+  have hev : ∀ᶠ x in 𝓝[<] c, ∫ Δ in Ioi (0 : ℝ), F x Δ = Φ (x : ℂ) := by
+    have hev1 : ∀ᶠ x in 𝓝[<] c, 0 < x := by
+      have : Ioo 0 c ∈ 𝓝[<] c := Ioo_mem_nhdsLT hc
+      filter_upwards [this] with x hx using hx.1
+    have hev2 : ∀ᶠ x in 𝓝[<] c, x < c := self_mem_nhdsWithin
+    filter_upwards [hev1, hev2] with x hx1 hx2
+    have := mellinRaw_liftFun h hx₀ hx₀' (z := (x : ℂ)) (by simpa using hx1) (by simpa using hx2)
+    exact this
+  have h2 : Tendsto (fun x : ℝ => ∫ Δ in Ioi (0 : ℝ), F x Δ) (𝓝[<] c) (𝓝 (Φ (c : ℂ))) :=
+    hlim.congr' (hev.mono fun x hx => hx.symm)
+  exact tendsto_nhds_unique hdom h2
+
+end
+
+
+section
+
+variable {c : ℝ} {Φ : ℂ → ℂ}
+
+/-- The origin mass of the lift: `∫ f ρ₀ = (2π)^c/Γ(c) · Φ(c)`. -/
+theorem liftFun_mass_value (h : MellinLiftData c Φ) (hc : 0 < c) {x₀ : ℝ} (hx₀ : 0 < x₀) (hx₀' : x₀ < c)
+    (hlim : Tendsto (fun x : ℝ => Φ (x : ℂ)) (𝓝[<] c) (𝓝 (Φ (c : ℂ))))
+    (hmass : IntegrableOn (fun Δ : ℝ => liftFun Φ x₀ Δ * hankelRho0 c Δ) (Ioi 0)) :
+    (((∫ Δ in Ioi (0 : ℝ), liftFun Φ x₀ Δ * hankelRho0 c Δ : ℝ)) : ℂ) =
+      (((2 * Real.pi) ^ c / Real.Gamma c : ℝ) : ℂ) * Φ (c : ℂ) := by
+  set a : ℝ := (2 * Real.pi) ^ c / Real.Gamma c with ha
+  have hapos : 0 < a := by
+    rw [ha]; have := Real.Gamma_pos_of_pos hc; positivity
+  have hρ : ∀ Δ : ℝ, hankelRho0 c Δ = a * Δ ^ (c - 1) := fun Δ => rfl
+  have hmass' : IntegrableOn (fun Δ : ℝ => |liftFun Φ x₀ Δ| * Δ ^ (c - 1)) (Ioi 0) := by
+    have hn : IntegrableOn (fun Δ : ℝ => ‖liftFun Φ x₀ Δ * hankelRho0 c Δ‖ * (1 / a)) (Ioi 0) := hmass.norm.mul_const _
+    refine IntegrableOn.congr_fun hn (fun Δ hΔ => ?_) measurableSet_Ioi
+    have hΔ0 : 0 < Δ := hΔ
+    simp only [Real.norm_eq_abs, abs_mul, hρ, abs_of_pos hapos, abs_of_nonneg (Real.rpow_nonneg hΔ0.le (c - 1))]
+    field_simp
+  have key := mellinRaw_liftFun_edge h hc hx₀ hx₀' hlim hmass'
+  have hreal : mellinRaw (liftFun Φ x₀) (c : ℂ) = ((∫ Δ in Ioi (0 : ℝ), liftFun Φ x₀ Δ * Δ ^ (c - 1) : ℝ) : ℂ) := by
+    unfold mellinRaw
+    rw [← integral_complex_ofReal]
+    refine setIntegral_congr_fun measurableSet_Ioi fun Δ hΔ => ?_
+    have hΔ0 : 0 < Δ := hΔ
+    rw [show ((c : ℂ) - 1) = ((c - 1 : ℝ) : ℂ) by push_cast; ring, ← Complex.ofReal_cpow hΔ0.le]
+    push_cast; rfl
+  have hint : (∫ Δ in Ioi (0 : ℝ), liftFun Φ x₀ Δ * hankelRho0 c Δ) =
+      a * ∫ Δ in Ioi (0 : ℝ), liftFun Φ x₀ Δ * Δ ^ (c - 1) := by
+    rw [← integral_const_mul]
+    refine setIntegral_congr_fun measurableSet_Ioi fun Δ hΔ => ?_
+    simp only [hρ]; ring
+  rw [hint, Complex.ofReal_mul, ← hreal, key]
+
+/-- `Φ_σ(c) = (2π)^{-c}Γ(c)[W(0) + σW(c^{1/3})]`. -/
+theorem liftPhi_edge_value (W : ℂ → ℂ) {c : ℝ} (hc : 0 < c) (σ : ℝ) :
+    liftPhi W c σ (c : ℂ) = ((((2 * Real.pi) ^ (-c) * Real.Gamma c : ℝ)) : ℂ) *
+      (W 0 + (σ : ℂ) * W (((c ^ (1 / 3 : ℝ) : ℝ) : ℂ))) := by
+  have hc' : (c : ℂ) ≠ 0 := by exact_mod_cast hc.ne'
+  have h0 : stripH 0 = 0 := by
+    have := hInt_eq_stripH (ζ := 0) (by simp) (by simp)
+    rw [← this]; exact hInt_zero
+  have hcp : (c : ℂ) / ((c ^ (2 / 3 : ℝ) : ℝ) : ℂ) = ((c ^ (1 / 3 : ℝ) : ℝ) : ℂ) := by
+    have : c / c ^ (2 / 3 : ℝ) = c ^ (1 / 3 : ℝ) := by
+      rw [div_eq_iff (Real.rpow_pos_of_pos hc _).ne', ← Real.rpow_add hc]; norm_num
+    rw [← Complex.ofReal_div, this]
+  unfold liftPhi liftS
+  have e : (((2 * Real.pi : ℝ)) : ℂ) ^ (-(c : ℂ)) = (((2 * Real.pi) ^ (-c) : ℝ) : ℂ) := by
+    rw [Complex.ofReal_cpow (by positivity)]; push_cast; rfl
+  rw [div_self hc', sub_self, h0, mul_zero, Complex.exp_zero, mul_one, sub_self, zero_div, hcp, e,
+    Complex.ofReal_mul, Complex.Gamma_ofReal]
+
+end
+
+
+section
+
 /-- **Theorem `O.11ak` for the one-level seeds** (`(ceo:O11ak.3)`, `(ceo:O11ak.4)` and `(e1)`).  For `m ≥ 3`, real `a, b, c₀`, `K ≥ 1`, `c ≥ max(2000, 8K³)`
 (so the width `δ₀ = β₁ K ε / 2` is the one of `u1co:O6`, `u1co:O9p`) and `σ = ±1`, the lift `L^σ_c[X]` of `X = a f₁ + b g₁ + c₀ g₁'` is a Hankel eigenfunction
-`f ∈ 𝒜_c^σ` with `c^{1/3} ρ₀(cξ) f(cξ) = I_main[X](ξ) + σ I_dual[X](ξ)` for all `ξ > 0` and `f(0) = σ ∫ f ρ₀`. -/
+`f ∈ 𝒜_c^σ` with `c^{1/3} ρ₀(cξ) f(cξ) = I_main[X](ξ) + σ I_dual[X](ξ)` for all `ξ > 0`, `f(0) = σ ∫ f ρ₀` and
+`f(0) = W(c^{1/3}) + σ W(0)` for the symbol `W = liftSymbol X δ₀ m` (the endpoint Mellin transform `∫ f Δ^{c-1} = Φ_σ(c)`). -/
 theorem exists_hankelEigenfn_lift {m : ℕ} (hm : 3 ≤ m) (a b c₀ : ℝ) {K c : ℝ} (hK : 1 ≤ K) (hc : 2000 ≤ c)
     (hcK : 8 * K ^ 3 ≤ c) {σ : ℝ} (hσ : σ = 1 ∨ σ = -1) :
     ∃ f : ℝ → ℝ, IsHankelEigenfn c σ f ∧
       (∀ ξ : ℝ, 0 < ξ → ((c ^ (1 / 3 : ℝ) * hankelRho0 c (c * ξ) * f (c * ξ) : ℝ) : ℂ) =
         iMain (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m c ξ +
           (σ : ℂ) * iDual (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m c ξ) ∧
-      f 0 = σ * ∫ Δ in Ioi (0 : ℝ), f Δ * hankelRho0 c Δ := by
+      f 0 = σ * ∫ Δ in Ioi (0 : ℝ), f Δ * hankelRho0 c Δ ∧
+      ((f 0 : ℝ) : ℂ) = liftSymbol (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ) +
+        (σ : ℂ) * liftSymbol (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m 0 := by
   have hc0 : 0 < c := by linarith
   have hc32 : 3 / 2 < c := by linarith
   have hX := hasU2_airySeedU2 a b c₀
@@ -468,14 +606,43 @@ theorem exists_hankelEigenfn_lift {m : ℕ} (hm : 3 ≤ m) (a b c₀ : ℝ) {K c
         _ = _ := by ring
   obtain ⟨f, hf, hfeq, hf0⟩ := exists_isHankelEigenfn_of_lift hΦ hc32 hσ (x₀ := c / 2) (by linarith) (by linarith)
     (fun z hz0 hz1 => mellinMult_liftPhi_reflect hσ hc0 hz0 hz1) hmass
-  refine ⟨f, hf, ?_, ?_⟩
+  have hint : (∫ Δ in Ioi (0 : ℝ), f Δ * hankelRho0 c Δ) = ∫ Δ in Ioi (0 : ℝ), liftFun Φ (c / 2) Δ * hankelRho0 c Δ := by
+    refine setIntegral_congr_fun measurableSet_Ioi fun Δ hΔ => ?_
+    rw [hfeq Δ hΔ]
+  refine ⟨f, hf, ?_, ?_, ?_⟩
   · intro ξ hξ
     have h := lift_edge_repr hX hδ m hc32 hσ hξ
     rw [← h, hfeq (c * ξ) (by positivity)]
-  · rw [hf0]
-    congr 1
-    refine setIntegral_congr_fun measurableSet_Ioi fun Δ hΔ => ?_
-    rw [hfeq Δ hΔ]
+  · rw [hf0, hint]
+  · have hlim : Tendsto (fun x : ℝ => Φ (x : ℂ)) (𝓝[<] c) (𝓝 (Φ (c : ℂ))) := by
+      have hcn := liftPhi_continuousOn_edge hWd hc0 σ
+      have hmap : Set.MapsTo (fun x : ℝ => (x : ℂ)) (Ioc 0 c) {z : ℂ | 0 < z.re ∧ z.re ≤ c} :=
+        fun x hx => ⟨by simpa using hx.1, by simpa using hx.2⟩
+      have h1 : ContinuousWithinAt (fun x : ℝ => Φ (x : ℂ)) (Ioc 0 c) c :=
+        (hcn.comp Complex.continuous_ofReal.continuousOn hmap) c ⟨hc0, le_refl c⟩
+      exact h1.tendsto.mono_left (le_inf nhdsWithin_le_nhds (le_principal_iff.mpr (Ioc_mem_nhdsLT hc0)))
+    have hmv := liftFun_mass_value hΦ hc0 (x₀ := c / 2) (by linarith) (by linarith) hlim hmass
+    have hv := liftPhi_edge_value (liftSymbol (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m) hc0 σ
+    have hf0' : ((f 0 : ℝ) : ℂ) = (σ : ℂ) * ((∫ Δ in Ioi (0 : ℝ), liftFun Φ (c / 2) Δ * hankelRho0 c Δ : ℝ) : ℂ) := by
+      rw [hf0, Complex.ofReal_mul]
+    have hG : 0 < Real.Gamma c := Real.Gamma_pos_of_pos hc0
+    have hone : (((2 * Real.pi) ^ c / Real.Gamma c : ℝ) : ℂ) * ((((2 * Real.pi) ^ (-c) * Real.Gamma c : ℝ)) : ℂ) = 1 := by
+      rw [← Complex.ofReal_mul]
+      have : (2 * Real.pi) ^ c / Real.Gamma c * ((2 * Real.pi) ^ (-c) * Real.Gamma c) = 1 := by
+        rw [Real.rpow_neg (by positivity)]
+        have : (0 : ℝ) < (2 * Real.pi) ^ c := Real.rpow_pos_of_pos (by positivity) c
+        field_simp
+      rw [this]; simp
+    have hσσ : (σ : ℂ) * σ = 1 := by
+      rcases hσ with rfl | rfl <;> simp
+    rw [hf0', hmv, hΦdef, hv]
+    calc (σ : ℂ) * ((((2 * Real.pi) ^ c / Real.Gamma c : ℝ) : ℂ) * (((((2 * Real.pi) ^ (-c) * Real.Gamma c : ℝ)) : ℂ) *
+          (liftSymbol (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m 0 +
+            (σ : ℂ) * liftSymbol (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ))))
+        = (σ : ℂ) * (((((2 * Real.pi) ^ c / Real.Gamma c : ℝ) : ℂ) * ((((2 * Real.pi) ^ (-c) * Real.Gamma c : ℝ)) : ℂ)) *
+          (liftSymbol (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m 0 +
+            (σ : ℂ) * liftSymbol (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ))) := by ring
+      _ = _ := by rw [hone]; linear_combination (liftSymbol (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)) * hσσ
 
 end
 
@@ -490,5 +657,17 @@ end
 /-- info: 'FormalResearch.SignUncertainty.exists_hankelEigenfn_lift' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.SignUncertainty.exists_hankelEigenfn_lift
+
+/-- info: 'FormalResearch.SignUncertainty.mellinRaw_liftFun_edge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.mellinRaw_liftFun_edge
+
+/-- info: 'FormalResearch.SignUncertainty.liftFun_mass_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.liftFun_mass_value
+
+/-- info: 'FormalResearch.SignUncertainty.liftPhi_edge_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.liftPhi_edge_value
 
 end FormalResearch.SignUncertainty

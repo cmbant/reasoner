@@ -16,7 +16,7 @@ This module states it exactly as a named `Prop`, `TwoSimpleZeroTransfer prob`, a
   (`c = c'` is the effective central charge), the comb decay of (P1) of Property `sr:P`, positivity of `g` for
   `t ≥ t(q) + 1` (`tAiry c q`), the window limit `F_c^{-1} Ψ_g → C₂ W₂` locally uniformly in `u` and uniformly on
   `𝒦`, the vacuum `limsup F_c^{-1} ∫ Ψ_g ≤ C₂ ∫ W₂` uniformly on `𝒦`, `F_c ≍ c^{3/2}`, and
-  `g_vac ≥ c_𝒦 c^{3/2}` when `∫ W₂ ≤ -δ` uniformly on `𝒦`.
+  `g_vac ≥ c_𝒦 c^{3/2}` when `∫ W₂ ≤ -δ` uniformly on `𝒦`, and `Ψ_g` integrable (so the integrals above are genuine).
 * `TwoSimpleZeroTransfer prob`: for every `n ≥ 1` (`N = n + 2 ≥ 3`) and every compact family of admissible designs.
 * `TwoZeroTransferData.toEventual`, `designPropertyP_twoZero`: for a single design, `ut:T2` gives the abstract
   design test (`Upper.Rigidity.DesignTest`) for the spectral measures `μ_S` of every crossing sequence `S` of `prob`,
@@ -69,7 +69,9 @@ theorem tendsto_uAiry_tAiry_add_one (q : ℝ) :
 
 /-- The conclusion of `ut:T2` (`upper_transfer.tex`) for a family `𝒦` of two-simple-zero designs: the
 functionals `g_{c,𝔇}`, the normalisations `F_c ≍ c^{3/2}`, `C₂ > 0`, positivity for `t ≥ t(q) + 1`, the window
-limit and the vacuum limsup (uniform on `𝒦`), and the vacuum bound.  See the module docstring. -/
+limit, the integrability of `Ψ_g` (eventually, uniformly on `𝒦`; needed for the integral in `limsup_le`
+to be genuine Bochner integrals rather than the value `0` of a non-integrable function), the vacuum limsup (uniform
+on `𝒦`), and the vacuum bound.  See the module docstring. -/
 structure TwoZeroTransferData (prob : FixedWeightProblem) {n : ℕ} (𝒦 : Set (TwoZeroDesign n)) where
   c₀ : ℝ
   C₂ : ℝ
@@ -85,6 +87,7 @@ structure TwoZeroTransferData (prob : FixedWeightProblem) {n : ℕ} (𝒦 : Set 
   pos : ∀ c : ℝ, c₀ ≤ c → ∀ d ∈ 𝒦, ∀ t : ℝ, tAiry c d.q + 1 ≤ t → 0 < g d c t
   window : ∀ R : ℝ, 0 ≤ R → ∀ ε : ℝ, 0 < ε → ∀ᶠ c : ℝ in atTop, ∀ d ∈ 𝒦, ∀ u ∈ Icc (-R) R,
     |(F c)⁻¹ * psiAiry prob c (g d c) u - C₂ * d.Wr u| ≤ ε
+  integrable : ∀ᶠ c : ℝ in atTop, ∀ d ∈ 𝒦, Integrable (psiAiry prob c (g d c))
   limsup_le : ∀ ε : ℝ, 0 < ε → ∀ᶠ c : ℝ in atTop, ∀ d ∈ 𝒦,
     (F c)⁻¹ * (∫ u, psiAiry prob c (g d c) u) ≤ C₂ * (∫ u, d.Wr u) + ε
   vac : (∃ δ : ℝ, 0 < δ ∧ ∀ d ∈ 𝒦, ∫ u, d.Wr u ≤ -δ) → ∃ κ : ℝ, 0 < κ ∧
