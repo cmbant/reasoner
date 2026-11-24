@@ -145,37 +145,41 @@ lemma cutoff_scale {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : ContDiff ℝ 3 ϑ) (h
 #print axioms FormalResearch.SignUncertainty.cutoff_scale
 
 /-- Derivatives of `ζ g` (a real cutoff times a complex function). -/
-lemma deriv_cut_mul {ζ : ℝ → ℝ} {g : ℝ → ℂ} (hζ : ContDiff ℝ 2 ζ) (hg : ContDiff ℝ 2 g) :
-    deriv (fun y => (ζ y : ℂ) * g y) = (fun y => ((deriv ζ y : ℝ) : ℂ) * g y + (ζ y : ℂ) * deriv g y) ∧
-    deriv (deriv (fun y => (ζ y : ℂ) * g y)) =
-      fun y => ((deriv (deriv ζ) y : ℝ) : ℂ) * g y + 2 * ((deriv ζ y : ℝ) : ℂ) * deriv g y + (ζ y : ℂ) * deriv (deriv g) y := by
+lemma deriv_cut_mul {ζ : ℝ → ℝ} {g : ℝ → ℂ} {x : ℝ} (hζ : ContDiff ℝ 2 ζ) (hg : ContDiffAt ℝ 2 g x) :
+    deriv (fun y => (ζ y : ℂ) * g y) x = ((deriv ζ x : ℝ) : ℂ) * g x + (ζ x : ℂ) * deriv g x ∧
+    deriv (deriv (fun y => (ζ y : ℂ) * g y)) x =
+      ((deriv (deriv ζ) x : ℝ) : ℂ) * g x + 2 * ((deriv ζ x : ℝ) : ℂ) * deriv g x + (ζ x : ℂ) * deriv (deriv g) x := by
   have hζd : Differentiable ℝ ζ := hζ.differentiable (by norm_num)
-  have hgd : Differentiable ℝ g := hg.differentiable (by norm_num)
   have hζ1' : ContDiff ℝ 1 (deriv ζ) := hζ.deriv'
-  have hg1' : ContDiff ℝ 1 (deriv g) := hg.deriv'
   have hζ1 : Differentiable ℝ (deriv ζ) := hζ1'.differentiable (by norm_num)
-  have hg1 : Differentiable ℝ (deriv g) := hg1'.differentiable (by norm_num)
-  have e1 : deriv (fun y => (ζ y : ℂ) * g y) = fun y => ((deriv ζ y : ℝ) : ℂ) * g y + (ζ y : ℂ) * deriv g y := by
-    funext y
+  have hev : ∀ᶠ y in nhds x, ContDiffAt ℝ 2 g y := hg.eventually (by simp)
+  have hgd : DifferentiableAt ℝ g x := hg.differentiableAt (by norm_num)
+  have hg1 : DifferentiableAt ℝ (deriv g) x := by
+    have h := hg.fderiv_right (m := 1) (by norm_num)
+    have h2 : ContDiffAt ℝ 1 (fun y => fderiv ℝ g y 1) x := h.clm_apply contDiffAt_const
+    exact h2.differentiableAt (by norm_num)
+  have e1 : deriv (fun y => (ζ y : ℂ) * g y) =ᶠ[nhds x]
+      fun y => ((deriv ζ y : ℝ) : ℂ) * g y + (ζ y : ℂ) * deriv g y := by
+    filter_upwards [hev] with y hy
     have h1 : HasDerivAt (fun y => (ζ y : ℂ)) ((deriv ζ y : ℝ) : ℂ) y := (hζd y).hasDerivAt.ofReal_comp
-    exact (h1.mul (hgd y).hasDerivAt).deriv
-  refine ⟨e1, ?_⟩
-  rw [e1]
-  funext y
-  have h1 : HasDerivAt (fun y => ((deriv ζ y : ℝ) : ℂ)) ((deriv (deriv ζ) y : ℝ) : ℂ) y := (hζ1 y).hasDerivAt.ofReal_comp
-  have h0 : HasDerivAt (fun y => (ζ y : ℂ)) ((deriv ζ y : ℝ) : ℂ) y := (hζd y).hasDerivAt.ofReal_comp
-  have := ((h1.mul (hgd y).hasDerivAt).add (h0.mul (hg1 y).hasDerivAt)).deriv
-  exact this.trans (by ring)
+    exact (h1.mul (hy.differentiableAt (by norm_num)).hasDerivAt).deriv
+  refine ⟨?_, ?_⟩
+  · rw [e1.self_of_nhds]
+  · rw [e1.deriv_eq]
+    have h1 : HasDerivAt (fun y => ((deriv ζ y : ℝ) : ℂ)) ((deriv (deriv ζ) x : ℝ) : ℂ) x := (hζ1 x).hasDerivAt.ofReal_comp
+    have h0 : HasDerivAt (fun y => (ζ y : ℂ)) ((deriv ζ x : ℝ) : ℂ) x := (hζd x).hasDerivAt.ofReal_comp
+    have := ((h1.mul hgd.hasDerivAt).add (h0.mul hg1.hasDerivAt)).deriv
+    exact this.trans (by ring)
 
 /-- **Leibniz bound for `cutoff × amplitude`** (orders `0, 1, 2`): `‖g^{(r)}(x)‖ ≤ G |x|^{-s-r}` implies
 `‖(ζ g)^{(r)}(x)‖ ≤ K_r' G |x|^{-s-r}` with `K_0' = K0`, `K_1' = K1 + K0`, `K_2' = K2 + 2 K1 + K0`. -/
-lemma leibniz_cut {ζ : ℝ → ℝ} {K0 K1 K2 : ℝ} (hζ : IsCut ζ K0 K1 K2) {g : ℝ → ℂ} (hg : ContDiff ℝ 2 g) {G s x : ℝ}
+lemma leibniz_cut {ζ : ℝ → ℝ} {K0 K1 K2 : ℝ} (hζ : IsCut ζ K0 K1 K2) {g : ℝ → ℂ} {G s x : ℝ} (hg : ContDiffAt ℝ 2 g x)
     (hG : 0 ≤ G) (hx : x ≠ 0) (hg0 : ‖g x‖ ≤ G * |x| ^ (-s)) (hg1 : ‖deriv g x‖ ≤ G * |x| ^ (-s - 1))
     (hg2 : ‖deriv (deriv g) x‖ ≤ G * |x| ^ (-s - 2)) :
     ‖(ζ x : ℂ) * g x‖ ≤ K0 * G * |x| ^ (-s) ∧
     ‖deriv (fun y => (ζ y : ℂ) * g y) x‖ ≤ (K1 + K0) * G * |x| ^ (-s - 1) ∧
     ‖deriv (deriv (fun y => (ζ y : ℂ) * g y)) x‖ ≤ (K2 + 2 * K1 + K0) * G * |x| ^ (-s - 2) := by
-  obtain ⟨e1, e2⟩ := deriv_cut_mul hζ.contDiff hg
+  obtain ⟨e1, e2⟩ := deriv_cut_mul (x := x) hζ.contDiff hg
   have hax : 0 < |x| := abs_pos.mpr hx
   have p1 : |x| ^ (-s - 1) * |x| = |x| ^ (-s) := by
     rw [show -s - 1 = -s + (-1) by ring, Real.rpow_add hax, Real.rpow_neg_one]; field_simp

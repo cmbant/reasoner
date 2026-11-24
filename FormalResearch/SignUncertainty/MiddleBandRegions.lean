@@ -469,4 +469,144 @@ theorem vdc_sym {a : ℝ → ℂ} {a0 α β M V : ℝ} {d : ℝ → ℝ} (hα : 
   rw [← oscInt_eq_interval hαβ a0 hmz] at h2
   linarith
 
+
+/-- Constant-bound two-IBP bound on an interval `[α, β]` with `|x| ≤ R` there: `|a^{(r)}| ≤ B` and `|ψ'| ≥ p₀` give
+`|∫ a e^{iψ}| ≤ (β - α) B (1/p₀² + π² R/(2 p₀³) + π²/(6 p₀³) + π⁴ R²/(12 p₀⁴))`. -/
+theorem cubic_two_ibp_const {b : ℝ → ℂ} {a0 α β B p0 R : ℝ} (hαβ : α ≤ β) (hB : 0 ≤ B) (hp0 : 0 < p0)
+    (hR : ∀ x ∈ Set.Icc α β, |x| ≤ R)
+    (hb : ContDiff ℝ 2 b) (hsupp : ∀ x, x ∉ Set.Icc α β → b x = 0)
+    (hb0 : ∀ x ∈ Set.Icc α β, ‖b x‖ ≤ B) (hb1 : ∀ x ∈ Set.Icc α β, ‖deriv b x‖ ≤ B)
+    (hb2 : ∀ x ∈ Set.Icc α β, ‖deriv (deriv b) x‖ ≤ B)
+    (hp : ∀ x ∈ Set.Icc α β, p0 ≤ |a0 - Real.pi ^ 2 * x ^ 2 / 12|) :
+    ‖oscInt a0 b‖ ≤ (β - α) * B * (1 / p0 ^ 2 + Real.pi ^ 2 * R / (2 * p0 ^ 3) + Real.pi ^ 2 / (6 * p0 ^ 3)
+      + Real.pi ^ 4 * R ^ 2 / (12 * p0 ^ 4)) := by
+  have hFc : Continuous (fun x : ℝ => B / p0 ^ 2 + 3 * B * (Real.pi ^ 2 * |x| / 6) / p0 ^ 3
+        + B * (Real.pi ^ 2 / 6) / p0 ^ 3 + 3 * B * (Real.pi ^ 2 * x / 6) ^ 2 / p0 ^ 4) := by fun_prop
+  have hpw := cubic_two_ibp_pw (a := b) (a0 := a0) (α := α) (β := β) hαβ hb hsupp
+    (b0 := fun _ => B) (b1 := fun _ => B) (b2 := fun _ => B) (p := fun _ => p0) hb0 hb1 hb2
+    (fun x hx => ⟨hp0, hp x hx⟩) hFc.integrableOn_Icc
+  unfold oscInt
+  refine hpw.trans ?_
+  have hle : ∀ x ∈ Set.Icc α β, B / p0 ^ 2 + 3 * B * (Real.pi ^ 2 * |x| / 6) / p0 ^ 3
+        + B * (Real.pi ^ 2 / 6) / p0 ^ 3 + 3 * B * (Real.pi ^ 2 * x / 6) ^ 2 / p0 ^ 4 ≤
+      B * (1 / p0 ^ 2 + Real.pi ^ 2 * R / (2 * p0 ^ 3) + Real.pi ^ 2 / (6 * p0 ^ 3)
+        + Real.pi ^ 4 * R ^ 2 / (12 * p0 ^ 4)) := by
+    intro x hx
+    have h1 : |x| ≤ R := hR x hx
+    have h2 : x ^ 2 ≤ R ^ 2 := by rw [← sq_abs x]; exact pow_le_pow_left₀ (abs_nonneg _) h1 2
+    have hp3 : 0 < p0 ^ 3 := pow_pos hp0 3
+    have hp4 : 0 < p0 ^ 4 := pow_pos hp0 4
+    have e1 : 3 * B * (Real.pi ^ 2 * |x| / 6) / p0 ^ 3 = B * (Real.pi ^ 2 * |x| / (2 * p0 ^ 3)) := by
+      field_simp; ring
+    have t1 : B * (Real.pi ^ 2 * |x| / (2 * p0 ^ 3)) ≤ B * (Real.pi ^ 2 * R / (2 * p0 ^ 3)) := by
+      gcongr
+    have e2 : 3 * B * (Real.pi ^ 2 * x / 6) ^ 2 / p0 ^ 4 = B * (Real.pi ^ 4 * x ^ 2 / (12 * p0 ^ 4)) := by
+      field_simp; ring
+    have t2 : B * (Real.pi ^ 4 * x ^ 2 / (12 * p0 ^ 4)) ≤ B * (Real.pi ^ 4 * R ^ 2 / (12 * p0 ^ 4)) := by
+      gcongr
+    have e3 : B * (Real.pi ^ 2 / 6) / p0 ^ 3 = B * (Real.pi ^ 2 / (6 * p0 ^ 3)) := by
+      field_simp
+    have e0 : B / p0 ^ 2 = B * (1 / p0 ^ 2) := by ring
+    rw [e0, e1, e2, e3]
+    nlinarith [t1, t2]
+  have hI : ∫ x in Set.Icc α β, (B / p0 ^ 2 + 3 * B * (Real.pi ^ 2 * |x| / 6) / p0 ^ 3
+        + B * (Real.pi ^ 2 / 6) / p0 ^ 3 + 3 * B * (Real.pi ^ 2 * x / 6) ^ 2 / p0 ^ 4) ≤
+      ∫ x in Set.Icc α β, B * (1 / p0 ^ 2 + Real.pi ^ 2 * R / (2 * p0 ^ 3) + Real.pi ^ 2 / (6 * p0 ^ 3)
+        + Real.pi ^ 4 * R ^ 2 / (12 * p0 ^ 4)) :=
+    setIntegral_mono_on hFc.integrableOn_Icc (integrableOn_const (by simp)) measurableSet_Icc hle
+  refine hI.trans ?_
+  rw [setIntegral_const, Real.volume_real_Icc_of_le hαβ, smul_eq_mul]
+  nlinarith [mul_nonneg hB (sub_nonneg.mpr hαβ)]
+
+/-- Two-sided constant-bound two-IBP bound. -/
+theorem ibp_const_sym {a : ℝ → ℂ} {a0 α β B p0 : ℝ} (hα : 0 < α) (hαβ : α ≤ β) (hB : 0 ≤ B) (hp0 : 0 < p0)
+    (ha : ContDiff ℝ 2 a) (hz : ∀ x, |x| < α → a x = 0) (hβ : ∀ x, β < |x| → a x = 0)
+    (hb0 : ∀ x, α ≤ |x| → |x| ≤ β → ‖a x‖ ≤ B)
+    (hb1 : ∀ x, α ≤ |x| → |x| ≤ β → ‖deriv a x‖ ≤ B)
+    (hb2 : ∀ x, α ≤ |x| → |x| ≤ β → ‖deriv (deriv a) x‖ ≤ B)
+    (hp : ∀ x, α ≤ |x| → |x| ≤ β → p0 ≤ |a0 - Real.pi ^ 2 * x ^ 2 / 12|) :
+    ‖oscInt a0 a‖ ≤ 2 * ((β - α) * B * (1 / p0 ^ 2 + Real.pi ^ 2 * β / (2 * p0 ^ 3) + Real.pi ^ 2 / (6 * p0 ^ 3)
+      + Real.pi ^ 4 * β ^ 2 / (12 * p0 ^ 4))) := by
+  obtain ⟨bp, bm, hpC, hmC, hpz, hmz, hpn, hmn, hsum⟩ := split_refl hα hαβ ha hz hβ a0
+  have hmem : ∀ x ∈ Set.Icc α β, α ≤ |x| ∧ |x| ≤ β ∧ |-x| = |x| := by
+    intro x hx
+    have h0 : 0 < x := lt_of_lt_of_le hα hx.1
+    rw [abs_of_pos h0]
+    exact ⟨hx.1, hx.2, by rw [abs_neg, abs_of_pos h0]⟩
+  have h1 := cubic_two_ibp_const (a0 := a0) (R := β) hαβ hB hp0 (fun x hx => by rw [abs_of_pos (lt_of_lt_of_le hα hx.1)]; exact hx.2) hpC hpz
+    (fun x hx => by obtain ⟨h1, h2, -⟩ := hmem x hx; rw [(hpn x hx).1]; exact hb0 x h1 h2)
+    (fun x hx => by obtain ⟨h1, h2, -⟩ := hmem x hx; rw [(hpn x hx).2.1]; exact hb1 x h1 h2)
+    (fun x hx => by obtain ⟨h1, h2, -⟩ := hmem x hx; rw [(hpn x hx).2.2]; exact hb2 x h1 h2)
+    (fun x hx => by obtain ⟨h1, h2, -⟩ := hmem x hx; exact hp x h1 h2)
+  have h2 := cubic_two_ibp_const (a0 := a0) (R := β) hαβ hB hp0 (fun x hx => by rw [abs_of_pos (lt_of_lt_of_le hα hx.1)]; exact hx.2) hmC hmz
+    (fun x hx => by
+      obtain ⟨h1, h2, h3⟩ := hmem x hx; rw [(hmn x hx).1]; exact hb0 (-x) (by rw [h3]; exact h1) (by rw [h3]; exact h2))
+    (fun x hx => by
+      obtain ⟨h1, h2, h3⟩ := hmem x hx; rw [(hmn x hx).2.1]; exact hb1 (-x) (by rw [h3]; exact h1) (by rw [h3]; exact h2))
+    (fun x hx => by
+      obtain ⟨h1, h2, h3⟩ := hmem x hx; rw [(hmn x hx).2.2]; exact hb2 (-x) (by rw [h3]; exact h1) (by rw [h3]; exact h2))
+    (fun x hx => by obtain ⟨h1, h2, -⟩ := hmem x hx; exact hp x h1 h2)
+  linarith
+
+
+/-- Two-sided two-IBP bound with constant phase gradient `p₀` and pointwise amplitude bounds `b_r(|x|)`. -/
+theorem ibp_pw_sym {a : ℝ → ℂ} {a0 α β p0 : ℝ} {b0 b1 b2 : ℝ → ℝ} (hα : 0 < α) (hαβ : α ≤ β) (hp0 : 0 < p0)
+    (ha : ContDiff ℝ 2 a) (hz : ∀ x, |x| < α → a x = 0) (hβ : ∀ x, β < |x| → a x = 0)
+    (hb0 : ∀ x, α ≤ |x| → |x| ≤ β → ‖a x‖ ≤ b0 |x|)
+    (hb1 : ∀ x, α ≤ |x| → |x| ≤ β → ‖deriv a x‖ ≤ b1 |x|)
+    (hb2 : ∀ x, α ≤ |x| → |x| ≤ β → ‖deriv (deriv a) x‖ ≤ b2 |x|)
+    (hp : ∀ x, α ≤ |x| → |x| ≤ β → p0 ≤ |a0 - Real.pi ^ 2 * x ^ 2 / 12|)
+    (hint : IntegrableOn (fun x => b2 x / p0 ^ 2 + 3 * b1 x * (Real.pi ^ 2 * |x| / 6) / p0 ^ 3
+        + b0 x * (Real.pi ^ 2 / 6) / p0 ^ 3 + 3 * b0 x * (Real.pi ^ 2 * x / 6) ^ 2 / p0 ^ 4) (Set.Icc α β)) :
+    ‖oscInt a0 a‖ ≤ 2 * ∫ x in Set.Icc α β, (b2 x / p0 ^ 2 + 3 * b1 x * (Real.pi ^ 2 * |x| / 6) / p0 ^ 3
+        + b0 x * (Real.pi ^ 2 / 6) / p0 ^ 3 + 3 * b0 x * (Real.pi ^ 2 * x / 6) ^ 2 / p0 ^ 4) := by
+  obtain ⟨bp, bm, hpC, hmC, hpz, hmz, hpn, hmn, hsum⟩ := split_refl hα hαβ ha hz hβ a0
+  have hmem : ∀ x ∈ Set.Icc α β, α ≤ |x| ∧ |x| ≤ β ∧ |-x| = |x| ∧ x = |x| := by
+    intro x hx
+    have h0 : 0 < x := lt_of_lt_of_le hα hx.1
+    rw [abs_of_pos h0]
+    exact ⟨hx.1, hx.2, by rw [abs_neg, abs_of_pos h0], rfl⟩
+  have h1 := cubic_two_ibp_pw (a := bp) (a0 := a0) (α := α) (β := β) hαβ hpC hpz
+    (b0 := b0) (b1 := b1) (b2 := b2) (p := fun _ => p0)
+    (fun x hx => by obtain ⟨h1, h2, -, h4⟩ := hmem x hx; rw [(hpn x hx).1]; have := hb0 x h1 h2; rwa [← h4] at this)
+    (fun x hx => by obtain ⟨h1, h2, -, h4⟩ := hmem x hx; rw [(hpn x hx).2.1]; have := hb1 x h1 h2; rwa [← h4] at this)
+    (fun x hx => by obtain ⟨h1, h2, -, h4⟩ := hmem x hx; rw [(hpn x hx).2.2]; have := hb2 x h1 h2; rwa [← h4] at this)
+    (fun x hx => by obtain ⟨h1, h2, -, -⟩ := hmem x hx; exact ⟨hp0, hp x h1 h2⟩) hint
+  have h2 := cubic_two_ibp_pw (a := bm) (a0 := a0) (α := α) (β := β) hαβ hmC hmz
+    (b0 := b0) (b1 := b1) (b2 := b2) (p := fun _ => p0)
+    (fun x hx => by
+      obtain ⟨h1, h2, h3, h4⟩ := hmem x hx; rw [(hmn x hx).1]
+      have := hb0 (-x) (by rw [h3]; exact h1) (by rw [h3]; exact h2); rwa [h3, ← h4] at this)
+    (fun x hx => by
+      obtain ⟨h1, h2, h3, h4⟩ := hmem x hx; rw [(hmn x hx).2.1]
+      have := hb1 (-x) (by rw [h3]; exact h1) (by rw [h3]; exact h2); rwa [h3, ← h4] at this)
+    (fun x hx => by
+      obtain ⟨h1, h2, h3, h4⟩ := hmem x hx; rw [(hmn x hx).2.2]
+      have := hb2 (-x) (by rw [h3]; exact h1) (by rw [h3]; exact h2); rwa [h3, ← h4] at this)
+    (fun x hx => by obtain ⟨h1, h2, -, -⟩ := hmem x hx; exact ⟨hp0, hp x h1 h2⟩) hint
+  unfold oscInt at hsum h1 h2 ⊢
+  linarith
+
+
+/-! ### The fixed cutoff profile -/
+
+/-- A cutoff profile `ϑ` (even bump, `1` on `|t| ≤ 1`, `0` on `|t| ≥ 2`) with global derivative bounds `K1`, `K2`. -/
+structure Prof (ϑ : ℝ → ℝ) (K1 K2 : ℝ) : Prop where
+  contDiff : ContDiff ℝ 3 ϑ
+  range : ∀ t, 0 ≤ ϑ t ∧ ϑ t ≤ 1
+  one : ∀ t, |t| ≤ 1 → ϑ t = 1
+  zero : ∀ t, 2 ≤ |t| → ϑ t = 0
+  hK1 : 0 ≤ K1
+  hK2 : 0 ≤ K2
+  d1 : ∀ t, |deriv ϑ t| ≤ K1
+  d2 : ∀ t, |deriv (deriv ϑ) t| ≤ K2
+
+lemma prof_exists : ∃ (ϑ : ℝ → ℝ) (K1 K2 : ℝ), Prof ϑ K1 K2 := by
+  obtain ⟨ϑ, h3, h01, h1, h2, K1, K2, hK1, hK2, hd1, hd2⟩ := cutoff_profile
+  exact ⟨ϑ, K1, K2, ⟨h3, h01, h1, h2, hK1, hK2, hd1, hd2⟩⟩
+
+lemma Prof.cut {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (h : Prof ϑ K1 K2) {R : ℝ} (hR : 0 < R) :
+    IsCut (fun u => ϑ (u / R)) 1 (2 * K1) (4 * K2) :=
+  cutoff_scale h.contDiff h.range h.zero h.d1 h.d2 hR
+
 end FormalResearch.SignUncertainty
