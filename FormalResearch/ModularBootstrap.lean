@@ -401,6 +401,7 @@ public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumLobe
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumWindow
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumCore
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuum
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroTransferProof
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1172,4 +1173,5 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `∫_0^∞ h₂ V ≤ F (C_* κ ∫ W₂ + ε)` (**`twoZero_vacuum_core`**); with the vacuum identity of `K7` this gives the `limsup_le` field
   (**`twoZero_limsup_field`**), the vacuum bound `g_vac ≥ κ c^{3/2}` when `∫ W₂ ≤ -δ` (**`twoZero_vac_eventually`**, `twoZero_vac_field_of_threshold`),
   and integrability of `Ψ_g` (**`twoZero_integrable_psiAiry`**), uniformly on a compact admissible family.
+* `TwoLevel.TwoZeroTransferProof` (T2-WP7, `upper_transfer.tex` Theorem T2 `ut:T2`, assembly): **`twoSimpleZeroTransfer_of_w1`** (`TwoSimpleZeroTransfer prob` for `prob.w = 1`, fields from the K7, Region I/II, window, limsup and vacuum theorems) and the unconditional corollaries `designPropertyP_twoZero_w1`, **`theorem_two_five_w1`** (Theorem 2.5) and **`theorem_two_six_w1`** (Theorem 2.6, only `TwoZeroIdealApprox` besides `w = 1`).
 -/
