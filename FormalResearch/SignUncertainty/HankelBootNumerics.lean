@@ -132,6 +132,10 @@ lemma hankelBootB1k_le_two {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ 
 #guard_msgs (whitespace := lax) in
 #print axioms hankelBoot_lobe_le
 
+/-- info: 'FormalResearch.SignUncertainty.hankelTailI0_nonneg'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelTailI0_nonneg'
+
 /-- info: 'FormalResearch.SignUncertainty.hankelBoot_rinf_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms hankelBoot_rinf_le

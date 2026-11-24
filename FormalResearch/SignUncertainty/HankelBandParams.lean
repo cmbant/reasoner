@@ -14,7 +14,8 @@ public import FormalResearch.SignUncertainty.HankelEdgeAmp
 smaller than the paper's `0.012880`.  Both values keep `R = b² c^{2/3}` inside the Lean Langer disc
 (radius `κ·4.94·10⁻⁴ c^{2/3}`, `κ ≥ 1/2`), but the paper's `b` leaves almost no room in `2ρ_R = 4κ b < 0.035`
 (`4κ·0.01288 = 0.0346` for the true `κ = 0.6724`), and Lean only has the crude bound `κ ≤ 7/10`
-(`hankelLangerKappa_bounds`); with `b = 1/100` one gets `2ρ_R = 4κ b ≤ 0.028 < 0.035`.  The other constants
+(`hankelLangerKappa_bounds`); with `b = 1/100` one gets `2ρ_R = 4κ c^{-1/3}√R ≤ 0.035` for every `R ∈ [b² c^{2/3}, b² c^{2/3} + 1]`
+(`hankelBand_rho_le`: `c^{-1/3}√R ≤ 0.0125` for `c ≥ 3·10⁶`, so `4·(7/10)·0.0125 = 0.035` exactly, with no slack in that Lean bound; the true value at `c = 3·10⁶` is `≈ 0.0327`, with `κ ≈ 0.6724`).  The other constants
 (`C_W`, `C_a`, `C_ν`, `κ_sub`, `A_0`, `C_τ`) are not fixed by the paper; they are chosen so that the hypotheses of
 `BandReductionInstance` hold for the Hankel data (`A_0² c^{-2/3} = 32/K`, `K = c^{2/3}κ`, `C_τ = 11/κ`,
 from `τ₀² ≤ (16/3) m(τ₀)` for `m(τ₀) < 3/16`).
