@@ -2,6 +2,8 @@ module
 
 public import FormalResearch.ModularBootstrap.TwoLevel.Exclusion
 public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuumTail
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityFamily
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApprox
 
 /-!
 # `TwoZeroNegativeVacuum`: the window algebra of Step 1 of Theorem 2.5 (`virasoro_two_level.tex`, `gt:2.5`)
@@ -31,36 +33,28 @@ open FormalResearch.ModularBootstrap.Crossing FormalResearch.ModularBootstrap.Du
 open FormalResearch.ModularBootstrap.FixedWeight FormalResearch.ModularBootstrap.Upper.Rigidity
 open FormalResearch.ModularBootstrap.Upper.Window FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuum
 
-/-- The Airy quadrature of the window of a design in node form: `∫ W_2 = Σ_ν Re (W_2(a_ν)/Ai'(a_ν)²)`. -/
-lemma intWr_hasSum {n : ℕ} (d : TwoZeroDesign n) :
-    HasSum (fun m : ℕ => (nodeC d.p d.q d.site d.width (m + 1)).re) (∫ u, d.Wr u) := by
-  have h := Complex.hasSum_re d.W_hasSum
-  have hint : (∫ x : ℝ, d.W (x : ℂ)).re = ∫ u, d.Wr u := by
-    have : ∫ x : ℝ, (d.W (x : ℂ)).re = (∫ x : ℝ, d.W (x : ℂ)).re := by
-      simpa using integral_re d.W_integrable
-    exact this.symm
-  rw [hint] at h
-  convert h using 2 with m
-  have := winC_node d.p d.q d.site d.width (n := m + 1) (by omega)
-  rw [← this]
-  rfl
+/-- The design `negDesign` is the approximating design of the ideal datum `clarkDatum α z₁ q 0 K` with first zero
+`z₁ - η`. -/
+lemma negDesign_eq_idealDesignP (α : ℝ) (K n : ℕ) (η q : ℝ) :
+    negDesign α K n η q = IdealApprox.idealDesignP (clarkDatum α (clarkNode α 1) q 0 K) (clarkNode α 1 - η) n η := by
+  unfold negDesign IdealApprox.idealDesignP IdealApprox.idealDesign
+  congr
 
-/-- Node decomposition of `∫ W_2` for the design `negDesign α K n η u₂`: nodes `ν ≤ K`, then the tail. -/
-lemma intWr_decomp (α : ℝ) (K n : ℕ) (η u₂ : ℝ) :
-    ∫ u, (negDesign α K n η u₂).Wr u =
-      ∑ m ∈ Finset.range K, (nodeC (clarkNode α 1 - η) u₂ (siteSeq α K n) (widthSeq n η) (m + 1)).re +
-        ∑' m : ℕ, (nodeC (clarkNode α 1 - η) u₂ (siteSeq α K n) (widthSeq n η) (K + 1 + m)).re := by
-  have h := intWr_hasSum (negDesign α K n η u₂)
-  rw [negDesign_site, negDesign_width] at h
-  have h' : HasSum (fun m : ℕ => (nodeC (clarkNode α 1 - η) u₂ (siteSeq α K n) (widthSeq n η) (m + 1)).re)
-      (∫ u, (negDesign α K n η u₂).Wr u) := h
-  have hs := h'.summable.sum_add_tsum_nat_add K
-  rw [h'.tsum_eq] at hs
-  rw [← hs]
-  congr 1
-  refine tsum_congr fun m => ?_
-  have : m + K + 1 = K + 1 + m := by omega
-  simp only [this]
+/-- `∫ f_K` is the integral of the real ideal window of `clarkDatum α z₁ u₂ 0 K`. -/
+lemma windowInt_eq_win (α : ℝ) {K : ℕ} (hK : 3 ≤ K) (u₂ : ℝ) :
+    windowInt α K u₂ = ∫ u, (clarkDatum α (clarkNode α 1) u₂ 0 K).win u := by
+  have hF : (clarkDatum α (clarkNode α 1) u₂ 0 K).F = windowF α K u₂ := by
+    rw [IdealApprox.F_eq_winC _ (by simp [clarkDatum]; omega), windowF_eq_winC α hK u₂]
+    have hl : IdealApprox.idealLim (clarkDatum α (clarkNode α 1) u₂ 0 K).s K = siteLim α K := by
+      funext k
+      unfold siteLim IdealApprox.idealLim
+      by_cases hk : 3 ≤ k
+      · simp [clarkDatum, hk, show k ≠ 0 by omega]
+      · simp [hk]
+    simp only [clarkDatum]
+    rw [show (fun k => if k = 0 then airyZero k else clarkNode α k) = (clarkDatum α (clarkNode α 1) u₂ 0 K).s from rfl, hl]
+  unfold windowInt IdealDatum.win
+  rw [hF]
 
 /-- The designs `negDesign α K (K + j) η_j u₂` have `∫ W_2 → ∫ f_K`. -/
 theorem tendsto_intWr (α : ℝ) {K : ℕ} (hK : 3 ≤ K) (u₂ : ℝ) {L : ℕ} (hL : 4 ≤ L) :
@@ -78,34 +72,14 @@ theorem tendsto_intWr (α : ℝ) {K : ℕ} (hK : 3 ≤ K) (u₂ : ℝ) {L : ℕ}
     exact h1.inv_tendsto_atTop
   have hnj : ∀ j : ℕ, K ≤ K + j := fun j => Nat.le_add_right K j
   have hnjt : Tendsto (fun j : ℕ => K + j) atTop atTop := tendsto_atTop_mono (fun j : ℕ => Nat.le_add_left j K) tendsto_id
-  have hfirst : Tendsto (fun j : ℕ => ∑ m ∈ Finset.range K, (nodeC (clarkNode α 1 - ((j : ℝ) + L)⁻¹) u₂
-      (siteSeq α K (K + j)) (widthSeq (K + j) ((j : ℝ) + L)⁻¹) (m + 1)).re) atTop (𝓝 (windowInt α K u₂)) := by
-    rw [windowInt_eq_sum α hK u₂]
-    refine tendsto_finsetSum _ fun m hm => ?_
-    have hm' := Finset.mem_range.mp hm
-    exact (Complex.continuous_re.tendsto _).comp
-      (tendsto_nodeC α (nj := fun j : ℕ => K + j) (η := fun j : ℕ => ((j : ℝ) + L)⁻¹) (n := m + 1)
-        (by omega) (by omega) u₂ hnj hnjt (fun j => (hηpos j).le) hη1 hηt)
-  obtain ⟨M, hM0, N₀, hM⟩ := tail_sum_bound α hK u₂
-  have hrate : Tendsto (fun j : ℕ => M * ((((j : ℝ) + L)⁻¹) ^ 2 + (((K + j) + 2 : ℕ) : ℝ) ^ (-(1 / 3 : ℝ))))
-      atTop (𝓝 0) := by
-    have h1 : Tendsto (fun j : ℕ => (((K + j) + 2 : ℕ) : ℝ)) atTop atTop :=
-      tendsto_natCast_atTop_atTop.comp
-        (tendsto_atTop_mono (fun j : ℕ => Nat.le_add_right (K + j) 2) hnjt)
-    have h2 : Tendsto (fun j : ℕ => (((K + j) + 2 : ℕ) : ℝ) ^ (-(1 / 3 : ℝ))) atTop (𝓝 0) :=
-      (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 1 / 3)).comp h1
-    have h3 := ((hηt.pow 2).add h2).const_mul M
-    simpa using h3
-  have htail : Tendsto (fun j : ℕ => ∑' m : ℕ, (nodeC (clarkNode α 1 - ((j : ℝ) + L)⁻¹) u₂
-      (siteSeq α K (K + j)) (widthSeq (K + j) ((j : ℝ) + L)⁻¹) (K + 1 + m)).re) atTop (𝓝 0) := by
-    refine squeeze_zero_norm' ?_ hrate
-    filter_upwards [hnjt.eventually_ge_atTop N₀] with j hj
-    rw [Real.norm_eq_abs]
-    exact hM (K + j) (hnj j) (by omega) _ (hηpos j) (hη1 j)
-  have := hfirst.add htail
-  rw [add_zero] at this
-  refine this.congr fun j => ?_
-  exact (intWr_decomp α K (K + j) _ u₂).symm
+  have hp : Tendsto (fun j : ℕ => clarkNode α 1 - ((j : ℝ) + L)⁻¹) atTop
+      (𝓝 (clarkDatum α (clarkNode α 1) u₂ 0 K).p) := by
+    simpa [clarkDatum] using (tendsto_const_nhds (x := clarkNode α 1)).sub hηt
+  have h := IdealApprox.ideal_tendsto_intWr_gen (clarkDatum α (clarkNode α 1) u₂ 0 K)
+    (by simp [clarkDatum]; omega) hnjt hnj hηpos hη1 hηt hp
+  rw [windowInt_eq_win α hK u₂]
+  refine h.congr fun j => ?_
+  rw [negDesign_eq_idealDesignP]
 
 /-- **`TwoZeroNegativeVacuum`** (the window algebra of Step 1 of the proof of `gt:2.5`): if `∫ f_K < 0` at the
 second zero `u₂`, then some admissible two-simple-zero design with second zero `q = u₂` and first zero

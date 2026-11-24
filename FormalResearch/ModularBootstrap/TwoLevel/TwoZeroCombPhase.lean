@@ -28,29 +28,6 @@ All results are proved unconditionally.
 open Complex Filter Topology Set
 open scoped Real
 
-namespace FormalResearch.ModularBootstrap.Upper.Design
-
-open FormalResearch.ModularBootstrap.Upper.Comb FormalResearch.ModularBootstrap.Upper.Saddle
-
-/-- The finite modifications `designComb` carry a `PhaseComb` with `Φ₁ = designPhi1` (`ut:Phi`; the abstract
-interface of `designProfile_sdvHypotheses_of_decomp`). -/
-theorem designComb_phaseComb_of_decomp (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀)
-    (hη₀1 : η₀ ≤ 1 / 4) :
-    ∃ A : ℝ, 0 ≤ A ∧ ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ) (B : ℝ),
-      DesignAdmissible c' f N η₀ σ ε → DesignPhiDecomp c' f N η₀ σ ε B →
-      PhaseComb c' (A + B) (designComb c' f N η₀ σ ε) (designPhi1 c' f N η₀ σ ε) := by
-  obtain ⟨A, hA0, hBev⟩ := designPhi1_bounds_of_decomp f hf hη₀0 hη₀1
-  refine ⟨A, hA0, ?_⟩
-  filter_upwards [hBev, combTail_K1a_unif hη₀0 hη₀1] with c' hBd hTd N σ ε B hA hDec
-  obtain ⟨hT1, hT2, hT3, hT4⟩ := hTd N
-  obtain ⟨hK1, -, -⟩ := designComb_K1a hA hT1 hT2 hT3
-  obtain ⟨hΦ1, hder⟩ := hBd N σ ε B hA hDec
-  refine ⟨fun _ hb => hK1 hb, fun _ hb => exp_designPhi1_eq hDec hb, hΦ1, hder,
-    fun b hb => re_designPhi1_edge hDec hb, fun b hb => ?_⟩
-  exact designComb_neg_conj c' f N η₀ σ ε b (hT4 (by rw [hb]; norm_num))
-
-end FormalResearch.ModularBootstrap.Upper.Design
-
 namespace FormalResearch.ModularBootstrap.TwoLevel
 
 open FormalResearch.ModularBootstrap.Upper.Comb FormalResearch.ModularBootstrap.Upper.Saddle
@@ -221,10 +198,6 @@ theorem _root_.FormalResearch.ModularBootstrap.Upper.Design.PhaseComb.mul_blasch
     rw [map_mul, ← h.symm_edge b hbim, blaschkeT_ofReal_neg_conj]
 
 /-! ### Axiom checks -/
-
-/-- info: 'FormalResearch.ModularBootstrap.Upper.Design.designComb_phaseComb_of_decomp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms FormalResearch.ModularBootstrap.Upper.Design.designComb_phaseComb_of_decomp
 
 /-- info: 'FormalResearch.ModularBootstrap.TwoLevel.iteratedDeriv_tPhase_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

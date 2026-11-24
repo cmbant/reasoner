@@ -220,31 +220,6 @@ lemma blaschkeT_eq_exp {ζ b : ℂ} (hb : b ∈ combN) (hζ : ζ ∈ combZ) :
   rw [Complex.exp_add, Complex.exp_pi_mul_I, cexp_phiZeta hb hζ]
   ring
 
-/-- **Two-sided dependence of `φ_y` on the site** (`K1(d)`; the form of `combPhiDeriv_sub_xiStar_le` for any
-two sites `0 ≤ x ≤ y`): `‖∂_b^i φ_y - ∂_b^i φ_x‖ ≤ C (y - x)` on `combNMid`, `i ≤ 2`. -/
-lemma combPhiDeriv_sub_le :
-    ∃ C > 0, ∀ (i : ℕ), i ≤ 2 → ∀ {x y : ℝ} {b : ℂ}, 0 ≤ x → x ≤ y → b ∈ combNMid →
-      ‖combPhiDeriv i 0 (y : ℂ) b - combPhiDeriv i 0 (x : ℂ) b‖ ≤ C * (y - x) := by
-  obtain ⟨C, hC, _, hbd⟩ := combPhiDeriv_bound
-  refine ⟨C, hC, fun i hi x y b hx hxy hb => ?_⟩
-  have hdiff : ∀ t ∈ Icc x y,
-      HasDerivWithinAt (fun u : ℝ => combPhiDeriv i 0 (u : ℂ) b)
-        (combPhiDeriv i 1 (t : ℂ) b) (Icc x y) t := by
-    intro t ht
-    have ht_nn : 0 ≤ t := hx.trans ht.1
-    have hζ : (t : ℂ) ∈ combZOpen := ofReal_mem_combZOpen' (by linarith)
-    have hc := (hasDerivAt_combPhiDeriv_zeta (i := i) (j := 0)
-      (combNMid_subset_combNOpen hb) hζ).comp_ofReal
-    exact (hc.congr_deriv (by ring)).hasDerivWithinAt
-  have hnorm : ∀ t ∈ Ico x y, ‖combPhiDeriv i 1 (t : ℂ) b‖ ≤ C := by
-    intro t ht
-    have hζ : (t : ℂ) ∈ combZ := ofReal_mem_combZ' (hx.trans ht.1)
-    calc ‖combPhiDeriv i 1 (t : ℂ) b‖
-        ≤ C * min 1 (Real.exp (-π * (t - |b.re|))) := hbd i 1 (by omega) hb hζ
-      _ ≤ C * 1 := by gcongr; exact min_le_left _ _
-      _ = C := mul_one C
-  exact norm_image_sub_le_of_norm_deriv_le_segment' hdiff hnorm y (right_mem_Icc.mpr hxy)
-
 /-- `‖∂_b^i φ_y - ∂_b^i φ_{ξ_*}‖ ≤ C |y - ξ_*|` for every `y ≥ 0` (both sides of `ξ_*`): the site `χ(p)` of
 `ut:T2` may lie on either side of `ξ_*`. -/
 lemma combPhiDeriv_sub_xiStar_abs_le :

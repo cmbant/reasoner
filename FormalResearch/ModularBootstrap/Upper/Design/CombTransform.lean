@@ -4,6 +4,7 @@ public import FormalResearch.ModularBootstrap.Upper.Design.DesignCombProps
 public import FormalResearch.ModularBootstrap.Upper.Design.AmplitudeLogDeriv
 public import FormalResearch.ModularBootstrap.Upper.Saddle.EdgePhaseZero
 public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeGlobalBound
+public import FormalResearch.ModularBootstrap.Upper.Design.CombTransformAbs
 
 /-!
 # Lemma `Φ`, "Consequently": the transform of a finite modification of the comb
@@ -56,12 +57,6 @@ noncomputable def designPhi1 (c' : ℝ) (f N : ℕ) (η₀ : ℝ) (σ ε : ℕ �
 /-- `h₀ = sech²(π b / 2) B_D^{(f)}(b)`. -/
 noncomputable def designProfile (c' : ℝ) (f N : ℕ) (η₀ : ℝ) (σ ε : ℕ → ℝ) (b : ℂ) : ℂ :=
   sechSqProfile b * designComb c' f N η₀ σ ε b
-
-/-- The comb-independent amplitude `𝒜_x = 2 e^{-2πnx/3} |ℰ(b_x)| |1 + ε_H(k b_x)|
-(|b_x|/(x F'(v_x)))^{1/2}` of `(SD.4)` for `ℰ = sech²(π b/2)` (the factor `e^{Re Φ₁(b_x)}` is `1`
-for the combs of Lemma `Φ`, see `designPhi1_re_edge`). -/
-noncomputable def combAmplitude (n x : ℝ) : ℝ :=
-  sdvPrefactor n x sechSqProfile (fun _ => 0) hankelEps
 
 /-! ### 2. Differentiability of `Φ₁^{(f)}` -/
 
@@ -274,14 +269,6 @@ theorem designProfile_global_bound (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M
 
 /-! ### 4. Hypotheses of `SD_0` and `SD_V` -/
 
-lemma sechSqProfile_neg_conj (b : ℂ) :
-    sechSqProfile (-(starRingEnd ℂ b)) = starRingEnd ℂ (sechSqProfile b) := by
-  unfold sechSqProfile
-  have h1 : (π : ℂ) * -(starRingEnd ℂ b) / 2 = -(starRingEnd ℂ ((π : ℂ) * b / 2)) := by
-    rw [map_div₀, map_mul, Complex.conj_ofReal, map_ofNat]; ring
-  rw [h1, Complex.cosh_neg, Complex.cosh_conj]
-  simp
-
 lemma exp_designPhi1_eq {c' : ℝ} {f N : ℕ} {η₀ : ℝ} {σ ε : ℕ → ℝ} {B : ℝ}
     (hDec : DesignPhiDecomp c' f N η₀ σ ε B) {b : ℂ} (hb : b ∈ combN) :
     Complex.exp ((c' : ℂ) * edgePhi0Blaschke b + designPhi1 c' f N η₀ σ ε b) =
@@ -297,6 +284,23 @@ lemma re_designPhi1_edge {c' : ℝ} {f N : ℕ} {η₀ : ℝ} {σ ε : ℕ → �
     (hDec : DesignPhiDecomp c' f N η₀ σ ε B) {b : ℂ} (hb : b.im = 1 / 2) :
     (designPhi1 c' f N η₀ σ ε b).re = 0 := hDec.2.2.1 b hb
 
+/-- The finite modifications `designComb` carry a `PhaseComb` with `Φ₁ = designPhi1` (the abstract interface of
+`designProfile_sdvHypotheses_of_decomp` and `lemma_Phi_transform_of_decomp`). -/
+theorem designComb_phaseComb_of_decomp (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀)
+    (hη₀1 : η₀ ≤ 1 / 4) :
+    ∃ A : ℝ, 0 ≤ A ∧ ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ) (B : ℝ),
+      DesignAdmissible c' f N η₀ σ ε → DesignPhiDecomp c' f N η₀ σ ε B →
+      PhaseComb c' (A + B) (designComb c' f N η₀ σ ε) (designPhi1 c' f N η₀ σ ε) := by
+  obtain ⟨A, hA0, hBev⟩ := designPhi1_bounds_of_decomp f hf hη₀0 hη₀1
+  refine ⟨A, hA0, ?_⟩
+  filter_upwards [hBev, combTail_K1a_unif hη₀0 hη₀1] with c' hBd hTd N σ ε B hA hDec
+  obtain ⟨hT1, hT2, hT3, hT4⟩ := hTd N
+  obtain ⟨hK1, -, -⟩ := designComb_K1a hA hT1 hT2 hT3
+  obtain ⟨hΦ1, hder⟩ := hBd N σ ε B hA hDec
+  refine ⟨fun b hb => hK1 hb, fun _ hb => exp_designPhi1_eq hDec hb, hΦ1, hder,
+    fun b hb => re_designPhi1_edge hDec hb, fun b hb => ?_⟩
+  exact designComb_neg_conj c' f N η₀ σ ε b (hT4 (by rw [hb]; norm_num))
+
 /-- **The hypotheses of Lemma `SD_V` for `h₀ = sech² B_D^{(f)}`, from a phase decomposition.**  There is
 `A ≥ 0` (depending on `f` only) such that for `c'` large (threshold independent of the cut `N`, of `B` and
 of the data), every `N`, every admissible finite modification with `DesignPhiDecomp c' f N η₀ σ ε B` and every
@@ -309,83 +313,10 @@ theorem designProfile_sdvHypotheses_of_decomp (f : ℕ) (hf : 1 ≤ f) {η₀ : 
       ∀ x : ℝ, xiStar ≤ x →
         SDVHypotheses edgePhi0Blaschke x c' (1 / 8) (ampM0 + (A + B)) (ampM0' + (A + B))
           sechSqProfile (designPhi1 c' f N η₀ σ ε) hankel0 hankelEps := by
-  obtain ⟨A, hA0, hBev⟩ := designPhi1_bounds_of_decomp f hf hη₀0 hη₀1
-  have hc1 := cosC_pos
+  obtain ⟨A, hA0, hPC⟩ := designComb_phaseComb_of_decomp f hf hη₀0 hη₀1
   refine ⟨A, hA0, ?_⟩
-  filter_upwards [hBev, combTail_K1a_unif hη₀0 hη₀1,
-    eventually_ge_atTop (6 / (π * xiStar))] with c' hBd hTd hbig N σ ε B hA hDec x hx
-  obtain ⟨hT1, hT2, hT3, hT4⟩ := hTd N
-  obtain ⟨hΦ1, hder⟩ := hBd N σ ε B hA hDec
-  have hc'pos : 0 < c' := lt_of_lt_of_le (by have := xiStar_pos; positivity) hbig
-  have hk8 : 8 ≤ sdvWave c' x := by
-    unfold sdvWave
-    have hxi := xiStar_pos
-    have h1 : 6 / (π * xiStar) * (π * xiStar) = 6 := by field_simp
-    nlinarith [mul_le_mul hbig hx hxi.le hc'pos.le, Real.pi_pos]
-  have hkpos : 0 < sdvWave c' x := by linarith
-  obtain ⟨hK1, hK2, hK3⟩ := designComb_K1a hA hT1 hT2 hT3
-  have hstrip : edgeStrip (1 / 8) ⊆ combN := fun b hb => by
-    have hb' : |b.im - 1 / 2| ≤ 1 / 8 := hb
-    exact le_trans hb' (by norm_num)
-  obtain ⟨hAn, hNz, hL1, hL2⟩ := sdvAmplitude_fields (x := x) (n := c') hk8 hΦ1
-    (fun b hb => (hder b (hstrip hb)).1) (fun b hb => (hder b (hstrip hb)).2)
-  refine ⟨hAn, hNz, ?_, hL1, hL2, ?_, ?_, ?_⟩
-  · intro b hb
-    have hb' : |b.im - 1 / 2| ≤ 1 / 8 := hb
-    have him : 0 < ((sdvWave c' x : ℂ) * b).im := by
-      rw [Complex.im_ofReal_mul]
-      exact mul_pos hkpos (by linarith [(abs_le.mp hb').1])
-    rw [hankel0_eq_leading_mul him]
-    rfl
-  · refine ⟨8, π, by norm_num, Real.pi_pos, fun v t ht0 ht1 => ?_⟩
-    have hbim : (((v : ℂ) + (t : ℂ) * Complex.I)).im = t := by simp
-    have hbre : (((v : ℂ) + (t : ℂ) * Complex.I)).re = v := by simp
-    have hbc : (v : ℂ) + (t : ℂ) * Complex.I ∈ combN := by
-      change |((v : ℂ) + (t : ℂ) * Complex.I).im - 1 / 2| ≤ 1 / 4
-      rw [hbim, abs_le]; constructor <;> linarith
-    rw [norm_mul, exp_designPhi1_eq hDec hbc]
-    have h2 := edgeHankelHyp_sech.decay ((v : ℂ) + (t : ℂ) * Complex.I) (by rw [hbim]; linarith)
-      (by rw [hbim]; exact ht1)
-    rw [hbre] at h2
-    have h3 : ‖designComb c' f N η₀ σ ε ((v : ℂ) + (t : ℂ) * Complex.I)‖ ≤ 1 :=
-      hK1 (by rw [hbim, abs_of_nonneg (by linarith)]; exact ht1)
-    calc _ ≤ (8 * Real.exp (-π * |v|)) * 1 := mul_le_mul h2 h3 (norm_nonneg _) (by positivity)
-      _ = 8 * Real.exp (-π * |v|) := mul_one _
-  · refine ⟨1, fun b hb => ?_⟩
-    have hb' : |b.im - 1 / 2| ≤ 1 / 8 := hb
-    have him : 0 < ((sdvWave c' x : ℂ) * b).im := by
-      rw [Complex.im_ofReal_mul]
-      exact mul_pos hkpos (by linarith [(abs_le.mp hb').1])
-    exact norm_one_add_hankelEps_le him
-  · intro v
-    dsimp only
-    have hb_im : (((v : ℂ) + Complex.I / 2)).im = 1 / 2 := by simp
-    have hbm_im : (((-v : ℂ) + Complex.I / 2)).im = 1 / 2 := by simp
-    have hbc : (v : ℂ) + Complex.I / 2 ∈ combN := by
-      change |((v : ℂ) + Complex.I / 2).im - 1 / 2| ≤ 1 / 4
-      rw [hb_im]; norm_num
-    have hbmc : (-v : ℂ) + Complex.I / 2 ∈ combN := by
-      change |((-v : ℂ) + Complex.I / 2).im - 1 / 2| ≤ 1 / 4
-      rw [hbm_im]; norm_num
-    have hneg : (-v : ℂ) + Complex.I / 2 = -(starRingEnd ℂ ((v : ℂ) + Complex.I / 2)) := by
-      rw [map_add, Complex.conj_ofReal, map_div₀, Complex.conj_I, map_ofNat]; ring
-    have hk : ((sdvWave c' x : ℂ) * ((-v : ℂ) + Complex.I / 2)) =
-        -(starRingEnd ℂ ((sdvWave c' x : ℂ) * ((v : ℂ) + Complex.I / 2))) := by
-      rw [hneg, map_mul, Complex.conj_ofReal]; ring
-    have hh : ∀ z : ℂ, z ∈ combN → sechSqProfile z *
-        Complex.exp ((c' : ℂ) * edgePhi0Blaschke z + designPhi1 c' f N η₀ σ ε z) =
-        designProfile c' f N η₀ σ ε z := fun z hz => by
-      rw [exp_designPhi1_eq hDec hz]; rfl
-    rw [hh _ hbmc, hh _ hbc, hk, hankel0_reflection]
-    have hsym : designProfile c' f N η₀ σ ε (-(starRingEnd ℂ ((v : ℂ) + Complex.I / 2))) =
-        starRingEnd ℂ (designProfile c' f N η₀ σ ε ((v : ℂ) + Complex.I / 2)) := by
-      unfold designProfile
-      rw [sechSqProfile_neg_conj, designComb_neg_conj c' f N η₀ σ ε _
-        (hT4 (by rw [hb_im]; norm_num)), map_mul]
-    rw [← hneg] at hsym
-    rw [hsym, hneg]
-    simp only [map_mul]
-    ring
+  filter_upwards [hPC, eventually_ge_atTop (6 / (π * xiStar))] with c' hP hc6 N σ ε B hA hDec x hx
+  exact sdvHypotheses_of_phase hc6 (hP N σ ε B hA hDec) hx
 
 /-- **The hypotheses of Lemma `SD_V` for `h₀ = sech² B_D^{(f)}`.**  There are constants `M₁, M₂`
 such that for `c'` large, uniformly in the compact family and in `x ≥ ξ_*`,
@@ -419,19 +350,7 @@ lemma edgeHankel_designProfile_eq_sdvIntegral {c' : ℝ} {f N : ℕ} {η₀ : �
     (hDec : DesignPhiDecomp c' f N η₀ σ ε B) {x : ℝ} (hc : 0 < c') (hx : 0 < x) :
     edgeHankel c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3) =
       ((sdvIntegral edgePhi0Blaschke c' x sechSqProfile (designPhi1 c' f N η₀ σ ε) hankel0 : ℂ)) := by
-  rw [edge_hankel_representation Real.pi_pos hh hc hx]
-  unfold sdvIntegral sdvWave
-  have hpref : (2 * (π : ℂ) * (c' : ℂ) / 3) = ((2 * π * c' / 3 : ℝ) : ℂ) := by push_cast; ring
-  rw [hpref]
-  congr 1
-  refine integral_congr_ae (Filter.Eventually.of_forall fun v => ?_)
-  have hbc : (v : ℂ) + Complex.I / 2 ∈ combN := by
-    change |((v : ℂ) + Complex.I / 2).im - 1 / 2| ≤ 1 / 4
-    simp
-  have := exp_designPhi1_eq hDec hbc
-  simp only
-  rw [this]
-  rfl
+  exact edgeHankel_eq_sdvIntegral_of_eq (fun b hb => exp_designPhi1_eq hDec hb) hh hc hx
 
 /-- **Lemma `Φ`, "Consequently"** (`ut:Phi`), for an abstract finite modification with a phase
 decomposition of derivative bound `B ≥ 0` (independent of `c'` and of the cut `N`): for fixed `f ≥ 1`,
@@ -446,78 +365,12 @@ theorem lemma_Phi_transform_of_decomp (f : ℕ) (hf : 1 ≤ f) {η₀ : ℝ} (h�
       ∀ x : ℝ, xiStar + c' ^ (-θ) ≤ x →
         ‖edgeHankel c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3)‖ ≤
           combAmplitude c' x * (1 + C * c' ^ (-1 + 3 * θ / 2)) := by
-  obtain ⟨A, hA0, hSDV⟩ := designProfile_sdvHypotheses_of_decomp f hf hη₀0 hη₀1
-  have hc1' := cosC_pos
-  have hM₁ : 0 ≤ ampM0 + (A + B) := by unfold ampM0; positivity
-  have hM₂ : 0 ≤ ampM0' + (A + B) := by unfold ampM0'; positivity
-  obtain ⟨C₃, C₄, hΦ⟩ := edgePhaseData_blaschke
-  have hEP := hΦ (1 / 8) (by norm_num) (by norm_num)
-  have hC₃ : 0 ≤ C₃ := (norm_nonneg _).trans (hEP.deriv3_bound (Complex.I / 2) (by
-    change |(Complex.I / 2 : ℂ).im - 1 / 2| ≤ 1 / 8
-    simp))
-  have hC₄ : 0 ≤ C₄ := (norm_nonneg _).trans (hEP.deriv4_bound (Complex.I / 2) (by
-    change |(Complex.I / 2 : ℂ).im - 1 / 2| ≤ 1 / 8
-    simp))
-  obtain ⟨N₀, CSD, hN₀, hCSD, hSD⟩ := lemma_SD_V (δ := 1 / 8) (C₃ := C₃) (C₄ := C₄) (M := ampM0 + (A + B))
-    (M' := ampM0' + (A + B)) (by norm_num) (by norm_num) hC₃ hC₄ hM₁ hM₂
-  obtain ⟨cm, hcm, hmx⟩ := sdv_uniform_mX_cubed
-  have hexp : 0 < 1 - 3 * θ / 2 := by linarith
-  refine ⟨CSD / cm, by positivity, ?_⟩
-  filter_upwards [hSDV, designProfile_edgeHankelHyp_of_admissible f hη₀0 hη₀1,
-    (tendsto_rpow_atTop hexp).eventually_ge_atTop (N₀ / cm), eventually_ge_atTop (1 : ℝ)]
-    with c' hS hH hbig hc1 N σ ε hA hDec x hx
-  obtain ⟨hh, -⟩ := hH N σ ε hA
-  have hc'pos : 0 < c' := lt_of_lt_of_le one_pos hc1
-  have hxpos : 0 < c' ^ (-θ) := Real.rpow_pos_of_pos hc'pos _
-  have hxξ : xiStar < x := by linarith
-  have hxpos' : 0 < x := lt_trans xiStar_pos hxξ
-  have hEq := edgeHankel_designProfile_eq_sdvIntegral hh hDec hc'pos hxpos'
-  set P : ℝ := c' ^ (1 - 3 * θ / 2) with hP
-  have hPpos : 0 < P := Real.rpow_pos_of_pos hc'pos _
-  have hq : c' ^ (-(3 * θ / 2)) ≤ (x - xiStar) ^ (3 / 2 : ℝ) := by
-    have h1 : (c' ^ (-θ)) ^ (3 / 2 : ℝ) ≤ (x - xiStar) ^ (3 / 2 : ℝ) :=
-      Real.rpow_le_rpow hxpos.le (by linarith) (by norm_num)
-    have h2 : (c' ^ (-θ)) ^ (3 / 2 : ℝ) = c' ^ (-(3 * θ / 2)) := by
-      rw [← Real.rpow_mul hc'pos.le]; congr 1; ring
-    rwa [h2] at h1
-  have hq1 : c' ^ (-(3 * θ / 2)) ≤ 1 :=
-    Real.rpow_le_one_of_one_le_of_nonpos hc1 (by linarith)
-  have hmX : cm * c' ^ (-(3 * θ / 2)) ≤ mX x ^ 3 :=
-    (mul_le_mul_of_nonneg_left (le_min hq1 hq) hcm.le).trans (hmx x hxξ)
-  have hPeq : P = c' * c' ^ (-(3 * θ / 2)) := by
-    rw [hP, ← Real.rpow_one_add' hc'pos.le (by linarith)]; congr 1
-  have hcm_mX : cm * P ≤ c' * mX x ^ 3 := by
-    rw [hPeq]
-    calc cm * (c' * c' ^ (-(3 * θ / 2))) = c' * (cm * c' ^ (-(3 * θ / 2))) := by ring
-      _ ≤ c' * mX x ^ 3 := mul_le_mul_of_nonneg_left hmX hc'pos.le
-  have hN : N₀ ≤ c' * mX x ^ 3 := by
-    have := (div_le_iff₀ hcm).1 hbig
-    linarith
-  obtain ⟨err, herr, hint⟩ := hSD hxξ hc'pos hN hEP (hS N σ ε B hA hDec x (by linarith))
-  have hre : (designPhi1 c' f N η₀ σ ε (bX x)).re = 0 :=
-    re_designPhi1_edge hDec (by simp [bX])
-  have hpref : sdvPrefactor c' x sechSqProfile (designPhi1 c' f N η₀ σ ε) hankelEps =
-      combAmplitude c' x := by
-    unfold combAmplitude sdvPrefactor
-    simp [hre]
-  have hA0 : 0 ≤ combAmplitude c' x := by
-    unfold combAmplitude sdvPrefactor
-    positivity
-  have herr' : |err| ≤ CSD / cm * c' ^ (-1 + 3 * θ / 2) := by
-    have h1 : c' ^ (-1 + 3 * θ / 2) = P⁻¹ := by
-      rw [hP, ← Real.rpow_neg hc'pos.le]; congr 1; ring
-    rw [h1]
-    refine herr.trans ?_
-    have hpos : 0 < c' * mX x ^ 3 := lt_of_lt_of_le (mul_pos hcm hPpos) hcm_mX
-    calc CSD / (c' * mX x ^ 3) ≤ CSD / (cm * P) :=
-          div_le_div_of_nonneg_left hCSD (mul_pos hcm hPpos) hcm_mX
-      _ = CSD / cm * P⁻¹ := by field_simp
-  rw [hEq, hint, Complex.norm_real, Real.norm_eq_abs, hpref, abs_mul, abs_of_nonneg hA0]
-  refine mul_le_mul_of_nonneg_left ?_ hA0
-  calc |Real.cos (sdvPhase edgePhi0Blaschke c' x sechSqProfile (designPhi1 c' f N η₀ σ ε)
-        hankelEps) + err| ≤ |Real.cos _| + |err| := abs_add_le _ _
-    _ ≤ 1 + |err| := by gcongr; exact Real.abs_cos_le_one _
-    _ ≤ _ := by linarith
+  obtain ⟨A, hA0, hPC⟩ := designComb_phaseComb_of_decomp f hf hη₀0 hη₀1
+  obtain ⟨C, hC, hT⟩ := lemma_Phi_transform_of_phase (Mφ := A + B) (by positivity) hθ0 hθ1
+  refine ⟨C, hC, ?_⟩
+  filter_upwards [hPC, hT, designProfile_edgeHankelHyp_of_admissible f hη₀0 hη₀1]
+    with c' hP hT' hH N σ ε hA hDec x hx
+  exact hT' _ _ (hP N σ ε B hA hDec) (hH N σ ε hA).1 x hx
 
 /-- **Lemma `Φ`, "Consequently"** (`ut:Phi`): for `h₀ = sech²(πb/2) B_D^{(f)}` in a compact family,
 `c'` large, `0 < θ < 2/3` and every `x ≥ ξ_I = ξ_* + c'^{-θ}`,
