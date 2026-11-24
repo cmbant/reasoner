@@ -353,22 +353,24 @@ theorem hankelBootB1_nonneg {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤
   show 0 ≤ -hankelBandU c ξ
   linarith
 
-/-- The bridge: `bandB1` of `hankelBandInstance` is the Hankel `B₁` at `R = b² c^{2/3}`. -/
-theorem hankelBoot_bandB1_eq {c ε T u_T : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (hf : IsHankelFeasible c ε T f)
+/-- The bridge: `bandB1` of `hankelBandInstance` is the Hankel `B₁` at the instance radius `R`. -/
+theorem hankelBoot_bandB1_eq {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (hf : IsHankelFeasible c ε T f)
     (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1) (hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0)
-    (hu3 : -3 ≤ u_T) :
-    bandB1 (hankelBandInstance hc hε hf.toIsHankelEigenfn hM hu0 hu3
+    (hu3 : -3 ≤ u_T) (hRlb : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ R)
+    (hRub : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1) :
+    bandB1 (hankelBandInstance hc hε hf.toIsHankelEigenfn hM hu0 hu3 hRlb hRub
         (fun Δ hΔ => hf.tail_nonneg Δ (by rw [← hT]; exact hΔ))) =
-      hankelBootB1 c f ((1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ)) u_T :=
+      hankelBootB1 c f R u_T :=
   rfl
 
-/-- The bridge: `bandB2` of `hankelBandInstance` is the Hankel `B₂` at `R = b² c^{2/3}`. -/
-theorem hankelBoot_bandB2_eq {c ε T u_T : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (hf : IsHankelFeasible c ε T f)
+/-- The bridge: `bandB2` of `hankelBandInstance` is the Hankel `B₂` at the instance radius `R`. -/
+theorem hankelBoot_bandB2_eq {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (hf : IsHankelFeasible c ε T f)
     (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1) (hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0)
-    (hu3 : -3 ≤ u_T) :
-    bandB2 (hankelBandInstance hc hε hf.toIsHankelEigenfn hM hu0 hu3
+    (hu3 : -3 ≤ u_T) (hRlb : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ R)
+    (hRub : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1) :
+    bandB2 (hankelBandInstance hc hε hf.toIsHankelEigenfn hM hu0 hu3 hRlb hRub
         (fun Δ hΔ => hf.tail_nonneg Δ (by rw [← hT]; exact hΔ))) =
-      hankelBootB2 c f ((1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ)) :=
+      hankelBootB2 c f R :=
   rfl
 
 /-- info: 'FormalResearch.SignUncertainty.hankelBootU_xi' depends on axioms: [propext, Classical.choice, Quot.sound] -/

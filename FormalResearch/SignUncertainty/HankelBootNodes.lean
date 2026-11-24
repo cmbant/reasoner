@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.SignUncertainty.HankelBootDataTmp
+public import FormalResearch.SignUncertainty.HankelBootData
 public import FormalResearch.SignUncertainty.HankelQuantC1Feasible
 
 /-!

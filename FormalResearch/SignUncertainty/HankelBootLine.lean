@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.SignUncertainty.HankelBootDataTmp
+public import FormalResearch.SignUncertainty.HankelBootData
 public import FormalResearch.SignUncertainty.HankelLangerPsi
 public import FormalResearch.SignUncertainty.HankelTransportMass
 public import FormalResearch.ModularBootstrap.ConcreteBootstrap.QuadratureBounds
