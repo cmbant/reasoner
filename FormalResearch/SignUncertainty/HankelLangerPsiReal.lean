@@ -60,6 +60,7 @@ lemma deriv_chartYinv_real {y : ℝ} (hy : |y| ≤ 4.94e-4) :
   rw [hd.deriv] at e ⊢
   exact e.symm
 
+/-- `Ψ̃` is analytic on the closed Langer disc `‖u‖ ≤ c^{2/3} κ · 4.94·10⁻⁴` (across the cut). -/
 theorem analyticOnNhd_hankelPsi {c ε : ℝ} (hc : 0 < c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f) :
     AnalyticOnNhd ℂ (hankelPsi c f) (closedBall (0 : ℂ) (c ^ (2 / 3 : ℝ) * langerKappa * 4.94e-4)) := by
   intro u hu
@@ -90,6 +91,7 @@ theorem analyticOnNhd_hankelPsi {c ε : ℝ} (hc : 0 < c) {f : ℝ → ℝ} (hf 
     exact analyticAt_id.div analyticAt_const (by exact_mod_cast hK0.ne')
   exact AnalyticAt.comp (g := hankelPsiY c f) (f := fun u : ℂ => u / (K : ℂ)) hY' hlin
 
+/-- `Ψ̃` is real on the real axis of the Langer disc. -/
 theorem hankelPsi_real {c : ℝ} (hc : 0 < c) (f : ℝ → ℝ) {x : ℝ}
     (hx : |x| ≤ c ^ (2 / 3 : ℝ) * langerKappa * 4.94e-4) : (hankelPsi c f (x : ℂ)).im = 0 := by
   set K : ℝ := c ^ (2 / 3 : ℝ) * langerKappa with hK
@@ -116,7 +118,7 @@ theorem hankelPsi_real {c : ℝ} (hc : 0 < c) (f : ℝ → ℝ) {x : ℝ}
     have : (1 + w) = ((1 + w.re : ℝ) : ℂ) := by
       apply Complex.ext <;> simp [hwim]
     rw [this, ← Complex.ofReal_log h1pos.le]
-  have hL := hankelLocal_im_eq_zero hc f (Real.log (1 + w.re))
+  have hL := hankelLocal_im_eq_zero (c := c) f (Real.log (1 + w.re))
   have hLc : starRingEnd ℂ (hankelLocal c f (Complex.log (1 + w))) =
       hankelLocal c f (Complex.log (1 + w)) := by
     rw [hlogr]; exact Complex.conj_eq_iff_im.2 hL
@@ -127,5 +129,13 @@ theorem hankelPsi_real {c : ℝ} (hc : 0 < c) (f : ℝ → ℝ) {x : ℝ}
   rw [← Complex.conj_eq_iff_im]
   unfold hankelPsiY
   rw [map_mul, map_div₀, map_mul, map_neg, Complex.conj_ofReal, hDc, ← hwdef, h1c, hLc]
+
+/-- info: 'FormalResearch.SignUncertainty.analyticOnNhd_hankelPsi' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms analyticOnNhd_hankelPsi
+
+/-- info: 'FormalResearch.SignUncertainty.hankelPsi_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelPsi_real
 
 end FormalResearch.SignUncertainty

@@ -56,6 +56,8 @@ lemma langerMu_lt : langerMu < 3 / 4 := by
     nlinarith
   exact lt_of_pow_lt_pow_left₀ 3 (by norm_num) h3
 
+/-- **Envelope `(e71)` for the local integral** at `ℓ = -g(ζ₊)`, `ζ₊ = u^{1/2}`, `u` off the cut with `‖u‖ ≤ 0.035²`
+(absolute constant `200`). -/
 theorem hankel_local_density_envelope {c ε : ℝ} (hc : 2 ≤ c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f)
     (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1) {u : ℂ} (hu : u ∈ slitPlane)
     (hun : ‖u‖ ≤ 0.035 ^ 2) :

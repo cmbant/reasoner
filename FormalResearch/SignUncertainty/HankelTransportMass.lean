@@ -3,7 +3,7 @@ module
 public import FormalResearch.SignUncertainty.HankelTransportInt
 
 /-!
-# The mass hypotheses `(Q2)` for the Langer-disc density (`gt:7.7p` (b)-(d))
+# The mass hypotheses `(Q2)` for the Langer-disc density (`gt:7.7p` (b), (c), first half of (d); Step 2)
 
 For a feasible `f` (`IsHankelFeasible c ε T f`, `M[f] = 1`) and `c` large, with `A = langerRadius c`,
 `r_∞ = hankelRinf c`, `φ(x) = c ξ(x)`:
@@ -12,6 +12,11 @@ For a feasible `f` (`IsHankelFeasible c ε T f`, `M[f] = 1`) and `c` large, with
 * negative mass above `x_T`: `∫_{x_T}^A (Re Ψ̃)_- ≥ 1/2 - lobe(c) - 2 A r_∞` when `φ(x_T) ≥ T`;
 * truncated total: `∫_{-R'}^A Re Ψ̃ ≤ lobe(c) + 2 A r_∞` when `φ(-R') ≥ T`,
 with `lobe(c) = 8(e^{-5 (4.9·10⁻⁵ c^{2/3})^{3/2}} + e^{-c/25})` from `deep_lobe_mass_thm`.
+
+Not formalised from `gt:7.7p` (d): the uniform bound across the cut `|Ψ̃| ≤ 3e^{1.5R₁+1.37R₁²}` on `|ũ| ≤ R₁`, the derivative
+bound `|Ψ̃'| ≤ C₁(R₁)`, and the effective `C¹` stability conclusions (one- and two-level violators; they run through
+`teb:quant_c1`).  The Lean `c`-thresholds (`5000`, and `3·10⁶` for the lobe statements, from `R ≥ 1` in `deep_lobe_mass_thm`)
+are explicit where the paper's `c₁` is not.
 -/
 
 @[expose] public section

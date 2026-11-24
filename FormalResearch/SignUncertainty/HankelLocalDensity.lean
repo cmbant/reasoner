@@ -183,6 +183,9 @@ lemma hankelLocPhi_conn_total (ℓ : ℂ) (hl : ℓ.re ≤ 1 / 200) {c σ τ0 τ
       sq_nonneg τ0]
   nlinarith
 
+/-- **Local density bound** (`gt:7.7c` (c), before the chart): for normalised `f ∈ 𝒜_c^ε`, `c ≥ 2`, `Re ℓ ≤ 1/200` and
+a root `ζ₊ = σ + iτ₀` of `g + ℓ` with `0 < σ ≤ 0.035`, `|τ₀| ≤ 0.035`, the local integral
+`∫_{|τ|≤1/3} J(1/10 + iτ) dτ` is at most `200 (cσ)^{-1/2} e^{c Re Φ(ζ₊; ℓ)}` in norm (absolute constant). -/
 theorem hankel_local_density_bound {c ε : ℝ} (hc : 2 ≤ c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f)
     (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1) (ℓ : ℂ) (hl : ℓ.re ≤ 1 / 200)
     {σ τ0 : ℝ} (hσ0 : 0 < σ) (hσ : σ ≤ 0.035) (hτ0 : |τ0| ≤ 0.035)

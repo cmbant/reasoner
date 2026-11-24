@@ -345,6 +345,11 @@ public import FormalResearch.ModularBootstrap.FoldTip.Hypotheses
 public import FormalResearch.ModularBootstrap.FoldTip.Instances
 public import FormalResearch.ModularBootstrap.TwoLevel.ConstrainedDuality
 public import FormalResearch.ModularBootstrap.TwoLevel.CorollaryTwoFour
+public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumFunction
+public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimum
+public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumNodes
+public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumClark
+public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumLimit
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1045,4 +1050,11 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `TheoremC15UpperInput prob`) and `corollary_two_four` (every `prob` with `prob.w = 1`, unconditional): for `A₁ < A_opt` and
   `A₂ < A_2^*(A₁)`, for all large `c'` there is a crossing measure supported on `{t₁} ∪ [t₂, ∞)` with `ν({t₁}) > 0`,
   `w_* ∈ L¹(ν)`, `∫ w_* dν ≤ C₀`.
+* `TwoLevel.WindowOptimumFunction`, `WindowOptimum`, `WindowOptimumNodes`, `WindowOptimumClark`, `WindowOptimumLimit`
+  (`virasoro_two_level.tex` Proposition 2.3 `gt:2.3`, qualitative part): the Airy window function `windowF`
+  (`windowF_hasSum`: Clark-Airy summation), the affine window integral and the weighted-mean formula `windowOptimum_eq`
+  for `u₂*(K)`, **`windowOptimum_lt`** (`u₂*(K) < z₂`), the abstract tail bound `NodeHyp.term_bound`, its instance for Airy
+  zeros and Clark nodes `exists_clark_nodeHyp`, **`tendsto_windowOptimum`** (`u₂*(K) → z₂`, with the rate
+  `z₂ - u₂*(K) ≤ C K^{-1/15}`) and **`isGLB_window_amplitude`** (`inf_K c_* |u₂*(K)| = c_* |z₂|`); the sharp rate
+  `K^{-1/3} log K` is not covered.
 -/
