@@ -56,7 +56,16 @@ lemma hankel_small_eventually : ∀ᶠ c : ℝ in atTop, 4 * langerRadius c * ha
   nlinarith [abs_nonneg (hankelRinf c)]
 
 set_option maxHeartbeats 1000000 in
-/-- **`hb_thresholds_lower`** (`thm:hb-thresholds`, lower half, `(P, Q) = (1, 0)`; proved). -/
+/-- **`hb_thresholds_lower`** (`thm:hb-thresholds` = `u1cl:multilevel`, lower half, `(P, Q) = (1, 0)`; proved):
+exactly the skeleton statement `HbThresholdsLower` of `Headlines.lean` (one level, both eigenvalues `ε = ±1`, all real
+`c ≥ c₀`, every feasible `T`, no extra hypothesis).  `C = 13 + |K₀|/β₁` and `c₀ = max (10¹⁴, c₁, c₂, tebC2 P)` are
+Lean constants independent of `c`, `ε`, `T`, `f` (`K₀ = tebK0HB P 0 ≥ 1`, `P = hankelBootParams hankelWindowC _`;
+`c₁` from `hankel_quantC1_of_feasible`, `c₂` from `hankel_small_eventually`).
+Inputs: `hankel_quantC1_of_feasible` (type (I) compactness, S5), `hankelBootHB` with `hankel_yv_at` (S6a/S6b) and
+`teb_bootstrap_hb` (`TE.2(4)`); the hypothesis `4 r_c r_∞ ≤ 1` of `hankelBootHB` is discharged by
+`hankel_small_eventually` (from `hankelRinf_delta_tendsto`), and `-3 ≤ u_T ≤ 0` by `hankelBoot_uT_range`.
+**Not used:** `teb_mellin_o1_lower` (`TE.4`) and `RadialCompactness`: no a-priori Airy window for `T` is needed because
+`hankel_quantC1_of_feasible` covers every `T < cξ(a₁)`, and the inversion of the chart is `hankelXi_lower`. -/
 theorem hb_thresholds_lower : HbThresholdsLower := by
   set P := hankelBootParams hankelWindowC one_le_hankelWindowC with hP
   obtain ⟨c₁, hc₁, hquant⟩ := hankel_quantC1_of_feasible
@@ -126,5 +135,13 @@ theorem hb_thresholds_lower : HbThresholdsLower := by
 /-- info: 'FormalResearch.SignUncertainty.hb_thresholds_lower' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms hb_thresholds_lower
+
+/-- info: 'FormalResearch.SignUncertainty.hankel_feasible_normalize' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankel_feasible_normalize
+
+/-- info: 'FormalResearch.SignUncertainty.hankel_small_eventually' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankel_small_eventually
 
 end FormalResearch.SignUncertainty

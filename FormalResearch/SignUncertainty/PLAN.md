@@ -21,7 +21,8 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
   instance. `MovingDiagFarTail` has no instance at all. Theorems such as GT.2b, GT.3b, GT.4, PE.3 and `cepe:general` are
   stated for an abstract `fhat` that carries the paper's estimates as hypotheses. Nothing builds `W_S`, `W_D` from `Ai`,
   or `h_mellin` from a CE pair.
-- Open skeleton fields in `Headlines.lean` (6): `hb_thresholds_lower`, `hb_thresholds_upper`, `shell_reduction_m1`,
+- Skeleton fields in `Headlines.lean` (6; `hb_thresholds_lower` is now the theorem `hb_thresholds_lower` of `HankelThresholds` but is not yet
+  dropped from `OneLevelThresholds`, which needs `HbThresholdsLower` moved below `HankelThresholds`): `hb_thresholds_lower`, `hb_thresholds_upper`, `shell_reduction_m1`,
   `ce_hb_lift_m1`, `shell_reduction`, `ce_hb_lift`. The Hankel form `HankelShellGapLimit` of `thm:ce-shell-gap` is the
   theorem `hankelShellGapLimit_proved`, and the Euclidean statement follows by `shellGapLimit_of_hankel`. `radial_compactness`, `one_profile_envelope` and the
   Euclidean-to-Hankel dictionary `hankel_euclid_dictionary` (`gt:7.9`) are theorems and no longer inputs.
