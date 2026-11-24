@@ -67,4 +67,8 @@ theorem ceAdmissible_of_hankelPair (n : ℕ) (hn : 1 ≤ n) {T : ℝ} (hT : 0 < 
     exact ⟨by simp, by simpa using hhat_nn _ (by positivity)⟩
   · rw [hF0]; simpa using horigin
 
+/-- info: 'FormalResearch.SignUncertainty.ceAdmissible_of_hankelPair' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ceAdmissible_of_hankelPair
+
 end FormalResearch.SignUncertainty
