@@ -51,11 +51,10 @@ lemma hankelJ_differentiableOn {c ε : ℝ} (hc : 0 < c) {f : ℝ → ℝ} (hf :
     (hankelWt_differentiableOn hc hf).differentiableAt (hopen.mem_nhds ⟨h0, h1⟩)
   exact (((hA.mul hB).mul hC).mul hD).differentiableWithinAt
 
-/-- `‖J‖ ≤ 2 e^{c Re Φ}` on the contour rectangle when `M[f] = 1`, `c ≥ 2`. -/
-lemma norm_hankelJ_le {c ε : ℝ} (hc : 2 ≤ c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f)
-    (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1) (ℓ : ℂ) {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re ≤ 1 / 10)
-    (him : |ζ.im| ≤ 1 / 3) :
-    ‖hankelJ c f ℓ ζ‖ ≤ 2 * Real.exp (c * (hankelLocPhi ℓ ζ).re) := by
+/-- `‖J‖ ≤ (10/9)² e^{c Re Φ} ‖W̃_c‖` on the strip `0 < Re ζ ≤ 1/10`, `c ≥ 2` (the two elementary factors). -/
+lemma norm_hankelJ_le_wt {c : ℝ} (hc : 2 ≤ c) (f : ℝ → ℝ) (ℓ : ℂ) {ζ : ℂ} (h0 : 0 < ζ.re)
+    (h1 : ζ.re ≤ 1 / 10) :
+    ‖hankelJ c f ℓ ζ‖ ≤ (10 / 9) * (10 / 9) * Real.exp (c * (hankelLocPhi ℓ ζ).re) * ‖hankelWt c f ζ‖ := by
   have hc0 : 0 < c := by linarith
   unfold hankelJ
   rw [norm_mul, norm_mul, norm_mul]
@@ -87,6 +86,16 @@ lemma norm_hankelJ_le {c ε : ℝ} (hc : 2 ≤ c) {f : ℝ → ℝ} (hf : IsHank
       _ = 10 / 9 := by norm_num
   have hC : ‖Complex.exp ((c : ℂ) * hankelLocPhi ℓ ζ)‖ = Real.exp (c * (hankelLocPhi ℓ ζ).re) := by
     rw [Complex.norm_exp]; congr 1; simp [Complex.mul_re]
+  rw [hC]
+  gcongr
+
+/-- `‖J‖ ≤ 2 e^{c Re Φ}` on the contour rectangle when `M[f] = 1`, `c ≥ 2`. -/
+lemma norm_hankelJ_le {c ε : ℝ} (hc : 2 ≤ c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f)
+    (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1) (ℓ : ℂ) {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re ≤ 1 / 10)
+    (him : |ζ.im| ≤ 1 / 3) :
+    ‖hankelJ c f ℓ ζ‖ ≤ 2 * Real.exp (c * (hankelLocPhi ℓ ζ).re) := by
+  have hc0 : 0 < c := by linarith
+  refine (norm_hankelJ_le_wt hc f ℓ h0 h1).trans ?_
   have hD : ‖hankelWt c f ζ‖ ≤ (6 / 5) * (12 / 11) := by
     have h := hankelWt_norm_le (by linarith : 3 / 2 < c) hf hε h0.le (by linarith) 
     rw [hM, one_mul] at h
@@ -107,10 +116,8 @@ lemma norm_hankelJ_le {c ε : ℝ} (hc : 2 ≤ c) {f : ℝ → ℝ} (hf : IsHank
         _ = 12 / 11 := by norm_num
     calc ‖hankelWt c f ζ‖ ≤ ‖1 + ζ‖ ^ (1 / 2 : ℝ) * Real.exp (1 / (6 * c)) := h
       _ ≤ (6 / 5) * (12 / 11) := by gcongr
-  rw [hC]
   have hE := Real.exp_pos (c * (hankelLocPhi ℓ ζ).re)
-  calc ‖(1 - ζ) ^ (-(1 / 2 : ℂ))‖ * ‖Complex.exp (binetDiff c ζ)‖ * Real.exp (c * (hankelLocPhi ℓ ζ).re) *
-        ‖hankelWt c f ζ‖
+  calc (10 / 9) * (10 / 9) * Real.exp (c * (hankelLocPhi ℓ ζ).re) * ‖hankelWt c f ζ‖
       ≤ (10 / 9) * (10 / 9) * Real.exp (c * (hankelLocPhi ℓ ζ).re) * ((6 / 5) * (12 / 11)) := by gcongr
     _ ≤ 2 * Real.exp (c * (hankelLocPhi ℓ ζ).re) := by nlinarith
 
