@@ -402,6 +402,14 @@ public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumWindow
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumCore
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuum
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroTransferProof
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxFactor
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxWindow
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxDesign
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxNode
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxTail
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApprox
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxTheorem
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoLevelWeightOne
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1174,4 +1182,6 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (**`twoZero_limsup_field`**), the vacuum bound `g_vac ≥ κ c^{3/2}` when `∫ W₂ ≤ -δ` (**`twoZero_vac_eventually`**, `twoZero_vac_field_of_threshold`),
   and integrability of `Ψ_g` (**`twoZero_integrable_psiAiry`**), uniformly on a compact admissible family.
 * `TwoLevel.TwoZeroTransferProof` (T2-WP7, `upper_transfer.tex` Theorem T2 `ut:T2`, assembly): **`twoSimpleZeroTransfer_of_w1`** (`TwoSimpleZeroTransfer prob` for `prob.w = 1`, fields from the K7, Region I/II, window, limsup and vacuum theorems) and the unconditional corollaries `designPropertyP_twoZero_w1`, **`theorem_two_five_w1`** (Theorem 2.5) and **`theorem_two_six_w1`** (Theorem 2.6, only `TwoZeroIdealApprox` besides `w = 1`).
+* `TwoLevel.IdealApprox{Factor, Window, Design, Node, Tail}`, `TwoLevel.IdealApprox` and `TwoLevel.IdealApproxTheorem` (`gt:2.6`, window approximation): the designs `idealDesign δ (K + j) η_j` of an admissible ideal datum are admissible with `q_j = q`, have windows bounded on compacta (`exists_winC_bound`) that converge pointwise at every real `u`, Airy zeros included, to `Re F_δ` (`tendsto_winC`, `F_eq_winC`), and vacuum integrals converging to `∫ Re F_δ` (`ideal_tendsto_intWr_gen`: Tannery for the node values `tendsto_nodeC`, Lemma E for the tail `tail_sum_bound`); hence **`twoZeroIdealApprox`** (`TwoZeroIdealApprox`, unconditionally), `not_adm_of_site_eq_airyZero` (a site `s_k = a_j`, `j > K`, is excluded) and **`theorem_two_six_of_T2`**, `tendsto_atom_weight_of_T2` (Theorem 2.6 from `TwoSimpleZeroTransfer` alone).
+* `TwoLevel.TwoLevelWeightOne`: **`theorem_two_six_w1_unconditional`** (Theorem 2.6 `gt:2.6` at every weight-one problem, no hypothesis).
 -/
