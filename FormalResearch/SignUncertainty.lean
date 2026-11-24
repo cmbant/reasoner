@@ -202,6 +202,7 @@ public import FormalResearch.SignUncertainty.ConvSourceHasU2
 public import FormalResearch.SignUncertainty.ConvSourceTail
 public import FormalResearch.SignUncertainty.MiddleBandPositivityDual
 public import FormalResearch.SignUncertainty.CeHankelPairFromEigen
+public import FormalResearch.SignUncertainty.ConvSourceTune
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
@@ -339,6 +340,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.ConvSourceTail` (M6, step (3); proved, conditional on the hypothesis structure `ConvTailData`): additivity and scalar linearity of `iMain`, `iDual` in `HasU2` seeds (`iMain_add`, `iDual_add`, `iMain_const_mul`, `iDual_const_mul`); `ConvTailData S δ₀ m c` (`HasU2 S` and the `ξ⁻¹ (log π²ξ)^{-3/2}` tails of `I_main[S]`, `I_dual[S]`; for `S = S_c` these are `O.12(7)` and `GT.2b`, not yet formalised), `convTailData_of_oneLevel` (non-vacuity), `convTail_add`, `exists_hankelEigenfn_lift_of_convTail` (the Hankel eigenfunction lift of `D + τ S`, `D` one-level).
 * `FormalResearch.SignUncertainty.MiddleBandPositivityDual` (M6, step (4); proved, conditional on the hypothesis structure `O6DualEst`): `o6_positivity_dual` (`u1co:O6` with a general dual seed family `D K c`: `Re (I_main[X] + I_dual[D K c]) > 0`), `O6DualEst` (the `(e3)` and fixed-window bounds for `D`), `o6DualEst_of_oneLevel` (non-vacuity).
 * `FormalResearch.SignUncertainty.CeHankelPairFromEigen` (M6, packaging; proved): `besselHankelTransform_half_sum`, `ceHankelPair_of_eigenfns` (`G = (f₊ + f₋)/2`, `𝓗 G = (f₊ - f₋)/2`; from `f₋(0) = 0 < f₊(0)`, `f₋ ≤ f₊`, `f₊ + f₋ ≤ 0` on `[T, ∞)`: every `CeHankelPair` property except the bound on `T`).
+* `FormalResearch.SignUncertainty.ConvSourceTune` (M6, step (2); proved): `liftSymbol_im_eq_zero_of_real`, `liftSymbol_zero_g1` (`W_{g₁}(0) = k`), `exists_eta_tune` (a real `η` with `W_Y(x) - W_Y(0) = 0` for `Y = Y₀ + η g₁` when `|W_{g₁}(x)| ≤ k/2`, and `|η| ≤ (2/k) |W_{Y₀}(x) - W_{Y₀}(0)|`: the tuning `f₋(0) = 0` of `thm:ce-hb-lift`).
 * `FormalResearch.SignUncertainty.HankelWtConj`: complex-conjugation symmetry of `W̃_c` and of the local density integrand (`hankelMellinStrip_conj`, `hankelHInt_conj`, `hankelWt_conj`, `hankelJ_conj`), and reality of the local density for real `ℓ` (`hankelLocal_im_eq_zero`).
   with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
   `one_profile_envelope`.
