@@ -157,9 +157,9 @@ No frozen statement changed, and no Lean statement needs to change. The table li
 | `lem:thb-polar`: new residual clause `‖JQ − QΛ‖ ≤ ‖JG − GΛ‖/σ_min(G)` | not formalised (`jb_polar`, `jop_polar_repair*` cover the norm clauses only) | matrix lemmas |
 | `lem:thb-schur1` (one-sided variation; was a remark) | covered in substance by `jb_schur_of_C2` | state it if Track B uses it |
 | prop:l2jets: proof now via `lem:thb-residual` and the positive gauge | L2.J becomes E–M | roadmap, *Independent* |
-| `cor:thb-scalar` (new) | not formalised | Phase VI |
+| `cor:thb-scalar` (new; strengthened after the merge to the canonical gauge, `Δ = I`, and to all `F` in cor:fermions) supersedes cor:thb-Dm, which is now the internal remark `rem:thb-Dm` (same statement: the Theorem B matrix of the truncated family) | `corThbDm_proved` stays; it now formalises `rem:thb-Dm` (internal build) | Phase VI; docstrings citing cor:thb-Dm should cite `rem:thb-Dm` |
 | thm:A (i): real-analytic `S_j` with explicit period formulas for analytic jets of either parity (`app:BS` rewritten: Gamma gauge, Riccati residue, identity theorem plus the real rule) | `app:BS` and `thm:tha-BS` are outside the plan; `ThmAi` is the real rule only | none |
-| cor:eigen Steps 1–3 (`app_thmA.tex`): action derivative, `S_1` formula and edge slope now by coarea and the Morse lemma on the sphere | `corEigen_proved` derives the slope from the windows (`bandSlope_of_layer4`), so nothing changes; Mathlib has neither coarea nor a parametric Morse lemma | for any future Lean proof of `eq:cp-S0p`/`eq:cp-dt` through the collisions (WP6a), use the elementary position-coordinate proof (Hadamard division at the simple zeros of `T`) removed from the paper by PR 282; it is in QIprojects history at `1d1b3d86`, `app_thmA.tex`, proof of cor:eigen, Step 1 |
+| cor:eigen Steps 1–3 (`app_thmA.tex`): PR 282 replaced the elementary proof by a coarea/Morse argument; the elementary proof was restored afterwards, with the intrinsic reading as one sentence | none | none |
 | `thm:smo-WT2` (`app:smooth`): all weights `λ > 0`, common one-/two-turn operator, absolute powers in `eq:smo-WT.8`, `λ`-dependent constants | Phase V only | Phase V note |
 | `rem:tha-toeplitz`: explicit beta-moment Toeplitz realisation | none | none |
 
