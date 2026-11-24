@@ -8,8 +8,8 @@ public import FormalResearch.ModularBootstrap.Upper.Rigidity.VagueLimit
 /-!
 # The hypotheses of the fold-tip theorem as Lean structures (`FT-1`)
 
-Formalises the setting and the local hypotheses of `CFT/modular_bootstrap/paper/fold_tip_universality.tex`,
-Section `ft:hyp` (Theorem FT, `ft:FT`): the weight `ρ_c`, the norm `M[g]`, the density `Ψ_g`, feasibility
+Formalises the setting and the local hypotheses of Paper I's `CFT/sign_uncertainty/paper/fold_tip_universality.tex`
+(Paper I, Section 4), Section `ft:hyp` (Theorem FT, `ft:FT`): the weight `ρ_c`, the norm `M[g]`, the density `Ψ_g`, feasibility
 with the monotonicity `(M)`, the threshold `T_c`, the fold constants `ξ_*, β, K_ξ, A`, and hypotheses
 `H1`, `H2`, `H2-hol`, `H2+`, `H3`, `H4a`, `H4b`, each as its own `Prop`-valued structure with the quantifiers
 of the TeX.  No theorem of FT is proved here; `FoldTip/Instances.lean` proves the hypotheses for the
@@ -27,7 +27,13 @@ fixed-weight modular bootstrap.
 | `H2+` | `FTH2plus` |
 | `H3` | `FTH3` |
 | `H4a` | `FTH4a` |
-| `H4b` | `FTH4b` (with its data `FTCrossingData`) |
+| `H4b` | `FTH4b` (with its data `FTCrossingData`); **does not yet match the paper's H4b**, see below |
+
+**Known gap (H4b).** `FTH4b` is the earlier Airy-only form (`N = Ai`, terminal index `m = 1`): equality pairing of the
+extremal crossing measures with the Property-(P) comb families, with a `windows` field that assumes tail bounds. The
+paper's `ft:H4b` is for general polynomial Hermite–Biehler data `(P,Q)` (`N = P Ai + Q Ai'`, terminal index `m`), has the
+support clause (a), and needs only the one-sided designs (D1)–(D4); the tail bounds are conclusions of Lemma WP
+(`ft:WP`), and Lemma WR (`ft:WR`) is not in Lean. The realignment is package FT-H4b of `ModularBootstrap/PLAN.md`.
 
 ## Conventions
 

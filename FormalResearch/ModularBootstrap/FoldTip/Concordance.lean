@@ -28,7 +28,7 @@ declaration, reused in its existing statement form.
 | (C4) `T_c ≤ ξ̄c̃ + A c̃^{1/3} + R⁺`, `R⁺ = O(1)` | `TheoremC15UpperInput prob` (upper clause of `FTAiryLaw`) | hypothesis (H3) for general `prob`; discharged for `prob.w = 1` by `Upper.Ramped.theoremC15UpperInput_prob` (Lemma `U*`, `rem:thmU`) |
 | (C5a) profile `Ψ̃^h → f_*/(2L_*)` | `FTRigidity prob`, clauses R1 and R2 (`Φ → φ*` locally uniformly, `L¹` convergence, `s₁ → s₁*`) | `FixedWeightTip.concrete_blowup_theorem_R1_general`, `concrete_blowup_theorem_R2_general`, under `Att` from `att_of_upper_threshold_general` |
 | (C5b) zeros of `g_c` converge to the nodes | `FTRigidity prob`, clause R3 | `FixedWeightTip.concrete_blowup_theorem_R3_general` under `Att` |
-| (C5c) extremal measures `→ Σ_n Ai'(a_n)^{-2} δ_{a_n}` | `FTSigma prob` (needs `prob.w = 1`) | `Upper.Assembly.sigma_unconditional_prob` (`FarFirstSite.lean`), with `FixedWeightLowerBoundInput` from `fixedWeightLowerBoundInput_of_problem` |
+| (C5c) extremal measures `→ Σ_n Ai'(a_n)^{-2} δ_{a_n}`, **Airy level (`N = Ai`, `m = 1`) at weight one only**; the paper's C5(c) at every Hermite–Biehler level (via Lemmas WP, WR and the realigned H4b; package FT-H4b of `ModularBootstrap/PLAN.md`) is the target and is not in Lean | `FTSigma prob` (needs `prob.w = 1`) | `Upper.Assembly.sigma_unconditional_prob` (`FarFirstSite.lean`), with `FixedWeightLowerBoundInput` from `fixedWeightLowerBoundInput_of_problem` |
 | (C5d) fixed prescribed levels, log rate | not bundled (FT-3..6 deferred) | none |
 
 Hypotheses of Theorem FT, as realised by the Lean instances:
@@ -146,7 +146,8 @@ def FTAiryLaw (prob : FixedWeightProblem) : Prop :=
       Tendsto (fun j => (prob.T_V (cSeq j) - TStar (cSeq j)) / (cSeq j) ^ ((1 : ℝ) / 3))
         atTop (𝓝 0))
 
-/-- **Extremal measures (C5c).** Theorem `Σ` of `sr:Sigma`, at fixed weight one. -/
+/-- **Extremal measures (C5c), Airy level only.** Theorem `Σ` of `sr:Sigma`, at fixed weight one (`N = Ai`); not the paper's
+C5(c) at every Hermite–Biehler level. -/
 def FTSigma (prob : FixedWeightProblem) : Prop :=
   ∃ c₀ : ℝ, ∀ cSeq : ℕ → ℝ, Tendsto cSeq atTop atTop → (∀ j, c₀ ≤ cSeq j) →
     ∃ S : CrossingSequence prob, S.c = cSeq ∧

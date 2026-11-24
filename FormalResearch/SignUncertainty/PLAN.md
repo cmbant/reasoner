@@ -1,6 +1,7 @@
 # Paper I (Fourier sign uncertainty, Cohn–Elkies) — Lean plan
 
-Source: QIprojects `CFT/sign_uncertainty/paper/sign_uncertainty_core.tex` (+ supplement, `CFT/common/`).
+Source: QIprojects `CFT/sign_uncertainty/paper/sign_uncertainty_core.tex` (+ supplement, `CFT/common/`). Paper labels
+below were checked against QIprojects `origin/main` on 2026-11-24 (see section 9 for the label changes).
 Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 2026-11-23, reasoner `778feac`.
 
 ## 1. Where we are
@@ -8,9 +9,21 @@ Supersedes the "Wave 10–12" plan left after Wave 9 (`7ae7af6`). Audit date 202
 - 64 files, about 64k lines (CohnElkies about 40k, SignUncertainty 14k, TwoEdgeBootstrap 4k, Asymptotics 3k).
   `lake build FormalResearch.SignUncertainty FormalResearch.TwoEdgeBootstrap` passes (9269 jobs, about 9 min). There are no
   placeholder proofs or custom axioms, and the headline theorems use only the standard three axioms.
-- **No headline result of Paper I is Lean-checked, not even conditionally on a TeX theorem.** The four introduction
-  theorems are `thm:intro-radii` (sign-uncertainty radii plus `gt:7.12` CE radius), `thm:intro-separation` (`gt:7.9c`),
-  `thm:intro-hb` (`thm:hb-thresholds`) and `thm:intro-gap` (`thm:ce-shell-gap`).
+- **No headline result of Paper I is Lean-checked, not even conditionally on a TeX theorem.** The Lean headlines are
+  `thm_intro_radii` (sign-uncertainty radii plus `gt:7.12` CE radius), `thm_intro_hb` (not yet stated, M8),
+  `thm_intro_gap` (`thm:ce-shell-gap`) and `thm_intro_separation` (see the next bullet: obsolete). The paper's
+  introduction theorems are `thm:intro-radii`, `thm:intro-hb` and `thm:intro-gap` only.
+  - **`thm_intro_separation` is obsolete.** It formalises `limsup (T_c^{+1} - T_c^{-1}) <= -2/π²` (`gt:7.9c`,
+    `Headlines.lean`, `SignSeparation*`), which was deleted from Paper I and archived in QIprojects
+    `CFT/sign_uncertainty/history/notes/archived_sign_separation.md`: it is superseded by `thm:ct-upper`
+    (`eq:ct-split`: `T⁺ - T⁻ = -1/π + πA c^{-2/3} + O(c^{-3/4})`), and no result of Paper I or II depends on it. The
+    Lean code is kept (the intertwiner and compactness pieces are reusable), but nothing new is built on it. Proposal for
+    the owner (no Lean deleted here): either retire it (move the declarations to an archive section, drop it from
+    `Headlines` and the "four headlines" count) or retarget it to the leading term of `eq:ct-split`, that is
+    `limsup (T_c^{+1} - T_c^{-1}) <= -1/π` (indeed `T⁺ - T⁻ → -1/π`, the leading term of `eq:ct-split`). That is
+    `thm:ct-lower` plus `thm:ct-upper`, out of scope below (M10), and it is strictly stronger than the old `-2/π²`
+    (`2/π² < 1/π`), so a retargeting needs the five-term bounds, not the old intertwiner argument.
+    Until the owner decides, the plan does not count `thm_intro_separation` as a headline to complete.
   - The Hankel problem now has its concrete kernel: `hankelKernelData (hc : 1/2 < c)` is unconditional (`HankelBessel*`,
     real-order Bessel in `Special/Bessel*`), and the `±1` Laguerre modes of `gt:7.9b` are proved eigenfunctions
     (`HankelBesselLaguerre`).
@@ -150,9 +163,9 @@ bootstrap) comes after them.
 - O.4(2): Banach contraction for the cubic normal form (`ContractingWith.fixedPoint`), with the certified bound on the
   circle as an interval-arithmetic input; no branched cover or monodromy.
 
-**Headline S: separation `gt:7.9c` (S–M after M2, M4).** `gt:7.5` + `C¹` compactness + one-level O.9′ give the slope
-window; the intertwiner and its tail positivity exist (`HardyMellinIntertwiner`, `sign_separation_*`). No Langer chart,
-no bootstrap.
+**Headline S: separation `gt:7.9c` (obsolete; not a milestone).** The theorem was removed from the paper (archived
+note above; superseded by `eq:ct-split`). Its Lean pieces (`HardyMellinIntertwiner`, `sign_separation_*`,
+`thm_intro_separation`) stay as built; see section 1 for the retire-or-retarget proposal.
 
 **M5 Hankel lower half at one level (L).**
 - Langer chart `gt:7.7b/c/p` (Rouché exists). `gt:7.7b` (0)-(iv) is done (`HankelLangerU/Y/Real/ChartMain`, formulated in `u = ζ²`, where `g(ζ) = s` is `K(u) = 12s/π²`, so no square roots or sign choices); the strip setup (`g`, `S̃` as series = `log(tan/..)`, exact inversion on `Re ζ = σ`) and `gt:7.7c` are done at the level of the local integral (`HankelStrip*`, `HankelLocalPhase/Density/Envelope/Holo`: Cauchy shift, Gaussian peak, connectors, envelope `(e71)` in `ũ`, entire in `ℓ = log π²ξ`); the gluing with the chart (`HankelChartInverse/LangerPsi/LangerPsiReal`), reality (`HankelWtConj`) and the transport/mass hypotheses `gt:7.7p` (`HankelTransport*`, constants `r_∞ = 2I₀c^{1/3}e^{-c/40000}`, lobe `e^{-1.7e-6 c}`: weaker than the paper's but exponentially small, which is all the compactness step uses) are done; TE.0 for type (I) is done (`HankelQuantC1`: `hankel_quant_c1_typeI`, with the cut bound by a shift trick on `typeII_disc_avg_bound`; `HankelQuantC1Feasible`: `hankel_quantC1_of_feasible`, the conclusion `QuantC1B2Holds (hankelPsi c f) u_T` for feasible `f`); strip data and the Hankel `BandReductionInstance` are done (`HankelStripData`...`HankelBandAssembly`, `hankel_band_reduction`); still open: the rest of this list, where S6a (the Hankel `BootstrapHBInstance` `hankelBootHB`: `HankelBoot*`, with explicit `r_∞` slack `70 R r_∞`, `k₀ = 9`, from the hypothesis `HankelYVAt`) and S6b (the Hankel window lemma `hankel_yv_at : HankelYVAt hankelWindowC 10¹⁴`, `YVEnvBound (hankelPsi c f) c R L'` from `hankel_band_reduction`, `HankelWindow*`) are done; S7 is done (`hb_thresholds_lower : HbThresholdsLower`, `HankelThresholds`, via the second-order chart expansion `HankelChartSecond`). The Type (I) cut bound follows by subharmonic averaging as in Step 0 of
@@ -203,9 +216,11 @@ no bootstrap.
   (CR.1–4, O.11 diagonal lemmas, PF.2L, PF.T, W.0–W.6); all in the TeX supplement;
 - SE.1–SE.5 general de Branges and `PW·PW`;
 - Theorem 3.1(c) (tempered distributions);
-- fold-tip universality instances;
+- fold-tip universality instances (Theorem FT is in Paper I, Section 4, `fold_tip_universality.tex`; its Lean code and plan are in `ModularBootstrap/FoldTip/` and `ModularBootstrap/PLAN.md`, package FT);
 - `gt:7.10` (owner-deferred);
-- the Neumann shell `thm:ce-neumann` (two-sided O(1); its proof is still being moved from notes into the TeX).
+- the Neumann shell `thm:ce-neumann` (two-sided O(1); its proof is still being moved from notes into the TeX);
+- `thm:ct-lower` and `thm:ct-upper` (`general_theorems.tex`; proofs in the supplement parts `constant_terms_lower.tex`,
+  `constant_terms_upper.tex`, `constant_terms_five.tex`): out of scope for now (see M10).
 
 **Not a cheap headline.** An "Airy-order `o(d^{1/3})` radius theorem at fixed δ" is not a shortcut: the fixed-δ U.3
 route needs a seed with the two-sided fill (e38) that no exhibited seed satisfies, and the honest upper half is O.9′,
@@ -213,6 +228,30 @@ i.e. M4.
 
 **Parallelism.** M1 runs alongside M0. M2 and M4 are independent. M3 needs M2 only. With two or three agents the order
 is M0 ∥ M1 → M2 ∥ M4 → M3, Headline S → M5 ∥ M6 → M7 → M8.
+
+**M9 Airy-LP core (M, self-contained; new since the audit).** Statements: `thm:airy-square-attained` (the attained
+square bound: the Airy-LP value `λ(s)` is a maximum; maximizer Euler–Lagrange system) in `ce_airy_lp.tex`, proofs in the
+supplement part `ce_airy_lp_proofs.tex` (Airy quadrature, Mittag-Leffler expansion of `Ai'/Ai`, `lem:airy-square-bound`);
+then `thm:ce-canonical-iff` (1)–(2) (thresholds `u_LP <= t_m` with the `L_y(-G_N) >= 0` equality criterion; `u_sh = u_LP`
+for at most five levels, and the strictness criterion) in `ce_canonical_iff.tex`. `prop:airy-strictification` is now only an
+alias label of `thm:ce-canonical-iff` (the former items (i)–(v) became its parts (1)–(2); cite the theorem, not the
+alias). Then `rem:airy-even-deep-gap` (explicit data with `t_{m+k} < u_sh <= u_LP < t_{m+k-1}`; a remark with proof, small).
+`thm:ce-airy-transfer` (`ce_airy_lp.tex`) now has the parts (1) two-sided bound, (2) exact coefficient, (3) stability
+(`eq:ce-stability`) and (4) uniformity on compacts; the old part (3) was deleted and the parts renumbered, so any Lean
+or plan reference to "ce-airy-transfer (3)" in the old sense is void and is to be re-read against the current parts.
+Inputs already in Lean: `airyNC_quadrature`, `hb_uniqueness`, the one-profile bound `prop:ce-one-profile`,
+`HankelShellGapLimit` (`hankelShellGapLimit_proved`); grep `Special/AiryClark*` and `ClarkTwoNode` before starting.
+It needs only M3, so it can run in parallel.
+
+**M10 Constant terms (L; out of scope until M6 and M8 land).** `thm:ct-lower` (five-term lower bound with remainder
+`O(c^{-1} log c)`) and `thm:ct-upper` (five-term upper bound, remainder `O(c^{-3/4})`, proved in the supplement part
+`constant_terms_five.tex`, Theorems FCT.1–FCT.2). Together they give `eq:ct-two-sided` and `eq:ct-split`,
+`T_c^{+1} - T_c^{-1} = -1/π + πA c^{-2/3} + O(c^{-3/4})`, and `r_CE(d)^2 - A_-(d)^2 = O(d^{-3/4})`. Both constants
+`c_0, C` are non-effective. No Lean exists. Only the leading term `-1/π` of `eq:ct-split` is a candidate retarget of
+`thm_intro_separation` (section 1); the full theorems are not planned.
+
+**M11 Hankel two-sided `O(1)` (S).** `thm:hankel-one-two` (`u1c_o1_lower.tex`) assembled from its two proved halves
+`hb_thresholds_lower` and `hb_thresholds_upper` at one level (both are theorems); statement-level assembly, no new analysis.
 
 ## 6. Bookkeeping
 
@@ -236,7 +275,7 @@ kernel-checked interval boxes from `gen_o4_boxes.py`).
 | M5 Hankel lower half | done (S1–S7: `hb_thresholds_lower` proved) |
 | M6 CE upper half (convolution source, post-edge bounds, lift of a Hankel profile to `ℝ^d`; gives `ce_hb_lift_m1`) | in progress (skeleton lane); `CeHankelPair` and `ce_hb_lift_m1` are NOT proved. Done and reviewed: `ConvSourceDefs`, `ConvSourceLaplace`, `ConvSourceG1`, `ConvSourceWeight`, `ConvSourceWeightDeriv` (`(ceo:conv.4)`), `ConvSourceSign` (`(ceo:conv.1)`–`(ceo:conv.2)`, `(ceo:conv.5)` tails: uniform constants), `ConvSourceSymbol`/`IBP`/`Bounds` (`convS_bounds`, `(ceo:conv.5)` on `Re z > 0`), `ConvSourceHasU2` (`O.12(3)`), `ConvSourceTune`, `EuclidCELift` (`ceAdmissible_of_hankelPair`), `CeHbLiftAssembly` (`CeHankelPair → CeHbLift ShellHBData.airy`), `MellinLiftGeneral`, `ConvSourceTail` (`ConvTailData`), `MiddleBandPositivityDual` (`o6_positivity_dual_Kc`, `O6DualEst`), `CeLiftEdge` (`ceLift_pair`), `CeHankelPairFromEigen` (`ceHankelPair_of_eigenfns`), `CeLiftPhysical` (`ceLift_tune`), `CeLiftSign`/`CeLiftSignMain` (`ceLift_physical`: `f₋(0) = 0 < f₊(0)` and `f₊ + f₋ ≤ 0` on `[T, ∞)` with the `hb_thresholds_upper` form of `T`, conditional on the hypothesis structure `CeSourceFamily`; `o4QuotientBound` is now proved, so no `O4` input remains). Open: (a) instantiate `CeSourceFamily` for `convSource` (`hasU2` done; `mass` and `edge` look cheap, from `convSource_mass`, the product formula and `‖w_c‖₁ ≤ Cε`; `tail` and `dual` need `O.12(5)`–`(7)`, GT.2b, the `Re z = 0` boundary step and the `g₁` seed combination); (b) the Fourier sign `f₋ ≤ f₊` (`thm:ce-post-edge`: pre-edge `preEdge_general_pos` for `D_c`, window, post-edge, `O.12(6)`, `(7)`); (c) final packaging of `CeHankelPair`, including a refactor of `ceLift_physical` to expose both edge representations |
 | M7 shell reduction | `shell_reduction_m1_proved` and `shell_reduction_airy` done; `ce_hb_lift_m1` is M6 |
-| Headline S (`gt:7.9c`) | its input `hb_thresholds_upper` is now a theorem; what remains is the paper-side closing and `lean_status` |
+| Headline S (`gt:7.9c`) | obsolete: deleted from the paper (archived `archived_sign_separation.md`), superseded by `eq:ct-split`; Lean kept pending the owner's retire-or-retarget decision (section 1). Its input `hb_thresholds_upper` is a theorem, so the Lean statement is conditional only on the other `SeparationInputs` fields already discharged. |
 | M8 multilevel generalisation (`shell_reduction`, `ce_hb_lift` for general `D`) | not started |
 
 Critical path: M6 gives `ce_hb_lift_m1` and the one-level Euclidean headlines (`O4QuotientBound` is done); M8 is the remaining multilevel step. Two Sonnet agents run these
@@ -259,6 +298,10 @@ files and rebuild; build outputs of reasoner modules outside the closure of `Coh
 deleted to free disk, so importing an outside module triggers a one-time rebuild.
 
 ## 8. Revised continuation (2026-11-24)
+
+Fold-tip location: Theorem FT is part of Paper I (`fold_tip_universality.tex`, Section 4, included by
+`sign_uncertainty_core.tex`; also `fold_tip_two_edge.tex`, `fold_tip_instances.tex`). Its Lean code is in
+`ModularBootstrap/FoldTip/` and its plan is package FT of `ModularBootstrap/PLAN.md`.
 
 Order of work, by leverage on the four open `Headlines` inputs:
 
@@ -288,3 +331,17 @@ fold-tip lane in a module importing nothing Hankel- or Virasoro-specific; (3) Pa
 converter `RadialRigidityPackage → ChartCompactness`; (4) M8's TE.0′ (compactness for all `(P, Q)`) is planned as a converter into
 `ChartCompactness` plus the shared rigidity theorem, not as a second copy of the argument. Steps (3)-(4) start when `ChartCompactness`
 is on master.
+
+## 9. Paper-side label changes to track (checked against QIprojects `origin/main`, 2026-11-24)
+
+| paper label (`CFT/sign_uncertainty/paper/`) | now |
+|---|---|
+| `prop:airy-strictification` | alias label of `thm:ce-canonical-iff` (1)–(2) in `ce_canonical_iff.tex`; items (i)–(v) are gone |
+| `thm:airy-square-attained` | new, `ce_airy_lp.tex`, proofs in `ce_airy_lp_proofs.tex` (M9) |
+| `thm:ce-airy-transfer` | `ce_airy_lp.tex`; its old part (3) is deleted; current parts (1) two-sided bound, (2) exact coefficient, (3) stability, (4) uniformity |
+| `thm:ct-upper` | five-term upper bound with `O(c^{-3/4})` remainder (`general_theorems.tex`; proof in `constant_terms_five.tex`); with `thm:ct-lower` gives `eq:ct-split` (M10) |
+| `thm:intro-separation`, `gt:7.9c` | deleted; archived in QIprojects `CFT/sign_uncertainty/history/notes/archived_sign_separation.md`; Lean `thm_intro_separation` obsolete |
+| Theorem FT (`ft:FT`) | Paper I, Section 4 (`fold_tip_universality.tex`) |
+
+Lean names that quote old labels (`thm_intro_separation`, the `gt:7.9c` docstrings in `Headlines.lean`, `SignSeparation*`) are
+left as they are; fix them together with the owner's decision on the separation headline.
