@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.ModularBootstrap.ConcreteBootstrap.LemmaQ
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.ClarkDiscBounds
 public import FormalResearch.Special.AiryCft2Ball
 public import FormalResearch.Special.AiryCftQuadrature
 public import FormalResearch.Special.AiryCftSignUncertainty
@@ -102,68 +103,20 @@ theorem airy_defect_ball_split {N : ℕ} {R R' : ℝ}
     ‖(∑ n ∈ Finset.Icc 1 N, f (airyZero n : ℂ) / (deriv airyAiC (airyZero n : ℂ)) ^ 2) -
         ∫ x in (-R)..R, f (x : ℂ)‖ ≤
       (15 * √π * R) * ∫ θ in (-π)..π, B θ := by
-  have hR := hD.radius_pos
-  obtain ⟨F, _, hF⟩ := hf.isExactOn_ball.with_val_at 0 0
-  have hF' : ∀ z ∈ ball (0 : ℂ) R', HasDerivAt F (f z) z := fun z hz => hF z hz
-  set w : ℝ → ℂ := circleMap 0 R
-  have hwn : ∀ θ, ‖w θ‖ = R := fun θ => by
-    simp [w, norm_circleMap_zero, abs_of_pos hR]
-  have hNw : ∀ θ, airyAiC (w θ) ≠ 0 := fun θ => hD.ne_zero_sphere (hwn θ)
-  have hwc : Continuous w := continuous_circleMap 0 R
-  have hfc : Continuous (fun θ : ℝ => f (w θ)) :=
-    hf.continuousOn.comp_continuous hwc (fun θ => cft2_mem_ball hR hRR θ)
-  set J : ℝ → ℂ := fun θ => (w θ * I) * f (w θ)
-  have hJc : Continuous J := (hwc.mul continuous_const).mul hfc
-  set Rp : ℝ → ℂ := fun θ => airyBiC (w θ) / airyAiC (w θ) - I
-  set Rm : ℝ → ℂ := fun θ => airyBiC (w θ) / airyAiC (w θ) + I
-  have hQc : Continuous (fun θ => airyBiC (w θ) / airyAiC (w θ)) :=
-    (differentiable_airyBiC.continuous.comp hwc).div
-      (differentiable_airyAiC.continuous.comp hwc) hNw
-  have hRpc : Continuous Rp := hQc.sub continuous_const
-  have hRmc : Continuous Rm := hQc.add continuous_const
-  have hcirc : ∮ z in C(0, R), f z * airyBiC z / airyAiC z =
-      ∫ θ in (0 : ℝ)..(2 * π), J θ * (airyBiC (w θ) / airyAiC (w θ)) := by
-    rw [circleIntegral]
-    refine intervalIntegral.integral_congr fun θ _ => ?_
-    simp only [deriv_circleMap, smul_eq_mul, J, w]
-    ring
-  have hΦc : Continuous (fun θ => J θ * (airyBiC (w θ) / airyAiC (w θ))) := hJc.mul hQc
-  have hup : ∫ θ in (0 : ℝ)..π, J θ * (airyBiC (w θ) / airyAiC (w θ)) =
-      (∫ θ in (0 : ℝ)..π, J θ * Rp θ) + I * (∫ θ in (0 : ℝ)..π, J θ) := by
-    have h1 : IntervalIntegrable (fun θ => J θ * Rp θ) volume 0 π := (hJc.mul hRpc).intervalIntegrable 0 π
-    have h2 : IntervalIntegrable (fun θ => I * J θ) volume 0 π := (hJc.const_mul I).intervalIntegrable 0 π
-    rw [← intervalIntegral.integral_const_mul, ← intervalIntegral.integral_add h1 h2]
-    refine intervalIntegral.integral_congr fun θ _ => ?_
-    simp only [Rp]; ring
-  have hlow : ∫ θ in π..(2 * π), J θ * (airyBiC (w θ) / airyAiC (w θ)) =
-      (∫ θ in π..(2 * π), J θ * Rm θ) - I * (∫ θ in π..(2 * π), J θ) := by
-    have h1 : IntervalIntegrable (fun θ => J θ * Rm θ) volume π (2 * π) :=
-      (hJc.mul hRmc).intervalIntegrable π (2 * π)
-    have h2 : IntervalIntegrable (fun θ => I * J θ) volume π (2 * π) :=
-      (hJc.const_mul I).intervalIntegrable π (2 * π)
-    rw [← intervalIntegral.integral_const_mul, ← intervalIntegral.integral_sub h1 h2]
-    refine intervalIntegral.integral_congr fun θ _ => ?_
-    simp only [Rm]; ring
-  have hJup : ∫ θ in (0 : ℝ)..π, J θ = F (-(R : ℂ)) - F R := by
-    have := cft2_arc_ball hR hRR hF' hf 0 π
-    rw [cftDef_circleMap_pi, cftDef_circleMap_zero] at this
-    simpa [J, w] using this
-  have hJlow : ∫ θ in π..(2 * π), J θ = F R - F (-(R : ℂ)) := by
-    have := cft2_arc_ball hR hRR hF' hf π (2 * π)
-    rw [cftDef_circleMap_pi, cftDef_circleMap_two_pi] at this
-    simpa [J, w] using this
-  have hdiam' : ∫ x in (-R)..R, f (x : ℂ) = F R - F (-(R : ℂ)) := by
-    simpa using cft2_diam_ball hR hRR hF' hf
-  have hres := cft2_residue_ball hD hRR (H := fun z => f z * airyBiC z)
-    (hf.mul differentiable_airyBiC.differentiableOn)
-  rw [hcirc, ← intervalIntegral.integral_add_adjacent_intervals
-    (hΦc.intervalIntegrable 0 π) (hΦc.intervalIntegrable π (2 * π)),
-    hup, hlow, hJup, hJlow] at hres
-  set T : ℂ := ∑ n ∈ Finset.Icc 1 N, f (airyZero n : ℂ) * airyBiC (airyZero n : ℂ) /
-      deriv airyAiC (airyZero n : ℂ)
-  set A1 : ℂ := ∫ θ in (0 : ℝ)..π, J θ * Rp θ
-  set A2 : ℂ := ∫ θ in π..(2 * π), J θ * Rm θ
-  have hsum : (-(π : ℂ)) * T =
+  have h := cft2_defect_ball_split hD differentiable_airyBiC hRR hf airyEnv_pos
+    (fun w hw him => by
+      have hA := hD.ne_zero_sphere hw
+      have e : airyBiC w / airyAiC w - I = (airyBiC w - I * airyAiC w) / airyAiC w := by
+        field_simp
+      rw [e]; exact hRp w hw him)
+    (fun w hw him => by
+      have hA := hD.ne_zero_sphere hw
+      have e : airyBiC w / airyAiC w + I = (airyBiC w + I * airyAiC w) / airyAiC w := by
+        field_simp
+      rw [e]; exact hRm w hw him)
+    hB_int hB_bd
+  have hsum : (-(π : ℂ)) * (∑ n ∈ Finset.Icc 1 N, f (airyZero n : ℂ) * airyBiC (airyZero n : ℂ) /
+      deriv airyAiC (airyZero n : ℂ)) =
       ∑ n ∈ Finset.Icc 1 N, f (airyZero n : ℂ) / (deriv airyAiC (airyZero n : ℂ)) ^ 2 := by
     rw [Finset.mul_sum]
     refine Finset.sum_congr rfl fun n _ => ?_
@@ -171,110 +124,10 @@ theorem airy_defect_ball_split {N : ℕ} {R R' : ℝ}
     have hd := airyZero_deriv_ne_zero n
     have hpi : (π : ℂ) ≠ 0 := by exact_mod_cast Real.pi_ne_zero
     field_simp
-  have key : (-(π : ℂ)) * T - ∫ x in (-R)..R, f (x : ℂ) = (I / 2) * (A1 + A2) := by
-    rw [hdiam']
-    have hI : I * I = -1 := Complex.I_mul_I
-    linear_combination (-(I / 2)) * hres - ((π : ℂ) * T + (F R - F (-(R : ℂ)))) * hI
-  -- Bound `‖A1‖` on `[0, π]` and `‖A2‖` on `[π, 2π]` (shifted to `[-π, 0]`)
-  have hle_neg_pi : -π ≤ π := by linarith [Real.pi_pos]
-  have hB_int_0pi : IntervalIntegrable B volume 0 π :=
-    hB_int.mono_set (by rw [Set.uIcc_of_le hle_neg_pi,
-      Set.uIcc_of_le Real.pi_pos.le]; exact Icc_subset_Icc (by linarith [Real.pi_pos]) le_rfl)
-  have hB_int_negpi0 : IntervalIntegrable B volume (-π) 0 :=
-    hB_int.mono_set (by rw [Set.uIcc_of_le hle_neg_pi,
-      Set.uIcc_of_le (by linarith [Real.pi_pos])]; exact Icc_subset_Icc le_rfl Real.pi_pos.le)
-  have hA1_bd : ‖A1‖ ≤ (30 * √π * R) * ∫ θ in (0 : ℝ)..π, B θ := by
-    dsimp [A1]
-    have hnorm_le : ‖∫ θ in (0 : ℝ)..π, J θ * Rp θ‖ ≤
-        ∫ θ in (0 : ℝ)..π, ‖J θ * Rp θ‖ :=
-      intervalIntegral.norm_integral_le_integral_norm Real.pi_pos.le
-    refine hnorm_le.trans ?_
-    rw [← intervalIntegral.integral_const_mul]
-    refine intervalIntegral.integral_mono_on Real.pi_pos.le
-      ((hJc.mul hRpc).norm.intervalIntegrable 0 π) (hB_int_0pi.const_mul _) fun θ hθ => ?_
-    have him : 0 ≤ (w θ).im := by
-      simp only [w, cftDef_im_circleMap]
-      exact mul_nonneg hR.le (Real.sin_nonneg_of_nonneg_of_le_pi hθ.1 hθ.2)
-    have hRp_eq : Rp θ = (airyBiC (w θ) - I * airyAiC (w θ)) / airyAiC (w θ) := by
-      dsimp [Rp]; field_simp [hNw θ]
-    have hRp_bd := hRp (w θ) (hwn θ) him
-    have he_pos : 0 < airyEnv (w θ) := airyEnv_pos (w θ)
-    have hf_bd : ‖f (w θ)‖ ≤ B θ * airyEnv (w θ) := by
-      have h1 := hB_bd θ ⟨by linarith [Real.pi_pos, hθ.1], hθ.2⟩
-      exact (div_le_iff₀ he_pos).mp h1
-    rw [norm_mul, norm_mul, norm_mul, hwn θ, Complex.norm_I, mul_one, hRp_eq]
-    calc R * ‖f (w θ)‖ * ‖(airyBiC (w θ) - I * airyAiC (w θ)) / airyAiC (w θ)‖
-        ≤ R * (B θ * airyEnv (w θ)) * ‖(airyBiC (w θ) - I * airyAiC (w θ)) / airyAiC (w θ)‖ := by
-          gcongr
-      _ = R * B θ * (‖(airyBiC (w θ) - I * airyAiC (w θ)) / airyAiC (w θ)‖ * airyEnv (w θ)) := by
-          ring
-      _ ≤ R * B θ * (30 * √π) := by
-          have hB_nn : 0 ≤ B θ := by
-            have := hB_bd θ ⟨by linarith [Real.pi_pos, hθ.1], hθ.2⟩
-            exact (div_nonneg (norm_nonneg _) he_pos.le).trans this
-          gcongr
-      _ = 30 * √π * R * B θ := by ring
-  have hA2_bd : ‖A2‖ ≤ (30 * √π * R) * ∫ θ in (-π)..(0 : ℝ), B θ := by
-    dsimp [A2]
-    have hshift : ∫ θ in π..(2 * π), J θ * Rm θ = ∫ θ in (-π)..(0 : ℝ), J (θ + 2 * π) * Rm (θ + 2 * π) := by
-      have := intervalIntegral.integral_comp_add_right (fun θ => J θ * Rm θ) (2 * π) (a := -π) (b := 0)
-      simpa only [neg_add_cancel_right, zero_add, show -π + 2 * π = π by ring] using this.symm
-    have hper : ∀ θ : ℝ, w (θ + 2 * π) = w θ := fun θ => by
-      simp only [w, circleMap, Complex.ofReal_add, add_mul, Complex.exp_add]
-      rw [show (((2 * π : ℝ) : ℂ) * I) = (2 * π : ℝ) * I by rfl]
-      rw [show (↑(2 * π) : ℂ) * I = 2 * ↑π * I by push_cast; rfl, Complex.exp_two_pi_mul_I, mul_one]
-    have hper2 : ∀ θ : ℝ, J (θ + 2 * π) * Rm (θ + 2 * π) = J θ * Rm θ := fun θ => by
-      simp only [J, Rm, hper θ]
-    rw [hshift]
-    have hcongr : ∫ θ in (-π)..(0 : ℝ), J (θ + 2 * π) * Rm (θ + 2 * π) =
-        ∫ θ in (-π)..(0 : ℝ), J θ * Rm θ :=
-      intervalIntegral.integral_congr fun θ _ => hper2 θ
-    rw [hcongr]
-    have hnorm_le : ‖∫ θ in (-π)..(0 : ℝ), J θ * Rm θ‖ ≤
-        ∫ θ in (-π)..(0 : ℝ), ‖J θ * Rm θ‖ :=
-      intervalIntegral.norm_integral_le_integral_norm (by linarith [Real.pi_pos])
-    refine hnorm_le.trans ?_
-    rw [← intervalIntegral.integral_const_mul]
-    refine intervalIntegral.integral_mono_on (by linarith [Real.pi_pos])
-      ((hJc.mul hRmc).norm.intervalIntegrable (-π) 0) (hB_int_negpi0.const_mul _) fun θ hθ => ?_
-    have him : (w θ).im ≤ 0 := by
-      simp only [w, cftDef_im_circleMap]
-      have hsin : Real.sin θ ≤ 0 := by
-        have := Real.sin_nonneg_of_nonneg_of_le_pi (x := -θ) (by linarith [hθ.2]) (by linarith [hθ.1])
-        rw [Real.sin_neg] at this; linarith
-      exact mul_nonpos_of_nonneg_of_nonpos hR.le hsin
-    have hRm_eq : Rm θ = (airyBiC (w θ) + I * airyAiC (w θ)) / airyAiC (w θ) := by
-      dsimp [Rm]; field_simp [hNw θ]
-    have hRm_bd := hRm (w θ) (hwn θ) him
-    have he_pos : 0 < airyEnv (w θ) := airyEnv_pos (w θ)
-    have hf_bd : ‖f (w θ)‖ ≤ B θ * airyEnv (w θ) := by
-      have h1 := hB_bd θ ⟨hθ.1, by linarith [Real.pi_pos, hθ.2]⟩
-      exact (div_le_iff₀ he_pos).mp h1
-    rw [norm_mul, norm_mul, norm_mul, hwn θ, Complex.norm_I, mul_one, hRm_eq]
-    calc R * ‖f (w θ)‖ * ‖(airyBiC (w θ) + I * airyAiC (w θ)) / airyAiC (w θ)‖
-        ≤ R * (B θ * airyEnv (w θ)) * ‖(airyBiC (w θ) + I * airyAiC (w θ)) / airyAiC (w θ)‖ := by
-          gcongr
-      _ = R * B θ * (‖(airyBiC (w θ) + I * airyAiC (w θ)) / airyAiC (w θ)‖ * airyEnv (w θ)) := by
-          ring
-      _ ≤ R * B θ * (30 * √π) := by
-          have hB_nn : 0 ≤ B θ := by
-            have := hB_bd θ ⟨hθ.1, by linarith [Real.pi_pos, hθ.2]⟩
-            exact (div_nonneg (norm_nonneg _) he_pos.le).trans this
-          gcongr
-      _ = 30 * √π * R * B θ := by ring
-  have hsum_int : (∫ θ in (-π)..(0 : ℝ), B θ) + (∫ θ in (0 : ℝ)..π, B θ) =
-      ∫ θ in (-π)..π, B θ :=
-    intervalIntegral.integral_add_adjacent_intervals hB_int_negpi0 hB_int_0pi
-  rw [← hsum, key, norm_mul]
-  have hI2 : ‖(I / 2 : ℂ)‖ = 1 / 2 := by simp
-  rw [hI2]
-  calc (1 / 2 : ℝ) * ‖A1 + A2‖
-      ≤ (1 / 2 : ℝ) * (‖A1‖ + ‖A2‖) := mul_le_mul_of_nonneg_left (norm_add_le A1 A2) (by norm_num)
-    _ ≤ (1 / 2 : ℝ) * ((30 * √π * R) * (∫ θ in (0 : ℝ)..π, B θ) +
-          (30 * √π * R) * (∫ θ in (-π)..(0 : ℝ), B θ)) := by
-        gcongr
-    _ = (15 * √π * R) * ((∫ θ in (-π)..(0 : ℝ), B θ) + (∫ θ in (0 : ℝ)..π, B θ)) := by ring
-    _ = (15 * √π * R) * ∫ θ in (-π)..π, B θ := by rw [hsum_int]
+  rw [hsum, show 30 * √π / 2 * R = 15 * √π * R by ring] at h
+  exact h
+
+
 
 /-! ### Section 2: Subharmonic disc averaging for type `(II)` Airy envelopes -/
 

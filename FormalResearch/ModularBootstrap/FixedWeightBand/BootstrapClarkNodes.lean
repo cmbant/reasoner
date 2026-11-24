@@ -70,7 +70,7 @@ lemma re_lower_of_nonneg_near {Ψ : ℂ → ℂ} {R_dom z ũ y C₁ d : ℝ}
   linarith [(abs_le.mp h).1]
 
 /-- `u_T` lies above `z` when `T < Δ(z)`, below `A_{c'}²`, and `Δ(u_T) = T`. -/
-private lemma uT_facts {c' T z : ℝ} (hc' : Q.cQ ≤ c')
+lemma uT_facts {c' T z : ℝ} (hc' : Q.cQ ≤ c')
     (hz_lo : -(Q.AC c' ^ 2) ≤ z) (hz_hi : z ≤ Q.AC c' ^ 2)
     (hT_A2 : virasoroDeltaChart c' (Q.AC c' ^ 2) ≤ T)
     (hT_z : T < virasoroDeltaChart c' z) :
