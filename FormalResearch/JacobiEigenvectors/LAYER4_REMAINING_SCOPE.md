@@ -2,7 +2,7 @@
 
 ## Status (reasoner `master` `b6270fc`, assessed 2026-11-23)
 
-WP0–WP2 were written by an external agent (agy) and merged to `master` in `b90b43f` (imported by `FormalResearch/JacobiEigenvectors.lean`; no placeholder proofs, custom axioms or `native_decide`). A clean-context read-only audit (2026-11-23, nothing rebuilt) found what follows. The roadmap that acts on it is in `PLAN.md`, *Roadmap from here*. The scoping report below it is the original agy run, kept for its field-by-field routes; where it and this section disagree, this section is current.
+WP0–WP2 were written by an external agent (agy) and merged to `master` in `b90b43f` (imported by `FormalResearch/JacobiEigenvectors.lean`; no placeholder proofs, custom axioms or `native_decide`). A clean-context read-only audit (2026-11-23, nothing rebuilt) found what follows. The roadmap that acts on it is in `PLAN.md`, *Roadmap*. The scoping report below it is the original agy run, kept for its field-by-field routes; where it and this section disagree, this section is current.
 
 **Proved and complete.** WP0a: `V_growth` removed from `PCEnvelopeFacts`; `pcEnvelopeFacts`, `parabolicCylinderFacts` (`Charts/PCEnvelopeAssembled.lean`) take no hypothesis, so `ChartInputs.pc` is available for `pcU, pcV`. Far zone: `pcV_far_pos_and_growth`, `pcU_neg_pos_and_growth` (`Charts/PCVFarGrowth.lean`).
 
