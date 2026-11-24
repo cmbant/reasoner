@@ -336,6 +336,11 @@ public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeChart
 public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeLower
 public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeSub
 public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeFixedWeight
+public import FormalResearch.ModularBootstrap.TwoLevel.A2StarCurve
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkOfBlowupLimit
+public import FormalResearch.ModularBootstrap.TwoLevel.PinnedLimit
+public import FormalResearch.ModularBootstrap.TwoLevel.PinnedRigidity
+public import FormalResearch.ModularBootstrap.TwoLevel.TheoremTwoOne
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1012,4 +1017,15 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   non-vacuity theorems `twoEdgeViolators_nonvacuous`, `subViolators_nonvacuous`, and `foldChartOfLemmaQ` (the fixed-weight
   Langer chart as a `FoldChart`).  The violator family and chart coverage of a concrete problem are hypotheses
   (`TwoEdgeViolators`, `TwoEdgeViolatorsHB`, `SubViolators`, `ChartCoverage`).
+* `TwoLevel.{A2StarCurve, ClarkOfBlowupLimit, PinnedLimit, PinnedRigidity, TheoremTwoOne}`: the **two-level leading-order
+  theorem** (`virasoro_two_level.tex`, Theorem 2.1 `gt:2.1`), unconditional, at every integer `(w, Q)`.  `A2star`
+  (`A_2^*(A₁) = c_* |z₂(α(-A₁/c_*))|`, `clarkAngle` from `existsUnique_clarkAngle_of_gt`) with `A2star_mem_Ioo`
+  (`A_2^*(A₁) ∈ (A_opt, c_*|a₂|)`), `A2star_strictMonoOn`, `tendsto_A2star_nhdsLT` (`A_2^*(A_opt⁻) = c_*|a₂|`) and
+  `tendsto_A2star_atBot` (`→ A_opt`); not formalised: real-analyticity, the `O(|A₁|^{-1/2})` rate, numerical values.
+  `concrete_two_level_theorem` / `concrete_two_level_eventually`: with the first level pinned (`g_j(t_*) ≥ 0`,
+  `t_* = ξ̄ c' + A₁ c'^{1/3} + o(c'^{1/3})`, `A₁ < A_opt`), `liminf (τ_j - ξ̄ c_j')/c_j'^{1/3} ≥ A_2^*(A₁)`;
+  `concrete_two_level_equality` (`_subseq`): if `(τ_j - ξ̄ c_j')/c_j'^{1/3} → A_2^*(A₁)`, then `Φ_j → c · g_α(-β ·)` locally
+  uniformly and in `L¹`, `s₁ → -z₂/β`, `γ → 0`.  Ingredients: `clark_of_blowup_limit` (Clark two-node theorem for a
+  Proposition T limit), `pinned_limit`, `twoLevel_eventually`/`twoLevel_liminf`/`twoLevel_rigidity` (for any
+  `BlowupFamilyPackage` / `RigidityFamilyPackage`), `tendsto_s₁_of_tendsto_excess`, `l1_of_tendstoLocallyUniformlyOn`.
 -/

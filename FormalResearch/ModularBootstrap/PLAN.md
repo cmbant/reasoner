@@ -36,7 +36,7 @@ QIprojects `origin/main`. The paper status line for readers is the Paper II sect
 
 | pkg | content | size | depends | state |
 |---|---|---|---|---|
-| TL1 | `A2star` (definition via `clarkNode α 2`, monotone, range, endpoints) and Theorem 2.1 `gt:2.1` (liminf ≥ A₂*, equality case → c·g_α) at every integer (w,Q) | M | Prop T, gt:1.2 | running |
+| TL1 | `A2star` (definition via `clarkNode α 2`, monotone, range, endpoints) and Theorem 2.1 `gt:2.1` (liminf ≥ A₂*, equality case → c·g_α) at every integer (w,Q) | M | Prop T, gt:1.2 | done (`TwoLevel/`, `concrete_two_level_theorem`, `_equality`); in-place re-derivation of `AiryRigidity` helpers pending (patch `/home/user/scratch/mb/tl1_inplace/`) |
 | TL2 | Prop 2.3 `gt:2.3` qualitative: `u₂*(K) < z₂`, `→ z₂` (rate skipped) | S–M | gt:1.2, `airyNC_quadrature` | running |
 | TL3 | Constrained strong duality on `{t₁} ∪ [τ,∞)` (generalise `theorem_E` in place), Cor 2.4 `gt:2.4` | M | TL1, Theorem E, C15 upper (w = 1) | next |
 | TL4 | Thm 2.5 `gt:2.5` and Thm 2.6 `gt:2.6` from a named `TwoSimpleZeroTransfer` Prop (T2, with non-vacuity) | M–L | TL1, TL2, FW-X, Property (P), `Upper/Rigidity` | after TL1/TL2 |
