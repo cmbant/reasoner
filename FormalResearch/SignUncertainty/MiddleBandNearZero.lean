@@ -459,6 +459,7 @@ theorem near_zero_bound {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) :
       (∀ u, 0 < |u| → |u| < 3 → ‖g u - g0‖ ≤ G * |u| ^ (1 / 2 : ℝ)) →
       (∀ u, 0 < |u| → |u| < 3 → ‖deriv g u‖ ≤ G * |u| ^ (-(1 / 2 : ℝ))) →
       (∀ u, 0 < |u| → |u| < 3 → ‖deriv (deriv g) u‖ ≤ G * |u| ^ (-(3 / 2 : ℝ))) →
+      Integrable (fun u => (ϑ u : ℂ) * g u * Complex.exp (Complex.I * ((a0 * u - Real.pi ^ 2 / 36 * u ^ 3 : ℝ) : ℂ))) ∧
       ‖oscInt a0 (fun u => (ϑ u : ℂ) * g u)‖ ≤ C * G * p0 ^ (-(3 / 2 : ℝ)) := by
   obtain ⟨CA, hCA0, hA⟩ := nz_const_part hϑ
   obtain ⟨CB, hCB0, hB⟩ := nz_small_part hϑ
@@ -491,6 +492,15 @@ theorem near_zero_bound {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) :
     congr 1
     funext u
     exact hdecomp u
+  refine ⟨?_, ?_⟩
+  · have h := (hI1.add hI2).add hI3
+    have hfun : (fun u => (ϑ u : ℂ) * g u * Complex.exp (Complex.I * ((a0 * u - Real.pi ^ 2 / 36 * u ^ 3 : ℝ) : ℂ))) =
+        fun u => (ϑ u : ℂ) * g0 * Complex.exp (Complex.I * ((a0 * u - Real.pi ^ 2 / 36 * u ^ 3 : ℝ) : ℂ)) +
+          (m u : ℂ) * (g u - g0) * Complex.exp (Complex.I * ((a0 * u - Real.pi ^ 2 / 36 * u ^ 3 : ℝ) : ℂ)) +
+          ((ϑ u - m u : ℝ) : ℂ) * (g u - g0) * Complex.exp (Complex.I * ((a0 * u - Real.pi ^ 2 / 36 * u ^ 3 : ℝ) : ℂ)) := by
+      funext u
+      rw [hdecomp u]; ring
+    rw [hfun]; exact h
   have bA := hA (a0 := a0) (g0 := g0) hp2 hgrad
   have bB := hB (a0 := a0) (g := g) (g0 := g0) hp2 hG hg0 hH
   have bC := hC (a0 := a0) (g := g) (g0 := g0) hp2 hG hgrad hc hH hd1 hd2
