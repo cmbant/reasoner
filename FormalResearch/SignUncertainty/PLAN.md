@@ -205,26 +205,28 @@ is M0 ∥ M1 → M2 ∥ M4 → M3, Headline S → M5 ∥ M6 → M7 → M8.
 - Every Haiku-written module gets a clean-context Sonnet review before it is merged; every large Sonnet development
   (shell gap, the O.3(2) estimate, the window translation, the Hankel chart/density/transport, O.11ak) has had one.
 
-## 7. Status review (2026-11-24, reasoner `master` after S4)
+## 7. Status review (2026-11-24, 07:00 UTC, reasoner `master` after GT.1)
 
-Size: `SignUncertainty` 133 files and about 39.8k lines, `CohnElkies` 63 files and about 52.7k lines. No placeholder
-proofs, no custom axioms. The four headlines in `Headlines.lean` are still **conditional**, now on six inputs:
-`hb_thresholds_lower`, `hb_thresholds_upper`, `shell_reduction_m1`, `ce_hb_lift_m1`, `shell_reduction`, `ce_hb_lift`.
+Size: `SignUncertainty` about 180 files and `CohnElkies` about 65 files, together over 100k lines. No placeholder proofs,
+no custom axioms. The four headlines in `Headlines.lean` are still **conditional**, now on four inputs:
+`hb_thresholds_upper`, `ce_hb_lift_m1`, `shell_reduction` and `ce_hb_lift` (`hb_thresholds_lower` and `shell_reduction_m1`
+are theorems). `hb_thresholds_upper` is the theorem `hbThresholdsUpper_of_o4` applied to the single remaining named
+hypothesis `O4QuotientBound L` for `0 < L ≤ 0.002`.
 
 | milestone | state |
 |---|---|
-| M0 skeleton | done |
-| M1 classical leaves (Bessel, Weber, Laguerre modes, odd-`d` radial Fourier, `O(d)`/sphere averaging) | done |
-| M2 Hankel layer (`gt:7.4`, `lem:radial-compactness`, `gt:7.5` input) | done |
-| M3 strict gap, extraction half (`hankelShellGapLimit_proved`) | done; the origin floor and `u_* ≤ t_m` are not on its path |
-| M4 upper O-chain | done: U.2, U.3(3)/O.3(2) = `(e4)` (uniform in seed coefficients), `(e3)`, O.4, `O.5(1)` = `(e5)`, O.11ak existence form, GT.2a: assembly `middle_transfer_gt1` (`MiddleBandTransfer`; outer pieces, `τ(εu)` substitution, `(e7)`/`(e8)`, regions), conditional on the named hypothesis `O4QuotientBound L` (`M_F ≤ 0.13`, interval certificate of `O.4`) and on the `GT.1` symbol bounds for `W(v) = liftSymbol X δ₀ m (v I)` as hypotheses. Also `O.5(2)` = `(e6)` (`o5_e6_airySeed`), `O.6` (`o6_positivity`, `O6Est`) and `O.9′` at `m = 1` (`hbThresholdsUpper_of_inputs : MiddleBandInputs 4 → HbThresholdsUpper`, i.e. `hb_thresholds_upper` conditional on the two named hypotheses). `Gt1BasisInput m` (`GT.1` for the spline-multiplied basis seeds `f₁, g₁, g₁'`) is done: `gt1BasisInput : 3 ≤ m → Gt1BasisInput m` (`Gt1NegTailAmp`, `Gt1NegTail`: Remark `T.6` two-exponential form of `Ai(-w)`, order-12 amplitude symbols, `AiryTailSymbolSeed` for the three seeds), so `hbThresholdsUpper_of_o4 : (∀ L, 0 < L → L ≤ 0.002 → O4QuotientBound L) → HbThresholdsUpper`. Open: discharge of `O4QuotientBound L` for `0 < L ≤ 0.002` (interval certificate), after which `hb_thresholds_upper` is unconditional |
-| M5 Hankel lower half | S1–S5 done (Langer chart, local density, tail and transport, type (I) compactness `hankel_quantC1_of_feasible`, strip data and `hankelBandInstance`/`hankel_band_reduction` = `teb:mellin` (1) only). S6a done (`hankelBootHB`: the `BootstrapHBInstance` at a good circle, from the window hypothesis `HankelYVAt`). S6b done (`hankel_yv_at : HankelYVAt hankelWindowC 10¹⁴`, the window lemma `teb:mellin` (2)-(3)). S7 done (`hb_thresholds_lower : HbThresholdsLower`, proved for both eigenvalues; `HankelChartSecond`, `HankelThresholds`). M5 is complete |
-| Headline S (`gt:7.9c`) | needs `hb_thresholds_upper` (M4 end) |
-| M6, M7, M8 | M7 lower half done (`shell_reduction_m1_proved`, `shell_reduction_airy`); M6 (CE upper, convolution source; gives `ce_hb_lift_m1`) needs M4, not started; M8 is the multilevel generalisation |
+| M0 skeleton, M1 classical leaves, M2 Hankel layer, M3 extraction half | done |
+| M4 upper O-chain | done except `O4QuotientBound L` (`M_F ≤ 0.13`, interval certificate `certify_u1c_o4_contraction.py`). In progress: the kernel-checked discharge (Haiku modules `O4SigmaBounds`, `O4CircleReduction` done, `O4RhoSeries` running; the ball library, box evaluator and assembly are on the Bessel lane, generator `gen_o4_boxes.py` passes in exact integer arithmetic at 40 x 320 boxes, `|F| ≤ 0.12695`) |
+| M5 Hankel lower half | done (S1–S7: `hb_thresholds_lower` proved) |
+| M6 CE upper half (convolution source, post-edge bounds, lift of a Hankel profile to `ℝ^d`; gives `ce_hb_lift_m1` from `hb_thresholds_upper`) | in progress (skeleton lane) |
+| M7 shell reduction | `shell_reduction_m1_proved` and `shell_reduction_airy` done; `ce_hb_lift_m1` is M6 |
+| Headline S (`gt:7.9c`) | needs `hb_thresholds_upper` unconditional (the `O4QuotientBound` discharge) |
+| M8 multilevel generalisation (`shell_reduction`, `ce_hb_lift` for general `D`) | not started |
 
-Critical path: M5 S6–S7 and TE.3 (2)-(3) (about 4–5k lines) in parallel with the M4 tail (GT.1 inputs for GT.2a, O.5(2), O.6, O.9′, now done except `O4QuotientBound`: about
-6–8k lines), then M6 and M7 (M-sized each) and M8. Two Sonnet agents run these two lanes; Haiku agents implement the
-routine statements the Sonnet agents queue.
+Critical path: `O4QuotientBound` (about 2.5–3.5k lines, kernel time about 5–20 min) unlocks Headline S; M6 then gives
+`ce_hb_lift_m1` and the one-level Euclidean headlines; M8 is the remaining multilevel step. Two Sonnet agents run these
+two lanes; Haiku agents implement routine statements, and every Haiku output and every large development gets a
+clean-context Sonnet review before it is merged.
 
 Coverage gaps against the TeX that are recorded rather than closed:
 - the tail exponent of `7.7p`: Lean `c/40000`, TeX `2·10⁻³c` (and two notes quoting consequences); the later steps only
