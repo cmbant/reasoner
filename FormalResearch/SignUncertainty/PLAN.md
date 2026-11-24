@@ -159,7 +159,7 @@ no bootstrap.
   TE.0, so the separate `Re ζ = c^{−1/3}` contour shift can be skipped in Lean.
 - TE.0 at one level: adapt `teb_quant_c1_typeII` (already a compactness argument) to Type (I). This is non-effective,
   which is fine for Lean; the TeX keeps the effective version (Paper II needs it).
-- TE.3 Hankel window and `BandReductionInstance`; discharge the `BootstrapCore/Instance` fields starting from the
+- TE.3 Hankel window (`teb:mellin` (2)-(3), open; the `BandReductionInstance` for part (1) is done); discharge the `BootstrapCore/Instance` fields starting from the
   general-weight bootstrap of Paper II (`ModularBootstrap/FixedWeightBand/BootstrapW*`, `BandBoundW*`), which already
   generalises the Virasoro `ArcBounds`/`QuadratureBounds` instance; do not refactor the Virasoro files. L.2/L.6 at one
   level. (Paper II's Langer chart and Mellin strip are different objects from the Hankel ones here; no overlap.)
@@ -218,11 +218,11 @@ proofs, no custom axioms. The four headlines in `Headlines.lean` are still **con
 | M2 Hankel layer (`gt:7.4`, `lem:radial-compactness`, `gt:7.5` input) | done |
 | M3 strict gap, extraction half (`hankelShellGapLimit_proved`) | done; the origin floor and `u_* ≤ t_m` are not on its path |
 | M4 upper O-chain | done: U.2, U.3(3)/O.3(2) = `(e4)` (uniform in seed coefficients), `(e3)`, O.4, `O.5(1)` = `(e5)`, O.11ak existence form, GT.2a scalar/IBP/VdC/tail tools. Open: GT.2a assembly (G4–G8: outer pieces, the `τ(εu)` substitution `(e7)`/`(e8)`, regions), `O.5(2)` = `(e6)`, `O.6`, `O.9′` at `m = 1` (discharges `hb_thresholds_upper`), `f(0)` identity of O.11ak |
-| M5 Hankel lower half | S1–S5 done (Langer chart, local density, tail and transport, type (I) compactness `hankel_quantC1_of_feasible`, strip data and `hankelBandInstance`/`hankel_band_reduction`). Open: S6 `BootstrapHBInstance`, S7 assembly giving `hb_thresholds_lower`, then `shell_reduction_m1` and the airy instance of `shell_reduction` |
+| M5 Hankel lower half | S1–S5 done (Langer chart, local density, tail and transport, type (I) compactness `hankel_quantC1_of_feasible`, strip data and `hankelBandInstance`/`hankel_band_reduction` = `teb:mellin` (1) only). Open: `teb:mellin` (2)-(3) (window lemma under `(MS3)`, feedback `(B3)`), S6 `BootstrapHBInstance`, S7 assembly giving `hb_thresholds_lower`, then `shell_reduction_m1` and the airy instance of `shell_reduction` |
 | Headline S (`gt:7.9c`) | needs `hb_thresholds_upper` (M4 end) |
 | M6, M7, M8 | not started; M6 (CE upper, convolution source) needs M4; M7 needs M5; M8 is the multilevel generalisation |
 
-Critical path: M5 S5–S7 (about 4–5k lines) in parallel with the M4 tail (GT.2a assembly, O.5(2), O.6, O.9′: about
+Critical path: M5 S6–S7 and TE.3 (2)-(3) (about 4–5k lines) in parallel with the M4 tail (GT.2a assembly, O.5(2), O.6, O.9′: about
 6–8k lines), then M6 and M7 (M-sized each) and M8. Two Sonnet agents run these two lanes; Haiku agents implement the
 routine statements the Sonnet agents queue.
 

@@ -205,4 +205,40 @@ theorem hankelDm_integral_sub {c ε : ℝ} (hc : 0 < c) {f : ℝ → ℝ} (hf : 
 #guard_msgs (whitespace := lax) in
 #print axioms isFiniteMeasure_hankelDmPos
 
+/-- info: 'FormalResearch.SignUncertainty.hankelDmDens_continuousOn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelDmDens_continuousOn
+
+/-- info: 'FormalResearch.SignUncertainty.hankelDmDens_integrableOn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelDmDens_integrableOn
+
+/-- info: 'FormalResearch.SignUncertainty.hankelDmDens_aemeasurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelDmDens_aemeasurable
+
+/-- info: 'FormalResearch.SignUncertainty.hankelDmPos_apply' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelDmPos_apply
+
+/-- info: 'FormalResearch.SignUncertainty.hankelDmNeg_apply' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelDmNeg_apply
+
+/-- info: 'FormalResearch.SignUncertainty.hankelDmNeg_Iic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelDmNeg_Iic
+
+/-- info: 'FormalResearch.SignUncertainty.isFiniteMeasure_hankelDmNeg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms isFiniteMeasure_hankelDmNeg
+
+/-- info: 'FormalResearch.SignUncertainty.hankelDmPos_integral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelDmPos_integral
+
+/-- info: 'FormalResearch.SignUncertainty.hankelDmNeg_integral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelDmNeg_integral
+
 end FormalResearch.SignUncertainty
