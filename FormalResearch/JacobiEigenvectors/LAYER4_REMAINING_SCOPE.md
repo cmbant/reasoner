@@ -20,6 +20,8 @@ WP0–WP2 were written by an external agent (agy) and merged to `master` in `b90
 
 **Housekeeping found by the audit:** done (axiom guards for `uMinus_mirror_ne`, `local_cover_of_geom_strict` and the `ODEFlow.lean` theorems; stale `V_growth` comments replaced by `pcV_far_pos_and_growth`).
 
+**Paper check of the core fields added in Phase I:** the soft core's `Y_le`, `corr_leadW`, `AA2_ratio` are not new claims. They follow from facts the paper states: the coordinate `Z_0` is continuous with uniform constants on `[-sigma_1, U+sigma_1]` (`prop:cha-halfrow`), so `Y` is bounded on the Weber zone; the correctors exist, are bounded with their derivatives and the leading one is positive (`lem:cha-weber-coord` (3), `thm:eng-corr`), so `|AA 1 - g0| <= C h^2`, and the one-step ratio `A_{k+1} <= (1 + C h) A_k` is a Lipschitz bound with a positive lower bound. No paper error and no `CORRECTIONS.md` entry; the fields become lemmas when Phase II-III construct the coordinates and correctors. (Read from the statements, not re-derived from the appendix proofs.)
+
 **Paper findings of the agy run (section 5 below):** 1 (`thm:eng-corr` needs `adj_Pi`, not `D² ≠ 0`) is applied in the paper (`Weyl/jacobi_eigenvectors/paper/CORRECTIONS.md`, 2026-11-19); 2 (`c <= u_+ - 2 sigma`) is a choice in the chart construction (the paper's margins `delta_1` already allow it), not a paper error; 3, 4 are remarks, no correction.
 
 # Scoping Report: Remaining Layer-4 Formalisation for Paper J (`FormalResearch/JacobiEigenvectors/`)
