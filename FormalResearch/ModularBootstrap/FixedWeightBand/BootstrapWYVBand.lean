@@ -15,8 +15,11 @@ The `BandReductionInstance` of `ywBandInstance` lives on the thin annulus
 (`b_R = √(R c'^{-2/3}) ∈ [b, √2 b]`, same data, parameters `yvBandParamsAt b_R`) and the band bound reads
 `‖W̃_V(ζ)‖ ≤ M C_Y c'^{-5/6}(c'^{1/3}(B₁+B₂)+1) ‖ζ‖/Re ζ` with `C_Y` depending on `b` only.
 
-* `uniformBandConstW prob b`, `bandParamsAtW`, `tebBandConst_bandParamsAtW_leFor`;
-* `uniform_band_boundForW`: the uniform band bound (the Virasoro `virasoro_uniform_band_boundFor`).
+* `uniformBandConstWThr prob A_thr b` (`uniformBandConstW prob b` at `A_thr = virasoroAThr`), `bandParamsAtWThr`,
+  `ywP0Thr`;
+* `uniform_band_boundForW_thr`: the uniform band bound at every cutoff radius `A_thr > 0`, with the constant
+  `uniformBandConstWThr prob A_thr b`; `uniform_band_boundForW` is the case `A_thr = virasoroAThr` (the Virasoro
+  `virasoro_uniform_band_boundFor`).
 -/
 
 @[expose] public section
@@ -51,17 +54,28 @@ lemma langerDelta_eq {c' u : ℝ} (hc' : 0 < c') (hu : |u| ≤ Q.AC c' ^ 2) :
 
 end LemmaQData
 
-noncomputable def ywP0 (prob : FixedWeightProblem) : BandReductionParams :=
-  ywBandParams prob langerChartSpec_virasoro virasoroAThr
+/-- The reference band-reduction parameters of Proposition `Y_V` at cutoff radius `A_thr`. -/
+noncomputable def ywP0Thr (prob : FixedWeightProblem) (A_thr : ℝ) : BandReductionParams :=
+  ywBandParams prob langerChartSpec_virasoro A_thr
 
-noncomputable def bandParamsAtW (prob : FixedWeightProblem) (b_R : ℝ) (hb_R : 0 < b_R) :
-    BandReductionParams :=
-  { ywP0 prob with
+/-- The level-one reference parameters (`A_thr = virasoroAThr`). -/
+noncomputable def ywP0 (prob : FixedWeightProblem) : BandReductionParams :=
+  ywP0Thr prob virasoroAThr
+
+/-- The rescaled band-reduction parameters at cutoff radius `A_thr` and scale `b_R`. -/
+noncomputable def bandParamsAtWThr (prob : FixedWeightProblem) (A_thr : ℝ) (b_R : ℝ)
+    (hb_R : 0 < b_R) : BandReductionParams :=
+  { ywP0Thr prob A_thr with
     b := b_R
     hb := hb_R }
 
-noncomputable def uniformBandConstW (prob : FixedWeightProblem) (b : ℝ) : ℝ :=
-  let P := (ywP0 prob)
+noncomputable def bandParamsAtW (prob : FixedWeightProblem) (b_R : ℝ) (hb_R : 0 < b_R) :
+    BandReductionParams :=
+  bandParamsAtWThr prob virasoroAThr b_R hb_R
+
+/-- The uniform band constant `C_Y(b)` of Proposition `Y_V` at cutoff radius `A_thr`. -/
+noncomputable def uniformBandConstWThr (prob : FixedWeightProblem) (A_thr : ℝ) (b : ℝ) : ℝ :=
+  let P := (ywP0Thr prob A_thr)
   let ρ_min_lo := kappaV * b / 3
   let C_pf_lo := ρ_min_lo ^ (5 / 2 : ℝ) * (0.965 : ℝ) ^ (5 / 2 : ℝ) * Real.exp (-0.04)
   let C_gauss5 := ∫ τ : ℝ, (1 + |τ|) ^ (5 : ℝ) * Real.exp (-τ ^ 2)
@@ -71,10 +85,14 @@ noncomputable def uniformBandConstW (prob : FixedWeightProblem) (b : ℝ) : ℝ 
   let C_band_hi := tebBandOscConst P * max (P.C_τ * (2 * b ^ 2 + 1)) 1
   max C_tail C_band_hi / (C_pf_lo * ρ_min_lo)
 
-private lemma tebBandConst_yvBandParamsAt_leFor {b b_R : ℝ} (hb_pos : 0 < b) (hb_R : 0 < b_R)
+noncomputable def uniformBandConstW (prob : FixedWeightProblem) (b : ℝ) : ℝ :=
+  uniformBandConstWThr prob virasoroAThr b
+
+private lemma tebBandConst_yvBandParamsAt_leFor_thr {A_thr b b_R : ℝ} (hb_pos : 0 < b)
+    (hb_R : 0 < b_R)
     (hb_lo : b ≤ b_R) (hb_sq_hi : b_R ^ 2 ≤ 2 * b ^ 2) :
-    tebBandConst (bandParamsAtW prob b_R hb_R) ≤ uniformBandConstW prob b := by
-  let P := (ywP0 prob)
+    tebBandConst (bandParamsAtWThr prob A_thr b_R hb_R) ≤ uniformBandConstWThr prob A_thr b := by
+  let P := (ywP0Thr prob A_thr)
   have hosc_pos : 0 < tebBandOscConst P := by
     unfold tebBandOscConst
     have hb₀ : 0 < min P.c_1 (P.c_2 / 16) := lt_min P.hc_1 (div_pos P.hc_2 (by norm_num))
@@ -114,9 +132,9 @@ private lemma tebBandConst_yvBandParamsAt_leFor {b b_R : ℝ} (hb_pos : 0 < b) (
     exact mul_le_mul_of_nonneg_left (by linarith only [hb_sq_hi]) P.hC_τ.le
   have hnum_le : max C_tail C_band_R ≤ max C_tail C_band_hi :=
     max_le_max_left C_tail hband_le
-  have hlhs_eq : tebBandConst (bandParamsAtW prob b_R hb_R) =
+  have hlhs_eq : tebBandConst (bandParamsAtWThr prob A_thr b_R hb_R) =
       max C_tail C_band_R / (C_pf_R * ρ_min_R) := rfl
-  have hrhs_eq : uniformBandConstW prob b =
+  have hrhs_eq : uniformBandConstWThr prob A_thr b =
       max C_tail C_band_hi / (C_pf_lo * ρ_min_lo) := rfl
   rw [hlhs_eq, hrhs_eq]
   calc max C_tail C_band_R / (C_pf_R * ρ_min_R)
@@ -130,17 +148,17 @@ private lemma tebBandConst_yvBandParamsAt_leFor {b b_R : ℝ} (hb_pos : 0 < b) (
 variable [Q : LemmaQData prob]
 
 
-lemma uniform_band_boundForW {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ Q.bV)
+lemma uniform_band_boundForW_thr {A_thr b : ℝ} (hA_pos : 0 < A_thr) (hb_pos : 0 < b) (hb_le : b ≤ Q.bV)
     (hScale : 2 * b ^ 2 ≤ Q.scaleThresh)
     {c' R T : ℝ}
-    (hc'_yv : ywThresh prob langerChartSpec_virasoro virasoroAThr ≤ c')
+    (hc'_yv : ywThresh prob langerChartSpec_virasoro A_thr ≤ c')
     (hc'_cq : Q.cQ ≤ c')
-    (hR_thr : virasoroAThr ≤ R)
+    (hR_thr : A_thr ≤ R)
     (hR_lo : b ^ 2 * c' ^ (2 / 3 : ℝ) ≤ R)
     (hR_hi : R + 1 ≤ chartACAt b c' ^ 2)
     {g : ℝ → ℝ} (hg_wf : prob.IsWeaklyFeasible (c' / 12) T g)
     (hT_lo : virasoroDeltaChart c' 0 ≤ T)
-    (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr)) :
+    (hT_hi : T ≤ virasoroDeltaChart c' (-A_thr)) :
     let M := prob.cardyNorm (c' / 12) g
     let B₁ := bandB1W prob c' R T g
     let B₂ := bandB2W prob c' R g
@@ -149,11 +167,10 @@ lemma uniform_band_boundForW {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ Q.bV)
       ‖ζ‖ ≤ 2 * (kappaV * c' ^ (-(1 / 3 : ℝ)) * Real.sqrt R) →
       c' ^ (-(1 / 12 : ℝ)) * ‖ζ‖ ≤ ζ.re →
       ‖tildeWW prob.w c' g ζ‖ ≤ M *
-        (max (uniformBandConstW prob b) 1 * (c' ^ (1 / 3 : ℝ) * (B₁ + B₂) + 1) *
+        (max (uniformBandConstWThr prob A_thr b) 1 * (c' ^ (1 / 3 : ℝ) * (B₁ + B₂) + 1) *
           c' ^ (-(5 / 6 : ℝ)) * ‖ζ‖ / ζ.re) := by
   dsimp only
   let pg := langerChartSpec_virasoro
-  let A_thr := virasoroAThr
   let w := yvWitness pg
   have hc'_10000 : 10000 ≤ c' := (ywThresh_ge prob pg A_thr).trans hc'_yv
   have hc'_pos : 0 < c' := by linarith only [hc'_10000]
@@ -172,7 +189,6 @@ lemma uniform_band_boundForW {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ Q.bV)
     Q.ACAt_sq_le hb_pos.le hb_le hc'_pos.le
   have hR_le_ACb : R ≤ chartACAt b c' ^ 2 := by linarith only [hR_hi]
   have hR_le_AC : R ≤ Q.AC c' ^ 2 := hR_le_ACb.trans hACb_le_AC
-  have hA_pos : 0 < A_thr := virasoroAThr_pos
   have hR_pos : 0 < R := lt_of_lt_of_le hA_pos hR_thr
   -- Compatibility of `langerDelta pg c'` with `virasoroDeltaChart c'` at `0`, `-A_thr`, `-R`
   have hΔ0_eq : langerDelta pg c' 0 = virasoroDeltaChart c' 0 :=
@@ -183,10 +199,10 @@ lemma uniform_band_boundForW {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ Q.bV)
     Q.langerDelta_eq hc'_pos (by rw [abs_neg, abs_of_pos hR_pos]; exact hR_le_AC)
   have hT_lo' : langerDelta pg c' 0 ≤ T := by rw [hΔ0_eq]; exact hT_lo
   have hT_hi' : T ≤ langerDelta pg c' (-A_thr) := by rw [hΔA_eq]; exact hT_hi
-  -- Reference `BandReductionInstance` at `R_star := (ywP0 prob).b^2 * c'^(2/3) = (w.c₀ / 2) * c'^(2/3)`
-  let R_star : ℝ := (ywP0 prob).b ^ 2 * c' ^ (2 / 3 : ℝ)
-  have hP0_b_sq : (ywP0 prob).b ^ 2 = w.c₀ / 2 := by
-    dsimp [ywP0, ywBandParams, yvBandParams]
+  -- Reference `BandReductionInstance` at `R_star := (ywP0Thr prob A_thr).b^2 * c'^(2/3) = (w.c₀ / 2) * c'^(2/3)`
+  let R_star : ℝ := (ywP0Thr prob A_thr).b ^ 2 * c' ^ (2 / 3 : ℝ)
+  have hP0_b_sq : (ywP0Thr prob A_thr).b ^ 2 = w.c₀ / 2 := by
+    dsimp [ywP0Thr, ywBandParams, yvBandParams]
     exact Real.sq_sqrt (div_nonneg w.hc₀_pos.le zero_lt_two.le)
   have hR_le_Rstar : R ≤ R_star := by
     dsimp [R_star]
@@ -195,7 +211,7 @@ lemma uniform_band_boundForW {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ Q.bV)
       _ = 2 * b ^ 2 * c' ^ (2 / 3 : ℝ) := hACb_sq
       _ ≤ (w.c₀ / 2) * c' ^ (2 / 3 : ℝ) :=
           mul_le_mul_of_nonneg_right h2bV_c0 (Real.rpow_nonneg hc'_pos.le _)
-  have hRstar_ub : R_star ≤ (ywP0 prob).b ^ 2 * c' ^ (2 / 3 : ℝ) + 1 := by
+  have hRstar_ub : R_star ≤ (ywP0Thr prob A_thr).b ^ 2 * c' ^ (2 / 3 : ℝ) + 1 := by
     dsimp [R_star]; linarith only []
   let I₀ := ywBandInstance prob pg hA_pos.le hc'_yv (R := R_star) le_rfl hRstar_ub
     hT_lo' hT_hi' hg hM_pos hg_nn
@@ -226,15 +242,15 @@ lemma uniform_band_boundForW {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ Q.bV)
           rw [mul_assoc, ← Real.rpow_add hc'_pos, add_neg_cancel, Real.rpow_zero, mul_one]
   have hb_R_R : b_R ^ 2 * c' ^ (2 / 3 : ℝ) = R := by
     rw [hb_R_sq, mul_assoc, ← Real.rpow_add hc'_pos, neg_add_cancel, Real.rpow_zero, mul_one]
-  let P_R : BandReductionParams := bandParamsAtW prob b_R hb_R_pos
+  let P_R : BandReductionParams := bandParamsAtWThr prob A_thr b_R hb_R_pos
   have hρR_ub : 2 * rhoR P_R c' R ≤ 0.035 := by
-    have hle : rhoR P_R c' R ≤ rhoR (ywP0 prob) c' R_star := by
+    have hle : rhoR P_R c' R ≤ rhoR (ywP0Thr prob A_thr) c' R_star := by
       unfold rhoR
       change kappaV * c' ^ (-(1 / 3 : ℝ)) * Real.sqrt R ≤
         kappaV * c' ^ (-(1 / 3 : ℝ)) * Real.sqrt R_star
       have := kappaV_pos
       gcongr
-    have h0_ub : 2 * rhoR (ywP0 prob) c' R_star ≤ 0.035 := I₀.hρR_ub
+    have h0_ub : 2 * rhoR (ywP0Thr prob A_thr) c' R_star ≤ 0.035 := I₀.hρR_ub
     linarith only [hle, h0_ub]
   let I_R : BandReductionInstance P_R :=
     { c := I₀.c
@@ -438,28 +454,56 @@ lemma uniform_band_boundForW {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ Q.bV)
   rw [hW_eq, hB1_eq, hB2_eq] at hred
   have hmul_M := mul_le_mul_of_nonneg_left hred hM_pos.le
   rw [← mul_assoc, mul_inv_cancel₀ hM_pos.ne', one_mul] at hmul_M
-  have hCY_le : tebBandConst P_R ≤ max (uniformBandConstW prob b) 1 :=
-    (tebBandConst_yvBandParamsAt_leFor hb_pos hb_R_pos hb_R_lo hb_R_sq_hi).trans (le_max_left _ _)
+  have hCY_le : tebBandConst P_R ≤ max (uniformBandConstWThr prob A_thr b) 1 :=
+    (tebBandConst_yvBandParamsAt_leFor_thr hb_pos hb_R_pos hb_R_lo hb_R_sq_hi).trans (le_max_left _ _)
   have hc16_le1 : c' ^ (-(1 / 6 : ℝ)) ≤ 1 :=
     Real.rpow_le_one_of_one_le_of_nonpos hc'_ge1 (by norm_num)
-  have hB1_nn := bandB1W_nonneg hc'_cq hR_thr hR_le_AC hg_wf hT_lo hT_hi
-  have hB2_nn := bandB2W_nonneg hc'_cq hR_thr hR_le_AC hg_wf hT_hi
+  have hB1_nn := bandB1W_nonneg_thr hA_pos hc'_cq hR_thr hR_le_AC hg_wf hT_lo hT_hi
+  have hB2_nn := bandB2W_nonneg_thr hA_pos hc'_cq hR_thr hR_le_AC hg_wf hT_hi
   have hCY_nn : 0 ≤ tebBandConst P_R := (tebBandConst_pos P_R).le
   calc ‖tildeWW prob.w c' g ζ‖
       ≤ M * (tebBandConst P_R * c' ^ (-(5 / 6 : ℝ)) *
           (c' ^ (1 / 3 : ℝ) * (bandB1W prob c' R T g + bandB2W prob c' R g) +
             c' ^ (-(1 / 6 : ℝ))) / Real.cos ψ) := hmul_M
-    _ ≤ M * (max (uniformBandConstW prob b) 1 * c' ^ (-(5 / 6 : ℝ)) *
+    _ ≤ M * (max (uniformBandConstWThr prob A_thr b) 1 * c' ^ (-(5 / 6 : ℝ)) *
           (c' ^ (1 / 3 : ℝ) * (bandB1W prob c' R T g + bandB2W prob c' R g) + 1) /
           Real.cos ψ) := by
         gcongr
-    _ = M * (max (uniformBandConstW prob b) 1 *
+    _ = M * (max (uniformBandConstWThr prob A_thr b) 1 *
           (c' ^ (1 / 3 : ℝ) * (bandB1W prob c' R T g + bandB2W prob c' R g) + 1) *
           c' ^ (-(5 / 6 : ℝ)) * ‖ζ‖ / ζ.re) := by
         rw [hcos_eq_div]
         field_simp [hζ_pos.ne', hζ_re_pos.ne']
 
+lemma uniform_band_boundForW {b : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ Q.bV)
+    (hScale : 2 * b ^ 2 ≤ Q.scaleThresh)
+    {c' R T : ℝ}
+    (hc'_yv : ywThresh prob langerChartSpec_virasoro virasoroAThr ≤ c')
+    (hc'_cq : Q.cQ ≤ c')
+    (hR_thr : virasoroAThr ≤ R)
+    (hR_lo : b ^ 2 * c' ^ (2 / 3 : ℝ) ≤ R)
+    (hR_hi : R + 1 ≤ chartACAt b c' ^ 2)
+    {g : ℝ → ℝ} (hg_wf : prob.IsWeaklyFeasible (c' / 12) T g)
+    (hT_lo : virasoroDeltaChart c' 0 ≤ T)
+    (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr)) :
+    let M := prob.cardyNorm (c' / 12) g
+    let B₁ := bandB1W prob c' R T g
+    let B₂ := bandB2W prob c' R g
+    ∀ ζ ∈ stripClosed,
+      kappaV * c' ^ (-(1 / 3 : ℝ)) * Real.sqrt R / 3 ≤ ‖ζ‖ →
+      ‖ζ‖ ≤ 2 * (kappaV * c' ^ (-(1 / 3 : ℝ)) * Real.sqrt R) →
+      c' ^ (-(1 / 12 : ℝ)) * ‖ζ‖ ≤ ζ.re →
+      ‖tildeWW prob.w c' g ζ‖ ≤ M *
+        (max (uniformBandConstW prob b) 1 * (c' ^ (1 / 3 : ℝ) * (B₁ + B₂) + 1) *
+          c' ^ (-(5 / 6 : ℝ)) * ‖ζ‖ / ζ.re) :=
+  uniform_band_boundForW_thr virasoroAThr_pos hb_pos hb_le hScale hc'_yv hc'_cq hR_thr hR_lo hR_hi
+    hg_wf hT_lo hT_hi
+
 /-! ### 4. Proof of `YVInputForW prob` / `YVInput` and Theorem J Corollaries -/
+
+/-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.uniform_band_boundForW_thr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms uniform_band_boundForW_thr
 
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.uniform_band_boundForW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

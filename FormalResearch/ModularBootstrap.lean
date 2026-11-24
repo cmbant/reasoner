@@ -368,11 +368,9 @@ public import FormalResearch.ModularBootstrap.Upper.Design.CombTransformAbs
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombT
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombPhase
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombK7
-public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionTwoFloor
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionTwo
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroWindowNorm
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroWindow
-public import FormalResearch.ModularBootstrap.Upper.Positivity.RegionOneGeneral
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionOneUnif
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionOne
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionOneAssembly
@@ -410,6 +408,15 @@ public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxTail
 public import FormalResearch.ModularBootstrap.TwoLevel.IdealApprox
 public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxTheorem
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoLevelWeightOne
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.ClarkDiscBounds
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.ClarkDiscBoundsUniform
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapClarkArcCore
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapClarkArc
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.QuantC1ClarkHelpers
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.QuantC1ClarkBasic
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.QuantC1ClarkLimit
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.QuantC1ClarkCompact
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.QuantC1Clark
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1145,8 +1152,8 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   in `C²`), the phase `Φ₁ = designPhi1 + iπ + φ_{χ(p)}` (`CombPhaseData`, `InnerCombHyp`, `SDVAmplitudeInput`, abstract `PhaseComb`),
   `K7` membership, vacuum identity and decay at `w = 1` (`twoZeroComb_k7_membership_vacuum`) and Lemma `Φ` for `h₂`
   (`twoZeroComb_phi_transform`), uniformly on a compact family of admissible designs.
-* `TwoLevel.{TwoZeroRegionTwoFloor, TwoZeroRegionTwo}` (`upper_transfer.tex` Lemma II-F `ut:IIF` at `f = 2`, `r = 1`, Theorem T2 `ut:T2`
-  "Region II"): `proposition_II_floor` (the `h₀^D` floor of Proposition II), the `T_{χ(p)}/T_{ξ_*}` comparison on Region II for all
+* `TwoLevel.TwoZeroRegionTwo` (`upper_transfer.tex` Lemma II-F `ut:IIF` at `f = 2`, `r = 1`, Theorem T2 `ut:T2`
+  "Region II"): `Upper.Positivity.proposition_II_floor` (the `h₀^D` floor of Proposition II, now in `RegionII`), the `T_{χ(p)}/T_{ξ_*}` comparison on Region II for all
   `x ≥ ξ_* + c'^{-2/5}` (`twoZeroT_ratio_le`), the exponent shift `vRhoInfty_add_half`, the transform bound `twoZero_hat_bound`
   (`‖ĥ₂‖ ≤ 0.55·1.02·Lev₂`), and **`twoZero_regionII`** / **`twoZero_regionII_pos`**: `2g/Lev₂ ≥ 13/100`, `g > 0`
   for `c'` large uniformly on a compact family of admissible designs.
@@ -1156,7 +1163,7 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (`twoZero_hat_window_bound`) and the window limit `F_{2,c}^{-1} Ψ_g → C₂ W₂`, `C₂ = C_* κ/2`, locally uniformly in `u` and
   uniformly on a compact family of admissible designs, including the `ĥ` part (**`twoZero_window_limit`**, `twoZero_window_field`:
   the `window` field of `TwoZeroTransferData`), from `lemma_W_measure` at `f = 2`, `tildeW_toModified_Wr` and `twoZeroT_window_bound`.
-* `TwoLevel.{TwoZeroRegionOneUnif, TwoZeroRegionOne, TwoZeroRegionOneAssembly}` and `Upper.Positivity.RegionOneGeneral` (`upper_transfer.tex`
+* `TwoLevel.{TwoZeroRegionOneUnif, TwoZeroRegionOne, TwoZeroRegionOneAssembly}` (`upper_transfer.tex`
   Theorem T2 `ut:T2`, "Region I"): `lemma_R_lower_two_unif` (Lemma R at `f = 2` uniform on a compact family, from `lemma_R_lower` by a
   diagonal argument on the parameter set), `twoZeroT_ge_window`, `twoZeroComb_global_bound` (`SD_G` for `h₂`), the window
   `twoZero_regionOne_a` (`σ - σ_q ≥ C c'^{-7/6}`) and the `K5` overshoot `twoZero_regionOne_b` (via the `f`-general
@@ -1184,4 +1191,7 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `TwoLevel.TwoZeroTransferProof` (T2-WP7, `upper_transfer.tex` Theorem T2 `ut:T2`, assembly): **`twoSimpleZeroTransfer_of_w1`** (`TwoSimpleZeroTransfer prob` for `prob.w = 1`, fields from the K7, Region I/II, window, limsup and vacuum theorems) and the unconditional corollaries `designPropertyP_twoZero_w1`, **`theorem_two_five_w1`** (Theorem 2.5) and **`theorem_two_six_w1`** (Theorem 2.6, only `TwoZeroIdealApprox` besides `w = 1`).
 * `TwoLevel.IdealApprox{Factor, Window, Design, Node, Tail}`, `TwoLevel.IdealApprox` and `TwoLevel.IdealApproxTheorem` (`gt:2.6`, window approximation): the designs `idealDesign δ (K + j) η_j` of an admissible ideal datum are admissible with `q_j = q`, have windows bounded on compacta (`exists_winC_bound`) that converge pointwise at every real `u`, Airy zeros included, to `Re F_δ` (`tendsto_winC`, `F_eq_winC`), and vacuum integrals converging to `∫ Re F_δ` (`ideal_tendsto_intWr_gen`: Tannery for the node values `tendsto_nodeC`, Lemma E for the tail `tail_sum_bound`); hence **`twoZeroIdealApprox`** (`TwoZeroIdealApprox`, unconditionally), `not_adm_of_site_eq_airyZero` (a site `s_k = a_j`, `j > K`, is excluded) and **`theorem_two_six_of_T2`**, `tendsto_atom_weight_of_T2` (Theorem 2.6 from `TwoSimpleZeroTransfer` alone).
 * `TwoLevel.TwoLevelWeightOne`: **`theorem_two_six_w1_unconditional`** (Theorem 2.6 `gt:2.6` at every weight-one problem, no hypothesis).
+* `ConcreteBootstrap.{ClarkDiscBounds, ClarkDiscBoundsUniform}` and `FixedWeightBand.{BootstrapClarkArcCore, BootstrapClarkArc}` (TL6-B, `lower_o1_two_edge.tex` `wone:ftlfw` Step 4 at `(P, Q) = (cos α, -sin α)`): the integral-split defect bound `cft2_defect_ball_split` for a general pair `(N, M)` (the Airy case is `airy_defect_ball_split`) and its Clark forms `clark_defect_ball_split`, `clark_defect_ball_split_K` (weights `1/K(z, z)`); the good circles of `ψ_α` with explicit constants (`clark_good_circle_at`, `clark_good_circle_uniform`: one radius for all `|sin α| ≥ σ`, `C₀ = 320 √π/σ`), the node list on a good circle (`clark_circleData`) and `clark_defect_ball_split_uniform`; the `α`-independent arc estimate `quad_arc_bound_core` (abstract one-sided defect bound) and its Clark instance `pNodesClark`, `quad_arc_boundClark`, `quad_arc_boundClark_uniform` (constants uniform in `α` on `|sin α| ≥ σ`).
+* `ConcreteBootstrap.QuantC1Clark{Helpers, Basic, Limit, Compact}` and `ConcreteBootstrap.QuantC1Clark` (`two_edge_bootstrap.tex` Proposition `TE.0'` `teb:quant_c1_hb` at the constant Clark pairs `(P, Q) = (cos α, -sin α)`, `N = ψ_α`, `m₀ = 2`, type (II), the Step 2 form of `lower_o1_two_edge.tex` `wone:ftlfw`): **`teb_quant_c1_clark_typeII`** (uniform for the Clark label `γ = cot α` in a compact set, normal families with `(c'_n, γ_n) → (∞, γ_∞)`, closed by `clark_two_node_equality` in place of `airy_sign_equality`) and its first-level form **`teb_quant_c1_clark_typeII_firstLevel`** (`u₁` in a compact subset of `(a₁, ∞)`), with the conclusion `QuantC1B2HoldsClark` (`x̃ ≤ η₀`, `|Ψ'| ≤ C₁` near both nodes, `Re Ψ' ≤ -2κ_*` near `z₂`), the `θ`-slope bound `quantC1ClarkB2_secant_lower`, and WP-A0 (`continuous_airyClarkNode`, `clarkNode_uniform`: continuity of the nodes in the label, uniform node gaps and bounds on a compact set). The constants `δ_*, κ_*, C₁` are non-explicit (compactness); `QuantC1Airy` is unchanged.
+* `FixedWeightBand.BootstrapW{Data, Schwarz, Line, Band, Nodes, HB, YVBand, YV}` (TL6-C, `lower_o1_two_edge.tex` `vlo:YV`, `wone:ftlfw` Step 3 at `A_thr = |t_{m₀}| + 1`): the band, Schwarz, line, node and Hermite-Biehler lemmas at an arbitrary cutoff radius `A_thr` (`bandB1W_nonneg_thr`, `band_sums_leW_thr`, `line_boundW_thr` with the explicit constant `lineCaW A_thr`, `pnodes_lb_and_thetaW_thr`, `uT_range_of_violatorW_thr`, `bootstrapHB_of_YVForWThr`, `YVInputAtForWThr`, `uniform_band_boundForW_thr`, `LemmaQData.yvInputForW_of_scaleCompat_thr`); `LemmaQData.yvInputForW_uniform` gives constants uniform in `A_thr ≤ A_cap`, in particular on `[virasoroAThr, secondLevelAThr = |a₂| + 1]`; the `virasoroAThr` statements are the special cases.
 -/

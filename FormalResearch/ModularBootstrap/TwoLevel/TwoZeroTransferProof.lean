@@ -106,6 +106,7 @@ theorem twoSimpleZeroTransfer_of_w1 (prob : FixedWeightProblem) (hw : prob.w = 1
             decay := fun c hc d hd => ((h1 c (hge c hc).1).2 d hd).2.1
             pos := fun c hc d hd => ((h1 c (hge c hc).1).2 d hd).2.2
             window := twoZero_window_field prob hw hK hA
+            integrable := twoZero_integrable_psiAiry prob hw hK hA
             limsup_le := twoZero_limsup_field prob hw hK hA
             vac := fun hδ => ?_ }⟩
   obtain ⟨κ, hκ, h⟩ := h2 hδ
