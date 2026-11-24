@@ -332,6 +332,10 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuum
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFinal
 public import FormalResearch.ModularBootstrap.Upper.Assembly.N1
 public import FormalResearch.ModularBootstrap.FoldTip.Concordance
+public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeChart
+public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeLower
+public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeSub
+public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeFixedWeight
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -998,4 +1002,14 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   (`fold_tip_universality.tex`, C1, C2, C3 in O(1) form, C4, C5a–C5c) for every fixed-weight problem:
   `ft_fixedWeight_general` (lower bound, liminf, rigidity; no hypothesis), `ft_fixedWeight_H3` (two-sided Airy law from
   H3), `ft_fixedWeight` (`w = 1`, H3 discharged), and `ft_virasoro`, `ft_n1`.  Module docstring: conclusion and hypothesis table.
+* `FoldTip.TwoEdge{Chart,Lower,Sub,FixedWeight}`: **Theorem FT-2E and Proposition FT-Sub** (`fold_tip_two_edge.tex`) over the
+  abstract two-edge bootstrap (imports `TwoEdgeBootstrap`, edits nothing there).  `FoldChart` (inverse fold chart,
+  `Δ_C(u) ≥ ξ_* C - (u/β) C^{1/3} - C_ξ C^{-1/3} u²`), `ChartCoverage` (`chartCoverage_of_C1` from conclusion C1 and
+  continuity), `FoldChart.lower_of_displacement` (chart inversion for a displacement bound `C^{1/3}(u - u_*) ≤ κ_C`);
+  `ft_twoEdge_lower`/`ft_twoEdge_expansion` (`T ≥ ξ_* C + (|u_*|/β) C^{1/3} - K₋` and the two-sided `O(1)` law, from
+  `teb_bootstrap_part3`), `ft_twoEdge_lower_hb`/`ft_twoEdge_expansion_hb` (`teb_bootstrap_hb`), `ft_sub_displacement`,
+  `ft_sub_feedback`, `ft_sub` (`T ≥ … - C₋(1 + log Υ_C)`, `teb_weak_K_log_bound`/`teb_weak_feedback_closure`), the
+  non-vacuity theorems `twoEdgeViolators_nonvacuous`, `subViolators_nonvacuous`, and `foldChartOfLemmaQ` (the fixed-weight
+  Langer chart as a `FoldChart`).  The violator family and chart coverage of a concrete problem are hypotheses
+  (`TwoEdgeViolators`, `TwoEdgeViolatorsHB`, `SubViolators`, `ChartCoverage`).
 -/
