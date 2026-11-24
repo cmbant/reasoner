@@ -370,6 +370,8 @@ public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombPhase
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombK7
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionTwoFloor
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionTwo
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroWindowNorm
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroWindow
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1110,4 +1112,10 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `x ≥ ξ_* + c'^{-2/5}` (`twoZeroT_ratio_le`), the exponent shift `vRhoInfty_add_half`, the transform bound `twoZero_hat_bound`
   (`‖ĥ₂‖ ≤ 0.55·1.02·Lev₂`), and **`twoZero_regionII`** / **`twoZero_regionII_pos`**: `2g/Lev₂ ≥ 13/100`, `g > 0`
   for `c'` large uniformly on a compact family of admissible designs.
+* `TwoLevel.{TwoZeroWindowNorm, TwoZeroWindow}` (`upper_transfer.tex` Theorem T2 `ut:T2`, "Window and vacuum normalisation"): the
+  normalisation `F_{2,c} = FK_c^{(2)} πλ/(2√2)` (`twoZeroF`, `F_{2,c} = Φ₀ c'^{3/2}` exactly: `twoZeroF_asymp`, `twoZeroF_asymp_field`;
+  `windowMeasureNormK_eq_FKc` at every level `f`, `w = 1`), the functional `g = ½(h₂ - ĥ₂)` (`twoZeroG`), Lemma `SD_G` for `h₂`
+  (`twoZero_hat_window_bound`) and the window limit `F_{2,c}^{-1} Ψ_g → C₂ W₂`, `C₂ = C_* κ/2`, locally uniformly in `u` and
+  uniformly on a compact family of admissible designs, including the `ĥ` part (**`twoZero_window_limit`**, `twoZero_window_field`:
+  the `window` field of `TwoZeroTransferData`), from `lemma_W_measure` at `f = 2`, `tildeW_toModified_Wr` and `twoZeroT_window_bound`.
 -/
