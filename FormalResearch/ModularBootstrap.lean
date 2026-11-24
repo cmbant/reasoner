@@ -343,6 +343,8 @@ public import FormalResearch.ModularBootstrap.TwoLevel.PinnedRigidity
 public import FormalResearch.ModularBootstrap.TwoLevel.TheoremTwoOne
 public import FormalResearch.ModularBootstrap.FoldTip.Hypotheses
 public import FormalResearch.ModularBootstrap.FoldTip.Instances
+public import FormalResearch.ModularBootstrap.TwoLevel.ConstrainedDuality
+public import FormalResearch.ModularBootstrap.TwoLevel.CorollaryTwoFour
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1034,4 +1036,13 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   as `Prop` structures (`FoldTipScale`, `FoldTipSetting`, `FTChart`, `FTH1`, `FTH2`, `FTH2hol`, `FTH2plus`, `FTH3`, `FTH4a`, `FTH4b`),
   and `FoldTipSetting.ofFixedWeight prob` with `fwH1`, `fw_hypotheses` (`H2-hol`, `H2+`, `H4a` from `proposition_P_of_problem`),
   `fwH3` (from `TheoremC15UpperInput`), `fwH4b` and `fw_foldTip_hypotheses_w1` (all hypotheses for every weight-one problem).
+* `TwoLevel.{ConstrainedDuality, CorollaryTwoFour}`: **Corollary 2.4** (`virasoro_two_level.tex`, `gt:2.4`) and the constrained strong
+  duality it rests on (`dual_spectrum.tex`, Theorem E with `X = {t₁} ∪ [τ, ∞)`).  `exists_crossingMeasure_of_not_feasible` /
+  `constrained_strong_duality` (`_two_level`): for a closed `X ⊆ [T₀, ∞)` containing a ray, at every fixed weight, no `g ∈ Ā`
+  with `g_vac > 0`, `g ≥ 0` on `X` iff a crossing measure supported on `X` with `∫ w_* dν ≤ C₀` exists
+  (`not_feasible_of_crossingMeasure` for the converse).  `eventually_not_feasibleOn_two_level` (Theorem 2.1 gives no
+  feasible `g` with `g(t₁) ≥ 0`, `g ≥ 0` on `[t₂, ∞)` for large `c'`, `A₂ < A_2^*(A₁)`), `corollary_two_four_of_upper` (given
+  `TheoremC15UpperInput prob`) and `corollary_two_four` (every `prob` with `prob.w = 1`, unconditional): for `A₁ < A_opt` and
+  `A₂ < A_2^*(A₁)`, for all large `c'` there is a crossing measure supported on `{t₁} ∪ [t₂, ∞)` with `ν({t₁}) > 0`,
+  `w_* ∈ L¹(ν)`, `∫ w_* dν ≤ C₀`.
 -/
