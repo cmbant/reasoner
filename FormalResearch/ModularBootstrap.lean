@@ -341,6 +341,8 @@ public import FormalResearch.ModularBootstrap.TwoLevel.ClarkOfBlowupLimit
 public import FormalResearch.ModularBootstrap.TwoLevel.PinnedLimit
 public import FormalResearch.ModularBootstrap.TwoLevel.PinnedRigidity
 public import FormalResearch.ModularBootstrap.TwoLevel.TheoremTwoOne
+public import FormalResearch.ModularBootstrap.FoldTip.Hypotheses
+public import FormalResearch.ModularBootstrap.FoldTip.Instances
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1028,4 +1030,8 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   uniformly and in `L¹`, `s₁ → -z₂/β`, `γ → 0`.  Ingredients: `clark_of_blowup_limit` (Clark two-node theorem for a
   Proposition T limit), `pinned_limit`, `twoLevel_eventually`/`twoLevel_liminf`/`twoLevel_rigidity` (for any
   `BlowupFamilyPackage` / `RigidityFamilyPackage`), `tendsto_s₁_of_tendsto_excess`, `l1_of_tendstoLocallyUniformlyOn`.
+* `FoldTip.Hypotheses`, `FoldTip.Instances` (FT-1): the setting and hypotheses `H1`, `H2`, `H2-hol`, `H2+`, `H3`, `H4a`, `H4b` of Theorem FT
+  as `Prop` structures (`FoldTipScale`, `FoldTipSetting`, `FTChart`, `FTH1`, `FTH2`, `FTH2hol`, `FTH2plus`, `FTH3`, `FTH4a`, `FTH4b`),
+  and `FoldTipSetting.ofFixedWeight prob` with `fwH1`, `fw_hypotheses` (`H2-hol`, `H2+`, `H4a` from `proposition_P_of_problem`),
+  `fwH3` (from `TheoremC15UpperInput`), `fwH4b` and `fw_foldTip_hypotheses_w1` (all hypotheses for every weight-one problem).
 -/
