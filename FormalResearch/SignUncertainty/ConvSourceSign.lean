@@ -17,6 +17,14 @@ this module proves the items (1)-(2) of `ceo:conv` in the `convR` form:
 * `convSource_mass`: `|∫ S_c - (γ + θ B_p √λ) ε| ≤ C ε^{2p}` for `h = λ ε²`;
 * `convSource_neg_tail_upper`, `convSource_neg_tail_lower`: the two-sided negative tail.
 
+These are restatements in Lean of the TeX items (1) (positivity, mass identity, compact floor,
+the `O(ε^{2p})` mass expansion) and (2) (both negative-tail bounds). The constants are quantified
+before the parameters they must be uniform in (the compact floor and the lower tail constant are
+absolute, the upper tail constant depends on `γ`, the mass constants on `p, λ`), matching the
+uniformity in `c ≥ 2` and `θ` of `ceo:conv`. Not covered here: membership `S_c ∈ 𝒢` (real
+entire, `‖S_c‖₁ = ‖w_c‖₁` is `convSource_integral`; entireness is not stated), and items (3)-(7)
+of `ceo:conv` apart from the Laplace product formula of `ConvSourceLaplace`.
+
 Positivity and the floor come from `g₁ > 0` on `[a₁, ∞)` and compactness; the upper tail splits the
 integral at `y = x/2` and uses `g₁ ≤ C(1+|u|)^{-5/2}` and `∫ g₁ = 1`; the lower tail uses the window
 `y ∈ (x, x+1]` on which `η = 1`, `ϱ(hy) ≥ ϱ(hx)` and `g₁(y - x) ≥ m > 0`.
@@ -70,8 +78,7 @@ lemma convSg_wh_le_shift {p h : ℝ} (hp : 0 ≤ p) (hh : 0 ≤ h) {y : ℝ} (hy
   by_cases hy1 : y ≤ 1
   · rw [convWh_eq_zero hy1]
     exact mul_nonneg (Real.rpow_nonneg (by norm_num) _) (Real.rpow_nonneg (by linarith) _)
-  · push_neg at hy1
-    exact (convWh_le hp hh hy).trans (convSg_pow_le_shift hy1.le)
+  · exact (convWh_le hp hh hy).trans (convSg_pow_le_shift (not_le.mp hy1).le)
 
 /-- Pointwise bound for the full weight: `w_c(y) ≤ (2γ + 2^{3/2}θ)(1+y)^{-3/2}` for `y > 0`, `ε ≤ 1`. -/
 lemma convSg_wc_le {p γ θ ε h : ℝ} (hp : 0 ≤ p) (hγ : 0 ≤ γ) (hθ : 0 ≤ θ) (hε1 : ε ≤ 1) (hh : 0 ≤ h)
@@ -195,9 +202,9 @@ lemma convSg_window {p γ θ ε h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hγ : 0
 
 /-! ### Positivity, integrability and mass -/
 
-/-- **Positivity:** `S_c(u) > 0` for every `u`. -/
+/-- **Positivity:** `S_c(u) > 0` for every `u` (the TeX bound `θ ≤ 1` is not needed). -/
 theorem convSource_pos {p γ θ ε h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hγ : 0 < γ) (hθ : 0 < θ)
-    (hθ1 : θ ≤ 1) (hε : 0 < ε) (hh : 0 < h) (u : ℝ) :
+    (hε : 0 < ε) (hh : 0 < h) (u : ℝ) :
     0 < convSource p γ θ ε h u := by
   obtain ⟨m, hm, hfl⟩ := convSg_g1_floor (T := |u|) (abs_nonneg u)
   have hpos : 0 < γ * ε * Real.exp (-(|u| + 1)) * m :=
@@ -241,23 +248,27 @@ theorem convSource_integral {p γ θ ε h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) 
   rw [convSource_eq_convR]
   exact ⟨hintR, key'⟩
 
-/-- Compact floor: `S_c(u) ≥ b γ ε` on `|u| ≤ U`, with `b > 0` independent of `p, θ, ε, h`. -/
-theorem convSource_compact_floor {p γ θ ε h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hγ : 0 < γ) (hθ : 0 < θ)
-    (hε : 0 < ε) (hh : 0 < h) (U : ℝ) :
-    ∃ b : ℝ, 0 < b ∧ ∀ u : ℝ, |u| ≤ U → b * γ * ε ≤ convSource p γ θ ε h u := by
+/-- Compact floor: `S_c(u) ≥ b γ ε` on `|u| ≤ U`, with `b > 0` depending on `U` only (the
+existential precedes all of `p, γ, θ, ε, h`). -/
+theorem convSource_compact_floor (U : ℝ) :
+    ∃ b : ℝ, 0 < b ∧ ∀ (p γ θ ε h : ℝ), 1 / 2 < p → p < 1 → 0 < γ → 0 < θ → 0 < ε → 0 < h →
+      ∀ u : ℝ, |u| ≤ U → b * γ * ε ≤ convSource p γ θ ε h u := by
   obtain ⟨m, hm, hfl⟩ := convSg_g1_floor (T := |U|) (abs_nonneg U)
-  refine ⟨Real.exp (-(|U| + 1)) * m, mul_pos (Real.exp_pos _) hm, fun u hu => ?_⟩
+  refine ⟨Real.exp (-(|U| + 1)) * m, mul_pos (Real.exp_pos _) hm,
+    fun p γ θ ε h hp hp1 hγ hθ hε hh u hu => ?_⟩
   have := convSg_window hp hp1 hγ hθ.le hε hh (abs_nonneg U) hm.le hfl (u := u) (hu.trans (le_abs_self U))
   calc Real.exp (-(|U| + 1)) * m * γ * ε = γ * ε * Real.exp (-(|U| + 1)) * m := by ring
     _ ≤ _ := this
 
-/-- Upper negative tail: `S_c(-x) ≤ C (1+x)^{-3/2}` for `x ≥ 0`, `0 < ε ≤ 1`, `0 < h ≤ 1`. -/
-theorem convSource_neg_tail_upper {p γ θ ε h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hγ : 0 < γ) (hθ : 0 < θ)
-    (hθ1 : θ ≤ 1) (hε : 0 < ε) (hε1 : ε ≤ 1) (hh : 0 < h) (hh1 : h ≤ 1) :
-    ∃ C : ℝ, ∀ x : ℝ, 0 ≤ x → convSource p γ θ ε h (-x) ≤ C * (1 + x) ^ (-(3 / 2 : ℝ)) := by
+/-- Upper negative tail: `S_c(-x) ≤ C (1+x)^{-3/2}` for `x ≥ 0`, with `C` depending on `γ` only (the
+existential precedes `p, θ, ε, h`, so it is uniform in `0 < θ ≤ 1`, `0 < ε ≤ 1`, `h > 0`, `p`). -/
+theorem convSource_neg_tail_upper {γ : ℝ} (hγ : 0 < γ) :
+    ∃ C : ℝ, ∀ (p θ ε h : ℝ), 1 / 2 < p → p < 1 → 0 < θ → θ ≤ 1 → 0 < ε → ε ≤ 1 → 0 < h →
+      ∀ x : ℝ, 0 ≤ x → convSource p γ θ ε h (-x) ≤ C * (1 + x) ^ (-(3 / 2 : ℝ)) := by
   obtain ⟨C₁, hC₁, hC⟩ := convG1_le_poly
+  refine ⟨(2 * γ + 2 ^ (3 / 2 : ℝ)) * (C₁ + 1) * 2 ^ (3 / 2 : ℝ),
+    fun p θ ε h hp hp1 hθ hθ1 hε hε1 hh x hx => ?_⟩
   have hK2 : 0 ≤ 2 * γ + 2 ^ (3 / 2 : ℝ) * θ := by positivity
-  refine ⟨(2 * γ + 2 ^ (3 / 2 : ℝ) * θ) * (C₁ + 1) * 2 ^ (3 / 2 : ℝ), fun x hx => ?_⟩
   have hx1 : 0 < 1 + x / 2 := by linarith
   have hQ : 0 ≤ (1 + x / 2) ^ (-(5 / 2 : ℝ)) := Real.rpow_nonneg hx1.le _
   have hR : 0 ≤ (1 + x / 2) ^ (-(3 / 2 : ℝ)) := Real.rpow_nonneg hx1.le _
@@ -338,19 +349,33 @@ theorem convSource_neg_tail_upper {p γ θ ε h : ℝ} (hp : 1 / 2 < p) (hp1 : p
   have A3 : (2 * γ + 2 ^ (3 / 2 : ℝ) * θ) * (C₁ + 1) * (1 + x / 2) ^ (-(3 / 2 : ℝ))
       ≤ (2 * γ + 2 ^ (3 / 2 : ℝ) * θ) * (C₁ + 1) * (2 ^ (3 / 2 : ℝ) * (1 + x) ^ (-(3 / 2 : ℝ))) :=
     mul_le_mul_of_nonneg_left hR2 (mul_nonneg hK2 (by linarith))
+  have hKK : 2 * γ + 2 ^ (3 / 2 : ℝ) * θ ≤ 2 * γ + 2 ^ (3 / 2 : ℝ) := by
+    have : (0 : ℝ) ≤ 2 ^ (3 / 2 : ℝ) := Real.rpow_nonneg (by norm_num) _
+    nlinarith
+  have A4 : (2 * γ + 2 ^ (3 / 2 : ℝ) * θ) * (C₁ + 1) * (2 ^ (3 / 2 : ℝ) * (1 + x) ^ (-(3 / 2 : ℝ)))
+      ≤ (2 * γ + 2 ^ (3 / 2 : ℝ)) * (C₁ + 1) * 2 ^ (3 / 2 : ℝ) * (1 + x) ^ (-(3 / 2 : ℝ)) := by
+    have hpos : 0 ≤ (C₁ + 1) * (2 ^ (3 / 2 : ℝ) * (1 + x) ^ (-(3 / 2 : ℝ))) :=
+      mul_nonneg (by linarith) (mul_nonneg (Real.rpow_nonneg (by norm_num) _)
+        (Real.rpow_nonneg (by linarith) _))
+    calc (2 * γ + 2 ^ (3 / 2 : ℝ) * θ) * (C₁ + 1) * (2 ^ (3 / 2 : ℝ) * (1 + x) ^ (-(3 / 2 : ℝ)))
+        = (2 * γ + 2 ^ (3 / 2 : ℝ) * θ) * ((C₁ + 1) * (2 ^ (3 / 2 : ℝ) * (1 + x) ^ (-(3 / 2 : ℝ)))) := by ring
+      _ ≤ (2 * γ + 2 ^ (3 / 2 : ℝ)) * ((C₁ + 1) * (2 ^ (3 / 2 : ℝ) * (1 + x) ^ (-(3 / 2 : ℝ)))) :=
+          mul_le_mul_of_nonneg_right hKK hpos
+      _ = (2 * γ + 2 ^ (3 / 2 : ℝ)) * (C₁ + 1) * 2 ^ (3 / 2 : ℝ) * (1 + x) ^ (-(3 / 2 : ℝ)) := by ring
   unfold convSource
   rw [hsplit, setIntegral_union Set.Ioc_disjoint_Ioi_same measurableSet_Ioi (hI.mono_set hsub1)
     (hI.mono_set hsub2)]
-  nlinarith [P1, P2, A1, A3]
+  nlinarith [P1, P2, A1, A3, A4]
 
-/-- Lower negative tail: `S_c(-x) ≥ b θ ϱ(hx) x^{-3/2}` for `x ≥ 4`. -/
-theorem convSource_neg_tail_lower {p γ θ ε h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hγ : 0 < γ) (hθ : 0 < θ)
-    (hθ1 : θ ≤ 1) (hε : 0 < ε) (hh : 0 < h) :
-    ∃ b : ℝ, 0 < b ∧ ∀ x : ℝ, 4 ≤ x →
-      b * θ * convRho p (h * x) * x ^ (-(3 / 2 : ℝ)) ≤ convSource p γ θ ε h (-x) := by
+/-- Lower negative tail: `S_c(-x) ≥ b θ ϱ(hx) x^{-3/2}` for `x ≥ 4`, with an absolute constant `b > 0`
+(the existential precedes all of `p, γ, θ, ε, h`). -/
+theorem convSource_neg_tail_lower :
+    ∃ b : ℝ, 0 < b ∧ ∀ (p γ θ ε h : ℝ), 1 / 2 < p → p < 1 → 0 < γ → 0 < θ → 0 < ε → 0 < h →
+      ∀ x : ℝ, 4 ≤ x →
+        b * θ * convRho p (h * x) * x ^ (-(3 / 2 : ℝ)) ≤ convSource p γ θ ε h (-x) := by
   obtain ⟨m, hm, hfl⟩ := convSg_g1_floor (T := 1) zero_le_one
   have hc5 : 0 < (5 / 4 : ℝ) ^ (-(3 / 2 : ℝ)) := Real.rpow_pos_of_pos (by norm_num) _
-  refine ⟨(5 / 4 : ℝ) ^ (-(3 / 2 : ℝ)) * m, mul_pos hc5 hm, fun x hx => ?_⟩
+  refine ⟨(5 / 4 : ℝ) ^ (-(3 / 2 : ℝ)) * m, mul_pos hc5 hm, fun p γ θ ε h hp hp1 hγ hθ hε hh x hx => ?_⟩
   have hx0 : 0 < x := by linarith
   -- on the window `y ∈ (x, x+1]`: `w_h(y) ≥ c5 ϱ(hx) x^{-3/2}`
   have hwh : ∀ y ∈ Ioc x (x + 1), (5 / 4 : ℝ) ^ (-(3 / 2 : ℝ)) * convRho p (h * x) * x ^ (-(3 / 2 : ℝ))
@@ -395,15 +420,16 @@ theorem convSource_neg_tail_lower {p γ θ ε h : ℝ} (hp : 1 / 2 < p) (hp1 : p
     have hg : m ≤ ceG1 (airyZero 1) (-x + y) := hfl _ (by linarith) (by linarith)
     exact mul_le_mul hw hg hm.le (convWc_nonneg hγ.le hθ.le hε.le hh.le (by linarith))
 
-/-- **Mass:** `|∫ S_c - (γ + θ B_p √λ) ε| ≤ C ε^{2p}` for `h = λ ε²`, `0 < ε ≤ ε₀`. -/
-theorem convSource_mass {p γ θ lam : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hγ : 0 < γ) (hθ : 0 < θ)
-    (hθ1 : θ ≤ 1) (hlam : 0 < lam) :
-    ∃ C ε₀ : ℝ, 0 < ε₀ ∧ ∀ ε : ℝ, 0 < ε → ε ≤ ε₀ →
+/-- **Mass:** `|∫ S_c - (γ + θ B_p √λ) ε| ≤ C ε^{2p}` for `h = λ ε²`, `0 < ε ≤ ε₀`, where `C, ε₀`
+depend on `p, λ` only (the existential precedes `γ` and `0 < θ ≤ 1`; `γ` is an arbitrary real,
+the mass identity does not use its sign). -/
+theorem convSource_mass {p lam : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hlam : 0 < lam) :
+    ∃ C ε₀ : ℝ, 0 < ε₀ ∧ ∀ γ θ ε : ℝ, 0 < θ → θ ≤ 1 → 0 < ε → ε ≤ ε₀ →
       |(∫ u, convSource p γ θ ε (lam * ε ^ 2) u) - (γ + θ * convBp p * Real.sqrt lam) * ε|
         ≤ C * ε ^ (2 * p) := by
   obtain ⟨Cm, hCm⟩ := convW_mass hp hp1
   have hsl : 0 < Real.sqrt lam := Real.sqrt_pos.mpr hlam
-  refine ⟨|Cm| * lam ^ p, 1 / Real.sqrt lam, by positivity, fun ε hε hεε => ?_⟩
+  refine ⟨|Cm| * lam ^ p, 1 / Real.sqrt lam, by positivity, fun γ θ ε hθ hθ1 hε hεε => ?_⟩
   have hh : 0 < lam * ε ^ 2 := mul_pos hlam (by positivity)
   have hh1 : lam * ε ^ 2 ≤ 1 := by
     have h1 : ε ^ 2 ≤ (1 / Real.sqrt lam) ^ 2 := pow_le_pow_left₀ hε.le hεε 2

@@ -242,7 +242,7 @@ lemma convWd_scale {p h : ℝ} {C : ℕ → ℝ} (hρ : convWdGood 0 (convRho p)
       _ = C k * y ^ (-0 - (k : ℝ)) := by rw [hid, mul_one]
 
 /-- The full weight: `w_h` is good with exponent `3/2`, with constants independent of `h`. -/
-lemma convWd_weight {p h : ℝ} (hp : 1 / 2 < p) (hh : 0 < h) {Cη Cρ Cp : ℕ → ℝ}
+lemma convWd_weight {p h : ℝ} (hh : 0 < h) {Cη Cρ Cp : ℕ → ℝ}
     (hη : convWdGood 0 convEta Cη) (hρ : convWdGood 0 (convRho p) Cρ)
     (hpw : convWdGood (-(-(3 / 2 : ℝ))) (fun t => t ^ (-(3 / 2 : ℝ))) Cp) :
     convWdGood (3 / 2) (convWh p h) (convWdMulSeq (convWdMulSeq Cη Cρ) Cp) := by
@@ -256,7 +256,10 @@ lemma convWd_weight {p h : ℝ} (hp : 1 / 2 < p) (hh : 0 < h) {Cη Cρ Cp : ℕ 
   rw [Real.rpow_neg ht'.le]
   ring
 
-/-- (c) `(ceo:conv.4)`: derivative bounds of `w_h`, uniform in `h > 0`, for `y ≥ 1`. -/
+/-- `(ceo:conv.4)`: `|∂^r w_h(y)| ≤ C_r y^{-3/2-r}` for `y ≥ 1`, with `C_r` depending on `p, r` only
+(the existential precedes `h`, so it is uniform in `h > 0`). `iteratedDeriv` is the genuine derivative
+here: `w_h` coincides near every `y > 0` with a smooth product, and `y ≥ 1`. The hypothesis `p < 1`
+is not used (the bound holds for every `p ≥ 1/2` here) and is kept to match the TeX range. -/
 theorem convW_deriv_bound {p : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (r : ℕ) :
     ∃ C : ℝ, ∀ h : ℝ, 0 < h → ∀ y : ℝ, 1 ≤ y →
       |iteratedDeriv r (convWh p h) y| ≤ C * y ^ (-(3 / 2 : ℝ) - r) := by
@@ -264,7 +267,7 @@ theorem convW_deriv_bound {p : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (r : ℕ) :
   obtain ⟨Cη, hη⟩ := convWd_eta
   obtain ⟨Cp, hpw⟩ := convWd_pow (-(3 / 2 : ℝ))
   refine ⟨convWdMulSeq (convWdMulSeq Cη Cρ) Cp r, fun h hh y hy => ?_⟩
-  have hG := convWd_weight hp hh hη hρ hpw
+  have hG := convWd_weight hh hη hρ hpw
   exact hG.2 r y (by linarith)
 
 /-- info: 'FormalResearch.SignUncertainty.convWd_cdk' depends on axioms: [propext, Classical.choice, Quot.sound] -/
