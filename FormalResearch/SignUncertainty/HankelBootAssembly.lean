@@ -81,8 +81,10 @@ noncomputable def hankelBootParams (C_fb : ℝ) (hC_fb : 1 ≤ C_fb) : Bootstrap
   hγ := zero_le_one
   hk0 := by norm_num
 
-/-- The band-feedback hypothesis for the Hankel strip (`TE.3(2)–(3)`, `vlo:YV` analogue): for every feasible `f` the
-`YVEnvBound` at a radius `R ∈ [b² c^{2/3}, b² c^{2/3} + 1]` holds with `L' = C_fb (c^{1/3}(B₁ + B₂) + 1)`. -/
+/-- The band-feedback hypothesis for the Hankel strip (`TE.3(2)–(3)`, `(B3)`, analogue of `YVInputAtForW`): for every feasible `f`
+(`c ≥ c_YV`, `M[f] = 1`, `cξ(u_T) = T`, `u_T ∈ [-3, 0]`) the `YVEnvBound` at a radius `R ∈ [b² c^{2/3}, b² c^{2/3} + 1]` holds with
+`L' = C_fb (c^{1/3}(B₁ + B₂) + 1)`.  **This is a hypothesis, not proved in this file**: it is the content of S6b (the window lemma
+from `hankel_band_reduction`).  `hankelBootHB` assumes `c_YV ≤ c` and `3·10⁶ ≤ c` separately; a `c_YV < 3·10⁶` would only make this hypothesis stronger. -/
 def HankelYVAt (C_fb c_YV : ℝ) : Prop :=
   ∀ ⦃c ε T u_T R : ℝ⦄ ⦃f : ℝ → ℝ⦄, c_YV ≤ c → IsHankelFeasible c ε T f → (ε = 1 ∨ ε = -1) →
     hankelMass c f = 1 → c * hankelXi c u_T = T → u_T ≤ 0 → -3 ≤ u_T →
@@ -98,7 +100,13 @@ lemma hankelBoot_uT_range {Ψ : ℂ → ℂ} {u_T : ℝ} (ha1 : airyZero 1 < u_T
   constructor <;> linarith [this.1, this.2]
 
 set_option maxHeartbeats 1000000 in
-/-- **The Hankel `BootstrapHBInstance`** (S6a). -/
+/-- **The Hankel `BootstrapHBInstance`** (S6a), for `f` feasible at `T` with `M[f] = 1`, `cξ(u_T) = T`, `a₁ < u_T` and
+`QuantC1B2Holds (hankelPsi c f) u_T`, at a good circle `R ∈ [b² c^{2/3}, b² c^{2/3} + 1]` chosen inside the proof
+(`hankelBoot_good_circle_window`); the returned `L` is the feedback value `C_fb (c^{1/3}(B₁ + B₂) + 1)` and `c`, `x_tilde` are `c`,
+`u_T - a₁`.  **Not covered here:** the window hypothesis `hYVat : HankelYVAt C_fb c_YV` (the Hankel `TE.3(2)–(3)`, to be proved in
+S6b from `hankel_band_reduction`) is an explicit hypothesis, so this definition is only as non-vacuous as `HankelYVAt`;
+likewise `hsmall : 4 r_c r_∞ ≤ 1` (true for large `c`, to be supplied from `r_∞ = O(c^{1/3} e^{-c/40000})`).  The core slack is the
+explicit `r_inf = 70 r_∞`; no `r_∞` is dropped (`hankelBoot_line_bound`, `hankelBoot_nodes_lb`, `hankelBoot_node_slack`). -/
 noncomputable def hankelBootHB {C_fb c_YV : ℝ} (hC_fb : 1 ≤ C_fb) (hYVat : HankelYVAt C_fb c_YV)
     {c ε T u_T : ℝ} {f : ℝ → ℝ} (hc_YV : c_YV ≤ c) (hc : 3e6 ≤ c) (h_c12 : (3 * π) ^ (12 : ℕ) ≤ c)
     (h48 : 48 ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ)) (hf : IsHankelFeasible c ε T f)
@@ -312,6 +320,10 @@ noncomputable def hankelBootHB {C_fb c_YV : ℝ} (hC_fb : 1 ≤ C_fb) (hYVat : H
 /-- info: 'FormalResearch.SignUncertainty.hankelBoot_uT_range' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms hankelBoot_uT_range
+
+/-- info: 'FormalResearch.SignUncertainty.hankelBootParams' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelBootParams
 
 /-- info: 'FormalResearch.SignUncertainty.hankelBootHB' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

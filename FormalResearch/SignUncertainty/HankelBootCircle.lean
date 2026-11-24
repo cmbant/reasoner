@@ -116,6 +116,10 @@ theorem hankelBoot_good_circle_window (k : ℝ) (hk : 10 ≤ k) :
           gcongr
       _ = airyEnv u / (25 * π * √r) := by field_simp
 
+/-- info: 'FormalResearch.Special.hankelBoot_good_radius_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelBoot_good_radius_real
+
 /-- info: 'FormalResearch.Special.hankelBoot_good_circle_window' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms hankelBoot_good_circle_window

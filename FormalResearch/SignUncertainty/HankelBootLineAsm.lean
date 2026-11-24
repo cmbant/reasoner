@@ -30,6 +30,7 @@ lemma hankelBoot_exp_six_fifths_le : Real.exp (6 / 5 : ℝ) ≤ 25 / 4 := by
   have h4 : 0 < Real.exp (3 / 5 : ℝ) := Real.exp_pos _
   rw [h2]; nlinarith
 
+/-- **The Hankel line estimate** (`hI_line`), proved from the pieces; see the module docstring for the statement and the slack. -/
 theorem hankelBoot_line_bound {c ε T u_T R ℓ : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c)
     (hf : IsHankelFeasible c ε T f) (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1)
     (hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T) (hR10 : 10 ≤ R)
@@ -153,6 +154,10 @@ theorem hankelBoot_line_bound {c ε T u_T R ℓ : ℝ} {f : ℝ → ℝ} (hc : 3
   have hE3 : 120 * ((k : ℝ) + 1) / R = 120 * (((k : ℝ) + 1) / R) := by ring
   have hE4 : 60 * ((k : ℝ) + 1) / R = 60 * (((k : ℝ) + 1) / R) := by ring
   linarith
+
+/-- info: 'FormalResearch.SignUncertainty.hankelBoot_exp_six_fifths_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelBoot_exp_six_fifths_le
 
 /-- info: 'FormalResearch.SignUncertainty.hankelBoot_line_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

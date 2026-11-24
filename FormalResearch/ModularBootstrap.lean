@@ -370,6 +370,46 @@ public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombPhase
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroCombK7
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionTwoFloor
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionTwo
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroWindowNorm
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroWindow
+public import FormalResearch.ModularBootstrap.Upper.Positivity.RegionOneGeneral
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionOneUnif
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionOne
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroRegionOneAssembly
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroPositivity
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityAtoms
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityNodes
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityIdeal
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityLimit
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityAtomic
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityApprox
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityProducts
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityData
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityFamily
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityRatio
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityFamilies
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityConc
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityUp
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityLow
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityMeasure
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidity
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityNonvac
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumPrelim
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumRatio
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumBand
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumLobe
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumWindow
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumCore
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuum
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroTransferProof
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxFactor
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxWindow
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxDesign
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxNode
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxTail
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApprox
+public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxTheorem
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoLevelWeightOne
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1110,4 +1150,38 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `x ≥ ξ_* + c'^{-2/5}` (`twoZeroT_ratio_le`), the exponent shift `vRhoInfty_add_half`, the transform bound `twoZero_hat_bound`
   (`‖ĥ₂‖ ≤ 0.55·1.02·Lev₂`), and **`twoZero_regionII`** / **`twoZero_regionII_pos`**: `2g/Lev₂ ≥ 13/100`, `g > 0`
   for `c'` large uniformly on a compact family of admissible designs.
+* `TwoLevel.{TwoZeroWindowNorm, TwoZeroWindow}` (`upper_transfer.tex` Theorem T2 `ut:T2`, "Window and vacuum normalisation"): the
+  normalisation `F_{2,c} = FK_c^{(2)} πλ/(2√2)` (`twoZeroF`, `F_{2,c} = Φ₀ c'^{3/2}` exactly: `twoZeroF_asymp`, `twoZeroF_asymp_field`;
+  `windowMeasureNormK_eq_FKc` at every level `f`, `w = 1`), the functional `g = ½(h₂ - ĥ₂)` (`twoZeroG`), Lemma `SD_G` for `h₂`
+  (`twoZero_hat_window_bound`) and the window limit `F_{2,c}^{-1} Ψ_g → C₂ W₂`, `C₂ = C_* κ/2`, locally uniformly in `u` and
+  uniformly on a compact family of admissible designs, including the `ĥ` part (**`twoZero_window_limit`**, `twoZero_window_field`:
+  the `window` field of `TwoZeroTransferData`), from `lemma_W_measure` at `f = 2`, `tildeW_toModified_Wr` and `twoZeroT_window_bound`.
+* `TwoLevel.{TwoZeroRegionOneUnif, TwoZeroRegionOne, TwoZeroRegionOneAssembly}` and `Upper.Positivity.RegionOneGeneral` (`upper_transfer.tex`
+  Theorem T2 `ut:T2`, "Region I"): `lemma_R_lower_two_unif` (Lemma R at `f = 2` uniform on a compact family, from `lemma_R_lower` by a
+  diagonal argument on the parameter set), `twoZeroT_ge_window`, `twoZeroComb_global_bound` (`SD_G` for `h₂`), the window
+  `twoZero_regionOne_a` (`σ - σ_q ≥ C c'^{-7/6}`) and the `K5` overshoot `twoZero_regionOne_b` (via the `f`-general
+  `designProfile_overshoot_lower`), `twoZero_regionOne` (`2g > 0` on `χ(q) + Cλc'^{-7/6} ≤ x ≤ ξ_* + c'^{-2/5}`), `twoZero_regionOne_t`
+  (in the form `t ≥ t(q) + 1`) and `twoZero_pos_of_regionTwo` (with the Region II statement as hypothesis: `g > 0` for `t ≥ tAiry c' q + 1`),
+  uniformly on a compact family of admissible designs.
+* `TwoLevel.TwoZeroPositivity` (T2-WP4 with WP3): `twoZero_pos_x`, `twoZero_pos_t` (`g > 0` for every `t ≥ t(q) + 1`, uniformly on a compact admissible family; Regions I and II combined).
+* `TwoLevel.ClarkRigidity{Atoms, Nodes, Ideal, Limit, Atomic, Approx, Products, Data, Family, Ratio, Families, Conc, Up, Low, Measure}`
+  and `TwoLevel.ClarkRigidity` (`virasoro_two_level.tex` Theorem 2.6 `gt:2.6`, node-level Clark rigidity): the Clark kernel
+  `K_n > 0` (`clarkKernel_pos`) and measure `clarkMeasure α = Σ_n δ_{z_n}/K_n`; ideal two-simple-zero windows `IdealDatum` with
+  Clark summation `∫ F_δ = Σ τ_i(δ)`; the ideal inequality from approximating designs (`idealIneq_of_approx`); concentration on
+  the nodes (`concentration_nodes`), the upper and lower weight bounds (`weight_le_one_of_up`, `weight_ge_one_of_low`; Lemma R
+  `ratioFac_prod_uniform`, `win_ratio_bounds`), `measure_eq_clarkMeasure`, `locallyBounded_of_support` and **`theorem_two_six`**
+  (vague convergence of `S.μ` to `clarkMeasure (clarkAngle (-A₁/c_*))`) with its corollary `tendsto_atom_weight` (the atom weight
+  at `t₁` tends to `1/K(u₁, u₁)`), conditional only on `TwoSimpleZeroTransfer` and the
+  named window-limit `Prop` `TwoZeroIdealApprox` (every admissible ideal datum is a limit of two-simple-zero windows; its vacuum
+  half is proved for the data of `f_K` in `ClarkRigidityNonvac.twoZeroApprox_vacuum_nonvacuous`, from `NegativeVacuum.tendsto_intWr`).
+* `TwoLevel.TwoZeroVacuum{Prelim,Ratio,Band,Lobe,Window,Core,}` (T2-WP6, `upper_transfer.tex` Theorem T2 `ut:T2`, "Deep lobe, far band and assembly"): the
+  vacuum limsup and vacuum positivity for the two-zero comb: the deep lobe `u > p` (positive at `f = 2`) is bounded absolutely by
+  `F (C_L S^{-3/2} + ε)` (`twoZero_lobe_bound`, from K6(b), the ratio `|B₁/B_ref| ≤ C` on `[0, ξ_*]` `twoZero_comb_le_ref_lobe`, `|T_{χ(p)}| ≤ π(ξ_* - x)`
+  and the slit deficit), the intermediate and far bands (`twoZero_band_bound`, `twoZero_far_bound`), the window part (`twoZero_window_comb`), and the assembly
+  `∫_0^∞ h₂ V ≤ F (C_* κ ∫ W₂ + ε)` (**`twoZero_vacuum_core`**); with the vacuum identity of `K7` this gives the `limsup_le` field
+  (**`twoZero_limsup_field`**), the vacuum bound `g_vac ≥ κ c^{3/2}` when `∫ W₂ ≤ -δ` (**`twoZero_vac_eventually`**, `twoZero_vac_field_of_threshold`),
+  and integrability of `Ψ_g` (**`twoZero_integrable_psiAiry`**), uniformly on a compact admissible family.
+* `TwoLevel.TwoZeroTransferProof` (T2-WP7, `upper_transfer.tex` Theorem T2 `ut:T2`, assembly): **`twoSimpleZeroTransfer_of_w1`** (`TwoSimpleZeroTransfer prob` for `prob.w = 1`, fields from the K7, Region I/II, window, limsup and vacuum theorems) and the unconditional corollaries `designPropertyP_twoZero_w1`, **`theorem_two_five_w1`** (Theorem 2.5) and **`theorem_two_six_w1`** (Theorem 2.6, only `TwoZeroIdealApprox` besides `w = 1`).
+* `TwoLevel.IdealApprox{Factor, Window, Design, Node, Tail}`, `TwoLevel.IdealApprox` and `TwoLevel.IdealApproxTheorem` (`gt:2.6`, window approximation): the designs `idealDesign δ (K + j) η_j` of an admissible ideal datum are admissible with `q_j = q`, have windows bounded on compacta (`exists_winC_bound`) that converge pointwise at every real `u`, Airy zeros included, to `Re F_δ` (`tendsto_winC`, `F_eq_winC`), and vacuum integrals converging to `∫ Re F_δ` (`ideal_tendsto_intWr_gen`: Tannery for the node values `tendsto_nodeC`, Lemma E for the tail `tail_sum_bound`); hence **`twoZeroIdealApprox`** (`TwoZeroIdealApprox`, unconditionally), `not_adm_of_site_eq_airyZero` (a site `s_k = a_j`, `j > K`, is excluded) and **`theorem_two_six_of_T2`**, `tendsto_atom_weight_of_T2` (Theorem 2.6 from `TwoSimpleZeroTransfer` alone).
+* `TwoLevel.TwoLevelWeightOne`: **`theorem_two_six_w1_unconditional`** (Theorem 2.6 `gt:2.6` at every weight-one problem, no hypothesis).
 -/
