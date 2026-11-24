@@ -13,6 +13,8 @@ Generalises `Duality.Coordinates`, `Duality.Compactness`, `Duality.LimitMeasure`
 to every fixed-weight problem `prob : FixedWeightProblem` with `c̃ > 0`, `c̃ ≥ 12 S`, and
 `T_V(c̃) > 0` (`DualSetup prob cTilde β₀ T₀`):
 
+* `exists_measure_exact`, `exists_crossingMeasure_of_limit`: derived from the constrained forms `_on`
+  (closed `X ⊆ [T₀, ∞)`, abstract cut-off `ζ`), of which `X = [T, ∞)`, `ζ = ζ_T` is the case used here.
 * `theorem_E_b`: for `T₀ ≤ T < T_V(c̃)` there is a crossing measure `ν_T` supported on `[T, ∞)`
   with `∫ w_* dν_T ≤ C₀`.
 * `theorem_E_c`: there is a crossing measure `ν_*` supported on `[T_V, ∞)` with `∫ w_* dν_* ≤ C₀`
@@ -98,11 +100,14 @@ noncomputable def FtildeB {w : ℕ} {a β₀ T₀ β : ℝ}
 
 /-! ### Section 2: Compactness and transport to crossing measures -/
 
-/-- **Theorem E(a)+(b), exactness on `[0, 1]`** at fixed weight `(w, Q)`. -/
-theorem exists_measure_exact (prob : FixedWeightProblem) {cTilde β₀ T₀ T : ℝ}
-    (S : DualSetup prob cTilde β₀ T₀) (hT₀T : T₀ ≤ T) (hTV : T < prob.T_V cTilde) :
+/-- **Theorem E(a)+(b), exactness on `[0, 1]`**, with an abstract cut-off `ζ` vanishing on the image of `X`
+(generalises `exists_measure_exact`, the case `X = [T, ∞)`, `ζ = ζ_T`). -/
+theorem exists_measure_exact_on (prob : FixedWeightProblem) {cTilde β₀ T₀ : ℝ}
+    (S : DualSetupCore prob cTilde β₀ T₀) {X : Set ℝ} (hX : X ⊆ Ici T₀)
+    (hno : ∀ g, ¬ prob.IsFeasibleOn (cTilde / 12) X g)
+    (ζ : Ecoord →ᵇ ℝ) (hζ : ∀ t ∈ X, ζ (toE T₀ t) = 0) :
     ∃ μ : FiniteMeasure Ecoord, (μ.mass : ℝ) ≤ dualC0 prob (cTilde / 12) β₀ ∧
-      ∫ x, zetaB T₀ T x ∂(μ : Measure Ecoord) = 0 ∧
+      ∫ x, ζ x ∂(μ : Measure Ecoord) = 0 ∧
       ∀ (β : ℝ) (hβ : 0 < β),
         ∫ x, FtildeB (w := prob.w) (a := cTilde / 12) (β₀ := β₀) (T₀ := T₀)
           S.ha_pos S.hβ₀ S.hT₀pos hβ x ∂(μ : Measure Ecoord) =
@@ -112,13 +117,12 @@ theorem exists_measure_exact (prob : FixedWeightProblem) {cTilde β₀ T₀ T : 
     dualC0_pos prob ha0 S.hβ₀ (by linarith [S.hβ₀2])
   set C : ℝ≥0 := (dualC0 prob (cTilde / 12) β₀).toNNReal with hC
   have hCcoe : (C : ℝ) = dualC0 prob (cTilde / 12) β₀ := Real.coe_toNNReal _ hC0.le
-  obtain ⟨μ, hμK, hμ⟩ := exists_exact_of_approx (isCompact_Kset C (zetaB T₀ T))
-    (isClosed_Kset C (zetaB T₀ T))
+  obtain ⟨μ, hμK, hμ⟩ := exists_exact_of_approx (isCompact_Kset C ζ) (isClosed_Kset C ζ)
     (J := {β : ℝ // 0 < β})
     (fun j => FtildeB (w := prob.w) (a := cTilde / 12) (β₀ := β₀) (T₀ := T₀)
       ha0 S.hβ₀ S.hT₀pos j.2)
     (fun j => crossingRHS prob (cTilde / 12) j.1) (fun u n => by
-      obtain ⟨N, t, c, ht, hc, hs, hd⟩ := exists_atomic_approx prob S hT₀T hTV
+      obtain ⟨N, t, c, ht, hc, hs, hd⟩ := exists_atomic_approx_on prob S hX hno
         (u.image Subtype.val) (fun β hβ => by
           obtain ⟨j, _, rfl⟩ := Finset.mem_image.mp hβ; exact j.2)
         (by positivity : (0 : ℝ) < 1 / (n + 1))
@@ -129,10 +133,10 @@ theorem exists_measure_exact (prob : FixedWeightProblem) {cTilde β₀ T₀ T : 
         rw [finiteMeasure_mass_coe, hCcoe]
         show (atomMeasure T₀ t c).real univ ≤ _
         rw [atomMeasure_real_univ T₀ t c hc]; exact hs
-      · show ∫ x, zetaB T₀ T x ∂(atomMeasure T₀ t c) = 0
+      · show ∫ x, ζ x ∂(atomMeasure T₀ t c) = 0
         rw [hint]
         refine Finset.sum_eq_zero fun k _ => ?_
-        rw [zetaB_toE hT₀T (ht k), mul_zero]
+        rw [hζ _ (ht k), mul_zero]
       · show |∫ x, _ ∂(atomMeasure T₀ t c) - _| ≤ _
         rw [hint]
         have := hd j.1 (Finset.mem_image.mpr ⟨j, hj, rfl⟩)
@@ -142,21 +146,39 @@ theorem exists_measure_exact (prob : FixedWeightProblem) {cTilde β₀ T₀ T : 
         have e : (FtildeB (w := prob.w) (a := cTilde / 12) (β₀ := β₀) (T₀ := T₀)
             ha0 S.hβ₀ S.hT₀pos j.2) (toE T₀ (t k)) =
             Ftilde prob.w (cTilde / 12) β₀ T₀ j.1 (toE T₀ (t k)) := rfl
-        rw [e, Ftilde_toE _ _ _ _ _ (hT₀T.trans (ht k))])
+        rw [e, Ftilde_toE _ _ _ _ _ (hX (ht k))])
   refine ⟨μ, ?_, hμK.2, fun β hβ => hμ ⟨β, hβ⟩⟩
   have := hμK.1
   rw [← hCcoe]; exact_mod_cast this
 
-/-- **Theorem E(b), transport** at fixed weight `(w, Q)`. -/
-theorem exists_crossingMeasure_of_limit (prob : FixedWeightProblem) {cTilde β₀ T₀ : ℝ}
-    (S : DualSetup prob cTilde β₀ T₀) (μ : FiniteMeasure Ecoord)
+/-- **Theorem E(a)+(b), exactness on `[0, 1]`** at fixed weight `(w, Q)`; the case `X = [T, ∞)`,
+`ζ = ζ_T` of `exists_measure_exact_on`. -/
+theorem exists_measure_exact (prob : FixedWeightProblem) {cTilde β₀ T₀ T : ℝ}
+    (S : DualSetup prob cTilde β₀ T₀) (hT₀T : T₀ ≤ T) (hTV : T < prob.T_V cTilde) :
+    ∃ μ : FiniteMeasure Ecoord, (μ.mass : ℝ) ≤ dualC0 prob (cTilde / 12) β₀ ∧
+      ∫ x, zetaB T₀ T x ∂(μ : Measure Ecoord) = 0 ∧
+      ∀ (β : ℝ) (hβ : 0 < β),
+        ∫ x, FtildeB (w := prob.w) (a := cTilde / 12) (β₀ := β₀) (T₀ := T₀)
+          S.ha_pos S.hβ₀ S.hT₀pos hβ x ∂(μ : Measure Ecoord) =
+          crossingRHS prob (cTilde / 12) β :=
+  exists_measure_exact_on prob S.toCore (X := Ici T) (fun _ ht => hT₀T.trans ht)
+    (fun g hg => not_feasible_of_lt_T_V prob (lt_of_lt_of_le S.hT₀pos hT₀T) hTV
+      ((isFeasibleOn_Ici_iff prob _ T g).1 hg)) (zetaB T₀ T) fun _ ht => zetaB_toE hT₀T ht
+
+/-- **Theorem E(b), transport**, with an abstract cut-off (generalises `exists_crossingMeasure_of_limit`):
+the measure `ν` obtained from the limit measure `μ` vanishes on `Xᶜ` whenever `∫ ζ dμ = 0` for a cut-off
+`ζ ≥ 0` whose zero set in `{s > 0}` lies over `X`. -/
+theorem exists_crossingMeasure_of_limit_on (prob : FixedWeightProblem) {cTilde β₀ T₀ : ℝ}
+    (S : DualSetupCore prob cTilde β₀ T₀) (μ : FiniteMeasure Ecoord)
     (hmass : (μ.mass : ℝ) ≤ dualC0 prob (cTilde / 12) β₀)
     (hcross : ∀ (β : ℝ) (hβ : 0 < β),
       ∫ x, FtildeB (w := prob.w) (a := cTilde / 12) (β₀ := β₀) (T₀ := T₀)
         S.ha_pos S.hβ₀ S.hT₀pos hβ x ∂(μ : Measure Ecoord) =
         crossingRHS prob (cTilde / 12) β) :
     ∃ meas : AdmissibleCrossingMeasure prob (cTilde / 12),
-      (∀ T, T₀ ≤ T → ∫ x, zetaB T₀ T x ∂(μ : Measure Ecoord) = 0 → meas.ν (Iio T) = 0) ∧
+      (∀ {X : Set ℝ}, MeasurableSet X → ∀ ζ : Ecoord →ᵇ ℝ, (∀ s, 0 ≤ ζ s) →
+        (∀ s : Ecoord, 0 < s.1 → ζ s = 0 → tauE T₀ s ∈ X) →
+        ∫ x, ζ x ∂(μ : Measure Ecoord) = 0 → meas.ν Xᶜ = 0) ∧
       Integrable (wStar (cTilde / 12) β₀) meas.ν ∧
       ∫ t, wStar (cTilde / 12) β₀ t ∂meas.ν ≤ dualC0 prob (cTilde / 12) β₀ := by
   have ha0 := S.ha_pos
@@ -177,7 +199,7 @@ theorem exists_crossingMeasure_of_limit (prob : FixedWeightProblem) {cTilde β�
   refine ⟨{ ν := ν
             supp_nonneg := hIio0
             finite_laplace := fun {β} hβ => ?_
-            crossing := fun {β} hβ => ?_ }, fun T hT hζ => ?_, hw_int, ?_⟩
+            crossing := fun {β} hβ => ?_ }, fun {X} hXm ζ hζ0 hζX hζ => ?_, hw_int, ?_⟩
   · obtain ⟨C, _, hC⟩ := exp_le_const_wStar (a := a) (β₀ := β₀) ha0.le S.hβ₀ hβ
     refine (hint_le (by fun_prop) C fun t ht => ?_).integrableOn
     rw [abs_of_pos (Real.exp_pos _)]
@@ -202,7 +224,7 @@ theorem exists_crossingMeasure_of_limit (prob : FixedWeightProblem) {cTilde β�
         simp [Ftilde, this]
     rw [hF]
     exact hcross β hβ
-  · exact pullMeasure_Iio_eq_zero (a := a) (β₀ := β₀) (μ : Measure Ecoord) hT hζ
+  · exact pullMeasure_compl_eq_zero (a := a) (β₀ := β₀) (μ : Measure Ecoord) hXm hζ0 hζX hζ
   · show ∫ t, wStar a β₀ t ∂ν ≤ dualC0 prob a β₀
     rw [hν, integral_pullMeasure ha0 S.hβ₀ S.hT₀pos (μ : Measure Ecoord) (measurable_wStar a β₀)]
     have h1 : ∫ s in posSet, wStar a β₀ (tauE T₀ s) / wStar a β₀ (tauE T₀ s)
@@ -214,6 +236,27 @@ theorem exists_crossingMeasure_of_limit (prob : FixedWeightProblem) {cTilde β�
     refine le_trans ?_ hmass
     rw [finiteMeasure_mass_coe]
     exact measureReal_mono (subset_univ _)
+
+/-- **Theorem E(b), transport** at fixed weight `(w, Q)`; the case `X = [T, ∞)`, `ζ = ζ_T` of
+`exists_crossingMeasure_of_limit_on`. -/
+theorem exists_crossingMeasure_of_limit (prob : FixedWeightProblem) {cTilde β₀ T₀ : ℝ}
+    (S : DualSetup prob cTilde β₀ T₀) (μ : FiniteMeasure Ecoord)
+    (hmass : (μ.mass : ℝ) ≤ dualC0 prob (cTilde / 12) β₀)
+    (hcross : ∀ (β : ℝ) (hβ : 0 < β),
+      ∫ x, FtildeB (w := prob.w) (a := cTilde / 12) (β₀ := β₀) (T₀ := T₀)
+        S.ha_pos S.hβ₀ S.hT₀pos hβ x ∂(μ : Measure Ecoord) =
+        crossingRHS prob (cTilde / 12) β) :
+    ∃ meas : AdmissibleCrossingMeasure prob (cTilde / 12),
+      (∀ T, T₀ ≤ T → ∫ x, zetaB T₀ T x ∂(μ : Measure Ecoord) = 0 → meas.ν (Iio T) = 0) ∧
+      Integrable (wStar (cTilde / 12) β₀) meas.ν ∧
+      ∫ t, wStar (cTilde / 12) β₀ t ∂meas.ν ≤ dualC0 prob (cTilde / 12) β₀ := by
+  obtain ⟨meas, hsupp, hint, hle⟩ := exists_crossingMeasure_of_limit_on prob S.toCore μ hmass hcross
+  refine ⟨meas, fun T hT hζ => ?_, hint, hle⟩
+  have h := hsupp (X := Ici T) measurableSet_Ici (zetaB T₀ T) (zetaB_nonneg T₀ T)
+    (fun s hs h0 => by
+      by_contra hn
+      exact ((zetaB_pos_iff hT hs).2 (not_le.mp hn)).ne' h0) hζ
+  rwa [compl_Ici] at h
 
 /-! ### Section 3: Theorem E (`ds:E`) for every `(w, Q)` -/
 

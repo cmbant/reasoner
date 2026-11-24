@@ -258,7 +258,9 @@ private lemma local_pullback_bound {Φ : ℂ → ℂ} {C ν : ℝ} (hC : 0 ≤ C
     _ ≤ C * (K ^ |ν| * (1 + ‖u‖) ^ |ν|) * airyEnv u := by gcongr; exact (airyEnv_pos u).le
     _ = (C * K ^ |ν|) * (1 + ‖u‖) ^ |ν| * airyEnv u := by ring
 
-private lemma local_pullback_setup {Φ : ℂ → ℂ} {C ν : ℝ}
+/-- Hypotheses of the Airy sign-uncertainty theorems for `f(u) = Φ(-u/β)` from those of a blow-up
+limit `Φ` in the `s`-variable (threshold `y`, i.e. `f ≥ 0` on `(-∞, -β y]`). -/
+lemma local_pullback_setup {Φ : ℂ → ℂ} {C ν : ℝ}
     (hΦ_diff : Differentiable ℂ Φ) (hΦ_int : Integrable (fun s : ℝ => Φ (s : ℂ)))
     (hC : 0 ≤ C) (hb : ∀ s : ℂ, ‖Φ s‖ ≤ C * (1 + ‖s‖) ^ ν * airyEnv (-(betaTip : ℂ) * s))
     (hΦ_real : ∀ s : ℝ, (Φ (s : ℂ)).im = 0) {y : ℝ}
@@ -304,7 +306,7 @@ theorem local_sign_uncertainty {Φ : ℂ → ℂ} {C ν : ℝ}
   rw [← neg_betaTip_mul_s1] at hu1
   nlinarith [betaTip_pos]
 
-private lemma integral_norm_eq_two_mul_neg_part {Φ : ℝ → ℂ}
+lemma integral_norm_eq_two_mul_neg_part {Φ : ℝ → ℂ}
     (hΦ_int : Integrable Φ) (hΦ_real : ∀ s : ℝ, (Φ s).im = 0)
     (hΦ_zero : (∫ s : ℝ, (Φ s).re) = 0) :
     ∫ s : ℝ, ‖Φ s‖ = 2 * ∫ s : ℝ, max 0 (-(Φ s).re) := by
@@ -343,6 +345,15 @@ private lemma integral_norm_eq_two_mul_neg_part {Φ : ℝ → ℂ}
     rw [integral_sub hp_int hm_int] at h0; linarith
   rw [hsplit_norm, integral_add hp_int hm_int, hp_eq_hm]; ring
 
+/-- `‖Φ‖₁ = 1` from `∫ Re Φ = 0`, `‖Φ‖₁ ≤ 1` and the half-mass bound `1/2 ≤ ∫ Φ₋`. -/
+lemma norm_integral_eq_one {Φ : ℝ → ℂ}
+    (hΦ_int : Integrable Φ) (hΦ_real : ∀ s : ℝ, (Φ s).im = 0)
+    (hΦ_zero : (∫ s : ℝ, (Φ s).re) = 0) (hle : ∫ s : ℝ, ‖Φ s‖ ≤ 1)
+    (hneg : (1 / 2 : ℝ) ≤ ∫ s : ℝ, max 0 (-(Φ s).re)) :
+    ∫ s : ℝ, ‖Φ s‖ = 1 := by
+  have := integral_norm_eq_two_mul_neg_part hΦ_int hΦ_real hΦ_zero
+  linarith
+
 /-- **Local `s`-variable equality rigidity**: under `y = s1`, `∫ ‖Φ‖ ≤ 1`, and `1 / 2 ≤ ∫ Φ₋`,
 forces `Φ = phiStar`, `∫ Φ = 0`, and `∫ ‖Φ‖ = 1`. -/
 theorem local_sign_equality {Φ : ℂ → ℂ} {C ν : ℝ}
@@ -374,8 +385,8 @@ theorem local_sign_equality {Φ : ℂ → ℂ} {C ν : ℝ}
     have hre := integral_re hΦ_int
     change (∫ s : ℝ, (Φ (s : ℂ)).re) = (∫ s : ℝ, Φ (s : ℂ)).re at hre
     rw [hre, hΦ_int_zero, Complex.zero_re]
-  have hnorm_two := integral_norm_eq_two_mul_neg_part hΦ_int hΦ_real hΦ_re_zero
-  have hnorm_eq_one : ∫ s : ℝ, ‖Φ (s : ℂ)‖ = 1 := by linarith
+  have hnorm_eq_one : ∫ s : ℝ, ‖Φ (s : ℂ)‖ = 1 :=
+    norm_integral_eq_one (Φ := fun s : ℝ => Φ (s : ℂ)) hΦ_int hΦ_real hΦ_re_zero hΦ_norm_le hΦ_neg_ge
   have hnorm_scale : ∫ s : ℝ, ‖Φ (s : ℂ)‖ = κ * (2 * LStar) := by
     have hns : ∀ s : ℝ, ‖Φ (s : ℂ)‖ = κ * ‖localExtremalC (s : ℂ)‖ := fun s => by
       rw [hΦ_eq_loc (s : ℂ), norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hκ_pos]
@@ -442,34 +453,54 @@ lemma BlowupFamilyPackage.scaled_excess_eq {ι : Type*} {p : Filter ι}
       (1 / 3 : ℝ) * ((F.c' n) ^ (-(1 / 3 : ℝ)) / (F.c' n) ^ (1 / 3 : ℝ)) * (F.s₁ n) ^ 2 by ring,
     hpow]
 
+/-- **Extraction lemma** for lower bounds on the scaled excess `(t₁ - ξ̄ c')/c'^{1/3}`: if every
+Proposition T limit along a sequence in `Q` with `s₁` bounded above has `s₁^* ≥ S`, then for every
+`ε > 0`, eventually `(2/3) ξ_* S - ε ≤ (t₁ - ξ̄ c')/c'^{1/3}`.  Theorem C is the case `Q = True`,
+`S = s1`; the two-level theorem (`TwoLevel.PinnedLimit`) takes `Q` the pinned sign. -/
+theorem eventually_excess_ge_of_limit {ι : Type*} {p : Filter ι} [p.NeBot] [p.IsCountablyGenerated]
+    (F : BlowupFamilyPackage ι p) (Q : ι → Prop) (hQ : ∀ᶠ n in p, Q n) (S : ℝ)
+    (hS : ∀ ns : ℕ → ι, Tendsto ns atTop p → (∀ k, Q (ns k)) → (∃ B : ℝ, ∀ k : ℕ, F.s₁ (ns k) ≤ B) →
+      ∃ (ms : ℕ → ℕ) (s₁Star : ℝ), StrictMono ms ∧
+        Tendsto (fun k => F.s₁ (ns (ms k))) atTop (nhds s₁Star) ∧ S ≤ s₁Star) :
+    ∀ ε : ℝ, 0 < ε → ∀ᶠ n in p,
+      (2 / 3 : ℝ) * xiStar * S - ε ≤ (F.t₁ n - xiBar * F.c' n) / (F.c' n) ^ (1 / 3 : ℝ) := by
+  intro ε hε
+  by_contra hnot
+  rw [Filter.not_eventually] at hnot
+  simp only [not_le] at hnot
+  have hev : ∀ᶠ n in p, (1 ≤ F.c' n ∧
+      (F.t₁ n - xiBar * F.c' n) / (F.c' n) ^ (1 / 3 : ℝ) =
+        (2 / 3 : ℝ) * xiStar * F.s₁ n + (1 / 3 : ℝ) * (F.c' n) ^ (-(2 / 3 : ℝ)) * (F.s₁ n) ^ 2) ∧
+      Q n :=
+    ((F.hc'_tendsto.eventually (eventually_ge_atTop (1 : ℝ))).and F.scaled_excess_eq).and hQ
+  obtain ⟨ns, hns, hprops⟩ := exists_seq_forall_of_frequently (hnot.and_eventually hev)
+  have hB : ∀ k : ℕ, F.s₁ (ns k) ≤
+      ((2 / 3 : ℝ) * xiStar * S - ε) / ((2 / 3 : ℝ) * xiStar) := fun k => by
+    obtain ⟨hlt, ⟨hc'1, hex⟩, -⟩ := hprops k
+    have hnn : 0 ≤ (1 / 3 : ℝ) * (F.c' (ns k)) ^ (-(2 / 3 : ℝ)) * (F.s₁ (ns k)) ^ 2 := by
+      have : 0 ≤ (F.c' (ns k)) ^ (-(2 / 3 : ℝ)) := Real.rpow_nonneg (by linarith) _
+      positivity
+    rw [hex] at hlt; rw [le_div_iff₀' two_thirds_xiStar_pos]; linarith
+  obtain ⟨ms, s₁Star, hms, hs₁lim, hle⟩ :=
+    hS ns hns (fun k => (hprops k).2.2) ⟨_, hB⟩
+  have hlim_le := le_of_tendsto hs₁lim (Eventually.of_forall fun k => hB (ms k))
+  rw [le_div_iff₀' two_thirds_xiStar_pos] at hlim_le
+  have := mul_le_mul_of_nonneg_left hle two_thirds_xiStar_pos.le
+  linarith
+
 /-- **Theorem C** (`local_airy_model.tex`), eventual-ε form. -/
 theorem theorem_C_eventually {ι : Type*} {p : Filter ι} [p.NeBot] [p.IsCountablyGenerated]
     (F : BlowupFamilyPackage ι p) :
     ∀ ε : ℝ, 0 < ε →
       ∀ᶠ n in p, Aopt - ε ≤ (F.t₁ n - xiBar * F.c' n) / (F.c' n) ^ (1 / 3 : ℝ) := by
   intro ε hε
-  by_contra hnot
-  rw [Filter.not_eventually] at hnot
-  simp only [not_le] at hnot
-  have hev : ∀ᶠ n in p, 1 ≤ F.c' n ∧
-      (F.t₁ n - xiBar * F.c' n) / (F.c' n) ^ (1 / 3 : ℝ) =
-        (2 / 3 : ℝ) * xiStar * F.s₁ n + (1 / 3 : ℝ) * (F.c' n) ^ (-(2 / 3 : ℝ)) * (F.s₁ n) ^ 2 :=
-    (F.hc'_tendsto.eventually (eventually_ge_atTop (1 : ℝ))).and F.scaled_excess_eq
-  obtain ⟨ns, hns, hprops⟩ := exists_seq_forall_of_frequently (hnot.and_eventually hev)
-  have hB : ∀ k : ℕ, F.s₁ (ns k) ≤ (Aopt - ε) / ((2 / 3 : ℝ) * xiStar) := fun k => by
-    obtain ⟨hlt, hc'1, hex⟩ := hprops k
-    have hnn : 0 ≤ (1 / 3 : ℝ) * (F.c' (ns k)) ^ (-(2 / 3 : ℝ)) * (F.s₁ (ns k)) ^ 2 := by
-      have : 0 ≤ (F.c' (ns k)) ^ (-(2 / 3 : ℝ)) := Real.rpow_nonneg (by linarith) _
-      positivity
-    rw [hex] at hlt; rw [le_div_iff₀' two_thirds_xiStar_pos]; linarith
-  obtain ⟨ms, s₁Star, Ψ, γLim, mEsc, _, hs₁lim, _, _, hΨd, hΨi, ⟨C, hC, hΨb⟩, hΨne,
-    hΨreal, hΨnn, _, hγLim, hmEsc, hΨint, _⟩ := F.propT_subseq ns hns ⟨_, hB⟩
-  have hs1_le := local_sign_uncertainty hΨd hΨi hC hΨb hΨreal hΨnn (by linarith) hΨne
-  have hlim_le := le_of_tendsto hs₁lim (Eventually.of_forall fun k => hB (ms k))
-  have hA_le : Aopt ≤ Aopt - ε := by
-    have := mul_le_mul_of_nonneg_left (hs1_le.trans hlim_le) two_thirds_xiStar_pos.le
-    rwa [← Aopt_eq_mul_s1, mul_div_cancel₀ _ two_thirds_xiStar_pos.ne'] at this
-  linarith
+  have h := eventually_excess_ge_of_limit F (fun _ => True) (Eventually.of_forall fun _ => trivial) s1
+    (fun ns hns _ hB => by
+      obtain ⟨ms, s₁Star, Ψ, γLim, mEsc, hms, hs₁lim, _, _, hΨd, hΨi, ⟨C, hC, hΨb⟩, hΨne,
+        hΨreal, hΨnn, _, hγLim, hmEsc, hΨint, _⟩ := F.propT_subseq ns hns hB
+      exact ⟨ms, s₁Star, hms, hs₁lim,
+        local_sign_uncertainty hΨd hΨi hC hΨb hΨreal hΨnn (by linarith) hΨne⟩) ε hε
+  rwa [← Aopt_eq_mul_s1] at h
 
 /-- **Theorem C** (`local_airy_model.tex`), `EReal` `liminf` form (unconditional even when
 `s₁ → +∞`). -/
@@ -502,21 +533,22 @@ theorem theorem_C_real {ι : Type*} {p : Filter ι} [p.NeBot] [p.IsCountablyGene
 def Att {ι : Type*} {p : Filter ι} (F : BlowupFamilyPackage ι p) : Prop :=
   Tendsto (fun n => (F.t₁ n - xiBar * F.c' n) / (F.c' n) ^ (1 / 3 : ℝ)) p (nhds Aopt)
 
-/-- **Step 0 (`att_tendsto_s1`)**: under `Att` and Theorem A (`-C₀ ≤ s₁`), `s₁ → s1`. -/
-theorem att_tendsto_s1 {ι : Type*} {p : Filter ι}
-    (F : BlowupFamilyPackage ι p) (hAtt : Att F) :
-    Tendsto F.s₁ p (nhds s1) := by
+/-- `excess → A` forces `s₁ → A / ((2/3) ξ_*)`; `att_tendsto_s1` is the case `A = Aopt`. -/
+theorem tendsto_s₁_of_tendsto_excess {ι : Type*} {p : Filter ι}
+    (F : BlowupFamilyPackage ι p) {A : ℝ}
+    (hA : Tendsto (fun n => (F.t₁ n - xiBar * F.c' n) / (F.c' n) ^ (1 / 3 : ℝ)) p (nhds A)) :
+    Tendsto F.s₁ p (nhds (A / ((2 / 3 : ℝ) * xiStar))) := by
   obtain ⟨C₀, hC₀⟩ := F.theorem_A_lower
-  let B₀ : ℝ := max C₀ ((Aopt + 1) / ((2 / 3 : ℝ) * xiStar))
+  let B₀ : ℝ := max C₀ ((A + 1) / ((2 / 3 : ℝ) * xiStar))
   have hs₁_bdd : ∀ᶠ n in p, |F.s₁ n| ≤ B₀ := by
-    have hq_ub := hAtt.eventually (eventually_le_nhds (by linarith : Aopt < Aopt + 1))
+    have hq_ub := hA.eventually (eventually_le_nhds (by linarith : A < A + 1))
     filter_upwards [hC₀, hq_ub, F.hc'_tendsto.eventually (eventually_ge_atTop (1 : ℝ)),
       F.scaled_excess_eq] with n hnC₀ hnq hc'1 hex
     have hnn : 0 ≤ (1 / 3 : ℝ) * (F.c' n) ^ (-(2 / 3 : ℝ)) * (F.s₁ n) ^ 2 := by
       have : 0 ≤ (F.c' n) ^ (-(2 / 3 : ℝ)) := Real.rpow_nonneg (by linarith) _; positivity
-    have hub : F.s₁ n ≤ (Aopt + 1) / ((2 / 3 : ℝ) * xiStar) := by
+    have hub : F.s₁ n ≤ (A + 1) / ((2 / 3 : ℝ) * xiStar) := by
       rw [le_div_iff₀' two_thirds_xiStar_pos]; linarith
-    exact abs_le.mpr ⟨by linarith [le_max_left C₀ ((Aopt + 1) / ((2 / 3 : ℝ) * xiStar))],
+    exact abs_le.mpr ⟨by linarith [le_max_left C₀ ((A + 1) / ((2 / 3 : ℝ) * xiStar))],
       hub.trans (le_max_right _ _)⟩
   have hc'neg : Tendsto (fun n => (F.c' n) ^ (-(2 / 3 : ℝ))) p (nhds 0) :=
     (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 2 / 3)).comp F.hc'_tendsto
@@ -526,14 +558,22 @@ theorem att_tendsto_s1 {ι : Type*} {p : Filter ι}
     have hpow_nn : 0 ≤ (F.c' n) ^ (-(2 / 3 : ℝ)) := Real.rpow_nonneg (by linarith) _
     have hsq : (F.s₁ n) ^ 2 ≤ B₀ ^ 2 := sq_le_sq.mpr (by rwa [abs_of_nonneg (le_trans (abs_nonneg _) hn)])
     rw [Real.norm_of_nonneg (by positivity)]; nlinarith
-  have hlin : Tendsto (fun n => (2 / 3 : ℝ) * xiStar * F.s₁ n) p (nhds Aopt) := by
+  have hlin : Tendsto (fun n => (2 / 3 : ℝ) * xiStar * F.s₁ n) p (nhds A) := by
     have hdiff : Tendsto (fun n => (F.t₁ n - xiBar * F.c' n) / (F.c' n) ^ (1 / 3 : ℝ) -
-        (1 / 3 : ℝ) * (F.c' n) ^ (-(2 / 3 : ℝ)) * (F.s₁ n) ^ 2) p (nhds Aopt) := by
-      simpa using hAtt.sub hquad
+        (1 / 3 : ℝ) * (F.c' n) ^ (-(2 / 3 : ℝ)) * (F.s₁ n) ^ 2) p (nhds A) := by
+      simpa using hA.sub hquad
     refine hdiff.congr' (F.scaled_excess_eq.mono fun n hex => by linarith)
   have hdiv := hlin.const_mul (((2 / 3 : ℝ) * xiStar)⁻¹)
-  rw [show ((2 / 3 : ℝ) * xiStar)⁻¹ * Aopt = s1 by rw [Aopt_eq_mul_s1]; field_simp [xiStar_pos.ne']] at hdiv
+  rw [inv_mul_eq_div] at hdiv
   exact hdiv.congr fun n => by field_simp [xiStar_pos.ne']
+
+/-- **Step 0 (`att_tendsto_s1`)**: under `Att` and Theorem A (`-C₀ ≤ s₁`), `s₁ → s1`. -/
+theorem att_tendsto_s1 {ι : Type*} {p : Filter ι}
+    (F : BlowupFamilyPackage ι p) (hAtt : Att F) :
+    Tendsto F.s₁ p (nhds s1) := by
+  have h := tendsto_s₁_of_tendsto_excess F hAtt
+  rwa [show Aopt / ((2 / 3 : ℝ) * xiStar) = s1 by
+    rw [Aopt_eq_mul_s1]; field_simp [xiStar_pos.ne']] at h
 
 private lemma att_subseq_phiStar_zero {ι : Type*} {p : Filter ι}
     (F : BlowupFamilyPackage ι p) (hAtt : Att F) (ns : ℕ → ι) (hns : Tendsto ns atTop p) :
@@ -635,6 +675,39 @@ private lemma phiStar_tail_norm_tendsto :
     simpa [sub_self] using (tendsto_const_nhds (x := ∫ s : ℝ, ‖phiStar (s : ℂ)‖)).sub hIcc
   exact hdiff.congr' ((eventually_ge_atTop (0 : ℝ)).mono fun R hR => (hcomp R hR).symm)
 
+/-- `L¹` convergence of the blow-ups to a unit-norm locally uniform limit (Scheffé); the first two
+clauses of `theorem_R2` are the case `Ψ = phiStar`. -/
+theorem l1_of_tendstoLocallyUniformlyOn {ι : Type*} {p : Filter ι} [p.NeBot]
+    [p.IsCountablyGenerated] (F : RigidityFamilyPackage ι p) {Ψ : ℂ → ℂ}
+    (hΨi : Integrable (fun s : ℝ => Ψ (s : ℂ))) (hΨn : ∫ s : ℝ, ‖Ψ (s : ℂ)‖ = 1)
+    (hΦ : TendstoLocallyUniformlyOn F.Φ Ψ p univ) :
+    Tendsto (fun n => ∫ s : ℝ, ‖phiExt F n s - Ψ (s : ℂ)‖) p (nhds 0) ∧
+    Tendsto (fun n => ∫ s in Ioi (-xiStar * (F.c' n) ^ (2 / 3 : ℝ)),
+      ‖F.Φ n (s : ℂ) - Ψ (s : ℂ)‖) p (nhds 0) := by
+  have hleft_tendsto : Tendsto (fun n => -xiStar * (F.c' n) ^ (2 / 3 : ℝ)) p atBot := by
+    have hpow := (tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 2 / 3)).comp F.hc'_tendsto
+    simpa [neg_mul] using tendsto_neg_atBot_iff.mpr (hpow.const_mul_atTop xiStar_pos)
+  have hpt : ∀ s : ℝ, Tendsto (fun n => phiExt F n s) p (nhds (Ψ (s : ℂ))) := fun s =>
+    (hΦ.tendsto_at (mem_univ _)).congr'
+      ((hleft_tendsto.eventually (eventually_lt_atBot s)).mono fun n hn => (indicator_of_mem hn _).symm)
+  have hext_int : ∀ᶠ n in p, Integrable (phiExt F n) :=
+    F.domain_integrable.mono fun n hn => (integrable_indicator_iff measurableSet_Ioi).mpr hn
+  have hext_norm : Tendsto (fun n => ∫ s : ℝ, ‖phiExt F n s‖) p (nhds (∫ s : ℝ, ‖Ψ (s : ℂ)‖)) := by
+    rw [hΨn]
+    exact F.domain_norm_integral.congr fun n => by
+      dsimp [phiExt]; simp_rw [norm_indicator_eq_indicator_norm]; exact (integral_indicator measurableSet_Ioi).symm
+  have hL1 := tendsto_integral_norm_sub_of_tendsto_ae hext_int hΨi
+    (Eventually.of_forall hpt) hext_norm
+  refine ⟨hL1, ?_⟩
+  refine squeeze_zero' (Eventually.of_forall fun n =>
+      setIntegral_nonneg measurableSet_Ioi fun _ _ => norm_nonneg _) ?_ hL1
+  filter_upwards [hext_int] with n hn
+  have hcongr : ∫ s in Ioi (-xiStar * (F.c' n) ^ (2 / 3 : ℝ)), ‖F.Φ n (s : ℂ) - Ψ (s : ℂ)‖ =
+      ∫ s in Ioi (-xiStar * (F.c' n) ^ (2 / 3 : ℝ)), ‖phiExt F n s - Ψ (s : ℂ)‖ :=
+    setIntegral_congr_fun measurableSet_Ioi fun s hs => by rw [phiExt, indicator_of_mem hs]
+  rw [hcongr]
+  exact setIntegral_le_integral (hn.sub hΨi).norm (Eventually.of_forall fun _ => norm_nonneg _)
+
 /-- **Theorem R `(R2)`** (`rigidity.tex`): `L¹` convergence on `{b > 0}` (and `ℝ`) and mass tightness. -/
 theorem theorem_R2 {ι : Type*} {p : Filter ι} [p.NeBot] [p.IsCountablyGenerated]
     (F : RigidityFamilyPackage ι p) (hAtt : Att F.toBlowupFamilyPackage) :
@@ -646,30 +719,10 @@ theorem theorem_R2 {ι : Type*} {p : Filter ι} [p.NeBot] [p.IsCountablyGenerate
     Tendsto (fun R : ℝ => Filter.limsup (fun n => ∫ s in Ioi R ∪ Iio (-R), ‖phiExt F n s‖) p)
       atTop (nhds 0) := by
   obtain ⟨_, hΦunif, _⟩ := theorem_R1 F.toBlowupFamilyPackage hAtt
-  have hleft_tendsto : Tendsto (fun n => -xiStar * (F.c' n) ^ (2 / 3 : ℝ)) p atBot := by
-    have hpow := (tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 2 / 3)).comp F.hc'_tendsto
-    simpa [neg_mul] using tendsto_neg_atBot_iff.mpr (hpow.const_mul_atTop xiStar_pos)
-  have hpt : ∀ s : ℝ, Tendsto (fun n => phiExt F n s) p (nhds (phiStar (s : ℂ))) := fun s =>
-    (hΦunif.tendsto_at (mem_univ _)).congr'
-      ((hleft_tendsto.eventually (eventually_lt_atBot s)).mono fun n hn => (indicator_of_mem hn _).symm)
   have hext_int : ∀ᶠ n in p, Integrable (phiExt F n) :=
     F.domain_integrable.mono fun n hn => (integrable_indicator_iff measurableSet_Ioi).mpr hn
-  have hext_norm : Tendsto (fun n => ∫ s : ℝ, ‖phiExt F n s‖) p (nhds (∫ s : ℝ, ‖phiStar (s : ℂ)‖)) := by
-    rw [phiStar_norm_integral]
-    exact F.domain_norm_integral.congr fun n => by
-      dsimp [phiExt]; simp_rw [norm_indicator_eq_indicator_norm]; exact (integral_indicator measurableSet_Ioi).symm
-  have hL1 := tendsto_integral_norm_sub_of_tendsto_ae hext_int phiStar_integrable
-    (Eventually.of_forall hpt) hext_norm
-  have hL1_dom : Tendsto (fun n => ∫ s in Ioi (-xiStar * (F.c' n) ^ (2 / 3 : ℝ)),
-      ‖F.Φ n (s : ℂ) - phiStar (s : ℂ)‖) p (nhds 0) := by
-    refine squeeze_zero' (Eventually.of_forall fun n =>
-        setIntegral_nonneg measurableSet_Ioi fun _ _ => norm_nonneg _) ?_ hL1
-    filter_upwards [hext_int] with n hn
-    have hcongr : ∫ s in Ioi (-xiStar * (F.c' n) ^ (2 / 3 : ℝ)), ‖F.Φ n (s : ℂ) - phiStar (s : ℂ)‖ =
-        ∫ s in Ioi (-xiStar * (F.c' n) ^ (2 / 3 : ℝ)), ‖phiExt F n s - phiStar (s : ℂ)‖ :=
-      setIntegral_congr_fun measurableSet_Ioi fun s hs => by rw [phiExt, indicator_of_mem hs]
-    rw [hcongr]
-    exact setIntegral_le_integral (hn.sub phiStar_integrable).norm (Eventually.of_forall fun _ => norm_nonneg _)
+  obtain ⟨hL1, hL1_dom⟩ :=
+    l1_of_tendstoLocallyUniformlyOn F phiStar_integrable phiStar_norm_integral hΦunif
   have htail_ub : ∀ R : ℝ, ∀ᶠ n in p,
       ∫ s in Ioi R ∪ Iio (-R), ‖phiExt F n s‖ ≤
         (∫ s : ℝ, ‖phiExt F n s - phiStar (s : ℂ)‖) +

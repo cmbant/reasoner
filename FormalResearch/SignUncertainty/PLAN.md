@@ -155,7 +155,7 @@ window; the intertwiner and its tail positivity exist (`HardyMellinIntertwiner`,
 no bootstrap.
 
 **M5 Hankel lower half at one level (L).**
-- Langer chart `gt:7.7b/c/p` (Rouché exists). `gt:7.7b` (0)-(iv) is done (`HankelLangerU/Y/Real/ChartMain`, formulated in `u = ζ²`, where `g(ζ) = s` is `K(u) = 12s/π²`, so no square roots or sign choices); the strip setup (`g`, `S̃` as series = `log(tan/..)`, exact inversion on `Re ζ = σ`) and `gt:7.7c` are done at the level of the local integral (`HankelStrip*`, `HankelLocalPhase/Density/Envelope/Holo`: Cauchy shift, Gaussian peak, connectors, envelope `(e71)` in `ũ`, entire in `ℓ = log π²ξ`); the gluing with the chart (`HankelChartInverse/LangerPsi/LangerPsiReal`), reality (`HankelWtConj`) and the transport/mass hypotheses `gt:7.7p` (`HankelTransport*`, constants `r_∞ = 2I₀c^{1/3}e^{-c/40000}`, lobe `e^{-1.7e-6 c}`: weaker than the paper's but exponentially small, which is all the compactness step uses) are done; still open: the cut bound on `|Ψ̃|` (subharmonic averaging) and the rest of this list. The Type (I) cut bound follows by subharmonic averaging as in Step 0 of
+- Langer chart `gt:7.7b/c/p` (Rouché exists). `gt:7.7b` (0)-(iv) is done (`HankelLangerU/Y/Real/ChartMain`, formulated in `u = ζ²`, where `g(ζ) = s` is `K(u) = 12s/π²`, so no square roots or sign choices); the strip setup (`g`, `S̃` as series = `log(tan/..)`, exact inversion on `Re ζ = σ`) and `gt:7.7c` are done at the level of the local integral (`HankelStrip*`, `HankelLocalPhase/Density/Envelope/Holo`: Cauchy shift, Gaussian peak, connectors, envelope `(e71)` in `ũ`, entire in `ℓ = log π²ξ`); the gluing with the chart (`HankelChartInverse/LangerPsi/LangerPsiReal`), reality (`HankelWtConj`) and the transport/mass hypotheses `gt:7.7p` (`HankelTransport*`, constants `r_∞ = 2I₀c^{1/3}e^{-c/40000}`, lobe `e^{-1.7e-6 c}`: weaker than the paper's but exponentially small, which is all the compactness step uses) are done; TE.0 for type (I) is done (`HankelQuantC1`: `hankel_quant_c1_typeI`, with the cut bound by a shift trick on `typeII_disc_avg_bound`; `HankelQuantC1Feasible`: `hankel_quantC1_of_feasible`, the conclusion `QuantC1B2Holds (hankelPsi c f) u_T` for feasible `f`); still open: the rest of this list. The Type (I) cut bound follows by subharmonic averaging as in Step 0 of
   TE.0, so the separate `Re ζ = c^{−1/3}` contour shift can be skipped in Lean.
 - TE.0 at one level: adapt `teb_quant_c1_typeII` (already a compactness argument) to Type (I). This is non-effective,
   which is fine for Lean; the TeX keeps the effective version (Paper II needs it).
@@ -200,7 +200,43 @@ is M0 ∥ M1 → M2 ∥ M4 → M3, Headline S → M5 ∥ M6 → M7 → M8.
 
 ## 6. Bookkeeping
 
-- QIprojects `docs/lean_status.md`: the Paper I section still describes the `feb41ac` elementary lemmas. Rewrite it after
-  M0 with the honest summary of §1: what is proved, and which packages are conditional and on what.
-- `THEOREM_MAP.md`: line 741 still says the Theorem B equality case is not formalised (stale); the LobeSaddle "not
-  formalised GT.1/GT.1s" notes are stale. Add a pointer to this plan.
+- QIprojects `docs/lean_status.md` (section "Paper I sign uncertainty") and this repository's `THEOREM_MAP.md` are kept
+  current at every merge to `master`; the status review below is refreshed every six hours.
+- Every Haiku-written module gets a clean-context Sonnet review before it is merged; every large Sonnet development
+  (shell gap, the O.3(2) estimate, the window translation, the Hankel chart/density/transport, O.11ak) has had one.
+
+## 7. Status review (2026-11-24, reasoner `master` after S4)
+
+Size: `SignUncertainty` 133 files and about 39.8k lines, `CohnElkies` 63 files and about 52.7k lines. No placeholder
+proofs, no custom axioms. The four headlines in `Headlines.lean` are still **conditional**, now on six inputs:
+`hb_thresholds_lower`, `hb_thresholds_upper`, `shell_reduction_m1`, `ce_hb_lift_m1`, `shell_reduction`, `ce_hb_lift`.
+
+| milestone | state |
+|---|---|
+| M0 skeleton | done |
+| M1 classical leaves (Bessel, Weber, Laguerre modes, odd-`d` radial Fourier, `O(d)`/sphere averaging) | done |
+| M2 Hankel layer (`gt:7.4`, `lem:radial-compactness`, `gt:7.5` input) | done |
+| M3 strict gap, extraction half (`hankelShellGapLimit_proved`) | done; the origin floor and `u_* ≤ t_m` are not on its path |
+| M4 upper O-chain | done: U.2, U.3(3)/O.3(2) = `(e4)` (uniform in seed coefficients), `(e3)`, O.4, `O.5(1)` = `(e5)`, O.11ak existence form, GT.2a scalar/IBP/VdC/tail tools. Open: GT.2a assembly (G4–G8: outer pieces, the `τ(εu)` substitution `(e7)`/`(e8)`, regions), `O.5(2)` = `(e6)`, `O.6`, `O.9′` at `m = 1` (discharges `hb_thresholds_upper`), `f(0)` identity of O.11ak |
+| M5 Hankel lower half | S1–S4 done (Langer chart, local density, tail and transport, type (I) compactness `hankel_quantC1_of_feasible`). Open: S5 strip data and Hankel `BandReductionInstance` (largest risk), S6 `BootstrapHBInstance`, S7 assembly giving `hb_thresholds_lower`, then `shell_reduction_m1` and the airy instance of `shell_reduction` |
+| Headline S (`gt:7.9c`) | needs `hb_thresholds_upper` (M4 end) |
+| M6, M7, M8 | not started; M6 (CE upper, convolution source) needs M4; M7 needs M5; M8 is the multilevel generalisation |
+
+Critical path: M5 S5–S7 (about 4–5k lines) in parallel with the M4 tail (GT.2a assembly, O.5(2), O.6, O.9′: about
+6–8k lines), then M6 and M7 (M-sized each) and M8. Two Sonnet agents run these two lanes; Haiku agents implement the
+routine statements the Sonnet agents queue.
+
+Coverage gaps against the TeX that are recorded rather than closed:
+- the tail exponent of `7.7p`: Lean `c/40000`, TeX `2·10⁻³c` (and two notes quoting consequences); the later steps only
+  need `e^{-κc}`;
+- `(e5)` is proved for `c ≥ 32768` (TeX `c ≥ 200`); no later use needs the smaller range;
+- `(e4)`: the identification `γ₀ = c_s^{1/2}2^{2/3}π^{-1/2}β_∞` and the `L ≥ L₀` claim of `O.3(2)`;
+- O.11ak: `f(0) = W(c^{1/3}) + σW(0)`, the fixed-`c` form with the kernel in `L¹`, general seeds;
+- `7.7p (d)`: the explicit cut-crossing constant `3e^{1.5R₁+1.37R₁²}` (Lean has an effective but different constant) and
+  the two-level `C¹` stability (`α ≠ 0`);
+- Theorem H.14: the origin-floor clause and the endpoint case `u_* = t_m`.
+
+Environment notes for the agents: single `lake build` slot pairs through `scratch/lslot.sh`; a hardlinked stale `.olean`
+shows as "Unknown identifier" or "Application type mismatch" for something that exists: delete that module's build
+files and rebuild; build outputs of reasoner modules outside the closure of `CohnElkies` and `SignUncertainty` were
+deleted to free disk, so importing an outside module triggers a one-time rebuild.

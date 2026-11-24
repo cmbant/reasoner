@@ -98,21 +98,36 @@ lemma integrable_pullMeasure_of_le {g : ℝ → ℝ} (hg : Measurable g) (M : �
     _ = M := by field_simp
     _ ≤ |M| := le_abs_self _
 
-lemma pullMeasure_Iio_eq_zero {T : ℝ} (hT₀T : T₀ ≤ T) (hζ : ∫ s, zetaB T₀ T s ∂μ = 0) :
-    pullMeasure a β₀ T₀ μ (Iio T) = 0 := by
-  have hae : zetaB T₀ T =ᵐ[μ] 0 :=
-    (integral_eq_zero_iff_of_nonneg (zetaB_nonneg T₀ T)
-      (BoundedContinuousFunction.integrable μ _)).1 hζ
-  have hnull : μ {s : Ecoord | tauE T₀ s < T ∧ 0 < s.1} = 0 := by
+/-- Support of the pulled-back measure: if a cut-off `ζ ≥ 0` has `∫ ζ dμ = 0` and `ζ s = 0`, `s > 0`
+forces `τ(s) ∈ X` for a measurable `X`, then `pullMeasure a β₀ T₀ μ` vanishes on `Xᶜ` (generalises
+`pullMeasure_Iio_eq_zero`, the case `X = [T, ∞)`, `ζ = ζ_T`). -/
+lemma pullMeasure_compl_eq_zero {X : Set ℝ} (hXm : MeasurableSet X) {ζ : Ecoord →ᵇ ℝ}
+    (hζ0 : ∀ s, 0 ≤ ζ s) (hζX : ∀ s : Ecoord, 0 < s.1 → ζ s = 0 → tauE T₀ s ∈ X)
+    (hζ : ∫ s, ζ s ∂μ = 0) :
+    pullMeasure a β₀ T₀ μ Xᶜ = 0 := by
+  have hae : ζ =ᵐ[μ] 0 :=
+    (integral_eq_zero_iff_of_nonneg hζ0 (BoundedContinuousFunction.integrable μ _)).1 hζ
+  have hnull : μ {s : Ecoord | tauE T₀ s ∉ X ∧ 0 < s.1} = 0 := by
     refine measure_mono_null (fun s hs => ?_) (ae_iff.1 hae)
     simp only [mem_ofPred_eq, Pi.zero_apply]
-    exact ((zetaB_pos_iff hT₀T hs.2).2 hs.1).ne'
-  have h1 : (Measure.map (tauE T₀) (μ.restrict posSet)) (Iio T) = 0 := by
-    rw [Measure.map_apply (measurable_tauE T₀) measurableSet_Iio,
-      Measure.restrict_apply (measurable_tauE T₀ measurableSet_Iio)]
+    intro h0
+    exact hs.1 (hζX s hs.2 h0)
+  have h1 : (Measure.map (tauE T₀) (μ.restrict posSet)) Xᶜ = 0 := by
+    rw [Measure.map_apply (measurable_tauE T₀) hXm.compl,
+      Measure.restrict_apply (measurable_tauE T₀ hXm.compl)]
     refine measure_mono_null (fun s hs => ?_) hnull
     exact ⟨hs.1, hs.2⟩
   exact withDensity_absolutelyContinuous _ _ h1
+
+/-- Support of the pulled-back measure below `T`; the case `X = [T, ∞)`, `ζ = ζ_T` of
+`pullMeasure_compl_eq_zero`. -/
+lemma pullMeasure_Iio_eq_zero {T : ℝ} (hT₀T : T₀ ≤ T) (hζ : ∫ s, zetaB T₀ T s ∂μ = 0) :
+    pullMeasure a β₀ T₀ μ (Iio T) = 0 := by
+  have h := pullMeasure_compl_eq_zero (a := a) (β₀ := β₀) (T₀ := T₀) μ (X := Ici T)
+    measurableSet_Ici (zetaB_nonneg T₀ T) (fun s hs h0 => by
+      by_contra hn
+      exact ((zetaB_pos_iff hT₀T hs).2 (not_le.mp hn)).ne' h0) hζ
+  rwa [compl_Ici] at h
 
 omit [IsFiniteMeasure μ] in
 lemma pullMeasure_Iio_T₀ : pullMeasure a β₀ T₀ μ (Iio T₀) = 0 := by
