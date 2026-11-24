@@ -61,7 +61,7 @@ theorem sig_part1 (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 
     nlinarith
   have h := hW hc (sigMod N η σs) (sigModFamily_mem N hN hη0 hη1 σs) σ hσ
   simp only [] at h
-  rw [windowMeasureNormK_eq prob hw hcpos, tildeW_sigMod N hN η σs σ] at h
+  rw [windowMeasureNormK_eq prob hcpos, tildeW_sigMod N hN η σs σ] at h
   unfold sigBc sigWinW
   rw [combProfile_sig_ofReal hx hcpos, hE2]
   exact h

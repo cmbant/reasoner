@@ -212,7 +212,7 @@ theorem twoZero_band_bound (prob : FixedWeightProblem) (hw : prob.w = 1) {r₀ :
           |combProfile c (d.twoZeroComb c) t| * prob.cardyV (c / 12) t) ≤
         twoZeroF prob c * C_T * (N₁ : ℝ)⁻¹ := by
   obtain ⟨N₂, C_T, hCT, h⟩ := twoZero_band_bound_of_cardy (qProb_pos prob) hr₀
-    (cardyWindowBound_prob prob hw (qProb_pos prob) hr₀) hK hA
+    (cardyWindowBound_prob prob (qProb_pos prob) hr₀) hK hA
   refine ⟨N₂, C_T, hCT, fun N₁ hN₁ => ?_⟩
   filter_upwards [h N₁ hN₁, eventually_gt_atTop (0 : ℝ)] with c hc hc0 d hd
   rw [twoZeroF_eq_FVc prob hc0]

@@ -102,7 +102,7 @@ theorem vacuum_core_sig (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) (
     ⟨∑ k ∈ Finset.Icc 1 N, |σs k|, fun k hk hkN =>
       Finset.single_le_sum (f := fun j => |σs j|) (fun _ _ => abs_nonneg _)
         (Finset.mem_Icc.mpr ⟨hk, hkN⟩)⟩
-  obtain ⟨N₂, C_T, C_far, hCT, hCf, hT⟩ := lemma_T_sig1_prob prob hw (r₀ := 3 / 10) (by norm_num) N hN hη0 hη1
+  obtain ⟨N₂, C_T, C_far, hCT, hCf, hT⟩ := lemma_T_sig1_prob prob (r₀ := 3 / 10) (by norm_num) N hN hη0 hη1
     σs M hM
   obtain ⟨n, hn1, hn2, hn3, hn4⟩ := (eventually_n_choice_sig N₂ (C_T := C_T) hε N hN η σs).exists
   have hn1' : 1 ≤ n := by have := (le_max_left 4 N₂).trans hn1; omega

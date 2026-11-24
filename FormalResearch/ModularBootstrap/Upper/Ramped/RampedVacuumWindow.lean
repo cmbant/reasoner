@@ -164,8 +164,8 @@ lemma abs_E_sub_le {x : ℝ} (hx : 0 < x) :
     _ = 8 * π * |x - xiStar| := by ring
 
 /-- The bound on `Θ / q`, `Θ = M_wt(x) · B_c/E(x)`, and `(Θ / q) (e^δ - 1)`, for a Cardy ratio `B_c` within
-`K/c'` of `Q(e^{-4πx})`; `q = qProb prob = Q(e^{-4πξ_*})/E(ξ_*)`. -/
-theorem theta_bound (prob : Crossing.FixedWeightProblem) (K Ca : ℝ) (hK : 0 < K) (hCa : 0 < Ca) :
+`K/c'` of `Q(e^{-4πx})`; `q = qProb prob = Q(e^{-4πξ_*})/E(ξ_*)` (`w = 1`). -/
+theorem theta_bound (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) (K Ca : ℝ) (hK : 0 < K) (hCa : 0 < Ca) :
     ∃ c1 c2 : ℝ, 0 < c1 ∧ 0 < c2 ∧ ∀ᶠ c' : ℝ in atTop, ∀ x ∈ langerX (1 / 2), ∀ Bc δ : ℝ, 0 ≤ Bc →
       |Bc - prob.nullPoly (Real.exp (-4 * π * x))| ≤ K / c' → 0 ≤ δ →
       δ ≤ Ca * c' ^ (-(2 / 3 : ℝ)) → δ ≤ 1 / 2 →
@@ -183,7 +183,7 @@ theorem theta_bound (prob : Crossing.FixedWeightProblem) (K Ca : ℝ) (hK : 0 < 
     have := one_sub_exp_xiStar_pos; positivity
   have hQs : prob.nullPoly (Real.exp (-4 * π * xiStar)) =
       qProb prob * (1 - Real.exp (-(4 * π * xiStar))) ^ 2 := by
-    unfold qProb
+    rw [qProb_of_w_eq_one prob hw]
     exact (div_mul_cancel₀ _ hEsp.ne').symm
   set q : ℝ := qProb prob with hqdef
   set Es : ℝ := (1 - Real.exp (-(4 * π * xiStar))) ^ 2 with hEs
@@ -343,7 +343,7 @@ theorem rampedWindow_pointwise (prob : Crossing.FixedWeightProblem) (hw : prob.w
             (c1 * lambdaComb c' * |sigmaOf c' x| + c2 * c' ^ (-(2 / 3 : ℝ)))) := by
   obtain ⟨Ca, hCa, hampP⟩ := rampedComb_amplitude
   obtain ⟨K0, hK0, hKas⟩ := WeightAxioms.cardyV_asymptotic_real prob (half_pos xiStar_pos)
-  obtain ⟨c1, c2, hc1, hc2, hth⟩ := theta_bound prob (K0 + 1) Ca (by linarith) hCa
+  obtain ⟨c1, c2, hc1, hc2, hth⟩ := theta_bound prob hw (K0 + 1) Ca (by linarith) hCa
   refine ⟨c1, c2, hc1, hc2, fun P => ?_⟩
   obtain ⟨_, _, h_ev⟩ := siteGap_eventually_le
   have hδev := eventually_rpow_neg_le (p := 2 / 3) (ε := 1 / (2 * Ca)) (by norm_num) (by positivity)

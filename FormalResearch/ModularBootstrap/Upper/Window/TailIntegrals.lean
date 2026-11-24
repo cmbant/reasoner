@@ -158,6 +158,65 @@ lemma integral_Ici_sqrt_exp_le {x₀ : ℝ} (hx₀ : 0 < x₀) :
   have : 0 < x := hx
   positivity
 
+/-- The order-`p` tail constant `∫_0^∞ √x (1+x)^p e^{-πx} dx` (`farConstP 0 = farConst`). -/
+noncomputable def farConstP (p : ℕ) : ℝ :=
+  ∫ x in Ioi (0 : ℝ), x ^ (1 / 2 : ℝ) * (1 + x) ^ p * exp (-π * x)
+
+lemma one_add_pow_le (p : ℕ) {x : ℝ} (hx : 0 ≤ x) : (1 + x) ^ p ≤ 2 ^ p * (1 + x ^ p) := by
+  rcases le_total x 1 with h | h
+  · have h1 : (1 + x) ^ p ≤ 2 ^ p := pow_le_pow_left₀ (by linarith) (by linarith) p
+    have h2 : 0 ≤ x ^ p := pow_nonneg hx p
+    have h3 : (0 : ℝ) ≤ 2 ^ p := by positivity
+    nlinarith
+  · have h1 : (1 + x) ^ p ≤ (2 * x) ^ p := pow_le_pow_left₀ (by linarith) (by linarith) p
+    rw [mul_pow] at h1
+    have h2 : (0 : ℝ) ≤ 2 ^ p := by positivity
+    have h3 : 0 ≤ x ^ p := pow_nonneg hx p
+    nlinarith
+
+lemma integrableOn_sqrt_pow_exp (p : ℕ) :
+    IntegrableOn (fun x : ℝ => x ^ (1 / 2 : ℝ) * (1 + x) ^ p * exp (-π * x)) (Ioi 0) := by
+  have h2 : IntegrableOn (fun x : ℝ => x ^ ((p : ℝ) + 1 / 2) * exp (-π * x)) (Ioi 0) := by
+    have h := integrableOn_rpow_mul_exp_neg_mul_rpow (s := (p : ℝ) + 1 / 2) (p := 1) (b := π)
+      (by have : (0 : ℝ) ≤ p := Nat.cast_nonneg p; linarith) one_pos Real.pi_pos
+    simpa [Real.rpow_one] using h
+  have hdom : IntegrableOn (fun x : ℝ => 2 ^ p * (x ^ (1 / 2 : ℝ) * exp (-π * x) +
+      x ^ ((p : ℝ) + 1 / 2) * exp (-π * x))) (Ioi 0) :=
+    (integrableOn_sqrt_exp.add h2).const_mul _
+  refine hdom.mono' ?_ ?_
+  · refine ContinuousOn.aestronglyMeasurable ?_ measurableSet_Ioi
+    refine ((ContinuousOn.rpow_const continuousOn_id fun x hx => Or.inl (ne_of_gt hx)).mul
+      ((continuous_const.add continuous_id).pow p).continuousOn).mul
+      (Real.continuous_exp.comp (continuous_const.mul continuous_id)).continuousOn
+  · refine (ae_restrict_iff' measurableSet_Ioi).mpr (Filter.Eventually.of_forall fun x hx => ?_)
+    have hx0 : 0 < x := hx
+    have hp := one_add_pow_le p hx0.le
+    have hpos : 0 ≤ x ^ (1 / 2 : ℝ) * exp (-π * x) := by positivity
+    have hxp : x ^ ((p : ℝ) + 1 / 2) = x ^ (1 / 2 : ℝ) * x ^ p := by
+      rw [Real.rpow_add hx0, mul_comm, Real.rpow_natCast]
+    rw [Real.norm_of_nonneg (by positivity)]
+    calc x ^ (1 / 2 : ℝ) * (1 + x) ^ p * exp (-π * x)
+        = (1 + x) ^ p * (x ^ (1 / 2 : ℝ) * exp (-π * x)) := by ring
+      _ ≤ (2 ^ p * (1 + x ^ p)) * (x ^ (1 / 2 : ℝ) * exp (-π * x)) :=
+          mul_le_mul_of_nonneg_right hp hpos
+      _ = _ := by rw [hxp]; ring
+
+lemma farConstP_nonneg (p : ℕ) : 0 ≤ farConstP p :=
+  setIntegral_nonneg measurableSet_Ioi fun x hx => by
+    have : 0 < x := hx
+    positivity
+
+lemma integrableOn_Ici_sqrt_pow_exp (p : ℕ) {x₀ : ℝ} (hx₀ : 0 < x₀) :
+    IntegrableOn (fun x : ℝ => x ^ (1 / 2 : ℝ) * (1 + x) ^ p * exp (-π * x)) (Ici x₀) :=
+  (integrableOn_sqrt_pow_exp p).mono_set (Ici_subset_Ioi.mpr hx₀)
+
+lemma integral_Ici_sqrt_pow_exp_le (p : ℕ) {x₀ : ℝ} (hx₀ : 0 < x₀) :
+    ∫ x in Ici x₀, x ^ (1 / 2 : ℝ) * (1 + x) ^ p * exp (-π * x) ≤ farConstP p := by
+  refine setIntegral_mono_set (integrableOn_sqrt_pow_exp p) ?_ (Ici_subset_Ioi.mpr hx₀).eventuallyLE
+  filter_upwards [ae_restrict_mem measurableSet_Ioi] with x hx
+  have : 0 < x := hx
+  positivity
+
 /-- The constant algebra of the intermediate band: with `u₀ ≥ κ λ N₁^{2/3}` (`K0`(c)),
 `Kc u₀^{1-p}/(p-1) ≤ FK_c C_T N₁^{-(2/3)(p-1)}`, `Kc = 2 C_R C_A (D/π)^p FV/λ`, `FK = FV (2√2/(πλ))^p`. -/
 lemma band_final_algebra {p lam κ W CR CA D N1 u0 : ℝ} (hp : 1 < p) (hlam : 0 < lam) (hκ : 0 < κ)
@@ -216,5 +275,9 @@ lemma band_final_algebra {p lam κ W CR CA D N1 u0 : ℝ} (hp : 1 < p) (hlam : 0
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Tail.band_final_algebra' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms band_final_algebra
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Tail.integral_Ici_sqrt_pow_exp_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms integral_Ici_sqrt_pow_exp_le
 
 end FormalResearch.ModularBootstrap.Upper.Window.Tail

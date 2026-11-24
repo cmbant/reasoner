@@ -87,7 +87,7 @@ lemma twoZeroF_pos (prob : Crossing.FixedWeightProblem) {c : ℝ} (hc : 0 < c) :
 lemma twoZeroF_eq_windowMeasureNormK (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) {c : ℝ}
     (hc : 0 < c) :
     twoZeroF prob c = windowMeasureNormK prob 2 c * (π * lambdaComb c / (2 * √2)) := by
-  rw [windowMeasureNormK_eq_FKc prob hw 2 hc]; rfl
+  rw [windowMeasureNormK_eq_FKc prob 2 hc]; rfl
 
 /-! ### Axiom checks -/
 

@@ -69,7 +69,7 @@ theorem sig_window_pointwise (prob : Crossing.FixedWeightProblem) (hw : prob.w =
     nlinarith
   have h := hW hc (sigMod N η σs) (sigModFamily_mem N hN hη0 hη1 σs) σ hσ
   simp only [] at h
-  rw [windowMeasureNormK_eq prob hw hcpos, tildeW_sigMod N hN η σs σ] at h
+  rw [windowMeasureNormK_eq prob hcpos, tildeW_sigMod N hN η σs σ] at h
   have hFK := FKc_pos (qProb_pos prob) 1 hcpos
   rw [combProfile_sig_ofReal hx hcpos, hE2]
   have h4 := (div_le_iff₀ hFK).mp (sub_le_iff_le_add.mp (abs_le.mp h).2)

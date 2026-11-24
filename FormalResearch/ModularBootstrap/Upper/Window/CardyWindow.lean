@@ -86,10 +86,17 @@ lemma FKc_one (q c' : ℝ) :
     FKc q 1 c' = FVc q c' * (2 * √2 / (π * lambdaComb c')) ^ (3 / 2 : ℝ) := by
   unfold FKc; norm_num
 
-/-- The scale `q = 𝔮_{w,Q}(ξ_*) = Q(e^{-4πξ_*}) / (1 - e^{-4πξ_*})²` of `FV_c` at `w = 1`
-(`upper_transfer.tex`, §5); `q = 1` at Virasoro (`qProb_virasoro`). -/
+/-- The scale `q = 𝔮_{w,Q}(ξ_*) = (2ξ_*)^{w-1} Q(e^{-4πξ_*}) / (1 - e^{-4πξ_*})²` of `FV_c` at every weight `w`
+(`upper_transfer.tex`, §5); `q = 1` at Virasoro (`qProb_virasoro`) and `q = Q(e^{-4πξ_*})/(1 - e^{-4πξ_*})²` at
+`w = 1` (`qProb_of_w_eq_one`). -/
 noncomputable def qProb (prob : Crossing.FixedWeightProblem) : ℝ :=
-  prob.nullPoly (exp (-4 * π * xiStar)) / (1 - exp (-(4 * π * xiStar))) ^ 2
+  (2 * xiStar) ^ (prob.w - 1) * prob.nullPoly (exp (-4 * π * xiStar)) / (1 - exp (-(4 * π * xiStar))) ^ 2
+
+/-- At `w = 1` the weight factor `(2ξ_*)^{w-1}` is `1`. -/
+lemma qProb_of_w_eq_one (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) :
+    qProb prob = prob.nullPoly (exp (-4 * π * xiStar)) / (1 - exp (-(4 * π * xiStar))) ^ 2 := by
+  unfold qProb
+  simp only [hw, Nat.sub_self, pow_zero, one_mul]
 
 lemma qProb_pos (prob : Crossing.FixedWeightProblem) : 0 < qProb prob := by
   have hq0 : 0 < exp (-4 * π * xiStar) := exp_pos _
@@ -98,11 +105,11 @@ lemma qProb_pos (prob : Crossing.FixedWeightProblem) : 0 < qProb prob := by
   unfold qProb
   have := one_sub_exp_xiStar_pos
   have := prob.nullPoly_pos hq0.le hq1
+  have := xiStar_pos
   positivity
 
 lemma qProb_virasoro : qProb Crossing.virasoroProblem = 1 := by
-  unfold qProb
-  rw [Crossing.virasoroProblem_nullPoly]
+  rw [qProb_of_w_eq_one _ rfl, Crossing.virasoroProblem_nullPoly]
   have e : exp (-4 * π * xiStar) = exp (-(4 * π * xiStar)) := by ring_nf
   rw [e]
   have := one_sub_exp_xiStar_pos
@@ -256,26 +263,26 @@ lemma besselV_ratio_bounds {x₀ c' x : ℝ} (hx₀ : 0 < x₀) (hc : 96 + 60 / 
   have := (abs_le.mp hasym).2
   linarith
 
-/-- The constant of Lemma `A_V` (window form) for the ratio bound `B ≤ 2` and the scale `q`:
-`2 √(ξ_* + r₀) / (q √ξ_* (1 - e^{-4πξ_*})² sech²(πξ_*/2))`. -/
-noncomputable def windowConstA (q r₀ : ℝ) : ℝ :=
-  2 * √(xiStar + r₀) / (q * (√xiStar * (1 - exp (-(4 * π * xiStar))) ^ 2 *
+/-- The constant of Lemma `A_V` (window form) for the ratio bound `B ≤ 2 (2x)^p` on `x ≤ ξ_* + r₀` and the scale `q`:
+`2 (2(ξ_* + r₀))^p √(ξ_* + r₀) / (q √ξ_* (1 - e^{-4πξ_*})² sech²(πξ_*/2))`. -/
+noncomputable def windowConstA (p : ℕ) (q r₀ : ℝ) : ℝ :=
+  2 * (2 * (xiStar + r₀)) ^ p * √(xiStar + r₀) / (q * (√xiStar * (1 - exp (-(4 * π * xiStar))) ^ 2 *
     (1 / cosh (π * xiStar / 2) ^ 2)))
 
-lemma windowConstA_pos {q r₀ : ℝ} (hq : 0 < q) (hr₀ : 0 < r₀) : 0 < windowConstA q r₀ := by
+lemma windowConstA_pos (p : ℕ) {q r₀ : ℝ} (hq : 0 < q) (hr₀ : 0 < r₀) : 0 < windowConstA p q r₀ := by
   unfold windowConstA
   have := xiStar_pos
   have := one_sub_exp_xiStar_pos
   positivity
 
-/-- **Lemma `A_V`, window form, from the ratio bound**: if `B = v/as(c'L(x)) ≤ 2` at a point
-`x ∈ [ξ_*/2, ξ_* + r₀]` then `v e^{-c'L(x)} sech²(πx/2) · dt/dσ ≤ windowConstA q r₀ · FV_c`
+/-- **Lemma `A_V`, window form, from the ratio bound**: if `B = v/as(c'L(x)) ≤ 2 (2x)^p` at a point
+`x ∈ [ξ_*/2, ξ_* + r₀]` then `v e^{-c'L(x)} sech²(πx/2) · dt/dσ ≤ windowConstA p q r₀ · FV_c`
 (`dt/dσ = (2/3) c' x λ`, `FV_c = FVc q c'`, any `q > 0`). -/
-lemma window_bound_of_ratio {q r₀ c' x v : ℝ} (hq : 0 < q) (hc0 : 0 < c')
+lemma window_bound_of_ratio (p : ℕ) {q r₀ c' x v : ℝ} (hq : 0 < q) (hc0 : 0 < c')
     (hx : xiStar / 2 ≤ x) (hxr : x ≤ xiStar + r₀)
-    (hB2 : v / besselAs (c' * besselL x) ≤ 2) :
+    (hB2 : v / besselAs (c' * besselL x) ≤ 2 * (2 * x) ^ p) :
     v * exp (-(c' * besselL x)) * (1 / cosh (π * x / 2) ^ 2) *
-        (2 / 3 * c' * x * lambdaComb c') ≤ windowConstA q r₀ * FVc q c' := by
+        (2 / 3 * c' * x * lambdaComb c') ≤ windowConstA p q r₀ * FVc q c' := by
   have hξ := xiStar_pos
   have hE := one_sub_exp_xiStar_pos
   set E : ℝ := (1 - exp (-(4 * π * xiStar))) ^ 2 with hEdef
@@ -303,8 +310,8 @@ lemma window_bound_of_ratio {q r₀ c' x v : ℝ} (hq : 0 < q) (hc0 : 0 < c')
   have hsc : 0 < √c' := Real.sqrt_pos.mpr hc0
   have hFV : FVc q c' = q * (√c' * lambdaComb c' * √xiStar * E * (1 / H)) / (√3 * π) := by
     unfold FVc; rw [hEdef, hHdef]
-  have hrhs : windowConstA q r₀ * FVc q c' =
-      2 * √(xiStar + r₀) * (√c' * lambdaComb c' / (√3 * π)) := by
+  have hrhs : windowConstA p q r₀ * FVc q c' =
+      2 * (2 * (xiStar + r₀)) ^ p * √(xiStar + r₀) * (√c' * lambdaComb c' / (√3 * π)) := by
     rw [hFV]
     unfold windowConstA
     rw [← hEdef, ← hHdef]
@@ -320,28 +327,35 @@ lemma window_bound_of_ratio {q r₀ c' x v : ℝ} (hq : 0 < q) (hc0 : 0 < c')
   have hden : 0 < √3 * π := by positivity
   calc B * (√c' * √x / (√3 * π)) * (1 / cosh (π * x / 2) ^ 2) * lambdaComb c'
       = (B * (1 / cosh (π * x / 2) ^ 2) * √x) * (√c' * lambdaComb c' / (√3 * π)) := by ring
-    _ ≤ (2 * 1 * √(xiStar + r₀)) * (√c' * lambdaComb c' / (√3 * π)) := by
+    _ ≤ (2 * (2 * (xiStar + r₀)) ^ p * 1 * √(xiStar + r₀)) * (√c' * lambdaComb c' / (√3 * π)) := by
         apply mul_le_mul_of_nonneg_right _ (by positivity)
-        have h1 : B * (1 / cosh (π * x / 2) ^ 2) ≤ 2 * 1 :=
-          mul_le_mul hB2 hs2 hs2p (by norm_num)
-        exact mul_le_mul h1 hsx hsx0 (by norm_num)
+        have hxr0 : 0 < xiStar + r₀ := by linarith
+        have hxp : (2 * x) ^ p ≤ (2 * (xiStar + r₀)) ^ p :=
+          pow_le_pow_left₀ (by positivity) (by linarith) p
+        have h1 : B * (1 / cosh (π * x / 2) ^ 2) ≤ 2 * (2 * (xiStar + r₀)) ^ p * 1 :=
+          mul_le_mul (hB2.trans (by linarith [hxp])) hs2 hs2p (by positivity)
+        exact mul_le_mul h1 hsx hsx0 (by positivity)
     _ = _ := by ring
 
-/-- **Lemma `A_V`, far-band form, from the ratio bound**: if `v/as(c'L(x)) ≤ 2` at `x > 0` then
-`v e^{-c'L(x)} (2/3) c' x ≤ √c' √x`. -/
-lemma far_bound_of_ratio {c' x v : ℝ} (hc0 : 0 < c') (hx0 : 0 < x)
-    (hB2 : v / besselAs (c' * besselL x) ≤ 2) :
-    v * exp (-(c' * besselL x)) * (2 / 3 * c' * x) ≤ √c' * √x := by
+/-- **Lemma `A_V`, far-band form, from the ratio bound**: if `v/as(c'L(x)) ≤ 2 (2x)^p` at `x > 0` then
+`v e^{-c'L(x)} (2/3) c' x ≤ (2x)^p √c' √x`. -/
+lemma far_bound_of_ratio (p : ℕ) {c' x v : ℝ} (hc0 : 0 < c') (hx0 : 0 < x)
+    (hB2 : v / besselAs (c' * besselL x) ≤ 2 * (2 * x) ^ p) :
+    v * exp (-(c' * besselL x)) * (2 / 3 * c' * x) ≤ (2 * x) ^ p * (√c' * √x) := by
   rw [cardy_density v hc0 hx0]
   have h3 : 1 ≤ √3 := by
     rw [show (1 : ℝ) = √1 by simp]; exact Real.sqrt_le_sqrt (by norm_num)
   have hpi := Real.pi_gt_three
   have hden : 0 < √3 * π := by positivity
   have hsc : 0 ≤ √c' * √x := by positivity
+  have hP : 0 ≤ (2 * x) ^ p := by positivity
   rw [mul_div_assoc']
   rw [div_le_iff₀ hden]
   have h32 : 3 ≤ √3 * π := by nlinarith
-  nlinarith [mul_le_mul_of_nonneg_right hB2 hsc, mul_nonneg hsc (by linarith : (0 : ℝ) ≤ √3 * π - 2)]
+  have h1 := mul_le_mul_of_nonneg_right hB2 hsc
+  have h2 : 0 ≤ (2 * x) ^ p * (√c' * √x) * (√3 * π - 2) :=
+    mul_nonneg (mul_nonneg hP hsc) (by linarith)
+  nlinarith
 
 /-- **Lemma `A_V`, window form** (`rem:cardy`; `V = V_Vir`, `q = 1`): for `r₀ > 0` there is `C > 0` such
 that for `c' ≥ 96 + 120/ξ_*` and `ξ_*/2 ≤ x ≤ ξ_* + r₀`, `V(c'x²/3) ≥ 0` and
@@ -353,7 +367,7 @@ theorem besselV_window_bound {r₀ : ℝ} (hr₀ : 0 < r₀) :
       besselV (c' / 12) (c' * x ^ 2 / 3) * exp (-(c' * besselL x)) * (1 / cosh (π * x / 2) ^ 2) *
           (2 / 3 * c' * x * lambdaComb c') ≤ C * FVc 1 c' := by
   have hξ := xiStar_pos
-  refine ⟨windowConstA 1 r₀, windowConstA_pos one_pos hr₀, ?_⟩
+  refine ⟨windowConstA 0 1 r₀, windowConstA_pos 0 one_pos hr₀, ?_⟩
   intro c' hc x hx hxr
   have hx₀ : 0 < xiStar / 2 := by positivity
   have hc2 : 96 + 60 / (xiStar / 2) ≤ c' := by
@@ -363,7 +377,7 @@ theorem besselV_window_bound {r₀ : ℝ} (hr₀ : 0 < r₀) :
   have hx0 : 0 < x := hx₀.trans_le hx
   have hc0 : 0 < c' := by linarith
   exact ⟨besselV_nonneg_of_ge hc0 (by linarith) hx0,
-    window_bound_of_ratio one_pos hc0 hx hxr (besselV_ratio_bounds hx₀ hc2 hx).2⟩
+    window_bound_of_ratio 0 one_pos hc0 hx hxr (by simpa using (besselV_ratio_bounds hx₀ hc2 hx).2)⟩
 
 /-- **Lemma `A_V`, far-band form** (`rem:cardy`, `w = 1`): for `x₀ > 0`, `c' ≥ 96 + 60/x₀` and `x ≥ x₀`,
 `V(c'x²/3) ≥ 0` and `V e^{-c'L(x)} dt ≤ √c' √x dx` (`dt/dx = (2/3) c' x`). -/
@@ -375,19 +389,20 @@ theorem besselV_far_bound {x₀ c' x : ℝ} (hx₀ : 0 < x₀) (hc : 96 + 60 / x
   have h60 : 0 < 60 / x₀ := by positivity
   have hc0 : 0 < c' := by linarith
   exact ⟨besselV_nonneg_of_ge hc0 (by linarith) hx0,
-    far_bound_of_ratio hc0 hx0 (besselV_ratio_bounds hx₀ hc hx).2⟩
+    by simpa using far_bound_of_ratio 0 hc0 hx0 (by simpa using (besselV_ratio_bounds hx₀ hc hx).2)⟩
 
 /-! ### Lemma `A_V` for every weight-one problem -/
 
-/-- **Lemma `A_V`, uniform Cardy ratio** (`n1:L4`(f) at `w = 1`; `rem:cardy`): for `x₀ > 0` there is `c₀`
+/-- **Lemma `A_V`, uniform Cardy ratio** (`n1:L4`(f); `rem:cardy`), every weight `w = p + 1`: for `x₀ > 0` there is `c₀`
 such that for `c' ≥ c₀`, `x ≥ x₀`, the ratio `B = V(c'x²/3)/as(c'L(x))` of the Cardy weight
-`V = prob.cardyV (c'/12)` satisfies `0 ≤ B ≤ 2` (from `cardyV_asymptotic_real` and `0 ≤ Q ≤ 1`). -/
-theorem cardyV_ratio_bounds (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) {x₀ : ℝ}
+`V = prob.cardyV (c'/12)` satisfies `0 ≤ B ≤ 2 (2x)^{w-1}` (from `cardyV_asymptotic_real` and `0 ≤ Q ≤ 1`). -/
+theorem cardyV_ratio_bounds (prob : Crossing.FixedWeightProblem) {x₀ : ℝ}
     (hx₀ : 0 < x₀) :
     ∃ c₀ : ℝ, 0 < c₀ ∧ ∀ {c' x : ℝ}, c₀ ≤ c' → x₀ ≤ x →
       0 ≤ prob.cardyV (c' / 12) (c' * x ^ 2 / 3) ∧
       0 ≤ prob.cardyV (c' / 12) (c' * x ^ 2 / 3) / besselAs (c' * besselL x) ∧
-        prob.cardyV (c' / 12) (c' * x ^ 2 / 3) / besselAs (c' * besselL x) ≤ 2 := by
+        prob.cardyV (c' / 12) (c' * x ^ 2 / 3) / besselAs (c' * besselL x) ≤
+          2 * (2 * x) ^ (prob.w - 1) := by
   obtain ⟨C, hC0, hC⟩ := WeightAxioms.cardyV_asymptotic_real prob hx₀
   obtain ⟨-, hQ⟩ := WeightAxioms.nullPoly_exp_bounds prob hx₀
   have hS := prob.totalShift_nonneg
@@ -404,34 +419,57 @@ theorem cardyV_ratio_bounds (prob : Crossing.FixedWeightProblem) (hw : prob.w = 
   have hA := besselAs_pos hz
   refine ⟨hV, div_nonneg hV hA.le, ?_⟩
   have h := hC hcm hx
-  simp only [hw, Nat.sub_self, pow_zero, one_mul] at h
   have hCc : C / c' ≤ 1 := by rw [div_le_one hc0]; exact hcC
   have hQ1 := (hQ hx).2
   have h2 := (abs_le.mp h).2
-  unfold besselL
-  linarith
+  have hP : 0 < (2 * x) ^ (prob.w - 1) := by positivity
+  have hAA : (0 : ℝ) < besselAs (c' * (2 * π * x / 3)) := by unfold besselL at hA; exact hA
+  have e1 : prob.cardyV (c' / 12) (c' * x ^ 2 / 3) / besselAs (c' * besselL x) =
+      (2 * x) ^ (prob.w - 1) *
+        (prob.cardyV (c' / 12) (c' * x ^ 2 / 3) /
+          ((2 * x) ^ (prob.w - 1) * besselAs (c' * (2 * π * x / 3)))) := by
+    unfold besselL; field_simp
+  rw [e1]
+  have h3 : prob.cardyV (c' / 12) (c' * x ^ 2 / 3) /
+      ((2 * x) ^ (prob.w - 1) * besselAs (c' * (2 * π * x / 3))) ≤ 2 := by linarith
+  calc _ ≤ (2 * x) ^ (prob.w - 1) * 2 := mul_le_mul_of_nonneg_left h3 hP.le
+    _ = _ := by ring
 
 /-! ### The abstract Cardy weight -/
 
 /-- **Named property (Lemma `A_V`, window form) of a weight `V c' t`** (`V c'` the weight at central
 charge parameter `c'`): for some `C > 0`, `c₀`, all `c' ≥ c₀` and `ξ_*/2 ≤ x ≤ ξ_* + r₀`, `V ≥ 0` at
-`t = c'x²/3` and `V e^{-c'L} sech²(πx/2) · dt/dσ ≤ C FV_c` with `FV_c = FVc q c'`.  For the Virasoro weight this
-is `besselV_window_bound` (`cardyWindowBound_virasoro`), and for every `w = 1` problem `cardyWindowBound_prob`; at `w > 1` it
-is not formalised. -/
+`t = c'x²/3` and `V e^{-c'L} sech²(πx/2) · dt/dσ ≤ C FV_c` with `FV_c = FVc q c'`.  The constant absorbs the weight
+factor `(2(ξ_* + r₀))^{w-1}` of the Cardy asymptotics.  For the Virasoro weight this
+is `besselV_window_bound` (`cardyWindowBound_besselV`), and for every problem, at every weight, `cardyWindowBound_prob`. -/
 def CardyWindowBound (V : ℝ → ℝ → ℝ) (q r₀ : ℝ) : Prop :=
   ∃ C c₀ : ℝ, 0 < C ∧ ∀ c' : ℝ, c₀ ≤ c' → ∀ x : ℝ, xiStar / 2 ≤ x → x ≤ xiStar + r₀ →
     0 ≤ V c' (c' * x ^ 2 / 3) ∧
       V c' (c' * x ^ 2 / 3) * exp (-(c' * besselL x)) * (1 / cosh (π * x / 2) ^ 2) *
           (2 / 3 * c' * x * lambdaComb c') ≤ C * FVc q c'
 
+/-- **Named property (Lemma `A_V`, far-band form) of a weight `V c' t`, order `p`**: for `x ≥ x₀`,
+`V ≥ 0` and `V e^{-c'L} dt ≤ C √c' √x (1+x)^p dx` (`rem:cardy` at weight `w = p + 1`; the factor `(2x)^{w-1}` of the
+Cardy asymptotics, replacing the Peano bound `fw:e3.6` of the paper: `n1:L4`(f) is uniform for `x → ∞`).
+`CardyFarBound` is the case `p = 0`. -/
+def CardyFarBoundP (p : ℕ) (V : ℝ → ℝ → ℝ) (x₀ : ℝ) : Prop :=
+  ∃ C c₀ : ℝ, 0 < C ∧ ∀ c' : ℝ, c₀ ≤ c' → ∀ x : ℝ, x₀ ≤ x →
+    0 ≤ V c' (c' * x ^ 2 / 3) ∧
+      V c' (c' * x ^ 2 / 3) * exp (-(c' * besselL x)) * (2 / 3 * c' * x) ≤
+        C * √c' * √x * (1 + x) ^ p
+
 /-- **Named property (Lemma `A_V`, far-band form) of a weight `V c' t`**: for `x ≥ x₀`,
-`V ≥ 0` and `V e^{-c'L} dt ≤ C √c' √x dx`.  For the Virasoro weight this is `besselV_far_bound`, for every `w = 1`
-problem `cardyFarBound_prob`; at `w > 1` it is the Peano bound `fw:e3.6` (with its factor `(1+x)^{m+p}`), not
-formalised. -/
+`V ≥ 0` and `V e^{-c'L} dt ≤ C √c' √x dx`.  For the Virasoro weight this is `besselV_far_bound`, and for every
+weight-one problem `cardyFarBound_prob`; at every weight the statement is `CardyFarBoundP (w-1)`
+(`cardyFarBoundP_prob`), of which this is the case `p = 0` (`cardyFarBoundP_zero`). -/
 def CardyFarBound (V : ℝ → ℝ → ℝ) (x₀ : ℝ) : Prop :=
   ∃ C c₀ : ℝ, 0 < C ∧ ∀ c' : ℝ, c₀ ≤ c' → ∀ x : ℝ, x₀ ≤ x →
     0 ≤ V c' (c' * x ^ 2 / 3) ∧
       V c' (c' * x ^ 2 / 3) * exp (-(c' * besselL x)) * (2 / 3 * c' * x) ≤ C * √c' * √x
+
+lemma cardyFarBoundP_zero {V : ℝ → ℝ → ℝ} {x₀ : ℝ} :
+    CardyFarBoundP 0 V x₀ ↔ CardyFarBound V x₀ := by
+  simp [CardyFarBoundP, CardyFarBound]
 
 /-- The Virasoro Cardy weight `V = besselV (c'/12)` satisfies the window bound with `q = 1`. -/
 theorem cardyWindowBound_besselV {r₀ : ℝ} (hr₀ : 0 < r₀) :
@@ -445,34 +483,50 @@ theorem cardyFarBound_besselV {x₀ : ℝ} (hx₀ : 0 < x₀) :
   ⟨1, 96 + 60 / x₀, one_pos, fun c' hc x hx => by
     simpa using besselV_far_bound hx₀ hc hx⟩
 
-/-- **The window bound for every weight-one problem** (`rem:cardy` at `w = 1`): the concrete Cardy kernel
-`prob.cardyV (c'/12)` satisfies `CardyWindowBound` for every scale `q > 0` (the constant absorbs `q`; the
-paper's `q` is `qProb prob`). -/
-theorem cardyWindowBound_prob (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) {q r₀ : ℝ}
+/-- **The window bound for every problem, at every weight** (`rem:cardy`): the concrete Cardy kernel
+`prob.cardyV (c'/12)` satisfies `CardyWindowBound` for every scale `q > 0` (the constant absorbs `q` and the factor
+`(2(ξ_* + r₀))^{w-1}`; the paper's `q` is `qProb prob`). -/
+theorem cardyWindowBound_prob (prob : Crossing.FixedWeightProblem) {q r₀ : ℝ}
     (hq : 0 < q) (hr₀ : 0 < r₀) :
     CardyWindowBound (fun c' t => prob.cardyV (c' / 12) t) q r₀ := by
   have hξ := xiStar_pos
-  obtain ⟨c₀, hc₀, h⟩ := cardyV_ratio_bounds prob hw (half_pos hξ)
-  refine ⟨windowConstA q r₀, c₀, windowConstA_pos hq hr₀, fun c' hc x hx hxr => ?_⟩
+  obtain ⟨c₀, hc₀, h⟩ := cardyV_ratio_bounds prob (half_pos hξ)
+  refine ⟨windowConstA (prob.w - 1) q r₀, c₀, windowConstA_pos _ hq hr₀, fun c' hc x hx hxr => ?_⟩
   have hc0 : 0 < c' := hc₀.trans_le hc
   obtain ⟨h1, -, h2⟩ := h hc hx
-  exact ⟨h1, window_bound_of_ratio hq hc0 hx hxr h2⟩
+  exact ⟨h1, window_bound_of_ratio _ hq hc0 hx hxr h2⟩
+
+/-- **The far-band bound for every problem, at every weight** (`rem:cardy`): with `p = w - 1`,
+`V e^{-c'L} dt ≤ 2^p √c' √x (1+x)^p dx`. -/
+theorem cardyFarBoundP_prob (prob : Crossing.FixedWeightProblem) {x₀ : ℝ}
+    (hx₀ : 0 < x₀) : CardyFarBoundP (prob.w - 1) (fun c' t => prob.cardyV (c' / 12) t) x₀ := by
+  obtain ⟨c₀, hc₀, h⟩ := cardyV_ratio_bounds prob hx₀
+  refine ⟨2 ^ (prob.w - 1), c₀, by positivity, fun c' hc x hx => ?_⟩
+  have hc0 : 0 < c' := hc₀.trans_le hc
+  have hx0 : 0 < x := hx₀.trans_le hx
+  obtain ⟨h1, -, h2⟩ := h hc hx
+  refine ⟨h1, (far_bound_of_ratio _ hc0 hx0 h2).trans ?_⟩
+  have hp : (2 * x) ^ (prob.w - 1) ≤ 2 ^ (prob.w - 1) * (1 + x) ^ (prob.w - 1) := by
+    rw [← mul_pow]
+    exact pow_le_pow_left₀ (by positivity) (by linarith) _
+  have hs : 0 ≤ √c' * √x := by positivity
+  calc (2 * x) ^ (prob.w - 1) * (√c' * √x)
+      ≤ (2 ^ (prob.w - 1) * (1 + x) ^ (prob.w - 1)) * (√c' * √x) :=
+        mul_le_mul_of_nonneg_right hp hs
+    _ = _ := by ring
 
 /-- **The far-band bound for every weight-one problem** (`rem:cardy` at `w = 1`). -/
 theorem cardyFarBound_prob (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) {x₀ : ℝ}
     (hx₀ : 0 < x₀) : CardyFarBound (fun c' t => prob.cardyV (c' / 12) t) x₀ := by
-  obtain ⟨c₀, hc₀, h⟩ := cardyV_ratio_bounds prob hw hx₀
-  refine ⟨1, c₀, one_pos, fun c' hc x hx => ?_⟩
-  have hc0 : 0 < c' := hc₀.trans_le hc
-  have hx0 : 0 < x := hx₀.trans_le hx
-  obtain ⟨h1, -, h2⟩ := h hc hx
-  exact ⟨h1, by simpa using far_bound_of_ratio hc0 hx0 h2⟩
+  have h := cardyFarBoundP_prob prob hx₀
+  rw [hw, Nat.sub_self] at h
+  exact cardyFarBoundP_zero.1 h
 
 /-- The concrete Virasoro Cardy kernel `virasoroProblem.cardyV (c'/12)` satisfies the window bound with
 `q = 1` (`rem:cardy` at `w = 1`; non-vacuity of `CardyWindowBound`). -/
 theorem cardyWindowBound_virasoro {r₀ : ℝ} (hr₀ : 0 < r₀) :
     CardyWindowBound (fun c' t => Crossing.virasoroProblem.cardyV (c' / 12) t) 1 r₀ :=
-  cardyWindowBound_prob Crossing.virasoroProblem rfl one_pos hr₀
+  cardyWindowBound_prob Crossing.virasoroProblem one_pos hr₀
 
 /-- The concrete Virasoro Cardy kernel satisfies the far-band bound. -/
 theorem cardyFarBound_virasoro {x₀ : ℝ} (hx₀ : 0 < x₀) :
@@ -498,6 +552,18 @@ theorem cardyFarBound_virasoro {x₀ : ℝ} (hx₀ : 0 < x₀) :
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Cardy.cardyWindowBound_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms cardyWindowBound_prob
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Cardy.cardyFarBound_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms cardyFarBound_prob
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Cardy.cardyV_ratio_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms cardyV_ratio_bounds
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Cardy.cardyFarBoundP_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms cardyFarBoundP_prob
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Window.Cardy.cardyFarBound_prob' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

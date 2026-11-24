@@ -9,8 +9,8 @@ public import FormalResearch.ModularBootstrap.Upper.Positivity.DesignReal
 
 Source: `CFT/modular_bootstrap/paper/upper_transfer.tex`, Proposition V (`ut:Vac`) and Lemma `T` (`ut:T`).
 
-* `windowMeasureNormK_eq`: at `w = 1` (any `Q`) the measure normalisation `FK_c` of Lemma `W` (`windowMeasureNormK`) is
-  `FK_c^{(1)} = FKc (qProb prob) 1 c'` of `Window.Cardy`; `windowMeasureNormK_virasoro` is `Q = (1-q)²` (`qProb = 1`);
+* `windowMeasureNormK_eq`: at every weight (any `Q`) the measure normalisation `FK_c` of Lemma `W` (`windowMeasureNormK`) is
+  `FK_c^{(1)} = FKc (qProb prob) 1 c'` of `Window.Cardy` (`qProb` carries the factor `(2ξ_*)^{w-1}`); `windowMeasureNormK_virasoro` is `Q = (1-q)²` (`qProb = 1`);
 * `FKc_ge_mul_sqrt_of_pos`, `FKc_ge_mul_sqrt`: `FK_c ≫ √c'` (`FK_c ≍ c'^{5/6}`): for every `M`, `M √c' ≤ FK_c` for
   large `c'`, at every scale `q > 0`, resp. `q = 1`;
 * `designComb_re_nonpos_of_lt`: the design comb `B_D(x)` is a nonpositive real for `0 ≤ x < χ'_1`
@@ -36,15 +36,14 @@ lemma nullPoly_virasoro (q : ℝ) : Crossing.virasoroProblem.nullPoly q = (1 - q
   rw [Fin.prod_univ_two]
   simp [sq]
 
-/-- `FK_c^{(f)}` of Lemma `W` at `w = 1` (any null polynomial `Q`) and any level `f` is `FKc (qProb prob) f c'`,
-`𝔮 = Q(e^{-4πξ_*})/(1 - e^{-4πξ_*})²`. -/
-theorem windowMeasureNormK_eq_FKc (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) (f : ℕ) {c' : ℝ}
+/-- `FK_c^{(f)}` of Lemma `W` at every weight (any null polynomial `Q`) and any level `f` is `FKc (qProb prob) f c'`,
+`𝔮 = (2ξ_*)^{w-1} Q(e^{-4πξ_*})/(1 - e^{-4πξ_*})²`. -/
+theorem windowMeasureNormK_eq_FKc (prob : Crossing.FixedWeightProblem) (f : ℕ) {c' : ℝ}
     (hc' : 0 < c') : windowMeasureNormK prob f c' = FKc (qProb prob) f c' := by
   have hxi := xiStar_pos
   have hlam := lambdaComb_pos' hc'
   unfold windowMeasureNormK windowNormKTilde
   unfold FKc FVc qProb
-  simp only [hw, Nat.sub_self, pow_zero, one_mul]
   have h3 : √(xiStar / 3) = √xiStar / √3 := Real.sqrt_div hxi.le 3
   rw [h3]
   have e : Real.exp (-4 * π * xiStar) = Real.exp (-(4 * π * xiStar)) := by ring_nf
@@ -55,16 +54,16 @@ theorem windowMeasureNormK_eq_FKc (prob : Crossing.FixedWeightProblem) (hw : pro
   generalize Real.exp (-(4 * π * xiStar)) = E at this ⊢
   field_simp
 
-/-- `FK_c` of Lemma `W` at `w = 1` (any null polynomial `Q`) is `FKc (qProb prob) 1 c'`,
-`𝔮 = Q(e^{-4πξ_*})/(1 - e^{-4πξ_*})²`. -/
-theorem windowMeasureNormK_eq (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) {c' : ℝ}
+/-- `FK_c` of Lemma `W` at every weight (any null polynomial `Q`) is `FKc (qProb prob) 1 c'`,
+`𝔮 = (2ξ_*)^{w-1} Q(e^{-4πξ_*})/(1 - e^{-4πξ_*})²`. -/
+theorem windowMeasureNormK_eq (prob : Crossing.FixedWeightProblem) {c' : ℝ}
     (hc' : 0 < c') : windowMeasureNormK prob 1 c' = FKc (qProb prob) 1 c' :=
-  windowMeasureNormK_eq_FKc prob hw 1 hc'
+  windowMeasureNormK_eq_FKc prob 1 hc'
 
 /-- `FK_c` of Lemma `W` at `w = 1`, `Q = (1-q)²`, is `FKc 1 1 c'`. -/
 theorem windowMeasureNormK_virasoro {c' : ℝ} (hc' : 0 < c') :
     windowMeasureNormK Crossing.virasoroProblem 1 c' = FKc 1 1 c' := by
-  rw [windowMeasureNormK_eq Crossing.virasoroProblem rfl hc', qProb_virasoro]
+  rw [windowMeasureNormK_eq Crossing.virasoroProblem hc', qProb_virasoro]
 
 lemma lambda_rpow_three_halves {l : ℝ} (hl : 0 < l) : l ^ (3 / 2 : ℝ) = l * √l := by
   rw [Real.sqrt_eq_rpow, ← Real.rpow_one_add' hl.le (by norm_num)]

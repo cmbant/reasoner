@@ -233,7 +233,7 @@ theorem twoZero_window_limit (prob : FixedWeightProblem) (hw : prob.w = 1) {n : 
   have hx0 : 0 ≤ xiStar + lambdaComb c * σ := by linarith
   have hWu : -kappaAiry * σ = u := by rw [hσ]; field_simp
   have hFKpos : 0 < windowMeasureNormK prob 2 c := by
-    rw [windowMeasureNormK_eq_FKc prob hw 2 hc0]
+    rw [windowMeasureNormK_eq_FKc prob 2 hc0]
     exact FKc_pos (qProb_pos prob) 2 hc0
   have hq₀pos : 0 < π * lambdaComb c / (2 * √2) := by positivity
   have hF : twoZeroF prob c = windowMeasureNormK prob 2 c * (π * lambdaComb c / (2 * √2)) :=
