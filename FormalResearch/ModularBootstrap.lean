@@ -359,6 +359,11 @@ public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigiditySequence
 public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeInstance
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroDict
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroDictT
+public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuumNode
+public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuumFamily
+public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuumLimit
+public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuumTail
+public import FormalResearch.ModularBootstrap.TwoLevel.NegativeVacuum
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1083,4 +1088,9 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   family of admissible designs as `CompactCombFamily 2 (n + 2)` (`toModifiedFamily`, uniform bounds and margins), `lemma_ID_modified`
   (`ut:ID` at every level `f`), `tildeW_toModified` (`W̃^{±(2)} = C_*^{(2)} κ Re W^{(2)}`), the identification with `W_2 = -(u - p) W^{(2)}`,
   `lemma_R_lower_two`, and the window asymptotics of `T_{χ(p)}` (`blaschkeT_window_bound`).
+* `TwoLevel.NegativeVacuum{Node,Family,Limit,Tail}`, `TwoLevel.NegativeVacuum` (`virasoro_two_level.tex` Theorem 2.5 `gt:2.5`, Step 1,
+  the window algebra): **`twoZeroNegativeVacuum`** (the former named hypothesis `TwoZeroNegativeVacuum`, now a theorem: for `∫ f_K < 0`
+  at `u₂` the designs `negDesign α K (K + j) η_j u₂` have `∫ W₂ → ∫ f_K`, by the Airy quadrature, Tannery for the node products
+  (`tendsto_nodeC`), `f_K` as the zero-width Airy product (`windowF_eq_winC`) and Lemma E for the nodes `ν > K`
+  (`tail_sum_bound`)) and **`theorem_two_five_of_T2`** (Theorem 2.5 conditional only on `TwoSimpleZeroTransfer`).
 -/
