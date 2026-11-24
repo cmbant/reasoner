@@ -15,8 +15,8 @@ On the real axis put `k_c(x) = (1 - ix)^{-1/2} e^{B_c(ix)}` (`outerK`), `t(θ) =
 
 * `outerK_zero`, `outerK_deriv_zero`: `k_c(0) = 1` and `|k_c'(0) - i/2| ≤ 1/(12c)`.
 * `amp_q_bounds`: the three bounds above, with an absolute constant `M`.
-* `innerDiff_bounds`: `(e8)`, `|𝒟^{(r)}(u)| ≤ C (L + ε²u²) |u|^{-5/2-r}` (`r ≤ 2`, `|u| ≥ 1`, `ε|u| ≤ 0.18`) for `𝒟(u) = P(u) W̃(w₁(u)) - e^{iεu/2} W̃(u)`,
-  from `symbol_diff_bounds` and the bounds above; `C` depends only on the symbol constant.
+* `innerDiff_local`: `(e8)` at one point for an arbitrary local symbol size `ρ`; `innerDiff_bounds`: `(e8)`, `|𝒟^{(r)}(u)| ≤ C (L + ε²u²) |u|^{-5/2-r}` (`r ≤ 2`, `|u| ≥ 1`, `ε|u| ≤ 0.18`) for `𝒟(u) = P(u) W̃(w₁(u)) - e^{iεu/2} W̃(u)`,
+  from `symbol_diff_local` and the bounds above; `C` depends only on the symbol constant.
 
 Status: proved, unconditional given `O4NormalForm L τ` (itself conditional on `O4QuotientBound L`).  Not formalised here: the change of
 variables `τ = τ(εu)` in `I_main` and the region estimates (`G4`-`G8`).
@@ -339,24 +339,26 @@ noncomputable def innerDiff (c ε : ℝ) (τ : ℂ → ℂ) (W : ℝ → ℂ) (u
     Complex.exp (Complex.I * ((ε * u : ℝ) : ℂ) / 2) * W u
 
 set_option maxHeartbeats 1600000 in
-/-- **`(e8)`**: `|𝒟^{(r)}(u)| ≤ C (L + ε²u²) |u|^{-5/2-r}` (`r ≤ 2`, `|u| ≥ 1`, `ε|u| ≤ 0.18`), for symbols `W̃` with
-`|W̃^{(j)}(s)| ≤ A_W |s|^{-5/2-j}` (`|s| ≥ 1/2`, `j ≤ 3`); `C` depends only on `A_W`. -/
-theorem innerDiff_bounds (AW : ℝ) (hAW : 1 ≤ AW) : ∃ C : ℝ, 0 ≤ C ∧
+/-- **`(e8)` at a point, local form.**  For `u ≠ 0` with `ε|u| ≤ 0.18` and a symbol `W` with `‖W^{(j)}(x)‖ ≤ A_W ρ |u|^{-j}` for `x`
+between `|u|/2` and `|u| + |w(u)|` (`w(u) = t(εu)/ε`), the inner difference satisfies `‖𝒟^{(r)}(u)‖ ≤ C (L + ε²u²) ρ |u|^{-r}`
+(`r ≤ 2`); `C` depends only on `A_W`.  Used with `ρ = |u|^{-5/2}` (`|u| ≥ 1`, `innerDiff_bounds`) and, for `W - W(0)`, `ρ = |u|^{1/2}`
+(near zero). -/
+theorem innerDiff_local (AW : ℝ) (hAW : 1 ≤ AW) : ∃ C : ℝ, 0 ≤ C ∧
     ∀ {L : ℝ} {τ : ℂ → ℂ}, O4NormalForm L τ → 0 < L → L ≤ 0.002 → ∀ {c ε : ℝ}, 2 ≤ c → 0 < ε → 1 / c ≤ L →
     ∀ {W W1 W2 W3 : ℝ → ℂ},
       (∀ s, s ≠ 0 → HasDerivAt W (W1 s) s ∧ HasDerivAt W1 (W2 s) s ∧ HasDerivAt W2 (W3 s) s) →
-      (∀ s, 1 / 2 ≤ |s| → ‖W s‖ ≤ AW * |s| ^ (-(5 / 2 : ℝ)) ∧ ‖W1 s‖ ≤ AW * |s| ^ (-(7 / 2 : ℝ)) ∧
-        ‖W2 s‖ ≤ AW * |s| ^ (-(9 / 2 : ℝ)) ∧ ‖W3 s‖ ≤ AW * |s| ^ (-(11 / 2 : ℝ))) →
-    ∀ {u : ℝ}, 1 ≤ |u| → ε * |u| ≤ 0.18 →
-      ‖innerDiff c ε τ W u‖ ≤ C * (L + ε ^ 2 * u ^ 2) * |u| ^ (-(5 / 2 : ℝ)) ∧
-      ‖deriv (innerDiff c ε τ W) u‖ ≤ C * (L + ε ^ 2 * u ^ 2) * |u| ^ (-(7 / 2 : ℝ)) ∧
-      ‖deriv (deriv (innerDiff c ε τ W)) u‖ ≤ C * (L + ε ^ 2 * u ^ 2) * |u| ^ (-(9 / 2 : ℝ)) := by
+    ∀ {u ρ : ℝ}, 0 < |u| → ε * |u| ≤ 0.18 → 0 < ρ →
+      (∀ x, |u| / 2 ≤ |x| → |x| ≤ |u| + |trF τ 0 (ε * u) / ε| → ‖W x‖ ≤ AW * ρ ∧ ‖W1 x‖ ≤ AW * (ρ * |u|⁻¹) ∧
+        ‖W2 x‖ ≤ AW * (ρ * (|u|⁻¹) ^ 2) ∧ ‖W3 x‖ ≤ AW * (ρ * (|u|⁻¹) ^ 3)) →
+      ‖innerDiff c ε τ W u‖ ≤ C * (L + ε ^ 2 * u ^ 2) * ρ ∧
+      ‖deriv (innerDiff c ε τ W) u‖ ≤ C * (L + ε ^ 2 * u ^ 2) * (ρ * |u|⁻¹) ∧
+      ‖deriv (deriv (innerDiff c ε τ W)) u‖ ≤ C * (L + ε ^ 2 * u ^ 2) * (ρ * (|u|⁻¹) ^ 2) := by
   obtain ⟨M, hM1, hMb⟩ := amp_q_bounds
   set A : ℝ := M + 50000 + AW with hA
   have hA1 : 1 ≤ A := by linarith
   refine ⟨4096 * A ^ 4, by positivity, ?_⟩
-  intro L τ h hL0 hL2 c ε hc hε hcL W W1 W2 W3 hWd hWb u hu1 hu18
-  have hu0 : u ≠ 0 := fun h0 => by simp [h0] at hu1; linarith
+  intro L τ h hL0 hL2 c ε hc hε hcL W W1 W2 W3 hWd u ρ hu1 hu18 hρ hSl
+  have hu0 : u ≠ 0 := fun h0 => by simp [h0] at hu1
   set θ : ℝ := ε * u with hθdef
   have hθabs : |θ| = ε * |u| := by rw [hθdef, abs_mul, abs_of_pos hε]
   have hθ18 : |θ| ≤ 0.18 := by rw [hθabs]; exact hu18
@@ -470,7 +472,7 @@ theorem innerDiff_bounds (AW : ℝ) (hAW : 1 ≤ AW) : ∃ C : ℝ, 0 ≤ C ∧
     have h3 : A * (L + θ ^ 2) * |u| * ε = A * (L + θ ^ 2) * |θ| := by rw [hθabs]; ring
     rw [h3]
     nlinarith [abs_nonneg θ, mul_nonneg hδθ (abs_nonneg θ), sq_nonneg θ, mul_nonneg hL0.le (abs_nonneg θ)]
-  have hu_pos : 0 < |u| := by linarith
+  have hu_pos : 0 < |u| := hu1
   have hA0 : 0 ≤ A := by linarith
   have hAθ2 : 50000 * θ ^ 2 ≤ A * θ ^ 2 := mul_le_mul_of_nonneg_right h5A (sq_nonneg θ)
   have hMθ2 : M * θ ^ 2 ≤ A * θ ^ 2 := mul_le_mul_of_nonneg_right hMA (sq_nonneg θ)
@@ -538,14 +540,16 @@ theorem innerDiff_bounds (AW : ℝ) (hAW : 1 ≤ AW) : ∃ C : ℝ, 0 ≤ C ∧
     rw [le_div_iff₀ (by positivity), hE2n]
     have : ε ^ 2 / 4 * |u| ^ 2 = θ ^ 2 / 4 := by rw [← sq_abs θ, ← hεu]; ring
     rw [this]; linarith [sq_nonneg θ]
-  have hWb' : ∀ s, 1 / 2 ≤ |s| → ‖W s‖ ≤ A * |s| ^ (-(5 / 2 : ℝ)) ∧ ‖W1 s‖ ≤ A * |s| ^ (-(7 / 2 : ℝ)) ∧
-      ‖W2 s‖ ≤ A * |s| ^ (-(9 / 2 : ℝ)) ∧ ‖W3 s‖ ≤ A * |s| ^ (-(11 / 2 : ℝ)) := by
-    intro s hs
-    obtain ⟨a0, a1, a2, a3⟩ := hWb s hs
-    have hp0 : ∀ p : ℝ, 0 ≤ |s| ^ p := fun p => Real.rpow_nonneg (abs_nonneg _) p
-    refine ⟨a0.trans ?_, a1.trans ?_, a2.trans ?_, a3.trans ?_⟩ <;> exact mul_le_mul_of_nonneg_right hAWA (hp0 _)
-  have key := symbol_diff_bounds A hA1 hUo (W := W) (w := wF) (w1 := w1F) (w2 := w2F) (Q := QF) (Q1 := Q1F) (Q2 := Q2F)
-    (E := EF) (E1 := E1F) (E2 := E2F) (δ := L + ε ^ 2 * u ^ 2) (u := u) huU hu1 hδ0 hδ1 hWd hWb' hwd hQd hEd
+  have hSl' : ∀ x, |u| / 2 ≤ |x| → |x| ≤ |u| + |wF u| → ‖W x‖ ≤ 64 * A * ρ ∧ ‖W1 x‖ ≤ 64 * A * (ρ * |u|⁻¹) ∧
+      ‖W2 x‖ ≤ 64 * A * (ρ * (|u|⁻¹) ^ 2) ∧ ‖W3 x‖ ≤ 64 * A * (ρ * (|u|⁻¹) ^ 3) := by
+    intro x hx hxR
+    obtain ⟨a0, a1, a2, a3⟩ := hSl x hx hxR
+    have hq0 : 0 ≤ |u|⁻¹ := inv_nonneg.mpr hu_pos.le
+    have hAW64 : AW ≤ 64 * A := by linarith
+    refine ⟨a0.trans ?_, a1.trans ?_, a2.trans ?_, a3.trans ?_⟩ <;> gcongr
+  have key := symbol_diff_local A hA1 hUo (W := W) (w := wF) (w1 := w1F) (w2 := w2F) (Q := QF) (Q1 := Q1F) (Q2 := Q2F)
+    (E := EF) (E1 := E1F) (E2 := E2F) (δ := L + ε ^ 2 * u ^ 2) (u := u) (ρ := ρ) (R := |u| + |wF u|) huU hu1 hδ0 hδ1 hρ
+    (by linarith [abs_nonneg (wF u)]) (by linarith [abs_nonneg u]) hWd hSl' hwd hQd hEd
     hsg hw0 hw_u hw1_u hw2_u hQ0_u hQ1_u hQ2_u hE0_u hE1_u hE2_u
   have hD : innerDiff c ε τ W = fun s => QF s * W (wF s) + EF s * (W (wF s) - W s) := by
     funext s
@@ -554,6 +558,72 @@ theorem innerDiff_bounds (AW : ℝ) (hAW : 1 ≤ AW) : ∃ C : ℝ, 0 ≤ C ∧
   rw [hD]
   obtain ⟨k0, k1, k2⟩ := key
   exact ⟨by simpa [mul_assoc] using k0, by simpa [mul_assoc] using k1, by simpa [mul_assoc] using k2⟩
+
+/-- The decay hypotheses `‖W^{(j)}(s)‖ ≤ A|s|^{-5/2-j}` give the local form with `ρ = |u|^{-5/2}` and constant `64A`. -/
+lemma symbol_local_of_decay {AW : ℝ} {W W1 W2 W3 : ℝ → ℂ} {u : ℝ} (hu : 1 ≤ |u|)
+    (hWb : ∀ s, 1 / 2 ≤ |s| → ‖W s‖ ≤ AW * |s| ^ (-(5 / 2 : ℝ)) ∧ ‖W1 s‖ ≤ AW * |s| ^ (-(7 / 2 : ℝ)) ∧
+      ‖W2 s‖ ≤ AW * |s| ^ (-(9 / 2 : ℝ)) ∧ ‖W3 s‖ ≤ AW * |s| ^ (-(11 / 2 : ℝ))) (hA : 0 ≤ AW) :
+    ∀ x, |u| / 2 ≤ |x| → ‖W x‖ ≤ (64 * AW) * |u| ^ (-(5 / 2 : ℝ)) ∧
+      ‖W1 x‖ ≤ (64 * AW) * (|u| ^ (-(5 / 2 : ℝ)) * |u|⁻¹) ∧
+      ‖W2 x‖ ≤ (64 * AW) * (|u| ^ (-(5 / 2 : ℝ)) * (|u|⁻¹) ^ 2) ∧
+      ‖W3 x‖ ≤ (64 * AW) * (|u| ^ (-(5 / 2 : ℝ)) * (|u|⁻¹) ^ 3) := by
+  intro x hx
+  have hm0 : 0 < |u| := by linarith
+  have hx' : 1 / 2 ≤ |x| := by linarith
+  obtain ⟨b0, b1, b2, b3⟩ := hWb x hx'
+  have r0 := mbd_rpow_le hm0 hx (by norm_num : (0 : ℝ) < 5 / 2) (by norm_num)
+  have r1 := mbd_rpow_le hm0 hx (by norm_num : (0 : ℝ) < 7 / 2) (by norm_num)
+  have r2 := mbd_rpow_le hm0 hx (by norm_num : (0 : ℝ) < 9 / 2) (by norm_num)
+  have r3 := mbd_rpow_le hm0 hx (by norm_num : (0 : ℝ) < 11 / 2) (by norm_num)
+  have e7 : |u| ^ (-(7 / 2 : ℝ)) = |u| ^ (-(5 / 2 : ℝ)) * |u|⁻¹ := by
+    rw [show (-(7 / 2 : ℝ)) = -(5 / 2 : ℝ) + (-1 : ℝ) by norm_num, Real.rpow_add hm0, Real.rpow_neg_one]
+  have e9 : |u| ^ (-(9 / 2 : ℝ)) = |u| ^ (-(5 / 2 : ℝ)) * (|u|⁻¹) ^ 2 := by
+    rw [show (-(9 / 2 : ℝ)) = -(5 / 2 : ℝ) + (-2 : ℝ) by norm_num, Real.rpow_add hm0]
+    rw [show (-2 : ℝ) = ((-2 : ℤ) : ℝ) by norm_num, Real.rpow_intCast]; simp [zpow_neg]
+  have e11 : |u| ^ (-(11 / 2 : ℝ)) = |u| ^ (-(5 / 2 : ℝ)) * (|u|⁻¹) ^ 3 := by
+    rw [show (-(11 / 2 : ℝ)) = -(5 / 2 : ℝ) + (-3 : ℝ) by norm_num, Real.rpow_add hm0]
+    rw [show (-3 : ℝ) = ((-3 : ℤ) : ℝ) by norm_num, Real.rpow_intCast]; simp [zpow_neg]
+  rw [e7] at r1; rw [e9] at r2; rw [e11] at r3
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · calc ‖W x‖ ≤ AW * |x| ^ (-(5 / 2 : ℝ)) := b0
+      _ ≤ AW * (64 * |u| ^ (-(5 / 2 : ℝ))) := by gcongr
+      _ = _ := by ring
+  · calc ‖W1 x‖ ≤ AW * |x| ^ (-(7 / 2 : ℝ)) := b1
+      _ ≤ AW * (64 * (|u| ^ (-(5 / 2 : ℝ)) * |u|⁻¹)) := by gcongr
+      _ = _ := by ring
+  · calc ‖W2 x‖ ≤ AW * |x| ^ (-(9 / 2 : ℝ)) := b2
+      _ ≤ AW * (64 * (|u| ^ (-(5 / 2 : ℝ)) * (|u|⁻¹) ^ 2)) := by gcongr
+      _ = _ := by ring
+  · calc ‖W3 x‖ ≤ AW * |x| ^ (-(11 / 2 : ℝ)) := b3
+      _ ≤ AW * (64 * (|u| ^ (-(5 / 2 : ℝ)) * (|u|⁻¹) ^ 3)) := by gcongr
+      _ = _ := by ring
+
+/-- **`(e8)`**: `|𝒟^{(r)}(u)| ≤ C (L + ε²u²) |u|^{-5/2-r}` (`r ≤ 2`, `|u| ≥ 1`, `ε|u| ≤ 0.18`), for symbols `W̃` with
+`|W̃^{(j)}(s)| ≤ A_W |s|^{-5/2-j}` (`|s| ≥ 1/2`, `j ≤ 3`); `C` depends only on `A_W`. -/
+theorem innerDiff_bounds (AW : ℝ) (hAW : 1 ≤ AW) : ∃ C : ℝ, 0 ≤ C ∧
+    ∀ {L : ℝ} {τ : ℂ → ℂ}, O4NormalForm L τ → 0 < L → L ≤ 0.002 → ∀ {c ε : ℝ}, 2 ≤ c → 0 < ε → 1 / c ≤ L →
+    ∀ {W W1 W2 W3 : ℝ → ℂ},
+      (∀ s, s ≠ 0 → HasDerivAt W (W1 s) s ∧ HasDerivAt W1 (W2 s) s ∧ HasDerivAt W2 (W3 s) s) →
+      (∀ s, 1 / 2 ≤ |s| → ‖W s‖ ≤ AW * |s| ^ (-(5 / 2 : ℝ)) ∧ ‖W1 s‖ ≤ AW * |s| ^ (-(7 / 2 : ℝ)) ∧
+        ‖W2 s‖ ≤ AW * |s| ^ (-(9 / 2 : ℝ)) ∧ ‖W3 s‖ ≤ AW * |s| ^ (-(11 / 2 : ℝ))) →
+    ∀ {u : ℝ}, 1 ≤ |u| → ε * |u| ≤ 0.18 →
+      ‖innerDiff c ε τ W u‖ ≤ C * (L + ε ^ 2 * u ^ 2) * |u| ^ (-(5 / 2 : ℝ)) ∧
+      ‖deriv (innerDiff c ε τ W) u‖ ≤ C * (L + ε ^ 2 * u ^ 2) * |u| ^ (-(7 / 2 : ℝ)) ∧
+      ‖deriv (deriv (innerDiff c ε τ W)) u‖ ≤ C * (L + ε ^ 2 * u ^ 2) * |u| ^ (-(9 / 2 : ℝ)) := by
+  obtain ⟨C, hC0, hC⟩ := innerDiff_local (64 * AW) (by linarith)
+  refine ⟨C, hC0, ?_⟩
+  intro L τ h hL0 hL2 c ε hc hε hcL W W1 W2 W3 hWd hWb u hu1 hu18
+  have hm0 : 0 < |u| := by linarith
+  have hS := symbol_local_of_decay hu1 hWb (by linarith)
+  obtain ⟨k0, k1, k2⟩ := hC h hL0 hL2 hc hε hcL hWd hm0 hu18 (Real.rpow_pos_of_pos hm0 _)
+    (fun x hx _ => hS x hx)
+  have e7 : |u| ^ (-(7 / 2 : ℝ)) = |u| ^ (-(5 / 2 : ℝ)) * |u|⁻¹ := by
+    rw [show (-(7 / 2 : ℝ)) = -(5 / 2 : ℝ) + (-1 : ℝ) by norm_num, Real.rpow_add hm0, Real.rpow_neg_one]
+  have e9 : |u| ^ (-(9 / 2 : ℝ)) = |u| ^ (-(5 / 2 : ℝ)) * (|u|⁻¹) ^ 2 := by
+    rw [show (-(9 / 2 : ℝ)) = -(5 / 2 : ℝ) + (-2 : ℝ) by norm_num, Real.rpow_add hm0]
+    rw [show (-2 : ℝ) = ((-2 : ℤ) : ℝ) by norm_num, Real.rpow_intCast]; simp [zpow_neg]
+  rw [e7, e9]
+  exact ⟨k0, k1, k2⟩
 
 end
 
@@ -568,6 +638,10 @@ end
 /-- info: 'FormalResearch.SignUncertainty.amp_q_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.SignUncertainty.amp_q_bounds
+
+/-- info: 'FormalResearch.SignUncertainty.innerDiff_local' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.innerDiff_local
 
 /-- info: 'FormalResearch.SignUncertainty.innerDiff_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
