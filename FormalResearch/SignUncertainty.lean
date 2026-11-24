@@ -207,6 +207,10 @@ public import FormalResearch.SignUncertainty.CeHankelPairFromEigen
 public import FormalResearch.SignUncertainty.ConvSourceTune
 public import FormalResearch.SignUncertainty.CeLiftEdge
 public import FormalResearch.SignUncertainty.CeLiftPhysical
+public import FormalResearch.SignUncertainty.CeLiftSign
+public import FormalResearch.SignUncertainty.ConvSourceSymbol
+public import FormalResearch.SignUncertainty.ConvSourceSymbolIBP
+public import FormalResearch.SignUncertainty.ConvSourceSymbolBounds
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.CohnElkies
 
@@ -349,6 +353,8 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.ConvSourceTune` (M6, step (2); proved): `liftSymbol_im_eq_zero_of_real`, `liftSymbol_zero_g1` (`W_{g₁}(0) = k`), `exists_eta_tune` (a real `η` with `W_Y(x) - W_Y(0) = 0` for `Y = Y₀ + η g₁` when `|W_{g₁}(x)| ≤ k/2`, and `|η| ≤ (2/k) |W_{Y₀}(x) - W_{Y₀}(0)|`: the tuning `f₋(0) = 0` of `thm:ce-hb-lift`).
 * `FormalResearch.SignUncertainty.CeLiftEdge` (M6, steps (2)-(3); proved, conditional on `ConvTailData`): `iMain_seed_add_smul`, `iDual_seed_add_smul`, `ceLift_pair` (the eigenfunctions `f₊ = L₊[D + S]`, `f₋ = L₋[D - S]` with `c^{1/3}ρ₀ h = I_main[D] + I_dual[S]`, `c^{1/3}ρ₀ ĥ = I_main[S] + I_dual[D]` for `h = (f₊ + f₋)/2`, `ĥ = (f₊ - f₋)/2`, and the origin values `f_±(0)` from the lift symbol).
 * `FormalResearch.SignUncertainty.CeLiftPhysical` (M6, step (3); proved): `airySeedU2_add_b`, `ceLift_tune` (the tuning `η` with `f₋(0) = 0` for the dual-minus-source seed `airySeedU2 a (b+η) c₀ - S`, from `exists_eta_tune`).
+* `FormalResearch.SignUncertainty.CeLiftSign` (M6, step (3); proved, helpers): `ce_delta_half`, `ce_delta_le`, `HasU2.integrable_real`, `ceDb0`, `CeTune`, `ceTune_exists`.
+* `FormalResearch.SignUncertainty.ConvSourceSymbol`, `ConvSourceSymbolIBP`, `ConvSourceSymbolBounds` (M6, `lem:conv-source` / Lemma `O.12(4)`, `ceo:conv.5`; proved, unreviewed): `convS_bounds` = `(ceo:conv.5)` for `k ≤ 3`: `‖lapW w_h‖ ≤ 2`, `‖convSD k z‖ ≤ C‖z‖^{-k-1}` (`‖z‖ ≥ 1`) and `≤ C‖z‖^{1/2-k}` (`‖z‖ ≤ 1`), Hölder `‖lapW w_h − ∫w_h‖ ≤ 6‖z‖^{1/2}`; `convS_lapW_exp` = Laplace transform of the exponential term; `convWeightDerivBound_exists`, `convS_k1_decay_uncond`.
 * `FormalResearch.SignUncertainty.HankelWtConj`: complex-conjugation symmetry of `W̃_c` and of the local density integrand (`hankelMellinStrip_conj`, `hankelHInt_conj`, `hankelWt_conj`, `hankelJ_conj`), and reality of the local density for real `ℓ` (`hankelLocal_im_eq_zero`).
   with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
   `one_profile_envelope`.
