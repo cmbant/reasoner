@@ -87,19 +87,19 @@ and the new `shared_PC`, `patch1_eq` are the paper's identifications (one correc
 
 ## Round 2 audit: `SoftEdgeChart` (verdict: fixed, four fields added)
 
-* **(a) fields vs. the paper.**  `zeta_deriv, zeta_zero, zeta_alpha, mu0_*` are lem:cha-PCcoord (1) with `x = u - u_c`; `mu0_S0` is eq:cha-mu0 (`pi mu_0 = ` the well action `S_0 = int_0^L Re arccos`;
-  the `Real.arccos` clamp reproduces `pi |{Q_0 < -2 sqrt E_0}|`, and `geom_far` shows that near `X_s^+` the clamp is `0` outside the well); `Y_forb, matchF_soft` are eq:tha-YLsoft (`arccoshR` is applied
-  to arguments `>= 1`, guaranteed by `geom_far`); `pcMinus`: `(u~(a,-Z), -v~(a,-Z))` for `a <= 0`,
+* **(a) fields vs. the paper.**  `zeta_deriv, zeta_alpha, mu0_*` are lem:cha-PCcoord (1) with `x = u - u_c`; `mu0_S0` is eq:cha-mu0 (`pi mu_0 = ` the well action `S_0 = int_0^L Re arccos`;
+  the `Real.arccos` clamp reproduces `pi |{Q_0 < -2 sqrt E_0}|`, and `FamilyInputs.geom` shows that near `X_s^+` the clamp is `0` outside the well); `Y_forb, matchF_soft` are eq:tha-YLsoft (`arccoshR` is applied
+  to arguments `>= 1`, guaranteed by `FamilyInputs.geom`); `pcMinus`: `(u~(a,-Z), -v~(a,-Z))` for `a <= 0`,
   `(w~_+, -u~_+)` for `a > 0`, so that `phi^{(1)}_2 / kappa_bal = A U(a,-Z) + h B h^{1/2} (U(a,-.))'` is `psi-hat^{PC,-}`.
-* **FIX (b) `geom_far`, `ucη_in`.**  `delta_0, eta` are chart *data*; lem:tha-geom (d) holds only for a pair with `delta_0` small against `eta` (the paper: "`eta` first, then `delta_0 < nu/2`").
+* **FIX (b) `ucη_in` (formerly also `geom_far`, now `FamilyInputs.geom`).**  `delta_0, eta` are chart *data*; lem:tha-geom (d) holds only for a pair with `delta_0` small against `eta` (the paper: "`eta` first, then `delta_0 < nu/2`").
   Nothing in the freeze forced that, so `PropThaW2`, `PropThaMflat`, `PropThaCollar` (which use `T < 0, Q_0 > 0` outside the collar for the growth bound (S4grow) and the forbidden margin)
-  would have been *false* for charts with a large `delta_0`: a hypothesis that is too weak, not a conclusion smuggled in.  Now `geom_far` records that pair, and `ucη_in` that the collar `[u_c - 2 eta, u_c + 2 eta]` lies in `(0, L)`.
+  would have been *false* for charts with a large `delta_0`: a hypothesis that is too weak, not a conclusion smuggled in.  Now `FamilyInputs.geom` records that pair, and `ucη_in` that the collar `[u_c - 2 eta, u_c + 2 eta]` lies in `(0, L)`.
 * **FIX (b) `zeta_far`, `muS_bd`, `Cmu`, `cz1`.**  `PropThaWin`'s last item of (1) (`|Z_n| <= rho' => |u_n - u_c| < eta/4`) and the exponential smallness of the weight at `n_1 + 1` (Step 4 (d) (ii)) need that
   the turning points `+-2 sqrt(mu_0)` of `zeta` are inside `|x| < eta/4` with a margin, and that `mu~ = mu_0 + sum h^{2r} mu_{2r}` stays within `O(h^2)` of `mu_0`; both are `delta_0` small / lem:cha-PCcoord (2) and
   were not in the freeze.  Consistency of the new fields with the old ones: at `alpha = 0`, `zeta' >= d_-` gives `zeta(x)^2 >= d_-^2 eta^2/16`, so `cz1 <= d_-^2 eta^2 / 16` is needed; for `|alpha| <= delta_0` small it persists by `zeta_alpha`.
 * **(b) vacuity check.**  No field mentions an eigenvalue/eigenvector; fields are pairwise consistent for the genuine chart (e.g. the soft edge of the exactly solvable spin family `G_h = 1, B_h = 0`, `L = 1`, fold `u_c = 1/2`).
   `mu0_deriv` asks `ContDiff 1` on all of `R` for `muS 0 mu` (the paper has it on `[-alpha_0, alpha_0]`; any `C^1` extension serves).
-* **(c) redundancy.**  `uc_spec` partly overlaps `ucη_in`/`geom_far` (the fold is the unique maximiser of `f_+`); `zeta_zero` follows from `zeta_alpha` at `alpha = 0`.
+* **(c) redundancy.**  `uc_spec` partly overlaps `ucη_in`/`FamilyInputs.geom` (the fold is the unique maximiser of `f_+`); `zeta(0;0) = 0` follows from `zeta_alpha` at `alpha = 0`.
 
 ## Honest differences
 
@@ -179,16 +179,9 @@ structure SoftEdgeCore {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Pa
   uc_spec : ∀ μ ∈ P, 0 < uc μ ∧ uc μ < F.L ∧ fPlus F.L (F.G 0 μ) (F.B 0 μ) (uc μ) = F.bandHi μ
   /-- **(round 2 audit, added; lem:tha-geom (d))** the collar `[u_c - 2 eta, u_c + 2 eta]` lies in `(0, L)`. -/
   ucη_in : ∀ μ ∈ P, 0 < uc μ - 2 * η ∧ uc μ + 2 * η < F.L
-  /-- **(round 2 audit, added; lem:tha-geom (d), the smallness of `delta_0` against `eta`)**: for `|X - X_s^+| <= delta_0`, outside the collar
-  `|u - u_c| < eta/4`, `T(.;X) < 0` and `Q_0 = X - B_0 > 0` on `[0, L]`.  The paper obtains `eta` first (so that `X_s^+ - f_+ >= nu` outside `(u_c - eta/4, u_c + eta/4)`)
-  and then `delta_0 < nu/2`; the chart constants `(delta_0, eta)` of this structure are such a pair.  Needed for `matchF_soft` (arccosh of an argument `>= 1`),
-  the growth bound `psi^L_{n+1} >= (1 + gamma) psi^L_n` (eq:tha-S4grow) and the forbidden margin of lem:tha-collar; without it `PropThaW2`, `PropThaMflat`,
-  `PropThaCollar` fail for a chart with `delta_0` large against `eta`. -/
-  geom_far : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ u ∈ Set.Icc 0 F.L, η / 4 ≤ |u - uc μ| →
-    Tfun F.L (F.G 0 μ) (F.B 0 μ) X u < 0 ∧ 0 < X - F.B 0 μ u
-  /-- lem:cha-PCcoord (1): `d_- <= d_x zeta <= d_+` on `|x| <= 2 eta`, `zeta(0;0) = 0`, `|zeta(0;alpha)| <= c_Z |alpha|`. -/
+  /-- lem:cha-PCcoord (1): `d_- <= d_x zeta <= d_+` on `|x| <= 2 eta`, `|zeta(0;alpha)| <= c_Z |alpha|` (so `zeta(0;0) = 0`).  The geometry of lem:tha-geom (d)
+  (`T < 0`, `Q_0 > 0` off the collar for `|X - X_s^+| <= delta_0`) is not a field: it is the case `delta_0' = delta_0` of `SoftEdgeCore.FamilyInputs.geom`. -/
   zeta_deriv : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → ∀ x, |x| ≤ 2 * η → dm ≤ deriv (zeta μ α) x ∧ deriv (zeta μ α) x ≤ dp
-  zeta_zero : ∀ μ ∈ P, zeta μ 0 0 = 0
   zeta_alpha : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → |zeta μ α 0| ≤ cZ * |α|
   /-- **(round 2 audit, added; lem:cha-PCcoord (2); round 4: also `r = 0`)** the shifts `mu_{2r}`, `0 <= r <= q/2`, are bounded on `|alpha| <= delta_0` (they are `C^{nu_r + 1}` on a compact set; `mu_0 <= C delta_0`
   is used in app_thmA Step 3 for `a h = -tilde mu`); used for `hA = max(mu~, 0)`, `mu~ = mu_0 + O(h^2)` in lem:tha-win (1) and for the bounds `|Z^2/4 + a| h`, `a h <= C` of the overlaps (`SoftTransfer.lean`). -/
@@ -358,7 +351,7 @@ structure SoftEdgeCore {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Pa
   consts_pos5 : 0 < cmu0 ∧ cmu0 ≤ Cmu0
   mu0_slope : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → cmu0 ≤ deriv (muS 0 μ) α ∧ deriv (muS 0 μ) α ≤ Cmu0
   /-- **(F-B5/F-B13, round 10; lem:tha-Mflat, "choose `delta_0` so small that `C_Z sqrt(C_mu delta_0) <= 1`")** the paper's smallness of `delta_0` against the chart constants
-  `c_Z, cmu0, Cmu0` (`delta_0` is chart data, like the pair `(delta_0, eta)` of `geom_far`): `2 c_Z^2 C_mu0 delta_0 <= cmu0^2`.  Used for the fold row `n_c` in the window (flat0 of `lem:tha-Mflat`, `prop:tha-splice` (b)).
+  `c_Z, cmu0, Cmu0` (`delta_0` is chart data, like the pair `(delta_0, eta)` of `FamilyInputs.geom`): `2 c_Z^2 C_mu0 delta_0 <= cmu0^2`.  Used for the fold row `n_c` in the window (flat0 of `lem:tha-Mflat`, `prop:tha-splice` (b)).
   `P`-independent, so `SoftEdgeChart.restrictSub` inherits it. -/
   delta0_small : 2 * cZ ^ 2 * Cmu0 * δ0 ≤ cmu0 ^ 2
   /-- **(round 9, F-W2-19; app_thmA Step 6: "`lambda_L`, `lambda_R` are real, continuous and non-vanishing in `X`")** `lambda_L` (the explicit quotient of two Casoratians of the chain, the body

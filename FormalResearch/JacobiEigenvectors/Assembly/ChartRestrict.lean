@@ -31,9 +31,7 @@ def SoftEdgeChart.restrictSub {Par : Type*} [TopologicalSpace Par] {F : SymbolFa
   { C with
     uc_spec := fun μ hμ => C.uc_spec μ (h hμ)
     ucη_in := fun μ hμ => C.ucη_in μ (h hμ)
-    geom_far := fun μ hμ => C.geom_far μ (h hμ)
     zeta_deriv := fun μ hμ => C.zeta_deriv μ (h hμ)
-    zeta_zero := fun μ hμ => C.zeta_zero μ (h hμ)
     zeta_alpha := fun μ hμ => C.zeta_alpha μ (h hμ)
     muS_bd := fun r hr μ hμ => C.muS_bd r hr μ (h hμ)
     zeta_far := fun μ hμ => C.zeta_far μ (h hμ)
