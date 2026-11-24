@@ -17,7 +17,7 @@ follow from the Cauchy estimate for `τ'''` and three mean value steps from `τ(
 * `cauchy_iterDeriv_bound`: Cauchy estimate `‖F^{(n)}(x)‖ ≤ n! M / ρ^n` on a disc.
 * `tau_taylor_bounds`: the three bounds above, with an absolute constant.
 
-Status: proved, unconditional given `O4NormalForm L τ` (itself conditional on `O4QuotientBound L`).  Not formalised here: the amplitude
+Status: proved, unconditional given `O4NormalForm L τ` (which exists for every `0 < L ≤ 0.002` by `o4_normal_form` and `o4QuotientBound`).  Not formalised here: the amplitude
 `P(u)` and the reparametrisation hypotheses of `symbol_diff_bounds` (the next modules).
 -/
 

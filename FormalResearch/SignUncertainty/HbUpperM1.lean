@@ -18,14 +18,14 @@ Source: `CFT/sign_uncertainty/paper/u1c_o1_upper.tex`, Theorem `O.9'` (`u1co:O9p
 The proof there lifts the Hermite--Biehler seed `F_δ` of `lem:hb-seed-mass` (`v = 1`, `r_δ = 0`) at `δ = K c^{-1/3}`; `O.6` (`o6_positivity`) gives
 `c^{1/3}(f ρ₀)(cξ) > 0` for `S_eff(ξ) ≥ s_min`, and the origin formula `σ f(0) = -kδ + O(K^{-m} c^{-5/6})` gives the origin sign.
 
-* `O6Bricks m`: the single named hypothesis, `O6Est m R g0` for every coefficient bound `R` (with one `g0 > 0`); it packages the analytic bricks
+* `O6Bricks m`: `O6Est m R g0` for every coefficient bound `R` (with one `g0 > 0`); it packages the analytic bricks
   `(e3)`, `(e4)` (pinned leading coefficient), `(e5)`, `(e6)` and the convolution form of `windowSmooth` (see `MiddleBandPositivity.lean`).
 * `hbThresholdsUpper_of_bricks`: `O6Bricks 4 → HbThresholdsUpper` (`m = 4` is the spline order of the paper's `m ≥ 4`).
+* `o6Bricks_holds : 3 ≤ m → O6Bricks m` and `hbThresholdsUpper : HbThresholdsUpper`: unconditional.  The `GT.1` bounds are `gt1BasisInput`
+  (`Gt1NegTail.lean`) and the quotient bound `O4QuotientBound L` is `o4QuotientBound` (`O4QuotientBound.lean`; the 12,800 interval boxes are
+  kernel-checked in `O4CertRun01 … O4CertRun10`).
 
-* `MiddleBandInputs m`, `o6Bricks_of_inputs`, `hbThresholdsUpper_of_inputs`: the bricks from `Gt1BasisInput m` and `O4QuotientBound L`; `gt1BasisInput` (`Gt1NegTail.lean`) discharges the first,
-  so `hbThresholdsUpper_of_o4 : (∀ L, 0 < L → L ≤ 0.002 → O4QuotientBound L) → HbThresholdsUpper`.
-
-Status: proved, conditional only on the quotient bound `O4QuotientBound L` (`0 < L ≤ 0.002`).  Not formalised here: `O4QuotientBound L`.
+Status: proved, unconditional (axioms: `propext`, `Classical.choice`, `Quot.sound`).
 -/
 
 @[expose] public section
@@ -37,7 +37,7 @@ namespace FormalResearch.SignUncertainty
 
 open FormalResearch.CohnElkies FormalResearch.Special
 
-/-- The single named hypothesis of `O.9'` at `m₀ = 1`: the analytic estimates of `O6Est` for every coefficient bound. -/
+/-- The analytic estimates of `O6Est` for every coefficient bound (a theorem for `m ≥ 3`: `o6Bricks_holds`). -/
 def O6Bricks (m : ℕ) : Prop := ∃ g0 : ℝ, 0 < g0 ∧ ∀ R : ℝ, 0 ≤ R → O6Est m R g0
 
 set_option maxHeartbeats 4000000 in
@@ -291,21 +291,9 @@ theorem hbThresholdsUpper_of_bricks (h : O6Bricks 4) : HbThresholdsUpper := by
       rw [e1, e2, e3, airyOrderCoeff, hβeq]
       linarith
 
-/-- **The named hypotheses of the middle band, in one place**: the `GT.1` bounds of the three basis seeds (`Gt1BasisInput m`) and the quotient bound
-`O4QuotientBound L` for `0 < L ≤ 0.002` (`M_F ≤ 0.13`, `[O4C (B)]`).  The field `gt1` is now a theorem (`gt1BasisInput`, `Gt1NegTail.lean`);
-discharging `o4` changes no downstream statement.
-
-Non-vacuity: there is no `*_nonvacuous` witness, because a witness of `MiddleBandInputs m` is exactly a proof of its two fields (the fields' own
-non-vacuity is only at the level of the symbol class: `gt1Bounds_zero`, `gt1Bounds_seed_witness`).  Satisfiability rests on the paper:
-`Gt1BasisInput m` is `GT.1` (`cegt:GT1`, `mat:T6`) for `f₁, g₁, g₁'`, `m ≥ 3`, uniform in `δ₀ ∈ [0, 2]`; `O4QuotientBound L` is the interval
-certificate `M_F ≤ 0.13` (`CFT/sign_uncertainty/code/certify_u1c_o4_contraction.py`, ball arithmetic, certified bound `0.1256`; numerical `max ≈ 0.0978`).
-Not formalised: the field `o4`. -/
-structure MiddleBandInputs (m : ℕ) : Prop where
-  gt1 : Gt1BasisInput m
-  o4 : ∀ L : ℝ, 0 < L → L ≤ 0.002 → O4QuotientBound L
-
-/-- The analytic bricks of `O.6` from the named hypotheses `MiddleBandInputs m` (`m ≥ 3`). -/
-theorem o6Bricks_of_inputs {m : ℕ} (hm : 3 ≤ m) (hin : MiddleBandInputs m) : O6Bricks m := by
+/-- The analytic bricks of `O.6` for `m ≥ 3`, unconditionally: the `GT.1` bounds are `gt1BasisInput` (`Gt1NegTail.lean`) and the quotient bound
+`O4QuotientBound L` (`M_F ≤ 0.13`, `[O4C (B)]`) is `o4QuotientBound` (the kernel box certificate of `O4CertRun01 … O4CertRun10`). -/
+theorem o6Bricks_holds {m : ℕ} (hm : 3 ≤ m) : O6Bricks m := by
   obtain ⟨ϑ, K1, K2, hϑ⟩ := prof_exists
   refine ⟨2 * ceK * cA * ceCs ^ (1 / 2 : ℝ), hb_leading_pos, fun R hR => ?_⟩
   refine ⟨hb_leading_pos, fun {X} hX {δ₀} hδ x => windowSmooth_eq_bspline_integral hX hδ (by omega) x, ?_, ?_, ?_, ?_⟩
@@ -316,31 +304,20 @@ theorem o6Bricks_of_inputs {m : ℕ} (hm : 3 ≤ m) (hin : MiddleBandInputs m) :
   · intro Sw
     obtain ⟨C, hC, h⟩ := window_translation_airySeed (m := m) (by omega) Sw R hR
     exact ⟨C, hC, fun {a b c₀ σ δ₀ c ξ} ha hb hc hσ hδ h2 hξ hS => h ha hb hc hσ hδ h2 hξ hS⟩
-  · obtain ⟨C, hC0, h⟩ := o5_e6_airySeed hϑ hin.gt1 R hR
+  · obtain ⟨C, hC0, h⟩ := o5_e6_airySeed hϑ (gt1BasisInput m hm) R hR
     exact ⟨C, hC0, fun {a b c₀ δ₀ c ξ L} ha hb hc hδ hc2 hξ hL hL0 hL2 hS =>
-      h ha hb hc hδ hc2 hξ hL (hin.o4 L hL0 hL2) hL0 hL2 hS⟩
+      h ha hb hc hδ hc2 hξ hL hL0 hL2 hS⟩
 
-/-- **`O.9'` at `m₀ = 1`** from the two named hypotheses of the middle band. -/
-theorem hbThresholdsUpper_of_inputs (hin : MiddleBandInputs 4) : HbThresholdsUpper :=
-  hbThresholdsUpper_of_bricks (o6Bricks_of_inputs (by norm_num) hin)
-
-/-- `MiddleBandInputs 4` from the quotient bound alone (`gt1` is `gt1BasisInput`). -/
-theorem middleBandInputs_of_o4 (h : ∀ L : ℝ, 0 < L → L ≤ 0.002 → O4QuotientBound L) : MiddleBandInputs 4 :=
-  ⟨gt1BasisInput 4 (by norm_num), h⟩
-
-/-- **`O.9'` at `m₀ = 1`**, conditional only on the quotient bound `O4QuotientBound L` (`0 < L ≤ 0.002`). -/
-theorem hbThresholdsUpper_of_o4 (h : ∀ L : ℝ, 0 < L → L ≤ 0.002 → O4QuotientBound L) : HbThresholdsUpper :=
-  hbThresholdsUpper_of_inputs (middleBandInputs_of_o4 h)
+/-- **`O.9'` at `m₀ = 1`** (`N = Ai`), unconditional. -/
+theorem hbThresholdsUpper : HbThresholdsUpper :=
+  hbThresholdsUpper_of_bricks (o6Bricks_holds (m := 4) (by norm_num))
 
 /-- info: 'FormalResearch.SignUncertainty.hbThresholdsUpper_of_bricks' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms hbThresholdsUpper_of_bricks
-/-- info: 'FormalResearch.SignUncertainty.o6Bricks_of_inputs' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in #print axioms o6Bricks_of_inputs
-/-- info: 'FormalResearch.SignUncertainty.middleBandInputs_of_o4' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in #print axioms middleBandInputs_of_o4
-/-- info: 'FormalResearch.SignUncertainty.hbThresholdsUpper_of_o4' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in #print axioms hbThresholdsUpper_of_o4
-/-- info: 'FormalResearch.SignUncertainty.hbThresholdsUpper_of_inputs' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in #print axioms hbThresholdsUpper_of_inputs
+
+/-- info: 'FormalResearch.SignUncertainty.o6Bricks_holds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms o6Bricks_holds
+/-- info: 'FormalResearch.SignUncertainty.hbThresholdsUpper' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms hbThresholdsUpper
 
 end FormalResearch.SignUncertainty

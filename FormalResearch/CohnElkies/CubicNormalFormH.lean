@@ -19,9 +19,10 @@ For `L ∈ (0, 0.002]` and the normal form `τ(θ) = σ₀ θ (1 + (θ² - θ₀
   oddness of `τ` (identity theorem, `θ₀ ≠ 0`), and `κ₀ = σ₀ (1 - θ₀² η(0))` from `hasDerivAt_zero`.
   The numerics are `|H| ≤ σ₀ (1/5)(1 + 2 θ₀² / 0.0484) ≤ 1.003 · 0.2 · 1.1008 < 1/4`.
 
-What is covered: everything above, unconditionally given an `O4NormalForm L τ`. The interval
-certificate `M_F ≤ 0.13` is not proved here; it enters only through the `eta` field of
-`O4NormalForm`, which is produced by `o4_normal_form` under the named hypothesis `O4QuotientBound L`.
+What is covered: everything above, unconditionally given an `O4NormalForm L τ`.  The interval
+certificate `M_F ≤ 0.13` enters only through the `eta` field of `O4NormalForm`, which is produced by `o4_normal_form` from
+`O4QuotientBound L`; that bound is proved for every `L ∈ (0, 0.002]` as `SignUncertainty.o4QuotientBound`, so an `O4NormalForm L τ`
+exists for each such `L`.
 Not covered: the iterated-derivative bounds `‖H^{(j)}‖` (optional step Q4 of the brief).
 -/
 

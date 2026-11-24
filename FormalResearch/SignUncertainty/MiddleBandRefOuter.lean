@@ -17,7 +17,7 @@ The factor `e^{iεu/2}` is absorbed into the phase (shifted linear coefficient `
   `|a^{(r)}| ≤ B|x|^{-5/2-r}` (the half-line tails of `MiddleBandTail`, glued by the positive/negative split);
 * `ref_outer_bound`: `‖∫ (1 - ζ) W e^{iψ̃}‖ ≤ C ε^{15/2}` for symbols with `|W^{(j)}| ≤ A_W|s|^{-5/2-j}`.
 
-Status: proved, conditional on `O4NormalForm L τ` only through `tauCut_isCut`.
+Status: proved, conditional on `O4NormalForm L τ` only through `tauCut_isCut` (such a `τ` exists for every `0 < L ≤ 0.002`, `o4_normal_form`).
 -/
 
 @[expose] public section

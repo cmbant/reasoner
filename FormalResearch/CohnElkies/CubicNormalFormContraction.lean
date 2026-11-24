@@ -25,9 +25,9 @@ uniform limit of the Picard iterates, which are holomorphic, so `η` is holomorp
 (`o4_fixed_point`). The paper's sharper constants (`‖𝒯‖ < 0.168`, `λ < 0.127`, `‖η‖ < 0.181`) are not
 needed: the weaker `1/5`, `1/2` suffice for `|H| ≤ 1/4`, see the docstring of `o4_fixed_point`.
 
-**Not proved here (named hypothesis).** The interval-arithmetic bound `M_F = sup |F| ≤ 0.13`
-(`[O4C (B)]`, `certify_u1c_o4_contraction.py`) is the hypothesis `hFb`; connecting `F` to the edge phase
-`Φ_L` (the removable singularities of the quotient and its holomorphic series) is a separate step.
+**Not proved here.** The bound `M_F = sup |F| ≤ 0.13` (`[O4C (B)]`) is the hypothesis `hFb` of the abstract `F`; for the paper's `F`
+it is proved separately (`SignUncertainty.o4QuotientBound`), and connecting `F` to the edge phase `Φ_L` (the removable singularities of
+the quotient) is done in `CubicNormalFormBridge`.
 -/
 
 @[expose] public section
@@ -309,7 +309,7 @@ lemma o4_pointwise_fixedPoint (h0 : 0 ≤ θ0sq) (h1 : θ0sq ≤ 0.00244)
   have : ‖z - y‖ = 0 := by linarith [norm_nonneg (z - y)]
   exact sub_eq_zero.mp (norm_eq_zero.mp this)
 
-/-- **Lemma `O.4(2)`, fixed-point step (`u1co:O4`)**, under the named hypothesis `‖F‖ ≤ 0.13` on `D(0, 0.25)`
+/-- **Lemma `O.4(2)`, fixed-point step (`u1co:O4`)**, for an abstract `F` with `‖F‖ ≤ 0.13` on `D(0, 0.25)`
 (the paper's `M_F ≤ 0.13`, `[O4C (B)]`) and `0 ≤ θ₀² ≤ 0.00244`: there is a holomorphic `η` on `D(0, 0.22)`
 with `‖η‖ ≤ 1/5`, `η = 𝒯(η)`, unique among functions of norm `≤ 1/5` pointwise.
 

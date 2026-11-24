@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.SignUncertainty.MiddleBandAssembly
+public import FormalResearch.SignUncertainty.O4QuotientBound
 public import FormalResearch.CohnElkies.HighBandEstimate
 public import FormalResearch.CohnElkies.AiryWindowInversion
 
@@ -15,11 +16,11 @@ Source: `CFT/sign_uncertainty/paper/mellin_airy_toolkit.tex`, `cegt:GT2a`; proof
   for `S = hbS c ξ ≥ 100`, `0 < L ≤ 0.002`, `a₀ = c ε α̃(L) = κ₀ π² S`, given the normal form `O4NormalForm L τ` of `O.4`.
 
 * `gt1_hyp`, `middle_transfer_gt1`: the same with the `GT.1` bounds in their stated form (`|∂^j W| ≤ C|v|^{1/2-j}` for `0 < |v| ≤ 1`, `j ≥ 1`;
-  `|∂^j W| ≤ C|v|^{-5/2-j}` for `|v| ≥ 1`; `W(0) = O(1)`, `W - W(0) = O(|v|^{1/2})`) and the normal form replaced by the named hypothesis
-  `O4QuotientBound L` (`o4_normal_form`).
+  `|∂^j W| ≤ C|v|^{-5/2-j}` for `|v| ≥ 1`; `W(0) = O(1)`, `W - W(0) = O(|v|^{1/2})`) and the normal form obtained from the proved
+  quotient bound `o4QuotientBound` (`o4_normal_form`).
 
-Status: proved, conditional on `O4NormalForm L τ` (the existence of the `O.4` normal map, from `O4QuotientBound L`) and on the `GT.1`
-symbol bounds, which are hypotheses here.  Not formalised: the verification of the `GT.1` bounds for the spline-multiplied seeds.
+Status: proved; `middle_transfer` is conditional on `O4NormalForm L τ` (the existence of the `O.4` normal map) and on the `GT.1`
+symbol bounds, which are hypotheses; `middle_transfer_gt1` is conditional only on the `GT.1` bounds (the normal form comes from `o4QuotientBound`).  Not formalised: the verification of the `GT.1` bounds for the spline-multiplied seeds.
 -/
 
 @[expose] public section
@@ -199,15 +200,15 @@ theorem gt1Bounds_zero {A : ℝ} (hA : 0 ≤ A) : Gt1Bounds A (fun _ => 0) := by
 theorem middle_transfer_gt1 {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) (A : ℝ) (hA : 0 ≤ A) :
     ∃ C : ℝ, 0 ≤ C ∧ ∀ {X : ℝ → ℝ} {δ₀ : ℝ} {m : ℕ} {c ξ L : ℝ},
       HasU2 X → Continuous X → 0 ≤ δ₀ → 2 ≤ c → 0 < ξ → L = Real.log (Real.pi ^ 2 * ξ) →
-      O4QuotientBound L → 0 < L → L ≤ 0.002 → 100 ≤ hbS c ξ → Gt1Bounds A (liftW X δ₀ m) →
+      0 < L → L ≤ 0.002 → 100 ≤ hbS c ξ → Gt1Bounds A (liftW X δ₀ m) →
       ‖(ξ : ℂ) * iMain X δ₀ m c ξ - ((ceK : ℂ) / (ceCs : ℂ)) *
           ((windowSmooth δ₀ m X (-((c * liftEps c * edgeAlphaTilde L + liftEps c / 2) / ceCs)) : ℝ) : ℂ)‖ ≤
         C * (hbS c ξ ^ (-(3 / 2 : ℝ)) * L + c ^ (-(5 / 2 : ℝ))) := by
   obtain ⟨C0, hC0, hM⟩ := middle_transfer hϑ (max 1 (2 * A)) (le_max_left _ _)
   refine ⟨C0, hC0, ?_⟩
-  intro X δ₀ m c ξ L hX hXc hδ hc hξ hLdef hQ hL0 hL2 hS100 hG
+  intro X δ₀ m c ξ L hX hXc hδ hc hξ hLdef hL0 hL2 hS100 hG
   obtain ⟨W1, W2, W3, hWd, hA', hB', hW0, hH⟩ := hG
-  obtain ⟨τ, hτ⟩ := o4_normal_form hL0 hL2 hQ
+  obtain ⟨τ, hτ⟩ := o4_normal_form hL0 hL2 (o4QuotientBound hL0 hL2)
   obtain ⟨h1, h2, h3⟩ := gt1_hyp hA hA' hB' hW0 hH
   exact hM hX hXc hδ hc hξ hLdef hτ hL0 hL2 hS100 hWd h1 h2 h3
 

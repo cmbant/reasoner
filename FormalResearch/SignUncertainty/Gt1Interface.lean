@@ -9,9 +9,9 @@ public import FormalResearch.CohnElkies.HighBandUniform
 `Gt1Bounds A W` (`MiddleBandTransfer.lean`) packages the `GT.1` symbol bounds of one symbol.  This module proves its closure under sums and scalar
 multiples and the linearity `liftW (airySeedU2 a b c₀) = a liftW f₁ + b liftW g₁ + c₀ liftW g₁'`, and defines the **single named input**
 `Gt1BasisInput m` (the `GT.1` bounds for the three basis seeds of the spline-multiplied lift, uniform in `δ₀ ∈ [0, 2]`) from which the bounds for every
-`airySeedU2 a b c₀` follow (`gt1Bounds_airySeedU2`).  Discharging `Gt1BasisInput m` (the `GT.1` formalisation task) changes no downstream statement.
+`airySeedU2 a b c₀` follow (`gt1Bounds_airySeedU2`).  `Gt1BasisInput m` is discharged for `m ≥ 3` by `gt1BasisInput` (`Gt1NegTail.lean`), without changing any downstream statement.
 
-Status: proved.  Not formalised here: `Gt1BasisInput m` itself.
+Status: proved.  `Gt1BasisInput m` itself is not proved in this module (see `Gt1NegTail.lean`).
 -/
 
 @[expose] public section

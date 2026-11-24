@@ -18,7 +18,7 @@ With `𝒟 = innerDiff c ε τ W` (`MiddleBandAmplitude`):
 
 The proof of the last uses `innerDiff_local` for `W - W(0)` with `ρ = |u|^{1/2}` and `𝒟[W] = 𝒟[W - W(0)] + q W(0)`, `q = ampQ0`.
 
-Status: proved, unconditional given `O4NormalForm L τ` (itself conditional on `O4QuotientBound L`).  Not formalised here: the
+Status: proved, unconditional given `O4NormalForm L τ` (which exists for every `0 < L ≤ 0.002` by `o4_normal_form` and `o4QuotientBound`).  Not formalised here: the
 reference and `τ`-line outer pieces and the assembly `middle_transfer`.
 -/
 

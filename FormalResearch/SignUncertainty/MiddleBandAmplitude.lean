@@ -18,7 +18,7 @@ On the real axis put `k_c(x) = (1 - ix)^{-1/2} e^{B_c(ix)}` (`outerK`), `t(θ) =
 * `innerDiff_local`: `(e8)` at one point for an arbitrary local symbol size `ρ`; `innerDiff_bounds`: `(e8)`, `|𝒟^{(r)}(u)| ≤ C (L + ε²u²) |u|^{-5/2-r}` (`r ≤ 2`, `|u| ≥ 1`, `ε|u| ≤ 0.18`) for `𝒟(u) = P(u) W̃(w₁(u)) - e^{iεu/2} W̃(u)`,
   from `symbol_diff_local` and the bounds above; `C` depends only on the symbol constant.
 
-Status: proved, unconditional given `O4NormalForm L τ` (itself conditional on `O4QuotientBound L`).  Not formalised here: the change of
+Status: proved, unconditional given `O4NormalForm L τ` (which exists for every `0 < L ≤ 0.002` by `o4_normal_form` and `o4QuotientBound`).  Not formalised here: the change of
 variables `τ = τ(εu)` in `I_main` and the region estimates (`G4`-`G8`).
 -/
 
