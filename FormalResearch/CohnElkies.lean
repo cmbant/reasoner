@@ -40,6 +40,7 @@ public import FormalResearch.CohnElkies.AirySeedSymbols
 public import FormalResearch.CohnElkies.CubicNormalFormContraction
 public import FormalResearch.CohnElkies.ComplexEdgePhase
 public import FormalResearch.CohnElkies.CubicNormalFormBridge
+public import FormalResearch.CohnElkies.O4CircleReduction
 public import FormalResearch.CohnElkies.CubicNormalFormH
 public import FormalResearch.CohnElkies.MellinLiftIntegrals
 public import FormalResearch.CohnElkies.AiryWindowInversion
@@ -165,9 +166,10 @@ and the Airy library:
 * `FormalResearch.CohnElkies.ComplexEdgePhase`: holomorphic edge phase `Φ_L` on `D(0, 1)` (`stripQ`, `differentiableOn_stripG`,
   `edgePrim`, `edgePhiC`: derivative, oddness, agreement with the real `edgePhi`).
 * `FormalResearch.CohnElkies.CubicNormalFormBridge`: `O.4(2)` normal form `τ(θ)` from the fixed point (`removable_finite`,
-  `o4_quotient_ext`, `o4_normal_form`), under the named hypothesis `O4QuotientBound` (`M_F ≤ 0.13`).
+  `o4_quotient_ext`, `o4_normal_form`), for `L ∈ (0, 0.002]`, given `O4QuotientBound` (`M_F ≤ 0.13`; proved as `SignUncertainty.o4QuotientBound`).
+* `FormalResearch.CohnElkies.O4CircleReduction`: `O.4(2)` reduction of `O4QuotientBound L` to the quarter arc `|θ| = 1/4`, `θ = (1/4)(1 - t² + 2it)/(1 + t²)`, `t ∈ [0,1]`: `o4c_factorization` (`Φ̂ - Φ_mod = θ(θ² - θ₀²)² G`, `G` holomorphic), `o4QuotientBound_of_circle` (maximum principle), `o4c_quot_neg/conj` (evenness and conjugation symmetry), `o4QuotientBound_of_quarter`. Proved.
 * `FormalResearch.CohnElkies.CubicNormalFormH`: `O.4(2)` remainder `H(θ) = θ⁻³(τ(θ) - κ₀θ)` extended holomorphically to `D(0, 0.22)` with `|H| ≤ 1/4`
-  (`even_quotient_differentiableOn`, `even_quotient_bound`, `O4NormalForm.H_bound`), from an `O4NormalForm` (so under `O4QuotientBound`).
+  (`even_quotient_differentiableOn`, `even_quotient_bound`, `O4NormalForm.H_bound`), from an `O4NormalForm` (available for every `L ∈ (0, 0.002]` by `o4QuotientBound`).
 * `FormalResearch.CohnElkies.MellinLiftIntegrals`: the two-edge integrals `I_main[F]`, `I_dual[D]` of a lift (`iMain`, `iDual`,
   `liftSymbol`), `K₀` on the imaginary axis (`mellinK0_imag_eq`) and their integrability for `HasU2` seeds.
 * `FormalResearch.CohnElkies.AiryWindowInversion`: window smoothing `F_ψ` (`windowSmooth`), `W_X(w) = F̃_ψ(i c_s w)`, and the exact

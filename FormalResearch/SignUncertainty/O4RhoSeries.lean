@@ -3,6 +3,7 @@ module
 public import FormalResearch.CohnElkies.ComplexEdgePhase
 public import Mathlib.NumberTheory.ZetaValues
 public import Mathlib.NumberTheory.Bernoulli
+public import FormalResearch.SignUncertainty.O4BernoulliValues
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Cotangent
 public import Mathlib.Analysis.Calculus.SmoothSeries
 public import Mathlib.Analysis.Calculus.MeanValue
@@ -17,8 +18,7 @@ public import Mathlib.Analysis.SpecialFunctions.Complex.LogDeriv
 `π/sin πζ`, termwise geometric expansion, and the Euler–Bernoulli formula for `ζ(2n)`). Integrating
 against `Φ_L(τ) = L τ - i P(i τ)` gives `edgePhiC_series`, with coefficients `o4Coef n π^{2n}`.
 
-Main declarations: `o4Coef`, `o4Coef_one`, `o4Coef_bound`, `edgePhiC_series`, `edgePhiC_trunc_tail`.
-The exact rational values `o4Coef 2 … 13` are not included (see the handoff report).
+Main declarations: `o4Coef`, `o4Coef_one`, `o4Coef_bound`, `edgePhiC_series`, `edgePhiC_trunc_tail`, `o4Coef_eq_rat_n` (`n = 2, …, 13`, from `O4BernoulliValues`).
 -/
 
 @[expose] public section
@@ -793,6 +793,81 @@ theorem edgePhiC_trunc_tail (L : ℝ) {τ : ℂ} {T : ℝ} (hτ : ‖τ‖ ≤ T
 
 
 
+/-! ### Exact values of `o4Coef 2, …, o4Coef 13` -/
+
+/-- `o4Coef 2` as an exact rational (from `o4_bernoulli_4`). -/
+lemma o4Coef_eq_rat_2 : o4Coef 2 = (7 : ℝ) / 7200 := by
+  unfold o4Coef
+  rw [o4_bernoulli_4]
+  norm_num [Nat.factorial]
+
+/-- `o4Coef 3` as an exact rational (from `o4_bernoulli_6`). -/
+lemma o4Coef_eq_rat_3 : o4Coef 3 = (31 : ℝ) / 635040 := by
+  unfold o4Coef
+  rw [o4_bernoulli_6]
+  norm_num [Nat.factorial]
+
+/-- `o4Coef 4` as an exact rational (from `o4_bernoulli_8`). -/
+lemma o4Coef_eq_rat_4 : o4Coef 4 = (127 : ℝ) / 43545600 := by
+  unfold o4Coef
+  rw [o4_bernoulli_8]
+  norm_num [Nat.factorial]
+
+/-- `o4Coef 5` as an exact rational (from `o4_bernoulli_10`). -/
+lemma o4Coef_eq_rat_5 : o4Coef 5 = (73 : ℝ) / 376358400 := by
+  unfold o4Coef
+  rw [o4_bernoulli_10]
+  norm_num [Nat.factorial]
+
+/-- `o4Coef 6` as an exact rational (from `o4_bernoulli_12`). -/
+lemma o4Coef_eq_rat_6 : o4Coef 6 = (1414477 : ℝ) / 101998600704000 := by
+  unfold o4Coef
+  rw [o4_bernoulli_12]
+  norm_num [Nat.factorial]
+
+/-- `o4Coef 7` as an exact rational (from `o4_bernoulli_14`). -/
+lemma o4Coef_eq_rat_7 : o4Coef 7 = (8191 : ℝ) / 7846046208000 := by
+  unfold o4Coef
+  rw [o4_bernoulli_14]
+  norm_num [Nat.factorial]
+
+/-- `o4Coef 8` as an exact rational (from `o4_bernoulli_16`). -/
+lemma o4Coef_eq_rat_8 : o4Coef 8 = (16931177 : ℝ) / 207314958090240000 := by
+  unfold o4Coef
+  rw [o4_bernoulli_16]
+  norm_num [Nat.factorial]
+
+/-- `o4Coef 9` as an exact rational (from `o4_bernoulli_18`). -/
+lemma o4Coef_eq_rat_9 : o4Coef 9 = (5749691557 : ℝ) / 873655111136231424000 := by
+  unfold o4Coef
+  rw [o4_bernoulli_18]
+  norm_num [Nat.factorial]
+
+/-- `o4Coef 10` as an exact rational (from `o4_bernoulli_20`). -/
+lemma o4Coef_eq_rat_10 : o4Coef 10 = (91546277357 : ℝ) / 168600109166641152000000 := by
+  unfold o4Coef
+  rw [o4_bernoulli_20]
+  norm_num [Nat.factorial]
+
+/-- `o4Coef 11` as an exact rational (from `o4_bernoulli_22`). -/
+lemma o4Coef_eq_rat_11 : o4Coef 11 = (3324754717 : ℝ) / 72807720611553607680000 := by
+  unfold o4Coef
+  rw [o4_bernoulli_22]
+  norm_num [Nat.factorial]
+
+/-- `o4Coef 12` as an exact rational (from `o4_bernoulli_24`). -/
+lemma o4Coef_eq_rat_12 : o4Coef 12 = (1982765468311237 : ℝ) / 508147241019523100835840000000 := by
+  unfold o4Coef
+  rw [o4_bernoulli_24]
+  norm_num [Nat.factorial]
+
+/-- `o4Coef 13` as an exact rational (from `o4_bernoulli_26`). -/
+lemma o4Coef_eq_rat_13 : o4Coef 13 = (22076500342261 : ℝ) / 65333216702510112964608000000 := by
+  unfold o4Coef
+  rw [o4_bernoulli_26]
+  norm_num [Nat.factorial]
+
+
 /-- info: 'FormalResearch.SignUncertainty.o4Coef_one' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms o4Coef_one
@@ -808,5 +883,53 @@ theorem edgePhiC_trunc_tail (L : ℝ) {τ : ℂ} {T : ℝ} (hτ : ‖τ‖ ≤ T
 /-- info: 'FormalResearch.SignUncertainty.edgePhiC_trunc_tail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms edgePhiC_trunc_tail
+
+/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4Coef_eq_rat_2
+
+/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_3' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4Coef_eq_rat_3
+
+/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_4' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4Coef_eq_rat_4
+
+/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_5' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4Coef_eq_rat_5
+
+/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_6' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4Coef_eq_rat_6
+
+/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_7' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4Coef_eq_rat_7
+
+/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_8' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4Coef_eq_rat_8
+
+/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_9' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4Coef_eq_rat_9
+
+/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_10' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4Coef_eq_rat_10
+
+/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_11' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4Coef_eq_rat_11
+
+/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_12' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4Coef_eq_rat_12
+
+/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_13' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms o4Coef_eq_rat_13
 
 end FormalResearch.SignUncertainty

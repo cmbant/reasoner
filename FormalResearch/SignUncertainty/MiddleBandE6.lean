@@ -13,7 +13,7 @@ Source: `CFT/sign_uncertainty/paper/u1c_o1_upper.tex`, Lemma `O.5`(2) (`u1co:O5`
 * `o5_e6_airySeed`: the same for `X = airySeedU2 a b c₀` with `|a|, |b|, |c₀| ≤ R` and `δ₀ ∈ [0, 2]`, from the single named input `Gt1BasisInput m`; the constant depends
   on `m`, `R` only.
 
-Status: proved, conditional on the named hypothesis `O4QuotientBound L` and on `Gt1Bounds` (`Gt1BasisInput m`).  Not formalised here: those two hypotheses themselves.
+Status: proved; `o5_e6` is conditional on `Gt1Bounds` and `o5_e6_airySeed` on `Gt1BasisInput m` (a theorem for `m ≥ 3`, `gt1BasisInput`); the quotient bound `O4QuotientBound L` is used as the proved `o4QuotientBound`.
 -/
 
 @[expose] public section
@@ -28,13 +28,13 @@ open FormalResearch.CohnElkies
 theorem o5_e6 {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) (A : ℝ) (hA : 0 ≤ A) :
     ∃ C : ℝ, 0 ≤ C ∧ ∀ {X : ℝ → ℝ} {δ₀ : ℝ} {m : ℕ} {c ξ L : ℝ},
       HasU2 X → Continuous X → 0 ≤ δ₀ → 2 ≤ c → 0 < ξ → L = Real.log (Real.pi ^ 2 * ξ) →
-      O4QuotientBound L → 0 < L → L ≤ 0.002 → 100 ≤ hbS c ξ → Gt1Bounds A (liftW X δ₀ m) →
+      0 < L → L ≤ 0.002 → 100 ≤ hbS c ξ → Gt1Bounds A (liftW X δ₀ m) →
       ‖iMain X δ₀ m c ξ - ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) : ℝ) : ℂ) *
           ((windowSmooth δ₀ m X (-(edgeKappa0 L * ceBeta1 * hbS c ξ + liftEps c / (2 * ceCs))) : ℝ) : ℂ)‖ ≤
         C * ξ⁻¹ * (hbS c ξ ^ (-(3 / 2 : ℝ)) * (liftEps c ^ 2 * hbS c ξ) + c ^ (-(5 / 2 : ℝ))) := by
   obtain ⟨C0, hC0, hM⟩ := middle_transfer_gt1 hϑ A hA
   refine ⟨C0 * Real.pi ^ 2, by positivity, ?_⟩
-  intro X δ₀ m c ξ L hX hXc hδ hc hξ hLdef hQ hL0 hL2 hS100 hG
+  intro X δ₀ m c ξ L hX hXc hδ hc hξ hLdef hL0 hL2 hS100 hG
   have hc0 : 0 < c := by linarith
   have hε := liftEps_pos hc0
   have hcε : c * liftEps c ^ 3 = 1 := by have := liftEps_cube_mul hc0; linarith
@@ -43,7 +43,7 @@ theorem o5_e6 {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) (A : ℝ) (
   have hS : L = Real.pi ^ 2 * liftEps c ^ 2 * S := by rw [hSe]; field_simp
   have hS0 : 0 < S := by linarith
   obtain ⟨hpf1, -⟩ := param_facts hL0 hL2 hε hcε hS hS100
-  have hmain := hM hX hXc hδ hc hξ hLdef hQ hL0 hL2 hS100 hG
+  have hmain := hM hX hXc hδ hc hξ hLdef hL0 hL2 hS100 hG
   have hpi : (0 : ℝ) < Real.pi ^ 2 := by positivity
   have hcs := ceCs_pos
   have hcb : Real.pi ^ 2 = ceCs * ceBeta1 := ceCs_mul_ceBeta1.symm
@@ -85,21 +85,21 @@ theorem o5_e6 {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) (A : ℝ) (
 /-- `(e6)` for the one-level seeds with coefficients `|a|, |b|, |c₀| ≤ R`, uniform in `δ₀ ∈ [0, 2]`, from the named input `Gt1BasisInput m`. -/
 theorem o5_e6_airySeed {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) {m : ℕ} (h : Gt1BasisInput m) (R : ℝ) (hR : 0 ≤ R) :
     ∃ C : ℝ, 0 ≤ C ∧ ∀ {a b c₀ δ₀ : ℝ} {c ξ L : ℝ}, |a| ≤ R → |b| ≤ R → |c₀| ≤ R → δ₀ ∈ Icc (0 : ℝ) 2 →
-      2 ≤ c → 0 < ξ → L = Real.log (Real.pi ^ 2 * ξ) → O4QuotientBound L → 0 < L → L ≤ 0.002 → 100 ≤ hbS c ξ →
+      2 ≤ c → 0 < ξ → L = Real.log (Real.pi ^ 2 * ξ) → 0 < L → L ≤ 0.002 → 100 ≤ hbS c ξ →
       ‖iMain (airySeedU2 a b c₀) δ₀ m c ξ - ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) : ℝ) : ℂ) *
           ((windowSmooth δ₀ m (airySeedU2 a b c₀) (-(edgeKappa0 L * ceBeta1 * hbS c ξ + liftEps c / (2 * ceCs))) : ℝ) : ℂ)‖ ≤
         C * ξ⁻¹ * (hbS c ξ ^ (-(3 / 2 : ℝ)) * (liftEps c ^ 2 * hbS c ξ) + c ^ (-(5 / 2 : ℝ))) := by
   obtain ⟨A, hA, hb⟩ := gt1Bounds_airySeedU2 h
   obtain ⟨C, hC, hE⟩ := o5_e6 hϑ (A * (R + R + R)) (by positivity)
   refine ⟨C, hC, ?_⟩
-  intro a b c₀ δ₀ c ξ L ha hb' hc' hδ hc hξ hL hQ hL0 hL2 hS
+  intro a b c₀ δ₀ c ξ L ha hb' hc' hδ hc hξ hL hL0 hL2 hS
   have hGt := (hb a b c₀ δ₀ hδ).mono (B := A * (R + R + R)) (by gcongr)
   have hδ0 : 0 ≤ δ₀ := hδ.1
   have hX := hasU2_airySeedU2 a b c₀
   have hXc : Continuous (airySeedU2 a b c₀) := by
     exact ((continuous_const.mul continuous_ceF1).add (continuous_const.mul (continuous_ceG1 _))).add
       (continuous_const.mul (continuous_ceG1Deriv _))
-  exact hE hX hXc hδ0 hc hξ hL hQ hL0 hL2 hS hGt
+  exact hE hX hXc hδ0 hc hξ hL hL0 hL2 hS hGt
 
 /-- info: 'FormalResearch.SignUncertainty.o5_e6' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms o5_e6
