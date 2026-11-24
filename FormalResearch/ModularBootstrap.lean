@@ -394,6 +394,13 @@ public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityLow
 public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityMeasure
 public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidity
 public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityNonvac
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumPrelim
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumRatio
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumBand
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumLobe
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumWindow
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuumCore
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroVacuum
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1158,4 +1165,11 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   at `t₁` tends to `1/K(u₁, u₁)`), conditional only on `TwoSimpleZeroTransfer` and the
   named window-limit `Prop` `TwoZeroIdealApprox` (every admissible ideal datum is a limit of two-simple-zero windows; its vacuum
   half is proved for the data of `f_K` in `ClarkRigidityNonvac.twoZeroApprox_vacuum_nonvacuous`, from `NegativeVacuum.tendsto_intWr`).
+* `TwoLevel.TwoZeroVacuum{Prelim,Ratio,Band,Lobe,Window,Core,}` (T2-WP6, `upper_transfer.tex` Theorem T2 `ut:T2`, "Deep lobe, far band and assembly"): the
+  vacuum limsup and vacuum positivity for the two-zero comb: the deep lobe `u > p` (positive at `f = 2`) is bounded absolutely by
+  `F (C_L S^{-3/2} + ε)` (`twoZero_lobe_bound`, from K6(b), the ratio `|B₁/B_ref| ≤ C` on `[0, ξ_*]` `twoZero_comb_le_ref_lobe`, `|T_{χ(p)}| ≤ π(ξ_* - x)`
+  and the slit deficit), the intermediate and far bands (`twoZero_band_bound`, `twoZero_far_bound`), the window part (`twoZero_window_comb`), and the assembly
+  `∫_0^∞ h₂ V ≤ F (C_* κ ∫ W₂ + ε)` (**`twoZero_vacuum_core`**); with the vacuum identity of `K7` this gives the `limsup_le` field
+  (**`twoZero_limsup_field`**), the vacuum bound `g_vac ≥ κ c^{3/2}` when `∫ W₂ ≤ -δ` (**`twoZero_vac_eventually`**, `twoZero_vac_field_of_threshold`),
+  and integrability of `Ψ_g` (**`twoZero_integrable_psiAiry`**), uniformly on a compact admissible family.
 -/
