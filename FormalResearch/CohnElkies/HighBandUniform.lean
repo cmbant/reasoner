@@ -234,4 +234,9 @@ theorem hb_estimate_hbSeed_m1_uniform {m : ℕ} (hm : 1 ≤ m) (R' : ℝ) (hR' :
 /-- info: 'FormalResearch.CohnElkies.hb_estimate_hbSeed_m1_uniform' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms hb_estimate_hbSeed_m1_uniform
 
+/-- info: 'FormalResearch.CohnElkies.iMain_airySeed_lin' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms iMain_airySeed_lin
+/-- info: 'FormalResearch.CohnElkies.hb_uniform_combine' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms hb_uniform_combine
+
 end FormalResearch.CohnElkies
