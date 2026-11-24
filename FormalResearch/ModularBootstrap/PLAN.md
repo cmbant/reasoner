@@ -36,7 +36,7 @@ QIprojects `origin/main`. The paper status line for readers is the Paper II sect
 
 | pkg | content | size | depends | state |
 |---|---|---|---|---|
-| TL1 | `A2star` (definition via `clarkNode α 2`, monotone, range, endpoints) and Theorem 2.1 `gt:2.1` (liminf ≥ A₂*, equality case → c·g_α) at every integer (w,Q) | M | Prop T, gt:1.2 | running |
+| TL1 | `A2star` (definition via `clarkNode α 2`, monotone, range, endpoints) and Theorem 2.1 `gt:2.1` (liminf ≥ A₂*, equality case → c·g_α) at every integer (w,Q) | M | Prop T, gt:1.2 | done (`TwoLevel/`, `concrete_two_level_theorem`, `_equality`); in-place re-derivation of `AiryRigidity` helpers pending (patch `/home/user/scratch/mb/tl1_inplace/`) |
 | TL2 | Prop 2.3 `gt:2.3` qualitative: `u₂*(K) < z₂`, `→ z₂` (rate skipped) | S–M | gt:1.2, `airyNC_quadrature` | running |
 | TL3 | Constrained strong duality on `{t₁} ∪ [τ,∞)` (generalise `theorem_E` in place), Cor 2.4 `gt:2.4` | M | TL1, Theorem E, C15 upper (w = 1) | next |
 | TL4 | Thm 2.5 `gt:2.5` and Thm 2.6 `gt:2.6` from a named `TwoSimpleZeroTransfer` Prop (T2, with non-vacuity) | M–L | TL1, TL2, FW-X, Property (P), `Upper/Rigidity` | after TL1/TL2 |
@@ -51,7 +51,7 @@ C5b, and C5c at w = 1 are already proved by other routes; FT reuses those proofs
 | pkg | content | size | depends | state |
 |---|---|---|---|---|
 | FT-0 | Concordance: one bundle theorem per instance (fixed weight: C1, C2, C3-O(1), C5a, C5b, C4/C2-full with H3 = `TheoremC15UpperInput` as hypothesis, C5c at w = 1; N = 1 unconditional) | S | none | done (`FoldTip/Concordance`) |
-| FT-1 | `FoldTipScale`, hypothesis structures H1, H2 (H2hol), H2+, H3, H4a, H4b; `ofFixedWeight` from `proposition_P_of_problem`; chart bridge `Upper/Rigidity/Dictionary` | M | FT-0 | next |
+| FT-1 | `FoldTipScale`, hypothesis structures H1, H2 (H2hol), H2+, H3, H4a, H4b; `ofFixedWeight` from `proposition_P_of_problem`; chart bridge `Upper/Rigidity/Dictionary` | M | FT-0 | done (`FoldTip/Hypotheses`, `FoldTip/Instances`: all hypotheses for every `w = 1` problem; H3, H4b open for `w > 1`) |
 | FT-2 | FT-2E and FT-Sub over `teb_bootstrap_part3/_hb`, `teb_mellin_o1_lower`, `WeakFeedback` (import only) | S–M | none | done (`FoldTip/TwoEdge*`); instance: expose the violator family and chart coverage from `theoremFTLFW_W_of_YVFor` Case 2 (`BootstrapWMain`, `ConcreteBootstrap/BootstrapHB`) and re-derive in place (FT-2b, S) |
 | FT-3..6 | Abstract chart-form compactness (Lemmas 1–2) for arbitrary instances, C5d m ≥ 2, Lemma FT-R log rate | L | only useful for Paper I instances; a shared package with Paper I's `RadialRigidityPackage` is a cross-session decision | deferred |
 | FT-7 | Modular Clark/HB FT-2E (m₀ = 2) | L | = TL6 | with TL6 |
