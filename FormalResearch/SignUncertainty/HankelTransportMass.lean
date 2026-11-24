@@ -95,21 +95,21 @@ lemma hankel_lobe_small {c ε : ℝ} (hc : 3e6 ≤ c) {f : ℝ → ℝ} (hf : Is
   rw [hR, mul_one]
 
 /-- Leading term of `Re Ψ̃` on the real axis: `-(c ξ') (ρ₀ f)(cξ)`. -/
-noncomputable def hankelQ (c : ℝ) (f : ℝ → ℝ) (x : ℝ) : ℝ :=
+noncomputable def hankelPsiLead (c : ℝ) (f : ℝ → ℝ) (x : ℝ) : ℝ :=
   -(c * hankelXiD c x) * (hankelRho0 c (c * hankelXi c x) * f (c * hankelXi c x))
 
 lemma hankelPsiR_sub_Q_le {c ε : ℝ} (hc : 5000 ≤ c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f)
     (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1) {x : ℝ} (hx : |x| ≤ langerRadius c) :
-    |hankelPsiR c f x - hankelQ c f x| ≤ hankelRinf c := by
+    |hankelPsiR c f x - hankelPsiLead c f x| ≤ hankelRinf c := by
   have := hankel_transport_pointwise hc hf hε hM (x := x) hx
-  unfold hankelPsiR hankelQ hankelRinf
+  unfold hankelPsiR hankelPsiLead hankelRinf
   convert this using 2; ring
 
 lemma continuousOn_hankelQ {c ε : ℝ} (hc : 0 < c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f) :
-    ContinuousOn (hankelQ c f) (Icc (-(langerRadius c)) (langerRadius c)) := by
+    ContinuousOn (hankelPsiLead c f) (Icc (-(langerRadius c)) (langerRadius c)) := by
   have := (continuousOn_hankel_term hc hf).neg
   refine this.congr fun x _ => ?_
-  simp only [Pi.neg_apply]; unfold hankelQ; ring
+  simp only [Pi.neg_apply]; unfold hankelPsiLead; ring
 
 /-- Transfer of a positively homogeneous 1-Lipschitz function `G` (`|·|`, `max 0 (-·)`, `id`):
 `|∫_a^b G(Re Ψ̃) - ∫_{cξ(b)}^{cξ(a)} ρ₀ G(f)| ≤ (b-a) r_∞`. -/
@@ -126,9 +126,9 @@ theorem hankel_transport_G {c ε : ℝ} (hc : 5000 ≤ c) {f : ℝ → ℝ} (hf 
   have hsub : Icc a b ⊆ Icc (-(langerRadius c)) (langerRadius c) := fun x hx => abs_le.1 (hmem x hx)
   have hP : ContinuousOn (fun x => G (hankelPsiR c f x)) (Icc a b) :=
     hGc.comp_continuousOn ((continuousOn_hankelPsiR hc0 hf).mono hsub)
-  have hQ : ContinuousOn (fun x => G (hankelQ c f x)) (Icc a b) :=
+  have hQ : ContinuousOn (fun x => G (hankelPsiLead c f x)) (Icc a b) :=
     hGc.comp_continuousOn ((continuousOn_hankelQ hc0 hf).mono hsub)
-  have hQeq : ∀ x ∈ Icc a b, G (hankelQ c f x) =
+  have hQeq : ∀ x ∈ Icc a b, G (hankelPsiLead c f x) =
       -((hankelRho0 c (c * hankelXi c x) * G (f (c * hankelXi c x))) * (c * hankelXiD c x)) := by
     intro x hx
     have hxa := hmem x hx
@@ -136,10 +136,10 @@ theorem hankel_transport_G {c ε : ℝ} (hc : 5000 ≤ c) {f : ℝ → ℝ} (hf 
     have hD := hankelXiD_neg hc0 hxa
     have hl : 0 ≤ -(c * hankelXiD c x) * hankelRho0 c (c * hankelXi c x) :=
       mul_nonneg (by nlinarith) (hankelRho0_nonneg hc0 hxi.le)
-    unfold hankelQ
+    unfold hankelPsiLead
     rw [← mul_assoc, hGh _ _ hl]; ring
   have hsubst := hankel_subst hc0 ha hb hab (fun u => hankelRho0 c u * G (f u))
-  have hint2 : ∫ x in a..b, G (hankelQ c f x) =
+  have hint2 : ∫ x in a..b, G (hankelPsiLead c f x) =
       ∫ u in (c * hankelXi c b)..(c * hankelXi c a), hankelRho0 c u * G (f u) := by
     rw [intervalIntegral.integral_congr (g := fun x => -((hankelRho0 c (c * hankelXi c x) * G (f (c * hankelXi c x))) * (c * hankelXiD c x)))
       (fun x hx => hQeq x (by rwa [uIcc_of_le hab] at hx)), intervalIntegral.integral_neg, hsubst,
@@ -147,7 +147,7 @@ theorem hankel_transport_G {c ε : ℝ} (hc : 5000 ≤ c) {f : ℝ → ℝ} (hf 
   rw [← hint2, ← intervalIntegral.integral_sub (hP.intervalIntegrable_of_Icc hab)
     (hQ.intervalIntegrable_of_Icc hab)]
   have := intervalIntegral.norm_integral_le_of_norm_le_const (a := a) (b := b)
-    (f := fun x => G (hankelPsiR c f x) - G (hankelQ c f x)) (C := hankelRinf c) (fun x hx => by
+    (f := fun x => G (hankelPsiR c f x) - G (hankelPsiLead c f x)) (C := hankelRinf c) (fun x hx => by
       rw [uIoc_of_le hab] at hx
       have hx' : |x| ≤ langerRadius c := hmem x ⟨hx.1.le, hx.2⟩
       rw [Real.norm_eq_abs]
@@ -177,8 +177,8 @@ theorem hankel_psi_sign {c ε T : ℝ} (hc : 5000 ≤ c) {f : ℝ → ℝ} (hf :
     (hT : T ≤ c * hankelXi c x) : -hankelRinf c ≤ hankelPsiR c f x := by
   have hc0 : 0 < c := by linarith
   have h1 := (abs_le.1 (hankelPsiR_sub_Q_le hc hf.toIsHankelEigenfn hε hM hx)).1
-  have hQ : 0 ≤ hankelQ c f x := by
-    unfold hankelQ
+  have hQ : 0 ≤ hankelPsiLead c f x := by
+    unfold hankelPsiLead
     refine mul_nonneg (by have := hankelXiD_neg hc0 hx; nlinarith) (mul_nonneg ?_ (hf.tail_nonneg _ hT))
     exact hankelRho0_nonneg hc0 (mul_pos hc0 (hankelXi_pos hc0 hx)).le
   linarith

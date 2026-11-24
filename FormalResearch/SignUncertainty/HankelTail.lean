@@ -27,7 +27,7 @@ namespace FormalResearch.SignUncertainty
 
 open FormalResearch.CohnElkies
 
-lemma lobeU_nonneg (τ : ℝ) : 0 ≤ lobeU τ := by
+lemma hankelLobeU_nonneg (τ : ℝ) : 0 ≤ lobeU τ := by
   unfold lobeU
   have h1 : 0 ≤ (1 / 2 : ℝ) * min (τ ^ 2) 1 := mul_nonneg (by norm_num) (le_min (sq_nonneg _) zero_le_one)
   exact add_nonneg h1 (le_max_left _ _)
@@ -45,7 +45,7 @@ lemma exp_neg_lobeU_le {k : ℝ} (hk : 0 ≤ k) (τ : ℝ) :
     Real.exp (-(k * lobeU τ)) ≤ (2 : ℝ) ^ k * (1 + |τ|) ^ (-k) := by
   have h1 : 0 < 1 + |τ| := by positivity
   rcases lt_or_ge |τ| 1 with h | h
-  · have hU := lobeU_nonneg τ
+  · have hU := hankelLobeU_nonneg τ
     have h2 : Real.exp (-(k * lobeU τ)) ≤ 1 := Real.exp_le_one_iff.2 (by nlinarith)
     have h3 : (1 + |τ|) ^ (-k) * (2 : ℝ) ^ k ≥ 1 := by
       rw [Real.rpow_neg h1.le]
@@ -260,7 +260,7 @@ theorem hankel_tail_le {c ε : ℝ} (hc : 5000 ≤ c) {f : ℝ → ℝ} (hf : Is
       exact hτ (abs_le.1 h.le)
     have h1 := norm_K0Wt_line_le (by linarith : 3 / 2 < c) hf hε hM hξ τ
     have hU := lobeU_ge_of_third hτ'
-    have hU0 := lobeU_nonneg τ
+    have hU0 := hankelLobeU_nonneg τ
     have e : Real.exp (-(c * (2 * (3 / 56 : ℝ) * (1 / 10) * lobeU τ))) ≤
         Real.exp (-(c * (3 / 280) * (31 / 32) / 18)) * Real.exp (-(k0 * lobeU τ)) := by
       rw [← Real.exp_add]
