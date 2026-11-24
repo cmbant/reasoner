@@ -34,7 +34,7 @@ namespace FormalResearch.SignUncertainty
 open FormalResearch.ModularBootstrap.StripBand FormalResearch.CohnElkies FormalResearch.Special
   FormalResearch.ModularBootstrap.ConcreteBootstrap
 
-/-- The constant `C_fb = (6/5) C_Y + 17`. -/
+/-- The constant `C_fb = (6/5) C_Y + 17` (`C_Y = tebBandConst hankelBandParams`, the band-reduction constant of `hankel_band_reduction`). -/
 noncomputable def hankelWindowC : ℝ := 6 / 5 * tebBandConst hankelBandParams + 17
 
 lemma one_le_hankelWindowC : 1 ≤ hankelWindowC := by
@@ -42,8 +42,17 @@ lemma one_le_hankelWindowC : 1 ≤ hankelWindowC := by
   have := tebBandConst_pos hankelBandParams
   linarith
 
+/-- info: 'FormalResearch.SignUncertainty.one_le_hankelWindowC' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms one_le_hankelWindowC
+
 set_option maxHeartbeats 4000000 in
-/-- **Window lemma** (proved). -/
+/-- **Window lemma** (`teb:mellin` (2)-(3), proved).  For `c ≥ 10¹⁴`, `f` feasible at `T = cξ(u_T)` with `M[f] = 1`, `ε = ±1`,
+`-3 ≤ u_T ≤ 0` (hypotheses here; `hankelBoot_uT_range` supplies them from `a₁ < u_T` and `QuantC1B2Holds` in the S6a caller) and
+a radius `R ∈ [b² c^{2/3}, b² c^{2/3} + 1]`, `b = 1/100`: `YVEnvBound (hankelPsi c f) c R L'` with
+`L' = C_fb (c^{1/3}(B₁ + B₂) + 1)`, `C_fb = hankelWindowC` a fixed constant (independent of `c, ε, T, u_T, R, f`).  The
+hypotheses are exactly those of `HankelYVAt`; tail positivity `f ≥ 0` on `[cξ(u_T), ∞)` is `IsHankelFeasible.tail_nonneg`.  No
+`r_∞` slack is involved (that lives in S6a). -/
 theorem hankel_yv_window {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 1e14 ≤ c)
     (hf : IsHankelFeasible c ε T f) (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1)
     (hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T)
@@ -233,7 +242,7 @@ theorem hankel_yv_window {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 1e14 ≤ c
   have harith := hankel_window_arith (k := k) (X := X) (Xs := Real.sqrt X) (s := s) (σ := σ) (nz := ‖ζ‖)
     (G := G) (W := W) (Q := Q) (Λ := k * Bs + 1) (Cy := tebBandConst hankelBandParams)
     (N34 := N ^ (-(3 / 4 : ℝ))) (ci := c⁻¹) (e := Real.exp (-(0.035 * c * σ)))
-    hk0 hX0 hXs0 hs0 hσpos hζ0 hG0 hQ0 hΛ hCy (Real.rpow_nonneg hN0.le _) (inv_pos.2 hc0)
+    hk0 hX0 hXs0 hs0 hG0 hQ0 hΛ hCy (Real.rpow_nonneg hN0.le _) (inv_pos.2 hc0)
     (Real.exp_pos _).le (le_of_eq hWdef) hnzσ' hQs hGk hci hkc hek
     (A := (100 / 81) * W * Real.sqrt (π / ((2 / 5) * c * σ)))
     (by gcongr)

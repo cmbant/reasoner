@@ -775,6 +775,23 @@ theorem hb_estimate_airySeed (a b c₀ : ℝ) {m : ℕ} (hm : 1 ≤ m) :
   obtain ⟨C, hC, h⟩ := hb_estimate_of_sqData (hasU2_airySeedU2 a b c₀) hA hB hb hT (airySeedU2_imagAxisBounds a b c₀) hm
   exact ⟨-(b0 * ceCs ^ (1 / 2 : ℝ)), C, hC, h⟩
 
+/-- **`(e4)` for every one-level seed, with the leading coefficient pinned**: `γ₀ = (c₀ - a) · 2 k c_A c_s^{1/2}` for `a f₁ + b g₁ + c₀ g₁'`
+(from `airySeedU2_sqFormAt`: `B 0 = (a - c₀) · 2 k c_A`). -/
+theorem hb_estimate_airySeed_val (a b c₀ : ℝ) {m : ℕ} (hm : 1 ≤ m) :
+    ∃ C > 0, ∀ {K M₁ c ξ : ℝ}, 1 ≤ K → 1 ≤ M₁ → 8 * K ^ 3 ≤ c → 2000 ≤ c → 0 < ξ → 100 ≤ hbS c ξ →
+      M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ) ≤ hbS c ξ →
+      ‖iMain (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m c ξ -
+          ((((c₀ - a) * (2 * ceK * cA * ceCs ^ (1 / 2 : ℝ))) * Real.sqrt Real.pi * hbA c ξ ^ (-(3 / 2 : ℝ)) /
+            (2 * Real.pi * ξ) : ℝ) : ℂ)‖ ≤
+        C * (M₁ ^ (-((m : ℝ) / 2)) + K ^ (-(m : ℝ)) + hbS c ξ ^ (-(1 / 2 : ℝ))) *
+          (hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ)) := by
+  obtain ⟨A, B, hA, hB, hb, hT⟩ := (airySeedU2_sqFormAt a b c₀).closed (hasU2_airySeedU2 a b c₀).continuousOn
+  obtain ⟨C, hC, h⟩ := hb_estimate_of_sqData (hasU2_airySeedU2 a b c₀) hA hB hb hT (airySeedU2_imagAxisBounds a b c₀) hm
+  refine ⟨C, hC, fun {K M₁ c ξ} hK hM hc8 hc2k hξ hS hMS => ?_⟩
+  have e : (c₀ - a) * (2 * ceK * cA * ceCs ^ (1 / 2 : ℝ)) = -(((a - c₀) * (2 * ceK * cA)) * ceCs ^ (1 / 2 : ℝ)) := by ring
+  rw [e]
+  exact h hK hM hc8 hc2k hξ hS hMS
+
 /-- **`(e4)`, relative form.**  If `γ₀ ≠ 0` (the paper's `β_∞(F) ≥ β_min > 0`), the absolute bound is a relative one:
 `|I_main - 𝒜| ≤ C' [M₁^{-m/2} + K^{-m} + S^{-1/2}] |𝒜|` with `𝒜 = γ₀ √π A^{-3/2}/(2π ξ)`. -/
 theorem hb_estimate_airySeed_rel (a b c₀ : ℝ) {m : ℕ} (hm : 1 ≤ m) :
@@ -816,6 +833,8 @@ theorem hb_estimate_hbSeed_m1 (γ₁ γ₂ δ r : ℝ) {m : ℕ} (hm : 1 ≤ m) 
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.hb_estimate_of_sqData
 /-- info: 'FormalResearch.CohnElkies.hb_estimate_airySeed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.hb_estimate_airySeed
+/-- info: 'FormalResearch.CohnElkies.hb_estimate_airySeed_val' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms hb_estimate_airySeed_val
 /-- info: 'FormalResearch.CohnElkies.hb_estimate_airySeed_rel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms FormalResearch.CohnElkies.hb_estimate_airySeed_rel
 /-- info: 'FormalResearch.CohnElkies.hb_estimate_hbSeed_m1' depends on axioms: [propext, Classical.choice, Quot.sound] -/

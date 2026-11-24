@@ -497,16 +497,27 @@ def SqForm (T : ℂ → ℂ) : Prop :=
 lemma differentiable_sqH (n : ℕ) {h : ℂ → ℂ} (hh : Differentiable ℂ h) : Differentiable ℂ (sqH n h) :=
   fun y => (hasDerivAt_sqH n hh y).differentiableAt
 
-lemma sqForm_of_mod {X : ℝ → ℝ} (a : ℝ) {Bm : ℂ → ℂ} (hBm : Differentiable ℂ Bm) {c₀ c₁ : ℂ}
-    (hb : ∃ b : ℝ, (ceK : ℂ) * Bm 0 = b)
+/-- `SqForm` with the value of `B 0` recorded (the real number `b`). -/
+def SqFormAt (T : ℂ → ℂ) (b : ℝ) : Prop :=
+  ∃ A B : ℂ → ℂ, Differentiable ℂ A ∧ Differentiable ℂ B ∧ B 0 = b ∧
+    ∀ y : ℂ, 0 < y.re → T y = A y + y ^ (1 / 2 : ℂ) * B y
+
+lemma SqFormAt.sqForm {T : ℂ → ℂ} {b : ℝ} (h : SqFormAt T b) : SqForm T := by
+  obtain ⟨A, B, hA, hB, hb, he⟩ := h
+  exact ⟨A, B, hA, hB, ⟨b, hb⟩, he⟩
+
+lemma SqFormAt.of_eq {T : ℂ → ℂ} {b b' : ℝ} (h : SqFormAt T b) (e : b = b') : SqFormAt T b' := e ▸ h
+
+lemma sqFormAt_of_mod {X : ℝ → ℝ} (a : ℝ) {Bm : ℂ → ℂ} (hBm : Differentiable ℂ Bm) {c₀ c₁ : ℂ} {b : ℝ}
+    (hb : (ceK : ℂ) * Bm 0 = b)
     (hP : ∀ y : ℂ, 0 < y.re →
       Complex.exp (-(a : ℂ) * y) * lapC X y = c₀ + c₁ * y + y ^ (1 / 2 : ℂ) * Bm y) :
-    SqForm (airyTwistedLaplaceC X) := by
+    SqFormAt (airyTwistedLaplaceC X) b := by
   refine ⟨fun y => (ceK : ℂ) * Complex.exp (-(y ^ 3) / 12 + a * y) * (c₀ + c₁ * y),
     fun y => (ceK : ℂ) * Complex.exp (-(y ^ 3) / 12 + a * y) * Bm y, ?_, ?_, ?_, ?_⟩
   · fun_prop
   · exact (by fun_prop : Differentiable ℂ fun y : ℂ => (ceK : ℂ) * Complex.exp (-(y ^ 3) / 12 + a * y)).mul hBm
-  · obtain ⟨b, hb⟩ := hb; exact ⟨b, by simpa using hb⟩
+  · simpa using hb
   · intro y hy
     have h := hP y hy
     rw [airyTwistedLaplaceC_eq_lapC]
@@ -514,6 +525,14 @@ lemma sqForm_of_mod {X : ℝ → ℝ} (a : ℝ) {Bm : ℂ → ℂ} (hBm : Differ
       rw [← mul_assoc, ← Complex.exp_add]; simp
     beta_reduce
     rw [this, h, Complex.exp_add]; ring
+
+lemma sqForm_of_mod {X : ℝ → ℝ} (a : ℝ) {Bm : ℂ → ℂ} (hBm : Differentiable ℂ Bm) {c₀ c₁ : ℂ}
+    (hb : ∃ b : ℝ, (ceK : ℂ) * Bm 0 = b)
+    (hP : ∀ y : ℂ, 0 < y.re →
+      Complex.exp (-(a : ℂ) * y) * lapC X y = c₀ + c₁ * y + y ^ (1 / 2 : ℂ) * Bm y) :
+    SqForm (airyTwistedLaplaceC X) := by
+  obtain ⟨b, hb⟩ := hb
+  exact (sqFormAt_of_mod a hBm hb hP).sqForm
 
 /-- The entire factor `h(y) = (2√π)⁻¹ e^{-ay + y³/12}`. -/
 noncomputable def hExp (a : ℝ) (y : ℂ) : ℂ := (cA : ℂ) * Complex.exp (-(a : ℂ) * y + y ^ 3 / 12)
@@ -574,11 +593,13 @@ lemma modLap_ceF1_form : ∃ c : ℂ, ∀ y : ℂ, 0 < y.re →
   have h : Complex.exp (-(a : ℂ) * y) * lapC ceF1 y - y ^ (1 / 2 : ℂ) * sqH 0 (hExp a) y = c := hc y hy
   linear_combination h
 
-lemma sqForm_ceF1 : SqForm (airyTwistedLaplaceC ceF1) := by
+lemma sqFormAt_ceF1 : SqFormAt (airyTwistedLaplaceC ceF1) (2 * ceK * cA) := by
   obtain ⟨c, hc⟩ := modLap_ceF1_form
-  refine sqForm_of_mod (airyZero 1) (Bm := sqH 0 (hExp (airyZero 1))) (differentiable_sqH 0 (differentiable_hExp _))
+  refine sqFormAt_of_mod (airyZero 1) (Bm := sqH 0 (hExp (airyZero 1))) (differentiable_sqH 0 (differentiable_hExp _))
     (c₀ := c) (c₁ := 0) ?_ (fun y hy => by rw [hc y hy]; ring)
-  exact ⟨2 * ceK * cA, by simp [sqH, hExp]; ring⟩
+  simp [sqH, hExp]; ring
+
+lemma sqForm_ceF1 : SqForm (airyTwistedLaplaceC ceF1) := sqFormAt_ceF1.sqForm
 
 lemma hasDerivAt_sqPhi0' {h : ℂ → ℂ} (hh : Differentiable ℂ h) {y : ℂ} (hy : 0 < y.re) :
     HasDerivAt (fun z : ℂ => z ^ (1 / 2 : ℂ) * sqH 0 h z) (y ^ (-(1 / 2 : ℂ)) * h y) y := by
@@ -593,7 +614,7 @@ lemma hasDerivAt_sqPhi1 {h : ℂ → ℂ} (hh : Differentiable ℂ h) {y : ℂ} 
   have := hasDerivAt_sqPhi 1 hh hy
   rwa [show ((1 : ℕ) : ℂ) - 1 / 2 = 1 / 2 by norm_num] at this
 
-lemma sqForm_ceG1 : SqForm (airyTwistedLaplaceC (ceG1 (airyZero 1))) := by
+lemma sqFormAt_ceG1 : SqFormAt (airyTwistedLaplaceC (ceG1 (airyZero 1))) 0 := by
   let a := airyZero 1
   obtain ⟨c, hc⟩ := modLap_ceF1_form
   have hH0 : Differentiable ℂ (sqH 0 (hExp a)) := differentiable_sqH 0 (differentiable_hExp a)
@@ -611,12 +632,14 @@ lemma sqForm_ceG1 : SqForm (airyTwistedLaplaceC (ceG1 (airyZero 1))) := by
       have h3 : HasDerivAt (fun z : ℂ => Complex.exp (-(a : ℂ) * z) * lapC (ceG1 a) z - (c * z + z ^ (((1 : ℕ) : ℂ) + 1 / 2) * sqH 1 (sqH 0 (hExp a)) z))
           (c + y ^ (1 / 2 : ℂ) * sqH 0 (hExp a) y - (c + y ^ (1 / 2 : ℂ) * sqH 0 (hExp a) y)) y := (hM y hy).sub (hΨ y hy)
       rwa [sub_self] at h3)
-  refine sqForm_of_mod a (Bm := fun y => y * sqH 1 (sqH 0 (hExp a)) y)
-    (differentiable_id.mul (differentiable_sqH 1 hH0)) (c₀ := c₀) (c₁ := c) ⟨0, by simp⟩ (fun y hy => ?_)
+  refine sqFormAt_of_mod a (Bm := fun y => y * sqH 1 (sqH 0 (hExp a)) y)
+    (differentiable_id.mul (differentiable_sqH 1 hH0)) (c₀ := c₀) (c₁ := c) (b := 0) (by simp) (fun y hy => ?_)
   have hy0 : y ≠ 0 := fun h => by simp [h] at hy
   have h : Complex.exp (-(a : ℂ) * y) * lapC (ceG1 a) y - (c * y + y ^ (((1 : ℕ) : ℂ) + 1 / 2) * sqH 1 (sqH 0 (hExp a)) y) = c₀ := hc₀ y hy
   rw [pow_nat_one_half hy0] at h
   linear_combination h
+
+lemma sqForm_ceG1 : SqForm (airyTwistedLaplaceC (ceG1 (airyZero 1))) := sqFormAt_ceG1.sqForm
 
 /-- The entire function `k(y) = (2√π)⁻¹ e^{-ay + y³/12} (1/2 + y³/4)` with `y^{-3/2} k(y) = e^{-ay} Λ_{Ai'²}(y)`. -/
 noncomputable def kExp (a : ℝ) (y : ℂ) : ℂ := (cA : ℂ) * Complex.exp (-(a : ℂ) * y + y ^ 3 / 12) * (1 / 2 + y ^ 3 / 4)
@@ -648,7 +671,7 @@ lemma hasDerivAt_inv_sqrt_cpow {y : ℂ} (hy : 0 < y.re) :
   simp only [id_eq]
   rw [Complex.cpow_sub _ _ hy0, Complex.cpow_one]; ring
 
-lemma sqForm_ceG1Deriv : SqForm (airyTwistedLaplaceC (ceG1Deriv airyDerivFirstZero)) := by
+lemma sqFormAt_ceG1Deriv : SqFormAt (airyTwistedLaplaceC (ceG1Deriv airyDerivFirstZero)) (-2 * ceK * cA) := by
   let a := airyDerivFirstZero
   let k := kExp a
   let k₁ := dslope k 0
@@ -686,15 +709,17 @@ lemma sqForm_ceG1Deriv : SqForm (airyTwistedLaplaceC (ceG1Deriv airyDerivFirstZe
       have h3 : HasDerivAt (fun z => Y1 z - Ψ1 z) (y ^ (-(1 / 2 : ℂ)) * (kExp a y / y) - y ^ (-(1 / 2 : ℂ)) * (kExp a y / y)) y :=
         (hY1 y hy).sub (hΨ1 y hy)
       rwa [sub_self] at h3)
-  refine sqForm_of_mod a (Bm := fun y => -4 * ((cA : ℂ) / 2) + y * sqH 1 (sqH 0 k₁) y)
+  refine sqFormAt_of_mod a (Bm := fun y => -4 * ((cA : ℂ) / 2) + y * sqH 1 (sqH 0 k₁) y)
     (differentiable_const _ |>.add (differentiable_id.mul (differentiable_sqH 1 hH0))) (c₀ := c₀) (c₁ := c₁)
-    ⟨-2 * ceK * cA, by simp; ring⟩ (fun y hy => ?_)
+    (b := -2 * ceK * cA) (by simp; ring) (fun y hy => ?_)
   have hy0 : y ≠ 0 := fun h => by simp [h] at hy
   have h : Y y - Ψ y = c₀ + c₁ * y := hc y hy
   simp only [Ψ] at h
   rw [pow_nat_one_half hy0] at h
   show Y y = _
   linear_combination h
+
+lemma sqForm_ceG1Deriv : SqForm (airyTwistedLaplaceC (ceG1Deriv airyDerivFirstZero)) := sqFormAt_ceG1Deriv.sqForm
 
 /-! ### Closure of `SqForm` and the combinations -/
 
@@ -715,13 +740,38 @@ lemma SqForm.congr {T U : ℂ → ℂ} (h : SqForm T) (he : ∀ y : ℂ, 0 < y.r
   obtain ⟨A, B, hA, hB, hb, hT⟩ := h
   exact ⟨A, B, hA, hB, hb, fun y hy => (he y hy).symm.trans (hT y hy)⟩
 
-theorem airySeedU2_sqForm (a b c : ℝ) : SqForm (airyTwistedLaplaceC (airySeedU2 a b c)) := by
-  have h := ((sqForm_ceF1.smul a).add (sqForm_ceG1.smul b)).add (sqForm_ceG1Deriv.smul c)
-  exact h.congr fun y hy => by rw [airySeedU2_transform a b c hy.le]
+lemma SqFormAt.smul {T : ℂ → ℂ} {b : ℝ} (h : SqFormAt T b) (c : ℝ) : SqFormAt (fun y => (c : ℂ) * T y) (c * b) := by
+  obtain ⟨A, B, hA, hB, hb, he⟩ := h
+  refine ⟨fun y => (c : ℂ) * A y, fun y => (c : ℂ) * B y, hA.const_mul _, hB.const_mul _, ?_, fun y hy => ?_⟩
+  · simp [hb]
+  · simp only [he y hy]; ring
 
-/-- On the closed half-plane the square-root form persists by continuity. -/
-lemma SqForm.closed {T : ℂ → ℂ} (h : SqForm T) (hcont : ContinuousOn T {y : ℂ | 0 ≤ y.re}) :
-    ∃ A B : ℂ → ℂ, Differentiable ℂ A ∧ Differentiable ℂ B ∧ (∃ b : ℝ, B 0 = b) ∧
+lemma SqFormAt.add {T U : ℂ → ℂ} {b b' : ℝ} (h : SqFormAt T b) (h' : SqFormAt U b') :
+    SqFormAt (fun y => T y + U y) (b + b') := by
+  obtain ⟨A, B, hA, hB, hb, he⟩ := h
+  obtain ⟨A', B', hA', hB', hb', he'⟩ := h'
+  refine ⟨fun y => A y + A' y, fun y => B y + B' y, hA.add hA', hB.add hB', ?_, fun y hy => ?_⟩
+  · simp [hb, hb']
+  · simp only [he y hy, he' y hy]; ring
+
+lemma SqFormAt.congr {T U : ℂ → ℂ} {b : ℝ} (h : SqFormAt T b) (he : ∀ y : ℂ, 0 < y.re → T y = U y) : SqFormAt U b := by
+  obtain ⟨A, B, hA, hB, hb, hT⟩ := h
+  exact ⟨A, B, hA, hB, hb, fun y hy => (he y hy).symm.trans (hT y hy)⟩
+
+/-- **The value of `B 0` for the one-level seeds**: `a f₁ + b g₁ + c g₁'` has square-root coefficient `B 0 = (a - c) · 2 k c_A`
+(`f₁`: `2 k c_A`, `g₁`: `0`, `g₁'`: `-2 k c_A`). -/
+theorem airySeedU2_sqFormAt (a b c : ℝ) :
+    SqFormAt (airyTwistedLaplaceC (airySeedU2 a b c)) ((a - c) * (2 * ceK * cA)) := by
+  have h := ((sqFormAt_ceF1.smul a).add (sqFormAt_ceG1.smul b)).add (sqFormAt_ceG1Deriv.smul c)
+  refine (h.congr fun y hy => by rw [airySeedU2_transform a b c hy.le]).of_eq ?_
+  ring
+
+theorem airySeedU2_sqForm (a b c : ℝ) : SqForm (airyTwistedLaplaceC (airySeedU2 a b c)) :=
+  (airySeedU2_sqFormAt a b c).sqForm
+
+/-- On the closed half-plane the square-root form persists by continuity (value of `B 0` recorded). -/
+lemma SqFormAt.closed {T : ℂ → ℂ} {b : ℝ} (h : SqFormAt T b) (hcont : ContinuousOn T {y : ℂ | 0 ≤ y.re}) :
+    ∃ A B : ℂ → ℂ, Differentiable ℂ A ∧ Differentiable ℂ B ∧ B 0 = b ∧
       ∀ y : ℂ, 0 ≤ y.re → T y = A y + y ^ (1 / 2 : ℂ) * B y := by
   obtain ⟨A, B, hA, hB, hb, he⟩ := h
   refine ⟨A, B, hA, hB, hb, ?_⟩
@@ -733,6 +783,15 @@ lemma SqForm.closed {T : ℂ → ℂ} (h : SqForm T) (hcont : ContinuousOn T {y 
     Set.EqOn.of_subset_closure (s := {y : ℂ | 0 < y.re}) (fun y hy => he y hy) hcont hcont2
       (fun y (hy : y ∈ {y : ℂ | 0 < y.re}) => (le_of_lt (show 0 < y.re from hy) : 0 ≤ y.re)) (by rw [Complex.closure_setOfPred_lt_re])
   exact fun y hy => hEq hy
+
+/-- On the closed half-plane the square-root form persists by continuity. -/
+lemma SqForm.closed {T : ℂ → ℂ} (h : SqForm T) (hcont : ContinuousOn T {y : ℂ | 0 ≤ y.re}) :
+    ∃ A B : ℂ → ℂ, Differentiable ℂ A ∧ Differentiable ℂ B ∧ (∃ b : ℝ, B 0 = b) ∧
+      ∀ y : ℂ, 0 ≤ y.re → T y = A y + y ^ (1 / 2 : ℂ) * B y := by
+  obtain ⟨A, B, hA, hB, ⟨b, hb⟩, he⟩ := h
+  have h' : SqFormAt T b := ⟨A, B, hA, hB, hb, he⟩
+  obtain ⟨A', B', hA', hB', hb', he'⟩ := h'.closed hcont
+  exact ⟨A', B', hA', hB', ⟨b, hb'⟩, he'⟩
 
 /-! ### The subtracted symbol: the points `c_s (iv)` -/
 
@@ -1289,6 +1348,8 @@ theorem airySeedU2_smoothSymbol_nonvacuous (a b c : ℝ) :
 #guard_msgs (whitespace := lax) in #print axioms airySeedU2_smoothSymbol_nonvacuous
 /-- info: 'FormalResearch.CohnElkies.airySeedU2_sqForm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms airySeedU2_sqForm
+/-- info: 'FormalResearch.CohnElkies.airySeedU2_sqFormAt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms airySeedU2_sqFormAt
 /-- info: 'FormalResearch.CohnElkies.smoothSymbol_of_sqData' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms smoothSymbol_of_sqData
 

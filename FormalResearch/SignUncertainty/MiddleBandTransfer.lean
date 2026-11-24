@@ -174,24 +174,39 @@ lemma gt1_hyp {C : ℝ} (hC : 0 ≤ C) {W W1 W2 W3 : ℝ → ℂ}
       · exact mul_le_mul hAC (hmono _ _ (by norm_num)) (by positivity) hA0
       · exact mul_le_mul hAC (hmono _ _ (by norm_num)) (by positivity) hA0
 
+/-- **The `GT.1` bounds for a symbol `W`** (`(cegt:eqGT1)`): there are derivatives `W1 = ∂W`, `W2 = ∂²W`, `W3 = ∂³W` off `0` with
+`|∂^j W| ≤ A|v|^{1/2-j}` for `0 < |v| ≤ 1`, `j = 1, 2, 3`; `|∂^j W| ≤ A|v|^{-5/2-j}` for `|v| ≥ 1`, `j = 0, …, 3`;
+`|W(0)| ≤ A` and `|W(v) - W(0)| ≤ A|v|^{1/2}` for `0 < |v| ≤ 1`.  This is the single named input of the middle band (`middle_transfer_gt1`,
+`o5_e6`, `o6`, `o9p_m1`): discharging it for the spline-multiplied seeds (task `gt1_plan.md`) changes no downstream statement. -/
+def Gt1Bounds (A : ℝ) (W : ℝ → ℂ) : Prop :=
+  ∃ W1 W2 W3 : ℝ → ℂ,
+    (∀ s, s ≠ 0 → HasDerivAt W (W1 s) s ∧ HasDerivAt W1 (W2 s) s ∧ HasDerivAt W2 (W3 s) s) ∧
+    (∀ s : ℝ, 0 < |s| → |s| ≤ 1 → ‖W1 s‖ ≤ A * |s| ^ (-(1 / 2) : ℝ) ∧ ‖W2 s‖ ≤ A * |s| ^ (-(3 / 2) : ℝ) ∧
+      ‖W3 s‖ ≤ A * |s| ^ (-(5 / 2) : ℝ)) ∧
+    (∀ s : ℝ, 1 ≤ |s| → ‖W s‖ ≤ A * |s| ^ (-(5 / 2) : ℝ) ∧ ‖W1 s‖ ≤ A * |s| ^ (-(7 / 2) : ℝ) ∧
+      ‖W2 s‖ ≤ A * |s| ^ (-(9 / 2) : ℝ) ∧ ‖W3 s‖ ≤ A * |s| ^ (-(11 / 2) : ℝ)) ∧
+    ‖W 0‖ ≤ A ∧ (∀ s : ℝ, 0 < |s| → |s| ≤ 1 → ‖W s - W 0‖ ≤ A * |s| ^ (1 / 2 : ℝ))
+
+/-- Non-vacuity of `Gt1Bounds`: the zero symbol satisfies it for every `A ≥ 0`. -/
+theorem gt1Bounds_zero {A : ℝ} (hA : 0 ≤ A) : Gt1Bounds A (fun _ => 0) := by
+  refine ⟨fun _ => 0, fun _ => 0, fun _ => 0, fun s _ => ⟨hasDerivAt_const s _, hasDerivAt_const s _, hasDerivAt_const s _⟩,
+    fun s _ _ => ?_, fun s _ => ?_, by simpa using hA, fun s _ _ => ?_⟩
+  · simp only [norm_zero]; refine ⟨?_, ?_, ?_⟩ <;> positivity
+  · simp only [norm_zero]; refine ⟨?_, ?_, ?_, ?_⟩ <;> positivity
+  · simp only [sub_self, norm_zero]; positivity
+
 /-- **`GT.2a` from the `GT.1` bounds and the quotient bound `O.4(1)`.** -/
 theorem middle_transfer_gt1 {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) (A : ℝ) (hA : 0 ≤ A) :
-    ∃ C : ℝ, 0 ≤ C ∧ ∀ {X : ℝ → ℝ} {δ₀ : ℝ} {m : ℕ} {c ξ L : ℝ} {W1 W2 W3 : ℝ → ℂ},
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ {X : ℝ → ℝ} {δ₀ : ℝ} {m : ℕ} {c ξ L : ℝ},
       HasU2 X → Continuous X → 0 ≤ δ₀ → 2 ≤ c → 0 < ξ → L = Real.log (Real.pi ^ 2 * ξ) →
-      O4QuotientBound L → 0 < L → L ≤ 0.002 → 100 ≤ hbS c ξ →
-      (∀ s, s ≠ 0 → HasDerivAt (liftW X δ₀ m) (W1 s) s ∧ HasDerivAt W1 (W2 s) s ∧ HasDerivAt W2 (W3 s) s) →
-      (∀ s : ℝ, 0 < |s| → |s| ≤ 1 → ‖W1 s‖ ≤ A * |s| ^ (-(1 / 2) : ℝ) ∧ ‖W2 s‖ ≤ A * |s| ^ (-(3 / 2) : ℝ) ∧
-        ‖W3 s‖ ≤ A * |s| ^ (-(5 / 2) : ℝ)) →
-      (∀ s : ℝ, 1 ≤ |s| → ‖liftW X δ₀ m s‖ ≤ A * |s| ^ (-(5 / 2) : ℝ) ∧ ‖W1 s‖ ≤ A * |s| ^ (-(7 / 2) : ℝ) ∧
-        ‖W2 s‖ ≤ A * |s| ^ (-(9 / 2) : ℝ) ∧ ‖W3 s‖ ≤ A * |s| ^ (-(11 / 2) : ℝ)) →
-      ‖liftW X δ₀ m 0‖ ≤ A →
-      (∀ s : ℝ, 0 < |s| → |s| ≤ 1 → ‖liftW X δ₀ m s - liftW X δ₀ m 0‖ ≤ A * |s| ^ (1 / 2 : ℝ)) →
+      O4QuotientBound L → 0 < L → L ≤ 0.002 → 100 ≤ hbS c ξ → Gt1Bounds A (liftW X δ₀ m) →
       ‖(ξ : ℂ) * iMain X δ₀ m c ξ - ((ceK : ℂ) / (ceCs : ℂ)) *
           ((windowSmooth δ₀ m X (-((c * liftEps c * edgeAlphaTilde L + liftEps c / 2) / ceCs)) : ℝ) : ℂ)‖ ≤
         C * (hbS c ξ ^ (-(3 / 2 : ℝ)) * L + c ^ (-(5 / 2 : ℝ))) := by
   obtain ⟨C0, hC0, hM⟩ := middle_transfer hϑ (max 1 (2 * A)) (le_max_left _ _)
   refine ⟨C0, hC0, ?_⟩
-  intro X δ₀ m c ξ L W1 W2 W3 hX hXc hδ hc hξ hLdef hQ hL0 hL2 hS100 hWd hA' hB' hW0 hH
+  intro X δ₀ m c ξ L hX hXc hδ hc hξ hLdef hQ hL0 hL2 hS100 hG
+  obtain ⟨W1, W2, W3, hWd, hA', hB', hW0, hH⟩ := hG
   obtain ⟨τ, hτ⟩ := o4_normal_form hL0 hL2 hQ
   obtain ⟨h1, h2, h3⟩ := gt1_hyp hA hA' hB' hW0 hH
   exact hM hX hXc hδ hc hξ hLdef hτ hL0 hL2 hS100 hWd h1 h2 h3
@@ -211,5 +226,9 @@ theorem middle_transfer_gt1 {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K
 /-- info: 'FormalResearch.SignUncertainty.middle_transfer_gt1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms middle_transfer_gt1
+
+/-- info: 'FormalResearch.SignUncertainty.gt1Bounds_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms gt1Bounds_zero
 
 end FormalResearch.SignUncertainty

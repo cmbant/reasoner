@@ -11,7 +11,7 @@ is linear in the seed (`iMain_airySeed_lin`), so the absolute estimate of `hb_es
 `hb_estimate_airySeed_uniform`: constants `γ₁, γ₂, γ₃, C` depending only on `m` and the coefficient bound `R`, with
 `γ₀ = a γ₁ + b γ₂ + c₀ γ₃`.  The `m₀ = 1` Hermite--Biehler seed family is the corollary `hb_estimate_hbSeed_m1_uniform`.
 
-Status: proved, unconditional.  Not formalised: the identification of `γ₀` with `β_∞(F)`.
+Status: proved, unconditional.  `hb_estimate_airySeed_uniform_val` pins `γ₀ = (c₀ - a) · 2 k c_A c_s^{1/2}` (positive coefficient `g0`).  Not formalised: the identification of `γ₀` with `β_∞(F)`.
 -/
 
 @[expose] public section
@@ -78,25 +78,39 @@ theorem iMain_airySeed_lin (a b c₀ : ℝ) {δ₀ : ℝ} (hδ : 0 ≤ δ₀) (m
   rw [h123, h12, integral_const_mul, integral_const_mul, integral_const_mul]
   ring
 
-/-- **`(e4)`, uniform over the seed coefficients** `|a|, |b|, |c₀| ≤ R`.  The constants `γ₁, γ₂, γ₃` (the `γ₀` of the three basis seeds)
-and `C` depend only on `m` and `R`; `γ₀ = a γ₁ + b γ₂ + c₀ γ₃`. -/
-theorem hb_estimate_airySeed_uniform {m : ℕ} (hm : 1 ≤ m) (R : ℝ) (hR : 0 ≤ R) :
-    ∃ γ₁ γ₂ γ₃ : ℝ, ∃ C > 0, ∀ {a b c₀ : ℝ}, |a| ≤ R → |b| ≤ R → |c₀| ≤ R →
-      ∀ {K M₁ c ξ : ℝ}, 1 ≤ K → 1 ≤ M₁ → 8 * K ^ 3 ≤ c → 2000 ≤ c → 0 < ξ → 100 ≤ hbS c ξ →
+/-- Linearity step of `hb_estimate_airySeed_uniform`: the three basis estimates give the estimate for `a f₁ + b g₁ + c₀ g₁'` with
+`γ₀ = a γ₁ + b γ₂ + c₀ γ₃`, constant `(R + 1)(C₁ + C₂ + C₃)`. -/
+theorem hb_uniform_combine {m : ℕ} (R : ℝ) (hR : 0 ≤ R) {γ₁ γ₂ γ₃ C₁ C₂ C₃ : ℝ} (hC₁ : 0 < C₁) (hC₂ : 0 < C₂) (hC₃ : 0 < C₃)
+    (h1 : ∀ {K M₁ c ξ : ℝ}, 1 ≤ K → 1 ≤ M₁ → 8 * K ^ 3 ≤ c → 2000 ≤ c → 0 < ξ → 100 ≤ hbS c ξ →
       M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ) ≤ hbS c ξ →
-      ‖iMain (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m c ξ -
-          (((a * γ₁ + b * γ₂ + c₀ * γ₃) * Real.sqrt Real.pi * hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) : ℝ) : ℂ)‖ ≤
-        C * (M₁ ^ (-((m : ℝ) / 2)) + K ^ (-(m : ℝ)) + hbS c ξ ^ (-(1 / 2 : ℝ))) *
-          (hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ)) := by
-  obtain ⟨γ₁, C₁, hC₁, h1⟩ := hb_estimate_airySeed 1 0 0 hm
-  obtain ⟨γ₂, C₂, hC₂, h2⟩ := hb_estimate_airySeed 0 1 0 hm
-  obtain ⟨γ₃, C₃, hC₃, h3⟩ := hb_estimate_airySeed 0 0 1 hm
-  refine ⟨γ₁, γ₂, γ₃, (R + 1) * (C₁ + C₂ + C₃), by positivity, fun {a b c₀} ha hb hc {K M₁ c ξ} hK hM hc8 hc2k hξ hS hMS => ?_⟩
-  have hc0 : 0 < c := by linarith
-  have hδ : 0 ≤ ceBeta1 * K * liftEps c / 2 := by have := ceBeta1_pos; have := liftEps_pos hc0; positivity
+      ‖iMain (airySeedU2 1 0 0) (ceBeta1 * K * liftEps c / 2) m c ξ -
+          ((γ₁ * Real.sqrt Real.pi * hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) : ℝ) : ℂ)‖ ≤
+        C₁ * (M₁ ^ (-((m : ℝ) / 2)) + K ^ (-(m : ℝ)) + hbS c ξ ^ (-(1 / 2 : ℝ))) *
+          (hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ)))
+    (h2 : ∀ {K M₁ c ξ : ℝ}, 1 ≤ K → 1 ≤ M₁ → 8 * K ^ 3 ≤ c → 2000 ≤ c → 0 < ξ → 100 ≤ hbS c ξ →
+      M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ) ≤ hbS c ξ →
+      ‖iMain (airySeedU2 0 1 0) (ceBeta1 * K * liftEps c / 2) m c ξ -
+          ((γ₂ * Real.sqrt Real.pi * hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) : ℝ) : ℂ)‖ ≤
+        C₂ * (M₁ ^ (-((m : ℝ) / 2)) + K ^ (-(m : ℝ)) + hbS c ξ ^ (-(1 / 2 : ℝ))) *
+          (hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ)))
+    (h3 : ∀ {K M₁ c ξ : ℝ}, 1 ≤ K → 1 ≤ M₁ → 8 * K ^ 3 ≤ c → 2000 ≤ c → 0 < ξ → 100 ≤ hbS c ξ →
+      M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ) ≤ hbS c ξ →
+      ‖iMain (airySeedU2 0 0 1) (ceBeta1 * K * liftEps c / 2) m c ξ -
+          ((γ₃ * Real.sqrt Real.pi * hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) : ℝ) : ℂ)‖ ≤
+        C₃ * (M₁ ^ (-((m : ℝ) / 2)) + K ^ (-(m : ℝ)) + hbS c ξ ^ (-(1 / 2 : ℝ))) *
+          (hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ)))
+    {a b c₀ : ℝ} (ha : |a| ≤ R) (hb : |b| ≤ R) (hc : |c₀| ≤ R)
+    {K M₁ c ξ : ℝ} (hK : 1 ≤ K) (hM : 1 ≤ M₁) (hc8 : 8 * K ^ 3 ≤ c) (hc2k : 2000 ≤ c) (hξ : 0 < ξ) (hS : 100 ≤ hbS c ξ)
+    (hMS : M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ) ≤ hbS c ξ) :
+    ‖iMain (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m c ξ -
+        (((a * γ₁ + b * γ₂ + c₀ * γ₃) * Real.sqrt Real.pi * hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) : ℝ) : ℂ)‖ ≤
+      (R + 1) * (C₁ + C₂ + C₃) * (M₁ ^ (-((m : ℝ) / 2)) + K ^ (-(m : ℝ)) + hbS c ξ ^ (-(1 / 2 : ℝ))) *
+        (hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ)) := by
   have e1 := h1 hK hM hc8 hc2k hξ hS hMS
   have e2 := h2 hK hM hc8 hc2k hξ hS hMS
   have e3 := h3 hK hM hc8 hc2k hξ hS hMS
+  have hc0 : 0 < c := by linarith
+  have hδ : 0 ≤ ceBeta1 * K * liftEps c / 2 := by have := ceBeta1_pos; have := liftEps_pos hc0; positivity
   rw [iMain_airySeed_lin a b c₀ hδ m hc0 hξ]
   set P : ℝ := hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) with hP
   set B : ℝ := M₁ ^ (-((m : ℝ) / 2)) + K ^ (-(m : ℝ)) + hbS c ξ ^ (-(1 / 2 : ℝ)) with hB
@@ -138,8 +152,58 @@ theorem hb_estimate_airySeed_uniform {m : ℕ} (hm : 1 ≤ m) (R : ℝ) (hR : 0 
         rw [this]
         exact mul_le_mul_of_nonneg_right (by nlinarith) hBP
 
+
+/-- **`(e4)`, uniform over the seed coefficients** `|a|, |b|, |c₀| ≤ R`.  The constants `γ₁, γ₂, γ₃` (the `γ₀` of the three basis seeds)
+and `C` depend only on `m` and `R`; `γ₀ = a γ₁ + b γ₂ + c₀ γ₃`. -/
+theorem hb_estimate_airySeed_uniform {m : ℕ} (hm : 1 ≤ m) (R : ℝ) (hR : 0 ≤ R) :
+    ∃ γ₁ γ₂ γ₃ : ℝ, ∃ C > 0, ∀ {a b c₀ : ℝ}, |a| ≤ R → |b| ≤ R → |c₀| ≤ R →
+      ∀ {K M₁ c ξ : ℝ}, 1 ≤ K → 1 ≤ M₁ → 8 * K ^ 3 ≤ c → 2000 ≤ c → 0 < ξ → 100 ≤ hbS c ξ →
+      M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ) ≤ hbS c ξ →
+      ‖iMain (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m c ξ -
+          (((a * γ₁ + b * γ₂ + c₀ * γ₃) * Real.sqrt Real.pi * hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) : ℝ) : ℂ)‖ ≤
+        C * (M₁ ^ (-((m : ℝ) / 2)) + K ^ (-(m : ℝ)) + hbS c ξ ^ (-(1 / 2 : ℝ))) *
+          (hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ)) := by
+  obtain ⟨γ₁, C₁, hC₁, h1⟩ := hb_estimate_airySeed 1 0 0 hm
+  obtain ⟨γ₂, C₂, hC₂, h2⟩ := hb_estimate_airySeed 0 1 0 hm
+  obtain ⟨γ₃, C₃, hC₃, h3⟩ := hb_estimate_airySeed 0 0 1 hm
+  exact ⟨γ₁, γ₂, γ₃, (R + 1) * (C₁ + C₂ + C₃), by positivity, fun {a b c₀} ha hb hc {K M₁ c ξ} hK hM hc8 hc2k hξ hS hMS =>
+    hb_uniform_combine R hR hC₁ hC₂ hC₃ h1 h2 h3 ha hb hc hK hM hc8 hc2k hξ hS hMS⟩
+
 /-- info: 'FormalResearch.CohnElkies.hb_estimate_airySeed_uniform' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms hb_estimate_airySeed_uniform
+
+/-- The pinned leading constant `g0 = 2 k c_A c_s^{1/2}` of `hb_estimate_airySeed_uniform_val` is positive. -/
+theorem hb_leading_pos : 0 < 2 * ceK * cA * ceCs ^ (1 / 2 : ℝ) := by
+  have h1 := ceK_pos
+  have h2 := ceCs_pos
+  have h3 : 0 < cA := by unfold cA; positivity
+  positivity
+
+/-- **`(e4)`, uniform over the seed coefficients, with the leading coefficient pinned**: `γ₀ = (c₀ - a) · g0`, `g0 = 2 k c_A c_s^{1/2} > 0`
+(`hb_leading_pos`; the basis values are `γ₁ = -g0`, `γ₂ = 0`, `γ₃ = g0`, from `airySeedU2_sqFormAt`). -/
+theorem hb_estimate_airySeed_uniform_val {m : ℕ} (hm : 1 ≤ m) (R : ℝ) (hR : 0 ≤ R) :
+    ∃ C > 0, ∀ {a b c₀ : ℝ}, |a| ≤ R → |b| ≤ R → |c₀| ≤ R →
+      ∀ {K M₁ c ξ : ℝ}, 1 ≤ K → 1 ≤ M₁ → 8 * K ^ 3 ≤ c → 2000 ≤ c → 0 < ξ → 100 ≤ hbS c ξ →
+      M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ) ≤ hbS c ξ →
+      ‖iMain (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) m c ξ -
+          ((((c₀ - a) * (2 * ceK * cA * ceCs ^ (1 / 2 : ℝ))) * Real.sqrt Real.pi * hbA c ξ ^ (-(3 / 2 : ℝ)) /
+            (2 * Real.pi * ξ) : ℝ) : ℂ)‖ ≤
+        C * (M₁ ^ (-((m : ℝ) / 2)) + K ^ (-(m : ℝ)) + hbS c ξ ^ (-(1 / 2 : ℝ))) *
+          (hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ)) := by
+  obtain ⟨C₁, hC₁, h1⟩ := hb_estimate_airySeed_val 1 0 0 hm
+  obtain ⟨C₂, hC₂, h2⟩ := hb_estimate_airySeed_val 0 1 0 hm
+  obtain ⟨C₃, hC₃, h3⟩ := hb_estimate_airySeed_val 0 0 1 hm
+  refine ⟨(R + 1) * (C₁ + C₂ + C₃), by positivity, fun {a b c₀} ha hb hc {K M₁ c ξ} hK hM hc8 hc2k hξ hS hMS => ?_⟩
+  have h := hb_uniform_combine R hR hC₁ hC₂ hC₃ h1 h2 h3 ha hb hc hK hM hc8 hc2k hξ hS hMS
+  have e : a * ((0 - 1) * (2 * ceK * cA * ceCs ^ (1 / 2 : ℝ))) + b * ((0 - 0) * (2 * ceK * cA * ceCs ^ (1 / 2 : ℝ))) +
+      c₀ * ((1 - 0) * (2 * ceK * cA * ceCs ^ (1 / 2 : ℝ))) = (c₀ - a) * (2 * ceK * cA * ceCs ^ (1 / 2 : ℝ)) := by ring
+  rw [e] at h
+  exact h
+
+/-- info: 'FormalResearch.CohnElkies.hb_leading_pos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms hb_leading_pos
+/-- info: 'FormalResearch.CohnElkies.hb_estimate_airySeed_uniform_val' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms hb_estimate_airySeed_uniform_val
 
 /-- **`(e4)` for the `m₀ = 1` Hermite--Biehler seed family, uniform in `(γ₁, γ₂, δ, r)` with all four in `[-R', R']`**; the seed is
 `airySeedU2 (-1 - γ₂ δ) (-γ₁ δ + γ₂ δ + r) (γ₂ δ)` (`hbSeed_m1_eq_airySeedU2`). -/

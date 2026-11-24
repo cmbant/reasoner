@@ -56,6 +56,7 @@ public import FormalResearch.CohnElkies.OuterAmplitude
 public import FormalResearch.CohnElkies.OuterWeightedBound
 public import FormalResearch.CohnElkies.HighBandEstimate
 public import FormalResearch.CohnElkies.HighBandUniform
+public import FormalResearch.CohnElkies.WindowSmoothConv
 public import FormalResearch.CohnElkies.DualBoundE3
 public import FormalResearch.CohnElkies.MellinKernelHolomorphic
 public import FormalResearch.CohnElkies.VerticalStripShift
@@ -186,6 +187,7 @@ and the Airy library:
 * `FormalResearch.CohnElkies.OuterWeightedBound`: the dual-phase bound from sup and total variation (`dual_phase_mv_bound` in `DualPhaseAndO3`, for `L ≤ 8`) turned into the two outer bounds `outer_bound_large_tau` (`τ₁ ≥ 1`, gains `τ₁^{-m}`) and `outer_bound_small_L` (`L ≤ 8`, weighted amplitude), with the smooth factor `outerK` and its bounds.
 * `FormalResearch.CohnElkies.HighBandEstimate`: `O.3(2)`/`(e4)` for the one-level seeds. `hb_outer` (the `(1-χ_ξ)` part, constants depending only on `m`, `C_G`, `K_χ`) and `hb_inner` (the `χ_ξ` part by `pieceC_main_term_smooth`), assembled in `hb_estimate_of_sqData`, `hb_estimate_airySeed`, `hb_estimate_airySeed_rel` (relative form for `γ₀ ≠ 0`), `hb_estimate_hbSeed_m1`. Unconditional; the only inputs are the seed data of `SeedSqrtForm`/`SeedSymbolDerivs`.
 * `FormalResearch.CohnElkies.HighBandUniform`: `(e4)` uniform over the seed coefficients: `I_main` is linear in `(a, b, c₀)` (`iMain_airySeed_lin`), so `hb_estimate_airySeed_uniform` gives `γ₁, γ₂, γ₃, C` depending only on `m` and the coefficient bound `R` with `γ₀ = aγ₁ + bγ₂ + c₀γ₃`; `hb_estimate_hbSeed_m1_uniform` is the `m₀ = 1` Hermite–Biehler family `F_δ` (uniform in `γ₁, γ₂, δ, r ∈ [-R', R']`). Not formalised: `γ₀ = c_s^{1/2}2^{2/3}π^{-1/2}β_∞(F)`.
+* `FormalResearch.CohnElkies.WindowSmoothConv`: `windowSmooth_eq_bspline_integral` (`O.6`/`O.9'`: the iterated moving average `windowSmooth δ₀ m X` is the convolution of `X` with `bspline m δ₀`: `windowSmooth δ₀ m X x = ∫ t in [0, δ₀], X (x + t) bspline m δ₀ t` for continuous `X`, `0 < δ₀`, `1 ≤ m`).
 * `FormalResearch.CohnElkies.DualBoundE3`: `(e3)` for the lift's dual edge integral: `iDual_eq_dualEdgeIntegral` (substitution `τ = εv`, `mellinK0_imag_eq`), `iDual_bound_e3` (`|I_dual[D]| ≤ Cξ⁻¹(1+δ₀c^{1/3})^{-m}c⁻¹min(L^{-1/4},L^{-3/2})`, `m ≥ 3`, `δ₀ ∈ (0,2]`, `c ≥ 2`, `S ≥ 1`, `C` depending only on `m` and the symbol constant), `iDual_bound_e3_hasU2`. Not formalised: `m ∈ {1,2}`.
 * `FormalResearch.CohnElkies.MellinKernelHolomorphic`: `S̃₀` and `K₀(·, ξ)` are holomorphic on the strip `|Re ζ| < 1` (`differentiableAt_stripS0Tilde`, `differentiableOn_mellinK0`), by differentiation under the integral sign. Used for the contour shift of `O.5`(1).
 * `FormalResearch.CohnElkies.VerticalStripShift`: `strip_shift`, the integral of a function continuous on a closed vertical strip, holomorphic inside and dominated by an integrable `g(Im w) → 0`, is the same on the two boundary lines (Cauchy on `[a,b] × [-V,V]`).
