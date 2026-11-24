@@ -86,4 +86,21 @@ theorem ceTune_exists (γ₁ γ₂ : ℝ) (S : ℝ → ℝ → ℝ) {K c : ℝ} 
     (x := c ^ (1 / 3 : ℝ)) (Real.rpow_nonneg hc.le _) hmass hgx
   exact ⟨η, hη.trans hsmall, hη, he⟩
 
+
+/-- **The input on the source family `S_c`** for the physical sign of `thm:ce-hb-lift` (the consequences of Lemma `O.12`, `ceo:conv`,
+that the lift uses): class `HasU2`; mass `≍ ε`; the one-sided tail data (`ConvTailData`); the edge bound `|W_{S_c}(c^{1/3})| ≲ c^{-5/6}`
+at the spline width `β₁ K ε / 2`; and the reflected estimates `O6DualEst` for `-S_c`.  Not discharged here: this structure is the hypothesis
+under which `ceLift_physical` holds. -/
+structure CeSourceFamily (S : ℝ → ℝ → ℝ) : Prop where
+  hasU2 : ∀ {c : ℝ}, 2000 ≤ c → HasU2 (S c)
+  mass : ∃ m₀ M₀ : ℝ, 0 < m₀ ∧ 0 < M₀ ∧ ∀ {c : ℝ}, 2000 ≤ c →
+    m₀ * liftEps c ≤ ∫ u : ℝ, S c u ∧ ∫ u : ℝ, S c u ≤ M₀ * liftEps c
+  tail : ∀ {K c : ℝ}, 1 ≤ K → 2000 ≤ c → 8 * K ^ 3 ≤ c → ConvTailData (S c) (ceBeta1 * K * liftEps c / 2) 4 c
+  edge : ∀ K : ℝ, 1 ≤ K → ∃ C : ℝ, 0 ≤ C ∧ ∀ {c : ℝ}, 2000 ≤ c → 8 * K ^ 3 ≤ c →
+    ‖liftSymbol (S c) (ceBeta1 * K * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)‖ ≤ C * c ^ (-(5 / 6 : ℝ))
+  dual : O6DualEst 4 (fun _ c u => -S c u)
+
+lemma airySeedU2_zero_one_zero : airySeedU2 0 1 0 = ceG1 (airyZero 1) := by
+  funext u; simp [airySeedU2]
+
 end FormalResearch.SignUncertainty
