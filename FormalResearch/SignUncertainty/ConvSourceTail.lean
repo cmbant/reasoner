@@ -183,13 +183,16 @@ theorem exists_hankelEigenfn_lift_of_convTail {m : ℕ} (hm : 3 ≤ m) (a b c₀
       (∀ ξ : ℝ, 0 < ξ → ((c ^ (1 / 3 : ℝ) * hankelRho0 c (c * ξ) * f (c * ξ) : ℝ) : ℂ) =
         iMain (fun u => airySeedU2 a b c₀ u + τ * S u) (ceBeta1 * K * liftEps c / 2) m c ξ +
           (σ : ℂ) * iDual (fun u => airySeedU2 a b c₀ u + τ * S u) (ceBeta1 * K * liftEps c / 2) m c ξ) ∧
-      f 0 = σ * ∫ Δ in Ioi (0 : ℝ), f Δ * hankelRho0 c Δ := by
+      f 0 = σ * ∫ Δ in Ioi (0 : ℝ), f Δ * hankelRho0 c Δ ∧
+      ((f 0 : ℝ) : ℂ) = liftSymbol (fun u => airySeedU2 a b c₀ u + τ * S u) (ceBeta1 * K * liftEps c / 2) m
+          (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ) +
+        (σ : ℂ) * liftSymbol (fun u => airySeedU2 a b c₀ u + τ * S u) (ceBeta1 * K * liftEps c / 2) m 0 := by
   have hc0 : 0 < c := by linarith
   have hδ : 0 ≤ ceBeta1 * K * liftEps c / 2 := by
     have := ceBeta1_pos; have := liftEps_pos hc0; positivity
-  obtain ⟨f, hf, hrep, hf0, -⟩ := exists_hankelEigenfn_lift_general
+  obtain ⟨f, hf, hrep, hf0, hfs⟩ := exists_hankelEigenfn_lift_general
     ((hasU2_airySeedU2 a b c₀).add (hS.hasU2.smul τ)) hδ m (by linarith) hσ (convTail_add hm a b c₀ hK hc hcK hS τ hσ)
-  exact ⟨f, hf, hrep, hf0⟩
+  exact ⟨f, hf, hrep, hf0, hfs⟩
 
 /-- info: 'FormalResearch.SignUncertainty.iMain_add' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
