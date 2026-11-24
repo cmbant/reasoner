@@ -181,6 +181,16 @@ lemma step_mul {Par : Type*} (F : SymbolFamily Par) (N : ℕ) : F.step N * ((N :
   have : ((N : ℝ) + 1) ≠ 0 := by positivity
   field_simp
 
+/-- `h = L/(N+1) <= eps` for `N >= N_1` (the restriction `h <= h_0` of a chart or block constant is `N >= N_0`). -/
+lemma exists_N_step_le {Par : Type*} (F : SymbolFamily Par) {ε : ℝ} (hε : 0 < ε) :
+    ∃ N1 : ℕ, ∀ N : ℕ, N1 ≤ N → F.step N ≤ ε := by
+  refine ⟨⌈F.L / ε⌉₊, fun N hN => ?_⟩
+  have hm := step_mul F N
+  have h1 : F.L / ε ≤ (N : ℝ) := (Nat.le_ceil _).trans (by exact_mod_cast hN)
+  rw [div_le_iff₀ hε] at h1
+  have hp := step_pos F N
+  nlinarith
+
 /-- `a_n <= sqrt E_0(s_n) + C_a h^e` for `-1 <= n <= N`, with `s_n = (n+1) h` (so `s_{-1} = 0`, `s_N = L`). -/
 lemma bondA_le {Par : Type*} (F : SymbolFamily Par) {g C0 : ℝ} (hg : 0 < g) (hC0 : 0 ≤ C0) (μ : Par) (N : ℕ)
     (hG : ∀ u ∈ Icc 0 F.L, g ≤ F.G 0 μ u) {e : ℕ}

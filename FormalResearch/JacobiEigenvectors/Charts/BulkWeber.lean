@@ -34,6 +34,8 @@ and the envelopes `W = E_Web`, `M = M_Web`.
 * `W_osc`, `M_osc`: `W = 1` and `M ~ h^{1/4}` on the oscillatory overlap (the Airy argument is `<= -c_*` there; app_thmA Step 2).
 * `seed_pos`, `collar_lb`: `psi-hat_0 > 0` (`w_0 = e^{-z^2/4}`) and the relative lower bound on the forbidden collar `|psi-hat| >= c E M`
   (`lem:cha-W0` plus smallness of the corrector term).
+* With the model pair `pcU, pcV`, `theta_le`, `W_osc`, `M_osc`, `seed_pos`, `collar_lb` and their constants are derived from the other fields:
+  `BulkWeberChart.ofCore` (`Charts/BulkWeberCore.lean`) builds the chart from `BulkWeberCore`, the chart without them.
 
 None of the fields is an estimate of an exact solution of the recurrence or of an eigenvector: all fields concern the model functions,
 the coordinate, the corrector row and the *defect* of the comparison sequence.
@@ -91,27 +93,25 @@ def arccoshR (x : ℝ) : ℝ := Real.log (x + Real.sqrt (x ^ 2 - 1))
 def thetaL (L : ℝ) (G0 B0 : ℝ → ℝ) (X u : ℝ) : ℝ :=
   ∫ v in (0 : ℝ)..u, Real.arccos ((X - B0 v) / (2 * Real.sqrt (E0 L G0 v)))
 
-/-- **The left Weber chart at order `m`** (see the module docstring). -/
-structure BulkWeberChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (P : Set Par)
+/-- **The input fields of the bulk Weber chart**: the coordinate, the ladder data and the corrector row.  The other fields of
+`BulkWeberChart` (`theta_le`, `W_osc`, `M_osc`, `seed_pos`, `collar_lb` and their constants) are derived from these when the model pair
+is `pcU, pcV`: `BulkWeberChart.ofCore` (`Charts/BulkWeberCore.lean`). -/
+structure BulkWeberCore {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (P : Set Par)
     (Jlo Jhi : ℝ) (m : ℕ) (U V : ℝ → ℝ → ℝ) where
   cs : ChainConsts
   N0 : ℕ
-  /-- the oscillatory overlap `[c', c]`, the margin `sigma` and the other chart constants. -/
+  /-- the oscillatory overlap `[c', c]`, the margin `sigma`. -/
   c' : ℝ
   c : ℝ
   σ : ℝ
-  Csum : ℝ
-  cM : ℝ
-  CM : ℝ
   cH : ℝ
-  c3 : ℝ
   /-- the matched Weber coordinate `Y(u; X)` and the factor `H_Z` in `4u - Y^2 = (u - u_-) H_Z`. -/
   Y : Par → ℝ → ℝ → ℝ
   Hz : Par → ℝ → ℝ → ℝ
   /-- the ladder data (total functions; `valid` etc. below hold on the parameter set). -/
   chain : Par → ℝ → ℕ → LadderData
-  /-- constants. -/
-  consts_pos : 0 < c' ∧ c' < c ∧ 0 < σ ∧ c + σ < F.L ∧ 0 < cH ∧ 0 < cM ∧ cM ≤ CM ∧ 0 < c3 ∧ 0 ≤ Csum ∧ Jlo ≤ Jhi
+  /-- the constants of the coordinate and the overlap. -/
+  geom_pos : 0 < c' ∧ c' < c ∧ 0 < σ ∧ c + σ < F.L ∧ 0 < cH ∧ Jlo ≤ Jhi
   /-- `lem:tha-geom` (c): the overlap lies in the oscillatory well `[u_- + sigma, u_+ - sigma]` for all `(mu, X)`. -/
   overlap_in_well : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, F.uMinus μ X + σ ≤ c' ∧ c ≤ F.uPlus μ X - σ
   /-- `prop:cha-halfrow` (a): one simple turning point, `4u - Y^2 = (u - u_-) H_Z`, `H_Z >= c_H`. -/
@@ -154,8 +154,6 @@ structure BulkWeberChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily 
   /-- `rho = rho~ = 1`: the defect is uniformly `O(h^{m+1})`. -/
   rho_one : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
     (chain μ X N).ρ k = 1 ∧ (chain μ X N).ρt k = 1
-  /-- lem:cha-weber-env (3): `Theta_h <= C_sum`. -/
-  theta_le : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → (chain μ X N).theta (F.step N) ≤ Csum
   /-- **(round 2 audit, added)** the global weights are the Weber envelopes: `W_k = E_Web(nu_k, Z_k) = E_well(-(k+1/2), |Z_k|)` and
   `M_k = M_Web(nu_k, Z_k) = M_bal(-(k+1/2), Z_k)`, `Z_k = h^{-1/2} Y(u_k; X)` (lem:cha-weber-env; `E_Web(nu,z) := E_well(-nu,|z|)`).  Without
   these two fields `W, M` were free upper bounds (`env`) and the envelope `V_n` of `psiHatVec`/`bulkEnv` could have been inflated on single
@@ -165,19 +163,6 @@ structure BulkWeberChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily 
     (chain μ X N).W k = Ewell (-((k : ℝ) + 1 / 2)) |Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)|
   M_def : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
     (chain μ X N).M k = Mbal (-((k : ℝ) + 1 / 2)) (Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N))
-  /-- on the overlap `W = 1` (no barrier) and `M ~ h^{1/4}` (redundant given `W_def`, `M_def`, `turn_eq`, `Hz_lb`, `Y_bound`, `overlap_in_well`:
-  there `|Z^2/4 - nu| = (u - u_-) H_Z/(4h) ~ 1/h`; kept as a convenience with its own constants `cM, CM`). -/
-  W_osc : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
-    c' ≤ uNode (F.step N) k → (chain μ X N).W k = 1
-  M_osc : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
-    c' ≤ uNode (F.step N) k →
-      cM * (F.step N) ^ ((1 : ℝ) / 4) ≤ (chain μ X N).M k ∧ (chain μ X N).M k ≤ CM * (F.step N) ^ ((1 : ℝ) / 4)
-  /-- `psi-hat_0 > 0`. -/
-  seed_pos : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → 0 < (chain μ X N).phi (F.step N) 0 1 0
-  /-- relative lower bound on the forbidden collar `u_k <= u_-` (lem:cha-W0). -/
-  collar_lb : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
-    uNode (F.step N) k ≤ F.uMinus μ X →
-      c3 * (chain μ X N).W k * (chain μ X N).M k ≤ |(chain μ X N).phi (F.step N) 0 1 k|
   /-- **(round 6, finding F-S1-1: confirmed, added)** the leading corrector row: `A^{[m]}(u, h^2) = g_0(u) + O(h^2)` with `g_0 > 0` and `h B^{[m]} = O(h)`
   (`prop:cha-halfrow`, `lem:cha-weber-coord` (3), `thm:eng-corr`: `A^{[m]} = sum_{2i <= m-1} h^{2i} g_{2i}`, `B^{[m]} = sum_{2i <= m} h^{2i-2} B_{2i-1}`, `g_0 = V_0^{-1/2} > 0`).
   The engine fields `A_bd`, `B_bd` only give `|A| <= K_A`, `|h B| <= K_B`, which does not determine the phase of `psi-hat` (the row `(A, h B)` could be rotated by an angle
@@ -193,10 +178,42 @@ structure BulkWeberChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily 
   theta_margin : ∃ ε : ℝ, 0 < ε ∧ ε < 1 ∧ ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ u ∈ Set.Icc c' c,
     |X - F.B 0 μ u| ≤ (1 - ε) * (2 * Real.sqrt (E0 F.L (F.G 0 μ) u))
 
+/-- **The left Weber chart at order `m`** (see the module docstring): the core and the fields derived from it (lem:cha-weber-env (2), (3),
+lem:cha-W0). -/
+structure BulkWeberChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (P : Set Par)
+    (Jlo Jhi : ℝ) (m : ℕ) (U V : ℝ → ℝ → ℝ) extends BulkWeberCore F P Jlo Jhi m U V where
+  Csum : ℝ
+  cM : ℝ
+  CM : ℝ
+  c3 : ℝ
+  /-- the constants of the derived fields (`consts_pos` collects all chart constants). -/
+  env_pos : 0 < cM ∧ cM ≤ CM ∧ 0 < c3 ∧ 0 ≤ Csum
+  /-- lem:cha-weber-env (3): `Theta_h <= C_sum`. -/
+  theta_le : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → (chain μ X N).theta (F.step N) ≤ Csum
+  /-- on the overlap `W = 1` (no barrier) and `M ~ h^{1/4}` (from `W_def`, `M_def`, `turn_eq`, `Hz_lb`, `Y_bound`, `overlap_in_well`:
+  there `|Z^2/4 - nu| = (u - u_-) H_Z/(4h) ~ 1/h`). -/
+  W_osc : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
+    c' ≤ uNode (F.step N) k → (chain μ X N).W k = 1
+  M_osc : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
+    c' ≤ uNode (F.step N) k →
+      cM * (F.step N) ^ ((1 : ℝ) / 4) ≤ (chain μ X N).M k ∧ (chain μ X N).M k ≤ CM * (F.step N) ^ ((1 : ℝ) / 4)
+  /-- `psi-hat_0 > 0`. -/
+  seed_pos : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → 0 < (chain μ X N).phi (F.step N) 0 1 0
+  /-- relative lower bound on the forbidden collar `u_k <= u_-` (lem:cha-W0). -/
+  collar_lb : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chain μ X N).NR,
+    uNode (F.step N) k ≤ F.uMinus μ X →
+      c3 * (chain μ X N).W k * (chain μ X N).M k ≤ |(chain μ X N).phi (F.step N) 0 1 k|
+
 namespace BulkWeberChart
 
 variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {Jlo Jhi : ℝ} {m : ℕ}
   {U V : ℝ → ℝ → ℝ} (C : BulkWeberChart F P Jlo Jhi m U V)
+
+/-- All chart constants: the core's `geom_pos` and the derived `env_pos`. -/
+theorem consts_pos : 0 < C.c' ∧ C.c' < C.c ∧ 0 < C.σ ∧ C.c + C.σ < F.L ∧ 0 < C.cH ∧ 0 < C.cM ∧ C.cM ≤ C.CM ∧ 0 < C.c3 ∧
+    0 ≤ C.Csum ∧ Jlo ≤ Jhi :=
+  ⟨C.geom_pos.1, C.geom_pos.2.1, C.geom_pos.2.2.1, C.geom_pos.2.2.2.1, C.geom_pos.2.2.2.2.1, C.env_pos.1, C.env_pos.2.1,
+    C.env_pos.2.2.1, C.env_pos.2.2.2, C.geom_pos.2.2.2.2.2⟩
 
 /-- The left comparison sequence `psi-hat^{L,[m]}_n` (eq:tha-weber-seq) of the chart at `(mu, X, N)`. -/
 def psiHatL (μ : Par) (X : ℝ) (N : ℕ) : ℤ → ℝ := (C.chain μ X N).psiHat (F.step N) 1

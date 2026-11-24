@@ -12,7 +12,6 @@ Source: Paper J `app_thmB.tex`, proof of `prop:thb-inputs`: (S1) the blocks, the
 
 ## Proved here
 
-* `exists_N_step_le`: `h = L/(N+1) <= eps` for `N >= N_1` (the restriction `h <= h_0` of the block constants is `N >= N_0`: finding F-B3).
 * `thbBlock_eq_up_iff`, `thbBlock_eq_lo_iff`: the column sets of the two soft blocks (`blockOf = none`, above / not above `Jhi`).
 * `SoftBlockUp`, `SoftBlockLo`: **the statements of the two soft blocks** (the soft analogue of `bulk_block`): for the columns of the upper (lower) soft edge, a `ThbBlock` with uniform constants, under `1 <= m`, `q = 2 Kidx`,
   the standing assumptions at `Kidx` and the host bound.
@@ -41,15 +40,6 @@ open Finset FormalResearch.JacobiEigenvectors.Setting FormalResearch.JacobiEigen
   FormalResearch.JB
 
 open scoped Classical
-
-theorem exists_N_step_le {L : ℝ} (hL : 0 < L) {ε : ℝ} (hε : 0 < ε) :
-    ∃ N1 : ℕ, ∀ N : ℕ, N1 ≤ N → FormalResearch.JB.stepSize L N ≤ ε := by
-  refine ⟨⌈L / ε⌉₊, fun N hN => ?_⟩
-  unfold FormalResearch.JB.stepSize
-  rw [div_le_iff₀ (by positivity)]
-  have h1 : L / ε ≤ (N : ℝ) := (Nat.le_ceil _).trans (by exact_mod_cast hN)
-  rw [div_le_iff₀ hε] at h1
-  nlinarith
 
 section Cols
 
@@ -171,7 +161,7 @@ theorem propThbInputs_of_soft
   -- final constants
   set cs : OneStepConsts := { csJ with nb := CP.CI0.nb + 2, C := max csJ.C Ch, C_nonneg := le_max_of_le_left csJ.C_nonneg } with hcs
   have hcle : csJ.Le cs := ⟨le_max_left _ _, le_rfl, le_rfl, le_rfl, le_rfl, le_rfl, le_rfl, le_rfl⟩
-  obtain ⟨N1, hN1⟩ := exists_N_step_le F.L_pos (lt_min (lt_min hh0p ht') hhpos)
+  obtain ⟨N1, hN1⟩ := exists_N_step_le F (lt_min (lt_min hh0p ht') hhpos)
   refine ⟨cs, max N0 N1, Cε, cε, hc0, ?_⟩
   intro μ hμ N hN hNt Xs Um hE
   have hN0 : N0 ≤ N := (le_max_left _ _).trans hN
