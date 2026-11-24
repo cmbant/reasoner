@@ -17,7 +17,9 @@ For the symbol `W̃(v) = W(iv)` (with derivatives `W1, W2, W3`, each of size `|v
 `w - u`, `w' - 1`, `Q` etc. relative to `|u|` and its derivatives.  The proof is the third-order mean value step on the segment `[u, w(u)]`
 (the `r = 2` bound differentiates `W̃(w) - W̃` to `W̃'''`).
 
-* `symbol_diff_bounds`: the three bounds at one point `u`, with `C` depending only on the constant `A` of the hypotheses.
+* `symbol_diff_local`: the three bounds at one point `u` in terms of a local symbol size `ρ` (`|W^{(j)}(x)| ≲ ρ|u|^{-j}` for `|x|` between
+  `|u|/2` and `R`), valid for any exponent regime (used with `ρ = |u|^{-5/2}` for `|u| ≥ 1` and with `ρ = |u|^{1/2}`, `W - W(0)`, near zero);
+* `symbol_diff_bounds`: the large-`|u|` case `ρ = |u|^{-5/2}`, with `C` depending only on the constant `A` of the hypotheses.
 
 Status: proved, unconditional (pointwise bounds from pointwise hypotheses).  Not formalised here: the verification of the hypotheses for the
 normal form `τ` (`O.4`), which is the content of the later modules.
@@ -62,99 +64,76 @@ lemma mbd_seg_ge {u w x : ℝ} (hs : 0 < w * u) (hw : |u| / 2 ≤ |w|) (hx : x �
     rcases hx with h | h <;> linarith [h.1, h.2]
 
 /-- Mean value bound for a symbol derivative along the segment `[u, w]`. -/
-lemma mbd_mvt {f f' : ℝ → ℂ} {u w B : ℝ} (hs : 0 < w * u) (hw : |u| / 2 ≤ |w|)
-    (hf : ∀ x, |u| / 2 ≤ |x| → HasDerivAt f (f' x) x) (hB : ∀ x, |u| / 2 ≤ |x| → ‖f' x‖ ≤ B) :
+lemma mbd_mvt {f f' : ℝ → ℂ} {u w B : ℝ}
+    (hf : ∀ x ∈ uIcc u w, HasDerivAt f (f' x) x) (hB : ∀ x ∈ uIcc u w, ‖f' x‖ ≤ B) :
     ‖f w - f u‖ ≤ B * |w - u| := by
   have := (convex_uIcc u w).norm_image_sub_le_of_norm_hasDerivWithin_le (f := f) (f' := f') (C := B)
-    (fun x hx => (hf x (mbd_seg_ge hs hw hx)).hasDerivWithinAt) (fun x hx => hB x (mbd_seg_ge hs hw hx))
+    (fun x hx => (hf x hx).hasDerivWithinAt) (fun x hx => hB x hx)
     (left_mem_uIcc) (right_mem_uIcc)
   simpa [Real.norm_eq_abs] using this
+
+/-- Points of the segment `[u, w]` have `|x| ≤ R` when `|u|, |w| ≤ R`. -/
+lemma mbd_seg_le {u w x R : ℝ} (hu : |u| ≤ R) (hw : |w| ≤ R) (hx : x ∈ uIcc u w) : |x| ≤ R := by
+  rw [mem_uIcc] at hx
+  have h1 := abs_le.mp hu
+  have h2 := abs_le.mp hw
+  rw [abs_le]
+  rcases hx with h | h <;> constructor <;> linarith [h.1, h.2]
 
 /-- **`(e8)` at a point.**  Hypotheses (all pointwise at `u`, `|u| ≥ 1`, with `δ ∈ [0,1]` the size `L + ε²u²`): the symbol `W` has derivatives
 `W1, W2, W3` with `‖W^{(j)}(s)‖ ≤ A|s|^{-5/2-j}` for `|s| ≥ 1/2`; the reparametrisation `w` has `|w - u| ≤ Aδ|u|`, `|w' - 1| ≤ Aδ`,
 `|w''| ≤ Aδ/|u|`, `|w| ≥ |u|/2` and the sign of `u`; `Q = P - E` has `‖Q^{(j)}‖ ≤ Aδ|u|^{-j}` and `E` has `‖E^{(j)}‖ ≤ A|u|^{-j}`.
 Then `𝒟 = Q W(w) + E (W(w) - W)` has `‖𝒟^{(r)}(u)‖ ≤ C δ |u|^{-5/2-r}` for `r ≤ 2`, with `C = 4096 A⁴`. -/
-theorem symbol_diff_bounds (A : ℝ) (hA : 1 ≤ A) :
+theorem symbol_diff_local (A : ℝ) (hA : 1 ≤ A) :
     ∀ {U : Set ℝ}, IsOpen U →
-    ∀ {W W1 W2 W3 : ℝ → ℂ} {w w1 w2 : ℝ → ℝ} {Q Q1 Q2 E E1 E2 : ℝ → ℂ} {δ u : ℝ},
-      u ∈ U → 1 ≤ |u| → 0 ≤ δ → δ ≤ 1 →
+    ∀ {W W1 W2 W3 : ℝ → ℂ} {w w1 w2 : ℝ → ℝ} {Q Q1 Q2 E E1 E2 : ℝ → ℂ} {δ u ρ R : ℝ},
+      u ∈ U → 0 < |u| → 0 ≤ δ → δ ≤ 1 → 0 < ρ → |u| ≤ R → |w u| ≤ R →
       (∀ s, s ≠ 0 → HasDerivAt W (W1 s) s ∧ HasDerivAt W1 (W2 s) s ∧ HasDerivAt W2 (W3 s) s) →
-      (∀ s, 1 / 2 ≤ |s| → ‖W s‖ ≤ A * |s| ^ (-(5 / 2 : ℝ)) ∧ ‖W1 s‖ ≤ A * |s| ^ (-(7 / 2 : ℝ)) ∧
-        ‖W2 s‖ ≤ A * |s| ^ (-(9 / 2 : ℝ)) ∧ ‖W3 s‖ ≤ A * |s| ^ (-(11 / 2 : ℝ))) →
+      (∀ x, |u| / 2 ≤ |x| → |x| ≤ R → ‖W x‖ ≤ 64 * A * ρ ∧ ‖W1 x‖ ≤ 64 * A * (ρ * |u|⁻¹) ∧
+        ‖W2 x‖ ≤ 64 * A * (ρ * (|u|⁻¹) ^ 2) ∧ ‖W3 x‖ ≤ 64 * A * (ρ * (|u|⁻¹) ^ 3)) →
       (∀ s ∈ U, HasDerivAt w (w1 s) s ∧ HasDerivAt w1 (w2 s) s) →
       (∀ s ∈ U, HasDerivAt Q (Q1 s) s ∧ HasDerivAt Q1 (Q2 s) s) →
       (∀ s ∈ U, HasDerivAt E (E1 s) s ∧ HasDerivAt E1 (E2 s) s) →
       0 < w u * u → |u| / 2 ≤ |w u| → |w u - u| ≤ A * δ * |u| → |w1 u - 1| ≤ A * δ → |w2 u| ≤ A * δ / |u| →
       ‖Q u‖ ≤ A * δ → ‖Q1 u‖ ≤ A * δ / |u| → ‖Q2 u‖ ≤ A * δ / |u| ^ 2 →
       ‖E u‖ ≤ A → ‖E1 u‖ ≤ A / |u| → ‖E2 u‖ ≤ A / |u| ^ 2 →
-      ‖Q u * W (w u) + E u * (W (w u) - W u)‖ ≤ 4096 * A ^ 4 * δ * |u| ^ (-(5 / 2 : ℝ)) ∧
-      ‖deriv (fun s => Q s * W (w s) + E s * (W (w s) - W s)) u‖ ≤ 4096 * A ^ 4 * δ * |u| ^ (-(7 / 2 : ℝ)) ∧
-      ‖deriv (deriv (fun s => Q s * W (w s) + E s * (W (w s) - W s))) u‖ ≤ 4096 * A ^ 4 * δ * |u| ^ (-(9 / 2 : ℝ)) := by
-  intro U hU W W1 W2 W3 w w1 w2 Q Q1 Q2 E E1 E2 δ u huU hu1 hδ0 hδ1 hWd hWb hwd hQd hEd hsg hw0 hw hw1 hw2 hQ0 hQ1 hQ2 hE0 hE1 hE2
+      ‖Q u * W (w u) + E u * (W (w u) - W u)‖ ≤ 4096 * A ^ 4 * (δ * ρ) ∧
+      ‖deriv (fun s => Q s * W (w s) + E s * (W (w s) - W s)) u‖ ≤ 4096 * A ^ 4 * (δ * (ρ * |u|⁻¹)) ∧
+      ‖deriv (deriv (fun s => Q s * W (w s) + E s * (W (w s) - W s))) u‖ ≤ 4096 * A ^ 4 * (δ * (ρ * (|u|⁻¹) ^ 2)) := by
+  intro U hU W W1 W2 W3 w w1 w2 Q Q1 Q2 E E1 E2 δ u ρ R huU hu1 hδ0 hδ1 hρ huR hwR hWd hSbl hwd hQd hEd hsg hw0 hw hw1 hw2 hQ0 hQ1 hQ2 hE0 hE1 hE2
   set m : ℝ := |u| with hm
-  have hm0 : 0 < m := by linarith
-  set ρ : ℝ := m ^ (-(5 / 2 : ℝ)) with hρ
+  have hm0 : 0 < m := hu1
   set q : ℝ := m⁻¹ with hq
   have hq0 : 0 < q := inv_pos.mpr hm0
-  have hq1 : q ≤ 1 := inv_le_one_of_one_le₀ hu1
-  have hρ0 : 0 < ρ := Real.rpow_pos_of_pos hm0 _
+  have hρ0 : 0 < ρ := hρ
   have hmq : m * q = 1 := mul_inv_cancel₀ hm0.ne'
-  have e7 : m ^ (-(7 / 2 : ℝ)) = ρ * q := by
-    rw [hρ, hq, show (-(7 / 2 : ℝ)) = -(5 / 2 : ℝ) + (-1 : ℝ) by norm_num, Real.rpow_add hm0, Real.rpow_neg_one]
-  have e9 : m ^ (-(9 / 2 : ℝ)) = ρ * q ^ 2 := by
-    rw [hρ, hq, show (-(9 / 2 : ℝ)) = -(5 / 2 : ℝ) + (-2 : ℝ) by norm_num, Real.rpow_add hm0]
-    rw [show (-2 : ℝ) = ((-2 : ℤ) : ℝ) by norm_num, Real.rpow_intCast]; simp [zpow_neg]
-  have e11 : m ^ (-(11 / 2 : ℝ)) = ρ * q ^ 3 := by
-    rw [hρ, hq, show (-(11 / 2 : ℝ)) = -(5 / 2 : ℝ) + (-3 : ℝ) by norm_num, Real.rpow_add hm0]
-    rw [show (-3 : ℝ) = ((-3 : ℤ) : ℝ) by norm_num, Real.rpow_intCast]; simp [zpow_neg]
-  -- symbol bounds at points `|x| ≥ m/2`
-  have hSb : ∀ x : ℝ, m / 2 ≤ |x| → ‖W x‖ ≤ 64 * A * ρ ∧ ‖W1 x‖ ≤ 64 * A * (ρ * q) ∧
-      ‖W2 x‖ ≤ 64 * A * (ρ * q ^ 2) ∧ ‖W3 x‖ ≤ 64 * A * (ρ * q ^ 3) := by
-    intro x hx
-    have hx' : 1 / 2 ≤ |x| := by linarith
-    obtain ⟨b0, b1, b2, b3⟩ := hWb x hx'
-    have r0 := mbd_rpow_le hm0 hx (by norm_num : (0 : ℝ) < 5 / 2) (by norm_num)
-    have r1 := mbd_rpow_le hm0 hx (by norm_num : (0 : ℝ) < 7 / 2) (by norm_num)
-    have r2 := mbd_rpow_le hm0 hx (by norm_num : (0 : ℝ) < 9 / 2) (by norm_num)
-    have r3 := mbd_rpow_le hm0 hx (by norm_num : (0 : ℝ) < 11 / 2) (by norm_num)
-    rw [e7] at r1; rw [e9] at r2; rw [e11] at r3
-    refine ⟨?_, ?_, ?_, ?_⟩
-    · calc ‖W x‖ ≤ A * |x| ^ (-(5 / 2 : ℝ)) := b0
-        _ ≤ A * (64 * ρ) := by gcongr
-        _ = 64 * A * ρ := by ring
-    · calc ‖W1 x‖ ≤ A * |x| ^ (-(7 / 2 : ℝ)) := b1
-        _ ≤ A * (64 * (ρ * q)) := by gcongr
-        _ = 64 * A * (ρ * q) := by ring
-    · calc ‖W2 x‖ ≤ A * |x| ^ (-(9 / 2 : ℝ)) := b2
-        _ ≤ A * (64 * (ρ * q ^ 2)) := by gcongr
-        _ = 64 * A * (ρ * q ^ 2) := by ring
-    · calc ‖W3 x‖ ≤ A * |x| ^ (-(11 / 2 : ℝ)) := b3
-        _ ≤ A * (64 * (ρ * q ^ 3)) := by gcongr
-        _ = 64 * A * (ρ * q ^ 3) := by ring
   have hwm : m / 2 ≤ |w u| := hw0
-  obtain ⟨hB0, hB1, hB2, -⟩ := hSb (w u) hwm
-  obtain ⟨hU0, hU1, hU2, -⟩ := hSb u (by linarith)
+  have hSb : ∀ x : ℝ, x ∈ uIcc u (w u) → ‖W x‖ ≤ 64 * A * ρ ∧ ‖W1 x‖ ≤ 64 * A * (ρ * q) ∧
+      ‖W2 x‖ ≤ 64 * A * (ρ * q ^ 2) ∧ ‖W3 x‖ ≤ 64 * A * (ρ * q ^ 3) := fun x hx =>
+    hSbl x (mbd_seg_ge hsg hwm hx) (mbd_seg_le huR hwR hx)
+  obtain ⟨hB0, hB1, hB2, -⟩ := hSbl (w u) hwm hwR
+  obtain ⟨hU0, hU1, hU2, -⟩ := hSbl u (by linarith) huR
   -- mean value bounds
   have hAδ : 0 ≤ A * δ := by positivity
   have hwu : |w u - u| ≤ A * δ * m := hw
-  have mvt : ∀ (f f' : ℝ → ℂ) (B : ℝ), (∀ x, m / 2 ≤ |x| → HasDerivAt f (f' x) x) →
-      (∀ x, m / 2 ≤ |x| → ‖f' x‖ ≤ B) → ‖f (w u) - f u‖ ≤ B * (A * δ * m) := by
+  have mvt : ∀ (f f' : ℝ → ℂ) (B : ℝ), (∀ x ∈ uIcc u (w u), HasDerivAt f (f' x) x) →
+      (∀ x ∈ uIcc u (w u), ‖f' x‖ ≤ B) → ‖f (w u) - f u‖ ≤ B * (A * δ * m) := by
     intro f f' B hf hB
-    exact (mbd_mvt hsg hwm hf hB).trans (mul_le_mul_of_nonneg_left hwu (by
-      have := hB u (by linarith); exact (norm_nonneg _).trans this))
+    exact (mbd_mvt hf hB).trans (mul_le_mul_of_nonneg_left hwu (by
+      have := hB u left_mem_uIcc; exact (norm_nonneg _).trans this))
   have hne : ∀ x : ℝ, m / 2 ≤ |x| → x ≠ 0 := fun x hx h => by simp [h] at hx; linarith
   have hΔ0 : ‖W (w u) - W u‖ ≤ 64 * A ^ 2 * δ * ρ := by
-    have := mvt W W1 (64 * A * (ρ * q)) (fun x hx => (hWd x (hne x hx)).1) (fun x hx => (hSb x hx).2.1)
+    have := mvt W W1 (64 * A * (ρ * q)) (fun x hx => (hWd x (hne x (mbd_seg_ge hsg hwm hx))).1) (fun x hx => (hSb x hx).2.1)
     calc _ ≤ _ := this
       _ = 64 * A ^ 2 * δ * ρ * (m * q) := by ring
       _ = _ := by rw [hmq]; ring
   have hΔ1 : ‖W1 (w u) - W1 u‖ ≤ 64 * A ^ 2 * δ * (ρ * q) := by
-    have := mvt W1 W2 (64 * A * (ρ * q ^ 2)) (fun x hx => (hWd x (hne x hx)).2.1) (fun x hx => (hSb x hx).2.2.1)
+    have := mvt W1 W2 (64 * A * (ρ * q ^ 2)) (fun x hx => (hWd x (hne x (mbd_seg_ge hsg hwm hx))).2.1) (fun x hx => (hSb x hx).2.2.1)
     calc _ ≤ _ := this
       _ = 64 * A ^ 2 * δ * (ρ * q) * (m * q) := by ring
       _ = _ := by rw [hmq]; ring
   have hΔ2 : ‖W2 (w u) - W2 u‖ ≤ 64 * A ^ 2 * δ * (ρ * q ^ 2) := by
-    have := mvt W2 W3 (64 * A * (ρ * q ^ 3)) (fun x hx => (hWd x (hne x hx)).2.2) (fun x hx => (hSb x hx).2.2.2)
+    have := mvt W2 W3 (64 * A * (ρ * q ^ 3)) (fun x hx => (hWd x (hne x (mbd_seg_ge hsg hwm hx))).2.2) (fun x hx => (hSb x hx).2.2.2)
     calc _ ≤ _ := this
       _ = 64 * A ^ 2 * δ * (ρ * q ^ 2) * (m * q) := by ring
       _ = _ := by rw [hmq]; ring
@@ -306,7 +285,7 @@ theorem symbol_diff_bounds (A : ℝ) (hA : 1 ≤ A) :
     calc _ ≤ _ := hD1b
       _ = (64 * A ^ 2 + 320 * A ^ 3) * (δ * (ρ * q)) := by ring
       _ ≤ (4096 * A ^ 4) * (δ * (ρ * q)) := by gcongr; linarith
-      _ = _ := by rw [e7]; ring
+      _ = _ := by ring
   · -- r = 2
     rw [hDder2]
     have hq2 : ‖Q2 u‖ ≤ A * δ * q ^ 2 := by
@@ -340,7 +319,87 @@ theorem symbol_diff_bounds (A : ℝ) (hA : 1 ≤ A) :
     calc _ ≤ _ := hD2b
       _ = (64 * A ^ 2 + 768 * A ^ 3 + 448 * A ^ 4) * (δ * (ρ * q ^ 2)) := by ring
       _ ≤ (4096 * A ^ 4) * (δ * (ρ * q ^ 2)) := by gcongr; linarith
+      _ = _ := by ring
+
+
+/-- **`(e8)` at a point.**  Hypotheses (all pointwise at `u`, `|u| ≥ 1`, with `δ ∈ [0,1]` the size `L + ε²u²`): the symbol `W` has derivatives
+`W1, W2, W3` with `‖W^{(j)}(s)‖ ≤ A|s|^{-5/2-j}` for `|s| ≥ 1/2`; the reparametrisation `w` has `|w - u| ≤ Aδ|u|`, `|w' - 1| ≤ Aδ`,
+`|w''| ≤ Aδ/|u|`, `|w| ≥ |u|/2` and the sign of `u`; `Q = P - E` has `‖Q^{(j)}‖ ≤ Aδ|u|^{-j}` and `E` has `‖E^{(j)}‖ ≤ A|u|^{-j}`.
+Then `𝒟 = Q W(w) + E (W(w) - W)` has `‖𝒟^{(r)}(u)‖ ≤ C δ |u|^{-5/2-r}` for `r ≤ 2`, with `C = 4096 A⁴`. -/
+theorem symbol_diff_bounds (A : ℝ) (hA : 1 ≤ A) :
+    ∀ {U : Set ℝ}, IsOpen U →
+    ∀ {W W1 W2 W3 : ℝ → ℂ} {w w1 w2 : ℝ → ℝ} {Q Q1 Q2 E E1 E2 : ℝ → ℂ} {δ u : ℝ},
+      u ∈ U → 1 ≤ |u| → 0 ≤ δ → δ ≤ 1 →
+      (∀ s, s ≠ 0 → HasDerivAt W (W1 s) s ∧ HasDerivAt W1 (W2 s) s ∧ HasDerivAt W2 (W3 s) s) →
+      (∀ s, 1 / 2 ≤ |s| → ‖W s‖ ≤ A * |s| ^ (-(5 / 2 : ℝ)) ∧ ‖W1 s‖ ≤ A * |s| ^ (-(7 / 2 : ℝ)) ∧
+        ‖W2 s‖ ≤ A * |s| ^ (-(9 / 2 : ℝ)) ∧ ‖W3 s‖ ≤ A * |s| ^ (-(11 / 2 : ℝ))) →
+      (∀ s ∈ U, HasDerivAt w (w1 s) s ∧ HasDerivAt w1 (w2 s) s) →
+      (∀ s ∈ U, HasDerivAt Q (Q1 s) s ∧ HasDerivAt Q1 (Q2 s) s) →
+      (∀ s ∈ U, HasDerivAt E (E1 s) s ∧ HasDerivAt E1 (E2 s) s) →
+      0 < w u * u → |u| / 2 ≤ |w u| → |w u - u| ≤ A * δ * |u| → |w1 u - 1| ≤ A * δ → |w2 u| ≤ A * δ / |u| →
+      ‖Q u‖ ≤ A * δ → ‖Q1 u‖ ≤ A * δ / |u| → ‖Q2 u‖ ≤ A * δ / |u| ^ 2 →
+      ‖E u‖ ≤ A → ‖E1 u‖ ≤ A / |u| → ‖E2 u‖ ≤ A / |u| ^ 2 →
+      ‖Q u * W (w u) + E u * (W (w u) - W u)‖ ≤ 4096 * A ^ 4 * δ * |u| ^ (-(5 / 2 : ℝ)) ∧
+      ‖deriv (fun s => Q s * W (w s) + E s * (W (w s) - W s)) u‖ ≤ 4096 * A ^ 4 * δ * |u| ^ (-(7 / 2 : ℝ)) ∧
+      ‖deriv (deriv (fun s => Q s * W (w s) + E s * (W (w s) - W s))) u‖ ≤ 4096 * A ^ 4 * δ * |u| ^ (-(9 / 2 : ℝ)) := by
+  intro U hU W W1 W2 W3 w w1 w2 Q Q1 Q2 E E1 E2 δ u huU hu1 hδ0 hδ1 hWd hWb hwd hQd hEd hsg hw0 hw hw1 hw2 hQ0 hQ1 hQ2 hE0 hE1 hE2
+  set m : ℝ := |u| with hm
+  have hm0 : 0 < m := by linarith
+  set ρ : ℝ := m ^ (-(5 / 2 : ℝ)) with hρ
+  set q : ℝ := m⁻¹ with hq
+  have hq0 : 0 < q := inv_pos.mpr hm0
+  have hq1 : q ≤ 1 := inv_le_one_of_one_le₀ hu1
+  have hρ0 : 0 < ρ := Real.rpow_pos_of_pos hm0 _
+  have hmq : m * q = 1 := mul_inv_cancel₀ hm0.ne'
+  have e7 : m ^ (-(7 / 2 : ℝ)) = ρ * q := by
+    rw [hρ, hq, show (-(7 / 2 : ℝ)) = -(5 / 2 : ℝ) + (-1 : ℝ) by norm_num, Real.rpow_add hm0, Real.rpow_neg_one]
+  have e9 : m ^ (-(9 / 2 : ℝ)) = ρ * q ^ 2 := by
+    rw [hρ, hq, show (-(9 / 2 : ℝ)) = -(5 / 2 : ℝ) + (-2 : ℝ) by norm_num, Real.rpow_add hm0]
+    rw [show (-2 : ℝ) = ((-2 : ℤ) : ℝ) by norm_num, Real.rpow_intCast]; simp [zpow_neg]
+  have e11 : m ^ (-(11 / 2 : ℝ)) = ρ * q ^ 3 := by
+    rw [hρ, hq, show (-(11 / 2 : ℝ)) = -(5 / 2 : ℝ) + (-3 : ℝ) by norm_num, Real.rpow_add hm0]
+    rw [show (-3 : ℝ) = ((-3 : ℤ) : ℝ) by norm_num, Real.rpow_intCast]; simp [zpow_neg]
+  -- symbol bounds at points `|x| ≥ m/2`
+  have hSb : ∀ x : ℝ, m / 2 ≤ |x| → ‖W x‖ ≤ 64 * A * ρ ∧ ‖W1 x‖ ≤ 64 * A * (ρ * q) ∧
+      ‖W2 x‖ ≤ 64 * A * (ρ * q ^ 2) ∧ ‖W3 x‖ ≤ 64 * A * (ρ * q ^ 3) := by
+    intro x hx
+    have hx' : 1 / 2 ≤ |x| := by linarith
+    obtain ⟨b0, b1, b2, b3⟩ := hWb x hx'
+    have r0 := mbd_rpow_le hm0 hx (by norm_num : (0 : ℝ) < 5 / 2) (by norm_num)
+    have r1 := mbd_rpow_le hm0 hx (by norm_num : (0 : ℝ) < 7 / 2) (by norm_num)
+    have r2 := mbd_rpow_le hm0 hx (by norm_num : (0 : ℝ) < 9 / 2) (by norm_num)
+    have r3 := mbd_rpow_le hm0 hx (by norm_num : (0 : ℝ) < 11 / 2) (by norm_num)
+    rw [e7] at r1; rw [e9] at r2; rw [e11] at r3
+    refine ⟨?_, ?_, ?_, ?_⟩
+    · calc ‖W x‖ ≤ A * |x| ^ (-(5 / 2 : ℝ)) := b0
+        _ ≤ A * (64 * ρ) := by gcongr
+        _ = 64 * A * ρ := by ring
+    · calc ‖W1 x‖ ≤ A * |x| ^ (-(7 / 2 : ℝ)) := b1
+        _ ≤ A * (64 * (ρ * q)) := by gcongr
+        _ = 64 * A * (ρ * q) := by ring
+    · calc ‖W2 x‖ ≤ A * |x| ^ (-(9 / 2 : ℝ)) := b2
+        _ ≤ A * (64 * (ρ * q ^ 2)) := by gcongr
+        _ = 64 * A * (ρ * q ^ 2) := by ring
+    · calc ‖W3 x‖ ≤ A * |x| ^ (-(11 / 2 : ℝ)) := b3
+        _ ≤ A * (64 * (ρ * q ^ 3)) := by gcongr
+        _ = 64 * A * (ρ * q ^ 3) := by ring
+  have hwm : m / 2 ≤ |w u| := hw0
+  have hloc := symbol_diff_local A hA hU (W := W) (W1 := W1) (W2 := W2) (W3 := W3) (w := w) (w1 := w1) (w2 := w2)
+    (Q := Q) (Q1 := Q1) (Q2 := Q2) (E := E) (E1 := E1) (E2 := E2) (δ := δ) (u := u) (ρ := ρ) (R := |u| + |w u|)
+    huU (by linarith) hδ0 hδ1 hρ0 (by linarith [abs_nonneg (w u)]) (by linarith [abs_nonneg u]) hWd
+    (fun x hx _ => hSb x hx) hwd hQd hEd hsg hw0 hw hw1 hw2 hQ0 hQ1 hQ2 hE0 hE1 hE2
+  obtain ⟨c0, c1, c2⟩ := hloc
+  refine ⟨?_, ?_, ?_⟩
+  · calc _ ≤ _ := c0
+      _ = _ := by ring
+  · calc _ ≤ _ := c1
+      _ = _ := by rw [e7]; ring
+  · calc _ ≤ _ := c2
       _ = _ := by rw [e9]; ring
+
+/-- info: 'FormalResearch.SignUncertainty.symbol_diff_local' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.symbol_diff_local
 
 /-- info: 'FormalResearch.SignUncertainty.symbol_diff_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
