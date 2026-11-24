@@ -609,4 +609,32 @@ lemma Prof.cut {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (h : Prof ϑ K1 K2) {R : ℝ} (h
     IsCut (fun u => ϑ (u / R)) 1 (2 * K1) (4 * K2) :=
   cutoff_scale h.contDiff h.range h.zero h.d1 h.d2 hR
 
+/-- info: 'FormalResearch.SignUncertainty.split_refl' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms split_refl
+
+/-- info: 'FormalResearch.SignUncertainty.ibp_gen_sym' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ibp_gen_sym
+
+/-- info: 'FormalResearch.SignUncertainty.vdc_sym' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms vdc_sym
+
+/-- info: 'FormalResearch.SignUncertainty.cubic_two_ibp_const' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms cubic_two_ibp_const
+
+/-- info: 'FormalResearch.SignUncertainty.ibp_const_sym' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ibp_const_sym
+
+/-- info: 'FormalResearch.SignUncertainty.ibp_pw_sym' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ibp_pw_sym
+
+/-- info: 'FormalResearch.SignUncertainty.prof_exists' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms prof_exists
+
 end FormalResearch.SignUncertainty
