@@ -21,6 +21,13 @@ For a weight `w` integrable on `(0, ∞)` and `Re z > 0`, the `k`-th moment tran
   this module does not construct that instance.
 * `convS_lapW_exp`: the Laplace transform of the exponential term `γ ε e^{-y}` (class: proved).
 * `convS_lapW_norm_le`: `‖lapW w_h z‖ ≤ 2` for `Re z ≥ 0`, uniformly in `h > 0` (class: proved).
+* `convS_lapW_sub_le`: `‖lapW w_h z - ∫ w_h‖ ≤ 6 ‖z‖^{1/2}` for `Re z > 0`, `‖z‖ ≤ 1`, uniformly in
+  `h > 0` (class: proved).
+* `convS_k1_decay`: `‖∫ w_h(y) (-y) e^{-zy}‖ ≤ 2|C| ‖z‖^{-2}` for `Re z > 0`, uniformly in `h > 0`,
+  from `ConvWeightDerivBound p C` by two integrations by parts (class: proved, conditional on the
+  hypothesis structure).
+
+Not in this module: the `k = 2, 3` bounds of `(ceo:conv.5)` and all `‖z‖ ≤ 1` bounds for `k ≥ 1`.
 -/
 
 @[expose] public section
@@ -379,6 +386,351 @@ theorem convS_lapW_sub_le {p h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hh : 0 < h
         exact convWh_le (by linarith) hh.le hy0
     _ ≤ 6 * ‖z‖ ^ (1 / 2 : ℝ) := convS_tail_le ha0 hz1
 
+/-- Decay of `G(y) e^{-zy}` at `∞` for a bounded `G` (`Re z > 0`). -/
+lemma convS_tendsto_zero {G : ℝ → ℂ} {M : ℝ} {z : ℂ} (hz : 0 < z.re)
+    (hG : ∀ y : ℝ, 1 ≤ y → ‖G y‖ ≤ M) :
+    Tendsto (fun y : ℝ => G y * Complex.exp (-(z * (y : ℂ)))) atTop (𝓝 0) := by
+  have h1 : Tendsto (fun y : ℝ => Real.exp (-(z.re * y))) atTop (𝓝 0) := by
+    have := Real.tendsto_exp_neg_atTop_nhds_zero.comp (tendsto_id.const_mul_atTop hz)
+    simpa [Function.comp_def] using this
+  have h2 : Tendsto (fun y : ℝ => M * Real.exp (-(z.re * y))) atTop (𝓝 0) := by
+    simpa using h1.const_mul M
+  refine squeeze_zero_norm' ?_ h2
+  filter_upwards [eventually_ge_atTop 1] with y hy
+  have hre : (-(z * (y : ℂ))).re = -(z.re * y) := by simp [Complex.mul_re]
+  rw [norm_mul, Complex.norm_exp, hre]
+  exact mul_le_mul_of_nonneg_right (hG y hy) (Real.exp_nonneg _)
+
+/-- Integrability of `G(y) e^{-zy}` on `(0, ∞)` for a measurable, bounded `G`. -/
+lemma convS_int_exp {G : ℝ → ℂ} {M : ℝ} {z : ℂ} (hz : 0 < z.re)
+    (hGm : AEStronglyMeasurable G (volume.restrict (Ioi (0 : ℝ))))
+    (hG : ∀ y : ℝ, 0 < y → ‖G y‖ ≤ M) :
+    IntegrableOn (fun y : ℝ => G y * Complex.exp (-(z * (y : ℂ)))) (Ioi 0) := by
+  have he : IntegrableOn (fun y : ℝ => Complex.exp (-(z * (y : ℂ)))) (Ioi 0) := by
+    have := integrableOn_exp_mul_complex_Ioi (a := -z) (by simp; linarith) 0
+    simpa [neg_mul] using this
+  refine Integrable.mono' (Integrable.const_mul he.norm M) (hGm.mul
+    (by fun_prop : Continuous fun y : ℝ => Complex.exp (-(z * (y : ℂ)))).aestronglyMeasurable) ?_
+  filter_upwards [ae_restrict_mem measurableSet_Ioi] with y hy
+  have hy0 : (0 : ℝ) < y := hy
+  rw [norm_mul]
+  exact mul_le_mul_of_nonneg_right (hG y hy0) (norm_nonneg _)
+
+/-- A real integrand vanishing on `(0, 1)` is integrable on `(0, ∞)` once it is integrable on
+`(1, ∞)`. -/
+lemma convS_integrableOn_Ioi_of_vanish {G : ℝ → ℝ} (hG0 : ∀ y : ℝ, 0 < y → y < 1 → G y = 0)
+    (hG : IntegrableOn G (Ioi 1)) : IntegrableOn G (Ioi 0) := by
+  rw [← Set.Ioo_union_Ici_eq_Ioi zero_lt_one, integrableOn_union]
+  exact ⟨integrableOn_zero.congr_fun (fun y hy => (hG0 y hy.1 hy.2).symm) measurableSet_Ioo,
+    (integrableOn_Ici_iff_integrableOn_Ioi (by finiteness)).mpr hG⟩
+
+/-- Every iterated derivative of `w_h` vanishes on `(-∞, 1)`. -/
+lemma convS_iteratedDeriv_zero_of_lt {p h y : ℝ} (hy : y < 1) (r : ℕ) :
+    iteratedDeriv r (convWh p h) y = 0 := by
+  have hev : convWh p h =ᶠ[𝓝 y] fun _ => (0 : ℝ) :=
+    Filter.eventually_of_mem (isOpen_Iio.mem_nhds hy) (fun x hx => convWh_eq_zero (le_of_lt hx))
+  rw [hev.iteratedDeriv_eq r, iteratedDeriv_const]
+  simp
+
+/-- Every iterated derivative of `w_h` vanishes on `(-∞, 1]` (by continuity from `(-∞, 1)`). -/
+lemma convS_iteratedDeriv_zero_of_le {p h y : ℝ} (hh : 0 < h) (hy : y ≤ 1) (r : ℕ) :
+    iteratedDeriv r (convWh p h) y = 0 := by
+  have hW : ContDiff ℝ (⊤ : ℕ∞) (convWh p h) := convWh_contDiff hh
+  have hcont : Continuous (iteratedDeriv r (convWh p h)) :=
+    ContDiff.continuous_iteratedDeriv r hW (by simp)
+  have hcl : Iic (1 : ℝ) ⊆ {x : ℝ | iteratedDeriv r (convWh p h) x = 0} := by
+    rw [← closure_Iio (1 : ℝ)]
+    exact closure_minimal (fun x hx => convS_iteratedDeriv_zero_of_lt hx r)
+      (isClosed_eq hcont continuous_const)
+  exact hcl hy
+
+/-- One integration by parts on `(0, ∞)` against `e^{-zy}`: for `g` vanishing on `(0, 1)`, bounded
+on `[1, ∞)` and with `g'` its derivative,
+`∫ g e^{-zy} = (1/z) ∫ g' e^{-zy}`. -/
+lemma convS_ibp {g g' : ℝ → ℝ} {M : ℝ} {z : ℂ} (hz : 0 < z.re)
+    (hg : ∀ y : ℝ, 0 < y → HasDerivAt g (g' y) y)
+    (hg0 : ∀ y : ℝ, 0 < y → y < 1 → g y = 0)
+    (hM : ∀ y : ℝ, 1 ≤ y → |g y| ≤ M)
+    (hgi : IntegrableOn (fun y : ℝ => (g y : ℂ) * Complex.exp (-(z * (y : ℂ)))) (Ioi 0))
+    (hg'i : IntegrableOn (fun y : ℝ => (g' y : ℂ) * Complex.exp (-(z * (y : ℂ)))) (Ioi 0)) :
+    ∫ y in Ioi (0 : ℝ), (g y : ℂ) * Complex.exp (-(z * (y : ℂ)))
+      = (1 / z) * ∫ y in Ioi (0 : ℝ), (g' y : ℂ) * Complex.exp (-(z * (y : ℂ))) := by
+  have hz0 : z ≠ 0 := fun h0 => by rw [h0] at hz; simp at hz
+  have hE : ∀ y : ℝ, HasDerivAt (fun y : ℝ => -(Complex.exp (-(z * (y : ℂ)))) / z)
+      (Complex.exp (-(z * (y : ℂ)))) y := by
+    intro y
+    have h1 : HasDerivAt (fun y : ℝ => (y : ℂ)) 1 y := by simpa using (hasDerivAt_id y).ofReal_comp
+    have h2 : HasDerivAt (fun y : ℝ => -(z * (y : ℂ))) (-(z * 1)) y := (h1.const_mul z).neg
+    have h3 := ((h2.cexp).neg).div_const z
+    convert h3 using 1
+    field_simp
+  have hu : ∀ x ∈ Ioi (0 : ℝ), HasDerivAt (fun y : ℝ => (g y : ℂ)) (g' x : ℂ) x :=
+    fun x hx => (hg x hx).ofReal_comp
+  have hv : ∀ x ∈ Ioi (0 : ℝ), HasDerivAt (fun y : ℝ => -(Complex.exp (-(z * (y : ℂ)))) / z)
+      (Complex.exp (-(z * (x : ℂ)))) x := fun x _ => hE x
+  have h_zero : Tendsto ((fun y : ℝ => (g y : ℂ)) * (fun y : ℝ => -(Complex.exp (-(z * (y : ℂ)))) / z))
+      (𝓝[>] (0 : ℝ)) (𝓝 0) := by
+    refine Filter.Tendsto.congr' ?_ tendsto_const_nhds
+    filter_upwards [Ioo_mem_nhdsGT zero_lt_one] with y hy
+    simp only [Pi.mul_apply, hg0 y hy.1 hy.2, Complex.ofReal_zero, zero_mul]
+  have hlim := convS_tendsto_zero (z := z) (M := M) hz (fun y hy => by
+    rw [Complex.norm_real, Real.norm_eq_abs]; exact hM y hy)
+  have h_infty : Tendsto ((fun y : ℝ => (g y : ℂ)) * (fun y : ℝ => -(Complex.exp (-(z * (y : ℂ)))) / z))
+      atTop (𝓝 0) := by
+    have h3 := hlim.const_mul (-(1 / z))
+    rw [mul_zero] at h3
+    refine h3.congr (fun y => ?_)
+    simp only [Pi.mul_apply]
+    ring
+  have huv : IntegrableOn ((fun y : ℝ => (g' y : ℂ)) * (fun y : ℝ => -(Complex.exp (-(z * (y : ℂ)))) / z)
+      + (fun y : ℝ => (g y : ℂ)) * (fun y : ℝ => Complex.exp (-(z * (y : ℂ))))) (Ioi 0) := by
+    refine IntegrableOn.congr_fun
+      ((Integrable.const_mul hg'i (-(1 / z))).add hgi) (fun x _ => ?_) measurableSet_Ioi
+    simp only [Pi.add_apply, Pi.mul_apply]
+    ring
+  have key := integral_Ioi_deriv_mul_eq_sub (u := fun y : ℝ => (g y : ℂ))
+    (v := fun y : ℝ => -(Complex.exp (-(z * (y : ℂ)))) / z)
+    (u' := fun y : ℝ => (g' y : ℂ)) (v' := fun y : ℝ => Complex.exp (-(z * (y : ℂ))))
+    (a := 0) (a' := 0) (b' := 0) hu hv huv h_zero h_infty
+  have e2 : ∫ x in Ioi (0 : ℝ), (g' x : ℂ) * (-(Complex.exp (-(z * (x : ℂ)))) / z)
+        + (g x : ℂ) * Complex.exp (-(z * (x : ℂ)))
+      = ∫ x in Ioi (0 : ℝ), (-(1 / z)) * ((g' x : ℂ) * Complex.exp (-(z * (x : ℂ))))
+        + (g x : ℂ) * Complex.exp (-(z * (x : ℂ))) := by
+    congr 1
+    funext x
+    ring
+  rw [integral_add ((Integrable.const_mul hg'i (-(1 / z)))) hgi, integral_const_mul] at e2
+  simp only [sub_zero] at key
+  linear_combination key - e2
+
+/-- `y · y^s = y^{s+1}` for `y > 0`. -/
+lemma convS_mul_rpow {y : ℝ} (hy : 0 < y) (s : ℝ) : y * y ^ s = y ^ (s + 1) := by
+  rw [Real.rpow_add_one hy.ne', mul_comm]
+
+/-- The `k = 1` moment `∫ w_h(y) (-y) e^{-zy}` decays like `‖z‖^{-2}`, uniformly in `h > 0`
+(`ceo:conv.5` for `k = 1`). The bound holds for every `z` with `Re z > 0`; the constant is `2|C|`
+from the derivative bounds of `ConvWeightDerivBound`. Two integrations by parts against `e^{-zy}`
+turn `y w_h` into `(y w_h)''`, which is `O(y^{-5/2})` on `[1, ∞)` and vanishes on `(0, 1)`. -/
+theorem convS_k1_decay {p C : ℝ} (hp : 0 ≤ p) (hD : ConvWeightDerivBound p C) {h : ℝ} (hh : 0 < h)
+    {z : ℂ} (hz : 0 < z.re) :
+    ‖convSD (convWh p h) 1 z‖ ≤ 2 * |C| * ‖z‖ ^ (-(1 : ℝ) - 1) := by
+  have hW : ContDiff ℝ (⊤ : ℕ∞) (convWh p h) := convWh_contDiff hh
+  have hWc : Continuous (convWh p h) := hW.continuous
+  have hd1 : ∀ y : ℝ, HasDerivAt (convWh p h) (iteratedDeriv 1 (convWh p h) y) y := by
+    intro y
+    rw [iteratedDeriv_one]
+    exact ((contDiff_infty_iff_deriv.mp hW).1 y).hasDerivAt
+  have hW1 : ContDiff ℝ (⊤ : ℕ∞) (iteratedDeriv 1 (convWh p h)) := by
+    rw [iteratedDeriv_one]; exact (contDiff_infty_iff_deriv.mp hW).2
+  have e2 : iteratedDeriv 2 (convWh p h) = deriv (iteratedDeriv 1 (convWh p h)) := iteratedDeriv_succ
+  have hd2 : ∀ y : ℝ, HasDerivAt (iteratedDeriv 1 (convWh p h)) (iteratedDeriv 2 (convWh p h) y) y := by
+    intro y
+    rw [e2]
+    exact ((contDiff_infty_iff_deriv.mp hW1).1 y).hasDerivAt
+  have hi1 : Continuous (iteratedDeriv 1 (convWh p h)) := hW1.continuous
+  have hi2 : Continuous (iteratedDeriv 2 (convWh p h)) := by
+    rw [e2]; exact (contDiff_infty_iff_deriv.mp hW1).2.continuous
+  have hg2c : Continuous (fun y : ℝ => iteratedDeriv 1 (convWh p h) y
+      + (iteratedDeriv 1 (convWh p h) y + y * iteratedDeriv 2 (convWh p h) y)) :=
+    hi1.add (hi1.add (continuous_id.mul hi2))
+  -- derivatives of the three functions `y w`, `w + y w'`, and `w' + (w' + y w'')`
+  have hG0 : ∀ y : ℝ, HasDerivAt (fun y : ℝ => y * convWh p h y)
+      (convWh p h y + y * iteratedDeriv 1 (convWh p h) y) y := by
+    intro y
+    have := (hasDerivAt_id' y).mul (hd1 y)
+    convert this using 1
+    ring
+  have hG1 : ∀ y : ℝ, HasDerivAt (fun y : ℝ => convWh p h y + y * iteratedDeriv 1 (convWh p h) y)
+      (iteratedDeriv 1 (convWh p h) y + (iteratedDeriv 1 (convWh p h) y
+        + y * iteratedDeriv 2 (convWh p h) y)) y := by
+    intro y
+    have := (hd1 y).add ((hasDerivAt_id' y).mul (hd2 y))
+    convert this using 1
+    ring
+  -- vanishing on `(0, 1)`
+  have hV0 : ∀ y : ℝ, 0 < y → y < 1 → y * convWh p h y = 0 := fun y _ hy => by
+    rw [convWh_eq_zero (p := p) (h := h) (le_of_lt hy), mul_zero]
+  have hV1 : ∀ y : ℝ, 0 < y → y < 1 →
+      convWh p h y + y * iteratedDeriv 1 (convWh p h) y = 0 := fun y _ hy => by
+    rw [convWh_eq_zero (p := p) (h := h) (le_of_lt hy), convS_iteratedDeriv_zero_of_lt (p := p) (h := h) hy 1]
+    ring
+  have hV2le : ∀ y : ℝ, y ≤ 1 →
+      iteratedDeriv 1 (convWh p h) y + (iteratedDeriv 1 (convWh p h) y
+        + y * iteratedDeriv 2 (convWh p h) y) = 0 := fun y hy => by
+    rw [convS_iteratedDeriv_zero_of_le (p := p) (h := h) hh hy 1,
+      convS_iteratedDeriv_zero_of_le (p := p) (h := h) hh hy 2]
+    ring
+  have hV2 : ∀ y : ℝ, 0 < y → y < 1 →
+      iteratedDeriv 1 (convWh p h) y + (iteratedDeriv 1 (convWh p h) y
+        + y * iteratedDeriv 2 (convWh p h) y) = 0 := fun y _ hy => by
+    rw [convS_iteratedDeriv_zero_of_lt (p := p) (h := h) hy 1,
+      convS_iteratedDeriv_zero_of_lt (p := p) (h := h) hy 2]
+    ring
+  -- bounds on `[1, ∞)`
+  have hK0 : 0 ≤ |C| := abs_nonneg C
+  have hb1 : ∀ y : ℝ, 1 ≤ y → |iteratedDeriv 1 (convWh p h) y| ≤ |C| * y ^ (-(5 / 2 : ℝ)) := by
+    intro y hy
+    have h1 := hD.deriv_le 1 (by norm_num) h hh y hy
+    have e : (-(3 / 2 : ℝ) - ((1 : ℕ) : ℝ)) = -(5 / 2 : ℝ) := by norm_num
+    rw [e] at h1
+    exact h1.trans (mul_le_mul_of_nonneg_right (le_abs_self C) (Real.rpow_nonneg (by linarith) _))
+  have hb2 : ∀ y : ℝ, 1 ≤ y → |iteratedDeriv 2 (convWh p h) y| ≤ |C| * y ^ (-(7 / 2 : ℝ)) := by
+    intro y hy
+    have h1 := hD.deriv_le 2 (by norm_num) h hh y hy
+    have e : (-(3 / 2 : ℝ) - ((2 : ℕ) : ℝ)) = -(7 / 2 : ℝ) := by norm_num
+    rw [e] at h1
+    exact h1.trans (mul_le_mul_of_nonneg_right (le_abs_self C) (Real.rpow_nonneg (by linarith) _))
+  -- `y^s ≤ 1` and `y · y^s ≤ 1` on `[1, ∞)`
+  have hle_mul : ∀ (y s : ℝ), 1 ≤ y → s + 1 ≤ 0 → y * y ^ s ≤ 1 := fun y s hy hs => by
+    rw [convS_mul_rpow (by linarith) s]
+    exact Real.rpow_le_one_of_one_le_of_nonpos hy hs
+  have hyy : ∀ (y s : ℝ), 1 ≤ y → s ≤ 0 → y ^ s ≤ 1 := fun y s hy hs =>
+    Real.rpow_le_one_of_one_le_of_nonpos hy hs
+  have hA1 : ∀ y : ℝ, 1 ≤ y → |convWh p h y| ≤ 1 := fun y hy => by
+    have y0 : (0 : ℝ) < y := by linarith
+    rw [abs_of_nonneg (convWh_nonneg hh.le y0)]
+    exact (convWh_le hp hh.le y0).trans (hyy y _ hy (by norm_num))
+  have hbg0 : ∀ y : ℝ, 1 ≤ y → |y * convWh p h y| ≤ 1 := fun y hy => by
+    have y0 : (0 : ℝ) < y := by linarith
+    rw [abs_mul, abs_of_pos y0]
+    calc y * |convWh p h y| ≤ y * y ^ (-(3 / 2 : ℝ)) := by
+          apply mul_le_mul_of_nonneg_left _ y0.le
+          rw [abs_of_nonneg (convWh_nonneg hh.le y0)]
+          exact convWh_le hp hh.le y0
+      _ ≤ 1 := hle_mul y _ hy (by norm_num)
+  have hA2 : ∀ y : ℝ, 1 ≤ y → y * |iteratedDeriv 1 (convWh p h) y| ≤ |C| := fun y hy => by
+    have y0 : (0 : ℝ) < y := by linarith
+    calc y * |iteratedDeriv 1 (convWh p h) y| ≤ y * (|C| * y ^ (-(5 / 2 : ℝ))) :=
+          mul_le_mul_of_nonneg_left (hb1 y hy) y0.le
+      _ = |C| * (y * y ^ (-(5 / 2 : ℝ))) := by ring
+      _ ≤ |C| * 1 := mul_le_mul_of_nonneg_left (hle_mul y _ hy (by norm_num)) hK0
+      _ = |C| := mul_one _
+  have hA3 : ∀ y : ℝ, 1 ≤ y → y * |iteratedDeriv 2 (convWh p h) y| ≤ |C| * y ^ (-(5 / 2 : ℝ)) :=
+    fun y hy => by
+    have y0 : (0 : ℝ) < y := by linarith
+    calc y * |iteratedDeriv 2 (convWh p h) y| ≤ y * (|C| * y ^ (-(7 / 2 : ℝ))) :=
+          mul_le_mul_of_nonneg_left (hb2 y hy) y0.le
+      _ = |C| * (y * y ^ (-(7 / 2 : ℝ))) := by ring
+      _ = |C| * y ^ (-(5 / 2 : ℝ)) := by
+          rw [convS_mul_rpow y0]; norm_num
+  have hbg1 : ∀ y : ℝ, 1 ≤ y →
+      |convWh p h y + y * iteratedDeriv 1 (convWh p h) y| ≤ 1 + |C| := fun y hy => by
+    have y0 : (0 : ℝ) < y := by linarith
+    calc |convWh p h y + y * iteratedDeriv 1 (convWh p h) y|
+        ≤ |convWh p h y| + |y * iteratedDeriv 1 (convWh p h) y| := abs_add_le _ _
+      _ = |convWh p h y| + y * |iteratedDeriv 1 (convWh p h) y| := by
+          rw [abs_mul, abs_of_pos y0]
+      _ ≤ 1 + |C| := add_le_add (hA1 y hy) (hA2 y hy)
+  have hbg2 : ∀ y : ℝ, 1 ≤ y → |iteratedDeriv 1 (convWh p h) y
+      + (iteratedDeriv 1 (convWh p h) y + y * iteratedDeriv 2 (convWh p h) y)|
+        ≤ 3 * |C| * y ^ (-(5 / 2 : ℝ)) := fun y hy => by
+    have y0 : (0 : ℝ) < y := by linarith
+    have hy5 : (0 : ℝ) ≤ y ^ (-(5 / 2 : ℝ)) := Real.rpow_nonneg y0.le _
+    have t1 := abs_add_le (iteratedDeriv 1 (convWh p h) y)
+      (iteratedDeriv 1 (convWh p h) y + y * iteratedDeriv 2 (convWh p h) y)
+    have t2 := abs_add_le (iteratedDeriv 1 (convWh p h) y) (y * iteratedDeriv 2 (convWh p h) y)
+    rw [abs_mul, abs_of_pos y0] at t2
+    have t3 := hb1 y hy
+    have t4 := hA3 y hy
+    linarith
+  have hbg2' : ∀ y : ℝ, 1 ≤ y → |iteratedDeriv 1 (convWh p h) y
+      + (iteratedDeriv 1 (convWh p h) y + y * iteratedDeriv 2 (convWh p h) y)| ≤ 3 * |C| := fun y hy =>
+    (hbg2 y hy).trans (mul_le_of_le_one_right (by positivity) (hyy y _ hy (by norm_num)))
+  -- global bounds on `(0, ∞)` (the functions vanish on `(0, 1)`)
+  have hcn : ∀ x : ℝ, ‖(x : ℂ)‖ = |x| := fun x => by rw [Complex.norm_real, Real.norm_eq_abs]
+  have glob : ∀ (G : ℝ → ℝ) (M : ℝ), 0 ≤ M → (∀ y : ℝ, 0 < y → y < 1 → G y = 0) →
+      (∀ y : ℝ, 1 ≤ y → |G y| ≤ M) → ∀ y : ℝ, 0 < y → |G y| ≤ M := by
+    intro G M hM0 hG0 hbig y hy
+    by_cases h1 : y < 1
+    · rw [hG0 y hy h1, abs_zero]; exact hM0
+    · exact hbig y (not_lt.mp h1)
+  have hsm : ∀ G : ℝ → ℝ, Continuous G → AEStronglyMeasurable (fun y : ℝ => (G y : ℂ))
+      (volume.restrict (Ioi (0 : ℝ))) := fun G hG =>
+    (Complex.continuous_ofReal.comp hG).aestronglyMeasurable
+  have hgi0 : IntegrableOn (fun y : ℝ => ((y * convWh p h y : ℝ) : ℂ) * Complex.exp (-(z * (y : ℂ))))
+      (Ioi 0) :=
+    convS_int_exp (M := 1) hz (hsm _ (continuous_id.mul hWc)) (fun y hy => by
+      rw [hcn]
+      exact glob _ 1 zero_le_one (fun y _ hy1 => hV0 y ‹_› hy1) hbg0 y hy)
+  have hgi1 : IntegrableOn (fun y : ℝ => ((convWh p h y + y * iteratedDeriv 1 (convWh p h) y : ℝ) : ℂ)
+      * Complex.exp (-(z * (y : ℂ)))) (Ioi 0) :=
+    convS_int_exp (M := 1 + |C|) hz (hsm _ (hWc.add (continuous_id.mul hi1))) (fun y hy => by
+      rw [hcn]
+      exact glob _ (1 + |C|) (by linarith) (fun y _ hy1 => hV1 y ‹_› hy1) hbg1 y hy)
+  have hgi2 : IntegrableOn (fun y : ℝ => ((iteratedDeriv 1 (convWh p h) y
+      + (iteratedDeriv 1 (convWh p h) y + y * iteratedDeriv 2 (convWh p h) y) : ℝ) : ℂ)
+      * Complex.exp (-(z * (y : ℂ)))) (Ioi 0) :=
+    convS_int_exp (M := 3 * |C|) hz (hsm _ hg2c) (fun y hy => by
+      rw [hcn]
+      exact glob _ (3 * |C|) (by linarith) (fun y _ hy1 => hV2 y ‹_› hy1) hbg2' y hy)
+  -- the two integrations by parts
+  have I1 : ∫ y in Ioi (0 : ℝ), ((y * convWh p h y : ℝ) : ℂ) * Complex.exp (-(z * (y : ℂ)))
+      = (1 / z) * ∫ y in Ioi (0 : ℝ), ((convWh p h y + y * iteratedDeriv 1 (convWh p h) y : ℝ) : ℂ)
+        * Complex.exp (-(z * (y : ℂ))) :=
+    convS_ibp (M := 1) hz (fun y _ => hG0 y) (fun y _ hy1 => hV0 y ‹_› hy1) hbg0 hgi0 hgi1
+  have I2 : ∫ y in Ioi (0 : ℝ), ((convWh p h y + y * iteratedDeriv 1 (convWh p h) y : ℝ) : ℂ)
+        * Complex.exp (-(z * (y : ℂ)))
+      = (1 / z) * ∫ y in Ioi (0 : ℝ), ((iteratedDeriv 1 (convWh p h) y
+          + (iteratedDeriv 1 (convWh p h) y + y * iteratedDeriv 2 (convWh p h) y) : ℝ) : ℂ)
+        * Complex.exp (-(z * (y : ℂ))) :=
+    convS_ibp (M := 1 + |C|) hz (fun y _ => hG1 y) (fun y _ hy1 => hV1 y ‹_› hy1) hbg1 hgi1 hgi2
+  -- the moment equals minus the first integral
+  have hsd : convSD (convWh p h) 1 z
+      = -∫ y in Ioi (0 : ℝ), ((y * convWh p h y : ℝ) : ℂ) * Complex.exp (-(z * (y : ℂ))) := by
+    unfold convSD
+    rw [← integral_neg]
+    congr 1
+    funext y
+    push_cast
+    ring
+  -- the bound on the second derivative `(y w)''`
+  have hI5 : IntegrableOn (fun y : ℝ => y ^ (-(5 / 2 : ℝ))) (Ioi 1) :=
+    integrableOn_Ioi_rpow_of_lt (by norm_num) one_pos
+  have hJ1 : IntegrableOn (fun y : ℝ => |iteratedDeriv 1 (convWh p h) y
+      + (iteratedDeriv 1 (convWh p h) y + y * iteratedDeriv 2 (convWh p h) y)|) (Ioi 1) :=
+    Integrable.mono' (Integrable.const_mul hI5 (3 * |C|))
+      ((continuous_abs.comp hg2c).aestronglyMeasurable)
+      (by
+        filter_upwards [ae_restrict_mem measurableSet_Ioi] with y hy
+        rw [Real.norm_eq_abs, abs_abs]
+        exact hbg2 y (le_of_lt hy))
+  have hA2' : IntegrableOn (fun y : ℝ => |iteratedDeriv 1 (convWh p h) y
+      + (iteratedDeriv 1 (convWh p h) y + y * iteratedDeriv 2 (convWh p h) y)|) (Ioi 0) :=
+    convS_integrableOn_Ioi_of_vanish (fun y hy0 hy1 => by
+      rw [hV2 y hy0 hy1, abs_zero]) hJ1
+  have hIbound : ∫ y in Ioi (0 : ℝ), |iteratedDeriv 1 (convWh p h) y
+      + (iteratedDeriv 1 (convWh p h) y + y * iteratedDeriv 2 (convWh p h) y)| ≤ 2 * |C| := by
+    rw [convS_split_Ioi_one hA2' (fun y _ hy1 => by rw [hV2le y hy1, abs_zero])]
+    calc ∫ y in Ioi (1 : ℝ), |iteratedDeriv 1 (convWh p h) y
+          + (iteratedDeriv 1 (convWh p h) y + y * iteratedDeriv 2 (convWh p h) y)|
+        ≤ ∫ y in Ioi (1 : ℝ), 3 * |C| * y ^ (-(5 / 2 : ℝ)) :=
+          setIntegral_mono_on hJ1 (Integrable.const_mul hI5 (3 * |C|)) measurableSet_Ioi
+            (fun y hy => hbg2 y (le_of_lt hy))
+      _ = 2 * |C| := by
+          rw [integral_const_mul, integral_Ioi_rpow_of_lt (by norm_num) one_pos]
+          norm_num [Real.one_rpow]
+          ring
+  -- the norm of the last integral
+  have hJ : ‖∫ y in Ioi (0 : ℝ), ((iteratedDeriv 1 (convWh p h) y
+          + (iteratedDeriv 1 (convWh p h) y + y * iteratedDeriv 2 (convWh p h) y) : ℝ) : ℂ)
+        * Complex.exp (-(z * (y : ℂ)))‖ ≤ 2 * |C| := by
+    refine (norm_integral_le_of_norm_le hA2' ((ae_restrict_iff' measurableSet_Ioi).mpr
+      (Eventually.of_forall fun y hy => ?_))).trans hIbound
+    have hy0 : (0 : ℝ) < y := hy
+    rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    exact mul_le_of_le_one_right (abs_nonneg _) (norm_exp_neg_mul_le hz.le hy0.le)
+  -- assemble
+  have hr : ‖z‖ ^ (-(1 : ℝ) - 1) = (‖z‖ ^ 2)⁻¹ := by
+    rw [show (-(1 : ℝ) - 1) = -((2 : ℕ) : ℝ) by norm_num, Real.rpow_neg (norm_nonneg z),
+      Real.rpow_natCast]
+  rw [hsd, norm_neg, I1, I2, norm_mul, norm_mul, norm_div, norm_one, hr]
+  calc 1 / ‖z‖ * (1 / ‖z‖ * ‖∫ y in Ioi (0 : ℝ), ((iteratedDeriv 1 (convWh p h) y
+          + (iteratedDeriv 1 (convWh p h) y + y * iteratedDeriv 2 (convWh p h) y) : ℝ) : ℂ)
+        * Complex.exp (-(z * (y : ℂ)))‖)
+      ≤ 1 / ‖z‖ * (1 / ‖z‖ * (2 * |C|)) :=
+        mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hJ (by positivity)) (by positivity)
+    _ = 2 * |C| * (‖z‖ ^ 2)⁻¹ := by ring
+
 /-- info: 'FormalResearch.SignUncertainty.convSD_hasDerivAt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms convSD_hasDerivAt
@@ -406,5 +758,10 @@ theorem convS_lapW_sub_le {p h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hh : 0 < h
 /-- info: 'FormalResearch.SignUncertainty.convS_tail_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms convS_tail_le
+
+/-- info: 'FormalResearch.SignUncertainty.convS_k1_decay' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms convS_k1_decay
+
 
 end FormalResearch.SignUncertainty
