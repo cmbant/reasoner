@@ -172,6 +172,22 @@ no bootstrap.
   `airySquare_gaussian_transform`).
 - `thm:ce-post-edge` and `cepe:general` stated for a general source; hb-lift assembly (seed mass `m₀ = 1` exists); lift
   to `Euc d`. This gives `hhi`.
+- *Dependency list (audit of the Lean tree).* Proved and reusable: the Mellin lift of any `HasU2` seed
+  (`liftSymbolData_of_hasU2`, `liftPhi_mellinLiftData`, `lift_edge_repr`, `exists_isHankelEigenfn_of_lift`), the
+  seed mass and floors (`hb_seed_mass_exists`, `hbSeedSpec_airy_witness`), the B-spline multipliers and main-edge kernel
+  (`MellinMainKernel`), reflected-line and dual-phase bounds (`gt2b_reflected_combined`, `o3_dual_bound`), far transfer
+  (`gt3b_far_fourier_transfer`), the middle band (`middle_transfer_gt1`, conditional on `O4QuotientBound` and the `GT.1`
+  bounds), the pre-edge criterion (`preEdge_general_pos`), `airySquare_gaussian_transform`, `HasU2` for `g₁` and
+  `ceG1`, the radial Hankel transform on `Euc d` (`fourier_radial_hankel`, `integrable_radialLift_iff`). Since then proved
+  (all conditional where stated, `CeHankelPair` is still unproved): the convolution source (`ConvSourceDefs`, `...Laplace`,
+  `...HasU2`, `...Sign`, `...Weight*`, `ConvSourceSymbol*` with `convS_bounds` on `Re z > 0`), the Euclidean lift
+  (`ceAdmissible_of_hankelPair`, `ce_hb_lift_airy_of_hankelPair`), the general-seed eigenlift and its tail hypothesis
+  `ConvTailData`, `o6_positivity_dual(_Kc)`, the eigenfunction pair (`ceLift_pair`, `ceHankelPair_of_eigenfns`), the
+  tuning (`exists_eta_tune`, `ceLift_tune`) and the physical sign `ceLift_physical` (conditional on `O6Bricks 4` and
+  `CeSourceFamily`). Still open for `CeHankelPair`: (a) the instance of `CeSourceFamily` for `convSource` (`O.12`
+  (4)-(6) on the line `Re z = 0` with the `g₁` seed symbol, the `ConvTailData` fields and `O6DualEst`, `O.12` (7)); (b) the
+  Fourier sign `f₋ ≤ f₊` (`thm:ce-post-edge`: pre-edge `cepe:general` for `D_c`, the window and the post-edge region);
+  (c) `O4QuotientBound` (M4); (d) packaging into `CeHankelPair` (the Fourier sign must be stated for the constructed pair).
 
 **M7 CE lower (M).** Shell reduction `m = 1`, `O(d)` averaging, and the Hankel lower half from M5 give `hlo`. Done (`CEShellReduction`): a normalised continuous `L¹` Cohn–Elkies pair `(h, r)` yields the anti-self-dual competitor `ĥ - h∘(-·)` (`g(0) = 0`, `g ≥ 0` on `‖x‖ ≥ r`, nonzero by the compact-support uncertainty principle), `radialProjection` makes it Hankel-feasible at `r²/2` for `c = d/2`, `ε = -1`, and `hb_thresholds_lower` gives `shell_reduction_m1_proved` and `shell_reduction_airy : ShellReduction ShellHBData.airy` (the shell constraints are vacuous at `m = 1`); the fields `hb_thresholds_lower`, `shell_reduction_m1` are dropped from `RadiiInputs`. General `ShellReduction D` for `m ≥ 2` is M8. Remaining for M7 is `ce_hb_lift_m1` (upper half), which needs M6 (convolution source, post-edge, lift to `Euc d`) and `hb_thresholds_upper` from M4 (O-chain); nothing there is a routine scalar lemma yet, so no Haiku briefs are queued.
 

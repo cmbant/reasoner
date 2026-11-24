@@ -1,0 +1,1083 @@
+module
+
+public import FormalResearch.SignUncertainty.MiddleBandPositivity
+
+/-!
+# `O.6` with a general dual seed (M6, `ce_hb_lift` physical sign)
+
+`u1co:O6` also holds when only the main seed is a bounded rational-Airy family and the dual seed `D_p` is any admissible seed with the reflected
+estimates `(e3)` and `|I_dual[D_p]| ≲ ξ⁻¹ c^{-1/2}` on each fixed Airy window (uniform in `K ≥ 1`).  This is the form used for `-h_c = f[F_c, -S_c]`
+in `thm:ce-hb-lift`, with `D = -S_c` (convolution source; `O.12(5)` and `GT.2b` give the two bounds).
+
+* `O6DualEst m D`: the two dual-seed estimates for the family `D K c` (the seed used at width `δ₀ = β₁ K ε / 2`, scale `c`): `e3` (the display `(e3)` for
+  `I_dual[D K c]`) and `e5` (the window bound).
+* `o6_positivity_dual`: `Re (I_main[X] + I_dual[D K c]) > 0` for `S_eff ≥ s_min`, `K ≥ K₀`, `c ≥ c₀`, from `O6Est m R g0` for the main seed family and `O6DualEst m D`.
+  Proved (the proof is that of `o6_positivity`).  `O6Est` and `O6DualEst` are hypothesis structures.  For `D = -S_c` the structure `O6DualEst` would be discharged
+  by `O.12(5)` and `GT.2b`; that is not formalised.
+* `o6_positivity_dual_Kc`: the same with main-seed coefficients `fa K c`, `fb K c`, `fc K c` depending on `K` and `c` (the form `ceLift_physical` uses;
+  `o6_positivity_dual` is the case depending on `K ε` only, and its proof is a copy of this one).
+* `o6DualEst_of_oneLevel_family`, `o6DualEst_of_oneLevel`: non-vacuity witnesses, a one-level dual `D K c = X_c`, `X_c ∈ airySeedU2` with bounded coefficients
+  (possibly depending on `c`), obeys `O6DualEst` when `O6Est` holds (`e3` is `O6Est.e3`; the window bound is the difference of the `σ = ±1` instances of `O6Est.e5`).
+-/
+
+@[expose] public section
+
+open Set MeasureTheory
+open scoped Real
+
+namespace FormalResearch.SignUncertainty
+
+open FormalResearch.CohnElkies
+
+/-- The dual-seed estimates used by `o6_positivity_dual`, for the family `D K c` of dual seeds at width `δ₀ = β₁ K ε / 2`. -/
+structure O6DualEst (m : ℕ) (D : ℝ → ℝ → ℝ → ℝ) : Prop where
+  e3 : ∃ C > 0, ∀ {K c ξ : ℝ}, ceBeta1 * K * liftEps c / 2 ∈ Ioc (0 : ℝ) 2 → 2 ≤ c → 0 < ξ → 1 ≤ hbS c ξ →
+    ‖iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ‖ ≤ C * ξ⁻¹ *
+      (1 + (ceBeta1 * K * liftEps c / 2) * c ^ (1 / 3 : ℝ)) ^ (-(m : ℝ)) * c⁻¹ *
+      min (Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ))) (Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ)))
+  e5 : ∀ Sw : ℝ, ∃ C : ℝ, 0 < C ∧ ∀ {K c ξ : ℝ}, 0 ≤ ceBeta1 * K * liftEps c / 2 → 32768 ≤ c → 0 < ξ → |hbS c ξ| ≤ Sw →
+    ‖iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ‖ ≤ C * ξ⁻¹ * c ^ (-(1 / 2 : ℝ))
+
+lemma norm_add_sub_split (I D A : ℂ) : ‖I + D - A‖ ≤ ‖I - A‖ + ‖D‖ := by
+  calc ‖I + D - A‖ = ‖(I - A) + D‖ := by ring_nf
+    _ ≤ _ := norm_add_le _ _
+
+set_option maxHeartbeats 4000000 in
+/-- **`O.6` with a general dual seed** (`u1co:O6`, "also holds if only `F_p` is a bounded rational-Airy family and `D_p` is
+admissible with the reflected estimates `(e3)` and `|I_dual[D_p]| ≲ ξ⁻¹ c^{-1/2}` on each fixed Airy window, uniformly in `K ≥ 1`"):
+for a main one-level seed family and an arbitrary dual seed family `D K c` obeying `O6DualEst`, `Re (I_main[X] + I_dual[D]) > 0`
+for `S_eff ≥ s_min`.  The proof is that of `o6_positivity` with the dual term `σ I_dual[X]` replaced by `I_dual[D K c]`; the window
+estimate for `I_main[X]` alone is the average of the `σ = ±1` instances of `O6Est.e5`. -/
+theorem o6_positivity_dual {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m R g0)
+    (D : ℝ → ℝ → ℝ → ℝ) (DE : O6DualEst m D)
+    {δ₁ c₁ c₂ U0 U1 : ℝ} (hδ₁ : 0 < δ₁) (hc₁ : 0 < c₁) (hc₂ : 0 < c₂) (hU0 : 0 ≤ U0) (hU1 : 0 ≤ U1)
+    {fa fb fc : ℝ → ℝ}
+    (hbd : ∀ δ : ℝ, 0 < δ → δ ≤ δ₁ → |fa δ| ≤ R ∧ |fb δ| ≤ R ∧ |fc δ| ≤ R)
+    (hlead : ∀ δ : ℝ, 0 < δ → δ ≤ δ₁ → 1 ≤ fc δ - fa δ)
+    (hfloor : ∀ δ : ℝ, 0 < δ → δ ≤ δ₁ → ∀ x : ℝ, U0 + U1 * δ + ceBeta1 * δ / 2 ≤ x →
+      (1 + x) ^ (-(3 / 2 : ℝ)) * (c₁ * δ + c₂ * min 1 ((ceBeta1 * δ / 2) ^ 2 * x)) ≤
+        ∫ t in Icc (0 : ℝ) (ceBeta1 * δ / 2),
+          airySeedU2 (fa δ) (fb δ) (fc δ) (-x + t) * bspline m (ceBeta1 * δ / 2) t) :
+    ∃ K₀ c₀ : ℝ, 1 ≤ K₀ ∧ 2000 ≤ c₀ ∧ ∀ {K c ξ : ℝ}, K₀ ≤ K → c₀ ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c →
+      0 < ξ →
+      (U0 + U1 * (K * liftEps c) + ceBeta1 * (K * liftEps c) / 2) / ceBeta1 ≤ hbS c ξ →
+      0 < (iMain (airySeedU2 (fa (K * liftEps c)) (fb (K * liftEps c)) (fc (K * liftEps c)))
+              (ceBeta1 * K * liftEps c / 2) m c ξ +
+            iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ).re := by
+  obtain ⟨CH, hCH, h4⟩ := E.e4
+  obtain ⟨CD, hCD, h3⟩ := DE.e3
+  obtain ⟨C6, hC6, h6⟩ := E.e6
+  have hg0 := E.g0_pos
+  have hsp : 0 < Real.sqrt Real.pi := Real.sqrt_pos.mpr Real.pi_pos
+  have hpi := Real.pi_pos
+  have hβ := ceBeta1_pos
+  have hβ2 := ceBeta1_gt_two
+  have hm0 : (0 : ℝ) < m := by exact_mod_cast (by omega : 0 < m)
+  obtain ⟨G, hGdef⟩ : ∃ G : ℝ, G = g0 * Real.sqrt Real.pi := ⟨_, rfl⟩
+  have hGpos : 0 < G := by rw [hGdef]; positivity
+  obtain ⟨M₁, hM₁1, hM₁⟩ := exists_rpow_neg_le (p := (m : ℝ) / 2) (by positivity) (ε := G / (8 * CH)) (by positivity)
+  obtain ⟨Kh, hKh1, hKh⟩ := exists_rpow_neg_le (p := (m : ℝ)) hm0 (ε := G / (8 * (CH + 2 * Real.pi * CD))) (by positivity)
+  obtain ⟨Sh, hSh1, hSh⟩ := exists_rpow_neg_le (p := (1 / 2 : ℝ)) (by norm_num) (ε := G / (8 * CH)) (by positivity)
+  obtain ⟨Sw, hSwdef⟩ : ∃ Sw : ℝ, Sw = max (max 100 Sh) ((U0 + U1 + ceBeta1) / ceBeta1) := ⟨_, rfl⟩
+  have hSw100 : 100 ≤ Sw := by rw [hSwdef]; exact (le_max_left _ _).trans (le_max_left _ _)
+  have hSwSh : Sh ≤ Sw := by rw [hSwdef]; exact (le_max_right _ _).trans (le_max_left _ _)
+  have hSwU : (U0 + U1 + ceBeta1) / ceBeta1 ≤ Sw := by rw [hSwdef]; exact le_max_right _ _
+  obtain ⟨CW0, hCW0, h5⟩ := E.e5 Sw
+  obtain ⟨CD5, hCD5, hD5⟩ := DE.e5 Sw
+  obtain ⟨CW, hCWdef⟩ : ∃ CW : ℝ, CW = CW0 + CD5 := ⟨_, rfl⟩
+  have hCW : 0 < CW := by rw [hCWdef]; positivity
+  -- constants of the middle band
+  obtain ⟨q, hqdef⟩ : ∃ q : ℝ, q = (2 * ceBeta1 + 2) ^ (-(3 / 2 : ℝ)) := ⟨_, rfl⟩
+  have hq : 0 < q := by rw [hqdef]; positivity
+  obtain ⟨κ, hκdef⟩ : ∃ κ : ℝ, κ = ceK * ceBeta1 * q / Real.pi ^ 2 := ⟨_, rfl⟩
+  have hκ : 0 < κ := by have := ceK_pos; rw [hκdef]; positivity
+  obtain ⟨Cm, hCmdef⟩ : ∃ Cm : ℝ, Cm = 2 * C6 + CD := ⟨_, rfl⟩
+  have hCm : 0 ≤ Cm := by rw [hCmdef]; positivity
+  -- constants of the window
+  have hSw0 : 0 < Sw := by linarith
+  obtain ⟨qw, hqwdef⟩ : ∃ qw : ℝ, qw = (2 + ceBeta1 * Sw) ^ (-(3 / 2 : ℝ)) := ⟨_, rfl⟩
+  have hqw : 0 < qw := by rw [hqwdef]; positivity
+  obtain ⟨κw, hκwdef⟩ : ∃ κw : ℝ, κw = ceK * ceBeta1 * qw / Real.pi ^ 2 := ⟨_, rfl⟩
+  have hκw : 0 < κw := by have := ceK_pos; rw [hκwdef]; positivity
+  obtain ⟨θ, hθdef⟩ : ∃ θ : ℝ, θ = κw * c₁ / (6 * CW) := ⟨_, rfl⟩
+  have hθ : 0 < θ := by rw [hθdef]; positivity
+  obtain ⟨Mw, hMw1, hMw⟩ := exists_rpow_neg_le (p := (1 / 6 : ℝ)) (by norm_num) (ε := θ) hθ
+  refine ⟨max (max Kh M₁) (max (500 * Real.pi ^ 2 * M₁) (2 * Cm * M₁ / (κ * c₂) + 1)),
+    max (max 2000 32768) Mw, ?_, ?_, ?_⟩
+  · exact hKh1.trans ((le_max_left _ _).trans (le_max_left _ _))
+  · exact (le_max_left _ _).trans (le_max_left _ _)
+  intro K c ξ hK hc hc8 hcδ hξ hSmin
+  have hKKh : Kh ≤ K := (le_max_left _ _).trans ((le_max_left _ _).trans hK)
+  have hKM : M₁ ≤ K := (le_max_right _ _).trans ((le_max_left _ _).trans hK)
+  have hK500 : 500 * Real.pi ^ 2 * M₁ ≤ K := (le_max_left _ _).trans ((le_max_right _ _).trans hK)
+  have hKbig : 2 * Cm * M₁ / (κ * c₂) + 1 ≤ K := (le_max_right _ _).trans ((le_max_right _ _).trans hK)
+  have hK1 : 1 ≤ K := hKh1.trans hKKh
+  have hK0 : 0 < K := by linarith only [hK1]
+  have hc2000 : 2000 ≤ c := ((le_max_left _ _).trans (le_max_left _ _)).trans hc
+  have hc32768 : 32768 ≤ c := ((le_max_right _ _).trans (le_max_left _ _)).trans hc
+  have hcMw : Mw ≤ c := (le_max_right _ _).trans hc
+  have hc0 : 0 < c := by linarith
+  have hε : 0 < liftEps c := liftEps_pos hc0
+  have hcube : liftEps c ^ 3 * c = 1 := liftEps_cube_mul hc0
+  have hKe3 : (K * liftEps c) ^ 3 * c = K ^ 3 := by
+    calc (K * liftEps c) ^ 3 * c = K ^ 3 * (liftEps c ^ 3 * c) := by ring
+      _ = K ^ 3 := by rw [hcube, mul_one]
+  have hKε : K * liftEps c ≤ 1 / 2 := by
+    by_contra hcon
+    push_neg at hcon
+    have h2 : (1 / 2 : ℝ) ^ 3 < (K * liftEps c) ^ 3 := pow_lt_pow_left₀ hcon (by norm_num) (by norm_num)
+    have h3 := mul_lt_mul_of_pos_right h2 hc0
+    rw [hKe3] at h3
+    norm_num at h3
+    linarith
+  have hKεδ : K * liftEps c ≤ δ₁ := by
+    have h2 : K ^ 3 ≤ δ₁ ^ 3 * c := by
+      have := hcδ
+      rw [div_pow, div_le_iff₀ (by positivity)] at this
+      linarith
+    have h3 : (K * liftEps c) ^ 3 ≤ δ₁ ^ 3 := by
+      by_contra hcon
+      push_neg at hcon
+      have := mul_lt_mul_of_pos_right hcon hc0
+      rw [hKe3] at this
+      linarith
+    exact le_of_pow_le_pow_left₀ (by norm_num) hδ₁.le h3
+  have hε2 : liftEps c ≤ 1 / 2 := by nlinarith only [hKε, hK1, hε]
+  obtain ⟨δ, hδdef⟩ : ∃ δ : ℝ, δ = K * liftEps c := ⟨_, rfl⟩
+  have hδpos : 0 < δ := by rw [hδdef]; positivity
+  have hδ2 : δ ≤ 1 / 2 := by rw [hδdef]; exact hKε
+  have hδδ₁ : δ ≤ δ₁ := by rw [hδdef]; exact hKεδ
+  rw [← hδdef] at hSmin ⊢
+  obtain ⟨hba, hbb, hbc⟩ := hbd δ hδpos hδδ₁
+  have hld := hlead δ hδpos hδδ₁
+  obtain ⟨a, hadef⟩ : ∃ a : ℝ, a = fa δ := ⟨_, rfl⟩
+  obtain ⟨bb, hbbdef⟩ : ∃ bb : ℝ, bb = fb δ := ⟨_, rfl⟩
+  obtain ⟨cc, hccdef⟩ : ∃ cc : ℝ, cc = fc δ := ⟨_, rfl⟩
+  rw [← hadef, ← hccdef] at hld
+  rw [← hadef, ← hbbdef, ← hccdef]
+  rw [← hadef] at hba
+  rw [← hbbdef] at hbb
+  rw [← hccdef] at hbc
+  have hXc : Continuous (airySeedU2 a bb cc) :=
+    ((continuous_const.mul continuous_ceF1).add (continuous_const.mul (continuous_ceG1 _))).add
+      (continuous_const.mul (continuous_ceG1Deriv _))
+  have hδ₀def : ceBeta1 * K * liftEps c / 2 = ceBeta1 * δ / 2 := by rw [hδdef]; ring
+  have hδ₀pos : 0 < ceBeta1 * K * liftEps c / 2 := by positivity
+  have hδ₀le : ceBeta1 * K * liftEps c / 2 ≤ 2 := by
+    rw [hδ₀def]; nlinarith only [ceBeta1_lt_eight, hδ2, hδpos, hβ]
+  obtain ⟨S, hSdef⟩ : ∃ S : ℝ, S = hbS c ξ := ⟨_, rfl⟩
+  have hSmin' : U0 + U1 * δ + ceBeta1 * δ / 2 ≤ ceBeta1 * S := by
+    rw [hSdef]; exact (div_le_iff₀ hβ).mp hSmin |>.trans_eq (by ring)
+  have hSpos : 0 < S := by
+    have h0 : 0 < U0 + U1 * δ + ceBeta1 * δ / 2 := by positivity
+    exact (mul_pos_iff_of_pos_left hβ).mp (lt_of_lt_of_le h0 hSmin')
+  have hLeq : Real.log (Real.pi ^ 2 * ξ) = Real.pi ^ 2 * liftEps c ^ 2 * S := by rw [hSdef]; exact log_eq_hbS hc0
+  have hLpos : 0 < Real.log (Real.pi ^ 2 * ξ) := by rw [hLeq]; positivity
+  have hcs := ceCs_one_lt
+  have hεcs : liftEps c / (2 * ceCs) ≤ 1 := by
+    refine (div_le_self hε.le (by linarith)).trans (by linarith)
+  have hKe : 0 < K * liftEps c := by positivity
+  by_cases hwin : S ≤ Sw
+  · -- window
+    have hS5 : |hbS c ξ| ≤ Sw := by rw [← hSdef, abs_of_pos hSpos]; exact hwin
+    have e5p := h5 (a := a) (b := bb) (c₀ := cc) (σ := 1) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
+      hba hbb hbc (Or.inl rfl) hδ₀pos.le hc32768 hξ hS5
+    have e5m := h5 (a := a) (b := bb) (c₀ := cc) (σ := -1) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
+      hba hbb hbc (Or.inr rfl) hδ₀pos.le hc32768 hξ hS5
+    have e5d := hD5 (K := K) (c := c) (ξ := ξ) hδ₀pos.le hc32768 hξ hS5
+    rw [← hSdef] at e5p e5m
+    obtain ⟨x₀, hx₀def⟩ : ∃ x₀ : ℝ, x₀ = ceBeta1 * S + liftEps c / (2 * ceCs) := ⟨_, rfl⟩
+    have harg : -(ceBeta1 * S) - liftEps c / (2 * ceCs) = -x₀ := by rw [hx₀def]; ring
+    rw [harg] at e5p e5m
+    have e5 : ‖iMain (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ + iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ -
+        ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+          windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀) : ℝ) : ℂ)‖ ≤
+        CW * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)) +
+          c ^ (-(1 / 2 : ℝ))) := by
+      set Mn := iMain (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ
+      set Dx := iDual (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ
+      set Dd := iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ
+      set T : ℂ := (((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+          windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀) : ℝ)) : ℂ)
+      have hsplit : Mn + Dd - T = (1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) + (Mn + ((-1 : ℝ) : ℂ) * Dx - T)) + Dd := by
+        push_cast; ring
+      rw [hsplit]
+      have hξi : 0 < ξ⁻¹ := inv_pos.mpr hξ
+      have hB : 0 ≤ ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)) := by positivity
+      have hD5' : ‖Dd‖ ≤ CD5 * ξ⁻¹ * c ^ (-(1 / 2 : ℝ)) := e5d
+      calc ‖(1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) + (Mn + ((-1 : ℝ) : ℂ) * Dx - T)) + Dd‖
+          ≤ ‖(1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) + (Mn + ((-1 : ℝ) : ℂ) * Dx - T))‖ + ‖Dd‖ := norm_add_le _ _
+        _ ≤ (1 / 2) * (‖Mn + ((1 : ℝ) : ℂ) * Dx - T‖ + ‖Mn + ((-1 : ℝ) : ℂ) * Dx - T‖) + ‖Dd‖ := by
+            rw [norm_mul]
+            have : ‖(1 / 2 : ℂ)‖ = 1 / 2 := by simp
+            rw [this]
+            gcongr
+            exact norm_add_le _ _
+        _ ≤ (1 / 2) * (CW0 * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ))) +
+              CW0 * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)))) +
+              CD5 * ξ⁻¹ * c ^ (-(1 / 2 : ℝ)) := by gcongr
+        _ ≤ _ := by
+            rw [hCWdef]
+            have hε2' : 0 ≤ liftEps c ^ 2 := by positivity
+            have hc12' : 0 ≤ c ^ (-(1 / 2 : ℝ)) := by positivity
+            nlinarith [mul_nonneg hCW0.le hξi.le, mul_nonneg hCD5.le hξi.le,
+              mul_nonneg (mul_nonneg hCW0.le hξi.le) hB, mul_nonneg (mul_nonneg hCW0.le hξi.le) hε2',
+              mul_nonneg (mul_nonneg hCD5.le hξi.le) hB, mul_nonneg (mul_nonneg hCD5.le hξi.le) hε2',
+              mul_nonneg (mul_nonneg hCW0.le hξi.le) hc12', mul_nonneg (mul_nonneg hCD5.le hξi.le) hc12']
+    have hconv := E.conv hXc hδ₀pos (-x₀)
+    have hx₀ge : U0 + U1 * δ + ceBeta1 * δ / 2 ≤ x₀ := by
+      rw [hx₀def]; have : 0 ≤ liftEps c / (2 * ceCs) := by positivity
+      linarith
+    have hx₀pos : 0 < x₀ := by rw [hx₀def]; positivity
+    have hf := hfloor δ hδpos hδδ₁ x₀ hx₀ge
+    rw [← hδ₀def] at hf
+    rw [← hadef, ← hbbdef, ← hccdef] at hf
+    have hFge : qw * (c₁ * δ) ≤ windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀) := by
+      rw [hconv]
+      refine le_trans ?_ hf
+      have h1 : qw ≤ (1 + x₀) ^ (-(3 / 2 : ℝ)) := by
+        rw [hqwdef]
+        refine Real.rpow_le_rpow_of_nonpos (by linarith) ?_ (by norm_num)
+        have hh := mul_le_mul_of_nonneg_left hwin hβ.le
+        rw [hx₀def]; linarith only [hh, hεcs]
+      have h2 : 0 ≤ c₂ * min 1 ((ceBeta1 * K * liftEps c / 2) ^ 2 * x₀) :=
+        mul_nonneg hc₂.le (le_min zero_le_one (by positivity))
+      have h4 : 0 ≤ (1 + x₀) ^ (-(3 / 2 : ℝ)) := by positivity
+      calc qw * (c₁ * δ) ≤ (1 + x₀) ^ (-(3 / 2 : ℝ)) * (c₁ * δ) := by gcongr
+        _ ≤ _ := mul_le_mul_of_nonneg_left (le_add_of_nonneg_right h2) h4
+    refine re_pos_of_norm_lt (A := ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+      windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀)) (lt_of_le_of_lt e5 ?_)
+    -- error
+    have ht0 : 0 < c ^ (-(1 / 6 : ℝ)) := by positivity
+    have ht : c ^ (-(1 / 6 : ℝ)) ≤ θ := hMw c hcMw
+    have hεt : liftEps c ≤ c ^ (-(1 / 6 : ℝ)) :=
+      Real.rpow_le_rpow_of_exponent_le (by linarith) (by norm_num)
+    have hc12 : c ^ (-(1 / 2 : ℝ)) = liftEps c * c ^ (-(1 / 6 : ℝ)) := by
+      unfold liftEps; rw [← Real.rpow_add hc0]; norm_num
+    have hinv : ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ ≤ 1 := by
+      refine inv_le_one_of_one_le₀ (one_le_pow₀ ?_)
+      have : 0 ≤ ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ) := by positivity
+      linarith
+    have herr : liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)) +
+        c ^ (-(1 / 2 : ℝ)) ≤ 3 * (liftEps c * θ) := by
+      rw [hc12]
+      have h1 : liftEps c ^ 2 ≤ liftEps c * θ := by
+        calc liftEps c ^ 2 = liftEps c * liftEps c := by ring
+          _ ≤ liftEps c * θ := by gcongr; exact hεt.trans ht
+      have h2 : ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * (liftEps c * c ^ (-(1 / 6 : ℝ))) ≤
+          liftEps c * θ := by
+        calc _ ≤ 1 * (liftEps c * c ^ (-(1 / 6 : ℝ))) := by gcongr
+          _ ≤ liftEps c * θ := by rw [one_mul]; gcongr
+      have h3 : c ^ (-(1 / 2 : ℝ)) ≤ liftEps c * θ := by
+        rw [hc12]; gcongr
+      linarith
+    have hξi : 0 < ξ⁻¹ := inv_pos.mpr hξ
+    have hlow : ceK * ceBeta1 / (Real.pi ^ 2 * ξ) * (qw * (c₁ * δ)) = ξ⁻¹ * (κw * c₁ * δ) := by
+      rw [hκwdef]; field_simp
+    have hupper : CW * ξ⁻¹ * (3 * (liftEps c * θ)) = ξ⁻¹ * (κw * c₁ * liftEps c / 2) := by
+      rw [hθdef]; field_simp; ring
+    have hA : ceK * ceBeta1 / (Real.pi ^ 2 * ξ) * (qw * (c₁ * δ)) ≤ ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+        windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀) := by
+      gcongr
+      exact (by have := ceK_pos; positivity)
+    have hεδ : liftEps c ≤ δ := by rw [hδdef]; exact le_mul_of_one_le_left hε.le hK1
+    have hkc : 0 < κw * c₁ := by positivity
+    calc CW * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)) +
+          c ^ (-(1 / 2 : ℝ)))
+        ≤ CW * ξ⁻¹ * (3 * (liftEps c * θ)) := by gcongr
+      _ = ξ⁻¹ * (κw * c₁ * liftEps c / 2) := hupper
+      _ < ξ⁻¹ * (κw * c₁ * δ) := by
+          apply mul_lt_mul_of_pos_left _ hξi
+          have h2 : liftEps c / 2 < δ := by linarith only [hεδ, hε]
+          calc κw * c₁ * liftEps c / 2 = κw * c₁ * (liftEps c / 2) := by ring
+            _ < κw * c₁ * δ := mul_lt_mul_of_pos_left h2 hkc
+      _ = _ := hlow.symm
+      _ ≤ _ := hA
+  by_cases hmid : S ≤ M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ)
+  · -- middle
+    have hwin' := not_le.mp hwin
+    have hS100 : 100 ≤ S := by linarith
+    have hS1 : 1 ≤ S := by linarith
+    have hc23 : c ^ (2 / 3 : ℝ) = (liftEps c)⁻¹ ^ 2 := by
+      rw [← rpow_third_eq hc0, ← Real.rpow_natCast, ← Real.rpow_mul hc0.le]; norm_num
+    have hK2 : 0 < K ^ 2 := by positivity
+    have hy : liftEps c ^ 2 * S ≤ M₁ / K ^ 2 := by
+      have := mul_le_mul_of_nonneg_left hmid (sq_nonneg (liftEps c))
+      calc liftEps c ^ 2 * S ≤ liftEps c ^ 2 * (M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ)) := this
+        _ = M₁ / K ^ 2 := by rw [hc23]; field_simp
+    have hy0 : 0 < liftEps c ^ 2 * S := by positivity
+    have hKK : K ≤ K ^ 2 := le_self_pow₀ hK1 (by norm_num)
+    have hy1 : liftEps c ^ 2 * S ≤ 1 := by
+      refine hy.trans ?_
+      rw [div_le_one hK2]; linarith
+    have hL2 : Real.log (Real.pi ^ 2 * ξ) ≤ 0.002 := by
+      rw [hLeq]
+      have h1 : Real.pi ^ 2 * (liftEps c ^ 2 * S) ≤ Real.pi ^ 2 * (M₁ / K ^ 2) :=
+        mul_le_mul_of_nonneg_left hy (by positivity)
+      have h2 : Real.pi ^ 2 * (M₁ / K ^ 2) ≤ 0.002 := by
+        rw [← mul_div_assoc, div_le_iff₀ hK2]
+        linarith only [hK500, hKK, hK1]
+      linarith
+    have e6 := h6 (a := a) (b := bb) (c₀ := cc) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
+      (L := Real.log (Real.pi ^ 2 * ξ)) hba hbb hbc ⟨hδ₀pos.le, hδ₀le⟩ (by linarith) hξ rfl hLpos hL2
+      (by rw [← hSdef]; exact hS100)
+    rw [← hSdef] at e6
+    obtain ⟨hκ1, hκ2⟩ := edgeKappa0_bounds hLpos hL2
+    obtain ⟨x, hxdef⟩ : ∃ x : ℝ, x = edgeKappa0 (Real.log (Real.pi ^ 2 * ξ)) * ceBeta1 * S + liftEps c / (2 * ceCs) :=
+      ⟨_, rfl⟩
+    rw [← hxdef] at e6
+    have hxge : ceBeta1 * S ≤ x := by
+      rw [hxdef]
+      have : 0 ≤ liftEps c / (2 * ceCs) := by positivity
+      have hh := mul_le_mul_of_nonneg_right hκ1.le (mul_pos hβ hSpos).le
+      linarith only [hh, this]
+    have hxup : 1 + x ≤ (2 * ceBeta1 + 2) * S := by
+      rw [hxdef]
+      have h1 : edgeKappa0 (Real.log (Real.pi ^ 2 * ξ)) ≤ 2 := by linarith
+      have h2 : edgeKappa0 (Real.log (Real.pi ^ 2 * ξ)) * ceBeta1 * S ≤ 2 * ceBeta1 * S := by
+        have := mul_le_mul_of_nonneg_right h1 (mul_pos hβ hSpos).le
+        linarith only [this]
+      linarith only [h2, hεcs, hS1]
+    have hx0 : 0 < x := by have := mul_pos hβ hSpos; linarith
+    have hxfl : U0 + U1 * δ + ceBeta1 * δ / 2 ≤ x := by
+      have h1 : U0 + U1 * δ + ceBeta1 * δ / 2 ≤ U0 + U1 + ceBeta1 := by
+        have ha := mul_le_mul_of_nonneg_left (by linarith only [hδ2] : δ ≤ 1) hU1
+        have hb := mul_le_mul_of_nonneg_left (by linarith only [hδ2] : δ ≤ 1) hβ.le
+        linarith only [ha, hb, hβ]
+      have h2 : U0 + U1 + ceBeta1 ≤ ceBeta1 * Sw := by
+        have := (div_le_iff₀ hβ).mp hSwU; linarith only [this]
+      have h3 := mul_le_mul_of_nonneg_left hwin'.le hβ.le
+      linarith only [h1, h2, h3, hxge]
+    have hconv := E.conv hXc hδ₀pos (-x)
+    have hf := hfloor δ hδpos hδδ₁ x hxfl
+    rw [← hδ₀def] at hf
+    rw [← hadef, ← hbbdef, ← hccdef] at hf
+    obtain ⟨y, hydef⟩ : ∃ y : ℝ, y = liftEps c ^ 2 * S := ⟨_, rfl⟩
+    rw [← hydef] at hy hy0 hy1
+    have hFge : q * S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y)) ≤
+        windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) := by
+      rw [hconv]
+      refine le_trans ?_ hf
+      have h1 : q * S ^ (-(3 / 2 : ℝ)) ≤ (1 + x) ^ (-(3 / 2 : ℝ)) := by
+        have := Real.rpow_le_rpow_of_nonpos (by linarith : (0 : ℝ) < 1 + x) hxup (by norm_num : -(3 / 2 : ℝ) ≤ 0)
+        rw [Real.mul_rpow (by positivity) hSpos.le, ← hqdef] at this
+        exact this
+      have h2 : min 1 (K ^ 2 * y) ≤ min 1 ((ceBeta1 * K * liftEps c / 2) ^ 2 * x) := by
+        refine min_le_min le_rfl ?_
+        have h3 : (ceBeta1 * K * liftEps c / 2) ^ 2 * (ceBeta1 * S) ≤ (ceBeta1 * K * liftEps c / 2) ^ 2 * x :=
+          mul_le_mul_of_nonneg_left hxge (sq_nonneg _)
+        have h4 : (ceBeta1 * K * liftEps c / 2) ^ 2 * (ceBeta1 * S) = (ceBeta1 ^ 3 / 4) * (K ^ 2 * y) := by
+          rw [hydef]; ring
+        have h5' := one_le_ceBeta1_cube_div
+        have h6' : 0 ≤ K ^ 2 * y := by positivity
+        calc K ^ 2 * y = 1 * (K ^ 2 * y) := by ring
+          _ ≤ (ceBeta1 ^ 3 / 4) * (K ^ 2 * y) := mul_le_mul_of_nonneg_right h5' h6'
+          _ = _ := h4.symm
+          _ ≤ _ := h3
+      have h7 : 0 ≤ c₂ * min 1 (K ^ 2 * y) := mul_nonneg hc₂.le (le_min zero_le_one (by positivity))
+      have h8 : 0 ≤ (1 + x) ^ (-(3 / 2 : ℝ)) := by positivity
+      have h9 : 0 ≤ c₁ * δ := by positivity
+      calc q * S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y))
+          ≤ (1 + x) ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y)) := by gcongr
+        _ ≤ (1 + x) ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 ((ceBeta1 * K * liftEps c / 2) ^ 2 * x)) := by gcongr
+        _ ≤ _ := mul_le_mul_of_nonneg_left (le_add_of_nonneg_left h9) h8
+    have hcast : ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) : ℝ) : ℂ) *
+        ((windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) : ℝ) : ℂ) =
+        ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+          windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) : ℝ) : ℂ) := by push_cast; ring
+    rw [hcast] at e6
+    refine re_pos_of_norm_lt (A := ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+      windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x)) ?_
+    refine lt_of_le_of_lt (norm_add_sub_split _ _ _) ?_
+    -- the dual term
+    have e3 := h3 (K := K) (c := c) (ξ := ξ)
+      ⟨hδ₀pos, hδ₀le⟩ (by linarith) hξ (by rw [← hSdef]; linarith)
+    have hKm : K ^ (-(m : ℝ)) ≤ 1 := Real.rpow_le_one_of_one_le_of_nonpos hK1 (by linarith)
+    have hBm : (1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ (-(m : ℝ)) ≤ 1 := by
+      refine Real.rpow_le_one_of_one_le_of_nonpos ?_ (by linarith)
+      have : 0 ≤ ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ) := by positivity
+      linarith
+    have hlogq : c⁻¹ * (Real.pi ^ 2 * y) ^ (-(1 / 4 : ℝ)) ≤ S ^ (-(3 / 2 : ℝ)) * y := by
+      rw [hydef]; exact inv_mul_log_quarter_le hc0 hSpos (by rw [← hydef]; exact hy1)
+    have hLy : Real.log (Real.pi ^ 2 * ξ) = Real.pi ^ 2 * y := by rw [hLeq, hydef]; ring
+    have hξi : 0 < ξ⁻¹ := inv_pos.mpr hξ
+    have hSr : 0 < S ^ (-(3 / 2 : ℝ)) := by positivity
+    have hdual : ‖iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ‖ ≤
+        CD * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y)) := by
+      refine e3.trans ?_
+      have hmin : min (Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ))) (Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ))) ≤
+          Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ)) := min_le_left _ _
+      have hm0 : 0 ≤ min (Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ))) (Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ))) :=
+        le_min (by positivity) (by positivity)
+      calc CD * ξ⁻¹ * (1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ (-(m : ℝ)) * c⁻¹ *
+            min (Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ))) (Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ)))
+          ≤ CD * ξ⁻¹ * 1 * c⁻¹ * Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ)) := by
+            have hc' : 0 < c⁻¹ := inv_pos.mpr hc0
+            gcongr
+        _ = CD * (ξ⁻¹ * (c⁻¹ * (Real.pi ^ 2 * y) ^ (-(1 / 4 : ℝ)))) := by rw [hLy]; ring
+        _ ≤ CD * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y)) := by gcongr
+    -- the main-term error
+    have hc52 : c ^ (-(5 / 2 : ℝ)) ≤ S ^ (-(3 / 2 : ℝ)) * y := by
+      have h1 := c_rpow_mul_S_le (by linarith : 1 ≤ c) hSpos (by rw [← hydef]; exact hy1)
+      rw [← hydef] at h1
+      have h2 : S ^ (-(3 / 2 : ℝ)) * S ^ (3 / 2 : ℝ) = 1 := by
+        rw [← Real.rpow_add hSpos]; norm_num
+      calc c ^ (-(5 / 2 : ℝ)) = S ^ (-(3 / 2 : ℝ)) * (c ^ (-(5 / 2 : ℝ)) * S ^ (3 / 2 : ℝ)) := by
+            rw [← mul_assoc, mul_comm (S ^ (-(3 / 2 : ℝ))), mul_assoc, h2, mul_one]
+        _ ≤ S ^ (-(3 / 2 : ℝ)) * y := by gcongr
+    have herr6 : C6 * ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * (liftEps c ^ 2 * S) + c ^ (-(5 / 2 : ℝ))) ≤
+        2 * C6 * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y)) := by
+      rw [← hydef]
+      have : S ^ (-(3 / 2 : ℝ)) * y + c ^ (-(5 / 2 : ℝ)) ≤ 2 * (S ^ (-(3 / 2 : ℝ)) * y) := by linarith
+      calc C6 * ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y + c ^ (-(5 / 2 : ℝ))) ≤ C6 * ξ⁻¹ * (2 * (S ^ (-(3 / 2 : ℝ)) * y)) := by gcongr
+        _ = _ := by ring
+    -- the main term
+    have hmain : ceK * ceBeta1 / (Real.pi ^ 2 * ξ) * (q * S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y))) =
+        κ * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y)))) := by
+      rw [hκdef]; field_simp
+    have hbig : 2 * Cm * M₁ < κ * c₂ * K ^ 2 := by
+      have h1 : 2 * Cm * M₁ / (κ * c₂) < K := by linarith
+      rw [div_lt_iff₀ (by positivity)] at h1
+      have h2 := mul_le_mul_of_nonneg_right hKK (mul_pos hκ hc₂).le
+      linarith only [h1, h2]
+    have hscal := middle_scalar hκ hc₂ hCm hM₁1 hK1 hbig hy0 hy
+    have hcore : (2 * C6 + CD) * y < κ * (c₂ * min 1 (K ^ 2 * y)) := by
+      rw [← hCmdef]; linarith only [hscal, mul_nonneg hCm hy0.le]
+    have hA : ceK * ceBeta1 / (Real.pi ^ 2 * ξ) * (q * S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y))) ≤
+        ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+          windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) := by
+      gcongr
+      exact (by have := ceK_pos; positivity)
+    have hSξ : 0 < ξ⁻¹ * S ^ (-(3 / 2 : ℝ)) := by positivity
+    calc ‖iMain (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ - ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+            windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) : ℝ) : ℂ)‖ +
+          ‖iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ‖
+        ≤ C6 * ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * (liftEps c ^ 2 * S) + c ^ (-(5 / 2 : ℝ))) +
+          CD * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y)) := add_le_add e6 hdual
+      _ ≤ 2 * C6 * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y)) + CD * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y)) := by linarith
+      _ = (ξ⁻¹ * S ^ (-(3 / 2 : ℝ))) * ((2 * C6 + CD) * y) := by ring
+      _ < (ξ⁻¹ * S ^ (-(3 / 2 : ℝ))) * (κ * (c₂ * min 1 (K ^ 2 * y))) := mul_lt_mul_of_pos_left hcore hSξ
+      _ = ceK * ceBeta1 / (Real.pi ^ 2 * ξ) * (q * S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y))) := by
+          rw [hmain]; ring
+      _ ≤ _ := hA
+
+  · -- high
+    have hmid' := not_le.mp hmid
+    have hwin' := not_le.mp hwin
+    have hS100 : 100 ≤ S := by linarith
+    have e4 := h4 (a := a) (b := bb) (c₀ := cc) (K := K) (M₁ := M₁) (c := c) (ξ := ξ) hba hbb hbc hK1 hM₁1 hc8
+      (by linarith) hξ (by rw [← hSdef]; exact hS100) (by rw [← hSdef]; exact hmid'.le)
+    rw [← hSdef] at e4
+    have hA' : hbA c ξ = Real.pi ^ 2 * S := by rw [hSdef]; exact hbA_eq hc0
+    obtain ⟨P, hPdef⟩ : ∃ P : ℝ, P = hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) := ⟨_, rfl⟩
+    have hPpos : 0 < P := by rw [hPdef, hA']; positivity
+    have hAeq : ((cc - a) * g0) * Real.sqrt Real.pi * hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) =
+        (cc - a) * G * P := by rw [hPdef, hGdef]; ring
+    rw [hAeq, ← hPdef] at e4
+    refine re_pos_of_norm_lt (A := (cc - a) * G * P) ?_
+    refine lt_of_le_of_lt (norm_add_sub_split _ _ _) ?_
+    have e3 := h3 (K := K) (c := c) (ξ := ξ)
+      ⟨hδ₀pos, hδ₀le⟩ (by linarith) hξ (by rw [← hSdef]; linarith)
+    have hεc : liftEps c * c ^ (1 / 3 : ℝ) = 1 := by rw [rpow_third_eq hc0]; field_simp
+    have hbase : K ≤ 1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ) := by
+      have : ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ) = ceBeta1 / 2 * K * (liftEps c * c ^ (1 / 3 : ℝ)) := by ring
+      rw [this, hεc]; nlinarith only [hβ2, hK0]
+    have hB : (1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ (-(m : ℝ)) ≤ K ^ (-(m : ℝ)) :=
+      Real.rpow_le_rpow_of_nonpos (by linarith) hbase (by linarith)
+    have hSb : 0 < hbS c ξ := by rw [← hSdef]; exact hSpos
+    have hdual : ‖iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ‖ ≤
+        2 * Real.pi * CD * K ^ (-(m : ℝ)) * P := by
+      refine e3.trans ?_
+      have hmin : min (Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ))) (Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ))) ≤
+          Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ)) := min_le_right _ _
+      calc CD * ξ⁻¹ * (1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ (-(m : ℝ)) * c⁻¹ *
+            min (Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ))) (Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ)))
+          ≤ CD * ξ⁻¹ * K ^ (-(m : ℝ)) * c⁻¹ * Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ)) := by
+            have hc' : 0 < c⁻¹ := inv_pos.mpr hc0
+            gcongr
+        _ = CD * K ^ (-(m : ℝ)) * (ξ⁻¹ * (c⁻¹ * Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ)))) := by ring
+        _ = CD * K ^ (-(m : ℝ)) * (ξ⁻¹ * (Real.pi ^ 2 * S) ^ (-(3 / 2 : ℝ))) := by
+            rw [inv_mul_log_rpow hc0 hSb, ← hSdef]
+        _ = 2 * Real.pi * CD * K ^ (-(m : ℝ)) * P := by
+            rw [hPdef, hA']; field_simp
+    have hb1 : CH * M₁ ^ (-((m : ℝ) / 2)) ≤ G / 8 := by
+      calc CH * M₁ ^ (-((m : ℝ) / 2)) ≤ CH * (G / (8 * CH)) := by gcongr; exact hM₁ M₁ le_rfl
+        _ = G / 8 := by field_simp
+    have hb2 : (CH + 2 * Real.pi * CD) * K ^ (-(m : ℝ)) ≤ G / 8 := by
+      calc (CH + 2 * Real.pi * CD) * K ^ (-(m : ℝ)) ≤ (CH + 2 * Real.pi * CD) * (G / (8 * (CH + 2 * Real.pi * CD))) := by
+            gcongr; exact hKh K hKKh
+        _ = G / 8 := by field_simp
+    have hb3 : CH * S ^ (-(1 / 2 : ℝ)) ≤ G / 8 := by
+      calc CH * S ^ (-(1 / 2 : ℝ)) ≤ CH * (G / (8 * CH)) := by gcongr; exact hSh S (hSwSh.trans hwin'.le)
+        _ = G / 8 := by field_simp
+    have hlead' : G * P ≤ (cc - a) * G * P := by
+      have := mul_pos hGpos hPpos
+      nlinarith only [this, hld]
+    calc ‖iMain (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ - (((cc - a) * G * P : ℝ) : ℂ)‖ +
+          ‖iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ‖
+        ≤ CH * (M₁ ^ (-((m : ℝ) / 2)) + K ^ (-(m : ℝ)) + S ^ (-(1 / 2 : ℝ))) * P +
+          2 * Real.pi * CD * K ^ (-(m : ℝ)) * P := add_le_add e4 hdual
+      _ = (CH * M₁ ^ (-((m : ℝ) / 2)) + (CH + 2 * Real.pi * CD) * K ^ (-(m : ℝ)) + CH * S ^ (-(1 / 2 : ℝ))) * P := by ring
+      _ ≤ (G / 8 + G / 8 + G / 8) * P := by gcongr
+      _ < G * P := by linarith only [mul_pos hGpos hPpos]
+      _ ≤ _ := hlead'
+
+set_option maxHeartbeats 4000000 in
+/-- **`O.6` with a general dual seed and seed families indexed by `(K, c)`**: as `o6_positivity_dual`, but the main seed coefficients
+`fa K c`, `fb K c`, `fc K c` may depend on both `K` and `c` (not only on `δ = K c^{-1/3}`), as the paper's families `p ∈ 𝒫` do (for
+`thm:ce-hb-lift` the mass `v = ∫S_c / δ` depends on both).  The hypotheses `hbd`, `hlead`, `hfloor` are required at every admissible `(K, c)`.
+Original statement of `o6_positivity_dual` (`u1co:O6`, "also holds if only `F_p` is a bounded rational-Airy family and `D_p` is
+admissible with the reflected estimates `(e3)` and `|I_dual[D_p]| ≲ ξ⁻¹ c^{-1/2}` on each fixed Airy window, uniformly in `K ≥ 1`"):
+for a main one-level seed family and an arbitrary dual seed family `D K c` obeying `O6DualEst`, `Re (I_main[X] + I_dual[D]) > 0`
+for `S_eff ≥ s_min`.  The proof is that of `o6_positivity` with the dual term `σ I_dual[X]` replaced by `I_dual[D K c]`; the window
+estimate for `I_main[X]` alone is the average of the `σ = ±1` instances of `O6Est.e5`. -/
+theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m R g0)
+    (D : ℝ → ℝ → ℝ → ℝ) (DE : O6DualEst m D)
+    {δ₁ c₁ c₂ U0 U1 : ℝ} (hδ₁ : 0 < δ₁) (hc₁ : 0 < c₁) (hc₂ : 0 < c₂) (hU0 : 0 ≤ U0) (hU1 : 0 ≤ U1)
+    {fa fb fc : ℝ → ℝ → ℝ}
+    (hbd : ∀ {K c : ℝ}, 1 ≤ K → 2000 ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c →
+      |fa K c| ≤ R ∧ |fb K c| ≤ R ∧ |fc K c| ≤ R)
+    (hlead : ∀ {K c : ℝ}, 1 ≤ K → 2000 ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c → 1 ≤ fc K c - fa K c)
+    (hfloor : ∀ {K c : ℝ}, 1 ≤ K → 2000 ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c →
+      ∀ x : ℝ, U0 + U1 * (K * liftEps c) + ceBeta1 * (K * liftEps c) / 2 ≤ x →
+      (1 + x) ^ (-(3 / 2 : ℝ)) * (c₁ * (K * liftEps c) + c₂ * min 1 ((ceBeta1 * (K * liftEps c) / 2) ^ 2 * x)) ≤
+        ∫ t in Icc (0 : ℝ) (ceBeta1 * (K * liftEps c) / 2),
+          airySeedU2 (fa K c) (fb K c) (fc K c) (-x + t) * bspline m (ceBeta1 * (K * liftEps c) / 2) t) :
+  ∃ K₀ c₀ : ℝ, 1 ≤ K₀ ∧ 2000 ≤ c₀ ∧ ∀ {K c ξ : ℝ}, K₀ ≤ K → c₀ ≤ c → 8 * K ^ 3 ≤ c → (K / δ₁) ^ 3 ≤ c →
+      0 < ξ →
+      (U0 + U1 * (K * liftEps c) + ceBeta1 * (K * liftEps c) / 2) / ceBeta1 ≤ hbS c ξ →
+      0 < (iMain (airySeedU2 (fa K c) (fb K c) (fc K c))
+              (ceBeta1 * K * liftEps c / 2) m c ξ +
+            iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ).re := by
+  obtain ⟨CH, hCH, h4⟩ := E.e4
+  obtain ⟨CD, hCD, h3⟩ := DE.e3
+  obtain ⟨C6, hC6, h6⟩ := E.e6
+  have hg0 := E.g0_pos
+  have hsp : 0 < Real.sqrt Real.pi := Real.sqrt_pos.mpr Real.pi_pos
+  have hpi := Real.pi_pos
+  have hβ := ceBeta1_pos
+  have hβ2 := ceBeta1_gt_two
+  have hm0 : (0 : ℝ) < m := by exact_mod_cast (by omega : 0 < m)
+  obtain ⟨G, hGdef⟩ : ∃ G : ℝ, G = g0 * Real.sqrt Real.pi := ⟨_, rfl⟩
+  have hGpos : 0 < G := by rw [hGdef]; positivity
+  obtain ⟨M₁, hM₁1, hM₁⟩ := exists_rpow_neg_le (p := (m : ℝ) / 2) (by positivity) (ε := G / (8 * CH)) (by positivity)
+  obtain ⟨Kh, hKh1, hKh⟩ := exists_rpow_neg_le (p := (m : ℝ)) hm0 (ε := G / (8 * (CH + 2 * Real.pi * CD))) (by positivity)
+  obtain ⟨Sh, hSh1, hSh⟩ := exists_rpow_neg_le (p := (1 / 2 : ℝ)) (by norm_num) (ε := G / (8 * CH)) (by positivity)
+  obtain ⟨Sw, hSwdef⟩ : ∃ Sw : ℝ, Sw = max (max 100 Sh) ((U0 + U1 + ceBeta1) / ceBeta1) := ⟨_, rfl⟩
+  have hSw100 : 100 ≤ Sw := by rw [hSwdef]; exact (le_max_left _ _).trans (le_max_left _ _)
+  have hSwSh : Sh ≤ Sw := by rw [hSwdef]; exact (le_max_right _ _).trans (le_max_left _ _)
+  have hSwU : (U0 + U1 + ceBeta1) / ceBeta1 ≤ Sw := by rw [hSwdef]; exact le_max_right _ _
+  obtain ⟨CW0, hCW0, h5⟩ := E.e5 Sw
+  obtain ⟨CD5, hCD5, hD5⟩ := DE.e5 Sw
+  obtain ⟨CW, hCWdef⟩ : ∃ CW : ℝ, CW = CW0 + CD5 := ⟨_, rfl⟩
+  have hCW : 0 < CW := by rw [hCWdef]; positivity
+  -- constants of the middle band
+  obtain ⟨q, hqdef⟩ : ∃ q : ℝ, q = (2 * ceBeta1 + 2) ^ (-(3 / 2 : ℝ)) := ⟨_, rfl⟩
+  have hq : 0 < q := by rw [hqdef]; positivity
+  obtain ⟨κ, hκdef⟩ : ∃ κ : ℝ, κ = ceK * ceBeta1 * q / Real.pi ^ 2 := ⟨_, rfl⟩
+  have hκ : 0 < κ := by have := ceK_pos; rw [hκdef]; positivity
+  obtain ⟨Cm, hCmdef⟩ : ∃ Cm : ℝ, Cm = 2 * C6 + CD := ⟨_, rfl⟩
+  have hCm : 0 ≤ Cm := by rw [hCmdef]; positivity
+  -- constants of the window
+  have hSw0 : 0 < Sw := by linarith
+  obtain ⟨qw, hqwdef⟩ : ∃ qw : ℝ, qw = (2 + ceBeta1 * Sw) ^ (-(3 / 2 : ℝ)) := ⟨_, rfl⟩
+  have hqw : 0 < qw := by rw [hqwdef]; positivity
+  obtain ⟨κw, hκwdef⟩ : ∃ κw : ℝ, κw = ceK * ceBeta1 * qw / Real.pi ^ 2 := ⟨_, rfl⟩
+  have hκw : 0 < κw := by have := ceK_pos; rw [hκwdef]; positivity
+  obtain ⟨θ, hθdef⟩ : ∃ θ : ℝ, θ = κw * c₁ / (6 * CW) := ⟨_, rfl⟩
+  have hθ : 0 < θ := by rw [hθdef]; positivity
+  obtain ⟨Mw, hMw1, hMw⟩ := exists_rpow_neg_le (p := (1 / 6 : ℝ)) (by norm_num) (ε := θ) hθ
+  refine ⟨max (max Kh M₁) (max (500 * Real.pi ^ 2 * M₁) (2 * Cm * M₁ / (κ * c₂) + 1)),
+    max (max 2000 32768) Mw, ?_, ?_, ?_⟩
+  · exact hKh1.trans ((le_max_left _ _).trans (le_max_left _ _))
+  · exact (le_max_left _ _).trans (le_max_left _ _)
+  intro K c ξ hK hc hc8 hcδ hξ hSmin
+  have hKKh : Kh ≤ K := (le_max_left _ _).trans ((le_max_left _ _).trans hK)
+  have hKM : M₁ ≤ K := (le_max_right _ _).trans ((le_max_left _ _).trans hK)
+  have hK500 : 500 * Real.pi ^ 2 * M₁ ≤ K := (le_max_left _ _).trans ((le_max_right _ _).trans hK)
+  have hKbig : 2 * Cm * M₁ / (κ * c₂) + 1 ≤ K := (le_max_right _ _).trans ((le_max_right _ _).trans hK)
+  have hK1 : 1 ≤ K := hKh1.trans hKKh
+  have hK0 : 0 < K := by linarith only [hK1]
+  have hc2000 : 2000 ≤ c := ((le_max_left _ _).trans (le_max_left _ _)).trans hc
+  have hc32768 : 32768 ≤ c := ((le_max_right _ _).trans (le_max_left _ _)).trans hc
+  have hcMw : Mw ≤ c := (le_max_right _ _).trans hc
+  have hc0 : 0 < c := by linarith
+  have hε : 0 < liftEps c := liftEps_pos hc0
+  have hcube : liftEps c ^ 3 * c = 1 := liftEps_cube_mul hc0
+  have hKe3 : (K * liftEps c) ^ 3 * c = K ^ 3 := by
+    calc (K * liftEps c) ^ 3 * c = K ^ 3 * (liftEps c ^ 3 * c) := by ring
+      _ = K ^ 3 := by rw [hcube, mul_one]
+  have hKε : K * liftEps c ≤ 1 / 2 := by
+    by_contra hcon
+    push_neg at hcon
+    have h2 : (1 / 2 : ℝ) ^ 3 < (K * liftEps c) ^ 3 := pow_lt_pow_left₀ hcon (by norm_num) (by norm_num)
+    have h3 := mul_lt_mul_of_pos_right h2 hc0
+    rw [hKe3] at h3
+    norm_num at h3
+    linarith
+  have hKεδ : K * liftEps c ≤ δ₁ := by
+    have h2 : K ^ 3 ≤ δ₁ ^ 3 * c := by
+      have := hcδ
+      rw [div_pow, div_le_iff₀ (by positivity)] at this
+      linarith
+    have h3 : (K * liftEps c) ^ 3 ≤ δ₁ ^ 3 := by
+      by_contra hcon
+      push_neg at hcon
+      have := mul_lt_mul_of_pos_right hcon hc0
+      rw [hKe3] at this
+      linarith
+    exact le_of_pow_le_pow_left₀ (by norm_num) hδ₁.le h3
+  have hε2 : liftEps c ≤ 1 / 2 := by nlinarith only [hKε, hK1, hε]
+  obtain ⟨δ, hδdef⟩ : ∃ δ : ℝ, δ = K * liftEps c := ⟨_, rfl⟩
+  have hδpos : 0 < δ := by rw [hδdef]; positivity
+  have hδ2 : δ ≤ 1 / 2 := by rw [hδdef]; exact hKε
+  have hδδ₁ : δ ≤ δ₁ := by rw [hδdef]; exact hKεδ
+  rw [← hδdef] at hSmin
+  obtain ⟨hba, hbb, hbc⟩ := hbd hK1 hc2000 hc8 hcδ
+  have hld := hlead hK1 hc2000 hc8 hcδ
+  obtain ⟨a, hadef⟩ : ∃ a : ℝ, a = fa K c := ⟨_, rfl⟩
+  obtain ⟨bb, hbbdef⟩ : ∃ bb : ℝ, bb = fb K c := ⟨_, rfl⟩
+  obtain ⟨cc, hccdef⟩ : ∃ cc : ℝ, cc = fc K c := ⟨_, rfl⟩
+  rw [← hadef, ← hccdef] at hld
+  rw [← hadef, ← hbbdef, ← hccdef]
+  rw [← hadef] at hba
+  rw [← hbbdef] at hbb
+  rw [← hccdef] at hbc
+  have hXc : Continuous (airySeedU2 a bb cc) :=
+    ((continuous_const.mul continuous_ceF1).add (continuous_const.mul (continuous_ceG1 _))).add
+      (continuous_const.mul (continuous_ceG1Deriv _))
+  have hδ₀def : ceBeta1 * K * liftEps c / 2 = ceBeta1 * δ / 2 := by rw [hδdef]; ring
+  have hδ₀pos : 0 < ceBeta1 * K * liftEps c / 2 := by positivity
+  have hδ₀le : ceBeta1 * K * liftEps c / 2 ≤ 2 := by
+    rw [hδ₀def]; nlinarith only [ceBeta1_lt_eight, hδ2, hδpos, hβ]
+  obtain ⟨S, hSdef⟩ : ∃ S : ℝ, S = hbS c ξ := ⟨_, rfl⟩
+  have hSmin' : U0 + U1 * δ + ceBeta1 * δ / 2 ≤ ceBeta1 * S := by
+    rw [hSdef]; exact (div_le_iff₀ hβ).mp hSmin |>.trans_eq (by ring)
+  have hSpos : 0 < S := by
+    have h0 : 0 < U0 + U1 * δ + ceBeta1 * δ / 2 := by positivity
+    exact (mul_pos_iff_of_pos_left hβ).mp (lt_of_lt_of_le h0 hSmin')
+  have hLeq : Real.log (Real.pi ^ 2 * ξ) = Real.pi ^ 2 * liftEps c ^ 2 * S := by rw [hSdef]; exact log_eq_hbS hc0
+  have hLpos : 0 < Real.log (Real.pi ^ 2 * ξ) := by rw [hLeq]; positivity
+  have hcs := ceCs_one_lt
+  have hεcs : liftEps c / (2 * ceCs) ≤ 1 := by
+    refine (div_le_self hε.le (by linarith)).trans (by linarith)
+  have hKe : 0 < K * liftEps c := by positivity
+  by_cases hwin : S ≤ Sw
+  · -- window
+    have hS5 : |hbS c ξ| ≤ Sw := by rw [← hSdef, abs_of_pos hSpos]; exact hwin
+    have e5p := h5 (a := a) (b := bb) (c₀ := cc) (σ := 1) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
+      hba hbb hbc (Or.inl rfl) hδ₀pos.le hc32768 hξ hS5
+    have e5m := h5 (a := a) (b := bb) (c₀ := cc) (σ := -1) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
+      hba hbb hbc (Or.inr rfl) hδ₀pos.le hc32768 hξ hS5
+    have e5d := hD5 (K := K) (c := c) (ξ := ξ) hδ₀pos.le hc32768 hξ hS5
+    rw [← hSdef] at e5p e5m
+    obtain ⟨x₀, hx₀def⟩ : ∃ x₀ : ℝ, x₀ = ceBeta1 * S + liftEps c / (2 * ceCs) := ⟨_, rfl⟩
+    have harg : -(ceBeta1 * S) - liftEps c / (2 * ceCs) = -x₀ := by rw [hx₀def]; ring
+    rw [harg] at e5p e5m
+    have e5 : ‖iMain (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ + iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ -
+        ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+          windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀) : ℝ) : ℂ)‖ ≤
+        CW * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)) +
+          c ^ (-(1 / 2 : ℝ))) := by
+      set Mn := iMain (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ
+      set Dx := iDual (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ
+      set Dd := iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ
+      set T : ℂ := (((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+          windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀) : ℝ)) : ℂ)
+      have hsplit : Mn + Dd - T = (1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) + (Mn + ((-1 : ℝ) : ℂ) * Dx - T)) + Dd := by
+        push_cast; ring
+      rw [hsplit]
+      have hξi : 0 < ξ⁻¹ := inv_pos.mpr hξ
+      have hB : 0 ≤ ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)) := by positivity
+      have hD5' : ‖Dd‖ ≤ CD5 * ξ⁻¹ * c ^ (-(1 / 2 : ℝ)) := e5d
+      calc ‖(1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) + (Mn + ((-1 : ℝ) : ℂ) * Dx - T)) + Dd‖
+          ≤ ‖(1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) + (Mn + ((-1 : ℝ) : ℂ) * Dx - T))‖ + ‖Dd‖ := norm_add_le _ _
+        _ ≤ (1 / 2) * (‖Mn + ((1 : ℝ) : ℂ) * Dx - T‖ + ‖Mn + ((-1 : ℝ) : ℂ) * Dx - T‖) + ‖Dd‖ := by
+            rw [norm_mul]
+            have : ‖(1 / 2 : ℂ)‖ = 1 / 2 := by simp
+            rw [this]
+            gcongr
+            exact norm_add_le _ _
+        _ ≤ (1 / 2) * (CW0 * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ))) +
+              CW0 * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)))) +
+              CD5 * ξ⁻¹ * c ^ (-(1 / 2 : ℝ)) := by gcongr
+        _ ≤ _ := by
+            rw [hCWdef]
+            have hε2' : 0 ≤ liftEps c ^ 2 := by positivity
+            have hc12' : 0 ≤ c ^ (-(1 / 2 : ℝ)) := by positivity
+            nlinarith [mul_nonneg hCW0.le hξi.le, mul_nonneg hCD5.le hξi.le,
+              mul_nonneg (mul_nonneg hCW0.le hξi.le) hB, mul_nonneg (mul_nonneg hCW0.le hξi.le) hε2',
+              mul_nonneg (mul_nonneg hCD5.le hξi.le) hB, mul_nonneg (mul_nonneg hCD5.le hξi.le) hε2',
+              mul_nonneg (mul_nonneg hCW0.le hξi.le) hc12', mul_nonneg (mul_nonneg hCD5.le hξi.le) hc12']
+    have hconv := E.conv hXc hδ₀pos (-x₀)
+    have hx₀ge : U0 + U1 * δ + ceBeta1 * δ / 2 ≤ x₀ := by
+      rw [hx₀def]; have : 0 ≤ liftEps c / (2 * ceCs) := by positivity
+      linarith
+    have hx₀pos : 0 < x₀ := by rw [hx₀def]; positivity
+    have hf := hfloor hK1 hc2000 hc8 hcδ x₀ (by rw [← hδdef]; exact hx₀ge)
+    rw [← hδdef] at hf
+    rw [← hδ₀def] at hf
+    rw [← hadef, ← hbbdef, ← hccdef] at hf
+    have hFge : qw * (c₁ * δ) ≤ windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀) := by
+      rw [hconv]
+      refine le_trans ?_ hf
+      have h1 : qw ≤ (1 + x₀) ^ (-(3 / 2 : ℝ)) := by
+        rw [hqwdef]
+        refine Real.rpow_le_rpow_of_nonpos (by linarith) ?_ (by norm_num)
+        have hh := mul_le_mul_of_nonneg_left hwin hβ.le
+        rw [hx₀def]; linarith only [hh, hεcs]
+      have h2 : 0 ≤ c₂ * min 1 ((ceBeta1 * K * liftEps c / 2) ^ 2 * x₀) :=
+        mul_nonneg hc₂.le (le_min zero_le_one (by positivity))
+      have h4 : 0 ≤ (1 + x₀) ^ (-(3 / 2 : ℝ)) := by positivity
+      calc qw * (c₁ * δ) ≤ (1 + x₀) ^ (-(3 / 2 : ℝ)) * (c₁ * δ) := by gcongr
+        _ ≤ _ := mul_le_mul_of_nonneg_left (le_add_of_nonneg_right h2) h4
+    refine re_pos_of_norm_lt (A := ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+      windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀)) (lt_of_le_of_lt e5 ?_)
+    -- error
+    have ht0 : 0 < c ^ (-(1 / 6 : ℝ)) := by positivity
+    have ht : c ^ (-(1 / 6 : ℝ)) ≤ θ := hMw c hcMw
+    have hεt : liftEps c ≤ c ^ (-(1 / 6 : ℝ)) :=
+      Real.rpow_le_rpow_of_exponent_le (by linarith) (by norm_num)
+    have hc12 : c ^ (-(1 / 2 : ℝ)) = liftEps c * c ^ (-(1 / 6 : ℝ)) := by
+      unfold liftEps; rw [← Real.rpow_add hc0]; norm_num
+    have hinv : ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ ≤ 1 := by
+      refine inv_le_one_of_one_le₀ (one_le_pow₀ ?_)
+      have : 0 ≤ ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ) := by positivity
+      linarith
+    have herr : liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)) +
+        c ^ (-(1 / 2 : ℝ)) ≤ 3 * (liftEps c * θ) := by
+      rw [hc12]
+      have h1 : liftEps c ^ 2 ≤ liftEps c * θ := by
+        calc liftEps c ^ 2 = liftEps c * liftEps c := by ring
+          _ ≤ liftEps c * θ := by gcongr; exact hεt.trans ht
+      have h2 : ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * (liftEps c * c ^ (-(1 / 6 : ℝ))) ≤
+          liftEps c * θ := by
+        calc _ ≤ 1 * (liftEps c * c ^ (-(1 / 6 : ℝ))) := by gcongr
+          _ ≤ liftEps c * θ := by rw [one_mul]; gcongr
+      have h3 : c ^ (-(1 / 2 : ℝ)) ≤ liftEps c * θ := by
+        rw [hc12]; gcongr
+      linarith
+    have hξi : 0 < ξ⁻¹ := inv_pos.mpr hξ
+    have hlow : ceK * ceBeta1 / (Real.pi ^ 2 * ξ) * (qw * (c₁ * δ)) = ξ⁻¹ * (κw * c₁ * δ) := by
+      rw [hκwdef]; field_simp
+    have hupper : CW * ξ⁻¹ * (3 * (liftEps c * θ)) = ξ⁻¹ * (κw * c₁ * liftEps c / 2) := by
+      rw [hθdef]; field_simp; ring
+    have hA : ceK * ceBeta1 / (Real.pi ^ 2 * ξ) * (qw * (c₁ * δ)) ≤ ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+        windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x₀) := by
+      gcongr
+      exact (by have := ceK_pos; positivity)
+    have hεδ : liftEps c ≤ δ := by rw [hδdef]; exact le_mul_of_one_le_left hε.le hK1
+    have hkc : 0 < κw * c₁ := by positivity
+    calc CW * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)) +
+          c ^ (-(1 / 2 : ℝ)))
+        ≤ CW * ξ⁻¹ * (3 * (liftEps c * θ)) := by gcongr
+      _ = ξ⁻¹ * (κw * c₁ * liftEps c / 2) := hupper
+      _ < ξ⁻¹ * (κw * c₁ * δ) := by
+          apply mul_lt_mul_of_pos_left _ hξi
+          have h2 : liftEps c / 2 < δ := by linarith only [hεδ, hε]
+          calc κw * c₁ * liftEps c / 2 = κw * c₁ * (liftEps c / 2) := by ring
+            _ < κw * c₁ * δ := mul_lt_mul_of_pos_left h2 hkc
+      _ = _ := hlow.symm
+      _ ≤ _ := hA
+  by_cases hmid : S ≤ M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ)
+  · -- middle
+    have hwin' := not_le.mp hwin
+    have hS100 : 100 ≤ S := by linarith
+    have hS1 : 1 ≤ S := by linarith
+    have hc23 : c ^ (2 / 3 : ℝ) = (liftEps c)⁻¹ ^ 2 := by
+      rw [← rpow_third_eq hc0, ← Real.rpow_natCast, ← Real.rpow_mul hc0.le]; norm_num
+    have hK2 : 0 < K ^ 2 := by positivity
+    have hy : liftEps c ^ 2 * S ≤ M₁ / K ^ 2 := by
+      have := mul_le_mul_of_nonneg_left hmid (sq_nonneg (liftEps c))
+      calc liftEps c ^ 2 * S ≤ liftEps c ^ 2 * (M₁ * (K ^ 2)⁻¹ * c ^ (2 / 3 : ℝ)) := this
+        _ = M₁ / K ^ 2 := by rw [hc23]; field_simp
+    have hy0 : 0 < liftEps c ^ 2 * S := by positivity
+    have hKK : K ≤ K ^ 2 := le_self_pow₀ hK1 (by norm_num)
+    have hy1 : liftEps c ^ 2 * S ≤ 1 := by
+      refine hy.trans ?_
+      rw [div_le_one hK2]; linarith
+    have hL2 : Real.log (Real.pi ^ 2 * ξ) ≤ 0.002 := by
+      rw [hLeq]
+      have h1 : Real.pi ^ 2 * (liftEps c ^ 2 * S) ≤ Real.pi ^ 2 * (M₁ / K ^ 2) :=
+        mul_le_mul_of_nonneg_left hy (by positivity)
+      have h2 : Real.pi ^ 2 * (M₁ / K ^ 2) ≤ 0.002 := by
+        rw [← mul_div_assoc, div_le_iff₀ hK2]
+        linarith only [hK500, hKK, hK1]
+      linarith
+    have e6 := h6 (a := a) (b := bb) (c₀ := cc) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
+      (L := Real.log (Real.pi ^ 2 * ξ)) hba hbb hbc ⟨hδ₀pos.le, hδ₀le⟩ (by linarith) hξ rfl hLpos hL2
+      (by rw [← hSdef]; exact hS100)
+    rw [← hSdef] at e6
+    obtain ⟨hκ1, hκ2⟩ := edgeKappa0_bounds hLpos hL2
+    obtain ⟨x, hxdef⟩ : ∃ x : ℝ, x = edgeKappa0 (Real.log (Real.pi ^ 2 * ξ)) * ceBeta1 * S + liftEps c / (2 * ceCs) :=
+      ⟨_, rfl⟩
+    rw [← hxdef] at e6
+    have hxge : ceBeta1 * S ≤ x := by
+      rw [hxdef]
+      have : 0 ≤ liftEps c / (2 * ceCs) := by positivity
+      have hh := mul_le_mul_of_nonneg_right hκ1.le (mul_pos hβ hSpos).le
+      linarith only [hh, this]
+    have hxup : 1 + x ≤ (2 * ceBeta1 + 2) * S := by
+      rw [hxdef]
+      have h1 : edgeKappa0 (Real.log (Real.pi ^ 2 * ξ)) ≤ 2 := by linarith
+      have h2 : edgeKappa0 (Real.log (Real.pi ^ 2 * ξ)) * ceBeta1 * S ≤ 2 * ceBeta1 * S := by
+        have := mul_le_mul_of_nonneg_right h1 (mul_pos hβ hSpos).le
+        linarith only [this]
+      linarith only [h2, hεcs, hS1]
+    have hx0 : 0 < x := by have := mul_pos hβ hSpos; linarith
+    have hxfl : U0 + U1 * δ + ceBeta1 * δ / 2 ≤ x := by
+      have h1 : U0 + U1 * δ + ceBeta1 * δ / 2 ≤ U0 + U1 + ceBeta1 := by
+        have ha := mul_le_mul_of_nonneg_left (by linarith only [hδ2] : δ ≤ 1) hU1
+        have hb := mul_le_mul_of_nonneg_left (by linarith only [hδ2] : δ ≤ 1) hβ.le
+        linarith only [ha, hb, hβ]
+      have h2 : U0 + U1 + ceBeta1 ≤ ceBeta1 * Sw := by
+        have := (div_le_iff₀ hβ).mp hSwU; linarith only [this]
+      have h3 := mul_le_mul_of_nonneg_left hwin'.le hβ.le
+      linarith only [h1, h2, h3, hxge]
+    have hconv := E.conv hXc hδ₀pos (-x)
+    have hf := hfloor hK1 hc2000 hc8 hcδ x (by rw [← hδdef]; exact hxfl)
+    rw [← hδdef] at hf
+    rw [← hδ₀def] at hf
+    rw [← hadef, ← hbbdef, ← hccdef] at hf
+    obtain ⟨y, hydef⟩ : ∃ y : ℝ, y = liftEps c ^ 2 * S := ⟨_, rfl⟩
+    rw [← hydef] at hy hy0 hy1
+    have hFge : q * S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y)) ≤
+        windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) := by
+      rw [hconv]
+      refine le_trans ?_ hf
+      have h1 : q * S ^ (-(3 / 2 : ℝ)) ≤ (1 + x) ^ (-(3 / 2 : ℝ)) := by
+        have := Real.rpow_le_rpow_of_nonpos (by linarith : (0 : ℝ) < 1 + x) hxup (by norm_num : -(3 / 2 : ℝ) ≤ 0)
+        rw [Real.mul_rpow (by positivity) hSpos.le, ← hqdef] at this
+        exact this
+      have h2 : min 1 (K ^ 2 * y) ≤ min 1 ((ceBeta1 * K * liftEps c / 2) ^ 2 * x) := by
+        refine min_le_min le_rfl ?_
+        have h3 : (ceBeta1 * K * liftEps c / 2) ^ 2 * (ceBeta1 * S) ≤ (ceBeta1 * K * liftEps c / 2) ^ 2 * x :=
+          mul_le_mul_of_nonneg_left hxge (sq_nonneg _)
+        have h4 : (ceBeta1 * K * liftEps c / 2) ^ 2 * (ceBeta1 * S) = (ceBeta1 ^ 3 / 4) * (K ^ 2 * y) := by
+          rw [hydef]; ring
+        have h5' := one_le_ceBeta1_cube_div
+        have h6' : 0 ≤ K ^ 2 * y := by positivity
+        calc K ^ 2 * y = 1 * (K ^ 2 * y) := by ring
+          _ ≤ (ceBeta1 ^ 3 / 4) * (K ^ 2 * y) := mul_le_mul_of_nonneg_right h5' h6'
+          _ = _ := h4.symm
+          _ ≤ _ := h3
+      have h7 : 0 ≤ c₂ * min 1 (K ^ 2 * y) := mul_nonneg hc₂.le (le_min zero_le_one (by positivity))
+      have h8 : 0 ≤ (1 + x) ^ (-(3 / 2 : ℝ)) := by positivity
+      have h9 : 0 ≤ c₁ * δ := by positivity
+      calc q * S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y))
+          ≤ (1 + x) ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y)) := by gcongr
+        _ ≤ (1 + x) ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 ((ceBeta1 * K * liftEps c / 2) ^ 2 * x)) := by gcongr
+        _ ≤ _ := mul_le_mul_of_nonneg_left (le_add_of_nonneg_left h9) h8
+    have hcast : ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) : ℝ) : ℂ) *
+        ((windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) : ℝ) : ℂ) =
+        ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+          windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) : ℝ) : ℂ) := by push_cast; ring
+    rw [hcast] at e6
+    refine re_pos_of_norm_lt (A := ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+      windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x)) ?_
+    refine lt_of_le_of_lt (norm_add_sub_split _ _ _) ?_
+    -- the dual term
+    have e3 := h3 (K := K) (c := c) (ξ := ξ)
+      ⟨hδ₀pos, hδ₀le⟩ (by linarith) hξ (by rw [← hSdef]; linarith)
+    have hKm : K ^ (-(m : ℝ)) ≤ 1 := Real.rpow_le_one_of_one_le_of_nonpos hK1 (by linarith)
+    have hBm : (1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ (-(m : ℝ)) ≤ 1 := by
+      refine Real.rpow_le_one_of_one_le_of_nonpos ?_ (by linarith)
+      have : 0 ≤ ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ) := by positivity
+      linarith
+    have hlogq : c⁻¹ * (Real.pi ^ 2 * y) ^ (-(1 / 4 : ℝ)) ≤ S ^ (-(3 / 2 : ℝ)) * y := by
+      rw [hydef]; exact inv_mul_log_quarter_le hc0 hSpos (by rw [← hydef]; exact hy1)
+    have hLy : Real.log (Real.pi ^ 2 * ξ) = Real.pi ^ 2 * y := by rw [hLeq, hydef]; ring
+    have hξi : 0 < ξ⁻¹ := inv_pos.mpr hξ
+    have hSr : 0 < S ^ (-(3 / 2 : ℝ)) := by positivity
+    have hdual : ‖iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ‖ ≤
+        CD * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y)) := by
+      refine e3.trans ?_
+      have hmin : min (Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ))) (Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ))) ≤
+          Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ)) := min_le_left _ _
+      have hm0 : 0 ≤ min (Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ))) (Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ))) :=
+        le_min (by positivity) (by positivity)
+      calc CD * ξ⁻¹ * (1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ (-(m : ℝ)) * c⁻¹ *
+            min (Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ))) (Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ)))
+          ≤ CD * ξ⁻¹ * 1 * c⁻¹ * Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ)) := by
+            have hc' : 0 < c⁻¹ := inv_pos.mpr hc0
+            gcongr
+        _ = CD * (ξ⁻¹ * (c⁻¹ * (Real.pi ^ 2 * y) ^ (-(1 / 4 : ℝ)))) := by rw [hLy]; ring
+        _ ≤ CD * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y)) := by gcongr
+    -- the main-term error
+    have hc52 : c ^ (-(5 / 2 : ℝ)) ≤ S ^ (-(3 / 2 : ℝ)) * y := by
+      have h1 := c_rpow_mul_S_le (by linarith : 1 ≤ c) hSpos (by rw [← hydef]; exact hy1)
+      rw [← hydef] at h1
+      have h2 : S ^ (-(3 / 2 : ℝ)) * S ^ (3 / 2 : ℝ) = 1 := by
+        rw [← Real.rpow_add hSpos]; norm_num
+      calc c ^ (-(5 / 2 : ℝ)) = S ^ (-(3 / 2 : ℝ)) * (c ^ (-(5 / 2 : ℝ)) * S ^ (3 / 2 : ℝ)) := by
+            rw [← mul_assoc, mul_comm (S ^ (-(3 / 2 : ℝ))), mul_assoc, h2, mul_one]
+        _ ≤ S ^ (-(3 / 2 : ℝ)) * y := by gcongr
+    have herr6 : C6 * ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * (liftEps c ^ 2 * S) + c ^ (-(5 / 2 : ℝ))) ≤
+        2 * C6 * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y)) := by
+      rw [← hydef]
+      have : S ^ (-(3 / 2 : ℝ)) * y + c ^ (-(5 / 2 : ℝ)) ≤ 2 * (S ^ (-(3 / 2 : ℝ)) * y) := by linarith
+      calc C6 * ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y + c ^ (-(5 / 2 : ℝ))) ≤ C6 * ξ⁻¹ * (2 * (S ^ (-(3 / 2 : ℝ)) * y)) := by gcongr
+        _ = _ := by ring
+    -- the main term
+    have hmain : ceK * ceBeta1 / (Real.pi ^ 2 * ξ) * (q * S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y))) =
+        κ * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y)))) := by
+      rw [hκdef]; field_simp
+    have hbig : 2 * Cm * M₁ < κ * c₂ * K ^ 2 := by
+      have h1 : 2 * Cm * M₁ / (κ * c₂) < K := by linarith
+      rw [div_lt_iff₀ (by positivity)] at h1
+      have h2 := mul_le_mul_of_nonneg_right hKK (mul_pos hκ hc₂).le
+      linarith only [h1, h2]
+    have hscal := middle_scalar hκ hc₂ hCm hM₁1 hK1 hbig hy0 hy
+    have hcore : (2 * C6 + CD) * y < κ * (c₂ * min 1 (K ^ 2 * y)) := by
+      rw [← hCmdef]; linarith only [hscal, mul_nonneg hCm hy0.le]
+    have hA : ceK * ceBeta1 / (Real.pi ^ 2 * ξ) * (q * S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y))) ≤
+        ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+          windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) := by
+      gcongr
+      exact (by have := ceK_pos; positivity)
+    have hSξ : 0 < ξ⁻¹ * S ^ (-(3 / 2 : ℝ)) := by positivity
+    calc ‖iMain (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ - ((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+            windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 a bb cc) (-x) : ℝ) : ℂ)‖ +
+          ‖iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ‖
+        ≤ C6 * ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * (liftEps c ^ 2 * S) + c ^ (-(5 / 2 : ℝ))) +
+          CD * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y)) := add_le_add e6 hdual
+      _ ≤ 2 * C6 * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y)) + CD * (ξ⁻¹ * (S ^ (-(3 / 2 : ℝ)) * y)) := by linarith
+      _ = (ξ⁻¹ * S ^ (-(3 / 2 : ℝ))) * ((2 * C6 + CD) * y) := by ring
+      _ < (ξ⁻¹ * S ^ (-(3 / 2 : ℝ))) * (κ * (c₂ * min 1 (K ^ 2 * y))) := mul_lt_mul_of_pos_left hcore hSξ
+      _ = ceK * ceBeta1 / (Real.pi ^ 2 * ξ) * (q * S ^ (-(3 / 2 : ℝ)) * (c₂ * min 1 (K ^ 2 * y))) := by
+          rw [hmain]; ring
+      _ ≤ _ := hA
+
+  · -- high
+    have hmid' := not_le.mp hmid
+    have hwin' := not_le.mp hwin
+    have hS100 : 100 ≤ S := by linarith
+    have e4 := h4 (a := a) (b := bb) (c₀ := cc) (K := K) (M₁ := M₁) (c := c) (ξ := ξ) hba hbb hbc hK1 hM₁1 hc8
+      (by linarith) hξ (by rw [← hSdef]; exact hS100) (by rw [← hSdef]; exact hmid'.le)
+    rw [← hSdef] at e4
+    have hA' : hbA c ξ = Real.pi ^ 2 * S := by rw [hSdef]; exact hbA_eq hc0
+    obtain ⟨P, hPdef⟩ : ∃ P : ℝ, P = hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) := ⟨_, rfl⟩
+    have hPpos : 0 < P := by rw [hPdef, hA']; positivity
+    have hAeq : ((cc - a) * g0) * Real.sqrt Real.pi * hbA c ξ ^ (-(3 / 2 : ℝ)) / (2 * Real.pi * ξ) =
+        (cc - a) * G * P := by rw [hPdef, hGdef]; ring
+    rw [hAeq, ← hPdef] at e4
+    refine re_pos_of_norm_lt (A := (cc - a) * G * P) ?_
+    refine lt_of_le_of_lt (norm_add_sub_split _ _ _) ?_
+    have e3 := h3 (K := K) (c := c) (ξ := ξ)
+      ⟨hδ₀pos, hδ₀le⟩ (by linarith) hξ (by rw [← hSdef]; linarith)
+    have hεc : liftEps c * c ^ (1 / 3 : ℝ) = 1 := by rw [rpow_third_eq hc0]; field_simp
+    have hbase : K ≤ 1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ) := by
+      have : ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ) = ceBeta1 / 2 * K * (liftEps c * c ^ (1 / 3 : ℝ)) := by ring
+      rw [this, hεc]; nlinarith only [hβ2, hK0]
+    have hB : (1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ (-(m : ℝ)) ≤ K ^ (-(m : ℝ)) :=
+      Real.rpow_le_rpow_of_nonpos (by linarith) hbase (by linarith)
+    have hSb : 0 < hbS c ξ := by rw [← hSdef]; exact hSpos
+    have hdual : ‖iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ‖ ≤
+        2 * Real.pi * CD * K ^ (-(m : ℝ)) * P := by
+      refine e3.trans ?_
+      have hmin : min (Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ))) (Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ))) ≤
+          Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ)) := min_le_right _ _
+      calc CD * ξ⁻¹ * (1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ (-(m : ℝ)) * c⁻¹ *
+            min (Real.log (Real.pi ^ 2 * ξ) ^ (-(1 / 4 : ℝ))) (Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ)))
+          ≤ CD * ξ⁻¹ * K ^ (-(m : ℝ)) * c⁻¹ * Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ)) := by
+            have hc' : 0 < c⁻¹ := inv_pos.mpr hc0
+            gcongr
+        _ = CD * K ^ (-(m : ℝ)) * (ξ⁻¹ * (c⁻¹ * Real.log (Real.pi ^ 2 * ξ) ^ (-(3 / 2 : ℝ)))) := by ring
+        _ = CD * K ^ (-(m : ℝ)) * (ξ⁻¹ * (Real.pi ^ 2 * S) ^ (-(3 / 2 : ℝ))) := by
+            rw [inv_mul_log_rpow hc0 hSb, ← hSdef]
+        _ = 2 * Real.pi * CD * K ^ (-(m : ℝ)) * P := by
+            rw [hPdef, hA']; field_simp
+    have hb1 : CH * M₁ ^ (-((m : ℝ) / 2)) ≤ G / 8 := by
+      calc CH * M₁ ^ (-((m : ℝ) / 2)) ≤ CH * (G / (8 * CH)) := by gcongr; exact hM₁ M₁ le_rfl
+        _ = G / 8 := by field_simp
+    have hb2 : (CH + 2 * Real.pi * CD) * K ^ (-(m : ℝ)) ≤ G / 8 := by
+      calc (CH + 2 * Real.pi * CD) * K ^ (-(m : ℝ)) ≤ (CH + 2 * Real.pi * CD) * (G / (8 * (CH + 2 * Real.pi * CD))) := by
+            gcongr; exact hKh K hKKh
+        _ = G / 8 := by field_simp
+    have hb3 : CH * S ^ (-(1 / 2 : ℝ)) ≤ G / 8 := by
+      calc CH * S ^ (-(1 / 2 : ℝ)) ≤ CH * (G / (8 * CH)) := by gcongr; exact hSh S (hSwSh.trans hwin'.le)
+        _ = G / 8 := by field_simp
+    have hlead' : G * P ≤ (cc - a) * G * P := by
+      have := mul_pos hGpos hPpos
+      nlinarith only [this, hld]
+    calc ‖iMain (airySeedU2 a bb cc) (ceBeta1 * K * liftEps c / 2) m c ξ - (((cc - a) * G * P : ℝ) : ℂ)‖ +
+          ‖iDual (D K c) (ceBeta1 * K * liftEps c / 2) m c ξ‖
+        ≤ CH * (M₁ ^ (-((m : ℝ) / 2)) + K ^ (-(m : ℝ)) + S ^ (-(1 / 2 : ℝ))) * P +
+          2 * Real.pi * CD * K ^ (-(m : ℝ)) * P := add_le_add e4 hdual
+      _ = (CH * M₁ ^ (-((m : ℝ) / 2)) + (CH + 2 * Real.pi * CD) * K ^ (-(m : ℝ)) + CH * S ^ (-(1 / 2 : ℝ))) * P := by ring
+      _ ≤ (G / 8 + G / 8 + G / 8) * P := by gcongr
+      _ < G * P := by linarith only [mul_pos hGpos hPpos]
+      _ ≤ _ := hlead'
+
+/-- **Non-vacuity of `O6DualEst`.**  The one-level dual seed family `D K c = X_c`, `X_c = airySeedU2 (a c) (b c) (c₀ c)` with coefficients
+bounded by `R` (for `c ≥ 2`; they may depend on `c` but not on `K`), obeys `O6DualEst` whenever `O6Est m R g0` holds: `e3` is `O6Est.e3`, and the
+window bound is the difference of the `σ = ±1` instances of `O6Est.e5` (which gives `‖I_dual[X]‖ ≤ C ξ⁻¹ (ε² + c^{-1/2})`). -/
+theorem o6DualEst_of_oneLevel_family {m : ℕ} {R g0 : ℝ} (E : O6Est m R g0) {a b c₀ : ℝ → ℝ}
+    (ha : ∀ c : ℝ, 2 ≤ c → |a c| ≤ R) (hb : ∀ c : ℝ, 2 ≤ c → |b c| ≤ R) (hc : ∀ c : ℝ, 2 ≤ c → |c₀ c| ≤ R) :
+    O6DualEst m (fun _ c => airySeedU2 (a c) (b c) (c₀ c)) := by
+  refine ⟨?_, fun Sw => ?_⟩
+  · obtain ⟨C, hC, h⟩ := E.e3
+    exact ⟨C, hC, fun {K c ξ} hδ hc2 hξ hS => h (ha c hc2) (hb c hc2) (hc c hc2) hδ hc2 hξ hS⟩
+  · obtain ⟨C, hC, h⟩ := E.e5 Sw
+    refine ⟨2 * C, by linarith, fun {K c ξ} hδ hcc hξ hS => ?_⟩
+    have hc0 : 0 < c := by linarith
+    have hc2 : 2 ≤ c := by linarith
+    have hp := h (a := a c) (b := b c) (c₀ := c₀ c) (σ := 1) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
+      (ha c hc2) (hb c hc2) (hc c hc2) (Or.inl rfl) hδ hcc hξ hS
+    have hm := h (a := a c) (b := b c) (c₀ := c₀ c) (σ := -1) (δ₀ := ceBeta1 * K * liftEps c / 2) (c := c) (ξ := ξ)
+      (ha c hc2) (hb c hc2) (hc c hc2) (Or.inr rfl) hδ hcc hξ hS
+    set Mn := iMain (airySeedU2 (a c) (b c) (c₀ c)) (ceBeta1 * K * liftEps c / 2) m c ξ
+    set Dx := iDual (airySeedU2 (a c) (b c) (c₀ c)) (ceBeta1 * K * liftEps c / 2) m c ξ
+    set T : ℂ := (((ceK * ceBeta1 / (Real.pi ^ 2 * ξ) *
+      windowSmooth (ceBeta1 * K * liftEps c / 2) m (airySeedU2 (a c) (b c) (c₀ c))
+        (-(ceBeta1 * hbS c ξ) - liftEps c / (2 * ceCs)) : ℝ)) : ℂ)
+    have hsplit : Dx = (1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) - (Mn + ((-1 : ℝ) : ℂ) * Dx - T)) := by
+      push_cast; ring
+    have hB : ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ ≤ 1 := by
+      refine inv_le_one_of_one_le₀ (one_le_pow₀ ?_)
+      have : 0 ≤ ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ) := by
+        have := Real.rpow_nonneg hc0.le (1 / 3 : ℝ); positivity
+      linarith
+    have hε : liftEps c ^ 2 ≤ c ^ (-(1 / 2 : ℝ)) := by
+      unfold liftEps
+      rw [← Real.rpow_natCast, ← Real.rpow_mul hc0.le]
+      exact Real.rpow_le_rpow_of_exponent_le (by linarith) (by norm_num)
+    have hξi : 0 < ξ⁻¹ := inv_pos.mpr hξ
+    have hc12 : 0 < c ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hc0 _
+    have hmain : liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)) ≤
+        2 * c ^ (-(1 / 2 : ℝ)) := by nlinarith
+    calc ‖Dx‖ = ‖(1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) - (Mn + ((-1 : ℝ) : ℂ) * Dx - T))‖ := by rw [← hsplit]
+      _ ≤ (1 / 2) * (‖Mn + ((1 : ℝ) : ℂ) * Dx - T‖ + ‖Mn + ((-1 : ℝ) : ℂ) * Dx - T‖) := by
+          rw [norm_mul]
+          have : ‖(1 / 2 : ℂ)‖ = 1 / 2 := by simp
+          rw [this]
+          gcongr
+          exact norm_sub_le _ _
+      _ ≤ (1 / 2) * (C * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ))) +
+          C * ξ⁻¹ * (liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)))) := by
+          gcongr
+      _ ≤ C * ξ⁻¹ * (2 * c ^ (-(1 / 2 : ℝ))) := by
+          have := mul_le_mul_of_nonneg_left hmain (mul_nonneg hC.le hξi.le)
+          linarith
+      _ = 2 * C * ξ⁻¹ * c ^ (-(1 / 2 : ℝ)) := by ring
+
+/-- **Non-vacuity of `O6DualEst`** for a constant one-level dual seed `X = airySeedU2 a b c₀`, `|a|, |b|, |c₀| ≤ R` (the case of
+`o6DualEst_of_oneLevel_family` with `c`-independent coefficients). -/
+theorem o6DualEst_of_oneLevel {m : ℕ} {R g0 : ℝ} (E : O6Est m R g0) {a b c₀ : ℝ} (ha : |a| ≤ R) (hb : |b| ≤ R)
+    (hc : |c₀| ≤ R) : O6DualEst m (fun _ _ => airySeedU2 a b c₀) :=
+  o6DualEst_of_oneLevel_family E (a := fun _ => a) (b := fun _ => b) (c₀ := fun _ => c₀) (fun _ _ => ha) (fun _ _ => hb)
+    (fun _ _ => hc)
+
+/-- info: 'FormalResearch.SignUncertainty.o6DualEst_of_oneLevel_family' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms o6DualEst_of_oneLevel_family
+
+/-- info: 'FormalResearch.SignUncertainty.o6DualEst_of_oneLevel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms o6DualEst_of_oneLevel
+
+/-- info: 'FormalResearch.SignUncertainty.o6_positivity_dual_Kc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms o6_positivity_dual_Kc
+
+/-- info: 'FormalResearch.SignUncertainty.o6_positivity_dual' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms o6_positivity_dual
+
+end FormalResearch.SignUncertainty
