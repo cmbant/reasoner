@@ -56,7 +56,8 @@ scale `b`.
   (`LemmaQData.nonempty`); a class, so that the ported lemmas take it as an instance argument.
 * Wrappers `LemmaQData.deltaChart_*` etc. restating the Langer chart lemmas on the shrunk disc
   `closedBall 0 (chartAC D.r_1 c' ^ 2) ⊆ closedBall 0 (virasoroAC c' ^ 2)`.
-* `bandB1W`, `bandB2W`, `YVInputAtForW`, `YVInputForW`: the band-feedback hypothesis at weight `w` and
+* `bandB1W`, `bandB2W`, `YVInputAtForWThr`, `YVInputForWThr` (cutoff radius `A_thr` arbitrary), `YVInputAtForW`,
+  `YVInputForW` (the case `A_thr = virasoroAThr`); `secondLevelAThr = |a₂| + 1`: the band-feedback hypothesis at weight `w` and
   scale `b` (the Virasoro `YVInputAtFor`, `YVInputFor`).
 -/
 
@@ -289,27 +290,62 @@ noncomputable def bandB2W (prob : FixedWeightProblem) (c' R : ℝ) (g : ℝ → 
   (prob.cardyNorm (c' / 12) g)⁻¹ *
     ∫ t in Ici (virasoroDeltaChart c' (-R)), g t * prob.cardyV (c' / 12) t
 
+/-- The threshold `A_thr = |a₂| + 1` of the second level (`m₀ = 2` with `t₂ ∈ (a₂, a₁)`): the upper end of the
+range `[virasoroAThr, secondLevelAThr]` of cutoff radii in Step 3 of Theorem `FT-L.FW`. -/
+noncomputable def secondLevelAThr : ℝ := |airyZero 2| + 1
+
+lemma virasoroAThr_le_secondLevelAThr : virasoroAThr ≤ secondLevelAThr := by
+  unfold virasoroAThr secondLevelAThr
+  have h1 := airyZero_one
+  have h2 := airyZero_two
+  rw [abs_of_neg (by linarith [h1.2]), abs_of_neg (by linarith [h2.2])]
+  linarith [h1.1, h2.1]
+
+lemma virasoroAThr_lt_four : virasoroAThr < 4 := by
+  unfold virasoroAThr
+  have h1 := airyZero_one
+  rw [abs_of_neg (by linarith [h1.2])]
+  linarith [h1.1]
+
+lemma secondLevelAThr_lt : secondLevelAThr < 5.84 := by
+  unfold secondLevelAThr
+  have h2 := airyZero_two
+  rw [abs_of_neg (by linarith [h2.2])]
+  linarith [h2.1]
+
 /-- Band-feedback conclusion `vlo:YV` + `TE.3(2)-(3)` at weight `w` for a family `Ψ c' g`, at chart scale
-`b`, feedback factor `C_fb ≥ 1` and threshold `c_YV`: the Virasoro `YVInputAtFor`.  The annulus
-`R + 1 ≤ A_{c'}(b)^2` is the scale-`b` disc. -/
-def YVInputAtForW (prob : FixedWeightProblem) (b : ℝ) (Ψ : ℝ → (ℝ → ℝ) → ℂ → ℂ)
-    (C_fb c_YV : ℝ) : Prop :=
+`b`, feedback factor `C_fb ≥ 1`, threshold `c_YV` and cutoff radius `A_thr` (`vlo:YV` with `A_thr`
+arbitrary; Step 3 of `wone:ftlfw` takes `A_thr = |t_{m₀}| + 1`).  The annulus `R + 1 ≤ A_{c'}(b)^2` is the
+scale-`b` disc. -/
+def YVInputAtForWThr (prob : FixedWeightProblem) (A_thr : ℝ) (b : ℝ)
+    (Ψ : ℝ → (ℝ → ℝ) → ℂ → ℂ) (C_fb c_YV : ℝ) : Prop :=
   ∀ ⦃c' T R : ℝ⦄, c_YV ≤ c' →
-    virasoroAThr ≤ R →
+    A_thr ≤ R →
     b ^ 2 * c' ^ (2 / 3 : ℝ) ≤ R →
     R + 1 ≤ chartACAt b c' ^ 2 →
     ∀ ⦃g : ℝ → ℝ⦄, prob.IsWeaklyFeasible (c' / 12) T g →
     virasoroDeltaChart c' 0 ≤ T →
-    T ≤ virasoroDeltaChart c' (-virasoroAThr) →
+    T ≤ virasoroDeltaChart c' (-A_thr) →
     YVEnvBound (Ψ c' g) c' R
       (C_fb * (c' ^ (1 / 3 : ℝ) * (bandB1W prob c' R T g + bandB2W prob c' R g) + 1))
+
+/-- Band-feedback conclusion `vlo:YV` + `TE.3(2)-(3)` at weight `w` at the level-one cutoff
+`A_thr = virasoroAThr = |a₁| + 1` (the Virasoro `YVInputAtFor`). -/
+def YVInputAtForW (prob : FixedWeightProblem) (b : ℝ) (Ψ : ℝ → (ℝ → ℝ) → ℂ → ℂ)
+    (C_fb c_YV : ℝ) : Prop :=
+  YVInputAtForWThr prob virasoroAThr b Ψ C_fb c_YV
+
+/-- Band-feedback input at weight `w`, scale `b` and cutoff radius `A_thr`: `Ψ = psiTilde prob`. -/
+def YVInputForWThr (prob : FixedWeightProblem) (A_thr : ℝ) (b : ℝ) : Prop :=
+  ∃ C_fb c_YV : ℝ, 1 ≤ C_fb ∧ 10000 ≤ c_YV ∧
+    YVInputAtForWThr prob A_thr b (psiTilde prob) C_fb c_YV
 
 /-- **Band-feedback input at weight `w` and scale `b`** (`YVInput` of the Virasoro chain; Proposition `Y_V`
 `vlo:YV` with Lemma `D'`, Lemma `Z`, Proposition `L`): `Ψ = psiTilde prob`.  It is produced from
 `proposition_YV_W` and the weight-`w` Lemmas `D'`, `Z` (`BootstrapWInputs`); the threshold lower bound
 `10000 ≤ c_YV` is harmless because the conclusion is monotone in `c_YV`. -/
 def YVInputForW (prob : FixedWeightProblem) (b : ℝ) : Prop :=
-  ∃ C_fb c_YV : ℝ, 1 ≤ C_fb ∧ 10000 ≤ c_YV ∧ YVInputAtForW prob b (psiTilde prob) C_fb c_YV
+  YVInputForWThr prob virasoroAThr b
 
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.LemmaQData.nonempty' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

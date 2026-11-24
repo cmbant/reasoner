@@ -8,7 +8,8 @@ public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapWQuad
 Source: `CFT/common/two_edge_bootstrap.tex` (`teb:bootstrap`, hypothesis `hI_line`) and
 `CFT/modular_bootstrap/paper/lower_o1_two_edge.tex`, Theorem `FT-L.FW` (`wone:ftlfw`), Step 3.
 
-* `line_boundW`: for the shifted test `f_{k,ℓ}(u) = Ψ̃(u + ℓ)(1 + u/R)^{k+1}`, the real-line integral
+* `line_boundW_thr`: at every cutoff radius `A_thr ≥ 1` with the constant `lineCaW A_thr` (`line_boundW` is the case
+  `A_thr = virasoroAThr`, `lineCaW virasoroAThr ≤ 4 e^{6/5}`); for the shifted test `f_{k,ℓ}(u) = Ψ̃(u + ℓ)(1 + u/R)^{k+1}`, the real-line integral
   `∫_{-R}^R Re f_{k,ℓ}` is bounded by `(C_a (k+1)/R) + ...`, using the type-(II) envelope of `Lemma Q (2)`
   on `[-R, A_{c'}²]`, the band moments `B₁^{(k)}`, `B₂` and the far-lobe mass `δ_lobe`
   (the Virasoro `virasoro_line_bound`, with `virasoroEnvC0`, `virasoroSigma`, `virasoroAC` replaced by
@@ -24,16 +25,35 @@ namespace FormalResearch.ModularBootstrap.FixedWeightBand
 
 open Crossing PoissonJensen TipFront ConcreteBootstrap FixedWeightTip FormalResearch.Special
 
+/-- The type-(II) line constant `C_a` of the line estimate at cutoff radius `A_thr` (the factor `4 e^{6/5}` of the
+level-one case is `lineCaW virasoroAThr ≤ 4 e^{6/5}`): the sum `(k+1)|v - ℓ|/R` over `v ∈ [-A_thr, 1]`,
+`ℓ ∈ [0, 1/2]` is at most `(A_thr + 1/2)(k+1)/R`. -/
+noncomputable def lineCaW (A_thr : ℝ) : ℝ := (A_thr + 1 / 2) * Real.exp (3 / 10 * (A_thr + 1 / 2))
+
+lemma lineCaW_nonneg {A_thr : ℝ} (hA : 1 ≤ A_thr) : 0 ≤ lineCaW A_thr := by
+  unfold lineCaW; positivity
+
+lemma lineCaW_mono {A A' : ℝ} (hA : 0 ≤ A) (h : A ≤ A') : lineCaW A ≤ lineCaW A' := by
+  unfold lineCaW
+  exact mul_le_mul (by linarith) (Real.exp_le_exp.mpr (by linarith)) (Real.exp_pos _).le (by linarith)
+
+lemma lineCaW_virasoroAThr_le : lineCaW virasoroAThr ≤ 4 * Real.exp (6 / 5) := by
+  have h1 := airyZero_one
+  have hlt : virasoroAThr < 3.4 := by
+    unfold virasoroAThr; rw [abs_of_neg (by linarith)]; linarith
+  unfold lineCaW
+  exact mul_le_mul (by linarith) (Real.exp_le_exp.mpr (by linarith)) (Real.exp_pos _).le (by linarith)
+
 variable {prob : FixedWeightProblem} [Q : LemmaQData prob]
 
-private lemma line_top_boundW {c' R T ℓ : ℝ}
+private lemma line_top_boundW {A_thr c' R T ℓ : ℝ}
     (hc' : Q.cQ ≤ c') (hς_nn : 0 ≤ Q.sigma c') (hς_half : Q.sigma c' ≤ 1 / 2)
-    (hR_10 : 10 ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
+    (hR_10 : 10 ≤ R) (hR_thr : A_thr + 1 / 2 ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
     (hℓ_nn : 0 ≤ ℓ) (hℓ_half : ℓ ≤ 1 / 2)
     {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
     (hM_pos : 0 < prob.cardyNorm (c' / 12) g)
-    (_hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr))
-    (huT_ge : -virasoroAThr ≤ virasoroUT c' T) (hΔ_uT : virasoroDeltaChart c' (virasoroUT c' T) = T)
+    (_hT_hi : T ≤ virasoroDeltaChart c' (-A_thr))
+    (huT_ge : -A_thr ≤ virasoroUT c' T) (hΔ_uT : virasoroDeltaChart c' (virasoroUT c' T) = T)
     (huT_le_1 : virasoroUT c' T ≤ -1)
     (hΨ_cont_all : ContinuousOn (fun v : ℝ => (psiTilde prob c' g (v : ℂ)).re)
       (Icc (-R) (Q.AC c' ^ 2)))
@@ -50,9 +70,6 @@ private lemma line_top_boundW {c' R T ℓ : ℝ}
     have := Q.hcQ_shift; have := Q.hcQ_10000; linarith
   have hR_pos : 0 < R := by linarith
   have hA2_nn : 0 ≤ Q.AC c' ^ 2 := sq_nonneg _
-  have hAThr_lt : virasoroAThr < 3.4 := by
-    obtain ⟨ha1, ha2⟩ := airyZero_one
-    unfold virasoroAThr; rw [abs_of_neg (by linarith)]; linarith
   have hi_Ψ : ∀ (a b : ℝ), -R ≤ a → a ≤ b → b ≤ Q.AC c' ^ 2 →
       IntervalIntegrable (fun v : ℝ => (psiTilde prob c' g (v : ℂ)).re) volume a b :=
     fun a b ha0 hab hb0 => (hΨ_cont_all.mono (Icc_subset_Icc ha0 hb0)).intervalIntegrable_of_Icc hab
@@ -183,11 +200,11 @@ private lemma line_top_boundW {c' R T ℓ : ℝ}
       _ = Q.C0 * ((k : ℝ) + 1) / R := by ring
   linarith only [h_int_full, h_top_bound, h_pos_tail, h_pos_tail_R]
 
-private lemma line_band_pieceW {c' R T ℓ : ℝ}
-    (hc' : Q.cQ ≤ c') (hR_10 : 10 ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
+private lemma line_band_pieceW {A_thr c' R T ℓ : ℝ}
+    (hc' : Q.cQ ≤ c') (hR_10 : 10 ≤ R) (hR_thr : A_thr + 1 / 2 ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
     (hℓ_nn : 0 ≤ ℓ) (hℓ_half : ℓ ≤ 1 / 2)
     {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
-    (huT_Icc : virasoroUT c' T ∈ Icc (-virasoroAThr) (-1))
+    (huT_Icc : virasoroUT c' T ∈ Icc (-A_thr) (-1))
     (hΔ_uT : virasoroDeltaChart c' (virasoroUT c' T) = T)
     (hΨ_cont_all : ContinuousOn (fun v : ℝ => (psiTilde prob c' g (v : ℂ)).re)
       (Icc (-R) (Q.AC c' ^ 2)))
@@ -198,9 +215,6 @@ private lemma line_band_pieceW {c' R T ℓ : ℝ}
       -(63 / 100 : ℝ) * bandB1kW prob c' R T g k := by
   have hc'_pos : 0 < c' := lt_of_lt_of_le (by have := Q.hcQ_10000; linarith) hc'
   have hR_pos : 0 < R := by linarith
-  have hAThr_lt : virasoroAThr < 3.4 := by
-    obtain ⟨ha1, ha2⟩ := airyZero_one
-    unfold virasoroAThr; rw [abs_of_neg (by linarith)]; linarith
   set u_T := virasoroUT c' T
   let W : ℝ → ℝ := fun v => (1 + (v - ℓ) / R) ^ (k + 1)
   have hW_cont : Continuous W :=
@@ -282,19 +296,19 @@ private lemma line_band_pieceW {c' R T ℓ : ℝ}
     unfold bandB1kW; rw [← hsplit_B1k]
   linarith only [h_low_left, h_main_band, hB1k_eq]
 
-private lemma line_mid_and_rightW {c' R T ℓ : ℝ}
+private lemma line_mid_and_rightW {A_thr c' R T ℓ : ℝ} (hA : 1 ≤ A_thr)
     (hc' : Q.cQ ≤ c') (hς_half : Q.sigma c' ≤ 1 / 2)
-    (hR_10 : 10 ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
+    (hR_10 : 10 ≤ R) (hR_thr : A_thr + 1 / 2 ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
     (hℓ_nn : 0 ≤ ℓ) (hℓ_half : ℓ ≤ 1 / 2)
     {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
     (hM_pos : 0 < prob.cardyNorm (c' / 12) g)
-    (huT_Icc : virasoroUT c' T ∈ Icc (-virasoroAThr) (-1))
+    (huT_Icc : virasoroUT c' T ∈ Icc (-A_thr) (-1))
     (hΨ_cont_all : ContinuousOn (fun v : ℝ => (psiTilde prob c' g (v : ℂ)).re)
       (Icc (-R) (Q.AC c' ^ 2)))
     {k : ℕ} (hkR : (k : ℝ) ≤ R / 5) :
     -(∫ v in (virasoroUT c' T)..(1 : ℝ),
         (1 - (1 + (v - ℓ) / R) ^ (k + 1)) * (psiTilde prob c' g (v : ℂ)).re) ≤
-      4 * Real.exp (6 / 5) * ((k : ℝ) + 1) / R ∧
+      lineCaW A_thr * ((k : ℝ) + 1) / R ∧
     -(∫ v in (1 : ℝ)..(R + ℓ),
         (1 - (1 + (v - ℓ) / R) ^ (k + 1)) * (psiTilde prob c' g (v : ℂ)).re) ≤
       2 * Q.C0 * ((k : ℝ) + 1) / R := by
@@ -303,9 +317,6 @@ private lemma line_mid_and_rightW {c' R T ℓ : ℝ}
     (by norm_num : (1000 : ℝ) ≤ 10000).trans
       ((Q.hcQ_10000.trans hc'))
   have hR_pos : 0 < R := by linarith
-  have hAThr_lt : virasoroAThr < 3.4 := by
-    obtain ⟨ha1, ha2⟩ := airyZero_one
-    unfold virasoroAThr; rw [abs_of_neg (by linarith)]; linarith
   set u_T := virasoroUT c' T
   let W : ℝ → ℝ := fun v => (1 + (v - ℓ) / R) ^ (k + 1)
   have hW_cont : Continuous W :=
@@ -327,44 +338,47 @@ private lemma line_mid_and_rightW {c' R T ℓ : ℝ}
           rw [mem_closedBall_zero_iff, Complex.norm_real, Real.norm_eq_abs]
           exact abs_le.mpr ⟨by linarith [hv.1, hnegRl_le_uT], by linarith [hv.2, hR_ub]⟩))).intervalIntegrable_of_Icc huT_le1
     have h_abs : |∫ v in u_T..1, (1 - W v) * (psiTilde prob c' g (v : ℂ)).re| ≤
-        (4 * Real.exp (6 / 5) * ((k : ℝ) + 1) / R) *
+        (lineCaW A_thr * ((k : ℝ) + 1) / R) *
           ∫ v in u_T..1, ‖psiTilde prob c' g (v : ℂ)‖ := by
       calc |∫ v in u_T..1, (1 - W v) * (psiTilde prob c' g (v : ℂ)).re|
           ≤ ∫ v in u_T..1, |(1 - W v) * (psiTilde prob c' g (v : ℂ)).re| := by
             simpa [Real.norm_eq_abs] using intervalIntegral.norm_integral_le_integral_norm
               (f := fun v : ℝ => (1 - W v) * (psiTilde prob c' g (v : ℂ)).re) (μ := volume) huT_le1
-        _ ≤ ∫ v in u_T..1, (4 * Real.exp (6 / 5) * ((k : ℝ) + 1) / R) * ‖psiTilde prob c' g (v : ℂ)‖ := by
+        _ ≤ ∫ v in u_T..1, (lineCaW A_thr * ((k : ℝ) + 1) / R) * ‖psiTilde prob c' g (v : ℂ)‖ := by
             refine intervalIntegral.integral_mono_on huT_le1 hi1.abs
               (hΨ_norm_int1.const_mul _) fun v hv => ?_
-            have hvl4 : |v - ℓ| ≤ 4 := by
-              have hv_lo : -3.4 ≤ v := by linarith [huT_Icc.1, hv.1, hAThr_lt]
+            have hvlA : |v - ℓ| ≤ A_thr + 1 / 2 := by
+              have hv_lo : -A_thr ≤ v := by linarith [huT_Icc.1, hv.1]
               exact abs_le.mpr ⟨by linarith, by linarith [hv.2]⟩
             have hpow := abs_one_add_pow_sub_one_le ((v - ℓ) / R) (k + 1)
             have h_abs_sub : |1 - W v| = |(1 + (v - ℓ) / R) ^ (k + 1) - 1| := by
               dsimp [W]; rw [abs_sub_comm]
-            have h_exp_65 : ((k + 1 : ℕ) : ℝ) * |(v - ℓ) / R| ≤ 6 / 5 := by
+            have hA_nn : 0 ≤ A_thr + 1 / 2 := by linarith
+            have h_exp_A : ((k + 1 : ℕ) : ℝ) * |(v - ℓ) / R| ≤ 3 / 10 * (A_thr + 1 / 2) := by
               rw [abs_div, abs_of_pos hR_pos]
               have hk1_le : ((k + 1 : ℕ) : ℝ) ≤ R / 5 + 1 := by push_cast; linarith
-              calc ((k + 1 : ℕ) : ℝ) * (|v - ℓ| / R) ≤ (R / 5 + 1) * (4 / R) := by gcongr
-                _ = 4 / 5 + 4 / R := by field_simp [hR_pos.ne']
-                _ ≤ 4 / 5 + 4 / 10 := by gcongr
-                _ = 6 / 5 := by norm_num
-            have hW_bd : |1 - W v| ≤ 4 * Real.exp (6 / 5) * ((k : ℝ) + 1) / R := by
+              calc ((k + 1 : ℕ) : ℝ) * (|v - ℓ| / R) ≤ (R / 5 + 1) * ((A_thr + 1 / 2) / R) := by gcongr
+                _ = (A_thr + 1 / 2) / 5 + (A_thr + 1 / 2) / R := by field_simp [hR_pos.ne']
+                _ ≤ (A_thr + 1 / 2) / 5 + (A_thr + 1 / 2) / 10 := by gcongr
+                _ = 3 / 10 * (A_thr + 1 / 2) := by ring
+            have hW_bd : |1 - W v| ≤ lineCaW A_thr * ((k : ℝ) + 1) / R := by
               rw [h_abs_sub]
               calc |(1 + (v - ℓ) / R) ^ (k + 1) - 1|
                   ≤ ((k + 1 : ℕ) : ℝ) * |(v - ℓ) / R| *
                       Real.exp (((k + 1 : ℕ) : ℝ) * |(v - ℓ) / R|) := hpow
-                _ ≤ ((k + 1 : ℕ) : ℝ) * (4 / R) * Real.exp (6 / 5) := by
+                _ ≤ ((k + 1 : ℕ) : ℝ) * ((A_thr + 1 / 2) / R) *
+                      Real.exp (3 / 10 * (A_thr + 1 / 2)) := by
                     refine mul_le_mul (mul_le_mul_of_nonneg_left ?_ (by positivity))
-                      (Real.exp_le_exp.mpr h_exp_65) (Real.exp_pos _).le (by positivity)
+                      (Real.exp_le_exp.mpr h_exp_A) (Real.exp_pos _).le (by positivity)
                     rw [abs_div, abs_of_pos hR_pos]
-                    exact div_le_div_of_nonneg_right hvl4 hR_pos.le
-                _ = 4 * Real.exp (6 / 5) * ((k : ℝ) + 1) / R := by push_cast; ring
+                    exact div_le_div_of_nonneg_right hvlA hR_pos.le
+                _ = lineCaW A_thr * ((k : ℝ) + 1) / R := by unfold lineCaW; push_cast; ring
             calc |(1 - W v) * (psiTilde prob c' g (v : ℂ)).re|
                 = |1 - W v| * |(psiTilde prob c' g (v : ℂ)).re| := abs_mul _ _
-              _ ≤ (4 * Real.exp (6 / 5) * ((k : ℝ) + 1) / R) * ‖psiTilde prob c' g (v : ℂ)‖ :=
-                  mul_le_mul hW_bd (Complex.abs_re_le_norm _) (abs_nonneg _) (by positivity)
-        _ = (4 * Real.exp (6 / 5) * ((k : ℝ) + 1) / R) *
+              _ ≤ (lineCaW A_thr * ((k : ℝ) + 1) / R) * ‖psiTilde prob c' g (v : ℂ)‖ :=
+                  mul_le_mul hW_bd (Complex.abs_re_le_norm _) (abs_nonneg _)
+                    (by have := lineCaW_nonneg hA; positivity)
+        _ = (lineCaW A_thr * ((k : ℝ) + 1) / R) *
               ∫ v in u_T..1, ‖psiTilde prob c' g (v : ℂ)‖ := intervalIntegral.integral_const_mul _ _
     have hL1_le1 : ∫ v in u_T..1, ‖psiTilde prob c' g (v : ℂ)‖ ≤ 1 := by
       have hΨ_norm_all : ContinuousOn (fun v : ℝ => ‖psiTilde prob c' g (v : ℂ)‖)
@@ -380,7 +394,9 @@ private lemma line_mid_and_rightW {c' R T ℓ : ℝ}
           (Eventually.of_forall fun _ => norm_nonneg _)
           (Eventually.of_forall (Ioc_subset_Ioc (by linarith [hnegRl_le_uT]) (by linarith)))
       exact h_sub_le.trans (Q.part3 hc' hg).2.1
-    have h_c_nn : 0 ≤ 4 * Real.exp (6 / 5) * ((k : ℝ) + 1) / R := by positivity
+    have h_c_nn : 0 ≤ lineCaW A_thr * ((k : ℝ) + 1) / R := by
+      have := lineCaW_nonneg hA
+      positivity
     have h1 := (abs_le.mp h_abs).1
     nlinarith only [h1, hL1_le1, h_c_nn]
   · have h1R : (1 : ℝ) ≤ R + ℓ := by linarith
@@ -490,20 +506,21 @@ private lemma line_mid_and_rightW {c' R T ℓ : ℝ}
     linarith only [h1, h_ftc_r, h2]
 
 /-- **Line Estimate (`TE.5` / `BootstrapCore.hI_line`)**:
-For `c' ≥ Q.cQ` with `Q.sigma c' ≤ 1/2`, `R ≥ 10` (`R + 1 ≤ Q.AC c'^2`),
+For `c' ≥ Q.cQ` with `Q.sigma c' ≤ 1/2`, `R ≥ 10`, `A_thr + 1/2 ≤ R` (`R + 1 ≤ Q.AC c'^2`),
 `T ∈ [Δ(-1), Δ(-A_thr)]` (`u_T ∈ [-A_thr, -1]`), `ℓ ∈ [0, 1/2]`, and `5 ≤ k ≤ R/5`,
-`∫_{-R}^R (f_{k, ℓ} x).re ≤ -(63/100) B_1^{(k)} - B_2 + (4 exp(6/5) + 3 C₀)(k+1)/R + Δ_lobe`. -/
-theorem line_boundW {c' R T ℓ : ℝ}
+`∫_{-R}^R (f_{k, ℓ} x).re ≤ -(63/100) B_1^{(k)} - B_2 + (lineCaW A_thr + 3 C₀)(k+1)/R + Δ_lobe`;
+the constant `63/100` does not depend on `A_thr`, `lineCaW A_thr` is increasing in `A_thr`. -/
+theorem line_boundW_thr {A_thr c' R T ℓ : ℝ} (hA : 1 ≤ A_thr)
     (hc' : Q.cQ ≤ c') (hς_nn : 0 ≤ Q.sigma c') (hς_half : Q.sigma c' ≤ 1 / 2)
-    (hR_10 : 10 ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
+    (hR_10 : 10 ≤ R) (hR_thr : A_thr + 1 / 2 ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
     (hℓ_nn : 0 ≤ ℓ) (hℓ_half : ℓ ≤ 1 / 2)
     {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
     (hT_lo : virasoroDeltaChart c' (-1) ≤ T)
-    (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr))
+    (hT_hi : T ≤ virasoroDeltaChart c' (-A_thr))
     {k : ℕ} (hk5 : 5 ≤ k) (hkR : (k : ℝ) ≤ R / 5) :
     ∫ x in (-R)..R, (shiftedFunW prob c' R ℓ g k (x : ℂ)).re ≤
       -(63 / 100 : ℝ) * bandB1kW prob c' R T g k - bandB2W prob c' R g +
-        (4 * Real.exp (6 / 5) + 3 * Q.C0) * ((k : ℝ) + 1) / R +
+        (lineCaW A_thr + 3 * Q.C0) * ((k : ℝ) + 1) / R +
         deltaLobe prob Q.D.r_1 c' g := by
   have hc'_pos : 0 < c' := lt_of_lt_of_le (by have := Q.hcQ_10000; linarith) hc'
   have hc'_1000 : 1000 ≤ c' :=
@@ -513,15 +530,12 @@ theorem line_boundW {c' R T ℓ : ℝ}
     have := Q.hcQ_shift; have := Q.hcQ_10000; linarith
   have hM_pos : 0 < prob.cardyNorm (c' / 12) g :=
     Q.cardyNorm_pos hc' hg
-  have hAThr_lt : virasoroAThr < 3.4 := by
-    obtain ⟨ha1, ha2⟩ := airyZero_one
-    unfold virasoroAThr; rw [abs_of_neg (by linarith)]; linarith
   have hu_mem := Q.UT_between hc'_pos
-    (by linarith : -(Q.AC c' ^ 2) ≤ -virasoroAThr)
-    (by linarith [sq_nonneg (Q.AC c')]) (by linarith [virasoroAThr_gt_two] : -virasoroAThr ≤ -1)
+    (by linarith : -(Q.AC c' ^ 2) ≤ -A_thr)
+    (by linarith [sq_nonneg (Q.AC c')]) (by linarith [hA] : -A_thr ≤ -1)
     hT_lo hT_hi
   set u_T := virasoroUT c' T
-  have huT_Icc : u_T ∈ Icc (-virasoroAThr) (-1) := hu_mem.1
+  have huT_Icc : u_T ∈ Icc (-A_thr) (-1) := hu_mem.1
   have hΔ_uT : virasoroDeltaChart c' u_T = T := hu_mem.2
   have h_shift_eq : ∫ x in (-R)..R, (shiftedFunW prob c' R ℓ g k (x : ℂ)).re =
       ∫ v in (-R + ℓ)..(R + ℓ),
@@ -579,16 +593,46 @@ theorem line_boundW {c' R T ℓ : ℝ}
       (hi_WΨ (-R + ℓ) 1 (by linarith) (by linarith) (by linarith))
       (hi_WΨ 1 (R + ℓ) (by linarith) (by linarith) le_rfl)
     linarith only [h12, h23]
-  have h_top := line_top_boundW hc' hς_nn hς_half hR_10 hR_ub hℓ_nn hℓ_half hg hM_pos hT_hi
+  have h_top := line_top_boundW hc' hς_nn hς_half hR_10 hR_thr hR_ub hℓ_nn hℓ_half hg hM_pos hT_hi
     huT_Icc.1 hΔ_uT huT_Icc.2 hΨ_cont_all hk5
-  have h_band := line_band_pieceW hc' hR_10 hR_ub hℓ_nn hℓ_half hg huT_Icc hΔ_uT hΨ_cont_all k
-  obtain ⟨h_mid, h_right⟩ := line_mid_and_rightW hc' hς_half hR_10 hR_ub hℓ_nn hℓ_half hg
+  have h_band := line_band_pieceW hc' hR_10 hR_thr hR_ub hℓ_nn hℓ_half hg huT_Icc hΔ_uT hΨ_cont_all k
+  obtain ⟨h_mid, h_right⟩ := line_mid_and_rightW hA hc' hς_half hR_10 hR_thr hR_ub hℓ_nn hℓ_half hg
     hM_pos huT_Icc hΨ_cont_all hkR
   have h_sum_coeff :
-      Q.C0 * ((k : ℝ) + 1) / R + 4 * Real.exp (6 / 5) * ((k : ℝ) + 1) / R +
+      Q.C0 * ((k : ℝ) + 1) / R + lineCaW A_thr * ((k : ℝ) + 1) / R +
         2 * Q.C0 * ((k : ℝ) + 1) / R =
-      (4 * Real.exp (6 / 5) + 3 * Q.C0) * ((k : ℝ) + 1) / R := by ring
+      (lineCaW A_thr + 3 * Q.C0) * ((k : ℝ) + 1) / R := by ring
   linarith only [h_split_W, h_split_W1, h_top, h_band, h_mid, h_right, h_sum_coeff]
+
+/-- **Line Estimate (`TE.5` / `BootstrapCore.hI_line`)** at the level-one cutoff `A_thr = virasoroAThr`:
+`∫_{-R}^R (f_{k, ℓ} x).re ≤ -(63/100) B_1^{(k)} - B_2 + (4 exp(6/5) + 3 C₀)(k+1)/R + Δ_lobe`. -/
+theorem line_boundW {c' R T ℓ : ℝ}
+    (hc' : Q.cQ ≤ c') (hς_nn : 0 ≤ Q.sigma c') (hς_half : Q.sigma c' ≤ 1 / 2)
+    (hR_10 : 10 ≤ R) (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
+    (hℓ_nn : 0 ≤ ℓ) (hℓ_half : ℓ ≤ 1 / 2)
+    {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
+    (hT_lo : virasoroDeltaChart c' (-1) ≤ T)
+    (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr))
+    {k : ℕ} (hk5 : 5 ≤ k) (hkR : (k : ℝ) ≤ R / 5) :
+    ∫ x in (-R)..R, (shiftedFunW prob c' R ℓ g k (x : ℂ)).re ≤
+      -(63 / 100 : ℝ) * bandB1kW prob c' R T g k - bandB2W prob c' R g +
+        (4 * Real.exp (6 / 5) + 3 * Q.C0) * ((k : ℝ) + 1) / R +
+        deltaLobe prob Q.D.r_1 c' g := by
+  have hlt : virasoroAThr < 3.4 := by
+    have h1 := airyZero_one
+    unfold virasoroAThr; rw [abs_of_neg (by linarith)]; linarith
+  have h := line_boundW_thr (A_thr := virasoroAThr) (by linarith [virasoroAThr_gt_two])
+    hc' hς_nn hς_half hR_10 (by linarith) hR_ub hℓ_nn hℓ_half hg hT_lo hT_hi hk5 hkR
+  have hC := lineCaW_virasoroAThr_le
+  have hR0 : 0 < R := by linarith
+  have hk : 0 ≤ ((k : ℝ) + 1) / R := by positivity
+  have hm := mul_le_mul_of_nonneg_right hC hk
+  have hid : ∀ x : ℝ, (x + 3 * Q.C0) * ((k : ℝ) + 1) / R = x * (((k : ℝ) + 1) / R) + 3 * Q.C0 * (((k : ℝ) + 1) / R) := fun x => by ring
+  linarith only [h, hm, hid (lineCaW virasoroAThr), hid (4 * Real.exp (6 / 5))]
+
+/-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.line_boundW_thr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms line_boundW_thr
 
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.line_boundW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

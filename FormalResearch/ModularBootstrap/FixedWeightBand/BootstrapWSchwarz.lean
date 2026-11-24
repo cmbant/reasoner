@@ -9,8 +9,10 @@ Source: `CFT/modular_bootstrap/paper/lower_o1_two_edge.tex`, Lemma `Q` (`wone:Q`
 (`vlo:YV`) and the band moments `B₁`, `B₂` of `teb:bootstrap`.
 
 * `LemmaQData.UT_between`: chart inversion `u_T ∈ [a, b]`, `Δ(u_T) = T` on the shrunk disc.
-* `bandB1W_nonneg`, `bandB2W_nonneg`: positivity of the band moments `B₁`, `B₂` of a weakly feasible test.
-* `yvInputAtW_nonvacuous`: non-vacuity of the band-feedback hypothesis `YVInputAtForW`.
+* `bandB1W_nonneg_thr`, `bandB2W_nonneg_thr`: positivity of the band moments `B₁`, `B₂` of a weakly feasible
+  test at every cutoff radius `A_thr > 0`; `bandB1W_nonneg`, `bandB2W_nonneg` are the case `A_thr = virasoroAThr`.
+* `yvInputAtW_nonvacuous_thr`: non-vacuity of the band-feedback hypothesis `YVInputAtForWThr` at every
+  `A_thr ≥ 2`; `yvInputAtW_nonvacuous` is the case `A_thr = virasoroAThr`.
 * `LemmaQData.psiTilde_conj`: general Schwarz reflection `Ψ̃(ū) = conj Ψ̃(u)` on `closedBall 0 (A_{c'}²)`
   (the Virasoro `virasoroPsiTilde_conj`; the identity theorem on the real segment uses `(H2+)`).
 -/
@@ -44,22 +46,22 @@ section Band
 
 variable [Q : LemmaQData prob]
 
-lemma bandB1W_nonneg {c' R T : ℝ} (hc' : Q.cQ ≤ c')
-    (hR_thr : virasoroAThr ≤ R) (hR_ub : R ≤ Q.AC c' ^ 2)
+lemma bandB1W_nonneg_thr {A_thr c' R T : ℝ} (hA : 0 < A_thr) (hc' : Q.cQ ≤ c')
+    (hR_thr : A_thr ≤ R) (hR_ub : R ≤ Q.AC c' ^ 2)
     {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
     (hT_lo : virasoroDeltaChart c' 0 ≤ T)
-    (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr)) :
+    (hT_hi : T ≤ virasoroDeltaChart c' (-A_thr)) :
     0 ≤ bandB1W prob c' R T g := by
   have hc'_pos : 0 < c' := lt_of_lt_of_le (by have := Q.hcQ_10000; linarith) hc'
   have ha : prob.totalShift ≤ c' / 12 := by
     have := Q.hcQ_shift; have := Q.hcQ_10000; linarith
-  have hR_pos : 0 < R := lt_of_lt_of_le virasoroAThr_pos hR_thr
+  have hR_pos : 0 < R := lt_of_lt_of_le hA hR_thr
   have hM_nn : 0 ≤ (prob.cardyNorm (c' / 12) g)⁻¹ :=
     inv_nonneg.mpr (Q.cardyNorm_pos hc' hg).le
   have hRm : -R ∈ Icc (-(Q.AC c' ^ 2)) (Q.AC c' ^ 2) :=
-    ⟨by linarith, by linarith [virasoroAThr_pos, sq_nonneg (Q.AC c')]⟩
-  have hAThr_m : -virasoroAThr ∈ Icc (-(Q.AC c' ^ 2)) (Q.AC c' ^ 2) :=
-    ⟨by linarith, by linarith [virasoroAThr_pos, sq_nonneg (Q.AC c')]⟩
+    ⟨by linarith, by linarith [hA, sq_nonneg (Q.AC c')]⟩
+  have hAThr_m : -A_thr ∈ Icc (-(Q.AC c' ^ 2)) (Q.AC c' ^ 2) :=
+    ⟨by linarith, by linarith [hA, sq_nonneg (Q.AC c')]⟩
   have hΔ_T_le : T ≤ virasoroDeltaChart c' (-R) :=
     hT_hi.trans ((Q.deltaChart_strictAnti hc'_pos).antitoneOn hRm hAThr_m (by linarith))
   refine mul_nonneg (mul_nonneg (inv_nonneg.mpr hR_pos.le) hM_nn) ?_
@@ -72,10 +74,10 @@ lemma bandB1W_nonneg {c' R T : ℝ} (hc' : Q.cQ ≤ c')
   exact mul_nonneg (by linarith [hu_t.1.2])
     (mul_nonneg (hg.2.2.2 t ht.1) (prob.cardyV_nonneg ha ht_pos))
 
-lemma bandB2W_nonneg {c' R T : ℝ} (hc' : Q.cQ ≤ c')
-    (hR_thr : virasoroAThr ≤ R) (hR_ub : R ≤ Q.AC c' ^ 2)
+lemma bandB2W_nonneg_thr {A_thr c' R T : ℝ} (hA : 0 < A_thr) (hc' : Q.cQ ≤ c')
+    (hR_thr : A_thr ≤ R) (hR_ub : R ≤ Q.AC c' ^ 2)
     {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
-    (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr)) :
+    (hT_hi : T ≤ virasoroDeltaChart c' (-A_thr)) :
     0 ≤ bandB2W prob c' R g := by
   have hc'_pos : 0 < c' := lt_of_lt_of_le (by have := Q.hcQ_10000; linarith) hc'
   have ha : prob.totalShift ≤ c' / 12 := by
@@ -83,9 +85,9 @@ lemma bandB2W_nonneg {c' R T : ℝ} (hc' : Q.cQ ≤ c')
   have hM_nn : 0 ≤ (prob.cardyNorm (c' / 12) g)⁻¹ :=
     inv_nonneg.mpr (Q.cardyNorm_pos hc' hg).le
   have hRm : -R ∈ Icc (-(Q.AC c' ^ 2)) (Q.AC c' ^ 2) :=
-    ⟨by linarith, by linarith [virasoroAThr_pos, sq_nonneg (Q.AC c')]⟩
-  have hAThr_m : -virasoroAThr ∈ Icc (-(Q.AC c' ^ 2)) (Q.AC c' ^ 2) :=
-    ⟨by linarith, by linarith [virasoroAThr_pos, sq_nonneg (Q.AC c')]⟩
+    ⟨by linarith, by linarith [hA, sq_nonneg (Q.AC c')]⟩
+  have hAThr_m : -A_thr ∈ Icc (-(Q.AC c' ^ 2)) (Q.AC c' ^ 2) :=
+    ⟨by linarith, by linarith [hA, sq_nonneg (Q.AC c')]⟩
   have hΔ_T_le : T ≤ virasoroDeltaChart c' (-R) :=
     hT_hi.trans ((Q.deltaChart_strictAnti hc'_pos).antitoneOn hRm hAThr_m (by linarith))
   have hΔ_nn : 0 ≤ virasoroDeltaChart c' (-R) :=
@@ -93,28 +95,51 @@ lemma bandB2W_nonneg {c' R T : ℝ} (hc' : Q.cQ ≤ c')
   refine mul_nonneg hM_nn (setIntegral_nonneg measurableSet_Ici fun t ht => ?_)
   exact mul_nonneg (hg.2.2.2 t (hΔ_T_le.trans ht)) (prob.cardyV_nonneg ha (hΔ_nn.trans ht))
 
-/-- Non-vacuity of `YVInputAtForW`: the feedback specification and the envelope domain are consistent
-(witness `Ψ = 0`), at every scale `0 < b ≤ b_V`. -/
-theorem yvInputAtW_nonvacuous {b : ℝ} (hb : 0 < b) (hb_le : b ≤ Q.bV) :
+lemma bandB1W_nonneg {c' R T : ℝ} (hc' : Q.cQ ≤ c')
+    (hR_thr : virasoroAThr ≤ R) (hR_ub : R ≤ Q.AC c' ^ 2)
+    {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
+    (hT_lo : virasoroDeltaChart c' 0 ≤ T)
+    (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr)) :
+    0 ≤ bandB1W prob c' R T g :=
+  bandB1W_nonneg_thr virasoroAThr_pos hc' hR_thr hR_ub hg hT_lo hT_hi
+
+lemma bandB2W_nonneg {c' R T : ℝ} (hc' : Q.cQ ≤ c')
+    (hR_thr : virasoroAThr ≤ R) (hR_ub : R ≤ Q.AC c' ^ 2)
+    {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
+    (hT_hi : T ≤ virasoroDeltaChart c' (-virasoroAThr)) :
+    0 ≤ bandB2W prob c' R g :=
+  bandB2W_nonneg_thr virasoroAThr_pos hc' hR_thr hR_ub hg hT_hi
+
+/-- Non-vacuity of `YVInputAtForWThr` at every cutoff radius `A_thr ≥ 2`: the feedback specification and
+the envelope domain are consistent (witness `Ψ = 0`), at every scale `0 < b ≤ b_V`. -/
+theorem yvInputAtW_nonvacuous_thr {A_thr b : ℝ} (hA : 2 ≤ A_thr) (hb : 0 < b) (hb_le : b ≤ Q.bV) :
     ∃ (Ψ : ℝ → (ℝ → ℝ) → ℂ → ℂ) (C_fb c_YV : ℝ),
-      1 ≤ C_fb ∧ Q.cQ ≤ c_YV ∧ YVInputAtForW prob b Ψ C_fb c_YV := by
+      1 ≤ C_fb ∧ Q.cQ ≤ c_YV ∧ YVInputAtForWThr prob A_thr b Ψ C_fb c_YV := by
   refine ⟨fun _ _ _ => 0, 1, Q.cQ, le_rfl, le_rfl, ?_⟩
   intro c' T R hc' hR_thr _ hR_ub g hg hT_lo hT_hi u _ hRl _ hsin
-  have hR_pos : 2 ≤ R := by linarith [virasoroAThr_gt_two]
+  have hR_pos : 2 ≤ R := by linarith [hA]
   have hu_pos : 0 < ‖u‖ := by linarith
   have hc'_pos : 0 < c' := lt_of_lt_of_le (by have := Q.hcQ_10000; linarith) hc'
   have hle := Q.ACAt_sq_le hb.le hb_le hc'_pos.le
   have hre_pos : 0 < (u ^ (1 / 2 : ℂ)).re := by
     have : 0 < 2 * c' ^ (-(1 / 12 : ℝ)) * √‖u‖ := by positivity
     linarith
-  have hB1 := bandB1W_nonneg hc' hR_thr (by linarith) hg hT_lo hT_hi
-  have hB2 := bandB2W_nonneg hc' hR_thr (by linarith) hg hT_hi
+  have hB1 := bandB1W_nonneg_thr (by linarith) hc' hR_thr (by linarith) hg hT_lo hT_hi
+  have hB2 := bandB2W_nonneg_thr (by linarith) hc' hR_thr (by linarith) hg hT_hi
   have henv : 0 < airyEnv u := airyEnv_pos u
   have hL'_nn : 0 ≤ 1 * (c' ^ (1 / 3 : ℝ) * (bandB1W prob c' R T g + bandB2W prob c' R g) + 1) := by
     positivity
   rw [norm_zero]
   exact mul_nonneg (mul_nonneg (mul_nonneg hL'_nn henv.le) (Real.rpow_nonneg hre_pos.le _))
     (Real.rpow_nonneg (norm_nonneg _) _)
+
+
+/-- Non-vacuity of `YVInputAtForW`: the feedback specification and the envelope domain are consistent
+(witness `Ψ = 0`), at every scale `0 < b ≤ b_V`. -/
+theorem yvInputAtW_nonvacuous {b : ℝ} (hb : 0 < b) (hb_le : b ≤ Q.bV) :
+    ∃ (Ψ : ℝ → (ℝ → ℝ) → ℂ → ℂ) (C_fb c_YV : ℝ),
+      1 ≤ C_fb ∧ Q.cQ ≤ c_YV ∧ YVInputAtForW prob b Ψ C_fb c_YV :=
+  yvInputAtW_nonvacuous_thr (by linarith [virasoroAThr_gt_two]) hb hb_le
 
 /-! ### Section 2: Schwarz Reflection & Shifted-Square-Root Envelope Lemmas -/
 
@@ -211,6 +236,18 @@ end LemmaQData
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.LemmaQData.UT_between' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms LemmaQData.UT_between
+
+/-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.bandB1W_nonneg_thr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms bandB1W_nonneg_thr
+
+/-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.bandB2W_nonneg_thr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms bandB2W_nonneg_thr
+
+/-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.yvInputAtW_nonvacuous_thr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms yvInputAtW_nonvacuous_thr
 
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.bandB1W_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -12,10 +12,12 @@ Source: `CFT/modular_bootstrap/paper/lower_o1_two_edge.tex`, Theorem `FT-L.FW` (
   `C_a = max C_a⁰ (4e^{6/5} + 3 C₀)`, `C_unc = LemmaQData.arcUncConst` (`C₀` the type-(II) constant of
   `Lemma Q (2)` at weight `w`);
 * `lobe_scale_downW`: the scale-`b` lobe facts give the full-scale ones (`lemmaQ_general_lobe_scale_down`);
-* `uT_range_of_violatorW`: range of `u_T`, `Δ(0) ≤ T ≤ Δ(-A_thr)` for a violator `T < Δ(a₁)`;
+* `uT_range_of_violatorW_thr`: range of `u_T`, `Δ(0) ≤ T ≤ Δ(-A_thr)` for a violator `T < Δ(a₁)` and every
+  `A_thr ∈ [virasoroAThr, R]` (`uT_range_of_violatorW`: `A_thr = virasoroAThr`);
 * `LemmaQData.sigma_arc_of_scale`: the arc condition on `ς` at `R + 1 ≤ A_{c'}(b)²`;
-* `bootstrapHB_of_YVForW`: the `BootstrapHBInstance P 0` with `(B3)` from `YVInputAtForW prob b ψ̃`
-  (the Virasoro `virasoro_bootstrapHB_of_YVFor`).
+* `bootstrapHB_of_YVForWThr`: the `BootstrapHBInstance P 0` with `(B3)` from `YVInputAtForWThr prob A_thr b ψ̃` at
+  every `A_thr ∈ [virasoroAThr, 47]`, with `bootstrapParamsForWThr` (line constant `C_line ≥ lineCaW A_thr`);
+  `bootstrapHB_of_YVForW` (the Virasoro `virasoro_bootstrapHB_of_YVFor`) is the case `A_thr = virasoroAThr`.
 -/
 
 @[expose] public section
@@ -31,14 +33,15 @@ open FormalResearch.Special FormalResearch.TwoEdgeBootstrap Crossing PoissonJens
 variable {prob : FixedWeightProblem}
 
 
-/-- Concrete `BootstrapParams` for `(P, Q) = (1, 0)` on Virasoro at scale `b > 0`. -/
-noncomputable def bootstrapParamsForW (Q : LemmaQData prob)
+/-- Concrete `BootstrapParams` for `(P, Q) = (1, 0)` on Virasoro at scale `b > 0`, with the line constant
+`C_line` (any upper bound of `lineCaW A_thr` for the cutoff radii `A_thr` in use): `C_a = max C_a⁰ (C_line + 3 C₀)`. -/
+noncomputable def bootstrapParamsForWThr (Q : LemmaQData prob)
     (b : ℝ) (hb : 0 < b)
     (C_fb : ℝ) (hC_fb : 1 ≤ C_fb)
-    (C_gap κ_gap : ℝ) (_hC_gap : 0 < C_gap) (hκ_gap : 0 < κ_gap) :
+    (C_gap κ_gap : ℝ) (_hC_gap : 0 < C_gap) (hκ_gap : 0 < κ_gap) (C_line : ℝ) :
     BootstrapParams where
   b := b
-  C_a := max virasoroArcCovConst (4 * Real.exp (6 / 5) + 3 * Q.C0)
+  C_a := max virasoroArcCovConst (C_line + 3 * Q.C0)
   C_unc := Q.arcUncConst
   C_1 := quantC1C1
   w_star := quantC1WStar
@@ -69,6 +72,16 @@ noncomputable def bootstrapParamsForW (Q : LemmaQData prob)
   hCL := by linarith
   hγ := zero_le_one
   hk0 := by omega
+
+
+/-- Concrete `BootstrapParams` for `(P, Q) = (1, 0)` on Virasoro at scale `b > 0` (the level-one line constant
+`4 e^{6/5}`). -/
+noncomputable def bootstrapParamsForW (Q : LemmaQData prob)
+    (b : ℝ) (hb : 0 < b)
+    (C_fb : ℝ) (hC_fb : 1 ≤ C_fb)
+    (C_gap κ_gap : ℝ) (hC_gap : 0 < C_gap) (hκ_gap : 0 < κ_gap) :
+    BootstrapParams :=
+  bootstrapParamsForWThr Q b hb C_fb hC_fb C_gap κ_gap hC_gap hκ_gap (4 * Real.exp (6 / 5))
 
 
 namespace LemmaQData
@@ -116,8 +129,8 @@ lemma lobe_scale_downW {b C_gap κ_gap c' T : ℝ}
   lemmaQ_general_lobe_scale_down Q.D hb_pos hb_le (Q.hcQ_D.trans hc'_Qenv) hg.1
     (Q.cardyNorm_pos hc'_Qenv hg) hdl_bd hdl_half hT_A2
 
-lemma uT_range_of_violatorW {c' R T : ℝ}
-    (hc'_Qenv : Q.cQ ≤ c') (hR_thr : virasoroAThr ≤ R)
+lemma uT_range_of_violatorW_thr {A_thr c' R T : ℝ} (hA : virasoroAThr ≤ A_thr)
+    (hc'_Qenv : Q.cQ ≤ c') (hR_thr : A_thr ≤ R)
     (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
     {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
     (hT_A2 : virasoroDeltaChart c' (Q.AC c' ^ 2) < T)
@@ -127,15 +140,13 @@ lemma uT_range_of_violatorW {c' R T : ℝ}
     virasoroUT c' T ≤ -1 ∧
     virasoroDeltaChart c' (-1) ≤ T ∧
     virasoroDeltaChart c' 0 ≤ T ∧
-    T ≤ virasoroDeltaChart c' (-virasoroAThr) ∧
+    T ≤ virasoroDeltaChart c' (-A_thr) ∧
     T ≤ virasoroDeltaChart c' (-R) := by
   have hc'_10000 : 10000 ≤ c' :=
     (Q.hcQ_10000.trans hc'_Qenv)
   have hc'_pos : 0 < c' := by linarith
-  have hAThr_lt : virasoroAThr < 3.4 := by
-    obtain ⟨ha1, ha2⟩ := airyZero_one
-    unfold virasoroAThr; rw [abs_of_neg (by linarith)]; linarith
-  have hR_pos : 0 < R := lt_of_lt_of_le virasoroAThr_pos hR_thr
+  have hA_pos : 0 < A_thr := lt_of_lt_of_le virasoroAThr_pos hA
+  have hR_pos : 0 < R := lt_of_lt_of_le hA_pos hR_thr
   have hA2_ge4 : 4 ≤ Q.AC c' ^ 2 := by linarith [virasoroAThr_gt_two]
   have huT_Ioo : virasoroUT c' T ∈ Ioo (-(Q.AC c' ^ 2)) (Q.AC c' ^ 2) :=
     (Q.part3 hc'_Qenv hg).2.2.1
@@ -172,26 +183,43 @@ lemma uT_range_of_violatorW {c' R T : ℝ}
     rw [← hΔ_uT]
     exact (Q.deltaChart_strictAnti hc'_pos).antitoneOn
       ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩ ⟨by linarith, by linarith⟩ (by linarith)
-  have hT_hi_AThr : T ≤ virasoroDeltaChart c' (-virasoroAThr) := by
+  have hT_hi_AThr : T ≤ virasoroDeltaChart c' (-A_thr) := by
     rw [← hΔ_uT]
     have hAThr_eq : virasoroAThr = -airyZero 1 + 1 := by
       unfold virasoroAThr; rw [abs_of_neg (by linarith [airyZero_one.2])]
     exact (Q.deltaChart_strictAnti hc'_pos).antitoneOn
-      ⟨by linarith, by linarith [virasoroAThr_pos]⟩ ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩
+      ⟨by linarith, by linarith [hA_pos]⟩ ⟨huT_Ioo.1.le, huT_Ioo.2.le⟩
       (by linarith [ha1_lt_uT, hAThr_eq])
   have hT_hi_R : T ≤ virasoroDeltaChart c' (-R) :=
     hT_hi_AThr.trans ((Q.deltaChart_strictAnti hc'_pos).antitoneOn
-      ⟨by linarith, by linarith⟩ ⟨by linarith, by linarith [virasoroAThr_pos]⟩ (by linarith))
+      ⟨by linarith, by linarith⟩ ⟨by linarith, by linarith [hA_pos]⟩ (by linarith))
   exact ⟨ha1_lt_uT, huT_le_m1, hT_lo_m1, hT_lo_0, hT_hi_AThr, hT_hi_R⟩
 
 
+lemma uT_range_of_violatorW {c' R T : ℝ}
+    (hc'_Qenv : Q.cQ ≤ c') (hR_thr : virasoroAThr ≤ R)
+    (hR_ub : R + 1 ≤ Q.AC c' ^ 2)
+    {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
+    (hT_A2 : virasoroDeltaChart c' (Q.AC c' ^ 2) < T)
+    (hT_a1 : T < virasoroDeltaChart c' (airyZero 1))
+    (hB2 : QuantC1B2Holds (psiTilde prob c' g) (virasoroUT c' T)) :
+    airyZero 1 < virasoroUT c' T ∧
+    virasoroUT c' T ≤ -1 ∧
+    virasoroDeltaChart c' (-1) ≤ T ∧
+    virasoroDeltaChart c' 0 ≤ T ∧
+    T ≤ virasoroDeltaChart c' (-virasoroAThr) ∧
+    T ≤ virasoroDeltaChart c' (-R) :=
+  uT_range_of_violatorW_thr le_rfl hc'_Qenv hR_thr hR_ub hg hT_A2 hT_a1 hB2
+
 /-- Construct the concrete `BootstrapHBInstance P 0` (together with `(B3)`) at scale
-`0 < b ≤ Q.bV` for any violator `T < Δ(a₁)` at sufficiently large `c'`,
-assuming `YVInputAtForW prob b`. -/
-noncomputable def bootstrapHB_of_YVForW
-    {b C_fb c_YV C_gap κ_gap : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ Q.bV)
+`0 < b ≤ Q.bV` for any violator `T < Δ(a₁)` at sufficiently large `c'`, assuming `YVInputAtForWThr prob A_thr b`
+at a cutoff radius `A_thr ∈ [virasoroAThr, 47]` and a line constant `C_line ≥ lineCaW A_thr`
+(`bootstrapHB_of_YVForW` is the case `A_thr = virasoroAThr`, `C_line = 4 e^{6/5}`). -/
+noncomputable def bootstrapHB_of_YVForWThr
+    {A_thr b C_fb c_YV C_gap κ_gap C_line : ℝ} (hA : virasoroAThr ≤ A_thr) (hA47 : A_thr ≤ 47)
+    (hC_line : lineCaW A_thr ≤ C_line) (hb_pos : 0 < b) (hb_le : b ≤ Q.bV)
     (hC_fb : 1 ≤ C_fb) (_hc_YV : 10000 ≤ c_YV)
-    (hYVat : YVInputAtForW prob b (psiTilde prob) C_fb c_YV)
+    (hYVat : YVInputAtForWThr prob A_thr b (psiTilde prob) C_fb c_YV)
     (hC_gap : 0 < C_gap) (hκ_gap : 0 < κ_gap)
     {c' T : ℝ} (hc'_Qenv : Q.cQ ≤ c') (hc'_YV : c_YV ≤ c')
     (h_c12 : (3 * π) ^ (12 : ℕ) ≤ c')
@@ -204,7 +232,7 @@ noncomputable def bootstrapHB_of_YVForW
     (hT_A2 : virasoroDeltaChart c' (chartACAt b c' ^ 2) < T)
     (hT_a1 : T < virasoroDeltaChart c' (airyZero 1))
     (hB2 : QuantC1B2Holds (psiTilde prob c' g) (virasoroUT c' T)) :
-    let P := bootstrapParamsForW Q b hb_pos C_fb hC_fb C_gap κ_gap hC_gap hκ_gap
+    let P := bootstrapParamsForWThr Q b hb_pos C_fb hC_fb C_gap κ_gap hC_gap hκ_gap C_line
     { I : BootstrapHBInstance P 0 //
       I.L ≤ P.C_fb * (I.c ^ (1 / 3 : ℝ) * (I.B_1 + I.B_2) + 1) ∧
       I.c = c' ∧ I.x_tilde = virasoroUT c' T - airyZero 1 } := by
@@ -237,10 +265,8 @@ noncomputable def bootstrapHB_of_YVForW
   have hR_ub_b : R + 1 ≤ chartACAt b c' ^ 2 := by
     rw [chartACAt_sq b c' hc'_pos.le]; linarith
   have hR_ub : R + 1 ≤ Q.AC c' ^ 2 := hR_ub_b.trans hA2_le
-  have hAThr_lt : virasoroAThr < 3.4 := by
-    obtain ⟨ha1, ha2⟩ := airyZero_one
-    unfold virasoroAThr; rw [abs_of_neg (by linarith)]; linarith
-  have hR_thr : virasoroAThr ≤ R := by linarith
+  have hA_pos : 0 < A_thr := lt_of_lt_of_le virasoroAThr_pos hA
+  have hR_thr : A_thr ≤ R := by linarith
   have h_good_ai : ∀ u : ℂ, ‖u‖ = R → airyAiC u ≠ 0 := by
     intro u hu h0
     have h1 := hR_low u hu
@@ -262,13 +288,13 @@ noncomputable def bootstrapHB_of_YVForW
       ‖(airyBiC w + I * airyAiC w) / airyAiC w‖ * airyEnv w ≤ 30 * √π :=
     fun w hw him => airy_Rminus_bound him (hw ▸ hR_low w hw)
   obtain ⟨ha1_lt_uT, huT_le_m1, hT_lo_m1, hT_lo_0, hT_hi_AThr, hT_hi_R⟩ :=
-    uT_range_of_violatorW hc'_Qenv hR_thr hR_ub hg hT_A2_full hT_a1 hB2
+    uT_range_of_violatorW_thr hA hc'_Qenv hR_thr hR_ub hg hT_A2_full hT_a1 hB2
   set u_T := virasoroUT c' T
-  have hB_sums := band_sums_leW hc'_Qenv hR_thr hR_ub hg hdl_half_full hT_lo_0 hT_hi_AThr
+  have hB_sums := band_sums_leW_thr hA_pos hc'_Qenv hR_thr hR_ub hg hdl_half_full hT_lo_0 hT_hi_AThr
   have hB1_nn : 0 ≤ bandB1W prob c' R T g :=
-    bandB1W_nonneg hc'_Qenv hR_thr (by linarith) hg hT_lo_0 hT_hi_AThr
+    bandB1W_nonneg_thr hA_pos hc'_Qenv hR_thr (by linarith) hg hT_lo_0 hT_hi_AThr
   have hB2_nn : 0 ≤ bandB2W prob c' R g :=
-    bandB2W_nonneg hc'_Qenv hR_thr (by linarith) hg hT_hi_AThr
+    bandB2W_nonneg_thr hA_pos hc'_Qenv hR_thr (by linarith) hg hT_hi_AThr
   set B_1 := bandB1W prob c' R T g
   set B_2 := bandB2W prob c' R g
   set L := C_fb * (c' ^ (1 / 3 : ℝ) * (B_1 + B_2) + 1)
@@ -289,7 +315,7 @@ noncomputable def bootstrapHB_of_YVForW
           ≤ c' * 3 + c' := add_le_add
               (mul_le_mul hc13_le hB3_le (by linarith) hc'_pos.le) hc'_ge1
         _ = 4 * c' := by ring
-    dsimp [L, P, bootstrapParamsForW]
+    dsimp [L, P, bootstrapParamsForWThr]
     rw [Real.rpow_one]
     calc C_fb * (c' ^ (1 / 3 : ℝ) * (B_1 + B_2) + 1)
         ≤ C_fb * (4 * c') := mul_le_mul_of_nonneg_left h1 (by linarith)
@@ -297,7 +323,7 @@ noncomputable def bootstrapHB_of_YVForW
   have hς_arc' := Q.sigma_arc_of_scale hb_pos hc'_ge1 hR_ub_b hς_arc
   have hYV_env : YVEnvBound (psiTilde prob c' g) c' R L :=
     hYVat hc'_YV hR_thr hR_bv hR_ub_b hg hT_lo_0 hT_hi_AThr
-  have hPN := pnodes_lb_and_thetaW hc'_Qenv hR_48 hR_ub hg hT_hi_AThr hT_A2_full.le hT_a1 hB2 hN
+  have hPN := pnodes_lb_and_thetaW_thr hA hR_thr hc'_Qenv hR_48 hR_ub hg hT_hi_AThr hT_A2_full.le hT_a1 hB2 hN
     P rfl rfl rfl rfl rfl rfl
   refine ⟨{
     c := c'
@@ -364,10 +390,11 @@ noncomputable def bootstrapHB_of_YVForW
     hI_line := fun k ℓ hk0 hkR hℓ_mem => by
       have hℓ_nn : 0 ≤ ℓ := (mul_nonneg P.hD1 (Real.rpow_nonneg hc'_pos.le _)).trans hℓ_mem.1
       have hℓ_half : ℓ ≤ 1 / 2 := hℓ_mem.2.trans ((min_le_left _ _).trans quantC1DeltaStar_le)
-      have hlb := line_boundW hc'_Qenv (Q.sigma_nonneg hc'_ge1) hς_half
-        (by linarith) hR_ub hℓ_nn hℓ_half hg hT_lo_m1 hT_hi_AThr hk0 hkR
-      have hCa : 4 * Real.exp (6 / 5) + 3 * Q.C0 ≤ P.C_a := le_max_right _ _
-      have h_ca_term : (4 * Real.exp (6 / 5) + 3 * Q.C0) * ((k : ℝ) + 1) / R ≤
+      have hlb := line_boundW_thr (by linarith [virasoroAThr_gt_two]) hc'_Qenv (Q.sigma_nonneg hc'_ge1) hς_half
+        (by linarith) (by linarith) hR_ub hℓ_nn hℓ_half hg hT_lo_m1 hT_hi_AThr hk0 hkR
+      have hCa : lineCaW A_thr + 3 * Q.C0 ≤ P.C_a :=
+        (by linarith : lineCaW A_thr + 3 * Q.C0 ≤ C_line + 3 * Q.C0).trans (le_max_right _ _)
+      have h_ca_term : (lineCaW A_thr + 3 * Q.C0) * ((k : ℝ) + 1) / R ≤
           P.C_a * ((k : ℝ) + 1) / R := by gcongr
       have h_exp_le : deltaLobe prob Q.D.r_1 c' g ≤ C_gap * c' * Real.exp (-P.κ * c') := by
         have hκ_eq : P.κ = κ_gap := rfl
@@ -386,13 +413,48 @@ noncomputable def bootstrapHB_of_YVForW
   }, le_rfl, rfl, rfl⟩
 
 
+/-- Construct the concrete `BootstrapHBInstance P 0` (together with `(B3)`) at scale
+`0 < b ≤ Q.bV` for any violator `T < Δ(a₁)` at sufficiently large `c'`,
+assuming `YVInputAtForW prob b`. -/
+noncomputable def bootstrapHB_of_YVForW
+    {b C_fb c_YV C_gap κ_gap : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ Q.bV)
+    (hC_fb : 1 ≤ C_fb) (_hc_YV : 10000 ≤ c_YV)
+    (hYVat : YVInputAtForW prob b (psiTilde prob) C_fb c_YV)
+    (hC_gap : 0 < C_gap) (hκ_gap : 0 < κ_gap)
+    {c' T : ℝ} (hc'_Qenv : Q.cQ ≤ c') (hc'_YV : c_YV ≤ c')
+    (h_c12 : (3 * π) ^ (12 : ℕ) ≤ c')
+    (h_b48 : 48 ≤ b ^ 2 * c' ^ (2 / 3 : ℝ))
+    (hς_half : Q.sigma c' ≤ 1 / 2)
+    (hς_arc : Q.sigma c' * (3 * π * √2 * b * c' ^ (1 / 4 : ℝ) + 1) ≤ 1)
+    {g : ℝ → ℝ} (hg : prob.IsWeaklyFeasible (c' / 12) T g)
+    (hdl_bd : deltaLobeAt prob b c' g ≤ C_gap * Real.exp (-κ_gap * c'))
+    (hdl_half : deltaLobeAt prob b c' g < 1 / 2)
+    (hT_A2 : virasoroDeltaChart c' (chartACAt b c' ^ 2) < T)
+    (hT_a1 : T < virasoroDeltaChart c' (airyZero 1))
+    (hB2 : QuantC1B2Holds (psiTilde prob c' g) (virasoroUT c' T)) :
+    let P := bootstrapParamsForW Q b hb_pos C_fb hC_fb C_gap κ_gap hC_gap hκ_gap
+    { I : BootstrapHBInstance P 0 //
+      I.L ≤ P.C_fb * (I.c ^ (1 / 3 : ℝ) * (I.B_1 + I.B_2) + 1) ∧
+      I.c = c' ∧ I.x_tilde = virasoroUT c' T - airyZero 1 } :=
+  bootstrapHB_of_YVForWThr le_rfl (by linarith [virasoroAThr_lt_four]) (lineCaW_virasoroAThr_le) hb_pos hb_le
+    hC_fb _hc_YV hYVat hC_gap hκ_gap hc'_Qenv hc'_YV h_c12 h_b48 hς_half hς_arc hg hdl_bd hdl_half
+    hT_A2 hT_a1 hB2
+
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.lobe_scale_downW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms lobe_scale_downW
 
+/-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.uT_range_of_violatorW_thr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms uT_range_of_violatorW_thr
+
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.uT_range_of_violatorW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms uT_range_of_violatorW
+
+/-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.bootstrapHB_of_YVForWThr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms bootstrapHB_of_YVForWThr
 
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.bootstrapHB_of_YVForW' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
