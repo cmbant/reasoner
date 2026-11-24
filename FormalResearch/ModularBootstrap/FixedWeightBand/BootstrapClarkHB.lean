@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapClarkHBAux
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapHBCore
 
 /-!
 # The `m₀ = 2` Hermite--Biehler `BootstrapHBInstance` at the Clark Nodes (Theorem `FT-L.FW`, Steps 0-4)
@@ -217,39 +218,7 @@ noncomputable def bootstrapHB_of_YVForClark
   obtain ⟨-, -, -, -, hT_hi_AThr⟩ := uT_range_of_violatorClark (R := A_thr) hc'_Qenv
     hz2_lo_AC hz2_a1 hAC4 hT_A2_full.le hT_z2 hx_half hzA hA_AC
   set u_T := virasoroUT c' T
-  have hB_sums := band_sums_leW_thr hA_pos hc'_Qenv hR_thr hR_ub hg hdl_half_full hT_lo_0 hT_hi_AThr
-  have hB1_nn : 0 ≤ bandB1W prob c' R T g :=
-    bandB1W_nonneg_thr hA_pos hc'_Qenv hR_thr (by linarith) hg hT_lo_0 hT_hi_AThr
-  have hB2_nn : 0 ≤ bandB2W prob c' R g :=
-    bandB2W_nonneg_thr hA_pos hc'_Qenv hR_thr (by linarith) hg hT_hi_AThr
-  set B_1 := bandB1W prob c' R T g
-  set B_2 := bandB2W prob c' R g
-  set L := C_fb * (c' ^ (1 / 3 : ℝ) * (B_1 + B_2) + 1)
-  have hL_lb : 1 ≤ L := by
-    have h1 : 1 ≤ c' ^ (1 / 3 : ℝ) * (B_1 + B_2) + 1 := by
-      have : 0 ≤ c' ^ (1 / 3 : ℝ) * (B_1 + B_2) :=
-        mul_nonneg (Real.rpow_nonneg hc'_pos.le _) (by linarith)
-      linarith
-    calc (1 : ℝ) = 1 * 1 := by ring
-      _ ≤ C_fb * (c' ^ (1 / 3 : ℝ) * (B_1 + B_2) + 1) := mul_le_mul hC_fb h1 zero_le_one (by linarith)
-  have hL_ub : L ≤ P.C_L * c' ^ P.γ := by
-    have hc13_le : c' ^ (1 / 3 : ℝ) ≤ c' := by
-      simpa only [Real.rpow_one] using
-        Real.rpow_le_rpow_of_exponent_le hc'_ge1 (by norm_num : (1 / 3 : ℝ) ≤ 1)
-    have h1 : c' ^ (1 / 3 : ℝ) * (B_1 + B_2) + 1 ≤ 4 * c' := by
-      have hB3_le : B_1 + B_2 ≤ 3 := by linarith [hB_sums.1, hB_sums.2]
-      calc c' ^ (1 / 3 : ℝ) * (B_1 + B_2) + 1
-          ≤ c' * 3 + c' := add_le_add
-              (mul_le_mul hc13_le hB3_le (by linarith) hc'_pos.le) hc'_ge1
-        _ = 4 * c' := by ring
-    dsimp [L, P, bootstrapParamsForClark]
-    rw [Real.rpow_one]
-    calc C_fb * (c' ^ (1 / 3 : ℝ) * (B_1 + B_2) + 1)
-        ≤ C_fb * (4 * c') := mul_le_mul_of_nonneg_left h1 (by linarith)
-      _ = 4 * C_fb * c' := by ring
   have hς_arc' := Q.sigma_arc_of_scale hb_pos hc'_ge1 hR_ub_b hς_arc
-  have hYV_env : YVEnvBound (psiTilde prob c' g) c' R L :=
-    hYVat hc'_YV hR_thr hR_bv hR_ub_b hg hT_lo_0 hT_hi_AThr
   have hũ_near' : |ũ - clarkNode α 1| ≤ P.D_1 * c' ^ (-(1 / 3 : ℝ)) := by
     rw [(clarkAngle_spec hu₁).2]; exact hũ_near
   have hPN := pnodes_lb_and_thetaClark (α := α) (δ := δ) (κ := κ) (C₁ := C₁) hc'_Qenv hR_48 hR_ub
@@ -258,106 +227,22 @@ noncomputable def bootstrapHB_of_YVForClark
   have hx_le_min : u_T - clarkNode α 2 ≤ min δ 1 := by
     have := hB2.xtilde_le
     rwa [hB2_node2] at this
-  refine ⟨{
-    c := c'
-    R := R
-    a := √R
-    B_1 := B_1
-    B_2 := B_2
-    L := L
-    x_tilde := u_T - clarkNode α 2
-    r_inf := 0
-    C_err := C_gap
-    hc := by linarith
-    ha_lb := by
-      calc P.b * c' ^ (1 / 3 : ℝ)
-          = √(b ^ 2 * c' ^ (2 / 3 : ℝ)) := by
-            rw [Real.sqrt_mul (sq_nonneg _), Real.sqrt_sq hb_pos.le,
-              show c' ^ (2 / 3 : ℝ) = (c' ^ (1 / 3 : ℝ)) ^ 2 by
-                rw [← Real.rpow_natCast (c' ^ (1 / 3 : ℝ)) 2, ← Real.rpow_mul hc'_pos.le]; norm_num,
-              Real.sqrt_sq (Real.rpow_nonneg hc'_pos.le _)]
-            rfl
-        _ ≤ √R := Real.sqrt_le_sqrt hR_bv
-    ha_sq := Real.sq_sqrt hR_pos.le
-    hR_ub := hR_ub_2b
-    hB1 := hB1_nn
-    hB2 := hB2_nn
-    hL_lb := hL_lb
-    hL_ub := hL_ub
-    hx_pos := by linarith
-    hx_ub := le_min (hx_le_min.trans (min_le_left _ _))
-      (le_min hx_eta (hx_le_min.trans (min_le_right _ _)))
-    hr_inf_nn := le_rfl
-    hr_inf_ub := by have := P.hC0; positivity
-    hC_err_nn := hC_gap.le
-    hC_err_ub := le_max_right _ _
-    B_1k := fun k => bandB1kW prob c' R T g k
-    B_2' := fun _ => B_2
-    P_nodes := fun k ℓ => pNodesClark prob α c' R ℓ g k N
-    I_line := fun k ℓ => ∫ x in (-R)..R, (shiftedFunW prob c' R ℓ g k (x : ℂ)).re
-    Arc_cov := fun k ℓ => μ₀ * virasoroArcCov c' R T L ℓ g k
-    Arc_unc := μ₀ * (Q.arcUncConst * c' ^ (-(3 / 8 : ℝ)))
-    hB1k_nn := fun k _ _ => bandB1kW_nonneg hc'_Qenv hR_pos.le (by linarith) hg hT_A2_full.le
-      hT_hi_R (by linarith [huT_m1]) k
-    hB2'_nn := fun _ _ _ => hB2_nn
-    hB_sum := fun k _ _ => by
-      have := bandB1W_le_B1k hc'_Qenv hR_pos (by linarith) hg hT_lo_0 hT_hi_R k
-      linarith
-    hP_le := fun k ℓ hk0 _ hℓ_mem => by
-      have hℓ_nn : 0 ≤ ℓ := (mul_nonneg P.hD1 (Real.rpow_nonneg hc'_pos.le _)).trans hℓ_mem.1
-      have hℓ_half : ℓ ≤ 1 / 2 :=
-        hℓ_mem.2.trans ((min_le_left _ _).trans (hδ_half : P.δ_star ≤ 1 / 2))
-      exact hArcAt hc'_Qenv h_c12 hς_arc' hR_ub (zero_le_one.trans hL_lb) hℓ_nn hℓ_half hg hYV_env hk0
-    hArc_cov := fun k ℓ hk0 _ hℓ_mem => by
-      have hℓ_pos : 0 < ℓ :=
-        lt_of_lt_of_le (mul_pos hD_1 (Real.rpow_pos_of_pos hc'_pos _)) hℓ_mem.1
-      have hle := virasoroArcCov_le (c' := c') (T := T)
-        ((by norm_num : (10 : ℝ) ≤ 48).trans hR_48) (zero_le_one.trans hL_lb) hℓ_pos g hk0
-      have hCa : μ₀ * virasoroArcCovConst ≤ P.C_a := le_max_left _ _
-      calc μ₀ * virasoroArcCov c' R T L ℓ g k
-          ≤ μ₀ * (virasoroArcCovConst * L * (√R)⁻¹ *
-              ((2 : ℝ) ^ (k + 1) * Real.Gamma ((k : ℝ) + 1 / 2) *
-                (π / (4 * ℓ * √R)) ^ ((k : ℝ) + 1 / 2))) :=
-            mul_le_mul_of_nonneg_left hle hμ₀.le
-        _ = (μ₀ * virasoroArcCovConst) * L * (√R)⁻¹ *
-              ((2 : ℝ) ^ (k + 1) * Real.Gamma ((k : ℝ) + 1 / 2) *
-                (π / (4 * ℓ * √R)) ^ ((k : ℝ) + 1 / 2)) := by ring
-        _ ≤ P.C_a * L * (√R)⁻¹ *
-              ((2 : ℝ) ^ (k + 1) * Real.Gamma ((k : ℝ) + 1 / 2) *
-                (π / (4 * ℓ * √R)) ^ ((k : ℝ) + 1 / 2)) := by
-            have hL0 : 0 ≤ L := zero_le_one.trans hL_lb
-            have hGam : 0 < Real.Gamma ((k : ℝ) + 1 / 2) := Real.Gamma_pos_of_pos (by positivity)
-            have hX : 0 ≤ (2 : ℝ) ^ (k + 1) * Real.Gamma ((k : ℝ) + 1 / 2) *
-                (π / (4 * ℓ * √R)) ^ ((k : ℝ) + 1 / 2) := by positivity
-            have hsq : 0 ≤ (√R)⁻¹ := by positivity
-            gcongr
-    hArc_unc := le_of_eq (by show μ₀ * (Q.arcUncConst * c' ^ (-(3 / 8 : ℝ))) =
-        μ₀ * Q.arcUncConst * c' ^ (-(3 / 8 : ℝ)); ring)
-    hI_line := fun k ℓ hk0 hkR hℓ_mem => by
-      have hℓ_nn : 0 ≤ ℓ := (mul_nonneg P.hD1 (Real.rpow_nonneg hc'_pos.le _)).trans hℓ_mem.1
-      have hℓ_half : ℓ ≤ 1 / 2 :=
-        hℓ_mem.2.trans ((min_le_left _ _).trans (hδ_half : P.δ_star ≤ 1 / 2))
-      have hlb := line_boundW_thr (A_thr := A_thr) (by linarith) hc'_Qenv (Q.sigma_nonneg hc'_ge1) hς_half
-        (by linarith) (by linarith) hR_ub hℓ_nn hℓ_half hg hT_lo_m1 hT_hi_AThr hk0 hkR
-      have hCa : lineCaW A_thr + 3 * Q.C0 ≤ P.C_a :=
-        (by linarith : lineCaW A_thr + 3 * Q.C0 ≤ C_line + 3 * Q.C0).trans (le_max_right _ _)
-      have h_ca_term : (lineCaW A_thr + 3 * Q.C0) * ((k : ℝ) + 1) / R ≤
-          P.C_a * ((k : ℝ) + 1) / R := by gcongr
-      have h_exp_le : deltaLobe prob Q.D.r_1 c' g ≤ C_gap * c' * Real.exp (-P.κ * c') := by
-        have hκ_eq : P.κ = κ_gap := rfl
-        rw [hκ_eq]
-        calc deltaLobe prob Q.D.r_1 c' g ≤ C_gap * Real.exp (-κ_gap * c') := hdl_bd_full
-          _ = 1 * (C_gap * Real.exp (-κ_gap * c')) := (one_mul _).symm
-          _ ≤ c' * (C_gap * Real.exp (-κ_gap * c')) :=
-              mul_le_mul_of_nonneg_right hc'_ge1 (mul_nonneg hC_gap.le (Real.exp_pos _).le)
-          _ = C_gap * c' * Real.exp (-κ_gap * c') := by ring
-      linarith
-    hW_top := hW_nn
-    hP_nodes_lb_hb := fun k ℓ hk0 hkR hℓ_mem => by
-      simpa using hPN.1 k ℓ hk0 hkR hℓ_mem
-    P_theta_bound := fun hk0_R hℓ_mem => by
-      simpa using hPN.2 hk0_R hℓ_mem
-  }, le_rfl, rfl, rfl⟩
+  obtain ⟨I, hIL, hIc, hIx⟩ := bootstrapHB_core (Q := Q) P (W_top := W_top) (A_thr := A_thr) (b := b)
+    (C_fb := C_fb) (c_YV := c_YV) (C_gap := C_gap) (κ_gap := κ_gap) (C_line := C_line) (μ₀ := μ₀)
+    (T := T) (x_tilde := u_T - clarkNode α 2)
+    rfl rfl rfl rfl (le_max_right _ _) (le_max_right _ _) (le_max_left _ _) rfl hμ₀.le hD_1
+    (hδ_half : P.δ_star ≤ 1 / 2) rfl hC_fb hC_gap (by linarith) (by linarith) hC_line hb_pos hYVat hc'_Qenv
+    hc'_YV hς_half hg hdl_half_full hdl_bd_full hT_A2_full hR_48 hR_bv hR_ub_2b hR_ub_b hR_ub hR_thr huT_m1
+    hT_lo_m1 hT_lo_0 hT_hi_AThr hT_hi_R (by linarith)
+    (le_min (hx_le_min.trans (min_le_left _ _))
+      (le_min hx_eta (hx_le_min.trans (min_le_right _ _))))
+    hW_nn
+    (fun k ℓ => pNodesClark prob α c' R ℓ g k N)
+    (fun hk0 hℓ_nn hℓ_half hYV_env hL0 =>
+      hArcAt hc'_Qenv h_c12 hς_arc' hR_ub hL0 hℓ_nn hℓ_half hg hYV_env hk0)
+    (fun k ℓ hk0 hkR hℓ_mem => by simpa using hPN.1 k ℓ hk0 hkR hℓ_mem)
+    (fun hk0_R hℓ_mem => by simpa using hPN.2 hk0_R hℓ_mem)
+  exact ⟨I, le_of_eq hIL, hIc, hIx⟩
 
 /-- info: 'FormalResearch.ModularBootstrap.FixedWeightBand.clarkArcData_exists' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
