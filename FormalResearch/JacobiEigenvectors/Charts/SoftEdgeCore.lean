@@ -472,68 +472,76 @@ theorem exists_bonds {U V : ℝ → ℝ → ℝ} (C : SoftEdgeCore F P m q U V L
 /-- **Every soft-edge chart field is derived from the core** (model pair `pcU, pcV`, standing assumptions `FamilyInputs`): a chart whose
 core is `C` with `N0` raised. -/
 theorem exists_chart (hF : C.FamilyInputs) :
-    ∃ N1 : ℕ, ∃ Ch : SoftEdgeChart F P m q pcU pcV Lm, Ch.toSoftEdgeCore = C.raiseN0 N1 := by
+    ∃ N1 : ℕ, ∀ N2 : ℕ, N1 ≤ N2 → ∃ Ch : SoftEdgeChart F P m q pcU pcV Lm, Ch.toSoftEdgeCore = C.raiseN0 N2 := by
   obtain ⟨Na, c3, hc3, hseed, hcoll⟩ := C.exists_weber
   obtain ⟨Nb, CM, hCM, hratM⟩ := C.exists_ratioM
   obtain ⟨Nc, clb, C2, cgr, Cgr, hclb, hC2, hcgr, hCgr, hlb, hr2, hg3⟩ := C.exists_pc
   obtain ⟨Nd, CA, nu1, hCA, hnu, hbA, hgg⟩ := C.exists_bonds hF
-  set N1 := max (max Na Nb) (max Nc Nd)
-  have hle : ∀ {N : ℕ} {Nx : ℕ}, Nx ≤ N1 → max C.N0 N1 ≤ N → max C.N0 Nx ≤ N :=
+  refine ⟨max (max Na Nb) (max Nc Nd), fun N2 hN2 => ?_⟩
+  have hle : ∀ {N : ℕ} {Nx : ℕ}, Nx ≤ N2 → max C.N0 N2 ≤ N → max C.N0 Nx ≤ N :=
     fun hx hN => (max_le_max le_rfl hx).trans hN
-  have ha : Na ≤ N1 := (le_max_left _ _).trans (le_max_left _ _)
-  have hb : Nb ≤ N1 := (le_max_right _ _).trans (le_max_left _ _)
-  have hc : Nc ≤ N1 := (le_max_left _ _).trans (le_max_right _ _)
-  have hd : Nd ≤ N1 := (le_max_right _ _).trans (le_max_right _ _)
-  have hN0 : ∀ {N : ℕ}, max C.N0 N1 ≤ N → C.N0 ≤ N := fun hN => (le_max_left _ _).trans hN
+  have ha : Na ≤ N2 := ((le_max_left _ _).trans (le_max_left _ _)).trans hN2
+  have hb : Nb ≤ N2 := ((le_max_right _ _).trans (le_max_left _ _)).trans hN2
+  have hc : Nc ≤ N2 := ((le_max_left _ _).trans (le_max_right _ _)).trans hN2
+  have hd : Nd ≤ N2 := ((le_max_right _ _).trans (le_max_right _ _)).trans hN2
+  have hN0 : ∀ {N : ℕ}, max C.N0 N2 ≤ N → C.N0 ≤ N := fun hN => (le_max_left _ _).trans hN
   -- `W M >= 0` on the Weber rows (engine positivity of `chainW`)
   have hWM : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ C.δ0 → ∀ N, C.N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (C.chainW μ X N).NR,
       0 ≤ (C.chainW μ X N).W k * (C.chainW μ X N).M k := fun μ hμ X hX N hN k hk =>
     mul_nonneg ((C.validW μ hμ X hX N hN).W_pos k hk).le ((C.validW μ hμ X hX N hN).M_pos k hk).le
-  refine ⟨N1, { toSoftEdgeCore := C.raiseN0 N1
-                CA := CA, nu1 := nu1, c3W := c3, C2 := C2, CM := CM
-                consts_pos3 := ⟨hCA, hnu, hc3, hC2, hCM⟩
-                bondA_le := fun μ hμ N hN => hbA μ hμ N (hle hd hN)
-                grow_gap := fun μ hμ X hX N hN => hgg μ hμ X hX N (hle hd hN)
-                seed_posW := fun μ hμ X hX N hN => hseed μ hμ X hX N (hle ha hN)
-                collar_lbW := fun μ hμ X hX N hN k hk _ => hcoll μ hμ X hX N (hle ha hN) k hk
-                ratio2 := fun μ hμ X hX N hN => hr2 μ hμ X hX N (hle hc hN)
-                ratioM := fun μ hμ X hX N hN => hratM μ hμ X hX N (hle hb hN)
-                clb := min c3 clb
-                clb_pos := lt_min hc3 hclb
-                lb_weber := fun μ hμ X hX N hN k hk => by
-                  have h1 := hcoll μ hμ X hX N (hle ha hN) k hk
-                  have h2 := hWM μ hμ X hX N (hN0 hN) k hk
-                  calc min c3 clb * ((C.chainW μ X N).W k * (C.chainW μ X N).M k)
-                      ≤ c3 * ((C.chainW μ X N).W k * (C.chainW μ X N).M k) :=
-                        mul_le_mul_of_nonneg_right (min_le_left _ _) h2
-                    _ ≤ _ := by rw [← mul_assoc]; exact h1
-                lb_pc := fun μ hμ X hX N hN ha' k hk hZ => by
-                  have h1 := hlb μ hμ X hX N (hle hc hN) ha' k hk hZ
-                  have hv := C.valid μ hμ X hX N (hN0 hN)
-                  obtain ⟨hj1, hj12, hj2N⟩ := C.jj_order hμ hX (hN0 hN)
-                  change k ∈ Finset.Icc ((C.chain μ X N).jj 1 + 1) ((C.chain μ X N).jj 2) at hk
-                  have hk' : k ∈ Finset.Icc (0 : ℤ) (C.chain μ X N).NR := by
-                    simp only [Finset.mem_Icc] at hk ⊢; omega
-                  have h2 : 0 ≤ (C.chain μ X N).W k * (C.chain μ X N).M k :=
-                    mul_nonneg (hv.W_pos k hk').le (hv.M_pos k hk').le
-                  exact (mul_le_mul_of_nonneg_right (min_le_right _ _) h2).trans h1
-                cgr := cgr, Cgr := Cgr
-                consts_pos6 := ⟨hcgr, hCgr⟩
-                grow3 := fun μ hμ X hX N hN => hg3 μ hμ X hX N (hle hc hN) }, rfl⟩
+  refine ⟨{ toSoftEdgeCore := C.raiseN0 N2
+            CA := CA, nu1 := nu1, c3W := c3, C2 := C2, CM := CM
+            consts_pos3 := ⟨hCA, hnu, hc3, hC2, hCM⟩
+            bondA_le := fun μ hμ N hN => hbA μ hμ N (hle hd hN)
+            grow_gap := fun μ hμ X hX N hN => hgg μ hμ X hX N (hle hd hN)
+            seed_posW := fun μ hμ X hX N hN => hseed μ hμ X hX N (hle ha hN)
+            collar_lbW := fun μ hμ X hX N hN k hk _ => hcoll μ hμ X hX N (hle ha hN) k hk
+            ratio2 := fun μ hμ X hX N hN => hr2 μ hμ X hX N (hle hc hN)
+            ratioM := fun μ hμ X hX N hN => hratM μ hμ X hX N (hle hb hN)
+            clb := min c3 clb
+            clb_pos := lt_min hc3 hclb
+            lb_weber := fun μ hμ X hX N hN k hk => by
+              have h1 := hcoll μ hμ X hX N (hle ha hN) k hk
+              have h2 := hWM μ hμ X hX N (hN0 hN) k hk
+              calc min c3 clb * ((C.chainW μ X N).W k * (C.chainW μ X N).M k)
+                  ≤ c3 * ((C.chainW μ X N).W k * (C.chainW μ X N).M k) :=
+                    mul_le_mul_of_nonneg_right (min_le_left _ _) h2
+                _ ≤ _ := by rw [← mul_assoc]; exact h1
+            lb_pc := fun μ hμ X hX N hN ha' k hk hZ => by
+              have h1 := hlb μ hμ X hX N (hle hc hN) ha' k hk hZ
+              have hv := C.valid μ hμ X hX N (hN0 hN)
+              obtain ⟨hj1, hj12, hj2N⟩ := C.jj_order hμ hX (hN0 hN)
+              change k ∈ Finset.Icc ((C.chain μ X N).jj 1 + 1) ((C.chain μ X N).jj 2) at hk
+              have hk' : k ∈ Finset.Icc (0 : ℤ) (C.chain μ X N).NR := by
+                simp only [Finset.mem_Icc] at hk ⊢; omega
+              have h2 : 0 ≤ (C.chain μ X N).W k * (C.chain μ X N).M k :=
+                mul_nonneg (hv.W_pos k hk').le (hv.M_pos k hk').le
+              exact (mul_le_mul_of_nonneg_right (min_le_right _ _) h2).trans h1
+            cgr := cgr, Cgr := Cgr
+            consts_pos6 := ⟨hcgr, hCgr⟩
+            grow3 := fun μ hμ X hX N hN => hg3 μ hμ X hX N (hle hc hN) }, rfl⟩
 
 end SoftEdgeCore
 
-/-- **The soft-edge chart of a core** (model pair `pcU, pcV`), given the standing assumptions `FamilyInputs`: its core is the given core
-with `N0` raised (`SoftEdgeChart.ofCore_core`). -/
+/-- The threshold from which the soft-edge chart of a core exists: for every `N2` above it, `SoftEdgeChart.ofCore C hF N2` is the chart
+whose core is `C` with `N0` raised to `max C.N0 N2`. -/
+def SoftEdgeCore.chartN0 {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {Lm : ℝ → ℝ}
+    (C : SoftEdgeCore F P m q pcU pcV Lm) (hF : C.FamilyInputs) : ℕ :=
+  Classical.choose (C.exists_chart hF)
+
+/-- **The soft-edge chart of a core** (model pair `pcU, pcV`), given the standing assumptions `FamilyInputs`, at the threshold `N2 >= chartN0`:
+its core is the given core with `N0` raised to `max N0 N2` (`SoftEdgeChart.ofCore_core`).  The explicit `N2` lets a mirror pair of charts
+be built with the same `N0`. -/
 def SoftEdgeChart.ofCore {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {Lm : ℝ → ℝ}
-    (C : SoftEdgeCore F P m q pcU pcV Lm) (hF : C.FamilyInputs) : SoftEdgeChart F P m q pcU pcV Lm :=
-  Classical.choose (Classical.choose_spec (C.exists_chart hF))
+    (C : SoftEdgeCore F P m q pcU pcV Lm) (hF : C.FamilyInputs) (N2 : ℕ) (hN2 : C.chartN0 hF ≤ N2) :
+    SoftEdgeChart F P m q pcU pcV Lm :=
+  Classical.choose (Classical.choose_spec (C.exists_chart hF) N2 hN2)
 
 /-- The chart of a core has the core's coordinates, ladders and corrector rows; only `N0` is raised. -/
 lemma SoftEdgeChart.ofCore_core {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ}
-    {Lm : ℝ → ℝ} (C : SoftEdgeCore F P m q pcU pcV Lm) (hF : C.FamilyInputs) :
-    ∃ N1 : ℕ, (SoftEdgeChart.ofCore C hF).toSoftEdgeCore = C.raiseN0 N1 :=
-  ⟨_, Classical.choose_spec (Classical.choose_spec (C.exists_chart hF))⟩
+    {Lm : ℝ → ℝ} (C : SoftEdgeCore F P m q pcU pcV Lm) (hF : C.FamilyInputs) (N2 : ℕ) (hN2 : C.chartN0 hF ≤ N2) :
+    (SoftEdgeChart.ofCore C hF N2 hN2).toSoftEdgeCore = C.raiseN0 N2 :=
+  Classical.choose_spec (Classical.choose_spec (C.exists_chart hF) N2 hN2)
 
 /-- info: 'FormalResearch.JacobiEigenvectors.Charts.SoftEdgeCore.exists_chart' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

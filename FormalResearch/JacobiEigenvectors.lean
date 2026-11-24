@@ -118,6 +118,7 @@ public import FormalResearch.JacobiEigenvectors.TheoremA.ThmAAssemblySoft
 public import FormalResearch.JacobiEigenvectors.TheoremA.SoftWindowProof
 public import FormalResearch.JacobiEigenvectors.Assembly.ChartRestrict
 public import FormalResearch.JacobiEigenvectors.Assembly.ThmA
+public import FormalResearch.JacobiEigenvectors.Assembly.HeadlinesOfCore
 public import FormalResearch.JacobiEigenvectors.Assembly.SoftLabels
 public import FormalResearch.JacobiEigenvectors.Assembly.WindowCoverProof
 public import FormalResearch.JacobiEigenvectors.Assembly.LabelsAbstract
@@ -180,6 +181,7 @@ public import FormalResearch.JacobiEigenvectors.Charts.PCVFarGrowth
 public import FormalResearch.JacobiEigenvectors.Charts.SoftBounds
 public import FormalResearch.JacobiEigenvectors.Charts.BulkWeberCore
 public import FormalResearch.JacobiEigenvectors.Charts.SoftEdgeCore
+public import FormalResearch.JacobiEigenvectors.Charts.ChartCores
 public import FormalResearch.JacobiEigenvectors.Charts.LocalGeometry
 
 /-!
