@@ -60,83 +60,6 @@ lemma clarkProfile_norm_integral (α : ℝ) {c : ℝ} (hc : 0 ≤ c) :
   refine integral_congr_ae (Eventually.of_forall fun s => ?_)
   simp only [clarkProfile, norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hc]
 
-/-- `‖Ψ‖₁ = 1` from `∫ Re Ψ = 0`, `‖Ψ‖₁ ≤ 1` and half-mass `1/2 ≤ ∫ Ψ₋`. -/
-lemma norm_integral_eq_one {Ψ : ℝ → ℂ}
-    (hΨ_int : Integrable Ψ) (hΨ_real : ∀ s : ℝ, (Ψ s).im = 0)
-    (hΨ_zero : (∫ s : ℝ, (Ψ s).re) = 0) (hle : ∫ s : ℝ, ‖Ψ s‖ ≤ 1)
-    (hneg : (1 / 2 : ℝ) ≤ ∫ s : ℝ, max 0 (-(Ψ s).re)) :
-    ∫ s : ℝ, ‖Ψ s‖ = 1 := by
-  have hre_int : Integrable (fun s : ℝ => (Ψ s).re) := hΨ_int.re
-  let Ψp : ℝ → ℝ := fun s => max 0 ((Ψ s).re)
-  let Ψm : ℝ → ℝ := fun s => max 0 (-(Ψ s).re)
-  have hp_int : Integrable Ψp := by
-    refine Integrable.mono' hΨ_int.norm
-      (((continuous_const.max continuous_id).comp_aestronglyMeasurable hre_int.aestronglyMeasurable)) ?_
-    refine Eventually.of_forall fun s => ?_
-    rw [Real.norm_of_nonneg (le_max_left _ _)]
-    exact max_le (norm_nonneg _) (Complex.re_le_norm _)
-  have hm_int : Integrable Ψm := by
-    refine Integrable.mono' hΨ_int.norm
-      (((continuous_const.max continuous_id).comp_aestronglyMeasurable hre_int.neg.aestronglyMeasurable)) ?_
-    refine Eventually.of_forall fun s => ?_
-    rw [Real.norm_of_nonneg (le_max_left _ _)]
-    exact max_le (norm_nonneg _) ((neg_le_abs _).trans (Complex.abs_re_le_norm (Ψ s)))
-  have hsplit_re : (fun s : ℝ => (Ψ s).re) = fun s => Ψp s - Ψm s := by
-    ext s; dsimp [Ψp, Ψm]
-    rcases le_total 0 (Ψ s).re with h | h
-    · simp [h]
-    · simp [h]
-  have hsplit_norm : (fun s : ℝ => ‖Ψ s‖) = fun s => Ψp s + Ψm s := by
-    ext s; dsimp [Ψp, Ψm]
-    have hΨc : Ψ s = ((Ψ s).re : ℂ) := Complex.ext (by simp) (by simp [hΨ_real s])
-    have hnorm : ‖Ψ s‖ = |(Ψ s).re| := by
-      conv_lhs => rw [hΨc]
-      rw [Complex.norm_real, Real.norm_eq_abs]
-    rw [hnorm]
-    rcases le_total 0 (Ψ s).re with h | h
-    · rw [abs_of_nonneg h, max_eq_right h, max_eq_left (by linarith), add_zero]
-    · rw [abs_of_nonpos h, max_eq_left h, max_eq_right (by linarith), zero_add]
-  have hp_eq_hm : ∫ s : ℝ, Ψp s = ∫ s : ℝ, Ψm s := by
-    have h0 : ∫ s : ℝ, (Ψp s - Ψm s) = 0 := by rw [← hsplit_re]; exact hΨ_zero
-    rw [integral_sub hp_int hm_int] at h0; linarith
-  have hnorm_two : ∫ s : ℝ, ‖Ψ s‖ = 2 * ∫ s : ℝ, Ψm s := by
-    rw [hsplit_norm, integral_add hp_int hm_int, hp_eq_hm]; ring
-  linarith
-
-/-- `excess → A` forces `s₁ → A / ((2/3) ξ_*)` (the general form of `att_tendsto_s1`). -/
-theorem tendsto_s₁_of_tendsto_excess {ι : Type*} {p : Filter ι}
-    (F : BlowupFamilyPackage ι p) {A : ℝ}
-    (hA : Tendsto (fun n => (F.t₁ n - xiBar * F.c' n) / (F.c' n) ^ (1 / 3 : ℝ)) p (nhds A)) :
-    Tendsto F.s₁ p (nhds (A / ((2 / 3 : ℝ) * xiStar))) := by
-  obtain ⟨C₀, hC₀⟩ := F.theorem_A_lower
-  let B₀ : ℝ := max C₀ ((A + 1) / ((2 / 3 : ℝ) * xiStar))
-  have hs₁_bdd : ∀ᶠ n in p, |F.s₁ n| ≤ B₀ := by
-    have hq_ub := hA.eventually (eventually_le_nhds (by linarith : A < A + 1))
-    filter_upwards [hC₀, hq_ub, F.hc'_tendsto.eventually (eventually_ge_atTop (1 : ℝ)),
-      F.scaled_excess_eq] with n hnC₀ hnq hc'1 hex
-    have hnn : 0 ≤ (1 / 3 : ℝ) * (F.c' n) ^ (-(2 / 3 : ℝ)) * (F.s₁ n) ^ 2 := by
-      have : 0 ≤ (F.c' n) ^ (-(2 / 3 : ℝ)) := Real.rpow_nonneg (by linarith) _; positivity
-    have hub : F.s₁ n ≤ (A + 1) / ((2 / 3 : ℝ) * xiStar) := by
-      rw [le_div_iff₀' two_thirds_xiStar_pos]; linarith
-    exact abs_le.mpr ⟨by linarith [le_max_left C₀ ((A + 1) / ((2 / 3 : ℝ) * xiStar))],
-      hub.trans (le_max_right _ _)⟩
-  have hc'neg : Tendsto (fun n => (F.c' n) ^ (-(2 / 3 : ℝ))) p (nhds 0) :=
-    (tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 2 / 3)).comp F.hc'_tendsto
-  have hquad : Tendsto (fun n => (1 / 3 : ℝ) * (F.c' n) ^ (-(2 / 3 : ℝ)) * (F.s₁ n) ^ 2) p (nhds 0) := by
-    refine squeeze_zero_norm' ?_ (by simpa using (hc'neg.const_mul ((1 / 3 : ℝ) * B₀ ^ 2)))
-    filter_upwards [hs₁_bdd, F.hc'_tendsto.eventually (eventually_ge_atTop (1 : ℝ))] with n hn hc'1
-    have hpow_nn : 0 ≤ (F.c' n) ^ (-(2 / 3 : ℝ)) := Real.rpow_nonneg (by linarith) _
-    have hsq : (F.s₁ n) ^ 2 ≤ B₀ ^ 2 := sq_le_sq.mpr (by rwa [abs_of_nonneg (le_trans (abs_nonneg _) hn)])
-    rw [Real.norm_of_nonneg (by positivity)]; nlinarith
-  have hlin : Tendsto (fun n => (2 / 3 : ℝ) * xiStar * F.s₁ n) p (nhds A) := by
-    have hdiff : Tendsto (fun n => (F.t₁ n - xiBar * F.c' n) / (F.c' n) ^ (1 / 3 : ℝ) -
-        (1 / 3 : ℝ) * (F.c' n) ^ (-(2 / 3 : ℝ)) * (F.s₁ n) ^ 2) p (nhds A) := by
-      simpa using hA.sub hquad
-    refine hdiff.congr' (F.scaled_excess_eq.mono fun n hex => by linarith)
-  have hdiv := hlin.const_mul (((2 / 3 : ℝ) * xiStar)⁻¹)
-  rw [inv_mul_eq_div] at hdiv
-  exact hdiv.congr fun n => by field_simp [xiStar_pos.ne']
-
 lemma cStar_mul_abs_of_neg {z : ℝ} (hz : z < 0) :
     cStar * |z| = (2 / 3 : ℝ) * xiStar * (-z / betaTip) := by
   unfold cStar
@@ -189,7 +112,7 @@ theorem pinned_limit {ι : Type*} {p : Filter ι} (F : BlowupFamilyPackage ι p)
     exact clarkProfile_integral_re hα c
   have hγ0 : γLim = 0 := by linarith
   refine ⟨c, hc, hΨc', hγ0, ?_⟩
-  exact norm_integral_eq_one (Ψ := fun s : ℝ => Ψ (s : ℂ)) hΨi hΨreal hre0 hΨnorm hΨneg
+  exact norm_integral_eq_one (Φ := fun s : ℝ => Ψ (s : ℂ)) hΨi hΨreal hre0 hΨnorm hΨneg
 
 /-- **Two-level lower bound, eventual form** (`virasoro_two_level.tex`, Theorem 2.1): if
 `σ n → -u₁/β` (`u₁ > a₁`) and `Φ_n(σ n) ≥ 0` eventually, then for every `ε > 0`, eventually
@@ -202,31 +125,13 @@ theorem twoLevel_eventually {ι : Type*} {p : Filter ι} [p.NeBot] [p.IsCountabl
       cStar * |clarkNode (clarkAngle u₁) 2| - ε ≤
         (F.t₁ n - xiBar * F.c' n) / (F.c' n) ^ (1 / 3 : ℝ) := by
   intro ε hε
-  by_contra hnot
-  rw [Filter.not_eventually] at hnot
-  simp only [not_le] at hnot
-  have hev : ∀ᶠ n in p, (1 ≤ F.c' n ∧
-      (F.t₁ n - xiBar * F.c' n) / (F.c' n) ^ (1 / 3 : ℝ) =
-        (2 / 3 : ℝ) * xiStar * F.s₁ n + (1 / 3 : ℝ) * (F.c' n) ^ (-(2 / 3 : ℝ)) * (F.s₁ n) ^ 2) ∧
-      0 ≤ (F.Φ n (σ n : ℂ)).re :=
-    ((F.hc'_tendsto.eventually (eventually_ge_atTop (1 : ℝ))).and F.scaled_excess_eq).and hpin
-  obtain ⟨ns, hns, hprops⟩ := exists_seq_forall_of_frequently (hnot.and_eventually hev)
-  have hB : ∀ k : ℕ, F.s₁ (ns k) ≤
-      (cStar * |clarkNode (clarkAngle u₁) 2| - ε) / ((2 / 3 : ℝ) * xiStar) := fun k => by
-    obtain ⟨hlt, ⟨hc'1, hex⟩, -⟩ := hprops k
-    have hnn : 0 ≤ (1 / 3 : ℝ) * (F.c' (ns k)) ^ (-(2 / 3 : ℝ)) * (F.s₁ (ns k)) ^ 2 := by
-      have : 0 ≤ (F.c' (ns k)) ^ (-(2 / 3 : ℝ)) := Real.rpow_nonneg (by linarith) _
-      positivity
-    rw [hex] at hlt; rw [le_div_iff₀' two_thirds_xiStar_pos]; linarith
-  obtain ⟨ms, s₁Star, Ψ, γLim, hms, hs₁lim, -, -, -, -, hle, -⟩ :=
-    pinned_limit F hu₁ hσ ns hns (fun k => (hprops k).2.2) ⟨_, hB⟩
-  have hlim_le := le_of_tendsto hs₁lim (Eventually.of_forall fun k => hB (ms k))
   have hz := clarkNode_two_neg hu₁
-  have h1 : -clarkNode (clarkAngle u₁) 2 / betaTip ≤ s₁Star := by
-    rw [div_le_iff₀ betaTip_pos]; linarith
-  have h2 := mul_le_mul_of_nonneg_left (h1.trans hlim_le) two_thirds_xiStar_pos.le
-  rw [mul_div_cancel₀ _ two_thirds_xiStar_pos.ne', ← cStar_mul_abs_of_neg hz] at h2
-  linarith
+  have h := eventually_excess_ge_of_limit F (fun n => 0 ≤ (F.Φ n (σ n : ℂ)).re) hpin
+    (-clarkNode (clarkAngle u₁) 2 / betaTip) (fun ns hns hpinns hB => by
+      obtain ⟨ms, s₁Star, Ψ, γLim, hms, hs₁lim, -, -, -, -, hle, -⟩ :=
+        pinned_limit F hu₁ hσ ns hns hpinns hB
+      exact ⟨ms, s₁Star, hms, hs₁lim, by rw [div_le_iff₀ betaTip_pos]; linarith⟩) ε hε
+  rwa [← cStar_mul_abs_of_neg hz] at h
 
 /-- **Two-level lower bound, `EReal` `liminf` form** (`virasoro_two_level.tex`, Theorem 2.1). -/
 theorem twoLevel_liminf {ι : Type*} {p : Filter ι} [p.NeBot] [p.IsCountablyGenerated]
@@ -255,9 +160,5 @@ theorem twoLevel_liminf {ι : Type*} {p : Filter ι} [p.NeBot] [p.IsCountablyGen
 /-- info: 'FormalResearch.ModularBootstrap.TwoLevel.twoLevel_liminf' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms twoLevel_liminf
-
-/-- info: 'FormalResearch.ModularBootstrap.TwoLevel.tendsto_s₁_of_tendsto_excess' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms tendsto_s₁_of_tendsto_excess
 
 end FormalResearch.ModularBootstrap.TwoLevel

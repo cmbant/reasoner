@@ -22,38 +22,6 @@ namespace FormalResearch.ModularBootstrap.TwoLevel
 
 open FormalResearch.Special FormalResearch.SignUncertainty FormalResearch.Analysis
 
-/-- `L¹` convergence of the blow-ups to a unit-norm locally uniform limit (Scheffé). -/
-theorem l1_of_tendstoLocallyUniformlyOn {ι : Type*} {p : Filter ι} [p.NeBot]
-    [p.IsCountablyGenerated] (F : RigidityFamilyPackage ι p) {Ψ : ℂ → ℂ}
-    (hΨi : Integrable (fun s : ℝ => Ψ (s : ℂ))) (hΨn : ∫ s : ℝ, ‖Ψ (s : ℂ)‖ = 1)
-    (hΦ : TendstoLocallyUniformlyOn F.Φ Ψ p univ) :
-    Tendsto (fun n => ∫ s : ℝ, ‖phiExt F n s - Ψ (s : ℂ)‖) p (nhds 0) ∧
-    Tendsto (fun n => ∫ s in Ioi (-xiStar * (F.c' n) ^ (2 / 3 : ℝ)),
-      ‖F.Φ n (s : ℂ) - Ψ (s : ℂ)‖) p (nhds 0) := by
-  have hleft_tendsto : Tendsto (fun n => -xiStar * (F.c' n) ^ (2 / 3 : ℝ)) p atBot := by
-    have hpow := (tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 2 / 3)).comp F.hc'_tendsto
-    simpa [neg_mul] using tendsto_neg_atBot_iff.mpr (hpow.const_mul_atTop xiStar_pos)
-  have hpt : ∀ s : ℝ, Tendsto (fun n => phiExt F n s) p (nhds (Ψ (s : ℂ))) := fun s =>
-    (hΦ.tendsto_at (mem_univ _)).congr'
-      ((hleft_tendsto.eventually (eventually_lt_atBot s)).mono fun n hn => (indicator_of_mem hn _).symm)
-  have hext_int : ∀ᶠ n in p, Integrable (phiExt F n) :=
-    F.domain_integrable.mono fun n hn => (integrable_indicator_iff measurableSet_Ioi).mpr hn
-  have hext_norm : Tendsto (fun n => ∫ s : ℝ, ‖phiExt F n s‖) p (nhds (∫ s : ℝ, ‖Ψ (s : ℂ)‖)) := by
-    rw [hΨn]
-    exact F.domain_norm_integral.congr fun n => by
-      dsimp [phiExt]; simp_rw [norm_indicator_eq_indicator_norm]; exact (integral_indicator measurableSet_Ioi).symm
-  have hL1 := tendsto_integral_norm_sub_of_tendsto_ae hext_int hΨi
-    (Eventually.of_forall hpt) hext_norm
-  refine ⟨hL1, ?_⟩
-  refine squeeze_zero' (Eventually.of_forall fun n =>
-      setIntegral_nonneg measurableSet_Ioi fun _ _ => norm_nonneg _) ?_ hL1
-  filter_upwards [hext_int] with n hn
-  have hcongr : ∫ s in Ioi (-xiStar * (F.c' n) ^ (2 / 3 : ℝ)), ‖F.Φ n (s : ℂ) - Ψ (s : ℂ)‖ =
-      ∫ s in Ioi (-xiStar * (F.c' n) ^ (2 / 3 : ℝ)), ‖phiExt F n s - Ψ (s : ℂ)‖ :=
-    setIntegral_congr_fun measurableSet_Ioi fun s hs => by rw [phiExt, indicator_of_mem hs]
-  rw [hcongr]
-  exact setIntegral_le_integral (hn.sub hΨi).norm (Eventually.of_forall fun _ => norm_nonneg _)
-
 /-- **Two-level equality case** (`virasoro_two_level.tex`, Theorem 2.1): if the pinned family has
 `(t₁ - ξ̄ c')/c'^{1/3} → c_* |z₂(α(u₁))|`, then `s₁ → -z₂/β`, `γ → 0` and
 `Φ_n → c · g_α(-β ·)` locally uniformly and in `L¹`, with `c > 0` fixed by `‖c · g_α(-β ·)‖₁ = 1`. -/
@@ -133,10 +101,6 @@ theorem twoLevel_rigidity {ι : Type*} {p : Filter ι} [p.NeBot] [p.IsCountablyG
     exact ⟨ms, hγ⟩
   have hL1 := l1_of_tendstoLocallyUniformlyOn F (clarkProfile_integrable hα c₀) hn₀ hΦlim
   exact ⟨c₀, hc₀, hn₀, hs₁, hΦlim, hγlim, hL1.1, hL1.2⟩
-
-/-- info: 'FormalResearch.ModularBootstrap.TwoLevel.l1_of_tendstoLocallyUniformlyOn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in
-#print axioms l1_of_tendstoLocallyUniformlyOn
 
 /-- info: 'FormalResearch.ModularBootstrap.TwoLevel.twoLevel_rigidity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

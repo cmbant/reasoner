@@ -14,11 +14,9 @@ data), `lower_o1_two_edge.tex` (`wone:ftlfw`, Step 5 chart inversion).
   `inv_lower` field is `LemmaQData.deltaChart_inversion` (the inversion used in Step 5 of
   `theoremFTLFW_W_of_YVFor`).
 
-Only the chart side is wired.  `theoremFTLFW_W_of_YVFor` has the shape of `ft_twoEdge_lower_hb`
-(`P = bootstrapParamsForW …`, `W_top = 0`, `u_* = a₁`, `Feasible c' T := ∃ g, IsWeaklyFeasible (c'/12) T g`,
-final constant `c_* K₀ + C_ξ(|a₁| + K₀)²` = `twoEdgeKminus` with `m` replaced by `K₀`), but the violator
-family (`TwoEdgeViolatorsHB`) and `ChartCoverage` are produced inside its proof from `hQ1`, `hQ3`,
-`UT_between` and `bootstrapHB_of_YVForW` (the part from line 130 on) and are not exposed as lemmas.
+The violator family and chart coverage are in `TwoEdgeInstance.lean` (`twoEdgeInstance_of_YVForW`), which derives
+`ft_fixedWeight_twoEdge`; `theoremFTLFW_W_of_YVFor` has the shape of `ft_twoEdge_lower_hb`
+(`P = bootstrapParamsForW …`, `W_top = 0`, `u_* = a₁`, `Feasible c' T := ∃ g, IsWeaklyFeasible (c'/12) T g`).
 -/
 
 @[expose] public section

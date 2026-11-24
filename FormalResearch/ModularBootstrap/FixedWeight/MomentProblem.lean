@@ -13,7 +13,8 @@ with `c̃ > 0`, `c̃ ≥ 12 S`, and `T_V(c̃) > 0`:
   `0 < β₀ ≤ 1/2`, `t₀^*(w, β₀) ≤ T₀`, `0 < T₀ < T_V(c̃)`), with conversions to/from
   `Duality.DualSetup` at `virasoroProblem`.
 * `crossingRHS prob a β`: `∫₀^∞ Ξ_β^{(w)}(t) ρ_C(t) dt`.
-* `dual_inequality`, `exists_atomic_approx`: Theorem E(a) for every `(w, Q)`.
+* `dual_inequality`, `exists_atomic_approx`: Theorem E(a) for every `(w, Q)`, derived from the constrained forms
+  `dual_inequality_on`, `exists_atomic_approx_on` on a closed `X ⊆ [T₀, ∞)` (`DualSetupCore`, `IsFeasibleOn`).
 -/
 
 @[expose] public section
@@ -45,6 +46,37 @@ lemma DualSetup.ha {prob : FixedWeightProblem} {cTilde β₀ T₀ : ℝ}
 lemma DualSetup.ha_pos {prob : FixedWeightProblem} {cTilde β₀ T₀ : ℝ}
     (h : DualSetup prob cTilde β₀ T₀) : 0 < cTilde / 12 := by
   linarith [h.hc_pos]
+
+/-- `DualSetup` without the hypothesis `T₀ < T_V(c̃)`. -/
+structure DualSetupCore (prob : FixedWeightProblem) (cTilde β₀ T₀ : ℝ) : Prop where
+  hc_pos : 0 < cTilde
+  hc : 12 * prob.totalShift ≤ cTilde
+  hβ₀ : 0 < β₀
+  hβ₀2 : β₀ ≤ 1 / 2
+  hT₀ : t0Star prob.w β₀ ≤ T₀
+  hT₀pos : 0 < T₀
+
+lemma DualSetup.toCore {prob : FixedWeightProblem} {cTilde β₀ T₀ : ℝ}
+    (S : DualSetup prob cTilde β₀ T₀) : DualSetupCore prob cTilde β₀ T₀ :=
+  ⟨S.hc_pos, S.hc, S.hβ₀, S.hβ₀2, S.hT₀, S.hT₀pos⟩
+
+lemma DualSetupCore.ha {prob : FixedWeightProblem} {cTilde β₀ T₀ : ℝ}
+    (h : DualSetupCore prob cTilde β₀ T₀) : prob.totalShift ≤ cTilde / 12 := by
+  linarith [h.hc]
+
+lemma DualSetupCore.ha_pos {prob : FixedWeightProblem} {cTilde β₀ T₀ : ℝ}
+    (h : DualSetupCore prob cTilde β₀ T₀) : 0 < cTilde / 12 := by
+  linarith [h.hc_pos]
+
+/-- Feasibility of `g ∈ Ā_w` on a set `X`: `g_vac > 0` and `g ≥ 0` on `X`. -/
+def _root_.FormalResearch.ModularBootstrap.Crossing.FixedWeightProblem.IsFeasibleOn
+    (prob : FixedWeightProblem) (a : ℝ) (X : Set ℝ) (g : ℝ → ℝ) : Prop :=
+  TestClass prob a g ∧ 0 < prob.gVac a g ∧ ∀ t ∈ X, 0 ≤ g t
+
+lemma isFeasibleOn_Ici_iff (prob : FixedWeightProblem) (a T : ℝ) (g : ℝ → ℝ) :
+    prob.IsFeasibleOn a (Ici T) g ↔ prob.IsFeasible a T g := by
+  unfold FixedWeightProblem.IsFeasibleOn FixedWeightProblem.IsFeasible
+  simp only [mem_Ici, ge_iff_le]
 
 /-- Convert a Virasoro `Duality.DualSetup` to `FixedWeight.DualSetup virasoroProblem`. -/
 lemma DualSetup.of_virasoro {cTilde β₀ T₀ : ℝ} (h : Duality.DualSetup cTilde β₀ T₀) :
@@ -92,21 +124,20 @@ lemma not_feasible_of_lt_T_V (prob : FixedWeightProblem) {cTilde T : ℝ}
     exact csInf_le ⟨0, fun T' hT' => hT'.1.le⟩ ⟨hT, g, hg⟩
   linarith
 
-/-- The dual inequality at general `(w, Q)`: any `(l, μ)` with `μ ≥ 0` and
-`∑ l_i Ξ_{β_i}/w_* + μ ≥ 0` on `[T, ∞)` satisfies `∑ l_i a_{β_i} + μ C₀ ≥ 0`
-(otherwise `g_λ + μ h` would be feasible at `T < T_V`). -/
-lemma dual_inequality (prob : FixedWeightProblem) {cTilde β₀ T₀ T : ℝ}
-    (S : DualSetup prob cTilde β₀ T₀) (hT₀T : T₀ ≤ T) (hTV : T < prob.T_V cTilde)
+/-- The dual inequality on a set `X ⊆ [T₀, ∞)` with no feasible functional (generalises
+`dual_inequality`, the case `X = [T, ∞)`). -/
+lemma dual_inequality_on (prob : FixedWeightProblem) {cTilde β₀ T₀ : ℝ}
+    (S : DualSetupCore prob cTilde β₀ T₀) {X : Set ℝ} (hX : X ⊆ Ici T₀)
+    (hno : ∀ g, ¬ prob.IsFeasibleOn (cTilde / 12) X g)
     {ι : Type*} [Fintype ι] (β : ι → ℝ) (hβ : ∀ i, 0 < β i)
     (l : ι → ℝ) {μ : ℝ} (hμ : 0 ≤ μ)
-    (hnn : ∀ t, T ≤ t →
+    (hnn : ∀ t ∈ X,
       0 ≤ ∑ i, l i * (thermalDiff prob.w (β i) t / wStar (cTilde / 12) β₀ t) + μ) :
     0 ≤ ∑ i, l i * crossingRHS prob (cTilde / 12) (β i) + μ * dualC0 prob (cTilde / 12) β₀ := by
   by_contra hneg
   push Not at hneg
   have ha := S.ha
   have ha0 := S.ha_pos
-  have hTpos : 0 < T := lt_of_lt_of_le S.hT₀pos hT₀T
   set a := cTilde / 12 with ha_def
   let g : ℝ → ℝ := fun t => (∑ i, l i * thermalDiff prob.w (β i) t) + μ * hMaj prob.w a β₀ t
   have hXi : ∀ i, TestClass prob a (thermalDiff prob.w (β i)) := fun i =>
@@ -129,11 +160,12 @@ lemma dual_inequality (prob : FixedWeightProblem) {cTilde β₀ T₀ T : ℝ}
       exact Finset.sum_congr rfl fun i _ => by ring
     rw [hsum_neg]
     ring
-  refine not_feasible_of_lt_T_V prob (cTilde := cTilde) hTpos hTV (g := g) ⟨hgT, ?_, ?_⟩
+  refine hno g ⟨hgT, ?_, ?_⟩
   · rw [hvac']; linarith
   · intro t ht
-    have hw := wStar_pos ha0.le S.hβ₀ (hTpos.le.trans ht)
-    have hM := wStar_le_hMaj prob.hw ha0 S.hβ₀ (by linarith [S.hβ₀2]) S.hT₀ (hT₀T.trans ht)
+    have ht0 : T₀ ≤ t := hX ht
+    have hw := wStar_pos ha0.le S.hβ₀ (S.hT₀pos.le.trans ht0)
+    have hM := wStar_le_hMaj prob.hw ha0 S.hβ₀ (by linarith [S.hβ₀2]) S.hT₀ ht0
     have h1 := hnn t ht
     have h2 : 0 ≤ (∑ i, l i * thermalDiff prob.w (β i) t + μ * wStar a β₀ t) / wStar a β₀ t := by
       have heq : (∑ i, l i * thermalDiff prob.w (β i) t + μ * wStar a β₀ t) / wStar a β₀ t =
@@ -149,26 +181,55 @@ lemma dual_inequality (prob : FixedWeightProblem) {cTilde β₀ T₀ T : ℝ}
     show 0 ≤ (∑ i, l i * thermalDiff prob.w (β i) t) + μ * hMaj prob.w a β₀ t
     nlinarith [mul_le_mul_of_nonneg_left hM hμ]
 
+/-- The dual inequality at general `(w, Q)`: any `(l, μ)` with `μ ≥ 0` and
+`∑ l_i Ξ_{β_i}/w_* + μ ≥ 0` on `[T, ∞)` satisfies `∑ l_i a_{β_i} + μ C₀ ≥ 0`
+(otherwise `g_λ + μ h` would be feasible at `T < T_V`); the case `X = [T, ∞)` of `dual_inequality_on`. -/
+lemma dual_inequality (prob : FixedWeightProblem) {cTilde β₀ T₀ T : ℝ}
+    (S : DualSetup prob cTilde β₀ T₀) (hT₀T : T₀ ≤ T) (hTV : T < prob.T_V cTilde)
+    {ι : Type*} [Fintype ι] (β : ι → ℝ) (hβ : ∀ i, 0 < β i)
+    (l : ι → ℝ) {μ : ℝ} (hμ : 0 ≤ μ)
+    (hnn : ∀ t, T ≤ t →
+      0 ≤ ∑ i, l i * (thermalDiff prob.w (β i) t / wStar (cTilde / 12) β₀ t) + μ) :
+    0 ≤ ∑ i, l i * crossingRHS prob (cTilde / 12) (β i) + μ * dualC0 prob (cTilde / 12) β₀ :=
+  dual_inequality_on prob S.toCore (X := Ici T) (fun _ ht => hT₀T.trans ht)
+    (fun g hg => not_feasible_of_lt_T_V prob (lt_of_lt_of_le S.hT₀pos hT₀T) hTV
+      ((isFeasibleOn_Ici_iff prob _ T g).1 hg)) β hβ l hμ hnn
+
+/-- Theorem E(a) on a set `X ⊆ [T₀, ∞)` with no feasible functional: finite positive atomic
+measures on `X` with `∑ c_k ≤ C₀` solving finitely many crossing equations up to `ε` (generalises
+`exists_atomic_approx`). -/
+theorem exists_atomic_approx_on (prob : FixedWeightProblem) {cTilde β₀ T₀ : ℝ}
+    (S : DualSetupCore prob cTilde β₀ T₀) {X : Set ℝ} (hX : X ⊆ Ici T₀)
+    (hno : ∀ g, ¬ prob.IsFeasibleOn (cTilde / 12) X g)
+    (B : Finset ℝ) (hB : ∀ β ∈ B, 0 < β) {ε : ℝ} (hε : 0 < ε) :
+    ∃ (N : ℕ) (t : Fin N → ℝ) (c : Fin N → ℝ), (∀ k, t k ∈ X) ∧ (∀ k, 0 ≤ c k) ∧
+      ∑ k, c k ≤ dualC0 prob (cTilde / 12) β₀ ∧
+      ∀ β ∈ B, |∑ k, c k * (thermalDiff prob.w β (t k) / wStar (cTilde / 12) β₀ (t k)) -
+        crossingRHS prob (cTilde / 12) β| < ε := by
+  have hC0 : 0 < dualC0 prob (cTilde / 12) β₀ :=
+    dualC0_pos prob S.ha_pos S.hβ₀ (by linarith [S.hβ₀2])
+  obtain ⟨N, x, c, hc, hs, hd⟩ := farkas_approx (ι := B) (X := {t : ℝ // t ∈ X})
+    (fun i x => thermalDiff prob.w i x.1 / wStar (cTilde / 12) β₀ x.1)
+    (fun i => crossingRHS prob (cTilde / 12) i) hC0
+    (fun l μ hμ hnn => dual_inequality_on prob S hX hno (fun i : B => (i : ℝ))
+      (fun i => hB i i.2) l hμ (fun t ht => hnn ⟨t, ht⟩)) hε
+  refine ⟨N, fun k => (x k).1, c, fun k => (x k).2, hc, hs, fun β hβ => ?_⟩
+  exact hd ⟨β, hβ⟩
+
 /-- **Theorem E(a) (`dual_spectrum.tex`, `ds:E`)** for every fixed weight `(w, Q)`:
 for `T₀ ≤ T < T_V(c̃)`, a finite set `B ⊂ (0, ∞)`, and `ε > 0`, there is a finite positive atomic
 measure `∑_k (c_k / w_*(t_k)) δ_{t_k}` on `[T, ∞)` with `∑ c_k ≤ C₀` and
-`|∫ Ξ_β dν - ∫ Ξ_β ρ_C dt| < ε` for `β ∈ B`. -/
+`|∫ Ξ_β dν - ∫ Ξ_β ρ_C dt| < ε` for `β ∈ B`; the case `X = [T, ∞)` of `exists_atomic_approx_on`. -/
 theorem exists_atomic_approx (prob : FixedWeightProblem) {cTilde β₀ T₀ T : ℝ}
     (S : DualSetup prob cTilde β₀ T₀) (hT₀T : T₀ ≤ T) (hTV : T < prob.T_V cTilde)
     (B : Finset ℝ) (hB : ∀ β ∈ B, 0 < β) {ε : ℝ} (hε : 0 < ε) :
     ∃ (N : ℕ) (t : Fin N → ℝ) (c : Fin N → ℝ), (∀ k, T ≤ t k) ∧ (∀ k, 0 ≤ c k) ∧
       ∑ k, c k ≤ dualC0 prob (cTilde / 12) β₀ ∧
       ∀ β ∈ B, |∑ k, c k * (thermalDiff prob.w β (t k) / wStar (cTilde / 12) β₀ (t k)) -
-        crossingRHS prob (cTilde / 12) β| < ε := by
-  have hC0 : 0 < dualC0 prob (cTilde / 12) β₀ :=
-    dualC0_pos prob S.ha_pos S.hβ₀ (by linarith [S.hβ₀2])
-  obtain ⟨N, x, c, hc, hs, hd⟩ := farkas_approx (ι := B) (X := {t : ℝ // T ≤ t})
-    (fun i x => thermalDiff prob.w i x.1 / wStar (cTilde / 12) β₀ x.1)
-    (fun i => crossingRHS prob (cTilde / 12) i) hC0
-    (fun l μ hμ hnn => dual_inequality prob S hT₀T hTV (fun i : B => (i : ℝ))
-      (fun i => hB i i.2) l hμ (fun t ht => hnn ⟨t, ht⟩)) hε
-  refine ⟨N, fun k => (x k).1, c, fun k => (x k).2, hc, hs, fun β hβ => ?_⟩
-  exact hd ⟨β, hβ⟩
+        crossingRHS prob (cTilde / 12) β| < ε :=
+  exists_atomic_approx_on prob S.toCore (X := Ici T) (fun _ ht => hT₀T.trans ht)
+    (fun g hg => not_feasible_of_lt_T_V prob (lt_of_lt_of_le S.hT₀pos hT₀T) hTV
+      ((isFeasibleOn_Ici_iff prob _ T g).1 hg)) B hB hε
 
 /-! ### Axiom checks -/
 
