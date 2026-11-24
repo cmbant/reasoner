@@ -231,19 +231,22 @@ theorem glue_pair {ι : Type*} [Finite ι] (R : ι → ℝ → ℝ → Prop) (t 
     hmono i (C i) M (hm i) δ (hM i) ((hδle i).trans (min_le_left _ _)) ((hδle i).trans (min_le_right _ _)) (hR i)⟩
 
 open FormalResearch.JacobiEigenvectors.TheoremA in
-/-- **`ThmAii` on a finite cover** (the statement): the constants `C`, `h_m` are uniform over `K`, and every `mu in K` lies in one piece `i` whose chart `CI i` gives the bounds. -/
+/-- **`ThmAii` on a finite cover** (the statement): the constants `C`, `h_m` (and `C_eps`, `h_eps`) are uniform over `K`; every `mu in K` is assigned one piece `pick mu` containing it, and the *same*
+chart `CI (pick mu)` (hence the same vector `psiHat`) gives both the `h^m` bound and the relative clause for every `eps`, as in the paper. -/
 def ThmAiiCover {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (K : Set Par) (m Kidx : ℕ) (U V : ℝ → ℝ → ℝ) (cPC CPC : ℝ)
     {ι : Type*} (Kα : ι → Set Par) (t0α : ι → ℝ) (CI : ∀ i, ChartInputs F (Kα i) Kidx (t0α i) m (2 * Kidx) U V cPC CPC) : Prop :=
   1 ≤ m → Kidx = (m + 1) / 2 → IsCompact K → HypOn F K → DM F K (2 * ((m + 1) / 2) + 1) →
-    (∃ C hm : ℝ, 0 < hm ∧ ∀ μ ∈ K, ∃ i, μ ∈ Kα i ∧ ∀ N : ℕ, F.step N ≤ hm →
+    ∃ pick : (μ : Par) → μ ∈ K → ι, (∀ μ (hμ : μ ∈ K), μ ∈ Kα (pick μ hμ)) ∧
+    (∃ C hm : ℝ, 0 < hm ∧ ∀ μ (hμ : μ ∈ K), ∀ N : ℕ, F.step N ≤ hm →
       ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
-        ∀ k : Fin (N + 1), (∀ n ∈ rowsOf N, |eigVec Um k n - psiHatVec (CI i) μ N (X k) n| ≤ C * F.step N ^ m * envVec (CI i) μ N (X k) n) ∧
-          ∑ n ∈ rowsOf N, envVec (CI i) μ N (X k) n ^ 2 ≤ C) ∧
-    (∀ ε : ℝ, 0 < ε → ∃ Cε hε : ℝ, 0 < hε ∧ ∀ μ ∈ K, ∃ i, μ ∈ Kα i ∧ ∀ N : ℕ, F.step N ≤ hε →
+        ∀ k : Fin (N + 1), (∀ n ∈ rowsOf N, |eigVec Um k n - psiHatVec (CI (pick μ hμ)) μ N (X k) n| ≤
+            C * F.step N ^ m * envVec (CI (pick μ hμ)) μ N (X k) n) ∧
+          ∑ n ∈ rowsOf N, envVec (CI (pick μ hμ)) μ N (X k) n ^ 2 ≤ C) ∧
+    (∀ ε : ℝ, 0 < ε → ∃ Cε hε : ℝ, 0 < hε ∧ ∀ μ (hμ : μ ∈ K), ∀ N : ℕ, F.step N ≤ hε →
       ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
         ∀ k : Fin (N + 1), ∀ n ∈ rowsOf N,
           Tfun F.L (F.G 0 μ) (F.B 0 μ) (X k) (uNode (F.step N) n) ≤ -ε →
-            envVec (CI i) μ N (X k) n ≤ Cε * |psiHatVec (CI i) μ N (X k) n|)
+            envVec (CI (pick μ hμ)) μ N (X k) n ≤ Cε * |psiHatVec (CI (pick μ hμ)) μ N (X k) n|)
 
 open FormalResearch.JacobiEigenvectors.TheoremA in
 /-- **`ThmAii` from `ThmAii` on the pieces of a finite cover** (`thmAii_proved` on each piece: the charts `CI i` are those of the pieces, `0 < t0α i`). -/
@@ -255,8 +258,8 @@ theorem thmAii_of_cover {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily P
   intro hm1 hK hKc hH hD
   have hloc := fun i => h i hm1 hK (hcpt i) (hH.mono_set (hsub i)) (hD.mono_set (hsub i))
   choose hn hnp hnnv using fun i => envVec_nonneg (CI i)
-  have hpick : ∀ μ ∈ K, ∃ i, μ ∈ Kα i := fun μ hμ => mem_iUnion.mp (hcov hμ)
-  refine ⟨?_, fun ε hε => ?_⟩
+  choose pick hpick using fun μ (hμ : μ ∈ K) => mem_iUnion.mp (hcov hμ)
+  refine ⟨pick, hpick, ?_, fun ε hε => ?_⟩
   · obtain ⟨C, hm, hmp, hmle, hR⟩ := glue_pair
       (fun i C hh => ∀ μ ∈ Kα i, ∀ N : ℕ, F.step N ≤ hh → F.step N ≤ t0α i →
         ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
@@ -271,10 +274,8 @@ theorem thmAii_of_cover {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily P
       (fun i => by
         obtain ⟨⟨C, hm, hmp, hh⟩, _⟩ := hloc i
         exact ⟨C, hm, hmp, hh⟩)
-    refine ⟨C, hm, hmp, fun μ hμ => ?_⟩
-    obtain ⟨i, hi⟩ := hpick μ hμ
-    exact ⟨i, hi, fun N hN X Um hE k =>
-      hR i μ hi N hN (hN.trans ((hmle i).trans (min_le_left _ _))) X Um hE k⟩
+    refine ⟨C, hm, hmp, fun μ hμ N hN X Um hE k => ?_⟩
+    exact hR (pick μ hμ) μ (hpick μ hμ) N hN (hN.trans ((hmle _).trans (min_le_left _ _))) X Um hE k
   · obtain ⟨C, hm, hmp, hmle, hR⟩ := glue_pair
       (fun i C hh => ∀ μ ∈ Kα i, ∀ N : ℕ, F.step N ≤ hh → F.step N ≤ t0α i →
         ∀ (X : Fin (N + 1) → ℝ) (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ), IsEigenSystem (F.jacobiMat μ N) X Um →
@@ -287,10 +288,8 @@ theorem thmAii_of_cover {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily P
       (fun i => by
         obtain ⟨_, hB⟩ := hloc i
         exact hB ε hε)
-    refine ⟨C, hm, hmp, fun μ hμ => ?_⟩
-    obtain ⟨i, hi⟩ := hpick μ hμ
-    exact ⟨i, hi, fun N hN X Um hE k n hn hT =>
-      hR i μ hi N hN (hN.trans (hmle i)) X Um hE k n hn hT⟩
+    refine ⟨C, hm, hmp, fun μ hμ N hN X Um hE k n hn hT => ?_⟩
+    exact hR (pick μ hμ) μ (hpick μ hμ) N hN (hN.trans (hmle _)) X Um hE k n hn hT
 
 end FormalResearch.JacobiEigenvectors.Charts
 
