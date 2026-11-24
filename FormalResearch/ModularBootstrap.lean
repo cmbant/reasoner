@@ -331,6 +331,18 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumIntegral
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuum
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFinal
 public import FormalResearch.ModularBootstrap.Upper.Assembly.N1
+public import FormalResearch.ModularBootstrap.FoldTip.Concordance
+public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeChart
+public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeLower
+public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeSub
+public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeFixedWeight
+public import FormalResearch.ModularBootstrap.TwoLevel.A2StarCurve
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkOfBlowupLimit
+public import FormalResearch.ModularBootstrap.TwoLevel.PinnedLimit
+public import FormalResearch.ModularBootstrap.TwoLevel.PinnedRigidity
+public import FormalResearch.ModularBootstrap.TwoLevel.TheoremTwoOne
+public import FormalResearch.ModularBootstrap.FoldTip.Hypotheses
+public import FormalResearch.ModularBootstrap.FoldTip.Instances
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -993,4 +1005,33 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   `n1_designPropertyP`, `n1_thresholdUpperLittleO`, `n1_theoremC15UpperInput`, `n1_corollary_E1_littleO_unconditional`,
   `n1_corollary_E1_unconditional` (`Δ_best = c/Λ_V + A_opt c^{1/3} + O(1)` at `N = 1` super-Virasoro, with
   `FixedWeightBand.n1_lowerBoundInput`), `n1_sigmaZero_unconditional`, `n1_sigma_unconditional`, `n1_rampedVacuum`.
+* `FoldTip.Concordance` (FT-0, no new mathematics): bundle theorems for the fold-tip conclusions of Theorem FT
+  (`fold_tip_universality.tex`, C1, C2, C3 in O(1) form, C4, C5a–C5c) for every fixed-weight problem:
+  `ft_fixedWeight_general` (lower bound, liminf, rigidity; no hypothesis), `ft_fixedWeight_H3` (two-sided Airy law from
+  H3), `ft_fixedWeight` (`w = 1`, H3 discharged), and `ft_virasoro`, `ft_n1`.  Module docstring: conclusion and hypothesis table.
+* `FoldTip.TwoEdge{Chart,Lower,Sub,FixedWeight}`: **Theorem FT-2E and Proposition FT-Sub** (`fold_tip_two_edge.tex`) over the
+  abstract two-edge bootstrap (imports `TwoEdgeBootstrap`, edits nothing there).  `FoldChart` (inverse fold chart,
+  `Δ_C(u) ≥ ξ_* C - (u/β) C^{1/3} - C_ξ C^{-1/3} u²`), `ChartCoverage` (`chartCoverage_of_C1` from conclusion C1 and
+  continuity), `FoldChart.lower_of_displacement` (chart inversion for a displacement bound `C^{1/3}(u - u_*) ≤ κ_C`);
+  `ft_twoEdge_lower`/`ft_twoEdge_expansion` (`T ≥ ξ_* C + (|u_*|/β) C^{1/3} - K₋` and the two-sided `O(1)` law, from
+  `teb_bootstrap_part3`), `ft_twoEdge_lower_hb`/`ft_twoEdge_expansion_hb` (`teb_bootstrap_hb`), `ft_sub_displacement`,
+  `ft_sub_feedback`, `ft_sub` (`T ≥ … - C₋(1 + log Υ_C)`, `teb_weak_K_log_bound`/`teb_weak_feedback_closure`), the
+  non-vacuity theorems `twoEdgeViolators_nonvacuous`, `subViolators_nonvacuous`, and `foldChartOfLemmaQ` (the fixed-weight
+  Langer chart as a `FoldChart`).  The violator family and chart coverage of a concrete problem are hypotheses
+  (`TwoEdgeViolators`, `TwoEdgeViolatorsHB`, `SubViolators`, `ChartCoverage`).
+* `TwoLevel.{A2StarCurve, ClarkOfBlowupLimit, PinnedLimit, PinnedRigidity, TheoremTwoOne}`: the **two-level leading-order
+  theorem** (`virasoro_two_level.tex`, Theorem 2.1 `gt:2.1`), unconditional, at every integer `(w, Q)`.  `A2star`
+  (`A_2^*(A₁) = c_* |z₂(α(-A₁/c_*))|`, `clarkAngle` from `existsUnique_clarkAngle_of_gt`) with `A2star_mem_Ioo`
+  (`A_2^*(A₁) ∈ (A_opt, c_*|a₂|)`), `A2star_strictMonoOn`, `tendsto_A2star_nhdsLT` (`A_2^*(A_opt⁻) = c_*|a₂|`) and
+  `tendsto_A2star_atBot` (`→ A_opt`); not formalised: real-analyticity, the `O(|A₁|^{-1/2})` rate, numerical values.
+  `concrete_two_level_theorem` / `concrete_two_level_eventually`: with the first level pinned (`g_j(t_*) ≥ 0`,
+  `t_* = ξ̄ c' + A₁ c'^{1/3} + o(c'^{1/3})`, `A₁ < A_opt`), `liminf (τ_j - ξ̄ c_j')/c_j'^{1/3} ≥ A_2^*(A₁)`;
+  `concrete_two_level_equality` (`_subseq`): if `(τ_j - ξ̄ c_j')/c_j'^{1/3} → A_2^*(A₁)`, then `Φ_j → c · g_α(-β ·)` locally
+  uniformly and in `L¹`, `s₁ → -z₂/β`, `γ → 0`.  Ingredients: `clark_of_blowup_limit` (Clark two-node theorem for a
+  Proposition T limit), `pinned_limit`, `twoLevel_eventually`/`twoLevel_liminf`/`twoLevel_rigidity` (for any
+  `BlowupFamilyPackage` / `RigidityFamilyPackage`), `tendsto_s₁_of_tendsto_excess`, `l1_of_tendstoLocallyUniformlyOn`.
+* `FoldTip.Hypotheses`, `FoldTip.Instances` (FT-1): the setting and hypotheses `H1`, `H2`, `H2-hol`, `H2+`, `H3`, `H4a`, `H4b` of Theorem FT
+  as `Prop` structures (`FoldTipScale`, `FoldTipSetting`, `FTChart`, `FTH1`, `FTH2`, `FTH2hol`, `FTH2plus`, `FTH3`, `FTH4a`, `FTH4b`),
+  and `FoldTipSetting.ofFixedWeight prob` with `fwH1`, `fw_hypotheses` (`H2-hol`, `H2+`, `H4a` from `proposition_P_of_problem`),
+  `fwH3` (from `TheoremC15UpperInput`), `fwH4b` and `fw_foldTip_hypotheses_w1` (all hypotheses for every weight-one problem).
 -/
