@@ -159,8 +159,7 @@ theorem exists_derived : ∃ d : ℕ × ℝ × ℝ × ℝ × ℝ, C.Derived d.1 
   have hCY : 0 ≤ CY := le_max_right _ _
   have hYb : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ u ∈ Set.Icc 0 (C.c + C.σ), |C.Y μ X u| ≤ CY := by
     intro μ hμ X hX u hu
-    obtain ⟨_, _, _, _, hb⟩ := hS μ hμ
-    exact (hb u hu X hX).1.trans (le_max_left _ _)
+    exact (hS μ hμ X hX u hu).trans (le_max_left _ _)
   obtain ⟨cg, Cg0, hcg, g0, hcorr⟩ := C.corr_lead
   set Cg := max Cg0 0
   have hCg : 0 ≤ Cg := le_max_right _ _

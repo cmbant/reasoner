@@ -56,7 +56,7 @@ the coordinate, the corrector row and the *defect* of the comparison sequence.
 * **FIX (b/c) `W_def`, `M_def` added.**  The weights `W, M` of the chain were only bounded above by `valid.env` and below on the collar by `collar_lb`; in the well they could be inflated
   on single rows (the modulus sum allows one row of size `h^{-1/4}`), which would weaken `PropThaW (2)` and `ThmAii` (their envelope is `W M`).  They are now pinned to the Weber envelopes
   exactly as `SoftEdgeChart.W1_def/M1_def` do.  `W_osc`, `M_osc` become consequences (redundant, kept: consistent since `|Z^2/4 - nu| = (u - u_-) H_Z/(4h)`).
-* **(b) consistency.**  `matchF/matchO` determine `Y` uniquely given `turn_eq`; `Y_bound` (`C^2` through `u = 0` and the collisions) is lem:smo-budget (b).  No field refers to an eigenvalue.
+* **(b) consistency.**  `matchF/matchO` determine `Y` uniquely given `turn_eq`; `Y_bound` (a `C^0` bound) is lem:smo-budget (b).  No field refers to an eigenvalue.
 * **`BulkPhaseInputs` (sound).**  `casoratian` is eq:smo-bulkphase for the *comparison* sequences `C_n(psi-hat^L, psi-hat^R) = a_n (psi-hat^L_n psi-hat^R_{n+1} - psi-hat^L_{n+1} psi-hat^R_n)` (the sign of
   `C = -W` in lem:smo-bulkphase), at every overlap row with an `n`-independent prefactor `pre` (true up to a relative `O(h^m)`: the defect of the comparison sequences is `O(h^{m+1})`),
   with phase `Sigma/h - pi/2`, `Sigma = S_0 + sum_{j >= 2} h^j Sigma_j`; the freeze states the lemma for the comparison sequences instead of the exact edge solutions; the paper passes from one to
@@ -125,8 +125,8 @@ structure BulkWeberCore {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   /-- eq:tha-matchO: the oscillatory action identity on `[u_-, c]`, `|Y| <= 2 sqrt u`. -/
   matchO : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ u ∈ Set.Icc (F.uMinus μ X) c,
     (∫ t in (Y μ X u)..(2 * Real.sqrt u), Real.sqrt (u - t ^ 2 / 4)) = thetaL F.L (F.G 0 μ) (F.B 0 μ) X u
-  /-- the coordinate is bounded `C^2` in `(u, X)` on `[0, c + sigma] x [Jlo, Jhi]` (`lem:smo-budget` (b): `C^{r-2}`, `r >= 5` suffices). -/
-  Y_bound : ∃ S : ℝ, ∀ μ ∈ P, BoundedC2 (fun u X => Y μ X u) 0 (c + σ) Jlo Jhi S
+  /-- the coordinate is bounded (`C^0`) on `[0, c + sigma] x [Jlo, Jhi]` (`lem:smo-budget` (b)). -/
+  Y_bound : ∃ CY : ℝ, ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ u ∈ Set.Icc 0 (c + σ), |Y μ X u| ≤ CY
   /-- the shape of the chain: one patch, hard-edge seed, rows `0..N_R` with `u_{N_R} <= c < u_{N_R+1}`. -/
   shape : ∀ μ ∈ P, ∀ X ∈ Set.Icc Jlo Jhi, ∀ N, N0 ≤ N →
     (chain μ X N).P = 1 ∧ (chain μ X N).s0 = 0 ∧ 0 ≤ (chain μ X N).NR ∧
