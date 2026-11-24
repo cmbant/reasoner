@@ -76,4 +76,8 @@ theorem ce_hb_lift_airy_of_hankelPair (H : CeHankelPair) : CeHbLift ShellHBData.
   rw [e, Real.sq_sqrt (by linarith)]
   linarith
 
+/-- info: 'FormalResearch.SignUncertainty.ce_hb_lift_airy_of_hankelPair' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ce_hb_lift_airy_of_hankelPair
+
 end FormalResearch.SignUncertainty
