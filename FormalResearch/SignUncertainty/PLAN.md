@@ -242,3 +242,35 @@ Environment notes for the agents: single `lake build` slot pairs through `scratc
 shows as "Unknown identifier" or "Application type mismatch" for something that exists: delete that module's build
 files and rebuild; build outputs of reasoner modules outside the closure of `CohnElkies` and `SignUncertainty` were
 deleted to free disk, so importing an outside module triggers a one-time rebuild.
+
+## 8. Revised continuation (2026-11-24)
+
+Order of work, by leverage on the four open `Headlines` inputs:
+
+1. `O4QuotientBound L` (kernel-checked interval discharge; unlocks `hb_thresholds_upper` and Headline S). Pieces: `O4SigmaBounds`
+   and `O4CircleReduction` (done), `O4RhoSeries` (Haiku, running), `O4CertBall`, the generated box modules and the assembly
+   (Bessel lane; generator `gen_o4_boxes.py` passes at 40 x 320 boxes).
+2. M6 (`ce_hb_lift_m1` from `hb_thresholds_upper`): `ConvSource*` (Haiku briefs `m6_*`) and `EuclidCELift`, `CeHbLiftAssembly`
+   (skeleton lane); then a clean-context review of the whole M6 development before merge.
+3. M8 (general `D`: `shell_reduction`, `ce_hb_lift` for `m ≥ 2`): start with a dependency list once M6 is merged; it needs the
+   multilevel `HbThresholds` (levels `m ≥ 2`) and the shell constraints.
+4. Closing the paper side: after the headlines are unconditional, update the manuscript appendix that names Lean
+   declarations (lean skill, step 5.4), the TeX coverage gaps of §7 above, and the `CORRECTIONS.md` lines for any stated
+   result changed by the formalisation.
+
+Process changes: (a) the manager alone edits the status rows of this file; agents report in their handoffs, `THEOREM_MAP.md`
+and the umbrella rows (this removes the repeated `PLAN.md` merge conflicts). (b) A clean-context reviewer builds the headline
+module of its step, not the umbrella; the one umbrella build is the manager's, after each merge round, and merges are
+batched. (c) At most two Sonnet lanes, three Haiku agents and one reviewer build at once (two build slots), finished
+worktrees are removed at hand-back, and new worktrees are made with `scratch/mkwt.sh`, which deletes the build outputs of
+modules whose source differs from the copied build (the stale-olean trap).
+
+Cross-lane note (fold-tip). `RadialRigidityPackage` (`RadialRigidity.lean`, hypotheses of `gt:7.5`) and the fold-tip
+interface of the modular-bootstrap lane (`ModularBootstrap/FoldTip/Hypotheses.lean`, `FoldTipSetting`, `FTH2`) describe the
+same abstract setting (weight, mass `M[g]`, density `Ψ_g`, feasibility, threshold `T_c`, Airy chart, chart-form
+compactness). The two rigidity proofs differ (profile compactness with Hermite–Biehler uniqueness here, vague limits of
+design measures there), so only the interface should be shared: a base structure for the chart-form compactness clause
+(`compactness_subseq` plus the site and tail positivity), stated for an abstract setting, in a new shared module that
+imports nothing Hankel- or Virasoro-specific. Paper I would add (without editing `RadialRigidity.lean`, which six
+modules import) a converter `RadialRigidityPackage → ChartCompactness`. Not started: it needs the field list agreed with
+the fold-tip lane.
