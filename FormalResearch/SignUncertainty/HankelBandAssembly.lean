@@ -97,25 +97,50 @@ lemma hankelBandU_continuousAt {c ξ : ℝ} (h0 : 0 ≤ Real.pi ^ 2 * ξ - 1) (h
   unfold hankelBandU
   exact continuousAt_const.mul (Complex.continuous_re.continuousAt.comp h2)
 
-/-- `2ρ_R ≤ 0.035` at `R = b² c^{2/3}`. -/
-lemma hankelBand_rho_le {c : ℝ} (hc : 0 < c) :
-    2 * rhoR hankelBandParams c ((1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ)) ≤ 0.035 := by
+/-- The Langer disc contains every radius `R ≤ b² c^{2/3} + 1` of the band reduction. -/
+lemma hankelBand_radius_ge_one {c : ℝ} (hc : 3e6 ≤ c) :
+    (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1 ≤ langerRadius c := by
+  have h1 := hankel_rpow23_ge hc
   have hk := hankelLangerKappa_bounds
+  have hr : langerRadius c = c ^ (2 / 3 : ℝ) * langerKappa * 4.94e-4 := rfl
+  have hp : 0 ≤ c ^ (2 / 3 : ℝ) := by linarith
+  rw [hr]
+  nlinarith [mul_le_mul_of_nonneg_left hk.1 hp]
+
+/-- `2ρ_R ≤ 0.035` for `b² c^{2/3} ≤ R ≤ b² c^{2/3} + 1` (`b = 1/100`), `c ≥ 3·10⁶`. -/
+lemma hankelBand_rho_le {c R : ℝ} (hc : 3e6 ≤ c) (hR : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1) :
+    2 * rhoR hankelBandParams c R ≤ 0.035 := by
+  have hc0 : 0 < c := by linarith
+  have hk := hankelLangerKappa_bounds
+  have h23 := hankel_rpow23_ge hc
   have e' : (c ^ (1 / 3 : ℝ)) ^ 2 = c ^ (2 / 3 : ℝ) := by
-    rw [← Real.rpow_natCast, ← Real.rpow_mul hc.le]; norm_num
-  have e : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) = ((1 / 100 : ℝ) * c ^ (1 / 3 : ℝ)) ^ 2 := by
-    rw [mul_pow, e']
-  have hsq : √((1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ)) = (1 / 100 : ℝ) * c ^ (1 / 3 : ℝ) := by
-    rw [e]; exact Real.sqrt_sq (by positivity)
+    rw [← Real.rpow_natCast, ← Real.rpow_mul hc0.le]; norm_num
   have hprod : c ^ (-(1 / 3 : ℝ)) * c ^ (1 / 3 : ℝ) = 1 := by
-    rw [← Real.rpow_add hc]; norm_num
+    rw [← Real.rpow_add hc0]; norm_num
+  have hneg : (c ^ (-(1 / 3 : ℝ))) ^ 2 * c ^ (2 / 3 : ℝ) = 1 := by
+    rw [← e', ← mul_pow, hprod]; norm_num
+  have hneg2 : (c ^ (-(1 / 3 : ℝ))) ^ 2 ≤ 1 / 20000 := by
+    have hp : 0 < c ^ (2 / 3 : ℝ) := by linarith
+    nlinarith [sq_nonneg (c ^ (-(1 / 3 : ℝ))), hneg]
+  have hpos : 0 ≤ c ^ (-(1 / 3 : ℝ)) := Real.rpow_nonneg hc0.le _
+  have hts : c ^ (-(1 / 3 : ℝ)) * √R ≤ 0.0125 := by
+    have hsq : √((c ^ (-(1 / 3 : ℝ))) ^ 2 * R) = c ^ (-(1 / 3 : ℝ)) * √R := by
+      rw [Real.sqrt_mul (sq_nonneg _), Real.sqrt_sq hpos]
+    rw [← hsq, Real.sqrt_le_iff]
+    refine ⟨by norm_num, ?_⟩
+    have h1 : (c ^ (-(1 / 3 : ℝ))) ^ 2 * R ≤
+        (c ^ (-(1 / 3 : ℝ))) ^ 2 * ((1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1) :=
+      mul_le_mul_of_nonneg_left hR (sq_nonneg _)
+    have h2 : (c ^ (-(1 / 3 : ℝ))) ^ 2 * ((1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1) =
+        (1 / 100 : ℝ) ^ 2 * ((c ^ (-(1 / 3 : ℝ))) ^ 2 * c ^ (2 / 3 : ℝ)) + (c ^ (-(1 / 3 : ℝ))) ^ 2 := by ring
+    rw [h2, hneg] at h1
+    nlinarith
   unfold rhoR
-  rw [hsq]
-  show 2 * (2 * langerKappa * c ^ (-(1 / 3 : ℝ)) * ((1 / 100 : ℝ) * c ^ (1 / 3 : ℝ))) ≤ 0.035
-  have : 2 * (2 * langerKappa * c ^ (-(1 / 3 : ℝ)) * ((1 / 100 : ℝ) * c ^ (1 / 3 : ℝ))) =
-      (4 / 100) * langerKappa * (c ^ (-(1 / 3 : ℝ)) * c ^ (1 / 3 : ℝ)) := by ring
-  rw [this, hprod]
-  nlinarith [hk.2]
+  show 2 * (2 * langerKappa * c ^ (-(1 / 3 : ℝ)) * √R) ≤ 0.035
+  have : 2 * (2 * langerKappa * c ^ (-(1 / 3 : ℝ)) * √R) = 4 * langerKappa * (c ^ (-(1 / 3 : ℝ)) * √R) := by ring
+  rw [this]
+  have hnn : 0 ≤ c ^ (-(1 / 3 : ℝ)) * √R := mul_nonneg hpos (Real.sqrt_nonneg _)
+  nlinarith [hk.2, hts, hnn]
 
 lemma hankelBand_exp_le_two {c : ℝ} (hc : 1 ≤ c) : Real.exp (1 / (6 * c)) ≤ 2 := by
   have h1 : 1 / (6 * c) ≤ Real.log 2 := by
@@ -134,27 +159,26 @@ lemma hankelBand_w_band {c u_T R ξ : ℝ} (hc0 : 0 < c) (hu0 : u_T ≤ 0) (hu :
   exact ⟨by nlinarith [hξ.1, hT.1], by nlinarith [hξ.2, hRb.2.1]⟩
 
 /-- **The Hankel band-reduction instance** at scale `c ≥ 3·10⁶`, level `u_T ∈ [-3, 0]`. -/
-noncomputable def hankelBandInstance {c ε u_T : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (hε : ε = 1 ∨ ε = -1)
+noncomputable def hankelBandInstance {c ε u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (hε : ε = 1 ∨ ε = -1)
     (hf : IsHankelEigenfn c ε f) (hmass : hankelMass c f = 1) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T)
+    (hRlb : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ R) (hRub : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1)
     (htail : ∀ Δ : ℝ, c * hankelXi c u_T ≤ Δ → 0 ≤ f Δ) : BandReductionInstance hankelBandParams :=
   have hc0 : 0 < c := by linarith
   have hc32 : 3 / 2 < c := by linarith
   have hu : |u_T| ≤ langerRadius c := by
     rw [abs_of_nonpos hu0]; linarith [(hankel_radius_ge hc).1]
-  have hR0 : (0 : ℝ) ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) := by positivity
-  have hR : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ langerRadius c := (hankel_radius_ge hc).2
+  have hR0 : (0 : ℝ) ≤ R := le_trans (by positivity) hRlb
+  have hR : R ≤ langerRadius c := hRub.trans (hankelBand_radius_ge_one hc)
   have hfinP := isFiniteMeasure_hankelDmPos hc0 hf
   have hfinN := isFiniteMeasure_hankelDmNeg hc0 hf
   { c := c
     ε := ε
-    R := (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ)
+    R := R
     hc := by linarith
     hε := hε
-    hR_lb := le_refl _
-    hR_ub := by
-      show (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1
-      linarith
-    hρR_ub := hankelBand_rho_le hc0
+    hR_lb := hRlb
+    hR_ub := hRub
+    hρR_ub := hankelBand_rho_le hc hRub
     W_tilde := hankelWtS c ε f
     hW_cont := hankelWtS_continuousOn hc32 hf
     hW_holo := hankelWtS_differentiableOn hc32 hf
@@ -243,16 +267,17 @@ noncomputable def hankelBandInstance {c ε u_T : ℝ} {f : ℝ → ℝ} (hc : 3e
 /-- **Proposition TE.3(1) for the Hankel strip**: on the annulus sector around `|ζ| ≈ ρ_R`,
 `‖W̃_c(ζ₀)‖ ≤ C_Y c^{-5/6} (c^{1/3}(B₁ + B₂) + c^{-1/6}) / cos ψ`, with the band moments `B₁, B₂` of the
 instance (`bandB1`, `bandB2`: integrals of `dm_+` over the band `[ξ(u_T), ξ(-R)]` and the tail). -/
-theorem hankel_band_reduction {c ε u_T : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (hε : ε = 1 ∨ ε = -1)
+theorem hankel_band_reduction {c ε u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (hε : ε = 1 ∨ ε = -1)
     (hf : IsHankelEigenfn c ε f) (hmass : hankelMass c f = 1) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T)
+    (hRlb : (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ R) (hRub : R ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1)
     (htail : ∀ Δ : ℝ, c * hankelXi c u_T ≤ Δ → 0 ≤ f Δ) {ζ₀ : ℂ} {ψ : ℝ}
-    (hlo : rhoR hankelBandParams c ((1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ)) / 3 ≤ ‖ζ₀‖)
-    (hhi : ‖ζ₀‖ ≤ 2 * rhoR hankelBandParams c ((1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ)))
+    (hlo : rhoR hankelBandParams c R / 3 ≤ ‖ζ₀‖)
+    (hhi : ‖ζ₀‖ ≤ 2 * rhoR hankelBandParams c R)
     (hcos_eq : ζ₀.re = ‖ζ₀‖ * Real.cos ψ) (hcos : c ^ (-(1 / 12 : ℝ)) ≤ Real.cos ψ) :
     ‖hankelWtS c ε f ζ₀‖ ≤ tebBandConst hankelBandParams * c ^ (-(5 / 6 : ℝ)) *
-      (c ^ (1 / 3 : ℝ) * (bandB1 (hankelBandInstance hc hε hf hmass hu0 hu3 htail) +
-        bandB2 (hankelBandInstance hc hε hf hmass hu0 hu3 htail)) + c ^ (-(1 / 6 : ℝ))) / Real.cos ψ :=
-  (teb_band_reduction (hankelBandInstance hc hε hf hmass hu0 hu3 htail) hlo hhi hcos_eq hcos).1
+      (c ^ (1 / 3 : ℝ) * (bandB1 (hankelBandInstance hc hε hf hmass hu0 hu3 hRlb hRub htail) +
+        bandB2 (hankelBandInstance hc hε hf hmass hu0 hu3 hRlb hRub htail)) + c ^ (-(1 / 6 : ℝ))) / Real.cos ψ :=
+  (teb_band_reduction (hankelBandInstance hc hε hf hmass hu0 hu3 hRlb hRub htail) hlo hhi hcos_eq hcos).1
 
 /-- info: 'FormalResearch.SignUncertainty.hankel_band_reduction' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
