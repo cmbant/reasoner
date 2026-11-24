@@ -28,6 +28,11 @@ instead of `1/2`.  `airy_sign_equality` accepts any real `nu` (`AiryCftSignEqual
 `(Re sqrt u)^(-1/2)` singularity itself is never integrated here: its integrability on discs is the
 content of `disc_avg_neg_log_tipDist` inside `typeII_disc_avg_bound`, applied to the type-(II)-shaped
 `Psi'` (whose singularity `(Re sqrt u)^(-1)|u|^(-1/2)` is the one that lemma handles).
+
+**Copied private helpers.** `QuantC1Airy` keeps `arzela_ascoli_single_ball`, `arzela_ascoli_diagonal`,
+`integral_Ioi_airyExtremal_max_neg`, `integrable_of_symmetric_interval_norm_le`, `integral_Iic_add_Ioi_univ`
+and `airyAi'_a1_sq_pos` private; they are copied verbatim here as private lemmas (no `ModularBootstrap`
+file is edited), together with type-(I) versions of its `typeII_pos_real_*` tail lemmas.
 -/
 
 @[expose] public section
