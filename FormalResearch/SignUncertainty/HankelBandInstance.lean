@@ -13,7 +13,7 @@ For `c ≥ 3·10⁶`, `ε = ±1`, `f ∈ 𝒜_c^ε` with `M[f] = 1`, a level `-3
 * `dm = c (fρ₀)(cξ) dξ` split into `hankelDmPos`, `hankelDmNeg`, threshold `T = ξ(u_T)`;
 * `E_sub = ∅`, `K_edge = K₀(iτ, ξ)⁻¹ = a_0(τ) e^{-icΦ(τ; log π²ξ)}`, `a_2 = 1`, `R_0 = 0`;
 * `ν(τ) = τ`, `μ(ξ) = log π²ξ` (`0` for `ξ ≤ 0`), `m(τ) = log((πτ/2)/tanh(πτ/2))`;
-* `ũ = hankelBandU c`, `Δ = hankelXi c`, `R = b² c^{2/3}`, `τ_0 = m⁻¹ ∘ μ`.
+* `ũ = hankelBandU c`, `Δ = hankelXi c`, `τ_0 = m⁻¹ ∘ μ`; the radius `R ∈ [b² c^{2/3}, b² c^{2/3} + 1]` is a parameter of the instance (`hankelBandInstance`).
 -/
 
 @[expose] public section
