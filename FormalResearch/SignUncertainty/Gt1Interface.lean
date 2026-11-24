@@ -98,6 +98,22 @@ theorem gt1Bounds_airySeedU2 {m : ℕ} (h : Gt1BasisInput m) :
   simp only [Complex.norm_real, Real.norm_eq_abs]
   nlinarith
 
+/-- info: 'FormalResearch.SignUncertainty.Gt1Bounds.mono' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Gt1Bounds.mono
+
+/-- info: 'FormalResearch.SignUncertainty.Gt1Bounds.add' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Gt1Bounds.add
+
+/-- info: 'FormalResearch.SignUncertainty.Gt1Bounds.smul' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Gt1Bounds.smul
+
+/-- info: 'FormalResearch.SignUncertainty.liftW_airySeedU2_lin' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms liftW_airySeedU2_lin
+
 /-- info: 'FormalResearch.SignUncertainty.gt1Bounds_airySeedU2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms gt1Bounds_airySeedU2

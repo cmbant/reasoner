@@ -289,7 +289,13 @@ theorem hbThresholdsUpper_of_bricks (h : O6Bricks 4) : HbThresholdsUpper := by
 
 /-- **The named hypotheses of the middle band, in one place**: the `GT.1` bounds of the three basis seeds (`Gt1BasisInput m`, the `GT.1`
 formalisation task) and the quotient bound `O4QuotientBound L` for `0 < L ≤ 0.002` (`M_F ≤ 0.13`, `[O4C (B)]`).  Discharging a field changes no
-downstream statement. -/
+downstream statement.
+
+Non-vacuity: there is no `*_nonvacuous` witness, because a witness of `MiddleBandInputs m` is exactly a proof of its two fields (the fields' own
+non-vacuity is only at the level of the symbol class: `gt1Bounds_zero`, `gt1Bounds_seed_witness`).  Satisfiability rests on the paper:
+`Gt1BasisInput m` is `GT.1` (`cegt:GT1`, `mat:T6`) for `f₁, g₁, g₁'`, `m ≥ 3`, uniform in `δ₀ ∈ [0, 2]`; `O4QuotientBound L` is the interval
+certificate `M_F ≤ 0.13` (a numerical evaluation of `𝓕` on the circle `|θ| = 0.25` for `L ∈ {5·10⁻⁶, 10⁻⁴, 3·10⁻⁴, 10⁻³, 2·10⁻³}` gives
+`max ≈ 0.0978`).  Not formalised: both fields. -/
 structure MiddleBandInputs (m : ℕ) : Prop where
   gt1 : Gt1BasisInput m
   o4 : ∀ L : ℝ, 0 < L → L ≤ 0.002 → O4QuotientBound L

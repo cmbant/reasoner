@@ -19,8 +19,8 @@ Status: proved (exact identity, no hypotheses).
 Formalised here: `liftW_eq_airyWeightedSymbol`, the identification `liftW X δ₀ m = airyWeightedSymbol δ₀ m X` as functions of `v`.
 
 Not formalised here: the `GT.1` bounds `Gt1Bounds` for the weighted symbol (`Gt1BasisInput m` remains the single named input of
-`Gt1Interface.lean`), and the corollary for the abstract seed class `AiryTailSymbolSeed`, which needs the `GT.1` seed lemma
-(`Gt1FromSeed.lean`, not yet merged into this branch).
+`Gt1Interface.lean`), and the corollary for the abstract seed class `AiryTailSymbolSeed`, which combines this identification with the `GT.1` seed lemma
+(`gt1Bounds_liftW_of_seed`, `Gt1LiftSeed.lean`; `Gt1FromSeed.lean`).
 -/
 
 @[expose] public section
