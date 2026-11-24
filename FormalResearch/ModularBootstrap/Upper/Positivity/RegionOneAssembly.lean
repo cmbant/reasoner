@@ -91,13 +91,12 @@ theorem proposition_I_design (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η)
       0 < twoG c' 1 N (1 / 4) (designSigma1 d) (designWidth1 c' η) x :=
   proposition_I_sig N hN hη0 hη1 (designSigma1 d)
 
-/-- **Proposition I, form `t ≥ t_f + 1`** (`ut:I`) for the `f = 1` finite modifications at fixed sites `σs`:
-see `proposition_I_design_t`, the case `σs = designSigma1 d`. -/
-theorem proposition_I_sig_t (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
+/-- **The passage from `t ≥ t_f + 1` to the gap form** (`ut:I`): for every `C`, for `c'` large and every `x ≥ 0` with
+`c' χ'_1²/3 + 1 ≤ c' x²/3` one has `x ≥ χ'_1 + C λ c'^{-1/2}`, where `χ'_1 = designSite c' σs 1`. -/
+lemma tForm_gap (σs : ℕ → ℝ) (C : ℝ) :
     ∀ᶠ c' in atTop, ∀ x : ℝ, 0 ≤ x →
       c' * designSite c' (σs) 1 ^ 2 / 3 + 1 ≤ c' * x ^ 2 / 3 →
-      0 < twoG c' 1 N (1 / 4) (σs) (designWidth1 c' η) x := by
-  obtain ⟨C, hC, hI⟩ := proposition_I_sig N hN hη0 hη1 σs
+      designSite c' (σs) 1 + C * lambdaComb c' * c' ^ (-(1 / 2 : ℝ)) ≤ x := by
   have hs1 : Tendsto (fun c' : ℝ => lambdaComb c' * |σs 1|) atTop (𝓝 0) := by
     simpa using tendsto_lambdaComb_atTop.mul_const |σs 1|
   have hxi := xiStar_pos
@@ -105,10 +104,10 @@ theorem proposition_I_sig_t (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) 
   have hB1 : 1 ≤ B := by rw [hB]; linarith
   have hlim := lambdaComb_mul_sqrt_tendsto.const_mul (C * (2 * B + 1))
   rw [mul_zero] at hlim
-  filter_upwards [hI, hs1.eventually_le_const (by norm_num : (0 : ℝ) < 1),
+  filter_upwards [hs1.eventually_le_const (by norm_num : (0 : ℝ) < 1),
     hs1.eventually_le_const (half_pos hxi),
     hlim.eventually_le_const (by norm_num : (0 : ℝ) < 3),
-    eventually_gt_atTop (1 : ℝ)] with c' hIc hs1c hs2c hlc hc1 x hx0 hx
+    eventually_gt_atTop (1 : ℝ)] with c' hs1c hs2c hlc hc1 x hx0 hx
   have hcpos : 0 < c' := by linarith
   have hlam : 0 < lambdaComb c' := Real.rpow_pos_of_pos (mul_pos kTip_pos hcpos) _
   have hσ : |σs 1| ≥ σs 1 := le_abs_self _
@@ -121,7 +120,6 @@ theorem proposition_I_sig_t (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) 
     linarith
   have hχpos : 0 < designSite c' (σs) 1 := by rw [hχ]; linarith
   have hχB : designSite c' (σs) 1 ≤ B := by rw [hχ, hB]; linarith
-  refine hIc x ?_
   set χ := designSite c' (σs) 1 with hχdef
   have hxsq : c' * χ ^ 2 + 3 ≤ c' * x ^ 2 := by linarith
   have hχx : χ ≤ x := by
@@ -146,6 +144,16 @@ theorem proposition_I_sig_t (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) 
     have : 3 / (c' * (2 * B + 1)) ≤ 1 := by
       rw [div_le_one hB3]; nlinarith
     linarith
+
+/-- **Proposition I, form `t ≥ t_f + 1`** (`ut:I`) for the `f = 1` finite modifications at fixed sites `σs`:
+see `proposition_I_design_t`, the case `σs = designSigma1 d`. -/
+theorem proposition_I_sig_t (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
+    ∀ᶠ c' in atTop, ∀ x : ℝ, 0 ≤ x →
+      c' * designSite c' (σs) 1 ^ 2 / 3 + 1 ≤ c' * x ^ 2 / 3 →
+      0 < twoG c' 1 N (1 / 4) (σs) (designWidth1 c' η) x := by
+  obtain ⟨C, hC, hI⟩ := proposition_I_sig N hN hη0 hη1 σs
+  filter_upwards [hI, tForm_gap σs C] with c' hIc htg x hx0 hx
+  exact hIc x (htg x hx0 hx)
 
 /-- **Proposition I, form `t ≥ t_f + 1`** (`ut:I`): for the designs `D(N, η_*, d)` and large `c'`,
 `2 g(t) > 0` for all `t = c' x²/3` (`x ≥ 0`) with `t ≥ t_f + 1`, `t_f = c' χ'_1²/3`. -/

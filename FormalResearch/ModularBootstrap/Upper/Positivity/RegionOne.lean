@@ -154,37 +154,84 @@ lemma pos_of_lower_hankel {c' x E K Hre Q : ℝ} {Hh : ℂ} (hc' : 0 < c') (hxha
     (hbig : K * √(2 / xiStar) * √c' < Q) : 0 < Hre - Hh.re :=
   sub_pos_of_bounds hE (Complex.re_le_norm Hh) hQ (edge_bound_sqrt hK0 hc' hxhalf hglob) hbig
 
-/-- **Proposition I (a)** (`ut:I`) for the `f = 1` finite modifications at fixed sites `σs` (first site `σs 1`
-arbitrary, sites `2..N` arbitrary): see `proposition_I_a`, the case `σs = designSigma1 d`. -/
-theorem proposition_I_a_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) (Sg0 : ℝ) :
+/-- **The final comparison of Region I at every order** (`ut:III`, Region I; `fw:e1.3`).  For fixed `p`, `f`, `η₀`
+there is `A ≥ 0` such that for `c'` large, every cut `N`, all admissible data and every `x ≥ ξ_*/2` with
+`A √c' < h₀(x) e^{c' L(x)}` one has `2 g_w(c' x²/3) > 0`: the transform is bounded by `K √(c'/x) x^{-p}`
+(`designProfile_global_bound_of_admissible_P`, `x ≥ ξ_*/2`).  At `p = 0` this is the final step of Proposition I. -/
+theorem twoGW_pos_of_lower (p f : ℕ) {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (hη₀1 : η₀ ≤ 1 / 4) :
+    ∃ A : ℝ, 0 ≤ A ∧ ∀ᶠ c' in atTop, ∀ (N : ℕ) (σ ε : ℕ → ℝ), DesignAdmissible c' f N η₀ σ ε →
+      ∀ x : ℝ, xiStar / 2 ≤ x →
+        A * √c' < (designProfile c' f N η₀ σ ε (x : ℂ)).re * Real.exp (c' * edgeL x) →
+        0 < twoGW p c' f N η₀ σ ε x := by
+  obtain ⟨K, hK0, hK⟩ := designProfile_global_bound_of_admissible_P p f hη₀0 hη₀1
+  have hxi := xiStar_pos
+  refine ⟨K * (2 / xiStar) ^ p * √(2 / xiStar), by positivity, ?_⟩
+  filter_upwards [hK, eventually_ge_atTop (3 / (2 * π * xiStar)), eventually_gt_atTop (0 : ℝ)]
+    with c' hKc hc3 hcpos N σ ε hA x hx hlow
+  have hpi := Real.pi_pos
+  have hx0 : 0 < x := lt_of_lt_of_le (by positivity) hx
+  have hk : 1 ≤ 4 * π * c' * x / 3 := by
+    have h1 : 3 / (2 * π * xiStar) * (2 * π * xiStar) = 3 := by field_simp
+    have h2 : 3 ≤ c' * (2 * π * xiStar) := by
+      calc (3 : ℝ) = 3 / (2 * π * xiStar) * (2 * π * xiStar) := h1.symm
+        _ ≤ c' * (2 * π * xiStar) := mul_le_mul_of_nonneg_right hc3 (by positivity)
+    nlinarith [mul_le_mul_of_nonneg_left hx (by positivity : (0 : ℝ) ≤ 4 * π * c' / 3)]
+  have hglob := hKc N σ ε hA x hx0 hk
+  have hpow : (1 / x) ^ p ≤ (2 / xiStar) ^ p := by
+    refine pow_le_pow_left₀ (by positivity) ?_ p
+    rw [div_le_div_iff₀ hx0 hxi]
+    linarith
+  have hglob' : Real.exp (c' * edgeL x) *
+      ‖edgeHankelP p c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3)‖ ≤
+        (K * (2 / xiStar) ^ p) * √(c' / x) := by
+    refine hglob.trans ?_
+    calc K * √(c' / x) * (1 / x) ^ p ≤ K * √(c' / x) * (2 / xiStar) ^ p :=
+          mul_le_mul_of_nonneg_left hpow (by positivity)
+      _ = _ := by ring
+  unfold twoGW
+  rw [Complex.sub_re]
+  exact pos_of_lower_hankel hcpos hx (by positivity) (Real.exp_pos _) hglob' le_rfl hlow
+
+/-- The widths `η ℓ_k` of the designs (`designWidth1`) of the `f = 1` finite modifications with offsets `σs` give
+admissible data for `c'` large. -/
+lemma designWidth1_admissible (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4)
+    (σs : ℕ → ℝ) :
+    ∀ᶠ c' in atTop, DesignAdmissible c' 1 N (1 / 4) σs (designWidth1 c' η) := by
+  obtain ⟨Cg, hCg, hfam⟩ := designWidth1_family N hη0 hη1
+  obtain ⟨M, hM⟩ : ∃ M : ℝ, ∀ k, 1 ≤ k → k ≤ N → |σs k| ≤ M :=
+    ⟨∑ k ∈ Finset.Icc 1 N, |σs k|, fun k hk hkN =>
+      Finset.single_le_sum (f := fun j => |σs j|) (fun _ _ => abs_nonneg _)
+        (Finset.mem_Icc.mpr ⟨hk, hkN⟩)⟩
+  filter_upwards [designAdmissible_eventually 1 N le_rfl hN M Cg (η₀ := 1 / 4) (by norm_num) le_rfl,
+    hfam] with c' hAd hfamc
+  exact hAd σs (designWidth1 c' η) (fun k hk hkN => hM k hk hkN) (fun k hk hkN => hfamc k hk hkN)
+
+/-- **Proposition I (a), lower bound** (`ut:I`, Lemma R): for the `f = 1` finite modifications at fixed sites `σs`
+and every threshold `A ≥ 0` there is `C > 0` such that for large `c'` every `x` with
+`χ'_1 + C λ c'^{-1/2} ≤ x ≤ ξ_* + λ Σ₀` satisfies `x ≥ ξ_*/2` and `(A + 1) √c' ≤ h₀(x) e^{c' L(x)}`
+(`h₀ e^{c'L} ≥ K̃_c w₀ (σ - σ_1)`).  Both the order-`0` and the order-`p` comparison with the transform
+(`twoGW_pos_of_lower`) start from it. -/
+theorem proposition_I_a_sig_lower (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4)
+    (σs : ℕ → ℝ) (Sg0 A : ℝ) (hA0 : 0 ≤ A) :
     ∃ C : ℝ, 0 < C ∧ ∀ᶠ c' in atTop, ∀ x : ℝ,
       designSite c' σs 1 + C * lambdaComb c' * c' ^ (-(1 / 2 : ℝ)) ≤ x →
       x ≤ xiStar + lambdaComb c' * Sg0 →
-      0 < twoG c' 1 N (1 / 4) σs (designWidth1 c' η) x := by
+      xiStar / 2 ≤ x ∧ (A + 1) * √c' ≤
+        (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re * Real.exp (c' * edgeL x) := by
   set 𝒦 := sigModFamily N hN hη0.le hη1 σs with h𝒦
   have hd : sigMod N η σs ∈ 𝒦.members := sigModFamily_mem N hN hη0.le hη1 σs
   obtain ⟨w0, hw0, C0, hlow⟩ := lemma_R_lower 𝒦 hd (posLimitWidths_sigMod N hη0 σs) Sg0
-  obtain ⟨Cg, hCg, hfam⟩ := designWidth1_family N hη0.le hη1
-  set M : ℝ := ∑ k ∈ Finset.Icc 1 N, |σs k| with hMdef
-  have hM : ∀ k, 1 ≤ k → k ≤ N → |σs k| ≤ M := fun k hk hkN =>
-    Finset.single_le_sum (f := fun j => |σs j|) (fun _ _ => abs_nonneg _)
-      (Finset.mem_Icc.mpr ⟨hk, hkN⟩)
-  obtain ⟨K, hK0, hK⟩ := designProfile_global_bound 1 N le_rfl hN M Cg
-    (η₀ := 1 / 4) (by norm_num) (by norm_num)
   have hxi := xiStar_pos
-  set A : ℝ := K * √(2 / xiStar) with hA
-  have hA0 : 0 ≤ A := by positivity
   set C : ℝ := (A + 1) / (cKtilde * w0) with hC
   have hCpos : 0 < C := by have := cKtilde_pos; positivity
   refine ⟨C, hCpos, ?_⟩
-  have hs1 : |σs 1| ≤ M := hM 1 le_rfl hN
   have hlam1 : ∀ᶠ c' in atTop, lambdaComb c' * |σs 1| ≤ xiStar / 2 := by
     have h := tendsto_lambdaComb_atTop.mul_const |σs 1|
     rw [zero_mul] at h
     exact h.eventually_le_const (by positivity)
-  filter_upwards [hK, sigProfile_re_eq_modifiedH0 N hη0.le hη1 σs, hfam, hlam1,
+  filter_upwards [sigProfile_re_eq_modifiedH0 N hη0.le hη1 σs, hlam1,
     eventually_ge_atTop C0, eventually_gt_atTop (0 : ℝ)]
-    with c' hKc hre hfamc hl1 hc0 hcpos x hx1 hx2
+    with c' hre hl1 hc0 hcpos x hx1 hx2
   have hlam : 0 < lambdaComb c' := Real.rpow_pos_of_pos (mul_pos kTip_pos hcpos) _
   set σ : ℝ := (x - xiStar) / lambdaComb c' with hσ
   have hxσ : xiStar + lambdaComb c' * σ = x := by rw [hσ]; field_simp; ring
@@ -201,7 +248,6 @@ theorem proposition_I_a_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) 
     rw [hσ, div_le_iff₀ hlam]; linarith
   have hlow' := hlow hc0 σ hσpos hσle
   rw [hxσ] at hlow'
-  -- `x ≥ ξ_*/2`
   have hxhalf : xiStar / 2 ≤ x := by
     unfold designSite at hx1
     have h1 : 0 ≤ C * lambdaComb c' * c' ^ (-(1 / 2 : ℝ)) := by positivity
@@ -210,34 +256,41 @@ theorem proposition_I_a_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) 
       nlinarith
     linarith
   have hx0 : 0 < x := lt_of_lt_of_le (by positivity) hxhalf
-  -- the bound on the transform
-  have hglob := hKc σs (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
-    (fun k hk hkN => hfamc k hk hkN) x hx0
-  -- the lower bound for `h₀`
+  refine ⟨hxhalf, ?_⟩
   have hH := hre x
   rw [exp_slitL_eq_edgeL hx0.le] at hlow'
   have hsqrt : c' * c' ^ (-(1 / 2 : ℝ)) = √c' := by
     rw [Real.sqrt_eq_rpow, ← Real.rpow_one_add' hcpos.le (by norm_num)]
     norm_num
-  have hlow2 : (A + 1) * √c' ≤ (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η)
-      (x : ℂ)).re * Real.exp (c' * edgeL x) := by
-    rw [hH]
-    refine le_trans ?_ hlow'
-    rw [windowNormKTilde_one hcpos]
-    have : cKtilde * c' * w0 * (σ - (sigMod N η σs).sigmaF c') ≥ cKtilde * c' * w0 * (C * c' ^ (-(1 / 2 : ℝ))) :=
-      mul_le_mul_of_nonneg_left hgap (by have := cKtilde_pos; positivity)
-    refine le_trans (le_of_eq ?_) this
-    rw [hC]
-    have h1 := cKtilde_pos.ne'
-    have h2 := hw0.ne'
-    calc (A + 1) * √c' = (A + 1) * (c' * c' ^ (-(1 / 2 : ℝ))) := by rw [hsqrt]
-      _ = _ := by field_simp
-  -- conclusion
-  have hsc : 0 < √c' := Real.sqrt_pos.mpr hcpos
-  unfold twoG
-  rw [Complex.sub_re]
-  refine pos_of_lower_hankel hcpos hxhalf hK0 (Real.exp_pos _) hglob hlow2 ?_
-  rw [← hA]; nlinarith
+  rw [hH]
+  refine le_trans ?_ hlow'
+  rw [windowNormKTilde_one hcpos]
+  have : cKtilde * c' * w0 * (σ - (sigMod N η σs).sigmaF c') ≥ cKtilde * c' * w0 * (C * c' ^ (-(1 / 2 : ℝ))) :=
+    mul_le_mul_of_nonneg_left hgap (by have := cKtilde_pos; positivity)
+  refine le_trans (le_of_eq ?_) this
+  rw [hC]
+  have h1 := cKtilde_pos.ne'
+  have h2 := hw0.ne'
+  calc (A + 1) * √c' = (A + 1) * (c' * c' ^ (-(1 / 2 : ℝ))) := by rw [hsqrt]
+    _ = _ := by field_simp
+
+/-- **Proposition I (a)** (`ut:I`) for the `f = 1` finite modifications at fixed sites `σs` (first site `σs 1`
+arbitrary, sites `2..N` arbitrary): see `proposition_I_a`, the case `σs = designSigma1 d`. -/
+theorem proposition_I_a_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) (Sg0 : ℝ) :
+    ∃ C : ℝ, 0 < C ∧ ∀ᶠ c' in atTop, ∀ x : ℝ,
+      designSite c' σs 1 + C * lambdaComb c' * c' ^ (-(1 / 2 : ℝ)) ≤ x →
+      x ≤ xiStar + lambdaComb c' * Sg0 →
+      0 < twoG c' 1 N (1 / 4) σs (designWidth1 c' η) x := by
+  obtain ⟨A, hA0, hA⟩ := twoGW_pos_of_lower 0 1 (η₀ := 1 / 4) (by norm_num) le_rfl
+  obtain ⟨C, hC, hlow⟩ := proposition_I_a_sig_lower N hN hη0 hη1 σs Sg0 A hA0
+  refine ⟨C, hC, ?_⟩
+  filter_upwards [hlow, hA, designWidth1_admissible N hN hη0.le hη1 σs, eventually_gt_atTop (0 : ℝ)]
+    with c' hlowc hAc hadm hcpos x hx1 hx2
+  obtain ⟨hxhalf, hQ⟩ := hlowc x hx1 hx2
+  rw [← twoGW_zero]
+  refine hAc N σs (designWidth1 c' η) hadm x hxhalf (lt_of_lt_of_le ?_ hQ)
+  have : 0 < √c' := Real.sqrt_pos.mpr hcpos
+  nlinarith
 
 /-- **Proposition I (a)** (`ut:I`): for every `Σ₀` there is `C > 0` such that for large `c'` and every
 `x` with `χ'_1 + C λ c'^{1/2 - 4n₁/3} ≤ x ≤ ξ_* + λ Σ₀` (`n₁ = 3/4`, so the exponent is `-1/2`) one has
@@ -441,36 +494,36 @@ theorem designProfile_overshoot_lower (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N)
       ≤ 1 / Real.cosh (π * x / 2) ^ 2 * r * Real.exp (c' * slitL x) := this
     _ = _ := by rw [hex]
 
-/-- **Proposition I (b)** (`ut:I`) for the `f = 1` finite modifications at fixed sites `σs`: see
-`proposition_I_b`, the case `σs = designSigma1 d`. -/
-theorem proposition_I_b_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
-    ∃ Sg0 : ℝ, 0 < Sg0 ∧ ∀ᶠ c' in atTop, ∀ x : ℝ, xiStar + lambdaComb c' * Sg0 ≤ x →
+/-- **Proposition I (b), lower bound** (`ut:I`(b)): for the `f = 1` finite modifications at fixed sites `σs` there is
+`Σ₀ > 0` such that for every threshold `A` and large `c'`, every `x ∈ [ξ_* + λ Σ₀, ξ_I]` satisfies `x ≥ ξ_*/2` and
+`A √c' < h₀(x) e^{c' L(x)}` (the overshoot `≳ c'^{3/5}`). -/
+theorem proposition_I_b_sig_lower (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4)
+    (σs : ℕ → ℝ) :
+    ∃ Sg0 : ℝ, 0 < Sg0 ∧ ∀ A : ℝ, ∀ᶠ c' in atTop, ∀ x : ℝ, xiStar + lambdaComb c' * Sg0 ≤ x →
       x ≤ xiStar + c' ^ (-(2 / 5 : ℝ)) →
-      0 < twoG c' 1 N (1 / 4) σs (designWidth1 c' η) x := by
+      xiStar / 2 ≤ x ∧ A * √c' <
+        (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re * Real.exp (c' * edgeL x) := by
   obtain ⟨Cg, hCg, hfam⟩ := designWidth1_family N hη0.le hη1
   obtain ⟨M, hM0, hM⟩ : ∃ M : ℝ, 0 ≤ M ∧ ∀ k, 1 ≤ k → k ≤ N → |σs k| ≤ M :=
     ⟨∑ k ∈ Finset.Icc 1 N, |σs k|, Finset.sum_nonneg fun _ _ => abs_nonneg _,
       fun k hk hkN => Finset.single_le_sum (f := fun j => |σs j|)
         (fun _ _ => abs_nonneg _) (Finset.mem_Icc.mpr ⟨hk, hkN⟩)⟩
   obtain ⟨Sg0, cc, hSg0, hcc, hov⟩ := designProfile_overshoot_lower 1 N le_rfl hN M Cg
-  obtain ⟨K, hK0, hK⟩ := designProfile_global_bound 1 N le_rfl hN M Cg
-    (η₀ := 1 / 4) (by norm_num) (by norm_num)
   have hxi := xiStar_pos
-  refine ⟨Sg0, hSg0, ?_⟩
-  obtain ⟨A, hA⟩ : ∃ A : ℝ, A = K * √(2 / xiStar) := ⟨_, rfl⟩
+  refine ⟨Sg0, hSg0, fun A => ?_⟩
   obtain ⟨cc', hcc'⟩ : ∃ cc' : ℝ, cc' = cc * (2 / π) ^ (3 / 2 : ℝ) := ⟨_, rfl⟩
   have hcc'pos : 0 < cc' := by rw [hcc']; positivity
   have hbig : ∀ᶠ c' in atTop, A + 1 ≤ cc' * c' ^ (1 / 10 : ℝ) := by
     have h := (tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 1 / 10)).const_mul_atTop hcc'pos
     exact h.eventually_ge_atTop (A + 1)
-  filter_upwards [hK, hov, hfam, hbig, eventually_gt_atTop (0 : ℝ), eventually_ge_atTop (1 : ℝ)]
-    with c' hKc hovc hfamc hbigc hcpos hc1 x hx1 hx2
+  filter_upwards [hov, hfam, hbig, eventually_gt_atTop (0 : ℝ), eventually_ge_atTop (1 : ℝ)]
+    with c' hovc hfamc hbigc hcpos hc1 x hx1 hx2
   have hlam : 0 < lambdaComb c' := Real.rpow_pos_of_pos (mul_pos kTip_pos hcpos) _
   have hu1 : c' ^ (-(2 / 5 : ℝ)) ≤ 1 := rpow_neg_two_fifths_le_one hc1
   have hux : lambdaComb c' * Sg0 ≤ x - xiStar := by linarith
   have hupos : 0 < x - xiStar := lt_of_lt_of_le (mul_pos hlam hSg0) hux
   have huup : x - xiStar ≤ c' ^ (-(2 / 5 : ℝ)) := by linarith
-  have hx0 : 0 < x := by linarith
+  refine ⟨by linarith, ?_⟩
   have hov' := hovc σs (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
     (fun k hk hkN => hfamc k hk hkN) x hx1 hx2
   have hn1 : 2 * n1Comb 1 = 3 / 2 := by unfold n1Comb; norm_num
@@ -482,13 +535,21 @@ theorem proposition_I_b_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) 
     refine le_trans ?_ hov'
     rw [hcc', mul_assoc]
     exact mul_le_mul_of_nonneg_left hpow hcc.le
-  have hlt : K * √(2 / xiStar) * √c' < cc' * c' ^ (3 / 5 : ℝ) := by
-    rw [← hA]; exact big_pow_lt hcpos hbigc
-  have hglob := hKc σs (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
-    (fun k hk hkN => hfamc k hk hkN) x hx0
-  unfold twoG
-  rw [Complex.sub_re]
-  exact pos_of_lower_hankel hcpos (by linarith) hK0 (Real.exp_pos _) hglob hQ hlt
+  exact lt_of_lt_of_le (big_pow_lt hcpos hbigc) hQ
+
+/-- **Proposition I (b)** (`ut:I`) for the `f = 1` finite modifications at fixed sites `σs`: see
+`proposition_I_b`, the case `σs = designSigma1 d`. -/
+theorem proposition_I_b_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
+    ∃ Sg0 : ℝ, 0 < Sg0 ∧ ∀ᶠ c' in atTop, ∀ x : ℝ, xiStar + lambdaComb c' * Sg0 ≤ x →
+      x ≤ xiStar + c' ^ (-(2 / 5 : ℝ)) →
+      0 < twoG c' 1 N (1 / 4) σs (designWidth1 c' η) x := by
+  obtain ⟨A, hA0, hA⟩ := twoGW_pos_of_lower 0 1 (η₀ := 1 / 4) (by norm_num) le_rfl
+  obtain ⟨Sg0, hSg0, hlow⟩ := proposition_I_b_sig_lower N hN hη0 hη1 σs
+  refine ⟨Sg0, hSg0, ?_⟩
+  filter_upwards [hlow A, hA, designWidth1_admissible N hN hη0.le hη1 σs] with c' hlowc hAc hadm x hx1 hx2
+  obtain ⟨hxhalf, hQ⟩ := hlowc x hx1 hx2
+  rw [← twoGW_zero]
+  exact hAc N σs (designWidth1 c' η) hadm x hxhalf hQ
 
 /-- **Proposition I (b)** (`ut:I`): there is `Σ₀ > 0` such that for large `c'` and every
 `x ∈ [ξ_* + λ Σ₀, ξ_I]`, `ξ_I = ξ_* + c'^{-2/5}`, one has `2 g(c' x²/3) > 0`.  `Σ₀` is chosen so that

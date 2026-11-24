@@ -59,6 +59,19 @@ noncomputable def twoG (c' : ℝ) (f N : ℕ) (η₀ : ℝ) (σ ε : ℕ → ℝ
   (designProfile c' f N η₀ σ ε (x : ℂ) -
     edgeHankel c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3)).re
 
+/-- `2 g_w(t) = h₀(x) - (𝓗_{p+1} h₀)(t)` at `t = c' x² / 3` (real part), the order-`p` test of
+weight `w = p + 1` (`ut:III`): the transform is `edgeHankelP p`, the `(p+1)`-st Hankel transform of the radial profile
+(`fw:e1.2a`). -/
+noncomputable def twoGW (p : ℕ) (c' : ℝ) (f N : ℕ) (η₀ : ℝ) (σ ε : ℕ → ℝ) (x : ℝ) : ℝ :=
+  (designProfile c' f N η₀ σ ε (x : ℂ) -
+    edgeHankelP p c' (designProfile c' f N η₀ σ ε) (c' * x ^ 2 / 3)).re
+
+/-- At weight `1` (`p = 0`) the order-`p` test is the original one. -/
+lemma twoGW_zero (c' : ℝ) (f N : ℕ) (η₀ : ℝ) (σ ε : ℕ → ℝ) (x : ℝ) :
+    twoGW 0 c' f N η₀ σ ε x = twoG c' f N η₀ σ ε x := by
+  unfold twoGW twoG
+  rw [edgeHankelP_zero]
+
 /-! ### 2. Elementary lemmas -/
 
 lemma sechSqProfile_ofReal (x : ℝ) :
@@ -145,13 +158,9 @@ lemma designProfile_ofReal {c' η₀ x : ℝ} {f N : ℕ} {σ ε : ℕ → ℝ} 
 
 /-! ### 4. Pointwise ingredients -/
 
-/-- Step (4), the arithmetic of the combination: with the lower factors `≥ 0.995` and the upper
-factor `≤ 1.02`, `0.7 · 0.995 - 0.55 · 1.02 > 0.13`. -/
-lemma regionII_assemble {Lev h0r R r sech a hh nh : ℝ} (hlev : 0 < Lev) (hs : 0 ≤ sech)
-    (hR : 0 < R) (hr : 0 < r)
-    (hfl : (7 / 10 : ℝ) * (998 / 1000) * (998 / 1000) ≤ h0r / Lev) (h0n : h0r = sech * R)
-    (hlog : |Real.log (r / R)| ≤ 1 / 1000) (ha : a = sech * r) (hhn : hh ≤ nh)
-    (hn : nh ≤ (55 / 100 : ℝ) * (102 / 100) * Lev) : 13 / 100 ≤ (a - hh) / Lev := by
+/-- `|log (r/R)| ≤ 1/1000` gives `0.999 R ≤ r` (for `r, R > 0`). -/
+lemma ratio_ge_of_log_le {r R : ℝ} (hr : 0 < r) (hR : 0 < R) (hlog : |Real.log (r / R)| ≤ 1 / 1000) :
+    (999 / 1000 : ℝ) * R ≤ r := by
   have hratio : (999 / 1000 : ℝ) ≤ r / R := by
     have hrR : 0 < r / R := div_pos hr hR
     have hl : -(1 / 1000 : ℝ) ≤ Real.log (r / R) := (abs_le.mp hlog).1
@@ -161,7 +170,16 @@ lemma regionII_assemble {Lev h0r R r sech a hh nh : ℝ} (hlev : 0 < Lev) (hs : 
     have h2 := Real.add_one_le_exp (-(1 / 1000 : ℝ))
     have h3 : (999 / 1000 : ℝ) ≤ Real.exp (-(1 / 1000 : ℝ)) := by linarith only [h2]
     exact h3.trans h1
-  have hr' : (999 / 1000 : ℝ) * R ≤ r := (le_div_iff₀ hR).mp hratio
+  exact (le_div_iff₀ hR).mp hratio
+
+/-- Step (4), the arithmetic of the combination: with the lower factors `≥ 0.995` and the upper
+factor `≤ 1.02`, `0.7 · 0.995 - 0.55 · 1.02 > 0.13`. -/
+lemma regionII_assemble {Lev h0r R r sech a hh nh : ℝ} (hlev : 0 < Lev) (hs : 0 ≤ sech)
+    (hR : 0 < R) (hr : 0 < r)
+    (hfl : (7 / 10 : ℝ) * (998 / 1000) * (998 / 1000) ≤ h0r / Lev) (h0n : h0r = sech * R)
+    (hlog : |Real.log (r / R)| ≤ 1 / 1000) (ha : a = sech * r) (hhn : hh ≤ nh)
+    (hn : nh ≤ (55 / 100 : ℝ) * (102 / 100) * Lev) : 13 / 100 ≤ (a - hh) / Lev := by
+  have hr' : (999 / 1000 : ℝ) * R ≤ r := ratio_ge_of_log_le hr hR hlog
   have hq1' : (7 / 10 : ℝ) * (998 / 1000) * (998 / 1000) * Lev ≤ sech * R := by
     rw [← h0n]; exact (le_div_iff₀ hlev).mp hfl
   have hmain : (7 / 10 : ℝ) * (998 / 1000) * (998 / 1000) * (999 / 1000) * Lev ≤ a := by
