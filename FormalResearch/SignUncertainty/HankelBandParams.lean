@@ -11,9 +11,13 @@ public import FormalResearch.SignUncertainty.HankelEdgeAmp
 `hankelBandParams` is the fixed `BandReductionParams` for the Hankel strip data:
 `M = 1/2`, `b = 1/100`, `κ_ζ = 2κ` (`κ = langerKappa = 1/c_s`, so `κ_ζ = 2/c_s`), `A_0 = √(32/κ)`, `C_W = 2`,
 `C_a = 4`, `c_1 = 3/16`, `c_2 = 1/2`, `C_ν = 1`, `κ_sub = 1`, `C_τ = 11/κ`.  The constant `b = 1/100` is
-smaller than the paper's `0.012880` (so that `R = b² c^{2/3}` sits inside the Lean Langer disc
-`‖y‖ ≤ 4.94·10⁻⁴`, whose radius is `κ·4.94·10⁻⁴ c^{2/3}`); `2ρ_R = 4κ b ≤ 0.028 < 0.035` holds with
-`κ ≤ 7/10` (`hankelLangerKappa_bounds`).
+smaller than the paper's `0.012880`.  Both values keep `R = b² c^{2/3}` inside the Lean Langer disc
+(radius `κ·4.94·10⁻⁴ c^{2/3}`, `κ ≥ 1/2`), but the paper's `b` leaves almost no room in `2ρ_R = 4κ b < 0.035`
+(`4κ·0.01288 = 0.0346` for the true `κ = 0.6724`), and Lean only has the crude bound `κ ≤ 7/10`
+(`hankelLangerKappa_bounds`); with `b = 1/100` one gets `2ρ_R = 4κ b ≤ 0.028 < 0.035`.  The other constants
+(`C_W`, `C_a`, `C_ν`, `κ_sub`, `A_0`, `C_τ`) are not fixed by the paper; they are chosen so that the hypotheses of
+`BandReductionInstance` hold for the Hankel data (`A_0² c^{-2/3} = 32/K`, `K = c^{2/3}κ`, `C_τ = 11/κ`,
+from `τ₀² ≤ (16/3) m(τ₀)` for `m(τ₀) < 3/16`).
 -/
 
 @[expose] public section

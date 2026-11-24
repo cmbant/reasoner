@@ -125,4 +125,12 @@ theorem hankelWtS_norm_le {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (hf : 
 #guard_msgs (whitespace := lax) in
 #print axioms hankelWtS_norm_le
 
+/-- info: 'FormalResearch.SignUncertainty.hankelWtS_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelWtS_eq
+
+/-- info: 'FormalResearch.SignUncertainty.mellinFm_one_sub' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms mellinFm_one_sub
+
 end FormalResearch.SignUncertainty

@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.SignUncertainty.HankelBandInstance
+public import FormalResearch.SignUncertainty.RadialCompactness
 
 /-!
 # Assembly of the Hankel `BandReductionInstance` (M5-S5)
@@ -240,9 +241,12 @@ noncomputable def hankelBandInstance {c ε u_T : ℝ} {f : ℝ → ℝ} (hc : 3e
       obtain ⟨h0, h1⟩ := hankelBand_w_band hc0 hu0 hu hR0 hR hξ
       exact (hankelBandU_continuousAt h0 h1).neg.continuousWithinAt }
 
-/-- **Proposition TE.3(1) for the Hankel strip**: on the annulus sector around `|ζ| ≈ ρ_R`,
-`‖W̃_c(ζ₀)‖ ≤ C_Y c^{-5/6} (c^{1/3}(B₁ + B₂) + c^{-1/6}) / cos ψ`, with the band moments `B₁, B₂` of the
-instance (`bandB1`, `bandB2`: integrals of `dm_+` over the band `[ξ(u_T), ξ(-R)]` and the tail). -/
+/-- **Proposition TE.3(1) for the Hankel strip** (`teb:mellin` (1), first form of `(TE.9)`; `(2)` window lemma
+and `(3)` feedback are not covered): at `R = b² c^{2/3}` (`b = 1/100`), on the annulus sector around
+`|ζ| ≈ ρ_R`, `‖W̃_c(ζ₀)‖ ≤ C_Y c^{-5/6} (c^{1/3}(B₁ + B₂) + c^{-1/6}) / cos ψ`, with `C_Y = tebBandConst
+hankelBandParams` independent of `c, ε, f, u_T`, and the band moments `B₁, B₂` of the instance (`bandB1`,
+`bandB2`: integrals of `dm_+` over the band `[ξ(u_T), ξ(-R)]` and the tail `[ξ(-R), ∞)`).  Hypotheses as in
+`hankelBandInstance`; they are satisfiable (`hankel_band_hypotheses_nonvacuous`). -/
 theorem hankel_band_reduction {c ε u_T : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (hε : ε = 1 ∨ ε = -1)
     (hf : IsHankelEigenfn c ε f) (hmass : hankelMass c f = 1) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T)
     (htail : ∀ Δ : ℝ, c * hankelXi c u_T ≤ Δ → 0 ≤ f Δ) {ζ₀ : ℂ} {ψ : ℝ}
@@ -253,6 +257,45 @@ theorem hankel_band_reduction {c ε u_T : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c
       (c ^ (1 / 3 : ℝ) * (bandB1 (hankelBandInstance hc hε hf hmass hu0 hu3 htail) +
         bandB2 (hankelBandInstance hc hε hf hmass hu0 hu3 htail)) + c ^ (-(1 / 6 : ℝ))) / Real.cos ψ :=
   (teb_band_reduction (hankelBandInstance hc hε hf hmass hu0 hu3 htail) hlo hhi hcos_eq hcos).1
+
+/-- **Non-vacuity**: for `c ≥ 3·10⁶` the odd Laguerre mode, normalised to `M[f] = 1`, is in `𝒜_c^{-1}` and is
+`≥ 0` on `[cξ(u_T), ∞)` for every `u_T ∈ [-3, 0]`, so the hypotheses of `hankelBandInstance` and
+`hankel_band_reduction` (`ε = -1`) are satisfiable. -/
+theorem hankel_band_hypotheses_nonvacuous {c : ℝ} (hc : 3e6 ≤ c) :
+    ∃ f : ℝ → ℝ, IsHankelEigenfn c (-1) f ∧ hankelMass c f = 1 ∧
+      ∀ u_T : ℝ, u_T ≤ 0 → -3 ≤ u_T → ∀ Δ : ℝ, c * hankelXi c u_T ≤ Δ → 0 ≤ f Δ := by
+  have hc0 : 0 < c := by linarith
+  have hg := laguerre_odd_mode (c := c) (by linarith)
+  have hm : 0 < hankelMass c (oddLaguerreMode c) :=
+    hankelMass_pos_of_continuousOn hc0 hg.cont hg.int ⟨0, le_rfl, by simp⟩
+  refine ⟨fun Δ => (hankelMass c (oddLaguerreMode c))⁻¹ * oddLaguerreMode c Δ,
+    hg.smul _, ?_, ?_⟩
+  · rw [hankelMass_smul, abs_of_pos (inv_pos.mpr hm), inv_mul_cancel₀ hm.ne']
+  · intro u_T hu0 hu3 Δ hΔ
+    have hu : |u_T| ≤ langerRadius c := by
+      rw [abs_of_nonpos hu0]; linarith [(hankel_radius_ge hc).1]
+    have hw := (hankelXi_w_bounds hc0 hu hu0).1
+    have hpi : 0 < Real.pi ^ 2 := by positivity
+    have hξ : 1 / Real.pi ^ 2 ≤ hankelXi c u_T := by
+      rw [div_le_iff₀ hpi]; nlinarith
+    have h1 : 1 / Real.pi ^ 2 * c ≤ Δ := by nlinarith
+    have h2 : 1 ≤ 4 * Real.pi * Δ / c := by
+      rw [le_div_iff₀ hc0]
+      have hp := Real.pi_pos
+      have h4 : Real.pi ≤ 4 := Real.pi_le_four
+      have : c ≤ 4 * Real.pi * (1 / Real.pi ^ 2 * c) := by
+        have e : 4 * Real.pi * (1 / Real.pi ^ 2 * c) = 4 / Real.pi * c := by field_simp
+        rw [e]
+        have : 1 ≤ 4 / Real.pi := by rw [le_div_iff₀ hp]; linarith
+        nlinarith
+      nlinarith
+    refine mul_nonneg (inv_nonneg.mpr hm.le) ?_
+    show 0 ≤ (4 * Real.pi * Δ / c - 1) * Real.exp (-2 * Real.pi * Δ)
+    exact mul_nonneg (by linarith) (Real.exp_pos _).le
+
+/-- info: 'FormalResearch.SignUncertainty.hankel_band_hypotheses_nonvacuous' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankel_band_hypotheses_nonvacuous
 
 /-- info: 'FormalResearch.SignUncertainty.hankel_band_reduction' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
