@@ -350,6 +350,12 @@ public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimum
 public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumNodes
 public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumClark
 public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumLimit
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroTransferWindow
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroTransfer
+public import FormalResearch.ModularBootstrap.TwoLevel.ExclusionChart
+public import FormalResearch.ModularBootstrap.TwoLevel.Exclusion
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityBasic
+public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigiditySequence
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1057,4 +1063,11 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   zeros and Clark nodes `exists_clark_nodeHyp`, **`tendsto_windowOptimum`** (`u₂*(K) → z₂`, with the rate
   `z₂ - u₂*(K) ≤ C K^{-1/15}`) and **`isGLB_window_amplitude`** (`inf_K c_* |u₂*(K)| = c_* |z₂|`); the sharp rate
   `K^{-1/3} log K` is not covered.
+* `TwoLevel.{TwoZeroTransferWindow, TwoZeroTransfer, ExclusionChart, Exclusion, ClarkRigidityBasic, ClarkRigiditySequence}`
+  (`virasoro_two_level.tex` Theorem 2.5; `upper_transfer.tex` Theorem T2 `ut:T2`), conditional on T2: the named `Prop`
+  **`TwoSimpleZeroTransfer`** (T2, uniform over compact families of two-simple-zero designs `TwoZeroDesign`; the T2 window
+  `W₂` as a `Window`, `designPropertyP_twoZero`, `twoZeroDesignTest_nonvacuous`); **`theorem_two_five`** (sharp two-level
+  exclusion above `A₂*`, given T2 and the Airy window-algebra `Prop` `TwoZeroNegativeVacuum`; uses `tendsto_windowOptimum`
+  and `not_feasible_of_crossingMeasure`); Airy-chart level-time lemmas; `TwoLevelSequence` and
+  `basic_inequality_of_support` (infrastructure for Theorem 2.6, not yet proved).
 -/
