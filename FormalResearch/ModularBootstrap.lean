@@ -408,6 +408,10 @@ public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxTail
 public import FormalResearch.ModularBootstrap.TwoLevel.IdealApprox
 public import FormalResearch.ModularBootstrap.TwoLevel.IdealApproxTheorem
 public import FormalResearch.ModularBootstrap.TwoLevel.TwoLevelWeightOne
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.ClarkDiscBounds
+public import FormalResearch.ModularBootstrap.ConcreteBootstrap.ClarkDiscBoundsUniform
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapClarkArcCore
+public import FormalResearch.ModularBootstrap.FixedWeightBand.BootstrapClarkArc
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1182,4 +1186,5 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `TwoLevel.TwoZeroTransferProof` (T2-WP7, `upper_transfer.tex` Theorem T2 `ut:T2`, assembly): **`twoSimpleZeroTransfer_of_w1`** (`TwoSimpleZeroTransfer prob` for `prob.w = 1`, fields from the K7, Region I/II, window, limsup and vacuum theorems) and the unconditional corollaries `designPropertyP_twoZero_w1`, **`theorem_two_five_w1`** (Theorem 2.5) and **`theorem_two_six_w1`** (Theorem 2.6, only `TwoZeroIdealApprox` besides `w = 1`).
 * `TwoLevel.IdealApprox{Factor, Window, Design, Node, Tail}`, `TwoLevel.IdealApprox` and `TwoLevel.IdealApproxTheorem` (`gt:2.6`, window approximation): the designs `idealDesign δ (K + j) η_j` of an admissible ideal datum are admissible with `q_j = q`, have windows bounded on compacta (`exists_winC_bound`) that converge pointwise at every real `u`, Airy zeros included, to `Re F_δ` (`tendsto_winC`, `F_eq_winC`), and vacuum integrals converging to `∫ Re F_δ` (`ideal_tendsto_intWr_gen`: Tannery for the node values `tendsto_nodeC`, Lemma E for the tail `tail_sum_bound`); hence **`twoZeroIdealApprox`** (`TwoZeroIdealApprox`, unconditionally), `not_adm_of_site_eq_airyZero` (a site `s_k = a_j`, `j > K`, is excluded) and **`theorem_two_six_of_T2`**, `tendsto_atom_weight_of_T2` (Theorem 2.6 from `TwoSimpleZeroTransfer` alone).
 * `TwoLevel.TwoLevelWeightOne`: **`theorem_two_six_w1_unconditional`** (Theorem 2.6 `gt:2.6` at every weight-one problem, no hypothesis).
+* `ConcreteBootstrap.{ClarkDiscBounds, ClarkDiscBoundsUniform}` and `FixedWeightBand.{BootstrapClarkArcCore, BootstrapClarkArc}` (TL6-B, `lower_o1_two_edge.tex` `wone:ftlfw` Step 4 at `(P, Q) = (cos α, -sin α)`): the integral-split defect bound `cft2_defect_ball_split` for a general pair `(N, M)` (the Airy case is `airy_defect_ball_split`) and its Clark forms `clark_defect_ball_split`, `clark_defect_ball_split_K` (weights `1/K(z, z)`); the good circles of `ψ_α` with explicit constants (`clark_good_circle_at`, `clark_good_circle_uniform`: one radius for all `|sin α| ≥ σ`, `C₀ = 320 √π/σ`), the node list on a good circle (`clark_circleData`) and `clark_defect_ball_split_uniform`; the `α`-independent arc estimate `quad_arc_bound_core` (abstract one-sided defect bound) and its Clark instance `pNodesClark`, `quad_arc_boundClark`, `quad_arc_boundClark_uniform` (constants uniform in `α` on `|sin α| ≥ σ`).
 -/
