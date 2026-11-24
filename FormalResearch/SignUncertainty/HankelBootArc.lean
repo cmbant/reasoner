@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.SignUncertainty.HankelBootDataTmp
+public import FormalResearch.SignUncertainty.HankelBootNodes
 public import FormalResearch.SignUncertainty.HankelLangerPsiReal
 public import FormalResearch.SignUncertainty.HankelLangerPsi
 public import FormalResearch.SignUncertainty.HankelTransportInt
@@ -86,7 +86,7 @@ private lemma hankelBoot_R_pow_le {c R : ℝ} (hc0 : 0 < c) (hR : 0 < R) (hRc : 
     _ = c ^ (1 / 2 : ℝ) := by rw [← Real.rpow_mul hc0.le]; norm_num
 
 /-- Schwarz reflection `Ψ̃(ū) = conj Ψ̃(u)` on the open Langer disc. -/
-private lemma hankelBoot_psi_conj {c ε : ℝ} (hc0 : 0 < c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f)
+lemma hankelBoot_psi_conj {c ε : ℝ} (hc0 : 0 < c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f)
     {u : ℂ} (hu : u ∈ ball (0 : ℂ) (langerRadius c)) :
     hankelPsi c f (star u) = star (hankelPsi c f u) := by
   have hr_pos : 0 < langerRadius c := hankelBoot_langerRadius_pos hc0
@@ -700,5 +700,9 @@ theorem hankelBoot_quad_arc {c ε R L' ℓ : ℝ} {N : ℕ} {f : ℝ → ℝ} (h
 /-- info: 'FormalResearch.SignUncertainty.hankelBoot_quad_arc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms hankelBoot_quad_arc
+
+/-- info: 'FormalResearch.SignUncertainty.hankelBoot_psi_conj' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelBoot_psi_conj
 
 end FormalResearch.SignUncertainty
