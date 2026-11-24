@@ -22,7 +22,10 @@ sentence "Region I and II overlap, so `g > 0` on `t ≥ t_f + 1` at `w = 1`".  F
   the overshoot `h₀^{ref} e^{c'L} ≥ c_T sech²(π x/2) (2/(π(x - ξ_*)))^{3/2} ≥ c c'^{3/5}` beats
   `K √(c'/x) ≲ √c'` (`2 n₁ θ = 3/5 > 1/2`).
 
-The overlap with Region II and the passage to `t ≥ t_f + 1` are in `Upper.Positivity.RegionOneAssembly`.
+The final comparison (`pos_of_lower_hankel`) and the overshoot of a finite modification at any level `f`
+(`designProfile_overshoot_lower`, `pow_overshoot_gen`) are `f`-general and used at `f = 2` by
+`TwoLevel.TwoZeroRegionOne`.  The overlap with Region II and the passage to `t ≥ t_f + 1` are in
+`Upper.Positivity.RegionOneAssembly`.
 
 All results are proved unconditionally.
 -/
@@ -122,6 +125,35 @@ lemma exp_slitL_eq_edgeL {x : ℝ} (hx : 0 ≤ x) : slitL x = edgeL x := by
 
 /-! ### 2. Region I(a): the window `[χ'_1 + C λ c'^{-1/2}, ξ_* + λ Σ₀]` -/
 
+lemma sub_pos_of_bounds {Hh R N E Q Q' : ℝ} (hE : 0 < E) (hR : R ≤ N) (hlow : Q ≤ Hh * E)
+    (hup : E * N ≤ Q') (hQ : Q' < Q) : 0 < Hh - R := by
+  have h1 : E * R ≤ E * N := mul_le_mul_of_nonneg_left hR hE.le
+  have : 0 < E * (Hh - R) := by nlinarith
+  exact pos_of_mul_pos_right this hE.le
+
+lemma edge_bound_sqrt {K c' x E Nn : ℝ} (hK0 : 0 ≤ K) (hc' : 0 < c') (hxhalf : xiStar / 2 ≤ x)
+    (h : E * Nn ≤ K * √(c' / x)) : E * Nn ≤ K * √(2 / xiStar) * √c' := by
+  have hxi := xiStar_pos
+  have hx0 : 0 < x := lt_of_lt_of_le (by positivity) hxhalf
+  have hsq : √(c' / x) ≤ √(2 / xiStar) * √c' := by
+    rw [← Real.sqrt_mul (by positivity)]
+    apply Real.sqrt_le_sqrt
+    rw [div_le_iff₀ hx0]
+    have : 2 / xiStar * c' * x ≥ 2 / xiStar * c' * (xiStar / 2) :=
+      mul_le_mul_of_nonneg_left hxhalf (by positivity)
+    have e : 2 / xiStar * c' * (xiStar / 2) = c' := by field_simp
+    linarith
+  calc E * Nn ≤ K * √(c' / x) := h
+    _ ≤ K * (√(2 / xiStar) * √c') := mul_le_mul_of_nonneg_left hsq hK0
+    _ = K * √(2 / xiStar) * √c' := by ring
+
+/-- **The final comparison of Region I**: `Q ≤ h e^{c'L}`, `e^{c'L} ‖ĥ‖ ≤ K √(c'/x)` and
+`K √(2/ξ_*) √c' < Q` give `h - Re ĥ > 0` (for `x ≥ ξ_*/2`). -/
+lemma pos_of_lower_hankel {c' x E K Hre Q : ℝ} {Hh : ℂ} (hc' : 0 < c') (hxhalf : xiStar / 2 ≤ x)
+    (hK0 : 0 ≤ K) (hE : 0 < E) (hglob : E * ‖Hh‖ ≤ K * √(c' / x)) (hQ : Q ≤ Hre * E)
+    (hbig : K * √(2 / xiStar) * √c' < Q) : 0 < Hre - Hh.re :=
+  sub_pos_of_bounds hE (Complex.re_le_norm Hh) hQ (edge_bound_sqrt hK0 hc' hxhalf hglob) hbig
+
 /-- **Proposition I (a)** (`ut:I`) for the `f = 1` finite modifications at fixed sites `σs` (first site `σs 1`
 arbitrary, sites `2..N` arbitrary): see `proposition_I_a`, the case `σs = designSigma1 d`. -/
 theorem proposition_I_a_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) (Sg0 : ℝ) :
@@ -181,19 +213,6 @@ theorem proposition_I_a_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) 
   -- the bound on the transform
   have hglob := hKc σs (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
     (fun k hk hkN => hfamc k hk hkN) x hx0
-  have hsq : √(c' / x) ≤ √(2 / xiStar) * √c' := by
-    rw [← Real.sqrt_mul (by positivity)]
-    apply Real.sqrt_le_sqrt
-    rw [div_le_iff₀ hx0]
-    have : 2 / xiStar * c' * x ≥ 2 / xiStar * c' * (xiStar / 2) :=
-      mul_le_mul_of_nonneg_left hxhalf (by positivity)
-    have e : 2 / xiStar * c' * (xiStar / 2) = c' := by field_simp
-    linarith
-  have hhat : Real.exp (c' * edgeL x) * ‖edgeHankel c' (designProfile c' 1 N (1 / 4) (σs)
-      (designWidth1 c' η)) (c' * x ^ 2 / 3)‖ ≤ A * √c' := by
-    refine hglob.trans ?_
-    calc K * √(c' / x) ≤ K * (√(2 / xiStar) * √c') := mul_le_mul_of_nonneg_left hsq hK0
-      _ = A * √c' := by rw [hA]; ring
   -- the lower bound for `h₀`
   have hH := hre x
   rw [exp_slitL_eq_edgeL hx0.le] at hlow'
@@ -214,27 +233,11 @@ theorem proposition_I_a_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) 
     calc (A + 1) * √c' = (A + 1) * (c' * c' ^ (-(1 / 2 : ℝ))) := by rw [hsqrt]
       _ = _ := by field_simp
   -- conclusion
+  have hsc : 0 < √c' := Real.sqrt_pos.mpr hcpos
   unfold twoG
   rw [Complex.sub_re]
-  have hre_le : (edgeHankel c' (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η))
-      (c' * x ^ 2 / 3)).re ≤ ‖edgeHankel c' (designProfile c' 1 N (1 / 4) (σs)
-      (designWidth1 c' η)) (c' * x ^ 2 / 3)‖ := Complex.re_le_norm _
-  have hexp := Real.exp_pos (c' * edgeL x)
-  have hsc : 0 < √c' := Real.sqrt_pos.mpr hcpos
-  have hprod : 0 < Real.exp (c' * edgeL x) *
-      ((designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re -
-        (edgeHankel c' (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η))
-          (c' * x ^ 2 / 3)).re) := by
-    have : Real.exp (c' * edgeL x) *
-        ((designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re -
-        (edgeHankel c' (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η))
-          (c' * x ^ 2 / 3)).re) ≥
-        (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re *
-          Real.exp (c' * edgeL x) - Real.exp (c' * edgeL x) * ‖edgeHankel c' (designProfile c' 1 N
-          (1 / 4) σs (designWidth1 c' η)) (c' * x ^ 2 / 3)‖ := by
-      nlinarith [mul_le_mul_of_nonneg_left hre_le hexp.le]
-    nlinarith
-  exact pos_of_mul_pos_right hprod hexp.le
+  refine pos_of_lower_hankel hcpos hxhalf hK0 (Real.exp_pos _) hglob hlow2 ?_
+  rw [← hA]; nlinarith
 
 /-- **Proposition I (a)** (`ut:I`): for every `Σ₀` there is `C > 0` such that for large `c'` and every
 `x` with `χ'_1 + C λ c'^{1/2 - 4n₁/3} ≤ x ≤ ξ_* + λ Σ₀` (`n₁ = 3/4`, so the exponent is `-1/2`) one has
@@ -249,12 +252,6 @@ theorem proposition_I_a (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
 
 /-! ### 3. Region I(b): the overshoot window `[ξ_* + λ Σ₀, ξ_I]` -/
 
-lemma sub_pos_of_bounds {Hh R N E Q Q' : ℝ} (hE : 0 < E) (hR : R ≤ N) (hlow : Q ≤ Hh * E)
-    (hup : E * N ≤ Q') (hQ : Q' < Q) : 0 < Hh - R := by
-  have h1 : E * R ≤ E * N := mul_le_mul_of_nonneg_left hR hE.le
-  have : 0 < E * (Hh - R) := by nlinarith
-  exact pos_of_mul_pos_right this hE.le
-
 lemma phiQuantile_add_two_pos (N : ℕ) : 0 < phiQuantile ((N : ℝ) + 2) := by
   unfold phiQuantile
   apply Real.rpow_pos_of_pos
@@ -264,24 +261,9 @@ lemma phiQuantile_add_two_pos (N : ℕ) : 0 < phiQuantile ((N : ℝ) + 2) := by
 lemma phiQuantile_add_two_nonneg (N : ℕ) : 0 ≤ phiQuantile ((N : ℝ) + 2) :=
   (phiQuantile_add_two_pos N).le
 
-lemma edge_bound_sqrt {K c' x E Nn : ℝ} (hK0 : 0 ≤ K) (hc' : 0 < c') (hxhalf : xiStar / 2 ≤ x)
-    (h : E * Nn ≤ K * √(c' / x)) : E * Nn ≤ K * √(2 / xiStar) * √c' := by
-  have hxi := xiStar_pos
-  have hx0 : 0 < x := lt_of_lt_of_le (by positivity) hxhalf
-  have hsq : √(c' / x) ≤ √(2 / xiStar) * √c' := by
-    rw [← Real.sqrt_mul (by positivity)]
-    apply Real.sqrt_le_sqrt
-    rw [div_le_iff₀ hx0]
-    have : 2 / xiStar * c' * x ≥ 2 / xiStar * c' * (xiStar / 2) :=
-      mul_le_mul_of_nonneg_left hxhalf (by positivity)
-    have e : 2 / xiStar * c' * (xiStar / 2) = c' := by field_simp
-    linarith
-  calc E * Nn ≤ K * √(c' / x) := h
-    _ ≤ K * (√(2 / xiStar) * √c') := mul_le_mul_of_nonneg_left hsq hK0
-    _ = K * √(2 / xiStar) * √c' := by ring
-
-lemma pow_overshoot {c' u : ℝ} (hc' : 0 < c') (hu : 0 < u) (huup : u ≤ c' ^ (-(2 / 5 : ℝ))) :
-    (2 / π) ^ (3 / 2 : ℝ) * c' ^ (3 / 5 : ℝ) ≤ (2 / (π * u)) ^ (3 / 2 : ℝ) := by
+/-- `(2/π)^a c'^{2a/5} ≤ (2/(π u))^a` for `0 < u ≤ c'^{-2/5}`, `a ≥ 0`. -/
+lemma pow_overshoot_gen {c' u a : ℝ} (hc' : 0 < c') (hu : 0 < u) (huup : u ≤ c' ^ (-(2 / 5 : ℝ)))
+    (ha : 0 ≤ a) : (2 / π) ^ a * c' ^ (2 / 5 * a : ℝ) ≤ (2 / (π * u)) ^ a := by
   have hπ := Real.pi_pos
   have hw : 0 < c' ^ (2 / 5 : ℝ) := Real.rpow_pos_of_pos hc' _
   have hwu : c' ^ (2 / 5 : ℝ) ≤ 1 / u := by
@@ -295,10 +277,8 @@ lemma pow_overshoot {c' u : ℝ} (hc' : 0 < c') (hu : 0 < u) (huup : u ≤ c' ^ 
     calc (2 / π) * c' ^ (2 / 5 : ℝ) ≤ (2 / π) * (1 / u) :=
           mul_le_mul_of_nonneg_left hwu (by positivity)
       _ = 2 / (π * u) := by field_simp
-  have h2 := Real.rpow_le_rpow (by positivity) h1 (by norm_num : (0 : ℝ) ≤ 3 / 2)
-  rw [Real.mul_rpow (by positivity) (by positivity), ← Real.rpow_mul hc'.le,
-    show (2 / 5 : ℝ) * (3 / 2) = 3 / 5 by norm_num] at h2
-  exact h2
+  have h2 := Real.rpow_le_rpow (by positivity) h1 ha
+  rwa [Real.mul_rpow (by positivity) (by positivity), ← Real.rpow_mul hc'.le] at h2
 
 lemma sech_lower {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ xiStar + 1) :
     1 / Real.cosh (π * (xiStar + 1) / 2) ^ 2 ≤ 1 / Real.cosh (π * x / 2) ^ 2 := by
@@ -336,25 +316,25 @@ lemma big_pow_lt {A cc c' : ℝ} (hc' : 0 < c') (h : A + 1 ≤ cc * c' ^ (1 / 10
   rw [h35, ← mul_assoc]
   nlinarith
 
-/-- **Proposition I (b)** (`ut:I`) for the `f = 1` finite modifications at fixed sites `σs`: see
-`proposition_I_b`, the case `σs = designSigma1 d`. -/
-theorem proposition_I_b_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
-    ∃ Sg0 : ℝ, 0 < Sg0 ∧ ∀ᶠ c' in atTop, ∀ x : ℝ, xiStar + lambdaComb c' * Sg0 ≤ x →
-      x ≤ xiStar + c' ^ (-(2 / 5 : ℝ)) →
-      0 < twoG c' 1 N (1 / 4) σs (designWidth1 c' η) x := by
-  obtain ⟨Cg, hCg, hfam⟩ := designWidth1_family N hη0.le hη1
-  obtain ⟨M, hM0, hM⟩ : ∃ M : ℝ, 0 ≤ M ∧ ∀ k, 1 ≤ k → k ≤ N → |σs k| ≤ M :=
-    ⟨∑ k ∈ Finset.Icc 1 N, |σs k|, Finset.sum_nonneg fun _ _ => abs_nonneg _,
-      fun k hk hkN => Finset.single_le_sum (f := fun j => |σs j|)
-        (fun _ _ => abs_nonneg _) (Finset.mem_Icc.mpr ⟨hk, hkN⟩)⟩
-  obtain ⟨CP, hCP, hP⟩ := lemma_P_b 1 N le_rfl hN M Cg
+/-- **The overshoot window of Region I(b) at level `f`** (`ut:I`(b), `ut:T2` Region I(b)): for every `f ≥ 1`,
+`N ≥ f`, `M`, `E ≥ 0` there are `Σ₀ > 0` and `c > 0` such that for large `c'`, every finite modification with
+`|σ_k| ≤ M` (`f ≤ k ≤ N`), `0 ≤ ε'_k ≤ E λ` (`f < k ≤ N`) and every `x` with
+`ξ_* + λ Σ₀ ≤ x ≤ ξ_* + c'^{-2/5}`:
+`Re h₀^D(x) e^{c' L(x)} ≥ c (2/(π(x - ξ_*)))^{2 n₁}`, `n₁ = f - 1/4`.  `Σ₀` is chosen so that `lemma_P_b` gives
+`B_D ≥ ½ B_ref` and `x` lies in a cell `n ≥ max(N_ov, f + 1)` of `band_overshoot_K5`. -/
+theorem designProfile_overshoot_lower (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) :
+    ∃ Sg0 cc : ℝ, 0 < Sg0 ∧ 0 < cc ∧ ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ,
+      (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
+      (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
+      ∀ x : ℝ, xiStar + lambdaComb c' * Sg0 ≤ x → x ≤ xiStar + c' ^ (-(2 / 5 : ℝ)) →
+        cc * (2 / (π * (x - xiStar))) ^ (2 * n1Comb f) ≤
+          (designProfile c' f N (1 / 4) σ ε (x : ℂ)).re * Real.exp (c' * edgeL x) := by
+  obtain ⟨CP, hCP, hP⟩ := lemma_P_b f N hf hfN M E
   obtain ⟨Nov, cT, hNov, hcT, hov⟩ := band_overshoot_K5 (η₀ := 1 / 4) (by norm_num) le_rfl
-  obtain ⟨K, hK0, hK⟩ := designProfile_global_bound 1 N le_rfl hN M Cg
-    (η₀ := 1 / 4) (by norm_num) (by norm_num)
   obtain ⟨Cg', hCg', hgapev⟩ := siteGap_eventually_le
   have hxi := xiStar_pos
   obtain ⟨s, hsdef⟩ : ∃ s : ℝ, s = max (phiQuantile ((N : ℝ) + 2)) M := ⟨_, rfl⟩
-  obtain ⟨Mov, hMov⟩ : ∃ Mov : ℕ, Mov = max Nov (1 + 1) := ⟨_, rfl⟩
+  obtain ⟨Mov, hMov⟩ : ∃ Mov : ℕ, Mov = max Nov (f + 1) := ⟨_, rfl⟩
   have hMov1 : 1 ≤ Mov := by omega
   have hlog2 : 0 < Real.log 2 := Real.log_pos (by norm_num)
   have hΦ0 : 0 ≤ phiQuantile ((Mov : ℝ) + 2) := phiQuantile_add_two_nonneg Mov
@@ -370,86 +350,75 @@ theorem proposition_I_b_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) 
   have hS2 : CP / Real.log 2 ≤ Sg0 := by rw [hSg0]; linarith
   have hS3 : phiQuantile ((Mov : ℝ) + 2) ≤ Sg0 := by rw [hSg0]; linarith
   have hS4 : phiQuantile ((N : ℝ) + 2) < Sg0 := by rw [hSg0]; linarith
-  refine ⟨Sg0, hSg0pos, ?_⟩
-  obtain ⟨A, hA⟩ : ∃ A : ℝ, A = K * √(2 / xiStar) := ⟨_, rfl⟩
-  obtain ⟨cc, hcc⟩ : ∃ cc : ℝ, cc = (1 / 2) * cT * (1 / Real.cosh (π * (xiStar + 1) / 2) ^ 2) *
-      (2 / π) ^ (3 / 2 : ℝ) := ⟨_, rfl⟩
+  obtain ⟨cc, hcc⟩ : ∃ cc : ℝ, cc = (1 / 2) * cT * (1 / Real.cosh (π * (xiStar + 1) / 2) ^ 2) := ⟨_, rfl⟩
   have hccpos : 0 < cc := by rw [hcc]; positivity
+  refine ⟨Sg0, cc, hSg0pos, hccpos, ?_⟩
   have hlamM : ∀ᶠ c' in atTop, lambdaComb c' * M ≤ xiStar := by
     have h := tendsto_lambdaComb_atTop.mul_const M
     rw [zero_mul] at h
     exact h.eventually_le_const hxi
-  have hbig : ∀ᶠ c' in atTop, A + 1 ≤ cc * c' ^ (1 / 10 : ℝ) := by
-    have h := (tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 1 / 10)).const_mul_atTop hccpos
-    exact h.eventually_ge_atTop (A + 1)
-  filter_upwards [hK, hP (η₀ := 1 / 4) (by norm_num) le_rfl, hov, hfam, hgapev, hlamM, hbig,
-    tail_ne_zero_of_refComb_ne_zero 1 N hN (η₀ := 1 / 4) (by norm_num) le_rfl,
+  have hlamE : ∀ᶠ c' in atTop, E * lambdaComb c' ≤ 1 / 2 := by
+    have h := tendsto_lambdaComb_atTop.const_mul E
+    rw [mul_zero] at h
+    exact h.eventually_le_const (by norm_num)
+  filter_upwards [hP (η₀ := 1 / 4) (by norm_num) le_rfl, hov, hgapev, hlamM, hlamE,
+    tail_ne_zero_of_refComb_ne_zero f N hfN (η₀ := 1 / 4) (by norm_num) le_rfl,
     eventually_gt_atTop (0 : ℝ), eventually_ge_atTop (1 : ℝ)]
-    with c' hKc hPc hovc hfamc hgapc hlM hbigc htailc hcpos hc1 x hx1 hx2
+    with c' hPc hovc hgapc hlM hlE htailc hcpos hc1 σ ε hM hεE x hx1 hx2
   obtain ⟨hgap_k, hgap_1_bd, hcd1_bd, hgap_half⟩ := hgapc
   have hlam : 0 < lambdaComb c' := Real.rpow_pos_of_pos (mul_pos kTip_pos hcpos) _
   have hlam0 : 0 ≤ lambdaComb c' := hlam.le
   have hu1 : c' ^ (-(2 / 5 : ℝ)) ≤ 1 := rpow_neg_two_fifths_le_one hc1
   have hux : lambdaComb c' * Sg0 ≤ x - xiStar := by linarith
   have hupos : 0 < x - xiStar := lt_of_lt_of_le (mul_pos hlam hSg0pos) hux
-  have huup : x - xiStar ≤ c' ^ (-(2 / 5 : ℝ)) := by linarith
   have hx0 : 0 < x := by linarith
   have h4s : 4 * s * lambdaComb c' ≤ 1 * (lambdaComb c' * Sg0) := by
     have := mul_le_mul_of_nonneg_left hS1 hlam0
     linarith
   have hsite := design_site_facts (s := s) (x := x) (u := lambdaComb c' * Sg0) hlam0 hlM hMs h4s
     (mul_pos hlam hSg0pos) (by linarith) hM
-  have hεw : ∀ k, 1 < k → k ≤ N → 0 ≤ designWidth1 c' η k ∧ designWidth1 c' η k ≤ 1 / 2 := by
-    intro k hk hkN
-    refine ⟨(hfamc k hk hkN).1, ?_⟩
-    have hsg1 : siteGap c' k ≤ 1 / 2 := (hgap_k k (by omega)).trans hgap_half
-    unfold designWidth1
-    calc η * siteGap c' k ≤ (1 / 4) * (1 / 2) :=
-          mul_le_mul hη1 hsg1 (siteGap_nonneg hcpos (by omega)) (by norm_num)
-      _ ≤ 1 / 2 := by norm_num
+  have hεw : ∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ 1 / 2 := fun k hk hkN =>
+    ⟨(hεE k hk hkN).1, (hεE k hk hkN).2.trans hlE⟩
   obtain ⟨r, hr, hr0, hrpos⟩ := designComb_ofReal hcpos (by norm_num : (0 : ℝ) ≤ 1 / 4)
-    (by norm_num) hgap_half 1 N σs (designWidth1 c' η) hsite hεw hN
+    (by norm_num) hgap_half f N σ ε hsite hεw hfN
   have hχMov : chiQuantile c' (Mov : ℝ) ≤ x := by
     have h := (refSite_bounds hcpos hMov1 (le_refl Mov)).2
     have := mul_le_mul_of_nonneg_left hS3 hlam0
     linarith
-  have hχ1 : chiQuantile c' ((1 : ℕ) : ℝ) < x := by
-    have h1 : chiQuantile c' ((1 : ℕ) : ℝ) ≤ xiStar + lambdaComb c' * phiQuantile ((N : ℝ) + 2) :=
-      (refSite_bounds hcpos (le_refl 1) hN).2
+  have hχ1 : chiQuantile c' (f : ℝ) < x := by
+    have h1 : chiQuantile c' (f : ℝ) ≤ xiStar + lambdaComb c' * phiQuantile ((N : ℝ) + 2) :=
+      (refSite_bounds hcpos hf hfN).2
     have h2 := mul_lt_mul_of_pos_left hS4 hlam
     linarith
   obtain ⟨-, -, -, -, h0_norm⟩ := refComb_re_nonneg_of_gt hcpos (by norm_num : (0 : ℝ) ≤ 1 / 4)
-    (by norm_num) hgap_half (f := 1) le_rfl hχ1
+    (by norm_num) hgap_half hf hχ1
   have hsech : 0 < 1 / Real.cosh (π * x / 2) ^ 2 := by positivity
-  have hov1 := hovc 1 x le_rfl (hMov ▸ hχMov)
-  have hn1 : 2 * n1Comb 1 = 3 / 2 := by unfold n1Comb; norm_num
-  rw [hn1] at hov1
-  have hpow := pow_overshoot hcpos hupos huup
+  have hov1 := hovc f x hf (hMov ▸ hχMov)
   have hsechlow := sech_lower hx0.le (by linarith : x ≤ xiStar + 1)
-  have hnormD : ‖designComb c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)‖ = r := by
+  have hnormD : ‖designComb c' f N (1 / 4) σ ε (x : ℂ)‖ = r := by
     rw [hr, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hr0]
-  have hHre : (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re =
+  have hHre : (designProfile c' f N (1 / 4) σ ε (x : ℂ)).re =
       1 / Real.cosh (π * x / 2) ^ 2 * r := by
     rw [designProfile_ofReal hr, Complex.ofReal_re]
   have hE : 0 < Real.exp (c' * slitL x) := Real.exp_pos _
   have hPi : 0 < 2 / (π * (x - xiStar)) := by have := Real.pi_pos; positivity
-  have hrhs : 0 < cT * (1 / Real.cosh (π * x / 2) ^ 2) * (2 / (π * (x - xiStar))) ^ (3 / 2 : ℝ) :=
+  have hrhs : 0 < cT * (1 / Real.cosh (π * x / 2) ^ 2) *
+      (2 / (π * (x - xiStar))) ^ (2 * n1Comb f) :=
     mul_pos (mul_pos hcT hsech) (Real.rpow_pos_of_pos hPi _)
-  have hovpos : 0 < h0Comb c' 1 (1 / 4) x * Real.exp (c' * slitL x) := lt_of_lt_of_le hrhs hov1
-  have hh0pos : 0 < h0Comb c' 1 (1 / 4) x := by
+  have hovpos : 0 < h0Comb c' f (1 / 4) x * Real.exp (c' * slitL x) := lt_of_lt_of_le hrhs hov1
+  have hh0pos : 0 < h0Comb c' f (1 / 4) x := by
     by_contra hneg
     push Not at hneg
     exact absurd hovpos (not_lt.mpr (mul_nonpos_of_nonpos_of_nonneg hneg hE.le))
-  have hrefpos : 0 < ‖refComb c' 1 (1 / 4) (x : ℂ)‖ := by
+  have hrefpos : 0 < ‖refComb c' f (1 / 4) (x : ℂ)‖ := by
     rw [h0_norm] at hh0pos
     exact pos_of_mul_pos_right hh0pos hsech.le
   have hrp : 0 < r := hrpos (htailc x (norm_pos_iff.mp hrefpos))
   have h4s' : xiStar + 4 * max (phiQuantile ((N : ℝ) + 2)) M * lambdaComb c' ≤ x := by
     rw [← hsdef]; linarith
-  have hPbd := hPc σs (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
-    (fun k hk hkN => hfamc k hk hkN) x h4s'
+  have hPbd := hPc σ ε hM hεE x h4s'
   rw [hnormD] at hPbd
-  have hlogle : |Real.log (r / ‖refComb c' 1 (1 / 4) (x : ℂ)‖)| ≤ Real.log 2 := by
+  have hlogle : |Real.log (r / ‖refComb c' f (1 / 4) (x : ℂ)‖)| ≤ Real.log 2 := by
     refine hPbd.trans ?_
     have hl : lambdaComb c' / (x - xiStar) ≤ 1 / Sg0 := by
       rw [div_le_div_iff₀ hupos hSg0pos]; linarith
@@ -461,26 +430,65 @@ theorem proposition_I_b_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) 
         linarith
   have hr_ge := half_le_of_log_le hrp hrefpos hlogle
   have hex : Real.exp (c' * slitL x) = Real.exp (c' * edgeL x) := by rw [exp_slitL_eq_edgeL hx0.le]
-  have hQ : cc * c' ^ (3 / 5 : ℝ) ≤
-      (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re *
-        Real.exp (c' * edgeL x) := by
-    rw [hHre, ← hex, hcc]
-    have hov2 : cT * (1 / Real.cosh (π * x / 2) ^ 2) * (2 / (π * (x - xiStar))) ^ (3 / 2 : ℝ) ≤
-        1 / Real.cosh (π * x / 2) ^ 2 * ‖refComb c' 1 (1 / 4) (x : ℂ)‖ * Real.exp (c' * slitL x) := by
-      rw [← h0_norm]; exact hov1
-    have hsl : 0 ≤ 1 / Real.cosh (π * (xiStar + 1) / 2) ^ 2 := by positivity
-    have := lowerH_alg hcT.le hsl (by positivity) hsech.le hE.le hsechlow hpow hov2 hr_ge
-    linarith [this]
-  have hxhalf : xiStar / 2 ≤ x := by linarith
+  rw [hHre, ← hex, hcc]
+  have hov2 : cT * (1 / Real.cosh (π * x / 2) ^ 2) * (2 / (π * (x - xiStar))) ^ (2 * n1Comb f) ≤
+      1 / Real.cosh (π * x / 2) ^ 2 * ‖refComb c' f (1 / 4) (x : ℂ)‖ * Real.exp (c' * slitL x) := by
+    rw [← h0_norm]; exact hov1
+  have hsl : 0 ≤ 1 / Real.cosh (π * (xiStar + 1) / 2) ^ 2 := by positivity
+  have hP0 : 0 ≤ (2 / (π * (x - xiStar))) ^ (2 * n1Comb f) := Real.rpow_nonneg hPi.le _
+  have := lowerH_alg hcT.le hsl hP0 hsech.le hE.le hsechlow le_rfl hov2 hr_ge
+  calc 1 / 2 * cT * (1 / Real.cosh (π * (xiStar + 1) / 2) ^ 2) * (2 / (π * (x - xiStar))) ^ (2 * n1Comb f)
+      ≤ 1 / Real.cosh (π * x / 2) ^ 2 * r * Real.exp (c' * slitL x) := this
+    _ = _ := by rw [hex]
+
+/-- **Proposition I (b)** (`ut:I`) for the `f = 1` finite modifications at fixed sites `σs`: see
+`proposition_I_b`, the case `σs = designSigma1 d`. -/
+theorem proposition_I_b_sig (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ) :
+    ∃ Sg0 : ℝ, 0 < Sg0 ∧ ∀ᶠ c' in atTop, ∀ x : ℝ, xiStar + lambdaComb c' * Sg0 ≤ x →
+      x ≤ xiStar + c' ^ (-(2 / 5 : ℝ)) →
+      0 < twoG c' 1 N (1 / 4) σs (designWidth1 c' η) x := by
+  obtain ⟨Cg, hCg, hfam⟩ := designWidth1_family N hη0.le hη1
+  obtain ⟨M, hM0, hM⟩ : ∃ M : ℝ, 0 ≤ M ∧ ∀ k, 1 ≤ k → k ≤ N → |σs k| ≤ M :=
+    ⟨∑ k ∈ Finset.Icc 1 N, |σs k|, Finset.sum_nonneg fun _ _ => abs_nonneg _,
+      fun k hk hkN => Finset.single_le_sum (f := fun j => |σs j|)
+        (fun _ _ => abs_nonneg _) (Finset.mem_Icc.mpr ⟨hk, hkN⟩)⟩
+  obtain ⟨Sg0, cc, hSg0, hcc, hov⟩ := designProfile_overshoot_lower 1 N le_rfl hN M Cg
+  obtain ⟨K, hK0, hK⟩ := designProfile_global_bound 1 N le_rfl hN M Cg
+    (η₀ := 1 / 4) (by norm_num) (by norm_num)
+  have hxi := xiStar_pos
+  refine ⟨Sg0, hSg0, ?_⟩
+  obtain ⟨A, hA⟩ : ∃ A : ℝ, A = K * √(2 / xiStar) := ⟨_, rfl⟩
+  obtain ⟨cc', hcc'⟩ : ∃ cc' : ℝ, cc' = cc * (2 / π) ^ (3 / 2 : ℝ) := ⟨_, rfl⟩
+  have hcc'pos : 0 < cc' := by rw [hcc']; positivity
+  have hbig : ∀ᶠ c' in atTop, A + 1 ≤ cc' * c' ^ (1 / 10 : ℝ) := by
+    have h := (tendsto_rpow_atTop (by norm_num : (0 : ℝ) < 1 / 10)).const_mul_atTop hcc'pos
+    exact h.eventually_ge_atTop (A + 1)
+  filter_upwards [hK, hov, hfam, hbig, eventually_gt_atTop (0 : ℝ), eventually_ge_atTop (1 : ℝ)]
+    with c' hKc hovc hfamc hbigc hcpos hc1 x hx1 hx2
+  have hlam : 0 < lambdaComb c' := Real.rpow_pos_of_pos (mul_pos kTip_pos hcpos) _
+  have hu1 : c' ^ (-(2 / 5 : ℝ)) ≤ 1 := rpow_neg_two_fifths_le_one hc1
+  have hux : lambdaComb c' * Sg0 ≤ x - xiStar := by linarith
+  have hupos : 0 < x - xiStar := lt_of_lt_of_le (mul_pos hlam hSg0) hux
+  have huup : x - xiStar ≤ c' ^ (-(2 / 5 : ℝ)) := by linarith
+  have hx0 : 0 < x := by linarith
+  have hov' := hovc σs (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
+    (fun k hk hkN => hfamc k hk hkN) x hx1 hx2
+  have hn1 : 2 * n1Comb 1 = 3 / 2 := by unfold n1Comb; norm_num
+  rw [hn1] at hov'
+  have hpow := pow_overshoot_gen (a := 3 / 2) hcpos hupos huup (by norm_num)
+  rw [show (2 / 5 : ℝ) * (3 / 2) = 3 / 5 by norm_num] at hpow
+  have hQ : cc' * c' ^ (3 / 5 : ℝ) ≤
+      (designProfile c' 1 N (1 / 4) σs (designWidth1 c' η) (x : ℂ)).re * Real.exp (c' * edgeL x) := by
+    refine le_trans ?_ hov'
+    rw [hcc', mul_assoc]
+    exact mul_le_mul_of_nonneg_left hpow hcc.le
+  have hlt : K * √(2 / xiStar) * √c' < cc' * c' ^ (3 / 5 : ℝ) := by
+    rw [← hA]; exact big_pow_lt hcpos hbigc
   have hglob := hKc σs (designWidth1 c' η) (fun k hk hkN => hM k hk hkN)
     (fun k hk hkN => hfamc k hk hkN) x hx0
-  have hhat := edge_bound_sqrt hK0 hcpos hxhalf hglob
-  have hlt : K * √(2 / xiStar) * √c' < cc * c' ^ (3 / 5 : ℝ) := by
-    rw [← hA] at *
-    exact big_pow_lt hcpos hbigc
   unfold twoG
   rw [Complex.sub_re]
-  exact sub_pos_of_bounds (Real.exp_pos _) (Complex.re_le_norm _) hQ hhat hlt
+  exact pos_of_lower_hankel hcpos (by linarith) hK0 (Real.exp_pos _) hglob hQ hlt
 
 /-- **Proposition I (b)** (`ut:I`): there is `Σ₀ > 0` such that for large `c'` and every
 `x ∈ [ξ_* + λ Σ₀, ξ_I]`, `ξ_I = ξ_* + c'^{-2/5}`, one has `2 g(c' x²/3) > 0`.  `Σ₀` is chosen so that
@@ -494,6 +502,18 @@ theorem proposition_I_b (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 < η) (hη
   proposition_I_b_sig N hN hη0 hη1 (designSigma1 d)
 
 /-! ### Axiom checks -/
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.pos_of_lower_hankel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms pos_of_lower_hankel
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.pow_overshoot_gen' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms pow_overshoot_gen
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.designProfile_overshoot_lower' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms designProfile_overshoot_lower
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.proposition_I_a_sig' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

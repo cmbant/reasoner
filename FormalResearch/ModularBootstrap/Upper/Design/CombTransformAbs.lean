@@ -1,6 +1,8 @@
 module
 
-public import FormalResearch.ModularBootstrap.Upper.Design.CombTransform
+public import FormalResearch.ModularBootstrap.Upper.Design.AmplitudeLogDeriv
+public import FormalResearch.ModularBootstrap.Upper.Saddle.EdgePhaseZero
+public import FormalResearch.ModularBootstrap.Upper.Hankel.EdgeGlobalBound
 
 /-!
 # Lemma `Φ` for an abstract comb with a phase decomposition (`ut:Phi`, `ut:T2`)
@@ -29,6 +31,20 @@ namespace FormalResearch.ModularBootstrap.Upper.Design
 
 open FormalResearch.ModularBootstrap.Upper.Comb FormalResearch.ModularBootstrap.Upper.Hankel
   FormalResearch.ModularBootstrap.Upper.Saddle
+
+/-- The comb-independent amplitude `𝒜_x = 2 e^{-2πnx/3} |ℰ(b_x)| |1 + ε_H(k b_x)|
+(|b_x|/(x F'(v_x)))^{1/2}` of `(SD.4)` for `ℰ = sech²(π b/2)` (the factor `e^{Re Φ₁(b_x)}` is `1`
+for the combs of Lemma `Φ`, see `designPhi1_re_edge`). -/
+noncomputable def combAmplitude (n x : ℝ) : ℝ :=
+  sdvPrefactor n x sechSqProfile (fun _ => 0) hankelEps
+
+lemma sechSqProfile_neg_conj (b : ℂ) :
+    sechSqProfile (-(starRingEnd ℂ b)) = starRingEnd ℂ (sechSqProfile b) := by
+  unfold sechSqProfile
+  have h1 : (π : ℂ) * -(starRingEnd ℂ b) / 2 = -(starRingEnd ℂ ((π : ℂ) * b / 2)) := by
+    rw [map_div₀, map_mul, Complex.conj_ofReal, map_ofNat]; ring
+  rw [h1, Complex.cosh_neg, Complex.cosh_conj]
+  simp
 
 /-- The data of a comb with a phase decomposition: the facts about `(B, Φ₁)` used for Lemmas `SD_V`,
 `SD_G` and `Φ`.  `|B| ≤ 1` on `|Im b| ≤ 1/2`, `B = exp (c' Φ₀ + Φ₁)` on `𝒩`, `Φ₁` differentiable on

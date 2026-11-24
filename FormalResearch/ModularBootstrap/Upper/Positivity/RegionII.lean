@@ -31,6 +31,8 @@ family, relative to `Lev^{(f)}`.
 `muHole_four_quarter_gt : 7/10 < μ₄(1/4)`, `eLeftComb_bounds`.  (4) Combination: the lower factors exceed
 `0.995` and the upper factor is at most `1.02`: `0.7 · 0.995 - 0.55 · 1.02 > 0.13`.
 
+* `proposition_II_floor`: the `h₀^D` half of the proof (steps (2)--(3)): node, real value `r` of `B_D^{(f)}(x)`, floor and
+  `|log (r/R)| ≤ 1/1000`, reused by the two-zero comb (`TwoLevel/TwoZeroRegionTwo`).
 * `proposition_II`: the compact-family statement.
 * `proposition_II_sig`: the `f = 1` combs with arbitrary offsets `σ`, `designWidth1`; `proposition_II_design`:
   the designs `D(N, η_*, d)` (`σ = designSigma1 d`).
@@ -227,17 +229,18 @@ lemma cell_facts {c' x : ℝ} (hc' : 0 < c') {f N₄ n₀ : ℕ} (hf : 1 ≤ f)
 
 /-! ### 5. Proposition II -/
 
-/-- **Proposition II** (`ut:II`), compact-family version: fix `f ≥ 1`, `N ≥ f`, `M`, `E ≥ 0`.  For `c'`
-large, every finite modification `B_D^{(f)}` of the `η₀ = 1/4` reference comb with `|σ_k| ≤ M`,
-`0 ≤ ε'_k ≤ E λ` (the family of `lemma_P_b`), and every `x ≥ ξ_* + c'^{-2/5}`,
-`2 g(c' x²/3) / Lev^{(f)}(x) ≥ 13/100`, where `2 g = h₀^D - ĥ₀` (`twoG`). -/
-theorem proposition_II (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (hE : 0 ≤ E) :
+/-- **Proposition II, floor half** (`ut:II` steps (2)--(3)): for `c'` large, every family member and every
+`x ≥ ξ_* + c'^{-2/5}`, `x` lies right of the node `χ_{f+1/2}`, `B_D^{(f)}(x) = r > 0` is real, and with
+`R = ‖B_ref^{(f)}(x)‖`: `0.7 · 0.998² · Lev^{(f)} ≤ sech²(πx/2) R` and `|log (r/R)| ≤ 1/1000`. -/
+theorem proposition_II_floor (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) :
     ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
       (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
       ∀ x : ℝ, xiStar + c' ^ (-(2 / 5 : ℝ)) ≤ x →
-        13 / 100 ≤ twoG c' f N (1 / 4) σ ε x / levComb c' f x := by
-  obtain ⟨C₁, hC₁, hΦ⟩ := lemma_Phi_transform f N hf hfN M E hE (η₀ := 1 / 4) (by norm_num)
-    (by norm_num) (θ := 2 / 5) (by norm_num) (by norm_num)
+        chiQuantile c' ((f : ℝ) + 1 / 2) < x ∧
+        ∃ R r : ℝ, 0 < R ∧ 0 < r ∧ designComb c' f N (1 / 4) σ ε (x : ℂ) = (r : ℂ) ∧
+          (7 / 10 : ℝ) * (998 / 1000) * (998 / 1000) * levComb c' f x ≤
+            1 / Real.cosh (π * x / 2) ^ 2 * R ∧
+          |Real.log (r / R)| ≤ 1 / 1000 := by
   obtain ⟨CP, hCP, hP⟩ := lemma_P_b f N hf hfN M E
   obtain ⟨CL, hCL, hL⟩ := eLeftComb_bounds
   obtain ⟨N₄, C₄, hN₄, hC₄, hfloor⟩ :=
@@ -249,7 +252,6 @@ theorem proposition_II (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (h
   have hM0pos : 1 ≤ M0 := by
     have : f + 4 ≤ M0 := le_trans (le_trans (le_max_right _ _) (le_max_left _ _)) le_rfl
     omega
-  have hexp1 : (-1 + 3 * (2 / 5 : ℝ) / 2) = -(2 / 5 : ℝ) := by norm_num
   have hmuc := muHole_four_quarter_gt
   have e1 := eventually_mul_lambda_le (4 * s) 1 one_pos
   have e2 := eventually_mul_lambda_le (phiQuantile ((M0 : ℝ) + 2)) 1 one_pos
@@ -258,12 +260,10 @@ theorem proposition_II (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (h
   have e5 := eventually_mul_lambda_le (C₄ * Cg) (1 / 1000) (by norm_num)
   have e6 := eventually_mul_lambda_le M xiStar xiStar_pos
   have e7 := eventually_mul_lambda_le E (1 / 2) (by norm_num)
-  have e8 : ∀ᶠ c' in atTop, C₁ * c' ^ (-(2 / 5 : ℝ)) ≤ 1 / 50 :=
-    (tendsto_rpow_neg_two_fifths.const_mul C₁).eventually_le_const (by norm_num)
-  filter_upwards [hΦ, hP (η₀ := 1 / 4) (by norm_num) (by norm_num), hL, hfloor, hgapev,
+  filter_upwards [hP (η₀ := 1 / 4) (by norm_num) (by norm_num), hL, hfloor, hgapev,
     tail_ne_zero_of_refComb_ne_zero f N hfN (η₀ := 1 / 4) (by norm_num) (by norm_num),
-    e1, e2, e3, e4, e5, e6, e7, e8, eventually_ge_atTop (1 : ℝ)]
-    with c' hΦc hPc hLc hflc hgc htailc he1 he2 he3 he4 he5 he6 he7 he8 hc1 σ ε hσ hε x hx
+    e1, e2, e3, e4, e5, e6, e7, eventually_ge_atTop (1 : ℝ)]
+    with c' hPc hLc hflc hgc htailc he1 he2 he3 he4 he5 he6 he7 hc1 σ ε hσ hε x hx
   obtain ⟨hgap_k, hgap_1, hcd, hgap_half⟩ := hgc
   have hc' : 0 < c' := lt_of_lt_of_le one_pos hc1
   set u : ℝ := c' ^ (-(2 / 5 : ℝ)) with hu
@@ -334,8 +334,34 @@ theorem proposition_II (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (h
     have h := div_le_of_mul_le hu0 (by norm_num) he4 hxu
     rw [mul_div_assoc] at h
     exact hPbd.trans h
+  have hfloor' : (7 / 10 : ℝ) * (998 / 1000) * (998 / 1000) * levComb c' f x ≤
+      1 / Real.cosh (π * x / 2) ^ 2 * ‖refComb c' f (1 / 4) (x : ℂ)‖ := by
+    rw [← h0_norm]; exact (le_div_iff₀ hlev).mp hq1
+  exact ⟨hχf2, ‖refComb c' f (1 / 4) (x : ℂ)‖, r, href_pos, hrp, hr, hfloor', hlogbd⟩
+
+/-- **Proposition II** (`ut:II`), compact-family version: fix `f ≥ 1`, `N ≥ f`, `M`, `E ≥ 0`.  For `c'`
+large, every finite modification `B_D^{(f)}` of the `η₀ = 1/4` reference comb with `|σ_k| ≤ M`,
+`0 ≤ ε'_k ≤ E λ` (the family of `lemma_P_b`), and every `x ≥ ξ_* + c'^{-2/5}`,
+`2 g(c' x²/3) / Lev^{(f)}(x) ≥ 13/100`, where `2 g = h₀^D - ĥ₀` (`twoG`). -/
+theorem proposition_II (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (hE : 0 ≤ E) :
+    ∀ᶠ c' in atTop, ∀ σ ε : ℕ → ℝ, (∀ k, f ≤ k → k ≤ N → |σ k| ≤ M) →
+      (∀ k, f < k → k ≤ N → 0 ≤ ε k ∧ ε k ≤ E * lambdaComb c') →
+      ∀ x : ℝ, xiStar + c' ^ (-(2 / 5 : ℝ)) ≤ x →
+        13 / 100 ≤ twoG c' f N (1 / 4) σ ε x / levComb c' f x := by
+  obtain ⟨C₁, hC₁, hΦ⟩ := lemma_Phi_transform f N hf hfN M E hE (η₀ := 1 / 4) (by norm_num)
+    (by norm_num) (θ := 2 / 5) (by norm_num) (by norm_num)
+  have hexp1 : (-1 + 3 * (2 / 5 : ℝ) / 2) = -(2 / 5 : ℝ) := by norm_num
+  have e8 : ∀ᶠ c' in atTop, C₁ * c' ^ (-(2 / 5 : ℝ)) ≤ 1 / 50 :=
+    (tendsto_rpow_neg_two_fifths.const_mul C₁).eventually_le_const (by norm_num)
+  filter_upwards [hΦ, proposition_II_floor f N hf hfN M E, e8, eventually_ge_atTop (1 : ℝ)]
+    with c' hΦc hfl he8 hc1 σ ε hσ hε x hx
+  obtain ⟨hχf2, R, r, hR, hr, hcomb, hf1, hlog⟩ := hfl σ ε hσ hε x hx
+  have hc' : 0 < c' := lt_of_lt_of_le one_pos hc1
+  have hu0 : 0 < c' ^ (-(2 / 5 : ℝ)) := Real.rpow_pos_of_pos hc' _
+  have hlev := levComb_pos c' f x
+  have hsech : 0 < 1 / Real.cosh (π * x / 2) ^ 2 := by positivity
   have hh0 : (designProfile c' f N (1 / 4) σ ε (x : ℂ)).re = 1 / Real.cosh (π * x / 2) ^ 2 * r := by
-    rw [designProfile_ofReal hr, Complex.ofReal_re]
+    rw [designProfile_ofReal hcomb, Complex.ofReal_re]
   have hA := combAmplitude_le_levComb_frac hc' hf hχf2
   have hA0 : 0 ≤ combAmplitude c' x := by
     unfold combAmplitude sdvPrefactor; positivity
@@ -344,7 +370,8 @@ theorem proposition_II (f N : ℕ) (hf : 1 ≤ f) (hfN : f ≤ N) (M E : ℝ) (h
   have hhat := hat_bound_real hA0 hA (mul_nonneg hC₁ hu0.le) he8 hΦx
   unfold twoG
   rw [Complex.sub_re]
-  exact regionII_assemble hlev hsech.le href_pos hrp hq1 h0_norm hlogbd hh0.symm.symm
+  exact regionII_assemble hlev hsech.le hR hr
+    ((le_div_iff₀ hlev).mpr hf1) rfl hlog hh0
     (Complex.re_le_norm _) hhat
 
 /-- **Proposition II, positivity form**: `g > 0` on Region II, uniformly over the family. -/
@@ -401,6 +428,10 @@ theorem proposition_II_family_nonempty (f N : ℕ) {M E : ℝ} (hM : 0 ≤ M) (h
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.proposition_II' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms proposition_II
+
+/-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.proposition_II_floor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms proposition_II_floor
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Positivity.proposition_II_pos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

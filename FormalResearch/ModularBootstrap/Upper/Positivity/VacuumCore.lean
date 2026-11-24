@@ -32,11 +32,11 @@ open FormalResearch.ModularBootstrap FormalResearch.ModularBootstrap.Upper.Comb
   FormalResearch.ModularBootstrap.Upper.Window.Cardy FormalResearch.ModularBootstrap.Upper.Holes
   FormalResearch.ModularBootstrap.Upper.Membership
 
-/-- Splitting `∫_{(0,∞)} F` at `t_S ≤ t_Φ ≤ t_R`, dropping the part below `t_S` where `F ≤ 0`. -/
-lemma split_integral_le {F : ℝ → ℝ} {tS tΦ tN tR : ℝ} (h0 : 0 ≤ tS) (hN : 0 < tN) (hSΦ : tS ≤ tΦ)
-    (hNΦ : tN ≤ tΦ) (hΦR : tΦ ≤ tR) (hint : IntegrableOn F (Ioi 0))
-    (hneg : ∀ t ∈ Ioc 0 tS, F t ≤ 0) :
-    ∫ t in Ioi 0, F t ≤ (∫ t in tS..tΦ, F t) + (∫ t in Icc tN tR, |F t|) + ∫ t in Ici tR, |F t| := by
+/-- Splitting `∫_{(0,∞)} F` at `t_S ≤ t_Φ ≤ t_R`, keeping the signed integral over `(0, t_S]`. -/
+lemma split_integral_le_signed {F : ℝ → ℝ} {tS tΦ tN tR : ℝ} (h0 : 0 ≤ tS) (hN : 0 < tN) (hSΦ : tS ≤ tΦ)
+    (hNΦ : tN ≤ tΦ) (hΦR : tΦ ≤ tR) (hint : IntegrableOn F (Ioi 0)) :
+    ∫ t in Ioi 0, F t ≤ (∫ t in Ioc 0 tS, F t) + (∫ t in tS..tΦ, F t) + (∫ t in Icc tN tR, |F t|) +
+      ∫ t in Ici tR, |F t| := by
   have hS : IntegrableOn F (Ioi tS) := hint.mono_set (Ioi_subset_Ioi h0)
   have hΦ : IntegrableOn F (Ioi tΦ) := hS.mono_set (Ioi_subset_Ioi hSΦ)
   have hR : IntegrableOn F (Ioi tR) := hΦ.mono_set (Ioi_subset_Ioi hΦR)
@@ -52,7 +52,6 @@ lemma split_integral_le {F : ℝ → ℝ} {tS tΦ tN tR : ℝ} (h0 : 0 ≤ tS) (
   have e3 : ∫ t in Ioi tΦ, F t = (∫ t in Ioc tΦ tR, F t) + ∫ t in Ioi tR, F t := by
     rw [← setIntegral_union (Ioc_disjoint_Ioi le_rfl) measurableSet_Ioi hc3 hR,
       Ioc_union_Ioi_eq_Ioi hΦR]
-  have i1 : ∫ t in Ioc 0 tS, F t ≤ 0 := setIntegral_nonpos measurableSet_Ioc hneg
   have habs : IntegrableOn (fun t => |F t|) (Ioi tR) := hR.abs
   have iabs : IntegrableOn (fun t => |F t|) (Icc tN tR) :=
     (hint.mono_set fun t ht => lt_of_lt_of_le hN ht.1).abs
@@ -66,6 +65,26 @@ lemma split_integral_le {F : ℝ → ℝ} {tS tΦ tN tR : ℝ} (h0 : 0 ≤ tS) (
     rw [integral_Ici_eq_integral_Ioi]
     exact setIntegral_mono_on hR habs measurableSet_Ioi fun t _ => le_abs_self _
   rw [e1, e2, e3, intervalIntegral.integral_of_le hSΦ]
+  linarith
+
+/-- Splitting `∫_{(0,∞)} F` at `t_S ≤ t_Φ ≤ t_R`, bounding the part below `t_S` absolutely. -/
+lemma split_integral_le_gen {F : ℝ → ℝ} {tS tΦ tN tR : ℝ} (h0 : 0 ≤ tS) (hN : 0 < tN) (hSΦ : tS ≤ tΦ)
+    (hNΦ : tN ≤ tΦ) (hΦR : tΦ ≤ tR) (hint : IntegrableOn F (Ioi 0)) :
+    ∫ t in Ioi 0, F t ≤ (∫ t in Ioc 0 tS, |F t|) + (∫ t in tS..tΦ, F t) + (∫ t in Icc tN tR, |F t|) +
+      ∫ t in Ici tR, |F t| := by
+  have h := split_integral_le_signed h0 hN hSΦ hNΦ hΦR hint
+  have hc1 : IntegrableOn F (Ioc 0 tS) := hint.mono_set Ioc_subset_Ioi_self
+  have i1 : ∫ t in Ioc 0 tS, F t ≤ ∫ t in Ioc 0 tS, |F t| :=
+    setIntegral_mono_on hc1 hc1.abs measurableSet_Ioc fun t _ => le_abs_self _
+  linarith
+
+/-- Splitting `∫_{(0,∞)} F` at `t_S ≤ t_Φ ≤ t_R`, dropping the part below `t_S` where `F ≤ 0`. -/
+lemma split_integral_le {F : ℝ → ℝ} {tS tΦ tN tR : ℝ} (h0 : 0 ≤ tS) (hN : 0 < tN) (hSΦ : tS ≤ tΦ)
+    (hNΦ : tN ≤ tΦ) (hΦR : tΦ ≤ tR) (hint : IntegrableOn F (Ioi 0))
+    (hneg : ∀ t ∈ Ioc 0 tS, F t ≤ 0) :
+    ∫ t in Ioi 0, F t ≤ (∫ t in tS..tΦ, F t) + (∫ t in Icc tN tR, |F t|) + ∫ t in Ici tR, |F t| := by
+  have h := split_integral_le_signed h0 hN hSΦ hNΦ hΦR hint
+  have h2 : ∫ t in Ioc 0 tS, F t ≤ 0 := setIntegral_nonpos measurableSet_Ioc hneg
   linarith
 
 /-- The window part: if `g(φ σ) φ'(σ) ≤ FK (w σ + ε')` on `[-S, Φ]`, then
