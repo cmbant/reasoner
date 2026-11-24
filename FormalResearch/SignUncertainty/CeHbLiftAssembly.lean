@@ -17,6 +17,11 @@ and the offsets play no role.
 the convolution source `S_c` (`ceo:conv`), the seeds `X_± = D_c ± S_c`, the eigenfunction lifts (`exists_hankelEigenfn_lift_of_convTail`),
 the tuning of `η_c`, the algebra `ceHankelPair_of_eigenfns` and the sign theorems (pre-edge `cepe:general`, window, post-edge
 `thm:ce-post-edge`, physical sign `u1co:O6`).
+
+**`CeHankelPair` is not proved here.**  It is the open Mellin-lift construction of the paper (convolution source,
+pre-edge, window and post-edge signs); this module only reduces `CeHbLift ShellHBData.airy` to it, so the headline
+field `ce_hb_lift_m1` stays open until `CeHankelPair` is a theorem.  The Laplace premise of `CeHankelPair` is true
+(`shellLaplaceF_m1_pos`) and is kept only to mirror `CeHbLift`.
 -/
 
 @[expose] public section
@@ -42,7 +47,9 @@ def CeHankelPair : Prop :=
       (∀ Δ : ℝ, T ≤ Δ → G Δ ≤ 0) ∧
       T ≤ ((d : ℝ) / 2) / π ^ 2 + airyOrderCoeff * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) + K₀
 
-/-- **`ce_hb_lift_m1` from the Hankel pair.** -/
+/-- **`ce_hb_lift_m1` from the Hankel pair** (`thm:ce-hb-lift`, `m₀ = 1`, `N = Ai`): `CeHankelPair → CeHbLift ShellHBData.airy`.
+Conditional on the open `CeHankelPair`; the odd-card premise is `m = 1`, the shell conditions are vacuous and the offsets
+unused. -/
 theorem ce_hb_lift_airy_of_hankelPair (H : CeHankelPair) : CeHbLift ShellHBData.airy := by
   intro _ hlap R_off _
   obtain ⟨K₀, d₀, hd₀⟩ := H hlap

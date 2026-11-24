@@ -20,6 +20,9 @@ namespace FormalResearch.SignUncertainty
 
 open FormalResearch.CohnElkies FormalResearch.Special
 
+/-- **Hankel eigenfunction lift of a general `U.2` seed** (`ceo:O11ak`).  Same conclusion as `exists_hankelEigenfn_lift`; the
+only analytic input is the tail bound `htail'`, an explicit hypothesis (proved for `X = airySeedU2 a b c₀`,
+`δ₀ = β₁Kε/2`, `c ≥ max(2000, 8K³)`, `m ≥ 3` by `iMain_add_iDual_tail`, not proved for other seeds). -/
 theorem exists_hankelEigenfn_lift_general {X : ℝ → ℝ} (hX : HasU2 X) {δ₀ : ℝ} (hδ : 0 ≤ δ₀) (m : ℕ) {c : ℝ}
     (hc : 3 / 2 < c) {σ : ℝ} (hσ : σ = 1 ∨ σ = -1)
     (htail' : ∃ C : ℝ, 0 ≤ C ∧ ∃ ξ₀ : ℝ, 0 < ξ₀ ∧ ∀ ξ : ℝ, ξ₀ ≤ ξ →
