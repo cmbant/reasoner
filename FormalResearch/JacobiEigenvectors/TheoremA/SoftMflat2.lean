@@ -166,7 +166,7 @@ theorem Zof_succ_le {μ : Par × ℝ} (hμ : μ ∈ P) {X : ℝ} (hX : |X - Fz.b
   have hmv2 := hmv.2
   have e : (uNode (Fz.step N) (j + 1) - C.uc μ) - (uNode (Fz.step N) j - C.uc μ) = Fz.step N := by linarith
   rw [e] at hmv2
-  unfold SoftEdgeChart.Zof
+  unfold SoftEdgeCore.Zof
   rw [← sub_div, div_le_iff₀ hs]
   calc _ ≤ C.dp * Fz.step N := hmv2
     _ = C.dp * Real.sqrt (Fz.step N) * Real.sqrt (Fz.step N) := by rw [mul_assoc, hsq]

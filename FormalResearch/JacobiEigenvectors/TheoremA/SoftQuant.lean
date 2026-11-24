@@ -172,7 +172,7 @@ lemma Zof_nonpos_of_le {k : ℤ} (hk : k ≤ (C.chain μ X N).jj 2) (hxk : -(2 *
   have : C.zeta μ (Fz.bandHi μ - X) (uNode (Fz.step N) k - C.uc μ) ≤ 0 := by
     have := mul_nonneg hdm.le (sub_nonneg.mpr (by linarith : uNode (Fz.step N) k - C.uc μ ≤ uNode (Fz.step N) ((C.chain μ X N).jj 2) - C.uc μ))
     linarith [hmvt.1]
-  rw [SoftEdgeChart.Zof_eq]
+  rw [SoftEdgeCore.Zof_eq]
   exact div_nonpos_of_nonpos_of_nonneg this hs.le
 
 end PosChain
@@ -412,7 +412,7 @@ lemma Eminus_quant_small :
     have hq := C.Zq_lb hμ hX hhH1 (x := 5 * C.η / 16) (by rw [abs_of_pos (by linarith)]; linarith)
       (by rw [abs_of_pos (by linarith)]; linarith)
     have e : (-zh) ^ 2 / 4 + C.aOf μ X N = (C.zeta μ (Fz.bandHi μ - X) (5 * C.η / 16) ^ 2 / 4 - C.muTilde μ X N) / Fz.step N := by
-      rw [neg_sq, hzh, SoftEdgeChart.aOf_eq, div_pow, hs2]; field_simp; ring
+      rw [neg_sq, hzh, SoftEdgeCore.aOf_eq, div_pow, hs2]; field_simp; ring
     rw [e, div_pow, Real.sq_sqrt (by positivity), hs2]
     exact div_le_div_of_nonneg_right hq hh0.le
   have hdec := Eminus_decay (C.aOf μ X N) (Real.sqrt (C.cz1 / 8) / Real.sqrt (Fz.step N)) hz12 (by linarith) (by positivity) hmar
@@ -455,24 +455,24 @@ lemma Eminus_quant_ratio :
   have hsub : uNode (Fz.step N) (k0 + 1) - C.uc μ - (uNode (Fz.step N) k0 - C.uc μ) = Fz.step N := by linarith
   rw [hsub] at hmvt
   have hZ01 : C.Zof μ X N k0 ≤ C.Zof μ X N (k0 + 1) := by
-    rw [SoftEdgeChart.Zof_eq, SoftEdgeChart.Zof_eq]
+    rw [SoftEdgeCore.Zof_eq, SoftEdgeCore.Zof_eq]
     apply div_le_div_of_nonneg_right _ hs.le
     have := mul_nonneg hdm.le hh0.le
     linarith [hmvt.1]
   refine ⟨Eminus_mono _ (by linarith) (by linarith), ?_⟩
   have hdiffZ : C.Zof μ X N (k0 + 1) - C.Zof μ X N k0 ≤ C.dp * Real.sqrt (Fz.step N) := by
-    rw [SoftEdgeChart.Zof_eq, SoftEdgeChart.Zof_eq, ← sub_div, div_le_iff₀ hs]
+    rw [SoftEdgeCore.Zof_eq, SoftEdgeCore.Zof_eq, ← sub_div, div_le_iff₀ hs]
     have : C.dp * Real.sqrt (Fz.step N) * Real.sqrt (Fz.step N) = C.dp * Fz.step N := by rw [mul_assoc, ← sq, hs2]
     rw [this]; exact hmvt.2
   have hzb1 := zeta_abs_le C hμ hα (x := uNode (Fz.step N) (k0 + 1) - C.uc μ) (by rw [abs_le]; constructor <;> linarith)
   have hZ1abs : |C.Zof μ X N (k0 + 1)| ≤ (C.cZ * C.δ0 + 2 * C.dp * C.η) / Real.sqrt (Fz.step N) := by
-    rw [SoftEdgeChart.Zof_eq, abs_div, abs_of_pos hs]
+    rw [SoftEdgeCore.Zof_eq, abs_div, abs_of_pos hs]
     exact div_le_div_of_nonneg_right hzb1 hs.le
   have hamax : Real.sqrt (max (C.aOf μ X N) 0) ≤ Real.sqrt (C.Cmu * (1 + ((q / 2 : ℕ) : ℝ))) / Real.sqrt (Fz.step N) := by
     rw [← Real.sqrt_div (by have := C.consts_pos2.1; positivity)]
     apply Real.sqrt_le_sqrt
     have hmu := C.muTilde_abs_le hμ hX hh1
-    rw [SoftEdgeChart.aOf_eq]
+    rw [SoftEdgeCore.aOf_eq]
     apply max_le
     · have : -(1 / Fz.step N) * C.muTilde μ X N ≤ C.Cmu * (1 + ((q / 2 : ℕ) : ℝ)) / Fz.step N := by
         have h1 : -(1 / Fz.step N) * C.muTilde μ X N = (-C.muTilde μ X N) / Fz.step N := by ring

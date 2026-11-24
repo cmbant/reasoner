@@ -98,7 +98,7 @@ theorem left_lb {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) :
       have hpos := Zof_pos_of_gt C hp hX hN hhH1 hVpre (k := k) (mem_Icc.mpr ⟨by omega, hkNR⟩) (by linarith)
       linarith
     have hkw : k ∈ Finset.Icc ((C.chain p X N).jj 1 + 1) ((C.chain p X N).jj 2) := mem_Icc.mpr ⟨by omega, hk2⟩
-    have hl := C.lb_pc p hp X hX N hN ha k hkw (by unfold SoftEdgeChart.Zof SoftEdgeChart.aOf at hZ; exact hZ)
+    have hl := C.lb_pc p hp X hX N hN ha k hkw (by unfold SoftEdgeCore.Zof SoftEdgeCore.aOf at hZ; exact hZ)
     have hW : (C.chain p X N).W k = Eminus (C.aOf p X N) (C.Zof p X N k) := C.W2_def p hp X hX N hN k hkw
     have hM : (C.chain p X N).M k = Mbal (C.aOf p X N) (C.Zof p X N k) :=
       C.M2_def p hp X hX N hN k (mem_Icc.mpr ⟨by omega, hkNR⟩)

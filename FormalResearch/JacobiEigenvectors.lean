@@ -179,6 +179,7 @@ public import FormalResearch.JacobiEigenvectors.Charts.WeberLadder
 public import FormalResearch.JacobiEigenvectors.Charts.PCVFarGrowth
 public import FormalResearch.JacobiEigenvectors.Charts.SoftBounds
 public import FormalResearch.JacobiEigenvectors.Charts.BulkWeberCore
+public import FormalResearch.JacobiEigenvectors.Charts.SoftEdgeCore
 public import FormalResearch.JacobiEigenvectors.Charts.LocalGeometry
 
 /-!

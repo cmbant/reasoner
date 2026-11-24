@@ -494,7 +494,7 @@ lemma win_aOf_facts (CL : SoftEdgeChart Fz P m q U V Lm) (p : Par × ℝ) (hp : 
   obtain ⟨hCmu, _⟩ := CL.consts_pos2
   have hα : |Fz.bandHi p - X| ≤ CL.δ0 := by rw [abs_sub_comm]; exact hX
   refine ⟨∑ r ∈ Finset.Icc 1 (q / 2), Fz.step N ^ (2 * r) * CL.muS r p (Fz.bandHi p - X), ?_, ?_, ?_⟩
-  · unfold SoftEdgeChart.aOf aPC
+  · unfold SoftEdgeCore.aOf aPC
     field_simp
   · unfold winKq
     have hsum : |∑ r ∈ Finset.Icc 1 (q / 2), Fz.step N ^ (2 * r) * CL.muS r p (Fz.bandHi p - X)|
@@ -2470,7 +2470,7 @@ lemma farChart (CL : SoftEdgeChart Fz P m q U V Lm) (p : Par × ℝ) (hp : p ∈
     (|CL.zeta p α (uNode (Fz.step N) n - CL.uc p)|) hcz hC (mul_nonneg (Nat.cast_nonneg _) hC) hh0 rfl
     hℓ0 hℓ1 rfl hmu0 rfl hd (by rw [sq_abs]; exact hz) (abs_nonneg _) hsmall
   have hzpos : 0 < Real.sqrt (Fz.step N) := Real.sqrt_pos.mpr hh0
-  unfold SoftEdgeChart.Zof
+  unfold SoftEdgeCore.Zof
   rw [abs_div, abs_of_pos hzpos, lt_div_iff₀ hzpos, hrho]
   have e2 : (2 * Real.sqrt A' + (1 + A') ^ (-(1 : ℝ) / 6)) * Real.sqrt (Fz.step N) =
       2 * Real.sqrt (max μt 0) + (1 + A') ^ (-(1 : ℝ) / 6) * Real.sqrt (Fz.step N) := by

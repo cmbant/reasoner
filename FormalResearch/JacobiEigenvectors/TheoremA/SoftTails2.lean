@@ -246,7 +246,7 @@ lemma Zof_incr {μ : Par × ℝ} (hμ : μ ∈ P) {X : ℝ} (hX : |X - Fz.bandHi
     rw [mul_assoc, hsq]
     unfold uNode
     ring
-  unfold SoftEdgeChart.Zof
+  unfold SoftEdgeCore.Zof
   rw [← sub_div, le_div_iff₀ hs, e]
   exact hmv.1
 

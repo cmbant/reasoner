@@ -91,6 +91,15 @@ variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Pa
 
 lemma step_pos (N : ℕ) : 0 < F.step N := FormalResearch.JB.stepSize_pos F.L_pos N
 
+end SoftEdgeChart
+
+namespace SoftEdgeCore
+
+variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
+  (C : SoftEdgeCore F P m q U V Lm)
+
+open SoftEdgeChart (step_pos)
+
 /-- `mu~ = mu_0 + sum_{r=1}^{q/2} h^{2r} mu_{2r}` so that `a = -mu~/h`. -/
 def muTilde (μ : Par) (X : ℝ) (N : ℕ) : ℝ :=
   C.muS 0 μ (F.bandHi μ - X) + ∑ r ∈ Finset.Icc 1 (q / 2), F.step N ^ (2 * r) * C.muS r μ (F.bandHi μ - X)
@@ -224,6 +233,15 @@ lemma Z2_add_a (μ : Par) (X : ℝ) (N : ℕ) (n : ℤ) :
   rw [Zof_eq, aOf_eq, div_pow, Real.sq_sqrt hh.le]
   field_simp
   ring
+
+end SoftEdgeCore
+
+namespace SoftEdgeChart
+
+variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
+  (C : SoftEdgeChart F P m q U V Lm)
+
+open SoftEdgeCore
 
 /-! ### The explicit constants of the derived (S3) -/
 

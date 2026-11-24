@@ -144,8 +144,10 @@ def aPC (muS : ℕ → ℝ → ℝ) (q : ℕ) (h α : ℝ) : ℝ :=
 def softLamVal (step : ℝ) (j1 : ℤ) (Yj a zj : ℝ) : ℝ :=
   Ewell (-((j1 : ℝ) + 1 / 2)) |Yj / Real.sqrt step| / Eminus a (zj / Real.sqrt step)
 
-/-- **The left soft-edge chart at the upper edge, order `m`, shift index `q`** (see the module docstring). -/
-structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (P : Set Par) (m q : ℕ)
+/-- **The input fields of the left soft-edge chart**: the coordinates `Y`, `zeta`, `mu_{2r}`, the ladder data, the corrector rows and
+their bounds.  The other fields of `SoftEdgeChart` (`bondA_le`, `grow_gap`, `seed_posW`, `collar_lbW`, `ratio2`, `ratioM`, `lb_weber`, `lb_pc`,
+`grow3` and their constants) are derived from these when the model pair is `pcU, pcV`: `SoftEdgeChart.ofCore` (`Charts/SoftEdgeCore.lean`). -/
+structure SoftEdgeCore {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (P : Set Par) (m q : ℕ)
     (U V : ℝ → ℝ → ℝ) (Lm : ℝ → ℝ) where
   cs : ChainConsts
   N0 : ℕ
@@ -163,13 +165,6 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   Cmu : ℝ
   cz1 : ℝ
   consts_pos2 : 0 ≤ Cmu ∧ 0 < cz1
-  /-- **(round 4)** the bond bound `CA`, the growth margin `nu1`, the collar lower-bound constant `c3W`, the ratio constant `C2`, the envelope ratio constant `CM` (fields `bondA_le`, `grow_gap`, `collar_lbW`, `ratio2`, `ratioM`). -/
-  CA : ℝ
-  nu1 : ℝ
-  c3W : ℝ
-  C2 : ℝ
-  CM : ℝ
-  consts_pos3 : 0 ≤ CA ∧ 0 < nu1 ∧ 0 < c3W ∧ 0 ≤ C2 ∧ 0 < CM
   /-- the fold `u_c = u_c^+` (the unique maximiser of `f_+`, (H3)). -/
   uc : Par → ℝ
   /-- the coordinate `zeta(x; alpha)` at `(mu, alpha, x)` and the shifts `mu_{2r}(alpha)` at `(r, mu, alpha)` (`muS 0 = mu_0`). -/
@@ -253,8 +248,6 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
     (chainW μ X N).W k = Ewell (-((k : ℝ) + 1 / 2)) |Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N)|
   M_defW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chainW μ X N).NR,
     (chainW μ X N).M k = Mbal (-((k : ℝ) + 1 / 2)) (Y μ X (uNode (F.step N) k) / Real.sqrt (F.step N))
-  /-- `psi-hat_0 > 0` (Weber seed). -/
-  seed_posW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → 0 < (chainW μ X N).phi (F.step N) 0 1 0
   /-- **the first patch of the soft chain is the Weber patch of `chainW`** (the same corrected Weber pair, one corrector row `A^{[m]}, B^{[m]}`; the model pair, ladder and `omega` are fixed by `wfW_eq`,
   `dd_sqrtW`, `omega_sqrtW`). -/
   patch1_eq : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
@@ -342,27 +335,6 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   Lm_one : ∀ h : ℝ, 0 < h → h ≤ 1 → 1 ≤ Lm h
   /-- **(F-W2-8)** `Lm` grows slower than `1/h`: `h Lm(h) -> 0` (true for `Lm = 1` and `Lm = 1 + log(1/h)`); it makes the engine smallness `h^m C_sum Lm(h) <= c_*` hold for small `h`. -/
   Lm_small : ∀ ε : ℝ, 0 < ε → ∃ h1 : ℝ, 0 < h1 ∧ ∀ h : ℝ, 0 < h → h ≤ h1 → h * Lm h ≤ ε
-  /-- **(round 4)** the bonds are bounded, `a_n <= C_A` (`a_n = sqrt(s_n (L - s_n) G_h(s_n))`, `G_h` bounded: (E_{q/2}); the paper uses `a_n <= C` throughout, e.g. `A M M ~ omega_*` at a forbidden overlap). -/
-  bondA_le : ∀ μ ∈ P, ∀ N, N0 ≤ N → ∀ k : ℤ, F.bondA μ N k ≤ CA
-  /-- **(round 4; app_thmA Step 3 (i), eq:tha-S4grow)** the growth margin of the exact solution on the left forbidden side: `X - B_n >= a_n + a_{n-1} + nu_1` for `u_n <= u_c - eta/4`
-  (lem:tha-geom (d): `Q_0 - 2 sqrt(E_0) >= nu_1'` there, uniformly by compactness; `|B_n - B_0(u_n)| <= C h^2`, `a_n + a_{n-1} <= 2 sqrt(E_0(u_n)) + C sqrt h`; `h` small is `N >= N_0`). -/
-  grow_gap : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ n : ℤ, 0 ≤ n → uNode (F.step N) n ≤ uc μ - η / 4 →
-    F.bondA μ N n + F.bondA μ N (n - 1) + nu1 ≤ F.diagQ μ N X n
-  /-- **(round 4; lem:cha-W0 for the turning-point-free Weber chart, app_thmA Step 3 (i))** relative lower bound of the Weber comparison sequence on `[0, u_c - eta/2]`: `|psi-hat^{Web}_k| >= c_3 E_Web M_Web`
-  (the analogue of `BulkWeberChart.collar_lb`: lem:cha-W0 with the corrector bound `O(h E M)` and `A^{[m]} >= (1/2) min g_0`; the whole range is forbidden since `Y^2 - 4u >= c_F`). -/
-  collar_lbW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chainW μ X N).NR,
-    uNode (F.step N) k ≤ uc μ - η / 2 →
-      c3W * (chainW μ X N).W k * (chainW μ X N).M k ≤ |(chainW μ X N).phi (F.step N) 0 1 k|
-  /-- **(round 4; app_thmA Step 3 (ii))** the forward ratio of the dominant (second) member of the first PC pair across the overlap bond: `|phi^{(2)}_{2,j_1+1}| <= (1 + C_2 h) |phi^{(2)}_{2,j_1}|`
-  (`r_2 = e^{-theta}(1 + O(h))`: the explicit function `v~(a,|Z|)` (resp. `U(a,Z)`) decreases as `|Z|` decreases in its Liouville--Green zone (for the actual `pcV`: `pcV_far_pos_and_growth`), with the corrector bound `O(h)`; a statement about the
-  model comparison member only). -/
-  ratio2 : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
-    |(chain μ X N).phi (F.step N) 1 2 ((chain μ X N).jj 1 + 1)| ≤
-      (1 + C2 * F.step N) * |(chain μ X N).phi (F.step N) 1 2 ((chain μ X N).jj 1)|
-  /-- **(round 5; app_thmA Step 3 (i), "`M^2_Web ≍ h^{1/2}` there")** the amplitude weight is comparable across the overlap bond: `M_{j_1+1} <= C_M M_{j_1}` (both `M_Web(j_1)` and `M_bal(a, Z_{j_1+1})` are
-  `k_2^{-1/4}` with `k_2 ≍ h^{-1}` at the two rows). -/
-  ratioM : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
-    (chain μ X N).M ((chain μ X N).jj 1 + 1) ≤ CM * (chain μ X N).M ((chain μ X N).jj 1)
   /-- **(round 7, F-PW6 of `lem:tha-M`; thmA.tex "the corrector" and `lem:cha-PCcoord`)** the constants `g_- / 2` and `C_B` of the PC corrector rows `A^{[m]}, B^{[m]}` of the collar. -/
   gm : ℝ
   CBc : ℝ
@@ -389,6 +361,75 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
   `c_Z, cmu0, Cmu0` (`delta_0` is chart data, like the pair `(delta_0, eta)` of `geom_far`): `2 c_Z^2 C_mu0 delta_0 <= cmu0^2`.  Used for the fold row `n_c` in the window (flat0 of `lem:tha-Mflat`, `prop:tha-splice` (b)).
   `P`-independent, so `SoftEdgeChart.restrictSub` inherits it. -/
   delta0_small : 2 * cZ ^ 2 * Cmu0 * δ0 ≤ cmu0 ^ 2
+  /-- **(round 9, F-W2-19; app_thmA Step 6: "`lambda_L`, `lambda_R` are real, continuous and non-vanishing in `X`")** `lambda_L` (the explicit quotient of two Casoratians of the chain, the body
+  of `SoftEdgeChart.lamL`) is continuous in `X` on the whole energy window, for fixed `mu` and `N`.  Non-vanishing is `soft_lamL_lower`; with it the sign of `lambda_L` is constant on the window
+  (intermediate value theorem), which is what the counting lemma `lem:tha-count` (ii), (iii) needs (`TheoremA/SoftSigns*.lean`).  The chain depends on `X` through the PC parameter `a` and
+  the coordinate `Z_n` only; the normalisations (`kappa_bal`, the second member of the PC pair) are positive scalars that cancel in the quotient across `a = 0`. -/
+  lamL_cont : ∀ μ ∈ P, ∀ N, N0 ≤ N → ContinuousOn (fun X =>
+      cas (chain μ X N).A ((chain μ X N).phi (F.step N) 0 1) ((chain μ X N).phi (F.step N) 1 2) ((chain μ X N).jj 1) /
+      cas (chain μ X N).A
+        (fun n => (chain μ X N).phi (F.step N) 0 2 n / kappaBal (aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X)))
+        ((chain μ X N).phi (F.step N) 1 2) ((chain μ X N).jj 1))
+    {X | |X - F.bandHi μ| ≤ δ0}
+  /-- **(round 10, F-BB-5; lem:cha-PCcoord (1), the turning-point structure of `zeta`)** the Weber coordinate sends the turning points of the symbol to `zeta = +-2 sqrt(mu_0)` with
+  `Omega_0^2 = zeta^2/4 - mu_0` of the sign of `-T`: from `cosh(Omega_0 d_x zeta) = Upsilon_0` (`T = 4 E_0 (1 - Upsilon_0^2)`), `d_x zeta <= d_+` and the boundedness of `E_0`, `X - B_0` on the collar,
+  `zeta^2/4 - mu_0 >= c_T (-T)` wherever `T(u_c + x; X) <= 0` (`|x| <= 2 eta`).  It gives `|Z_n| > rho(a)` at the rows with `T <= -eps` (`TheoremA/SoftWindowProof.lean`). -/
+  cT : ℝ
+  cT_pos : 0 < cT
+  zeta_T : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → ∀ x, |x| ≤ 2 * η → 0 ≤ uc μ + x → uc μ + x ≤ F.L →
+    Tfun F.L (F.G 0 μ) (F.B 0 μ) (F.bandHi μ - α) (uc μ + x) ≤ 0 →
+    cT * (-Tfun F.L (F.G 0 μ) (F.B 0 μ) (F.bandHi μ - α) (uc μ + x)) ≤ zeta μ α x ^ 2 / 4 - muS 0 μ α
+  /-- **(Phase I(a))** the soft Weber coordinate is bounded on `[0, u_c - eta/2]` (`Y_L` is continuous on a compact set; it is positive there
+  by `Y_forb`).  Used for the Weber envelopes of `chainW` (`seed_posW`, `collar_lbW`, `lb_weber`) and for `ratioM`. -/
+  Y_le : ∃ CY : ℝ, ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ u ∈ Set.Icc 0 (uc μ - η / 2), Y μ X u ≤ CY
+  /-- **(Phase I(a))** the leading corrector row of the Weber chart `chainW`, as `BulkWeberCore.corr_lead`: `A^{[m]} = g_0 + O(h^2)`,
+  `g_0 >= c_g > 0`, `|B^{[m]}| <= C_g` (`prop:cha-halfrow`, `thm:eng-corr`). -/
+  corr_leadW : ∃ cg Cg : ℝ, 0 < cg ∧ ∃ g0 : Par → ℝ → ℝ → ℝ, ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    ∀ k ∈ Finset.Icc (0 : ℤ) (chainW μ X N).NR,
+      cg ≤ g0 μ X (uNode (F.step N) k) ∧
+      |(chainW μ X N).AA 1 (uNode (F.step N) k) (F.step N) - g0 μ X (uNode (F.step N) k)| ≤ Cg * F.step N ^ 2 ∧
+      |(chainW μ X N).BB 1 (uNode (F.step N) k) (F.step N)| ≤ Cg
+  /-- **(Phase I(a))** the PC corrector amplitude varies by `O(h)` from row to row on the collar: `A^{[m]}_{k+1} <= (1 + C h) A^{[m]}_k` and
+  `A^{[m]}_k <= (1 + C h) A^{[m]}_{k+1}` (`A^{[m]}` is `C^1` in `u` with `A^{[m]} >= g_- / 2`; `lem:cha-PCcoord`, `thm:eng-corr`).  Used for `ratio2`, `grow3`. -/
+  AA2_ratio : ∃ CAl : ℝ, 0 ≤ CAl ∧ ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k : ℤ, 0 ≤ k → k + 1 ≤ (N : ℤ) →
+    |uNode (F.step N) k - uc μ| ≤ 2 * η → |uNode (F.step N) (k + 1) - uc μ| ≤ 2 * η →
+      (chain μ X N).AA 2 (uNode (F.step N) (k + 1)) (F.step N) ≤ (1 + CAl * F.step N) * (chain μ X N).AA 2 (uNode (F.step N) k) (F.step N) ∧
+      (chain μ X N).AA 2 (uNode (F.step N) k) (F.step N) ≤ (1 + CAl * F.step N) * (chain μ X N).AA 2 (uNode (F.step N) (k + 1)) (F.step N)
+
+/-- **The left soft-edge chart at the upper edge, order `m`, shift index `q`** (see the module docstring): the core and the fields
+derived from it. -/
+structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily Par) (P : Set Par) (m q : ℕ)
+    (U V : ℝ → ℝ → ℝ) (Lm : ℝ → ℝ) extends SoftEdgeCore F P m q U V Lm where
+  /-- **(round 4)** the bond bound `CA`, the growth margin `nu1`, the collar lower-bound constant `c3W`, the ratio constant `C2`, the envelope ratio constant `CM` (fields `bondA_le`, `grow_gap`, `collar_lbW`, `ratio2`, `ratioM`). -/
+  CA : ℝ
+  nu1 : ℝ
+  c3W : ℝ
+  C2 : ℝ
+  CM : ℝ
+  consts_pos3 : 0 ≤ CA ∧ 0 < nu1 ∧ 0 < c3W ∧ 0 ≤ C2 ∧ 0 < CM
+  /-- `psi-hat_0 > 0` (Weber seed). -/
+  seed_posW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → 0 < (chainW μ X N).phi (F.step N) 0 1 0
+  /-- **(round 4)** the bonds are bounded, `a_n <= C_A` (`a_n = sqrt(s_n (L - s_n) G_h(s_n))`, `G_h` bounded: (E_{q/2}); the paper uses `a_n <= C` throughout, e.g. `A M M ~ omega_*` at a forbidden overlap). -/
+  bondA_le : ∀ μ ∈ P, ∀ N, N0 ≤ N → ∀ k : ℤ, F.bondA μ N k ≤ CA
+  /-- **(round 4; app_thmA Step 3 (i), eq:tha-S4grow)** the growth margin of the exact solution on the left forbidden side: `X - B_n >= a_n + a_{n-1} + nu_1` for `u_n <= u_c - eta/4`
+  (lem:tha-geom (d): `Q_0 - 2 sqrt(E_0) >= nu_1'` there, uniformly by compactness; `|B_n - B_0(u_n)| <= C h^2`, `a_n + a_{n-1} <= 2 sqrt(E_0(u_n)) + C sqrt h`; `h` small is `N >= N_0`). -/
+  grow_gap : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ n : ℤ, 0 ≤ n → uNode (F.step N) n ≤ uc μ - η / 4 →
+    F.bondA μ N n + F.bondA μ N (n - 1) + nu1 ≤ F.diagQ μ N X n
+  /-- **(round 4; lem:cha-W0 for the turning-point-free Weber chart, app_thmA Step 3 (i))** relative lower bound of the Weber comparison sequence on `[0, u_c - eta/2]`: `|psi-hat^{Web}_k| >= c_3 E_Web M_Web`
+  (the analogue of `BulkWeberChart.collar_lb`: lem:cha-W0 with the corrector bound `O(h E M)` and `A^{[m]} >= (1/2) min g_0`; the whole range is forbidden since `Y^2 - 4u >= c_F`). -/
+  collar_lbW : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N → ∀ k ∈ Finset.Icc (0 : ℤ) (chainW μ X N).NR,
+    uNode (F.step N) k ≤ uc μ - η / 2 →
+      c3W * (chainW μ X N).W k * (chainW μ X N).M k ≤ |(chainW μ X N).phi (F.step N) 0 1 k|
+  /-- **(round 4; app_thmA Step 3 (ii))** the forward ratio of the dominant (second) member of the first PC pair across the overlap bond: `|phi^{(2)}_{2,j_1+1}| <= (1 + C_2 h) |phi^{(2)}_{2,j_1}|`
+  (`r_2 = e^{-theta}(1 + O(h))`: the explicit function `v~(a,|Z|)` (resp. `U(a,Z)`) decreases as `|Z|` decreases in its Liouville--Green zone (for the actual `pcV`: `pcV_far_pos_and_growth`), with the corrector bound `O(h)`; a statement about the
+  model comparison member only). -/
+  ratio2 : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    |(chain μ X N).phi (F.step N) 1 2 ((chain μ X N).jj 1 + 1)| ≤
+      (1 + C2 * F.step N) * |(chain μ X N).phi (F.step N) 1 2 ((chain μ X N).jj 1)|
+  /-- **(round 5; app_thmA Step 3 (i), "`M^2_Web ≍ h^{1/2}` there")** the amplitude weight is comparable across the overlap bond: `M_{j_1+1} <= C_M M_{j_1}` (both `M_Web(j_1)` and `M_bal(a, Z_{j_1+1})` are
+  `k_2^{-1/4}` with `k_2 ≍ h^{-1}` at the two rows). -/
+  ratioM : ∀ μ ∈ P, ∀ X, |X - F.bandHi μ| ≤ δ0 → ∀ N, N0 ≤ N →
+    (chain μ X N).M ((chain μ X N).jj 1 + 1) ≤ CM * (chain μ X N).M ((chain μ X N).jj 1)
   /-- **(round 8, F-W2-18; app_thmA Step 4 (f), lem:cha-W0)** the Liouville--Green lower bound off the window: the comparison profile is bounded below by its envelope, `|phi^{(1)}_k| >= c_lb W_k M_k`.
   On the Weber rows of `chainW` (`u_k <= u_c - eta/2`; the paper's (d)(ii)--(iii): lem:cha-W0 plus the corrector bound) and on the left PC rows of patch 2 with `|Z_k| > rho(a)` (`a <= a_+`, uniform):
   there it follows from `corr_PC` and `beyond` as in Step 4 (f); stated as a field to avoid redoing the window row analysis off the window. -/
@@ -403,16 +444,6 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
         -(2 * Real.sqrt (max (-(aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X))) 0) +
           (1 + max (-(aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X))) 0) ^ (-(1 : ℝ) / 6)) →
       clb * ((chain μ X N).W k * (chain μ X N).M k) ≤ |(chain μ X N).phi (F.step N) 0 2 k|
-  /-- **(round 9, F-W2-19; app_thmA Step 6: "`lambda_L`, `lambda_R` are real, continuous and non-vanishing in `X`")** `lambda_L` (the explicit quotient of two Casoratians of the chain, the body
-  of `SoftEdgeChart.lamL`) is continuous in `X` on the whole energy window, for fixed `mu` and `N`.  Non-vanishing is `soft_lamL_lower`; with it the sign of `lambda_L` is constant on the window
-  (intermediate value theorem), which is what the counting lemma `lem:tha-count` (ii), (iii) needs (`TheoremA/SoftSigns*.lean`).  The chain depends on `X` through the PC parameter `a` and
-  the coordinate `Z_n` only; the normalisations (`kappa_bal`, the second member of the PC pair) are positive scalars that cancel in the quotient across `a = 0`. -/
-  lamL_cont : ∀ μ ∈ P, ∀ N, N0 ≤ N → ContinuousOn (fun X =>
-      cas (chain μ X N).A ((chain μ X N).phi (F.step N) 0 1) ((chain μ X N).phi (F.step N) 1 2) ((chain μ X N).jj 1) /
-      cas (chain μ X N).A
-        (fun n => (chain μ X N).phi (F.step N) 0 2 n / kappaBal (aPC (fun r α' => muS r μ α') q (F.step N) (F.bandHi μ - X)))
-        ((chain μ X N).phi (F.step N) 1 2) ((chain μ X N).jj 1))
-    {X | |X - F.bandHi μ| ≤ δ0}
   /-- **(round 9, F-W2-20; app_thmA Step 5 "the growing part `A v~ + h B h^{1/2} v~'` has size `>= c E^{-1} M`", Step 6 (ii) "a sign fixed up to `cos(pi a)`")** the constants of `grow3`. -/
   cgr : ℝ
   Cgr : ℝ
@@ -427,19 +458,11 @@ structure SoftEdgeChart {Par : Type*} [TopologicalSpace Par] (F : SymbolFamily P
       cgr * ((chain μ X N).W k * (chain μ X N).M k) ≤ (chain μ X N).phi (F.step N) 0 3 k ∧
       cgr * ((chain μ X N).W (k + 1) * (chain μ X N).M (k + 1)) ≤ (chain μ X N).phi (F.step N) 0 3 (k + 1) ∧
       (chain μ X N).phi (F.step N) 0 3 k ≤ (1 + Cgr * F.step N) * (chain μ X N).phi (F.step N) 0 3 (k + 1)
-  /-- **(round 10, F-BB-5; lem:cha-PCcoord (1), the turning-point structure of `zeta`)** the Weber coordinate sends the turning points of the symbol to `zeta = +-2 sqrt(mu_0)` with
-  `Omega_0^2 = zeta^2/4 - mu_0` of the sign of `-T`: from `cosh(Omega_0 d_x zeta) = Upsilon_0` (`T = 4 E_0 (1 - Upsilon_0^2)`), `d_x zeta <= d_+` and the boundedness of `E_0`, `X - B_0` on the collar,
-  `zeta^2/4 - mu_0 >= c_T (-T)` wherever `T(u_c + x; X) <= 0` (`|x| <= 2 eta`).  It gives `|Z_n| > rho(a)` at the rows with `T <= -eps` (`TheoremA/SoftWindowProof.lean`). -/
-  cT : ℝ
-  cT_pos : 0 < cT
-  zeta_T : ∀ μ ∈ P, ∀ α, |α| ≤ δ0 → ∀ x, |x| ≤ 2 * η → 0 ≤ uc μ + x → uc μ + x ≤ F.L →
-    Tfun F.L (F.G 0 μ) (F.B 0 μ) (F.bandHi μ - α) (uc μ + x) ≤ 0 →
-    cT * (-Tfun F.L (F.G 0 μ) (F.B 0 μ) (F.bandHi μ - α) (uc μ + x)) ≤ zeta μ α x ^ 2 / 4 - muS 0 μ α
 
-namespace SoftEdgeChart
+namespace SoftEdgeCore
 
 variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
-  (C : SoftEdgeChart F P m q U V Lm)
+  (C : SoftEdgeCore F P m q U V Lm)
 
 /-- The PC parameter `a_k = a^{[q]}_PC` at `(mu, X, N)`. -/
 def aOf (μ : Par) (X : ℝ) (N : ℕ) : ℝ := aPC (fun r α' => C.muS r μ α') q (F.step N) (F.bandHi μ - X)
@@ -453,6 +476,13 @@ def j1 (μ : Par) (X : ℝ) (N : ℕ) : ℤ := (C.chain μ X N).jj 1
 
 /-- The switch bond `j_2` (`Z_{j_2} <= 0 < Z_{j_2+1}`). -/
 def j2 (μ : Par) (X : ℝ) (N : ℕ) : ℤ := (C.chain μ X N).jj 2
+
+end SoftEdgeCore
+
+namespace SoftEdgeChart
+
+variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Par} {m q : ℕ} {U V : ℝ → ℝ → ℝ} {Lm : ℝ → ℝ}
+  (C : SoftEdgeChart F P m q U V Lm)
 
 /-- `lambda_L := W_{j_1}(psi-hat^{L,Web}, psi-hat^{(2)}) / W_{j_1}(psi-hat^{PC,-}, psi-hat^{(2)})` (prop:tha-W2 (1)); `psi-hat^{PC,-} = phi^{(1)}_2 / kappa_bal`
 and `psi-hat^{(2)} = phi^{(2)}_2` is the second-branch sequence.  (`cas` is the paper's Casoratian `W` with the same sign.) -/

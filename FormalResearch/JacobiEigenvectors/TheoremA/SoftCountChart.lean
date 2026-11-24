@@ -72,7 +72,7 @@ lemma muTilde_sub_le2 {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz.ba
     |CL.muTilde p X N - CL.muS 0 p (Fz.bandHi p - X)| ≤ ((q / 2 : ℕ) : ℝ) * CL.Cmu * Fz.step N ^ 2 := by
   have hh := SoftEdgeChart.step_pos (F := Fz) N
   have hα := CL.abs_alpha_le hX
-  unfold SoftEdgeChart.muTilde
+  unfold SoftEdgeCore.muTilde
   rw [add_sub_cancel_left]
   have hterm : ∀ r ∈ Finset.Icc 1 (q / 2), |Fz.step N ^ (2 * r) * CL.muS r p (Fz.bandHi p - X)| ≤ Fz.step N ^ 2 * CL.Cmu := by
     intro r hr

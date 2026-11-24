@@ -46,14 +46,13 @@ def raiseN0 {U V : ℝ → ℝ → ℝ} (C : BulkWeberCore F P Jlo Jhi m U V) (N
       obtain ⟨cg, Cg, hcg, g0, h⟩ := C.corr_lead
       exact ⟨cg, Cg, hcg, g0, fun μ hμ X hX N hN' => h μ hμ X hX N (hN N hN')⟩ }
 
-/-- On the chart rows the comparison sequence `phi^{(1)}` is the Weber model `weberModelPhi` of the corrector row. -/
-lemma phi_eq {μ : Par} (hμ : μ ∈ P) {X : ℝ} (hX : X ∈ Set.Icc Jlo Jhi) {N : ℕ} (hN : C.N0 ≤ N) {j : ℕ}
-    (hj : (j : ℤ) ∈ Finset.Icc (0 : ℤ) ((C.chain μ X N).NR + 1)) :
-    (C.chain μ X N).phi (F.step N) 0 1 j =
-      weberModelPhi pcU ((C.chain μ X N).AA 1 (uNode (F.step N) j) (F.step N))
-        ((C.chain μ X N).BB 1 (uNode (F.step N) j) (F.step N)) (F.step N) j
-        (C.Y μ X (uNode (F.step N) j) / Real.sqrt (F.step N)) := by
-  have hw := (C.wf_eq μ hμ X hX N hN (j : ℤ) hj).1
+/-- On a row whose first model function is the Weber pair at `a = -(j + 1/2)`, `Z = Y/sqrt h` (the form of `wf_eq`), the comparison
+sequence `phi^{(1)}` of patch `1` is the Weber model `weberModelPhi` of the corrector row. -/
+lemma _root_.FormalResearch.JacobiEigenvectors.Charts.LadderData.phi_eq_weberModelPhi (D : LadderData) {h Yv : ℝ} {j : ℕ}
+    (hw : D.wf 1 0 (uNode h (j : ℤ)) h =
+      ![ut pcU (-(((j : ℤ) : ℝ) + 1 / 2)) (Yv / Real.sqrt h),
+        Real.sqrt h * (kappaBal (-(((j : ℤ) : ℝ) + 1 / 2)) * deriv (pcU (-(((j : ℤ) : ℝ) + 1 / 2))) (Yv / Real.sqrt h))]) :
+    D.phi h 0 1 j = weberModelPhi pcU (D.AA 1 (uNode h j) h) (D.BB 1 (uNode h j) h) h j (Yv / Real.sqrt h) := by
   have hd : ∀ a z : ℝ, deriv (ut pcU a) z = kappaBal a * deriv (pcU a) z := fun a z => by
     change deriv (fun w => kappaBal a * pcU a w) z = _
     rw [deriv_const_mul_field']
@@ -61,6 +60,15 @@ lemma phi_eq {μ : Par} (hμ : μ ∈ P) {X : ℝ} (hX : X ∈ Set.Icc Jlo Jhi) 
   unfold uNode at hw
   rw [hw]
   simp only [dot, vrow, weberModelPhi, hd, uNode, Matrix.cons_val_zero, Matrix.cons_val_one, Int.cast_natCast]
+
+/-- On the chart rows the comparison sequence `phi^{(1)}` is the Weber model `weberModelPhi` of the corrector row. -/
+lemma phi_eq {μ : Par} (hμ : μ ∈ P) {X : ℝ} (hX : X ∈ Set.Icc Jlo Jhi) {N : ℕ} (hN : C.N0 ≤ N) {j : ℕ}
+    (hj : (j : ℤ) ∈ Finset.Icc (0 : ℤ) ((C.chain μ X N).NR + 1)) :
+    (C.chain μ X N).phi (F.step N) 0 1 j =
+      weberModelPhi pcU ((C.chain μ X N).AA 1 (uNode (F.step N) j) (F.step N))
+        ((C.chain μ X N).BB 1 (uNode (F.step N) j) (F.step N)) (F.step N) j
+        (C.Y μ X (uNode (F.step N) j) / Real.sqrt (F.step N)) :=
+  LadderData.phi_eq_weberModelPhi _ (C.wf_eq μ hμ X hX N hN (j : ℤ) hj).1
 
 /-- The nodes `u_k`, `0 <= k <= N_R`, lie in `[0, c]`. -/
 lemma uNode_mem {μ : Par} (hμ : μ ∈ P) {X : ℝ} (hX : X ∈ Set.Icc Jlo Jhi) {N : ℕ} (hN : C.N0 ≤ N) {k : ℤ}

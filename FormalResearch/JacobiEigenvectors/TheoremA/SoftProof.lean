@@ -136,7 +136,7 @@ lemma lamL_eq_kappa_mul_transMat (p : Par × ℝ) (X : ℝ) (N : ℕ) (hA : (C.c
   rw [LadderData.transMat_zero_zero_eq_cas_div ((C.chain p X N).phi (Fz.step N) 0) ((C.chain p X N).phi (Fz.step N) 1)
     (C.chain p X N).jj 1 (C.chain p X N).A hA]
   unfold SoftEdgeChart.lamL
-  simp only [SoftEdgeChart.j1]
+  simp only [SoftEdgeCore.j1]
   have e : cas (C.chain p X N).A (fun n => (C.chain p X N).phi (Fz.step N) 0 2 n / kappaBal (C.aOf p X N))
         ((C.chain p X N).phi (Fz.step N) 1 2) ((C.chain p X N).jj 1)
       = cas (C.chain p X N).A ((C.chain p X N).phi (Fz.step N) 0 2) ((C.chain p X N).phi (Fz.step N) 1 2) ((C.chain p X N).jj 1)

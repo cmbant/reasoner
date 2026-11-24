@@ -99,7 +99,7 @@ theorem aOf_le_of_step0 (Cs0 : ℝ) :
   have hmt : -(cL * |Cs0| * Fz.step N ^ 2 + ((q / 2 : ℕ) : ℝ) * C.Cmu * Fz.step N) ≤ C.muTilde p X N := by
     have := (abs_le.mp hsub).1
     linarith
-  rw [SoftEdgeChart.aOf_eq]
+  rw [SoftEdgeCore.aOf_eq]
   unfold asmAplus
   have hcc : cL * |Cs0| * Fz.step N ≤ 1 := by
     have h1 : (cL * |Cs0|) * Fz.step N ≤ (cL * |Cs0|) * (1 / (cL * |Cs0| + 1)) :=
@@ -153,7 +153,7 @@ theorem Zof_pos_of_far {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz.b
   have hsg := (C.zeta_sign_out p hp _ hα _ hxabs (by linarith) (by linarith)).2 (by linarith)
   have hne : C.zeta p (Fz.bandHi p - X) (uNode (Fz.step N) n - C.uc p) ≠ 0 := by
     intro h; rw [h] at hz2; simp at hz2
-  unfold SoftEdgeChart.Zof
+  unfold SoftEdgeCore.Zof
   exact div_pos (lt_of_le_of_ne hsg (Ne.symm hne)) (Real.sqrt_pos.mpr hh0)
 
 /-- `Z_n <= 0` forces `x_n < eta/4`. -/

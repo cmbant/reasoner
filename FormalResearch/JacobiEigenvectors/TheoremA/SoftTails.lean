@@ -224,7 +224,7 @@ lemma Eminus_left_small {j : ℤ} (hj1 : -(2 * C.η) ≤ uNode (Fz.step N) j - C
     have hq := C.Zq_lb hμ hX hhH1 (x := -(C.η / 4)) (by rw [abs_neg, abs_of_pos (by linarith)])
       (by rw [abs_neg, abs_of_pos (by linarith)]; linarith)
     have e : zh ^ 2 / 4 + C.aOf μ X N = (C.zeta μ (Fz.bandHi μ - X) (-(C.η / 4)) ^ 2 / 4 - C.muTilde μ X N) / Fz.step N := by
-      rw [hzh, SoftEdgeChart.aOf_eq, div_pow, hs2]; field_simp; ring
+      rw [hzh, SoftEdgeCore.aOf_eq, div_pow, hs2]; field_simp; ring
     rw [e, div_pow, Real.sq_sqrt (by positivity), hs2]
     exact div_le_div_of_nonneg_right hq hh0.le
   have hdec := Eminus_decay (C.aOf μ X N) (Real.sqrt (C.cz1 / 8) / Real.sqrt (Fz.step N)) hz12 hzh0 (by positivity) hmar

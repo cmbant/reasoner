@@ -82,7 +82,16 @@ def SoftEdgeChart.restrictSub {Par : Type*} [TopologicalSpace Par] {F : SymbolFa
     lb_pc := fun μ hμ => C.lb_pc μ (h hμ)
     lamL_cont := fun μ hμ => C.lamL_cont μ (h hμ)
     grow3 := fun μ hμ => C.grow3 μ (h hμ)
-    zeta_T := fun μ hμ => C.zeta_T μ (h hμ) }
+    zeta_T := fun μ hμ => C.zeta_T μ (h hμ)
+    Y_le := by
+      obtain ⟨CY, hY⟩ := C.Y_le
+      exact ⟨CY, fun μ hμ => hY μ (h hμ)⟩
+    corr_leadW := by
+      obtain ⟨cg, Cg, hcg, g0, hg⟩ := C.corr_leadW
+      exact ⟨cg, Cg, hcg, g0, fun μ hμ => hg μ (h hμ)⟩
+    AA2_ratio := by
+      obtain ⟨CAl, hCAl, hA⟩ := C.AA2_ratio
+      exact ⟨CAl, hCAl, fun μ hμ => hA μ (h hμ)⟩ }
 
 lemma paramSet_mono {Par : Type*} (K : Set Par) {t0 t0' : ℝ} (h : t0' ≤ t0) : paramSet K t0' ⊆ paramSet K t0 :=
   Set.prod_mono subset_rfl (Set.Icc_subset_Icc (by linarith) h)

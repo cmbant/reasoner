@@ -91,7 +91,7 @@ lemma Zof_nonpos_of_near {μ : Par × ℝ} (hμ : μ ∈ P) {X : ℝ} (hX : |X -
   have hxabs : C.η / 4 ≤ |uNode (Fz.step N) k - C.uc μ| := by
     rw [abs_of_neg (by linarith)]; linarith
   have h := (C.zeta_sign_out μ hμ _ hα _ hxabs (by linarith) (by linarith)).1 (by linarith)
-  unfold SoftEdgeChart.Zof
+  unfold SoftEdgeCore.Zof
   exact div_nonpos_of_nonpos_of_nonneg h (Real.sqrt_nonneg _)
 
 /-- **the left pointwise facts of one chart**: error of the exact solution and envelope of `psi-hat` on the Weber rows and on the left PC rows. -/

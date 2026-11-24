@@ -66,7 +66,7 @@ theorem pc_ext_y {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) {p : 
   have h0 : (C.chain p X N).wf 2 0 (uNode (Fz.step N) j) (Fz.step N) 0 =
       kappaBal (C.aOf p X N) * U (C.aOf p X N) (-(C.Zof p X N j)) := by
     rw [hw]
-    simp [wm_pcMinus0, SoftEdgeChart.aOf, SoftEdgeChart.Zof]
+    simp [wm_pcMinus0, SoftEdgeCore.aOf, SoftEdgeCore.Zof]
   rw [h0]
   calc |kappaBal (C.aOf p X N) * U (C.aOf p X N) (-(C.Zof p X N j))|
       ≤ CPC * Eminus (C.aOf p X N) (C.Zof p X N j) * Mbal (C.aOf p X N) (C.Zof p X N j) := e1

@@ -254,7 +254,7 @@ variable {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Par} {P : Set Pa
 /-- `a_R = a_L` for a mirror pair of charts (`mu in P`). -/
 theorem aOf_mirror (hM : SoftMirror CL CR) {μ : Par} (hμ : μ ∈ P) (X : ℝ) (N : ℕ) : CR.aOf μ X N = CL.aOf μ X N := by
   obtain ⟨-, -, hmu, -⟩ := hM
-  unfold SoftEdgeChart.aOf
+  unfold SoftEdgeCore.aOf
   rw [bandHi_mirror, show (mirrorFamily F).step N = F.step N from rfl]
   have : (fun r α' => CR.muS r μ α') = fun r α' => CL.muS r μ α' := by
     funext r α'
@@ -265,7 +265,7 @@ theorem aOf_mirror (hM : SoftMirror CL CR) {μ : Par} (hμ : μ ∈ P) (X : ℝ)
 theorem Zof_mirror (hM : SoftMirror CL CR) {μ : Par} (hμ : μ ∈ P) (X : ℝ) (N : ℕ) (n : ℤ) :
     CR.Zof μ X N ((N : ℤ) - n) = -CL.Zof μ X N n := by
   obtain ⟨huc, hz, -⟩ := hM
-  unfold SoftEdgeChart.Zof
+  unfold SoftEdgeCore.Zof
   rw [bandHi_mirror, show (mirrorFamily F).step N = F.step N from rfl, uNode_mirror F.L (F.step N) N n (step_mul_succ F N), huc μ hμ]
   have : F.L - uNode (F.step N) n - (F.L - CL.uc μ) = -(uNode (F.step N) n - CL.uc μ) := by ring
   rw [this, hz μ hμ, neg_div]

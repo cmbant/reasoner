@@ -39,11 +39,11 @@ theorem softChart_data_eq_P (CL : SoftEdgeChart Fz P m q U V (fun _ => 1)) (CL1 
     (X : ℝ) (N : ℕ) :
     CL1.aOf p X N = CL.aOf p X N ∧ (∀ n, CL1.Zof p X N n = CL.Zof p X N n) ∧ softWindow CL1 p X N = softWindow CL p X N := by
   have ha : CL1.aOf p X N = CL.aOf p X N := by
-    unfold SoftEdgeChart.aOf
+    unfold SoftEdgeCore.aOf
     simp only [hmu]
   have hZ : ∀ n, CL1.Zof p X N n = CL.Zof p X N n := by
     intro n
-    unfold SoftEdgeChart.Zof
+    unfold SoftEdgeCore.Zof
     simp only [hz, huc]
   refine ⟨ha, hZ, ?_⟩
   unfold softWindow
@@ -119,12 +119,12 @@ theorem soft_overlap_ub_P {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC C
     · have h0 : (CL.chain p X N).wf 2 0 (uNode (Fz.step N) j) (Fz.step N) 0 =
           kappaBal (CL.aOf p X N) * U (CL.aOf p X N) (-(CL.Zof p X N j)) := by
         rw [hw 0]
-        simp [wm_pcMinus0, SoftEdgeChart.aOf, SoftEdgeChart.Zof]
+        simp [wm_pcMinus0, SoftEdgeCore.aOf, SoftEdgeCore.Zof]
       rw [h0]; exact e1
     · have h1 : (CL.chain p X N).wf 2 0 (uNode (Fz.step N) j) (Fz.step N) 1 =
           Real.sqrt (Fz.step N) * deriv (fun w => kappaBal (CL.aOf p X N) * U (CL.aOf p X N) (-w)) (CL.Zof p X N j) := by
         rw [hw 0]
-        simp [wm_pcMinus0, SoftEdgeChart.aOf, SoftEdgeChart.Zof]
+        simp [wm_pcMinus0, SoftEdgeCore.aOf, SoftEdgeCore.Zof]
       rw [h1, abs_mul, abs_of_nonneg (Real.sqrt_nonneg _)]
       have hsk : Real.sqrt (Fz.step N) * Real.sqrt (k2 (CL.aOf p X N) (CL.Zof p X N j)) ≤ winCLam CL := by
         rw [← Real.sqrt_mul hh0'.le]

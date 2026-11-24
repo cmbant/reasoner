@@ -60,7 +60,7 @@ lemma Zof_pos_of_gt {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz.band
   have hz : 0 < C.zeta p (Fz.bandHi p - X) (uNode (Fz.step N) k - C.uc p) := by
     have := mul_nonneg hdm.le (sub_nonneg.mpr (by linarith : uNode (Fz.step N) ((C.chain p X N).jj 2 + 1) - C.uc p ≤ uNode (Fz.step N) k - C.uc p))
     linarith [hmvt.1, hzb]
-  rw [SoftEdgeChart.Zof_eq]
+  rw [SoftEdgeCore.Zof_eq]
   exact div_pos hz hs
 
 /-- **(R2) the tail of patch 3**: `|psi-hat_3(k) - lambda_L phi^{(1)}_{2,k}/kappa_bal| <= lambda Lambda E_-(Z_{j_1})^2 * 3 K E_swap(Z_k) M_bal(Z_k)` for `j_2 < k <= N_R`, `u_k <= u_c + 2 eta`. -/
@@ -276,12 +276,12 @@ lemma Z_range_patch2 {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz.ban
   · have hmvt := C.zeta_mvt (x1 := -(C.η / 2)) (x2 := uNode (Fz.step N) k - C.uc p) hp hα (by linarith) (by linarith) (by linarith)
     have hd := mul_nonneg hdm.le (sub_nonneg.mpr (by linarith : -(C.η / 2) ≤ uNode (Fz.step N) k - C.uc p))
     unfold SoftEdgeChart.zhat
-    rw [SoftEdgeChart.Zof_eq]
+    rw [SoftEdgeCore.Zof_eq]
     exact div_le_div_of_nonneg_right (by linarith [hmvt.1]) hs.le
   · have hmvt := C.zeta_mvt (x1 := uNode (Fz.step N) k - C.uc p) (x2 := uNode (Fz.step N) ((C.chain p X N).jj 2) - C.uc p) hp hα
       (by linarith) (by linarith) (by linarith)
     have hd := mul_nonneg hdm.le (sub_nonneg.mpr (by linarith : uNode (Fz.step N) k - C.uc p ≤ uNode (Fz.step N) ((C.chain p X N).jj 2) - C.uc p))
-    rw [SoftEdgeChart.Zof_eq]
+    rw [SoftEdgeCore.Zof_eq]
     exact div_nonpos_of_nonpos_of_nonneg (by linarith [hmvt.1, hza]) hs.le
 
 /-- **(R1 + R2 + R3) the parabolic-cylinder bound of `prop:tha-W2` (1), before the lower bound of `lambda_L`**: for `h <= h_0`, uniformly in `(p, X, N, psi)`, every row `u_k > u_c - eta/2`

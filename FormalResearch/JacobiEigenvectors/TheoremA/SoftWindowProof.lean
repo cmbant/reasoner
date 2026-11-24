@@ -267,7 +267,7 @@ theorem softWindow_excl {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} 
   intro hmem
   have hle := (Finset.mem_filter.mp hmem).2
   have key : rhoWin (C.aOf p X N) < |C.Zof p X N n| := by
-    unfold SoftEdgeChart.aOf SoftEdgeChart.Zof aPC
+    unfold SoftEdgeCore.aOf SoftEdgeCore.Zof aPC
     exact window_excl_pure hR hLb0 hcpos hpos hN1 hsq hm0u hm0l hS hζ
   exact absurd hle (not_le.mpr key)
 

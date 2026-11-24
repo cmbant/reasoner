@@ -593,7 +593,7 @@ theorem soft_sign_kappa (hM : SoftMirror CL CR) {cPC CPC : ℝ} (hf : ParabolicC
   subst hjk
   have hδ : |CL.aOf p X N + j + 1 / 2| ≤ δ1 := by
     have e : CL.aOf p X N + j + 1 / 2 = -(CL.muTilde p X N - ((j : ℝ) + 1 / 2) * Fz.step N) / Fz.step N := by
-      rw [SoftEdgeChart.aOf_eq]; field_simp; ring
+      rw [SoftEdgeCore.aOf_eq]; field_simp; ring
     rw [e, abs_div, abs_neg, abs_of_pos hh, div_le_iff₀ hh]
     exact hjbd.trans (mul_le_mul_of_nonneg_right (hCcε.trans (min_le_left _ _)) hh.le)
   -- exact solutions `psi^L = c_0 p`, `psi' = c_0' q(N - .)`

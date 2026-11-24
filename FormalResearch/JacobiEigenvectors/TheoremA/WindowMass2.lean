@@ -401,7 +401,7 @@ lemma wm_phi2_decomp (CL : SoftEdgeChart Fz P m q U V Lm) {p : Par × ℝ} (hp :
       (Fz.step N * (CL.chain p X N).BB 2 (uNode (Fz.step N) n) (Fz.step N)) *
         (Real.sqrt (Fz.step N) * deriv (pcMinus U V (CL.aOf p X N) α) (CL.Zof p X N n)) := by
   rw [SoftEdgeChart.phi_eq_dot, CL.wf2_eq p hp X hX N hN n (Finset.mem_Icc.mpr ⟨hn1, hn2⟩) α]
-  simp [dot, vrow, SoftEdgeChart.aOf, SoftEdgeChart.Zof]
+  simp [dot, vrow, SoftEdgeCore.aOf, SoftEdgeCore.Zof]
 
 /-- the patch-3 comparison sequence (`wf3_eq`, `shared_PC`: patches 2 and 3 share the corrector rows). -/
 lemma wm_phi3_decomp (CL : SoftEdgeChart Fz P m q U V Lm) {p : Par × ℝ} (hp : p ∈ P) {X : ℝ}
@@ -413,7 +413,7 @@ lemma wm_phi3_decomp (CL : SoftEdgeChart Fz P m q U V Lm) {p : Par × ℝ} (hp :
         (Real.sqrt (Fz.step N) * deriv (pcSwap U V (CL.aOf p X N) α) (CL.Zof p X N n)) := by
   obtain ⟨-, -, -, -, -, -, -, -, hAA, hBB⟩ := CL.shared_PC p hp X hX N hN
   rw [SoftEdgeChart.phi_eq_dot, CL.wf3_eq p hp X hX N hN n (Finset.mem_Icc.mpr ⟨hn1, hn2⟩) α, hAA, hBB]
-  simp [dot, vrow, SoftEdgeChart.aOf, SoftEdgeChart.Zof]
+  simp [dot, vrow, SoftEdgeCore.aOf, SoftEdgeCore.Zof]
 
 end Rows2
 
