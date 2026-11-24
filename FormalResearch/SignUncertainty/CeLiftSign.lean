@@ -55,7 +55,7 @@ lemma ce_delta_le {K c δ₁ : ℝ} (hK : 0 < K) (hδ₁ : 0 < δ₁) (hc : 0 < 
     linarith
   exact le_of_pow_le_pow_left₀ (by norm_num) hδ₁.le h3
 
-lemma HasU2.integrable_real {X : ℝ → ℝ} (h : HasU2 X) : Integrable X := by
+lemma hasU2_integrable_real {X : ℝ → ℝ} (h : HasU2 X) : Integrable X := by
   simpa using (h.integrable 0 (by simp)).re
 
 /-- The `u`-independent coefficient `b₀` of the dual-side seed (mass of the seed equal to the mass of `S_c`). -/

@@ -224,8 +224,8 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
   have hQe_nn : 0 ≤ Qe := by rw [hQedef]; positivity
   have hmin1 : min (1 / 2 : ℝ) (m₀ / 4) ≤ 1 / 2 := min_le_left _ _
   have hmin2 : min (1 / 2 : ℝ) (m₀ / 4) ≤ m₀ / 4 := min_le_right _ _
-  have hgx : |(liftSymbol (ceG1 (airyZero 1)) (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)).re| ≤ ceK / 2 := by
-    refine (Complex.abs_re_le_norm _).trans (hWg.trans ?_)
+  have hWg_half : ‖liftSymbol (ceG1 (airyZero 1)) (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)‖ ≤ ceK / 2 := by
+    refine hWg.trans ?_
     have h1 : Ce * K₀ ^ (-((4 : ℕ) : ℝ)) * c ^ (-(5 / 6 : ℝ)) ≤ Pn * (liftEps c * θ) := by
       rw [hc56]; gcongr
     have h2 : Pn * (liftEps c * θ) = ceK * min (1 / 2) (m₀ / 4) * liftEps c := by rw [hθdef]; field_simp
@@ -234,6 +234,8 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
       _ = ceK * (min (1 / 2 : ℝ) (m₀ / 4) * liftEps c) := by rw [h2]; ring
       _ ≤ ceK * (1 / 2 * (1 / 2)) := mul_le_mul_of_nonneg_left h3 hk.le
       _ ≤ ceK / 2 := by linarith
+  have hgx : |(liftSymbol (ceG1 (airyZero 1)) (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)).re| ≤ ceK / 2 :=
+    (Complex.abs_re_le_norm _).trans hWg_half
   have hsmall : 2 / ceK * Qe ≤ K₀ * liftEps c := by
     rw [div_mul_eq_mul_div, div_le_iff₀ hk]
     have h4 : ceK * min (1 / 2 : ℝ) (m₀ / 4) * liftEps c ≤ ceK * (1 / 2) * liftEps c :=
@@ -245,6 +247,171 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
   have hη := hetaF_tune ⟨η₀, hη₀⟩
   obtain ⟨η, hηdef⟩ : ∃ η : ℝ, η = etaF K₀ c := ⟨_, rfl⟩
   rw [← hηdef] at hη
-  sorry
+  obtain ⟨hη1, hη2, hη3⟩ := hη
+  rw [← hadef, ← hb₀def, ← hc₀'def, ← hQedef] at hη2
+  rw [← hadef, ← hb₀def, ← hc₀'def] at hη3
+  have hrη : |(K₀ * liftEps c - ∫ u : ℝ, S c u) - η| ≤ (2 + M₀) * (K₀ * liftEps c) := by
+    rw [hηdef]; exact hr hK₀ hc2000
+  -- the eigenfunction pair
+  obtain ⟨fp, fm, hfp, hfm, hrp, -, h0p, h0m⟩ :=
+    ceLift_pair (m := 4) (by norm_num) a (b₀ + η) c₀' hK₀ hc2000 hc8 (hS.tail hK₀ hc2000 hc8)
+  have hfm0 : fm 0 = 0 := by
+    have : ((fm 0 : ℝ) : ℂ) = 0 := by rw [h0m]; exact hη3
+    exact_mod_cast this
+  -- the origin value of `f₊`
+  have hD2 := hasU2_airySeedU2 a (b₀ + η) c₀'
+  have hSU := hS.hasU2 hc2000
+  have hYU : HasU2 (fun u => airySeedU2 a (b₀ + η) c₀' u + 1 * S c u) := hD2.add (hSU.smul 1)
+  have hint_eta : ∫ u : ℝ, airySeedU2 a (b₀ + η) c₀' u = (∫ u : ℝ, S c u) + η := by
+    have h0 := (hseed (K₀ * liftEps c) ((K₀ * liftEps c - ∫ u : ℝ, S c u) - η) hKεpos hKεδ hrη).1
+    rw [hDF η, integral_neg, h0]; ring
+  have hW0 : liftSymbol (fun u => airySeedU2 a (b₀ + η) c₀' u + 1 * S c u) (ceBeta1 * K₀ * liftEps c / 2) 4 0 =
+      ((ceK * ((∫ u : ℝ, S c u) + η + ∫ u : ℝ, S c u) : ℝ) : ℂ) := by
+    have hi : ∫ u : ℝ, (airySeedU2 a (b₀ + η) c₀' u + 1 * S c u) = (∫ u : ℝ, S c u) + η + ∫ u : ℝ, S c u := by
+      rw [integral_add (hasU2_integrable_real hD2) (hasU2_integrable_real (hSU.smul 1))]
+      simp only [one_mul]; rw [hint_eta]
+    rw [liftSymbol_zero_eq hYU, hi]
+  have hxre : 0 ≤ ((((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)).re := by simpa using Real.rpow_nonneg hc0.le _
+  have hWx : ‖liftSymbol (fun u => airySeedU2 a (b₀ + η) c₀' u + 1 * S c u) (ceBeta1 * K₀ * liftEps c / 2) 4
+      (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)‖ ≤ 2 * Qe := by
+    have hsplit : liftSymbol (fun u => airySeedU2 a (b₀ + η) c₀' u + 1 * S c u) (ceBeta1 * K₀ * liftEps c / 2) 4
+        (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ) =
+        liftSymbol (airySeedU2 a b₀ c₀') (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ) +
+        (η : ℂ) * liftSymbol (ceG1 (airyZero 1)) (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ) +
+        ((1 : ℝ) : ℂ) * liftSymbol (S c) (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ) := by
+      rw [liftSymbol_add_seed hD2 (hSU.smul 1) _ 4 hxre, liftSymbol_const_mul_seed, airySeedU2_add_b,
+        liftSymbol_add_seed (hasU2_airySeedU2 a b₀ c₀') (hasU2_ceG1.smul η) _ 4 hxre, liftSymbol_const_mul_seed]
+    rw [hsplit]
+    have hηg : |η| * ‖liftSymbol (ceG1 (airyZero 1)) (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)‖ ≤ Qe := by
+      calc _ ≤ (2 / ceK * Qe) * (ceK / 2) := mul_le_mul hη2 hWg_half (norm_nonneg _) (by positivity)
+        _ = Qe := by field_simp
+    calc _ ≤ ‖liftSymbol (airySeedU2 a b₀ c₀') (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ) +
+          (η : ℂ) * liftSymbol (ceG1 (airyZero 1)) (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)‖ +
+          ‖((1 : ℝ) : ℂ) * liftSymbol (S c) (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)‖ := norm_add_le _ _
+      _ ≤ (‖liftSymbol (airySeedU2 a b₀ c₀') (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)‖ +
+          ‖(η : ℂ) * liftSymbol (ceG1 (airyZero 1)) (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)‖) +
+          ‖((1 : ℝ) : ℂ) * liftSymbol (S c) (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)‖ := by
+        gcongr; exact norm_add_le _ _
+      _ ≤ 2 * Qe := by
+        rw [norm_mul, norm_mul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs, Real.norm_eq_abs, abs_one, one_mul]
+        rw [hQedef] at hηg ⊢
+        linarith
+  have hfp0 : 0 < fp 0 := by
+    have hre := congrArg Complex.re h0p
+    rw [Complex.ofReal_re, Complex.add_re, hW0, Complex.ofReal_re] at hre
+    have h1 := neg_abs_le (liftSymbol (fun u => airySeedU2 a (b₀ + η) c₀' u + 1 * S c u) (ceBeta1 * K₀ * liftEps c / 2) 4
+      (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)).re
+    have h2 := (Complex.abs_re_le_norm (liftSymbol (fun u => airySeedU2 a (b₀ + η) c₀' u + 1 * S c u)
+      (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)))
+    have hA : ceK * |η| ≤ 2 * Qe := by
+      have := mul_le_mul_of_nonneg_left hη2 hk.le
+      have e : ceK * (2 / ceK * Qe) = 2 * Qe := by field_simp
+      linarith
+    have hB : -(ceK * |η|) ≤ ceK * η := by
+      have := mul_le_mul_of_nonneg_left (neg_abs_le η) hk.le
+      linarith
+    have hC : Qe ≤ ceK * (m₀ / 4) * liftEps c := by
+      refine hQe_k.trans ?_
+      exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hmin2 hk.le) hε.le
+    have hD : ceK * (m₀ * liftEps c) ≤ ceK * ∫ u : ℝ, S c u := mul_le_mul_of_nonneg_left (hmass hc2000).1 hk.le
+    have hpp : 0 < ceK * m₀ * liftEps c := by positivity
+    nlinarith
+  -- the threshold
+  obtain ⟨smin, hsmin⟩ : ∃ s : ℝ, s = (|airyZero 1| + 2 * |γ₁| * (K₀ * liftEps c) + ceBeta1 * (K₀ * liftEps c) / 2) / ceBeta1 :=
+    ⟨_, rfl⟩
+  have hsmin0 : 0 < smin := by
+    rw [hsmin]; exact div_pos (by have := abs_nonneg (airyZero 1); have := abs_nonneg γ₁; positivity) hβ
+  have hsminle : smin ≤ s_max := by
+    rw [hsmin, hsmax]
+    refine div_le_div_of_nonneg_right ?_ hβ.le
+    have := abs_nonneg γ₁
+    nlinarith
+  obtain ⟨y₀, hy₀⟩ : ∃ y : ℝ, y = Real.pi ^ 2 * liftEps c ^ 2 * smin := ⟨_, rfl⟩
+  have hy₀0 : 0 < y₀ := by rw [hy₀]; positivity
+  have hy₀half : y₀ ≤ 1 / 2 := by
+    have hτc : liftEps c ≤ τ := hMτ c hcτ
+    have h1 : liftEps c ^ 2 ≤ liftEps c := by nlinarith
+    have h2 : y₀ ≤ Real.pi ^ 2 * s_max * τ := by
+      rw [hy₀]
+      calc Real.pi ^ 2 * liftEps c ^ 2 * smin ≤ Real.pi ^ 2 * τ * s_max := by
+            have : liftEps c ^ 2 ≤ τ := h1.trans hτc
+            gcongr
+        _ = Real.pi ^ 2 * s_max * τ := by ring
+    have h3 : Real.pi ^ 2 * s_max * τ = 1 / 2 := by rw [hτdef]; field_simp
+    linarith
+  obtain ⟨T, hTdef⟩ : ∃ T : ℝ, T = c / Real.pi ^ 2 * Real.exp y₀ := ⟨_, rfl⟩
+  have hTpos0 : 0 < T := by rw [hTdef]; positivity
+  -- the sign beyond `T`
+  have hsign : ∀ Δ : ℝ, T ≤ Δ → fp Δ + fm Δ ≤ 0 := by
+    intro Δ hΔ
+    have hΔ0 : 0 < Δ := hTpos0.trans_le hΔ
+    obtain ⟨ξ, hξdef⟩ : ∃ ξ : ℝ, ξ = Δ / c := ⟨_, rfl⟩
+    have hξ : 0 < ξ := by rw [hξdef]; positivity
+    have hcξ : c * ξ = Δ := by rw [hξdef]; field_simp
+    have hSm : (|airyZero 1| + 2 * |γ₁| * (K₀ * liftEps c) + ceBeta1 * (K₀ * liftEps c) / 2) / ceBeta1 ≤ hbS c ξ := by
+      rw [← hsmin]
+      have hexp : Real.exp y₀ ≤ Real.pi ^ 2 * ξ := by
+        have h1 : Real.pi ^ 2 * T / c ≤ Real.pi ^ 2 * Δ / c := by gcongr
+        have h2 : Real.pi ^ 2 * T / c = Real.exp y₀ := by rw [hTdef]; field_simp
+        rw [hξdef]; rw [h2] at h1; calc Real.exp y₀ ≤ Real.pi ^ 2 * Δ / c := h1
+          _ = Real.pi ^ 2 * (Δ / c) := by ring
+      have hlog : y₀ ≤ Real.log (Real.pi ^ 2 * ξ) := (Real.le_log_iff_exp_le (by positivity)).mpr hexp
+      unfold hbS
+      have hsm : smin = y₀ / (Real.pi ^ 2 * liftEps c ^ 2) := by rw [hy₀]; field_simp
+      rw [hsm]
+      exact div_le_div_of_nonneg_right hlog (by positivity)
+    have hz := hpos (K := K₀) (c := c) (ξ := ξ) le_rfl hcc₀ hc8 hcδ hξ (by simpa using hSm)
+    have hF' : airySeedU2 (-1 - γ₂ * (K₀ * liftEps c))
+        (-γ₁ * (K₀ * liftEps c) + γ₂ * (K₀ * liftEps c) + ((K₀ * liftEps c - ∫ u : ℝ, S c u) - etaF K₀ c))
+        (γ₂ * (K₀ * liftEps c)) = fun u => (-1 : ℝ) * airySeedU2 a (b₀ + η) c₀' u := by
+      funext u
+      have := congrFun (hDF η) u
+      rw [← hηdef, this]; ring
+    have hneg : (fun u => -S c u) = fun u => (-1 : ℝ) * S c u := by funext u; ring
+    rw [hF', hneg, iMain_const_mul, iDual_const_mul] at hz
+    have e := congrArg Complex.re (hrp ξ hξ)
+    rw [Complex.ofReal_re, Complex.add_re, hcξ] at e
+    simp only [Complex.add_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im] at hz
+    have h1 : 0 < c ^ (1 / 3 : ℝ) * hankelRho0 c Δ :=
+      mul_pos (Real.rpow_pos_of_pos hc0 _) (hankelRho0_pos hc0 hΔ0)
+    by_contra hcon
+    push_neg at hcon
+    have h2 := mul_pos h1 (show 0 < (fp Δ + fm Δ) / 2 by linarith)
+    nlinarith
+  refine ⟨fp, fm, T, hfp, hfm, hfm0, hfp0, ?_, hsign⟩
+  have hexp : Real.exp y₀ ≤ 1 + y₀ + 2 * y₀ ^ 2 := by
+    have h1 := Real.exp_bound_div_one_sub_of_interval' hy₀0 (by linarith : y₀ < 1)
+    refine h1.le.trans ?_
+    rw [div_le_iff₀ (by linarith)]
+    nlinarith [sq_nonneg y₀, mul_nonneg (sq_nonneg y₀) (by linarith : (0 : ℝ) ≤ 1 - 2 * y₀)]
+  have hεc : liftEps c * c ^ (1 / 3 : ℝ) = 1 := by rw [rpow_third_eq hc0]; field_simp
+  have hcε2 : c * liftEps c ^ 2 = c ^ (1 / 3 : ℝ) := by
+    rw [rpow_third_eq hc0]; field_simp; linarith
+  have e1 : c / Real.pi ^ 2 * y₀ = c ^ (1 / 3 : ℝ) * smin := by
+    rw [hy₀, ← hcε2]; field_simp
+  have e2 : c / Real.pi ^ 2 * (2 * y₀ ^ 2) = 2 * Real.pi ^ 2 * (liftEps c * smin ^ 2) := by
+    rw [hy₀]; field_simp
+    linear_combination hcube
+  have e3 : c ^ (1 / 3 : ℝ) * smin = |airyZero 1| / ceBeta1 * c ^ (1 / 3 : ℝ) + K₀ * (2 * |γ₁| + ceBeta1 / 2) / ceBeta1 := by
+    rw [hsmin]; field_simp
+    linear_combination (2 * (2 * |γ₁| * K₀ + ceBeta1 * K₀ / 2)) * hεc
+  have e4 : 2 * Real.pi ^ 2 * (liftEps c * smin ^ 2) ≤ 2 * Real.pi ^ 2 * s_max ^ 2 := by
+    have h1 : liftEps c * smin ^ 2 ≤ 1 * s_max ^ 2 := by
+      have : smin ^ 2 ≤ s_max ^ 2 := by gcongr
+      have h0 : 0 ≤ smin ^ 2 := sq_nonneg _
+      nlinarith
+    nlinarith
+  have hβeq : hankelBeta1 = ceBeta1 := rfl
+  calc T = c / Real.pi ^ 2 * Real.exp y₀ := hTdef
+    _ ≤ c / Real.pi ^ 2 * (1 + y₀ + 2 * y₀ ^ 2) := by gcongr
+    _ = c / Real.pi ^ 2 + c / Real.pi ^ 2 * y₀ + c / Real.pi ^ 2 * (2 * y₀ ^ 2) := by ring
+    _ ≤ c / Real.pi ^ 2 + airyOrderCoeff * c ^ (1 / 3 : ℝ) +
+        (K₀ * (2 * |γ₁| + ceBeta1 / 2) / ceBeta1 + 2 * Real.pi ^ 2 * s_max ^ 2) := by
+      rw [e1, e2, e3, airyOrderCoeff, hβeq]
+      linarith
+
+/-- info: 'FormalResearch.SignUncertainty.ceLift_physical' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ceLift_physical
 
 end FormalResearch.SignUncertainty
