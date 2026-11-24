@@ -173,7 +173,7 @@ no bootstrap.
 - `thm:ce-post-edge` and `cepe:general` stated for a general source; hb-lift assembly (seed mass `m₀ = 1` exists); lift
   to `Euc d`. This gives `hhi`.
 
-**M7 CE lower (M).** Shell reduction `m = 1`, `O(d)` averaging, and the Hankel lower half from M5 give `hlo`.
+**M7 CE lower (M).** Shell reduction `m = 1`, `O(d)` averaging, and the Hankel lower half from M5 give `hlo`. Done (`CEShellReduction`): a normalised continuous `L¹` Cohn–Elkies pair `(h, r)` yields the anti-self-dual competitor `ĥ - h∘(-·)` (`g(0) = 0`, `g ≥ 0` on `‖x‖ ≥ r`, nonzero by the compact-support uncertainty principle), `radialProjection` makes it Hankel-feasible at `r²/2` for `c = d/2`, `ε = -1`, and `hb_thresholds_lower` gives `shell_reduction_m1_proved` and `shell_reduction_airy : ShellReduction ShellHBData.airy` (the shell constraints are vacuous at `m = 1`); the fields `hb_thresholds_lower`, `shell_reduction_m1` are dropped from `RadiiInputs`. General `ShellReduction D` for `m ≥ 2` is M8. Remaining for M7 is `ce_hb_lift_m1` (upper half), which needs M6 (convolution source, post-edge, lift to `Euc d`) and `hb_thresholds_upper` from M4 (O-chain); nothing there is a routine scalar lemma yet, so no Haiku briefs are queued.
 
 **Headline B, `gt:7.12` + `gt:7.12a`, unconditional.** This completes `thm:intro-radii`.
 
@@ -218,9 +218,9 @@ proofs, no custom axioms. The four headlines in `Headlines.lean` are still **con
 | M2 Hankel layer (`gt:7.4`, `lem:radial-compactness`, `gt:7.5` input) | done |
 | M3 strict gap, extraction half (`hankelShellGapLimit_proved`) | done; the origin floor and `u_* ≤ t_m` are not on its path |
 | M4 upper O-chain | done: U.2, U.3(3)/O.3(2) = `(e4)` (uniform in seed coefficients), `(e3)`, O.4, `O.5(1)` = `(e5)`, O.11ak existence form, GT.2a: assembly `middle_transfer_gt1` (`MiddleBandTransfer`; outer pieces, `τ(εu)` substitution, `(e7)`/`(e8)`, regions), conditional on the named hypothesis `O4QuotientBound L` (`M_F ≤ 0.13`, interval certificate of `O.4`) and on the `GT.1` symbol bounds for `W(v) = liftSymbol X δ₀ m (v I)` as hypotheses. Open: `GT.1` for the spline-multiplied seeds (to apply `middle_transfer_gt1` to `O.5(2)` = `(e6)`), discharge of `O4QuotientBound`, `O.6`, `O.9′` at `m = 1` (discharges `hb_thresholds_upper`) |
-| M5 Hankel lower half | S1–S5 done (Langer chart, local density, tail and transport, type (I) compactness `hankel_quantC1_of_feasible`, strip data and `hankelBandInstance`/`hankel_band_reduction` = `teb:mellin` (1) only). S6a done (`hankelBootHB`: the `BootstrapHBInstance` at a good circle, from the window hypothesis `HankelYVAt`). S6b done (`hankel_yv_at : HankelYVAt hankelWindowC 10¹⁴`, the window lemma `teb:mellin` (2)-(3)). S7 done (`hb_thresholds_lower : HbThresholdsLower`, proved for both eigenvalues; `HankelChartSecond`, `HankelThresholds`). M5 is complete; `shell_reduction_m1` and the airy instance of `shell_reduction` belong to M7 |
+| M5 Hankel lower half | S1–S5 done (Langer chart, local density, tail and transport, type (I) compactness `hankel_quantC1_of_feasible`, strip data and `hankelBandInstance`/`hankel_band_reduction` = `teb:mellin` (1) only). S6a done (`hankelBootHB`: the `BootstrapHBInstance` at a good circle, from the window hypothesis `HankelYVAt`). S6b done (`hankel_yv_at : HankelYVAt hankelWindowC 10¹⁴`, the window lemma `teb:mellin` (2)-(3)). S7 done (`hb_thresholds_lower : HbThresholdsLower`, proved for both eigenvalues; `HankelChartSecond`, `HankelThresholds`). M5 is complete |
 | Headline S (`gt:7.9c`) | needs `hb_thresholds_upper` (M4 end) |
-| M6, M7, M8 | not started; M6 (CE upper, convolution source) needs M4; M7 needs M5; M8 is the multilevel generalisation |
+| M6, M7, M8 | M7 lower half done (`shell_reduction_m1_proved`, `shell_reduction_airy`); M6 (CE upper, convolution source; gives `ce_hb_lift_m1`) needs M4, not started; M8 is the multilevel generalisation |
 
 Critical path: M5 S6–S7 and TE.3 (2)-(3) (about 4–5k lines) in parallel with the M4 tail (GT.1 inputs for GT.2a, O.5(2), O.6, O.9′: about
 6–8k lines), then M6 and M7 (M-sized each) and M8. Two Sonnet agents run these two lanes; Haiku agents implement the

@@ -1,6 +1,6 @@
 module
 
-public import FormalResearch.SignUncertainty.Headlines
+public import FormalResearch.SignUncertainty.HeadlineDefs
 public import FormalResearch.SignUncertainty.HankelWindow
 public import FormalResearch.SignUncertainty.HankelChartSecond
 public import FormalResearch.SignUncertainty.HankelQuantC1Feasible
