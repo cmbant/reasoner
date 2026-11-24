@@ -356,6 +356,7 @@ public import FormalResearch.ModularBootstrap.TwoLevel.ExclusionChart
 public import FormalResearch.ModularBootstrap.TwoLevel.Exclusion
 public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigidityBasic
 public import FormalResearch.ModularBootstrap.TwoLevel.ClarkRigiditySequence
+public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeInstance
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1070,4 +1071,9 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
   exclusion above `A₂*`, given T2 and the Airy window-algebra `Prop` `TwoZeroNegativeVacuum`; uses `tendsto_windowOptimum`
   and `not_feasible_of_crossingMeasure`); Airy-chart level-time lemmas; `TwoLevelSequence` and
   `basic_inequality_of_support` (infrastructure for Theorem 2.6, not yet proved).
+* `FoldTip.TwoEdgeInstance` (`FixedWeightFeasible`, `twoEdgeInstance_of_YVForW`, `ft_fixedWeight_twoEdge`) (`fold_tip_two_edge.tex` FT-2E,
+  fixed Hermite--Biehler data; `lower_o1_two_edge.tex` `wone:ftlfw`): the violator family (`TwoEdgeViolatorsHB`) and
+  `ChartCoverage` of a fixed-weight problem at `0 < b ≤ b_V` from `YVInputForW prob b` (the part of
+  `theoremFTLFW_W_of_YVFor` Case 2 exposed), and the lower bound `T ≥ ξ̄ C + A_opt C^{1/3} - K` as an instance of
+  `ft_twoEdge_lower_hb`.
 -/
