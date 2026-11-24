@@ -16,6 +16,12 @@ public import FormalResearch.SignUncertainty.HankelLocalDensity
 public import FormalResearch.SignUncertainty.HankelLocalEnvelope
 public import FormalResearch.SignUncertainty.HankelLocalHolo
 public import FormalResearch.SignUncertainty.HankelTail
+public import FormalResearch.SignUncertainty.HankelChartInverse
+public import FormalResearch.SignUncertainty.HankelLangerPsi
+public import FormalResearch.SignUncertainty.HankelLangerPsiReal
+public import FormalResearch.SignUncertainty.HankelTransport
+public import FormalResearch.SignUncertainty.HankelTransportInt
+public import FormalResearch.SignUncertainty.HankelTransportMass
 public import FormalResearch.SignUncertainty.HankelWtBasics
 public import FormalResearch.SignUncertainty.HardyMellinIntertwiner
 public import FormalResearch.SignUncertainty.HankelCpowBounds
@@ -213,6 +219,9 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.HankelLangerSeries`: coefficient facts for the Hankel Langer chart (`gt:7.7b` (0)): `etaC j = η(2j+2)` with `0 < etaC j < 1` and `etaC 0 = π²/12`, the normalised coefficients `langerA`, `langerB` and their bounds, the tail bounds `abs_eps_le` (`≤ 7.46e-4`) and `abs_E_sub_one_le_035` (`≤ 8.95e-4`) on `‖z‖ ≤ 0.035`, and the binomial bound `‖(1+x)^α - 1‖ ≤ 1 - (1-‖x‖)^α`. The series identity `π/sin(πz) - 1/z = 2∑η(2j+2)z^{2j+1}` is not formalised here.
 * `FormalResearch.SignUncertainty.MiddleBandNumerics`, `MiddleBandIbp`, `MiddleBandPowers`, `MiddleBandVdc`: scalar and analytic tools for the middle-band estimate GT.2a (cubic phase `ψ(u) = a u − π²u³/36`: derivative and monotonicity bounds on the inner, far and outer zones, `ε u₀ < 0.05`; the two-integrations-by-parts bound for either sign of `ψ'`; power integrals and `ε`-power algebra; van der Corput on `[α, β]` and `[−β, −α]` for the cubic phase). The GT.2a assembly itself is not formalised.
 * `FormalResearch.SignUncertainty.HankelLangerIdentity`: the series identity `π/sin(πz) - 1/z = 2∑η(2j+2)z^{2j+1}` for `0 < ‖z‖ < 1` (`langer_eta_identity`) and, for `‖z‖ < 1/8`, `log(tan(πz/2)/(πz/2)) = ∑η(2j+2)/(j+1) z^{2j+2}` with its derivative (`langer_g_hasSum`, `langer_g_eq_tsum`, `langer_g_hasDerivAt`).
+* `FormalResearch.SignUncertainty.HankelChartInverse`, `HankelLangerPsi`, `HankelLangerPsiReal`: the analytic inverse `chartYinv` of the Langer chart on `‖y‖ ≤ 4.94e-4` (`‖chartYinv y‖ ≤ 5e-4`, `deriv = 1/y'`), the Langer-disc density `Ψ̃(ũ) = -c ξ'(ũ)(fρ₀)_loc(cξ(ũ))` (`hankelPsi`) glued to the chart (`chart_saddle_data`), its envelope `‖Ψ̃(u)‖ ≤ 60 |e^{-(4/3)u^{3/2}}| (Re √u)^{-1/2}` (`hankelPsi_envelope`, Lean constant 60 for the paper's 200 `c^{-1/3}` normalisation absorbed in `Ψ̃`), analyticity on the disc `‖u‖ ≤ c^{2/3}κ·4.94e-4` and reality on the real axis.
+* `FormalResearch.SignUncertainty.HankelTransport`, `HankelTransportInt`: `gt:7.7p` (b)-(c): `|Re Ψ̃(x) + cξ'(x)(ρ₀f)(cξ(x))| ≤ r_∞ = 2 I₀ c^{1/3} e^{-c/40000}` for `c ≥ 5000` on the Langer disc `|x| ≤ langerRadius c` (`hankel_transport_pointwise`, `hankel_transport_integral`; the change of variables `hankel_subst`).
+* `FormalResearch.SignUncertainty.HankelTransportMass`: `gt:7.7p` (d), the `(Q2)` mass hypotheses of the Langer-disc density for a feasible `f` with `M[f] = 1`: sign (`hankel_psi_sign`), total mass `≤ 1 + 2A r_∞` (`hankel_psi_abs_mass`), negative mass `≥ 1/2 - lobe - 2A r_∞` above any `x₀` with `T ≤ cξ(x₀)` (`hankel_psi_neg_mass`) and truncated total `≤ lobe + 2A r_∞` (`hankel_psi_total_upper`), with `lobe = hankelLobe c ≤ 8(e^{-5(4.9e-5 c^{2/3})^{3/2}} + e^{-c/25})` from `deep_lobe_mass_thm` (`c ≥ 3·10⁶`), via the general transfer `hankel_transport_G` for positively homogeneous 1-Lipschitz `G`.
 * `FormalResearch.SignUncertainty.HankelWtConj`: complex-conjugation symmetry of `W̃_c` and of the local density integrand (`hankelMellinStrip_conj`, `hankelHInt_conj`, `hankelWt_conj`, `hankelJ_conj`), and reality of the local density for real `ℓ` (`hankelLocal_im_eq_zero`).
   with `‖H‖₁ = 1` has `‖H(z)‖ ≤ C₀(1+|z|) e(z)` with a universal `C₀` (`inAiryClass_envelope`), hence
   `one_profile_envelope`.
