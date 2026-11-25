@@ -11,8 +11,8 @@ Coefficients of the dual-side seed `D_η = airySeedU2 (1 + γ₂δ) (b₀ + η) 
 admissible tuning predicate `CeTune`, and its existence (`ceTune_exists`) from `ceLift_tune`.
 
 `CeSourceFamily S` is the **hypothesis structure** under which `ceLift_physical` (in `CeLiftSignMain`) holds: it collects the consequences of Lemma `O.12`
-(`ceo:conv`) that the lift uses.  It is **not discharged** here and is **not** instantiated for `convSource`; `CeHankelPair` and the headline `ce_hb_lift_m1`
-remain open.  Field by field (TeX item that would give it; none of the analytic items is formalised):
+(`ceo:conv`) that the lift uses.  It is not discharged in this file; it is instantiated for `convSource` in `ConvSourceFamily.lean`. `CeHankelPair` and the headline `ce_hb_lift_m1`
+remain open.  Field by field (TeX item behind it; see `ConvSourceFamily.lean` for the proofs of the weak forms used here):
 * `hasU2`: `hasU2_convSource` (proved, `O.12(1)`, `(3)`);
 * `mass`: `O.12(1)`-`(2)`: `γ ε ≤ ∫ S_c = ∫ w_c ≤ (γ + θ C_p √λ) ε` for every `c` (from `‖w_h‖₁ ≤ C_p √h`; `convSource_mass` gives the asymptotic form for `ε ≤ 1/√λ`);
 * `tail`: `ConvTailData` at the spline width `β₁ K ε / 2`, order `m = 4`: `I_main[S_c]` from `O.12(7)` (far transfer; the range `L ≤ L_F` from `middle_transfer_gt1`),
@@ -101,9 +101,9 @@ theorem ceTune_exists (γ₁ γ₂ : ℝ) (S : ℝ → ℝ → ℝ) {K c : ℝ} 
 
 /-- **The input on the source family `S_c`** for the physical sign of `thm:ce-hb-lift` (the consequences of Lemma `O.12`, `ceo:conv`,
 that the lift uses): class `HasU2`; mass `≍ ε`; the one-sided tail data (`ConvTailData`); the edge bound `|W_{S_c}(c^{1/3})| ≲ c^{-5/6}`
-at the spline width `β₁ K ε / 2`; and the reflected estimates `O6DualEst` for `-S_c`.  Not discharged here: this structure is the hypothesis
-under which `ceLift_physical` holds, and it is not yet instantiated for the convolution source (see the module docstring for the TeX item behind each
-field). -/
+at the spline width `β₁ K ε / 2`; and the reflected estimates `O6DualEst` for `-S_c`.  This structure is the hypothesis
+under which `ceLift_physical` holds; it is instantiated for the convolution source in `ConvSourceFamily.lean` (`ceSourceFamily_convSource`,
+`ceSourceFamily_convSource_paper`; the `edge` and `dual` fields there are the weak forms stated here, not the sharp `O.12(5)`, `O.12(6)`). -/
 structure CeSourceFamily (S : ℝ → ℝ → ℝ) : Prop where
   hasU2 : ∀ {c : ℝ}, 2000 ≤ c → HasU2 (S c)
   mass : ∃ m₀ M₀ : ℝ, 0 < m₀ ∧ 0 < M₀ ∧ ∀ {c : ℝ}, 2000 ≤ c →
