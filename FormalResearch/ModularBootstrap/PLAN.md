@@ -42,7 +42,7 @@ weaker remainder, or modulo a named hypothesis). Package definitions, sizes and 
 | **3** | **Five-term expansion** `thm:fixed-weight-expansion`, `thm:spinless-expansion`: `Delta_best = c'/Lambda_V + A_opt c'^{1/3} + c_0^* + c_1^Langer c'^{-1/3} + d_2^* c'^{-2/3} + O(c'^{-1} log c')`, two-sided | **Weaker.** `Upper.Ramped.virasoro_corollary_E1_unconditional` (Virasoro) and `n1_corollary_E1_unconditional`: `Delta_best = c'/Lambda_V + A_opt c'^{1/3} + O(1)`, two-sided, every weight-one problem; lower half `O(1)` at every `(w,Q)` (`fixedWeightLowerBoundInput_of_problem`). No `c_0^*`, `c_1^Langer`, `d_2^*` in Lean; for `w > 1` the upper half is the hypothesis `TheoremC15UpperInput` | Virasoro: **FIVE-0**, then **FIVE-L** and **FIVE-U** in parallel (they give `cts:transfer` and `thm:spinless-expansion`). Every `(w,Q)`: **W-P5**, **W-P6** (bump, `O(1)` upper bound at `w > 1`), then **FIVE-W** |
 | **2** | **Extremal spectrum**: attainment and atomicity (`ds:primal`), Airy clusters (`sr:Sigma`, `sr:cor`, `sr:single-level`), Clark curve (`gt:2.1`, `gt:2.4`-`gt:2.6`) | **Weaker or special.** `Sigma_0`, `Sigma`: `virasoro_sigma_unconditional`, `sigma_unconditional_prob` for the extremal measures of weight-one problems (paper: any measure satisfying `Gap`; far-first-site omitted family). Clark curve: `concrete_two_level_theorem` (`gt:2.1`, every `(w,Q)`, tests) matches; `theorem_two_five_w1`, `theorem_two_six_w1_unconditional` (`gt:2.5`, `gt:2.6`) weight one only. Existence of an exact-gap crossing measure (`corollary_E1`), not atomic: weaker than `ds:primal`. Nothing for `sr:cor`, `sr:single-level` | **DU-G**, **PA1** (`ds:primal`); **W-P5** (`Sigma`, T2 inputs at all weights), **SR-COR**; **W-P6**, **W-T2w**, **SE3** (Clark boundary at `w > 1`); **SLK**, then **PA2** (`sr:single-level`; the exact first atom needs `c_0^*` of FIVE-W) |
 | **4** | **Universality across chiral algebras**: fixed weight and `N = 1` (`n1:T5`), positive mixtures (`pmix:main`), prescribed HB levels | **Partly the paper's.** Lower bound `O(1)` at every integer `(w,Q)` and `N = 1` matches `wone:genlower`(1); `O(1)` law at weight one. Five-term, duality beyond `F = empty`, mixtures, general HB levels: none | five-term at `(w,Q)` as in 3 (this covers `N = 1`); mixtures **PM-0**, **PM-1** (= W-P6 for one component), **PM-2**, **PM-4**; the HB level `pmix:main`(5) needs **HB1** (chain **FT-H4b**, **STAB**, **INT-2**, **INT-2HB**, **LP1**, **PA1**), then **PM-3**, **PM-5** |
-| **1** | **Spin does not help**: continuous spin (`s4:S4`, `spinnotes:S3`, `sd:R`), integer spin (`isl:main`), finite-order programmes (`isl:finite`) | **None.** Only the spinless upper bound (`O(1)` form) that the spin results compare with exists | continuous spin: **SPIN-F**, **SPIN-D** (its `sd:LP` needs **LP1**, which needs DU-G), **SPIN-S4**. Integer spin and finite-order programmes are not planned (computer-assisted enclosures; SPIN-Z) |
+| **1** | **Spin does not help**: continuous spin (`s4:S4`, `spinnotes:S3`, `sd:R`), integer spin (`isl:main`), finite-order programmes (`isl:finite`); integrality shifts the spinless optimum exponentially little (`int:main`) and by `O(log c')` with continuous spin (`int:cont-spin`) | **None.** Only the spinless upper bound (`O(1)` form) that the spin results compare with exists | continuous spin: **SPIN-F**, **SPIN-D** (its `sd:LP` needs **LP1**, which needs DU-G), **SPIN-S4**. Integrality: **INT-T**, **INT-1**, then **INT-3** (needs INT-2 and W-P6), then **INT-S** (needs SPIN-D). Integer spin, finite-order programmes and lattice integrality are not planned (computer-assisted enclosures, SPIN-Z; (CLM)-conditional, INT-L) |
 
 The rows are ordered by the length of the critical path, longest first, not by the paper's numbering; "#" is the paper's number.
 Common infrastructure on several paths: W-P5 (all weights, headlines 2, 3, 4), W-P6 (the `O(1)` upper bound for `w > 1`: headlines 2, 3, 4),
@@ -102,6 +102,15 @@ upper bound (`Upper/Ramped`) 19k, T2 (`TwoZero*`) 5.6k, the whole Virasoro lower
 | **PM-3** | `pmix:hbphase`, `pmix:hbtap`, `pmix:rigidity`; `gt:2.1`, `gt:2.4`-`gt:2.6` for mixtures | those three | PM-1, HB1 | L | wave 5 |
 | **PM-5** | `pmix:main` (assembly) | `pmix:main` | PM-0 to PM-4 | S | wave 5 |
 
+**Tier 1c: the integrality clause of headline 1** (the introduction's first result states that integrality shifts the spinless optimum by an exponentially small amount, `int:main`, and with continuous spin by `O(log c')`, `int:cont-spin`).
+
+| WP | content | closes | needs | size | wave |
+|---|---|---|---|---|---|
+| **INT-T** | elementary integrality tools: `int:int-closed` (vague closedness of integer counting measures), `int:cheb` (1D midpoint-cosine moment matching; exact in `N`, not a fixed-`N` check), `int:sonine`, `int:repair`, `int:shell-inv` | those five labels | none | M-L, 3k | wave 1 |
+| **INT-1** | `int:atom`: cell-by-cell atomisation of a reserved crossing measure | `int:atom` | INT-T | M-L | wave 2 |
+| **INT-3** | `int:main`: exponentially small integrality gap at every fixed weight | `int:main` | INT-1, INT-2, INT-T, W-P6 (the `O(1)` law) | M | wave 5 |
+| **INT-S** | integrality with continuous spin: `int:axis-trace`, `int:cheb2d` (elementary, self-contained), `int:cos2d-repair`, `int:cont-spin`; also `int:obstr`(b) | those four | SPIN-D, INT-T, INT-3 | L | wave 5 |
+
 ### 2.1 Order and waves for tier 1
 
 Edges (a package waits for everything it needs; tier-2 packages are marked *):
@@ -112,16 +121,17 @@ W-P5 -> W-P6 -> {SE3, FIVE-W, PM-1} ; W-P5 -> W-T2w                [headlines 2,
 DU-G -> PA1 ; PA1 + SLK + W-P5 + FIVE-W -> PA2 ; Sigma -> SR-COR   [headline 2]
 PM-0 -> PM-1, PM-2, PM-4 -> PM-5 ; PM-3 needs PM-1 and HB1         [headline 4]
 STAB -> INT-2 -> INT-2HB -> HB1 <- FT-H4b, SLK, PA1, LP1           [HB level]
+INT-T -> INT-1 ; INT-1 + INT-2 + W-P6 -> INT-3 ; INT-3 + SPIN-D -> INT-S   [headline 1, integrality]
 DU-G -> LP1 -> SPIN-D <- SPIN-F ; SPIN-D -> SPIN-S4                [headline 1]
 ```
 
 | wave | packages | why |
 |---|---|---|
-| 1 | **FIVE-0**, **W-P5**, DU-G (with DU-G.0), SPIN-F, STAB, LP1 | no open parent |
-| 2 | **W-P6**, PA1, SR-COR, FIVE-L, FIVE-U, SPIN-D, PM-0 | need wave 1 |
+| 1 | **FIVE-0**, **W-P5**, DU-G (with DU-G.0), SPIN-F, STAB, LP1, INT-T | no open parent |
+| 2 | **W-P6**, PA1, SR-COR, FIVE-L, FIVE-U, SPIN-D, PM-0, INT-1 | need wave 1 |
 | 3 | W-T2w, SE3, SLK, FIVE-W, PM-1, PM-2, PM-4, SPIN-S4, FT-H4b | need wave 2 (FT-H4b has no parent and can start earlier) |
 | 4 | INT-2, PA2 | need STAB, FIVE-W, SLK |
-| 5 | INT-2HB, HB1, PM-3, PM-5 | the HB level |
+| 5 | INT-2HB, HB1, PM-3, PM-5, INT-3, INT-S | the HB level; integrality after INT-2 |
 
 There are no time boxes; a stalled route is a ledger row, not a stop. At most two Sonnet-high agents at once; launch while at least
 1.5 GB of disk is free. Sonnet high for the L packages, Sonnet medium for S-M, Haiku for docs and `THEOREM_MAP.md` rows. For each long lane
@@ -129,15 +139,11 @@ There are no time boxes; a stalled route is a ledger row, not a stop. At most tw
 
 ## 3. Tier 2: off every headline path, and not planned
 
-Packages that no headline needs. They can fill idle capacity at any time; INT-T and INT-4 are the owner's earlier ranked targets.
+Packages that no headline needs. They wait until the tier-1 packages are staffed. INT-4 (`int:obstr`) was an earlier ranked target; the integrality packages the introduction states (INT-T, INT-1, INT-3, INT-S) are tier 1c.
 
 | WP | content | closes | needs | size | wave |
 |---|---|---|---|---|---|
-| **INT-T** | elementary integrality tools: `int:int-closed` (vague closedness of integer counting measures), `int:cheb` (1D midpoint-cosine moment matching; exact in `N`, not a fixed-`N` check), `int:sonine`, `int:repair`, `int:shell-inv` | those five labels | none | M-L, 3k | any time |
 | **INT-4** | `int:obstr`(a): the supremal integer gap is attained; `Delta^Z = Delta^R` iff some attaining real measure is integer-weighted (the "iff" needs PA1); (b), swap-invariant spin cones, is INT-S | `int:obstr` | INT-T (`int:int-closed`), DU-G, `fw:crossing`(1) (done); PA1 for the "iff" | M | any time |
-| **INT-1** | `int:atom`: cell-by-cell atomisation of a reserved crossing measure | `int:atom` | INT-T | M-L | any time |
-| **INT-3** | `int:main`: exponentially small integrality gap at every fixed weight | `int:main` | INT-1, INT-2, INT-T, W-P6 (the `O(1)` law) | M | any time |
-| **INT-S** | integrality with continuous spin: `int:axis-trace`, `int:cheb2d` (elementary, self-contained), `int:cos2d-repair`, `int:cont-spin`; also `int:obstr`(b) | those four | SPIN-D, INT-T, INT-3 | L | any time |
 | **DU-F** | `se:cdual`: compact `F` constrained duality with attainment, atomic with a positive atom at `T_F` | `se:cdual` | DU-G, PA1 | S-M | any time |
 
 ### 3.1 Not planned, with the reason
