@@ -13,7 +13,7 @@ fields X. A `.lean` file existing is not verification.
 | fact | state |
 |---|---|
 | size | `SignUncertainty/` 237 files, 63.7k lines; `CohnElkies/` 65 files, 53.6k lines; `Special/Airy*` about 48k lines; `TwoEdgeBootstrap/` 4k; `Asymptotics/` 3k |
-| placeholders | no proof placeholder and no declared `axiom` anywhere in `FormalResearch/` (grep). The headline theorems in `Headlines.lean` are guarded by `#guard_msgs` to `[propext, Classical.choice, Quot.sound]`; the `O4CertRun*` boxes use `decide +kernel` (no `native_decide`) |
+| placeholders | no proof placeholder and no declared `axiom` anywhere in `FormalResearch/` (grep). The headline theorems in `Headlines.lean` are guarded by `#guard_msgs` to `[propext, Classical.choice, Quot.sound]` |
 | last recorded full build | `lake build FormalResearch.SignUncertainty FormalResearch.TwoEdgeBootstrap`, 9,269 jobs, about 9 min (audit of 2026-11-23; not re-run for this documentation pass) |
 | paper headlines | three introduction theorems: `thm:intro-radii` (five-term radii), `thm:intro-hb` (bounded remainder at every fixed level), `thm:intro-gap` (CE thresholds at prescribed shells) |
 | unconditional headline in Lean | none |
@@ -35,7 +35,7 @@ Open inputs, counted once: `ce_hb_lift_m1` (M6), `shell_reduction` for `m >= 2` 
 
 - The Airy base (A1, A2): Theorems D, Q, B with their equality cases, Clark and Hermite-Biehler quadrature, `hb_uniqueness`, Airy PWS (a)<=>(b).
 - The Hankel layer (B1, B2): the concrete real-order Bessel kernel (`hankelKernelData`, unconditional), `gt:7.4`, `radial_compactness`, the Euclid-Hankel dictionary in every integer `d >= 2` (`hankel_euclid_dictionary`), `gt:7.9a` in its non-strict form `T_c^{+1} <= T_c^{-1}`, `gt:7.9b` under `T_c^{-1} > c/(4 pi)` (true at large `c`, which is all `thm:ct-upper` needs).
-- The one-level Hankel thresholds (C2, C3, B3): `hb_thresholds_lower` (`HankelThresholds`; via the Langer chart, transport, band reduction, window lemma and `hankelBootHB`) and `hbThresholdsUpper` (`HbUpperM1`, from `o6Bricks_holds`, `gt1BasisInput` and `o4QuotientBound`: 12,800 kernel-checked interval boxes).
+- The one-level Hankel thresholds (C2, C3, B3): `hb_thresholds_lower` (`HankelThresholds`; via the Langer chart, transport, band reduction, window lemma and `hankelBootHB`) and `hbThresholdsUpper` (`HbUpperM1`, from `o6Bricks_holds`, `gt1BasisInput` and `o4QuotientBound`: the analytic estimate on `|θ| = 1/4`).
 - Shell extraction and the one-profile problem (E1): `hankelShellGapLimit_proved`, `shellGapLimit_of_hankel`, `one_profile_*`, `even_m_laplace_sign`, `shell_reduction_airy`.
 - Cohn-Elkies radius layer (D2): `ce_quadratic_dimensions` (finite dimensions), `ce_schwartz_radius_eq_L1_radius`.
 - M6 leaves (D1): the convolution source `ConvSource*` (`convS_bounds`, `ConvTailData`), `ceLift_pair`, `ceHankelPair_of_eigenfns`, `ceLift_tune`, `ceLift_physical` (proved modulo the fields of `CeSourceFamily`), `ce_hb_lift_airy_of_hankelPair` (proved modulo `CeHankelPair`), `preEdge_general_pos` (modulo `PreEdgeGeneralData`).
@@ -268,7 +268,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `ceo:O11ak` | partial | `exists_hankelEigenfn_lift` (one-level seeds, `m >= 3`); `exists_hankelEigenfn_lift_general` (general seeds) takes the tail structure `ConvTailData` as a hypothesis; the fixed-`c` `L^1`-kernel form is not stated |
 | `uct:admiss` | planned | M10 (M): only `constant_terms_upper` uses it; no declaration yet |
 
-**C2. Upper O-chain at one level (`U.*`, `O.*`, hb-seed-mass, `O.9'`)** (`u1c_o1_upper.tex`). Lean: `CohnElkies/AirySeedFloors`, `AirySeedSymbols`, `PieceC*`, `HighBand*`, `DualBoundE3`, `CubicNormalForm*`, `O4*` (12,800-box certificate), `MiddleBand*`, `WindowTranslation`, `HbUpperM1` (about 25k lines).
+**C2. Upper O-chain at one level (`U.*`, `O.*`, hb-seed-mass, `O.9'`)** (`u1c_o1_upper.tex`). Lean: `CohnElkies/AirySeedFloors`, `AirySeedSymbols`, `PieceC*`, `HighBand*`, `DualBoundE3`, `CubicNormalForm*`, `O4*`, `MiddleBand*`, `WindowTranslation`, `HbUpperM1` (about 25k lines).
 
 | label | state | Lean today / note |
 |---|---|---|
@@ -280,7 +280,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `u1co:O1` | done | `bspline_floor_smoothing_gain` |
 | `u1co:O2` | done | `o2_reflected_line_deriv_bound` |
 | `u1co:O3` | partial | (1): `dual_phase_oscillatory_bound`, `iDual_bound_e3_airySeed`; (2) `(e4)`: `hb_estimate_airySeed_uniform` for one-level seeds; the identification `gamma_0 = c_s^{1/2} 2^{2/3} pi^{-1/2} beta_inf` and the `L >= L_0` claim are not stated |
-| `u1co:O4` | done | `o4QuotientBound` (12,800 kernel-checked boxes), `o4_normal_form`, `CubicNormalFormH` |
+| `u1co:O4` | done | `o4QuotientBound` (analytic estimate on `|θ| = 1/4`), `o4_normal_form`, `CubicNormalFormH` |
 | `u1co:O5` | partial | (e5) `window_translation_airySeed` for `c >= 32768` (TeX: `c >= 200`); (e6) `o5_e6`, `o5_e6_airySeed` |
 | `u1co:O6` | partial | `o6_positivity` with `O6Est`; bricks discharged for the one-level seed by `o6Bricks_holds` (`m >= 3`) |
 | `lem:hb-seed-mass` | partial | `hb_seed_mass_exists` for any `HBSeedSpec`; only the `m_0 = 1` witness `hbSeedSpec_airy_witness` exists |

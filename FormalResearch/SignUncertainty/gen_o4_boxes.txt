@@ -1,4 +1,0 @@
-scale 2^96, NL=40, NT=320, boxes=12800, tail radius (scaled) = 1496229080
-worst box (i,j)=(39, 197): certified |F|^2 <= 0.016117, |F| <= 0.126952
-failing boxes: 0
-ALL PASS

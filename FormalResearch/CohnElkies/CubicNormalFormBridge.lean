@@ -16,8 +16,8 @@ For `L ∈ (0, 0.002]` put `α̃ = edgeAlphaTilde L`, `θ₀² = 12 α̃ / π²`
 
 `O4QuotientBound L` (the paper's `M_F ≤ 0.13`, `[O4C (B)]`) is the statement `‖F‖ ≤ 0.13` on `D(0, 0.25)` off its three removable
 singularities.  It is taken as an explicit hypothesis of the theorems below and is proved for every `L ∈ (0, 0.002]` as
-`FormalResearch.SignUncertainty.o4QuotientBound` (`O4CircleReduction`, `O4QuotientBound`: quarter-arc reduction and a kernel-checked
-interval certificate), so `o4_normal_form` holds for every such `L`.  Given the bound: the removable singularities are filled by
+`FormalResearch.SignUncertainty.o4QuotientBound` (`O4CircleReduction`: maximum principle on the circle `|θ| = 1/4`; `O4QuotientBound`: the paper's analytic estimate
+on that circle), so `o4_normal_form` holds for every such `L`.  Given the bound: the removable singularities are filled by
 Riemann's theorem (the bound supplies boundedness), `o4_fixed_point` gives `η`, and
 `τ(θ) = σ₀ θ (1 + (θ² - θ₀²) η(θ))` solves `Φ_L(τ(θ)) = Φ_mod(θ)` on `D(0, 0.22)`.
 -/

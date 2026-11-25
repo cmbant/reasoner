@@ -22,8 +22,8 @@ The proof there lifts the Hermite--Biehler seed `F_δ` of `lem:hb-seed-mass` (`v
   `(e3)`, `(e4)` (pinned leading coefficient), `(e5)`, `(e6)` and the convolution form of `windowSmooth` (see `MiddleBandPositivity.lean`).
 * `hbThresholdsUpper_of_bricks`: `O6Bricks 4 → HbThresholdsUpper` (`m = 4` is the spline order of the paper's `m ≥ 4`).
 * `o6Bricks_holds : 3 ≤ m → O6Bricks m` and `hbThresholdsUpper : HbThresholdsUpper`: unconditional.  The `GT.1` bounds are `gt1BasisInput`
-  (`Gt1NegTail.lean`) and the quotient bound `O4QuotientBound L` is `o4QuotientBound` (`O4QuotientBound.lean`; the 12,800 interval boxes are
-  kernel-checked in `O4CertRun01 … O4CertRun10`).
+  (`Gt1NegTail.lean`) and the quotient bound `O4QuotientBound L` is `o4QuotientBound` (`O4QuotientBound.lean`; the analytic estimate
+  of the paper on the circle `|θ| = 1/4`).
 
 Status: proved, unconditional (axioms: `propext`, `Classical.choice`, `Quot.sound`).
 -/
@@ -292,7 +292,7 @@ theorem hbThresholdsUpper_of_bricks (h : O6Bricks 4) : HbThresholdsUpper := by
       linarith
 
 /-- The analytic bricks of `O.6` for `m ≥ 3`, unconditionally: the `GT.1` bounds are `gt1BasisInput` (`Gt1NegTail.lean`) and the quotient bound
-`O4QuotientBound L` (`M_F ≤ 0.13`, `[O4C (B)]`) is `o4QuotientBound` (the kernel box certificate of `O4CertRun01 … O4CertRun10`). -/
+`O4QuotientBound L` (`M_F ≤ 0.13`, `[O4C (B)]`) is `o4QuotientBound` (the analytic estimate on `|θ| = 1/4`, `O4QuotientBound.lean`). -/
 theorem o6Bricks_holds {m : ℕ} (hm : 3 ≤ m) : O6Bricks m := by
   obtain ⟨ϑ, K1, K2, hϑ⟩ := prof_exists
   refine ⟨2 * ceK * cA * ceCs ^ (1 / 2 : ℝ), hb_leading_pos, fun R hR => ?_⟩
