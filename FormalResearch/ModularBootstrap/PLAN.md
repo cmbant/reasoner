@@ -3,6 +3,9 @@
 Source: QIprojects `CFT/modular_bootstrap/paper/` (`airy_scale_core.tex` and its appendices, the technical supplement)
 and the notes `CFT/notes/n2_ramped_comb.tex` (Lemma U*, `rem:thmU`). Audit 2026-11-23 (after A–C), reasoner `9a465bf`,
 QIprojects `origin/main`. The paper status line for readers is the Paper II section of QIprojects `docs/lean_status.md`.
+Section 3a (duality, LP, integrality, positive mixtures) was synchronised with Paper II at QIprojects `origin/main` `f4cc9812c`
+(2026-11-25); every label cited there was grepped in `CFT/modular_bootstrap/paper/`. Nothing in section 3a is formalised
+unless it says "in Lean".
 
 ## 1. Proved on master (unconditional, pinned axioms `[propext, Classical.choice, Quot.sound]`)
 
@@ -48,6 +51,7 @@ QIprojects `origin/main`. The paper status line for readers is the Paper II sect
 in `ModularBootstrap/FoldTip/` because Paper II's instances use it). For Paper II's own instances (Virasoro, N = 1, fixed (w,Q)) the conclusions C1, C2, C3 (O(1) form), C5a,
 C5b, and C5c at w = 1 are already proved by other routes; FT reuses those proofs (no refactor of Prop T / Theorem R /
 Σ through FT: ~8k lines at stake for little gain).
+Paper I's `lem:qual-compact` (`airy_extremal.tex`, qualitative mass transfer under local uniform convergence with tight right tails, new; shared by the fold-tip blow-up `ft:L2` and the CE shell transfers) is the elementary compactness step FT-3..6 would reuse; it is not yet in Lean as a stated lemma (check `SignUncertainty/` before adding).
 
 | pkg | content | size | depends | state |
 |---|---|---|---|---|
@@ -63,6 +67,31 @@ constants (0.4837…, 0.2070…, 1.2180…).
 
 **Schedule.** Sonnet high for TL1, TL3–TL6; Sonnet medium for TL2, FT-1, FT-2; Haiku for FT-0, docs and THEOREM_MAP.
 At most two Sonnet-high agents at once. Launch while ≥ ~1.5 GB disk is free.
+
+## 3a. Paper II duality, attainment, LP, integrality and mixtures (synced 2026-11-25 with QIprojects `f4cc9812c`)
+
+Current Paper II statements (`CFT/modular_bootstrap/paper/`), with what is in Lean today and what is planned. **No result in
+this section is claimed formalised beyond the "in Lean" column; nothing here is a scheduled package unless the state says
+"planned".** Setting: `(H_w)` (fixed integer weight `w`, `a > 0`, `a >= S`) and positive finite mixtures `(H_{w,mix})`
+rebased to `min r_i = 0` (`pmix:rebase`); spinless Virasoro is `c >= 25`.
+
+| pkg | paper statement (label, file) | in Lean today | state now |
+|---|---|---|---|
+| DU1 | Unified duality: `ds:E` Theorem E (a) arbitrary closed support `X` (existence iff no feasible test; at most `|B|+1` atoms; decreasing supports), (b) constrained and unconstrained strong duality on `F ∪ [τ,∞)` for compact `F`, `T_F = max`, `ν(F) > 0` above `T_V`, (c) reserve separation; with `ds:M` (Lemma M), `ds:farkas`, `ds:D1`, and the sum rule `fw:crossing` (Lemma FW-X, `crossing_sum_rule.tex`) | Virasoro `F = ∅`: `Duality/` (`theorem_E`, `theorem_E_b`, `_c`, `proposition_D1`, `farkas_approx`), weight `w`: `FixedWeight/StrongDuality`; two-level `F = {t₁}`: `TwoLevel/ConstrainedDuality` (`constrained_strong_duality`, `_two_level`); `fw:crossing` in `Crossing/` (FW-A/X/C) | Not planned: (a) for general closed `X`, general compact `F`, and (c) reserve separation, until an `ft`/`int` package needs them. Lean statements are for Virasoro / integer `w` only and match `ds:E` only in those cases; do not cite them as `ds:E` in full. |
+| DU2 | `se:cdual` (Theorem SE.D), the compact-`F` constrained duality with attainment, a consequence of `ds:E`(b) and `ds:primal` | `F = {t₁}` only (TL3) | Planned only if M-lane TL work needs `|F| >= 2`; otherwise not planned. |
+| PA1 | Primal attainment and atomicity: `ds:primal` Theorem E' (a) nonzero weak extremal `g_*`, `M[g_*] = 1`, `g_{*,vac} = 0`, `g_* >= 0` on `X_{T_F}`, real-analytic; (b) every crossing measure on `X_{T_F}` carried by `{g_* = 0}`; (c) locally finite atomic, atom at `T_F` | none (`grep primal` finds only the Farkas/compactness helpers); the strip bound `n1:L4(a)` and Montel step are not in Lean | Not planned now. It needs the fixed-charge strip bound, Montel/limit of `g_j`, and `L^1(t^{w-1}dt)` convergence of `H_w`-eigenfunctions; propose as a successor only after PA2 is wanted. Note `ds:E1` (atomic `ν_*` with gap exactly `T_V`) is `virasoro_corollary_E1_unconditional` in Lean already, by the route that does not use `ds:primal`; Lean does not state atomicity. |
+| PA2 | One-level Airy clusters and near-optimal first mass: `sr:single-level` (a) the first `K` clusters of every attaining measure are single atoms, `t_1* = T_V` simple and `t_k*` double zeros of `g_*`, `d_1` asymptotics (`sr:ed1-exact`, `sr:ed1-asym`), `(t_2*-t_1*) c^{-1/3} -> (|a_2|/|a_1| - 1) A_opt ≈ 0.2070524`; (b) first-cluster mass for gaps within `c^C e^{-κ c}` of `T_V`; proofs `dsl:one-level-clusters` (Theorem E'-C), `dsl:near-opt-mass` (Prop E'-M) in `dual_spectrum_limit.tex` | rigidity ingredients only (`Upper/Rigidity/*`: `Atoms`, `Concentration`, `Weights`, `Nodes`; `sr:Sigma0`, `sr:Sigma` at Virasoro) | Not planned now. Depends on PA1 and on Σ for all attaining measures; Lean's `Σ` results are for the designs, not for `ν_*`. |
+| LP1 | Infinite-order derivative limit: `ds:LP` Theorem LP (i) `(a) ⇔ (b)`, (ii) `T_F^{[∞]} = max`, (iii) `T_V = inf_P T_P = lim_N T^{[N]}`; lemmas `ds:cay` (Cayley identity), `ds:cont` (positive-Laplace continuation), `ds:mom` (Laguerre moment growth), `dsl:poly-compact` (Lemma LP-P, shared polynomial moment compactness: increasing chain `V_k`, majorants `h_N = P_N + M_N p_0`, `ds:farkas`, uniform bounds `(C_1 k)^k`, `exp(εt)` moment) | the Farkas step and weak-`*` compactness machinery (`Duality/Farkas`, `MeasureCompactness`) only; no Laguerre moment bound, no `dsl:poly-compact` | Not planned now. If scheduled: DU first (Farkas on a general `Y`), then `ds:mom` (analytic, S–M), then `dsl:poly-compact` (M, self-contained, `G`-invariant clause optional), then `ds:LP` (S). `dsl:poly-compact` is also the engine of the spinning `sd:LP`, which stays not planned. |
+| INT1 | Integer moment matching: `int:cheb` Lemma INT-M, 1D, `W_1D(M) = min(8 N^{5/2}, 1000 N^2 (log 2N)^2)`, `N = M+1` (midpoint-cosine/Fejér-I weights, Euclidean contraction, discrete cosine orthogonality); `int:cheb2d` Lemma INT-7B, 2D, `W_0 >= 32 N^{13/2}` (grid A/B, Stage 1/2 shifts) | none | Not planned now. `int:cheb` is elementary and self-contained (S–M; kernel-checkable orthogonality at fixed `N` is not a proof of the general `N`); `int:cheb2d` serves spin only, so not planned. |
+| INT2 | Integer attainment and the exact criterion: `int:obstr` Theorem INT-4 (a) the supremal integer gap `Δ_best^Z` is attained and `Δ^Z = Δ^R` iff some attaining real crossing measure is integer-weighted, (b) the same on swap-invariant spin cones `Ω`; with `int:int-closed` (Lemma INT-4A, vague closedness of integer counting measures, elementary) | none | Not planned now. (a) needs `ds:E`(a)/`ds:M`/`fw:crossing`(1) (DU1 in general form) plus `ds:primal` for the "iff" reading, and a hypothesis that one positive-gap integer spectrum exists; `int:int-closed` alone is small (S) and could be stated first. (b) is spin: not planned. |
+| INT3 | Exponentially small integrality gap: `int:main` Theorem INT-3 (`0 <= Δ^R - Δ^Z <= C c^{17/6} (log c)^2 exp(-L(ξ_*) c - Γ_* c^{1/3})`; the simpler `8N^{5/2}` branch gives prefactor `c^{10/3}`), from `int:atom`, `int:reserve`, `int:repair`, `int:sonine`, `n1:L4`, `ctu:O1`, `pmix:o1`; `int:strict-weak` (strict and weak infima coincide at large charge) | none | Not planned now: it needs INT1, INT2, HB reserve and the `O(1)` law (`ctu:O1`, in Lean only at Virasoro and `w = 1`). |
+| INT4 | General prescribed-level Hermite–Biehler reserve: `int:hb-reserve` Theorem INT-2HB (any strict HB pair `(P, Q_HB)`, index `m_0`, slope `κ_N^res`, `(1-ε) κ_N^res n^{-1/3} η` reserve on `[B_n - η, ∞)`; case `m_0 = 1` is `int:reserve`, `κ_*^res = 1/(2 ℓ_V L_*)`) | the canonical two-node case is covered only through the two-level rigidity (`TwoLevel/ClarkRigidity*`); no reserve statement | Not planned now. Its inputs `ft:PP`, `bl:T`, `lem:hb-uniqueness` (Paper I `hb_uniqueness` is in Lean), `se:cdual`, `pmix:*` are partly in Lean; propose as successor after INT1–INT2. |
+| PM1 | Positive finite mixtures: `pmix:main` Theorem PM (1) two-sided `O(1)` and sharp lower constant, (2) attainment, duality, discreteness, derivative limit, (3) Airy rigidity and exact one-level clusters, (4) two-level Clark boundary, (5) intrinsic HB thresholds; `pmix:rebase` (Lemma PM.1), `pmix:weight` (W1–W4), `pmix:crossing`, `pmix:duality` (Prop PM.8, direct instance of `ds:M`/`ds:E`/`ds:primal`/`ds:LP`), `pmix:o1` (Cor PM.7), `pmix:rigidity` (Thm PM.12) | none. The Lean weight axioms (`WeightAxioms/`, W1–W4) are stated for a single product vacuum | Not planned now (new `FixedWeightProblem` instances for mixtures would be needed first; start with `pmix:rebase` and `pmix:weight`, S, if ever scheduled). |
+| SPIN | Continuous spin (`spinning_dual.tex` `sd:M`, `sd:P`, `sd:LP`, `sd:SD`; `int:cont-spin` Theorem INT-7); integer-spin lattice under (CLM) and the interval enclosures `isl:main`, `int:int-spin` (Theorem INT-6) | none | The CLM lattice results are conditional in the paper and computer-assisted; continuous spin is later, not scheduled. Neither is planned. |
+
+Reading rule for the table: a row says "Not planned now" when no brief or milestone owns it; the order above (DU1, PA1, LP1,
+INT1, INT2, INT4, INT3, PA2, PM1) is the dependency order should the owner schedule it, not a schedule. The existing
+Duality/Crossing/TwoLevel/Upper work (sections 1 to 3) is unchanged by this section.
 
 ## 4. Boundary with the Paper I session (checked 2026-11-23)
 - Paper I owns `SignUncertainty/`, `CohnElkies/`, `TwoEdgeBootstrap/`, `Special/Airy*`, `Complex/`, `Analysis*`,

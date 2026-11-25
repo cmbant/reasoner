@@ -332,7 +332,7 @@ converter `RadialRigidityPackage → ChartCompactness`; (4) M8's TE.0′ (compac
 `ChartCompactness` plus the shared rigidity theorem, not as a second copy of the argument. Steps (3)-(4) start when `ChartCompactness`
 is on master.
 
-## 9. Paper-side label changes to track (checked against QIprojects `origin/main`, 2026-11-24)
+## 9. Paper-side label changes to track (checked against QIprojects `origin/main` `f4cc9812c`, 2026-11-25)
 
 | paper label (`CFT/sign_uncertainty/paper/`) | now |
 |---|---|
@@ -342,6 +342,10 @@ is on master.
 | `thm:ct-upper` | five-term upper bound with `O(c^{-3/4})` remainder (`general_theorems.tex`; proof in `constant_terms_five.tex`); with `thm:ct-lower` gives `eq:ct-split` (M10) |
 | `thm:intro-separation`, `gt:7.9c` | deleted; archived in QIprojects `CFT/sign_uncertainty/history/notes/archived_sign_separation.md`; Lean `thm_intro_separation` obsolete |
 | Theorem FT (`ft:FT`) | Paper I, Section 4 (`fold_tip_universality.tex`) |
+| `gt:7.9`, `gt:7.12`, `cor:fourier-radii`, `thm:ce-radius`, `thm:ct-lower` | alias labels of the single radius theorem `thm:ct-upper` (`general_theorems.tex`: (i) real `c`, two-sided five-term bound; (ii) integer `d`, sign-uncertainty and CE radii; the Euclidean–Hankel dictionary and `r_CE` infimum statements are inside it). Headlines A and B still target the dictionary and the leading-order radii, which are parts of that theorem, not the whole; Lean docstrings citing `gt:7.9`/`gt:7.12` mean those parts |
+| `lem:qual-compact` | new, `airy_extremal.tex` (qualitative mass transfer under local uniform convergence with tight right tails; used by the fold-tip blow-up `ft:L2` and the CE shell transfers); not in Lean, candidate S lemma for M8's TE.0′ and the fold-tip lane |
+| `lem:airy-last-gap` | alias label of `thm:ce-canonical-iff` (with `prop:airy-strictification`) |
+| `uct:admiss`, `mat:T7`, `ceo:O11ak` | kept as labels inside the consolidated subsection `mat:admiss-sec` (`mellin_airy_toolkit.tex`) |
 
 Lean names that quote old labels (`thm_intro_separation`, the `gt:7.9c` docstrings in `Headlines.lean`, `SignSeparation*`) are
 left as they are; fix them together with the owner's decision on the separation headline.
