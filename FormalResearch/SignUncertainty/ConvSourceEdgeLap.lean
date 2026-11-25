@@ -127,7 +127,7 @@ lemma convSD_exp (γ ε : ℝ) (k : ℕ) {z : ℂ} (hz : 0 < z.re) :
     field_simp
     ring
 
-lemma norm_one_add_ge {z : ℂ} (hz : 0 ≤ z.re) : 1 ≤ ‖1 + z‖ ∧ ‖z‖ ≤ ‖1 + z‖ := by
+lemma convEdge_norm_one_add_ge {z : ℂ} (hz : 0 ≤ z.re) : 1 ≤ ‖1 + z‖ ∧ ‖z‖ ≤ ‖1 + z‖ := by
   have h1 : (1 : ℝ) ≤ (1 + z).re := by simpa using hz
   refine ⟨h1.trans (Complex.re_le_norm _), ?_⟩
   have h2 : ‖z‖ ^ 2 ≤ ‖1 + z‖ ^ 2 := by
@@ -141,7 +141,7 @@ theorem convInterior_exp (γ ε : ℝ) : ConvInterior (convWe γ ε) (24 * |γ *
   have hg : 0 ≤ |γ * ε| := abs_nonneg _
   refine ⟨convWe_integrableOn γ ε, by positivity, ?_, ?_, ?_, ?_⟩
   · intro k hk1 hk4 z hz
-    obtain ⟨h1, h2⟩ := norm_one_add_ge hz.le
+    obtain ⟨h1, h2⟩ := convEdge_norm_one_add_ge hz.le
     have hz0 : z ≠ 0 := fun h0 => by rw [h0] at hz; simp at hz
     have hzn : 0 < ‖z‖ := norm_pos_iff.mpr hz0
     have hne : ‖convSD (convWe γ ε) k z‖ = |γ * ε| * (k.factorial : ℝ) / ‖1 + z‖ ^ (k + 1) := by
@@ -161,7 +161,7 @@ theorem convInterior_exp (γ ε : ℝ) : ConvInterior (convWe γ ε) (24 * |γ *
           gcongr
       _ = 24 * |γ * ε| * (‖z‖ ^ (k + 1))⁻¹ := by ring
   · intro k hk1 hk3 z hz hz1
-    obtain ⟨h1, h2⟩ := norm_one_add_ge hz.le
+    obtain ⟨h1, h2⟩ := convEdge_norm_one_add_ge hz.le
     have hz0 : z ≠ 0 := fun h0 => by rw [h0] at hz; simp at hz
     have hzn : 0 < ‖z‖ := norm_pos_iff.mpr hz0
     have hne : ‖convSD (convWe γ ε) k z‖ = |γ * ε| * (k.factorial : ℝ) / ‖1 + z‖ ^ (k + 1) := by
@@ -180,12 +180,12 @@ theorem convInterior_exp (γ ε : ℝ) : ConvInterior (convWe γ ε) (24 * |γ *
       _ ≤ 24 * |γ * ε| * ‖z‖ ^ (1 / 2 - (k : ℝ)) := by nlinarith [mul_nonneg hg (by norm_num : (0 : ℝ) ≤ 24)]
   · intro z hz
     rw [lapW_convWe hz, norm_div, Complex.norm_real, Real.norm_eq_abs]
-    obtain ⟨h1, _⟩ := norm_one_add_ge hz
+    obtain ⟨h1, _⟩ := convEdge_norm_one_add_ge hz
     calc |γ * ε| / ‖1 + z‖ ≤ |γ * ε| / 1 := by gcongr
       _ ≤ 24 * |γ * ε| := by linarith
   · intro z hz hz1
     rw [lapW_convWe hz.le, lapW_convWe (by simp : 0 ≤ (0 : ℂ).re)]
-    obtain ⟨h1, h2⟩ := norm_one_add_ge hz.le
+    obtain ⟨h1, h2⟩ := convEdge_norm_one_add_ge hz.le
     have hne := one_add_re_ne hz.le
     have hz0 : z ≠ 0 := fun h0 => by rw [h0] at hz; simp at hz
     have hzn : 0 < ‖z‖ := norm_pos_iff.mpr hz0
