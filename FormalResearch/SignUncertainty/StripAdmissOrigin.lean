@@ -123,6 +123,7 @@ lemma integrable_Gamma_line_one : Integrable fun y : ℝ => Complex.Gamma ((1 : 
   refine this.trans (le_of_eq ?_)
   rw [hn]; ring
 
+/-- The inverse Mellin transform of `Γ` along `Re z = 1` is `e^{-Δ}` (Mellin inversion for `t ↦ e^{-t}`; used to subtract the pole `W̃(1) Γ(z)` of `Φ_W` at `z = 0`). -/
 theorem mellinInv_one_Gamma {Δ : ℝ} (hΔ : 0 < Δ) : mellinInv 1 Complex.Gamma Δ = ((Real.exp (-Δ) : ℝ) : ℂ) := by
   set f : ℝ → ℂ := fun t => ((Real.exp (-t) : ℝ) : ℂ) with hf
   have hmel : ∀ s : ℂ, 0 < s.re → mellin f s = Complex.Gamma s := fun s hs => by
@@ -258,6 +259,7 @@ lemma integrable_Gamma_line_cpow {Δ : ℝ} (hΔ : 0 < Δ) :
     (Eventually.of_forall fun y => ?_)
   rw [norm_mul, norm_cpow_line hΔ]
 
+/-- For every line `0 < ε ≤ 1`: `f_W(Δ) = W̃(1) e^{-Δ} + (inverse Mellin transform of `R = Φ_W - W̃(1) Γ` along `Re z = ε`). -/
 theorem admiss_lift_eq_sub {c : ℝ} (hc : 2 ≤ c) (hW : StripM1 W) {Δ : ℝ} (hΔ : 0 < Δ) {ε : ℝ} (hε0 : 0 < ε)
     (hε1 : ε ≤ 1) :
     ((admissLift c W Δ : ℝ) : ℂ) = W 1 * ((Real.exp (-Δ) : ℝ) : ℂ) + mellinInv ε (admissRem c W) Δ := by
