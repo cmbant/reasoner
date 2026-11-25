@@ -157,13 +157,12 @@ theorem admissG_reflect (hc : 0 < c) {z : ℂ} (hz0 : 0 < z.re) (hz1 : z.re < c)
   rw [e1, e2]
   ring
 
-theorem admissG_bound_left (hc : 0 < c) {a : ℝ} (ha : 0 < a) :
-    ∃ B : ℝ, 0 ≤ B ∧ ∀ z : ℂ, a ≤ z.re → z.re < c / 2 → 1 ≤ |z.im| → ‖admissG c z‖ ≤ B := by
+theorem admissG_bound_left (hc : 0 < c) :
+    ∃ B : ℝ, 0 ≤ B ∧ ∀ z : ℂ, 0 < z.re → z.re < c / 2 → 1 ≤ |z.im| → ‖admissG c z‖ ≤ B := by
   obtain ⟨BR, hBR0, hBR⟩ := admissG_bound_right hc
   set D : ℝ := Real.exp (2 * ((c + 1 / 2) * c ^ 2 / 2 + c ^ 3 / 3 + 2)) with hD
   have hD0 : 0 < D := Real.exp_pos _
-  refine ⟨BR * ((2 * Real.pi) ^ c * D), by positivity, fun z hz1 hz2 hy => ?_⟩
-  have hz0 : 0 < z.re := by linarith
+  refine ⟨BR * ((2 * Real.pi) ^ c * D), by positivity, fun z hz0 hz2 hy => ?_⟩
   have hzc : z.re < c := by linarith
   have hr : (0 : ℝ) < 2 * Real.pi := by positivity
   have hr1 : (1 : ℝ) ≤ 2 * Real.pi := by linarith [Real.pi_gt_three]
@@ -274,19 +273,18 @@ theorem admissPhi_bound_right (hc : 1 ≤ c) (hW : StripM1 W) :
         mul_le_mul (hBG z hz1 hz2) (hBW z hz0 hz2) (norm_nonneg _) hBG0
     _ = _ := by ring
 
-/-- Bound of `Φ_W` on `a ≤ Re z < c/2`, `|Im z| ≥ 1`. -/
-theorem admissPhi_bound_left (hc : 1 ≤ c) (hW : StripM1 W) {a : ℝ} (ha : 0 < a) :
-    ∃ B : ℝ, ∀ z : ℂ, a ≤ z.re → z.re < c / 2 → 1 ≤ |z.im| →
+/-- Bound of `Φ_W` on `0 < Re z < c/2`, `|Im z| ≥ 1`, uniform up to the line `Re z = 0`. -/
+theorem admissPhi_bound_left (hc : 1 ≤ c) (hW : StripM1 W) :
+    ∃ B : ℝ, ∀ z : ℂ, 0 < z.re → z.re < c / 2 → 1 ≤ |z.im| →
       ‖admissPhi c W z‖ ≤ B * (1 + |z.im|) ^ (-(2 : ℝ)) := by
   have hc0 : 0 < c := by linarith
-  obtain ⟨BG, hBG0, hBG⟩ := admissG_bound_left hc0 ha
+  obtain ⟨BG, hBG0, hBG⟩ := admissG_bound_left hc0
   obtain ⟨BW, hBW0, hBW⟩ := norm_W_arg_le hc hW
-  refine ⟨BG * BW, fun z hz1 hz2 hy => ?_⟩
-  have hz0 : 0 < z.re := by linarith
+  refine ⟨BG * BW, fun z hz0 hz2 hy => ?_⟩
   unfold admissPhi
   rw [norm_mul]
   calc ‖admissG c z‖ * ‖W (1 - z / (c : ℂ))‖ ≤ BG * (BW * (1 + |z.im|) ^ (-(2 : ℝ))) :=
-        mul_le_mul (hBG z hz1 hz2 hy) (hBW z hz0 (by linarith)) (norm_nonneg _) hBG0
+        mul_le_mul (hBG z hz0 hz2 hy) (hBW z hz0 (by linarith)) (norm_nonneg _) hBG0
     _ = _ := by ring
 
 /-- **`Φ_W` satisfies the hypotheses of the Mellin hub** (`c ≥ 1`). -/
@@ -297,7 +295,7 @@ theorem admissPhi_mellinLiftData (hc : 1 ≤ c) (hW : StripM1 W) : MellinLiftDat
     have hc0 : 0 < c := by linarith
     obtain ⟨M, hM⟩ := exists_bound_rect (admissPhi_differentiableOn hc0 hW).continuousOn ha hab hb
     obtain ⟨BR, hBR⟩ := admissPhi_bound_right hc hW
-    obtain ⟨BL, hBL⟩ := admissPhi_bound_left hc hW ha
+    obtain ⟨BL, hBL⟩ := admissPhi_bound_left hc hW
     refine ⟨4 * |M| + |BR| + |BL|, fun z hz1 hz2 => ?_⟩
     have hw0 : 0 ≤ (1 + |z.im|) ^ (-(2 : ℝ)) := by positivity
     rcases le_total |z.im| 1 with hy | hy
@@ -315,7 +313,7 @@ theorem admissPhi_mellinLiftData (hc : 1 ≤ c) (hW : StripM1 W) : MellinLiftDat
         have : BR * (1 + |z.im|) ^ (-(2 : ℝ)) ≤ |BR| * (1 + |z.im|) ^ (-(2 : ℝ)) :=
           mul_le_mul_of_nonneg_right (le_abs_self _) hw0
         nlinarith [abs_nonneg M, abs_nonneg BR, abs_nonneg BL]
-      · have h1 := hBL z hz1 hr hy
+      · have h1 := hBL z (by linarith) hr hy
         have : BL * (1 + |z.im|) ^ (-(2 : ℝ)) ≤ |BL| * (1 + |z.im|) ^ (-(2 : ℝ)) :=
           mul_le_mul_of_nonneg_right (le_abs_self _) hw0
         nlinarith [abs_nonneg M, abs_nonneg BR, abs_nonneg BL]
