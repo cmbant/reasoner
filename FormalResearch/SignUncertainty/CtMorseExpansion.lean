@@ -438,6 +438,150 @@ theorem morse_core (hχ : ContDiff ℝ ∞' χ) (hδ : 0 < δ) (h1 : ∀ x, |x| 
 #guard_msgs (whitespace := lax) in
 #print axioms morse_core
 
+/-- The cut-off amplitude `f = χ B` is `C^{2r}`, vanishes for `|x| > a`, and has derivatives bounded by `2^{2r} Cχ M`. -/
+lemma cutoff_amp (ha : 0 < a) (hχ : ContDiff ℝ ∞' χ) (hχs : tsupport χ ⊆ Ioo (-a) a) {B : ℝ → ℂ} {n : ℕ}
+    (hB : ContDiffOn ℝ n B (Ioo (-a) a)) {M Cχ : ℝ} (hM : ∀ j ≤ n, ∀ x ∈ Ioo (-a) a, ‖iteratedDeriv j B x‖ ≤ M)
+    (hC : ∀ j ≤ n, ∀ x, ‖iteratedDeriv j (chic χ) x‖ ≤ Cχ) :
+    ContDiff ℝ n (fun x => chic χ x * B x) ∧ Supp a (fun x => chic χ x * B x) ∧
+    ∀ j ≤ n, ∀ x, ‖iteratedDeriv j (fun x => chic χ x * B x) x‖ ≤ 2 ^ n * Cχ * M := by
+  have hevz : ∀ x, x ∉ Ioo (-a) a → (fun y => chic χ y * B y) =ᶠ[𝓝 x] fun _ => (0 : ℂ) := by
+    intro x hx
+    have hx' : x ∉ tsupport χ := fun h => hx (hχs h)
+    have := (notMem_tsupport_iff_eventuallyEq).mp hx'
+    filter_upwards [this] with y hy
+    simp [chic, hy]
+  have hsupp : Supp a (fun x => chic χ x * B x) := by
+    intro x hx
+    have : x ∉ Ioo (-a) a := fun h => by
+      have := abs_lt.mpr ⟨h.1, h.2⟩; linarith
+    have hx' : x ∉ tsupport χ := fun h => this (hχs h)
+    have hχx : χ x = 0 := image_eq_zero_of_notMem_tsupport hx'
+    simp [chic, hχx]
+  refine ⟨?_, hsupp, ?_⟩
+  · rw [contDiff_iff_contDiffAt]
+    intro x
+    by_cases hx : x ∈ Ioo (-a) a
+    · exact ((contDiff_chic hχ).of_le (by exact_mod_cast le_top)).contDiffAt.mul
+        (hB.contDiffAt (Ioo_mem_nhds hx.1 hx.2))
+    · exact contDiffAt_const.congr_of_eventuallyEq (hevz x hx)
+  · intro j hj x
+    by_cases hx : x ∈ Ioo (-a) a
+    · have hf1 : ContDiffAt ℝ (j : WithTop ℕ∞) (chic χ) x :=
+        ((contDiff_chic hχ).of_le (by exact_mod_cast le_top)).contDiffAt
+      have hf2 : ContDiffAt ℝ (j : WithTop ℕ∞) B x :=
+        (hB.contDiffAt (Ioo_mem_nhds hx.1 hx.2)).of_le (by exact_mod_cast hj)
+      have := iteratedDeriv_fun_mul hf1 hf2
+      rw [this]
+      calc ‖∑ i ∈ Finset.range (j + 1), (j.choose i : ℂ) * iteratedDeriv i (chic χ) x * iteratedDeriv (j - i) B x‖
+          ≤ ∑ i ∈ Finset.range (j + 1), ‖(j.choose i : ℂ) * iteratedDeriv i (chic χ) x * iteratedDeriv (j - i) B x‖ :=
+            norm_sum_le _ _
+        _ ≤ ∑ i ∈ Finset.range (j + 1), (j.choose i : ℝ) * (Cχ * M) := by
+            refine Finset.sum_le_sum fun i hi => ?_
+            have hi' : i ≤ j := Nat.lt_succ_iff.mp (Finset.mem_range.mp hi)
+            rw [norm_mul, norm_mul, Complex.norm_natCast]
+            have h1 := hC i (hi'.trans hj) x
+            have h2 := hM (j - i) ((Nat.sub_le _ _).trans hj) x hx
+            calc (j.choose i : ℝ) * ‖iteratedDeriv i (chic χ) x‖ * ‖iteratedDeriv (j - i) B x‖
+                ≤ (j.choose i : ℝ) * Cχ * M := by
+                  apply mul_le_mul (mul_le_mul_of_nonneg_left h1 (by positivity)) h2 (norm_nonneg _)
+                    (by have : 0 ≤ Cχ := (norm_nonneg _).trans (hC 0 (by omega) x)
+                        positivity)
+              _ = (j.choose i : ℝ) * (Cχ * M) := by ring
+        _ = 2 ^ j * (Cχ * M) := by
+            rw [← Finset.sum_mul]
+            congr 1
+            exact_mod_cast Nat.sum_range_choose j
+        _ ≤ 2 ^ n * Cχ * M := by
+            have hC0 : 0 ≤ Cχ := (norm_nonneg _).trans (hC 0 (by omega) x)
+            have hM0 : 0 ≤ M := (norm_nonneg _).trans (hM 0 (by omega) x hx)
+            have : (2 : ℝ) ^ j ≤ 2 ^ n := pow_le_pow_right₀ (by norm_num) hj
+            have : 0 ≤ Cχ * M := by positivity
+            nlinarith only [this, ‹(2 : ℝ) ^ j ≤ 2 ^ n›]
+    · rw [(hevz x hx).iteratedDeriv_eq j, iteratedDeriv_const]
+      have hC0 : 0 ≤ Cχ := (norm_nonneg _).trans (hC 0 (by omega) x)
+      have hM0 : 0 ≤ M := (norm_nonneg _).trans (hM 0 (by omega) 0 ⟨by linarith, by linarith⟩)
+      have : 0 ≤ 2 ^ n * Cχ * M := by positivity
+      split_ifs <;> simpa using this
+
 end Core
+
+/-- **`ct:morse-expansion`** (`constant_terms_lower.tex`, Lemma "Finite real stationary-phase expansion in a Morse coordinate").
+Let `r ≥ 1`, `a > 0`, `χ ∈ C_c^∞((-a,a))` real, equal to `1` near `0`, and `B` of class `C^{2r}` on `(-a,a)` with
+`|B^{(j)}| ≤ M` there (`j ≤ 2r`).  Then for either sign `σ = ±1` and every `μ ≥ 1`,
+`∫ χ B e^{iσμX²/2} dX = e^{iσπ/4} √(2π/μ) [Σ_{m<r} B^{(2m)}(0)/m! (iσ/(2μ))^m + R]` with `‖R‖ ≤ C M μ^{-r}`,
+where `C` depends only on `r, χ, a` (uniform in `B`, `σ`, `μ`). -/
+theorem morse_expansion {a : ℝ} (ha : 0 < a) {χ : ℝ → ℝ} (hχ : ContDiff ℝ ∞' χ) (hχs : tsupport χ ⊆ Ioo (-a) a)
+    (hχ1 : ∀ᶠ x in 𝓝 (0 : ℝ), χ x = 1) {r : ℕ} (hr : 1 ≤ r) :
+    ∃ C : ℝ, ∀ {σ μ : ℝ} {B : ℝ → ℂ} {M : ℝ}, (σ = 1 ∨ σ = -1) → 1 ≤ μ →
+      ContDiffOn ℝ (2 * r : ℕ) B (Ioo (-a) a) →
+      (∀ j ≤ 2 * r, ∀ x ∈ Ioo (-a) a, ‖iteratedDeriv j B x‖ ≤ M) →
+      ∃ R : ℂ, (∫ x : ℝ, (χ x : ℂ) * B x * Complex.exp (Complex.I * ((σ * μ : ℝ) : ℂ) * (x : ℂ) ^ 2 / 2)) =
+          Complex.exp (σ * (π / 4) * Complex.I) * ((Real.sqrt (2 * π / μ) : ℝ) : ℂ) *
+            ((∑ m ∈ Finset.range r, iteratedDeriv (2 * m) B 0 / (m.factorial : ℂ) *
+                (Complex.I * σ / (2 * μ)) ^ m) + R) ∧
+          ‖R‖ ≤ C * M / μ ^ r := by
+  obtain ⟨s, rfl⟩ : ∃ s, r = s + 1 := ⟨r - 1, by omega⟩
+  obtain ⟨δ, hδ, hδ1⟩ : ∃ δ : ℝ, 0 < δ ∧ ∀ x, |x| < δ → χ x = 1 := by
+    obtain ⟨ε, hε, h⟩ := Metric.eventually_nhds_iff.mp hχ1
+    exact ⟨ε, hε, fun x hx => h (by simpa [Real.dist_eq] using hx)⟩
+  have h0 : ∀ x, a < |x| → χ x = 0 := by
+    intro x hx
+    have : x ∉ tsupport χ := fun h => by
+      have := abs_lt.mpr (hχs h)
+      linarith
+    exact image_eq_zero_of_notMem_tsupport this
+  obtain ⟨C0, hC0⟩ := morse_core hχ hδ hδ1 h0 ha.le s
+  obtain ⟨Cχ, hCχ0, hC⟩ := chic_deriv_bound hχ h0 (2 * (s + 1))
+  refine ⟨(C0 * (2 ^ (2 * (s + 1)) * Cχ)) / Real.sqrt (2 * π), fun {σ μ B M} hσ hμ hB hM => ?_⟩
+  have hμ0 : 0 < μ := by linarith
+  obtain ⟨hfc, hfs, hfb⟩ := cutoff_amp ha hχ hχs hB hM hC
+  set f : ℝ → ℂ := fun x => chic χ x * B x with hf
+  have hE := hC0 (σ := σ) (μ := μ) (f := f) (M := 2 ^ (2 * (s + 1)) * Cχ * M) hσ hμ hfc hfs hfb
+  -- Taylor coefficients agree
+  have hfB : f =ᶠ[𝓝 (0 : ℝ)] B := by
+    filter_upwards [Metric.ball_mem_nhds (0 : ℝ) hδ] with y hy
+    simp [hf, chic_one hδ1 (by simpa [Real.dist_eq] using hy)]
+  have hS : Ssum σ μ (s + 1) f = ∑ m ∈ Finset.range (s + 1), iteratedDeriv (2 * m) B 0 / (m.factorial : ℂ) *
+      (Complex.I * σ / (2 * μ)) ^ m := by
+    unfold Ssum
+    refine Finset.sum_congr rfl fun m _ => ?_
+    rw [hfB.iteratedDeriv_eq (2 * m)]
+  have hW : Wint (σ * μ) f = ∫ x : ℝ, (χ x : ℂ) * B x * Complex.exp (Complex.I * ((σ * μ : ℝ) : ℂ) * (x : ℂ) ^ 2 / 2) := by
+    unfold Wint osc
+    refine integral_congr_ae (Eventually.of_forall fun x => ?_)
+    simp [hf, chic]
+  have hG : Gc σ μ ≠ 0 := by
+    unfold Gc
+    refine mul_ne_zero (Complex.exp_ne_zero _) ?_
+    exact_mod_cast (Real.sqrt_pos.mpr (by positivity)).ne'
+  have hGn : ‖Gc σ μ‖ = Real.sqrt (2 * π / μ) := by
+    unfold Gc
+    rw [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _)]
+    have : ‖Complex.exp (σ * (π / 4) * Complex.I)‖ = 1 := by
+      have : (σ : ℂ) * (π / 4) * Complex.I = Complex.I * ((σ * π / 4 : ℝ) : ℂ) := by push_cast; ring
+      rw [this]; exact norm_cexp_I_mul _
+    rw [this, one_mul]
+  refine ⟨Eerr σ μ (s + 1) f / Gc σ μ, ?_, ?_⟩
+  · rw [hS.symm, ← hW]
+    show Wint (σ * μ) f = Gc σ μ * (Ssum σ μ (s + 1) f + Eerr σ μ (s + 1) f / Gc σ μ)
+    have h1 : Gc σ μ * (Eerr σ μ (s + 1) f / Gc σ μ) = Eerr σ μ (s + 1) f := mul_div_cancel₀ _ hG
+    rw [mul_add, h1]
+    unfold Eerr
+    ring
+  · rw [norm_div, hGn]
+    have hsq : 0 < Real.sqrt μ := Real.sqrt_pos.mpr hμ0
+    have hsq2 : 0 < Real.sqrt (2 * π) := Real.sqrt_pos.mpr (by positivity)
+    have hprod : Real.sqrt μ * Real.sqrt (2 * π / μ) = Real.sqrt (2 * π) := by
+      rw [← Real.sqrt_mul hμ0.le]; congr 1; field_simp
+    have hpos : 0 < Real.sqrt (2 * π / μ) := Real.sqrt_pos.mpr (by positivity)
+    rw [div_le_iff₀ hpos]
+    calc ‖Eerr σ μ (s + 1) f‖ ≤ C0 * (2 ^ (2 * (s + 1)) * Cχ * M) / (μ ^ (s + 1) * Real.sqrt μ) := hE
+      _ = (C0 * (2 ^ (2 * (s + 1)) * Cχ) / Real.sqrt (2 * π) * M / μ ^ (s + 1)) * Real.sqrt (2 * π / μ) := by
+          rw [← hprod]
+          field_simp
+
+/-- info: 'FormalResearch.SignUncertainty.CtMorse.morse_expansion' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms morse_expansion
 
 end FormalResearch.SignUncertainty.CtMorse
