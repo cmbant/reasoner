@@ -174,7 +174,7 @@ After the dependency check against the TeX (2026-11-25), every remaining package
 | explicit Bessel constants | `vlo:BesselConst` (`kappa_0 = 1/4`, `kappa_1 = 1`) | not needed: Lean's constants are existential |
 | vacuum-slack Theorem J | `int:Jslack` (alias of `vlo:J`) | used only by INT-L |
 | unflavoured `N = (2,2)`, real weights outside `(H_w)` | main-text remark; `wone:ftlfw` for real `w` | `V = f_a * f_a` is not of Cardy type; the proof is a note neither Paper II document cites. Real `w` can be revisited after PM-0 |
-| FT-3..6 beyond FT-CC | chart-form Lemmas 1-2 instances, C5d `m >= 2`, Lemma FT-R log rate | useful only for Paper I instances; the base `ChartCompactness` is tier 1 (FT-CC) because Paper I's `thm:intro-hb` (M8) needs it. Paper I's plan delegates `ft:L1`, `ft:L2`, `ft:riesz` (FT-3..6) and `fto1:mellin` (as `FT-7`, a package this plan does not have) to this lane, so neither plan owns them: unowned, pending an owner decision |
+| FT-3..6 beyond FT-CC | chart-form Lemmas 1-2 instances, C5d `m >= 2`, Lemma FT-R log rate | useful only for Paper I instances; the base `ChartCompactness` is tier 1 (FT-CC) because Paper I's `thm:intro-hb` (M8) needs it. Paper I's plan owns `ft:L1`, `ft:L2`, `ft:riesz` (FT-3..6) and `fto1:mellin` (it does not delegate them to this lane; this plan has no `FT-7`) |
 | five-term `c_0^*` clauses at weights not of the form `(H_w)` | `ctu:scope` remark | out of the paper's scope |
 
 ## 4. What is on master (compact record)
