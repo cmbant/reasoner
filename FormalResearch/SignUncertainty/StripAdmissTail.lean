@@ -357,13 +357,15 @@ lemma rpow_div_lam {c L α : ℝ} (hc : 0 < c) (hL : 0 < L) :
   field_simp
   norm_num
 
-/-- **`(uct:gen-tail)`** (`uct:admiss` (2), second half): for `c ≥ 2`, `0 < α < 1`, `W̃` satisfying (M1) and (M3) on the edge `Re ζ = 0`,
-there is `C'` with `|(f ρ₀)(cξ)| ≤ C' ξ⁻¹ L^{-1-α}` for every `ξ = e^L/π²`, `L ≥ 4`. -/
-theorem admiss_tail {c α : ℝ} {W : ℂ → ℂ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : α < 1) (hW : StripM1 W)
-    (hE : StripEdge0 α W) :
+/-- **The edge integral `∫ K₀(iτ, ξ) W̃(iτ) dτ` has the logarithmic tail `L^{-1-α}`** (the analytic core of `(uct:gen-tail)`).  For `c ≥ 2`,
+`0 < α < 1` and an edge trace `g_0 = W̃(i ·)` that is continuous and satisfies (M3) (`StripEdge0 α W`) there is `C` with
+`|∫ K₀(iτ, ξ) W̃(iτ) dτ| ≤ C L^{-1-α}` for `ξ = e^L/π²`, `L ≥ 4`.  Only the edge trace enters, so it applies as well to the reflected multiplier
+`W̃(1 - ·)` (edge `ζ = 1`). -/
+theorem edge_integral_tail {c α : ℝ} {W : ℂ → ℂ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : α < 1)
+    (hg0c : Continuous (stripEdge0 W)) (hE : StripEdge0 α W) :
     ∃ C : ℝ, 0 ≤ C ∧ ∀ L : ℝ, 4 ≤ L →
-      |hankelRho0 c (c * (Real.exp L / Real.pi ^ 2)) * admissLift c W (c * (Real.exp L / Real.pi ^ 2))| ≤
-        C * (Real.exp L / Real.pi ^ 2)⁻¹ * L ^ (-(1 + α)) := by
+      ‖∫ τ : ℝ, mellinK0 c ((τ : ℂ) * Complex.I) (Real.exp L / Real.pi ^ 2) * W ((τ : ℂ) * Complex.I)‖ ≤
+        C * L ^ (-(1 + α)) := by
   have hc0 : 0 < c := by linarith
   obtain ⟨CK, hCK, hKb⟩ := outerK_bounds
   obtain ⟨hk, hkb⟩ := hKb hc
@@ -371,9 +373,6 @@ theorem admiss_tail {c α : ℝ} {W : ℂ → ℂ} (hc : 2 ≤ c) (hα0 : 0 < α
   obtain ⟨C2, hC2⟩ := hE.far
   set C0 : ℝ := max |C1| |C2| with hC0
   have hC00 : 0 ≤ C0 := le_max_of_le_left (abs_nonneg _)
-  have hg0c : Continuous (stripEdge0 W) := by
-    have : Continuous fun τ : ℝ => (τ : ℂ) * Complex.I := by fun_prop
-    exact hW.cont.comp_continuous this fun τ => by simp
   have hOsc := oscData_mul hα0 hα1 hCK.le hC00 hk (outerK_zero' c)
     (fun τ => ⟨by simpa using hkb 0 (by norm_num) τ,
       by simpa [iteratedDeriv_one] using hkb 1 (by norm_num) τ,
@@ -392,7 +391,7 @@ theorem admiss_tail {c α : ℝ} {W : ℂ → ℂ} (hc : 2 ≤ c) (hα0 : 0 < α
   obtain ⟨K, hK0, hK⟩ := osc_tail hα0 hα1 hOsc
   set M1 : ℝ := 32 * Real.pi ^ (1 / 2 : ℝ) * Real.exp (1 / 4) with hM1
   have hM10 : 0 ≤ M1 := by positivity
-  refine ⟨K * (M1 + 1 + 4 / c ^ 2) / (2 * Real.pi), by positivity, fun L hL => ?_⟩
+  refine ⟨K * (M1 + 1 + 4 / c ^ 2), by positivity, fun L hL => ?_⟩
   have hL0 : 0 < L := by linarith
   set ξ : ℝ := Real.exp L / Real.pi ^ 2 with hξ
   have hξ0 : 0 < ξ := by positivity
@@ -401,20 +400,14 @@ theorem admiss_tail {c α : ℝ} {W : ℂ → ℂ} (hc : 2 ≤ c) (hα0 : 0 < α
   obtain ⟨hψ, hp1, hp2, hp3⟩ := edge_phase_osc hc0 hL
   have hT1 := one_le_tauStar hL
   have hos := hK hψ hT1 hL (by positivity : 0 < c * L / 2) hp1 (fun τ _ => hp2 τ) (fun τ _ => hp3 τ)
-  have hv := admiss_vert_rep (c := c) (W := W) (by linarith) hW (σ := 0) le_rfl one_pos hξ0
-  have hint : (∫ τ : ℝ, mellinK0 c (((0 : ℝ) : ℂ) + (τ : ℂ) * Complex.I) ξ * W (((0 : ℝ) : ℂ) + (τ : ℂ) * Complex.I)) =
+  have hint : (∫ τ : ℝ, mellinK0 c ((τ : ℂ) * Complex.I) ξ * W ((τ : ℂ) * Complex.I)) =
       ∫ τ : ℝ, outerK c τ * stripEdge0 W τ * Complex.exp (Complex.I * ((c * edgePhi L τ : ℝ) : ℂ)) := by
     refine integral_congr_ae (Eventually.of_forall fun τ => ?_)
-    simp only [Complex.ofReal_zero, zero_add]
+    beta_reduce
     rw [mellinK0_imag_outer c ξ τ hξ0, hlog]
     unfold stripEdge0
     ring
-  rw [hint] at hv
-  have hnorm : |hankelRho0 c (c * ξ) * admissLift c W (c * ξ)| =
-      1 / (2 * Real.pi * ξ) * ‖∫ τ : ℝ, outerK c τ * stripEdge0 W τ * Complex.exp (Complex.I * ((c * edgePhi L τ : ℝ) : ℂ))‖ := by
-    rw [← Real.norm_eq_abs, ← Complex.norm_real, hv, norm_mul, Complex.norm_real, Real.norm_eq_abs,
-      abs_of_pos (by positivity)]
-  rw [hnorm]
+  rw [hint]
   have hT := tauStar_rpow_le (α := α) hL hα1.le
   have hlam := rpow_div_lam (α := α) hc0 hL0
   have hL1α : 0 ≤ L ^ (-(1 + α)) := by positivity
@@ -426,12 +419,38 @@ theorem admiss_tail {c α : ℝ} {W : ℂ → ℂ} (hc : 2 ≤ c) (hα0 : 0 < α
     calc K * (tauStar L ^ (-(1 / 2 : ℝ)) + L ^ (-(1 + α)) + 4 / c ^ 2 * L ^ (-(1 + α)))
         ≤ K * ((M1 + 1 + 4 / c ^ 2) * L ^ (-(1 + α))) := mul_le_mul_of_nonneg_left this hK0
       _ = _ := by ring
+  exact hos.trans hb
+
+/-- **`(uct:gen-tail)`** (`uct:admiss` (2), second half): for `c ≥ 2`, `0 < α < 1`, `W̃` satisfying (M1) and (M3) on the edge `Re ζ = 0`,
+there is `C'` with `|(f ρ₀)(cξ)| ≤ C' ξ⁻¹ L^{-1-α}` for every `ξ = e^L/π²`, `L ≥ 4`. -/
+theorem admiss_tail {c α : ℝ} {W : ℂ → ℂ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : α < 1) (hW : StripM1 W)
+    (hE : StripEdge0 α W) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ L : ℝ, 4 ≤ L →
+      |hankelRho0 c (c * (Real.exp L / Real.pi ^ 2)) * admissLift c W (c * (Real.exp L / Real.pi ^ 2))| ≤
+        C * (Real.exp L / Real.pi ^ 2)⁻¹ * L ^ (-(1 + α)) := by
+  have hc0 : 0 < c := by linarith
+  have hg0c : Continuous (stripEdge0 W) := by
+    have : Continuous fun τ : ℝ => (τ : ℂ) * Complex.I := by fun_prop
+    exact hW.cont.comp_continuous this fun τ => by simp
+  obtain ⟨C, hC0, hC⟩ := edge_integral_tail hc hα0 hα1 hg0c hE
+  refine ⟨C / (2 * Real.pi), by positivity, fun L hL => ?_⟩
+  set ξ : ℝ := Real.exp L / Real.pi ^ 2 with hξ
+  have hξ0 : 0 < ξ := by positivity
+  have hv := admiss_vert_rep (c := c) (W := W) (by linarith) hW (σ := 0) le_rfl one_pos hξ0
+  simp only [Complex.ofReal_zero, zero_add] at hv
+  have hnorm : |hankelRho0 c (c * ξ) * admissLift c W (c * ξ)| =
+      1 / (2 * Real.pi * ξ) * ‖∫ τ : ℝ, mellinK0 c ((τ : ℂ) * Complex.I) ξ * W ((τ : ℂ) * Complex.I)‖ := by
+    rw [← Real.norm_eq_abs, ← Complex.norm_real, hv, norm_mul, Complex.norm_real, Real.norm_eq_abs,
+      abs_of_pos (by positivity)]
+  rw [hnorm]
   have hpos : 0 ≤ 1 / (2 * Real.pi * ξ) := by positivity
-  calc 1 / (2 * Real.pi * ξ) * ‖∫ τ : ℝ, outerK c τ * stripEdge0 W τ * Complex.exp (Complex.I * ((c * edgePhi L τ : ℝ) : ℂ))‖
-      ≤ 1 / (2 * Real.pi * ξ) * (K * (M1 + 1 + 4 / c ^ 2) * L ^ (-(1 + α))) :=
-        mul_le_mul_of_nonneg_left (hos.trans hb) hpos
-    _ = _ := by
-        field_simp
+  calc 1 / (2 * Real.pi * ξ) * ‖∫ τ : ℝ, mellinK0 c ((τ : ℂ) * Complex.I) ξ * W ((τ : ℂ) * Complex.I)‖
+      ≤ 1 / (2 * Real.pi * ξ) * (C * L ^ (-(1 + α))) := mul_le_mul_of_nonneg_left (hC L hL) hpos
+    _ = _ := by field_simp
+
+/-- info: 'FormalResearch.SignUncertainty.edge_integral_tail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms edge_integral_tail
 
 /-- info: 'FormalResearch.SignUncertainty.oscData_mul' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
