@@ -394,7 +394,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `ct:dyadic` | planned | M10 (lower bound) |
 | `ct:boas` | planned | M10 (lower bound); via the finite Fejér inequality `ct:fejer`; Step 1 is the analytic continuation of the Gaussian identity of `gt:7.9a` |
 | `ct:phase-far-lem` | planned | M10 (F1): new lemma (2026-11-25), the outer-band phase `c Phi(tau_0) = 2 pi Delta - pi c/4 + O(Delta e^{-2 pi^2 Delta/c})` for `Delta >= c >= 1`; used by `ct:boas` |
-| `ct:morse-expansion` | planned | M10 (lower bound; also used by F2a, in `fct:warp-asymp`): finite real stationary-phase expansion in a Morse coordinate, remainder by integration by parts |
+| `ct:morse-expansion` | done | `morse_expansion` (`CtMorse*`, unconditional; by induction on `r` with a Hadamard quotient, not the paper's Taylor/Abel sketch); input of `ct:cfu` Step 4 and of F2a `fct:warp-asymp` |
 
 **F2a. Five-term upper bound for the Hankel thresholds, with the lemma chain that F2b reuses** (`constant_terms_upper.tex`: 7 results; `constant_terms_five.tex`: 12). Lean: none (inputs in Lean: `U.2`-`O.5` at one level, `airySquare_gaussian_transform`, `exists_hankelEigenfn_lift`).
 
