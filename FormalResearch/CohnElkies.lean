@@ -58,6 +58,7 @@ public import FormalResearch.CohnElkies.OuterWeightedBound
 public import FormalResearch.CohnElkies.HighBandEstimate
 public import FormalResearch.CohnElkies.HighBandUniform
 public import FormalResearch.CohnElkies.WindowSmoothConv
+public import FormalResearch.CohnElkies.MellinT3Complete
 public import FormalResearch.CohnElkies.DualBoundE3
 public import FormalResearch.CohnElkies.MellinKernelHolomorphic
 public import FormalResearch.CohnElkies.VerticalStripShift
@@ -65,6 +66,7 @@ public import FormalResearch.CohnElkies.PreEdgeCriterion
 public import FormalResearch.CohnElkies.AirySymbolTransfer
 public import FormalResearch.CohnElkies.TwoIBPPhase
 public import FormalResearch.CohnElkies.ParametricIterated
+public import FormalResearch.CohnElkies.MellinT3Taylor
 
 /-!
 # Cohn–Elkies / CFT Paper I elementary and toolkit lemmas (umbrella)
@@ -202,6 +204,7 @@ and the Airy library:
   `gt1_low_freq`, with `airyTailSymbolSeed_nonvacuous`).
 * `FormalResearch.CohnElkies.TwoIBPPhase`: two integrations by parts against a variable phase, Piece C smooth part (`two_ibp_phase`): `|∫ a e^{iψ}|` bounded by `|a''|/ψ'²`, `|a'||ψ''|/ψ'³`, `|a||ψ'''|/ψ'³`, `|a|ψ''²/ψ'⁴`, with no boundary terms; a standard estimate, proved unconditionally.
 * `FormalResearch.CohnElkies.ParametricIterated`: thin wrappers of Mathlib's `hasDerivAt_integral_of_dominated_loc_of_deriv_le` for a complex parameter over `(0,∞)` (`hasDerivAt_integral_Ioi`) and the iterated integral over `(0,∞)²` (`hasDerivAt_iterated_integral_Ioi`, with an extra integrability-near-`y₀` hypothesis).
+* `FormalResearch.CohnElkies.MellinT3Taylor`: Lemma T.3 (`mat:T3`) parts (1) and (2): positive Taylor series of `stripG` on `‖ζ‖ < 1` (`c₂ = π²/12`), bijection `(0, 1) → (0, ∞)` (`stripGReal_bijOn`), full derivative bounds `(cel:5.1)` (`stripGReal_deriv_bounds`), Taylor series and positivity bounds for `stripS0Tilde`, and equation `(e35)` (`norm_c_mul_stripS0Tilde_le`, `two_mul_stripS0Tilde_e35Radius_lt`, `sSup_c_mul_stripS0Tilde_le`).
 
 This umbrella is deliberately not imported by `FormalResearch.lean`.
 -/

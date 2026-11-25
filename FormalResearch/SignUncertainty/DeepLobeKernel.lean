@@ -114,7 +114,7 @@ lemma norm_mellinK0_vert_le_nonneg {c ξ s τ : ℝ} (hc : 0 < c) (hξ : 0 < ξ)
       rw [div_le_iff₀ (by linarith)]; linarith
     calc 1 / (12 * c) * (1 / (1 - s) + 1) ≤ 1 / (12 * c) * (2 + 1) := by gcongr
       _ = 1 / (4 * c) := by field_simp; ring
-  have hphi := mellinPhi_re_vertical (σ := s) (ξ := ξ) (τ := τ) hs0 hs1 hξ hτ
+  have hphi := mellinPhi_re_vertical (σ := s) (ξ := ξ) (τ := τ) hs0 hs1 hξ
   have hφ0 := re_mellinPhi_real_le hs0 hs hξ
   have hU : 2 * (3 / 56 : ℝ) * s * lobeU τ ≤ vertUpsilon s τ := by
     rcases eq_or_lt_of_le hτ with h | h

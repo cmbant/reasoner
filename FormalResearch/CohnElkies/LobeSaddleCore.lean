@@ -7,8 +7,9 @@ public import FormalResearch.CohnElkies.SaddleGeometry
 
 Source: `CFT/sign_uncertainty/paper/ce_rate.tex` (PR 240, commit `c3d8c90fe`).
 
-Vertical phase derivative & conjugation symmetry, `LobeSaddleAmp`, `lobeSaddleIntegral`,
-`lobeSaddle_integrable`, and the inner saddle window approximation `lobe_core_error_bound`.
+Vertical phase derivative & conjugation symmetry, `LobeSaddleAmp`, `TotalSaddleAmp`,
+`lobeSaddleIntegral`, `totalSaddleIntegral`, `totalSaddle_integrable`, `lobeSaddle_integrable`,
+and the inner saddle window approximations `total_core_error_bound` and `lobe_core_error_bound`.
 -/
 
 @[expose] public section
@@ -296,25 +297,6 @@ lemma vertUpsilon_continuousIntegrand (σ : ℝ) :
   (Real.continuous_arctan.comp ((Real.continuous_sinh.comp (continuous_const.mul continuous_id)).div_const _)).sub
     (Real.continuous_arctan.comp (continuous_id.div_const _))
 
-lemma mellinPhi_re_vertical {σ ξ τ : ℝ} (hσ0 : 0 < σ) (hσ1 : σ < 1) (hξ : 0 < ξ) (hτ : 0 ≤ τ) :
-    (mellinPhi ((σ : ℂ) + (τ : ℂ) * Complex.I) ξ - mellinPhi (σ : ℂ) ξ).re = -vertUpsilon σ τ := by
-  let ψ : ℝ → ℝ := fun u => (mellinPhi ((σ : ℂ) + (u : ℂ) * Complex.I) ξ - mellinPhi (σ : ℂ) ξ).re
-  have hψ_deriv : ∀ u : ℝ, HasDerivAt ψ (-(stripG ((σ : ℂ) + (u : ℂ) * Complex.I)).im) u := fun u => by
-    refine (Complex.reCLM.hasFDerivAt.comp_hasDerivAt u (hasDerivAt_mellinPhi_vert hσ0 hσ1 u)).congr_deriv ?_
-    change (Complex.I * (stripG ((σ : ℂ) + (u : ℂ) * Complex.I) + Complex.log ((Real.pi : ℂ) ^ 2 * (ξ : ℂ)))).re = _
-    rw [Complex.I_mul_re, Complex.add_im, show (Real.pi : ℂ) ^ 2 * (ξ : ℂ) = ((Real.pi ^ 2 * ξ : ℝ) : ℂ) by push_cast; ring,
-      ← Complex.ofReal_log (by positivity : 0 ≤ π ^ 2 * ξ), Complex.ofReal_im, add_zero]
-  have h_im_eq : ∀ u ∈ Ioo (0 : ℝ) τ, -(stripG ((σ : ℂ) + (u : ℂ) * Complex.I)).im =
-      -(Real.arctan (Real.sinh (π * u) / Real.sin (π * σ)) - Real.arctan (u / σ)) := fun u hu => by
-    have hne : (σ : ℂ) + (u : ℂ) * Complex.I ≠ 0 := fun h => by have := congrArg Complex.re h; simp at this; linarith
-    simp only [stripG, hne, ↓reduceIte, im_log_tan_div_eq hσ0 hσ1 hu.1]
-  have hftc := intervalIntegral.integral_eq_sub_of_hasDerivAt_of_le hτ
-    ((continuous_iff_continuousAt.mpr fun u => (hψ_deriv u).continuousAt).continuousOn)
-    (fun u hu => (hψ_deriv u).congr_deriv (h_im_eq u hu))
-    ((vertUpsilon_continuousIntegrand σ).neg.intervalIntegrable 0 τ)
-  rw [show ψ 0 = 0 by simp [ψ], sub_zero, intervalIntegral.integral_neg] at hftc
-  exact hftc.symm
-
 private lemma stripG_conj {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1) :
     stripG (starRingEnd ℂ ζ) = starRingEnd ℂ (stripG ζ) := by
   have hζ_ne : ζ ≠ 0 := fun h => by rw [h, Complex.zero_re] at h0; exact lt_irrefl 0 h0
@@ -330,6 +312,49 @@ private lemma stripG_conj {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1) :
         rw [map_div₀, map_mul, Complex.conj_ofReal, map_ofNat],
       Complex.tan_conj, ← map_div₀]
   rw [hq, Complex.log_conj _ harg]
+
+/-- **Lemma T.3(3) first identity (`mat:T3`(3)), for every `τ ∈ ℝ`.** For `0 < σ < 1` and `ξ > 0`,
+`Re Φ_Mel(σ + iτ; ξ) - Φ_Mel(σ; ξ) = -vertUpsilon σ τ`. Since the integrand of `vertUpsilon σ`
+is odd, `vertUpsilon σ τ = ∫₀^{|τ|} Im g(σ + it) dt`, so this is the identity
+`Re Φ_Mel(σ + iτ; ξ) - Φ_Mel(σ; ξ) = -∫₀^{|τ|} Im g(σ + it) dt`. Proof: fundamental theorem of
+calculus along the vertical line, with derivative `-Im g(σ + iu)`. -/
+lemma mellinPhi_re_vertical {σ ξ τ : ℝ} (hσ0 : 0 < σ) (hσ1 : σ < 1) (hξ : 0 < ξ) :
+    (mellinPhi ((σ : ℂ) + (τ : ℂ) * Complex.I) ξ - mellinPhi (σ : ℂ) ξ).re = -vertUpsilon σ τ := by
+  let ψ : ℝ → ℝ := fun u => (mellinPhi ((σ : ℂ) + (u : ℂ) * Complex.I) ξ - mellinPhi (σ : ℂ) ξ).re
+  have hψ_deriv : ∀ u : ℝ, HasDerivAt ψ (-(stripG ((σ : ℂ) + (u : ℂ) * Complex.I)).im) u := fun u => by
+    refine (Complex.reCLM.hasFDerivAt.comp_hasDerivAt u (hasDerivAt_mellinPhi_vert hσ0 hσ1 u)).congr_deriv ?_
+    change (Complex.I * (stripG ((σ : ℂ) + (u : ℂ) * Complex.I) + Complex.log ((Real.pi : ℂ) ^ 2 * (ξ : ℂ)))).re = _
+    rw [Complex.I_mul_re, Complex.add_im, show (Real.pi : ℂ) ^ 2 * (ξ : ℂ) = ((Real.pi ^ 2 * ξ : ℝ) : ℂ) by push_cast; ring,
+      ← Complex.ofReal_log (by positivity : 0 ≤ π ^ 2 * ξ), Complex.ofReal_im, add_zero]
+  have h_im_eq : ∀ u : ℝ, -(stripG ((σ : ℂ) + (u : ℂ) * Complex.I)).im =
+      -(Real.arctan (Real.sinh (π * u) / Real.sin (π * σ)) - Real.arctan (u / σ)) := fun u => by
+    rcases lt_trichotomy u 0 with hu | rfl | hu
+    · -- `u < 0`: reflect with `Im g(conj z) = -Im g(z)` to `-u > 0`
+      have hpos : 0 < ((σ : ℂ) + ((-u : ℝ) : ℂ) * Complex.I).re := by simp [hσ0]
+      have hlt : ((σ : ℂ) + ((-u : ℝ) : ℂ) * Complex.I).re < 1 := by simp [hσ1]
+      have hc : (starRingEnd ℂ) ((σ : ℂ) + ((-u : ℝ) : ℂ) * Complex.I) =
+          (σ : ℂ) + (u : ℂ) * Complex.I := by
+        apply Complex.ext <;> simp
+      have hconj := stripG_conj hpos hlt
+      rw [hc] at hconj
+      have hne : (σ : ℂ) + ((-u : ℝ) : ℂ) * Complex.I ≠ 0 := fun h => by
+        have := congrArg Complex.re h; simp at this; linarith
+      have hkey : (stripG ((σ : ℂ) + ((-u : ℝ) : ℂ) * Complex.I)).im =
+          Real.arctan (Real.sinh (π * (-u)) / Real.sin (π * σ)) - Real.arctan ((-u) / σ) := by
+        simp only [stripG, hne, ↓reduceIte, im_log_tan_div_eq hσ0 hσ1 (by linarith : (0 : ℝ) < -u)]
+      rw [hconj, Complex.conj_im, hkey]
+      simp only [mul_neg, Real.sinh_neg, neg_div, Real.arctan_neg]
+      ring
+    · rw [show (σ : ℂ) + ((0 : ℝ) : ℂ) * Complex.I = (σ : ℂ) by simp, stripG_ofReal hσ0 hσ1]
+      simp
+    · have hne : (σ : ℂ) + (u : ℂ) * Complex.I ≠ 0 := fun h => by
+        have := congrArg Complex.re h; simp at this; linarith
+      simp only [stripG, hne, ↓reduceIte, im_log_tan_div_eq hσ0 hσ1 hu]
+  have hftc := intervalIntegral.integral_eq_sub_of_hasDerivAt
+    (fun u _ => (hψ_deriv u).congr_deriv (h_im_eq u))
+    ((vertUpsilon_continuousIntegrand σ).neg.intervalIntegrable 0 τ)
+  rw [show ψ 0 = 0 by simp [ψ], sub_zero, intervalIntegral.integral_neg] at hftc
+  exact hftc.symm
 
 /-- `K₀(conj ζ, ξ) = conj K₀(ζ, ξ)` on `0 < Re ζ < 1`. -/
 lemma mellinK0_conj {c ξ : ℝ} (hξ : 0 < ξ) {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1) :
@@ -431,7 +456,7 @@ lemma mellinK0_saddle_pos {c ξ σ : ℝ} (_hc : 0 < c) (hξ : 0 < ξ) (hσ0 : 0
   rw [mellinK0, hpow', hB_re, hΦ_re, ← Complex.ofReal_mul, ← Complex.ofReal_mul, Complex.ofReal_re]
   exact mul_pos (mul_pos (Real.rpow_pos_of_pos h1s _) (Real.exp_pos _)) (Real.exp_pos _)
 
-private lemma schwarz_reflection_rhp {F : ℂ → ℂ} (hdiff : DifferentiableOn ℂ F {w : ℂ | 0 < w.re})
+lemma schwarz_reflection_rhp {F : ℂ → ℂ} (hdiff : DifferentiableOn ℂ F {w : ℂ | 0 < w.re})
     (hreal : ∀ x : ℝ, 0 < x → (F (x : ℂ)).im = 0) {w : ℂ} (hw : 0 < w.re) :
     F (starRingEnd ℂ w) = starRingEnd ℂ (F w) := by
   let rhp : Set ℂ := {z : ℂ | 0 < z.re}
@@ -496,6 +521,169 @@ noncomputable def lobeSaddleIntegral (W_S W_D : ℂ → ℂ) (c ξ σ_star : ℝ
     ∫ τ : ℝ, mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ *
       (W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ)) +
         W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ)))
+
+/-- Abstract total multiplier `V(σ* + i τ)` satisfying the absolute-estimate hypotheses of
+Proposition P.4 (`ce_rate.tex`, `cel:total-saddle`). -/
+structure TotalSaddleAmp (c σ_star : ℝ) where
+  V : ℂ → ℂ
+  A : ℝ
+  M : ℝ
+  Λ : ℝ
+  Λ_add : ℝ
+  hA : 0 < A
+  hM : 1 ≤ M
+  hΛ : 1 ≤ Λ
+  hΛ_add : 0 ≤ Λ_add
+  hV_meas : AEStronglyMeasurable (fun τ : ℝ => V ((σ_star : ℂ) + (τ : ℂ) * Complex.I))
+  hV_symm : ∀ τ : ℝ, V ((σ_star : ℂ) + ((-τ : ℝ) : ℂ) * Complex.I) =
+    starRingEnd ℂ (V ((σ_star : ℂ) + (τ : ℂ) * Complex.I))
+  hV0_le : ‖V (σ_star : ℂ)‖ ≤ A
+  hV_var : ∀ τ : ℝ, |τ| ≤ min σ_star (1 - σ_star) / 4 →
+    ‖V ((σ_star : ℂ) + (τ : ℂ) * Complex.I) - V (σ_star : ℂ)‖ ≤
+      4 * M * A * |τ| / min σ_star (1 - σ_star)
+  hV_vert : ∀ τ : ℝ,
+    ‖V ((σ_star : ℂ) + (τ : ℂ) * Complex.I)‖ ≤
+      Λ * A + (if (1 - σ_star) / 2 < |τ| then
+        Λ_add * min (c ^ (1 / 6 : ℝ) * |τ| ^ (1 / 2 : ℝ)) 1 else 0)
+  hΛ_add_half : 0 < Λ_add → 1 / 2 < σ_star
+
+/-- Real symmetry implies `V(σ*)` is real. -/
+lemma TotalSaddleAmp.V_im_zero {c σ_star : ℝ} (amp : TotalSaddleAmp c σ_star) :
+    (amp.V (σ_star : ℂ)).im = 0 := by
+  have h := amp.hV_symm 0
+  simp only [neg_zero, Complex.ofReal_zero, zero_mul, add_zero] at h
+  exact Complex.conj_eq_iff_im.mp h.symm
+
+/-- Total-multiplier saddle-line integral `I(ξ, c)` of Proposition P.4 (`cel:total-saddle`). -/
+noncomputable def totalSaddleIntegral (V : ℂ → ℂ) (c ξ σ_star : ℝ) : ℂ :=
+  ((1 / (2 * π * ξ) : ℝ) : ℂ) *
+    ∫ τ : ℝ, mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ *
+      V ((σ_star : ℂ) + (τ : ℂ) * Complex.I)
+
+/-- Specialisation of a two-edge amplitude `(W_S, W_D)` to a total multiplier
+`V(ζ) = W_S(ζ / ε) + W_D((1 - ζ) / ε)` with amplitude budget `A = W₀`. -/
+noncomputable def LobeSaddleAmp.toTotalSaddleAmp {c σ_star : ℝ}
+    (hc : 0 < c) (hσ0 : 0 < σ_star) (hσ1 : σ_star < 1)
+    (amp : LobeSaddleAmp σ_star (c ^ (1 / 3 : ℝ) * σ_star) (c ^ (1 / 3 : ℝ) * (1 - σ_star))) :
+    TotalSaddleAmp c σ_star := by
+  let ε := c ^ (-(1 / 3 : ℝ))
+  let x_pos := c ^ (1 / 3 : ℝ) * σ_star
+  let x_neg := c ^ (1 / 3 : ℝ) * (1 - σ_star)
+  let W₀ := (amp.W_S (x_pos : ℂ)).re + (amp.W_D (x_neg : ℂ)).re
+  have h1s : 0 < 1 - σ_star := sub_pos.mpr hσ1
+  have hm_pos : 0 < min σ_star (1 - σ_star) := lt_min hσ0 h1s
+  have hε_pos : 0 < ε := Real.rpow_pos_of_pos hc _
+  have hc13 : 0 < c ^ (1 / 3 : ℝ) := Real.rpow_pos_of_pos hc _
+  have hε_inv : ε⁻¹ = c ^ (1 / 3 : ℝ) := by dsimp [ε]; rw [Real.rpow_neg hc.le, inv_inv]
+  have hε_c : (ε : ℂ)⁻¹ = ((c ^ (1 / 3 : ℝ) : ℝ) : ℂ) := by rw [← Complex.ofReal_inv, hε_inv]
+  have hargS : ∀ τ : ℝ, (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) =
+      (x_pos : ℂ) + ((τ / ε : ℝ) : ℂ) * Complex.I := fun τ => by
+    rw [div_eq_mul_inv, hε_c]; apply Complex.ext
+    · simp [x_pos]; ring
+    · simp [div_eq_mul_inv, hε_inv]
+  have hargD : ∀ τ : ℝ, ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)) =
+      (x_neg : ℂ) + (((-τ / ε : ℝ) : ℂ)) * Complex.I := fun τ => by
+    rw [div_eq_mul_inv, hε_c]; apply Complex.ext
+    · simp [x_neg]; ring
+    · simp [div_eq_mul_inv, hε_inv]
+  have hW₀_eq : (W₀ : ℂ) = amp.W_S ((σ_star : ℂ) / (ε : ℂ)) + amp.W_D ((1 - (σ_star : ℂ)) / (ε : ℂ)) := by
+    have hS0 : (σ_star : ℂ) / (ε : ℂ) = (x_pos : ℂ) := by
+      simpa using hargS 0
+    have hD0 : (1 - (σ_star : ℂ)) / (ε : ℂ) = (x_neg : ℂ) := by
+      simpa using hargD 0
+    rw [hS0, hD0]
+    exact Complex.ext (by simp [W₀])
+      (by simp [amp.hW_S_real x_pos (mul_pos hc13 hσ0), amp.hW_D_real x_neg (mul_pos hc13 h1s)])
+  refine
+    { V := fun ζ => amp.W_S (ζ / (ε : ℂ)) + amp.W_D ((1 - ζ) / (ε : ℂ))
+      A := W₀
+      M := amp.M
+      Λ := amp.Λ
+      Λ_add := amp.Λ_add
+      hA := amp.hW0_pos
+      hM := amp.hM
+      hΛ := amp.hΛ
+      hΛ_add := amp.hΛ_add
+      hV_meas := ?_
+      hV_symm := ?_
+      hV0_le := ?_
+      hV_var := ?_
+      hV_vert := ?_
+      hΛ_add_half := amp.hΛ_add_half }
+  · have hS : Continuous fun τ : ℝ => amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) :=
+      amp.hW_S_diff.continuousOn.comp_continuous (by fun_prop) fun τ => by
+        change 0 < (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)).re
+        rw [div_eq_mul_inv, ← Complex.ofReal_inv]; simp; exact mul_pos hσ0 (inv_pos.mpr hε_pos)
+    have hD : Continuous fun τ : ℝ => amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)) :=
+      amp.hW_D_diff.continuousOn.comp_continuous (by fun_prop) fun τ => by
+        change 0 < ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)).re
+        rw [div_eq_mul_inv, ← Complex.ofReal_inv]; simp; exact mul_pos h1s (inv_pos.mpr hε_pos)
+    exact (hS.add hD).aestronglyMeasurable
+  · intro τ
+    have hS : amp.W_S (((σ_star : ℂ) + ((-τ : ℝ) : ℂ) * Complex.I) / (ε : ℂ)) =
+        starRingEnd ℂ (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ))) := by
+      rw [hargS (-τ), hargS τ, show (x_pos : ℂ) + (((-τ) / ε : ℝ) : ℂ) * Complex.I =
+        starRingEnd ℂ ((x_pos : ℂ) + ((τ / ε : ℝ) : ℂ) * Complex.I) by apply Complex.ext <;> simp [neg_div]]
+      exact schwarz_reflection_rhp amp.hW_S_diff amp.hW_S_real (by simp; exact mul_pos hc13 hσ0)
+    have hD : amp.W_D ((1 - ((σ_star : ℂ) + ((-τ : ℝ) : ℂ) * Complex.I)) / (ε : ℂ)) =
+        starRingEnd ℂ (amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ))) := by
+      rw [hargD (-τ), hargD τ, show (x_neg : ℂ) + (((- -τ) / ε : ℝ) : ℂ) * Complex.I =
+        starRingEnd ℂ ((x_neg : ℂ) + (((-τ) / ε : ℝ) : ℂ) * Complex.I) by apply Complex.ext <;> simp [neg_div]]
+      exact schwarz_reflection_rhp amp.hW_D_diff amp.hW_D_real (by simp; exact mul_pos hc13 h1s)
+    rw [hS, hD, ← map_add]
+  · rw [← hW₀_eq, Complex.norm_real, Real.norm_of_nonneg amp.hW0_pos.le]
+  · intro τ hτ
+    have hS0 : (σ_star : ℂ) / (ε : ℂ) = (x_pos : ℂ) := by simpa using hargS 0
+    have hD0 : (1 - (σ_star : ℂ)) / (ε : ℂ) = (x_neg : ℂ) := by simpa using hargD 0
+    have hS := amp.hA1_S (τ / ε) (by
+      rw [abs_div, abs_of_pos hε_pos, div_eq_mul_inv, hε_inv]
+      have h1 : |τ| * c ^ (1 / 3 : ℝ) ≤ (σ_star / 4) * c ^ (1 / 3 : ℝ) :=
+        mul_le_mul_of_nonneg_right (hτ.trans (div_le_div_of_nonneg_right (min_le_left _ _) (by norm_num))) hc13.le
+      exact h1.trans_eq (by ring))
+    have hD := amp.hA1_D (-τ / ε) (by
+      rw [abs_div, abs_neg, abs_of_pos hε_pos, div_eq_mul_inv, hε_inv]
+      have h1 : |τ| * c ^ (1 / 3 : ℝ) ≤ ((1 - σ_star) / 4) * c ^ (1 / 3 : ℝ) :=
+        mul_le_mul_of_nonneg_right (hτ.trans (div_le_div_of_nonneg_right (min_le_right _ _) (by norm_num))) hc13.le
+      exact h1.trans_eq (by ring))
+    have hr1 : |τ / ε| / x_pos ≤ |τ| / min σ_star (1 - σ_star) := by
+      rw [abs_div, abs_of_pos hε_pos, div_eq_mul_inv |τ|, hε_inv,
+        show |τ| * c ^ (1 / 3 : ℝ) / (c ^ (1 / 3 : ℝ) * σ_star) = |τ| / σ_star by field_simp [hc13.ne']]
+      exact div_le_div_of_nonneg_left (abs_nonneg τ) hm_pos (min_le_left _ _)
+    have hr2 : |-τ / ε| / x_neg ≤ |τ| / min σ_star (1 - σ_star) := by
+      rw [abs_div, abs_neg, abs_of_pos hε_pos, div_eq_mul_inv |τ|, hε_inv,
+        show |τ| * c ^ (1 / 3 : ℝ) / (c ^ (1 / 3 : ℝ) * (1 - σ_star)) = |τ| / (1 - σ_star) by field_simp [hc13.ne']]
+      exact div_le_div_of_nonneg_left (abs_nonneg τ) hm_pos (min_le_right _ _)
+    rw [hargS τ, hargD τ, hS0, hD0,
+      show (amp.W_S ((x_pos : ℂ) + ((τ / ε : ℝ) : ℂ) * Complex.I) +
+        amp.W_D ((x_neg : ℂ) + (((-τ / ε : ℝ) : ℂ)) * Complex.I)) -
+        (amp.W_S (x_pos : ℂ) + amp.W_D (x_neg : ℂ)) =
+        (amp.W_S ((x_pos : ℂ) + ((τ / ε : ℝ) : ℂ) * Complex.I) - amp.W_S (x_pos : ℂ)) +
+        (amp.W_D ((x_neg : ℂ) + (((-τ / ε : ℝ) : ℂ)) * Complex.I) - amp.W_D (x_neg : ℂ)) by ring]
+    have hsum := (norm_add_le _ _).trans (add_le_add
+      (hS.trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hr1 (by linarith only [amp.hM])) amp.hW_S_nonneg))
+      (hD.trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hr2 (by linarith only [amp.hM])) amp.hW_D_nonneg)))
+    exact hsum.trans_eq (by dsimp [W₀]; ring)
+  · intro τ
+    have hS := amp.hA2_S (τ / ε); rw [← hargS τ] at hS
+    have hD := amp.hA2_D (-τ / ε); rw [← hargD τ] at hD
+    have habs : |-τ / ε| = |τ| * c ^ (1 / 3 : ℝ) := by
+      rw [abs_div, abs_neg, abs_of_pos hε_pos, div_eq_mul_inv, hε_inv]
+    have hcond : x_neg / 2 < |-τ / ε| ↔ (1 - σ_star) / 2 < |τ| := by
+      rw [habs]; dsimp [x_neg]; constructor <;> intro <;> nlinarith
+    have hrpow : |-τ / ε| ^ (1 / 2 : ℝ) = c ^ (1 / 6 : ℝ) * |τ| ^ (1 / 2 : ℝ) := by
+      rw [habs, Real.mul_rpow (abs_nonneg τ) (Real.rpow_nonneg hc.le _), ← Real.rpow_mul hc.le]; norm_num [mul_comm]
+    have hcond' : c ^ (1 / 3 : ℝ) * (1 - σ_star) / 2 < |-τ / ε| ↔ (1 - σ_star) / 2 < |τ| := hcond
+    have hD' : ‖amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ))‖ ≤
+        amp.Λ * (amp.W_D (x_neg : ℂ)).re +
+          (if (1 - σ_star) / 2 < |τ| then amp.Λ_add * min (c ^ (1 / 6 : ℝ) * |τ| ^ (1 / 2 : ℝ)) 1 else 0) := by
+      by_cases ht : (1 - σ_star) / 2 < |τ|
+      · simp only [ht, ↓reduceIte]
+        simp only [hcond'.mpr ht, ↓reduceIte] at hD
+        rwa [hrpow] at hD
+      · simp only [ht, ↓reduceIte, add_zero]
+        simp only [mt hcond'.mp ht, ↓reduceIte, add_zero] at hD
+        exact hD
+    exact ((norm_add_le _ _).trans (add_le_add hS hD')).trans_eq (by dsimp [W₀]; ring)
 
 private lemma norm_exp_sub_exp_le (z w : ℂ) :
     ‖Complex.exp z - Complex.exp w‖ ≤ ‖z - w‖ * Real.exp (max z.re w.re) := by
@@ -671,7 +859,7 @@ lemma integral_inv_sq_Ioi {a : ℝ} (ha : 0 < a) :
     rw [← Real.rpow_natCast τ 2, ← Real.rpow_neg (ha.trans_le hτ).le]; norm_num]
 
 private lemma integrable_even_of_Ioi {E : Type*} [NormedAddCommGroup E] {f : ℝ → E}
-    (heven : ∀ s : ℝ, ‖f (-s)‖ = ‖f s‖) (hf : Continuous f)
+    (heven : ∀ s : ℝ, ‖f (-s)‖ = ‖f s‖) (hf : AEStronglyMeasurable f)
     (hi : IntegrableOn (fun s : ℝ => ‖f s‖) (Ioi 0)) : Integrable f := by
   have hi_iic : IntegrableOn (fun s : ℝ => ‖f s‖) (Iic 0) := by
     rw [← Measure.map_neg_eq_self (volume : Measure ℝ),
@@ -682,7 +870,7 @@ private lemma integrable_even_of_Ioi {E : Type*} [NormedAddCommGroup E] {f : ℝ
     rw [show (univ : Set ℝ) = Iic 0 ∪ Ioi 0 by ext x; simp]
     exact hi_iic.union hi
   rw [integrableOn_univ] at hu
-  exact (integrable_norm_iff hf.aestronglyMeasurable).mp hu
+  exact (integrable_norm_iff hf).mp hu
 
 private lemma integrable_abs_pow_exp_neg_div_four :
     (Integrable (fun s : ℝ => |s| * Real.exp (-s ^ 2 / 4)) ∧ ∫ s : ℝ, |s| * Real.exp (-s ^ 2 / 4) = 4) ∧
@@ -706,10 +894,10 @@ private lemma integrable_abs_pow_exp_neg_div_four :
       (by simp; ring))
     (fun s hs => mul_nonneg (pow_nonneg (mem_Ioi.mp hs).le 3) (Real.exp_pos _).le) hlim_3
   have hi1 : Integrable (fun s : ℝ => |s| * Real.exp (-s ^ 2 / 4)) := integrable_even_of_Ioi
-    (fun s => by simp [abs_neg]) (by fun_prop) (h1.1.congr_fun (fun s hs => by
+    (fun s => by simp [abs_neg]) (by fun_prop : Continuous fun s : ℝ => |s| * Real.exp (-s ^ 2 / 4)).aestronglyMeasurable (h1.1.congr_fun (fun s hs => by
       rw [Real.norm_of_nonneg (by positivity), abs_of_nonneg (mem_Ioi.mp hs).le]) measurableSet_Ioi)
   have hi3 : Integrable (fun s : ℝ => |s| ^ 3 * Real.exp (-s ^ 2 / 4)) := integrable_even_of_Ioi
-    (fun s => by simp [abs_neg]) (by fun_prop) (h3.1.congr_fun (fun s hs => by
+    (fun s => by simp [abs_neg]) (by fun_prop : Continuous fun s : ℝ => |s| ^ 3 * Real.exp (-s ^ 2 / 4)).aestronglyMeasurable (h3.1.congr_fun (fun s hs => by
       rw [Real.norm_of_nonneg (by positivity), abs_of_nonneg (mem_Ioi.mp hs).le]) measurableSet_Ioi)
   refine ⟨⟨hi1, ?_⟩, ⟨hi3, ?_⟩⟩
   · have := integral_comp_abs (f := fun s : ℝ => s * Real.exp (-s ^ 2 / 4))
@@ -719,7 +907,7 @@ private lemma integrable_abs_pow_exp_neg_div_four :
 
 lemma integrable_log_tail {K : ℝ} (hK : 3 ≤ K) :
     IntegrableOn (fun τ : ℝ => τ ^ (-(1 / 2 : ℝ)) * Real.exp (-K * max 0 (Real.log τ))) (Ioi (1 / 2)) ∧
-      ∫ τ in Ioi (1 / 2 : ℝ), τ ^ (-(1 / 2 : ℝ)) * Real.exp (-K * max 0 (Real.log τ)) ≤ 2 := by
+      ∫ τ in Ioi (1 / 2 : ℝ), τ ^ (-(1 / 2 : ℝ)) * Real.exp (-K * max 0 (Real.log τ)) ≤ 1.71 := by
   let g := fun τ : ℝ => τ ^ (-(1 / 2 : ℝ)) * Real.exp (-K * max 0 (Real.log τ))
   have hg_cont : ContinuousOn g (Ici (1 / 2)) :=
     (ContinuousOn.rpow_const continuousOn_id fun τ hτ => Or.inl (by dsimp; linarith [mem_Ici.mp hτ])).mul
@@ -744,15 +932,15 @@ lemma integrable_log_tail {K : ℝ} (hK : 3 ≤ K) :
     rw [← Ioc_union_Ioi_eq_Ioi (by norm_num : (1 / 2 : ℝ) ≤ 1)]; exact hIoc.union hIoi1
   have hsplit : ∫ τ in Ioi (1 / 2 : ℝ), g τ = (∫ τ in Ioc (1 / 2) 1, g τ) + ∫ τ in Ioi 1, g τ := by
     rw [← Ioc_union_Ioi_eq_Ioi (by norm_num : (1 / 2 : ℝ) ≤ 1)]; exact setIntegral_union Ioc_disjoint_Ioi_same measurableSet_Ioi hIoc hIoi1
-  have hb1 : ∫ τ in Ioc (1 / 2 : ℝ) 1, g τ ≤ 1 := by
-    have hpt : ∀ τ ∈ Ioc (1 / 2 : ℝ) 1, g τ ≤ 2 := fun τ hτ => by
+  have hb1 : ∫ τ in Ioc (1 / 2 : ℝ) 1, g τ ≤ 0.71 := by
+    have hpt : ∀ τ ∈ Ioc (1 / 2 : ℝ) 1, g τ ≤ 1.42 := fun τ hτ => by
       have h1 : τ ^ (-(1 / 2 : ℝ)) ≤ (1 / 2 : ℝ) ^ (-(1 / 2 : ℝ)) := Real.rpow_le_rpow_of_nonpos (by norm_num) hτ.1.le (by norm_num)
-      have h2 : (1 / 2 : ℝ) ^ (-(1 / 2 : ℝ)) ≤ 2 := by
+      have h2 : (1 / 2 : ℝ) ^ (-(1 / 2 : ℝ)) ≤ 1.42 := by
         rw [rpow_neg_half_eq_inv_sqrt (by norm_num), one_div, Real.sqrt_inv, inv_inv, Real.sqrt_le_left (by norm_num)]; norm_num
       have h3 : Real.exp (-K * max 0 (Real.log τ)) ≤ 1 := Real.exp_le_one_iff.mpr (mul_nonpos_of_nonpos_of_nonneg (by linarith) (le_max_left _ _))
-      calc g τ ≤ 2 * 1 := mul_le_mul (h1.trans h2) h3 (Real.exp_pos _).le (by norm_num)
-        _ = 2 := mul_one _
-    have hm := setIntegral_mono_on hIoc (integrableOn_const (C := (2 : ℝ)) (hs := by simp)) measurableSet_Ioc hpt
+      calc g τ ≤ 1.42 * 1 := mul_le_mul (h1.trans h2) h3 (Real.exp_pos _).le (by norm_num)
+        _ = 1.42 := mul_one _
+    have hm := setIntegral_mono_on hIoc (integrableOn_const (C := (1.42 : ℝ)) (hs := by simp)) measurableSet_Ioc hpt
     rw [setIntegral_const, smul_eq_mul, MeasureTheory.Measure.real_def, Real.volume_Ioc, ENNReal.toReal_ofReal (by norm_num)] at hm; linarith
   have hb2 : ∫ τ in Ioi (1 : ℝ), g τ ≤ 1 := by
     have hm := setIntegral_mono_on hIoi1 h_inv_int measurableSet_Ioi hpt1
@@ -983,76 +1171,39 @@ lemma lobe_vertical_phase_decay_bounds {c σ_star : ℝ} (hc40 : 40 ≤ c) (hσ0
     change vertUpsilon σ_star (1 / 2) + _ = vertUpsilon σ_star τ at hsplit
     nlinarith [mul_le_mul_of_nonneg_left htail hc_pos.le]
 
-lemma lobe_integrand_cont_symm_bound {c ξ σ_star : ℝ}
+private lemma continuous_mellinK0_vert {c ξ σ_star : ℝ}
+    (hc : 0 < c) (hσ0 : 0 < σ_star) (hσ1 : σ_star < 1) :
+    Continuous fun τ : ℝ => mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ := by
+  unfold mellinK0 mellinPhi
+  refine Continuous.mul (Continuous.mul (Continuous.cpow (by fun_prop) continuous_const fun _ =>
+    Complex.mem_slitPlane_iff.mpr (Or.inl (by simp; linarith))) (Complex.continuous_exp.comp ?_))
+    (Complex.continuous_exp.comp (continuous_const.mul (Continuous.add
+      (continuous_iff_continuousAt.mpr fun τ => (hasDerivAt_stripS0Tilde_vert hσ0 hσ1 τ).continuousAt) (by fun_prop))))
+  exact (FormalResearch.Asymptotics.binetRem_differentiableOn.continuousOn.comp_continuous (by fun_prop)
+    fun τ => by simp; exact mul_pos hc (sub_pos.mpr hσ1)).sub continuous_const
+
+lemma total_integrand_meas_symm_bound {c ξ σ_star : ℝ}
     (hc : 0 < c) (hξ : 0 < ξ) (hσ0 : 0 < σ_star) (hσ1 : σ_star < 1)
-    (amp : LobeSaddleAmp σ_star (c ^ (1 / 3 : ℝ) * σ_star) (c ^ (1 / 3 : ℝ) * (1 - σ_star))) :
-    let ε := c ^ (-(1 / 3 : ℝ))
+    (amp : TotalSaddleAmp c σ_star) :
     let f := fun τ : ℝ => mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ *
-      (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) +
-        amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)))
+      amp.V ((σ_star : ℂ) + (τ : ℂ) * Complex.I)
     let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re
-    let W₀ := (amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re +
-      (amp.W_D ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ)).re
-    Continuous f ∧
+    AEStronglyMeasurable f ∧
     (∀ τ : ℝ, f (-τ) = starRingEnd ℂ (f τ)) ∧
-    (∀ τ : ℝ, 0 ≤ τ → ‖f τ / ((K₀ * W₀ : ℝ) : ℂ)‖ ≤
+    (∀ τ : ℝ, 0 ≤ τ → ‖f τ / ((K₀ * amp.A : ℝ) : ℂ)‖ ≤
       (1 + τ ^ 2 / (1 - σ_star) ^ 2) ^ (-(1 / 4 : ℝ)) * Real.exp (-c * vertUpsilon σ_star τ) *
         (amp.Λ + if (1 - σ_star) / 2 < τ then
-          (amp.Λ_add / W₀) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0)) := by
+          (amp.Λ_add / amp.A) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0)) := by
   dsimp only
-  let ε := c ^ (-(1 / 3 : ℝ)); let x_pos := c ^ (1 / 3 : ℝ) * σ_star; let x_neg := c ^ (1 / 3 : ℝ) * (1 - σ_star)
-  let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re; let W₀ := (amp.W_S (x_pos : ℂ)).re + (amp.W_D (x_neg : ℂ)).re
-  have hε_pos : 0 < ε := Real.rpow_pos_of_pos hc _
-  have hε_inv : ε⁻¹ = c ^ (1 / 3 : ℝ) := by dsimp [ε]; rw [Real.rpow_neg hc.le, inv_inv]
-  have hε_c : (ε : ℂ)⁻¹ = ((c ^ (1 / 3 : ℝ) : ℝ) : ℂ) := by rw [← Complex.ofReal_inv, hε_inv]
+  let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re
   have hK₀_spec := mellinK0_saddle_pos hc hξ hσ0 hσ1
   have hK₀_pos : 0 < K₀ := hK₀_spec.2
-  have hW₀_pos : 0 < W₀ := amp.hW0_pos
-  have hargS : ∀ τ : ℝ, (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) = (x_pos : ℂ) + ((τ / ε : ℝ) : ℂ) * Complex.I := fun τ => by
-    rw [div_eq_mul_inv, hε_c]; apply Complex.ext
-    · simp [x_pos]; ring
-    · simp [div_eq_mul_inv, hε_inv]
-  have hargD : ∀ τ : ℝ, ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)) = (x_neg : ℂ) + (((-τ / ε : ℝ) : ℂ)) * Complex.I := fun τ => by
-    rw [div_eq_mul_inv, hε_c]; apply Complex.ext
-    · simp [x_neg]; ring
-    · simp [div_eq_mul_inv, hε_inv]
-  have hcont : Continuous fun τ : ℝ => mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ *
-      (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) +
-        amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ))) := by
-    have hK : Continuous fun τ : ℝ => mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ := by
-      unfold mellinK0 mellinPhi
-      refine Continuous.mul (Continuous.mul (Continuous.cpow (by fun_prop) continuous_const fun _ =>
-        Complex.mem_slitPlane_iff.mpr (Or.inl (by simp; linarith))) (Complex.continuous_exp.comp ?_))
-        (Complex.continuous_exp.comp (continuous_const.mul (Continuous.add
-          (continuous_iff_continuousAt.mpr fun τ => (hasDerivAt_stripS0Tilde_vert hσ0 hσ1 τ).continuousAt) (by fun_prop))))
-      exact (FormalResearch.Asymptotics.binetRem_differentiableOn.continuousOn.comp_continuous (by fun_prop)
-        fun τ => by simp; exact mul_pos hc (sub_pos.mpr hσ1)).sub continuous_const
-    have hns : 0 < Complex.normSq (ε : ℂ) := Complex.normSq_pos.mpr (Complex.ofReal_ne_zero.mpr hε_pos.ne')
-    have h1s_re : 0 < 1 - σ_star := sub_pos.mpr hσ1
-    have hS : Continuous fun τ : ℝ => amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) :=
-      amp.hW_S_diff.continuousOn.comp_continuous (by fun_prop) fun τ => by
-        change 0 < (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)).re
-        rw [div_eq_mul_inv, ← Complex.ofReal_inv]; simp; exact mul_pos hσ0 (inv_pos.mpr hε_pos)
-    have hD : Continuous fun τ : ℝ => amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)) :=
-      amp.hW_D_diff.continuousOn.comp_continuous (by fun_prop) fun τ => by
-        change 0 < ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)).re
-        rw [div_eq_mul_inv, ← Complex.ofReal_inv]; simp; exact mul_pos h1s_re (inv_pos.mpr hε_pos)
-    exact hK.mul (hS.add hD)
-  refine ⟨hcont, fun τ => ?_, fun τ hτ => ?_⟩
+  have hA_pos : 0 < amp.A := amp.hA
+  refine ⟨(continuous_mellinK0_vert hc hσ0 hσ1).aestronglyMeasurable.mul amp.hV_meas, fun τ => ?_, fun τ hτ => ?_⟩
   · have hK := mellinK0_conj (c := c) hξ (by simpa using hσ0) (by simpa using hσ1) (ζ := (σ_star : ℂ) + (τ : ℂ) * Complex.I)
     rw [show starRingEnd ℂ ((σ_star : ℂ) + (τ : ℂ) * Complex.I) = (σ_star : ℂ) + ((-τ : ℝ) : ℂ) * Complex.I by
       apply Complex.ext <;> simp] at hK
-    have hS : amp.W_S (((σ_star : ℂ) + ((-τ : ℝ) : ℂ) * Complex.I) / (ε : ℂ)) =
-        starRingEnd ℂ (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ))) := by
-      rw [hargS (-τ), hargS τ, show (x_pos : ℂ) + (((-τ) / ε : ℝ) : ℂ) * Complex.I =
-        starRingEnd ℂ ((x_pos : ℂ) + ((τ / ε : ℝ) : ℂ) * Complex.I) by apply Complex.ext <;> simp [neg_div]]
-      exact schwarz_reflection_rhp amp.hW_S_diff amp.hW_S_real (by simp; positivity)
-    have hD : amp.W_D ((1 - ((σ_star : ℂ) + ((-τ : ℝ) : ℂ) * Complex.I)) / (ε : ℂ)) =
-        starRingEnd ℂ (amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ))) := by
-      rw [hargD (-τ), hargD τ, show (x_neg : ℂ) + (((- -τ) / ε : ℝ) : ℂ) * Complex.I =
-        starRingEnd ℂ ((x_neg : ℂ) + (((-τ) / ε : ℝ) : ℂ) * Complex.I) by apply Complex.ext <;> simp [neg_div]]
-      exact schwarz_reflection_rhp amp.hW_D_diff amp.hW_D_real (by simp; exact mul_pos (Real.rpow_pos_of_pos hc _) (sub_pos.mpr hσ1))
-    rw [hK, hS, hD, ← map_add, ← map_mul]
+    rw [hK, amp.hV_symm τ, ← map_mul]
   · have hK₀_eq : mellinK0 c (σ_star : ℂ) ξ = (K₀ : ℂ) := Complex.ext rfl hK₀_spec.1
     have h1s : 0 < 1 - σ_star := sub_pos.mpr hσ1
     have hK_norm : ‖mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ‖ / K₀ ≤
@@ -1077,7 +1228,7 @@ lemma lobe_integrand_cont_symm_bound {c ξ σ_star : ℝ}
         rw [hK₀_eq, Complex.norm_real, Real.norm_of_nonneg hK₀_pos.le]
       have hphi_exp : Real.exp (c * (mellinPhi ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ).re) /
           Real.exp (c * (mellinPhi (σ_star : ℂ) ξ).re) = Real.exp (-c * vertUpsilon σ_star τ) := by
-        rw [← Real.exp_sub, ← mul_sub, ← Complex.sub_re, mellinPhi_re_vertical hσ0 hσ1 hξ hτ]; ring_nf
+        rw [← Real.exp_sub, ← mul_sub, ← Complex.sub_re, mellinPhi_re_vertical hσ0 hσ1 hξ]; ring_nf
       rw [hm0, hm_eq, hm_eq, mul_div_mul_comm, mul_div_mul_comm, hnpow, hphi_exp]
       have hB : Real.exp (FormalResearch.Asymptotics.binetDiff c ((σ_star : ℂ) + (τ : ℂ) * Complex.I)).re /
           Real.exp (FormalResearch.Asymptotics.binetDiff c (σ_star : ℂ)).re ≤ 1 :=
@@ -1086,85 +1237,124 @@ lemma lobe_integrand_cont_symm_bound {c ξ σ_star : ℝ}
             (Real.exp _ / Real.exp _) * Real.exp (-c * vertUpsilon σ_star τ)
           ≤ (1 + τ ^ 2 / (1 - σ_star) ^ 2) ^ (-(1 / 4 : ℝ)) * 1 * Real.exp (-c * vertUpsilon σ_star τ) := by gcongr
         _ = _ := by ring
-    have hW_norm : ‖amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) +
-          amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ))‖ / W₀ ≤
-        amp.Λ + if (1 - σ_star) / 2 < τ then (amp.Λ_add / W₀) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0 := by
-      have hS := amp.hA2_S (τ / ε); rw [← hargS τ] at hS
-      have hD := amp.hA2_D (-τ / ε); rw [← hargD τ] at hD
-      have habs : |-τ / ε| = τ * c ^ (1 / 3 : ℝ) := by
-        rw [abs_div, abs_neg, abs_of_nonneg hτ, abs_of_pos hε_pos, div_eq_mul_inv, hε_inv]
-      have hcond : x_neg / 2 < |-τ / ε| ↔ (1 - σ_star) / 2 < τ := by
-        rw [habs]; have := Real.rpow_pos_of_pos hc (1 / 3 : ℝ); dsimp [x_neg]; constructor <;> intro <;> nlinarith
-      have hrpow : |-τ / ε| ^ (1 / 2 : ℝ) = c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ) := by
-        rw [habs, Real.mul_rpow hτ (Real.rpow_nonneg hc.le _), ← Real.rpow_mul hc.le]; norm_num [mul_comm]
-      have hcond' : c ^ (1 / 3 : ℝ) * (1 - σ_star) / 2 < |-τ / ε| ↔ (1 - σ_star) / 2 < τ := hcond
-      have hD' : ‖amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ))‖ ≤
-          amp.Λ * (amp.W_D (x_neg : ℂ)).re + (if (1 - σ_star) / 2 < τ then amp.Λ_add * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0) := by
-        by_cases ht : (1 - σ_star) / 2 < τ
-        · simp only [ht, ↓reduceIte]
-          simp only [hcond'.mpr ht, ↓reduceIte] at hD
-          rw [hrpow] at hD
-          exact hD
-        · simp only [ht, ↓reduceIte, add_zero]
-          simp only [mt hcond'.mp ht, ↓reduceIte, add_zero] at hD
-          exact hD
-      have hS' : ‖amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ))‖ ≤ amp.Λ * (amp.W_S (x_pos : ℂ)).re := hS
-      have hdiv := div_le_div_of_nonneg_right ((norm_add_le _ _).trans (add_le_add hS' hD')) hW₀_pos.le
-      have hW_sum : (amp.W_S (x_pos : ℂ)).re + (amp.W_D (x_neg : ℂ)).re = W₀ := rfl
+    have hV_norm : ‖amp.V ((σ_star : ℂ) + (τ : ℂ) * Complex.I)‖ / amp.A ≤
+        amp.Λ + if (1 - σ_star) / 2 < τ then (amp.Λ_add / amp.A) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0 := by
+      have hV := amp.hV_vert τ
+      rw [abs_of_nonneg hτ] at hV
+      have hdiv := div_le_div_of_nonneg_right hV hA_pos.le
       refine hdiv.trans_eq ?_
-      by_cases ht : (1 - σ_star) / 2 < τ
-      · simp only [ht, ↓reduceIte]
-        rw [← add_assoc, ← mul_add, hW_sum]; field_simp [hW₀_pos.ne']
-      · simp only [ht, ↓reduceIte, add_zero]
-        rw [← mul_add, hW_sum]; field_simp [hW₀_pos.ne']
-    rw [norm_div, norm_mul, Complex.norm_real, Real.norm_of_nonneg (mul_pos hK₀_pos hW₀_pos).le, mul_div_mul_comm]
-    exact mul_le_mul hK_norm hW_norm (by positivity) (by positivity)
+      split_ifs <;> field_simp [hA_pos.ne'] <;> ring
+    rw [norm_div, norm_mul, Complex.norm_real, Real.norm_of_nonneg (mul_pos hK₀_pos hA_pos).le, mul_div_mul_comm]
+    exact mul_le_mul hK_norm hV_norm (by positivity) (by positivity)
 
-/-- Integrability of the saddle-line integrand in Proposition P.4. -/
-lemma lobeSaddle_integrable {Δ₁ U c Δ ξ σ_star : ℝ}
+lemma lobe_integrand_cont_symm_bound {c ξ σ_star : ℝ}
+    (hc : 0 < c) (hξ : 0 < ξ) (hσ0 : 0 < σ_star) (hσ1 : σ_star < 1)
+    (amp : LobeSaddleAmp σ_star (c ^ (1 / 3 : ℝ) * σ_star) (c ^ (1 / 3 : ℝ) * (1 - σ_star))) :
+    let ε := c ^ (-(1 / 3 : ℝ))
+    let f := fun τ : ℝ => mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ *
+      (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) +
+        amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)))
+    let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re
+    let W₀ := (amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re +
+      (amp.W_D ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ)).re
+    Continuous f ∧
+    (∀ τ : ℝ, f (-τ) = starRingEnd ℂ (f τ)) ∧
+    (∀ τ : ℝ, 0 ≤ τ → ‖f τ / ((K₀ * W₀ : ℝ) : ℂ)‖ ≤
+      (1 + τ ^ 2 / (1 - σ_star) ^ 2) ^ (-(1 / 4 : ℝ)) * Real.exp (-c * vertUpsilon σ_star τ) *
+        (amp.Λ + if (1 - σ_star) / 2 < τ then
+          (amp.Λ_add / W₀) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0)) := by
+  dsimp only
+  let ε := c ^ (-(1 / 3 : ℝ))
+  have hε_pos : 0 < ε := Real.rpow_pos_of_pos hc _
+  have h1s_re : 0 < 1 - σ_star := sub_pos.mpr hσ1
+  have hS : Continuous fun τ : ℝ => amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) :=
+    amp.hW_S_diff.continuousOn.comp_continuous (by fun_prop) fun τ => by
+      change 0 < (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)).re
+      rw [div_eq_mul_inv, ← Complex.ofReal_inv]; simp; exact mul_pos hσ0 (inv_pos.mpr hε_pos)
+  have hD : Continuous fun τ : ℝ => amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)) :=
+    amp.hW_D_diff.continuousOn.comp_continuous (by fun_prop) fun τ => by
+      change 0 < ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)).re
+      rw [div_eq_mul_inv, ← Complex.ofReal_inv]; simp; exact mul_pos h1s_re (inv_pos.mpr hε_pos)
+  obtain ⟨_, h_symm, h_bd⟩ := total_integrand_meas_symm_bound hc hξ hσ0 hσ1 (amp.toTotalSaddleAmp hc hσ0 hσ1)
+  exact ⟨(continuous_mellinK0_vert hc hσ0 hσ1).mul (hS.add hD), h_symm, h_bd⟩
+
+/-- Integrability of the total-multiplier saddle-line integrand in Proposition P.4 (`cel:total-saddle`). -/
+lemma totalSaddle_integrable {Δ₁ U c Δ ξ σ_star : ℝ}
     (hΔ₁ : 1 ≤ Δ₁) (hU : 1 ≤ U) (hc : max (20 * Δ₁) (60 * U ^ (3 / 2 : ℝ)) ≤ c)
     (hΔ_lo : Δ₁ ≤ Δ) (hΔ_hi : Δ ≤ (c / π ^ 2) * Real.exp (-(π ^ 2 * U * c ^ (-(2 / 3 : ℝ)))))
     (hξ : ξ = Δ / c) (hσ0 : 0 < σ_star) (hσ1 : σ_star < 1)
     (hσ_eq : stripGReal σ_star = -Real.log (π ^ 2 * ξ))
-    (amp : LobeSaddleAmp σ_star (c ^ (1 / 3 : ℝ) * σ_star) (c ^ (1 / 3 : ℝ) * (1 - σ_star))) :
+    (amp : TotalSaddleAmp c σ_star) :
     Integrable fun τ : ℝ => mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ *
-      (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ)) +
-        amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ))) := by
+      amp.V ((σ_star : ℂ) + (τ : ℂ) * Complex.I) := by
   have hc60 : 60 ≤ c := by
     have : 1 ≤ U ^ (3 / 2 : ℝ) := Real.one_le_rpow hU (by norm_num)
     linarith [(le_max_right (20 * Δ₁) (60 * U ^ (3 / 2 : ℝ))).trans hc]
   have hc_pos : 0 < c := by linarith
   have hξ_pos : 0 < ξ := by rw [hξ]; exact div_pos (by linarith) hc_pos
-  obtain ⟨hf_cont, h_symm, h_bd⟩ := lobe_integrand_cont_symm_bound hc_pos hξ_pos hσ0 hσ1 amp
+  obtain ⟨hf_meas, h_symm, h_bd⟩ := total_integrand_meas_symm_bound hc_pos hξ_pos hσ0 hσ1 amp
   let f : ℝ → ℂ := fun τ => mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ *
-    (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ)) +
-      amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ)))
+    amp.V ((σ_star : ℂ) + (τ : ℂ) * Complex.I)
   have h_symm' : ∀ τ : ℝ, f (-τ) = starRingEnd ℂ (f τ) := h_symm
   change Integrable f
-  refine integrable_even_of_Ioi (fun τ => by rw [h_symm' τ, Complex.norm_conj]) hf_cont ?_
-  have hIoc : IntegrableOn (fun τ : ℝ => ‖f τ‖) (Ioc 0 (1 / 2)) :=
-    (hf_cont.norm.continuousOn.integrableOn_Icc).mono_set Ioc_subset_Icc_self
+  refine integrable_even_of_Ioi (fun τ => by rw [h_symm' τ, Complex.norm_conj]) hf_meas ?_
   let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re
-  let W₀ := (amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re + (amp.W_D ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ)).re
-  let C : ℝ := K₀ * W₀ * (amp.Λ + amp.Λ_add / W₀)
-  have hC_nn : 0 ≤ C := by have := amp.hΛ; have := amp.hΛ_add; have := (mellinK0_saddle_pos hc_pos hξ_pos hσ0 hσ1).2; have := amp.hW0_pos; positivity
+  let C : ℝ := K₀ * amp.A * (amp.Λ + amp.Λ_add / amp.A)
+  have hKA := mul_pos (mellinK0_saddle_pos hc_pos hξ_pos hσ0 hσ1).2 amp.hA
+  have hC_nn : 0 ≤ C := by have := amp.hΛ; have := amp.hΛ_add; have := amp.hA; have := (mellinK0_saddle_pos hc_pos hξ_pos hσ0 hσ1).2; positivity
   obtain ⟨hA_dec, hB_dec⟩ := lobe_vertical_phase_decay_bounds (c := c) (σ_star := σ_star) (by linarith) hσ0 hσ1
+  have hIoc : IntegrableOn (fun τ : ℝ => ‖f τ‖) (Ioc 0 (1 / 2)) := by
+    refine (integrableOn_const (C := C) (hs := by simp)).mono' hf_meas.norm.restrict ?_
+    rw [ae_restrict_iff' measurableSet_Ioc]
+    refine Filter.Eventually.of_forall fun τ hτ => ?_
+    have h1 := h_bd τ hτ.1.le
+    rw [norm_div, Complex.norm_real, Real.norm_of_nonneg hKA.le, div_le_iff₀ hKA] at h1
+    have h_alg : (1 + τ ^ 2 / (1 - σ_star) ^ 2) ^ (-(1 / 4 : ℝ)) ≤ 1 :=
+      Real.rpow_le_one_of_one_le_of_nonpos (by linarith [div_nonneg (sq_nonneg τ) (sq_nonneg (1 - σ_star))]) (by norm_num)
+    have h_ups_nn : 0 ≤ c * vertUpsilon σ_star τ := by
+      rcases le_or_gt σ_star (1 / 2) with hhalf | hhalf
+      · exact (by have := stripGDerivReal_pos hσ0 hσ1; positivity :
+          0 ≤ (1 / 10 : ℝ) * c * stripGDerivReal σ_star * τ ^ 2).trans ((hA_dec hhalf).1 τ hτ)
+      · rcases le_or_gt τ ((1 - σ_star) / 2) with hle | hgt
+        · exact (by have := stripGDerivReal_pos hσ0 hσ1; positivity :
+            0 ≤ (1 / 10 : ℝ) * c * stripGDerivReal σ_star * τ ^ 2).trans ((hB_dec hhalf).1 τ ⟨hτ.1, hle⟩)
+        · exact (by have := sub_pos.mpr hσ1; linarith [mul_pos hc_pos this,
+            mul_nonneg (mul_nonneg (by norm_num : (0 : ℝ) ≤ 3 / 80) hc_pos.le) (sub_nonneg.mpr hgt.le)] :
+            0 ≤ (3 / 320 : ℝ) * (c * (1 - σ_star)) + (3 / 80 : ℝ) * c * (τ - (1 - σ_star) / 2)).trans
+              ((hB_dec hhalf).2.1 τ ⟨hgt, hτ.2⟩)
+    have h_exp : Real.exp (-c * vertUpsilon σ_star τ) ≤ 1 :=
+      Real.exp_le_one_iff.mpr (by linarith)
+    have h_amp : amp.Λ + (if (1 - σ_star) / 2 < τ then (amp.Λ_add / amp.A) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0) ≤
+        amp.Λ + amp.Λ_add / amp.A := by
+      split_ifs
+      · nlinarith [min_le_right (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1, div_nonneg amp.hΛ_add amp.hA.le]
+      · linarith [div_nonneg amp.hΛ_add amp.hA.le]
+    have h_amp_nn : 0 ≤ amp.Λ + (if (1 - σ_star) / 2 < τ then
+        (amp.Λ_add / amp.A) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0) := by
+      have := amp.hΛ; have := amp.hΛ_add; have := amp.hA; have := hτ.1; split_ifs <;> positivity
+    rw [Real.norm_of_nonneg (norm_nonneg _)]
+    calc ‖f τ‖ ≤ ((1 * 1) * (amp.Λ + if (1 - σ_star) / 2 < τ then
+            (amp.Λ_add / amp.A) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0)) * (K₀ * amp.A) :=
+          h1.trans (mul_le_mul_of_nonneg_right (mul_le_mul (mul_le_mul h_alg h_exp (Real.exp_pos _).le zero_le_one)
+            le_rfl h_amp_nn (by positivity)) hKA.le)
+      _ ≤ (1 * 1) * (amp.Λ + amp.Λ_add / amp.A) * (K₀ * amp.A) :=
+          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left h_amp (by positivity)) hKA.le
+      _ = C := by dsimp [C]; ring
   have hIoi : IntegrableOn (fun τ : ℝ => ‖f τ‖) (Ioi (1 / 2)) := by
     refine ((integral_inv_sq_Ioi (a := (1 / 2 : ℝ)) (by norm_num)).1.const_mul C).mono'
-      hf_cont.norm.aestronglyMeasurable ?_
+      hf_meas.norm.restrict ?_
     rw [ae_restrict_iff' measurableSet_Ioi]
     refine Filter.Eventually.of_forall fun τ hτ => ?_
     have hτ_pos : 0 < τ := lt_trans (by norm_num) hτ
     have h1 := h_bd τ hτ_pos.le
-    have hKW := mul_pos (mellinK0_saddle_pos hc_pos hξ_pos hσ0 hσ1).2 amp.hW0_pos
-    rw [norm_div, Complex.norm_real, Real.norm_of_nonneg hKW.le, div_le_iff₀ hKW] at h1
+    rw [norm_div, Complex.norm_real, Real.norm_of_nonneg hKA.le, div_le_iff₀ hKA] at h1
     have h_alg : (1 + τ ^ 2 / (1 - σ_star) ^ 2) ^ (-(1 / 4 : ℝ)) ≤ 1 :=
       Real.rpow_le_one_of_one_le_of_nonpos (by linarith [div_nonneg (sq_nonneg τ) (sq_nonneg (1 - σ_star))]) (by norm_num)
-    have h_amp : amp.Λ + (if (1 - σ_star) / 2 < τ then (amp.Λ_add / W₀) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0) ≤
-        amp.Λ + amp.Λ_add / W₀ := by
+    have h_amp : amp.Λ + (if (1 - σ_star) / 2 < τ then (amp.Λ_add / amp.A) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0) ≤
+        amp.Λ + amp.Λ_add / amp.A := by
       split_ifs
-      · nlinarith [min_le_right (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1, div_nonneg amp.hΛ_add amp.hW0_pos.le]
-      · linarith [div_nonneg amp.hΛ_add amp.hW0_pos.le]
+      · nlinarith [min_le_right (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1, div_nonneg amp.hΛ_add amp.hA.le]
+      · linarith [div_nonneg amp.hΛ_add amp.hA.le]
     have h_exp : Real.exp (-c * vertUpsilon σ_star τ) ≤ τ ^ (-2 : ℝ) := by
       have hid : Real.exp (-(2 * Real.log τ)) = τ ^ (-2 : ℝ) := by rw [Real.rpow_def_of_pos hτ_pos]; congr 1; ring
       rw [← hid]; refine Real.exp_le_exp.mpr ?_
@@ -1195,26 +1385,36 @@ lemma lobeSaddle_integrable {Δ₁ U c Δ ξ σ_star : ℝ}
         nlinarith [(hB_dec hhalf).2.2 τ hτ, le_max_left 0 (Real.log τ),
           show 0 ≤ (3 / 320 : ℝ) * (c * (1 - σ_star)) from mul_nonneg (by norm_num) (mul_pos hc_pos (sub_pos.mpr hσ1)).le]
     have h_amp_nn : 0 ≤ amp.Λ + (if (1 - σ_star) / 2 < τ then
-        (amp.Λ_add / W₀) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0) := by
-      have := amp.hΛ; have := amp.hΛ_add; have := amp.hW0_pos; split_ifs <;> positivity
+        (amp.Λ_add / amp.A) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0) := by
+      have := amp.hΛ; have := amp.hΛ_add; have := amp.hA; have := hτ_pos; split_ifs <;> positivity
     rw [Real.norm_of_nonneg (norm_nonneg _)]
     calc ‖f τ‖ ≤ ((1 * τ ^ (-2 : ℝ)) * (amp.Λ + if (1 - σ_star) / 2 < τ then
-            (amp.Λ_add / W₀) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0)) * (K₀ * W₀) :=
+            (amp.Λ_add / amp.A) * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0)) * (K₀ * amp.A) :=
           h1.trans (mul_le_mul_of_nonneg_right (mul_le_mul (mul_le_mul h_alg h_exp (Real.exp_pos _).le zero_le_one)
-            le_rfl h_amp_nn (by positivity)) hKW.le)
-      _ ≤ (1 * τ ^ (-2 : ℝ)) * (amp.Λ + amp.Λ_add / W₀) * (K₀ * W₀) :=
-          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left h_amp (by positivity)) hKW.le
+            le_rfl h_amp_nn (by positivity)) hKA.le)
+      _ ≤ (1 * τ ^ (-2 : ℝ)) * (amp.Λ + amp.Λ_add / amp.A) * (K₀ * amp.A) :=
+          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left h_amp (by positivity)) hKA.le
       _ = C * τ ^ (-2 : ℝ) := by dsimp [C]; ring
   rw [← Ioc_union_Ioi_eq_Ioi (by norm_num : (0 : ℝ) ≤ 1 / 2)]; exact hIoc.union hIoi
 
-private lemma lobe_core_pointwise {c ξ σ_star ε K₀ W₀ g' ε_L τ_sd a τ_core s : ℝ}
+/-- Integrability of the saddle-line integrand in Proposition P.4. -/
+lemma lobeSaddle_integrable {Δ₁ U c Δ ξ σ_star : ℝ}
+    (hΔ₁ : 1 ≤ Δ₁) (hU : 1 ≤ U) (hc : max (20 * Δ₁) (60 * U ^ (3 / 2 : ℝ)) ≤ c)
+    (hΔ_lo : Δ₁ ≤ Δ) (hΔ_hi : Δ ≤ (c / π ^ 2) * Real.exp (-(π ^ 2 * U * c ^ (-(2 / 3 : ℝ)))))
+    (hξ : ξ = Δ / c) (hσ0 : 0 < σ_star) (hσ1 : σ_star < 1)
+    (hσ_eq : stripGReal σ_star = -Real.log (π ^ 2 * ξ))
+    (amp : LobeSaddleAmp σ_star (c ^ (1 / 3 : ℝ) * σ_star) (c ^ (1 / 3 : ℝ) * (1 - σ_star))) :
+    Integrable fun τ : ℝ => mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ *
+      (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ)) +
+        amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ))) := by
+  have hc_pos : 0 < c := by linarith [(le_max_left _ _).trans hc]
+  exact totalSaddle_integrable hΔ₁ hU hc hΔ_lo hΔ_hi hξ hσ0 hσ1 hσ_eq (amp.toTotalSaddleAmp hc_pos hσ0 hσ1)
+
+private lemma total_core_pointwise {c ξ σ_star K₀ g' ε_L τ_sd a τ_core s : ℝ}
     (hc_pos : 0 < c) (hξ_pos : 0 < ξ) (hσ0 : 0 < σ_star) (hσ1 : σ_star < 1)
     (hσ_eq : stripGReal σ_star = -Real.log (π ^ 2 * ξ))
-    (amp : LobeSaddleAmp σ_star (c ^ (1 / 3 : ℝ) * σ_star) (c ^ (1 / 3 : ℝ) * (1 - σ_star)))
-    (hε_def : ε = c ^ (-(1 / 3 : ℝ)))
+    (amp : TotalSaddleAmp c σ_star)
     (hK₀_eq : (K₀ : ℂ) = mellinK0 c (σ_star : ℂ) ξ)
-    (hW₀_def : W₀ = (amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re + (amp.W_D ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ)).re)
-    (hW₀_pos : 0 < W₀)
     (hg'_pos : 0 < g') (hg'_def : g' = stripGDerivReal σ_star)
     (hτsd_pos : 0 < τ_sd) (hτsd_sq : τ_sd ^ 2 = (c * g')⁻¹)
     (hεL_pos : 0 < ε_L) (hεL_def : ε_L = τ_sd / min σ_star (1 - σ_star))
@@ -1227,15 +1427,17 @@ private lemma lobe_core_pointwise {c ξ σ_star ε K₀ W₀ g' ε_L τ_sd a τ_
     (h_coeff_17 : (8 / 3 : ℝ) * c * τ_sd ^ 3 / (1 - σ_star) ^ 2 < 17 * ε_L)
     (hs : s ∈ Icc (-a) a) :
     ‖((mellinK0 c ((σ_star : ℂ) + ((τ_sd * s : ℝ) : ℂ) * Complex.I) ξ *
-        (amp.W_S (((σ_star : ℂ) + ((τ_sd * s : ℝ) : ℂ) * Complex.I) / (ε : ℂ)) +
-          amp.W_D ((1 - ((σ_star : ℂ) + ((τ_sd * s : ℝ) : ℂ) * Complex.I)) / (ε : ℂ)))) /
-        ((K₀ * W₀ : ℝ) : ℂ)) - (Real.exp (-s ^ 2 / 2) : ℂ)‖ ≤
+        amp.V ((σ_star : ℂ) + ((τ_sd * s : ℝ) : ℂ) * Complex.I)) /
+        ((K₀ * amp.A : ℝ) : ℂ)) - (amp.V (σ_star : ℂ) / (amp.A : ℂ)) * (Real.exp (-s ^ 2 / 2) : ℂ)‖ ≤
       (4.8 * amp.M * ε_L * |s| + 17 * ε_L * |s| ^ 3) * Real.exp (-s ^ 2 / 4) := by
   have h1s_pos : 0 < 1 - σ_star := sub_pos.mpr hσ1
   have hm_pos : 0 < min σ_star (1 - σ_star) := lt_min hσ0 h1s_pos
-  have hε_pos : 0 < ε := by rw [hε_def]; positivity
+  have hA_pos : 0 < amp.A := amp.hA
   let τ := τ_sd * s; let t := ε_L * |s|
-  let x_pos := c ^ (1 / 3 : ℝ) * σ_star; let x_neg := c ^ (1 / 3 : ℝ) * (1 - σ_star)
+  let v₀ : ℂ := amp.V (σ_star : ℂ) / (amp.A : ℂ)
+  have hv₀_le : ‖v₀‖ ≤ 1 := by
+    dsimp [v₀]; rw [norm_div, Complex.norm_real, Real.norm_of_nonneg hA_pos.le, div_le_one hA_pos]
+    exact amp.hV0_le
   have ht_eq : t = |τ| / min σ_star (1 - σ_star) := by
     dsimp [t, τ]; rw [hεL_def, abs_mul, abs_of_pos hτsd_pos]; ring
   have hτ_le_min : |τ| ≤ (1 / 8 : ℝ) * min σ_star (1 - σ_star) := by
@@ -1248,12 +1450,10 @@ private lemma lobe_core_pointwise {c ξ σ_star ε K₀ W₀ g' ε_L τ_sd a τ_
   let A₁ : ℂ := (1 - (τ : ℂ) * Complex.I / ((1 - σ_star : ℝ) : ℂ)) ^ (-(1 / 2 : ℂ))
   let A₂ : ℂ := Complex.exp (FormalResearch.Asymptotics.binetDiff c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) -
     FormalResearch.Asymptotics.binetDiff c (σ_star : ℂ))
-  let A₃ : ℂ := (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) +
-    amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ))) / (W₀ : ℂ)
+  let A₃ : ℂ := amp.V ((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (amp.A : ℂ)
   let r_ph : ℂ := mellinPhi ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ - mellinPhi (σ_star : ℂ) ξ
   have hF_fac : (mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ *
-      (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) +
-        amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)))) / ((K₀ * W₀ : ℝ) : ℂ) =
+      amp.V ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / ((K₀ * amp.A : ℝ) : ℂ) =
       A₁ * A₂ * A₃ * Complex.exp ((c : ℂ) * r_ph) := by
     have hcpow : (1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) ^ (-(1 / 2 : ℂ)) / (1 - (σ_star : ℂ)) ^ (-(1 / 2 : ℂ)) = A₁ := by
       have h1s_c : (1 - (σ_star : ℂ)) = ((1 - σ_star : ℝ) : ℂ) := by push_cast; rfl
@@ -1279,10 +1479,9 @@ private lemma lobe_core_pointwise {c ξ σ_star ε K₀ W₀ g' ε_L τ_sd a τ_
           Complex.cpow_def_of_ne_zero h1sc_ne, Complex.cpow_def_of_ne_zero hz2_ne,
           Complex.log_ofReal_mul h1s_pos hz2_ne, hlog_1s, add_mul, Complex.exp_add]
       rw [hmul, hmul_cpow, ← h1s_c, mul_div_cancel_left₀ _ h1z_ne]; dsimp [A₁]; rw [h1s_c]
-    have hW0_div : (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) +
-        amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ))) / (W₀ : ℂ) = A₃ := rfl
-    rw [show ((K₀ * W₀ : ℝ) : ℂ) = (K₀ : ℂ) * (W₀ : ℂ) from Complex.ofReal_mul K₀ W₀,
-      mul_div_mul_comm, hW0_div, hK₀_eq,
+    have hA_div : amp.V ((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (amp.A : ℂ) = A₃ := rfl
+    rw [show ((K₀ * amp.A : ℝ) : ℂ) = (K₀ : ℂ) * (amp.A : ℂ) from Complex.ofReal_mul K₀ amp.A,
+      mul_div_mul_comm, hA_div, hK₀_eq,
       mellinK0, mellinK0, mul_div_mul_comm, mul_div_mul_comm, hcpow, ← Complex.exp_sub, ← Complex.exp_sub,
       show (c : ℂ) * mellinPhi _ ξ - (c : ℂ) * mellinPhi (σ_star : ℂ) ξ = (c : ℂ) * r_ph by dsimp [r_ph]; ring]
     ring
@@ -1321,61 +1520,30 @@ private lemma lobe_core_pointwise {c ξ σ_star ε K₀ W₀ g' ε_L τ_sd a τ_
       _ ≤ (t / (12 * 3.1415)) * (300 / 299) := by gcongr
       _ = (1 / (12 * 3.1415) * (300 / 299)) * t := by ring
       _ ≤ 0.027 * t := mul_le_mul_of_nonneg_right (by norm_num) ht_nn
-  have hA₃ : ‖A₃ - 1‖ ≤ 4 * amp.M * t := by
-    have hε_inv : ε⁻¹ = c ^ (1 / 3 : ℝ) := by rw [hε_def, Real.rpow_neg hc_pos.le, inv_inv]
-    have hc13 := Real.rpow_pos_of_pos hc_pos (1 / 3 : ℝ)
-    have hε_c : (ε : ℂ)⁻¹ = ((c ^ (1 / 3 : ℝ) : ℝ) : ℂ) := by rw [← Complex.ofReal_inv, hε_inv]
-    have hS_arg : (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) = (x_pos : ℂ) + ((τ / ε : ℝ) : ℂ) * Complex.I := by
-      rw [div_eq_mul_inv, hε_c]; apply Complex.ext
-      · simp [x_pos]; ring
-      · simp [div_eq_mul_inv, hε_inv]
-    have hD_arg : ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)) = (x_neg : ℂ) + (((-τ / ε : ℝ) : ℂ)) * Complex.I := by
-      rw [div_eq_mul_inv, hε_c]; apply Complex.ext
-      · simp [x_neg]; ring
-      · simp [div_eq_mul_inv, hε_inv]
-    have hS := amp.hA1_S (τ / ε) (by
-      rw [abs_div, abs_of_pos hε_pos, div_eq_mul_inv, hε_inv]
-      have h1 : |τ| * c ^ (1 / 3 : ℝ) ≤ (σ_star / 4) * c ^ (1 / 3 : ℝ) :=
-        mul_le_mul_of_nonneg_right (hτ_le_min.trans (by linarith only [min_le_left σ_star (1 - σ_star), hσ0])) hc13.le
-      exact h1.trans_eq (by ring))
-    have hD := amp.hA1_D (-τ / ε) (by
-      rw [abs_div, abs_neg, abs_of_pos hε_pos, div_eq_mul_inv, hε_inv]
-      have h1 : |τ| * c ^ (1 / 3 : ℝ) ≤ ((1 - σ_star) / 4) * c ^ (1 / 3 : ℝ) :=
-        mul_le_mul_of_nonneg_right (hτ_le_min.trans (by linarith only [min_le_right σ_star (1 - σ_star), h1s_pos])) hc13.le
-      exact h1.trans_eq (by ring))
-    have hW₀_eq : (W₀ : ℂ) = amp.W_S (x_pos : ℂ) + amp.W_D (x_neg : ℂ) := Complex.ext (by simp [hW₀_def, x_pos, x_neg])
-      (by simp [amp.hW_S_real x_pos (by positivity), amp.hW_D_real x_neg (mul_pos hc13 h1s_pos)])
-    have hA3_eq : A₃ - 1 = ((amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) - amp.W_S (x_pos : ℂ)) +
-        (amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)) - amp.W_D (x_neg : ℂ))) / (W₀ : ℂ) := by
-      dsimp [A₃]; rw [div_sub_one (Complex.ofReal_ne_zero.mpr hW₀_pos.ne'), hW₀_eq]; ring
-    rw [hA3_eq, norm_div, Complex.norm_real, Real.norm_of_nonneg hW₀_pos.le, hS_arg, hD_arg, div_le_iff₀ hW₀_pos]
-    have hr1 : |τ / ε| / x_pos ≤ t := by
-      rw [abs_div, abs_of_pos hε_pos, div_eq_mul_inv |τ|, hε_inv, ht_eq,
-        show |τ| * c ^ (1 / 3 : ℝ) / (c ^ (1 / 3 : ℝ) * σ_star) = |τ| / σ_star by field_simp [hc13.ne']]
-      exact div_le_div_of_nonneg_left (abs_nonneg τ) hm_pos (min_le_left _ _)
-    have hr2 : |-τ / ε| / x_neg ≤ t := by
-      rw [abs_div, abs_neg, abs_of_pos hε_pos, div_eq_mul_inv |τ|, hε_inv, ht_eq,
-        show |τ| * c ^ (1 / 3 : ℝ) / (c ^ (1 / 3 : ℝ) * (1 - σ_star)) = |τ| / (1 - σ_star) by field_simp [hc13.ne']]
-      exact div_le_div_of_nonneg_left (abs_nonneg τ) hm_pos (min_le_right _ _)
-    have h_sum := (norm_add_le _ _).trans (add_le_add
-      (hS.trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hr1 (by linarith only [amp.hM])) amp.hW_S_nonneg))
-      (hD.trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hr2 (by linarith only [amp.hM])) amp.hW_D_nonneg)))
-    exact h_sum.trans_eq (by rw [hW₀_def]; ring)
-  have hA_prod : ‖A₁ * A₂ * A₃ - 1‖ ≤ 4.8 * amp.M * t := by
-    have hid : A₁ * A₂ * A₃ - 1 = (A₃ - 1) * A₁ * A₂ + (A₁ - 1) * A₂ + (A₂ - 1) := by ring
+  have hA₃ : ‖A₃ - v₀‖ ≤ 4 * amp.M * t := by
+    have hvar := amp.hV_var τ (hτ_le_min.trans (by linarith only [hm_pos]))
+    dsimp [A₃, v₀]
+    rw [← sub_div, norm_div, Complex.norm_real, Real.norm_of_nonneg hA_pos.le, div_le_iff₀ hA_pos]
+    exact hvar.trans_eq (by rw [ht_eq]; ring)
+  have hA_prod : ‖A₁ * A₂ * A₃ - v₀‖ ≤ 4.8 * amp.M * t := by
+    have hid : A₁ * A₂ * A₃ - v₀ = (A₃ - v₀) * A₁ * A₂ + v₀ * (A₁ - 1) * A₂ + v₀ * (A₂ - 1) := by ring
     have hA1n : ‖A₁‖ ≤ 1 + 1 / 16 := by linarith only [norm_sub_norm_le A₁ 1, (norm_one : ‖(1 : ℂ)‖ = 1), hA₁, ht_le18]
     have hA2n : ‖A₂‖ ≤ 1 + 0.027 / 8 := by nlinarith only [norm_sub_norm_le A₂ 1, (norm_one : ‖(1 : ℂ)‖ = 1), hA₂, ht_le18]
     rw [hid]
-    have htri := (norm_add_le ((A₃ - 1) * A₁ * A₂ + (A₁ - 1) * A₂) (A₂ - 1)).trans
-      (add_le_add (norm_add_le ((A₃ - 1) * A₁ * A₂) ((A₁ - 1) * A₂)) hA₂)
-    rw [norm_mul, norm_mul, norm_mul] at htri
+    have htri := (norm_add_le ((A₃ - v₀) * A₁ * A₂ + v₀ * (A₁ - 1) * A₂) (v₀ * (A₂ - 1))).trans
+      (add_le_add (norm_add_le ((A₃ - v₀) * A₁ * A₂) (v₀ * (A₁ - 1) * A₂)) le_rfl)
+    rw [norm_mul, norm_mul, norm_mul, norm_mul, norm_mul] at htri
     have ht_nn : 0 ≤ t := mul_nonneg hεL_pos.le (abs_nonneg s)
     have hM_nn : 0 ≤ 4 * amp.M * t := mul_nonneg (mul_nonneg (by norm_num) (by linarith only [amp.hM])) ht_nn
-    have h1 : ‖A₃ - 1‖ * ‖A₁‖ * ‖A₂‖ ≤ (4 * amp.M * t) * (1 + 1 / 16) * (1 + 0.027 / 8) :=
+    have h1 : ‖A₃ - v₀‖ * ‖A₁‖ * ‖A₂‖ ≤ (4 * amp.M * t) * (1 + 1 / 16) * (1 + 0.027 / 8) :=
       mul_le_mul (mul_le_mul hA₃ hA1n (norm_nonneg _) hM_nn) hA2n (norm_nonneg _) (mul_nonneg hM_nn (by norm_num))
-    have h2 : ‖A₁ - 1‖ * ‖A₂‖ ≤ (t / 2) * (1 + 0.027 / 8) :=
-      mul_le_mul hA₁ hA2n (norm_nonneg _) (div_nonneg ht_nn (by norm_num))
-    nlinarith only [htri, h1, h2, amp.hM, ht_nn]
+    have h2 : ‖v₀‖ * ‖A₁ - 1‖ * ‖A₂‖ ≤ (t / 2) * (1 + 0.027 / 8) := by
+      have h2a : ‖v₀‖ * ‖A₁ - 1‖ ≤ 1 * (t / 2) := mul_le_mul hv₀_le hA₁ (norm_nonneg _) zero_le_one
+      rw [one_mul] at h2a
+      exact mul_le_mul h2a hA2n (norm_nonneg _) (div_nonneg ht_nn (by norm_num))
+    have h3 : ‖v₀‖ * ‖A₂ - 1‖ ≤ 0.027 * t := by
+      simpa using mul_le_mul hv₀_le hA₂ (norm_nonneg _) zero_le_one
+    nlinarith only [htri, h1, h2, h3, amp.hM, ht_nn]
   have hr_ph_bd : ‖(c : ℂ) * r_ph + ((s ^ 2 / 2 : ℝ) : ℂ)‖ ≤ 17 * ε_L * |s| ^ 3 := by
     have hr_bd := r_ph_taylor_bound hσ0 hσ1 hξ_pos hσ_eq hτ_half
     rw [← hg'_def] at hr_bd
@@ -1409,34 +1577,35 @@ private lemma lobe_core_pointwise {c ξ σ_star ε K₀ W₀ g' ε_L τ_sd a τ_
     rw [show ‖(c : ℂ) * r_ph - ((-(s ^ 2 / 2) : ℝ) : ℂ)‖ = ‖(c : ℂ) * r_ph + ((s ^ 2 / 2 : ℝ) : ℂ)‖ by congr 1; push_cast; ring] at h1
     exact h1.trans (mul_le_mul hr_ph_bd (Real.exp_le_exp.mpr (max_le h_re_crph (by rw [Complex.ofReal_re]; linarith only [sq_nonneg s]))) (Real.exp_pos _).le (by positivity))
   rw [show (mellinK0 c ((σ_star : ℂ) + ((τ_sd * s : ℝ) : ℂ) * Complex.I) ξ *
-      (amp.W_S (((σ_star : ℂ) + ((τ_sd * s : ℝ) : ℂ) * Complex.I) / (ε : ℂ)) +
-        amp.W_D ((1 - ((σ_star : ℂ) + ((τ_sd * s : ℝ) : ℂ) * Complex.I)) / (ε : ℂ)))) / ((K₀ * W₀ : ℝ) : ℂ) =
+      amp.V ((σ_star : ℂ) + ((τ_sd * s : ℝ) : ℂ) * Complex.I)) / ((K₀ * amp.A : ℝ) : ℂ) =
       A₁ * A₂ * A₃ * Complex.exp ((c : ℂ) * r_ph) from hF_fac,
-    show A₁ * A₂ * A₃ * Complex.exp ((c : ℂ) * r_ph) - (Real.exp (-s ^ 2 / 2) : ℂ) =
-      (A₁ * A₂ * A₃ - 1) * Complex.exp ((c : ℂ) * r_ph) + (Complex.exp ((c : ℂ) * r_ph) - (Real.exp (-s ^ 2 / 2) : ℂ)) by ring]
+    show A₁ * A₂ * A₃ * Complex.exp ((c : ℂ) * r_ph) - v₀ * (Real.exp (-s ^ 2 / 2) : ℂ) =
+      (A₁ * A₂ * A₃ - v₀) * Complex.exp ((c : ℂ) * r_ph) + v₀ * (Complex.exp ((c : ℂ) * r_ph) - (Real.exp (-s ^ 2 / 2) : ℂ)) by ring]
   refine (norm_add_le _ _).trans ?_
-  rw [norm_mul]
-  have hterm1 : ‖A₁ * A₂ * A₃ - 1‖ * ‖Complex.exp ((c : ℂ) * r_ph)‖ ≤ 4.8 * amp.M * ε_L * |s| * Real.exp (-s ^ 2 / 4) := by
+  rw [norm_mul, norm_mul]
+  have hterm1 : ‖A₁ * A₂ * A₃ - v₀‖ * ‖Complex.exp ((c : ℂ) * r_ph)‖ ≤ 4.8 * amp.M * ε_L * |s| * Real.exp (-s ^ 2 / 4) := by
     calc _ ≤ (4.8 * amp.M * t) * Real.exp (-s ^ 2 / 4) := mul_le_mul hA_prod hexp_norm (norm_nonneg _)
           (mul_nonneg (mul_nonneg (by norm_num) (by linarith only [amp.hM])) (mul_nonneg hεL_pos.le (abs_nonneg s)))
       _ = _ := by dsimp [t]; ring
-  exact (add_le_add hterm1 hexp_diff).trans_eq (by ring)
+  have hterm2 : ‖v₀‖ * ‖Complex.exp ((c : ℂ) * r_ph) - (Real.exp (-s ^ 2 / 2) : ℂ)‖ ≤ 17 * ε_L * |s| ^ 3 * Real.exp (-s ^ 2 / 4) := by
+    simpa using mul_le_mul hv₀_le hexp_diff (norm_nonneg _) zero_le_one
+  exact (add_le_add hterm1 hterm2).trans_eq (by ring)
 
-private lemma lobe_core_Icc_integral {τ_sd a ε_L M : ℝ}
+private lemma total_core_Icc_integral {τ_sd a ε_L M : ℝ} {v₀ : ℂ}
     (hτsd_pos : 0 < τ_sd) (ha_pos : 0 < a) (hεL_pos : 0 < ε_L) (hM : 1 ≤ M)
-    {F_rel : ℝ → ℂ} (hFrel_cont : Continuous F_rel)
+    {F_rel : ℝ → ℂ} (hFrel_int : Integrable F_rel)
     (h_ptwise : ∀ s ∈ Icc (-a) a,
-      ‖F_rel (τ_sd * s) - (Real.exp (-s ^ 2 / 2) : ℂ)‖ ≤
+      ‖F_rel (τ_sd * s) - v₀ * (Real.exp (-s ^ 2 / 2) : ℂ)‖ ≤
         (4.8 * M * ε_L * |s| + 17 * ε_L * |s| ^ 3) * Real.exp (-s ^ 2 / 4)) :
-    ∫ τ in Icc (-(a * τ_sd)) (a * τ_sd), ‖F_rel τ - (Real.exp (-(τ / τ_sd) ^ 2 / 2) : ℂ)‖ ≤
+    ∫ τ in Icc (-(a * τ_sd)) (a * τ_sd), ‖F_rel τ - v₀ * (Real.exp (-(τ / τ_sd) ^ 2 / 2) : ℂ)‖ ≤
       τ_sd * ((19.2 * M + 272) * ε_L) := by
   let g_maj : ℝ → ℝ := fun s => (4.8 * M * ε_L * |s| + 17 * ε_L * |s| ^ 3) * Real.exp (-s ^ 2 / 4)
-  have h1 : ∫ τ in Icc (-(a * τ_sd)) (a * τ_sd), ‖F_rel τ - (Real.exp (-(τ / τ_sd) ^ 2 / 2) : ℂ)‖ =
-      τ_sd * ∫ s in Icc (-a) a, ‖F_rel (τ_sd * s) - (Real.exp (-s ^ 2 / 2) : ℂ)‖ := by
+  have h1 : ∫ τ in Icc (-(a * τ_sd)) (a * τ_sd), ‖F_rel τ - v₀ * (Real.exp (-(τ / τ_sd) ^ 2 / 2) : ℂ)‖ =
+      τ_sd * ∫ s in Icc (-a) a, ‖F_rel (τ_sd * s) - v₀ * (Real.exp (-s ^ 2 / 2) : ℂ)‖ := by
     rw [MeasureTheory.integral_Icc_eq_integral_Ioc, MeasureTheory.integral_Icc_eq_integral_Ioc,
       ← intervalIntegral.integral_of_le (by linarith [mul_pos ha_pos hτsd_pos]), ← intervalIntegral.integral_of_le (by linarith [ha_pos])]
     have hc_int := intervalIntegral.integral_comp_mul_left
-      (fun τ => ‖F_rel τ - (Real.exp (-(τ / τ_sd) ^ 2 / 2) : ℂ)‖) hτsd_pos.ne' (a := -a) (b := a)
+      (fun τ => ‖F_rel τ - v₀ * (Real.exp (-(τ / τ_sd) ^ 2 / 2) : ℂ)‖) hτsd_pos.ne' (a := -a) (b := a)
     simp_rw [show ∀ s : ℝ, τ_sd * s / τ_sd = s from fun s => mul_div_cancel_left₀ s hτsd_pos.ne',
       show τ_sd * -a = -(a * τ_sd) by ring, show τ_sd * a = a * τ_sd by ring, smul_eq_mul] at hc_int
     rw [hc_int, ← mul_assoc, mul_inv_cancel₀ hτsd_pos.ne', one_mul]
@@ -1447,11 +1616,10 @@ private lemma lobe_core_Icc_integral {τ_sd a ε_L M : ℝ}
     rw [show g_maj = fun s => (4.8 * M * ε_L) * (|s| * Real.exp (-s ^ 2 / 4)) + (17 * ε_L) * (|s| ^ 3 * Real.exp (-s ^ 2 / 4)) by
       ext s; dsimp [g_maj]; ring, integral_add (hi1.const_mul _) (hi3.const_mul _),
       integral_const_mul, integral_const_mul, hv1, hv3]; ring
-  have h_mul : Continuous fun s : ℝ => τ_sd * s := continuous_const.mul continuous_id
-  have h_gauss : Continuous fun s : ℝ => (Real.exp (-s ^ 2 / 2) : ℂ) :=
-    Complex.continuous_ofReal.comp (Real.continuous_exp.comp ((continuous_pow 2).neg.div_const 2))
-  have hl_int : IntegrableOn (fun s => ‖F_rel (τ_sd * s) - (Real.exp (-s ^ 2 / 2) : ℂ)‖) (Icc (-a) a) :=
-    ((hFrel_cont.comp h_mul).sub h_gauss).norm.continuousOn.integrableOn_Icc
+  have h_gauss : Continuous fun s : ℝ => v₀ * (Real.exp (-s ^ 2 / 2) : ℂ) :=
+    continuous_const.mul (Complex.continuous_ofReal.comp (Real.continuous_exp.comp ((continuous_pow 2).neg.div_const 2)))
+  have hl_int : IntegrableOn (fun s => ‖F_rel (τ_sd * s) - v₀ * (Real.exp (-s ^ 2 / 2) : ℂ)‖) (Icc (-a) a) :=
+    ((hFrel_int.comp_mul_left' hτsd_pos.ne').integrableOn.sub h_gauss.continuousOn.integrableOn_Icc).norm
   rw [h1]
   exact mul_le_mul_of_nonneg_left ((setIntegral_mono_on hl_int hg_int.integrableOn measurableSet_Icc h_ptwise).trans
     ((setIntegral_le_integral hg_int (Filter.Eventually.of_forall fun s => by
@@ -1512,22 +1680,22 @@ private lemma lobe_coeff_17_lt {c σ_star : ℝ}
   have hlt := lt_of_pow_lt_pow_left₀ 2 (by norm_num) hsq
   exact (div_lt_iff₀ hεL_pos).mp hlt
 
-lemma lobe_core_error_bound {Δ₁ U c Δ ξ σ_star : ℝ}
+lemma total_core_error_bound {Δ₁ U c Δ ξ σ_star : ℝ}
     (hΔ₁ : 1 ≤ Δ₁) (hU : 1 ≤ U) (hc : max (20 * Δ₁) (60 * U ^ (3 / 2 : ℝ)) ≤ c)
     (hΔ_lo : Δ₁ ≤ Δ) (hΔ_hi : Δ ≤ (c / π ^ 2) * Real.exp (-(π ^ 2 * U * c ^ (-(2 / 3 : ℝ)))))
     (hξ : ξ = Δ / c) (hσ0 : 0 < σ_star) (hσ1 : σ_star < 1) (hσ_eq : stripGReal σ_star = -Real.log (π ^ 2 * ξ))
-    (amp : LobeSaddleAmp σ_star (c ^ (1 / 3 : ℝ) * σ_star) (c ^ (1 / 3 : ℝ) * (1 - σ_star)))
+    (amp : TotalSaddleAmp c σ_star)
     (h_eps0 : max ((27 / 100 : ℝ) * U ^ (-(3 / 4 : ℝ))) (Δ₁ ^ (-(1 / 2 : ℝ))) ≤ min (3 / 1000 : ℝ) ((4 * amp.M) ^ (-(4 / 3 : ℝ)))) :
     let ε_L := saddleEpsL c σ_star
     let τ_sd := (c * stripGDerivReal σ_star) ^ (-(1 / 2 : ℝ))
     let τ_core := ε_L ^ (-(1 / 4 : ℝ)) * τ_sd
     let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re
-    let W₀ := (amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re + (amp.W_D ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ)).re
+    let v₀ := amp.V (σ_star : ℂ) / (amp.A : ℂ)
     let F_rel := fun τ : ℝ => (mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ *
-      (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ)) +
-        amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ)))) / ((K₀ * W₀ : ℝ) : ℂ)
-    (1 / (Real.sqrt (2 * π) * τ_sd)) * ((∫ τ in Icc (-τ_core) τ_core, ‖F_rel τ - (Real.exp (-(τ / τ_sd) ^ 2 / 2) : ℂ)‖) +
-      2 * ∫ τ in Ioi τ_core, Real.exp (-(τ / τ_sd) ^ 2 / 2)) ≤ (7.7 * amp.M + 108.6) * ε_L := by
+      amp.V ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / ((K₀ * amp.A : ℝ) : ℂ)
+    (1 / (Real.sqrt (2 * π) * τ_sd)) *
+      ((∫ τ in Icc (-τ_core) τ_core, ‖F_rel τ - v₀ * (Real.exp (-(τ / τ_sd) ^ 2 / 2) : ℂ)‖) +
+        2 * ‖v₀‖ * ∫ τ in Ioi τ_core, Real.exp (-(τ / τ_sd) ^ 2 / 2)) ≤ (7.7 * amp.M + 108.6) * ε_L := by
   dsimp only
   have hc_pos : 0 < c := by linarith [(le_max_left _ _).trans hc]
   have hΔ_pos : 0 < Δ := by linarith
@@ -1535,17 +1703,18 @@ lemma lobe_core_error_bound {Δ₁ U c Δ ξ σ_star : ℝ}
   have h1s_pos : 0 < 1 - σ_star := sub_pos.mpr hσ1
   have hm_pos : 0 < min σ_star (1 - σ_star) := lt_min hσ0 h1s_pos
   let g' := stripGDerivReal σ_star; let ε_L := saddleEpsL c σ_star; let τ_sd := (c * g') ^ (-(1 / 2 : ℝ))
-  let a := ε_L ^ (-(1 / 4 : ℝ)); let τ_core := a * τ_sd; let ε := c ^ (-(1 / 3 : ℝ))
-  let x_pos := c ^ (1 / 3 : ℝ) * σ_star; let x_neg := c ^ (1 / 3 : ℝ) * (1 - σ_star)
-  let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re; let W₀ := (amp.W_S (x_pos : ℂ)).re + (amp.W_D (x_neg : ℂ)).re
+  let a := ε_L ^ (-(1 / 4 : ℝ)); let τ_core := a * τ_sd
+  let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re
+  let v₀ : ℂ := amp.V (σ_star : ℂ) / (amp.A : ℂ)
+  have hv₀_le : ‖v₀‖ ≤ 1 := by
+    dsimp [v₀]; rw [norm_div, Complex.norm_real, Real.norm_of_nonneg amp.hA.le, div_le_one amp.hA]
+    exact amp.hV0_le
   have hg'_pos : 0 < g' := stripGDerivReal_pos hσ0 hσ1
   have hεL_pos : 0 < ε_L := saddleEpsL_pos hc_pos hσ0 hσ1
   have hτsd_pos : 0 < τ_sd := Real.rpow_pos_of_pos (mul_pos hc_pos hg'_pos) _
   have ha_pos : 0 < a := Real.rpow_pos_of_pos hεL_pos _
-  have hε_pos : 0 < ε := Real.rpow_pos_of_pos hc_pos _
   have hK₀_spec := mellinK0_saddle_pos hc_pos hξ_pos hσ0 hσ1
   have hK₀_pos : 0 < K₀ := hK₀_spec.2
-  have hW₀_pos : 0 < W₀ := amp.hW0_pos
   obtain ⟨_, _, hz_gt⟩ := saddle_endpoint_scales hΔ₁ hU hc hΔ_lo hΔ_hi hξ hσ0 hσ1 hσ_eq
   obtain ⟨_, _, hεL_ub⟩ := saddleEpsL_bounds hΔ₁ hU hc hΔ_lo hΔ_hi hξ hσ0 hσ1 hσ_eq
   have hεL_le_eps0 := hεL_ub.le.trans h_eps0
@@ -1573,20 +1742,20 @@ lemma lobe_core_error_bound {Δ₁ U c Δ ξ σ_star : ℝ}
   have h_coeff_17 : (8 / 3 : ℝ) * c * τ_sd ^ 3 / (1 - σ_star) ^ 2 < 17 * ε_L :=
     lobe_coeff_17_lt hc_pos hσ0 hσ1
   let F_rel := fun τ : ℝ => (mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ *
-    (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) +
-      amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)))) / ((K₀ * W₀ : ℝ) : ℂ)
+    amp.V ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / ((K₀ * amp.A : ℝ) : ℂ)
   have h_ptwise : ∀ s ∈ Icc (-a) a,
-      ‖F_rel (τ_sd * s) - (Real.exp (-s ^ 2 / 2) : ℂ)‖ ≤
+      ‖F_rel (τ_sd * s) - v₀ * (Real.exp (-s ^ 2 / 2) : ℂ)‖ ≤
         (4.8 * amp.M * ε_L * |s| + 17 * ε_L * |s| ^ 3) * Real.exp (-s ^ 2 / 4) := fun s hs => by
-    dsimp only [F_rel]
-    exact lobe_core_pointwise hc_pos hξ_pos hσ0 hσ1 hσ_eq amp rfl (Complex.ext rfl hK₀_spec.1.symm)
-      rfl hW₀_pos hg'_pos rfl hτsd_pos hτsd_sq hεL_pos rfl rfl rfl hτcore_eq
+    dsimp only [F_rel, v₀]
+    exact total_core_pointwise hc_pos hξ_pos hσ0 hσ1 hσ_eq amp (Complex.ext rfl hK₀_spec.1.symm)
+      hg'_pos rfl hτsd_pos hτsd_sq hεL_pos rfl rfl rfl hτcore_eq
       hεL_34_le_18 h17_le (by nlinarith [hΔ₁, Real.pi_pos]) h_coeff_17 hs
-  obtain ⟨hF_cont, _, _⟩ := lobe_integrand_cont_symm_bound hc_pos hξ_pos hσ0 hσ1 amp
-  have hFrel_cont : Continuous F_rel := by dsimp only [F_rel]; exact hF_cont.div_const _
-  have hcore_int : ∫ τ in Icc (-τ_core) τ_core, ‖F_rel τ - (Real.exp (-(τ / τ_sd) ^ 2 / 2) : ℂ)‖ ≤ τ_sd * ((19.2 * amp.M + 272) * ε_L) :=
-    lobe_core_Icc_integral hτsd_pos ha_pos hεL_pos amp.hM hFrel_cont h_ptwise
-  have h_gauss_tail : 2 * ∫ τ in Ioi τ_core, Real.exp (-(τ / τ_sd) ^ 2 / 2) ≤ τ_sd * (0.02 * ε_L) := by
+  have hFrel_int : Integrable F_rel :=
+    (totalSaddle_integrable hΔ₁ hU hc hΔ_lo hΔ_hi hξ hσ0 hσ1 hσ_eq amp).div_const _
+  have hcore_int : ∫ τ in Icc (-τ_core) τ_core, ‖F_rel τ - v₀ * (Real.exp (-(τ / τ_sd) ^ 2 / 2) : ℂ)‖ ≤
+      τ_sd * ((19.2 * amp.M + 272) * ε_L) :=
+    total_core_Icc_integral hτsd_pos ha_pos hεL_pos amp.hM hFrel_int h_ptwise
+  have h_gauss_tail : 2 * ‖v₀‖ * ∫ τ in Ioi τ_core, Real.exp (-(τ / τ_sd) ^ 2 / 2) ≤ τ_sd * (0.02 * ε_L) := by
     let k_g := 1 / (2 * τ_sd ^ 2)
     have h_eq : (fun τ : ℝ => Real.exp (-(τ / τ_sd) ^ 2 / 2)) = fun τ => Real.exp (-k_g * τ ^ 2) := by
       ext τ; dsimp [k_g]; congr 1; field_simp [hτsd_pos.ne']
@@ -1606,6 +1775,12 @@ lemma lobe_core_error_bound {Δ₁ U c Δ ξ σ_star : ℝ}
         show -(1 / 2 : ℝ) * (2 : ℕ) = (-1 : ℝ) by norm_num, Real.rpow_neg_one, inv_eq_one_div, le_div_iff₀ hεL_pos]
       linarith only [hεL_le_3e3]) (Real.rpow_nonneg hεL_pos.le _)
     have hexp_c := (exp_neg_tail_const_bounds hu_ge).1
+    have h_int_nn : 0 ≤ ∫ τ in Ioi τ_core, Real.exp (-(τ / τ_sd) ^ 2 / 2) :=
+      setIntegral_nonneg measurableSet_Ioi fun _ _ => (Real.exp_pos _).le
+    have h2 : 2 * ‖v₀‖ * ∫ τ in Ioi τ_core, Real.exp (-(τ / τ_sd) ^ 2 / 2) ≤
+        2 * ∫ τ in Ioi τ_core, Real.exp (-(τ / τ_sd) ^ 2 / 2) := by
+      nlinarith [mul_le_mul_of_nonneg_right hv₀_le h_int_nn]
+    refine h2.trans ?_
     rw [h_eq]
     calc 2 * ∫ τ in Ioi τ_core, Real.exp (-k_g * τ ^ 2)
         ≤ 2 * ((1 / (2 * k_g * τ_core)) * Real.exp (-k_g * τ_core ^ 2)) :=
@@ -1613,8 +1788,8 @@ lemma lobe_core_error_bound {Δ₁ U c Δ ξ σ_star : ℝ}
       _ = _ := h_rhs
       _ ≤ τ_sd * (0.02 * ε_L) := mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hexp_c hεL_pos.le) hτsd_pos.le
   have hsqrt2pi : (2.506 : ℝ) ≤ Real.sqrt (2 * π) := Real.le_sqrt_of_sq_le (by nlinarith only [Real.pi_gt_d4, Real.pi_pos])
-  have hsum_bd : (∫ τ in Icc (-τ_core) τ_core, ‖F_rel τ - (Real.exp (-(τ / τ_sd) ^ 2 / 2) : ℂ)‖) +
-      2 * ∫ τ in Ioi τ_core, Real.exp (-(τ / τ_sd) ^ 2 / 2) ≤ τ_sd * ((19.2 * amp.M + 272.02) * ε_L) :=
+  have hsum_bd : (∫ τ in Icc (-τ_core) τ_core, ‖F_rel τ - v₀ * (Real.exp (-(τ / τ_sd) ^ 2 / 2) : ℂ)‖) +
+      2 * ‖v₀‖ * ∫ τ in Ioi τ_core, Real.exp (-(τ / τ_sd) ^ 2 / 2) ≤ τ_sd * ((19.2 * amp.M + 272.02) * ε_L) :=
     (add_le_add hcore_int h_gauss_tail).trans_eq (by ring)
   have hcoeff1 : (19.2 * amp.M + 272.02) / Real.sqrt (2 * π) ≤ (19.2 * amp.M + 272.02) / 2.506 :=
     div_le_div_of_nonneg_left (by linarith only [amp.hM]) (by norm_num) hsqrt2pi
@@ -1630,8 +1805,63 @@ lemma lobe_core_error_bound {Δ₁ U c Δ ξ σ_star : ℝ}
   exact ((mul_le_mul_of_nonneg_left hsum_bd (by positivity)).trans_eq hτ_cancel).trans
     (mul_le_mul_of_nonneg_right (hcoeff1.trans hcoeff2) hεL_pos.le)
 
+lemma lobe_core_error_bound {Δ₁ U c Δ ξ σ_star : ℝ}
+    (hΔ₁ : 1 ≤ Δ₁) (hU : 1 ≤ U) (hc : max (20 * Δ₁) (60 * U ^ (3 / 2 : ℝ)) ≤ c)
+    (hΔ_lo : Δ₁ ≤ Δ) (hΔ_hi : Δ ≤ (c / π ^ 2) * Real.exp (-(π ^ 2 * U * c ^ (-(2 / 3 : ℝ)))))
+    (hξ : ξ = Δ / c) (hσ0 : 0 < σ_star) (hσ1 : σ_star < 1) (hσ_eq : stripGReal σ_star = -Real.log (π ^ 2 * ξ))
+    (amp : LobeSaddleAmp σ_star (c ^ (1 / 3 : ℝ) * σ_star) (c ^ (1 / 3 : ℝ) * (1 - σ_star)))
+    (h_eps0 : max ((27 / 100 : ℝ) * U ^ (-(3 / 4 : ℝ))) (Δ₁ ^ (-(1 / 2 : ℝ))) ≤ min (3 / 1000 : ℝ) ((4 * amp.M) ^ (-(4 / 3 : ℝ)))) :
+    let ε_L := saddleEpsL c σ_star
+    let τ_sd := (c * stripGDerivReal σ_star) ^ (-(1 / 2 : ℝ))
+    let τ_core := ε_L ^ (-(1 / 4 : ℝ)) * τ_sd
+    let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re
+    let W₀ := (amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re + (amp.W_D ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ)).re
+    let F_rel := fun τ : ℝ => (mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ *
+      (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ)) +
+        amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ)))) / ((K₀ * W₀ : ℝ) : ℂ)
+    (1 / (Real.sqrt (2 * π) * τ_sd)) * ((∫ τ in Icc (-τ_core) τ_core, ‖F_rel τ - (Real.exp (-(τ / τ_sd) ^ 2 / 2) : ℂ)‖) +
+      2 * ∫ τ in Ioi τ_core, Real.exp (-(τ / τ_sd) ^ 2 / 2)) ≤ (7.7 * amp.M + 108.6) * ε_L := by
+  have hc_pos : 0 < c := by linarith [(le_max_left _ _).trans hc]
+  have htot := total_core_error_bound hΔ₁ hU hc hΔ_lo hΔ_hi hξ hσ0 hσ1 hσ_eq (amp.toTotalSaddleAmp hc_pos hσ0 hσ1) h_eps0
+  have h1s : 0 < 1 - σ_star := sub_pos.mpr hσ1
+  have hc13 : 0 < c ^ (1 / 3 : ℝ) := Real.rpow_pos_of_pos hc_pos _
+  have hε_inv : (c ^ (-(1 / 3 : ℝ)))⁻¹ = c ^ (1 / 3 : ℝ) := by rw [Real.rpow_neg hc_pos.le, inv_inv]
+  have hS0 : (σ_star : ℂ) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ) = ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ) := by
+    rw [div_eq_mul_inv, ← Complex.ofReal_inv, hε_inv, ← Complex.ofReal_mul]; congr 1; ring
+  have hD0 : (1 - (σ_star : ℂ)) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ) = ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ) := by
+    rw [div_eq_mul_inv, ← Complex.ofReal_inv, hε_inv, show (1 - (σ_star : ℂ)) = ((1 - σ_star : ℝ) : ℂ) by push_cast; rfl,
+      ← Complex.ofReal_mul]; congr 1; ring
+  have hv₀ : (amp.toTotalSaddleAmp hc_pos hσ0 hσ1).V (σ_star : ℂ) / ((amp.toTotalSaddleAmp hc_pos hσ0 hσ1).A : ℂ) = 1 := by
+    change (amp.W_S ((σ_star : ℂ) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ)) +
+      amp.W_D ((1 - (σ_star : ℂ)) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ))) /
+      (((amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re +
+        (amp.W_D ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ)).re : ℝ) : ℂ) = 1
+    rw [hS0, hD0]
+    have hnum : amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ) + amp.W_D ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ) =
+        (((amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re +
+          (amp.W_D ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ)).re : ℝ) : ℂ) :=
+      Complex.ext (by simp) (by
+        rw [Complex.add_im, amp.hW_S_real _ (mul_pos hc13 hσ0), amp.hW_D_real _ (mul_pos hc13 h1s), add_zero, Complex.ofReal_im])
+    rw [hnum, div_self (Complex.ofReal_ne_zero.mpr amp.hW0_pos.ne')]
+  dsimp only at htot ⊢
+  rw [hv₀, norm_one, mul_one] at htot
+  simp only [one_mul] at htot
+  exact htot
+
 
 /-! ### Axiom Verification -/
+
+/-- info: 'FormalResearch.CohnElkies.mellinPhi_re_vertical' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.CohnElkies.mellinPhi_re_vertical
+
+/-- info: 'FormalResearch.CohnElkies.totalSaddle_integrable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.CohnElkies.totalSaddle_integrable
+
+/-- info: 'FormalResearch.CohnElkies.total_core_error_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.CohnElkies.total_core_error_bound
 
 /-- info: 'FormalResearch.CohnElkies.lobeSaddle_integrable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

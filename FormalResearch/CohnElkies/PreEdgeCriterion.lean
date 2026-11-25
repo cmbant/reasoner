@@ -1134,7 +1134,7 @@ noncomputable def preEdgeU (M Λ : ℝ) : ℝ :=
 
 /-- Uniform saddle/origin transition `Δ₁(M, Λ, Λ_add, b) ≥ 1`. -/
 noncomputable def preEdgeDelta1 (M Λ Λ_add_max b : ℝ) : ℝ :=
-  max (max 1 ((min (3 / 1000 : ℝ) ((4 * M) ^ (-(4 / 3 : ℝ)))) ^ (-2 : ℝ))) (max ((4 * (8 * M + 54 * Λ + 109)) ^ 2) (144 * (430 * Λ_add_max / b)))
+  max (max 1 ((min (3 / 1000 : ℝ) ((4 * M) ^ (-(4 / 3 : ℝ)))) ^ (-2 : ℝ))) (max ((4 * (8 * M + 54 * Λ + 109)) ^ 2) (144 * (150 * Λ_add_max / b)))
 
 lemma one_le_preEdgeU (M Λ : ℝ) : 1 ≤ preEdgeU M Λ := (le_max_left _ _).trans (le_max_left _ _)
 
@@ -1264,7 +1264,7 @@ theorem preEdge_general_pos {fhat : ℝ → ℝ → ℝ} (d : PreEdgeGeneralData
     (by rw [← Real.rpow_natCast, ← Real.rpow_mul (by positivity), show ((2 : ℕ) : ℝ) * -(1 / 2 : ℝ) = -1 by norm_num, Real.rpow_neg_one])
   have h_mul_err : C_L2 * saddleEpsL c σ_star ≤ 1 / 4 := (mul_le_mul_of_nonneg_left
     ((saddleEpsL_bounds hΔ₁ hU1 hc_sad hΔ_lo hΔ_hi rfl hσ0 hσ1 hσ_eq).2.2.trans_le (max_le hU_L2 hΔ_L2)).le hC_L2.le).trans_eq (by field_simp [hC_L2.ne'])
-  have h_add_err : 430 * amp.Λ_add * (c ^ (-(1 / 3 : ℝ)) /
+  have h_add_err : 150 * amp.Λ_add * (c ^ (-(1 / 3 : ℝ)) /
       ((amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re + (amp.W_D ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ)).re)) *
       Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star))) ≤ 1 / 4 := by
     let x_neg := c ^ (1 / 3 : ℝ) * (1 - σ_star)
@@ -1278,15 +1278,15 @@ theorem preEdge_general_pos {fhat : ℝ → ℝ → ℝ} (d : PreEdgeGeneralData
       have hexp_le : Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star))) ≤ (3 * π / 320 * Δ₁)⁻¹ := by
         rw [← one_div, le_one_div (Real.exp_pos _) (by positivity), neg_mul, Real.exp_neg, div_inv_eq_mul, one_mul]
         linarith [Real.add_one_le_exp (3 * π / 320 * Δ₁), Real.exp_le_exp.mpr (by linarith [hz_gt] : 3 * π / 320 * Δ₁ ≤ (3 / 320 : ℝ) * (c * (1 - σ_star)))]
-      calc 430 * amp.Λ_add * (c ^ (-(1 / 3 : ℝ)) / ((amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re + (amp.W_D (x_neg : ℂ)).re)) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star)))
-          ≤ 430 * d.Λ_add_max * d.b⁻¹ * (3 * π / 320 * Δ₁)⁻¹ := by
+      calc 150 * amp.Λ_add * (c ^ (-(1 / 3 : ℝ)) / ((amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re + (amp.W_D (x_neg : ℂ)).re)) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star)))
+          ≤ 150 * d.Λ_add_max * d.b⁻¹ * (3 * π / 320 * Δ₁)⁻¹ := by
             dsimp [amp, PreEdgeGeneralData.toLobeSaddleAmp]; dsimp [x_neg] at hxn; simp only [hxn, ↓reduceIte]
             exact mul_le_mul (mul_le_mul_of_nonneg_left hrat (by have := d.hΛ_add; positivity)) hexp_le (Real.exp_pos _).le (by have := d.hΛ_add; have := d.hb; positivity)
         _ ≤ 1 / 4 := by
-            rw [mul_inv, show 430 * d.Λ_add_max * d.b⁻¹ * ((3 * π / 320)⁻¹ * Δ₁⁻¹) = ((430 * d.Λ_add_max / d.b) * (320 / (3 * π))) * Δ₁⁻¹ by ring, mul_inv_le_iff₀ (by positivity)]
+            rw [mul_inv, show 150 * d.Λ_add_max * d.b⁻¹ * ((3 * π / 320)⁻¹ * Δ₁⁻¹) = ((150 * d.Λ_add_max / d.b) * (320 / (3 * π))) * Δ₁⁻¹ by ring, mul_inv_le_iff₀ (by positivity)]
             have hpi3 : (320 : ℝ) / (3 * π) ≤ 36 := by rw [div_le_iff₀ (by positivity)]; linarith [Real.pi_gt_three]
-            calc (430 * d.Λ_add_max / d.b) * (320 / (3 * π)) ≤ (430 * d.Λ_add_max / d.b) * 36 := mul_le_mul_of_nonneg_left hpi3 (by have := d.hΛ_add; have := d.hb; positivity)
-              _ = (1 / 4) * (144 * (430 * d.Λ_add_max / d.b)) := by ring
+            calc (150 * d.Λ_add_max / d.b) * (320 / (3 * π)) ≤ (150 * d.Λ_add_max / d.b) * 36 := mul_le_mul_of_nonneg_left hpi3 (by have := d.hΛ_add; have := d.hb; positivity)
+              _ = (1 / 4) * (144 * (150 * d.Λ_add_max / d.b)) := by ring
               _ ≤ (1 / 4) * Δ₁ := by gcongr; exact (le_max_right _ _).trans (le_max_right _ _)
     · dsimp [amp, PreEdgeGeneralData.toLobeSaddleAmp]; dsimp [x_neg] at hxn; simp only [hxn, ↓reduceIte, mul_zero, zero_mul]; norm_num
   dsimp only at hasymp; dsimp [C_L2] at h_mul_err

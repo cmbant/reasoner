@@ -201,6 +201,28 @@ public import FormalResearch.SignUncertainty.CtOuterG3Zeta
 public import FormalResearch.SignUncertainty.CtOuterG3Main
 public import FormalResearch.SignUncertainty.CtOuterG3Ibp
 public import FormalResearch.SignUncertainty.CtOuterTheta3
+public import FormalResearch.SignUncertainty.CtOuterBdryIm
+public import FormalResearch.SignUncertainty.CtOuterLogId
+public import FormalResearch.SignUncertainty.CtOuterTilde
+public import FormalResearch.SignUncertainty.CtOuterBdryDeriv
+public import FormalResearch.SignUncertainty.CtOuterBdryEst
+public import FormalResearch.SignUncertainty.CtOuterBdryDecay
+public import FormalResearch.SignUncertainty.CtOuterCutoff
+public import FormalResearch.SignUncertainty.CtOuterPhi0
+public import FormalResearch.SignUncertainty.CtOuterAsymp
+public import FormalResearch.SignUncertainty.CtOuterPart3
+public import FormalResearch.SignUncertainty.CtOuterPart3Plus
+public import FormalResearch.SignUncertainty.CtMorseFresnel
+public import FormalResearch.SignUncertainty.CtMorseKernel
+public import FormalResearch.SignUncertainty.CtMorseHadamard
+public import FormalResearch.SignUncertainty.CtMorseExpansion
+public import FormalResearch.SignUncertainty.CtCfuSeries
+public import FormalResearch.SignUncertainty.CtCfuGerm
+public import FormalResearch.SignUncertainty.CtCfuEven
+public import FormalResearch.SignUncertainty.CtCfuTheta
+public import FormalResearch.SignUncertainty.CtCfuTaylor
+public import FormalResearch.SignUncertainty.CtCfuInv
+public import FormalResearch.SignUncertainty.CtCfuData
 public import FormalResearch.SignUncertainty.HankelLangerIdentity
 public import FormalResearch.SignUncertainty.HankelWtConj
 public import FormalResearch.SignUncertainty.EuclidSplit
@@ -258,6 +280,14 @@ public import FormalResearch.SignUncertainty.CeSourceFamilyWitness
 public import FormalResearch.SignUncertainty.ConvSourceSymbol
 public import FormalResearch.SignUncertainty.ConvSourceSymbolIBP
 public import FormalResearch.SignUncertainty.ConvSourceSymbolBounds
+public import FormalResearch.SignUncertainty.UctAiryTrans
+public import FormalResearch.SignUncertainty.UctPosFloor
+public import FormalResearch.SignUncertainty.UctPosFloorTail
+public import FormalResearch.SignUncertainty.UctPosFloorWpos
+public import FormalResearch.SignUncertainty.UctStripSplit
+public import FormalResearch.SignUncertainty.UctStripIntegrals
+public import FormalResearch.SignUncertainty.UctBumpSymbol
+public import FormalResearch.SignUncertainty.UctBumpSymbolAdmiss
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -386,7 +416,10 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.CtOuterSinhIneq`, `CtOuterFrullani`, `CtOuterP2` (F1, sub-step of the closed form of `θ₁⁻` in `ct:outer` (2); proved): `integral_inv_mul_invSinh_sub` (`∫₀^∞ y⁻¹(1/sinh y - 1/y) dy = -log 2`, Mathlib's Frullani integral) and `integral_log_ratio_mul_cosh_div_sinh_sq` (`J₁ = ∫₀^∞ log(y/sinh y) cosh y/sinh² y dy = -log 2`, the "evaluation of `a_mp`" of the TeX proof), plus elementary `sinh` inequalities.
 * `FormalResearch.SignUncertainty.CtOuterMittag`, `CtOuterAltHarm`, `CtOuterRatInt`, `CtOuterK`, `CtOuterP3`, `CtOuterTheta1` (F1, `ct:outer` (2), the closed form of `θ₁^±`; proved, unconditional): `theta_one_minus` (`θ₁⁻ = -3log2 + I₀`), `theta_one_plus` (`θ₁⁺ = θ₁⁻ - π`), `deriv_outerTheta_zero_eq_ctTheta1`, `ct_outer_part2_taylor_theta1` (the Taylor statement of the TeX with the paper's `θ₁`, `θ₃` existential); support: `csc_hasSum_im` and `hasSum_mPrime` (Mittag-Leffler series for `π/sin πz - 1/z` and `m'`, without the `‖z‖<1` restriction), `tendsto_altHarm`, `integral_rat'`, `integral_t_mPrime_div`, `integral_ctU3_mul` (`a_{1t2}`). Not formalised: `θ₃^±`, hence `CtThetaValuesTarget` stays open, and clause (3).
 * `FormalResearch.SignUncertainty.CtDualIdBinet` and `BinetP2`, `BinetGamma`, `BinetFubini`, `BinetDecay`, `BinetFract`, `BinetVertical`, `BinetSmall` (F1, `ct:dual-id` (1); proved, unconditional): `ct_dual_id_part1` = the vertical-line decay `|∂_τ^r B_c(iτ)| ≤ C_r/(c(1+|τ|)^{r+1})` (`binetDiff_vertical_decay`, constant `r!4^r`), the holomorphic extension to `Im τ > -1` (`differentiableOn_binetDiff_vertical`) and `B_c(iτ) = iτ/(12c(1-iτ)) + O(c⁻³|τ|)` (`binetDiff_small`, constant 8, valid for every `c > 0` and real `τ`); the route is the `P₂` Fubini representation `B^{(r)}(w) = (-1)^r(r+1)!∫₀^∞ P₂(s)(s+w)^{-(r+2)}ds`, not repeated integration by parts.
-* `FormalResearch.SignUncertainty.CtOuterGen`, `CtOuterU2`, `CtOuterU2Zero`, `CtOuterThird`, `CtOuterC3`, `CtOuterG3Rat`, `CtOuterG3Zeta`, `CtOuterG3Main`, `CtOuterG3Ibp`, `CtOuterTheta3` (F1, `ct:outer` (2), the closed form of `θ₃^±`; proved, unconditional): `theta_three_eq` (`θ_ε'''(0)/6 = ctTheta3 ε`), `ctThetaValuesTarget` (discharges `CtThetaValuesTarget`), `ct_outer_part2_taylor_values` (`θ_ε = θ₁τ + θ₃τ³ + O(τ⁵)` with the paper's constants, unconditional); support `uR2_zero` (`u_r''(0) = -7π²/60 - 1`), `deriv3_H0_zero_uR`, `c3_1t2_value` (`c_{3,1t2} = ζ(3)/2 - 1/3`), `integral_rP`, `tendsto_alt_zeta3`. Only clause (3) of `ct:outer` remains.
+* `FormalResearch.SignUncertainty.CtOuterGen`, `CtOuterU2`, `CtOuterU2Zero`, `CtOuterThird`, `CtOuterC3`, `CtOuterG3Rat`, `CtOuterG3Zeta`, `CtOuterG3Main`, `CtOuterG3Ibp`, `CtOuterTheta3` (F1, `ct:outer` (2), the closed form of `θ₃^±`; proved, unconditional): `theta_three_eq` (`θ_ε'''(0)/6 = ctTheta3 ε`), `ctThetaValuesTarget` (discharges `CtThetaValuesTarget`), `ct_outer_part2_taylor_values` (`θ_ε = θ₁τ + θ₃τ³ + O(τ⁵)` with the paper's constants, unconditional); support `uR2_zero` (`u_r''(0) = -7π²/60 - 1`), `deriv3_H0_zero_uR`, `c3_1t2_value` (`c_{3,1t2} = ζ(3)/2 - 1/3`), `integral_rP`, `tendsto_alt_zeta3`. 
+* `FormalResearch.SignUncertainty.CtOuterBdryIm`, `CtOuterLogId`, `CtOuterTilde`, `CtOuterBdryDeriv`, `CtOuterBdryEst`, `CtOuterBdryDecay`, `CtOuterCutoff`, `CtOuterPhi0`, `CtOuterAsymp`, `CtOuterPart3`, `CtOuterPart3Plus` (F1, `ct:outer` (3); proved, unconditional): `ct_outer_part3` = `θ_-(τ) = -π/2 + O((1+τ²)e^{-πτ})`, `θ_+(τ) = -π + O((1+τ²)e^{-πτ})` for `τ ≥ 1`, and for `ε = ±1`, `j ≥ 1`: `|θ_ε^{(j)}(τ)| ≤ C_j(1+τ²)e^{-π|τ|}` for `|τ| ≥ 1` and `≤ C_j'(1+|τ|)^{-j-1}` for all `τ`; via `outerTheta_neg_eq_utl` (`θ_- = -π/2 + Im h~`, `h~ = h + log(ζ(1-ζ)) + ½log(π²/6)`, the boundary functional `bdryF`), a smooth cutoff with Cauchy estimates on the compact part (`utl_deriv_bound`), the convolution bound `bdryF_decay`, and `θ_+ = θ_- - ψ`, `ψ = 2 arctan tanh(πτ/2)` (`psiF_asymp`). With this, `ct:outer` is complete.
+* `FormalResearch.SignUncertainty.CtMorseFresnel`, `CtMorseKernel`, `CtMorseHadamard`, `CtMorseExpansion` (F1, `ct:morse-expansion`; proved, unconditional; also an input of F2a `fct:warp-asymp` and `ct:cfu`): `morse_expansion` = `∫ χ B e^{±iμX²/2} = e^{±iπ/4}√(2π/μ)[Σ_{m<r} B^{(2m)}(0)/m! (±i/(2μ))^m + R]`, `‖R‖ ≤ C_{r,χ,a} M μ^{-r}` with `M` a bound for the first `2r` derivatives of `B` on `(-a,a)`; by induction on `r` (Hadamard quotient and one integration by parts per step, `morse_core`), with `cutoff_fresnel` (`∫χe^{iσμx²/2} - e^{iσπ/4}√(2π/μ) = O(μ^{-N})`) and `hadamard_bound` for the base case.
+* `FormalResearch.SignUncertainty.CtCfuSeries`, `CtCfuGerm`, `CtCfuEven`, `CtCfuTheta`, `CtCfuTaylor`, `CtCfuInv`, `CtCfuData` (F1, `ct:cfu` Step 2 data: `ct:psi-def`, `ct:psi-coeffs`, `ct:langer-inv`; proved, unconditional): `cfu_psi_langer` (`τ₀(a)`, `ψ_ε(a) = θ_ε(τ₀)/√(-a)` and `ξ = Ξ(a)`, `C^∞` at `a = 0` with `ψ₀ = (12/π²)^{1/3}θ₁`, `ψ'(0) = -(7θ₁/25 + 12θ₃/π²)`, `Ξ(0) = 1/π²` and the Langer coefficients), `langer_inv` (`cξ(-v) = c/π² + (v/β₁)c^{1/3} + (9π²/25)(v/β₁)²c^{-1/3} + O(c^{-1}v³)`). Limitation: `ψ_ε` is proved `C^∞`, not analytic, at `a = 0`; the Taylor data used downstream is unaffected. Not yet formalised: the chart `T(s;a)`, `M`/`Q_geo` and the `θ∘T` decomposition (Step 3), Steps 1, 3, 4 of `ct:cfu`.
 * `FormalResearch.SignUncertainty.HankelOneTwo` (M11, `thm:hankel-one-two` = `u1cl:main` at one level; proved, unconditional): `hankel_one_two`, `|T_c^ε - (c/π² + A c^{1/3})| ≤ C` for `ε = ±1`, `c ≥ c₀`, from `hb_thresholds_lower`, `hbThresholdsUpper` and `hankelT_sub_model_le`. The two-level (Clark) part is not formalised.
 * `FormalResearch.SignUncertainty.HbUpperM1`: `O.9'` at `m₀ = 1` (`N = Ai`): `O6Bricks`, `o6Bricks_holds : 3 ≤ m → O6Bricks m`, `hbThresholdsUpper_of_bricks`, `hbThresholdsUpper : HbThresholdsUpper`. Unconditional (the `GT.1` bounds are `gt1BasisInput`, the quotient bound is `o4QuotientBound`).
 * `FormalResearch.SignUncertainty.HankelLangerIdentity`: the series identity `π/sin(πz) - 1/z = 2∑η(2j+2)z^{2j+1}` for `0 < ‖z‖ < 1` (`langer_eta_identity`) and, for `‖z‖ < 1/8`, `log(tan(πz/2)/(πz/2)) = ∑η(2j+2)/(j+1) z^{2j+2}` with its derivative (`langer_g_hasSum`, `langer_g_eq_tsum`, `langer_g_hasDerivAt`).
@@ -461,6 +494,18 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it
   (`radial_rigidity_lower_of_compactness`).
+* `FormalResearch.SignUncertainty.UctAiryTrans` (with `UctAiryTransClosed`, `UctAiryTransOde`, `UctAiryTransAsymp`, `UctAiryTransSmall`, `UctAiryTransPhi`;
+  `uct:airy-trans`, Paper I upper bound, F2a; proved, unconditional): closed forms of `f̃₁`, `g̃₁` (Fubini), the representations
+  `uct_airy_trans_int_rep_F/g1`, asymptotics with all derivatives (`uct_airy_trans_asymp_Fstar/g1`, `uct_airy_trans_phi`), the origin expansion
+  (`uct_airy_trans_small*`), and the real-axis, local and vertical bounds (`uct_airy_trans_real/loc/vert/pos`). Not formalised: the two ray identities
+  `∫_{S±} s^{-1/2}e^{ψ}`, `∫_{S±} s^{1/2}e^{ψ}` (used only to rotate a contour, replaced by an ODE/barrier argument).
+* `FormalResearch.SignUncertainty.UctPosFloorSeed`, `UctPosFloor`, `UctPosFloorTail`, `UctPosFloorWpos` (`uct:pos-floor` (1)-(3); proved, unconditional):
+  `uct_pos_floor_one`, `uct_pos_floor_main`, `uct_pos_floor_lift`, `airyTwistedLaplace_uctSpos_floor`, `uct_pos_floor_pre_edge` (`W_pos = liftSymbol uctSpos δ₀ 4`, uniform in `δ₀ > 0`).
+* `FormalResearch.SignUncertainty.UctStripSplit`, `UctStripIntegrals` (`uct:strip-split`; proved, unconditional): `uct_H_split`, `uct_HCE_signs`, `uct_strip_split_ratios`
+  (`r_CE, r_ĥ < 1` and `1 - r_CE ≥ min(L,1)/6`), `uct_strip_split_integrals` (the three cancellation integrals). Not formalised: the small-`L` expansions with the constants `47/20`, `13/20`, `13π²/240`, `19π²/240`.
+* `FormalResearch.SignUncertainty.UctBumpSymbol` (`uct:bump-symbol`, first display only; proved, unconditional): `bump_laplace_decay` (`|B̂(c(σ+iτ))| ≤ C_r M Λ_α(δ) e^{-bcσδ}(1+cδ|τ|)^{-r}`).
+  `FormalResearch.SignUncertainty.UctBumpSymbolAdmiss`: `bump_stripM1` ((M1) of `uct:admiss` for `ΔW_c = c^{-1/3}B̂(c·)`), `bump_holder_one` ((M2) at `ζ=1`).
+  Not formalised: (M3) at `ζ = 0`, the main and reflected density bounds, the Fourier identity `(uct:E0-def)`.
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
   whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
