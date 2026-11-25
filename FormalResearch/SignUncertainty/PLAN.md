@@ -429,7 +429,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `fct:main-ce` | planned | M10 (upper bound): the CE assembly, built on F2a. Since PR 295 it is stated for real `c` (`T_c^CE <= Delta_5^-(c) + C c^{-3/4}`) and no longer cites `gt:7.12`; the integer-`d` radius uses only `lem:ce-schwartz` with empty strict set (in Lean: `ce_schwartz_radius_eq_L1_radius`). Its proof now has an explicit admissibility step (`uct:admiss` for every summand of `fct:Wce-negh`, citing `ct:outer` (3), `fct:phikill` (1), `fct:comp-D` (1), `fct:F-38-bnd`), so `ct:outer` (3) is an F2b input |
 | `fct:ce-band` | planned | M10 (upper bound): the same two-regime argument as `fct:warp-asymp` (3) (one lemma in Lean); applies the maximum principle to `g_D''` citing `fct:comp-D` (1), stated for `g_D`, `g_D'` only (section 1.3a) |
 | `fct:ce-preedge` | planned | M10 (upper bound); uses `uct:gen-preedge`, `uct:ce-band`, `ct:dual-id`, `cel:L3a` |
-| `uct:outer-growth` | planned | M10 (upper bound); cited only by `fct:ce-band`; takes `ct:outer` |
+| `uct:outer-growth` | done | `UctOuterGrowth`: `norm_exp_neg_outerHbar_le`, `outerGbar_inv_le`, `outerHbar_zero/one`, `exists_holo_H1` (disc bounds off the closed strip not stated separately). Also needed by `uct:seed-asymp` (the `W^seed` admissibility) |
 | `uct:gen-preedge` | planned | M10 (upper bound); cited only by `fct:ce-preedge`; interface with `cel:total-saddle` (first order) and `cel:L3a` (2) |
 | `uct:ce-band` | planned | M10 (upper bound); combined holomorphic amplitude `A = e^{i theta} M` on a lower half-disc, `A(0) = 1` |
 
