@@ -329,7 +329,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `cepf:PF3` | done | `pf3_kernel_bound`, `pf3_kernel_bound_uniform` |
 | `cel:L3a` | partial | `OriginMellinAndS0` (two-edge multiplier, `O(|z|^{1/2})` origin modulus); (2) for a single-strip multiplier `W~(1 - z/c)` with a Holder modulus: `ceOrigin_shift`, `integral_Gamma_mul_one_sub_four` (`CeGenOrigin`; what `uct:gen-preedge` (2) uses). Open: the Dini modulus, the two-edge multiplier `W_S + W_D` (needed by `cepe:PE3`), `G_c(-iy) = conj G_c(iy)` |
 | `cel:L4` | done | `SaddleGeometry` (items (2), (3) as in the TeX) |
-| `cel:L5` | partial | `lobe_saddle_asymptotic` (two-edge, stated with `C_* = 430`), first-order total form `cel:total-saddle`: `lobe_total_saddle` (`C_* = 150`). Missing: second-order `cel:total-saddle-2` (input of `cepe:abs-saddle`) |
+| `cel:L5` | partial | `lobe_saddle_asymptotic` (two-edge, stated with `C_* = 150`), first-order total form `cel:total-saddle`: `lobe_total_saddle` (`C_* = 150`). Missing: second-order `cel:total-saddle-2` (input of `cepe:abs-saddle`) |
 | `cel:L7` | done | `integral_cos_sq_ge` (`SaddleGeometry`) |
 
 **D2. Cohn-Elkies radius layer: finite dimensions, Schwartz vs `L^1` infimum, density** (`ce_finite_bounds.tex`, `ce_radius.tex`). Lean: `CohnElkies/{FiniteDimensionCrossings,FiniteGaussianBase,CohnElkiesRadius}`.

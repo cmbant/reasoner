@@ -8,8 +8,9 @@ public import FormalResearch.CohnElkies.ComplexEdgePhase
 # Lemma T.3 completed (`mat:T3`): vertical-line identities and integrated bounds
 
 Source: `CFT/sign_uncertainty/paper/mellin_airy_toolkit.tex`, Lemma T.3 (`mat:T3`), parts (3)-(5).
-Part (1), (2) and the first identity of part (3) are not proved here (see the report of this
-file's task); the strip derivative below is what parts (3)-(5) need.
+Part (1), (2) and the first identity of part (3) are not proved here: the first identity is
+`mellinPhi_re_vertical` (`LobeSaddleCore.lean`, all real `τ`); the strip derivative below is what
+parts (3)-(5) need.
 
 ## Main declarations
 * `hasDerivAt_stripS0Tilde`: `d/dζ S̃₀(ζ) = g(ζ)` on the strip `|Re ζ| < 1`, by differentiation

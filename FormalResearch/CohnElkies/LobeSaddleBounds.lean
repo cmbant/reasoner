@@ -889,7 +889,7 @@ theorem lobe_saddle_asymptotic {Δ₁ U c Δ ξ σ_star : ℝ}
     (mellinK0 c (σ_star : ℂ) ξ).im = 0 ∧ 0 < K₀ ∧ I_val.im = 0 ∧
       |(I_val.re - L_lead) / L_lead| ≤
         (8 * amp.M + 54 * amp.Λ + 109) * saddleEpsL c σ_star +
-          430 * amp.Λ_add * (ε / W₀) * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
+          150 * amp.Λ_add * (ε / W₀) * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
   dsimp only
   have hc_pos : 0 < c := by linarith [(le_max_left _ _).trans hc]
   have hξ_pos : 0 < ξ := by rw [hξ]; exact div_pos (by linarith) hc_pos
@@ -930,19 +930,11 @@ theorem lobe_saddle_asymptotic {Δ₁ U c Δ ξ σ_star : ℝ}
   change |(I_val.re - L_lead) / L_lead| ≤ _
   rw [h_lhs_eq, abs_div, abs_of_pos hW₀_pos, div_le_iff₀ hW₀_pos]
   rw [hV_re] at htot
-  have h150_le : 150 * amp.Λ_add * c ^ (-(1 / 3 : ℝ)) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star))) ≤
-      430 * amp.Λ_add * c ^ (-(1 / 3 : ℝ)) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star))) := by
-    have hnn : 0 ≤ amp.Λ_add * c ^ (-(1 / 3 : ℝ)) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star))) := by
-      have := amp.hΛ_add; positivity
-    linarith only [hnn]
   calc |(2 * π * ξ * I_val.re) / (K₀ * Real.sqrt (2 * π) * τ_sd) - W₀|
       ≤ (8 * amp.M + 54 * amp.Λ + 109) * W₀ * saddleEpsL c σ_star +
           150 * amp.Λ_add * c ^ (-(1 / 3 : ℝ)) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star))) := htot
-    _ ≤ (8 * amp.M + 54 * amp.Λ + 109) * W₀ * saddleEpsL c σ_star +
-          430 * amp.Λ_add * c ^ (-(1 / 3 : ℝ)) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star))) := by
-        linarith only [h150_le]
     _ = ((8 * amp.M + 54 * amp.Λ + 109) * saddleEpsL c σ_star +
-          430 * amp.Λ_add * (c ^ (-(1 / 3 : ℝ)) / W₀) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star)))) * W₀ := by
+          150 * amp.Λ_add * (c ^ (-(1 / 3 : ℝ)) / W₀) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star)))) * W₀ := by
         field_simp [hW₀_pos.ne']
 
 /-- Explicit non-vacuous witness satisfying `LobeSaddleAmp` and `lobe_saddle_asymptotic`. -/
