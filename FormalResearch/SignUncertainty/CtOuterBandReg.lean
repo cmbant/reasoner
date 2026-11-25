@@ -148,6 +148,22 @@ lemma region_bound (hM : MData C0 m m1 m2 m3) {γ KB lam L a b : ℝ} (hγ : 0 <
   have := div_le_div_of_nonneg_right hint hl2.le
   linarith
 
+/-- Continuity of the second-order integrand. -/
+lemma continuousOn_ibpQ {S : Set ℝ} {B B1 B2 : ℝ → ℂ} {ϕ1 ϕ2 ϕ3 : ℝ → ℝ} (hcB : ContinuousOn B S)
+    (hcB1 : ContinuousOn B1 S) (hc2 : ContinuousOn B2 S) (h1 : ContinuousOn ϕ1 S) (h2 : ContinuousOn ϕ2 S)
+    (h3 : ContinuousOn ϕ3 S) (hne : ∀ τ ∈ S, ϕ1 τ ≠ 0) :
+    ContinuousOn (fun x => ibpQ B B1 B2 ϕ1 ϕ2 ϕ3 x) S := by
+  have hC1 : ContinuousOn (fun τ => ((ϕ1 τ : ℝ) : ℂ)) S := Complex.continuous_ofReal.comp_continuousOn h1
+  have hC2 : ContinuousOn (fun τ => ((ϕ2 τ : ℝ) : ℂ)) S := Complex.continuous_ofReal.comp_continuousOn h2
+  have hC3 : ContinuousOn (fun τ => ((ϕ3 τ : ℝ) : ℂ)) S := Complex.continuous_ofReal.comp_continuousOn h3
+  have hneC : ∀ τ ∈ S, ((ϕ1 τ : ℝ) : ℂ) ≠ 0 := fun τ hτ => by exact_mod_cast hne τ hτ
+  unfold ibpQ
+  refine ContinuousOn.add (ContinuousOn.sub (ContinuousOn.sub ?_ ?_) ?_) ?_
+  · exact hc2.div (hC1.pow 2) (fun τ hτ => pow_ne_zero 2 (hneC τ hτ))
+  · exact ((continuousOn_const.mul hcB1).mul hC2).div (hC1.pow 3) (fun τ hτ => pow_ne_zero 3 (hneC τ hτ))
+  · exact (hcB.mul hC3).div (hC1.pow 3) (fun τ hτ => pow_ne_zero 3 (hneC τ hτ))
+  · exact ((continuousOn_const.mul hcB).mul (hC2.pow 2)).div (hC1.pow 4) (fun τ hτ => pow_ne_zero 4 (hneC τ hτ))
+
 end
 
 end FormalResearch.SignUncertainty.CtOsc
