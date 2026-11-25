@@ -183,6 +183,24 @@ public import FormalResearch.SignUncertainty.CtOuterRatInt
 public import FormalResearch.SignUncertainty.CtOuterK
 public import FormalResearch.SignUncertainty.CtOuterP3
 public import FormalResearch.SignUncertainty.CtOuterTheta1
+public import FormalResearch.SignUncertainty.BinetP2
+public import FormalResearch.SignUncertainty.BinetGamma
+public import FormalResearch.SignUncertainty.BinetFubini
+public import FormalResearch.SignUncertainty.BinetDecay
+public import FormalResearch.SignUncertainty.BinetFract
+public import FormalResearch.SignUncertainty.BinetVertical
+public import FormalResearch.SignUncertainty.BinetSmall
+public import FormalResearch.SignUncertainty.CtDualIdBinet
+public import FormalResearch.SignUncertainty.CtOuterGen
+public import FormalResearch.SignUncertainty.CtOuterU2
+public import FormalResearch.SignUncertainty.CtOuterU2Zero
+public import FormalResearch.SignUncertainty.CtOuterThird
+public import FormalResearch.SignUncertainty.CtOuterC3
+public import FormalResearch.SignUncertainty.CtOuterG3Rat
+public import FormalResearch.SignUncertainty.CtOuterG3Zeta
+public import FormalResearch.SignUncertainty.CtOuterG3Main
+public import FormalResearch.SignUncertainty.CtOuterG3Ibp
+public import FormalResearch.SignUncertainty.CtOuterTheta3
 public import FormalResearch.SignUncertainty.HankelLangerIdentity
 public import FormalResearch.SignUncertainty.HankelWtConj
 public import FormalResearch.SignUncertainty.EuclidSplit
@@ -367,6 +385,8 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.CtOuter*` (F1, `ct:outer` of `constant_terms_lower.tex`; proved, unconditional, except as stated): `ct_outer_part1` (the Mellin-strip outer function `G_ε` is holomorphic on the strip, continuous on the closed strip, real-symmetric, has parity `G_ε(1-ζ) = -εG_ε(ζ)`, the boundary modulus `ct:Gmod` and the `(1+|τ|)^{-1}` bound), `ct_outer_part2_structure` (the boundary phase `θ_ε`: phase identity, odd, `C^∞`, holomorphic on `|τ| < 1/2`, `ct:theta-form` as `outerTheta_minus`, `outerTheta_plus`), `ct_outer_part2_taylor` (`θ_ε = θ₁τ + θ₃τ³ + O(τ⁵)` with `θ₁ = θ_ε'(0)` an explicit integral). Not formalised: the closed forms `θ₁⁻ = -3log2 + I₀`, `θ₃^±` and `c_{3,h}` (stated as the unproved Prop `CtThetaValuesTarget`, used by no headline; `ct_outer_part2_taylor_values` assumes it), and clause (3) (large-`τ` asymptotics and derivative bounds).
 * `FormalResearch.SignUncertainty.CtOuterSinhIneq`, `CtOuterFrullani`, `CtOuterP2` (F1, sub-step of the closed form of `θ₁⁻` in `ct:outer` (2); proved): `integral_inv_mul_invSinh_sub` (`∫₀^∞ y⁻¹(1/sinh y - 1/y) dy = -log 2`, Mathlib's Frullani integral) and `integral_log_ratio_mul_cosh_div_sinh_sq` (`J₁ = ∫₀^∞ log(y/sinh y) cosh y/sinh² y dy = -log 2`, the "evaluation of `a_mp`" of the TeX proof), plus elementary `sinh` inequalities.
 * `FormalResearch.SignUncertainty.CtOuterMittag`, `CtOuterAltHarm`, `CtOuterRatInt`, `CtOuterK`, `CtOuterP3`, `CtOuterTheta1` (F1, `ct:outer` (2), the closed form of `θ₁^±`; proved, unconditional): `theta_one_minus` (`θ₁⁻ = -3log2 + I₀`), `theta_one_plus` (`θ₁⁺ = θ₁⁻ - π`), `deriv_outerTheta_zero_eq_ctTheta1`, `ct_outer_part2_taylor_theta1` (the Taylor statement of the TeX with the paper's `θ₁`, `θ₃` existential); support: `csc_hasSum_im` and `hasSum_mPrime` (Mittag-Leffler series for `π/sin πz - 1/z` and `m'`, without the `‖z‖<1` restriction), `tendsto_altHarm`, `integral_rat'`, `integral_t_mPrime_div`, `integral_ctU3_mul` (`a_{1t2}`). Not formalised: `θ₃^±`, hence `CtThetaValuesTarget` stays open, and clause (3).
+* `FormalResearch.SignUncertainty.CtDualIdBinet` and `BinetP2`, `BinetGamma`, `BinetFubini`, `BinetDecay`, `BinetFract`, `BinetVertical`, `BinetSmall` (F1, `ct:dual-id` (1); proved, unconditional): `ct_dual_id_part1` = the vertical-line decay `|∂_τ^r B_c(iτ)| ≤ C_r/(c(1+|τ|)^{r+1})` (`binetDiff_vertical_decay`, constant `r!4^r`), the holomorphic extension to `Im τ > -1` (`differentiableOn_binetDiff_vertical`) and `B_c(iτ) = iτ/(12c(1-iτ)) + O(c⁻³|τ|)` (`binetDiff_small`, constant 8, valid for every `c > 0` and real `τ`); the route is the `P₂` Fubini representation `B^{(r)}(w) = (-1)^r(r+1)!∫₀^∞ P₂(s)(s+w)^{-(r+2)}ds`, not repeated integration by parts.
+* `FormalResearch.SignUncertainty.CtOuterGen`, `CtOuterU2`, `CtOuterU2Zero`, `CtOuterThird`, `CtOuterC3`, `CtOuterG3Rat`, `CtOuterG3Zeta`, `CtOuterG3Main`, `CtOuterG3Ibp`, `CtOuterTheta3` (F1, `ct:outer` (2), the closed form of `θ₃^±`; proved, unconditional): `theta_three_eq` (`θ_ε'''(0)/6 = ctTheta3 ε`), `ctThetaValuesTarget` (discharges `CtThetaValuesTarget`), `ct_outer_part2_taylor_values` (`θ_ε = θ₁τ + θ₃τ³ + O(τ⁵)` with the paper's constants, unconditional); support `uR2_zero` (`u_r''(0) = -7π²/60 - 1`), `deriv3_H0_zero_uR`, `c3_1t2_value` (`c_{3,1t2} = ζ(3)/2 - 1/3`), `integral_rP`, `tendsto_alt_zeta3`. Only clause (3) of `ct:outer` remains.
 * `FormalResearch.SignUncertainty.HankelOneTwo` (M11, `thm:hankel-one-two` = `u1cl:main` at one level; proved, unconditional): `hankel_one_two`, `|T_c^ε - (c/π² + A c^{1/3})| ≤ C` for `ε = ±1`, `c ≥ c₀`, from `hb_thresholds_lower`, `hbThresholdsUpper` and `hankelT_sub_model_le`. The two-level (Clark) part is not formalised.
 * `FormalResearch.SignUncertainty.HbUpperM1`: `O.9'` at `m₀ = 1` (`N = Ai`): `O6Bricks`, `o6Bricks_holds : 3 ≤ m → O6Bricks m`, `hbThresholdsUpper_of_bricks`, `hbThresholdsUpper : HbThresholdsUpper`. Unconditional (the `GT.1` bounds are `gt1BasisInput`, the quotient bound is `o4QuotientBound`).
 * `FormalResearch.SignUncertainty.HankelLangerIdentity`: the series identity `π/sin(πz) - 1/z = 2∑η(2j+2)z^{2j+1}` for `0 < ‖z‖ < 1` (`langer_eta_identity`) and, for `‖z‖ < 1/8`, `log(tan(πz/2)/(πz/2)) = ∑η(2j+2)/(j+1) z^{2j+2}` with its derivative (`langer_g_hasSum`, `langer_g_eq_tsum`, `langer_g_hasDerivAt`).
