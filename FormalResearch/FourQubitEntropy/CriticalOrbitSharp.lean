@@ -45,7 +45,7 @@ theorem Gv_e0_apply (a b c d : Fin 2) :
     Gv e0 a b c d = (if a = b then rt else 0) * (if c = d then rt else 0) := by
   show (magicB * Matrix.diagonal e0 * magicBᵀ) (a, b) (c, d) = _
   fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;>
-  simp [Matrix.mul_apply, Matrix.diagonal_apply, magicB, e0, Fintype.sum_prod_type, Fin.sum_univ_two]
+  simp [Matrix.mul_apply, Matrix.diagonal_apply, Function.swap, magicB, e0, Fintype.sum_prod_type, Fin.sum_univ_two]
 
 theorem Nv_e0 : Nv e0 = 1 := by
   simp [Nv, e0, Fintype.sum_prod_type, Fin.sum_univ_two]

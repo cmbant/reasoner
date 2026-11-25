@@ -1959,7 +1959,7 @@ private lemma stepB_integral_bound {c' σ a₀ Sa0 A M₀ C_I R_tail ε : ℝ}
     have hcm := cumulN_strictMonoOn h1 (h1.trans h2.le) h2
     dsimp [φ]; linarith only [mul_lt_mul_of_pos_left hcm hc'_pos]
   have hφ_inj : InjOn φ (Set.Ioo 0 Sa0) :=
-    (hφ_strictMono.mono fun _ hx => Set.mem_Ici.mpr hx.1.le).injOn
+    (hφ_strictMono.mono fun _ (hx : _ ∈ Set.Ioo (0 : ℝ) _) => Set.mem_Ici.mpr hx.1.le).injOn
   have hφ_im : φ '' Set.Ioo 0 Sa0 = Set.Ioo (1 / 4 : ℝ) a₀ := by
     ext y
     constructor

@@ -205,7 +205,7 @@ private lemma integral_log_zero_le_bound {c : ℝ} (hc0 : 0 ≤ c) :
     rcases le_total y 1 with hy1 | hy1
     · have hanti : AntitoneOn (fun t => t * Real.log t - t) (Icc y 1) :=
         antitoneOn_of_deriv_nonpos (convex_Icc y 1)
-          ((continuousOn_id.mul (Real.continuousOn_log.mono fun t ht =>
+          ((continuousOn_id.mul (Real.continuousOn_log.mono fun t (ht : t ∈ Icc y 1) =>
             (lt_of_lt_of_le hy ht.1).ne')).sub continuousOn_id)
           (fun t ht => by
             rw [interior_Icc] at ht
@@ -226,7 +226,7 @@ private lemma integral_log_zero_le_bound {c : ℝ} (hc0 : 0 ≤ c) :
       exact hval
     · have hmono : MonotoneOn (fun t => t * Real.log t - t) (Icc 1 y) :=
         monotoneOn_of_deriv_nonneg (convex_Icc 1 y)
-          ((continuousOn_id.mul (Real.continuousOn_log.mono fun t ht =>
+          ((continuousOn_id.mul (Real.continuousOn_log.mono fun t (ht : t ∈ Icc 1 y) =>
             (lt_of_lt_of_le zero_lt_one ht.1).ne')).sub continuousOn_id)
           (fun t ht => by
             rw [interior_Icc] at ht

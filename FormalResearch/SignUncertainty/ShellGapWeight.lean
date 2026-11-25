@@ -369,7 +369,7 @@ lemma regionI_weighted {c y ε : ℝ} {g : ℝ → ℝ} (hc : 56 ≤ c) (hy : 0 
     have hmaj : IntegrableOn (fun Δ : ℝ => K * Real.exp (-(10 * (P - Δ) / t))) (Ioo Δ₁ U) :=
       hGc.integrableOn_Icc.mono_set Ioo_subset_Icc_self
     have hint : IntegrableOn (fun Δ => |g Δ| * hankelRho0 c Δ * laplaceWeight c y Δ) (Ioo Δ₁ U) := by
-      refine Integrable.mono' hmaj ((hcont.mono fun Δ hΔ => lt_trans hΔ₁pos hΔ.1).aestronglyMeasurable
+      refine Integrable.mono' hmaj ((hcont.mono fun Δ (hΔ : Δ ∈ Ioo Δ₁ U) => lt_trans hΔ₁pos hΔ.1).aestronglyMeasurable
         measurableSet_Ioo) ?_
       refine ae_restrict_of_forall_mem measurableSet_Ioo fun Δ hΔ => ?_
       have hΔ0 : 0 < Δ := lt_trans hΔ₁pos hΔ.1

@@ -40,7 +40,7 @@ theorem quadFam_eq_Gv (x y : ℝ) : quadFam x y = Gv (qfVec x y) := by
     rw [pow_succ, Complex.I_sq]; ring
   funext a b c d
   fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;>
-  simp [quadFam, Gv, ofZmat, qfVec, Matrix.mul_apply, Matrix.diagonal_apply, Matrix.transpose_apply,
+  simp [quadFam, Gv, ofZmat, qfVec, Matrix.mul_apply, Matrix.diagonal_apply, Matrix.transpose_apply, Function.swap,
     magicB, Fintype.sum_prod_type, Fin.sum_univ_two] <;>
   first | done | linear_combination (-(x : ℂ)) * hrt2 |
     (ring_nf; simp only [hrt2, hI3]; ring)

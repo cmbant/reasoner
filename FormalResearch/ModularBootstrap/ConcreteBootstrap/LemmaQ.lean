@@ -1352,7 +1352,7 @@ theorem lemmaQ_part3At {b c' T : ℝ} (hb_pos : 0 < b) (hb_le : b ≤ virasoroBV
           volume t_lo T :=
         (((ContinuousOn.sup continuousOn_const hg.1.cont.neg).mul
           (continuous_cardyV virasoroProblem (c' / 12)).continuousOn).mono
-          (fun t ht => ht_lo_pos.trans ht.1)).intervalIntegrable_of_Icc hT_lo
+          (fun t (ht : t ∈ Set.Icc (_ : ℝ) _) => ht_lo_pos.trans ht.1)).intervalIntegrable_of_Icc hT_lo
       have hsplit_neg : (∫ t in (0 : ℝ)..t_lo, max 0 (-g t) * virasoroProblem.cardyV (c' / 12) t) +
             (∫ t in t_lo..T, max 0 (-g t) * virasoroProblem.cardyV (c' / 12) t) =
           ∫ t in (0 : ℝ)..T, max 0 (-g t) * virasoroProblem.cardyV (c' / 12) t :=

@@ -1770,7 +1770,7 @@ theorem lemmaQ_general_part3 {prob : FixedWeightProblem} (D : UniformProposition
             (continuous_cardyV prob (c' / 12)).continuousOn
         exact (intervalIntegral.integral_add_adjacent_intervals
           ((hcont_neg.mono Icc_subset_Ici_self).intervalIntegrable_of_Icc ht_lo_pos)
-          ((hcont_neg.mono (fun t ht => ht_lo_pos.trans ht.1)).intervalIntegrable_of_Icc hT_lo)).symm
+          ((hcont_neg.mono (fun t (ht : t ∈ Set.Icc (_ : ℝ) _) => ht_lo_pos.trans ht.1)).intervalIntegrable_of_Icc hT_lo)).symm
       have hneg_lobe_le : ∫ t in (0 : ℝ)..t_lo, max 0 (-g t) * prob.cardyV (c' / 12) t ≤
           ∫ t in (0 : ℝ)..t_lo, |g t| * prob.cardyV (c' / 12) t := by
         have hcont_neg : ContinuousOn (fun t : ℝ => max 0 (-g t) * prob.cardyV (c' / 12) t) (Icc 0 t_lo) :=
@@ -1819,7 +1819,7 @@ theorem lemmaQ_general_part3 {prob : FixedWeightProblem} (D : UniformProposition
         hg.1.cont.mul (continuous_cardyV prob (c' / 12)).continuousOn
       exact (intervalIntegral.integral_add_adjacent_intervals
         ((hcont.mono Icc_subset_Ici_self).intervalIntegrable_of_Icc ht_lo_pos)
-        ((hcont.mono (fun t ht => ht_lo_pos.trans ht.1)).intervalIntegrable_of_Icc ht_lo_hi)).symm
+        ((hcont.mono (fun t (ht : t ∈ Set.Icc (_ : ℝ) _) => ht_lo_pos.trans ht.1)).intervalIntegrable_of_Icc ht_lo_hi)).symm
     have hgv_le0 : ∫ t in Ioi (0 : ℝ), g t * prob.cardyV (c' / 12) t ≤ 0 := by
       have := hg.2.2.1; unfold FixedWeightProblem.gVac at this; nlinarith [Real.pi_pos]
     have hgv_0_hi : ∫ t in (0 : ℝ)..t_hi, g t * prob.cardyV (c' / 12) t ≤ 0 := by
