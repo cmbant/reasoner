@@ -61,7 +61,7 @@ Package ids are from section 6.1, milestones from section 3. Nothing in this sec
 ### 2.1 `thm:intro-radii` (five terms): M11 -> B3 -> C1 -> F1 -> F2 -> F3 -> density
 
 1. **M11**, `u1cl:main`: done at one level (`hankel_one_two`). Used by `constant_terms_lower`.
-2. **B3**: `u1cl:langer` (Lemma L.2, S-M; a corollary of `gt:7.7b` (iv), already in Lean) and the clauses of `gt:7.7p` (d) that the lower bound cites (cut-crossing constant; `gt:7.7p` is cited ten times in `constant_terms_lower`).
+2. **B3**: `u1cl:langer` done (`u1cl_langer`); the clauses of `gt:7.7p` (d) that the lower bound cites (cut-crossing constant; `gt:7.7p` is cited ten times in `constant_terms_lower`).
 3. **C1**: `uct:admiss` (Lemma T.8, M) and `ceo:O11ak` for general seeds (M; `exists_hankelEigenfn_lift_general` exists modulo `ConvTailData`). Both are used by `constant_terms_upper`.
 4. **F1** (L): `ct:outer` first (it is also the input of F2), then `ct:dual-id`, `ct:cfu`, `ct:morse-expansion` (finite real stationary phase), `ct:boas`, `ct:dyadic`; `ct:boas` is now proved from the finite Fejér inequality `ct:fejer` (only `g in L^1` needed), not pointwise Poisson periodization, so no Poisson summation formula is required; `ct:dyadic` closes by absorption at a fixed dyadic depth; gives the five-term lower bound and the lower half of `eq:ct-split`. Inputs already in Lean: `mat:T1`, `mat:T4`, `gt:7.7b`, `gt:7.7c`, `radial_compactness`, `airy_defect_bound`, `hb_thresholds_lower`.
 5. **F2** (L, largest): the `uct:*` lemmas (`outer-growth`, `airy-trans`, `pos-floor`, `strip-split`, `bump-est`, `bump-symbol`, `bump-weighted`, `seed-asymp`, `gen-preedge`), then the `fct:*` chain (`moment-solver`, `comp-D`, `comp-cfu`, `phikill`, `warp-asymp`, `splitting`, `bump-5`, `cusp-edge`, `unscaled-cusp`, `physical-budget`, `physical-positive`) to `fct:main-hankel`; then `fct:ce-band`, `fct:ce-preedge` (with `uct:ce-band`) to `fct:main-ce`. Inputs already in Lean: `u1co:O3`-`O5` at one level, `airySquare_gaussian_transform`, `lobe_saddle_asymptotic`, `cel:L3a`/`L4`/`L7`, `mat:T1`-`T4`; F2 needs `cel:L3a` in its single-strip-multiplier form (Dini modulus at the origin) and `cel:L5` in its total-multiplier form (`cel:total-saddle`, `cel:total-saddle-2`, used by `uct:gen-preedge`), which extend the Lean `OriginMellinAndS0` and `lobe_saddle_asymptotic` (M). **Formalisation shape (PR 287):** one shared lemma per mechanism, instantiated twice: the bump symbol class `uct:bump-symbol`/`uct:bump-weighted` at both cutoff scales (replaces degree-21 coefficient bookkeeping), `fct:cusp-edge` for every reflected cusp term, `fct:moment-solver` for any fixed number of moments, the scalar cubic chart `fct:comp-cfu` (no function-space implicit-function theorem), and the four-band criterion `fct:physical-budget`/`fct:physical-positive` for both the Hankel and the CE construction. The CE Fourier edge keeps its own regularized Airy-square calculation.
@@ -87,7 +87,7 @@ Steps 1 to 3 are independent. F2 needs from F1 `ct:outer` (the outer function `G
 
 ### 2.4 Next concrete packages (headline paths only)
 
-1. **Start now (tier 1, `thm:intro-radii`):** `u1cl:langer` (S-M); in parallel C1's `uct:admiss` (T.8, M). None needs another package.
+1. **Start now (tier 1, `thm:intro-radii`):** (`u1cl:langer` done; `uct:admiss` (1), (2) done) C1's remaining part (3) and `ceo:O11ak` for general seeds. None needs another package.
 2. **Then:** F1's first block, `ct:outer` and `ct:dual-id` (`constant_terms_lower.tex`), on proved inputs only (`mat:T1`, `mat:T4`, `gt:7.7b`); `ct:outer` unblocks F2.
 3. **Continue, scoped to what the headlines use:** M6 step (a), the `CeSourceFamily` instance for `convSource` (the `ConvSource*` symbol bounds and pre-edge estimates also feed F2), and the `m_0 = 1` lift that `thm:intro-gap` (iii) needs.
 4. **Second headline lane once two slots are free:** `thm:intro-gap` (iv) through M9 (E2), beginning with `thm:airy-square-attained` (needs only proved inputs: `airyNC_quadrature`, `airyAiC_logDeriv_mittagLeffler`).
@@ -248,8 +248,8 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 |---|---|---|
 | `gt:7.7b` | done | `HankelLangerU/Y/Real/ChartMain` (`u = zeta^2` form), `HankelLangerIdentity` |
 | `gt:7.7c` | done | `HankelLocalDensity`, `HankelLocalEnvelope` (envelope `(e71)`), `HankelLocalHolo` |
-| `gt:7.7p` | partial | `hankel_tail_le`, `hankel_psi_neg_mass`, `HankelTransport*` for `c >= 3e6` with weaker constants (tail `c/40000`); the explicit cut-crossing constant and the two-level `C^1` stability (`alpha != 0`) of part (d) are not stated |
-| `u1cl:langer` | planned | M8 (S-M): corollary of `gt:7.7b` (iv); no declaration yet |
+| `gt:7.7p` | partial | `hankelPsi_cut_bound`, `hankelPsi_deriv_bound` (`HankelPsiCutBound`, explicit non-TeX constants), `hankel_tail_le`, `hankel_psi_neg_mass`, `HankelTransport*` for `c >= 3e6` with weaker constants (tail `c/40000`); the explicit cut-crossing constant and the two-level `C^1` stability (`alpha != 0`) of part (d) are not stated |
+| `u1cl:langer` | done | `u1cl_langer` (`HankelLangerComparability`); band clause at `zeta = i tau_0`, not as a limit |
 | `u1cl:rep` | partial | `HankelEdgeRep`, `HankelStripInversion`, `HankelBandInstance` for the one-level Hankel problem; the weighted-Mellin clause (`u1cl:weighted-mellin`) is not stated |
 
 **C1. Mellin-Airy toolkit and symbol transfer** (`mellin_airy_toolkit.tex`). Lean: `CohnElkies/Mellin*`, `AirySymbolTransfer`, `SeedSymbolDerivs`, `Gt1*`, `MiddleBand*`, `MellinLift*`, `Asymptotics/BinetRemainder` (about 25k lines).
@@ -264,9 +264,9 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `cegt:GT1` | partial | `gt1BasisInput` (basis seeds `f_1, g_1, g_1'` times the spline multiplier, `m >= 3`); other seed families not stated |
 | `cegt:GT1s` | done | `gt1s_scalar_airy_symbol_transfer` |
 | `cegt:GT2a` | partial | `middle_transfer_gt1` for `HasU2` seeds (cut in `tau`, not in `theta` as in the TeX); the hypothesis `Gt1Bounds` is supplied by `gt1BasisInput` |
-| `mat:T7` | done | `MellinLiftData.mellin_mellinInv`, `mellin_inversion_f` |
+| `mat:T7` | done (general `W`: (a), (b) by `admiss_lift_tendsto`, `admiss_vert_rep`) | `MellinLiftData.mellin_mellinInv`, `mellin_inversion_f` |
 | `ceo:O11ak` | partial | `exists_hankelEigenfn_lift` (one-level seeds, `m >= 3`); `exists_hankelEigenfn_lift_general` (general seeds) takes the tail structure `ConvTailData` as a hypothesis; the fixed-`c` `L^1`-kernel form is not stated |
-| `uct:admiss` | planned | M10 (M): only `constant_terms_upper` uses it; no declaration yet |
+| `uct:admiss` | partial | parts (1), (2): `uct_admiss` (`StripAdmiss*`; `admiss_tail`, `admiss_vert_rep`, `edge_integral_tail`); part (3) (reflection, `f ∈ A_c^eps`) not formalised, it needs the Hankel transform of a general lift and (M3) for `g_1`. `edge_integral_tail` gives the two bounds of `ConvTailData` once `StripEdge0 (1/2)` holds for the symbol traces |
 
 **C2. Upper O-chain at one level (`U.*`, `O.*`, hb-seed-mass, `O.9'`)** (`u1c_o1_upper.tex`). Lean: `CohnElkies/AirySeedFloors`, `AirySeedSymbols`, `PieceC*`, `HighBand*`, `DualBoundE3`, `CubicNormalForm*`, `O4*`, `MiddleBand*`, `WindowTranslation`, `HbUpperM1` (about 25k lines).
 
