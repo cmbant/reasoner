@@ -280,6 +280,13 @@ public import FormalResearch.SignUncertainty.CeSourceFamilyWitness
 public import FormalResearch.SignUncertainty.ConvSourceSymbol
 public import FormalResearch.SignUncertainty.ConvSourceSymbolIBP
 public import FormalResearch.SignUncertainty.ConvSourceSymbolBounds
+public import FormalResearch.SignUncertainty.UctAiryTrans
+public import FormalResearch.SignUncertainty.UctPosFloor
+public import FormalResearch.SignUncertainty.UctPosFloorTail
+public import FormalResearch.SignUncertainty.UctPosFloorWpos
+public import FormalResearch.SignUncertainty.UctStripSplit
+public import FormalResearch.SignUncertainty.UctStripIntegrals
+public import FormalResearch.SignUncertainty.UctBumpSymbol
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -486,6 +493,17 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it
   (`radial_rigidity_lower_of_compactness`).
+* `FormalResearch.SignUncertainty.UctAiryTrans` (with `UctAiryTransClosed`, `UctAiryTransOde`, `UctAiryTransAsymp`, `UctAiryTransSmall`, `UctAiryTransPhi`;
+  `uct:airy-trans`, Paper I upper bound, F2a; proved, unconditional): closed forms of `f̃₁`, `g̃₁` (Fubini), the representations
+  `uct_airy_trans_int_rep_F/g1`, asymptotics with all derivatives (`uct_airy_trans_asymp_Fstar/g1`, `uct_airy_trans_phi`), the origin expansion
+  (`uct_airy_trans_small*`), and the real-axis, local and vertical bounds (`uct_airy_trans_real/loc/vert/pos`). Not formalised: the two ray identities
+  `∫_{S±} s^{-1/2}e^{ψ}`, `∫_{S±} s^{1/2}e^{ψ}` (used only to rotate a contour, replaced by an ODE/barrier argument).
+* `FormalResearch.SignUncertainty.UctPosFloorSeed`, `UctPosFloor`, `UctPosFloorTail`, `UctPosFloorWpos` (`uct:pos-floor` (1)-(3); proved, unconditional):
+  `uct_pos_floor_one`, `uct_pos_floor_main`, `uct_pos_floor_lift`, `airyTwistedLaplace_uctSpos_floor`, `uct_pos_floor_pre_edge` (`W_pos = liftSymbol uctSpos δ₀ 4`, uniform in `δ₀ > 0`).
+* `FormalResearch.SignUncertainty.UctStripSplit`, `UctStripIntegrals` (`uct:strip-split`; proved, unconditional): `uct_H_split`, `uct_HCE_signs`, `uct_strip_split_ratios`
+  (`r_CE, r_ĥ < 1` and `1 - r_CE ≥ min(L,1)/6`), `uct_strip_split_integrals` (the three cancellation integrals). Not formalised: the small-`L` expansions with the constants `47/20`, `13/20`, `13π²/240`, `19π²/240`.
+* `FormalResearch.SignUncertainty.UctBumpSymbol` (`uct:bump-symbol`, first display only; proved, unconditional): `bump_laplace_decay` (`|B̂(c(σ+iτ))| ≤ C_r M Λ_α(δ) e^{-bcσδ}(1+cδ|τ|)^{-r}`).
+  Not formalised: admissibility of `ΔW_c`, the main and reflected density bounds, the Fourier identity `(uct:E0-def)`.
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
   whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
