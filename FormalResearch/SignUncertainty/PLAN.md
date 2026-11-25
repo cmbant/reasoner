@@ -38,7 +38,7 @@ Open inputs, counted once: `ce_hb_lift_m1` (M6), `shell_reduction` for `m >= 2` 
 - The one-level Hankel thresholds (C2, C3, B3): `hb_thresholds_lower` (`HankelThresholds`; via the Langer chart, transport, band reduction, window lemma and `hankelBootHB`) and `hbThresholdsUpper` (`HbUpperM1`, from `o6Bricks_holds`, `gt1BasisInput` and `o4QuotientBound`: the analytic estimate on `|θ| = 1/4`).
 - Shell extraction and the one-profile problem (E1): `hankelShellGapLimit_proved`, `shellGapLimit_of_hankel`, `one_profile_*`, `even_m_laplace_sign`, `shell_reduction_airy`.
 - Cohn-Elkies radius layer (D2): `ce_quadratic_dimensions` (finite dimensions), `ce_schwartz_radius_eq_L1_radius`.
-- M6 leaves (D1): the convolution source `ConvSource*` (`convS_bounds`, `ConvTailData`), `ceLift_pair`, `ceHankelPair_of_eigenfns`, `ceLift_tune`, `ceLift_physical` (proved modulo the fields of `CeSourceFamily`), `ce_hb_lift_airy_of_hankelPair` (proved modulo `CeHankelPair`), `preEdge_general_pos` (modulo `PreEdgeGeneralData`).
+- M6 leaves (D1): the convolution source `ConvSource*` (`convS_bounds`, `ConvTailData`), `ceLift_pair`, `ceHankelPair_of_eigenfns`, `ceLift_tune`, `ceLift_physical` (proved; unconditional as `ceLift_physical_unconditional`, with `CeSourceFamily` proved for `S_c` in `ConvSourceFamily`), `ce_hb_lift_airy_of_hankelPair` (proved modulo `CeHankelPair`), `preEdge_general_pos` (modulo `PreEdgeGeneralData`).
 
 ### 1.3 Recorded caveats
 
@@ -89,7 +89,7 @@ Steps 1 to 3 are independent. F2 needs from F1 `ct:outer` (the outer function `G
 
 1. **Start now (tier 1, `thm:intro-radii`):** (`u1cl:langer` done; `uct:admiss` (1), (2) done) C1's remaining part (3) and `ceo:O11ak` for general seeds. None needs another package.
 2. **Then:** F1's first block, `ct:outer` ((1), (2) structure done; closed forms and (3) open) and `ct:dual-id` (`constant_terms_lower.tex`), on proved inputs only (`mat:T1`, `mat:T4`, `gt:7.7b`); `ct:outer` unblocks F2.
-3. **Continue, scoped to what the headlines use:** M6 step (a), the `CeSourceFamily` instance for `convSource` (the `ConvSource*` symbol bounds and pre-edge estimates also feed F2), and the `m_0 = 1` lift that `thm:intro-gap` (iii) needs.
+3. **Continue, scoped to what the headlines use:** M6 step (b) (`thm:ce-post-edge`; the S-side pre-edge ratio bounds need `ceo:gauss.2`, no Lean statement yet) and (c) (the `ConvSource*` symbol bounds and pre-edge estimates also feed F2), and the `m_0 = 1` lift that `thm:intro-gap` (iii) needs.
 4. **Second headline lane once two slots are free:** `thm:intro-gap` (iv) through M9 (E2), beginning with `thm:airy-square-attained` (needs only proved inputs: `airyNC_quadrature`, `airyAiC_logDeriv_mittagLeffler`).
 
 Tier-2 items are not started while a tier-1 package is unstaffed.
@@ -114,7 +114,7 @@ Names M0-M11 are kept. Size classes as in 6.1.
 | M3 strict gap, extraction half | `hankelShellGapLimit_proved`, one-profile problem, `even_m_laplace_sign` | E1 | done | origin-floor clause, endpoint case (S) |
 | M4 upper O-chain at one level | `U.2`-`O.6`, `O.9'` at `m_0 = 1`; `o4QuotientBound` | C1, C2 | done | - |
 | M5 Hankel lower half at one level | Langer chart, transport, band reduction, window, `hankelBootHB`; `hb_thresholds_lower` | B3, C3, A3 | done | `u1cl:langer`, `gt:7.7p` (d) clauses (S-M, M8 prerequisite) |
-| M6 CE upper, route II at `m_0 = 1` | `CeHankelPair`, hence `ce_hb_lift_m1` | D1 | in progress; `CeHankelPair` NOT proved | (a) `CeSourceFamily` instance for `convSource`; (b) `thm:ce-post-edge` with `cepe:general` for `D_c`; (c) packaging, refactor `ceLift_physical` to expose both edge representations (L) |
+| M6 CE upper, route II at `m_0 = 1` | `CeHankelPair`, hence `ce_hb_lift_m1` | D1 | in progress; `CeHankelPair` NOT proved | (a) done (`ceSourceFamily_convSource`, `ceLift_physical_unconditional`); remaining: (b) `thm:ce-post-edge` with `cepe:general` for `D_c`; (c) packaging, refactor `ceLift_physical` to expose both edge representations (L) |
 | M7 CE lower, shell reduction at one level | `shell_reduction_airy` | E1, D2 | done at `m = 1` | upper half is M6 |
 | M8 all levels | `TE.0'` general, `u1cl:langer`, multilevel thresholds (`u1cl:multilevel`), `ShellReduction D`, `CeHbLift D` with weak positivity, positive odd families, `gt:7.5` general | A3, B1, B3, C2, C3, D1, E1 | not started | L; starts with a dependency list once M6 is merged |
 | M9 Airy-LP core | `thm:airy-square-attained`, `thm:ce-airy-transfer`, `thm:ce-canonical-iff`, two-level Rayleigh, shifted lift, `cor:ce-schwartz-shells` | E2, D2 | planned, not started | L; needs only M3 |
@@ -167,7 +167,7 @@ A row is **done** when the label is proved in Lean for the stated hypotheses (an
 | **C1** | Mellin-Airy toolkit and symbol transfer | `mellin_airy_toolkit.tex` | 11 | 6 / 4 / 1 / 0 | M-L, 1.5-2.5k (`uct:admiss`, general-seed `O.11ak`) | `ConvTailData` for general-seed `exists_hankelEigenfn_lift_general` | A1, A2 (`gt:3.1`), B1, C2, D1 | M4, M6, M10 |
 | **C2** | Upper O-chain at one level (`U.*`, `O.*`, hb-seed-mass, `O.9'`) | `u1c_o1_upper.tex` | 13 | 5 / 8 / 0 / 0 | L (all-level `(P,Q)` seeds) | none for `hbThresholdsUpper`; `m_0 = 1` only | A1, A2, B1, C1 | M4, M8 |
 | **C3** | Hankel thresholds: one-level halves, multilevel theorem, two-sided `O(1)` | `u1c_o1_lower.tex` | 2 | 0 / 1 / 1 / 0 | L (all levels); S (`u1cl:main`) | none at one level | A3, B3, C2 | M5, M8, M11 |
-| **D1** | Cohn-Elkies upper half, route II: convolution source, transfer, pre-edge, post-edge, lift | `ce_hb_lift.tex`, `ce_o1_route.tex`, `ce_o1_global_transfer.tex`, `ce_o1_pre_edge.tex`, `ce_physical_log_far.tex`, `ce_rate.tex` | 16 | 7 / 6 / 3 / 0 | L (instance of `CeSourceFamily` M; post-edge sign L; packaging S-M) | `CeSourceFamily` (tail, dual fields), `PreEdgeGeneralData`, open `CeHankelPair` | B2, C1, C2, E1 (`ShellHBData`); E2 (`lem:ce-terminal-deflation`) for the tangency lifts of M8 | M6, M8 |
+| **D1** | Cohn-Elkies upper half, route II: convolution source, transfer, pre-edge, post-edge, lift | `ce_hb_lift.tex`, `ce_o1_route.tex`, `ce_o1_global_transfer.tex`, `ce_o1_pre_edge.tex`, `ce_physical_log_far.tex`, `ce_rate.tex` | 16 | 7 / 6 / 3 / 0 | L (instance of `CeSourceFamily` M; post-edge sign L; packaging S-M) | `PreEdgeGeneralData`, open `CeHankelPair` (`CeSourceFamily` is proved) | B2, C1, C2, E1 (`ShellHBData`); E2 (`lem:ce-terminal-deflation`) for the tangency lifts of M8 | M6, M8 |
 | **D2** | Cohn-Elkies radius layer: finite dimensions, Schwartz vs `L^1` infimum, density | `ce_finite_bounds.tex`, `ce_radius.tex` | 7 | 1 / 2 / 3 / 1 | S-M | `ce_radius_airy_order_of_bounds` takes both halves as hypotheses (`hlo`, `hhi`) | B2 | M7, M9, M10 |
 | **E1** | Cohn-Elkies shells: reduction, extraction, one-profile, odd families | `ce_shells.tex`, `ce_projection_mass.tex` | 7 | 3 / 4 / 0 / 0 | M (`ShellReduction D`); M-L (positive odd families) | `ShellReduction D` for `m >= 2`; none for the extraction and one-profile parts | B1, B2, C3 | M3, M7, M8 |
 | **E2** | Limiting Airy program at prescribed shells (Airy-LP) | `ce_airy_lp.tex`, `ce_airy_lp_proofs.tex`, `ce_canonical_iff.tex`, `ce_two_level.tex`, `ce_shifted_witnesses.tex`, `airy_extremal.tex` | 23 | 0 / 0 / 23 / 0 | L (about 23 results; calibration: `ShellLaplaceBase` 1.9k + `OddShellFamily` 1.4k lines) | - | A1, A2, E1 (M3) for the Airy-LP core; D1, C1, C2 for `thm:ce-shifted-lift` | M9 |
@@ -305,7 +305,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `cepe:general` | partial | `preEdge_general_pos` on the hypothesis structure `PreEdgeGeneralData` (toy witnesses only; not instantiated for `D_c`) |
 | `cepe:abs-saddle` | planned | M6; no declaration |
 | `ceo:gauss` | done | `airySquare_gaussian_transform` |
-| `ceo:conv` | partial | `ConvSource*`: `convS_bounds`, `convSource_mass`, `HasU2`, `gt1Bounds_convSource` (O.12(1)-(4)), `ConvTailData` for `S_c` (`ConvSourceEdge*`); open: `CeSourceFamily` fields `mass`, `edge` (O.12(6)), `dual` (`O6DualEst`), the uniform far transfer O.12(7) and GT.2b |
+| `ceo:conv` | partial | `ConvSource*`: `convS_bounds`, `HasU2`, `gt1Bounds_convSource` (O.12(1)-(4)), `ConvTailData` for `S_c` (`ConvSourceEdge*`), and all five `CeSourceFamily` fields (`ceSourceFamily_convSource`, `ConvSourceFamily`, weak forms of `edge`, `dual`); open: the sharp O.12(5), O.12(6) (needed by `PreEdgeGeneralData`), the uniform far transfer O.12(7), GT.2b and `ceo:gauss.2` (no Lean statement) |
 | `ceo:O11ae` | done | `MellinMainKernel` (`bsplineMult`, `mainEdgeAmp`, `norm_mainEdgeAmp_le`) |
 | `cepf:FG3` | done | `Tc_sup_bound`, `fourier_L1_le_sqrt_mul_H1`, `mainTransferOp_sup_norm_le` |
 | `cepf:PF3` | done | `pf3_kernel_bound`, `pf3_kernel_bound_uniform` |
