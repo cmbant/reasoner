@@ -85,16 +85,16 @@ private lemma Eminus_eq_Erec_neg (a z : ℝ) (hz : z < 0) :
     Eminus a z = Erec a (-z) := by
   unfold Eminus Erec
   by_cases ha : a ≤ 0
-  · rw [if_pos ha, if_pos ha, abs_of_neg hz, abs_of_pos (neg_pos.mpr hz)]
-  · rw [if_neg ha, if_neg ha, Ebar_neg_eq_inv]
+  · rw [ite_eq_left ha, ite_eq_left ha, abs_of_neg hz, abs_of_pos (neg_pos.mpr hz)]
+  · rw [ite_eq_right ha, ite_eq_right ha, Ebar_neg_eq_inv]
 
 private lemma Eswap_eq_Ewell_inv_of_nonpos {a z : ℝ} (ha : a ≤ 0) (hz : 0 ≤ z) :
     Eswap a z = (Ewell a z)⁻¹ := by
-  unfold Eswap; rw [if_pos ha, abs_of_nonneg hz]
+  unfold Eswap; rw [ite_eq_left ha, abs_of_nonneg hz]
 
 private lemma Eswap_eq_Ebar_inv_of_pos {a : ℝ} (ha : 0 < a) (z : ℝ) :
     Eswap a z = (Ebar a z)⁻¹ := by
-  unfold Eswap; rw [if_neg ha.not_ge]
+  unfold Eswap; rw [ite_eq_right ha.not_ge]
 
 private lemma rpow_neg_half_eq_inv_sqrt {x : ℝ} (hx : 0 < x) :
     x ^ (-(1 : ℝ) / 2) = (Real.sqrt x)⁻¹ := by
@@ -371,7 +371,7 @@ theorem soft_grow_gap {Par : Type*} [TopologicalSpace Par]
               F.L * |C0| / (4 * Real.sqrt g) * Real.sqrt (F.step N) := add_le_add hsq_E herr_pow
         _ = Real.sqrt Eu + (F.L * |C0| / (4 * Real.sqrt g) + Real.sqrt CE) * Real.sqrt (F.step N) := by ring
     · unfold SymbolFamily.bondA
-      rw [if_neg hk_in]
+      rw [ite_eq_right hk_in]
       exact add_nonneg (Real.sqrt_nonneg _)
         (mul_nonneg (add_nonneg (div_nonneg (mul_nonneg hFL.le (abs_nonneg _)) (by positivity))
           (Real.sqrt_nonneg _)) (Real.sqrt_nonneg _))
@@ -517,13 +517,13 @@ lemma actionWell_ge_of_zeta_lb {cz1 CZ Ca SV : ℝ}
         _ = 4096 * Ca * h ^ 2 := by field_simp; ring
         _ < cz1 ^ 3 := h1'
     by_contra hbad
-    push_neg at hbad
+    push Not at hbad
     have hneg : 0 ≤ cz1 / (8 * h) := by positivity
     exact not_lt_of_ge (pow_le_pow_left₀ hneg hbad 3) hcube
   have h10 : 10 ≤ Z := by
     have hZ2 : 100 < Z ^ 2 := by nlinarith [show 0 ≤ -a from neg_nonneg.mpr ha]
     by_contra hlt
-    push_neg at hlt
+    push Not at hlt
     nlinarith [hZ_pos]
   have hz2 : z2Airy a ≤ Z := by
     unfold z2Airy
@@ -534,7 +534,7 @@ lemma actionWell_ge_of_zeta_lb {cz1 CZ Ca SV : ℝ}
         linarith [neg_nonneg.mpr ha])]
       linarith
     by_contra hlt
-    push_neg at hlt
+    push Not at hlt
     nlinarith [show 0 ≤ 2 * Real.sqrt (-a + 2 * (-a) ^ ((1 : ℝ) / 3)) by positivity, hZ_pos]
   refine ⟨max_le hz2 h10, ?_⟩
   let z0 := 2 * Real.sqrt (-a)
@@ -742,7 +742,7 @@ theorem soft_grow3_of_corr {gm CBc CAl cz1 CZ Ca aHi : ℝ}
       obtain ⟨hvt_lo, hvt_gr⟩ := hVfar a ha0 Z hz2_le hact_ge
       have h_eq : pcSwap pcU pcV a 0 = vt pcV a := by
         ext w; change (if a ≤ 0 then vt pcV a w else kappaBal a * pcU a (-w)) = vt pcV a w
-        rw [if_pos ha0]
+        rw [ite_eq_left ha0]
       have hE_eq : Eswap a Z = (Ewell a Z)⁻¹ := Eswap_eq_Ewell_inv_of_nonpos ha0 hZp.le
       have hwell := (env.env_well a ha0 Z hZp.le).2
       have hk2p : 0 < k2 a Z := k2_pos a Z
@@ -783,7 +783,7 @@ theorem soft_grow3_of_corr {gm CBc CAl cz1 CZ Ca aHi : ℝ}
       obtain ⟨hU_lo, hU_nn, hU_ub⟩ := hUfar a ha_pos Z hZp.le
       have h_eq : pcSwap pcU pcV a 0 = fun w => kappaBal a * pcU a (-w) := by
         ext w; change (if a ≤ 0 then vt pcV a w else kappaBal a * pcU a (-w)) = kappaBal a * pcU a (-w)
-        rw [if_neg ha0]
+        rw [ite_eq_right ha0]
       have hE_eq : Eswap a Z = (Ebar a Z)⁻¹ := Eswap_eq_Ebar_inv_of_pos ha_pos Z
       rw [h_eq, hE_eq]
       have hc0U : c0 ≤ cU := min_le_right _ _
@@ -800,10 +800,10 @@ theorem soft_grow3_of_corr {gm CBc CAl cz1 CZ Ca aHi : ℝ}
     have hdiff : Differentiable ℝ (pcSwap pcU pcV a 0) := by
       by_cases ha0 : a ≤ 0
       · have h_eq : pcSwap pcU pcV a 0 = vt pcV a := by
-          ext w; change (if a ≤ 0 then vt pcV a w else kappaBal a * pcU a (-w)) = vt pcV a w; rw [if_pos ha0]
+          ext w; change (if a ≤ 0 then vt pcV a w else kappaBal a * pcU a (-w)) = vt pcV a w; rw [ite_eq_left ha0]
         rw [h_eq]; exact vt_diff a
       · have h_eq : pcSwap pcU pcV a 0 = fun w => kappaBal a * pcU a (-w) := by
-          ext w; change (if a ≤ 0 then vt pcV a w else kappaBal a * pcU a (-w)) = kappaBal a * pcU a (-w); rw [if_neg ha0]
+          ext w; change (if a ≤ 0 then vt pcV a w else kappaBal a * pcU a (-w)) = kappaBal a * pcU a (-w); rw [ite_eq_right ha0]
         rw [h_eq]; exact kappaU_neg_diff a
     exact monotoneOn_of_deriv_nonneg (convex_Icc Z1 Z2) hdiff.continuous.continuousOn
       (fun Z _ => (hdiff Z).differentiableWithinAt) (fun Z hZ => (hw_pt Z (interior_subset hZ)).2.1)
@@ -992,7 +992,7 @@ theorem soft_ratio2_of_corr {gm CBc CAl cz1 CZ Ca : ℝ}
     intro Z
     by_cases ha0 : a ≤ 0
     · have hp1 : pcMinus pcU pcV a 1 = fun w => -vt pcV a (-w) := by
-        ext w; change (if a ≤ 0 then -vt pcV a (-w) else -(kappaBal a * pcU a w)) = -vt pcV a (-w); rw [if_pos ha0]
+        ext w; change (if a ≤ 0 then -vt pcV a (-w) else -(kappaBal a * pcU a w)) = -vt pcV a (-w); rw [ite_eq_left ha0]
       have hg_eq : g = vt pcV a := by ext w; simp [g, ha0]
       rw [hp1, hg_eq]
       refine ⟨rfl, ?_⟩
@@ -1002,7 +1002,7 @@ theorem soft_ratio2_of_corr {gm CBc CAl cz1 CZ Ca : ℝ}
         _ = -(-deriv (vt pcV a) (-Z)) := by rw [deriv_comp_neg_of_diff (vt_diff a)]
         _ = deriv (vt pcV a) (-Z) := neg_neg _
     · have hp1 : pcMinus pcU pcV a 1 = fun w => -(kappaBal a * pcU a w) := by
-        ext w; change (if a ≤ 0 then -vt pcV a (-w) else -(kappaBal a * pcU a w)) = -(kappaBal a * pcU a w); rw [if_neg ha0]
+        ext w; change (if a ≤ 0 then -vt pcV a (-w) else -(kappaBal a * pcU a w)) = -(kappaBal a * pcU a w); rw [ite_eq_right ha0]
       have hg_eq : g = fun w => kappaBal a * pcU a (-w) := by ext w; simp [g, ha0]
       rw [hp1, hg_eq]
       refine ⟨by dsimp; rw [neg_neg], ?_⟩
@@ -1136,9 +1136,9 @@ theorem soft_lb_pc_of_corr {gm CBc CZ Ca aHi : ℝ}
         CPC * Erec a (-Z) * Mbal a (-Z) := by
       by_cases ha0 : a ≤ 0
       · have he := (env.env_well a ha0 (-Z) (neg_pos.mpr hz_neg).le).1
-        unfold Erec; rw [if_pos ha0, abs_of_pos (neg_pos.mpr hz_neg)]; exact he
+        unfold Erec; rw [ite_eq_left ha0, abs_of_pos (neg_pos.mpr hz_neg)]; exact he
       · have he := (env.env_bar a (lt_of_not_ge ha0) (-Z)).1
-        unfold Erec; rw [if_neg ha0]; exact he
+        unfold Erec; rw [ite_eq_right ha0]; exact he
     have h1 : |kappaBal a * deriv (pcU a) (-Z)| / Real.sqrt (k2 a (-Z)) ≤
         Real.sqrt ((kappaBal a * pcU a (-Z)) ^ 2 + (kappaBal a * deriv (pcU a) (-Z)) ^ 2 / k2 a (-Z)) := by
       rw [← Real.sqrt_sq_eq_abs, ← Real.sqrt_div (sq_nonneg _)]
@@ -1361,10 +1361,10 @@ theorem bulk_W_osc_M_osc {cH σ cs_hi CY : ℝ} (hcH : 0 < cH) (hσ : 0 < σ) (h
     rw [hk_neg]
     have hsq : |Y / Real.sqrt h| ^ 2 ≤ (2 * Real.sqrt ((k : ℝ) + 1 / 2)) ^ 2 := by
       rw [sq_abs, mul_pow, Real.sq_sqrt hk_nn]; linarith [show 0 < cH * σ / (4 * h) by positivity]
-    by_contra hbad; push_neg at hbad
+    by_contra hbad; push Not at hbad
     nlinarith [abs_nonneg (Y / Real.sqrt h), Real.sqrt_nonneg ((k : ℝ) + 1 / 2)]
   have hW : Ewell (-((k : ℝ) + 1 / 2)) |Y / Real.sqrt h| = 1 := by
-    unfold Ewell; rw [if_neg (not_lt.mpr hlt_turn)]
+    unfold Ewell; rw [ite_eq_right (not_lt.mpr hlt_turn)]
   have hk2_lo : (cH * σ / 4) / h ≤ k2 (-((k : ℝ) + 1 / 2)) (Y / Real.sqrt h) := by
     have h1 : cH * σ / (4 * h) ≤ |(Y / Real.sqrt h) ^ 2 / 4 + (-((k : ℝ) + 1 / 2))| := by
       have : -((Y / Real.sqrt h) ^ 2 / 4 + (-((k : ℝ) + 1 / 2))) ≥ cH * σ / (4 * h) := by linarith

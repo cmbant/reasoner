@@ -52,14 +52,14 @@ theorem norm_extRow_le (ω : Fin R → ℝ) (yext : κ → ℝ) {B : ℝ} (hB0 :
     refine (norm_le_of_single_row _ n0 ?_).trans ?_
     · intro n hn k
       simp only [extRow, of_apply]
-      rw [if_neg]
+      rw [ite_eq_right]
       intro h'; exact hn (Fin.ext (by omega))
     · have := h n0 hn0
       simpa [extRow, hn0] using this
   · have : extRow ω yext = 0 := by
       ext n k
       simp only [extRow, of_apply, Matrix.zero_apply]
-      rw [if_neg]; intro h'; exact hex ⟨n, h'⟩
+      rw [ite_eq_right]; intro h'; exact hex ⟨n, h'⟩
     rw [this]; simpa using hB0
 
 theorem norm_extRowRev_le (ω : Fin R → ℝ) (yext : κ → ℝ) {B : ℝ} (hB0 : 0 ≤ B)
@@ -70,14 +70,14 @@ theorem norm_extRowRev_le (ω : Fin R → ℝ) (yext : κ → ℝ) {B : ℝ} (hB
     refine (norm_le_of_single_row _ n0 ?_).trans ?_
     · intro n hn k
       simp only [extRowRev, of_apply]
-      rw [if_neg]
+      rw [ite_eq_right]
       intro h'; exact hn (Fin.ext (by omega))
     · have := h n0 hn0
       simpa [extRowRev, hn0] using this
   · have : extRowRev ω yext = 0 := by
       ext n k
       simp only [extRowRev, of_apply, Matrix.zero_apply]
-      rw [if_neg]; intro h'; exact hex ⟨n, h'⟩
+      rw [ite_eq_right]; intro h'; exact hex ⟨n, h'⟩
     rw [this]; simpa using hB0
 
 theorem glue_arith {K ωmax h Fn En CE Yn Ytn : ℝ} (hK0 : 0 ≤ K) (hω : 0 ≤ ωmax) (hh0 : 0 ≤ h)
@@ -132,7 +132,7 @@ theorem phi_diff (hc : c.Ok cs m h U) (n : Fin R) (k : cols) :
     simp only [h0, if_true]
     linear_combination (-(c.y n k)) * hA + (-(c.yt n k)) * hB
   · rw [h1] at hA hB
-    simp only [h1, one_ne_zero, if_false]
+    simp only [h1, one_ne_zero, ite_false]
     linear_combination (-(c.y n k)) * hA + (-(c.yt n k)) * hB
 
 theorem jbL2_wsel_le (S : Finset (Fin R)) (k : cols) :
@@ -266,7 +266,7 @@ theorem chart_carriers (hc : c.Ok cs m h U) (hh0 : 0 ≤ h) (hh1 : h ≤ 1)
         c.t11 n k * c.Y' n k + c.t12 n k * c.Yt' n k := by
       intro n k
       have := hc.transfer n k
-      simp only [Chart.shifted, hτf, Bool.false_eq_true, if_false, of_apply] at this
+      simp only [Chart.shifted, hτf, Bool.false_eq_true, ite_false, of_apply] at this
       have e : YshRev (fun k => c.σ1 k * c.yext k) c.Y' n k = c.σ1 k * YshRev c.yext c.y n k :=
         YshRev_scale c.σ1 c.yext c.y n k
       rw [e]

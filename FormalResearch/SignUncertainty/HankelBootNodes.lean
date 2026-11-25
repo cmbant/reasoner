@@ -137,7 +137,7 @@ theorem hankelBoot_sign_of_le {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 �
   exact hankel_phi_anti hc0 hx huA hxu
 
 /-- Localisation of the zero `a_n` (`n ≥ 2`) and of its shift: `|a_n + ℓ| ≤ A` and `a_n + ℓ ≤ u_T`. -/
-theorem hankelBoot_node_arg {c u_T R ℓ : ℝ} (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T) (hR48 : 48 ≤ R)
+theorem hankelBoot_node_arg {c u_T R ℓ : ℝ} (_hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T) (hR48 : 48 ≤ R)
     (hRA : R + 1 ≤ langerRadius c) (hℓ0 : 0 ≤ ℓ) (hℓ : ℓ ≤ 1 / 2) {n : ℕ} (hn : 2 ≤ n)
     (hnR : -R < airyZero n) :
     |airyZero n + ℓ| ≤ langerRadius c ∧ airyZero n + ℓ ≤ u_T := by
@@ -252,12 +252,12 @@ theorem hankelBoot_node1_re_lb {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 
 /-- **Auxiliary lower bound** (node sum, `n = 1` term kept, `n ≥ 2` terms lost). -/
 theorem hankelBoot_nodes_aux {c ε T u_T R : ℝ} {N : ℕ} {f : ℝ → ℝ} (hc : 3e6 ≤ c)
     (hf : IsHankelFeasible c ε T f) (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1)
-    (hT : c * hankelXi c u_T = T) (ha1 : airyZero 1 < u_T)
-    (hB2 : QuantC1B2Holds (hankelPsi c f) u_T) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T)
+    (hT : c * hankelXi c u_T = T) (_ha1 : airyZero 1 < u_T)
+    (_hB2 : QuantC1B2Holds (hankelPsi c f) u_T) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T)
     (hR48 : 48 ≤ R) (hRA : R + 1 ≤ langerRadius c)
     (hN : ∀ n : ℕ, 1 ≤ n → (n ≤ N ↔ -airyZero n < R))
     {ℓ : ℝ} (hℓ0 : 0 ≤ ℓ) (hℓ : ℓ ≤ min quantC1DeltaStar (min quantC1Eta0 1))
-    {k : ℕ} (hkR : (k : ℝ) ≤ R / 5) :
+    {k : ℕ} (_hkR : (k : ℝ) ≤ R / 5) :
     (1 + airyZero 1 / R) ^ (k + 1) * hankelPsiR c f (airyZero 1 + ℓ) / quantC1WStar -
         (6 * π) ^ 2 * (N : ℝ) * hankelRinf c
       ≤ hankelBootNodes c f R ℓ k N := by
@@ -276,7 +276,7 @@ theorem hankelBoot_nodes_lb {c ε T u_T R : ℝ} {N : ℕ} {f : ℝ → ℝ} (hc
     (hR48 : 48 ≤ R) (hRA : R + 1 ≤ langerRadius c)
     (hN : ∀ n : ℕ, 1 ≤ n → (n ≤ N ↔ -airyZero n < R))
     {ℓ : ℝ} (hℓ0 : 0 ≤ ℓ) (hℓ : ℓ ≤ min quantC1DeltaStar (min quantC1Eta0 1))
-    {k : ℕ} (hkR : (k : ℝ) ≤ R / 5) :
+    {k : ℕ} (_hkR : (k : ℝ) ≤ R / 5) :
     -(2 * quantC1C1 * (1 / quantC1WStar)) * ℓ - (6 * π) ^ 2 * ((N : ℝ) + 1) * hankelRinf c
       ≤ hankelBootNodes c f R ℓ k N := by
   have hℓ_half : ℓ ≤ 1 / 2 := hℓ.trans ((min_le_left _ _).trans quantC1DeltaStar_le)

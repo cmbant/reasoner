@@ -67,9 +67,9 @@ theorem glue_norm_sq_diff (ψL ψR : ℤ → ℝ) (Ω rows : Finset ℤ) (isA is
   rw [glueNorm_sq, glueNorm_sq, ← Finset.sum_sub_distrib]
   refine (Finset.abs_sum_le_sum_abs _ _).trans (Finset.sum_le_sum fun n hn => ?_)
   by_cases hΩ : n ∈ Ω
-  · rw [if_pos hΩ]
+  · rw [ite_eq_left hΩ]
     by_cases ha : isA n <;> by_cases hb : isB n <;> simp [ha, hb, abs_sub_comm]
-  · rw [if_neg hΩ]
+  · rw [ite_eq_right hΩ]
     have hiff := hAB n hn hΩ
     by_cases ha : isA n
     · have hb : isB n := hiff.mp ha
@@ -88,12 +88,12 @@ theorem split_agree_outside (h c c' : ℝ) (hh : 0 ≤ h) (Ω rows : Finset ℤ)
     exact (uNode_le_of_le hh hle).trans hns'.2.2
   · intro hu
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have h1 := uNode_le_of_le hh hcon.le
     have hnot : ¬ (c' ≤ uNode h n ∧ uNode h n ≤ c) := fun h2 => hnΩ ((hΩ n).mpr ⟨hn, h2⟩)
     have hlt : uNode h n < c' := by
       by_contra hc
-      push_neg at hc
+      push Not at hc
       exact hnot ⟨hc, hu⟩
     linarith [hns'.2.1]
 
@@ -336,7 +336,7 @@ theorem bulk_norm_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily
           by_cases hnW : n ∈ bulkWindow CL N
           · simp only [hnW, if_true]
             exact hpt n hnW
-          · simp only [hnW, if_false, le_refl]
+          · simp only [hnW, ite_false, le_refl]
       _ = ∑ n ∈ bulkWindow CL N, |Cm| * K4 * Fz.step N ^ m * (CL.chain p X N).M n ^ 2 :=
           window_indicator_sum_le (bulkWindow CL N) (rowsOf N)
             (fun n => |Cm| * K4 * Fz.step N ^ m * (CL.chain p X N).M n ^ 2) hWsub hnn
@@ -571,12 +571,12 @@ theorem bulk_vec_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily 
         have hLA := LA n (Finset.mem_Icc.mp hnr).1 (Finset.mem_Icc.mp hnr).2
         have hLB0 := (LB n (Finset.mem_Icc.mp hnr).1 (Finset.mem_Icc.mp hnr).2).1
         have eV : bulkVec CL CR p X N n = CL.psiHatL p X N n / bulkNorm CL CR p X N := by
-          unfold bulkVec glueVec; rw [if_pos hcn]; rfl
+          unfold bulkVec glueVec; rw [ite_eq_left hcn]; rfl
         have eS : splicedVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns n =
             CL.psiHatL p X N n / glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns := by
-          unfold splicedVec; rw [if_pos hnsn]
+          unfold splicedVec; rw [ite_eq_left hnsn]
         have eE : bulkEnv CL CR p X N n = CL.envL p X N n / bulkNorm CL CR p X N := by
-          unfold bulkEnv; rw [if_pos hcn]
+          unfold bulkEnv; rw [ite_eq_left hcn]
         rw [eV, eS, eE, abs_sub_comm]
         have hX0 : 0 ≤ CL.envL p X N n / bulkNorm CL CR p X N := div_nonneg hLB0 hyPos.le
         refine ⟨?_, hX0⟩
@@ -616,13 +616,13 @@ theorem bulk_vec_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily 
           exact hmt.trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (le_abs_self _) hη0)
             (hMn0 n hnW))
         have eV : bulkVec CL CR p X N n = CL.psiHatL p X N n / bulkNorm CL CR p X N := by
-          unfold bulkVec glueVec; rw [if_pos hcn]; rfl
+          unfold bulkVec glueVec; rw [ite_eq_left hcn]; rfl
         have eS : splicedVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns n =
             bulkKappa CL CR p X N * bulkSeqR CR p X N n /
               glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns := by
-          unfold splicedVec; rw [if_neg hnsn]; rfl
+          unfold splicedVec; rw [ite_eq_right hnsn]; rfl
         have eE : bulkEnv CL CR p X N n = CL.envL p X N n / bulkNorm CL CR p X N := by
-          unfold bulkEnv; rw [if_pos hcn]
+          unfold bulkEnv; rw [ite_eq_left hcn]
         rw [eV, eS, eE]
         have hX0 : 0 ≤ CL.envL p X N n / bulkNorm CL CR p X N := div_nonneg hLB0 hyPos.le
         refine ⟨?_, hX0⟩
@@ -685,14 +685,14 @@ theorem bulk_vec_clause {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily 
         have hRA := RA ((N : ℤ) - n) (Finset.mem_Icc.mp hjm).1 (Finset.mem_Icc.mp hjm).2
         have hRB0 := (RB ((N : ℤ) - n) (Finset.mem_Icc.mp hjm).1 (Finset.mem_Icc.mp hjm).2).1
         have eV : bulkVec CL CR p X N n = bulkKappa CL CR p X N * bulkSeqR CR p X N n / bulkNorm CL CR p X N := by
-          unfold bulkVec glueVec; rw [if_neg hcn]; rfl
+          unfold bulkVec glueVec; rw [ite_eq_right hcn]; rfl
         have eS : splicedVec (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns n =
             bulkKappa CL CR p X N * bulkSeqR CR p X N n /
               glueNormAt (CL.psiHatL p X N) (bulkSeqR CR p X N) (bulkWindow CL N) (rowsOf N) ns := by
-          unfold splicedVec; rw [if_neg hnsn]; rfl
+          unfold splicedVec; rw [ite_eq_right hnsn]; rfl
         have eE : bulkEnv CL CR p X N n = |bulkKappa CL CR p X N| * CR.envL p X N ((N : ℤ) - n) /
             bulkNorm CL CR p X N := by
-          unfold bulkEnv; rw [if_neg hcn]
+          unfold bulkEnv; rw [ite_eq_right hcn]
         rw [eV, eS, eE]
         have hX0 : 0 ≤ |bulkKappa CL CR p X N| * CR.envL p X N ((N : ℤ) - n) / bulkNorm CL CR p X N :=
           div_nonneg (mul_nonneg (abs_nonneg _) hRB0) hyPos.le
@@ -764,10 +764,10 @@ theorem bulkEnv_nonneg_rows {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFam
   have hLs : Fz.step N * ((N : ℝ) + 1) = Fz.L := step_mul_succ Fz N
   by_cases hcn : uNode (Fz.step N) n ≤ CL.c
   · unfold bulkEnv
-    rw [if_pos hcn]
+    rw [ite_eq_left hcn]
     exact div_nonneg (hLB n hn0 (le_NR_of CL p hp X hX N hN1 hst n hcn)) (Real.sqrt_nonneg _)
   · unfold bulkEnv
-    rw [if_neg hcn]
+    rw [ite_eq_right hcn]
     have hcn_up : CL.c < uNode (Fz.step N) n := not_le.mp hcn
     have hjle : uNode (Fz.step N) ((N : ℤ) - n) ≤ CR.c := by
       rw [uNode_mirror Fz.L (Fz.step N) N n hLs, hcoup.1]

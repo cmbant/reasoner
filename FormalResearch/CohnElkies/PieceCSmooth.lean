@@ -415,7 +415,7 @@ theorem smooth_ibp_bound {Ca V : ℝ} (hCa : 0 ≤ Ca) (hV : 0 ≤ V) {a : ℝ �
 
 /-! ### The cut-off amplitude `a = χ₀(v/v_*) g G` -/
 
-lemma deriv_comp_div {f : ℝ → ℂ} (hf : ContDiff ℝ 2 f) {vs : ℝ} (hvs : vs ≠ 0) (v : ℝ) :
+lemma deriv_comp_div {f : ℝ → ℂ} (hf : ContDiff ℝ 2 f) {vs : ℝ} (_hvs : vs ≠ 0) (v : ℝ) :
     deriv (fun x => f (x / vs)) v = (1 / vs : ℝ) • deriv f (v / vs) := by
   have h1 : HasDerivAt (fun x : ℝ => x / vs) (1 / vs) v := by
     simpa using (hasDerivAt_id v).div_const vs

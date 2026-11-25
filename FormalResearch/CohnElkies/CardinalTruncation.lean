@@ -151,7 +151,7 @@ private lemma integral_norm_eq_eLpNorm_one_toReal {g : ℝ → ℂ}
     (hg : AEStronglyMeasurable g volume) :
     (∫ u : ℝ, ‖g u‖) = (eLpNorm g 1 volume).toReal := by
   rw [integral_eq_lintegral_of_nonneg_ae (Eventually.of_forall fun _ => norm_nonneg _) hg.norm,
-    eLpNorm_one_eq_lintegral_enorm hg]
+    eLpNorm_one_eq_lintegral_eNorm hg]
   simp only [ofReal_norm]
 
 /-- The Airy Paley–Wiener class `G` is closed under subtraction. -/

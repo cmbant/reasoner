@@ -363,8 +363,8 @@ theorem van_der_corput_first_comp {a b c lam M : ℝ} (hab : a ≤ b) (hc : 0 < 
     have hsmul : eVariationOn (fun x => g x • h x) (Icc a b) ≤
         ENNReal.ofReal lam⁻¹ * eVariationOn h (Icc a b) + ENNReal.ofReal M * eVariationOn g (Icc a b) := by
       refine eVariationOn_fun_smul_le (fun x hx => ?_) (fun x hx => ?_)
-      · rw [Real.enorm_eq_ofReal_abs]; exact ENNReal.ofReal_le_ofReal (by simpa [Real.norm_eq_abs] using hg_bound x hx)
-      · rw [enorm_eq_nnnorm, ← ENNReal.ofReal_coe_nnreal]; exact ENNReal.ofReal_le_ofReal (hh_bound x hx)
+      · rw [Real.eNorm_eq_ofReal_abs]; exact ENNReal.ofReal_le_ofReal (by simpa [Real.norm_eq_abs] using hg_bound x hx)
+      · rw [eNorm_eq_nnNorm, ← ENNReal.ofReal_coe_nnreal]; exact ENNReal.ofReal_le_ofReal (hh_bound x hx)
     have hsmul_ub : eVariationOn (fun x => g x • h x) (Icc a b) ≤
         ENNReal.ofReal lam⁻¹ * eVariationOn h (Icc a b) + ENNReal.ofReal M * ENNReal.ofReal lam⁻¹ :=
       hsmul.trans (by gcongr)

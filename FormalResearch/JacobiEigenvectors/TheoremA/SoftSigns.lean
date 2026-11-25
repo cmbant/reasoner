@@ -46,7 +46,7 @@ theorem sign_const_of_cont {S : Set ℝ} (hS : S.OrdConnected) {f : ℝ → ℝ}
   by_cases hpos : ∀ x ∈ S, 0 < f x
   · exact Or.inl hpos
   · right
-    push_neg at hpos
+    push Not at hpos
     obtain ⟨a, haS, ha⟩ := hpos
     have ha' : f a < 0 := lt_of_le_of_ne ha (hne a haS)
     intro b hbS

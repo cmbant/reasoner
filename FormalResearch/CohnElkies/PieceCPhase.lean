@@ -90,7 +90,7 @@ lemma deriv3_pcPhase {c : ℝ} (hc : 0 < c) (ξ : ℝ) {v : ℝ} (hv : v ≠ 0) 
     calc _ = (c * liftEps c ^ 3) * edgePhiDeriv3 (liftEps c * v) := by ring
       _ = _ := by rw [h3, one_mul]
   have h' := h.deriv
-  simp only [Function.comp_def, id] at h'
+  simp only [Function.comp_def] at h'
   rw [this] at h'
   exact h'
 

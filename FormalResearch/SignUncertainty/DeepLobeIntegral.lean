@@ -34,7 +34,7 @@ noncomputable def lobeF0 (k x : ℝ) : ℝ := (2 + x) ^ (1 / 2 : ℝ) * Real.exp
 
 lemma lobeU_abs (τ : ℝ) : lobeU |τ| = lobeU τ := by simp [lobeU, sq_abs, abs_abs]
 
-lemma lobeF0_le {k x : ℝ} (hk : 0 ≤ k) (hx : 0 < x) :
+lemma lobeF0_le {k x : ℝ} (_hk : 0 ≤ k) (hx : 0 < x) :
     lobeF0 k x ≤ Real.sqrt 3 * Real.exp (-(k / 2) * x ^ 2) +
       (Ioi (1 : ℝ)).indicator (fun x : ℝ => Real.sqrt 3 * Real.exp (-(k / 2)) * x ^ (1 / 2 - k)) x := by
   unfold lobeF0

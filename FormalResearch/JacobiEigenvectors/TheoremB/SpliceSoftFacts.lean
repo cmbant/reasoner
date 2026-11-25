@@ -201,9 +201,9 @@ theorem soft_splice_facts (hM : SoftMirror CL CR) {cPC CPC : ℝ} (hf : Paraboli
         (cPC * Real.exp (-cWt 1) * (|CL.lamL p X N| / (2 * Ck + 1))) * ((kappaBal a)⁻¹ * Mbal a (CL.Zof p X N n)) := by
       rw [hclb, hTdef]; field_simp
     unfold softEnvNum
-    rw [if_neg hb1]
+    rw [ite_eq_right hb1]
     by_cases hZ : CL.Zof p X N n ≤ 0
-    · rw [if_pos hZ]
+    · rw [ite_eq_left hZ]
       have hmo := (molv_win_two hf 1 a (-(CL.Zof p X N n)) ha (by rw [abs_neg]; exact hnabs)).1
       rw [TheoremA.Mbal_neg] at hmo
       rw [hclbT]
@@ -215,9 +215,9 @@ theorem soft_splice_facts (hM : SoftMirror CL CR) {cPC CPC : ℝ} (hf : Paraboli
             exact mul_le_mul_of_nonneg_left this (by positivity)
         _ = |CL.lamL p X N| * (cPC * Real.exp (-cWt 1) * ((kappaBal a)⁻¹ * Mbal a (CL.Zof p X N n))) := by ring
         _ ≤ |CL.lamL p X N| * Molv U V a (-(CL.Zof p X N n)) := mul_le_mul_of_nonneg_left hmo (abs_nonneg _)
-    · push_neg at hZ
+    · push Not at hZ
       have hb3 : uNode (Fz.step N) n < CL.uc p + CL.η / 2 := by have := abs_lt.mp hcol; linarith
-      rw [if_neg (not_le.mpr hZ), if_pos hb3]
+      rw [ite_eq_right (not_le.mpr hZ), ite_eq_left hb3]
       have hmo := (molv_win_two hf 1 a (CL.Zof p X N n) ha hnabs).1
       -- |lam_L| <= (2 Ck + 1) |kappa-hat| |lam_R|
       have hκ2 : |κ| ≤ 2 * |κh| := by

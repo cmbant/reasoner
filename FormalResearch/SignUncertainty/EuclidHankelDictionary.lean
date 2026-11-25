@@ -50,7 +50,7 @@ everywhere, `∫ f = 𝓕 f(0) = ε f(0) ≤ 0` forces `f = 0` a.e., so `𝓕 f 
 lemma IsSignWitness.pos_radius {ε : ℝ} {d : ℕ} {R : ℝ} {f : Euc d → ℝ}
     (h : IsSignWitness ε d R f) (hε : ε = 1 ∨ ε = -1) (h0 : ε * f 0 ≤ 0) : 0 < R := by
   by_contra hR
-  push_neg at hR
+  push Not at hR
   have hnn : ∀ x, 0 ≤ f x := fun x => h.tail_nonneg x (hR.trans (norm_nonneg x))
   have hF0 := h.fourier_eq 0
   have hint : 𝓕 (fun x : Euc d => (f x : ℂ)) 0 = ((∫ x, f x : ℝ) : ℂ) := by

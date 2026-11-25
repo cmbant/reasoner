@@ -386,7 +386,7 @@ theorem kernelK_laplace {w : ℕ} (hw : 1 ≤ w) (α : ℝ) {β : ℝ} (hβ : 0 
       fun k => (hF_int_norm k).1.1
     have htsum_enorm : ∑' k : ℕ, ∫⁻ t in Ioi 0, ‖F k t‖ₑ ≠ ⊤ := by
       have heq : ∀ k : ℕ, ∫⁻ t in Ioi 0, ‖F k t‖ₑ = ENNReal.ofReal (∫ t in Ioi 0, ‖F k t‖) :=
-        fun k => (ofReal_integral_norm_eq_lintegral_enorm (hF_int_norm k).1).symm
+        fun k => (ofReal_integral_norm_eq_lintegral_eNorm (hF_int_norm k).1).symm
       simp_rw [heq]
       have hnn : Summable (fun k : ℕ => (∫ t in Ioi 0, ‖F k t‖).toNNReal) :=
         NNReal.summable_coe.1 (by
@@ -400,10 +400,10 @@ theorem kernelK_laplace {w : ℕ} (hw : 1 ≤ w) (α : ℝ) {β : ℝ} (hβ : 0 
       calc ∫⁻ t in Ioi 0, ENNReal.ofReal ‖∑' k : ℕ, F k t‖
           = ∫⁻ t in Ioi 0, ‖∑' k : ℕ, F k t‖ₑ := by
               refine lintegral_congr fun t => ?_
-              rw [Real.enorm_eq_ofReal_abs, Real.norm_eq_abs]
+              rw [Real.eNorm_eq_ofReal_abs, Real.norm_eq_abs]
         _ ≤ ∫⁻ t in Ioi 0, ∑' k : ℕ, ‖F k t‖ₑ :=
-            lintegral_mono fun t => enorm_tsum_le_tsum_enorm
-        _ = ∑' k : ℕ, ∫⁻ t in Ioi 0, ‖F k t‖ₑ := lintegral_tsum fun k => (hF_meas k).enorm
+            lintegral_mono fun t => eNorm_tsum_le_tsum_eNorm
+        _ = ∑' k : ℕ, ∫⁻ t in Ioi 0, ‖F k t‖ₑ := lintegral_tsum fun k => (hF_meas k).eNorm
     exact lt_of_le_of_lt hle (lt_top_iff_ne_top.mpr htsum_enorm)
   have hint_main : IntegrableOn (fun t => kernelK w α t * Real.exp (-2 * π * β * t)) (Ioi 0) :=
     hint_tsum.congr_fun (fun t _ => (hF_eq t).symm) measurableSet_Ioi

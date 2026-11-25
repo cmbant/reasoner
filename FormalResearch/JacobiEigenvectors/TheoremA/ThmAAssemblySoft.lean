@@ -100,9 +100,9 @@ theorem softUpper_data (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (
   obtain ⟨-, -, -, hEc⟩ := hA (X k) hwin
   obtain ⟨h1, h2, h3⟩ := hEc X Um hEf hS0 k rfl
   have e1 : ∀ n, psiHatVec CI μ N (X k) n = softVec CI.softUpL CI.softUpR (atStep F μ N) (X k) N n := by
-    intro n; unfold psiHatVec; rw [dif_neg hk, if_pos hJ]
+    intro n; unfold psiHatVec; rw [dite_eq_right hk, ite_eq_left hJ]
   have e2 : ∀ n, envVec CI μ N (X k) n = softEnv CI.softUpL CI.softUpR (atStep F μ N) (X k) N n := by
-    intro n; unfold envVec; rw [dif_neg hk, if_pos hJ]
+    intro n; unfold envVec; rw [dite_eq_right hk, ite_eq_left hJ]
   refine ⟨⟨⟨fun n hn => ?_, ?_⟩, fun n hn hnw => ?_⟩, ?_⟩
   · rw [e1, e2]
     have := h1 n hn
@@ -157,9 +157,9 @@ theorem softLower_data (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (
   obtain ⟨h1, h2, h3⟩ := hEc (negX X) (negU Um) hEn hS0 (Fin.rev k) (negX_rev X k)
   have e1 : ∀ n, psiHatVec CI μ N (X k) n =
       (-1 : ℝ) ^ n * softVec CI.softLoL CI.softLoR (atStep F μ N) (-X k) N n := by
-    intro n; unfold psiHatVec; rw [dif_neg hk, if_neg hJ]
+    intro n; unfold psiHatVec; rw [dite_eq_right hk, ite_eq_right hJ]
   have e2 : ∀ n, envVec CI μ N (X k) n = softEnv CI.softLoL CI.softLoR (atStep F μ N) (-X k) N n := by
-    intro n; unfold envVec; rw [dif_neg hk, if_neg hJ]
+    intro n; unfold envVec; rw [dite_eq_right hk, ite_eq_right hJ]
   refine ⟨⟨⟨fun n hn => ?_, ?_⟩, fun n hn hnw => ?_⟩, ?_⟩
   · rw [e1, e2, abs_sub_sign]
     have := h1 n hn
@@ -310,9 +310,9 @@ theorem aiiAbs_bulk (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) (hm 
         Finset.single_le_sum (f := fun ν => |Cc ν| + |Cb ν|) (fun _ _ => by positivity) (Finset.mem_univ ν)
       linarith [le_abs_self (Cb ν), abs_nonneg (Cc ν)]
     have e1 : ∀ n, psiHatVec CI μ N (X k) n = bulkVec (CI.bulkL ν) (CI.bulkR ν) (atStep F μ N) (X k) N n := by
-      intro n; unfold psiHatVec; rw [dif_pos hd]
+      intro n; unfold psiHatVec; rw [dite_eq_left hd]
     have e2 : ∀ n, envVec CI μ N (X k) n = bulkEnv (CI.bulkL ν) (CI.bulkR ν) (atStep F μ N) (X k) N n := by
-      intro n; unfold envVec; rw [dif_pos hd]
+      intro n; unfold envVec; rw [dite_eq_left hd]
     refine ⟨fun n hn => ?_, ?_⟩
     · rw [e1, e2]
       exact (hrow n hn).trans (mul_le_mul_of_nonneg_right
@@ -336,7 +336,7 @@ theorem envVec_nonneg (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) :
   have hp : (μ, F.step N) ∈ paramSet K t0 := ⟨hμ, ⟨by linarith, hNt⟩⟩
   unfold envVec
   by_cases hd : ∃ ν, CI.lo ν ≤ x ∧ x ≤ CI.hi ν
-  · rw [dif_pos hd]
+  · rw [dite_eq_left hd]
     have hspec := Classical.choose_spec hd
     set ν := Classical.choose hd with hν
     have hXI : x ∈ Icc (CI.lo ν) (CI.hi ν) := hspec
@@ -345,7 +345,7 @@ theorem envVec_nonneg (CI : ChartInputs F K Kidx t0 m (2 * Kidx) U V cPC CPC) :
         (le_trans (le_max_left _ _) hNN) (le_trans (le_max_right _ _) hNN) hpos
         (fun j hj0 hjN => TheoremB.chart_envL_nonneg (CI.bulkL ν) (μ, F.step N) hp x hXI N (le_trans (le_max_left _ _) hNN) j hj0 hjN)
         (fun j hj0 hjN => TheoremB.chart_envL_nonneg (CI.bulkR ν) (μ, F.step N) hp x hXI N (le_trans (le_max_right _ _) hNN) j hj0 hjN) n hn
-  · rw [dif_neg hd]
+  · rw [dite_eq_right hd]
     split_ifs
     · exact softEnv_nonneg CI.softUpL CI.softUpR CI.pc _ _ _ _
     · exact softEnv_nonneg CI.softLoL CI.softLoR CI.pc _ _ _ _

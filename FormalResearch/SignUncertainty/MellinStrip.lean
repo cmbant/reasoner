@@ -103,8 +103,8 @@ theorem mellinStrip_reflection_of_re_lt {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ �
     exact Real.pi_ne_zero.symm
   rw [hinv, hinv] at W
   have hz : (((2 * π : ℝ) : ℂ)) ≠ 0 := by exact_mod_cast hr.ne'
-  have hX : ((2 * π : ℝ) : ℂ) ^ z ≠ 0 := by rw [Ne, Complex.cpow_eq_zero_iff]; simp [hz]
-  have hY : ((2 * π : ℝ) : ℂ) ^ ((c : ℂ) - z) ≠ 0 := by rw [Ne, Complex.cpow_eq_zero_iff]; simp [hz]
+  have hX : ((2 * π : ℝ) : ℂ) ^ z ≠ 0 := by rw [Ne, Complex.cpow_eq_zero_iff]; simp 
+  have hY : ((2 * π : ℝ) : ℂ) ^ ((c : ℂ) - z) ≠ 0 := by rw [Ne, Complex.cpow_eq_zero_iff]; simp 
   have hGz : Complex.Gamma z ≠ 0 := Complex.Gamma_ne_zero_of_re_pos hz0
   have hGc : Complex.Gamma ((c : ℂ) - z) ≠ 0 :=
     Complex.Gamma_ne_zero_of_re_pos (by simpa using (by linarith : z.re < c))

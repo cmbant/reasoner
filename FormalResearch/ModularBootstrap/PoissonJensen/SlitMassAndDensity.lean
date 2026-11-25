@@ -1146,9 +1146,9 @@ lemma slitDensity_pos_ae {x y : ℝ} (hy : 0 < y) :
   simp only [mem_compl_iff, mem_insert_iff, mem_singleton_iff, not_or] at hnot
   unfold slitDensity
   rcases hmem with hIoo | hIoi
-  · rw [if_pos hIoo.2]
+  · rw [ite_eq_left hIoo.2]
     exact rightSlitDensity_pos hy ⟨hIoo, hnot.1⟩
-  · rw [if_neg (by linarith [show 1 < σ from hIoi])]
+  · rw [ite_eq_right (by linarith [show 1 < σ from hIoi])]
     exact leftSlitDensity_pos hy ⟨hIoi, hnot.2⟩
 
 theorem setIntegral_slitPreimage_div_slitDensity {x y : ℝ} (hy : 0 < y) {φ : ℝ → ℝ}
@@ -1167,14 +1167,14 @@ theorem setIntegral_slitPreimage_div_slitDensity {x y : ℝ} (hy : 0 < y) {φ : 
       (fun σ : ℝ => (φ |slitBoundaryMap σ| / slitDensity x y σ) * poissonKernel x y σ)
       (Ioo (-1) 0) := fun σ hσ => by
     dsimp only
-    rw [abs_of_nonneg (slitBoundaryMap_nonneg_of_mem_Ioo hσ), slitDensity, if_pos hσ.2]
+    rw [abs_of_nonneg (slitBoundaryMap_nonneg_of_mem_Ioo hσ), slitDensity, ite_eq_left hσ.2]
   have hcongrL : EqOn
       (fun σ : ℝ => (φ (-slitBoundaryMap σ) / leftSlitDensity x y σ) * poissonKernel x y σ)
       (fun σ : ℝ => (φ |slitBoundaryMap σ| / slitDensity x y σ) * poissonKernel x y σ)
       (Ioi 1) := fun σ hσ => by
     dsimp only
     rw [abs_of_nonpos (slitBoundaryMap_nonpos_of_mem_Ioi hσ), slitDensity,
-      if_neg (by linarith [show 1 < σ from hσ])]
+      ite_eq_right (by linarith [show 1 < σ from hσ])]
   have hIoo : IntegrableOn
       (fun σ : ℝ => (φ |slitBoundaryMap σ| / slitDensity x y σ) * poissonKernel x y σ)
       (Ioo (-1) 0) := hR_int.congr_fun hcongrR measurableSet_Ioo
@@ -1490,7 +1490,7 @@ lemma integrable_abs_log_sub_mul_poissonKernel (a x : ℝ) {y : ℝ} (hy : 0 < y
     Integrable (fun σ : ℝ => |Real.log (|σ - a|)| * poissonKernel x y σ) := by
   have hi := (integrable_abs_log_mul_poisson' (x - a) hy).comp_sub_right a
   refine hi.congr (Eventually.of_forall fun σ => ?_)
-  unfold poissonKernel; congr 3; ring
+  unfold poissonKernel; ring
 
 theorem integrableOn_poisson_mul_log_slitDensity (x : ℝ) {y : ℝ} (hy : 0 < y) :
     IntegrableOn (fun σ : ℝ => poissonKernel x y σ * Real.log (slitDensity x y σ)) slitPreimage := by
@@ -1539,7 +1539,7 @@ theorem integrableOn_poisson_mul_log_slitDensity (x : ℝ) {y : ℝ} (hy : 0 < y
       rw [Real.log_div hCR.ne' (abs_ne_zero.mpr (sub_ne_zero.mpr hne'))]
       exact abs_sub _ _
     have hP0 := poissonKernel_nonneg (x := x) hy.le σ
-    rw [Real.norm_eq_abs, abs_mul, abs_of_nonneg hP0, slitDensity, if_pos hσ.2]
+    rw [Real.norm_eq_abs, abs_mul, abs_of_nonneg hP0, slitDensity, ite_eq_left hσ.2]
     dsimp [dom, C₀]
     simp only [sub_zero, sub_neg_eq_add]
     have hsum_log : |Real.log (rightSlitDensity x y σ)| ≤
@@ -1592,7 +1592,7 @@ theorem integrableOn_poisson_mul_log_slitDensity (x : ℝ) {y : ℝ} (hy : 0 < y
         abs_add_le (Real.log CL) (3 * Real.log (|σ + 1|)),
         abs_add_le (Real.log (|σ - 1|)) (Real.log (|σ - sigmaPlus|)), hab3]
     have hP0 := poissonKernel_nonneg (x := x) hy.le σ
-    rw [Real.norm_eq_abs, abs_mul, abs_of_nonneg hP0, slitDensity, if_neg (by linarith)]
+    rw [Real.norm_eq_abs, abs_mul, abs_of_nonneg hP0, slitDensity, ite_eq_right (by linarith)]
     dsimp [dom, C₁]
     simp only [sub_neg_eq_add]
     have hsum_log : |Real.log (leftSlitDensity x y σ)| ≤
@@ -1622,7 +1622,7 @@ theorem setIntegral_poisson_mul_log_slitDensity_le_entropy (x : ℝ) {y : ℝ} (
     refine Integrable.mono hint_log hmeas_g (Eventually.of_forall fun σ => ?_)
     dsimp [g]
     have hP0 := poissonKernel_nonneg (x := x) hy.le σ
-    simp only [Real.norm_eq_abs, abs_mul, abs_of_nonneg hP0]
+    simp only [abs_mul, abs_of_nonneg hP0]
     refine mul_le_mul_of_nonneg_left ?_ hP0
     exact abs_le.mpr ⟨by linarith [le_max_left 0 (Real.log (slitDensity x y σ)), abs_nonneg (Real.log (slitDensity x y σ))],
       max_le (abs_nonneg _) (le_abs_self _)⟩
@@ -1637,9 +1637,9 @@ theorem setIntegral_poisson_mul_log_slitDensity_le_entropy (x : ℝ) {y : ℝ} (
   rw [setIntegral_union hdisj measurableSet_Ioi hg_Ioo hg_Ioi]
   congr 1
   · refine setIntegral_congr_fun measurableSet_Ioo fun σ hσ => ?_
-    dsimp [g]; unfold slitDensity; rw [if_pos hσ.2]
+    dsimp [g]; unfold slitDensity; rw [ite_eq_left hσ.2]
   · refine setIntegral_congr_fun measurableSet_Ioi fun σ hσ => ?_
-    dsimp [g]; unfold slitDensity; rw [if_neg (by linarith [show 1 < σ from hσ])]
+    dsimp [g]; unfold slitDensity; rw [ite_eq_right (by linarith [show 1 < σ from hσ])]
 
 /-- info: 'FormalResearch.ModularBootstrap.PoissonJensen.hankelContinuation_bdy_ne_zero_ae' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

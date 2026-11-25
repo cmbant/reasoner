@@ -401,7 +401,7 @@ theorem gt1d_seed_family (X : ℝ → ℝ)
 
 /-- Weight times decay: `(1 + |u|)^5 |∂^k F(u)|` is bounded on `[L, ∞)` for `L ≤ 1`. -/
 theorem gt1d_weight_bound {F : ℝ → ℝ} (hF : ContDiff ℝ (⊤ : ℕ∞) F) {r : ℝ} (hr : 0 < r)
-    (hd : Gt1dDecay r F) {L : ℝ} (hL : L ≤ 1) (k : ℕ) :
+    (hd : Gt1dDecay r F) {L : ℝ} (_hL : L ≤ 1) (k : ℕ) :
     ∃ S : ℝ, ∀ u : ℝ, L ≤ u → (1 + |u|) ^ 5 * |iteratedDeriv k F u| ≤ S := by
   obtain ⟨C, hC⟩ := hd k
   have hcI : Continuous (iteratedDeriv k F) := hF.continuous_iteratedDeriv k (by exact_mod_cast le_top)

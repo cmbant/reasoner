@@ -139,7 +139,7 @@ lemma softLoSigma_zero_eventually (SI : SoftPhaseInputs (negFamily (frozenFamily
     simp [softSigma]
   have hneg := actionS0_neg (frozenFamily T Kidx) (μ, t) (-X) (by simpa using hint t ht)
   unfold softLoSigma
-  rw [if_pos rfl, e, hS, hneg, neg_neg]
+  rw [ite_eq_left rfl, e, hS, hneg, neg_neg]
   have hL : (frozenFamily T Kidx).L = T.L := rfl
   rw [hL]
   ring

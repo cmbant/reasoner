@@ -46,21 +46,21 @@ theorem jacobiMat_mirror {Par : Type*} (F : SymbolFamily Par) (μ : Par) (N : �
     congr 2
     omega
   · have h1' : Fin.rev i ≠ Fin.rev j := fun h => h1 (Fin.rev_injective h)
-    rw [if_neg h1, if_neg h1']
+    rw [ite_eq_right h1, ite_eq_right h1']
     by_cases h2 : j.val = i.val + 1
     · have h3 : (Fin.rev i : Fin (N + 1)).val = (Fin.rev j : Fin (N + 1)).val + 1 := by omega
-      rw [if_pos h2, if_neg (show ¬ (Fin.rev j : Fin (N + 1)).val = (Fin.rev i : Fin (N + 1)).val + 1 by omega), if_pos h3, bondA_mirror, hrj]
+      rw [ite_eq_left h2, ite_eq_right (show ¬ (Fin.rev j : Fin (N + 1)).val = (Fin.rev i : Fin (N + 1)).val + 1 by omega), ite_eq_left h3, bondA_mirror, hrj]
       congr 1
       omega
-    · rw [if_neg h2]
+    · rw [ite_eq_right h2]
       by_cases h4 : i.val = j.val + 1
       · have h5 : (Fin.rev j : Fin (N + 1)).val = (Fin.rev i : Fin (N + 1)).val + 1 := by omega
-        rw [if_pos h4, if_pos h5, bondA_mirror, hri]
+        rw [ite_eq_left h4, ite_eq_left h5, bondA_mirror, hri]
         congr 1
         omega
       · have h5 : ¬ (Fin.rev j : Fin (N + 1)).val = (Fin.rev i : Fin (N + 1)).val + 1 := by omega
         have h3 : ¬ (Fin.rev i : Fin (N + 1)).val = (Fin.rev j : Fin (N + 1)).val + 1 := by omega
-        rw [if_neg h4, if_neg h5, if_neg h3]
+        rw [ite_eq_right h4, ite_eq_right h5, ite_eq_right h3]
 
 /-- the reflected eigenvector matrix in the gauge `(Psi'_k)_0 > 0`. -/
 def mirrorU {N : ℕ} (U : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ :=
@@ -118,14 +118,14 @@ theorem eigVec_mirrorU {N : ℕ} (U : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) (k
   unfold eigVec
   by_cases hn : 0 ≤ n ∧ n ≤ (N : ℤ)
   · have hn' : 0 ≤ (N : ℤ) - n ∧ (N : ℤ) - n ≤ (N : ℤ) := by omega
-    rw [dif_pos hn, dif_pos hn']
+    rw [dite_eq_left hn, dite_eq_left hn']
     simp only [mirrorU, Matrix.of_apply]
     congr 2
     ext
     simp [Fin.val_rev]
     omega
   · have hn' : ¬ (0 ≤ (N : ℤ) - n ∧ (N : ℤ) - n ≤ (N : ℤ)) := by omega
-    rw [dif_neg hn, dif_neg hn']
+    rw [dite_eq_right hn, dite_eq_right hn']
     ring
 
 end FormalResearch.JacobiEigenvectors.TheoremB

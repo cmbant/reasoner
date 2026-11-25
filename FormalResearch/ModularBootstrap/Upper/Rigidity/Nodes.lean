@@ -118,7 +118,7 @@ lemma measure_eq_sum_atoms {ν : Measure ℝ} (h : ν (Set.range airyNode)ᶜ = 
   rw [h1, h2, measure_iUnion]
   · congr 1
     ext i
-    rw [Measure.smul_apply, smul_eq_mul, Measure.dirac_apply' _ hs]
+    rw [smul_apply, smul_eq_mul, Measure.dirac_apply' _ hs]
     by_cases hi : airyNode i ∈ s
     · have : s ∩ {airyNode i} = {airyNode i} := by
         ext x; simp only [Set.mem_inter_iff, Set.mem_singleton_iff]
@@ -160,9 +160,9 @@ lemma integrable_airyMeasure {g : ℝ → ℝ} (hg : Continuous g)
   have hterm : ∀ i, ∫⁻ u, ‖g u‖ₑ ∂(ENNReal.ofReal (airyNodeWeight i) • Measure.dirac (airyNode i)) =
       ENNReal.ofReal (|g (airyNode i) * airyNodeWeight i|) := by
     intro i
-    rw [lintegral_smul_measure, lintegral_dirac' _ hg.measurable.enorm, smul_eq_mul, mul_comm,
+    rw [lintegral_smul_measure, lintegral_dirac' _ hg.measurable.eNorm, smul_eq_mul, mul_comm,
       abs_mul, abs_of_pos (airyNodeWeight_pos i), ENNReal.ofReal_mul (abs_nonneg _),
-      Real.enorm_eq_ofReal_abs]
+      Real.eNorm_eq_ofReal_abs]
   simp_rw [hterm]
   rw [← ENNReal.ofReal_tsum_of_nonneg (fun i => abs_nonneg _) hs.abs]
   exact ENNReal.ofReal_lt_top
@@ -189,7 +189,7 @@ lemma airyMeasure_singleton (i : ℕ) : airyMeasure {airyNode i} = ENNReal.ofRea
 lemma airyMeasure_compl_range : airyMeasure (Set.range airyNode)ᶜ = 0 := by
   unfold airyMeasure
   rw [Measure.sum_apply _ measurableSet_range_airyNode.compl]
-  refine ENNReal.tsum_eq_zero.2 fun i => ?_
+  refine tsum_eq_zero_iff.2 fun i => ?_
   simp [Measure.dirac_apply' _ measurableSet_range_airyNode.compl, Set.indicator]
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Rigidity.integral_eq_tsum_atoms' depends on axioms: [propext, Classical.choice, Quot.sound] -/

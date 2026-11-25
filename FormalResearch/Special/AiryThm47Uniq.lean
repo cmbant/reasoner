@@ -27,7 +27,7 @@ namespace FormalResearch.Special
 lemma at47_exists_real_ne_zero {P Q : ℝ[X]} (hHB : AiryPQHB P Q) (a : ℝ) :
     ∃ x : ℝ, x < a ∧ airyPQN P Q (x : ℂ) ≠ 0 := by
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   set R : ℝ := |a| + 2 with hR
   have hfin := airyPQ_zeros_finite hHB R
   have hsub : (fun x : ℝ => (x : ℂ)) '' Set.Ioo (-R) a ⊆ {z : ℂ | airyPQN P Q z = 0 ∧ ‖z‖ ≤ R} := by

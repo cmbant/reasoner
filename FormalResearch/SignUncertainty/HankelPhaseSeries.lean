@@ -169,7 +169,7 @@ theorem re_gSerD_ge (h : LangerEta η) {σ τ : ℝ} (hσ0 : 0 < σ) (hσ : σ �
   have haB : a ≤ 0.1128 := by rw [hnsq]; nlinarith
   have ha1 : a < 1 := by linarith
   have hnorm1 : ‖ζ‖ < 1 := by
-    by_contra hc; push_neg at hc; nlinarith [norm_nonneg ζ]
+    by_contra hc; push Not at hc; nlinarith [norm_nonneg ζ]
   -- terms
   set Z : ℕ → ℂ := fun j => (η j : ℂ) * ζ ^ (2 * j + 1) with hZ
   have hZn : ∀ j, ‖Z j‖ ≤ ‖ζ‖ * a ^ j := by

@@ -81,7 +81,7 @@ lemma clarkMeasure_singleton (α : ℝ) (i : ℕ) :
 lemma clarkMeasure_compl_range (α : ℝ) : clarkMeasure α (Set.range (cNode α))ᶜ = 0 := by
   unfold clarkMeasure
   rw [Measure.sum_apply _ node_measurableSet_range.compl]
-  refine ENNReal.tsum_eq_zero.2 fun i => ?_
+  refine tsum_eq_zero_iff.2 fun i => ?_
   simp [Measure.dirac_apply' _ node_measurableSet_range.compl, Set.indicator]
 
 lemma clarkMeasure_Icc_lt_top (α a b : ℝ) : clarkMeasure α (Set.Icc a b) < ∞ := by
@@ -93,7 +93,7 @@ lemma clarkMeasure_Icc_lt_top (α a b : ℝ) : clarkMeasure α (Set.Icc a b) < �
   unfold clarkMeasure
   rw [Measure.sum_apply _ measurableSet_Icc, tsum_eq_sum (s := hfin.toFinset)]
   · refine ENNReal.sum_lt_top.2 fun i _ => ?_
-    simp only [Measure.smul_apply, smul_eq_mul]
+    simp only [smul_apply, smul_eq_mul]
     exact ENNReal.mul_lt_top ENNReal.ofReal_lt_top
       (lt_of_le_of_lt (prob_le_one (μ := Measure.dirac (cNode α i)) (s := Set.Icc a b)) ENNReal.one_lt_top)
   · intro i hi

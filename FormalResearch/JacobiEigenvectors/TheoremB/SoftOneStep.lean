@@ -130,22 +130,22 @@ theorem softJBChart_shifted (C : SoftEdgeChart G P m q U V (fun _ => 1)) (C1 : S
   · simp only [FormalResearch.JB.Chart.shifted, softJBChart, Bool.false_eq_true, ite_false, Matrix.of_apply]
     unfold FormalResearch.JB.YshRev
     by_cases hn : 0 < n.val
-    · rw [dif_pos hn]
+    · rw [dite_eq_left hn]
       simp only [Matrix.of_apply, chartRowDn, Bool.false_eq_true, ite_false]
       refine key _ _ ?_
       omega
-    · rw [dif_neg hn]
+    · rw [dite_eq_right hn]
       simp only [chartExtRowDn, chartRowDn, Bool.false_eq_true, ite_false]
       refine key _ _ ?_
       omega
   · simp only [FormalResearch.JB.Chart.shifted, softJBChart, ite_true, Matrix.of_apply]
     unfold FormalResearch.JB.Ysh
     by_cases hn : n.val + 1 < R
-    · rw [dif_pos hn]
+    · rw [dite_eq_left hn]
       simp only [Matrix.of_apply, chartRowDn, ite_true]
       refine key _ _ ?_
       omega
-    · rw [dif_neg hn]
+    · rw [dite_eq_right hn]
       simp only [chartExtRowDn, chartRowDn, ite_true]
       refine key _ _ ?_
       omega
@@ -260,7 +260,7 @@ theorem compMatrix_softUp_entry (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (
         CI.softUpL.psiHatL (atStep F μ N) (Xs k) N i / softNorm CI.softUpL CI.softUpR (atStep F μ N) (Xs k) N
       else softKappa CI.softUpL CI.softUpR (atStep F μ N) (Xs k) N *
         CI.softUpR.psiHatL (atStep F μ N) (Xs k) N ((N : ℤ) - ((i : ℕ) : ℤ)) / softNorm CI.softUpL CI.softUpR (atStep F μ N) (Xs k) N := by
-  simp only [compMatrix, Matrix.of_apply, compColumn, dif_neg hk1, if_pos hk2]
+  simp only [compMatrix, Matrix.of_apply, compColumn, dite_eq_right hk1, ite_eq_left hk2]
   unfold softColAt glueVecAt
   split_ifs <;> rfl
 
@@ -294,7 +294,7 @@ theorem softUp_host0_eq_left (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (CI1
   have hn : ((((lo + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (CI.softUpL.uc (atStep F μ N))) := by
     have := hle n
     push_cast; exact this
-  rw [if_pos hn]
+  rw [ite_eq_left hn]
   have hcr : chartRowDn N lo R false n = (((lo + n.val : ℕ) : ℤ)) := by simp [chartRowDn]
   rw [hcr]
   have hg := hgt n
@@ -333,7 +333,7 @@ theorem softUp_host0_eq_right (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (CI
   have hn : ¬ ((((lo + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (CI.softUpL.uc (atStep F μ N))) := by
     have := hgtn n
     push_cast; omega
-  rw [if_neg hn]
+  rw [ite_eq_right hn]
   have hcr : chartRowDn N lo R true n = (N : ℤ) - (((lo + n.val : ℕ) : ℤ)) := by simp [chartRowDn]
   rw [hcr]
   have hg' : CI.softUpR.uc (atStep F μ N) - CI.softUpR.η / 2 < uNode (F.step N) ((N : ℤ) - (((lo + n.val : ℕ) : ℤ))) := by
@@ -375,7 +375,7 @@ theorem softUp_host1_eq_left (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (CI1
   have hn : ((((lo + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (CI1.softUpL.uc (atStep F μ N))) := by
     have := hle n
     push_cast; exact this
-  rw [if_pos hn]
+  rw [ite_eq_left hn]
   have hcr : chartRowDn N lo R false n = (((lo + n.val : ℕ) : ℤ)) := by simp [chartRowDn]
   rw [hcr]
   have hg := hgt n
@@ -415,7 +415,7 @@ theorem softUp_host1_eq_right (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (CI
   have hn : ¬ ((((lo + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (CI1.softUpL.uc (atStep F μ N))) := by
     have := hgtn n
     push_cast; omega
-  rw [if_neg hn]
+  rw [ite_eq_right hn]
   have hcr : chartRowDn N lo R true n = (N : ℤ) - (((lo + n.val : ℕ) : ℤ)) := by simp [chartRowDn]
   rw [hcr]
   have hg' : CI1.softUpR.uc (atStep F μ N) - CI1.softUpR.η / 2 < uNode (F.step N) ((N : ℤ) - (((lo + n.val : ℕ) : ℤ))) := by

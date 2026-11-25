@@ -135,7 +135,7 @@ lemma clarkArzelaSingleBall
     split_ifs with hn
     · rw [mem_closedBall_zero_iff]
       exact hBd n hn x.1 (closedBall_subset_closedBall (by linarith) x.2)
-    · rw [mem_closedBall_zero_iff, BoundedContinuousFunction.coe_zero, Pi.zero_apply, norm_zero]
+    · rw [mem_closedBall_zero_iff, FunLike.coe_zero, Pi.zero_apply, norm_zero]
       exact hM
   have heq : Equicontinuous (fun f : Set.range bcf => (f.1 : X → ℂ)) := by
     intro x₀
@@ -163,7 +163,7 @@ lemma clarkArzelaSingleBall
             have : 0 < ε / (M + 1) := div_pos hε (by linarith)
             nlinarith
         _ = ε := by field_simp [(by linarith : M + 1 ≠ 0)]
-    · simp only [BoundedContinuousFunction.coe_zero, Pi.zero_apply, dist_self]
+    · simp only [FunLike.coe_zero, Pi.zero_apply, dist_self]
       exact hε
   have hcomp : IsCompact (closure (Set.range bcf)) :=
     BoundedContinuousFunction.arzela_ascoli (closedBall (0 : ℂ) M) (isCompact_closedBall 0 M)
@@ -305,8 +305,8 @@ lemma clarkIntegrable_of_symm_norm_le {f : ℝ → ℂ} {C : ℝ}
         ENNReal.ofReal (∫ x in (-N : ℝ)..(N : ℝ), ‖f x‖) := by
       rw [lintegral_indicator measurableSet_Ioc,
         show (∫⁻ x in Ioc (-N : ℝ) (N : ℝ), ‖f x‖ₑ) =
-            ∫⁻ x in Ioc (-N : ℝ) (N : ℝ), ‖‖f x‖‖ₑ by simp [enorm_norm],
-        ← ofReal_integral_norm_eq_lintegral_enorm hint_on, intervalIntegral.integral_of_le hle]
+            ∫⁻ x in Ioc (-N : ℝ) (N : ℝ), ‖‖f x‖‖ₑ by simp [eNorm_norm],
+        ← MeasureTheory.ofReal_integral_norm_eq_lintegral_eNorm hint_on, intervalIntegral.integral_of_le hle]
       congr 2; ext x; rw [Real.norm_eq_abs, abs_of_nonneg (norm_nonneg _)]
     rw [h_eq]
     exact ENNReal.ofReal_le_ofReal (hC N)
@@ -335,7 +335,7 @@ lemma clarkIntegrable_of_symm_norm_le {f : ℝ → ℂ} {C : ℝ}
       exact le_iSup (fun N : ℕ => (Ioc (-N : ℝ) (N : ℝ)).indicator (fun y => ‖f y‖ₑ) x) N
   have h_meas : ∀ N : ℕ, Measurable (fun x : ℝ =>
       (Ioc (-N : ℝ) (N : ℝ)).indicator (fun y => ‖f y‖ₑ) x) := fun N =>
-    hf_cont.enorm.measurable.indicator measurableSet_Ioc
+    hf_cont.eNorm.measurable.indicator measurableSet_Ioc
   have hfin : ∫⁻ x : ℝ, ‖f x‖ₑ ≤ ENNReal.ofReal C := by
     have h_eq_sup : ∀ x : ℝ, ‖f x‖ₑ =
         ⨆ N : ℕ, (Ioc (-N : ℝ) (N : ℝ)).indicator (fun y => ‖f y‖ₑ) x := fun x => by

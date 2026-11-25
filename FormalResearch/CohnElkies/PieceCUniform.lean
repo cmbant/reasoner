@@ -110,7 +110,7 @@ lemma ceHth_eq_edgePhiDeriv_zero (τ : ℝ) :
 /-- The remainder part `S(v) = c R(εv)` of the phase. -/
 noncomputable def pcS (c v : ℝ) : ℝ := c * edgeR (liftEps c * v)
 
-lemma hasDerivAt_pcS {c : ℝ} (hc : 0 < c) (v : ℝ) :
+lemma hasDerivAt_pcS {c : ℝ} (_hc : 0 < c) (v : ℝ) :
     HasDerivAt (pcS c) (c * liftEps c * ceHth (Real.pi * (liftEps c * v) / 2)) v := by
   have := ((hasDerivAt_edgeR (liftEps c * v)).comp v ((hasDerivAt_id v).const_mul (liftEps c))).const_mul c
   exact this.congr_deriv (by ring)
@@ -332,8 +332,8 @@ lemma bd2_multiplier (m : ℕ) : ∃ B0 B1 B2 : ℝ, ∀ {δ₀ : ℝ}, 0 < δ�
     have hz : deriv (fun _ : ℝ => (0 : ℂ)) = fun _ => 0 := funext fun x => deriv_const x 0
     have hcs := ceCs_pos
     rw [hd1, hz]
-    refine ⟨by simpa using le_max_right C0 1, ?_, ?_⟩
-    · simp only [Pi.zero_apply, norm_zero]; positivity
+    refine ⟨by simp, ?_, ?_⟩
+    · simp only [norm_zero]; positivity
     · simp only [norm_zero]; positivity
   · have hβ : 0 < ceCs * δ₀ / m := by
       have h1 := ceCs_pos

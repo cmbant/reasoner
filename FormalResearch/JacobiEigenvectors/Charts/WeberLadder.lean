@@ -214,7 +214,7 @@ lemma weberM_dn_adjugate (u h Z : ℝ) :
 lemma kappaBal_neg_half (j : ℕ) :
     kappaBal (-((j : ℝ) + 1 / 2)) = (Real.sqrt (j.factorial : ℝ))⁻¹ := by
   have hle : -((j : ℝ) + 1 / 2) ≤ 0 := neg_nonpos.mpr (by positivity)
-  rw [kappaBal, if_pos hle]
+  rw [kappaBal, ite_eq_left hle]
   have harg : (1 : ℝ) / 2 - (-((j : ℝ) + 1 / 2)) = (j : ℝ) + 1 := by ring
   rw [harg, Real.Gamma_nat_eq_factorial, show (-(1 : ℝ) / 2) = -(1 / 2 : ℝ) by norm_num,
     Real.rpow_neg (by positivity), ← Real.sqrt_eq_rpow]
@@ -596,7 +596,7 @@ theorem weber_symplecticLadder (Y : ℝ → ℝ) {pp qq : ℝ → ℝ → ℝ} :
       have hst := weber_shift_step hh hv (Z₀ := Y u) (Z₁ := Y (u + h))
         (fun z => (diff_ut_at _ z).hasDerivAt) (ut_pcU_ode _) hM
       dsimp only [weberPiP, weberPhiP, wWeb]
-      rw [if_neg hn, if_neg hn, ha0, ha1, hDp, hs]
+      rw [ite_eq_right hn, ite_eq_right hn, ha0, ha1, hDp, hs]
       exact hst
     | 1 =>
       have hsh := vt_pcV_shift_up j (Y u / Real.sqrt h)
@@ -606,7 +606,7 @@ theorem weber_symplecticLadder (Y : ℝ → ℝ) {pp qq : ℝ → ℝ → ℝ} :
       have hst := weber_shift_step hh hv (Z₀ := Y u) (Z₁ := Y (u + h))
         (fun z => (diff_vt_at _ z).hasDerivAt) (vt_pcV_ode _) hM
       dsimp only [weberPiP, weberPhiP, wWeb]
-      rw [if_neg hn, if_neg hn, ha0, ha1, hDp, hs]
+      rw [ite_eq_right hn, ite_eq_right hn, ha0, ha1, hDp, hs]
       exact hst
   shift_dn := fun α h hh j hj => by
     have hn : ¬ h ≤ 0 := not_le.mpr hh
@@ -631,7 +631,7 @@ theorem weber_symplecticLadder (Y : ℝ → ℝ) {pp qq : ℝ → ℝ → ℝ} :
       have hst := weber_shift_step hh hv (Z₀ := Y u) (Z₁ := Y (u - h))
         (fun z => (diff_ut_at _ z).hasDerivAt) (ut_pcU_ode _) hM
       dsimp only [weberPiM, weberPhiM, wWeb]
-      rw [if_neg hn, if_neg hn, ha0, ha1, hDm, hs]
+      rw [ite_eq_right hn, ite_eq_right hn, ha0, ha1, hDm, hs]
       exact hst
     | 1 =>
       have hsh := vt_pcV_shift_dn hj (Y u / Real.sqrt h)
@@ -641,7 +641,7 @@ theorem weber_symplecticLadder (Y : ℝ → ℝ) {pp qq : ℝ → ℝ → ℝ} :
       have hst := weber_shift_step hh hv (Z₀ := Y u) (Z₁ := Y (u - h))
         (fun z => (diff_vt_at _ z).hasDerivAt) (vt_pcV_ode _) hM
       dsimp only [weberPiM, weberPhiM, wWeb]
-      rw [if_neg hn, if_neg hn, ha0, ha1, hDm, hs]
+      rw [ite_eq_right hn, ite_eq_right hn, ha0, ha1, hDm, hs]
       exact hst
   d2_up := fun h hh j => by
     dsimp [Dp, d2Web, ddWeb]
@@ -950,7 +950,7 @@ theorem weber_W0 : ∃ c3 : ℝ, 0 < c3 ∧ ∀ (j : ℕ) (z : ℝ),
   have hE : Erec (-((j : ℝ) + 1 / 2)) |z| = Ewell (-((j : ℝ) + 1 / 2)) |z| := by
     unfold Erec
     have hn : -((j : ℝ) + 1 / 2) ≤ 0 := neg_nonpos.mpr (by positivity)
-    rw [if_pos hn, abs_abs]
+    rw [ite_eq_left hn, abs_abs]
   have hu_abs : |ut pcU (-((j : ℝ) + 1 / 2)) z| =
       abs (kappaBal (-((j : ℝ) + 1 / 2)) * pcU (-((j : ℝ) + 1 / 2)) |z|) := by
     rcases le_or_gt 0 z with hz0 | hz0

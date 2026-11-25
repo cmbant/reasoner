@@ -349,7 +349,7 @@ private lemma laguerreHat_natDegree_le (c : ℝ) (n : ℕ) : (laguerreHat c n).n
 private lemma laguerreHat_coeff_top {c : ℝ} (_hc : 0 < c) (n : ℕ) :
     (laguerreHat c n).coeff n = 1 / Real.sqrt ((n.factorial : ℝ) * poch c n) := by
   unfold laguerreHat
-  rw [Polynomial.coeff_smul, smul_eq_mul, laguerrePoly_coeff_top]
+  rw [AddMonoidAlgebra.coeff_smul_apply, smul_eq_mul, laguerrePoly_coeff_top]
   have hsq : (-1 : ℝ) ^ n * (-1 : ℝ) ^ n = 1 := by rw [← mul_pow]; norm_num
   calc ((-1 : ℝ) ^ n / Real.sqrt ((n.factorial : ℝ) * poch c n)) * (-1 : ℝ) ^ n
       = ((-1 : ℝ) ^ n * (-1 : ℝ) ^ n) / Real.sqrt ((n.factorial : ℝ) * poch c n) := by ring
@@ -515,7 +515,7 @@ private lemma laguerreHat_three_term {c : ℝ} (hc : 0 < c) (n : ℕ) :
     have hsc : jacobiOff c 0 = Real.sqrt c := by unfold jacobiOff; simp
     rw [hsc, smul_smul, show Real.sqrt c * (-1 / Real.sqrt c) = -1 by
       field_simp [(Real.sqrt_pos.mpr hc).ne']]
-    ext k; simp only [Polynomial.coeff_add, Polynomial.coeff_smul, smul_eq_mul,
+    ext k; simp only [Polynomial.coeff_add, AddMonoidAlgebra.coeff_smul_apply, smul_eq_mul,
       Polynomial.coeff_sub, Polynomial.coeff_C, Polynomial.coeff_X, Polynomial.coeff_one]
     split_ifs <;> ring
   | succ n =>
@@ -541,7 +541,7 @@ private lemma laguerreHat_three_term {c : ℝ} (hc : 0 < c) (n : ℕ) :
     have hcoeff_sub : ∀ k : ℕ, (laguerreHat c (k + 1)).coeff k =
         -((k : ℝ) + 1) * ((k : ℝ) + c) / Real.sqrt (((k + 1).factorial : ℝ) * poch c (k + 1)) := fun k => by
       unfold laguerreHat
-      rw [Polynomial.coeff_smul, smul_eq_mul, laguerrePoly_coeff_sub]
+      rw [AddMonoidAlgebra.coeff_smul_apply, smul_eq_mul, laguerrePoly_coeff_sub]
       have hsign : (-1 : ℝ) ^ (k + 1) * (-1 : ℝ) ^ k = -1 := by
         rw [pow_succ', mul_assoc, ← mul_pow]; norm_num
       calc ((-1 : ℝ) ^ (k + 1) / Real.sqrt (((k + 1).factorial : ℝ) * poch c (k + 1))) *
@@ -555,8 +555,8 @@ private lemma laguerreHat_three_term {c : ℝ} (hc : 0 < c) (n : ℕ) :
         Polynomial.coeff_eq_zero_of_natDegree_lt ((laguerreHat_natDegree_le c (n + 1)).trans_lt (by omega))
       have hLn_n2 : (laguerreHat c n).coeff (n + 2) = 0 :=
         Polynomial.coeff_eq_zero_of_natDegree_lt ((laguerreHat_natDegree_le c n).trans_lt (by omega))
-      simp only [Polynomial.coeff_sub, Polynomial.coeff_X_mul, Polynomial.coeff_add,
-        Polynomial.coeff_smul, smul_eq_mul, hLn1_n2, hLn_n2, mul_zero, add_zero]
+      simp only [Polynomial.coeff_X_mul,
+        hLn1_n2, hLn_n2, mul_zero, add_zero]
       rw [laguerreHat_coeff_top hc (n + 1), laguerreHat_coeff_top hc (n + 2), sqrt_norm_succ hc (n + 1)]
       have hs1 : jacobiOff c (n + 1) ≠ 0 := by unfold jacobiOff; positivity
       have hs2 : Real.sqrt (((n + 1).factorial : ℝ) * poch c (n + 1)) ≠ 0 :=
@@ -566,8 +566,8 @@ private lemma laguerreHat_three_term {c : ℝ} (hc : 0 < c) (n : ℕ) :
       dsimp [D, RHS]
       have hLn_n1 : (laguerreHat c n).coeff (n + 1) = 0 :=
         Polynomial.coeff_eq_zero_of_natDegree_lt ((laguerreHat_natDegree_le c n).trans_lt (by omega))
-      simp only [Polynomial.coeff_sub, Polynomial.coeff_X_mul, Polynomial.coeff_add,
-        Polynomial.coeff_smul, smul_eq_mul, hLn_n1, mul_zero, add_zero]
+      simp only [Polynomial.coeff_X_mul,
+        hLn_n1, mul_zero, add_zero]
       rw [hcoeff_sub n, hcoeff_sub (n + 1), laguerreHat_coeff_top hc (n + 1), sqrt_norm_succ hc (n + 1)]
       have hsq : jacobiOff c (n + 1) * jacobiOff c (n + 1) =
           (((n + 1 : ℕ) : ℝ) + 1) * (((n + 1 : ℕ) : ℝ) + c) := by
@@ -616,7 +616,7 @@ private lemma laguerreHat_three_term {c : ℝ} (hc : 0 < c) (n : ℕ) :
               (laguerreHat_natDegree_le c (k + 1))))
           have hcoeff_top : Qk.coeff (k + 1) = 0 := by
             dsimp [Qk]
-            simp only [Polynomial.coeff_sub, Polynomial.coeff_X_mul, Polynomial.coeff_smul, smul_eq_mul]
+            simp only [Polynomial.coeff_X_mul]
             rw [laguerreHat_coeff_top hc k, laguerreHat_coeff_top hc (k + 1), sqrt_norm_succ hc k]
             have hs1 : jacobiOff c k ≠ 0 := by unfold jacobiOff; positivity
             have hs2 : Real.sqrt ((k.factorial : ℝ) * poch c k) ≠ 0 :=

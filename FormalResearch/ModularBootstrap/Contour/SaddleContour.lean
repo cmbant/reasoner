@@ -863,13 +863,14 @@ private lemma zp_lower_ray_arcA {η : ℂ → ℂ → ℂ} {ρ_F C_F : ℝ}
     have hw_re_pos : 0 < w_m.re := by
       simp only [w_m, Complex.add_re, Complex.re_ofReal_mul]
       have : 0 < t_m := by linarith [ht_range.1, hρ_pos]
-      nlinarith [hs_re_nn, hdirA_re_pos]
+      nlinarith only [hs_re_nn, hdirA_re_pos, this]
     have hw_im_neg : w_m.im < 0 := by
       simp only [w_m, Complex.add_im, Complex.im_ofReal_mul, hdirA_im]
       have hs_im_ub : s.im ≤ ρ := (le_abs_self s.im).trans ((Complex.abs_im_le_norm s).trans (by rw [hs_norm]))
       have hsq2_gt : 1 < √2 := by
         rw [← Real.sqrt_one]; exact Real.sqrt_lt_sqrt (by norm_num) (by norm_num)
-      nlinarith [ht_range.1, hρ_pos, hsin512]
+      have hsin_pos : 0 < Real.sin (5 * Real.pi / 12) := lt_of_lt_of_le (by positivity) hsin512
+      nlinarith only [hs_im_ub, ht_range.1, hρ_pos, hsin512, hsq2_gt, hsin_pos]
     have harg_mem := arg_in_fourth_quad hw_re_pos hw_im_neg
     let θ_m := w_m.arg
     have hw_polar : w_m = ((10 * ρ : ℝ) : ℂ) * Complex.exp (Complex.I * (θ_m : ℂ)) := by
@@ -886,7 +887,7 @@ private lemma zp_lower_ray_arcA {η : ℂ → ℂ → ℂ} {ρ_F C_F : ℝ}
       have hltF : ‖s + (v : ℂ) * dir_mA‖ < ρ_F :=
         (hvn.trans (mul_le_mul_of_nonneg_left hρ_le (by norm_num))).trans_lt (hρ₀_delta.trans_lt (hδ_rhoF.trans_le (min_le_left _ _)))
       have hre0 : 0 ≤ (s + (v : ℂ) * dir_mA).re := by
-        rw [Complex.add_re, Complex.re_ofReal_mul]; nlinarith [hs_re_nn, hv.1, hdirA_re_pos]
+        rw [Complex.add_re, Complex.re_ofReal_mul]; nlinarith only [hs_re_nn, hv.1, hdirA_re_pos]
       have hre14 : (s + (v : ℂ) * dir_mA).re ≤ 1 / 4 :=
         (Complex.re_le_norm _).trans (hvn.trans ((mul_le_mul_of_nonneg_left hρ_le (by norm_num)).trans (hρ₀_delta.trans hδ_14)))
       exact ⟨mem_ball_zero_iff.mpr hltF, hre0, hre14⟩

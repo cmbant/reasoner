@@ -246,7 +246,7 @@ theorem muHole_one_ge {η₀ : ℝ} (hη₀0 : 0 ≤ η₀) (_hη₀1 : η₀ �
         rw [abs_of_nonneg (sub_nonneg.mpr hs.2)]
       rw [hcon, intervalIntegral.integral_comp_sub_left Real.log u, integral_log]
       simp only [sub_zero, zero_mul, sub_self, add_zero]
-      try ring
+      ring_nf
     have hright : ∫ s in u..(3 / 2 : ℝ), Real.log |u - s| =
         (3 / 2 - u) * Real.log (3 / 2 - u) - (3 / 2 - u) := by
       have hcon : ∫ s in u..(3 / 2 : ℝ), Real.log |u - s| =
@@ -1398,7 +1398,7 @@ private lemma hole_site_err_K5 {c' x u η₀ : ℝ} {n j : ℕ}
     h_minus_bd h_plus_bd h_model_bd
 
 private lemma hole_integral_err_K5 {c' x ℓ u aStar : ℝ} {n j : ℕ}
-    (hc' : 0 < c') (hj1_r : (1 : ℝ) ≤ (j : ℝ)) (hn1_r : (1 : ℝ) ≤ (n : ℝ)) (hn_pos : (0 : ℝ) < (n : ℝ))
+    (hc' : 0 < c') (hj1_r : (1 : ℝ) ≤ (j : ℝ)) (_hn1_r : (1 : ℝ) ≤ (n : ℝ)) (hn_pos : (0 : ℝ) < (n : ℝ))
     (h16_r : 16 * ((j : ℝ) + 1) ^ 2 ≤ (n : ℝ))
     (hfrac_r : 4 * ((j : ℝ) + 1) ^ 2 / (n : ℝ) ≤ 1)
     (hnj_lb : (1 / 4 : ℝ) < (n : ℝ) - (j : ℝ) - 1 / 2)
@@ -1440,9 +1440,9 @@ private lemma hole_integral_err_K5 {c' x ℓ u aStar : ℝ} {n j : ℕ}
       apply hane
       have hsm := chiQuantile_strictMonoOn hc'
       rcases lt_trichotomy a aStar with hlt | rfl | hgt
-      · exact absurd heq (hsm (Set.mem_Ici.mpr ha14.le) (Set.mem_Ici.mpr (by linarith [hn1_r, haStar_Ico.1])) hlt).ne'
+      · exact absurd heq (hsm (Set.mem_Ici.mpr ha14.le) (Set.mem_Ici.mpr (by linarith [_hn1_r, haStar_Ico.1])) hlt).ne'
       · exact rfl
-      · exact absurd heq (hsm (Set.mem_Ici.mpr (by linarith [hn1_r, haStar_Ico.1])) (Set.mem_Ici.mpr ha14.le) hgt).ne
+      · exact absurd heq (hsm (Set.mem_Ici.mpr (by linarith [_hn1_r, haStar_Ico.1])) (Set.mem_Ici.mpr ha14.le) hgt).ne
     let z_a := π * (x - chiQuantile c' a) / 2
     have hza_ne : z_a ≠ 0 := by dsimp [z_a]; exact div_ne_zero (mul_ne_zero Real.pi_ne_zero (sub_ne_zero.mpr hχ_ne)) two_ne_zero
     have h_phi_eq : phiVar c' x a =
@@ -1494,10 +1494,10 @@ private lemma hole_integral_err_K5 {c' x ℓ u aStar : ℝ} {n j : ℕ}
         rcases le_total a aStar with h | h
         · rw [max_eq_right h, min_eq_left h, abs_of_nonneg]
           exact sub_nonneg.mpr ((chiQuantile_strictMonoOn hc').monotoneOn
-            (Set.mem_Ici.mpr ha14.le) (Set.mem_Ici.mpr (by linarith [hn1_r, haStar_Ico.1])) h)
+            (Set.mem_Ici.mpr ha14.le) (Set.mem_Ici.mpr (by linarith [_hn1_r, haStar_Ico.1])) h)
         · rw [max_eq_left h, min_eq_right h, abs_sub_comm, abs_of_nonneg]
           exact sub_nonneg.mpr ((chiQuantile_strictMonoOn hc').monotoneOn
-            (Set.mem_Ici.mpr (by linarith [hn1_r, haStar_Ico.1])) (Set.mem_Ici.mpr ha14.le) h)
+            (Set.mem_Ici.mpr (by linarith [_hn1_r, haStar_Ico.1])) (Set.mem_Ici.mpr ha14.le) h)
       have h_bounds : (1 - 4 * ((j : ℝ) + 1) / (n : ℝ)) * (|aStar - a| * ℓ) ≤
             |x - chiQuantile c' a| ∧
           |x - chiQuantile c' a| ≤ (1 + 4 * ((j : ℝ) + 1) / (n : ℝ)) * (|aStar - a| * ℓ) := by
@@ -2435,7 +2435,7 @@ theorem hole_floor_K5 {j : ℕ} {η₀ : ℝ} (hj : 1 ≤ j) (hη₀0 : 0 < η�
         unfold siteGap
         exact sub_nonneg.mpr ((chiQuantile_strictMonoOn hc').monotoneOn
           (Set.mem_Ici.mpr (by linarith)) (Set.mem_Ici.mpr (by linarith)) (by linarith))
-      rw [abs_of_nonneg (mul_nonneg hη₀0.le hgk_nn)]; nlinarith
+      rw [abs_of_nonneg (mul_nonneg hη₀0.le hgk_nn)]; nlinarith only [hgk, hgap1, hgk_nn, hη₀0, hη₀1]
     have hhasProd := (comb_pairProd_hasProdLocallyUniformlyOn χ ε hχ_nn hε_bd
       (summable_exp_neg_pi_chiQuantile hc' f)).hasProd
       (by simp : (x : ℂ) ∈ {b : ℂ | |b.im| < 7 / 8})
@@ -2459,7 +2459,7 @@ theorem hole_floor_K5 {j : ℕ} {η₀ : ℝ} (hj : 1 ≤ j) (hη₀0 : 0 < η�
               ← Complex.ofReal_sinh, ← Complex.ofReal_cosh, Complex.ofReal_div]
           rw [← h1']; congr 1; push_cast; ring
         rw [hc1, Complex.ofReal_ne_zero, Real.tanh_eq_sinh_div_cosh]
-        exact div_ne_zero (Real.sinh_ne_zero.mpr (by nlinarith [Real.pi_pos])) (Real.cosh_pos _).ne'
+        exact div_ne_zero (Real.sinh_ne_zero.mpr (by nlinarith only [Real.pi_pos, hχf_lt])) (Real.cosh_pos _).ne'
       have h2 : Complex.tanh ((π : ℂ) * ((x : ℂ) + (chiQuantile c' f : ℂ)) / 2) ≠ 0 := by
         have hc2 : Complex.tanh ((π : ℂ) * ((x : ℂ) + (chiQuantile c' f : ℂ)) / 2) =
             ((Real.tanh (π * (x + chiQuantile c' f) / 2) : ℝ) : ℂ) := by
@@ -2711,7 +2711,7 @@ theorem band_overshoot_K5 {η₀ : ℝ} (hη₀0 : 0 < η₀) (hη₀1 : η₀ �
             Real.exp (c' * combPf c' f x + jEndComb c' x f) := by
           have hnn : 0 ≤ (1 / Real.cosh (π * x / 2) ^ 2) *
               Real.exp (c' * combPf c' f x + jEndComb c' x f) := by positivity
-          nlinarith
+          nlinarith only [hnn]
       _ = 4 * (1 / Real.cosh (π * x / 2) ^ 2) *
             Real.exp (-c' * slitL x + c' * combPf c' f x + jEndComb c' x f) *
             Real.exp (c' * slitL x) := by

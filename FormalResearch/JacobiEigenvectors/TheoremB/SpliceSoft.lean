@@ -105,7 +105,7 @@ theorem soft_split_agree {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz
   have hρ0 : 0 ≤ rhoWin (C.aOf p X N) := by unfold rhoWin; positivity
   have hnZ : rhoWin (C.aOf p X N) < |C.Zof p X N n| := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     exact hnΩ (Finset.mem_filter.mpr ⟨hn, hcon⟩)
   obtain ⟨hu0, huL⟩ := uNode_row_mem (Fz := Fz) hn
   have hsgn := fun hx : C.η / 4 ≤ |uNode (Fz.step N) n - C.uc p| =>
@@ -120,7 +120,7 @@ theorem soft_split_agree {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz
     by_cases hx : -(C.η / 2) ≤ uNode (Fz.step N) n - C.uc p
     · have := Zof_le C hp hX N hle (by rw [abs_le]; constructor <;> linarith) (by rw [abs_le]; constructor <;> linarith)
       linarith
-    · push_neg at hx
+    · push Not at hx
       have hxa : C.η / 4 ≤ |uNode (Fz.step N) n - C.uc p| := by rw [abs_of_neg (by linarith)]; linarith
       have := (hsgn hxa).1 (by linarith)
       rw [hZn]
@@ -133,7 +133,7 @@ theorem soft_split_agree {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz
     by_cases hx : uNode (Fz.step N) n - C.uc p ≤ C.η / 2
     · have := Zof_le C hp hX N hlt.le (by rw [abs_le]; constructor <;> linarith) (by rw [abs_le]; constructor <;> linarith)
       linarith
-    · push_neg at hx
+    · push Not at hx
       have hxa : C.η / 4 ≤ |uNode (Fz.step N) n - C.uc p| := by rw [abs_of_pos (by linarith)]; linarith
       have := (hsgn hxa).2 (by linarith)
       rw [hZn]
@@ -144,12 +144,12 @@ theorem soft_split_agree {p : Par × ℝ} (hp : p ∈ P) {X : ℝ} (hX : |X - Fz
   · intro hle
     have h1 := hlow hle
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     rw [abs_of_pos hcon] at hnZ
     linarith
   · intro hZ
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have h1 := hup hcon
     rw [abs_of_nonpos hZ] at hnZ
     linarith
@@ -240,7 +240,7 @@ theorem propThaSpliceSoft_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U 
             refine Finset.sum_le_sum fun n _ => ?_
             by_cases hnW : n ∈ softWindow CL p (Xs k) N
             · simp only [hnW, if_true]; exact hpt n hnW
-            · simp only [hnW, if_false, le_refl]
+            · simp only [hnW, ite_false, le_refl]
         _ = ∑ n ∈ softWindow CL p (Xs k) N, Cm * K * ε * (T * Mbal a (CL.Zof p (Xs k) N n)) ^ 2 :=
             window_indicator_sum_le _ _ _ hΩrows hnn
         _ = Cm * K * ε * T ^ 2 * wmMass CL p (Xs k) N := by
@@ -304,8 +304,8 @@ theorem propThaSpliceSoft_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U 
       · left
         unfold softNum
         by_cases hz : CL.Zof p (Xs k) N n ≤ 0
-        · rw [if_pos hz, if_pos (hiff.mpr hz)]
-        · rw [if_neg hz, if_neg (fun h => hz (hiff.mp h))]
+        · rw [ite_eq_left hz, ite_eq_left (hiff.mpr hz)]
+        · rw [ite_eq_right hz, ite_eq_right (fun h => hz (hiff.mp h))]
       · right
         have hnΩ : n ∈ softWindow CL p (Xs k) N := by
           by_contra hnΩ
@@ -323,10 +323,10 @@ theorem propThaSpliceSoft_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U 
           unfold softNum
           by_cases hz : CL.Zof p (Xs k) N n ≤ 0
           · have hn' : ¬ n ≤ ns := fun h => hiff ⟨fun _ => hz, fun _ => h⟩
-            rw [if_pos hz, if_neg hn']
+            rw [ite_eq_left hz, ite_eq_right hn']
           · have hn' : n ≤ ns := by
               by_contra h; exact hiff ⟨fun h' => absurd h' h, fun h' => absurd h' hz⟩
-            rw [if_neg hz, if_pos hn', abs_sub_comm]
+            rw [ite_eq_right hz, ite_eq_left hn', abs_sub_comm]
         rw [habs]
         exact hm2.trans hbd
     have hpt := splice_pt (softNum CL CR p (Xs k) N n)

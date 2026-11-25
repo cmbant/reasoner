@@ -1013,7 +1013,7 @@ theorem subharmonic_disc_avg_le {f : ℂ → ℂ} {B : ℂ → ℝ} {ζ₀ : ℂ
     refine lt_of_le_of_lt (setLIntegral_mono' Complex.polarCoord.open_target.measurableSet ?_) hfin
     intro p hp
     have hp1 : 0 < p.1 := by rw [Complex.polarCoord_target] at hp; exact hp.1
-    rw [enorm_mul, Real.enorm_of_nonneg hp1.le]
+    rw [eNorm_mul, Real.eNorm_of_nonneg hp1.le]
     exact le_rfl
   have hprod_target_eq : (volume.restrict Complex.polarCoord.target : Measure (ℝ × ℝ)) =
       (volume.restrict (Ioi (0 : ℝ))).prod (volume.restrict (Ioo (-π) π)) := by

@@ -43,7 +43,7 @@ lemma inv_le_rpow {n : ℕ} (hn : 1 ≤ n) : (n : ℝ)⁻¹ ≤ (n : ℝ) ^ (-(2
 
 /-- The relative loss of the near-tip floor is `O(n^{-2/3}) + O(μ)`, `μ = λ c'^{3/5}`. -/
 lemma rampedHoleLoss_le {C Cg Cκ C_S C_L : ℝ} (hC : 0 < C) (hCg : 0 < Cg) (hCκ : 0 < Cκ) (hCS : 0 < C_S)
-    (hCL : 0 < C_L) {n : ℕ} (hn : 8 ≤ n) {ℓ eL S κ μ : ℝ} (hℓ0 : 0 ≤ ℓ) (hℓ : ℓ ≤ Cg * μ) (hμ1 : Cg * μ ≤ 1)
+    (_hCL : 0 < C_L) {n : ℕ} (hn : 8 ≤ n) {ℓ eL S κ μ : ℝ} (hℓ0 : 0 ≤ ℓ) (hℓ : ℓ ≤ Cg * μ) (hμ1 : Cg * μ ≤ 1)
     (hμ0 : 0 ≤ μ) (heL : eL ≤ C_L * μ) (hS : S ≤ C_S * ((n : ℝ) ^ (-(2 / 3 : ℝ)) + Real.log n / n) + C_S * μ)
     (hκ : κ = Cκ / n) :
     rampedHoleLoss C ℓ eL S κ n ≤

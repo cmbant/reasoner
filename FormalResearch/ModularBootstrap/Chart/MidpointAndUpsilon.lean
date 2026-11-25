@@ -484,8 +484,8 @@ private lemma chartQ_midline_pos {τ : ℝ} (hτ : 0 < τ) :
     Real.sinh_pos_iff.mpr (mul_pos Real.pi_pos hτ)
   have hcos_im_neg : (Complex.cos ((Real.pi : ℂ) * ζ)).im < 0 := by
     rw [hcos_eq]
-    simp only [Complex.neg_im, Complex.mul_im, Complex.I_re, Complex.I_im,
-      Complex.ofReal_re, Complex.ofReal_im, mul_zero, zero_mul, add_zero, one_mul, neg_zero]
+    simp only [Complex.neg_im, Complex.mul_im, Complex.I_im,
+      Complex.ofReal_re, Complex.ofReal_im, mul_zero]
     linarith
   have hs_arg : (Complex.cos ((Real.pi : ℂ) * ζ)).arg = -(Real.pi / 2) := by
     rw [hcos_eq, show -Complex.I * (Real.sinh (Real.pi * τ) : ℂ) =
@@ -613,7 +613,7 @@ private lemma chartQ_midline_pos {τ : ℝ} (hτ : 0 < τ) :
       have hnsq_Z : Z.re ^ 2 + Z.im ^ 2 = Real.cosh (Real.pi * τ) := by
         rw [hZ_eq]
         simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.I_re, Complex.I_im,
-          Complex.ofReal_im, mul_zero, sub_zero, add_zero, Complex.add_im, Complex.mul_im, one_mul,
+          Complex.ofReal_im, mul_zero, sub_zero, Complex.add_im, Complex.mul_im, one_mul,
           zero_add]
         have hc2 := Real.cosh_two_mul (Real.pi * τ / 2)
         have hch2 := Real.cosh_sq_sub_sinh_sq (Real.pi * τ / 2)
@@ -646,7 +646,7 @@ private lemma chartQ_midline_pos {τ : ℝ} (hτ : 0 < τ) :
     rw [show (Real.pi : ℂ) * (-Complex.I * starRingEnd ℂ b) =
       -Complex.I * starRingEnd ℂ ((Real.pi : ℂ) * b) by rw [map_mul, Complex.conj_ofReal]; ring]
     simp only [Complex.mul_im, Complex.neg_re, Complex.neg_im, Complex.I_re, Complex.I_im,
-      Complex.conj_re, Complex.conj_im, zero_mul, neg_zero, neg_neg, zero_add]
+      Complex.conj_re, Complex.conj_im, zero_mul, neg_zero, zero_add]
     have hpi_pb : ((Real.pi : ℂ) * b).re = Real.pi * b.re := by rw [Complex.re_ofReal_mul]
     linarith [mul_pos Real.pi_pos hb_re]
   have hz1_re : 0 < z₁.re ∧ z₁.re < Real.pi := by
@@ -666,7 +666,7 @@ private lemma chartQ_midline_pos {τ : ℝ} (hτ : 0 < τ) :
       have h := congrArg Complex.re hk1
       simp only [Complex.add_re, Complex.mul_re, Complex.re_ofNat, Complex.im_ofNat,
         Complex.intCast_re, Complex.intCast_im, Complex.ofReal_re, Complex.ofReal_im,
-        mul_zero, sub_zero, zero_mul] at h
+        mul_zero, sub_zero] at h
       exact h
     have hlt : |2 * (k : ℝ) * Real.pi| < Real.pi := by
       rw [show 2 * (k : ℝ) * Real.pi = z₂.re - z₁.re by linarith, abs_lt]
@@ -684,7 +684,7 @@ private lemma chartQ_midline_pos {τ : ℝ} (hτ : 0 < τ) :
   · have him_eq : z₂.im = -z₁.im := by
       have h := congrArg Complex.im hk2
       simp only [Complex.sub_im, Complex.mul_im, Complex.add_im, Complex.re_ofNat, Complex.im_ofNat,
-        Complex.intCast_re, Complex.intCast_im, Complex.one_re, Complex.one_im, Complex.ofReal_re,
+        Complex.intCast_re, Complex.intCast_im, Complex.one_im, Complex.ofReal_re,
         Complex.ofReal_im, mul_zero, zero_mul, add_zero, zero_sub] at h
       exact h
     linarith [hq_im_neg, hz2_im]

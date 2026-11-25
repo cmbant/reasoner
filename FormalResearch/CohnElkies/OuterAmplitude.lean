@@ -181,7 +181,7 @@ lemma scaled_bounds {Gt : ℝ → ℂ} {C : ℝ} (hcd : ContDiff ℝ 2 Gt)
 
 /-! ### The cut-off power weight `U(τ) = τ^{-m} χ_o(τ)` -/
 
-lemma abs_zpow_neg_eq_rpow {t : ℝ} (ht : t ≠ 0) (k : ℤ) : |t ^ k| = |t| ^ ((k : ℤ) : ℝ) := by
+lemma abs_zpow_neg_eq_rpow {t : ℝ} (_ht : t ≠ 0) (k : ℤ) : |t ^ k| = |t| ^ ((k : ℤ) : ℝ) := by
   rw [abs_zpow, Real.rpow_intCast]
 
 lemma hasDerivAt_negPow (m : ℕ) {τ : ℝ} (hτ : τ ≠ 0) :

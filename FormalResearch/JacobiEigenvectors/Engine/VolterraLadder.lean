@@ -235,7 +235,7 @@ lemma eqLo_ge_jj_of (s0 : ℤ) (jj : ℕ → ℤ) (p : ℕ) (hs0 : 0 ≤ s0) (hj
 lemma eqLo_ge_one_of (s0 : ℤ) (jj : ℕ → ℤ) (p : ℕ) (hp : p ≠ 1) (hj : 0 ≤ jj (p - 1)) :
     1 ≤ eqLo s0 jj p := by
   unfold eqLo
-  rw [if_neg hp]
+  rw [ite_eq_right hp]
   omega
 
 /-- **The bounds (S1), (S2), (R) of a family of ladder pairs** (`thm:eng-volterra`(b)): for the pairs

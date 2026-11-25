@@ -120,7 +120,6 @@ private lemma siteGap_ge_chiDeriv {c' : ℝ} (hc' : 0 < c') {k : ℕ} (hk : 1 �
   have heq : (k : ℝ) + 1 - (k : ℝ) = 1 := by ring
   rw [heq, one_mul] at h
   unfold siteGap
-  push_cast
   exact h
 
 private lemma siteGap_le_chiDeriv {c' : ℝ} (hc' : 0 < c') {k : ℕ} (hk : 1 ≤ k) :
@@ -132,7 +131,6 @@ private lemma siteGap_le_chiDeriv {c' : ℝ} (hc' : 0 < c') {k : ℕ} (hk : 1 �
   have heq : (k : ℝ) + 1 - (k : ℝ) = 1 := by ring
   rw [heq, one_mul] at h
   unfold siteGap
-  push_cast
   exact h
 
 private lemma cosh_one_lt_two : Real.cosh 1 < 2 := by
@@ -419,7 +417,6 @@ private lemma holeH_one_le_K6a {c' η₀ x : ℝ} {n : ℕ}
   have hℓ_small : ℓ ≤ 1 / (16 * π) := hℓ_le1.trans hgap_small
   have hℓ_pos : 0 < ℓ := by
     unfold ℓ siteGap
-    push_cast
     exact sub_pos.mpr (chiQuantile_strictMonoOn hc' (Set.mem_Ici.mpr (by linarith))
       (Set.mem_Ici.mpr (by linarith)) (by linarith))
   have h_deriv_ratio : chiDeriv c' ((n : ℝ) - 1 / 2) ≤ 2 * chiDeriv c' ((n : ℝ) + 3 / 2) := by
@@ -435,14 +432,14 @@ private lemma holeH_one_le_K6a {c' η₀ x : ℝ} {n : ℕ}
         (by linarith : (n : ℝ) ≤ (n : ℝ) + 1)
       have h1 : chiDeriv c' ((n : ℝ) + 3 / 2) ≤ chiDeriv c' ((n : ℝ) + 1) :=
         chiDeriv_antitone hc' (by linarith) (by linarith)
-      unfold ℓ siteGap; push_cast
+      unfold ℓ siteGap
       linarith [hsub, h1]
     have hl_le : ℓ ≤ chiDeriv c' ((n : ℝ) - 1 / 2) := by
       have hsub := chiQuantile_sub_le_mul hc' (by linarith : (1 / 4 : ℝ) < (n : ℝ))
         (by linarith : (n : ℝ) ≤ (n : ℝ) + 1)
       have h1 : chiDeriv c' (n : ℝ) ≤ chiDeriv c' ((n : ℝ) - 1 / 2) :=
         chiDeriv_antitone hc' hn14 (by linarith)
-      unfold ℓ siteGap; push_cast
+      unfold ℓ siteGap
       linarith [hsub, h1]
     intro t ht
     have h_lo : chiDeriv c' ((n : ℝ) + 3 / 2) ≤ chiDeriv c' t :=
@@ -461,7 +458,7 @@ private lemma holeH_one_le_K6a {c' η₀ x : ℝ} {n : ℕ}
     have hxm_bd : |x - chiQuantile c' m| ≤ ℓ := by
       rcases hm_r with rfl | rfl
       · rw [abs_of_nonneg (sub_nonneg.mpr hx.1)]
-        unfold ℓ siteGap; push_cast
+        unfold ℓ siteGap
         have h2 := hx.2; push_cast at h2; linarith
       · rw [abs_sub_comm, abs_of_pos (sub_pos.mpr hx.2)]
         unfold ℓ siteGap; push_cast
@@ -472,7 +469,7 @@ private lemma holeH_one_le_K6a {c' η₀ x : ℝ} {n : ℕ}
       · have hanti := (siteGap_strictAnti hc').antitone (show n - 1 ≤ n by omega)
         dsimp [ℓ]; convert hanti using 2; omega
     have hℓm_nn : 0 ≤ siteGap c' m := by
-      unfold siteGap; push_cast
+      unfold siteGap
       exact sub_nonneg.mpr ((chiQuantile_strictMonoOn hc').monotoneOn
         (Set.mem_Ici.mpr hm14.le) (Set.mem_Ici.mpr (by linarith)) (by linarith))
     let α := π * (x - chiQuantile c' m) / 2

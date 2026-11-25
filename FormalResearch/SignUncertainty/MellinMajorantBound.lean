@@ -49,7 +49,7 @@ theorem norm_mellinStrip_edge_core {c ε : ℝ} (hc : 0 < c) {f : ℝ → ℝ} (
     _ ≤ _ := mul_le_mul_of_nonneg_left h2 hM
 
 /-- From an edge bound for `Fm` to the bound `M e^{1/(6c)}` for `W`. -/
-theorem norm_mellinW_le_of_edge {c ε : ℝ} (hc : 0 < c) {f : ℝ → ℝ} {ζ : ℂ} (hζ0 : 0 ≤ ζ.re)
+theorem norm_mellinW_le_of_edge {c ε : ℝ} (_hc : 0 < c) {f : ℝ → ℝ} {ζ : ℂ} (hζ0 : 0 ≤ ζ.re)
     (τ : ℝ)
     (hF : ‖mellinFm c ε f ζ‖ ≤ hankelMass c f * ((1 + τ ^ 2) ^ (1 / 4 : ℝ) *
       Real.exp (c * (hInt ζ).re + 1 / (6 * c))))
@@ -100,7 +100,7 @@ theorem norm_mellinW_right_edge {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} 
   have hζeq : ζ = 1 - (τ : ℂ) * Complex.I := Complex.ext (by simp [hζ]) (by simp [hτ])
   have hFm : mellinFm c ε f ζ = (ε : ℂ) * mellinStrip f ((c : ℂ) * (1 - (τ : ℂ) * Complex.I)) := by
     unfold mellinFm
-    rw [if_neg (by rw [hζ]; norm_num), ← hζeq]
+    rw [ite_eq_right (by rw [hζ]; norm_num), ← hζeq]
   have hε1 : ‖(ε : ℂ)‖ = 1 := by rcases hε with h | h <;> simp [h]
   have hmem : ((τ : ℂ) * Complex.I) ∈ hStrip := ⟨by simp, by simp⟩
   have hH : hInt ζ = hInt ((τ : ℂ) * Complex.I) := by

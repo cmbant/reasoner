@@ -195,13 +195,13 @@ theorem innerDiff_small (AW : ℝ) (hAW : 1 ≤ AW) : ∃ C : ℝ, 0 ≤ C ∧
     obtain ⟨b0, -, -⟩ := hMb h hL0 hL2 hc hcL (θ := 0) (by norm_num)
     calc ‖ampQ0 c τ 0‖ * ‖W 0‖ ≤ (M * (L + 0 ^ 2)) * AW := by gcongr
       _ ≤ C * (L + ε ^ 2) := by
-        rw [hC]; nlinarith [mul_nonneg hMA (sq_nonneg ε), mul_nonneg hMA hL0.le, mul_nonneg hC1 (add_nonneg hL0.le (sq_nonneg ε))]
+        rw [hC]; nlinarith only [mul_nonneg hMA (sq_nonneg ε), mul_nonneg hMA hL0.le, mul_nonneg hC1 (add_nonneg hL0.le (sq_nonneg ε))]
   intro u hu0 hu3
   have hu_ne : u ≠ 0 := abs_pos.mp hu0
-  have hεu : ε * |u| ≤ 0.15 := by nlinarith
+  have hεu : ε * |u| ≤ 0.15 := by nlinarith only [hε5, hu3, mul_nonneg (sub_nonneg.2 hε5) hu0.le]
   have hθabs : |ε * u| = ε * |u| := by rw [abs_mul, abs_of_pos hε]
-  have hθ18 : |ε * u| ≤ 0.18 := by rw [hθabs]; linarith
-  have hθ22 : |ε * u| < 0.22 := by linarith
+  have hθ18 : |ε * u| ≤ 0.18 := by rw [hθabs]; linarith only [hεu]
+  have hθ22 : |ε * u| < 0.22 := by linarith only [hθ18]
   -- the half-power variables
   set m : ℝ := |u| with hm
   obtain ⟨hsq, hss, hr3, hr5⟩ := rpow_half_aux hu0
@@ -209,35 +209,41 @@ theorem innerDiff_small (AW : ℝ) (hAW : 1 ≤ AW) : ∃ C : ℝ, 0 ≤ C ∧
   set q : ℝ := m ^ (-(1 / 2) : ℝ) with hq
   have hs0 : 0 < s := Real.rpow_pos_of_pos hu0 _
   have hq0 : 0 < q := Real.rpow_pos_of_pos hu0 _
-  have hs2 : s < 2 := by nlinarith
-  have hq2 : 1 / 2 < q := by nlinarith
+  have hs2 : s < 2 := by nlinarith only [hss, hu3, hs0]
+  have hq2 : 1 / 2 < q := by nlinarith only [hsq, hs2, hs0, hq0]
+  have hsq2 : s * q * (s * q) = 1 := by rw [hsq, one_mul]
   have hmi : m⁻¹ = q * q := by
     have : m = s * s := hss.symm
-    rw [this]; field_simp; nlinarith [hsq]
+    rw [this]; field_simp; nlinarith only [hsq2]
   have hr3' : m ^ (-(3 / 2) : ℝ) = q ^ 3 := by rw [hr3, hmi]; ring
   have hr5' : m ^ (-(5 / 2) : ℝ) = q ^ 5 := by rw [hr5, hmi]; ring
-  have hsmi : s * m⁻¹ = q := by rw [hmi]; nlinarith [hsq]
-  have hsmi2 : s * (m⁻¹) ^ 2 = q ^ 3 := by rw [hmi]; nlinarith [hsq]
+  have hsmi : s * m⁻¹ = q := by
+    rw [hmi]
+    have : s * (q * q) = (s * q) * q := by ring
+    rw [this, hsq, one_mul]
+  have hsmi2 : s * (m⁻¹) ^ 2 = q ^ 3 := by
+    rw [hmi]
+    have : s * (q * q) ^ 2 = (s * q) * q ^ 3 := by ring
+    rw [this, hsq, one_mul]
   have hsmi3 : s * (m⁻¹) ^ 3 = q ^ 5 := by
     rw [hmi]
     have : s * (q * q) ^ 3 = (s * q) * q ^ 5 := by ring
     rw [this, hsq]; ring
-  have hmle : m ≤ 2 * s := by nlinarith
+  have hmle : m ≤ 2 * s := by nlinarith only [hss, hs2, hs0, mul_pos hs0 (sub_pos.2 hs2)]
   have hm2 : m ^ 2 ≤ 6 * s := by
-    have : m ^ 2 = s * (s * s * s) := by rw [← hss]; ring
-    rw [this]; nlinarith [mul_pos hs0 hs0]
+    nlinarith only [mul_nonneg hu0.le (sub_nonneg.2 hu3.le), hmle]
   -- region for the local bound
   have hwle : |trF τ 0 (ε * u) / ε| ≤ 1.013 * m := by
     rw [abs_div, abs_of_pos hε, div_le_iff₀ hε]
     have := (trF_ratio h hL0 hL2 (mul_ne_zero hε.ne' hu_ne) hθ22).2
-    rw [hθabs] at this; nlinarith
+    rw [hθabs] at this; linarith only [this]
   have hSl : ∀ x, m / 2 ≤ |x| → |x| ≤ m + |trF τ 0 (ε * u) / ε| →
       ‖Wt x‖ ≤ (128 * AW) * s ∧ ‖W1 x‖ ≤ (128 * AW) * (s * m⁻¹) ∧
       ‖W2 x‖ ≤ (128 * AW) * (s * (m⁻¹) ^ 2) ∧ ‖W3 x‖ ≤ (128 * AW) * (s * (m⁻¹) ^ 3) := by
     intro x hx hxR
-    have hx3 : |x| ≤ 3 * m := by linarith
-    have hx9 : |x| ≤ 9 := by linarith
-    have hx0 : 0 < |x| := by linarith
+    have hx3 : |x| ≤ 3 * m := by linarith only [hxR, hwle, hu0]
+    have hx9 : |x| ≤ 9 := by linarith only [hx3, hu3]
+    have hx0 : 0 < |x| := by linarith only [hx, hu0]
     obtain ⟨a0, a1, a2, a3⟩ := hSm x hx0 hx9
     have r1 : |x| ^ (-(1 / 2) : ℝ) ≤ 64 * q := mbd_rpow_le hu0 hx (by norm_num : (0 : ℝ) < 1 / 2) (by norm_num)
     have r3 : |x| ^ (-(3 / 2) : ℝ) ≤ 64 * q ^ 3 := by
@@ -247,22 +253,22 @@ theorem innerDiff_small (AW : ℝ) (hAW : 1 ≤ AW) : ∃ C : ℝ, 0 ≤ C ∧
     have hxs : |x| ^ (1 / 2 : ℝ) ≤ 2 * s := by
       rw [← Real.sqrt_eq_rpow]
       refine Real.sqrt_le_iff.2 ⟨by positivity, ?_⟩
-      nlinarith [hss]
+      nlinarith only [hss, hx3, hu0]
     rw [hsmi, hsmi2, hsmi3]
     refine ⟨?_, ?_, ?_, ?_⟩
     · calc ‖Wt x‖ = ‖W x - W 0‖ := rfl
         _ ≤ AW * |x| ^ (1 / 2 : ℝ) := a0
         _ ≤ AW * (2 * s) := by gcongr
-        _ ≤ _ := by nlinarith [mul_pos hs0 (by linarith : (0 : ℝ) < AW)]
+        _ ≤ _ := by nlinarith only [mul_pos hs0 (by linarith only [hAW] : (0 : ℝ) < AW)]
     · calc ‖W1 x‖ ≤ AW * |x| ^ (-(1 / 2) : ℝ) := a1
         _ ≤ AW * (64 * q) := by gcongr
-        _ ≤ _ := by nlinarith [mul_pos hq0 (by linarith : (0 : ℝ) < AW)]
+        _ ≤ _ := by nlinarith only [mul_pos hq0 (by linarith only [hAW] : (0 : ℝ) < AW)]
     · calc ‖W2 x‖ ≤ AW * |x| ^ (-(3 / 2) : ℝ) := a2
         _ ≤ AW * (64 * q ^ 3) := by gcongr
-        _ ≤ _ := by nlinarith [mul_pos (pow_pos hq0 3) (by linarith : (0 : ℝ) < AW)]
+        _ ≤ _ := by nlinarith only [mul_pos (pow_pos hq0 3) (by linarith only [hAW] : (0 : ℝ) < AW)]
     · calc ‖W3 x‖ ≤ AW * |x| ^ (-(5 / 2) : ℝ) := a3
         _ ≤ AW * (64 * q ^ 5) := by gcongr
-        _ ≤ _ := by nlinarith [mul_pos (pow_pos hq0 5) (by linarith : (0 : ℝ) < AW)]
+        _ ≤ _ := by nlinarith only [mul_pos (pow_pos hq0 5) (by linarith only [hAW] : (0 : ℝ) < AW)]
   obtain ⟨k0, k1, k2⟩ := hloc h hL0 hL2 hc hε hcL hWtd hu0 (hεu.trans (by norm_num)) hs0 hSl
   rw [hsmi] at k1; rw [hsmi2] at k2
   -- smoothness and splitting of derivatives
@@ -288,7 +294,7 @@ theorem innerDiff_small (AW : ℝ) (hAW : 1 ≤ AW) : ∃ C : ℝ, 0 ≤ C ∧
     have b1 := ((hasDerivAt_dilate a1).const_mul (ε : ℂ)).mul_const (W 0)
     refine ⟨b0.congr_deriv ?_, b1.congr_deriv ?_⟩
     · simp only [Complex.real_smul]
-    · simp only [Complex.real_smul]; try ring
+    · simp only [Complex.real_smul]; ring
   have hdQ1 : deriv Qf u = (ε : ℂ) * ampQ1 c τ (ε * u) * W 0 := (hQd u hθ22).1.deriv
   have hdQ2 : deriv (deriv Qf) u = (ε : ℂ) ^ 2 * ampQ2 c τ (ε * u) * W 0 := by
     have hUo : IsOpen {s : ℝ | |ε * s| < 0.22} :=
@@ -302,16 +308,18 @@ theorem innerDiff_small (AW : ℝ) (hAW : 1 ≤ AW) : ∃ C : ℝ, 0 ≤ C ∧
   obtain ⟨b0, b1, b2⟩ := hMb h hL0 hL2 hc hcL hθ18
   set X : ℝ := L + ε ^ 2 with hX
   have hX0 : 0 ≤ X := by positivity
-  have hε1 : ε ≤ 1 := by linarith
+  have hε1 : ε ≤ 1 := by linarith only [hε5]
   have hδ : L + ε ^ 2 * u ^ 2 ≤ 9 * X := by
-    have : u ^ 2 ≤ 9 := by rw [← sq_abs]; nlinarith [abs_nonneg u]
-    nlinarith [sq_nonneg ε]
+    have : u ^ 2 ≤ 9 := by
+      rw [← sq_abs]; show m ^ 2 ≤ 9
+      nlinarith only [mul_nonneg hu0.le (sub_nonneg.2 hu3.le), hu3]
+    nlinarith only [hX, hL0, mul_nonneg (sq_nonneg ε) (sub_nonneg.2 this)]
   have hδ0 : 0 ≤ L + ε ^ 2 * u ^ 2 := by positivity
-  have hXq : X ≤ 2 * (X * q) := by nlinarith
+  have hXq : X ≤ 2 * (X * q) := by nlinarith only [mul_nonneg hX0 (sub_nonneg.2 hq2.le)]
   have hq3 : 1 / 8 < q ^ 3 := by
     have : (1 / 2 : ℝ) ^ 3 < q ^ 3 := pow_lt_pow_left₀ hq2 (by norm_num) (by norm_num)
-    linarith
-  have hXq3 : X ≤ 8 * (X * q ^ 3) := by nlinarith
+    linarith only [this]
+  have hXq3 : X ≤ 8 * (X * q ^ 3) := by nlinarith only [mul_nonneg hX0 (sub_nonneg.2 hq3.le)]
   refine ⟨?_, ?_, ?_⟩
   · -- Hölder bound
     have hsplit_u : g u - g 0 = gt u + (ampQ0 c τ (ε * u) - ampQ0 c τ 0) * W 0 := by
@@ -329,12 +337,13 @@ theorem innerDiff_small (AW : ℝ) (hAW : 1 ≤ AW) : ∃ C : ℝ, 0 ≤ C ∧
       rw [sub_zero, hθabs]
       have e1 : (M * (L + ε * m)) * (ε * m) = M * (L * (ε * m) + ε ^ 2 * m ^ 2) := by ring
       rw [e1]
-      have f1 : L * (ε * m) ≤ 2 * L * s := by nlinarith [mul_nonneg hL0.le (abs_nonneg u)]
-      have f2 : ε ^ 2 * m ^ 2 ≤ 6 * ε ^ 2 * s := by nlinarith [sq_nonneg ε]
+      have g1 : ε * m ≤ 2 * s := by nlinarith only [mul_nonneg (sub_nonneg.2 hε1) hu0.le, hmle]
+      have f1 : L * (ε * m) ≤ 2 * L * s := by nlinarith only [mul_le_mul_of_nonneg_left g1 hL0.le]
+      have f2 : ε ^ 2 * m ^ 2 ≤ 6 * ε ^ 2 * s := by nlinarith only [mul_le_mul_of_nonneg_left hm2 (sq_nonneg ε)]
       have : M * (L * (ε * m) + ε ^ 2 * m ^ 2) ≤ M * (6 * X * s) := by
-        apply mul_le_mul_of_nonneg_left _ (by linarith)
-        rw [hX]; nlinarith [mul_nonneg hL0.le hs0.le, mul_nonneg (sq_nonneg ε) hs0.le]
-      linarith
+        apply mul_le_mul_of_nonneg_left _ (by linarith only [hM1])
+        rw [hX]; nlinarith only [f1, f2, mul_nonneg hL0.le hs0.le]
+      linarith only [this]
     rw [hsplit_u]
     calc ‖gt u + (ampQ0 c τ (ε * u) - ampQ0 c τ 0) * W 0‖ ≤ ‖gt u‖ + ‖ampQ0 c τ (ε * u) - ampQ0 c τ 0‖ * ‖W 0‖ :=
           (norm_add_le _ _).trans (by rw [norm_mul])
@@ -342,30 +351,29 @@ theorem innerDiff_small (AW : ℝ) (hAW : 1 ≤ AW) : ∃ C : ℝ, 0 ≤ C ∧
         gcongr
         · exact k0.trans (by gcongr)
       _ ≤ C * X * s := by
-        rw [hC]; nlinarith [mul_nonneg (mul_nonneg hMA hX0) hs0.le, mul_nonneg (mul_nonneg hC1 hX0) hs0.le]
+        rw [hC]; nlinarith only [mul_nonneg (mul_nonneg hMA hX0) hs0.le, mul_nonneg (mul_nonneg hC1 hX0) hs0.le]
   · rw [hdg1, hdQ1]
     have h1 : ‖(ε : ℂ) * ampQ1 c τ (ε * u) * W 0‖ ≤ 3 * M * AW * X := by
       rw [norm_mul, norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hε]
       calc ε * ‖ampQ1 c τ (ε * u)‖ * ‖W 0‖ ≤ ε * (M * (L + |ε * u|)) * AW := by gcongr
         _ ≤ 3 * M * AW * X := by
           rw [hθabs, hX]
-          nlinarith [mul_nonneg hMA hL0.le, mul_nonneg hMA (sq_nonneg ε), mul_nonneg hMA (mul_nonneg hL0.le (sub_nonneg.2 hε1)),
-            mul_nonneg (mul_nonneg hMA (sq_nonneg ε)) (abs_nonneg u)]
+          nlinarith only [mul_nonneg hMA hL0.le, mul_nonneg hMA (mul_nonneg hL0.le (sub_nonneg.2 hε1)),
+            mul_nonneg (mul_nonneg hMA (sq_nonneg ε)) (sub_nonneg.2 hu3.le)]
     calc ‖deriv gt u + (ε : ℂ) * ampQ1 c τ (ε * u) * W 0‖ ≤ ‖deriv gt u‖ + 3 * M * AW * X := (norm_add_le _ _).trans (by gcongr)
       _ ≤ C1 * (9 * X) * q + 3 * M * AW * X := by gcongr; exact k1.trans (by gcongr)
       _ ≤ C * X * q := by
-        rw [hC]; nlinarith [mul_nonneg hMA hX0, mul_nonneg (mul_nonneg hMA hX0) hq0.le, mul_nonneg (mul_nonneg hC1 hX0) hq0.le]
+        rw [hC]; nlinarith only [mul_nonneg hMA hX0, mul_nonneg (mul_nonneg hMA hX0) (sub_nonneg.2 hq2.le)]
   · rw [hr3', hdg2, hdQ2]
     have h1 : ‖(ε : ℂ) ^ 2 * ampQ2 c τ (ε * u) * W 0‖ ≤ M * AW * X := by
       rw [norm_mul, norm_mul, norm_pow, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hε]
       calc ε ^ 2 * ‖ampQ2 c τ (ε * u)‖ * ‖W 0‖ ≤ ε ^ 2 * M * AW := by gcongr
-        _ ≤ M * AW * X := by rw [hX]; nlinarith [mul_nonneg hMA hL0.le, mul_nonneg hMA (sq_nonneg ε)]
+        _ ≤ M * AW * X := by rw [hX]; nlinarith only [mul_nonneg hMA hL0.le]
     calc ‖deriv (deriv gt) u + (ε : ℂ) ^ 2 * ampQ2 c τ (ε * u) * W 0‖ ≤ ‖deriv (deriv gt) u‖ + M * AW * X :=
           (norm_add_le _ _).trans (by gcongr)
       _ ≤ C1 * (9 * X) * q ^ 3 + M * AW * X := by gcongr; exact k2.trans (by gcongr)
       _ ≤ C * X * q ^ 3 := by
-        rw [hC]; nlinarith [mul_nonneg hMA hX0, mul_nonneg (mul_nonneg hMA hX0) (pow_pos hq0 3).le,
-          mul_nonneg (mul_nonneg hC1 hX0) (pow_pos hq0 3).le]
+        rw [hC]; nlinarith only [mul_nonneg hMA hX0, mul_nonneg (mul_nonneg hMA hX0) (sub_nonneg.2 hq3.le)]
 
 /-- info: 'FormalResearch.SignUncertainty.contDiffAt_two_of_chain' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

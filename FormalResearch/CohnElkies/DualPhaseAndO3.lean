@@ -735,10 +735,10 @@ lemma dual_phase_regime_small_mv :
   have hband_lb : ∀ x : ℝ, 3 * τ₀ / 8 ≤ |x| → |x| ≤ 2 * τ₀ → c₂ * Real.sqrt L ≤ |edgePhiDeriv2 x| := fun x hlo hhi => by
     have hu_lb : Real.sqrt L / 4 ≤ 3 * τ₀ / 8 := by
       have hr : 2 * 1.7 / 3.15 ≤ 2 * Real.sqrt 3 / Real.pi := by gcongr; exact Real.le_sqrt_of_sq_le (by norm_num); exact Real.pi_lt_d2.le
-      nlinarith [(mul_le_mul_of_nonneg_right hr (Real.sqrt_nonneg _)).trans hτ₀_lb.le]
-    have hpi6 : (6 : ℝ) ≤ Real.pi ^ 2 := by nlinarith [Real.pi_gt_three]
+      linarith only [(mul_le_mul_of_nonneg_right hr (Real.sqrt_nonneg _)).trans hτ₀_lb.le, Real.sqrt_nonneg L]
+    have hpi6 : (6 : ℝ) ≤ Real.pi ^ 2 := by nlinarith only [Real.pi_gt_three]
     have hden : 6 + Real.pi ^ 2 * (3 * τ₀ / 8) ^ 2 ≤ 40000000 := by
-      have h10 : Real.pi ^ 2 ≤ 10 := by nlinarith [Real.pi_pos, Real.pi_lt_d2]
+      have h10 : Real.pi ^ 2 ≤ 10 := by nlinarith only [Real.pi_pos, Real.pi_lt_d2]
       have h36 : (3 * τ₀ / 8) ^ 2 ≤ 3600000 := by nlinarith
       nlinarith
     calc c₂ * Real.sqrt L = (3 / 16 : ℝ) * (6 * (Real.sqrt L / 4) / 40000000) := by dsimp [c₂]; ring
@@ -839,7 +839,7 @@ private lemma dual_phase_regime_large :
     fun u v huv hmono hT_abs hlb => by
       have hM : ∀ x ∈ Icc u v, ‖a x‖ ≤ A * T ^ (-2 : ℝ) := fun x hx => by
         have h0 := ha_bd 0 (by decide) x; rw [iteratedDeriv_zero] at h0
-        have h1x : T ^ 2 ≤ 1 + x ^ 2 := by nlinarith [sq_abs x, hT_abs x hx]
+        have h1x : T ^ 2 ≤ 1 + x ^ 2 := by nlinarith only [sq_abs x, hT_abs x hx, hT_pos]
         have hd : (1 + x ^ 2) ^ (-(3 / 2 : ℝ)) ≤ T ^ (-3 : ℝ) :=
           (Real.rpow_le_rpow_of_nonpos (sq_pos_of_pos hT_pos) h1x (by norm_num)).trans_eq (by rw [← Real.rpow_natCast, ← Real.rpow_mul hT_pos.le]; norm_num)
         exact h0.trans (mul_le_mul_of_nonneg_left (hd.trans (Real.rpow_le_rpow_of_exponent_le (by linarith) (by norm_num))) hA)
@@ -854,7 +854,7 @@ private lemma dual_phase_regime_large :
     fun u v huv hmono hxy => by
       have hM : ∀ x ∈ Icc u v, ‖a x‖ ≤ 8 * A * τ₀ ^ (-2 : ℝ) := fun x hx => by
         have h0 := ha_bd 0 (by decide) x; rw [iteratedDeriv_zero] at h0
-        have h1x : (τ₀ / 2) ^ 2 ≤ 1 + x ^ 2 := by nlinarith [sq_abs x, (hxy x hx).1]
+        have h1x : (τ₀ / 2) ^ 2 ≤ 1 + x ^ 2 := by nlinarith only [sq_abs x, (hxy x hx).1, hτ₀]
         have hsq3 : ((τ₀ / 2) ^ (2 : ℕ)) ^ (-(3 / 2 : ℝ)) = (τ₀ / 2) ^ (-3 : ℝ) := by rw [← Real.rpow_natCast, ← Real.rpow_mul (by positivity)]; norm_num
         have hd : (1 + x ^ 2) ^ (-(3 / 2 : ℝ)) ≤ (τ₀ / 2) ^ (-3 : ℝ) := (Real.rpow_le_rpow_of_nonpos (by positivity) h1x (by norm_num)).trans_eq hsq3
         have h3e : (τ₀ / 2) ^ (-3 : ℝ) = 8 * τ₀ ^ (-3 : ℝ) := by
@@ -869,9 +869,9 @@ private lemma dual_phase_regime_large :
         (eVariationOn_tail_abs_le hA (half_pos hτ₀) ha_cd ha_bd huv fun x hx => (hxy x hx).1).trans_eq (by rw [Real.rpow_neg hτ₀.le, show ((2 : ℝ)) = ((2 : ℕ) : ℝ) by norm_num, Real.rpow_natCast]; ring)
       have hlb : ∀ x ∈ Icc u v, (4 * τ₀)⁻¹ ≤ |edgePhiDeriv2 x| := fun x hx => by
         have hpi9 : (6 : ℝ) ≤ Real.pi ^ 2 * (3 * τ₀ / 8) ^ 2 := by
-          have : (9 : ℝ) ≤ Real.pi ^ 2 := by nlinarith [Real.pi_gt_three]
-          have : (1 : ℝ) ≤ 3 * τ₀ / 8 := by linarith
-          nlinarith
+          have h9 : (9 : ℝ) ≤ Real.pi ^ 2 := by nlinarith only [Real.pi_gt_three]
+          have h1w : (1 : ℝ) ≤ 3 * τ₀ / 8 := by linarith
+          linarith only [h9, mul_le_mul_of_nonneg_left (one_le_pow₀ h1w : (1 : ℝ) ≤ (3 * τ₀ / 8) ^ 2) (sq_nonneg Real.pi)]
         have h1 : (4 * τ₀)⁻¹ = (3 / 16 : ℝ) * (Real.pi ^ 2 * (3 * τ₀ / 8) / (2 * (Real.pi ^ 2 * (3 * τ₀ / 8) ^ 2))) := by field_simp [hτ₀.ne', Real.pi_ne_zero]; ring
         have h2 : (3 / 16 : ℝ) * (Real.pi ^ 2 * (3 * τ₀ / 8) / (2 * (Real.pi ^ 2 * (3 * τ₀ / 8) ^ 2))) ≤
             (3 / 16 : ℝ) * (Real.pi ^ 2 * (3 * τ₀ / 8) / (6 + Real.pi ^ 2 * (3 * τ₀ / 8) ^ 2)) := by gcongr; linarith
@@ -1137,7 +1137,7 @@ theorem gt2b_dual_integral_general {m : ℕ} (hm : 3 ≤ m) :
     have hsj_norm : ‖s_of j‖ ≤ (m.choose j : ℝ) * b ^ (-(m : ℝ)) := by
       have hexp1 : ‖Complex.exp (-((j : ℝ) * b : ℂ))‖ ≤ 1 := by
         rw [show (-((j : ℝ) * b : ℂ)) = ((-(j : ℝ) * b : ℝ) : ℂ) by push_cast; ring, Complex.norm_exp_ofReal]
-        exact Real.exp_le_one_iff.mpr (by nlinarith [hb.le, (Nat.cast_nonneg j : 0 ≤ (j : ℝ))])
+        exact Real.exp_le_one_iff.mpr (by nlinarith only [hb.le, (Nat.cast_nonneg j : 0 ≤ (j : ℝ)), mul_nonneg hb.le (Nat.cast_nonneg j : 0 ≤ (j : ℝ))])
       have hbm : ‖(b : ℂ) ^ (-(m : ℤ))‖ = b ^ (-(m : ℝ)) := by
         rw [norm_zpow, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hb, zpow_neg, zpow_natCast, Real.rpow_neg hb.le, Real.rpow_natCast]
       dsimp [s_of]; rw [norm_mul, norm_mul, norm_mul, norm_pow, norm_neg, norm_one, one_pow, one_mul, Complex.norm_natCast, hbm]

@@ -465,7 +465,7 @@ lemma wm_diff_two {cPC CPC : ℝ} (pc : ParabolicCylinderFacts U V cPC CPC) (a :
 lemma wm_gap (c1 K1 δ ρ t : ℝ) (hc1 : 0 < c1) (hK1 : 0 < K1) (hK : c1 ≤ K1 * (ρ - t))
     (hS : δ ≤ c1 / (24 * K1)) : 2 * δ < ρ - t := by
   by_contra hc
-  push_neg at hc
+  push Not at hc
   have h1 : K1 * (ρ - t) ≤ K1 * (2 * δ) := mul_le_mul_of_nonneg_left hc hK1.le
   have h2 : K1 * δ ≤ c1 / 24 := by
     calc K1 * δ ≤ K1 * (c1 / (24 * K1)) := mul_le_mul_of_nonneg_left hS hK1.le
@@ -926,7 +926,7 @@ lemma wm_W2_bd (CL : SoftEdgeChart Fz P m q U V Lm) {p : Par × ℝ} (hp : p ∈
   have hw := (weights_conj (CL.aOf p X N) aplus (CL.Zof p X N j) haplus
     (le_trans hZ (by linarith [ell_nonneg' (CL.aOf p X N)]))).1 ha0
   have : Eminus (CL.aOf p X N) (CL.Zof p X N j) = Ewell (CL.aOf p X N) |CL.Zof p X N j| := by
-    unfold Eminus; rw [if_pos ha0]
+    unfold Eminus; rw [ite_eq_left ha0]
   show (Eminus (CL.aOf p X N) (CL.Zof p X N j))⁻¹ ≤ _
   rw [this]
   exact inv_le_exp_five_half _ (by simpa [neg_div] using hw.1)
@@ -940,7 +940,7 @@ lemma wm_W3_bd (CL : SoftEdgeChart Fz P m q U V Lm) {p : Par × ℝ} (hp : p ∈
   have hw := (weights_conj (CL.aOf p X N) aplus (CL.Zof p X N j) haplus
     (le_trans hZ (by linarith [ell_nonneg' (CL.aOf p X N)]))).1 ha0
   have : Eswap (CL.aOf p X N) (CL.Zof p X N j) = (Ewell (CL.aOf p X N) |CL.Zof p X N j|)⁻¹ := by
-    unfold Eswap; rw [if_pos ha0]
+    unfold Eswap; rw [ite_eq_left ha0]
   show Eswap (CL.aOf p X N) (CL.Zof p X N j) ≤ _
   rw [this]
   exact inv_le_exp_five_half _ (by simpa [neg_div] using hw.1)
@@ -1606,7 +1606,7 @@ lemma wm_r_ge (dp h Δ0 A : ℝ) (hdp : 0 < dp) (hh : 0 < h) (hΔ0 : 0 < Δ0) (h
   have hsqΔ : 0 < Real.sqrt Δ0 := Real.sqrt_pos.mpr hΔ0
   have hsh : Real.sqrt h ≤ Real.sqrt Δ0 / 2 := by
     by_contra hc
-    push_neg at hc
+    push Not at hc
     have h2' : (Real.sqrt Δ0 / 2) ^ 2 < Real.sqrt h ^ 2 := pow_lt_pow_left₀ hc (by positivity) (by norm_num)
     rw [Real.sq_sqrt hh.le, div_pow, Real.sq_sqrt hΔ0.le] at h2'
     linarith
@@ -1758,7 +1758,7 @@ theorem propThaM_of_facts {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V Lm)
   have hclaims : WmClaims CL p X N (min cs cl) := by
     by_cases hA : Fz.step N * max (-CL.aOf p X N) 0 ≤ wmDelta c1 (winCB CPC aplus ^ 2) CL.dp
     · exact (hsm p hp X hX N hN hsmall haplus hA).mono (min_le_left _ _) (wmMass_nonneg CL p X N)
-    · push_neg at hA
+    · push Not at hA
       exact (hlg p hp X hX N hN hlarge haplus hA).mono (min_le_right _ _) (wmMass_nonneg CL p X N)
   obtain ⟨h1, h2, h3⟩ := hclaims
   have hκ := wm_kappa_pos' (CL.aOf p X N)

@@ -81,15 +81,15 @@ lemma eig_gershgorin {Par : Type*} (F : SymbolFamily Par) (μ : Par) (N : ℕ)
     by_cases h1 : (j : ℕ) = (i : ℕ) + 1
     · have h2 : ¬ (i : ℕ) = (j : ℕ) + 1 := by omega
       have hJ : F.jacobiMat μ N i j = F.bondA μ N (i : ℤ) := by simp [SymbolFamily.jacobiMat, hji, h1]
-      rw [hJ, abs_of_nonneg hA, if_pos h1, if_neg h2, add_zero]
+      rw [hJ, abs_of_nonneg hA, ite_eq_left h1, ite_eq_right h2, add_zero]
     · by_cases h2 : (i : ℕ) = (j : ℕ) + 1
       · have hc : ((j : ℕ) : ℤ) = (i : ℤ) - 1 := by omega
         have hJ : F.jacobiMat μ N i j = F.bondA μ N ((i : ℤ) - 1) := by
           have hJ' : F.jacobiMat μ N i j = F.bondA μ N ((j : ℕ) : ℤ) := by
             simp only [SymbolFamily.jacobiMat, Matrix.of_apply]
-            rw [if_neg hji, if_neg h1, if_pos h2]
+            rw [ite_eq_right hji, ite_eq_right h1, ite_eq_left h2]
           rw [hJ', hc]
-        rw [hJ, abs_of_nonneg hA', if_neg h1, if_pos h2, zero_add]
+        rw [hJ, abs_of_nonneg hA', ite_eq_right h1, ite_eq_left h2, zero_add]
       · have hJ : F.jacobiMat μ N i j = 0 := by simp [SymbolFamily.jacobiMat, hji, h1, h2]
         rw [hJ, abs_zero]
         split_ifs <;> linarith

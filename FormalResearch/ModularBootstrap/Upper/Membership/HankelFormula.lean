@@ -193,8 +193,8 @@ lemma setIntegral_polarCoord_Ioi (H : ℝ × ℝ → ℂ)
               have hmem : polarCoord.symm p ∈ (univ : Set ℝ) ×ˢ Ioi (0 : ℝ) := by
                 simp only [polarCoord_symm_apply]; exact ⟨trivial, mul_pos hp.1 hsin⟩
               rw [Set.indicator_of_mem hmem]
-              simp only [polarCoord_symm_apply, nnnorm_smul, ENNReal.coe_mul,
-                smul_eq_mul, Real.nnnorm_of_nonneg hp.1.le, ENNReal.ofReal_eq_coe_nnreal hp.1.le]
+              simp only [polarCoord_symm_apply, nnNorm_smul, ENNReal.coe_mul,
+                smul_eq_mul, Real.nnNorm_of_nonneg hp.1.le, ENNReal.ofReal_eq_coe_nnreal hp.1.le]
           _ ≤ _ := lintegral_mono_set (by rw [← hsub]; exact inter_subset_left)
       exact lt_of_le_of_lt h_sub_le h_fin_tar
   rw [Measure.volume_eq_prod] at hint_pol ⊢
@@ -477,7 +477,7 @@ theorem fourier_radialLift_apply_eq {w : ℕ} (hw : 1 ≤ w) {c' : ℝ} (hc' : 0
             ∫⁻ s in Ioi (0 : ℝ), (‖(2 : ℝ) ^ k * (s * ((s ^ 2 / 2) ^ k * |g (s ^ 2 / 2)|))‖₊ : ℝ≥0∞) := by
           refine setLIntegral_congr_fun measurableSet_Ioi fun s hs => ?_
           have hs0 : 0 ≤ s := (mem_Ioi.mp hs).le
-          rw [← ENNReal.ofReal_coe_nnreal, coe_nnnorm, Real.norm_of_nonneg (by positivity)]
+          rw [← ENNReal.ofReal_coe_nnreal, coe_nnNorm, Real.norm_of_nonneg (by positivity)]
         rw [h_eq2]
         exact hlt
       exact lt_of_le_of_lt h_le_ub h_prod_lt

@@ -824,20 +824,21 @@ private lemma pairModQ_pos_of_ne {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 0 
       exact sub_pos.mpr (chiQuantile_strictMonoOn hc' (Set.mem_Ici.mpr (by linarith))
         (Set.mem_Ici.mpr (by linarith)) (by linarith))
     have hε_nn : 0 ≤ η₀ * siteGap c' k := mul_nonneg hη₀0 hgk_pos.le
-    have hε_le : η₀ * siteGap c' k ≤ 1 / 8 := by nlinarith
+    have hε_le : η₀ * siteGap c' k ≤ 1 / 8 := by nlinarith only [hgk, hgap, hη₀0, hη₀1, hgk_pos]
     have hS_lt : Real.sin (π * (η₀ * siteGap c' k) / 2) ^ 2 ≤ 1 / 2 := by
       have hpi := Real.pi_pos
       have h1 : |Real.sin (π * (η₀ * siteGap c' k) / 2)| ≤ 1 / 2 := by
-        rw [abs_of_nonneg (Real.sin_nonneg_of_nonneg_of_le_pi (by positivity) (by nlinarith))]
-        exact (Real.sin_le (by positivity)).trans (by nlinarith [Real.pi_lt_d4])
-      nlinarith [sq_abs (Real.sin (π * (η₀ * siteGap c' k) / 2)),
-        abs_nonneg (Real.sin (π * (η₀ * siteGap c' k) / 2))]
+        rw [abs_of_nonneg (Real.sin_nonneg_of_nonneg_of_le_pi (by positivity)
+          (by nlinarith only [hpi, hε_le, hε_nn]))]
+        exact (Real.sin_le (by positivity)).trans (by nlinarith only [Real.pi_lt_d4, hε_le, hε_nn, hpi])
+      nlinarith only [sq_abs (Real.sin (π * (η₀ * siteGap c' k) / 2)),
+        abs_nonneg (Real.sin (π * (η₀ * siteGap c' k) / 2)), h1]
     have hden1 : 0 < Real.cosh (π * (chiQuantile c' n - chiQuantile c' k) / 2) ^ 2 -
         Real.sin (π * (η₀ * siteGap c' k) / 2) ^ 2 := by
-      have := Real.one_le_cosh (π * (chiQuantile c' n - chiQuantile c' k) / 2); nlinarith
+      nlinarith only [Real.one_le_cosh (π * (chiQuantile c' n - chiQuantile c' k) / 2), hS_lt]
     have hden2 : 0 < Real.cosh (π * (chiQuantile c' n + chiQuantile c' k) / 2) ^ 2 -
         Real.sin (π * (η₀ * siteGap c' k) / 2) ^ 2 := by
-      have := Real.one_le_cosh (π * (chiQuantile c' n + chiQuantile c' k) / 2); nlinarith
+      nlinarith only [Real.one_le_cosh (π * (chiQuantile c' n + chiQuantile c' k) / 2), hS_lt]
     have hχk_pos : 0 < chiQuantile c' k := xiStar_pos.trans (xiStar_lt_chiQuantile hc' (by linarith))
     have hχn_nn : 0 ≤ chiQuantile c' n := by
       rcases Nat.eq_zero_or_pos n with rfl | hn_pos
@@ -1184,7 +1185,7 @@ theorem two_phiVar_le_log_pairModQ {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 
     have heq : (k - 1) + 1 = k := by omega
     simpa [heq] using hanti
   have hd_nn := (deltaDetune_bounds_universal hχk_nn (inCell_nonneg hc' hn hx)
-    (ne_chiQuantile_of_inCell hc' hn hk hx hne) (mul_nonneg hη₀0 hgk_nn) (by nlinarith)).1
+    (ne_chiQuantile_of_inCell hc' hn hk hx hne) (mul_nonneg hη₀0 hgk_nn) (by nlinarith only [hgk_le, hgap, hgk_nn, hη₀0, hη₀1])).1
   linarith
 
 private lemma left_cell_phiVar_lower_K4 {c' x : ℝ} (hc' : 0 < c') {f n j k : ℕ} (hf : 1 ≤ f)
@@ -1630,7 +1631,8 @@ private lemma right_detune_upper_K4 {c' η₀ x C_δ : ℝ} (hc' : 0 < c') (hη�
       have hn1_14 : (1 / 4 : ℝ) ≤ ((n + 1 : ℕ) : ℝ) := by push_cast; linarith
       exact hx.2.trans (chiQuantile_strictMonoOn hc' (Set.mem_Ici.mpr hn1_14)
         (Set.mem_Ici.mpr (by linarith)) hn1_lt)
-    have hd_bd := hdet hχk_xi hx0 hχk_gt.ne (mul_nonneg hη₀0 hgk_pos.le) (by nlinarith)
+    have hd_bd := hdet hχk_xi hx0 hχk_gt.ne (mul_nonneg hη₀0 hgk_pos.le)
+      (by nlinarith only [hgk_le, hgap, hgk_pos, hη₀0, hη₀1])
     have h_gap_sum := siteGap_sum_ge_mul hc' hn1_nat (by omega : n + 2 ≤ k)
     have hm_pos : (0 : ℝ) < ((k - (n + 1) : ℕ) : ℝ) := by exact_mod_cast (by omega : 0 < k - (n + 1))
     have h_dist : ((k - (n + 1) : ℕ) : ℝ) * siteGap c' k ≤ |x - chiQuantile c' k| := by
@@ -1639,7 +1641,7 @@ private lemma right_detune_upper_K4 {c' η₀ x C_δ : ℝ} (hc' : 0 < c') (hη�
       simpa [sq_abs] using pow_le_pow_left₀ (by positivity) h_dist 2
     have h_alg : (η₀ * siteGap c' k) ^ 2 / (x - chiQuantile c' k) ^ 2 ≤
         (1 / 16 : ℝ) / ((k - (n + 1) : ℕ) : ℝ) ^ 2 := by
-      have hη_sq : η₀ ^ 2 ≤ 1 / 16 := by nlinarith
+      have hη_sq : η₀ ^ 2 ≤ 1 / 16 := by nlinarith only [hη₀0, hη₀1]
       have h_num : (η₀ * siteGap c' k) ^ 2 ≤ (1 / 16 : ℝ) * siteGap c' k ^ 2 := by
         calc (η₀ * siteGap c' k) ^ 2 = η₀ ^ 2 * siteGap c' k ^ 2 := by ring
           _ ≤ (1 / 16 : ℝ) * siteGap c' k ^ 2 := mul_le_mul_of_nonneg_right hη_sq (sq_nonneg _)
@@ -1662,7 +1664,7 @@ private lemma right_detune_upper_K4 {c' η₀ x C_δ : ℝ} (hc' : 0 < c') (hη�
         h_chi_le (intervalIntegrable_const (μ := volume))
         (hcont.intervalIntegrable _ _) fun t ht => by
           apply Real.exp_le_exp.mpr
-          nlinarith [Real.pi_pos, ht.2]
+          nlinarith only [Real.pi_pos, ht.2]
       rw [intervalIntegral.integral_const, smul_eq_mul, h_gap_eq] at hm
       exact hm
     have h_exp_shift : Real.exp (-π * |x - chiQuantile c' k|) ≤
@@ -1670,9 +1672,11 @@ private lemma right_detune_upper_K4 {c' η₀ x C_δ : ℝ} (hc' : 0 < c') (hη�
       rw [← Real.exp_add]
       refine Real.exp_le_exp.mpr ?_
       rw [abs_of_neg (sub_neg.mpr hχk_gt), neg_sub]
-      nlinarith [Real.pi_pos, hx.2]
+      nlinarith only [Real.pi_pos, hx.2, h_gap_eq, hgk_le, hgap]
     have h_sq_le : (η₀ * siteGap c' k) ^ 2 ≤ (1 / 32 : ℝ) * siteGap c' k := by
-      have h1 : η₀ ^ 2 * siteGap c' k ≤ (1 / 16 : ℝ) * (1 / 2 : ℝ) := by nlinarith
+      have h1 : η₀ ^ 2 * siteGap c' k ≤ (1 / 16 : ℝ) * (1 / 2 : ℝ) := by
+        have hη_sq : η₀ ^ 2 ≤ 1 / 16 := by nlinarith only [hη₀0, hη₀1]
+        nlinarith only [hη_sq, hgk_le, hgap, hgk_pos]
       calc (η₀ * siteGap c' k) ^ 2 = (η₀ ^ 2 * siteGap c' k) * siteGap c' k := by ring
         _ ≤ (1 / 32 : ℝ) * siteGap c' k := mul_le_mul_of_nonneg_right (by linarith) hgk_pos.le
     have h_exp_bd : C_δ * (η₀ * siteGap c' k) ^ 2 * Real.exp (-π * |x - chiQuantile c' k|) ≤
@@ -2103,7 +2107,8 @@ private lemma left_sum_upper_K4 {c' η₀ x C_neg C_δ : ℝ} (hc' : 0 < c') (h�
       have hanti := (siteGap_strictAnti hc').antitone (show 0 ≤ k - 1 by omega)
       have heq : (k - 1) + 1 = k := by omega
       simpa [heq] using hanti
-    have hd_bd := hdet hχk_xi hx0 hχk_lt.ne' (mul_nonneg hη₀0 hgk_nn) (by nlinarith)
+    have hd_bd := hdet hχk_xi hx0 hχk_lt.ne' (mul_nonneg hη₀0 hgk_nn)
+      (by nlinarith only [hgk_le, hgap, hgk_nn, hη₀0, hη₀1])
     have h_gap_le_cd : siteGap c' k ≤ chiDeriv c' (k : ℝ) := by
       unfold siteGap
       have hcont : ContinuousOn (chiDeriv c') (Icc (k : ℝ) ((k : ℝ) + 1)) := fun t ht =>
@@ -2125,7 +2130,7 @@ private lemma left_sum_upper_K4 {c' η₀ x C_neg C_δ : ℝ} (hc' : 0 < c') (h�
       linarith
     have h_Bk := left_chiDeriv_sq_div_le hc' hk2 hkn hx (a := (k : ℝ)) ⟨by linarith, by linarith⟩
     have h_alg : (η₀ * siteGap c' k) ^ 2 / (x - chiQuantile c' k) ^ 2 ≤ (1 / 16 : ℝ) * B k := by
-      have hη_sq : η₀ ^ 2 ≤ 1 / 16 := by nlinarith
+      have hη_sq : η₀ ^ 2 ≤ 1 / 16 := by nlinarith only [hη₀0, hη₀1]
       have h1 : (η₀ * siteGap c' k) ^ 2 ≤ (1 / 16 : ℝ) * siteGap c' k ^ 2 := by
         calc (η₀ * siteGap c' k) ^ 2 = η₀ ^ 2 * siteGap c' k ^ 2 := by ring
           _ ≤ (1 / 16 : ℝ) * siteGap c' k ^ 2 := mul_le_mul_of_nonneg_right hη_sq (sq_nonneg _)
@@ -2148,11 +2153,13 @@ private lemma left_sum_upper_K4 {c' η₀ x C_neg C_δ : ℝ} (hc' : 0 < c') (h�
         h_chi_le (intervalIntegrable_const (μ := volume))
         (hcont.intervalIntegrable _ _) fun t ht => by
           apply Real.exp_le_exp.mpr
-          nlinarith [Real.pi_pos, ht.1]
+          nlinarith only [Real.pi_pos, ht.1]
       rw [intervalIntegral.integral_const, smul_eq_mul, h_gap_eq] at hm
       exact hm
     have h_sq_le : (η₀ * siteGap c' k) ^ 2 ≤ (1 / 32 : ℝ) * siteGap c' k := by
-      have h1 : η₀ ^ 2 * siteGap c' k ≤ (1 / 16 : ℝ) * (1 / 2 : ℝ) := by nlinarith
+      have h1 : η₀ ^ 2 * siteGap c' k ≤ (1 / 16 : ℝ) * (1 / 2 : ℝ) := by
+        have hη_sq : η₀ ^ 2 ≤ 1 / 16 := by nlinarith only [hη₀0, hη₀1]
+        nlinarith only [hη_sq, hgk_le, hgap, hgk_nn]
       calc (η₀ * siteGap c' k) ^ 2 = (η₀ ^ 2 * siteGap c' k) * siteGap c' k := by ring
         _ ≤ (1 / 32 : ℝ) * siteGap c' k := mul_le_mul_of_nonneg_right (by linarith) hgk_nn
     have h_exp_bd : C_δ * (η₀ * siteGap c' k) ^ 2 * Real.exp (-π * |x - chiQuantile c' k|) ≤

@@ -247,7 +247,7 @@ lemma macro_amp (P : RampedParams) {c' x d Cph : ℝ} (hc' : 0 < c') (hCph : 0 �
     _ = vRhoInfty x (3 / 4) * (1 + Cph * c' ^ (-(1 / 10 : ℝ))) * levComb c' 1 x := by ring
 
 /-- `C l ≤ ε` from `0 ≤ l ≤ ε/(C+1)`. -/
-lemma mul_le_of_le_div_succ {C l ε : ℝ} (hC : 0 ≤ C) (hl0 : 0 ≤ l) (hε : 0 ≤ ε) (hl : l ≤ ε / (C + 1)) : C * l ≤ ε := by
+lemma mul_le_of_le_div_succ {C l ε : ℝ} (hC : 0 ≤ C) (hl0 : 0 ≤ l) (_hε : 0 ≤ ε) (hl : l ≤ ε / (C + 1)) : C * l ≤ ε := by
   have h1 : C * l ≤ (C + 1) * l := by nlinarith
   have h2 : (C + 1) * l ≤ (C + 1) * (ε / (C + 1)) := mul_le_mul_of_nonneg_left hl (by linarith)
   have h3 : (C + 1) * (ε / (C + 1)) = ε := by field_simp

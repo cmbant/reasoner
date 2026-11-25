@@ -892,7 +892,7 @@ lemma eqLo_one (s0 : ℤ) (jj : ℕ → ℤ) : eqLo s0 jj 1 = s0 := by simp [eqL
 lemma eqLo_succ (s0 : ℤ) (jj : ℕ → ℤ) (p : ℕ) (hp : 1 ≤ p) : eqLo s0 jj (p + 1) = jj p + 1 := by
   have : p + 1 ≠ 1 := by omega
   unfold eqLo
-  rw [if_neg this, Nat.add_sub_cancel]
+  rw [ite_eq_right this, Nat.add_sub_cancel]
 
 /-- The residual of the error of patch `p` on its equation sites (`rt` the combination of the patch residuals). -/
 lemma residual_error (h : ℝ) (hh : h ≠ 0) (A Q ψ φ1 φ2 : ℤ → ℝ) (c0 c1 : ℝ) (k : ℤ)
@@ -1024,7 +1024,7 @@ lemma covering_patch (s0 NR : ℤ) (P : ℕ) (jj : ℕ → ℤ) (hP : 1 ≤ P) (
       exact hmin ⟨by omega, by omega⟩
     have e1 : eqLo s0 jj (Nat.find hex) = jj (Nat.find hex - 1) + 1 := by
       unfold eqLo
-      rw [if_neg h1]
+      rw [ite_eq_right h1]
     rw [e1]
     omega
 
@@ -1191,7 +1191,7 @@ theorem volterra_multi (h ω cm CE K ε Λ : ℝ) (A Q ψ ρ M W : ℤ → ℝ) 
       refine ⟨by rw [h10]; exact hs0nn, by omega, hs0nn, le_rfl, fun h' => absurd rfl h'⟩
     · have hl : eqLo s0 jj p = jj (p - 1) + 1 := by
         unfold eqLo
-        rw [if_neg hp]
+        rw [ite_eq_right hp]
       have hm : jj (p - 1) + 1 ≤ jj p := by
         have := hjjmono (p - 1) (by omega)
         rw [show p - 1 + 1 = p by omega] at this
@@ -1301,7 +1301,7 @@ theorem volterra_multi (h ω cm CE K ε Λ : ℝ) (A Q ψ ρ M W : ℤ → ℝ) 
         exact hpos
       · have hl' : eqLo s0 jj p - 1 = jj (p - 1) := by
           unfold eqLo
-          rw [if_neg hp]
+          rw [ite_eq_right hp]
           ring
         have hsP : eqLo s0 jj p ∈ Icc (jj (p - 1)) (jj p + 1) := hsubA hlo_mem
         have hS1' : cm * ω ≤ |cas A (φ1 p) (φ2 p) (eqLo s0 jj p - 1)| := by
@@ -1386,7 +1386,7 @@ theorem volterra_multi (h ω cm CE K ε Λ : ℝ) (A Q ψ ρ M W : ℤ → ℝ) 
         rw [eqLo_succ s0 jj p hp]
         ring
       have hVp' : Vp (p + 1) = W (jj p) := by
-        rw [hVp, if_neg (by omega), Nat.add_sub_cancel]
+        rw [hVp, ite_eq_right (by omega), Nat.add_sub_cancel]
       rw [hl, hVp']
       constructor
       · rw [← cas_congr_e A (e p) (e (p + 1)) (φ2 (p + 1)) (jj p) hsv0 hsv1]
@@ -1828,7 +1828,7 @@ lemma ownP_spec (jj : ℕ → ℤ) (P : ℕ) (NR : ℤ) (hP : 1 ≤ P) (hjjP : j
   have hex : ∃ p, 1 ≤ p ∧ j ≤ jj p + 1 := ⟨P, hP, by rw [hjjP]; omega⟩
   have hown : ownP jj j = Nat.find hex := by
     unfold ownP
-    rw [dif_pos hex]
+    rw [dite_eq_left hex]
   rw [hown]
   refine ⟨(Nat.find_spec hex).1, Nat.find_min' hex ⟨hP, by rw [hjjP]; omega⟩, (Nat.find_spec hex).2,
     fun p hp hjp => Nat.find_min' hex ⟨hp, hjp⟩, ?_⟩

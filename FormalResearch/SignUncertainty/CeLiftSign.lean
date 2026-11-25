@@ -33,14 +33,14 @@ namespace FormalResearch.SignUncertainty
 open FormalResearch.CohnElkies FormalResearch.Special
 
 /-- `δ = K ε ≤ 1/2` for `8 K³ ≤ c`. -/
-lemma ce_delta_half {K c : ℝ} (hK : 1 ≤ K) (hc : 0 < c) (hc8 : 8 * K ^ 3 ≤ c) : K * liftEps c ≤ 1 / 2 := by
+lemma ce_delta_half {K c : ℝ} (_hK : 1 ≤ K) (hc : 0 < c) (hc8 : 8 * K ^ 3 ≤ c) : K * liftEps c ≤ 1 / 2 := by
   have hε : 0 < liftEps c := liftEps_pos hc
   have hcube : liftEps c ^ 3 * c = 1 := liftEps_cube_mul hc
   have hKe3 : (K * liftEps c) ^ 3 * c = K ^ 3 := by
     calc (K * liftEps c) ^ 3 * c = K ^ 3 * (liftEps c ^ 3 * c) := by ring
       _ = K ^ 3 := by rw [hcube, mul_one]
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have h2 : (1 / 2 : ℝ) ^ 3 < (K * liftEps c) ^ 3 := pow_lt_pow_left₀ hcon (by norm_num) (by norm_num)
   have h3 := mul_lt_mul_of_pos_right h2 hc
   rw [hKe3] at h3
@@ -48,7 +48,7 @@ lemma ce_delta_half {K c : ℝ} (hK : 1 ≤ K) (hc : 0 < c) (hc8 : 8 * K ^ 3 ≤
   linarith
 
 /-- `δ = K ε ≤ δ₁` for `(K/δ₁)³ ≤ c`. -/
-lemma ce_delta_le {K c δ₁ : ℝ} (hK : 0 < K) (hδ₁ : 0 < δ₁) (hc : 0 < c) (hcδ : (K / δ₁) ^ 3 ≤ c) :
+lemma ce_delta_le {K c δ₁ : ℝ} (_hK : 0 < K) (hδ₁ : 0 < δ₁) (hc : 0 < c) (hcδ : (K / δ₁) ^ 3 ≤ c) :
     K * liftEps c ≤ δ₁ := by
   have hε : 0 < liftEps c := liftEps_pos hc
   have hcube : liftEps c ^ 3 * c = 1 := liftEps_cube_mul hc
@@ -61,7 +61,7 @@ lemma ce_delta_le {K c δ₁ : ℝ} (hK : 0 < K) (hδ₁ : 0 < δ₁) (hc : 0 < 
     linarith
   have h3 : (K * liftEps c) ^ 3 ≤ δ₁ ^ 3 := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have := mul_lt_mul_of_pos_right hcon hc
     rw [hKe3] at this
     linarith
@@ -86,7 +86,7 @@ def CeTune (γ₁ γ₂ : ℝ) (S : ℝ → ℝ → ℝ) (K c η : ℝ) : Prop :
       (-1) * S c u) (ceBeta1 * K * liftEps c / 2) 4 0 = 0
 
 /-- Existence of the tuning `η` when the edge values are small. -/
-theorem ceTune_exists (γ₁ γ₂ : ℝ) (S : ℝ → ℝ → ℝ) {K c : ℝ} (hK : 0 < K) (hc : 0 < c) (hS : HasU2 (S c))
+theorem ceTune_exists (γ₁ γ₂ : ℝ) (S : ℝ → ℝ → ℝ) {K c : ℝ} (_hK : 0 < K) (hc : 0 < c) (hS : HasU2 (S c))
     (hmass : ∫ u : ℝ, airySeedU2 (1 + γ₂ * (K * liftEps c)) (ceDb0 γ₁ γ₂ S K c) (-(γ₂ * (K * liftEps c))) u =
       ∫ u : ℝ, S c u)
     (hgx : |(liftSymbol (ceG1 (airyZero 1)) (ceBeta1 * K * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)).re| ≤ ceK / 2)

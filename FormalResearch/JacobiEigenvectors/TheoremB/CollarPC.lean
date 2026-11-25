@@ -64,7 +64,7 @@ theorem pcMinus0_env (pc : ParabolicCylinderFacts U V cPC CPC) (a Z : ℝ) (hZ :
     obtain ⟨s1, s2⟩ := sqrt_split _ _ _ _ hk e1
     have hE : Eminus a Z = Ebar a (-Z) := by
       unfold Eminus
-      rw [if_neg ha, Ebar_neg]
+      rw [ite_eq_right ha, Ebar_neg]
     rw [hE, ← hM, ← hk2]
     exact ⟨s1, s2⟩
 

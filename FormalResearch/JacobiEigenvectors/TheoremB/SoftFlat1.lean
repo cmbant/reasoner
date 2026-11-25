@@ -46,7 +46,7 @@ theorem propThaM_phi_nostd {cPC CPC : ℝ} (pc : ParabolicCylinderFacts U V cPC 
   have hclaims : WmClaims CL p X N (min cs cl) := by
     by_cases hA : Fz.step N * max (-CL.aOf p X N) 0 ≤ wmDelta c1 (winCB CPC aplus ^ 2) CL.dp
     · exact (hsm p hp X hX N hN hsmall haplus hA).mono (min_le_left _ _) (wmMass_nonneg CL p X N)
-    · push_neg at hA
+    · push Not at hA
       exact (hlg p hp X hX N hN hlarge haplus hA).mono (min_le_right _ _) (wmMass_nonneg CL p X N)
   obtain ⟨-, -, h3⟩ := hclaims
   have hκ := wm_kappa_pos' (CL.aOf p X N)
@@ -89,7 +89,7 @@ theorem soft_flat1_phi {cPC CPC : ℝ} (pc : ParabolicCylinderFacts U V cPC CPC)
       exact Zof_le C hp hX N hle (by linarith) (by linarith)
     · intro hZ
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       have hinc := Zof_incr C hp hX N hcon.le (by linarith) (by linarith)
       have h1 : (1 : ℝ) ≤ (n : ℝ) - nc := by
         have : nc + 1 ≤ n := hcon

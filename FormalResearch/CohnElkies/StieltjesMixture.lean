@@ -376,7 +376,7 @@ theorem cohnS_eq_sub_doubleIntegral {a h u : ℝ} (ha : airyAi' a = 0) (hua : u 
   have hF_enorm : ∑' n : ℕ, ∫⁻ p : ℝ × ℝ, ‖F n p‖ₑ ∂(μ.prod μ) ≠ ⊤ := by
     have heq : (fun n : ℕ => ∫⁻ p : ℝ × ℝ, ‖F n p‖ₑ ∂(μ.prod μ)) =
         fun n : ℕ => ENNReal.ofReal (∫ p : ℝ × ℝ, ‖F n p‖ ∂(μ.prod μ)) :=
-      funext fun n => (ofReal_integral_norm_eq_lintegral_enorm (hF_int n)).symm
+      funext fun n => (ofReal_integral_norm_eq_lintegral_eNorm (hF_int n)).symm
     rw [heq, ← ENNReal.ofReal_tsum_of_nonneg (fun n => integral_nonneg fun _ => norm_nonneg _) hF_sum]
     exact ENNReal.ofReal_ne_top
   have hswap := integral_tsum (fun n => (hF_int n).aestronglyMeasurable) hF_enorm

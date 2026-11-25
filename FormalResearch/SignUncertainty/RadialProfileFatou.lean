@@ -22,13 +22,13 @@ theorem integrable_of_fatou {Ψ : ℕ → ℝ → ℝ} {φ : ℝ → ℝ} {M : �
     Integrable φ := by
   refine ⟨hφ, ?_⟩
   have hF := lintegral_liminf_le' (μ := volume) (u := (atTop : Filter ℕ)) (f := fun k u => ‖Ψ k u‖ₑ)
-    (fun k => (hint k).aestronglyMeasurable.enorm)
+    (fun k => (hint k).aestronglyMeasurable.eNorm)
   have h1 : ∀ u, Filter.liminf (fun k => ‖Ψ k u‖ₑ) atTop = ‖φ u‖ₑ := fun u =>
-    ((continuous_enorm.tendsto _).comp (hlim u)).liminf_eq
+    ((continuous_eNorm.tendsto _).comp (hlim u)).liminf_eq
   simp_rw [h1] at hF
   have h2 : ∀ k, ∫⁻ u, ‖Ψ k u‖ₑ ≤ ENNReal.ofReal M := by
     intro k
-    rw [← ofReal_integral_norm_eq_lintegral_enorm (hint k)]
+    rw [← ofReal_integral_norm_eq_lintegral_eNorm (hint k)]
     exact ENNReal.ofReal_le_ofReal (by simpa [Real.norm_eq_abs] using hM k)
   have h3 : Filter.liminf (fun k => ∫⁻ u, ‖Ψ k u‖ₑ) atTop ≤ ENNReal.ofReal M :=
     liminf_le_of_frequently_le' (Frequently.of_forall h2)

@@ -51,7 +51,7 @@ lemma combProfile_design_ofReal {c' x : ℝ} (hx : 0 ≤ x) (hc' : 0 < c') (N : 
 
 /-- Lemma `W` with Lemma `ID` for the modifications `sigMod N η σs` (arbitrary offsets): see
 `design_window_pointwise`, the case `σs = designSigma1 d`. -/
-theorem sig_window_pointwise (prob : Crossing.FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
+theorem sig_window_pointwise (prob : Crossing.FixedWeightProblem) (_hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
     {S : ℝ} (hS : 0 ≤ S) (n1 : ℕ) {ε' : ℝ} (hε' : 0 < ε') :
     ∀ᶠ c' in atTop, ∀ σ ∈ Icc (-S) (phiWKB (n1 + 1)),
       combProfile c' (designComb c' 1 N (1 / 4) (σs) (designWidth1 c' η))

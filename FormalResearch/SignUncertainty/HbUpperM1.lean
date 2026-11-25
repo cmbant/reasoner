@@ -77,18 +77,18 @@ theorem hbThresholdsUpper_of_bricks (h : O6Bricks 4) : HbThresholdsUpper := by
     (δ₁ := δ₁) (c₁ := c₁) (c₂ := c₂) (U0 := |airyZero 1|) (U1 := 2 * |γ₁|) hδ₁ hc₁ hc₂ (abs_nonneg _)
     (by positivity) (fa := fun δ => -1 - γ₂ * δ) (fb := fun δ => -γ₁ * δ + γ₂ * δ + 0) (fc := fun δ => γ₂ * δ)
     (fun δ hδ hδle => by
-      have hδ1 : δ ≤ 1 := by linarith
+      have hδ1 : δ ≤ 1 := by linarith only [hδle, hδ₁2]
       refine ⟨?_, ?_, ?_⟩
-      · rw [abs_le]; constructor <;> nlinarith [abs_nonneg γ₁]
-      · rw [abs_le]; constructor <;> nlinarith [abs_nonneg γ₁, neg_abs_le γ₁, le_abs_self γ₁]
-      · rw [abs_le]; constructor <;> nlinarith [abs_nonneg γ₁])
-    (fun δ hδ _ => by nlinarith)
+      · rw [abs_le]; constructor <;> nlinarith only [hRdef, hδ1, hδ, hγ₂, abs_nonneg γ₁, mul_nonneg hγ₂.le (sub_nonneg.2 hδ1), mul_pos hγ₂ hδ, mul_nonneg (sub_nonneg.2 (le_abs_self γ₁)) hδ.le, mul_nonneg (sub_nonneg.2 (neg_abs_le γ₁)) hδ.le, mul_nonneg (abs_nonneg γ₁) (sub_nonneg.2 hδ1)]
+      · rw [abs_le]; constructor <;> nlinarith only [hRdef, hδ1, hδ, hγ₂, abs_nonneg γ₁, mul_nonneg hγ₂.le (sub_nonneg.2 hδ1), mul_pos hγ₂ hδ, mul_nonneg (sub_nonneg.2 (le_abs_self γ₁)) hδ.le, mul_nonneg (sub_nonneg.2 (neg_abs_le γ₁)) hδ.le, mul_nonneg (abs_nonneg γ₁) (sub_nonneg.2 hδ1)]
+      · rw [abs_le]; constructor <;> nlinarith only [hRdef, hδ1, hδ, hγ₂, abs_nonneg γ₁, mul_nonneg hγ₂.le (sub_nonneg.2 hδ1), mul_pos hγ₂ hδ, mul_nonneg (sub_nonneg.2 (le_abs_self γ₁)) hδ.le, mul_nonneg (sub_nonneg.2 (neg_abs_le γ₁)) hδ.le, mul_nonneg (abs_nonneg γ₁) (sub_nonneg.2 hδ1)])
+    (fun δ hδ _ => by nlinarith only [mul_pos hγ₂ hδ])
     (fun δ hδ hδle x hx => by
       have : |airyZero 1 - 2 * γ₁ * δ| ≤ |airyZero 1| + 2 * |γ₁| * δ := by
         calc |airyZero 1 - 2 * γ₁ * δ| ≤ |airyZero 1| + |2 * γ₁ * δ| := abs_sub _ _
           _ = |airyZero 1| + 2 * |γ₁| * δ := by
               rw [abs_mul, abs_mul, abs_of_pos hδ]; norm_num
-      exact (hseed δ hδ hδle).2 x (by linarith))
+      exact (hseed δ hδ hδle).2 x (by linarith only [this, hx]))
   have hK0 : 0 < K := by linarith
   have hβ := ceBeta1_pos
   have hpi := Real.pi_pos
@@ -122,13 +122,13 @@ theorem hbThresholdsUpper_of_bricks (h : O6Bricks 4) : HbThresholdsUpper := by
       _ = K ^ 3 := by rw [hcube, mul_one]
   have hKε : K * liftEps c ≤ 1 / 2 := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have h2 : (1 / 2 : ℝ) ^ 3 < (K * liftEps c) ^ 3 := pow_lt_pow_left₀ hcon (by norm_num) (by norm_num)
     have h3 := mul_lt_mul_of_pos_right h2 hc0
     rw [hKe3] at h3
     norm_num at h3
     linarith
-  have hεK : liftEps c ≤ 1 / 2 := by nlinarith
+  have hεK : liftEps c ≤ 1 / 2 := by nlinarith only [hKε, mul_nonneg (sub_nonneg.2 hK) hε.le]
   have hKεpos : 0 < K * liftEps c := by positivity
   -- the lift
   obtain ⟨f, hfeig, hfrep, -, hf0⟩ := exists_hankelEigenfn_lift (m := 4) (by norm_num) (-1 - γ₂ * (K * liftEps c))
@@ -141,12 +141,12 @@ theorem hbThresholdsUpper_of_bricks (h : O6Bricks 4) : HbThresholdsUpper := by
     rw [hsmin, hsmax]
     refine div_le_div_of_nonneg_right ?_ hβ.le
     have := abs_nonneg γ₁
-    nlinarith
+    nlinarith only [hKε, hβ, this, mul_nonneg (abs_nonneg γ₁) (sub_nonneg.2 hKε), mul_nonneg hβ.le (sub_nonneg.2 hKε)]
   obtain ⟨y₀, hy₀⟩ : ∃ y : ℝ, y = Real.pi ^ 2 * liftEps c ^ 2 * smin := ⟨_, rfl⟩
   have hy₀0 : 0 < y₀ := by rw [hy₀]; positivity
   have hy₀half : y₀ ≤ 1 / 2 := by
     have hτc : liftEps c ≤ τ := hMτ c hcτ
-    have h1 : liftEps c ^ 2 ≤ liftEps c := by nlinarith
+    have h1 : liftEps c ^ 2 ≤ liftEps c := by nlinarith only [hε, hεK, mul_nonneg hε.le (sub_nonneg.2 hεK)]
     have h2 : y₀ ≤ Real.pi ^ 2 * s_max * τ := by
       rw [hy₀]
       calc Real.pi ^ 2 * liftEps c ^ 2 * smin ≤ Real.pi ^ 2 * τ * s_max := by
@@ -193,7 +193,7 @@ theorem hbThresholdsUpper_of_bricks (h : O6Bricks 4) : HbThresholdsUpper := by
       linarith
     have h3 : (K * liftEps c) ^ 3 ≤ δ₁ ^ 3 := by
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       have := mul_lt_mul_of_pos_right hcon hc0
       rw [hKe3] at this
       linarith
@@ -201,14 +201,14 @@ theorem hbThresholdsUpper_of_bricks (h : O6Bricks 4) : HbThresholdsUpper := by
   -- the origin
   have hint := (hseed (K * liftEps c) hKεpos hKεδ).1
   have hbdc := (by
-    have hδ1 : K * liftEps c ≤ 1 := by linarith
+    have hδ1 : K * liftEps c ≤ 1 := by linarith only [hKε]
     refine ⟨?_, ?_, ?_⟩
-    · rw [abs_le]; constructor <;> nlinarith [abs_nonneg γ₁]
-    · rw [abs_le]; constructor <;> nlinarith [abs_nonneg γ₁, neg_abs_le γ₁, le_abs_self γ₁]
-    · rw [abs_le]; constructor <;> nlinarith [abs_nonneg γ₁] :
+    · rw [abs_le]; constructor <;> nlinarith only [hRdef, hδ1, hKεpos, hγ₂, abs_nonneg γ₁, mul_nonneg hγ₂.le (sub_nonneg.2 hδ1), mul_pos hγ₂ hKεpos, mul_nonneg (sub_nonneg.2 (le_abs_self γ₁)) hKεpos.le, mul_nonneg (sub_nonneg.2 (neg_abs_le γ₁)) hKεpos.le, mul_nonneg (abs_nonneg γ₁) (sub_nonneg.2 hδ1)]
+    · rw [abs_le]; constructor <;> nlinarith only [hRdef, hδ1, hKεpos, hγ₂, abs_nonneg γ₁, mul_nonneg hγ₂.le (sub_nonneg.2 hδ1), mul_pos hγ₂ hKεpos, mul_nonneg (sub_nonneg.2 (le_abs_self γ₁)) hKεpos.le, mul_nonneg (sub_nonneg.2 (neg_abs_le γ₁)) hKεpos.le, mul_nonneg (abs_nonneg γ₁) (sub_nonneg.2 hδ1)]
+    · rw [abs_le]; constructor <;> nlinarith only [hRdef, hδ1, hKεpos, hγ₂, abs_nonneg γ₁, mul_nonneg hγ₂.le (sub_nonneg.2 hδ1), mul_pos hγ₂ hKεpos, mul_nonneg (sub_nonneg.2 (le_abs_self γ₁)) hKεpos.le, mul_nonneg (sub_nonneg.2 (neg_abs_le γ₁)) hKεpos.le, mul_nonneg (abs_nonneg γ₁) (sub_nonneg.2 hδ1)] :
     |(-1 - γ₂ * (K * liftEps c))| ≤ R ∧ |(-γ₁ * (K * liftEps c) + γ₂ * (K * liftEps c) + 0)| ≤ R ∧
       |γ₂ * (K * liftEps c)| ≤ R)
-  have hedge' := hedge hbdc.1 hbdc.2.1 hbdc.2.2 hK (by linarith : (2 : ℝ) ≤ c)
+  have hedge' := hedge hbdc.1 hbdc.2.1 hbdc.2.2 hK (by linarith only [hc2000] : (2 : ℝ) ≤ c)
   have hW0 := liftSymbol_zero_eq (hasU2_airySeedU2 (-1 - γ₂ * (K * liftEps c))
     (-γ₁ * (K * liftEps c) + γ₂ * (K * liftEps c) + 0) (γ₂ * (K * liftEps c))) (ceBeta1 * K * liftEps c / 2) 4
   rw [hint] at hW0
@@ -222,7 +222,7 @@ theorem hbThresholdsUpper_of_bricks (h : O6Bricks 4) : HbThresholdsUpper := by
     have hp : 0 ≤ Ce * K ^ (-((4 : ℕ) : ℝ)) := by positivity
     have hk : 0 < ceK * K := by have := ceK_pos; positivity
     rw [mul_div_assoc', div_le_div_iff₀ (by positivity) (by norm_num)]
-    nlinarith
+    nlinarith only [hk]
   have hWle : ‖liftSymbol (airySeedU2 (-1 - γ₂ * (K * liftEps c)) (-γ₁ * (K * liftEps c) + γ₂ * (K * liftEps c) + 0)
       (γ₂ * (K * liftEps c))) (ceBeta1 * K * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)‖ ≤
       ceK * (K * liftEps c) := by
@@ -234,7 +234,7 @@ theorem hbThresholdsUpper_of_bricks (h : O6Bricks 4) : HbThresholdsUpper := by
         _ ≤ liftEps c * (Ce * K ^ (-((4 : ℕ) : ℝ)) * θe) := by gcongr
         _ ≤ _ := by gcongr
     have hk : 0 < ceK * (K * liftEps c) := by have := ceK_pos; positivity
-    nlinarith
+    nlinarith only [h1, hk]
   have hσn : |σ| = 1 := by rcases hσ with rfl | rfl <;> simp
   have horigin : σ * f 0 ≤ 0 := by
     have hre := congrArg Complex.re hf0
@@ -254,17 +254,17 @@ theorem hbThresholdsUpper_of_bricks (h : O6Bricks 4) : HbThresholdsUpper := by
     rw [hre]
     have e : ∀ w x : ℝ, σ * (w + σ * x) = σ * w + (σ * σ) * x := fun w x => by ring
     rw [e, hσ2]
-    linarith
+    linarith only [hsr]
   refine ⟨T, f, { hfeig with
     nonzero := ⟨T, hTpos0.le, hfT.ne'⟩
     origin_sign := horigin
     tail_nonneg := fun Δ hΔ => (hpos' Δ hΔ).le }, ?_⟩
   -- the threshold
   have hexp : Real.exp y₀ ≤ 1 + y₀ + 2 * y₀ ^ 2 := by
-    have h1 := Real.exp_bound_div_one_sub_of_interval' hy₀0 (by linarith : y₀ < 1)
+    have h1 := Real.exp_bound_div_one_sub_of_interval' hy₀0 (by linarith only [hy₀half] : y₀ < 1)
     refine h1.le.trans ?_
-    rw [div_le_iff₀ (by linarith)]
-    nlinarith [sq_nonneg y₀, mul_nonneg (sq_nonneg y₀) (by linarith : (0 : ℝ) ≤ 1 - 2 * y₀)]
+    rw [div_le_iff₀ (by linarith only [hy₀half])]
+    nlinarith only [sq_nonneg y₀, mul_nonneg (sq_nonneg y₀) (by linarith only [hy₀half] : (0 : ℝ) ≤ 1 - 2 * y₀)]
   have hεc : liftEps c * c ^ (1 / 3 : ℝ) = 1 := by rw [rpow_third_eq hc0]; field_simp
   have hcε2 : c * liftEps c ^ 2 = c ^ (1 / 3 : ℝ) := by
     rw [rpow_third_eq hc0]; field_simp; linarith
@@ -280,8 +280,8 @@ theorem hbThresholdsUpper_of_bricks (h : O6Bricks 4) : HbThresholdsUpper := by
     have h1 : liftEps c * smin ^ 2 ≤ 1 * s_max ^ 2 := by
       have : smin ^ 2 ≤ s_max ^ 2 := by gcongr
       have h0 : 0 ≤ smin ^ 2 := sq_nonneg _
-      nlinarith
-    nlinarith
+      nlinarith only [this, h0, hεK, mul_nonneg (sub_nonneg.2 hεK) h0]
+    nlinarith only [mul_le_mul_of_nonneg_left h1 (show (0 : ℝ) ≤ 2 * Real.pi ^ 2 by positivity)]
   have hβeq : hankelBeta1 = ceBeta1 := rfl
   calc T = c / Real.pi ^ 2 * Real.exp y₀ := hTdef
     _ ≤ c / Real.pi ^ 2 * (1 + y₀ + 2 * y₀ ^ 2) := by gcongr

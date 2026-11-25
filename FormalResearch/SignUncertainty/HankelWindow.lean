@@ -71,14 +71,14 @@ theorem hankel_yv_window {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 1e14 ≤ c
   have ht8' : (1.4e9 : ℝ) ≤ t ^ 8 := by norm_num at ht8; linarith
   have hRlb8 : (1 / 100 : ℝ) ^ 2 * t ^ 8 ≤ R := by rw [← hK8]; exact hRlb
   have hRub8 : R ≤ (1 / 100 : ℝ) ^ 2 * t ^ 8 + 1 := by rw [← hK8]; exact hRub
-  have hR1 : 1e5 ≤ R := by nlinarith
-  have hRc : R + 1 ≤ t ^ 8 := by nlinarith
-  have hkap := hankelLangerKappa_bounds
+  have hR1 : 1e5 ≤ R := by nlinarith only [hRlb8, ht8']
+  have hRc : R + 1 ≤ t ^ 8 := by nlinarith only [hRub8, ht8']
+  obtain ⟨hκ1, hκ2⟩ := hankelLangerKappa_bounds
   have hRdisc : R + 1 ≤ c ^ (2 / 3 : ℝ) * langerKappa * 4.94e-4 := by
-    rw [hK8]; nlinarith
+    rw [hK8]; nlinarith only [hRub8, ht8', mul_nonneg (sub_nonneg.2 hκ1) (pow_pos ht0 8).le]
   have hRA : R ≤ langerRadius c := by
     have : langerRadius c = c ^ (2 / 3 : ℝ) * langerKappa * 4.94e-4 := rfl
-    rw [this]; linarith
+    rw [this]; linarith only [hRdisc]
   set N : ℝ := ‖u‖ with hNdef
   have hN1 : 9e4 ≤ N := by linarith
   have hN0 : 0 < N := by linarith
@@ -202,7 +202,7 @@ theorem hankel_yv_window {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 1e14 ≤ c
     rw [div_pow, hGdef, Real.sq_sqrt hcσ0.le]
     have : π / ((2 / 5) * c * σ) = (5 / 2 * π) / (c * σ) := by field_simp
     rw [this, div_le_div_iff_of_pos_right hcσ0]
-    nlinarith [Real.pi_lt_d2]
+    nlinarith only [Real.pi_lt_d2]
   have hNc : N ≤ c ^ (2 / 3 : ℝ) := by rw [hK8]; have : N ≤ R + 1 := hhi; linarith
   have hQs : Q * s ≤ tebBandConst hankelBandParams * (k * Bs + 1) * N ^ (-(3 / 4 : ℝ)) := by
     have hL1 := hankel_window_L1 hc0 hN0 hNc
@@ -223,11 +223,11 @@ theorem hankel_yv_window {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 1e14 ≤ c
     rw [mul_inv_le_iff₀ hc0, one_mul, hk4, hct]
     exact pow_le_pow_right₀ (by linarith) (by norm_num)
   have hek : Real.exp (-(0.035 * c * σ)) * k ≤ 1 := by
-    have h1 : Real.exp (-(0.035 * c * σ)) ≤ Real.exp (-k) := Real.exp_le_exp.2 (by linarith)
+    have h1 : Real.exp (-(0.035 * c * σ)) ≤ Real.exp (-k) := Real.exp_le_exp.2 (by linarith only [hkσ])
     have h2 : Real.exp (-k) * k ≤ 1 := by
       rw [Real.exp_neg, inv_mul_le_iff₀ (Real.exp_pos k), mul_one]
-      linarith [Real.add_one_le_exp k]
-    nlinarith [Real.exp_pos (-k)]
+      linarith only [Real.add_one_le_exp k]
+    nlinarith only [mul_le_mul_of_nonneg_right h1 hk0.le, h2]
   have hE : Real.exp (-((2 / 5) * c * σ * h ^ 2)) = (c⁻¹) ^ 2 := by
     have : (2 / 5) * c * σ * h ^ 2 = 2 * Real.log c := by rw [hhsq]; field_simp
     rw [this]
@@ -266,7 +266,7 @@ theorem hankel_yv_window {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 1e14 ≤ c
     _ ≤ airyEnv u * (hankelWindowC * (k * Bs + 1) * (N ^ (-(3 / 4 : ℝ)) / (X * Real.sqrt X))) := by
         have h1 : 1.2 * tebBandConst hankelBandParams * (k * Bs + 1) + 17 ≤
             hankelWindowC * (k * Bs + 1) := by
-          unfold hankelWindowC; nlinarith
+          unfold hankelWindowC; nlinarith only [hΛ]
         have h2 : 0 ≤ N ^ (-(3 / 4 : ℝ)) / (X * Real.sqrt X) := by positivity
         gcongr
     _ = _ := by rw [hX32]; field_simp

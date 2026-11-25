@@ -18,7 +18,7 @@ open Complex Metric Set
 
 namespace FormalResearch.Special
 
-lemma at47_env_lower {B : ℝ} {u : ℂ} (hu : ‖u‖ ≤ B) (hB : 0 ≤ B) :
+lemma at47_env_lower {B : ℝ} {u : ℂ} (hu : ‖u‖ ≤ B) (_hB : 0 ≤ B) :
     Real.exp (-(4 / 3) * B ^ (3 / 2 : ℝ)) ≤ airyEnv u := by
   unfold airyEnv
   apply Real.exp_le_exp.mpr

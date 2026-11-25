@@ -2339,8 +2339,8 @@ theorem lemma_fwA_part2 {w : ℕ} (hMehler : MehlerOddMomentInput w)
     have heq : (fun x : RadialSpace w => (‖fPlus x‖ₑ : ℝ≥0∞)) =
         fun x => ENNReal.ofReal (fPlus x) := by
       ext x
-      rw [Real.enorm_eq_ofReal_abs, abs_of_nonneg (hfPlus_nn x)]
-    rw [hasFiniteIntegral_iff_enorm, heq]
+      rw [Real.eNorm_eq_ofReal_abs, abs_of_nonneg (hfPlus_nn x)]
+    rw [MeasureTheory.hasFiniteIntegral_iff_eNorm, heq]
     exact lt_of_le_of_lt hlint_le ENNReal.ofReal_lt_top
   have hf_int_nu : Integrable f ν := by
     have heq : f = fun x => fPlus x - fMinus x := funext hf_split
@@ -2540,7 +2540,7 @@ private lemma admissibleMeasure_Ici_sub_lt_top (prob : FixedWeightProblem) (a : 
     have h1 : (∫⁻ t in Ici 0, ‖Real.exp (-2 * π * 1 * t)‖ₑ ∂meas.ν) < ⊤ := hfin.2
     have hcongr : (∫⁻ t in Ici 0, ‖Real.exp (-2 * π * 1 * t)‖ₑ ∂meas.ν) =
         ∫⁻ t in Ici 0, ENNReal.ofReal (Real.exp (-2 * π * 1 * t)) ∂meas.ν :=
-      lintegral_congr_ae (ae_of_all _ fun t => Real.enorm_of_nonneg (Real.exp_pos _).le)
+      lintegral_congr_ae (ae_of_all _ fun t => Real.eNorm_of_nonneg (Real.exp_pos _).le)
     rwa [hcongr] at h1
   have hsub_ge : S ⊆ {t ∈ Ici 0 | ENNReal.ofReal B ≤ ENNReal.ofReal (Real.exp (-2 * π * 1 * t))} := by
     intro t ht
@@ -3496,7 +3496,7 @@ theorem lemma_fwX_equality (prob : FixedWeightProblem)
         ∫⁻ t in Ici 0, ENNReal.ofReal (f_t t) ∂meas.ν := by
       refine setLIntegral_congr_fun measurableSet_Ici (fun t ht => ?_)
       dsimp only [Function.comp_def]
-      rw [Real.enorm_of_nonneg (euclideanWeight_pos _ _ _).le, hf_t_eq t (Set.mem_Ici.mp ht)]
+      rw [Real.eNorm_of_nonneg (euclideanWeight_pos _ _ _).le, hf_t_eq t (Set.mem_Ici.mp ht)]
     rw [hcongr_e]
     calc ∫⁻ t in Ici 0, ENNReal.ofReal (f_t t) ∂meas.ν
         ≤ ∫⁻ t in ⋃ n : ℕ, Ico ((n : ℝ) ^ 2) (((n : ℝ) + 1) ^ 2), ENNReal.ofReal (f_t t) ∂meas.ν :=
@@ -3504,7 +3504,7 @@ theorem lemma_fwX_equality (prob : FixedWeightProblem)
       _ ≤ ∑' n : ℕ, ∫⁻ t in Ico ((n : ℝ) ^ 2) (((n : ℝ) + 1) ^ 2), ENNReal.ofReal (f_t t) ∂meas.ν :=
           lintegral_iUnion_le _ _
       _ ≤ ∑' n : ℕ, ENNReal.ofReal (M_s * ((n : ℝ) + 1) ^ ((prob.w : ℝ) - 2 * q)) :=
-          ENNReal.tsum_le_tsum hshell
+          tsum_le_tsum hshell
       _ < ⊤ := hsum_fin.tsum_ofReal_lt_top
   have hW_rho : Integrable (euclideanWeight b d) (rhoLift prob a) := by
     unfold rhoLift
@@ -3595,7 +3595,7 @@ lemma spectrumMeasure_Iio_eq_zero (prob : FixedWeightProblem) {a : ℝ}
   have h0 : ∀ n : spec.ι, (ENNReal.ofReal (spec.d n) • Measure.dirac (spec.t n)) (Iio 0) = 0 := by
     intro n
     have hnot : spec.t n ∉ Iio (0 : ℝ) := not_lt.mpr (ht_nn n)
-    rw [Measure.smul_apply, smul_eq_mul, Measure.dirac_apply (spec.t n) (Iio 0),
+    rw [smul_apply, smul_eq_mul, Measure.dirac_apply (spec.t n) (Iio 0),
       Set.indicator_of_notMem hnot 1, mul_zero]
   simp [h0]
 

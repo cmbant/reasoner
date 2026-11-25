@@ -110,7 +110,7 @@ theorem hankelBoot_exp_right {v : ℝ} (hv1 : 1 ≤ v) :
     _ ≤ Real.exp (-(8 / 15 : ℝ) * v) := Real.exp_le_exp.mpr (by rw [hs]; linarith)
 
 /-- `∫_1^b K e^{-(8/15)v} dv ≤ 2K` for `K ≥ 0`, `b ≥ 1`. -/
-theorem hankelBoot_exp_int_le {K b : ℝ} (hK : 0 ≤ K) (hb : 1 ≤ b) :
+theorem hankelBoot_exp_int_le {K b : ℝ} (hK : 0 ≤ K) (_hb : 1 ≤ b) :
     (∫ v in (1 : ℝ)..b, K * Real.exp (-(8 / 15 : ℝ) * v)) ≤ 2 * K := by
   have h1 : HasDerivAt (fun t : ℝ => -(8 / 15 : ℝ) * t) (-(8 / 15 : ℝ)) 0 := by
     simpa using (hasDerivAt_id (0 : ℝ)).const_mul (-(8 / 15 : ℝ))
@@ -130,7 +130,7 @@ theorem hankelBoot_exp_int_le {K b : ℝ} (hK : 0 ≤ K) (hb : 1 ≤ b) :
   linarith [h_eq, e1, e2]
 
 /-- `∫_a^A 60 e^{-(5/6)v} dv ≤ 72 e^{-(5/6)R}` for `R ≤ a ≤ A`. -/
-theorem hankelBoot_gauss_tail_int {R a A : ℝ} (hRa : R ≤ a) (haA : a ≤ A) :
+theorem hankelBoot_gauss_tail_int {R a A : ℝ} (hRa : R ≤ a) (_haA : a ≤ A) :
     (∫ v in a..A, 60 * Real.exp (-(5 / 6 : ℝ) * v)) ≤ 72 * Real.exp (-(5 / 6 : ℝ) * R) := by
   have hderiv : ∀ v ∈ Set.uIcc a A,
       HasDerivAt (fun t : ℝ => -72 * Real.exp (-(5 / 6 : ℝ) * t))
@@ -272,7 +272,7 @@ theorem hankelBoot_line_band {c ε T u_T R ℓ : ℝ} {f : ℝ → ℝ} (hc : 3e
 `∫‖Ψ̃‖ ≤ 1`. -/
 theorem hankelBoot_line_mid {c ε T u_T R ℓ : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c)
     (hf : IsHankelFeasible c ε T f) (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1)
-    (hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T) (hR10 : 10 ≤ R)
+    (_hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T) (hR10 : 10 ≤ R)
     (hRA : R + 1 ≤ langerRadius c) (hℓ0 : 0 ≤ ℓ) (hℓ1 : ℓ ≤ 1 / 2) (k : ℕ)
     (hkR : (k : ℝ) ≤ R / 5) :
     -(∫ v in u_T..(1 : ℝ), (1 - (1 + (v - ℓ) / R) ^ (k + 1)) * hankelPsiR c f v)
@@ -351,7 +351,7 @@ theorem hankelBoot_line_mid {c ε T u_T R ℓ : ℝ} {f : ℝ → ℝ} (hc : 3e6
 /-- **Right piece** (`line_mid_and_rightW`, second half): on `[1, R + ℓ]`, with the envelope `hankelPsi_envelope`. -/
 theorem hankelBoot_line_right {c ε T u_T R ℓ : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c)
     (hf : IsHankelFeasible c ε T f) (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1)
-    (hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T) (hR10 : 10 ≤ R)
+    (_hT : c * hankelXi c u_T = T) (_hu0 : u_T ≤ 0) (_hu3 : -3 ≤ u_T) (hR10 : 10 ≤ R)
     (hRA : R + 1 ≤ langerRadius c) (hℓ0 : 0 ≤ ℓ) (hℓ1 : ℓ ≤ 1 / 2) (k : ℕ)
     (hkR : (k : ℝ) ≤ R / 5) :
     -(∫ v in (1 : ℝ)..(R + ℓ), (1 - (1 + (v - ℓ) / R) ^ (k + 1)) * hankelPsiR c f v)
@@ -432,8 +432,8 @@ theorem hankelBoot_line_right {c ε T u_T R ℓ : ℝ} {f : ℝ → ℝ} (hc : 3
 /-- **Positive tail** (`h_pos_tail` transcribed): `-∫_{R+ℓ}^{A} Re Ψ̃ ≤ (6/5) 60 e^{-(5/6) R}`. -/
 theorem hankelBoot_line_tail {c ε T u_T R ℓ : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c)
     (hf : IsHankelFeasible c ε T f) (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1)
-    (hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0) (hu3 : -3 ≤ u_T) (hR10 : 10 ≤ R)
-    (hRA : R + 1 ≤ langerRadius c) (hℓ0 : 0 ≤ ℓ) (hℓ1 : ℓ ≤ 1 / 2) (k : ℕ) :
+    (_hT : c * hankelXi c u_T = T) (_hu0 : u_T ≤ 0) (_hu3 : -3 ≤ u_T) (hR10 : 10 ≤ R)
+    (hRA : R + 1 ≤ langerRadius c) (hℓ0 : 0 ≤ ℓ) (hℓ1 : ℓ ≤ 1 / 2) (_k : ℕ) :
     -(∫ v in (R + ℓ)..(langerRadius c), hankelPsiR c f v)
     ≤ (6 / 5 : ℝ) * 60 * Real.exp (-(5 / 6 : ℝ) * R) := by
   have hc5 : (5000 : ℝ) ≤ c := by linarith

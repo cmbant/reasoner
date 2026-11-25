@@ -53,7 +53,7 @@ theorem bondA_pos (F : SymbolFamily Par) (μ : Par) (N : ℕ)
     (hG : ∀ n : ℤ, 0 ≤ n → n < N → 0 < F.Gh μ (F.step N) (sNode (F.step N) n))
     (n : ℤ) (hn0 : 0 ≤ n) (hnN : n < N) : 0 < F.bondA μ N n := by
   unfold SymbolFamily.bondA
-  rw [if_pos ⟨hn0, hnN⟩]
+  rw [ite_eq_left ⟨hn0, hnN⟩]
   apply Real.sqrt_pos.mpr
   unfold SymbolFamily.entryE
   have hh : 0 < F.step N := by
@@ -86,7 +86,7 @@ def extV {N : ℕ} (w : Fin (N + 1) → ℝ) : ℤ → ℝ :=
 
 lemma extV_fin {N : ℕ} (w : Fin (N + 1) → ℝ) (i : Fin (N + 1)) : extV w (i.val : ℤ) = w i := by
   unfold extV
-  rw [dif_pos ⟨by positivity, by omega⟩]
+  rw [dite_eq_left ⟨by positivity, by omega⟩]
   congr 1
 
 lemma extV_nat {N : ℕ} (w : Fin (N + 1) → ℝ) (j : Fin (N + 1)) (n : ℤ) (hn : (j.val : ℤ) = n) :
@@ -96,11 +96,11 @@ lemma extV_nat {N : ℕ} (w : Fin (N + 1) → ℝ) (j : Fin (N + 1)) (n : ℤ) (
 
 lemma extV_neg {N : ℕ} (w : Fin (N + 1) → ℝ) (n : ℤ) (hn : n < 0) : extV w n = 0 := by
   unfold extV
-  rw [dif_neg (by omega)]
+  rw [dite_eq_right (by omega)]
 
 lemma extV_big {N : ℕ} (w : Fin (N + 1) → ℝ) (n : ℤ) (hn : (N : ℤ) < n) : extV w n = 0 := by
   unfold extV
-  rw [dif_neg (by omega)]
+  rw [dite_eq_right (by omega)]
 
 /-- The entry of `J_h` at `(i, j)`, split into its three possible contributions (diagonal, the bond `i → i+1`, the bond `j → j+1`). -/
 lemma jacobiMat_apply_mul (F : SymbolFamily Par) (μ : Par) (N : ℕ) (w : Fin (N + 1) → ℝ) (i j : Fin (N + 1)) :
@@ -129,11 +129,11 @@ theorem jacobiMat_mulVec_apply (F : SymbolFamily Par) (μ : Par) (N : ℕ) (w : 
     · rw [Finset.sum_eq_single (⟨i.val + 1, by omega⟩ : Fin (N + 1))]
       · have hx : extV w ((i.val : ℤ) + 1) = w ⟨i.val + 1, by omega⟩ := by
           unfold extV
-          rw [dif_pos ⟨by omega, by omega⟩]
+          rw [dite_eq_left ⟨by omega, by omega⟩]
           congr 1
-        rw [hx, if_pos (by simp)]
+        rw [hx, ite_eq_left (by simp)]
       · intro b _ hb
-        rw [if_neg]
+        rw [ite_eq_right]
         intro hbeq
         apply hb
         ext
@@ -145,7 +145,7 @@ theorem jacobiMat_mulVec_apply (F : SymbolFamily Par) (μ : Par) (N : ℕ) (w : 
       rw [hz, mul_zero]
       apply Finset.sum_eq_zero
       intro b _
-      rw [if_neg]
+      rw [ite_eq_right]
       have := b.isLt
       omega
   · -- the bond `i-1 → i`
@@ -153,7 +153,7 @@ theorem jacobiMat_mulVec_apply (F : SymbolFamily Par) (μ : Par) (N : ℕ) (w : 
     · rw [Finset.sum_eq_single (⟨i.val - 1, by omega⟩ : Fin (N + 1))]
       · have hx : extV w ((i.val : ℤ) - 1) = w ⟨i.val - 1, by omega⟩ := by
           unfold extV
-          rw [dif_pos ⟨by omega, by omega⟩]
+          rw [dite_eq_left ⟨by omega, by omega⟩]
           congr 1
           apply Fin.ext
           show ((i.val : ℤ) - 1).toNat = i.val - 1
@@ -162,9 +162,9 @@ theorem jacobiMat_mulVec_apply (F : SymbolFamily Par) (μ : Par) (N : ℕ) (w : 
           congr 1
           simp
           omega
-        rw [hx, if_pos (by simp; omega), hb]
+        rw [hx, ite_eq_left (by simp; omega), hb]
       · intro b _ hb
-        rw [if_neg]
+        rw [ite_eq_right]
         intro hbeq
         apply hb
         ext
@@ -176,7 +176,7 @@ theorem jacobiMat_mulVec_apply (F : SymbolFamily Par) (μ : Par) (N : ℕ) (w : 
       rw [hz, mul_zero]
       apply Finset.sum_eq_zero
       intro b _
-      rw [if_neg]
+      rw [ite_eq_right]
       omega
 
 /-- **First entry of an eigenvector** of an unreduced Jacobi matrix (`a_n > 0` for `0 ≤ n < N`): a solution of `J w = ν w` with
@@ -307,8 +307,8 @@ theorem exists_eigenSystem (F : SymbolFamily Par) (μ : Par) (N : ℕ)
       linarith
     have h1 := horth i j
     have h2 := horth i i
-    rw [if_neg hij] at h1
-    rw [if_pos rfl] at h2
+    rw [ite_eq_right hij] at h1
+    rw [ite_eq_left rfl] at h2
     have h3 : ∑ m, W m i * W m j = c * ∑ m, W m i * W m i := by
       rw [Finset.mul_sum]
       exact Finset.sum_congr rfl (fun m _ => by rw [hcW m]; ring)
@@ -338,9 +338,9 @@ theorem exists_eigenSystem (F : SymbolFamily Par) (μ : Par) (N : ℕ)
     intro k
     simp only [hU, Matrix.of_apply, hs]
     rcases lt_or_gt_of_ne (hfirst (σ k)) with h | h
-    · rw [if_neg (not_lt.mpr h.le)]
+    · rw [ite_eq_right (not_lt.mpr h.le)]
       linarith
-    · rw [if_pos h]
+    · rw [ite_eq_left h]
       linarith
   refine ⟨fun k => lam (σ k), U, ⟨?_, ?_, hstrict, fun k => hU0 k⟩⟩
   · -- orthonormality of the columns

@@ -123,7 +123,7 @@ lemma expand_pointwise {M : ℕ} (hM : 1 ≤ M) (f : ℕ → ℝ → ℝ) {A B :
     refine Finset.sum_congr rfl fun j hj => ?_
     congr 1
     refine Finset.sum_congr rfl fun k hk => ?_
-    rw [if_pos (by have := Finset.mem_range.1 hk; omega)]
+    rw [ite_eq_left (by have := Finset.mem_range.1 hk; omega)]
   rw [hQeval] at htail
   have hsplit : ∑ j ∈ range (M + 1), h ^ j * f j (X0 + δh) - y =
       (∑ j ∈ range (M + 1), h ^ j * ∑ k ∈ range (M - j + 1), c j k * δh ^ k - y) +

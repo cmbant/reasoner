@@ -1369,12 +1369,12 @@ lemma tendsto_majorant2D_slit_nonneg {x₀ : ℝ} (hx₀ : xiStar ≤ x₀) :
         have hcongr : EqOn f_lim (fun t => -arcsinSinh t / π) (uIoc 0 xiStar) := by
           intro t ht
           rw [Set.uIoc_of_le xiStar_pos.le] at ht
-          dsimp [f_lim]; rw [if_pos ht.2]
+          dsimp [f_lim]; rw [ite_eq_left ht.2]
         rw [intervalIntegral.integral_congr_ae (ae_of_all _ fun t ht => hcongr ht)]
         rw [intervalIntegral.integral_div, intervalIntegral.integral_neg]
       have h_right : ∫ t in xiStar..x₀, f_lim t = -(1 / 2) * (x₀ - xiStar) := by
         have hcongr : ∀ t ∈ Ioc xiStar x₀, f_lim t = -(1 / 2) := by
-          intro t ht; dsimp [f_lim]; rw [if_neg (not_le.mpr ht.1)]
+          intro t ht; dsimp [f_lim]; rw [ite_eq_right (not_le.mpr ht.1)]
         rw [intervalIntegral.integral_congr_ae (ae_of_all _ fun t ht =>
           hcongr t (Set.uIoc_of_le hx₀ ▸ ht))]
         rw [intervalIntegral.integral_const, smul_eq_mul]; ring
@@ -1415,7 +1415,7 @@ lemma tendsto_majorant2D_slit_nonneg {x₀ : ℝ} (hx₀ : xiStar ≤ x₀) :
         have ht_ne := ht htu
         rw [Set.uIoc_of_le hx₀_pos.le] at htu
         rcases lt_or_gt_of_ne ht_ne with hlt | hgt
-        · dsimp [f_lim]; rw [if_pos hlt.le]
+        · dsimp [f_lim]; rw [ite_eq_left hlt.le]
           have hmem_t : (t : ℂ) ∈ slitStrip := by
             refine ⟨by simp, ?_⟩
             rintro ⟨_, hre⟩
@@ -1438,7 +1438,7 @@ lemma tendsto_majorant2D_slit_nonneg {x₀ : ℝ} (hx₀ : xiStar ≤ x₀) :
           change Tendsto (fun y : ℝ => (pMap ((t : ℂ) + (y : ℂ) * Complex.I)).im)
             (𝓝[>] 0) (𝓝 (pMap (t : ℂ)).im) at him_tend
           rwa [hp_val] at him_tend
-        · dsimp [f_lim]; rw [if_neg (not_le.mpr hgt)]
+        · dsimp [f_lim]; rw [ite_eq_right (not_le.mpr hgt)]
           exact tendsto_pMap_slit_right hgt
     have hsum : Tendsto (fun y : ℝ =>
         majorant2D ((y : ℂ) * Complex.I) +
@@ -1591,7 +1591,7 @@ lemma tendsto_majorant2D_confB {σ : ℝ} (h0 : σ ≠ 0) (h1 : σ ≠ 1) (hm1 :
   rcases lt_trichotomy σ (-1) with hm | rfl | hm1_gt
   · have hnot : σ ∉ slitPreimage := by
       rintro (⟨h, _⟩ | (h : 1 < σ)) <;> linarith
-    rw [if_neg hnot]
+    rw [ite_eq_right hnot]
     have him := confB_real_im_of_lt_neg_one hm
     have hcb : confB (σ : ℂ) = ((confB (σ : ℂ)).re : ℂ) - (1 / 2 : ℝ) * Complex.I := by
       apply Complex.ext <;> simp [him]
@@ -1600,7 +1600,7 @@ lemma tendsto_majorant2D_confB {σ : ℝ} (h0 : σ ≠ 0) (h1 : σ ≠ 1) (hm1 :
   · exact absurd rfl hm1
   · rcases lt_trichotomy σ 0 with h0_lt | rfl | h0_gt
     · have hin : σ ∈ slitPreimage := Or.inl ⟨hm1_gt, h0_lt⟩
-      rw [if_pos hin]
+      rw [ite_eq_left hin]
       have him := confB_real_im_of_mem_Ioo_neg_one_zero ⟨hm1_gt, h0_lt⟩
       have hcb : confB (σ : ℂ) = (slitBoundaryMap σ : ℂ) := Complex.ext hre him
       rw [hcb] at hconfB_tend
@@ -1611,7 +1611,7 @@ lemma tendsto_majorant2D_confB {σ : ℝ} (h0 : σ ≠ 0) (h1 : σ ≠ 1) (hm1 :
     · rcases lt_trichotomy σ 1 with h1_lt | rfl | h1_gt
       · have hnot : σ ∉ slitPreimage := by
           rintro (⟨h, _⟩ | (h : 1 < σ)) <;> linarith
-        rw [if_neg hnot]
+        rw [ite_eq_right hnot]
         have him := confB_real_im_of_mem_Ioo_zero_one ⟨h0_gt, h1_lt⟩
         have hcb : confB (σ : ℂ) = ((confB (σ : ℂ)).re : ℂ) + (1 / 2 : ℝ) * Complex.I := by
           apply Complex.ext <;> simp [him]
@@ -1619,7 +1619,7 @@ lemma tendsto_majorant2D_confB {σ : ℝ} (h0 : σ ≠ 0) (h1 : σ ≠ 1) (hm1 :
         exact (tendsto_majorant2D_edge_top _).comp hconfB_tend
       · exact absurd rfl h1
       · have hin : σ ∈ slitPreimage := Or.inr h1_gt
-        rw [if_pos hin]
+        rw [ite_eq_left hin]
         have him := confB_real_im_of_one_lt h1_gt
         have hcb : confB (σ : ℂ) = (slitBoundaryMap σ : ℂ) := Complex.ext hre him
         rw [hcb] at hconfB_tend
@@ -1732,7 +1732,8 @@ private lemma schwarzKernel_aestronglyMeasurable {z : ℂ} (hz : 0 < z.im) :
       exact (continuousOn_const.mul continuousOn_slitBoundaryMap_slitPreimage.abs).div_const 3
     refine hslitL.mul ?_
     unfold schwarzKernel
-    refine ContinuousOn.div (by fun_prop) (by fun_prop) (fun σ _ => ?_)
+    refine ContinuousOn.div (Continuous.continuousOn (by fun_prop)) (Continuous.continuousOn (by fun_prop))
+      (fun σ _ => ?_)
     refine mul_ne_zero ?_ (Complex.ofReal_ne_zero.mpr (by positivity))
     intro h0
     have := congrArg Complex.im h0
@@ -1850,7 +1851,7 @@ lemma differentiableOn_schwarzSlit : DifferentiableOn ℂ schwarzSlit {z : ℂ |
         refine Complex.continuous_ofReal.comp_continuousOn ?_
         unfold slitL
         exact (continuousOn_const.mul continuousOn_slitBoundaryMap_slitPreimage.abs).div_const 3
-      refine hslitL.div (by fun_prop) (fun σ _ => ?_)
+      refine hslitL.div (Continuous.continuousOn (by fun_prop)) (fun σ _ => ?_)
       apply pow_ne_zero 2
       intro h0
       have := congrArg Complex.im h0
@@ -1912,7 +1913,6 @@ lemma differentiableOn_schwarzSlit : DifferentiableOn ℂ schwarzSlit {z : ℂ |
       have h1pC : (1 : ℂ) + (σ : ℂ) ^ 2 ≠ 0 := by exact_mod_cast h1p
       unfold schwarzKernel
       rw [Complex.ofReal_div, Complex.ofReal_add, Complex.ofReal_one, Complex.ofReal_pow]
-      push_cast
       field_simp [hwne, h1pC]
       ring
     have hsub : HasDerivAt (fun w : ℂ => (σ : ℂ) - w) (-1 : ℂ) z := by
@@ -1947,7 +1947,6 @@ lemma schwarzSlit_im {z : ℂ} (hz : 0 < z.im) :
     have hkern_eq : schwarzKernel z σ = ((σ : ℂ) - z)⁻¹ - ((σ / (1 + σ ^ 2) : ℝ) : ℂ) := by
       unfold schwarzKernel
       rw [Complex.ofReal_div, Complex.ofReal_add, Complex.ofReal_one, Complex.ofReal_pow]
-      push_cast
       field_simp [hne, h1pC]
       ring
     rw [hkern_eq, Complex.sub_im, Complex.ofReal_im, sub_zero, Complex.inv_im]
@@ -2466,7 +2465,7 @@ private lemma integral_abs_log_mul_poissonKernel :
       have hsr : Real.sqrt r ≠ 0 := (Real.sqrt_pos.mpr hr_pos).ne'
       have hs2 : Real.sqrt 2 ≠ 0 := (Real.sqrt_pos.mpr zero_lt_two).ne'
       field_simp [hsr, hs2, Real.pi_pos.ne']
-      nlinarith [Real.mul_self_sqrt (by norm_num : (0 : ℝ) ≤ 2)]
+      nlinarith only [Real.mul_self_sqrt (by norm_num : (0 : ℝ) ≤ 2)]
     rw [hunion, hIic_val, hIci_val]
     calc (8 / π) * Real.sqrt r * (2 * (2 * r) ^ (-(1 / 2 : ℝ)) + 2 * (2 * r) ^ (-(1 / 2 : ℝ)))
         = (8 / π) * Real.sqrt r * (4 * (2 * r) ^ (-(1 / 2 : ℝ))) := by ring
@@ -2991,7 +2990,7 @@ private lemma growth_domination_by_barrier {ε : ℝ} (hε : 0 < ε) :
         _ ≤ 1 * (-max 0 (-B)) := by
             have h1 : -max 0 (-B) - C1 ≤ -max 0 (-B) := by linarith [hC1]
             have h2 : -max 0 (-B) ≤ 0 := by linarith [le_max_left (0 : ℝ) (-B)]
-            nlinarith [hu8_pos, h1, h2]
+            nlinarith only [hu8_pos, h1, h2, hC1]
         _ ≤ B := by linarith [le_max_right (0 : ℝ) (-B)]
     obtain ⟨R₀, hR₀⟩ := eventually_atTop.mp (htend.eventually_le_atBot 0)
     refine ⟨max 4 R₀, by linarith [le_max_left (4 : ℝ) R₀], fun w hw hRw => ?_⟩
@@ -3297,7 +3296,7 @@ theorem majorant2D_confB_eq_schwarzSlit_im (z₀ : ℂ) (hz₀ : 0 < z₀.im) :
         have hfinite := hS_compact.elim_nhds_subcover
           (fun σ => if h : σ ∈ S then Metric.ball σ (ρ σ h / 2) else ∅)
           (fun σ hσ => by
-            rw [dif_pos hσ]
+            rw [dite_eq_left hσ]
             exact Metric.ball_mem_nhds σ (half_pos (hρ_pos σ hσ)))
         rcases hfinite with ⟨t, ht_sub, ht_cover⟩
         by_cases ht_empty : t.Nonempty
@@ -3315,14 +3314,14 @@ theorem majorant2D_confB_eq_schwarzSlit_im (z₀ : ℂ) (hz₀ : 0 < z₀.im) :
           simp only [Set.mem_iUnion, exists_prop] at hmem
           obtain ⟨σ₀, hσ₀t, hσ₀_ball⟩ := hmem
           have hσ₀S : σ₀ ∈ S := ht_sub σ₀ hσ₀t
-          rw [dif_pos hσ₀S] at hσ₀_ball
+          rw [dite_eq_left hσ₀S] at hσ₀_ball
           have hdist1 : |σ - σ₀| < ρ σ₀ hσ₀S / 2 := by simpa [Real.dist_eq] using hσ₀_ball
           have hdist2 : ‖(σ : ℂ) - (σ₀ : ℂ)‖ < ρ σ₀ hσ₀S / 2 := by
             simpa [← Complex.ofReal_sub, Complex.norm_real] using hdist1
           have hη_le : η₀ ≤ ρ σ₀ hσ₀S / 2 := by
             calc η₀ ≤ t.inf' ht_empty (fun u => if h : u ∈ S then ρ u h / 2 else 1) := min_le_right _ _
               _ ≤ if h : σ₀ ∈ S then ρ σ₀ h / 2 else 1 := Finset.inf'_le _ hσ₀t
-              _ = ρ σ₀ hσ₀S / 2 := dif_pos hσ₀S
+              _ = ρ σ₀ hσ₀S / 2 := dite_eq_left hσ₀S
           have hdist_tot : ‖z - (σ₀ : ℂ)‖ < ρ σ₀ hσ₀S := by
             have hsum : (z - (σ : ℂ)) + ((σ : ℂ) - (σ₀ : ℂ)) = z - (σ₀ : ℂ) := by ring
             calc ‖z - (σ₀ : ℂ)‖ = ‖(z - (σ : ℂ)) + ((σ : ℂ) - (σ₀ : ℂ))‖ := by rw [hsum]
@@ -3439,7 +3438,7 @@ theorem majorant2D_confB_eq_schwarzSlit_im (z₀ : ℂ) (hz₀ : 0 < z₀.im) :
               rw [Set.mem_inter_iff, not_and] at hinS
               by_cases hIcc : -x ∈ Icc (-R) R
               · have h_not := hinS hIcc
-                simp only [Set.mem_inter_iff, Set.mem_setOf_eq, not_and, not_le] at h_not
+                simp only [Set.mem_inter_iff, Set.mem_ofPred_eq, not_and, not_le] at h_not
                 have hη_r2 : η < r / 2 := hη_lt.trans_le hη₀_le
                 by_cases ha1 : |-x + 1| < r / 2
                 · right; right; right

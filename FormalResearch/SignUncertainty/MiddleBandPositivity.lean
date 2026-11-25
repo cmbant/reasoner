@@ -132,7 +132,7 @@ theorem o6_positivity {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m R g0)
       _ = K ^ 3 := by rw [hcube, mul_one]
   have hKε : K * liftEps c ≤ 1 / 2 := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have h2 : (1 / 2 : ℝ) ^ 3 < (K * liftEps c) ^ 3 := pow_lt_pow_left₀ hcon (by norm_num) (by norm_num)
     have h3 := mul_lt_mul_of_pos_right h2 hc0
     rw [hKe3] at h3
@@ -145,7 +145,7 @@ theorem o6_positivity {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m R g0)
       linarith
     have h3 : (K * liftEps c) ^ 3 ≤ δ₁ ^ 3 := by
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       have := mul_lt_mul_of_pos_right hcon hc0
       rw [hKe3] at this
       linarith

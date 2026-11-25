@@ -60,7 +60,7 @@ lemma majorantUExt_of_mem_slitStrip {b : ℂ} (hb : b ∈ slitStrip) :
   have h1 : |b.im| ≠ 1 / 2 := ne_of_lt (show |b.im| < 1 / 2 from hb.1)
   have h2 : ¬(b.im = 0 ∧ xiStar ≤ |b.re|) := hb.2
   unfold majorantUExt
-  rw [if_neg h1, if_neg h2]
+  rw [ite_eq_right h1, ite_eq_right h2]
 
 lemma majorantUExt_of_abs_im_eq_half {b : ℂ} (hb : |b.im| = 1 / 2) :
     majorantUExt b = 0 := by
@@ -69,7 +69,7 @@ lemma majorantUExt_of_abs_im_eq_half {b : ℂ} (hb : |b.im| = 1 / 2) :
 lemma majorantUExt_ofReal (x : ℝ) : majorantUExt (x : ℂ) = majorantReal x := by
   unfold majorantUExt
   have him : |(x : ℂ).im| ≠ 1 / 2 := by simp
-  rw [if_neg him]
+  rw [ite_eq_right him]
   simp only [Complex.ofReal_im, Complex.ofReal_re, true_and]
   split_ifs with hx
   · rcases eq_or_lt_of_le hx with h_eq | h_lt
@@ -474,7 +474,7 @@ private lemma hasDerivAt_phiZeta_openUnitStrip (y : ℝ) {b₀ : ℂ} (hb₀ : b
     have hd2 := HasDerivAt.scomp_of_eq t
       (((riesz_sinhKernel_differentiableOn _ hm2).differentiableAt
         (isOpen_openUnitStrip.mem_nhds hm2)).hasDerivAt) hl2 rfl
-    exact (hd1.neg.sub hd2).congr_deriv (by dsimp [F']; simp [smul_eq_mul])
+    exact (hd1.neg.sub hd2).congr_deriv (by dsimp [F']; simp)
   have hg_tend : Tendsto g atTop (𝓝 0) := by
     refine tendsto_zero_iff_norm_tendsto_zero.mpr ?_
     obtain ⟨hb1, hb2⟩ := hball_im b₀ (Metric.mem_ball_self hs₀)
@@ -1442,9 +1442,9 @@ private lemma bochner_monotone_limit {s : Set ℝ} (hs : MeasurableSet s)
     tendsto_nhds_unique hl_tend2 hl_tend1
   have hG_int : IntegrableOn G s volume := by
     refine ⟨hG_meas, ?_⟩
-    rw [hasFiniteIntegral_iff_enorm]
+    rw [hasFiniteIntegral_iff_eNorm]
     have henorm : ∫⁻ x in s, ‖G x‖ₑ = ∫⁻ x in s, ENNReal.ofReal (G x) :=
-      lintegral_congr_ae (ae_restrict_of_forall_mem hs fun x hx => Real.enorm_eq_ofReal (hG_nn x hx))
+      lintegral_congr_ae (ae_restrict_of_forall_mem hs fun x hx => Real.eNorm_eq_ofReal (hG_nn x hx))
     rw [henorm, hl_val]
     exact ENNReal.ofReal_lt_top
   have hG_val : ∫ x in s, G x = L := by
@@ -1558,10 +1558,10 @@ private lemma measurable_chiQuantile {c' : ℝ} (hc' : 0 < c') : Measurable (chi
     intro a b hab
     rcases lt_or_ge a (1 / 4) with ha | ha
     · have ha_eq : chiQuantile c' a = xiStar := by
-        unfold chiQuantile; rw [dif_neg (by rintro ⟨_, h⟩; linarith)]
+        unfold chiQuantile; rw [dite_eq_right (by rintro ⟨_, h⟩; linarith)]
       rw [ha_eq]
       rcases lt_or_ge b (1 / 4) with hb | hb
-      · unfold chiQuantile; rw [dif_neg (by rintro ⟨_, h⟩; linarith)]
+      · unfold chiQuantile; rw [dite_eq_right (by rintro ⟨_, h⟩; linarith)]
       · exact (chiQuantile_spec hc' hb).1
     · exact (chiQuantile_strictMonoOn hc').monotoneOn ha (ha.trans hab) hab
   exact hmono.measurable
