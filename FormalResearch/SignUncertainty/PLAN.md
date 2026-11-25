@@ -25,7 +25,7 @@ fields X. A `.lean` file existing is not verification.
 | `thm:intro-radii` (i)-(iii): five-term bounds for `T_c^eps`, `A_sign^eps(d)`, `r_CE(d)`, density formula | `thm_intro_radii`, `_sign`, `_ce`: the `O(1)` Airy-order law for `A_sign^+-(d)`, `r_CE(d)` for all `d >= 2` and the volume bound up to constants and `O(1)` in the log | **No: weaker.** It has the shape of `thm:ct-upper` (iii) and `gt:7.12a` only; the five-term statements `eq:intro-constant-sharp`, `eq:intro-radius`, `eq:intro-density` are not stated | `RadiiInputs`: `ce_hb_lift_m1` (= `CeHbLift ShellHBData.airy`, proved from the open `CeHankelPair`). Its other field `hb_thresholds_upper` is the theorem `hbThresholdsUpper` (`HbUpperM1`), kept as a field only because `HbUpperM1` imports `Headlines` (housekeeping, S: move the radii headline below `HbUpperM1` and drop the field); `hb_thresholds_lower` is a theorem |
 | `thm:intro-hb` | not stated | - | one-level halves exist (`HbThresholdsLower`, `HbThresholdsUpper`); all-level `(P,Q)` is M8 |
 | `thm:intro-gap` (i)-(iv) | `thm_intro_gap_i`, `_ii`, `_ii_even`, `_iii` for a configuration `D : ShellHBData` | (i), (ii) yes (offsets as in the paper); (iii) only for strict Laplace positivity (`0 < airyLaplace (-G) y`), the paper allows weak positivity with tangencies; **(iv) not stated** | `ShellGapInputs D`: `shell_reduction`, `ce_hb_lift`. (ii) and (ii)-even do not use them (`ShellGapInputs.shell_gap_limit` ignores its argument), so they are proved; the argument is a leftover |
-| none (deleted from the paper) | retired, not a headline: `sign_separation_limsup` (`SignSeparationLimsup.lean`, formerly `thm_intro_separation` in `Headlines`): `limsup (T_c^{+1}-T_c^{-1}) <= -2/pi^2` | superseded by `eq:ct-split` (section 6) | none: `sign_separation_limsup_unconditional` (from `separationInputs_holds := ⟨hbThresholdsUpper⟩`) |
+| none (deleted from the paper) | retired, not a headline: `sign_separation_limsup` (`SignSeparationLimsup.lean`, formerly `thm_intro_separation` in `Headlines`): `limsup (T_c^{+1}-T_c^{-1}) <= -2/pi^2` | superseded by `eq:ct-split` (section 5) | none: `sign_separation_limsup_unconditional` (from `separationInputs_holds := ⟨hbThresholdsUpper⟩`) |
 
 Open inputs, counted once: `ce_hb_lift_m1` (M6), `shell_reduction` for `m >= 2` (M8), `ce_hb_lift` for `m >= 2` (M8).
 
@@ -45,13 +45,106 @@ Open inputs, counted once: `ce_hb_lift_m1` (M6), `shell_reduction` for `m >= 2` 
 - Differences from the TeX that later steps do not need: the tail exponent of `gt:7.7p` is `c/40000` in Lean and `2e-3 c` in the TeX; `(e5)` is proved for `c >= 32768` (TeX `c >= 200`); the deep-lobe bound of `radial_compactness` uses `g(sigma) < 4/3 sigma^2`; the middle band cuts in `tau`, not `theta`; `hankel_band_reduction` uses `b = 1/100` (paper `0.012880`) and is non-vacuous for `eps = -1` only; `hb_thresholds_lower` has non-sharp constants and `c_0 >= 10^14`.
 - Statement gaps recorded rather than closed: `(e4)` identification `gamma_0 = c_s^{1/2} 2^{2/3} pi^{-1/2} beta_inf`; the `L >= L_0` claim of `O.3(2)`; `O.11ak` in fixed-`c` `L^1`-kernel form; `7.7p (d)` cut-crossing constant and two-level `C^1` stability; Theorem H.14 origin-floor clause and the endpoint case `u_* = t_m`.
 
-## 2. Coverage of the paper
+## 2. Priority order: the headline theorems first
+
+**Rule (owner, 2026-11-25): work goes to the paper's headline theorems first; anything not on a headline path waits.** Priority:
+1. **Tier 1, `thm:intro-radii` (five terms), the main result:** M11 -> B3 -> C1 -> F1 -> F2 -> F3 -> density (2.1). This is M10 and now the main lane.
+2. **Tier 1, the other two headlines:** `thm:intro-gap` (2.3), whose (i)-(iii) reuse M6 and M8, and `thm:intro-hb` (2.2, M8).
+3. **Tier 2, after the headline paths:** M6's `CeHankelPair` packaging beyond what F2 and `thm:intro-gap` (iii) use (it only completes the interim `O(1)` Lean headline); housekeeping (restating `thm_intro_gap_ii`, dropping the import-order field `hb_thresholds_upper` from `RadiiInputs`, origin-floor and endpoint clauses); constant-sharpening of proved leaves; remarks; Route I leaves.
+
+Package ids are from section 6.1, milestones from section 3. Nothing in this section is formalised unless section 6 says so.
+
+**The Lean headline is not the paper headline.** `thm:intro-radii` is the five-term theorem `thm:ct-upper` (i)-(ii) plus the density corollary. Its proof (`constant_terms_lower.tex`, `constant_terms_upper.tex`, `constant_terms_five.tex`) does not cite `thm:ce-hb-lift` or `thm:ce-post-edge`; the five-term CE radius is built directly (`fct:main-ce`, `fct:ce-band`, `fct:ce-preedge`). It does reuse route-II leaves: `constant_terms_upper.tex` cites `ceo:conv` (4) (the symbol-derivative bound, as a method), `cepe:PE3`, `ceo:gauss.2` and `ceo:O11n.7`. So **M6's lift (`CeHankelPair`, post-edge, packaging) is not on the path of the paper's `thm:intro-radii`, but D1's convolution-source symbol bounds and pre-edge estimates (`ConvSource*`, `PreEdgeCriterion`) are F2 inputs**. It completes the interim Lean headline `thm_intro_radii` (the `O(1)` law) and is the `m_0 = 1` case of `thm:ce-hb-lift`, which `thm:intro-gap` (iii) needs. `thm:ct-upper` (iii) itself follows from (ii) and `thm:ce-gaussian` (finite dimensions), as the TeX proof says.
+
+### 2.1 `thm:intro-radii` (five terms): M11 -> B3 -> C1 -> F1 -> F2 -> F3 -> density
+
+1. **M11**, `u1cl:main` (S): assemble `hb_thresholds_lower` and `hbThresholdsUpper` at one level. Used by `constant_terms_lower`.
+2. **B3**: `u1cl:langer` (Lemma L.2, S-M; a corollary of `gt:7.7b` (iv), already in Lean) and the clauses of `gt:7.7p` (d) that the lower bound cites (cut-crossing constant; `gt:7.7p` is cited ten times in `constant_terms_lower`).
+3. **C1**: `uct:admiss` (Lemma T.8, M) and `ceo:O11ak` for general seeds (M; `exists_hankelEigenfn_lift_general` exists modulo `ConvTailData`). Both are used by `constant_terms_upper`.
+4. **F1** (L): `ct:outer` first (it is also the input of F2), then `ct:dual-id`, `ct:cfu`, `ct:boas`, `ct:dyadic`; gives the five-term lower bound and the lower half of `eq:ct-split`. Inputs already in Lean: `mat:T1`, `mat:T4`, `gt:7.7b`, `gt:7.7c`, `radial_compactness`, `airy_defect_bound`, `hb_thresholds_lower`.
+5. **F2** (L, largest): the `uct:*` lemmas (`outer-growth`, `airy-trans`, `pos-floor`, `strip-split`, `bump-est`, `seed-asymp`, `gen-preedge`), then the `fct:*` chain (`comp-D`, `phikill`, `warp-asymp`, `splitting`, `bump-5`) to `fct:main-hankel`; then `fct:ce-band`, `fct:ce-preedge` (with `uct:ce-band`) to `fct:main-ce`. Inputs already in Lean: `u1co:O3`-`O5` at one level, `airySquare_gaussian_transform`, `lobe_saddle_asymptotic`, `cel:L3a`/`L4`/`L7`, `mat:T1`-`T4`.
+6. **F3** (S): `thm:ct-upper` (i), (ii) with the reductions `hankel_euclid_dictionary`, `intertwiner_feasible`, `ce_schwartz_radius_eq_L1_radius`, `hankelT0_eq_hankelT`; (iii) from (ii) and `ce_quadratic_dimensions` (or from the Lean `thm_intro_radii` once M6 closes).
+7. **D2**: `gt:7.12a` exact density `eq:ce-density-exact` (S), then `thm:intro-radii` (S).
+
+Steps 1 to 3 are independent. F2 needs from F1 only `ct:outer` (the outer function `G_eps` and its phase `theta_eps`, cited nine times in `constant_terms_upper`); `ct:dual-id`, `ct:boas`, `ct:dyadic` are lower-bound only, and the upper bounds cite `thm:ct-lower` only to combine into two-sided statements, so after `ct:outer` the two bounds proceed in parallel. The sign-radii half of (ii) needs F1 and `fct:main-hankel` only; the CE half needs `fct:main-ce`.
+
+### 2.2 `thm:intro-hb`: A3 + B3 + C2 (all levels) -> C3 (M8)
+
+1. **A3**: `TE.0'` for polynomial `(P,Q)` as a converter into `ChartCompactness` plus the shared rigidity theorem (agreement with the FoldTip lane, section 5); Hankel `BootstrapHBInstance` at every level.
+2. **B3**: `u1cl:langer`.
+3. **C2** (L): `U.2`, `U.3`, `GT.1`, `O.3`-`O.6` for the rational-Airy seeds of a general `(P,Q)`; `lem:hb-seed-mass` and a witness `HBSeedSpec` at every level.
+4. **B1**: `gt:7.5` for general `(P,Q)`.
+5. **C3**: `u1cl:multilevel` (both halves, with the `f(0) = 0` clause); then `thm:intro-hb` (S).
+
+### 2.3 `thm:intro-gap`
+
+- (ii): proved in the Lean statement. Housekeeping (S): restate without the unused `ShellGapInputs` argument, add the origin-floor clause and the `u_* = t_m` endpoint case of `thm:ce-physical-profile`.
+- (i): `ShellReduction D` for `m >= 2` (E1, M): needs `u1cl:multilevel` lower half (section 2.2) and the radial projection already in `CEShellReduction`.
+- (iii): M6 (D1), then `thm:ce-hb-lift` at every level with weak Laplace positivity and tangencies (M8), `thm:ce-canonical-iff` (E2) and the Laplace-positive odd families of `thm:ce-odd-family` (E1).
+- (iv): E2 (M9: `thm:airy-square-attained`, `thm:ce-airy-transfer`, `thm:ce-canonical-iff`, `rem:airy-even-deep-gap`), `cor:ce-schwartz-shells` (D2) and `thm:ce-shifted-lift` (route-II machinery at shifted nodes). E2 needs only M3, so it can start now.
+
+### 2.4 Next concrete packages (headline paths only)
+
+1. **Start now (tier 1, `thm:intro-radii`):** M11 `u1cl:main` (S), then `u1cl:langer` (S-M); in parallel C1's `uct:admiss` (T.8, M). None needs another package.
+2. **Then:** F1's first block, `ct:outer` and `ct:dual-id` (`constant_terms_lower.tex`), on proved inputs only (`mat:T1`, `mat:T4`, `gt:7.7b`); `ct:outer` unblocks F2.
+3. **Continue, scoped to what the headlines use:** M6 step (a), the `CeSourceFamily` instance for `convSource` (the `ConvSource*` symbol bounds and pre-edge estimates also feed F2), and the `m_0 = 1` lift that `thm:intro-gap` (iii) needs.
+4. **Second headline lane once two slots are free:** `thm:intro-gap` (iv) through M9 (E2), beginning with `thm:airy-square-attained` (needs only proved inputs: `airyNC_quadrature`, `airyAiC_logDeriv_mittagLeffler`).
+
+Tier-2 items are not started while a tier-1 package is unstaffed.
+
+## 3. Milestones
+
+Names M0-M11 are kept. Size classes as in 6.1.
+
+| milestone | content | packages | state | remaining |
+|---|---|---|---|---|
+| M0 skeleton | concrete definitions, headline statements, input structures (`RadiiInputs`, `ShellGapInputs`) | H | done | housekeeping (S): restate `thm_intro_gap_ii` without `ShellGapInputs`; decide the fate of the Route I leaves (section 1.3) |
+| M1 classical leaves | real-order Bessel, Laguerre modes, radial Fourier transform on `Euc d` (even and odd `d`), Airy base | A1, A2, B2 | done | - |
+| M2 Hankel layer | `hankelKernelData`, `gt:7.4`, `radial_compactness` | B1 | done | `gt:7.5` instance (S-M, with M8) |
+| M3 strict gap, extraction half | `hankelShellGapLimit_proved`, one-profile problem, `even_m_laplace_sign` | E1 | done | origin-floor clause, endpoint case (S) |
+| M4 upper O-chain at one level | `U.2`-`O.6`, `O.9'` at `m_0 = 1`; `o4QuotientBound` | C1, C2 | done | - |
+| M5 Hankel lower half at one level | Langer chart, transport, band reduction, window, `hankelBootHB`; `hb_thresholds_lower` | B3, C3, A3 | done | `u1cl:langer`, `gt:7.7p` (d) clauses (S-M, M8 prerequisite) |
+| M6 CE upper, route II at `m_0 = 1` | `CeHankelPair`, hence `ce_hb_lift_m1` | D1 | in progress; `CeHankelPair` NOT proved | (a) `CeSourceFamily` instance for `convSource`; (b) `thm:ce-post-edge` with `cepe:general` for `D_c`; (c) packaging, refactor `ceLift_physical` to expose both edge representations (L) |
+| M7 CE lower, shell reduction at one level | `shell_reduction_airy` | E1, D2 | done at `m = 1` | upper half is M6 |
+| M8 all levels | `TE.0'` general, `u1cl:langer`, multilevel thresholds (`u1cl:multilevel`), `ShellReduction D`, `CeHbLift D` with weak positivity, positive odd families, `gt:7.5` general | A3, B1, B3, C2, C3, D1, E1 | not started | L; starts with a dependency list once M6 is merged |
+| M9 Airy-LP core | `thm:airy-square-attained`, `thm:ce-airy-transfer`, `thm:ce-canonical-iff`, two-level Rayleigh, shifted lift, `cor:ce-schwartz-shells` | E2, D2 | planned, not started | L; needs only M3 |
+| M10 constant terms | `thm:ct-lower`/`thm:ct-upper` five terms, density `eq:ce-density-exact`; carries the paper's `thm:intro-radii` | F1, F2, F3, D2, C1 | planned, not started; no Lean exists | L, constants non-effective; the main lane: it carries the paper headline (owner rule, section 2) |
+| M11 Hankel two-sided `O(1)` | `thm:hankel-one-two` from the two proved halves | C3 | planned | S |
+| Headline S (retired) | `gt:7.9c` separation `-2/pi^2`, deleted from the paper | - | retired from the headlines; proved unconditionally as `sign_separation_limsup_unconditional` (`SignSeparationLimsup.lean`) | none; the sharp `-1/pi` is a corollary of M10 |
+
+Not on any path and not planned: `gt:7.10` (owner-deferred), `thm:ce-neumann`, Route I (`thm:ce-lift`, GT.4, PF.2/PF.5, the Dirichlet-diagonal chain; outside the paper), general de Branges SE.1-SE.5 and `PW*PW` characterisations, Theorem 3.1 (c) for tempered distributions. Fold-tip instances belong to the FoldTip lane (package G).
+
+An "Airy-order `o(d^{1/3})` radius at fixed `delta`" is not a shortcut: the fixed-`delta` `U.3` route needs a seed with the two-sided fill `(e38)` that no exhibited seed satisfies.
+
+## 4. Strategy and working rules
+
+- **Skeleton first, and inputs must shrink.** Each headline is proved from one input structure whose fields are, one to one, TeX theorems; progress is the number of open fields. A module is merged only if it discharges or shrinks a field, or is a package of section 2 on a critical path; toy non-vacuity witnesses are not progress.
+- **No second proof of a closed route.** Before opening a step run `tools/find_result.py` in QIprojects and check this file's coverage table (section 6); an `OPEN` in a PR state is not evidence that nobody has proved it.
+- **Conditional results are named as such.** A statement that takes an input structure says so in its docstring and in `docs/lean_status.md`; unused arguments (as in `thm_intro_gap_ii`) are removed.
+- **Process.** The manager alone edits the status rows of this file; agents report in handoffs, `THEOREM_MAP.md` and umbrella rows. A clean-context reviewer builds the headline module of its step, not the umbrella; the umbrella build is the manager's after each merge round, merges are batched. At most two Sonnet lanes, three Haiku agents and one reviewer build at once (two build slots); every Haiku module and every large development gets a clean-context review before merge. New worktrees are made with `scratch/mkwt.sh`, which deletes build outputs whose source differs from the copied build: a hardlinked stale `.olean` shows as "Unknown identifier" or "Application type mismatch" for something that exists.
+- **Paper-side updates after a milestone.** Update the manuscript appendix that names Lean declarations, the `CORRECTIONS.md` lines for any stated result changed by the formalisation, and `docs/lean_status.md` (it still says the headlines carry "six open results"; the count is three, section 1.1).
+
+## 5. Owner decisions and cross-lane agreements
+
+**Decided (owner, 2026-11-25): the separation headline is retired.** The old `thm_intro_separation{,_hankel,_radii}` (`limsup (T_c^{+1}-T_c^{-1}) <= -2/pi^2`, old `gt:7.9c`, deleted from the paper and archived in QIprojects `CFT/sign_uncertainty/history/notes/archived_sign_separation.md`) moved out of `Headlines.lean` to `SignSeparationLimsup.lean` as `sign_separation_limsup{,_hankel,_radii}`, and its only input is now supplied (`sign_separation_limsup_unconditional`). It is not a headline and nothing new is built on it; `SignSeparation.lean` and `HardyMellinIntertwiner` stay as libraries (`gt:7.9a` reuses the intertwiner). The sharp form `T^+ - T^- -> -1/pi` is a one-line corollary of `eq:ct-split` once M10 is done, not a separate target.
+
+**Decided (owner, 2026-11-25): headline theorems first.** M10 is the main lane (it carries the paper's `thm:intro-radii`); M6 continues only as far as F2 and `thm:intro-gap` (iii) need it; everything off a headline path is tier 2 (section 2).
+
+**Agreements with the ModularBootstrap/FoldTip lane (Paper II plan, section 4).**
+1. `HermiteBiehlerData` lives in the neutral module `SignUncertainty/HermiteBiehlerData.lean` (imports only `HermiteBiehlerUniq`); `RadialRigidity` re-exports it.
+2. The base structure `ChartCompactness` (`compactness_subseq` plus site and tail positivity for an abstract setting) is owned by the fold-tip lane in a module importing nothing Hankel- or Virasoro-specific. It is **not on `master` yet**.
+3. Paper I adds, without editing `RadialRigidity.lean`, a converter `RadialRigidityPackage -> ChartCompactness`, and plans M8's `TE.0'` (compactness for all `(P,Q)`) as a converter into `ChartCompactness` plus the shared rigidity theorem, not a second copy of the argument. Both start when `ChartCompactness` is on `master`.
+4. The two rigidity proofs differ (profile compactness with Hermite-Biehler uniqueness here, vague limits of design measures there); only the interface is shared.
+5. Langer charts and Mellin strips are separate objects in the two papers (Hankel/Bessel density `gt:7.7b/c/p` and `MellinStrip*` here; Virasoro comb density and `FixedWeightBand/Mellin*W` there). The Hankel `BootstrapHBInstance` follows the pattern of `FixedWeightBand/BootstrapW*`; Paper II does not refactor `ConcreteBootstrap/` or `TwoEdgeBootstrap/`, and Paper I does not edit `QuantC1Airy.lean`/`QuantC1Clark.lean` (Paper II's, imported here).
+6. Fold-tip Theorem FT is part of Paper I (Section 4); its Lean code and plan are `ModularBootstrap/FoldTip/` and packages FT-0..FT-7 of `ModularBootstrap/PLAN.md` (package G, section 6.1). `lem:qual-compact` is not in Lean; it is the shared elementary step for `ft:L2` and the CE shell transfers (check `SignUncertainty/` before adding).
+
+## 6. Coverage of the paper (reference)
 
 Every stated result of Paper I is listed once: 152 results (3 introduction theorems, 119 `result` environments in `CFT/sign_uncertainty/paper/*.tex`, and 30 in the three `CFT/common/` files the paper `\input`s: `airy_poisson.tex` 16, `clark_airy.tex` 7, `two_edge_bootstrap.tex` 7). Aliased labels are one row, keyed by the first label. States are on `master` (`2556a80`): **done** 52, **partial** 40, **planned** 59, **not planned** 1.
 
 A row is **done** when the label is proved in Lean for the stated hypotheses (any difference in constants is noted), **partial** when some parts or instances are proved and the missing part is named, **planned** when a milestone owns it and nothing is stated, **not planned** with the reason. `sorry`/`axiom`: none anywhere in `FormalResearch/` (grep on `master`), so no declaration cited here depends on a placeholder; "proved modulo fields" always means a named hypothesis structure.
 
-### 2.1 Packages
+### 6.1 Packages
 
 | pkg | package | TeX | results | done / partial / planned / not planned | remaining size | inputs still taken as hypotheses | depends on | milestone |
 |---|---|---|---|---|---|---|---|---|
@@ -72,11 +165,11 @@ A row is **done** when the label is proved in Lean for the stated hypotheses (an
 | **F2** | Five-term upper bound for the Hankel thresholds and the Cohn-Elkies radius | `constant_terms_upper.tex`, `constant_terms_five.tex` | 17 | 0 / 0 / 17 / 0 | L (17 results, several over 1,000 TeX lines; the largest single package) | - | F1 (`ct:outer` only: the strip outer function and its phase, cited 9 times), C1 (`uct:admiss`, general-seed `O.11ak`), C2, D1 (`cel:L*`, `ceo:gauss`, `ceo:O11n`, `ceo:conv` (4), `cepe:PE3`), A2 (`gt:3.1`) | M10 |
 | **F3** | Five-term theorem `thm:ct-upper` (assembly and reductions) | `general_theorems.tex` | 1 | 0 / 1 / 0 / 0 | S | F1, F2 (parts (i), (ii)); `RadiiInputs` for (iii) | B2, D2, F1, F2 | M10 |
 | **G** | Fold-tip universality (Theorem FT and the two-edge versions) | `fold_tip_universality.tex`, `fold_tip_two_edge.tex`, `fold_tip_two_edge_hb.tex` | 9 | 0 / 3 / 6 / 0 | owned by the ModularBootstrap/FoldTip lane (`ModularBootstrap/PLAN.md`, packages FT-0..FT-7) | violator family and chart coverage as hypotheses; `FTH4b` mismatch | A3, Paper II instances | FT lane |
-| **H** | Introduction theorems | `sign_uncertainty_core.tex` | 3 | 0 / 2 / 1 / 0 | S per theorem after its inputs | `RadiiInputs` (open: `ce_hb_lift_m1`), `ShellGapInputs` (open: `shell_reduction`, `ce_hb_lift`) | see section 3 | all |
+| **H** | Introduction theorems | `sign_uncertainty_core.tex` | 3 | 0 / 2 / 1 / 0 | S per theorem after its inputs | `RadiiInputs` (open: `ce_hb_lift_m1`), `ShellGapInputs` (open: `shell_reduction`, `ce_hb_lift`) | see section 2 | all |
 
-The "Lean today" column of each package (declaration families and size) is in 2.2 below, one table per package. Size classes: S < 500 lines, M 500-2000, L > 2000, for the remaining work, calibrated on existing files: `CEShellReduction` 227, `HankelThresholds` 147, `ShellLaplaceBase` 1,939, `OddShellFamily` 1,375, the whole one-level Hankel lower half (`Hankel*`) about 17.6k, `O4*` 2.7k, `ConvSource*` 3.2k, `ShellGap*` 2.7k.
+The "Lean today" column of each package (declaration families and size) is in 6.2 below, one table per package. Size classes: S < 500 lines, M 500-2000, L > 2000, for the remaining work, calibrated on existing files: `CEShellReduction` 227, `HankelThresholds` 147, `ShellLaplaceBase` 1,939, `OddShellFamily` 1,375, the whole one-level Hankel lower half (`Hankel*`) about 17.6k, `O4*` 2.7k, `ConvSource*` 3.2k, `ShellGap*` 2.7k.
 
-### 2.2 Results by package
+### 6.2 Results by package
 
 **A1. Airy-Poisson defect formula, quadrature, sign uncertainty at the first node** (`common/airy_poisson.tex`). Lean: `Special/AiryCft*` (about 8k lines), `AiryKernel*`, `AiryTransform*`, `AiryEnvelope*`, `Complex/Hardy*`.
 
@@ -320,92 +413,7 @@ The "Lean today" column of each package (declaration families and size) is in 2.
 | `thm:intro-hb` | planned | M8; no Lean statement (`HbThresholdsLower`, `HbThresholdsUpper` are the one-level halves) |
 | `thm:intro-gap` | partial | `thm_intro_gap_i`, `_ii`, `_ii_even`, `_iii` (conditional on `ShellGapInputs`; (ii) does not use it); (iii) only for strict Laplace positivity; (iv) not stated: M9 |
 
-### 2.3 Remarks that state something
+### 6.3 Remarks that state something
 
 Remarks are not counted above. The ones that carry content: `thm:ce-neumann` (Remark H.14c, the Neumann shell: recorded without proof in the paper, nothing depends on it; **not planned**); `rem:airy-even-deep-gap` (explicit data with `t_{m+k} < u_sh <= u_LP < t_{m+k-1}`, a remark with proof, small; planned with M9); `prop:odd-shell-certificate` (Remark: explicit odd-level instance by an exact-ball certificate; **not planned**: `ce_odd_family_laplace_gap` covers existence); `mat:T6` (symbol bounds for rational Airy functions: used through `Gt1NegTailAmp`, in Lean in the form `gt1BasisInput` needs); `uct:quintic-barrier`, `uct:rem-var`, `fct:rem-mech`, `fct:rem-num`, `ct:rem-split`, `ct:rem-lattices` (explanatory or numerical cross-checks: **not planned**; a finite-`c` numerical check is numerical evidence, never a Lean statement).
 
-## 3. Critical path
-
-Notation: package ids from section 2.1, milestones from section 4. Nothing in this section is formalised unless section 2 says so.
-
-**The Lean headline is not the paper headline.** `thm:intro-radii` is the five-term theorem `thm:ct-upper` (i)-(ii) plus the density corollary. Its proof (`constant_terms_lower.tex`, `constant_terms_upper.tex`, `constant_terms_five.tex`) does not cite `thm:ce-hb-lift` or `thm:ce-post-edge`; the five-term CE radius is built directly (`fct:main-ce`, `fct:ce-band`, `fct:ce-preedge`). It does reuse route-II leaves: `constant_terms_upper.tex` cites `ceo:conv` (4) (the symbol-derivative bound, as a method), `cepe:PE3`, `ceo:gauss.2` and `ceo:O11n.7`. So **M6's lift (`CeHankelPair`, post-edge, packaging) is not on the path of the paper's `thm:intro-radii`, but D1's convolution-source symbol bounds and pre-edge estimates (`ConvSource*`, `PreEdgeCriterion`) are F2 inputs**. It completes the interim Lean headline `thm_intro_radii` (the `O(1)` law) and is the `m_0 = 1` case of `thm:ce-hb-lift`, which `thm:intro-gap` (iii) needs. `thm:ct-upper` (iii) itself follows from (ii) and `thm:ce-gaussian` (finite dimensions), as the TeX proof says.
-
-### 3.1 `thm:intro-radii` (five terms): M11 -> B3 -> C1 -> F1 -> F2 -> F3 -> density
-
-1. **M11**, `u1cl:main` (S): assemble `hb_thresholds_lower` and `hbThresholdsUpper` at one level. Used by `constant_terms_lower`.
-2. **B3**: `u1cl:langer` (Lemma L.2, S-M; a corollary of `gt:7.7b` (iv), already in Lean) and the clauses of `gt:7.7p` (d) that the lower bound cites (cut-crossing constant; `gt:7.7p` is cited ten times in `constant_terms_lower`).
-3. **C1**: `uct:admiss` (Lemma T.8, M) and `ceo:O11ak` for general seeds (M; `exists_hankelEigenfn_lift_general` exists modulo `ConvTailData`). Both are used by `constant_terms_upper`.
-4. **F1** (L): `ct:outer` first (it is also the input of F2), then `ct:dual-id`, `ct:cfu`, `ct:boas`, `ct:dyadic`; gives the five-term lower bound and the lower half of `eq:ct-split`. Inputs already in Lean: `mat:T1`, `mat:T4`, `gt:7.7b`, `gt:7.7c`, `radial_compactness`, `airy_defect_bound`, `hb_thresholds_lower`.
-5. **F2** (L, largest): the `uct:*` lemmas (`outer-growth`, `airy-trans`, `pos-floor`, `strip-split`, `bump-est`, `seed-asymp`, `gen-preedge`), then the `fct:*` chain (`comp-D`, `phikill`, `warp-asymp`, `splitting`, `bump-5`) to `fct:main-hankel`; then `fct:ce-band`, `fct:ce-preedge` (with `uct:ce-band`) to `fct:main-ce`. Inputs already in Lean: `u1co:O3`-`O5` at one level, `airySquare_gaussian_transform`, `lobe_saddle_asymptotic`, `cel:L3a`/`L4`/`L7`, `mat:T1`-`T4`.
-6. **F3** (S): `thm:ct-upper` (i), (ii) with the reductions `hankel_euclid_dictionary`, `intertwiner_feasible`, `ce_schwartz_radius_eq_L1_radius`, `hankelT0_eq_hankelT`; (iii) from (ii) and `ce_quadratic_dimensions` (or from the Lean `thm_intro_radii` once M6 closes).
-7. **D2**: `gt:7.12a` exact density `eq:ce-density-exact` (S), then `thm:intro-radii` (S).
-
-Steps 1 to 3 are independent. F2 needs from F1 only `ct:outer` (the outer function `G_eps` and its phase `theta_eps`, cited nine times in `constant_terms_upper`); `ct:dual-id`, `ct:boas`, `ct:dyadic` are lower-bound only, and the upper bounds cite `thm:ct-lower` only to combine into two-sided statements, so after `ct:outer` the two bounds proceed in parallel. The sign-radii half of (ii) needs F1 and `fct:main-hankel` only; the CE half needs `fct:main-ce`.
-
-### 3.2 `thm:intro-hb`: A3 + B3 + C2 (all levels) -> C3 (M8)
-
-1. **A3**: `TE.0'` for polynomial `(P,Q)` as a converter into `ChartCompactness` plus the shared rigidity theorem (agreement with the FoldTip lane, section 6); Hankel `BootstrapHBInstance` at every level.
-2. **B3**: `u1cl:langer`.
-3. **C2** (L): `U.2`, `U.3`, `GT.1`, `O.3`-`O.6` for the rational-Airy seeds of a general `(P,Q)`; `lem:hb-seed-mass` and a witness `HBSeedSpec` at every level.
-4. **B1**: `gt:7.5` for general `(P,Q)`.
-5. **C3**: `u1cl:multilevel` (both halves, with the `f(0) = 0` clause); then `thm:intro-hb` (S).
-
-### 3.3 `thm:intro-gap`
-
-- (ii): proved in the Lean statement. Housekeeping (S): restate without the unused `ShellGapInputs` argument, add the origin-floor clause and the `u_* = t_m` endpoint case of `thm:ce-physical-profile`.
-- (i): `ShellReduction D` for `m >= 2` (E1, M): needs `u1cl:multilevel` lower half (section 3.2) and the radial projection already in `CEShellReduction`.
-- (iii): M6 (D1), then `thm:ce-hb-lift` at every level with weak Laplace positivity and tangencies (M8), `thm:ce-canonical-iff` (E2) and the Laplace-positive odd families of `thm:ce-odd-family` (E1).
-- (iv): E2 (M9: `thm:airy-square-attained`, `thm:ce-airy-transfer`, `thm:ce-canonical-iff`, `rem:airy-even-deep-gap`), `cor:ce-schwartz-shells` (D2) and `thm:ce-shifted-lift` (route-II machinery at shifted nodes). E2 needs only M3, so it can start now.
-
-### 3.4 Next concrete package
-
-- **In flight, continue:** M6 step (a): the instance of `CeSourceFamily` for `convSource` (fields `mass` and `edge` first, from `convSource_mass`, the product formula and `||w_c||_1 <= C eps`; then `tail` and `dual`, which need `O.12 (5)`-`(7)` on `Re z = 0`, `cegt:GT2b` and the `g_1` seed combination). Then (b) `thm:ce-post-edge` and (c) packaging `CeHankelPair`.
-- **Start next (new lane, both S):** M11 `u1cl:main`, then `u1cl:langer`; they unblock F1 and M8 and need no other package.
-- **Then:** F1's first block, `ct:outer` and `ct:dual-id` (`constant_terms_lower.tex`), which depend only on proved packages (`mat:T1`, `mat:T4`, `gt:7.7b`); `ct:outer` unblocks F2.
-- **Parallel, independent:** M9 (E2), beginning with `thm:airy-square-attained` (needs `airyNC_quadrature`, `airyAiC_logDeriv_mittagLeffler`, both in Lean).
-
-## 4. Milestones
-
-Names M0-M11 are kept. Size classes as in 2.1.
-
-| milestone | content | packages | state | remaining |
-|---|---|---|---|---|
-| M0 skeleton | concrete definitions, headline statements, input structures (`RadiiInputs`, `ShellGapInputs`) | H | done | housekeeping (S): restate `thm_intro_gap_ii` without `ShellGapInputs`; decide the fate of the Route I leaves (section 1.3) |
-| M1 classical leaves | real-order Bessel, Laguerre modes, radial Fourier transform on `Euc d` (even and odd `d`), Airy base | A1, A2, B2 | done | - |
-| M2 Hankel layer | `hankelKernelData`, `gt:7.4`, `radial_compactness` | B1 | done | `gt:7.5` instance (S-M, with M8) |
-| M3 strict gap, extraction half | `hankelShellGapLimit_proved`, one-profile problem, `even_m_laplace_sign` | E1 | done | origin-floor clause, endpoint case (S) |
-| M4 upper O-chain at one level | `U.2`-`O.6`, `O.9'` at `m_0 = 1`; `o4QuotientBound` | C1, C2 | done | - |
-| M5 Hankel lower half at one level | Langer chart, transport, band reduction, window, `hankelBootHB`; `hb_thresholds_lower` | B3, C3, A3 | done | `u1cl:langer`, `gt:7.7p` (d) clauses (S-M, M8 prerequisite) |
-| M6 CE upper, route II at `m_0 = 1` | `CeHankelPair`, hence `ce_hb_lift_m1` | D1 | in progress; `CeHankelPair` NOT proved | (a) `CeSourceFamily` instance for `convSource`; (b) `thm:ce-post-edge` with `cepe:general` for `D_c`; (c) packaging, refactor `ceLift_physical` to expose both edge representations (L) |
-| M7 CE lower, shell reduction at one level | `shell_reduction_airy` | E1, D2 | done at `m = 1` | upper half is M6 |
-| M8 all levels | `TE.0'` general, `u1cl:langer`, multilevel thresholds (`u1cl:multilevel`), `ShellReduction D`, `CeHbLift D` with weak positivity, positive odd families, `gt:7.5` general | A3, B1, B3, C2, C3, D1, E1 | not started | L; starts with a dependency list once M6 is merged |
-| M9 Airy-LP core | `thm:airy-square-attained`, `thm:ce-airy-transfer`, `thm:ce-canonical-iff`, two-level Rayleigh, shifted lift, `cor:ce-schwartz-shells` | E2, D2 | planned, not started | L; needs only M3 |
-| M10 constant terms | `thm:ct-lower`/`thm:ct-upper` five terms, density `eq:ce-density-exact`; carries the paper's `thm:intro-radii` | F1, F2, F3, D2, C1 | planned, not started; no Lean exists | L, constants non-effective; promoted from "out of scope" because it is the paper headline |
-| M11 Hankel two-sided `O(1)` | `thm:hankel-one-two` from the two proved halves | C3 | planned | S |
-| Headline S (retired) | `gt:7.9c` separation `-2/pi^2`, deleted from the paper | - | retired from the headlines; proved unconditionally as `sign_separation_limsup_unconditional` (`SignSeparationLimsup.lean`) | none; the sharp `-1/pi` is a corollary of M10 |
-
-Not on any path and not planned: `gt:7.10` (owner-deferred), `thm:ce-neumann`, Route I (`thm:ce-lift`, GT.4, PF.2/PF.5, the Dirichlet-diagonal chain; outside the paper), general de Branges SE.1-SE.5 and `PW*PW` characterisations, Theorem 3.1 (c) for tempered distributions. Fold-tip instances belong to the FoldTip lane (package G).
-
-An "Airy-order `o(d^{1/3})` radius at fixed `delta`" is not a shortcut: the fixed-`delta` `U.3` route needs a seed with the two-sided fill `(e38)` that no exhibited seed satisfies.
-
-## 5. Strategy and working rules
-
-- **Skeleton first, and inputs must shrink.** Each headline is proved from one input structure whose fields are, one to one, TeX theorems; progress is the number of open fields. A module is merged only if it discharges or shrinks a field, or is a package of section 2 on a critical path; toy non-vacuity witnesses are not progress.
-- **No second proof of a closed route.** Before opening a step run `tools/find_result.py` in QIprojects and check this file's coverage table; an `OPEN` in a PR state is not evidence that nobody has proved it.
-- **Conditional results are named as such.** A statement that takes an input structure says so in its docstring and in `docs/lean_status.md`; unused arguments (as in `thm_intro_gap_ii`) are removed.
-- **Process.** The manager alone edits the status rows of this file; agents report in handoffs, `THEOREM_MAP.md` and umbrella rows. A clean-context reviewer builds the headline module of its step, not the umbrella; the umbrella build is the manager's after each merge round, merges are batched. At most two Sonnet lanes, three Haiku agents and one reviewer build at once (two build slots); every Haiku module and every large development gets a clean-context review before merge. New worktrees are made with `scratch/mkwt.sh`, which deletes build outputs whose source differs from the copied build: a hardlinked stale `.olean` shows as "Unknown identifier" or "Application type mismatch" for something that exists.
-- **Paper-side updates after a milestone.** Update the manuscript appendix that names Lean declarations, the `CORRECTIONS.md` lines for any stated result changed by the formalisation, and `docs/lean_status.md` (it still says the headlines carry "six open results"; the count is three, section 1.1).
-
-## 6. Owner decisions and cross-lane agreements
-
-**Decided (owner, 2026-11-25): the separation headline is retired.** The old `thm_intro_separation{,_hankel,_radii}` (`limsup (T_c^{+1}-T_c^{-1}) <= -2/pi^2`, old `gt:7.9c`, deleted from the paper and archived in QIprojects `CFT/sign_uncertainty/history/notes/archived_sign_separation.md`) moved out of `Headlines.lean` to `SignSeparationLimsup.lean` as `sign_separation_limsup{,_hankel,_radii}`, and its only input is now supplied (`sign_separation_limsup_unconditional`). It is not a headline and nothing new is built on it; `SignSeparation.lean` and `HardyMellinIntertwiner` stay as libraries (`gt:7.9a` reuses the intertwiner). The sharp form `T^+ - T^- -> -1/pi` is a one-line corollary of `eq:ct-split` once M10 is done, not a separate target.
-
-**Proposed for the owner (not a decision yet):** treat M10 as the critical path of the paper's `thm:intro-radii` (section 3) and keep M6 as the interim, independent lane.
-
-**Agreements with the ModularBootstrap/FoldTip lane (Paper II plan, section 4).**
-1. `HermiteBiehlerData` lives in the neutral module `SignUncertainty/HermiteBiehlerData.lean` (imports only `HermiteBiehlerUniq`); `RadialRigidity` re-exports it.
-2. The base structure `ChartCompactness` (`compactness_subseq` plus site and tail positivity for an abstract setting) is owned by the fold-tip lane in a module importing nothing Hankel- or Virasoro-specific. It is **not on `master` yet**.
-3. Paper I adds, without editing `RadialRigidity.lean`, a converter `RadialRigidityPackage -> ChartCompactness`, and plans M8's `TE.0'` (compactness for all `(P,Q)`) as a converter into `ChartCompactness` plus the shared rigidity theorem, not a second copy of the argument. Both start when `ChartCompactness` is on `master`.
-4. The two rigidity proofs differ (profile compactness with Hermite-Biehler uniqueness here, vague limits of design measures there); only the interface is shared.
-5. Langer charts and Mellin strips are separate objects in the two papers (Hankel/Bessel density `gt:7.7b/c/p` and `MellinStrip*` here; Virasoro comb density and `FixedWeightBand/Mellin*W` there). The Hankel `BootstrapHBInstance` follows the pattern of `FixedWeightBand/BootstrapW*`; Paper II does not refactor `ConcreteBootstrap/` or `TwoEdgeBootstrap/`, and Paper I does not edit `QuantC1Airy.lean`/`QuantC1Clark.lean` (Paper II's, imported here).
-6. Fold-tip Theorem FT is part of Paper I (Section 4); its Lean code and plan are `ModularBootstrap/FoldTip/` and packages FT-0..FT-7 of `ModularBootstrap/PLAN.md` (package G above). `lem:qual-compact` is not in Lean; it is the shared elementary step for `ft:L2` and the CE shell transfers (check `SignUncertainty/` before adding).
