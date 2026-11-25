@@ -156,19 +156,19 @@ theorem sum_exp_tail_two_sided (S : Finset ℝ) {X c y0 : ℝ} (hc0 : 0 ≤ c) (
     apply Finset.sum_le_sum
     intro x _
     by_cases h : y0 ≤ |x|
-    · rw [if_pos h]
+    · rw [ite_eq_left h]
       rcases le_abs'.1 h with h1 | h1
       · have : y0 ≤ -x := by linarith
-        rw [if_pos this]
+        rw [ite_eq_left this]
         have h0 : 0 ≤ (if y0 ≤ x then Real.exp (-(2 * Real.pi) * x) else 0) := by
           split_ifs <;> positivity
         rw [abs_of_nonpos (by linarith)]
         linarith [show Real.exp (-(2 * Real.pi) * -x) = Real.exp (-(2 * Real.pi) * -x) from rfl]
-      · rw [if_pos h1, abs_of_nonneg (by linarith)]
+      · rw [ite_eq_left h1, abs_of_nonneg (by linarith)]
         have h0 : 0 ≤ (if y0 ≤ -x then Real.exp (-(2 * Real.pi) * -x) else 0) := by
           split_ifs <;> positivity
         linarith
-    · rw [if_neg h]
+    · rw [ite_eq_right h]
       have h0 : 0 ≤ (if y0 ≤ x then Real.exp (-(2 * Real.pi) * x) else 0) := by
         split_ifs <;> positivity
       have h1 : 0 ≤ (if y0 ≤ -x then Real.exp (-(2 * Real.pi) * -x) else 0) := by

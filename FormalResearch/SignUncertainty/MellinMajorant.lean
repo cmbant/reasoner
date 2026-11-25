@@ -64,8 +64,8 @@ theorem mellinFm_eq {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (hf : IsHank
     (hζ0 : 0 ≤ ζ.re) (hζ1 : ζ.re < 1) : mellinFm c ε f ζ = mellinStrip f ((c : ℂ) * (1 - ζ)) := by
   unfold mellinFm
   by_cases h : ζ.re ≤ 1 / 2
-  · rw [if_pos h]
-  · rw [if_neg h]
+  · rw [ite_eq_left h]
+  · rw [ite_eq_right h]
     have hre : ((c : ℂ) * ζ).re = c * ζ.re := by simp
     have := mellinStrip_reflection hc hf (z := (c : ℂ) * ζ) (by rw [hre]; nlinarith)
       (by rw [hre]; nlinarith)
@@ -78,7 +78,7 @@ theorem continuousOn_mellinFm {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (h
   set A : Set ℂ := {ζ : ℂ | 0 ≤ ζ.re ∧ ζ.re ≤ 1 / 2} with hA
   set B : Set ℂ := {ζ : ℂ | 1 / 2 ≤ ζ.re ∧ ζ.re ≤ 1} with hB
   have hAB : {ζ : ℂ | 0 ≤ ζ.re ∧ ζ.re ≤ 1} = A ∪ B := by
-    ext ζ; simp only [hA, hB, mem_setOf_eq, mem_union]
+    ext ζ; simp only [hA, hB, mem_ofPred_eq, mem_union]
     constructor
     · rintro ⟨h0, h1⟩
       rcases le_total ζ.re (1 / 2) with h | h
@@ -102,7 +102,7 @@ theorem continuousOn_mellinFm {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (h
       constructor <;> nlinarith [hζ.1, hζ.2]
     refine h1.congr fun ζ hζ => ?_
     unfold mellinFm
-    rw [if_pos hζ.2]
+    rw [ite_eq_left hζ.2]
   · have h1 : ContinuousOn (fun ζ : ℂ => (ε : ℂ) * mellinStrip f ((c : ℂ) * ζ)) B := by
       refine continuousOn_const.mul (hcont.comp (by fun_prop) ?_)
       intro ζ hζ
@@ -116,10 +116,10 @@ theorem continuousOn_mellinFm {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (h
       have hre : ((c : ℂ) * ζ).re = c * ζ.re := by simp
       have := mellinStrip_reflection hc hf (z := (c : ℂ) * ζ) (by rw [hre, hζh]; nlinarith)
         (by rw [hre, hζh]; nlinarith)
-      simp only [mellinFm, if_pos h]
+      simp only [mellinFm, ite_eq_left h]
       rw [show (c : ℂ) * (1 - ζ) = (c : ℂ) - (c : ℂ) * ζ by ring, this]
     · unfold mellinFm
-      rw [if_neg h]
+      rw [ite_eq_right h]
 
 theorem differentiableOn_mellinFm {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ}
     (hf : IsHankelEigenfn c ε f) :
@@ -136,7 +136,7 @@ theorem differentiableOn_mellinFm {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ
     constructor <;> nlinarith [hζ.1, hζ.2]
   exact h1.congr fun ζ hζ => mellinFm_eq hc hf hζ.1.le hζ.2
 
-theorem differentiableOn_hInt : DifferentiableOn ℂ hInt hStrip := fun z hz =>
+theorem differentiableOn_hInt : DifferentiableOn ℂ hInt hStrip := fun _z hz =>
   (hasDerivAt_hInt hz).differentiableAt.differentiableWithinAt
 
 lemma closedStrip_subset : {ζ : ℂ | 0 ≤ ζ.re ∧ ζ.re ≤ 1} ⊆ hStrip := fun ζ hζ =>

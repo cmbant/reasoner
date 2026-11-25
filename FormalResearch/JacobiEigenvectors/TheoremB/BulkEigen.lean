@@ -140,7 +140,7 @@ theorem chart_NR_le {Par : Type*} [TopologicalSpace Par] {G : SymbolFamily (Par 
   obtain ⟨-, -, -, hcNR, -⟩ := C.shape p hp X hX N hN
   have hcL : C.c < G.L := by linarith [C.consts_pos.2.2.2.1, C.consts_pos.2.2.1]
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have h1 : (N : ℝ) + 1 ≤ ((C.chain p X N).NR : ℝ) := by exact_mod_cast hcon
   unfold uNode at hcNR
   nlinarith [mul_le_mul_of_nonneg_right h1 hst.le]

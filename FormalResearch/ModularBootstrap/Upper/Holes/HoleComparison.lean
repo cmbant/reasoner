@@ -174,7 +174,7 @@ theorem modLogRatio_ge (c' η₀ x : ℝ) (σ ε : ℕ → ℝ) (f N n j : ℕ) 
     refine Finset.sum_le_sum fun k hk => ?_
     have hk2 := (Finset.mem_filter.mp hk).2
     have := neg_abs_le (realLogT x (designSite c' σ k) - realLogT x (chiQuantile c' k))
-    simp only [modSummand, hk2, if_false]
+    simp only [modSummand, hk2, ite_false]
     linarith
   have h3 := neg_abs_le (realLogT x (designSite c' σ f) - realLogT x (chiQuantile c' f))
   have h4 := le_abs_self (realLogT x (designSite c' σ f) - realLogT x (chiQuantile c' f))
@@ -312,25 +312,25 @@ theorem designComb_lower_hole {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 0 < �
   have hqpos : ∀ k, f < k → 0 < qD k := by
     intro k hk
     by_cases hkN : k ≤ N
-    · simp only [hqD, if_pos hkN]
+    · simp only [hqD, ite_eq_left hkN]
       by_cases hkH : k ∈ holeSet n j
       · exact hhole k hk hkN hkH
       · exact (two_realLogT_le_log_blaschkePairQ (hsite k hk.le hkN) hx_pos (hout k hk hkN hkH)
           (hε k hk hkN).1 (hε k hk hkN).2).1
-    · simp only [hqD, if_neg hkN]
+    · simp only [hqD, ite_eq_right hkN]
       exact pairModQ_pos hc' hη₀0.le hη₀1 hgap (by omega) hx (Or.inl hη₀0)
   -- the Λ-form summand of the modified comb
   have hlam_le : ∀ k, f < k →
       (if k ∈ holeSet n j then Real.log (qD k) else 2 * realLogT x (sD k)) ≤ Real.log (qD k) := by
     intro k hk
     by_cases hkH : k ∈ holeSet n j
-    · rw [if_pos hkH]
-    · rw [if_neg hkH]
+    · rw [ite_eq_left hkH]
+    · rw [ite_eq_right hkH]
       by_cases hkN : k ≤ N
-      · simp only [hqD, hsD, if_pos hkN]
+      · simp only [hqD, hsD, ite_eq_left hkN]
         exact (two_realLogT_le_log_blaschkePairQ (hsite k hk.le hkN) hx_pos (hout k hk hkN hkH)
           (hε k hk hkN).1 (hε k hk hkN).2).2
-      · simp only [hqD, hsD, if_neg hkN]
+      · simp only [hqD, hsD, ite_eq_right hkN]
         have hkn : k ≠ n := fun h => hkH (h ▸ hnH)
         exact two_phiVar_le_log_pairModQ hc' hη₀0.le hη₀1 hgap hn1 (by omega) hx hkn
   -- the lower bound for the partial products
@@ -369,16 +369,16 @@ theorem designComb_lower_hole {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 0 < �
         refine Finset.sum_congr rfl fun k hk => ?_
         have hkN := (Finset.mem_Ioc.mp hk).2
         by_cases hkH : k ∈ holeSet n j
-        · simp only [hqD, lambdaTerm, modSummand, if_pos hkH, if_pos hkN]; ring
-        · simp only [hsD, lambdaTerm, modSummand, phiVar, if_neg hkH, if_pos hkN]; ring
+        · simp only [hqD, lambdaTerm, modSummand, ite_eq_left hkH, ite_eq_left hkN]; ring
+        · simp only [hsD, lambdaTerm, modSummand, phiVar, ite_eq_right hkH, ite_eq_left hkN]; ring
       have htail : ∑ k ∈ Finset.Ioc N K,
           (if k ∈ holeSet n j then Real.log (qD k) else 2 * realLogT x (sD k)) =
           ∑ k ∈ Finset.Ioc N K, lambdaTerm c' η₀ x n j k := by
         refine Finset.sum_congr rfl fun k hk => ?_
         have hkN : ¬ k ≤ N := by have := (Finset.mem_Ioc.mp hk).1; omega
         by_cases hkH : k ∈ holeSet n j
-        · simp only [hqD, lambdaTerm, if_pos hkH, if_neg hkN]
-        · simp only [hsD, lambdaTerm, phiVar, if_neg hkH, if_neg hkN]
+        · simp only [hqD, lambdaTerm, ite_eq_left hkH, ite_eq_right hkN]
+        · simp only [hsD, lambdaTerm, phiVar, ite_eq_right hkH, ite_eq_right hkN]
       rw [hhead, htail]; ring
     have hbase := lambdaForm_partial_lower (η₀ := η₀) hc' hf hj hfnj hnjK hx
     rw [Icc_succ_eq_Ioc] at hbase
@@ -421,11 +421,11 @@ theorem designComb_lower_hole {c' η₀ x : ℝ} (hc' : 0 < c') (hη₀0 : 0 < �
     have h1 : ∏ k ∈ Finset.Ioc f N, qD k =
         ∏ k ∈ Finset.Ioc f N, blaschkePairQ (designSite c' σ k) (ε k) x := by
       refine Finset.prod_congr rfl fun k hk => ?_
-      simp only [hqD, if_pos (Finset.mem_Ioc.mp hk).2]
+      simp only [hqD, ite_eq_left (Finset.mem_Ioc.mp hk).2]
     have h2 : ∏ k ∈ Finset.Ioc N K, qD k = ∏ k ∈ Finset.Ioc N K, pairModQ c' η₀ x k := by
       refine Finset.prod_congr rfl fun k hk => ?_
       have : ¬ k ≤ N := by have := (Finset.mem_Ioc.mp hk).1; omega
-      simp only [hqD, if_neg this]
+      simp only [hqD, ite_eq_right this]
     rw [← hsplit, h1, h2, mul_assoc]
   have hlim_exp : Tendsto (fun K : ℕ =>
       Real.exp (holeH c' η₀ n j x + jEndComb c' x f - 2 * eLeftComb c' f n j x +

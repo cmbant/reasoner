@@ -141,7 +141,7 @@ theorem exists_ratio_bound {A D : Matrix ι ι ℂ} (hA : A.PosSemidef) (hD : D.
     exact Complex.ext hx him
   set S : Set (ι → ℂ) := (W : Set (ι → ℂ)) ∩ Metric.sphere 0 1 with hS
   have hSc : IsCompact S :=
-    (isCompact_sphere (0 : ι → ℂ) 1).inter_left (Submodule.closed_of_finiteDimensional W)
+    (isCompact_sphere (0 : ι → ℂ) 1).inter_left (Submodule.isClosed_of_finiteDimensional W)
   have hfpos : ∀ u ∈ S, reQF A u ≠ 0 := by
     intro u ⟨huW, hu1⟩ h0
     have hAu := hzero u h0

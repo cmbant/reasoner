@@ -451,7 +451,7 @@ theorem fourier_poly_gaussian (d : ℕ) (P : ℝ[X]) :
         ((P.coeff k : ℂ) * ((2 * ↑π * ↑‖x‖ ^ 2) ^ k * ↑(Real.exp (-π * ‖x‖ ^ 2)))) =
       Complex.exp (↑(-2 * π * ⟪x, y⟫) * I) *
         (((P.coeff k * ((2 * π * ‖x‖ ^ 2) ^ k * Real.exp (-π * 1 * ‖x‖ ^ 2)) : ℝ) : ℂ)) by
-          push_cast; ring,
+          push_cast; ring_nf,
       norm_mul, Complex.norm_exp_ofReal_mul_I, one_mul, Complex.norm_real, Real.norm_eq_abs,
       abs_mul, abs_of_nonneg (show 0 ≤ (2 * π * ‖x‖ ^ 2) ^ k * Real.exp (-π * 1 * ‖x‖ ^ 2) by
         positivity)]]
@@ -469,7 +469,7 @@ theorem fourier_poly_gaussian (d : ℕ) (P : ℝ[X]) :
     have hf := fourier_normSq_pow_gaussian d k one_pos y
     rw [Real.fourier_eq'] at hf
     simp only [smul_eq_mul, mul_one, Real.one_rpow, div_one] at hf
-    rw [hf, ← Complex.ofReal_mul]; ring
+    rw [hf, ← Complex.ofReal_mul]; ring_nf
   rw [Finset.sum_congr rfl hterm]
   simp only [fourierPolyTransform, Polynomial.eval_finsetSum, Polynomial.eval_smul, smul_eq_mul]
   push_cast; simp [Finset.sum_mul, mul_assoc]

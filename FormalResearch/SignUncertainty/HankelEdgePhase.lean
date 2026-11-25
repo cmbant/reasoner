@@ -164,7 +164,7 @@ lemma hankelEdgePhi_hasDerivAt (L : ℝ) {τ : ℝ} (hτ : 0 < τ) :
     HasDerivAt (edgePhi L) (L - hankelEdgeM τ) τ := by
   refine (hasDerivAt_edgePhi L τ).congr_deriv ?_
   unfold edgePhiDeriv
-  rw [if_neg hτ.ne', abs_of_pos hτ]
+  rw [ite_eq_right hτ.ne', abs_of_pos hτ]
   unfold hankelEdgeM ceEll
   rw [show π * τ / 2 / Real.tanh (π * τ / 2) = (Real.tanh (π * τ / 2) / (π * τ / 2))⁻¹ by rw [inv_div],
     Real.log_inv]

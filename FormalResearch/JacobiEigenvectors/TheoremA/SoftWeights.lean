@@ -106,7 +106,7 @@ lemma Eminus_pos (a z : ℝ) : 0 < Eminus a z := by
   · exact inv_pos.mpr (Ebar_pos _ _)
 
 lemma Eminus_of_nonpos {a : ℝ} (ha : a ≤ 0) (z : ℝ) : Eminus a z = Ewell a |z| := by
-  unfold Eminus; rw [if_pos ha]
+  unfold Eminus; rw [ite_eq_left ha]
 
 /-- `E_well(a,z) <= 1` for `z >= 0`. -/
 lemma Ewell_le_one (a : ℝ) {z : ℝ} (_hz : 0 ≤ z) : Ewell a z ≤ 1 := by
@@ -152,14 +152,14 @@ lemma Ewell_ge_exp (a : ℝ) {z : ℝ} (hz : 0 ≤ z) : Real.exp (-(z ^ 2 / 4)) 
 /-- the integral form of `E_-` for `a > 0`: `E_-(a,z) = exp(int_0^z g_bar)` (`E_bar^{-1}`). -/
 lemma Eminus_bar (a z : ℝ) (ha : 0 < a) : Eminus a z = Real.exp (∫ t in (0 : ℝ)..z, gBar a t) := by
   unfold Eminus Ebar
-  rw [if_neg (not_le.mpr ha), ← Real.exp_neg, neg_neg]
+  rw [ite_eq_right (not_le.mpr ha), ← Real.exp_neg, neg_neg]
   rfl
 
 /-- `E_-` is non-decreasing on `z <= 0` (towards the fold). -/
 lemma Eminus_mono (a : ℝ) {z1 z2 : ℝ} (h12 : z1 ≤ z2) (h2 : z2 ≤ 0) : Eminus a z1 ≤ Eminus a z2 := by
   by_cases ha : a ≤ 0
   · unfold Eminus
-    rw [if_pos ha, if_pos ha]
+    rw [ite_eq_left ha, ite_eq_left ha]
     have e1 : |z1| = -z1 := abs_of_nonpos (by linarith)
     have e2 : |z2| = -z2 := abs_of_nonpos h2
     rw [e1, e2, Ewell_eq_exp a (by linarith), Ewell_eq_exp a (by linarith)]
@@ -184,7 +184,7 @@ lemma Eminus_mono (a : ℝ) {z1 z2 : ℝ} (h12 : z1 ≤ z2) (h2 : z2 ≤ 0) : Em
 lemma Eminus_le_one (a : ℝ) {z : ℝ} (hz : z ≤ 0) : Eminus a z ≤ 1 := by
   by_cases ha : a ≤ 0
   · unfold Eminus
-    rw [if_pos ha]
+    rw [ite_eq_left ha]
     exact Ewell_le_one a (abs_nonneg _)
   · have ha' : 0 < a := not_le.mp ha
     rw [Eminus_bar a z ha', Real.exp_le_one_iff]
@@ -202,7 +202,7 @@ lemma Eminus_ratio (a : ℝ) {z1 z2 : ℝ} (h12 : z1 ≤ z2) (h2 : z2 ≤ 0) :
   have hs := Real.sqrt_nonneg (max a 0)
   by_cases ha : a ≤ 0
   · unfold Eminus
-    rw [if_pos ha, if_pos ha]
+    rw [ite_eq_left ha, ite_eq_left ha]
     have e2 : |z2| = -z2 := abs_of_nonpos h2
     rw [e2, e1, Ewell_eq_exp a (by linarith), Ewell_eq_exp a (by linarith), ← Real.exp_add]
     apply Real.exp_le_exp.mpr
@@ -255,7 +255,7 @@ lemma Eminus_decay (a γ : ℝ) {z1 z2 : ℝ} (h12 : z1 ≤ z2) (h2 : z2 ≤ 0) 
   have hz1 : z1 ≤ 0 := le_trans h12 h2
   by_cases ha : a ≤ 0
   · unfold Eminus
-    rw [if_pos ha, if_pos ha]
+    rw [ite_eq_left ha, ite_eq_left ha]
     have e1 : |z1| = -z1 := abs_of_nonpos hz1
     have e2 : |z2| = -z2 := abs_of_nonpos h2
     rw [e1, e2, Ewell_eq_exp a (by linarith), Ewell_eq_exp a (by linarith), ← Real.exp_add]
@@ -317,19 +317,19 @@ def Wmol (a z : ℝ) : ℝ := if a ≤ 0 then Wwell a z else Ebar a z
 lemma Wmol_neg_of_nonpos (a : ℝ) {z : ℝ} (hz : z ≤ 0) : Wmol a (-z) = Eminus a z := by
   unfold Wmol Eminus
   by_cases ha : a ≤ 0
-  · rw [if_pos ha, if_pos ha]
+  · rw [ite_eq_left ha, ite_eq_left ha]
     unfold Wwell
-    rw [if_pos (by linarith), abs_of_nonpos hz]
-  · rw [if_neg ha, if_neg ha, Ebar_neg]
+    rw [ite_eq_left (by linarith), abs_of_nonpos hz]
+  · rw [ite_eq_right ha, ite_eq_right ha, Ebar_neg]
 
 /-- `W_mol(a,-Z) = E_swap(a,Z)` on the patch `Z > 0`. -/
 lemma Wmol_neg_of_pos (a : ℝ) {z : ℝ} (hz : 0 < z) : Wmol a (-z) = Eswap a z := by
   unfold Wmol Eswap
   by_cases ha : a ≤ 0
-  · rw [if_pos ha, if_pos ha]
+  · rw [ite_eq_left ha, ite_eq_left ha]
     unfold Wwell
-    rw [if_neg (by linarith), abs_neg, abs_of_pos hz]
-  · rw [if_neg ha, if_neg ha, Ebar_neg]
+    rw [ite_eq_right (by linarith), abs_neg, abs_of_pos hz]
+  · rw [ite_eq_right ha, ite_eq_right ha, Ebar_neg]
 
 lemma k2_neg (a z : ℝ) : k2 a (-z) = k2 a z := by unfold k2; rw [neg_sq]
 
@@ -340,16 +340,16 @@ lemma molv_lower {U V : ℝ → ℝ → ℝ} {cPC CPC : ℝ} (hf : ParabolicCyli
     cPC * (kappaBal a)⁻¹ * Wmol a z * Mbal a z ≤ Molv U V a z := by
   unfold Wmol
   by_cases ha : a ≤ 0
-  · rw [if_pos ha]; exact (hf.molv_well a ha z).1
-  · rw [if_neg ha]; exact (hf.molv_bar a (not_le.mp ha) z).1
+  · rw [ite_eq_left ha]; exact (hf.molv_well a ha z).1
+  · rw [ite_eq_right ha]; exact (hf.molv_bar a (not_le.mp ha) z).1
 
 /-- `E_swap(a,z) >= 1` for `z >= 0` (the swapped weight is the inverse of a recessive one). -/
 lemma Eswap_ge_one (a : ℝ) {z : ℝ} (hz : 0 ≤ z) : 1 ≤ Eswap a z := by
   unfold Eswap
   by_cases ha : a ≤ 0
-  · rw [if_pos ha]
+  · rw [ite_eq_left ha]
     exact (one_le_inv₀ (Ewell_pos _ _)).mpr (Ewell_le_one a (abs_nonneg _))
-  · rw [if_neg ha]
+  · rw [ite_eq_right ha]
     refine (one_le_inv₀ (Ebar_pos _ _)).mpr ?_
     unfold Ebar
     rw [Real.exp_le_one_iff, neg_nonpos]

@@ -43,7 +43,7 @@ lemma differentiableAt_stripS0Tilde {ζ₀ : ℂ} (h : |ζ₀.re| < 1) : Differe
     (isCompact_Icc.prod (isCompact_closedBall _ _)).image (by fun_prop)
   have hKs : K ⊆ edgeStrip := by
     rintro _ ⟨⟨s, ζ⟩, ⟨hs, hζ⟩, rfl⟩
-    simp only [edgeStrip, mem_setOf_eq, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
+    simp only [edgeStrip, mem_ofPred_eq, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
     rw [abs_mul, abs_of_nonneg hs.1]
     have := hball ζ hζ
     nlinarith [abs_nonneg ζ.re, hs.2]
@@ -105,7 +105,7 @@ lemma differentiableAt_stripS0Tilde {ζ₀ : ℂ} (h : |ζ₀.re| < 1) : Differe
     have := hc2.fun_mul (hasDerivAt_id x)
     simpa using this
 
-lemma differentiableOn_stripS0Tilde : DifferentiableOn ℂ stripS0Tilde edgeStrip := fun ζ hζ =>
+lemma differentiableOn_stripS0Tilde : DifferentiableOn ℂ stripS0Tilde edgeStrip := fun _ζ hζ =>
   (differentiableAt_stripS0Tilde hζ).differentiableWithinAt
 
 /-- **The Mellin-strip kernel `K₀(·, ξ)` is holomorphic on `|Re ζ| < 1`.** -/

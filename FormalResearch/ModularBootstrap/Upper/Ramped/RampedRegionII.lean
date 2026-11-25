@@ -37,7 +37,7 @@ open FormalResearch.ModularBootstrap.Upper.Comb FormalResearch.ModularBootstrap.
 /-- For real `x` to the right of the first site, `B_D(x)` is a real number `r ≥ 0` (the pair factors are
 nonnegative whether or not their sites lie to the left of `x`). -/
 theorem designComb_real_nonneg {c' x : ℝ} (hc' : 0 < c') (hgap : siteGap c' 1 ≤ 1 / 2) (f N : ℕ)
-    (σ ε : ℕ → ℝ) (hfN : f ≤ N) (hfx : designSite c' σ f < x) (hf0 : 0 ≤ designSite c' σ f) :
+    (σ ε : ℕ → ℝ) (_hfN : f ≤ N) (hfx : designSite c' σ f < x) (hf0 : 0 ≤ designSite c' σ f) :
     ∃ r : ℝ, designComb c' f N (1 / 4) σ ε (x : ℂ) = (r : ℂ) ∧ 0 ≤ r := by
   obtain ⟨him, hre⟩ := combTail_real_nonneg (η₀ := 1 / 4) (x := x) hc' (by norm_num) (by norm_num) hgap N
   set t : ℝ := (combTail c' N (1 / 4) (x : ℂ)).re with ht

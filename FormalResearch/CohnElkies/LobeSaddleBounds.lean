@@ -202,7 +202,7 @@ private lemma lobe_outer_le_half {c σ_star g' ε_L τ_sd τ_core : ℝ}
     calc (1 / τ_sd) * ∫ τ in Ioi (1 / 2 : ℝ), F_out τ
         ≤ Real.sqrt (2 * (2 * (c * σ_star))) * (Real.sqrt 2 * (1 / 4 : ℝ) * 2 * Real.exp (-(3 / 320 : ℝ) * (2 * (c * σ_star)))) := by
           refine mul_le_mul (h_1sd.trans (Real.sqrt_le_sqrt (le_of_eq (by ring))))
-            (hmono.trans_eq (by ring)) (setIntegral_nonneg measurableSet_Ioi fun _ _ => by positivity) (by positivity)
+            (hmono.trans_eq (by ring_nf)) (setIntegral_nonneg measurableSet_Ioi fun _ _ => by positivity) (by positivity)
       _ ≤ Real.sqrt (2 * (2 * (c * σ_star))) * Real.exp (-(3 / 320 : ℝ) * (2 * (c * σ_star))) :=
           mul_le_mul_of_nonneg_left (by simpa using mul_le_mul_of_nonneg_right hsqrt2 (Real.exp_pos _).le) (by positivity)
       _ ≤ 0.01 * (2 * (c * σ_star)) ^ (-(1 / 2 : ℝ)) :=

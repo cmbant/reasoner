@@ -525,7 +525,7 @@ theorem eigClose_of_jets (F F' : SymbolFamily Par) (K : Set Par) (j : ℕ) (hK :
       intro n
       unfold SymbolFamily.bondA
       by_cases hn : 0 ≤ n ∧ n < (N : ℤ)
-      · rw [if_pos hn, if_pos hn]
+      · rw [ite_eq_left hn, ite_eq_left hn]
         congr 1
         unfold SymbolFamily.entryE
         show sNode (F.step N) n * (F.L - sNode (F.step N) n) * ∑ i ∈ Finset.range (j + 1), F.step N ^ i * F.G i μ (sNode (F.step N) n)
@@ -535,7 +535,7 @@ theorem eigClose_of_jets (F F' : SymbolFamily Par) (K : Set Par) (j : ℕ) (hK :
         apply Finset.sum_congr rfl
         intro i hi
         rw [(hjets μ hμ i (by have := Finset.mem_range.mp hi; omega) _ (sNode_mem_Icc F N n hn.1 hn.2)).1]
-      · rw [if_neg hn, if_neg hn]
+      · rw [ite_eq_right hn, ite_eq_right hn]
     unfold SymbolFamily.jacobiMat
     ext a b
     simp only [Matrix.of_apply]
@@ -545,7 +545,7 @@ theorem eigClose_of_jets (F F' : SymbolFamily Par) (K : Set Par) (j : ℕ) (hK :
     intro n h0 hn
     have hbp := (hb1 n h0 hn).2
     unfold SymbolFamily.bondA at hbp
-    rw [if_pos ⟨h0, hn⟩] at hbp
+    rw [ite_eq_left ⟨h0, hn⟩] at hbp
     have hEp := Real.sqrt_pos.mp hbp
     unfold SymbolFamily.entryE at hEp
     have hs := sNode_mem_Icc F N n h0 hn

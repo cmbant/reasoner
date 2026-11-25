@@ -178,7 +178,7 @@ theorem mPrime_iter_bound (j : ℕ) : ∃ C : ℝ, ∀ τ : ℝ, 0 < τ → |ite
       exact this.contDiffAt (isOpen_Ioi.mem_nhds hτ)
     have hsub := iteratedDeriv_sub (n := j) (hc1.of_le (by exact_mod_cast le_top)) (hc2.of_le (by exact_mod_cast le_top))
     rw [hmp]
-    simp only [Pi.sub_apply] at hsub ⊢
+    simp only at hsub ⊢
     rw [show (fun t : ℝ => 1 / t - π / Real.sinh (π * t)) = (fun y : ℝ => 1 / y) - (fun y : ℝ => π / Real.sinh (π * y)) from rfl,
       hsub]
     have hone : iteratedDeriv j (fun y : ℝ => 1 / y) τ = (-1) ^ j * (j.factorial : ℝ) * τ ^ (-1 - j : ℤ) := by
@@ -242,7 +242,7 @@ lemma hasDerivAt_m_iter (k : ℕ) {τ : ℝ} (hτ : 0 < τ) :
     HasDerivAt (iteratedDeriv k hankelEdgeM) (iteratedDeriv (k + 1) hankelEdgeM τ) τ := by
   have hd : DifferentiableAt ℝ (iteratedDeriv k hankelEdgeM) τ := by
     have : DifferentiableOn ℝ (iteratedDerivWithin k hankelEdgeM (Ioi 0)) (Ioi 0) :=
-      contDiffOn_hankelEdgeM.differentiableOn_iteratedDerivWithin (m := k) (WithTop.coe_lt_coe.mpr (ENat.coe_lt_top k))
+      contDiffOn_hankelEdgeM.differentiableOn_iteratedDerivWithin (m := k) (WithTop.coe_lt_coe.mpr (ENat.natCast_lt_top k))
         isOpen_Ioi.uniqueDiffOn
     have h2 := (this τ (mem_Ioi.mpr hτ)).differentiableAt (isOpen_Ioi.mem_nhds hτ)
     refine h2.congr_of_eventuallyEq ?_

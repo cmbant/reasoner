@@ -56,7 +56,7 @@ lemma softSigma_sum (f : ℕ → ℝ) (h : ℝ) (M : ℕ) :
       have h1 : ¬ ((2 * a + 1) % 2 = 0) := by omega
       have h2 : (2 * a + 1 + 1) % 2 = 0 := by omega
       have h3 : (2 * a + 1 + 1) / 2 = a + 1 := by omega
-      rw [if_neg h1, if_pos h2, h3]
+      rw [ite_eq_right h1, ite_eq_left h2, h3]
       ring
   obtain ⟨a, rfl | rfl⟩ := Nat.even_or_odd' M
   · have : 2 * a / 2 = a := by omega
@@ -65,7 +65,7 @@ lemma softSigma_sum (f : ℕ → ℝ) (h : ℝ) (M : ℕ) :
   · have : (2 * a + 1) / 2 = a := by omega
     rw [this, Finset.sum_range_succ, hE a]
     have h1 : ¬ ((2 * a + 1) % 2 = 0) := by omega
-    rw [if_neg h1]
+    rw [ite_eq_right h1]
     ring
 
 /-- `mu_0 + sum_{s=1}^n h^{2s} mu_{2s} = sum_{s<=n} h^{2s} mu_{2s}`. -/

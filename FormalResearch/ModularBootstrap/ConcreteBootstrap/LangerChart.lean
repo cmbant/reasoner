@@ -1217,7 +1217,7 @@ lemma virasoroBChart_ofReal {c' : ℝ} (hc' : 0 < c') {u : ℝ}
   have hb_eq : virasoroBChart c' (u : ℂ) = (Real.sqrt (3 * virasoroDeltaChart c' u / c') : ℂ) := by
     unfold virasoroBChart
     rw [hxi_eq, virasoroBOfXi_ofReal hdiv_pos.le]
-    congr 1; ring
+    congr 1; ring_nf
   have hpos3 : 0 < 3 * virasoroDeltaChart c' u / c' := by
     rw [mul_div_assoc]; exact mul_pos (by norm_num) hdiv_pos
   refine ⟨?_, ?_, hb_eq, ?_⟩

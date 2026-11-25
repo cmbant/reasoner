@@ -69,18 +69,19 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
     intro K c hK hc
     have hε := liftEps_pos (show 0 < c by linarith)
     obtain ⟨h1, h2⟩ := hMpos hc
-    have hεK : liftEps c ≤ K * liftEps c := by nlinarith
-    rw [abs_le]; constructor <;> nlinarith
+    have hεK : liftEps c ≤ K * liftEps c := by nlinarith only [mul_nonneg (sub_nonneg.2 hK) hε.le]
+    rw [abs_le]; constructor <;>
+      nlinarith only [h1, h2, hεK, hε, mul_nonneg hM₀.le (sub_nonneg.2 hεK), mul_nonneg hM₀.le (hε.le.trans hεK)]
   -- the tuning
   obtain ⟨etaF, hetaFdef⟩ : ∃ f : ℝ → ℝ → ℝ, f = fun K c =>
       if hh : ∃ η, CeTune γ₁ γ₂ S K c η then hh.choose else 0 := ⟨_, rfl⟩
   have hetaF : ∀ {K c : ℝ}, 0 ≤ K → 0 < c → |etaF K c| ≤ K * liftEps c := by
     intro K c hK hc
     by_cases hh : ∃ η, CeTune γ₁ γ₂ S K c η
-    · rw [hetaFdef]; simp only [dif_pos hh]; exact hh.choose_spec.1
-    · rw [hetaFdef]; simp only [dif_neg hh, abs_zero]; have := liftEps_pos hc; positivity
+    · rw [hetaFdef]; simp only [dite_eq_left hh]; exact hh.choose_spec.1
+    · rw [hetaFdef]; simp only [dite_eq_right hh, abs_zero]; have := liftEps_pos hc; positivity
   have hetaF_tune : ∀ {K c : ℝ}, (∃ η, CeTune γ₁ γ₂ S K c η) → CeTune γ₁ γ₂ S K c (etaF K c) := by
-    intro K c hh; rw [hetaFdef]; simp only [dif_pos hh]; exact hh.choose_spec
+    intro K c hh; rw [hetaFdef]; simp only [dite_eq_left hh]; exact hh.choose_spec
   have hr : ∀ {K c : ℝ}, 1 ≤ K → 2000 ≤ c →
       |(K * liftEps c - ∫ u : ℝ, S c u) - etaF K c| ≤ (2 + M₀) * (K * liftEps c) := by
     intro K c hK hc
@@ -97,7 +98,7 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
         _ ≤ _ := by linarith
     have h2 : (|γ₁| + γ₂ + (2 + M₀)) * δ ≤ |γ₁| + γ₂ + (2 + M₀) :=
       mul_le_of_le_one_right (by positivity) hδ1
-    rw [hRdef]; nlinarith
+    rw [hRdef]; linarith only [h1, h2]
   -- the main-seed families of `o6_positivity_dual_Kc`
   obtain ⟨K₀, c₀, hK₀, hc₀, hpos⟩ := o6_positivity_dual_Kc (m := 4) (by norm_num) E (fun _ c u => -S c u) hS.dual
     (δ₁ := δ₁) (c₁ := c₁) (c₂ := c₂) (U0 := |airyZero 1|) (U1 := 2 * |γ₁|) hδ₁ hc₁ hc₂ (abs_nonneg _)
@@ -112,11 +113,11 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
       have hδ0 : 0 < K * liftEps c := by have := liftEps_pos hc0; positivity
       have hbb := hb_bd hδ0 (by linarith) (hr hK hc)
       refine ⟨?_, hbb, ?_⟩
-      · rw [abs_le]; constructor <;> nlinarith [abs_nonneg γ₁]
-      · rw [abs_le]; constructor <;> nlinarith [abs_nonneg γ₁])
+      · rw [abs_le]; constructor <;> nlinarith only [hRdef, hδ, hδ0, hγ₂, hM₀, abs_nonneg γ₁, mul_nonneg hγ₂.le (sub_nonneg.2 hδ), mul_pos hγ₂ hδ0]
+      · rw [abs_le]; constructor <;> nlinarith only [hRdef, hδ, hδ0, hγ₂, hM₀, abs_nonneg γ₁, mul_nonneg hγ₂.le (sub_nonneg.2 hδ), mul_pos hγ₂ hδ0])
     (fun {K c} hK hc hc8 hcδ => by
       have hδ0 : 0 < K * liftEps c := by have := liftEps_pos (show (0 : ℝ) < c by linarith); positivity
-      nlinarith)
+      nlinarith only [mul_pos hγ₂ hδ0])
     (fun {K c} hK hc hc8 hcδ x hx => by
       have hc0 : (0 : ℝ) < c := by linarith
       have hδ0 : 0 < K * liftEps c := by have := liftEps_pos hc0; positivity
@@ -158,7 +159,7 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
   have hε : 0 < liftEps c := liftEps_pos hc0
   have hcube : liftEps c ^ 3 * c = 1 := liftEps_cube_mul hc0
   have hKε : K₀ * liftEps c ≤ 1 / 2 := ce_delta_half hK₀ hc0 hc8
-  have hεK : liftEps c ≤ 1 / 2 := by nlinarith
+  have hεK : liftEps c ≤ 1 / 2 := by nlinarith only [hKε, mul_nonneg (sub_nonneg.2 hK₀) hε.le]
   have hKεpos : 0 < K₀ * liftEps c := by positivity
   have hKεδ : K₀ * liftEps c ≤ δ₁ := ce_delta_le hK0 hδ₁ hc0 hcδ
   -- the coefficients of `D₀`
@@ -176,7 +177,7 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
     simp only [airySeedU2, hb₀def, ceDb0, hadef, hc₀'def]; ring
   have hmassD : ∫ u : ℝ, airySeedU2 a b₀ c₀' u = ∫ u : ℝ, S c u := by
     have h0 := (hseed (K₀ * liftEps c) (K₀ * liftEps c - ∫ u : ℝ, S c u) hKεpos hKεδ
-      (by have := hr0 hK₀ hc2000; nlinarith)).1
+      (by have := hr0 hK₀ hc2000; nlinarith only [this, hKεpos])).1
     have e := hDF (0 : ℝ)
     have e' : airySeedU2 a b₀ c₀' = fun u => -(airySeedU2 (-1 - γ₂ * (K₀ * liftEps c))
         (-γ₁ * (K₀ * liftEps c) + γ₂ * (K₀ * liftEps c) + (K₀ * liftEps c - ∫ u : ℝ, S c u)) (γ₂ * (K₀ * liftEps c)) u) := by
@@ -191,13 +192,15 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
   have hcoef0 : |a| ≤ R ∧ |b₀| ≤ R ∧ |c₀'| ≤ R := by
     have hδ0 := hKεpos
     refine ⟨?_, ?_, ?_⟩
-    · rw [hadef, abs_le]; constructor <;> nlinarith [abs_nonneg γ₁]
+    · rw [hadef, abs_le]; constructor <;>
+        nlinarith only [hRdef, hKε, hKεpos, hγ₂, hM₀, abs_nonneg γ₁, mul_nonneg hγ₂.le (sub_nonneg.2 hKε), mul_pos hγ₂ hKεpos]
     · rw [hb₀r, abs_neg]
       refine hb_bd hKεpos (by linarith) ?_
       have := hr0 hK₀ hc2000
       have h3 : 0 ≤ K₀ * liftEps c := hKεpos.le
-      nlinarith
-    · rw [hc₀'def, abs_le]; constructor <;> nlinarith [abs_nonneg γ₁]
+      nlinarith only [this, h3]
+    · rw [hc₀'def, abs_le]; constructor <;>
+        nlinarith only [hRdef, hKε, hKεpos, hγ₂, hM₀, abs_nonneg γ₁, mul_nonneg hγ₂.le (sub_nonneg.2 hKε), mul_pos hγ₂ hKεpos]
   have hWD0 : ‖liftSymbol (airySeedU2 a b₀ c₀') (ceBeta1 * K₀ * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ)‖ ≤
       Ce * K₀ ^ (-((4 : ℕ) : ℝ)) * c ^ (-(5 / 6 : ℝ)) :=
     hedge hcoef0.1 hcoef0.2.1 hcoef0.2.2 hK₀ (by linarith)
@@ -215,7 +218,7 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
       rw [hQedef]
       have := mul_le_mul_of_nonneg_right hCeP (Real.rpow_nonneg hc0.le (-(5 / 6 : ℝ)))
       have := mul_le_mul_of_nonneg_right hCSP (Real.rpow_nonneg hc0.le (-(5 / 6 : ℝ)))
-      rw [hPndef]; nlinarith
+      rw [hPndef]; linarith only [hWD0, hWS]
     refine h1.trans ?_
     rw [hc56]
     gcongr
@@ -243,8 +246,8 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
     rw [div_mul_eq_mul_div, div_le_iff₀ hk]
     have h4 : ceK * min (1 / 2 : ℝ) (m₀ / 4) * liftEps c ≤ ceK * (1 / 2) * liftEps c :=
       mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hmin1 hk.le) hε.le
-    have h5 : ceK * liftEps c ≤ ceK * (K₀ * liftEps c) := mul_le_mul_of_nonneg_left (by nlinarith) hk.le
-    nlinarith
+    have h5 : ceK * liftEps c ≤ ceK * (K₀ * liftEps c) := mul_le_mul_of_nonneg_left (by nlinarith only [mul_nonneg (sub_nonneg.2 hK₀) hε.le]) hk.le
+    linarith only [hQe_k, h4, h5]
   obtain ⟨η₀, hη₀⟩ := ceTune_exists γ₁ γ₂ S hK0 hc0 (hS.hasU2 hc2000) (by rw [← hadef, ← hb₀def, ← hc₀'def]; exact hmassD)
     (by simpa using hgx) (by rw [← hadef, ← hb₀def, ← hc₀'def, ← hQedef]; exact hsmall)
   have hη := hetaF_tune ⟨η₀, hη₀⟩
@@ -318,7 +321,7 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
       exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hmin2 hk.le) hε.le
     have hD : ceK * (m₀ * liftEps c) ≤ ceK * ∫ u : ℝ, S c u := mul_le_mul_of_nonneg_left (hmass hc2000).1 hk.le
     have hpp : 0 < ceK * m₀ * liftEps c := by positivity
-    nlinarith
+    linarith only [hre, h1, h2, hWx, hA, hB, hC, hD, hpp]
   -- the threshold
   obtain ⟨smin, hsmin⟩ : ∃ s : ℝ, s = (|airyZero 1| + 2 * |γ₁| * (K₀ * liftEps c) + ceBeta1 * (K₀ * liftEps c) / 2) / ceBeta1 :=
     ⟨_, rfl⟩
@@ -328,12 +331,12 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
     rw [hsmin, hsmax]
     refine div_le_div_of_nonneg_right ?_ hβ.le
     have := abs_nonneg γ₁
-    nlinarith
+    nlinarith only [hKε, hβ, this, mul_nonneg (abs_nonneg γ₁) (sub_nonneg.2 hKε), mul_nonneg hβ.le (sub_nonneg.2 hKε)]
   obtain ⟨y₀, hy₀⟩ : ∃ y : ℝ, y = Real.pi ^ 2 * liftEps c ^ 2 * smin := ⟨_, rfl⟩
   have hy₀0 : 0 < y₀ := by rw [hy₀]; positivity
   have hy₀half : y₀ ≤ 1 / 2 := by
     have hτc : liftEps c ≤ τ := hMτ c hcτ
-    have h1 : liftEps c ^ 2 ≤ liftEps c := by nlinarith
+    have h1 : liftEps c ^ 2 ≤ liftEps c := by nlinarith only [hε, hεK, mul_nonneg hε.le (sub_nonneg.2 hεK)]
     have h2 : y₀ ≤ Real.pi ^ 2 * s_max * τ := by
       rw [hy₀]
       calc Real.pi ^ 2 * liftEps c ^ 2 * smin ≤ Real.pi ^ 2 * τ * s_max := by
@@ -378,15 +381,15 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
     have h1 : 0 < c ^ (1 / 3 : ℝ) * hankelRho0 c Δ :=
       mul_pos (Real.rpow_pos_of_pos hc0 _) (hankelRho0_pos hc0 hΔ0)
     by_contra hcon
-    push_neg at hcon
-    have h2 := mul_pos h1 (show 0 < (fp Δ + fm Δ) / 2 by linarith)
-    nlinarith
+    push Not at hcon
+    have h2 := mul_pos h1 (show 0 < (fp Δ + fm Δ) / 2 by linarith only [hcon])
+    nlinarith only [e, hz, h2, h1, hcon]
   refine ⟨fp, fm, T, hfp, hfm, hfm0, hfp0, ?_, hsign⟩
   have hexp : Real.exp y₀ ≤ 1 + y₀ + 2 * y₀ ^ 2 := by
-    have h1 := Real.exp_bound_div_one_sub_of_interval' hy₀0 (by linarith : y₀ < 1)
+    have h1 := Real.exp_bound_div_one_sub_of_interval' hy₀0 (by linarith only [hy₀half] : y₀ < 1)
     refine h1.le.trans ?_
-    rw [div_le_iff₀ (by linarith)]
-    nlinarith [sq_nonneg y₀, mul_nonneg (sq_nonneg y₀) (by linarith : (0 : ℝ) ≤ 1 - 2 * y₀)]
+    rw [div_le_iff₀ (by linarith only [hy₀half])]
+    nlinarith only [sq_nonneg y₀, mul_nonneg (sq_nonneg y₀) (by linarith only [hy₀half] : (0 : ℝ) ≤ 1 - 2 * y₀)]
   have hεc : liftEps c * c ^ (1 / 3 : ℝ) = 1 := by rw [rpow_third_eq hc0]; field_simp
   have hcε2 : c * liftEps c ^ 2 = c ^ (1 / 3 : ℝ) := by
     rw [rpow_third_eq hc0]; field_simp; linarith
@@ -402,8 +405,8 @@ theorem ceLift_physical (h : O6Bricks 4) {S : ℝ → ℝ → ℝ} (hS : CeSourc
     have h1 : liftEps c * smin ^ 2 ≤ 1 * s_max ^ 2 := by
       have : smin ^ 2 ≤ s_max ^ 2 := by gcongr
       have h0 : 0 ≤ smin ^ 2 := sq_nonneg _
-      nlinarith
-    nlinarith
+      nlinarith only [this, h0, hεK, mul_nonneg (sub_nonneg.2 hεK) h0]
+    nlinarith only [mul_le_mul_of_nonneg_left h1 (show (0 : ℝ) ≤ 2 * Real.pi ^ 2 by positivity)]
   have hβeq : hankelBeta1 = ceBeta1 := rfl
   calc T = c / Real.pi ^ 2 * Real.exp y₀ := hTdef
     _ ≤ c / Real.pi ^ 2 * (1 + y₀ + 2 * y₀ ^ 2) := by gcongr

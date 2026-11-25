@@ -99,7 +99,7 @@ lemma at47_cpoly_lower {p : ℂ[X]} (hp : p ≠ 0) :
   · rw [h0] at hB ⊢
     simp at hB
     have hz1 : ‖p.eval z‖ = a := by
-      rw [hsum, h0]; simp [ha, hB]
+      rw [hsum, h0]; simp [ha]
     rw [hz1]; simp; linarith
   · have hlead : ‖p.leadingCoeff * z ^ d‖ = a * r ^ d := by rw [norm_mul, norm_pow]
     have h1 : a * r ^ d - B * r ^ (d - 1) ≤ ‖p.eval z‖ := by

@@ -64,13 +64,13 @@ lemma hankelBoot_mem_Icc {c R u_T x : ℝ} (hu : |u_T| ≤ langerRadius c) (hRA 
 lemma hankelBoot_psiR_cont {c ε R u_T : ℝ} {f : ℝ → ℝ} (hc0 : 0 < c) (hfe : IsHankelEigenfn c ε f)
     (hu : |u_T| ≤ langerRadius c) (hRA : R ≤ langerRadius c) :
     ContinuousOn (hankelPsiR c f) (Icc (-R) u_T) :=
-  (continuousOn_hankelPsiR hc0 hfe).mono fun x hx => abs_le.1 (hankelBoot_mem_Icc hu hRA hx)
+  (continuousOn_hankelPsiR hc0 hfe).mono fun _ hx => abs_le.1 (hankelBoot_mem_Icc hu hRA hx)
 
 /-- The leading term `Q = hankelPsiLead` is continuous on the band `[-R, u_T]`. -/
 lemma hankelBoot_psiLead_cont {c ε R u_T : ℝ} {f : ℝ → ℝ} (hc0 : 0 < c) (hfe : IsHankelEigenfn c ε f)
     (hu : |u_T| ≤ langerRadius c) (hRA : R ≤ langerRadius c) :
     ContinuousOn (hankelPsiLead c f) (Icc (-R) u_T) :=
-  (continuousOn_hankelQ hc0 hfe).mono fun x hx => abs_le.1 (hankelBoot_mem_Icc hu hRA hx)
+  (continuousOn_hankelQ hc0 hfe).mono fun _ hx => abs_le.1 (hankelBoot_mem_Icc hu hRA hx)
 
 /-- **Chart glue (item 1).** The chart inverts the Langer map: `ũ(ξ(x)) = x` for `|x| ≤ r_c`. -/
 theorem hankelBootU_xi {c x : ℝ} (hc : 0 < c) (hx : |x| ≤ langerRadius c) :
@@ -96,7 +96,7 @@ theorem hankelBootU_xi {c x : ℝ} (hc : 0 < c) (hx : |x| ≤ langerRadius c) :
 /-- **Sign (item 2).** `-r_∞ ≤ Re Ψ̃(u)` for `-R ≤ u ≤ u_T`. -/
 theorem hankelBoot_psi_ge {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (hf : IsHankelFeasible c ε T f)
     (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1) (hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0)
-    (hu3 : -3 ≤ u_T) (hR0 : 0 < R) (hRu : -R ≤ u_T) (hRA : R ≤ langerRadius c) {u : ℝ}
+    (hu3 : -3 ≤ u_T) (_hR0 : 0 < R) (_hRu : -R ≤ u_T) (hRA : R ≤ langerRadius c) {u : ℝ}
     (hu1 : -R ≤ u) (hu2 : u ≤ u_T) : -hankelRinf c ≤ hankelPsiR c f u := by
   have hc0 : 0 < c := by linarith
   have hc5 : (5000 : ℝ) ≤ c := by linarith
@@ -336,9 +336,9 @@ theorem hankelBootB2_nonneg (c : ℝ) (f : ℝ → ℝ) (R : ℝ) : 0 ≤ hankel
   exact ENNReal.toReal_nonneg
 
 /-- The dm-side first band moment is nonnegative (item 8). -/
-theorem hankelBootB1_nonneg {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (hf : IsHankelFeasible c ε T f)
-    (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1) (hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0)
-    (hu3 : -3 ≤ u_T) (hR0 : 0 < R) (hRu : -R ≤ u_T) (hRA : R ≤ langerRadius c) :
+theorem hankelBootB1_nonneg {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c) (_hf : IsHankelFeasible c ε T f)
+    (_hε : ε = 1 ∨ ε = -1) (_hM : hankelMass c f = 1) (_hT : c * hankelXi c u_T = T) (hu0 : u_T ≤ 0)
+    (hu3 : -3 ≤ u_T) (hR0 : 0 < R) (_hRu : -R ≤ u_T) (hRA : R ≤ langerRadius c) :
     0 ≤ hankelBootB1 c f R u_T := by
   have hc0 : 0 < c := by linarith
   have hu : |u_T| ≤ langerRadius c := hankelBoot_abs_uT hc hu0 hu3

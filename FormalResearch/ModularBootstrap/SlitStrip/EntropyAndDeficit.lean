@@ -118,7 +118,7 @@ private lemma measurable_posLog_div_abs_sub (r c : ℝ) :
 private lemma intervalIntegrable_abs_log_sub (c a b : ℝ) :
     IntervalIntegrable (fun σ => |Real.log (σ - c)|) volume a b := by
   have h := (intervalIntegral.intervalIntegrable_log' (a := a - c) (b := b - c)).comp_sub_right c
-    enorm_ne_top
+    eNorm_ne_top
   rw [sub_add_cancel, sub_add_cancel] at h
   exact h.abs
 
@@ -1942,7 +1942,7 @@ private lemma airy_tail_integral_bound (pj : PoissonJensenInput) (fg : FixedGapI
           gcongr; exact (le_max_right 1 (6 * C_M1)).trans hc'_16
       _ = 1 := mul_inv_cancel₀ (Real.rpow_pos_of_pos hc'_pos _).ne'
   have hint_sFδ : IntervalIntegrable (fun l => s * F_δ (s * l)) volume lam0 B_lam := by
-    have hcomp := hint_Fδ.comp_mul_left (c := s) enorm_ne_top enorm_ne_top
+    have hcomp := hint_Fδ.comp_mul_left (c := s) eNorm_ne_top eNorm_ne_top
     rw [show δ_c / s = lam0 by dsimp [δ_c, s]; exact mul_div_cancel_right₀ _ hs_pos.ne'] at hcomp
     exact hcomp.const_mul s
   have hmono_lam : ∫ l in lam0..B_lam, s * F_δ (s * l) ≤

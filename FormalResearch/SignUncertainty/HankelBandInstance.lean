@@ -41,12 +41,12 @@ lemma hankelBandTau0_nonneg (ξ : ℝ) : 0 ≤ hankelBandTau0 ξ := by
 lemma hankelBandTau0_root {ξ : ℝ} (h : 0 < hankelBandMu ξ) :
     hankelEdgeM (hankelBandTau0 ξ) = hankelBandMu ξ := by
   unfold hankelBandTau0
-  rw [dif_pos h]
+  rw [dite_eq_left h]
   exact (Classical.choose_spec (hankelEdgeM_exists_root h.le)).2
 
 lemma hankelBandTau0_zero {ξ : ℝ} (h : hankelBandMu ξ ≤ 0) : hankelBandTau0 ξ = 0 := by
   unfold hankelBandTau0
-  rw [dif_neg (not_lt.mpr h)]
+  rw [dite_eq_right (not_lt.mpr h)]
 
 lemma hankelBandTau0_sq_le {ξ : ℝ} (h0 : 0 ≤ hankelBandMu ξ) (h : hankelBandMu ξ < 3 / 16) :
     hankelBandTau0 ξ ^ 2 ≤ 16 / 3 * hankelBandMu ξ := by
@@ -83,13 +83,13 @@ theorem hankelBandTau0_below {c u_T ξ : ℝ} (hc : 3e6 ≤ c) (hu0 : u_T ≤ 0)
   · have hξ0 : 0 < ξ := by
       by_contra hneg
       unfold hankelBandMu at h0
-      rw [if_neg hneg] at h0
+      rw [ite_eq_right hneg] at h0
       exact lt_irrefl _ h0
     have hu : |u_T| ≤ langerRadius c := by
       rw [abs_of_nonpos hu0]; linarith [(hankel_radius_ge hc).1]
     have hmu := hankelBand_mu_below hc0 hu0 hu hξ0 hξ
     have hK := hankelBand_langerScale_ge hc
-    have hmu' : hankelBandMu ξ = Real.log (Real.pi ^ 2 * ξ) := by unfold hankelBandMu; rw [if_pos hξ0]
+    have hmu' : hankelBandMu ξ = Real.log (Real.pi ^ 2 * ξ) := by unfold hankelBandMu; rw [ite_eq_left hξ0]
     have hμ6 : hankelBandMu ξ ≤ 6 / langerScale c := by
       rw [hmu']
       refine hmu.trans ?_
@@ -126,7 +126,7 @@ theorem hankelBandTau0_band {c u_T R ξ : ℝ} (hc : 3e6 ≤ c) (hu0 : u_T ≤ 0
   have hξ0 : 0 < ξ := by
     have : 0 ≤ Real.pi ^ 2 * hankelXi c u_T - 1 := hT.1
     nlinarith [hξ.1]
-  have hmu' : hankelBandMu ξ = Real.log (Real.pi ^ 2 * ξ) := by unfold hankelBandMu; rw [if_pos hξ0]
+  have hmu' : hankelBandMu ξ = Real.log (Real.pi ^ 2 * ξ) := by unfold hankelBandMu; rw [ite_eq_left hξ0]
   rw [← hmu'] at hm0 hm1 hm2
   have hw0 : 0 ≤ Real.pi ^ 2 * ξ - 1 := by nlinarith [hξ.1, hT.1]
   have hU := hankelBandU_le hc0 hw0 (by

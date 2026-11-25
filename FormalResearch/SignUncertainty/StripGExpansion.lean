@@ -69,7 +69,7 @@ lemma tan_div_sub_le {x : ℂ} (hx0 : x ≠ 0) (hx : ‖x‖ ≤ 2 / 5) :
             refine mul_le_mul (mul_le_mul le_rfl hc (norm_nonneg _) ha.le) ?_ (norm_nonneg _)
               (by positivity)
             calc ‖1 + x ^ 2 / 3‖ ≤ ‖(1 : ℂ)‖ + ‖x ^ 2 / 3‖ := norm_add_le _ _
-              _ = 1 + a ^ 2 / 3 := by simp [norm_pow, hadef, norm_div]
+              _ = 1 + a ^ 2 / 3 := by simp [norm_pow, hadef]
   rw [div_le_iff₀ (by positivity)]
   refine hnum.trans ?_
   have : a ^ 4 * (a * ‖Complex.cos x‖) ≥ a ^ 4 * (a * (1 / 2)) := by gcongr
@@ -91,7 +91,7 @@ lemma stripG_sub_le {z : ℂ} (hz : ‖z‖ ≤ 1 / 4) :
   have hzn : 0 < ‖z‖ := norm_pos_iff.mpr hz0
   have ht := tan_div_sub_le hx0 hxle
   set t : ℂ := Complex.tan x / x - 1 with htdef
-  have hx2 : ‖x ^ 2 / 3‖ = ‖x‖ ^ 2 / 3 := by simp [norm_pow, norm_div]
+  have hx2 : ‖x ^ 2 / 3‖ = ‖x‖ ^ 2 / 3 := by simp [norm_pow]
   have htn : ‖t‖ ≤ ‖x‖ ^ 2 / 3 + ‖x‖ ^ 4 := by
     have : t = (t - x ^ 2 / 3) + x ^ 2 / 3 := by ring
     rw [this]
@@ -107,7 +107,7 @@ lemma stripG_sub_le {z : ℂ} (hz : ‖z‖ ≤ 1 / 4) :
     nlinarith [sq_nonneg ‖x‖, pow_pos hxpos 3]
   have hlog := Complex.norm_log_one_add_sub_self_le (z := t) (by linarith)
   have hg : stripG z = Complex.log (1 + t) := by
-    rw [stripG, if_neg hz0, htdef]; congr 1; ring
+    rw [stripG, ite_eq_right hz0, htdef]; congr 1; ring
   have hinv : (1 - ‖t‖)⁻¹ / 2 ≤ 1 := by
     rw [div_le_iff₀ (by norm_num), inv_le_iff_one_le_mul₀ (by linarith)]; nlinarith
   have hlog2 : ‖Complex.log (1 + t) - t‖ ≤ ‖t‖ ^ 2 := by
@@ -116,7 +116,7 @@ lemma stripG_sub_le {z : ℂ} (hz : ‖z‖ ≤ 1 / 4) :
       _ ≤ ‖t‖ ^ 2 * 1 := by gcongr
       _ = _ := by ring
   have hpz : (Real.pi ^ 2 / 12 : ℂ) * z ^ 2 = x ^ 2 / 3 := by
-    rw [hx]; push_cast; ring
+    rw [hx]; ring
   rw [hg, hpz]
   have e : Complex.log (1 + t) - x ^ 2 / 3 = (Complex.log (1 + t) - t) + (t - x ^ 2 / 3) := by ring
   rw [e]
@@ -141,7 +141,7 @@ lemma stripS0Tilde_sub_le {ζ : ℂ} (hζ : ‖ζ‖ ≤ 1 / 4) :
     ‖stripS0Tilde ζ - (Real.pi ^ 2 / 36 : ℂ) * ζ ^ 3‖ ≤ 10 * ‖ζ‖ ^ 5 := by
   have hmaps : ∀ s ∈ Icc (0 : ℝ) 1, (s : ℂ) * ζ ∈ edgeStrip := by
     intro s hs
-    simp only [edgeStrip, mem_setOf_eq]
+    simp only [edgeStrip, Set.mem_ofPred_eq]
     have h1 : |((s : ℂ) * ζ).re| ≤ ‖(s : ℂ) * ζ‖ := Complex.abs_re_le_norm _
     have h2 : ‖(s : ℂ) * ζ‖ ≤ ‖ζ‖ := by
       rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg hs.1]

@@ -49,7 +49,7 @@ noncomputable def tauCut (ϑ : ℝ → ℝ) (τ : ℂ → ℂ) (ε : ℝ) (u : �
   if |ε * u| < 0.2 then ϑ (trF τ 0 (ε * u) / 0.08) else 0
 
 lemma tauCut_of_lt {ϑ : ℝ → ℝ} {τ : ℂ → ℂ} {ε u : ℝ} (h : |ε * u| < 0.2) :
-    tauCut ϑ τ ε u = ϑ (trF τ 0 (ε * u) / 0.08) := by unfold tauCut; rw [if_pos h]
+    tauCut ϑ τ ε u = ϑ (trF τ 0 (ε * u) / 0.08) := by unfold tauCut; rw [ite_eq_left h]
 
 /-- First two derivatives of `s ↦ ϑ(t(εs)/ρ)`. -/
 lemma tauCutAux_hasDerivAt {L : ℝ} {τ : ℂ → ℂ} (h : O4NormalForm L τ) {ϑ : ℝ → ℝ} (hϑ : ContDiff ℝ 3 ϑ) {ε ρ s : ℝ}
@@ -125,7 +125,7 @@ theorem tauCut_isCut {ϑ : ℝ → ℝ} {K1 K2 : ℝ} (hϑ : Prof ϑ K1 K2) :
       rw [hθabs] at this
       rw [abs_div, abs_of_pos (by norm_num : (0 : ℝ) < 0.08), le_div_iff₀ (by norm_num)]
       linarith
-    · unfold tauCut; rw [if_neg hθ]
+    · unfold tauCut; rw [ite_eq_right hθ]
   have hU : IsOpen {s : ℝ | |ε * s| < 0.2} :=
     isOpen_lt (continuous_abs.comp (continuous_const.mul continuous_id)) continuous_const
   have hU' : IsOpen {s : ℝ | 0.18 < ε * |s|} :=

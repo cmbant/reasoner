@@ -84,7 +84,7 @@ private lemma continuous_if_fst_le {f g : ℝ × ℝ → ℝ} (hf : Continuous f
     have hp' : 0 ≤ p.1 := hp
     rcases eq_or_lt_of_le hp' with h | h
     · have : p = (0, p.2) := Prod.ext h.symm rfl
-      rw [this, if_pos (le_refl _), h0]
+      rw [this, ite_eq_left (le_refl _), h0]
     · simp [not_le.mpr h]
 
 lemma continuous_pcBranch1Cont : Continuous (fun p : ℝ × ℝ => pcBranch1Cont p.1 p.2) := by

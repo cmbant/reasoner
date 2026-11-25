@@ -368,7 +368,7 @@ theorem rampedShift_package : ∃ C_S : ℝ, 0 < C_S ∧ ∃ N0 : ℕ, 8 ≤ N0 
     · by_cases hH : k ∈ holeSet n 4
       · simp [shiftD, hk1, hH]
       · have he := eGap_pos (n := n) (k := k) (by omega) (hoh k (by omega) hH)
-        simp only [shiftD, hk1, hH, if_false]
+        simp only [shiftD, hk1, hH, ite_false]
         positivity
   have ha : ∀ k : ℕ, 1 ≤ k → |designSite c' (rampedSigma d c') k - chiQuantile c' (k : ℝ)| ≤ shiftA Cs c' k :=
     fun k hk => hsh c' hc'0 d hd hd1 k hk
@@ -401,8 +401,7 @@ theorem rampedShift_package : ∃ C_S : ℝ, 0 < C_S ∧ ∃ N0 : ℕ, 8 ≤ N0 
         _ ≤ x := hxξ
     rw [abs_of_nonneg (by linarith)] at h3
     linarith [h1.1, h1.2]
-  · intro k hk1 hkN hH
-    intro hEq
+  · intro k hk1 hkN hH hEq
     have h1 := ha k (by omega)
     have h2 := h2a' k (by omega) (Or.inr hH)
     have h3 := hdist' k (by omega) hkN (Or.inr hH)

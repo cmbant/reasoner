@@ -45,12 +45,12 @@ lemma cot_sq_sub_pos (α : ℝ) {n : ℕ} (hn : 1 ≤ n) : 0 < cotC α ^ 2 - cla
     linarith
   exact (mul_pos_iff_of_pos_left hA2).mp h'
 
-lemma windowTerm_eq (α : ℝ) {K : ℕ} (hK : 3 ≤ K) (u₂ : ℝ) {n : ℕ} (hn : 1 ≤ n) :
+lemma windowTerm_eq (α : ℝ) {K : ℕ} (_hK : 3 ≤ K) (u₂ : ℝ) {n : ℕ} (hn : 1 ≤ n) :
     windowTerm α K u₂ n = windowWeight α K n * (u₂ - clarkNode α n) := by
   unfold windowTerm windowWeight windowNr
   by_cases hS : n = 2 ∨ K < n
-  · rw [if_pos hS]; field_simp; ring
-  · rw [if_neg hS, zero_mul]
+  · rw [ite_eq_left hS]; field_simp; ring
+  · rw [ite_eq_right hS, zero_mul]
     have : (clarkNode α n - clarkNode α 1) * (clarkNode α n - u₂) *
         ∏ k ∈ Finset.Icc 3 K, (clarkNode α n - clarkNode α k) ^ 2 = 0 := by
       push Not at hS
@@ -65,7 +65,7 @@ lemma windowWeight_pos (α : ℝ) {K : ℕ} (hK : 3 ≤ K) {n : ℕ} (hS : n = 2
     0 < windowWeight α K n := by
   have hn : 1 ≤ n := by rcases hS with h | h <;> omega
   unfold windowWeight
-  rw [if_pos hS]
+  rw [ite_eq_left hS]
   have h1 : clarkNode α n < clarkNode α 1 := clarkNode_lt_of_lt le_rfl (by omega) α
   have hP : 0 < ∏ k ∈ Finset.Icc 3 K, (clarkNode α n - clarkNode α k) ^ 2 := by
     refine Finset.prod_pos (fun k hk => ?_)
@@ -90,7 +90,7 @@ lemma windowWeight_pos (α : ℝ) {K : ℕ} (hK : 3 ≤ K) {n : ℕ} (hS : n = 2
 lemma windowWeight_nonneg (α : ℝ) {K : ℕ} (hK : 3 ≤ K) (n : ℕ) : 0 ≤ windowWeight α K n := by
   by_cases hS : n = 2 ∨ K < n
   · exact (windowWeight_pos α hK hS).le
-  · unfold windowWeight; rw [if_neg hS]
+  · unfold windowWeight; rw [ite_eq_right hS]
 
 
 /-- `Σ_n w_n (z₂ - z_n)`, the first moment of the weights about `z₂` (all terms `≥ 0`). -/
@@ -142,7 +142,7 @@ theorem windowOptimum_isGreatest {α : ℝ} (hα : Real.sin α ≠ 0) {K : ℕ} 
   set W := windowInt α K 1 - windowInt α K 0 with hWdef
   have hset : {u₂ : ℝ | windowInt α K u₂ ≤ 0} = Set.Iic (-windowInt α K 0 / W) := by
     ext u
-    simp only [Set.mem_setOf_eq, Set.mem_Iic]
+    simp only [Set.mem_ofPred_eq, Set.mem_Iic]
     rw [windowInt_affine hα hK u, le_div_iff₀ hW]
     constructor <;> intro h <;> linarith
   have : windowOptimum α K = -windowInt α K 0 / W := by
@@ -159,7 +159,7 @@ theorem windowOptimum_eq {α : ℝ} (hα : Real.sin α ≠ 0) {K : ℕ} (hK : 3 
   rw [h1, h2]
   have hset : {u₂ : ℝ | windowInt α K u₂ ≤ 0} = Set.Iic (-windowInt α K 0 / (windowInt α K 1 - windowInt α K 0)) := by
     ext u
-    simp only [Set.mem_setOf_eq, Set.mem_Iic]
+    simp only [Set.mem_ofPred_eq, Set.mem_Iic]
     rw [windowInt_affine hα hK u, le_div_iff₀ hW]
     constructor <;> intro h <;> linarith
   unfold windowOptimum; rw [hset]; exact csSup_Iic
@@ -183,7 +183,7 @@ lemma windowTail_term_nonneg (α : ℝ) {K : ℕ} (hK : 3 ≤ K) (n : ℕ) :
     · rw [h]; simp
     · have := clarkNode_lt_of_lt (n := 2) (m := n + 1) (by norm_num) (by omega) α
       linarith
-  · unfold windowWeight; rw [if_neg hS]; simp
+  · unfold windowWeight; rw [ite_eq_right hS]; simp
 
 lemma windowOptimum_sub_eq {α : ℝ} (hα : Real.sin α ≠ 0) {K : ℕ} (hK : 3 ≤ K) :
     clarkNode α 2 - windowOptimum α K = windowTail α K / ∑' n : ℕ, windowWeight α K (n + 1) := by

@@ -985,7 +985,7 @@ private lemma hankelTransform_exp_fiveHalves {α : ℝ} (hα : 0 < α) {Δ : ℝ
         ((2 * π) ^ (5 / 2 : ℝ) / Real.Gamma (5 / 2)) *
           ∫ s in Ioi (0 : ℝ), s ^ ((5 / 2 : ℝ) - 1) * Real.exp (-(2 * π * α * s)) := by
       rw [← integral_const_mul]
-      refine setIntegral_congr_fun measurableSet_Ioi fun s _ => by ring
+      refine setIntegral_congr_fun measurableSet_Ioi fun s _ => by ring_nf
     rw [hcongr, Real.integral_rpow_mul_exp_neg_mul_Ioi (by norm_num : (0 : ℝ) < 5 / 2) (by positivity)]
     have hGne : Real.Gamma (5 / 2) ≠ 0 := (Real.Gamma_pos_of_pos (by norm_num)).ne'
     have hmul_pow : (1 / (2 * π * α)) ^ (5 / 2 : ℝ) = (2 * π) ^ (-(5 / 2 : ℝ)) * α ^ (-(5 / 2 : ℝ)) := by
@@ -1003,7 +1003,7 @@ private lemma hankelTransform_exp_fiveHalves {α : ℝ} (hα : 0 < α) {Δ : ℝ
           (s ^ (5 / 2 - 1 : ℝ) * Real.exp (-(2 * π * α) * s))) (Ioi 0) :=
         (integrableOn_rpow_mul_exp_neg_mul_Ioi (by norm_num : (-1 : ℝ) < 5 / 2 - 1)
           (by positivity : 0 < 2 * π * α)).const_mul _
-      exact hdom.congr_fun (fun s _ => by dsimp; ring) measurableSet_Ioi
+      exact hdom.congr_fun (fun s _ => by dsimp; ring_nf) measurableSet_Ioi
     let F : ℝ → ℝ → ℝ := fun s t =>
       Real.exp (-2 * π * α * s) * hankelRho0 (5 / 2) s * ((3 / 2 : ℝ) * (1 - t ^ 2) * Real.cos (4 * π * √(Δ * s) * t))
     let μ := volume.restrict (Ioi (0 : ℝ))
@@ -1084,7 +1084,7 @@ private lemma hankelTransform_exp_fiveHalves {α : ℝ} (hα : 0 < α) {Δ : ℝ
               show ((2 : ℕ) : ℝ) * (3 / 2 : ℝ) = ((3 : ℕ) : ℝ) by norm_num, Real.rpow_natCast]
           have hsqrt : √(Δ * r ^ 2) = √Δ * r := by
             rw [Real.sqrt_mul hΔpos.le, Real.sqrt_sq hr0.le]
-          rw [hr3, hsqrt]; ring
+          rw [hr3, hsqrt]; ring_nf
         rw [← hstep1]
         have hu := integral_comp_mul_right_Ioi'
           (fun r : ℝ => 2 * r ^ 4 * Real.exp (-2 * π * α * r ^ 2) * Real.cos (4 * π * √Δ * t * r)) 0 hσ
@@ -1255,7 +1255,7 @@ private lemma hankelTransform_exp_fiveHalves {α : ℝ} (hα : 0 < α) {Δ : ℝ
     dsimp [H, x]
     simp only [one_pow, zero_pow (by norm_num : 3 ≠ 0), zero_pow (by norm_num : 5 ≠ 0), sq,
       mul_zero, sub_zero, add_zero, Real.exp_zero, mul_one]
-    ring
+    ring_nf
 
 private lemma isRadialEigenfn_expDiff {α : ℝ} (hα : 0 < α) :
     IsRadialEigenfn (5 / 2) hankelKernel_fiveHalves (-1)
@@ -1286,7 +1286,7 @@ private lemma isRadialEigenfn_expDiff {α : ℝ} (hα : 0 < α) :
           (s ^ (5 / 2 - 1 : ℝ) * Real.exp (-(2 * π * α) * s))) (Ioi 0) :=
         (integrableOn_rpow_mul_exp_neg_mul_Ioi (by norm_num : (-1 : ℝ) < 5 / 2 - 1)
           (by positivity : 0 < 2 * π * α)).const_mul ((2 * π) ^ (5 / 2 : ℝ) / Real.Gamma (5 / 2))
-      exact hdom1.congr_fun (fun s _ => by dsimp; ring) measurableSet_Ioi
+      exact hdom1.congr_fun (fun s _ => by dsimp; ring_nf) measurableSet_Ioi
     have hI2 : IntegrableOn (fun s => (α ^ (-(5 / 2 : ℝ)) * Real.exp (-2 * π * (1 / α) * s)) *
         hankelRho0 (5 / 2) s * hankelKernel_fiveHalves.φ (Δ * s)) (Ioi 0) := by
       refine hankelTransform_integrand_integrableOn ?_ hΔ
@@ -1296,7 +1296,7 @@ private lemma isRadialEigenfn_expDiff {α : ℝ} (hα : 0 < α) :
         (integrableOn_rpow_mul_exp_neg_mul_Ioi (by norm_num : (-1 : ℝ) < 5 / 2 - 1)
           (by positivity : 0 < 2 * π * (1 / α))).const_mul
           (α ^ (-(5 / 2 : ℝ)) * ((2 * π) ^ (5 / 2 : ℝ) / Real.Gamma (5 / 2)))
-      exact hdom2.congr_fun (fun s _ => by dsimp; ring) measurableSet_Ioi
+      exact hdom2.congr_fun (fun s _ => by dsimp; ring_nf) measurableSet_Ioi
     unfold hankelTransform
     have hlin : ∫ s in Ioi (0 : ℝ), (Real.exp (-2 * π * α * s) -
           α ^ (-(5 / 2 : ℝ)) * Real.exp (-2 * π * (1 / α) * s)) *

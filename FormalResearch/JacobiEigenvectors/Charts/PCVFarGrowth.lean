@@ -43,7 +43,7 @@ private lemma k2_eq_p_far {a z : ℝ} (ha : a ≤ 0) (hz : max (z2Airy a) 10 ≤
   by_cases ha4 : a ≤ -4
   · have hp := p_well_pos ha4 (lt_of_lt_of_le (z2Airy_gt_turning ha4) hza)
     exact ⟨k2_well_far_eq ha4 hza, hp⟩
-  · push_neg at ha4
+  · push Not at ha4
     have hp : 21 ≤ z ^ 2 / 4 + a := by nlinarith
     have hm : max |a| 1 ^ ((1 : ℝ) / 3) ≤ 4 := by
       have hm4 : max |a| 1 ≤ 4 := max_le (abs_le.mpr ⟨by linarith, by linarith⟩) (by norm_num)
@@ -60,7 +60,7 @@ private lemma two_sqrt_neg_le_max {a : ℝ} (ha : a ≤ 0) :
     2 * Real.sqrt (-a) < max (z2Airy a) 10 := by
   by_cases ha4 : a ≤ -4
   · exact lt_of_lt_of_le (z2Airy_gt_turning ha4) (le_max_left _ _)
-  · push_neg at ha4
+  · push Not at ha4
     have hsq : Real.sqrt (-a) < 2 := by
       rw [Real.sqrt_lt' (by norm_num)]; linarith
     exact lt_of_lt_of_le (by linarith) (le_max_right _ _)
@@ -117,7 +117,7 @@ lemma actionWell_ge_ratio_k2 {a z : ℝ} (ha : a ≤ 0) (hz : max (z2Airy a) 10 
         ← Real.rpow_mul (by norm_num)]
       norm_num
     linarith [hS0]
-  · push_neg at hcase
+  · push Not at hcase
     let xm := (z₀ + z) / 2
     have hx_lo : z₀ ≤ xm := by dsimp [xm]; linarith
     have hx_hi : xm ≤ z := by dsimp [xm]; linarith
@@ -207,11 +207,11 @@ lemma actionWell_ge_ratio_k2 {a z : ℝ} (ha : a ≤ 0) (hz : max (z2Airy a) 10 
             Real.rpow_le_rpow (by positivity) h42 (by norm_num)
         _ = 8 + 8 * actionWell a z := by
             rw [← Real.rpow_mul (by positivity)]; norm_num
-    · push_neg at hz2
+    · push Not at hz2
       have hzz0 : z + z₀ ≤ 3 * z₀ := by linarith
       have hz0_pos : 0 < z₀ := by
         by_contra h0
-        push_neg at h0
+        push Not at h0
         have hz0_0 : z₀ = 0 := le_antisymm h0 (by positivity)
         linarith [show 10 ≤ z from le_trans (le_max_right _ _) hz]
       have hsub_ge : 4 * (z ^ 2 / 4 + a) / (3 * z₀) ≤ z - z₀ := by
@@ -284,7 +284,7 @@ lemma vt_far_lower_of_action {cPC CPC : ℝ} (hcPC : 0 < cPC) (hCPC : cPC ≤ CP
       rw [max_eq_left (neg_nonneg.mpr ha)]; exact ht
     have hb := (env.beyond a t hmax).2
     have he : Erec a t = Ewell a t := by
-      unfold Erec; rw [if_pos ha, abs_of_nonneg (le_trans (by positivity) ht)]
+      unfold Erec; rw [ite_eq_left ha, abs_of_nonneg (le_trans (by positivity) ht)]
     rw [he] at hb
     exact hb.trans_eq (abs_of_pos (mul_pos (kappaBal_pos a) (pcU_pos_beyond a t hmax)))
   have hut_ub : ∀ t, 0 ≤ t → ut pcU a t ≤ CPC * Ewell a t * Mbal a t := fun t ht => by
@@ -507,7 +507,7 @@ private lemma fifteen_p32_gt_s {a s : ℝ} (ha : a ≤ 0) (hs : max (z2Airy a) 1
             rw [Real.sqrt_eq_rpow, ← Real.rpow_one_add' (by norm_num : (0 : ℝ) ≤ 2) (by norm_num)]; norm_num]
       have hpos_2a : 0 < 2 * Real.sqrt 2 * Real.sqrt (-a) := by positivity
       linarith
-    · push_neg at hs2
+    · push Not at hs2
       have hsq : s ^ 2 / 8 ≤ s ^ 2 / 4 + a := by
         have h8a : 8 * (-a) = (2 * Real.sqrt 2 * Real.sqrt (-a)) ^ 2 := by
           rw [mul_pow, mul_pow, Real.sq_sqrt (by norm_num), Real.sq_sqrt (by linarith)]; ring
@@ -535,7 +535,7 @@ private lemma fifteen_p32_gt_s {a s : ℝ} (ha : a ≤ 0) (hs : max (z2Airy a) 1
         rw [mul_div_assoc', lt_div_iff₀ (by positivity)]
         linarith
       nlinarith
-  · push_neg at ha4
+  · push Not at ha4
     have hs10 : 10 ≤ s := le_trans (le_max_right _ _) hs
     have hsq : s ^ 2 / 8 ≤ s ^ 2 / 4 + a := by nlinarith
     have hsp : (s ^ 2 / 8) ^ ((3 : ℝ) / 2) ≤ (s ^ 2 / 4 + a) ^ ((3 : ℝ) / 2) :=
@@ -648,14 +648,14 @@ private lemma actionWell_base_le_50 {a : ℝ} (ha : a ≤ 0) :
         rw [intervalIntegral.integral_const, smul_eq_mul] at hm'
         exact hm'
       nlinarith [show 0 ≤ z₀ by positivity]
-  · push_neg at ha4
+  · push Not at ha4
     have hza_10 : z2Airy a ≤ 10 := by
       unfold z2Airy
       have h1 : -a < 4 := by linarith
       have h13 : (-a) ^ ((1 : ℝ) / 3) ≤ 4 := by
         by_cases ha0 : -a ≤ 1
         · exact (Real.rpow_le_one (by linarith) ha0 (by norm_num)).trans (by norm_num)
-        · push_neg at ha0
+        · push Not at ha0
           calc (-a) ^ ((1 : ℝ) / 3) ≤ (-a) ^ (1 : ℝ) := Real.rpow_le_rpow_of_exponent_le ha0.le (by norm_num)
             _ = -a := Real.rpow_one _
             _ ≤ 4 := by linarith
@@ -691,7 +691,7 @@ private lemma pcV_far_propagate {a z₁ z s₀ : ℝ} (ha : a ≤ 0) (hz₁ : ma
   let f : ℝ → ℝ := fun t => r t - (1 / 4 : ℝ) * Real.sqrt (t ^ 2 / 4 + a)
   let Aset : Set ℝ := {t ∈ Icc s₀ z | 0 ≤ f t}
   by_contra hbad
-  push_neg at hbad
+  push Not at hbad
   have hf_cont : ContinuousOn f (Icc s₀ z) := by
     refine ContinuousOn.sub (fun t ht => (hr_deriv t ⟨hs₀.1.trans ht.1, ht.2⟩).continuousAt.continuousWithinAt) ?_
     exact (continuous_const.mul (Real.continuous_sqrt.comp (by fun_prop))).continuousOn
@@ -761,7 +761,7 @@ private lemma pcV_far_propagate {a z₁ z s₀ : ℝ} (ha : a ≤ 0) (hz₁ : ma
       exact (hr_deriv t htz).sub hsq_d
     rw [hfd.deriv]
     have hft_neg : f t < 0 := by
-      by_contra hnn; push_neg at hnn
+      by_contra hnn; push Not at hnn
       have htm : t ∈ Aset := ⟨⟨hs₁_mem.1.1.trans ht.1.le, ht.2.le.trans hs₂_le⟩, hnn⟩
       exact absurd (le_csSup hA_bdd htm) (not_le.mpr ht.1)
     have hdist : dist (r t) (r s₁) < r s₁ / 2 := by
@@ -924,7 +924,7 @@ theorem pcV_far_pos_and_growth : ∃ cV SV : ℝ, 0 < cV ∧ 0 < SV ∧
   -- Existence of `s₀ ∈ [z₁, z]` with `r s₀ ≥ (1/4) √(s₀^2/4 + a)`
   have hex : ∃ s₀ ∈ Icc z₁ z, (1 / 4 : ℝ) * Real.sqrt (s₀ ^ 2 / 4 + a) ≤ r s₀ := by
     by_contra hno
-    push_neg at hno
+    push Not at hno
     have hderiv_log : ∀ t ∈ Icc z₁ z,
         HasDerivAt (fun s => Real.log (vt pcV a s)) (r t) t := fun t ht => by
       exact ((diff_vt_at' a t).hasDerivAt).log (hvt_pos_on t ht).ne'
@@ -1111,7 +1111,7 @@ theorem pcU_neg_pos_and_growth : ∃ cU : ℝ, 0 < cU ∧
     by_contra hbad
     have hg_all : ∀ t ∈ Icc 0 w, 0 < g t := by
       by_contra hnot
-      push_neg at hnot
+      push Not at hnot
       let Z : Set ℝ := {t ∈ Icc 0 w | g t ≤ 0}
       have hZc : IsClosed Z := ((Continuous.comp (continuous_iff_continuousAt.mpr fun t =>
         (hasDerivAt_pcU a t).continuousAt) continuous_neg).continuousOn).preimage_isClosed_of_isClosed
@@ -1121,7 +1121,7 @@ theorem pcU_neg_pos_and_growth : ∃ cU : ℝ, 0 < cU ∧
       have hs₁_pos : 0 < s₁ := lt_of_le_of_ne hs₁_mem.1.1 fun h0 => by
         have := hs₁_mem.2; rw [← h0] at this; linarith
       have hg_lt : ∀ t ∈ Ioo 0 s₁, 0 < g t := fun t ht => by
-        by_contra hle; push_neg at hle
+        by_contra hle; push Not at hle
         have := hs₁_le t ⟨⟨ht.1.le, ht.2.le.trans hs₁_mem.1.2⟩, hle⟩; linarith [ht.2]
       have hgp_mono : MonotoneOn g' (Icc 0 s₁) := by
         apply monotoneOn_of_hasDerivWithinAt_nonneg (convex_Icc 0 s₁)
@@ -1155,7 +1155,7 @@ theorem pcU_neg_pos_and_growth : ∃ cU : ℝ, 0 < cU ∧
       rw [deriv_pcU, abs_of_nonpos (pcUD_nonpos_beyond hmax0)] at hder
       simpa [r, g, g'] using (div_le_iff₀ hg0).mpr (by simpa [g] using hder)
     by_contra hbad
-    push_neg at hbad
+    push Not at hbad
     have hrz : 4 * Real.sqrt (k2 a z) < r z := (lt_div_iff₀ hgz_pos).mpr hbad
     have hz_pos : 0 < z := lt_of_le_of_ne hz fun h0 => by rw [← h0] at hrz; linarith
     have hk_cont : ContinuousOn (fun w => 4 * Real.sqrt (k2 a w)) (Icc 0 z) := by
@@ -1193,7 +1193,7 @@ theorem pcU_neg_pos_and_growth : ∃ cU : ℝ, 0 < cU ∧
         (fun t ht => (hr_d t (Ioo_subset_Icc_self (by simpa [interior_Icc] using ht))).hasDerivWithinAt)
       · intro t ht; rw [interior_Icc] at ht
         have hgt_lt : 4 * Real.sqrt (k2 a t) < r t := by
-          by_contra hle; push_neg at hle
+          by_contra hle; push Not at hle
           have htB : t ∈ B := ⟨⟨hs₁_mem.1.1.trans ht.1.le, ht.2.le⟩, hle⟩
           exact absurd (le_csSup ⟨z, fun _ (h : _ ∈ B) => h.1.2⟩ htB) (not_le.mpr ht.1)
         have hk_ge : t ^ 2 / 4 + a ≤ k2 a t := by
@@ -1218,7 +1218,7 @@ theorem pcU_neg_pos_and_growth : ∃ cU : ℝ, 0 < cU ∧
     have hdr : deriv (pcU a) (-z) = -g' z := by dsimp [g']; rw [deriv_pcU]; ring
     unfold Molv
     dsimp only
-    rw [if_pos (Or.inr ha), k2_neg a z, hdr, neg_sq]
+    rw [ite_eq_left (Or.inr ha), k2_neg a z, hdr, neg_sq]
   have hk_pos : 0 < k2 a z := k2_pos a z
   have hg_sq : (pcU a (-z)) ^ 2 + g' z ^ 2 / k2 a z ≤ 17 * (pcU a (-z)) ^ 2 := by
     have h1 : g' z ^ 2 ≤ 16 * k2 a z * (pcU a (-z)) ^ 2 := by

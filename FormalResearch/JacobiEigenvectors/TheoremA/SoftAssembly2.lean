@@ -88,7 +88,7 @@ theorem aOf_le_of_step0 (Cs0 : ℝ) :
           _ ≤ |Cs0| * Fz.step N ^ 2 := mul_le_mul_of_nonneg_right (le_abs_self _) (sq_nonneg _)
       have h3 : cL * |Fz.bandHi p - X| ≤ cL * (|Cs0| * Fz.step N ^ 2) := mul_le_mul_of_nonneg_left h2 hcL
       linarith
-    · push_neg at hneg
+    · push Not at hneg
       have hS := C.mu0_S0 p hp X (by linarith) (abs_le.mp hα).2
       have hint : 0 ≤ ∫ u in (0 : ℝ)..Fz.L, Real.arccos ((X - Fz.B 0 p u) / (2 * Real.sqrt (E0 Fz.L (Fz.G 0 p) u))) :=
         intervalIntegral.integral_nonneg Fz.L_pos.le (fun u _ => Real.arccos_nonneg _)
@@ -187,7 +187,7 @@ theorem bondA_pos_all (hM : SoftMirror CL CR) {p : Par × ℝ} (hp : p ∈ P) {X
   obtain ⟨hNR, hXR⟩ := mirror_ctx hM hp hX hN
   by_cases hl : n < (CL.chain p X N).NR
   · exact bondA_pos_chain hp hX hN hh hn0 hl
-  · push_neg at hl
+  · push Not at hl
     have hmir := bondA_mirror Fz p N ((N : ℤ) - 1 - n)
     have e : (N : ℤ) - 1 - ((N : ℤ) - 1 - n) = n := by ring
     rw [e] at hmir
@@ -195,7 +195,7 @@ theorem bondA_pos_all (hM : SoftMirror CL CR) {p : Par × ℝ} (hp : p ∈ P) {X
     have hstepR : (mirrorFamily Fz).step N = Fz.step N := rfl
     have hlt : (N : ℤ) - 1 - n < (CR.chain p X N).NR := by
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       have hh0 : 0 < Fz.step N := SoftEdgeChart.step_pos (F := Fz) N
       obtain ⟨-, hη, -⟩ := CL.consts_pos
       obtain ⟨-, -, -, -, -, -, hNRu, hNRv⟩ := CL.shape p hp X hX N hN

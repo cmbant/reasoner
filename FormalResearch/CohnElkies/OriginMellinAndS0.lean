@@ -493,7 +493,7 @@ theorem positive_source_S0_floor :
       mul_ne_zero (ceS0_pos a1 a1' ha1 ha1' 0).ne' (Real.exp_pos _).ne'
     unfold airyTwistedLaplace
     exact mul_pos (mul_pos ceK_pos (Real.exp_pos _))
-      (integral_pos_of_integrable_nonneg_nonzero hcont hint hnn hnz)
+      (MeasureTheory.integral_pos_of_integrable_nonneg_ne_zero hcont hint hnn hnz)
   refine ⟨htend, hpos, ?_⟩
   set L : ℝ := 2 * ceK * ceCs ^ (-(5 / 2 : ℝ)) / √π
   have hL_pos : 0 < L := div_pos (mul_pos (mul_pos two_pos ceK_pos) (Real.rpow_pos_of_pos ceCs_pos _))

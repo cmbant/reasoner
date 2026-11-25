@@ -61,7 +61,7 @@ theorem card_levels_le (h : LevelData τ0 X y0 m M K ε t S) {a b : ℝ} (hab : 
   have hsl := h.cal.real_slope_le hwa hwb hab
   have hinj : Set.InjOn (fun x => ⌊t x⌋) (↑(S.filter fun x => x ∈ Icc a b) : Set ℝ) := by
     intro x hx y hy hxy
-    simp only [Finset.coe_filter, Set.mem_setOf_eq] at hx hy
+    simp only [Finset.coe_filter, Set.mem_ofPred_eq] at hx hy
     obtain ⟨hxS, _⟩ := hx
     obtain ⟨hyS, _⟩ := hy
     obtain ⟨hx1, n, hn⟩ := (h.mem x).mp hxS
@@ -187,7 +187,7 @@ lemma J_subset (h : CalPhase τ0 X y0 m M K) (hε : 0 ≤ ε) {a : ℝ} (ha : -(
     calc _ ≤ volume (Icc (s0 - 2 * ε / m) (s0 + 2 * ε / m)) := measure_mono hsub
       _ = ENNReal.ofReal (4 * ε / m) := by
         rw [Real.volume_Icc]; congr 1; ring
-  · push_neg at hne
+  · push Not at hne
     have : {s : ℝ | s ∈ Icc a (a + 1) ∧ |realPhase τ0 s - n| ≤ ε} = ∅ := by
       ext s; simp only [mem_setOf_eq, mem_empty_iff_false, iff_false]
       intro ⟨h1, h2⟩; exact absurd h2 (not_le.mpr (hne s h1))

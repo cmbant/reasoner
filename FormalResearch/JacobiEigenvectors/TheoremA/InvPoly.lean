@@ -84,7 +84,7 @@ lemma PB.X_pow_mul (hI : I.Nonempty) {m N : ℕ} {C : ℝ} {p : ℝ → ℝ[X]} 
   by_cases hjn : j ≤ n
   · simp only [hjn, if_true]
     exact hp (n - j) (by omega)
-  · simp only [hjn, if_false]
+  · simp only [hjn, ite_false]
     exact (BD.const (I := I) m 0).mono_C (by simpa using h0)
 
 lemma PB.mul_exists (hI : I.Nonempty) (m N : ℕ) (C1 C2 : ℝ) :
@@ -147,7 +147,7 @@ lemma PB.Qp_exists (hI : I.Nonempty) (M m K0 N : ℕ) (C1 C2 : ℝ) :
     have h1 : PB I m C1 N (fun y => Polynomial.C (c j k y)) := PB.Cmul hI (hc j hjM k hkK hkj) N
     have h2 := hCp k _ (PB.Dp hI M m N C2 a ha)
     exact (hCm k _ _ h1 h2).mono_C (le_abs_self _)
-  · simp only [hkK, if_false]
+  · simp only [hkK, ite_false]
     exact (PB.const_zero hI m N).mono_C (abs_nonneg _)
 
 /-- info: 'FormalResearch.JacobiEigenvectors.TheoremA.InvBD.PB.Qp_exists' depends on axioms: [propext, Classical.choice, Quot.sound] -/

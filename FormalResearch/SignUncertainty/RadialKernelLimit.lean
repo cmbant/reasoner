@@ -165,7 +165,7 @@ theorem radialK_tendsto {ι : Type*} {l : Filter ι} {c s : ι → ℝ} {s₀ : 
       rw [hlog]; ring
     have := (Complex.continuous_exp.tendsto _).comp hlim
     refine (this.congr' ?_).trans ?_
-    · filter_upwards [hev] with i hi; simp [Function.comp_def, hi]
+    · filter_upwards [hev] with i hi; simp [hi]
     · simp [radialKlim]
   have := (h1.mul h2).mul h3
   simpa [radialK, mellinK0] using this

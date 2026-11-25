@@ -91,9 +91,9 @@ noncomputable def seedZR (ε : ℝ) (ζ : ℂ) : ℂ := seedA ε ζ * (ζ * sinc
 /-- The regularised factor `Z_ε = ζ²(1-ζ)² H_* / b^{[ε=1]}`. -/
 noncomputable def uctSeedZ (ε : ℝ) (ζ : ℂ) : ℂ := if ζ.re ≤ 1 / 2 then seedZL ε ζ else seedZR ε ζ
 
-lemma uctSeedZ_of_le {ε : ℝ} {z : ℂ} (h : z.re ≤ 1 / 2) : uctSeedZ ε z = seedZL ε z := if_pos h
+lemma uctSeedZ_of_le {ε : ℝ} {z : ℂ} (h : z.re ≤ 1 / 2) : uctSeedZ ε z = seedZL ε z := ite_eq_left h
 
-lemma uctSeedZ_of_gt {ε : ℝ} {z : ℂ} (h : 1 / 2 < z.re) : uctSeedZ ε z = seedZR ε z := if_neg (not_le.mpr h)
+lemma uctSeedZ_of_gt {ε : ℝ} {z : ℂ} (h : 1 / 2 < z.re) : uctSeedZ ε z = seedZR ε z := ite_eq_right (not_le.mpr h)
 
 lemma sin_pi_one_sub (ζ : ℂ) : Complex.sin (π * (1 - ζ)) = Complex.sin (π * ζ) := by
   rw [show (π : ℂ) * (1 - ζ) = π - π * ζ by ring, Complex.sin_pi_sub]
@@ -236,7 +236,7 @@ theorem uctSeedZ_oneSub {ε : ℝ} (hε : ε = 1 ∨ ε = -1) (ζ : ℂ) : uctSe
     rcases hε with h | h
     · simp [h]
     · have : ε ≠ 1 := by rw [h]; norm_num
-      rw [if_neg this, h]; simp
+      rw [ite_eq_right this, h]; simp
   have e : ∀ x : ℂ, (if ε = 1 then (1 : ℂ) else -1) * x = ε * x := fun x => by rw [hsign]
   rcases lt_trichotomy ζ.re (1 / 2) with h | h | h
   · have h1 : 1 / 2 < (1 - ζ).re := by simp; linarith
@@ -269,7 +269,7 @@ theorem uctSeedZ_conj (ε : ℝ) (ζ : ℂ) : uctSeedZ ε (starRingEnd ℂ ζ) =
   have hR : seedZR ε (starRingEnd ℂ ζ) = starRingEnd ℂ (seedZR ε ζ) := by
     unfold seedZR
     rw [hA, hs2]
-    simp [map_mul, map_pow, map_sub]
+    simp [map_mul, map_pow]
   by_cases hr : ζ.re ≤ 1 / 2
   · rw [uctSeedZ_of_le (by simpa using hr), uctSeedZ_of_le hr, hL]
   · rw [uctSeedZ_of_gt (by simpa using not_le.mp hr), uctSeedZ_of_gt (not_le.mp hr), hR]

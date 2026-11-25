@@ -185,7 +185,7 @@ theorem gamma_mul_two_pi_t_cpow_neg {c' : ℝ} (hc' : 0 < c') {ω b : ℂ}
     _ = -(1 / 2 : ℂ) * (↑(Real.log (c' / 3)) + 2 * Complex.log b) +
           (c' : ℂ) * (ω * (↑(Real.log (3 / (2 * Real.pi)) - 1) + Complex.log ω - 2 * Complex.log b)) +
           ((c' : ℂ) * ω * Complex.log (1 + 1 / (2 * (c' : ℂ) * ω)) - 1 / 2 + Asymptotics.binetRem z) := by
-        rw [hlog_id]; dsimp [h]; ring
+        rw [hlog_id]; dsimp [h]; ring_nf
 
 /-! ### Section 2: Uniform bounds on `S_{c'}(ω)` and its `ω`-derivative -/
 

@@ -369,17 +369,17 @@ lemma U_bound {K n : ℕ} (hK : k0 ≤ K) (hn : K < n) :
     have hrp : 1 ≤ hh k ^ (6 / 5 : ℝ) := Real.one_le_rpow (hh1 k hk) (by norm_num)
     by_cases hkk : k < k0
     · have := h.near_factor (k := k) (n := n) (by omega) (by omega)
-      simp only [hc, if_pos hkk]
+      simp only [hc, ite_eq_left hkk]
       nlinarith [h.Bk_ge_one (k := k) (by omega)]
     · push Not at hkk
       by_cases hnk : n < k + 8
       · have := h.near_factor (k := k) (n := n) (by omega) (by omega)
         have h18 := h.Bk_le hkk
-        simp only [hc, if_neg (not_lt.mpr hkk), if_pos hnk]
+        simp only [hc, ite_eq_right (not_lt.mpr hkk), ite_eq_left hnk]
         nlinarith
       · push Not at hnk
         have := h.far_factor hkk hnk
-        simp only [hc, if_neg (not_lt.mpr hkk), if_neg (not_lt.mpr hnk)]
+        simp only [hc, ite_eq_right (not_lt.mpr hkk), ite_eq_right (not_lt.mpr hnk)]
         simpa [hhh] using this
   have hprod : ∏ k ∈ Finset.Ioc 2 K, ((q n - q k) / (q n - p k)) ^ 2 ≤
       (∏ k ∈ Finset.Ioc 2 K, c k) * ∏ k ∈ Finset.Ioc 2 K, hh k ^ (6 / 5 : ℝ) := by
@@ -394,7 +394,7 @@ lemma U_bound {K n : ℕ} (hK : k0 ≤ K) (hn : K < n) :
     have e1 : ∏ k ∈ Finset.Ioc 2 (k0 - 1), c k = ∏ k ∈ Finset.Ioc 2 (k0 - 1), Bk p q k := by
       refine Finset.prod_congr rfl (fun k hk => ?_)
       have := (Finset.mem_Ioc.mp hk).2
-      simp only [hc]; rw [if_pos (by omega)]
+      simp only [hc]; rw [ite_eq_left (by omega)]
     have hB : 0 ≤ ∏ k ∈ Finset.Ioc 2 (k0 - 1), Bk p q k :=
       Finset.prod_nonneg (fun k hk => by
         have := Finset.mem_Ioc.mp hk
@@ -405,7 +405,7 @@ lemma U_bound {K n : ℕ} (hK : k0 ≤ K) (hn : K < n) :
         ∏ k ∈ Finset.Ioc (k0 - 1) K, (if n < k + 8 then (18 : ℝ) else 1) := by
       refine Finset.prod_congr rfl (fun k hk => ?_)
       have := (Finset.mem_Ioc.mp hk).1
-      simp only [hc]; rw [if_neg (by omega)]
+      simp only [hc]; rw [ite_eq_right (by omega)]
     rw [e2, Finset.prod_ite, Finset.prod_const, Finset.prod_const_one, mul_one]
     refine pow_le_pow_right₀ (by norm_num) ?_
     calc ((Finset.Ioc (k0 - 1) K).filter (fun k => n < k + 8)).card
@@ -528,7 +528,7 @@ noncomputable def absConst (p q : ℕ → ℝ) (k0 : ℕ) : ℝ :=
         (p (k0 - 1) - q 2) ^ (11 / 20 : ℝ))⁻¹ ^ 2 *
     (3 ^ (11 / 10 : ℝ) * 0.7 ^ (-(6 / 5) : ℝ))
 
-lemma V_pos {K : ℕ} (hK : 2 ≤ K) : 0 < ∏ k ∈ Finset.Ioc 2 K, (q k - q 2) / (p k - q 2) := by
+lemma V_pos {K : ℕ} (_hK : 2 ≤ K) : 0 < ∏ k ∈ Finset.Ioc 2 K, (q k - q 2) / (p k - q 2) := by
   refine Finset.prod_pos (fun k hk => ?_)
   have hk' := Finset.mem_Ioc.mp hk
   have h1 := h.q_gt_p (k := 2) (n := k) (by norm_num) (by omega)

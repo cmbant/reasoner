@@ -36,7 +36,7 @@ variable {Par : Type*} {F : SymbolFamily Par} {μ : Par} {N : ℕ}
 lemma extV_pZ (X : ℝ) (n : ℤ) (h0 : 0 ≤ n) (hn : n ≤ (N : ℤ)) :
     extV (N := N) (fun i : Fin (N + 1) => pZ F μ N X (i.val : ℤ)) n = pZ F μ N X n := by
   unfold extV
-  rw [dif_pos ⟨h0, hn⟩]
+  rw [dite_eq_left ⟨h0, hn⟩]
   congr 1
 
 /-- At a zero of `casD`, `(p_i(X))_{i<=N}` is an eigenvector of `J` with eigenvalue `X`. -/
@@ -101,7 +101,7 @@ theorem casD_zero_exists_eig (hpos : ∀ n : ℤ, 0 ≤ n → n < (N : ℤ) → 
     rw [← h2, h1, hc, Matrix.mulVec_smul]
   obtain ⟨i, hi⟩ : ∃ i, c i ≠ 0 := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     exact hc0 (funext hcon)
   refine ⟨i, ?_⟩
   have := congrFun hD i
@@ -119,7 +119,7 @@ theorem casD_eig_zero (hpos : ∀ n : ℤ, 0 ≤ n → n < (N : ℤ) → 0 < F.b
   have hw0 : 0 < eigVec Um k 0 := by
     have := hE.pos k
     simp only [eigVec]
-    rw [dif_pos ⟨le_rfl, by positivity⟩]
+    rw [dite_eq_left ⟨le_rfl, by positivity⟩]
     exact this
   have hlast := green_cas_last (F.bondA μ N) (F.entryB μ N) X (N : ℤ) (by exact_mod_cast hN) hAN (pZ F μ N X) (qZ F μ N X)
     (fun i hi => Lop_pZ hpos hN X i (mem_Icc.1 hi).1 (mem_Icc.1 hi).2)

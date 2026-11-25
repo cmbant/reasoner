@@ -279,7 +279,7 @@ lemma at47_F_pos_decay {F : ℂ → ℂ} {C ν : ℝ} (hC : 0 ≤ C)
 exists by `at47_top_zeros_min`; `S` is a finite set, not an ordered enumeration. -/
 theorem at47_existence {P Q : ℝ[X]} (hHB : AiryPQHB P Q) (hQ : Q ≠ 0) (S : Finset ℝ)
     (hcard : S.card = at47_m P Q) (hSz : ∀ t ∈ S, airyPQN P Q (t : ℂ) = 0)
-    {tm : ℝ} (htm : tm ∈ S) (hmin : ∀ t ∈ S, tm ≤ t) :
+    {tm : ℝ} (_htm : tm ∈ S) (hmin : ∀ t ∈ S, tm ≤ t) :
     ∃ F : ℂ → ℂ, Differentiable ℂ F ∧
       (∀ z, F z * at47_pr S z = (((-1 : ℝ) ^ S.card : ℝ) : ℂ) * airyPQN P Q z ^ 2) ∧
       Integrable (fun x : ℝ => F (x : ℂ)) ∧

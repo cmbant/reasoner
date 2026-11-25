@@ -1786,7 +1786,7 @@ theorem proposition_T_general (prob : FixedWeightProblem) (D : UniformPropositio
           exact indicator_of_mem hmem _
         exact tendsto_const_nhds.congr' (hev.mono fun _ h => h.symm)
       have hmeas : ∀ n : ℕ, Measurable (g n) := fun n =>
-        hcont.enorm.measurable.indicator measurableSet_Ioc
+        hcont.eNorm.measurable.indicator measurableSet_Ioc
       have hl := lintegral_tendsto_of_tendsto_of_monotone (μ := volume)
         (fun n => (hmeas n).aemeasurable)
         (ae_of_all volume fun s _ _ hmn => hmono hmn s) (ae_of_all volume hlim)

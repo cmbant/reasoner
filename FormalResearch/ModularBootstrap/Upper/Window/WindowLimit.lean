@@ -566,12 +566,12 @@ theorem tendsto_windowFiniteProd_uniform (f N : ℕ) (_hf : 1 ≤ f) (hN : f ≤
                 unfold phiWKB; exact Real.rpow_nonneg (by linarith [hk1]) _
               have := abs_sub_abs_le_abs_sub (σSeq k) (phiWKB k)
               rw [abs_of_nonneg hphi_nn] at this
-              nlinarith
+              nlinarith only [this, hs, hkr43, hC_t]
             exact (abs_sub _ _).trans (by linarith)
           have hs2 : (σ - σSeq k) ^ 2 ≤ (S + phiWKB k + C_t) ^ 2 := by
             simpa [sq_abs] using pow_le_pow_left₀ (abs_nonneg _) hσk_abs 2
           have he2 : (εHat k) ^ 2 ≤ C_t ^ 2 := by
-            have he' : |εHat k| ≤ C_t := by nlinarith
+            have he' : |εHat k| ≤ C_t := by nlinarith only [he, hkr13, hC_t]
             simpa [sq_abs] using pow_le_pow_left₀ (abs_nonneg _) he' 2
           linarith
         have hnn_p : 0 ≤ ∏ k ∈ Finset.Icc (N + 1) K_min, ((σ - σSeq k) ^ 2 + (εHat k) ^ 2) :=
@@ -595,7 +595,7 @@ theorem tendsto_windowFiniteProd_uniform (f N : ℕ) (_hf : 1 ≤ f) (hN : f ≤
             rw [← Real.exp_nat_mul]; norm_num
           have hlt4 : Real.exp (1 / 2 : ℝ) ^ 2 < 2 ^ 2 := by
             rw [hs]; exact Real.exp_one_lt_d9.trans (by norm_num)
-          nlinarith [Real.exp_pos (1 / 2 : ℝ)]
+          nlinarith only [hlt4, Real.exp_pos (1 / 2 : ℝ)]
         exact h2.trans hexp_half
       rw [abs_of_pos (Real.exp_pos _)]
       calc |windowFiniteProd f σf σSeq εHat K_min σ| * _
@@ -1346,7 +1346,7 @@ private lemma blaschkeT_window_factor_bound {M₀ : ℝ} (hM₀ : 0 ≤ M₀) :
   have hp3 : |s - sLim| ≤ ε / 4 := by
     refine hs_lim.trans ?_
     rw [div_le_div_iff₀ (by positivity) (by norm_num)]
-    nlinarith [hε]
+    nlinarith only [hε, hM₀]
   calc |((π * lam / 2)⁻¹ * Real.tanh z₁ - (σ - s)) * (Real.sqrt 2 * Real.tanh z₂) +
         (σ - s) * (Real.sqrt 2 * Real.tanh z₂ - 1) - (s - sLim)|
       ≤ |((π * lam / 2)⁻¹ * Real.tanh z₁ - (σ - s)) * (Real.sqrt 2 * Real.tanh z₂) +
@@ -1451,7 +1451,7 @@ private lemma blaschkePairQ_inner_factor_bound {α M₀ R σ s e : ℝ}
       have h2 : 12 * u1 ^ 4 + 2 * v1 ^ 4 ≤ 14 * R ^ 2 * (u1 ^ 2 + v1 ^ 2) := by
         have hu_le : u1 ^ 2 ≤ R ^ 2 := by simpa [sq_abs] using pow_le_pow_left₀ (abs_nonneg _) hu1_bd 2
         have hv_le : v1 ^ 2 ≤ R ^ 2 := pow_le_pow_left₀ hv1_nn hv1_bd 2
-        nlinarith [sq_nonneg u1, sq_nonneg v1]
+        nlinarith only [sq_nonneg u1, sq_nonneg v1, hu_le, hv_le]
       rw [abs_mul, abs_of_pos (by positivity : 0 < α ^ (-2 : ℤ))]
       calc α ^ (-2 : ℤ) * |A - B| ≤ α ^ (-2 : ℤ) * (14 * R ^ 2 * (u1 ^ 2 + v1 ^ 2)) :=
             mul_le_mul_of_nonneg_left (h1.trans h2) (by positivity)
@@ -1472,7 +1472,7 @@ private lemma blaschkePairQ_inner_factor_bound {α M₀ R σ s e : ℝ}
         have : |σ - s| ≤ 2 * M₀ := (abs_sub σ s).trans (by linarith)
         simpa [sq_abs] using pow_le_pow_left₀ (abs_nonneg _) this 2
       have he_sq : e ^ 2 ≤ M₀ ^ 2 := pow_le_pow_left₀ he0 heM 2
-      nlinarith [sq_nonneg M₀]
+      nlinarith only [hσs, he_sq]
     calc _ ≤ |α ^ (-2 : ℤ) * (A - B)| + |((σ - s) ^ 2 + e ^ 2) * (1 - D)| := abs_add_le _ _
       _ ≤ 14 * R ^ 2 * ((σ - s) ^ 2 + e ^ 2) + 13 * R ^ 2 * ((σ - s) ^ 2 + e ^ 2) := add_le_add hAB hBD
       _ = 27 * R ^ 2 * ((σ - s) ^ 2 + e ^ 2) := by ring
@@ -1582,7 +1582,7 @@ private lemma blaschkePairQ_window_factor_bound {M₀ : ℝ} (hM₀ : 0 ≤ M₀
     · rw [show u2 - π * xiStar = α * (σ + s) by dsimp [u2]; ring, abs_mul, abs_of_pos hα_pos]
       have hss : |σ + s| ≤ 2 * M₀ + 1 := (abs_add_le σ s).trans (by linarith)
       have h1 : α * |σ + s| ≤ π * lam * (2 * M₀ + 1) := by
-        dsimp [α]; nlinarith [Real.pi_pos, hss, abs_nonneg (σ + s)]
+        dsimp [α]; nlinarith only [mul_pos Real.pi_pos hlam_pos, hss, abs_nonneg (σ + s)]
       exact h1.trans_lt (hlam_lt.trans_le (min_le_right _ _))
     · rw [sub_zero, abs_of_nonneg hv1_nn]
       exact hv1_bd.trans_lt (hlam_lt.trans_le (min_le_right _ _))
@@ -1598,7 +1598,7 @@ private lemma blaschkePairQ_window_factor_bound {M₀ : ℝ} (hM₀ : 0 ≤ M₀
     rw [zpow_neg, zpow_neg, zpow_two, zpow_two]
     have hs2 : Real.sqrt 2 ^ 2 = 2 := Real.sq_sqrt (by norm_num)
     field_simp [Real.pi_ne_zero, hlam_pos.ne']
-    nlinarith [hs2]
+    nlinarith only [hs2]
   have hmul_eq : (π * lam / (2 * Real.sqrt 2)) ^ (-2 : ℤ) *
       blaschkePairQ (xiStar + lam * s) (lam * e) (xiStar + lam * σ) =
       (α ^ (-2 : ℤ) * pairRatioG2 u1 v1) * (2 * pairRatioG2 u2 v1) := by
@@ -1615,7 +1615,7 @@ private lemma blaschkePairQ_window_factor_bound {M₀ : ℝ} (hM₀ : 0 ≤ M₀
       have : |σ - s| ≤ 2 * M₀ := (abs_sub σ s).trans (by linarith)
       simpa [sq_abs] using pow_le_pow_left₀ (abs_nonneg _) this 2
     have he_sq : e ^ 2 ≤ M₀ ^ 2 := pow_le_pow_left₀ he0 heM 2
-    nlinarith [sq_nonneg M₀]
+    nlinarith only [hσs, he_sq]
   have hp1 : |(α ^ (-2 : ℤ) * pairRatioG2 u1 v1 - ((σ - s) ^ 2 + e ^ 2)) * (2 * pairRatioG2 u2 v1)| ≤ ε / 4 := by
     rw [abs_mul]
     calc _ ≤ (ε / 8) * 2 := mul_le_mul hg1_err hg2_bd (abs_nonneg _) (by positivity)
@@ -2315,7 +2315,7 @@ private lemma integral_phiVar_sub_continuumFQ {N₁ K₀ : ℕ} {S : ℝ}
   have hx_nn : 0 ≤ x := by
     have := (abs_le.mp hσ_abs).1
     have : lam * M₀ ≤ xiStar / 2 := by nlinarith
-    dsimp [x]; nlinarith [xiStar_pos]
+    dsimp [x]; nlinarith only [xiStar_pos, hlam_pos, (abs_le.mp hσ_abs).1, this]
   set Sa0 : ℝ := siteRadius c' a₀ / lam
   have hSa0_diff : |Sa0 - A| ≤ (2 * c1K0 / 3) * A ^ 2 * lam := by
     have hsr := siteRadius_asymptotic hc'_pos ha0_gt.le

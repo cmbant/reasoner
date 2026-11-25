@@ -97,8 +97,8 @@ lemma K3 : Complex.exp (Complex.I * (π / 3 : ℝ)) * al = -(kap : ℂ) := by
   rw [exp_pi_three, kap_eq]
   have h3 : (√3 : ℝ) ^ 2 = 3 := Real.sq_sqrt (by norm_num)
   apply Complex.ext
-  · simp [al, Complex.mul_re, Complex.mul_im]; nlinarith [h3, rr_pos]
-  · simp [al, Complex.mul_re, Complex.mul_im]; ring
+  · simp [al, Complex.mul_re]; nlinarith [h3, rr_pos]
+  · simp [al, Complex.mul_im]; ring
 
 /-- The integrand of `(ct:airy-id1)` along the ray, as a function of `t`. -/
 noncomputable def ray1 (u t : ℝ) : ℂ :=

@@ -79,7 +79,7 @@ lemma profile_eq_tilde {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (hf : IsH
   rw [integral_radialA_eq hc hf hε hξ, Complex.ofReal_re]
   unfold hankelWindowProfile radialXr
   dsimp only
-  rw [hΔ, if_pos (mul_pos hc0 hξ)]
+  rw [hΔ, ite_eq_left (mul_pos hc0 hξ)]
   ring
 
 lemma window_xi_pos {c R u : ℝ} (hc : 0 < c) (hu : |u| ≤ R)

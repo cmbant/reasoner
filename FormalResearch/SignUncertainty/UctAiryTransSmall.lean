@@ -748,7 +748,7 @@ lemma local_variation_right {F : ℂ → ℂ} (hF : DifferentiableOn ℂ F {w : 
 lemma local_variation {F : ℂ → ℂ} (hF : DifferentiableOn ℂ F Complex.slitPlane) {x B : ℝ} (hx : 0 < x)
     (hB : ∀ w : ℂ, x / 2 ≤ w.re → ‖w - (x : ℂ)‖ ≤ x / 2 → ‖F w‖ ≤ B) :
     ∀ y : ℝ, |y| ≤ x / 4 → ‖F ((x : ℂ) + (y : ℂ) * Complex.I) - F (x : ℂ)‖ ≤ 4 * B / x * |y| :=
-  local_variation_right (hF.mono fun w hw => Or.inl hw) hx hB
+  local_variation_right (hF.mono fun _w hw => Or.inl hw) hx hB
 
 
 lemma uctGd_eq_Fd (δ : ℝ) (w : ℂ) : uctGd δ w = uctFd δ w + (δ : ℂ) * (ceK : ℂ) := by
@@ -878,7 +878,7 @@ theorem uct_airy_trans_vert : ∃ C : ℝ, 0 ≤ C ∧ ∀ δ : ℝ, 0 ≤ δ �
     have h1 : ‖uctFd δ w‖ ≤ Cg * x ^ (-(5 / 2) : ℝ) :=
       hglob'.trans (mul_le_mul_of_nonneg_left (Real.rpow_le_rpow_of_nonpos hx (by linarith) (by norm_num)) hCg)
     have hxp : 0 ≤ x ^ (-(5 / 2) : ℝ) := by positivity
-    have hind0 : Ind = 0 := by rw [hInd, if_neg]; intro h; linarith [h.1]
+    have hind0 : Ind = 0 := by rw [hInd, ite_eq_right]; intro h; linarith [h.1]
     calc ‖uctFd δ w‖ ≤ Cg * x ^ (-(5 / 2) : ℝ) := h1
       _ = (Cg / c₀) * (c₀ * x ^ (-(5 / 2) : ℝ)) := by field_simp
       _ ≤ (Cg / c₀) * Fm := mul_le_mul_of_nonneg_left hlow' (by positivity)
@@ -933,7 +933,7 @@ theorem uct_airy_trans_vert : ∃ C : ℝ, 0 ≤ C ∧ ∀ δ : ℝ, 0 ≤ δ �
     · by_cases hy1 : |y| ≤ 1
       · -- case B
         have hind : Ind = |y| ^ (1 / 2 : ℝ) := by
-          rw [hInd, if_pos ⟨hx1, hsub⟩]
+          rw [hInd, ite_eq_left ⟨hx1, hsub⟩]
           exact min_eq_left (Real.rpow_le_one (abs_nonneg _) hy1 (by norm_num))
         have hw3 : ‖w‖ ≤ 3 := by linarith
         have hG := hM δ hδ0 hδ1 w hw3
@@ -964,7 +964,7 @@ theorem uct_airy_trans_vert : ∃ C : ℝ, 0 ≤ C ∧ ∀ δ : ℝ, 0 ≤ δ �
       · -- case C
         have hy1' : 1 < |y| := not_le.mp hy1
         have hind : Ind = 1 := by
-          rw [hInd, if_pos ⟨hx1, hsub⟩]
+          rw [hInd, ite_eq_left ⟨hx1, hsub⟩]
           exact min_eq_right (Real.one_le_rpow hy1'.le (by norm_num))
         have h1 : ‖uctFd δ w‖ ≤ Cg := by
           refine hglob'.trans ?_
@@ -980,7 +980,7 @@ theorem uct_airy_trans_vert : ∃ C : ℝ, 0 ≤ C ∧ ∀ δ : ℝ, 0 ≤ δ �
           _ ≤ CC * Fm + CC * Ind := by have := mul_nonneg hCCnn hFm0; linarith
     · -- case A
       have hy2 : |y| ≤ x / 2 := not_lt.mp hsub
-      have hind : Ind = 0 := by rw [hInd, if_neg]; intro h; exact hsub h.2
+      have hind : Ind = 0 := by rw [hInd, ite_eq_right]; intro h; exact hsub h.2
       have hw3 : ‖w‖ ≤ 3 / 2 * x := by linarith
       have hG := hM δ hδ0 hδ1 w (by linarith)
       have hpow : ‖w‖ ^ (1 / 2 : ℝ) ≤ Real.sqrt (3 / 2) * x ^ (1 / 2 : ℝ) := by

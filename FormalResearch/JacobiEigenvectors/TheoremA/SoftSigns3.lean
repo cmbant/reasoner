@@ -511,7 +511,7 @@ theorem soft_sign_kappa (hM : SoftMirror CL CR) {cPC CPC : ℝ} (hf : ParabolicC
   -- the constant sign of `lambda_L lambda_R`
   have hset : {X : ℝ | |X - Fz.bandHi p| ≤ CL.δ0} = Set.Icc (Fz.bandHi p - CL.δ0) (Fz.bandHi p + CL.δ0) := by
     ext X
-    simp only [Set.mem_setOf_eq, Set.mem_Icc, abs_le]
+    simp only [Set.mem_ofPred_eq, Set.mem_Icc, abs_le]
     constructor <;> intro h <;> constructor <;> linarith [h.1, h.2]
   have hmem : ∀ X : ℝ, |X - Fz.bandHi p| ≤ CL.δ0 → X ∈ Set.Icc (Fz.bandHi p - CL.δ0) (Fz.bandHi p + CL.δ0) := by
     intro X hX

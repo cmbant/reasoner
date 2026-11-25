@@ -164,7 +164,7 @@ theorem local_cover_of_geom_strict {Par : Type*} [TopologicalSpace Par] (F : Sym
   obtain ⟨K', hK', t0, ht0, ht0_le, hsub⟩ := paramSet_nhd_of_prod (Filter.inter_mem hW1 hW2)
   refine ⟨K', hK', t0, Jlo, Jhi, ht0, ht0_le, hJlt, fun p hp => ?_⟩
   obtain ⟨h1, h2⟩ := hsub hp
-  rw [Set.mem_setOf_eq, abs_lt] at h1 h2
+  rw [Set.mem_ofPred_eq, abs_lt] at h1 h2
   rw [frozen_bandHi_eq F Kidx, frozen_bandLo_eq F Kidx]
   refine ⟨?_, hJlt, ?_, ?_, ?_⟩
   · dsimp [Jlo]; linarith [h2.2]
@@ -487,7 +487,7 @@ theorem local_bulk_cover_of_geom {Par : Type*} [TopologicalSpace Par]
             linarith
           exact ⟨νlast, (hlo_last.symm ▸ hright).le, hhi_last.symm ▸ hX.2,
             Or.inl (hlo_last.symm ▸ hright), Or.inr hhi_last⟩
-        · push_neg at hleft hright
+        · push Not at hleft hright
           let t : ℝ := (X - Jlo) / halfStep
           have ht_ge : 2 ≤ t := by
             dsimp [t]; rw [le_div_iff₀ hhalf_pos]; linarith
@@ -540,7 +540,7 @@ private lemma allowedSet_mirror {Par : Type*} (F : SymbolFamily Par) (μ : Par) 
     Icc 0 F.L ∩ {u | 0 ≤ Tfun F.L ((mirrorFamily F).G 0 μ) ((mirrorFamily F).B 0 μ) X u} =
       (fun u => F.L - u) '' (Icc 0 F.L ∩ {u | 0 ≤ Tfun F.L (F.G 0 μ) (F.B 0 μ) X u}) := by
   ext u
-  simp only [Set.mem_inter_iff, Set.mem_Icc, Set.mem_setOf_eq, Set.mem_image, mirrorFamily]
+  simp only [Set.mem_inter_iff, Set.mem_Icc, Set.mem_ofPred_eq, Set.mem_image, mirrorFamily]
   constructor
   · intro ⟨⟨hu0, huL⟩, hT⟩
     refine ⟨F.L - u, ⟨⟨by linarith, by linarith⟩, ?_⟩, by ring⟩

@@ -91,7 +91,7 @@ theorem integral_rpow_mul_hankelPhi {c : ℝ} (hc : 0 < c) {X : ℝ} (hX : 0 ≤
     have : c ≠ 0 := hc.ne'
     have : c + 1 ≠ 0 := by linarith
     field_simp
-    ring
+    ring_nf
   have hint : IntervalIntegrable g' volume 0 X :=
     ((intervalIntegrable_rpow_mul_hankelPhi hc c X).const_mul c).sub
       ((intervalIntegrable_rpow_mul_hankelPhi hc (c + 1) X).const_mul (c / 2))

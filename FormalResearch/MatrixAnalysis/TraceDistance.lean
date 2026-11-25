@@ -69,7 +69,7 @@ theorem distance_lower_bound {W ρ σ : Matrix n n ℂ} {L Λ g : ℝ} (_hL : 0 
       ext i j
       simp only [Matrix.sub_apply, Matrix.smul_apply, Matrix.add_apply, Matrix.one_apply,
         Complex.real_smul, smul_eq_mul]
-      split_ifs <;> (try rw [hc]) <;> push_cast <;> field_simp <;> ring
+      split_ifs <;> (rw [hc]) <;> push_cast <;> field_simp <;> ring
     rw [this]
     exact hhi.smul (by positivity)
   have h := trace_mul_ge hD hE

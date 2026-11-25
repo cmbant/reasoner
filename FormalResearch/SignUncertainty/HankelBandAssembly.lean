@@ -52,7 +52,7 @@ lemma hankelBandK_measurable {c : ℝ} (hc : 0 < c) :
   exact Complex.measurable_exp.comp (measurable_const.mul
     (measurable_const.sub (measurable_const.mul (Complex.measurable_ofReal.comp hP))))
 
-lemma norm_hankelBandK {c : ℝ} (hc : 0 < c) (τ ξ : ℝ) : ‖hankelBandK c τ ξ‖ = ‖hankelEdgeAmp c τ‖ := by
+lemma norm_hankelBandK {c : ℝ} (_hc : 0 < c) (τ ξ : ℝ) : ‖hankelBandK c τ ξ‖ = ‖hankelEdgeAmp c τ‖ := by
   unfold hankelBandK
   have : (c : ℂ) * (((0 : ℝ) : ℂ) - Complex.I * (hankelBandPhi τ ξ : ℂ)) =
       ((-(c * hankelBandPhi τ ξ) : ℝ) : ℂ) * Complex.I := by push_cast; ring
@@ -241,7 +241,7 @@ noncomputable def hankelBandInstance {c ε u_T R : ℝ} {f : ℝ → ℝ} (hc : 
     hPhi_deriv := fun ξ hξ τ hτ => by
       have hξ0 : 0 < ξ := hξ.1
       have h := hankelEdgePhi_hasDerivAt (Real.log (Real.pi ^ 2 * ξ)) hτ
-      have hμ : hankelBandMu ξ = Real.log (Real.pi ^ 2 * ξ) := by unfold hankelBandMu; rw [if_pos hξ0]
+      have hμ : hankelBandMu ξ = Real.log (Real.pi ^ 2 * ξ) := by unfold hankelBandMu; rw [ite_eq_left hξ0]
       exact h.congr_deriv (by rw [hμ]; ring)
     hm_0 := hankelEdgeM_zero
     hm_cont := hankelEdgeM_continuousOn

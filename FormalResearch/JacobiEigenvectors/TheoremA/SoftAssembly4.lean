@@ -236,9 +236,9 @@ theorem soft_row (hM : SoftMirror CL CR) {cPC CPC : ℝ} (hf : ParabolicCylinder
   have hε' : ε = Fz.step N ^ m * Lm (Fz.step N) := hεe
   unfold softNum softEnvNum
   by_cases hZ : CL.Zof p X N n ≤ 0
-  · rw [if_pos hZ]
+  · rw [ite_eq_left hZ]
     by_cases b1 : uNode (Fz.step N) n ≤ CL.uc p - CL.η / 2
-    · rw [if_pos b1]
+    · rw [ite_eq_left b1]
       obtain ⟨h1, h2⟩ := (FL n hn).1 b1
       have hE := softEnvWeb_nonneg CL p X N n
       refine ⟨?_, ?_⟩
@@ -246,7 +246,7 @@ theorem soft_row (hM : SoftMirror CL CR) {cPC CPC : ℝ} (hf : ParabolicCylinder
         refine h1.trans ?_
         exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hC1 hε) hE
       · exact h2.trans (mul_le_mul_of_nonneg_right hE1 hE)
-    · rw [if_neg b1, if_pos hZ]
+    · rw [ite_eq_right b1, ite_eq_left hZ]
       obtain ⟨h1, h2⟩ := (FL n hn).2 (not_le.mp b1) hZ
       have hmo := molv_nonneg hf (CL.aOf p X N) (-(CL.Zof p X N n))
       have hA : 0 ≤ |CL.lamL p X N| * Molv U V (CL.aOf p X N) (-(CL.Zof p X N n)) := mul_nonneg (abs_nonneg _) hmo
@@ -255,15 +255,15 @@ theorem soft_row (hM : SoftMirror CL CR) {cPC CPC : ℝ} (hf : ParabolicCylinder
         refine h1.trans ?_
         exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hC1 hε) hA
       · exact h2.trans (mul_le_mul_of_nonneg_right hE1 hA)
-  · rw [if_neg hZ]
-    push_neg at hZ
+  · rw [ite_eq_right hZ]
+    push Not at hZ
     have hn' := mem_Icc.mp hn
     have hnear : CL.uc p - CL.η / 4 < uNode (Fz.step N) n := by
       by_contra h
       have := Zof_nonpos_of_near CL hp hX hn (by linarith [not_lt.mp h])
       linarith
     have b1 : ¬ uNode (Fz.step N) n ≤ CL.uc p - CL.η / 2 := by intro h; linarith
-    rw [if_neg b1, if_neg (not_le.mpr hZ)]
+    rw [ite_eq_right b1, ite_eq_right (not_le.mpr hZ)]
     -- the mirror row
     have hstepR : (mirrorFamily Fz).step N = Fz.step N := rfl
     have hL := step_mul_succ Fz N
@@ -279,7 +279,7 @@ theorem soft_row (hM : SoftMirror CL CR) {cPC CPC : ℝ} (hf : ParabolicCylinder
     rw [hsr, hψ]
     have hamp : (0 : ℝ) ≤ 2 * CcR + 2 * Dk * KeR := by positivity
     by_cases b3 : uNode (Fz.step N) n < CL.uc p + CL.η / 2
-    · rw [if_pos b3]
+    · rw [ite_eq_left b3]
       have hc1 : CR.uc p - CR.η / 2 < uNode (Fz.step N) ((N : ℤ) - n) := by
         rw [hrefl, huc, hηe]; linarith
       have hc2 : CR.Zof p X N ((N : ℤ) - n) ≤ 0 := by rw [hZR]; linarith
@@ -302,7 +302,7 @@ theorem soft_row (hM : SoftMirror CL CR) {cPC CPC : ℝ} (hf : ParabolicCylinder
           _ ≤ |softKappa CL CR p X N| * (Cenv * (|CR.lamL p X N| * Molv U V (CL.aOf p X N) (CL.Zof p X N n))) :=
               mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hE2 hA) (abs_nonneg _)
           _ = _ := by ring
-    · rw [if_neg b3]
+    · rw [ite_eq_right b3]
       have hc1 : uNode (Fz.step N) ((N : ℤ) - n) ≤ CR.uc p - CR.η / 2 := by
         rw [hrefl, huc, hηe]; linarith [not_lt.mp b3]
       obtain ⟨h1, h2⟩ := (FR ((N : ℤ) - n) hkR).1 (by rw [hstepR]; exact hc1)

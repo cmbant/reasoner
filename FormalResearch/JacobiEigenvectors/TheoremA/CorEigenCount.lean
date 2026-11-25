@@ -45,7 +45,7 @@ lemma ncard_nominal_lt (n : ℕ) {w : ℝ} (hw : 0 < w) (T : ℝ) :
     Set.ncard {k : Fin n | w * ((k : ℕ) + 1 / 2) < T} = min n ⌈T / w - 1 / 2⌉₊ := by
   have hset : {k : Fin n | w * ((k : ℕ) + 1 / 2) < T} = ↑(Finset.univ.filter (fun k : Fin n => (k : ℕ) < ⌈T / w - 1 / 2⌉₊)) := by
     ext k
-    simp only [Set.mem_setOf_eq, Finset.coe_filter, Finset.mem_univ, true_and]
+    simp only [Set.mem_ofPred_eq, Finset.coe_filter, Finset.mem_univ, true_and]
     rw [Nat.lt_ceil, lt_sub_iff_add_lt, lt_div_iff₀ hw]
     constructor <;> intro h <;> linarith
   rw [hset, Set.ncard_coe_finset]
@@ -96,7 +96,7 @@ lemma count_abstract (n : ℕ) {w E lo hi : ℝ} (hw : 0 < w) (hE : 0 ≤ E) (X 
   -- lower inclusion
   have hlow : {k : Fin n | w * ((k : ℕ) + 1 / 2) < w * (s + (-(E / w)))} ⊆ {k : Fin n | Y < X k} := by
     intro k hk
-    simp only [Set.mem_setOf_eq] at hk ⊢
+    simp only [Set.mem_ofPred_eq] at hk ⊢
     have h1 : w * (s + (-(E / w))) = Φ Y - E := by
       have : w * (E / w) = E := by field_simp
       rw [mul_add, hws, mul_neg, this]; ring
@@ -111,7 +111,7 @@ lemma count_abstract (n : ℕ) {w E lo hi : ℝ} (hw : 0 < w) (hE : 0 ≤ E) (X 
     linarith
   have hup : {k : Fin n | Y < X k} ⊆ {k : Fin n | w * ((k : ℕ) + 1 / 2) < w * (s + (E / w + 1))} := by
     intro k hk
-    simp only [Set.mem_setOf_eq] at hk ⊢
+    simp only [Set.mem_ofPred_eq] at hk ⊢
     have h1 : w * (s + (E / w + 1)) = Φ Y + E + w := by
       have : w * (E / w) = E := by field_simp
       rw [mul_add, hws, mul_add, this]; ring

@@ -327,8 +327,8 @@ theorem slitDeficit_tip_asymptotic :
     have hsinh := one_sub_sinh_pi_xiStar_sub_approx hu0 hu_xi
     have h1v_le : 2 * (1 - v) ≤ (2 * π * Real.sqrt 2 + π ^ 2 * xiStar) * u := by
       have hup := (abs_le.mp hsinh).2
-      have hu2 : u ^ 2 ≤ xiStar * u := by nlinarith
-      nlinarith
+      have hu2 : u ^ 2 ≤ xiStar * u := by nlinarith only [hu0, hu_xi]
+      nlinarith only [hup, hu2, hu0, Real.pi_pos]
     have hbd1 : |Real.arccos v - Real.sqrt (2 * (1 - v))| ≤
         (π ^ 3 / 24) * (2 * π * Real.sqrt 2 + π ^ 2 * xiStar) ^ (3 / 2 : ℝ) * u ^ (3 / 2 : ℝ) := by
       rw [abs_of_nonneg harc.1]
@@ -347,7 +347,9 @@ theorem slitDeficit_tip_asymptotic :
         have hsq1 : Real.sqrt (2 * (1 - v)) ^ 2 = 2 * (1 - v) := Real.sq_sqrt (by linarith)
         have hsq2 : c0 ^ 2 = 2 * π * Real.sqrt 2 := Real.sq_sqrt (by positivity)
         have hsq3 : Real.sqrt u ^ 2 = u := Real.sq_sqrt hu0
-        nlinarith [hsq1, hsq2, hsq3]
+        calc (Real.sqrt (2 * (1 - v)) - c0 * Real.sqrt u) * (Real.sqrt (2 * (1 - v)) + c0 * Real.sqrt u)
+            = Real.sqrt (2 * (1 - v)) ^ 2 - c0 ^ 2 * Real.sqrt u ^ 2 := by ring
+          _ = 2 * ((1 - v) - π * Real.sqrt 2 * u) := by rw [hsq1, hsq2, hsq3]; ring
       have hquot : |Real.sqrt (2 * (1 - v)) - c0 * Real.sqrt u| =
           |2 * ((1 - v) - π * Real.sqrt 2 * u)| / (Real.sqrt (2 * (1 - v)) + c0 * Real.sqrt u) := by
         rw [← hdiff_id, abs_mul, abs_of_pos hden_pos, mul_div_cancel_right₀ _ hden_pos.ne']

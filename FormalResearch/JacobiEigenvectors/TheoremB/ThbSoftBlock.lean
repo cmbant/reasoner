@@ -137,7 +137,7 @@ theorem soft_block_gen (hf : ParabolicCylinderFacts U V cPC CPC)
   have hrow : ((i : ℕ) : ℤ) ∈ rowsOf N := Finset.mem_Icc.mpr ⟨by positivity, by have := i.isLt; omega⟩
   have hfar : ((i : ℕ) : ℤ) ≤ a ∨ b ≤ ((i : ℕ) : ℤ) := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     by_cases hle : ((i : ℕ) : ℤ) ≤ nc
     · obtain ⟨n, hn⟩ := covL i (by omega) hle
       exact hi1 ⟨n, Finset.mem_univ _, hn⟩
@@ -158,13 +158,13 @@ theorem soft_block_gen (hf : ParabolicCylinderFacts U V cPC CPC)
     have hv1 := (HC1 p hp (Xs k) (hwin1 k hk) N (max_le hN1L hN1R) hs1 (haL1' k hk)).1 Xs Um hE k rfl _ hrow (by
       rw [hucP, hη1, abs_of_nonpos (by linarith)]; linarith)
     have e0 : G0 i k = softVec CL CR p (Xs k) N ((i : ℕ) : ℤ) := by
-      rw [hG0 k hk i, if_pos hlenc, softVec_eq]
+      rw [hG0 k hk i, ite_eq_left hlenc, softVec_eq]
       unfold softNum
-      rw [if_pos hZ]
+      rw [ite_eq_left hZ]
     have e1 : G1 i k = softVec CL1 CR1 p (Xs k) N ((i : ℕ) : ℤ) := by
-      rw [hG1 k hk i, if_pos (by rw [hnc1]; exact hlenc), softVec_eq]
+      rw [hG1 k hk i, ite_eq_left (by rw [hnc1]; exact hlenc), softVec_eq]
       unfold softNum
-      rw [if_pos hZ1]
+      rw [ite_eq_left hZ1]
     rw [e0, e1, ← hXe]
     exact ⟨hccle _ ((le_add_of_nonneg_left (abs_nonneg _)).trans hv0),
       hccle1 _ ((le_add_of_nonneg_left (abs_nonneg _)).trans hv1),
@@ -183,13 +183,13 @@ theorem soft_block_gen (hf : ParabolicCylinderFacts U V cPC CPC)
     have hv1 := (HC1 p hp (Xs k) (hwin1 k hk) N (max_le hN1L hN1R) hs1 (haL1' k hk)).1 Xs Um hE k rfl _ hrow (by
       rw [hucP, hη1, abs_of_nonneg (by linarith)]; linarith)
     have e0 : G0 i k = softVec CL CR p (Xs k) N ((i : ℕ) : ℤ) := by
-      rw [hG0 k hk i, if_neg hgtnc, softVec_eq]
+      rw [hG0 k hk i, ite_eq_right hgtnc, softVec_eq]
       unfold softNum softSeqR
-      rw [if_neg (not_le.mpr hZ)]
+      rw [ite_eq_right (not_le.mpr hZ)]
     have e1 : G1 i k = softVec CL1 CR1 p (Xs k) N ((i : ℕ) : ℤ) := by
-      rw [hG1 k hk i, if_neg (by rw [hnc1]; exact hgtnc), softVec_eq]
+      rw [hG1 k hk i, ite_eq_right (by rw [hnc1]; exact hgtnc), softVec_eq]
       unfold softNum softSeqR
-      rw [if_neg (not_le.mpr hZ1)]
+      rw [ite_eq_right (not_le.mpr hZ1)]
     rw [e0, e1, ← hXe]
     exact ⟨hccle _ ((le_add_of_nonneg_left (abs_nonneg _)).trans hv0),
       hccle1 _ ((le_add_of_nonneg_left (abs_nonneg _)).trans hv1),

@@ -341,7 +341,7 @@ theorem kernelK_laplace {w : ℕ} (hw : 1 ≤ w) (α : ℝ) {β : ℝ} (hβ : 0 
           = ((2 * π) ^ (w - 1) * (1 / r) ^ w) *
               (((4 * π ^ 2 * α * (1 / r)) ^ k) / (k.factorial : ℝ)) *
               (((k + w - 1).factorial : ℝ) / ((k + w - 1).factorial : ℝ)) := by
-            rw [mul_pow]; ring
+            rw [mul_pow]; ring_nf
         _ = ((2 * π) ^ (w - 1) * (2 * π) ^ (-((w : ℕ) : ℝ))) * β ^ (-(w : ℝ)) *
               ((2 * π * α / β) ^ k / (k.factorial : ℝ)) * 1 := by
             rw [hbw, div_self hfac_ne, hr_cancel]; ring
@@ -371,7 +371,7 @@ theorem kernelK_laplace {w : ℕ} (hw : 1 ≤ w) (α : ℝ) {β : ℝ} (hβ : 0 
           = ((2 * π) ^ (w - 1) * (1 / r) ^ w) *
               (((4 * π ^ 2 * |α| * (1 / r)) ^ k) / (k.factorial : ℝ)) *
               (((k + w - 1).factorial : ℝ) / ((k + w - 1).factorial : ℝ)) := by
-            rw [mul_pow]; ring
+            rw [mul_pow]; ring_nf
         _ = ((2 * π) ^ (w - 1) * (2 * π) ^ (-((w : ℕ) : ℝ))) * β ^ (-(w : ℝ)) *
               ((2 * π * |α| / β) ^ k / (k.factorial : ℝ)) * 1 := by
             rw [hbw, div_self hfac_ne, hr_cancel]; ring
@@ -386,7 +386,7 @@ theorem kernelK_laplace {w : ℕ} (hw : 1 ≤ w) (α : ℝ) {β : ℝ} (hβ : 0 
       fun k => (hF_int_norm k).1.1
     have htsum_enorm : ∑' k : ℕ, ∫⁻ t in Ioi 0, ‖F k t‖ₑ ≠ ⊤ := by
       have heq : ∀ k : ℕ, ∫⁻ t in Ioi 0, ‖F k t‖ₑ = ENNReal.ofReal (∫ t in Ioi 0, ‖F k t‖) :=
-        fun k => (ofReal_integral_norm_eq_lintegral_enorm (hF_int_norm k).1).symm
+        fun k => (ofReal_integral_norm_eq_lintegral_eNorm (hF_int_norm k).1).symm
       simp_rw [heq]
       have hnn : Summable (fun k : ℕ => (∫ t in Ioi 0, ‖F k t‖).toNNReal) :=
         NNReal.summable_coe.1 (by
@@ -400,10 +400,10 @@ theorem kernelK_laplace {w : ℕ} (hw : 1 ≤ w) (α : ℝ) {β : ℝ} (hβ : 0 
       calc ∫⁻ t in Ioi 0, ENNReal.ofReal ‖∑' k : ℕ, F k t‖
           = ∫⁻ t in Ioi 0, ‖∑' k : ℕ, F k t‖ₑ := by
               refine lintegral_congr fun t => ?_
-              rw [Real.enorm_eq_ofReal_abs, Real.norm_eq_abs]
+              rw [Real.eNorm_eq_ofReal_abs, Real.norm_eq_abs]
         _ ≤ ∫⁻ t in Ioi 0, ∑' k : ℕ, ‖F k t‖ₑ :=
-            lintegral_mono fun t => enorm_tsum_le_tsum_enorm
-        _ = ∑' k : ℕ, ∫⁻ t in Ioi 0, ‖F k t‖ₑ := lintegral_tsum fun k => (hF_meas k).enorm
+            lintegral_mono fun t => eNorm_tsum_le_tsum_eNorm
+        _ = ∑' k : ℕ, ∫⁻ t in Ioi 0, ‖F k t‖ₑ := lintegral_tsum fun k => (hF_meas k).eNorm
     exact lt_of_le_of_lt hle (lt_top_iff_ne_top.mpr htsum_enorm)
   have hint_main : IntegrableOn (fun t => kernelK w α t * Real.exp (-2 * π * β * t)) (Ioi 0) :=
     hint_tsum.congr_fun (fun t _ => (hF_eq t).symm) measurableSet_Ioi
@@ -1135,7 +1135,7 @@ theorem thermalDiff_mem_TestClass (prob : FixedWeightProblem) {a : ℝ} (ha : pr
             radialLift prob.w (fun t => Real.exp (-2 * π * β⁻¹ * t)) x := by
       ext x
       simp only [radialLift, thermalDiff, smul_eq_mul, div_eq_mul_inv]
-      push_cast; ring
+      push_cast; ring_nf
     rw [heq]
     exact h1.sub (Integrable.smul ((β ^ (-(prob.w : ℝ)) : ℝ) : ℂ) h2)
   fourier_odd := by
@@ -1147,7 +1147,7 @@ theorem thermalDiff_mem_TestClass (prob : FixedWeightProblem) {a : ℝ} (ha : pr
     have heq : radialLift prob.w (thermalDiff prob.w β) = fun x => f₁ x + c • f₂ x := by
       ext x
       simp only [f₁, f₂, c, radialLift, thermalDiff, smul_eq_mul, div_eq_mul_inv]
-      push_cast; ring
+      push_cast; ring_nf
     have hadd : 𝓕 (fun x => f₁ x + c • f₂ x) = 𝓕 f₁ + 𝓕 (c • f₂) :=
       fourier_add_fn h1.1 (h2.1.smul c)
     have hsmul : 𝓕 (c • f₂) = c • 𝓕 f₂ := fourier_smul_fn c f₂
@@ -1210,7 +1210,7 @@ lemma FixedWeightProblem.gVac_thermalDiff (prob : FixedWeightProblem) (a : ℝ) 
   have heq : (fun t => (Real.exp (-2 * π * β * t) - β ^ (-(prob.w : ℝ)) * Real.exp (-2 * π * t / β)) *
       prob.cardyV a t) = fun t => prob.cardyV a t * Real.exp (-2 * π * β * t) -
       β ^ (-(prob.w : ℝ)) * (prob.cardyV a t * Real.exp (-2 * π * β⁻¹ * t)) := by
-    ext t; rw [div_eq_mul_inv]; ring
+    ext t; rw [div_eq_mul_inv]; ring_nf
   rw [setIntegral_congr_fun measurableSet_Ioi (fun t _ => congrFun heq t),
     integral_sub h1.1 (h2.1.const_mul _), integral_const_mul]
   have h2' : 2 * π * ∫ t in Ioi 0, prob.cardyV a t * Real.exp (-2 * π * β⁻¹ * t) =

@@ -205,7 +205,7 @@ lemma abs_tFac_le_one (χ x : ℝ) : |tFac χ x| ≤ 1 := by
   rwa [tFac_eq, Complex.norm_real, Real.norm_eq_abs] at h
 
 /-- **The band bound of `ut:T2`** for every weight-one problem: `V = prob.cardyV (c/12)`, `F_{2,c} = twoZeroF`. -/
-theorem twoZero_band_bound (prob : FixedWeightProblem) (hw : prob.w = 1) {r₀ : ℝ} (hr₀ : 0 < r₀) {n : ℕ}
+theorem twoZero_band_bound (prob : FixedWeightProblem) (_hw : prob.w = 1) {r₀ : ℝ} (hr₀ : 0 < r₀) {n : ℕ}
     {𝒦 : Set (TwoZeroDesign n)} (hK : IsCompactFamily 𝒦) (hA : ∀ d ∈ 𝒦, d.Adm) :
     ∃ N₂ : ℕ, ∃ C_T : ℝ, 0 ≤ C_T ∧ ∀ N₁ : ℕ, N₂ ≤ N₁ → ∀ᶠ c in atTop, ∀ d ∈ 𝒦,
       (∫ t in Icc (c * chiQuantile c ((N₁ + 1 : ℕ) : ℝ) ^ 2 / 3) (c * (xiStar + r₀) ^ 2 / 3),

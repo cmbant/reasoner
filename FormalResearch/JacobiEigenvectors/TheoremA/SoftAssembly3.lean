@@ -100,10 +100,10 @@ lemma soft_env_pw {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (apl
     split_ifs <;> positivity
   unfold softEnvNum
   by_cases b1 : uNode (Fz.step N) n ≤ CL.uc p - CL.η / 2
-  · rw [if_pos b1, if_pos b1]; linarith
-  · rw [if_neg b1, if_neg b1]
+  · rw [ite_eq_left b1, ite_eq_left b1]; linarith
+  · rw [ite_eq_right b1, ite_eq_right b1]
     by_cases b2 : CL.Zof p X N n ≤ 0
-    · rw [if_pos b2]
+    · rw [ite_eq_left b2]
       have hu4 := lt_of_Zof_nonpos CL hp hX hn b2
       have hmol0 := molv_nonneg hf a (-Z)
       have hfm0 : 0 ≤ |CL.lamL p X N| * Molv U V a (-Z) := mul_nonneg (abs_nonneg _) hmol0
@@ -119,8 +119,8 @@ lemma soft_env_pw {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (apl
                 have : 0 ≤ CPC * Real.exp (cWt aplus) * Tw * Mbal a Z := by positivity
                 nlinarith
         have := pow_le_pow_left₀ hfm0 hle 2
-        rw [if_pos h1]; linarith
-      · push_neg at hz
+        rw [ite_eq_left h1]; linarith
+      · push Not at hz
         have hZneg : Z < -ρ := by
           have := abs_of_nonpos b2
           rw [this] at hz; linarith
@@ -134,11 +134,11 @@ lemma soft_env_pw {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (apl
                 mul_le_mul_of_nonneg_left hmu (abs_nonneg _)
             _ = CPC * Tw * (Eminus a Z * Mbal a Z) := by rw [hTwdef]; field_simp
         have := pow_le_pow_left₀ hfm0 hle 2
-        rw [if_pos hcond]; linarith
-    · rw [if_neg b2]
-      push_neg at b2
+        rw [ite_eq_left hcond]; linarith
+    · rw [ite_eq_right b2]
+      push Not at b2
       by_cases b3 : uNode (Fz.step N) n < CL.uc p + CL.η / 2
-      · rw [if_pos b3]
+      · rw [ite_eq_left b3]
         have hmol0 := molv_nonneg hf a Z
         have hfm0 : 0 ≤ |softKappa CL CR p X N * CR.lamL p X N| * Molv U V a Z := mul_nonneg (abs_nonneg _) hmol0
         by_cases hz : Z ≤ ρ
@@ -152,8 +152,8 @@ lemma soft_env_pw {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (apl
                   have : 0 ≤ CPC * Real.exp (cWt aplus) * Tw * Mbal a Z := by positivity
                   nlinarith
           have := pow_le_pow_left₀ hfm0 hle 2
-          rw [if_pos h1]; linarith
-        · push_neg at hz
+          rw [ite_eq_left h1]; linarith
+        · push Not at hz
           have hcond : |u - CL.uc p| < CL.η / 2 ∧ ρ < Z := by
             refine ⟨?_, hz⟩
             rw [abs_lt]; constructor <;> [linarith [not_le.mp b1]; linarith]
@@ -164,10 +164,10 @@ lemma soft_env_pw {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (apl
                   mul_le_mul hk hmu hmol0 (by positivity)
               _ = Ck * CPC * Tw * (Eminus a (-Z) * Mbal a Z) := by rw [hTwdef]; field_simp
           have := pow_le_pow_left₀ hfm0 hle 2
-          rw [if_pos hcond]; linarith
-      · rw [if_neg b3]
+          rw [ite_eq_left hcond]; linarith
+      · rw [ite_eq_right b3]
         have hb : CL.uc p + CL.η / 2 ≤ uNode (Fz.step N) n := not_lt.mp b3
-        rw [if_pos hb]; linarith
+        rw [ite_eq_left hb]; linarith
 
 end Pointwise
 

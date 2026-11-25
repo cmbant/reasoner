@@ -489,7 +489,7 @@ theorem thmAi_of_windows (W : ∀ i, WindowPhase F K t0 M (a i) (b i)) (ht0 : 0 
           = iteratedDerivWithin n (Scoef ((W i).Sigma μ) l) (Icc (a i μ) (b i μ)) x := by
     intro μ hμ l hl
     have h := Classical.choose_spec (hglue μ hμ l hl)
-    have e : S l μ = Classical.choose (hglue μ hμ l hl) := by simp only [S]; rw [dif_pos ⟨hμ, hl⟩]
+    have e : S l μ = Classical.choose (hglue μ hμ l hl) := by simp only [S]; rw [dite_eq_left ⟨hμ, hl⟩]
     rw [e]
     exact h
   refine ⟨δ, Cn, Cr, min (min ε 1) (min hz0 (δ / (|Cz| + 1))), S, hδ, ?_, ?_, ?_⟩

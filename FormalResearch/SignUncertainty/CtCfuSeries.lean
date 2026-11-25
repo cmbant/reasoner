@@ -26,7 +26,7 @@ noncomputable def Sser (a : ℕ) (y : ℝ) : ℝ := ∑' j : ℕ, y ^ j / ((2 * 
 
 private lemma ofScalars_sum_eq (c : ℕ → ℝ) (y : ℝ) :
     (FormalMultilinearSeries.ofScalars ℝ c).sum y = ∑' j : ℕ, c j * y ^ j := by
-  simp [FormalMultilinearSeries.sum, FormalMultilinearSeries.ofScalars_apply_eq, mul_comm]
+  simp [FormalMultilinearSeries.sum, mul_comm]
 
 private lemma radius_top (a : ℕ) :
     (FormalMultilinearSeries.ofScalars ℝ (fun j : ℕ => 1 / ((2 * j + a).factorial : ℝ))).radius = ⊤ := by
@@ -72,7 +72,7 @@ lemma hasSum_Sser (a : ℕ) (y : ℝ) :
   have h := (hasFPowerSeriesOnBall_Sser a).hasSum (y := y) (by simp)
   simp only [zero_add] at h
   convert h using 2 with j
-  simp [FormalMultilinearSeries.ofScalars_apply_eq, mul_comm, div_eq_mul_inv]
+  simp [mul_comm, div_eq_mul_inv]
 
 lemma Sser_zero (a : ℕ) : Sser a 0 = 1 / (a.factorial : ℝ) := by
   unfold Sser
@@ -92,7 +92,7 @@ lemma Sser_succ (a : ℕ) (y : ℝ) : Sser a y = 1 / (a.factorial : ℝ) + y * S
     ring
   rw [e] at h
   have := h.unique h2
-  simp only [Finset.range_one, Finset.sum_singleton, pow_zero, mul_zero, zero_add, Nat.factorial] at this
+  simp only [Finset.range_one, Finset.sum_singleton, pow_zero, mul_zero, zero_add] at this
   have e1 : (1 : ℝ) / (a.factorial : ℝ) = 1 / (a.factorial : ℝ) := rfl
   simp only [one_div] at this ⊢
   linarith
