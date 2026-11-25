@@ -174,7 +174,7 @@ After the dependency check against the TeX (2026-11-25), every remaining package
 | explicit Bessel constants | `vlo:BesselConst` (`kappa_0 = 1/4`, `kappa_1 = 1`) | not needed: Lean's constants are existential |
 | vacuum-slack Theorem J | `int:Jslack` (alias of `vlo:J`) | used only by INT-L |
 | unflavoured `N = (2,2)`, real weights outside `(H_w)` | main-text remark; `wone:ftlfw` for real `w` | `V = f_a * f_a` is not of Cardy type; the proof is a note neither Paper II document cites. Real `w` can be revisited after PM-0 |
-| FT-3..6 beyond FT-CC | chart-form Lemmas 1-2 instances, C5d `m >= 2`, Lemma FT-R log rate | useful only for Paper I instances; the base `ChartCompactness` is tier 1 (FT-CC) because Paper I's `thm:intro-hb` (M8) needs it |
+| FT-3..6 beyond FT-CC | chart-form Lemmas 1-2 instances, C5d `m >= 2`, Lemma FT-R log rate | useful only for Paper I instances; the base `ChartCompactness` is tier 1 (FT-CC) because Paper I's `thm:intro-hb` (M8) needs it. Paper I's plan owns `ft:L1`, `ft:L2`, `ft:riesz` (FT-3..6) and `fto1:mellin` (it does not delegate them to this lane; this plan has no `FT-7`) |
 | five-term `c_0^*` clauses at weights not of the form `(H_w)` | `ctu:scope` remark | out of the paper's scope |
 
 ## 4. What is on master (compact record)
@@ -253,7 +253,7 @@ Statements that Lean proves only for a special case, so that nobody cites them a
   lift) and is not used. For Paper II's own instances (Virasoro, `N = 1`, fixed `(w,Q)`) the conclusions C1, C2, C3 (`O(1)` form), C5a, C5b
   and C5c at `w = 1` are proved by other routes; FT reuses those proofs (no refactor of Prop T, Theorem R or `Sigma` through FT: about
   8k lines at stake for little gain).
-- **Agreed interface** with Paper I (`SignUncertainty/PLAN.md`, section 8): `HermiteBiehlerData` lives in
+- **Agreed interface** with Paper I (`SignUncertainty/PLAN.md`, section 5): `HermiteBiehlerData` lives in
   `SignUncertainty/HermiteBiehlerData.lean`; the base structure `ChartCompactness` (`compactness_subseq` plus site and tail positivity, for an
   abstract setting, importing nothing Hankel- or Virasoro-specific) is owned by this lane; Paper I adds, without editing `RadialRigidity.lean`,
   a converter `RadialRigidityPackage -> ChartCompactness`; Paper I's M8 TE.0' is a converter into `ChartCompactness` plus the shared rigidity
