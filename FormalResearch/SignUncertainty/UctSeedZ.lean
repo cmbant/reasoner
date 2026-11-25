@@ -65,7 +65,7 @@ lemma dslope_sin_ne_zero {z : ℂ} (h : ∀ n : ℤ, n ≠ 0 → z ≠ n * π) :
   · rw [dslope_sin_of_ne hz]
     refine div_ne_zero (fun hs => ?_) hz
     obtain ⟨n, hn⟩ := Complex.sin_eq_zero_iff.mp hs
-    have hn0 : n ≠ 0 := by rintro rfl; apply hz; rw [← hn]; simp
+    have hn0 : n ≠ 0 := by rintro rfl; apply hz; simpa using hn
     exact h n hn0 hn
 
 lemma differentiableAt_sincInv {z : ℂ} (h : ∀ n : ℤ, n ≠ 0 → z ≠ n * π) : DifferentiableAt ℂ sincInv z :=
@@ -90,6 +90,10 @@ noncomputable def seedZR (ε : ℝ) (ζ : ℂ) : ℂ := seedA ε ζ * (ζ * sinc
 
 /-- The regularised factor `Z_ε = ζ²(1-ζ)² H_* / b^{[ε=1]}`. -/
 noncomputable def uctSeedZ (ε : ℝ) (ζ : ℂ) : ℂ := if ζ.re ≤ 1 / 2 then seedZL ε ζ else seedZR ε ζ
+
+lemma uctSeedZ_of_le {ε : ℝ} {z : ℂ} (h : z.re ≤ 1 / 2) : uctSeedZ ε z = seedZL ε z := if_pos h
+
+lemma uctSeedZ_of_gt {ε : ℝ} {z : ℂ} (h : 1 / 2 < z.re) : uctSeedZ ε z = seedZR ε z := if_neg (not_le.mpr h)
 
 lemma sin_pi_one_sub (ζ : ℂ) : Complex.sin (π * (1 - ζ)) = Complex.sin (π * ζ) := by
   rw [show (π : ℂ) * (1 - ζ) = π - π * ζ by ring, Complex.sin_pi_sub]
@@ -141,7 +145,8 @@ lemma differentiableAt_seedZL {ε : ℝ} {ζ : ℂ} (h : ∀ n : ℤ, n ≠ 0 �
   unfold seedZL
   refine (differentiable_seedA ε ζ).mul (DifferentiableAt.pow (DifferentiableAt.mul (by fun_prop) ?_) 2)
   have h1 : ∀ n : ℤ, n ≠ 0 → (π : ℂ) * ζ ≠ n * π := fun n hn => ne_int_mul_pi_of_ne n (h n hn)
-  exact (differentiableAt_sincInv h1).comp ζ (by fun_prop : DifferentiableAt ℂ (fun z : ℂ => (π : ℂ) * z) ζ)
+  exact DifferentiableAt.comp (g := sincInv) ζ (differentiableAt_sincInv h1)
+    (by fun_prop : DifferentiableAt ℂ (fun z : ℂ => (π : ℂ) * z) ζ)
 
 lemma differentiableAt_seedZR {ε : ℝ} {ζ : ℂ} (h : ∀ n : ℤ, n ≠ 1 → ζ ≠ n) : DifferentiableAt ℂ (seedZR ε) ζ := by
   unfold seedZR
@@ -152,7 +157,8 @@ lemma differentiableAt_seedZR {ε : ℝ} {ζ : ℂ} (h : ∀ n : ℤ, n ≠ 1 �
       intro e; apply h (1 - n) (by intro e2; apply hn; omega)
       push_cast; linear_combination -e
     exact ne_int_mul_pi_of_ne n this
-  exact (differentiableAt_sincInv h1).comp ζ (by fun_prop : DifferentiableAt ℂ (fun z : ℂ => (π : ℂ) * (1 - z)) ζ)
+  exact DifferentiableAt.comp (g := sincInv) ζ (differentiableAt_sincInv h1)
+    (by fun_prop : DifferentiableAt ℂ (fun z : ℂ => (π : ℂ) * (1 - z)) ζ)
 
 lemma int_of_re_mem {ζ : ℂ} {n : ℤ} (h : ζ = n) (h1 : -1 < ζ.re) (h2 : ζ.re < 2) : n = 0 ∨ n = 1 := by
   rw [h] at h1 h2
@@ -171,7 +177,7 @@ theorem differentiableOn_uctSeedZ (ε : ℝ) : DifferentiableOn ℂ (uctSeedZ ε
   · -- left chart
     have hev : uctSeedZ ε =ᶠ[𝓝 ζ] seedZL ε := by
       filter_upwards [(isOpen_lt Complex.continuous_re continuous_const).mem_nhds h] with z hz
-      simp [uctSeedZ, hz.le]
+      exact uctSeedZ_of_le hz.le
     refine (DifferentiableAt.congr_of_eventuallyEq ?_ hev).differentiableWithinAt
     refine differentiableAt_seedZL (fun n hn e => ?_)
     rcases int_of_re_mem e hζ.1 hζ.2 with h0 | h1
@@ -183,8 +189,8 @@ theorem differentiableOn_uctSeedZ (ε : ℝ) : DifferentiableOn ℂ (uctSeedZ ε
       have hc : ContinuousAt (fun z : ℂ => Complex.sin (π * z)) ζ := by fun_prop
       filter_upwards [hc.eventually_ne hs] with z hz
       by_cases hr : z.re ≤ 1 / 2
-      · simp [uctSeedZ, hr]
-      · simp only [uctSeedZ, hr, ↓reduceIte]
+      · exact uctSeedZ_of_le hr
+      · rw [uctSeedZ_of_gt (not_le.mp hr)]
         exact (seedZL_eq_seedZR hz).symm
     refine (DifferentiableAt.congr_of_eventuallyEq ?_ hev).differentiableWithinAt
     refine differentiableAt_seedZL (fun n hn e => ?_)
@@ -194,8 +200,7 @@ theorem differentiableOn_uctSeedZ (ε : ℝ) : DifferentiableOn ℂ (uctSeedZ ε
       linarith
   · have hev : uctSeedZ ε =ᶠ[𝓝 ζ] seedZR ε := by
       filter_upwards [(isOpen_lt continuous_const Complex.continuous_re).mem_nhds h] with z hz
-      have : ¬ z.re ≤ 1 / 2 := not_le.mpr hz
-      simp [uctSeedZ, this]
+      exact uctSeedZ_of_gt hz
     refine (DifferentiableAt.congr_of_eventuallyEq ?_ hev).differentiableWithinAt
     refine differentiableAt_seedZR (fun n hn e => ?_)
     rcases int_of_re_mem e hζ.1 hζ.2 with h0 | h1
@@ -231,25 +236,26 @@ theorem uctSeedZ_oneSub {ε : ℝ} (hε : ε = 1 ∨ ε = -1) (ζ : ℂ) : uctSe
     rcases hε with h | h
     · simp [h]
     · have : ε ≠ 1 := by rw [h]; norm_num
-      simp [h, this]
+      rw [if_neg this, h]; simp
   have e : ∀ x : ℂ, (if ε = 1 then (1 : ℂ) else -1) * x = ε * x := fun x => by rw [hsign]
   rcases lt_trichotomy ζ.re (1 / 2) with h | h | h
-  · have h1 : ¬ (1 - ζ).re ≤ 1 / 2 := by simp; linarith
-    simp only [uctSeedZ, h1, h.le, ↓reduceIte, seedZR_oneSub, e]
+  · have h1 : 1 / 2 < (1 - ζ).re := by simp; linarith
+    rw [uctSeedZ_of_gt h1, uctSeedZ_of_le h.le, seedZR_oneSub, e]
   · have hs := sin_ne_zero_of_re_half h
     have h1 : (1 - ζ).re ≤ 1 / 2 := by simp; linarith
-    simp only [uctSeedZ, h1, h.le, ↓reduceIte, seedZL_oneSub, e, seedZL_eq_seedZR hs]
+    rw [uctSeedZ_of_le h1, uctSeedZ_of_le h.le, seedZL_oneSub, e, seedZL_eq_seedZR hs]
   · have h1 : (1 - ζ).re ≤ 1 / 2 := by simp; linarith
-    have h2 : ¬ ζ.re ≤ 1 / 2 := not_le.mpr h
-    simp only [uctSeedZ, h1, h2, ↓reduceIte, seedZL_oneSub, e]
+    rw [uctSeedZ_of_le h1, uctSeedZ_of_gt h, seedZL_oneSub, e]
 
 /-- Real symmetry. -/
 theorem uctSeedZ_conj (ε : ℝ) (ζ : ℂ) : uctSeedZ ε (starRingEnd ℂ ζ) = starRingEnd ℂ (uctSeedZ ε ζ) := by
   have hA : seedA ε (starRingEnd ℂ ζ) = starRingEnd ℂ (seedA ε ζ) := by
-    unfold seedA bArg
+    have hb : bArg (starRingEnd ℂ ζ) = starRingEnd ℂ (bArg ζ) := by
+      unfold bArg; simp [map_sub, map_div₀, map_mul, Complex.conj_ofReal, map_ofNat]
+    unfold seedA
     by_cases h : ε = 1
     · simp only [h, ↓reduceIte]
-      simp [map_div₀, map_mul, map_sub, Complex.cos_conj, map_ofNat]
+      rw [hb, Complex.cos_conj, map_mul, map_pow, map_ofNat]
     · simp only [h, ↓reduceIte]
       rw [← Complex.cos_conj]; simp
   have hs1 : sincInv (π * starRingEnd ℂ ζ) = starRingEnd ℂ (sincInv (π * ζ)) := by
@@ -264,10 +270,8 @@ theorem uctSeedZ_conj (ε : ℝ) (ζ : ℂ) : uctSeedZ ε (starRingEnd ℂ ζ) =
     unfold seedZR
     rw [hA, hs2]
     simp [map_mul, map_pow, map_sub]
-  unfold uctSeedZ
-  simp only [Complex.conj_re]
-  split_ifs
-  · exact hL
-  · exact hR
+  by_cases hr : ζ.re ≤ 1 / 2
+  · rw [uctSeedZ_of_le (by simpa using hr), uctSeedZ_of_le hr, hL]
+  · rw [uctSeedZ_of_gt (by simpa using not_le.mp hr), uctSeedZ_of_gt (not_le.mp hr), hR]
 
 end FormalResearch.SignUncertainty
