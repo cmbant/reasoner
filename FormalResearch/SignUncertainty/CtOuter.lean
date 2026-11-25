@@ -2,6 +2,7 @@ module
 
 public import FormalResearch.SignUncertainty.CtOuterTheta
 public import FormalResearch.SignUncertainty.CtOuterTaylor
+public import Mathlib.NumberTheory.LSeries.RiemannZeta
 
 /-!
 # `ct:outer`: the Mellin-strip outer function `G_ε` (headline statements)
@@ -116,6 +117,49 @@ theorem ct_outer_part2_taylor (ε : ℝ) :
   rw [hcongr]
 
 
+/-! ### The paper's closed-form Taylor coefficients (stated, not proved)
+
+`ctTheta1`, `ctTheta3` are the constants `θ_1^ε`, `θ_3^ε` of `ct:theta1`, `ct:theta3` (with `I_0` of `eq:ct-I0` and
+`c_{3,mp}` of `ct:theta3`).  `CtThetaValuesTarget` is the proposition that the Taylor coefficients of `θ_ε` at `0`
+are these constants.  It is **not proved**: the linear coefficient is proved above as an integral
+(`ct_outer_part2_taylor`), its evaluation (Frullani and Mittag-Leffler computations) and the cubic coefficient
+(`h'''(0)` and the `ζ(3)` series) remain open. -/
+
+/-- `I_0 = ∫_0^∞ log(6(sinh y - y)/y³) cosh y / sinh² y dy` (`eq:ct-I0`). -/
+noncomputable def ctI0 : ℝ :=
+  ∫ y in Set.Ioi (0 : ℝ), Real.log (6 * (Real.sinh y - y) / y ^ 3) * (Real.cosh y / Real.sinh y ^ 2)
+
+/-- `c_{3,mp} = (π/6) ∫_0^∞ ((d²/dt²) log(m'(t)/t) + 7π²/30) cosh(πt)/sinh²(πt) dt` (`ct:theta3`). -/
+noncomputable def ctC3mp : ℝ :=
+  π / 6 * ∫ t in Set.Ioi (0 : ℝ),
+    (deriv (deriv fun s : ℝ => Real.log (mPrime s / s)) t + 7 * π ^ 2 / 30) *
+      (Real.cosh (π * t) / Real.sinh (π * t) ^ 2)
+
+/-- `θ_1^-  = -3 log 2 + I_0`, `θ_1^+ = θ_1^- - π` (`ct:theta1`). -/
+noncomputable def ctTheta1 (ε : ℝ) : ℝ :=
+  -3 * Real.log 2 + ctI0 - (if ε = 1 then π else 0)
+
+/-- `θ_3^- = ζ(3)/2 + c_{3,mp}`, `θ_3^+ = θ_3^- + π³/6` (`ct:theta3`). -/
+noncomputable def ctTheta3 (ε : ℝ) : ℝ :=
+  (riemannZeta 3).re / 2 + ctC3mp + (if ε = 1 then π ^ 3 / 6 else 0)
+
+/-- **Open target (not proved):** the Taylor coefficients of `θ_ε` at `0` are the paper's constants
+`θ_1^ε`, `θ_3^ε`. -/
+def CtThetaValuesTarget : Prop :=
+  ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
+    deriv (outerTheta ε) 0 = ctTheta1 ε ∧ iteratedDeriv 3 (outerTheta ε) 0 / 6 = ctTheta3 ε
+
+/-- **`ct:outer` (2) with the paper's constants, conditional on `CtThetaValuesTarget`:**
+`θ_ε(τ) = θ_1^ε τ + θ_3^ε τ³ + O(τ⁵)` with `θ_1^ε = ctTheta1 ε`, `θ_3^ε = ctTheta3 ε`. -/
+theorem ct_outer_part2_taylor_values (h : CtThetaValuesTarget) {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
+    ∃ C : ℝ, ∀ τ : ℝ, |τ| ≤ 1 →
+      |outerTheta ε τ - ctTheta1 ε * τ - ctTheta3 ε * τ ^ 3| ≤ C * |τ| ^ 5 := by
+  obtain ⟨C, hC⟩ := outerTheta_taylor ε
+  obtain ⟨h1, h3⟩ := h ε hε
+  refine ⟨C, fun τ hτ => ?_⟩
+  have := hC τ hτ
+  rwa [h1, h3] at this
+
 /-- info: 'FormalResearch.SignUncertainty.CtOuter.ct_outer_part1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ct_outer_part1
@@ -205,5 +249,9 @@ theorem ct_outer_part2_taylor (ε : ℝ) :
 /-- info: 'FormalResearch.SignUncertainty.CtOuter.odd_taylor5' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms odd_taylor5
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.ct_outer_part2_taylor_values' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ct_outer_part2_taylor_values
 
 end FormalResearch.SignUncertainty.CtOuter
