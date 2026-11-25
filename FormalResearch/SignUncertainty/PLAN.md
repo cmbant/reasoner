@@ -414,10 +414,10 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `fct:unscaled-cusp` | planned | M10 (upper bound) |
 | `fct:physical-budget` | planned | M10 (upper bound): common physical bump budget for Hankel and CE |
 | `fct:physical-positive` | planned | M10 (upper bound): four-band physical-edge positivity criterion |
-| `uct:airy-trans` | planned | M10 (upper bound) |
-| `uct:pos-floor` | planned | M10 (upper bound) |
-| `uct:strip-split` | planned | M10 (upper bound) |
-| `uct:bump-symbol` | planned | M10 (upper bound): shared Laplace-symbol estimates for the bump operator |
+| `uct:airy-trans` | done (except two unused ray identities) | `UctAiryTrans*`: representations, asymptotics with all derivatives, origin expansion, real/local/vertical bounds; the ray identities `int_{S+-} s^{-1/2} e^psi = 0`, `(2 sqrt pi)^{-1} int s^{1/2} e^psi = 1` are not formalised (used only to rotate a contour, replaced by an ODE/barrier argument) |
+| `uct:pos-floor` | done | `UctPosFloorSeed/UctPosFloor/UctPosFloorTail/UctPosFloorWpos`: (1) `uct_pos_floor_one`; (2) `uct_pos_floor_main`, `uct_pos_floor_lift`; (3) `airyTwistedLaplace_uctSpos_floor`, `uct_pos_floor_pre_edge` (uniform in `delta_0 > 0`, `m = 4`; `m >= 1` in `uct_pos_pre_edge_gen`) |
+| `uct:strip-split` | done modulo small-`L` expansions | `UctStripSplit`, `UctStripIntegrals`: (1) `uct_H_split`, `uct_HCE_signs`; (2) `uct_strip_split_integrals`; (3) `uct_strip_split_ratios` (`r_CE, r_h < 1`, `1 - r_CE >= min(L,1)/6`). Not formalised (used by nothing): the expansions `47/20`, `13/20`, `13 pi^2/240`, `19 pi^2/240` |
+| `uct:bump-symbol` | partial | `UctBumpSymbol`: `bump_laplace_decay` (the first display, `BumpProfile` = the TeX hypotheses). Open: admissibility of `Delta W_c` (`StripAdmissData`: (M1) from the decay, (M2), (M3) by splitting `x^j B` at `x = 1/|s|`), the main-density bound for `L <= b delta/2` (`admiss_vert_rep` + `im_stripG_ge_gaussian`), the reflected-density bound (`ct:binet-decay`), the Fourier identity `(uct:E0-def)` |
 | `uct:bump-weighted` | planned | M10 (upper bound): weighted Taylor inversion (`uct:weighted-taylor`) and uniform far-band bound `O(M(1+c^{-2} delta^{3-alpha}) c^{-2} L^{-2})` |
 | `uct:bump-est` | removed | deleted from the paper 2026-11-25 (no proof cited it; superseded by `fct:bump-5` at the scale `delta_L ~ c^{-1/2}`) |
 | `uct:seed-asymp` | planned | M10 (F2a): only items (1)-(2) are used, by proof reuse for `g~_1` (`fct:main-hankel`, `fct:main-ce` repeat its proof of (2)); items (3)-(4) are demoted (cited only as a foil and a convention in `fct:warp-asymp`; paper cleanup: demote to a remark) |
