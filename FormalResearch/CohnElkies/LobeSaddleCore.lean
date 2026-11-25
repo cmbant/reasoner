@@ -297,25 +297,6 @@ lemma vertUpsilon_continuousIntegrand (σ : ℝ) :
   (Real.continuous_arctan.comp ((Real.continuous_sinh.comp (continuous_const.mul continuous_id)).div_const _)).sub
     (Real.continuous_arctan.comp (continuous_id.div_const _))
 
-lemma mellinPhi_re_vertical {σ ξ τ : ℝ} (hσ0 : 0 < σ) (hσ1 : σ < 1) (hξ : 0 < ξ) (hτ : 0 ≤ τ) :
-    (mellinPhi ((σ : ℂ) + (τ : ℂ) * Complex.I) ξ - mellinPhi (σ : ℂ) ξ).re = -vertUpsilon σ τ := by
-  let ψ : ℝ → ℝ := fun u => (mellinPhi ((σ : ℂ) + (u : ℂ) * Complex.I) ξ - mellinPhi (σ : ℂ) ξ).re
-  have hψ_deriv : ∀ u : ℝ, HasDerivAt ψ (-(stripG ((σ : ℂ) + (u : ℂ) * Complex.I)).im) u := fun u => by
-    refine (Complex.reCLM.hasFDerivAt.comp_hasDerivAt u (hasDerivAt_mellinPhi_vert hσ0 hσ1 u)).congr_deriv ?_
-    change (Complex.I * (stripG ((σ : ℂ) + (u : ℂ) * Complex.I) + Complex.log ((Real.pi : ℂ) ^ 2 * (ξ : ℂ)))).re = _
-    rw [Complex.I_mul_re, Complex.add_im, show (Real.pi : ℂ) ^ 2 * (ξ : ℂ) = ((Real.pi ^ 2 * ξ : ℝ) : ℂ) by push_cast; ring,
-      ← Complex.ofReal_log (by positivity : 0 ≤ π ^ 2 * ξ), Complex.ofReal_im, add_zero]
-  have h_im_eq : ∀ u ∈ Ioo (0 : ℝ) τ, -(stripG ((σ : ℂ) + (u : ℂ) * Complex.I)).im =
-      -(Real.arctan (Real.sinh (π * u) / Real.sin (π * σ)) - Real.arctan (u / σ)) := fun u hu => by
-    have hne : (σ : ℂ) + (u : ℂ) * Complex.I ≠ 0 := fun h => by have := congrArg Complex.re h; simp at this; linarith
-    simp only [stripG, hne, ↓reduceIte, im_log_tan_div_eq hσ0 hσ1 hu.1]
-  have hftc := intervalIntegral.integral_eq_sub_of_hasDerivAt_of_le hτ
-    ((continuous_iff_continuousAt.mpr fun u => (hψ_deriv u).continuousAt).continuousOn)
-    (fun u hu => (hψ_deriv u).congr_deriv (h_im_eq u hu))
-    ((vertUpsilon_continuousIntegrand σ).neg.intervalIntegrable 0 τ)
-  rw [show ψ 0 = 0 by simp [ψ], sub_zero, intervalIntegral.integral_neg] at hftc
-  exact hftc.symm
-
 private lemma stripG_conj {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1) :
     stripG (starRingEnd ℂ ζ) = starRingEnd ℂ (stripG ζ) := by
   have hζ_ne : ζ ≠ 0 := fun h => by rw [h, Complex.zero_re] at h0; exact lt_irrefl 0 h0
@@ -331,6 +312,49 @@ private lemma stripG_conj {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1) :
         rw [map_div₀, map_mul, Complex.conj_ofReal, map_ofNat],
       Complex.tan_conj, ← map_div₀]
   rw [hq, Complex.log_conj _ harg]
+
+/-- **Lemma T.3(3) first identity (`mat:T3`(3)), for every `τ ∈ ℝ`.** For `0 < σ < 1` and `ξ > 0`,
+`Re Φ_Mel(σ + iτ; ξ) - Φ_Mel(σ; ξ) = -vertUpsilon σ τ`. Since the integrand of `vertUpsilon σ`
+is odd, `vertUpsilon σ τ = ∫₀^{|τ|} Im g(σ + it) dt`, so this is the identity
+`Re Φ_Mel(σ + iτ; ξ) - Φ_Mel(σ; ξ) = -∫₀^{|τ|} Im g(σ + it) dt`. Proof: fundamental theorem of
+calculus along the vertical line, with derivative `-Im g(σ + iu)`. -/
+lemma mellinPhi_re_vertical {σ ξ τ : ℝ} (hσ0 : 0 < σ) (hσ1 : σ < 1) (hξ : 0 < ξ) :
+    (mellinPhi ((σ : ℂ) + (τ : ℂ) * Complex.I) ξ - mellinPhi (σ : ℂ) ξ).re = -vertUpsilon σ τ := by
+  let ψ : ℝ → ℝ := fun u => (mellinPhi ((σ : ℂ) + (u : ℂ) * Complex.I) ξ - mellinPhi (σ : ℂ) ξ).re
+  have hψ_deriv : ∀ u : ℝ, HasDerivAt ψ (-(stripG ((σ : ℂ) + (u : ℂ) * Complex.I)).im) u := fun u => by
+    refine (Complex.reCLM.hasFDerivAt.comp_hasDerivAt u (hasDerivAt_mellinPhi_vert hσ0 hσ1 u)).congr_deriv ?_
+    change (Complex.I * (stripG ((σ : ℂ) + (u : ℂ) * Complex.I) + Complex.log ((Real.pi : ℂ) ^ 2 * (ξ : ℂ)))).re = _
+    rw [Complex.I_mul_re, Complex.add_im, show (Real.pi : ℂ) ^ 2 * (ξ : ℂ) = ((Real.pi ^ 2 * ξ : ℝ) : ℂ) by push_cast; ring,
+      ← Complex.ofReal_log (by positivity : 0 ≤ π ^ 2 * ξ), Complex.ofReal_im, add_zero]
+  have h_im_eq : ∀ u : ℝ, -(stripG ((σ : ℂ) + (u : ℂ) * Complex.I)).im =
+      -(Real.arctan (Real.sinh (π * u) / Real.sin (π * σ)) - Real.arctan (u / σ)) := fun u => by
+    rcases lt_trichotomy u 0 with hu | rfl | hu
+    · -- `u < 0`: reflect with `Im g(conj z) = -Im g(z)` to `-u > 0`
+      have hpos : 0 < ((σ : ℂ) + ((-u : ℝ) : ℂ) * Complex.I).re := by simp [hσ0]
+      have hlt : ((σ : ℂ) + ((-u : ℝ) : ℂ) * Complex.I).re < 1 := by simp [hσ1]
+      have hc : (starRingEnd ℂ) ((σ : ℂ) + ((-u : ℝ) : ℂ) * Complex.I) =
+          (σ : ℂ) + (u : ℂ) * Complex.I := by
+        apply Complex.ext <;> simp
+      have hconj := stripG_conj hpos hlt
+      rw [hc] at hconj
+      have hne : (σ : ℂ) + ((-u : ℝ) : ℂ) * Complex.I ≠ 0 := fun h => by
+        have := congrArg Complex.re h; simp at this; linarith
+      have hkey : (stripG ((σ : ℂ) + ((-u : ℝ) : ℂ) * Complex.I)).im =
+          Real.arctan (Real.sinh (π * (-u)) / Real.sin (π * σ)) - Real.arctan ((-u) / σ) := by
+        simp only [stripG, hne, ↓reduceIte, im_log_tan_div_eq hσ0 hσ1 (by linarith : (0 : ℝ) < -u)]
+      rw [hconj, Complex.conj_im, hkey]
+      simp only [mul_neg, Real.sinh_neg, neg_div, Real.arctan_neg]
+      ring
+    · rw [show (σ : ℂ) + ((0 : ℝ) : ℂ) * Complex.I = (σ : ℂ) by simp, stripG_ofReal hσ0 hσ1]
+      simp
+    · have hne : (σ : ℂ) + (u : ℂ) * Complex.I ≠ 0 := fun h => by
+        have := congrArg Complex.re h; simp at this; linarith
+      simp only [stripG, hne, ↓reduceIte, im_log_tan_div_eq hσ0 hσ1 hu]
+  have hftc := intervalIntegral.integral_eq_sub_of_hasDerivAt
+    (fun u _ => (hψ_deriv u).congr_deriv (h_im_eq u))
+    ((vertUpsilon_continuousIntegrand σ).neg.intervalIntegrable 0 τ)
+  rw [show ψ 0 = 0 by simp [ψ], sub_zero, intervalIntegral.integral_neg] at hftc
+  exact hftc.symm
 
 /-- `K₀(conj ζ, ξ) = conj K₀(ζ, ξ)` on `0 < Re ζ < 1`. -/
 lemma mellinK0_conj {c ξ : ℝ} (hξ : 0 < ξ) {ζ : ℂ} (h0 : 0 < ζ.re) (h1 : ζ.re < 1) :
@@ -1204,7 +1228,7 @@ lemma total_integrand_meas_symm_bound {c ξ σ_star : ℝ}
         rw [hK₀_eq, Complex.norm_real, Real.norm_of_nonneg hK₀_pos.le]
       have hphi_exp : Real.exp (c * (mellinPhi ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ).re) /
           Real.exp (c * (mellinPhi (σ_star : ℂ) ξ).re) = Real.exp (-c * vertUpsilon σ_star τ) := by
-        rw [← Real.exp_sub, ← mul_sub, ← Complex.sub_re, mellinPhi_re_vertical hσ0 hσ1 hξ hτ]; ring_nf
+        rw [← Real.exp_sub, ← mul_sub, ← Complex.sub_re, mellinPhi_re_vertical hσ0 hσ1 hξ]; ring_nf
       rw [hm0, hm_eq, hm_eq, mul_div_mul_comm, mul_div_mul_comm, hnpow, hphi_exp]
       have hB : Real.exp (FormalResearch.Asymptotics.binetDiff c ((σ_star : ℂ) + (τ : ℂ) * Complex.I)).re /
           Real.exp (FormalResearch.Asymptotics.binetDiff c (σ_star : ℂ)).re ≤ 1 :=
@@ -1826,6 +1850,10 @@ lemma lobe_core_error_bound {Δ₁ U c Δ ξ σ_star : ℝ}
 
 
 /-! ### Axiom Verification -/
+
+/-- info: 'FormalResearch.CohnElkies.mellinPhi_re_vertical' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.CohnElkies.mellinPhi_re_vertical
 
 /-- info: 'FormalResearch.CohnElkies.totalSaddle_integrable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
