@@ -88,7 +88,7 @@ Steps 1 to 3 are independent. F2 needs from F1 `ct:outer` (the outer function `G
 ### 2.4 Next concrete packages (headline paths only)
 
 1. **Start now (tier 1, `thm:intro-radii`):** (`u1cl:langer` done; `uct:admiss` (1), (2) done) C1's remaining part (3) and `ceo:O11ak` for general seeds. None needs another package.
-2. **Then:** F1's first block, `ct:outer` and `ct:dual-id` (`constant_terms_lower.tex`), on proved inputs only (`mat:T1`, `mat:T4`, `gt:7.7b`); `ct:outer` unblocks F2.
+2. **Then:** F1's first block, `ct:outer` ((1), (2) structure done; closed forms and (3) open) and `ct:dual-id` (`constant_terms_lower.tex`), on proved inputs only (`mat:T1`, `mat:T4`, `gt:7.7b`); `ct:outer` unblocks F2.
 3. **Continue, scoped to what the headlines use:** M6 step (a), the `CeSourceFamily` instance for `convSource` (the `ConvSource*` symbol bounds and pre-edge estimates also feed F2), and the `m_0 = 1` lift that `thm:intro-gap` (iii) needs.
 4. **Second headline lane once two slots are free:** `thm:intro-gap` (iv) through M9 (E2), beginning with `thm:airy-square-attained` (needs only proved inputs: `airyNC_quadrature`, `airyAiC_logDeriv_mittagLeffler`).
 
@@ -370,7 +370,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 
 | label | state | Lean today / note |
 |---|---|---|
-| `ct:outer` | planned | M10 (lower bound) |
+| `ct:outer` | partial | `ct_outer_part1`, `ct_outer_part2_structure`, `ct_outer_part2_taylor` (`CtOuter*`: (1), the phase `theta_eps` odd, smooth, holomorphic on `|tau| < 1/2`, Taylor to order 5). Open: closed forms of `theta_1^-`, `theta_3^+-` (`CtThetaValuesTarget`: Frullani and Mittag-Leffler integral evaluations), clause (3) (Phragmen-Lindelof identification, then exponential derivative bounds) |
 | `ct:dual-id` | planned | M10 (lower bound) |
 | `ct:cfu` | planned | M10 (lower bound) |
 | `ct:dyadic` | planned | M10 (lower bound) |
