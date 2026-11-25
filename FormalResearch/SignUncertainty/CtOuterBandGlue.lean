@@ -158,4 +158,8 @@ theorem outerAmp_ampBd {ε : ℝ} (hε : ε = -1 ∨ ε = 1) :
     hG1 hG2 hG2c hGb0 hGb1 hGb2
   exact ⟨_, _, this⟩
 
+/-- info: 'FormalResearch.SignUncertainty.CtOsc.outerAmp_ampBd' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms outerAmp_ampBd
+
 end FormalResearch.SignUncertainty.CtOsc

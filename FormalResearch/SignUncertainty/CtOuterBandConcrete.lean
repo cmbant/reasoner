@@ -58,4 +58,8 @@ theorem mdata_hankel : ∃ C0 : ℝ, 0 < C0 ∧
     refine this.trans ?_
     exact div_le_div_of_nonneg_right ((le_max_right C2 C3).trans (le_max_right _ _)) (by positivity)
 
+/-- info: 'FormalResearch.SignUncertainty.CtOsc.mdata_hankel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms mdata_hankel
+
 end FormalResearch.SignUncertainty.CtOsc
