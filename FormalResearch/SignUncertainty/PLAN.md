@@ -370,7 +370,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 
 | label | state | Lean today / note |
 |---|---|---|
-| `ct:outer` | partial | `ct_outer_part1`, `ct_outer_part2_structure`, `ct_outer_part2_taylor` (`CtOuter*`: (1), the phase `theta_eps` odd, smooth, holomorphic on `|tau| < 1/2`, Taylor to order 5). Open: closed forms of `theta_1^-`, `theta_3^+-` (`CtThetaValuesTarget`; proved so far: the Frullani integral and `J_1 = -log 2`, `CtOuterP2`; still open: the `log(1+t^2)` integral by the Mittag-Leffler series, the assembly, `theta_3^+-`), clause (3) (Phragmen-Lindelof identification, then exponential derivative bounds) |
+| `ct:outer` | partial | `ct_outer_part1`, `ct_outer_part2_structure`, `ct_outer_part2_taylor` (`CtOuter*`: (1), the phase `theta_eps` odd, smooth, holomorphic on `|tau| < 1/2`, Taylor to order 5). `theta_1^±` closed forms proved (`theta_one_minus`, `theta_one_plus`, `ct_outer_part2_taylor_theta1`). Open: `theta_3^±` and `c_{3,h}` (`CtThetaValuesTarget`; needs `h'''(0)` via `u_r''` bounds and the `zeta(3)` series; est. 1500-2000 lines), clause (3) (est. 3000-3500 lines: harmonic uniqueness for `h~`, corner theory, generalised local continuation, exponential bounds, derivatives), clause (3) (Phragmen-Lindelof identification, then exponential derivative bounds) |
 | `ct:dual-id` | planned | M10 (lower bound) |
 | `ct:cfu` | planned | M10 (lower bound) |
 | `ct:dyadic` | planned | M10 (lower bound) |
