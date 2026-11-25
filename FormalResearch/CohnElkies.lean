@@ -58,6 +58,7 @@ public import FormalResearch.CohnElkies.OuterWeightedBound
 public import FormalResearch.CohnElkies.HighBandEstimate
 public import FormalResearch.CohnElkies.HighBandUniform
 public import FormalResearch.CohnElkies.WindowSmoothConv
+public import FormalResearch.CohnElkies.MellinT3Complete
 public import FormalResearch.CohnElkies.DualBoundE3
 public import FormalResearch.CohnElkies.MellinKernelHolomorphic
 public import FormalResearch.CohnElkies.VerticalStripShift
