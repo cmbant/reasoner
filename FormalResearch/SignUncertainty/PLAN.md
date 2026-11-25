@@ -2,7 +2,7 @@
 
 Source: QIprojects `CFT/sign_uncertainty/paper/` (`sign_uncertainty_core.tex`, the supplement parts) and the three
 `CFT/common/` files it `\input`s (`airy_poisson.tex`, `clark_airy.tex`, `two_edge_bootstrap.tex`), read at QIprojects
-`origin/main` `f4cc9812c` (2026-11-25). Lean state: reasoner `master` `2556a80`. Reader-facing status:
+`origin/main` `f4cc9812c` (2026-11-25). Lean state: reasoner `master` `5b7fa76`. Reader-facing status:
 QIprojects `docs/lean_status.md` (section "Paper I sign uncertainty"). This file says what is true now; history is in git.
 Wording: "proved" means a Lean theorem on `master` with the declaration named; "stated" means a Lean `def`/`Prop` or a
 hypothesis structure with no proof; "proved modulo fields X" means a theorem whose hypothesis structure has the open
@@ -66,7 +66,7 @@ Package ids are from section 6.1, milestones from section 3. Nothing in this sec
 6. **F3** (S): `thm:ct-upper` (i), (ii) with the reductions `hankel_euclid_dictionary`, `intertwiner_feasible`, `ce_schwartz_radius_eq_L1_radius`, `hankelT0_eq_hankelT`; (iii) from (ii) and `ce_quadratic_dimensions` (or from the Lean `thm_intro_radii` once M6 closes).
 7. **D2**: `gt:7.12a` exact density `eq:ce-density-exact` (S), then `thm:intro-radii` (S).
 
-Steps 1 to 3 are independent. F2 needs from F1 only `ct:outer` (the outer function `G_eps` and its phase `theta_eps`, cited nine times in `constant_terms_upper`); `ct:dual-id`, `ct:boas`, `ct:dyadic` are lower-bound only, and the upper bounds cite `thm:ct-lower` only to combine into two-sided statements, so after `ct:outer` the two bounds proceed in parallel. The sign-radii half of (ii) needs F1 and `fct:main-hankel` only; the CE half needs `fct:main-ce`.
+Steps 1 to 3 are independent. F2 needs from F1 `ct:outer` (the outer function `G_eps` and its phase, cited twelve times in the upper-bound parts), `ct:cfu`, `ct:dual-id` (1) and `ct:langer-inv`; `ct:boas`, `ct:dyadic` are lower-bound only, and the upper bounds cite `thm:ct-lower` only to combine into two-sided statements. So F1's first block (`ct:outer`, `ct:dual-id`, `ct:cfu`) comes first, then the two bounds proceed in parallel. The sign-radii half of (ii) needs F1 and `fct:main-hankel` only; the CE half needs `fct:main-ce`.
 
 ### 2.2 `thm:intro-hb`: A3 + B3 + C2 (all levels) -> C3 (M8)
 
@@ -81,7 +81,7 @@ Steps 1 to 3 are independent. F2 needs from F1 only `ct:outer` (the outer functi
 - (ii): proved in the Lean statement. Housekeeping (S): restate without the unused `ShellGapInputs` argument, add the origin-floor clause and the `u_* = t_m` endpoint case of `thm:ce-physical-profile`.
 - (i): `ShellReduction D` for `m >= 2` (E1, M): needs `u1cl:multilevel` lower half (section 2.2) and the radial projection already in `CEShellReduction`.
 - (iii): M6 (D1), then `thm:ce-hb-lift` at every level with weak Laplace positivity and tangencies (M8), `thm:ce-canonical-iff` (E2) and the Laplace-positive odd families of `thm:ce-odd-family` (E1).
-- (iv): E2 (M9: `thm:airy-square-attained`, `thm:ce-airy-transfer`, `thm:ce-canonical-iff`, `rem:airy-even-deep-gap`), `cor:ce-schwartz-shells` (D2) and `thm:ce-shifted-lift` (route-II machinery at shifted nodes). E2 needs only M3, so it can start now.
+- (iv): E2 (M9: `thm:airy-square-attained`, `thm:ce-airy-transfer`, `thm:ce-canonical-iff`, `rem:airy-even-deep-gap`), `cor:ce-schwartz-shells` (D2) and `thm:ce-shifted-lift` (route-II machinery at shifted nodes). E2's Airy-LP core (`thm:airy-square-attained`, `thm:ce-canonical-iff`, `thm:ce-airy-transfer`) needs only M3 and can start now; `thm:ce-shifted-lift` needs D1 (`thm:ce-post-edge`, `cepe:general`, `ceo:conv`, `lem:ce-dual-line`, `lem:ce-lift-assembly`), C1 (`ceo:O11ak`) and C2 (`u1c:U1`, `U2`, `u1co:O5`, `O6`), so it comes after M6.
 
 ### 2.4 Next concrete packages (headline paths only)
 
@@ -91,6 +91,14 @@ Steps 1 to 3 are independent. F2 needs from F1 only `ct:outer` (the outer functi
 4. **Second headline lane once two slots are free:** `thm:intro-gap` (iv) through M9 (E2), beginning with `thm:airy-square-attained` (needs only proved inputs: `airyNC_quadrature`, `airyAiC_logDeriv_mittagLeffler`).
 
 Tier-2 items are not started while a tier-1 package is unstaffed.
+
+### 2.5 Existing code to reuse (searched 2026-11-25; declarations read in the source)
+
+- **F1, A3:** `ModularBootstrap/StripBand/StripPoissonRep.lean` (`stripPoisson_representation`), `Complex/StripPoisson.lean`, `Complex/HardyHalfPlane.lean`: the strip Poisson/Schwarz representation that `ct:outer` and `ct:dual-id` need. No Lean library has the strip outer function or the `ct:boas` identity; they are built here.
+- **F2, D1:** `Analysis/VanDerCorput.lean` (`van_der_corput_first`, `van_der_corput_second`), `CohnElkies/ConvSource*`, `CohnElkies/PreEdgeCriterion.lean`, `Asymptotics/StirlingHalfInt.lean`. Port selectively from `PrimeNumberTheoremAnd` (Apache-2.0, Lean v4.36.0): rectangle contour shifts (`ResidueCalcOnRectangles.lean`), `norm_fourier_le_integral_deriv_div`.
+- **B1 (`gt:7.5` all levels), E1:** `Complex/Montel.lean` (`montel`) and `Analysis/Scheffe.lean` (`tendsto_integral_norm_sub_of_tendsto_ae`).
+- **D2:** `Sphere-Packing-Lean` (Apache-2.0) `ForMathlib/RadialSchwartz/` (`RadialSchwartzMap`) is clean of proof placeholders and could serve `lem:ce-schwartz`; check against reasoner's `Euc d` and `FourierCompactSupport` first. Its `CohnElkies/LPBound.lean` rests on an unproved input and is not to be used.
+- Newer Mathlib (after reasoner's pin): the vertical Gamma bound (#45103) and `SchwartzMap.dense_hasCompactSupport` (#43046) shorten C1 and D2 after a Mathlib bump.
 
 ## 3. Milestones
 
@@ -150,19 +158,19 @@ A row is **done** when the label is proved in Lean for the stated hypotheses (an
 |---|---|---|---|---|---|---|---|---|
 | **A1** | Airy-Poisson defect formula, quadrature, sign uncertainty at the first node | `common/airy_poisson.tex` | 16 | 15 / 1 / 0 / 0 | - | none | - | M1 |
 | **A2** | Clark-Airy and Hermite-Biehler quadrature, two-node theorem, Airy PWS | `common/clark_airy.tex` | 7 | 6 / 1 / 0 / 0 | - | none | A1 | M1 |
-| **A3** | Two-edge bootstrap (strip Poisson, edge oscillation, Riesz-Airy-Poisson bootstrap, `C^1` stability) | `common/two_edge_bootstrap.tex` | 7 | 1 / 6 / 0 / 0 | M-L (all-`(P,Q)` `TE.0'` as a converter into the shared `ChartCompactness`; Hankel HB instance at every level) | Stage A is an instance obligation: `BootstrapInstance`, `BootstrapHBInstance`, `BootstrapCore` fields. Discharged for the Hankel one-level problem (`hankelBootHB`) and for Paper II problems; not for general `(P,Q)` Hankel | A1, A2, B3 | M8 |
+| **A3** | Two-edge bootstrap (strip Poisson, edge oscillation, Riesz-Airy-Poisson bootstrap, `C^1` stability) | `common/two_edge_bootstrap.tex` | 7 | 1 / 6 / 0 / 0 | L (all-`(P,Q)` `TE.0'` as a converter into the shared `ChartCompactness`; Hankel HB instance at every level) | Stage A is an instance obligation: `BootstrapInstance`, `BootstrapHBInstance`, `BootstrapCore` fields. Discharged for the Hankel one-level problem (`hankelBootHB`) and for Paper II problems; not for general `(P,Q)` Hankel | A1, A2, B3 | M8 |
 | **B1** | Hankel layer: Mellin strip, radial compactness, rigidity | `fourier_mellin.tex`, `general_theorems.tex` | 3 | 2 / 1 / 0 / 0 | S-M (`gt:7.5` instance and `(P,Q)` form) | `gt:7.5`: `RadialRigidityPackage` fields | A2 | M2 |
 | **B2** | Euclid-Hankel dictionary, Hardy-Mellin intertwiner, origin constraint | `general_theorems.tex` | 2 | 2 / 0 / 0 / 0 | - | none | B1 | M1/M2 |
 | **B3** | Langer chart, local density, transport, edge representation | `langer_transport.tex` | 5 | 2 / 2 / 1 / 0 | S-M (`u1cl:langer`, `gt:7.7p` (d), weighted-Mellin clause) | none (constants weaker than the TeX) | B1, C1 | M5, M8 |
-| **C1** | Mellin-Airy toolkit and symbol transfer | `mellin_airy_toolkit.tex` | 11 | 6 / 4 / 1 / 0 | M (`uct:admiss`, general-seed `O.11ak`) | `ConvTailData` for general-seed `exists_hankelEigenfn_lift_general` | A1, B1 | M4, M6, M10 |
+| **C1** | Mellin-Airy toolkit and symbol transfer | `mellin_airy_toolkit.tex` | 11 | 6 / 4 / 1 / 0 | M-L, 1.5-2.5k (`uct:admiss`, general-seed `O.11ak`) | `ConvTailData` for general-seed `exists_hankelEigenfn_lift_general` | A1, A2 (`gt:3.1`), B1, C2, D1 | M4, M6, M10 |
 | **C2** | Upper O-chain at one level (`U.*`, `O.*`, hb-seed-mass, `O.9'`) | `u1c_o1_upper.tex` | 13 | 5 / 8 / 0 / 0 | L (all-level `(P,Q)` seeds) | none for `hbThresholdsUpper`; `m_0 = 1` only | A1, A2, B1, C1 | M4, M8 |
 | **C3** | Hankel thresholds: one-level halves, multilevel theorem, two-sided `O(1)` | `u1c_o1_lower.tex` | 2 | 0 / 1 / 1 / 0 | L (all levels); S (`u1cl:main`) | none at one level | A3, B3, C2 | M5, M8, M11 |
-| **D1** | Cohn-Elkies upper half, route II: convolution source, transfer, pre-edge, post-edge, lift | `ce_hb_lift.tex`, `ce_o1_route.tex`, `ce_o1_global_transfer.tex`, `ce_o1_pre_edge.tex`, `ce_physical_log_far.tex`, `ce_rate.tex` | 16 | 9 / 4 / 3 / 0 | L (instance of `CeSourceFamily` M; post-edge sign L; packaging S-M) | `CeSourceFamily` (tail, dual fields), `PreEdgeGeneralData`, open `CeHankelPair` | B2, C1, C2, E1 (`ShellHBData`) | M6, M8 |
+| **D1** | Cohn-Elkies upper half, route II: convolution source, transfer, pre-edge, post-edge, lift | `ce_hb_lift.tex`, `ce_o1_route.tex`, `ce_o1_global_transfer.tex`, `ce_o1_pre_edge.tex`, `ce_physical_log_far.tex`, `ce_rate.tex` | 16 | 9 / 4 / 3 / 0 | L (instance of `CeSourceFamily` M; post-edge sign L; packaging S-M) | `CeSourceFamily` (tail, dual fields), `PreEdgeGeneralData`, open `CeHankelPair` | B2, C1, C2, E1 (`ShellHBData`); E2 (`lem:ce-terminal-deflation`) for the tangency lifts of M8 | M6, M8 |
 | **D2** | Cohn-Elkies radius layer: finite dimensions, Schwartz vs `L^1` infimum, density | `ce_finite_bounds.tex`, `ce_radius.tex` | 5 | 1 / 2 / 1 / 1 | S-M | `ce_radius_airy_order_of_bounds` takes both halves as hypotheses (`hlo`, `hhi`) | B2 | M7, M9, M10 |
 | **E1** | Cohn-Elkies shells: reduction, extraction, one-profile, odd families | `ce_shells.tex` | 7 | 3 / 4 / 0 / 0 | M (`ShellReduction D`); M-L (positive odd families) | `ShellReduction D` for `m >= 2`; none for the extraction and one-profile parts | B1, B2, C3 | M3, M7, M8 |
-| **E2** | Limiting Airy program at prescribed shells (Airy-LP) | `ce_airy_lp.tex`, `ce_airy_lp_proofs.tex`, `ce_canonical_iff.tex`, `ce_two_level.tex`, `ce_shifted_witnesses.tex`, `airy_extremal.tex` | 23 | 0 / 0 / 23 / 0 | L (about 23 results; calibration: `ShellLaplaceBase` 1.9k + `OddShellFamily` 1.4k lines) | - | A1, A2, E1 (needs only M3) | M9 |
-| **F1** | Five-term lower bound for the Hankel thresholds | `constant_terms_lower.tex` | 5 | 0 / 0 / 5 / 0 | L (calibration: the Virasoro lower half took about 29k lines) | - | B1, B3 (incl. `u1cl:langer`), C1, A3, M11 | M10 |
-| **F2** | Five-term upper bound for the Hankel thresholds and the Cohn-Elkies radius | `constant_terms_upper.tex`, `constant_terms_five.tex` | 17 | 0 / 0 / 17 / 0 | L (17 results, several over 1,000 TeX lines; the largest single package) | - | F1 (`ct:outer` only: the strip outer function and its phase, cited 9 times), C1 (`uct:admiss`, general-seed `O.11ak`), C2, D1 (`cel:L*`, `ceo:gauss`, `ceo:O11n`, `ceo:conv` (4), `cepe:PE3`), A2 (`gt:3.1`) | M10 |
+| **E2** | Limiting Airy program at prescribed shells (Airy-LP) | `ce_airy_lp.tex`, `ce_airy_lp_proofs.tex`, `ce_canonical_iff.tex`, `ce_two_level.tex`, `ce_shifted_witnesses.tex`, `airy_extremal.tex` | 23 | 0 / 0 / 23 / 0 | L (about 23 results; calibration: `ShellLaplaceBase` 1.9k + `OddShellFamily` 1.4k lines) | - | A1, A2, E1 (M3) for the Airy-LP core; D1, C1, C2 for `thm:ce-shifted-lift` | M9 |
+| **F1** | Five-term lower bound for the Hankel thresholds | `constant_terms_lower.tex` | 5 | 0 / 0 / 5 / 0 | L (calibration: the Virasoro lower half took about 29k lines) | - | A2 (`gt:1.0p`), B1, B3 (incl. `u1cl:langer`), C1, A3, M11 | M10 |
+| **F2** | Five-term upper bound for the Hankel thresholds and the Cohn-Elkies radius | `constant_terms_upper.tex`, `constant_terms_five.tex` | 17 | 0 / 0 / 17 / 0 | L (17 results in about 1,900 TeX lines: `constant_terms_upper.tex` 626, `constant_terms_five.tex` 1,260; the largest single package) | - | F1 (`ct:outer`, `ct:cfu`, `ct:dual-id` (1), `ct:langer-inv`), D2 (`lem:ce-schwartz`), B2 (`gt:7.9b`), C1 (`uct:admiss`, general-seed `O.11ak`), C2, D1 (`cel:L*`, `ceo:gauss`, `ceo:O11n`, `ceo:conv` (4), `cepe:PE3`), A2 (`gt:3.1`) | M10 |
 | **F3** | Five-term theorem `thm:ct-upper` (assembly and reductions) | `general_theorems.tex` | 1 | 0 / 1 / 0 / 0 | S | F1, F2 (parts (i), (ii)); `RadiiInputs` for (iii) | B2, D2, F1, F2 | M10 |
 | **G** | Fold-tip universality (Theorem FT and the two-edge versions) | `fold_tip_universality.tex`, `fold_tip_two_edge.tex`, `fold_tip_two_edge_hb.tex` | 9 | 0 / 3 / 6 / 0 | owned by the ModularBootstrap/FoldTip lane (`ModularBootstrap/PLAN.md`, packages FT-0..FT-7) | violator family and chart coverage as hypotheses; `FTH4b` mismatch | A3, Paper II instances | FT lane |
 | **H** | Introduction theorems | `sign_uncertainty_core.tex` | 3 | 0 / 2 / 1 / 0 | S per theorem after its inputs | `RadiiInputs` (open: `ce_hb_lift_m1`), `ShellGapInputs` (open: `shell_reduction`, `ce_hb_lift`) | see section 2 | all |

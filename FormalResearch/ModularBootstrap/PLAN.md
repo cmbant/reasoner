@@ -1,7 +1,7 @@
 # Paper II (modular bootstrap at large c) — Lean plan
 
 Source: QIprojects `CFT/modular_bootstrap/paper/` at `origin/main` `f4cc9812c` (`airy_scale_core.tex` and its supplement parts; the
-note `CFT/notes/n2_ramped_comb.tex` for Lemma U*). Lean state: reasoner `master` `2556a80`. Reader-facing status line:
+note `CFT/notes/n2_ramped_comb.tex` for Lemma U*). Lean state: reasoner `master` `5b7fa76`. Reader-facing status line:
 the Paper II section of QIprojects `docs/lean_status.md`. This file says what is true now: nothing is claimed formalised that
 is not on `master`, and a `.lean` file existing is not verification.
 
@@ -14,8 +14,8 @@ results are not in Lean; sections 1 to 3 give each a place in a priority and dep
 
 **Counts.** The paper and supplement state 249 results (246 `result` environments, the two `theorem`/`corollary` of
 `modular_bootstrap_gap_proof.tex`, and Lemma A$_V$, which is a `remarkx`; several labels on one result are one row). Their state
-on `master`: 72 done, 24 partial (Lean covers a special case, stated in the row), 107 planned (a named
-work package), 24 not planned (with the reason), and 22 recalled from Paper I (mapped in 7.10, not Paper II packages).
+on `master`: 72 done, 24 partial (Lean covers a special case, stated in the row), 125 planned (a named
+work package), 6 not planned (with the reason), and 22 recalled from Paper I (mapped in 7.10, not Paper II packages).
 Of the 22 recalled results, 15 are formalised in Lean (in Paper I's files or in this lane's), 1 is partial (`teb:quant_c1_hb`) and
 6 are not formalised (`ap:lemH`, `ap:lemFR`, `ap:lemHp`, which no Lean route here needs; `sr:window-pairing`, `sr:WR`, `teb:quant_c1_near`, which are owned by FT-H4b and FIVE-L).
 
@@ -41,8 +41,8 @@ weaker remainder, or modulo a named hypothesis). Package definitions, sizes and 
 |---|---|---|---|
 | **3** | **Five-term expansion** `thm:fixed-weight-expansion`, `thm:spinless-expansion`: `Delta_best = c'/Lambda_V + A_opt c'^{1/3} + c_0^* + c_1^Langer c'^{-1/3} + d_2^* c'^{-2/3} + O(c'^{-1} log c')`, two-sided | **Weaker.** `Upper.Ramped.virasoro_corollary_E1_unconditional` (Virasoro) and `n1_corollary_E1_unconditional`: `Delta_best = c'/Lambda_V + A_opt c'^{1/3} + O(1)`, two-sided, every weight-one problem; lower half `O(1)` at every `(w,Q)` (`fixedWeightLowerBoundInput_of_problem`). No `c_0^*`, `c_1^Langer`, `d_2^*` in Lean; for `w > 1` the upper half is the hypothesis `TheoremC15UpperInput` | Virasoro: **FIVE-0**, then **FIVE-L** and **FIVE-U** in parallel (they give `cts:transfer` and `thm:spinless-expansion`). Every `(w,Q)`: **W-P5**, **W-P6** (bump, `O(1)` upper bound at `w > 1`), then **FIVE-W** |
 | **2** | **Extremal spectrum**: attainment and atomicity (`ds:primal`), Airy clusters (`sr:Sigma`, `sr:cor`, `sr:single-level`), Clark curve (`gt:2.1`, `gt:2.4`-`gt:2.6`) | **Weaker or special.** `Sigma_0`, `Sigma`: `virasoro_sigma_unconditional`, `sigma_unconditional_prob` for the extremal measures of weight-one problems (paper: any measure satisfying `Gap`; far-first-site omitted family). Clark curve: `concrete_two_level_theorem` (`gt:2.1`, every `(w,Q)`, tests) matches; `theorem_two_five_w1`, `theorem_two_six_w1_unconditional` (`gt:2.5`, `gt:2.6`) weight one only. Existence of an exact-gap crossing measure (`corollary_E1`), not atomic: weaker than `ds:primal`. Nothing for `sr:cor`, `sr:single-level` | **DU-G**, **PA1** (`ds:primal`); **W-P5** (`Sigma`, T2 inputs at all weights), **SR-COR**; **W-P6**, **W-T2w**, **SE3** (Clark boundary at `w > 1`); **SLK**, then **PA2** (`sr:single-level`; the exact first atom needs `c_0^*` of FIVE-W) |
-| **4** | **Universality across chiral algebras**: fixed weight and `N = 1` (`n1:T5`), positive mixtures (`pmix:main`), prescribed HB levels | **Partly the paper's.** Lower bound `O(1)` at every integer `(w,Q)` and `N = 1` matches `wone:genlower`(1); `O(1)` law at weight one. Five-term, duality beyond `F = empty`, mixtures, general HB levels: none | five-term at `(w,Q)` as in 3 (this covers `N = 1`); mixtures **PM-0**, **PM-1** (= W-P6 for one component), **PM-2**, **PM-4**; the HB level `pmix:main`(5) needs **HB1** (chain **FT-H4b**, **STAB**, **INT-2**, **INT-2HB**, **LP1**, **PA1**), then **PM-3**, **PM-5** |
-| **1** | **Spin does not help**: continuous spin (`s4:S4`, `spinnotes:S3`, `sd:R`), integer spin (`isl:main`), finite-order programmes (`isl:finite`); integrality shifts the spinless optimum exponentially little (`int:main`) and by `O(log c')` with continuous spin (`int:cont-spin`) | **None.** Only the spinless upper bound (`O(1)` form) that the spin results compare with exists | continuous spin: **SPIN-F**, **SPIN-D** (its `sd:LP` needs **LP1**, which needs DU-G), **SPIN-S4**. Integrality: **INT-T**, **INT-1**, then **INT-3** (needs INT-2 and W-P6), then **INT-S** (needs SPIN-D). Integer spin, finite-order programmes and lattice integrality are not planned (computer-assisted enclosures, SPIN-Z; (CLM)-conditional, INT-L) |
+| **4** | **Universality across chiral algebras**: fixed weight (`n1:T5`) and `N = 1` (`n1:T3`), positive mixtures (`pmix:main`), prescribed HB levels | **Partly the paper's.** Lower bound `O(1)` at every integer `(w,Q)` and `N = 1` matches `wone:genlower`(1); `O(1)` law at weight one. Two-level duality `ds:E`(a) at `F = {t_1}` for every `(w,Q)` (`constrained_strong_duality_two_level`) and `gt:2.4` at `w = 1` (`corollary_two_four`); `ds:E`(b) (`T_F = max`) only at `F = empty` (`theorem_E`). Five-term, general compact `F`, mixtures, general HB levels: none | five-term at `(w,Q)` as in 3 (this covers `N = 1`); mixtures **PM-0**, **PM-1** (= W-P6 for one component), **PM-2**, **PM-4**; then **PM-3** (`pmix:rigidity`, needs PA2, W-T2w, SLK, FT-H4b), **INT-2HB** (cites `pmix:rigidity`), and **PM-5** (`pmix:main` cites `int:hb-reserve`, `int:main`, `int:obstr`, `ctu:c0`); `gt:hb` (**HB1**) is the single-component case of `pmix:rigidity` plus `int:hb-reserve` |
+| **1** | **Spin does not help**: continuous spin (`s4:S4`, `spinnotes:S3`, `sd:R`), integer spin (`isl:main`), finite-order programmes (`isl:finite`); integrality shifts the spinless optimum exponentially little (`int:main`) and by `O(log c')` with continuous spin (`int:cont-spin`) | **None.** Only the spinless upper bound (`O(1)` form) that the spin results compare with exists | continuous spin: **SPIN-F**, **SPIN-D** (its `sd:LP` needs **LP1**, which needs DU-G), **SPIN-S4**. Integrality: **INT-T**, **INT-1**, then **INT-3** (needs INT-2 and W-P6), then **INT-S** (needs SPIN-S4, SPIN-D, INT-1, INT-4, FIVE-U's `cts:transfer`). Integer spin and finite-order programmes: **SPIN-Z** last (kernel-checked interval certificates; owner sign-off on certificate size before it starts). Lattice integrality is not planned ((CLM)-conditional, INT-L) |
 
 The rows are ordered by the length of the critical path, longest first, not by the paper's numbering; "#" is the paper's number.
 Common infrastructure on several paths: W-P5 (all weights, headlines 2, 3, 4), W-P6 (the `O(1)` upper bound for `w > 1`: headlines 2, 3, 4),
@@ -51,12 +51,11 @@ DU-G (headlines 1, 2).
 **Next package to start: FIVE-0** (headline 3, the longest chain, no open parent): the closed-form constants `c0Star`, `c1Langer`, `gamma0`,
 `d2Star`, the Langer curvature and phase-locking identity (`cts:langer`, `cts:phaselock`), then the outer function on the half-disc and the exact
 minimum of `J` (`cts:involution`, `cts:main`). First risk to settle: Mathlib has no outer functions or Hardy spaces on the half-disc, so build it
-from the Poisson integral of the log modulus (nearest infrastructure `Complex/Hardy{HalfPlane,FejerRiesz,Point}`). Started alongside it, on the
+from the Poisson integral of the log modulus, with `rmt-foundations-lean`'s Cayley/Herglotz file and `Complex/HardyHalfPlane` (section 2.2). Started alongside it, on the
 same headline paths: **W-P5** (mechanical, P1-P4 done) and then **W-P6**; **DU-G** and **SPIN-F** have no open parent.
 
-Note on the owner's earlier ranking (QIprojects `docs/lean_status.md`: 1. Theorem LP, 2. INT-4 then INT-1 to INT-3): LP1 is kept, but as a
-dependency of SPIN-D and HB1, and the integrality theorems (INT-*) are tier 2 because no headline needs them except through INT-2/INT-2HB (HB level).
-`docs/lean_status.md` (QIprojects, read only here) still says the five-term `C15`, Theorem PM and continuous spin are "not planned now"; it needs updating.
+Note on the owner's earlier ranking (1. Theorem LP, 2. INT-4 then INT-1 to INT-3): all of these are now tier 1 on headline paths (LP1 for
+SPIN-D and HB1; INT-T, INT-1, INT-3, INT-4 for headline 1's integrality clause), ordered by their dependencies (section 2.1).
 
 ## 2. Tier 1: work packages on a headline path
 
@@ -71,93 +70,111 @@ upper bound (`Upper/Ramped`) 19k, T2 (`TwoZero*`) 5.6k, the whole Virasoro lower
 | **FIVE-0** | constants and exact minimisation: `cts:langer` (Langer curvature, `K_2`), `cts:phaselock`, `cts:involution`, `cts:main` (closed-form minimum of the convex functional `J`, `c_0^*`), outer-function jets `ctu:piece4`, `ctu:jets`, `ctu:common-functional`. New definitions `c0Star`, `c1Langer`, `gamma0`, `d2Star` by their closed forms (decimals are numerical, not planned). Risk: Mathlib has no outer functions or Hardy spaces on the half-disc; `Complex/Hardy{HalfPlane,FejerRiesz,Point}` is the nearest infrastructure, and the outer function would be built explicitly from the Poisson integral of the log modulus | the seven labels | none | L, 8-12k | wave 1 |
 | **FIVE-L** | sharp lower bound: `cts:edge-hankel`, `cts:cauchy-dual`, `cts:rosc-uncond`, `cts:boas`, `cts:lower-main`, `ctl:dyadic`, `ctl:pass2`, `ctl:freeze`; inputs `rem:corL` (packaged `C^1` stability and envelope), `rem:thmOloc` (Airy translates satisfy the local conditions), `teb:quant_c1_near` (TE.0 flat, near-threshold: new file beside `QuantC1Airy`, which Paper I imports and is not edited) | those, `rem:corL`, `rem:thmOloc` | FIVE-0, STAB, `theoremJ_Delta_best`, `theorem_W1prime_two`, `teb_quant_c1_typeII` | L, 25-30k | wave 2 |
 | **FIVE-U** | sharp upper bound by the exact comb with smoothing: `cts:smooth-env`, `cts:tip-shared`, `cts:upper-design`, `cts:regionII-floor`, `cts:shifted-langer`, `pm:tip-match`, `cts:upper-vac`, `cts:transfer` (C15 at Virasoro), `thm:spinless-expansion` | those | FIVE-0; `esd:*`, `cmb:K1`, `K4`, `K7`, `ut:G`, `fw:FWM` (all done) | L, 25k | wave 2 |
-| **FIVE-W** | fixed weight: `ctu:main`, `ctu:O1` (`c_0^*(w,Q)` clauses), `ctu:table` (closed forms), `ctu:weight`, `ctu:strip`, `thm:fixed-weight-expansion` | those | FIVE-L, FIVE-U, W-P5, W-P6, `fixedWeightAxioms_of_problem` | L, 15-25k | wave 3 |
+| **FIVE-W** | fixed weight: `ctu:main`, `ctu:O1` (`c_0^*(w,Q)` clauses), `ctu:table` (closed forms), `ctu:weight`, `ctu:strip`, `thm:fixed-weight-expansion` | those | FIVE-L, FIVE-U, W-P5, W-P6, `fixedWeightAxioms_of_problem` | L: 5-8k if FIVE-0/L/U are stated over `FixedWeightProblem` from the start (recommended), 15-25k if they are Virasoro-only and duplicated | wave 3 |
 | **W-P5** | design side at every weight: Proposition V and Lemma T with the bump (Peano bound `fw:e3.6`), Property (P) for the bumped `f = 1` designs, `Sigma_0`, `Sigma`, hypotheses H3, H4a, H4b of `ft_fixedWeight` at every `w` (mostly mechanical, P1-P4 done) | `ut:Vac`, `ut:T`, `sr:P`, `sr:Sigma0`, `sr:Sigma` at every weight; `wone:clark`(a) | P1-P4 (done), `Upper/Rigidity` | M-L, 4k | wave 1 |
 | **W-P6** | `O(1)` upper bound at every `(w,Q)`: bumped ramped comb (Lemma U*(w), `fw:Ustar` in `n2_ramped_comb.tex`; the paper label is `pmix:ramped` at one component), ramped vacuum at `w > 1` (`theta_bound` in `RampedVacuumWindow`), giving `TheoremC15UpperInput prob` for every `prob` | `ctu:O1` first inequality, `ds:E1`, `gt:2.4`(a) at `w > 1` | W-P5 (Proposition V at weight `w`), P1-P4 | L, 8-12k | wave 2 |
-| **W-T2w** | T2 `ut:T2` and ideal windows `ut:ideal` at `w > 1` and general `m`, Remark T2.1 (more real zeros), Theorems 2.5, 2.6 at `w > 1`, `ut:IIF`, `ut:I`, `ut:III` for finite real factors; `TwoZero*` pieces that say `prob.w = 1` (`Positivity/RegionOne*`, `Vacuum*`, `Assembly/Psi*`) generalised in place | `ut:T2`, `ut:ideal`, `ut:IIF`, `wone:clark`, `gt:2.4`-`gt:2.6` at `w > 1` | W-P5, W-P6 | L, 3-5k | wave 3 |
+| **W-T2w** | T2 `ut:T2` and ideal windows `ut:ideal` at `w > 1` and general `m`, Remark T2.1 (more real zeros), Theorems 2.5, 2.6 at `w > 1`, `ut:IIF`, `ut:I`, `ut:III` for finite real factors; `TwoZero*` pieces that say `prob.w = 1` (`Positivity/RegionOne*`, `Vacuum*`, `Assembly/Psi*`) generalised in place | `ut:T2`, `ut:ideal`, `ut:IIF`, `wone:clark`, `gt:2.4`-`gt:2.6` at `w > 1` | W-P5, W-P6 | L, 5-8k (the `w = 1`, two-factor `TwoZero*` alone is 5.6k) | wave 3 |
 | **SE3** | `se:3.3` at every `(w,Q)`: crossing measure supported in `{t_1} union [T, inf)` with mass at `t_1`, `T <= T_* + A_2^* n^{1/3} - D_J`; model `wone_clark_two_level_boundary` and `corollary_two_four_of_upper` (the upper bound gives the mass at `t_1`) | `se:3.3` | W-P6, `theorem_W1prime_two`, `constrained_strong_duality_two_level` (done) | S | wave 3 |
 | **DU-G** | `ds:E` as stated: (a) arbitrary closed `X` (existence iff no feasible test, at most card `B` + 1 atoms, decreasing supports), (b) compact `F`, `T_F = max`, `nu(F) > 0` above `T_V`, (c) reserve separation; `ds:farkas` in its stated form | `ds:farkas`, `ds:E` | `Duality/`, `FixedWeight/StrongDuality`, `TwoLevel/ConstrainedDuality` | M, 1.5k | wave 1 |
 | **PA1** | `dsl:strip-fixed` (fixed-charge strip bound `n1:L4`(a), positive weak threshold), `ds:primal` (weak extremal `g_*`, support in `{g_* = 0}`, locally finite atomic, atom at `T_F`; Montel/limit of `g_j` and `L^1(t^{w-1}dt)` convergence) | `dsl:strip-fixed`, `ds:primal`; atomic part of `ds:E1` | DU-G, `FixedWeightBand/MellinW`, `WeightAxioms` | L, 3-4k | wave 2 |
-| **SR-COR** | `sr:cor`: positions and masses of the clusters of a near-extremal measure in `t` | `sr:cor` | `Sigma` (weight one done), the spectral-measure dictionary (`Upper/Rigidity/CrossingDictionary`) | S-M | wave 2 |
-| **PA2** | `dsl:one-level-clusters`, `dsl:near-opt-mass`, `sr:single-level`; the cluster structure needs only the `O(1)` law, the exact first atom `d_1` and `(t_2^* - t_1^*) c^{-1/3}` need `c_0^*` | those three | PA1, SLK, W-P5, FIVE-W (`ctu:c0`) | L | wave 4 |
-| **SLK** | `bl:norm`: shared Airy/HB normalisation and `L^1` convergence with vacuum slack, first for `m_0 = 1, 2` (Airy, Clark), then general `m_0` with HB1 | `bl:norm` | `Blowup/`, `hb_uniqueness`, `ft:PP` (done) | M, 1.5k | wave 3 |
-| **LP1** | `ds:cay` (Cayley identity), `ds:cont` (positive-Laplace continuation), `ds:mom` (Laguerre moment growth), `dsl:poly-compact` (shared polynomial moment compactness), `ds:LP` (i)-(iii). `dsl:poly-compact` is also the engine of `sd:LP` | `ds:LP`, `ds:cay`, `ds:cont`, `ds:mom`, `dsl:poly-compact` | DU-G.0 (Farkas on a general `Y`), `Duality/MeasureCompactness` | M-L, about 3k | wave 1 |
+| **SR-COR** | `sr:cor`: positions and masses of the clusters of a near-extremal measure in `t` | `sr:cor` | `Sigma` (weight one done), the spectral-measure dictionary (`Upper/Rigidity/CrossingDictionary`) | S-M | wave 1 |
+| **PA2** | `dsl:one-level-clusters`, `dsl:near-opt-mass`, `sr:single-level`; the cluster structure needs only the `O(1)` law, the exact first atom `d_1` and `(t_2^* - t_1^*) c^{-1/3}` need `c_0^*` | those three | PA1, W-P5, FIVE-W (it uses `rig:R`, not `bl:norm`) (`ctu:c0`) | L | wave 4 |
+| **SLK** | `bl:norm`: shared Airy/HB normalisation and `L^1` convergence with vacuum slack, first for `m_0 = 1, 2` (Airy, Clark), then general `m_0` with HB1 | `bl:norm` | `Blowup/`, `hb_uniqueness`, `ft:PP` (done) | M, 1.5k | wave 1 |
+| **LP1** | `ds:cay` (Cayley identity), `ds:cont` (positive-Laplace continuation), `ds:mom` (Laguerre moment growth), `dsl:poly-compact` (shared polynomial moment compactness), `ds:LP` (i)-(iii). `dsl:poly-compact` is also the engine of `sd:LP` | `ds:LP`, `ds:cay`, `ds:cont`, `ds:mom`, `dsl:poly-compact` | DU-G.0 (Farkas on a general `Y`), `Duality/MeasureCompactness` | M-L, about 3k | wave 2 |
 | **SPIN-F** | continuous spin foundations: `spinnotes:S1` (formulation, certification), `S21`, `S22`, `S22b`, `S23`, `S24`, `S3` (slope `-C c^{1/3} (log c)^{2/3}`), calibration `scal:C1`, `scal:C3` | those nine | `Crossing/` (Mehler, Hermite), `Chart/` | L, 15-20k | wave 1 |
-| **SPIN-D** | `sd:M`, `sd:T`, `sd:P`, `sd:SD`, `sd:W`, `sd:V`, `sd:A`, `sd:LP`, `sd:R` | those nine | SPIN-F, LP1 (`sd:LP`), DU-G | L | wave 2 |
-| **SPIN-S4** | the sharp Airy coefficient with spin, `-O(log c')`: `s4:S4`, `s4:2.1` to `s4:6.1`, `s4:4.4` | the fourteen `s4:*` | SPIN-F, SPIN-D | L, 25k+ | wave 3 |
-| **PM-0** | mixtures, interface: `pmix:rebase`, `pmix:weight` (W1-W4), `pmix:crossing`, `pmix:jets`. Design suggestion: generalise `FixedWeightProblem` to a finite exponential-sum amplitude `A(x) = sum c_r e^{-4 pi r x}` (`ctu:jets` already treats this class; products and mixtures are instances), so the lower chain is re-run rather than rewritten; the alternative is an abstract axioms structure (also gives real `w`). This is the main risk of the mixture lane | four labels | `WeightAxioms/`, `Crossing/Setup` | L (refactor) | wave 2 |
+| **SPIN-D** | `sd:M`, `sd:T`, `sd:P`, `sd:SD`, `sd:W`, `sd:V`, `sd:A`, `sd:LP`, `sd:R` | those nine | SPIN-F, LP1 (`sd:LP`), DU-G | L | wave 3 |
+| **SPIN-S4** | the sharp Airy coefficient with spin, `-O(log c')`: `s4:S4`, `s4:2.1` to `s4:6.1`, `s4:4.4` | the fourteen `s4:*` | SPIN-F, SPIN-D | L, 25k+ | wave 4 |
+| **PM-0** | mixtures, interface: `pmix:rebase`, `pmix:weight` (W1-W4), `pmix:crossing`, `pmix:jets`. Design suggestion: generalise `FixedWeightProblem` to a finite exponential-sum amplitude `A(x) = sum c_r e^{-4 pi r x}` (`ctu:jets` already treats this class; products and mixtures are instances), so the lower chain is re-run rather than rewritten; the alternative is an abstract axioms structure (also gives real `w`). This is the main risk of the mixture lane | four labels | `WeightAxioms/`, `Crossing/Setup` | L (refactor) | wave 1 |
 | **PM-1** | `pmix:punif`, `pmix:ramped`, `pmix:smooth`, `pmix:o1`; the single-component case of `pmix:ramped`, `pmix:o1` is W-P6 | four labels | PM-0, W-P6 | M-L | wave 3 |
-| **PM-2** | `pmix:vac` (fixed-design transfer for mixtures) | `pmix:vac` | PM-0, PM-1, W-P5 | M | wave 3 |
+| **PM-2** | `pmix:vac` (fixed-design transfer for mixtures) | `pmix:vac` | PM-0, PM-1, W-P5 | M | wave 4 |
 | **PM-4** | `pmix:duality`: direct instance of `ds:M`, `ds:E`, `ds:primal`, `ds:LP` for mixtures | `pmix:duality` | PM-0, DU-G, PA1, LP1 | S-M | wave 3 |
 
-**Tier 1b: pulled in by the HB level (`gt:hb`, `pmix:main`(5)).** These sit on the path of headline 4 only through `PM-3`, `PM-5`.
+**Tier 1b: the HB level (`pmix:rigidity`, `int:hb-reserve`, `gt:hb`, `pmix:main`).** In the TeX the order is PM-3 (`pmix:rigidity`) -> INT-2HB (`int:hb-reserve`) -> HB1 (`gt:hb`) and PM-5 (`pmix:main`).
 
 | WP | content | closes | needs | size | wave |
 |---|---|---|---|---|---|
-| **FT-H4b** | realign `FTH4b` to the paper's H4b (`ft:H4b`; checked against `fold_tip_universality.tex`): general Hermite-Biehler data `(P,Q)`, terminal index `m`, support clause (a), one-sided designs (D1)-(D4); then Lemma WP (`sr:window-pairing`), Lemma WR (`sr:WR`) and C5(c) at every HB level (`FTSigma` is the Airy level at weight one only). The present `windows` field assumes tail bounds that are conclusions of WP, so it is replaced, not extended; Concordance row C5c is re-pointed | `sr:window-pairing`, `sr:WR` (recalled) | FT-1, `Upper/Rigidity` | M-L | wave 3 |
+| **FT-H4b** | realign `FTH4b` to the paper's H4b (`ft:H4b`; checked against `fold_tip_universality.tex`): general Hermite-Biehler data `(P,Q)`, terminal index `m`, support clause (a), one-sided designs (D1)-(D4); then Lemma WP (`sr:window-pairing`), Lemma WR (`sr:WR`) and C5(c) at every HB level (`FTSigma` is the Airy level at weight one only). The present `windows` field assumes tail bounds that are conclusions of WP, so it is replaced, not extended; Concordance row C5c is re-pointed | `sr:window-pairing`, `sr:WR` (recalled) | FT-1, `Upper/Rigidity` | M-L | wave 1 |
+| **FT-CC** | the base structure `ChartCompactness` (`compactness_subseq` plus site and tail positivity, abstract setting; section 6), the core of FT-3 | `ChartCompactness` on master | none | M | wave 1 |
 | **STAB** | stability slopes: `rem:thmBstab` (`I(delta)/delta -> 1/(2 L_*)`), `se:terminal-stability` (HB terminal node), `se:3.1` (two-level, `kappa_2(u_1)`) | the three labels | Paper I Theorem B equality (`airy_sign_equality_iff`), Clark equality (`clark_two_node_equality_iff`), `hb_uniqueness` (all done) | M, 1.5k | wave 1 |
-| **INT-2** | `int:reserve` (linear reserve growth below the optimum, constant `kappa_res = 1/(2 ell_V L_*)`), `int:strict-weak` | the two labels | DU-G, STAB, W-P5 (`Sigma_0`(b) at every weight), W-P6, `bl:T`, Paper I Theorem B | M-L | wave 4 |
-| **INT-2HB** | `int:hb-reserve`: prescribed-level HB reserve (any strict HB pair; `m_0 = 1` is `int:reserve`) | `int:hb-reserve` | INT-2, STAB, SLK, FT-H4b | L | wave 5 |
-| **HB1** | `gt:hb` for general `(P,Q)`; closes `wone:ftlfw`, `wone:genlower` for all `m_0`; Paper I's M8 (TE.0' for all `(P,Q)`, via `ChartCompactness`) is an input | `gt:hb`, `wone:ftlfw`, `wone:genlower` (general `m_0`) | FT-H4b, SLK, PA1, LP1, INT-2HB, Paper I M8 | L | wave 5 |
-| **PM-3** | `pmix:hbphase`, `pmix:hbtap`, `pmix:rigidity`; `gt:2.1`, `gt:2.4`-`gt:2.6` for mixtures | those three | PM-1, HB1 | L | wave 5 |
-| **PM-5** | `pmix:main` (assembly) | `pmix:main` | PM-0 to PM-4 | S | wave 5 |
+| **INT-2** | `int:reserve` (linear reserve growth below the optimum, constant `kappa_res = 1/(2 ell_V L_*)`), `int:strict-weak` | the two labels | DU-G, STAB, W-P5 (`Sigma_0`(b) at every weight), W-P6, `bl:T`, SLK (`bl:norm` at `m_0 = 1`), Paper I Theorem B | M-L | wave 3 |
+| **DU-F** | `se:cdual`: compact `F` constrained duality with attainment, atomic with a positive atom at `T_F` | `se:cdual` | DU-G, PA1 | S-M | wave 3 |
+| **INT-2HB** | `int:hb-reserve`: prescribed-level HB reserve (any strict HB pair; `m_0 = 1` is `int:reserve`) | `int:hb-reserve` | INT-2, STAB, SLK, FT-H4b, PM-3 (`pmix:rigidity`), DU-F (`se:cdual`) | L | wave 6 |
+| **HB1** | `gt:hb` for general `(P,Q)` (the paper proves it as the single-component case of `pmix:rigidity` with `int:hb-reserve`, `sr:single-level`); closes `wone:ftlfw`, `wone:genlower` for all `m_0`; Paper I's M8 (TE.0' for all `(P,Q)`, via `ChartCompactness`) is an input | `gt:hb`, `wone:ftlfw`, `wone:genlower` (general `m_0`) | PM-3, INT-2HB, PA2, FT-H4b, SLK, PA1, LP1, FT-CC, Paper I M8 | S-M after its inputs | wave 7 |
+| **PM-3** | `pmix:hbphase`, `pmix:hbtap`, `pmix:rigidity`; `gt:2.1`, `gt:2.4`-`gt:2.6` for mixtures | those three | PM-1, PM-2 (`pmix:vac`), PM-4 (`pmix:duality`), PA2 (`dsl:one-level-clusters`, `dsl:near-opt-mass`), W-T2w (`ut:ideal`), SLK (`bl:norm`), FT-H4b (`sr:window-pairing`, `sr:WR`), W-P6 (`wone:ftlfw`) | L | wave 5 |
+| **PM-5** | `pmix:main` (assembly) | `pmix:main` | PM-0 to PM-4, INT-2HB, INT-3, INT-4, FIVE-W (`ctu:c0`) | S | wave 7 |
 
 **Tier 1c: the integrality clause of headline 1** (the introduction's first result states that integrality shifts the spinless optimum by an exponentially small amount, `int:main`, and with continuous spin by `O(log c')`, `int:cont-spin`).
 
 | WP | content | closes | needs | size | wave |
 |---|---|---|---|---|---|
-| **INT-T** | elementary integrality tools: `int:int-closed` (vague closedness of integer counting measures), `int:cheb` (1D midpoint-cosine moment matching; exact in `N`, not a fixed-`N` check), `int:sonine`, `int:repair`, `int:shell-inv` | those five labels | none | M-L, 3k | wave 1 |
+| **INT-T** | elementary integrality tools: `int:int-closed` (vague closedness of integer counting measures), `int:cheb` (1D midpoint-cosine moment matching; exact in `N`, not a fixed-`N` check), `int:sonine`, `int:repair`, `int:shell-inv` | those five labels | none | L, 5-8k (about 224 dense TeX lines at the observed 25-45x Lean/TeX ratio) | wave 1 |
 | **INT-1** | `int:atom`: cell-by-cell atomisation of a reserved crossing measure | `int:atom` | INT-T | M-L | wave 2 |
-| **INT-3** | `int:main`: exponentially small integrality gap at every fixed weight | `int:main` | INT-1, INT-2, INT-T, W-P6 (the `O(1)` law) | M | wave 5 |
-| **INT-S** | integrality with continuous spin: `int:axis-trace`, `int:cheb2d` (elementary, self-contained), `int:cos2d-repair`, `int:cont-spin`; also `int:obstr`(b) | those four | SPIN-D, INT-T, INT-3 | L | wave 5 |
+| **INT-3** | `int:main`: exponentially small integrality gap at every fixed weight | `int:main` | INT-1, INT-2, INT-T, W-P6 (the `O(1)` law); FIVE-W (`ctu:main`) and PA2 (`dsl:near-opt-mass`) for its five-term and first-cluster corollaries | M | wave 5 |
+| **INT-S** | integrality with continuous spin: `int:axis-trace`, `int:cheb2d` (elementary, self-contained), `int:cos2d-repair`, `int:cont-spin`; also `int:obstr`(b) | those four | SPIN-S4 (`s4:S4`, `s4:eSlack`), SPIN-D (`sd:M`, `sd:SD`), DU-G (`ds:farkas`), INT-1 (`int:counting`), INT-4 (`int:obstr`), INT-T, FIVE-U (`cts:transfer`); not INT-3 | L | wave 5 |
+| **INT-4** | `int:obstr`(a): the supremal integer gap is attained; `Delta^Z = Delta^R` iff some attaining real measure is integer-weighted (the "iff" needs PA1); (b), swap-invariant spin cones, is INT-S | `int:obstr` | INT-T (`int:int-closed`), DU-G, `fw:crossing`(1) (done); PA1 for the "iff" | M | wave 3 |
+| **SPIN-Z** | integer spin on closed twist cones and finite-order programmes: `isl:main`, `isl:finite`, `spinnotes:K1`-`K4a`, `L0a`-`L9`. Computer-assisted in the paper (Arb enclosures for the small-`Delta` symbol `P_4` and 26 multiplier boxes); in Lean as kernel-checked interval certificates (precedent `o4QuotientBound`, 12,800 boxes; newer Mathlib's `dyadic_interval` is an alternative after a Mathlib bump). Large certificate: owner sign-off on its size before it starts (AGENTS.md, *Large brute force*) | those | SPIN-S4, SPIN-D | L | wave 5 |
 
 ### 2.1 Order and waves for tier 1
 
-Edges (a package waits for everything it needs; tier-2 packages are marked *):
+Edges (a package waits for everything it needs; checked against the `\ref`s of each proof in the TeX, 2026-11-25):
 
 ```
-FIVE-0 -> FIVE-L, FIVE-U -> FIVE-W (needs also W-P5, W-P6)        [headline 3]
-W-P5 -> W-P6 -> {SE3, FIVE-W, PM-1} ; W-P5 -> W-T2w                [headlines 2, 3, 4]
-DU-G -> PA1 ; PA1 + SLK + W-P5 + FIVE-W -> PA2 ; Sigma -> SR-COR   [headline 2]
-PM-0 -> PM-1, PM-2, PM-4 -> PM-5 ; PM-3 needs PM-1 and HB1         [headline 4]
-STAB -> INT-2 -> INT-2HB -> HB1 <- FT-H4b, SLK, PA1, LP1           [HB level]
-INT-T -> INT-1 ; INT-1 + INT-2 + W-P6 -> INT-3 ; INT-3 + SPIN-D -> INT-S   [headline 1, integrality]
-DU-G -> LP1 -> SPIN-D <- SPIN-F ; SPIN-D -> SPIN-S4                [headline 1]
+FIVE-0 -> FIVE-L, FIVE-U -> FIVE-W <- W-P5, W-P6                          [headline 3]
+W-P5 -> W-P6 -> {SE3, W-T2w, FIVE-W, PM-1, INT-2}                          [headlines 2, 3, 4]
+DU-G -> PA1 -> {INT-4, DU-F, PM-4} ; PA1 + W-P5 + FIVE-W -> PA2            [headline 2]
+DU-G -> LP1 -> {SPIN-D, PM-4} ; SPIN-F + SPIN-D -> SPIN-S4 -> {SPIN-Z, INT-S}   [headline 1]
+INT-T -> INT-1 ; INT-1 + INT-2 + FIVE-W + PA2 -> INT-3 ; INT-1 + INT-4 + SPIN-S4 + FIVE-U -> INT-S   [headline 1]
+PM-0 -> PM-1 -> PM-2 ; PM-1 + PM-2 + PM-4 + PA2 + W-T2w + SLK + FT-H4b -> PM-3   [headline 4]
+PM-3 + INT-2 + STAB + DU-F -> INT-2HB -> {HB1 (+ FT-CC, Paper I M8), PM-5 (+ INT-3, INT-4, FIVE-W)}   [headline 4, HB level]
 ```
 
 | wave | packages | why |
 |---|---|---|
-| 1 | **FIVE-0**, **W-P5**, DU-G (with DU-G.0), SPIN-F, STAB, LP1, INT-T | no open parent |
-| 2 | **W-P6**, PA1, SR-COR, FIVE-L, FIVE-U, SPIN-D, PM-0, INT-1 | need wave 1 |
-| 3 | W-T2w, SE3, SLK, FIVE-W, PM-1, PM-2, PM-4, SPIN-S4, FT-H4b | need wave 2 (FT-H4b has no parent and can start earlier) |
-| 4 | INT-2, PA2 | need STAB, FIVE-W, SLK |
-| 5 | INT-2HB, HB1, PM-3, PM-5, INT-3, INT-S | the HB level; integrality after INT-2 |
+| 1 | **FIVE-0**, **W-P5**, DU-G, SPIN-F, STAB, INT-T, FT-H4b, FT-CC, SLK, PM-0, SR-COR | no open parent |
+| 2 | **W-P6**, PA1, FIVE-L, FIVE-U, LP1, INT-1 | need wave 1 only |
+| 3 | W-T2w, SE3, FIVE-W, SPIN-D, PM-1, PM-4, INT-2, INT-4, DU-F | need waves 1-2 |
+| 4 | PA2, PM-2, SPIN-S4 | |
+| 5 | PM-3, INT-3, INT-S, SPIN-Z | SPIN-Z after owner sign-off on certificate size |
+| 6 | INT-2HB | needs PM-3 |
+| 7 | HB1, PM-5 | |
+
+A wave lists packages whose inputs are all in earlier waves; it is an order, not a schedule (wave 1 has more packages than build slots).
 
 There are no time boxes; a stalled route is a ledger row, not a stop. At most two Sonnet-high agents at once; launch while at least
 1.5 GB of disk is free. Sonnet high for the L packages, Sonnet medium for S-M, Haiku for docs and `THEOREM_MAP.md` rows. For each long lane
 (FIVE-*, SPIN-*, PM-*) five pushes adding results without moving the lane's headline force a direction statement in the PR state.
 
+### 2.2 Existing code to reuse (searched 2026-11-25; declarations read in the source)
+
+Inside reasoner (no porting):
+- `Complex/Montel.lean` (`montel`, `montel_family`) and `Analysis/Scheffe.lean` (`tendsto_integral_norm_sub_of_tendsto_ae`): the normal-family and `L^1` steps of **PA1** (`ds:primal`), **SLK** and **SPIN-D**.
+- `Upper/Rigidity/VagueLimit.lean` (`IsVagueLimit`, `exists_vagueLimit`, on `ℝ`) with `Duality/MeasureCompactness.lean` and `Duality/Farkas.lean`: generalised to closed `Y ⊆ ℝ^d`, this gives `int:int-closed` (**INT-T**) and most of `dsl:poly-compact` (**LP1**); `TwoLevel/ConstrainedDuality.lean` is the base of **DU-G**.
+- `StripBand/StripPoissonRep.lean`, `Complex/StripPoisson.lean`, `Complex/HardyHalfPlane.lean`, `Analysis/VanDerCorput.lean`: strip Poisson representation and oscillatory bounds for **FIVE-L** and Paper I F1/F2.
+
+External (Apache-2.0 unless noted):
+- **`rmt-foundations-lean`** (github.com/chenle02/rmt-foundations-lean; Lean v4.35.0 and the same Mathlib revision as reasoner, no proof placeholders): `RMTFoundations/Measure/HerglotzBorel.lean` (`cay`, `invcay`, `cay_mem_upper`, `poisson_cayley`, `disk_herglotz`, `herglotzBorel`) and `Measure/StieltjesInversion.lean`. Vendor under `ThirdParty/` for the half-disc to half-plane Schwarz/Poisson construction of **FIVE-0** (`cts:involution`) and for `ds:cay`, `ds:cont` in **LP1**.
+- `PrimeNumberTheoremAnd` (Lean v4.36.0): rectangle contour shifts (`ResidueCalcOnRectangles.lean`) and `norm_fourier_le_integral_deriv_div`; port selectively.
+- `HardySpace_formalization` has a disc `outerFunction` with boundary values, but no licence file and targets Lean v4.36.0-rc1: reference only.
+- Nothing found for two-variable `(h, hbar)` modular kernels (SPIN-*), `int:cheb`, `int:sonine`, `ds:mom`.
+- Newer Mathlib (after reasoner's pin): Poisson-Jensen (#42475), `besselJ` derivative recurrences (#42825, #43853), the `dyadic_interval` tactic (#45427 and follow-ups; an alternative for SPIN-Z certificates). Usable after a Mathlib bump.
+
+**Design rule for headline 3:** state FIVE-0, FIVE-L and FIVE-U over `FixedWeightProblem` from the start, so FIVE-W is an instance (5-8k) rather than a second copy (15-25k).
+
 ## 3. Tier 2: off every headline path, and not planned
 
-Packages that no headline needs. They wait until the tier-1 packages are staffed. INT-4 (`int:obstr`) was an earlier ranked target; the integrality packages the introduction states (INT-T, INT-1, INT-3, INT-S) are tier 1c.
-
-| WP | content | closes | needs | size | wave |
-|---|---|---|---|---|---|
-| **INT-4** | `int:obstr`(a): the supremal integer gap is attained; `Delta^Z = Delta^R` iff some attaining real measure is integer-weighted (the "iff" needs PA1); (b), swap-invariant spin cones, is INT-S | `int:obstr` | INT-T (`int:int-closed`), DU-G, `fw:crossing`(1) (done); PA1 for the "iff" | M | any time |
-| **DU-F** | `se:cdual`: compact `F` constrained duality with attainment, atomic with a positive atom at `T_F` | `se:cdual` | DU-G, PA1 | S-M | any time |
+After the dependency check against the TeX (2026-11-25), every remaining package is on a headline path: `int:obstr` (INT-4) is cited by `int:cont-spin` and `pmix:main`, and `se:cdual` (DU-F) by `int:hb-reserve`, so both are tier 1. Tier 2 is therefore empty; section 3.1 lists what is not planned.
 
 ### 3.1 Not planned, with the reason
 
 | item | labels | reason |
 |---|---|---|
-| **SPIN-Z**, integer-spin lower bound on closed twist cones | `isl:main`, `isl:finite`, `spinnotes:K1`-`K4a`, `L0a`-`L9` | computer-assisted: Arb interval enclosures for a small-`Delta` symbol and 26 multiplier boxes. Lean has a precedent for kernel-checked interval discharge in Paper I (`o4QuotientBound`), so this is not impossible; revisit only after SPIN-S4 |
 | **INT-L**, lattice integrality | `int:lat-reserve`, `int:poinc`, `int:amgm-floor`, `int:lat-repair`, `int:int-spin` | conditional on (CLM) (Chang-Liu-Ma, external) and on the SPIN-Z enclosures |
 | N = 1 reduction | `n1:P1` | physics bookkeeping (characters, `eta^3/theta_3`); Lean takes the reduced problem as the definition |
 | numerical decimals | `0.4837...`, `0.2070524`, `1.2180230048`, `21.0680128515`, `c_0^* = -0.0713301`, `d_2^* = -0.3462493`, tables of `ctu:table` | numerical evidence; the closed forms are in the planned packages |
 | explicit Bessel constants | `vlo:BesselConst` (`kappa_0 = 1/4`, `kappa_1 = 1`) | not needed: Lean's constants are existential |
 | vacuum-slack Theorem J | `int:Jslack` (alias of `vlo:J`) | used only by INT-L |
 | unflavoured `N = (2,2)`, real weights outside `(H_w)` | main-text remark; `wone:ftlfw` for real `w` | `V = f_a * f_a` is not of Cardy type; the proof is a note neither Paper II document cites. Real `w` can be revisited after PM-0 |
-| FT-3..6 | abstract chart-form compactness (Lemmas 1-2), C5d `m >= 2`, Lemma FT-R log rate | useful only for Paper I instances; deferred until `ChartCompactness` (owned by this lane, see section 6) lands |
+| FT-3..6 beyond FT-CC | chart-form Lemmas 1-2 instances, C5d `m >= 2`, Lemma FT-R log rate | useful only for Paper I instances; the base `ChartCompactness` is tier 1 (FT-CC) because Paper I's `thm:intro-hb` (M8) needs it |
 | five-term `c_0^*` clauses at weights not of the form `(H_w)` | `ctu:scope` remark | out of the paper's scope |
 
 ## 4. What is on master (compact record)
@@ -281,7 +298,7 @@ states they are listed in the row.
 | **CMB** Reference comb, holes, Langer coordinate, Cardy weight | `cmb:K0`, `cmb:K1`, `cmb:K2`, `cmb:K3`, `cmb:K4`, `cmb:K5`, `cmb:K6`, `cmb:K7`, `cmb:K8`, `rem:analytictip`, `rem:analyticII`, `rem:cardy`, `rem:P1.1`, `rem:P1.2` (comb_estimates, remainder) | `Upper/Comb/*` (`riesz_representation`, `refComb_K1a`, `edgePhase_bounds`), `Upper/Holes/*` (`hAII_min_at_half`, `regionII_margin_gt`, `hole_lower_K4`, `hole_upper_K4`, `hole_limit_K5`, `band_upper_K6a`, `lobe_upper_K6b`), K7: `k7_membership_vacuum`, `design_k7_membership_vacuum`; `Upper/Window/CardyWindow` (`besselV_window_bound`, `besselV_far_bound`, `cardyWindowBound_prob`), `Upper/Ramped/Langer*` (`langerTau_spec`, `langerChart_F1`, `langerChart_F2`), `Upper/Ramped/CombToAiry*` (`combToAiry_mult`, `combToAiry_log_rate`) | K7 at weight one for the reference comb and for design combs; `rem:cardy` at every weight (`cardyWindowBound_prob`). Per label: `rem:cardy`: stated as a `remarkx` named Lemma A_V; `rem:P1.1`: closed form `C_* = 4 pi sqrt kappa`; the decimal 21.068... is numerical only |  | L, 30k | 14 done |
 | **UTW** Design lemmas (weight-free) and fixed-order membership | `ut:Z`, `ut:P`, `ut:Phi`, `ut:W`, `ut:ID`, `ut:G`, `ut:V`, `ut:E`, `fw:FWM`, `fw:SDp` (upper_transfer) | `Upper/Window/Product` (`deltaWKB_le_exists` = Lemma Z; `lemma_G_bound`, `lemma_V_identity`, `lemma_E`), `Upper/Design/*` (`lemma_P_b`, `lemma_Phi_b`, `lemma_Phi_transform`, `lemma_Phi_transform_of_phase`), `Upper/Window/{WindowLimit,Identification}` (`lemma_W_comb`, `lemma_W_measure`, `lemma_ID`, `lemma_ID_design`), `Upper/Ramped/*` (`lemma_P_unif`, `lemma_G_bound_unif`), `Upper/Membership/*` (`fwM_membership_vacuum`, `design_k7_membership_vacuum`, `K7ConclusionW`), order `p`: `phase_packageP` | Lemma P(a) for fixed `N` and in the profile-uniform form `lemma_P_unif`; FW-M at every weight by radial Fourier inversion on `R^{2w}` |  | L, 20k | 10 done |
 | **UTP** Positivity and vacuum of the designs | `ut:II`, `ut:R`, `ut:I`, `ut:IIF`, `ut:III`, `ut:T`, `ut:Vac` (upper_transfer) | `Upper/Positivity/*` (`proposition_II`, `proposition_II_design`, `proposition_I_design_t`, `proposition_I_sigW`, `proposition_III`, `proposition_III_regionII`, `bumped_regionII`, `vacuum_core`, `proposition_V_i`), `Upper/Window/{LemmaR,Tail}` (`lemma_R`, `lemma_R_lower`, `lemma_T`, `lemma_T_prob`, `lemma_T_design1`), `Upper/Bump/*` (`bumpFactor`, `bumped_phaseHyp`, `bump_floor`), `Upper/Positivity/RpAmplitude*` | `Upper/Ramped` (the route to the `O(1)` bound) is not a paper result; see UP. Per label: `ut:I`: `f = 1` designs; `proposition_I_sigW` at every weight; real factors `f >= 2`: W-T2w / W-P5; `ut:IIF`: `f = 2, r = 1` only (`proposition_II_floor`, `twoZero_regionII`); `bumped_regionII_pos` any `f` at every weight; `ut:III`: `f = 1` designs with the bump at every weight (`proposition_III`); finite real factors: W-T2w; `ut:T`: Virasoro and `w = 1` (`lemma_T`, `lemma_T_prob`); any weight only through the interface `lemma_T_of_cardy`: W-P5; `ut:Vac`: `w = 1`, `f = 1` designs (`proposition_V_i`, `proposition_V_ii`); every weight: W-P5 | W-P5 (Prop V, Lemma T at weight `w`), W-T2w | L, 11k | 2 done, 5 partial |
-| **T2** Two-simple-zero transfer, ideal windows, Prop W1.5 | `ut:T2`, `ut:ideal`, `wone:clark` (upper_transfer) | `TwoLevel/TwoZero*` (5.6k: WP1 `TwoZeroDict`, WP2 `TwoZeroComb`, WP3 `TwoZeroRegionTwo`, WP4 `TwoZeroRegionOne`, WP5 `TwoZeroWindow`, WP6 `TwoZeroVacuum`, WP7 `TwoZeroTransferProof`: `twoSimpleZeroTransfer_of_w1`, `twoZero_limsup_field`, `twoZero_pos_t`), `TwoLevel/IdealApprox*` (`twoZeroIdealApprox`) | `prob.w = 1`; the named `Prop TwoSimpleZeroTransfer prob` is the hypothesis for `w > 1`. Follow-up: add an `integrable` field to `TwoZeroTransferData`. Per label: `ut:T2`: weight one (`twoSimpleZeroTransfer_of_w1`); weight `w > 1` and Remark T2.1 (more real zeros): W-T2w; `ut:ideal`: `m = 2` (`twoZeroIdealApprox`); general `m`: W-T2w; `wone:clark`: (c) at `w = 1` (`wone_clark_two_level_boundary`); (a) at `w = 1`; (b) and all weights: W-P5, W-T2w | W-T2w | L, 7.4k | 3 partial |
+| **T2** Two-simple-zero transfer, ideal windows, Prop W1.5 | `ut:T2`, `ut:ideal`, `wone:clark` (upper_transfer) | `TwoLevel/TwoZero*` (5.6k: WP1 `TwoZeroDict`, WP2 `TwoZeroComb{K7,Phase,T}`, WP3 `TwoZeroRegionTwo`, WP4 `TwoZeroRegionOne`, WP5 `TwoZeroWindow`, WP6 `TwoZeroVacuum`, WP7 `TwoZeroTransferProof`: `twoSimpleZeroTransfer_of_w1`, `twoZero_limsup_field`, `twoZero_pos_t`), `TwoLevel/IdealApprox*` (`twoZeroIdealApprox`) | `prob.w = 1`; the named `Prop TwoSimpleZeroTransfer prob` is the hypothesis for `w > 1`. Follow-up: add an `integrable` field to `TwoZeroTransferData`. Per label: `ut:T2`: weight one (`twoSimpleZeroTransfer_of_w1`); weight `w > 1` and Remark T2.1 (more real zeros): W-T2w; `ut:ideal`: `m = 2` (`twoZeroIdealApprox`); general `m`: W-T2w; `wone:clark`: (c) at `w = 1` (`wone_clark_two_level_boundary`); (a) at `w = 1`; (b) and all weights: W-P5, W-T2w | W-T2w | L, 7.4k | 3 partial |
 | **SR** Property (P) and spectral rigidity of the near-extremal measures | `sr:P`, `sr:Sigma0`, `sr:Sigma`, `sr:cor`, `sr:single-level` (spectral_rigidity) | `Upper/Rigidity/*` (`theorem_Sigma`, `theorem_sigma_zero_a`, `theorem_sigma_zero_b`, `spectral_poisson_summation`, `spectral_complementary_slackness`, `gapCondition_of_lowerBound`, `exists_optimalCrossingSequence`, `theorem_sigma_crossing`), `Upper/Assembly/*` (`designPropertyP_virasoro`, `displacedPropertyP_virasoro`, `farFamily`, `virasoro_sigmaZero_unconditional`, `virasoro_sigma_unconditional`, `designPropertyP_prob`, `sigmaZero_unconditional_prob`, `sigma_unconditional_prob`) | unconditional for the extremal measures of every weight-one problem (hypothesis `Gap` discharged by the lower bound); `Sigma` states the vague limit of `mu_S`; the t-space corollary is not stated. Per label: `sr:P`: `f = 1` designs, displaced sites, far-first-site omitted family (`farFamily`), every `w = 1` problem; the TeX keeps its `f >= 2` Step 6 with an internal note (owner decision). Every weight: W-P5; `sr:Sigma0`: every `w = 1` problem for the extremal measures; every weight: W-P5; `sr:Sigma`: same; every weight: W-P5 | W-P5, SR-COR, PA2 | L, 8k | 3 partial, 2 planned |
 | **UP** O(1) upper bound at weight one (route Lemma U*, no paper label) | (no paper label) (n2_ramped_comb (note), dual_spectrum) | `Upper/Ramped/*` (19k, R1-R8): `theoremC15UpperInput_virasoro`, `theoremC15UpperInput_prob` (`w = 1`, every `Q`), `rampedG_isFeasible`, `rampedVacuum_prob`; `Upper/Assembly/Feasible` (`virasoro_thresholdUpperLittleO`, `thresholdUpperLittleO_prob`, `virasoro_corollary_E1_littleO_unconditional`) | `TheoremC15UpperInput prob` means `T_V <= T_* + D_+` (the `O(1)` upper half). Its name and docstring (`FixedWeight/OptimalMeasure`) cite Theorem C15 / `thm:fixed-weight-expansion`, which is the five-term statement. Proved for `prob.w = 1`; hypothesis for `w > 1` | W-P6 | L, 19k | done at `w = 1` |
 
@@ -320,7 +337,7 @@ states they are listed in the row.
 | pkg | labels (file) | Lean today | scope / still a hypothesis | remaining | size | label states |
 |---|---|---|---|---|---|---|
 | **INT** Integrality (thermal) | `int:int-closed`, `int:cheb`, `int:sonine`, `int:repair`, `int:shell-inv`, `int:atom`, `int:reserve`, `int:strict-weak`, `int:hb-reserve`, `int:main`, `int:obstr` (integrality) | none (`grep int:` finds only the `ft`/`sr` crossing-measure helpers) |  | INT-T, INT-1, INT-2, INT-2HB, INT-3, INT-4 | L | 11 planned |
-| **INTL** Integrality on the full modular lattice | `int:lat-reserve`, `int:poinc`, `int:amgm-floor`, `int:lat-repair`, `int:int-spin` (integrality_lattice) | none |  | SPIN-Z (not planned) | L | 5 not planned |
+| **INTL** Integrality on the full modular lattice | `int:lat-reserve`, `int:poinc`, `int:amgm-floor`, `int:lat-repair`, `int:int-spin` (integrality_lattice) | none |  | INT-L (not planned: (CLM)-conditional) | L | 5 not planned |
 | **INTS** Integrality with continuous spin | `int:axis-trace`, `int:cheb2d`, `int:cos2d-repair`, `int:cont-spin` (integrality_spin) | none |  | INT-S | L | 4 planned |
 
 ### 7.9 Spin
@@ -330,7 +347,7 @@ states they are listed in the row.
 | **SPINF** Continuous spin: foundations and calibration | `spinnotes:S1`, `spinnotes:S21`, `spinnotes:S22`, `spinnotes:S22b`, `spinnotes:S23`, `spinnotes:S24`, `spinnotes:S3`, `scal:C1`, `scal:C3` (spinning_foundations, spinning_calibration) | none | analytic | SPIN-F | L | 9 planned |
 | **SPIND** Continuous spin: duality and the Airy law | `sd:M`, `sd:T`, `sd:P`, `sd:SD`, `sd:W`, `sd:V`, `sd:A`, `sd:LP`, `sd:R` (spinning_dual) | none |  | SPIN-D | L | 9 planned |
 | **SPIN4** Continuous spin: sharp Airy coefficient | `s4:S4`, `s4:2.1`, `s4:2.2`, `s4:2.3`, `s4:2.4`, `s4:3.3`, `s4:3.4`, `s4:4.1`, `s4:4.2`, `s4:4.3`, `s4:5.1`, `s4:5.2`, `s4:6.1`, `s4:4.4` (spinning_s4) | none |  | SPIN-S4 | L | 14 planned |
-| **SPINZ** Integer spin (interval enclosures) | `spinnotes:K1`, `spinnotes:K2`, `spinnotes:K3`, `spinnotes:K4`, `spinnotes:K4a`, `spinnotes:L0a`, `spinnotes:L0b`, `spinnotes:L1`, `spinnotes:L2`, `spinnotes:L3`, `spinnotes:L4`, `spinnotes:L5`, `spinnotes:L6`, `spinnotes:L7`, `spinnotes:L8`, `spinnotes:L9`, `isl:main`, `isl:finite` (spinning_integer_*) | none |  | SPIN-Z (not planned) | L | 18 not planned |
+| **SPINZ** Integer spin (interval enclosures) | `spinnotes:K1`, `spinnotes:K2`, `spinnotes:K3`, `spinnotes:K4`, `spinnotes:K4a`, `spinnotes:L0a`, `spinnotes:L0b`, `spinnotes:L1`, `spinnotes:L2`, `spinnotes:L3`, `spinnotes:L4`, `spinnotes:L5`, `spinnotes:L6`, `spinnotes:L7`, `spinnotes:L8`, `spinnotes:L9`, `isl:main`, `isl:finite` (spinning_integer_*) | none |  | SPIN-Z (tier 1, wave 5) | L | 18 planned |
 
 ### 7.10 Results recalled from Paper I (`recalled_paper1.tex`)
 
@@ -459,13 +476,13 @@ Within a file, results are grouped by group and state. D done, P partial, PL pla
 - PL / SPINF: `spinnotes:S1`, `spinnotes:S21`, `spinnotes:S22`, `spinnotes:S22b`, `spinnotes:S23`, `spinnotes:S24`, `spinnotes:S3`
 
 **`spinning_integer_exact_slope.tex`** (5)
-- NP / SPINZ: `spinnotes:K1`, `spinnotes:K2`, `spinnotes:K3`, `spinnotes:K4`, `spinnotes:K4a`
+- PL / SPINZ: `spinnotes:K1`, `spinnotes:K2`, `spinnotes:K3`, `spinnotes:K4`, `spinnotes:K4a`
 
 **`spinning_integer_liouville.tex`** (11)
-- NP / SPINZ: `spinnotes:L0a`, `spinnotes:L0b`, `spinnotes:L1`, `spinnotes:L2`, `spinnotes:L3`, `spinnotes:L4`, `spinnotes:L5`, `spinnotes:L6`, `spinnotes:L7`, `spinnotes:L8`, `spinnotes:L9`
+- PL / SPINZ: `spinnotes:L0a`, `spinnotes:L0b`, `spinnotes:L1`, `spinnotes:L2`, `spinnotes:L3`, `spinnotes:L4`, `spinnotes:L5`, `spinnotes:L6`, `spinnotes:L7`, `spinnotes:L8`, `spinnotes:L9`
 
 **`spinning_integer_overview.tex`** (2)
-- NP / SPINZ: `isl:main`, `isl:finite`
+- PL / SPINZ: `isl:main`, `isl:finite`
 
 **`spinning_s4.tex`** (14)
 - PL / SPIN4: `s4:S4`, `s4:2.1`, `s4:2.2`, `s4:2.3`, `s4:2.4`, `s4:3.3`, `s4:3.4`, `s4:4.1`, `s4:4.2`, `s4:4.3`, `s4:5.1`, `s4:5.2`, `s4:6.1`, `s4:4.4`
@@ -483,9 +500,9 @@ Within a file, results are grouped by group and state. D done, P partial, PL pla
 **`modular_bootstrap_gap_proof.tex`** (2)
 - PL / FIVEW: `thm:fixed-weight-expansion`, `thm:spinless-expansion`
 
-Totals: 249 results; done 72, partial 24, planned 107, not planned 24, recalled from Paper I 22.
+Totals: 249 results; done 72, partial 24, planned 125, not planned 6, recalled from Paper I 22.
 
-## Appendix B. Calibration (lines of Lean under `FormalResearch/ModularBootstrap/`, `master` `2556a80`)
+## Appendix B. Calibration (lines of Lean under `FormalResearch/ModularBootstrap/`, `master` `5b7fa76`)
 
 | directory | lines | directory | lines |
 |---|---|---|---|
