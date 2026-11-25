@@ -693,7 +693,7 @@ lemma uctFd_global : ∃ C : ℝ, 0 ≤ C ∧ ∀ δ : ℝ, 0 ≤ δ → δ ≤ 
       _ = (C1 / 4 + 2 * cc + C2) * (3 / 2) ^ (5 / 2 : ℝ) * (1 + ‖w‖) ^ (-(5 / 2 : ℝ)) := by ring
       _ ≤ _ := by nlinarith [hge]
 
-lemma local_variation {F : ℂ → ℂ} (hF : DifferentiableOn ℂ F Complex.slitPlane) {x B : ℝ} (hx : 0 < x)
+lemma local_variation_right {F : ℂ → ℂ} (hF : DifferentiableOn ℂ F {w : ℂ | 0 < w.re}) {x B : ℝ} (hx : 0 < x)
     (hB : ∀ w : ℂ, x / 2 ≤ w.re → ‖w - (x : ℂ)‖ ≤ x / 2 → ‖F w‖ ≤ B) :
     ∀ y : ℝ, |y| ≤ x / 4 → ‖F ((x : ℂ) + (y : ℂ) * Complex.I) - F (x : ℂ)‖ ≤ 4 * B / x * |y| := by
   intro y hy
@@ -703,11 +703,14 @@ lemma local_variation {F : ℂ → ℂ} (hF : DifferentiableOn ℂ F Complex.sli
     simp only [Complex.sub_re, Complex.ofReal_re] at this
     have := (abs_le.mp (this.trans hw)).1
     linarith
-  have hslit : ∀ w : ℂ, ‖w - (x : ℂ)‖ ≤ x / 2 → w ∈ Complex.slitPlane := fun w hw => Or.inl (by linarith [hre w hw])
+  have hslit : ∀ w : ℂ, ‖w - (x : ℂ)‖ ≤ x / 2 → w ∈ {w : ℂ | 0 < w.re} := fun w hw => by
+    have := hre w hw
+    show 0 < w.re
+    linarith
   have hderiv : ∀ z ∈ Metric.closedBall (x : ℂ) (x / 4), ‖deriv F z‖ ≤ 4 * B / x := by
     intro z hz
     have hz' : ‖z - (x : ℂ)‖ ≤ x / 4 := by simpa [Metric.mem_closedBall, dist_eq_norm] using hz
-    have hsub : Metric.closedBall z (x / 4) ⊆ Complex.slitPlane := by
+    have hsub : Metric.closedBall z (x / 4) ⊆ {w : ℂ | 0 < w.re} := by
       intro w hw
       have hw' : ‖w - z‖ ≤ x / 4 := by simpa [Metric.mem_closedBall, dist_eq_norm] using hw
       apply hslit
@@ -733,7 +736,7 @@ lemma local_variation {F : ℂ → ℂ} (hF : DifferentiableOn ℂ F Complex.sli
   have hdiff : ∀ z ∈ Metric.closedBall (x : ℂ) (x / 4), DifferentiableAt ℂ F z := by
     intro z hz
     have hz' : ‖z - (x : ℂ)‖ ≤ x / 4 := by simpa [Metric.mem_closedBall, dist_eq_norm] using hz
-    exact (hF z (hslit z (by linarith))).differentiableAt (Complex.isOpen_slitPlane.mem_nhds (hslit z (by linarith)))
+    exact (hF z (hslit z (by linarith))).differentiableAt ((isOpen_lt continuous_const Complex.continuous_re).mem_nhds (hslit z (by linarith)))
   have h := Convex.norm_image_sub_le_of_norm_deriv_le (f := F) (s := Metric.closedBall (x : ℂ) (x / 4)) (C := 4 * B / x)
     (x := (x : ℂ)) (y := (x : ℂ) + (y : ℂ) * Complex.I) hdiff hderiv (convex_closedBall _ _) (Metric.mem_closedBall_self (by positivity)) hmem
   have e : ‖(x : ℂ) + (y : ℂ) * Complex.I - (x : ℂ)‖ = |y| := by
@@ -741,6 +744,11 @@ lemma local_variation {F : ℂ → ℂ} (hF : DifferentiableOn ℂ F Complex.sli
     rw [this]; simp
   rw [e] at h
   exact h
+
+lemma local_variation {F : ℂ → ℂ} (hF : DifferentiableOn ℂ F Complex.slitPlane) {x B : ℝ} (hx : 0 < x)
+    (hB : ∀ w : ℂ, x / 2 ≤ w.re → ‖w - (x : ℂ)‖ ≤ x / 2 → ‖F w‖ ≤ B) :
+    ∀ y : ℝ, |y| ≤ x / 4 → ‖F ((x : ℂ) + (y : ℂ) * Complex.I) - F (x : ℂ)‖ ≤ 4 * B / x * |y| :=
+  local_variation_right (hF.mono fun w hw => Or.inl hw) hx hB
 
 
 lemma uctGd_eq_Fd (δ : ℝ) (w : ℂ) : uctGd δ w = uctFd δ w + (δ : ℂ) * (ceK : ℂ) := by
