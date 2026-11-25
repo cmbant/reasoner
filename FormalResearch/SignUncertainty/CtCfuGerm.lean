@@ -303,4 +303,28 @@ lemma integral_hankelEdgeM_eq {τ : ℝ} (hτ : 0 ≤ τ) (hτ2 : τ ^ 2 < rr) :
   rw [show (τ * x) ^ 2 = τ ^ 2 * x ^ 2 by ring]
   ring
 
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.contDiffOn_nfun' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms contDiffOn_nfun
+
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.contDiffOn_ntil' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms contDiffOn_ntil
+
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.hankelEdgeM_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelEdgeM_eq
+
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.integral_hankelEdgeM_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms integral_hankelEdgeM_eq
+
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.hasDerivAt_nfun_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasDerivAt_nfun_zero
+
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.hasDerivAt_ntil_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasDerivAt_ntil_zero
+
 end FormalResearch.SignUncertainty.CtCfu

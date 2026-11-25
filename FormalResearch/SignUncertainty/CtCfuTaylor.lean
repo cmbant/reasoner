@@ -103,4 +103,8 @@ lemma taylor2_of_contDiffAt {g : ℝ → ℝ} (hg : ContDiffAt ℝ 4 g 0) :
   rw [Real.norm_eq_abs] at this
   exact this.trans (le_abs_self _)
 
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.taylor2_of_contDiffAt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms taylor2_of_contDiffAt
+
 end FormalResearch.SignUncertainty.CtCfu

@@ -169,4 +169,20 @@ lemma Sser1_ge {y : ℝ} (hy : |y| ≤ 1) : 4 / 5 ≤ Sser 1 y := by
   norm_num [Nat.factorial] at h
   linarith
 
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.contDiff_Sser' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms contDiff_Sser
+
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.Sser1_sq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Sser1_sq
+
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.Sser3_sq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Sser3_sq
+
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.abs_Sser3_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms abs_Sser3_le
+
 end FormalResearch.SignUncertainty.CtCfu

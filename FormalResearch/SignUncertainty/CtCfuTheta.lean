@@ -128,4 +128,8 @@ theorem theta_hat {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
       _ = C * z * z := by ring
   exact tendsto_nhds_unique h1 h2
 
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.theta_hat' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms theta_hat
+
 end FormalResearch.SignUncertainty.CtCfu

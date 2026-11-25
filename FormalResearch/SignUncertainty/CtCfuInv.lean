@@ -503,4 +503,24 @@ lemma critical_value_strictMonoOn : StrictMonoOn (fun τ : ℝ => edgePhi (hanke
   have h0 : 0 < τ / (1 + τ ^ 2) := by positivity
   exact mul_pos hτ' (lt_of_lt_of_le h0 this.1)
 
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.critical_value_strictMonoOn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms critical_value_strictMonoOn
+
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.tau0_props' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms tau0_props
+
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.deriv_deriv_Xi_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms deriv_deriv_Xi_zero
+
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.psi_coeff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms psi_coeff
+
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.d0_mul_beta' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms d0_mul_beta
+
 end FormalResearch.SignUncertainty.CtCfu

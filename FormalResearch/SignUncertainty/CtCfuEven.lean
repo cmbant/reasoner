@@ -76,4 +76,8 @@ lemma exists_sq_of_even {g : ℝ → ℝ} (hg : AnalyticAt ℝ g 0) (heven : ∀
     refine tsum_congr fun j => ?_
     simp [mul_comm]
 
+/-- info: 'FormalResearch.SignUncertainty.CtCfu.exists_sq_of_even' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms exists_sq_of_even
+
 end FormalResearch.SignUncertainty.CtCfu
