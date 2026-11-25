@@ -289,6 +289,7 @@ public import FormalResearch.SignUncertainty.UctStripSplit
 public import FormalResearch.SignUncertainty.UctStripIntegrals
 public import FormalResearch.SignUncertainty.UctBumpSymbol
 public import FormalResearch.SignUncertainty.UctBumpSymbolAdmiss
+public import FormalResearch.SignUncertainty.UctBumpEdge
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -507,7 +508,8 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   (`r_CE, r_ĥ < 1` and `1 - r_CE ≥ min(L,1)/6`), `uct_strip_split_integrals` (the three cancellation integrals). Not formalised: the small-`L` expansions with the constants `47/20`, `13/20`, `13π²/240`, `19π²/240`.
 * `FormalResearch.SignUncertainty.UctBumpSymbol` (`uct:bump-symbol`, first display only; proved, unconditional): `bump_laplace_decay` (`|B̂(c(σ+iτ))| ≤ C_r M Λ_α(δ) e^{-bcσδ}(1+cδ|τ|)^{-r}`).
   `FormalResearch.SignUncertainty.UctBumpSymbolAdmiss`: `bump_stripM1` ((M1) of `uct:admiss` for `ΔW_c = c^{-1/3}B̂(c·)`), `bump_holder_one` ((M2) at `ζ=1`).
-  Not formalised: (M3) at `ζ = 0`, the main and reflected density bounds, the Fourier identity `(uct:E0-def)`.
+  `FormalResearch.SignUncertainty.UctBumpEdge`: `bump_stripEdge0`, `bump_stripEdge1` ((M3) at both edges), `bump_holder_zero`, and `bump_stripAdmissFull` (`StripAdmissFullData (1/2)` for `ΔW_c`: the admissibility of `uct:bump-symbol`).
+  Not formalised: the main and reflected density bounds, the Fourier identity `(uct:E0-def)`.
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
   whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
