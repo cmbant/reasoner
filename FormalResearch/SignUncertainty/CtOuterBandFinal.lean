@@ -37,9 +37,9 @@ lemma hasDerivAt_phaseP (τ0 : ℝ) {τ : ℝ} (hτ : 0 < τ) :
 lemma exp_pi_div_two : Complex.exp ((π : ℂ) / 2 * Complex.I) = Complex.I := by
   rw [Complex.exp_mul_I]
   have h1 : Complex.cos ((π : ℂ) / 2) = 0 := by
-    have := Complex.cos_pi_div_two; simpa using this
+    have := Complex.cos_pi_div_two; simp
   have h2 : Complex.sin ((π : ℂ) / 2) = 1 := by
-    have := Complex.sin_pi_div_two; simpa using this
+    have := Complex.sin_pi_div_two; simp
   rw [h1, h2]; ring
 
 /-- Algebra of the leading term: `√(πc/12) · e^{iπ/4}√(2π/(c m')) A(τ₀) e^{icϕ(τ₀)} = i e^{-B} e^{iY}`. -/

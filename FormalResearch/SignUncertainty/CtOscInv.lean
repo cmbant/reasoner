@@ -119,7 +119,7 @@ lemma Chart.exists_inv (h : Chart s sd sd1 sd2 Ks m0) :
       (hsurj X hX).choose ∈ Ioo (-1 : ℝ) 1 ∧ s (hsurj X hX).choose = X := fun X hX =>
     (hsurj X hX).choose_spec
   have hrep : ∀ X (hX : X ∈ Ioo (-m0) m0), (fun X => if hX : X ∈ Ioo (-m0) m0 then (hsurj X hX).choose else 0) X =
-      (hsurj X hX).choose := fun X hX => by simp only [dif_pos hX]
+      (hsurj X hX).choose := fun X hX => by simp only [dite_eq_left hX]
   set tinv : ℝ → ℝ := fun X => if hX : X ∈ Ioo (-m0) m0 then (hsurj X hX).choose else 0 with htinv
   have h1 : ∀ X ∈ Ioo (-m0) m0, tinv X ∈ Ioo (-1 : ℝ) 1 ∧ s (tinv X) = X := fun X hX => by
     rw [hrep X hX]; exact hspec X hX

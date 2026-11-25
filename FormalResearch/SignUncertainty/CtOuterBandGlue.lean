@@ -24,7 +24,7 @@ local notation "∞'" => ((⊤ : ℕ∞) : WithTop ℕ∞)
 theorem hasDerivAt_iter {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] {F : ℝ → E}
     (hF : ContDiff ℝ ∞' F) (k : ℕ) (τ : ℝ) :
     HasDerivAt (iteratedDeriv k F) (iteratedDeriv (k + 1) F τ) τ := by
-  have hd := (hF.differentiable_iteratedDeriv k (WithTop.coe_lt_coe.mpr (ENat.coe_lt_top k))) τ
+  have hd := (hF.differentiable_iteratedDeriv k (WithTop.coe_lt_coe.mpr (ENat.natCast_lt_top k))) τ
   have := hd.hasDerivAt
   rwa [← iteratedDeriv_succ] at this
 

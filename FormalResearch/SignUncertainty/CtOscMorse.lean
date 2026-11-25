@@ -100,7 +100,7 @@ lemma hasDerivAt_avg {G G1 : ℝ → ℝ} {R : ℝ} (hG : ∀ y ∈ Ioo (-R) R, 
       have h2 := (hG _ hrx).scomp x h1
       have h3 := h2.const_mul (w r)
       refine h3.congr_deriv ?_
-      simp [mul_comm, mul_left_comm])
+      simp [mul_left_comm])
   have := hfin.2
   unfold avg
   convert this using 1
@@ -211,10 +211,10 @@ lemma Phase.cont_rho2 (h : Phase c1 C φ φ1 f f1 f2) : ContinuousOn (rho2 f2) (
   continuousOn_avg h.c2 (continuous_id.mul continuous_id)
 
 lemma Phase.cont_rho1 (h : Phase c1 C φ φ1 f f1 f2) : ContinuousOn (rho1 f1) (Ioo (-1 : ℝ) 1) :=
-  fun y hy => (h.hasDerivAt_rho1 hy).continuousAt.continuousWithinAt
+  fun _y hy => (h.hasDerivAt_rho1 hy).continuousAt.continuousWithinAt
 
 lemma Phase.cont_rho (h : Phase c1 C φ φ1 f f1 f2) : ContinuousOn (rho f) (Ioo (-1 : ℝ) 1) :=
-  fun y hy => (h.hasDerivAt_rho hy).continuousAt.continuousWithinAt
+  fun _y hy => (h.hasDerivAt_rho hy).continuousAt.continuousWithinAt
 
 lemma Phase.hasDerivAt_q (h : Phase c1 C φ φ1 f f1 f2) {t : ℝ} (ht : t ∈ Ioo (-1 : ℝ) 1) :
     HasDerivAt (qf f) (q1f f1 t) t := by
@@ -232,7 +232,7 @@ lemma Phase.cont_q2 (h : Phase c1 C φ φ1 f f1 f2) : ContinuousOn (q2f f2) (Ioo
   continuousOn_avg h.cont_rho2 (((continuous_const.mul continuous_id).mul continuous_id).mul continuous_id)
 
 lemma Phase.cont_q1 (h : Phase c1 C φ φ1 f f1 f2) : ContinuousOn (q1f f1) (Ioo (-1 : ℝ) 1) :=
-  fun y hy => (h.hasDerivAt_q1 hy).continuousAt.continuousWithinAt
+  fun _y hy => (h.hasDerivAt_q1 hy).continuousAt.continuousWithinAt
 
 lemma w1_le : ∀ r ∈ Icc (0 : ℝ) 1, |(fun _ : ℝ => (1 : ℝ)) r| ≤ 1 := fun r _ => by simp
 lemma wr_le : ∀ r ∈ Icc (0 : ℝ) 1, |(fun r : ℝ => r) r| ≤ 1 := fun r hr => by
@@ -255,11 +255,11 @@ lemma Phase.abs_rho1 (h : Phase c1 C φ φ1 f f1 f2) {t : ℝ} (ht : t ∈ Ioo (
 lemma Phase.abs_rho2 (h : Phase c1 C φ φ1 f f1 f2) {t : ℝ} (ht : t ∈ Ioo (-1 : ℝ) 1) : |rho2 f2 t| ≤ 1 * C := abs_avg_le wrr_le h.b2 ht
 
 lemma Phase.abs_q (h : Phase c1 C φ φ1 f f1 f2) {t : ℝ} (ht : t ∈ Ioo (-1 : ℝ) 1) : |qf f t| ≤ 2 * (1 * C) :=
-  abs_avg_le w2r_le (fun y hy => h.abs_rho hy) ht
+  abs_avg_le w2r_le (fun _y hy => h.abs_rho hy) ht
 lemma Phase.abs_q1 (h : Phase c1 C φ φ1 f f1 f2) {t : ℝ} (ht : t ∈ Ioo (-1 : ℝ) 1) : |q1f f1 t| ≤ 2 * (1 * C) :=
-  abs_avg_le w2rr_le (fun y hy => h.abs_rho1 hy) ht
+  abs_avg_le w2rr_le (fun _y hy => h.abs_rho1 hy) ht
 lemma Phase.abs_q2 (h : Phase c1 C φ φ1 f f1 f2) {t : ℝ} (ht : t ∈ Ioo (-1 : ℝ) 1) : |q2f f2 t| ≤ 2 * (1 * C) :=
-  abs_avg_le w2rrr_le (fun y hy => h.abs_rho2 hy) ht
+  abs_avg_le w2rrr_le (fun _y hy => h.abs_rho2 hy) ht
 
 lemma int_one : ∫ r in (0 : ℝ)..1, (fun _ : ℝ => (1 : ℝ)) r = 1 := by simp
 lemma int_two_r : ∫ r in (0 : ℝ)..1, (fun r : ℝ => 2 * r) r = 1 := by
@@ -302,15 +302,15 @@ lemma Phase.phi_eq (h : Phase c1 C φ φ1 f f1 f2) {t : ℝ} (ht : t ∈ Ioo (-1
   rw [zero_mul, one_mul] at h2
   have e1 : ∫ x in (0 : ℝ)..1, (x * t) * rho f (x * t) = t * ∫ x in (0 : ℝ)..1, x * rho f (x * t) := by
     rw [← intervalIntegral.integral_const_mul]
-    exact intervalIntegral.integral_congr fun x _ => by first | ring | (simp only; ring)
+    exact intervalIntegral.integral_congr fun x _ => by ring
   have e2 : qf f t = 2 * ∫ x in (0 : ℝ)..1, x * rho f (x * t) := by
     unfold qf avg
     rw [← intervalIntegral.integral_const_mul]
-    exact intervalIntegral.integral_congr fun x _ => by first | ring | (simp only; ring)
+    exact intervalIntegral.integral_congr fun x _ => by ring
   rw [← h1, h3, ← h2, smul_eq_mul, e1, e2]
   ring
 
-lemma Phase.q_zero (h : Phase c1 C φ φ1 f f1 f2) : qf f 0 = rho f 0 := by
+lemma Phase.q_zero (_h : Phase c1 C φ φ1 f f1 f2) : qf f 0 = rho f 0 := by
   unfold qf avg
   simp only [mul_zero]
   rw [intervalIntegral.integral_mul_const]

@@ -375,7 +375,7 @@ lemma step_ratio_hi {δ : ℝ} (hδ0 : 0 < δ) (hδ1 : δ ≤ 1 / 4) :
   exact div_le_div_of_nonneg_right (by nlinarith) (by positivity)
 
 /-- Step bounds in the form `|X'| ≤ R₁/τ`, `|X''| ≤ R₂/τ²`. -/
-lemma step_bounds {K1 K2 δ τ0 a b : ℝ} (hK1 : 0 ≤ K1) (hK2 : 0 ≤ K2) (hδ0 : 0 < δ) (hτ0 : 0 < τ0)
+lemma step_bounds {K1 K2 δ τ0 a b : ℝ} (hK1 : 0 ≤ K1) (hK2 : 0 ≤ K2) (_hδ0 : 0 < δ) (_hτ0 : 0 < τ0)
     (hba : b / (b - a) ≤ 3 / δ) (hba2 : (b / (b - a)) ^ 2 ≤ 9 / δ ^ 2) (hab : a < b) (hb : 0 < b)
     {X1 X2 : ℝ → ℝ} (h1 : ∀ τ : ℝ, 0 < τ → |X1 τ| ≤ K1 * b / (b - a) / τ)
     (h2 : ∀ τ : ℝ, 0 < τ → |X2 τ| ≤ K2 * b ^ 2 / (b - a) ^ 2 / τ ^ 2) :
@@ -580,15 +580,15 @@ theorem outer_band (C0 CA : ℝ) (hC0 : 0 < C0) (hCA : 0 ≤ CA) :
     have e : (1 - δ / 4) * τ0 = τ0 * (1 - δ / 4) := mul_comm _ _
     rw [hκ2, e]; exact this
   have hP2 := outer_P2 hM hκ2a hκ2b hKBn hτ0 hc hw2 hϕ hY0d hY0d1 hY0c hY0b hY0b1 hY0b2
-    (by beta_reduce; rw [hX0o _ hκ2τ.le]; simp)
-    (by beta_reduce; rw [(hX0o1 _ hκ2τ).1, hX0o _ hκ2τ.le]; simp)
+    (by rw [hX0o _ hκ2τ.le]; simp)
+    (by rw [(hX0o1 _ hκ2τ).1, hX0o _ hκ2τ.le]; simp)
   -- Piece 3
   have haS : τ0 / κ3 = τ0 * (1 + δ / 4) := by rw [hκ3]; field_simp
   have hxi : τ0 / κ3 < τ0 * (1 + δ / 2) := by
     rw [haS]; exact mul_lt_mul_of_pos_left (by linarith) hτ0
   obtain ⟨I3, hI3, hI3b⟩ := outer_P3 hM hκ3a hκ3b hKBn hτ0 hc hw4 hϕ hYid hYid1 hYic hYib hYib1 hYib2
-    (by beta_reduce; rw [hXiz _ hxi.le]; simp)
-    (by beta_reduce; rw [(hXiz1 _ hxi).1, hXiz _ hxi.le]; simp)
+    (by rw [hXiz _ hxi.le]; simp)
+    (by rw [(hXiz1 _ hxi).1, hXiz _ hxi.le]; simp)
   -- Piece 1
   have hsupp : ∀ t : ℝ, θ ≤ |t| → ((X0 (tt τ0 t) - Xi (tt τ0 t) : ℝ) : ℂ) * A (tt τ0 t) = 0 := by
     intro t ht
@@ -623,14 +623,14 @@ theorem outer_band (C0 CA : ℝ) (hC0 : 0 < C0) (hCA : 0 ≤ CA) :
     hτe0 hτeT haS0 haST
     (fun τ hτ => by
       have : τ0 * (1 - δ / 2) ≤ τ := hκ2τ.le.trans hτ.le
-      beta_reduce; rw [hX0o _ this]; simp)
+      rw [hX0o _ this]; simp)
     (fun τ hτ => by
       have e1 : τ0 * (1 + δ) ≤ τ0 * 2 := mul_le_mul_of_nonneg_left (by linarith) hτ0.le
       have h2 : τ0 * (1 + δ) ≤ τ := by linarith
       have e2 : τ0 * (1 - δ / 2) ≤ τ0 * (1 + δ) := mul_le_mul_of_nonneg_left (by linarith) hτ0.le
       have h3 : τ0 * (1 - δ / 2) ≤ τ := e2.trans h2
-      beta_reduce; rw [hX0o _ h3, hXio _ h2]; simp)
-    (fun τ _ hτ => by beta_reduce; rw [hXiz _ (hτ.trans hxi.le)]; simp)
+      rw [hX0o _ h3, hXio _ h2]; simp)
+    (fun τ _ hτ => by rw [hXiz _ (hτ.trans hxi.le)]; simp)
     hT
   have hBl0 : ((X0 τ0 - Xi τ0 : ℝ) : ℂ) * A τ0 = A τ0 := by
     have h1 : X0 τ0 = 1 := hX0o _ (by

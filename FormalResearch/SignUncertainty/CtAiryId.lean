@@ -129,7 +129,7 @@ lemma alg_E0 (ht : 0 < t) (hs : 0 < s) (ht6 : t ^ 6 = 3) (hs3 : s ^ 3 = 2) (hq :
   linear_combination F0c - 3 * (q : ℂ) ^ 3 * ht6c + 3 * (q : ℂ) ^ 3 * (t : ℂ) ^ 6 * Complex.I_sq
 
 lemma alg_E2 (ht : 0 < t) (hs : 0 < s) (ht6 : t ^ 6 = 3) (hs3 : s ^ 3 = 2) (hq : 0 < q)
-    (hg : 0 < g) (hh : 0 < h) (r1 : g * h * t ^ 3 = 2 * q ^ 2) (r2 : X * h = s ^ 2 * q * g)
+    (hg : 0 < g) (_hh : 0 < h) (r1 : g * h * t ^ 3 = 2 * q ^ 2) (r2 : X * h = s ^ 2 * q * g)
     (r3 : X * Y = 2 * q ^ 2) :
     ((s⁻¹ : ℝ) : ℂ) * (-1 + Complex.I * (t ^ 3 : ℝ)) * ((t ^ 5 / 3 * Y : ℝ) : ℂ) / (q : ℂ) =
       -(q ^ 2 : ℝ) * (2 * (-(((t ^ 2 * g)⁻¹ : ℝ) : ℂ)) ^ 2 +
@@ -232,7 +232,6 @@ theorem hasDerivAt_HH0 (u : ℝ) : HasDerivAt HH0 (HH1 u) u := by
     (-(π : ℂ))
   refine h.congr_deriv ?_
   unfold HH1
-  try simp only [Pi.mul_apply, Pi.pow_apply]
   push_cast
   ring
 
@@ -242,8 +241,6 @@ theorem hasDerivAt_HH1 (u : ℝ) : HasDerivAt HH1 (HH2 u) u := by
   have h := (h1.add (h2.const_mul Complex.I)).const_mul (-(π : ℂ))
   refine h.congr_deriv ?_
   unfold HH2
-  try simp only [Pi.mul_apply, Pi.pow_apply]
-  push_cast
   ring
 
 theorem hasDerivAt_HH2 (u : ℝ) : HasDerivAt HH2 (4 * (u : ℂ) * HH1 u + 2 * HH0 u) u := by
@@ -255,7 +252,7 @@ theorem hasDerivAt_HH2 (u : ℝ) : HasDerivAt HH2 (4 * (u : ℂ) * HH1 u + 2 * H
   have h := ((a1.add a2).add ((b1.add b2).const_mul Complex.I)).const_mul (-(π : ℂ))
   refine h.congr_deriv ?_
   unfold HH1 HH0
-  try simp only [Pi.mul_apply, Pi.pow_apply]
+  simp only [Pi.mul_apply, Pi.pow_apply]
   push_cast
   ring
 
