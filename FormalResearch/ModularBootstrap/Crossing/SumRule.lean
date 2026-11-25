@@ -2231,7 +2231,7 @@ theorem lemma_fwA_part2 {w : ℕ} (hMehler : MehlerOddMomentInput w)
       rw [Real.norm_of_nonneg hsub.1]
       exact hsub.2
     · convert (hν_gauss (by positivity : 0 < π / 8)).const_mul C_neg using 1
-      ext x; ring
+      ext x; ring_nf
     · filter_upwards with x
       refine tendsto_mehlerMean_of_continuous_weight hfMinus_cont (b := 0) (d := 0) hB_nn
         (fun y => ?_) x
@@ -3440,7 +3440,7 @@ theorem lemma_fwX_equality (prob : FixedWeightProblem)
             _ ≤ C_N * (2 * ((n : ℝ) + 1)) ^ prob.w * Real.exp (4 * π * (Real.sqrt a * ((n : ℝ) + 1))) := by gcongr
             _ = C_N * (2 : ℝ) ^ prob.w * ((n : ℝ) + 1) ^ (prob.w : ℝ) *
                   Real.exp (4 * π * Real.sqrt a * ((n : ℝ) + 1)) := by
-                rw [mul_pow, Real.rpow_natCast]; ring
+                rw [mul_pow, Real.rpow_natCast]; ring_nf
         have hlt_top := admissibleMeasure_Ici_sub_lt_top prob a meas (Subset.rfl :
           Icc 0 (((n : ℝ) + 1) ^ 2) ⊆ Icc 0 (((n : ℝ) + 1) ^ 2))
         exact h1.trans (ENNReal.le_ofReal_iff_toReal_le hlt_top.ne (by positivity) |>.mpr hc')

@@ -35,7 +35,7 @@ lemma tay_zero (k : ℕ) (H : ℝ → ℂ) : tay k H 0 = H 0 / ((k : ℂ) + 1) :
     push_cast; simp
   rw [h2]; ring
 
-lemma norm_tay_le {H : ℝ → ℂ} (hc : Continuous H) {B : ℝ} (hB : ∀ x, ‖H x‖ ≤ B) (k : ℕ) (x : ℝ) :
+lemma norm_tay_le {H : ℝ → ℂ} (_hc : Continuous H) {B : ℝ} (hB : ∀ x, ‖H x‖ ≤ B) (k : ℕ) (x : ℝ) :
     ‖tay k H x‖ ≤ B / ((k : ℝ) + 1) := by
   unfold tay
   have hB0 : 0 ≤ B := (norm_nonneg _).trans (hB 0)

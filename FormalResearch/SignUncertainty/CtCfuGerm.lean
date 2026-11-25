@@ -66,7 +66,7 @@ lemma hasDerivAt_kfun_zero : HasDerivAt kfun (-(7 * π ^ 4 / 360)) 0 := by
     have hg : HasDerivAt (Sser a) (1 / ((a + 2).factorial : ℝ)) (π ^ 2 * 0) := by
       simpa using hasDerivAt_Sser_zero a
     have := hg.scomp 0 hl
-    exact this.congr_deriv (by simp [mul_comm])
+    exact this.congr_deriv (by simp)
   have h3 := hS 3
   have h1 := hS 1
   have hq := ((h3.const_mul (π ^ 2))).div h1 (by simp [Sser_zero])

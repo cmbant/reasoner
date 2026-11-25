@@ -30,7 +30,7 @@ private lemma tendsto_sin_pi_mul_div_zero :
       by filter_upwards [self_mem_nhdsWithin] with z (hz : z ≠ 0); exact mul_ne_zero (Complex.ofReal_ne_zero.mpr Real.pi_ne_zero) hz⟩
   refine (hs.comp hmul).congr' ?_
   filter_upwards [self_mem_nhdsWithin] with z _
-  dsimp; ring
+  dsimp; ring_nf
 
 private lemma continuousOn_stripG_halfStrip : ContinuousOn stripG {w : ℂ | 0 ≤ w.re ∧ w.re < 1} := by
   intro w hw
@@ -832,7 +832,7 @@ lemma integral_sqrt_mul_exp_neg_Ioi {k : ℝ} (hk : 0 < k) :
     have h1 := ((ha.add hb).comp (tendsto_const_nhds.pos_mul_atTop hk tendsto_id)).const_mul (-(k ^ (-(3 / 2 : ℝ)) / 2))
     have h2 : Tendsto (fun u : ℝ => -(k ^ (-(3 / 2 : ℝ)) / 2) * ((k * u) ^ 1 * Real.exp (-(k * u)) + 2 * Real.exp (-(k * u)))) atTop (𝓝 0) := by
       simpa using h1
-    refine h2.congr fun u => ?_; dsimp [G]; ring
+    refine h2.congr fun u => ?_; dsimp [G]; ring_nf
   obtain ⟨hgi, hgv⟩ := integral_Ioi_neg_deriv hd (fun u hu => by have := (mem_Ioi.mp hu).le; positivity) hlim
   have hpt : ∀ u ∈ Ioi (0 : ℝ), u ^ (1 / 2 : ℝ) * Real.exp (-k * u) ≤ g u := fun u hu => by
     have hu0 : 0 ≤ u := (mem_Ioi.mp hu).le
@@ -1243,7 +1243,7 @@ lemma total_integrand_meas_symm_bound {c ξ σ_star : ℝ}
       rw [abs_of_nonneg hτ] at hV
       have hdiv := div_le_div_of_nonneg_right hV hA_pos.le
       refine hdiv.trans_eq ?_
-      split_ifs <;> field_simp [hA_pos.ne'] <;> ring
+      split_ifs <;> field_simp [hA_pos.ne']; ring
     rw [norm_div, norm_mul, Complex.norm_real, Real.norm_of_nonneg (mul_pos hK₀_pos hA_pos).le, mul_div_mul_comm]
     exact mul_le_mul hK_norm hV_norm (by positivity) (by positivity)
 

@@ -334,7 +334,7 @@ lemma midpointOmega_reflect (ζ : ℂ) : midpointOmega (1 - ζ) = -midpointOmega
   have hcos : Complex.cos ((Real.pi : ℂ) * (1 - ζ)) = -Complex.cos ((Real.pi : ℂ) * ζ) := by
     rw [mul_sub, mul_one, Complex.cos_pi_sub]
   rw [hcos]
-  ring
+  ring_nf
 
 lemma chartOmegaHalf_eq_midpointOmega {ζ : ℂ} (hcos_norm : ‖Complex.cos ((Real.pi : ℂ) * ζ)‖ < 1)
     (hZ_re : 0 < ((√2 : ℂ) * Complex.sin ((Real.pi : ℂ) * ζ / 2)).re) :

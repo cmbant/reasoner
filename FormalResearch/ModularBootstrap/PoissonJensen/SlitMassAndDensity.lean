@@ -268,7 +268,7 @@ theorem eSlitMass_pointwise {c' x : ℝ} (hc : 10000 ≤ c') (hx : xiStar ≤ x)
         have heq1 : 12 * π / Real.sqrt x * (Real.sqrt x / Real.sqrt (2 * π)) =
             6 * Real.sqrt (2 * π) := by
           field_simp [hsq_x.ne', hsq_2pi.ne']
-          rw [show 12 * π = 6 * (2 * π) by ring, ← hsq2]; ring
+          rw [show 12 * π = 6 * (2 * π) by ring, ← hsq2]; ring_nf
         rw [heq1]
     _ = 6 * Real.sqrt (2 * π) * virasoroProblem.cardyV (c' / 12) (c' * x ^ 2 / 3) := by
         rw [hV_eq]

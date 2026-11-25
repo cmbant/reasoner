@@ -110,7 +110,7 @@ lemma norm_kerB_le_inv {β : ℝ} (hβ : β ≠ 0) : ‖kerB β‖ ≤ 1 / |β| 
             have : |t| ^ 2 ≤ 1 := pow_le_one₀ (abs_nonneg t) this
             norm_num; linarith
           have h2 : ‖2 * Complex.I * (β : ℂ)‖ = 2 * |β| := by
-            simp [norm_mul, Complex.norm_real]
+            simp [Complex.norm_real]
           linarith
   have hftc := intervalIntegral.integral_eq_sub_of_hasDerivAt_of_le (zero_le_one) hcont hd hint
   have hF1 : F 1 = e 1 := by simp [hF]
@@ -147,7 +147,7 @@ lemma norm_kerB_le_inv {β : ℝ} (hβ : β ≠ 0) : ‖kerB β‖ ≤ 1 / |β| 
     have h1 : 2 * Complex.I * (β : ℂ) * kerB β = 3 * (∫ t in (0 : ℝ)..1, ((t : ℝ) : ℂ) ^ 2 * e t) - e 1 := by
       linear_combination -hftc
     have h2 : ‖2 * Complex.I * (β : ℂ) * kerB β‖ = 2 * |β| * ‖kerB β‖ := by
-      simp [norm_mul, Complex.norm_real]
+      simp [Complex.norm_real]
     rw [← h2, h1]
     calc ‖3 * (∫ t in (0 : ℝ)..1, ((t : ℝ) : ℂ) ^ 2 * e t) - e 1‖
         ≤ ‖3 * (∫ t in (0 : ℝ)..1, ((t : ℝ) : ℂ) ^ 2 * e t)‖ + ‖e 1‖ := norm_sub_le _ _
@@ -263,7 +263,7 @@ theorem hadamard_fubini (hk : Continuous k) (hki : Integrable k) (lam : ℝ) :
   -- integrability for the second swap
   have hBmeas : AEStronglyMeasurable (Function.uncurry fB) (ν.prod volume) := by
     have : Measurable (Function.uncurry fB) := by
-      simp only [hfB, Function.uncurry]
+      simp only [hfB]
       have := hk.measurable
       fun_prop
     exact this.aestronglyMeasurable

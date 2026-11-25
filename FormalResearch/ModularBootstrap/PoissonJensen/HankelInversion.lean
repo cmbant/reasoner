@@ -533,7 +533,7 @@ theorem differentiableOn_hankelContinuation {c' : ℝ} (hc : 1000 ≤ c') {g : �
     have hcomp := ((hasDerivAt_besselI0C (c * b)).comp b hlin).const_mul (g t : ℂ)
     refine hcomp.congr_of_eventuallyEq (Eventually.of_forall fun z => ?_) |>.congr_deriv ?_
     · congr 2; dsimp [c]; ring
-    · dsimp [c]; ring
+    · dsimp [c]; ring_nf
   have hderiv := (hasDerivAt_integral_of_dominated_loc_of_deriv_le (𝕜 := ℂ)
     (Metric.ball_mem_nhds b₀ hδb_pos)
     (Eventually.of_forall hF_meas) hF_int hF'_meas h_bound (hint_Ka.const_mul (2 * C)) h_diff).2

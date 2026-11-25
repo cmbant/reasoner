@@ -122,7 +122,7 @@ theorem oddLaguerreMode_integrable {c : ℝ} (hc : 0 < c) :
         ((2 * π) ^ c / Real.Gamma c) * (s ^ (c - 1) * Real.exp (-(2 * π) * s))
       = (4 * π / c) * ((2 * π) ^ c / Real.Gamma c) * (s * s ^ (c - 1)) * Real.exp (-2 * π * s) -
           ((2 * π) ^ c / Real.Gamma c) * s ^ (c - 1) * Real.exp (-2 * π * s) := by
-        rw [hs_pow]; ring
+        rw [hs_pow]; ring_nf
     _ = (4 * π * s / c - 1) * Real.exp (-2 * π * s) * ((2 * π) ^ c / Real.Gamma c * s ^ (c - 1)) := by ring
 
 /-- Unconditional verification of the `Δ = 0` Hankel eigenvalue `-1` identity for `oddLaguerreMode c`:
@@ -157,7 +157,7 @@ theorem oddLaguerreMode_integral {c : ℝ} (hc : 0 < c) :
               ((2 * π) ^ c / Real.Gamma c) * s ^ (c - 1) * Real.exp (-2 * π * s) := by ring
         _ = (4 * π / c * ((2 * π) ^ c / Real.Gamma c)) * (s ^ c * Real.exp (-(2 * π) * s)) -
               ((2 * π) ^ c / Real.Gamma c) * (s ^ (c - 1) * Real.exp (-(2 * π) * s)) := by
-            rw [hs_pow]; ring
+            rw [hs_pow]; ring_nf
     rw [hcongr1, integral_sub h1 h2, integral_const_mul, integral_const_mul]
     congr 2
     · refine setIntegral_congr_fun measurableSet_Ioi fun s _ => ?_

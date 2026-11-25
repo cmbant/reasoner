@@ -725,7 +725,7 @@ private lemma deriv_log_besselV_at_xc :
           _ ≤ (8 * Real.pi * (1 - q) * q + |C₁| / 24) / (br0 / 2) :=
               div_le_div₀ (by have : 0 ≤ 1 - q := sub_nonneg.mpr hq_lt1.le; positivity)
                 hB0'_ub (by positivity) hB0_lb
-          _ = (2 / br0) * (8 * Real.pi * (1 - q) * q + |C₁| / 24) := by ring
+          _ = (2 / br0) * (8 * Real.pi * (1 - q) * q + |C₁| / 24) := by ring_nf
       rw [Complex.add_re, hre_lin]
       linarith [show 0 ≤ 1 / (2 * x_c) by positivity]
     have hmul_xc : besselVDeriv1 (c' / 12) t_c / Bessel.besselV (c' / 12) t_c =
