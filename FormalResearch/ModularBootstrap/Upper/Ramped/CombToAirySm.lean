@@ -48,7 +48,7 @@ lemma intervalIntegrable_comp_chi {c' : ℝ} (hc' : 0 < c') {G : ℝ → ℝ} {A
   have h14 : 1 / 4 ≤ t := ha.trans ht.1
   have hy : 0 < chiQuantile c' t := lt_of_lt_of_le xiStar_pos (chiQuantile_spec hc' h14).1
   exact ((hG.d1 _ hy).continuousAt.comp_continuousWithinAt
-    ((continuousOn_chiQuantile hc').mono (fun s hs => show 1 / 4 ≤ s from ha.trans hs.1) t ht))
+    ((continuousOn_chiQuantile hc').mono (fun s (hs : s ∈ Icc a b) => show 1 / 4 ≤ s from ha.trans hs.1) t ht))
 
 /-- Splitting `∫_{1/4}^{K+1/2}` into the head and the cells. -/
 lemma integral_split_cells {c' : ℝ} (hc' : 0 < c') {G : ℝ → ℝ} {A : ℝ} (hG : KernelHyp G A) (K : ℕ)

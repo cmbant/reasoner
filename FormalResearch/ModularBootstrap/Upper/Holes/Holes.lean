@@ -461,7 +461,7 @@ private lemma sum_Icc_rpow_integral_telescope (k0 N : ℕ) (hk0 : 2 ≤ k0) (hkN
     have heq : 1 - p - 1 = -p := by ring
     rw [heq]; field_simp [hp_ne]
   have hint : IntervalIntegrable (fun t : ℝ => t ^ (-p)) volume ((k0 : ℝ) - 7 / 4) ((N : ℝ) - 3 / 4) :=
-    (ContinuousOn.rpow_const continuousOn_id fun t ht => Or.inl (ha_pos.trans_le ht.1).ne').intervalIntegrable_of_Icc hab
+    (ContinuousOn.rpow_const continuousOn_id fun t (ht : t ∈ Icc ((k0 : ℝ) - 7 / 4) ((N : ℝ) - 3 / 4)) => Or.inl (ha_pos.trans_le ht.1).ne').intervalIntegrable_of_Icc hab
   rw [intervalIntegral.integral_eq_sub_of_hasDerivAt hd hint]
   have hnb_nn : 0 ≤ ((N : ℝ) - 3 / 4) ^ (1 - p) := Real.rpow_nonneg hb_pos.le _
   have hneg : ((N : ℝ) - 3 / 4) ^ (1 - p) / (1 - p) ≤ 0 :=

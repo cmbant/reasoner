@@ -952,6 +952,7 @@ lemma setIntegral_rightSlit_eq_Ioi {x y : ℝ} (hy : 0 < y) {φ : ℝ → ℝ}
     exact integral_image_eq_integral_abs_deriv_smul measurableSet_Ioo hS_deriv injOn_slitInv_Ioo F
   have hunion_ae : (Ioo (-1 : ℝ) sigmaStar ∪ Ioo sigmaStar 0 : Set ℝ) =ᵐ[volume] Ioo (-1) 0 := by
     have hnull : volume ({sigmaStar} : Set ℝ) = 0 := ({sigmaStar} : Set ℝ).toFinite.measure_zero volume
+    refine Filter.eventuallyEqSet_iff'.2 ?_
     change ∀ᵐ σ ∂volume, (σ ∈ Ioo (-1 : ℝ) sigmaStar ∪ Ioo sigmaStar 0) = (σ ∈ Ioo (-1 : ℝ) 0)
     rw [ae_iff]
     refine measure_mono_null (fun σ hσ => ?_) hnull
@@ -1097,6 +1098,7 @@ lemma setIntegral_leftSlit_eq_Ioi {x y : ℝ} (hy : 0 < y) {φ : ℝ → ℝ}
     exact integral_image_eq_integral_abs_deriv_smul measurableSet_Ioi hS_deriv injOn_leftSlitInv_Ioi F
   have hunion_ae : (Ioo (1 : ℝ) sigmaPlus ∪ Ioi sigmaPlus : Set ℝ) =ᵐ[volume] Ioi 1 := by
     have hnull : volume ({sigmaPlus} : Set ℝ) = 0 := ({sigmaPlus} : Set ℝ).toFinite.measure_zero volume
+    refine Filter.eventuallyEqSet_iff'.2 ?_
     change ∀ᵐ σ ∂volume, (σ ∈ Ioo (1 : ℝ) sigmaPlus ∪ Ioi sigmaPlus) = (σ ∈ Ioi 1)
     rw [ae_iff]
     refine measure_mono_null (fun σ hσ => ?_) hnull

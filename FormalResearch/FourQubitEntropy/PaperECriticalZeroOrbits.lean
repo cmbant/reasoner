@@ -47,7 +47,7 @@ theorem Gv_single_zero : Gv (single (0, 0) 1) = bell2 := by
   have hrt2 : rt ^ 2 = 1 / 2 := by rw [pow_two]; exact rt_mul_rt
   funext a b c d
   fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;>
-  simp [Gv, ofZmat, single, bell2, Matrix.mul_apply, Matrix.diagonal_apply, Matrix.transpose_apply,
+  simp [Gv, ofZmat, single, bell2, Matrix.mul_apply, Matrix.diagonal_apply, Matrix.transpose_apply, Function.swap,
     magicB] <;>
   first | done | (rw [← pow_two, hrt2]; norm_num)
 
@@ -61,9 +61,9 @@ theorem exists_real4_map (p q : Fin 2 × Fin 2) :
   have h1 : ∀ l, Rp p l = if l = sing then 1 else 0 := by
     intro l
     have := congrFun (congrFun hRp.orth l) sing
-    simp only [Matrix.mul_apply, Matrix.transpose_apply, hRpe, Matrix.one_apply] at this
+    simp only [Matrix.mul_apply, Matrix.transpose_apply, Function.swap, hRpe, Matrix.one_apply] at this
     simpa [Finset.sum_ite_eq'] using this
-  simp only [Matrix.mul_apply, Matrix.transpose_apply, h1]
+  simp only [Matrix.mul_apply, Matrix.transpose_apply, Function.swap, h1]
   simp [Finset.sum_ite_eq', hRqe]
 
 
@@ -80,7 +80,7 @@ theorem LU_single (p q : Fin 2 × Fin 2) (c : ℂ) :
   refine LU_of_normal_form _ R R _ hR.orth hR.orth hR.det hR.det ?_
   rw [coord_Gv]
   ext i j
-  simp [rc, single, Matrix.mul_apply, Matrix.diagonal_apply, Matrix.transpose_apply, hRe]
+  simp [rc, single, Matrix.mul_apply, Matrix.diagonal_apply, Matrix.transpose_apply, Function.swap, hRe]
   by_cases hi : i = q <;> by_cases hj : j = q
   · subst hi; subst hj; simp
   · simp [hi, hj] ; (intro h; simp_all)

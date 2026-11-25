@@ -257,6 +257,7 @@ private lemma one_sub_slitMass_eq_edgeMass'' {x y : ℝ} (hy : 0 < y) :
     · linarith [h2.2]
   have hunion_ae : (slitPreimage ∪ edgePreimage : Set ℝ) =ᵐ[volume] univ := by
     have hnull : volume ({-1, 0, 1} : Set ℝ) = 0 := ({-1, 0, 1} : Set ℝ).toFinite.measure_zero volume
+    refine Filter.eventuallyEqSet_iff'.2 ?_
     change ∀ᵐ σ ∂volume, (σ ∈ slitPreimage ∪ edgePreimage) = (σ ∈ (univ : Set ℝ))
     rw [ae_iff]
     refine measure_mono_null (fun σ hσ => ?_) hnull
@@ -497,6 +498,7 @@ theorem stripPoissonJensen_complex {c' : ℝ} (hc' : c_PJ_complex ≤ c')
     · linarith [h2.2]
   have hunion_ae : (slitPreimage ∪ edgePreimage : Set ℝ) =ᵐ[volume] univ := by
     have hnull : volume ({-1, 0, 1} : Set ℝ) = 0 := ({-1, 0, 1} : Set ℝ).toFinite.measure_zero volume
+    refine Filter.eventuallyEqSet_iff'.2 ?_
     change ∀ᵐ σ ∂volume, (σ ∈ slitPreimage ∪ edgePreimage) = (σ ∈ (univ : Set ℝ))
     rw [ae_iff]
     refine measure_mono_null (fun σ hσ => ?_) hnull

@@ -37,7 +37,7 @@ private lemma aesm_prod_Ioi_real {f : ℝ × ℝ → ℝ} (hf : ContinuousOn f (
 private lemma qmp_mul_left_Ioi {c : ℝ} (hc : 0 < c) :
     MeasureTheory.QuasiMeasurePreserving (fun x : ℝ => c * x) (volume.restrict (Ioi (0 : ℝ))) (volume.restrict (Ioi (0 : ℝ))) := by
   have hm : Measurable (fun x : ℝ => c * x) := measurable_const.mul measurable_id
-  refine ⟨hm, fun s hs => ?_⟩; obtain ⟨t, hst, htm, ht0⟩ := exists_measurable_superset_of_null hs
+  refine ⟨hm.aemeasurable, fun s hs => ?_⟩; obtain ⟨t, hst, htm, ht0⟩ := exists_measurable_superset_of_null hs
   rw [Measure.restrict_apply' measurableSet_Ioi] at ht0; refine measure_mono_null hst ?_
   rw [Measure.map_apply hm htm, Measure.restrict_apply' measurableSet_Ioi,
     show (fun x : ℝ => c * x) ⁻¹' t ∩ Ioi (0 : ℝ) = (fun x : ℝ => c * x) ⁻¹' (t ∩ Ioi (0 : ℝ)) from by ext x; simp [hc], Real.volume_preimage_mul_left hc.ne', ht0, mul_zero]
@@ -703,7 +703,7 @@ private lemma fracMuDensity_tail_small {p : ℝ} (hp : p ∈ Ioo (0 : ℝ) 1) {�
     · filter_upwards [ae_restrict_mem measurableSet_Ioi] with s hs
       have h1 := tendsto_one_div_add_atTop_nhds_zero_nat.eventually (eventually_le_nhds (mem_Ioi.mp hs))
       have h2 := (tendsto_atTop_add_const_right _ 1 tendsto_natCast_atTop_atTop).eventually (eventually_ge_atTop s)
-      refine tendsto_const_nhds.congr' ?_; filter_upwards [h1, h2] with k hk1 hk2; rw [one_div] at hk1; exact (indicator_of_notMem (fun h => h.2 ⟨hk1, hk2⟩) _).symm
+      refine tendsto_const_nhds.congr' ?_; filter_upwards [h1, h2] with k hk1 hk2; rw [one_div] at hk1; exact (indicator_of_notMem (fun h : s ∈ S_k k => h.2 ⟨hk1, hk2⟩) _).symm
   obtain ⟨k, hk⟩ := (hten.eventually (eventually_lt_nhds hδ)).exists; let s₀ := ((k : ℝ) + 1)⁻¹; let s₁ := (k : ℝ) + 1
   refine ⟨s₀, s₁, by positivity, (inv_le_one_of_one_le₀ (by linarith [Nat.cast_nonneg (α := ℝ) k])).trans (by linarith [Nat.cast_nonneg (α := ℝ) k]), ?_⟩
   rwa [show ∫ s in Ioi (0 : ℝ) \ Icc s₀ s₁, fracMuDensity p s = ∫ s in Ioi (0 : ℝ), (S_k k).indicator (fracMuDensity p) s from

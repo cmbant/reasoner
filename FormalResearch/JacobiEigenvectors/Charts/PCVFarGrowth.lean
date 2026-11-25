@@ -1195,7 +1195,7 @@ theorem pcU_neg_pos_and_growth : ∃ cU : ℝ, 0 < cU ∧
         have hgt_lt : 4 * Real.sqrt (k2 a t) < r t := by
           by_contra hle; push_neg at hle
           have htB : t ∈ B := ⟨⟨hs₁_mem.1.1.trans ht.1.le, ht.2.le⟩, hle⟩
-          exact absurd (le_csSup ⟨z, fun _ h => h.1.2⟩ htB) (not_le.mpr ht.1)
+          exact absurd (le_csSup ⟨z, fun _ (h : _ ∈ B) => h.1.2⟩ htB) (not_le.mpr ht.1)
         have hk_ge : t ^ 2 / 4 + a ≤ k2 a t := by
           unfold k2
           have hp0 : 0 ≤ t ^ 2 / 4 + a := by positivity

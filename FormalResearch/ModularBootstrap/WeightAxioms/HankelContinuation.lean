@@ -750,7 +750,7 @@ private lemma setIntegral_polarCoord_Ioi (H : ℝ × ℝ → ℂ)
               exact neg_nonpos.mpr (Real.sin_pos_of_pos_of_lt_pi (neg_pos.mpr hneg) (by linarith [hθ.1])).le
           linarith
         exact hθ0 ⟨hlt, hθ.2⟩
-      rw [Set.indicator_of_notMem hnot, smul_zero, Set.indicator_of_notMem (fun h => hθ0 h.2)]
+      rw [Set.indicator_of_notMem hnot, smul_zero, Set.indicator_of_notMem (fun h : p ∈ (_ : Set ℝ) ×ˢ Ioo (0 : ℝ) Real.pi => hθ0 h.2)]
   rw [setIntegral_congr_fun polarCoord.open_target.measurableSet hpt,
     setIntegral_indicator (measurableSet_Ioi.prod measurableSet_Ioo)]
   have hsub : polarCoord.target ∩ (Ioi (0 : ℝ) ×ˢ Ioo (0 : ℝ) Real.pi) =
@@ -1012,7 +1012,7 @@ theorem hankelContinuationW_ofReal {w : ℕ} (hw : 1 ≤ w) {c' : ℝ} (hc' : 0 
                         exact neg_nonpos.mpr (Real.sin_pos_of_pos_of_lt_pi (neg_pos.mpr hneg) (by linarith [hp.2.1])).le
                     linarith
                   exact hθ0 ⟨hlt, hp.2.2⟩
-                rw [Set.indicator_of_notMem hnot, smul_zero, Set.indicator_of_notMem (fun h => hθ0 h.2)]
+                rw [Set.indicator_of_notMem hnot, smul_zero, Set.indicator_of_notMem (fun h : p ∈ (_ : Set ℝ) ×ˢ Ioo (0 : ℝ) Real.pi => hθ0 h.2)]
           _ = ∫⁻ p in Ioi (0 : ℝ) ×ˢ Ioo (0 : ℝ) Real.pi,
                 ENNReal.ofReal p.1 * (‖H (p.1 * Real.cos p.2, p.1 * Real.sin p.2)‖₊ : ℝ≥0∞) := by
               rw [setLIntegral_indicator (measurableSet_Ioi.prod measurableSet_Ioo), inter_comm, hsub]

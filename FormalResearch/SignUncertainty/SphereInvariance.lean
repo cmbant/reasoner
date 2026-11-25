@@ -21,7 +21,7 @@ open scoped RealInnerProductSpace Pointwise
 namespace FormalResearch.SignUncertainty
 
 /-- The unit sphere of `ℝ^d`. -/
-abbrev USph (d : ℕ) := Metric.sphere (0 : EuclSp d) 1
+noncomputable abbrev USph (d : ℕ) := Metric.sphere (0 : EuclSp d) 1
 
 /-- The surface measure on the unit sphere. -/
 noncomputable def sphMeas (d : ℕ) : Measure (USph d) := (volume : Measure (EuclSp d)).toSphere
