@@ -65,7 +65,7 @@ theorem compColumn_lower (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (spl : F
     compColumn CI spl μ N X n = (-1 : ℝ) ^ n *
       softColAt CI.softLoL CI.softLoR (atStep F μ N) (-X) N (nearestRow (F.step N) (CI.softLoL.uc (atStep F μ N))) n := by
   unfold compColumn
-  rw [dif_neg hb, if_neg hu]
+  rw [dite_eq_right hb, ite_eq_right hu]
 
 /-- **The lower column minus the eigenvector is `D_-` times the upper-edge column of the gauge family minus the transported eigenvector** (`eigVec_negU_rev`). -/
 theorem compColumn_lower_sub (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (spl : Fin CI.nb → ℝ) (μ : Par) (N : ℕ)
@@ -183,10 +183,10 @@ theorem soft_col_clause {Fz : SymbolFamily (Par × ℝ)} {P : Set (Par × ℝ)} 
     intro n
     unfold softColAt glueVecAt splicedVec
     by_cases hn : n ≤ ns
-    · rw [if_pos hn, if_pos hn]
+    · rw [ite_eq_left hn, ite_eq_left hn]
       show ψL n / sN = gN / sN * (ψL n / gN)
       field_simp
-    · rw [if_neg hn, if_neg hn]
+    · rw [ite_eq_right hn, ite_eq_right hn]
       show glueKappa ψL ψR Ω * ψR n / sN = gN / sN * (glueKappa ψL ψR Ω * ψR n / gN)
       field_simp
   -- the row bound, squared

@@ -51,7 +51,7 @@ theorem hankelWtS_differentiableOn {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → �
 
 /-- Reflection of the closed-strip Mellin function. -/
 theorem mellinFm_one_sub {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f)
-    (hε : ε = 1 ∨ ε = -1) {ζ : ℂ} (h0 : 0 ≤ ζ.re) (h1 : ζ.re ≤ 1) :
+    (hε : ε = 1 ∨ ε = -1) {ζ : ℂ} (_h0 : 0 ≤ ζ.re) (_h1 : ζ.re ≤ 1) :
     mellinFm c ε f (1 - ζ) = (ε : ℂ) * mellinFm c ε f ζ := by
   have hε2 : (ε : ℂ) * (ε : ℂ) = 1 := by
     rcases hε with h | h <;> simp [h]
@@ -60,20 +60,20 @@ theorem mellinFm_one_sub {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (hf : I
   rcases lt_trichotomy ζ.re (1 / 2) with hlt | heq | hgt
   · have a1 : ¬ ((1 - ζ).re ≤ 1 / 2) := by rw [hre]; linarith
     unfold mellinFm
-    rw [if_neg a1, if_pos hlt.le]
+    rw [ite_eq_right a1, ite_eq_left hlt.le]
   · have a1 : (1 - ζ).re ≤ 1 / 2 := by rw [hre]; linarith
     have hcz : ((c : ℂ) * ζ).re = c * ζ.re := by simp
     have hrefl := mellinStrip_reflection hc hf (z := (c : ℂ) * ζ)
       (by rw [hcz, heq]; linarith) (by rw [hcz, heq]; linarith)
     unfold mellinFm
-    rw [if_pos a1, if_pos heq.le]
+    rw [ite_eq_left a1, ite_eq_left heq.le]
     have e1 : (c : ℂ) * (1 - (1 - ζ)) = (c : ℂ) * ζ := by ring
     have e2 : (c : ℂ) * (1 - ζ) = (c : ℂ) - (c : ℂ) * ζ := by ring
     rw [e1, e2, hrefl, ← mul_assoc, hε2, one_mul]
   · have a1 : (1 - ζ).re ≤ 1 / 2 := by rw [hre]; linarith
     have a2 : ¬ (ζ.re ≤ 1 / 2) := not_le.mpr hgt
     unfold mellinFm
-    rw [if_pos a1, if_neg a2, ← mul_assoc, hε2, one_mul]
+    rw [ite_eq_left a1, ite_eq_right a2, ← mul_assoc, hε2, one_mul]
     congr 1; ring_nf
 
 theorem hankelWtS_one_sub {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → ℝ} (hf : IsHankelEigenfn c ε f)

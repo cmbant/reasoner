@@ -97,7 +97,7 @@ lemma o4c_edgePhiDeriv_tau0 (hL0 : 0 < L) : edgePhiDeriv L (tau0 L) = 0 := by
   have h := ceEll_tau0 hL0
   unfold ceEll at h
   unfold edgePhiDeriv
-  rw [if_neg (tau0_pos hL0).ne', abs_of_pos (tau0_pos hL0)]
+  rw [ite_eq_right (tau0_pos hL0).ne', abs_of_pos (tau0_pos hL0)]
   rw [show Real.tanh (π * tau0 L / 2) / (π * tau0 L / 2)
       = (π * tau0 L / 2 / Real.tanh (π * tau0 L / 2))⁻¹ by rw [inv_div], Real.log_inv]
   linarith

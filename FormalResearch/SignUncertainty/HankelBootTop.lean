@@ -20,7 +20,7 @@ namespace FormalResearch.SignUncertainty
 
 theorem hankel_psi_total_upper_tail {c ε T : ℝ} (hc : 3e6 ≤ c) {f : ℝ → ℝ} (hf : IsHankelFeasible c ε T f)
     (hε : ε = 1 ∨ ε = -1) (hM : hankelMass c f = 1) {a : ℝ} (ha : |a| ≤ langerRadius c)
-    (hT : T ≤ c * hankelXi c a) :
+    (_hT : T ≤ c * hankelXi c a) :
     (∫ x in a..(langerRadius c), hankelPsiR c f x) +
         ∫ u in Ioi (c * hankelXi c a), hankelRho0 c u * f u ≤
       hankelLobe c + 2 * langerRadius c * hankelRinf c := by

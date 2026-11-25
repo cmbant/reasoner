@@ -145,19 +145,19 @@ lemma InnerCombHyp.continuous_combH0_real (hB : InnerCombHyp c' B) :
   simp only [Function.comp_apply]
   rw [sechSqProfile_ofReal]
 
-lemma InnerCombHyp.continuousOn_combProfile (hc' : 0 < c') (hB : InnerCombHyp c' B) :
+lemma InnerCombHyp.continuousOn_combProfile (_hc' : 0 < c') (hB : InnerCombHyp c' B) :
     ContinuousOn (combProfile c' B) (Ici 0) := by
   unfold combProfile
   exact (Complex.continuous_re.comp (hB.continuous_combH0_real.comp (continuousOn_xOf c'))
     ).continuousOn
 
-lemma InnerCombHyp.combProfile_eq (hB : InnerCombHyp c' B) {s : ℝ} (hs : 0 < s) :
+lemma InnerCombHyp.combProfile_eq (hB : InnerCombHyp c' B) {s : ℝ} (_hs : 0 < s) :
     combH0 B ((Real.sqrt (3 * s / c') : ℝ) : ℂ) = (combProfile c' B s : ℂ) := by
   unfold combProfile xOf
   exact (Complex.ext (by simp) (by simpa using hB.combH0_real _))
 
 /-- `|u(t)| ≤ ‖h₀(x)‖ ≤ 4 e^{-πx} |B(x)|` and (iii) give the decay of the comb profile. -/
-theorem InnerCombHyp.combProfile_decay (hc' : 0 < c') (hB : InnerCombHyp c' B) :
+theorem InnerCombHyp.combProfile_decay (_hc' : 0 < c') (hB : InnerCombHyp c' B) :
     ∃ C : ℝ, 0 ≤ C ∧ DecayBound c' C (combProfile c' B) := by
   obtain ⟨C, hC⟩ := hB.tail
   have hC0 : 0 ≤ C := by
@@ -270,7 +270,7 @@ lemma InnerCombHyp.integrable_lift (hc' : 0 < c') (hB : InnerCombHyp c' B) {C : 
 lemma InnerCombHyp.edgeHankel_eq (hc' : 0 < c') (hB : InnerCombHyp c' B) {C : ℝ}
     (hd : DecayBound c' C (combProfile c' B)) {t : ℝ} (ht : 0 < t) :
     edgeHankel c' (combH0 B) t = (hankelTransform 1 (combProfile c' B) t : ℂ) :=
-  hankelTransform_one_eq_edgeHankel hc' (fun s hs => hB.combProfile_eq hs)
+  hankelTransform_one_eq_edgeHankel hc' (fun _s hs => hB.combProfile_eq hs)
     (hB.continuousOn_combProfile hc') (hB.integrable_lift hc' hd) ht
 
 /-- The order-`p` link for the comb: `edgeHankelP p c' h₀ = hankelTransform (p+1) u` on `t > 0`
@@ -304,7 +304,7 @@ theorem InnerCombHyp.hankelTransform_decayP (p : ℕ) (hc' : 0 < c') (hB : Inner
   have hX₀2 : 3 / (4 * π * c') ≤ X₀ := le_max_right _ _
   have hnorm_bound : ∀ t : ℝ, |hankelTransform (p + 1) u t| ≤ I₁ := fun t => by
     unfold hankelTransform
-    rw [dif_pos hw1]
+    rw [dite_eq_left hw1]
     exact (Complex.abs_re_le_norm _).trans (Real.norm_fourier_le_integral_norm _ _)
   set K₂ : ℝ := K * 1 * (√(2 / xiStar) * √c' * (2 / xiStar) ^ p) with hK₂
   have hK₂0 : 0 ≤ K₂ := by rw [hK₂]; positivity

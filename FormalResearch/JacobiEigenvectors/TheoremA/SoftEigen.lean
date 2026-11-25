@@ -143,10 +143,10 @@ theorem eig_eq_normalised {Par : Type*} (F : SymbolFamily Par) (μ : Par) (N : �
   have hJ := eigVec_JacSol F μ N Xs Um hE k
   have hA0 : F.bondA μ N (-1) = 0 := by
     unfold SymbolFamily.bondA
-    rw [if_neg (by omega)]
+    rw [ite_eq_right (by omega)]
   have hP0 : 0 < eigVec Um k 0 := by
     unfold eigVec
-    rw [dif_pos ⟨le_rfl, by omega⟩]
+    rw [dite_eq_left ⟨le_rfl, by omega⟩]
     exact hE.pos k
   set c : ℝ := eigVec Um k 0 / ψ 0 with hc
   have hcpos : 0 < c := div_pos hP0 hψ0
@@ -175,7 +175,7 @@ theorem eig_eq_normalised {Par : Type*} (F : SymbolFamily Par) (μ : Par) (N : �
       exact ⟨(j.val : ℤ), Finset.mem_Icc.mpr ⟨by positivity, by omega⟩, by ext; simp⟩
     · intro n hn
       unfold eigVec
-      rw [dif_pos (Finset.mem_Icc.mp hn)]
+      rw [dite_eq_left (Finset.mem_Icc.mp hn)]
       ring
   have hsq : ∑ n ∈ rowsOf N, ψ n ^ 2 = 1 / c ^ 2 := by
     have : ∑ n ∈ rowsOf N, eigVec Um k n ^ 2 = c ^ 2 * ∑ n ∈ rowsOf N, ψ n ^ 2 := by
@@ -285,7 +285,7 @@ theorem psiL_eq_kappa_psiR {Par : Type*} (F : SymbolFamily Par) (μ : Par) (N : 
   have hJ := eigVec_JacSol F μ N Xs Um hE k
   have hA0N : F.bondA μ N N = 0 := by
     unfold SymbolFamily.bondA
-    rw [if_neg (by omega)]
+    rw [ite_eq_right (by omega)]
   have hr := jacSol_mirror F μ N (Xs k) N ψ' hψ'
   have hk := eig_eq_kappa_mul (F.bondA μ N) (F.diagQ μ N (Xs k)) (eigVec Um k) (fun n => ψ' ((N : ℤ) - n)) N hA0N
     (fun n h0 hN => (hpos n h0 hN).ne') (fun n h0 hN => hJ n h0 (by omega))

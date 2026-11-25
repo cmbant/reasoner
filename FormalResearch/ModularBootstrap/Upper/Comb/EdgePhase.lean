@@ -73,8 +73,8 @@ private lemma ofReal_sub_I_mul_mem_combZOpen {x y : ℝ} (hx : -1 / 4 < x) (hy :
 private lemma continuousAt_rhoUDeriv {y : ℝ} (hy : xiStar < y) : ContinuousAt rhoUDeriv y := by
   have hpi := Real.pi_pos
   have hs : 1 < Real.sinh (π * y) := by
-    rw [← sinh_pi_mul_xiStar]; exact Real.sinh_lt_sinh.mpr (by nlinarith)
-  have hsq : 0 < Real.sinh (π * y) ^ 2 - 1 := by nlinarith
+    rw [← sinh_pi_mul_xiStar]; exact Real.sinh_lt_sinh.mpr (by nlinarith only [hpi, hy])
+  have hsq : 0 < Real.sinh (π * y) ^ 2 - 1 := by nlinarith only [hs]
   have hsh : ContinuousAt (fun t : ℝ => Real.sinh (π * t)) y :=
     Real.continuous_sinh.continuousAt.comp (continuousAt_const.mul continuousAt_id)
   have hch : ContinuousAt (fun t : ℝ => Real.cosh (π * t)) y :=
@@ -88,15 +88,18 @@ private lemma comb_sinh_norm_ge {s₀ : ℝ} (hs₀ : 0 < s₀) (hs₁ : s₀ < 
       c * Real.exp (π * |w.re|) ≤ ‖Complex.sinh ((π : ℂ) * w)‖ := by
   have hpi := Real.pi_pos
   have hsin_pos : 0 < Real.sin (π * s₀) :=
-    Real.sin_pos_of_pos_of_lt_pi (by positivity) (by nlinarith)
+    Real.sin_pos_of_pos_of_lt_pi (by positivity) (by nlinarith only [hpi, hs₁])
   have hsin_le : ∀ θ : ℝ, π * s₀ ≤ θ → θ ≤ π * (1 - s₀) → Real.sin (π * s₀) ≤ Real.sin θ := by
     intro θ hθ1 hθ2
     rcases le_or_gt θ (π / 2) with h | h
     · exact Real.strictMonoOn_sin.monotoneOn
-        ⟨by nlinarith, by nlinarith⟩ ⟨by nlinarith, by nlinarith⟩ hθ1
+        ⟨by nlinarith only [hpi, hs₀, hs₁, hθ1, hθ2, h], by nlinarith only [hpi, hs₀, hs₁, hθ1, hθ2, h]⟩
+        ⟨by nlinarith only [hpi, hs₀, hs₁, hθ1, hθ2, h], by nlinarith only [hpi, hs₀, hs₁, hθ1, hθ2, h]⟩ hθ1
     · rw [← Real.sin_pi_sub θ]
       exact Real.strictMonoOn_sin.monotoneOn
-        ⟨by nlinarith, by nlinarith⟩ ⟨by nlinarith, by nlinarith⟩ (by nlinarith)
+        ⟨by nlinarith only [hpi, hs₀, hs₁, hθ1, hθ2, h], by nlinarith only [hpi, hs₀, hs₁, hθ1, hθ2, h]⟩
+        ⟨by nlinarith only [hpi, hs₀, hs₁, hθ1, hθ2, h], by nlinarith only [hpi, hs₀, hs₁, hθ1, hθ2, h]⟩
+        (by nlinarith only [hpi, hs₀, hs₁, hθ1, hθ2, h])
   set c := min (Real.sin (π * s₀) * Real.exp (-π)) (1 / 4)
   refine ⟨c, lt_min (by positivity) (by norm_num), fun w hw1 hw2 => ?_⟩
   have hns : ‖Complex.sinh ((π : ℂ) * w)‖ ^ 2 =
@@ -106,14 +109,14 @@ private lemma comb_sinh_norm_ge {s₀ : ℝ} (hs₀ : 0 < s₀) (hs₁ : s₀ < 
     rw [Complex.sq_norm, hw, complex_sinh_normSq]
   rcases le_or_gt |w.re| 1 with hre | hre
   · have hsin_ge : Real.sin (π * s₀) ≤ |Real.sin (π * w.im)| :=
-      (hsin_le (π * w.im) (by nlinarith) (by nlinarith)).trans (le_abs_self _)
+      (hsin_le (π * w.im) (by nlinarith only [hpi, hw1, hw2]) (by nlinarith only [hpi, hw1, hw2])).trans (le_abs_self _)
     have hnorm_ge : Real.sin (π * s₀) ≤ ‖Complex.sinh ((π : ℂ) * w)‖ := by
       have hsq : Real.sin (π * s₀) ^ 2 ≤ ‖Complex.sinh ((π : ℂ) * w)‖ ^ 2 := by
-        nlinarith [sq_nonneg (Real.sinh (π * w.re)), sq_abs (Real.sin (π * w.im)),
+        linarith only [hns, sq_nonneg (Real.sinh (π * w.re)), sq_abs (Real.sin (π * w.im)),
           pow_le_pow_left₀ hsin_pos.le hsin_ge 2]
-      nlinarith [norm_nonneg (Complex.sinh ((π : ℂ) * w))]
+      nlinarith only [norm_nonneg (Complex.sinh ((π : ℂ) * w)), hsq]
     have hexp_le : c * Real.exp (π * |w.re|) ≤ Real.sin (π * s₀) := by
-      have h1 : Real.exp (π * |w.re|) ≤ Real.exp π := Real.exp_le_exp.mpr (by nlinarith)
+      have h1 : Real.exp (π * |w.re|) ≤ Real.exp π := Real.exp_le_exp.mpr (by nlinarith only [hpi, hre])
       calc c * Real.exp (π * |w.re|) ≤ c * Real.exp π := by gcongr
         _ ≤ (Real.sin (π * s₀) * Real.exp (-π)) * Real.exp π := by
             gcongr; exact min_le_left _ _
@@ -123,10 +126,10 @@ private lemma comb_sinh_norm_ge {s₀ : ℝ} (hs₀ : 0 < s₀) (hs₁ : s₀ < 
   · have hsh_ge : (1 / 4 : ℝ) * Real.exp (π * |w.re|) ≤ |Real.sinh (π * w.re)| := by
       have h1 : Real.pi * 1 < Real.pi * |w.re| := mul_lt_mul_of_pos_left hre hpi
       have h2 : (1 / 2 : ℝ) * Real.exp (π * |w.re|) ≤ Real.exp (π * |w.re|) - Real.exp (-(π * |w.re|)) := by
-        have h3 : Real.exp (-(π * |w.re|)) ≤ 1 := Real.exp_le_one_iff.mpr (by nlinarith)
+        have h3 : Real.exp (-(π * |w.re|)) ≤ 1 := Real.exp_le_one_iff.mpr (by nlinarith only [hpi, abs_nonneg w.re])
         have h4 : (2 : ℝ) ≤ Real.exp 1 := by linarith [Real.add_one_lt_exp (by norm_num : (1 : ℝ) ≠ 0)]
         have h5 : (2 : ℝ) ≤ Real.exp (π * |w.re|) :=
-          h4.trans (Real.exp_le_exp.mpr (by nlinarith [Real.pi_gt_three]))
+          h4.trans (Real.exp_le_exp.mpr (by linarith only [Real.pi_gt_three, h1]))
         linarith
       have h3 : (1 / 4 : ℝ) * Real.exp (π * |w.re|) ≤ Real.sinh (π * |w.re|) := by
         rw [Real.sinh_eq]; linarith
@@ -140,7 +143,7 @@ private lemma comb_sinh_norm_ge {s₀ : ℝ} (hs₀ : 0 < s₀) (hs₁ : s₀ < 
     have hnorm_ge : |Real.sinh (π * w.re)| ≤ ‖Complex.sinh ((π : ℂ) * w)‖ := by
       have hsq : |Real.sinh (π * w.re)| ^ 2 ≤ ‖Complex.sinh ((π : ℂ) * w)‖ ^ 2 := by
         rw [hns, sq_abs]; linarith [sq_nonneg (Real.sin (π * w.im))]
-      nlinarith [norm_nonneg (Complex.sinh ((π : ℂ) * w)), abs_nonneg (Real.sinh (π * w.re))]
+      nlinarith only [norm_nonneg (Complex.sinh ((π : ℂ) * w)), abs_nonneg (Real.sinh (π * w.re)), hsq]
     exact ((mul_le_mul_of_nonneg_right (min_le_right _ _) (Real.exp_pos _).le).trans hsh_ge).trans hnorm_ge
 
 private lemma comb_sinhKernel_differentiableOn :
@@ -310,7 +313,7 @@ theorem combPhiDeriv_bound :
       ‖combPhiDeriv i j ζ b‖ ≤ 2 * M * Real.exp (-π * abs (ζ.re - |b.re|)) := by
     intro i j hij1 hij4 ζ b hb hζ
     unfold combPhiDeriv
-    rw [if_neg (by omega)]
+    rw [ite_eq_right (by omega)]
     have him := combNMid_im_range hb hζ.2 0
     simp only [Complex.ofReal_zero, add_zero] at him
     have hbd_k : ∀ k : ℕ, k ≤ 3 → ∀ w : ℂ, 1 / 16 ≤ w.im → w.im ≤ 15 / 16 →
@@ -329,9 +332,9 @@ theorem combPhiDeriv_bound :
     have h2 := hbd_k (i + j - 1) (by omega) (b + ζ) him.2.2.1 him.2.2.2
     obtain ⟨hd1, hd2⟩ := re_dist_le_sub_add hζ.1
     have he1 : Real.exp (-π * |(b - ζ).re|) ≤ Real.exp (-π * abs (ζ.re - |b.re|)) :=
-      Real.exp_le_exp.mpr (by nlinarith)
+      Real.exp_le_exp.mpr (by nlinarith only [Real.pi_pos, hd1])
     have he2 : Real.exp (-π * |(b + ζ).re|) ≤ Real.exp (-π * abs (ζ.re - |b.re|)) :=
-      Real.exp_le_exp.mpr (by nlinarith)
+      Real.exp_le_exp.mpr (by nlinarith only [Real.pi_pos, hd2])
     calc ‖(-1 : ℂ) ^ j * iteratedDeriv (i + j - 1) sinhKernel (b - ζ) +
             iteratedDeriv (i + j - 1) sinhKernel (b + ζ)‖
         ≤ ‖(-1 : ℂ) ^ j * iteratedDeriv (i + j - 1) sinhKernel (b - ζ)‖ +
@@ -477,9 +480,9 @@ theorem combPhiDeriv_bound :
                 gcongr; exact (le_max_right _ _).trans (le_max_right _ _)
     · have h1 := hbd_ij i j (Nat.pos_of_ne_zero hpos) hij4 hb hζ
       have h_le1 : Real.exp (-π * abs (ζ.re - |b.re|)) ≤ 1 :=
-        Real.exp_le_one_iff.mpr (by nlinarith [abs_nonneg (ζ.re - |b.re|)])
+        Real.exp_le_one_iff.mpr (by nlinarith only [Real.pi_pos, abs_nonneg (ζ.re - |b.re|)])
       have h_le2 : Real.exp (-π * abs (ζ.re - |b.re|)) ≤ Real.exp (-π * (ζ.re - |b.re|)) :=
-        Real.exp_le_exp.mpr (by nlinarith [le_abs_self (ζ.re - |b.re|)])
+        Real.exp_le_exp.mpr (by nlinarith only [Real.pi_pos, le_abs_self (ζ.re - |b.re|)])
       calc ‖combPhiDeriv i j ζ b‖
           ≤ 2 * M * Real.exp (-π * abs (ζ.re - |b.re|)) := h1
         _ ≤ C * Real.exp (-π * abs (ζ.re - |b.re|)) := by gcongr; exact le_max_left _ _
@@ -633,7 +636,7 @@ lemma combPhiDeriv_detune_bound :
     have hd2 := HasDerivAt.scomp_of_eq s
       (hasDerivAt_combPhiDeriv_zeta (i := i) (j := 0) (combNMid_subset_combNOpen hb) hζ2) hl2 rfl
     have htot := (hd1.add hd2).sub_const (2 * combPhiDeriv i 0 (χ : ℂ) b)
-    exact htot.congr_deriv (by dsimp [h']; simp [smul_eq_mul]; ring)
+    exact htot.congr_deriv (by dsimp [h']; simp; ring)
   have h_pair_bound : ∀ s : ℝ, |s| ≤ 1 / 8 →
       ‖h' s‖ ≤ 2 * C * |s| * Real.exp (-π * abs (χ - |b.re|)) := by
     intro s hs
@@ -676,10 +679,10 @@ lemma combPhiDeriv_detune_bound :
     have heq : ‖h' s‖ = ‖g s - g (-s)‖ := by
       dsimp [h', g]
       rw [norm_mul, Complex.norm_I, one_mul]
-      congr 1; push_cast; ring
+      congr 1; push_cast; ring_nf
     exact heq ▸ hdiff_sub
   have h0 : h 0 = 0 := by dsimp [h]; simp; ring
-  have h_even : h (-ε) = h ε := by dsimp [h]; push_cast; ring
+  have h_even : h (-ε) = h ε := by dsimp [h]; push_cast; ring_nf
   have hcont_h' : ContinuousOn h' (Icc 0 |ε|) := by
     intro s hs
     have hs_abs : |s| ≤ 1 / 8 := by rw [abs_of_nonneg hs.1]; exact hs.2.trans hε
@@ -902,7 +905,7 @@ private lemma rhoU_le_lin_bound {y : ℝ} (hy : xiStar ≤ y) :
   rw [rhoU_eq_of_ge hy]
   have hy_nn : 0 ≤ y := xiStar_pos.le.trans hy
   have hs1 : 1 ≤ Real.sinh (π * y) := by
-    rw [← sinh_pi_mul_xiStar]; exact Real.sinh_le_sinh.mpr (by nlinarith)
+    rw [← sinh_pi_mul_xiStar]; exact Real.sinh_le_sinh.mpr (by nlinarith only [hpi, hy])
   have hsh_le : 2 * Real.sinh (π * y) ≤ Real.exp (π * y) := by
     rw [Real.sinh_eq]; linarith [Real.exp_pos (-(π * y))]
   have hlog_le : arccoshR (Real.sinh (π * y)) ≤ π * y := by
@@ -1208,7 +1211,7 @@ private lemma tendsto_chiQuantile_nat_atTop {c' : ℝ} (hc' : 0 < c') (f : ℕ) 
       rw [intervalIntegral.integral_add hi1 hi2, intervalIntegral.integral_const_mul,
         integral_id, intervalIntegral.integral_const, smul_eq_mul]
       have hsub1 : (4 / 3 : ℝ) * ((Y ^ 2 - xiStar ^ 2) / 2) ≤ (2 / 3 : ℝ) * Y ^ 2 := by
-        nlinarith [sq_nonneg xiStar]
+        nlinarith only [sq_nonneg xiStar]
       have h43pi_nn : 0 ≤ 4 / (3 * π) := by positivity
       have hsub2 : (Y - xiStar) * (4 / (3 * π)) ≤ (4 / (3 * π)) * Y := by
         calc (Y - xiStar) * (4 / (3 * π)) = (4 / (3 * π)) * Y - (4 / (3 * π)) * xiStar := by ring
@@ -1818,8 +1821,9 @@ lemma hasDerivAt_barPhiDeriv {i : ℕ} (hi : i ≤ 1) {c' : ℝ} (hc' : 0 < c') 
     have h1 := (abs_lt.mp him).1; have h2 := (abs_lt.mp him).2
     have hb1 := abs_lt.mp (show |b.im - 1 / 2| < 17 / 64 from hb)
     dsimp [r₀] at h1 h2
-    rcases abs_cases (b.im - 1 / 2) with ⟨_, _⟩ | ⟨_, _⟩ <;>
-      exact abs_lt.mpr ⟨by linarith, by linarith⟩
+    rcases abs_cases (b.im - 1 / 2) with ⟨ha, hc⟩ | ⟨ha, hc⟩ <;>
+      exact abs_lt.mpr ⟨by linarith only [h1, h2, ha, hc, hb1.1, hb1.2],
+        by linarith only [h1, h2, ha, hc, hb1.1, hb1.2]⟩
   let F : ℂ → ℝ → ℂ := fun w y => (rhoU y : ℂ) * combPhiDeriv i 0 (y : ℂ) w
   let F' : ℂ → ℝ → ℂ := fun w y => (rhoU y : ℂ) * combPhiDeriv (i + 1) 0 (y : ℂ) w
   obtain ⟨C, hC, _, hbd⟩ := combPhiDeriv_bound
@@ -1896,8 +1900,9 @@ lemma hasDerivAt_deltaDetCombDeriv {i : ℕ} (hi : i ≤ 1) {c' : ℝ} (hc' : 0 
     have h1 := (abs_lt.mp him).1; have h2 := (abs_lt.mp him).2
     have hb1 := abs_lt.mp (show |b.im - 1 / 2| < 17 / 64 from hb)
     dsimp [r₀] at h1 h2
-    rcases abs_cases (b.im - 1 / 2) with ⟨_, _⟩ | ⟨_, _⟩ <;>
-      exact abs_lt.mpr ⟨by linarith, by linarith⟩
+    rcases abs_cases (b.im - 1 / 2) with ⟨ha, hc⟩ | ⟨ha, hc⟩ <;>
+      exact abs_lt.mpr ⟨by linarith only [h1, h2, ha, hc, hb1.1, hb1.2],
+        by linarith only [h1, h2, ha, hc, hb1.1, hb1.2]⟩
   have ha_m : ∀ m : ℕ, (1 / 4 : ℝ) ≤ (f + 1 + m : ℕ) := fun m => by
     have : (1 : ℝ) ≤ (f + 1 + m : ℕ) := by exact_mod_cast (by omega : 1 ≤ f + 1 + m)
     linarith
@@ -2010,8 +2015,9 @@ lemma hasDerivAt_emRem2Deriv {i : ℕ} (hi : i ≤ 1) {c' : ℝ} (hc' : 0 < c') 
     have h1 := (abs_lt.mp him).1; have h2 := (abs_lt.mp him).2
     have hb1 := abs_lt.mp (show |b.im - 1 / 2| < 17 / 64 from hb)
     dsimp [r₀] at h1 h2
-    rcases abs_cases (b.im - 1 / 2) with ⟨_, _⟩ | ⟨_, _⟩ <;>
-      exact abs_lt.mpr ⟨by linarith, by linarith⟩
+    rcases abs_cases (b.im - 1 / 2) with ⟨ha, hc⟩ | ⟨ha, hc⟩ <;>
+      exact abs_lt.mpr ⟨by linarith only [h1, h2, ha, hc, hb1.1, hb1.2],
+        by linarith only [h1, h2, ha, hc, hb1.1, hb1.2]⟩
   have hre_ball : ∀ w ∈ Metric.ball b r₀, |w.re| ≤ |b.re| + r₀ := fun w hw => by
     have hr := (Complex.abs_re_le_norm (w - b)).trans_lt (mem_ball_iff_norm.mp hw)
     have h1 := (abs_lt.mp hr).1; have h2 := (abs_lt.mp hr).2
@@ -2057,7 +2063,10 @@ lemma hasDerivAt_emRem2Deriv {i : ℕ} (hi : i ≤ 1) {c' : ℝ} (hc' : 0 < c') 
         (Complex.abs_im_le_norm (z - w)).trans_lt ((mem_ball_iff_norm.mp hz).trans_le (min_le_right _ _))
       change |z.im - 1 / 2| < 17 / 64
       have h1 := (abs_lt.mp him).1; have h2 := (abs_lt.mp him).2
-      rcases abs_cases (w.im - 1 / 2) with ⟨_, _⟩ | ⟨_, _⟩ <;> exact abs_lt.mpr ⟨by linarith, by linarith⟩
+      have hwb := abs_lt.mp (show |w.im - 1 / 2| < 17 / 64 from hw_mid)
+      rcases abs_cases (w.im - 1 / 2) with ⟨ha, hc⟩ | ⟨ha, hc⟩ <;>
+        exact abs_lt.mpr ⟨by linarith only [h1, h2, ha, hc, hwb.1, hwb.2],
+          by linarith only [h1, h2, ha, hc, hwb.1, hwb.2]⟩
     have h_meas : ∀ᶠ z in 𝓝 w, AEStronglyMeasurable
         (fun t : ℝ => (bernoulliP2 t : ℂ) * emKernFSecond i c' z ((f + m : ℕ) + t))
         (volume.restrict (Set.uIoc 0 1)) := by
@@ -2608,7 +2617,7 @@ private lemma emRemDeriv_bound :
       dsimp [majorantR]
       rcases le_or_gt r 1 with hr1 | hr1
       · have hexp1 : Real.exp (-π * abs (xiStar + r - |b.re|)) ≤ 1 :=
-          Real.exp_le_one_iff.mpr (by nlinarith [abs_nonneg (xiStar + r - |b.re|)])
+          Real.exp_le_one_iff.mpr (by nlinarith only [Real.pi_pos, abs_nonneg (xiStar + r - |b.re|)])
         have h1r : 1 + r⁻¹ ≤ 2 * r⁻¹ := by
           have : 1 ≤ r⁻¹ := (one_le_inv₀ hr).mpr hr1
           linarith

@@ -306,7 +306,7 @@ theorem soft_f_growth {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) 
   have hJ : JacSol Fz p N X (C.chain p X N).NR ψ := hψsol
   have hA0 : Fz.bondA p N (-1) = 0 := by
     unfold SymbolFamily.bondA
-    rw [if_neg (by omega)]
+    rw [ite_eq_right (by omega)]
   have hgr := growth_ratio (Fz.bondA p N) (Fz.diagQ p N X) ψ ((C.chain p X N).jj 1) (C.CA + 1) C.nu1 hA0 hApos hAle hnu hgap
     (fun n hn0 hn1 => hψsol n hn0 (by omega)) (by rw [hψ0]; exact hs')
   obtain ⟨hψj, hψj1⟩ := hgr ((C.chain p X N).jj 1) hj0 le_rfl

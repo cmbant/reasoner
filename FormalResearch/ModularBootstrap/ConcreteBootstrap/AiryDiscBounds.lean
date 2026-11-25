@@ -158,7 +158,7 @@ private lemma typeII_exponent_oscillation {u₀ u : ℂ}
 /-- **Step 0 disc averaging** for any holomorphic `Ψ` obeying a type-(II) slit envelope on
 `closedBall 0 R_dom \ (-∞, 0]`, giving cut-inclusive bounds on `closedBall 0 R₁` (`R₁ + 2 ≤ R_dom`). -/
 theorem typeII_disc_avg_bound {Ψ : ℂ → ℂ} {R_dom R₁ C_0 ς : ℝ}
-    (hR₁ : 0 ≤ R₁) (hR_dom : R₁ + 2 ≤ R_dom) (hC0 : 0 < C_0) (hς : 0 ≤ ς)
+    (_hR₁ : 0 ≤ R₁) (hR_dom : R₁ + 2 ≤ R_dom) (hC0 : 0 < C_0) (hς : 0 ≤ ς)
     (hΨ_an : AnalyticOnNhd ℂ Ψ (closedBall (0 : ℂ) R_dom))
     (hΨ_env : ∀ u ∈ closedBall (0 : ℂ) R_dom, ¬ (u.im = 0 ∧ u.re ≤ 0) →
       ‖Ψ u‖ ≤ C_0 * airyEnv u * Real.exp (ς * (u ^ (1 / 2 : ℂ)).re) *
@@ -202,7 +202,7 @@ theorem typeII_disc_avg_bound {Ψ : ℂ → ℂ} {R_dom R₁ C_0 ς : ℝ}
       ∫ u in ball u₀ r, (-Real.log (tipDist (-u))) =
         ∫ ζ in ball (-u₀) r, (-Real.log (tipDist ζ)) := by
     have hpre : (fun u : ℂ => -u) ⁻¹' ball (-u₀) r = ball u₀ r := by
-      ext u; simp [mem_ball, dist_eq_norm, show -u - -u₀ = -(u - u₀) by ring]
+      ext u; simp [mem_ball, dist_eq_norm]
     have hmap : Measure.map (fun u : ℂ => -u) (volume.restrict (ball u₀ r)) =
         volume.restrict (ball (-u₀) r) := by
       change Measure.map Neg.neg (volume.restrict (ball u₀ r)) = volume.restrict (ball (-u₀) r)
@@ -431,7 +431,7 @@ theorem typeII_cut_bound {Ψ : ℂ → ℂ} {R_dom R₁ C_0 ς : ℝ}
 
 /-- Cauchy first- and second-derivative bounds on `closedBall 0 R₁` from a sup bound on `closedBall 0 (R₁ + 1)`. -/
 lemma typeII_cauchy_deriv_bounds {Ψ : ℂ → ℂ} {R₁ M : ℝ}
-    (hΨ_an : AnalyticOnNhd ℂ Ψ (closedBall (0 : ℂ) (R₁ + 1))) (hM : 0 ≤ M)
+    (hΨ_an : AnalyticOnNhd ℂ Ψ (closedBall (0 : ℂ) (R₁ + 1))) (_hM : 0 ≤ M)
     (hΨ_bd : ∀ u ∈ closedBall (0 : ℂ) (R₁ + 1), ‖Ψ u‖ ≤ M)
     {u₀ : ℂ} (hu₀ : u₀ ∈ closedBall (0 : ℂ) R₁) :
     ‖deriv Ψ u₀‖ ≤ M ∧ ‖iteratedDeriv 2 Ψ u₀‖ ≤ 2 * M := by
@@ -494,7 +494,7 @@ theorem typeII_circle_env_majorant {Ψ : ℂ → ℂ} {R_dom r C_0 ς : ℝ}
       closedBall_subset_closedBall (by linarith) hmem_r
     have he_pos : 0 < airyEnv (circleMap 0 r θ) := airyEnv_pos _
     by_cases hmid : |θ| ≤ π - δ
-    · have hB_eq : B θ = M_mid * (π - |θ|)⁻¹ := if_pos hmid
+    · have hB_eq : B θ = M_mid * (π - |θ|)⁻¹ := ite_eq_left hmid
       rw [hB_eq]
       have hθ_lt_pi : |θ| < π := lt_of_le_of_lt hmid (by linarith)
       have hθ_Ioo : θ ∈ Ioo (-π) π := abs_lt.mp hθ_lt_pi
@@ -573,7 +573,7 @@ theorem typeII_circle_env_majorant {Ψ : ℂ → ℂ} {R_dom r C_0 ς : ℝ}
             have hsub_ne : π - |θ| ≠ 0 := (by linarith : 0 < π - |θ|).ne'
             field_simp [hr_pos.ne', hsr_ne, hpi_ne, hsub_ne]
             rw [Real.sq_sqrt hr_pos.le]
-    · have hB_eq : B θ = M_edge := if_neg hmid
+    · have hB_eq : B θ = M_edge := ite_eq_right hmid
       rw [hB_eq]
       have hdisc := (typeII_disc_avg_bound (by linarith : 0 ≤ r) hr_dom hC0 hς hΨ_an hΨ_env hmem_r).1
       rw [hnorm] at hdisc
@@ -594,12 +594,12 @@ theorem typeII_circle_env_majorant {Ψ : ℂ → ℂ} {R_dom r C_0 ς : ℝ}
     have hlt : π - δ < |θ| := by
       have : π - δ < -θ := by dsimp [a₁] at hθ; linarith [hθ.2]
       exact this.trans_le (neg_le_abs θ)
-    exact if_neg (not_le.mpr hlt)
+    exact ite_eq_right (not_le.mpr hlt)
   have hB_right_eq : EqOn B (fun _ => M_edge) (Ioo a₂ π) := fun θ hθ => by
     have hlt : π - δ < |θ| := by
       have : π - δ < θ := by dsimp [a₂] at hθ; linarith [hθ.1]
       exact this.trans_le (le_abs_self θ)
-    exact if_neg (not_le.mpr hlt)
+    exact ite_eq_right (not_le.mpr hlt)
   have hB_left_int : IntegrableOn B (Ioc (-π) a₁) := by
     rw [IntegrableOn, Measure.restrict_congr_set Ioo_ae_eq_Ioc.symm]
     exact (integrableOn_const (by rw [Real.volume_Ioo]; exact ENNReal.ofReal_ne_top)).congr_fun
@@ -618,7 +618,7 @@ theorem typeII_circle_env_majorant {Ψ : ℂ → ℂ} {R_dom r C_0 ς : ℝ}
     have h1 : |θ| ≤ π - δ := abs_le.mpr ⟨by dsimp [a₁] at hθ; exact hθ.1, by dsimp [a₂] at hθ; exact hθ.2⟩
     linarith
   have hB_mid_eq : EqOn B (fun θ : ℝ => M_mid * (π - |θ|)⁻¹) (Icc a₁ a₂) := fun θ hθ =>
-    if_pos (abs_le.mpr ⟨by dsimp [a₁] at hθ; exact hθ.1, by dsimp [a₂] at hθ; exact hθ.2⟩)
+    ite_eq_left (abs_le.mpr ⟨by dsimp [a₁] at hθ; exact hθ.1, by dsimp [a₂] at hθ; exact hθ.2⟩)
   have hB_mid : IntervalIntegrable B volume a₁ a₂ :=
     ((hmid_cont.congr hB_mid_eq).mono (Set.uIcc_of_le ha12 ▸ Subset.rfl)).intervalIntegrable
   have hB_int : IntervalIntegrable B volume (-π) π :=

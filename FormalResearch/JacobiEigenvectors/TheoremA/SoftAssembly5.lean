@@ -136,19 +136,19 @@ theorem soft_row_lb (hM : SoftMirror CL CR) {p : Par × ℝ} (hp : p ∈ P) {X :
   have hη := CL.consts_pos.2.1
   have hmem : ¬ |CL.Zof p X N n| ≤ rhoWin (CL.aOf p X N) := by
     intro h; exact hΩ (by unfold softWindow; simp [hn, h])
-  push_neg at hmem
+  push Not at hmem
   unfold softNum softEnvNum
   by_cases hZ : CL.Zof p X N n ≤ 0
-  · rw [show (if CL.Zof p X N n ≤ 0 then CL.psiHatL p X N n else softKappa CL CR p X N * softSeqR CR p X N n) = CL.psiHatL p X N n from if_pos hZ]
+  · rw [show (if CL.Zof p X N n ≤ 0 then CL.psiHatL p X N n else softKappa CL CR p X N * softSeqR CR p X N n) = CL.psiHatL p X N n from ite_eq_left hZ]
     have hZlt : CL.Zof p X N n < -rhoWin (CL.aOf p X N) := by
       rw [abs_of_nonpos hZ] at hmem; linarith
     by_cases b1 : uNode (Fz.step N) n ≤ CL.uc p - CL.η / 2
-    · rw [if_pos b1]
+    · rw [ite_eq_left b1]
       exact ((LL n hn).1 b1).trans (mul_le_mul_of_nonneg_right hL (abs_nonneg _))
-    · rw [if_neg b1, if_pos hZ]
+    · rw [ite_eq_right b1, ite_eq_left hZ]
       exact ((LL n hn).2 (not_le.mp b1) hZlt).trans (mul_le_mul_of_nonneg_right hL (abs_nonneg _))
-  · rw [if_neg hZ]
-    push_neg at hZ
+  · rw [ite_eq_right hZ]
+    push Not at hZ
     have hZgt : rhoWin (CL.aOf p X N) < CL.Zof p X N n := by
       rw [abs_of_pos hZ] at hmem; exact hmem
     have hnear : CL.uc p - CL.η / 4 < uNode (Fz.step N) n := by
@@ -156,7 +156,7 @@ theorem soft_row_lb (hM : SoftMirror CL CR) {p : Par × ℝ} (hp : p ∈ P) {X :
       have := Zof_nonpos_of_near CL hp hX hn (by linarith [not_lt.mp h])
       linarith
     have b1 : ¬ uNode (Fz.step N) n ≤ CL.uc p - CL.η / 2 := by intro h; linarith
-    rw [if_neg b1, if_neg (not_le.mpr hZ)]
+    rw [ite_eq_right b1, ite_eq_right (not_le.mpr hZ)]
     have hstepR : (mirrorFamily Fz).step N = Fz.step N := rfl
     have hL' := step_mul_succ Fz N
     have hrefl : uNode (Fz.step N) ((N : ℤ) - n) = Fz.L - uNode (Fz.step N) n := uNode_mirror Fz.L (Fz.step N) N n hL'
@@ -170,7 +170,7 @@ theorem soft_row_lb (hM : SoftMirror CL CR) {p : Par × ℝ} (hp : p ∈ P) {X :
     rw [hsr, abs_mul (softKappa CL CR p X N) (CR.psiHatL p X N ((N : ℤ) - n))]
     have hκ0 := abs_nonneg (softKappa CL CR p X N)
     by_cases b3 : uNode (Fz.step N) n < CL.uc p + CL.η / 2
-    · rw [if_pos b3]
+    · rw [ite_eq_left b3]
       have hc1 : CR.uc p - CR.η / 2 < uNode (Fz.step N) ((N : ℤ) - n) := by
         rw [hrefl, huc, hηe]; linarith
       have hc2 : CR.Zof p X N ((N : ℤ) - n) < -rhoWin (CR.aOf p X N) := by
@@ -185,7 +185,7 @@ theorem soft_row_lb (hM : SoftMirror CL CR) {p : Par × ℝ} (hp : p ∈ P) {X :
         _ ≤ |softKappa CL CR p X N| * (Cl * |CR.psiHatL p X N ((N : ℤ) - n)|) :=
             mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hR (abs_nonneg _)) hκ0
         _ = Cl * (|softKappa CL CR p X N| * |CR.psiHatL p X N ((N : ℤ) - n)|) := by ring
-    · rw [if_neg b3]
+    · rw [ite_eq_right b3]
       have hc1 : uNode (Fz.step N) ((N : ℤ) - n) ≤ CR.uc p - CR.η / 2 := by
         rw [hrefl, huc, hηe]; linarith [not_lt.mp b3]
       have h1 := (LR ((N : ℤ) - n) hkR).1 (by rw [hstepR]; exact hc1)

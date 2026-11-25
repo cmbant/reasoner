@@ -506,7 +506,7 @@ theorem intertwiner_continuousOn {c : ℝ} (hc : 0 < c) {K : HankelKernelData c}
         rw [← intervalIntegral.integral_of_le hΔ'pos.le,
           integral_rpow (Or.inl (by linarith : -1 < c / 2 - 1)),
           Real.zero_rpow (by linarith : c / 2 - 1 + 1 ≠ 0)]
-        ring
+        ring_nf
       have h0_eq : -(2 / c) * f 0 =
           -Δ' ^ (-(c / 2)) * ∫ s in Ioc (0 : ℝ) Δ', f 0 * s ^ (c / 2 - 1) := by
         rw [integral_const_mul, hrpow_int]

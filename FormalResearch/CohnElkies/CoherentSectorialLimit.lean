@@ -370,7 +370,7 @@ private lemma dirichletResolventV_prod_sq_integrable {p h : ℝ} (hp : p ∈ Ioo
   let μ := volume.restrict (Ioi (0 : ℝ))
   have hm : AEStronglyMeasurable (fun p' : ℝ × ℝ => dirichletResolventV (p'.1 * h) p'.2 ^ 2 * fracMuDensity p p'.1) (μ.prod μ) :=
     ((dirichletResolventV_aestronglyMeasurable_prod hh).pow 2).mul ((fracMuDensity_integrable hp).aestronglyMeasurable.comp_quasiMeasurePreserving Measure.quasiMeasurePreserving_fst)
-  refine ⟨hm, ?_⟩; rw [HasFiniteIntegral, lintegral_prod _ hm.aemeasurable.enorm]
+  refine ⟨hm, ?_⟩; rw [HasFiniteIntegral, lintegral_prod _ hm.aemeasurable.eNorm]
   have h_res_l2 : ∀ s ∈ Ioi (0 : ℝ), ∫ t in Ioi (0 : ℝ), dirichletResolventV (s * h) t ^ 2 ≤ -airyDerivFirstZero := fun s hs => by
     have hsq_sum := cohnC_resolvent_sq_summable (mul_pos (mem_Ioi.mp hs) hh).le
     rw [show ∫ t in Ioi (0 : ℝ), dirichletResolventV (s * h) t ^ 2 = ∫ t in Ioi (0 : ℝ), dirichletV (fun n => cohnC airyDerivFirstZero n / (1 + (s * h) * cohnE n)) t ^ 2 from
@@ -564,11 +564,20 @@ private lemma airyRatio_P_err_le {z t : ℝ} (hz : 2 ≤ z) (ht : 0 ≤ t) :
       _ = (1 - η) * P (z + t) := by field_simp [hPz.ne', show 1 + η ≠ 0 by positivity]
       _ ≤ airyAi (z + t) := hAzt_lb
   have h1 : 2 * η / (1 + η) ≤ 2 * η := div_le_self (by positivity) (by linarith)
-  have h2 : 2 * η / (1 - η) ≤ 4 * η := by rw [div_le_iff₀ (by linarith)]; nlinarith [hη_nn, hη_le]
+  have h2 : 2 * η / (1 - η) ≤ 4 * η := by
+    rw [div_le_iff₀ (by linarith)]; nlinarith only [mul_nonneg hη_nn (sub_nonneg.2 hη_le), hη_nn, hη_le]
   change |airyRatio z t - P (z + t) / P z| ≤ 4 * η
-  rw [abs_le]; constructor <;> nlinarith [div_nonneg hPzt.le hPz.le,
-    show (1 - η) / (1 + η) - 1 = -(2 * η / (1 + η)) by field_simp [show 1 + η ≠ 0 by positivity]; ring,
-    show (1 + η) / (1 - η) - 1 = 2 * η / (1 - η) by field_simp [show 1 - η ≠ 0 by linarith]; ring]
+  have hr0 := div_nonneg hPzt.le hPz.le
+  have e1 : (1 - η) / (1 + η) = 1 - 2 * η / (1 + η) := by field_simp [show 1 + η ≠ 0 by positivity]; ring
+  have e2 : (1 + η) / (1 - η) = 1 + 2 * η / (1 - η) := by field_simp [show 1 - η ≠ 0 by linarith]; ring
+  have d1 : 0 ≤ 2 * η / (1 + η) := by positivity
+  have d2 : 0 ≤ 2 * η / (1 - η) := div_nonneg (by positivity) (by linarith)
+  rw [e1] at hlb; rw [e2] at hub
+  have m1 := mul_nonneg d1 (sub_nonneg.2 hP_rat_le)
+  have m2 := mul_nonneg d2 (sub_nonneg.2 hP_rat_le)
+  rw [abs_le]; constructor
+  · linarith only [hlb, m1, h1, hη_nn]
+  · linarith only [hub, m2, h2]
 
 private lemma airyExp_scale_err {a₁ K s h x : ℝ} (hK : 0 ≤ K) (hs : 0 < s) (hh : 0 < h) (hx0 : 0 ≤ x) (hxK : x ≤ K) (harg : 0 ≤ s⁻¹ + h * a₁)
     (hle : h * |a₁| + h * (K * Real.sqrt h) ≤ (|a₁| + K) * h) :
@@ -938,7 +947,7 @@ theorem cardinalP_sectorial_limit {p R : ℝ} (hp : p ∈ Ioo (1 / 2 : ℝ) 1) (
     rw [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_mul, Complex.norm_exp, show (-z * ((u + v : ℝ) : ℂ)).re = -z.re * (u + v) by simp, ← Real.exp_add, show -δ * u + -δ * v = -δ * (u + v) by ring, sq M_max]
     have hu1 := fracBp_nonneg_and_lt_one hp01 hu; have hv1 := fracBp_nonneg_and_lt_one hp01 hv
     exact mul_le_mul (mul_le_mul ((abs_of_nonneg hu1.1).symm ▸ hu1.2.le.trans (le_max_right C_V 1)) ((abs_of_nonneg hv1.1).symm ▸ hv1.2.le.trans (le_max_right C_V 1)) (abs_nonneg _) hMmax_pos.le)
-      (Real.exp_le_exp.mpr (by nlinarith [h_zbd.1])) (Real.exp_pos _).le (mul_nonneg hMmax_pos.le hMmax_pos.le)
+      (Real.exp_le_exp.mpr (by nlinarith only [mul_nonneg (sub_nonneg.2 h_zbd.1) (add_nonneg hu hv)])) (Real.exp_pos _).le (mul_nonneg hMmax_pos.le hMmax_pos.le)
   have hFh_prod_int : Integrable (fun q : ℝ × ℝ => F_h h z q.1 q.2) (μ.prod μ) :=
     ((hint_exp0.const_mul (M_max ^ 2)).mul_prod hint_exp0).mono' ((Complex.continuous_ofReal.comp_aestronglyMeasurable ((hbal_m.comp_quasiMeasurePreserving Measure.quasiMeasurePreserving_fst).mul (hbal_m.comp_quasiMeasurePreserving Measure.quasiMeasurePreserving_snd))).mul (by fun_prop))
       (by filter_upwards [ae_mem_prod_Ioi] with ⟨u, v⟩ ⟨hu, hv⟩; exact (hFh_bd u hu.le v hv.le).trans_eq (by ring))
@@ -968,7 +977,7 @@ theorem cardinalP_sectorial_limit {p R : ℝ} (hp : p ∈ Ioo (1 / 2 : ℝ) 1) (
         exact div_le_div₀ (mul_nonneg (mul_nonneg (Real.sqrt_nonneg h) hh_pos.le) (sq_nonneg K)) (mul_le_mul_of_nonneg_left h_uv_sq (mul_nonneg (Real.sqrt_nonneg h) hh_pos.le)) (mul_pos (by norm_num) hδ) (by gcongr)
       have hexp_d := (norm_complex_exp_sub_one_le (hw_bd.trans (hh_sm.trans (min_le_left _ _)))).trans (mul_le_mul_of_nonneg_left hw_bd (Real.exp_pos 1).le)
       have hexp_z : ‖Complex.exp (-z * ((u + v : ℝ) : ℂ))‖ ≤ Real.exp (-δ * u) * Real.exp (-δ * v) := by
-        rw [Complex.norm_exp, show (-z * ((u + v : ℝ) : ℂ)).re = -z.re * (u + v) by simp, ← Real.exp_add, show -δ * u + -δ * v = -δ * (u + v) by ring]; exact Real.exp_le_exp.mpr (by nlinarith [h_zbd.1])
+        rw [Complex.norm_exp, show (-z * ((u + v : ℝ) : ℂ)).re = -z.re * (u + v) by simp, ← Real.exp_add, show -δ * u + -δ * v = -δ * (u + v) by ring]; exact Real.exp_le_exp.mpr (by nlinarith only [mul_nonneg (sub_nonneg.2 h_zbd.1) (add_nonneg hu0.le hv0.le)])
       have hdiff_eq : diffF (u, v) = ((dirichletVBalanced p h (σ h) (Real.sqrt h * u) * dirichletVBalanced p h (σ h) (Real.sqrt h * v) - fracBp p u * fracBp p v : ℝ) : ℂ) * Complex.exp (-z * ((u + v : ℝ) : ℂ)) +
           ((dirichletVBalanced p h (σ h) (Real.sqrt h * u) * dirichletVBalanced p h (σ h) (Real.sqrt h * v) : ℝ) : ℂ) * Complex.exp (-z * ((u + v : ℝ) : ℂ)) * (Complex.exp w - 1) := by
         dsimp [diffF, F_h, F_0, w]; rw [show -z * ((u + v : ℝ) : ℂ) - ((Real.sqrt h * h : ℝ) : ℂ) * ((u - v : ℝ) : ℂ) ^ 2 / (8 * z) = -z * ((u + v : ℝ) : ℂ) + -(((Real.sqrt h * h : ℝ) : ℂ) * ((u - v : ℝ) : ℂ) ^ 2 / (8 * z)) by ring, Complex.exp_add]; push_cast; ring
@@ -986,12 +995,12 @@ theorem cardinalP_sectorial_limit {p R : ℝ} (hp : p ∈ Ioo (1 / 2 : ℝ) 1) (
     have h1 : 2 * M_max * η_V / δ ^ 2 ≤ ε / (8 * C_pre) := by
       have hden : 0 < 16 * C_pre * (M_max + 1) + 1 := by positivity
       exact (by dsimp [η_V]; field_simp [hδ.ne', hden.ne', hCpre_pos.ne']; ring : 2 * M_max * η_V / δ ^ 2 = (ε / (8 * C_pre)) * ((16 * C_pre * M_max) / (16 * C_pre * (M_max + 1) + 1))).trans_le
-        ((mul_le_mul_of_nonneg_left ((div_le_one hden).mpr (by nlinarith [hCpre_pos])) (by positivity)).trans_eq (mul_one _))
+        ((mul_le_mul_of_nonneg_left ((div_le_one hden).mpr (by linarith only [hCpre_pos])) (by positivity)).trans_eq (mul_one _))
     have h2 : C_V ^ 2 * Real.exp 1 * (Real.sqrt h * h * K ^ 2 / (8 * δ)) / δ ^ 2 ≤ ε / (8 * C_pre) := by
       have hden : 0 < 8 * C_pre * (C_V ^ 2 + 1) * Real.exp 1 + 1 := by positivity
       exact (div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left (hh_sm.trans (min_le_right _ _)) (by positivity)) (sq_nonneg δ)).trans
         ((by field_simp [hδ.ne', hden.ne', hCpre_pos.ne'] : _ = (ε / (8 * C_pre)) * ((8 * C_pre * C_V ^ 2 * Real.exp 1) / (8 * C_pre * (C_V ^ 2 + 1) * Real.exp 1 + 1))).trans_le
-          ((mul_le_mul_of_nonneg_left ((div_le_one hden).mpr (by nlinarith [hCpre_pos, Real.exp_pos 1])) (by positivity)).trans_eq (mul_one _)))
+          ((mul_le_mul_of_nonneg_left ((div_le_one hden).mpr (by linarith only [mul_pos hCpre_pos (Real.exp_pos 1)])) (by positivity)).trans_eq (mul_one _)))
     exact ((norm_integral_le_integral_norm _).trans hint_box).trans
       (((by dsimp [c_in]; rw [div_eq_mul_inv, div_eq_mul_inv, sq]; ring : c_in * δ⁻¹ * δ⁻¹ = 2 * M_max * η_V / δ ^ 2 + C_V ^ 2 * Real.exp 1 * (Real.sqrt h * h * K ^ 2 / (8 * δ)) / δ ^ 2).trans_le (add_le_add h1 h2)).trans_eq
         (by rw [← two_mul, show (8 : ℝ) * C_pre = 2 * (4 * C_pre) by ring1, ← mul_div_assoc, mul_div_mul_left _ _ two_ne_zero]))

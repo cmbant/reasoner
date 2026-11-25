@@ -73,7 +73,7 @@ noncomputable def radialA (c : ℝ) (f : ℝ → ℝ) (s v : ℝ) : ℂ :=
   ((1 / (2 * Real.pi * radialXi c s) : ℝ) : ℂ) *
     (radialK c (1 + (v : ℂ) * Complex.I) s * radialW c f (1 + (v : ℂ) * Complex.I))
 
-lemma radialXi_facts {c s S : ℝ} (hc : 0 < c) (hs : |s| ≤ S)
+lemma radialXi_facts {c s S : ℝ} (_hc : 0 < c) (hs : |s| ≤ S)
     (hS : Real.pi ^ 2 * radialEps c ^ 2 * S ≤ 1 / 2) :
     0 < radialXi c s ∧ 1 / (2 * Real.pi * radialXi c s) ≤ Real.pi := by
   have hpi := Real.pi_pos

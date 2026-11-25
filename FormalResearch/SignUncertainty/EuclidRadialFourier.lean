@@ -81,7 +81,7 @@ lemma integrable_sliceF_prod (n : ℕ) {G : ℝ → ℝ} (hG : ContinuousOn G (I
 lemma integrableOn_sliceH (n : ℕ) (hn : 1 ≤ n) {G : ℝ → ℝ} (hG : ContinuousOn G (Ici 0))
     (hint : Integrable (fun x : EuclSp (n + 1) => (G (‖x‖ ^ 2 / 2) : ℂ))) (r : ℝ) :
     IntegrableOn (sliceH n G r) ((univ : Set ℝ) ×ˢ Ioi (0 : ℝ)) := by
-  haveI : NeZero n := ⟨by omega⟩
+  have : NeZero n := ⟨by omega⟩
   have hint_prod := integrable_sliceF_prod n hG hint r
   have hdim : Module.finrank ℝ (EuclSp n) = n := finrank_euclideanSpace_fin
   have hV := ball_volume_real_pos n
@@ -122,7 +122,7 @@ theorem fourier_radial_single (n : ℕ) (hn : 1 ≤ n) {G : ℝ → ℝ} (hG : C
     𝓕 (fun x : EuclSp (n + 1) => (G (‖x‖ ^ 2 / 2) : ℂ)) (EuclideanSpace.single (0 : Fin (n + 1)) r) =
       (((n : ℝ) * (volume (Metric.ball (0 : EuclSp n) 1)).toReal : ℝ) : ℂ) *
         ∫ p in (univ : Set ℝ) ×ˢ Ioi (0 : ℝ), sliceH n G r p := by
-  haveI : NeZero n := ⟨by omega⟩
+  have : NeZero n := ⟨by omega⟩
   set x₀ : EuclSp (n + 1) := EuclideanSpace.single (0 : Fin (n + 1)) r with hx₀
   set g : EuclSp (n + 1) → ℂ := fun x => (G (‖x‖ ^ 2 / 2) : ℂ) with hg
   have hfour_eq : 𝓕 g x₀ = ∫ v : EuclSp (n + 1),
@@ -156,7 +156,7 @@ theorem fourier_radial_single (n : ℕ) (hn : 1 ≤ n) {G : ℝ → ℝ} (hG : C
     intro u
     have h := integral_fun_norm_addHaar (volume : Measure (EuclSp n)) (fun ρ => sliceF G r u ρ)
     rw [hdim] at h
-    simp only [nsmul_eq_mul, smul_eq_mul, Complex.real_smul, Measure.real] at h
+    simp only [nsmul_eq_mul, Complex.real_smul, Measure.real] at h
     rw [h]
     simp only [sliceH]
     push_cast

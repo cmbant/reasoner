@@ -69,7 +69,7 @@ theorem exists_norm_mellinRaw_interp {c ε : ℝ} (hc : 3 / 2 < c) {f : ℝ → 
     · intro z hz
       have hz' : x1 < z.re ∧ z.re < c := hz
       have hmem : z + (t : ℂ) * Complex.I ∈ {w : ℂ | 0 < w.re ∧ w.re < c} := by
-        simp only [mem_setOf_eq, hshift_re]; exact ⟨by linarith [hz'.1], hz'.2⟩
+        simp only [Set.mem_ofPred_eq, hshift_re]; exact ⟨by linarith [hz'.1], hz'.2⟩
       have h1 : DifferentiableWithinAt ℂ (mellinRaw f) {w : ℂ | 0 < w.re ∧ w.re < c}
           (z + (t : ℂ) * Complex.I) := differentiableOn_mellinRaw hc0 hf _ hmem
       have hopen : {w : ℂ | 0 < w.re ∧ w.re < c} ∈ 𝓝 (z + (t : ℂ) * Complex.I) := by

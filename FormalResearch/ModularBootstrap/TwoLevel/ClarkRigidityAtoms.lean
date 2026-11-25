@@ -77,7 +77,7 @@ lemma node_measure_eq_sum_atoms (hinj : Function.Injective z) {ν : Measure ℝ}
   rw [h1, h2, measure_iUnion]
   · congr 1
     ext i
-    rw [Measure.smul_apply, smul_eq_mul, Measure.dirac_apply' _ hs]
+    rw [smul_apply, smul_eq_mul, Measure.dirac_apply' _ hs]
     by_cases hi : z i ∈ s
     · have : s ∩ {z i} = {z i} := by
         ext x; simp only [Set.mem_inter_iff, Set.mem_singleton_iff]

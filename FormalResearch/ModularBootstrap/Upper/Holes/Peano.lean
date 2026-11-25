@@ -669,7 +669,7 @@ theorem chiDeriv_le_two_siteGap {c' : ℝ} (hc' : 0 < c') {n : ℕ} (hn : 3 ≤ 
 
 /-- For $k \ge 2$ and $a \in [k - 1/2, k + 1]$, $\chi'_a \le 3 \chi'_{k+1/2} \le 6 \ell_k$. -/
 theorem chiDeriv_le_six_siteGap {c' : ℝ} (hc' : 0 < c') {k : ℕ} (hk : 2 ≤ k) {a : ℝ}
-    (ha1 : (k : ℝ) - 1 / 2 ≤ a) (ha2 : a ≤ (k : ℝ) + 1) :
+    (ha1 : (k : ℝ) - 1 / 2 ≤ a) (_ha2 : a ≤ (k : ℝ) + 1) :
     chiDeriv c' a ≤ 3 * chiDeriv c' ((k : ℝ) + 1 / 2) ∧
       chiDeriv c' ((k : ℝ) + 1 / 2) ≤ 2 * siteGap c' k := by
   have hk2 : (2 : ℝ) ≤ k := by exact_mod_cast hk
@@ -744,7 +744,7 @@ lemma phiVar_hasDerivAt {c' x a : ℝ} (hc' : 0 < c') (hx : 0 ≤ x) (ha : 1 / 4
     exact (hcomp2.mul hd2_χ).congr_deriv (by unfold phiVarSecond; ring)
 
 lemma continuousOn_phiVarSecond {c' x a b : ℝ} (hc' : 0 < c') (hx : 0 ≤ x) (ha : 1 / 4 < a)
-    (hab : a ≤ b) (hne : ∀ t ∈ Icc a b, chiQuantile c' t ≠ x) :
+    (_hab : a ≤ b) (hne : ∀ t ∈ Icc a b, chiQuantile c' t ≠ x) :
     ContinuousOn (phiVarSecond c' x) (Icc a b) := by
   intro t ht
   have ht14 := lt_of_lt_of_le ha ht.1

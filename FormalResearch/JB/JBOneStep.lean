@@ -111,7 +111,7 @@ theorem norm_Tpart_le (c : Chart D R cols) (S : Finset (Fin R)) (Δ : Matrix (Fi
     simp only [Tpart, pad, of_apply]
     by_cases h1 : ∃ n ∈ S, c.row n = i
     · by_cases h2 : k ∈ cols
-      · simp only [f, g, h1, h2, dif_pos, and_self, if_true]
+      · simp only [f, g, h1, h2, dite_eq_left, and_self, if_true]
         have := hM h1.choose h1.choose_spec.1 ⟨k, h2⟩
         rw [h1.choose_spec.2] at this
         exact this
@@ -193,7 +193,7 @@ theorem OneStepInputs.out_entry (i k : Fin D) :
     rw [this]
     have h0 : (0 : ℝ) ≤ 2 * I.ε5 := by have := I.ε5_nonneg; linarith
     simpa using h0
-  · push_neg at hcov
+  · push Not at hcov
     have : ∑ ν, (if k ∈ I.cols ν ∧ I.cov ν i then (I.G0 - I.G1) i k else 0) = 0 :=
       Finset.sum_eq_zero fun ν _ => by
         have := hcov ν

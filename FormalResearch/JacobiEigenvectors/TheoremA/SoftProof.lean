@@ -169,7 +169,7 @@ lemma softHL_pos (ε : ℝ) : 0 < softHL C ε := by
 
 lemma softHL_spec {ε : ℝ} (hε : 0 < ε) {h : ℝ} (hh : 0 < h) (hh1 : h ≤ softHL C ε) : h * Lm h ≤ ε := by
   unfold softHL at hh1
-  rw [dif_pos hε] at hh1
+  rw [dite_eq_left hε] at hh1
   exact (Classical.choose_spec (C.Lm_small ε hε)).2 h hh hh1
 
 /-- the engine smallness level `c_*/(M_0 + 1)` for `h Lm(h)`. -/

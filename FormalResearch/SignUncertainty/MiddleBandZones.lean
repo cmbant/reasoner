@@ -231,7 +231,7 @@ lemma int_rpow_tail_le {α β t : ℝ} (hα : 0 < α) (ht : 1 < t) :
 lemma quarter_rpow {u0 : ℝ} (hu : 0 < u0) (t : ℝ) : (u0 / 4) ^ (-t) = (4 : ℝ) ^ t * u0 ^ (-t) := by
   rw [Real.div_rpow hu.le (by norm_num), Real.rpow_neg (by norm_num : (0 : ℝ) ≤ 4), div_eq_mul_inv, inv_inv, mul_comm]
 
-lemma four_rpow_le {t : ℝ} (h0 : 0 ≤ t) (h3 : t ≤ 3) : (4 : ℝ) ^ t ≤ 64 := by
+lemma four_rpow_le {t : ℝ} (_h0 : 0 ≤ t) (h3 : t ≤ 3) : (4 : ℝ) ^ t ≤ 64 := by
   calc (4 : ℝ) ^ t ≤ (4 : ℝ) ^ (3 : ℝ) := Real.rpow_le_rpow_of_exponent_le (by norm_num) h3
     _ = 64 := by norm_num
 

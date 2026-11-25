@@ -329,7 +329,7 @@ theorem airyGap_kernel_sum {c₀ : ℝ} (hc₀ : 0 < c₀) :
       by_cases hmid : kstar ≤ 2 * k
       · have hne_mid : k ≠ kstar ∧ kstar ≤ 2 * k := ⟨hkk, hmid⟩
         have hlt_false : ¬(2 * k < kstar) := by omega
-        simp only [if_neg hkk, if_pos hne_mid, if_neg hlt_false, zero_add, add_zero]
+        simp only [ite_eq_right hkk, ite_eq_left hne_mid, ite_eq_right hlt_false, zero_add, add_zero]
         have hmax_le : ((max k kstar : ℕ) : ℝ) ≤ 2 * k := by
           have : max k kstar ≤ 2 * k := max_le (by omega) hmid
           exact_mod_cast this
@@ -365,7 +365,7 @@ theorem airyGap_kernel_sum {c₀ : ℝ} (hc₀ : 0 < c₀) :
         exact hsq
       · have hlt : 2 * k < kstar := by omega
         have hnot_mid : ¬(k ≠ kstar ∧ kstar ≤ 2 * k) := fun h => hlt.not_ge h.2
-        simp only [if_neg hkk, if_neg hnot_mid, if_pos hlt, zero_add]
+        simp only [ite_eq_right hkk, ite_eq_right hnot_mid, ite_eq_left hlt, zero_add]
         have hmax_eq : max k kstar = kstar := max_eq_right (by omega)
         rw [hmax_eq] at hsep'
         have hkdiff : (kstar : ℝ) / 2 ≤ |(k : ℝ) - kstar| := by
@@ -695,7 +695,7 @@ private lemma hasProdLocallyUniformlyOn_airyProdTail_aux
         have hinf := Finset.inf'_le (fun m =>
             if skip (f + 1 + m) then 1 else ‖u - (airyZero (f + 1 + m) : ℂ)‖)
           (Finset.mem_range.mpr hm)
-        simp only [if_neg hns] at hinf
+        simp only [ite_eq_right hns] at hinf
         exact (min_le_right _ _).trans hinf
       intro hzeq
       rw [hzeq, norm_sub_rev] at hzr
@@ -736,9 +736,9 @@ private lemma hasProdLocallyUniformlyOn_airyProdTail_aux
       dsimp [g]
       set k := f + 1 + m
       by_cases hskip : skip k
-      · simp only [if_pos hskip, sub_self, norm_zero]
+      · simp only [ite_eq_left hskip, sub_self, norm_zero]
         positivity
-      · simp only [if_neg hskip]
+      · simp only [ite_eq_right hskip]
         have huR : ‖u‖ ≤ max R 0 := (hR u hu).trans (le_max_left _ _)
         have hkm : K₀ ≤ k := by omega
         have hk1 : 1 ≤ k := by omega
@@ -797,8 +797,8 @@ private lemma hasProdLocallyUniformlyOn_airyProdTail_aux
     · dsimp [g]
       refine ContinuousOn.sub ?_ continuousOn_const
       by_cases hskip : skip (f + 1 + m)
-      · simp only [if_pos hskip]; exact continuousOn_const
-      · simp only [if_neg hskip]
+      · simp only [ite_eq_left hskip]; exact continuousOn_const
+      · simp only [ite_eq_right hskip]
         intro u hu
         have hu_ne : u - (airyZero (f + 1 + m) : ℂ) ≠ 0 := sub_ne_zero.mpr (hKU hu m hskip)
         unfold airyProdFactor
@@ -831,7 +831,7 @@ lemma differentiableOn_airyProdTail (f : ℕ) (uSite epsU : ℕ → ℝ)
   have hprod := hasProdLocallyUniformlyOn_airyProdTail_aux f uSite epsU hH skip
   set U : Set ℂ := {u : ℂ | ∀ m : ℕ, ¬skip (f + 1 + m) → u ≠ (airyZero (f + 1 + m) : ℂ)}
   have hU_eq : U = {u : ℂ | ∀ k : ℕ, f < k → u ≠ (airyZero k : ℂ)} := by
-    ext u; simp only [U, skip, not_false_eq_true, forall_true_left, mem_setOf_eq]
+    ext u; simp only [U, skip, not_false_eq_true, forall_true_left, Set.mem_ofPred_eq]
     constructor
     · intro h k hk
       obtain ⟨m, rfl⟩ : ∃ m, k = f + 1 + m := ⟨k - f - 1, by omega⟩
@@ -882,7 +882,7 @@ private lemma differentiableOn_airyProdTailExcept (f n : ℕ) (uSite epsU : ℕ 
   have hprod := hasProdLocallyUniformlyOn_airyProdTail_aux f uSite epsU hH skip
   set U : Set ℂ := {u : ℂ | ∀ m : ℕ, ¬skip (f + 1 + m) → u ≠ (airyZero (f + 1 + m) : ℂ)}
   have hU_eq : U = {u : ℂ | ∀ k : ℕ, f < k → k ≠ n → u ≠ (airyZero k : ℂ)} := by
-    ext u; simp only [U, skip, mem_setOf_eq]
+    ext u; simp only [U, skip, Set.mem_ofPred_eq]
     constructor
     · intro h k hk hkn
       obtain ⟨m, rfl⟩ : ∃ m, k = f + 1 + m := ⟨k - f - 1, by omega⟩
@@ -1007,7 +1007,7 @@ theorem airyWindowProd_differentiable (f : ℕ) (_hf : 1 ≤ f) (uF : ℝ) (uSit
       · have hkS : k ∈ S := Finset.mem_filter.mpr ⟨Finset.mem_Icc.mpr ⟨hk, hle⟩, hkn⟩
         have hSne : S.Nonempty := ⟨k, hkS⟩
         have hrl : r ≤ ‖(airyZero n : ℂ) - (airyZero k : ℂ)‖ := by
-          dsimp [r]; rw [dif_pos hSne]; exact (min_le_right _ _).trans (Finset.inf'_le _ hkS)
+          dsimp [r]; rw [dite_eq_left hSne]; exact (min_le_right _ _).trans (Finset.inf'_le _ hkS)
         intro hzeq; rw [hzeq, norm_sub_rev] at hzr; linarith
       · have hr1 : r ≤ 1 := by
           dsimp [r]; split_ifs
@@ -1154,7 +1154,7 @@ theorem airyWindowProd_differentiable (f : ℕ) (_hf : 1 ≤ f) (uF : ℝ) (uSit
           generalize airyProdTailExcept f n uSite epsU z = T
           field_simp [hz0, hden]
       exact hF_diff.congr_of_eventuallyEq hFeq
-  · push_neg at hu
+  · push Not at hu
     obtain ⟨K₀, _, hK₀⟩ := norm_sub_airyZero_ge_eventually (‖u‖ + 1)
     set S := Finset.Icc 1 K₀
     have hSn : ∀ k ∈ S, u ≠ (airyZero k : ℂ) := fun k hk => hu k (Finset.mem_Icc.mp hk).1
@@ -1224,7 +1224,7 @@ lemma airyWindowProd_im_eq_zero (f : ℕ) (uF : ℝ) (uSite epsU : ℕ → ℝ)
         rw [this, Complex.ofReal_im]
       simp_rw [hzero] at him
       exact (tendsto_const_nhds_iff.mp him).symm
-    · push_neg at hx
+    · push Not at hx
       obtain ⟨n, hfn, hnx⟩ := hx
       obtain ⟨m₀, hm₀⟩ : ∃ m₀ : ℕ, f + 1 + m₀ = n := ⟨n - f - 1, by omega⟩
       have hfac0 : airyProdFactor uSite epsU (f + 1 + m₀) (x : ℂ) = 0 := by
@@ -1303,7 +1303,7 @@ lemma airyWindowProd_im_eq_zero (f : ℕ) (uF : ℝ) (uSite epsU : ℕ → ℝ)
             (airyProdTailExcept f n uSite epsU (airyZero n : ℂ)).re : ℝ)) : ℂ) := by
         push_cast; rfl
       rw [hall, Complex.ofReal_im]
-  · push_neg at hx
+  · push Not at hx
     rw [airyWindowProd_eq_of_ne f uF uSite epsU hx, airyAiC_ofReal]
     have htail_re : airyProdTail f uSite epsU (x : ℂ) = ((airyProdTail f uSite epsU (x : ℂ)).re : ℂ) :=
       Complex.ext rfl htail_im
@@ -1764,7 +1764,7 @@ theorem airyWindowProd_bound (f : ℕ) (hf : 1 ≤ f) (uF : ℝ) (uSite epsU : �
         _ ≤ (3 : ℝ) ^ (2 * (f : ℝ) - 1 / 2) * C_env * C_out := by gcongr
     gcongr
     exact (airyEnv_pos u).le
-  · push_neg at hu
+  · push Not at hu
     obtain ⟨n, hn, hu_in⟩ := hu
     set r := airyGap n / 4
     have hr_pos : 0 < r := by dsimp [r]; linarith [airyGap_pos hn]

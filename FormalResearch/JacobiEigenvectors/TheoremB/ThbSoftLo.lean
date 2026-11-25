@@ -98,7 +98,7 @@ theorem softBlockLo_proved (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 
   have hcolsJ : ∀ k ∈ cols, Xs k < CP.CI0.Jlo := by
     intro k hk
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     obtain ⟨ν, hν1, hν2, -⟩ := CP.CI0.cover_bulk (Xs k) hcon (not_lt.mp (hcols k hk).2)
     exact blockOf_none CP.CI0 (hcols k hk).1 ν ⟨hν1, hν2⟩
   have hmem : ∀ k : Fin (N + 1), Fin.rev k ∈ cols.image Fin.rev ↔ k ∈ cols := fun k => by

@@ -187,7 +187,7 @@ theorem thmAi_of_cover {Par : Type*} [TopologicalSpace Par] {F : SymbolFamily Pa
   have hS' : ∀ μ ∈ K, ∃ i, μ ∈ Kα i ∧ ∀ j, S' j μ = S i j μ := by
     intro μ hμ
     have hex : ∃ i, μ ∈ Kα i := mem_iUnion.mp (hcov hμ)
-    exact ⟨Classical.choose hex, Classical.choose_spec hex, fun j => by simp only [S', dif_pos hex]⟩
+    exact ⟨Classical.choose hex, Classical.choose_spec hex, fun j => by simp only [S', dite_eq_left hex]⟩
   refine ⟨δm, Cnm, Cm, hm, S', hδm, ?_, ?_, ?_⟩
   · intro μ hμ j hj
     obtain ⟨i, hi, hSi⟩ := hS' μ hμ

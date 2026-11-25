@@ -27,6 +27,7 @@ open FormalResearch.Special FormalResearch.TwoEdgeBootstrap Crossing PoissonJens
 
 variable {prob : FixedWeightProblem} [Q : LemmaQData prob]
 
+omit Q in
 private lemma psiTilde_real_mv_sub {c' R_dom : ℝ} {g : ℝ → ℝ}
     (hΨ_an : AnalyticOnNhd ℂ (psiTilde prob c' g) (closedBall (0 : ℂ) R_dom))
     (_hΨ_real : ∀ x ∈ Icc (-R_dom) R_dom, (psiTilde prob c' g (x : ℂ)).im = 0)

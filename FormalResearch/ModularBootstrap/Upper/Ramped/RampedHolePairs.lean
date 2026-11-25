@@ -146,7 +146,7 @@ lemma shift_bound_aux {x χ χ' κ ℓ : ℝ} (hxξ : xiStar ≤ x) (hχ : xiSta
     rw [h, sub_self, abs_zero] at this
     linarith
 
-lemma delta_bound_aux {κ ℓ : ℝ} (hκ0 : 0 ≤ κ) (hℓpos : 0 < ℓ) (hℓ : ℓ ≤ 1 / 16) :
+lemma delta_bound_aux {κ ℓ : ℝ} (hκ0 : 0 ≤ κ) (hℓpos : 0 < ℓ) (_hℓ : ℓ ≤ 1 / 16) :
     1 - (10 * κ + ℓ ^ 2) ≤ Real.exp (-2 * (5 * κ)) / (1 + 8 * (ℓ / 3) ^ 2) := by
   rw [le_div_iff₀ (by positivity)]
   have hexp := Real.add_one_le_exp (-2 * (5 * κ))

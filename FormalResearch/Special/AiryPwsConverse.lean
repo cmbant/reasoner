@@ -85,7 +85,7 @@ lemma norm_airyKE_le_maj {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {η ρ
       B / airyPhiK * Real.exp (η ^ 3 / 12 + η * ρ + 2 * ρ ^ 2 / η) * Real.exp (-(η / 8) * ξ ^ 2) := by
   have h1 := norm_airyKE_le h u ((ξ : ℂ) + η * I) (by simp [hη.le])
   simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.I_re, mul_zero, Complex.ofReal_im,
-    Complex.I_im, mul_one, sub_zero, add_zero, Complex.add_im, Complex.mul_im, zero_mul] at h1
+    Complex.I_im, mul_one, sub_zero, add_zero, Complex.add_im, Complex.mul_im] at h1
   have hB := airyHinf_nonneg h
   have hk := airyPhiK_pos
   refine h1.trans ?_
@@ -139,7 +139,7 @@ theorem norm_airyIeta_le {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {η : 
     intro ξ
     have h1 := norm_airyKE_le h u ((ξ : ℂ) + η * I) (by simp [hη.le])
     simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.I_re, mul_zero, Complex.ofReal_im,
-      Complex.I_im, mul_one, sub_zero, add_zero, Complex.add_im, Complex.mul_im, zero_mul] at h1
+      Complex.I_im, mul_one, sub_zero, add_zero, Complex.add_im, Complex.mul_im] at h1
     refine h1.trans (le_of_eq ?_)
     rw [hc, mul_assoc, ← Real.exp_add]
     congr 2
@@ -240,13 +240,13 @@ lemma airyKE_differentiableOn {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) (
 
 /-- Vertical-side bound for the Cauchy rectangle. -/
 lemma norm_airyKE_vert {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {η₁ η₂ : ℝ} (hη₁ : 0 < η₁)
-    (hη : η₁ ≤ η₂) (u : ℂ) {x y : ℝ} (hy : y ∈ Set.Icc η₁ η₂) :
+    (_hη : η₁ ≤ η₂) (u : ℂ) {x y : ℝ} (hy : y ∈ Set.Icc η₁ η₂) :
     ‖airyKE Fh u ((x : ℂ) + y * I)‖ ≤ B / airyPhiK * Real.exp (-(η₁ / 4) * |x| ^ 2 + |u.im| * |x| +
       (η₂ ^ 3 / 12 + η₂ * |u.re|)) := by
   have hy0 : 0 < y := lt_of_lt_of_le hη₁ hy.1
   have h1 := norm_airyKE_le h u ((x : ℂ) + y * I) (by simp [hy0.le])
   simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.I_re, mul_zero, Complex.ofReal_im,
-    Complex.I_im, mul_one, sub_zero, add_zero, Complex.add_im, Complex.mul_im, zero_mul] at h1
+    Complex.I_im, mul_one, sub_zero, add_zero, Complex.add_im, Complex.mul_im] at h1
   have hB := airyHinf_nonneg h
   have hk := airyPhiK_pos
   refine h1.trans (mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr ?_) (by positivity))
@@ -282,7 +282,7 @@ lemma airyIeta_eq {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) {η₁ η₂ 
         · rw [Set.uIcc_of_le hη] at this; linarith [this.1]
         · rw [Set.uIcc_of_ge ‹_›] at this; linarith [this.1])
     simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.I_re, mul_zero, Complex.ofReal_im,
-      Complex.I_im, mul_one, sub_zero, add_zero, Complex.add_im, Complex.mul_im, zero_mul, zero_add] at this
+      Complex.I_im, mul_one, sub_zero, add_zero, Complex.add_im, Complex.mul_im, zero_add] at this
     simp only [hHh, hV]
     linear_combination this
   have hT : ∀ y : ℝ, 0 < y → Tendsto (fun R : ℝ => Hh R y) atTop (𝓝 (airyIeta Fh y u)) := by
@@ -373,7 +373,7 @@ lemma airy_sqrt_facts (u : ℂ) : ∃ a b : ℝ, a = (u ^ (1 / 2 : ℂ)).re ∧ 
     simp [pow_succ, Complex.mul_re, Complex.mul_im]
     ring
 
-lemma airyPws_sqrt_aux {η N : ℝ} (hη : 0 < η) (hN : 0 ≤ N) (h : 1 / η ≤ (1 + N) ^ 2) :
+lemma airyPws_sqrt_aux {η N : ℝ} (_hη : 0 < η) (hN : 0 ≤ N) (h : 1 / η ≤ (1 + N) ^ 2) :
     √(4 * π / η) ≤ √(4 * π) * (1 + N) := by
   have : 4 * π / η ≤ 4 * π * (1 + N) ^ 2 := by
     rw [div_eq_mul_one_div]; exact mul_le_mul_of_nonneg_left h (by positivity)
@@ -415,7 +415,7 @@ theorem norm_airyIeta_global {Fh : ℂ → ℂ} {B : ℝ} (h : AiryHinf Fh B) (u
       _ ≤ B / airyPhiK * (√(4 * π) * (1 + N)) * airyEnv u * Real.exp 8 := le_mul_of_one_le_right (by positivity) he8
       _ = _ := by ring
   · -- near the cut: `η = 1/(1+N)`
-    push_neg at hc
+    push Not at hc
     set η : ℝ := 1 / (1 + N) with hη
     have hηpos : 0 < η := by positivity
     have hη1 : η * (1 + N) = 1 := by rw [hη]; field_simp

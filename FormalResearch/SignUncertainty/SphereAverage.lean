@@ -76,7 +76,7 @@ lemma integrable_radialAvg {f : EuclSp (n + 1) → ℂ} (hf : Integrable f) :
   refine this ?_
   have h := (integrableOn_polar hf).const_mul (((sphTotal n : ℝ) : ℂ)⁻¹)
   refine IntegrableOn.congr_fun h (fun r _ => ?_) measurableSet_Ioi
-  simp only [sphMean, Complex.real_smul, smul_eq_mul]
+  simp only [sphMean, Complex.real_smul]
   push_cast
   ring
 

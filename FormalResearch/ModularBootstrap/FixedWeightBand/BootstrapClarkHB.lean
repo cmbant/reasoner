@@ -123,7 +123,7 @@ noncomputable def bootstrapHB_of_YVForClark
     (hC_line : lineCaW (|clarkNode (clarkAngle u₁) 2| + 1) ≤ C_line)
     (hb_pos : 0 < b) (hb_le : b ≤ Q.bV)
     (hC_fb : 1 ≤ C_fb) (hC_gap : 0 < C_gap) (hκ_gap : 0 < κ_gap) (hμ₀ : 0 < μ₀)
-    (hD_1 : 0 < D_1) (hδ_pos : 0 < δ) (hδ_half : δ ≤ 1 / 2) (hκ : 0 < κ) (hC₁ : 0 < C₁)
+    (hD_1 : 0 < D_1) (hδ_pos : 0 < δ) (hδ_half : δ ≤ 1 / 2) (_hκ : 0 < κ) (_hC₁ : 0 < C₁)
     (hCs_pos : 0 < Cs) (hws_pos : 0 < ws) (hκs_pos : 0 < κs) (hηs_pos : 0 < ηs)
     (hYVat : YVInputAtForWThr prob (|clarkNode (clarkAngle u₁) 2| + 1) b (psiTilde prob) C_fb c_YV)
     (hCs : C₁ * Real.exp (|clarkNode (clarkAngle u₁) 1| / 4) ≤ Cs)

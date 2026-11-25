@@ -17,31 +17,31 @@ namespace FormalResearch.SignUncertainty
 
 lemma o4_bern'_0 : bernoulli' 0 = (1 : ℚ) / 1 := by
   rw [bernoulli'_def]
-  simp [Finset.sum_range_succ, Nat.choose] <;> norm_num
+  simp
 
 lemma o4_bern'_1 : bernoulli' 1 = (1 : ℚ) / 2 := by
   rw [bernoulli'_def]
-  simp [Finset.sum_range_succ, Nat.choose, o4_bern'_0] <;> norm_num
+  simp [Nat.choose]; norm_num
 
 lemma o4_bern'_2 : bernoulli' 2 = (1 : ℚ) / 6 := by
   rw [bernoulli'_def]
-  simp [Finset.sum_range_succ, Nat.choose, o4_bern'_0, o4_bern'_1] <;> norm_num
+  simp [Finset.sum_range_succ, Nat.choose]; norm_num
 
 lemma o4_bern'_3 : bernoulli' 3 = (0 : ℚ) / 1 := by
   rw [bernoulli'_def]
-  simp [Finset.sum_range_succ, Nat.choose, o4_bern'_0, o4_bern'_1, o4_bern'_2] <;> norm_num
+  simp [Finset.sum_range_succ, Nat.choose]; norm_num
 
 lemma o4_bern'_4 : bernoulli' 4 = (-1 : ℚ) / 30 := by
   rw [bernoulli'_def]
-  simp [Finset.sum_range_succ, Nat.choose, o4_bern'_0, o4_bern'_1, o4_bern'_2, o4_bern'_3] <;> norm_num
+  simp [Finset.sum_range_succ, Nat.choose]; norm_num
 
 lemma o4_bern'_5 : bernoulli' 5 = (0 : ℚ) / 1 := by
   rw [bernoulli'_def]
-  simp [Finset.sum_range_succ, Nat.choose, o4_bern'_0, o4_bern'_1, o4_bern'_2, o4_bern'_3, o4_bern'_4] <;> norm_num
+  simp [Finset.sum_range_succ, Nat.choose]; norm_num
 
 lemma o4_bern'_6 : bernoulli' 6 = (1 : ℚ) / 42 := by
   rw [bernoulli'_def]
-  simp [Finset.sum_range_succ, Nat.choose, o4_bern'_0, o4_bern'_1, o4_bern'_2, o4_bern'_3, o4_bern'_4, o4_bern'_5] <;> norm_num
+  simp [Finset.sum_range_succ, Nat.choose, o4_bern'_5]; norm_num
 
 lemma o4_bernoulli_4 : bernoulli 4 = (-1 : ℚ) / 30 := by
   rw [bernoulli_eq_bernoulli'_of_ne_one (by norm_num)]

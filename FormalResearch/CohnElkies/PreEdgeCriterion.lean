@@ -738,7 +738,7 @@ theorem pe3_measure_inversion_of_bounds {ν : Measure ℝ}
     let c₀ : ℝ := min (((n : ℝ) + 1)⁻¹) 1; have hc₀ : 0 < c₀ := lt_min (by positivity) one_pos
     have hlt : ∫⁻ X in K n, ENNReal.ofReal c₀ ∂ν < ⊤ :=
       (setLIntegral_mono' measurableSet_Icc fun X hX => by
-        rw [Real.enorm_of_nonneg (le_min (hK_sub n hX).le zero_le_one)]; exact ENNReal.ofReal_le_ofReal (min_le_min hX.1 le_rfl)).trans_lt
+        rw [Real.eNorm_of_nonneg (le_min (hK_sub n hX).le zero_le_one)]; exact ENNReal.ofReal_le_ofReal (min_le_min hX.1 le_rfl)).trans_lt
         (hν_int.mono_set (hK_sub n)).2
     rw [setLIntegral_const] at hlt; by_contra htop; rw [not_lt, top_le_iff] at htop
     rw [htop, ENNReal.mul_top (ENNReal.ofReal_pos.mpr hc₀).ne'] at hlt; exact lt_irrefl ⊤ hlt

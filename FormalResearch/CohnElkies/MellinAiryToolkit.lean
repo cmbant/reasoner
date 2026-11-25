@@ -147,7 +147,7 @@ lemma sinh_div_le_exp_sq_div_six {z : ℝ} (hz : 0 < z) :
     exact hp.sub h2
   have hF_mono : MonotoneOn F (Ioi 0) := by
     refine monotoneOn_of_deriv_nonneg (convex_Ioi 0) ?_ ?_ ?_
-    · refine ContinuousOn.sub (by fun_prop) ?_
+    · refine ContinuousOn.sub ((continuous_pow 2).div_const 6).continuousOn ?_
       intro u hu
       exact ((Real.continuous_sinh.continuousAt.div continuousAt_id (ne_of_gt hu)).log
         (div_pos (hsh u hu) hu).ne').continuousWithinAt
@@ -1490,11 +1490,11 @@ theorem stripG_deriv_bounds {σ : ℝ} (h0 : 0 < σ) (h1 : σ < 1) :
     have hσ_eq : σ = 1 - s := by dsimp [s]; ring
     rw [hσ_eq]
     constructor
-    · rw [div_sub_div _ _ hsin_pos.ne' (by linarith : 1 - s ≠ 0),
-        div_lt_div_iff₀ hs0 (mul_pos hsin_pos (by linarith))]
+    · rw [div_sub_div _ _ hsin_pos.ne' (by linarith only [hs1] : 1 - s ≠ 0),
+        div_lt_div_iff₀ hs0 (mul_pos hsin_pos (by linarith only [hs1]))]
       linarith only [hLs]
-    · rw [div_sub_div _ _ hsin_pos.ne' (by linarith : 1 - s ≠ 0),
-        div_lt_div_iff₀ (mul_pos hsin_pos (by linarith)) hs0]
+    · rw [div_sub_div _ _ hsin_pos.ne' (by linarith only [hs1] : 1 - s ≠ 0),
+        div_lt_div_iff₀ (mul_pos hsin_pos (by linarith only [hs1])) hs0]
       linarith only [hUs]
 
 /-- **Lemma T.3(3) (`cel:5.5`, global vertical-line phase lower bound):**

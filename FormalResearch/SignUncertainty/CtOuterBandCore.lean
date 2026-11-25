@@ -59,7 +59,7 @@ lemma MData.C0_ge (h : MData C0 m m1 m2 m3) : 1 ≤ C0 := by
   norm_num at a b
   linarith
 
-lemma one_add_ge {τ0 τ : ℝ} (hτ0 : 0 < τ0) (h1 : τ0 / 2 ≤ τ) : (1 + τ0) / 2 ≤ 1 + τ := by linarith
+lemma one_add_ge {τ0 τ : ℝ} (_hτ0 : 0 < τ0) (h1 : τ0 / 2 ≤ τ) : (1 + τ0) / 2 ≤ 1 + τ := by linarith
 
 /-- The rescaled phase satisfies the hypotheses of `stat_phase`. -/
 theorem phase_data (hM : MData C0 m m1 m2 m3) {τ0 : ℝ} (hτ0 : 0 < τ0) {ϕ : ℝ → ℝ}
@@ -81,26 +81,22 @@ theorem phase_data (hM : MData C0 m m1 m2 m3) {τ0 : ℝ} (hτ0 : 0 < τ0) {ϕ :
   · have hτ := tt_pos hτ0 hy
     have := ((hϕ _ hτ).comp y (hasDerivAt_tt τ0 y)).sub_const (ϕ τ0) |>.div_const (τ0 ^ 2 * m1 τ0 / 4)
     refine this.congr_deriv ?_
-    try simp only [smul_eq_mul]
     ring
   · have hτ := tt_pos hτ0 hy
     have h1 := (hM.d0 _ hτ).comp y (hasDerivAt_tt τ0 y)
     have := ((h1.sub_const (m τ0)).const_mul (τ0 / 2)).div_const (τ0 ^ 2 * m1 τ0 / 4)
     refine this.congr_deriv ?_
-    try simp only [smul_eq_mul]
     field_simp
     ring
   · have hτ := tt_pos hτ0 hy
     have h1 := (hM.d1 _ hτ).comp y (hasDerivAt_tt τ0 y)
     have := h1.div_const (m1 τ0)
     refine this.congr_deriv ?_
-    try simp only [smul_eq_mul]
     ring
   · have hτ := tt_pos hτ0 hy
     have h1 := (hM.d2 _ hτ).comp y (hasDerivAt_tt τ0 y)
     have := (h1.const_mul ((τ0 / 2))).div_const (m1 τ0)
     refine this.congr_deriv ?_
-    try simp only [smul_eq_mul]
     ring
   · have hc3 : ContinuousOn m3 (Ioi 0) := hM.c3
     have hcomp : ContinuousOn (fun t => m3 (tt τ0 t)) (Ioo (-1 : ℝ) 1) :=
@@ -138,7 +134,7 @@ theorem phase_data (hM : MData C0 m m1 m2 m3) {τ0 : ℝ} (hτ0 : 0 < τ0) {ϕ :
     have h1 : τ0 / 2 * |m2 (tt τ0 y)| ≤ τ0 / 2 * (C0 / u ^ 2) := mul_le_mul_of_nonneg_left hb (by positivity)
     have h2 : τ0 / 2 * (C0 / u ^ 2) ≤ 6 * C0 * (τ0 / (1 + τ0 ^ 2)) := by
       have : (1 + τ0 ^ 2) ≤ 12 * u ^ 2 := by nlinarith [sq_nonneg τ0, sq_nonneg (u - (1 + τ0) / 2)]
-      rw [show τ0 / 2 * (C0 / u ^ 2) = C0 * τ0 / (2 * u ^ 2) by ring, show 6 * C0 * (τ0 / (1 + τ0 ^ 2)) =
+      rw [show τ0 / 2 * (C0 / u ^ 2) = C0 * τ0 / (2 * u ^ 2) by ring_nf, show 6 * C0 * (τ0 / (1 + τ0 ^ 2)) =
         6 * C0 * τ0 / (1 + τ0 ^ 2) by ring, div_le_div_iff₀ (by positivity) (by positivity)]
       have : 0 ≤ C0 * τ0 := by positivity
       nlinarith [mul_nonneg this (sub_nonneg.2 ‹1 + τ0 ^ 2 ≤ 12 * u ^ 2›)]
@@ -160,7 +156,7 @@ theorem phase_data (hM : MData C0 m m1 m2 m3) {τ0 : ℝ} (hτ0 : 0 < τ0) {ϕ :
         calc (1 + τ0) ^ 3 ≤ (2 * u) ^ 3 := pow_le_pow_left₀ (by positivity) this 3
           _ = 8 * u ^ 3 := by ring
       have h9 : τ0 * (1 + τ0 ^ 2) ≤ 24 * u ^ 3 := by nlinarith [pow_pos hτ0 3, sq_nonneg τ0]
-      rw [show (τ0 / 2) ^ 2 * (C0 / u ^ 3) = C0 * τ0 ^ 2 / (4 * u ^ 3) by ring, show 6 * C0 * (τ0 / (1 + τ0 ^ 2)) =
+      rw [show (τ0 / 2) ^ 2 * (C0 / u ^ 3) = C0 * τ0 ^ 2 / (4 * u ^ 3) by ring_nf, show 6 * C0 * (τ0 / (1 + τ0 ^ 2)) =
         6 * C0 * τ0 / (1 + τ0 ^ 2) by ring, div_le_div_iff₀ (by positivity) (by positivity)]
       have : 0 ≤ C0 * τ0 := by positivity
       nlinarith [mul_nonneg this (sub_nonneg.2 h9)]
@@ -340,7 +336,7 @@ theorem piece1 (C0 : ℝ) (hC0 : 0 < C0) :
     refine setIntegral_eq_integral_of_forall_compl_eq_zero fun τ hτ => ?_
     have : τ ≤ 0 ∨ T ≤ τ := by
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       exact hτ ⟨hcon.1, hcon.2.le⟩
     simp [hF, hB0 τ this]
   have hexp : ∀ t : ℝ, F (tt τ0 t) = ((Nn τ0 : ℝ) : ℂ) * E0 *

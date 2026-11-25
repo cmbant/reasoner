@@ -160,7 +160,7 @@ lemma collar_of_Tneg {L g : ℝ} {G0 B0 : ℝ → ℝ} (hL : 0 < L) (hyp : Hyp L
   have hTp : Tfun L G0 B0 X (uPlusS L G0 B0 X) = 0 := (hzero _ hup).2 (Or.inr rfl)
   have hout : u < uMinusS L G0 B0 X ∨ uPlusS L G0 B0 X < u := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have hin : u ∈ Icc (uMinusS L G0 B0 X) (uPlusS L G0 B0 X) := ⟨hcon.1, hcon.2⟩
     rcases eq_or_lt_of_le hin.1 with h1 | h1
     · rw [← h1, hTm] at hTu; linarith
@@ -359,7 +359,7 @@ lemma le_of_step_le {F : SymbolFamily Par} {n0 N : ℕ} (h : F.step N ≤ F.L / 
   rw [le_div_iff₀ (by positivity)] at h
   have : ((n0 : ℝ) + 1) ≤ (N : ℝ) + 1 := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     nlinarith [F.L_pos]
   exact_mod_cast (by linarith : (n0 : ℝ) ≤ N)
 
@@ -420,9 +420,9 @@ theorem thmAii_bulk_relative {F : SymbolFamily Par} {K : Set Par} {m Kidx : ℕ}
     have hbe := hH ν (μ, F.step N) hp (X k) hspec (N) (le_trans (hn0le ν) hn0N) ((hN2.trans (hm0le ν)))
       n hn hco
     have e1 : envVec CI μ N (X k) n = bulkEnv (CI.bulkL ν) (CI.bulkR ν) (atStep F μ N) (X k) N n := by
-      unfold envVec; rw [dif_pos hd]
+      unfold envVec; rw [dite_eq_left hd]
     have e2 : psiHatVec CI μ N (X k) n = bulkVec (CI.bulkL ν) (CI.bulkR ν) (atStep F μ N) (X k) N n := by
-      unfold psiHatVec; rw [dif_pos hd]
+      unfold psiHatVec; rw [dite_eq_left hd]
     rw [e1, e2]
     refine hbe.trans (mul_le_mul_of_nonneg_right ?_ (abs_nonneg _))
     exact (le_abs_self _).trans (Finset.single_le_sum (f := fun ν => |Cd ν|) (fun _ _ => abs_nonneg _) (Finset.mem_univ ν))

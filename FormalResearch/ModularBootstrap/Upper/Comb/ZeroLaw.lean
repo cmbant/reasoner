@@ -759,7 +759,7 @@ lemma cumulN_ge_sq_div_three {r : ℝ} (hr : 0 ≤ r) :
     r ^ 2 / 3 ≤ cumulN (xiStar + r) := by
   unfold cumulN
   have hsub : ∫ t in xiStar..(xiStar + r), rhoU t = ∫ s in (0 : ℝ)..r, rhoU (xiStar + s) := by
-    simpa [add_comm] using intervalIntegral.integral_comp_add_left rhoU xiStar (a := 0) (b := r)
+    simp [add_comm]
   rw [hsub]
   have hint1 : IntervalIntegrable (fun s : ℝ => (4 / 3) * s) volume 0 r :=
     (continuous_const.mul continuous_id).intervalIntegrable 0 r
@@ -832,7 +832,7 @@ noncomputable def chiSecond (c' a : ℝ) : ℝ :=
 lemma chiQuantile_spec {c' a : ℝ} (hc' : 0 < c') (ha : 1 / 4 ≤ a) :
     xiStar ≤ chiQuantile c' a ∧ c' * cumulN (chiQuantile c' a) = a - 1 / 4 := by
   unfold chiQuantile
-  rw [dif_pos ⟨hc', ha⟩]
+  rw [dite_eq_left ⟨hc', ha⟩]
   exact Classical.choose_spec (existsUnique_chiQuantile hc' ha).exists
 
 lemma chiQuantile_eq_of_cumulN {c' a y : ℝ} (hc' : 0 < c') (ha : 1 / 4 ≤ a)
@@ -1118,7 +1118,7 @@ theorem cumulN_bounds {r : ℝ} (hr : 0 ≤ r) :
       cumulN (xiStar + r) ≤ kTip * r ^ (3 / 2 : ℝ) * (1 + c1K0 * r) := by
   unfold cumulN
   have hsub : ∫ t in xiStar..(xiStar + r), rhoU t = ∫ s in (0 : ℝ)..r, rhoU (xiStar + s) := by
-    simpa [add_comm] using intervalIntegral.integral_comp_add_left rhoU xiStar (a := 0) (b := r)
+    simp [add_comm]
   rw [hsub]
   have hpi := Real.pi_pos
   have hk_pos : 0 < kTip := kTip_pos

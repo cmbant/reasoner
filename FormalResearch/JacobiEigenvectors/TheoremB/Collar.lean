@@ -303,7 +303,7 @@ theorem propThaCollar_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (f
         have hsingle : softEnvWeb CL p (Xs k) N n ^ 2 ≤ ∑ i ∈ Finset.Icc (0 : ℤ) (CL.chainW p (Xs k) N).NR, softEnvWeb CL p (Xs k) N i ^ 2 :=
           Finset.single_le_sum (f := fun i => softEnvWeb CL p (Xs k) N i ^ 2) (fun i _ => sq_nonneg _) hmem
         have hse : softEnv CL CR p (Xs k) N n = softEnvWeb CL p (Xs k) N n / softNorm CL CR p (Xs k) N := by
-          unfold softEnv; rw [if_pos hb1]
+          unfold softEnv; rw [ite_eq_left hb1]
         have hD : 0 ≤ Cw' / cn := by positivity
         have hsq : softEnv CL CR p (Xs k) N n ^ 2 ≤ (Cw' / cn) * Real.exp (-cw / Fz.step N) := by
           rw [hse, div_pow, div_le_iff₀ (by positivity)]
@@ -339,7 +339,7 @@ theorem propThaCollar_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (f
           unfold softEnv
           have hA1 : ¬ uNode (Fz.step N) n ≤ CL.uc p - CL.η / 2 := not_le.mpr (by linarith only [hr', hη])
           have hA3 : ¬ uNode (Fz.step N) n < CL.uc p + CL.η / 2 := not_lt.mpr (by linarith only [hr'])
-          rw [if_neg hA1, if_neg (not_le.mpr hZ), if_neg hA3]
+          rw [ite_eq_right hA1, ite_eq_right (not_le.mpr hZ), ite_eq_right hA3]
         have hD : 0 ≤ Cr' * Ck ^ 2 / cn := by positivity
         have hsq : softEnv CL CR p (Xs k) N n ^ 2 ≤ (Cr' * Ck ^ 2 / cn) * Real.exp (-cr / Fz.step N) := by
           rw [hse, div_pow, div_le_iff₀ (by positivity)]

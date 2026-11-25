@@ -35,12 +35,12 @@ lemma integral_ind_deriv {X x : ℝ} (hx : x ∈ Icc (-X) X) {φ φ' : ℝ → �
     · have : G =ᶠ[𝓝 s] fun _ => (0 : ℂ) := by
         filter_upwards [Iio_mem_nhds hlt] with z hz
         simp [hG, not_le.mpr hz]
-      rw [if_neg (not_le.mpr hlt)]
+      rw [ite_eq_right (not_le.mpr hlt)]
       exact (hasDerivAt_const s (0 : ℂ)).congr_of_eventuallyEq this
     · have : G =ᶠ[𝓝 s] fun z => φ z - φ x := by
         filter_upwards [Ioi_mem_nhds hgt] with z hz
         simp [hG, le_of_lt hz]
-      rw [if_pos hgt.le]
+      rw [ite_eq_left hgt.le]
       exact ((hφd s ⟨hs.1.le, hs.2.le⟩).sub_const (φ x)).congr_of_eventuallyEq this
   have := MeasureTheory.integral_eq_of_hasDerivAt_off_countable_of_le G (fun s => if x ≤ s then φ' s else 0)
     (by linarith [hx.1, hx.2] : -X ≤ X) (countable_singleton x) hGc.continuousOn hder hint

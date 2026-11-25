@@ -324,11 +324,11 @@ lemma imag_axis_bound {F : ℂ → ℂ} {g : ℂ → ℝ} (hF : ∀ y : ℝ, y �
     intro n
     apply h
     · have : (wn n).re = 1 / ((n : ℝ) + 1) := by
-        simp only [wn, w₀, Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.I_re, Complex.I_im, Complex.ofReal_im, zero_mul, one_mul, mul_zero, sub_zero, add_zero]
+        simp only [wn, w₀, Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.I_re, Complex.I_im, Complex.ofReal_im, zero_mul, mul_zero, sub_zero, add_zero]
       rw [this]; positivity
     · have : |(wn n).im| ≤ ‖wn n‖ := Complex.abs_im_le_norm _
       have him : (wn n).im = y := by
-        simp only [wn, w₀, Complex.add_im, Complex.ofReal_im, Complex.mul_im, Complex.I_re, Complex.I_im, Complex.ofReal_re, zero_mul, one_mul, mul_zero, zero_add]
+        simp only [wn, w₀, Complex.add_im, Complex.ofReal_im, Complex.mul_im, Complex.I_re, Complex.I_im, Complex.ofReal_re, one_mul, mul_zero, zero_add]
       rw [him] at this; linarith
   exact le_of_tendsto_of_tendsto' ((hF y hy0).norm.tendsto.comp hwn) ((hg y hy0).tendsto.comp hwn) hbd
 
@@ -367,7 +367,7 @@ lemma uctW2_imag_bound : ∃ C : ℝ, 0 < C ∧ ∀ y : ℝ, 1 ≤ |y| → ‖uc
 lemma norm_I_mul_real (y : ℝ) : ‖Complex.I * (y : ℂ)‖ = |y| := by
   simp
 
-lemma rpow_neg_two_abs (y : ℝ) (hy : y ≠ 0) : |y| ^ (-(2 : ℝ)) = 1 / y ^ 2 := by
+lemma rpow_neg_two_abs (y : ℝ) (_hy : y ≠ 0) : |y| ^ (-(2 : ℝ)) = 1 / y ^ 2 := by
   rw [Real.rpow_neg (abs_nonneg y), show (2 : ℝ) = ((2 : ℕ) : ℝ) by norm_num, Real.rpow_natCast, sq_abs]; simp
 
 lemma norm_uctC_nonneg : 0 ≤ ‖uctC‖ := norm_nonneg _
@@ -463,7 +463,7 @@ lemma uctZ1_sector : ∃ K : ℝ, 0 < K ∧ ∀ w : ℂ, InSector w → 5 ≤ �
         _ ≤ _ := mul_le_mul_of_nonneg_right (le_max_left _ _) hKm
     · have hw := eq_I_mul_im hzero.symm
       have hy1 : 1 ≤ |w.im| := by
-        have : |w.im| = ‖w‖ := by rw [hw]; simp [norm_I_mul_real]
+        have : |w.im| = ‖w‖ := by rw [hw]; simp
         linarith
       have := h0 w.im hy1
       rw [← hw] at this
@@ -499,7 +499,7 @@ lemma uctW2_sector : ∃ K : ℝ, 0 < K ∧ ∀ w : ℂ, InSector w → 5 ≤ �
     · exact (h w hpos (by linarith)).trans (le_max_left _ _)
     · have hw := eq_I_mul_im hzero.symm
       have hy1 : 1 ≤ |w.im| := by
-        have : |w.im| = ‖w‖ := by rw [hw]; simp [norm_I_mul_real]
+        have : |w.im| = ‖w‖ := by rw [hw]; simp
         linarith
       have := h0 w.im hy1
       rw [← hw] at this
@@ -618,10 +618,10 @@ lemma deriv_bound_halfplane {F : ℂ → ℂ} (hF : DifferentiableOn ℂ F Compl
       _ ≤ _ := mul_le_mul_of_nonneg_right (le_max_right _ _) (by positivity)
 
 lemma differentiableOn_uctZ1 : DifferentiableOn ℂ uctZ1 Complex.slitPlane :=
-  fun w hw => (hasDerivAt_uctZ1 hw).differentiableAt.differentiableWithinAt
+  fun _w hw => (hasDerivAt_uctZ1 hw).differentiableAt.differentiableWithinAt
 
 lemma differentiableOn_uctG1Ext : DifferentiableOn ℂ uctG1Ext Complex.slitPlane :=
-  fun w hw => (hasDerivAt_uctG1Ext hw).differentiableAt.differentiableWithinAt
+  fun _w hw => (hasDerivAt_uctG1Ext hw).differentiableAt.differentiableWithinAt
 
 lemma uctG1Ext_sector : ∃ K : ℝ, 0 < K ∧ ∀ z : ℂ, InSector z → 5 ≤ ‖z‖ → ‖uctG1Ext z‖ ≤ K * ‖z‖ ^ (-(9 / 2 : ℝ)) := by
   obtain ⟨K, hK, h⟩ := uctW2_sector

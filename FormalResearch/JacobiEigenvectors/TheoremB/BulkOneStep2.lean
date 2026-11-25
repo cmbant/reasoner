@@ -81,19 +81,19 @@ theorem blockOf_cast (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 := t0)
     (X : ℝ) (ν : Fin CP.CI0.nb) (h : blockOf CP.CI0 X = some ν) : blockOf CP.CI1 X = some (Fin.cast CP.nb_eq.symm ν) := by
   unfold blockOf at h ⊢
   by_cases h0 : ∃ ν' : Fin CP.CI0.nb, CP.CI0.lo ν' ≤ X ∧ X ≤ CP.CI0.hi ν'
-  · rw [dif_pos h0] at h
+  · rw [dite_eq_left h0] at h
     have hν : blockIdx CP.CI0 X h0 = ν := Option.some.inj h
     have h1 : ∃ ν' : Fin CP.CI1.nb, CP.CI1.lo ν' ≤ X ∧ X ≤ CP.CI1.hi ν' := by
       refine ⟨Fin.cast CP.nb_eq.symm ν, ?_, ?_⟩
       · rw [CP.lo_eq]; simpa using (hν ▸ (blockIdx_spec CP.CI0 X h0).1)
       · rw [CP.hi_eq]; simpa using (hν ▸ (blockIdx_spec CP.CI0 X h0).2)
-    rw [dif_pos h1]
+    rw [dite_eq_left h1]
     congr 1
     apply Fin.ext
     have := congrArg Fin.val (blockIdx_cast CP X h0 h1)
     simp only [Fin.coe_cast] at this ⊢
     rw [this, hν]
-  · rw [dif_neg h0] at h
+  · rw [dite_eq_right h0] at h
     exact absurd h (by simp)
 
 end Cast
@@ -106,11 +106,11 @@ theorem blockOf_spec (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (X : ℝ) (�
     CI.lo ν ≤ X ∧ X ≤ CI.hi ν := by
   unfold blockOf at h
   by_cases hex : ∃ ν' : Fin CI.nb, CI.lo ν' ≤ X ∧ X ≤ CI.hi ν'
-  · rw [dif_pos hex] at h
+  · rw [dite_eq_left hex] at h
     have := Option.some.inj h
     rw [← this]
     exact blockIdx_spec CI X hex
-  · rw [dif_neg hex] at h
+  · rw [dite_eq_right hex] at h
     exact absurd h (by simp)
 
 /-- **The `JB.Chart` of the left bulk chart of the block `nu`** (direction `+`, rows `0 .. R-1`, columns `cols`): the scalars `sigma^{[m]} = 1/hat N`, `sigma^{[m+1]} = 1/hat N^{[m+1]}` and the hosts
@@ -175,7 +175,7 @@ theorem blockChartL_host1_eq (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t
   have hn : ((((0 : ℕ) + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (spl ν) := by
     have := n.isLt
     omega
-  rw [if_pos hn]
+  rw [ite_eq_left hn]
   have hcr : chartRow N 0 R true n = (((0 : ℕ) + n.val : ℕ) : ℤ) := by simp [chartRow]
   rw [hcr]
   ring
@@ -200,7 +200,7 @@ theorem blockChartR_host1_eq (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t
   rw [hs]
   have hn : ¬ ((((lo + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (spl ν)) := by
     omega
-  rw [if_neg hn]
+  rw [ite_eq_right hn]
   have hcr : chartRow N lo R false n = (N : ℤ) - (((lo + n.val : ℕ) : ℤ)) := by simp [chartRow]
   rw [hcr]
   ring
@@ -717,7 +717,7 @@ theorem bulk_window_eig_lower {Par : Type*} [TopologicalSpace Par] {Fz : SymbolF
     intro i hi
     have hi' := (Finset.mem_filter.mp hi).2
     unfold bulkVec glueVec bulkNorm
-    rw [if_pos (hi'.2.trans hbc)]
+    rw [ite_eq_left (hi'.2.trans hbc)]
   have hNle : bulkNorm CL CR p X N ≤ CN' * s⁻¹ := by
     refine hup.trans ?_
     exact mul_le_mul_of_nonneg_right (by rw [hCN']; linarith [le_abs_self CN]) (inv_nonneg.mpr hs0.le)
@@ -783,7 +783,7 @@ theorem bulk_window_eig_lower {Par : Type*} [TopologicalSpace Par] {Fz : SymbolF
 theorem eigVec_nat {N : ℕ} (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) (k : Fin (N + 1)) (j : ℕ) (hj : j < N + 1) :
     eigVec Um k (j : ℤ) = Um ⟨j, hj⟩ k := by
   unfold eigVec
-  rw [dif_pos ⟨by omega, by omega⟩]
+  rw [dite_eq_left ⟨by omega, by omega⟩]
   congr 2
 
 /-- The window mass of the eigenvector on the global rows `[ga, gb]` is at most the mass on the chart rows `P_k = bulkPk` (global rows `lo + n`), provided the chart covers the global window; `[ga, gb] = [a, b]` for the
@@ -917,7 +917,7 @@ theorem blockChartL_match0 (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 
   have hn' : ((((0 : ℕ) + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (splF ν) := by
     have := hused n hn
     omega
-  rw [if_pos hn']
+  rw [ite_eq_left hn']
   have hcr : chartRow N 0 R true n = (((0 : ℕ) + n.val : ℕ) : ℤ) := by simp [chartRow]
   rw [hcr]
   ring
@@ -939,7 +939,7 @@ theorem blockChartR_match0 (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 
   have hn' : ¬ ((((lo + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (splF ν)) := by
     have := hused n hn
     omega
-  rw [if_neg hn']
+  rw [ite_eq_right hn']
   have hcr : chartRow N lo R false n = (N : ℤ) - (((lo + n.val : ℕ) : ℤ)) := by simp [chartRow]
   rw [hcr]
   ring
@@ -966,7 +966,7 @@ theorem blockChartL_match1 (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 
   have hn' : ((((0 : ℕ) + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (splF ν) := by
     have := hused n hn
     omega
-  rw [if_pos hn']
+  rw [ite_eq_left hn']
   have hcr : chartRow N 0 R true n = (((0 : ℕ) + n.val : ℕ) : ℤ) := by simp [chartRow]
   rw [hcr]
   ring
@@ -993,7 +993,7 @@ theorem blockChartR_match1 (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 
   have hn' : ¬ ((((lo + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (splF ν)) := by
     have := hused n hn
     omega
-  rw [if_neg hn']
+  rw [ite_eq_right hn']
   have hcr : chartRow N lo R false n = (N : ℤ) - (((lo + n.val : ℕ) : ℤ)) := by simp [chartRow]
   rw [hcr]
   ring

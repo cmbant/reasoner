@@ -44,7 +44,7 @@ lemma designWinW_eq_sig (N : ℕ) (η d : ℝ) : designWinW N η d = sigWinW N �
 
 /-- **Lemma `W` + Lemma `ID` for the finite modifications with arbitrary offsets, two-sided**: see
 `design_part1`, the case `σs = designSigma1 d`. -/
-theorem sig_part1 (prob : FixedWeightProblem) (hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
+theorem sig_part1 (prob : FixedWeightProblem) (_hw : prob.w = 1) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη0 : 0 ≤ η) (hη1 : η ≤ 1 / 4) (σs : ℕ → ℝ)
     {S : ℝ} (hS : 0 ≤ S) (n1 : ℕ) {ε' : ℝ} (hε' : 0 < ε') :
     ∀ᶠ c in atTop, ∀ σ ∈ Icc (-S) (phiWKB (n1 + 1)),
       |combProfile c (sigBc N η σs c) (c * (xiStar + lambdaComb c * σ) ^ 2 / 3) *

@@ -92,7 +92,7 @@ theorem convSD_hasDerivAt {w : ℝ → ℝ} (hw : IntegrableOn w (Ioi 0)) (k : �
   have hδ0 : 0 < δ := by rw [hδ]; linarith
   have hs : {z : ℂ | δ < z.re} ∈ 𝓝 z₀ :=
     (isOpen_lt continuous_const Complex.continuous_re).mem_nhds
-      (by simp only [mem_setOf_eq, hδ]; linarith)
+      (by simp only [Set.mem_ofPred_eq, hδ]; linarith)
   refine (hasDerivAt_integral_Ioi
     (F := fun z y => (w y : ℂ) * (-(y : ℂ)) ^ k * Complex.exp (-(z * (y : ℂ))))
     (F' := fun z y => (w y : ℂ) * (-(y : ℂ)) ^ (k + 1) * Complex.exp (-(z * (y : ℂ))))

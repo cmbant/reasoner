@@ -743,7 +743,7 @@ theorem blowup_left_tail_bound (inp : StripBootstrapInputs) :
         show s * B_lam = δ₀ by dsimp [B_lam]; exact mul_div_cancel₀ _ hε_pos.ne'] at h
       rw [h, smul_eq_mul, ← mul_assoc, mul_inv_cancel₀ hε_pos.ne', one_mul]
     have hint_sFδ : IntervalIntegrable (fun l => s * F_δ (s * l)) volume R B_lam := by
-      have hcomp := hint_Fδ.comp_mul_left (c := s) enorm_ne_top enorm_ne_top
+      have hcomp := hint_Fδ.comp_mul_left (c := s) eNorm_ne_top eNorm_ne_top
       rw [show δ_R / s = R by dsimp [δ_R, s]; exact mul_div_cancel_left₀ _ hε_pos.ne'] at hcomp
       exact hcomp.const_mul s
     have hmono_lam : ∫ l in R..B_lam, s * F_δ (s * l) ≤
@@ -1171,7 +1171,7 @@ theorem proposition_T (hI0 : BesselI0Asymptotic) (inp : StripBootstrapInputs)
           exact indicator_of_mem hmem _
         exact tendsto_const_nhds.congr' (hev.mono fun _ h => h.symm)
       have hmeas : ∀ n : ℕ, Measurable (g n) := fun n =>
-        hcont.enorm.measurable.indicator measurableSet_Ioc
+        hcont.eNorm.measurable.indicator measurableSet_Ioc
       have hl := lintegral_tendsto_of_tendsto_of_monotone (μ := volume)
         (fun n => (hmeas n).aemeasurable)
         (ae_of_all volume fun s _ _ hmn => hmono hmn s) (ae_of_all volume hlim)

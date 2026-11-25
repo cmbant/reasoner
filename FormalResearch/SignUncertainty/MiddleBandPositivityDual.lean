@@ -130,7 +130,7 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
       _ = K ^ 3 := by rw [hcube, mul_one]
   have hKε : K * liftEps c ≤ 1 / 2 := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have h2 : (1 / 2 : ℝ) ^ 3 < (K * liftEps c) ^ 3 := pow_lt_pow_left₀ hcon (by norm_num) (by norm_num)
     have h3 := mul_lt_mul_of_pos_right h2 hc0
     rw [hKe3] at h3
@@ -143,7 +143,7 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
       linarith
     have h3 : (K * liftEps c) ^ 3 ≤ δ₁ ^ 3 := by
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       have := mul_lt_mul_of_pos_right hcon hc0
       rw [hKe3] at this
       linarith
@@ -226,7 +226,7 @@ theorem o6_positivity_dual_Kc {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m
             rw [hCWdef]
             have hε2' : 0 ≤ liftEps c ^ 2 := by positivity
             have hc12' : 0 ≤ c ^ (-(1 / 2 : ℝ)) := by positivity
-            nlinarith [mul_nonneg hCW0.le hξi.le, mul_nonneg hCD5.le hξi.le,
+            linarith only [mul_nonneg hCW0.le hξi.le, mul_nonneg hCD5.le hξi.le,
               mul_nonneg (mul_nonneg hCW0.le hξi.le) hB, mul_nonneg (mul_nonneg hCW0.le hξi.le) hε2',
               mul_nonneg (mul_nonneg hCD5.le hξi.le) hB, mul_nonneg (mul_nonneg hCD5.le hξi.le) hε2',
               mul_nonneg (mul_nonneg hCW0.le hξi.le) hc12', mul_nonneg (mul_nonneg hCD5.le hξi.le) hc12']
@@ -566,7 +566,7 @@ theorem o6_positivity_dual {m : ℕ} (hm : 3 ≤ m) {R g0 : ℝ} (E : O6Est m R 
       linarith
     have h3 : (K * liftEps c) ^ 3 ≤ δ₁ ^ 3 := by
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       have := mul_lt_mul_of_pos_right hcon hc0
       rw [hKe3] at this
       linarith
@@ -617,7 +617,7 @@ theorem o6DualEst_of_oneLevel_family {m : ℕ} {R g0 : ℝ} (E : O6Est m R g0) {
     have hξi : 0 < ξ⁻¹ := inv_pos.mpr hξ
     have hc12 : 0 < c ^ (-(1 / 2 : ℝ)) := Real.rpow_pos_of_pos hc0 _
     have hmain : liftEps c ^ 2 + ((1 + ceBeta1 * K * liftEps c / 2 * c ^ (1 / 3 : ℝ)) ^ m)⁻¹ * c ^ (-(1 / 2 : ℝ)) ≤
-        2 * c ^ (-(1 / 2 : ℝ)) := by nlinarith
+        2 * c ^ (-(1 / 2 : ℝ)) := by nlinarith only [hε, mul_nonneg (sub_nonneg.2 hB) hc12.le]
     calc ‖Dx‖ = ‖(1 / 2 : ℂ) * ((Mn + ((1 : ℝ) : ℂ) * Dx - T) - (Mn + ((-1 : ℝ) : ℂ) * Dx - T))‖ := by rw [← hsplit]
       _ ≤ (1 / 2) * (‖Mn + ((1 : ℝ) : ℂ) * Dx - T‖ + ‖Mn + ((-1 : ℝ) : ℂ) * Dx - T‖) := by
           rw [norm_mul]

@@ -228,7 +228,7 @@ lemma airyPws_re_vert_exponent (R y b η : ℝ) :
     (-(4 / 3) * (((R : ℂ) + y * I) ^ 3).re) +
         (-(I * (((-2 * b : ℝ) : ℂ) + η * I) * ((R : ℂ) + y * I) ^ 2)).re =
       -(4 / 3) * (R ^ 3 - 3 * R * y ^ 2) + (η * (R ^ 2 - y ^ 2) - 4 * b * R * y) := by
-  simp [pow_succ, Complex.mul_re, Complex.mul_im, Complex.add_re, Complex.add_im, Complex.sub_re]
+  simp [pow_succ, Complex.mul_re, Complex.mul_im, Complex.add_re, Complex.add_im]
   ring
 
 /-- Bound on the vertical side `s = R + iy`, `0 ≤ y ≤ b`. -/

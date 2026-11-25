@@ -104,7 +104,7 @@ lemma hankel_gauss_interval_le {b : ℝ} (hb : 0 < b) (τ0 : ℝ) :
         have := integral_sub_right_eq_self (μ := volume) (fun x : ℝ => Real.exp (-b * x ^ 2)) τ0
         rw [this, integral_gaussian]
 
-lemma hankel_exp_interval_le {a σ σ1 : ℝ} (ha : 0 < a) (h : σ ≤ σ1) :
+lemma hankel_exp_interval_le {a σ σ1 : ℝ} (ha : 0 < a) (_h : σ ≤ σ1) :
     ∫ x in σ..σ1, Real.exp (-a * (x - σ)) ≤ 1 / a := by
   have hd : ∀ x ∈ uIcc σ σ1, HasDerivAt (fun x : ℝ => -(1 / a) * Real.exp (-a * (x - σ)))
       (Real.exp (-a * (x - σ))) x := by

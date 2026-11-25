@@ -299,32 +299,32 @@ private lemma norm_tanh_pair_le_one (x y ε : ℝ) (hy : |y| ≤ 1 / 2) (hε : |
     intro θ hθ
     have hcos_pos : 0 < Real.cos θ :=
       Real.cos_pos_of_mem_Ioo ⟨by linarith [(abs_le.mp hθ).1], by linarith [(abs_le.mp hθ).2]⟩
-    nlinarith [Real.sin_sq_add_cos_sq θ, sq_pos_of_pos hcos_pos]
+    linarith only [Real.sin_sq_add_cos_sq θ, sq_pos_of_pos hcos_pos]
   have hαβ1 : |α - β| ≤ 3 * π / 8 := by
-    dsimp [α, β]; rw [abs_le]; constructor <;> nlinarith [(abs_le.mp hy).1, (abs_le.mp hy).2,
+    dsimp [α, β]; rw [abs_le]; constructor <;> nlinarith only [hpi, (abs_le.mp hy).1, (abs_le.mp hy).2,
       (abs_le.mp hε).1, (abs_le.mp hε).2]
   have hαβ2 : |α + β| ≤ 3 * π / 8 := by
-    dsimp [α, β]; rw [abs_le]; constructor <;> nlinarith [(abs_le.mp hy).1, (abs_le.mp hy).2,
+    dsimp [α, β]; rw [abs_le]; constructor <;> nlinarith only [hpi, (abs_le.mp hy).1, (abs_le.mp hy).2,
       (abs_le.mp hε).1, (abs_le.mp hε).2]
-  have hC1 : 1 ≤ C := by have := Real.one_le_cosh (π * x / 2); nlinarith
+  have hC1 : 1 ≤ C := by nlinarith only [Real.one_le_cosh (π * x / 2)]
   have hden1 : 0 < C - u := by linarith [hsin_bound (α - β) hαβ1]
   have hden2 : 0 < C - v := by linarith [hsin_bound (α + β) hαβ2]
   have htrig : 1 - u - v = Real.cos (π * y) * Real.cos (π * ε) := by
     have h1 : u = (1 - Real.cos (2 * α - 2 * β)) / 2 := by
       have := Real.cos_two_mul (α - β)
       rw [show 2 * (α - β) = 2 * α - 2 * β by ring] at this
-      nlinarith [Real.sin_sq_add_cos_sq (α - β)]
+      linarith only [Real.sin_sq_add_cos_sq (α - β), this]
     have h2 : v = (1 - Real.cos (2 * α + 2 * β)) / 2 := by
       have := Real.cos_two_mul (α + β)
       rw [show 2 * (α + β) = 2 * α + 2 * β by ring] at this
-      nlinarith [Real.sin_sq_add_cos_sq (α + β)]
+      linarith only [Real.sin_sq_add_cos_sq (α + β), this]
     rw [h1, h2, show 2 * α = π * y by dsimp [α]; ring, show 2 * β = π * ε by dsimp [β]; ring]
     rw [Real.cos_sub, Real.cos_add]
     ring
   have hcos_y : 0 ≤ Real.cos (π * y) :=
-    Real.cos_nonneg_of_mem_Icc ⟨by nlinarith [(abs_le.mp hy).1], by nlinarith [(abs_le.mp hy).2]⟩
+    Real.cos_nonneg_of_mem_Icc ⟨by nlinarith only [hpi, (abs_le.mp hy).1], by nlinarith only [hpi, (abs_le.mp hy).2]⟩
   have hcos_ε : 0 ≤ Real.cos (π * ε) :=
-    Real.cos_nonneg_of_mem_Icc ⟨by nlinarith [(abs_le.mp hε).1], by nlinarith [(abs_le.mp hε).2]⟩
+    Real.cos_nonneg_of_mem_Icc ⟨by nlinarith only [hpi, (abs_le.mp hε).1], by nlinarith only [hpi, (abs_le.mp hε).2]⟩
   have hCS : C = S + 1 := by linarith [Real.cosh_sq_sub_sinh_sq (π * x / 2)]
   have hnum_le : (S + u) * (S + v) ≤ (C - u) * (C - v) := by
     have hdiff : (C - u) * (C - v) - (S + u) * (S + v) = (2 * S + 1) * (1 - u - v) := by
@@ -339,8 +339,7 @@ private lemma norm_tanh_pair_le_one (x y ε : ℝ) (hy : |y| ≤ 1 / 2) (hε : |
     change ((S + u) / (C - u)) * ((S + v) / (C - v)) ≤ 1
     rw [div_mul_div_comm, div_le_one (mul_pos hden1 hden2)]
     exact hnum_le
-  nlinarith [norm_nonneg (Complex.tanh ((π : ℂ) * ((x : ℂ) + ((y - ε : ℝ) : ℂ) * Complex.I) / 2) *
-    Complex.tanh ((π : ℂ) * ((x : ℂ) + ((y + ε : ℝ) : ℂ) * Complex.I) / 2))]
+  exact (sq_le_one_iff₀ (norm_nonneg _)).mp hsq
 
 private lemma norm_tanh_pair_eq_one (x y ε : ℝ) (hy : |y| = 1 / 2) (hε : |ε| ≤ 1 / 4) :
     ‖Complex.tanh ((π : ℂ) * ((x : ℂ) + ((y - ε : ℝ) : ℂ) * Complex.I) / 2) *
@@ -364,15 +363,15 @@ private lemma norm_tanh_pair_eq_one (x y ε : ℝ) (hy : |y| = 1 / 2) (hε : |ε
     intro θ hθ
     have hcos_pos : 0 < Real.cos θ :=
       Real.cos_pos_of_mem_Ioo ⟨by linarith [(abs_le.mp hθ).1], by linarith [(abs_le.mp hθ).2]⟩
-    nlinarith [Real.sin_sq_add_cos_sq θ, sq_pos_of_pos hcos_pos]
+    linarith only [Real.sin_sq_add_cos_sq θ, sq_pos_of_pos hcos_pos]
   have hy_le : |y| ≤ 1 / 2 := hy.le
   have hαβ1 : |α - β| ≤ 3 * π / 8 := by
-    dsimp [α, β]; rw [abs_le]; constructor <;> nlinarith [(abs_le.mp hy_le).1, (abs_le.mp hy_le).2,
+    dsimp [α, β]; rw [abs_le]; constructor <;> nlinarith only [hpi, (abs_le.mp hy_le).1, (abs_le.mp hy_le).2,
       (abs_le.mp hε).1, (abs_le.mp hε).2]
   have hαβ2 : |α + β| ≤ 3 * π / 8 := by
-    dsimp [α, β]; rw [abs_le]; constructor <;> nlinarith [(abs_le.mp hy_le).1, (abs_le.mp hy_le).2,
+    dsimp [α, β]; rw [abs_le]; constructor <;> nlinarith only [hpi, (abs_le.mp hy_le).1, (abs_le.mp hy_le).2,
       (abs_le.mp hε).1, (abs_le.mp hε).2]
-  have hC1 : 1 ≤ C := by have := Real.one_le_cosh (π * x / 2); nlinarith
+  have hC1 : 1 ≤ C := by nlinarith only [Real.one_le_cosh (π * x / 2)]
   have hden1 : 0 < C - u := by linarith [hsin_bound (α - β) hαβ1]
   have hden2 : 0 < C - v := by linarith [hsin_bound (α + β) hαβ2]
   have hcos_y0 : Real.cos (π * y) = 0 := by
@@ -383,11 +382,11 @@ private lemma norm_tanh_pair_eq_one (x y ε : ℝ) (hy : |y| = 1 / 2) (hε : |ε
     have h1 : u = (1 - Real.cos (2 * α - 2 * β)) / 2 := by
       have := Real.cos_two_mul (α - β)
       rw [show 2 * (α - β) = 2 * α - 2 * β by ring] at this
-      nlinarith [Real.sin_sq_add_cos_sq (α - β)]
+      linarith only [Real.sin_sq_add_cos_sq (α - β), this]
     have h2 : v = (1 - Real.cos (2 * α + 2 * β)) / 2 := by
       have := Real.cos_two_mul (α + β)
       rw [show 2 * (α + β) = 2 * α + 2 * β by ring] at this
-      nlinarith [Real.sin_sq_add_cos_sq (α + β)]
+      linarith only [Real.sin_sq_add_cos_sq (α + β), this]
     rw [h1, h2, show 2 * α = π * y by dsimp [α]; ring, show 2 * β = π * ε by dsimp [β]; ring]
     rw [Real.cos_sub, Real.cos_add, hcos_y0]
     ring
@@ -403,8 +402,7 @@ private lemma norm_tanh_pair_eq_one (x y ε : ℝ) (hy : |y| = 1 / 2) (hε : |ε
     change ((S + u) / (C - u)) * ((S + v) / (C - v)) = 1
     rw [div_mul_div_comm, div_eq_one_iff_eq (mul_pos hden1 hden2).ne']
     exact hnum_eq
-  nlinarith [norm_nonneg (Complex.tanh ((π : ℂ) * ((x : ℂ) + ((y - ε : ℝ) : ℂ) * Complex.I) / 2) *
-    Complex.tanh ((π : ℂ) * ((x : ℂ) + ((y + ε : ℝ) : ℂ) * Complex.I) / 2))]
+  exact (pow_eq_one_iff_of_nonneg (norm_nonneg _) two_ne_zero).mp hsq
 
 /-- **K1(a), conjugate pair**: for real $\chi$ and $|\varepsilon| \le 1/4$ (in particular $0 \le \varepsilon \le 1/8$),
 $|T_{\chi+i\varepsilon}(b) T_{\chi-i\varepsilon}(b)| \le 1$ on $|\operatorname{Im} b| \le 1/2$,
@@ -425,16 +423,16 @@ theorem norm_pair_blaschkeT_le_one (χ ε : ℝ) (hε : |ε| ≤ 1 / 4) {b : ℂ
           Complex.tanh ((π : ℂ) * (((b.re + χ : ℝ) : ℂ) + ((b.im + ε : ℝ) : ℂ) * Complex.I) / 2)) := by
     have h1 : b - ((χ : ℂ) + (ε : ℂ) * Complex.I) =
         ((b.re - χ : ℝ) : ℂ) + ((b.im - ε : ℝ) : ℂ) * Complex.I := by
-      apply Complex.ext <;> simp <;> ring
+      apply Complex.ext <;> simp
     have h2 : b - ((χ : ℂ) - (ε : ℂ) * Complex.I) =
         ((b.re - χ : ℝ) : ℂ) + ((b.im + ε : ℝ) : ℂ) * Complex.I := by
-      apply Complex.ext <;> simp <;> ring
+      apply Complex.ext <;> simp
     have h3 : b + ((χ : ℂ) + (ε : ℂ) * Complex.I) =
         ((b.re + χ : ℝ) : ℂ) + ((b.im + ε : ℝ) : ℂ) * Complex.I := by
-      apply Complex.ext <;> simp <;> ring
+      apply Complex.ext <;> simp
     have h4 : b + ((χ : ℂ) - (ε : ℂ) * Complex.I) =
         ((b.re + χ : ℝ) : ℂ) + ((b.im - ε : ℝ) : ℂ) * Complex.I := by
-      apply Complex.ext <;> simp <;> ring
+      apply Complex.ext <;> simp; ring_nf
     rw [h1, h2, h3, h4]
     ring
   rw [hrearrange, norm_mul]
@@ -457,16 +455,16 @@ theorem norm_pair_blaschkeT_eq_one (χ ε : ℝ) (hε : |ε| ≤ 1 / 4) {b : ℂ
           Complex.tanh ((π : ℂ) * (((b.re + χ : ℝ) : ℂ) + ((b.im + ε : ℝ) : ℂ) * Complex.I) / 2)) := by
     have h1 : b - ((χ : ℂ) + (ε : ℂ) * Complex.I) =
         ((b.re - χ : ℝ) : ℂ) + ((b.im - ε : ℝ) : ℂ) * Complex.I := by
-      apply Complex.ext <;> simp <;> ring
+      apply Complex.ext <;> simp
     have h2 : b - ((χ : ℂ) - (ε : ℂ) * Complex.I) =
         ((b.re - χ : ℝ) : ℂ) + ((b.im + ε : ℝ) : ℂ) * Complex.I := by
-      apply Complex.ext <;> simp <;> ring
+      apply Complex.ext <;> simp
     have h3 : b + ((χ : ℂ) + (ε : ℂ) * Complex.I) =
         ((b.re + χ : ℝ) : ℂ) + ((b.im + ε : ℝ) : ℂ) * Complex.I := by
-      apply Complex.ext <;> simp <;> ring
+      apply Complex.ext <;> simp
     have h4 : b + ((χ : ℂ) - (ε : ℂ) * Complex.I) =
         ((b.re + χ : ℝ) : ℂ) + ((b.im - ε : ℝ) : ℂ) * Complex.I := by
-      apply Complex.ext <;> simp <;> ring
+      apply Complex.ext <;> simp; ring_nf
     rw [h1, h2, h3, h4]
     ring
   rw [hrearrange, norm_mul, norm_tanh_pair_eq_one (b.re - χ) b.im ε hb hε,
@@ -990,16 +988,18 @@ private lemma deltaDetune_split (χ ε x : ℝ) (hχ : 0 ≤ χ) (hx : 0 ≤ x) 
   have hS_sq : S ^ 2 ≤ 0.04 := by
     have h1 : |S| ≤ π * ε / 2 := by
       dsimp [S]
-      rw [abs_of_nonneg (Real.sin_nonneg_of_nonneg_of_le_pi (by nlinarith) (by nlinarith))]
-      exact Real.sin_le (by nlinarith)
-    have h2 : |S| ≤ π / 16 := h1.trans (by nlinarith)
-    have h3 : S ^ 2 ≤ (π / 16) ^ 2 := by nlinarith [abs_nonneg S, sq_abs S]
-    nlinarith [Real.pi_lt_d4]
+      rw [abs_of_nonneg (Real.sin_nonneg_of_nonneg_of_le_pi (by positivity)
+        (by nlinarith only [hpi, hε0, hε]))]
+      exact Real.sin_le (by positivity)
+    have h2 : |S| ≤ π / 16 := h1.trans (by nlinarith only [hpi, hε0, hε])
+    have h3 : S ^ 2 ≤ (π / 16) ^ 2 := by
+      rw [← sq_abs S]; exact pow_le_pow_left₀ (abs_nonneg S) h2 2
+    nlinarith only [Real.pi_lt_d4, hpi, h3]
   have hu₁_pos : 0 < 1 - S ^ 2 / Real.cosh z₁ ^ 2 := by
-    have : S ^ 2 / Real.cosh z₁ ^ 2 ≤ S ^ 2 := div_le_self (sq_nonneg _) (by have := Real.one_le_cosh z₁; nlinarith)
+    have : S ^ 2 / Real.cosh z₁ ^ 2 ≤ S ^ 2 := div_le_self (sq_nonneg _) (by nlinarith only [Real.one_le_cosh z₁])
     linarith
   have hu₂_pos : 0 < 1 - S ^ 2 / Real.cosh z₂ ^ 2 := by
-    have : S ^ 2 / Real.cosh z₂ ^ 2 ≤ S ^ 2 := div_le_self (sq_nonneg _) (by have := Real.one_le_cosh z₂; nlinarith)
+    have : S ^ 2 / Real.cosh z₂ ^ 2 ≤ S ^ 2 := div_le_self (sq_nonneg _) (by nlinarith only [Real.one_le_cosh z₂])
     linarith
   have hv₁_pos : 0 < 1 + S ^ 2 / Real.sinh z₁ ^ 2 := by positivity
   have hv₂_pos : 0 < 1 + S ^ 2 / Real.sinh z₂ ^ 2 := by positivity
@@ -1041,16 +1041,16 @@ theorem deltaDetune_bounds_universal {χ ε x : ℝ} (hχ : 0 ≤ χ) (hx : 0 �
   set z₂ := π * (x + χ) / 2
   set S := Real.sin (π * ε / 2)
   have hS_bd : S ^ 2 ≤ (π * ε / 2) ^ 2 := by
-    have h0 : 0 ≤ S := Real.sin_nonneg_of_nonneg_of_le_pi (by nlinarith) (by nlinarith)
-    have h1 : S ≤ π * ε / 2 := Real.sin_le (by nlinarith)
-    nlinarith
+    have h0 : 0 ≤ S := Real.sin_nonneg_of_nonneg_of_le_pi (by positivity) (by nlinarith only [hpi, hε0, hε])
+    have h1 : S ≤ π * ε / 2 := Real.sin_le (by positivity)
+    exact pow_le_pow_left₀ h0 h1 2
   have hS_04 : S ^ 2 ≤ 0.04 := by
     have hpi4 : π ≤ 3.15 := by linarith [Real.pi_lt_d4]
     have : (π * ε / 2) ^ 2 ≤ (3.15 / 16) ^ 2 := by
       have hpe : 0 ≤ π * ε / 2 := by positivity
-      have hpe_le : π * ε / 2 ≤ 3.15 / 16 := by nlinarith
-      nlinarith
-    nlinarith
+      have hpe_le : π * ε / 2 ≤ 3.15 / 16 := by nlinarith only [hpi, hε, hpi4]
+      exact pow_le_pow_left₀ hpe hpe_le 2
+    linarith only [hS_bd, this]
   have hd_pos : 0 < (x - χ) ^ 2 := sq_pos_of_ne_zero (sub_ne_zero.mpr hd)
   have hz₁_sq : (π * (x - χ) / 2) ^ 2 ≤ Real.sinh z₁ ^ 2 := by
     have := abs_le_sinh_abs z₁
@@ -1104,12 +1104,12 @@ theorem deltaDetune_bounds_universal {χ ε x : ℝ} (hχ : 0 ≤ χ) (hx : 0 �
   have hc2_pos : 0 < Real.cosh z₂ ^ 2 := pow_pos (Real.cosh_pos _) 2
   have m1 : -Real.log (1 - S ^ 2 / Real.cosh z₁ ^ 2) ≤ 1.05 * (ε ^ 2 / (x - χ) ^ 2) := by
     refine (neg_log_one_sub_le (by positivity) ?_).trans ?_
-    · exact (div_le_self (sq_nonneg _) (by have := Real.one_le_cosh z₁; nlinarith)).trans hS_04
+    · exact (div_le_self (sq_nonneg _) (by nlinarith only [Real.one_le_cosh z₁])).trans hS_04
     · exact mul_le_mul_of_nonneg_left
         ((div_le_div_of_nonneg_left (sq_nonneg S) hpi2_pos hch₁_sq).trans hratio) (by norm_num)
   have m2 : -Real.log (1 - S ^ 2 / Real.cosh z₂ ^ 2) ≤ 1.05 * (ε ^ 2 / (x - χ) ^ 2) := by
     refine (neg_log_one_sub_le (by positivity) ?_).trans ?_
-    · exact (div_le_self (sq_nonneg _) (by have := Real.one_le_cosh z₂; nlinarith)).trans hS_04
+    · exact (div_le_self (sq_nonneg _) (by nlinarith only [Real.one_le_cosh z₂])).trans hS_04
     · exact mul_le_mul_of_nonneg_left
         ((div_le_div_of_nonneg_left (sq_nonneg S) hpi2_pos hch₂_sq).trans hratio) (by norm_num)
   linarith [show (4.1 : ℝ) * (ε ^ 2 / (x - χ) ^ 2) ≤ 5 * ε ^ 2 / (x - χ) ^ 2 by
@@ -1140,7 +1140,7 @@ theorem deltaDetune_le_of_xiStar_le :
       rw [hid, hid]; linarith
     have hsq : c_sh ≤ (Real.sinh z / Real.exp z) ^ 2 := by
       have h0 : 0 ≤ Real.sinh (π * xiStar / 2) / Real.exp (π * xiStar / 2) := by positivity
-      nlinarith
+      exact pow_le_pow_left₀ h0 hquot 2
     rw [div_pow, le_div_iff₀ (pow_pos (Real.exp_pos _) 2)] at hsq
     rwa [← Real.exp_nat_mul, show (2 : ℕ) * z = 2 * z by ring] at hsq
   set C := (π ^ 2 / 4) * (1 / c_sh + 1.05 * 8)
@@ -1151,14 +1151,14 @@ theorem deltaDetune_le_of_xiStar_le :
   set z₂ := π * (x + χ) / 2
   set S := Real.sin (π * ε / 2)
   have hS_bd : S ^ 2 ≤ (π * ε / 2) ^ 2 := by
-    have h0 : 0 ≤ S := Real.sin_nonneg_of_nonneg_of_le_pi (by nlinarith) (by nlinarith)
-    have h1 : S ≤ π * ε / 2 := Real.sin_le (by nlinarith)
-    nlinarith
+    have h0 : 0 ≤ S := Real.sin_nonneg_of_nonneg_of_le_pi (by positivity) (by nlinarith only [hpi, hε0, hε])
+    have h1 : S ≤ π * ε / 2 := Real.sin_le (by positivity)
+    exact pow_le_pow_left₀ h0 h1 2
   have hS_04 : S ^ 2 ≤ 0.04 := by
     have hpi4 : π ≤ 3.15 := by linarith [Real.pi_lt_d4]
     have hpe : 0 ≤ π * ε / 2 := by positivity
-    have hpe_le : π * ε / 2 ≤ 3.15 / 16 := by nlinarith
-    nlinarith
+    have hpe_le : π * ε / 2 ≤ 3.15 / 16 := by nlinarith only [hpi, hε, hpi4]
+    nlinarith only [hS_bd, hpe, hpe_le]
   have hd_pos : 0 < (x - χ) ^ 2 := sq_pos_of_ne_zero (sub_ne_zero.mpr hd)
   have hz₁_sq : (π * (x - χ) / 2) ^ 2 ≤ Real.sinh z₁ ^ 2 := by
     have := abs_le_sinh_abs z₁
@@ -1176,7 +1176,7 @@ theorem deltaDetune_le_of_xiStar_le :
     dsimp [z₁]; rw [abs_div, abs_mul, abs_of_pos hpi, abs_two]; ring_nf; rfl
   have h_abs_le2 : π * |x - χ| ≤ 2 * z₂ := by
     have h1 : |x - χ| ≤ x + χ := by rw [abs_le]; constructor <;> linarith
-    dsimp [z₂]; nlinarith
+    dsimp [z₂]; nlinarith only [hpi, h1]
   have hch_exp : ∀ z : ℝ, Real.exp (2 * |z|) / 4 ≤ Real.cosh z ^ 2 := by
     intro z
     have h1 : Real.exp |z| / 2 ≤ Real.cosh z := by
@@ -1186,7 +1186,7 @@ theorem deltaDetune_le_of_xiStar_le :
         · rw [abs_of_neg h, Real.cosh_neg]
       rw [← hc, Real.cosh_eq]
       linarith [Real.exp_pos (-|z|)]
-    have h2 : (Real.exp |z| / 2) ^ 2 ≤ Real.cosh z ^ 2 := by nlinarith [Real.exp_pos |z|]
+    have h2 : (Real.exp |z| / 2) ^ 2 ≤ Real.cosh z ^ 2 := pow_le_pow_left₀ (by positivity) h1 2
     rwa [div_pow, ← Real.exp_nat_mul, show (2 : ℕ) * |z| = 2 * |z| by ring,
       show (2 : ℝ) ^ 2 = 4 by norm_num] at h2
   have hexp_d1 : Real.exp (-2 * |z₁|) ≤ Real.exp (-π * |x - χ|) :=
@@ -1195,7 +1195,7 @@ theorem deltaDetune_le_of_xiStar_le :
     Real.exp_le_exp.mpr (by linarith)
   have l2 : Real.log (1 + S ^ 2 / Real.sinh z₂ ^ 2) ≤
       ((π ^ 2 / 4) / c_sh) * ε ^ 2 * Real.exp (-π * |x - χ|) := by
-    have hz₂_lb : π * xiStar / 2 ≤ z₂ := by dsimp [z₂]; nlinarith
+    have hz₂_lb : π * xiStar / 2 ≤ z₂ := by dsimp [z₂]; nlinarith only [hpi, hχ, hx]
     have hsh₂_lb : c_sh * Real.exp (2 * z₂) ≤ Real.sinh z₂ ^ 2 := hsh_exp z₂ hz₂_lb
     refine ((Real.log_le_sub_one_of_pos (by positivity)).trans_eq (add_sub_cancel_left 1 _)).trans ?_
     calc S ^ 2 / Real.sinh z₂ ^ 2
@@ -1211,7 +1211,7 @@ theorem deltaDetune_le_of_xiStar_le :
         (1.05 * 4 * (π ^ 2 / 4)) * ε ^ 2 * Real.exp (-π * |x - χ|) := by
     intro z hz
     refine (neg_log_one_sub_le (by positivity) ?_).trans ?_
-    · exact (div_le_self (sq_nonneg _) (by have := Real.one_le_cosh z; nlinarith)).trans hS_04
+    · exact (div_le_self (sq_nonneg _) (by nlinarith only [Real.one_le_cosh z])).trans hS_04
     · calc 1.05 * (S ^ 2 / Real.cosh z ^ 2)
           ≤ 1.05 * ((π * ε / 2) ^ 2 / (Real.exp (2 * |z|) / 4)) := by gcongr; exact hch_exp z
         _ = (1.05 * 4 * (π ^ 2 / 4)) * ε ^ 2 * Real.exp (-2 * |z|) := by
@@ -1257,7 +1257,7 @@ theorem deltaDetune_le_of_dist_ge {d₀ : ℝ} (hd₀ : 0 < d₀) :
       linarith
     have hsq : c_sh ≤ (Real.sinh |z| / Real.exp |z|) ^ 2 := by
       have : 0 ≤ Real.sinh (π * d₀ / 2) / Real.exp (π * d₀ / 2) := by positivity
-      nlinarith
+      exact pow_le_pow_left₀ this hquot 2
     rw [div_pow, le_div_iff₀ (pow_pos (Real.exp_pos _) 2)] at hsq
     rwa [← Real.exp_nat_mul, show (2 : ℕ) * |z| = 2 * |z| by ring] at hsq
   set C := (π ^ 2 / 4) * (2 / c_sh + 1.05 * 8)
@@ -1268,22 +1268,22 @@ theorem deltaDetune_le_of_dist_ge {d₀ : ℝ} (hd₀ : 0 < d₀) :
   set z₂ := π * (x + χ) / 2
   set S := Real.sin (π * ε / 2)
   have hS_bd : S ^ 2 ≤ (π * ε / 2) ^ 2 := by
-    have h0 : 0 ≤ S := Real.sin_nonneg_of_nonneg_of_le_pi (by nlinarith) (by nlinarith)
-    have h1 : S ≤ π * ε / 2 := Real.sin_le (by nlinarith)
-    nlinarith
+    have h0 : 0 ≤ S := Real.sin_nonneg_of_nonneg_of_le_pi (by positivity) (by nlinarith only [hpi, hε0, hε])
+    have h1 : S ≤ π * ε / 2 := Real.sin_le (by positivity)
+    exact pow_le_pow_left₀ h0 h1 2
   have hS_04 : S ^ 2 ≤ 0.04 := by
     have hpi4 : π ≤ 3.15 := by linarith [Real.pi_lt_d4]
     have hpe : 0 ≤ π * ε / 2 := by positivity
-    have hpe_le : π * ε / 2 ≤ 3.15 / 16 := by nlinarith
-    nlinarith
+    have hpe_le : π * ε / 2 ≤ 3.15 / 16 := by nlinarith only [hpi, hε, hpi4]
+    nlinarith only [hS_bd, hpe, hpe_le]
   have h_abs_le1 : π * |x - χ| ≤ 2 * |z₁| := by
     dsimp [z₁]; rw [abs_div, abs_mul, abs_of_pos hpi, abs_two]; ring_nf; rfl
   have h_abs_le2 : π * |x - χ| ≤ 2 * |z₂| := by
     have h1 : |x - χ| ≤ x + χ := by rw [abs_le]; constructor <;> linarith
     have hz₂_nn : 0 ≤ z₂ := by dsimp [z₂]; positivity
-    rw [abs_of_nonneg hz₂_nn]; dsimp [z₂]; nlinarith
-  have hz₁_d0 : π * d₀ / 2 ≤ |z₁| := by nlinarith
-  have hz₂_d0 : π * d₀ / 2 ≤ |z₂| := by nlinarith
+    rw [abs_of_nonneg hz₂_nn]; dsimp [z₂]; nlinarith only [hpi, h1]
+  have hz₁_d0 : π * d₀ / 2 ≤ |z₁| := by nlinarith only [hpi, hd_ge, h_abs_le1]
+  have hz₂_d0 : π * d₀ / 2 ≤ |z₂| := by nlinarith only [hpi, hd_ge, h_abs_le2]
   have hsh_bound : ∀ z : ℝ, π * d₀ / 2 ≤ |z| → π * |x - χ| ≤ 2 * |z| →
       Real.log (1 + S ^ 2 / Real.sinh z ^ 2) ≤ ((π ^ 2 / 4) / c_sh) * ε ^ 2 * Real.exp (-π * |x - χ|) := by
     intro z hzd hzx
@@ -1303,7 +1303,7 @@ theorem deltaDetune_le_of_dist_ge {d₀ : ℝ} (hd₀ : 0 < d₀) :
         · rw [abs_of_nonneg h]
         · rw [abs_of_neg h, Real.cosh_neg]
       rw [← hc, Real.cosh_eq]; linarith [Real.exp_pos (-|z|)]
-    have h2 : (Real.exp |z| / 2) ^ 2 ≤ Real.cosh z ^ 2 := by nlinarith [Real.exp_pos |z|]
+    have h2 : (Real.exp |z| / 2) ^ 2 ≤ Real.cosh z ^ 2 := pow_le_pow_left₀ (by positivity) h1 2
     rwa [div_pow, ← Real.exp_nat_mul, show (2 : ℕ) * |z| = 2 * |z| by ring,
       show (2 : ℝ) ^ 2 = 4 by norm_num] at h2
   have hch_bound : ∀ z : ℝ, π * |x - χ| ≤ 2 * |z| →
@@ -1311,7 +1311,7 @@ theorem deltaDetune_le_of_dist_ge {d₀ : ℝ} (hd₀ : 0 < d₀) :
         (1.05 * 4 * (π ^ 2 / 4)) * ε ^ 2 * Real.exp (-π * |x - χ|) := by
     intro z hzx
     refine (neg_log_one_sub_le (by positivity) ?_).trans ?_
-    · exact (div_le_self (sq_nonneg _) (by have := Real.one_le_cosh z; nlinarith)).trans hS_04
+    · exact (div_le_self (sq_nonneg _) (by nlinarith only [Real.one_le_cosh z])).trans hS_04
     · calc 1.05 * (S ^ 2 / Real.cosh z ^ 2)
           ≤ 1.05 * ((π * ε / 2) ^ 2 / (Real.exp (2 * |z|) / 4)) := by gcongr; exact hch_exp z
         _ = (1.05 * 4 * (π ^ 2 / 4)) * ε ^ 2 * Real.exp (-2 * |z|) := by
@@ -1732,7 +1732,7 @@ theorem realLogT_deriv_bounds {x y : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) (hxy : y
     refine ⟨hle0, ?_, ?_⟩
     · intro hy0
       have hsinh_lt : Real.sinh (π * (x - y)) < Real.sinh (π * (x + y)) :=
-        Real.sinh_lt_sinh.mpr (by nlinarith)
+        Real.sinh_lt_sinh.mpr (by nlinarith only [hpi, hy0])
       have hcomb_lt : combHDeriv (x + y) < combHDeriv (x - y) := by
         unfold combHDeriv
         exact div_lt_div_of_pos_left hpi (Real.sinh_pos_iff.mpr (by positivity)) hsinh_lt
@@ -2004,7 +2004,7 @@ private lemma integral_exp_neg_pi_abs_le (u : ℝ) :
     have h1_val : ∫ t in Ioc 0 (-u), Real.exp (-π * |u + t|) = (1 - Real.exp (π * u)) / π := by
       rw [h1_eq, intervalIntegral.integral_const_mul, h_ftc]
       rw [show Real.exp (π * u) * ((Real.exp (π * (-u)) - 1) / π) =
-        (Real.exp (π * u) * Real.exp (-(π * u)) - Real.exp (π * u)) / π by ring]
+        (Real.exp (π * u) * Real.exp (-(π * u)) - Real.exp (π * u)) / π by ring_nf]
       rw [← Real.exp_add, add_neg_cancel, Real.exp_zero]
     have h2_eq : ∫ t in Ioi (-u), Real.exp (-π * |u + t|) =
         Real.exp (-π * u) * ∫ t in Ioi (-u), Real.exp (-π * t) := by
@@ -2549,7 +2549,7 @@ theorem cexp_phiZeta {ζ b : ℂ} (hb : b ∈ combN) (hζ : ζ ∈ combZ) :
       have hb' := abs_le.mp (show |b.im - 1 / 2| ≤ 1 / 4 from hb)
       have hζ' := abs_le.mp hζ.2
       have hbm : |b.im - ζ.im| ≤ 7 / 8 := by rw [abs_le]; constructor <;> linarith
-      nlinarith
+      nlinarith only [hpi, hbm]
     have him2 : |((π : ℂ) * (b + (ζ + (t : ℂ))) / 2).im| < π / 2 := by
       have : ((π : ℂ) * (b + (ζ + (t : ℂ))) / 2).im = π * (b.im + ζ.im) / 2 := by
         simp [div_eq_mul_inv, Complex.mul_im]
@@ -2557,7 +2557,7 @@ theorem cexp_phiZeta {ζ b : ℂ} (hb : b ∈ combN) (hζ : ζ ∈ combZ) :
       have hb' := abs_le.mp (show |b.im - 1 / 2| ≤ 1 / 4 from hb)
       have hζ' := abs_le.mp hζ.2
       have hbm : |b.im + ζ.im| ≤ 7 / 8 := by rw [abs_le]; constructor <;> linarith
-      nlinarith
+      nlinarith only [hpi, hbm]
     exact mul_ne_zero (mul_ne_zero two_ne_zero (complex_cosh_ne_zero_of_abs_im_lt_pi_div_two him1))
       (complex_cosh_ne_zero_of_abs_im_lt_pi_div_two him2)
   have hnum_ne : ∀ t : ℝ, 0 ≤ t →
@@ -2571,7 +2571,7 @@ theorem cexp_phiZeta {ζ b : ℂ} (hb : b ∈ combN) (hζ : ζ ∈ combZ) :
       rw [this]
       have hb' := abs_le.mp (show |b.im - 1 / 2| ≤ 1 / 4 from hb)
       have hζ' := abs_le.mp hζ.2
-      constructor <;> nlinarith
+      constructor <;> nlinarith only [hpi, hb'.1, hb'.2, hζ'.1, hζ'.2]
     have him2 : 0 < ((π : ℂ) * (b + (ζ + (t : ℂ))) / 2).im ∧
         ((π : ℂ) * (b + (ζ + (t : ℂ))) / 2).im < π := by
       have : ((π : ℂ) * (b + (ζ + (t : ℂ))) / 2).im = π * (b.im + ζ.im) / 2 := by
@@ -2579,7 +2579,7 @@ theorem cexp_phiZeta {ζ b : ℂ} (hb : b ∈ combN) (hζ : ζ ∈ combZ) :
       rw [this]
       have hb' := abs_le.mp (show |b.im - 1 / 2| ≤ 1 / 4 from hb)
       have hζ' := abs_le.mp hζ.2
-      constructor <;> nlinarith
+      constructor <;> nlinarith only [hpi, hb'.1, hb'.2, hζ'.1, hζ'.2]
     have hsh_ne : ∀ z : ℂ, 0 < z.im → z.im < π → Complex.sinh z ≠ 0 := by
       intro z hz1 hz2 h0
       have hns : Complex.normSq (Complex.sinh z) = 0 := by rw [h0, map_zero]
@@ -2774,7 +2774,7 @@ theorem cexp_phiZeta {ζ b : ℂ} (hb : b ∈ combN) (hζ : ζ ∈ combZ) :
       hQ_lim.congr' (by filter_upwards [eventually_ge_atTop (0 : ℝ)] with t ht; exact hQ_const t ht)
     exact tendsto_nhds_unique tendsto_const_nhds hQ_lim0
   dsimp [Q] at hQ0
-  simp only [Complex.ofReal_zero, add_zero] at hQ0
+  simp only [add_zero] at hQ0
   have hne0 : -blaschkeT ζ b ≠ 0 := by
     have := hnegT_eq 0 le_rfl
     simp only [Complex.ofReal_zero, add_zero] at this

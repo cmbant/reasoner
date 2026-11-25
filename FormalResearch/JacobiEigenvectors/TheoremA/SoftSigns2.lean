@@ -203,12 +203,12 @@ theorem soft_row_data {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) 
           (CL.chain p X N).phi (Fz.step N) 0 3 j + Real.sin (Real.pi * a) * (CL.chain p X N).phi (Fz.step N) 1 3 j := by
         rw [hr1, hr2]
         linear_combination (-((CL.chain p X N).phi (Fz.step N) 0 2 j * Real.cos (Real.pi * a) ^ 2)) * hrr - (CL.chain p X N).phi (Fz.step N) 0 2 j * hsc
-      have e1 : ccOf a = Real.sqrt (2 / Real.pi) * Real.cos (Real.pi * a) := by unfold ccOf; rw [if_pos ha]
-      have e2 : scOf a = Real.sin (Real.pi * a) := by unfold scOf; rw [if_pos ha]
+      have e1 : ccOf a = Real.sqrt (2 / Real.pi) * Real.cos (Real.pi * a) := by unfold ccOf; rw [ite_eq_left ha]
+      have e2 : scOf a = Real.sin (Real.pi * a) := by unfold scOf; rw [ite_eq_left ha]
       rw [e1, e2, key, hμdef]; ring
     · obtain ⟨hr1, hr2⟩ := hrel2.2 (not_le.mp ha)
-      have e1 : ccOf a = 1 := by unfold ccOf; rw [if_neg ha]
-      have e2 : scOf a = 0 := by unfold scOf; rw [if_neg ha]
+      have e1 : ccOf a = 1 := by unfold ccOf; rw [ite_eq_right ha]
+      have e2 : scOf a = 0 := by unfold scOf; rw [ite_eq_right ha]
       rw [e1, e2, hr1, hμdef]; ring
 
 /-! ### The exact right solution is positive and decaying on the right forbidden side -/
@@ -593,7 +593,7 @@ theorem soft_sign_D (hM : SoftMirror CL CR) {cPC CPC : ℝ} (hf : ParabolicCylin
   have sone : Fz.step N ≤ 1 := hstep.trans (min_le_right _ _)
   have hset : {X : ℝ | |X - Fz.bandHi p| ≤ CL.δ0} = Set.Icc (Fz.bandHi p - CL.δ0) (Fz.bandHi p + CL.δ0) := by
     ext X
-    simp only [Set.mem_setOf_eq, Set.mem_Icc, abs_le]
+    simp only [Set.mem_ofPred_eq, Set.mem_Icc, abs_le]
     constructor <;> intro h <;> constructor <;> linarith [h.1, h.2]
   have hcont : ContinuousOn (fun X => CL.lamL p X N) (Set.Icc (Fz.bandHi p - CL.δ0) (Fz.bandHi p + CL.δ0)) := by
     rw [← hset]; exact CL.lamL_continuousOn p hp N hN1

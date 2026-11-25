@@ -91,8 +91,8 @@ theorem mellin_hankel_liftFun_pair (h : MellinLiftData c Φ) (hc : 3 / 2 < c) {�
     exact Real.pi_ne_zero.symm
   rw [hinv, hinv] at W
   have hz : (((2 * π : ℝ) : ℂ)) ≠ 0 := by exact_mod_cast hr.ne'
-  have hX : ((2 * π : ℝ) : ℂ) ^ z ≠ 0 := by rw [Ne, Complex.cpow_eq_zero_iff]; simp [hz]
-  have hY : ((2 * π : ℝ) : ℂ) ^ ((c : ℂ) - z) ≠ 0 := by rw [Ne, Complex.cpow_eq_zero_iff]; simp [hz]
+  have hX : ((2 * π : ℝ) : ℂ) ^ z ≠ 0 := by rw [Ne, Complex.cpow_eq_zero_iff]; simp
+  have hY : ((2 * π : ℝ) : ℂ) ^ ((c : ℂ) - z) ≠ 0 := by rw [Ne, Complex.cpow_eq_zero_iff]; simp
   have hGz : Complex.Gamma z ≠ 0 := Complex.Gamma_ne_zero_of_re_pos hz0
   have hGc : Complex.Gamma ((c : ℂ) - z) ≠ 0 :=
     Complex.Gamma_ne_zero_of_re_pos (by simpa using hzc)
@@ -275,7 +275,7 @@ theorem exists_isHankelEigenfn_of_lift (h : MellinLiftData c Φ) (hc : 3 / 2 < c
     intro Δ hΔ
     rcases hΔ.eq_or_lt with rfl | hpos
     · simp [f]
-    · simp only [f, if_pos hpos, hG Δ hpos]
+    · simp only [f, ite_eq_left hpos, hG Δ hpos]
       linear_combination (-f₀ Δ) * hσσ
   have hfΔ : ∀ Δ : ℝ, 0 < Δ → f Δ = f₀ Δ := fun Δ hΔ => by simp [f, hΔ]
   refine ⟨f, ⟨?_, ?_, ?_⟩, hfΔ, ?_⟩

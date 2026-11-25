@@ -461,7 +461,7 @@ lemma body {η δs γ : ℝ} (hη : 0 < η) (h3 : 3 * η ≤ ρ0 / 2) (h3' : 3 *
       by_contra hn
       have hfarr : η / 4 ≤ |u - uc| := by
         by_contra h'
-        push_neg at h'
+        push Not at h'
         rw [abs_lt] at h'
         exact hn ⟨by linarith [h'.1], by linarith [h'.2]⟩
       linarith [(hfar u hu hfarr).1]

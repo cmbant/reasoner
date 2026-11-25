@@ -109,7 +109,7 @@ lemma wm_virial (hf : ParabolicCylinderFacts U V cPC CPC) (a κ α β : ℝ) :
 
 lemma wm_kappa_pos {a : ℝ} (ha : a ≤ 0) : 0 < kappaBal a := by
   unfold kappaBal
-  rw [if_pos ha]
+  rw [ite_eq_left ha]
   apply Real.rpow_pos_of_pos
   apply Real.Gamma_pos_of_pos
   linarith
@@ -208,7 +208,7 @@ lemma wm_env_pointwise (hf : ParabolicCylinderFacts U V cPC CPC) (a z : ℝ) (ha
     have hn : ¬ (2 * Real.sqrt |a| < z) := by
       rw [abs_of_nonpos ha, not_lt]
       linarith
-    rw [if_neg hn]
+    rw [ite_eq_right hn]
   obtain ⟨envU, envV⟩ := hf.env_well a ha z hz0
   rw [hEw] at envU envV
   have hPe : (kappaBal a * U a z) ^ 2 + (kappaBal a * deriv (U a) z) ^ 2 / k2 a z ≤
@@ -250,7 +250,7 @@ lemma wm_cbrt_le (A : ℝ) (hA : 27 ≤ A) : A ^ ((1 : ℝ) / 3) ≤ 15 * A / 64
     norm_num
   have ht3' : 3 ≤ t := by
     by_contra h
-    push_neg at h
+    push Not at h
     nlinarith [mul_nonneg ht0 ht0, mul_nonneg (mul_nonneg ht0 ht0) (sub_nonneg.2 h.le)]
   rw [← ht3]
   have h15 : 0 ≤ 15 * t ^ 2 - 64 := by nlinarith
@@ -423,18 +423,18 @@ lemma wmK2_pos (a : ℝ) : 0 < wmK2 a := by
 
 lemma wm_kappa_eq1 {a : ℝ} (ha : a ≤ 0) : kappaBal a = wmK1 a := by
   unfold kappaBal wmK1
-  rw [if_pos ha, abs_of_nonpos ha]
+  rw [ite_eq_left ha, abs_of_nonpos ha]
   congr 2
 
 lemma wm_kappa_eq2 {a : ℝ} (ha : 0 < a) : kappaBal a = wmK2 a := by
   unfold kappaBal wmK2
-  rw [if_neg (not_le.mpr ha), abs_of_pos ha]
+  rw [ite_eq_right (not_le.mpr ha), abs_of_pos ha]
 
 /-- the window integrand `(kappa U(a, c + t))^2` is not a.e. zero on `(0, l)`: `U(a,.)` and `U'(a,.)` cannot vanish at a common point (Wronskian). -/
 lemma wm_not_zero (hf : ParabolicCylinderFacts U V cPC CPC) (a c l : ℝ) (hl : 0 < l) :
     ∃ t ∈ Set.Ioo (0 : ℝ) l, U a (c + t) ≠ 0 := by
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have h0 : U a (c + l / 2) = 0 := hcon (l / 2) ⟨by linarith, by linarith⟩
   have hder : deriv (U a) (c + l / 2) = 0 := by
     have hm : Set.Ioo c (c + l) ∈ nhds (c + l / 2) := Ioo_mem_nhds (by linarith) (by linarith)
@@ -645,7 +645,7 @@ lemma wm_cross {Z : ℤ → ℝ} {na nb : ℤ} (hab : na ≤ nb) (t : ℝ) (h1 :
   simp only [Finset.mem_filter, Finset.mem_Ico] at hkmem
   refine ⟨k, hkmem.1.1, hkmem.1.2, hkmem.2, ?_⟩
   by_contra hc
-  push_neg at hc
+  push Not at hc
   by_cases hk1 : k + 1 < nb
   · have hmem : k + 1 ∈ (Finset.Ico na nb).filter (fun n => Z n ≤ t) := by
       simp only [Finset.mem_filter, Finset.mem_Ico]

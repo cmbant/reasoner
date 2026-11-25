@@ -455,7 +455,7 @@ theorem muFour_eq_closed :
           ((4 : ℝ) - 1 / 2) * Real.log ((4 : ℝ) - 1 / 2) - 2 * (4 : ℝ)) =
         Real.log (∏ i ∈ Finset.Icc (-3 : ℤ) 4, ((i : ℝ) ^ 2 + 1 / 16)) + 16 -
           (9 * Real.log (9 / 2) + 7 * Real.log (7 / 2)) := by
-      ring
+      ring_nf
     rw [hrew, Real.exp_sub, Real.exp_add, Real.exp_log hp1, Real.exp_add,
       show (9 : ℝ) * Real.log (9 / 2) = Real.log ((9 / 2 : ℝ) ^ (9 : ℕ)) by
         rw [Real.log_pow]; norm_num,

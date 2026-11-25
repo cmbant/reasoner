@@ -89,7 +89,7 @@ lemma differentiableAt_langerU {ζ : ℂ} (hζ0 : ζ ≠ 0) (hζ : ‖ζ‖ < 1)
     DifferentiableAt.comp ζ (Complex.differentiableAt_tan.2 hcos) hd
   refine h1.div (by fun_prop) ?_
   have := pi_ne_zero_c
-  simpa [hζ0] using this
+  simp [hζ0]
 
 /-- `tan(πζ/2)/(πζ/2) = exp(g(ζ))` on the half disc (identity theorem). -/
 theorem langerU_eq_exp_gSer {ζ : ℂ} (hζ : ζ ∈ halfDisc) :
@@ -122,7 +122,7 @@ theorem stripG_eq_gSer {ζ : ℂ} (hζ : ‖ζ‖ ≤ 0.35) (hre : 0 < ζ.re) : 
   have hmem : ζ ∈ halfDisc := ⟨lt_of_le_of_lt hζ (by norm_num), hre⟩
   have hne := halfDisc_ne_zero hmem
   unfold stripG
-  rw [if_neg hne]
+  rw [ite_eq_right hne]
   have : Complex.tan (π * ζ / 2) / (π * ζ / 2) = Complex.exp (gSer etaC ζ) := langerU_eq_exp_gSer hmem
   rw [this]
   have hP := norm_gSer_le hζ

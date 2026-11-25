@@ -72,7 +72,7 @@ theorem integral_exp_eq_integral_primitive {c : ℝ} (hc : 1 / 2 < c) {X : ℝ} 
       (ν := volume.restrict (Ioi (0 : ℝ))) hR hE
     refine hg.mono' ?_ ?_
     · have : Measurable (Function.uncurry F) := by
-        simp only [hF, hankelExpWeight, hankelRho0, Function.uncurry]
+        simp only [hF, hankelExpWeight, hankelRho0]
         have := (hankelPhi_continuous c).measurable
         fun_prop
       exact this.aestronglyMeasurable

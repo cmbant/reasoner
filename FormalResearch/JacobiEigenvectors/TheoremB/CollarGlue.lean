@@ -76,7 +76,7 @@ theorem soft_norm_lb {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V cPC CPC) (
       have := CL.consts_pos.2.1
       linarith
     unfold softNum
-    rw [if_pos hZ, psiHatL_of_gt CL p X N hgt]; ring
+    rw [ite_eq_left hZ, psiHatL_of_gt CL p X N hgt]; ring
   rw [hrew] at h1
   have hl2 : (|CL.lamL p X N| / kappaBal (CL.aOf p X N)) ^ 2 = CL.lamL p X N ^ 2 * (kappaBal (CL.aOf p X N))⁻¹ ^ 2 := by
     rw [div_pow, sq_abs]; field_simp

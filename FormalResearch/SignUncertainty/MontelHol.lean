@@ -93,7 +93,7 @@ theorem montel_rightHalfPlane (g : ℕ → ℂ → ℂ)
       hMN j _ ((le_max_right _ _).trans (hNge j n)) z (hK hz)⟩
   have hcomp := fun j : ℕ => FormalResearch.Montel.isCompact_closure_range (isOpen_montelO j)
     (F := fun n => g (max n (N j))) (hgj j) (hbj j)
-  haveI : ∀ j : ℕ, LocallyCompactSpace (montelO j) := fun j => (isOpen_montelO j).locallyCompactSpace
+  have : ∀ j : ℕ, LocallyCompactSpace (montelO j) := fun j => (isOpen_montelO j).locallyCompactSpace
   have hS : IsCompact (Set.pi univ fun j : ℕ =>
       closure (Set.range (FormalResearch.Montel.toCont (F := fun n => g (max n (N j))) (hgj j)))) :=
     isCompact_univ_pi hcomp
@@ -121,7 +121,7 @@ theorem montel_rightHalfPlane (g : ℕ → ℂ → ℂ)
     intro j w hw
     have ht := (hE j).tendsto_at hw
     have hl : ∃ l, Tendsto (fun k => g (ψ k) w) atTop (𝓝 l) := ⟨_, ht⟩
-    simp only [G, dif_pos hl]
+    simp only [G, dite_eq_left hl]
     exact tendsto_nhds_unique hl.choose_spec ht
   refine ⟨ψ, G, hψ, ?_⟩
   rw [tendstoLocallyUniformlyOn_iff_forall_isCompact (isOpen_lt continuous_const Complex.continuous_re)]

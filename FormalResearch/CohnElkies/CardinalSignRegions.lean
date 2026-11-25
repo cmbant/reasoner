@@ -349,7 +349,7 @@ theorem cardinalH_untuned_eq_integral {p h : ℝ} (hp : p ∈ Ioo (1 / 2 : ℝ) 
     have hsum_bd : Summable (fun n : ℕ => ∫ s, ‖F n s‖ ∂ν) :=
       (summable_abs_cohnC_mul_cohnL u).of_nonneg_of_le (fun _ => integral_nonneg fun _ => norm_nonneg _) hF_norm_le
     rw [show (fun n : ℕ => ∫⁻ s, ‖F n s‖ₑ ∂ν) = fun n => ENNReal.ofReal (∫ s, ‖F n s‖ ∂ν) from
-      funext fun n => (ofReal_integral_norm_eq_lintegral_enorm (hF_int n)).symm,
+      funext fun n => (MeasureTheory.ofReal_integral_norm_eq_lintegral_eNorm (hF_int n)).symm,
       ← ENNReal.ofReal_tsum_of_nonneg (fun _ => integral_nonneg fun _ => norm_nonneg _) hsum_bd]
     exact ENNReal.ofReal_ne_top
   have h_lhs : (∫ s, ∑' n : ℕ, F n s ∂ν) = ∫ s in Ioi (0 : ℝ), cardinalResolventH s h u * fracMuDensity p s :=
@@ -1012,7 +1012,7 @@ private lemma cardinalXY_far_asymptotic :
     have ht2 : |(Real.sin (cohnTheta x) / (√π * x ^ (1 / 4 : ℝ))) * ((√(x + airyZero 1))⁻¹ - (√x)⁻¹)| ≤ (2.35 * √2 / √π) * x ^ (-(7 / 4 : ℝ)) := by
       have hid : (√(x + airyZero 1))⁻¹ - (√x)⁻¹ = (-airyZero 1) / (√(x + airyZero 1) * √x * (√x + √(x + airyZero 1))) := by
         field_simp [(Real.sqrt_pos.mpr hv_pos).ne', (Real.sqrt_pos.mpr hx0).ne', (by positivity : √x + √(x + airyZero 1) ≠ 0)]
-        nlinarith [Real.sq_sqrt hx0.le, Real.sq_sqrt hv_pos.le]
+        nlinarith only [Real.sq_sqrt hx0.le, Real.sq_sqrt hv_pos.le]
       have hden_ge : √(x / 2) * x ≤ √(x + airyZero 1) * √x * (√x + √(x + airyZero 1)) :=
         (by rw [mul_assoc, Real.mul_self_sqrt hx0.le] : √(x / 2) * x = (√(x / 2) * √x) * √x).trans_le
           (mul_le_mul (mul_le_mul_of_nonneg_right (Real.sqrt_le_sqrt hv_half) (Real.sqrt_nonneg _)) (by linarith [Real.sqrt_nonneg (x + airyZero 1)]) (Real.sqrt_nonneg _) (by positivity))
@@ -1115,7 +1115,7 @@ theorem cardinalResolventH_far_asymptotic :
           rw [show 1 / (8 * x ^ (7 / 4 : ℝ)) = (1 / 8) * x ^ (-(7 / 4 : ℝ)) by rw [Real.rpow_neg hx0.le]; ring,
             show (1 / √2) * x ^ (-(1 / 2 : ℝ)) * ((1 / 8) * x ^ (-(7 / 4 : ℝ))) = (1 / 8) * ((1 / √2) * (x ^ (-(1 / 2 : ℝ)) * x ^ (-(7 / 4 : ℝ)))) by ring,
             rpow_add_eq hx0 (by norm_num : -(1 / 2 : ℝ) + -(7 / 4 : ℝ) = -(9 / 4 : ℝ))]
-          nlinarith [mul_nonneg (by positivity : 0 ≤ 1 / √2) (Real.rpow_nonneg hx0.le (-(9 / 4 : ℝ)))]
+          linarith only [mul_nonneg (by positivity : 0 ≤ 1 / √2) (Real.rpow_nonneg hx0.le (-(9 / 4 : ℝ)))]
       _ ≤ (1 / √2) * x ^ (-(5 / 4 : ℝ)) := mul_le_mul_of_nonneg_left (Real.rpow_le_rpow_of_exponent_le hx1 (by norm_num)) (by positivity)
   have ht5 : |(Real.sin (cohnTheta x) / (√π * x ^ (1 / 4 : ℝ))) * (√(s * h) / (1 + s * h * v) - √(s * h) / (1 + s * h * x))| ≤ (2.35 * √2 / (2 * √π)) * x ^ (-(5 / 4 : ℝ)) := by
     have hid : √(s * h) / (1 + s * h * v) - √(s * h) / (1 + s * h * x) = ((-airyZero 1) / (√v * x)) * (√(s * h * v) / (1 + s * h * v)) * (s * h * x / (1 + s * h * x)) := by
@@ -1292,7 +1292,7 @@ theorem cardinalQ_far_margin_pos {p t₀ : ℝ} (hp : p ∈ Ioo (1 / 2 : ℝ) 1)
     have hlead_norm : |(fracZp p t).re * Real.cos (cohnTheta x) + (fracZp p t).im * Real.sin (cohnTheta x)| ≤ ‖fracZp p t‖ := by
       have hsq : ((fracZp p t).re * Real.cos (cohnTheta x) + (fracZp p t).im * Real.sin (cohnTheta x)) ^ 2 ≤
           ((fracZp p t).re ^ 2 + (fracZp p t).im ^ 2) * (Real.cos (cohnTheta x) ^ 2 + Real.sin (cohnTheta x) ^ 2) := by
-        nlinarith [sq_nonneg ((fracZp p t).re * Real.sin (cohnTheta x) - (fracZp p t).im * Real.cos (cohnTheta x))]
+        nlinarith only [sq_nonneg ((fracZp p t).re * Real.sin (cohnTheta x) - (fracZp p t).im * Real.cos (cohnTheta x))]
       rw [Real.cos_sq_add_sin_sq, mul_one, show (fracZp p t).re ^ 2 + (fracZp p t).im ^ 2 = ‖fracZp p t‖ ^ 2 by rw [← Complex.normSq_eq_norm_sq, Complex.normSq_apply, sq, sq]] at hsq
       exact abs_le.mpr (abs_le_of_sq_le_sq' hsq (norm_nonneg _))
     have hP_bd : π * x ^ (3 / 2 : ℝ) * cardinalP p h 1 (-x) ≤ S + 4 * √π * C * x ^ (-(1 / 2 : ℝ)) + 4 * π * C ^ 2 * x⁻¹ := by

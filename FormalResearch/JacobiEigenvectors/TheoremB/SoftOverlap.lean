@@ -433,7 +433,7 @@ theorem soft_window_eig_lower {cPC CPC : ℝ} (hf : ParabolicCylinderFacts U V c
             have := hTpos.le
             positivity
           exact this
-        · simp only [hz, if_false]
+        · simp only [hz, ite_false]
           have h1 := hwc j (hSΩ hj)
           rw [abs_sub_comm]
           calc _ ≤ Cm * (Fz.step N ^ m * 1) * (T * Mbal (CL.aOf p (Xs k) N) (CL.Zof p (Xs k) N j)) := h1
@@ -513,7 +513,7 @@ theorem eigVec_row {N : ℕ} (Um : Matrix (Fin (N + 1)) (Fin (N + 1)) ℝ) (k : 
     eigVec Um k (i : ℤ) = Um i k := by
   unfold eigVec
   have : 0 ≤ (i : ℤ) ∧ (i : ℤ) ≤ (N : ℤ) := ⟨by positivity, by have := i.isLt; omega⟩
-  rw [dif_pos this]
+  rw [dite_eq_left this]
   congr 1
 
 /-- **`overlap_lb` of the left soft half, chart rows**: `||P_k Psi_k|| >= c_0` for `P_k = softPk` over the left half-window (chain rows = global rows, `tau = false`), at the eigenvalue columns of the chart,

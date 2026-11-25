@@ -86,7 +86,7 @@ theorem bondA_mirror (F : SymbolFamily Par) (μ : Par) (N : ℕ) (k : ℤ) :
   unfold SymbolFamily.bondA
   by_cases hk : 0 ≤ k ∧ k < (N : ℤ)
   · have hk' : 0 ≤ (N : ℤ) - 1 - k ∧ (N : ℤ) - 1 - k < (N : ℤ) := by omega
-    rw [if_pos hk, if_pos hk']
+    rw [ite_eq_left hk, ite_eq_left hk']
     congr 1
     show sNode (F.step N) k * (F.L - sNode (F.step N) k) * F.Gh μ (F.step N) (F.L - sNode (F.step N) k)
       = F.entryE μ N ((N : ℤ) - 1 - k)
@@ -94,7 +94,7 @@ theorem bondA_mirror (F : SymbolFamily Par) (μ : Par) (N : ℕ) (k : ℤ) :
     rw [sNode_mirror F.L (F.step N) N k hL, sub_sub_cancel]
     ring
   · have hk' : ¬ (0 ≤ (N : ℤ) - 1 - k ∧ (N : ℤ) - 1 - k < (N : ℤ)) := by omega
-    rw [if_neg hk, if_neg hk']
+    rw [ite_eq_right hk, ite_eq_right hk']
 
 /-- The diagonal of the mirror family: `(X - B^{mirror}_k) = (X - B_{N-k})`. -/
 theorem diagQ_mirror (F : SymbolFamily Par) (μ : Par) (N : ℕ) (X : ℝ) (k : ℤ) :
@@ -128,7 +128,7 @@ theorem seed_zero_eq_zero {F : SymbolFamily Par} {μ : Par} {N : ℕ} {X : ℝ} 
   have hneg : ∀ n : ℤ, n < 0 → F.bondA μ N n = 0 := by
     intro n hn
     unfold SymbolFamily.bondA
-    rw [if_neg (by omega)]
+    rw [ite_eq_right (by omega)]
   -- invariant: `f k = 0` and `a_{k-1} f_{k-1} = 0` (automatic for `k = 0`, as `a_{-1} = 0`)
   have key : ∀ k : ℕ, (k : ℤ) ≤ NR → f k = 0 ∧ F.bondA μ N ((k : ℤ) - 1) * f ((k : ℤ) - 1) = 0 := by
     intro k
@@ -265,7 +265,7 @@ theorem bondA_bound_of_EK [TopologicalSpace Par] (F : SymbolFamily Par) (P : Set
   by_cases hn : 0 ≤ n ∧ n < (N : ℤ)
   · have hbd : F.bondA μ N n = Real.sqrt (F.entryE μ N n) := by
       unfold SymbolFamily.bondA
-      rw [if_pos hn]
+      rw [ite_eq_left hn]
     rw [hbd, abs_of_nonneg (Real.sqrt_nonneg _)]
     apply Real.sqrt_le_sqrt
     unfold SymbolFamily.entryE
@@ -292,7 +292,7 @@ theorem bondA_bound_of_EK [TopologicalSpace Par] (F : SymbolFamily Par) (P : Set
       _ ≤ F.L ^ 2 * CG := mul_le_mul hprod hG (abs_nonneg _) (sq_nonneg _)
   · have hz : F.bondA μ N n = 0 := by
       unfold SymbolFamily.bondA
-      rw [if_neg hn]
+      rw [ite_eq_right hn]
     rw [hz, abs_zero]
     exact Real.sqrt_nonneg _
 
@@ -328,7 +328,7 @@ theorem count_pairs (h Lr c' c : ℝ) (N : ℕ) (hh : 0 < h) (hN : h * ((N : ℝ
       unfold uNode at this
       have h2 : 0 < (n : ℝ) + 1 / 2 := by
         by_contra hc
-        push_neg at hc
+        push Not at hc
         have : ((n : ℝ) + 1 / 2) * h ≤ 0 := mul_nonpos_of_nonpos_of_nonneg hc hh.le
         linarith
       linarith

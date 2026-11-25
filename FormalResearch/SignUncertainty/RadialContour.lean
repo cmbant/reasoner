@@ -20,7 +20,7 @@ lemma gauss_lin_integrable {c d : ℝ} (hc : 0 < c) : Integrable fun v : ℝ => 
   have h := (integrable_exp_neg_mul_sq hc).comp_sub_right (d / (2 * c))
   have := h.const_mul (Real.exp (d ^ 2 / (4 * c)))
   refine this.congr (Eventually.of_forall fun v => ?_)
-  simp only [Function.comp]
+  simp only
   rw [← Real.exp_add]; congr 1; field_simp; ring
 
 lemma gauss_poly_bound {c d : ℝ} (hc : 0 < c) :

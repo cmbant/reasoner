@@ -85,7 +85,7 @@ theorem fourier_radialLift_eq_hankelTransform (hw : 1 ≤ w) (u : ℝ → ℝ) :
   have hnn : 0 ≤ ‖ξ‖ ^ 2 / 2 := by positivity
   have hsq : Real.sqrt (2 * (‖ξ‖ ^ 2 / 2)) = ‖ξ‖ := by
     rw [show 2 * (‖ξ‖ ^ 2 / 2) = ‖ξ‖ ^ 2 by ring]; exact Real.sqrt_sq (norm_nonneg _)
-  simp only [radialLift, hankelTransform, dif_pos hw, hsq]
+  simp only [radialLift, hankelTransform, dite_eq_left hw, hsq]
   rw [← fourier_radialLift_radial hw u ξ]
   have hre := fourier_radialLift_conj hw u ξ
   exact (Complex.conj_eq_iff_re.mp hre).symm

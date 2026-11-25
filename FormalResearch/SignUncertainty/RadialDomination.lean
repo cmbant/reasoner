@@ -30,7 +30,7 @@ lemma lobeU_ge_half_log (τ : ℝ) : (1 / 2 : ℝ) * Real.log (1 + τ ^ 2) ≤ l
     rw [min_eq_left hτ]
     have := Real.log_le_sub_one_of_pos (by positivity : 0 < 1 + τ ^ 2)
     linarith
-  · push_neg at h
+  · push Not at h
     have hτ : 1 ≤ τ ^ 2 := by nlinarith [abs_nonneg τ, sq_abs τ]
     rw [min_eq_right hτ]
     have hlog : 0 < Real.log |τ| := Real.log_pos h
@@ -58,7 +58,7 @@ lemma radialEps_le_tenth {c : ℝ} (hc : 1000 ≤ c) : radialEps c ≤ 1 / 10 :=
   have hc0 : 0 < c := by linarith
   have he0 := radialEps_pos hc0
   have hcube := radialEps_cube hc0
-  by_contra h; push_neg at h
+  by_contra h; push Not at h
   have : (1 / 10 : ℝ) ^ 3 < radialEps c ^ 3 := by gcongr
   nlinarith [pow_pos he0 3]
 

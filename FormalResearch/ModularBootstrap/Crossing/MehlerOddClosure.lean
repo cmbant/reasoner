@@ -374,7 +374,7 @@ private lemma ae_eq_zero_of_forall_exp_integral_eq_zero (w : ℕ) {h : ℝ → �
         refine Measure.restrict_congr_set ?_
         rw [Filter.eventuallyEqSet_iff]
         filter_upwards [ae_nonneg_radialMeasure w] with t ht
-        simp only [Set.mem_Icc, eq_iff_iff]
+        simp only [Set.mem_Icc]
         exact ⟨fun ⟨_, htb⟩ => ⟨ht, htb⟩, fun ⟨_, htb⟩ => ⟨ha.le.trans ht, htb⟩⟩
       rw [heq]
       exact hIcc_nonneg 0 b le_rfl hb

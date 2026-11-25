@@ -65,7 +65,7 @@ theorem mbal_seam (a z k : ℝ) (hk : k ≤ max (-a) 0) (hk0 : 0 ≤ k) (hz : 1 
       unfold k2
       refine le_trans ?_ (le_trans this (le_max_left _ _))
       linarith
-    · push_neg at h1
+    · push Not at h1
       unfold k2
       have h2 : (1 : ℝ) ≤ (max |a| 1) ^ ((1 : ℝ) / 3) := Real.one_le_rpow (le_max_right _ _) (by norm_num)
       refine le_trans ?_ (le_trans h2 (le_max_right _ _))
@@ -182,9 +182,9 @@ theorem row_mem_near {μ : Par × ℝ} (hμ : μ ∈ P) (N : ℕ) {n : ℤ} (hn 
   have hpos : 0 < ((n : ℝ) + 1 / 2) * Fz.step N := by rw [← hu]; linarith
   have hlt : ((n : ℝ) + 1 / 2) * Fz.step N < Fz.step N * ((N : ℝ) + 1) := by rw [hLs, ← hu]; linarith
   have h1' : (0 : ℝ) < (n : ℝ) + 1 / 2 := by
-    by_contra hc; push_neg at hc; nlinarith
+    by_contra hc; push Not at hc; nlinarith
   have h2' : (n : ℝ) + 1 / 2 < (N : ℝ) + 1 := by
-    by_contra hc; push_neg at hc; nlinarith
+    by_contra hc; push Not at hc; nlinarith
   unfold rowsOf
   rw [Finset.mem_Icc]
   constructor
@@ -346,7 +346,7 @@ theorem propThaMflat_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (fu
       exact Zof_le CL hp hX N hle (by linarith) (by linarith)
     · intro hZ
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       have hinc := Zof_incr CL hp hX N hcon.le (by linarith) (by linarith)
       have h1 : (1 : ℝ) ≤ (n : ℝ) - nc := by
         have : nc + 1 ≤ n := hcon
@@ -394,9 +394,9 @@ theorem propThaMflat_proved {cPC CPC : ℝ} (CL : SoftEdgeChart Fz P m q U V (fu
       have h3 := E3 n hn
       unfold softNum
       by_cases hz : CL.Zof p (Xs k) N n ≤ 0
-      · rw [if_pos hz]
+      · rw [ite_eq_left hz]
         linarith only [h3, mul_nonneg (abs_nonneg (softKappa CL CR p (Xs k) N)) (abs_nonneg (softSeqR CR p (Xs k) N n))]
-      · rw [if_neg hz, abs_mul]
+      · rw [ite_eq_right hz, abs_mul]
         linarith only [h3, abs_nonneg (CL.psiHatL p (Xs k) N n)]
     have hvec : softVec CL CR p (Xs k) N n = softNum CL CR p (Xs k) N n / softNorm CL CR p (Xs k) N :=
       softVec_eq CL CR _ _ _ _

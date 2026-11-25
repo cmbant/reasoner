@@ -1149,11 +1149,11 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
       hLftSub (Finset.mem_filter.mpr ⟨hn, hc⟩)
     obtain ⟨hnL0, hnL1⟩ := Finset.mem_Icc.mp hnL
     have hVL : bulkVec CL CR p X N n = CL.psiHatL p X N n / nn := by
-      simp only [bulkVec, glueVec, if_pos hc]
+      simp only [bulkVec, glueVec, ite_eq_left hc]
       exact congrArg (fun t => CL.psiHatL p X N n / t) hbN
     have hEnvL : bulkEnv CL CR p X N n = CL.envL p X N n / nn := by
       unfold bulkEnv
-      rw [if_pos hc, hbN]
+      rw [ite_eq_left hc, hbN]
     have hcomp := left_comp_pure (ψ n) (CL.psiHatL p X N n) a nn (CL.envL p X N n) ε (|CcL| * h ^ m) Kg Ca
       hnnpos ha0 hε0 (mul_nonneg (abs_nonneg _) (pow_nonneg hst.le m)) hεL (LB n hnL0 hnL1).1 hKg0.le hCa0
       hAa' hCaε (hLeft n hnL0 hnL1) (LA n hnL0 hnL1)
@@ -1165,12 +1165,12 @@ theorem bulk_conj1 {Par : Type*} [TopologicalSpace Par] {Fz : SymbolFamily (Par 
       hRgtSub n (Finset.mem_filter.mpr ⟨hn, hc⟩)
     obtain ⟨hnR0, hnR1⟩ := Finset.mem_Icc.mp hnR
     have hVR : bulkVec CL CR p X N n = XΩ / SΩr * CR.psiHatL p X N ((N : ℤ) - n) / nn := by
-      simp only [bulkVec, glueVec, if_neg hc]
+      simp only [bulkVec, glueVec, ite_eq_right hc]
       change bulkKappa CL CR p X N * CR.psiHatL p X N ((N : ℤ) - n) / bulkNorm CL CR p X N = _
       rw [hκeq, hbN]
     have hEnvR : bulkEnv CL CR p X N n = |XΩ / SΩr| * CR.envL p X N ((N : ℤ) - n) / nn := by
       unfold bulkEnv
-      rw [if_neg hc, hbN, hκeq]
+      rw [ite_eq_right hc, hbN, hκeq]
     have hRt : |ψ n - Kt * a * CR.psiHatL p X N ((N : ℤ) - n)|
         ≤ |Kt * a| * (|CcR| * h ^ m * CR.envL p X N ((N : ℤ) - n)) := by
       rw [← hbKt]; exact hRight n hn0 hnN hnR1

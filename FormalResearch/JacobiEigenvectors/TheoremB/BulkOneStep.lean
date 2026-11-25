@@ -185,22 +185,22 @@ theorem bulkJBChart_shifted {Par : Type*} [TopologicalSpace Par] {G : SymbolFami
   · simp only [FormalResearch.JB.Chart.shifted, bulkJBChart, Bool.false_eq_true, ite_false, Matrix.of_apply]
     unfold FormalResearch.JB.YshRev
     by_cases hn : 0 < n.val
-    · rw [dif_pos hn]
+    · rw [dite_eq_left hn]
       simp only [Matrix.of_apply, chartRow, Bool.false_eq_true, ite_false]
       refine key _ _ ?_
       omega
-    · rw [dif_neg hn]
+    · rw [dite_eq_right hn]
       simp only [chartExtRow, chartRow, Bool.false_eq_true, ite_false]
       refine key _ _ ?_
       omega
   · simp only [FormalResearch.JB.Chart.shifted, bulkJBChart, ite_true, Matrix.of_apply]
     unfold FormalResearch.JB.Ysh
     by_cases hn : n.val + 1 < R
-    · rw [dif_pos hn]
+    · rw [dite_eq_left hn]
       simp only [Matrix.of_apply, chartRow, ite_true]
       refine key _ _ ?_
       omega
-    · rw [dif_neg hn]
+    · rw [dite_eq_right hn]
       simp only [chartExtRow, chartRow, ite_true]
       refine key _ _ ?_
       omega
@@ -352,13 +352,13 @@ theorem compMatrix_bulk_entry (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (sp
         (CI.bulkR ν).psiHatL (atStep F μ N) (Xs k) N ((N : ℤ) - ((i : ℕ) : ℤ)) / bulkNorm (CI.bulkL ν) (CI.bulkR ν) (atStep F μ N) (Xs k) N := by
   unfold blockOf at hk
   by_cases hex : ∃ ν', CI.lo ν' ≤ Xs k ∧ Xs k ≤ CI.hi ν'
-  · rw [dif_pos hex] at hk
+  · rw [dite_eq_left hex] at hk
     have hν : blockIdx CI (Xs k) hex = ν := Option.some.inj hk
-    simp only [compMatrix, Matrix.of_apply, compColumn, dif_pos hex]
+    simp only [compMatrix, Matrix.of_apply, compColumn, dite_eq_left hex]
     rw [hν]
     unfold bulkColAt glueVecAt
     split_ifs <;> rfl
-  · rw [dif_neg hex] at hk
+  · rw [dite_eq_right hex] at hk
     exact absurd hk (by simp)
 
 end HostEntries
@@ -389,7 +389,7 @@ theorem bulk_host0_eq_left (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0 
   have hn : ((((0 : ℕ) + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (spl ν) := by
     have := n.isLt
     omega
-  rw [if_pos hn]
+  rw [ite_eq_left hn]
   have hcr : chartRow N 0 R true n = (((0 : ℕ) + n.val : ℕ) : ℤ) := by simp [chartRow]
   rw [hcr]
   ring
@@ -417,7 +417,7 @@ theorem bulk_host0_eq_right (CP : ChartPair (F := F) (K := K) (Kidx := Kidx) (t0
   rw [compMatrix_bulk_entry CP.CI0 spl μ N Xs ν k hk]
   have hn : ¬ ((((lo + n.val : ℕ)) : ℤ) ≤ nearestRow (F.step N) (spl ν)) := by
     omega
-  rw [if_neg hn]
+  rw [ite_eq_right hn]
   have hcr : chartRow N lo R false n = (N : ℤ) - (((lo + n.val : ℕ) : ℤ)) := by simp [chartRow]
   rw [hcr]
   ring

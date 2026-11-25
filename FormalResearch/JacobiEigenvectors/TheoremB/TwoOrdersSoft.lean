@@ -153,7 +153,7 @@ theorem soft_cols_upper (CI : ChartInputs F K Kidx t0 m q U V cPC CPC) (spl : Fi
     intro i
     show compColumn CI spl μ N (Xs j) ((i : ℕ) : ℤ) = _
     unfold compColumn
-    rw [dif_neg hb, if_pos hu]
+    rw [dite_eq_right hb, ite_eq_left hu]
   simp only [e]
   exact hres
 

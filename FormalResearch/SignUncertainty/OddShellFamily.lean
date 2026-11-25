@@ -533,7 +533,7 @@ private lemma analyticOrderAt_finsetProd_sub {ι : Type*} (F : Finset ι) (g : �
       letI := Classical.propDecidable; if ∃ i ∈ F, z = g i then 1 else 0 := by
   classical
   induction F using Finset.induction_on with
-  | empty => simp [(analyticAt_const : AnalyticAt ℂ (fun _ => (1 : ℂ)) z).analyticOrderAt_eq_zero]
+  | empty => simp
   | @insert a F ha ih =>
     have hprod : (fun w : ℂ => ∏ i ∈ insert a F, (w - g i)) =
         (fun w => w - g a) * (fun w => ∏ i ∈ F, (w - g i)) := by ext w; exact Finset.prod_insert ha

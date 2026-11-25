@@ -245,7 +245,7 @@ theorem Jsol_spec [CharZero K] (hD : D * x - x * D = 1) (hCx : ∀ c ∈ C, x * 
     {B : End K M} (hB : B ∈ LN D C) : Jsol x D C B ∈ LN D C ∧ comm x (Jsol x D C B) = B := by
   have h := exists_comm_eq hD hCx hB
   unfold Jsol
-  rw [dif_pos h]
+  rw [dite_eq_left h]
   exact ⟨h.choose_spec.1, h.choose_spec.2⟩
 
 /-- The sequence `𝒢_r` of `eq:3jD2rrecursive`, prefix by prefix: `step i B` is the choice of
@@ -376,7 +376,7 @@ theorem local_calculus_start [CharZero K] (hD : D * x - x * D = 1) (hCx : ∀ c 
     intro i B hB
     have hJ := (Jsol_spec hD hCx hB).1
     have h : κ i - Jsol x D C B ∈ LN D C := sub_mem (C_le_LN (hκ i)) hJ
-    simp only [Ψ, dif_pos h]
+    simp only [Ψ, dite_eq_left h]
     exact (exists_mult_eq hCD hw hdw h).choose_spec.1
   obtain ⟨G, hG0, hGm, hGB, hGs⟩ := exists_solution hD hCx hCD hxC hH q e τ Ψ hΨ
   have hpsi : ∀ r, Ψ (r + 1) (Bop x H q e τ G r) ∈ C ∧
@@ -387,7 +387,7 @@ theorem local_calculus_start [CharZero K] (hD : D * x - x * D = 1) (hCx : ∀ c 
     have h : κ (r + 1) - Jsol x D C (Bop x H q e τ G r) ∈ LN D C := sub_mem (C_le_LN (hκ _)) hJ
     refine ⟨hΨ _ _ hB, ?_⟩
     have hc := (exists_mult_eq hCD hw hdw h).choose_spec.2
-    simp only [Ψ, dif_pos h]
+    simp only [Ψ, dite_eq_left h]
     rw [← hc]; simp
   refine ⟨G, hG0, hGm, hGB, fun r => ?_, fun r => ⟨_, (hpsi r).1, hGs r, (hpsi r).2⟩⟩
   cases r with

@@ -379,18 +379,18 @@ theorem hb_outer {X : ℝ → ℝ} {CG : ℝ} (hCG : 0 ≤ CG)
     rw [hκ_eq]
     have h1 : Real.pi ^ 2 * K ≤ c * L := by
       have h2 : K ≤ c * (K ^ 2)⁻¹ := by
-        rw [← div_eq_mul_inv, le_div_iff₀ hK2]; nlinarith [pow_pos (by linarith : (0 : ℝ) < K) 3]
+        rw [← div_eq_mul_inv, le_div_iff₀ hK2]; nlinarith only [hc8, pow_pos (by linarith only [hK] : (0 : ℝ) < K) 3]
       calc Real.pi ^ 2 * K ≤ Real.pi ^ 2 * (c * (K ^ 2)⁻¹) := mul_le_mul_of_nonneg_left h2 (by positivity)
         _ ≤ Real.pi ^ 2 * (c * (M₁ * (K ^ 2)⁻¹)) := by
-            gcongr; nlinarith [inv_pos.mpr hK2, mul_le_mul_of_nonneg_right hM₁ (inv_pos.mpr hK2).le]
+            gcongr; nlinarith only [mul_le_mul_of_nonneg_right hM₁ (inv_pos.mpr hK2).le]
         _ = c * (Real.pi ^ 2 * M₁ * (K ^ 2)⁻¹) := by ring
         _ ≤ c * L := mul_le_mul_of_nonneg_left hLlow hc0.le
     field_simp
     linarith
   have hcL : 1 ≤ c * (L / 2) ^ (3 / 2 : ℝ) := by
     have h1 : ε ^ 2 ≤ L / 2 := by
-      have hπ2 : 9 ≤ Real.pi ^ 2 := by nlinarith
-      have hk : 1 ≤ Real.pi ^ 2 * hbS c ξ / 2 := by nlinarith
+      have hπ2 : 9 ≤ Real.pi ^ 2 := by nlinarith only [hpi3]
+      have hk : 1 ≤ Real.pi ^ 2 * hbS c ξ / 2 := by nlinarith only [hπ2, hS100, mul_nonneg (sub_nonneg.2 hπ2) (sub_nonneg.2 hS100)]
       calc ε ^ 2 = ε ^ 2 * 1 := (mul_one _).symm
         _ ≤ ε ^ 2 * (Real.pi ^ 2 * hbS c ξ / 2) := mul_le_mul_of_nonneg_left hk (by positivity)
         _ = L / 2 := by rw [hLeq]; ring
@@ -410,13 +410,13 @@ theorem hb_outer {X : ℝ → ℝ} {CG : ℝ} (hCG : 0 ≤ CG)
         rw [Real.lt_sqrt (by positivity)]
         rw [hLeq]
         have : 4 < hbS c ξ := by linarith
-        nlinarith [mul_pos (mul_pos (by positivity : 0 < Real.pi ^ 2) (by positivity : 0 < ε ^ 2)) (by linarith : 0 < hbS c ξ - 4)]
+        nlinarith only [mul_pos (mul_pos (by positivity : 0 < Real.pi ^ 2) (by positivity : 0 < ε ^ 2)) (by linarith : 0 < hbS c ξ - 4)]
       rw [div_div, lt_div_iff₀ (by positivity)]; linarith
     · have : τs = Real.exp ((L - 1) / 2) / Real.pi := by simp [hτsdef, tauStar, hL1]
       rw [this]
       have h1 : 1 ≤ Real.exp ((L - 1) / 2) := Real.one_le_exp (by linarith [not_le.mp hL1])
       rw [div_div, lt_div_iff₀ (by positivity)]
-      nlinarith
+      nlinarith only [hε12, hpi4, hpi3, h1, mul_nonneg (sub_nonneg.2 hε12) (by linarith only [hpi3] : (0 : ℝ) ≤ Real.pi)]
   set χo : ℝ → ℝ := fun τ => 1 - χ (τ / τs) with hχodef
   obtain ⟨hχo_cd, hχo_van, hk0, hk1, hk2⟩ := outerCutoff hχ hτs
   obtain ⟨h, hh_cd, hh_van, hh_rel, hh_bd⟩ := outer_amplitude (G := fun v : ℝ => airyTwistedLaplaceC X (yv v)) hG hCG (m := m)
@@ -446,34 +446,34 @@ theorem hb_outer {X : ℝ → ℝ} {CG : ℝ} (hCG : 0 ≤ CG)
     have hτ₁pos : 0 < τs / 2 := by positivity
     have hL5 : L < 5 := by
       by_contra hL5; push Not at hL5
-      have hL1 : ¬ L ≤ 1 := by linarith
+      have hL1 : ¬ L ≤ 1 := by linarith only [hL5]
       have hts : τs = Real.exp ((L - 1) / 2) / Real.pi := by simp [hτsdef, tauStar, hL1]
       have he : 7 < Real.exp ((L - 1) / 2) := by
-        have h1 : Real.exp 2 ≤ Real.exp ((L - 1) / 2) := Real.exp_le_exp.mpr (by linarith)
+        have h1 : Real.exp 2 ≤ Real.exp ((L - 1) / 2) := Real.exp_le_exp.mpr (by linarith only [hL5])
         have h2 : Real.exp 2 = Real.exp 1 * Real.exp 1 := by rw [← Real.exp_add]; norm_num
-        nlinarith [Real.exp_one_gt_d9]
+        nlinarith only [h1, h2, Real.exp_one_gt_d9, mul_self_nonneg (Real.exp 1 - 2.7182818283)]
       rw [hts, div_div, div_lt_one (by positivity)] at hτ1
-      nlinarith
+      nlinarith only [hτ1, he, hpi4]
     have hΛ : L ^ (1 / 2 : ℝ) ≤ 20 * (τs / 2) := by
       by_cases hL1 : L ≤ 1
       · have hts : τs = Real.sqrt L / Real.pi := by simp [hτsdef, tauStar, hL1]
         rw [← Real.sqrt_eq_rpow, hts]
-        have h10 : 1 ≤ 10 / Real.pi := by rw [le_div_iff₀ Real.pi_pos]; linarith
+        have h10 : 1 ≤ 10 / Real.pi := by rw [le_div_iff₀ Real.pi_pos]; linarith only [hpi4]
         have e : 20 * (Real.sqrt L / Real.pi / 2) = Real.sqrt L * (10 / Real.pi) := by ring
         rw [e]
         calc Real.sqrt L = Real.sqrt L * 1 := (mul_one _).symm
           _ ≤ Real.sqrt L * (10 / Real.pi) := mul_le_mul_of_nonneg_left h10 (Real.sqrt_nonneg L)
       · have hts : τs = Real.exp ((L - 1) / 2) / Real.pi := by simp [hτsdef, tauStar, hL1]
-        have h1 : 1 ≤ Real.exp ((L - 1) / 2) := Real.one_le_exp (by linarith [not_le.mp hL1])
+        have h1 : 1 ≤ Real.exp ((L - 1) / 2) := Real.one_le_exp (by linarith only [not_le.mp hL1])
         have h2 : 1 / Real.pi ≤ τs := by rw [hts]; exact div_le_div_of_nonneg_right h1 Real.pi_pos.le
-        have h3 : 3 ≤ 10 / Real.pi := by rw [le_div_iff₀ Real.pi_pos]; linarith
+        have h3 : 3 ≤ 10 / Real.pi := by rw [le_div_iff₀ Real.pi_pos]; linarith only [hpi4]
         have h4 : L ^ (1 / 2 : ℝ) ≤ 3 := by
           rw [← Real.sqrt_eq_rpow]
-          exact Real.sqrt_le_iff.mpr ⟨by norm_num, by nlinarith⟩
+          exact Real.sqrt_le_iff.mpr ⟨by norm_num, by linarith only [hL5]⟩
         have h5 : 10 / Real.pi ≤ 10 * τs := by
           calc 10 / Real.pi = 10 * (1 / Real.pi) := by ring
             _ ≤ 10 * τs := mul_le_mul_of_nonneg_left h2 (by norm_num)
-        linarith
+        linarith only [h3, h4, h5]
     have hAlg := small_algebra m hL hτ₁pos hκ hΛ hτ1.le
     have hB := hsmall hm hκ hc2 hL (by linarith) hmκ hcL hQ0 hτ₁pos hh_cd hh_van hh_bd
     have hstep : (2 * Real.pi * ξ)⁻¹ * c ^ (1 / 3 : ℝ) * ‖∫ τ : ℝ, ((1 - Complex.I * (τ : ℂ)) ^ (-(1 / 2 : ℂ)) *
@@ -506,11 +506,11 @@ theorem hb_outer {X : ℝ → ℝ} {CG : ℝ} (hCG : 0 ≤ CG)
     · right; left
       have hL1' : 1 < L := not_le.mp hL1
       have hts : τs = Real.exp ((L - 1) / 2) / Real.pi := by simp [hτsdef, tauStar, hL1]
-      have h1 : 1 ≤ Real.exp ((L - 1) / 2) := Real.one_le_exp (by linarith)
+      have h1 : 1 ≤ Real.exp ((L - 1) / 2) := Real.one_le_exp (by linarith only [hL1'])
       have h2 : 1 / Real.pi ≤ τs := by rw [hts]; exact div_le_div_of_nonneg_right h1 Real.pi_pos.le
       have hτ12 : 1 / (2 * Real.pi) ≤ τs / 2 := by
         calc 1 / (2 * Real.pi) = (1 / Real.pi) / 2 := by field_simp
-          _ ≤ τs / 2 := by linarith
+          _ ≤ τs / 2 := by linarith only [h2]
       have hW : ((κ * (τs / 2)) ^ m)⁻¹ ≤ (4 * m / Real.pi) ^ m * K ^ (-(m : ℝ)) := by
         rw [hκ_eq]; exact kt_bound_gt_one m hm hK hτ12
       refine hstep.trans ?_
@@ -526,8 +526,8 @@ theorem hb_outer {X : ℝ → ℝ} {CG : ℝ} (hCG : 0 ≤ CG)
       have hts : τs = Real.sqrt L / Real.pi := by simp [hτsdef, tauStar, hL1]
       have : Real.sqrt L ≤ 1 := Real.sqrt_le_one.mpr hL1
       have h2 : Real.sqrt L / Real.pi ≤ 1 / Real.pi := div_le_div_of_nonneg_right this Real.pi_pos.le
-      have h3 : 1 / Real.pi < 1 := by rw [div_lt_one Real.pi_pos]; linarith
-      linarith
+      have h3 : 1 / Real.pi < 1 := by rw [div_lt_one Real.pi_pos]; linarith only [hpi3]
+      linarith only [hts, h2, h3, hτ₁]
     have hB := hlarge hm hκ hc2 hL hmκ hcL hQ0 hτ₁ hh_cd hh_van hh_bd
     have hτm : (τs / 2) ^ (-(m : ℝ)) ≤ 1 := Real.rpow_le_one_of_one_le_of_nonpos hτ₁ (by simp)
     have hmin : min (L ^ (-(1 / 4 : ℝ))) (L ^ (-(3 / 2 : ℝ))) ≤ L ^ (-(3 / 2 : ℝ)) := min_le_right _ _
@@ -570,7 +570,7 @@ lemma hb_eps_lt_tau {c ξ : ℝ} (hc2k : 2000 ≤ c) (hS100 : 100 ≤ hbS c ξ) 
       rw [Real.lt_sqrt (by positivity)]
       rw [hLeq]
       have : 4 < hbS c ξ := by linarith
-      nlinarith [mul_pos (mul_pos (by positivity : 0 < Real.pi ^ 2) (by positivity : 0 < ε ^ 2)) (by linarith : 0 < hbS c ξ - 4)]
+      nlinarith only [mul_pos (mul_pos (by positivity : 0 < Real.pi ^ 2) (by positivity : 0 < ε ^ 2)) (by linarith : 0 < hbS c ξ - 4)]
     rw [div_div, lt_div_iff₀ (by positivity)]; linarith
   · have : tauStar L = Real.exp ((L - 1) / 2) / Real.pi := by simp [tauStar, hL1]
     rw [this]
@@ -617,7 +617,10 @@ theorem hb_inner (X : ℝ → ℝ) (γ₀ CG : ℝ) {χ : ℝ → ℝ} {Kχ : �
   have hετ := hb_eps_lt_tau (ξ := ξ) hc2k hS100
   have hpi3 : 3 < Real.pi := Real.pi_gt_three
   have hAS := hbA_eq (ξ := ξ) hc0
-  have hA100 : 900 ≤ hbA c ξ := by rw [hAS]; nlinarith
+  have hA100 : 900 ≤ hbA c ξ := by
+    rw [hAS]
+    have hπ2 : (9 : ℝ) ≤ Real.pi ^ 2 := by nlinarith only [hpi3]
+    linarith only [mul_le_mul hπ2 hS100 (by norm_num) (sq_nonneg Real.pi)]
   have hApos : 0 < hbA c ξ := by linarith
   set ε := liftEps c with hεdef
   set L := Real.log (Real.pi ^ 2 * ξ) with hLdef
@@ -628,7 +631,7 @@ theorem hb_inner (X : ℝ → ℝ) (γ₀ CG : ℝ) {χ : ℝ → ℝ} {Kχ : �
   have hδ : 0 < ceBeta1 * K * ε / 2 := by have := ceBeta1_pos; positivity
   have hδ4 : ceBeta1 * K * ε / 2 ≤ 4 := by
     have := ceBeta1_lt_eight
-    nlinarith [ceBeta1_pos, mul_le_mul_of_nonneg_left hKε ceBeta1_pos.le]
+    linarith only [this, mul_le_mul_of_nonneg_left hKε ceBeta1_pos.le]
   obtain ⟨hφ, b0, b1, b2⟩ := hM hδ hδ4 hc2
   have hcase : (1 + vs) ^ (1 / 2 : ℝ) ≤ 1 * hbA c ξ ^ 2 ∨ c ^ (2 / 3 : ℝ) ≤ hbA c ξ := by
     by_cases hL1 : L ≤ 1
@@ -641,20 +644,20 @@ theorem hb_inner (X : ℝ → ℝ) (γ₀ CG : ℝ) {χ : ℝ → ℝ} {Kχ : �
       have hy0 : 0 ≤ y := by positivity
       have hy1 : 1 ≤ y := by
         by_contra hlt; push Not at hlt
-        have : y ^ 2 < 1 := by nlinarith
+        have : y ^ 2 < 1 := by nlinarith only [hlt, hy0]
         linarith [hAdiv]
       have hvsy : vs = y / Real.pi := by rw [hvsdef, hts, hy]; field_simp
       have hvsA : vs ≤ hbA c ξ := by
         rw [hvsy, hAdiv]
         calc y / Real.pi ≤ y := div_le_self hy0 (by linarith)
-          _ ≤ y ^ 2 := by nlinarith
+          _ ≤ y ^ 2 := by nlinarith only [hy1, hy0]
       have h1 : (1 + vs) ^ (1 / 2 : ℝ) ≤ 1 + vs := by
         calc (1 + vs) ^ (1 / 2 : ℝ) ≤ (1 + vs) ^ (1 : ℝ) :=
               Real.rpow_le_rpow_of_exponent_le (by linarith) (by norm_num)
           _ = 1 + vs := Real.rpow_one _
       calc (1 + vs) ^ (1 / 2 : ℝ) ≤ 1 + vs := h1
         _ ≤ 2 * hbA c ξ := by linarith
-        _ ≤ 1 * hbA c ξ ^ 2 := by nlinarith
+        _ ≤ 1 * hbA c ξ ^ 2 := by nlinarith only [hA100]
     · right
       have hL1' : 1 < L := not_le.mp hL1
       have : hbA c ξ = c ^ (2 / 3 : ℝ) * L := by unfold hbA; rw [← cEps_eq hc0]
@@ -756,7 +759,7 @@ theorem hb_estimate_of_sqData {X : ℝ → ℝ} (hU2 : HasU2 X) {A B : ℂ → �
   have hS12 : 0 ≤ hbS c ξ ^ (-(1 / 2 : ℝ)) := Real.rpow_nonneg (by linarith) _
   have hM1 : 0 ≤ M₁ ^ (-((m : ℝ) / 2)) := Real.rpow_nonneg (by linarith) _
   have hK1 : 0 ≤ K ^ (-(m : ℝ)) := Real.rpow_nonneg (by linarith) _
-  nlinarith [mul_nonneg hM1 hP, mul_nonneg hK1 hP, mul_nonneg hS12 hP, mul_nonneg hCo.le hP, mul_nonneg hCi.le hP,
+  linarith [mul_nonneg hM1 hP, mul_nonneg hK1 hP, mul_nonneg hS12 hP, mul_nonneg hCo.le hP, mul_nonneg hCi.le hP,
     mul_nonneg (mul_nonneg hCo.le hM1) hP, mul_nonneg (mul_nonneg hCo.le hK1) hP, mul_nonneg (mul_nonneg hCi.le hS12) hP,
     mul_nonneg (mul_nonneg hCo.le hS12) hP, mul_nonneg (mul_nonneg hCi.le hM1) hP, mul_nonneg (mul_nonneg hCi.le hK1) hP]
 

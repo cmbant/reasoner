@@ -51,7 +51,7 @@ lemma rec3m_pointwise (j₁ j₂ j₃ m₁ m₂ σ : ℚ) (ε : ℝ) :
     rw [hR ![σ, j₁ + j₂ - j₃ - σ, j₁ - m₁ - σ, j₂ + m₂ - σ, j₃ - j₂ + m₁ + σ,
       j₃ - j₁ - m₂ + σ] ![0, 0, 0, 1, 0, 1] (by intro i; fin_cases i <;> simp)]
     simp only [Fin.prod_univ_six]
-    try simp
+    simp
     ring
   have t1 : term3 j₁ j₂ j₃ m₁ (m₂ + 1) σ ε =
       ε * (((j₃ : ℝ) - j₁ - m₂ + σ) * (((j₃ : ℝ) - j₁ - m₂ + σ + 1))) * U := by
@@ -59,8 +59,8 @@ lemma rec3m_pointwise (j₁ j₂ j₃ m₁ m₂ σ : ℚ) (ε : ℝ) :
     rw [hR ![σ, j₁ + j₂ - j₃ - σ, j₁ - m₁ - σ, j₂ + (m₂ + 1) - σ, j₃ - j₂ + m₁ + σ,
       j₃ - j₁ - (m₂ + 1) + σ] ![0, 0, 0, 0, 0, 2] (by intro i; fin_cases i <;> simp <;> ring)]
     simp only [Fin.prod_univ_six]
-    try simp
-    try simp only [Finset.prod_range_succ, Finset.prod_range_zero]
+    simp
+    simp only [Finset.prod_range_succ, Finset.prod_range_zero]
     push_cast
     ring
   have t2 : term3 j₁ j₂ j₃ m₁ (m₂ - 1) σ ε =
@@ -69,8 +69,8 @@ lemma rec3m_pointwise (j₁ j₂ j₃ m₁ m₂ σ : ℚ) (ε : ℝ) :
     rw [hR ![σ, j₁ + j₂ - j₃ - σ, j₁ - m₁ - σ, j₂ + (m₂ - 1) - σ, j₃ - j₂ + m₁ + σ,
       j₃ - j₁ - (m₂ - 1) + σ] ![0, 0, 0, 2, 0, 0] (by intro i; fin_cases i <;> simp <;> ring)]
     simp only [Fin.prod_univ_six]
-    try simp
-    try simp only [Finset.prod_range_succ, Finset.prod_range_zero]
+    simp
+    simp only [Finset.prod_range_succ, Finset.prod_range_zero]
     push_cast
     ring
   have tH0 : H3m j₁ j₂ j₃ m₁ m₂ σ ε =
@@ -80,7 +80,7 @@ lemma rec3m_pointwise (j₁ j₂ j₃ m₁ m₂ σ : ℚ) (ε : ℝ) :
     rw [hR ![σ - 1, j₁ + j₂ - j₃ - σ, j₁ - m₁ - σ, j₂ + m₂ - σ + 1, j₃ - j₂ + m₁ + σ - 1,
       j₃ - j₁ - m₂ + σ] ![1, 0, 0, 0, 1, 1] (by intro i; fin_cases i <;> simp)]
     simp only [Fin.prod_univ_six]
-    try simp
+    simp
     ring
   have tH1 : H3m j₁ j₂ j₃ m₁ m₂ (σ + 1) (-ε) =
       (-ε) * ((j₁ : ℝ) - j₂ - j₃ - 1) * ((((j₁ : ℝ) + j₂ - j₃ - σ)) * (((j₁ : ℝ) - m₁ - σ)) *
@@ -90,7 +90,7 @@ lemma rec3m_pointwise (j₁ j₂ j₃ m₁ m₂ σ : ℚ) (ε : ℝ) :
       j₃ - j₂ + m₁ + (σ + 1) - 1, j₃ - j₁ - m₂ + (σ + 1)] ![0, 1, 1, 1, 0, 0]
       (by intro i; fin_cases i <;> simp <;> ring)]
     simp only [Fin.prod_univ_six]
-    try simp
+    simp
     ring
   rw [t0, t1, t2, tH1, tH0]
   exact rec3m_assemble _ _ _ _ _ _ _ _ _ _ _ _ (by ring)

@@ -73,7 +73,7 @@ lemma uniform_margin_bandHi {T : SymbolFamily Par} {K : Set Par} {M : ℕ} (hK :
     obtain ⟨μ0, hμ0, hmin⟩ := hK.exists_isMinOn hKe (continuousOn_const.sub (hc.sub continuousOn_const) : ContinuousOn (fun μ => J - (T.bandHi μ - w)) K)
     refine ⟨J - (T.bandHi μ0 - w), by have := h μ0 hμ0; linarith, fun μ hμ => ?_⟩
     have := hmin hμ
-    simp only [Set.mem_setOf_eq, Pi.sub_apply] at this
+    simp only [Set.mem_ofPred_eq, Pi.sub_apply] at this
     linarith
   · exact ⟨1, one_pos, fun μ hμ => absurd ⟨μ, hμ⟩ hKe⟩
 
