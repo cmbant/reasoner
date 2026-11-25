@@ -61,4 +61,8 @@ theorem tendsto_altHarm :
     exact hsum.tsum_eq
   exact tendsto_nhds_unique (hA.congr' hev) hg |> fun h => h ▸ hl'
 
+/-- info: 'FormalResearch.SignUncertainty.tendsto_altHarm' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms tendsto_altHarm
+
 end FormalResearch.SignUncertainty

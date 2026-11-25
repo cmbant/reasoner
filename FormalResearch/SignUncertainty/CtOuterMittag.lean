@@ -172,4 +172,8 @@ theorem hasSum_mPrime {t : ℝ} (ht : 0 < t) :
   rw [h3] at h2
   exact Complex.hasSum_ofReal.mp h2
 
+/-- info: 'FormalResearch.SignUncertainty.hasSum_mPrime' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasSum_mPrime
+
 end FormalResearch.SignUncertainty

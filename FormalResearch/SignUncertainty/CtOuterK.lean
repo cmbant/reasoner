@@ -131,4 +131,8 @@ theorem integral_t_mPrime_div :
     exact (FormalResearch.SignUncertainty.tendsto_altHarm).const_mul π
   exact tendsto_nhds_unique hlim h2
 
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.integral_t_mPrime_div' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms integral_t_mPrime_div
+
 end FormalResearch.SignUncertainty.CtOuter

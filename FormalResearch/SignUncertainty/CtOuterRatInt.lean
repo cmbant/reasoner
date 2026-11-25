@@ -112,4 +112,8 @@ lemma integral_rat' {m : ℝ} (hm : 1 ≤ m) :
   · rw [← h, integral_rat_one]; ring
   · exact integral_rat h
 
+/-- info: 'FormalResearch.SignUncertainty.integral_rat'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms integral_rat'
+
 end FormalResearch.SignUncertainty
