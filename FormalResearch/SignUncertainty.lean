@@ -172,6 +172,7 @@ public import FormalResearch.SignUncertainty.HbUpperM1
 public import FormalResearch.SignUncertainty.HankelOneTwo
 public import FormalResearch.SignUncertainty.HankelLangerComparability
 public import FormalResearch.SignUncertainty.HankelPsiCutBound
+public import FormalResearch.SignUncertainty.MellinStripLift
 public import FormalResearch.SignUncertainty.StripAdmiss
 public import FormalResearch.SignUncertainty.CtOuter
 public import FormalResearch.SignUncertainty.CtOuterSinhIneq
@@ -280,6 +281,14 @@ public import FormalResearch.SignUncertainty.CeSourceFamilyWitness
 public import FormalResearch.SignUncertainty.ConvSourceSymbol
 public import FormalResearch.SignUncertainty.ConvSourceSymbolIBP
 public import FormalResearch.SignUncertainty.ConvSourceSymbolBounds
+public import FormalResearch.SignUncertainty.UctAiryTrans
+public import FormalResearch.SignUncertainty.UctPosFloor
+public import FormalResearch.SignUncertainty.UctPosFloorTail
+public import FormalResearch.SignUncertainty.UctPosFloorWpos
+public import FormalResearch.SignUncertainty.UctStripSplit
+public import FormalResearch.SignUncertainty.UctStripIntegrals
+public import FormalResearch.SignUncertainty.UctBumpSymbol
+public import FormalResearch.SignUncertainty.UctBumpSymbolAdmiss
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -403,7 +412,8 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.O4QuotientBound`: `O.4(2)` quotient bound `M_F ≤ 0.13` (`[O4C (B)]`, `u1co:O4`) by the analytic estimate on the circle `|θ| = 1/4` (the paper's proof): `|Lσ₀ - α̃| ≤ 0.606 L² < 2.5·10⁻⁶` (`o4Sigma0_sharp`, `edgeKappa0_bounds`), `(π²/36)|σ₀³ - 1| < 0.001`, `‖ρ(σ₀θ)‖ ≤ d₂T⁵ + d₃T⁷ + T⁹/(18(1 - T²)) < 0.0000962` (`edgePhiC_rho_bound`, `d₂ = 7π⁴/7200`, `d₃ = 31π⁶/635040`), denominator `≥ 0.0009` (`o4Theta0Sq_le`), then the maximum principle (`o4QuotientBound_of_circle`); all numerical comparisons are exact rational arithmetic from `π < 3.1416`. `o4QuotientBound : 0 < L → L ≤ 0.002 → O4QuotientBound L`. Proved, unconditional.
 * `FormalResearch.SignUncertainty.HankelLangerComparability` (B3, `u1cl:langer` = Lemma L.2; proved, unconditional): `u1cl_langer` bundles `langerQ_properties` (`q = E(ζ₊²)^{-1/3}` analytic with real Taylor coefficients on `|w| < 5·10⁻⁴`, `q(0)=1`, `|q-1| ≤ |w|/2`), `langer_zeta_eq`, `langer_angles` (`|δ₁|,|δ₂| ≤ 10⁻³`), `langer_band`, `gSer_imag`, `langer_band_log`, `langer_zeta_eq_chart`. The band clause is stated at `ζ = iτ₀` with the principal root, not as a limit; the domain of `q` is `|w| < 5·10⁻⁴`.
 * `FormalResearch.SignUncertainty.HankelPsiCutBound` (`gt:7.7p` (d), first clause): `hankelPsi_cut_bound`, `hankelPsi_deriv_bound`, the uniform bound of the Langer density and its derivative across the cut with explicit constants from the Airy shift trick (not the TeX constant `3e^{1.5R₁+1.37R₁²}`).
-* `FormalResearch.SignUncertainty.StripAdmiss*` (C1, `uct:admiss` = Lemma T.8, parts (1), (2); proved, unconditional): `StripAdmissOsc` (`osc_tail`), `StripAdmissLift` (`admissPhi_mellinLiftData`, `admiss_vert_rep`), `StripAdmissTail` (`edge_integral_tail`, `admiss_tail`), `StripAdmissOrigin` (`admiss_lift_tendsto`), `StripAdmiss` (`uct_admiss`): the Mellin-strip lift of a general multiplier is independent of `x₀`, real, continuous on `[0,∞)` with `f(0) = W̃(1)`, has the vertical representation, the tail `ξ⁻¹L^{-1-α}`, `f ∈ L¹(ρ₀)` and the radial decay. Part (3) (reflection, `f̂ = f_{W̃(1-·)}`, `f ∈ 𝒜_c^ε`) is not formalised; (M2) at `ζ = 0` and (M3) for `g₁` are not assumed (only (3) needs them).
+* `FormalResearch.SignUncertainty.MellinStripLift` (C1, `mat:T7` = Lemma T.7, parts (a), (b), (c); proved, unconditional): `StripW1`, `StripW2`, `mat_T7_a`, `mat_T7_b`, `mat_T7_c`, `mat_T7`: line independence, reality, continuity up to `0` (`f_W(0) = W(1)`), vertical-line representation with absolute convergence, Mellin transform on `0 < Re z ≤ c`, and Hankel reflection `𝓗_c f_W = f_{W(1-·)}` on `[0,∞)` (with `f_W ∈ 𝒜_c^σ` when `W(1-ζ) = σ W(ζ)`), under `(W1)`–`(W2)`.
+* `FormalResearch.SignUncertainty.StripAdmiss*` (C1, `uct:admiss` = Lemma T.8, parts (1), (2), (3); proved, unconditional): `StripAdmissOsc` (`osc_tail`), `StripAdmissLift` (`admissPhi_mellinLiftData`, `admiss_vert_rep`), `StripAdmissTail` (`edge_integral_tail`, `admiss_tail`), `StripAdmissOrigin` (`admiss_lift_tendsto`), `StripAdmiss` (`uct_admiss`, `uct_admiss_part3`, `uct_admiss_full`): parts (1)–(2) under `StripAdmissData α W` and part (3) (normalized Mellin transform, Hankel reflection `f̂ = f_{W̃(1-·)} ∈ L¹(ρ₀)`, `f ∈ 𝒜_c^ε` with `ε f(0) = W̃(0)`) under `StripAdmissFullData α W`.
 * `FormalResearch.SignUncertainty.CtOuter*` (F1, `ct:outer` of `constant_terms_lower.tex`; proved, unconditional, except as stated): `ct_outer_part1` (the Mellin-strip outer function `G_ε` is holomorphic on the strip, continuous on the closed strip, real-symmetric, has parity `G_ε(1-ζ) = -εG_ε(ζ)`, the boundary modulus `ct:Gmod` and the `(1+|τ|)^{-1}` bound), `ct_outer_part2_structure` (the boundary phase `θ_ε`: phase identity, odd, `C^∞`, holomorphic on `|τ| < 1/2`, `ct:theta-form` as `outerTheta_minus`, `outerTheta_plus`), `ct_outer_part2_taylor` (`θ_ε = θ₁τ + θ₃τ³ + O(τ⁵)` with `θ₁ = θ_ε'(0)` an explicit integral). Not formalised: the closed forms `θ₁⁻ = -3log2 + I₀`, `θ₃^±` and `c_{3,h}` (stated as the unproved Prop `CtThetaValuesTarget`, used by no headline; `ct_outer_part2_taylor_values` assumes it), and clause (3) (large-`τ` asymptotics and derivative bounds).
 * `FormalResearch.SignUncertainty.CtOuterSinhIneq`, `CtOuterFrullani`, `CtOuterP2` (F1, sub-step of the closed form of `θ₁⁻` in `ct:outer` (2); proved): `integral_inv_mul_invSinh_sub` (`∫₀^∞ y⁻¹(1/sinh y - 1/y) dy = -log 2`, Mathlib's Frullani integral) and `integral_log_ratio_mul_cosh_div_sinh_sq` (`J₁ = ∫₀^∞ log(y/sinh y) cosh y/sinh² y dy = -log 2`, the "evaluation of `a_mp`" of the TeX proof), plus elementary `sinh` inequalities.
 * `FormalResearch.SignUncertainty.CtOuterMittag`, `CtOuterAltHarm`, `CtOuterRatInt`, `CtOuterK`, `CtOuterP3`, `CtOuterTheta1` (F1, `ct:outer` (2), the closed form of `θ₁^±`; proved, unconditional): `theta_one_minus` (`θ₁⁻ = -3log2 + I₀`), `theta_one_plus` (`θ₁⁺ = θ₁⁻ - π`), `deriv_outerTheta_zero_eq_ctTheta1`, `ct_outer_part2_taylor_theta1` (the Taylor statement of the TeX with the paper's `θ₁`, `θ₃` existential); support: `csc_hasSum_im` and `hasSum_mPrime` (Mittag-Leffler series for `π/sin πz - 1/z` and `m'`, without the `‖z‖<1` restriction), `tendsto_altHarm`, `integral_rat'`, `integral_t_mPrime_div`, `integral_ctU3_mul` (`a_{1t2}`). Not formalised: `θ₃^±`, hence `CtThetaValuesTarget` stays open, and clause (3).
@@ -486,6 +496,18 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it
   (`radial_rigidity_lower_of_compactness`).
+* `FormalResearch.SignUncertainty.UctAiryTrans` (with `UctAiryTransClosed`, `UctAiryTransOde`, `UctAiryTransAsymp`, `UctAiryTransSmall`, `UctAiryTransPhi`;
+  `uct:airy-trans`, Paper I upper bound, F2a; proved, unconditional): closed forms of `f̃₁`, `g̃₁` (Fubini), the representations
+  `uct_airy_trans_int_rep_F/g1`, asymptotics with all derivatives (`uct_airy_trans_asymp_Fstar/g1`, `uct_airy_trans_phi`), the origin expansion
+  (`uct_airy_trans_small*`), and the real-axis, local and vertical bounds (`uct_airy_trans_real/loc/vert/pos`). Not formalised: the two ray identities
+  `∫_{S±} s^{-1/2}e^{ψ}`, `∫_{S±} s^{1/2}e^{ψ}` (used only to rotate a contour, replaced by an ODE/barrier argument).
+* `FormalResearch.SignUncertainty.UctPosFloorSeed`, `UctPosFloor`, `UctPosFloorTail`, `UctPosFloorWpos` (`uct:pos-floor` (1)-(3); proved, unconditional):
+  `uct_pos_floor_one`, `uct_pos_floor_main`, `uct_pos_floor_lift`, `airyTwistedLaplace_uctSpos_floor`, `uct_pos_floor_pre_edge` (`W_pos = liftSymbol uctSpos δ₀ 4`, uniform in `δ₀ > 0`).
+* `FormalResearch.SignUncertainty.UctStripSplit`, `UctStripIntegrals` (`uct:strip-split`; proved, unconditional): `uct_H_split`, `uct_HCE_signs`, `uct_strip_split_ratios`
+  (`r_CE, r_ĥ < 1` and `1 - r_CE ≥ min(L,1)/6`), `uct_strip_split_integrals` (the three cancellation integrals). Not formalised: the small-`L` expansions with the constants `47/20`, `13/20`, `13π²/240`, `19π²/240`.
+* `FormalResearch.SignUncertainty.UctBumpSymbol` (`uct:bump-symbol`, first display only; proved, unconditional): `bump_laplace_decay` (`|B̂(c(σ+iτ))| ≤ C_r M Λ_α(δ) e^{-bcσδ}(1+cδ|τ|)^{-r}`).
+  `FormalResearch.SignUncertainty.UctBumpSymbolAdmiss`: `bump_stripM1` ((M1) of `uct:admiss` for `ΔW_c = c^{-1/3}B̂(c·)`), `bump_holder_one` ((M2) at `ζ=1`).
+  Not formalised: (M3) at `ζ = 0`, the main and reflected density bounds, the Fourier identity `(uct:E0-def)`.
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
   whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).

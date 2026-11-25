@@ -220,14 +220,18 @@ lemma Gamma_decay_strip {a b : ℝ} (ha : 0 < a) (hab : a ≤ b) :
 /-- `R = Φ_W - W̃(1) Γ`. -/
 noncomputable def admissRem (c : ℝ) (W : ℂ → ℂ) (z : ℂ) : ℂ := admissPhi c W z - W 1 * Complex.Gamma z
 
-lemma W_one_conj (hW : StripM1 W) : starRingEnd ℂ (W 1) = W 1 := by
+lemma W_one_conj_of_W1 {η : ℝ} (hW : StripW1 η W) : starRingEnd ℂ (W 1) = W 1 := by
   have := hW.real 1 (by simp) (by simp)
   simpa using this.symm
 
-/-- `R` satisfies the hypotheses of the Mellin hub. -/
-theorem admissRem_mellinLiftData {c : ℝ} (hc : 2 ≤ c) (hW : StripM1 W) : MellinLiftData c (admissRem c W) where
+lemma W_one_conj (hW : StripM1 W) : starRingEnd ℂ (W 1) = W 1 :=
+  W_one_conj_of_W1 hW.toStripW1
+
+/-- `R` satisfies the hypotheses of the Mellin hub under `(W1)` (`c ≥ 2`, `η > 0`). -/
+theorem admissRem_mellinLiftData_of_W1 {c η : ℝ} (hc : 2 ≤ c) (hη : 0 < η) (hW : StripW1 η W) :
+    MellinLiftData c (admissRem c W) where
   hol := by
-    refine (admissPhi_differentiableOn (by linarith) hW).sub ?_
+    refine (admissPhi_differentiableOn_of_W1 (by linarith) hW).sub ?_
     intro z hz
     exact (((Complex.differentiableAt_Gamma z (fun m h => by
       have := congrArg Complex.re h
@@ -236,19 +240,37 @@ theorem admissRem_mellinLiftData {c : ℝ} (hc : 2 ≤ c) (hW : StripM1 W) : Mel
       linarith [hz.1])).const_mul (W 1))).differentiableWithinAt
   decay := by
     intro a b ha hab hb
-    obtain ⟨B1, hB1⟩ := (admissPhi_mellinLiftData (by linarith) hW).decay ha hab hb
+    obtain ⟨p, hp, B1, hB1⟩ := (admissPhi_mellinLiftData_of_W1 (by linarith) hη hW).decay ha hab hb
     obtain ⟨B2, hB2⟩ := Gamma_decay_strip ha hab
-    refine ⟨B1 + ‖W 1‖ * B2, fun z hz1 hz2 => ?_⟩
+    set q : ℝ := min p 2 with hq
+    have hq1 : 1 < q := lt_min hp (by norm_num)
+    refine ⟨q, hq1, |B1| + ‖W 1‖ * |B2|, fun z hz1 hz2 => ?_⟩
     unfold admissRem
     refine (norm_sub_le _ _).trans ?_
     rw [norm_mul]
     have h1 := hB1 z hz1 hz2
-    have h2 := mul_le_mul_of_nonneg_left (hB2 z hz1 hz2) (norm_nonneg (W 1))
+    have h2 := hB2 z hz1 hz2
+    have hpq : (1 + |z.im|) ^ (-p) ≤ (1 + |z.im|) ^ (-q) :=
+      Real.rpow_le_rpow_of_exponent_le (by linarith [abs_nonneg z.im]) (by linarith [min_le_left p 2])
+    have h2q : (1 + |z.im|) ^ (-(2 : ℝ)) ≤ (1 + |z.im|) ^ (-q) :=
+      Real.rpow_le_rpow_of_exponent_le (by linarith [abs_nonneg z.im]) (by linarith [min_le_right p 2])
+    have h1' : ‖admissPhi c W z‖ ≤ |B1| * (1 + |z.im|) ^ (-q) :=
+      h1.trans ((mul_le_mul_of_nonneg_right (le_abs_self B1) (by positivity)).trans
+        (mul_le_mul_of_nonneg_left hpq (abs_nonneg B1)))
+    have h2' : ‖Complex.Gamma z‖ ≤ |B2| * (1 + |z.im|) ^ (-q) :=
+      h2.trans ((mul_le_mul_of_nonneg_right (le_abs_self B2) (by positivity)).trans
+        (mul_le_mul_of_nonneg_left h2q (abs_nonneg B2)))
+    have h2'' := mul_le_mul_of_nonneg_left h2' (norm_nonneg (W 1))
     nlinarith
   real := by
     intro z hz0 hz1
     unfold admissRem
-    rw [map_sub, map_mul, W_one_conj hW, Complex.Gamma_conj, (admissPhi_mellinLiftData (by linarith) hW).real z hz0 hz1]
+    rw [map_sub, map_mul, W_one_conj_of_W1 hW, Complex.Gamma_conj,
+      (admissPhi_mellinLiftData_of_W1 (by linarith) hη hW).real z hz0 hz1]
+
+/-- `R` satisfies the hypotheses of the Mellin hub. -/
+theorem admissRem_mellinLiftData {c : ℝ} (hc : 2 ≤ c) (hW : StripM1 W) : MellinLiftData c (admissRem c W) :=
+  admissRem_mellinLiftData_of_W1 hc (by norm_num) hW.toStripW1
 
 lemma integrable_Gamma_line_cpow {Δ : ℝ} (hΔ : 0 < Δ) :
     Integrable fun y : ℝ => (Δ : ℂ) ^ (-(((1 : ℝ) : ℂ) + (y : ℂ) * Complex.I)) * Complex.Gamma (((1 : ℝ) : ℂ) + (y : ℂ) * Complex.I) := by
@@ -259,13 +281,13 @@ lemma integrable_Gamma_line_cpow {Δ : ℝ} (hΔ : 0 < Δ) :
     (Eventually.of_forall fun y => ?_)
   rw [norm_mul, norm_cpow_line hΔ]
 
-/-- For every line `0 < ε ≤ 1`: `f_W(Δ) = W̃(1) e^{-Δ} + (inverse Mellin transform of `R = Φ_W - W̃(1) Γ` along `Re z = ε`). -/
-theorem admiss_lift_eq_sub {c : ℝ} (hc : 2 ≤ c) (hW : StripM1 W) {Δ : ℝ} (hΔ : 0 < Δ) {ε : ℝ} (hε0 : 0 < ε)
-    (hε1 : ε ≤ 1) :
+/-- For every line `0 < ε ≤ 1`: `f_W(Δ) = W(1) e^{-Δ} + (inverse Mellin transform of `R` along `Re z = ε`)` under `(W1)`. -/
+theorem admiss_lift_eq_sub_of_W1 {c η : ℝ} (hc : 2 ≤ c) (hη : 0 < η) (hW : StripW1 η W)
+    {Δ : ℝ} (hΔ : 0 < Δ) {ε : ℝ} (hε0 : 0 < ε) (hε1 : ε ≤ 1) :
     ((admissLift c W Δ : ℝ) : ℂ) = W 1 * ((Real.exp (-Δ) : ℝ) : ℂ) + mellinInv ε (admissRem c W) Δ := by
   have hc1 : 1 ≤ c := by linarith
-  have hΦ := admissPhi_mellinLiftData hc1 hW
-  have hR := admissRem_mellinLiftData hc hW
+  have hΦ := admissPhi_mellinLiftData_of_W1 hc1 hη hW
+  have hR := admissRem_mellinLiftData_of_W1 hc hη hW
   have e1 : ((admissLift c W Δ : ℝ) : ℂ) = mellinInv 1 (admissPhi c W) Δ :=
     ofReal_liftFun hΦ (x₀ := c / 2) (x := 1) (by linarith) (by linarith) one_pos (by linarith) hΔ
   rw [e1, hR.mellinInv_indep hε0 (by linarith) one_pos (by linarith) hΔ]
@@ -284,6 +306,12 @@ theorem admiss_lift_eq_sub {c : ℝ} (hc : 2 ≤ c) (hW : StripM1 W) {Δ : ℝ} 
   simp only [Complex.real_smul, smul_eq_mul] at hGam ⊢
   rw [mul_sub, ← hGam]
   ring
+
+/-- For every line `0 < ε ≤ 1`: `f_W(Δ) = W̃(1) e^{-Δ} + (inverse Mellin transform of `R = Φ_W - W̃(1) Γ` along `Re z = ε`). -/
+theorem admiss_lift_eq_sub {c : ℝ} (hc : 2 ≤ c) (hW : StripM1 W) {Δ : ℝ} (hΔ : 0 < Δ) {ε : ℝ} (hε0 : 0 < ε)
+    (hε1 : ε ≤ 1) :
+    ((admissLift c W Δ : ℝ) : ℂ) = W 1 * ((Real.exp (-Δ) : ℝ) : ℂ) + mellinInv ε (admissRem c W) Δ :=
+  admiss_lift_eq_sub_of_W1 hc (by norm_num) hW.toStripW1 hΔ hε0 hε1
 
 /-! ### The pole of `Φ_W` at `z = 0`: `Φ_W = Γ · (Ê W̃(1 - z/c))` with `Ê` holomorphic near `0` -/
 
@@ -355,7 +383,7 @@ lemma admissRem_eq {c : ℝ} (hc : 0 < c) {z : ℂ} (hz0 : 0 < z.re) (hz1 : z.re
   unfold admissRem admissPhi admissK
   rw [admissG_eq_Ehat hc hz0 hz1]; ring
 
-lemma admissK_continuousOn {c : ℝ} (hc : 0 < c) (hW : StripM1 W) :
+lemma admissK_continuousOn_of_W1 {c η : ℝ} (hc : 0 < c) (hW : StripW1 η W) :
     ContinuousOn (admissK c W) {z : ℂ | 0 ≤ z.re ∧ z.re ≤ c} := by
   refine ((admissEhat_continuousOn hc).mul ?_).sub continuousOn_const
   refine hW.cont.comp ((continuousOn_const.sub (continuousOn_id.div_const _))) fun z hz => ?_
@@ -365,7 +393,11 @@ lemma admissK_continuousOn {c : ℝ} (hc : 0 < c) (hW : StripM1 W) :
   have h2 : 0 ≤ z.re / c := by have := hz.1; positivity
   constructor <;> linarith
 
-lemma admissK_small {c α : ℝ} (hc : 0 < c) (hα0 : 0 < α) (hα1 : α < 1)
+lemma admissK_continuousOn {c : ℝ} (hc : 0 < c) (hW : StripM1 W) :
+    ContinuousOn (admissK c W) {z : ℂ | 0 ≤ z.re ∧ z.re ≤ c} :=
+  admissK_continuousOn_of_W1 hc hW.toStripW1
+
+lemma admissK_small {c α : ℝ} (hc : 0 < c) (hα0 : 0 < α) (hα1 : α ≤ 1)
     (hH : ∃ CH : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ 1 / 2 → ‖W ζ - W 1‖ ≤ CH * ‖1 - ζ‖ ^ α) :
     ∃ δ C : ℝ, 0 < δ ∧ δ ≤ 1 ∧ 0 ≤ C ∧ ∀ z : ℂ, 0 ≤ z.re → z.re ≤ c → ‖z‖ < δ →
       ‖admissK c W z‖ ≤ C * ‖z‖ ^ α := by
@@ -397,7 +429,7 @@ lemma admissK_small {c α : ℝ} (hc : 0 < c) (hα0 : 0 < α) (hα1 : α < 1)
     rcases hzn0.eq_or_lt with h0 | h0
     · rw [← h0, Real.zero_rpow hα0.ne']
     · calc ‖z‖ = ‖z‖ ^ (1 : ℝ) := (Real.rpow_one _).symm
-        _ ≤ ‖z‖ ^ α := Real.rpow_le_rpow_of_exponent_ge h0 hz1.le hα1.le
+        _ ≤ ‖z‖ ^ α := Real.rpow_le_rpow_of_exponent_ge h0 hz1.le hα1
   have hdiv : (‖z‖ / c) ^ α = (c ^ α)⁻¹ * ‖z‖ ^ α := by
     rw [Real.div_rpow hzn0 hc.le]; field_simp
   have hEn : ‖admissEhat c z‖ ≤ 1 + C1 := by
@@ -433,8 +465,8 @@ lemma gamma_not_pole {z : ℂ} (hz0 : 0 ≤ z.re) (hz : z ≠ 0) : ∀ m : ℕ, 
 lemma continuousAt_Gamma_of_re_nonneg {z : ℂ} (hz0 : 0 ≤ z.re) (hz : z ≠ 0) : ContinuousAt Complex.Gamma z :=
   (Complex.differentiableAt_Gamma z (gamma_not_pole hz0 hz)).continuousAt
 
-/-- `Γ · K` is bounded on the compact part `0 ≤ Re z ≤ 1/2`, `|Im z| ≤ 1`, `|z| ≥ δ`. -/
-lemma admissRem_compact_bound {c : ℝ} (hc : 2 ≤ c) (hW : StripM1 W) {δ : ℝ} (hδ : 0 < δ) :
+/-- `Γ · K` is bounded on the compact part `0 ≤ Re z ≤ 1/2`, `|Im z| ≤ 1`, `|z| ≥ δ` under `(W1)`. -/
+lemma admissRem_compact_bound_of_W1 {c η : ℝ} (hc : 2 ≤ c) (hW : StripW1 η W) {δ : ℝ} (hδ : 0 < δ) :
     ∃ M : ℝ, ∀ z : ℂ, 0 ≤ z.re → z.re ≤ 1 / 2 → |z.im| ≤ 1 → δ ≤ ‖z‖ →
       ‖Complex.Gamma z * admissK c W z‖ ≤ M := by
   have hc0 : 0 < c := by linarith
@@ -442,7 +474,7 @@ lemma admissRem_compact_bound {c : ℝ} (hc : 2 ≤ c) (hW : StripM1 W) {δ : �
     {z : ℂ | δ ≤ ‖z‖} with hS
   have hSc : IsCompact S :=
     ((isCompact_Icc.prod isCompact_Icc).image (by fun_prop)).inter_right (isClosed_le continuous_const continuous_norm)
-  have hKc := admissK_continuousOn hc0 hW
+  have hKc := admissK_continuousOn_of_W1 hc0 hW
   have hcont : ContinuousOn (fun z : ℂ => Complex.Gamma z * admissK c W z) S := by
     intro z hz
     obtain ⟨⟨⟨x, y⟩, ⟨hx, hy⟩, rfl⟩, hzδ⟩ := hz
@@ -460,6 +492,12 @@ lemma admissRem_compact_bound {c : ℝ} (hc : 2 ≤ c) (hW : StripM1 W) {δ : �
   refine hM z ⟨⟨(z.re, z.im), ⟨⟨hz0, hz1⟩, ⟨(abs_le.mp hz2).1, (abs_le.mp hz2).2⟩⟩, ?_⟩, hz3⟩
   simp
 
+/-- `Γ · K` is bounded on the compact part `0 ≤ Re z ≤ 1/2`, `|Im z| ≤ 1`, `|z| ≥ δ`. -/
+lemma admissRem_compact_bound {c : ℝ} (hc : 2 ≤ c) (hW : StripM1 W) {δ : ℝ} (hδ : 0 < δ) :
+    ∃ M : ℝ, ∀ z : ℂ, 0 ≤ z.re → z.re ≤ 1 / 2 → |z.im| ≤ 1 → δ ≤ ‖z‖ →
+      ‖Complex.Gamma z * admissK c W z‖ ≤ M :=
+  admissRem_compact_bound_of_W1 hc hW.toStripW1 hδ
+
 lemma integrableOn_abs_rpow_Icc {r : ℝ} (hr : -1 < r) : IntegrableOn (fun y : ℝ => |y| ^ r) (Icc (-1) 1) := by
   have h1 : IntervalIntegrable (fun x : ℝ => x ^ r) volume 0 1 := intervalIntegral.intervalIntegrable_rpow' hr
   have h2 : IntervalIntegrable (fun x : ℝ => (-x) ^ r) volume (-0) (-1) := (IntervalIntegrable.iff_comp_neg (f := fun x : ℝ => x ^ r)).mp h1
@@ -474,6 +512,14 @@ lemma integrableOn_abs_rpow_Icc {r : ℝ} (hr : -1 < r) : IntegrableOn (fun y : 
   rw [integrableOn_Icc_iff_integrableOn_Ioc, ← Ioc_union_Ioc_eq_Ioc (by norm_num : (-1 : ℝ) ≤ 0) zero_le_one]
   exact e2.union e1
 
+/-- The integrable majorant `1_{[-1,1]} |y|^{α-1} + (1+|y|)^{-(1 + min η 1)}` for `(W1)` (`η > 0`). -/
+noncomputable def originMajorantW (α η : ℝ) (y : ℝ) : ℝ :=
+  Set.indicator (Icc (-1 : ℝ) 1) (fun y : ℝ => |y| ^ (α - 1)) y + (1 + |y|) ^ (-(1 + min η 1))
+
+lemma integrable_originMajorantW {α η : ℝ} (hα0 : 0 < α) (hη : 0 < η) : Integrable (originMajorantW α η) := by
+  refine Integrable.add ?_ (by simpa using integrable_weight_rpow (p := 1 + min η 1) (by linarith [lt_min hη one_pos]) 1)
+  exact (integrable_indicator_iff measurableSet_Icc).mpr (integrableOn_abs_rpow_Icc (by linarith))
+
 /-- The integrable majorant `1_{[-1,1]} |y|^{α-1} + (1+|y|)^{-2}`. -/
 noncomputable def originMajorant (α : ℝ) (y : ℝ) : ℝ :=
   Set.indicator (Icc (-1 : ℝ) 1) (fun y : ℝ => |y| ^ (α - 1)) y + (1 + |y|) ^ (-(2 : ℝ))
@@ -486,15 +532,16 @@ lemma originMajorant_nonneg (α : ℝ) (y : ℝ) : 0 ≤ originMajorant α y := 
   unfold originMajorant
   refine add_nonneg (Set.indicator_nonneg (fun y _ => by positivity) y) (by positivity)
 
-/-- Uniform bound of `R = Φ_W - W̃(1) Γ` on the lines `0 < Re z ≤ 1/2`. -/
-theorem admissRem_line_bound {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : α < 1) (hW : StripM1 W)
+/-- Uniform bound of `R = Φ_W - W(1) Γ` on the lines `0 < Re z ≤ 1/2` under `(W1)` (`0 < η`, `0 < α ≤ 1`). -/
+theorem admissRem_line_bound_of_W1 {c η α : ℝ} (hc : 2 ≤ c) (hη : 0 < η) (hα0 : 0 < α) (hα1 : α ≤ 1)
+    (hW : StripW1 η W)
     (hH : ∃ CH : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ 1 / 2 → ‖W ζ - W 1‖ ≤ CH * ‖1 - ζ‖ ^ α) :
     ∃ A : ℝ, 0 ≤ A ∧ ∀ ε y : ℝ, 0 < ε → ε ≤ 1 / 2 → y ≠ 0 →
-      ‖admissRem c W ((ε : ℂ) + (y : ℂ) * Complex.I)‖ ≤ A * originMajorant α y := by
+      ‖admissRem c W ((ε : ℂ) + (y : ℂ) * Complex.I)‖ ≤ A * originMajorantW α η y := by
   have hc0 : 0 < c := by linarith
   obtain ⟨δ, Cs, hδ0, hδ1, hCs, hsmall⟩ := admissK_small hc0 hα0 hα1 hH
-  obtain ⟨M, hM⟩ := admissRem_compact_bound hc hW hδ0
-  obtain ⟨B, hB⟩ := admissPhi_bound_left (by linarith : (1 : ℝ) ≤ c) hW
+  obtain ⟨M, hM⟩ := admissRem_compact_bound_of_W1 hc hW hδ0
+  obtain ⟨B, hB⟩ := admissPhi_bound_left_of_W1 (by linarith : (1 : ℝ) ≤ c) hη hW
   refine ⟨(Cs + |M|) + |B| + 8 * ‖W 1‖, by positivity, fun ε y hε0 hε1 hy => ?_⟩
   set z : ℂ := (ε : ℂ) + (y : ℂ) * Complex.I with hz
   have hzre : z.re = ε := by simp [hz]
@@ -504,11 +551,10 @@ theorem admissRem_line_bound {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 :
   have hy0 : 0 < |y| := abs_pos.mpr hy
   have hzn : |y| ≤ ‖z‖ := by rw [← hzim]; exact Complex.abs_im_le_norm z
   rcases le_or_gt |y| 1 with hy1 | hy1
-  · -- `|y| ≤ 1`
-    have hind : originMajorant α y = |y| ^ (α - 1) + (1 + |y|) ^ (-(2 : ℝ)) := by
-      unfold originMajorant
+  · have hind : originMajorantW α η y = |y| ^ (α - 1) + (1 + |y|) ^ (-(1 + min η 1)) := by
+      unfold originMajorantW
       rw [Set.indicator_of_mem (by rw [mem_Icc]; exact abs_le.mp hy1)]
-    have hw0 : 0 ≤ (1 + |y|) ^ (-(2 : ℝ)) := by positivity
+    have hw0 : 0 ≤ (1 + |y|) ^ (-(1 + min η 1)) := by positivity
     have hq1 : 1 ≤ |y| ^ (α - 1) := Real.one_le_rpow_of_pos_of_le_one_of_nonpos hy0 hy1 (by linarith)
     have hq0 : 0 ≤ |y| ^ (α - 1) := by positivity
     have hbound : ‖admissRem c W z‖ ≤ (Cs + |M|) * |y| ^ (α - 1) := by
@@ -536,13 +582,17 @@ theorem admissRem_line_bound {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 :
     have hA : 0 ≤ (Cs + |M|) + |B| + 8 * ‖W 1‖ := by positivity
     nlinarith [mul_nonneg (abs_nonneg B) hw0, mul_nonneg (norm_nonneg (W 1)) hw0, mul_nonneg (abs_nonneg B) hq0,
       mul_nonneg (norm_nonneg (W 1)) hq0, mul_nonneg hCs hq0]
-  · -- `|y| > 1`
-    have hind : originMajorant α y = (1 + |y|) ^ (-(2 : ℝ)) := by
-      unfold originMajorant
+  · have hind : originMajorantW α η y = (1 + |y|) ^ (-(1 + min η 1)) := by
+      unfold originMajorantW
       rw [Set.indicator_of_notMem (by rw [mem_Icc]; intro h; exact absurd (abs_le.mpr h) (not_le.mpr hy1)), zero_add]
-    have hw0 : 0 < (1 + |y|) ^ (-(2 : ℝ)) := by positivity
+    have hw0 : 0 < (1 + |y|) ^ (-(1 + min η 1)) := by positivity
     have hΦ := hB z hz0 (by rw [hzre]; linarith) (by rw [hzim]; exact hy1.le)
     rw [hzim] at hΦ
+    have hΦ' : ‖admissPhi c W z‖ ≤ |B| * (1 + |y|) ^ (-(1 + min η 1)) := by
+      have hp : (1 + |y|) ^ (-(1 + η)) ≤ (1 + |y|) ^ (-(1 + min η 1)) :=
+        Real.rpow_le_rpow_of_exponent_le (by linarith [abs_nonneg y]) (by linarith [min_le_left η 1])
+      exact hΦ.trans ((mul_le_mul_of_nonneg_right (le_abs_self B) (by positivity)).trans
+        (mul_le_mul_of_nonneg_left hp (abs_nonneg B)))
     have hG := norm_Gamma_le_inv_sq hz0 (by rw [hzre]; linarith)
     have hzn1 : |y| ≤ ‖z + 1‖ := by
       have := Complex.abs_im_le_norm (z + 1)
@@ -561,41 +611,58 @@ theorem admissRem_line_bound {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 :
       rw [div_le_iff₀ hy2]
       have : 1 / (4 * |y| ^ 2) * (4 * |y| ^ 2) = 1 := by field_simp
       nlinarith
-    have hΓ8 : ‖Complex.Gamma z‖ ≤ 8 * (1 + |y|) ^ (-(2 : ℝ)) := by
+    have h2q : (1 + |y|) ^ (-(2 : ℝ)) ≤ (1 + |y|) ^ (-(1 + min η 1)) :=
+      Real.rpow_le_rpow_of_exponent_le (by linarith [abs_nonneg y]) (by linarith [min_le_right η 1])
+    have hΓ8 : ‖Complex.Gamma z‖ ≤ 8 * (1 + |y|) ^ (-(1 + min η 1)) := by
       calc ‖Complex.Gamma z‖ ≤ 2 / |y| ^ 2 := hG2
         _ = 2 * (1 / |y| ^ 2) := by ring
         _ ≤ 2 * (4 * (1 + |y|) ^ (-(2 : ℝ))) := mul_le_mul_of_nonneg_left hw (by norm_num)
-        _ = _ := by ring
-    have hR : ‖admissRem c W z‖ ≤ |B| * (1 + |y|) ^ (-(2 : ℝ)) + ‖W 1‖ * (8 * (1 + |y|) ^ (-(2 : ℝ))) := by
+        _ = 8 * (1 + |y|) ^ (-(2 : ℝ)) := by ring
+        _ ≤ 8 * (1 + |y|) ^ (-(1 + min η 1)) := mul_le_mul_of_nonneg_left h2q (by norm_num)
+    have hR : ‖admissRem c W z‖ ≤ |B| * (1 + |y|) ^ (-(1 + min η 1)) + ‖W 1‖ * (8 * (1 + |y|) ^ (-(1 + min η 1))) := by
       unfold admissRem
-      refine (norm_sub_le _ _).trans (add_le_add ?_ ?_)
-      · exact hΦ.trans (mul_le_mul_of_nonneg_right (le_abs_self B) hw0.le)
-      · rw [norm_mul]; exact mul_le_mul_of_nonneg_left hΓ8 (norm_nonneg _)
+      refine (norm_sub_le _ _).trans (add_le_add hΦ' ?_)
+      rw [norm_mul]; exact mul_le_mul_of_nonneg_left hΓ8 (norm_nonneg _)
     rw [hind]
     have hA : 0 ≤ (Cs + |M|) + |B| + 8 * ‖W 1‖ := by positivity
     nlinarith [mul_nonneg (abs_nonneg B) hw0.le, mul_nonneg (norm_nonneg (W 1)) hw0.le,
       mul_nonneg (add_nonneg hCs (abs_nonneg M)) hw0.le]
 
+/-- Uniform bound of `R = Φ_W - W̃(1) Γ` on the lines `0 < Re z ≤ 1/2`. -/
+theorem admissRem_line_bound {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : α < 1) (hW : StripM1 W)
+    (hH : ∃ CH : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ 1 / 2 → ‖W ζ - W 1‖ ≤ CH * ‖1 - ζ‖ ^ α) :
+    ∃ A : ℝ, 0 ≤ A ∧ ∀ ε y : ℝ, 0 < ε → ε ≤ 1 / 2 → y ≠ 0 →
+      ‖admissRem c W ((ε : ℂ) + (y : ℂ) * Complex.I)‖ ≤ A * originMajorant α y := by
+  obtain ⟨A, hA0, hA⟩ := admissRem_line_bound_of_W1 hc (by norm_num : (0 : ℝ) < 3 / 2) hα0 hα1.le hW.toStripW1 hH
+  refine ⟨A, hA0, fun ε y hε0 hε1 hy => ?_⟩
+  have h := hA ε y hε0 hε1 hy
+  have heq : originMajorantW α (3 / 2) y = originMajorant α y := by
+    unfold originMajorantW originMajorant
+    have : min (3 / 2 : ℝ) 1 = 1 := min_eq_right (by norm_num)
+    rw [this]; norm_num
+  rwa [heq] at h
+
 /-- The limit integrand `Δ^{-iy} Γ(iy) K(iy)` on the imaginary axis. -/
 noncomputable def originLimit (c : ℝ) (W : ℂ → ℂ) (Δ : ℝ) (y : ℝ) : ℂ :=
   (Δ : ℂ) ^ (-((y : ℂ) * Complex.I)) * (Complex.Gamma ((y : ℂ) * Complex.I) * admissK c W ((y : ℂ) * Complex.I))
 
-/-- **The value of the lift at `Δ > 0`, with the pole subtracted:**
-`f(Δ) = W̃(1) e^{-Δ} + (2π)⁻¹ ∫ Δ^{-iy} Γ(iy) K(iy) dy`. -/
-theorem admiss_lift_eq_limit {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : α < 1) (hW : StripM1 W)
+/-- **The value of the lift at `Δ > 0`, with the pole subtracted**, under `(W1)` (`0 < η`, `0 < α ≤ 1`):
+`f(Δ) = W(1) e^{-Δ} + (2π)⁻¹ ∫ Δ^{-iy} Γ(iy) K(iy) dy`. -/
+theorem admiss_lift_eq_limit_of_W1 {c η α : ℝ} (hc : 2 ≤ c) (hη : 0 < η) (hα0 : 0 < α) (hα1 : α ≤ 1)
+    (hW : StripW1 η W)
     (hH : ∃ CH : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ 1 / 2 → ‖W ζ - W 1‖ ≤ CH * ‖1 - ζ‖ ^ α)
     {Δ : ℝ} (hΔ : 0 < Δ) :
     ((admissLift c W Δ : ℝ) : ℂ) = W 1 * ((Real.exp (-Δ) : ℝ) : ℂ) +
       ((1 / (2 * Real.pi) : ℝ) : ℂ) * ∫ y : ℝ, originLimit c W Δ y := by
   have hc0 : 0 < c := by linarith
-  have hR := admissRem_mellinLiftData hc hW
-  obtain ⟨A, hA0, hA⟩ := admissRem_line_bound hc hα0 hα1 hW hH
+  have hR := admissRem_mellinLiftData_of_W1 hc hη hW
+  obtain ⟨A, hA0, hA⟩ := admissRem_line_bound_of_W1 hc hη hα0 hα1 hW hH
   set F : ℝ → ℝ → ℂ := fun ε y => (Δ : ℂ) ^ (-((ε : ℂ) + (y : ℂ) * Complex.I)) *
     admissRem c W ((ε : ℂ) + (y : ℂ) * Complex.I) with hF
   have hae : ∀ᵐ y : ℝ, y ≠ 0 := compl_mem_ae_iff.mpr (measure_singleton 0)
   have hlim : Tendsto (fun ε : ℝ => ∫ y : ℝ, F ε y) (𝓝[>] (0 : ℝ)) (𝓝 (∫ y : ℝ, originLimit c W Δ y)) := by
     refine tendsto_integral_filter_of_dominated_convergence
-      (fun y => (1 + Δ ^ (-(1 / 2 : ℝ))) * (A * originMajorant α y)) ?_ ?_ ?_ ?_
+      (fun y => (1 + Δ ^ (-(1 / 2 : ℝ))) * (A * originMajorantW α η y)) ?_ ?_ ?_ ?_
     · filter_upwards [Ioo_mem_nhdsGT hc0] with ε hε
       have hcont : Continuous fun y : ℝ => F ε y := by
         have h1 : Continuous fun y : ℝ => (Δ : ℂ) ^ (-((ε : ℂ) + (y : ℂ) * Complex.I)) :=
@@ -611,15 +678,14 @@ theorem admiss_lift_eq_limit {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 :
       simp only [hF]
       rw [norm_mul, norm_cpow_line hΔ]
       exact mul_le_mul h2 h1 (norm_nonneg _) (by positivity)
-    · exact ((integrable_originMajorant hα0).const_mul A).const_mul _
+    · exact ((integrable_originMajorantW hα0 hη).const_mul A).const_mul _
     · filter_upwards [hae] with y hy
-      -- pointwise limit
       set z0 : ℂ := (y : ℂ) * Complex.I with hz0
       have hz0re : z0.re = 0 := by simp [hz0]
       have hz0ne : z0 ≠ 0 := by
         intro h; apply hy; have := congrArg Complex.im h; simpa [hz0] using this
       have hGc : ContinuousAt Complex.Gamma z0 := continuousAt_Gamma_of_re_nonneg hz0re.ge hz0ne
-      have hKc := admissK_continuousOn hc0 hW z0 ⟨hz0re.ge, by rw [hz0re]; exact hc0.le⟩
+      have hKc := admissK_continuousOn_of_W1 hc0 hW z0 ⟨hz0re.ge, by rw [hz0re]; exact hc0.le⟩
       have hpowc : ContinuousAt (fun z : ℂ => (Δ : ℂ) ^ (-z)) z0 :=
         (Continuous.const_cpow continuous_neg (Or.inl (by exact_mod_cast hΔ.ne'))).continuousAt
       have hcw : ContinuousWithinAt (fun z : ℂ => (Δ : ℂ) ^ (-z) * (Complex.Gamma z * admissK c W z))
@@ -643,7 +709,7 @@ theorem admiss_lift_eq_limit {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 :
   have hconst : ∀ᶠ ε : ℝ in 𝓝[>] (0 : ℝ),
       ∫ y : ℝ, F ε y = ((2 * Real.pi : ℝ) : ℂ) * (((admissLift c W Δ : ℝ) : ℂ) - W 1 * ((Real.exp (-Δ) : ℝ) : ℂ)) := by
     filter_upwards [Ioo_mem_nhdsGT (by norm_num : (0 : ℝ) < 1 / 2)] with ε hε
-    have h1 := admiss_lift_eq_sub hc hW hΔ hε.1 (by linarith [hε.2])
+    have h1 := admiss_lift_eq_sub_of_W1 hc hη hW hΔ hε.1 (by linarith [hε.2])
     have h2 : mellinInv ε (admissRem c W) Δ = ((1 / (2 * Real.pi) : ℝ) : ℂ) * ∫ y : ℝ, F ε y := by
       unfold mellinInv
       rw [Complex.real_smul]
@@ -668,6 +734,15 @@ theorem admiss_lift_eq_limit {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 :
   field_simp
   ring
 
+/-- **The value of the lift at `Δ > 0`, with the pole subtracted:**
+`f(Δ) = W̃(1) e^{-Δ} + (2π)⁻¹ ∫ Δ^{-iy} Γ(iy) K(iy) dy`. -/
+theorem admiss_lift_eq_limit {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : α < 1) (hW : StripM1 W)
+    (hH : ∃ CH : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ 1 / 2 → ‖W ζ - W 1‖ ≤ CH * ‖1 - ζ‖ ^ α)
+    {Δ : ℝ} (hΔ : 0 < Δ) :
+    ((admissLift c W Δ : ℝ) : ℂ) = W 1 * ((Real.exp (-Δ) : ℝ) : ℂ) +
+      ((1 / (2 * Real.pi) : ℝ) : ℂ) * ∫ y : ℝ, originLimit c W Δ y :=
+  admiss_lift_eq_limit_of_W1 hc (by norm_num) hα0 hα1.le hW.toStripW1 hH hΔ
+
 lemma cpow_imag_eq (Δ y : ℝ) (hΔ : 0 < Δ) :
     (Δ : ℂ) ^ (-((y : ℂ) * Complex.I)) = Complex.exp (2 * Real.pi * (-(y * (Real.log Δ / (2 * Real.pi)))) * Complex.I) := by
   have hΔ0 : (Δ : ℂ) ≠ 0 := by exact_mod_cast hΔ.ne'
@@ -676,8 +751,9 @@ lemma cpow_imag_eq (Δ y : ℝ) (hΔ : 0 < Δ) :
   have : (Real.pi : ℂ) ≠ 0 := by exact_mod_cast Real.pi_ne_zero
   field_simp
 
-/-- **`uct:admiss` (1), the value at the origin:** `f_W(Δ) → W̃(1)` as `Δ ↓ 0` (`mat:T7`(a)). -/
-theorem admiss_lift_tendsto {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : α < 1) (hW : StripM1 W)
+/-- **`mat:T7` (a), the value at the origin:** `f_W(Δ) → W(1)` as `Δ ↓ 0` under `(W1)` (`0 < η`) and `(W2)` at `1` (`0 < α ≤ 1`). -/
+theorem admiss_lift_tendsto_of_W1 {c η α : ℝ} (hc : 2 ≤ c) (hη : 0 < η) (hα0 : 0 < α) (hα1 : α ≤ 1)
+    (hW : StripW1 η W)
     (hH : ∃ CH : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ 1 / 2 → ‖W ζ - W 1‖ ≤ CH * ‖1 - ζ‖ ^ α) :
     Tendsto (admissLift c W) (𝓝[>] (0 : ℝ)) (𝓝 (W 1).re) := by
   set ρ : ℝ → ℂ := fun y => Complex.Gamma ((y : ℂ) * Complex.I) * admissK c W ((y : ℂ) * Complex.I) with hρ
@@ -707,9 +783,15 @@ theorem admiss_lift_tendsto {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : 
     simp only [mul_one, mul_zero, add_zero] at h
     refine h.congr' ?_
     filter_upwards [self_mem_nhdsWithin] with Δ hΔ
-    exact (admiss_lift_eq_limit hc hα0 hα1 hW hH hΔ).symm
+    exact (admiss_lift_eq_limit_of_W1 hc hη hα0 hα1 hW hH hΔ).symm
   have h2 := (Complex.continuous_re.tendsto (W 1)).comp hlim
   exact h2.congr (fun Δ => by simp)
+
+/-- **`uct:admiss` (1), the value at the origin:** `f_W(Δ) → W̃(1)` as `Δ ↓ 0` (`mat:T7`(a)). -/
+theorem admiss_lift_tendsto {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : α < 1) (hW : StripM1 W)
+    (hH : ∃ CH : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ 1 / 2 → ‖W ζ - W 1‖ ≤ CH * ‖1 - ζ‖ ^ α) :
+    Tendsto (admissLift c W) (𝓝[>] (0 : ℝ)) (𝓝 (W 1).re) :=
+  admiss_lift_tendsto_of_W1 hc (by norm_num) hα0 hα1.le hW.toStripW1 hH
 
 /-- info: 'FormalResearch.SignUncertainty.mellinInv_one_Gamma' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
