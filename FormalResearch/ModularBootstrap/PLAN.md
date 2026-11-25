@@ -9,7 +9,7 @@ is not on `master`, and a `.lean` file existing is not verification.
 reaches the `O(1)` two-sided law only for weight one (every product `Q`, including `N = 1`), with the bump for `w > 1` half
 built; the two-level curve and its fold-tip instances are done at weight one and conditional on named inputs above it.
 The five-term expansion, primal attainment, the infinite-order derivative limit, integrality, positive mixtures and all spin
-results are not in Lean; sections 1 to 3 give each a place in a priority and dependency order. Under `FormalResearch/` there is no `sorry` and no
+results are not in Lean; sections 1 to 3 give each a place in a priority and dependency order. Under `FormalResearch/` there is no proof placeholder and no
 `axiom` declaration, and the headline theorems named below carry `#print axioms` guards with `[propext, Classical.choice, Quot.sound]`.
 
 **Counts.** The paper and supplement state 249 results (246 `result` environments, the two `theorem`/`corollary` of
@@ -252,7 +252,7 @@ Statements that Lean proves only for a special case, so that nobody cites them a
 
 One row per coherent set of results with one proof route. Labels are the first `\label` of each result (aliases in
 Appendix A); the file is in `CFT/modular_bootstrap/paper/`. Columns: **Lean today** names declarations (each was grepped in
-`FormalResearch/`; no file contains `sorry` or a non-pinned axiom); **scope / still a hypothesis** is what the Lean statement
+`FormalResearch/`; no file contains a proof placeholder or a non-pinned axiom); **scope / still a hypothesis** is what the Lean statement
 does and does not cover; **remaining** names the work packages of sections 2 and 3. Per-label states are in Appendix A; where a row mixes
 states they are listed in the row.
 

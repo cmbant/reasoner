@@ -13,7 +13,7 @@ fields X. A `.lean` file existing is not verification.
 | fact | state |
 |---|---|
 | size | `SignUncertainty/` 237 files, 63.7k lines; `CohnElkies/` 65 files, 53.6k lines; `Special/Airy*` about 48k lines; `TwoEdgeBootstrap/` 4k; `Asymptotics/` 3k |
-| placeholders | no `sorry` and no declared `axiom` anywhere in `FormalResearch/` (grep). The headline theorems in `Headlines.lean` are guarded by `#guard_msgs` to `[propext, Classical.choice, Quot.sound]`; the `O4CertRun*` boxes use `decide +kernel` (no `native_decide`) |
+| placeholders | no proof placeholder and no declared `axiom` anywhere in `FormalResearch/` (grep). The headline theorems in `Headlines.lean` are guarded by `#guard_msgs` to `[propext, Classical.choice, Quot.sound]`; the `O4CertRun*` boxes use `decide +kernel` (no `native_decide`) |
 | last recorded full build | `lake build FormalResearch.SignUncertainty FormalResearch.TwoEdgeBootstrap`, 9,269 jobs, about 9 min (audit of 2026-11-23; not re-run for this documentation pass) |
 | paper headlines | three introduction theorems: `thm:intro-radii` (five-term radii), `thm:intro-hb` (bounded remainder at every fixed level), `thm:intro-gap` (CE thresholds at prescribed shells) |
 | unconditional headline in Lean | none |
@@ -142,7 +142,7 @@ An "Airy-order `o(d^{1/3})` radius at fixed `delta`" is not a shortcut: the fixe
 
 Every stated result of Paper I is listed once: 152 results (3 introduction theorems, 119 `result` environments in `CFT/sign_uncertainty/paper/*.tex`, and 30 in the three `CFT/common/` files the paper `\input`s: `airy_poisson.tex` 16, `clark_airy.tex` 7, `two_edge_bootstrap.tex` 7). Aliased labels are one row, keyed by the first label. States are on `master` (`2556a80`): **done** 52, **partial** 40, **planned** 59, **not planned** 1.
 
-A row is **done** when the label is proved in Lean for the stated hypotheses (any difference in constants is noted), **partial** when some parts or instances are proved and the missing part is named, **planned** when a milestone owns it and nothing is stated, **not planned** with the reason. `sorry`/`axiom`: none anywhere in `FormalResearch/` (grep on `master`), so no declaration cited here depends on a placeholder; "proved modulo fields" always means a named hypothesis structure.
+A row is **done** when the label is proved in Lean for the stated hypotheses (any difference in constants is noted), **partial** when some parts or instances are proved and the missing part is named, **planned** when a milestone owns it and nothing is stated, **not planned** with the reason. placeholders/`axiom`: none anywhere in `FormalResearch/` (grep on `master`), so no declaration cited here depends on a placeholder; "proved modulo fields" always means a named hypothesis structure.
 
 ### 6.1 Packages
 
