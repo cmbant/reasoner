@@ -7,8 +7,8 @@ public import FormalResearch.CohnElkies.LobeSaddleCore
 
 Source: `CFT/sign_uncertainty/paper/ce_rate.tex` (PR 240, commit `c3d8c90fe`).
 
-Outer tail and additional damping estimates, `lobe_saddle_asymptotic` (`(cel:5.7)`–`(cel:5.9)`),
-and `lobeSaddleAmp_nonvacuous`.
+Outer tail and additional damping estimates, `lobe_total_saddle` (`cel:total-saddle`),
+`lobe_saddle_asymptotic` (`(cel:5.7)`–`(cel:5.9)`), and `lobeSaddleAmp_nonvacuous`.
 -/
 
 @[expose] public section
@@ -341,7 +341,7 @@ private lemma lobe_outer_gt_half {c σ_star g' ε_L τ_sd τ_core : ℝ}
     have hm1 := setIntegral_mono_on (h_Ioi.const_mul _) (h_tail_int.const_mul _) measurableSet_Ioi h_half_mono
     rw [integral_const_mul, integral_const_mul] at hm1
     have hm2 : (1 / τ_sd) * ∫ τ in Ioi (1 / 2 : ℝ), F_out τ ≤ (Real.sqrt (2 * c) * Real.exp (-(3 / 320 : ℝ) * c)) * 2 :=
-      hm1.trans (mul_le_mul_of_nonneg_left h_tail_bd (by positivity))
+      hm1.trans (mul_le_mul_of_nonneg_left (h_tail_bd.trans (by norm_num)) (by positivity))
     have hc_eps := lobe_inv_eps_of_lt hεL_pos hc_pos (hz_eps2.trans (by dsimp [z_pos]; nlinarith only [hc_pos, hhalf]))
     exact hm2.trans ((mul_le_mul_of_nonneg_right (tiny_exp_3_320 hc_100k) (by norm_num)).trans
       ((mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hc_eps (by norm_num)) (by norm_num)).trans_eq (by ring)))
@@ -374,7 +374,7 @@ private lemma lobe_add_bound {c σ_star g' τ_sd z_pos ε : ℝ}
     let F_out := fun τ : ℝ => (1 + τ ^ 2 / (1 - σ_star) ^ 2) ^ (-(1 / 4 : ℝ)) * Real.exp (-c * vertUpsilon σ_star τ)
     let F_add := fun τ : ℝ => F_out τ * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1
     IntegrableOn F_add (Ioi ((1 - σ_star) / 2)) ∧
-      (2 / (Real.sqrt (2 * π) * τ_sd)) * ∫ τ in Ioi ((1 - σ_star) / 2), F_add τ ≤ 430 * ε * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
+      (2 / (Real.sqrt (2 * π) * τ_sd)) * ∫ τ in Ioi ((1 - σ_star) / 2), F_add τ ≤ 150 * ε * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
   dsimp only
   let F_out := fun τ : ℝ => (1 + τ ^ 2 / (1 - σ_star) ^ 2) ^ (-(1 / 4 : ℝ)) * Real.exp (-c * vertUpsilon σ_star τ)
   let F_add := fun τ : ℝ => F_out τ * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1
@@ -520,48 +520,68 @@ private lemma lobe_add_bound {c σ_star g' τ_sd z_pos ε : ℝ}
       _ ≤ (80 / 3 * ε + 111 * ε) * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
           rw [hτ₁_c, one_mul, h_bd1]; exact mul_le_mul_of_nonneg_right (add_le_add le_rfl h_bd2) (Real.exp_pos _).le
       _ ≤ 138 * ε * Real.exp (-(3 / 320 : ℝ) * z_pos) := by nlinarith only [hε_pos, Real.exp_pos (-(3 / 320 : ℝ) * z_pos)]
-  have h_partB : (1 / τ_sd) * ∫ τ in Ioi (1 / 2 : ℝ), F_add τ ≤ 120 * ε * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
+  have h_partB : (1 / τ_sd) * ∫ τ in Ioi (1 / 2 : ℝ), F_add τ ≤ 46.2 * ε * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
     have hm1 := setIntegral_mono_on (h_Ioi_int.const_mul _) (h_tail_int.const_mul _) measurableSet_Ioi hpt_B
     rw [integral_const_mul, integral_const_mul] at hm1
     have hm2 : (1 / τ_sd) * ∫ τ in Ioi (1 / 2 : ℝ), F_add τ ≤
-        (Real.sqrt (2 * c) * Real.exp (-(3 / 320 : ℝ) * z_pos) * Real.exp (-(3 / 320 : ℝ) * c)) * 2 :=
+        (Real.sqrt (2 * c) * Real.exp (-(3 / 320 : ℝ) * z_pos) * Real.exp (-(3 / 320 : ℝ) * c)) * 1.71 :=
       hm1.trans (mul_le_mul_of_nonneg_left h_tail_bd (by positivity))
-    have hc_exp : c * Real.exp (-(3 / 320 : ℝ) * c) ≤ 40 := by
-      have h1 : (3 / 320 : ℝ) * c * Real.exp 1 ≤ Real.exp ((3 / 320 : ℝ) * c) := by
-        have hadd := Real.add_one_le_exp ((3 / 320 : ℝ) * c - 1)
-        rw [show (3 / 320 : ℝ) * c - 1 = (3 / 320 : ℝ) * c + -1 by ring, Real.exp_add, Real.exp_neg, ← div_eq_mul_inv] at hadd
-        have hadd' : (3 / 320 : ℝ) * c ≤ Real.exp ((3 / 320 : ℝ) * c) / Real.exp 1 := by linarith only [hadd]
-        exact (le_div_iff₀ (Real.exp_pos 1)).mp hadd'
-      have he1 : (2.718 : ℝ) ≤ Real.exp 1 := (Real.exp_one_gt_d9.le).trans' (by norm_num)
-      have hmul : (3 / 320 : ℝ) * 2.718 * (c * Real.exp (-(3 / 320 : ℝ) * c)) ≤ 1 := by
-        rw [show -(3 / 320 : ℝ) * c = -((3 / 320 : ℝ) * c) by ring, Real.exp_neg]
-        calc _ = ((3 / 320 : ℝ) * c * 2.718) * (Real.exp ((3 / 320 : ℝ) * c))⁻¹ := by ring
-          _ ≤ ((3 / 320 : ℝ) * c * Real.exp 1) * (Real.exp ((3 / 320 : ℝ) * c))⁻¹ :=
-              mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left he1 (by positivity)) (inv_nonneg.mpr (Real.exp_pos _).le)
-          _ ≤ Real.exp ((3 / 320 : ℝ) * c) * (Real.exp ((3 / 320 : ℝ) * c))⁻¹ :=
-              mul_le_mul_of_nonneg_right h1 (inv_nonneg.mpr (Real.exp_pos _).le)
-          _ = 1 := mul_inv_cancel₀ (Real.exp_pos _).ne'
-      linarith only [hmul]
-    have hc56 : c ^ (5 / 6 : ℝ) ≤ c := by nth_rw 2 [← Real.rpow_one c]; exact Real.rpow_le_rpow_of_exponent_le (by linarith only [hc60]) (by norm_num)
+    have hc_exp56 : c ^ (5 / 6 : ℝ) * Real.exp (-(3 / 320 : ℝ) * c) ≤ 19 := by
+      have h1 : (6 / 5 : ℝ) * ((3 / 320 : ℝ) * c) ≤ Real.exp ((6 / 5 : ℝ) * ((3 / 320 : ℝ) * c) - 1) := by
+        linarith only [Real.add_one_le_exp ((6 / 5 : ℝ) * ((3 / 320 : ℝ) * c) - 1)]
+      have h2 : ((6 / 5 : ℝ) * ((3 / 320 : ℝ) * c)) ^ (5 / 6 : ℝ) ≤
+          (Real.exp ((6 / 5 : ℝ) * ((3 / 320 : ℝ) * c) - 1)) ^ (5 / 6 : ℝ) :=
+        Real.rpow_le_rpow (by positivity) h1 (by norm_num)
+      rw [← Real.exp_mul, show ((6 / 5 : ℝ) * ((3 / 320 : ℝ) * c) - 1) * (5 / 6 : ℝ) =
+          (3 / 320 : ℝ) * c + -(5 / 6 : ℝ) by ring, Real.exp_add] at h2
+      have hcoeff : ((6 / 5 : ℝ) * (3 / 320 : ℝ)) ^ (5 / 6 : ℝ) * c ^ (5 / 6 : ℝ) =
+          ((6 / 5 : ℝ) * ((3 / 320 : ℝ) * c)) ^ (5 / 6 : ℝ) := by
+        rw [← Real.mul_rpow (by positivity) hc_pos.le]; congr 1; ring
+      rw [← hcoeff] at h2
+      have h3 : c ^ (5 / 6 : ℝ) * Real.exp (-(3 / 320 : ℝ) * c) ≤
+          ((800 / 9 : ℝ) / Real.exp 1) ^ (5 / 6 : ℝ) := by
+        have he56 : Real.exp (-(5 / 6 : ℝ)) = (Real.exp 1) ^ (-(5 / 6 : ℝ)) := by
+          rw [← Real.exp_mul]; ring_nf
+        have hmul := mul_le_mul_of_nonneg_right h2 (Real.exp_pos (-(3 / 320 : ℝ) * c)).le
+        have hcancel : Real.exp ((3 / 320 : ℝ) * c) * Real.exp (-(5 / 6 : ℝ)) * Real.exp (-(3 / 320 : ℝ) * c) =
+            Real.exp (-(5 / 6 : ℝ)) := by
+          rw [mul_right_comm, ← Real.exp_add, show (3 / 320 : ℝ) * c + -(3 / 320 : ℝ) * c = 0 by ring,
+            Real.exp_zero, one_mul]
+        rw [hcancel, he56] at hmul
+        have hpos_c : 0 < ((6 / 5 : ℝ) * (3 / 320 : ℝ)) ^ (5 / 6 : ℝ) := by positivity
+        have hdiv : c ^ (5 / 6 : ℝ) * Real.exp (-(3 / 320 : ℝ) * c) ≤
+            (Real.exp 1) ^ (-(5 / 6 : ℝ)) / ((6 / 5 : ℝ) * (3 / 320 : ℝ)) ^ (5 / 6 : ℝ) :=
+          (le_div_iff₀' hpos_c).mpr (by linarith only [hmul])
+        refine hdiv.trans_eq ?_
+        rw [Real.div_rpow (by norm_num) (Real.exp_pos 1).le, Real.rpow_neg (Real.exp_pos 1).le,
+          div_eq_mul_inv, div_eq_mul_inv, ← Real.inv_rpow (by norm_num : (0 : ℝ) ≤ (6 / 5) * (3 / 320)),
+          show ((6 / 5 : ℝ) * (3 / 320))⁻¹ = 800 / 9 by norm_num]
+        ring
+      have hbase : (800 / 9 : ℝ) / Real.exp 1 ≤ 33 := by
+        have he1 : (2.718 : ℝ) ≤ Real.exp 1 := (Real.exp_one_gt_d9.le).trans' (by norm_num)
+        rw [div_le_iff₀ (Real.exp_pos 1)]; linarith only [he1]
+      have h33 : (33 : ℝ) ^ (5 / 6 : ℝ) ≤ 19 := by
+        refine le_of_pow_le_pow_left₀ (by norm_num : 6 ≠ 0) (by norm_num : (0 : ℝ) ≤ 19) ?_
+        rw [← Real.rpow_natCast _ 6, ← Real.rpow_mul (by norm_num),
+          show (5 / 6 : ℝ) * (6 : ℕ) = (5 : ℕ) by norm_num, Real.rpow_natCast]
+        norm_num
+      exact h3.trans ((Real.rpow_le_rpow (by positivity) hbase (by norm_num)).trans h33)
     have hc12 : Real.sqrt (2 * c) = Real.sqrt 2 * c ^ (5 / 6 : ℝ) * ε := by
       rw [Real.sqrt_mul (by norm_num), Real.sqrt_eq_rpow c, hε_def, mul_assoc, ← Real.rpow_add hc_pos]; norm_num
-    have hsq2 : Real.sqrt 2 ≤ 1.5 := by rw [Real.sqrt_le_left (by norm_num)]; norm_num
-    have hsqrt2c : Real.sqrt (2 * c) * Real.exp (-(3 / 320 : ℝ) * c) * 2 ≤ 120 * ε := by
-      calc _ = 2 * Real.sqrt 2 * (c ^ (5 / 6 : ℝ) * Real.exp (-(3 / 320 : ℝ) * c)) * ε := by rw [hc12]; ring
-        _ ≤ 2 * 1.5 * (c ^ (5 / 6 : ℝ) * Real.exp (-(3 / 320 : ℝ) * c)) * ε := by
+    have hsq2 : Real.sqrt 2 ≤ 1.42 := by rw [Real.sqrt_le_left (by norm_num)]; norm_num
+    have hsqrt2c : Real.sqrt (2 * c) * Real.exp (-(3 / 320 : ℝ) * c) * 1.71 ≤ 46.2 * ε := by
+      calc _ = 1.71 * Real.sqrt 2 * (c ^ (5 / 6 : ℝ) * Real.exp (-(3 / 320 : ℝ) * c)) * ε := by rw [hc12]; ring
+        _ ≤ 1.71 * 1.42 * (c ^ (5 / 6 : ℝ) * Real.exp (-(3 / 320 : ℝ) * c)) * ε := by
             refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hsq2 (by norm_num)) (by positivity)) hε_pos.le
-        _ ≤ 3 * (c * Real.exp (-(3 / 320 : ℝ) * c)) * ε := by
-            rw [show (2 : ℝ) * 1.5 = 3 by norm_num]
-            exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hc56 (Real.exp_pos _).le) (by norm_num)) hε_pos.le
-        _ ≤ 3 * 40 * ε := mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hc_exp (by norm_num)) hε_pos.le
-        _ = 120 * ε := by ring
+        _ ≤ 1.71 * 1.42 * 19 * ε := mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hc_exp56 (by norm_num)) hε_pos.le
+        _ ≤ 46.2 * ε := by nlinarith only [hε_pos]
     exact (hm2.trans_eq (by ring)).trans (mul_le_mul_of_nonneg_right hsqrt2c (Real.exp_pos _).le)
   have hsplit : ∫ τ in Ioi τ₁, F_add τ = (∫ τ in Ioc τ₁ (1 / 2), F_add τ) + ∫ τ in Ioi (1 / 2), F_add τ := by
     rw [← Ioc_union_Ioi_eq_Ioi (by linarith only [hτ₁_lt] : τ₁ ≤ 1 / 2)]; exact setIntegral_union Ioc_disjoint_Ioi_same measurableSet_Ioi h_Ioc_int h_Ioi_int
   refine ⟨by rw [← Ioc_union_Ioi_eq_Ioi (by linarith only [hτ₁_lt] : τ₁ ≤ 1 / 2)]; exact h_Ioc_int.union h_Ioi_int, ?_⟩
   calc (2 / (Real.sqrt (2 * π) * τ_sd)) * ∫ τ in Ioi τ₁, F_add τ
       = (2 / Real.sqrt (2 * π)) * ((1 / τ_sd) * ∫ τ in Ioi τ₁, F_add τ) := by ring
-    _ ≤ (2 / 2.506) * ((258 : ℝ) * ε * Real.exp (-(3 / 320 : ℝ) * z_pos)) := mul_le_mul
+    _ ≤ (2 / 2.506) * ((184.2 : ℝ) * ε * Real.exp (-(3 / 320 : ℝ) * z_pos)) := mul_le_mul
         (div_le_div_of_nonneg_left (by norm_num) (by positivity) hsqrt2pi)
         (by rw [hsplit, mul_add]; linarith only [h_partA, h_partB])
         (mul_nonneg (by positivity) (setIntegral_nonneg measurableSet_Ioi fun τ hτ => by
@@ -570,16 +590,16 @@ private lemma lobe_add_bound {c σ_star g' τ_sd z_pos ε : ℝ}
           exact mul_nonneg (mul_nonneg (Real.rpow_nonneg (by positivity) _) (Real.exp_pos _).le)
             (le_min (mul_nonneg (Real.rpow_nonneg hc_pos.le _) (Real.rpow_nonneg hτ0 _)) zero_le_one)))
         (by norm_num)
-    _ ≤ 430 * ε * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
+    _ ≤ 150 * ε * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
         have hnn : 0 ≤ ε * Real.exp (-(3 / 320 : ℝ) * z_pos) := by positivity
         nlinarith only [hnn]
 
-private lemma lobe_outer_and_add_bounds {Δ₁ U c Δ ξ σ_star : ℝ}
+private lemma lobe_outer_and_add_bounds {Δ₁ U c Δ ξ σ_star M Λ_add : ℝ}
     (hΔ₁ : 1 ≤ Δ₁) (hU : 1 ≤ U) (hc : max (20 * Δ₁) (60 * U ^ (3 / 2 : ℝ)) ≤ c)
     (hΔ_lo : Δ₁ ≤ Δ) (hΔ_hi : Δ ≤ (c / π ^ 2) * Real.exp (-(π ^ 2 * U * c ^ (-(2 / 3 : ℝ)))))
     (hξ : ξ = Δ / c) (hσ0 : 0 < σ_star) (hσ1 : σ_star < 1) (hσ_eq : stripGReal σ_star = -Real.log (π ^ 2 * ξ))
-    (amp : LobeSaddleAmp σ_star (c ^ (1 / 3 : ℝ) * σ_star) (c ^ (1 / 3 : ℝ) * (1 - σ_star)))
-    (h_eps0 : max ((27 / 100 : ℝ) * U ^ (-(3 / 4 : ℝ))) (Δ₁ ^ (-(1 / 2 : ℝ))) ≤ min (3 / 1000 : ℝ) ((4 * amp.M) ^ (-(4 / 3 : ℝ)))) :
+    (hΛ_add_half : 0 < Λ_add → 1 / 2 < σ_star)
+    (h_eps0 : max ((27 / 100 : ℝ) * U ^ (-(3 / 4 : ℝ))) (Δ₁ ^ (-(1 / 2 : ℝ))) ≤ min (3 / 1000 : ℝ) ((4 * M) ^ (-(4 / 3 : ℝ)))) :
     let ε_L := saddleEpsL c σ_star
     let τ_sd := (c * stripGDerivReal σ_star) ^ (-(1 / 2 : ℝ))
     let τ_core := ε_L ^ (-(1 / 4 : ℝ)) * τ_sd
@@ -589,8 +609,8 @@ private lemma lobe_outer_and_add_bounds {Δ₁ U c Δ ξ σ_star : ℝ}
     let F_add := fun τ : ℝ => F_out τ * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1
     IntegrableOn F_out (Ioi τ_core) ∧
     (2 / (Real.sqrt (2 * π) * τ_sd)) * ∫ τ in Ioi τ_core, F_out τ ≤ 54 * ε_L ∧
-    (0 < amp.Λ_add → IntegrableOn F_add (Ioi ((1 - σ_star) / 2)) ∧
-      (2 / (Real.sqrt (2 * π) * τ_sd)) * ∫ τ in Ioi ((1 - σ_star) / 2), F_add τ ≤ 430 * ε * Real.exp (-(3 / 320 : ℝ) * z_pos)) := by
+    (0 < Λ_add → IntegrableOn F_add (Ioi ((1 - σ_star) / 2)) ∧
+      (2 / (Real.sqrt (2 * π) * τ_sd)) * ∫ τ in Ioi ((1 - σ_star) / 2), F_add τ ≤ 150 * ε * Real.exp (-(3 / 320 : ℝ) * z_pos)) := by
   dsimp only
   have hc60 : 60 ≤ c := by have := Real.one_le_rpow hU (by norm_num : (0 : ℝ) ≤ 3 / 2); linarith [(le_max_right (20 * Δ₁) (60 * U ^ (3 / 2 : ℝ))).trans hc]
   have hc_pos : 0 < c := by linarith
@@ -642,74 +662,80 @@ private lemma lobe_outer_and_add_bounds {Δ₁ U c Δ ξ σ_star : ℝ}
         hτcore_pos hτcore_eq hεL_34_le_18 hεL_inv2_ge hz_eps h_gauss10 (hB_dec hhalf) hhalf
   refine ⟨h_out.1, h_out.2, fun h_add_pos => ?_⟩
   exact lobe_add_bound hc60 hc_pos hσ0 hσ1 hg'_pos rfl hτsd_pos rfl rfl (by nlinarith [hΔ₁, Real.pi_pos, hz_gt])
-    rfl (hB_dec (amp.hΛ_add_half h_add_pos)) (amp.hΛ_add_half h_add_pos)
+    rfl (hB_dec (hΛ_add_half h_add_pos)) (hΛ_add_half h_add_pos)
 
-/-- **Proposition P.4 (`cel:L5`, `(cel:5.7)`–`(cel:5.9)` & Remark P.4a `cel:L5a`):**
-uniform lobe saddle asymptotic for abstract amplitudes `(W_S, W_D)`. -/
-theorem lobe_saddle_asymptotic {Δ₁ U c Δ ξ σ_star : ℝ}
+/-- **Proposition P.4 (`cel:total-saddle`, `ce_rate.tex`):**
+first-order uniform lobe saddle asymptotic in total-multiplier (absolute-error) form. -/
+theorem lobe_total_saddle {Δ₁ U c Δ ξ σ_star : ℝ}
     (hΔ₁ : 1 ≤ Δ₁) (hU : 1 ≤ U) (hc : max (20 * Δ₁) (60 * U ^ (3 / 2 : ℝ)) ≤ c)
     (hΔ_lo : Δ₁ ≤ Δ) (hΔ_hi : Δ ≤ (c / π ^ 2) * Real.exp (-(π ^ 2 * U * c ^ (-(2 / 3 : ℝ)))))
     (hξ : ξ = Δ / c) (hσ0 : 0 < σ_star) (hσ1 : σ_star < 1) (hσ_eq : stripGReal σ_star = -Real.log (π ^ 2 * ξ))
-    (amp : LobeSaddleAmp σ_star (c ^ (1 / 3 : ℝ) * σ_star) (c ^ (1 / 3 : ℝ) * (1 - σ_star)))
+    (amp : TotalSaddleAmp c σ_star)
     (h_eps0 : max ((27 / 100 : ℝ) * U ^ (-(3 / 4 : ℝ))) (Δ₁ ^ (-(1 / 2 : ℝ))) ≤
       min (3 / 1000 : ℝ) ((4 * amp.M) ^ (-(4 / 3 : ℝ)))) :
     let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re
-    let W₀ := (amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re + (amp.W_D ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ)).re
-    let L_lead := (1 / (2 * π * ξ)) * K₀ * W₀ * Real.sqrt (2 * π / (c * stripGDerivReal σ_star))
-    let I_val := lobeSaddleIntegral amp.W_S amp.W_D c ξ σ_star
+    let τ_sd := (c * stripGDerivReal σ_star) ^ (-(1 / 2 : ℝ))
+    let I_val := totalSaddleIntegral amp.V c ξ σ_star
     let z_pos := c * (1 - σ_star)
     let ε := c ^ (-(1 / 3 : ℝ))
     (mellinK0 c (σ_star : ℂ) ξ).im = 0 ∧ 0 < K₀ ∧ I_val.im = 0 ∧
-      |(I_val.re - L_lead) / L_lead| ≤
-        (8 * amp.M + 54 * amp.Λ + 109) * saddleEpsL c σ_star +
-          430 * amp.Λ_add * (ε / W₀) * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
+      (amp.V (σ_star : ℂ)).im = 0 ∧
+      |(2 * π * ξ * I_val.re) / (K₀ * Real.sqrt (2 * π) * τ_sd) - (amp.V (σ_star : ℂ)).re| ≤
+        (8 * amp.M + 54 * amp.Λ + 109) * amp.A * saddleEpsL c σ_star +
+          150 * amp.Λ_add * ε * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
   dsimp only
   have hc_pos : 0 < c := by linarith [(le_max_left _ _).trans hc]
   have hξ_pos : 0 < ξ := by rw [hξ]; exact div_pos (by linarith) hc_pos
   let g' := stripGDerivReal σ_star; let ε_L := saddleEpsL c σ_star; let τ_sd := (c * g') ^ (-(1 / 2 : ℝ))
   let τ_core := ε_L ^ (-(1 / 4 : ℝ)) * τ_sd; let ε := c ^ (-(1 / 3 : ℝ))
-  let x_pos := c ^ (1 / 3 : ℝ) * σ_star; let x_neg := c ^ (1 / 3 : ℝ) * (1 - σ_star); let z_pos := c * (1 - σ_star)
-  let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re; let W₀ := (amp.W_S (x_pos : ℂ)).re + (amp.W_D (x_neg : ℂ)).re
+  let z_pos := c * (1 - σ_star); let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re
   have hg'_pos : 0 < g' := stripGDerivReal_pos hσ0 hσ1
-  have hτsd_pos : 0 < τ_sd := Real.rpow_pos_of_pos (mul_pos hc_pos (stripGDerivReal_pos hσ0 hσ1)) _
+  have hτsd_pos : 0 < τ_sd := Real.rpow_pos_of_pos (mul_pos hc_pos hg'_pos) _
   have hεL_pos : 0 < ε_L := saddleEpsL_pos hc_pos hσ0 hσ1
   have hτcore_pos : 0 < τ_core := mul_pos (Real.rpow_pos_of_pos hεL_pos _) hτsd_pos
   have hK₀_spec := mellinK0_saddle_pos hc_pos hξ_pos hσ0 hσ1
   have hK₀_pos : 0 < K₀ := hK₀_spec.2
-  have hW₀_pos : 0 < W₀ := amp.hW0_pos
+  have hA_pos : 0 < amp.A := amp.hA
   let f := fun τ : ℝ => mellinK0 c ((σ_star : ℂ) + (τ : ℂ) * Complex.I) ξ *
-    (amp.W_S (((σ_star : ℂ) + (τ : ℂ) * Complex.I) / (ε : ℂ)) + amp.W_D ((1 - ((σ_star : ℂ) + (τ : ℂ) * Complex.I)) / (ε : ℂ)))
-  have hf_int : Integrable f := lobeSaddle_integrable hΔ₁ hU hc hΔ_lo hΔ_hi hξ hσ0 hσ1 hσ_eq amp
-  obtain ⟨_, h_symm, h_outer_pt⟩ := lobe_integrand_cont_symm_bound hc_pos hξ_pos hσ0 hσ1 amp
+    amp.V ((σ_star : ℂ) + (τ : ℂ) * Complex.I)
+  have hf_int : Integrable f := totalSaddle_integrable hΔ₁ hU hc hΔ_lo hΔ_hi hξ hσ0 hσ1 hσ_eq amp
+  obtain ⟨_, h_symm, h_outer_pt⟩ := total_integrand_meas_symm_bound hc_pos hξ_pos hσ0 hσ1 amp
   have h_int_real : (∫ τ : ℝ, f τ).im = 0 := by
     have hconj : starRingEnd ℂ (∫ τ : ℝ, f τ) = ∫ τ : ℝ, f τ := by
       rw [← integral_conj]
       calc ∫ τ : ℝ, starRingEnd ℂ (f τ) = ∫ τ : ℝ, f (-τ) := integral_congr_ae (Filter.Eventually.of_forall fun τ => (h_symm τ).symm)
         _ = ∫ τ : ℝ, f τ := integral_neg_eq_self f volume
     exact Complex.conj_eq_iff_im.mp hconj
-  have hI_eq : lobeSaddleIntegral amp.W_S amp.W_D c ξ σ_star = ((1 / (2 * π * ξ) : ℝ) : ℂ) * ∫ τ : ℝ, f τ := rfl
-  have h_Ival_im : (lobeSaddleIntegral amp.W_S amp.W_D c ξ σ_star).im = 0 := by
+  have hI_eq : totalSaddleIntegral amp.V c ξ σ_star = ((1 / (2 * π * ξ) : ℝ) : ℂ) * ∫ τ : ℝ, f τ := rfl
+  have h_Ival_im : (totalSaddleIntegral amp.V c ξ σ_star).im = 0 := by
     rw [hI_eq]; simp [Complex.mul_im, h_int_real]
-  refine ⟨hK₀_spec.1, hK₀_pos, h_Ival_im, ?_⟩
-  let F_rel := fun τ : ℝ => f τ / ((K₀ * W₀ : ℝ) : ℂ)
+  have hV_im : (amp.V (σ_star : ℂ)).im = 0 := amp.V_im_zero
+  refine ⟨hK₀_spec.1, hK₀_pos, h_Ival_im, hV_im, ?_⟩
+  let F_rel := fun τ : ℝ => f τ / ((K₀ * amp.A : ℝ) : ℂ)
+  let v₀ : ℂ := amp.V (σ_star : ℂ) / (amp.A : ℂ)
+  have hv₀_im : v₀.im = 0 := by
+    dsimp [v₀]; rw [div_eq_mul_inv, ← Complex.ofReal_inv, Complex.mul_im, Complex.ofReal_re, Complex.ofReal_im, hV_im]; ring
+  have hv₀_re : v₀.re = (amp.V (σ_star : ℂ)).re / amp.A := by
+    dsimp [v₀]; rw [div_eq_mul_inv, ← Complex.ofReal_inv, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, hV_im]; ring
+  have hv₀_eq : v₀ = (v₀.re : ℂ) := Complex.ext rfl (by simp [hv₀_im])
   have hF_rel_int : Integrable F_rel := hf_int.div_const _
-  have hI_re_eq : (lobeSaddleIntegral amp.W_S amp.W_D c ξ σ_star).re = (1 / (2 * π * ξ)) * (K₀ * W₀) * ∫ τ : ℝ, (F_rel τ).re := by
-    have hf_eq : f = fun τ => ((K₀ * W₀ : ℝ) : ℂ) * F_rel τ := funext fun τ => by
-      dsimp [F_rel]; rw [mul_div_cancel₀ _ (Complex.ofReal_ne_zero.mpr (mul_pos hK₀_pos hW₀_pos).ne')]
+  have hI_re_eq : (totalSaddleIntegral amp.V c ξ σ_star).re = (1 / (2 * π * ξ)) * (K₀ * amp.A) * ∫ τ : ℝ, (F_rel τ).re := by
+    have hf_eq : f = fun τ => ((K₀ * amp.A : ℝ) : ℂ) * F_rel τ := funext fun τ => by
+      dsimp [F_rel]; rw [mul_div_cancel₀ _ (Complex.ofReal_ne_zero.mpr (mul_pos hK₀_pos hA_pos).ne')]
     rw [hI_eq, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
     conv_lhs => rw [hf_eq, integral_const_mul]
     rw [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero,
       ← Complex.reCLM_apply, ← Complex.reCLM.integral_comp_comm hF_rel_int]
     simp [Complex.reCLM_apply]; ring
-  have h_sqrt_eq : Real.sqrt (2 * π / (c * g')) = Real.sqrt (2 * π) * τ_sd := by
-    rw [Real.sqrt_div (by positivity)]; dsimp [τ_sd]
-    rw [rpow_neg_half_eq_inv_sqrt (by positivity), div_eq_mul_inv]
-  set L_lead := (1 / (2 * π * ξ)) * K₀ * W₀ * Real.sqrt (2 * π / (c * g'))
-  have h_div_eq : ((lobeSaddleIntegral amp.W_S amp.W_D c ξ σ_star).re - L_lead) / L_lead =
-      (1 / (Real.sqrt (2 * π) * τ_sd)) * ((∫ τ : ℝ, (F_rel τ).re) - Real.sqrt (2 * π) * τ_sd) := by
-    rw [hI_re_eq]; dsimp [L_lead]; rw [h_sqrt_eq]
-    have h1 : (1 / (2 * π * ξ)) * (K₀ * W₀) ≠ 0 := by positivity
-    field_simp [h1]
+  have h_div_eq : (2 * π * ξ * (totalSaddleIntegral amp.V c ξ σ_star).re) / (K₀ * Real.sqrt (2 * π) * τ_sd) -
+      (amp.V (σ_star : ℂ)).re =
+      amp.A * ((1 / (Real.sqrt (2 * π) * τ_sd)) * ((∫ τ : ℝ, (F_rel τ).re) - v₀.re * (Real.sqrt (2 * π) * τ_sd))) := by
+    rw [hI_re_eq, hv₀_re]
+    have h1 : 2 * π * ξ ≠ 0 := by positivity
+    have h2 : K₀ ≠ 0 := hK₀_pos.ne'
+    have h3 : Real.sqrt (2 * π) * τ_sd ≠ 0 := by positivity
+    have h4 : amp.A ≠ 0 := hA_pos.ne'
+    field_simp [h1, h2, h3, h4]
   let G_g := fun τ : ℝ => Real.exp (-(τ / τ_sd) ^ 2 / 2)
   have hG_int : Integrable G_g := by
     rw [show G_g = fun τ => Real.exp (-(1 / (2 * τ_sd ^ 2)) * τ ^ 2) by ext τ; dsimp [G_g]; congr 1; field_simp [hτsd_pos.ne']]
@@ -718,14 +744,18 @@ theorem lobe_saddle_asymptotic {Δ₁ U c Δ ξ σ_star : ℝ}
     rw [show G_g = fun τ => Real.exp (-(1 / (2 * τ_sd ^ 2)) * τ ^ 2) by ext τ; dsimp [G_g]; congr 1; field_simp [hτsd_pos.ne'],
       integral_gaussian, show π / (1 / (2 * τ_sd ^ 2)) = (2 * π) * τ_sd ^ 2 by field_simp,
       Real.sqrt_mul (by positivity), Real.sqrt_sq hτsd_pos.le]
-  have h_diff_int : Integrable (fun τ : ℝ => ‖F_rel τ - (G_g τ : ℂ)‖) := (hF_rel_int.sub (Complex.ofRealCLM.integrable_comp hG_int)).norm
-  have h_abs_le : |(∫ τ : ℝ, (F_rel τ).re) - Real.sqrt (2 * π) * τ_sd| ≤ ∫ τ : ℝ, ‖F_rel τ - (G_g τ : ℂ)‖ := by
-    change |(∫ τ : ℝ, Complex.reCLM (F_rel τ)) - Real.sqrt (2 * π) * τ_sd| ≤ _
-    rw [← hG_val, ← integral_sub (Complex.reCLM.integrable_comp hF_rel_int) hG_int]
-    refine abs_integral_le_integral_abs.trans (integral_mono ((Complex.reCLM.integrable_comp hF_rel_int).sub hG_int).abs h_diff_int fun τ => ?_)
-    rw [show Complex.reCLM (F_rel τ) - G_g τ = (F_rel τ - (G_g τ : ℂ)).re by simp]; exact Complex.abs_re_le_norm _
-  have h_compl_le : ∫ τ in (Icc (-τ_core) τ_core)ᶜ, ‖F_rel τ - (G_g τ : ℂ)‖ ≤
-      2 * (∫ τ in Ioi τ_core, ‖F_rel τ‖) + 2 * (∫ τ in Ioi τ_core, G_g τ) := by
+  have h_diff_int : Integrable (fun τ : ℝ => ‖F_rel τ - v₀ * (G_g τ : ℂ)‖) :=
+    (hF_rel_int.sub ((Complex.ofRealCLM.integrable_comp hG_int).const_mul v₀)).norm
+  have h_abs_le : |(∫ τ : ℝ, (F_rel τ).re) - v₀.re * (Real.sqrt (2 * π) * τ_sd)| ≤
+      ∫ τ : ℝ, ‖F_rel τ - v₀ * (G_g τ : ℂ)‖ := by
+    change |(∫ τ : ℝ, Complex.reCLM (F_rel τ)) - v₀.re * (Real.sqrt (2 * π) * τ_sd)| ≤ _
+    rw [← hG_val, ← integral_const_mul, ← integral_sub (Complex.reCLM.integrable_comp hF_rel_int) (hG_int.const_mul v₀.re)]
+    refine abs_integral_le_integral_abs.trans (integral_mono ((Complex.reCLM.integrable_comp hF_rel_int).sub (hG_int.const_mul v₀.re)).abs h_diff_int fun τ => ?_)
+    rw [show Complex.reCLM (F_rel τ) - v₀.re * G_g τ = (F_rel τ - v₀ * (G_g τ : ℂ)).re by
+      simp [Complex.mul_re, hv₀_im]]
+    exact Complex.abs_re_le_norm _
+  have h_compl_le : ∫ τ in (Icc (-τ_core) τ_core)ᶜ, ‖F_rel τ - v₀ * (G_g τ : ℂ)‖ ≤
+      2 * (∫ τ in Ioi τ_core, ‖F_rel τ‖) + 2 * ‖v₀‖ * (∫ τ in Ioi τ_core, G_g τ) := by
     have h_disj : Disjoint (Iio (-τ_core)) (Ioi τ_core) :=
       disjoint_iff_forall_ne.mpr fun a ha b hb => by linarith [mem_Iio.mp ha, mem_Ioi.mp hb]
     have h_even_Iio : ∀ {g : ℝ → ℝ}, Integrable g → (∀ τ, g (-τ) = g τ) → ∫ τ in Iio (-τ_core), g τ = ∫ τ in Ioi τ_core, g τ :=
@@ -734,10 +764,11 @@ theorem lobe_saddle_asymptotic {Δ₁ U c Δ ξ σ_star : ℝ}
           _ = ∫ τ in Iic (-τ_core), g (-τ) := setIntegral_congr_fun measurableSet_Iic fun τ _ => (hev τ).symm
           _ = ∫ τ in Ioi (- -τ_core), g τ := integral_comp_neg_Iic (-τ_core) g
           _ = ∫ τ in Ioi τ_core, g τ := by rw [neg_neg]
-    have h_tri : ∫ τ in (Icc (-τ_core) τ_core)ᶜ, ‖F_rel τ - (G_g τ : ℂ)‖ ≤
-        ∫ τ in (Icc (-τ_core) τ_core)ᶜ, (‖F_rel τ‖ + G_g τ) :=
-      setIntegral_mono_on h_diff_int.integrableOn (hF_rel_int.norm.add hG_int).integrableOn measurableSet_Icc.compl fun τ _ => by
-        refine (norm_sub_le _ _).trans_eq ?_; rw [Complex.norm_real, Real.norm_of_nonneg (Real.exp_pos _).le]
+    have h_tri : ∫ τ in (Icc (-τ_core) τ_core)ᶜ, ‖F_rel τ - v₀ * (G_g τ : ℂ)‖ ≤
+        ∫ τ in (Icc (-τ_core) τ_core)ᶜ, (‖F_rel τ‖ + ‖v₀‖ * G_g τ) :=
+      setIntegral_mono_on h_diff_int.integrableOn (hF_rel_int.norm.add (hG_int.const_mul ‖v₀‖)).integrableOn measurableSet_Icc.compl fun τ _ => by
+        refine (norm_sub_le _ _).trans_eq ?_
+        rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg (Real.exp_pos _).le]
     have hcompl_eq : (Icc (-τ_core) τ_core)ᶜ = Iio (-τ_core) ∪ Ioi τ_core := by
       ext τ; simp only [mem_compl_iff, mem_Icc, mem_union, mem_Iio, mem_Ioi]
       constructor
@@ -745,21 +776,23 @@ theorem lobe_saddle_asymptotic {Δ₁ U c Δ ξ σ_star : ℝ}
         · exact Or.inl h1
         · exact Or.inr (lt_of_not_ge fun h2 => h ⟨not_lt.mp h1, h2⟩)
       · rintro (h | h) ⟨h1, h2⟩ <;> linarith
-    rw [integral_add hF_rel_int.norm.integrableOn hG_int.integrableOn, hcompl_eq,
+    rw [integral_add hF_rel_int.norm.integrableOn (hG_int.const_mul ‖v₀‖).integrableOn, hcompl_eq,
       setIntegral_union h_disj measurableSet_Ioi hF_rel_int.norm.integrableOn hF_rel_int.norm.integrableOn,
-      setIntegral_union h_disj measurableSet_Ioi hG_int.integrableOn hG_int.integrableOn,
+      setIntegral_union h_disj measurableSet_Ioi (hG_int.const_mul ‖v₀‖).integrableOn (hG_int.const_mul ‖v₀‖).integrableOn,
       h_even_Iio hF_rel_int.norm (fun τ => by
         have h_symm' : f (-τ) = starRingEnd ℂ (f τ) := h_symm τ
         dsimp [F_rel]; rw [h_symm', norm_div, Complex.norm_conj, norm_div]),
-      h_even_Iio hG_int (fun τ => by dsimp [G_g]; simp [neg_div])] at h_tri
+      h_even_Iio (hG_int.const_mul ‖v₀‖) (fun τ => by dsimp [G_g]; simp [neg_div]),
+      integral_const_mul] at h_tri
     rw [hcompl_eq]
     linarith only [h_tri]
-  have h_core := lobe_core_error_bound hΔ₁ hU hc hΔ_lo hΔ_hi hξ hσ0 hσ1 hσ_eq amp h_eps0
-  obtain ⟨hFout_int, h_outer_bd, h_add_spec⟩ := lobe_outer_and_add_bounds hΔ₁ hU hc hΔ_lo hΔ_hi hξ hσ0 hσ1 hσ_eq amp h_eps0
+  have h_core := total_core_error_bound hΔ₁ hU hc hΔ_lo hΔ_hi hξ hσ0 hσ1 hσ_eq amp h_eps0
+  obtain ⟨hFout_int, h_outer_bd, h_add_spec⟩ :=
+    lobe_outer_and_add_bounds (M := amp.M) (Λ_add := amp.Λ_add) hΔ₁ hU hc hΔ_lo hΔ_hi hξ hσ0 hσ1 hσ_eq amp.hΛ_add_half h_eps0
   let F_out := fun τ : ℝ => (1 + τ ^ 2 / (1 - σ_star) ^ 2) ^ (-(1 / 4 : ℝ)) * Real.exp (-c * vertUpsilon σ_star τ)
   let F_add_pt := fun τ : ℝ => if (1 - σ_star) / 2 < τ then F_out τ * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1 else 0
   have h_F_outer_le : (1 / (Real.sqrt (2 * π) * τ_sd)) * (2 * ∫ τ in Ioi τ_core, ‖F_rel τ‖) ≤
-      54 * amp.Λ * ε_L + 430 * amp.Λ_add * (ε / W₀) * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
+      54 * amp.Λ * ε_L + 150 * amp.Λ_add * (ε / amp.A) * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
     by_cases h_add : 0 < amp.Λ_add
     · obtain ⟨hFadd_int, h_add_bd⟩ := h_add_spec h_add
       have hhalf := amp.hΛ_add_half h_add
@@ -795,7 +828,7 @@ theorem lobe_saddle_asymptotic {Δ₁ U c Δ ξ σ_star : ℝ}
         rw [← Ioc_union_Ioi_eq_Ioi hτcore_lt_τ₁.le, setIntegral_union Ioc_disjoint_Ioi_same measurableSet_Ioi hFadd_pt_Ioc hFadd_pt_Ioi,
           setIntegral_eq_zero_of_forall_eq_zero h_add_zero, zero_add,
           setIntegral_congr_fun measurableSet_Ioi h_add_pos]
-      have hm := setIntegral_mono_on hF_rel_int.norm.integrableOn ((hFout_int.const_mul amp.Λ).add (hFadd_pt_int.const_mul (amp.Λ_add / W₀)))
+      have hm := setIntegral_mono_on hF_rel_int.norm.integrableOn ((hFout_int.const_mul amp.Λ).add (hFadd_pt_int.const_mul (amp.Λ_add / amp.A)))
         measurableSet_Ioi fun τ hτ => (h_outer_pt τ (hτcore_pos.trans hτ).le).trans_eq (by dsimp [F_add_pt]; split_ifs <;> ring)
       dsimp only [Pi.add_apply] at hm
       rw [integral_add (hFout_int.const_mul _) (hFadd_pt_int.const_mul _), integral_const_mul, integral_const_mul, hFadd_pt_eq] at hm
@@ -803,11 +836,11 @@ theorem lobe_saddle_asymptotic {Δ₁ U c Δ ξ σ_star : ℝ}
           (2 / (Real.sqrt (2 * π) * τ_sd)) * ∫ τ in Ioi τ_core, ‖F_rel τ‖ := by ring
       calc (1 / (Real.sqrt (2 * π) * τ_sd)) * (2 * ∫ τ in Ioi τ_core, ‖F_rel τ‖)
           ≤ amp.Λ * ((2 / (Real.sqrt (2 * π) * τ_sd)) * ∫ τ in Ioi τ_core, F_out τ) +
-              (amp.Λ_add / W₀) * ((2 / (Real.sqrt (2 * π) * τ_sd)) * ∫ τ in Ioi τ₁, F_out τ * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1) := by
+              (amp.Λ_add / amp.A) * ((2 / (Real.sqrt (2 * π) * τ_sd)) * ∫ τ in Ioi τ₁, F_out τ * min (c ^ (1 / 6 : ℝ) * τ ^ (1 / 2 : ℝ)) 1) := by
             rw [hlhs]; exact (mul_le_mul_of_nonneg_left hm (by positivity)).trans_eq (by ring)
-        _ ≤ amp.Λ * (54 * ε_L) + (amp.Λ_add / W₀) * (430 * ε * Real.exp (-(3 / 320 : ℝ) * z_pos)) :=
+        _ ≤ amp.Λ * (54 * ε_L) + (amp.Λ_add / amp.A) * (150 * ε * Real.exp (-(3 / 320 : ℝ) * z_pos)) :=
             add_le_add (mul_le_mul_of_nonneg_left h_outer_bd (by linarith only [amp.hΛ]))
-              (mul_le_mul_of_nonneg_left h_add_bd (div_nonneg amp.hΛ_add hW₀_pos.le))
+              (mul_le_mul_of_nonneg_left h_add_bd (div_nonneg amp.hΛ_add hA_pos.le))
         _ = _ := by ring
     · have h0 : amp.Λ_add = 0 := le_antisymm (not_lt.mp h_add) amp.hΛ_add
       have hm := setIntegral_mono_on hF_rel_int.norm.integrableOn (hFout_int.const_mul amp.Λ) measurableSet_Ioi fun τ hτ =>
@@ -819,21 +852,98 @@ theorem lobe_saddle_asymptotic {Δ₁ U c Δ ξ σ_star : ℝ}
           ≤ amp.Λ * ((2 / (Real.sqrt (2 * π) * τ_sd)) * ∫ τ in Ioi τ_core, F_out τ) := by
             rw [hlhs]; exact (mul_le_mul_of_nonneg_left hm (by positivity)).trans_eq (by ring)
         _ ≤ amp.Λ * (54 * ε_L) := mul_le_mul_of_nonneg_left h_outer_bd (by linarith [amp.hΛ])
-        _ = 54 * amp.Λ * ε_L + 430 * amp.Λ_add * (ε / W₀) * Real.exp (-(3 / 320 : ℝ) * z_pos) := by rw [h0]; ring
-  rw [h_div_eq, abs_mul, abs_of_pos (by positivity : 0 < 1 / (Real.sqrt (2 * π) * τ_sd))]
+        _ = 54 * amp.Λ * ε_L + 150 * amp.Λ_add * (ε / amp.A) * Real.exp (-(3 / 320 : ℝ) * z_pos) := by rw [h0]; ring
+  rw [h_div_eq, abs_mul, abs_of_pos hA_pos, abs_mul, abs_of_pos (by positivity : 0 < 1 / (Real.sqrt (2 * π) * τ_sd))]
   dsimp only at h_core
   have h1 := mul_le_mul_of_nonneg_left (h_abs_le.trans ((integral_add_compl measurableSet_Icc h_diff_int).symm ▸
     (add_le_add le_rfl h_compl_le))) (by positivity : 0 ≤ 1 / (Real.sqrt (2 * π) * τ_sd))
-  have h1' : (1 / (Real.sqrt (2 * π) * τ_sd)) * |(∫ τ : ℝ, (F_rel τ).re) - Real.sqrt (2 * π) * τ_sd| ≤
-      (1 / (Real.sqrt (2 * π) * τ_sd)) * ((∫ τ in Icc (-τ_core) τ_core, ‖F_rel τ - (G_g τ : ℂ)‖) + 2 * ∫ τ in Ioi τ_core, G_g τ) +
+  have h1' : (1 / (Real.sqrt (2 * π) * τ_sd)) * |(∫ τ : ℝ, (F_rel τ).re) - v₀.re * (Real.sqrt (2 * π) * τ_sd)| ≤
+      (1 / (Real.sqrt (2 * π) * τ_sd)) * ((∫ τ in Icc (-τ_core) τ_core, ‖F_rel τ - v₀ * (G_g τ : ℂ)‖) + 2 * ‖v₀‖ * ∫ τ in Ioi τ_core, G_g τ) +
         (1 / (Real.sqrt (2 * π) * τ_sd)) * (2 * ∫ τ in Ioi τ_core, ‖F_rel τ‖) :=
     h1.trans_eq (by ring)
   have h_core' : (1 / (Real.sqrt (2 * π) * τ_sd)) *
-      ((∫ τ in Icc (-τ_core) τ_core, ‖F_rel τ - (G_g τ : ℂ)‖) + 2 * ∫ τ in Ioi τ_core, G_g τ) ≤ (7.7 * amp.M + 108.6) * ε_L := h_core
+      ((∫ τ in Icc (-τ_core) τ_core, ‖F_rel τ - v₀ * (G_g τ : ℂ)‖) + 2 * ‖v₀‖ * ∫ τ in Ioi τ_core, G_g τ) ≤ (7.7 * amp.M + 108.6) * ε_L := h_core
   have h78 : (7.7 * amp.M + 108.6) * ε_L + 54 * amp.Λ * ε_L ≤ (8 * amp.M + 54 * amp.Λ + 109) * ε_L :=
     calc (7.7 * amp.M + 108.6) * ε_L + 54 * amp.Λ * ε_L = (7.7 * amp.M + 54 * amp.Λ + 108.6) * ε_L := by ring
       _ ≤ (8 * amp.M + 54 * amp.Λ + 109) * ε_L := mul_le_mul_of_nonneg_right (by linarith only [amp.hM]) hεL_pos.le
-  linarith [h1', h_core', h_F_outer_le, h78]
+  have hnorm : (1 / (Real.sqrt (2 * π) * τ_sd)) * |(∫ τ : ℝ, (F_rel τ).re) - v₀.re * (Real.sqrt (2 * π) * τ_sd)| ≤
+      (8 * amp.M + 54 * amp.Λ + 109) * ε_L + 150 * amp.Λ_add * (ε / amp.A) * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
+    linarith [h1', h_core', h_F_outer_le, h78]
+  exact (mul_le_mul_of_nonneg_left hnorm hA_pos.le).trans_eq (by dsimp only [ε_L, ε, z_pos]; field_simp [hA_pos.ne'])
+
+/-- **Proposition P.4 (`cel:L5`, `(cel:5.7)`–`(cel:5.9)` & Remark P.4a `cel:L5a`):**
+uniform lobe saddle asymptotic for abstract amplitudes `(W_S, W_D)`. -/
+theorem lobe_saddle_asymptotic {Δ₁ U c Δ ξ σ_star : ℝ}
+    (hΔ₁ : 1 ≤ Δ₁) (hU : 1 ≤ U) (hc : max (20 * Δ₁) (60 * U ^ (3 / 2 : ℝ)) ≤ c)
+    (hΔ_lo : Δ₁ ≤ Δ) (hΔ_hi : Δ ≤ (c / π ^ 2) * Real.exp (-(π ^ 2 * U * c ^ (-(2 / 3 : ℝ)))))
+    (hξ : ξ = Δ / c) (hσ0 : 0 < σ_star) (hσ1 : σ_star < 1) (hσ_eq : stripGReal σ_star = -Real.log (π ^ 2 * ξ))
+    (amp : LobeSaddleAmp σ_star (c ^ (1 / 3 : ℝ) * σ_star) (c ^ (1 / 3 : ℝ) * (1 - σ_star)))
+    (h_eps0 : max ((27 / 100 : ℝ) * U ^ (-(3 / 4 : ℝ))) (Δ₁ ^ (-(1 / 2 : ℝ))) ≤
+      min (3 / 1000 : ℝ) ((4 * amp.M) ^ (-(4 / 3 : ℝ)))) :
+    let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re
+    let W₀ := (amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re + (amp.W_D ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ)).re
+    let L_lead := (1 / (2 * π * ξ)) * K₀ * W₀ * Real.sqrt (2 * π / (c * stripGDerivReal σ_star))
+    let I_val := lobeSaddleIntegral amp.W_S amp.W_D c ξ σ_star
+    let z_pos := c * (1 - σ_star)
+    let ε := c ^ (-(1 / 3 : ℝ))
+    (mellinK0 c (σ_star : ℂ) ξ).im = 0 ∧ 0 < K₀ ∧ I_val.im = 0 ∧
+      |(I_val.re - L_lead) / L_lead| ≤
+        (8 * amp.M + 54 * amp.Λ + 109) * saddleEpsL c σ_star +
+          430 * amp.Λ_add * (ε / W₀) * Real.exp (-(3 / 320 : ℝ) * z_pos) := by
+  dsimp only
+  have hc_pos : 0 < c := by linarith [(le_max_left _ _).trans hc]
+  have hξ_pos : 0 < ξ := by rw [hξ]; exact div_pos (by linarith) hc_pos
+  have h1s : 0 < 1 - σ_star := sub_pos.mpr hσ1
+  have hc13 : 0 < c ^ (1 / 3 : ℝ) := Real.rpow_pos_of_pos hc_pos _
+  have hg'_pos : 0 < stripGDerivReal σ_star := stripGDerivReal_pos hσ0 hσ1
+  obtain ⟨hK₀_im, hK₀_pos, hI_im, _, htot⟩ :=
+    lobe_total_saddle hΔ₁ hU hc hΔ_lo hΔ_hi hξ hσ0 hσ1 hσ_eq (amp.toTotalSaddleAmp hc_pos hσ0 hσ1) h_eps0
+  refine ⟨hK₀_im, hK₀_pos, hI_im, ?_⟩
+  let K₀ := (mellinK0 c (σ_star : ℂ) ξ).re
+  let W₀ := (amp.W_S ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ)).re + (amp.W_D ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ)).re
+  let τ_sd := (c * stripGDerivReal σ_star) ^ (-(1 / 2 : ℝ))
+  let L_lead := (1 / (2 * π * ξ)) * K₀ * W₀ * Real.sqrt (2 * π / (c * stripGDerivReal σ_star))
+  let I_val := lobeSaddleIntegral amp.W_S amp.W_D c ξ σ_star
+  have hW₀_pos : 0 < W₀ := amp.hW0_pos
+  have hτsd_pos : 0 < τ_sd := Real.rpow_pos_of_pos (mul_pos hc_pos hg'_pos) _
+  have hε_inv : (c ^ (-(1 / 3 : ℝ)))⁻¹ = c ^ (1 / 3 : ℝ) := by rw [Real.rpow_neg hc_pos.le, inv_inv]
+  have hS0 : (σ_star : ℂ) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ) = ((c ^ (1 / 3 : ℝ) * σ_star : ℝ) : ℂ) := by
+    rw [div_eq_mul_inv, ← Complex.ofReal_inv, hε_inv, ← Complex.ofReal_mul]; congr 1; ring
+  have hD0 : (1 - (σ_star : ℂ)) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ) = ((c ^ (1 / 3 : ℝ) * (1 - σ_star) : ℝ) : ℂ) := by
+    rw [div_eq_mul_inv, ← Complex.ofReal_inv, hε_inv, show (1 - (σ_star : ℂ)) = ((1 - σ_star : ℝ) : ℂ) by push_cast; rfl,
+      ← Complex.ofReal_mul]; congr 1; ring
+  have hV_re : ((amp.toTotalSaddleAmp hc_pos hσ0 hσ1).V (σ_star : ℂ)).re = W₀ := by
+    change (amp.W_S ((σ_star : ℂ) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ)) +
+      amp.W_D ((1 - (σ_star : ℂ)) / ((c ^ (-(1 / 3 : ℝ)) : ℝ) : ℂ))).re = W₀
+    rw [hS0, hD0, Complex.add_re]
+  have h_sqrt_eq : Real.sqrt (2 * π / (c * stripGDerivReal σ_star)) = Real.sqrt (2 * π) * τ_sd := by
+    rw [Real.sqrt_div (by positivity)]; dsimp [τ_sd]
+    rw [rpow_neg_half_eq_inv_sqrt (by positivity), div_eq_mul_inv]
+  have h_lhs_eq : (I_val.re - L_lead) / L_lead =
+      ((2 * π * ξ * I_val.re) / (K₀ * Real.sqrt (2 * π) * τ_sd) - W₀) / W₀ := by
+    dsimp [L_lead]; rw [h_sqrt_eq]
+    have h1 : 2 * π * ξ ≠ 0 := by positivity
+    have h2 : K₀ ≠ 0 := hK₀_pos.ne'
+    have h3 : W₀ ≠ 0 := hW₀_pos.ne'
+    have h4 : Real.sqrt (2 * π) * τ_sd ≠ 0 := by positivity
+    field_simp [h1, h2, h3, h4]
+  change |(I_val.re - L_lead) / L_lead| ≤ _
+  rw [h_lhs_eq, abs_div, abs_of_pos hW₀_pos, div_le_iff₀ hW₀_pos]
+  rw [hV_re] at htot
+  have h150_le : 150 * amp.Λ_add * c ^ (-(1 / 3 : ℝ)) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star))) ≤
+      430 * amp.Λ_add * c ^ (-(1 / 3 : ℝ)) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star))) := by
+    have hnn : 0 ≤ amp.Λ_add * c ^ (-(1 / 3 : ℝ)) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star))) := by
+      have := amp.hΛ_add; positivity
+    linarith only [hnn]
+  calc |(2 * π * ξ * I_val.re) / (K₀ * Real.sqrt (2 * π) * τ_sd) - W₀|
+      ≤ (8 * amp.M + 54 * amp.Λ + 109) * W₀ * saddleEpsL c σ_star +
+          150 * amp.Λ_add * c ^ (-(1 / 3 : ℝ)) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star))) := htot
+    _ ≤ (8 * amp.M + 54 * amp.Λ + 109) * W₀ * saddleEpsL c σ_star +
+          430 * amp.Λ_add * c ^ (-(1 / 3 : ℝ)) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star))) := by
+        linarith only [h150_le]
+    _ = ((8 * amp.M + 54 * amp.Λ + 109) * saddleEpsL c σ_star +
+          430 * amp.Λ_add * (c ^ (-(1 / 3 : ℝ)) / W₀) * Real.exp (-(3 / 320 : ℝ) * (c * (1 - σ_star)))) * W₀ := by
+        field_simp [hW₀_pos.ne']
 
 /-- Explicit non-vacuous witness satisfying `LobeSaddleAmp` and `lobe_saddle_asymptotic`. -/
 theorem lobeSaddleAmp_nonvacuous :
@@ -914,6 +1024,10 @@ theorem lobeSaddleAmp_nonvacuous :
 
 
 /-! ### Axiom Verification -/
+
+/-- info: 'FormalResearch.CohnElkies.lobe_total_saddle' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.CohnElkies.lobe_total_saddle
 
 /-- info: 'FormalResearch.CohnElkies.lobe_saddle_asymptotic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

@@ -117,13 +117,13 @@ theorem ct_outer_part2_taylor (ε : ℝ) :
   rw [hcongr]
 
 
-/-! ### The paper's closed-form Taylor coefficients (stated, not proved)
+/-! ### The paper's closed-form Taylor coefficients
 
 `ctTheta1`, `ctTheta3` are the constants `θ_1^ε`, `θ_3^ε` of `ct:theta1`, `ct:theta3` (with `I_0` of `eq:ct-I0` and
 `c_{3,mp}` of `ct:theta3`).  `CtThetaValuesTarget` is the proposition that the Taylor coefficients of `θ_ε` at `0`
-are these constants.  It is **not proved**: the linear coefficient is proved above as an integral
-(`ct_outer_part2_taylor`), its evaluation (Frullani and Mittag-Leffler computations) and the cubic coefficient
-(`h'''(0)` and the `ζ(3)` series) remain open. -/
+are these constants.  It is proved in `CtOuterTheta3.lean` (`ctThetaValuesTarget`; the linear coefficient is
+`theta_one_minus`/`theta_one_plus` of `CtOuterTheta1`, the cubic one `theta_three_eq`); it is kept here as a named
+proposition because the proof imports this file. -/
 
 /-- `I_0 = ∫_0^∞ log(6(sinh y - y)/y³) cosh y / sinh² y dy` (`eq:ct-I0`). -/
 noncomputable def ctI0 : ℝ :=
@@ -143,13 +143,13 @@ noncomputable def ctTheta1 (ε : ℝ) : ℝ :=
 noncomputable def ctTheta3 (ε : ℝ) : ℝ :=
   (riemannZeta 3).re / 2 + ctC3mp + (if ε = 1 then π ^ 3 / 6 else 0)
 
-/-- **Open target (not proved):** the Taylor coefficients of `θ_ε` at `0` are the paper's constants
+/-- The Taylor coefficients of `θ_ε` at `0` are the paper's constants
 `θ_1^ε`, `θ_3^ε`. -/
 def CtThetaValuesTarget : Prop :=
   ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
     deriv (outerTheta ε) 0 = ctTheta1 ε ∧ iteratedDeriv 3 (outerTheta ε) 0 / 6 = ctTheta3 ε
 
-/-- **`ct:outer` (2) with the paper's constants, conditional on `CtThetaValuesTarget`:**
+/-- **`ct:outer` (2) with the paper's constants, from `CtThetaValuesTarget`** (proved in `CtOuterTheta3.lean`, which restates this theorem without the hypothesis as `ct_outer_part2_taylor_values`):
 `θ_ε(τ) = θ_1^ε τ + θ_3^ε τ³ + O(τ⁵)` with `θ_1^ε = ctTheta1 ε`, `θ_3^ε = ctTheta3 ε`. -/
 theorem ct_outer_part2_taylor_values (h : CtThetaValuesTarget) {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
     ∃ C : ℝ, ∀ τ : ℝ, |τ| ≤ 1 →
