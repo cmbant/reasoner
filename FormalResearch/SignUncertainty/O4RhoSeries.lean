@@ -18,7 +18,7 @@ public import Mathlib.Analysis.SpecialFunctions.Complex.LogDeriv
 `π/sin πζ`, termwise geometric expansion, and the Euler–Bernoulli formula for `ζ(2n)`). Integrating
 against `Φ_L(τ) = L τ - i P(i τ)` gives `edgePhiC_series`, with coefficients `o4Coef n π^{2n}`.
 
-Main declarations: `o4Coef`, `o4Coef_one`, `o4Coef_bound`, `edgePhiC_series`, `edgePhiC_trunc_tail`, `o4Coef_eq_rat_n` (`n = 2, …, 13`, from `O4BernoulliValues`).
+Main declarations: `o4Coef`, `o4Coef_one`, `o4Coef_bound`, `edgePhiC_series`, `edgePhiC_rho_bound`, `o4Coef_eq_rat_n` (`n = 2, 3`, from `O4BernoulliValues`).
 -/
 
 @[expose] public section
@@ -690,12 +690,6 @@ lemma o4_x_le_one (n : ℕ) : o4Coef n * π ^ (2 * n) ≤ 1 := by
     rw [div_le_one (by positivity)]
     nlinarith
 
-lemma o4_x_le_tail {n : ℕ} (hn : 14 ≤ n) : o4Coef n * π ^ (2 * n) ≤ 2 / (14 * 29) := by
-  refine (o4_x_bounds n).2.trans ?_
-  have hn' : (14 : ℝ) ≤ n := by exact_mod_cast hn
-  apply div_le_div_of_nonneg_left (by norm_num) (by norm_num)
-  nlinarith
-
 lemma o4Term_zero (τ : ℂ) : o4Term τ 0 = 0 := by
   simp [o4Term, o4Coef]
 
@@ -724,149 +718,104 @@ lemma o4Term_summable {τ : ℂ} {T : ℝ} (hτ : ‖τ‖ ≤ T) (hT : T < 1) :
         mul_le_mul (hx) hτn (by positivity) (by norm_num)
     _ = T * (T ^ 2) ^ n := by rw [one_mul, hpow]
 
-lemma o4_tail_sum_bound {τ : ℂ} {T : ℝ} (hτ : ‖τ‖ ≤ T) (hT : T < 1) :
-    ‖∑' k : ℕ, o4Term τ (k + 14)‖ ≤ 2 / (14 * 29) * T ^ 29 / (1 - T ^ 2) := by
+/-- The tail `∑_{n ≥ m}` of the series, when the coefficients `o4Coef n π^{2n}` are at most `c` for `n ≥ m`. -/
+lemma o4_tail_sum_bound {τ : ℂ} {T c : ℝ} {m : ℕ} (hτ : ‖τ‖ ≤ T) (hT : T < 1)
+    (hc : ∀ n : ℕ, m ≤ n → o4Coef n * π ^ (2 * n) ≤ c) :
+    ‖∑' k : ℕ, o4Term τ (k + m)‖ ≤ c * T ^ (2 * m + 1) / (1 - T ^ 2) := by
   have hT0 : 0 ≤ T := le_trans (norm_nonneg _) hτ
   have hT2 : T ^ 2 < 1 := pow_lt_one₀ hT0 hT two_ne_zero
-  have hb : Summable (fun k : ℕ => 2 / (14 * 29) * T ^ (2 * (k + 14) + 1)) := by
-    refine ((summable_geometric_of_lt_one (sq_nonneg T) hT2).mul_left (2 / (14 * 29) * T ^ 29)).congr
+  have hc0 : 0 ≤ c := le_trans (o4_x_bounds m).1 (hc m le_rfl)
+  have hb : Summable (fun k : ℕ => c * T ^ (2 * (k + m) + 1)) := by
+    refine ((summable_geometric_of_lt_one (sq_nonneg T) hT2).mul_left (c * T ^ (2 * m + 1))).congr
       (fun k => ?_)
-    rw [show 2 * (k + 14) + 1 = 29 + 2 * k by ring, pow_add, pow_mul]
+    rw [show 2 * (k + m) + 1 = (2 * m + 1) + 2 * k by ring, pow_add, pow_mul]
     ring
-  have hle : ∀ k : ℕ, ‖o4Term τ (k + 14)‖ ≤ 2 / (14 * 29) * T ^ (2 * (k + 14) + 1) := by
+  have hle : ∀ k : ℕ, ‖o4Term τ (k + m)‖ ≤ c * T ^ (2 * (k + m) + 1) := by
     intro k
     unfold o4Term
     rw [norm_mul, norm_mul, norm_pow, norm_neg, norm_one, one_pow, one_mul, norm_pow,
       Complex.norm_real, Real.norm_eq_abs]
-    have hx : |o4Coef (k + 14) * π ^ (2 * (k + 14))| ≤ 2 / (14 * 29) := by
-      rw [abs_of_nonneg (o4_x_bounds (k + 14)).1]; exact o4_x_le_tail (by omega)
-    have hτn : ‖τ‖ ^ (2 * (k + 14) + 1) ≤ T ^ (2 * (k + 14) + 1) :=
+    have hx : |o4Coef (k + m) * π ^ (2 * (k + m))| ≤ c := by
+      rw [abs_of_nonneg (o4_x_bounds (k + m)).1]; exact hc _ (by omega)
+    have hτn : ‖τ‖ ^ (2 * (k + m) + 1) ≤ T ^ (2 * (k + m) + 1) :=
       pow_le_pow_left₀ (norm_nonneg _) hτ _
-    exact mul_le_mul hx hτn (by positivity) (by norm_num)
-  have hnorm : Summable (fun k : ℕ => ‖o4Term τ (k + 14)‖) :=
+    exact mul_le_mul hx hτn (by positivity) hc0
+  have hnorm : Summable (fun k : ℕ => ‖o4Term τ (k + m)‖) :=
     Summable.of_nonneg_of_le (fun _ => norm_nonneg _) hle hb
-  have hsumb : ∑' k : ℕ, 2 / (14 * 29) * T ^ (2 * (k + 14) + 1) = 2 / (14 * 29) * T ^ 29 / (1 - T ^ 2) := by
-    have : (fun k : ℕ => 2 / (14 * 29) * T ^ (2 * (k + 14) + 1)) =
-        fun k : ℕ => (2 / (14 * 29) * T ^ 29) * (T ^ 2) ^ k := by
+  have hsumb : ∑' k : ℕ, c * T ^ (2 * (k + m) + 1) = c * T ^ (2 * m + 1) / (1 - T ^ 2) := by
+    have : (fun k : ℕ => c * T ^ (2 * (k + m) + 1)) =
+        fun k : ℕ => (c * T ^ (2 * m + 1)) * (T ^ 2) ^ k := by
       funext k
-      rw [show 2 * (k + 14) + 1 = 29 + 2 * k by ring, pow_add, pow_mul]
+      rw [show 2 * (k + m) + 1 = (2 * m + 1) + 2 * k by ring, pow_add, pow_mul]
       ring
     rw [this, tsum_mul_left, tsum_geometric_of_lt_one (sq_nonneg T) hT2, div_eq_mul_inv]
-    ring
-  calc ‖∑' k : ℕ, o4Term τ (k + 14)‖ ≤ ∑' k : ℕ, ‖o4Term τ (k + 14)‖ := norm_tsum_le_tsum_norm hnorm
-    _ ≤ ∑' k : ℕ, 2 / (14 * 29) * T ^ (2 * (k + 14) + 1) := Summable.tsum_le_tsum hle hnorm hb
-    _ = 2 / (14 * 29) * T ^ 29 / (1 - T ^ 2) := hsumb
+  calc ‖∑' k : ℕ, o4Term τ (k + m)‖ ≤ ∑' k : ℕ, ‖o4Term τ (k + m)‖ := norm_tsum_le_tsum_norm hnorm
+    _ ≤ ∑' k : ℕ, c * T ^ (2 * (k + m) + 1) := Summable.tsum_le_tsum hle hnorm hb
+    _ = c * T ^ (2 * m + 1) / (1 - T ^ 2) := hsumb
 
-/-- The tail of the Taylor series of `Φ_L` through the order `τ^{27}`: for `‖τ‖ ≤ T < 1`,
-`‖Φ_L(τ) - (Lτ - π²τ³/36 + ∑_{n=2}^{13} (-1)^n o4Coef n π^{2n} τ^{2n+1})‖ ≤ (2/(14·29)) T^{29}/(1 - T²)`. -/
-theorem edgePhiC_trunc_tail (L : ℝ) {τ : ℂ} {T : ℝ} (hτ : ‖τ‖ ≤ T) (hT : T < 1) :
-    ‖edgePhiC L τ - ((L : ℂ) * τ - (π : ℂ) ^ 2 * τ ^ 3 / 36 +
-      ∑ n ∈ Finset.Icc 2 13, ((-1 : ℂ) ^ n * ((o4Coef n * π ^ (2 * n) : ℝ) : ℂ)) * τ ^ (2 * n + 1))‖
-      ≤ 2 / (14 * 29) * T ^ 29 / (1 - T ^ 2) := by
+lemma o4Term_norm (τ : ℂ) (n : ℕ) : ‖o4Term τ n‖ = o4Coef n * π ^ (2 * n) * ‖τ‖ ^ (2 * n + 1) := by
+  unfold o4Term
+  rw [norm_mul, norm_mul, norm_pow, norm_neg, norm_one, one_pow, one_mul, norm_pow,
+    Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (o4_x_bounds n).1]
+
+/-- `o4Coef 2` as an exact rational (from `o4_bernoulli_4`; `c_2 (π/2)^4 / 5 = 7 π⁴ / 7200`). -/
+lemma o4Coef_eq_rat_2 : o4Coef 2 = (7 : ℝ) / 7200 := by
+  unfold o4Coef
+  rw [o4_bernoulli_4]
+  norm_num [Nat.factorial]
+
+/-- `o4Coef 3` as an exact rational (from `o4_bernoulli_6`; `c_3 (π/2)^6 / 7 = 31 π⁶ / 635040`). -/
+lemma o4Coef_eq_rat_3 : o4Coef 3 = (31 : ℝ) / 635040 := by
+  unfold o4Coef
+  rw [o4_bernoulli_6]
+  norm_num [Nat.factorial]
+
+/-- For `n ≥ 4`: `o4Coef n π^{2n} ≤ 2/(n(2n+1)) ≤ 1/18`. -/
+lemma o4_x_le_tail4 {n : ℕ} (hn : 4 ≤ n) : o4Coef n * π ^ (2 * n) ≤ 1 / 18 := by
+  refine (o4_x_bounds n).2.trans ?_
+  have hn' : (4 : ℝ) ≤ n := by exact_mod_cast hn
+  rw [div_le_div_iff₀ (by positivity) (by norm_num)]
+  nlinarith
+
+/-- **The Taylor remainder `ρ` of `Φ_L`** (`u1co:O4`, the bound on `ρ`): for `‖τ‖ ≤ T < 1`,
+`‖Φ_L(τ) - (Lτ - π²τ³/36)‖ ≤ d₂ T⁵ + d₃ T⁷ + T⁹ / (18 (1 - T²))`, with `d₂ = 7π⁴/7200`, `d₃ = 31π⁶/635040`
+(the exact coefficients `c_n (π/2)^{2n}/(2n+1)`, `n = 2, 3`) and `d_n ≤ 1/18` for `n ≥ 4`. -/
+theorem edgePhiC_rho_bound (L : ℝ) {τ : ℂ} {T : ℝ} (hτ : ‖τ‖ ≤ T) (hT : T < 1) :
+    ‖edgePhiC L τ - ((L : ℂ) * τ - (π : ℂ) ^ 2 * τ ^ 3 / 36)‖
+      ≤ 7 / 7200 * π ^ 4 * T ^ 5 + 31 / 635040 * π ^ 6 * T ^ 7 + 1 / 18 * T ^ 9 / (1 - T ^ 2) := by
   have hτ1 : ‖τ‖ < 1 := lt_of_le_of_lt hτ hT
+  have hT0 : 0 ≤ T := le_trans (norm_nonneg _) hτ
   have hsum := o4Term_summable hτ hT
   have hE : edgePhiC L τ = (L : ℂ) * τ + ∑' n : ℕ, o4Term τ (n + 1) := by
     rw [edgePhiC_series L hτ1]
     rfl
   have hshift : ∑' n : ℕ, o4Term τ (n + 1) = ∑' n : ℕ, o4Term τ n := by
     rw [hsum.tsum_eq_zero_add, o4Term_zero, zero_add]
-  have hsplit : ∑ i ∈ Finset.range 14, o4Term τ i + ∑' i : ℕ, o4Term τ (i + 14) =
+  have hsplit : ∑ i ∈ Finset.range 4, o4Term τ i + ∑' i : ℕ, o4Term τ (i + 4) =
       ∑' i : ℕ, o4Term τ i :=
-    Summable.sum_add_tsum_nat_add' ((summable_nat_add_iff 14).mpr hsum)
-  have hrange : ∑ i ∈ Finset.range 14, o4Term τ i =
-      o4Term τ 0 + o4Term τ 1 + ∑ i ∈ Finset.Icc 2 13, o4Term τ i := by
-    rw [show Finset.range 14 = insert 0 (insert 1 (Finset.Icc 2 13)) by decide,
-      Finset.sum_insert (by decide), Finset.sum_insert (by decide)]
-    ring
-  have htail : ∑' n : ℕ, o4Term τ n = ∑ i ∈ Finset.range 14, o4Term τ i + ∑' k : ℕ, o4Term τ (k + 14) :=
-    hsplit.symm
-  have htarget : ∑ n ∈ Finset.Icc 2 13, ((-1 : ℂ) ^ n * ((o4Coef n * π ^ (2 * n) : ℝ) : ℂ)) * τ ^ (2 * n + 1)
-      = ∑ n ∈ Finset.Icc 2 13, o4Term τ n := rfl
-  have hdiff : edgePhiC L τ - ((L : ℂ) * τ - (π : ℂ) ^ 2 * τ ^ 3 / 36 +
-      ∑ n ∈ Finset.Icc 2 13, ((-1 : ℂ) ^ n * ((o4Coef n * π ^ (2 * n) : ℝ) : ℂ)) * τ ^ (2 * n + 1))
-      = ∑' k : ℕ, o4Term τ (k + 14) := by
-    rw [htarget, hE, hshift, htail, hrange, o4Term_zero, o4Term_one]
+    Summable.sum_add_tsum_nat_add' ((summable_nat_add_iff 4).mpr hsum)
+  have hrange : ∑ i ∈ Finset.range 4, o4Term τ i = o4Term τ 0 + o4Term τ 1 + o4Term τ 2 + o4Term τ 3 := by
+    simp [Finset.sum_range_succ]
+  have hdiff : edgePhiC L τ - ((L : ℂ) * τ - (π : ℂ) ^ 2 * τ ^ 3 / 36) =
+      o4Term τ 2 + o4Term τ 3 + ∑' k : ℕ, o4Term τ (k + 4) := by
+    rw [hE, hshift, ← hsplit, hrange, o4Term_zero, o4Term_one]
     ring
   rw [hdiff]
-  exact o4_tail_sum_bound hτ hT
-
-
-
-
-/-! ### Exact values of `o4Coef 2, …, o4Coef 13` -/
-
-/-- `o4Coef 2` as an exact rational (from `o4_bernoulli_4`). -/
-lemma o4Coef_eq_rat_2 : o4Coef 2 = (7 : ℝ) / 7200 := by
-  unfold o4Coef
-  rw [o4_bernoulli_4]
-  norm_num [Nat.factorial]
-
-/-- `o4Coef 3` as an exact rational (from `o4_bernoulli_6`). -/
-lemma o4Coef_eq_rat_3 : o4Coef 3 = (31 : ℝ) / 635040 := by
-  unfold o4Coef
-  rw [o4_bernoulli_6]
-  norm_num [Nat.factorial]
-
-/-- `o4Coef 4` as an exact rational (from `o4_bernoulli_8`). -/
-lemma o4Coef_eq_rat_4 : o4Coef 4 = (127 : ℝ) / 43545600 := by
-  unfold o4Coef
-  rw [o4_bernoulli_8]
-  norm_num [Nat.factorial]
-
-/-- `o4Coef 5` as an exact rational (from `o4_bernoulli_10`). -/
-lemma o4Coef_eq_rat_5 : o4Coef 5 = (73 : ℝ) / 376358400 := by
-  unfold o4Coef
-  rw [o4_bernoulli_10]
-  norm_num [Nat.factorial]
-
-/-- `o4Coef 6` as an exact rational (from `o4_bernoulli_12`). -/
-lemma o4Coef_eq_rat_6 : o4Coef 6 = (1414477 : ℝ) / 101998600704000 := by
-  unfold o4Coef
-  rw [o4_bernoulli_12]
-  norm_num [Nat.factorial]
-
-/-- `o4Coef 7` as an exact rational (from `o4_bernoulli_14`). -/
-lemma o4Coef_eq_rat_7 : o4Coef 7 = (8191 : ℝ) / 7846046208000 := by
-  unfold o4Coef
-  rw [o4_bernoulli_14]
-  norm_num [Nat.factorial]
-
-/-- `o4Coef 8` as an exact rational (from `o4_bernoulli_16`). -/
-lemma o4Coef_eq_rat_8 : o4Coef 8 = (16931177 : ℝ) / 207314958090240000 := by
-  unfold o4Coef
-  rw [o4_bernoulli_16]
-  norm_num [Nat.factorial]
-
-/-- `o4Coef 9` as an exact rational (from `o4_bernoulli_18`). -/
-lemma o4Coef_eq_rat_9 : o4Coef 9 = (5749691557 : ℝ) / 873655111136231424000 := by
-  unfold o4Coef
-  rw [o4_bernoulli_18]
-  norm_num [Nat.factorial]
-
-/-- `o4Coef 10` as an exact rational (from `o4_bernoulli_20`). -/
-lemma o4Coef_eq_rat_10 : o4Coef 10 = (91546277357 : ℝ) / 168600109166641152000000 := by
-  unfold o4Coef
-  rw [o4_bernoulli_20]
-  norm_num [Nat.factorial]
-
-/-- `o4Coef 11` as an exact rational (from `o4_bernoulli_22`). -/
-lemma o4Coef_eq_rat_11 : o4Coef 11 = (3324754717 : ℝ) / 72807720611553607680000 := by
-  unfold o4Coef
-  rw [o4_bernoulli_22]
-  norm_num [Nat.factorial]
-
-/-- `o4Coef 12` as an exact rational (from `o4_bernoulli_24`). -/
-lemma o4Coef_eq_rat_12 : o4Coef 12 = (1982765468311237 : ℝ) / 508147241019523100835840000000 := by
-  unfold o4Coef
-  rw [o4_bernoulli_24]
-  norm_num [Nat.factorial]
-
-/-- `o4Coef 13` as an exact rational (from `o4_bernoulli_26`). -/
-lemma o4Coef_eq_rat_13 : o4Coef 13 = (22076500342261 : ℝ) / 65333216702510112964608000000 := by
-  unfold o4Coef
-  rw [o4_bernoulli_26]
-  norm_num [Nat.factorial]
-
+  have h2 : ‖o4Term τ 2‖ ≤ 7 / 7200 * π ^ 4 * T ^ 5 := by
+    rw [o4Term_norm, o4Coef_eq_rat_2]
+    have h5 := pow_le_pow_left₀ (norm_nonneg τ) hτ 5
+    show (7 / 7200 : ℝ) * π ^ 4 * ‖τ‖ ^ 5 ≤ _
+    gcongr
+  have h3 : ‖o4Term τ 3‖ ≤ 31 / 635040 * π ^ 6 * T ^ 7 := by
+    rw [o4Term_norm, o4Coef_eq_rat_3]
+    have h5 := pow_le_pow_left₀ (norm_nonneg τ) hτ 7
+    show (31 / 635040 : ℝ) * π ^ 6 * ‖τ‖ ^ 7 ≤ _
+    gcongr
+  have h4 := o4_tail_sum_bound (m := 4) (c := 1 / 18) hτ hT (fun n hn => o4_x_le_tail4 hn)
+  have h9 : (1 : ℝ) / 18 * T ^ (2 * 4 + 1) / (1 - T ^ 2) = 1 / 18 * T ^ 9 / (1 - T ^ 2) := by norm_num
+  have h5 := norm_add_le (o4Term τ 2 + o4Term τ 3) (∑' k : ℕ, o4Term τ (k + 4))
+  have h6 := norm_add_le (o4Term τ 2) (o4Term τ 3)
+  linarith
 
 /-- info: 'FormalResearch.SignUncertainty.o4Coef_one' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
@@ -880,9 +829,9 @@ lemma o4Coef_eq_rat_13 : o4Coef 13 = (22076500342261 : ℝ) / 653332167025101129
 #guard_msgs in
 #print axioms edgePhiC_series
 
-/-- info: 'FormalResearch.SignUncertainty.edgePhiC_trunc_tail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.SignUncertainty.edgePhiC_rho_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
-#print axioms edgePhiC_trunc_tail
+#print axioms edgePhiC_rho_bound
 
 /-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
@@ -891,45 +840,5 @@ lemma o4Coef_eq_rat_13 : o4Coef 13 = (22076500342261 : ℝ) / 653332167025101129
 /-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_3' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms o4Coef_eq_rat_3
-
-/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_4' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in
-#print axioms o4Coef_eq_rat_4
-
-/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_5' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in
-#print axioms o4Coef_eq_rat_5
-
-/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_6' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in
-#print axioms o4Coef_eq_rat_6
-
-/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_7' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in
-#print axioms o4Coef_eq_rat_7
-
-/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_8' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in
-#print axioms o4Coef_eq_rat_8
-
-/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_9' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in
-#print axioms o4Coef_eq_rat_9
-
-/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_10' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in
-#print axioms o4Coef_eq_rat_10
-
-/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_11' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in
-#print axioms o4Coef_eq_rat_11
-
-/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_12' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in
-#print axioms o4Coef_eq_rat_12
-
-/-- info: 'FormalResearch.SignUncertainty.o4Coef_eq_rat_13' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in
-#print axioms o4Coef_eq_rat_13
 
 end FormalResearch.SignUncertainty
