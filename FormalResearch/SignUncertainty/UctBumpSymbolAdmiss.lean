@@ -131,7 +131,7 @@ theorem bump_stripM1 {b α β : ℝ} (hb : 0 < b) (hβ : 3 / 2 ≤ β) (K : ℕ 
     show 0 ≤ ((c : ℂ) * ζ).re
     rw [hmapre]; exact mul_nonneg hc.le hζ.1
   · intro ζ _ _
-    rw [map_mul, Complex.conj_ofReal, ← laplace_conj, map_mul, Complex.conj_ofReal]
+    rw [map_mul, Complex.conj_ofReal, ← BumpProfile.laplace_conj, map_mul, Complex.conj_ofReal]
   · obtain ⟨C, hC0, hC⟩ := bump_laplace_decay (α := α) hb hβ K 2
     set Λ := bumpLambda α δ
     have hΛ := one_le_bumpLambda (α := α) hδ0 hδ1
