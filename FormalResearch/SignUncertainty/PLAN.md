@@ -60,7 +60,7 @@ Package ids are from section 6.1, milestones from section 3. Nothing in this sec
 
 ### 2.1 `thm:intro-radii` (five terms): M11 -> B3 -> C1 -> F1 -> F2 -> F3 -> density
 
-1. **M11**, `u1cl:main` (S): assemble `hb_thresholds_lower` and `hbThresholdsUpper` at one level. Used by `constant_terms_lower`.
+1. **M11**, `u1cl:main`: done at one level (`hankel_one_two`). Used by `constant_terms_lower`.
 2. **B3**: `u1cl:langer` (Lemma L.2, S-M; a corollary of `gt:7.7b` (iv), already in Lean) and the clauses of `gt:7.7p` (d) that the lower bound cites (cut-crossing constant; `gt:7.7p` is cited ten times in `constant_terms_lower`).
 3. **C1**: `uct:admiss` (Lemma T.8, M) and `ceo:O11ak` for general seeds (M; `exists_hankelEigenfn_lift_general` exists modulo `ConvTailData`). Both are used by `constant_terms_upper`.
 4. **F1** (L): `ct:outer` first (it is also the input of F2), then `ct:dual-id`, `ct:cfu`, `ct:morse-expansion` (finite real stationary phase), `ct:boas`, `ct:dyadic`; `ct:boas` is now proved from the finite Fejér inequality `ct:fejer` (only `g in L^1` needed), not pointwise Poisson periodization, so no Poisson summation formula is required; `ct:dyadic` closes by absorption at a fixed dyadic depth; gives the five-term lower bound and the lower half of `eq:ct-split`. Inputs already in Lean: `mat:T1`, `mat:T4`, `gt:7.7b`, `gt:7.7c`, `radial_compactness`, `airy_defect_bound`, `hb_thresholds_lower`.
@@ -87,7 +87,7 @@ Steps 1 to 3 are independent. F2 needs from F1 `ct:outer` (the outer function `G
 
 ### 2.4 Next concrete packages (headline paths only)
 
-1. **Start now (tier 1, `thm:intro-radii`):** M11 `u1cl:main` (S), then `u1cl:langer` (S-M); in parallel C1's `uct:admiss` (T.8, M). None needs another package.
+1. **Start now (tier 1, `thm:intro-radii`):** `u1cl:langer` (S-M); in parallel C1's `uct:admiss` (T.8, M). None needs another package.
 2. **Then:** F1's first block, `ct:outer` and `ct:dual-id` (`constant_terms_lower.tex`), on proved inputs only (`mat:T1`, `mat:T4`, `gt:7.7b`); `ct:outer` unblocks F2.
 3. **Continue, scoped to what the headlines use:** M6 step (a), the `CeSourceFamily` instance for `convSource` (the `ConvSource*` symbol bounds and pre-edge estimates also feed F2), and the `m_0 = 1` lift that `thm:intro-gap` (iii) needs.
 4. **Second headline lane once two slots are free:** `thm:intro-gap` (iv) through M9 (E2), beginning with `thm:airy-square-attained` (needs only proved inputs: `airyNC_quadrature`, `airyAiC_logDeriv_mittagLeffler`).
@@ -119,7 +119,7 @@ Names M0-M11 are kept. Size classes as in 6.1.
 | M8 all levels | `TE.0'` general, `u1cl:langer`, multilevel thresholds (`u1cl:multilevel`), `ShellReduction D`, `CeHbLift D` with weak positivity, positive odd families, `gt:7.5` general | A3, B1, B3, C2, C3, D1, E1 | not started | L; starts with a dependency list once M6 is merged |
 | M9 Airy-LP core | `thm:airy-square-attained`, `thm:ce-airy-transfer`, `thm:ce-canonical-iff`, two-level Rayleigh, shifted lift, `cor:ce-schwartz-shells` | E2, D2 | planned, not started | L; needs only M3 |
 | M10 constant terms | `thm:ct-lower`/`thm:ct-upper` five terms, density `eq:ce-density-exact`; carries the paper's `thm:intro-radii` | F1, F2, F3, D2, C1 | planned, not started; no Lean exists | L, constants non-effective; the main lane: it carries the paper headline (owner rule, section 2) |
-| M11 Hankel two-sided `O(1)` | `thm:hankel-one-two` from the two proved halves | C3 | planned | S |
+| M11 Hankel two-sided `O(1)` | `thm:hankel-one-two` from the two proved halves: `hankel_one_two` (`HankelOneTwo`) | C3 | done at one level | two-level (Clark) clause not formalised |
 | Headline S (retired) | `gt:7.9c` separation `-2/pi^2`, deleted from the paper | - | retired from the headlines; proved unconditionally as `separation_neg_two_div_pi_sq_unconditional` (`SignSeparationLimsup.lean`) | none; the sharp `-1/pi` is a corollary of M10 |
 
 Not on any path and not planned: `gt:7.10` (owner-deferred), `thm:ce-neumann`, Route I (`thm:ce-lift`, GT.4, PF.2/PF.5, the Dirichlet-diagonal chain; outside the paper), general de Branges SE.1-SE.5 and `PW*PW` characterisations, Theorem 3.1 (c) for tempered distributions. Fold-tip instances belong to the FoldTip lane (package G).
@@ -291,7 +291,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | label | state | Lean today / note |
 |---|---|---|
 | `u1cl:multilevel` | partial | one level: lower half `hb_thresholds_lower`, upper half `hbThresholdsUpper`; all `(P,Q)` and the `f(0) = 0` clause: planned M8 (no `HbThresholds` declaration exists) |
-| `u1cl:main` | planned | M11 (S): statement-level assembly of the two proved one-level halves |
+| `u1cl:main` | done (one level) | `hankel_one_two` (`HankelOneTwo`); the two-level Clark clause is not formalised |
 
 **D1. Cohn-Elkies upper half, route II: convolution source, transfer, pre-edge, post-edge, lift** (`ce_hb_lift.tex`, `ce_o1_route.tex`, `ce_o1_global_transfer.tex`, `ce_o1_pre_edge.tex`, `ce_physical_log_far.tex`, `ce_rate.tex`). Lean: `ConvSource*`, `CeLift*`, `CeHbLiftAssembly`, `CeHankelPairFromEigen`, `EuclidCELift`, `CohnElkies/{MellinMainKernel,PhysicalAndFarTransfer,PreEdgeCriterion,LobeSaddle*,SaddleGeometry,OriginMellinAndS0,AiryGaussianTransform}` (about 20k lines).
 
