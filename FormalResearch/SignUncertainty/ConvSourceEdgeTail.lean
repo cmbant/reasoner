@@ -3,6 +3,7 @@ module
 public import FormalResearch.SignUncertainty.ConvSourceEdgeTrace
 public import FormalResearch.SignUncertainty.ConvSourceEdgeLap
 public import FormalResearch.SignUncertainty.ConvSourceTail
+public import FormalResearch.SignUncertainty.CeLiftEdge
 
 /-!
 # The logarithmic tails of `I_main`, `I_dual` and `ConvTailData` for the convolution source (M6, `ceo:O11ak`, `ceo:conv` (7), `GT.2b`)
@@ -133,9 +134,9 @@ theorem convTailData_airySeedU2 {m : ℕ} (hm : 3 ≤ m) (a b c₀ : ℝ) {δ₀
 
 /-- **`ConvTailData` for the convolution source `S_c`** (`ceo:conv`, `p ∈ (1/2, 1)`, `h > 0`, arbitrary `γ ε`, `θ`): at spline order `m = 4`, width `δ₀ = β₁ K ε_c / 2`
 and `c ≥ 2000`, `8K³ ≤ c`, `K ≥ 1` (the range of `CeSourceFamily.tail`), `ε_c = c^{-1/3}`.  Both tails are `O(ξ⁻¹ (log π²ξ)^{-3/2})` (the constants depend on all parameters). -/
-theorem convTailData_convSource {p γ θ ε h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hh : 0 < h) {K c : ℝ} (hK : 1 ≤ K)
-    (hc : 2000 ≤ c) (hcK : 8 * K ^ 3 ≤ c) :
-    ConvTailData (convSource p γ θ ε h) (ceBeta1 * K * liftEps c / 2) 4 c := by
+theorem convTailData_convSource {p γ θ ε h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hh : 0 < h) {m : ℕ} (hm : 3 ≤ m)
+    {K c : ℝ} (hK : 1 ≤ K) (hc : 2000 ≤ c) (hcK : 8 * K ^ 3 ≤ c) :
+    ConvTailData (convSource p γ θ ε h) (ceBeta1 * K * liftEps c / 2) m c := by
   have hc0 : 0 < c := by linarith
   have hδ0 : 0 ≤ ceBeta1 * K * liftEps c / 2 := by
     have := ceBeta1_pos; have := liftEps_pos hc0; positivity
@@ -148,7 +149,7 @@ theorem convTailData_convSource {p γ θ ε h : ℝ} (hp : 1 / 2 < p) (hp1 : p <
             gcongr; exact (mul_nonneg (by linarith) (liftEps_pos hc0).le)
         _ ≤ 8 * (1 / 2) := by gcongr
     linarith [mul_assoc ceBeta1 K (liftEps c)]
-  obtain ⟨A, hA, hb⟩ := gt1Bounds_convSource (p := p) (γ := γ) (θ := θ) (ε := ε) hp hp1 (m := 4) (by norm_num)
+  obtain ⟨A, hA, hb⟩ := gt1Bounds_convSource (p := p) (γ := γ) (θ := θ) (ε := ε) hp hp1 hm
   exact convTailData_of_gt1 (hasU2_convSource hp hp1 hh) hδ0 (hb h hh _ ⟨hδ0, hδ2⟩) (by linarith)
 
 /-- The `tail` field of `CeSourceFamily` for the convolution-source family `c ↦ S_c = convSource p γ θ (c^{-1/3}) (λ c^{-2/3})` (`h = λ ε²`, `λ > 0`). -/
@@ -158,7 +159,26 @@ theorem ceSourceFamily_tail_convSource {p γ θ lam : ℝ} (hp : 1 / 2 < p) (hp1
   intro K c hK hc hcK
   have hc0 : 0 < c := by linarith
   have := liftEps_pos hc0
-  exact convTailData_convSource hp hp1 (by positivity) hK hc hcK
+  exact convTailData_convSource hp hp1 (by positivity) (by norm_num) hK hc hcK
+
+/-- **The Cohn--Elkies eigenfunction pair for the convolution source, unconditionally** (`ceLift_pair` with `S = S_c = convSource p γ θ ε h` and its hypothesis
+`ConvTailData` discharged by `convTailData_convSource`): spline order `m = 4`, a one-level seed `D = airySeedU2 a b c₀`, `K ≥ 1`, `c ≥ 2000`, `8K³ ≤ c`. -/
+theorem ceLift_pair_convSource {p γ θ ε h : ℝ} (hp : 1 / 2 < p) (hp1 : p < 1) (hh : 0 < h) (a b c₀ : ℝ) {K c : ℝ}
+    (hK : 1 ≤ K) (hc : 2000 ≤ c) (hcK : 8 * K ^ 3 ≤ c) :
+    ∃ fp fm : ℝ → ℝ, IsHankelEigenfn c 1 fp ∧ IsHankelEigenfn c (-1) fm ∧
+      (∀ ξ : ℝ, 0 < ξ → ((c ^ (1 / 3 : ℝ) * hankelRho0 c (c * ξ) * ((fp (c * ξ) + fm (c * ξ)) / 2) : ℝ) : ℂ) =
+        iMain (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) 4 c ξ +
+          iDual (convSource p γ θ ε h) (ceBeta1 * K * liftEps c / 2) 4 c ξ) ∧
+      (∀ ξ : ℝ, 0 < ξ → ((c ^ (1 / 3 : ℝ) * hankelRho0 c (c * ξ) * ((fp (c * ξ) - fm (c * ξ)) / 2) : ℝ) : ℂ) =
+        iMain (convSource p γ θ ε h) (ceBeta1 * K * liftEps c / 2) 4 c ξ +
+          iDual (airySeedU2 a b c₀) (ceBeta1 * K * liftEps c / 2) 4 c ξ) ∧
+      ((fp 0 : ℝ) : ℂ) = liftSymbol (fun u => airySeedU2 a b c₀ u + 1 * convSource p γ θ ε h u)
+          (ceBeta1 * K * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ) +
+        liftSymbol (fun u => airySeedU2 a b c₀ u + 1 * convSource p γ θ ε h u) (ceBeta1 * K * liftEps c / 2) 4 0 ∧
+      ((fm 0 : ℝ) : ℂ) = liftSymbol (fun u => airySeedU2 a b c₀ u + (-1) * convSource p γ θ ε h u)
+          (ceBeta1 * K * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ)) : ℂ) -
+        liftSymbol (fun u => airySeedU2 a b c₀ u + (-1) * convSource p γ θ ε h u) (ceBeta1 * K * liftEps c / 2) 4 0 :=
+  ceLift_pair (by norm_num) a b c₀ hK hc hcK (convTailData_convSource hp hp1 hh (by norm_num) hK hc hcK)
 
 /-- info: 'FormalResearch.SignUncertainty.edge_tail_of_trace' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -179,6 +199,10 @@ theorem ceSourceFamily_tail_convSource {p γ θ lam : ℝ} (hp : 1 / 2 < p) (hp1
 /-- info: 'FormalResearch.SignUncertainty.convTailData_convSource' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms convTailData_convSource
+
+/-- info: 'FormalResearch.SignUncertainty.ceLift_pair_convSource' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ceLift_pair_convSource
 
 /-- info: 'FormalResearch.SignUncertainty.ceSourceFamily_tail_convSource' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
