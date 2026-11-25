@@ -433,4 +433,12 @@ theorem admiss_tail {c α : ℝ} {W : ℂ → ℂ} (hc : 2 ≤ c) (hα0 : 0 < α
     _ = _ := by
         field_simp
 
+/-- info: 'FormalResearch.SignUncertainty.oscData_mul' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms oscData_mul
+
+/-- info: 'FormalResearch.SignUncertainty.admiss_tail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms admiss_tail
+
 end FormalResearch.SignUncertainty

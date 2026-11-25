@@ -486,4 +486,16 @@ theorem admiss_vert_rep (hc : 1 ≤ c) (hW : StripM1 W) {σ : ℝ} (hσ0 : 0 ≤
 
 end Vert
 
+/-- info: 'FormalResearch.SignUncertainty.admissPhi_mellinLiftData' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms admissPhi_mellinLiftData
+
+/-- info: 'FormalResearch.SignUncertainty.mellinInv_admissPhi_edge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms mellinInv_admissPhi_edge
+
+/-- info: 'FormalResearch.SignUncertainty.admiss_vert_rep' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms admiss_vert_rep
+
 end FormalResearch.SignUncertainty

@@ -709,4 +709,24 @@ theorem admiss_lift_tendsto {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : 
   have h2 := (Complex.continuous_re.tendsto (W 1)).comp hlim
   exact h2.congr (fun Δ => by simp)
 
+/-- info: 'FormalResearch.SignUncertainty.mellinInv_one_Gamma' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms mellinInv_one_Gamma
+
+/-- info: 'FormalResearch.SignUncertainty.admissRem_mellinLiftData' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms admissRem_mellinLiftData
+
+/-- info: 'FormalResearch.SignUncertainty.admiss_lift_eq_sub' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms admiss_lift_eq_sub
+
+/-- info: 'FormalResearch.SignUncertainty.admiss_lift_eq_limit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms admiss_lift_eq_limit
+
+/-- info: 'FormalResearch.SignUncertainty.admiss_lift_tendsto' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms admiss_lift_tendsto
+
 end FormalResearch.SignUncertainty
