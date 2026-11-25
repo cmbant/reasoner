@@ -325,4 +325,362 @@ lemma P1_simplify {τ0 c m1v K KB : ℝ} (hτ0 : 0 < τ0) (hc : 0 < c) (hm : τ0
 
 end
 
+lemma large_sg {τ0 : ℝ} (hτ0 : 0 < τ0) : min 1 (τ0 ^ 3) ≤ 2 * (sg τ0 * τ0) := by
+  unfold sg
+  have e : τ0 ^ 2 / (1 + τ0 ^ 2) * τ0 = τ0 ^ 3 / (1 + τ0 ^ 2) := by field_simp
+  rw [e]
+  rcases le_total τ0 1 with h | h
+  · have h3 : τ0 ^ 3 ≤ 1 := pow_le_one₀ hτ0.le h
+    have h2 : τ0 ^ 2 ≤ 1 := pow_le_one₀ hτ0.le h
+    rw [min_eq_right h3, mul_div_assoc', le_div_iff₀ (by positivity)]
+    nlinarith [mul_nonneg (pow_pos hτ0 3).le (sub_nonneg.2 h2)]
+  · have h3 : (1 : ℝ) ≤ τ0 ^ 3 := one_le_pow₀ h
+    rw [min_eq_left h3, mul_div_assoc', le_div_iff₀ (by positivity)]
+    nlinarith [pow_pos hτ0 3, pow_pos hτ0 2]
+
+lemma min_le_sg {τ0 : ℝ} (hτ0 : 0 < τ0) : min 1 (τ0 ^ 3) ≤ 3 * (sg τ0 * Real.sqrt (sg τ0)) := by
+  have hs0p : 0 < sg τ0 := by unfold sg; positivity
+  have hmin0 : 0 < min 1 (τ0 ^ 3) := lt_min one_pos (pow_pos hτ0 3)
+  refine le_of_sq_le_sq ?_ (by positivity)
+  have e : (3 * (sg τ0 * Real.sqrt (sg τ0))) ^ 2 = 9 * sg τ0 ^ 3 := by
+    have := Real.sq_sqrt hs0p.le
+    calc (3 * (sg τ0 * Real.sqrt (sg τ0))) ^ 2 = 9 * sg τ0 ^ 2 * (Real.sqrt (sg τ0)) ^ 2 := by ring
+      _ = 9 * sg τ0 ^ 3 := by rw [this]; ring
+  rw [e]
+  unfold sg
+  rcases le_total τ0 1 with h | h
+  · have h3 : τ0 ^ 3 ≤ 1 := pow_le_one₀ hτ0.le h
+    rw [min_eq_right h3, div_pow, mul_div_assoc', le_div_iff₀ (by positivity)]
+    have h2 : τ0 ^ 2 ≤ 1 := pow_le_one₀ hτ0.le h
+    nlinarith [pow_pos hτ0 6, pow_pos hτ0 4, pow_pos hτ0 2, mul_nonneg (pow_pos hτ0 6).le (sub_nonneg.2 h2)]
+  · have h3 : (1 : ℝ) ≤ τ0 ^ 3 := one_le_pow₀ h
+    rw [min_eq_left h3, div_pow, mul_div_assoc', le_div_iff₀ (by positivity)]
+    have h2 : 1 ≤ τ0 ^ 2 := one_le_pow₀ h
+    nlinarith [pow_pos hτ0 6, pow_pos hτ0 4, pow_pos hτ0 2]
+
+lemma step_ratio_lo {δ : ℝ} (hδ0 : 0 < δ) (hδ1 : δ ≤ 1 / 4) :
+    (1 - δ / 2) / (δ / 2) ≤ 3 / δ ∧ ((1 - δ / 2) / (δ / 2)) ^ 2 ≤ 9 / δ ^ 2 := by
+  have h1 : (1 - δ / 2) / (δ / 2) = (2 - δ) / δ := by field_simp
+  have h2 : (2 - δ) / δ ≤ 3 / δ := div_le_div_of_nonneg_right (by linarith) hδ0.le
+  refine ⟨h1 ▸ h2, ?_⟩
+  rw [h1, div_pow]
+  exact div_le_div_of_nonneg_right (by nlinarith) (by positivity)
+
+lemma step_ratio_hi {δ : ℝ} (hδ0 : 0 < δ) (hδ1 : δ ≤ 1 / 4) :
+    (1 + δ) / (δ / 2) ≤ 3 / δ ∧ ((1 + δ) / (δ / 2)) ^ 2 ≤ 9 / δ ^ 2 := by
+  have h1 : (1 + δ) / (δ / 2) = 2 * (1 + δ) / δ := by field_simp
+  have h2 : 2 * (1 + δ) / δ ≤ 3 / δ := div_le_div_of_nonneg_right (by linarith) hδ0.le
+  refine ⟨h1 ▸ h2, ?_⟩
+  rw [h1, div_pow]
+  exact div_le_div_of_nonneg_right (by nlinarith) (by positivity)
+
+/-- Step bounds in the form `|X'| ≤ R₁/τ`, `|X''| ≤ R₂/τ²`. -/
+lemma step_bounds {K1 K2 δ τ0 a b : ℝ} (hK1 : 0 ≤ K1) (hK2 : 0 ≤ K2) (hδ0 : 0 < δ) (hτ0 : 0 < τ0)
+    (hba : b / (b - a) ≤ 3 / δ) (hba2 : (b / (b - a)) ^ 2 ≤ 9 / δ ^ 2) (hab : a < b) (hb : 0 < b)
+    {X1 X2 : ℝ → ℝ} (h1 : ∀ τ : ℝ, 0 < τ → |X1 τ| ≤ K1 * b / (b - a) / τ)
+    (h2 : ∀ τ : ℝ, 0 < τ → |X2 τ| ≤ K2 * b ^ 2 / (b - a) ^ 2 / τ ^ 2) :
+    (∀ τ : ℝ, 0 < τ → |X1 τ| ≤ 3 * K1 / δ / τ) ∧ (∀ τ : ℝ, 0 < τ → |X2 τ| ≤ 9 * K2 / δ ^ 2 / τ ^ 2) := by
+  have hw : 0 < b - a := sub_pos.mpr hab
+  refine ⟨fun τ hτ => (h1 τ hτ).trans ?_, fun τ hτ => (h2 τ hτ).trans ?_⟩
+  · refine div_le_div_of_nonneg_right ?_ hτ.le
+    calc K1 * b / (b - a) = K1 * (b / (b - a)) := by ring
+      _ ≤ K1 * (3 / δ) := mul_le_mul_of_nonneg_left hba hK1
+      _ = 3 * K1 / δ := by ring
+  · refine div_le_div_of_nonneg_right ?_ (by positivity)
+    calc K2 * b ^ 2 / (b - a) ^ 2 = K2 * (b / (b - a)) ^ 2 := by field_simp
+      _ ≤ K2 * (9 / δ ^ 2) := mul_le_mul_of_nonneg_left hba2 hK2
+      _ = 9 * K2 / δ ^ 2 := by ring
+
+/-- Decomposition of the integral according to the partition of unity. -/
+lemma assemble {A B0 Bl Bi E : ℝ → ℂ} {τe T0 aS : ℝ}
+    (hsum : ∀ τ, A τ = B0 τ + Bl τ + Bi τ)
+    (h0 : ∀ T : ℝ, 0 ≤ T → IntervalIntegrable (fun τ => B0 τ * E τ) volume 0 T)
+    (hl : ∀ T : ℝ, 0 ≤ T → IntervalIntegrable (fun τ => Bl τ * E τ) volume 0 T)
+    (hi : ∀ T : ℝ, 0 ≤ T → IntervalIntegrable (fun τ => Bi τ * E τ) volume 0 T)
+    (hτe : 0 ≤ τe) (hτeT : τe ≤ T0) (haS : 0 ≤ aS) (haST : aS ≤ T0)
+    (z0 : ∀ τ : ℝ, τe < τ → B0 τ = 0) (zl : ∀ τ : ℝ, T0 < τ → Bl τ = 0) (zi : ∀ τ : ℝ, 0 < τ → τ ≤ aS → Bi τ = 0)
+    {T : ℝ} (hT : T0 ≤ T) :
+    ∫ τ in (0 : ℝ)..T, A τ * E τ = (∫ τ in (0 : ℝ)..τe, B0 τ * E τ) + (∫ τ in (0 : ℝ)..T0, Bl τ * E τ) +
+      ∫ τ in aS..T, Bi τ * E τ := by
+  have hT0 : 0 ≤ T := hτe.trans (hτeT.trans hT)
+  have hpt : ∀ τ, A τ * E τ = B0 τ * E τ + Bl τ * E τ + Bi τ * E τ := fun τ => by rw [hsum τ]; ring
+  simp only [hpt]
+  rw [intervalIntegral.integral_add ((h0 T hT0).add (hl T hT0)) (hi T hT0),
+    intervalIntegral.integral_add (h0 T hT0) (hl T hT0)]
+  have e0 : ∫ τ in (0 : ℝ)..T, B0 τ * E τ = ∫ τ in (0 : ℝ)..τe, B0 τ * E τ :=
+    intervalIntegral_eq_of_zero_right hτe (hτeT.trans hT) (h0 T hT0) (fun τ hτ => by simp [z0 τ hτ.1])
+  have el : ∫ τ in (0 : ℝ)..T, Bl τ * E τ = ∫ τ in (0 : ℝ)..T0, Bl τ * E τ :=
+    intervalIntegral_eq_of_zero_right (hτe.trans hτeT) hT (hl T hT0) (fun τ hτ => by simp [zl τ (lt_of_le_of_lt le_rfl hτ.1)])
+  have ei : ∫ τ in (0 : ℝ)..T, Bi τ * E τ = ∫ τ in aS..T, Bi τ * E τ :=
+    intervalIntegral_eq_of_zero_left haS (haST.trans hT) (hi T hT0) (fun τ hτ => by simp [zi τ hτ.1 hτ.2])
+  rw [e0, el, ei]
+
+lemma cut_support {τ0 θ t : ℝ} (hτ0 : 0 < τ0) (hθ : 0 < θ) (ht : θ ≤ |t|) :
+    tt τ0 t ≤ τ0 * (1 - θ / 4) ∨ τ0 * (1 + θ / 4) ≤ tt τ0 t := by
+  unfold tt
+  rcases le_abs'.mp ht with h | h
+  · left
+    have : τ0 * (1 + t / 2) ≤ τ0 * (1 - θ / 4) := mul_le_mul_of_nonneg_left (by linarith) hτ0.le
+    exact this
+  · right
+    exact mul_le_mul_of_nonneg_left (by linarith) hτ0.le
+
+lemma far_facts {τ0 δ τ : ℝ} (hτ0 : 0 < τ0) (hδ0 : 0 < δ) (hδ1 : δ ≤ 1 / 4) (h : τ ≤ 0 ∨ 2 * τ0 ≤ τ) :
+    τ ≤ τ0 * (1 - δ) ∨ τ0 * (1 + δ) ≤ τ := by
+  rcases h with h | h
+  · left
+    have : 0 < τ0 * (1 - δ) := mul_pos hτ0 (by linarith)
+    linarith
+  · right
+    have : τ0 * (1 + δ) ≤ τ0 * 2 := mul_le_mul_of_nonneg_left (by linarith) hτ0.le
+    linarith
+
+lemma cut_zero {τ0 δ τ : ℝ} (hτ0 : 0 < τ0) (hδ0 : 0 < δ) {X0 Xi : ℝ → ℝ}
+    (hX0z : ∀ τ, τ ≤ τ0 * (1 - δ) → X0 τ = 0) (hX0o : ∀ τ, τ0 * (1 - δ / 2) ≤ τ → X0 τ = 1)
+    (hXiz : ∀ τ, τ ≤ τ0 * (1 + δ / 2) → Xi τ = 0) (hXio : ∀ τ, τ0 * (1 + δ) ≤ τ → Xi τ = 1)
+    (h : τ ≤ τ0 * (1 - δ) ∨ τ0 * (1 + δ) ≤ τ) : X0 τ - Xi τ = 0 := by
+  rcases h with h | h
+  · have h2 : τ ≤ τ0 * (1 + δ / 2) := h.trans (mul_le_mul_of_nonneg_left (by linarith) hτ0.le)
+    rw [hX0z _ h, hXiz _ h2]; ring
+  · have h2 : τ0 * (1 - δ / 2) ≤ τ := (mul_le_mul_of_nonneg_left (by linarith) hτ0.le).trans h
+    rw [hX0o _ h2, hXio _ h]; ring
+
+lemma norm_three {a b L I : ℂ} : ‖a + b + I - L‖ ≤ ‖a‖ + ‖b - L‖ + ‖I‖ := by
+  have e : a + b + I - L = a + (b - L) + I := by ring
+  rw [e]
+  have h1 := norm_add_le (a + (b - L)) I
+  have h2 := norm_add_le a (b - L)
+  linarith
+
+set_option maxHeartbeats 4000000 in
+/-- **Outer-band asymptotics (abstract form).** For `c · min(1, τ₀³) ≥ M₀`, the improper integral
+`∫₀^∞ A e^{icϕ}` (`ϕ' = m - m(τ₀)`) exists and equals `e^{iπ/4} √(2π/(c m'(τ₀))) A(τ₀) e^{icϕ(τ₀)} + O(c^{-3/2}/min(1,τ₀³))`. -/
+theorem outer_band (C0 CA : ℝ) (hC0 : 0 < C0) (hCA : 0 ≤ CA) :
+    ∃ M0 K : ℝ, 0 < M0 ∧ 0 ≤ K ∧
+      ∀ {m m1 m2 m3 : ℝ → ℝ} {A A1 A2 : ℝ → ℂ} {ϕ : ℝ → ℝ} {τ0 c : ℝ},
+        MData C0 m m1 m2 m3 → AmpBd CA A A1 A2 → 0 < τ0 → 0 < c →
+        (∀ τ : ℝ, 0 < τ → HasDerivAt ϕ (m τ - m τ0) τ) → M0 ≤ c * min 1 (τ0 ^ 3) →
+        ∃ I : ℂ, Tendsto (fun T : ℝ => ∫ τ in (0 : ℝ)..T, A τ * Complex.exp (Complex.I * c * (ϕ τ : ℂ))) atTop (𝓝 I) ∧
+          ‖I - Complex.exp ((π : ℂ) / 4 * Complex.I) * ((Real.sqrt (2 * π / (c * m1 τ0)) : ℝ) : ℂ) * A τ0 *
+              Complex.exp (Complex.I * c * (ϕ τ0 : ℂ))‖ ≤ K / (c * Real.sqrt c * min 1 (τ0 ^ 3)) := by
+  obtain ⟨θ, Kp, hθ0, hθ1, hKp0, H1⟩ := piece1 C0 hC0
+  obtain ⟨K1, K2, hK1, hK2, Hs⟩ := exists_step_geom
+  set δ := θ / 4 with hδ
+  have hδ0 : 0 < δ := by positivity
+  have hδ1 : δ ≤ 1 / 4 := by rw [hδ]; linarith
+  set R1 := 3 * K1 / δ with hR1
+  set R2 := 9 * K2 / δ ^ 2 with hR2
+  have hR1n : 0 ≤ R1 := by positivity
+  have hR2n : 0 ≤ R2 := by positivity
+  set KB := CA * (1 + 2 * (2 * R1) + 2 * R2) with hKB
+  have hKBn : 0 ≤ KB := by positivity
+  set κ2 : ℝ := 1 - δ / 4 with hκ2
+  set κ3 : ℝ := 1 / (1 + δ / 4) with hκ3
+  have hκ2a : 0 < κ2 := by rw [hκ2]; linarith
+  have hκ2b : κ2 < 1 := by rw [hκ2]; linarith
+  have hκ3a : 0 < κ3 := by rw [hκ3]; positivity
+  have hκ3b : κ3 < 1 := by rw [hκ3, div_lt_one (by positivity)]; linarith
+  have hγ2 : 0 < κ2 * (1 - κ2) := by nlinarith
+  have hγ3 : 0 < κ3 * (1 - κ3) := by nlinarith
+  set KP2 := KB * (2 / 3 + 1 / (κ2 * (1 - κ2)) + (1 + C0 / (κ2 * (1 - κ2)) + 2 * (1 + 4 * C0 / (κ2 * (1 - κ2)) +
+        3 * C0 ^ 2 / (κ2 * (1 - κ2)) ^ 2)) / (κ2 * (1 - κ2)) ^ 2) with hKP2
+  set KP3 := 4 * KB * (1 + 4 * C0 / (κ3 * (1 - κ3)) + 3 * C0 ^ 2 / (κ3 * (1 - κ3)) ^ 2) / (κ3 * (1 - κ3)) ^ 2 * (8 / 9)
+    with hKP3
+  set KP1 := 16 * Kp * KB with hKP1
+  have hKP2n : 0 ≤ KP2 := by rw [hKP2]; positivity
+  have hKP3n : 0 ≤ KP3 := by rw [hKP3]; positivity
+  have hKP1n : 0 ≤ KP1 := by rw [hKP1]; positivity
+  refine ⟨8, 3 * (KP1 + KP2 + KP3), by norm_num, by positivity, ?_⟩
+  intro m m1 m2 m3 A A1 A2 ϕ τ0 c hM hA hτ0 hc hϕ hlarge
+  have hs0p : 0 < sg τ0 := by unfold sg; positivity
+  have hm1pos := hM.m1_pos hτ0
+  have hw4 : 4 ≤ c * sg τ0 * τ0 := by
+    have h1 := large_sg hτ0
+    have h2 : c * min 1 (τ0 ^ 3) ≤ c * (2 * (sg τ0 * τ0)) := mul_le_mul_of_nonneg_left h1 hc.le
+    have e : c * (2 * (sg τ0 * τ0)) = 2 * (c * sg τ0 * τ0) := by ring
+    linarith
+  have hw2 : 1 ≤ c * sg τ0 * (κ2 * τ0) := by
+    have e : c * sg τ0 * (κ2 * τ0) = κ2 * (c * sg τ0 * τ0) := by ring
+    rw [e]
+    have : 15 / 16 ≤ κ2 := by rw [hκ2]; linarith
+    have := mul_le_mul_of_nonneg_left hw4 (by linarith : (0 : ℝ) ≤ κ2)
+    nlinarith [this]
+  have hlam1 : 1 ≤ c * (τ0 ^ 2 * m1 τ0 / 4) := by
+    have hm1lo := hM.lo τ0 hτ0
+    have h1 : sg τ0 * τ0 ≤ τ0 ^ 2 * m1 τ0 := by
+      have e : sg τ0 * τ0 = τ0 ^ 2 * (τ0 / (1 + τ0 ^ 2)) := by unfold sg; field_simp
+      rw [e]; exact mul_le_mul_of_nonneg_left hm1lo (sq_nonneg τ0)
+    have h2 := mul_le_mul_of_nonneg_left h1 hc.le
+    have e1 : c * (sg τ0 * τ0) = c * sg τ0 * τ0 := by ring
+    have e2 : c * (τ0 ^ 2 * m1 τ0 / 4) = c * (τ0 ^ 2 * m1 τ0) / 4 := by ring
+    rw [e2]; linarith
+  have hϕc : ContinuousOn ϕ (Ioi 0) := fun τ hτ => (hϕ τ hτ).continuousAt.continuousWithinAt
+  -- cutoffs
+  have ha0 : 0 < τ0 * (1 - δ) := by nlinarith
+  have hab0 : τ0 * (1 - δ) < τ0 * (1 - δ / 2) := by nlinarith
+  have hai : 0 < τ0 * (1 + δ / 2) := by positivity
+  have habi : τ0 * (1 + δ / 2) < τ0 * (1 + δ) := by nlinarith
+  obtain ⟨X0, X01, X02, hX0d, hX0d1, hX0c, hX0r, hX0z, hX0o, hX0z1, hX0o1, hX0b1, hX0b2⟩ :=
+    Hs (τ0 * (1 - δ)) (τ0 * (1 - δ / 2)) ha0 hab0
+  obtain ⟨Xi, Xi1, Xi2, hXid, hXid1, hXic, hXir, hXiz, hXio, hXiz1, hXio1, hXib1, hXib2⟩ :=
+    Hs (τ0 * (1 + δ / 2)) (τ0 * (1 + δ)) hai habi
+  have hδne : δ ≠ 0 := hδ0.ne'
+  have hτne : τ0 ≠ 0 := hτ0.ne'
+  have hr0 : τ0 * (1 - δ / 2) / (τ0 * (1 - δ / 2) - τ0 * (1 - δ)) = (1 - δ / 2) / (δ / 2) := by
+    rw [show τ0 * (1 - δ / 2) - τ0 * (1 - δ) = τ0 * (δ / 2) by ring]
+    exact mul_div_mul_left _ _ hτne
+  have hri : τ0 * (1 + δ) / (τ0 * (1 + δ) - τ0 * (1 + δ / 2)) = (1 + δ) / (δ / 2) := by
+    rw [show τ0 * (1 + δ) - τ0 * (1 + δ / 2) = τ0 * (δ / 2) by ring]
+    exact mul_div_mul_left _ _ hτne
+  obtain ⟨hX0e1, hX0e2⟩ := step_bounds hK1 hK2 hδ0 hτ0 (hr0 ▸ (step_ratio_lo hδ0 hδ1).1)
+    (hr0 ▸ (step_ratio_lo hδ0 hδ1).2) hab0 (by nlinarith) hX0b1 hX0b2
+  obtain ⟨hXie1, hXie2⟩ := step_bounds hK1 hK2 hδ0 hτ0 (hri ▸ (step_ratio_hi hδ0 hδ1).1)
+    (hri ▸ (step_ratio_hi hδ0 hδ1).2) habi (by nlinarith) hXib1 hXib2
+  -- cutoff products
+  have hr1 : (0 : ℝ) ≤ 2 * R1 := by positivity
+  have hr2 : (0 : ℝ) ≤ 2 * R2 := by positivity
+  have hb0ai : τ0 * (1 - δ / 2) ≤ τ0 * (1 + δ / 2) := by nlinarith
+  have hXi_le : ∀ τ, Xi τ ≤ X0 τ := by
+    intro τ
+    by_cases h : τ ≤ τ0 * (1 + δ / 2)
+    · rw [hXiz τ h]; exact (hX0r τ).1
+    · have : τ0 * (1 - δ / 2) ≤ τ := by linarith [not_le.mp h]
+      rw [hX0o τ this]; exact (hXir τ).2
+  obtain ⟨hY0d, hY0d1, hY0c, hY0b, hY0b1, hY0b2⟩ := prodB hA (X := fun τ => 1 - X0 τ)
+    (X1 := fun τ => -X01 τ) (X2 := fun τ => -X02 τ)
+    (fun τ => ((hasDerivAt_const τ (1 : ℝ)).fun_sub (hX0d τ)).congr_deriv (by ring)) (fun τ => (hX0d1 τ).neg) hX0c.neg
+    (fun τ => ⟨by linarith [(hX0r τ).2], by linarith [(hX0r τ).1]⟩) hr1 hr2
+    (fun τ hτ => by
+      rw [abs_neg]; exact (hX0e1 τ hτ).trans (div_le_div_of_nonneg_right (by linarith) hτ.le))
+    (fun τ hτ => by
+      rw [abs_neg]; exact (hX0e2 τ hτ).trans (div_le_div_of_nonneg_right (by linarith) (by positivity)))
+  obtain ⟨hYld, hYld1, hYlc, hYlb, hYlb1, hYlb2⟩ := prodB hA (X := fun τ => X0 τ - Xi τ)
+    (X1 := fun τ => X01 τ - Xi1 τ) (X2 := fun τ => X02 τ - Xi2 τ)
+    (fun τ => (hX0d τ).fun_sub (hXid τ)) (fun τ => (hX0d1 τ).fun_sub (hXid1 τ)) (hX0c.sub hXic)
+    (fun τ => ⟨by linarith [hXi_le τ], by linarith [(hX0r τ).2, (hXir τ).1]⟩) hr1 hr2
+    (fun τ hτ => by
+      have := abs_sub (X01 τ) (Xi1 τ)
+      have h1 := hX0e1 τ hτ
+      have h2 := hXie1 τ hτ
+      have e : 2 * R1 / τ = 3 * K1 / δ / τ + 3 * K1 / δ / τ := by rw [hR1]; ring
+      rw [e]; linarith)
+    (fun τ hτ => by
+      have := abs_sub (X02 τ) (Xi2 τ)
+      have h1 := hX0e2 τ hτ
+      have h2 := hXie2 τ hτ
+      have e : 2 * R2 / τ ^ 2 = 9 * K2 / δ ^ 2 / τ ^ 2 + 9 * K2 / δ ^ 2 / τ ^ 2 := by rw [hR2]; ring
+      rw [e]; linarith)
+  obtain ⟨hYid, hYid1, hYic, hYib, hYib1, hYib2⟩ := prodB hA (X := Xi) (X1 := Xi1) (X2 := Xi2)
+    hXid hXid1 hXic hXir hr1 hr2
+    (fun τ hτ => (hXie1 τ hτ).trans (div_le_div_of_nonneg_right (by linarith) hτ.le))
+    (fun τ hτ => (hXie2 τ hτ).trans (div_le_div_of_nonneg_right (by linarith) (by positivity)))
+  -- Piece 2
+  have hκ2τ : τ0 * (1 - δ / 2) < κ2 * τ0 := by
+    have := mul_lt_mul_of_pos_left (show 1 - δ / 2 < 1 - δ / 4 by linarith) hτ0
+    have e : (1 - δ / 4) * τ0 = τ0 * (1 - δ / 4) := mul_comm _ _
+    rw [hκ2, e]; exact this
+  have hP2 := outer_P2 hM hκ2a hκ2b hKBn hτ0 hc hw2 hϕ hY0d hY0d1 hY0c hY0b hY0b1 hY0b2
+    (by beta_reduce; rw [hX0o _ hκ2τ.le]; simp)
+    (by beta_reduce; rw [(hX0o1 _ hκ2τ).1, hX0o _ hκ2τ.le]; simp)
+  -- Piece 3
+  have haS : τ0 / κ3 = τ0 * (1 + δ / 4) := by rw [hκ3]; field_simp
+  have hxi : τ0 / κ3 < τ0 * (1 + δ / 2) := by
+    rw [haS]; exact mul_lt_mul_of_pos_left (by linarith) hτ0
+  obtain ⟨I3, hI3, hI3b⟩ := outer_P3 hM hκ3a hκ3b hKBn hτ0 hc hw4 hϕ hYid hYid1 hYic hYib hYib1 hYib2
+    (by beta_reduce; rw [hXiz _ hxi.le]; simp)
+    (by beta_reduce; rw [(hXiz1 _ hxi).1, hXiz _ hxi.le]; simp)
+  -- Piece 1
+  have hsupp : ∀ t : ℝ, θ ≤ |t| → ((X0 (tt τ0 t) - Xi (tt τ0 t) : ℝ) : ℂ) * A (tt τ0 t) = 0 := by
+    intro t ht
+    have h1 := cut_support hτ0 hθ0 ht
+    rw [← hδ] at h1
+    rw [cut_zero hτ0 hδ0 hX0z hX0o hXiz hXio h1]; simp
+  have hB0l : ∀ τ : ℝ, τ ≤ 0 ∨ 2 * τ0 ≤ τ → ((X0 τ - Xi τ : ℝ) : ℂ) * A τ = 0 := by
+    intro τ hτ
+    rw [cut_zero hτ0 hδ0 hX0z hX0o hXiz hXio (far_facts hτ0 hδ0 hδ1 hτ)]; simp
+  have hP1 := H1 hM hτ0 hc (T := 2 * τ0) (by positivity) hKBn hlam1 hϕ hYld hYld1 hYlc hYlb hYlb1 hYlb2 hsupp hB0l
+  have hP1' := hP1.trans (P1_simplify hτ0 hc (hM.lo τ0 hτ0) hKp0 hKBn)
+  -- assembly
+  set E : ℝ → ℂ := fun τ => Complex.exp (Complex.I * c * (ϕ τ : ℂ)) with hE
+  have contB : ∀ {B B1 : ℝ → ℂ}, (∀ τ : ℝ, 0 < τ → HasDerivAt B (B1 τ) τ) → ContinuousOn B (Ioi 0) :=
+    fun h τ hτ => (h τ hτ).continuousAt.continuousWithinAt
+  have hτe0 : 0 ≤ κ2 * τ0 := by positivity
+  have hτeT : κ2 * τ0 ≤ 2 * τ0 := by
+    have : κ2 * τ0 ≤ 1 * τ0 := mul_le_mul_of_nonneg_right hκ2b.le hτ0.le
+    linarith
+  have haS0 : 0 ≤ τ0 / κ3 := by positivity
+  have haST : τ0 / κ3 ≤ 2 * τ0 := by
+    rw [haS]
+    have : τ0 * (1 + δ / 4) ≤ τ0 * 2 := mul_le_mul_of_nonneg_left (by linarith) hτ0.le
+    linarith
+  have hass := fun (T : ℝ) (hT : 2 * τ0 ≤ T) => assemble (A := A) (E := E)
+    (B0 := fun τ => ((1 - X0 τ : ℝ) : ℂ) * A τ) (Bl := fun τ => ((X0 τ - Xi τ : ℝ) : ℂ) * A τ)
+    (Bi := fun τ => ((Xi τ : ℝ) : ℂ) * A τ) (τe := κ2 * τ0) (T0 := 2 * τ0) (aS := τ0 / κ3)
+    (fun τ => by push_cast; ring)
+    (fun T hT => intInt_BE hT hKBn (contB hY0d) hϕc hY0b)
+    (fun T hT => intInt_BE hT hKBn (contB hYld) hϕc hYlb)
+    (fun T hT => intInt_BE hT hKBn (contB hYid) hϕc hYib)
+    hτe0 hτeT haS0 haST
+    (fun τ hτ => by
+      have : τ0 * (1 - δ / 2) ≤ τ := hκ2τ.le.trans hτ.le
+      beta_reduce; rw [hX0o _ this]; simp)
+    (fun τ hτ => by
+      have e1 : τ0 * (1 + δ) ≤ τ0 * 2 := mul_le_mul_of_nonneg_left (by linarith) hτ0.le
+      have h2 : τ0 * (1 + δ) ≤ τ := by linarith
+      have e2 : τ0 * (1 - δ / 2) ≤ τ0 * (1 + δ) := mul_le_mul_of_nonneg_left (by linarith) hτ0.le
+      have h3 : τ0 * (1 - δ / 2) ≤ τ := e2.trans h2
+      beta_reduce; rw [hX0o _ h3, hXio _ h2]; simp)
+    (fun τ _ hτ => by beta_reduce; rw [hXiz _ (hτ.trans hxi.le)]; simp)
+    hT
+  have hBl0 : ((X0 τ0 - Xi τ0 : ℝ) : ℂ) * A τ0 = A τ0 := by
+    have h1 : X0 τ0 = 1 := hX0o _ (by
+      have : τ0 * (1 - δ / 2) ≤ τ0 * 1 := mul_le_mul_of_nonneg_left (by linarith) hτ0.le
+      linarith)
+    have h2 : Xi τ0 = 0 := hXiz _ (by
+      have : τ0 * 1 ≤ τ0 * (1 + δ / 2) := mul_le_mul_of_nonneg_left (by linarith) hτ0.le
+      linarith)
+    rw [h1, h2]; simp
+  rw [hBl0] at hP1'
+  refine ⟨(∫ τ in (0 : ℝ)..(κ2 * τ0), ((1 - X0 τ : ℝ) : ℂ) * A τ * E τ) +
+      (∫ τ in (0 : ℝ)..(2 * τ0), ((X0 τ - Xi τ : ℝ) : ℂ) * A τ * E τ) + I3, ?_, ?_⟩
+  · have hlim := (tendsto_const_nhds (x := (∫ τ in (0 : ℝ)..(κ2 * τ0), ((1 - X0 τ : ℝ) : ℂ) * A τ * E τ) +
+      (∫ τ in (0 : ℝ)..(2 * τ0), ((X0 τ - Xi τ : ℝ) : ℂ) * A τ * E τ))).add hI3
+    refine hlim.congr' ?_
+    filter_upwards [eventually_ge_atTop (2 * τ0)] with T hT
+    have := hass T hT
+    simp only [hE] at this ⊢
+    rw [this, add_assoc]
+  · set w := (c * sg τ0) * Real.sqrt (c * sg τ0) with hw
+    have hwp : 0 < w := by rw [hw]; positivity
+    have hn2 : ‖(∫ τ in (0 : ℝ)..(2 * τ0), ((X0 τ - Xi τ : ℝ) : ℂ) * A τ * E τ) -
+        Complex.exp ((π : ℂ) / 4 * Complex.I) * ((Real.sqrt (2 * π / (c * m1 τ0)) : ℝ) : ℂ) * A τ0 *
+          Complex.exp (Complex.I * c * (ϕ τ0 : ℂ))‖ ≤ KP1 / w := hP1'
+    have hn1 : ‖∫ τ in (0 : ℝ)..(κ2 * τ0), ((1 - X0 τ : ℝ) : ℂ) * A τ * E τ‖ ≤ KP2 / w := hP2
+    have hn3 : ‖I3‖ ≤ KP3 / w := hI3b
+    have htri : ‖((∫ τ in (0 : ℝ)..(κ2 * τ0), ((1 - X0 τ : ℝ) : ℂ) * A τ * E τ) +
+        (∫ τ in (0 : ℝ)..(2 * τ0), ((X0 τ - Xi τ : ℝ) : ℂ) * A τ * E τ) + I3) -
+        Complex.exp ((π : ℂ) / 4 * Complex.I) * ((Real.sqrt (2 * π / (c * m1 τ0)) : ℝ) : ℂ) * A τ0 *
+          Complex.exp (Complex.I * c * (ϕ τ0 : ℂ))‖ ≤ KP1 / w + KP2 / w + KP3 / w := by
+      refine norm_three.trans ?_
+      linarith
+    refine htri.trans ?_
+    have hmin := min_le_sg hτ0
+    have hcc : 0 < c * Real.sqrt c := by positivity
+    have hmn : 0 < min 1 (τ0 ^ 3) := lt_min one_pos (pow_pos hτ0 3)
+    have hww : w = c * Real.sqrt c * (sg τ0 * Real.sqrt (sg τ0)) := by
+      rw [hw, Real.sqrt_mul hc.le]; ring
+    have hle : c * Real.sqrt c * min 1 (τ0 ^ 3) ≤ 3 * w := by
+      rw [hww]
+      have := mul_le_mul_of_nonneg_left hmin hcc.le
+      linarith
+    have hsum : KP1 / w + KP2 / w + KP3 / w = (KP1 + KP2 + KP3) / w := by ring
+    rw [hsum, div_le_div_iff₀ hwp (by positivity)]
+    have hK : 0 ≤ KP1 + KP2 + KP3 := by positivity
+    have := mul_le_mul_of_nonneg_left hle hK
+    linarith
+
+/-- info: 'FormalResearch.SignUncertainty.CtOsc.outer_band' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms outer_band
+
 end FormalResearch.SignUncertainty.CtOsc
