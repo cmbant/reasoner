@@ -104,7 +104,7 @@ Steps 1 to 3 are independent. F2a needs from F1 `ct:outer` (the outer function `
 
 **Stop conditions (tier 1).**
 - **C1:** reached for `thm:intro-radii` (`mat:T7`, `uct:admiss`, `mat:T3` proved); nothing else of C1 is needed. `ceo:O11ak` for general seeds is needed only for `thm:intro-gap` (iii), (iv) (M6, M8, `thm:ce-shifted-lift`); its one-level form, used by `uct:pos-floor` and `u1c:U3`, is done.
-- **D1:** for `thm:intro-radii` the stop is `ceo:gauss.2`, `cel:L3a` (1)-(2) in the single-strip Dini form, the Mellin identity of `cepe:PE3`. The rest of D1 (post-edge, `ConvSource*` instance, `CeHankelPair`, packaging) is needed only for `thm:intro-gap` (iii) and the interim `thm_intro_radii`.
+- **D1:** for `thm:intro-radii` the stop is `ceo:gauss.2`, `cel:L3a` (1)-(2) in the single-strip Dini form, the Mellin identity of `cepe:PE3` (all three done). The rest of D1 (post-edge, `ConvSource*` instance, `CeHankelPair`, packaging) is needed only for `thm:intro-gap` (iii) and the interim `thm_intro_radii`.
 - **M6:** stop when `CeHankelPair` is proved (steps (b), (c)): it discharges `ce_hb_lift_m1` and gives the `m_0 = 1` case of `thm:ce-hb-lift` for `thm:intro-gap` (iii) and M8. It is not a stop for `thm:intro-radii`.
 - **M10:** the interim deliverables are (a) `thm:ct-lower` (F1); (b) `fct:main-hankel` (F2a), which with F1 gives the five-term Hankel sign radii; (c) `fct:main-ce` (F2b), `gt:7.12a` (D2) and `thm:intro-radii`. M10 stops at (c).
 
@@ -328,7 +328,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `ceo:O11ae` | done | `MellinMainKernel` (`bsplineMult`, `mainEdgeAmp`, `norm_mainEdgeAmp_le`) |
 | `cepf:FG3` | done | `Tc_sup_bound`, `fourier_L1_le_sqrt_mul_H1`, `mainTransferOp_sup_norm_le` |
 | `cepf:PF3` | done | `pf3_kernel_bound`, `pf3_kernel_bound_uniform` |
-| `cel:L3a` | partial | `OriginMellinAndS0` (two-edge multiplier, `O(|z|^{1/2})` origin modulus); (2) for a single-strip multiplier `W~(1 - z/c)` with a Holder modulus: `ceOrigin_shift`, `integral_Gamma_mul_one_sub_four` (`CeGenOrigin`; what `uct:gen-preedge` (2) uses). Open: the Dini modulus, the two-edge multiplier `W_S + W_D` (needed by `cepe:PE3`), `G_c(-iy) = conj G_c(iy)` |
+| `cel:L3a` | partial | (1) all kernel bounds (`OriginMellinAndS0`, `CeGenOrigin`: `norm_gamma_mul_ceOriginE_le`, `ceOrigin_phase_quad_bound`, `hInt_sub_linear_bound`); (2) for a single-strip multiplier with a Dini modulus: `IsDiniModulus`, `ceOrigin_shift_dini`, `ceOrigin_shift_dini_of_W1`, `ceOriginG_conj` (`G_c(-iy) = conj G_c(iy)`); Hölder versions re-derived in place (`ceOrigin_shift`). Open: the two-edge multiplier `W_S + W_D` (only M6 / `thm:intro-gap` (iii) needs it) |
 | `cel:L4` | done | `SaddleGeometry` (items (2), (3) as in the TeX) |
 | `cel:L5` | partial | `lobe_saddle_asymptotic` (two-edge, stated with `C_* = 150`), first-order total form `cel:total-saddle`: `lobe_total_saddle` (`C_* = 150`). Missing: second-order `cel:total-saddle-2` (input of `cepe:abs-saddle`) |
 | `cel:L7` | done | `integral_cos_sq_ge` (`SaddleGeometry`) |
