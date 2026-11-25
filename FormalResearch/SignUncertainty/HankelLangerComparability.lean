@@ -289,7 +289,7 @@ lemma chartQ_conj (h : LangerEta η) {v : ℂ} (hv : ‖v‖ < 1e-3) :
   rw [chartMinv_conj h hv, psW_conj, map_inv₀, Complex.conj_cpow _ _ harg, Complex.conj_ofReal]
 
 /-- `‖E - 1‖ ≤ 0.74 ‖u‖` for `‖u‖ ≤ 1.0022·10⁻³`. -/
-lemma norm_psW_aE_sub_one_lin (h : LangerEta η) {u : ℂ} (hu : ‖u‖ ≤ 1.0022e-3) :
+lemma norm_psW_aE_sub_one_lin_small (h : LangerEta η) {u : ℂ} (hu : ‖u‖ ≤ 1.0022e-3) :
     ‖psW (aE η) u - 1‖ ≤ 0.74 * ‖u‖ := by
   have h1 : ‖u‖ < 1 := by linarith
   have hx := norm_chartE_sub_one_le h h1
@@ -313,7 +313,7 @@ theorem norm_chartQ_sub_one_le (h : LangerEta η) {v : ℂ} (hv : ‖v‖ < 1e-3
   have hun : ‖u‖ ≤ 0.035 ^ 2 := (mem_ball_zero_iff.1 hu0).le
   have hnu := norm_le_of_chartM_eq h hun hM
   have hu1 : ‖u‖ ≤ 1.0022e-3 := by nlinarith [norm_nonneg u, norm_nonneg v]
-  have hx := norm_psW_aE_sub_one_lin h hu1
+  have hx := norm_psW_aE_sub_one_lin_small h hu1
   set E := psW (aE η) u with hE
   set t : ℝ := 0.74 * ‖u‖ with ht
   have ht0 : 0 ≤ t := by positivity
