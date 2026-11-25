@@ -44,7 +44,7 @@ structure StripEdge0 (α : ℝ) (W : ℂ → ℂ) : Prop where
     ‖stripEdge0 W τ‖ ≤ C * (1 + |τ|) ^ (-(2 : ℝ)) ∧ ‖deriv (stripEdge0 W) τ‖ ≤ C * (1 + |τ|) ^ (-(2 : ℝ)) ∧
       ‖deriv (deriv (stripEdge0 W)) τ‖ ≤ C * (1 + |τ|) ^ (-(2 : ℝ))
 
-lemma rpow_quarter_le (τ : ℝ) : (1 + τ ^ 2) ^ (-(1 / 4 : ℝ)) ≤ 2 * (1 + |τ|) ^ (-(1 / 2 : ℝ)) := by
+lemma admiss_rpow_quarter_le (τ : ℝ) : (1 + τ ^ 2) ^ (-(1 / 4 : ℝ)) ≤ 2 * (1 + |τ|) ^ (-(1 / 2 : ℝ)) := by
   have hs : 0 < 1 + |τ| := by positivity
   have h1 : (1 + |τ|) ^ 2 * 2⁻¹ ≤ 1 + τ ^ 2 := by nlinarith [sq_abs τ, sq_nonneg (|τ| - 1)]
   have h2 : (1 + τ ^ 2) ^ (-(1 / 4 : ℝ)) ≤ ((1 + |τ|) ^ 2 * 2⁻¹) ^ (-(1 / 4 : ℝ)) :=
@@ -95,7 +95,7 @@ theorem oscData_mul (hα0 : 0 < α) (hα1 : α < 1) {Ck C0 : ℝ} (hCk : 0 ≤ C
     exact ((h1.contDiffAt (isOpen_ne.mem_nhds hx)).differentiableAt one_ne_zero).hasDerivAt
   have hker : ∀ τ : ℝ, (1 + τ ^ 2) ^ (-(1 / 4 : ℝ)) ≤ 1 := fun τ =>
     Real.rpow_le_one_of_one_le_of_nonpos (by nlinarith [sq_nonneg τ]) (by norm_num)
-  have hker2 : ∀ τ : ℝ, (1 + τ ^ 2) ^ (-(1 / 4 : ℝ)) ≤ 2 * (1 + |τ|) ^ (-(1 / 2 : ℝ)) := rpow_quarter_le
+  have hker2 : ∀ τ : ℝ, (1 + τ ^ 2) ^ (-(1 / 4 : ℝ)) ≤ 2 * (1 + |τ|) ^ (-(1 / 2 : ℝ)) := admiss_rpow_quarter_le
   set a0 : ℝ := ‖g0 0‖ with ha0
   have ha00 : 0 ≤ a0 := norm_nonneg _
   have hCg0 : 0 ≤ Ck * (12 * C0 + 3 * a0) := by positivity

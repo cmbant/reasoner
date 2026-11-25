@@ -87,7 +87,7 @@ Steps 1 to 3 are independent. F2 needs from F1 `ct:outer` (the outer function `G
 
 ### 2.4 Next concrete packages (headline paths only)
 
-1. **Start now (tier 1, `thm:intro-radii`):** (`u1cl:langer` done) C1's `uct:admiss` (T.8, M). None needs another package.
+1. **Start now (tier 1, `thm:intro-radii`):** (`u1cl:langer` done; `uct:admiss` (1), (2) done) C1's remaining part (3) and `ceo:O11ak` for general seeds. None needs another package.
 2. **Then:** F1's first block, `ct:outer` and `ct:dual-id` (`constant_terms_lower.tex`), on proved inputs only (`mat:T1`, `mat:T4`, `gt:7.7b`); `ct:outer` unblocks F2.
 3. **Continue, scoped to what the headlines use:** M6 step (a), the `CeSourceFamily` instance for `convSource` (the `ConvSource*` symbol bounds and pre-edge estimates also feed F2), and the `m_0 = 1` lift that `thm:intro-gap` (iii) needs.
 4. **Second headline lane once two slots are free:** `thm:intro-gap` (iv) through M9 (E2), beginning with `thm:airy-square-attained` (needs only proved inputs: `airyNC_quadrature`, `airyAiC_logDeriv_mittagLeffler`).
@@ -264,9 +264,9 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `cegt:GT1` | partial | `gt1BasisInput` (basis seeds `f_1, g_1, g_1'` times the spline multiplier, `m >= 3`); other seed families not stated |
 | `cegt:GT1s` | done | `gt1s_scalar_airy_symbol_transfer` |
 | `cegt:GT2a` | partial | `middle_transfer_gt1` for `HasU2` seeds (cut in `tau`, not in `theta` as in the TeX); the hypothesis `Gt1Bounds` is supplied by `gt1BasisInput` |
-| `mat:T7` | done | `MellinLiftData.mellin_mellinInv`, `mellin_inversion_f` |
+| `mat:T7` | done (general `W`: (a), (b) by `admiss_lift_tendsto`, `admiss_vert_rep`) | `MellinLiftData.mellin_mellinInv`, `mellin_inversion_f` |
 | `ceo:O11ak` | partial | `exists_hankelEigenfn_lift` (one-level seeds, `m >= 3`); `exists_hankelEigenfn_lift_general` (general seeds) takes the tail structure `ConvTailData` as a hypothesis; the fixed-`c` `L^1`-kernel form is not stated |
-| `uct:admiss` | planned | M10 (M): only `constant_terms_upper` uses it; no declaration yet |
+| `uct:admiss` | partial | parts (1), (2): `uct_admiss` (`StripAdmiss*`; `admiss_tail`, `admiss_vert_rep`, `edge_integral_tail`); part (3) (reflection, `f ∈ A_c^eps`) not formalised, it needs the Hankel transform of a general lift and (M3) for `g_1`. `edge_integral_tail` gives the two bounds of `ConvTailData` once `StripEdge0 (1/2)` holds for the symbol traces |
 
 **C2. Upper O-chain at one level (`U.*`, `O.*`, hb-seed-mass, `O.9'`)** (`u1c_o1_upper.tex`). Lean: `CohnElkies/AirySeedFloors`, `AirySeedSymbols`, `PieceC*`, `HighBand*`, `DualBoundE3`, `CubicNormalForm*`, `O4*`, `MiddleBand*`, `WindowTranslation`, `HbUpperM1` (about 25k lines).
 
