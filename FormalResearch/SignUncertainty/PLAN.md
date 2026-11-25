@@ -100,7 +100,7 @@ Tier-2 items are not started while a tier-1 package is unstaffed.
 - **F2, D1:** `Analysis/VanDerCorput.lean` (`van_der_corput_first`, `van_der_corput_second`), `CohnElkies/ConvSource*`, `CohnElkies/PreEdgeCriterion.lean`, `Asymptotics/StirlingHalfInt.lean`. Port selectively from `PrimeNumberTheoremAnd` (Apache-2.0, Lean v4.36.0): rectangle contour shifts (`ResidueCalcOnRectangles.lean`), `norm_fourier_le_integral_deriv_div`.
 - **B1 (`gt:7.5` all levels), E1:** `Complex/Montel.lean` (`montel`) and `Analysis/Scheffe.lean` (`tendsto_integral_norm_sub_of_tendsto_ae`).
 - **D2:** `Sphere-Packing-Lean` (Apache-2.0) `ForMathlib/RadialSchwartz/` (`RadialSchwartzMap`) is clean of proof placeholders and could serve `lem:ce-schwartz`; check against reasoner's `Euc d` and `FourierCompactSupport` first. Its `CohnElkies/LPBound.lean` rests on an unproved input and is not to be used.
-- Newer Mathlib (after reasoner's pin): the vertical Gamma bound (#45103) and `SchwartzMap.dense_hasCompactSupport` (#43046) shorten C1 and D2 after a Mathlib bump.
+- Newer Mathlib: reasoner is on v4.36.0 since 2026-11-25 (`fc4f59e`). Check whether the vertical Gamma bound (#45103) and `SchwartzMap.dense_hasCompactSupport` (#43046), which shorten C1 and D2, are in that tag; if not they wait for the next bump. `PrimeNumberTheoremAnd` (Lean v4.36.0) now matches the pin, so its rectangle contour shifts port without a version change.
 
 ## 3. Milestones
 
@@ -238,8 +238,8 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 
 | label | state | Lean today / note |
 |---|---|---|
-| `lem:finite-hankel-compactness` | planned | tier 2: fixed-`c` compactness of normalized pairs (Bessel decay, equicontinuity, Scheffé); reuse `Analysis/Scheffe`, `radial_compactness` |
-| `gt:7.9a` | partial | `intertwiner_feasible`, `threshold_pos_le_neg`, `fourier_radii_pos_le_neg`: non-strict `T_c^{+1} <= T_c^{-1}`; the strict inequality with attainment (3) is tier 2 |
+| `lem:finite-hankel-compactness` | planned | tier 2 (PR 293: stated for every real `c > 1/2`, using only `|K^{(c)}| <= 1` and the Bessel decay `O((Delta s)^{1/4-c/2})`; the Mellin estimates stay at `c >= 1`): fixed-`c` compactness of normalized pairs (Bessel decay, equicontinuity, Scheffé); reuse `Analysis/Scheffe`, `radial_compactness` |
+| `gt:7.9a` | partial | (PR 293: now for every real `c > 1/2`; the vanishing midpoint moment `int f s^{c/2-1} = 0` is the Gaussian identity `g^_b = b^{-c} g_{1/b}` integrated against `b^{c/2-1} db` with `b -> 1/b`, no Mellin strip; the finiteness competitor is `u_{b_2}/(1-b_2^{-c}) - u_{b_1}/(1-b_1^{-c})`, not a Laguerre combination) `intertwiner_feasible`, `threshold_pos_le_neg`, `fourier_radii_pos_le_neg`: non-strict `T_c^{+1} <= T_c^{-1}`; the strict inequality with attainment (3) is tier 2 |
 | `gt:7.9b` | partial | `hankelT0_eq_hankelT`, `laguerre_odd_mode`, `isRadialEigenfn_oddLaguerreMode_bessel`, under `T_c^{-1} > c/(4 pi)` (enough for `thm:ct-upper`); every real `c >= 1` (reciprocal-scale Gaussian `b^{-c}e^{-2 pi Delta/b} - e^{-2 pi b Delta}`), attainment, zero origin of every minimizer and precompactness are tier 2 |
 
 **B3. Langer chart, local density, transport, edge representation** (`langer_transport.tex`). Lean: `HankelLanger*`, `HankelStrip*`, `HankelLocal*`, `HankelTail`, `HankelTransport*`, `HankelEdge*` (about 6k lines).
@@ -321,9 +321,9 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `thm:ce-gaussian` | done | `ce_quadratic_dimensions` (`FiniteDimensionCrossings`, `FiniteGaussianBase`) |
 | `lem:ce-schwartz` | partial | the `X = empty` case: `ce_schwartz_radius_eq_L1_radius`, `ce_schwartz_bound_eq_optimalCohnElkiesBound`; strict signs at a finite shell set `X` are not stated |
 | `gt:7.10` | not planned | owner-deferred; not on any headline path (the packing bound for integrable CE pairs) |
-| `cor:ce-schwartz-shells` | planned | M9 (needs the sequence proofs of `thm:ce-airy-transfer`) |
+| `cor:ce-schwartz-shells` | planned | M9 (needs the sequence proofs of `thm:ce-airy-transfer`; a compact-set statement since PR 291) |
 | `lem:airy-laplace-general` | planned | M9/E1: Laplace sign-change count (Rolle) and large-height asymptotic `L_y(H) ~ C 2^{2p} sqrt(pi) y^{1/2-2p}`, shared by `ce_hb_lift`, `ce_airy_lp_proofs`; check `ShellLaplaceBase`, `ShellLaplaceZeros` (`laplace_pos_large_of_odd`) for parts before adding |
-| `prop:ce-finite-attainment` | planned | tier 2: weak continuous-integrable CE attainment at fixed `d` with compact positive shells (dilated Gaussian `H_d(bx)` restores origin equality); needs `lem:finite-hankel-compactness`, `ce_quadratic_dimensions` |
+| `prop:ce-finite-attainment` | planned | tier 2 (PR 291, 293: stated for Hankel pairs at real `c > 1/2`, shell sets `S` bounded away from zero, terminal radius `sqrt(2T)` in integer dimensions; `thm:ce-gaussian` is now `h_c(Delta) = (1 - 2 a_d Delta) e^{-2 pi t_d Delta}` with `w(Delta) = h_c(b^2 Delta)`): weak continuous-integrable CE attainment at fixed `d` with compact positive shells (dilated Gaussian `H_d(bx)` restores origin equality); needs `lem:finite-hankel-compactness`, `ce_quadratic_dimensions` |
 | `gt:7.12a` | partial | `thm_intro_radii_ce`: `c_1 <= vol <= c_2` and the log law up to `O(1)`; the exact five-term density `eq:ce-density-exact` needs M10 |
 
 **E1. Cohn-Elkies shells: reduction, extraction, one-profile, odd families** (`ce_shells.tex`). Lean: `ShellGap*` (about 2.7k lines), `ShellLaplaceBase`, `ShellLaplaceZeros`, `OddShellFamily`, `CEShellReduction`, `OneProfileEnvelope`, `HeadlineDefs`.
@@ -344,7 +344,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 |---|---|---|
 | `lem:qual-compact` | planned | M9/M8 (S lemma shared with the fold-tip blow-up `ft:L2`); not in Lean; check `SignUncertainty/` before adding |
 | `thm:airy-square-attained` | planned | M9: statement in `ce_airy_lp.tex`; proof in `ce_airy_lp_proofs.tex` |
-| `thm:ce-airy-transfer` | planned | M9: parts (1) two-sided bound, (2) exact coefficient, (3) stability, (4) uniformity on compacts |
+| `thm:ce-airy-transfer` | planned | M9: parts (1) two-sided bound, (2) exact coefficient, (3) stability, (4) uniformity on compacts (PR 291, 293: (4) is for shell families `S_{c,S}` with `d_H(S_{c,S}, S) -> 0` uniformly on a compact family of compact sets, a compact-set statement; `rem:ce-compact-shells` gives the robust coefficient `lim_{delta -> 0} liminf/limsup_d rho_d(S_delta) = -u_sh(S)/beta_1` and a diagonal choice `delta_d` along continuity points of `F(delta) = u_LP(S_delta)`, common to the four infima; repeated sites are covered by Newton divided differences) |
 | `lem:al-seeds` | planned | M9 |
 | `lem:al-smooth` | planned | M9 |
 | `lem:al-reference-positive` | planned | M9 |
@@ -353,7 +353,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `lem:airy-square-bound` | planned | M9: uses `airyNC_quadrature` and Mittag-Leffler `airyAiC_logDeriv_mittagLeffler` (both in Lean) |
 | `lem:al-kernel` | planned | M9 |
 | `prop:airy-secular` | planned | M9 |
-| `lem:airy-node-square` | planned | M9 |
+| `lem:airy-node-square` | planned | M9 (fixed square since PR 291; the Dirichlet gap of `rem:ce-nonhb-gap` is now derived from `thm:airy-square-attained` instead of repeating the strictification) |
 | `thm:airy-node-sign` | planned | M9 |
 | `lem:al-hermite-approx` | planned | M9 |
 | `lem:al-far-cardinal-laplace` | planned | M9 |
