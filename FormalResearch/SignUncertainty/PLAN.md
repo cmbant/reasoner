@@ -265,7 +265,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `cegt:GT1s` | done | `gt1s_scalar_airy_symbol_transfer` |
 | `cegt:GT2a` | partial | `middle_transfer_gt1` for `HasU2` seeds (cut in `tau`, not in `theta` as in the TeX); the hypothesis `Gt1Bounds` is supplied by `gt1BasisInput` |
 | `mat:T7` | done (general `W`: (a), (b) by `admiss_lift_tendsto`, `admiss_vert_rep`) | `MellinLiftData.mellin_mellinInv`, `mellin_inversion_f` |
-| `ceo:O11ak` | partial | `exists_hankelEigenfn_lift` (one-level seeds, `m >= 3`); `exists_hankelEigenfn_lift_general` (general seeds) takes the tail structure `ConvTailData` as a hypothesis; the fixed-`c` `L^1`-kernel form is not stated |
+| `ceo:O11ak` | partial | `exists_hankelEigenfn_lift` (one-level seeds, `m >= 3`); `exists_hankelEigenfn_lift_general` (general seeds) takes `ConvTailData`, now proved for the convolution source (`convTailData_convSource`, `ceLift_pair_convSource`, `ConvSourceEdge*`) and for one-level seeds (`convTailData_airySeedU2`); the fixed-`c` `L^1`-kernel form is not stated |
 | `uct:admiss` | partial | parts (1), (2): `uct_admiss` (`StripAdmiss*`; `admiss_tail`, `admiss_vert_rep`, `edge_integral_tail`); part (3) (reflection, `f ∈ A_c^eps`) not formalised, it needs the Hankel transform of a general lift and (M3) for `g_1`. `edge_integral_tail` gives the two bounds of `ConvTailData` once `StripEdge0 (1/2)` holds for the symbol traces |
 
 **C2. Upper O-chain at one level (`U.*`, `O.*`, hb-seed-mass, `O.9'`)** (`u1c_o1_upper.tex`). Lean: `CohnElkies/AirySeedFloors`, `AirySeedSymbols`, `PieceC*`, `HighBand*`, `DualBoundE3`, `CubicNormalForm*`, `O4*`, `MiddleBand*`, `WindowTranslation`, `HbUpperM1` (about 25k lines).
@@ -305,7 +305,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `cepe:general` | partial | `preEdge_general_pos` on the hypothesis structure `PreEdgeGeneralData` (toy witnesses only; not instantiated for `D_c`) |
 | `cepe:abs-saddle` | planned | M6; no declaration |
 | `ceo:gauss` | done | `airySquare_gaussian_transform` |
-| `ceo:conv` | partial | `ConvSource*`: `convS_bounds`, `convSource_mass`, `ConvTailData`, `HasU2` (O.12(1)-(3), (4) weight); O.12(5)-(7) on `Re z = 0` open (tail, dual, `O6DualEst`) |
+| `ceo:conv` | partial | `ConvSource*`: `convS_bounds`, `convSource_mass`, `HasU2`, `gt1Bounds_convSource` (O.12(1)-(4)), `ConvTailData` for `S_c` (`ConvSourceEdge*`); open: `CeSourceFamily` fields `mass`, `edge` (O.12(6)), `dual` (`O6DualEst`), the uniform far transfer O.12(7) and GT.2b |
 | `ceo:O11ae` | done | `MellinMainKernel` (`bsplineMult`, `mainEdgeAmp`, `norm_mainEdgeAmp_le`) |
 | `cepf:FG3` | done | `Tc_sup_bound`, `fourier_L1_le_sqrt_mul_H1`, `mainTransferOp_sup_norm_le` |
 | `cepf:PF3` | done | `pf3_kernel_bound`, `pf3_kernel_bound_uniform` |
