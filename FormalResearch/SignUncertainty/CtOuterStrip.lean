@@ -182,9 +182,11 @@ lemma mem_strip_of_ball {ζ₀ ζ : ℂ} (h₀ : ζ₀ ∈ strip) (hζ : ζ ∈ 
   rw [abs_lt] at hd
   constructor <;> linarith [h₀.1, h₀.2]
 
-lemma differentiableOn_outerH : DifferentiableOn ℂ outerH strip := by
-  refine differentiableOn_integral_param (μ := volume)
-    (Φ := fun w t => (uR t : ℂ) / Complex.sin (π * (w - Complex.I * t))) isOpen_strip ?_ ?_ ?_
+/-- `h` is differentiable, with derivative the integral of the `ζ`-derivative of the kernel. -/
+lemma hasDerivAt_outerH_gen {w₀ : ℂ} (hw₀ : w₀ ∈ strip) :
+    HasDerivAt outerH (∫ t : ℝ, deriv (fun z : ℂ => (uR t : ℂ) / Complex.sin (π * (z - Complex.I * t))) w₀) w₀ := by
+  refine hasDerivAt_integral_param (μ := volume)
+    (Φ := fun w t => (uR t : ℂ) / Complex.sin (π * (w - Complex.I * t))) isOpen_strip ?_ ?_ ?_ hw₀
   · intro w hw
     have : Continuous fun t : ℝ => (uR t : ℂ) / Complex.sin (π * (w - Complex.I * t)) := by
       refine Continuous.div (Complex.continuous_ofReal.comp continuous_uR) (by fun_prop) ?_
@@ -249,6 +251,9 @@ lemma differentiableOn_outerH : DifferentiableOn ℂ outerH strip := by
               Real.exp (-(π * |t|)))) :=
             mul_le_mul hu h1 (norm_nonneg _) ((norm_nonneg _).trans hu)
         _ = _ := by ring
+
+lemma differentiableOn_outerH : DifferentiableOn ℂ outerH strip := fun _ hw =>
+  (hasDerivAt_outerH_gen hw).differentiableAt.differentiableWithinAt
 
 lemma sin_pi_re_pos {ζ : ℂ} (hζ : ζ ∈ strip) : 0 < Real.sin (π * ζ.re) :=
   Real.sin_pos_of_pos_of_lt_pi (by have := hζ.1; positivity) (by have := hζ.2; nlinarith [Real.pi_pos])

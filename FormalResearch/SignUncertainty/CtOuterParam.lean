@@ -24,15 +24,15 @@ open MeasureTheory Filter Topology Metric Set
 
 namespace FormalResearch.SignUncertainty.CtOuter
 
-/-- **Holomorphy of a dominated parameter integral.** -/
-theorem differentiableOn_integral_param {α : Type*} [MeasurableSpace α] {μ : Measure α}
+/-- **Derivative of a dominated parameter integral** (differentiation under the integral sign for a holomorphic
+integrand): the derivative is the integral of the `w`-derivative. -/
+theorem hasDerivAt_integral_param {α : Type*} [MeasurableSpace α] {μ : Measure α}
     {Φ : ℂ → α → ℂ} {U : Set ℂ} (hU : IsOpen U)
     (hmeas : ∀ w ∈ U, AEStronglyMeasurable (Φ w) μ)
     (hdiff : ∀ᵐ t ∂μ, DifferentiableOn ℂ (fun w => Φ w t) U)
     (hloc : ∀ w₀ ∈ U, ∃ r > 0, ∃ b : α → ℝ, Integrable b μ ∧
-      ∀ᵐ t ∂μ, ∀ w ∈ ball w₀ r, ‖Φ w t‖ ≤ b t) :
-    DifferentiableOn ℂ (fun w => ∫ t, Φ w t ∂μ) U := by
-  intro w₀ hw₀
+      ∀ᵐ t ∂μ, ∀ w ∈ ball w₀ r, ‖Φ w t‖ ≤ b t) {w₀ : ℂ} (hw₀ : w₀ ∈ U) :
+    HasDerivAt (fun w => ∫ t, Φ w t ∂μ) (∫ t, deriv (fun z => Φ z t) w₀ ∂μ) w₀ := by
   obtain ⟨r₀, hr₀, b, hb, hbd⟩ := hloc w₀ hw₀
   obtain ⟨r₁, hr₁, hball⟩ := Metric.isOpen_iff.mp hU w₀ hw₀
   set r : ℝ := min r₀ r₁ with hr
@@ -110,6 +110,16 @@ theorem differentiableOn_integral_param {α : Type*} [MeasurableSpace α] {μ : 
       filter_upwards [hdiff] with t ht w hw
       have hwU : w ∈ U := hrU (ball_subset_ball (by linarith) hw)
       exact ((ht w hwU).differentiableAt (hU.mem_nhds hwU)).hasDerivAt)
-  exact hdominated.2.differentiableAt.differentiableWithinAt
+  exact hdominated.2
+
+/-- **Holomorphy of a dominated parameter integral.** -/
+theorem differentiableOn_integral_param {α : Type*} [MeasurableSpace α] {μ : Measure α}
+    {Φ : ℂ → α → ℂ} {U : Set ℂ} (hU : IsOpen U)
+    (hmeas : ∀ w ∈ U, AEStronglyMeasurable (Φ w) μ)
+    (hdiff : ∀ᵐ t ∂μ, DifferentiableOn ℂ (fun w => Φ w t) U)
+    (hloc : ∀ w₀ ∈ U, ∃ r > 0, ∃ b : α → ℝ, Integrable b μ ∧
+      ∀ᵐ t ∂μ, ∀ w ∈ ball w₀ r, ‖Φ w t‖ ≤ b t) :
+    DifferentiableOn ℂ (fun w => ∫ t, Φ w t ∂μ) U := fun w₀ hw₀ =>
+  (hasDerivAt_integral_param hU hmeas hdiff hloc hw₀).differentiableAt.differentiableWithinAt
 
 end FormalResearch.SignUncertainty.CtOuter
