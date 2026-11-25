@@ -322,12 +322,12 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `thm:ce-post-edge` | planned | M6, open step (b) (Fourier sign `f_- <= f_+`); GT.3b `gt3b_far_fourier_transfer` and `preEdge_general_pos` exist as ingredients |
 | `cepe:general` | partial | `preEdge_general_pos` on the hypothesis structure `PreEdgeGeneralData` (toy witnesses only; not instantiated for `D_c`) |
 | `cepe:abs-saddle` | planned | M6; no declaration |
-| `ceo:gauss` | partial | `airySquare_gaussian_transform`; `ceo:gauss.2` (two-sided bound `b x^{-9/2} <= g1~(i c_s x)`, `|g1~(i c_s w)| <= C(1+x)^{-9/2}`) has no Lean statement |
+| `ceo:gauss` | done | `airySquare_gaussian_transform` (`ceo:O11n.7`), `airyTwistedLaplaceC_ceG1_eq` (`ceo:gauss.1`), `ceG1_twisted_bounds` (`ceo:gauss.2`: `b(1+x)^{-9/2} <= g1~ <= C(1+Re z)^{-9/2}`, `CeGauss2`) |
 | `ceo:conv` | partial | `ConvSource*`: `convS_bounds`, `HasU2`, `gt1Bounds_convSource` (O.12(1)-(4)), `ConvTailData` for `S_c` (`ConvSourceEdge*`), and all five `CeSourceFamily` fields (`ceSourceFamily_convSource`, `ConvSourceFamily`, weak forms of `edge`, `dual`); open: the sharp O.12(5), O.12(6) (needed by `PreEdgeGeneralData`), the uniform far transfer O.12(7), GT.2b and `ceo:gauss.2` (no Lean statement) |
 | `ceo:O11ae` | done | `MellinMainKernel` (`bsplineMult`, `mainEdgeAmp`, `norm_mainEdgeAmp_le`) |
 | `cepf:FG3` | done | `Tc_sup_bound`, `fourier_L1_le_sqrt_mul_H1`, `mainTransferOp_sup_norm_le` |
 | `cepf:PF3` | done | `pf3_kernel_bound`, `pf3_kernel_bound_uniform` |
-| `cel:L3a` | partial | `OriginMellinAndS0` (two-edge multiplier, `O(|z|^{1/2})` origin modulus); the single-strip-multiplier form with a Dini modulus `omega_c` (F2b input: `fct:ce-preedge`, `uct:gen-preedge`) is not stated |
+| `cel:L3a` | partial | `OriginMellinAndS0` (two-edge multiplier, `O(|z|^{1/2})` origin modulus); (2) for a single-strip multiplier `W~(1 - z/c)` with a Holder modulus: `ceOrigin_shift`, `integral_Gamma_mul_one_sub_four` (`CeGenOrigin`; what `uct:gen-preedge` (2) uses). Open: the Dini modulus, the two-edge multiplier `W_S + W_D` (needed by `cepe:PE3`), `G_c(-iy) = conj G_c(iy)` |
 | `cel:L4` | done | `SaddleGeometry` (items (2), (3) as in the TeX) |
 | `cel:L5` | partial | `lobe_saddle_asymptotic`, `lobe_core_error_bound`; the total-multiplier forms `cel:total-saddle`, `cel:total-saddle-2` (first- and second-order absolute errors; inputs of `uct:gen-preedge` and `cepe:abs-saddle`) are not stated |
 | `cel:L7` | done | `integral_cos_sq_ge` (`SaddleGeometry`) |
