@@ -40,7 +40,7 @@ theorem rotM_orth (i j : Fin 4) (hij : i ≠ j) (c σ : ℝ) (h : c ^ 2 + σ ^ 2
   fin_cases i <;> fin_cases j <;> (try simp at hij) <;>
     (ext a b
      fin_cases a <;> fin_cases b <;>
-       simp [rotM, Matrix.mul_apply, Fin.sum_univ_four, Matrix.one_apply] <;> nlinarith [h])
+       simp [rotM, Matrix.mul_apply, Fin.sum_univ_four, Matrix.one_apply, Function.swap] <;> nlinarith [h])
 
 /-- If `t a - t² b ≤ 0` for all `t`, then `a = 0`. -/
 theorem lin_zero_core {a b : ℝ} (h : ∀ t : ℝ, t * a - t ^ 2 * b ≤ 0) : a = 0 := by

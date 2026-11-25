@@ -229,7 +229,7 @@ lemma convS_split_Ioi_one {f : ℝ → ℝ} (hf : IntegrableOn f (Ioi 0))
   rw [← Set.Ioc_union_Ioi_eq_Ioi zero_le_one,
     setIntegral_union Set.Ioc_disjoint_Ioi_same measurableSet_Ioi
       (hf.mono_set Set.Ioc_subset_Ioi_self) (hf.mono_set (Ioi_subset_Ioi zero_le_one))]
-  rw [setIntegral_eq_zero_of_forall_eq_zero (fun y hy => h0 y hy.1 hy.2), zero_add]
+  rw [setIntegral_eq_zero_of_forall_eq_zero (fun y (hy : y ∈ Set.Ioc (0 : ℝ) 1) => h0 y hy.1 hy.2), zero_add]
 
 /-- Integrability of the tail majorant `y^{-3/2} min(a y, 2)` on `(1, ∞)`. -/
 lemma convS_tail_integrableOn {a : ℝ} (ha0 : 0 < a) :

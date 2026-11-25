@@ -232,7 +232,7 @@ theorem K0_psd {v : SV} {h : ℝ} (hf : IsFrame (sState v) h) : QF (sK0 v) := by
       have hN' : (∑ k, w k ^ 2) ≠ 0 := hN
       simp only [Fin.sum_univ_four] at hN'
       simp only [Matrix.mul_one]
-      simp [reflMat, sK0, sX, sY, sH0, Matrix.mul_apply, Fin.sum_univ_four, Fin.sum_univ_three]
+      simp [reflMat, sK0, sX, sY, sH0, Matrix.mul_apply, Fin.sum_univ_four, Fin.sum_univ_three, Function.swap]
       field_simp
       ring
     exact nonneg_of_pos_mul hpos (by linarith)

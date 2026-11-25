@@ -46,7 +46,7 @@ theorem ghz_eq_Gv : Gv vGhz = ghzHalf := by
   funext a b c d
   fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;>
     simp [Gv, ofZmat, Matrix.mul_apply, Matrix.diagonal_apply, Fintype.sum_prod_type, Fin.sum_univ_two,
-      Matrix.transpose_apply, magicB, vGhz, ghzHalf, ghzState] <;>
+      Matrix.transpose_apply, Function.swap, magicB, vGhz, ghzHalf, ghzState] <;>
     (try (rw [← mul_assoc]; ring_nf)) <;>
     (try (have hr2 : rt ^ 2 = 1 / 2 := by rw [pow_two]; exact hrt
           simp only [hr2, Complex.I_sq]; ring))

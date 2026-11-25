@@ -238,7 +238,7 @@ lemma convS_integral_Ioi_zero_eq {f : ℝ → ℂ} (hf : IntegrableOn f (Ioi 1))
     integrableOn_zero.congr_fun (fun y hy => (h0 y hy.2).symm) measurableSet_Ioc
   rw [← Set.Ioc_union_Ioi_eq_Ioi zero_le_one,
     setIntegral_union Set.Ioc_disjoint_Ioi_same measurableSet_Ioi hIoc hf,
-    setIntegral_eq_zero_of_forall_eq_zero (fun y hy => h0 y hy.2), zero_add]
+    setIntegral_eq_zero_of_forall_eq_zero (fun y (hy : y ∈ Set.Ioc (0 : ℝ) 1) => h0 y hy.2), zero_add]
 
 /-- `F e^{-zy}` is integrable on `(1, ∞)`, under `ConvMomentData`. -/
 lemma ConvMomentData.integrableOn {F : ℝ → ℝ} {K s : ℝ} {m : ℕ} (hd : ConvMomentData F K s m)

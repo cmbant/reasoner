@@ -1168,7 +1168,7 @@ structure PreEdgeGeneralData (fhat : ℝ → ℝ → ℝ) where
       fhat c Δ = (lobeSaddleIntegral (W_S c) (W_D c) c ξ σ_star).re
 
 /-- Upgrade `PE3OriginData` on `[0, Δ₁]` into `PreEdgeGeneralData`. -/
-def PreEdgeGeneralData.ofFull {fhat : ℝ → ℝ → ℝ} {W_S W_D : ℝ → ℂ → ℂ} {c_min M Λ Λ_add_max x₀ b : ℝ}
+noncomputable def PreEdgeGeneralData.ofFull {fhat : ℝ → ℝ → ℝ} {W_S W_D : ℝ → ℂ → ℂ} {c_min M Λ Λ_add_max x₀ b : ℝ}
     (hc_min : 0 ≤ c_min) (hM : 1 ≤ M) (hΛ : 1 ≤ Λ) (hΛ_add : 0 ≤ Λ_add_max) (hx₀ : 0 < x₀) (hb : 0 < b)
     (hW_S_diff : ∀ {c : ℝ}, c_min ≤ c → DifferentiableOn ℂ (W_S c) {w : ℂ | 0 < w.re})
     (hW_D_diff : ∀ {c : ℝ}, c_min ≤ c → DifferentiableOn ℂ (W_D c) {w : ℂ | 0 < w.re})
