@@ -29,30 +29,42 @@ namespace FormalResearch.SignUncertainty
 structure MellinLiftData (c : ℝ) (Φ : ℂ → ℂ) : Prop where
   hol : DifferentiableOn ℂ Φ {z : ℂ | 0 < z.re ∧ z.re < c}
   decay : ∀ {a b : ℝ}, 0 < a → a ≤ b → b < c →
-    ∃ B : ℝ, ∀ z : ℂ, a ≤ z.re → z.re ≤ b → ‖Φ z‖ ≤ B * (1 + |z.im|) ^ (-2 : ℝ)
+    ∃ p : ℝ, 1 < p ∧ ∃ B : ℝ, ∀ z : ℂ, a ≤ z.re → z.re ≤ b → ‖Φ z‖ ≤ B * (1 + |z.im|) ^ (-p)
   real : ∀ z : ℂ, 0 < z.re → z.re < c → Φ (starRingEnd ℂ z) = starRingEnd ℂ (Φ z)
 
 section
 
 variable {c : ℝ} {Φ : ℂ → ℂ}
 
-lemma integrable_weight_two (B : ℝ) : Integrable (fun v : ℝ => B * (1 + |v|) ^ (-2 : ℝ)) := by
-  have := integrable_one_add_norm (E := ℝ) (μ := volume) (r := 2) (by simp)
+lemma integrable_weight_rpow {p : ℝ} (hp : 1 < p) (B : ℝ) :
+    Integrable (fun v : ℝ => B * (1 + |v|) ^ (-p)) := by
+  have := integrable_one_add_norm (E := ℝ) (μ := volume) (r := p) (by simpa using hp)
   simpa using this.const_mul B
 
-lemma tendsto_weight_two_atTop (B : ℝ) :
-    Tendsto (fun v : ℝ => B * (1 + |v|) ^ (-2 : ℝ)) atTop (𝓝 0) := by
+lemma tendsto_weight_rpow_atTop {p : ℝ} (hp : 0 < p) (B : ℝ) :
+    Tendsto (fun v : ℝ => B * (1 + |v|) ^ (-p)) atTop (𝓝 0) := by
   have h1 : Tendsto (fun v : ℝ => 1 + |v|) atTop atTop :=
     tendsto_atTop_add_const_left _ _ tendsto_abs_atTop_atTop
-  have := ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 2)).comp h1).const_mul B
+  have := ((tendsto_rpow_neg_atTop hp).comp h1).const_mul B
   simpa using this
 
-lemma tendsto_weight_two_atBot (B : ℝ) :
-    Tendsto (fun v : ℝ => B * (1 + |v|) ^ (-2 : ℝ)) atBot (𝓝 0) := by
+lemma tendsto_weight_rpow_atBot {p : ℝ} (hp : 0 < p) (B : ℝ) :
+    Tendsto (fun v : ℝ => B * (1 + |v|) ^ (-p)) atBot (𝓝 0) := by
   have h1 : Tendsto (fun v : ℝ => 1 + |v|) atBot atTop :=
     tendsto_atTop_add_const_left _ _ tendsto_abs_atBot_atTop
-  have := ((tendsto_rpow_neg_atTop (by norm_num : (0 : ℝ) < 2)).comp h1).const_mul B
+  have := ((tendsto_rpow_neg_atTop hp).comp h1).const_mul B
   simpa using this
+
+lemma integrable_weight_two (B : ℝ) : Integrable (fun v : ℝ => B * (1 + |v|) ^ (-2 : ℝ)) :=
+  integrable_weight_rpow (by norm_num) B
+
+lemma tendsto_weight_two_atTop (B : ℝ) :
+    Tendsto (fun v : ℝ => B * (1 + |v|) ^ (-2 : ℝ)) atTop (𝓝 0) :=
+  tendsto_weight_rpow_atTop (by norm_num) B
+
+lemma tendsto_weight_two_atBot (B : ℝ) :
+    Tendsto (fun v : ℝ => B * (1 + |v|) ^ (-2 : ℝ)) atBot (𝓝 0) :=
+  tendsto_weight_rpow_atBot (by norm_num) B
 
 lemma norm_cpow_line {Δ : ℝ} (hΔ : 0 < Δ) (x y : ℝ) :
     ‖(Δ : ℂ) ^ (-((x : ℂ) + (y : ℂ) * Complex.I))‖ = Δ ^ (-x) := by
@@ -67,25 +79,25 @@ lemma continuous_line (h : MellinLiftData c Φ) {x : ℝ} (hx0 : 0 < x) (hx1 : x
   h.continuousOn.comp_continuous (by fun_prop) fun y => by simpa using ⟨hx0, hx1⟩
 
 lemma MellinLiftData.line_bound (h : MellinLiftData c Φ) {x : ℝ} (hx0 : 0 < x) (hx1 : x < c) :
-    ∃ B : ℝ, ∀ y : ℝ, ‖Φ ((x : ℂ) + (y : ℂ) * Complex.I)‖ ≤ B * (1 + |y|) ^ (-2 : ℝ) := by
-  obtain ⟨B, hB⟩ := h.decay hx0 le_rfl hx1
-  exact ⟨B, fun y => by simpa using hB ((x : ℂ) + (y : ℂ) * Complex.I) (by simp) (by simp)⟩
+    ∃ p : ℝ, 1 < p ∧ ∃ B : ℝ, ∀ y : ℝ, ‖Φ ((x : ℂ) + (y : ℂ) * Complex.I)‖ ≤ B * (1 + |y|) ^ (-p) := by
+  obtain ⟨p, hp, B, hB⟩ := h.decay hx0 le_rfl hx1
+  exact ⟨p, hp, B, fun y => by simpa using hB ((x : ℂ) + (y : ℂ) * Complex.I) (by simp) (by simp)⟩
 
 lemma MellinLiftData.integrable_line (h : MellinLiftData c Φ) {x : ℝ} (hx0 : 0 < x) (hx1 : x < c) :
     Integrable fun y : ℝ => Φ ((x : ℂ) + (y : ℂ) * Complex.I) := by
-  obtain ⟨B, hB⟩ := h.line_bound hx0 hx1
-  exact (integrable_weight_two B).mono' (continuous_line h hx0 hx1).aestronglyMeasurable
+  obtain ⟨p, hp, B, hB⟩ := h.line_bound hx0 hx1
+  exact (integrable_weight_rpow hp B).mono' (continuous_line h hx0 hx1).aestronglyMeasurable
     (ae_of_all _ hB)
 
 lemma MellinLiftData.integrable_line_cpow (h : MellinLiftData c Φ) {x Δ : ℝ} (hx0 : 0 < x)
     (hx1 : x < c) (hΔ : 0 < Δ) :
     Integrable fun y : ℝ => (Δ : ℂ) ^ (-((x : ℂ) + (y : ℂ) * Complex.I)) • Φ ((x : ℂ) + (y : ℂ) * Complex.I) := by
-  obtain ⟨B, hB⟩ := h.line_bound hx0 hx1
+  obtain ⟨p, hp, B, hB⟩ := h.line_bound hx0 hx1
   have hcont : Continuous fun y : ℝ => (Δ : ℂ) ^ (-((x : ℂ) + (y : ℂ) * Complex.I)) • Φ ((x : ℂ) + (y : ℂ) * Complex.I) :=
     (Continuous.const_cpow (by fun_prop) (Or.inl (by exact_mod_cast hΔ.ne'))).smul (continuous_line h hx0 hx1)
-  refine (integrable_weight_two (Δ ^ (-x) * B)).mono' hcont.aestronglyMeasurable (ae_of_all _ fun y => ?_)
+  refine (integrable_weight_rpow hp (Δ ^ (-x) * B)).mono' hcont.aestronglyMeasurable (ae_of_all _ fun y => ?_)
   rw [norm_smul, norm_cpow_line hΔ]
-  calc Δ ^ (-x) * ‖Φ ((x : ℂ) + (y : ℂ) * Complex.I)‖ ≤ Δ ^ (-x) * (B * (1 + |y|) ^ (-2 : ℝ)) :=
+  calc Δ ^ (-x) * ‖Φ ((x : ℂ) + (y : ℂ) * Complex.I)‖ ≤ Δ ^ (-x) * (B * (1 + |y|) ^ (-p)) :=
         mul_le_mul_of_nonneg_left (hB y) (Real.rpow_nonneg hΔ.le _)
     _ = _ := by ring
 
@@ -106,7 +118,7 @@ theorem MellinLiftData.mellinInv_indep (h : MellinLiftData c Φ) {x x' : ℝ} (h
     mellinInv x Φ Δ = mellinInv x' Φ Δ := by
   wlog hxx : x ≤ x' generalizing x x'
   · exact (this hx0' hx1' hx0 hx1 (le_of_not_ge hxx)).symm
-  obtain ⟨B, hB⟩ := h.decay hx0 hxx hx1'
+  obtain ⟨p, hp, B, hB⟩ := h.decay hx0 hxx hx1'
   set H : ℂ → ℂ := fun z => (Δ : ℂ) ^ (-z) • Φ z with hH
   have hΔ0 : (Δ : ℂ) ≠ 0 := by exact_mod_cast hΔ.ne'
   have hsub : {w : ℂ | x ≤ w.re ∧ w.re ≤ x'} ⊆ {z : ℂ | 0 < z.re ∧ z.re < c} := fun w hw =>
@@ -119,17 +131,17 @@ theorem MellinLiftData.mellinInv_indep (h : MellinLiftData c Φ) {x x' : ℝ} (h
     DifferentiableOn.smul (fun w _ => ((differentiableAt_id.neg).const_cpow (Or.inl hΔ0)).differentiableWithinAt)
       (h.hol.mono hsub')
   have key := CohnElkies.strip_shift (H := H) (a := x) (b := x') hxx hcont hd
-    (integrable_weight_two ((Δ ^ (-x) + Δ ^ (-x')) * B))
+    (integrable_weight_rpow hp ((Δ ^ (-x) + Δ ^ (-x')) * B))
     (fun w hw1 hw2 => by
       have h1 := hB w hw1 hw2
       have h2 := rpow_neg_le_sum hΔ hw1 hw2
       simp only [hH, norm_smul]
       rw [Complex.norm_cpow_eq_rpow_re_of_pos hΔ]
       simp only [Complex.neg_re]
-      calc Δ ^ (-w.re) * ‖Φ w‖ ≤ (Δ ^ (-x) + Δ ^ (-x')) * (B * (1 + |w.im|) ^ (-2 : ℝ)) :=
+      calc Δ ^ (-w.re) * ‖Φ w‖ ≤ (Δ ^ (-x) + Δ ^ (-x')) * (B * (1 + |w.im|) ^ (-p)) :=
             mul_le_mul h2 h1 (norm_nonneg _) (by positivity)
         _ = _ := by ring)
-    (tendsto_weight_two_atTop _) (tendsto_weight_two_atBot _)
+    (tendsto_weight_rpow_atTop (by linarith) _) (tendsto_weight_rpow_atBot (by linarith) _)
   unfold mellinInv
   congr 1
   exact key.symm
@@ -174,14 +186,14 @@ theorem MellinLiftData.im_mellinInv (h : MellinLiftData c Φ) {x : ℝ} (hx0 : 0
 /-- The pointwise bound `|f(Δ)| ≤ C_x Δ^{-x}`. -/
 theorem MellinLiftData.norm_mellinInv_le (h : MellinLiftData c Φ) {x : ℝ} (hx0 : 0 < x) (hx1 : x < c) :
     ∃ C : ℝ, 0 ≤ C ∧ ∀ Δ : ℝ, 0 < Δ → ‖mellinInv x Φ Δ‖ ≤ C * Δ ^ (-x) := by
-  obtain ⟨B, hB⟩ := h.line_bound hx0 hx1
-  refine ⟨(1 / (2 * Real.pi)) * ∫ y : ℝ, |B| * (1 + |y|) ^ (-2 : ℝ), ?_, fun Δ hΔ => ?_⟩
+  obtain ⟨p, hp, B, hB⟩ := h.line_bound hx0 hx1
+  refine ⟨(1 / (2 * Real.pi)) * ∫ y : ℝ, |B| * (1 + |y|) ^ (-p), ?_, fun Δ hΔ => ?_⟩
   · exact mul_nonneg (by positivity) (integral_nonneg fun y => by positivity)
   unfold mellinInv
   rw [norm_smul]
   have hint : ‖∫ y : ℝ, (Δ : ℂ) ^ (-((x : ℂ) + (y : ℂ) * Complex.I)) • Φ ((x : ℂ) + (y : ℂ) * Complex.I)‖ ≤
-      ∫ y : ℝ, Δ ^ (-x) * (|B| * (1 + |y|) ^ (-2 : ℝ)) := by
-    refine norm_integral_le_of_norm_le ((integrable_weight_two |B|).const_mul (Δ ^ (-x))) (ae_of_all _ fun y => ?_)
+      ∫ y : ℝ, Δ ^ (-x) * (|B| * (1 + |y|) ^ (-p)) := by
+    refine norm_integral_le_of_norm_le ((integrable_weight_rpow hp |B|).const_mul (Δ ^ (-x))) (ae_of_all _ fun y => ?_)
     rw [norm_smul, norm_cpow_line hΔ]
     exact mul_le_mul_of_nonneg_left ((hB y).trans (mul_le_mul_of_nonneg_right (le_abs_self B) (by positivity))) (Real.rpow_nonneg hΔ.le _)
   rw [integral_const_mul] at hint
@@ -189,7 +201,7 @@ theorem MellinLiftData.norm_mellinInv_le (h : MellinLiftData c Φ) {x : ℝ} (hx
     rw [Real.norm_eq_abs]; exact abs_of_pos (by positivity)
   rw [hn]
   calc 1 / (2 * Real.pi) * ‖∫ y : ℝ, (Δ : ℂ) ^ (-((x : ℂ) + (y : ℂ) * Complex.I)) • Φ ((x : ℂ) + (y : ℂ) * Complex.I)‖
-      ≤ 1 / (2 * Real.pi) * (Δ ^ (-x) * ∫ y : ℝ, |B| * (1 + |y|) ^ (-2 : ℝ)) :=
+      ≤ 1 / (2 * Real.pi) * (Δ ^ (-x) * ∫ y : ℝ, |B| * (1 + |y|) ^ (-p)) :=
         mul_le_mul_of_nonneg_left hint (by positivity)
     _ = _ := by ring
 
@@ -201,11 +213,11 @@ theorem MellinLiftData.continuousOn_mellinInv (h : MellinLiftData c Φ) {x : ℝ
   have hnhds : Icc (Δ₀ / 2) (2 * Δ₀) ∈ 𝓝 Δ₀ := Icc_mem_nhds (by linarith) (by linarith)
   refine ContinuousAt.continuousWithinAt ?_
   refine ContinuousOn.continuousAt ?_ hnhds
-  obtain ⟨B, hB⟩ := h.line_bound hx0 hx1
+  obtain ⟨p, hp, B, hB⟩ := h.line_bound hx0 hx1
   have hcpow : ∀ Δ ∈ Icc (Δ₀ / 2) (2 * Δ₀), 0 < Δ := fun Δ hΔ => by linarith [hΔ.1]
   unfold mellinInv
   refine ContinuousOn.const_smul ?_ _
-  refine continuousOn_of_dominated (bound := fun y => (Δ₀ / 2) ^ (-x) * |B| * (1 + |y|) ^ (-2 : ℝ)) ?_ ?_ ?_ ?_
+  refine continuousOn_of_dominated (bound := fun y => (Δ₀ / 2) ^ (-x) * |B| * (1 + |y|) ^ (-p)) ?_ ?_ ?_ ?_
   · intro Δ hΔ
     exact (h.integrable_line_cpow hx0 hx1 (hcpow Δ hΔ)).aestronglyMeasurable
   · intro Δ hΔ
@@ -213,16 +225,32 @@ theorem MellinLiftData.continuousOn_mellinInv (h : MellinLiftData c Φ) {x : ℝ
     rw [norm_smul, norm_cpow_line (hcpow Δ hΔ)]
     have h1 : Δ ^ (-x) ≤ (Δ₀ / 2) ^ (-x) :=
       Real.rpow_le_rpow_of_nonpos (by linarith) hΔ.1 (by linarith)
-    calc Δ ^ (-x) * ‖Φ ((x : ℂ) + (y : ℂ) * Complex.I)‖ ≤ (Δ₀ / 2) ^ (-x) * (|B| * (1 + |y|) ^ (-2 : ℝ)) :=
+    calc Δ ^ (-x) * ‖Φ ((x : ℂ) + (y : ℂ) * Complex.I)‖ ≤ (Δ₀ / 2) ^ (-x) * (|B| * (1 + |y|) ^ (-p)) :=
           mul_le_mul h1 ((hB y).trans (mul_le_mul_of_nonneg_right (le_abs_self B) (by positivity)))
             (norm_nonneg _) (by positivity)
       _ = _ := by ring
-  · exact integrable_weight_two ((Δ₀ / 2) ^ (-x) * |B|)
+  · exact integrable_weight_rpow hp ((Δ₀ / 2) ^ (-x) * |B|)
   · refine ae_of_all _ fun y => ?_
     have hc1 : ContinuousOn (fun Δ : ℝ => (Δ : ℂ) ^ (-((x : ℂ) + (y : ℂ) * Complex.I))) (Icc (Δ₀ / 2) (2 * Δ₀)) :=
       ContinuousOn.cpow_const (Complex.continuous_ofReal.continuousOn) fun Δ hΔ =>
         Complex.ofReal_mem_slitPlane.mpr (hcpow Δ hΔ)
     exact hc1.smul continuousOn_const
+
+/-- Scaling `Φ` by a real constant preserves `MellinLiftData`. -/
+lemma MellinLiftData.const_mul (h : MellinLiftData c Φ) (σ : ℝ) :
+    MellinLiftData c (fun z => (σ : ℂ) * Φ z) where
+  hol := (differentiableOn_const _).mul h.hol
+  decay := by
+    intro a b ha hab hb
+    obtain ⟨p, hp, B, hB⟩ := h.decay ha hab hb
+    refine ⟨p, hp, |σ| * |B|, fun z hz1 hz2 => ?_⟩
+    rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    calc |σ| * ‖Φ z‖ ≤ |σ| * (B * (1 + |z.im|) ^ (-p)) :=
+          mul_le_mul_of_nonneg_left (hB z hz1 hz2) (abs_nonneg _)
+      _ ≤ |σ| * (|B| * (1 + |z.im|) ^ (-p)) :=
+          mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right (le_abs_self B) (by positivity)) (abs_nonneg _)
+      _ = _ := by ring
+  real z hz0 hz1 := by rw [map_mul, Complex.conj_ofReal, h.real z hz0 hz1]
 
 
 /-! ### The Mellin transform of the lift (Fourier inversion) -/

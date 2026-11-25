@@ -477,8 +477,8 @@ theorem ceOriginE_conj_imag {c : ℝ} (_hc : 0 < c) (y : ℝ) :
   congr 1
   simp [map_sub, map_mul, Complex.conj_ofReal, Complex.conj_I]
 
-/-- Conjugation symmetry of `G_c` on the imaginary axis: `G_c(-iy) = conj G_c(iy)` (`cel:L3a` (2)). -/
-theorem ceOriginG_conj {c : ℝ} (hc : 0 < c) {W : ℂ → ℂ} (hW : StripM1 W) (y : ℝ) :
+/-- Conjugation symmetry of `G_c` on the imaginary axis under `StripW1 η W`: `G_c(-iy) = conj G_c(iy)` (`cel:L3a` (2)). -/
+theorem ceOriginG_conj_of_W1 {c η : ℝ} (hc : 0 < c) {W : ℂ → ℂ} (hW : StripW1 η W) (y : ℝ) :
     ceOriginG c W (-y) = starRingEnd ℂ (ceOriginG c W y) := by
   have h4arg : (4 : ℂ).arg ≠ Real.pi := by
     rw [show (4 : ℂ) = ((4 : ℝ) : ℂ) by norm_num, Complex.arg_ofReal_of_nonneg (by norm_num)]
@@ -503,13 +503,18 @@ theorem ceOriginG_conj {c : ℝ} (hc : 0 < c) {W : ℂ → ℂ} (hW : StripM1 W)
     rw [harg, hW.real _ hre0 hre1]
   unfold ceOriginG
   rw [h4c, hGc, ceOriginE_conj_imag hc y, hWc]
-  simp only [map_mul, map_sub, W_one_conj hW]
+  simp only [map_mul, map_sub, W_one_conj_of_W1 hW]
+
+/-- Conjugation symmetry of `G_c` on the imaginary axis: `G_c(-iy) = conj G_c(iy)` (`cel:L3a` (2)). -/
+theorem ceOriginG_conj {c : ℝ} (hc : 0 < c) {W : ℂ → ℂ} (hW : StripM1 W) (y : ℝ) :
+    ceOriginG c W (-y) = starRingEnd ℂ (ceOriginG c W y) :=
+  ceOriginG_conj_of_W1 hc hW.toStripW1 y
 
 section
 variable {W : ℂ → ℂ}
 
-/-- The pointwise limit `Γ(ε + iy) K(ε + iy) → Γ(iy) K(iy)` as `ε ↓ 0` (`y ≠ 0`). -/
-lemma tendsto_Gamma_mul_admissK {c : ℝ} (hc : 0 < c) (hW : StripM1 W) {y : ℝ} (hy : y ≠ 0) :
+/-- The pointwise limit `Γ(ε + iy) K(ε + iy) → Γ(iy) K(iy)` as `ε ↓ 0` (`y ≠ 0`) under `StripW1 η W`. -/
+lemma tendsto_Gamma_mul_admissK_of_W1 {c η : ℝ} (hc : 0 < c) (hW : StripW1 η W) {y : ℝ} (hy : y ≠ 0) :
     Tendsto (fun ε : ℝ => Complex.Gamma ((ε : ℂ) + (y : ℂ) * Complex.I) * admissK c W ((ε : ℂ) + (y : ℂ) * Complex.I))
       (𝓝[>] (0 : ℝ)) (𝓝 (Complex.Gamma ((y : ℂ) * Complex.I) * admissK c W ((y : ℂ) * Complex.I))) := by
   set z0 : ℂ := (y : ℂ) * Complex.I with hz0
@@ -517,7 +522,7 @@ lemma tendsto_Gamma_mul_admissK {c : ℝ} (hc : 0 < c) (hW : StripM1 W) {y : ℝ
   have hz0ne : z0 ≠ 0 := by
     intro h; apply hy; have := congrArg Complex.im h; simpa [hz0] using this
   have hGc : ContinuousAt Complex.Gamma z0 := continuousAt_Gamma_of_re_nonneg hz0re.ge hz0ne
-  have hKc := admissK_continuousOn hc hW z0 ⟨hz0re.ge, by rw [hz0re]; exact hc.le⟩
+  have hKc := admissK_continuousOn_of_W1 hc hW z0 ⟨hz0re.ge, by rw [hz0re]; exact hc.le⟩
   have hcw : ContinuousWithinAt (fun z : ℂ => Complex.Gamma z * admissK c W z)
       {z : ℂ | 0 ≤ z.re ∧ z.re ≤ c} z0 := hGc.continuousWithinAt.mul hKc
   have hz : Tendsto (fun ε : ℝ => (ε : ℂ) + (y : ℂ) * Complex.I) (𝓝[>] (0 : ℝ))
@@ -530,17 +535,23 @@ lemma tendsto_Gamma_mul_admissK {c : ℝ} (hc : 0 < c) (hW : StripM1 W) {y : ℝ
       exact ⟨by simp; exact hε.1.le, by simp; exact hε.2.le⟩
   exact hcw.tendsto.comp hz
 
-/-- `Γ(iy) K(iy)` is integrable under a Dini modulus at `ζ = 1`. -/
-theorem integrable_Gamma_mul_admissK_dini {c δ₀ : ℝ} {ω : ℝ → ℝ} (hc : 2 ≤ c) (hW : StripM1 W)
-    (hω : IsDiniModulus ω δ₀)
+/-- The pointwise limit `Γ(ε + iy) K(ε + iy) → Γ(iy) K(iy)` as `ε ↓ 0` (`y ≠ 0`). -/
+lemma tendsto_Gamma_mul_admissK {c : ℝ} (hc : 0 < c) (hW : StripM1 W) {y : ℝ} (hy : y ≠ 0) :
+    Tendsto (fun ε : ℝ => Complex.Gamma ((ε : ℂ) + (y : ℂ) * Complex.I) * admissK c W ((ε : ℂ) + (y : ℂ) * Complex.I))
+      (𝓝[>] (0 : ℝ)) (𝓝 (Complex.Gamma ((y : ℂ) * Complex.I) * admissK c W ((y : ℂ) * Complex.I))) :=
+  tendsto_Gamma_mul_admissK_of_W1 hc hW.toStripW1 hy
+
+/-- `Γ(iy) K(iy)` is integrable under `StripW1 η W` (`0 < η`) and a Dini modulus at `ζ = 1`. -/
+theorem integrable_Gamma_mul_admissK_dini_of_W1 {c δ₀ η : ℝ} {ω : ℝ → ℝ} (hc : 2 ≤ c) (hη : 0 < η)
+    (hW : StripW1 η W) (hω : IsDiniModulus ω δ₀)
     (hD : ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ δ₀ → ‖W ζ - W 1‖ ≤ ω ‖1 - ζ‖) :
     Integrable fun y : ℝ => Complex.Gamma ((y : ℂ) * Complex.I) * admissK c W ((y : ℂ) * Complex.I) := by
   have hc0 : 0 < c := by linarith
-  obtain ⟨δ₁, A, hδ₁, _, hδ₁_c, _, hA_out, _⟩ := admissRem_line_bound_dini hc hW hω hD
+  obtain ⟨δ₁, A, hδ₁, _, hδ₁_c, _, hA_out, _⟩ := admissRem_line_bound_dini_of_W1 hc hη hW hω hD
   have hmeas : AEStronglyMeasurable (fun y : ℝ => Complex.Gamma ((y : ℂ) * Complex.I) * admissK c W ((y : ℂ) * Complex.I)) volume := by
     have hf : Continuous fun y : ℝ => (y : ℂ) * Complex.I := by fun_prop
     have hK : Continuous fun y : ℝ => admissK c W ((y : ℂ) * Complex.I) :=
-      (admissK_continuousOn hc0 hW).comp_continuous hf (fun y => ⟨by simp, by simp; exact hc0.le⟩)
+      (admissK_continuousOn_of_W1 hc0 hW).comp_continuous hf (fun y => ⟨by simp, by simp; exact hc0.le⟩)
     have hcont : ContinuousOn (fun y : ℝ => Complex.Gamma ((y : ℂ) * Complex.I) * admissK c W ((y : ℂ) * Complex.I)) {y : ℝ | y ≠ 0} := by
       intro y hy
       have hz0ne : ((y : ℂ) * Complex.I) ≠ 0 := by
@@ -549,9 +560,9 @@ theorem integrable_Gamma_mul_admissK_dini {c δ₀ : ℝ} {ω : ℝ → ℝ} (hc
       exact ((hG.comp_of_eq hf.continuousAt rfl).mul hK.continuousAt).continuousWithinAt
     have := hcont.aestronglyMeasurable (μ := volume) (isOpen_compl_singleton.measurableSet)
     rwa [show {y : ℝ | y ≠ 0} = {(0 : ℝ)}ᶜ from rfl, restrict_compl_singleton] at this
-  have hbd : ∀ y : ℝ, y ≠ 0 → ‖Complex.Gamma ((y : ℂ) * Complex.I) * admissK c W ((y : ℂ) * Complex.I)‖ ≤ A * diniOriginMajorant c δ₁ ω y := by
+  have hbd : ∀ y : ℝ, y ≠ 0 → ‖Complex.Gamma ((y : ℂ) * Complex.I) * admissK c W ((y : ℂ) * Complex.I)‖ ≤ A * diniOriginMajorantW c δ₁ η ω y := by
     intro y hy
-    have hlim := (tendsto_Gamma_mul_admissK hc0 hW hy).norm
+    have hlim := (tendsto_Gamma_mul_admissK_of_W1 hc0 hW hy).norm
     refine le_of_tendsto hlim ?_
     filter_upwards [Ioo_mem_nhdsGT (lt_min (by norm_num : (0 : ℝ) < 1 / 2) (abs_pos.mpr hy)), Ioo_mem_nhdsGT hc0] with ε hε hε'
     have hε_half : ε ≤ 1 / 2 := (hε.2.trans_le (min_le_left _ _)).le
@@ -560,9 +571,16 @@ theorem integrable_Gamma_mul_admissK_dini {c δ₀ : ℝ} {ω : ℝ → ℝ} (hc
     have hre1 : ((ε : ℂ) + (y : ℂ) * Complex.I).re < c := by simpa using hε'.2
     rw [← admissRem_eq hc0 hre0 hre1]
     exact hA_out ε y hε.1 hε_half hy hεy
-  refine ((integrable_diniOriginMajorant hc0 hδ₁ hδ₁_c hω).const_mul A).mono' hmeas ?_
+  refine ((integrable_diniOriginMajorantW hc0 hδ₁ hδ₁_c hη hω).const_mul A).mono' hmeas ?_
   filter_upwards [compl_mem_ae_iff.mpr (measure_singleton (0 : ℝ))] with y hy
   exact hbd y hy
+
+/-- `Γ(iy) K(iy)` is integrable under a Dini modulus at `ζ = 1`. -/
+theorem integrable_Gamma_mul_admissK_dini {c δ₀ : ℝ} {ω : ℝ → ℝ} (hc : 2 ≤ c) (hW : StripM1 W)
+    (hω : IsDiniModulus ω δ₀)
+    (hD : ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ δ₀ → ‖W ζ - W 1‖ ≤ ω ‖1 - ζ‖) :
+    Integrable fun y : ℝ => Complex.Gamma ((y : ℂ) * Complex.I) * admissK c W ((y : ℂ) * Complex.I) :=
+  integrable_Gamma_mul_admissK_dini_of_W1 hc (by norm_num) hW.toStripW1 hω hD
 
 /-- `Γ(iy) K(iy)` is integrable. -/
 theorem integrable_Gamma_mul_admissK {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (_hα1 : α < 1) (hW : StripM1 W)
@@ -602,17 +620,17 @@ private lemma integral_norm_even_eq_two_mul_Ioi {f : ℝ → ℝ} (hf : Integrab
     exact setIntegral_congr_fun measurableSet_Ioi fun y _ => heven y
   linarith
 
-/-- **`cel:L3a` (2) / `uct:gen-origin` for the lift of an admissible strip multiplier with a Dini modulus**
-(`ce_rate.tex` Lemma P.2 (2), `(cel:4.2)`, `(cel:4.5)`, `(uct:gen-origin)`):
-for `c ≥ 2`, `W̃` satisfying `StripM1` and a Dini modulus `|W̃(ζ) - W̃(1)| ≤ ω(|1 - ζ|)` near `ζ = 1`
+/-- **`cel:L3a` (2) / `uct:gen-origin` for the lift of a `StripW1` multiplier with a Dini modulus**
+(`ce_rate.tex` Lemma P.2 (2), `(cel:4.2)`, `(cel:4.5)`):
+for `c ≥ 2`, `η > 0`, `W` satisfying `StripW1 η W` and a Dini modulus `|W(ζ) - W(1)| ≤ ω(|1 - ζ|)` near `ζ = 1`
 (with `IsDiniModulus ω δ₀`: nonnegative, nondecreasing, `∫₀^{δ₀} ω(r)/r dr < ∞`),
-(a) `G_c(iy) = 4^{-iy} Γ(iy)[E_c(iy) W̃(1 - iy/c) - W̃(1)]` is integrable on `ℝ`;
+(a) `G_c(iy) = 4^{-iy} Γ(iy)[E_c(iy) W(1 - iy/c) - W(1)]` is integrable on `ℝ`;
 (b) `G_c(-iy) = conj G_c(iy)`;
-(c) for every `Δ > 0`, `f_W(Δ) - W̃(1) e^{-4Δ} = (2π)⁻¹ ∫ G_c(iy) Δ^{-iy} dy`;
-(d) for every `Δ > 0`, `|f_W(Δ) - W̃(1).re e^{-4Δ}| ≤ π⁻¹ ∫₀^∞ |G_c(iy)| dy`
-(and the same bound holds trivially at `Δ = 0` for the continuous extension `f_W(0) = W̃(1).re`).
-Class: proved, unconditional. Scope: single-strip multipliers `J_c(z) = W̃(1 - z/c)` with `StripM1 W̃` and a Dini modulus at `1`. -/
-theorem ceOrigin_shift_dini {c δ₀ : ℝ} {ω : ℝ → ℝ} (hc : 2 ≤ c) (hW : StripM1 W) (hω : IsDiniModulus ω δ₀)
+(c) for every `Δ > 0`, `f_W(Δ) - W(1) e^{-4Δ} = (2π)⁻¹ ∫ G_c(iy) Δ^{-iy} dy`;
+(d) for every `Δ > 0`, `|f_W(Δ) - W(1).re e^{-4Δ}| ≤ π⁻¹ ∫₀^∞ |G_c(iy)| dy`.
+Class: proved, unconditional. -/
+theorem ceOrigin_shift_dini_of_W1 {c δ₀ η : ℝ} {ω : ℝ → ℝ} (hc : 2 ≤ c) (hη : 0 < η)
+    (hW : StripW1 η W) (hω : IsDiniModulus ω δ₀)
     (hD : ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ δ₀ → ‖W ζ - W 1‖ ≤ ω ‖1 - ζ‖) :
     Integrable (ceOriginG c W) ∧
       (∀ y : ℝ, ceOriginG c W (-y) = starRingEnd ℂ (ceOriginG c W y)) ∧
@@ -623,17 +641,17 @@ theorem ceOrigin_shift_dini {c δ₀ : ℝ} {ω : ℝ → ℝ} (hc : 2 ≤ c) (h
         |admissLift c W Δ - (W 1).re * Real.exp (-(4 * Δ))| ≤
           (1 / Real.pi) * ∫ y in Ioi (0 : ℝ), ‖ceOriginG c W y‖) := by
   have hc0 : 0 < c := by linarith
-  have hρ := integrable_Gamma_mul_admissK_dini hc hW hω hD
+  have hρ := integrable_Gamma_mul_admissK_dini_of_W1 hc hη hW hω hD
   have hm := integrable_Gamma_mul_one_sub_four
   have hint : Integrable (ceOriginG c W) := by
     have := hρ.add (hm.const_mul (W 1))
     exact this.congr (Eventually.of_forall fun y => (ceOriginG_decomp hc0 W y).symm)
-  have hconj : ∀ y : ℝ, ceOriginG c W (-y) = starRingEnd ℂ (ceOriginG c W y) := ceOriginG_conj hc0 hW
+  have hconj : ∀ y : ℝ, ceOriginG c W (-y) = starRingEnd ℂ (ceOriginG c W y) := ceOriginG_conj_of_W1 hc0 hW
   have hshift : ∀ {Δ : ℝ}, 0 < Δ →
       ((admissLift c W Δ : ℝ) : ℂ) - W 1 * ((Real.exp (-(4 * Δ)) : ℝ) : ℂ) =
         ((1 / (2 * Real.pi) : ℝ) : ℂ) * ∫ y : ℝ, ceOriginG c W y * (Δ : ℂ) ^ (-((y : ℂ) * Complex.I)) := by
     intro Δ hΔ
-    have h1 := admiss_lift_eq_limit_dini hc hW hω hD hΔ
+    have h1 := admiss_lift_eq_limit_dini_of_W1 hc hη hW hω hD hΔ
     have h2 := integral_Gamma_mul_one_sub_four hΔ
     have e : ∫ y : ℝ, ceOriginG c W y * (Δ : ℂ) ^ (-((y : ℂ) * Complex.I)) =
         (∫ y : ℝ, originLimit c W Δ y) + W 1 * ∫ y : ℝ, (Δ : ℂ) ^ (-((y : ℂ) * Complex.I)) *
@@ -651,7 +669,7 @@ theorem ceOrigin_shift_dini {c δ₀ : ℝ} {ω : ℝ → ℝ} (hc : 2 ≤ c) (h
     ring_nf
   refine ⟨hint, hconj, hshift, fun {Δ} hΔ => ?_⟩
   have hW1_real : W 1 = ((W 1).re : ℂ) := by
-    have h := W_one_conj hW
+    have h := W_one_conj_of_W1 hW
     exact Complex.ext rfl (by
       have him := congrArg Complex.im h
       simp only [Complex.conj_im, Complex.ofReal_im] at him ⊢
@@ -678,20 +696,51 @@ theorem ceOrigin_shift_dini {c δ₀ : ℝ} {ω : ℝ → ℝ} (hc : 2 ≤ c) (h
     _ = 1 / (2 * Real.pi) * (2 * ∫ y in Ioi (0 : ℝ), ‖ceOriginG c W y‖) := by rw [htwo]
     _ = (1 / Real.pi) * ∫ y in Ioi (0 : ℝ), ‖ceOriginG c W y‖ := by field_simp [Real.pi_ne_zero]
 
-/-- **`cel:L3a` (2) / `uct:gen-origin` for the lift of an admissible strip multiplier** (`(cel:4.2)`, `(cel:4.5)`, `(uct:gen-origin)`):
-for `c ≥ 2`, `W̃` with the hypotheses `StripM1` and the Hölder bound `|W̃(ζ) - W̃(1)| ≤ C |1 - ζ|^α` at `ζ = 1` (this is `J_c(z) - J_c(0) = O(|z|^α)`,
-`J_c(z) = W̃(1 - z/c)`; `α = 1/2` is the case used by `uct:gen-preedge` (2)), `G_c(iy) = 4^{-iy} Γ(iy)[E_c(iy) J_c(iy) - J_c(0)]` is integrable on `ℝ` and, for every `Δ > 0`,
-`f_W(Δ) - W̃(1) e^{-4Δ} = (2π)⁻¹ ∫ G_c(iy) Δ^{-iy} dy`, where `f_W = admissLift c W` is the lift (`ĥ_c`).
-Derived directly from the Dini version `ceOrigin_shift_dini`. Class: proved. -/
-theorem ceOrigin_shift {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (_hα1 : α < 1) {W : ℂ → ℂ} (hW : StripM1 W)
+/-- **`cel:L3a` (2) / `uct:gen-origin` for the lift of an admissible strip multiplier with a Dini modulus**
+(`ce_rate.tex` Lemma P.2 (2), `(cel:4.2)`, `(cel:4.5)`, `(uct:gen-origin)`):
+for `c ≥ 2`, `W̃` satisfying `StripM1` and a Dini modulus `|W̃(ζ) - W̃(1)| ≤ ω(|1 - ζ|)` near `ζ = 1`
+(with `IsDiniModulus ω δ₀`: nonnegative, nondecreasing, `∫₀^{δ₀} ω(r)/r dr < ∞`),
+(a) `G_c(iy) = 4^{-iy} Γ(iy)[E_c(iy) W̃(1 - iy/c) - W̃(1)]` is integrable on `ℝ`;
+(b) `G_c(-iy) = conj G_c(iy)`;
+(c) for every `Δ > 0`, `f_W(Δ) - W̃(1) e^{-4Δ} = (2π)⁻¹ ∫ G_c(iy) Δ^{-iy} dy`;
+(d) for every `Δ > 0`, `|f_W(Δ) - W̃(1).re e^{-4Δ}| ≤ π⁻¹ ∫₀^∞ |G_c(iy)| dy`
+(and the same bound holds trivially at `Δ = 0` for the continuous extension `f_W(0) = W̃(1).re`).
+Derived from `ceOrigin_shift_dini_of_W1`. Class: proved, unconditional. -/
+theorem ceOrigin_shift_dini {c δ₀ : ℝ} {ω : ℝ → ℝ} (hc : 2 ≤ c) (hW : StripM1 W) (hω : IsDiniModulus ω δ₀)
+    (hD : ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ δ₀ → ‖W ζ - W 1‖ ≤ ω ‖1 - ζ‖) :
+    Integrable (ceOriginG c W) ∧
+      (∀ y : ℝ, ceOriginG c W (-y) = starRingEnd ℂ (ceOriginG c W y)) ∧
+      (∀ {Δ : ℝ}, 0 < Δ →
+        ((admissLift c W Δ : ℝ) : ℂ) - W 1 * ((Real.exp (-(4 * Δ)) : ℝ) : ℂ) =
+          ((1 / (2 * Real.pi) : ℝ) : ℂ) * ∫ y : ℝ, ceOriginG c W y * (Δ : ℂ) ^ (-((y : ℂ) * Complex.I))) ∧
+      (∀ {Δ : ℝ}, 0 < Δ →
+        |admissLift c W Δ - (W 1).re * Real.exp (-(4 * Δ))| ≤
+          (1 / Real.pi) * ∫ y in Ioi (0 : ℝ), ‖ceOriginG c W y‖) :=
+  ceOrigin_shift_dini_of_W1 hc (by norm_num) hW.toStripW1 hω hD
+
+/-- **`cel:L3a` (2) for `StripW1 η W` (`0 < η`) with a Hölder/Lipschitz modulus (`0 < α ≤ 1`).** -/
+theorem ceOrigin_shift_of_W1 {c η α : ℝ} (hc : 2 ≤ c) (hη : 0 < η) (hα0 : 0 < α) (_hα1 : α ≤ 1)
+    {W : ℂ → ℂ} (hW : StripW1 η W)
     (hH : ∃ CH : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ 1 / 2 → ‖W ζ - W 1‖ ≤ CH * ‖1 - ζ‖ ^ α) :
     Integrable (ceOriginG c W) ∧ ∀ {Δ : ℝ}, 0 < Δ →
       ((admissLift c W Δ : ℝ) : ℂ) - W 1 * ((Real.exp (-(4 * Δ)) : ℝ) : ℂ) =
         ((1 / (2 * Real.pi) : ℝ) : ℂ) * ∫ y : ℝ, ceOriginG c W y * (Δ : ℂ) ^ (-((y : ℂ) * Complex.I)) := by
   obtain ⟨CH, hCH⟩ := hH
-  have h := ceOrigin_shift_dini hc hW (IsDiniModulus.holder hα0 (by norm_num : (0 : ℝ) < 1 / 2) CH)
+  have h := ceOrigin_shift_dini_of_W1 hc hη hW (IsDiniModulus.holder hα0 (by norm_num : (0 : ℝ) < 1 / 2) CH)
     (fun ζ h0 h1 hn => (hCH ζ h0 h1 hn).trans (mul_le_mul_of_nonneg_right (le_abs_self CH) (by positivity)))
   exact ⟨h.1, h.2.2.1⟩
+
+/-- **`cel:L3a` (2) / `uct:gen-origin` for the lift of an admissible strip multiplier** (`(cel:4.2)`, `(cel:4.5)`, `(uct:gen-origin)`):
+for `c ≥ 2`, `W̃` with the hypotheses `StripM1` and the Hölder bound `|W̃(ζ) - W̃(1)| ≤ C |1 - ζ|^α` at `ζ = 1` (this is `J_c(z) - J_c(0) = O(|z|^α)`,
+`J_c(z) = W̃(1 - z/c)`; `α = 1/2` is the case used by `uct:gen-preedge` (2)), `G_c(iy) = 4^{-iy} Γ(iy)[E_c(iy) J_c(iy) - J_c(0)]` is integrable on `ℝ` and, for every `Δ > 0`,
+`f_W(Δ) - W̃(1) e^{-4Δ} = (2π)⁻¹ ∫ G_c(iy) Δ^{-iy} dy`, where `f_W = admissLift c W` is the lift (`ĥ_c`).
+Derived directly from `ceOrigin_shift_dini_of_W1`. Class: proved. -/
+theorem ceOrigin_shift {c α : ℝ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : α < 1) {W : ℂ → ℂ} (hW : StripM1 W)
+    (hH : ∃ CH : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ 1 / 2 → ‖W ζ - W 1‖ ≤ CH * ‖1 - ζ‖ ^ α) :
+    Integrable (ceOriginG c W) ∧ ∀ {Δ : ℝ}, 0 < Δ →
+      ((admissLift c W Δ : ℝ) : ℂ) - W 1 * ((Real.exp (-(4 * Δ)) : ℝ) : ℂ) =
+        ((1 / (2 * Real.pi) : ℝ) : ℂ) * ∫ y : ℝ, ceOriginG c W y * (Δ : ℂ) ^ (-((y : ℂ) * Complex.I)) :=
+  ceOrigin_shift_of_W1 hc (by norm_num) hα0 hα1.le hW.toStripW1 hH
 
 end
 
@@ -720,13 +769,25 @@ end
 #guard_msgs (whitespace := lax) in
 #print axioms ceOrigin_phase_quad_bound
 
+/-- info: 'FormalResearch.SignUncertainty.ceOriginG_conj_of_W1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ceOriginG_conj_of_W1
+
 /-- info: 'FormalResearch.SignUncertainty.ceOriginG_conj' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ceOriginG_conj
 
+/-- info: 'FormalResearch.SignUncertainty.ceOrigin_shift_dini_of_W1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ceOrigin_shift_dini_of_W1
+
 /-- info: 'FormalResearch.SignUncertainty.ceOrigin_shift_dini' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ceOrigin_shift_dini
+
+/-- info: 'FormalResearch.SignUncertainty.ceOrigin_shift_of_W1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ceOrigin_shift_of_W1
 
 /-- info: 'FormalResearch.SignUncertainty.ceOrigin_shift' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
