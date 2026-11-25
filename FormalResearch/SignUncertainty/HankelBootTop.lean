@@ -48,7 +48,7 @@ theorem hankel_psi_total_upper_tail {c ε T : ℝ} (hc : 3e6 ≤ c) {f : ℝ →
     have h2 : -∫ u in Ioc (0 : ℝ) (c * hankelXi c (langerRadius c)), hankelRho0 c u * |f u| ≤
         ∫ u in Ioc (0 : ℝ) (c * hankelXi c (langerRadius c)), hankelRho0 c u * f u := by
       rw [← integral_neg]
-      exact setIntegral_mono_on ((hankel_gA_int hc0 hfe).mono_set (fun u hu => hu.1) |>.neg)
+      exact setIntegral_mono_on ((hankel_gA_int hc0 hfe).mono_set (fun u (hu : u ∈ Ioc (0 : ℝ) _) => hu.1) |>.neg)
         (hgF.mono_set (fun u hu => hu.1)) measurableSet_Ioc fun u hu => by
           have := mul_le_mul_of_nonneg_left (neg_abs_le (f u)) (hankelRho0_nonneg hc0 hu.1.le)
           linarith

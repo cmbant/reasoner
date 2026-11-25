@@ -104,7 +104,7 @@ lemma le_of_forall_notMem_countable {a b : ℝ} (hab : a < b) {S : Set ℝ} (hS 
     exact ⟨y, hyU.1, Ioo_subset_Icc_self hyU.2, hyS⟩
   have hsub : closure (Icc a b ∩ Sᶜ) ⊆ Icc a b :=
     closure_minimal Set.inter_subset_left isClosed_Icc
-  exact le_on_closure (fun y hy => h y hy.1 hy.2) (hf.mono hsub) (hg.mono hsub) hcl
+  exact le_on_closure (fun y (hy : y ∈ Icc a b ∩ Sᶜ) => h y hy.1 hy.2) (hf.mono hsub) (hg.mono hsub) hcl
 
 /-- info: 'FormalResearch.ModularBootstrap.Upper.Ramped.continuousAt_langerK_xiStar' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

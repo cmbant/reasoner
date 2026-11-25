@@ -54,7 +54,7 @@ lemma split_integral_le_signed {F : ℝ → ℝ} {tS tΦ tN tR : ℝ} (h0 : 0 �
       Ioc_union_Ioi_eq_Ioi hΦR]
   have habs : IntegrableOn (fun t => |F t|) (Ioi tR) := hR.abs
   have iabs : IntegrableOn (fun t => |F t|) (Icc tN tR) :=
-    (hint.mono_set fun t ht => lt_of_lt_of_le hN ht.1).abs
+    (hint.mono_set fun t (ht : t ∈ Icc tN tR) => lt_of_lt_of_le hN ht.1).abs
   have i3 : ∫ t in Ioc tΦ tR, F t ≤ ∫ t in Icc tN tR, |F t| := by
     calc ∫ t in Ioc tΦ tR, F t ≤ ∫ t in Ioc tΦ tR, |F t| :=
           setIntegral_mono_on hc3 hc3.abs measurableSet_Ioc fun t _ => le_abs_self _
