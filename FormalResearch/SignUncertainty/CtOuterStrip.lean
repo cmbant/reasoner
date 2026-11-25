@@ -170,7 +170,7 @@ lemma sin_pi_ge {a x : ℝ} (ha : 0 < a) (ha2 : a ≤ 1 / 2) (h1 : a ≤ x) (h2 
     rw [this]
     apply Real.sin_le_sin_of_le_of_le_pi_div_two <;> nlinarith
 
-lemma mem_strip_of_ball {ζ₀ ζ : ℂ} (h₀ : ζ₀ ∈ strip) (hζ : ζ ∈ ball ζ₀ (min ζ₀.re (1 - ζ₀.re) / 2)) :
+lemma mem_strip_of_ball {ζ₀ ζ : ℂ} (hζ : ζ ∈ ball ζ₀ (min ζ₀.re (1 - ζ₀.re) / 2)) :
     min ζ₀.re (1 - ζ₀.re) / 2 ≤ ζ.re ∧ ζ.re ≤ 1 - min ζ₀.re (1 - ζ₀.re) / 2 := by
   have hd : |ζ.re - ζ₀.re| < min ζ₀.re (1 - ζ₀.re) / 2 := by
     have := Complex.abs_re_le_norm (ζ - ζ₀)
@@ -180,7 +180,7 @@ lemma mem_strip_of_ball {ζ₀ ζ : ℂ} (h₀ : ζ₀ ∈ strip) (hζ : ζ ∈ 
   have hm1 : min ζ₀.re (1 - ζ₀.re) ≤ ζ₀.re := min_le_left _ _
   have hm2 : min ζ₀.re (1 - ζ₀.re) ≤ 1 - ζ₀.re := min_le_right _ _
   rw [abs_lt] at hd
-  constructor <;> linarith [h₀.1, h₀.2]
+  constructor <;> linarith
 
 /-- `h` is differentiable, with derivative the integral of the `ζ`-derivative of the kernel. -/
 lemma hasDerivAt_outerH_gen {w₀ : ℂ} (hw₀ : w₀ ∈ strip) :
@@ -218,7 +218,7 @@ lemma hasDerivAt_outerH_gen {w₀ : ℂ} (hw₀ : w₀ ∈ strip) :
       ring
     · refine Eventually.of_forall fun t w hw => ?_
       have hwb : w ∈ ball w₀ a := ball_subset_ball (min_le_left _ _) hw
-      obtain ⟨hl, hr⟩ := mem_strip_of_ball hw₀ hwb
+      obtain ⟨hl, hr⟩ := mem_strip_of_ball hwb
       have hσle : σ ≤ Real.sin (π * w.re) := sin_pi_ge hapos ha2 hl hr
       have hk := kernel_norm_le (ζ := w) t hσpos hσ1 hσle
       have him : |w.im - w₀.im| ≤ 1 := by

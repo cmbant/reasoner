@@ -119,7 +119,7 @@ theorem differentiableOn_integral_param {α : Type*} [MeasurableSpace α] {μ : 
     (hdiff : ∀ᵐ t ∂μ, DifferentiableOn ℂ (fun w => Φ w t) U)
     (hloc : ∀ w₀ ∈ U, ∃ r > 0, ∃ b : α → ℝ, Integrable b μ ∧
       ∀ᵐ t ∂μ, ∀ w ∈ ball w₀ r, ‖Φ w t‖ ≤ b t) :
-    DifferentiableOn ℂ (fun w => ∫ t, Φ w t ∂μ) U := fun w₀ hw₀ =>
+    DifferentiableOn ℂ (fun w => ∫ t, Φ w t ∂μ) U := fun _ hw₀ =>
   (hasDerivAt_integral_param hU hmeas hdiff hloc hw₀).differentiableAt.differentiableWithinAt
 
 end FormalResearch.SignUncertainty.CtOuter

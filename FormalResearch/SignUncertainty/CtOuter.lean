@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.SignUncertainty.CtOuterTheta
+public import FormalResearch.SignUncertainty.CtOuterTaylor
 
 /-!
 # `ct:outer`: the Mellin-strip outer function `G_ε` (headline statements)
@@ -48,7 +49,7 @@ theorem ct_outer_part1 {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
   rw [closure_strip_eq]
   refine ⟨outerG_differentiableOn ε, outerGbar_continuousOn ε, fun ζ hζ => outerGbar_eq_outerG ε hζ,
     fun ζ hζ => outerGbar_conj hε hζ, fun ζ hζ => outerGbar_oneSub hε hζ,
-    fun τ => ⟨norm_outerGbar_left hε τ, norm_outerGbar_right hε τ⟩, outerGbar_bound hε⟩
+    fun τ => ⟨norm_outerGbar_left hε τ, norm_outerGbar_right hε τ⟩, outerGbar_bound⟩
 
 /-- **`ct:outer` (2), structural part** (boundary phase `θ_ε`, eq. `ct:theta-form`), for `ε = ±1`, with
 `θ_-(τ) = Im h̄(iτ) - arctan τ` and `θ_+(τ) = θ_-(τ) - 2 arctan(tanh(πτ/2))` (`outerTheta`):
@@ -81,6 +82,40 @@ theorem outerTheta_plus (τ : ℝ) :
   have hne : (-1 : ℝ) ≠ 1 := by norm_num
   simp [outerTheta, hne]
 
+/-- **`ct:outer` (2), Taylor expansion with the linear coefficient** (`ct:theta1`, `ct:theta3` structure): for `ε = ±1`
+there are constants `θ₃` and `C` such that, with
+`θ_1^- = 2π ∫_0^∞ u_r(t) cosh(πt)/sinh²(πt) dt - 1` and `θ_1^+ = θ_1^- - π`,
+`|θ_ε(τ) - θ_1^ε τ - θ_3^ε τ³| ≤ C |τ|⁵` for `|τ| ≤ 1` (`θ_3^ε = θ_ε'''(0)/6`).
+
+Scope: the Taylor structure, oddness and the exact linear coefficient *as an integral*.  **Not proved:** the closed forms
+`θ_1^- = -3 log 2 + I_0` (evaluation of the integral) and `θ_3^- = ζ(3)/2 + c_{3,mp}`, `θ_3^+ = θ_3^- + π³/6`; see the report. -/
+theorem ct_outer_part2_taylor (ε : ℝ) :
+    ∃ θ₁ θ₃ C : ℝ,
+      θ₁ = 2 * (∫ t in Set.Ioi (0 : ℝ), π * uR t * Real.cosh (π * t) / Real.sinh (π * t) ^ 2) - 1 -
+          (if ε = 1 then π else 0) ∧
+      (∀ τ : ℝ, |τ| ≤ 1 → |outerTheta ε τ - θ₁ * τ - θ₃ * τ ^ 3| ≤ C * |τ| ^ 5) := by
+  obtain ⟨C, hC⟩ := outerTheta_taylor ε
+  refine ⟨deriv (outerTheta ε) 0, iteratedDeriv 3 (outerTheta ε) 0 / 6, C, ?_, hC⟩
+  rw [deriv_outerTheta_zero, deriv_H0_zero]
+  have hre : (∫ t : ℝ, ((uR t * (π * Real.cosh (π * t) / Real.sinh (π * t) ^ 2) : ℝ) : ℂ)).re =
+      ∫ t : ℝ, uR t * (π * Real.cosh (π * t) / Real.sinh (π * t) ^ 2) := by
+    rw [integral_complex_ofReal]; simp
+  rw [hre]
+  have heven : (∫ t : ℝ, uR t * (π * Real.cosh (π * t) / Real.sinh (π * t) ^ 2)) =
+      2 * ∫ t in Set.Ioi (0 : ℝ), uR t * (π * Real.cosh (π * t) / Real.sinh (π * t) ^ 2) := by
+    rw [← integral_comp_abs (f := fun t : ℝ => uR t * (π * Real.cosh (π * t) / Real.sinh (π * t) ^ 2))]
+    congr 1
+    ext t
+    rcases abs_cases t with ⟨h, _⟩ | ⟨h, _⟩
+    · rw [h]
+    · rw [h, uR_neg, mul_neg, Real.cosh_neg, Real.sinh_neg, neg_sq]
+  rw [heven]
+  have hcongr : ∫ t in Set.Ioi (0 : ℝ), uR t * (π * Real.cosh (π * t) / Real.sinh (π * t) ^ 2) =
+      ∫ t in Set.Ioi (0 : ℝ), π * uR t * Real.cosh (π * t) / Real.sinh (π * t) ^ 2 :=
+    setIntegral_congr_fun (measurableSet_Ioi (a := (0 : ℝ))) (fun t _ => by ring)
+  rw [hcongr]
+
+
 /-- info: 'FormalResearch.SignUncertainty.CtOuter.ct_outer_part1' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ct_outer_part1
@@ -88,5 +123,87 @@ theorem outerTheta_plus (τ : ℝ) :
 /-- info: 'FormalResearch.SignUncertainty.CtOuter.ct_outer_part2_structure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ct_outer_part2_structure
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.ct_outer_part2_taylor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ct_outer_part2_taylor
+
+/-! ### Axiom guards for the supporting theorems -/
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.differentiableOn_outerH' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms differentiableOn_outerH
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.re_outerH_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms re_outerH_bound
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.outerH_eq_contH' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms outerH_eq_contH
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.differentiableOn_contH' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms differentiableOn_contH
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.re_contH_center' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms re_contH_center
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.continuousOn_outerHbar' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms continuousOn_outerHbar
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.re_outerHbar_left' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms re_outerHbar_left
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.re_outerHbar_right' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms re_outerHbar_right
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.outerGbar_oneSub' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms outerGbar_oneSub
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.outerGbar_conj' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms outerGbar_conj
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.norm_outerGbar_left' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms norm_outerGbar_left
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.norm_outerGbar_right' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms norm_outerGbar_right
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.outerGbar_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms outerGbar_bound
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.phase_identity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms phase_identity
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.outerTheta_structure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms outerTheta_structure
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.deriv_H0_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms deriv_H0_zero
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.deriv_outerTheta_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms deriv_outerTheta_zero
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.outerTheta_taylor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms outerTheta_taylor
+
+/-- info: 'FormalResearch.SignUncertainty.CtOuter.odd_taylor5' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms odd_taylor5
 
 end FormalResearch.SignUncertainty.CtOuter

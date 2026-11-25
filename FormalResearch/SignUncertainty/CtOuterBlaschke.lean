@@ -49,8 +49,7 @@ lemma cos_eq_re_im (w : ℂ) :
 lemma norm_cos_sq (w : ℂ) : ‖Complex.cos w‖ ^ 2 = Real.cos w.re ^ 2 + Real.sinh w.im ^ 2 := by
   rw [Complex.sq_norm, Complex.normSq_apply, cos_eq_re_im w]
   simp only [Complex.sub_re, Complex.ofReal_re, Complex.mul_re, Complex.I_re, mul_zero,
-    Complex.ofReal_im, Complex.I_im, mul_one, sub_self, sub_zero, Complex.sub_im, Complex.mul_im,
-    zero_add]
+    Complex.ofReal_im, Complex.I_im, mul_one, sub_self, sub_zero, Complex.sub_im, Complex.mul_im]
   have h := Real.cosh_sq w.im
   have h2 := Real.sin_sq_add_cos_sq w.re
   nlinarith [h, h2]

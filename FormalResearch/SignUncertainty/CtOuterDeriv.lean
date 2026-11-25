@@ -105,7 +105,7 @@ lemma derivMajorant_nonneg (t : ℝ) : 0 ≤ derivMajorant t := by
   unfold derivMajorant; positivity
 
 /-- `sinh(πs) ≥ ((1 - e^{-2πm})/2) e^{πs}` for `s ≥ m > 0`. -/
-lemma sinh_pi_lower {m s : ℝ} (hm : 0 < m) (hs : m ≤ s) :
+lemma sinh_pi_lower {m s : ℝ} (hs : m ≤ s) :
     (1 - Real.exp (-(2 * π * m))) / 2 * Real.exp (π * s) ≤ Real.sinh (π * s) := by
   set q : ℝ := Real.exp (-(2 * π * m)) with hqdef
   have hexp : Real.exp (-(2 * π * s)) ≤ q := Real.exp_le_exp.mpr (by nlinarith [Real.pi_pos])
@@ -191,7 +191,7 @@ lemma integrable_derivMajorant : Integrable derivMajorant := by
       linarith
     · set E : ℝ := Real.exp (π * |t|) with hE
       have hEpos : 0 < E := Real.exp_pos _
-      have hsl := sinh_pi_lower (m := 1 / 2) (s := |t|) (by norm_num) hgt.le
+      have hsl := sinh_pi_lower (m := 1 / 2) (s := |t|) hgt.le
       rw [← hqdef, ← hE] at hsl
       have hcosh : Real.cosh (π * |t|) ≤ E := by
         rw [Real.cosh_eq]

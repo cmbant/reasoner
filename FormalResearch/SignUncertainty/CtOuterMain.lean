@@ -213,7 +213,7 @@ theorem norm_outerGbar_right {ε : ℝ} (hε : ε = 1 ∨ ε = -1) (τ : ℝ) :
   rw [← h2, norm_outerGbar_left hε]
 
 /-- **`ct:outer` (1), decay.** `|G_ε(σ + iτ)| ≤ C (1 + |τ|)⁻¹` on the closed strip. -/
-theorem outerGbar_bound {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
+theorem outerGbar_bound {ε : ℝ} :
     ∃ C : ℝ, ∀ ζ ∈ closedStrip, ‖outerGbar ε ζ‖ ≤ C / (1 + |ζ.im|) := by
   obtain ⟨C₁, hC₁⟩ := re_outerHbar_bound
   refine ⟨Real.exp C₁, fun ζ hζ => ?_⟩

@@ -39,8 +39,7 @@ lemma cpow_half_I_mul {τ : ℝ} (hτ : 0 < τ) :
   congr 1; ring
 
 lemma cpow_half_sq (z : ℂ) : (z ^ (1 / 2 : ℂ)) ^ 2 = z := by
-  have := Complex.cpow_nat_inv_pow z (n := 2) (by norm_num)
-  simpa [one_div] using this
+  simp
 
 lemma one_sub_I_mul_eq {τ : ℝ} :
     1 - Complex.I * (τ : ℂ) = (Real.sqrt (1 + τ ^ 2) : ℂ) * Complex.exp (-(Complex.I * (Real.arctan τ : ℝ))) := by

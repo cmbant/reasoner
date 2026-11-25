@@ -264,7 +264,7 @@ lemma differentiableOn_farPart {y₀ δ : ℝ} (hδ : 0 < δ) :
 noncomputable def nearJ (v : ℂ → ℂ) (a b : ℝ) (w : ℂ) : ℂ :=
   ∫ t in Icc a b, ((1 / (π : ℂ)) * dslope v (t : ℂ) w + v (t : ℂ) * kappaFn ((t : ℂ) - w))
 
-lemma differentiableOn_nearJ {y₀ δ R : ℝ} {v : ℂ → ℂ} (hδ : 0 < δ) (hδ2 : δ ≤ 1 / 2) (hδR : δ < R)
+lemma differentiableOn_nearJ {y₀ δ R : ℝ} {v : ℂ → ℂ} (hδ2 : δ ≤ 1 / 2) (hδR : δ < R)
     (hv : DifferentiableOn ℂ v (ball (y₀ : ℂ) R)) :
     DifferentiableOn ℂ (nearJ v (y₀ - δ) (y₀ + δ)) (ball (y₀ : ℂ) δ) := by
   have hball : IsOpen (ball (y₀ : ℂ) R) := isOpen_ball
@@ -455,7 +455,7 @@ theorem differentiableOn_contH {y₀ δ R : ℝ} {v : ℂ → ℂ} (hδ : 0 < δ
     DifferentiableOn ℂ (contH v y₀ δ) (ball (Complex.I * (y₀ : ℂ)) δ) := by
   have hw : ∀ ζ ∈ ball (Complex.I * (y₀ : ℂ)) δ, wOf ζ ∈ ball (y₀ : ℂ) δ := fun ζ hζ => wOf_mem_ball hζ
   have hwd := differentiable_wOf
-  have h1 := differentiableOn_nearJ hδ hδ2 hδR hv
+  have h1 := differentiableOn_nearJ hδ2 hδR hv
   have h2 : DifferentiableOn ℂ (fun ζ => v (wOf ζ)) (ball (Complex.I * (y₀ : ℂ)) δ) :=
     (hv.mono (ball_subset_ball hδR.le)).comp hwd.differentiableOn hw
   have h3 := (differentiableOn_logPart (y₀ := y₀) (δ := δ)).comp hwd.differentiableOn hw
@@ -564,7 +564,7 @@ lemma nearJ_center_im {y₀ δ R : ℝ} {v : ℂ → ℂ} (hδ : 0 < δ) (hδ2 :
   rw [this]
   exact Complex.ofReal_im _
 
-lemma logPart_center (y₀ δ : ℝ) (hδ : 0 < δ) :
+lemma logPart_center (y₀ δ : ℝ) :
     logPart (y₀ - δ) (y₀ + δ) (y₀ : ℂ) = -(Complex.I * π) := by
   unfold logPart
   have h1 : ((y₀ + δ : ℝ) : ℂ) - (y₀ : ℂ) = (δ : ℂ) := by push_cast; ring
@@ -578,7 +578,7 @@ theorem re_contH_center {y₀ δ R : ℝ} {v : ℂ → ℂ} (hδ : 0 < δ) (hδ2
     (hvu : ∀ t : ℝ, |t - y₀| < R → v (t : ℂ) = (uR t : ℂ)) :
     (contH v y₀ δ (Complex.I * (y₀ : ℂ))).re = uR y₀ := by
   unfold contH
-  rw [wOf_center, logPart_center y₀ δ hδ]
+  rw [wOf_center, logPart_center y₀ δ]
   have hy : |y₀ - y₀| < R := by simp; linarith
   have e2 := hvu y₀ hy
   have hpi : (π : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_pos.ne'

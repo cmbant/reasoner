@@ -93,7 +93,7 @@ lemma re_tan_pos {w : ℂ} (h0 : 0 < w.re) (h1 : w.re < π / 2) : 0 < (Complex.t
   have hcim : (Complex.cos w).im = -(Real.sin w.re * Real.sinh w.im) := by
     conv_lhs => rw [cos_eq_re_im]
     simp only [Complex.sub_im, Complex.ofReal_im, Complex.mul_im, Complex.I_re, mul_zero,
-      Complex.ofReal_re, Complex.I_im, mul_one, zero_add, zero_sub, add_zero]
+      Complex.ofReal_re, Complex.I_im, mul_one, zero_sub, add_zero]
   rw [hre, him, hcre, hcim]
   have hcosh := Real.cosh_sq w.im
   have : Real.sin w.re * Real.cosh w.im * (Real.cos w.re * Real.cosh w.im) / Complex.normSq (Complex.cos w) +
