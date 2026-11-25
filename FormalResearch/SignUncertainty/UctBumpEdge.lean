@@ -15,8 +15,8 @@ With `BumpProfile` (`b δ M α β K B`) of `UctBumpSymbol` and `UctBumpSymbolAdm
 * `bump_holder_zero`: (M2) at `ζ = 0`.  `bump_stripAdmissFull`: `StripAdmissFullData (1/2)`, the full target of `uct:admiss` (parts (1)-(3)).
 * Method for the edge at `0`.  The boundary derivatives of `B̂(icτ)` are conditionally convergent (`x B`, `x² B` are not integrable for `β = 3/2`), so the edge trace is represented through
   absolutely convergent integrals `g(τ) = κ s^{-4} P_0[B^{(4)}](s)`, `s = icτ` (four integrations by parts, `edgeE0_eq`) and differentiated twice in the real parameter `τ`
-  (`hasDerivAt_lapW_param`, `hasDerivAt_edgeE`).  The bounds near `0` come from the damped transform `s = icτ + η`, `η ↓ 0`: for `Re s > 0`, `|s| ≤ 1`,
-  `|P_j[B](s)| ≤ C|s|^{1/2-j}` (`lapW_bound`: split at `x = 1/|s|`, `j+1` integrations by parts on the tail `tail_iter`, `tail_bound`, `head_bound`), and `η → 0` is taken through the continuity of the
+  (`hasDerivAt_bumpLapW_param`, `hasDerivAt_edgeE`).  The bounds near `0` come from the damped transform `s = icτ + η`, `η ↓ 0`: for `Re s > 0`, `|s| ≤ 1`,
+  `|P_j[B](s)| ≤ C|s|^{1/2-j}` (`bumpLapW_bound`: split at `x = 1/|s|`, `j+1` integrations by parts on the tail `tail_iter`, `tail_bound`, `head_bound`), and `η → 0` is taken through the continuity of the
   explicit representation (`hlimit` inside the proof of `bump_stripEdge0`); `holder_zero` is `|B̂(s) - B̂(0)| ≤ C|s|^{1/2}`.
 
 Class: proved, no hypotheses.  Axiom guards are at the end.
@@ -34,21 +34,21 @@ lemma norm_mul_exp (a b : ℝ) : ‖a * Real.exp b‖ = Real.exp b * ‖a‖ := 
   rw [norm_mul, Real.norm_eq_abs (Real.exp b), abs_of_pos (Real.exp_pos _)]; ring
 
 /-- The weighted Laplace integral `P_m[f](s) = ∫ e^{-sx} x^m f(x) dx`. -/
-noncomputable def lapW (f : ℝ → ℝ) (m : ℕ) (s : ℂ) : ℂ := ∫ x : ℝ, Complex.exp (-s * (x : ℂ)) * (((x ^ m * f x : ℝ)) : ℂ)
+noncomputable def bumpLapW (f : ℝ → ℝ) (m : ℕ) (s : ℂ) : ℂ := ∫ x : ℝ, Complex.exp (-s * (x : ℂ)) * (((x ^ m * f x : ℝ)) : ℂ)
 
-lemma norm_exp_neg_mul (s : ℂ) (x : ℝ) : ‖Complex.exp (-s * (x : ℂ))‖ = Real.exp (-(s.re * x)) := by
+lemma bump_norm_exp_neg_mul (s : ℂ) (x : ℝ) : ‖Complex.exp (-s * (x : ℂ))‖ = Real.exp (-(s.re * x)) := by
   rw [Complex.norm_exp]; congr 1
   simp only [Complex.mul_re, Complex.neg_re, Complex.ofReal_re, Complex.ofReal_im, mul_zero, sub_zero, neg_mul]
 
 /-- `s ↦ P_m[f](s)` is continuous on `Re s ≥ 0` when `x^m f` is integrable and `f` is supported in `[0,∞)`. -/
-lemma continuousOn_lapW {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ x : ℝ, x < 0 → f x = 0) {m : ℕ}
-    (hI : Integrable (fun x : ℝ => x ^ m * f x)) : ContinuousOn (lapW f m) {s : ℂ | 0 ≤ s.re} := by
-  unfold lapW
+lemma continuousOn_bumpLapW {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ x : ℝ, x < 0 → f x = 0) {m : ℕ}
+    (hI : Integrable (fun x : ℝ => x ^ m * f x)) : ContinuousOn (bumpLapW f m) {s : ℂ | 0 ≤ s.re} := by
+  unfold bumpLapW
   refine continuousOn_of_dominated (bound := fun x => ‖x ^ m * f x‖) (fun s _ => ?_) (fun s hs => ?_) hI.norm (ae_of_all _ fun x => ?_)
   · exact ((by fun_prop : Continuous fun x : ℝ => Complex.exp (-s * (x : ℂ))).mul
       (Complex.continuous_ofReal.comp (by fun_prop : Continuous fun x : ℝ => x ^ m * f x))).aestronglyMeasurable
   · refine ae_of_all _ fun x => ?_
-    rw [norm_mul, norm_exp_neg_mul, Complex.norm_real]
+    rw [norm_mul, bump_norm_exp_neg_mul, Complex.norm_real]
     rcases lt_or_ge x 0 with hx | hx
     · rw [hz x hx]; simp
     · have : Real.exp (-(s.re * x)) ≤ 1 := Real.exp_le_one_iff.mpr (by nlinarith [mul_nonneg hs hx])
@@ -57,11 +57,11 @@ lemma continuousOn_lapW {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ x : ℝ,
   · exact (by fun_prop : Continuous fun s : ℂ => Complex.exp (-s * (x : ℂ)) * (((x ^ m * f x : ℝ)) : ℂ)).continuousOn
 
 /-- Differentiation in the real parameter `τ` along the line `Re s = η ≥ 0`. -/
-lemma hasDerivAt_lapW_param {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ x : ℝ, x < 0 → f x = 0) {m : ℕ} {η : ℝ} (hη : 0 ≤ η) (c τ : ℝ)
+lemma hasDerivAt_bumpLapW_param {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ x : ℝ, x < 0 → f x = 0) {m : ℕ} {η : ℝ} (hη : 0 ≤ η) (c τ : ℝ)
     (hI0 : Integrable (fun x : ℝ => x ^ m * f x * Real.exp (-(η * x))))
     (hI1 : Integrable (fun x : ℝ => x ^ (m + 1) * f x * Real.exp (-(η * x)))) :
-    HasDerivAt (fun τ : ℝ => lapW f m (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)))
-      (-((c : ℂ) * Complex.I) * lapW f (m + 1) (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ))) τ := by
+    HasDerivAt (fun τ : ℝ => bumpLapW f m (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)))
+      (-((c : ℂ) * Complex.I) * bumpLapW f (m + 1) (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ))) τ := by
   have hd := hasDerivAt_integral_of_dominated_loc_of_deriv_le (μ := volume) (x₀ := τ) (s := Set.univ)
     (F := fun τ x => Complex.exp (-(((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) * (x : ℂ)) * (((x ^ m * f x : ℝ)) : ℂ))
     (F' := fun τ x => -((c : ℂ) * Complex.I) * (Complex.exp (-(((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) * (x : ℂ)) * (((x ^ (m + 1) * f x : ℝ)) : ℂ)))
@@ -73,14 +73,14 @@ lemma hasDerivAt_lapW_param {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ x : 
       refine (hI0.norm.mono' ?_ (ae_of_all _ fun x => ?_))
       · exact ((by fun_prop : Continuous fun x : ℝ => Complex.exp (-(((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) * (x : ℂ))).mul
           (Complex.continuous_ofReal.comp (by fun_prop : Continuous fun x : ℝ => x ^ m * f x))).aestronglyMeasurable
-      · rw [norm_mul, norm_exp_neg_mul, Complex.norm_real]
+      · rw [norm_mul, bump_norm_exp_neg_mul, Complex.norm_real]
         simp only [Complex.add_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, Complex.I_re, Complex.I_im, mul_zero, zero_mul,
           sub_zero, add_zero, zero_add, mul_one, zero_sub, sub_self]
         rw [norm_mul_exp])
     ((by fun_prop : Continuous fun x : ℝ => -((c : ℂ) * Complex.I) * (Complex.exp (-(((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) * (x : ℂ)) *
         (((x ^ (m + 1) * f x : ℝ)) : ℂ))).aestronglyMeasurable)
     (ae_of_all _ fun x τ' _ => by
-      rw [norm_mul, norm_mul, norm_exp_neg_mul, Complex.norm_real, norm_neg, norm_mul, Complex.norm_real, Complex.norm_I, mul_one,
+      rw [norm_mul, norm_mul, bump_norm_exp_neg_mul, Complex.norm_real, norm_neg, norm_mul, Complex.norm_real, Complex.norm_I, mul_one,
         Real.norm_eq_abs]
       simp only [Complex.add_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, Complex.I_re, Complex.I_im, mul_zero, zero_mul,
         sub_zero, add_zero, zero_add, mul_one, zero_sub, sub_self]
@@ -139,11 +139,11 @@ lemma integrable_mul_exp {g : ℝ → ℝ} (hg : Integrable g) (hz : ∀ x : ℝ
 
 
 /-- `E₀ = κ s^{-4} P_0[f]`, `E₁ = E₀'`, `E₂ = E₁'` in the variable `s`, with `s = icτ + η`. -/
-noncomputable def edgeE0 (f : ℝ → ℝ) (κ : ℂ) (s : ℂ) : ℂ := κ * s ^ (-4 : ℤ) * lapW f 0 s
+noncomputable def edgeE0 (f : ℝ → ℝ) (κ : ℂ) (s : ℂ) : ℂ := κ * s ^ (-4 : ℤ) * bumpLapW f 0 s
 noncomputable def edgeE1 (f : ℝ → ℝ) (κ : ℂ) (c : ℝ) (s : ℂ) : ℂ :=
-  -(κ * ((c : ℂ) * Complex.I)) * (4 * s ^ (-5 : ℤ) * lapW f 0 s + s ^ (-4 : ℤ) * lapW f 1 s)
+  -(κ * ((c : ℂ) * Complex.I)) * (4 * s ^ (-5 : ℤ) * bumpLapW f 0 s + s ^ (-4 : ℤ) * bumpLapW f 1 s)
 noncomputable def edgeE2 (f : ℝ → ℝ) (κ : ℂ) (c : ℝ) (s : ℂ) : ℂ :=
-  -(κ * (c : ℂ) ^ 2) * (20 * s ^ (-6 : ℤ) * lapW f 0 s + 8 * s ^ (-5 : ℤ) * lapW f 1 s + s ^ (-4 : ℤ) * lapW f 2 s)
+  -(κ * (c : ℂ) ^ 2) * (20 * s ^ (-6 : ℤ) * bumpLapW f 0 s + 8 * s ^ (-5 : ℤ) * bumpLapW f 1 s + s ^ (-4 : ℤ) * bumpLapW f 2 s)
 
 lemma hasDerivAt_edgeE {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ x : ℝ, x < 0 → f x = 0)
     (hI : ∀ m : ℕ, m ≤ 2 → Integrable (fun x : ℝ => x ^ m * f x)) {η : ℝ} (hη : 0 ≤ η) (κ : ℂ) (c τ : ℝ)
@@ -158,8 +158,8 @@ lemma hasDerivAt_edgeE {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ x : ℝ, 
     exact ((this.mul_const Complex.I).add_const (η : ℂ)).congr_deriv (by simp)
   have hz' : ∀ n : ℤ, HasDerivAt (fun τ : ℝ => (p τ) ^ n) ((n : ℂ) * (p τ) ^ (n - 1) * ((c : ℂ) * Complex.I)) τ := fun n =>
     (hasDerivAt_zpow n (p τ) (Or.inl hne)).comp τ hpd
-  have hQ : ∀ m : ℕ, m ≤ 1 → HasDerivAt (fun τ : ℝ => lapW f m (p τ)) (-((c : ℂ) * Complex.I) * lapW f (m + 1) (p τ)) τ := fun m hm =>
-    hasDerivAt_lapW_param hf hz hη c τ (integrable_mul_exp (hI m (by omega)) (fun x hx => by rw [hz x hx, mul_zero]) hη)
+  have hQ : ∀ m : ℕ, m ≤ 1 → HasDerivAt (fun τ : ℝ => bumpLapW f m (p τ)) (-((c : ℂ) * Complex.I) * bumpLapW f (m + 1) (p τ)) τ := fun m hm =>
+    hasDerivAt_bumpLapW_param hf hz hη c τ (integrable_mul_exp (hI m (by omega)) (fun x hx => by rw [hz x hx, mul_zero]) hη)
       (integrable_mul_exp (hI (m + 1) (by omega)) (fun x hx => by rw [hz x hx, mul_zero]) hη)
   have h4 := hz' (-4)
   have h5 := hz' (-5)
@@ -185,15 +185,15 @@ lemma hasDerivAt_edgeE {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ x : ℝ, 
 namespace BumpProfile
 variable {b δ M α β : ℝ} {K : ℕ → ℝ} {B : ℝ → ℝ}
 
-lemma lapW_zero_B (s : ℂ) : lapW B 0 s = bumpLaplace B s := by
-  unfold lapW bumpLaplace; simp
+lemma bumpLapW_zero_B (s : ℂ) : bumpLapW B 0 s = bumpLaplace B s := by
+  unfold bumpLapW bumpLaplace; simp
 
 /-- Representation `F(s) = s^{-4} P_0[B^{(4)}](s)` on `Re s ≥ 0`, `s ≠ 0`. -/
 lemma edgeE0_eq (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ : b * δ ≤ 1) (hβ : 1 < β) (κ : ℂ) {s : ℂ} (hs : 0 ≤ s.re) (hs0 : s ≠ 0) :
     edgeE0 (iteratedDeriv 4 B) κ s = κ * bumpLaplace B s := by
   have h4 := h.laplace_pow hb0 hbδ hβ hs 4
-  have : lapW (iteratedDeriv 4 B) 0 s = s ^ 4 * bumpLaplace B s := by
-    rw [← h4]; unfold lapW; simp
+  have : bumpLapW (iteratedDeriv 4 B) 0 s = s ^ 4 * bumpLaplace B s := by
+    rw [← h4]; unfold bumpLapW; simp
   unfold edgeE0
   rw [this, zpow_neg, zpow_ofNat]
   field_simp
@@ -228,9 +228,9 @@ lemma f4_data (h : BumpProfile b δ M α β K B) (hbδ : b * δ ≤ 1) (hb0 : 0 
 lemma edgeE_eq_laplace (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ : b * δ ≤ 1) (hβ : 1 < β) {η : ℝ} (hη : 0 < η)
     (κ : ℂ) (c τ : ℝ) :
     edgeE1 (iteratedDeriv 4 B) κ c (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) =
-        -(κ * ((c : ℂ) * Complex.I)) * lapW B 1 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) ∧
+        -(κ * ((c : ℂ) * Complex.I)) * bumpLapW B 1 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) ∧
       edgeE2 (iteratedDeriv 4 B) κ c (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) =
-        κ * ((c : ℂ) * Complex.I) ^ 2 * lapW B 2 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) := by
+        κ * ((c : ℂ) * Complex.I) ^ 2 * bumpLapW B 2 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) := by
   obtain ⟨hf, hz, hI⟩ := h.f4_data hbδ hb0 hβ
   have hz0 : ∀ x : ℝ, x < 0 → B x = 0 := fun x hx => h.support x (by linarith)
   have hBc : Continuous B := by simpa using (h.contDiff_iteratedDeriv 0).continuous
@@ -238,26 +238,26 @@ lemma edgeE_eq_laplace (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (
   have hpne : ∀ τ : ℝ, ((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ) ≠ 0 := fun τ h0 => by
     have := congrArg Complex.re h0; rw [hpre] at this; simp at this; linarith
   have e0 : ∀ τ : ℝ, edgeE0 (iteratedDeriv 4 B) κ (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) =
-      κ * lapW B 0 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) := fun τ => by
-    rw [lapW_zero_B]; exact h.edgeE0_eq hb0 hbδ hβ κ (by rw [hpre]; exact hη.le) (hpne τ)
-  have hB0 := hasDerivAt_lapW_param hBc hz0 (m := 0) hη.le c τ (h.integrable_pow_B_exp hb0 hbδ hβ 0 hη) (h.integrable_pow_B_exp hb0 hbδ hβ 1 hη)
-  have hB1 := hasDerivAt_lapW_param hBc hz0 (m := 1) hη.le c τ (h.integrable_pow_B_exp hb0 hbδ hβ 1 hη) (h.integrable_pow_B_exp hb0 hbδ hβ 2 hη)
+      κ * bumpLapW B 0 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) := fun τ => by
+    rw [bumpLapW_zero_B]; exact h.edgeE0_eq hb0 hbδ hβ κ (by rw [hpre]; exact hη.le) (hpne τ)
+  have hB0 := hasDerivAt_bumpLapW_param hBc hz0 (m := 0) hη.le c τ (h.integrable_pow_B_exp hb0 hbδ hβ 0 hη) (h.integrable_pow_B_exp hb0 hbδ hβ 1 hη)
+  have hB1 := hasDerivAt_bumpLapW_param hBc hz0 (m := 1) hη.le c τ (h.integrable_pow_B_exp hb0 hbδ hβ 1 hη) (h.integrable_pow_B_exp hb0 hbδ hβ 2 hη)
   obtain ⟨hA1, hA2⟩ := hasDerivAt_edgeE hf hz hI hη.le κ c τ (hpne τ)
   have u1 : edgeE1 (iteratedDeriv 4 B) κ c (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) =
-      -(κ * ((c : ℂ) * Complex.I)) * lapW B 1 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) := by
+      -(κ * ((c : ℂ) * Complex.I)) * bumpLapW B 1 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) := by
     have hfun : (fun τ : ℝ => edgeE0 (iteratedDeriv 4 B) κ (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ))) =
-        fun τ : ℝ => κ * lapW B 0 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) := funext e0
+        fun τ : ℝ => κ * bumpLapW B 0 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) := funext e0
     rw [hfun] at hA1
     have := hA1.unique (hB0.const_mul κ)
     rw [this]; ring
   refine ⟨u1, ?_⟩
   have hfun : (fun τ : ℝ => edgeE1 (iteratedDeriv 4 B) κ c (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ))) =
-      fun τ : ℝ => -(κ * ((c : ℂ) * Complex.I)) * lapW B 1 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) := by
+      fun τ : ℝ => -(κ * ((c : ℂ) * Complex.I)) * bumpLapW B 1 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) := by
     funext τ'
-    have hB0' := hasDerivAt_lapW_param hBc hz0 (m := 0) hη.le c τ' (h.integrable_pow_B_exp hb0 hbδ hβ 0 hη) (h.integrable_pow_B_exp hb0 hbδ hβ 1 hη)
+    have hB0' := hasDerivAt_bumpLapW_param hBc hz0 (m := 0) hη.le c τ' (h.integrable_pow_B_exp hb0 hbδ hβ 0 hη) (h.integrable_pow_B_exp hb0 hbδ hβ 1 hη)
     obtain ⟨hA1', -⟩ := hasDerivAt_edgeE hf hz hI hη.le κ c τ' (hpne τ')
     have hfun0 : (fun τ : ℝ => edgeE0 (iteratedDeriv 4 B) κ (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ))) =
-        fun τ : ℝ => κ * lapW B 0 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) := funext e0
+        fun τ : ℝ => κ * bumpLapW B 0 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)) := funext e0
     rw [hfun0] at hA1'
     have := hA1'.unique (hB0'.const_mul κ)
     rw [this]; ring
@@ -268,7 +268,7 @@ lemma edgeE_eq_laplace (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (
 end BumpProfile
 
 
-lemma norm_exp_neg_mul' (s : ℂ) (x : ℝ) : ‖Complex.exp (-s * (x : ℂ))‖ = Real.exp (-(s.re * x)) := by
+lemma bump_norm_exp_neg_mul' (s : ℂ) (x : ℝ) : ‖Complex.exp (-s * (x : ℂ))‖ = Real.exp (-(s.re * x)) := by
   rw [Complex.norm_exp]; congr 1
   simp only [Complex.mul_re, Complex.neg_re, Complex.ofReal_re, Complex.ofReal_im, mul_zero, sub_zero, neg_mul]
 
@@ -306,7 +306,7 @@ lemma ibp_tail {u u' : ℝ → ℝ} {R : ℝ} (hR : 1 ≤ R) (hu : ∀ x ∈ Ici
       ‖Complex.exp (-s * (x : ℂ)) * (w x : ℂ)‖ ≤ |A| * (x ^ p * Real.exp (-(a * x))) := by
     intro w A p hw x hx
     have hx' : R ≤ x := le_of_lt hx
-    rw [norm_mul, norm_exp_neg_mul', Complex.norm_real, Real.norm_eq_abs]
+    rw [norm_mul, bump_norm_exp_neg_mul', Complex.norm_real, Real.norm_eq_abs]
     calc Real.exp (-(s.re * x)) * |w x| ≤ Real.exp (-(s.re * x)) * (A * x ^ p) := by gcongr; exact hw x hx'
       _ ≤ Real.exp (-(s.re * x)) * (|A| * x ^ p) := by
           have : 0 ≤ x ^ p := Real.rpow_nonneg (by linarith) _
@@ -369,7 +369,7 @@ lemma tail_iter {R : ℝ} (hR : 1 ≤ R) {s : ℂ} (hs : 0 < s.re) (N : ℕ) :
       (g := fun x => ‖u x‖) hi.norm (by
         filter_upwards [ae_restrict_mem measurableSet_Ioi] with x hx
         have hx0 : 0 < x := lt_trans hR0 hx
-        rw [norm_mul, norm_exp_neg_mul', Complex.norm_real]
+        rw [norm_mul, bump_norm_exp_neg_mul', Complex.norm_real]
         have : Real.exp (-(s.re * x)) ≤ 1 := Real.exp_le_one_iff.mpr (by nlinarith [mul_pos hs hx0])
         calc Real.exp (-(s.re * x)) * ‖u x‖ ≤ 1 * ‖u x‖ := by gcongr
           _ = _ := one_mul _)
@@ -397,7 +397,7 @@ lemma tail_iter {R : ℝ} (hR : 1 ≤ R) {s : ℂ} (hs : 0 < s.re) (N : ℕ) :
       rw [← key]; field_simp
     rw [hI, norm_mul, norm_inv]
     have hexp : ‖Complex.exp (-s * (R : ℂ)) * (u R : ℂ)‖ ≤ |u R| := by
-      rw [norm_mul, norm_exp_neg_mul', Complex.norm_real, Real.norm_eq_abs]
+      rw [norm_mul, bump_norm_exp_neg_mul', Complex.norm_real, Real.norm_eq_abs]
       have : Real.exp (-(s.re * R)) ≤ 1 := Real.exp_le_one_iff.mpr (by nlinarith [mul_pos hs hR0])
       calc Real.exp (-(s.re * R)) * |u R| ≤ 1 * |u R| := by gcongr
         _ = _ := one_mul _
@@ -600,8 +600,8 @@ lemma head_bound (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ :
         nlinarith
     _ = _ := by ring
 
-lemma lapW_bound (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ : b * δ ≤ 1) (hβ : 3 / 2 ≤ β) (hM : 0 ≤ M) (j : ℕ) (hj : 1 ≤ j) :
-    ∃ C : ℝ, 0 ≤ C ∧ ∀ s : ℂ, 0 < s.re → ‖s‖ ≤ 1 → ‖lapW B j s‖ ≤ C * (‖s‖⁻¹) ^ ((j : ℝ) - 1 / 2) := by
+lemma bumpLapW_bound (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ : b * δ ≤ 1) (hβ : 3 / 2 ≤ β) (hM : 0 ≤ M) (j : ℕ) (hj : 1 ≤ j) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ s : ℂ, 0 < s.re → ‖s‖ ≤ 1 → ‖bumpLapW B j s‖ ≤ C * (‖s‖⁻¹) ^ ((j : ℝ) - 1 / 2) := by
   obtain ⟨Ct, hCt0, hCt⟩ := h.tail_bound hβ j
   have hβ1 : 1 < β := by linarith
   refine ⟨(∫ x : ℝ, ‖B x‖) + 2 * |K 0| * M + Ct, by
@@ -617,8 +617,8 @@ lemma lapW_bound (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ :
     · have hBc : Continuous B := by simpa using (h.contDiff_iteratedDeriv 0).continuous
       exact ((by fun_prop : Continuous fun x : ℝ => Complex.exp (-s * (x : ℂ))).mul
         (Complex.continuous_ofReal.comp (by fun_prop : Continuous fun x : ℝ => x ^ j * B x))).aestronglyMeasurable
-    · rw [norm_mul, norm_exp_neg_mul, Complex.norm_real, norm_mul_exp]
-  unfold lapW
+    · rw [norm_mul, bump_norm_exp_neg_mul, Complex.norm_real, norm_mul_exp]
+  unfold bumpLapW
   rw [← setIntegral_univ, ← Iic_union_Ioi (a := R), setIntegral_union (Set.disjoint_left.mpr fun x hx hx' => absurd hx (not_le.mpr hx'))
     measurableSet_Ioi hfull.integrableOn hfull.integrableOn]
   refine (norm_add_le _ _).trans ?_
@@ -627,7 +627,7 @@ lemma lapW_bound (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ :
     filter_upwards [ae_restrict_mem measurableSet_Iic] with x hx
     rcases lt_or_ge x (b * δ) with hx' | hx'
     · rw [h.support x hx']; simp
-    · rw [norm_mul, norm_exp_neg_mul, Complex.norm_real]
+    · rw [norm_mul, bump_norm_exp_neg_mul, Complex.norm_real]
       have : Real.exp (-(s.re * x)) ≤ 1 := Real.exp_le_one_iff.mpr (by nlinarith [mul_nonneg hs.le (hb0.trans hx')])
       calc Real.exp (-(s.re * x)) * ‖x ^ j * B x‖ ≤ 1 * ‖x ^ j * B x‖ := by gcongr
         _ = _ := one_mul _
@@ -641,7 +641,7 @@ lemma lapW_bound (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ :
 lemma norm_exp_sub_one_le_lin {s : ℂ} (hs : 0 ≤ s.re) {x : ℝ} (hx : 0 ≤ x) :
     ‖Complex.exp (-s * (x : ℂ)) - 1‖ ≤ 2 * (‖s‖ * x) ∧ ‖Complex.exp (-s * (x : ℂ)) - 1‖ ≤ 2 := by
   have hn : ‖Complex.exp (-s * (x : ℂ))‖ ≤ 1 := by
-    rw [norm_exp_neg_mul]; exact Real.exp_le_one_iff.mpr (by nlinarith [mul_nonneg hs hx])
+    rw [bump_norm_exp_neg_mul]; exact Real.exp_le_one_iff.mpr (by nlinarith [mul_nonneg hs hx])
   have h2 : ‖Complex.exp (-s * (x : ℂ)) - 1‖ ≤ 2 := by
     calc _ ≤ ‖Complex.exp (-s * (x : ℂ))‖ + ‖(1 : ℂ)‖ := norm_sub_le _ _
       _ ≤ 1 + 1 := by simp only [norm_one]; linarith
@@ -750,11 +750,11 @@ lemma holder_zero (h : BumpProfile b δ M α β K B) (hb0 : 0 ≤ b * δ) (hbδ 
 
 end BumpProfile
 
-lemma norm_lapW_le {f : ℝ → ℝ} (hz : ∀ x : ℝ, x < 0 → f x = 0) {s : ℂ} (hs : 0 ≤ s.re) (m : ℕ)
-    (hi : Integrable (fun x : ℝ => x ^ m * f x)) : ‖lapW f m s‖ ≤ ∫ x : ℝ, ‖x ^ m * f x‖ := by
-  unfold lapW
+lemma norm_bumpLapW_le {f : ℝ → ℝ} (hz : ∀ x : ℝ, x < 0 → f x = 0) {s : ℂ} (hs : 0 ≤ s.re) (m : ℕ)
+    (hi : Integrable (fun x : ℝ => x ^ m * f x)) : ‖bumpLapW f m s‖ ≤ ∫ x : ℝ, ‖x ^ m * f x‖ := by
+  unfold bumpLapW
   refine norm_integral_le_of_norm_le hi.norm (ae_of_all _ fun x => ?_)
-  rw [norm_mul, norm_exp_neg_mul, Complex.norm_real]
+  rw [norm_mul, bump_norm_exp_neg_mul, Complex.norm_real]
   rcases lt_or_ge x 0 with hx | hx
   · rw [hz x hx]; simp
   · have : Real.exp (-(s.re * x)) ≤ 1 := Real.exp_le_one_iff.mpr (by nlinarith [mul_nonneg hs hx])
@@ -783,9 +783,9 @@ lemma edgeE_norm_le {f : ℝ → ℝ} (hz : ∀ x : ℝ, x < 0 → f x = 0) (hI 
   have e4 : ‖s ^ (-4 : ℤ)‖ = t ^ 4 := by simpa using hz4 4
   have e5 : ‖s ^ (-5 : ℤ)‖ = t ^ 5 := by simpa using hz4 5
   have e6 : ‖s ^ (-6 : ℤ)‖ = t ^ 6 := by simpa using hz4 6
-  have q0 : ‖lapW f 0 s‖ ≤ Q0 := norm_lapW_le hz hs 0 (hI 0 (by norm_num))
-  have q1 : ‖lapW f 1 s‖ ≤ Q1 := norm_lapW_le hz hs 1 (hI 1 (by norm_num))
-  have q2 : ‖lapW f 2 s‖ ≤ Q2 := norm_lapW_le hz hs 2 (hI 2 (by norm_num))
+  have q0 : ‖bumpLapW f 0 s‖ ≤ Q0 := norm_bumpLapW_le hz hs 0 (hI 0 (by norm_num))
+  have q1 : ‖bumpLapW f 1 s‖ ≤ Q1 := norm_bumpLapW_le hz hs 1 (hI 1 (by norm_num))
+  have q2 : ‖bumpLapW f 2 s‖ ≤ Q2 := norm_bumpLapW_le hz hs 2 (hI 2 (by norm_num))
   have hcn : ‖(c : ℂ)‖ = c := by rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hc]
   have hκn : ‖(κ : ℂ)‖ = κ := by rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hκ]
   have hT4 : 0 ≤ t ^ 4 := by positivity
@@ -818,19 +818,19 @@ lemma edgeE_norm_le {f : ℝ → ℝ} (hz : ∀ x : ℝ, x < 0 → f x = 0) (hI 
   refine ⟨?_, ?_, ?_⟩
   · unfold edgeE0
     rw [norm_mul, norm_mul, hκn, e4]
-    calc κ * t ^ 4 * ‖lapW f 0 s‖ ≤ κ * t ^ 4 * Q0 := by gcongr
+    calc κ * t ^ 4 * ‖bumpLapW f 0 s‖ ≤ κ * t ^ 4 * Q0 := by gcongr
       _ = t ^ 4 * (κ * Q0) := by ring
       _ ≤ t ^ 4 * Y := by gcongr; exact hk0 Q0 hQ00 hQ0S
       _ ≤ 20 * Y * (t ^ 4 + t ^ 5 + t ^ 6) := by linarith [mul_nonneg hY0 hT4, mul_nonneg hY0 hT5, mul_nonneg hY0 hT6]
   · unfold edgeE1
     rw [norm_mul, norm_neg, norm_mul, hκn, norm_mul, hcn, Complex.norm_I, mul_one]
-    have hin : ‖4 * s ^ (-5 : ℤ) * lapW f 0 s + s ^ (-4 : ℤ) * lapW f 1 s‖ ≤ 4 * t ^ 5 * Q0 + t ^ 4 * Q1 := by
+    have hin : ‖4 * s ^ (-5 : ℤ) * bumpLapW f 0 s + s ^ (-4 : ℤ) * bumpLapW f 1 s‖ ≤ 4 * t ^ 5 * Q0 + t ^ 4 * Q1 := by
       refine (norm_add_le _ _).trans (add_le_add ?_ ?_)
       · rw [norm_mul, norm_mul, e5]
         have : ‖(4 : ℂ)‖ = 4 := by simp
         rw [this]; gcongr
       · rw [norm_mul, e4]; gcongr
-    calc κ * c * ‖4 * s ^ (-5 : ℤ) * lapW f 0 s + s ^ (-4 : ℤ) * lapW f 1 s‖ ≤ κ * c * (4 * t ^ 5 * Q0 + t ^ 4 * Q1) := by gcongr
+    calc κ * c * ‖4 * s ^ (-5 : ℤ) * bumpLapW f 0 s + s ^ (-4 : ℤ) * bumpLapW f 1 s‖ ≤ κ * c * (4 * t ^ 5 * Q0 + t ^ 4 * Q1) := by gcongr
       _ = 4 * t ^ 5 * (κ * c * Q0) + t ^ 4 * (κ * c * Q1) := by ring
       _ ≤ 4 * t ^ 5 * Y + t ^ 4 * Y := by
           have a := hkc Q0 hQ00 hQ0S
@@ -839,7 +839,7 @@ lemma edgeE_norm_le {f : ℝ → ℝ} (hz : ∀ x : ℝ, x < 0 → f x = 0) (hI 
       _ ≤ 20 * Y * (t ^ 4 + t ^ 5 + t ^ 6) := by linarith [mul_nonneg hY0 hT4, mul_nonneg hY0 hT5, mul_nonneg hY0 hT6]
   · unfold edgeE2
     rw [norm_mul, norm_neg, norm_mul, hκn, norm_pow, hcn]
-    have hin : ‖20 * s ^ (-6 : ℤ) * lapW f 0 s + 8 * s ^ (-5 : ℤ) * lapW f 1 s + s ^ (-4 : ℤ) * lapW f 2 s‖ ≤
+    have hin : ‖20 * s ^ (-6 : ℤ) * bumpLapW f 0 s + 8 * s ^ (-5 : ℤ) * bumpLapW f 1 s + s ^ (-4 : ℤ) * bumpLapW f 2 s‖ ≤
         20 * t ^ 6 * Q0 + 8 * t ^ 5 * Q1 + t ^ 4 * Q2 := by
       refine (norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans (add_le_add ?_ ?_)) ?_)
       · rw [norm_mul, norm_mul, e6]
@@ -849,7 +849,7 @@ lemma edgeE_norm_le {f : ℝ → ℝ} (hz : ∀ x : ℝ, x < 0 → f x = 0) (hI 
         have : ‖(8 : ℂ)‖ = 8 := by simp
         rw [this]; gcongr
       · rw [norm_mul, e4]; gcongr
-    calc κ * c ^ 2 * ‖20 * s ^ (-6 : ℤ) * lapW f 0 s + 8 * s ^ (-5 : ℤ) * lapW f 1 s + s ^ (-4 : ℤ) * lapW f 2 s‖
+    calc κ * c ^ 2 * ‖20 * s ^ (-6 : ℤ) * bumpLapW f 0 s + 8 * s ^ (-5 : ℤ) * bumpLapW f 1 s + s ^ (-4 : ℤ) * bumpLapW f 2 s‖
         ≤ κ * c ^ 2 * (20 * t ^ 6 * Q0 + 8 * t ^ 5 * Q1 + t ^ 4 * Q2) := by gcongr
       _ = 20 * t ^ 6 * (κ * c ^ 2 * Q0) + 8 * t ^ 5 * (κ * c ^ 2 * Q1) + t ^ 4 * (κ * c ^ 2 * Q2) := by ring
       _ ≤ 20 * t ^ 6 * Y + 8 * t ^ 5 * Y + t ^ 4 * Y := by
@@ -863,17 +863,17 @@ lemma continuousOn_edgeE {f : ℝ → ℝ} (hf : Continuous f) (hz : ∀ x : ℝ
     (hI : ∀ m : ℕ, m ≤ 2 → Integrable (fun x : ℝ => x ^ m * f x)) (κ : ℂ) (c : ℝ) :
     ContinuousOn (edgeE0 f κ) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} ∧ ContinuousOn (edgeE1 f κ c) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} ∧
       ContinuousOn (edgeE2 f κ c) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} := by
-  have hl : ∀ m : ℕ, m ≤ 2 → ContinuousOn (lapW f m) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} := fun m hm =>
-    (continuousOn_lapW hf hz (hI m hm)).mono fun s hs => hs.1
+  have hl : ∀ m : ℕ, m ≤ 2 → ContinuousOn (bumpLapW f m) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} := fun m hm =>
+    (continuousOn_bumpLapW hf hz (hI m hm)).mono fun s hs => hs.1
   have hzp : ∀ n : ℤ, ContinuousOn (fun s : ℂ => s ^ n) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} := fun n =>
     (continuousOn_zpow₀ n).mono fun s hs => hs.2
-  have t4 : ContinuousOn (fun s : ℂ => s ^ (-4 : ℤ) * lapW f 1 s) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} := (hzp _).mul (hl 1 (by norm_num))
-  have t4' : ContinuousOn (fun s : ℂ => s ^ (-4 : ℤ) * lapW f 2 s) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} := (hzp _).mul (hl 2 (by norm_num))
-  have t5 : ContinuousOn (fun s : ℂ => 4 * s ^ (-5 : ℤ) * lapW f 0 s) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} :=
+  have t4 : ContinuousOn (fun s : ℂ => s ^ (-4 : ℤ) * bumpLapW f 1 s) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} := (hzp _).mul (hl 1 (by norm_num))
+  have t4' : ContinuousOn (fun s : ℂ => s ^ (-4 : ℤ) * bumpLapW f 2 s) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} := (hzp _).mul (hl 2 (by norm_num))
+  have t5 : ContinuousOn (fun s : ℂ => 4 * s ^ (-5 : ℤ) * bumpLapW f 0 s) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} :=
     (continuousOn_const.mul (hzp _)).mul (hl 0 (by norm_num))
-  have t5' : ContinuousOn (fun s : ℂ => 8 * s ^ (-5 : ℤ) * lapW f 1 s) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} :=
+  have t5' : ContinuousOn (fun s : ℂ => 8 * s ^ (-5 : ℤ) * bumpLapW f 1 s) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} :=
     (continuousOn_const.mul (hzp _)).mul (hl 1 (by norm_num))
-  have t6 : ContinuousOn (fun s : ℂ => 20 * s ^ (-6 : ℤ) * lapW f 0 s) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} :=
+  have t6 : ContinuousOn (fun s : ℂ => 20 * s ^ (-6 : ℤ) * bumpLapW f 0 s) {s : ℂ | 0 ≤ s.re ∧ s ≠ 0} :=
     (continuousOn_const.mul (hzp _)).mul (hl 0 (by norm_num))
   refine ⟨?_, ?_, ?_⟩
   · unfold edgeE0
@@ -941,8 +941,8 @@ theorem bump_stripEdge0 {b α β : ℝ} (hb : 0 < b) (hβ : 3 / 2 ≤ β) (K : �
   obtain ⟨hC0, hC1, hC2⟩ := continuousOn_edgeE hf hz hI (κ : ℂ) c
   obtain ⟨A, hA0, hAb⟩ := edgeE_norm_le hz hI κ c hκ0.le hc.le
   obtain ⟨CH, hCH0, hCH⟩ := h.holder_zero hb0 hbδ hβ hM
-  obtain ⟨C1, hC10, hL1⟩ := h.lapW_bound hb0 hbδ hβ hM 1 le_rfl
-  obtain ⟨C2, hC20, hL2⟩ := h.lapW_bound hb0 hbδ hβ hM 2 (by norm_num)
+  obtain ⟨C1, hC10, hL1⟩ := h.bumpLapW_bound hb0 hbδ hβ hM 1 le_rfl
+  obtain ⟨C2, hC20, hL2⟩ := h.bumpLapW_bound hb0 hbδ hβ hM 2 (by norm_num)
   set p : ℝ → ℂ := fun τ => ((c * τ : ℝ) : ℂ) * Complex.I + ((0 : ℝ) : ℂ) with hp
   have hpn : ∀ τ : ℝ, ‖p τ‖ = c * |τ| := fun τ => by
     rw [hp]; dsimp only; rw [pnorm]; simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero]
@@ -1009,8 +1009,8 @@ theorem bump_stripEdge0 {b α β : ℝ} (hb : 0 < b) (hβ : 3 / 2 ≤ β) (K : �
     set nB : ℝ := ∫ x : ℝ, ‖B x‖ with hnB
     have hnB0 : 0 ≤ nB := integral_nonneg fun x => norm_nonneg _
     have hF0 : ‖bumpLaplace B 0‖ ≤ nB := by
-      have := norm_lapW_le hz0 (s := 0) (by simp) 0 (by simpa using h.integrable_self hbδ hβ1)
-      rw [BumpProfile.lapW_zero_B] at this
+      have := norm_bumpLapW_le hz0 (s := 0) (by simp) 0 (by simpa using h.integrable_self hbδ hβ1)
+      rw [BumpProfile.bumpLapW_zero_B] at this
       simpa [hnB] using this
     have hg0 : ‖stripEdge0 W 0‖ ≤ κ * nB := by
       unfold stripEdge0
@@ -1081,7 +1081,7 @@ theorem bump_stripEdge0 {b α β : ℝ} (hb : 0 < b) (hβ : 3 / 2 ≤ β) (K : �
           rw [(h.edgeE_eq_laplace hb0 hbδ hβ1 hη (κ : ℂ) c τ).1, norm_mul, norm_neg, norm_mul, hκn, norm_mul, hcn, Complex.norm_I, mul_one]
           have hL := hL1 _ (by rw [hqre η hη]; exact hη) (hq η hη hη1).2
           simp only [Nat.cast_one] at hL
-          calc κ * c * ‖lapW B 1 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ))‖ ≤ κ * c * (C1 * (‖((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)‖⁻¹) ^ ((1 : ℝ) - 1 / 2)) := by gcongr
+          calc κ * c * ‖bumpLapW B 1 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ))‖ ≤ κ * c * (C1 * (‖((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)‖⁻¹) ^ ((1 : ℝ) - 1 / 2)) := by gcongr
             _ ≤ κ * c * (C1 * ((c * |τ|)⁻¹) ^ ((1 : ℝ) - 1 / 2)) := by
                 have := hinvle η hη hη1 ((1 : ℝ) - 1 / 2) (by norm_num)
                 gcongr)
@@ -1102,7 +1102,7 @@ theorem bump_stripEdge0 {b α β : ℝ} (hb : 0 < b) (hβ : 3 / 2 ≤ β) (K : �
           rw [(h.edgeE_eq_laplace hb0 hbδ hβ1 hη (κ : ℂ) c τ).2, norm_mul, norm_mul, hκn, norm_pow, norm_mul, hcn, Complex.norm_I, mul_one]
           have hL := hL2 _ (by rw [hqre η hη]; exact hη) (hq η hη hη1).2
           simp only [Nat.cast_ofNat] at hL
-          calc κ * c ^ 2 * ‖lapW B 2 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ))‖ ≤ κ * c ^ 2 * (C2 * (‖((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)‖⁻¹) ^ ((2 : ℝ) - 1 / 2)) := by gcongr
+          calc κ * c ^ 2 * ‖bumpLapW B 2 (((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ))‖ ≤ κ * c ^ 2 * (C2 * (‖((c * τ : ℝ) : ℂ) * Complex.I + (η : ℂ)‖⁻¹) ^ ((2 : ℝ) - 1 / 2)) := by gcongr
             _ ≤ κ * c ^ 2 * (C2 * ((c * |τ|)⁻¹) ^ ((2 : ℝ) - 1 / 2)) := by
                 have := hinvle η hη hη1 ((2 : ℝ) - 1 / 2) (by norm_num)
                 gcongr)
@@ -1252,8 +1252,8 @@ theorem bump_holder_zero {b α β : ℝ} (hb : 0 < b) (hβ : 3 / 2 ≤ β) (K : 
   set nB : ℝ := ∫ x : ℝ, ‖B x‖ with hnB
   have hnB0 : 0 ≤ nB := integral_nonneg fun x => norm_nonneg _
   have hFn : ∀ s : ℂ, 0 ≤ s.re → ‖bumpLaplace B s‖ ≤ nB := fun s hs => by
-    have := norm_lapW_le hz0 hs 0 (by simpa using h.integrable_self hbδ hβ1)
-    rw [BumpProfile.lapW_zero_B] at this
+    have := norm_bumpLapW_le hz0 hs 0 (by simpa using h.integrable_self hbδ hβ1)
+    rw [BumpProfile.bumpLapW_zero_B] at this
     simpa [hnB] using this
   set κ : ℝ := c ^ (-(1 / 3 : ℝ)) with hκ
   refine ⟨κ * CH * c ^ (1 / 2 : ℝ) + 2 * κ * nB * c ^ (1 / 2 : ℝ), fun ζ hζ0 hζ1 hζ => ?_⟩
@@ -1449,8 +1449,8 @@ theorem bump_stripAdmissFull {b α β : ℝ} (hb : 0 < b) (hβ : 3 / 2 ≤ β) (
 #guard_msgs (whitespace := lax) in
 #print axioms BumpProfile.holder_zero
 
-/-- info: 'FormalResearch.SignUncertainty.BumpProfile.lapW_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'FormalResearch.SignUncertainty.BumpProfile.bumpLapW_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
-#print axioms BumpProfile.lapW_bound
+#print axioms BumpProfile.bumpLapW_bound
 
 end FormalResearch.SignUncertainty
