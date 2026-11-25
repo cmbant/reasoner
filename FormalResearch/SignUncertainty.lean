@@ -237,6 +237,7 @@ public import FormalResearch.SignUncertainty.ConvSourceSymbol
 public import FormalResearch.SignUncertainty.ConvSourceSymbolIBP
 public import FormalResearch.SignUncertainty.ConvSourceSymbolBounds
 public import FormalResearch.SignUncertainty.Headlines
+public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
 
 /-!
@@ -426,8 +427,11 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it
   (`radial_rigidity_lower_of_compactness`).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
-  `thm_intro_separation`, `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
+  `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
   whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
+* `FormalResearch.SignUncertainty.SignSeparationLimsup`: the retired separation bound
+  `separation_neg_two_div_pi_sq` (`limsup (T⁺ - T⁻) ≤ -2/π²`, old `gt:7.9c`, deleted from the paper and
+  superseded by `eq:ct-split`), conditional on `SeparationInputs`; kept for its reusable steps, not a headline.
 * `FormalResearch.CohnElkies`: Stieltjes/cardinal resolvent, Mellin–Airy, lobe saddle,
   finite-dimensional Gaussian, and Fourier interpolation lemmas.
 -/
