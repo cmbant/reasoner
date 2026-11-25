@@ -496,7 +496,7 @@ theorem liftPhi_mellinLiftData (hW : LiftSymbolData W) {c : ℝ} (hc : 3 / 2 < c
     obtain ⟨BR, hBR⟩ := liftPhi_right_bound hW hc0 σ hσ1 (a := c / 2) (b := max b (c / 2)) le_rfl
       (le_max_right _ _) (max_le hb.le (by linarith))
     obtain ⟨BL, hBL⟩ := liftPhi_left_bound hW hc σ hσ ha
-    refine ⟨4 * |M| + |BR| + |BL|, fun z hz1 hz2 => ?_⟩
+    refine ⟨2, by norm_num, 4 * |M| + |BR| + |BL|, fun z hz1 hz2 => ?_⟩
     have hw : (1 + |z.im|) ^ (-(5 / 2 : ℝ)) ≤ (1 + |z.im|) ^ (-2 : ℝ) :=
       Real.rpow_le_rpow_of_exponent_le (by linarith [abs_nonneg z.im]) (by norm_num)
     have hw0 : 0 ≤ (1 + |z.im|) ^ (-2 : ℝ) := by positivity

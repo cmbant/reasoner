@@ -1,24 +1,24 @@
 module
 
 public import FormalResearch.SignUncertainty.StripAdmissTail
-public import FormalResearch.SignUncertainty.StripAdmissOrigin
+public import FormalResearch.SignUncertainty.MellinStripLift
 
 /-!
 # `uct:admiss` (Lemma T.8): general Mellin-strip admissibility via `C²` edge traces
 
-Source: `CFT/sign_uncertainty/paper/mellin_airy_toolkit.tex`, Lemma T.8 (`uct:admiss`), parts (1) and (2).
+Source: `CFT/sign_uncertainty/paper/mellin_airy_toolkit.tex`, Lemma T.8 (`uct:admiss`), parts (1), (2), and (3).
 
-Statement formalised.  Fix `c ≥ 2`, `α ∈ (0,1)` and `W̃ : ℂ → ℂ` (only its values on `0 ≤ Re ζ ≤ 1` matter) satisfying `StripAdmissData α W`:
-(M1) holomorphic on the open strip, continuous on the closed strip, real-symmetric, `|W̃(σ+iτ)| ≤ C (1+|τ|)^{-2}`; (M2) the endpoint Hölder bound at `ζ = 1`;
-(M3) for the edge trace `g_0(τ) = W̃(iτ)`: `C²` off `0`, `|∂^j (g_0 - g_0(0))| ≤ C |τ|^{α-j}` on `0 < |τ| ≤ 1` and `|∂^j g_0| ≤ C (1+|τ|)^{-2}` on `|τ| ≥ 1/2`.
-Let `f = f_W = admissLift c W` (the lift `(uct:mellin-inv-gen)`, `x₀ = c/2`).  `uct_admiss` states
-
-* (1) the lift does not depend on the line `x₀ ∈ (0,c)`, is real, and `admissF c W` (= `f_W` on `(0,∞)`, `W̃(1)` at `0`) is continuous on `[0,∞)`;
-* (2) the vertical representation `(f ρ₀)(cξ) = (2πξ)⁻¹ ∫ K₀(σ+iτ,ξ) W̃(σ+iτ) dτ` (`0 ≤ σ < 1`), the tail `|(f ρ₀)(cξ)| ≤ C' ξ⁻¹ L^{-1-α}` (`ξ = e^L/π²`, `L ≥ 4`), `f ∈ L¹(ρ₀)`,
-  and the radial decay `|f(r²/2)| ≤ C'' (1+r)^{-2c} (log(2+r))^{-1-α}` (for `d = 2c ∈ ℕ` this is the decay of the radial function `x ↦ f(|x|²/2)` on `ℝ^d`).
-
-Not formalised: part (3) (reflection / Hankel transform of `f`), which needs `W̃(1-·)` satisfying (M3) at the edge `ζ = 1` and the Hankel transform of a general lift; the hypothesis (M2) at `ζ = 0`
-and (M3) at the edge `ζ = 1` are only used there (the formalised theorem has weaker hypotheses than the paper's statement).
+Statement formalised.  Fix `c ≥ 2`, `α ∈ (0,1)` and `W̃ : ℂ → ℂ` (only its values on `0 ≤ Re ζ ≤ 1` matter):
+* Under `StripAdmissData α W` ((M1), (M2) at `ζ = 1`, (M3) on the edge `Re ζ = 0`), `uct_admiss` proves parts (1) and (2):
+  - (1) the lift does not depend on the line `x₀ ∈ (0,c)`, is real, and `admissF c W` (= `f_W` on `(0,∞)`, `W̃(1)` at `0`) is continuous on `[0,∞)`;
+  - (2) the vertical representation `(f ρ₀)(cξ) = (2πξ)⁻¹ ∫ K₀(σ+iτ,ξ) W̃(σ+iτ) dτ` (`0 ≤ σ < 1`), the tail `|(f ρ₀)(cξ)| ≤ C' ξ⁻¹ L^{-1-α}` (`ξ = e^L/π²`, `L ≥ 4`), `f ∈ L¹(ρ₀)`,
+    and the radial decay `|f(r²/2)| ≤ C'' (1+r)^{-2c} (log(2+r))^{-1-α}`.
+* Under `StripAdmissFullData α W` (all of (M1), (M2) at `ζ = 0, 1`, and (M3) for both edge traces `g_0(τ) = W̃(iτ)` and
+  `g_1(τ) = W̃(1 - iτ)`), `uct_admiss_part3` and `uct_admiss_full` prove part (3) (from `mat_T7_c`):
+  - the normalized Mellin transform is `M̃_f(z) = e^{c ℋ(1-z/c)} W̃(1-z/c)` on `0 < Re z ≤ c`;
+  - the radial Hankel transform `f̂ = besselHankelTransform c (admissF c W)` equals `admissF c (fun ζ => W̃ (1 - ζ))` on `[0,∞)`,
+    which again satisfies `StripAdmissFullData α` (hence (1)–(2)) with `f̂(0) = W̃(0)` and `f̂ ∈ L¹((0,∞), ρ₀ dΔ)`;
+  - if `W̃(1 - ζ) = ε W̃(ζ)` (`ε = ±1`), then `f ∈ 𝒜_c^ε` (`IsHankelEigenfn c ε (admissF c W)`) with `ε f(0) = W̃(0)`.
 
 Status: proved, unconditional.
 -/
@@ -37,9 +37,34 @@ structure StripAdmissData (α : ℝ) (W : ℂ → ℂ) : Prop extends StripM1 W 
   holder1 : ∃ CH : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖1 - ζ‖ ≤ 1 / 2 → ‖W ζ - W 1‖ ≤ CH * ‖1 - ζ‖ ^ α
   edge0 : StripEdge0 α W
 
-/-- The lift with its origin value `f_W(0) = W̃(1)`. -/
-noncomputable def admissF (c : ℝ) (W : ℂ → ℂ) (Δ : ℝ) : ℝ :=
-  if Δ = 0 then (W 1).re else admissLift c W Δ
+/-- The right-edge trace `g_1(τ) = W̃(1 - iτ)` of `uct:admiss` (M3). -/
+noncomputable def stripEdge1 (W : ℂ → ℂ) (τ : ℝ) : ℂ := W (1 - (τ : ℂ) * Complex.I)
+
+/-- Hypothesis (M3) of `uct:admiss` for the right-edge trace `g_1(τ) = W̃(1 - iτ)`:
+definitionally `StripEdge0 α (fun ζ => W (1 - ζ))`. -/
+def StripEdge1 (α : ℝ) (W : ℂ → ℂ) : Prop := StripEdge0 α (fun ζ => W (1 - ζ))
+
+/-- The full hypotheses (M1), (M2) (at `0` and `1`), and (M3) (for both `g_0` and `g_1`) of `uct:admiss`
+(`0 < α < 1` is a separate hypothesis). -/
+structure StripAdmissFullData (α : ℝ) (W : ℂ → ℂ) : Prop extends StripAdmissData α W where
+  holder0 : ∃ CH : ℝ, ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖ζ‖ ≤ 1 / 2 → ‖W ζ - W 0‖ ≤ CH * ‖ζ‖ ^ α
+  edge1 : StripEdge1 α W
+
+lemma StripAdmissFullData.toStripW2 {α : ℝ} {W : ℂ → ℂ} (hW : StripAdmissFullData α W) : StripW2 α W :=
+  ⟨hW.holder0, hW.holder1⟩
+
+/-- Reflection `ζ ↦ 1 - ζ` preserves `StripAdmissFullData α`, swapping `g_0` and `g_1` and the two endpoints. -/
+lemma StripAdmissFullData.reflect {α : ℝ} {W : ℂ → ℂ} (hW : StripAdmissFullData α W) :
+    StripAdmissFullData α (fun ζ => W (1 - ζ)) where
+  toStripM1 := hW.toStripM1.reflect
+  holder1 := hW.toStripW2.reflect.holder1
+  edge0 := hW.edge1
+  holder0 := hW.toStripW2.reflect.holder0
+  edge1 := by
+    unfold StripEdge1
+    have hfun : (fun ζ : ℂ => W (1 - (1 - ζ))) = W := funext fun ζ => by simp
+    rw [hfun]
+    exact hW.edge0
 
 /-! ### `Δ⁻¹ (log kΔ)^{-p}` is integrable at infinity for `p > 1` -/
 
@@ -385,6 +410,83 @@ theorem uct_admiss {c α : ℝ} {W : ℂ → ℂ} (hc : 2 ≤ c) (hα0 : 0 < α)
     refine this.congr_fun (fun Δ hΔ => ?_) measurableSet_Ioi
     simp [hFL Δ hΔ]
 
+/-- **Lemma T.8 (`uct:admiss`), part (3)** (Reflection and membership in `𝒜_c^ε`).
+
+Fix `c ≥ 2`, `0 < α < 1` and `W̃` satisfying `StripAdmissFullData α W` ((M1), (M2) at `ζ = 0, 1`,
+(M3) for both edge traces `g_0(τ) = W̃(iτ)` and `g_1(τ) = W̃(1 - iτ)`). Then:
+1. the normalized Mellin transform of `F = admissF c W` is `M̃_F(z) = e^{c ℋ(1 - z/c)} W̃(1 - z/c)` on `0 < Re z ≤ c`;
+2. the radial Hankel transform `𝓗_c F` equals `admissF c (fun ζ => W̃ (1 - ζ))` on `[0, ∞)`, where the reflected
+   multiplier `W̃(1 - ·)` again satisfies `StripAdmissFullData α` (hence (1)–(2));
+3. `𝓗_c F(0) = (W̃ 0).re` with `(W̃ 0).im = 0`, and `𝓗_c F ∈ L¹((0, ∞), ρ₀ dΔ)`;
+4. if `W̃(1 - ζ) = ε W̃(ζ)` (`ε = ±1`) on `0 ≤ Re ζ ≤ 1`, then `F ∈ 𝒜_c^ε` (`IsHankelEigenfn c ε F`)
+   with `ε F(0) = (W̃ 0).re`.
+
+Scope and limitations: matches `uct:admiss` (3) of `CFT/sign_uncertainty/paper/mellin_airy_toolkit.tex`
+with no extra hypotheses. -/
+theorem uct_admiss_part3 {c α : ℝ} {W : ℂ → ℂ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : α < 1)
+    (hW : StripAdmissFullData α W) :
+    (∀ z : ℂ, 0 < z.re → z.re ≤ c →
+      mellinStrip (admissF c W) z = Complex.exp ((c : ℂ) * stripH (1 - z / c)) * W (1 - z / c)) ∧
+    (∀ Δ ∈ Ici (0 : ℝ), besselHankelTransform c (admissF c W) Δ = admissF c (fun ζ => W (1 - ζ)) Δ) ∧
+    (besselHankelTransform c (admissF c W) 0 = (W 0).re ∧ (W 0).im = 0) ∧
+    IntegrableOn (fun Δ : ℝ => besselHankelTransform c (admissF c W) Δ * hankelRho0 c Δ) (Ioi 0) ∧
+    StripAdmissFullData α (fun ζ => W (1 - ζ)) ∧
+    (∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
+      (∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → W (1 - ζ) = (ε : ℂ) * W ζ) →
+      IsHankelEigenfn c ε (admissF c W) ∧ ε * admissF c W 0 = (W 0).re) := by
+  have hint : IntegrableOn (fun Δ : ℝ => admissF c W Δ * hankelRho0 c Δ) (Ioi 0) :=
+    (admiss_integrable hc hα0 hα1 hW.toStripM1 hW.edge0).congr_fun
+      (fun Δ hΔ => by simp [admissF, ne_of_gt (show 0 < Δ from hΔ)]) measurableSet_Ioi
+  obtain ⟨_, _, hmStrip, _, hrefl, h0, heig⟩ :=
+    mat_T7_c hc (by norm_num : (0 : ℝ) < 3 / 2) hα0 hα1.le hW.toStripM1.toStripW1 hW.toStripW2 hint
+  have hWrefl : StripAdmissFullData α (fun ζ => W (1 - ζ)) := hW.reflect
+  have hintRefl : IntegrableOn (fun Δ : ℝ => besselHankelTransform c (admissF c W) Δ * hankelRho0 c Δ) (Ioi 0) := by
+    have h1 := admiss_integrable hc hα0 hα1 hWrefl.toStripM1 hWrefl.edge0
+    refine h1.congr_fun (fun Δ hΔ => ?_) measurableSet_Ioi
+    rw [hrefl Δ (le_of_lt hΔ)]
+    simp [admissF, ne_of_gt (show 0 < Δ from hΔ)]
+  refine ⟨hmStrip, hrefl, h0, hintRefl, hWrefl, ?_⟩
+  intro ε _ hsym
+  have hE : IsHankelEigenfn c ε (admissF c W) := heig ε hsym
+  refine ⟨hE, ?_⟩
+  have h1 := hE.eigen 0 le_rfl
+  linarith [h0.1]
+
+/-- **Lemma T.8 (`uct:admiss`), full statement (parts (1), (2), (3))** (general Mellin-strip admissibility via `C²` edge traces).
+
+Combines `uct_admiss` (parts (1) and (2)) and `uct_admiss_part3` (part (3)) under the exact hypotheses
+(M1)–(M3) (`StripAdmissFullData α W`) of `CFT/sign_uncertainty/paper/mellin_airy_toolkit.tex`, Lemma T.8 (`uct:admiss`). -/
+theorem uct_admiss_full {c α : ℝ} {W : ℂ → ℂ} (hc : 2 ≤ c) (hα0 : 0 < α) (hα1 : α < 1)
+    (hW : StripAdmissFullData α W) :
+    -- (1)
+    ((∀ x₀ x₁ : ℝ, 0 < x₀ → x₀ < c → 0 < x₁ → x₁ < c → ∀ Δ : ℝ, 0 < Δ →
+        liftFun (admissPhi c W) x₀ Δ = liftFun (admissPhi c W) x₁ Δ) ∧
+      (∀ x₀ : ℝ, 0 < x₀ → x₀ < c → ∀ Δ : ℝ, 0 < Δ → (mellinInv x₀ (admissPhi c W) Δ).im = 0) ∧
+      ContinuousOn (admissF c W) (Ici 0) ∧ admissF c W 0 = (W 1).re ∧ (W 1).im = 0) ∧
+    -- (2)
+    ((∀ ξ : ℝ, 0 < ξ → ∀ σ : ℝ, 0 ≤ σ → σ < 1 →
+        (((hankelRho0 c (c * ξ) * admissF c W (c * ξ) : ℝ)) : ℂ) =
+          ((1 / (2 * Real.pi * ξ) : ℝ) : ℂ) *
+            ∫ τ : ℝ, mellinK0 c ((σ : ℂ) + (τ : ℂ) * Complex.I) ξ * W ((σ : ℂ) + (τ : ℂ) * Complex.I)) ∧
+      (∃ C : ℝ, 0 ≤ C ∧ ∀ L : ℝ, 4 ≤ L →
+        |hankelRho0 c (c * (Real.exp L / Real.pi ^ 2)) * admissF c W (c * (Real.exp L / Real.pi ^ 2))| ≤
+          C * (Real.exp L / Real.pi ^ 2)⁻¹ * L ^ (-(1 + α))) ∧
+      IntegrableOn (fun Δ : ℝ => admissF c W Δ * hankelRho0 c Δ) (Ioi 0) ∧
+      (∃ C : ℝ, 0 ≤ C ∧ ∀ r : ℝ, 0 ≤ r →
+        |admissF c W (r ^ 2 / 2)| ≤ C * ((1 + r) ^ (-(2 * c)) * Real.log (2 + r) ^ (-(1 + α))))) ∧
+    -- (3)
+    ((∀ z : ℂ, 0 < z.re → z.re ≤ c →
+        mellinStrip (admissF c W) z = Complex.exp ((c : ℂ) * stripH (1 - z / c)) * W (1 - z / c)) ∧
+      (∀ Δ ∈ Ici (0 : ℝ), besselHankelTransform c (admissF c W) Δ = admissF c (fun ζ => W (1 - ζ)) Δ) ∧
+      (besselHankelTransform c (admissF c W) 0 = (W 0).re ∧ (W 0).im = 0) ∧
+      IntegrableOn (fun Δ : ℝ => besselHankelTransform c (admissF c W) Δ * hankelRho0 c Δ) (Ioi 0) ∧
+      StripAdmissFullData α (fun ζ => W (1 - ζ)) ∧
+      (∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
+        (∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → W (1 - ζ) = (ε : ℂ) * W ζ) →
+        IsHankelEigenfn c ε (admissF c W) ∧ ε * admissF c W 0 = (W 0).re)) := by
+  obtain ⟨h1, h2, h3, h4, h5, h6, h7, h8, h9⟩ := uct_admiss hc hα0 hα1 hW.toStripAdmissData
+  exact ⟨⟨h1, h2, h3, h4, h5⟩, ⟨h6, h7, h8, h9⟩, uct_admiss_part3 hc hα0 hα1 hW⟩
+
 /-- info: 'FormalResearch.SignUncertainty.admiss_integrable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms admiss_integrable
@@ -400,5 +502,13 @@ theorem uct_admiss {c α : ℝ} {W : ℂ → ℂ} (hc : 2 ≤ c) (hα0 : 0 < α)
 /-- info: 'FormalResearch.SignUncertainty.uct_admiss' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms uct_admiss
+
+/-- info: 'FormalResearch.SignUncertainty.uct_admiss_part3' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms uct_admiss_part3
+
+/-- info: 'FormalResearch.SignUncertainty.uct_admiss_full' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms uct_admiss_full
 
 end FormalResearch.SignUncertainty
