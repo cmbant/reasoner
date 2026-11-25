@@ -53,9 +53,11 @@ def Kset (C : ℝ≥0) (ζ : Ecoord →ᵇ ℝ) : Set (FiniteMeasure Ecoord) :=
   {μ | μ.mass ≤ C ∧ ∫ x, ζ x ∂(μ : Measure Ecoord) = 0}
 
 lemma isClosed_Kset (C : ℝ≥0) (ζ : Ecoord →ᵇ ℝ) : IsClosed (Kset C ζ) := by
-  refine IsClosed.inter ?_ ?_
-  · exact isClosed_Iic.preimage FiniteMeasure.continuous_mass
-  · exact isClosed_eq (continuous_integral_finiteMeasure ζ) continuous_const
+  have h1 : IsClosed {μ : FiniteMeasure Ecoord | μ.mass ≤ C} :=
+    isClosed_Iic.preimage FiniteMeasure.continuous_mass
+  have h2 : IsClosed {μ : FiniteMeasure Ecoord | ∫ x, ζ x ∂(μ : Measure Ecoord) = 0} :=
+    isClosed_eq (continuous_integral_finiteMeasure ζ) continuous_const
+  exact h1.inter h2
 
 lemma isCompact_Kset (C : ℝ≥0) (ζ : Ecoord →ᵇ ℝ) : IsCompact (Kset C ζ) :=
   (isCompact_setOfPred_finiteMeasure_le_of_compactSpace Ecoord C).of_isClosed_subset

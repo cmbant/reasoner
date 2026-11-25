@@ -574,9 +574,9 @@ private lemma intertwiner_tonelli_bound {c : ℝ} (hc : 0 < c) {K : HankelKernel
     refine ContinuousOn.aestronglyMeasurable ?_ (measurableSet_Ioi.prod measurableSet_Ioi)
     have h1 : ContinuousOn (fun p : ℝ × ℝ => ((2 * π) ^ c / Real.Gamma c) * p.1 ^ (c / 2 - 1))
         (Ioi 0 ×ˢ Ioi 0) :=
-      (ContinuousOn.rpow_const continuous_fst.continuousOn fun _ hp => Or.inl hp.1.ne').const_mul _
+      (ContinuousOn.rpow_const continuous_fst.continuousOn fun _ (hp : _ ∈ Ioi (0 : ℝ) ×ˢ Ioi (0 : ℝ)) => Or.inl hp.1.ne').const_mul _
     have h2 : ContinuousOn (fun p : ℝ × ℝ => |f p.2| * p.2 ^ (c / 2 - 1)) (Ioi 0 ×ˢ Ioi 0) :=
-      (hf.cont.abs.comp continuous_snd.continuousOn fun _ hp => hp.2.le).mul
+      (hf.cont.abs.comp continuous_snd.continuousOn fun _ (hp : _ ∈ Ioi (0 : ℝ) ×ˢ Ioi (0 : ℝ)) => hp.2.le).mul
         (ContinuousOn.rpow_const continuous_snd.continuousOn fun _ hp => Or.inl hp.2.ne')
     exact h1.mul h2
   have hcol_int : ∀ s ∈ Ioi (0 : ℝ),
@@ -772,10 +772,10 @@ theorem intertwiner_eigen {c : ℝ} (hc : 0 < c) {K : HankelKernelData c} {f : �
     refine ContinuousOn.aestronglyMeasurable ?_ (measurableSet_Ioi.prod measurableSet_Ioi)
     have h1 : ContinuousOn (fun p : ℝ × ℝ =>
         ((2 * π) ^ c / Real.Gamma c) * p.1 ^ (c / 2 - 1) * K.φ (Δ * p.1)) (Ioi 0 ×ˢ Ioi 0) :=
-      ((ContinuousOn.rpow_const continuous_fst.continuousOn fun _ hp => Or.inl hp.1.ne').const_mul _).mul
+      ((ContinuousOn.rpow_const continuous_fst.continuousOn fun _ (hp : _ ∈ Ioi (0 : ℝ) ×ˢ Ioi (0 : ℝ)) => Or.inl hp.1.ne').const_mul _).mul
         (K.φ_cont.comp (continuous_const_mul Δ |>.comp continuous_fst)).continuousOn
     have h2 : ContinuousOn (fun p : ℝ × ℝ => f p.2 * p.2 ^ (c / 2 - 1)) (Ioi 0 ×ˢ Ioi 0) :=
-      (hf.cont.comp continuous_snd.continuousOn fun _ hp => hp.2.le).mul
+      (hf.cont.comp continuous_snd.continuousOn fun _ (hp : _ ∈ Ioi (0 : ℝ) ×ˢ Ioi (0 : ℝ)) => hp.2.le).mul
         (ContinuousOn.rpow_const continuous_snd.continuousOn fun _ hp => Or.inl hp.2.ne')
     exact h1.mul h2
   have hF_int : Integrable F (μ.prod μ) := by

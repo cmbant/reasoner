@@ -28,8 +28,7 @@ lemma sinh_le_mul_cosh_R {z : ℝ} (hz : 0 ≤ z) : Real.sinh z ≤ z * Real.cos
     refine monotoneOn_of_deriv_nonneg (convex_Ici 0) ?_ ?_ ?_
     · exact (continuous_id.mul Real.continuous_cosh |>.sub Real.continuous_sinh).continuousOn
     · exact ((differentiable_id.mul Real.differentiable_cosh).sub
-        Real.differentiable_sinh).differentiableOn.mono (fun _ _ => trivial) |>.mono
-          (Set.subset_univ _)
+        Real.differentiable_sinh).differentiableOn
     · intro t ht
       rw [interior_Ici] at ht
       have hd : HasDerivAt (fun t : ℝ => t * Real.cosh t - Real.sinh t)

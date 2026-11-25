@@ -334,7 +334,7 @@ theorem bspline_oscillating_floor {m : ℕ} (hm : 1 ≤ m) {δ₀ x : ℝ}
   set g : ℝ → ℝ := fun y => Real.cos (ϑ y) ^ 2 / 2 - ρ
   have hϑ_cont : ContinuousOn ϑ (Icc ya yb) :=
     (continuousOn_const.mul (ContinuousOn.rpow_const continuousOn_id
-      fun y hy => Or.inl (lt_of_lt_of_le hya_pos hy.1).ne')).add continuousOn_const
+      fun y (hy : y ∈ Icc ya yb) => Or.inl (lt_of_lt_of_le hya_pos hy.1).ne')).add continuousOn_const
   have hcos_cont : ContinuousOn (fun y => Real.cos (ϑ y) ^ 2) (Icc ya yb) := (Real.continuous_cos.comp_continuousOn hϑ_cont).pow 2
   have hg_cont : ContinuousOn g (Icc ya yb) := (hcos_cont.div_const 2).sub continuousOn_const
   have h_ptwise : ∀ t ∈ Icc (δ₀ / 4) (3 * δ₀ / 4),

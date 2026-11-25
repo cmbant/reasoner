@@ -68,7 +68,7 @@ theorem besselI0C_eq_integral_Ioo (z : ℂ) :
 private lemma quasiMeasurePreserving_polarCoord_symm_real :
     MeasureTheory.QuasiMeasurePreserving polarCoord.symm
       (volume.restrict polarCoord.target) volume := by
-  refine ⟨continuous_polarCoord_symm.measurable, ?_⟩
+  refine ⟨continuous_polarCoord_symm.measurable.aemeasurable, ?_⟩
   refine Measure.AbsolutelyContinuous.mk fun s hs hs0 => ?_
   rw [Measure.map_apply continuous_polarCoord_symm.measurable hs]
   have hlin := lintegral_comp_polarCoord_symm (s.indicator (fun _ => (1 : ENNReal)))

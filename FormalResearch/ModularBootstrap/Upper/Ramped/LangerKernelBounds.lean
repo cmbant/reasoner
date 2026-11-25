@@ -25,7 +25,7 @@ namespace FormalResearch.ModularBootstrap.Upper.Ramped
 open FormalResearch.ModularBootstrap Upper.Comb FormalResearch.Special
 
 /-- The interval of `x`: `X = [ξ_*/2, ξ_* + r₀]`. -/
-def langerX (r0 : ℝ) : Set ℝ := Icc (xiStar / 2) (xiStar + r0)
+noncomputable def langerX (r0 : ℝ) : Set ℝ := Icc (xiStar / 2) (xiStar + r0)
 
 lemma abs_hadInt_le {w K : ℝ → ℝ} {c q B M : ℝ} (hw : ∀ t ∈ Icc (0 : ℝ) 1, |w t| ≤ B)
     (hK : ∀ t ∈ Icc (0 : ℝ) 1, |K (c + t * (q - c))| ≤ M) (hB : 0 ≤ B) :

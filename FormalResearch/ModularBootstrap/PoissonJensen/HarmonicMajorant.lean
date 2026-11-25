@@ -655,7 +655,7 @@ lemma majorant2D_conj {b : ℂ} (hb : b ∈ slitStrip) :
   have hint_cont : ContinuousOn (fun t : ℝ => pMap ((t : ℂ) * b) * b) (Icc 0 1) :=
     (differentiableOn_pMap_slitStrip.continuousOn.comp
       (Complex.continuous_ofReal.mul continuous_const).continuousOn
-      (fun t ht => smul_mem_slitStrip hb ht.1 ht.2)).mul continuousOn_const
+      (fun t (ht : t ∈ Set.Icc (0 : ℝ) 1) => smul_mem_slitStrip hb ht.1 ht.2)).mul continuousOn_const
   have hint_eq : ∫ t in (0 : ℝ)..1, pMap ((t : ℂ) * starRingEnd ℂ b) * starRingEnd ℂ b =
       -starRingEnd ℂ (∫ t in (0 : ℝ)..1, pMap ((t : ℂ) * b) * b) := by
     have hcongr : ∀ t ∈ uIcc (0 : ℝ) 1,

@@ -241,7 +241,7 @@ noncomputable def chartKinv (η : ℕ → ℝ) (v : ℂ) : ℂ :=
   if hv : ∃ u : ℂ, u ∈ ball (0 : ℂ) (0.035 ^ 2) ∧ chartK η u = v then Classical.choose hv else 0
 
 /-- The disc of admissible values `‖v‖ + q ε_h < q`. -/
-def chartVdisc : Set ℂ := ball (0 : ℂ) (0.035 ^ 2 - 0.035 ^ 2 * 7.46e-4)
+noncomputable def chartVdisc : Set ℂ := ball (0 : ℂ) (0.035 ^ 2 - 0.035 ^ 2 * 7.46e-4)
 
 lemma mem_chartVdisc {v : ℂ} : v ∈ chartVdisc ↔ ‖v‖ + 0.035 ^ 2 * 7.46e-4 < 0.035 ^ 2 := by
   unfold chartVdisc; rw [mem_ball_zero_iff]; constructor <;> intro h <;> linarith
@@ -272,7 +272,7 @@ lemma hasDerivAt_chartKinv (h : LangerEta η) {v0 : ℂ} (hv0 : v0 ∈ chartVdis
   have han : AnalyticAt ℂ (chartK η) u0 :=
     hdiff.analyticAt (isOpen_ball.mem_nhds (by rw [mem_ball_zero_iff]; linarith))
   have hstrict : HasStrictDerivAt (chartK η) (chartKD η u0) u0 := by
-    have := (han.contDiffAt (n := 1)).hasStrictDerivAt (by norm_num)
+    have := (han.contDiffAt (n := 1)).hasStrictDerivAt_deriv (by norm_num)
     rwa [(hasDerivAt_chartK h (by linarith)).deriv] at this
   have hne : chartKD η u0 ≠ 0 := by
     intro h0

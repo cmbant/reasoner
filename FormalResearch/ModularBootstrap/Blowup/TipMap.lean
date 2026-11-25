@@ -911,7 +911,7 @@ private lemma quasiMeasurePreserving_polarCoord_symm :
   have hcont : Continuous Complex.polarCoord.symm := by
     rw [show Complex.polarCoord.symm = Complex.equivRealProdCLM.symm ∘ polarCoord.symm from rfl]
     exact Complex.equivRealProdCLM.symm.continuous.comp continuous_polarCoord_symm
-  refine ⟨hcont.measurable, ?_⟩
+  refine ⟨hcont.measurable.aemeasurable, ?_⟩
   refine Measure.AbsolutelyContinuous.mk fun s hs hs0 => ?_
   rw [Measure.map_apply hcont.measurable hs]
   have hlin := Complex.lintegral_comp_polarCoord_symm (s.indicator (fun _ => (1 : ENNReal)))
@@ -954,7 +954,7 @@ theorem subharmonic_disc_avg_le {f : ℂ → ℂ} {B : ℂ → ℝ} {ζ₀ : ℂ
     have hρ_ne : ρ ≠ 0 := hρ.1.ne'
     have hsub : closedBall ζ₀ |ρ| ⊆ closedBall ζ₀ r := by
       rw [abs_of_pos hρ.1]; exact closedBall_subset_closedBall hρ.2.le
-    have hform := (hf.mono hsub).circleAverage_log_norm hρ_ne hf0
+    have hform := (hf.mono hsub).circleAverage_log_norm hf0
     rw [hform]
     have hsum_nn : 0 ≤ ∑ᶠ u, (MeromorphicOn.divisor f (closedBall ζ₀ |ρ|) u : ℝ) *
         Real.log (ρ * ‖ζ₀ - u‖⁻¹) := by

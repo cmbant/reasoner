@@ -84,7 +84,7 @@ lemma Fsum_hasDerivAt (hS : SmoothExt F K M S δ Cn) {μ : Par} (hμ : μ ∈ K)
 lemma Fsum_continuousOn (hS : SmoothExt F K M S δ Cn) {μ : Par} (hμ : μ ∈ K) {h : ℝ} :
     ContinuousOn (Fsum S M μ h) (Icc (F.bandLo μ - δ) (F.bandHi μ + δ)) := by
   unfold Fsum
-  exact continuousOn_finset_sum _ (fun j hj => continuousOn_const.mul (hS.continuousOn_j hμ (Nat.lt_succ_iff.mp (Finset.mem_range.mp hj))))
+  exact continuousOn_finsetSum _ (fun j hj => continuousOn_const.mul (hS.continuousOn_j hμ (Nat.lt_succ_iff.mp (Finset.mem_range.mp hj))))
 
 /-- Near the band the slope of `S_0` is at most `-3 c_0 / 2` (needs `M >= 1`: `S_0'` is `Cn`-Lipschitz). -/
 lemma slope_near_band (hS : SmoothExt F K M S δ Cn) (hM : 1 ≤ M) {μ : Par} (hμ : μ ∈ K) (hδ : 0 < δ) (hlt : F.bandLo μ < F.bandHi μ)

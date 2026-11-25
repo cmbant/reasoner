@@ -312,7 +312,7 @@ theorem cardinalJ_asymptotic :
     have hsqrt_le : √w ≤ w := Real.sqrt_le_iff.mpr ⟨hw_pos.le, by nlinarith [hw₂_ge1.trans hw]⟩
     exact (abs_sub _ _).trans (by rw [abs_of_nonneg (Real.sqrt_nonneg w)]; dsimp [C_lg]; linarith)
   obtain ⟨C_mid, hC_mid, hmid_bd⟩ := compact_abs_bound (f := fun w : ℝ => (cardinalJ w - √w) / w)
-    (((continuousOn_cardinalJ.mono fun _ hw => lt_of_lt_of_le hw₁_pos hw.1).sub Real.continuous_sqrt.continuousOn).div
+    (((continuousOn_cardinalJ.mono fun _ (hw : _ ∈ Icc w₁ (max w₁ w₂)) => lt_of_lt_of_le hw₁_pos hw.1).sub Real.continuous_sqrt.continuousOn).div
       continuousOn_id fun _ hw => (lt_of_lt_of_le hw₁_pos hw.1).ne') (le_max_left w₁ w₂)
   refine ⟨max (1 + 2 * (-a₁) + 2 * d) (max C_lg C_mid), lt_of_lt_of_le hC_mid ((le_max_right _ _).trans (le_max_right _ _)), fun w hw => ?_⟩
   rcases le_or_gt w w₁ with h1 | h1
@@ -1268,7 +1268,7 @@ theorem cardinalQ_far_margin_pos {p t₀ : ℝ} (hp : p ∈ Ioo (1 / 2 : ℝ) 1)
   have h_tend : Tendsto (fun t => ‖fracZp p t‖ ^ 2) atTop (𝓝 0) := by simpa [zero_pow two_ne_zero] using ((fracZp_tendsto_zero hp01).norm).pow 2
   obtain ⟨T₀, hT₀⟩ := Filter.eventually_atTop.mp (h_tend (Iio_mem_nhds (by norm_num : (0 : ℝ) < 1 / 2)))
   obtain ⟨t_m, ht_m_mem, ht_m_max⟩ := isCompact_Icc.exists_isMaxOn (f := fun t => ‖fracZp p t‖ ^ 2)
-    ⟨t₀, ⟨le_rfl, le_max_right T₀ t₀⟩⟩ (((continuousOn_fracZp hp01).norm.pow 2).mono fun _ ht => le_trans ht₀.le ht.1)
+    ⟨t₀, ⟨le_rfl, le_max_right T₀ t₀⟩⟩ (((continuousOn_fracZp hp01).norm.pow 2).mono fun _ (ht : _ ∈ Icc t₀ (max T₀ t₀)) => le_trans ht₀.le ht.1)
   have hM₀_lt : ‖fracZp p t_m‖ ^ 2 < 1 := by have := fracZp_norm_lt_one hp01 (lt_of_lt_of_le ht₀ ht_m_mem.1); nlinarith [norm_nonneg (fracZp p t_m)]
   have hS_lt : S < 1 := (csSup_le (Set.Nonempty.image _ ⟨t₀, self_mem_Ici⟩) <| by
     rintro _ ⟨t, ht, rfl⟩

@@ -2208,7 +2208,7 @@ theorem slitStrip_hypotheses_nonvacuous :
       measurableSet_Ioi
   have hint_all : IntegrableOn (fun t => |g t| * V t) (Ioi 0) := by
     rw [← Ioc_union_Ioi_eq_Ioi (le_trans hT₀_pos.le hT₀_lt_T₁.le)]
-    exact (((hg_cont.abs.mul hV_cont).mono fun t ht => mem_Ici.mpr ht.1).integrableOn_Icc.mono_set
+    exact (((hg_cont.abs.mul hV_cont).mono fun t (ht : t ∈ Icc (0 : ℝ) _) => mem_Ici.mpr ht.1).integrableOn_Icc.mono_set
       Ioc_subset_Icc_self).union hint_tail
   let M : ℝ := ∫ t in Ioi 0, |g t| * V t
   have hmid_val : ∫ t in T₀..T₁, |g t| * V t = (2 * xiStar + 1) / 3 := by
@@ -2307,7 +2307,7 @@ theorem slitStrip_hypotheses_nonvacuous :
         nlinarith [le_max_left 0 (t - T₁), hc'_pos]
       gcongr
     have hint_t₀ : IntervalIntegrable (fun t => |g t| * V t) volume 0 t₀ :=
-      ((hg_cont.abs.mul hV_cont).mono fun t ht => mem_Ici.mpr ht.1).intervalIntegrable_of_Icc
+      ((hg_cont.abs.mul hV_cont).mono fun t (ht : t ∈ Icc (0 : ℝ) _) => mem_Ici.mpr ht.1).intervalIntegrable_of_Icc
         (by dsimp [t₀]; positivity)
     calc ∫ t in (0 : ℝ)..t₀, |g t| * V t
         ≤ ∫ _t in (0 : ℝ)..t₀, c'⁻¹ * Real.exp (-fg.κ_deep * c') :=

@@ -1541,9 +1541,11 @@ private lemma edgeFC'_bounded_on_strip :
       have h1 : ‖z‖ ≤ |z.re| + |z.im| := Complex.norm_le_abs_re_add_abs_im z
       linarith [hz.1, hz.2]
     have hcl : IsClosed K := by
-      refine IsClosed.inter ?_ ?_
-      · exact isClosed_le (continuous_abs.comp Complex.continuous_re) continuous_const
-      · exact isClosed_le (continuous_abs.comp Complex.continuous_im) continuous_const
+      have h1 : IsClosed {z : ℂ | |z.re| ≤ V₀} :=
+        isClosed_le (continuous_abs.comp Complex.continuous_re) continuous_const
+      have h2 : IsClosed {z : ℂ | |z.im| ≤ 3 / 8} :=
+        isClosed_le (continuous_abs.comp Complex.continuous_im) continuous_const
+      exact h1.inter h2
     exact (isCompact_closedBall (0 : ℂ) (V₀ + 1)).of_isClosed_subset hcl hsub
   have hcont : ContinuousOn (fun z : ℂ => ‖edgeFC' z‖) K := by
     refine ContinuousOn.norm ?_

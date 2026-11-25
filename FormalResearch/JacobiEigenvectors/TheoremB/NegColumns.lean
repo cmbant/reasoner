@@ -326,6 +326,7 @@ end LowerCols
 section StdNeg
 
 open Set
+open scoped Pointwise
 
 theorem Xsp_neg (L : ℝ) (G0 B0 : ℝ → ℝ) : Xsp L G0 (fun u => -B0 u) = -Xsm L G0 B0 := by
   unfold Xsp Xsm

@@ -214,7 +214,7 @@ def weylM : Op1 := Matrix.of fun a b => if a = 0 ∧ b = 1 then 1 else if a = 1 
 
 theorem weylM_eq : weylM = upM 1 * lowM (-1) * upM 1 := by
   ext i j
-  fin_cases i <;> fin_cases j <;> simp [weylM, lowM, upM, Matrix.mul_apply, Fin.sum_univ_two]
+  fin_cases i <;> fin_cases j <;> simp [weylM, lowM, upM, Matrix.mul_apply, Fin.sum_univ_two, Function.swap]
 
 /-- **Commutation with `SL₂(ℂ)^{⊗n}`.** -/
 theorem CommR.commute_of_det {X : Matrix (Cube n) (Cube n) ℝ} (h : CommR X) {u : Op1}

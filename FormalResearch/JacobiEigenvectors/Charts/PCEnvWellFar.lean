@@ -174,10 +174,10 @@ lemma intervalIntegral_abs_errorDensity_well_le {a x y : ℝ} (ha : a ≤ -4)
     refine ContinuousOn.abs ?_
     unfold LiouvilleGreen.errorDensity
     refine (((continuousOn_const.mul ((continuousOn_id.div_const 2).pow 2)).mul
-      (ContinuousOn.rpow_const (by fun_prop) fun t ht =>
+      (ContinuousOn.rpow_const (by fun_prop) fun t (ht : t ∈ Icc x y) =>
         Or.inl (p_well_pos ha (lt_of_lt_of_le hx ht.1)).ne')).sub
       ((continuousOn_const.mul continuousOn_const).mul
-      (ContinuousOn.rpow_const (by fun_prop) fun t ht =>
+      (ContinuousOn.rpow_const (by fun_prop) fun t (ht : t ∈ Icc x y) =>
         Or.inl (p_well_pos ha (lt_of_lt_of_le hx ht.1)).ne'))).sub
       (continuousOn_const.mul
       (ContinuousOn.rpow_const (by fun_prop) fun t ht =>
@@ -233,7 +233,7 @@ lemma integrableOn_abs_errorDensity_well {a c : ℝ} (ha : a ≤ -4) (hc : 2 * R
     (5 / 48 * (c * (c ^ 2 / 4 + a) ^ (-(3 / 2) : ℝ))) c
     (fun b => by
       by_cases hcb : c ≤ b
-      · exact ((hcont.mono (fun _ hx => hx.1)).integrableOn_Icc).mono_set Set.Ioc_subset_Icc_self
+      · exact ((hcont.mono (fun _ (hx : _ ∈ Set.Icc c b) => hx.1)).integrableOn_Icc).mono_set Set.Ioc_subset_Icc_self
       · rw [show Ioc c (id b) = ∅ from Set.Ioc_eq_empty (fun h => hcb h.le)]
         exact integrableOn_empty)
     tendsto_id ?_
@@ -923,7 +923,7 @@ lemma abs_vt_well_far_le {a z : ℝ} (ha : a ≤ -4) (hz : z2Airy a ≤ z) :
       linarith [ut_vt_wronsk a t]
     rw [hwr, inv_pow, one_div]
   have hcont_quo : ContinuousOn (fun t => (ut pcU a t)⁻¹ ^ 2) (Icc (z2Airy a) z) := by
-    refine ContinuousOn.pow (ContinuousOn.inv₀ ?_ fun t ht => (hut_pos t ht.1).ne') 2
+    refine ContinuousOn.pow (ContinuousOn.inv₀ ?_ fun t (ht : t ∈ Icc (z2Airy a) z) => (hut_pos t ht.1).ne') 2
     exact (pcSmoothFacts.cont_U.comp (continuous_const.prodMk continuous_id)).continuousOn.const_mul _
   have hint_eq : vt pcV a z / ut pcU a z - vt pcV a (z2Airy a) / ut pcU a (z2Airy a) =
       ∫ t in (z2Airy a)..z, (ut pcU a t)⁻¹ ^ 2 := by

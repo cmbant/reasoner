@@ -38,7 +38,7 @@ noncomputable section
 namespace FormalResearch.JacobiEigenvectors.Setting
 
 open Finset
-open scoped Matrix
+open scoped Matrix Pointwise
 
 variable {Par : Type*}
 

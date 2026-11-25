@@ -40,7 +40,7 @@ theorem zmat_swap23_Gv (v : Fin 2 × Fin 2 → ℂ) :
   have hrt2 : rt ^ 2 = 1 / 2 := by rw [pow_two]; exact rt_mul_rt
   ext ⟨i1, i2⟩ ⟨j1, j2⟩
   fin_cases i1 <;> fin_cases i2 <;> fin_cases j1 <;> fin_cases j2 <;>
-  simp [zmat, swap23, Gv, ofZmat, Matrix.mul_apply, Matrix.diagonal_apply, Matrix.transpose_apply,
+  simp [zmat, swap23, Gv, ofZmat, Matrix.mul_apply, Matrix.diagonal_apply, Matrix.transpose_apply, Function.swap,
     magicB, wp, Fintype.sum_prod_type, Fin.sum_univ_two] <;>
   ring_nf <;> simp only [Complex.I_sq, hrt2] <;> ring_nf
 
@@ -52,7 +52,7 @@ theorem zmat_swap24_Gv (v : Fin 2 × Fin 2 → ℂ) :
   have hrt2 : rt ^ 2 = 1 / 2 := by rw [pow_two]; exact rt_mul_rt
   ext ⟨i1, i2⟩ ⟨j1, j2⟩
   fin_cases i1 <;> fin_cases i2 <;> fin_cases j1 <;> fin_cases j2 <;>
-  simp [zmat, swap24, Gv, ofZmat, Matrix.mul_apply, Matrix.diagonal_apply, Matrix.transpose_apply,
+  simp [zmat, swap24, Gv, ofZmat, Matrix.mul_apply, Matrix.diagonal_apply, Matrix.transpose_apply, Function.swap,
     magicB, wm, Fintype.sum_prod_type, Fin.sum_univ_two] <;>
   ring_nf <;> simp only [Complex.I_sq, hrt2] <;> ring_nf
 

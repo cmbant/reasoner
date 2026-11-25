@@ -69,7 +69,7 @@ theorem sum_by_parts {X : ℝ} {S : Finset ℝ} (hS : ∀ x ∈ S, x ∈ Icc (-X
     fun x hx => (integral_ind_deriv (hS x hx) hφc hφd (hint x)).symm
   have h1 : ∑ x ∈ S, (φ X - φ x) = ∑ x ∈ S, ∫ s in (-X)..X, (if x ≤ s then φ' s else 0) :=
     Finset.sum_congr rfl hsum
-  rw [← intervalIntegral.integral_finset_sum (fun x _ => hint x)] at h1
+  rw [← intervalIntegral.integral_finsetSum (fun x _ => hint x)] at h1
   have h2 : ∀ s : ℝ, ∑ x ∈ S, (if x ≤ s then φ' s else 0) =
       φ' s * (((S.filter (fun x => x ≤ s)).card : ℕ) : ℂ) := by
     intro s

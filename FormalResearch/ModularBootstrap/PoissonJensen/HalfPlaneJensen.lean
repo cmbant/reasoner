@@ -361,7 +361,7 @@ theorem halfPlane_poissonJensen {F : ℂ → ℂ} {F_bdy : ℝ → ℂ} {M : ℝ
       rw [abs_of_pos (hr_pos n)]
       exact closedBall_subset_ball (hr_lt n)
     have hh_sub : AnalyticOnNhd ℂ h (closedBall 0 |r n|) := hh_an.mono hsub
-    have hform := hh_sub.circleAverage_log_norm (hr_pos n).ne' hh0
+    have hform := hh_sub.circleAverage_log_norm hh0
     have hsum_nn : 0 ≤ ∑ᶠ u, (divisor h (closedBall 0 |r n|) u : ℝ) *
         Real.log (|r n| * ‖(0 : ℂ) - u‖⁻¹) := by
       refine finsum_nonneg fun u => ?_

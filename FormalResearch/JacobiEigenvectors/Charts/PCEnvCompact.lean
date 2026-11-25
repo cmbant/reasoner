@@ -219,14 +219,14 @@ theorem compact_box_well :
   have hcont_pcVD : Continuous (fun p : ℝ × ℝ => pcVD p.1 p.2) := by
     simpa only [← deriv_pcV] using cont_pcVD
   have hfU_cont : ContinuousOn fU S := by
-    refine (continuousOn_kappaBal_well.comp continuousOn_fst fun p hp => hp.1).mul ?_
+    refine (continuousOn_kappaBal_well.comp continuousOn_fst fun p (hp : p ∈ S) => hp.1).mul ?_
     refine ContinuousOn.sqrt (ContinuousOn.add ?_ (ContinuousOn.div ?_ continuous_k2.continuousOn ?_))
     · exact (pcSmoothFacts.cont_U.pow 2).continuousOn
     · exact (hcont_pcUD.pow 2).continuousOn
     · intro p _; exact (k2_pos p.1 p.2).ne'
   have hfV_cont : ContinuousOn fV S := by
     refine (continuousOn_const.mul (ContinuousOn.inv₀
-      (continuousOn_kappaBal_well.comp continuousOn_fst fun p hp => hp.1)
+      (continuousOn_kappaBal_well.comp continuousOn_fst fun p (hp : p ∈ S) => hp.1)
       fun p _ => (kappaBal_pos p.1).ne')).mul ?_
     refine ContinuousOn.sqrt (ContinuousOn.add ?_ (ContinuousOn.div ?_ continuous_k2.continuousOn ?_))
     · exact (pcSmoothFacts.cont_V.pow 2).continuousOn
@@ -357,7 +357,7 @@ theorem compact_box_bar :
   have hcont_pcUD : Continuous (fun p : ℝ × ℝ => pcUD p.1 p.2) := by
     simpa only [← deriv_pcU] using cont_pcUD
   have hgU_cont : ContinuousOn gU S := by
-    refine (continuousOn_kappaBalPos.comp continuousOn_fst fun p hp => hp.1).mul ?_
+    refine (continuousOn_kappaBalPos.comp continuousOn_fst fun p (hp : p ∈ S) => hp.1).mul ?_
     refine ContinuousOn.sqrt (ContinuousOn.add ?_ (ContinuousOn.div ?_ continuous_k2.continuousOn ?_))
     · exact (pcSmoothFacts.cont_U.pow 2).continuousOn
     · exact (hcont_pcUD.pow 2).continuousOn
@@ -1255,7 +1255,7 @@ lemma tail_dominant_of_wronsk {a z E10 c_f C_f C_10 : ℝ}
     have hwr' : g' t * f t - g t * f' t = 1 := by linarith [hwr t]
     rw [hwr', inv_pow, one_div]
   have hcont_quo : ContinuousOn (fun t => (f t)⁻¹ ^ 2) (Icc 10 z) :=
-    ContinuousOn.pow (ContinuousOn.inv₀ hf_cont.continuousOn fun t ht => (hf_pos t ht.1).ne') 2
+    ContinuousOn.pow (ContinuousOn.inv₀ hf_cont.continuousOn fun t (ht : t ∈ Icc (10 : ℝ) z) => (hf_pos t ht.1).ne') 2
   have hint_eq : g z / f z - g 10 / f 10 = ∫ t in (10 : ℝ)..z, (f t)⁻¹ ^ 2 :=
     (intervalIntegral.integral_eq_sub_of_hasDerivAt
       (fun t ht => hderiv_quo t (Set.mem_Icc.mp (by simpa [hz] using ht)).1)

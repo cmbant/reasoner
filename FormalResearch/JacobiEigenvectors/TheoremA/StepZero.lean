@@ -47,6 +47,7 @@ noncomputable section
 namespace FormalResearch.JacobiEigenvectors.TheoremA
 
 open Finset Set FormalResearch.JacobiEigenvectors.Setting
+open scoped Pointwise
 
 variable {Par : Type*} [TopologicalSpace Par]
 

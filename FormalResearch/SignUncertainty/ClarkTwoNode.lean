@@ -37,7 +37,7 @@ open FormalResearch.Special
 /-! ### Part 1: Clark angle parameterisation, `ψ_α`, and top nodes -/
 
 /-- The Clark parameter domain `(-π/2, π/2] \ {0}`. -/
-def clarkAngleDomain : Set ℝ := Set.Ioc (-(π / 2)) (π / 2) \ {0}
+noncomputable def clarkAngleDomain : Set ℝ := Set.Ioc (-(π / 2)) (π / 2) \ {0}
 
 /-- Every `α ∈ (-π/2, π/2] \ {0}` satisfies `sin α ≠ 0`. -/
 lemma sin_ne_zero_of_mem_clarkAngleDomain {α : ℝ} (hα : α ∈ clarkAngleDomain) : Real.sin α ≠ 0 := by

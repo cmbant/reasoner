@@ -29,7 +29,7 @@ theorem projVec_sv_eq_B : projVec sv = magicB * Pm * magicBᴴ := by
 theorem projVec_sv_eq_Bbar : projVec sv = magicB.map (starRingEnd ℂ) * Pm * magicBᵀ := by
   ext ⟨i1, i2⟩ ⟨j1, j2⟩
   fin_cases i1 <;> fin_cases i2 <;> fin_cases j1 <;> fin_cases j2 <;>
-  simp [projVec, sv, magicB, Pm_apply, sing, Matrix.mul_apply, Matrix.transpose_apply,
+  simp [projVec, sv, magicB, Pm_apply, sing, Matrix.mul_apply, Matrix.transpose_apply, Function.swap,
     Fintype.sum_prod_type, Fin.sum_univ_two, rt_conj]
 
 theorem Gs_coord_left : magicBᴴ * Gs * magicB = Dm := by
@@ -104,7 +104,7 @@ theorem zmat_M4 : zmat M4 = magicB * Xtarget (Complex.I * rt) * magicBᵀ := by
   have hrt3 : rt ^ 3 = rt / 2 := by rw [show rt ^ 3 = rt * rt ^ 2 by ring, hrt2]; ring
   ext ⟨i1, i2⟩ ⟨j1, j2⟩
   fin_cases i1 <;> fin_cases i2 <;> fin_cases j1 <;> fin_cases j2 <;>
-  simp [zmat, M4_apply, Xtarget, Pm_apply, sing, magicB, Matrix.mul_apply, Matrix.transpose_apply,
+  simp [zmat, M4_apply, Xtarget, Pm_apply, sing, magicB, Matrix.mul_apply, Matrix.transpose_apply, Function.swap,
     Fintype.sum_prod_type, Fin.sum_univ_two, omega_eq, map_ofNat]
   all_goals (try ring_nf)
   all_goals (try simp only [Complex.I_sq, hrt2])
@@ -132,7 +132,7 @@ theorem zmat_M4_conj : zmat (Psi.conj M4) = magicB * Xtarget (-(Complex.I * rt))
   have hrt3 : rt ^ 3 = rt / 2 := by rw [show rt ^ 3 = rt * rt ^ 2 by ring, hrt2]; ring
   ext ⟨i1, i2⟩ ⟨j1, j2⟩
   fin_cases i1 <;> fin_cases i2 <;> fin_cases j1 <;> fin_cases j2 <;>
-  simp [zmat, M4_conj_apply, Xtarget, Pm_apply, sing, magicB, Matrix.mul_apply, Matrix.transpose_apply,
+  simp [zmat, M4_conj_apply, Xtarget, Pm_apply, sing, magicB, Matrix.mul_apply, Matrix.transpose_apply, Function.swap,
     Fintype.sum_prod_type, Fin.sum_univ_two, omega_eq, map_ofNat]
   all_goals (try ring_nf)
   all_goals (try simp only [Complex.I_sq, hrt2])

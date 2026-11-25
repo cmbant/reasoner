@@ -372,7 +372,7 @@ private lemma ae_eq_zero_of_forall_exp_integral_eq_zero (w : ℕ) {h : ℝ → �
         rw [hzero, integral_zero_measure]
       have heq : (radialMeasure w).restrict (Icc a b) = (radialMeasure w).restrict (Icc 0 b) := by
         refine Measure.restrict_congr_set ?_
-        change ∀ᵐ t ∂(radialMeasure w), (t ∈ Icc a b) = (t ∈ Icc 0 b)
+        rw [Filter.eventuallyEqSet_iff]
         filter_upwards [ae_nonneg_radialMeasure w] with t ht
         simp only [Set.mem_Icc, eq_iff_iff]
         exact ⟨fun ⟨_, htb⟩ => ⟨ht, htb⟩, fun ⟨_, htb⟩ => ⟨ha.le.trans ht, htb⟩⟩
@@ -645,7 +645,7 @@ theorem radialLift_mem_thermalDiffSpan_closure (w : ℕ) {g : ℝ → ℝ}
         ∃ β > 0, ∃ h : MemLp (expRadial β) 2 (radialMeasure w), u = h.toLp _ } : Set _) :=
       hgLp_cl
     change radialLiftLp w gLp ∈ closure (S_rad : Set _)
-    exact closure_mono (Set.image_subset_iff.mpr hmap)
+    exact closure_mono (by rintro _ ⟨u, hu, rfl⟩; exact hmap u hu)
       (image_closure_subset_closure_image (radialLiftLp w).continuous ⟨gLp, hgLp_cl', rfl⟩)
   let T : Lp ℂ 2 (volume : Measure (RadialSpace w)) →L[ℂ]
       Lp ℂ 2 (volume : Measure (RadialSpace w)) :=
@@ -696,7 +696,7 @@ theorem radialLift_mem_thermalDiffSpan_closure (w : ℕ) {g : ℝ → ℝ}
   have hres : T fLp ∈ S_odd.topologicalClosure := by
     change T fLp ∈ closure (S_odd : Set _)
     have hfLp_in_rad' : fLp ∈ closure (S_rad : Set _) := hfLp_in_rad
-    exact closure_mono (Set.image_subset_iff.mpr hT_map)
+    exact closure_mono (by rintro _ ⟨u, hu, rfl⟩; exact hT_map u hu)
       (image_closure_subset_closure_image T.continuous ⟨fLp, hfLp_in_rad', rfl⟩)
   rwa [hT_f] at hres
 
