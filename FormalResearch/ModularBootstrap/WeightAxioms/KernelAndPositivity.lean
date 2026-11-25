@@ -855,7 +855,7 @@ theorem testClass_window_bounds (prob : FixedWeightProblem) :
       nlinarith
     have hM_le : ∫ t in Ioi tStar, |g t| * prob.cardyV a t ≤ prob.cardyNorm a g := by
       unfold FixedWeightProblem.cardyNorm
-      refine setIntegral_mono_set hMint ?_ (Ioi_subset_Ioi htStar_pos.le).eventuallyLE
+      refine setIntegral_mono_set hMint ?_ (Ioi_subset_Ioi htStar_pos.le).eventuallySubset
       exact (ae_restrict_iff' measurableSet_Ioi).mpr (Eventually.of_forall fun t ht =>
         mul_nonneg (abs_nonneg _) (prob.cardyV_nonneg ha (mem_Ioi.mp ht).le))
     rw [integral_const_mul] at hmono

@@ -110,7 +110,7 @@ theorem two_ibp_phase_compact {a : ℝ → ℂ} {ψ : ℝ → ℝ} {α β B p M2
         · refine (ae_restrict_iff' measurableSet_Ioi).2 (ae_of_all _ fun x hx => ?_)
           have : 0 < x := lt_trans hα hx
           simp only [hg]; positivity
-        · exact (Ioc_ae_eq_Icc (μ := volume)).symm.le.trans (Ioc_subset_Ioi_self.eventuallyLE)
+        · exact (Ioc_ae_eq_Icc (μ := volume)).symm.le.trans (Ioc_subset_Ioi_self.eventuallySubset)
     _ = B * (α ^ (1 - s) / (s - 1)) * ibpLam p M2 M3 := by
         simp only [hg]
         rw [integral_const_mul, mb_tail_pow hα hs]; ring

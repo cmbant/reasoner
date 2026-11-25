@@ -157,8 +157,11 @@ theorem infinite_zeros_of_le_neg_one (hy : IsSol q y y') {T : ℝ} (hq : ∀ x �
 trivially; a nontrivial one has a discrete, unbounded-below zero set). -/
 theorem infinite_zeros_Iic_zero (hy : IsSol (fun x => x) y y') :
     {x | x ≤ 0 ∧ y x = 0}.Infinite :=
-  (infinite_zeros_of_le_neg_one (T := -1) hy (fun x hx => hx)).mono
-    (fun x hx => ⟨hx.1.trans (by norm_num), hx.2⟩)
+  by
+  have h := infinite_zeros_of_le_neg_one (T := -1) hy (fun x hx => hx)
+  refine h.mono ?_
+  rintro x ⟨hx1, hx2⟩
+  exact ⟨hx1.trans (by norm_num), hx2⟩
 
 /-! ### The positive side: `q > 0` forces at most one zero -/
 

@@ -82,13 +82,13 @@ theorem X3_orth {p q : ℝ} (h : p ^ 2 + q ^ 2 = 1) : X3 p q * (X3 p q)ᵀ = 1 �
   constructor <;>
   · ext i j
     fin_cases i <;> fin_cases j <;>
-    simp [X3, Matrix.mul_apply, Fin.sum_univ_three] <;> nlinarith
+    simp [X3, Matrix.mul_apply, Fin.sum_univ_three, Function.swap] <;> nlinarith
 
 theorem Y3_orth {p q : ℝ} (h : p ^ 2 + q ^ 2 = 1) : Y3 p q * (Y3 p q)ᵀ = 1 ∧ (Y3 p q)ᵀ * Y3 p q = 1 := by
   constructor <;>
   · ext i j
     fin_cases i <;> fin_cases j <;>
-    simp [Y3, Matrix.mul_apply, Fin.sum_univ_three] <;> nlinarith
+    simp [Y3, Matrix.mul_apply, Fin.sum_univ_three, Function.swap] <;> nlinarith
 
 theorem orth_mul {A B : Matrix (Fin 3) (Fin 3) ℝ} (hA : A * Aᵀ = 1 ∧ Aᵀ * A = 1)
     (hB : B * Bᵀ = 1 ∧ Bᵀ * B = 1) : (A * B) * (A * B)ᵀ = 1 ∧ (A * B)ᵀ * (A * B) = 1 := by

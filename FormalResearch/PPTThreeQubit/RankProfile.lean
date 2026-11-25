@@ -430,7 +430,7 @@ theorem Bs_diag_Bs (d : Fin 5 → ℝ) :
       (d 2 : ℂ) • vecMulVec wVec (star wVec) + (d 3 : ℂ) • vecMulVec eVec (star eVec) +
       (d 4 : ℂ) • vecMulVec oVec (star oVec) := by
   ext i j
-  simp only [Bs, bCols, mul_apply, Fin.sum_univ_five, diagonal_apply, conjTranspose_apply, of_apply,
+  simp only [Bs, bCols, Matrix.mul_apply, Fin.sum_univ_five, diagonal_apply, conjTranspose_apply, of_apply,
     Matrix.add_apply, Matrix.smul_apply, vecMulVec_apply, Pi.star_apply, smul_eq_mul]
   simp
   ring

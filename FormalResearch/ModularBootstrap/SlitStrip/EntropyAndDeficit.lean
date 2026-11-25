@@ -526,7 +526,7 @@ theorem lemmaE_complex {x y : ℝ} (hy : 0 < y)
     obtain ⟨hint_sq, hval_sq⟩ := integral_Ioi_inv_sub_sq (by linarith : x < 0)
     have h1 : ∫ σ in Ioo 0 1, poissonKernel x y σ ≤ ∫ σ in Ioi 0, poissonKernel x y σ :=
       setIntegral_mono_set hint.integrableOn
-        (Eventually.of_forall fun σ => poissonKernel_nonneg hy.le σ) Ioo_subset_Ioi_self.eventuallyLE
+        (Eventually.of_forall fun σ => poissonKernel_nonneg hy.le σ) Ioo_subset_Ioi_self.eventuallySubset
     have h2 : ∫ σ in Ioi 0, poissonKernel x y σ ≤ ∫ σ in Ioi 0, (y / π) * ((σ - x) ^ 2)⁻¹ := by
       refine setIntegral_mono_on hint.integrableOn (hint_sq.const_mul _) measurableSet_Ioi
         fun σ hσ => ?_
@@ -2121,7 +2121,7 @@ theorem theorem_A (pj : PoissonJensenInput) (fg : FixedGapInput) :
           (hcont.intervalIntegrable_of_Icc htc_nonneg))
         ((ae_restrict_iff' measurableSet_Ioc).mpr (Eventually.of_forall fun t ht =>
           mul_nonneg (abs_nonneg _) (test.hV_nonneg t ht.1.le)))
-        (Ioc_subset_Ioc_right hle).eventuallyLE
+        (Ioc_subset_Ioc_right hle).eventuallySubset
     linarith [test.hHalfMass]
   exact htc_ge_xiBar.trans htc_lt_t1.le
 
@@ -2227,7 +2227,7 @@ theorem slitStrip_hypotheses_nonvacuous :
     have hsub : Ioc T₀ T₁ ⊆ Ioi 0 := Ioc_subset_Ioi_self.trans (Ioi_subset_Ioi hT₀_pos.le)
     have hle : ∫ t in Ioc T₀ T₁, |g t| * V t ≤ M :=
       setIntegral_mono_set hint_all (Eventually.of_forall fun t =>
-        mul_nonneg (abs_nonneg _) (by dsimp [V]; positivity)) hsub.eventuallyLE
+        mul_nonneg (abs_nonneg _) (by dsimp [V]; positivity)) hsub.eventuallySubset
     rw [← intervalIntegral.integral_of_le hT₀_lt_T₁.le, hmid_val] at hle
     linarith [xiStar_pos]
   let t₁ : ℝ := T₁ + 2

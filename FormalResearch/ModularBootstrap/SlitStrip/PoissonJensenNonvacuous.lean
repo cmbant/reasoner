@@ -156,7 +156,7 @@ theorem slitStripPoissonJensenInput_nonvacuous :
     have hsub : Ioc T₀ T₁ ⊆ Ioi 0 := Ioc_subset_Ioi_self.trans (Ioi_subset_Ioi hT₀_pos.le)
     have hle : ∫ t in Ioc T₀ T₁, |g t| * V t ≤ M :=
       setIntegral_mono_set hint_all (Eventually.of_forall fun t =>
-        mul_nonneg (abs_nonneg _) (by dsimp [V]; positivity)) hsub.eventuallyLE
+        mul_nonneg (abs_nonneg _) (by dsimp [V]; positivity)) hsub.eventuallySubset
     rw [← intervalIntegral.integral_of_le hT₀_lt_T₁.le, hmid_val] at hle
     linarith [xiStar_pos]
   let t₁ : ℝ := T₁ + 2

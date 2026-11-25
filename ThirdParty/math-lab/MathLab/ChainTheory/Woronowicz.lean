@@ -280,7 +280,7 @@ theorem mul_kron_eq_zero {ρ : Mat 2 m} {w : Fin m → ℂ} (h0 : ρ *ᵥ bvec w
     · have := congrFun h1 x
       simpa [mulVec, dotProduct, bvec, Fintype.sum_prod_type, Fin.sum_univ_two] using this
   ext x ⟨b, l⟩
-  simp only [Matrix.mul_apply, kroneckerMap_apply, one_apply, vecMulVec_apply, Pi.star_apply,
+  simp only [Matrix.mul_apply, kroneckerMap_apply, Matrix.one_apply, vecMulVec_apply, Pi.star_apply,
     Fintype.sum_prod_type, Matrix.zero_apply]
   have : ∀ c : Fin 2, ∑ p, ρ x (c, p) * ((if c = b then 1 else 0) * (w p * star (w l))) =
       (if c = b then 1 else 0) * star (w l) * ∑ p, ρ x (c, p) * w p := by
@@ -360,7 +360,7 @@ theorem exists_compress {k : ℕ} {ρ : Mat 2 (k + 1)} (hρ : IsPSD ρ) {w : Fin
   have hkron : (1 : Matrix (Fin 2) (Fin 2) ℂ) ⊗ₖ (1 - (c * star c) • vecMulVec w (star w)) =
       1 - (c * star c) • K := by
     ext ⟨a, k⟩ ⟨b, l⟩
-    simp only [hKdef, kroneckerMap_apply, Matrix.sub_apply, Matrix.smul_apply, one_apply,
+    simp only [hKdef, kroneckerMap_apply, Matrix.sub_apply, Matrix.smul_apply, Matrix.one_apply,
       smul_eq_mul, Prod.mk.injEq]
     split_ifs <;> simp_all
   have hback : lop (1 : Matrix (Fin 2) (Fin 2) ℂ) V (lop (1 : Matrix (Fin 2) (Fin 2) ℂ) Vᴴ ρ) = ρ := by

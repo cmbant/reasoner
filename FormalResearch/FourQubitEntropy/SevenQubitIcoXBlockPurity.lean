@@ -32,7 +32,7 @@ set_option linter.unusedSectionVars false
 
 theorem trace_mul_self_symm (A : Matrix ι ι ℝ) (hA : Aᵀ = A) :
     trace (A * A) = ∑ i, ∑ j, A i j ^ 2 := by
-  simp only [trace, diag_apply, mul_apply]
+  simp only [trace, diag_apply, Matrix.mul_apply]
   refine sum_congr rfl fun i _ => sum_congr rfl fun j _ => ?_
   have : A j i = A i j := by
     have := congrFun (congrFun hA i) j
@@ -41,7 +41,7 @@ theorem trace_mul_self_symm (A : Matrix ι ι ℝ) (hA : Aᵀ = A) :
 
 theorem trace_transpose_mul_self (X : Matrix ι ι ℝ) :
     trace (Xᵀ * X) = ∑ i, ∑ j, X i j ^ 2 := by
-  simp only [trace, diag_apply, mul_apply, transpose_apply]
+  simp only [trace, diag_apply, Matrix.mul_apply, transpose_apply]
   rw [Finset.sum_comm]
   refine sum_congr rfl fun i _ => sum_congr rfl fun j _ => ?_
   ring
@@ -77,7 +77,7 @@ theorem trace_mul_sq_le (A Q : Matrix ι ι ℝ) (hA : Aᵀ = A) (hQ : Qᵀ = Q)
   rw [trace_mul_self_symm A hA, trace_mul_self_symm Q hQ]
   have h1 : trace (A * Q) = ∑ p : ι × ι, A p.1 p.2 * Q p.1 p.2 := by
     rw [Fintype.sum_prod_type]
-    simp only [trace, diag_apply, mul_apply]
+    simp only [trace, diag_apply, Matrix.mul_apply]
     refine sum_congr rfl fun i _ => sum_congr rfl fun j _ => ?_
     have : Q j i = Q i j := by
       have := congrFun (congrFun hQ i) j

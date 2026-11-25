@@ -178,7 +178,7 @@ theorem star_omega_idTensor_choiMap (Y : Matrix (ι × κ) (ι × κ) ℂ) :
   simp only [dotProduct, mulVec, omega, Fintype.sum_prod_type, idTensor_apply, Pi.star_apply,
     mul_ite, mul_one, mul_zero, Finset.sum_ite_eq, Finset.mem_univ, ite_true, apply_ite (star : ℂ → ℂ),
     star_one, star_zero, ite_mul, one_mul, zero_mul]
-  simp only [trace, diag, mul_apply, Fintype.sum_prod_type, choiMap_apply, matBlock_apply]
+  simp only [trace, diag, Matrix.mul_apply, Fintype.sum_prod_type, choiMap_apply, matBlock_apply]
   rw [Finset.sum_comm]
   refine Finset.sum_congr rfl fun j _ => ?_
   rw [Finset.sum_comm]

@@ -40,7 +40,7 @@ theorem kron_mul_mul_apply (A C : Matrix μ μ ℂ) (M : Matrix (ι × μ) (ι �
     (i j : ι) (i' j' : μ) :
     (((1 : Matrix ι ι ℂ) ⊗ₖ A) * M * ((1 : Matrix ι ι ℂ) ⊗ₖ C)) (i, i') (j, j')
       = (A * matBlock M i j * C) i' j' := by
-  simp only [Matrix.mul_apply, Fintype.sum_prod_type, kronecker_apply, one_apply, matBlock_apply,
+  simp only [Matrix.mul_apply, Fintype.sum_prod_type, kronecker_apply, Matrix.one_apply, matBlock_apply,
     ite_mul, one_mul, zero_mul, mul_ite, mul_zero]
   simp only [Finset.sum_ite_irrel, Finset.sum_const_zero, Finset.sum_ite_eq', Finset.sum_ite_eq,
     Finset.mem_univ, ite_true]

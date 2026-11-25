@@ -212,12 +212,12 @@ lemma Qp_vanish (X0 : ℝ) (hM : 1 ≤ M) (hc : c 0 1 ≠ 0) :
       exact ih hn' m hm1 (by omega)
 
 lemma eval_Dp (a : ℕ → ℝ) (h : ℝ) : (Dp M a).eval h = ∑ r ∈ range M, a (r + 1) * h ^ (r + 1) := by
-  simp [Dp, eval_finset_sum]
+  simp [Dp, eval_finsetSum]
 
 lemma eval_Qp (K0 : ℕ) (D : ℝ[X]) (h : ℝ) :
     (Qp M c K0 D).eval h = ∑ j ∈ range (M + 1), h ^ j * ∑ k ∈ range (M - j + 1), if k ≤ K0 then c j k * (D.eval h) ^ k else 0 := by
   unfold Qp
-  simp only [eval_finset_sum, eval_mul, eval_pow, eval_X]
+  simp only [eval_finsetSum, eval_mul, eval_pow, eval_X]
   refine Finset.sum_congr rfl fun j _ => ?_
   congr 1
   refine Finset.sum_congr rfl fun k _ => ?_

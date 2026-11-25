@@ -24,7 +24,7 @@ Source: `CFT/common/two_edge_bootstrap.tex` (Proposition `TE.3` `teb:mellin`, pa
 @[expose] public section
 
 open Complex MeasureTheory Filter Topology Set
-open scoped Real Interval
+open scoped Real Interval Pointwise
 
 namespace FormalResearch.ModularBootstrap.StripBand
 

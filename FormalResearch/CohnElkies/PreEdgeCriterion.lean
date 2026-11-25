@@ -904,7 +904,7 @@ private lemma pe3_rem_Ioi_bound {Φ : ℝ → ℂ} {c C_err C_J C_B : ℝ}
     have hbdT := setIntegral_mono_on hintT.norm ((h_exp0.1.mono_set (Ioc_subset_Ioi_self.trans (Ioi_subset_Ioi zero_le_one))).const_mul _) measurableSet_Ioc hptT
     have hmono : ∫ y in Ioc 1 T, Real.exp (-(π / 4) * y) ≤ ∫ y in Ioi (0 : ℝ), Real.exp (-(π / 4) * y) :=
       setIntegral_mono_set h_exp0.1 (ae_of_all _ fun _ => (Real.exp_pos _).le)
-        (Ioc_subset_Ioi_self.trans (Ioi_subset_Ioi zero_le_one)).eventuallyLE
+        (Ioc_subset_Ioi_self.trans (Ioi_subset_Ioi zero_le_one)).eventuallySubset
     rw [integral_const_mul] at hbdT; rw [h_exp0.2, mul_zero, Real.exp_zero, show (1 : ℝ) / (π / 4) = 4 / π by ring] at hmono
     exact ⟨hintT, hbdT.trans ((mul_le_mul_of_nonneg_left hmono (by positivity)).trans_eq (by dsimp [K_T]; ring))⟩
   have h_expT4 := exp_neg_mul_Ioi_bd T (by positivity : (0 : ℝ) < π / 4)
@@ -975,7 +975,7 @@ private lemma pe3_rem_Ioi_bound {Φ : ℝ → ℂ} {c C_err C_J C_B : ℝ}
         setIntegral_congr_fun measurableSet_Ioi (fun y hy => show fB1 y = (2 : ℝ) ^ (-((c - 4) / 2)) * (y / c) ^ (-4 : ℝ) by
           dsimp [fB1]; simp [not_le.mpr (mem_Ioi.mp hy)]), integral_const_mul, hrpow_c.2]
     have h_Ioc_le : ∫ y in Ioc T c, Real.exp (-(π / 4) * y) ≤ (4 / π) * c ^ (-(2 / 3 : ℝ)) :=
-      (setIntegral_mono_set h_expT4.1 (ae_of_all _ fun _ => (Real.exp_pos _).le) Ioc_subset_Ioi_self.eventuallyLE).trans_eq (by rw [h_expT4.2, hexp_T4]; field_simp [Real.pi_ne_zero])
+      (setIntegral_mono_set h_expT4.1 (ae_of_all _ fun _ => (Real.exp_pos _).le) Ioc_subset_Ioi_self.eventuallySubset).trans_eq (by rw [h_expT4.2, hexp_T4]; field_simp [Real.pi_ne_zero])
     calc ∫ y in Ioi T, ‖Φ y‖ ≤ ∫ y in Ioi T, B_hi y := setIntegral_mono_on h_IoiT.norm hB_hi_int measurableSet_Ioi hpt_hi
       _ = √(3 * π) * C_J * (∫ y in Ioc T c, Real.exp (-(π / 4) * y)) + √(3 * π) * C_J * (1 / 3) * (c * (2 : ℝ) ^ (-((c - 4) / 2))) + (2 / π) * √(3 * π) * (C_J + C_B) * c ^ (-(4 / 3 : ℝ)) := by
           dsimp [B_hi]; rw [MeasureTheory.integral_add (hfB1_int.const_mul _) (h_expT2.1.const_mul _), integral_const_mul, integral_const_mul, h_expT2.2, hfB1_split, hexp_T2]; field_simp [Real.pi_ne_zero]

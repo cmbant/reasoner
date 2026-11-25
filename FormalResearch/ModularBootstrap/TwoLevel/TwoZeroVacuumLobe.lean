@@ -426,7 +426,7 @@ theorem twoZero_lobe_bound (prob : FixedWeightProblem) (hw : prob.w = 1) {n : �
       |combProfile c (d.twoZeroComb c) t| * prob.cardyV (c / 12) t) ≤
       ∫ t in Icc (c * (xiStar / 2) ^ 2 / 3) (c * (xiStar + lambdaComb c * (-S)) ^ 2 / 3),
         |combProfile c (d.twoZeroComb c) t| * prob.cardyV (c / 12) t := by
-    refine setIntegral_mono_set ?_ ?_ Ioc_subset_Icc_self.eventuallyLE
+    refine setIntegral_mono_set ?_ ?_ Ioc_subset_Icc_self.eventuallySubset
     · exact (ContinuousOn.integrableOn_Icc (hcont.mono (fun t ht => by
         have : (0 : ℝ) ≤ c * (xiStar / 2) ^ 2 / 3 := by positivity
         exact (show (0 : ℝ) ≤ t from this.trans ht.1))))

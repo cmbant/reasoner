@@ -258,7 +258,7 @@ theorem mass_ratio_bdd (H : RadialCompactness) {c : ℕ → ℝ} (hc : Tendsto c
             refine div_le_div_of_nonneg_right ?_ hMk.le
             refine setIntegral_mono_set hψint.integrableOn
               (Eventually.of_forall fun u => abs_nonneg _) ?_
-            exact (Icc_subset_Iic_self).eventuallyLE
+            exact (Icc_subset_Iic_self).eventuallySubset
         _ ≤ hankelMass (c (K k)) (q (K k)) / hankelMass (c (K k)) (p (K k)) :=
             div_le_div_of_nonneg_right hA hMk.le
         _ ≤ 1 / ((k : ℝ) + 1) := hr
@@ -266,7 +266,7 @@ theorem mass_ratio_bdd (H : RadialCompactness) {c : ℕ → ℝ} (hc : Tendsto c
       have : ∫ u in Ioc u₁ b, |hankelWindowProfile (c (K k)) (p (K k)) u| ≤
           ∫ u in Icc u₁ b, |hankelWindowProfile (c (K k)) (p (K k)) u| :=
         setIntegral_mono_set hψint.integrableOn (Eventually.of_forall fun u => abs_nonneg _)
-          Ioc_subset_Icc_self.eventuallyLE
+          Ioc_subset_Icc_self.eventuallySubset
       linarith
   have hc_cont : Continuous (fun u : ℝ => (F (u : ℂ)).re) :=
     Complex.continuous_re.comp (hFd.continuous.comp Complex.continuous_ofReal)

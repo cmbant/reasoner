@@ -186,10 +186,12 @@ theorem sixSum_eq (z : ℂ) : sixSum z = (6 : ℂ) • symAvg (qs 1 z) := by
   have hω2 : ω ^ 2 = -1 - ω := by linear_combination hω
   have hs : star ω = ω ^ 2 := star_ω
   have hs2 : star (ω ^ 2) = ω := by rw [star_pow, hs]; linear_combination ω * ω_cube
+  have hs' : (starRingEnd ℂ) ω = ω ^ 2 := hs
+  have hs2' : (starRingEnd ℂ) (ω ^ 2) = ω := hs2
   ext a b
   fin_cases a <;> fin_cases b <;>
     simp [sixSum, symAvg, cv, ph, sgn, phaseB, phaseC, Fin.sum_univ_three, Fin.sum_univ_two,
-      vecMulVec_apply, qs_neg, hs, hs2] <;> (try ring_nf) <;> (try simp only [ω_cube, hω2]) <;> ring
+      vecMulVec_apply, qs_neg, hs, hs2, hs', hs2'] <;> (try ring_nf) <;> (try simp only [ω_cube, hω2]) <;> ring
 
 theorem Gc_eq (z : ℂ) : Gc z = ((1 / Nrm z : ℝ) : ℂ) • symAvg (qs 1 z) := by
   unfold Gc

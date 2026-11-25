@@ -153,7 +153,7 @@ lemma integrableOn_Ici_sqrt_exp {x₀ : ℝ} (hx₀ : 0 < x₀) :
 
 lemma integral_Ici_sqrt_exp_le {x₀ : ℝ} (hx₀ : 0 < x₀) :
     ∫ x in Ici x₀, x ^ (1 / 2 : ℝ) * exp (-π * x) ≤ farConst := by
-  refine setIntegral_mono_set integrableOn_sqrt_exp ?_ (Ici_subset_Ioi.mpr hx₀).eventuallyLE
+  refine setIntegral_mono_set integrableOn_sqrt_exp ?_ (Ici_subset_Ioi.mpr hx₀).eventuallySubset
   filter_upwards [ae_restrict_mem measurableSet_Ioi] with x hx
   have : 0 < x := hx
   positivity
@@ -212,7 +212,7 @@ lemma integrableOn_Ici_sqrt_pow_exp (p : ℕ) {x₀ : ℝ} (hx₀ : 0 < x₀) :
 
 lemma integral_Ici_sqrt_pow_exp_le (p : ℕ) {x₀ : ℝ} (hx₀ : 0 < x₀) :
     ∫ x in Ici x₀, x ^ (1 / 2 : ℝ) * (1 + x) ^ p * exp (-π * x) ≤ farConstP p := by
-  refine setIntegral_mono_set (integrableOn_sqrt_pow_exp p) ?_ (Ici_subset_Ioi.mpr hx₀).eventuallyLE
+  refine setIntegral_mono_set (integrableOn_sqrt_pow_exp p) ?_ (Ici_subset_Ioi.mpr hx₀).eventuallySubset
   filter_upwards [ae_restrict_mem measurableSet_Ioi] with x hx
   have : 0 < x := hx
   positivity

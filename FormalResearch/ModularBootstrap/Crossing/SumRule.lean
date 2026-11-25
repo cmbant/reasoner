@@ -376,7 +376,7 @@ theorem besselI_zero_le_exp_div_sqrt {z : ℝ} (hz : 0 < z) :
       _ ≤ Real.exp z * ∫ θ in Ioi 0, Real.exp (-(2 * z / π ^ 2) * θ ^ 2) := by
           refine mul_le_mul_of_nonneg_left ?_ (Real.exp_pos _).le
           exact setIntegral_mono_set hint_ioi (Eventually.of_forall fun _ => (Real.exp_pos _).le)
-            Ioc_subset_Ioi_self.eventuallyLE
+            Ioc_subset_Ioi_self.eventuallySubset
   rw [integral_gaussian_Ioi] at h1
   have hcalc : (1 / π) * (Real.exp z * (Real.sqrt (π / (2 * z / π ^ 2)) / 2)) =
       Real.sqrt (π / 8) * Real.exp z / Real.sqrt z := by
@@ -3528,7 +3528,7 @@ theorem lemma_fwX_equality (prob : FixedWeightProblem)
     have hint_t : IntegrableOn (fun t : ℝ => (1 + 2 * t) ^ r_exp) (Ioi (0 : ℝ)) := by
       rw [← Ioc_union_Ioi_eq_Ioi zero_le_one]
       refine IntegrableOn.union ?_ ?_
-      · exact ((hcont_12t r_exp).mono (fun t ht => ht.1)).integrableOn_Icc.mono_set Ioc_subset_Icc_self
+      · exact ((hcont_12t r_exp).mono (fun t (ht : t ∈ Icc (0 : ℝ) 1) => ht.1)).integrableOn_Icc.mono_set Ioc_subset_Icc_self
       · have h1 : IntegrableOn (fun t : ℝ => t ^ r_exp) (Ioi (1 : ℝ)) :=
           integrableOn_Ioi_rpow_of_lt hr_lt one_pos
         refine h1.mono' ((hcont_12t r_exp).mono (fun t ht =>

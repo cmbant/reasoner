@@ -364,7 +364,7 @@ private lemma laplace_tail2_tendsto {R_plus : ℝ → ℝ} {β_plus C_tl : ℝ}
         _ ≤ ∫ s in Ioi (0 : ℝ), M * Real.exp (-(1 / 96 : ℝ) * xtilde ^ 3) *
               Real.exp (-(1 / 14 : ℝ) * s) :=
             setIntegral_mono_set hint_exp0 (ae_of_all _ fun s => by positivity)
-              (Ici_subset_Ioi.mpr (by linarith : 0 < 3 * xtilde / 4)).eventuallyLE
+              (Ici_subset_Ioi.mpr (by linarith : 0 < 3 * xtilde / 4)).eventuallySubset
         _ = M * Real.exp (-(1 / 96 : ℝ) * xtilde ^ 3) *
               ∫ s in Ioi (0 : ℝ), Real.exp (-(1 / 14 : ℝ) * s) := integral_const_mul _ _
         _ = M * 14 * Real.exp (-(1 / 96 : ℝ) * xtilde ^ 3) := by rw [h_int_exp0]; ring

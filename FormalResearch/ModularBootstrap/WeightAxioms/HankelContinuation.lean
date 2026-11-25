@@ -197,7 +197,7 @@ theorem testClass_integral_kernelK_le (prob : FixedWeightProblem) :
         C_ker * ∫ t in Ioi (0 : ℝ), |g t| * t ^ (prob.w - 1) := by
       rw [integral_const_mul]
       refine mul_le_mul_of_nonneg_left ?_ (by positivity)
-      refine setIntegral_mono_set hA_int ?_ Ioc_subset_Ioi_self.eventuallyLE
+      refine setIntegral_mono_set hA_int ?_ Ioc_subset_Ioi_self.eventuallySubset
       exact (ae_restrict_iff' measurableSet_Ioi).mpr (Eventually.of_forall fun t ht =>
         mul_nonneg (abs_nonneg _) (pow_nonneg (mem_Ioi.mp ht).le _))
     calc ∫ t in Ioc 0 (4 / c'), |g t| * kernelK prob.w (c' / 12) t
@@ -220,7 +220,7 @@ theorem testClass_integral_kernelK_le (prob : FixedWeightProblem) :
       rw [integral_const_mul]
       refine mul_le_mul_of_nonneg_left ?_ (by positivity)
       unfold FixedWeightProblem.cardyNorm
-      refine setIntegral_mono_set hg.int_cardy ?_ (Ioi_subset_Ioi h4_pos.le).eventuallyLE
+      refine setIntegral_mono_set hg.int_cardy ?_ (Ioi_subset_Ioi h4_pos.le).eventuallySubset
       exact (ae_restrict_iff' measurableSet_Ioi).mpr (Eventually.of_forall fun t ht =>
         mul_nonneg (abs_nonneg _) (prob.cardyV_nonneg ha_ge (mem_Ioi.mp ht).le))
     exact h1.trans h2

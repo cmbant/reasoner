@@ -86,7 +86,7 @@ theorem locMat_mulVec_tri (FA FB FC : Matrix (Fin 2) (Fin 2) ℂ) (a b c : Fin 2
 theorem locMat_mul (A B C A' B' C' : Matrix (Fin 2) (Fin 2) ℂ) :
     locMat A B C * locMat A' B' C' = locMat (A * A') (B * B') (C * C') := by
   ext i k
-  simp only [mul_apply, locMat, of_apply, Fin.sum_univ_eight, Fin.sum_univ_two]
+  simp only [Matrix.mul_apply, locMat, of_apply, Fin.sum_univ_eight, Fin.sum_univ_two]
   fin_cases i <;> fin_cases k <;> simp [bitA, bitB, bitC] <;> ring
 
 theorem locMat_one : locMat 1 1 1 = 1 := by

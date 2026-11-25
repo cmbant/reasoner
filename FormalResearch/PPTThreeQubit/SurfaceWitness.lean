@@ -53,7 +53,7 @@ def formH0 (c : Fin 5 → ℂ) : ℝ :=
 
 theorem trace_H0_vecMulVec_re (c : Fin 5 → ℂ) :
     (H0 * vecMulVec c (star c)).trace.re = formH0 c := by
-  simp [H0, formH0, trace, diag, mul_apply, vecMulVec_apply, Fin.sum_univ_five, h0Diag,
+  simp [H0, formH0, trace, diag, Matrix.mul_apply, vecMulVec_apply, Fin.sum_univ_five, h0Diag,
     Complex.normSq_apply, Matrix.of_apply]
   ring
 

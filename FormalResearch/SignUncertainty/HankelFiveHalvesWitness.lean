@@ -486,7 +486,7 @@ private lemma tendsto_integral_cos_sq :
       have hle1 : ∫ t in Ioi T, (2 * ε * t * Real.exp (-ε * t ^ 2)) ≤ 1 := by
         rw [← hmass_one]
         exact setIntegral_mono_set hint_w ((ae_restrict_mem measurableSet_Ioi).mono fun t (ht : 0 < t) =>
-          mul_nonneg (by positivity) (Real.exp_pos _).le) (Ioi_subset_Ioi hT0.le).eventuallyLE
+          mul_nonneg (by positivity) (Real.exp_pos _).le) (Ioi_subset_Ioi hT0.le).eventuallySubset
       calc |∫ t in Ioi T, (2 * ε * t * Real.exp (-ε * t ^ 2)) * (F t - L)|
           ≤ ∫ t in Ioi T, (δ / 4) * (2 * ε * t * Real.exp (-ε * t ^ 2)) := by
             rw [← Real.norm_eq_abs]

@@ -510,7 +510,7 @@ theorem right_tail_weighted {y : ℝ} (hy : 0 ≤ y) {η : ℝ} (hη : 0 < η) :
       (laplaceWeight_pos hc0 hy hζ1 hΔ0).le
   calc ∫ Δ in Ioo 0 U, |g Δ| * hankelRho0 c Δ * laplaceWeight c y Δ
       ≤ ∫ Δ in Ioc 0 Δ₁ ∪ Ioo Δ₁ U, |g Δ| * hankelRho0 c Δ * laplaceWeight c y Δ :=
-        setIntegral_mono_set hunion hnn hsub.eventuallyLE
+        setIntegral_mono_set hunion hnn hsub.eventuallySubset
     _ = (∫ Δ in Ioc 0 Δ₁, |g Δ| * hankelRho0 c Δ * laplaceWeight c y Δ) +
           ∫ Δ in Ioo Δ₁ U, |g Δ| * hankelRho0 c Δ * laplaceWeight c y Δ := by
         refine setIntegral_union ?_ measurableSet_Ioo hIIi hIi

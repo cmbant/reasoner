@@ -116,7 +116,7 @@ theorem lemmaB_b_integral (ha : 2 ≤ a) (hg : TestClass virasoroProblem a g) :
         _ ≤ (2 / π ^ 2) * (|g t| * virasoroProblem.cardyV a t) := by gcongr
     have hle : ∫ t in Ioi t₀, |g t| * virasoroProblem.cardyV a t ≤ virasoroProblem.cardyNorm a g := by
       unfold FixedWeightProblem.cardyNorm
-      refine setIntegral_mono_set hMint ?_ (Ioi_subset_Ioi ht₀pos.le).eventuallyLE
+      refine setIntegral_mono_set hMint ?_ (Ioi_subset_Ioi ht₀pos.le).eventuallySubset
       exact (ae_restrict_iff' measurableSet_Ioi).mpr (Eventually.of_forall fun t ht =>
         mul_nonneg (abs_nonneg _) (virasoroProblem.cardyV_nonneg
           (by rw [virasoroProblem_totalShift]; exact ha) (mem_Ioi.mp ht).le))
@@ -228,7 +228,7 @@ theorem lemmaB_d_integral {c' : ℝ} (hc : 1000 ≤ c') {g : ℝ → ℝ}
           integral_const_mul _ _
       _ ≤ exp 92 * c' ^ 2 * M := by
           refine mul_le_mul_of_nonneg_left ?_ (by positivity)
-          refine setIntegral_mono_set hMint ?_ (Ioi_subset_Ioi ht₁pos.le).eventuallyLE
+          refine setIntegral_mono_set hMint ?_ (Ioi_subset_Ioi ht₁pos.le).eventuallySubset
           exact (ae_restrict_iff' measurableSet_Ioi).mpr (Eventually.of_forall fun t ht =>
             mul_nonneg (abs_nonneg _) (virasoroProblem.cardyV_nonneg hshift (mem_Ioi.mp ht).le))
   have hunion : Ioc 0 t₁ ∪ Ioi t₁ = Ioi 0 := Ioc_union_Ioi_eq_Ioi ht₁pos.le

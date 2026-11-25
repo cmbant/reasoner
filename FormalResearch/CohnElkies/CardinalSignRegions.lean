@@ -434,7 +434,7 @@ private lemma sum_tail_cutoff_rpow_le {p : ℝ} (hp : p ∈ Ioo (1 / 2 : ℝ) 1)
       simp only [Nat.cast_zero, add_zero] at hadj
       have hset : ∫ x in (M : ℝ)..((M : ℝ) + K), x ^ (-(4 / 3 : ℝ)) ≤ ∫ x in Ioi (M : ℝ), x ^ (-(4 / 3 : ℝ)) := by
         rw [intervalIntegral.integral_of_le (by linarith [(Nat.cast_nonneg K : (0 : ℝ) ≤ K)])]
-        exact setIntegral_mono_set hint_Ioi ((ae_restrict_mem measurableSet_Ioi).mono fun x (hx : M < x) => Real.rpow_nonneg (by linarith) _) Ioc_subset_Ioi_self.eventuallyLE
+        exact setIntegral_mono_set hint_Ioi ((ae_restrict_mem measurableSet_Ioi).mono fun x (hx : M < x) => Real.rpow_nonneg (by linarith) _) Ioc_subset_Ioi_self.eventuallySubset
       exact ((Finset.sum_le_sum hstep).trans_eq (by rw [← hadj]; exact Finset.sum_congr rfl fun m _ => by rw [Nat.cast_add, Nat.cast_one, add_assoc])).trans hset
     have htsum_le := le_of_tendsto (hf_sum.comp_injective (add_left_injective (M - 1))).hasSum.tendsto_sum_nat (Eventually.of_forall hle_int)
     have hint_val : ∫ x in Ioi (M : ℝ), x ^ (-(4 / 3 : ℝ)) = 3 * (M : ℝ) ^ (-(1 / 3 : ℝ)) := by

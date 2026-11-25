@@ -28,7 +28,7 @@ private lemma lobe_gauss10_tail {c g' ε_L τ_sd a τ_core : ℝ}
   let k_10 := (1 / 10 : ℝ) * (c * g')
   obtain ⟨hint, hbd⟩ := integral_exp_neg_div_Ioi_le hτcore_pos (by positivity : 0 < k_10)
   have hm : ∫ τ in Ioc τ_core b, Real.exp (-k_10 * τ ^ 2) ≤ ∫ τ in Ioi τ_core, Real.exp (-k_10 * τ ^ 2) :=
-    setIntegral_mono_set hint (Filter.Eventually.of_forall fun _ => (Real.exp_pos _).le) Ioc_subset_Ioi_self.eventuallyLE
+    setIntegral_mono_set hint (Filter.Eventually.of_forall fun _ => (Real.exp_pos _).le) Ioc_subset_Ioi_self.eventuallySubset
   have ha_sq : a ^ 2 = ε_L ^ (-(1 / 2 : ℝ)) := by
     rw [ha_def, ← Real.rpow_natCast (ε_L ^ (-(1 / 4 : ℝ))) 2, ← Real.rpow_mul hεL_pos.le,
       show -(1 / 4 : ℝ) * (2 : ℕ) = -(1 / 2 : ℝ) by norm_num]
@@ -309,7 +309,7 @@ private lemma lobe_outer_gt_half {c σ_star g' ε_L τ_sd τ_core : ℝ}
       have hs' : IntegrableOn (fun u : ℝ => Real.exp (-(3 / 80 : ℝ) * c * u)) (Ioi 0) := by
         simpa only [neg_mul] using hl
       exact (setIntegral_mono_set hs' (Filter.Eventually.of_forall fun _ => (Real.exp_pos _).le)
-        Ioc_subset_Ioi_self.eventuallyLE).trans_eq hvl'
+        Ioc_subset_Ioi_self.eventuallySubset).trans_eq hvl'
     have h_pref : 1 / (c * τ_sd) ≤ 2 * ε_L := le_of_sq_le_sq (by
       have hg'_lt : g' < 2 / (1 - σ_star) := by
         rw [hg'_def]; exact ((stripG_deriv_bounds hσ0 hσ1).2).trans (div_lt_div_of_pos_right (by linarith only [hσ1]) h1s_pos)
@@ -462,7 +462,7 @@ private lemma lobe_add_bound {c σ_star g' τ_sd z_pos ε : ℝ}
         have hs' : IntegrableOn (fun u : ℝ => Real.exp (-(3 / 80 : ℝ) * c * u)) (Ioi 0) := by
           simpa only [neg_mul] using hl
         exact (setIntegral_mono_set hs' (Filter.Eventually.of_forall fun _ => (Real.exp_pos _).le)
-          Ioc_subset_Ioi_self.eventuallyLE).trans_eq hvl'
+          Ioc_subset_Ioi_self.eventuallySubset).trans_eq hvl'
       exact mul_le_mul_of_nonneg_left (h2.trans_eq (by ring)) (Real.rpow_nonneg hτ₁_pos.le _)
     have hi2 : ∫ τ in Ioc τ₁ (1 / 2), d₂ τ ≤ ((3 / 80 : ℝ) * c) ^ (-(3 / 2 : ℝ)) := by
       dsimp [d₂]; rw [← intervalIntegral.integral_of_le (by linarith only [hτ₁_lt] : τ₁ ≤ 1 / 2),
@@ -472,7 +472,7 @@ private lemma lobe_add_bound {c σ_star g' τ_sd z_pos ε : ℝ}
       rw [show (fun u : ℝ => u ^ (1 / 2 : ℝ) * Real.exp (-((3 / 80 : ℝ) * c) * u)) =
         fun u => u ^ (1 / 2 : ℝ) * Real.exp (-(3 / 80 : ℝ) * c * u) by ext u; ring_nf] at hs hvs
       exact (setIntegral_mono_set hs ((ae_restrict_iff' measurableSet_Ioi).mpr (Filter.Eventually.of_forall fun x hx =>
-        mul_nonneg (Real.rpow_nonneg (mem_Ioi.mp hx).le _) (Real.exp_pos _).le)) Ioc_subset_Ioi_self.eventuallyLE).trans hvs
+        mul_nonneg (Real.rpow_nonneg (mem_Ioi.mp hx).le _) (Real.exp_pos _).le)) Ioc_subset_Ioi_self.eventuallySubset).trans hvs
     have hz_pos : 0 < z_pos := by rw [hz_def]; positivity
     have hτ1_eq : τ₁ ^ (-(1 / 2 : ℝ)) = Real.sqrt 2 * c ^ (1 / 2 : ℝ) * z_pos ^ (-(1 / 2 : ℝ)) := by
       calc τ₁ ^ (-(1 / 2 : ℝ)) = (Real.sqrt ((1 - σ_star) / 2))⁻¹ := rpow_neg_half_eq_inv_sqrt hτ₁_pos.le

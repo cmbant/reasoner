@@ -72,7 +72,7 @@ theorem Bs_surfXw_Bs (s γ V G β E O : ℝ) :
       (G : ℂ) • (vecMulVec wVec (star vVec) + vecMulVec vVec (star wVec)) +
       (E : ℂ) • vecMulVec eVec (star eVec) + (O : ℂ) • vecMulVec oVec (star oVec) := by
   ext i j
-  simp only [surfXw, Bs, bCols, mul_apply, Fin.sum_univ_five, conjTranspose_apply, of_apply,
+  simp only [surfXw, Bs, bCols, Matrix.mul_apply, Fin.sum_univ_five, conjTranspose_apply, of_apply,
     Matrix.add_apply, Matrix.smul_apply, vecMulVec_apply, Pi.star_apply, smul_eq_mul]
   simp
   ring
@@ -203,13 +203,13 @@ theorem rhoSurface_filter {α β a lam : ℝ} (hα : 0 < α) (hβ : 0 < β) (hβ
 theorem trace_Hs_surfXw (s γ V G β E O : ℝ) :
     (Hs s * surfXw γ V G β E O).trace =
       ((hDiag s 0 * γ + hDiag s 1 * V + hDiag s 2 * β + hDiag s 3 * E + hDiag s 4 * O : ℝ) : ℂ) := by
-  simp [Hs, surfXw, trace, diag, mul_apply, Fin.sum_univ_five, diagonal_apply]
+  simp [Hs, surfXw, trace, diag, Matrix.mul_apply, Fin.sum_univ_five, diagonal_apply]
 
 theorem trace_H0_surfXw (γ V G β E O : ℝ) :
     (H0 * surfXw γ V G β E O).trace =
       ((h0Diag 0 * γ + h0Diag 1 * V + h0Diag 2 * β + h0Diag 3 * E + h0Diag 4 * O -
         2 * nuH * G : ℝ) : ℂ) := by
-  simp [H0, surfXw, trace, diag, mul_apply, Fin.sum_univ_five, h0Diag]
+  simp [H0, surfXw, trace, diag, Matrix.mul_apply, Fin.sum_univ_five, h0Diag]
   ring
 
 theorem surfH_sq (t : ℝ) : surfH 1 t ^ 2 = 1 + t ^ 2 := by

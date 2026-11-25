@@ -209,7 +209,7 @@ theorem glue_contDiffOn {ι : Type*} (n : ℕ) (A B : ℝ) (a b : ι → ℝ) (f
     obtain ⟨i, hxi, hmem⟩ := hnhds x hx
     obtain ⟨u, hu, hxu, hsub'⟩ := mem_nhdsWithin.mp hmem
     refine ⟨u, hu, hxu, ?_⟩
-    refine ((hreg i).mono (fun y hy => hsub' ⟨hy.2, hy.1⟩)).congr (fun y hy => hg i y (hsub' ⟨hy.2, hy.1⟩))
+    refine ((hreg i).mono (fun y (hy : y ∈ Icc A B ∩ u) => hsub' ⟨hy.2, hy.1⟩)).congr (fun y hy => hg i y (hsub' ⟨hy.2, hy.1⟩))
   · intro k x hx
     obtain ⟨i, hxi, hmem⟩ := hnhds x hx
     refine ⟨i, hxi, ?_⟩

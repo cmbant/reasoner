@@ -174,7 +174,7 @@ lemma taylor_uniform_nonneg {G : E × ℝ → F} {U : Set (E × ℝ)} (hU : IsOp
       ((contDiffAt_slice hU hG (hzU y hy)).of_le (by exact_mod_cast le_top)) hy,
       iteratedDeriv_slice_eq hU hG z (n + 1) y (hzU y hy)]
     exact hM (z, y) ⟨hz, hy⟩
-  have key := taylor_mean_remainder_bound hρ.le hfcd ht hC
+  have key := taylor_mean_remainder_bound hfcd ht hC
   rw [taylor_within_apply] at key
   have hsum : ∑ k ∈ Finset.range (n + 1), (((k.factorial : ℝ)⁻¹ * (t - 0) ^ k) •
         iteratedDerivWithin k f (Icc 0 ρ) 0) =

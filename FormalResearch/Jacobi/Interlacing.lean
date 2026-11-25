@@ -121,7 +121,7 @@ theorem exists_root_of_sign_change {p : ℝ[X]} {x y : ℝ} (hxy : x < y)
 
 theorem monic_pos_atTop {p : ℝ[X]} (hp : p.Monic) (hd : 0 < p.natDegree) :
     ∃ R, ∀ x, R ≤ x → 0 < p.eval x := by
-  have ht := Polynomial.tendsto_atTop_of_leadingCoeff_nonneg p (by
+  have ht := Polynomial.tendsto_atTop_of_leadingCoeff_nonneg (by
     rw [degree_eq_natDegree hp.ne_zero]; exact_mod_cast hd) (by rw [hp.leadingCoeff]; norm_num)
   obtain ⟨R, hR⟩ := Filter.eventually_atTop.mp (ht.eventually_gt_atTop 0)
   exact ⟨R, hR⟩

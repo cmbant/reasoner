@@ -169,7 +169,7 @@ theorem frobenius_sq_eq_sum (M : Matrix ι ι 𝕜) : ‖M‖ ^ 2 = ∑ i, ∑ j
 theorem trace_conjTranspose_mul_self_eq (M : Matrix ι ι 𝕜) :
     trace (Mᴴ * M) = ((‖M‖ ^ 2 : ℝ) : 𝕜) := by
   rw [frobenius_sq_eq_sum]
-  simp only [trace, diag_apply, mul_apply, conjTranspose_apply, RCLike.star_def, RCLike.conj_mul]
+  simp only [trace, diag_apply, Matrix.mul_apply, conjTranspose_apply, RCLike.star_def, RCLike.conj_mul]
   rw [Finset.sum_comm]
   push_cast
   rfl

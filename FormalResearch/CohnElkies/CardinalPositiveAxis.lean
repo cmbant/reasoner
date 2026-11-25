@@ -1131,7 +1131,7 @@ theorem cardinal_CR16 {a : ℝ} (ha : airyAi' a = 0) (ha1 : airyZero 1 < a) (_ha
       ∃ E ≥ 0, ∀ t ≥ T, |eulerDeriv j (fun s => φ (a₁ + s)) t| ≤ E * Real.sqrt (a₁ + t) := by
     intro j
     induction j using Nat.strong_induction_on with
-    | h j ih =>
+    | ind j ih =>
       intro φ hφ_cd hφbd
       cases j with
       | zero => obtain ⟨D, hD, hbd⟩ := hφbd 0; exact ⟨D, hD, fun t ht => hbd (a₁ + t) (by linarith)⟩

@@ -440,7 +440,6 @@ private lemma lagInner_orthogonal_vanish {c : ℝ} (hc : 0 < c) :
     let Q : ℝ[X] := P - α • laguerreHat c (N + 1)
     have hQ_coeff : Q.coeff (N + 1) = 0 := by
       dsimp [Q, α]
-      simp only [Polynomial.coeff_sub, Polynomial.coeff_smul, smul_eq_mul]
       rw [div_mul_cancel₀ _ (laguerreHat_coeff_top_ne_zero hc (N + 1)), sub_self]
     have hQ_deg : Q.natDegree ≤ N := by
       rw [Polynomial.natDegree_le_iff_coeff_eq_zero]

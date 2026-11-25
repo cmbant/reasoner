@@ -36,7 +36,7 @@ theorem exists_continuousMultilinearMap_of_finiteDimensional
     [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     [NormedAddCommGroup F] [NormedSpace ℂ F]
     {n : ℕ}
-    (f : MultilinearMap ℂ (fun _ : Fin n => E) F) :
+    (f : MultilinearMap (RingHom.id ℂ) (fun _ : Fin n => E) F) :
     ∃ g : ContinuousMultilinearMap ℂ (fun _ : Fin n => E) F,
       g.toMultilinearMap = f := by
   induction n with
@@ -51,10 +51,10 @@ theorem exists_continuousMultilinearMap_of_finiteDimensional
       exact Subsingleton.elim _ _
   | succ n ih =>
       let chooseContinuous :
-          MultilinearMap ℂ (fun _ : Fin n => E) F →
+          MultilinearMap (RingHom.id ℂ) (fun _ : Fin n => E) F →
             ContinuousMultilinearMap ℂ (fun _ : Fin n => E) F :=
         fun h => Classical.choose (ih h)
-      have hchoose (h : MultilinearMap ℂ (fun _ : Fin n => E) F) :
+      have hchoose (h : MultilinearMap (RingHom.id ℂ) (fun _ : Fin n => E) F) :
           (chooseContinuous h).toMultilinearMap = h :=
         Classical.choose_spec (ih h)
       let L : E →ₗ[ℂ] ContinuousMultilinearMap ℂ (fun _ : Fin n => E) F :=
@@ -88,7 +88,7 @@ theorem exists_continuousMultilinearMap_of_finiteDimensional
         chooseContinuous (f.curryLeft (v 0)) (Fin.tail v) =
             f.curryLeft (v 0) (Fin.tail v) := by
               exact congrArg
-                (fun h : MultilinearMap ℂ (fun _ : Fin n => E) F => h (Fin.tail v))
+                (fun h : MultilinearMap (RingHom.id ℂ) (fun _ : Fin n => E) F => h (Fin.tail v))
                 (hchoose (f.curryLeft (v 0)))
         _ = f (Fin.cons (v 0) (Fin.tail v)) := rfl
         _ = f v := by rw [Fin.cons_self_tail]
@@ -100,7 +100,7 @@ theorem multilinearMap_continuous_of_finiteDimensional
     [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
     [NormedAddCommGroup F] [NormedSpace ℂ F]
     {n : ℕ}
-    (f : MultilinearMap ℂ (fun _ : Fin n => E) F) :
+    (f : MultilinearMap (RingHom.id ℂ) (fun _ : Fin n => E) F) :
     Continuous f := by
   obtain ⟨g, hg⟩ :=
     exists_continuousMultilinearMap_of_finiteDimensional (f := f)
@@ -119,7 +119,7 @@ theorem symmetricPower_tprod_linearEquiv_continuous
     (ι : SymmetricPower ℂ (Fin n) E ≃ₗ[ℂ] H) :
     Continuous fun v : Fin n → E =>
       ι (SymmetricPower.tprod ℂ v) := by
-  let f : MultilinearMap ℂ (fun _ : Fin n => E) H :=
+  let f : MultilinearMap (RingHom.id ℂ) (fun _ : Fin n => E) H :=
     ι.toLinearMap.compMultilinearMap (SymmetricPower.tprod ℂ)
   change Continuous (⇑ι ∘ ⇑(SymmetricPower.tprod ℂ))
   exact multilinearMap_continuous_of_finiteDimensional (f := f)

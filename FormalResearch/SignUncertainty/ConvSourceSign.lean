@@ -168,7 +168,7 @@ lemma convSg_source_ge {p γ θ ε h u a b c : ℝ} (hp : 1 / 2 < p) (hp1 : p < 
     exact mul_nonneg (convWc_nonneg hγ hθ hε hh.le hy) (convG1_nonneg _)
   have h1 : ∫ y in Ioc a b, convWc p γ θ ε h y * ceG1 (airyZero 1) (u + y)
       ≤ convSource p γ θ ε h u :=
-    setIntegral_mono_set hI hnn hsub.eventuallyLE
+    setIntegral_mono_set hI hnn hsub.eventuallySubset
   have h2 := setIntegral_ge_of_const_le (μ := volume) measurableSet_Ioc
     (measure_Ioc_lt_top).ne hc (hI.mono_set hsub)
   rw [Real.volume_real_Ioc_of_le hab, smul_eq_mul] at h2

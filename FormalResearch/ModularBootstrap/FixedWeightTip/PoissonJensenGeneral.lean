@@ -1209,7 +1209,7 @@ private lemma cut_integral_zero_of_norm_zero (prob : FixedWeightProblem) {c' : �
   have hle_M : ∫ t in Ioc 0 (c' * x₀ ^ 2 / 3), |g t| * prob.cardyV (c' / 12) t ≤
       prob.cardyNorm (c' / 12) g := by
     unfold FixedWeightProblem.cardyNorm
-    refine setIntegral_mono_set hg.int_cardy ?_ Ioc_subset_Ioi_self.eventuallyLE
+    refine setIntegral_mono_set hg.int_cardy ?_ Ioc_subset_Ioi_self.eventuallySubset
     exact ae_restrict_of_forall_mem measurableSet_Ioi fun t ht =>
       mul_nonneg (abs_nonneg _) (P.p1_pos ht).le
   have hnonneg_int : 0 ≤ ∫ t in Ioc 0 (c' * x₀ ^ 2 / 3), |g t| * prob.cardyV (c' / 12) t :=

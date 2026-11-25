@@ -83,7 +83,7 @@ def pauli3 (P Q R : M2) : M8 :=
 lemma pauli3_mul (P Q R P' Q' R' : M2) :
     pauli3 P Q R * pauli3 P' Q' R' = pauli3 (P * P') (Q * Q') (R * R') := by
   ext i j
-  simp only [mul_apply, pauli3, of_apply]
+  simp only [Matrix.mul_apply, pauli3, of_apply]
   rw [sum_fin8]
   simp only [bA_ix, bB_ix, bC_ix, Fin.sum_univ_two]
   ring
@@ -134,7 +134,7 @@ lemma σy_σy : σy * σy = 1 := by
   ext i j; fin_cases i <;> fin_cases j <;> simp [σy, Matrix.mul_apply, Fin.sum_univ_two]
 lemma σ_transpose (i : Fin 3) : σy * (σ i)ᵀ * σy = -σ i := by
   fin_cases i <;> ext a b <;> fin_cases a <;> fin_cases b <;>
-    simp [σ, σx, σy, σz, Matrix.mul_apply, Fin.sum_univ_two, vecMul, dotProduct]
+    simp [σ, σx, σy, σz, Matrix.mul_apply, Fin.sum_univ_two, vecMul, dotProduct, vecHead, vecTail, Function.swap]
 lemma σ_conj (i : Fin 3) : σy * (σ i).map (starRingEnd ℂ) * σy = -σ i := by
   fin_cases i <;> ext a b <;> fin_cases a <;> fin_cases b <;>
     simp [σ, σx, σy, σz, Matrix.mul_apply, Fin.sum_univ_two, vecMul, dotProduct]

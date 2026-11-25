@@ -76,7 +76,7 @@ No symmetry hypothesis is needed for this raw expansion. -/
 theorem multilinear_coherent_two_point_expansion
     {E W : Type*} [AddCommMonoid E] [Module ℂ E]
     [AddCommMonoid W] [Module ℂ W]
-    {n : ℕ} (p : MultilinearMap ℂ (fun _ : Fin n => E) W)
+    {n : ℕ} (p : MultilinearMap (RingHom.id ℂ) (fun _ : Fin n => E) W)
     (x y : E) (z : ℂ) :
     p (fun _ => x + z • y) =
       ∑ s : Finset (Fin n),
@@ -176,7 +176,7 @@ coefficient extractor. -/
 theorem sesquilinear_coherent_phase_expansion
     {E W : Type*} [AddCommMonoid E] [Module ℂ E]
     [AddCommMonoid W] [Module ℂ W]
-    {n : ℕ} (p : MultilinearMap ℂ (fun _ : Fin n => E) W)
+    {n : ℕ} (p : MultilinearMap (RingHom.id ℂ) (fun _ : Fin n => E) W)
     (B : W →ₗ⋆[ℂ] W →ₗ[ℂ] ℂ) (x y : E) {z : ℂ} (hz : ‖z‖ = 1) :
     z ^ n * B (p (fun _ => x + z • y)) (p (fun _ => x + z • y)) =
       ∑ s : Finset (Fin n), ∑ t : Finset (Fin n),
@@ -260,7 +260,7 @@ bidegree extraction step. -/
 theorem sesquilinear_coherent_cross_eq_zero_of_diagonal
     {E W : Type*} [AddCommMonoid E] [Module ℂ E]
     [AddCommMonoid W] [Module ℂ W]
-    {n : ℕ} (p : MultilinearMap ℂ (fun _ : Fin n => E) W)
+    {n : ℕ} (p : MultilinearMap (RingHom.id ℂ) (fun _ : Fin n => E) W)
     (B : W →ₗ⋆[ℂ] W →ₗ[ℂ] ℂ)
     (hdiag : ∀ v : E, B (p (fun _ => v)) (p (fun _ => v)) = 0)
     (x y : E) :

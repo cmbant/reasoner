@@ -195,19 +195,19 @@ theorem ksw3_coord (A : Matrix (Fin 3) (Fin 3) ℂ) (x y : Fin 3 → ℂ) (d : �
   · ext i
     fin_cases i
     · simp only [Fin.zero_eta, Fin.isValue, Pi.smul_apply, mulVec, dotProduct, Fin.sum_univ_three,
-        Matrix.sub_apply, conjTranspose_apply, Matrix.smul_apply, one_apply, ite_true, ite_false,
+        Matrix.sub_apply, conjTranspose_apply, Matrix.smul_apply, Matrix.one_apply, ite_true, ite_false,
         Fin.reduceEq, smul_eq_mul, mul_one, mul_zero, sub_zero, hx2, hy2, RCLike.star_def, map_sub,
         add_zero]
       rw [hνlam, hy0, hy1]
       linear_combination ω * hζ
     · simp only [Fin.mk_one, Fin.isValue, Pi.smul_apply, mulVec, dotProduct, Fin.sum_univ_three,
-        Matrix.sub_apply, conjTranspose_apply, Matrix.smul_apply, one_apply, ite_true, ite_false,
+        Matrix.sub_apply, conjTranspose_apply, Matrix.smul_apply, Matrix.one_apply, ite_true, ite_false,
         Fin.reduceEq, smul_eq_mul, mul_one, mul_zero, sub_zero, hx2, hy2, RCLike.star_def, map_sub,
         add_zero]
       rw [hνlam, hy0, hy1, ha]
       linear_combination ω * (-lam * hζc + (conj (x 0) * ζ + A 1 0 * conj (x 1)) * hll)
     · simp only [Fin.reduceFinMk, Fin.isValue, Pi.smul_apply, mulVec, dotProduct, Fin.sum_univ_three,
-        Matrix.sub_apply, conjTranspose_apply, Matrix.smul_apply, one_apply, ite_true, ite_false,
+        Matrix.sub_apply, conjTranspose_apply, Matrix.smul_apply, Matrix.one_apply, ite_true, ite_false,
         Fin.reduceEq, smul_eq_mul, mul_one, mul_zero, sub_zero, hx2, hy2, RCLike.star_def,
         add_zero]
       linear_combination hνR
@@ -387,7 +387,7 @@ theorem bordered_normal (B : Matrix n n ℂ) (x y : n → ℂ) (z : ℂ)
     linear_combination this
   · have := congrFun h2 i
     simp only [mulVec, dotProduct, Matrix.sub_apply, conjTranspose_apply, Matrix.smul_apply,
-      one_apply, smul_eq_mul, mul_ite, mul_one, mul_zero, sub_mul, Finset.sum_sub_distrib,
+      Matrix.one_apply, smul_eq_mul, mul_ite, mul_one, mul_zero, sub_mul, Finset.sum_sub_distrib,
       ite_mul, zero_mul, Finset.sum_ite_eq, Finset.mem_univ, ite_true] at this
     simp only [bordered, Matrix.mul_apply, Fintype.sum_sum_type, conjTranspose_apply,
       fromBlocks_apply₁₁, fromBlocks_apply₁₂, fromBlocks_apply₂₁, fromBlocks_apply₂₂,
@@ -396,7 +396,7 @@ theorem bordered_normal (B : Matrix n n ℂ) (x y : n → ℂ) (z : ℂ)
     linear_combination this
   · have := congrArg star (congrFun h2 j)
     simp only [mulVec, dotProduct, Matrix.sub_apply, conjTranspose_apply, Matrix.smul_apply,
-      one_apply, smul_eq_mul, mul_ite, mul_one, mul_zero, sub_mul, Finset.sum_sub_distrib,
+      Matrix.one_apply, smul_eq_mul, mul_ite, mul_one, mul_zero, sub_mul, Finset.sum_sub_distrib,
       ite_mul, zero_mul, Finset.sum_ite_eq, Finset.mem_univ, ite_true,
       star_sub, star_sum, star_mul', star_star] at this
     simp only [bordered, Matrix.mul_apply, Fintype.sum_sum_type, conjTranspose_apply,

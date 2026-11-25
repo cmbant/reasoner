@@ -88,7 +88,7 @@ variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
 theorem re_trace_conjTranspose_mul_self {κ : Type*} [Fintype κ] (X : Matrix ι κ ℂ) :
     (trace (Xᴴ * X)).re = ∑ i, ∑ j, Complex.normSq (X i j) := by
-  simp only [trace, diag_apply, mul_apply, conjTranspose_apply, Complex.re_sum]
+  simp only [trace, diag_apply, Matrix.mul_apply, conjTranspose_apply, Complex.re_sum]
   rw [Finset.sum_comm]
   refine sum_congr rfl fun i _ => sum_congr rfl fun j _ => ?_
   rw [Complex.normSq_apply]

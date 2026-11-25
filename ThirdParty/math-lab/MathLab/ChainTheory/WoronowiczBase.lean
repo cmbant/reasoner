@@ -155,8 +155,8 @@ theorem sep_of_normal_dilation {κ : Type*} [Fintype κ] [DecidableEq κ]
   have hW1 : W * Wᴴ = 1 := by
     ext i l
     have h := congrFun (congrFun hUU' (Sum.inl i)) (Sum.inl l)
-    simp only [Matrix.mul_apply, conjTranspose_apply, one_apply, Sum.inl.injEq] at h
-    simp only [Matrix.mul_apply, conjTranspose_apply, one_apply, hW, of_apply, h]
+    simp only [Matrix.mul_apply, conjTranspose_apply, Matrix.one_apply, Sum.inl.injEq] at h
+    simp only [Matrix.mul_apply, conjTranspose_apply, Matrix.one_apply, hW, of_apply, h]
   have hNN : N * Nᴴ = U * diagonal (fun j => d j * star (d j)) * Uᴴ := by
     have h : U * diagonal d * Uᴴ * (U * diagonal d * Uᴴ)ᴴ =
         U * (diagonal d * (Uᴴ * U) * (diagonal d)ᴴ) * Uᴴ := by
@@ -337,7 +337,7 @@ theorem blkOf_lop_one {m' : ℕ} (M : Matrix (Fin m') (Fin m) ℂ) (ρ : Mat 2 m
     blkOf (lop 1 M ρ) a b = M * blkOf ρ a b * Mᴴ := by
   ext k l
   simp only [blkOf, lop, Matrix.mul_apply, conjTranspose_apply, kroneckerMap_apply,
-    Fintype.sum_prod_type, Fin.sum_univ_two, one_apply, Finset.sum_add_distrib, add_mul]
+    Fintype.sum_prod_type, Fin.sum_univ_two, Matrix.one_apply, Finset.sum_add_distrib, add_mul]
   fin_cases a <;> fin_cases b <;> simp
 
 /-- The corner block of `(G ⊗ 1) ρ (G ⊗ 1)ᴴ` for `G = [[1, z], [0, 1]]`. -/
@@ -346,7 +346,7 @@ theorem blkOf_lop_shear (z : ℂ) (ρ : Mat 2 m) :
       blkOf ρ 0 0 + star z • blkOf ρ 0 1 + z • blkOf ρ 1 0 + (z * star z) • blkOf ρ 1 1 := by
   ext k l
   simp only [blkOf, lop, Matrix.mul_apply, conjTranspose_apply, kroneckerMap_apply,
-    Fintype.sum_prod_type, Fin.sum_univ_two, one_apply, Finset.sum_add_distrib, add_mul,
+    Fintype.sum_prod_type, Fin.sum_univ_two, Matrix.one_apply, Finset.sum_add_distrib, add_mul,
     Matrix.add_apply, Matrix.smul_apply, smul_eq_mul]
   simp [apply_ite (starRingEnd ℂ),
     mul_ite, ite_mul, Finset.sum_ite_eq]

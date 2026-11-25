@@ -812,7 +812,7 @@ lemma disc_avg_neg_log_tipDist (ζ₀ : ℂ) :
       setIntegral_const, hball_vol, smul_eq_mul] at hmono1
     have hmono2 : ∫ ζ in ball ζ₀ r, max 0 (Real.log (r / |ζ.im|)) ≤
         ∫ ζ in Complex.measurableEquivRealProd ⁻¹' box, max 0 (Real.log (r / |ζ.im|)) := by
-      refine setIntegral_mono_set ?_ (Eventually.of_forall fun _ => le_max_left 0 _) hpre.eventuallyLE
+      refine setIntegral_mono_set ?_ (Eventually.of_forall fun _ => le_max_left 0 _) hpre.eventuallySubset
       have h1 : IntegrableOn (fun _ : ℝ => (1 : ℝ)) (Icc (ζ₀.re - r) (ζ₀.re + r)) :=
         integrableOn_const (by rw [Real.volume_Icc]; exact ENNReal.ofReal_ne_top)
       have h2 : IntegrableOn (fun y : ℝ => max 0 (Real.log (r / |y|))) (Icc (ζ₀.im - r) (ζ₀.im + r)) :=

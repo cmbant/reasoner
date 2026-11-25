@@ -199,14 +199,14 @@ theorem purity_bound_matrix (r k m : ℕ) (hk : Fintype.card α = k) (hm : Finty
   have hcard : Fintype.card (α → Fin 2) = 2 ^ k := by simp [hk]
   -- disjoint supports
   have hcrossPN : trace (MPᴴ * MN) = 0 := by
-    simp only [trace, diag_apply, mul_apply, conjTranspose_apply]
+    simp only [trace, diag_apply, Matrix.mul_apply, conjTranspose_apply]
     refine Finset.sum_eq_zero fun b _ => Finset.sum_eq_zero fun a _ => ?_
     simp only [MP, MN, Matrix.of_apply]
     by_cases h : wf a + wf b ≤ r
     · simp [h, not_lt.mpr h]
     · simp [h, not_le.mp h]
   have hcrossNP : trace (MNᴴ * MP) = 0 := by
-    simp only [trace, diag_apply, mul_apply, conjTranspose_apply]
+    simp only [trace, diag_apply, Matrix.mul_apply, conjTranspose_apply]
     refine Finset.sum_eq_zero fun b _ => Finset.sum_eq_zero fun a _ => ?_
     simp only [MP, MN, Matrix.of_apply]
     by_cases h : wf a + wf b ≤ r
@@ -226,7 +226,7 @@ theorem purity_bound_matrix (r k m : ℕ) (hk : Fintype.card α = k) (hm : Finty
   have hρ : ρᴴ = ρ := by simp [hρdef, conjTranspose_mul]
   have htr : trace ρ = 1 := by
     have : trace ρ = ((∑ a, ∑ b, Complex.normSq (M a b) : ℝ) : ℂ) := by
-      simp only [hρdef, trace, diag_apply, mul_apply, conjTranspose_apply, Complex.ofReal_sum]
+      simp only [hρdef, trace, diag_apply, Matrix.mul_apply, conjTranspose_apply, Complex.ofReal_sum]
       refine Finset.sum_congr rfl fun a _ => Finset.sum_congr rfl fun b _ => ?_
       exact Complex.mul_conj _
     rw [this, hnorm]; simp

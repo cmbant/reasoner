@@ -57,7 +57,7 @@ theorem ptFirst_congr (S : Matrix ι ι ℂ) (T : Matrix κ κ ℂ) (ρ : Matrix
     ptFirst ((S ⊗ₖ T) * ρ * (S ⊗ₖ T)ᴴ) =
       (S.map star ⊗ₖ T) * ptFirst ρ * (S.map star ⊗ₖ T)ᴴ := by
   ext ⟨i, k⟩ ⟨j, l⟩
-  simp only [ptFirst_apply, mul_apply, kronecker_apply, conjTranspose_apply, Fintype.sum_prod_type,
+  simp only [ptFirst_apply, Matrix.mul_apply, kronecker_apply, conjTranspose_apply, Fintype.sum_prod_type,
     map_apply, Finset.sum_mul, star_mul']
   conv_lhs => rw [Finset.sum_comm]
   conv_rhs => rw [Finset.sum_comm]; enter [2, x1]; rw [Finset.sum_comm]

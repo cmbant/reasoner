@@ -507,7 +507,7 @@ private lemma comp_deriv_bound_aux {x₀ β : ℝ} {U t : Set ℝ} {F : ℝ → 
   have hmaps : Set.MapsTo F (Set.Ici x₀) U := fun x hx => htU (hFt x hx)
   intro n
   induction n using Nat.strong_induction_on with
-  | h n ih =>
+  | ind n ih =>
     intro H hH hHbd
     cases n with
     | zero =>

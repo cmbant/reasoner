@@ -43,7 +43,7 @@ theorem rhoT_eq (t : ℝ) :
         + (3 : ℂ) • vecMulVec wVec (star wVec) + (3 : ℂ) • vecMulVec eVec (star eVec)
         + vecMulVec oVec (star oVec)) := by
   ext i j
-  simp only [rhoT, Xt, Bs, bCols, mul_apply, Fin.sum_univ_five, diagonal_apply,
+  simp only [rhoT, Xt, Bs, bCols, Matrix.mul_apply, Fin.sum_univ_five, diagonal_apply,
     conjTranspose_apply, of_apply, Matrix.add_apply, Matrix.smul_apply, vecMulVec_apply, Pi.star_apply,
     smul_eq_mul]
   simp

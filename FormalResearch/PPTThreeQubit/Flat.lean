@@ -94,7 +94,7 @@ for every `8 × 8` matrix.  (Proved.) -/
 theorem pauli_expand (M : M8) :
     M = (1 / 8 : ℂ) • ∑ p, ∑ q, ∑ r, trace (P4 p q r * M) • P4 p q r := by
   ext i j
-  simp only [Matrix.smul_apply, Matrix.sum_apply, trace, diag_apply, mul_apply, smul_eq_mul, Finset.sum_mul]
+  simp only [Matrix.smul_apply, Matrix.sum_apply, trace, diag_apply, Matrix.mul_apply, smul_eq_mul, Finset.sum_mul]
   rw [sum5]
   have : ∀ l k, ∑ p, ∑ q, ∑ r, P4 p q r l k * M k l * P4 p q r i j
       = M k l * if k = i ∧ l = j then 8 else 0 := by
@@ -141,7 +141,7 @@ lemma trace_AB (P Q : M2) (ρ : M8) (h : margAB ρ = (1 / 4 : ℂ) • 1) :
     trace (pauli3 P Q 1 * ρ) = (1 / 4) * (trace P * trace Q) := by
   have : trace (pauli3 P Q 1 * ρ) =
       ∑ x : Fin 2 × Fin 2, ∑ y : Fin 2 × Fin 2, P x.1 y.1 * Q x.2 y.2 * margAB ρ y x := by
-    simp [trace, mul_apply, pauli3, margAB, sum_fin8, Fintype.sum_prod_type, Fin.sum_univ_two,
+    simp [trace, Matrix.mul_apply, pauli3, margAB, sum_fin8, Fintype.sum_prod_type, Fin.sum_univ_two,
       Matrix.one_apply]
     ring
   rw [this, h]
@@ -152,7 +152,7 @@ lemma trace_AC (P R : M2) (ρ : M8) (h : margAC ρ = (1 / 4 : ℂ) • 1) :
     trace (pauli3 P 1 R * ρ) = (1 / 4) * (trace P * trace R) := by
   have : trace (pauli3 P 1 R * ρ) =
       ∑ x : Fin 2 × Fin 2, ∑ y : Fin 2 × Fin 2, P x.1 y.1 * R x.2 y.2 * margAC ρ y x := by
-    simp [trace, mul_apply, pauli3, margAC, sum_fin8, Fintype.sum_prod_type, Fin.sum_univ_two,
+    simp [trace, Matrix.mul_apply, pauli3, margAC, sum_fin8, Fintype.sum_prod_type, Fin.sum_univ_two,
       Matrix.one_apply]
     ring
   rw [this, h]
@@ -163,7 +163,7 @@ lemma trace_BC (Q R : M2) (ρ : M8) (h : margBC ρ = (1 / 4 : ℂ) • 1) :
     trace (pauli3 1 Q R * ρ) = (1 / 4) * (trace Q * trace R) := by
   have : trace (pauli3 1 Q R * ρ) =
       ∑ x : Fin 2 × Fin 2, ∑ y : Fin 2 × Fin 2, Q x.1 y.1 * R x.2 y.2 * margBC ρ y x := by
-    simp [trace, mul_apply, pauli3, margBC, sum_fin8, Fintype.sum_prod_type, Fin.sum_univ_two,
+    simp [trace, Matrix.mul_apply, pauli3, margBC, sum_fin8, Fintype.sum_prod_type, Fin.sum_univ_two,
       Matrix.one_apply]
     ring
   rw [this, h]

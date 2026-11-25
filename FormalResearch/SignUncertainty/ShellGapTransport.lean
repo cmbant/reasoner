@@ -170,7 +170,7 @@ theorem mass_transport {Φ : ℕ → ℝ → ℝ} {Q : ℝ → ℝ} {ustar : ℝ
       have hup : ∫ u in Icc a b, max (-Q u) 0 ≤
           (∫ u in Icc a ustar, max (-Q u) 0) + ∫ u in Ioi ustar, max (-Q u) 0 := by
         rw [← setIntegral_union hdisj measurableSet_Ioi hQneg.integrableOn hQneg.integrableOn]
-        exact setIntegral_mono_set hQneg.integrableOn hnn hsub.eventuallyLE
+        exact setIntegral_mono_set hQneg.integrableOn hnn hsub.eventuallySubset
       have hmid : ∫ u in Icc a ustar, max (-Q u) 0 ≤ s * |C| := by
         have h1 : ∫ u in Icc a ustar, max (-Q u) 0 ≤ ∫ _u in Icc a ustar, |C| :=
           setIntegral_mono_on hQneg.integrableOn continuousOn_const.integrableOn_Icc

@@ -52,7 +52,7 @@ lemma at47_poly_lower {T : ℝ[X]} (hT : T ≠ 0) :
     have := Polynomial.comp_eq_zero_iff.mp h
     rcases this with h | ⟨h1, h2⟩
     · exact hT h
-    · have := congrArg (Polynomial.coeff · 1) h2; simp at this
+    · have := congrArg (fun q => q.coeff 1) h2; simp at this
   have hdeg : (T.comp (-X)).natDegree = T.natDegree := by
     rw [Polynomial.natDegree_comp]; simp
   have hlc : (T.comp (-X)).leadingCoeff ≠ 0 := Polynomial.leadingCoeff_ne_zero.mpr hne

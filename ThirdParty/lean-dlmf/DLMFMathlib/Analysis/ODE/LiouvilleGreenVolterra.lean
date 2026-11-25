@@ -133,7 +133,7 @@ theorem tail_anti (hρ0 : ∀ t, a < t → 0 ≤ ρ t) (hρi : ∀ c, a < c → 
     ∫ t in Ioi y, ρ t ≤ ∫ t in Ioi x, ρ t :=
   setIntegral_mono_set (hρi x hx)
     (ae_restrict_of_forall_mem measurableSet_Ioi fun t ht => hρ0 t (hx.trans ht))
-    (Ioi_subset_Ioi hxy).eventuallyLE
+    (Ioi_subset_Ioi hxy).eventuallySubset
 
 /-- Integration against the tail: if `Φ' = φ` and `R x = ∫_{(x,∞)} ρ`, then
 `∫_{(x,∞)} ρ φ(R) = Φ(R x) - Φ 0`. -/

@@ -236,16 +236,16 @@ lemma tendsto_integral_of_tails {A : ℕ → ℝ → ℝ} {a : ℝ → ℝ}
     exact hx ⟨le_trans (neg_le_neg (le_max_right _ _)) hx'.1, le_trans hx'.2 (le_max_right _ _)⟩
   have haR : ∫ u in (Icc (-R) R)ᶜ, |a u| ≤ ε / 4 :=
     le_trans (setIntegral_mono_set ha.abs.integrableOn (Eventually.of_forall fun u => abs_nonneg _)
-      hsubA.eventuallyLE |> fun h => by
+      hsubA.eventuallySubset |> fun h => by
         exact le_trans (setIntegral_mono_set ha.abs.integrableOn
-          (Eventually.of_forall fun u => abs_nonneg _) hsuba.eventuallyLE) ha₂) le_rfl
+          (Eventually.of_forall fun u => abs_nonneg _) hsuba.eventuallySubset) ha₂) le_rfl
   have hcI := setIntegral_Icc_tendsto_unif (by linarith : -R ≤ R) (hloc R)
     (hA.mono fun k hk => hk.integrableOn) ha.integrableOn
   rw [Metric.tendsto_nhds] at hcI
   filter_upwards [hA, hA₁, hcI (ε / 4) hδ] with k hk hk1 hk2
   have hkR : ∫ u in (Icc (-R) R)ᶜ, |A k u| ≤ ε / 4 :=
     le_trans (setIntegral_mono_set hk.abs.integrableOn (Eventually.of_forall fun u => abs_nonneg _)
-      hsubA.eventuallyLE) hk1
+      hsubA.eventuallySubset) hk1
   have e1 := integral_add_compl (μ := volume) (measurableSet_Icc (a := -R) (b := R)) hk
   have e2 := integral_add_compl (μ := volume) (measurableSet_Icc (a := -R) (b := R)) ha
   have t1 : |∫ u in (Icc (-R) R)ᶜ, A k u| ≤ ε / 4 :=

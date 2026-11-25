@@ -1143,7 +1143,7 @@ theorem proposition_T (hI0 : BesselI0Asymptotic) (inp : StripBootstrapInputs)
       have hsub : Ioc (-R) R ⊆ Ioi (tipSMin (c' (ms k))) := fun s hs => lt_trans hsMin hs.1
       calc ∫ s in Ioc (-R) R, ‖F (φ₃ k) (s : ℂ)‖
           ≤ ∫ s in Ioi (tipSMin (c' (ms k))), ‖F (φ₃ k) (s : ℂ)‖ :=
-            setIntegral_mono_set hint_dom (ae_of_all _ fun _ => norm_nonneg _) hsub.eventuallyLE
+            setIntegral_mono_set hint_dom (ae_of_all _ fun _ => norm_nonneg _) hsub.eventuallySubset
         _ = 1 := hnorm_eq
     rw [← intervalIntegral.integral_of_le (by linarith)]
     exact le_of_tendsto hlim_int hev_le1
@@ -1409,7 +1409,7 @@ theorem proposition_T (hI0 : BesselI0Asymptotic) (inp : StripBootstrapInputs)
         have h1 : (1 / 2 : ℝ) ≤ ∫ s in Ioc (tipSMin (c' (ms k))) R,
             max 0 (-(F (φ₃ k) (s : ℂ)).re) :=
           hhalf.trans (setIntegral_mono_set (hfneg_dom.mono_set Ioc_subset_Ioi_self)
-            (ae_of_all _ fun _ => le_max_left _ _) hsub_tot.eventuallyLE)
+            (ae_of_all _ fun _ => le_max_left _ _) hsub_tot.eventuallySubset)
         have hsplit : (∫ s in Ioc (tipSMin (c' (ms k))) R, max 0 (-(F (φ₃ k) (s : ℂ)).re)) =
             (∫ s in Ioc (tipSMin (c' (ms k))) (-R), max 0 (-(F (φ₃ k) (s : ℂ)).re)) +
               ∫ s in Ioc (-R) R, max 0 (-(F (φ₃ k) (s : ℂ)).re) := by

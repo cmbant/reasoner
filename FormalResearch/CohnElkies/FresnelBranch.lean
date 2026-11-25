@@ -791,7 +791,7 @@ theorem fresnel_branch {φ : ℝ → ℂ} {M : ℝ} (hφ : ContDiff ℝ 2 φ) (h
       calc ‖φ v‖ * ‖(Complex.I * (v : ℂ)) ^ (1 / 2 : ℂ)‖ ≤ M * 1 :=
             mul_le_mul (b0 v) (norm_cpow_I_mul_le_one hv) (norm_nonneg _) hM
         _ = M := mul_one M
-    · rw [Set.indicator_of_notMem (fun hh => hv (abs_le.mpr ⟨hh.1, hh.2⟩))]
+    · rw [Set.indicator_of_notMem (fun hh : v ∈ Icc (-1 : ℝ) 1 => hv (abs_le.mpr ⟨hh.1, hh.2⟩))]
       simp [hF, hsupp v (not_le.mp hv)]
   have hsplit := intervalIntegral.integral_Iic_add_Ioi hFint.integrableOn hFint.integrableOn (b := (0 : ℝ))
   have hpos : ∫ v in Ioi (0 : ℝ), F v =

@@ -35,7 +35,7 @@ omit [Fintype ι] in
 theorem selMat_mul_transpose (σ : ι → Option ι') (hσ : ∀ n n' m, σ n = some m → σ n' = some m → n = n') :
     selMat σ * (selMat σ)ᵀ = diagonal fun n => if (σ n).isSome then (1 : ℝ) else 0 := by
   ext n n'
-  simp only [selMat, mul_apply, transpose_apply, of_apply, diagonal_apply]
+  simp only [selMat, Matrix.mul_apply, transpose_apply, of_apply, diagonal_apply]
   by_cases hnn : n = n'
   · subst hnn
     rcases h : σ n with _ | a
@@ -72,7 +72,7 @@ omit [Fintype κ] in
 theorem wShift_eq (ω : ι → ℝ) (σ : ι → Option ι') (Y : Matrix ι' κ ℝ) :
     wShift ω σ Y = diagonal ω * (selMat σ * Y) := by
   ext n k
-  rw [diagonal_mul, mul_apply]
+  rw [diagonal_mul, Matrix.mul_apply]
   simp only [wShift, selMat, of_apply]
   rcases h : σ n with _ | a
   · simp

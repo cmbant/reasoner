@@ -86,7 +86,7 @@ theorem magicB_E4 : magicBᵀ * E4 * magicB = 1 := by
   have hrt4 : rt ^ 4 = 1 / 4 := by rw [show rt ^ 4 = (rt ^ 2) ^ 2 by ring, hrt2]; norm_num
   ext ⟨a, b⟩ ⟨c, d⟩
   fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;>
-  simp [Matrix.mul_apply, Matrix.transpose_apply, magicB, E4, kron, eps2, Matrix.kroneckerMap_apply,
+  simp [Matrix.mul_apply, Matrix.transpose_apply, Function.swap, magicB, E4, kron, eps2, Matrix.kroneckerMap_apply,
     Fintype.sum_prod_type, Fin.sum_univ_two] <;>
   first
     | linear_combination h

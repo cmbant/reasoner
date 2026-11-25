@@ -21,7 +21,7 @@ theorem bernoulli_inverse_prefix_unique
     ∀ n, n ≤ N → t n = u n := by
   intro n
   induction n using Nat.strong_induction_on with
-  | h n ih =>
+  | ind n ih =>
       intro hnN
       by_cases hn0 : n = 0
       · subst n
