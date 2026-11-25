@@ -59,11 +59,14 @@ lemma integrableOn_abs_liftFun (h : MellinLiftData c Φ) {x₀ : ℝ} (hx₀ : 0
     Complex.norm_real, Real.norm_eq_abs]
   simp [mul_comm]
 
-/-- The Mellin transform of `𝓗_c f` on `0 < Re z < c/2 - 1/4` is `σ Φ(z)`. -/
-theorem mellin_hankel_liftFun (h : MellinLiftData c Φ) (hc : 3 / 2 < c) {σ : ℝ} {x₀ : ℝ} (hx₀ : 0 < x₀)
-    (hx₀' : x₀ < c) (hsym : ∀ z : ℂ, 0 < z.re → z.re < c → mellinMult Φ ((c : ℂ) - z) = (σ : ℂ) * mellinMult Φ z)
+/-- **Mellin transform of the Hankel transform of a general lift** (`mat:T7` (c), general pair):
+if `mellinMult Φ (c - z) = mellinMult Ψ z` on `0 < Re z < c`, then the Mellin transform of
+`𝓗_c (liftFun Φ x₀)` on `0 < Re z < c/2 - 1/4` is `Ψ z`. -/
+theorem mellin_hankel_liftFun_pair (h : MellinLiftData c Φ) (hc : 3 / 2 < c) {Ψ : ℂ → ℂ} {x₀ : ℝ}
+    (hx₀ : 0 < x₀) (hx₀' : x₀ < c)
+    (hrefl : ∀ z : ℂ, 0 < z.re → z.re < c → mellinMult Φ ((c : ℂ) - z) = mellinMult Ψ z)
     {z : ℂ} (hz0 : 0 < z.re) (hz1 : z.re < c / 2 - 1 / 4) :
-    ∫ Δ in Ioi (0 : ℝ), (Δ : ℂ) ^ (z - 1) * (besselHankelTransform c (liftFun Φ x₀) Δ : ℂ) = (σ : ℂ) * Φ z := by
+    ∫ Δ in Ioi (0 : ℝ), (Δ : ℂ) ^ (z - 1) * (besselHankelTransform c (liftFun Φ x₀) Δ : ℂ) = Ψ z := by
   have hc0 : 0 < c := by linarith
   have hzc : z.re < c := by linarith
   have hgc := continuousOn_liftFun h hx₀ hx₀'
@@ -93,7 +96,7 @@ theorem mellin_hankel_liftFun (h : MellinLiftData c Φ) (hc : 3 / 2 < c) {σ : �
   have hGz : Complex.Gamma z ≠ 0 := Complex.Gamma_ne_zero_of_re_pos hz0
   have hGc : Complex.Gamma ((c : ℂ) - z) ≠ 0 :=
     Complex.Gamma_ne_zero_of_re_pos (by simpa using hzc)
-  have hs := hsym z hz0 hzc
+  have hs := hrefl z hz0 hzc
   unfold mellinMult at hs
   set Ph := hankelMellin c z
   set a : ℂ := (((2 * π) ^ c / Real.Gamma c : ℝ) : ℂ)
@@ -107,8 +110,16 @@ theorem mellin_hankel_liftFun (h : MellinLiftData c Φ) (hc : 3 / 2 < c) {σ : �
   rw [hΦ]
   calc X⁻¹ * Complex.Gamma z * Y / Complex.Gamma ((c : ℂ) - z) * Φ ((c : ℂ) - z)
       = X⁻¹ * Complex.Gamma z * (Y / Complex.Gamma ((c : ℂ) - z) * Φ ((c : ℂ) - z)) := by ring
-    _ = X⁻¹ * Complex.Gamma z * ((σ : ℂ) * (X / Complex.Gamma z * Φ z)) := by rw [hs]
+    _ = X⁻¹ * Complex.Gamma z * (X / Complex.Gamma z * Ψ z) := by rw [hs]
     _ = _ := by field_simp
+
+/-- The Mellin transform of `𝓗_c f` on `0 < Re z < c/2 - 1/4` is `σ Φ(z)`. -/
+theorem mellin_hankel_liftFun (h : MellinLiftData c Φ) (hc : 3 / 2 < c) {σ : ℝ} {x₀ : ℝ} (hx₀ : 0 < x₀)
+    (hx₀' : x₀ < c) (hsym : ∀ z : ℂ, 0 < z.re → z.re < c → mellinMult Φ ((c : ℂ) - z) = (σ : ℂ) * mellinMult Φ z)
+    {z : ℂ} (hz0 : 0 < z.re) (hz1 : z.re < c / 2 - 1 / 4) :
+    ∫ Δ in Ioi (0 : ℝ), (Δ : ℂ) ^ (z - 1) * (besselHankelTransform c (liftFun Φ x₀) Δ : ℂ) = (σ : ℂ) * Φ z :=
+  mellin_hankel_liftFun_pair h hc (Ψ := fun w => (σ : ℂ) * Φ w) hx₀ hx₀'
+    (fun w hw0 hw1 => by rw [hsym w hw0 hw1]; unfold mellinMult; ring) hz0 hz1
 
 end
 
@@ -136,63 +147,66 @@ lemma mellinConvergent_liftFun (h : MellinLiftData c Φ) {x₀ : ℝ} (hx₀ : 0
   refine mellinConvergent_of_re (by simp) ?_ h2
   exact Complex.continuous_ofReal.comp_continuousOn (continuousOn_liftFun h hx₀ hx₀')
 
-/-- **The Hankel transform of the lift is `σ` times the lift** on `(0, ∞)`. -/
-theorem besselHankelTransform_liftFun (h : MellinLiftData c Φ) (hc : 3 / 2 < c) {σ : ℝ} {x₀ : ℝ} (hx₀ : 0 < x₀)
-    (hx₀' : x₀ < c) (hsym : ∀ z : ℂ, 0 < z.re → z.re < c → mellinMult Φ ((c : ℂ) - z) = (σ : ℂ) * mellinMult Φ z)
+/-- **Hankel reflection for a general Mellin lift** (`mat:T7` (c) on `(0, ∞)`):
+if `Φ`, `Ψ` satisfy `MellinLiftData c` with `mellinMult Φ (c - z) = mellinMult Ψ z` on `0 < Re z < c`
+and `liftFun Φ x₀ ∈ L¹(ρ₀)`, then `𝓗_c (liftFun Φ x₀) = liftFun Ψ y₀` on `(0, ∞)`. -/
+theorem besselHankelTransform_liftFun_pair (hΦ : MellinLiftData c Φ) {Ψ : ℂ → ℂ} (hΨ : MellinLiftData c Ψ)
+    (hc : 3 / 2 < c) {x₀ y₀ : ℝ} (hx₀ : 0 < x₀) (hx₀' : x₀ < c) (hy₀ : 0 < y₀) (hy₀' : y₀ < c)
+    (hrefl : ∀ z : ℂ, 0 < z.re → z.re < c → mellinMult Φ ((c : ℂ) - z) = mellinMult Ψ z)
     (hint : IntegrableOn (fun Δ => liftFun Φ x₀ Δ * hankelRho0 c Δ) (Ioi 0)) {Δ : ℝ} (hΔ : 0 < Δ) :
-    besselHankelTransform c (liftFun Φ x₀) Δ = σ * liftFun Φ x₀ Δ := by
+    besselHankelTransform c (liftFun Φ x₀) Δ = liftFun Ψ y₀ Δ := by
   have hc0 : 0 < c := by linarith
   set f₀ := liftFun Φ x₀ with hf₀
+  set g₀ := liftFun Ψ y₀ with hg₀
   set Ĝ := besselHankelTransform c f₀ with hĜ
   have hĜc : Continuous Ĝ := besselHankelTransform_continuous (by linarith) hint
   set x : ℝ := (c / 2 - 1 / 4) / 2 with hx
   have hx0 : 0 < x := by rw [hx]; linarith
   have hx1 : x < c / 2 - 1 / 4 := by rw [hx]; linarith
   have hxc : x < c := by linarith
-  set hC : ℝ → ℂ := fun t => (Ĝ t : ℂ) - (σ : ℂ) * (f₀ t : ℂ) with hhC
-  have hgc := continuousOn_liftFun h hx₀ hx₀'
+  set hC : ℝ → ℂ := fun t => (Ĝ t : ℂ) - (g₀ t : ℂ) with hhC
+  have hfc := continuousOn_liftFun hΦ hx₀ hx₀'
+  have hgc := continuousOn_liftFun hΨ hy₀ hy₀'
   have hintG : ∀ y : ℝ, MellinConvergent (fun t : ℝ => (Ĝ t : ℂ)) ((x : ℂ) + (y : ℂ) * Complex.I) := fun y => by
     have hz0 : 0 < (((x : ℂ) + (y : ℂ) * Complex.I)).re := by simpa using hx0
     have hz1 : (((x : ℂ) + (y : ℂ) * Complex.I)).re < c / 2 - 1 / 4 := by simpa using hx1
     have hg : IntegrableOn (fun s : ℝ => |f₀ s| * s ^ (c - 1 - (((x : ℂ) + (y : ℂ) * Complex.I)).re)) (Ioi 0) := by
-      have := integrableOn_abs_liftFun h hx₀ hx₀' (x := c - x) (by linarith) (by linarith)
+      have := integrableOn_abs_liftFun hΦ hx₀ hx₀' (x := c - x) (by linarith) (by linarith)
       refine this.congr_fun (fun s _ => ?_) measurableSet_Ioi
       simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re, Complex.ofReal_im, Complex.I_re,
         Complex.I_im, mul_zero, zero_mul, sub_zero, add_zero]
       rw [show c - x - 1 = c - 1 - x by ring]
-    have := integrableOn_mellin_hankel_outer hc hz0 hz1 hgc hg
+    have := integrableOn_mellin_hankel_outer hc hz0 hz1 hfc hg
     unfold MellinConvergent
     refine this.congr_fun (fun t _ => ?_) measurableSet_Ioi
     simp only [smul_eq_mul]; rfl
   have hmG : ∀ y : ℝ, mellin (fun t : ℝ => (Ĝ t : ℂ)) ((x : ℂ) + (y : ℂ) * Complex.I) =
-      (σ : ℂ) * Φ ((x : ℂ) + (y : ℂ) * Complex.I) := fun y => by
+      Ψ ((x : ℂ) + (y : ℂ) * Complex.I) := fun y => by
     have hz0 : 0 < (((x : ℂ) + (y : ℂ) * Complex.I)).re := by simpa using hx0
     have hz1 : (((x : ℂ) + (y : ℂ) * Complex.I)).re < c / 2 - 1 / 4 := by simpa using hx1
-    rw [← mellin_hankel_liftFun h hc hx₀ hx₀' hsym hz0 hz1]
+    rw [← mellin_hankel_liftFun_pair hΦ hc hx₀ hx₀' hrefl hz0 hz1]
     unfold mellin
     refine setIntegral_congr_fun measurableSet_Ioi fun t _ => ?_
     simp only [smul_eq_mul]; rfl
   have hmh : ∀ y : ℝ, mellin hC ((x : ℂ) + (y : ℂ) * Complex.I) = 0 := fun y => by
     have hz0 : 0 < (((x : ℂ) + (y : ℂ) * Complex.I)).re := by simpa using hx0
     have hz1 : (((x : ℂ) + (y : ℂ) * Complex.I)).re < c := by simpa using hxc
-    have hmf := mellin_liftFun_eq h hx₀ hx₀' hz0 hz1
-    have hcf := mellinConvergent_liftFun h hx₀ hx₀' hz0 hz1
+    have hmg := mellin_liftFun_eq hΨ hy₀ hy₀' hz0 hz1
+    have hcg := mellinConvergent_liftFun hΨ hy₀ hy₀' hz0 hz1
     have hcG := hintG y
     have e : mellin hC ((x : ℂ) + (y : ℂ) * Complex.I) =
         mellin (fun t : ℝ => (Ĝ t : ℂ)) ((x : ℂ) + (y : ℂ) * Complex.I) -
-          (σ : ℂ) * mellin (fun t : ℝ => (f₀ t : ℂ)) ((x : ℂ) + (y : ℂ) * Complex.I) := by
+          mellin (fun t : ℝ => (g₀ t : ℂ)) ((x : ℂ) + (y : ℂ) * Complex.I) := by
       unfold mellin
-      have hcf' : IntegrableOn (fun t : ℝ => (σ : ℂ) * ((t : ℂ) ^ ((x : ℂ) + (y : ℂ) * Complex.I - 1) • (f₀ t : ℂ))) (Ioi 0) :=
-        Integrable.const_mul hcf (σ : ℂ)
-      rw [← integral_const_mul, ← integral_sub hcG hcf']
+      rw [← integral_sub hcG hcg]
       refine setIntegral_congr_fun measurableSet_Ioi fun t _ => ?_
       simp only [hhC, smul_eq_mul]; ring
-    rw [e, hmG y, hmf]; ring
+    rw [e, hmG y, hmg]; ring
   have hconv : MellinConvergent hC (x : ℂ) := by
     have h1 := hintG 0
-    have h2 := mellinConvergent_liftFun h hx₀ hx₀' (s := (x : ℂ)) (by simpa using hx0) (by simpa using hxc)
+    have h2 := mellinConvergent_liftFun hΨ hy₀ hy₀' (s := (x : ℂ)) (by simpa using hx0) (by simpa using hxc)
     simp only [Complex.ofReal_zero, zero_mul, add_zero] at h1
-    have := h1.sub (h2.const_smul (σ : ℂ))
+    have := h1.sub h2
     unfold MellinConvergent at this ⊢
     refine this.congr_fun (fun t _ => ?_) measurableSet_Ioi
     simp only [hhC, smul_eq_mul, Pi.sub_apply]; ring
@@ -202,17 +216,35 @@ theorem besselHankelTransform_liftFun (h : MellinLiftData c Φ) (hc : 3 / 2 < c)
     exact integrable_zero _ _ _
   have hcts : ContinuousAt hC Δ := by
     have h1 : ContinuousAt (fun t : ℝ => (Ĝ t : ℂ)) Δ := Complex.continuous_ofReal.continuousAt.comp hĜc.continuousAt
-    have h2 : ContinuousAt (fun t : ℝ => (f₀ t : ℂ)) Δ :=
+    have h2 : ContinuousAt (fun t : ℝ => (g₀ t : ℂ)) Δ :=
       Complex.continuous_ofReal.continuousAt.comp (hgc.continuousAt (Ioi_mem_nhds hΔ))
-    exact h1.sub (continuousAt_const.mul h2)
+    exact h1.sub h2
   have := mellinInv_mellin_eq x hC hΔ hconv hvert hcts
   have hz : mellinInv x (mellin hC) Δ = 0 := by
     unfold mellinInv
     simp [hmh]
   rw [hz] at this
-  have h3 : (Ĝ Δ : ℂ) - (σ : ℂ) * (f₀ Δ : ℂ) = 0 := this.symm
-  have h4 : Ĝ Δ - σ * f₀ Δ = 0 := by exact_mod_cast h3
+  have h3 : (Ĝ Δ : ℂ) - (g₀ Δ : ℂ) = 0 := this.symm
+  have h4 : Ĝ Δ - g₀ Δ = 0 := by exact_mod_cast h3
   linarith
+
+/-- **The Hankel transform of the lift is `σ` times the lift** on `(0, ∞)`. -/
+theorem besselHankelTransform_liftFun (h : MellinLiftData c Φ) (hc : 3 / 2 < c) {σ : ℝ} {x₀ : ℝ} (hx₀ : 0 < x₀)
+    (hx₀' : x₀ < c) (hsym : ∀ z : ℂ, 0 < z.re → z.re < c → mellinMult Φ ((c : ℂ) - z) = (σ : ℂ) * mellinMult Φ z)
+    (hint : IntegrableOn (fun Δ => liftFun Φ x₀ Δ * hankelRho0 c Δ) (Ioi 0)) {Δ : ℝ} (hΔ : 0 < Δ) :
+    besselHankelTransform c (liftFun Φ x₀) Δ = σ * liftFun Φ x₀ Δ := by
+  have hpair := besselHankelTransform_liftFun_pair h (h.const_mul σ) hc hx₀ hx₀' hx₀ hx₀'
+    (fun z hz0 hz1 => by rw [hsym z hz0 hz1]; unfold mellinMult; ring) hint hΔ
+  rw [hpair]
+  unfold liftFun mellinInv
+  have e : (∫ y : ℝ, (Δ : ℂ) ^ (-((x₀ : ℂ) + (y : ℂ) * Complex.I)) • ((σ : ℂ) * Φ ((x₀ : ℂ) + (y : ℂ) * Complex.I))) =
+      (σ : ℂ) * ∫ y : ℝ, (Δ : ℂ) ^ (-((x₀ : ℂ) + (y : ℂ) * Complex.I)) • Φ ((x₀ : ℂ) + (y : ℂ) * Complex.I) := by
+    rw [← integral_const_mul]
+    refine integral_congr_ae (ae_of_all _ fun y => ?_)
+    simp only [smul_eq_mul]; ring
+  rw [e, Complex.real_smul, Complex.real_smul]
+  simp only [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
+  ring
 
 end
 
@@ -266,6 +298,14 @@ theorem exists_isHankelEigenfn_of_lift (h : MellinLiftData c Φ) (hc : 3 / 2 < c
 
 end
 
+
+/-- info: 'FormalResearch.SignUncertainty.mellin_hankel_liftFun_pair' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.mellin_hankel_liftFun_pair
+
+/-- info: 'FormalResearch.SignUncertainty.besselHankelTransform_liftFun_pair' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.besselHankelTransform_liftFun_pair
 
 /-- info: 'FormalResearch.SignUncertainty.mellin_hankel_liftFun' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
