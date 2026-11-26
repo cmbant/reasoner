@@ -432,7 +432,7 @@ The "Lean today" column of each package (declaration families and size) is in 6.
 | `fct:ce-band` | planned | M10 (upper bound): the same two-regime argument as `fct:warp-asymp` (3) (one lemma in Lean); applies the maximum principle to `g_D''` citing `fct:comp-D` (1), stated for `g_D`, `g_D'` only (section 1.3a) |
 | `fct:ce-preedge` | planned | M10 (upper bound); uses `uct:gen-preedge`, `uct:ce-band`, `ct:dual-id`, `cel:L3a` |
 | `uct:outer-growth` | done | `UctOuterGrowth`: `norm_exp_neg_outerHbar_le`, `outerGbar_inv_le`, `outerHbar_zero/one`, `exists_holo_H1` (disc bounds off the closed strip not stated separately). Also needed by `uct:seed-asymp` (the `W^seed` admissibility) |
-| `uct:gen-preedge` | planned | M10 (upper bound); cited only by `fct:ce-preedge`; interface with `cel:total-saddle` (first order) and `cel:L3a` (2) |
+| `uct:gen-preedge` | done | `uct_gen_preedge` (paper form, `c ≥ 60`, `StripAdmissFullData (1/2) W`) and the sharp forms `existsUnique_saddlePoint`, `uct_gen_preedge_saddle_of_M1`, `uct_gen_preedge_pos_of_M1` (part (1) needs only (M1)), `uct_gen_preedge_origin_of_holder` (part (2) needs only `c ≥ 2`, (M1), (M2) at `ζ=1` for any `α > 0`) (`UctGenPreedge`); cited only by `fct:ce-preedge` |
 | `uct:ce-band` | planned | M10 (upper bound); combined holomorphic amplitude `A = e^{i theta} M` on a lower half-disc, `A(0) = 1` |
 
 **F3. Five-term theorem `thm:ct-upper` (assembly and reductions)** (`general_theorems.tex`). Lean: reductions in Lean: `hankel_euclid_dictionary`, `intertwiner_feasible`, `ce_schwartz_radius_eq_L1_radius`, `ce_quadratic_dimensions`, `hankelT0_eq_hankelT`.
