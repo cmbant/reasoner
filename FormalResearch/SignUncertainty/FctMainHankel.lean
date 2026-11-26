@@ -8,9 +8,12 @@ public import FormalResearch.SignUncertainty.StripAdmiss
 public import FormalResearch.SignUncertainty.CtLower
 public import FormalResearch.SignUncertainty.UctSeedW
 public import FormalResearch.SignUncertainty.UctSeedWHolder
+public import FormalResearch.SignUncertainty.UctSeedAdmiss
+public import FormalResearch.SignUncertainty.UctSeedEdgeV
 public import FormalResearch.SignUncertainty.UctAiryTransPhi
 public import FormalResearch.SignUncertainty.UctPosFloorWpos
 public import FormalResearch.SignUncertainty.UctBumpMain
+public import FormalResearch.SignUncertainty.UctBumpEdge
 public import FormalResearch.SignUncertainty.HankelThresholds
 
 /-!
@@ -42,24 +45,24 @@ and `ctWtot` (`(fct:Wtot-hankel)`) are defined from the existing Lean objects.  
 (`ctWtot_zero_eq`, from the Hölder clause (M2) of `StripAdmissFullData` and the limits of the summands; `ctWg1`, `ctWfl`,
 `ctWbump` are continuous on the closed strip, `ctWg1_continuousOn` etc.), and `W̃^warp → 0` is `ctWwarp_tendsto_zero`, proved from
 the explicit corner field `splitting_origin` (`Φ̂_c = O(ζ³)` cancels the `ζ^{-5/2}` singularity of `H_*/G_ε`, `ctHG_bound`).  (Lean's
-value of `ctHG`/`ctWwarp` at `ζ = 0` is a division-by-zero value; it is never used, and the Hölder clause of `admissible` is consistent
+value of `ctHG`/`ctWwarp` at `ζ = 0` is a division-by-zero value; it is never used, and the Hölder clause of `warp_admissible` is consistent
 with it because the limit is `0`.)
 
 **Abstract parameters** (the only objects not yet in Lean, each named after its TeX label): `Dcomp` (`fct:comp-D`), `PhiHat`
 (`fct:splitting`, which depends on the chart of `fct:comp-cfu`), `Bphys` (`(fct:B-physical)`), `T1` (`fct:warp-asymp` (1)).
 
-**Conditional on the fields of `FctMainHankelInputs`** (`splitting_origin`, `bump_profile`, `warp_zero`, `admissible`, `physical_budget`, `physical_positive`): each is
+**Conditional on the fields of `FctMainHankelInputs`** (`splitting_origin`, `bump_profile`, `warp_zero`, `warp_admissible`, `floor_admissible`, `physical_budget`, `physical_positive`): each is
 the output of the named TeX lemma(s), stated about the concrete multipliers and these four parameters.  Proved lemmas
 (`uct:admiss` = `uct_admiss_full`, `mat:T7`, `hb_thresholds_lower`, `uct:airy-trans`, `uct:pos-floor`, `uct:outer-growth`,
 `fct:bump-5`, `uct:seed-asymp` (1), `fct:moment-solver`, `fct:phikill`, `fct:edge-ibp`) are used directly or enter through the
 discharge of a field, not as fields.
 
 **Satisfiability.** The four parameters are free, so the fields are consistent only for the paper's actual `D_{τ₁}`, `Φ̂_c`, `B`, `T₁`;
-no field has been shown consistent in Lean.  Doubtful points: `warp_zero` and `admissible` hide `fct:comp-D`/`fct:comp-cfu`/
-`fct:inner-symbols`/`fct:splitting`; `physical_positive` hides the five-term positivity (`fct:physical-positive` and its inputs) and is
+no field has been shown consistent in Lean.  Doubtful points: `warp_zero` and `warp_admissible` hide `fct:comp-D`/`fct:comp-cfu`/
+`fct:inner-symbols`/`fct:splitting`; `floor_admissible` needs the `g_1'` transform of `uct:airy-trans`; `physical_positive` hides the five-term positivity (`fct:physical-positive` and its inputs) and is
 the field most likely to need a sharper form once its proof is formalised.  The `T_c^ε` set is bounded below by
-`hb_thresholds_lower`, so no field is needed for that.  The `ctWfl` and `ctWg1` parts of `admissible` are provable from proved lemmas
-and are to be split off when proved.
+`hb_thresholds_lower`, so no field is needed for that.  The `ctWg1` and bump parts of the admissibility of the total are proved (`ctWg1_stripAdmissFull`, a real combination of three
+`seedW_stripAdmissFull` by polarisation; `ctWbump_stripAdmissFull`; assembled in `ctWtot_admissible`).
 
 Class: proved under the explicit hypothesis structure `FctMainHankelInputs` (not discharged).
 -/
@@ -144,8 +147,8 @@ lemma ctTg1_zero : ctTg1 0 = (ceK : ℂ) := by
   rw [hint, ceG1_integral_eq_one]
   simp
 
-/-- `F̃_*(i c_s c^{1/3}) ≠ 0` for large `c` (`φ_{c,0}(1) = 1 + O(c^{-2/3})`, `uct:airy-trans` (2)). -/
-lemma seedT_scale_ne : ∃ c₁ : ℝ, ∀ c : ℝ, c₁ ≤ c → seedT 0 (seedScale c : ℂ) ≠ 0 := by
+/-- `F̃_{*,δ}(i c_s c^{1/3}) ≠ 0` for large `c`, uniformly in `0 ≤ δ ≤ 1` (`φ_{c,δ}(1) = 1 + O(c^{-2/3})`, `uct:airy-trans` (2)). -/
+lemma seedT_scale_ne : ∃ c₁ : ℝ, ∀ c : ℝ, c₁ ≤ c → ∀ δ : ℝ, 0 ≤ δ → δ ≤ 1 → seedT δ (seedScale c : ℂ) ≠ 0 := by
   obtain ⟨C, hC0, hC⟩ := uct_airy_trans_phi 0
   obtain ⟨c₁, hc₁⟩ : ∃ c₁ : ℝ, 8 ≤ c₁ ∧ C * c₁ ^ (-(2 / 3 : ℝ)) < 1 := by
     obtain ⟨c₂, -, hc₂⟩ := exists_rpow_neg_le (p := (2 / 3 : ℝ)) (by norm_num) (ε := 1 / (C + 1)) (by positivity)
@@ -155,7 +158,7 @@ lemma seedT_scale_ne : ∃ c₁ : ℝ, ∀ c : ℝ, c₁ ≤ c → seedT 0 (seed
     have h3 : C * (1 / (C + 1)) < 1 := by
       rw [mul_one_div, div_lt_one (by linarith)]; linarith
     linarith
-  refine ⟨c₁, fun c hc => ?_⟩
+  refine ⟨c₁, fun c hc δ hδ0 hδ1 => ?_⟩
   have hc8 : 8 ≤ c := le_trans hc₁.1 hc
   have hc0 : 0 < c := by linarith
   have hcr : c ^ (-(2 / 3 : ℝ)) ≤ c₁ ^ (-(2 / 3 : ℝ)) :=
@@ -167,17 +170,17 @@ lemma seedT_scale_ne : ∃ c₁ : ℝ, ∀ c : ℝ, c₁ ≤ c → seedT 0 (seed
       rw [show (8 : ℝ) = 2 ^ (3 : ℝ) by norm_num, ← Real.rpow_mul (by norm_num)]
       norm_num
     linarith
-  have h := hC c 0 hc0 le_rfl zero_le_one 1 (by simp) hthr
+  have h := hC c δ hc0 hδ0 hδ1 1 (by simp) hthr
   simp only [iteratedDerivWithin_zero, norm_one] at h
-  have hlt : ‖uctPhi c 0 1 - 1‖ < 1 := by
+  have hlt : ‖uctPhi c δ 1 - 1‖ < 1 := by
     refine lt_of_le_of_lt ?_ hc₁.2
-    calc ‖uctPhi c 0 1 - 1‖ ≤ C * c ^ (-(2 / 3 : ℝ)) * 1 := by simpa using h
+    calc ‖uctPhi c δ 1 - 1‖ ≤ C * c ^ (-(2 / 3 : ℝ)) * 1 := by simpa using h
       _ ≤ C * c₁ ^ (-(2 / 3 : ℝ)) := by rw [mul_one]; exact mul_le_mul_of_nonneg_left hcr hC0
-  have hne : uctPhi c 0 1 ≠ 0 := by
+  have hne : uctPhi c δ 1 ≠ 0 := by
     intro h0
     rw [h0] at hlt
     simp at hlt
-  have e : uctPhi c 0 1 = ((c ^ (5 / 6 : ℝ) / uctCAi : ℝ) : ℂ) * (1 : ℂ) ^ (5 / 2 : ℂ) * seedT 0 (seedScale c : ℂ) := by
+  have e : uctPhi c δ 1 = ((c ^ (5 / 6 : ℝ) / uctCAi : ℝ) : ℂ) * (1 : ℂ) ^ (5 / 2 : ℂ) * seedT δ (seedScale c : ℂ) := by
     unfold uctPhi seedT seedScale; rw [mul_one]
   intro h0
   apply hne
@@ -192,6 +195,69 @@ lemma ctWg1_zero {c : ℝ} (ε : ℝ) (hT : seedT 0 (seedScale c : ℂ) ≠ 0) :
   simp only [mul_zero, sub_zero, mul_one, h0, ctTg1_zero, uctSeedZ_zero, outerHbar_zero, neg_zero, Complex.exp_zero, zero_mul,
     add_zero, one_mul]
   field_simp
+
+lemma re_mul_real_nonneg {a : ℝ} (ha : 0 ≤ a) {ζ : ℂ} (hζ : 0 ≤ ζ.re) : 0 ≤ (((a : ℝ) : ℂ) * ζ).re := by
+  simp only [Complex.re_ofReal_mul]; exact mul_nonneg ha hζ
+
+/-! ### Admissibility of `ctWg1`: a real combination of three seed multipliers -/
+
+lemma seedT_lin (δ : ℝ) {w : ℂ} (hw : 0 ≤ w.re) : seedT δ w = seedT 0 w - (δ : ℂ) * ctTg1 w := by
+  rw [seedT_eq_text δ hw, seedT_eq_text 0 hw]
+  unfold ctTg1
+  rw [uctG1Ext_eq hw]
+  simp only [seedText, Complex.ofReal_zero, zero_mul, sub_zero]
+
+/-- `F̃_{*,δ}(i c_s c^{1/3})`, a real number. -/
+noncomputable def ctTr (c δ : ℝ) : ℝ := airyTwistedLaplace (uctFstarDelta δ) (seedScale c)
+
+lemma seedT_scale_eq (c δ : ℝ) : seedT δ (seedScale c : ℂ) = (ctTr c δ : ℂ) := by
+  unfold seedT ctTr; exact airyTwistedLaplaceC_ofReal _ _
+
+/-- `ctWg1` is the real combination `(r₁/r₀) W^seed_1 - 4 (r_{1/2}/r₀) W^seed_{1/2} + 3 W^seed_0` of seed multipliers (polarisation of
+`T_δ(x) T_δ(y) = T₀T₀ - δ (g T₀ + T₀ g) + δ² g g` at `δ = 0, 1/2, 1`), on the closed strip. -/
+lemma ctWg1_eq (ε : ℝ) {c : ℝ} (h0 : seedT 0 (seedScale c : ℂ) ≠ 0) (h1 : seedT 1 (seedScale c : ℂ) ≠ 0)
+    (hh : seedT (1 / 2) (seedScale c : ℂ) ≠ 0) (hc : 0 < c) {ζ : ℂ} (hζ : ζ ∈ closedStrip) :
+    ctWg1 ε c ζ = ((ctTr c 1 / ctTr c 0 : ℝ) : ℂ) * seedW ε 1 c ζ -
+      4 * ((ctTr c (1 / 2) / ctTr c 0 : ℝ) : ℂ) * seedW ε (1 / 2) c ζ + 3 * seedW ε 0 c ζ := by
+  have ha := seedScale_pos hc
+  have hx : 0 ≤ ((seedScale c : ℂ) * ζ).re := re_mul_real_nonneg ha.le hζ.1
+  have hy : 0 ≤ ((seedScale c : ℂ) * (1 - ζ)).re := re_mul_real_nonneg ha.le (by simp; linarith [hζ.2])
+  have e0 := seedT_scale_eq c 0
+  have e1 := seedT_scale_eq c 1
+  have eh := seedT_scale_eq c (1 / 2)
+  rw [e0] at h0
+  rw [e1] at h1
+  rw [eh] at hh
+  have h0' : (ctTr c 0 : ℂ) ≠ 0 := h0
+  have h1' : (ctTr c 1 : ℂ) ≠ 0 := h1
+  have hh' : (ctTr c (1 / 2) : ℂ) ≠ 0 := hh
+  unfold ctWg1 seedW
+  rw [seedT_lin 1 hx, seedT_lin 1 hy, seedT_lin (1 / 2) hx, seedT_lin (1 / 2) hy, e0, e1, eh]
+  have e0' : seedT 0 ((seedScale c : ℂ) * ζ) = seedT 0 ((seedScale c : ℂ) * ζ) := rfl
+  push_cast
+  field_simp
+  ring
+
+theorem ctWg1_stripAdmissFull {ε c : ℝ} (hε : ε = 1 ∨ ε = -1) (hc : 0 < c)
+    (hT : ∀ δ : ℝ, 0 ≤ δ → δ ≤ 1 → seedT δ (seedScale c : ℂ) ≠ 0) : StripAdmissFullData (1 / 2) (ctWg1 ε c) := by
+  have W1 := seedW_stripAdmissFull hε (δ := 1) zero_le_one le_rfl hc
+  have Wh := seedW_stripAdmissFull hε (δ := 1 / 2) (by norm_num) (by norm_num) hc
+  have W0 := seedW_stripAdmissFull hε (δ := 0) le_rfl zero_le_one hc
+  have key := ((W1.smul_real (ctTr c 1 / ctTr c 0)).add ((Wh.smul_real (-4 * (ctTr c (1 / 2) / ctTr c 0))).add (W0.smul_real 3)))
+  refine key.congr fun ζ h0 h1 => ?_
+  rw [ctWg1_eq ε (hT 0 le_rfl zero_le_one) (hT 1 zero_le_one le_rfl) (hT (1 / 2) (by norm_num) (by norm_num)) hc ⟨h0, h1⟩]
+  push_cast
+  ring
+
+theorem ctWg1_oneSub {ε c : ℝ} (hε : ε = 1 ∨ ε = -1) (hc : 0 < c)
+    (hT : ∀ δ : ℝ, 0 ≤ δ → δ ≤ 1 → seedT δ (seedScale c : ℂ) ≠ 0) {ζ : ℂ} (hζ : ζ ∈ closedStrip) :
+    ctWg1 ε c (1 - ζ) = (ε : ℂ) * ctWg1 ε c ζ := by
+  have hζ' : (1 - ζ) ∈ closedStrip := ⟨by simpa using hζ.2, by simpa using hζ.1⟩
+  have a := hT 0 le_rfl zero_le_one
+  have b := hT 1 zero_le_one le_rfl
+  have c' := hT (1 / 2) (by norm_num) (by norm_num)
+  rw [ctWg1_eq ε a b c' hc hζ', ctWg1_eq ε a b c' hc hζ, seedW_oneSub hε _ _ hζ, seedW_oneSub hε _ _ hζ, seedW_oneSub hε _ _ hζ]
+  ring
 
 /-- `|Re W̃_c^{fl,ε}(0)|` is bounded by an absolute constant (`W_F(0) = k ∫ S_pos`, `W_D(c^{1/3})` bounded by `U.2`). -/
 lemma ctWfl_zero_bound : ∃ C : ℝ, ∀ K ε c : ℝ, 0 ≤ K → 0 < c → (ε = 1 ∨ ε = -1) → |(ctWfl K ε c 0).re| ≤ C := by
@@ -369,9 +435,6 @@ lemma continuousOn_liftSymbol {X : ℝ → ℝ} (hX : HasU2 X) (δ₀ : ℝ) (m 
       show 0 ≤ ((ceCs : ℂ) * w).re
       simp only [Complex.re_ofReal_mul]; exact mul_nonneg ceCs_pos.le hw
 
-lemma re_mul_real_nonneg {a : ℝ} (ha : 0 ≤ a) {ζ : ℂ} (hζ : 0 ≤ ζ.re) : 0 ≤ (((a : ℝ) : ℂ) * ζ).re := by
-  simp only [Complex.re_ofReal_mul]; exact mul_nonneg ha hζ
-
 lemma ctWfl_continuousOn (K ε : ℝ) {c : ℝ} (hc : 0 < c) : ContinuousOn (ctWfl K ε c) closedStrip := by
   have ha : 0 ≤ c ^ (1 / 3 : ℝ) := by positivity
   have h1 : ContinuousOn (fun ζ : ℂ => liftSymbol uctSpos (ceBeta1 * K * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ) : ℂ) * ζ)) closedStrip :=
@@ -416,6 +479,54 @@ lemma ctWbump_continuousOn {B : ℝ → ℝ} {b δ M α β : ℝ} {K : ℕ → �
   unfold ctWbump bumpDW
   exact (continuousOn_const.mul h1).add (continuousOn_const.mul (continuousOn_const.mul h2))
 
+/-! ### Admissibility and symmetry of the summands and of the total -/
+
+theorem ctWbump_stripAdmissFull {B : ℝ → ℝ} {δ M α β : ℝ} {K : ℕ → ℝ} (ε : ℝ) {c : ℝ} (hc : 0 < c) (hδ0 : 0 < δ)
+    (hδ1 : 3 / 2 * δ ≤ 1) (hβ : 3 / 2 ≤ β) (hM : 0 ≤ M) (hB : BumpProfile (3 / 2) δ M α β K B) :
+    StripAdmissFullData (1 / 2) (ctWbump B ε c) := by
+  have h := bump_stripAdmissFull (b := 3 / 2) (by norm_num) hβ K hδ0 (by linarith) hδ1 hM hc hB
+  have h' := (h.reflect).smul_real ε
+  exact (h.add h').congr fun ζ _ _ => rfl
+
+lemma ctWbump_oneSub {ε : ℝ} (hε : ε = 1 ∨ ε = -1) (B : ℝ → ℝ) (c : ℝ) (ζ : ℂ) :
+    ctWbump B ε c (1 - ζ) = (ε : ℂ) * ctWbump B ε c ζ := by
+  unfold ctWbump
+  rw [sub_sub_cancel]
+  have : (ε : ℂ) * (ε : ℂ) = 1 := by rcases hε with h | h <;> simp [h]
+  linear_combination (-(bumpDW c B (1 - ζ))) * this
+
+lemma ctWfl_oneSub {ε : ℝ} (hε : ε = 1 ∨ ε = -1) (K c : ℝ) (ζ : ℂ) :
+    ctWfl K ε c (1 - ζ) = (ε : ℂ) * ctWfl K ε c ζ := by
+  unfold ctWfl
+  rw [sub_sub_cancel]
+  have : (ε : ℂ) * (ε : ℂ) = 1 := by rcases hε with h | h <;> simp [h]
+  linear_combination (-(liftSymbol uctSpos (ceBeta1 * K * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ) : ℂ) * (1 - ζ)))) * this
+
+/-- The total multiplier is admissible (`(M1)`-`(M3)` at `α = 1/2`) and `ε`-symmetric, given the same for the warp and floor
+summands; `ctWg1` (`ctWg1_stripAdmissFull`) and the bump (`ctWbump_stripAdmissFull`) are proved. -/
+theorem ctWtot_admissible (PhiHat D : ℝ → ℝ → ℂ → ℂ) (B : ℝ → ℝ → ℝ → ℝ → ℝ) {ε c Kfl K0 K1 Kd : ℝ} (hε : ε = 1 ∨ ε = -1)
+    (hc : 0 < c) (hT : ∀ δ : ℝ, 0 ≤ δ → δ ≤ 1 → seedT δ (seedScale c : ℂ) ≠ 0)
+    (hwarp : StripAdmissFullData (1 / 2) (ctWwarp PhiHat D ε c))
+    (hwarp_sym : ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ctWwarp PhiHat D ε c (1 - ζ) = (ε : ℂ) * ctWwarp PhiHat D ε c ζ)
+    (hfl : StripAdmissFullData (1 / 2) (ctWfl Kfl ε c))
+    {δ M α β : ℝ} {K : ℕ → ℝ} (hδ0 : 0 < δ) (hδ1 : 3 / 2 * δ ≤ 1) (hβ : 3 / 2 ≤ β) (hM : 0 ≤ M)
+    (hB : BumpProfile (3 / 2) δ M α β K (B ε c K1)) :
+    StripAdmissFullData (1 / 2) (ctWtot PhiHat D B ε c Kfl K0 K1 Kd) ∧
+      ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 →
+        ctWtot PhiHat D B ε c Kfl K0 K1 Kd (1 - ζ) = (ε : ℂ) * ctWtot PhiHat D B ε c Kfl K0 K1 Kd ζ := by
+  have hg := ctWg1_stripAdmissFull hε hc hT
+  have hb := ctWbump_stripAdmissFull ε hc hδ0 hδ1 hβ hM hB
+  refine ⟨?_, fun ζ h0 h1 => ?_⟩
+  · have key := ((hwarp.add (hg.smul_real (-(Kd * c ^ (-(13 / 12 : ℝ)))))).add (hfl.smul_real (K0 * c ^ (-(4 / 3 : ℝ))))).add hb
+    refine key.congr fun ζ _ _ => ?_
+    unfold ctWtot
+    push_cast
+    ring
+  · have hζ : ζ ∈ closedStrip := ⟨h0, h1⟩
+    unfold ctWtot
+    rw [hwarp_sym ζ h0 h1, ctWg1_oneSub hε hc hT hζ, ctWfl_oneSub hε, ctWbump_oneSub hε]
+    ring
+
 /-! ### The inputs -/
 
 /-- **The open inputs of `fct:main-hankel`.**  The multipliers `ctWg1`, `ctWfl`, `ctWbump`, `ctWwarp`, `ctWtot` are concrete; the
@@ -445,18 +556,20 @@ structure FctMainHankelInputs where
   /-- `fct:bump-5` (1) with `fct:bump-sym-check`: the physical bump is a `BumpProfile` (`uct:bump-symbol`: smooth, supported in
   `[3δ_L/2, ∞)`, symbol bounds), so that its Laplace transform is continuous on the closed strip. -/
   bump_profile : ∀ K1 : ℝ, 0 < K1 → ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
-    ∃ (δ M α β : ℝ) (K : ℕ → ℝ), 0 < δ ∧ 3 / 2 * δ ≤ 1 ∧ 3 / 2 ≤ β ∧ BumpProfile (3 / 2) δ M α β K (Bphys ε c K1)
+    ∃ (δ M α β : ℝ) (K : ℕ → ℝ), 0 < δ ∧ 3 / 2 * δ ≤ 1 ∧ 3 / 2 ≤ β ∧ 0 ≤ M ∧ BumpProfile (3 / 2) δ M α β K (Bphys ε c K1)
   /-- `fct:comp-D`, `fct:comp-cfu`, `fct:inner-symbols`, `fct:warp-asymp` (1) (with `ct:langer-inv`, `ct:five-term-node`):
   the zero solve places the first zero at `T₁ = Δ₅^ε(c) + O(c^{-1})` (`K₄ = K₄^{(0)}` fixed). -/
   warp_zero : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |T1 ε c - ctDelta5 ε c| ≤ C * c⁻¹
-  /-- Step 1 of `fct:s4-proof` (`uct:admiss` (M1)-(M3) at `α = 1/2` and the `ε`-symmetry) for the total multiplier: `fct:splitting` (1)-(2)
-  (`Φ̂_c = O(ζ³)`, `log log` growth), `fct:comp-D`, `fct:phikill`, `uct:airy-trans` and `uct:outer-growth` (for `ctWg1`; the part
-  of this field about `ctWg1` and `ctWfl` is provable from them), `uct:pos-floor` (for `ctWfl`), `fct:bump-5` (1) with
-  `fct:bump-sym-check` (for `ctWbump`). -/
-  admissible : ∀ ε Kfl K0 K1 Kd : ℝ, (ε = 1 ∨ ε = -1) → 0 < K0 → 0 < K1 → 0 < Kd → ∃ c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c →
-    StripAdmissFullData (1 / 2) (ctWtot PhiHat Dcomp Bphys ε c Kfl K0 K1 Kd) ∧
-    ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 →
-      ctWtot PhiHat Dcomp Bphys ε c Kfl K0 K1 Kd (1 - ζ) = (ε : ℂ) * ctWtot PhiHat Dcomp Bphys ε c Kfl K0 K1 Kd ζ
+  /-- Step 1 of `fct:s4-proof` for the warp summand (`uct:admiss` (M1)-(M3) at `α = 1/2` and the `ε`-symmetry): `fct:splitting` (1)-(2)
+  (`Φ̂_c = O(ζ³)`, `log log` growth), `fct:comp-D`, `fct:phikill`, with `|H_*/G_ε| = O((1+|τ|)² e^{-π|τ|})` (`uct:outer-growth`). -/
+  warp_admissible : ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
+    StripAdmissFullData (1 / 2) (ctWwarp PhiHat Dcomp ε c) ∧
+      ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ctWwarp PhiHat Dcomp ε c (1 - ζ) = (ε : ℂ) * ctWwarp PhiHat Dcomp ε c ζ
+  /-- Step 1 of `fct:s4-proof` for the floor summand: `uct:pos-floor` (2) with `uct:airy-trans` for `g_1'` (`g̃_1'(i w̃) = E₃ + w̃^{1/2} E₄`,
+  `(M2)` and the small-`|τ|` part of `(M3)` at both edges) and `u1c:U2` (1) (`(M1)` and large `|τ|`).  The `ε`-symmetry is proved
+  (`ctWfl_oneSub`). -/
+  floor_admissible : ∀ Kfl : ℝ, 1 ≤ Kfl → ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
+    StripAdmissFullData (1 / 2) (ctWfl Kfl ε c)
   /-- `fct:physical-budget`: `Re W̃^bump(0) = c^{-1/3}∫B + O(e^{-c' c^{1/2}}) ≤ (C₀(K₄) + b₂ K₁) c^{-13/12}`, with `C₀, b₂`
   independent of `K₁` and of the later `K_d`. -/
   physical_budget : ∃ C0 b2 : ℝ, ∀ K1 : ℝ, 0 < K1 → ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
@@ -516,31 +629,26 @@ theorem fct_main_hankel (I : FctMainHankelInputs) :
   obtain ⟨cb, hcb⟩ := hbud K1 hK1
   obtain ⟨cp, hcp⟩ := hpos Kd hKdpos
   obtain ⟨cbp, hcbp⟩ := I.bump_profile K1 hK1
-  obtain ⟨ca1, hca1⟩ := I.admissible 1 Kfl K0 K1 Kd (Or.inl rfl) hK0 hK1 hKdpos
-  obtain ⟨ca2, hca2⟩ := I.admissible (-1) Kfl K0 K1 Kd (Or.inr rfl) hK0 hK1 hKdpos
+  obtain ⟨cwa, hcwa⟩ := I.warp_admissible
+  obtain ⟨cfl, hcfl⟩ := I.floor_admissible Kfl hKfl
   have hβ := hankelBeta1_pos
   refine ⟨|C1| + 2 * Kd / hankelBeta1 + 1,
-    max (max (max (max (max cw clow) (max cb cp)) (max ca1 ca2)) (max cT cbp)) 2, by positivity, ?_⟩
+    max (max (max (max (max cw clow) (max cb cp)) (max cwa cfl)) (max cT cbp)) 2, by positivity, ?_⟩
   intro ε c hε hc
   simp only [max_le_iff] at hc
-  obtain ⟨⟨⟨⟨⟨hcw, hcl⟩, hcb', hcp'⟩, hcaa1, hcaa2⟩, hcT', hcbp'⟩, hc2⟩ := hc
+  obtain ⟨⟨⟨⟨⟨hcw, hcl⟩, hcb', hcp'⟩, hcwa', hcfl'⟩, hcT', hcbp'⟩, hc2⟩ := hc
   have hc1 : 1 ≤ c := by linarith
-  obtain ⟨hadm, hsym⟩ : StripAdmissFullData (1 / 2) (ctWtot I.PhiHat I.Dcomp I.Bphys ε c Kfl K0 K1 Kd) ∧
-      ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 →
-        ctWtot I.PhiHat I.Dcomp I.Bphys ε c Kfl K0 K1 Kd (1 - ζ) =
-          (ε : ℂ) * ctWtot I.PhiHat I.Dcomp I.Bphys ε c Kfl K0 K1 Kd ζ := by
-    rcases hε with rfl | rfl
-    · exact hca1 c hcaa1
-    · exact hca2 c hcaa2
+  obtain ⟨δ, M, α, β, K, hδ, hδ1, hβ, hM, hprof⟩ := hcbp ε c hε hcbp'
+  obtain ⟨hadm, hsym⟩ := ctWtot_admissible I.PhiHat I.Dcomp I.Bphys (Kfl := Kfl) (K0 := K0) (K1 := K1) (Kd := Kd) hε
+    (by linarith : 0 < c) (hcT c hcT') (hcwa ε c hε hcwa').1 (hcwa ε c hε hcwa').2 (hcfl ε c hε hcfl') hδ hδ1 hβ hM hprof
   -- vacuum
   have hrpow : c ^ (-(4 / 3 : ℝ)) ≤ c ^ (-(13 / 12 : ℝ)) :=
     Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
   have hrpos : 0 < c ^ (-(13 / 12 : ℝ)) := Real.rpow_pos_of_pos (by linarith) _
   have hrpos' : 0 ≤ c ^ (-(4 / 3 : ℝ)) := (Real.rpow_pos_of_pos (by linarith) _).le
   have hvac : (ctWtot I.PhiHat I.Dcomp I.Bphys ε c Kfl K0 K1 Kd 0).re < 0 := by
-    obtain ⟨δ, M, α, β, K, hδ, hδ1, hβ, hprof⟩ := hcbp ε c hε hcbp'
     have hbump := ctWbump_continuousOn hprof (by positivity) (by linarith) (by linarith) ε (by linarith : 0 < c)
-    have hzero := ctWtot_zero_eq I.PhiHat I.Dcomp I.Bphys (by linarith : 0 < c) (hcT c hcT') hadm
+    have hzero := ctWtot_zero_eq I.PhiHat I.Dcomp I.Bphys (by linarith : 0 < c) (hcT c hcT' 0 le_rfl zero_le_one) hadm
       (ctWwarp_tendsto_zero _ _ ε c (I.splitting_origin ε c hε)) hbump
     rw [hzero]
     simp only [Complex.add_re, Complex.neg_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
@@ -601,6 +709,18 @@ theorem fct_main_hankel_upper (I : FctMainHankelInputs) :
 /-- info: 'FormalResearch.SignUncertainty.ctWtot_zero_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ctWtot_zero_eq
+
+/-- info: 'FormalResearch.SignUncertainty.ctWg1_stripAdmissFull' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ctWg1_stripAdmissFull
+
+/-- info: 'FormalResearch.SignUncertainty.ctWbump_stripAdmissFull' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ctWbump_stripAdmissFull
+
+/-- info: 'FormalResearch.SignUncertainty.ctWtot_admissible' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ctWtot_admissible
 
 /-- info: 'FormalResearch.SignUncertainty.ctWg1_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
