@@ -389,16 +389,6 @@ lemma exp_div_two_le_cosh (x : ℝ) : Real.exp |x| / 2 ≤ Real.cosh x := by
   · rw [h]; linarith [Real.exp_pos x, Real.exp_pos (-x)]
   · rw [h]; linarith [Real.exp_pos x, Real.exp_pos (-x)]
 
-lemma cosh_le_exp_abs (x : ℝ) : Real.cosh x ≤ Real.exp |x| := by
-  rw [Real.cosh_eq]
-  rcases abs_cases x with ⟨h, _⟩ | ⟨h, _⟩
-  · rw [h]
-    have : Real.exp (-x) ≤ Real.exp x := Real.exp_le_exp.mpr (by linarith)
-    linarith
-  · rw [h]
-    have : Real.exp x ≤ Real.exp (-x) := Real.exp_le_exp.mpr (by linarith)
-    linarith
-
 lemma norm_cos_quarter_ge {s : ℂ} (hs : s ∈ unitStripCl) :
     Real.exp (π * |s.im| / 4) / 2 ≤ ‖Complex.cos ((π : ℂ) * s / 4)‖ := by
   have h1 := norm_cos_sq_ge hs

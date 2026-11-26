@@ -15,15 +15,16 @@ four targets as `Prop`s over the existing `Gout` (`VirasoroOuter`); the proofs l
 * `OuterS1` (`cts:main` Piece 3 and `cts:cauchy-dual` Step 2, factorisation `G_outer = (1+z²)⁻¹ H₃^{1/4} G̃`):
   the continuous branch `θ_out` of `arg G_outer(iy)`, the function `H₃`, and `G̃`.
 * `OuterS2` (`cts:cauchy-dual` Step 2, eq. `cts:theta-deriv`, and the first bullet of `cts:smooth-env` (3)):
-  `|∂_x^j θ_out(y(x))| ≤ C r^{1/2-j} e^{-πx}`, `r = x - ξ_*`, `j = 1, 2`.
+  `|∂_x^j θ_out(y(x))| ≤ C min(r,1)^{1/2-j} e^{-πx}`, `r = x - ξ_*`, `j = 1, 2`.
 * `OuterS3` (`cts:smooth-env` (2)): the extension of `ℰ_δ` and the branch-point factorisation.
-* `OuterS4` (`cts:smooth-env` (3)): the `δφ_δ'`, `δφ_δ''` bounds and the `C²` bounds on `ΔΦ_δ`.
+* `OuterS4` (`cts:smooth-env` (3)): `OuterS4a` (the `δφ_δ'`, `δφ_δ''` bounds) and `OuterS4b` (the `C²` bounds on `ΔΦ_δ`).
 
 **Paper findings built into the statements** (see `FIVES_DESIGN.md`): the bound `min(r^{1/2-j}, (1+x)e^{-πx})` of the
 paper cannot hold at the tip (`θ_out(y(x)) = g₁ y(x) + …`, `y(x) ≍ r^{1/2}`, so `∂_x θ_out ≍ r^{-1/2}` while
 `(1+x)e^{-πx}` is bounded) nor for `j = 0` at infinity (`θ_out(y(x)) → -π/4`, numerically), so `OuterS2` states the
-combined bound `C r^{1/2-j} e^{-πx}` (which gives both regimes) and, for `j = 0`, `|θ_out| ≤ C r^{1/2}` and the
-exponential approach to a limit.
+combined bound `C min(r,1)^{1/2-j} e^{-πx}` (`r^{1/2-j}` at the tip, `e^{-πx}` at infinity; the literal `r^{1/2-j} e^{-πx}`
+would be false at infinity because `r^{-1/2} → 0`) and, for `j = 0`, `|θ_out| ≤ C r^{1/2}` and the exponential approach to a
+limit.
 -/
 
 @[expose] public section
@@ -95,17 +96,19 @@ def OuterS1 : Prop :=
           2 * Real.log (1 - Real.exp (-(4 * π * xOf y)))
 
 /-- **`OuterS2`** (`cts:cauchy-dual` Step 2, eq. `cts:theta-deriv`; `cts:smooth-env` (3), first bullet):
-there is `C` such that for all `x > ξ_*`, with `r = x - ξ_*`,
-`|θ_out(y(x))| ≤ C r^{1/2}` for `x ≤ ξ_* + 1`, `|∂_x θ_out(y(x))| ≤ C r^{-1/2} e^{-πx}`,
-`|∂_x² θ_out(y(x))| ≤ C r^{-3/2} e^{-πx}`, and `θ_out(y(x))` has a limit `L` as `x → ∞` with
-`|θ_out(y(x)) - L| ≤ C e^{-πx}`.  (The paper's `C min(r^{1/2-j}, (1+x)e^{-πx})` is the combined bound read
-piecewise; see the module docstring.) -/
+there is `C` such that, with `r = x - ξ_*` and `r̃ = min(r, 1)`, `θ_out(y(x))` is twice differentiable on `x > ξ_*`
+and for all `x > ξ_*`: `|θ_out(y(x))| ≤ C r^{1/2}` (`x ≤ ξ_* + 1`), `|∂_x θ_out(y(x))| ≤ C r̃^{-1/2} e^{-πx}`,
+`|∂_x² θ_out(y(x))| ≤ C r̃^{-3/2} e^{-πx}`, and `θ_out(y(x))` has a limit `L` with `|θ_out(y(x)) - L| ≤ C e^{-πx}`.
+(The paper's `C min(r^{1/2-j}, (1+x)e^{-πx})` is read as this combined bound: `r̃^{1/2-j}` is `r^{1/2-j}` at the tip and `1`
+at infinity; see the module docstring.) -/
 def OuterS2 : Prop :=
   ∃ C : ℝ, 0 < C ∧
     (∀ x : ℝ, xiStar < x → x ≤ xiStar + 1 → |thetaOutX x| ≤ C * (x - xiStar) ^ ((1 : ℝ) / 2)) ∧
-    (∀ x : ℝ, xiStar < x → |deriv thetaOutX x| ≤ C * (x - xiStar) ^ (-(1 : ℝ) / 2) * Real.exp (-(π * x))) ∧
+    (∀ x : ℝ, xiStar < x → DifferentiableAt ℝ thetaOutX x ∧ DifferentiableAt ℝ (deriv thetaOutX) x) ∧
     (∀ x : ℝ, xiStar < x →
-      |deriv (deriv thetaOutX) x| ≤ C * (x - xiStar) ^ (-(3 : ℝ) / 2) * Real.exp (-(π * x))) ∧
+      |deriv thetaOutX x| ≤ C * (min (x - xiStar) 1) ^ (-(1 : ℝ) / 2) * Real.exp (-(π * x))) ∧
+    (∀ x : ℝ, xiStar < x →
+      |deriv (deriv thetaOutX) x| ≤ C * (min (x - xiStar) 1) ^ (-(3 : ℝ) / 2) * Real.exp (-(π * x))) ∧
     ∃ L : ℝ, ∀ x : ℝ, xiStar < x → |thetaOutX x - L| ≤ C * Real.exp (-(π * x))
 
 /-! ### The strip objects of `cts:smooth-env` -/
@@ -177,19 +180,27 @@ def OuterS3 : Prop :=
           ‖Ee ((vOf (yOfX x) : ℂ) + Complex.I / 2)‖ =
             ‖fDelta Gout δ (starRingEnd ℂ (wPt (yOfX x)))‖)
 
-/-- **`OuterS4`** (`cts:smooth-env` (3), phase and potential): there are `δ₀` (as in `OuterS3`) and `C` such that for
-`δ ∈ (0, δ₀)` and `x > ξ_*`, `r = x - ξ_*`: `|δφ_δ'(x)| ≤ C r^{-1/2} e^{-πx}`, `|δφ_δ''(x)| ≤ C r^{-3/2} e^{-πx}`;
-and `ΔΦ_δ` is holomorphic on `{|Im b - 1/2| < 1/4}` with `Re ΔΦ_δ = 0` on `E_+` and `|∂_b^j ΔΦ_δ| ≤ C`,
-`j = 0, 1, 2` (on the band; the band is open here, the closed-band bounds follow by continuity). -/
-def OuterS4 : Prop :=
+/-- **`OuterS4a`** (`cts:smooth-env` (3), phase bounds): there is `C` such that for `δ ∈ (0, 1/4)`, `x > ξ_*`,
+`r̃ = min(x - ξ_*, 1)`: `|δφ_δ'(x)| ≤ C r̃^{-1/2} e^{-πx}` and `|δφ_δ''(x)| ≤ C r̃^{-3/2} e^{-πx}`.
+(The paper's `r^{-1/2} e^{-πx}`, `r^{-3/2} e^{-πx}` with `r = x - ξ_*` cannot hold for large `x`: at infinity
+`δφ_δ' ≍ e^{-πx}` with a `δ`-dependent nonzero constant coming from `½ (arctan((1-δ)y) - arctan y)'`, while `r^{-1/2} → 0`.) -/
+def OuterS4a : Prop :=
+  ∃ C : ℝ, 0 < C ∧ ∀ δ : ℝ, 0 < δ → δ < 1 / 4 → ∀ x : ℝ, xiStar < x →
+    |deriv (dphi δ) x| ≤ C * (min (x - xiStar) 1) ^ (-(1 : ℝ) / 2) * Real.exp (-(π * x)) ∧
+    |deriv (deriv (dphi δ)) x| ≤ C * (min (x - xiStar) 1) ^ (-(3 : ℝ) / 2) * Real.exp (-(π * x))
+
+/-- **`OuterS4b`** (`cts:smooth-env` (3), potential): there are `δ₀` (as in `OuterS3`) and `C` such that for
+`δ ∈ (0, δ₀)`, `ΔΦ_δ` is holomorphic on `{|Im b - 1/2| < 1/4}` with `Re ΔΦ_δ = 0` on `E_+` and
+`|∂_b^j ΔΦ_δ| ≤ C`, `j = 0, 1, 2` (on the open band; the closed-band bounds follow by continuity). -/
+def OuterS4b : Prop :=
   ∃ δ0 : ℝ, 0 < δ0 ∧ δ0 < 1 / 4 ∧ etaDelta δ0 < 1 / 16 ∧ ∃ C : ℝ, 0 < C ∧
     ∀ δ : ℝ, 0 < δ → δ < δ0 →
-      (∀ x : ℝ, xiStar < x →
-        |deriv (dphi δ) x| ≤ C * (x - xiStar) ^ (-(1 : ℝ) / 2) * Real.exp (-(π * x)) ∧
-        |deriv (deriv (dphi δ)) x| ≤ C * (x - xiStar) ^ (-(3 : ℝ) / 2) * Real.exp (-(π * x))) ∧
       DifferentiableOn ℂ (DeltaPhi δ) (bandUpper (1 / 4)) ∧
       (∀ v : ℝ, (DeltaPhi δ ((v : ℂ) + Complex.I / 2)).re = 0) ∧
       (∀ b ∈ bandUpper (1 / 4),
         ‖DeltaPhi δ b‖ ≤ C ∧ ‖deriv (DeltaPhi δ) b‖ ≤ C ∧ ‖deriv (deriv (DeltaPhi δ)) b‖ ≤ C)
+
+/-- **`OuterS4`** (`cts:smooth-env` (3), phase and potential): `OuterS4a ∧ OuterS4b`. -/
+def OuterS4 : Prop := OuterS4a ∧ OuterS4b
 
 end FormalResearch.ModularBootstrap.FiveTerm.OuterStrip
