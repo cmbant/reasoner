@@ -468,6 +468,10 @@ public import FormalResearch.SignUncertainty.FctMainHankel
 public import FormalResearch.SignUncertainty.FctSymCal
 public import FormalResearch.SignUncertainty.FctSymChain
 public import FormalResearch.SignUncertainty.FctTau0Symbol
+public import FormalResearch.SignUncertainty.FctSymScale
+public import FormalResearch.SignUncertainty.FctSymInv
+public import FormalResearch.SignUncertainty.FctTau0Global
+public import FormalResearch.SignUncertainty.FctTauA
 public import FormalResearch.SignUncertainty.FctBumpSymCheck
 public import FormalResearch.SignUncertainty.FctBumpProfileField
 public import FormalResearch.SignUncertainty.FctPhysicalBudget
