@@ -35,17 +35,22 @@ open FormalResearch.SignUncertainty.FctCompD FormalResearch.SignUncertainty.CtOu
 noncomputable def fctDcomp (K4 : ℝ) (alpha : ℝ → ℝ → ℝ) : ℝ → ℝ → ℂ → ℂ :=
   fun ε c ζ => Complex.exp (stripCompGExt (vTotal StripKernelChoice.star K4 c (alpha ε c) (c ^ (-(1 / 4 : ℝ)))) ζ)
 
-/-- `D_{τ₁}` is bounded on the closed strip, uniformly for large `c` (`fct:comp-D`, global bound with `r = 0`). -/
-theorem fctDcomp_bound {K4 : ℝ} (hK4 : 1 ≤ K4) {alpha : ℝ → ℝ → ℝ}
+/-- **The smooth data behind `D_{τ₁}`** (`fct:comp-D`): for large `c`, `D_{τ₁} = exp (g_D[v])` on the closed strip, with `v = vTotal` even,
+smooth and compactly supported, and `‖g_D[v^{(r)}]‖ ≤ B_r` on the closed strip for `r = 0, 1, 2`, uniformly in `(ε, c)`
+(the global closed-strip bound of `fct_comp_D_part1`, `τ₁ ≤ 1`). -/
+theorem fctDcomp_vdata {K4 : ℝ} (hK4 : 1 ≤ K4) {alpha : ℝ → ℝ → ℝ}
     (hα : ∃ Kα c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |alpha ε c| ≤ Kα * c ^ (-(2 / 3 : ℝ))) :
-    ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → ∀ ζ ∈ closedStrip, ‖fctDcomp K4 alpha ε c ζ‖ ≤ C := by
+    ∃ (B : ℕ → ℝ) (c₀ : ℝ), ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → ∃ v : ℝ → ℝ,
+      ContDiff ℝ (⊤ : ℕ∞) v ∧ HasCompactSupport v ∧ (∀ t, v (-t) = v t) ∧
+      (∀ r : ℕ, r ≤ 2 → ∀ ζ ∈ closedStrip, ‖stripCompGExt (iteratedDeriv r v) ζ‖ ≤ B r) ∧
+      ∀ ζ, fctDcomp K4 alpha ε c ζ = Complex.exp (stripCompGExt v ζ) := by
   obtain ⟨Kα, cα, hαb⟩ := hα
   obtain ⟨τ₀, hτ₀, -, Cv0b, Cv0m, Cva, Cv1b, Cv1m, Cth0b, Cth0m, Ctha, Cth1b, Cth1m, CL0b, CL0m, CLa, CL1b, CL1m,
     Ctail, Cint, -, -, -, -, hmain⟩ := fct_comp_D_part1 StripKernelChoice.star
-  set B : ℝ := (Cv0b 0 + K4 * Cv0m 0 + Cv1b 0 + K4 * Cv1m 0 + Cva 0) +
-    max (Cth0b 0 + K4 * Cth0m 0 + Cth1b 0 + K4 * Cth1m 0 + Ctha 0)
-      (Ctail 0 * ((CL0b + K4 * CL0m) + (CL1b + K4 * CL1m) + CLa) * (12 : ℝ) ^ (-(1 + ((0 : ℕ) : ℤ)))) with hB
-  refine ⟨Real.exp |B|, max (max cα (τ₀⁻¹ ^ 4)) (max (|Kα| + 1) 1 ^ 6), fun ε c hε hc ζ hζ => ?_⟩
+  set B : ℕ → ℝ := fun r => |(Cv0b r + K4 * Cv0m r + Cv1b r + K4 * Cv1m r + Cva r) +
+    max (Cth0b r + K4 * Cth0m r + Cth1b r + K4 * Cth1m r + Ctha r)
+      (Ctail r * ((CL0b + K4 * CL0m) + (CL1b + K4 * CL1m) + CLa) * (12 : ℝ) ^ (-(1 + (r : ℤ))))| with hB
+  refine ⟨B, max (max cα (τ₀⁻¹ ^ 4)) (max (|Kα| + 1) 1 ^ 6), fun ε c hε hc => ?_⟩
   simp only [max_le_iff] at hc
   obtain ⟨⟨hcα, hcτ⟩, hcK⟩ := hc
   have h1 : 1 ≤ c := by
@@ -89,20 +94,35 @@ theorem fctDcomp_bound {K4 : ℝ} (hK4 : 1 ≤ K4) {alpha : ℝ → ℝ → ℝ}
     have hp : 0 ≤ c ^ (-(1 / 2 : ℝ)) := (Real.rpow_pos_of_pos hcpos _).le
     nlinarith
   have hbound := hmain (K4 := K4) (c := c) (α := alpha ε c) (τ₁ := τ₁) hK4 hcpos hτ₁pos hτle hτ₁4c hαle
-  obtain ⟨-, -, -, -, -, -, -, -, -, -, -, hglob, -⟩ := hbound
-  have h0 := hglob 0 ζ hζ
-  simp only [pow_zero, one_mul, iteratedDeriv_zero] at h0
-  have hz : τ₁ ^ ((2 : ℤ) - ((0 : ℕ) : ℤ)) = τ₁ ^ 2 := by simp
-  rw [hz] at h0
-  have hg : ‖stripCompGExt (vTotal StripKernelChoice.star K4 c (alpha ε c) τ₁) ζ‖ ≤ |B| := by
-    refine h0.trans ?_
-    have hτ2 : τ₁ ^ 2 ≤ 1 := pow_le_one₀ hτ₁pos.le hτ₁le1
-    calc B * τ₁ ^ 2 ≤ |B| * τ₁ ^ 2 := mul_le_mul_of_nonneg_right (le_abs_self B) (by positivity)
-      _ ≤ |B| * 1 := mul_le_mul_of_nonneg_left hτ2 (abs_nonneg B)
-      _ = |B| := mul_one _
-  unfold fctDcomp
-  rw [Complex.norm_exp]
-  exact Real.exp_le_exp.mpr ((Complex.re_le_norm _).trans hg)
+  obtain ⟨⟨-, -, -, -, -, hvcd⟩, ⟨-, -, -, -, -, hveven⟩, -, ⟨-, -, -, -, -, -, -, -, -, -, -, -, -, -, -, -, -, -, -, -, -, hvcs⟩,
+    -, -, -, -, -, -, -, hglob, -⟩ := hbound
+  refine ⟨_, hvcd, hvcs, hveven, fun r hr ζ hζ => ?_, fun ζ => rfl⟩
+  have h0 := hglob r ζ hζ
+  rw [norm_mul, norm_pow, norm_neg, Complex.norm_I, one_pow, one_mul] at h0
+  refine h0.trans ?_
+  have hτ2 : τ₁ ^ ((2 : ℤ) - (r : ℤ)) ≤ 1 := by
+    have : (2 : ℤ) - (r : ℤ) = ((2 - r : ℕ) : ℤ) := by omega
+    rw [this, zpow_natCast]
+    exact pow_le_one₀ hτ₁pos.le hτ₁le1
+  calc _ ≤ |_| * τ₁ ^ ((2 : ℤ) - (r : ℤ)) := mul_le_mul_of_nonneg_right (le_abs_self _) (by positivity)
+    _ ≤ |_| * 1 := mul_le_mul_of_nonneg_left hτ2 (abs_nonneg _)
+    _ = B r := by rw [mul_one]
+
+/-- `D_{τ₁}` is bounded on the closed strip, uniformly for large `c` (`fct:comp-D`, global bound with `r = 0`). -/
+theorem fctDcomp_bound {K4 : ℝ} (hK4 : 1 ≤ K4) {alpha : ℝ → ℝ → ℝ}
+    (hα : ∃ Kα c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |alpha ε c| ≤ Kα * c ^ (-(2 / 3 : ℝ))) :
+    ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → ∀ ζ ∈ closedStrip, ‖fctDcomp K4 alpha ε c ζ‖ ≤ C := by
+  obtain ⟨B, c₀, h⟩ := fctDcomp_vdata hK4 hα
+  refine ⟨Real.exp (B 0), c₀, fun ε c hε hc ζ hζ => ?_⟩
+  obtain ⟨v, -, -, -, hb, hD⟩ := h ε c hε hc
+  rw [hD, Complex.norm_exp]
+  have := hb 0 (by norm_num) ζ hζ
+  simp only [iteratedDeriv_zero] at this
+  exact Real.exp_le_exp.mpr ((Complex.re_le_norm _).trans this)
+
+/-- info: 'FormalResearch.SignUncertainty.fctDcomp_vdata' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms fctDcomp_vdata
 
 /-- info: 'FormalResearch.SignUncertainty.fctDcomp_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
