@@ -121,13 +121,13 @@ lemma one_sub_re_pos {u : ℂ} (hu : ‖u‖ < √2) : 0 < (1 - u ^ 2 / 2).re :=
   simp only [Complex.sub_re, Complex.one_re]
   linarith [abs_le.mp h2]
 
-lemma one_sub_mem_slit {u : ℂ} (hu : ‖u‖ < √2) : 1 - u ^ 2 / 2 ∈ Complex.slitPlane :=
+lemma bessel_one_sub_mem_slit {u : ℂ} (hu : ‖u‖ < √2) : 1 - u ^ 2 / 2 ∈ Complex.slitPlane :=
   Complex.mem_slitPlane_iff.2 (Or.inl (one_sub_re_pos hu))
 
 lemma psiC_differentiableOn : DifferentiableOn ℂ psiC (ball 0 (√2)) := by
   intro u hu
   have hu' : ‖u‖ < √2 := by simpa using hu
-  have hs := one_sub_mem_slit hu'
+  have hs := bessel_one_sub_mem_slit hu'
   refine DifferentiableAt.differentiableWithinAt ?_
   unfold psiC
   have h1 : DifferentiableAt ℂ (fun z : ℂ => 1 - z ^ 2 / 2) u := by fun_prop
@@ -135,7 +135,7 @@ lemma psiC_differentiableOn : DifferentiableOn ℂ psiC (ball 0 (√2)) := by
   exact (h2.const_mul _).cexp
 
 lemma psiC_sq {u : ℂ} (hu : ‖u‖ < √2) : psiC u ^ 2 * (1 - u ^ 2 / 2) = 1 := by
-  have hs := one_sub_mem_slit hu
+  have hs := bessel_one_sub_mem_slit hu
   have hne : (1 - u ^ 2 / 2) ≠ 0 := Complex.slitPlane_ne_zero hs
   unfold psiC
   rw [← Complex.exp_nat_mul]
