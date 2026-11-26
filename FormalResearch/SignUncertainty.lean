@@ -316,6 +316,10 @@ public import FormalResearch.SignUncertainty.CtDyadicMoments
 public import FormalResearch.SignUncertainty.CtDyadicPointwise
 public import FormalResearch.SignUncertainty.CtDyadicSigma
 public import FormalResearch.SignUncertainty.CtDyadicRegime
+public import FormalResearch.SignUncertainty.AiryEtaUnfold
+public import FormalResearch.SignUncertainty.CtDyadicEta
+public import FormalResearch.SignUncertainty.CtDyadicArea
+public import FormalResearch.SignUncertainty.CtDyadicRadius
 public import FormalResearch.SignUncertainty.CtDyadicStatement
 public import FormalResearch.SignUncertainty.HankelChartCubic
 public import FormalResearch.SignUncertainty.CtLowerDefs
@@ -455,6 +459,9 @@ public import FormalResearch.SignUncertainty.FctSymCal
 public import FormalResearch.SignUncertainty.FctBumpSymCheck
 public import FormalResearch.SignUncertainty.FctBumpProfileField
 public import FormalResearch.SignUncertainty.FctPhysicalBudget
+public import FormalResearch.SignUncertainty.FctVacuumPaired
+public import FormalResearch.SignUncertainty.FctVacuumBudget
+public import FormalResearch.SignUncertainty.FctVacuumField
 public import FormalResearch.SignUncertainty.CtUpper
 public import FormalResearch.SignUncertainty.UctOuterGrowth
 public import FormalResearch.SignUncertainty.UctGenPreedge
