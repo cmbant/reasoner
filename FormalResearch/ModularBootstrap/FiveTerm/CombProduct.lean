@@ -215,3 +215,7 @@ theorem HAdm.mul_datum (hF : HAdm F c1) (hG : OuterDatum W K g1 G) :
 end
 
 end FormalResearch.ModularBootstrap.FiveTerm
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.HAdm.mul_datum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.FiveTerm.HAdm.mul_datum

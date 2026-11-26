@@ -89,8 +89,59 @@ theorem comb_equality_iff {F G : ℂ → ℂ} {c1 g1 : ℝ} {W : ℝ → ℝ} {K
         simp only [defectInt, this, zero_div]
     rw [h0]; ring
 
+/-- **The phase-locked detuning ratio** (`cts:eta-opt`, first equality): for `F_* = (1+z²)/G`,
+`|F_*(iy) + K(y) F_*(e^{-iψ})| = (1 + 4y²/(1+y²)²) |F_*(iy)|` on `(0,1)`. -/
+theorem fStar_detuning {G : ℂ → ℂ} {g1 : ℝ} {W : ℝ → ℝ} {K : ℝ → ℂ} (hG : OuterDatum W K g1 G)
+    {y : ℝ} (hy : y ∈ Ioo (0 : ℝ) 1) :
+    ‖fStar G (Complex.I * (y : ℂ)) + K y * fStar G (starRingEnd ℂ (wPt y))‖ =
+      (1 + 4 * y ^ 2 / (1 + y ^ 2) ^ 2) * ‖fStar G (Complex.I * (y : ℂ))‖ := by
+  obtain ⟨hy0, hy1⟩ := hy
+  have hfG : ∀ z ∈ closure halfDisc \ singPts, fStar G z * G z = 1 + z ^ 2 := by
+    intro z hz
+    unfold fStar
+    exact div_mul_cancel₀ _ (hG.ne_zero z hz)
+  have e1 := hfG _ (I_mul_mem_cont hy0 hy1)
+  have e2 := hfG _ (wbar_mem_cont hy0 hy1)
+  have hc := hG.coupling y ⟨hy0, hy1⟩
+  have hGne : G (Complex.I * (y : ℂ)) ≠ 0 := hG.ne_zero _ (I_mul_mem_cont hy0 hy1)
+  have hedge : G (Complex.I * (y : ℂ)) * (fStar G (Complex.I * (y : ℂ)) +
+      K y * fStar G (starRingEnd ℂ (wPt y))) = edgeSum (fun z => 1 + z ^ 2) y := by
+    unfold edgeSum
+    beta_reduce
+    rw [← e1, ← e2]
+    calc _ = fStar G (Complex.I * (y : ℂ)) * G (Complex.I * (y : ℂ)) +
+          (G (Complex.I * (y : ℂ)) * K y) * fStar G (starRingEnd ℂ (wPt y)) := by ring
+      _ = _ := by rw [hc]; ring
+  have hA : G (Complex.I * (y : ℂ)) * fStar G (Complex.I * (y : ℂ)) = ((1 - y ^ 2 : ℝ) : ℂ) := by
+    rw [mul_comm, e1]; push_cast; rw [mul_pow, Complex.I_sq]; ring
+  rw [edgeSum_one_add_sq] at hedge
+  have hy2 : y ^ 2 < 1 := by nlinarith only [hy0, hy1]
+  have hGpos : 0 < ‖G (Complex.I * (y : ℂ))‖ := norm_pos_iff.mpr hGne
+  have hB : ((1 - y ^ 2) + 2 * ((1 - y ^ 2) / (1 + y ^ 2)) * (2 * y ^ 2 / (1 + y ^ 2)) : ℝ) =
+      (1 + 4 * y ^ 2 / (1 + y ^ 2) ^ 2) * (1 - y ^ 2) := by
+    field_simp; ring
+  have hBn : 0 ≤ (1 + 4 * y ^ 2 / (1 + y ^ 2) ^ 2) * (1 - y ^ 2) := by
+    have : 0 < 1 - y ^ 2 := by linarith
+    positivity
+  have n1 : ‖G (Complex.I * (y : ℂ))‖ * ‖fStar G (Complex.I * (y : ℂ)) +
+      K y * fStar G (starRingEnd ℂ (wPt y))‖ = (1 + 4 * y ^ 2 / (1 + y ^ 2) ^ 2) * (1 - y ^ 2) := by
+    rw [← norm_mul, hedge, Complex.norm_real, Real.norm_eq_abs, hB, abs_of_nonneg hBn]
+  have n2 : ‖G (Complex.I * (y : ℂ))‖ * ‖fStar G (Complex.I * (y : ℂ))‖ = 1 - y ^ 2 := by
+    rw [← norm_mul, hA, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (by linarith)]
+  have : ‖G (Complex.I * (y : ℂ))‖ * ‖fStar G (Complex.I * (y : ℂ)) +
+      K y * fStar G (starRingEnd ℂ (wPt y))‖ =
+      ‖G (Complex.I * (y : ℂ))‖ * ((1 + 4 * y ^ 2 / (1 + y ^ 2) ^ 2) * ‖fStar G (Complex.I * (y : ℂ))‖) := by
+    rw [n1]; calc _ = (1 + 4 * y ^ 2 / (1 + y ^ 2) ^ 2) * (‖G (Complex.I * (y : ℂ))‖ *
+        ‖fStar G (Complex.I * (y : ℂ))‖) := by rw [n2]
+      _ = _ := by ring
+  exact mul_left_cancel₀ hGpos.ne' this
+
 end FormalResearch.ModularBootstrap.FiveTerm
 
 /-- info: 'FormalResearch.ModularBootstrap.FiveTerm.comb_equality_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.ModularBootstrap.FiveTerm.comb_equality_iff
+
+/-- info: 'FormalResearch.ModularBootstrap.FiveTerm.fStar_detuning' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.ModularBootstrap.FiveTerm.fStar_detuning
