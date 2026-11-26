@@ -425,6 +425,7 @@ public import FormalResearch.SignUncertainty.FctUnscaledCuspFarPhase
 public import FormalResearch.SignUncertainty.FctUnscaledCuspFarLowAux
 public import FormalResearch.SignUncertainty.FctUnscaledCuspFarLow
 public import FormalResearch.SignUncertainty.FctUnscaledCuspFarTail
+public import FormalResearch.SignUncertainty.FctUnscaledCuspFar
 public import FormalResearch.SignUncertainty.UctFloorEdge
 public import FormalResearch.SignUncertainty.UctFloorAdmiss
 public import FormalResearch.SignUncertainty.FctMainHankel
