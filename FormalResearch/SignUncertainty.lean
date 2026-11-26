@@ -427,6 +427,12 @@ public import FormalResearch.SignUncertainty.FctCuspEdgeInner
 public import FormalResearch.SignUncertainty.FctCuspEdgeSmall
 public import FormalResearch.SignUncertainty.FctCuspEdgeLarge
 public import FormalResearch.SignUncertainty.FctCuspEdge
+public import FormalResearch.SignUncertainty.FctCompDStrip
+public import FormalResearch.SignUncertainty.FctCompDCauchy
+public import FormalResearch.SignUncertainty.FctCompDTargets
+public import FormalResearch.SignUncertainty.FctCompDPart1
+public import FormalResearch.SignUncertainty.FctCompDPart2a
+public import FormalResearch.SignUncertainty.FctCompDPart2
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -677,6 +683,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.FctMainHankel` (`fct:main-hankel`, Theorem FCT.1, `constant_terms_five.tex`, F2a skeleton; **conditional**): `hankel_feasible_of_strip` (proved: a strip multiplier with `(M1)`-`(M3)`, symmetry, `Re W̃(0) < 0` and nonnegative lift gives `IsHankelFeasible`), the concrete multipliers `ctWg1` (`(fct:Wg1-exact)`), `ctWfl` (`ε`-lift of `S_pos`), `ctWbump` (`bumpDW`), `ctWwarp`, `ctWtot` (`(fct:Wtot-hankel)`) with proved values at the corner (`ctWg1_zero`, `seedT_scale_ne`, `ctWfl_zero_bound`; `ctWtot_zero_eq` computes `W̃(0)` as the strip limit, `ctWwarp_tendsto_zero`, no junk values), `FctMainHankelInputs` (abstract parameters `Dcomp` (`fct:comp-D`), `PhiHat` (`fct:splitting`), `Bphys` (`(fct:B-physical)`), `T1` (`fct:warp-asymp` (1)); fields `splitting_origin`, `bump_profile`, `warp_zero`, `warp_admissible`, `floor_admissible`, `physical_budget`, `physical_positive`; the admissibility of `ctWg1` (`ctWg1_stripAdmissFull`, a real combination of three `seedW`) and of the bump (`ctWbump_stripAdmissFull`) is proved and assembled in `ctWtot_admissible` with the closure lemmas `StripAdmissFullData.add/smul_real/congr` of `StripAdmiss`), `fct_main_hankel` (`T_c^ε ≤ Δ₅^ε(c) + C₊ c^{-3/4}`, the paper's assembly with the order of constants `K₀ → K₁ → K_d → c₀`).
 * `FormalResearch.SignUncertainty.FctEdgeIbp` (`fct:edge-ibp`, Lemma FCT.5a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `edgeW`, `fct_edge_ibp_cutoff` (Part (1): removing an edge cutoff with Abel regularisation `e^{-ετ²}`), `fct_edge_ibp_shoulder` (Part (2): shoulder estimate under the corrected derivative range `1 ≤ k ≤ n` matching `Φ ∈ C^{n+1}`), and bundled `fct_edge_ibp`.
 * `FormalResearch.SignUncertainty.FctCuspEdgeIbp`, `FctCuspEdgeInner`, `FctCuspEdgeSmall`, `FctCuspEdgeLarge`, `FctCuspEdge` (`fct:cusp-edge`, Lemma FCT.7a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `CuspAmplitude`, `CuspProfile`, `cuspEdgeJ`, and `fct_cusp_edge` (`‖J_c(L)‖ ≤ C (1 + c^{2/3} L)^{-α - 1}` uniformly for `c ≥ 1`, `L ≥ 0`, `0 < α < 2`, as in the paper).
+* `FormalResearch.SignUncertainty.FctCompDStrip`, `FctCompDCauchy`, `FctCompDTargets`, `FctCompDPart1`, `FctCompDPart2a`, `FctCompDPart2` (`fct:comp-D`, Lemma FCT.3, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `fct_comp_D_part1` (localized strip outer compensator `v = v₀ + v₁ + v_α`, zeroed moments `0..4`, exact inner form `(fct:v-inner)`, all-order derivative/phase/tail/interior bounds, and all-order global closed-strip bound `norm_iteratedDeriv_stripCompGExt_le` on `S̄` repairing the paper's omission of `g_D''`), `fct_comp_D_part2` (`(fct:cos-pen)`, exact cosine identity for `H_*`, `(fct:curv-p-int)` for `p ≤ 2`, inner integral `∫_0^{3δ_L} D_*`, `(fct:bump-1L)`, and `(fct:bump-2L)`), and `fct_comp_D_part3` (exact Cauchy phase-curvature identities `(fct:cauchy-curv)` for all `m ≥ 1` with `O_m(M τ₁³)` specialization and `m = 1` leading constants `-(π/4)`, `-(π/12)`).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
   whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
