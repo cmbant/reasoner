@@ -518,6 +518,9 @@ public import FormalResearch.SignUncertainty.FctInnerSymbolsRot
 public import FormalResearch.SignUncertainty.FctInnerB2
 public import FormalResearch.SignUncertainty.FctSplittingDefs
 public import FormalResearch.SignUncertainty.FctSplittingDescent
+public import FormalResearch.SignUncertainty.FctDescentIbp
+public import FormalResearch.SignUncertainty.FctDescentRay
+public import FormalResearch.SignUncertainty.FctDescentOfRay
 public import FormalResearch.SignUncertainty.FctSplittingSegment
 public import FormalResearch.SignUncertainty.FctSplittingHol
 public import FormalResearch.SignUncertainty.FctSplittingResidue

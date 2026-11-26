@@ -10,6 +10,7 @@ public import FormalResearch.SignUncertainty.FctDcomp
 public import FormalResearch.SignUncertainty.FctWarpAdmiss
 public import FormalResearch.SignUncertainty.FctWarpZero
 public import FormalResearch.SignUncertainty.FctSplittingDescent
+public import FormalResearch.SignUncertainty.FctDescentOfRay
 public import FormalResearch.SignUncertainty.FctSplittingSegment
 public import FormalResearch.SignUncertainty.FctSplittingRest
 
@@ -49,7 +50,7 @@ with it because the limit is `0`.)
 `K4 ≥ 1` (`fct:comp-D`).  The physical bump `Bphys` is **not** data: `fctBphys` is the definition `(fct:B-physical)` with `H₀ = H_*`, `n_c = 1/N_c`
 (`(fct:B-five-def)`).  Likewise the compensator `D_{τ₁}` is the definition `fctDcomp K4 alpha` (`FctDcomp.lean`).
 
-**Conditional on the fields of `FctMainHankelInputs`** (`splitting_rest`, `descent`, `warp_solve`, `physical_positive`): each is
+**Conditional on the fields of `FctMainHankelInputs`** (`splitting_rest`, `descent_ray`, `warp_solve`, `physical_positive`): each is
 the output of the named TeX lemma(s), stated about the concrete multipliers and these data.  The former fields `bump_profile` and `physical_budget` are
 **proved** for `fctBphys` (`fctBphys_bumpProfile`, `fctBphys_physicalBudget`, from `fctMainHankel_bump_fields_concrete_of_factors`), and the former field `warp_admissible` is
 **proved** (`fctWarp_admissible`, `FctWarpAdmiss.lean`: Step 1 of `fct:s4-proof` for the warp summand, from `fct:comp-D`, `uct:outer-growth` and the field `splitting`).  Proved lemmas
@@ -129,10 +130,12 @@ structure FctMainHankelInputs where
   (`uct:outer-growth`) it gives Step 1 of `fct:s4-proof` for the warp summand (`fctWarp_admissible`) and the corner behaviour that makes `ctWwarp → 0` at `ζ = 0`
   (`ctWwarp_tendsto_zero`; the singularity `ζ^{-5/2}` of `H_*/G_ε` is cancelled). -/
   splitting_rest : FctSplittingRestStmt (fctPhiHat warp_solve)
-  /-- `(fct:F-38-bnd)`, `fct:splitting` (1): `|F(σ+iy)| ≤ C c⁻¹/log(2+|y|)` on `5/16 ≤ σ ≤ 7/16` (`FctDescentStmt`).  `N_c = 1 + O(c⁻¹)`
+  /-- `fct:splitting` (1), proof steps (a)-(e): the interior-strip estimates along the vertical ray `ζ + i[0,∞)` (`FctRayStmt`: ray representation of `Ψ_c`,
+  `Im g_tan ≥ 0`, `|Φ'| ≳ log(2+y)`, `|Φ''| ≤ C`, `|W^{(j)}| ≲ |A₀(ζ)| e^{-3s}`, `W(ζ)/A₀(ζ) = 1 + O(c⁻¹/log)`).  From it `(fct:F-38-bnd)`, `|F(σ+iy)| ≤ C c⁻¹/log(2+|y|)` on
+  `5/16 ≤ σ ≤ 7/16` (`FctDescentStmt`), is the theorem `FctMainHankelInputs.descent` (`fctDescent_of_ray`: the two integrations by parts).  `N_c = 1 + O(c⁻¹)`
   (`fct:splitting` (2), the former field `splitting_norm`) is the theorem `FctMainHankelInputs.splitting_norm`; the integrability of the integrals defining `Ψ_c` and `F_±`
   (the former field `splitting_int`) is `FctMainHankelInputs.splitting_int`. -/
-  descent : FctDescentStmt warp_solve
+  descent_ray : FctRayStmt warp_solve
   /-- `fct:physical-positive` (iii)-(iv) with its inputs `fct:warp-asymp` (2)-(3), `fct:splitting`, `fct:unscaled-cusp`,
   `fct:cusp-edge`, `uct:seed-asymp` (1)-(2) (`(fct:hg1-win)`-`(fct:hg1-mac)`), `fct:bump-5`, `fct:bump-sym-check`,
   `uct:pos-floor` (`Kfl = K_* ≥ 1`): `K₀, K₁` can be chosen independently of `K_d` so that the density of `W̃_c^ε` is positive on
@@ -148,6 +151,11 @@ noncomputable abbrev FctMainHankelInputs.PhiHat (I : FctMainHankelInputs) : ℝ 
 
 /-- `N_c` of the inputs (`fct:splitting`, `(fct:Phihat-def)`): the definition `fctNc`. -/
 noncomputable abbrev FctMainHankelInputs.Nc (I : FctMainHankelInputs) : ℝ → ℝ → ℝ := fctNc I.warp_solve
+
+/-- **`(fct:F-38-bnd)`** (`fct:splitting` (1), the former field `descent`): `|F(σ+iy)| ≤ C c⁻¹/log(2+|y|)` on `5/16 ≤ σ ≤ 7/16`, from the ray estimates `descent_ray`
+(`fctDescent_of_ray`). -/
+theorem FctMainHankelInputs.descent (I : FctMainHankelInputs) : FctDescentStmt I.warp_solve :=
+  fctDescent_of_ray I.K4_ge_one I.descent_ray
 
 /-- `fct:splitting` (1)-(2) for `Φ̂_c` (`FctSplittingStmt`; the former field `splitting`): holomorphy and real symmetry from `descent`, the rest from `splitting_rest`
 (`fctSplitting_of_rest`). -/
