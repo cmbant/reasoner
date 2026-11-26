@@ -499,6 +499,12 @@ public import FormalResearch.SignUncertainty.FctCuspEdgeInner
 public import FormalResearch.SignUncertainty.FctCuspEdgeSmall
 public import FormalResearch.SignUncertainty.FctCuspEdgeLarge
 public import FormalResearch.SignUncertainty.FctCuspEdge
+public import FormalResearch.SignUncertainty.FctCompDStrip
+public import FormalResearch.SignUncertainty.FctCompDCauchy
+public import FormalResearch.SignUncertainty.FctCompDTargets
+public import FormalResearch.SignUncertainty.FctCompDPart1
+public import FormalResearch.SignUncertainty.FctCompDPart2a
+public import FormalResearch.SignUncertainty.FctCompDPart2
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -765,6 +771,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.CtUpper` (`thm:ct-upper` (i)-(ii), `general_theorems.tex`, F3; **conditional**): `IsHankelCEFeasible`, `hankelTCE` (`T_c^CE`), `ceFeasible_negProj_feasible` (proved: `(g - h)/2` of a CE Hankel pair is `(-1)`-feasible once nonzero), `signWitness_radius_nonneg` (proved: `A_sign^±(d) ≥ 0`), `ctDelta5_pos_sub_neg` (`Δ₅^+ - Δ₅^- = -1/π + πA c^{-2/3}`), `CtUpperCEInputs` (fields `main_ce` = `fct:main-ce`, `ce_nonzero_neg`, `ce_radius` = `gt:7.9b` + radial averaging + `lem:ce-schwartz`), `ct_upper_real`, and `ct_upper` (the two-sided real-`c` bounds for `T_c^±` and `T_c^CE`, `0 ≤ T_c^CE - T_c^- = O(c^{-3/4})`, the `T^{+1} - T^{-1}` expansion, and the integer-`d` statements for `A_sign^±(d)²/2`, `r_CE(d)²/2`, `r_CE² - A_-² = O(d^{-3/4})`, `r_CE - A_- = O(d^{-5/4})`), from `CtLowerInputs`, `FctMainHankelInputs`, `CtUpperCEInputs`, using the proved `hankel_euclid_dictionary`, `hankelT0_eq_hankelT`, `hbThresholdsUpper`, `ce_schwartz_radius_eq_L1_radius`.
 * `FormalResearch.SignUncertainty.FctEdgeIbp` (`fct:edge-ibp`, Lemma FCT.5a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `edgeW`, `fct_edge_ibp_cutoff` (Part (1): removing an edge cutoff with Abel regularisation `e^{-ετ²}`), `fct_edge_ibp_shoulder` (Part (2): shoulder estimate under the corrected derivative range `1 ≤ k ≤ n` matching `Φ ∈ C^{n+1}`), and bundled `fct_edge_ibp`.
 * `FormalResearch.SignUncertainty.FctCuspEdgeIbp`, `FctCuspEdgeInner`, `FctCuspEdgeSmall`, `FctCuspEdgeLarge`, `FctCuspEdge` (`fct:cusp-edge`, Lemma FCT.7a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `CuspAmplitude`, `CuspProfile`, `cuspEdgeJ`, and `fct_cusp_edge` (`‖J_c(L)‖ ≤ C (1 + c^{2/3} L)^{-α - 1}` uniformly for `c ≥ 1`, `L ≥ 0`, `0 < α < 2`, as in the paper).
+* `FormalResearch.SignUncertainty.FctCompDStrip`, `FctCompDCauchy`, `FctCompDTargets`, `FctCompDPart1`, `FctCompDPart2a`, `FctCompDPart2` (`fct:comp-D`, Lemma FCT.3, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `fct_comp_D_part1` (localized strip outer compensator `v = v₀ + v₁ + v_α`, zeroed moments `0..4`, exact inner form `(fct:v-inner)`, all-order derivative/phase/tail/interior bounds, and all-order global closed-strip bound `norm_iteratedDeriv_stripCompGExt_le` on `S̄` repairing the paper's omission of `g_D''`), `fct_comp_D_part2` (`(fct:cos-pen)`, exact cosine identity for `H_*`, `(fct:curv-p-int)` for `p ≤ 2`, inner integral `∫_0^{3δ_L} D_*`, `(fct:bump-1L)`, and `(fct:bump-2L)`), and `fct_comp_D_part3` (exact Cauchy phase-curvature identities `(fct:cauchy-curv)` for all `m ≥ 1` with `O_m(M τ₁³)` specialization and `m = 1` leading constants `-(π/4)`, `-(π/12)`).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
   whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
