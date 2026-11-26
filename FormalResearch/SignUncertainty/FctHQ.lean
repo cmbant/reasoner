@@ -26,7 +26,8 @@ Source: `CFT/sign_uncertainty/paper/constant_terms_five.tex`, Lemma FCT.7b (b) a
 `hQ_of_QTSym`: `QTSym` implies `hQ` of `physR_symW_of_factors`.  The change of variable `L ↦ τ₀(L̃)`, the three class transfers
 (`tTransfer_usym`) and the algebra `R₀E D - 1 = (R₀ - 1) + R₀(E - 1) + R₀E(D - 1)` are proved; `QTSym` is the only input.
 
-Class: proved under the explicit hypothesis `QTSym` (three `t`-symbol statements about explicit functions).
+Class: proved under the explicit hypothesis `QTSym` (three `t`-symbol statements about explicit functions); `QTSym` itself is proved in
+`FctQTSym.lean` (`qtSym_of_alpha`, `hQ_of_alpha`).
 -/
 
 @[expose] public section
