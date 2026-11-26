@@ -29,6 +29,8 @@ Source: `CFT/sign_uncertainty/paper/constant_terms_five.tex`, Lemma `fct:physica
 The named inputs are the fields of `VacDisp` (`fct:comp-D` (1), (2) displays and `fct:phikill` (3) at the datum, the size facts of
 `fct:physical-budget`); `VacHyp` adds what is proved in `FctVacuumField` (the `Φ` bounds of `fct:phikill` (1), `κ ≤ a^{24}`, smallness for large `c`).
 
+For the concrete datum the comp-D fields of `VacDisp` (in particular `hcancel`) are proved in `FctVacuumCancel` and `FctVacuumConcrete`.
+
 Class: proved under the explicit hypotheses `VacDisp`.
 -/
 
