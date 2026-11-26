@@ -293,6 +293,7 @@ public import FormalResearch.SignUncertainty.CtBoasPlb
 public import FormalResearch.SignUncertainty.CtBoasMBounds
 public import FormalResearch.SignUncertainty.CtBoasRegime
 public import FormalResearch.SignUncertainty.CtBoasNeg
+public import FormalResearch.SignUncertainty.CtBoasAverage
 public import FormalResearch.SignUncertainty.HankelChartCubic
 public import FormalResearch.SignUncertainty.CtLowerDefs
 public import FormalResearch.SignUncertainty.CtLowerChartGap
