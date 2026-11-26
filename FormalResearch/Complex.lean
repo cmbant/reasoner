@@ -30,6 +30,7 @@ public import FormalResearch.Complex.Montel
 public import FormalResearch.Complex.StripPoisson
 public import FormalResearch.Complex.HalfDiscCauchy
 public import FormalResearch.Complex.HalfDiscPoisson
+public import FormalResearch.Complex.HalfDiscMoments
 
 /-!
 # Complex analysis: Hadamard factorization, Fejér–Riesz arc bounds, Chebyshev coefficients, entire division, argument principle, Rouché, Hurwitz, Montel, strip Poisson kernels
@@ -43,6 +44,7 @@ half-plane arc form (`Hardy*`, Airy-free).
   `Σ ‖a i‖^{-(p+1)} < ∞` (`hasProd_E`: locally uniform convergence; entire; zero set exactly `{a i}`; logarithmic derivative);
   `HadamardProductOrder`: the order of vanishing of `canonProd` at `w` is `#{i : a i = w}`;
 * `HalfDiscPoisson` (same namespace; phase-free): `hdBoundary_inv_sub` (winding number `∮_{∂D_+}dζ/(ζ-z) = 2πi`, from Mathlib's circle integral and the reflected `halfDisc_cauchy`), `hdBoundary_cauchy_formula` (Cauchy formula on the half-disc, via `dslope`), and **`halfDisc_poisson`**: `G(z) = ∫_{-A}^{A} hdDiam A z t · G(t) dt + ∫_0^π hdArc A z θ · G(A e^{iθ}) dθ` for `G` continuous on the closed upper half-disc and holomorphic inside (Cauchy formula at `z` and at the images `z̄`, `A²/z̄`, `A²/z`; the kernel identities `imgK_diam`, `imgK_arc`).
+* `HalfDiscMoments` (same namespace; phase-free; Paper I `ct:dyadic` (2)): `hd_moment_zero`, `hd_moment_one` (the two Cauchy moments `‖∫_{-A}^A G‖ ≤ Σ`, `‖∫ tG‖ ≤ AΣ`, `Σ = hdArcMass A G` the arc mass), `hd_moment_pointwise` (`2π‖G(z)‖ ≤ Σ/ρ + AΣ/ρ² + 4Σ/(3A) + ρ⁻²∫t²‖G(t)‖/‖z-t‖ dt` for `ρ ≤ ‖z‖ ≤ A/4`, from the Cauchy formula and `1/(t-z) = -1/z - t/z² + t²/(z²(t-z))`), `hd_moment_area` (its integral over the half-sector `r ∈ (r₀, 3r₀/2]`, `φ ∈ (0,π)` composed with a map `ζ` with an inverse-norm area bound).
 * `HalfDiscCauchy` (namespace `FormalResearch.HalfDiscCauchy`; phase-free, shared by Paper I `ct:dyadic` and Paper II): `halfDisc_cauchy` (Cauchy's theorem on the upper half-disc for `g` continuous on the closed half-disc and holomorphic inside: `∫_{-R}^R g + i∫_0^π g(Re^{iy})Re^{iy}dy = 0`), `halfAnnulus_identity` (the exponential image of a rectangle), `closedHalfDisc_compact`; proved via the log-coordinate rectangle and `ε → 0`.
 * `HadamardListing`: a family `Listing f a` listing the non-zero zeros of an entire `f` with multiplicity (`exists_listing`);
 * `HadamardCount`: Jensen counting, `|f| ≤ C exp(C|z|^σ)` gives `Σ ‖a i‖^{-s} < ∞` for `s > σ`;
