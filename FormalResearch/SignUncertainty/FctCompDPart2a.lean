@@ -37,17 +37,13 @@ open FormalResearch.CohnElkies
 
 /-! ### Part (2) envelope definitions -/
 
-/-- Compensated oscillation envelope `I_osc^{DH_0}(L) = e^{v(τ₀(L))} I_osc^{H_0}(L)`. -/
+/-- Compensated oscillation envelope `I_osc^{DH_0}(L) = e^{v(τ₀(L))} I_osc^{H_0}(L)` (`τ₀ = FormalResearch.CohnElkies.tau0`). -/
 noncomputable def stripIoscD (kind : StripKernelChoice) (v : ℝ → ℝ) (L : ℝ) : ℝ :=
-  Real.exp (v (tau0 L)) * stripIosc kind L
+  Real.exp (v (FormalResearch.CohnElkies.tau0 L)) * stripIosc kind L
 
-/-- Curvature correction `Δ_curv(t) = (1/(2c)) (ϑ_{D₀}''(t)/m'(t) - ϑ_{D₀}'(t)/m(t))` on `t > 0`. -/
-noncomputable def stripDeltaCurv (c : ℝ) (θ : ℝ → ℝ) (t : ℝ) : ℝ :=
-  (1 / (2 * c)) * (iteratedDeriv 2 θ t / uctMderiv t - deriv θ t / uctM t)
-
-/-- Compensated difference `D_*(L) = I_osc^{DH_0}(L)(1 + Δ_curv(τ₀(L))) - I_fl(L)`. -/
+/-- Compensated difference `D_*(L) = I_osc^{DH_0}(L)(1 + Δ_curv(τ₀(L))) - I_fl(L)` (`τ₀ = FormalResearch.CohnElkies.tau0`). -/
 noncomputable def stripDstar (kind : StripKernelChoice) (c : ℝ) (v v0 : ℝ → ℝ) (L : ℝ) : ℝ :=
-  stripIoscD kind v L * (1 + stripDeltaCurv c (fctThetaD v0) (tau0 L)) - uctIfl L
+  stripIoscD kind v L * (1 + stripDeltaCurv c (fctThetaD v0) (FormalResearch.CohnElkies.tau0 L)) - uctIfl L
 
 lemma norm_stripH0_star_imag {t : ℝ} (ht : 0 < t) :
     ‖stripH0 .star ((t : ℂ) * Complex.I)‖ =
@@ -1181,7 +1177,7 @@ theorem fct_comp_D_cos_penalty (kind : StripKernelChoice) :
     positivity
   refine ⟨C_tot, hC_tot_nn, fun {c α τ₁} hc hτ₁ hτ₁_le hc_eq hα_le => ?_⟩
   obtain ⟨⟨_, _, _, _, _, hv_cd⟩, ⟨_, _, _, _, _, hv_even⟩, ⟨_, _, _, _, _, hv0⟩,
-    ⟨_, _, _, _, _, hv_supp⟩, hmom, _, hderivs, _, hth_in, hth_tail, _, hg_cl, _⟩ :=
+    ⟨_, _, _, _, _, hv_supp, _⟩, hmom, _, hderivs, _, hth_in, hth_tail, _, hg_cl, _⟩ :=
     hpart1 hK4 hc hτ₁ hτ₁_le hc_eq hα_le
   set v := vTotal kind K4 c α τ₁
   have hτ₁_20 : τ₁ ≤ 1 / 20 := hτ₁_le.trans hτ₀_20
@@ -1815,8 +1811,8 @@ theorem fct_comp_D_curv_p_int (kind : StripKernelChoice) :
           let v := vTotal kind K4 c α τ₁
           let v0' := v0 kind K4 τ₁
           (∀ p : ℕ, p ≤ 2 →
-            IntegrableOn (fun L : ℝ => stripIosc kind L * stripDeltaCurv c (fctThetaD v0') (tau0 L) / L ^ p) (Ioi 0) ∧
-            |∫ L in Ioi (0 : ℝ), stripIosc kind L * stripDeltaCurv c (fctThetaD v0') (tau0 L) / L ^ p| ≤ C * c⁻¹ ∧
+            IntegrableOn (fun L : ℝ => stripIosc kind L * stripDeltaCurv c (fctThetaD v0') (FormalResearch.CohnElkies.tau0 L) / L ^ p) (Ioi 0) ∧
+            |∫ L in Ioi (0 : ℝ), stripIosc kind L * stripDeltaCurv c (fctThetaD v0') (FormalResearch.CohnElkies.tau0 L) / L ^ p| ≤ C * c⁻¹ ∧
             IntegrableOn (fun t : ℝ => ‖stripH0 kind ((t : ℂ) * Complex.I)‖ / uctM t ^ p *
               |Real.exp (v t) - 1| * |stripDeltaCurv c (fctThetaD v0') t|) (Ioc 0 (10 * τ₁)) ∧
             (∫ t in Ioc 0 (10 * τ₁), ‖stripH0 kind ((t : ℂ) * Complex.I)‖ / uctM t ^ p *
@@ -2029,7 +2025,7 @@ theorem fct_comp_D_curv_p_int (kind : StripKernelChoice) :
   obtain ⟨⟨hb0_cd, hm0_cd, ha0_cd, hb1_cd, hm1_cd, hv_cd⟩,
     ⟨hb0_even, hm0_even, ha0_even, hb1_even, hm1_even, hv_even⟩,
     ⟨hb0_0, hm0_0, _, _, _, hv0⟩,
-    ⟨hb0_s, hm0_s, _, _, _, hv_s⟩, hmom, hinner, hderivs, ⟨hL1_0b, hL1_0m, _, _, _⟩,
+    ⟨hb0_s, hm0_s, _, _, _, hv_s, _⟩, hmom, hinner, hderivs, ⟨hL1_0b, hL1_0m, _, _, _⟩,
     hth_in, hth_tail, _, _, _⟩ := hpart1 hK4 hc hτ₁ hτ₁_p1 hc_eq hα_le
   set v := vTotal kind K4 c α τ₁
   set v0' := v0 kind K4 τ₁

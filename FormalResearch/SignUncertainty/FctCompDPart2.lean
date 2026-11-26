@@ -11,7 +11,7 @@ public import FormalResearch.SignUncertainty.FctPhiKill
 # Compensator `D`: Part (2) — inner integral, `(fct:bump-1L)`, `(fct:bump-2L)`, and headline
 
 Completes Part (2) of Lemma `fct:comp-D` (`constant_terms_five.tex`, lines 167–294):
-- `tau0_three_uctM_bounds`: `t₃ := τ₀(3 δ_L) ∈ (τ₁, 2 τ₁)` for small `τ₁`;
+- `saddleTau0_three_uctM_bounds`: `t₃ := τ₀(3 δ_L) ∈ (τ₁, 2 τ₁)` for small `τ₁`;
 - `tendsto_odd_pole_zero`: pure odd-pole cancellation (`A/ε⁵ + B/ε³ + C/ε → L ⇒ L = 0`),
   eliminating all singular coefficient matching across the three finite-part pieces;
 - `stripFp1` and `bg_fp_asymptotic`: exact background finite part at `p = 1` (reusing
@@ -38,9 +38,9 @@ open FormalResearch.CohnElkies
 
 /-! ### Helper 1: `t₃ := τ₀(3 δ_L) ∈ (τ₁, 2 τ₁)` -/
 
-/-- For `0 < τ₁ ≤ 1/20`, `t₃ := tau0 (3 * uctM τ₁)` satisfies `τ₁ < t₃ < 2 * τ₁`. -/
-lemma tau0_three_uctM_bounds {τ₁ : ℝ} (hτ₁ : 0 < τ₁) (hτ₁_le : τ₁ ≤ 1 / 20) :
-    τ₁ < tau0 (3 * uctM τ₁) ∧ tau0 (3 * uctM τ₁) < 2 * τ₁ := by
+/-- For `0 < τ₁ ≤ 1/20`, `t₃ := FormalResearch.CohnElkies.tau0 (3 * uctM τ₁)` satisfies `τ₁ < t₃ < 2 * τ₁`. -/
+lemma saddleTau0_three_uctM_bounds {τ₁ : ℝ} (hτ₁ : 0 < τ₁) (hτ₁_le : τ₁ ≤ 1 / 20) :
+    τ₁ < FormalResearch.CohnElkies.tau0 (3 * uctM τ₁) ∧ FormalResearch.CohnElkies.tau0 (3 * uctM τ₁) < 2 * τ₁ := by
   have h3m : 0 < 3 * uctM τ₁ := mul_pos (by norm_num) (uctM_pos hτ₁)
   have ht3_pos : 0 < tau0 (3 * uctM τ₁) := tau0_pos h3m
   have ht3_eq : uctM (tau0 (3 * uctM τ₁)) = 3 * uctM τ₁ := ceEll_tau0 h3m
@@ -1477,8 +1477,8 @@ lemma inner_Dstar_bounds (kind : StripKernelChoice) :
     hmom, hinner, _, _, hth_in, _, _, _, _⟩ := hpart1 hK4 hc hτ₁ hτ₁_p1 hc_eq hα_le
   let v := vTotal kind K4 c α τ₁
   let v0' := v0 kind K4 τ₁
-  let t₃ := tau0 (3 * uctM τ₁)
-  have ht3_bd := tau0_three_uctM_bounds hτ₁ (by linarith)
+  let t₃ := FormalResearch.CohnElkies.tau0 (3 * uctM τ₁)
+  have ht3_bd := saddleTau0_three_uctM_bounds hτ₁ (by linarith)
   have ht3_gt : τ₁ < t₃ := ht3_bd.1
   have ht3_lt : t₃ < 2 * τ₁ := ht3_bd.2
   have ht3_pos : 0 < t₃ := hτ₁.trans ht3_gt
@@ -1509,7 +1509,7 @@ lemma inner_Dstar_bounds (kind : StripKernelChoice) :
     have hv_eq : v t = f0Base kind t - K4 * t ^ 4 - stripDeltaCurv c (fctThetaD v0') t + α * t ^ 2 := by
       dsimp only [v]; unfold vTotal v0
       have h1 : v1 kind K4 c τ₁ t = -stripDeltaCurv c (fctThetaD v0') t := by
-        rw [hin.2.2.2, deltaCurvSmooth_eq hθ0_cd hθ0_10 hθ0_20 ht0 (by linarith [ht.2, hτ₁_100])]
+        rw [hin.2.2.2.1, deltaCurvSmooth_eq hθ0_cd hθ0_10 hθ0_20 ht0 (by linarith [ht.2, hτ₁_100])]
         rfl
       rw [hin.1, hin.2.1, hin.2.2.1, h1]; ring
     have hr0_pos : 0 < r0Smooth kind t := r0Smooth_pos ht14
@@ -2387,7 +2387,7 @@ lemma fp_exp_quad_bound (kind : StripKernelChoice) :
   have hc_inv : c⁻¹ = τ₁ ^ 4 := by
     rw [inv_eq_iff_eq_inv]; field_simp [hc.ne', hτ₁.ne'] at hc_eq ⊢; linarith
   have hα1 : |α| ≤ 1 := hα_le.trans (pow_le_one₀ hτ₁.le hτ₁_1)
-  obtain ⟨⟨hb0_cd, hm0_cd, _, _, _, hv_cd⟩, ⟨hb0_ev, hm0_ev, _, _, _, _⟩, _, ⟨hb0_s, hm0_s, _, _, _, hv_s⟩,
+  obtain ⟨⟨hb0_cd, hm0_cd, _, _, _, hv_cd⟩, ⟨hb0_ev, hm0_ev, _, _, _, _⟩, _, ⟨hb0_s, hm0_s, _, _, _, hv_s, _⟩,
     hmom, hinner, hderivs, _, hth_in, _, _, _, _⟩ := hpart1 hK4 hc hτ₁ hτ₁_p1 hc_eq hα_le
   let v := vTotal kind K4 c α τ₁
   let v0' := v0 kind K4 τ₁
@@ -2447,7 +2447,7 @@ lemma fp_exp_quad_bound (kind : StripKernelChoice) :
     have hv_eq : v t - c2 * t ^ 2 = (f0Base kind t - af0 1 * t ^ 2) - K4 * t ^ 4 - stripDeltaCurv c (fctThetaD v0') t := by
       dsimp only [v, c2]; unfold vTotal v0
       have h1 : v1 kind K4 c τ₁ t = -stripDeltaCurv c (fctThetaD v0') t := by
-        rw [hin.2.2.2, deltaCurvSmooth_eq hθ0_cd hθ0_10 hθ0_20 ht0 ht14]; rfl
+        rw [hin.2.2.2.1, deltaCurvSmooth_eq hθ0_cd hθ0_10 hθ0_20 ht0 ht14]; rfl
       rw [hin.1, hin.2.1, hin.2.2.1, h1]; ring
     have hf0_r : |f0Base kind t - af0 1 * t ^ 2| ≤ Cf0 * t ^ 4 := by
       have h := hf0_bd t ⟨ht0.le, ht18⟩
@@ -2898,10 +2898,11 @@ theorem fct_comp_D_part2 (kind : StripKernelChoice) :
         let v := vTotal kind K4 c α τ₁
         let v0' := v0 kind K4 τ₁
         let δ_L := uctM τ₁
-        -- 1. `(fct:cos-pen)` + exact cosine identity for `H_*`
+        -- 1. `(fct:cos-pen)` + exact nonnegative cosine identity for `H_*`
         IntegrableOn (fun L : ℝ => stripIoscD kind v L - uctIfl L) (Ioi 0) ∧
         |(∫ L in Ioi (0 : ℝ), (stripIoscD kind v L - uctIfl L)) - stripCfl kind| ≤ C * τ₁ ^ 3 ∧
         (kind = .star →
+          0 ≤ ∫ L in Ioi (0 : ℝ), (stripIoscD .star v L - uctIfl L) ∧
           (∫ L in Ioi (0 : ℝ), (stripIoscD .star v L - uctIfl L)) =
             uctAlphaOsc * ∫ t in Ioi (0 : ℝ), ‖stripH0 .star ((t : ℂ) * Complex.I)‖ *
               Real.exp (v t) * (1 - Real.cos (fctThetaD v t))) ∧
@@ -2909,12 +2910,16 @@ theorem fct_comp_D_part2 (kind : StripKernelChoice) :
         |(∫ L in Ioi (0 : ℝ), stripDstar kind c v v0' L) - stripCfl kind| ≤ C * τ₁ ^ 3 ∧
         -- 2. `(fct:curv-p-int)` for `p ∈ {0, 1, 2}`
         (∀ p : ℕ, p ≤ 2 →
-          IntegrableOn (fun L : ℝ => stripIosc kind L * stripDeltaCurv c (fctThetaD v0') (tau0 L) / L ^ p) (Ioi 0) ∧
-          |∫ L in Ioi (0 : ℝ), stripIosc kind L * stripDeltaCurv c (fctThetaD v0') (tau0 L) / L ^ p| ≤ C * c⁻¹) ∧
+          IntegrableOn (fun L : ℝ => stripIosc kind L * stripDeltaCurv c (fctThetaD v0') (FormalResearch.CohnElkies.tau0 L) / L ^ p) (Ioi 0) ∧
+          |∫ L in Ioi (0 : ℝ), stripIosc kind L * stripDeltaCurv c (fctThetaD v0') (FormalResearch.CohnElkies.tau0 L) / L ^ p| ≤ C * c⁻¹) ∧
         -- 3. Inner integral `∫_0^{3δ_L} D_*(L) dL = O_{K₄}(τ₁³ + |α| τ₁)`
         IntegrableOn (stripDstar kind c v v0') (Ioc 0 (3 * δ_L)) ∧
         |∫ L in Ioc 0 (3 * δ_L), stripDstar kind c v v0' L| ≤ C * (τ₁ ^ 3 + |α| * τ₁) ∧
-        -- 4. `(fct:bump-1L)` (`p = 1`)
+        -- 4. `(fct:bump-1L)` (`p = 1`) and convergence of the defining finite-part limit `stripFp1 kind`
+        Tendsto (fun ε : ℝ =>
+          (∫ t in Ioi ε, (uctAlphaOsc * ‖stripH0 kind ((t : ℂ) * Complex.I)‖ -
+            uctAlphaFl * uctMderiv t / uctM t ^ (3 / 2 : ℝ)) / uctM t) - stripCneg1 kind / ε)
+          (𝓝[>] (0 : ℝ)) (𝓝 (stripFp1 kind)) ∧
         IntegrableOn (fun L : ℝ => stripDstar kind c v v0' L / L) (Ioi (3 * δ_L)) ∧
         |(∫ L in Ioi (3 * δ_L), stripDstar kind c v v0' L / L) - stripFp1 kind| ≤ C * (τ₁ + |α| * τ₁⁻¹) ∧
         -- 5. `(fct:bump-2L)` (`p = 2`)
@@ -2953,7 +2958,7 @@ theorem fct_comp_D_part2 (kind : StripKernelChoice) :
     rw [inv_eq_iff_eq_inv]; field_simp [hc.ne', hτ₁.ne'] at hc_eq ⊢; linarith
   have hα1 : |α| ≤ 1 := hα_le.trans (pow_le_one₀ hτ₁.le hτ₁_1)
   obtain ⟨⟨hb0_cd, hm0_cd, ha0_cd, hb1_cd, hm1_cd, hv_cd⟩, ⟨_, _, _, _, _, hv_ev⟩, ⟨_, _, _, _, _, hv0⟩,
-    ⟨hb0_s, hm0_s, ha0_s, hb1_s, hm1_s, hv_s⟩, hmom, _, _, ⟨hL1_0b, hL1_0m, hL1_a, hL1_1b, hL1_1m⟩, _, _, _, _, _⟩ :=
+    ⟨hb0_s, hm0_s, ha0_s, hb1_s, hm1_s, hv_s, _⟩, hmom, _, _, ⟨hL1_0b, hL1_0m, hL1_a, hL1_1b, hL1_1m⟩, _, _, _, _, _⟩ :=
     hpart1 hK4 hc hτ₁ hτ₁_p1 hc_eq hα_le
   obtain ⟨hcos_int, _, hcos_bd, hcos_star⟩ := hcos_spec hc hτ₁ hτ₁_cos hc_eq hα_le
   obtain ⟨hcurv_all, hDstar_int, hDstar_bd⟩ := hcurv_spec hc hτ₁ hτ₁_curv hc_eq hα_le
@@ -2961,8 +2966,8 @@ theorem fct_comp_D_part2 (kind : StripKernelChoice) :
   let v := vTotal kind K4 c α τ₁
   let v0' := v0 kind K4 τ₁
   let δ_L := uctM τ₁
-  let t₃ := tau0 (3 * δ_L)
-  have ht3_bd := tau0_three_uctM_bounds hτ₁ (by linarith)
+  let t₃ := FormalResearch.CohnElkies.tau0 (3 * δ_L)
+  have ht3_bd := saddleTau0_three_uctM_bounds hτ₁ (by linarith)
   have ht3_pos : 0 < t₃ := hτ₁.trans ht3_bd.1
   -- `∫ |v| ≤ M_L1 * τ₁³`
   have hv_L1 : (∫ t : ℝ, |v t|) ≤ M_L1 * τ₁ ^ 3 := by
@@ -3261,10 +3266,16 @@ theorem fct_comp_D_part2 (kind : StripKernelChoice) :
   simp only [show (2 : ℕ) ≠ 1 by norm_num, ↓reduceIte, Nat.cast_ofNat,
     show (3 : ℤ) - 2 * 2 = -1 by norm_num, show (1 : ℤ) - 2 * 2 = -3 by norm_num] at hb2_int hb2_bd
   refine ⟨hcos_int, hcos_bd.trans (mul_le_mul_of_nonneg_right hCcos_le (pow_nonneg hτ₁.le 3)),
-    hcos_star, hDstar_int, hDstar_bd.trans (mul_le_mul_of_nonneg_right hCcurv_le (pow_nonneg hτ₁.le 3)),
+    fun hk => ⟨by
+      rw [hcos_star hk]
+      exact mul_nonneg hαo_nn (setIntegral_nonneg measurableSet_Ioi fun t _ =>
+        mul_nonneg (mul_nonneg (norm_nonneg _) (Real.exp_pos _).le)
+          (by linarith [Real.cos_le_one (fctThetaD v t)])),
+      hcos_star hk⟩,
+    hDstar_int, hDstar_bd.trans (mul_le_mul_of_nonneg_right hCcurv_le (pow_nonneg hτ₁.le 3)),
     fun p hp => ⟨(hcurv_all p hp).1, (hcurv_all p hp).2.1.trans (mul_le_mul_of_nonneg_right hCcurv_le (inv_nonneg.mpr hc.le))⟩,
     hIn0_int, hIn0_bd.trans (mul_le_mul_of_nonneg_right hCin_le (by positivity)),
-    hb1_int, hb1_bd.trans (mul_le_mul_of_nonneg_right (by linarith [abs_nonneg L_bg2]) (by positivity)),
+    hbg_fp1, hb1_int, hb1_bd.trans (mul_le_mul_of_nonneg_right (by linarith [abs_nonneg L_bg2]) (by positivity)),
     hb2_int, ?_⟩
   -- For `p = 2`: `|∫ D_*/L²| ≤ |∫ D_*/L² - L_bg2| + |L_bg2| ≤ (... + |L_bg2|) * (τ₁⁻¹ + |α| τ₁⁻³)` since `1 ≤ τ₁⁻¹`!
   have h1_inv : (1 : ℝ) ≤ τ₁ ^ (-1 : ℤ) := by rw [zpow_neg_one]; exact (one_le_inv₀ hτ₁).mpr hτ₁_1

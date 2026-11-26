@@ -34,9 +34,6 @@ open FormalResearch.SignUncertainty
 open FormalResearch.SignUncertainty.FctMoment
 open FormalResearch.SignUncertainty.CtOuter
 
-/-- Closed unit strip `S̄ = {0 ≤ Re ζ ≤ 1}`. -/
-def closedStrip : Set ℂ := {ζ | 0 ≤ ζ.re ∧ ζ.re ≤ 1}
-
 /-- Symmetric strip Poisson extension `g_D[w](ζ) = ∫ w(t) / sin(π(ζ - i t)) dt` of `(fct:gD-def)`. -/
 noncomputable def stripCompG (w : ℝ → ℝ) (ζ : ℂ) : ℂ :=
   ∫ t : ℝ, (w t : ℂ) / Complex.sin (π * (ζ - Complex.I * t))
