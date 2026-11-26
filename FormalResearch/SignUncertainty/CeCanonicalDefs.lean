@@ -239,13 +239,25 @@ structure CeCanonicalInputs (D : ShellHBData) (t : ℕ → ℝ) : Prop where
   active_height : AiryActiveHeight D
   /-- `thm:airy-node-sign` (M9): if `b = u_LP < t_m` and an optimizer `H_*` has no zeros `t' < t'' < t'''` of `N`
   in `(b, t_m]` with `H_*(t') > 0`, `H_*(t'') < 0`, `H_*(t''') > 0`, then `u_sh = u_LP`; in particular
-  `u_sh = u_LP` whenever `t_{m+2} ≤ u_LP < t_m`. (The more general cumulative node-sum criterion is not restated.) -/
+  `u_sh = u_LP` whenever `t_{m+2} ≤ u_LP < t_m`. (The cumulative node-sum criterion is the field `node_sum`.) -/
   node_sign :
     (∀ b : ℝ, uLP D = (b : EReal) → b < D.tm → ∀ H : ℂ → ℂ, OneProfileFeasibleWitness D b H →
       (¬ ∃ t₁ t₂ t₃ : ℝ, t₁ < t₂ ∧ t₂ < t₃ ∧ b < t₁ ∧ t₃ ≤ D.tm ∧ at47_Nf D.P D.Q t₁ = 0 ∧
         at47_Nf D.P D.Q t₂ = 0 ∧ at47_Nf D.P D.Q t₃ = 0 ∧ 0 < (H (t₁ : ℂ)).re ∧
         (H (t₂ : ℂ)).re < 0 ∧ 0 < (H (t₃ : ℂ)).re) → uSh D = (b : EReal)) ∧
     (∀ b : ℝ, uLP D = (b : EReal) → hbNode t (D.S.card + 2) ≤ b → b < D.tm → uSh D = (b : EReal))
+  /-- `thm:airy-node-sign`, cumulative node-sum criterion (M9; `ce_airy_lp_proofs.tex`): let `b = u_LP < t_m` and `H`
+  an optimizer. If there is a real zero `c ∈ [b, t_m)` of `H` with `H(t_n) ≤ 0` for the nodes `t_n < c`,
+  `H'(c) ≥ 0` if `c` is a node, and `A(x) = ∑_{c < t_n ≤ x} η_n ≥ 0` for all `x > c`
+  (`η_n = D(t_n) H(t_n)/N'(t_n)²`; the finite set of nodes in `(c, x]` is `F`), then `u_sh = u_LP`. -/
+  node_sum : ∀ b : ℝ, uLP D = (b : EReal) → b < D.tm → ∀ H : ℂ → ℂ, OneProfileFeasibleWitness D b H →
+    (∃ c : ℝ, b ≤ c ∧ c < D.tm ∧ (H (c : ℂ)).re = 0 ∧
+      (∀ n : ℕ, t n < c → (H (t n : ℂ)).re ≤ 0) ∧
+      ((∃ n : ℕ, t n = c) → 0 ≤ (deriv H (c : ℂ)).re) ∧
+      (∀ x : ℝ, c < x → ∀ F : Finset ℕ, (∀ n : ℕ, n ∈ F ↔ (c < t n ∧ t n ≤ x)) →
+        0 ≤ ∑ n ∈ F, airyPQDr D.P D.Q (t n) * (H (t n : ℂ)).re /
+          ((airyPQN' D.P D.Q (t n : ℂ)).re) ^ 2)) →
+    uSh D = (b : EReal)
   /-- `lem:ce-terminal-deflation` (M9, `ce_shells.tex`): for `m` odd with `ℒ_y(-G_N) ≥ 0` for all `y > 0`, the
   terminal cardinal `H_N = -G_N/(u - t_m)` has `I_N = ∫ H_N = D(t_m)/∏_{j<m}(t_j - t_m) > 0` (the node weight
   numerator `D(t_m)` is positive for Hermite–Biehler data, `gt:1.0pp`). -/

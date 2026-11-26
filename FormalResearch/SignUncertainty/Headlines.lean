@@ -13,6 +13,8 @@ public import FormalResearch.SignUncertainty.CeCanonicalDefs
 public import FormalResearch.SignUncertainty.HbZeroEnum
 public import FormalResearch.SignUncertainty.ShellGapOrigin
 public import FormalResearch.SignUncertainty.ShellGapEndpoint
+public import FormalResearch.SignUncertainty.ShellGapOriginFloor
+public import FormalResearch.SignUncertainty.CeCanonicalSide
 public import FormalResearch.SignUncertainty.HbMultilevelDefs
 
 /-!
@@ -53,7 +55,8 @@ Headlines and their inputs (open fields in bold):
   **`ce_hb_lift`** (`thm:ce-hb-lift`, weak positivity), **`ce_airy_transfer_upper`** (`thm:ce-airy-transfer` (1)),
   **`airy_square_attained`** (`thm:airy-square-attained`), **`airy_square_bound`** (`lem:airy-square-bound`),
   **`airy_node_square`** (`lem:airy-node-square`), **`active_height`** (`lem:airy-active-height`),
-  **`node_sign`** (`thm:airy-node-sign`), **`terminal_deflation`** (`lem:ce-terminal-deflation`). The extraction and
+  **`node_sign`**, **`node_sum`** (`thm:airy-node-sign`, the sign and the cumulative node-sum criteria),
+  **`terminal_deflation`** (`lem:ce-terminal-deflation`). The extraction and
   constraint system `eq:ce-laplace-constraint` of `thm:ce-shell-gap` (Hankel form `HankelShellGapLimit`) is the
   theorem `hankelShellGapLimit_proved` (`ShellGapExtract.lean`) and no longer a field, the `v = t_m` endpoint clause
   `ShellGapEndpoint D` is the theorem `shellGapEndpoint_proved` (`ShellGapEndpoint.lean`) and no longer a field, and
@@ -666,12 +669,13 @@ lemma shell_gap_lower (D : ShellHBData) {r : ℝ → ℕ → ℝ} (hr : ShellOff
   linarith
 
 
-/-- **`thm:ce-shell-gap`** (Corollary H.14d, the part formalised; it is the input `ce_shell_gap` of
-`thm_ce_canonical_iff` (3)): if `ℒ_y(-G_N) < 0` for some `y > 0` (this holds for every even `m`, see
-`thm_ce_shell_gap_even`) and the offsets are `o(c^{1/3})`, then `liminf ρ_d ≥ -u_LP/β₁` (for every real `s` with
-`-β₁ s > u_LP`, eventually every admissible radius has `ρ ≥ s`) and `u_LP < t_m`. Proved from the extraction
-`hankelShellGapLimit_proved` and the one-profile reduction. The `u_* = t_m` endpoint clause and the origin floor of
-the paper's statement are not formalised. -/
+/-- **`thm:ce-shell-gap`** (Corollary H.14d), the strict-gap part (`eq:strict-gap`): if `ℒ_y(-G_N) < 0` for some `y > 0`
+(this holds for every even `m`, see `thm_ce_shell_gap_even`) and the offsets are `o(c^{1/3})`, then
+`liminf ρ_d ≥ -u_LP/β₁` (for every real `s` with `-β₁ s > u_LP`, eventually every admissible radius has `ρ ≥ s`) and
+`u_LP < t_m`. Proved from the extraction `hankelShellGapLimit_proved` and the one-profile reduction. The remaining
+clauses of the paper's statement (the cutoff bound `v ≤ t_m`, the `v = t_m` endpoint clause, and the origin floor
+`eq:ce-origin-floor` of `cor:ce-projection-mass`) are unconditional theorems about Hankel profiles; they are collected
+with this statement in `thm_ce_shell_gap_full`. -/
 theorem thm_ce_shell_gap {D : ShellHBData}
     (hlap : ∃ y : ℝ, 0 < y ∧ airyLaplace (fun u => -(D.G (u : ℂ)).re) y < 0)
     {r : ℝ → ℕ → ℝ} (hr : ShellOffsetsSmall r) :
@@ -681,6 +685,42 @@ theorem thm_ce_shell_gap {D : ShellHBData}
   refine ⟨fun s hs => shell_gap_lower D hr hs, lt_of_le_of_ne (uLP_le_tm D) fun he => ?_⟩
   obtain ⟨y, hy, hneg⟩ := hlap
   exact absurd ((uLP_eq_tm_iff D).1 he y hy) (not_le.mpr hneg)
+
+/-- `thm:ce-shell-gap`: the cutoff bound `v ≤ t_m` ("one has `v ≤ t_m`"). Under the hypotheses of
+`HankelShellGapLimit` at the cutoff `u_* = v` (offsets `o(c^{1/3})`, Hankel Cohn–Elkies profiles with
+`h_k ≤ 0` at the prescribed shells and thresholds `T_k ≤ c/π² - (v/β₁)c^{1/3} + o(c^{1/3})`), `v ≤ t_m`. -/
+def HankelCutoffLeTm (D : ShellHBData) : Prop :=
+  ∀ r : ℝ → ℕ → ℝ, ShellOffsetsSmall r →
+    ∀ (v : ℝ) (dk : ℕ → ℕ), Tendsto dk atTop atTop → (∀ k, 2 ≤ dk k) →
+      ∀ ε : ℕ → ℝ, Tendsto ε atTop (𝓝 0) →
+        ∀ (G : ℕ → ℝ → ℝ) (T : ℕ → ℝ), (∀ k, HankelShellProfile ((dk k : ℝ) / 2) (T k) (G k)) →
+          (∀ k, ∀ t ∈ D.S, t ≠ D.tm → 0 ≤ shellSite t (r t) (dk k) →
+            G k (shellSite t (r t) (dk k)) ≤ 0) →
+          (∀ k, T k ≤ (dk k : ℝ) / (2 * π ^ 2) - (v / hankelBeta1) * ((dk k : ℝ) / 2) ^ (1 / 3 : ℝ)
+            + ε k * ((dk k : ℝ) / 2) ^ (1 / 3 : ℝ)) →
+          v ≤ D.tm
+
+theorem hankelCutoffLeTm_proved (D : ShellHBData) : HankelCutoffLeTm D := by
+  intro r hr v dk hdk h2 ε hε G T hP hshell hT
+  have h1 := (one_profile_feasible_iff D v).1 (hankelShellGapLimit_proved D r hr v dk hdk h2 ε hε G T hP hshell hT)
+  have h3 : (v : EReal) ≤ uLP D :=
+    le_iSup₂ (f := fun (u : ℝ) (_ : OneProfileFeasible D u) => (u : EReal)) v h1
+  exact EReal.coe_le_coe_iff.1 (h3.trans (uLP_le_tm D))
+
+/-- **`thm:ce-shell-gap`** (Corollary H.14d), the formal statement as far as proved: the strict-gap clause
+`eq:strict-gap` of `thm_ce_shell_gap` (under the Laplace hypothesis `ℒ_y(-G_N) < 0`, automatic for even `m`), the cutoff
+bound `v ≤ t_m` (`HankelCutoffLeTm`), the `v = t_m` endpoint clause (`ShellGapEndpoint`:
+`Ψ_h/M[h] → -G_N/‖G_N‖₁`, `Ψ_ĥ/M[h] → 0`, `Ψ_f/M[f] → G_N/‖G_N‖₁`, `M[ĥ]/M[f] → 0`, `ℒ_y(-G_N) ≥ 0`), and the origin
+floor `eq:ce-origin-floor` of `cor:ce-projection-mass` (`HankelOriginFloor`, together with the extraction of
+`eq:ce-laplace-constraint`). The last three are unconditional. -/
+theorem thm_ce_shell_gap_full {D : ShellHBData}
+    (hlap : ∃ y : ℝ, 0 < y ∧ airyLaplace (fun u => -(D.G (u : ℂ)).re) y < 0)
+    {r : ℝ → ℕ → ℝ} (hr : ShellOffsetsSmall r) :
+    ((∀ s : ℝ, uLP D < ((-(hankelBeta1 * s) : ℝ) : EReal) →
+      ∀ᶠ d : ℕ in atTop, ∀ R ∈ ceShellRadiusSet D r d, s ≤ shellNormRadius d R) ∧
+      uLP D < (D.tm : EReal)) ∧
+    HankelCutoffLeTm D ∧ ShellGapEndpoint D ∧ HankelOriginFloor D :=
+  ⟨thm_ce_shell_gap hlap hr, hankelCutoffLeTm_proved D, shellGapEndpoint_proved D, hankelOriginFloor_proved D⟩
 
 /-- `thm:ce-shell-gap` for even `m = D.S.card`: the Laplace hypothesis holds (`even_m_laplace_sign`). -/
 theorem thm_ce_shell_gap_even {D : ShellHBData} (heven : Even D.S.card) {r : ℝ → ℕ → ℝ}
@@ -892,16 +932,21 @@ height at which every optimizer has a Laplace zero of even order (`L = L' = 0`) 
 -t_m/β₁` for some such shells (`ShellLiminf`); (i) forces `m` odd.
 
 Conditional on `CeCanonicalInputs D t` (open results of the paper, each field names its label). Differences from the
-paper's text: the cumulative node-sum criterion of `thm:airy-node-sign`, the bound "at most `m - 1` positive Laplace
-zeros" (`thm:ce-laplace-zeros`) and the statement `τ_N < t_m` are not restated; `d` is an integer here
+paper's text: `d` is an integer here
 (`ρ_d` is `+∞` for an empty shell class); in (ii) the offsets are fixed per statement, and the quotient integrals in
 (1) and (2)(a) are required to exist; the hypothesis `IsHbZeroEnum` on `t` is
 satisfiable for every `D` (`exists_isHbZeroEnum`, unique by `IsHbZeroEnum.unique`; `hbZeroEnum D` is that `t`). (4) the
-remaining clauses of `thm:ce-shell-gap` (Hankel form): the origin mass identity `0 < h(0) = M[ĥ] ≤ M[h]` for Hankel
+remaining clauses of `thm:ce-shell-gap` (Hankel form; the origin floor `eq:ce-origin-floor` is `HankelOriginFloor`, in
+`thm_ce_shell_gap_full`): the origin mass identity `0 < h(0) = M[ĥ] ≤ M[h]` for Hankel
 Cohn–Elkies profiles (proved, `hankelShellProfile_origin_mass`) and the `v = t_m` endpoint clause
 (`ShellGapEndpoint D`: `Ψ_h/M[h] → -G_N/‖G_N‖₁`, `Ψ_ĥ/M[h] → 0`, `Ψ_f/M[f] → G_N/‖G_N‖₁`, `M[ĥ]/M[f] → 0`, with
 `f = ĥ - h`, and `ℒ_y(-G_N) ≥ 0`; proved, `shellGapEndpoint_proved`). The failure of (i) forcing a strict
-Airy-order gap (`thm:ce-shell-gap`, `eq:strict-gap`) is `thm_ce_shell_gap`. -/
+Airy-order gap (`thm:ce-shell-gap`, `eq:strict-gap`) is `thm_ce_shell_gap`. (5) the side clauses of the statement:
+`eq:hb-node-bound` (for `m ≥ 2` the node weights `ω_n`, `n ∈ T_0`, are positive and `τ_N < t_m`; proved,
+`hbNodeWeight_pos`, `hbTauN_lt_tm`, `CeCanonicalSide.lean`), the bound of `thm:ce-laplace-zeros` (the positive zeros of
+`F_N = ∫ (-G_N) e^{yu} du`, counted with multiplicity, number at most `m - 1`; proved, `laplace_zero_multiplicity_le`;
+its parenthetical "even multiplicity" and the same statement for `ℒ_y(-G_N) = e^{-y³/12} F_N` are not restated) and the
+cumulative node-sum criterion of `thm:airy-node-sign` (input field `node_sum`). -/
 theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroEnum D.P D.Q t)
     (I : CeCanonicalInputs D t) :
     -- (1) thresholds
@@ -940,9 +985,28 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
         0 < G 0 ∧
         hankelMass (((n : ℝ) + 1) / 2) (besselHankelTransform (((n : ℝ) + 1) / 2) G) = G 0 ∧
         G 0 ≤ hankelMass (((n : ℝ) + 1) / 2) G) ∧
-      ShellGapEndpoint D) := by
+      ShellGapEndpoint D) ∧
+    -- (5) side clauses: `eq:hb-node-bound` (`ω_n > 0`, `τ_N < t_m`), the zero bound of `thm:ce-laplace-zeros`
+    -- for `F_N = ∫ (-G_N) e^{yu}`, and the cumulative node-sum criterion of `thm:airy-node-sign`
+    ((2 ≤ D.S.card →
+        (∀ n ∈ Finset.Icc D.S.card (D.S.card + D.S.card / 2),
+          0 < hbNodeWeight D.P D.Q t (Finset.Icc D.S.card (D.S.card + D.S.card / 2)) n) ∧
+        hbTauN D t < D.tm) ∧
+      (∀ Z : Finset ℝ, (∀ z ∈ Z, 0 < z) → ∀ mult : ℝ → ℕ,
+        (∀ z ∈ Z, ∀ k < mult z, iteratedDeriv k (shellLaplaceF D) z = 0) →
+          ∑ z ∈ Z, mult z ≤ D.S.card - 1) ∧
+      (∀ b : ℝ, uLP D = (b : EReal) → b < D.tm → ∀ H : ℂ → ℂ, OneProfileFeasibleWitness D b H →
+        (∃ c : ℝ, b ≤ c ∧ c < D.tm ∧ (H (c : ℂ)).re = 0 ∧
+          (∀ n : ℕ, t n < c → (H (t n : ℂ)).re ≤ 0) ∧
+          ((∃ n : ℕ, t n = c) → 0 ≤ (deriv H (c : ℂ)).re) ∧
+          (∀ x : ℝ, c < x → ∀ F : Finset ℕ, (∀ n : ℕ, n ∈ F ↔ (c < t n ∧ t n ≤ x)) →
+            0 ≤ ∑ n ∈ F, airyPQDr D.P D.Q (t n) * (H (t n : ℂ)).re /
+              ((airyPQN' D.P D.Q (t n : ℂ)).re) ^ 2)) →
+        uSh D = (b : EReal))) := by
   refine ⟨⟨uLP_le_tm D, uLP_eq_tm_iff D, fun hm => ?_, fun hlt => ⟨?_, ?_⟩⟩, ⟨?_, ?_, ?_⟩, ?_,
-    fun n hn T G hG => hankelShellProfile_origin_mass hn hG, shellGapEndpoint_proved D⟩
+    ⟨fun n hn T G hG => hankelShellProfile_origin_mass hn hG, shellGapEndpoint_proved D⟩,
+    fun hm => ⟨fun n hn => hbNodeWeight_pos D ht hm hn, hbTauN_lt_tm D ht hm⟩,
+    fun Z hZ mult hmult => laplace_zero_multiplicity_le D Z hZ mult hmult, I.node_sum⟩
   · obtain ⟨hΛ, -, hlt⟩ := lambda_chain I hm
     obtain ⟨hτ1, hτ2⟩ := I.airy_node_square hm
     exact ⟨hΛ, hlt, uSh_le_uLP D, I.airy_square_bound hm, hτ1, hτ2⟩
@@ -999,6 +1063,14 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
 /-- info: 'FormalResearch.SignUncertainty.thm_ce_shell_gap' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms thm_ce_shell_gap
+
+/-- info: 'FormalResearch.SignUncertainty.thm_ce_shell_gap_full' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms thm_ce_shell_gap_full
+
+/-- info: 'FormalResearch.SignUncertainty.hankelCutoffLeTm_proved' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelCutoffLeTm_proved
 
 /-- info: 'FormalResearch.SignUncertainty.thm_ce_shell_gap_even' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
