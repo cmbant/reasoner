@@ -28,6 +28,8 @@ public import FormalResearch.Complex.Rouche
 public import FormalResearch.Complex.Hurwitz
 public import FormalResearch.Complex.Montel
 public import FormalResearch.Complex.StripPoisson
+public import FormalResearch.Complex.HalfDiscCauchy
+public import FormalResearch.Complex.HalfDiscPoisson
 
 /-!
 # Complex analysis: Hadamard factorization, Fejér–Riesz arc bounds, Chebyshev coefficients, entire division, argument principle, Rouché, Hurwitz, Montel, strip Poisson kernels
@@ -40,6 +42,8 @@ half-plane arc form (`Hardy*`, Airy-free).
 * `HadamardProduct`: elementary factors `E p`, canonical products `canonProd p a` over a family `a` with
   `Σ ‖a i‖^{-(p+1)} < ∞` (`hasProd_E`: locally uniform convergence; entire; zero set exactly `{a i}`; logarithmic derivative);
   `HadamardProductOrder`: the order of vanishing of `canonProd` at `w` is `#{i : a i = w}`;
+* `HalfDiscPoisson` (same namespace; phase-free): `hdBoundary_inv_sub` (winding number `∮_{∂D_+}dζ/(ζ-z) = 2πi`, from Mathlib's circle integral and the reflected `halfDisc_cauchy`), `hdBoundary_cauchy_formula` (Cauchy formula on the half-disc, via `dslope`), and **`halfDisc_poisson`**: `G(z) = ∫_{-A}^{A} hdDiam A z t · G(t) dt + ∫_0^π hdArc A z θ · G(A e^{iθ}) dθ` for `G` continuous on the closed upper half-disc and holomorphic inside (Cauchy formula at `z` and at the images `z̄`, `A²/z̄`, `A²/z`; the kernel identities `imgK_diam`, `imgK_arc`).
+* `HalfDiscCauchy` (namespace `FormalResearch.HalfDiscCauchy`; phase-free, shared by Paper I `ct:dyadic` and Paper II): `halfDisc_cauchy` (Cauchy's theorem on the upper half-disc for `g` continuous on the closed half-disc and holomorphic inside: `∫_{-R}^R g + i∫_0^π g(Re^{iy})Re^{iy}dy = 0`), `halfAnnulus_identity` (the exponential image of a rectangle), `closedHalfDisc_compact`; proved via the log-coordinate rectangle and `ε → 0`.
 * `HadamardListing`: a family `Listing f a` listing the non-zero zeros of an entire `f` with multiplicity (`exists_listing`);
 * `HadamardCount`: Jensen counting, `|f| ≤ C exp(C|z|^σ)` gives `Σ ‖a i‖^{-s} < ∞` for `s > σ`;
 * `HadamardCauchy`, `HadamardBlaschke`, `HadamardCore`, `HadamardRadii`: Cauchy bounds, the Blaschke decomposition on a disc
