@@ -13,9 +13,9 @@ This note is rewritten (not appended to) as slices land; the status table is cur
 |---|---|---|---|---|
 | S1 `cts:main` Piece 3 / `cts:cauchy-dual` Step 2: bridge `G_outer(iy) = W_slit(y) e^{iθ_out(y)}`, `θ_out` odd, continuous, `θ_out(0)=0`; `H₃` holomorphic, zero-free, `H₃(0)=1`, positive on `(0,1)`, `|H₃(iy)| = (x(y)/ξ_*)²`, holomorphic fourth root `R4`; `G̃ = (1+z²)G_outer/R4` holomorphic, zero-free, slit `log|G̃|` formula | `OuterS1` | `outerS1` | `OuterBridge` (`gout_polar`, `thetaOut_soft`), `OuterH3` (`differentiableOn_H3`, `H3_ne_zero`, `H3_zero`, `H3_real_pos`, `norm_H3_slit`, `R4c`), `OuterS1` (`gtilde_diff`, `gtilde_ne_zero`, `log_gtilde_slit`, `outerS1`) | proved |
 | S2 `cts:cauchy-dual` Step 2, `cts:theta-deriv`; `cts:smooth-env` (3) first bullet: `θ_out(y(x))` bounds `j = 0,1,2` and exponential limit | `OuterS2` (corrected form, see 3) | `outerS2` | `OuterTheta` (`thetaOutT_data`, the `τ`-level core), `OuterX` (chain rule, `outerS2`) | proved |
-| S3 `cts:smooth-env` (2): extension `E_e` of `ℰ_δ`, branch-point factorisation, uniform bounds, global strip bound, boundary identities | `OuterS3` | none | none | open (see 4) |
+| S3 `cts:smooth-env` (2): extension `E_e` of `ℰ_δ`, branch-point factorisation, uniform bounds, global strip bound, boundary identities | `OuterS3` | prefix only: `fDelta_slit_dphi`, `fDelta_factor` | `OuterS3a` | open (prefix proved; see 4) |
 | S4a `cts:smooth-env` (3): `δφ_δ'`, `δφ_δ''` bounds | `OuterS4a` (corrected form, see 3) | `outerS4a` | `OuterDphi` | proved |
-| S4b `cts:smooth-env` (3): `ΔΦ_δ` holomorphic on the band, `Re ΔΦ_δ = 0` on `E_+`, `C²` bounds | `OuterS4b` | none | none | open (see 4) |
+| S4b `cts:smooth-env` (3): `ΔΦ_δ` holomorphic on the band, `Re ΔΦ_δ = 0` on `E_+`, `C²` bounds | `OuterS4b` | `outerS4b` | `OuterS4bPhi` (`φ_y = log(-T_y)`, uniform band bounds), `OuterS4b` (differentiation under the integral) | proved |
 
 Each proved headline has a docstring with its paper label and a `#print axioms` guard
 `[propext, Classical.choice, Quot.sound]`.  Class of every proved line: proved (no numerical input anywhere).
@@ -70,19 +70,30 @@ Each proved headline has a docstring with its paper label and a `#print axioms` 
 4. **`H₃`.** `H₃ · Ŝ(u) = K` (the comparison function), so `K = H₃ q̂` explains why `|H₃(iy)| = (x/ξ_*)²` is the modulus on the slit
    and `|Kb| = x_T b_T/ξ_*²` on the strip edges.
 
-## 4. Open items and exact next steps
+## 4. S4b and the S3 prefix (proved), and what remains of S3
 
-* **S4b** (`OuterS4b`).  Inputs now available: `outerS4a` gives `|δφ_δ'(y)| ≤ C r̃^{-1/2} e^{-πy}`, integrable on `(ξ_*, ∞)`.  Next steps:
-  (i) `φ_y' = π(1/sinh π(b-y) + 1/sinh π(b+y))` is holomorphic on `{0 < Im b < 1}`; on the band `1/4 < Im b < 3/4`,
-  `|sinh π(u + iv)|² = sinh² πu + sin² πv ≥ 1/2` gives `|φ_y'|, |φ_y''| ≤ C e^{-π|Re b ∓ y|}`-type bounds uniform in `y ≥ ξ_*`;
-  (ii) `|φ_y(b)| ≤ C` on the band (integrate `φ_y'` along the straight segment from `i/2`, which stays in the band, using `∫ sech = 1/π·π`),
-  (iii) differentiate `ΔΦ_δ(b) = (1/π) ∫ δφ_δ'(y) φ_y(b) dy` under the integral (`hasDerivAt_integral_of_dominated_loc_of_deriv_le`, dominated by
-  `C r̃^{-1/2} e^{-πy}`) twice; `Re ΔΦ_δ = 0` on `Im b = 1/2` from `|T_y(v + i/2)| = 1`.
-* **S3** (`OuterS3`).  Needs `S4b` plus: the identification of `ℰ_δ = F_δ(ζ_D(b)) e^{-ΔΦ_δ}` with an even zero-free holomorphic `Ee` across
-  `E_+` (the stripped envelope has no jump because `δφ_δ` is the phase of `F_δ` there), the branch-point factorisation at `b = ±i/2`
-  from `m_δ(z) = (1 - (1-δ) ζ_D)^{-1/2}`-type factor, the uniform bounds from `S1` (`|G̃|` formula: the modulus of `Esm` is explicit) and `S2`, and the
-  boundary identities.  First concrete step: write `F_δ(iy(x))` through `gout_polar` and `norm_gtilde_slit` to get `|Ee(x)| e^{Re ΔΦ} = |F_δ(iy(x))|`
-  on the slit (the last two bullets of `OuterS3`), which needs only S1.
+* **S4b.** `φ_y = log(-T_y)` on `0 < Im b < 1` (`-T_y` is in the slit plane because both `tanh` factors have positive imaginary part;
+  `phiY_eq`, using `-T_y(i/2) = 1`); on the band `‖φ_y‖ ≤ 15 + π`, `‖φ_y'‖ ≤ 4π`, `‖φ_y''‖ ≤ 8π²` uniformly in `y ∈ ℝ`, `Re b`
+  (`norm_phiY_le`, `norm_phiYDeriv_le`, `norm_phiYDeriv2_le`); `Re φ_y = 0` on `Im b = 1/2` (`re_phiY_half`).
+  `δφ_δ' ∈ L¹(ξ_*, ∞)` and continuous (from `outerS4a`), so `hasDerivAt_param` (dominated differentiation under the integral, applied
+  twice) gives `ΔΦ_δ'`, `ΔΦ_δ''`; the constant is `C = C₀ J ((15+π)/π + 4 + 8π) + 1` with `J = ∫ min(r,1)^{-1/2} e^{-πy}` and `C₀` from
+  `outerS4a`, uniform in `δ ∈ (0, 1/40)` (`δ₀ = 1/40`, `etaDelta (1/40) < 1/16`).
+* **S3 prefix** (`OuterS3a`). `fDelta_slit_dphi`: `F_δ(i y(x)) = ρ e^{i δφ_δ(x)}` with `ρ > 0`, i.e. `dphi` is the boundary argument of `F_δ`
+  on the slit (so the definition of `dphi` in `OuterStripStatements` is the right one).  `fDelta_factor`: `F_δ(z) = (1-(1-δ)z)^{-1/2}(1+z²)²/(R4(z)Ĝ(z))`,
+  `Ĝ = (1-z)^{-1/2} G̃`, on `Ω` (the factorisation used in the paper's proof of (2)-(3)).
+* **Remaining for S3** (`OuterS3`), in dependency order (none of these exists in the library yet):
+  1. `ΔΦ_δ` holomorphic on the whole open strip `0 < Im b < 1` (S4b's argument with the band replaced by `ε ≤ Im b ≤ 1-ε`; the constants become
+     `1/sin(πε)`-type), plus its boundary values at `Im b → 0+`: `Im ΔΦ_δ(x) = -δφ_δ(x)` for `x ≥ ξ_*` (`Im φ_y(x+i0) = -π·1_{x>y}`,
+     `Im φ_y(x+i0) = π·1_{x<-y}`), `Im ΔΦ_δ = 0` for `|x| < ξ_*`; this needs the L¹-with-log-singularity continuity of `∫ δφ' φ_y`.
+     Note `ζ_D(x + i0) = -i y(x)` for `x > ξ_*` (lower half-plane), so `F_δ(ζ_D(x+i0)) e^{-ΔΦ}` is real positive (phase `-δφ + δφ`): this is the identity
+     `‖Ee(x)‖ e^{Re ΔΦ_δ(x)} = ‖F_δ(i y(x))‖`; the modulus half is `fDelta_slit_dphi`.
+  2. A Schwarz reflection principle (continuous on a closed half-disc, holomorphic inside, real on the diameter, extends holomorphically): not in
+     Mathlib; provable via Morera/`integral_boundary_rect_eq_zero_of_continuousOn_of_differentiableOn_off_countable`.  With evenness and the removable singularity at
+     `±ξ_*` (`ζ_D` has a square-root branch point there while `ℰ_δ` does not) this gives `Ee` on `|Im b| < 1/2`.
+  3. Extension across `E_+` (`Im b = 1/2`) up to `1/2 + η_δ`: needs the holomorphic extension of `Ĝ∘ζ_D` across the arc, i.e. `cts:involution(1)` and the Schwarz
+     reflection `g(w) = 2u_E(w) - conj g(conj w)` of the paper (inputs: the explicit `u_E`, bounded on `|Im v| ≤ 1/8`; Hölder regularity of `Ũ` at `0`).
+  4. The branch-point factorisation `Ee = (1 - (1-δ)ζ_D)^{-1/2} Esm` with `Esm` zero-free and the two-sided `(1+|v|)^{-1/2} e^{-2π|v|}` bound
+     (from `fDelta_factor`, `norm_H3_slit`-type moduli of `R4c`, `norm_gtilde_slit`, `ΔΦ` bounded on the band), and the global strip bound.
 
 ## 5. Hygiene
 
