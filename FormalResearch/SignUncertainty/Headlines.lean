@@ -16,6 +16,8 @@ public import FormalResearch.SignUncertainty.ShellGapEndpoint
 public import FormalResearch.SignUncertainty.ShellGapOriginFloor
 public import FormalResearch.SignUncertainty.CeCanonicalSide
 public import FormalResearch.SignUncertainty.HbMultilevelDefs
+public import FormalResearch.SignUncertainty.AiryNodeSquare
+public import FormalResearch.SignUncertainty.AiryActiveHeight
 
 /-!
 # Paper I headline theorems from one input structure each (M0 skeleton)
@@ -53,12 +55,13 @@ Headlines and their inputs (open fields in bold):
 * `thm_ce_canonical_iff` (`thm:intro-gap` = `thm:ce-canonical-iff`, parts (1)-(4), with (i)-(iv); the zero enumeration `t` exists and is unique: `HbZeroEnum.lean`), from
   `CeCanonicalInputs D t` (`CeCanonicalDefs.lean`): **`shell_reduction`** (`thm:ce-shell-reduction`),
   **`ce_hb_lift`** (`thm:ce-hb-lift`, weak positivity), **`ce_airy_transfer_upper`** (`thm:ce-airy-transfer` (1)),
-  **`airy_node_square`** (`lem:airy-node-square`), **`active_height`** (`lem:airy-active-height`),
   **`node_sign`**, **`node_sum`** (`thm:airy-node-sign`, the sign and the cumulative node-sum criteria),
   **`terminal_deflation`** (`lem:ce-terminal-deflation`). The extraction and
   constraint system `eq:ce-laplace-constraint` of `thm:ce-shell-gap` (Hankel form `HankelShellGapLimit`) is the
   theorem `hankelShellGapLimit_proved` (`ShellGapExtract.lean`) and no longer a field; `thm:airy-square-attained` (1), (3) is the theorem `airySquareAttained` (`CeCanonicalDefs.lean`, from
-  `AirySquareSimple.lean`) and no longer a field, nor is `lem:airy-square-bound` (`Λ_m > a_m`: `airyLambdaSection_hb_gt_airyZero`, `AirySquareBound.lean`); the `v = t_m` endpoint clause
+  `AirySquareSimple.lean`) and no longer a field, nor are `lem:airy-square-bound` (`Λ_m > a_m`: `airyLambdaSection_hb_gt_airyZero`, `AirySquareBound.lean`),
+  `lem:airy-node-square` (`λ > τ_N > t_{m+e}`: `airy_node_square`, `AiryNodeSquare.lean`), or `lem:airy-active-height`
+  (`airy_active_height`, `AiryActiveHeight.lean`); the `v = t_m` endpoint clause
   `ShellGapEndpoint D` is the theorem `shellGapEndpoint_proved` (`ShellGapEndpoint.lean`) and no longer a field, and
   `thm_ce_shell_gap` is proved; `one_profile_envelope` (`gt:3.1` envelope used in `prop:ce-one-profile`) is a theorem
   (`OneProfileEnvelope.lean`). Proved here: `one_profile_feasible_iff`, `one_profile_maximizer_exists`,
@@ -570,7 +573,7 @@ lemma shellSites_card (D : ShellHBData) : (shellSites D).card = D.S.card - 1 :=
   Finset.card_erase_of_mem D.tm_mem
 
 /-- The chain `Λ_M ≤ λ < u_sh ≤ u_LP` of `thm:ce-canonical-iff` (1), for `m ≥ 2`. -/
-lemma lambda_chain {D : ShellHBData} {t : ℕ → ℝ} (I : CeCanonicalInputs D t) (hm : 2 ≤ D.S.card) :
+lemma lambda_chain (D : ShellHBData) (hm : 2 ≤ D.S.card) :
     (∀ M : ℕ, D.S.card ≤ M → airyLambdaM (shellSites D) M ≤ airyLambdaOf (shellSites D)) ∧
     ((airyLambdaOf (shellSites D) : ℝ) : EReal) ≤ uLP D ∧
     ((airyLambdaOf (shellSites D) : ℝ) : EReal) < uSh D := by
@@ -602,7 +605,7 @@ lemma lambda_chain {D : ShellHBData} {t : ℕ → ℝ} (I : CeCanonicalInputs D 
       refine (h1.mul h2).congr_deriv ?_
       simp [hqs s hs]
     exact hder s hsS hdq.deriv
-  exact I.active_height.strictify lam hlt _ hwit hLpos
+  exact (airy_active_height D).strictify lam hlt _ hwit hLpos
 
 
 lemma shell_mem_pos {D : ShellHBData} {r : ℝ → ℕ → ℝ} {d : ℕ} {R : ℝ} (hR : R ∈ ceShellRadiusSet D r d) :
@@ -769,12 +772,11 @@ lemma ceShellRho_tendsto {D : ShellHBData} {r : ℝ → ℕ → ℝ} {τ : ℝ}
 lemma uSh_eq_tm_of_canonical {D : ShellHBData} {t : ℕ → ℝ} (I : CeCanonicalInputs D t)
     (hi : ∀ y : ℝ, 0 < y → 0 ≤ airyLaplace (fun u => -(D.G (u : ℂ)).re) y) : uSh D = (D.tm : EReal) := by
   have hb := (uLP_eq_tm_iff D).2 hi
-  obtain ⟨hint, -, hpos⟩ := I.terminal_deflation hi
-  refine I.active_height.quotient_mass D.tm hb _ (negG_witness D hi) ?_ ?_
-  · simpa using hint
-  · have : (∫ u : ℝ, (((fun z => -D.G z) (u : ℂ)).re) / (u - D.tm)) =
-        ∫ u : ℝ, (-(D.G (u : ℂ)).re) / (u - D.tm) := by simp
-    rw [this]; exact hpos.le
+  obtain ⟨-, -, hpos⟩ := I.terminal_deflation hi
+  refine (airy_active_height D).quotient_mass D.tm hb _ (negG_witness D hi) ?_
+  have : (∫ u : ℝ, (((fun z => -D.G z) (u : ℂ)).re) / (u - D.tm)) =
+      ∫ u : ℝ, (-(D.G (u : ℂ)).re) / (u - D.tm) := by simp
+  rw [this]; exact hpos.le
 
 
 lemma qpow_pos (d : ℕ) (hd : 1 ≤ d) : 0 < ((d : ℝ) / 2) ^ (1 / 3 : ℝ) :=
@@ -1003,15 +1005,15 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
     ⟨fun n hn T G hG => hankelShellProfile_origin_mass hn hG, shellGapEndpoint_proved D⟩,
     fun hm => ⟨fun n hn => hbNodeWeight_pos D ht hm hn, hbTauN_lt_tm D ht hm⟩,
     fun Z hZ mult hmult => laplace_zero_multiplicity_le D Z hZ mult hmult, I.node_sum⟩
-  · obtain ⟨hΛ, -, hlt⟩ := lambda_chain I hm
-    obtain ⟨hτ1, hτ2⟩ := I.airy_node_square hm
+  · obtain ⟨hΛ, -, hlt⟩ := lambda_chain D hm
+    obtain ⟨hτ1, hτ2⟩ := airy_node_square D ht hm
     exact ⟨hΛ, hlt, uSh_le_uLP D, airyLambdaSection_hb_gt_airyZero D hm, hτ1, hτ2⟩
-  · obtain ⟨y, hy, h⟩ := I.active_height.laplace_zero hlt
+  · obtain ⟨y, hy, h⟩ := (airy_active_height D).laplace_zero hlt
     exact ⟨y, hy, h⟩
-  · exact fun b hb H hH z hz hz0 hs => I.active_height.deflation hlt b hb H hH z hz hz0 hs
+  · exact fun b hb H hH z hz hz0 hs => (airy_active_height D).deflation hlt b hb H hH z hz hz0 hs
   · intro b hb hbt H hH hc
-    rcases hc with ⟨hint, hnn⟩ | hno
-    · exact I.active_height.quotient_mass b hb H hH hint hnn
+    rcases hc with ⟨-, hnn⟩ | hno
+    · exact (airy_active_height D).quotient_mass b hb H hH hnn
     · exact I.node_sign.1 b hb hbt H hH hno
   · exact fun h => uSh_eq_of_node_bound I h
   · intro h5
@@ -1019,8 +1021,8 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
     · exact uSh_eq_uLP_of_card_one D h1
     · have hpos : 0 < D.S.card := Finset.card_pos.mpr D.S_nonempty
       have hm : 2 ≤ D.S.card := by omega
-      obtain ⟨-, hle, -⟩ := lambda_chain I hm
-      obtain ⟨hτ1, hτ2⟩ := I.airy_node_square hm
+      obtain ⟨-, hle, -⟩ := lambda_chain D hm
+      obtain ⟨hτ1, hτ2⟩ := airy_node_square D ht hm
       refine uSh_eq_of_node_bound I ?_
       have hanti : hbNode t (D.S.card + 2) ≤ hbNode t (D.S.card + D.S.card / 2) := by
         unfold hbNode

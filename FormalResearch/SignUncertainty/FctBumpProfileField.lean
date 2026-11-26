@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 module
 
 public import FormalResearch.SignUncertainty.FctBumpSymCheck
-public import FormalResearch.SignUncertainty.FctMainHankel
+public import FormalResearch.SignUncertainty.FctMainHankelDefs
 
 /-!
 # The field `bump_profile` of `FctMainHankelInputs` from `fct:bump-sym-check` (F2a)
