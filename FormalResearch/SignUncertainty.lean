@@ -464,6 +464,8 @@ public import FormalResearch.SignUncertainty.UctFloorEdge
 public import FormalResearch.SignUncertainty.UctFloorAdmiss
 public import FormalResearch.SignUncertainty.FctMainHankel
 public import FormalResearch.SignUncertainty.FctSymCal
+public import FormalResearch.SignUncertainty.FctSymChain
+public import FormalResearch.SignUncertainty.FctTau0Symbol
 public import FormalResearch.SignUncertainty.FctBumpSymCheck
 public import FormalResearch.SignUncertainty.FctBumpProfileField
 public import FormalResearch.SignUncertainty.FctPhysicalBudget
