@@ -16,7 +16,7 @@ Paper I (`constant_terms_five.tex`), Lemma `fct:inner-symbols` (b2).  With `T = 
 * `T(U_c) < 2 τ₁`, with `T(U_c)/τ₁ = 2.96 θ (1 + O(c^{-1/2})) = 1.9902…`;
 * `1 - χ = 0` on `[0, u_*]` (`T/τ₁ ≤ 2.7 θ (1 + O(c^{-1/2})) = 1.8154… < 1.85`).
 
-**Paper discrepancy.**  The paper writes `2^{-2/3} τ_* = 0.6714…`, `T(U_c) = 1.987… τ₁` and `T(U_c) < 1.99 τ₁`.  In fact `2^{-2/3} τ_* = 0.67237…` and
+**Paper constant (corrected in the paper, `CORRECTIONS.md` 2026-11-26).**  The paper had `2^{-2/3} τ_* = 0.6714…`, `T(U_c) = 1.987… τ₁` and `T(U_c) < 1.99 τ₁`; it now states `T(U_c) < 2τ₁`.  In fact `2^{-2/3} τ_* = 0.67237…` and
 `T(U_c)/τ₁ → 1.9902…`, so `T(U_c) < 1.99 τ₁` fails at leading order (also `T = 1.98 τ₁` at `u = 2.9448 c^{1/12}` and `1.85 τ₁` at `2.7515 c^{1/12}`, not `2.949`, `2.755`).
 All uses (support in `[0, 2.95 c^{1/12}]`, `T ≤ 2τ₁` on `[0, U_c]`, `χ = 1` on `[0, u_*]`) remain true, and these are what is proved.
 
