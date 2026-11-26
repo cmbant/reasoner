@@ -2,7 +2,7 @@
 
 Paper: `QIprojects/CFT/modular_bootstrap/paper/dual_spectrum.tex` and `dual_spectrum_limit.tex`.
 Statements are indexed once, as `Prop`s, in `LP/Statements.lean` (`DsMom`, ..., `DsLPiii`, each with a
-`*_holds` theorem). Everything is axiom-guarded to `[propext, Classical.choice, Quot.sound]`; no `sorry`;
+`*_holds` theorem). Everything is axiom-guarded to `[propext, Classical.choice, Quot.sound]`; no proof placeholders;
 every file builds with `lake build`; every module is under 800 lines.
 
 ## Status
