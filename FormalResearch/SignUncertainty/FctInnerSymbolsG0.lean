@@ -17,10 +17,10 @@ Paper I (`constant_terms_five.tex`), Lemma `fct:inner-symbols` (a), last sentenc
 * `fctG0 = -2√π · conj(G_0)` with `G_0 = CtAiry.G0 = HH0 = -π(Ai² + i Ai Bi)` (`CtAiryId`), so `fctG0` solves the same system (`conj` commutes with `d/dû` on `ℝ`);
 * uniqueness (`CtAiry.ode3_eq_zero`): `𝒮[1] = fctG0` as soon as the three initial values agree.
 
-Named input (strictly smaller than `FctInnerSymbolsG0`): `FctInnerSymbolsG0Init`, the three initial values at `û = 0`.
-Proved: `fctInnerSymbolsG0_of_init : FctInnerSymbolsG0Init → FctInnerSymbolsG0`.
+The three initial values at `û = 0` are `FctInnerSymbolsG0Init`; they are proved in `FctInnerSymbolsG0Init` (contour rotation, `FctInnerSymbolsRot`), which also derives the unconditional `fctInnerSymbolsG0`.
+Proved here: `fctInnerSymbolsG0_of_init : FctInnerSymbolsG0Init → FctInnerSymbolsG0`.
 
-Class: proved (reduction); the initial values are a named input.
+Class: proved.
 -/
 @[expose] public section
 open Set Filter Topology MeasureTheory
@@ -28,9 +28,9 @@ open scoped Real ContDiff Interval
 
 namespace FormalResearch.SignUncertainty
 
-/-- **Initial values of `fct:inner-symbols` (a), closed form** (named input).  With `c = -2√π` and `G_j = CtAiry.Gj` (`G_j(0)` are the Gamma values of `CtAiry.gI_zero`),
+/-- **Initial values of `fct:inner-symbols` (a), closed form** (proved as `fctInnerSymbolsG0Init`).  With `c = -2√π` and `G_j = CtAiry.Gj` (`G_j(0)` are the Gamma values of `CtAiry.gI_zero`),
 `𝒮[u^j](0) = i^j · c · conj(G_j(0))`, `j = 0, 1, 2`; equivalently `𝒮[u^j](0) = i^j G_0^{(j)}(0)` with the paper's `G_0^{(j)}(0) = 12^{(j+1/2)/3}/3 · Γ((j+1/2)/3) e^{-iπ/4 - iπj/2 - iπ(j+1/2)/6}`.
-(Paper proof: rotate the contour of the regularised integral by `arg u = -π/6` and evaluate the Gamma integrals.) -/
+(Paper proof, formalised in `FctInnerSymbolsRot`: rotate the contour of the regularised integral by `arg u = -π/6` and evaluate the Gamma integrals.) -/
 def FctInnerSymbolsG0Init : Prop :=
   fctS 0 (fun u => (u : ℂ) ^ 0) = (-(2 * ((√π : ℝ) : ℂ))) * star (CtAiry.G0 0) ∧
   fctS 0 (fun u => (u : ℂ) ^ 1) = Complex.I * ((-(2 * ((√π : ℝ) : ℂ))) * star (CtAiry.G1 0)) ∧

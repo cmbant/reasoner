@@ -24,7 +24,7 @@ Paper I (`constant_terms_five.tex`), Lemma `fct:inner-symbols`.
 **Part (a), split into three statements**:
 * `FctInnerSymbolsA`: existence of the Abel limit, the bound `|𝒮[κ]| ≤ C_{M,n,p} B` and the tail bound `C B u_*^{p+1/2-3n}` (**proved**: `FctSymA.fctInnerSymbolsA` in `FctInnerSymbolsA`);
 * `FctInnerSymbolsMonomial`: `𝒮[u^k] = i^k ∂_û^k 𝒮[1]` (differentiation of the regularised integrals; proved as `FctSymA.fctInnerSymbolsMonomial` in `FctInnerSymbolsMono`);
-* `FctInnerSymbolsG0`: `𝒮[1] = G_0` (contour rotation to `arg u = -π/6`, the ODE `G_0''' = 4ûG_0' + 2G_0`, uniqueness); the ODE and uniqueness are proved in `FctInnerSymbolsG0`, which reduces it to the three initial values `FctInnerSymbolsG0Init` (named input).
+* `FctInnerSymbolsG0`: `𝒮[1] = G_0` (contour rotation to `arg u = -π/6`, the ODE `G_0''' = 4ûG_0' + 2G_0`, uniqueness); **proved** (`fctInnerSymbolsG0` in `FctInnerSymbolsG0Init`): the ODE and uniqueness are in `FctInnerSymbolsG0`, which reduces it to the three initial values `FctInnerSymbolsG0Init`, proved in `FctInnerSymbolsG0Init` by the contour rotation of `FctInnerSymbolsRot`.
 The "in particular" clauses of (a) (`fctInnerSymbolsA_box`, `fctInnerSymbolsA_tail_c`) are proved in `FctInnerSymbolsA`.
 
 **Part (b)** (`FctInnerB2Symbol` is a Prop proved in `FctInnerB2` (`fctInnerB2Symbol`); `FctInnerB3`, `FctInnerB4`: named inputs about the inner amplitude family; `(b1)` is proved in `FctInnerCoord`/`FctInnerB1` for an
@@ -32,7 +32,7 @@ abstract perturbed phase): (b2) is stated for the concrete objects (`T̃(u) = s 
 `FctInnerFamily` of amplitudes `μ`, `e_A`, `e_B` attached to the admissible pairs `(c, L₁, α)` (the objects `𝔞`, `ω₁`, `ω₂`, `J`, `v₁`, `B_c`, `φ_kill` of the
 paper are not yet defined in Lean as functions of `(c, L₁, α)`, so the identity linking `μ` to `𝔞` is part of the instantiation, not of these Props).
 
-Class: definitions; (a) existence and bounds proved in `FctInnerSymbolsA`; the monomial clause of (a) is proved in `FctInnerSymbolsMono`; the closed form is reduced to `FctInnerSymbolsG0Init` in `FctInnerSymbolsG0`; (b3), (b4) are named inputs (open); the class lemmas are proved.
+Class: definitions; (a) existence and bounds proved in `FctInnerSymbolsA`; the monomial clause of (a) is proved in `FctInnerSymbolsMono`; the closed form is proved (`FctInnerSymbolsG0`, `FctInnerSymbolsRot`, `FctInnerSymbolsG0Init`); (b3), (b4) are named inputs (open); the class lemmas are proved.
 -/
 @[expose] public section
 
@@ -97,13 +97,13 @@ def FctInnerSymbolsA : Prop :=
       ∀ ustar : ℝ, max 6 (√(8 * M)) ≤ ustar → (∀ u ∈ Icc (0 : ℝ) ustar, κ u = 0) →
         ‖fctS û κ‖ ≤ C * B * ustar ^ (p + 1 / 2 - 3 * n)
 
-/-- **`fct:inner-symbols` (a), monomials** (named input): `𝒮[u^k] = i^k ∂_û^k 𝒮[1]` for every `k` and real `û` (differentiation of the regularised
+/-- **`fct:inner-symbols` (a), monomials** (statement; proved as `FctSymA.fctInnerSymbolsMonomial`): `𝒮[u^k] = i^k ∂_û^k 𝒮[1]` for every `k` and real `û` (differentiation of the regularised
 integrals under the Abel limit, `∂_û^k 𝒮[1] = 𝒮[(-iu)^k]`, uniformly on compact `û`-intervals by sufficiently many integrations by parts). -/
 def FctInnerSymbolsMonomial : Prop :=
   ∀ (k : ℕ) (û : ℝ), FctSLimit û (fun u => (u : ℂ) ^ k)
     (Complex.I ^ k * iteratedDeriv k (fun w : ℝ => fctS w (fun _ => 1)) û)
 
-/-- **`fct:inner-symbols` (a), closed form** (named input): `𝒮[1] = G_0 = 2π^{3/2}(Ai² - i Ai Bi)` on the real line (rotate the regularised integral to
+/-- **`fct:inner-symbols` (a), closed form** (statement; proved as `fctInnerSymbolsG0` in `FctInnerSymbolsG0Init`): `𝒮[1] = G_0 = 2π^{3/2}(Ai² - i Ai Bi)` on the real line (rotate the regularised integral to
 `arg u = -π/6`; the ODE `y''' = 4ûy' + 2y` by integrating `∂_u(u^{1/2} e^{-i(ûu+u³/12)})`; `Ai²`, `Ai Bi` solve the same equation; the Gamma-integral initial
 values at `û = 0` agree, DLMF 9.2.3-9.2.6; uniqueness for the third-order equation, `CtAiry.ode3_eq_zero`). -/
 def FctInnerSymbolsG0 : Prop := ∀ û : ℝ, FctSLimit û (fun _ => 1) (fctG0 û)

@@ -15,7 +15,7 @@ Paper I (`constant_terms_five.tex`), Lemma `fct:inner-symbols` (a), last sentenc
 (`hasDerivAt_gk`) and `g_k = i^k ∂^k g_0` (`iteratedDeriv_gk`).
 
 Also proved here: the regularised ODE identity `½𝒮_ε[1] - iû 𝒮_ε[u] - (i/4) 𝒮_ε[u³] - 2ε 𝒮_ε[u²] = 0` (`fctSEps_ode`, from `∫_0^∞ ∂_u(u^{1/2} e^{w_ε}) = 0`),
-the first step towards the third-order ODE `y'''= 4ûy' + 2y` for `𝒮[1]` (the closed form, `FctInnerSymbolsG0`, is still a named input).
+the first step towards the third-order ODE `y'''= 4ûy' + 2y` for `𝒮[1]` (the closed form, `FctInnerSymbolsG0`, is proved in `FctInnerSymbolsG0Init`).
 
 Headline: `fctInnerSymbolsMonomial : FctInnerSymbolsMonomial`.
 
