@@ -62,8 +62,8 @@ lemma tendsto_sin_pi_sub_cube :
   have h : Tendsto (fun x : ℝ => (Real.sin x - (x - x ^ 3 / 6)) / x ^ 3) (𝓝[>] 0) (𝓝 0) := by
     rw [tendsto_zero_iff_norm_tendsto_zero]
     refine squeeze_zero' (Eventually.of_forall fun _ => norm_nonneg _) ?_
-      (show Tendsto (fun x : ℝ => 5 / 96 * x) (𝓝[>] 0) (𝓝 0) by
-        have : Tendsto (fun x : ℝ => 5 / 96 * x) (𝓝 0) (𝓝 (5 / 96 * 0)) :=
+      (show Tendsto (fun x : ℝ => 1 / 100 * x) (𝓝[>] 0) (𝓝 0) by
+        have : Tendsto (fun x : ℝ => 1 / 100 * x) (𝓝 0) (𝓝 (1 / 100 * 0)) :=
           (continuous_const.mul continuous_id).tendsto 0
         simpa using this.mono_left nhdsWithin_le_nhds)
     filter_upwards [Ioo_mem_nhdsGT (zero_lt_one : (0 : ℝ) < 1)] with x hx
@@ -71,8 +71,12 @@ lemma tendsto_sin_pi_sub_cube :
     rw [abs_of_pos hx.1] at hb
     rw [norm_div, Real.norm_eq_abs, Real.norm_eq_abs, abs_of_pos (pow_pos hx.1 3),
       div_le_iff₀ (pow_pos hx.1 3)]
-    calc |Real.sin x - (x - x ^ 3 / 6)| ≤ x ^ 4 * (5 / 96) := hb
-      _ = 5 / 96 * x * x ^ 3 := by ring
+    have hx5 : x ^ 5 / 100 ≤ 1 / 100 * x * x ^ 3 := by
+      have : x ^ 5 = x * x ^ 3 * x := by ring
+      rw [this]
+      have hx3 := pow_pos hx.1 3
+      nlinarith [mul_pos hx.1 hx3, hx.2]
+    exact hb.trans hx5
   have := h.add_const (-1 / 6)
   rw [zero_add] at this
   refine this.congr' ?_
@@ -87,14 +91,15 @@ lemma sin_sq_sub_sq_bound {x : ℝ} (h0 : 0 < x) (h1 : x ≤ 1) : |Real.sin x ^ 
   have hs1 : Real.sin x ≤ x := Real.sin_le h0.le
   have hs2 : 0 < Real.sin x := Real.sin_pos_of_pos_of_lt_pi h0 (by linarith [Real.pi_gt_three])
   have hd : |Real.sin x - x| ≤ x ^ 3 := by
-    have h2 : |Real.sin x - x| ≤ |Real.sin x - (x - x ^ 3 / 6)| + x ^ 3 / 6 := by
-      calc |Real.sin x - x| = |(Real.sin x - (x - x ^ 3 / 6)) - x ^ 3 / 6| := by ring_nf
-        _ ≤ |Real.sin x - (x - x ^ 3 / 6)| + |x ^ 3 / 6| := abs_sub _ _
-        _ = _ := by rw [abs_of_nonneg (by positivity)]
-    have h3 : x ^ 4 * (5 / 96) ≤ x ^ 3 * (5 / 96) := by
-      have : x ^ 4 = x * x ^ 3 := by ring
-      rw [this]; nlinarith [pow_pos h0 3]
-    linarith
+    have hb' := abs_le.mp hb
+    have hx2 : x ^ 2 ≤ 1 := by nlinarith
+    have h5 : x ^ 5 ≤ x ^ 3 := by
+      calc x ^ 5 = x ^ 3 * x ^ 2 := by ring
+        _ ≤ x ^ 3 * 1 := by gcongr
+        _ = x ^ 3 := mul_one _
+    have h3 := pow_pos h0 3
+    rw [abs_le]
+    constructor <;> nlinarith [hb'.1, hb'.2]
   calc |Real.sin x ^ 2 - x ^ 2| = |Real.sin x - x| * |Real.sin x + x| := by
         rw [← abs_mul]; congr 1; ring
     _ ≤ x ^ 3 * (2 * x) := by
@@ -105,7 +110,7 @@ lemma sin_sq_sub_sq_bound {x : ℝ} (h0 : 0 < x) (h1 : x ≤ 1) : |Real.sin x ^ 
 /-- **Third-order Taylor coefficient of `Re h̄_a` at `0` through the quotient amplitude.** -/
 theorem poisson_third {a b : ℝ → ℝ} (ha : Amp a) (hb : Amp b)
     (hab : ∀ t : ℝ, t ≠ 0 → b t = (a t - a 0) / Real.sinh (π * t) ^ 2) :
-    Tendsto (fun ε : ℝ => ((hbarA a (ε : ℂ)).re - a 0 - ε * ∫ t : ℝ, (a t - a 0) * (π * kern t) +
+    Tendsto (fun ε : ℝ => ((hbarA a (ε : ℂ)).re - a 0 - ε * (∫ t : ℝ, (a t - a 0) * (π * kern t)) +
         π ^ 2 * b 0 * ε ^ 2) / ε ^ 3) (𝓝[>] 0)
       (𝓝 (-(π ^ 2) * ((∫ t : ℝ, (a t - a 0) * (π * kern t)) / 6 + ∫ t : ℝ, (b t - b 0) * (π * kern t)))) := by
   have hpi := Real.pi_pos
@@ -201,7 +206,9 @@ theorem poisson_third {a b : ℝ → ℝ} (ha : Amp a) (hb : Amp b)
   have hre : (hbarA a (ε : ℂ)).re = a 0 + (Real.sin (π * ε) * K0 - Real.sin (π * ε) ^ 2 * (hbarA b (ε : ℂ)).re) := by
     linarith
   rw [hre]
-  have hh1' : ε * h1 = K0 * (π * ε) := by rw [hK0h]; ring
+  have hh1' : ε * (∫ t : ℝ, (a t - a 0) * (π * kern t)) = K0 * (π * ε) := by
+    have : (∫ t : ℝ, (a t - a 0) * (π * kern t)) = π * K0 := hK0h
+    rw [this]; ring
   rw [hh1']
   field_simp
   ring
