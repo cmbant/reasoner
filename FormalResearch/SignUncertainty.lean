@@ -361,6 +361,8 @@ public import FormalResearch.SignUncertainty.ShellGapExtract
 public import FormalResearch.SignUncertainty.ShellGapProfileConv
 public import FormalResearch.SignUncertainty.ShellGapEndpointAux
 public import FormalResearch.SignUncertainty.ShellGapEndpoint
+public import FormalResearch.SignUncertainty.ShellGapOriginFloor
+public import FormalResearch.SignUncertainty.CeCanonicalSide
 public import FormalResearch.SignUncertainty.EuclidCELift
 public import FormalResearch.SignUncertainty.CeHbLiftAssembly
 public import FormalResearch.SignUncertainty.MellinLiftGeneral
@@ -810,7 +812,13 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`, `thm_intro_hb`
   (`u1cl:multilevel`) and `thm_ce_canonical_iff` (`thm:intro-gap`, `thm:ce-canonical-iff`) of Paper I, each proved
   from one input structure whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5), and the
-  proved `thm_ce_shell_gap`, `thm_ce_shell_gap_even`.
+  proved `thm_ce_shell_gap`, `thm_ce_shell_gap_even`, `thm_ce_shell_gap_full`.
+* `FormalResearch.SignUncertainty.ShellGapOriginFloor` (`eq:ce-origin-floor`, `cor:ce-projection-mass`; proved,
+  unconditional): `airyLaplace_re_le_l1` (`gt:3.1`: `ℒ_y(F) ≤ ‖F‖₁` for `F ∈ 𝒢`), `integral_le_add_of_locunif`
+  (Fatou) and `hankelOriginFloor_proved : HankelOriginFloor D` (`sup_{y>0} ℒ_y(2Q_∞) ≤ liminf h_k(0)/M[f_k]` along the
+  extracted subsequence, with the extraction of `eq:ce-laplace-constraint`; the subsequence is exposed by
+  `hankelShellGap_sub`). `CeCanonicalSide` (proved): `ShellHBData.tm_eq_hbNode` (`t_m = D.tm`), `hbNodeWeight_pos`,
+  `hbTauN_lt_tm` (`eq:hb-node-bound`).
 * `FormalResearch.SignUncertainty.HbZeroEnum` (proved): `exists_isHbZeroEnum` (the zero enumeration `t_1 > t_2 > ⋯` of
   `N = P Ai + Q Ai'` exists for every Hermite–Biehler pair, so the hypothesis `IsHbZeroEnum` of `thm_ce_canonical_iff`
   is satisfiable), `IsHbZeroEnum.unique`, `hbZeroEnum`. `ShellGapOrigin` (proved): `hankelShellProfile_origin_mass`

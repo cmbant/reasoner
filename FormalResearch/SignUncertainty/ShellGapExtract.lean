@@ -362,11 +362,33 @@ lemma shell_window_point {t : ℝ} {r : ℕ → ℝ}
 lemma two_mul_half (z : ℂ) : (2 : ℂ) * (((1 / 2 : ℝ) : ℂ) * z) = z := by
   push_cast; ring
 
-/-- **`thm:ce-shell-gap`, Hankel form** (`HankelShellGapLimit`, the extraction and constraint system
-`eq:ce-laplace-constraint`; not the origin floor or the endpoint case): proved from `radial_compactness`,
+/-- **`thm:ce-shell-gap`, Hankel form** (the extraction and constraint system `eq:ce-laplace-constraint`, with the
+extracted subsequence and its limit profiles `P_∞ = Fp/2`, `Q_∞ = Fq/2` exposed, normalised by `M[q_k] = M[f_k]/2`;
+not the origin floor or the endpoint case): proved from `radial_compactness`,
 the mass-ratio bound `mass_ratio_bdd`, the Mellin reflection `weighted_nonneg`, the mass transport
 `mass_transport` and the Laplace limit `laplace_limit`. -/
-theorem hankelShellGapLimit_proved (D : ShellHBData) : HankelShellGapLimit D := by
+theorem hankelShellGap_sub (D : ShellHBData) :
+    ∀ r : ℝ → ℕ → ℝ, (∀ t : ℝ, Tendsto (fun d : ℕ => r t d / ((d : ℝ) / 2) ^ (1 / 3 : ℝ)) atTop (𝓝 0)) →
+    ∀ (u_star : ℝ) (dk : ℕ → ℕ), Tendsto dk atTop atTop → (∀ k, 2 ≤ dk k) →
+      ∀ (ε : ℕ → ℝ), Tendsto ε atTop (𝓝 0) →
+        ∀ (G : ℕ → ℝ → ℝ) (T : ℕ → ℝ), (∀ k, HankelShellProfile ((dk k : ℝ) / 2) (T k) (G k)) →
+          (∀ k, ∀ t ∈ D.S, t ≠ D.tm → 0 ≤ shellSite t (r t) (dk k) →
+            G k (shellSite t (r t) (dk k)) ≤ 0) →
+          (∀ k, T k ≤ (dk k : ℝ) / (2 * π ^ 2) - (u_star / hankelBeta1) * ((dk k : ℝ) / 2) ^ (1 / 3 : ℝ)
+            + ε k * ((dk k : ℝ) / 2) ^ (1 / 3 : ℝ)) →
+          ∃ (K : ℕ → ℕ) (Fp Fq : ℂ → ℂ), StrictMono K ∧ InAiryClass Fp ∧ InAiryClass Fq ∧
+            TendstoLocallyUniformlyOn
+              (fun n u => hankelWindowProfile ((dk (K n) : ℝ) / 2)
+                  (hankelPlus ((dk (K n) : ℝ) / 2) (G (K n))) u /
+                hankelMass ((dk (K n) : ℝ) / 2) (hankelMinus ((dk (K n) : ℝ) / 2) (G (K n))))
+              (fun u => (Fp (u : ℂ)).re) atTop univ ∧
+            TendstoLocallyUniformlyOn
+              (fun n u => hankelWindowProfile ((dk (K n) : ℝ) / 2)
+                  (hankelMinus ((dk (K n) : ℝ) / 2) (G (K n))) u /
+                hankelMass ((dk (K n) : ℝ) / 2) (hankelMinus ((dk (K n) : ℝ) / 2) (G (K n))))
+              (fun u => (Fq (u : ℂ)).re) atTop univ ∧
+            TwoProfileFeasibleWitness D u_star (fun z => ((1 / 2 : ℝ) : ℂ) * (Fp z + Fq z))
+              (fun z => ((1 / 2 : ℝ) : ℂ) * Fq z) := by
   have H := radial_compactness
   intro r hr u_star dk hdk h2 ε hε G T hP hshell hT
   have hβ := hankelBeta1_pos
@@ -464,8 +486,8 @@ theorem hankelShellGapLimit_proved (D : ShellHBData) : HankelShellGapLimit D := 
         simpa [Complex.sub_re] using this
       simpa [Complex.sub_re] using key
     · exact hpos y hy
-  refine ⟨fun z => ((1 / 2 : ℝ) : ℂ) * (Fp z + Fq z), fun z => ((1 / 2 : ℝ) : ℂ) * Fq z,
-    (hFp.add hFq).smul (1 / 2), hFq.smul (1 / 2), ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨K, Fp, Fq, hK, hFp, hFq, hlocp, hlocq, (hFp.add hFq).smul (1 / 2), hFq.smul (1 / 2),
+    ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · intro u
     have := hnonneg u
     simp only [Complex.re_ofReal_mul, Complex.add_re]
@@ -500,6 +522,17 @@ theorem hankelShellGapLimit_proved (D : ShellHBData) : HankelShellGapLimit D := 
     simp_rw [e]
     rw [integral_const_mul]
     positivity
+
+/-- **`thm:ce-shell-gap`, Hankel form** (`HankelShellGapLimit`): the conclusion of `hankelShellGap_sub` without the
+subsequence. -/
+theorem hankelShellGapLimit_proved (D : ShellHBData) : HankelShellGapLimit D := by
+  intro r hr u_star dk hdk h2 ε hε G T hP hshell hT
+  obtain ⟨_, _, _, _, _, _, _, _, hw⟩ := hankelShellGap_sub D r hr u_star dk hdk h2 ε hε G T hP hshell hT
+  exact ⟨_, _, hw⟩
+
+/-- info: 'FormalResearch.SignUncertainty.hankelShellGap_sub' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelShellGap_sub
 
 /-- info: 'FormalResearch.SignUncertainty.extract_two' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
