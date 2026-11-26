@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerPhaseChart
+public import FormalResearch.ModularBootstrap.FiveTerm.UpperPhaseChart
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerCorL
 public import FormalResearch.ModularBootstrap.FixedWeightTip.PropositionP
 public import FormalResearch.Special.AiryEnvelope
@@ -84,6 +85,13 @@ def LowerViolator (phi : ℝ → ℂ → ℂ) (c T : ℝ) : Prop :=
 
 /-- The range of macroscopic good radii. -/
 def LowerRadiusRange (c1 c R : ℝ) : Prop := lowerRmin c1 c ≤ R ∧ R ≤ lowerRmax c1 c
+
+/-- **The exact Langer coordinate on the real band** (`cts:langer`, `rem:s1`, Theorem L*): `-ũ = β c^{2/3} τ(x)`,
+i.e. `-ũ = (3π c N(x)/2)^{2/3}`, for `x = √(3 Δ(u)/c)` and `u ∈ [-(|a_1|+1), 0)`.  This is the `ũ ↔ τ` bridge between
+Paper II's holomorphic chart `virasoroUChart` and the comb phase `tauPhase`. -/
+def LowerLangerPhase : Prop :=
+  ∃ cb : ℝ, ∀ c : ℝ, cb ≤ c → ∀ u : ℝ, -(|airyZero 1| + 1) ≤ u → u < 0 →
+    tauPhase (√(3 * virasoroDeltaChart c u / c)) = -u / (betaTip * c ^ (2 / 3 : ℝ))
 
 end
 
