@@ -27,12 +27,12 @@ Paper I (`constant_terms_five.tex`), Lemma `fct:inner-symbols`.
 * `FctInnerSymbolsG0`: `𝒮[1] = G_0` (contour rotation to `arg u = -π/6`, the ODE `G_0''' = 4ûG_0' + 2G_0`, uniqueness).
 `fctInnerSymbolsA_box` is the "in particular" clause of (a) (`|û - a₁| ≤ 1`, `n = 8`, `p ≤ 21`, tail exponent `p - 47/2`), proved from `FctInnerSymbolsA`.
 
-**Part (b)** (`FctInnerB2Symbol`, `FctInnerB3`, `FctInnerB4`: named inputs about the inner amplitude family; `(b1)` is proved in `FctInnerCoord`/`FctInnerB1` for an
+**Part (b)** (`FctInnerB2Symbol` is a Prop proved in `FctInnerB2` (`fctInnerB2Symbol`); `FctInnerB3`, `FctInnerB4`: named inputs about the inner amplitude family; `(b1)` is proved in `FctInnerCoord`/`FctInnerB1` for an
 abstract perturbed phase): (b2) is stated for the concrete objects (`T̃(u) = s V(Y)`, `χ = χ_in(T/τ₁)`; its support, size and plateau clauses are proved in `FctInnerB2`); (b3) and (b4) are stated for an abstract family
 `FctInnerFamily` of amplitudes `μ`, `e_A`, `e_B` attached to the admissible pairs `(c, L₁, α)` (the objects `𝔞`, `ω₁`, `ω₂`, `J`, `v₁`, `B_c`, `φ_kill` of the
 paper are not yet defined in Lean as functions of `(c, L₁, α)`, so the identity linking `μ` to `𝔞` is part of the instantiation, not of these Props).
 
-Class: definitions; (a), (b2)-(b4) are named inputs (open); `fctInnerSymbolsA_box` and the class lemmas are proved.
+Class: definitions; (a), (b3), (b4) are named inputs (open); `fctInnerSymbolsA_box` and the class lemmas are proved.
 -/
 @[expose] public section
 
@@ -163,9 +163,9 @@ def FctVJets (K c : ℝ) (V : ℝ → ℝ) : Prop :=
   ContDiffOn ℝ 14 V (Icc (0 : ℝ) 3.6) ∧ ∀ j : ℕ, j ≤ 14 → ∀ Y ∈ Icc (0 : ℝ) 3.6,
     |iteratedDerivWithin j (fun Y => V Y - (12 / π ^ 2) ^ (1 / 3 : ℝ)) (Icc (0 : ℝ) 3.6) Y| ≤ K * c ^ (-(1 / 2 : ℝ))
 
-/-- **`fct:inner-symbols` (b2), symbol part** (named input; the paper's Faà di Bruno argument for `χ_in(T/τ₁)` with the symbol bounds of `T/τ₁`,
+/-- **`fct:inner-symbols` (b2), symbol part** (statement; proved as `fctInnerB2Symbol` in `FctInnerB2`; the paper's Faà di Bruno argument for `χ_in(T/τ₁)` with the symbol bounds of `T/τ₁`,
 `|∂_u^r(T/τ₁)| ≤ C c^{-1/12}(1+u)^{1-r}`): for the cutoff `χ_in` and `‖V - τ_*‖_{C^{14}} ≤ K c^{-1/2}`, for `c` large, `χ, 1 - χ ∈ 𝒮⁰(C)` on `[0, U_c]`.
-The support, size and plateau statements of (b2) are proved in `FctInnerB2` (`fctInnerB2_of_symbol`). -/
+The support, size and plateau statements of (b2) are proved in `FctInnerB2` (`fctInnerB2`). -/
 def FctInnerB2Symbol : Prop :=
   ∀ χin : ℝ → ℝ, FctCutoffIn χin → ∀ K : ℝ, 0 ≤ K → ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ V : ℝ → ℝ, FctVJets K c V →
     FctSymClsOn (Icc 0 (fctUc c)) 8 0 C (fun u => ((fctInnerChi χin c V u : ℝ) : ℂ)) ∧
