@@ -164,6 +164,33 @@ lemma tau0_ge_gamma {x s : ℝ} (hx : 1 / 2 ≤ x) (hs : |s| ≤ 1 / 4) : gammaT
     _ ≤ 2 / π * (Real.exp (x / 2) - 1) := mul_le_mul_of_nonneg_left (by linarith) hπ.le
     _ ≤ 2 / π * (Real.exp (x - s) - 1) := mul_le_mul_of_nonneg_left (by linarith) hπ.le
 
+/-- The decay `((γ e^{x/2})⁻¹)^8 ≤ γ^{-8} r! x^{-r}` for `x ≥ 1/2`. -/
+lemma om2_decay {x : ℝ} (hx : 1 / 2 ≤ x) (r : ℕ) :
+    ((gammaTau * Real.exp (x / 2))⁻¹) ^ 8 ≤ (gammaTau⁻¹) ^ 8 * (r.factorial : ℝ) * (x ^ r)⁻¹ := by
+  have hγ := gammaTau_pos
+  have hx0 : 0 < x := by linarith
+  have hE1 : 1 ≤ Real.exp (x / 2) := Real.one_le_exp (by linarith)
+  have hxr : x ^ r ≤ (r.factorial : ℝ) * Real.exp (x / 2) ^ 2 := by
+    have h := Real.pow_div_factorial_le_exp x hx0.le r
+    have hf : (0 : ℝ) < r.factorial := by exact_mod_cast Nat.factorial_pos r
+    rw [div_le_iff₀ hf] at h
+    calc x ^ r ≤ Real.exp x * r.factorial := h
+      _ = _ := by rw [← Real.exp_nat_mul]; norm_num; ring_nf
+  have hE0 : 0 < Real.exp (x / 2) := Real.exp_pos _
+  have e1 : ((gammaTau * Real.exp (x / 2))⁻¹) ^ 8 = (gammaTau⁻¹) ^ 8 * ((Real.exp (x / 2))⁻¹) ^ 8 := by
+    simp only [mul_inv, mul_pow]
+  have e2 : ((Real.exp (x / 2))⁻¹) ^ 8 * Real.exp (x / 2) ^ 2 ≤ 1 := by
+    rw [inv_pow, ← div_eq_inv_mul, div_le_one (by positivity)]
+    exact pow_le_pow_right₀ hE1 (by norm_num)
+  have hkey : ((gammaTau * Real.exp (x / 2))⁻¹) ^ 8 * x ^ r ≤ (gammaTau⁻¹) ^ 8 * (r.factorial : ℝ) := by
+    calc ((gammaTau * Real.exp (x / 2))⁻¹) ^ 8 * x ^ r
+        ≤ (gammaTau⁻¹) ^ 8 * ((Real.exp (x / 2))⁻¹) ^ 8 * ((r.factorial : ℝ) * Real.exp (x / 2) ^ 2) := by
+          rw [e1]; exact mul_le_mul_of_nonneg_left hxr (by positivity)
+      _ = (gammaTau⁻¹) ^ 8 * (r.factorial : ℝ) * (((Real.exp (x / 2))⁻¹) ^ 8 * Real.exp (x / 2) ^ 2) := by ring
+      _ ≤ (gammaTau⁻¹) ^ 8 * (r.factorial : ℝ) * 1 := by gcongr
+      _ = _ := mul_one _
+  rw [← div_eq_mul_inv, le_div_iff₀ (pow_pos hx0 r)]; exact hkey
+
 /-- **Large regime**: `L(1 - φ_kill(iτ₀(x - s); a)) ∈ SymW [1/2, ∞)` of weight `1` (`τ₀ ≳ e^{x/2}`). -/
 theorem block_large : USym NHyp (fun _ => Ici (1 / 2 : ℝ)) (fun _ _ => 1)
     (fun p x => p.L (1 - phiKill p.a ((tau0 (x - p.s) : ℂ) * Complex.I))) := by
@@ -204,29 +231,7 @@ theorem block_large : USym NHyp (fun _ => Ici (1 / 2 : ℝ)) (fun _ _ => 1)
     have hl : lamL x ^ r ≤ 2 ^ r := pow_le_pow_left₀ (lamL_nonneg x) (lamL_le_two hx') r
     have hM := chainM_nonneg (κ := fun j : ℕ => (j : ℝ)) (A := A) (B := 1) hC0 r 0
     have hom0 : 0 ≤ om x := by simp only [hom]; positivity
-    -- `om x * x^r ≤ γ^{-8} r!`
-    have hE1 : 1 ≤ Real.exp (x / 2) := Real.one_le_exp (by linarith)
-    have hxr : x ^ r ≤ (r.factorial : ℝ) * Real.exp (x / 2) ^ 2 := by
-      have h := Real.pow_div_factorial_le_exp x hx0.le r
-      have hf : (0 : ℝ) < r.factorial := by exact_mod_cast Nat.factorial_pos r
-      rw [div_le_iff₀ hf] at h
-      calc x ^ r ≤ Real.exp x * r.factorial := h
-        _ = _ := by rw [← Real.exp_nat_mul]; norm_num; ring_nf
-    have hkey : om x * x ^ r ≤ (gammaTau⁻¹) ^ 8 * (r.factorial : ℝ) := by
-      have hE0 : 0 < Real.exp (x / 2) := Real.exp_pos _
-      have e1 : om x = (gammaTau⁻¹) ^ 8 * ((Real.exp (x / 2))⁻¹) ^ 8 := by
-        simp only [hom, mul_inv, mul_pow]
-      have e2 : ((Real.exp (x / 2))⁻¹) ^ 8 * Real.exp (x / 2) ^ 2 ≤ 1 := by
-        rw [inv_pow, ← div_eq_inv_mul, div_le_one (by positivity)]
-        exact pow_le_pow_right₀ hE1 (by norm_num)
-      calc om x * x ^ r ≤ (gammaTau⁻¹) ^ 8 * ((Real.exp (x / 2))⁻¹) ^ 8 * ((r.factorial : ℝ) * Real.exp (x / 2) ^ 2) := by
-            rw [e1]; exact mul_le_mul_of_nonneg_left hxr (by positivity)
-        _ = (gammaTau⁻¹) ^ 8 * (r.factorial : ℝ) * (((Real.exp (x / 2))⁻¹) ^ 8 * Real.exp (x / 2) ^ 2) := by ring
-        _ ≤ (gammaTau⁻¹) ^ 8 * (r.factorial : ℝ) * 1 := by gcongr
-        _ = _ := mul_one _
-    have hxinv : 0 < (x ^ r)⁻¹ := by positivity
-    have hom2 : om x ≤ (gammaTau⁻¹) ^ 8 * (r.factorial : ℝ) * (x ^ r)⁻¹ := by
-      rw [← div_eq_mul_inv, le_div_iff₀ (pow_pos hx0 r)]; exact hkey
+    have hom2 : om x ≤ (gammaTau⁻¹) ^ 8 * (r.factorial : ℝ) * (x ^ r)⁻¹ := om2_decay hx' r
     calc chainM C (fun j => (j : ℝ)) A 1 r 0 * om x * lamL x ^ r
         ≤ chainM C (fun j => (j : ℝ)) A 1 r 0 * ((gammaTau⁻¹) ^ 8 * (r.factorial : ℝ) * (x ^ r)⁻¹) * 2 ^ r :=
           mul_le_mul (mul_le_mul_of_nonneg_left hom2 hM) hl (pow_nonneg (lamL_nonneg x) r) (by positivity)

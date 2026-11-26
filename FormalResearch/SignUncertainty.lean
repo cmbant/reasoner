@@ -479,6 +479,8 @@ public import FormalResearch.SignUncertainty.FctNBlocks
 public import FormalResearch.SignUncertainty.FctNPiece
 public import FormalResearch.SignUncertainty.FctNSymbol
 public import FormalResearch.SignUncertainty.FctHN
+public import FormalResearch.SignUncertainty.FctGT
+public import FormalResearch.SignUncertainty.FctHQ
 public import FormalResearch.SignUncertainty.FctBumpSymCheck
 public import FormalResearch.SignUncertainty.FctBumpProfileField
 public import FormalResearch.SignUncertainty.FctPhysicalBudget
