@@ -303,6 +303,7 @@ public import FormalResearch.SignUncertainty.CtBoasFarField
 public import FormalResearch.SignUncertainty.CtBoasFarPhase
 public import FormalResearch.SignUncertainty.CtBoasPhaseBlock
 public import FormalResearch.SignUncertainty.CtBoasFreeze
+public import FormalResearch.SignUncertainty.CtBoasKdW
 public import FormalResearch.SignUncertainty.HankelChartCubic
 public import FormalResearch.SignUncertainty.CtLowerDefs
 public import FormalResearch.SignUncertainty.CtLowerChartGap
