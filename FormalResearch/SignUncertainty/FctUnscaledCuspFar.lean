@@ -225,9 +225,43 @@ lemma rpow_neg_three_half_eq {x : ℝ} (hx : 0 < x) : x ^ (-(3 : ℝ) / 2) = (Re
     show (3 : ℝ) / 2 = 1 / 2 * ((3 : ℕ) : ℝ) by norm_num, Real.rpow_mul hx.le, Real.rpow_natCast,
     ← Real.sqrt_eq_rpow]
 
+lemma cuspFarDy_nonneg (h : CuspPhase 𝔪 κ₁ κ₂ C₂ C₀) (hη : 0 < η) : 0 ≤ cuspFarDy η κ₁ κ₂ C₂ := by
+  have hκ3 := h.κ₃_pos
+  have hC2 : 0 ≤ C₂ := (abs_nonneg _).trans (h.deriv2_bound 0)
+  have h1 := cuspGm_pos h
+  have h2 := cuspFarA_nonneg h1 hκ3.le
+  have h3 := cuspGamB_nonneg η
+  have h4 : 0 ≤ cuspFarD1 η (cuspK3 κ₂) C₂ (cuspGm κ₁ κ₂) :=
+    add_nonneg (mul_nonneg two_pos.le h2) (mul_nonneg (mul_nonneg hC2 h3) (inv_nonneg.2 (pow_pos h1 3).le))
+  have h5 : 0 ≤ cuspFarD0 η (cuspK3 κ₂) C₂ := by
+    unfold cuspFarD0; positivity
+  have h6 : 0 ≤ cuspFarNmax η (cuspK3 κ₂) := by
+    unfold cuspFarNmax; positivity
+  unfold cuspFarDy
+  have := mul_nonneg h4 h6
+  linarith
+
+lemma cuspFarDe_nonneg (h : CuspPhase 𝔪 κ₁ κ₂ C₂ C₀) (hη : 0 < η) : 0 ≤ cuspFarDe η κ₁ κ₂ := by
+  unfold cuspFarDe cuspFarD2 cuspFarD3 cuspFarD4
+  have hκ := h.κ₁_pos
+  have hκ3 := h.κ₃_pos
+  have h1 := cuspGm_pos h
+  have h2 := cuspGam_nonneg (η / 2)
+  positivity
+
 /-- The constant of the third estimate. -/
 noncomputable def cuspFarC (η κ₁ κ₂ C₂ Ca : ℝ) : ℝ :=
   2 * Ca * ampC η * (cuspFarDy η κ₁ κ₂ C₂ + cuspFarDe η κ₁ κ₂) + 2 * Ca * domInt η * (1 + 2 * cuspK3 κ₂)
+
+lemma cuspFarC_nonneg (h : CuspPhase 𝔪 κ₁ κ₂ C₂ C₀) (hη : 0 < η) (hCa : 0 ≤ Ca) :
+    0 ≤ cuspFarC η κ₁ κ₂ C₂ Ca := by
+  unfold cuspFarC
+  have hAy := ampC_pos hη
+  have h1 := domInt_nonneg η
+  have h2 := cuspFarDy_nonneg h hη (κ₁ := κ₁) (κ₂ := κ₂) (C₂ := C₂) (C₀ := C₀)
+  have h3 := cuspFarDe_nonneg h hη
+  have hκ3 := h.κ₃_pos
+  positivity
 
 /-- **Third estimate of `fct:unscaled-cusp`** (`u ≥ 1`), with explicit constant. -/
 theorem cuspInt_far_le (h : CuspPhase 𝔪 κ₁ κ₂ C₂ C₀) (ha : CuspAmp η Ca M a) (hη : 0 < η) (hCa : 0 ≤ Ca)
@@ -247,22 +281,8 @@ theorem cuspInt_far_le (h : CuspPhase 𝔪 κ₁ κ₂ C₂ C₀) (ha : CuspAmp 
   have hε : 0 ≤ 1 / Real.sqrt c * Real.exp (-(η / 8) * t₀) := by positivity
   have hW : 0 < (Real.sqrt (c * u) ^ 3)⁻¹ := by positivity
   have hAy := ampC_pos hη
-  have hDy : 0 ≤ cuspFarDy η κ₁ κ₂ C₂ := by
-    unfold cuspFarDy cuspFarD0 cuspFarD1 cuspFarNmax
-    have hC2 : 0 ≤ C₂ := (abs_nonneg _).trans (h.deriv2_bound 0)
-    have h1 := cuspGm_pos h
-    have h2 := cuspFarA_nonneg h1 hκ3.le
-    have h3 := cuspGamB_nonneg η
-    have h4 : 0 ≤ cuspFarD1 η (cuspK3 κ₂) C₂ (cuspGm κ₁ κ₂) :=
-      add_nonneg (mul_nonneg two_pos.le h2) (mul_nonneg (mul_nonneg hC2 h3) (inv_nonneg.2 (pow_pos h1 3).le))
-    unfold cuspFarD1 at h4
-    positivity
-  have hDe : 0 ≤ cuspFarDe η κ₁ κ₂ := by
-    unfold cuspFarDe cuspFarD2 cuspFarD3 cuspFarD4
-    have hκ := h.κ₁_pos
-    have h1 := cuspGm_pos h
-    have h2 := cuspGam_nonneg (η / 2)
-    positivity
+  have hDy := cuspFarDy_nonneg h hη
+  have hDe := cuspFarDe_nonneg h hη
   by_cases hcu : 2 * cuspK3 κ₂ ≤ (c * u) ^ 2
   · rw [cuspInt_eq h.continuous h.even ha hη hCa hM]
     refine (norm_add_le _ _).trans ?_
