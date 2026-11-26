@@ -6,7 +6,7 @@ public import FormalResearch.SignUncertainty.CtCfuData
 public import FormalResearch.SignUncertainty.HankelTransportInt
 public import FormalResearch.SignUncertainty.RadialRigidity
 public import FormalResearch.SignUncertainty.HankelEdgePhase
-public import FormalResearch.SignUncertainty.HankelInversion
+public import FormalResearch.SignUncertainty.HankelThresholds
 
 /-!
 # `thm:ct-lower`: the five-term lower bound, assembled from named inputs (F1 skeleton)
@@ -139,41 +139,6 @@ structure CtLowerInputs where
       ∀ R : ℝ, R ∈ Set.Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) →
         κ * ctGap ε c T ≤ ctBudget R ε c f + C' * Real.exp (-κ' * c)
 
-/-- Scaling a feasible `f` by `s > 0` keeps it feasible at the same `T`. -/
-lemma isHankelFeasible_smul {c ε T s : ℝ} (hs : 0 < s) {f : ℝ → ℝ} (hf : IsHankelFeasible c ε T f) :
-    IsHankelFeasible c ε T (fun x => s * f x) where
-  cont := continuousOn_const.mul hf.cont
-  int := by
-    have h := MeasureTheory.Integrable.const_mul hf.int s
-    simp only [mul_assoc]
-    exact h
-  eigen := fun Δ hΔ => by
-    rw [besselHankelTransform_smul, hf.eigen Δ hΔ]; ring
-  nonzero := by
-    obtain ⟨Δ, hΔ, hne⟩ := hf.nonzero
-    exact ⟨Δ, hΔ, mul_ne_zero hs.ne' hne⟩
-  origin_sign := by
-    have := hf.origin_sign
-    nlinarith
-  tail_nonneg := fun Δ hΔ => mul_nonneg hs.le (hf.tail_nonneg Δ hΔ)
-
-/-- `M[s f] = s M[f]` for `s > 0`. -/
-lemma hankelMass_smul {c s : ℝ} (hs : 0 < s) (f : ℝ → ℝ) :
-    hankelMass c (fun x => s * f x) = s * hankelMass c f := by
-  unfold hankelMass
-  rw [← MeasureTheory.integral_const_mul]
-  refine MeasureTheory.integral_congr_ae (Filter.Eventually.of_forall fun Δ => ?_)
-  simp only [abs_mul, abs_of_pos hs]; ring
-
-/-- Every feasible `f` can be rescaled to `M[f] = 1` at the same threshold. -/
-lemma feasible_normalize {c ε T : ℝ} (hc : 0 < c) {f : ℝ → ℝ} (hf : IsHankelFeasible c ε T f) :
-    ∃ g : ℝ → ℝ, IsHankelFeasible c ε T g ∧ hankelMass c g = 1 := by
-  have hM := hankelMass_pos_of_continuousOn hc hf.cont hf.int
-    (by obtain ⟨Δ, hΔ, hne⟩ := hf.nonzero; exact ⟨Δ, hΔ, hne⟩)
-  refine ⟨fun x => (hankelMass c f)⁻¹ * f x, isHankelFeasible_smul (inv_pos.mpr hM) hf, ?_⟩
-  rw [hankelMass_smul (inv_pos.mpr hM)]
-  field_simp
-
 /-- **`thm:ct-lower`, left half of `eq:ct-lower`, from `CtLowerInputs`** (the contradiction of the proof: with
 `K = 2(max(C₀,0)+1)/(κβ₁)` the budget is at least `(max(C₀,0)+1) c^{-4/3}log c - C' e^{-κ'c}` and at most
 `C₀ c^{-4/3}log c`, impossible for large `c`). -/
@@ -198,7 +163,7 @@ theorem ct_lower (I : CtLowerInputs) : CtLowerStatement := by
   obtain ⟨hc₀', hc₁', hc₂', hc₃', hc₄', hc3⟩ := hc
   have hcpos : 0 < c := by linarith
   -- normalise to `M[f] = 1`
-  obtain ⟨f, hf, hmass⟩ := feasible_normalize hcpos hf₀
+  obtain ⟨f, hf, hmass⟩ := hankel_feasible_normalize hcpos hf₀
   by_contra hlt
   rw [not_le] at hlt
   have hgapK := hc₀ c hc₀' ε hε T f hf hmass hlt.le
