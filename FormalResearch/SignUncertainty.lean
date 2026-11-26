@@ -461,6 +461,9 @@ public import FormalResearch.SignUncertainty.FctPhysicalBudget
 public import FormalResearch.SignUncertainty.FctVacuumPaired
 public import FormalResearch.SignUncertainty.FctVacuumBudget
 public import FormalResearch.SignUncertainty.FctVacuumField
+public import FormalResearch.SignUncertainty.FctVacuumCancelBounds
+public import FormalResearch.SignUncertainty.FctVacuumCancel
+public import FormalResearch.SignUncertainty.FctVacuumConcrete
 public import FormalResearch.SignUncertainty.CtUpper
 public import FormalResearch.SignUncertainty.UctOuterGrowth
 public import FormalResearch.SignUncertainty.UctGenPreedge
