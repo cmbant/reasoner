@@ -341,6 +341,8 @@ public import FormalResearch.SignUncertainty.CtDyadicRadius
 public import FormalResearch.SignUncertainty.CtDyadicStatement
 public import FormalResearch.SignUncertainty.CtDyadicCombined
 public import FormalResearch.SignUncertainty.CtCombinedTop
+public import FormalResearch.SignUncertainty.CtLangerEdgeChart
+public import FormalResearch.SignUncertainty.CtLangerBeta
 public import FormalResearch.SignUncertainty.CtTransBand
 public import FormalResearch.SignUncertainty.CtBandTop
 public import FormalResearch.SignUncertainty.HankelChartCubic

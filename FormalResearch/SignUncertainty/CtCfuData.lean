@@ -162,7 +162,7 @@ theorem cfu_psi_langer {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
 /-- **`ct:langer-inv`** (`constant_terms_lower.tex`): with `a = 2^{2/3} c^{-2/3} ũ`, `ũ = -v`, and `ξ(a) = Ξ(a)`,
 `c ξ(-v) = c/π² + (v/β₁) c^{1/3} + (9π²/25)(v/β₁)² c^{-1/3} + O(c^{-1}|v|³)` for `|2^{2/3} c^{-2/3} v| < ρ`;
 here `Ξ(a) = exp(m(τ₀(a)))/π²` for `a < 0` (see `cfu_psi_langer`) and `β₁ = (π²√3)^{2/3}`.  The Lean Hankel chart `hankelXi` is a different object
-(series-built); its expansion is `hankelXi_expansion` (`HankelChartCubic`), and their identification is not proved. -/
+(series-built); its expansion is `hankelXi_expansion` (`HankelChartCubic`), and their identification at the band points is `ct_langer_edge` (`CtLangerEdgeChart`; `ct_AF_tau0_sq`, `CtLangerBeta`). -/
 theorem langer_inv : ∃ (ρ : ℝ) (C : ℝ), 0 < ρ ∧ ∀ c v : ℝ, 0 < c →
     |(2 : ℝ) ^ ((2 : ℝ) / 3) * c ^ (-(2 : ℝ) / 3) * v| < ρ →
     |c * Xi (-((2 : ℝ) ^ ((2 : ℝ) / 3) * c ^ (-(2 : ℝ) / 3) * v)) -

@@ -24,7 +24,7 @@ a concrete integral up to `O(c⁻¹η_R + c^{-4/3} log c)` at a good radius `R �
 * `window`: `K_in + s₁ = O(c⁻¹η_R + c^{-4/3} log c)`: the sub-chart bullet (radial compactness, `|K| ≤ K_b`) and the Airy-window bullet (`ct:cfu` (1) substituted,
   `(ct:H2-orth)`, the half moment `(ct:half)` for the CFU remainder, `|s₁| ≤ η_R`).
 * `outer`: `K_out + S_out = O(c^{-4/3})` (`ct:cfu` (2) with `B₂(R') = O(c^{-1/3})`).
-* `trans`: `S_tr - s₂ - S_out = O(c^{-4/3})` (`w̃ = 1` beyond `Λ`; the transition band: `(ct:theta-cfu-match)` and the first moment); proved in `CtTransBand` (`ct_combined_trans`) from the chart identification `CtLangerEdge`.
+* `trans`: `S_tr - s₂ - S_out = O(c^{-4/3})` (`w̃ = 1` beyond `Λ`; the transition band: `(ct:theta-cfu-match)` and the first moment); proved in `CtTransBand` (`ct_combined_trans`) (the chart identification `ct_langer_edge` of `CtLangerEdgeChart` is proved).
 
 `s₁`, `s₂` are written in the Langer variable `x = ũ ∈ (-R', 0)` (`v = -û(x)`, `f_c(-v)dv = Ψ̃(x)dx`), see `ctOscS1`.
 
