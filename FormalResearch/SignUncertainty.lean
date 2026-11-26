@@ -478,6 +478,8 @@ public import FormalResearch.SignUncertainty.FctWarpZero
 public import FormalResearch.SignUncertainty.FctWarpContraction
 public import FormalResearch.SignUncertainty.FctInnerCoord
 public import FormalResearch.SignUncertainty.FctInnerB1
+public import FormalResearch.SignUncertainty.FctInnerSymbols
+public import FormalResearch.SignUncertainty.FctInnerB2
 public import FormalResearch.SignUncertainty.FctMainHankel
 public import FormalResearch.SignUncertainty.FctSymCal
 public import FormalResearch.SignUncertainty.FctSymChain
