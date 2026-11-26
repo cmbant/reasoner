@@ -17,7 +17,7 @@ public import Mathlib.Analysis.Calculus.FDeriv.Symmetric
   obtained by the mean value inequality along the segment from the weighted jets `E_jets` of `∂_v V` (`FctHomotopyJets`);
 * `ChartSetup.V_diff_jets`: the same for the chart of `FctChartSetup`.
 
-The `ℓ`-derivative line of `(fct:V-diff-jets)` (weights `3 - j`), the comparison `A_λ ≍ A_0`, and `(fct:dJ-jets)` are not formalised.
+The `ℓ`-derivative line (weights `3 - j`) and the comparison `A_λ ≍ A_0` are in `FctEJetsU`/`FctChartAcomp`; `(fct:dJ-jets)` is not formalised.
 
 Class: proved, no hypotheses beyond those stated.
 -/
