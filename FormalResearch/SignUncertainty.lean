@@ -248,6 +248,10 @@ public import FormalResearch.SignUncertainty.CtChartBounds
 public import FormalResearch.SignUncertainty.CtChartQeps
 public import FormalResearch.SignUncertainty.CtChartQ0
 public import FormalResearch.SignUncertainty.CtChartPsi
+public import FormalResearch.SignUncertainty.CtCfuAnalytic
+public import FormalResearch.SignUncertainty.CtChartInverse
+public import FormalResearch.SignUncertainty.CtChartComplex
+public import FormalResearch.SignUncertainty.CtChartPsiAnalytic
 public import FormalResearch.SignUncertainty.CtBinetComplex
 public import FormalResearch.SignUncertainty.CtSdBounds
 public import FormalResearch.SignUncertainty.CtSdMoments
@@ -358,6 +362,11 @@ public import FormalResearch.SignUncertainty.ShellGapLaplace
 public import FormalResearch.SignUncertainty.ShellGapMellin
 public import FormalResearch.SignUncertainty.ShellGapTransport
 public import FormalResearch.SignUncertainty.ShellGapExtract
+public import FormalResearch.SignUncertainty.ShellGapProfileConv
+public import FormalResearch.SignUncertainty.ShellGapEndpointAux
+public import FormalResearch.SignUncertainty.ShellGapEndpoint
+public import FormalResearch.SignUncertainty.ShellGapOriginFloor
+public import FormalResearch.SignUncertainty.CeCanonicalSide
 public import FormalResearch.SignUncertainty.EuclidCELift
 public import FormalResearch.SignUncertainty.CeHbLiftAssembly
 public import FormalResearch.SignUncertainty.MellinLiftGeneral
@@ -461,6 +470,8 @@ public import FormalResearch.SignUncertainty.UctFloorEdge
 public import FormalResearch.SignUncertainty.UctFloorAdmiss
 public import FormalResearch.SignUncertainty.FctMainHankel
 public import FormalResearch.SignUncertainty.FctSymCal
+public import FormalResearch.SignUncertainty.FctSymChain
+public import FormalResearch.SignUncertainty.FctTau0Symbol
 public import FormalResearch.SignUncertainty.FctBumpSymCheck
 public import FormalResearch.SignUncertainty.FctBumpProfileField
 public import FormalResearch.SignUncertainty.FctPhysicalBudget
@@ -471,6 +482,8 @@ public import FormalResearch.SignUncertainty.FctVacuumCancelBounds
 public import FormalResearch.SignUncertainty.FctVacuumCancel
 public import FormalResearch.SignUncertainty.FctVacuumPointwise
 public import FormalResearch.SignUncertainty.FctVacuumConcrete
+public import FormalResearch.SignUncertainty.FctPhysicalBudgetConcrete
+public import FormalResearch.SignUncertainty.FctRSymbol
 public import FormalResearch.SignUncertainty.CtUpper
 public import FormalResearch.SignUncertainty.UctOuterGrowth
 public import FormalResearch.SignUncertainty.UctGenPreedge
@@ -518,6 +531,8 @@ public import FormalResearch.SignUncertainty.FctCompDTargets
 public import FormalResearch.SignUncertainty.FctCompDPart1
 public import FormalResearch.SignUncertainty.FctCompDPart2a
 public import FormalResearch.SignUncertainty.FctCompDPart2
+public import FormalResearch.SignUncertainty.AirySquareKernel
+public import FormalResearch.SignUncertainty.AirySquareSimple
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -743,6 +758,11 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `‖Q‖₁ ≤ 1`, `∫ Q ≤ 0`, `∫_{u_*}^∞ Q_- ≥ 1/2`).
 * `FormalResearch.SignUncertainty.ShellGapExtract`: `extract_two` and `hankelShellGapLimit_proved`, the theorem
   `thm:ce-shell-gap` (Hankel form) with all constraints of `eq:ce-laplace-constraint`.
+* `FormalResearch.SignUncertainty.ShellGapProfileConv`, `ShellGapEndpointAux`, `ShellGapEndpoint` (`thm:ce-shell-gap`,
+  the `v = t_m` endpoint clause; proved, unconditional): `shellGapEndpoint_proved : ShellGapEndpoint D` (physical
+  profile `Ψ_h/M[h] → -G_N/‖G_N‖₁`, Fourier profile `→ 0`, `Ψ_f/M[f] → G_N/‖G_N‖₁`, `M[ĥ]/M[f] → 0`, `ℒ_y(-G_N) ≥ 0`),
+  from `endpoint_subseq` (normalisation by `M[h]`, uniqueness `D.uniqueness`, equality case of `lem:qual-compact`,
+  `Analysis.qual_compact_real`) and the subsequence principle `profileConv_of_subseq`.
 * `FormalResearch.SignUncertainty.RadialCompactness`: the statement of `lem:radial-compactness` (`RadialCompactness`:
   window-profile compactness with the `C¹` clause; proved as `radial_compactness`; the deep-lobe mass bound is
   `deep_lobe_mass_thm`) and the lower half of `gt:7.5` at one level derived from it
@@ -785,11 +805,27 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.FctEdgeIbp` (`fct:edge-ibp`, Lemma FCT.5a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `edgeW`, `fct_edge_ibp_cutoff` (Part (1): removing an edge cutoff with Abel regularisation `e^{-ετ²}`), `fct_edge_ibp_shoulder` (Part (2): shoulder estimate under the corrected derivative range `1 ≤ k ≤ n` matching `Φ ∈ C^{n+1}`), and bundled `fct_edge_ibp`.
 * `FormalResearch.SignUncertainty.FctCuspEdgeIbp`, `FctCuspEdgeInner`, `FctCuspEdgeSmall`, `FctCuspEdgeLarge`, `FctCuspEdge` (`fct:cusp-edge`, Lemma FCT.7a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `CuspAmplitude`, `CuspProfile`, `cuspEdgeJ`, and `fct_cusp_edge` (`‖J_c(L)‖ ≤ C (1 + c^{2/3} L)^{-α - 1}` uniformly for `c ≥ 1`, `L ≥ 0`, `0 < α < 2`, as in the paper).
 * `FormalResearch.SignUncertainty.FctCompDStrip`, `FctCompDCauchy`, `FctCompDTargets`, `FctCompDPart1`, `FctCompDPart2a`, `FctCompDPart2` (`fct:comp-D`, Lemma FCT.3, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `fct_comp_D_part1` (localized strip outer compensator `v = v₀ + v₁ + v_α`, zeroed moments `0..4`, exact inner form `(fct:v-inner)`, all-order derivative/phase/tail/interior bounds, and all-order global closed-strip bound `norm_iteratedDeriv_stripCompGExt_le` on `S̄` repairing the paper's omission of `g_D''`), `fct_comp_D_part2` (`(fct:cos-pen)`, exact cosine identity for `H_*`, `(fct:curv-p-int)` for `p ≤ 2`, inner integral `∫_0^{3δ_L} D_*`, `(fct:bump-1L)`, and `(fct:bump-2L)`), and `fct_comp_D_part3` (exact Cauchy phase-curvature identities `(fct:cauchy-curv)` for all `m ≥ 1` with `O_m(M τ₁³)` specialization and `m = 1` leading constants `-(π/4)`, `-(π/12)`).
+* `FormalResearch.SignUncertainty.AirySquareKernel`, `AirySquareSimple` (`lem:al-kernel`,
+  `thm:airy-square-attained` (1)-(3) for distinct sites, `ce_airy_lp.tex` / `ce_airy_lp_proofs.tex`,
+  M9 step 1; proved, unconditional except `λ(s) ≤ u_sh(s)` isolated in `AirySquareBoundInput` for
+  the deferred `lem:airy-square-bound`): `airyCardinal`, `airyCardinalBasis`, `airyCardinal_ker_hasSum`,
+  `airyCardinalSeries_sq_inAiryClass`, `lem_al_kernel`; `airyLambdaSection`, `airyLambda`,
+  `isGreatest_airySquareRayleigh`, `locallyLipschitzOn_airyLambda`,
+  `airyLambda_sub_section_le_on_compact`, `airyLambdaSection_first_eq_iff`,
+  `airyLambdaSection_eq_airyLambda_iff`, `airySquare_maximizer_representation`,
+  `isGreatest_airySquareClass`, `airyMaximizerWitness_properties`,
+  `thm_airy_square_attained_simple`, `thm_airy_square_attained_simple_full`.
 * `FormalResearch.SignUncertainty.HbMultilevelDefs`, `CeCanonicalDefs` (M0 skeleton, statement objects and input structures of `thm_intro_hb` and `thm_ce_canonical_iff`; the structures `HbMultilevelInputs`, `CeCanonicalInputs` have the open TeX results as fields).
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`, `thm_intro_hb`
   (`u1cl:multilevel`) and `thm_ce_canonical_iff` (`thm:intro-gap`, `thm:ce-canonical-iff`) of Paper I, each proved
   from one input structure whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5), and the
-  proved `thm_ce_shell_gap`, `thm_ce_shell_gap_even`.
+  proved `thm_ce_shell_gap`, `thm_ce_shell_gap_even`, `thm_ce_shell_gap_full`.
+* `FormalResearch.SignUncertainty.ShellGapOriginFloor` (`eq:ce-origin-floor`, `cor:ce-projection-mass`; proved,
+  unconditional): `airyLaplace_re_le_l1` (`gt:3.1`: `ℒ_y(F) ≤ ‖F‖₁` for `F ∈ 𝒢`), `integral_le_add_of_locunif`
+  (Fatou) and `hankelOriginFloor_proved : HankelOriginFloor D` (`sup_{y>0} ℒ_y(2Q_∞) ≤ liminf h_k(0)/M[f_k]` along the
+  extracted subsequence, with the extraction of `eq:ce-laplace-constraint`; the subsequence is exposed by
+  `hankelShellGap_sub`). `CeCanonicalSide` (proved): `ShellHBData.tm_eq_hbNode` (`t_m = D.tm`), `hbNodeWeight_pos`,
+  `hbTauN_lt_tm` (`eq:hb-node-bound`).
 * `FormalResearch.SignUncertainty.HbZeroEnum` (proved): `exists_isHbZeroEnum` (the zero enumeration `t_1 > t_2 > ⋯` of
   `N = P Ai + Q Ai'` exists for every Hermite–Biehler pair, so the hypothesis `IsHbZeroEnum` of `thm_ce_canonical_iff`
   is satisfiable), `IsHbZeroEnum.unique`, `hbZeroEnum`. `ShellGapOrigin` (proved): `hankelShellProfile_origin_mass`

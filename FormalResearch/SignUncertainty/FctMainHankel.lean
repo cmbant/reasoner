@@ -52,7 +52,7 @@ with it because the limit is `0`.)
 **Abstract parameters** (the only objects not yet in Lean, each named after its TeX label): `Dcomp` (`fct:comp-D`), `PhiHat`
 (`fct:splitting`, which depends on the chart of `fct:comp-cfu`), `Bphys` (`(fct:B-physical)`), `T1` (`fct:warp-asymp` (1)).
 
-**Conditional on the fields of `FctMainHankelInputs`** (`splitting_origin`, `bump_profile`, `warp_zero`, `warp_admissible`, `physical_budget`, `physical_positive`): each is
+**Conditional on the fields of `FctMainHankelInputs`** (`splitting_origin`, `bump_profile`, `splitting_norm`, `warp_zero`, `warp_admissible`, `physical_budget`, `physical_positive`): each is
 the output of the named TeX lemma(s), stated about the concrete multipliers and these four parameters.  Proved lemmas
 (`uct:admiss` = `uct_admiss_full`, `mat:T7`, `hb_thresholds_lower`, `uct:airy-trans`, `uct:pos-floor`, `uct:outer-growth`,
 `fct:bump-5`, `uct:seed-asymp` (1), `fct:moment-solver`, `fct:phikill`, `fct:edge-ibp`) are used directly or enter through the
@@ -546,7 +546,9 @@ only abstract parameters are the objects not yet in Lean, each named after its T
 * `Dcomp ε c : ℂ → ℂ`, `D_{τ₁}(ζ) = e^{g_D(ζ)}` (`fct:comp-D`);
 * `PhiHat ε c : ℂ → ℂ`, the splitting function `Φ̂_c` (`fct:splitting`, `(fct:Phihat-def)`; it depends on the chart `V` of `fct:comp-cfu`);
 * `Bphys ε c K₁ : ℝ → ℝ`, the physical bump `B(L)` of `(fct:B-physical)` (`n_c`, `γ`, `I_osc^{warp}`, `I_fl`, `K₄`, `K₁`);
-* `T1 ε c`, the zero `T₁` of `fct:warp-asymp` (1).
+* `T1 ε c`, `alpha ε c`, the zero pair `(T₁, α)` of `fct:warp-asymp` (1) (`T₁ = (c/π²)e^{L₁}`); the zero condition `I_ε(L₁, α) = 0` and
+  the IBP identity `(fct:exact-ibp)` have no Lean counterpart yet (`I_ε` is not defined in Lean), so `warp_zero` records only the two size bounds;
+* `Nc ε c`, the normalisation `N_c = Φ^warp_c(1) = 1 - F₊(1)` of `fct:splitting` (`(fct:Phihat-def)`); the physical bump uses `n_c = 1/N_c`.
 
 The fields are the TeX statements about these (the order of constants `K_* → K₄ → K₀ → K₁ → K_d → c₀` is built into the
 quantifiers). -/
@@ -559,6 +561,10 @@ structure FctMainHankelInputs where
   Bphys : ℝ → ℝ → ℝ → ℝ → ℝ
   /-- `T₁` (`fct:warp-asymp` (1)). -/
   T1 : ℝ → ℝ → ℝ
+  /-- `α` of the zero pair `(L₁, α)` of `fct:warp-asymp` (1). -/
+  alpha : ℝ → ℝ → ℝ
+  /-- `N_c` (`fct:splitting`, `(fct:Phihat-def)`). -/
+  Nc : ℝ → ℝ → ℝ
   /-- `fct:splitting` (1) (`Φ̂_c(ζ) = O(ζ³)` at `ζ = 0`), the bound `|Φ̂_c| ≤ C(K₄) log log(4 + |τ|)` of `fct:splitting` (2) near `ζ = 1`, and
   `D_{τ₁}(0) = 1` with `D_{τ₁}` continuous (`fct:comp-D`): the corner behaviour that makes `ctWwarp → 0` at `ζ = 0`
   (`ctWwarp_tendsto_zero`; the singularity `ζ^{-5/2}` of `H_*/G_ε` is cancelled). -/
@@ -568,9 +574,13 @@ structure FctMainHankelInputs where
   `[3δ_L/2, ∞)`, symbol bounds), so that its Laplace transform is continuous on the closed strip. -/
   bump_profile : ∀ K1 : ℝ, 0 < K1 → ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
     ∃ (δ M α β : ℝ) (K : ℕ → ℝ), 0 < δ ∧ 3 / 2 * δ ≤ 1 ∧ 3 / 2 ≤ β ∧ 0 ≤ M ∧ BumpProfile (3 / 2) δ M α β K (Bphys ε c K1)
+  /-- `fct:splitting` (2): `N_c = 1 + O_{K₄}(c⁻¹)`. -/
+  splitting_norm : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |Nc ε c - 1| ≤ C * c⁻¹
   /-- `fct:comp-D`, `fct:comp-cfu`, `fct:inner-symbols`, `fct:warp-asymp` (1) (with `ct:langer-inv`, `ct:five-term-node`):
-  the zero solve places the first zero at `T₁ = Δ₅^ε(c) + O(c^{-1})` (`K₄ = K₄^{(0)}` fixed). -/
-  warp_zero : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |T1 ε c - ctDelta5 ε c| ≤ C * c⁻¹
+  the zero solve gives `(L₁, α)` with `T₁ = Δ₅^ε(c) + O(c^{-1})` and `|α| ≤ C c^{-2/3}` (`K₄ = K₄^{(0)}` fixed).  The zero condition
+  `I_ε(L₁, α) = 0` itself is not stated (no Lean definition of `I_ε`). -/
+  warp_zero : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
+    |T1 ε c - ctDelta5 ε c| ≤ C * c⁻¹ ∧ |alpha ε c| ≤ C * c ^ (-(2 / 3 : ℝ))
   /-- Step 1 of `fct:s4-proof` for the warp summand (`uct:admiss` (M1)-(M3) at `α = 1/2` and the `ε`-symmetry): `fct:splitting` (1)-(2)
   (`Φ̂_c = O(ζ³)`, `log log` growth), `fct:comp-D`, `fct:phikill`, with `|H_*/G_ε| = O((1+|τ|)² e^{-π|τ|})` (`uct:outer-growth`). -/
   warp_admissible : ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
@@ -679,7 +689,7 @@ theorem fct_main_hankel (I : FctMainHankelInputs) :
   have hbdd : BddBelow {T : ℝ | ∃ f, IsHankelFeasible c ε T f} :=
     ⟨c / π ^ 2 + airyOrderCoeff * c ^ (1 / 3 : ℝ) - Clow, fun T ⟨f, hf⟩ => hlow c hcl ε hε T f hf⟩
   have h1 : hankelT ε c ≤ I.T1 ε c + 2 * Kd / hankelBeta1 * c ^ (-(3 / 4 : ℝ)) := csInf_le hbdd ⟨_, hfeas⟩
-  have h2 := hwarp ε c hε hcw
+  have h2 := (hwarp ε c hε hcw).1
   have hc34 : c ⁻¹ ≤ c ^ (-(3 / 4 : ℝ)) := by
     rw [← Real.rpow_neg_one]
     exact Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
