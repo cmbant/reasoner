@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Reject staged Lean source containing proof placeholders (the words sorry/admit, comments included).
+# Enable once per clone (worktrees share it):  git config core.hooksPath .githooks
+set -euo pipefail
+files=$(git diff --cached --name-only --diff-filter=ACMR -- '*.lean')
+[ -z "$files" ] && exit 0
+bad=0
+while IFS= read -r f; do
+  if git show ":$f" | grep -nE '\bsorry\b|\badmit\b' | sed "s|^|$f:|"; then bad=1; fi
+done <<< "$files"
+if [ "$bad" = 1 ]; then
+  echo "pre-commit: proof placeholder words in staged Lean source (see above); remove them or reword the comment." >&2
+  exit 1
+fi
