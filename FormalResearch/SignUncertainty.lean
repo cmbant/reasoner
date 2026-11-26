@@ -248,6 +248,10 @@ public import FormalResearch.SignUncertainty.CtChartBounds
 public import FormalResearch.SignUncertainty.CtChartQeps
 public import FormalResearch.SignUncertainty.CtChartQ0
 public import FormalResearch.SignUncertainty.CtChartPsi
+public import FormalResearch.SignUncertainty.CtCfuAnalytic
+public import FormalResearch.SignUncertainty.CtChartInverse
+public import FormalResearch.SignUncertainty.CtChartComplex
+public import FormalResearch.SignUncertainty.CtChartPsiAnalytic
 public import FormalResearch.SignUncertainty.CtBinetComplex
 public import FormalResearch.SignUncertainty.CtSdBounds
 public import FormalResearch.SignUncertainty.CtSdMoments

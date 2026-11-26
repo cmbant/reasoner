@@ -20,13 +20,13 @@ and a *good Airy radius* is one with `|Ai| ≥ c (1+|u|)^{-1/4} e(u)^{1/2}` on `
 * `ctPhiC c₁ ε c`: the complex chart `φ_c`.  In Lean `ctPhi` is the real inverse of `û` on the window domain `ctPhiDom`
   (`ψ_ε` is formalised as `C^∞`, not analytic, at `a = 0`); the paper's `φ_c` on `|u| ≤ R_max = 4c₁²c^{2/3}` is its holomorphic
   continuation (`ct:cfu`: `ψ_ε` is analytic across `a = 0`; `ct:phic-exp`).  `ctPhiC` is *defined* as that continuation (a holomorphic
-  function on a disc of radius `> R_max` agreeing with `ctPhi` on the real window; unique there by the identity theorem), and is
+  function on a disc of radius `> R_max` inverting `û` on the real window `û([-R_max, 0))`, where it agrees with `ctPhi`; unique by the identity theorem), and is
   the junk function `0` where no continuation exists.  That the continuation exists, with the properties used, is the named
-  hypothesis `CtChartComplex` (not proved).
+  predicate `CtChartComplex` (proved for small `c₁`: `ct_chart_complex`, `CtChartPsiAnalytic`).
 * `ctFcC`: `f_c(u) = Ψ̃(φ_c(u)) φ_c'(u)` for complex `u`; `ctEta`: `η(R)` as the circle integral `∫_0^{2π} R(...)/e dθ`
   (`|dũ| = R dθ`; the same normalisation as `lowerEta` of Paper II).
 
-No result here; definitions and the single hypothesis predicate `CtChartComplex`.
+No result here; definitions and the predicate `CtChartComplex` (a hypothesis of `ct_dyadic_radius`, discharged for small `c₁` in `ct_chart_complex`).
 -/
 
 @[expose] public section
@@ -48,10 +48,17 @@ def ctGoodRadius (R : ℝ) : Prop :=
 noncomputable def ctRmax (c₁ c : ℝ) : ℝ := 4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)
 
 /-- `F` is a holomorphic continuation of the real chart `ctPhi ε c` to a disc of radius `> R_max = 4c₁²c^{2/3}`: holomorphic
-on `ball 0 ρ` (`ρ > R_max`) and equal to `ctPhi ε c` on the part `|x| ≤ R_max` of its real domain `ctPhiDom ε c`. -/
+on `ball 0 ρ` (`ρ > R_max`) and a left inverse of `û` on the real window: `F(û(w)) = w` for every `w < 0` of the window `ctPhiDom ε c`
+with `|w| ≤ R_max` (so `F = ctPhi ε c` on `û([-R_max, 0))` by `ctPhi_ctUhat`).
+
+The agreement is stated on the *range* `û(dom)`, not on all of `ctPhiDom` (the earlier formulation `F x = ctPhi ε c x` for all
+`x ∈ ctPhiDom`, `|x| ≤ R_max` is unsatisfiable): `ctPhi` is `invFunOn û ctPhiDom`, and since `ψ_ε < 0` the range of `û` on
+`ctPhiDom ∩ (-∞, 0)` lies below `û(0⁻) = λψ_ε(0) < 0`, so on the interval `(λψ_ε(0), 0) ⊂ ctPhiDom` the value of `ctPhi` is the
+junk constant of `invFunOn` (and `ctUhat ε c 0 = 0` is the junk value of `ctPsi` at `0`); a holomorphic `F` cannot equal a constant
+there and `ctPhi x ≈ x` for `x ≪ 0`. -/
 def IsCtChartExt (c₁ ε c : ℝ) (F : ℂ → ℂ) : Prop :=
   (∃ ρ : ℝ, ctRmax c₁ c < ρ ∧ DifferentiableOn ℂ F (ball 0 ρ)) ∧
-    ∀ x : ℝ, x ∈ ctPhiDom ε c → |x| ≤ ctRmax c₁ c → F (x : ℂ) = (ctPhi ε c x : ℂ)
+    ∀ w : ℝ, w ∈ ctPhiDom ε c → w < 0 → |w| ≤ ctRmax c₁ c → F ((ctUhat ε c w : ℝ) : ℂ) = (w : ℂ)
 
 open Classical in
 /-- **The complex chart `φ_c`** (`ct:cfu`): the holomorphic continuation of `ctPhi ε c` to `|u| ≤ R_max` (`0` if there is none).
@@ -73,7 +80,7 @@ noncomputable def ctEta (c₁ ε c : ℝ) (f : ℝ → ℝ) (R : ℝ) : ℝ :=
   ∫ θ in (0 : ℝ)..(2 * π),
     R * (‖hankelPsi c f (circleMap 0 R θ)‖ + ‖ctFcC c₁ ε c f (circleMap 0 R θ)‖) / airyEnv (circleMap 0 R θ)
 
-/-- **The complex-chart facts of `ct:cfu`** (named hypothesis, not proved; `ct:phic-exp`, analyticity of `ψ_ε` across `a = 0`):
+/-- **The complex-chart facts of `ct:cfu`** (`ct:phic-exp`, analyticity of `ψ_ε` across `a = 0`; proved for small `c₁` in `ct_chart_complex`, so it is a hypothesis only of the general-`c₁` statement `ct_dyadic_radius`):
 for `c ≥ c₀` and `ε = ±1`, the real window `[-R_max, 0]` lies in the domain `ctPhiDom` of `φ_c`, `φ_c` has a holomorphic
 continuation to a disc of radius `> R_max = 4c₁²c^{2/3}`, it is real on the real axis, and on `|u| ≤ R_max`,
 `|φ_c(u) - u| ≤ C c^{-1/3}` and `|φ_c'(u) - 1| ≤ C c^{-1}`. -/
