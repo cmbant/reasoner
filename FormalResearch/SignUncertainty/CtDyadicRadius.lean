@@ -3,6 +3,7 @@ module
 public import Mathlib
 public import FormalResearch.SignUncertainty.CtDyadicArea
 public import FormalResearch.SignUncertainty.CtDyadicRegime
+public import FormalResearch.SignUncertainty.AiryEtaUnfold
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerGoodCircle
 public import FormalResearch.ModularBootstrap.FiveTerm.LowerDyadic
 
@@ -12,17 +13,18 @@ public import FormalResearch.ModularBootstrap.FiveTerm.LowerDyadic
 `constant_terms_lower.tex`, `ct:dyadic` (2) (since PR 298, unconditional): there is a good Airy radius
 `R ∈ [c₁²c^{2/3}, 4c₁²c^{2/3}]` with `η(R) ≤ C c^{-1/3}`, for the concrete `η = ctEta` and good radii `ctGoodRadius`
 (`CtDyadicEta`).  The proof of the paper (two Cauchy moments, an area bound, averaging over a positive-measure set of good
-radii) is formalised here down to three named hypotheses about the concrete objects:
+radii) is formalised here down to two named hypotheses about the concrete objects:
 
 * `CtChartComplex c₁` (`CtDyadicEta`): the complex chart facts of `ct:cfu` / `ct:phic-exp`;
 * `CtGRegData c₁`: the two boundary inputs of the Cauchy-moment argument for `G_reg` (`ctGReg`) at `A = √R_J`: the arc bound
   `∫_0^π ‖G_reg(Ae^{iy})‖ A dy ≤ C/A` (from `ct:cov` at `r = R_J` and the Type-(I) bound) and the absolute second moment
   `∫ t²‖G_reg(t)‖ dt ≤ C A` (from the first half-moment of `(ct:half)`), i.e. the output of `ct:dyadic` (1) used by (2);
-* `CtEtaTransfer c₁`: the unfolding of the two circle integrals of `η` to the half-sector integrals of `G_reg` and `G_reg ∘ w̃`
-  (`ap:lemU` (a), (c), the comparability `e(φ_c(u)) ≍ e(u)` and the reflection of `Ψ̃`).
 
-Proved here from these: the Cauchy-moment area bound (`HalfDiscMoments`, `CtDyadicArea`), the Markov selection on the set of good
-radii (Paper II's `lowerGoodSet`, of measure `≥ r₀/36`), and the conclusion `ct_dyadic_radius`.
+Proved here from these: the unfolding `ct_eta_transfer` (`CtEtaTransfer c₁`, from `CtChartComplex c₁` and the shared
+`airy_eta_le_arcs` of `AiryEtaUnfold`: the two circle integrals of `η` bounded by the half-sector integrals of `G_reg` and
+`G_reg ∘ w̃`, `ap:lemU` (a), (c) and the comparability `e(φ_c(u)) ≍ e(u)`), the Cauchy-moment area bound (`HalfDiscMoments`,
+`CtDyadicArea`), the Markov selection on the set of good radii (Paper II's `lowerGoodSet`, of measure `≥ r₀/36`), and the
+conclusion `ct_dyadic_radius`.
 -/
 
 @[expose] public section
@@ -45,7 +47,7 @@ def CtGRegData (c₁ : ℝ) : Prop :=
         hdArcMass A (ctGReg A c f) ≤ CSig / A ∧
         ∫ t in (-A)..A, (t : ℝ) ^ 2 * ‖ctGReg A c f (t : ℂ)‖ ≤ CS * A
 
-/-- **The unfolding of `η`** (named hypothesis; `ap:lemU`, `ct:dyadic` Part (2), last paragraph): for `r ∈ [r₀, (3/2) r₀]`,
+/-- **The unfolding of `η`** (`ap:lemU`, `ct:dyadic` Part (2), last paragraph; proved from `CtChartComplex c₁` in `ct_eta_transfer`): for `r ∈ [r₀, (3/2) r₀]`,
 `r₀ = c₁c^{1/3}`, `η(r²) ≤ C_tr (∫_0^π r‖G_reg(re^{iφ})‖ dφ + ∫_0^π r‖G_reg(w̃(re^{iφ}))‖ dφ)`, where
 `w̃(w) = w (φ_c(-w²)/(-w²))^{1/2}` is the `φ_c`-transported coordinate (`lowerGoodWtilde`) and the integrals are Lebesgue
 integrals over `φ ∈ (0, π)` (in `[0, ∞]`). -/
@@ -144,20 +146,81 @@ lemma ct_regime {c₁ Cφ c : ℝ} (hc₁ : 0 < c₁) (hc1 : 1 ≤ c)
     rw [← div_eq_mul_inv, div_le_iff₀ hc_pos]
     linarith
 
+/-- `∫⁻` over `(0, π)` of the `ofReal` of a continuous nonnegative function is `ofReal` of its interval integral. -/
+lemma ofReal_integral_eq_lintegral_Ioo {g : ℝ → ℝ} (hg : ContinuousOn g (Icc 0 π)) (h0 : ∀ φ, 0 ≤ g φ) :
+    ENNReal.ofReal (∫ φ in (0 : ℝ)..π, g φ) = ∫⁻ φ in Ioo (0 : ℝ) π, ENNReal.ofReal (g φ) := by
+  rw [intervalIntegral.integral_of_le Real.pi_pos.le,
+    ofReal_integral_eq_lintegral_ofReal ((hg.integrableOn_Icc).mono_set Ioc_subset_Icc_self)
+      (Filter.Eventually.of_forall h0)]
+  exact (setLIntegral_congr Ioo_ae_eq_Ioc).symm
+
+/-- **The unfolding of `η`** (`ap:lemU`, `ct:dyadic` Part (2), last paragraph), proved from the complex chart facts: `CtChartComplex c₁`
+implies `CtEtaTransfer c₁` (`c₁ > 0`).  It is the instance `Ψ̃ = hankelPsi c f`, `B = langerRadius c` of the shared
+`airy_eta_le_arcs` (`AiryEtaUnfold`), with `C_tr = 16 e^{5 c₁ C_φ}`; the integrals over `(0, π)` are `ofReal` of the interval integrals
+since the arc integrands are continuous. -/
+theorem ct_eta_transfer {c₁ : ℝ} (hc₁ : 0 < c₁) (hch : CtChartComplex c₁) : CtEtaTransfer c₁ := by
+  obtain ⟨Cφ, cch, hCφ, hch'⟩ := hch
+  refine ⟨16 * Real.exp (5 * c₁ * Cφ), max 1 (max cch (max ((10 / c₁) ^ 3)
+    (max (256 * Cφ / c₁ ^ 2) (4 * Cφ)))), by positivity, ?_⟩
+  intro ε hε c hc f hfe hmass A hA9 hAR r hr
+  simp only [max_le_iff] at hc
+  obtain ⟨hc1, hcch, hc10, hcerr, hcder⟩ := hc
+  have hc_pos : 0 < c := by linarith
+  obtain ⟨hr₀10, h_err, h_der⟩ := ct_regime hc₁ hc1 hc10 hcerr hcder
+  obtain ⟨hex, hdom, him, hcl⟩ := hch' ε hε c hcch
+  have hρ : ∃ ρ : ℝ, lowerRmax c₁ c < ρ ∧ DifferentiableOn ℂ ((fun c' => ctPhiC c₁ ε c') c) (ball 0 ρ) :=
+    (ctPhiC_spec hex).1
+  have hΨ : ContinuousOn (hankelPsi c f) (closedBall (0 : ℂ) (langerRadius c)) := by
+    rw [langerRadius_eq]; exact (analyticOnNhd_hankelPsi hc_pos hfe).continuousOn
+  obtain ⟨h1', h2', hbd'⟩ := airy_eta_le_arcs (c1 := c₁) (c := c) (Cφ := Cφ) (r₀ := c₁ * c ^ (1 / 3 : ℝ)) (A := A)
+    (B := langerRadius c) (phi := fun c' => ctPhiC c₁ ε c') (Ψ := hankelPsi c f) hr₀10 hCφ h_err h_der hc_pos rfl hA9 hAR hΨ hρ
+    him hcl (C_env := 5 * c₁ * Cφ) rfl r hr
+  have h1 : ContinuousOn (fun φ : ℝ => r * ‖ctGReg A c f ((r : ℂ) * Complex.exp (φ * I))‖) (Icc 0 π) := h1'
+  have h2 : ContinuousOn (fun φ : ℝ => r * ‖ctGReg A c f
+      (lowerGoodWtilde (fun c' => ctPhiC c₁ ε c') c ((r : ℂ) * Complex.exp (φ * I)))‖) (Icc 0 π) := h2'
+  have hbd : ctEta c₁ ε c f (r ^ 2) ≤
+      2 * (2 * (∫ φ in (0 : ℝ)..π, r * ‖ctGReg A c f ((r : ℂ) * Complex.exp (φ * I))‖) +
+        8 * Real.exp (5 * c₁ * Cφ) * (∫ φ in (0 : ℝ)..π, r * ‖ctGReg A c f
+          (lowerGoodWtilde (fun c' => ctPhiC c₁ ε c') c ((r : ℂ) * Complex.exp (φ * I)))‖)) := hbd'
+  have hr0 : 0 < r := by
+    have : 0 < c₁ * c ^ (1 / 3 : ℝ) := by positivity
+    linarith [hr.1]
+  have hI1 := ofReal_integral_eq_lintegral_Ioo h1 fun φ => mul_nonneg hr0.le (norm_nonneg _)
+  have hI2 := ofReal_integral_eq_lintegral_Ioo h2 fun φ => mul_nonneg hr0.le (norm_nonneg _)
+  have hnn1 : 0 ≤ ∫ φ in (0 : ℝ)..π, r * ‖ctGReg A c f ((r : ℂ) * Complex.exp (φ * I))‖ :=
+    intervalIntegral.integral_nonneg Real.pi_pos.le fun φ _ => mul_nonneg hr0.le (norm_nonneg _)
+  have hnn2 : 0 ≤ ∫ φ in (0 : ℝ)..π, r * ‖ctGReg A c f
+      (lowerGoodWtilde (fun c' => ctPhiC c₁ ε c') c ((r : ℂ) * Complex.exp (φ * I)))‖ :=
+    intervalIntegral.integral_nonneg Real.pi_pos.le fun φ _ => mul_nonneg hr0.le (norm_nonneg _)
+  have hexp : 1 ≤ Real.exp (5 * c₁ * Cφ) := Real.one_le_exp (by positivity)
+  have hη : ctEta c₁ ε c f (r ^ 2) ≤ 16 * Real.exp (5 * c₁ * Cφ) *
+      ((∫ φ in (0 : ℝ)..π, r * ‖ctGReg A c f ((r : ℂ) * Complex.exp (φ * I))‖) +
+        ∫ φ in (0 : ℝ)..π, r * ‖ctGReg A c f
+          (lowerGoodWtilde (fun c' => ctPhiC c₁ ε c') c ((r : ℂ) * Complex.exp (φ * I)))‖) := by
+    refine hbd.trans ?_
+    nlinarith only [hnn1, hnn2, mul_nonneg (sub_nonneg.2 hexp) hnn1]
+  calc ENNReal.ofReal (ctEta c₁ ε c f (r ^ 2)) ≤ ENNReal.ofReal (16 * Real.exp (5 * c₁ * Cφ) * _) :=
+        ENNReal.ofReal_le_ofReal hη
+    _ = _ := by
+        rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_add hnn1 hnn2, hI1, hI2]
+
+/-- info: 'FormalResearch.SignUncertainty.ct_eta_transfer' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.ct_eta_transfer
+
 /-- **`ct:dyadic` (2)**, for the concrete `η = ctEta` and good radii `ctGoodRadius`: for `c ≥ c₀`, `ε = ±1` and every feasible `f` with
 `M[f] = 1` and `ũ₁ > φ_c(a₁)`, there is a good Airy radius `R ∈ [c₁²c^{2/3}, 4c₁²c^{2/3}]` with `η(R) ≤ C c^{-1/3}`
-(`C, c₀` independent of `c`, `ε`, `f`, `T`).  Conditional on the three named hypotheses `CtChartComplex c₁`, `CtGRegData c₁`,
-`CtEtaTransfer c₁` (see the module docstring); the proof is the Cauchy-moment area bound, Markov selection on Paper II's
-positive-measure set of good radii, and the unfolding `CtEtaTransfer`. -/
-theorem ct_dyadic_radius {c₁ : ℝ} (hc₁ : 0 < c₁) (hch : CtChartComplex c₁) (hG : CtGRegData c₁)
-    (htr : CtEtaTransfer c₁) :
+(`C, c₀` independent of `c`, `ε`, `f`, `T`).  Conditional on the two named hypotheses `CtChartComplex c₁`, `CtGRegData c₁`
+(see the module docstring); the proof is the Cauchy-moment area bound, Markov selection on Paper II's positive-measure set of good
+radii, and the unfolding `ct_eta_transfer`. -/
+theorem ct_dyadic_radius {c₁ : ℝ} (hc₁ : 0 < c₁) (hch : CtChartComplex c₁) (hG : CtGRegData c₁) :
     ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
       ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 → 0 < ctGap ε c T →
         ∃ R : ℝ, R ∈ Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧ ctGoodRadius R ∧
           ctEta c₁ ε c f R ≤ C * c ^ (-(1 / 3) : ℝ) := by
+  obtain ⟨Ctr, ctr, hCtr, htr'⟩ := ct_eta_transfer hc₁ hch
   obtain ⟨Cφ, cch, hCφ, hch'⟩ := hch
   obtain ⟨CSig, CS, cG, hCSig, hCS, hG'⟩ := hG
-  obtain ⟨Ctr, ctr, hCtr, htr'⟩ := htr
   set Bκ : ℝ := Real.sqrt (langerKappa * 4.94e-4) with hBκ
   set Minf : ℝ := 14 * CSig + 612 * CS * Bκ / c₁ + 1 with hMinf
   have hBκ0 : 0 ≤ Bκ := Real.sqrt_nonneg _

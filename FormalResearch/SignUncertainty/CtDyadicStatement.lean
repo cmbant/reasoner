@@ -20,9 +20,10 @@ Both are about the concrete objects: `ctBudget R ε c f` (`= P_R(H) + g_vac/2π`
 since `CtDyadicEta`, the paper's `η(R)` (`ctEta`: the two circle integrals with the complex Airy envelope `airyEnv` and the complex
 chart `ctPhiC`) and good Airy radii (`ctGoodRadius`, `ap:E2`).
 
-* `CtDyadicRadiusStatement c₁` is `ct:dyadic` (2).  It is **proved** from the three named hypotheses `chart`, `gregData`, `etaTransfer`
-  (`CtDyadicInputs.radius`, `ct_dyadic_radius` in `CtDyadicRadius`): the complex chart of `ct:cfu`, the boundary inputs of the Cauchy-moment
-  argument (the part of `ct:dyadic` (1) that (2) uses), and the unfolding of the two circle integrals of `η`.
+* `CtDyadicRadiusStatement c₁` is `ct:dyadic` (2).  It is **proved** from the two named hypotheses `chart`, `gregData`
+  (`CtDyadicInputs.radius`, `ct_dyadic_radius` in `CtDyadicRadius`): the complex chart of `ct:cfu`, and the boundary inputs of the
+  Cauchy-moment argument (the part of `ct:dyadic` (1) that (2) uses).  The unfolding of the two circle integrals of `η` is proved
+  from the chart (`ct_eta_transfer`).
 * `CtDyadicInputs.combined` is `ct:dyadic` (4), not proved.
 
 Together with `ct:boas` (`∫_{L ≥ L_min} ... ≥ -O(c^{-4/3} log c)`, via the fields of `BoasInputs`) they give the field `pass` of
@@ -48,13 +49,11 @@ def CtDyadicRadiusStatement (c₁ : ℝ) : Prop :=
       ∃ R : ℝ, R ∈ Icc (c₁ ^ 2 * c ^ (2 / 3 : ℝ)) (4 * c₁ ^ 2 * c ^ (2 / 3 : ℝ)) ∧ ctGoodRadius R ∧
         ctEta c₁ ε c f R ≤ C * c ^ (-(1 / 3) : ℝ)
 
-/-- **Inputs of `ct:dyadic` (2), (4)**: the three named hypotheses behind (2) (see `CtDyadicRadius`: `CtChartComplex`, `CtGRegData`,
-`CtEtaTransfer`) and `ct:dyadic` (4) (`(ct:combined)` at every good radius in the window, about `ctBudget`, `ctTaper`, `hankelHL`,
+/-- **Inputs of `ct:dyadic` (2), (4)**: the two named hypotheses behind (2) (see `CtDyadicRadius`: `CtChartComplex`, `CtGRegData`) and `ct:dyadic` (4) (`(ct:combined)` at every good radius in the window, about `ctBudget`, `ctTaper`, `hankelHL`,
 `boasKernel`, `ctEta`). -/
 structure CtDyadicInputs (c₁ : ℝ) : Prop where
   chart : CtChartComplex c₁
   gregData : CtGRegData c₁
-  etaTransfer : CtEtaTransfer c₁
   /-- `ct:dyadic` (4), `(ct:combined)`: at every good radius in the window. -/
   combined : ∃ C c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
     ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 → 0 < ctGap ε c T →
@@ -65,6 +64,6 @@ structure CtDyadicInputs (c₁ : ℝ) : Prop where
 
 /-- **`ct:dyadic` (2) from the inputs** (`c₁ > 0`). -/
 theorem CtDyadicInputs.radius {c₁ : ℝ} (hc₁ : 0 < c₁) (I : CtDyadicInputs c₁) : CtDyadicRadiusStatement c₁ :=
-  ct_dyadic_radius hc₁ I.chart I.gregData I.etaTransfer
+  ct_dyadic_radius hc₁ I.chart I.gregData
 
 end FormalResearch.SignUncertainty
