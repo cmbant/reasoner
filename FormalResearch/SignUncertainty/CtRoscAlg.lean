@@ -163,4 +163,12 @@ lemma slit_edge (X : CtRoscCtx ε c C ρ M f) (hR1 : 1 < R) (hRm : R ≤ ctRmax 
 
 end CtRoscCtx
 
+/-- info: 'FormalResearch.SignUncertainty.CtRoscCtx.ctRosc_alg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CtRoscCtx.ctRosc_alg
+
+/-- info: 'FormalResearch.SignUncertainty.CtRoscCtx.slit_edge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CtRoscCtx.slit_edge
+
 end FormalResearch.SignUncertainty

@@ -154,4 +154,12 @@ lemma ctUhat_subst (H : CtRealChartHyp ε c C) (W : CtWinHyp ε c ρ M) (hR1 : 1
 
 end Uhat
 
+/-- info: 'FormalResearch.SignUncertainty.ctUhat_subst' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ctUhat_subst
+
+/-- info: 'FormalResearch.SignUncertainty.ctUhat_image_cover' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ctUhat_image_cover
+
 end FormalResearch.SignUncertainty

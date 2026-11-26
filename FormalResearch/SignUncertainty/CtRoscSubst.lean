@@ -144,4 +144,8 @@ lemma strip_le (X : CtRoscCtx ε c C ρ M f) (hR1 : 1 < R) (hRm : R ≤ ctRmax c
 
 end CtRoscCtx
 
+/-- info: 'FormalResearch.SignUncertainty.CtRoscCtx.neg_decomp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CtRoscCtx.neg_decomp
+
 end FormalResearch.SignUncertainty

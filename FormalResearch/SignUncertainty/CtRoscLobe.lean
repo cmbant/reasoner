@@ -185,4 +185,8 @@ lemma ct_psi_mass {c ε : ℝ} (hc : 3e6 ≤ c) {f : ℝ → ℝ} (hf : IsHankel
 #guard_msgs (whitespace := lax) in
 #print axioms psi_abs_tail
 
+/-- info: 'FormalResearch.SignUncertainty.deep_lobe_at' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms deep_lobe_at
+
 end FormalResearch.SignUncertainty

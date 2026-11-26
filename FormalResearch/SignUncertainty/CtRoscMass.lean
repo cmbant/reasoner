@@ -250,4 +250,16 @@ lemma ct_rosc_mass {ε c C ρ M R : ℝ} {f : ℝ → ℝ} (X : CtRoscCtx ε c C
   rw [abs_le] at e1' e4 e3 e2' ⊢
   constructor <;> linarith [e1'.1, e1'.2, e4.1, e4.2, e3.1, e3.2, e2'.1, e2'.2]
 
+/-- info: 'FormalResearch.SignUncertainty.ct_rosc_mass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ct_rosc_mass
+
+/-- info: 'FormalResearch.SignUncertainty.ct_taper_transport' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ct_taper_transport
+
+/-- info: 'FormalResearch.SignUncertainty.hankelHL_tail_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hankelHL_tail_eq
+
 end FormalResearch.SignUncertainty

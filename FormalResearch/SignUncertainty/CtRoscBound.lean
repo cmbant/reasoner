@@ -159,4 +159,8 @@ lemma ctRosc_bound {ε c C ρ M R c₁ : ℝ} {f : ℝ → ℝ} (X : CtRoscCtx �
         2 * |ctOscS2Lit R ε c f - ctOscS2 R ε c f| := by rw [abs_mul]; norm_num
     _ ≤ 10 * t := by linarith [hmass, hpos, hY, hx1, hx2, hS, hP, hexpa, hexpu, hE1, hE2, hAr, hAr2, Real.exp_pos (-(1 / 25) * c)]
 
+/-- info: 'FormalResearch.SignUncertainty.ctRosc_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ctRosc_bound
+
 end FormalResearch.SignUncertainty

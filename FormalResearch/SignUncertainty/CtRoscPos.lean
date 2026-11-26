@@ -95,4 +95,8 @@ lemma pos_lobe_le {ε c C ρ M R u₁ : ℝ} {f : ℝ → ℝ} (X : CtRoscCtx ε
   rw [hsplit]
   exact (abs_add_le _ _).trans (add_le_add hnear hfar)
 
+/-- info: 'FormalResearch.SignUncertainty.pos_lobe_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms pos_lobe_le
+
 end FormalResearch.SignUncertainty

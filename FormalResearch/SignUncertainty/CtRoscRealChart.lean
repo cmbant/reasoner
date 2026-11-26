@@ -173,4 +173,8 @@ lemma ctPhiR_subst (H : CtRealChartHyp ε c C) {a b : ℝ} (ha : -ctRmax ctChart
 
 end CtRealChartHyp
 
+/-- info: 'FormalResearch.SignUncertainty.CtRealChartHyp.ctPhiR_subst' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CtRealChartHyp.ctPhiR_subst
+
 end FormalResearch.SignUncertainty
