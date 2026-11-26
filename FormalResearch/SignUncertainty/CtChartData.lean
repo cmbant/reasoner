@@ -280,7 +280,7 @@ lemma Vf_conj : ∀ᶠ q in 𝓝 ((0 : ℂ), (0 : ℂ)), Vf (conj2 q) = starRing
   have : Rf (starRingEnd ℂ q.1, starRingEnd ℂ q.2) = starRingEnd ℂ (Rf q) := hq
   rw [this]
 
-/-- **The key identity** `L(β) - p(z) = -a(β) V - z V³/3`. -/
+/-- **The key identity** (`ct:cfu` Step 2): `L(β) - p(z) = -a(β) V - z V³/3`. -/
 theorem key_identity : ∀ᶠ q in 𝓝 ((0 : ℂ), (0 : ℂ)),
     LC q.2 - pC q.1 = -aC q.2 * Vf q - q.1 * Vf q ^ 3 / 3 := by
   have hb : Tendsto (fun q : ℂ × ℂ => q.2) (𝓝 ((0 : ℂ), (0 : ℂ))) (𝓝 0) := continuous_snd.continuousAt.tendsto
@@ -296,5 +296,9 @@ theorem key_identity : ∀ᶠ q in 𝓝 ((0 : ℂ), (0 : ℂ)),
   rw [hE4] at hE2
   rw [hp] at hE2
   linear_combination ((z - β) ^ 2) * hE1 - hE2 + (z / 3 - β) * hE3
+
+/-- info: 'FormalResearch.SignUncertainty.CtChart.key_identity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms key_identity
 
 end FormalResearch.SignUncertainty.CtChart

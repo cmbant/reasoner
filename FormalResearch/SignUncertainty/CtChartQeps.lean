@@ -44,4 +44,8 @@ theorem Qeps_expansion {ϑ : ℂ → ℂ} (hA : AnalyticAt ℂ ϑ 0) :
   have := h s β hs hβ
   rwa [Qeps_zero, dyF_Qeps_zero hA] at this
 
+/-- info: 'FormalResearch.SignUncertainty.CtChart.Qeps_expansion' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Qeps_expansion
+
 end FormalResearch.SignUncertainty.CtChart

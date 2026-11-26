@@ -157,4 +157,12 @@ lemma psiHat_eq (ϑ : ℂ → ℂ) : ∀ᶠ β in 𝓝 (0 : ℂ), psiHat ϑ β =
   rw [e, h2, h1]
   ring
 
+/-- info: 'FormalResearch.SignUncertainty.CtChart.amp_decomp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms amp_decomp
+
+/-- info: 'FormalResearch.SignUncertainty.CtChart.theta_T_decomp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms theta_T_decomp
+
 end FormalResearch.SignUncertainty.CtChart

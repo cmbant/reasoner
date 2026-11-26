@@ -69,7 +69,7 @@ lemma Tsd_den_ne : ∀ᶠ q in 𝓝 ((0 : ℂ), (0 : ℂ)), Vf (Zf q, q.2) + 2 *
   simp only
   rw [Tsd_den_zero]; exact d0C_ne
 
-/-- `∂_s T(s; β) = T_s = 1/(V(Z) + 2 Z V_z(Z))`, `Z = Z(s²; β)`. -/
+/-- `ct:cfu` Step 2/3: `∂_s T(s; β) = T_s = 1/(V(Z) + 2 Z V_z(Z))`, `Z = Z(s²; β)`. -/
 theorem hasDerivAt_Tf : ∀ᶠ p in 𝓝 ((0 : ℂ), (0 : ℂ)),
     HasDerivAt (fun s : ℂ => Tf (s, p.2)) (Tsd (p.1 ^ 2, p.2)) p.1 := by
   have hZd : ∀ᶠ p in 𝓝 ((0 : ℂ), (0 : ℂ)), DifferentiableAt ℂ Zf (p.1 ^ 2, p.2) :=
@@ -125,5 +125,9 @@ theorem hasDerivAt_Tf : ∀ᶠ p in 𝓝 ((0 : ℂ), (0 : ℂ)),
   rw [← hZdef, ← hWdef]
   rw [div_eq_div_iff (pow_ne_zero 2 hW0) hD']
   linear_combination key2
+
+/-- info: 'FormalResearch.SignUncertainty.CtChart.hasDerivAt_Tf' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasDerivAt_Tf
 
 end FormalResearch.SignUncertainty.CtChart

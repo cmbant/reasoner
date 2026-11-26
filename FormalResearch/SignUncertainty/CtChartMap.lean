@@ -131,7 +131,7 @@ lemma tendsto_Zq : Tendsto (fun p : ℂ × ℂ => (Zf (p.1 ^ 2, p.2), p.2)) (�
     exact this.comp tendsto_sq
   exact h1.prodMk_nhds continuous_snd.continuousAt.tendsto
 
-/-- **The chart identity** `Φ(T(s;β); β) = -(a(β) s + s³/3)`. -/
+/-- **The chart identity** (`ct:cfu` Step 2): `Φ(T(s;β); β) = -(a(β) s + s³/3)`. -/
 theorem chart_identity : ∀ᶠ p in 𝓝 ((0 : ℂ), (0 : ℂ)),
     PhiC (Tf p) p.2 = -(aC p.2 * p.1 + p.1 ^ 3 / 3) := by
   filter_upwards [tendsto_sq.eventually Zf_eq, tendsto_Zq.eventually key_identity, tendsto_sq.eventually Vf_Zf_ne]
@@ -183,5 +183,9 @@ lemma Tf_conj : ∀ᶠ p in 𝓝 ((0 : ℂ), (0 : ℂ)), Tf (conj2 p) = starRing
   have : Uf ((starRingEnd ℂ p.1) ^ 2, starRingEnd ℂ p.2) = starRingEnd ℂ (Uf (p.1 ^ 2, p.2)) := by
     simpa [conj2, map_pow] using hp
   rw [this]
+
+/-- info: 'FormalResearch.SignUncertainty.CtChart.chart_identity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms chart_identity
 
 end FormalResearch.SignUncertainty.CtChart

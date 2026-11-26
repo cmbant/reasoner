@@ -111,4 +111,8 @@ theorem hasDerivAt_Qeps_zero {ϑ : ℂ → ℂ} (hA : AnalyticAt ℂ ϑ 0) :
   · funext s; simp [Qeps, Xph]
   · simp [E1_zero, Xph]
 
+/-- info: 'FormalResearch.SignUncertainty.CtChart.hasDerivAt_Qeps_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms hasDerivAt_Qeps_zero
+
 end FormalResearch.SignUncertainty.CtChart

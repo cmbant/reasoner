@@ -133,7 +133,7 @@ lemma dC_ne : ∀ᶠ β in 𝓝 (0 : ℂ), dC β ≠ 0 := by
   have hc : ContinuousAt dC 0 := contDiffAt_dC.continuousAt
   exact hc.eventually_ne (by rw [dC_zero]; exact d0C_ne)
 
-/-- **Saddle normalisation** `μ(d(β)²β; β) = 1` (`M(±√(-a); a) ≡ 1`). -/
+/-- **Saddle normalisation** (`ct:cfu` Step 2): `μ(d(β)²β; β) = 1` (`M(±√(-a); a) ≡ 1`). -/
 theorem saddle_mu : ∀ᶠ β in 𝓝 (0 : ℂ), muf (dC β ^ 2 * β, β) = 1 := by
   have hcont : ContinuousAt (fun β : ℂ => muf (dC β ^ 2 * β, β)) 0 := by
     have h1 : ContinuousAt muf ((fun β : ℂ => (dC β ^ 2 * β, β)) 0) := by
@@ -176,5 +176,9 @@ theorem saddle_mu : ∀ᶠ β in 𝓝 (0 : ℂ), muf (dC β ^ 2 * β, β) = 1 :=
     norm_num at hn
   have := (mul_eq_zero.mp hprod).resolve_right hne
   linear_combination this
+
+/-- info: 'FormalResearch.SignUncertainty.CtChart.saddle_mu' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms saddle_mu
 
 end FormalResearch.SignUncertainty.CtChart
