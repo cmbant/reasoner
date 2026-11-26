@@ -25,7 +25,9 @@ Main declarations:
   `isGreatest_airySectionQuotientSet`, `airyLambdaSection_mono`, `tendsto_airyLambdaSection`,
   `airyLambdaSection_first_eq_imp_range`.
 * **Positive reference profile (`lem:al-reference-positive`):** `airyRefJ0` (`J_0 = g_1 + g_1'`),
-  `airyRefJ0_inAiryClass`, `airyRefJ0_pos`, `airyLaplace_airyRefJ0_bounds`
+  `airyRefJ0_inAiryClass`, `airyRefJ0_pos`, `airyRefJ0_pointwise_bounds`
+  (`c (1 + u)^{-3/2} e^{-4u^{3/2}/3} ≤ J_0 ≤ C (1 + u)^{-3/2} e^{-4u^{3/2}/3}` on `u ≥ 0`),
+  `airyLaplace_airyRefJ0_bounds`
   (`c₁ (1 + y)^{-5/2} ≤ ℒ_y(J_0) ≤ C₁ (1 + y)^{-5/2}` on `y ≥ 0`, via `positive_source_S0_floor`).
 * **Trial-cutoff strict-site witnesses & ray-dropped bound (`lem:airy-square-bound`):**
   `exists_airyLagrangeSection`, `exists_section_rayleigh_gt_and_sum_ne_zero`,
@@ -943,6 +945,156 @@ lemma airyRefJ0_pos_tail :
     _ ≤ ((1 / (2 * π) + C_tl) / 2 + 1) * u ^ (-(3 / 2 : ℝ)) *
           Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ)) := by
         nlinarith only [hnn]
+
+/-- Positive-axis lower bound `J_0(u) ≥ (8π)⁻¹ u^{-3/2} exp(-(4/3) u^{3/2})` for `u ≥ U`
+(`eq:al-reference-positive-bounds`, first display, lower half). -/
+lemma airyRefJ0_lower_tail :
+    ∃ U : ℝ, 1 ≤ U ∧ ∀ u : ℝ, U ≤ u →
+      (1 / (8 * π)) * (u ^ (-(3 / 2 : ℝ)) * Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ))) ≤
+        (airyRefJ0 (u : ℂ)).re := by
+  obtain ⟨R_plus, C_tl, hC_tl, htail, hR_bd⟩ :=
+    ceS0_pos_tail (airyAi_airyZero 1) airyDerivFirstZero_spec.2.2
+  refine ⟨max 1 (4 * π * C_tl), le_max_left _ _, fun u hu => ?_⟩
+  have hu1 : 1 ≤ u := (le_max_left _ _).trans hu
+  have huC : 4 * π * C_tl ≤ u := (le_max_right _ _).trans hu
+  rw [airyRefJ0_re]
+  have hu0 : 0 < u := lt_of_lt_of_le zero_lt_one hu1
+  set s := √u
+  have hs1 : 1 ≤ s := Real.one_le_sqrt.mpr hu1
+  have hs0 : 0 < s := lt_of_lt_of_le zero_lt_one hs1
+  have hsq : s ^ 2 = u := Real.sq_sqrt hu0.le
+  have hcube : s ^ 3 = u ^ (3 / 2 : ℝ) := by
+    have : u ^ (3 / 2 : ℝ) = s * u := by
+      dsimp [s]; rw [Real.sqrt_eq_rpow, ← Real.rpow_add_one hu0.ne']; norm_num
+    rw [this, ← hsq]; ring
+  have ht := htail s hs1
+  rw [hsq, hcube] at ht
+  have hs2 : s ^ (-2 : ℝ) = u⁻¹ := by
+    rw [Real.rpow_neg hs0.le, show s ^ (2 : ℝ) = s ^ 2 by norm_cast, hsq]
+  have hs4 : s ^ (-4 : ℝ) = u⁻¹ * u⁻¹ := by
+    rw [show (-4 : ℝ) = -2 + -2 by norm_num, Real.rpow_add hs0, hs2]
+  have hpi : 0 < π := Real.pi_pos
+  have hCu : C_tl * u⁻¹ ≤ 1 / (4 * π) := by
+    rw [← div_eq_mul_inv, div_le_div_iff₀ hu0 (by positivity)]
+    nlinarith only [huC]
+  have hR_ge : -((1 / (4 * π)) * u⁻¹) ≤ R_plus s := by
+    have h1 : |R_plus s| ≤ (1 / (4 * π)) * u⁻¹ := by
+      calc |R_plus s| ≤ C_tl * s ^ (-4 : ℝ) := hR_bd s hs1
+        _ = (C_tl * u⁻¹) * u⁻¹ := by rw [hs4]; ring
+        _ ≤ (1 / (4 * π)) * u⁻¹ :=
+          mul_le_mul_of_nonneg_right hCu (inv_nonneg.mpr hu0.le)
+    exact (neg_le_neg h1).trans (neg_abs_le _)
+  have hhalf : 1 / (2 * π) * u⁻¹ = 2 * ((1 / (4 * π)) * u⁻¹) := by
+    field_simp; ring
+  have h2s_ge : (1 / (4 * π)) * u⁻¹ * Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ)) ≤
+      2 * s * ceS0 (airyZero 1) airyDerivFirstZero u := by
+    rw [ht, hs2]
+    have : (1 / (4 * π)) * u⁻¹ ≤ 1 / (2 * π) * u⁻¹ + R_plus s := by
+      linarith only [hR_ge, hhalf]
+    exact mul_le_mul_of_nonneg_right this (Real.exp_pos _).le
+  have hrpow : u⁻¹ / s = u ^ (-(3 / 2 : ℝ)) := by
+    dsimp [s]
+    rw [div_eq_mul_inv, ← Real.rpow_neg_one u, Real.sqrt_eq_rpow, ← Real.rpow_neg hu0.le,
+      ← Real.rpow_add hu0]
+    norm_num
+  have hdiv : (1 / (8 * π)) * (u ^ (-(3 / 2 : ℝ)) * Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ))) =
+      ((1 / (4 * π)) * u⁻¹ * Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ))) / (2 * s) := by
+    rw [← hrpow]; field_simp; ring
+  rw [hdiv, div_le_iff₀ (by positivity)]
+  linarith only [h2s_ge]
+
+/-- Two-sided pointwise bound `J_0(u) ≍ (1 + u)^{-3/2} exp(-(4/3) u^{3/2})` on `u ≥ 0`
+(`eq:al-reference-positive-bounds`, first display). -/
+theorem airyRefJ0_pointwise_bounds :
+    ∃ c C : ℝ, 0 < c ∧ c ≤ C ∧ ∀ u : ℝ, 0 ≤ u →
+      c * ((1 + u) ^ (-(3 / 2 : ℝ)) * Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ))) ≤
+        (airyRefJ0 (u : ℂ)).re ∧
+      (airyRefJ0 (u : ℂ)).re ≤
+        C * ((1 + u) ^ (-(3 / 2 : ℝ)) * Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ))) := by
+  set w : ℝ → ℝ := fun u => (1 + u) ^ (-(3 / 2 : ℝ)) * Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ))
+    with hw
+  have hw_pos : ∀ u : ℝ, 0 ≤ u → 0 < w u := fun u hu => by
+    have : 0 < 1 + u := by linarith
+    positivity
+  have hw_cont : ContinuousOn w (Set.Ici 0) := by
+    refine ContinuousOn.mul ?_ ?_
+    · exact ContinuousOn.rpow_const (continuousOn_const.add continuousOn_id)
+        (fun u hu => Or.inl (ne_of_gt (by have h : (0 : ℝ) ≤ u := hu; show 0 < 1 + u; linarith)))
+    · exact Real.continuous_exp.comp_continuousOn
+        (continuousOn_const.mul (ContinuousOn.rpow_const continuousOn_id
+          (fun _ _ => Or.inr (by norm_num))))
+  have hJ_cont : Continuous fun u : ℝ => (airyRefJ0 (u : ℂ)).re :=
+    Complex.continuous_re.comp (airyRefJ0_inAiryClass.1.continuous.comp Complex.continuous_ofReal)
+  obtain ⟨U, hU1, hlow⟩ := airyRefJ0_lower_tail
+  obtain ⟨C_J, hCJ, hup⟩ := airyRefJ0_pos_tail
+  have hK : IsCompact (Set.Icc (0 : ℝ) U) := isCompact_Icc
+  have hr_cont : ContinuousOn (fun u : ℝ => (airyRefJ0 (u : ℂ)).re / w u) (Set.Icc 0 U) :=
+    hJ_cont.continuousOn.div (hw_cont.mono Set.Icc_subset_Ici_self)
+      (fun u hu => (hw_pos u hu.1).ne')
+  have hne : (Set.Icc (0 : ℝ) U).Nonempty := ⟨0, le_refl _, by linarith⟩
+  obtain ⟨u₁, hu₁, hmin⟩ := hK.exists_isMinOn hne hr_cont
+  obtain ⟨u₂, hu₂, hmax⟩ := hK.exists_isMaxOn hne hr_cont
+  have hm_pos : 0 < (airyRefJ0 (u₁ : ℂ)).re / w u₁ :=
+    div_pos (airyRefJ0_pos u₁) (hw_pos u₁ hu₁.1)
+  have hpi : 0 < π := Real.pi_pos
+  have h32 : ∀ u : ℝ, 1 ≤ u → u ^ (-(3 / 2 : ℝ)) ≤ 4 * (1 + u) ^ (-(3 / 2 : ℝ)) ∧
+      (1 + u) ^ (-(3 / 2 : ℝ)) ≤ u ^ (-(3 / 2 : ℝ)) := by
+    intro u hu
+    have hu0 : 0 < u := lt_of_lt_of_le zero_lt_one hu
+    have h1u : 0 < 1 + u := by linarith
+    refine ⟨?_, Real.rpow_le_rpow_of_nonpos hu0 (by linarith) (by norm_num)⟩
+    have hA : 0 < u ^ (3 / 2 : ℝ) := Real.rpow_pos_of_pos hu0 _
+    have hB : 0 < (1 + u) ^ (3 / 2 : ℝ) := Real.rpow_pos_of_pos h1u _
+    have hBle : (1 + u) ^ (3 / 2 : ℝ) ≤ 4 * u ^ (3 / 2 : ℝ) := by
+      calc (1 + u) ^ (3 / 2 : ℝ) ≤ (2 * u) ^ (3 / 2 : ℝ) :=
+            Real.rpow_le_rpow h1u.le (by linarith) (by norm_num)
+        _ = 2 ^ (3 / 2 : ℝ) * u ^ (3 / 2 : ℝ) := Real.mul_rpow (by norm_num) hu0.le
+        _ ≤ 4 * u ^ (3 / 2 : ℝ) := by
+            refine mul_le_mul_of_nonneg_right ?_ hA.le
+            calc (2 : ℝ) ^ (3 / 2 : ℝ) ≤ 2 ^ (2 : ℝ) :=
+                  Real.rpow_le_rpow_of_exponent_le (by norm_num) (by norm_num)
+              _ = 4 := by norm_num
+    rw [Real.rpow_neg hu0.le, Real.rpow_neg h1u.le]
+    calc (u ^ (3 / 2 : ℝ))⁻¹ = 4 * (4 * u ^ (3 / 2 : ℝ))⁻¹ := by field_simp
+      _ ≤ 4 * ((1 + u) ^ (3 / 2 : ℝ))⁻¹ :=
+          mul_le_mul_of_nonneg_left (inv_anti₀ hB hBle) (by norm_num)
+  refine ⟨min ((airyRefJ0 (u₁ : ℂ)).re / w u₁) (1 / (8 * π)),
+    max (max ((airyRefJ0 (u₂ : ℂ)).re / w u₂) (4 * C_J))
+      (min ((airyRefJ0 (u₁ : ℂ)).re / w u₁) (1 / (8 * π))),
+    lt_min hm_pos (by positivity), le_max_right _ _, fun u hu => ?_⟩
+  have hwu : 0 < w u := hw_pos u hu
+  have hwu' : w u = (1 + u) ^ (-(3 / 2 : ℝ)) * Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ)) := rfl
+  rw [← hwu']
+  rcases le_total u U with huU | hUu
+  · have hmem : u ∈ Set.Icc (0 : ℝ) U := ⟨hu, huU⟩
+    have h1 : (airyRefJ0 (u₁ : ℂ)).re / w u₁ ≤ (airyRefJ0 (u : ℂ)).re / w u :=
+      (isMinOn_iff.mp hmin) u hmem
+    have h2 : (airyRefJ0 (u : ℂ)).re / w u ≤ (airyRefJ0 (u₂ : ℂ)).re / w u₂ :=
+      (isMaxOn_iff.mp hmax) u hmem
+    constructor
+    · exact (mul_le_mul_of_nonneg_right (min_le_left _ _) hwu.le).trans
+        ((le_div_iff₀ hwu).mp h1)
+    · exact ((div_le_iff₀ hwu).mp h2).trans
+        (mul_le_mul_of_nonneg_right ((le_max_left _ _).trans (le_max_left _ _)) hwu.le)
+  · have hu1 : 1 ≤ u := hU1.trans hUu
+    obtain ⟨h4, h5⟩ := h32 u hu1
+    have hexp : 0 < Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ)) := Real.exp_pos _
+    constructor
+    · calc min ((airyRefJ0 (u₁ : ℂ)).re / w u₁) (1 / (8 * π)) * w u
+          ≤ (1 / (8 * π)) * w u := mul_le_mul_of_nonneg_right (min_le_right _ _) hwu.le
+        _ ≤ (1 / (8 * π)) * (u ^ (-(3 / 2 : ℝ)) * Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ))) := by
+            refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+            rw [hwu']
+            exact mul_le_mul_of_nonneg_right h5 hexp.le
+        _ ≤ _ := hlow u hUu
+    · calc (airyRefJ0 (u : ℂ)).re ≤ C_J * u ^ (-(3 / 2 : ℝ)) *
+            Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ)) := hup u hu1
+        _ ≤ C_J * (4 * (1 + u) ^ (-(3 / 2 : ℝ))) * Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ)) := by
+            refine mul_le_mul_of_nonneg_right ?_ hexp.le
+            exact mul_le_mul_of_nonneg_left h4 hCJ.le
+        _ = (4 * C_J) * w u := by rw [hwu']; ring
+        _ ≤ _ := mul_le_mul_of_nonneg_right
+              ((le_max_right _ _).trans (le_max_left _ _)) hwu.le
 
 /-- Two-sided Laplace bounds `c₁ (1 + y)^{-5/2} ≤ ℒ_y(J_0) ≤ C₁ (1 + y)^{-5/2}` for all `y ≥ 0`
 (`eq:al-reference-positive-bounds`, second display, from `positive_source_S0_floor`). -/
@@ -2213,8 +2365,8 @@ theorem hb_m23_node_interlace (D : ShellHBData) (hm : D.S.card = 2 ∨ D.S.card 
 /-- **Lemma `lem:airy-square-bound` (`ce_airy_lp_proofs.tex`, lines 215–224; `ce_airy_lp.tex`,
 lines 15, 57–63):**
 bundles all clauses of `lem:airy-square-bound`:
-1. Reference profile `J_0 ∈ 𝒢` with `J_0 > 0` on `ℝ` and `ℒ_y(J_0) ≍ (1 + y)^{-5/2}` on `y ≥ 0`
-   (`lem:al-reference-positive`);
+1. Reference profile `J_0 ∈ 𝒢` with `J_0 > 0` on `ℝ`, `J_0(u) ≍ (1 + u)^{-3/2} e^{-(4/3) u^{3/2}}` on
+   `u ≥ 0` and `ℒ_y(J_0) ≍ (1 + y)^{-5/2}` on `y ≥ 0` (`lem:al-reference-positive`);
 2. Trial-cutoff strict-site witness: for finite `S ⊂ ℝ`, `v ∈ ℝ`, and `M ≥ |S ∩ (v, ∞)| + 1` with
    `v < Λ_M(S ∩ (v, ∞))`, there exists `H` with `IsAiryStrictWitness S v H`;
 3. Finite-section and limiting chain: `Λ_M(s) ≤ λ(s)`, `(Λ_M(s) : EReal) ≤ u_sh(s) ≤ u_LP(s) ≤ a_1`
@@ -2226,6 +2378,11 @@ bundles all clauses of `lem:airy-square-bound`:
    `a_{m+1} < t_{m+1} < a_m < Λ_m(D.S \ {t_m})`. -/
 theorem lem_airy_square_bound :
     (InAiryClass airyRefJ0 ∧ (∀ u : ℝ, 0 < (airyRefJ0 (u : ℂ)).re) ∧
+      (∃ c C : ℝ, 0 < c ∧ c ≤ C ∧ ∀ u : ℝ, 0 ≤ u →
+        c * ((1 + u) ^ (-(3 / 2 : ℝ)) * Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ))) ≤
+          (airyRefJ0 (u : ℂ)).re ∧
+        (airyRefJ0 (u : ℂ)).re ≤
+          C * ((1 + u) ^ (-(3 / 2 : ℝ)) * Real.exp (-(4 / 3) * u ^ (3 / 2 : ℝ)))) ∧
       ∃ c₁ C₁ : ℝ, 0 < c₁ ∧ c₁ ≤ C₁ ∧ ∀ y : ℝ, 0 ≤ y →
         c₁ * (1 + y) ^ (-(5 / 2 : ℝ)) ≤ airyLaplace (fun u => (airyRefJ0 (u : ℂ)).re) y ∧
         airyLaplace (fun u => (airyRefJ0 (u : ℂ)).re) y ≤ C₁ * (1 + y) ^ (-(5 / 2 : ℝ))) ∧
@@ -2253,7 +2410,8 @@ theorem lem_airy_square_bound :
         airyZero (D.S.card + 1) < t D.S.card ∧
         t D.S.card < airyZero D.S.card ∧
         airyZero D.S.card < airyLambdaSection (airySites (D.S.erase D.tm)) D.S.card) :=
-  ⟨⟨airyRefJ0_inAiryClass, airyRefJ0_pos, airyLaplace_airyRefJ0_bounds⟩,
+  ⟨⟨airyRefJ0_inAiryClass, airyRefJ0_pos, airyRefJ0_pointwise_bounds,
+      airyLaplace_airyRefJ0_bounds⟩,
     fun S v _ hM hv => exists_isAiryStrictWitness_of_lt_section_above S v hM hv,
     fun _ _ s hM => ⟨airyLambdaSection_le_airyLambda s hM, airyLambdaSection_le_airyUSh s hM,
       airyLambda_le_airyUSh s, airyUSh_le_airyULP (Set.range s),
@@ -2266,6 +2424,10 @@ theorem lem_airy_square_bound :
 /-- info: 'FormalResearch.SignUncertainty.airyRefJ0_inAiryClass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalResearch.SignUncertainty.airyRefJ0_inAiryClass
+
+/-- info: 'FormalResearch.SignUncertainty.airyRefJ0_pointwise_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalResearch.SignUncertainty.airyRefJ0_pointwise_bounds
 
 /-- info: 'FormalResearch.SignUncertainty.airyLaplace_airyRefJ0_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

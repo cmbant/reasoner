@@ -276,8 +276,6 @@ structure CeCanonicalInputs (D : ShellHBData) (t : ℕ → ℝ) : Prop where
     ShellOffsetsSmall r →
       ∀ᶠ d : ℕ in atTop, ∃ R ∈ ceShellRadiusSet D r d,
         R ^ 2 / 2 ≤ (d : ℝ) / (2 * π ^ 2) - (v / hankelBeta1) * ((d : ℝ) / 2) ^ (1 / 3 : ℝ)
-  /-- `lem:airy-square-bound` (M9): for `m ≥ 2`, `Λ_m > a_m` (top `m - 1` sites). -/
-  airy_square_bound : 2 ≤ D.S.card → airyZero D.S.card < airyLambdaM (shellSites D) D.S.card
   /-- `lem:airy-node-square` (M9): for `m ≥ 2`, the fixed node-square bound `λ > τ_N > t_{m+e}`. -/
   airy_node_square : 2 ≤ D.S.card →
     hbTauN D t < airyLambdaOf (shellSites D) ∧ hbNode t (D.S.card + D.S.card / 2) < hbTauN D t
