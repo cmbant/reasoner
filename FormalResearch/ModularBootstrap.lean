@@ -20,6 +20,23 @@ public import FormalResearch.ModularBootstrap.FiveTerm.Regulariser
 public import FormalResearch.ModularBootstrap.FiveTerm.RegulariserDefect
 public import FormalResearch.ModularBootstrap.FiveTerm.CombRegularisation
 public import FormalResearch.ModularBootstrap.FiveTerm.CombEquality
+public import FormalResearch.ModularBootstrap.FiveTerm.StripOuterGen
+public import FormalResearch.ModularBootstrap.FiveTerm.StripOuterBoundary
+public import FormalResearch.ModularBootstrap.FiveTerm.StripOuterPoisson
+public import FormalResearch.ModularBootstrap.FiveTerm.SchwarzS
+public import FormalResearch.ModularBootstrap.FiveTerm.SchwarzSBoundary
+public import FormalResearch.ModularBootstrap.FiveTerm.BoundaryExt
+public import FormalResearch.ModularBootstrap.FiveTerm.QFactor
+public import FormalResearch.ModularBootstrap.FiveTerm.QBounds
+public import FormalResearch.ModularBootstrap.FiveTerm.CombData
+public import FormalResearch.ModularBootstrap.FiveTerm.StripInverse
+public import FormalResearch.ModularBootstrap.FiveTerm.VirasoroOuter
+public import FormalResearch.ModularBootstrap.FiveTerm.VirasoroSlit
+public import FormalResearch.ModularBootstrap.FiveTerm.VirasoroCoupling
+public import FormalResearch.ModularBootstrap.FiveTerm.VirasoroBounds
+public import FormalResearch.ModularBootstrap.FiveTerm.VirasoroJet
+public import FormalResearch.ModularBootstrap.FiveTerm.VirasoroDatum
+public import FormalResearch.ModularBootstrap.FiveTerm.VirasoroGuards
 public import FormalResearch.ModularBootstrap.Blowup.NormLimitCore
 public import FormalResearch.ModularBootstrap.Blowup.NormLimitIdentify
 public import FormalResearch.ModularBootstrap.Blowup.AiryNormLimit
@@ -519,6 +536,22 @@ public import FormalResearch.ModularBootstrap.Upper.Design.PhaseComb
 public import FormalResearch.ModularBootstrap.Upper.Design.CombTransformP
 public import FormalResearch.ModularBootstrap.Upper.Positivity.PropositionIIIRegionII
 public import FormalResearch.ModularBootstrap.Upper.Positivity.PropositionIII
+public import FormalResearch.ModularBootstrap.Integrality.IntClosed
+public import FormalResearch.ModularBootstrap.Integrality.MidpointGrid
+public import FormalResearch.ModularBootstrap.Integrality.CumulativeRounding
+public import FormalResearch.ModularBootstrap.Integrality.AngleShift
+public import FormalResearch.ModularBootstrap.Integrality.ChebAtoms
+public import FormalResearch.ModularBootstrap.Integrality.CorrDef
+public import FormalResearch.ModularBootstrap.Integrality.CorrEuclid
+public import FormalResearch.ModularBootstrap.Integrality.ChebMatching
+public import FormalResearch.ModularBootstrap.Integrality.ChebExplicit
+public import FormalResearch.ModularBootstrap.Integrality.MeasureAlg
+public import FormalResearch.ModularBootstrap.Integrality.ShellInvDefs
+public import FormalResearch.ModularBootstrap.Integrality.ShellInvStep
+public import FormalResearch.ModularBootstrap.Integrality.ShellInv
+public import FormalResearch.ModularBootstrap.Integrality.ShellInvCells
+public import FormalResearch.ModularBootstrap.Integrality.RepairIdentity
+public import FormalResearch.ModularBootstrap.Integrality.RepairTaylor
 
 /-!
 # Modular Bootstrap at Large Central Charge
@@ -1314,4 +1347,6 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `Blowup.{NormLimitCore, NormLimitIdentify, AiryNormLimit, ClarkNormLimit, SlackFeasible, NormLimitConcrete, HbNormLimit}` (SLK; `bl:norm`): the generic compactness and equality-principle layer for density sequences (`norm_limit`, `norm_limit_l1`, `threshold_le_of_negative`), slack-feasible tests (`IsSlackFeasible`, `densityHyp_of_slack`), and `airy_blnorm`, `clark_blnorm`, `hb_blnorm` (the `L^1` convergence of the normalised densities with vacuum slack at the Airy (`m_0 = 1`), Clark (`m_0 = 2`) and general Hermite-Biehler levels), in the Langer `u`-variable only (the `s`-variable form `(T - xi_bar c')/c'^{1/3}` is not formalised); the interior condition `T_j <= Delta_{c'}(-K)` ('`s(T_j)` bounded above') is a hypothesis.
 * `Stability.{AiryStabilityBase, AiryStabilityLower, AiryStability, TerminalStability, ClarkStability}` (STAB): `airy_stability` (`rem:thmBstab`: `I(delta)/delta -> 1/(2 L_*)`), `clark_stability` (the first assertion of `se:3.1`), `terminal_stability` (`se:terminal-stability` as an abstract theorem over quadrature data; no concrete Hermite-Biehler instance yet). Not formalised: the second assertion of `se:3.1`, the HB instance of `se:terminal-stability`.
 * `Upper.Rigidity.SpectrumCorollary` (SR-COR; `sr:cor`): vague-limit portmanteau lemmas, the chart identities (`position_identity`, `cluster_position`), `cluster_mass_tendsto`, `heavy_atom_near_node`, `cluster_position_tendsto`, `crossing_cluster_mass`, `crossing_heavy_atom` (masses, positions and heavy atoms of the clusters; the weighted-barycentre assertion, the single-level ratios `R_n` and `sr:eD1` are not formalised).
+* `FiveTerm.{StripOuterGen, StripOuterBoundary, StripOuterPoisson, SchwarzS, SchwarzSBoundary, BoundaryExt, QFactor, QBounds, CombData, StripInverse, VirasoroOuter, VirasoroSlit, VirasoroCoupling, VirasoroBounds, VirasoroJet, VirasoroDatum, VirasoroGuards}` (FIVE-0, the outer function; `cts:involution` (1)-(3), `cts:Gmod`, `cts:coupling`, `cts:R-id`): the strip Schwarz integral `hbarA` of an even real-analytic amplitude (generalised copies of Paper I's `CtOuter*` edge lemmas, which are imported where already generic), the slit-matched amplitude `aAmp`, the boundary extension `qBd` of the quotient factor, and the explicit outer function `Gout z = exp(hbarA aAmp (sInv z)) (1-z)^{1/2} (1+z)^{-2} (qBd z)^{-1/4}`; `gout_modulus` (`|Gout(iy)| = Wslit y`), `gout_coupling`, `gout_near_one`, `gout_near_I`, `gout_jet`, **`gout_outerDatum`** (`OuterDatum Wslit Kedge g1 Gout` for the Virasoro data, `g1 = Gout'(0)` real) and **`comb_minimum_virasoro`** (the exact minimum of the comb functional `combJ` over `HAdm` is `c0StarOf g1Out`). Not formalised: the identification `g1Out = g1Vir` (so that the minimum is the closed form `c0Star`), and the jets `g3`, `gamma0` (`ctu:jets`, `ctu:piece4`). The bounds at `+-i` are weaker than the paper's (`|1+z^2|^{-5/4}` upper bound, positive lower bound).
+* `Integrality.{IntClosed, MidpointGrid, CumulativeRounding, AngleShift, ChebAtoms, CorrDef, CorrEuclid, ChebMatching, ChebExplicit, MeasureAlg, ShellInvDefs, ShellInvStep, ShellInv, ShellInvCells, RepairIdentity, RepairTaylor}` (INT-T, partial; `integrality.tex` `int:int-closed`, `int:cheb-explicit`, `int:shell-inv`, `int:repair-identity`, Taylor core of `int:repair`): **`int_closed`**, `isIntegerCounting_of_vagueLimit` (vague limits of integer counting measures are integer counting measures, for locally finite measures on a proper metric space); the midpoint-cosine pipeline (Fejér weights `fejerWeight`, `cumulative_rounding`, the Euclidean angle shift `exists_angleShift`, `corr_euclid`, `exists_integer_atomic_of_corr`) and **`cheb_explicit`** (integer atomic moment matching for the floor `W_0 >= 8 N^{5/2}`; the filtered floor `640 N^2` of `int:cheb` is not formalised); **`ShellSetup.shell_inv`** (the shell-by-shell construction of an integer atomic measure from a cell step, stage index shifted by one against the paper); `repair_identity_band`, `repair_identity_cross`, `repair_identity_bound` (the function-level repair identity, with the solution `f` of `f + P U f = P h_eta` and its norm bound as hypotheses); `hankelDual_bound` (the Taylor estimate `int:Hw-eta`). Not formalised: `int:cheb` at `640 N^2`, `int:sonine`, Weber's integral and the Sonine bound inside `int:repair`.
 -/
