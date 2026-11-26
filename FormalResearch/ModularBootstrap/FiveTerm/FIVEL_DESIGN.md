@@ -85,10 +85,17 @@ Delivered (all built under the lock, axioms `[propext, Classical.choice, Quot.so
    (lower half of `thm:spinless-expansion`, conditional on `gp:L`).
 2. `LowerCorL`: `corL_virasoro` (`rem:corL` packaged at Virasoro, unconditional).
 3. `LowerSign`: `c0Star_neg` (`c_0^* < 0`), so `teb:quant_c1_near` is not needed at Virasoro.
+4. `LowerBoasResidue`: the abstract core of `cts:boas` Step 3 (`boas_residue_identity`, `boas_local_lower`,
+   `boasTop_norm_le`, `boasVert_norm_le`), `prob`-free.
+5. `LowerDyadic`: the exponent bookkeeping of `ctl:dyadic`, `ctl:pass2`, `ctl:freeze` and the Boas rectangle
+   (`pass2_exponents`, `gauss_window_exponents`, `gauss_top_le`, `gauss_vert_le`, `top_edge_exponent`, `dyadic_term_le`,
+   `markov_select`).
+6. `LowerEdgeHankel`: `cts:edge-hankel`(1) at Virasoro with absolute constants (`edge_hankel_exp_small` generic in `prob`,
+   `edge_hankel_integral_sharp`, `edge_hankel_sup_sharp`, bundle `edge_hankel_one_virasoro`).
 
-Not delivered, in dependency order (exact next steps in section 6):
-`LowerBoasResidue` (C8 Step 3 core), `LowerDyadic` (`ctl:dyadic`, `ctl:freeze` arithmetic), `LowerEdgeHankel` (C5),
-`LowerCauchyDual` (C6), `LowerRosc` (C7, `ctl:pass2`), `LowerBoas` (C8), `LowerMain` (C9), `LowerNear` (`teb:quant_c1_near`).
+Not delivered, in dependency order (exact next steps in section 6): `cts:edge-hankel`(2), `cts:cauchy-dual`, `cts:rosc-uncond`
+and `ctl:pass2` (analytic content), `cts:boas` Steps 1-2 and the Gaussian assembly, `cts:lower-main`, the `u~ <-> tau` bridge,
+`teb:quant_c1_near`.
 
 ## 6. Status
 
@@ -97,22 +104,25 @@ Not delivered, in dependency order (exact next steps in section 6):
 | `rem:corL` | proved at Virasoro (item (d) with `c'^{-1/3}`, stronger than the paper; the `C^1`-convergence clause of (c) is not exported) | `LowerCorL.corL_virasoro` |
 | `teb:quant_c1_near` | not formalised; true as stated; bypassed at Virasoro because `c0Star < 0` | `LowerSign.c0Star_neg` |
 | `rem:thmOloc` | not formalised; not on the critical path | none |
+| `cts:edge-hankel` (1) | proved at Virasoro (absolute constants; `G` is the defined Hankel integral, Hankel inversion not formalised) | `LowerEdgeHankel.edge_hankel_one_virasoro` |
+| `cts:edge-hankel` (2) | NOT proved (two-term complex Bessel asymptotics) | none |
+| `cts:boas` | Step 3 residue core proved (`prob`-free); Steps 1-2 (conformal phase coordinate, `h-growth`) and the Gaussian assembly NOT proved | `LowerBoasResidue` |
+| `ctl:dyadic`, `ctl:pass2`, `ctl:freeze` | only the exponent bookkeeping and the Markov selection are proved; the analytic estimates are NOT | `LowerDyadic` |
+| `cts:cauchy-dual`, `cts:rosc-uncond`, `cts:lower-main` | NOT proved | none |
 | lower half of `thm:spinless-expansion` | proved only modulo the named hypothesis `LowerPhaseStatement` (`gp:L`); the conversion from phase to dimension is unconditional | `LowerPhaseChart.spinless_lower_of_phase` |
-| `cts:edge-hankel`, `cts:cauchy-dual`, `cts:rosc-uncond`, `cts:boas`, `cts:lower-main`, `ctl:dyadic`, `ctl:pass2`, `ctl:freeze` | NOT proved | none |
 
 Exact next steps.
-* `cts:boas` Step 3 core: the Boas residue identity.  `K_+(zeta) = q^2/(1-q) = -1 - q + 1/(1-q)`; Cauchy on `[a,b] x [eps',H]`;
-  regularise the poles with `dslope exp 0`; let `eps' -> 0` using `Complex.log` limits from the upper half-plane.  Identity:
-  `int_a^b g (1 + 2 cos(2 pi (u - phi_0))) du = sum g(zeta_n) - 2 Re(Top - I Right + I Left)`.
-* `cts:edge-hankel` (1): needs the sharp `C M[g]` bound (`lemmaB_d_integral` only has a crude `c'^2` constant), from
-  `proposition_M_exp_general`, `stripPoissonJensen_general`, `majorantReal_g_deficit`; (2): two-term complex Bessel asymptotics
-  (`besselI0C_sector_asymptotic` has the leading term only).
+* `cts:edge-hankel` (2): the two-term expansion `J_0(z) = e^{i pi/4} e^{c'L}/sqrt(2 pi z) (1 + 3i/(32 pi x c'(v+i/2)) + O(|z|^{-2}))`
+  uniformly for `arg z in (0, pi/2]`, plus the three-term `V(t(x))` expansion; `ComplexBessel/BesselI0Sector` (889 lines) has the
+  leading term only and is the template.
+* `cts:boas` Steps 1-2: `zeta(b) = (c'/(2 pi i))(Phi_0(b) + L(b))` on `D_*^-` and its univalence (Noshiro-Warschawski, not in Mathlib),
+  then the complex Poisson-Jensen bound on all of `D_*^-` (Lean has `stripPoissonJensen_complex_general` only at tip points
+  `|z - sigma_*| <= 0.1`), giving `h-growth`.  Step 3 then combines `boas_local_lower`, `gauss_top_le`, `gauss_vert_le`.
 * `cts:cauchy-dual`: the `b <-> z` transport (`w = cosh(pi b)`, `z = zeta_D(b)`), then the CFU / steepest-descent stack for the
   Paper II phase, reusing the abstract parts of Paper I (`sd_eval`, `outer_band`, `stat_phase`, `morse_expansion`, `scalar_ift`).
-* `ctl:dyadic`, `ctl:freeze`: the exponent arithmetic lemmas, stated for arbitrary reals, then C7 / C8 using them.
-* `teb:quant_c1_near`: copy-adapt `QuantC1Airy` (about 1300 lines), replacing `a_1 < u_T` by `a_1 - K_1 c'^{-1/3} <= u_T`
-  (uses at `hx_hi`, `hN_uT` and the `u_T` bounds); only the limit threshold `>= a_1` is used.  Needed only if the sign of `c_0^*`
-  is unknown, which is not the case at Virasoro.
+* `ctl:dyadic`, `ctl:pass2`: the strip-band reduction of Proposition C7a (van der Corput, `teb:kernel`) and the sine-pairing
+  estimates; the measure of `{r in [r_0, 2 r_0] : |sin(2 r^3/3 + pi/4)| >= 1/2}` (about `7/18 r_0`) feeds `markov_select`.
+* `teb:quant_c1_near`: copy-adapt `QuantC1Airy` (about 1300 lines), replacing `a_1 < u_T` by `a_1 - K_1 c'^{-1/3} <= u_T`.
+  Needed only if the sign of `c_0^*` is unknown, which is not the case at Virasoro.
 * The `u~ <-> tau` bridge: the exact relation between `virasoroDeltaChart` and `cumulN` on the band, linking the Airy-chart
   displacement to `LowerPhaseStatement`.
-* `PLAN.md` still says `c0Star < 0` is not proved; `LowerSign.c0Star_neg` proves it (to be updated by the lead).
