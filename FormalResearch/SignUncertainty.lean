@@ -55,6 +55,8 @@ public import FormalResearch.SignUncertainty.HankelWindow
 public import FormalResearch.SignUncertainty.HankelChartSecond
 public import FormalResearch.SignUncertainty.HankelThresholds
 public import FormalResearch.SignUncertainty.HeadlineDefs
+public import FormalResearch.SignUncertainty.CeCanonicalDefs
+public import FormalResearch.SignUncertainty.HbMultilevelDefs
 public import FormalResearch.SignUncertainty.CEShellReduction
 public import FormalResearch.SignUncertainty.HankelWtBasics
 public import FormalResearch.SignUncertainty.HardyMellinIntertwiner
@@ -777,9 +779,11 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.FctEdgeIbp` (`fct:edge-ibp`, Lemma FCT.5a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `edgeW`, `fct_edge_ibp_cutoff` (Part (1): removing an edge cutoff with Abel regularisation `e^{-ετ²}`), `fct_edge_ibp_shoulder` (Part (2): shoulder estimate under the corrected derivative range `1 ≤ k ≤ n` matching `Φ ∈ C^{n+1}`), and bundled `fct_edge_ibp`.
 * `FormalResearch.SignUncertainty.FctCuspEdgeIbp`, `FctCuspEdgeInner`, `FctCuspEdgeSmall`, `FctCuspEdgeLarge`, `FctCuspEdge` (`fct:cusp-edge`, Lemma FCT.7a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `CuspAmplitude`, `CuspProfile`, `cuspEdgeJ`, and `fct_cusp_edge` (`‖J_c(L)‖ ≤ C (1 + c^{2/3} L)^{-α - 1}` uniformly for `c ≥ 1`, `L ≥ 0`, `0 < α < 2`, as in the paper).
 * `FormalResearch.SignUncertainty.FctCompDStrip`, `FctCompDCauchy`, `FctCompDTargets`, `FctCompDPart1`, `FctCompDPart2a`, `FctCompDPart2` (`fct:comp-D`, Lemma FCT.3, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `fct_comp_D_part1` (localized strip outer compensator `v = v₀ + v₁ + v_α`, zeroed moments `0..4`, exact inner form `(fct:v-inner)`, all-order derivative/phase/tail/interior bounds, and all-order global closed-strip bound `norm_iteratedDeriv_stripCompGExt_le` on `S̄` repairing the paper's omission of `g_D''`), `fct_comp_D_part2` (`(fct:cos-pen)`, exact cosine identity for `H_*`, `(fct:curv-p-int)` for `p ≤ 2`, inner integral `∫_0^{3δ_L} D_*`, `(fct:bump-1L)`, and `(fct:bump-2L)`), and `fct_comp_D_part3` (exact Cauchy phase-curvature identities `(fct:cauchy-curv)` for all `m ≥ 1` with `O_m(M τ₁³)` specialization and `m = 1` leading constants `-(π/4)`, `-(π/12)`).
-* `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
-  `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
-  whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
+* `FormalResearch.SignUncertainty.HbMultilevelDefs`, `CeCanonicalDefs` (M0 skeleton, statement objects and input structures of `thm_intro_hb` and `thm_ce_canonical_iff`; the structures `HbMultilevelInputs`, `CeCanonicalInputs` have the open TeX results as fields).
+* `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`, `thm_intro_hb`
+  (`u1cl:multilevel`) and `thm_ce_canonical_iff` (`thm:intro-gap`, `thm:ce-canonical-iff`) of Paper I, each proved
+  from one input structure whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5), and the
+  proved `thm_ce_shell_gap`, `thm_ce_shell_gap_even`.
 * `FormalResearch.SignUncertainty.SignSeparationLimsup`: the retired separation bound
   `separation_neg_two_div_pi_sq` (`limsup (T⁺ - T⁻) ≤ -2/π²`, old `gt:7.9c`, deleted from the paper and
   superseded by `eq:ct-split`), conditional on `SeparationInputs`; kept for its reusable steps, not a headline.
