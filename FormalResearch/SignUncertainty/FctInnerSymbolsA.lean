@@ -592,7 +592,8 @@ lemma Fam.A_nonneg {V U : ℝ} {n : ℕ} {q A : ℝ} {h : ℝ → ℝ → ℂ} (
 theorem fam_main (M : ℝ) : ∀ n : ℕ, ∀ q : ℝ, q < 3 * n - 1 → ∃ C : ℝ, 0 ≤ C ∧
     ∀ (û V U A : ℝ) (h : ℝ → ℝ → ℂ), |û| ≤ M → V = fctU0 M - 1 → fctU0 M ≤ U → Fam V U n q A h →
       ∃ R : ℂ, Tendsto (fun ε => ∫ u in Ioi U, h ε u * Complex.exp (fctW û ε u)) (𝓝[>] 0) (𝓝 R) ∧
-        ‖R‖ ≤ C * A * U ^ (q + 1 - 3 * (n : ℝ)) := by
+        ‖R‖ ≤ C * A * U ^ (q + 1 - 3 * (n : ℝ)) ∧
+        ∀ ε ∈ Ioo (0 : ℝ) 1, ‖∫ u in Ioi U, h ε u * Complex.exp (fctW û ε u)‖ ≤ C * A * U ^ (q + 1 - 3 * (n : ℝ)) := by
   intro n
   induction n with
   | zero =>
@@ -608,7 +609,24 @@ theorem fam_main (M : ℝ) : ∀ n : ℕ, ∀ q : ℝ, q < 3 * n - 1 → ∃ C :
     have hmeas : ∀ ε ∈ Icc (0 : ℝ) 1, ContinuousOn (h ε) (Ioi U) := fun ε hε =>
       ((hF.smooth ε hε).continuousOn).mono (Ioi_subset_Ioi (by linarith))
     have hmem : Ioo (0 : ℝ) 1 ∈ 𝓝[>] (0 : ℝ) := Ioo_mem_nhdsGT (by norm_num)
-    refine ⟨∫ u in Ioi U, h 0 u * Complex.exp (fctW û 0 u), ?_, ?_⟩
+    have hbnd : ∀ ε ∈ Icc (0 : ℝ) 1, ‖∫ u in Ioi U, h ε u * Complex.exp (fctW û ε u)‖ ≤
+        1 / (-q - 1) * A * U ^ (q + 1 - 3 * ((0 : ℕ) : ℝ)) := by
+      intro ε hε
+      have hg : ∀ u ∈ Ioi U, ‖h ε u * Complex.exp (fctW û ε u)‖ ≤ A * u ^ q := fun u hu => by
+        rw [norm_mul]
+        exact (mul_le_of_le_one_right (norm_nonneg _) (norm_exp_fctW_le hε.1 u)).trans
+          (hbd ε hε u (le_of_lt hu))
+      refine (norm_integral_le_of_norm_le hint ((ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall hg))).trans ?_
+      rw [integral_const_mul, integral_Ioi_rpow_of_lt hq' hU0]
+      have : -U ^ (q + 1) / (q + 1) = (1 / (-q - 1)) * U ^ (q + 1) := by
+        have h1 : q + 1 ≠ 0 := by linarith
+        have h2 : -q - 1 = -(q + 1) := by ring
+        rw [h2, one_div, inv_neg, neg_mul, inv_mul_eq_div, neg_div]
+      rw [this]
+      simp only [Nat.cast_zero, mul_zero, sub_zero]
+      apply le_of_eq; ring
+    refine ⟨∫ u in Ioi U, h 0 u * Complex.exp (fctW û 0 u), ?_, hbnd 0 ⟨le_rfl, zero_le_one⟩,
+      fun ε hε => hbnd ε ⟨hε.1.le, hε.2.le⟩⟩
     · refine tendsto_integral_filter_of_dominated_convergence (fun u => A * u ^ q) ?_ ?_ hint ?_
       · filter_upwards [hmem] with ε hε
         exact ((hmeas ε ⟨hε.1.le, hε.2.le⟩).mul (continuous_fctW û ε).cexp.continuousOn).aestronglyMeasurable
@@ -624,19 +642,6 @@ theorem fam_main (M : ℝ) : ∀ n : ℕ, ∀ q : ℝ, q < 3 * n - 1 → ∃ C :
         have h2 : Tendsto (fun ε : ℝ => Complex.exp (fctW û ε u)) (𝓝[>] 0) (𝓝 (Complex.exp (fctW û 0 u))) :=
           (((continuous_fctW_eps û u).cexp).tendsto 0).mono_left nhdsWithin_le_nhds
         exact h1.mul h2
-    · have hg : ∀ u ∈ Ioi U, ‖h 0 u * Complex.exp (fctW û 0 u)‖ ≤ A * u ^ q := fun u hu => by
-        rw [norm_mul]
-        exact (mul_le_of_le_one_right (norm_nonneg _) (norm_exp_fctW_le le_rfl u)).trans
-          (hbd 0 ⟨le_rfl, zero_le_one⟩ u (le_of_lt hu))
-      refine (norm_integral_le_of_norm_le hint ((ae_restrict_iff' measurableSet_Ioi).2 (Filter.Eventually.of_forall hg))).trans ?_
-      rw [integral_const_mul, integral_Ioi_rpow_of_lt hq' hU0]
-      have : -U ^ (q + 1) / (q + 1) = (1 / (-q - 1)) * U ^ (q + 1) := by
-        have h1 : q + 1 ≠ 0 := by linarith
-        have h2 : -q - 1 = -(q + 1) := by ring
-        rw [h2, one_div, inv_neg, neg_mul, inv_mul_eq_div, neg_div]
-      rw [this]
-      simp only [Nat.cast_zero, mul_zero, sub_zero]
-      apply le_of_eq; ring
   | succ n ih =>
     intro q hq
     obtain ⟨C', hC'0, hC'⟩ := ih (q - 3) (by push_cast at hq; linarith)
@@ -646,11 +651,11 @@ theorem fam_main (M : ℝ) : ∀ n : ℕ, ∀ q : ℝ, q < 3 * n - 1 → ∃ C :
     have hU0 : 0 < U := by linarith
     have hVU : V < U := by rw [hV]; linarith
     have hF' := hK M û V U q A h hM hV hU hF
-    obtain ⟨R, hR, hRb⟩ := hC' û V U (K * A) _ hM hV hU hF'
-    refine ⟨R, ?_, ?_⟩
-    · refine hR.congr' ?_
-      have hmem : Ioo (0 : ℝ) 1 ∈ 𝓝[>] (0 : ℝ) := Ioo_mem_nhdsGT (by norm_num)
-      filter_upwards [hmem] with ε hε
+    obtain ⟨R, hR, hRb, hRu⟩ := hC' û V U (K * A) _ hM hV hU hF'
+    have hmem : Ioo (0 : ℝ) 1 ∈ 𝓝[>] (0 : ℝ) := Ioo_mem_nhdsGT (by norm_num)
+    have hibp : ∀ ε ∈ Ioo (0 : ℝ) 1, (∫ u in Ioi U, fctDop û ε (h ε) u * Complex.exp (fctW û ε u)) =
+        ∫ u in Ioi U, h ε u * Complex.exp (fctW û ε u) := by
+      intro ε hε
       have hε' : ε ∈ Icc (0 : ℝ) 1 := ⟨hε.1.le, hε.2.le⟩
       have hA0 := hF.A_nonneg hU0
       symm
@@ -684,10 +689,13 @@ theorem fam_main (M : ℝ) : ∀ n : ℕ, ∀ q : ℝ, q < 3 * n - 1 → ∃ C :
               mul_le_mul h1 (by simpa [fctQ] using h2) (norm_nonneg _) (by positivity)
           _ = 8 * A * u ^ (q - 2) := by
               rw [show q - 2 = q + (-2) by ring, Real.rpow_add hu0]; ring
+    have e : (q - 3) + 1 - 3 * (n : ℝ) = q + 1 - 3 * ((n + 1 : ℕ) : ℝ) := by push_cast; ring
+    refine ⟨R, hR.congr' (by filter_upwards [hmem] with ε hε; exact hibp ε hε), ?_, fun ε hε => ?_⟩
     · refine hRb.trans ?_
-      have e : (q - 3) + 1 - 3 * (n : ℝ) = q + 1 - 3 * ((n + 1 : ℕ) : ℝ) := by push_cast; ring
-      rw [e]
-      apply le_of_eq; ring
+      rw [e]; apply le_of_eq; ring
+    · rw [← hibp ε hε]
+      refine (hRu ε hε).trans ?_
+      rw [e]; apply le_of_eq; ring
 
 
 /-! ### Symbol calculus on `[U, ∞)` -/
@@ -934,6 +942,7 @@ lemma norm_fctRho {u : ℝ} (hu : 0 < u) : ‖fctRho u‖ = u ^ (-(1 / 2 : ℝ))
 /-- The part of the regularised integral near `0` (where the cutoff `1 - s` is supported): integrable for every `ε ≥ 0`, and the Abel limit exists with a bound `C_N B`. -/
 lemma near_part (M : ℝ) (n : ℕ) (p : ℝ) : ∃ CN : ℝ, 0 ≤ CN ∧ ∀ (û B : ℝ) (κ : ℝ → ℂ), 0 ≤ B → FctSymCls n p B κ →
     (∀ ε : ℝ, 0 ≤ ε → IntegrableOn (fun u => (1 - fctStep (fctU0 M) u) * fctRho u * κ u * Complex.exp (fctW û ε u)) (Ioi 0)) ∧
+    (∀ ε : ℝ, 0 ≤ ε → ‖∫ u in Ioi 0, (1 - fctStep (fctU0 M) u) * fctRho u * κ u * Complex.exp (fctW û ε u)‖ ≤ CN * B) ∧
     ∃ N₀ : ℂ, Tendsto (fun ε => ∫ u in Ioi 0, (1 - fctStep (fctU0 M) u) * fctRho u * κ u * Complex.exp (fctW û ε u))
       (𝓝[>] 0) (𝓝 N₀) ∧ ‖N₀‖ ≤ CN * B := by
   have h6 := fctU0_ge_six M
@@ -988,35 +997,36 @@ lemma near_part (M : ℝ) (n : ℕ) (p : ℝ) : ∃ CN : ℝ, 0 ≤ CN ∧ ∀ (
       by_contra hle; push Not at hle
       exact hu.2 ⟨hu.1, hle⟩
     rw [hg0 u this.le, zero_mul]
-  refine ⟨fun ε hε => ?_, ?_⟩
-  · exact (hFint ε hε).of_forall_sdiff_eq_zero measurableSet_Ioi (hzero ε)
-  · have hI : ∀ ε : ℝ, ∫ u in Ioi 0, g₀ u * Complex.exp (fctW û ε u) = ∫ u in Ioc 0 (U₀ + 1), g₀ u * Complex.exp (fctW û ε u) :=
-      fun ε => setIntegral_eq_of_subset_of_forall_sdiff_eq_zero measurableSet_Ioi Ioc_subset_Ioi_self (hzero ε)
-    have hfun : (fun ε : ℝ => ∫ u in Ioi 0, g₀ u * Complex.exp (fctW û ε u)) =
-        fun ε => ∫ u in Ioc 0 (U₀ + 1), g₀ u * Complex.exp (fctW û ε u) := funext hI
-    have hmem : Ioi (0 : ℝ) ∈ 𝓝[>] (0 : ℝ) := self_mem_nhdsWithin
-    refine ⟨∫ u in Ioc 0 (U₀ + 1), g₀ u * Complex.exp (fctW û 0 u), ?_, ?_⟩
-    · show Tendsto (fun ε : ℝ => ∫ u in Ioi 0, g₀ u * Complex.exp (fctW û ε u)) _ _
-      rw [hfun]
-      refine tendsto_integral_filter_of_dominated_convergence (fun u => B * Kp * u ^ (-(1 / 2 : ℝ))) ?_ ?_ hbint ?_
-      · exact Filter.Eventually.of_forall fun ε =>
-          ((hmeasF ε).mono Ioc_subset_Ioi_self).aestronglyMeasurable measurableSet_Ioc
-      · filter_upwards [hmem] with ε hε
-        refine (ae_restrict_iff' measurableSet_Ioc).2 (Filter.Eventually.of_forall fun u hu => ?_)
-        rw [norm_mul]
-        exact (mul_le_of_le_one_right (norm_nonneg _) (norm_exp_fctW_le (le_of_lt hε) u)).trans (hbd u hu.1 hu.2)
-      · refine Filter.Eventually.of_forall fun u => ?_
-        exact tendsto_const_nhds.mul ((((continuous_fctW_eps û u).cexp).tendsto 0).mono_left nhdsWithin_le_nhds)
-    · refine (norm_integral_le_of_norm_le hbint ?_).trans ?_
-      · refine (ae_restrict_iff' measurableSet_Ioc).2 (Filter.Eventually.of_forall fun u hu => ?_)
-        rw [norm_mul]
-        exact (mul_le_of_le_one_right (norm_nonneg _) (norm_exp_fctW_le le_rfl u)).trans (hbd u hu.1 hu.2)
-      · rw [integral_const_mul, ← intervalIntegral.integral_of_le (by linarith : (0 : ℝ) ≤ U₀ + 1),
-          integral_rpow (Or.inl (by norm_num))]
-        have : (-(1 / 2 : ℝ)) + 1 = 1 / 2 := by norm_num
-        rw [this, Real.zero_rpow (by norm_num), sub_zero]
-        apply le_of_eq; field_simp
-
+  have hI : ∀ ε : ℝ, ∫ u in Ioi 0, g₀ u * Complex.exp (fctW û ε u) = ∫ u in Ioc 0 (U₀ + 1), g₀ u * Complex.exp (fctW û ε u) :=
+    fun ε => setIntegral_eq_of_subset_of_forall_sdiff_eq_zero measurableSet_Ioi Ioc_subset_Ioi_self (hzero ε)
+  have hbN : ∀ ε : ℝ, 0 ≤ ε → ‖∫ u in Ioc 0 (U₀ + 1), g₀ u * Complex.exp (fctW û ε u)‖ ≤ Kp * (2 * (U₀ + 1) ^ (1 / 2 : ℝ)) * B := by
+    intro ε hε
+    refine (norm_integral_le_of_norm_le hbint ?_).trans ?_
+    · refine (ae_restrict_iff' measurableSet_Ioc).2 (Filter.Eventually.of_forall fun u hu => ?_)
+      rw [norm_mul]
+      exact (mul_le_of_le_one_right (norm_nonneg _) (norm_exp_fctW_le hε u)).trans (hbd u hu.1 hu.2)
+    · rw [integral_const_mul, ← intervalIntegral.integral_of_le (by linarith : (0 : ℝ) ≤ U₀ + 1),
+        integral_rpow (Or.inl (by norm_num))]
+      have : (-(1 / 2 : ℝ)) + 1 = 1 / 2 := by norm_num
+      rw [this, Real.zero_rpow (by norm_num), sub_zero]
+      apply le_of_eq; field_simp
+  refine ⟨fun ε hε => (hFint ε hε).of_forall_sdiff_eq_zero measurableSet_Ioi (hzero ε),
+    fun ε hε => by rw [hI ε]; exact hbN ε hε, ?_⟩
+  have hfun : (fun ε : ℝ => ∫ u in Ioi 0, g₀ u * Complex.exp (fctW û ε u)) =
+      fun ε => ∫ u in Ioc 0 (U₀ + 1), g₀ u * Complex.exp (fctW û ε u) := funext hI
+  have hmem : Ioi (0 : ℝ) ∈ 𝓝[>] (0 : ℝ) := self_mem_nhdsWithin
+  refine ⟨∫ u in Ioc 0 (U₀ + 1), g₀ u * Complex.exp (fctW û 0 u), ?_, hbN 0 le_rfl⟩
+  show Tendsto (fun ε : ℝ => ∫ u in Ioi 0, g₀ u * Complex.exp (fctW û ε u)) _ _
+  rw [hfun]
+  refine tendsto_integral_filter_of_dominated_convergence (fun u => B * Kp * u ^ (-(1 / 2 : ℝ))) ?_ ?_ hbint ?_
+  · exact Filter.Eventually.of_forall fun ε =>
+      ((hmeasF ε).mono Ioc_subset_Ioi_self).aestronglyMeasurable measurableSet_Ioc
+  · filter_upwards [hmem] with ε hε
+    refine (ae_restrict_iff' measurableSet_Ioc).2 (Filter.Eventually.of_forall fun u hu => ?_)
+    rw [norm_mul]
+    exact (mul_le_of_le_one_right (norm_nonneg _) (norm_exp_fctW_le (le_of_lt hε) u)).trans (hbd u hu.1 hu.2)
+  · refine Filter.Eventually.of_forall fun u => ?_
+    exact tendsto_const_nhds.mul ((((continuous_fctW_eps û u).cexp).tendsto 0).mono_left nhdsWithin_le_nhds)
 
 lemma fctSEps_eq (û ε : ℝ) (κ : ℝ → ℂ) :
     fctSEps û ε κ = Complex.exp (((-(π / 4) : ℝ) : ℂ) * Complex.I) *
@@ -1052,10 +1062,13 @@ lemma main_ident {û ε U₀ : ℝ} {κ : ℝ → ℂ} (hU₀ : 0 < U₀)
   ring
 
 
-/-- **`fct:inner-symbols` (a), existence and bounds** (Lemma FCT.5b (a)): proved.  Integration by parts `n` times with the complex phase `e^{w_ε}`,
-`w_ε' = D_ε`, `𝒟_ε g = -(g/D_ε)'`, uniformly in `ε ∈ (0, 1]`, after cutting `κ` at `U₀ = max(6, √(8M))` with a smooth step. -/
-theorem fctInnerSymbolsA : FctInnerSymbolsA := by
-  intro M n p hM hn hp
+/-- Auxiliary form of `fctInnerSymbolsA` that also records the uniform bound of the regularised integrals. -/
+theorem fctInnerSymbolsA_aux (M : ℝ) (n : ℕ) (p : ℝ) (_hM : 0 < M) (_hn : 1 ≤ n) (hp : p < 3 * n - 1 / 2) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ (û B : ℝ) (κ : ℝ → ℂ), |û| ≤ M → 0 ≤ B → FctSymCls n p B κ →
+      ((∃ L, FctSLimit û κ L) ∧ ‖fctS û κ‖ ≤ C * B ∧
+        ∀ ustar : ℝ, max 6 (√(8 * M)) ≤ ustar → (∀ u ∈ Icc (0 : ℝ) ustar, κ u = 0) →
+          ‖fctS û κ‖ ≤ C * B * ustar ^ (p + 1 / 2 - 3 * n)) ∧
+      ∀ ε ∈ Ioo (0 : ℝ) 1, ‖fctSEps û ε κ‖ ≤ C * B := by
   have hq : p - 1 / 2 < 3 * (n : ℝ) - 1 := by linarith
   obtain ⟨C₁, hC₁0, hC₁⟩ := fam_main M n (p - 1 / 2) hq
   obtain ⟨Ch, hCh0, hCh⟩ := amp_far M n p
@@ -1070,8 +1083,8 @@ theorem fctInnerSymbolsA : FctInnerSymbolsA := by
   obtain ⟨hfc, hfb⟩ := hCh B κ hB hκ
   have hFam : Fam (U₀ - 1) U₀ n (p - 1 / 2) (Ch * B) (fun _ => fun u => fctStep U₀ u * fctRho u * κ u) :=
     fam_const hfc (fun u _ hu => by simp [fctStep_eq_zero hu.le]) hfb
-  obtain ⟨R₁, hR₁, hR₁b⟩ := hC₁ û (U₀ - 1) U₀ (Ch * B) _ hû rfl le_rfl hFam
-  obtain ⟨hNint, N₀, hN₀, hN₀b⟩ := hCN û B κ hB hκ
+  obtain ⟨R₁, hR₁, hR₁b, hR₁u⟩ := hC₁ û (U₀ - 1) U₀ (Ch * B) _ hû rfl le_rfl hFam
+  obtain ⟨hNint, hNu, N₀, hN₀, hN₀b⟩ := hCN û B κ hB hκ
   have hFint : ∀ ε : ℝ, 0 < ε →
       IntegrableOn (fun u => fctStep U₀ u * fctRho u * κ u * Complex.exp (fctW û ε u)) (Ioi U₀) := by
     intro ε hε
@@ -1088,38 +1101,63 @@ theorem fctInnerSymbolsA : FctInnerSymbolsA := by
     refine (norm_add_le _ _).trans ?_
     have h1 : ‖R₁‖ ≤ C₁ * (Ch * B) * U₀ ^ e := hR₁b
     nlinarith [hN₀b]
-  refine ⟨⟨_, hL⟩, hBmain.trans (mul_le_mul_of_nonneg_right (le_max_left _ _) hB), fun ustar hust hz => ?_⟩
-  have hust' : U₀ ≤ ustar := hust
-  have hus0 : 0 < ustar := by linarith
-  obtain ⟨htc, htb⟩ := hCt B κ hB hκ
-  have hFam2 : Fam (U₀ - 1) ustar n (p - 1 / 2) (Ct * B) (fun _ => fun u => fctRho u * κ u) :=
-    fam_const htc (fun u hu1 hu2 => by
-      have : κ u = 0 := hz u ⟨by linarith, hu2.le⟩
-      simp [this]) (htb.mono_U hust')
-  obtain ⟨R₂, hR₂, hR₂b⟩ := hC₁ û (U₀ - 1) ustar (Ct * B) _ hû rfl hust' hFam2
-  have hL2 : FctSLimit û κ (Complex.exp (((-(π / 4) : ℝ) : ℂ) * Complex.I) * R₂) := by
-    unfold FctSLimit
-    refine (tendsto_const_nhds.mul hR₂).congr' ?_
-    filter_upwards [self_mem_nhdsWithin] with ε hε
-    rw [fctSEps_eq]
-    congr 1
-    have hz' : ∀ u ∈ Ioi (0 : ℝ) \ Ioi ustar, fctRho u * Complex.exp (fctW û ε u) * κ u = 0 := by
-      intro u hu
-      have : u ≤ ustar := by by_contra h; push Not at h; exact hu.2 h
-      rw [hz u ⟨hu.1.le, this⟩]; simp
-    rw [setIntegral_eq_of_subset_of_forall_sdiff_eq_zero measurableSet_Ioi (Ioi_subset_Ioi hus0.le) hz']
-    refine integral_congr_ae (Filter.Eventually.of_forall fun u => ?_)
-    simp only
-    ring
-  rw [hL2.fctS_eq, norm_mul, norm_phase, one_mul]
-  refine hR₂b.trans ?_
-  have hp0 : 0 ≤ ustar ^ (p + 1 / 2 - 3 * (n : ℝ)) := Real.rpow_nonneg hus0.le _
-  have e2 : e = p + 1 / 2 - 3 * (n : ℝ) := by rw [he]; ring
-  rw [e2]
-  have hmax : C₁ * Ct ≤ max (CN + C₁ * Ch * U₀ ^ (p + 1 / 2 - 3 * (n : ℝ))) (C₁ * Ct) := le_max_right _ _
-  have h3 : C₁ * (Ct * B) * ustar ^ (p + 1 / 2 - 3 * (n : ℝ)) = (C₁ * Ct) * B * ustar ^ (p + 1 / 2 - 3 * (n : ℝ)) := by ring
-  rw [h3]
-  exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hmax hB) hp0
+  have hunif : ∀ ε ∈ Ioo (0 : ℝ) 1, ‖fctSEps û ε κ‖ ≤ (max (CN + C₁ * Ch * U₀ ^ e) (C₁ * Ct)) * B := by
+    intro ε hε
+    rw [main_ident hU0pos (hNint ε hε.1.le) (hFint ε hε.1), norm_mul, norm_phase, one_mul]
+    refine ((norm_add_le _ _).trans ?_).trans (mul_le_mul_of_nonneg_right (le_max_left _ _) hB)
+    have h1 := hNu ε hε.1.le
+    have h2 : ‖∫ u in Ioi U₀, fctStep U₀ u * fctRho u * κ u * Complex.exp (fctW û ε u)‖ ≤ C₁ * (Ch * B) * U₀ ^ e :=
+      hR₁u ε hε
+    nlinarith
+  have htail : ∀ ustar : ℝ, max 6 (√(8 * M)) ≤ ustar → (∀ u ∈ Icc (0 : ℝ) ustar, κ u = 0) →
+      ‖fctS û κ‖ ≤ (max (CN + C₁ * Ch * U₀ ^ e) (C₁ * Ct)) * B * ustar ^ (p + 1 / 2 - 3 * (n : ℝ)) := by
+    intro ustar hust hz
+    have hust' : U₀ ≤ ustar := hust
+    have hus0 : 0 < ustar := by linarith
+    obtain ⟨htc, htb⟩ := hCt B κ hB hκ
+    have hFam2 : Fam (U₀ - 1) ustar n (p - 1 / 2) (Ct * B) (fun _ => fun u => fctRho u * κ u) :=
+      fam_const htc (fun u hu1 hu2 => by
+        have : κ u = 0 := hz u ⟨by linarith, hu2.le⟩
+        simp [this]) (htb.mono_U hust')
+    obtain ⟨R₂, hR₂, hR₂b, -⟩ := hC₁ û (U₀ - 1) ustar (Ct * B) _ hû rfl hust' hFam2
+    have hL2 : FctSLimit û κ (Complex.exp (((-(π / 4) : ℝ) : ℂ) * Complex.I) * R₂) := by
+      unfold FctSLimit
+      refine (tendsto_const_nhds.mul hR₂).congr' ?_
+      filter_upwards [self_mem_nhdsWithin] with ε hε
+      rw [fctSEps_eq]
+      congr 1
+      have hz' : ∀ u ∈ Ioi (0 : ℝ) \ Ioi ustar, fctRho u * Complex.exp (fctW û ε u) * κ u = 0 := by
+        intro u hu
+        have : u ≤ ustar := by by_contra h; push Not at h; exact hu.2 h
+        rw [hz u ⟨hu.1.le, this⟩]; simp
+      rw [setIntegral_eq_of_subset_of_forall_sdiff_eq_zero measurableSet_Ioi (Ioi_subset_Ioi hus0.le) hz']
+      refine integral_congr_ae (Filter.Eventually.of_forall fun u => ?_)
+      simp only
+      ring
+    rw [hL2.fctS_eq, norm_mul, norm_phase, one_mul]
+    refine hR₂b.trans ?_
+    have hp0 : 0 ≤ ustar ^ (p + 1 / 2 - 3 * (n : ℝ)) := Real.rpow_nonneg hus0.le _
+    have e2 : e = p + 1 / 2 - 3 * (n : ℝ) := by rw [he]; ring
+    rw [e2]
+    have hmax : C₁ * Ct ≤ max (CN + C₁ * Ch * U₀ ^ (p + 1 / 2 - 3 * (n : ℝ))) (C₁ * Ct) := le_max_right _ _
+    have h3 : C₁ * (Ct * B) * ustar ^ (p + 1 / 2 - 3 * (n : ℝ)) = (C₁ * Ct) * B * ustar ^ (p + 1 / 2 - 3 * (n : ℝ)) := by ring
+    rw [h3]
+    exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hmax hB) hp0
+  exact ⟨⟨⟨_, hL⟩, hBmain.trans (mul_le_mul_of_nonneg_right (le_max_left _ _) hB), htail⟩, hunif⟩
+
+/-- **`fct:inner-symbols` (a), existence and bounds** (Lemma FCT.5b (a), first three sentences), proved.  Integration by parts `n` times with the complex phase `e^{w_ε}`
+(`w_ε' = D_ε`, `𝒟_ε g = -(g/D_ε)'`), uniformly in `ε ∈ (0, 1]`, after cutting `κ` at `U₀ = max(6, √(8M))` with a smooth step. -/
+theorem fctInnerSymbolsA : FctInnerSymbolsA := by
+  intro M n p hM hn hp
+  obtain ⟨C, hC0, hC⟩ := fctInnerSymbolsA_aux M n p hM hn hp
+  exact ⟨C, hC0, fun û B κ h1 h2 h3 => (hC û B κ h1 h2 h3).1⟩
+
+/-- **Uniform bound for the regularised integrals**: `|𝒮_ε[κ](û)| ≤ C B` for `0 < ε < 1`, `|û| ≤ M` (the proof of `fctInnerSymbolsA` bounds the regularised integrals, not only their limit). -/
+theorem fctInnerSymbolsA_unif (M : ℝ) (n : ℕ) (p : ℝ) (hM : 0 < M) (hn : 1 ≤ n) (hp : p < 3 * n - 1 / 2) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ (û B : ℝ) (κ : ℝ → ℂ), |û| ≤ M → 0 ≤ B → FctSymCls n p B κ →
+      ∀ ε ∈ Ioo (0 : ℝ) 1, ‖fctSEps û ε κ‖ ≤ C * B := by
+  obtain ⟨C, hC0, hC⟩ := fctInnerSymbolsA_aux M n p hM hn hp
+  exact ⟨C, hC0, fun û B κ h1 h2 h3 => (hC û B κ h1 h2 h3).2⟩
 
 end FctSymA
 
@@ -1191,6 +1229,10 @@ theorem fctInnerSymbolsA_tail_c {p : ℝ} (hp : p ≤ 21) :
 /-- info: 'FormalResearch.SignUncertainty.FctSymA.fctInnerSymbolsA' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FctSymA.fctInnerSymbolsA
+
+/-- info: 'FormalResearch.SignUncertainty.FctSymA.fctInnerSymbolsA_unif' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FctSymA.fctInnerSymbolsA_unif
 
 /-- info: 'FormalResearch.SignUncertainty.fctInnerSymbolsA_box' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
