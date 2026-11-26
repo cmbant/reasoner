@@ -357,6 +357,11 @@ public import FormalResearch.SignUncertainty.UctSeedWindowY
 public import FormalResearch.SignUncertainty.UctSeedWindowQ
 public import FormalResearch.SignUncertainty.UctSeedWindowRef
 public import FormalResearch.SignUncertainty.UctSeedWindow
+public import FormalResearch.SignUncertainty.FctMomentCore
+public import FormalResearch.SignUncertainty.FctMomentSolver
+public import FormalResearch.SignUncertainty.FctPhiKillCore
+public import FormalResearch.SignUncertainty.FctPhiKill
+public import FormalResearch.SignUncertainty.FctEdgeIbp
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -590,6 +595,9 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `FormalResearch.SignUncertainty.UctSeedAdmiss` (with `UctSeedEdgeV` (Airy factor `v(q) = T(iq)`: `C^∞` off `0`, `|q|^{1/2-j}` near `0`, bounded far), `UctEnv2`, `UctEnvHolo` (`Env2` `C²`-envelope calculus, Cauchy estimates), `UctSeedEdgeE`, `UctSeedEdgeZT` (envelopes of `e^{-h(iτ)}`, `Z_ε(iτ)`, `T(a(1-iτ))`), `UctSeedEdgeAsm` (Leibniz bookkeeping)): (M3) for `W^seed`, `seedW_stripEdge0`, `seedW_stripEdge1` (parity), and `seedW_stripAdmissFull : StripAdmissFullData (1/2) (seedW ε δ c)` for `ε = ±1`, `0 ≤ δ ≤ 1`, `c > 0` (proved, unconditional).
   `FormalResearch.SignUncertainty.UctSeedEdgeKW`: `uctAstar` (`A_*(τ) = cosh(πτ)(πτ/sinh πτ)² e^{-u_r(τ)}(1+τ²)^{-1/2}`, even, `C^∞`, `A_*(0)=1`; `uctAstar_eq_paper`: `= τ^{5/2}|H_*(iτ)|/√(6/π² m'(τ))`), `uctMc` (`M_c = e^{B_c(iτ)} φ_{c,δ}(1-iτ)/φ_{c,δ}(1) A_*`), `seedZ_edge_core_all`, `kw_seed_edge_all` (`(uct:KW-seed-edge)`: `K₀(iτ,ξ) W^seed(iτ) = e^{icΦ_Ph(τ;L) - iθ_ε(τ)} M_c(τ) F̃_{*,δ}(-c_s c^{1/3}τ)` for every real `τ`, `ε = ±1`, `c > 0`). `UctMcSmall` (with `UctMcSmallBd`: the class `SmallBd` and `SmallBd.mul`; `UctMcSmallA`, `UctMcSmallE`, `UctMcSmallPhi`): `mc_small` (`(uct:Mc-small)`: for `c ≥ c₀`, `0 ≤ δ ≤ 1`, `M_c` is `C³` with `|M_c-1| ≤ K(c^{-2/3}|τ|+τ²)`, `|M_c'| ≤ K(c^{-2/3}+|τ|)`, `|M_c''|,|M_c'''| ≤ K` on `|τ| ≤ 1/5`; proved, unconditional).
   `FormalResearch.SignUncertainty.UctSeedWindow` (with `UctSeedWindowDiff`, `UctSeedWindowSym`, `UctSeedWindowY`, `UctSeedWindowQ`, `UctSeedWindowRef`; `uct:seed-asymp` (1), proved, unconditional): `seedHnorm`, `seed_window` (the fixed Airy window of `h_norm^seed`: `(k/c_s)F_{*,δ}(-β₁S_eff + β₁κ_εc^{-1/3}) + O_{S_w}(c^{-2/3})`), `main_line_diff_sym`, `seedSy_bound`, `seedYw_taylor`, `seedQ_expansion`, `ref_symbol_diff`.
+* `FormalResearch.SignUncertainty.FctMomentCore`, `FctMomentSolver` (`fct:moment-solver`, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `fctWeight`, `fctMoment`, `fctThetaD`, `momentSolver`, `momentSolver_linear`, `fct_moment_solver` (finite moment correction on `(-10τ₁, 10τ₁)` matching `f` on `[-2τ₁, 2τ₁]` with `ℳ_k[v] = 0`, `ϑ_D^{(2k+1)}(0) = 0` for `0 ≤ k < N`, uniform derivative, `L¹`, and `ϑ_D` vanishing bounds).
+* `FormalResearch.SignUncertainty.FctPhiKillCore`, `FctPhiKill` (`fct:phikill`, Lemma FCT.4, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `phiPQ`, `phiKill = phiPQ 8 8`, `fct_phikill` bundling (1) holomorphicity, real symmetry, `(0,1)` positivity on `(0,∞)`, `(fct:pk-zero)`, `(fct:pk-inf)`, uniform `{Re z ≥ 0}` and imaginary-axis bounds; (2) exact Cauchy moment vanishing `(fct:pk-cauchy)` for general `(p,q)`; and (3) exact `O(a^8)` finite-part cancellation `(fct:pk-fp)` for `H_*` (`c_{-1} = (47/20)α_osc`) and `H_CE` (`c_{-1} = -(13/20)α_osc`).
+* `FormalResearch.SignUncertainty.FctEdgeIbp` (`fct:edge-ibp`, Lemma FCT.5a, `constant_terms_five.tex`, F2a leaf; proved, unconditional): `edgeW`, `fct_edge_ibp_cutoff` (Part (1): removing an edge cutoff with Abel regularisation `e^{-ετ²}`), `fct_edge_ibp_shoulder` (Part (2): shoulder estimate under the corrected derivative range `1 ≤ k ≤ n` matching `Φ ∈ C^{n+1}`), and bundled `fct_edge_ibp`.
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
   whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
