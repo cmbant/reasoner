@@ -308,6 +308,12 @@ public import FormalResearch.SignUncertainty.UctStripIntegrals
 public import FormalResearch.SignUncertainty.UctBumpSymbol
 public import FormalResearch.SignUncertainty.UctBumpSymbolAdmiss
 public import FormalResearch.SignUncertainty.UctBumpEdge
+public import FormalResearch.SignUncertainty.UctBumpMain
+public import FormalResearch.SignUncertainty.UctFourierTwice
+public import FormalResearch.SignUncertainty.UctBumpReflEll
+public import FormalResearch.SignUncertainty.UctBumpReflAmp
+public import FormalResearch.SignUncertainty.UctBumpReflB
+public import FormalResearch.SignUncertainty.UctBumpRefl
 public import FormalResearch.SignUncertainty.UctOuterGrowth
 public import FormalResearch.SignUncertainty.UctGenPreedge
 public import FormalResearch.SignUncertainty.UctSeedZ
@@ -554,6 +560,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.UctBumpSymbol` (`uct:bump-symbol`, first display only; proved, unconditional): `bump_laplace_decay` (`|B̂(c(σ+iτ))| ≤ C_r M Λ_α(δ) e^{-bcσδ}(1+cδ|τ|)^{-r}`).
   `FormalResearch.SignUncertainty.UctBumpSymbolAdmiss`: `bump_stripM1` ((M1) of `uct:admiss` for `ΔW_c = c^{-1/3}B̂(c·)`), `bump_holder_one` ((M2) at `ζ=1`).
   `FormalResearch.SignUncertainty.UctBumpEdge`: `bump_stripEdge0`, `bump_stripEdge1` ((M3) at both edges), `bump_holder_zero`, and `bump_stripAdmissFull` (`StripAdmissFullData (1/2)` for `ΔW_c`: the admissibility of `uct:bump-symbol`).
+  `FormalResearch.SignUncertainty.UctBumpMain` (`kernel_line_shift`: the `σ`-line integral of `K₀ ΔW_c` equals the `σ = 0` one; `bump_main_density`: `‖Δh_main‖ ≤ C M (cδ)⁻¹ Λ_α(δ) e^{-κ c δ^{3/2}}` for `log(π²ξ) ≤ bδ/2`, `σ = k√δ`; proved, unconditional). `UctFourierTwice` (`env2_fourier_decay`: `‖∫ f e^{iωτ}‖ ≤ ∫P/ω²` for `f` with `Env2` envelope `P`). `UctBumpReflEll`, `UctBumpReflAmp` (`ℓ = log(tanh(πu/2)/(πu/2))`, `N = ∫ℓ`; `kernelAmp`, `mellinK0_imag_eq`, `kernel_amp_env2`), `UctBumpReflB` (`bump_refl_env2`: `Env2` envelope of `τ ↦ B̂(c(1-iτ))`), `UctBumpRefl` (`bumpHrefl`, `bump_refl_density`: `‖Δh_refl‖ ≤ C M (cδ)⁻¹ Λ e^{-bcδ/2}` for every `L`, and with an extra `L⁻²` for `L ≥ 1`; `c ≥ 2`, `cδ ≥ 1`; proved, unconditional).
 * `FormalResearch.SignUncertainty.UctOuterGrowth` (`uct:outer-growth`; proved, unconditional): `re_outerHbar_ge` (`Re h ≥ -2 log(1+|τ|) - C` on the closed strip, from the Poisson representation `re_outerH`), `norm_exp_neg_outerHbar_le` (`|e^{-h}| ≤ C(1+τ²)`), `outerGbar_inv_le` (`|G_ε|⁻¹ ≤ C'(1+τ²)` for `|τ| ≥ 1/2`), `outerHbar_zero`/`outerHbar_one` (`h(0)=h(1)=0`), `exists_holo_H1` (extension to `D(1,1/2)`; `D(0,1/2)` is `H0` of `ct:outer`).
 * `FormalResearch.SignUncertainty.UctGenPreedge` (`uct:gen-preedge`, F2b leaf; proved, unconditional): `existsUnique_saddlePoint`, `StripM1.toTotalSaddleAmp`, `uct_gen_preedge_saddle_of_M1` (part (1), `(uct:gen-lobe)` with explicit `C_L2(M, Λ) = 8 M + 54 Λ + 109`, needing only `StripM1 W`), `uct_gen_preedge_pos_of_M1` (positivity corollary for `fct:ce-preedge` Step 1), `uct_gen_preedge_origin_of_holder` (part (2), `(uct:gen-origin)` for `c ≥ 2` and any `α > 0`), and `uct_gen_preedge` (full paper statement under `c ≥ 60`, `StripAdmissFullData (1/2) W`).
 * `FormalResearch.SignUncertainty.UctSeedZ` (`uct:Wseed-def`, strip factor; proved, unconditional): `uctSeedZ ε = ζ²(1-ζ)²H_*/b^{[ε=1]}` regularised at `ζ = 0, 1` (and at the zero of `b_{1/2}`), `differentiableOn_uctSeedZ`, `uctSeedZ_oneSub` (`Z(1-ζ) = ε Z(ζ)`), `uctSeedZ_conj`, `uctSeedZ_zero`/`uctSeedZ_one`, `uctSeedZ_bound` (`|Z| ≤ C(1+|τ|)⁴e^{-π|τ|}`), `seed_factor_eq` (`ζ^{5/2}(1-ζ)^{5/2}H_*/G_ε = Z e^{-h}` on `S`).
@@ -562,7 +569,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
   `FormalResearch.SignUncertainty.UctSeedAdmiss` (with `UctSeedEdgeV` (Airy factor `v(q) = T(iq)`: `C^∞` off `0`, `|q|^{1/2-j}` near `0`, bounded far), `UctEnv2`, `UctEnvHolo` (`Env2` `C²`-envelope calculus, Cauchy estimates), `UctSeedEdgeE`, `UctSeedEdgeZT` (envelopes of `e^{-h(iτ)}`, `Z_ε(iτ)`, `T(a(1-iτ))`), `UctSeedEdgeAsm` (Leibniz bookkeeping)): (M3) for `W^seed`, `seedW_stripEdge0`, `seedW_stripEdge1` (parity), and `seedW_stripAdmissFull : StripAdmissFullData (1/2) (seedW ε δ c)` for `ε = ±1`, `0 ≤ δ ≤ 1`, `c > 0` (proved, unconditional).
   `FormalResearch.SignUncertainty.UctSeedEdgeKW`: `uctAstar` (`A_*(τ) = cosh(πτ)(πτ/sinh πτ)² e^{-u_r(τ)}(1+τ²)^{-1/2}`, even, `C^∞`, `A_*(0)=1`; `uctAstar_eq_paper`: `= τ^{5/2}|H_*(iτ)|/√(6/π² m'(τ))`), `uctMc` (`M_c = e^{B_c(iτ)} φ_{c,δ}(1-iτ)/φ_{c,δ}(1) A_*`), `seedZ_edge_core_all`, `kw_seed_edge_all` (`(uct:KW-seed-edge)`: `K₀(iτ,ξ) W^seed(iτ) = e^{icΦ_Ph(τ;L) - iθ_ε(τ)} M_c(τ) F̃_{*,δ}(-c_s c^{1/3}τ)` for every real `τ`, `ε = ±1`, `c > 0`). `UctMcSmall` (with `UctMcSmallBd`: the class `SmallBd` and `SmallBd.mul`; `UctMcSmallA`, `UctMcSmallE`, `UctMcSmallPhi`): `mc_small` (`(uct:Mc-small)`: for `c ≥ c₀`, `0 ≤ δ ≤ 1`, `M_c` is `C³` with `|M_c-1| ≤ K(c^{-2/3}|τ|+τ²)`, `|M_c'| ≤ K(c^{-2/3}+|τ|)`, `|M_c''|,|M_c'''| ≤ K` on `|τ| ≤ 1/5`; proved, unconditional).
   `FormalResearch.SignUncertainty.UctSeedWindow` (with `UctSeedWindowDiff`, `UctSeedWindowSym`, `UctSeedWindowY`, `UctSeedWindowQ`, `UctSeedWindowRef`; `uct:seed-asymp` (1), proved, unconditional): `seedHnorm`, `seed_window` (the fixed Airy window of `h_norm^seed`: `(k/c_s)F_{*,δ}(-β₁S_eff + β₁κ_εc^{-1/3}) + O_{S_w}(c^{-2/3})`), `main_line_diff_sym`, `seedSy_bound`, `seedYw_taylor`, `seedQ_expansion`, `ref_symbol_diff`.
-  Not formalised: the main and reflected density bounds, the Fourier identity `(uct:E0-def)`.
+  Not formalised: the Fourier identity `(uct:E0-def)`.
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
   whose fields are the open TeX theorems (milestone M0 skeleton; see `PLAN.md` §5).
