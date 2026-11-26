@@ -315,6 +315,7 @@ public import FormalResearch.SignUncertainty.CtDyadicTaperBuild
 public import FormalResearch.SignUncertainty.CtDyadicMoments
 public import FormalResearch.SignUncertainty.CtDyadicPointwise
 public import FormalResearch.SignUncertainty.CtDyadicSigma
+public import FormalResearch.SignUncertainty.CtDyadicRegime
 public import FormalResearch.SignUncertainty.CtDyadicStatement
 public import FormalResearch.SignUncertainty.HankelChartCubic
 public import FormalResearch.SignUncertainty.CtLowerDefs

@@ -398,7 +398,7 @@ theorem ctNode_expansion {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
       ctPsi ε ((2 : ℝ) ^ ((2 : ℝ) / 3) * s ^ 2 * u) := by
     intro u
     have hs2' : c ^ (-(2 / 3) : ℝ) = s ^ 2 := by rw [hs2, ← hsk]
-    unfold ctUhat
+    unfold ctUhat ctLam ctMu
     rw [hs2']
   obtain ⟨hex, hall⟩ := hcore s hs0 hs₀'
   constructor
