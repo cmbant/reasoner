@@ -53,7 +53,10 @@ Module order: `PolyGrowthExtension` -> `Laguerre` -> `LaguerreGen` -> `Moments` 
    finiteness of the Laplace transform, then the identity theorem on `(0,∞)`), not holomorphy on
    `Re > 0`; the complex case is recovered (`ds_cont_complex`).
 2. `ds:mom`: the Lean constant for the Laguerre family is `C = (1+w)/π` because `lagP_lower` is stated for
-   `t ≥ 2(k+w)/π`; the paper's `C_w = (2+w)/(2π)` also works (the hypotheses are monotone in `C`).
+   `t ≥ 2(k+w)/π`. The hypotheses are weaker for larger `C`, and `(1+w)/π > (2+w)/(2π)`, so this does **not**
+   prove the paper's clause that the Laguerre family satisfies them with `C_w = (2+w)/(2π)`; that clause (via the
+   Gershgorin zero bound `z_j ≤ (2k+w)/(2π)` in the `t` variable) is not formalised, and `ds:mom` is partial for it.
+   The conclusions of `ds:mom` for the Laguerre family hold (`ds_mom_laguerre`); only the constant differs.
 3. `dsl:positive-ray`: the sum `ℝ + ⋃ O_N` need not be shown direct. `1 ∉ ⋃ O_N` is the contradiction
    hypothesis, and a functional vanishing on `⋃ O_N` with `L 1 = 1` exists by
    `Submodule.exists_dual_map_eq_bot_of_notMem`.
