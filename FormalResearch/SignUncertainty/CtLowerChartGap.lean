@@ -480,7 +480,8 @@ inversion step of the proof of `thm:ct-lower`): if `T ≤ Δ₅^ε(c) - K c⁻¹
 theorem ctChartGap_eps {ε : ℝ} (hε : ε = 1 ∨ ε = -1) (hκ : ctKappa ε < 0) {K : ℝ} (hK : 0 < K) :
     ∃ c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
       T ≤ ctDelta5 ε c - K * (c⁻¹ * Real.log c) →
-      K * hankelBeta1 / 2 * (c ^ (-(4 / 3) : ℝ) * Real.log c) ≤ ctGap ε c T := by
+      T < c * hankelXi c (airyZero 1) ∧
+        K * hankelBeta1 / 2 * (c ^ (-(4 / 3) : ℝ) * Real.log c) ≤ ctGap ε c T := by
   obtain ⟨Cx, hCx⟩ := hankelXi_expansion
   have hCx' : ∀ c : ℝ, 3e6 ≤ c → ∀ x : ℝ, |x| ≤ 3 → |c * hankelXi c x - ctChartX c x| ≤ Cx * c⁻¹ :=
     fun c hc x hx => hCx c hc x hx
@@ -602,6 +603,7 @@ theorem ctChartGap_eps {ε : ℝ} (hε : ε = 1 ∨ ε = -1) (hκ : ctKappa ε <
   rw [ctChartX_sub hc0] at hchain2
   have hgap := gap_from_chain (k := k) (β := β) (q' := q') (K := K) (L := Real.log c) (u₁ := u₁) (φ := φ)
     hk1 hβ0 hq'0 hk_a hK hlog0 hu₁1 hφ3 (by rw [← hcinv]; exact hchain2)
+  refine ⟨hTlt, ?_⟩
   have hgapd : ctGap ε c T = u₁ - φ := rfl
   rw [hgapd, hc43]
   have e5 : K * β / 2 * (c⁻¹ * k⁻¹ * Real.log c) = K * β / 2 * ((k⁻¹) ^ 3 * k⁻¹ * Real.log c) := by
@@ -616,6 +618,7 @@ theorem ctChartGap (hκ : ∀ ε : ℝ, (ε = 1 ∨ ε = -1) → ctKappa ε < 0)
     ∀ K : ℝ, 0 < K → ∃ c₀ : ℝ, ∀ c : ℝ, c₀ ≤ c → ∀ ε : ℝ, (ε = 1 ∨ ε = -1) →
       ∀ (T : ℝ) (f : ℝ → ℝ), IsHankelFeasible c ε T f → hankelMass c f = 1 →
         T ≤ ctDelta5 ε c - K * (c⁻¹ * Real.log c) →
+        T < c * hankelXi c (airyZero 1) ∧
         K * hankelBeta1 / 2 * (c ^ (-(4 / 3) : ℝ) * Real.log c) ≤ ctGap ε c T := by
   intro K hK
   obtain ⟨c₁, h1⟩ := ctChartGap_eps (Or.inl rfl) (hκ 1 (Or.inl rfl)) hK

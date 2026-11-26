@@ -7,8 +7,8 @@ public import FormalResearch.SignUncertainty.HankelBootData
 # The window bound for `W̃_c` from the band reduction (`teb:mellin` (2); M5-S6b)
 
 `hankel_window_Wt_bound`: for `ζ = σ + iτ₀` in the annulus `0.9 ρ_R ≤ ‖ζ‖ ≤ 1.1 ρ_R` with
-`σ ≥ 1.1 c^{-1/12} ‖ζ‖`, every point `σ + iy` of the window `|y - τ₀| ≤ h ≤ ‖ζ‖/10` obeys
-`‖W̃_c(σ + iy)‖ ≤ C_Y c^{-5/6} (c^{1/3}(B₁ + B₂) + c^{-1/6}) · 1.1 ‖ζ‖/σ`, from `hankel_band_reduction`
+`σ > 0` (no lower bound on `σ/‖ζ‖`), every point `σ + iy` of the window `|y - τ₀| ≤ h ≤ ‖ζ‖/10` obeys
+`‖W̃_c(σ + iy)‖ ≤ C_Y c^{-5/6} (c^{1/3}(B₁ + B₂) + c^{-1/6}) · 1.1 ‖ζ‖/σ`, from `hankel_band_reduction_pos`
 (`cos ψ = σ/‖σ + iy‖ ≥ σ/(1.1 ‖ζ‖)`).
 -/
 
@@ -29,7 +29,8 @@ lemma norm_window_diff (σ τ0 y : ℝ) :
 
 /-- **Window bound on `W̃_c`** (proved from `hankel_band_reduction`): with the hypotheses of the band reduction (`c ≥ 3·10⁶`,
 `M[f] = 1`, `-3 ≤ u_T ≤ 0` taken as hypotheses, tail positivity from feasibility, free radius `R`), for `ζ = σ + iτ₀` with
-`0.9 ρ_R ≤ ‖ζ‖ ≤ 1.1 ρ_R`, `σ ≥ 1.1 c^{-1/12} ‖ζ‖` and `|y - τ₀| ≤ h ≤ ‖ζ‖/10`:
+`0.9 ρ_R ≤ ‖ζ‖ ≤ 1.1 ρ_R`, `σ > 0` and `|y - τ₀| ≤ h ≤ ‖ζ‖/10` (the restriction `σ ≥ 1.1 c^{-1/12} ‖ζ‖` of the earlier form is not
+needed, `hankel_band_reduction_pos`):
 `‖W̃_c(σ + iy)‖ ≤ C_Y c^{-5/6} (c^{1/3}(B₁ + B₂) + c^{-1/6}) · 1.1 ‖ζ‖/σ`.  The `B₁, B₂` are the exact dm-side moments; no `r_∞`
 enters (`W̃_c` is defined from the exact measure). -/
 theorem hankel_window_Wt_bound {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 ≤ c)
@@ -41,7 +42,6 @@ theorem hankel_window_Wt_bound {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 
     (hρlo : 9 / 10 * rhoR hankelBandParams c R ≤ ‖(σ : ℂ) + (τ0 : ℂ) * Complex.I‖)
     (hρhi : ‖(σ : ℂ) + (τ0 : ℂ) * Complex.I‖ ≤ 11 / 10 * rhoR hankelBandParams c R)
     (hh : h ≤ 1 / 10 * ‖(σ : ℂ) + (τ0 : ℂ) * Complex.I‖)
-    (hcz : 11 / 10 * c ^ (-(1 / 12 : ℝ)) * ‖(σ : ℂ) + (τ0 : ℂ) * Complex.I‖ ≤ σ)
     {y : ℝ} (hy : |y - τ0| ≤ h) :
     ‖hankelWt c f ((σ : ℂ) + (y : ℂ) * Complex.I)‖ ≤
       tebBandConst hankelBandParams * c ^ (-(5 / 6 : ℝ)) *
@@ -82,11 +82,9 @@ theorem hankel_window_Wt_bound {c ε T u_T R : ℝ} {f : ℝ → ℝ} (hc : 3e6 
   have hcosψ : Real.cos ψ = σ / ‖ζ0‖ := by
     rw [hψ, Real.cos_arccos (by have : 0 ≤ σ / ‖ζ0‖ := by positivity
                                 linarith) hq]
-  have hcos : c ^ (-(1 / 12 : ℝ)) ≤ Real.cos ψ := by
-    rw [hcosψ, le_div_iff₀ hζ0pos]
-    nlinarith [Real.rpow_pos_of_pos hc0 (-(1 / 12 : ℝ))]
+  have hcos : 0 < Real.cos ψ := by rw [hcosψ]; positivity
   have hRlb' := hRlb
-  have hbr := hankel_band_reduction hc hε hf.toIsHankelEigenfn hM hu0 hu3 hRlb hRub
+  have hbr := hankel_band_reduction_pos hc hε hf.toIsHankelEigenfn hM hu0 hu3 hRlb hRub
     (fun Δ hΔ => hf.tail_nonneg Δ (by rw [← hT]; exact hΔ)) hlo hhi hcos_eq hcos
   rw [hankelWtS_eq (by linarith) hf.toIsHankelEigenfn (by rw [hre]; exact hσ0.le)
     (by rw [hre]; exact hσ1)] at hbr
