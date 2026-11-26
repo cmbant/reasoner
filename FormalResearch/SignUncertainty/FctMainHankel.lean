@@ -10,6 +10,7 @@ public import FormalResearch.SignUncertainty.UctSeedW
 public import FormalResearch.SignUncertainty.UctSeedWHolder
 public import FormalResearch.SignUncertainty.UctSeedAdmiss
 public import FormalResearch.SignUncertainty.UctSeedEdgeV
+public import FormalResearch.SignUncertainty.UctFloorAdmiss
 public import FormalResearch.SignUncertainty.UctAiryTransPhi
 public import FormalResearch.SignUncertainty.UctPosFloorWpos
 public import FormalResearch.SignUncertainty.UctBumpMain
@@ -51,7 +52,7 @@ with it because the limit is `0`.)
 **Abstract parameters** (the only objects not yet in Lean, each named after its TeX label): `Dcomp` (`fct:comp-D`), `PhiHat`
 (`fct:splitting`, which depends on the chart of `fct:comp-cfu`), `Bphys` (`(fct:B-physical)`), `T1` (`fct:warp-asymp` (1)).
 
-**Conditional on the fields of `FctMainHankelInputs`** (`splitting_origin`, `bump_profile`, `warp_zero`, `warp_admissible`, `floor_admissible`, `physical_budget`, `physical_positive`): each is
+**Conditional on the fields of `FctMainHankelInputs`** (`splitting_origin`, `bump_profile`, `warp_zero`, `warp_admissible`, `physical_budget`, `physical_positive`): each is
 the output of the named TeX lemma(s), stated about the concrete multipliers and these four parameters.  Proved lemmas
 (`uct:admiss` = `uct_admiss_full`, `mat:T7`, `hb_thresholds_lower`, `uct:airy-trans`, `uct:pos-floor`, `uct:outer-growth`,
 `fct:bump-5`, `uct:seed-asymp` (1), `fct:moment-solver`, `fct:phikill`, `fct:edge-ibp`) are used directly or enter through the
@@ -59,10 +60,10 @@ discharge of a field, not as fields.
 
 **Satisfiability.** The four parameters are free, so the fields are consistent only for the paper's actual `D_{τ₁}`, `Φ̂_c`, `B`, `T₁`;
 no field has been shown consistent in Lean.  Doubtful points: `warp_zero` and `warp_admissible` hide `fct:comp-D`/`fct:comp-cfu`/
-`fct:inner-symbols`/`fct:splitting`; `floor_admissible` needs the `g_1'` transform of `uct:airy-trans`; `physical_positive` hides the five-term positivity (`fct:physical-positive` and its inputs) and is
+`fct:inner-symbols`/`fct:splitting`; `physical_positive` hides the five-term positivity (`fct:physical-positive` and its inputs) and is
 the field most likely to need a sharper form once its proof is formalised.  The `T_c^ε` set is bounded below by
-`hb_thresholds_lower`, so no field is needed for that.  The `ctWg1` and bump parts of the admissibility of the total are proved (`ctWg1_stripAdmissFull`, a real combination of three
-`seedW_stripAdmissFull` by polarisation; `ctWbump_stripAdmissFull`; assembled in `ctWtot_admissible`).
+`hb_thresholds_lower`, so no field is needed for that.  The `ctWg1`, floor and bump parts of the admissibility of the total are proved (`ctWg1_stripAdmissFull`, a real combination of three
+`seedW_stripAdmissFull` by polarisation; `ctWfl_stripAdmissFull`; `ctWbump_stripAdmissFull`; assembled in `ctWtot_admissible`).
 
 Class: proved under the explicit hypothesis structure `FctMainHankelInputs` (not discharged).
 -/
@@ -502,6 +503,16 @@ lemma ctWfl_oneSub {ε : ℝ} (hε : ε = 1 ∨ ε = -1) (K c : ℝ) (ζ : ℂ) 
   have : (ε : ℂ) * (ε : ℂ) = 1 := by rcases hε with h | h <;> simp [h]
   linear_combination (-(liftSymbol uctSpos (ceBeta1 * K * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ) : ℂ) * (1 - ζ)))) * this
 
+/-- **The floor summand is admissible** (Step 1 of `fct:s4-proof` for `W_pos`): `ctWfl` satisfies `(M1)`-`(M3)` at `α = 1/2` for
+`K > 0` and `c ≥ 8` (the `g_1'` transform `g̃_1'(i w̃) = E₃ + w̃^{1/2} E₄` is `airySeedU2_sqForm`; the large-`|τ|` bounds are
+`airySeedU2_imagAxisBounds` and the Cauchy bounds `o2_reflected_line_deriv_bound`; `liftSymbol_airySeedU2_stripAdmissFull`). -/
+theorem ctWfl_stripAdmissFull {K : ℝ} (hK : 0 < K) (ε : ℝ) {c : ℝ} (hc : 8 ≤ c) :
+    StripAdmissFullData (1 / 2) (ctWfl K ε c) := by
+  have hc0 : 0 < c := by linarith
+  have hδ : 0 < ceBeta1 * K * liftEps c / 2 := by
+    have := ceBeta1_pos; have := liftEps_pos hc0; positivity
+  exact liftSymbol_airySeedU2_stripAdmissFull (-1 / 4) 1 1 (ε := ε) hδ (m := 4) (by norm_num) hc
+
 /-- The total multiplier is admissible (`(M1)`-`(M3)` at `α = 1/2`) and `ε`-symmetric, given the same for the warp and floor
 summands; `ctWg1` (`ctWg1_stripAdmissFull`) and the bump (`ctWbump_stripAdmissFull`) are proved. -/
 theorem ctWtot_admissible (PhiHat D : ℝ → ℝ → ℂ → ℂ) (B : ℝ → ℝ → ℝ → ℝ → ℝ) {ε c Kfl K0 K1 Kd : ℝ} (hε : ε = 1 ∨ ε = -1)
@@ -565,11 +576,6 @@ structure FctMainHankelInputs where
   warp_admissible : ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
     StripAdmissFullData (1 / 2) (ctWwarp PhiHat Dcomp ε c) ∧
       ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ctWwarp PhiHat Dcomp ε c (1 - ζ) = (ε : ℂ) * ctWwarp PhiHat Dcomp ε c ζ
-  /-- Step 1 of `fct:s4-proof` for the floor summand: `uct:pos-floor` (2) with `uct:airy-trans` for `g_1'` (`g̃_1'(i w̃) = E₃ + w̃^{1/2} E₄`,
-  `(M2)` and the small-`|τ|` part of `(M3)` at both edges) and `u1c:U2` (1) (`(M1)` and large `|τ|`).  The `ε`-symmetry is proved
-  (`ctWfl_oneSub`). -/
-  floor_admissible : ∀ Kfl : ℝ, 1 ≤ Kfl → ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
-    StripAdmissFullData (1 / 2) (ctWfl Kfl ε c)
   /-- `fct:physical-budget`: `Re W̃^bump(0) = c^{-1/3}∫B + O(e^{-c' c^{1/2}}) ≤ (C₀(K₄) + b₂ K₁) c^{-13/12}`, with `C₀, b₂`
   independent of `K₁` and of the later `K_d`. -/
   physical_budget : ∃ C0 b2 : ℝ, ∀ K1 : ℝ, 0 < K1 → ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
@@ -630,17 +636,16 @@ theorem fct_main_hankel (I : FctMainHankelInputs) :
   obtain ⟨cp, hcp⟩ := hpos Kd hKdpos
   obtain ⟨cbp, hcbp⟩ := I.bump_profile K1 hK1
   obtain ⟨cwa, hcwa⟩ := I.warp_admissible
-  obtain ⟨cfl, hcfl⟩ := I.floor_admissible Kfl hKfl
   have hβ := hankelBeta1_pos
   refine ⟨|C1| + 2 * Kd / hankelBeta1 + 1,
-    max (max (max (max (max cw clow) (max cb cp)) (max cwa cfl)) (max cT cbp)) 2, by positivity, ?_⟩
+    max (max (max (max (max cw clow) (max cb cp)) (max cwa 8)) (max cT cbp)) 2, by positivity, ?_⟩
   intro ε c hε hc
   simp only [max_le_iff] at hc
   obtain ⟨⟨⟨⟨⟨hcw, hcl⟩, hcb', hcp'⟩, hcwa', hcfl'⟩, hcT', hcbp'⟩, hc2⟩ := hc
   have hc1 : 1 ≤ c := by linarith
   obtain ⟨δ, M, α, β, K, hδ, hδ1, hβ, hM, hprof⟩ := hcbp ε c hε hcbp'
   obtain ⟨hadm, hsym⟩ := ctWtot_admissible I.PhiHat I.Dcomp I.Bphys (Kfl := Kfl) (K0 := K0) (K1 := K1) (Kd := Kd) hε
-    (by linarith : 0 < c) (hcT c hcT') (hcwa ε c hε hcwa').1 (hcwa ε c hε hcwa').2 (hcfl ε c hε hcfl') hδ hδ1 hβ hM hprof
+    (by linarith : 0 < c) (hcT c hcT') (hcwa ε c hε hcwa').1 (hcwa ε c hε hcwa').2 (ctWfl_stripAdmissFull (by linarith) ε hcfl') hδ hδ1 hβ hM hprof
   -- vacuum
   have hrpow : c ^ (-(4 / 3 : ℝ)) ≤ c ^ (-(13 / 12 : ℝ)) :=
     Real.rpow_le_rpow_of_exponent_le hc1 (by norm_num)
