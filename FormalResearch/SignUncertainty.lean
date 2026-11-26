@@ -497,6 +497,11 @@ public import FormalResearch.SignUncertainty.FctVacuumPointwise
 public import FormalResearch.SignUncertainty.FctVacuumConcrete
 public import FormalResearch.SignUncertainty.FctPhysicalBudgetConcrete
 public import FormalResearch.SignUncertainty.FctRSymbol
+public import FormalResearch.SignUncertainty.FctSymDerivComp
+public import FormalResearch.SignUncertainty.FctExpDecay
+public import FormalResearch.SignUncertainty.FctSymExpm1
+public import FormalResearch.SignUncertainty.FctMLarge
+public import FormalResearch.SignUncertainty.FctR0Symbol
 public import FormalResearch.SignUncertainty.CtUpper
 public import FormalResearch.SignUncertainty.UctOuterGrowth
 public import FormalResearch.SignUncertainty.UctGenPreedge
