@@ -83,6 +83,20 @@ public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryMoment
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryPrimitive
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryBC
 public import FormalResearch.ModularBootstrap.FiveTerm.UpperAiryBCBounds
+public import FormalResearch.Complex.StripBdryFunctional
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterStripStatements
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterHbarIm
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterKfun
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterRest
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterPL
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterPhase
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterRestDeriv
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterTheta
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterX
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterBridge
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterH3
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterS1
+public import FormalResearch.ModularBootstrap.FiveTerm.OuterDphi
 public import FormalResearch.ModularBootstrap.Mixtures.Source
 public import FormalResearch.ModularBootstrap.Mixtures.Mixture
 public import FormalResearch.ModularBootstrap.Mixtures.RebaseAnalysis
@@ -1437,4 +1451,5 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `FiveTerm.{LowerMain, LowerMainVirasoro}` (FIVE-L skeleton: `LowerMainInputs` with fields `chart` (`cts:cauchy-dual` (1)), `firstGood`, `combined` (`cts:rosc-uncond` (1), (4)), `pass2` (`ctl:pass2`), `boas` (`cts:boas`), `langer` (the u~ <-> tau bridge); `lower_pass_upper`, `lowerPhase_of_inputs` (with `LowerPrelim`, `c0 < 0`), `spinless_lower_of_inputs` (Virasoro lower half of `thm:spinless-expansion`), conditional on `LowerMainInputs`).
 * `FiveTerm.{UpperAiryMoment, UpperAiryPrimitive}` (FIVE-U: `cts:tip-shared` (a) `airyLinearMoment`, (c) `airyPrimitiveDecay`, unconditional), with the shared cores they import: `Asymptotics.{RiccatiBarrier, MidpointRule}` (`nonpos_of_deriv_ge_mul`, `abs_le_of_riccati_barrier`, `midpoint_remainder`), `Special.AiryLogDerivAsym` (`riccG_threeTerm`: three-term `Ai'/Ai` asymptotics, `airy_zero_sum_asymp`), `Special.{AiryMomentCells, AiryMomentLimit, AiryZeroLinearMoment}` (`airyZero_linear_moment`), `Special.AiryPrimitiveNeg` (`Bneg_decay`).
 * `FiveTerm.{UpperAiryBC, UpperAiryBCBounds}` (FIVE-U: `cts:tip-shared` (c), the identity `cts:BC-id` (`airyBC_id`, `airyBC_id_global`), the right-side bound with constant 40 (`airyBC_rhs_bound_paper`) and the three bounds `cts:BC-bnds` (`airyBC_bnd_W0`, `airyBC_bnd_W1`, `airyBC_bnd_W2`); with these `cts:tip-shared` is proved in full).
+* `FiveTerm.Outer*` and `Complex.StripBdryFunctional` (FIVE-S, partial: strip structure of the Virasoro outer function; statements `OuterS1`-`OuterS4` in `OuterStripStatements`; proved `outerS1` (`cts:cauchy-dual` Step 2 factorisation `G_outer = (1+z^2)^{-1} H_3^{1/4} Gtilde` bridged to `Gout`, `log |Gtilde|` on the slit), `outerS2` (`theta_out` bounds `C min(r,1)^{1/2-j} e^{-pi x}`, limit at infinity), `outerS4a` (`cts:smooth-env` (3) phase bounds uniform in `delta`); `OuterS3`, `OuterS4b` open).
 -/
