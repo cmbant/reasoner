@@ -29,13 +29,15 @@ General Borel `lambda` (non-atomic continuum of shifts) is not formalised: it is
 need measurability/Fubini plumbing at every step. Recorded as a limitation.
 
 ## Files (each builds with guards; list in `/home/user/scratch/lean/agent_pm0_modules.txt`)
-1. `Mixtures/Source.lean`: `ShiftSource`, `cardyV`, reduced form, `TestClass`, `gVac`, thresholds, `ofProblem`
-   bridge, Laplace identity, `MixtureData`, flattening `toSource`, amplitude/source functions, rebasing (a).
-2. `Mixtures/Rebase.lean`: `pmix:rebase`(b),(c) (pure real analysis in `n`, `u_n`, `J_n`; vague-limit transfer).
-3. `Mixtures/CommonSource.lean`: common source class, `pmix:weight`(a) (Laplace, sandwich, floor, positivity).
-4. `Mixtures/ShiftAsymptotics.lean`, `Mixtures/WeightAxioms.lean`: `pmix:weight`(b),(c).
-5. `Mixtures/CrossingSumRule.lean`, `Mixtures/Comb.lean`: `pmix:crossing`(a),(b).
-6. `Mixtures/Jets.lean`: the parts of `pmix:jets` that do not need the five-term outer-function machinery.
+1. `Source.lean`: `ShiftSource`, `cardyV`, reduced form, `TestClass`, `gVac`, thresholds, `ofProblem` bridge, Laplace identity.
+2. `Mixture.lean`: `MixtureData`, flattening `toSource`, amplitude/source functions, `pmix:rebase` (a).
+3. `RebaseAnalysis.lean`, `RebaseVague.lean`: `pmix:rebase` (b), (c) (charts `u_n`, `J_n`, reverse window; vague-limit transfer).
+4. `CommonSource.lean`: common source class, `pmix:weight` (a) (Laplace, sandwich, floor, positivity).
+5. `ShiftAsymptotics.lean`, `SourceAxioms.lean`, `WeightAxioms.lean`: `pmix:weight` (b), (c).
+6. `CrossingPort.lean` (unconditional port of `Crossing/SumRule.lean` to `ShiftSource`), `CrossingCommon.lean`
+   (`CrossingBounds` from the floor), `CrossingA.lean` (`pmix:crossing` (a)), `CrossingB.lean` (`pmix:crossing` (b)).
+7. `Jets.lean`, `JetsJensen.lean`: the parts of `pmix:jets` that do not need the five-term outer-function machinery
+   (hypotheses of `ctu:jets`, shift integral `ξ_*/√2`, Jensen comparison).
 
 ## Scope conventions
 * "for all sufficiently large n" is `a >= a0` (charge threshold); fixed-charge statements take the floor at that charge.

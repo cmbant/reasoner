@@ -395,4 +395,116 @@ end PartB
 #guard_msgs (whitespace := lax) in
 #print axioms rebase_c_J
 
+/-! ### (c): the reverse window and the inverse Jacobian ratio -/
+
+/-- **Reverse window transfer.** If `|u_n(t)| ≤ R` then `|u_{n'}(t)| ≤ R + 1` for all large `n` (`n' = n - 12 r`):
+`u_{n'} = (m'/m) u_n - β ξ_* m' (m^3 - m'^3)` and `m' (m^3 - m'^3) ≤ 12 r / m^2`. -/
+theorem rebase_window_rev (R : ℝ) {r : ℝ} (hr : 0 ≤ r) :
+    ∃ n₀ : ℝ, 1 ≤ n₀ ∧ ∀ n : ℝ, n₀ ≤ n → ∀ t : ℝ, 0 < t →
+      |uAiry n t| ≤ R → |uAiry (n - 12 * r) t| ≤ R + 1 := by
+  have hβ := betaTip_pos
+  have hξ := xiStar_pos
+  set K : ℝ := 12 * betaTip * xiStar * r + 1 with hK
+  have hK1 : 1 ≤ K := by
+    have : 0 ≤ 12 * betaTip * xiStar * r := by positivity
+    rw [hK]; linarith
+  refine ⟨max (max 1 (24 * r)) (K ^ 3), (le_max_left _ _).trans (le_max_left _ _), fun n hn t ht hR => ?_⟩
+  have hn1 : 1 ≤ n := (le_max_left _ _).trans ((le_max_left _ _).trans hn)
+  have hn24 : 24 * r ≤ n := (le_max_right _ _).trans ((le_max_left _ _).trans hn)
+  have hnK : K ^ 3 ≤ n := (le_max_right _ _).trans hn
+  have hn0 : 0 < n := by linarith
+  have hn' : 0 < n - 12 * r := by linarith
+  set m : ℝ := n ^ ((1 : ℝ) / 6) with hm
+  set m' : ℝ := (n - 12 * r) ^ ((1 : ℝ) / 6) with hm'
+  have hm0 : 0 < m := Real.rpow_pos_of_pos hn0 _
+  have hm'0 : 0 < m' := Real.rpow_pos_of_pos hn' _
+  have hm6 : m ^ 6 = n := sixth_pow hn0
+  have hm'6 : m' ^ 6 = n - 12 * r := sixth_pow hn'
+  have hmm' : m' ≤ m := Real.rpow_le_rpow hn'.le (by linarith) (by norm_num)
+  have hD : m ^ 6 - m' ^ 6 = 12 * r := by rw [hm6, hm'6]; ring
+  have hm2K : K ≤ m ^ 2 := by
+    refine le_of_pow_le_pow_left₀ (by norm_num : (3 : ℕ) ≠ 0) (by positivity) ?_
+    rw [← pow_mul, show 2 * 3 = 6 by norm_num, hm6]
+    exact hnK
+  have hu := uAiry_eq_m hn0 ht.le
+  have hu' := uAiry_eq_m hn' ht.le
+  have hrel : uAiry (n - 12 * r) t =
+      (m' / m) * uAiry n t - betaTip * xiStar * (m' * (m ^ 3 - m' ^ 3)) := by
+    rw [hu', hu]; field_simp; ring
+  have h3 : m' ^ 3 ≤ m ^ 3 := pow_le_pow_left₀ hm'0.le hmm' 3
+  have hE0 : 0 ≤ m' * (m ^ 3 - m' ^ 3) := mul_nonneg hm'0.le (sub_nonneg.2 h3)
+  have hEm : (m' * (m ^ 3 - m' ^ 3)) * m ^ 2 ≤ 12 * r := by
+    calc (m' * (m ^ 3 - m' ^ 3)) * m ^ 2 = (m' * m ^ 2) * (m ^ 3 - m' ^ 3) := by ring
+      _ ≤ m ^ 3 * (m ^ 3 - m' ^ 3) := by
+          refine mul_le_mul_of_nonneg_right ?_ (sub_nonneg.2 h3)
+          calc m' * m ^ 2 ≤ m * m ^ 2 := mul_le_mul_of_nonneg_right hmm' (sq_nonneg m)
+            _ = m ^ 3 := by ring
+      _ ≤ (m ^ 3 + m' ^ 3) * (m ^ 3 - m' ^ 3) := by
+          refine mul_le_mul_of_nonneg_right ?_ (sub_nonneg.2 h3)
+          linarith [pow_pos hm'0 3]
+      _ = m ^ 6 - m' ^ 6 := by ring
+      _ = 12 * r := hD
+  have hratio : m' / m ≤ 1 := (div_le_one hm0).mpr hmm'
+  have hratio0 : 0 ≤ m' / m := by positivity
+  have hE : betaTip * xiStar * (m' * (m ^ 3 - m' ^ 3)) ≤ 1 := by
+    have hm2 : 0 < m ^ 2 := by positivity
+    have h1 : m' * (m ^ 3 - m' ^ 3) ≤ 12 * r / m ^ 2 := by
+      rw [le_div_iff₀ hm2]; exact hEm
+    calc betaTip * xiStar * (m' * (m ^ 3 - m' ^ 3)) ≤ betaTip * xiStar * (12 * r / m ^ 2) :=
+          mul_le_mul_of_nonneg_left h1 (by positivity)
+      _ = (12 * betaTip * xiStar * r) / m ^ 2 := by ring
+      _ ≤ 1 := by
+          rw [div_le_one hm2]; linarith
+  rw [hrel]
+  calc |(m' / m) * uAiry n t - betaTip * xiStar * (m' * (m ^ 3 - m' ^ 3))|
+      ≤ |(m' / m) * uAiry n t| + |betaTip * xiStar * (m' * (m ^ 3 - m' ^ 3))| := abs_sub _ _
+    _ ≤ R + 1 := by
+        rw [abs_mul, abs_of_nonneg hratio0, abs_of_nonneg (by positivity :
+          0 ≤ betaTip * xiStar * (m' * (m ^ 3 - m' ^ 3)))]
+        have : (m' / m) * |uAiry n t| ≤ |uAiry n t| := by
+          calc (m' / m) * |uAiry n t| ≤ 1 * |uAiry n t| :=
+                mul_le_mul_of_nonneg_right hratio (abs_nonneg _)
+            _ = |uAiry n t| := one_mul _
+        linarith
+
+/-- `J_{n'}(t) / J_n(t) = (m/m')`, so `|J_{n'}/J_n - 1| ≤ 24 r / n` for `n ≥ 24 r`, `n ≥ 1`. -/
+theorem rebase_c_J_inv {r : ℝ} (hr : 0 ≤ r) {n : ℝ} (hn1 : 1 ≤ n) (hn24 : 24 * r ≤ n)
+    {t : ℝ} (ht : 0 < t) :
+    |jAiry (n - 12 * r) t / jAiry n t - 1| ≤ 24 * r / n := by
+  have hβ := betaTip_pos
+  have hn0 : 0 < n := by linarith
+  have hn' : 0 < n - 12 * r := by linarith
+  have hJ := rebase_c_J hr hn1 hn24 ht
+  have hJpos : ∀ c : ℝ, 0 < c → 0 < jAiry c t := fun c hc => by
+    unfold jAiry
+    have : 0 < √(3 * t / c) := Real.sqrt_pos.mpr (by positivity)
+    have := Real.rpow_pos_of_pos hc ((1 : ℝ) / 3)
+    positivity
+  set ρ : ℝ := jAiry n t / jAiry (n - 12 * r) t with hρ
+  have hρ0 : 0 < ρ := div_pos (hJpos n hn0) (hJpos _ hn')
+  have hsmall : 12 * r / n ≤ 1 / 2 := by
+    rw [div_le_iff₀ hn0]; linarith
+  have hρhalf : 1 / 2 ≤ ρ := by
+    have := (abs_le.1 hJ).1
+    linarith
+  have hinv : jAiry (n - 12 * r) t / jAiry n t = ρ⁻¹ := by
+    rw [hρ, inv_div]
+  rw [hinv]
+  have h1 : |ρ⁻¹ - 1| = |1 - ρ| / ρ := by
+    rw [show ρ⁻¹ - 1 = (1 - ρ) / ρ by field_simp, abs_div, abs_of_pos hρ0]
+  rw [h1, div_le_iff₀ hρ0, abs_sub_comm]
+  calc |ρ - 1| ≤ 12 * r / n := hJ
+    _ ≤ 24 * r / n * ρ := by
+        have : 12 * r / n = 24 * r / n * (1 / 2) := by ring
+        rw [this]
+        exact mul_le_mul_of_nonneg_left hρhalf (by positivity)
+
+/-- info: 'FormalResearch.ModularBootstrap.Mixtures.rebase_window_rev' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms rebase_window_rev
+
+/-- info: 'FormalResearch.ModularBootstrap.Mixtures.rebase_c_J_inv' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms rebase_c_J_inv
+
 end FormalResearch.ModularBootstrap.Mixtures

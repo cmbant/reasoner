@@ -6,8 +6,8 @@ public import FormalResearch.ModularBootstrap.Mixtures.Source
 # Mixtures `(H_{w,mix})` and rebasing (`pmix:rebase` (a))
 
 Setting `(H_{w,mix})` of `positive_mixtures.tex`: integer weight `w ≥ 1`, `s ≥ 1` components with positive
-coefficients `d_i`, shifts `r_i ≥ 0` and fixed products `Q_i(q) = ∏_ℓ (1 - q^{μ_{i,ℓ}})` (each `Q_i` a
-`FixedWeightProblem` of weight `w`).  `MixtureData.toSource` flattens the mixture into the atomic source with atoms
+coefficients `d_i`, shifts `r_i ≥ 0` and fixed products `Q_i(q) = ∏_ℓ (1 - q^{μ_{i,ℓ}})` (data `(m_i, μ_i)`; `MixtureData.Q i` is the
+`FixedWeightProblem` of weight `w` they define).  `MixtureData.toSource` flattens the mixture into the atomic source with atoms
 `(i, S)`, `S ⊆ {1..m_i}`, coefficient `d_i (-1)^{|S|}` and shift `r_i + ∑_{ℓ ∈ S} μ_{i,ℓ}`.
 
 * `toSource_cardyV`: `V_mix(t) = ∑_i d_i V_{Q_i}(a - r_i, t)` (the paper's `V_mix = ∑_i d_i V_i`, `V_i` the
@@ -29,7 +29,8 @@ namespace FormalResearch.ModularBootstrap.Mixtures
 
 open FormalResearch.ModularBootstrap.Crossing
 
-/-- Setting `(H_{w,mix})`: positive coefficients `d_i`, shifts `r_i ≥ 0` and fixed products `Q_i`. -/
+/-- Setting `(H_{w,mix})`: positive coefficients `d_i`, shifts `r_i ≥ 0` and fixed products `Q_i`, given by their
+number of factors `m_i` and exponents `μ_{i,ℓ} > 0`. -/
 structure MixtureData where
   w : ℕ
   hw : 1 ≤ w
