@@ -299,6 +299,8 @@ public import FormalResearch.SignUncertainty.CtBoasBlocks
 public import FormalResearch.SignUncertainty.CtBoasAssembly
 public import FormalResearch.SignUncertainty.CtBoasTent
 public import FormalResearch.SignUncertainty.CtBoasPlbField
+public import FormalResearch.SignUncertainty.CtBoasFarField
+public import FormalResearch.SignUncertainty.CtBoasFarPhase
 public import FormalResearch.SignUncertainty.HankelChartCubic
 public import FormalResearch.SignUncertainty.CtLowerDefs
 public import FormalResearch.SignUncertainty.CtLowerChartGap
