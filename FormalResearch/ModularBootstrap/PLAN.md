@@ -258,11 +258,14 @@ Statements that Lean proves only for a special case, so that nobody cites them a
 - Paper I does not plan Lemma WP, Lemma WR or `teb:quant_c1_near`; here they are FT-H4b and FIVE-L.
 - **Five-term lower bound: shared analytic cores (agreed in `SignUncertainty/PLAN.md` section 5, item 7).** FIVE-L
   (`ctl:dyadic`, `ctl:pass2`, `cts:rosc-uncond`, `cts:boas`) and Paper I's F1 (`ct:dyadic`, `ct:boas`) are the same mechanism for two phases.
-  Phase-free cores have one copy. Already on master: here, `FiveTerm/LowerBoasResidue` (`boas_residue_zero`, `rect_boundary_zero`) and
-  `LowerDyadic` (`markov_select`, `dyadic_term_le`); in Paper I, `CtHalfDiscPoisson`, `CtFejer`, `CtSd*` (`sd_eval`), `CtCfu*`,
-  `CtMorse*`. Each is reused as it is, not re-proved. A core both lanes still need (half-disc Cauchy/Poisson representation, good-circle
-  selection, the dyadic absorption step) is written once, phase-free, under `Complex/` or `Asymptotics/`, by whichever lane needs it first.
-  The other lane imports it. Before writing such a lemma, `git grep` both trees.
+  Phase-free cores have one copy, reused as they are, not re-proved. Here: `FiveTerm/LowerBoasResidue` (`boas_residue_zero`,
+  `rect_boundary_zero`) and `LowerDyadic` (`markov_select`, `dyadic_term_le`). Paper I: `CtHalfDiscPoisson`, `CtFejer`, `CtSd*` (`sd_eval`),
+  `CtCfu*`, `CtMorse*`, and the shared `Complex/HalfDiscCauchy` (`halfDisc_cauchy`), `Complex/HalfDiscPoisson` (`halfDisc_poisson`, upper
+  half-disc; this lane's `FiveTerm/HalfDisc*` is the right half-disc, a different object) and `Asymptotics/DyadicAbsorption` (`absorb_dyadic`).
+  **Owned by Paper I's F1, open:** the scale-`r` strip-band reduction and the scale-`r` bootstrap family with good-circle selection, stated
+  phase-free where possible; FIVE-L's `ctl:dyadic`/`ctl:pass2` instantiate them for the Virasoro phase rather than re-deriving. Before
+  starting its own version FIVE-L reads `SignUncertainty/PLAN.md` section 5, item 7 and `git grep`s `Complex/`, `Asymptotics/`,
+  `TwoEdgeBootstrap/`; any other shared core goes to whichever lane needs it first, which records it in both plans.
 - **Five-term upper bound and skeletons (same rule as Paper I's M10).** FIVE-U's exact-CFU geometry (`cts:upper-design`, `cts:shifted-langer`)
   instantiates Paper I's abstract divided-difference chart (`FctCfuTheta.cfu_chart`, `FctHomotopy*`, `FctJCBound`, `FctWeighted`) rather than a second CFU
   stack; `cts:tip-shared` checks `Special/AiryCft2DerivHadamard`, `AiryAsym*`, `CtAiryHplus`, `CtAiryG0`, `CtOuterG3*` first; FIVE-L's `cts:cauchy-dual`
