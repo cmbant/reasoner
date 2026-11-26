@@ -303,6 +303,12 @@ public import FormalResearch.SignUncertainty.UctSeedEdgeE
 public import FormalResearch.SignUncertainty.UctSeedEdgeZT
 public import FormalResearch.SignUncertainty.UctSeedEdgeAsm
 public import FormalResearch.SignUncertainty.UctSeedAdmiss
+public import FormalResearch.SignUncertainty.UctSeedEdgeKW
+public import FormalResearch.SignUncertainty.UctMcSmallBd
+public import FormalResearch.SignUncertainty.UctMcSmallA
+public import FormalResearch.SignUncertainty.UctMcSmallE
+public import FormalResearch.SignUncertainty.UctMcSmallPhi
+public import FormalResearch.SignUncertainty.UctMcSmall
 public import FormalResearch.SignUncertainty.Headlines
 public import FormalResearch.SignUncertainty.SignSeparationLimsup
 public import FormalResearch.CohnElkies
@@ -529,6 +535,7 @@ Umbrella collecting sign-uncertainty theorems and Cohn–Elkies analytic lemmas:
 * `FormalResearch.SignUncertainty.UctSeedW` (`uct:Wseed-def`; proved, unconditional): `seedW ε δ c = T(a)⁻¹ Z_ε e^{-h} T(aζ) T(a(1-ζ))` (`T(w) = F̃_{*,δ}(iw)`, `a = c_s c^{1/3}`), `hasU2_uctFstarDelta`, `seedT_bound`, `seedW_stripM1` ((M1) of `uct:admiss` for `W^seed`).
   `FormalResearch.SignUncertainty.UctSeedWHolder`: `seedT_holder`, `seedW_oneSub` (`W(1-ζ) = εW(ζ)`), `seedW_holder0`, `seedW_holder1` ((M2) at `ζ=0,1`).
   `FormalResearch.SignUncertainty.UctSeedAdmiss` (with `UctSeedEdgeV` (Airy factor `v(q) = T(iq)`: `C^∞` off `0`, `|q|^{1/2-j}` near `0`, bounded far), `UctEnv2`, `UctEnvHolo` (`Env2` `C²`-envelope calculus, Cauchy estimates), `UctSeedEdgeE`, `UctSeedEdgeZT` (envelopes of `e^{-h(iτ)}`, `Z_ε(iτ)`, `T(a(1-iτ))`), `UctSeedEdgeAsm` (Leibniz bookkeeping)): (M3) for `W^seed`, `seedW_stripEdge0`, `seedW_stripEdge1` (parity), and `seedW_stripAdmissFull : StripAdmissFullData (1/2) (seedW ε δ c)` for `ε = ±1`, `0 ≤ δ ≤ 1`, `c > 0` (proved, unconditional).
+  `FormalResearch.SignUncertainty.UctSeedEdgeKW`: `uctAstar` (`A_*(τ) = cosh(πτ)(πτ/sinh πτ)² e^{-u_r(τ)}(1+τ²)^{-1/2}`, even, `C^∞`, `A_*(0)=1`; `uctAstar_eq_paper`: `= τ^{5/2}|H_*(iτ)|/√(6/π² m'(τ))`), `uctMc` (`M_c = e^{B_c(iτ)} φ_{c,δ}(1-iτ)/φ_{c,δ}(1) A_*`), `seedZ_edge_core_all`, `kw_seed_edge_all` (`(uct:KW-seed-edge)`: `K₀(iτ,ξ) W^seed(iτ) = e^{icΦ_Ph(τ;L) - iθ_ε(τ)} M_c(τ) F̃_{*,δ}(-c_s c^{1/3}τ)` for every real `τ`, `ε = ±1`, `c > 0`). `UctMcSmall` (with `UctMcSmallBd`: the class `SmallBd` and `SmallBd.mul`; `UctMcSmallA`, `UctMcSmallE`, `UctMcSmallPhi`): `mc_small` (`(uct:Mc-small)`: for `c ≥ c₀`, `0 ≤ δ ≤ 1`, `M_c` is `C³` with `|M_c-1| ≤ K(c^{-2/3}|τ|+τ²)`, `|M_c'| ≤ K(c^{-2/3}+|τ|)`, `|M_c''|,|M_c'''| ≤ K` on `|τ| ≤ 1/5`; proved, unconditional).
   Not formalised: the main and reflected density bounds, the Fourier identity `(uct:E0-def)`.
 * `FormalResearch.SignUncertainty.Headlines`: the headline theorems `thm_intro_radii`,
   `thm_intro_gap_i/ii/iii` of Paper I, each proved from one input structure
