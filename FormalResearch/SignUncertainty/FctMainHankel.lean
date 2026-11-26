@@ -37,14 +37,18 @@ there are `c₀, C₊ > 0` with `T_c^ε ≤ Δ₅^ε(c) + C₊ c^{-3/4}` for `ε
 **Concrete multipliers.** `ctWg1` (`(fct:Wg1-exact)`, from `seedT`, `uctSeedZ`, `outerHbar`, `g̃_1 = airyTwistedLaplaceC g₁`), `ctWfl` (the
 `ε`-lift of `S_pos` of `uct:pos-floor` (2), `liftSymbol uctSpos`), `ctWbump` (`bumpDW`, `UctBumpMain`), `ctWwarp` (`(fct:Wwarp-hankel)`)
 and `ctWtot` (`(fct:Wtot-hankel)`) are defined from the existing Lean objects.  Their origin values are proved:
-`ctWg1_zero` (`= k = ceK` for large `c`, using `seedT_scale_ne`: `φ_{c,0}(1) = 1 + O(c^{-2/3})`), `ctWfl_zero_bound`
-(`|Re W̃^fl(0)| ≤ C`), `ctWwarp_zero` (`= 0`; Lean's value is the junk value of `ctHG` at `ζ = 0`, equal to the paper's value because
-`Φ̂_c = O(ζ³)` makes the multiplier continuous there, which the field `admissible` asserts for the total multiplier).
+`ctWg1_zero` (`= k = ceK` for large `c`, using `seedT_scale_ne`: `φ_{c,0}(1) = 1 + O(c^{-2/3})`) and `ctWfl_zero_bound`
+(`|Re W̃^fl(0)| ≤ C`).  No fact depends on a junk value at the corners: the value `W̃_c^ε(0)` is computed as the limit along the strip
+(`ctWtot_zero_eq`, from the Hölder clause (M2) of `StripAdmissFullData` and the limits of the summands; `ctWg1`, `ctWfl`,
+`ctWbump` are continuous on the closed strip, `ctWg1_continuousOn` etc.), and `W̃^warp → 0` is `ctWwarp_tendsto_zero`, proved from
+the explicit corner field `splitting_origin` (`Φ̂_c = O(ζ³)` cancels the `ζ^{-5/2}` singularity of `H_*/G_ε`, `ctHG_bound`).  (Lean's
+value of `ctHG`/`ctWwarp` at `ζ = 0` is a division-by-zero value; it is never used, and the Hölder clause of `admissible` is consistent
+with it because the limit is `0`.)
 
 **Abstract parameters** (the only objects not yet in Lean, each named after its TeX label): `Dcomp` (`fct:comp-D`), `PhiHat`
 (`fct:splitting`, which depends on the chart of `fct:comp-cfu`), `Bphys` (`(fct:B-physical)`), `T1` (`fct:warp-asymp` (1)).
 
-**Conditional on the fields of `FctMainHankelInputs`** (`warp_zero`, `admissible`, `physical_budget`, `physical_positive`): each is
+**Conditional on the fields of `FctMainHankelInputs`** (`splitting_origin`, `bump_profile`, `warp_zero`, `admissible`, `physical_budget`, `physical_positive`): each is
 the output of the named TeX lemma(s), stated about the concrete multipliers and these four parameters.  Proved lemmas
 (`uct:admiss` = `uct_admiss_full`, `mat:T7`, `hb_thresholds_lower`, `uct:airy-trans`, `uct:pos-floor`, `uct:outer-growth`,
 `fct:bump-5`, `uct:seed-asymp` (1), `fct:moment-solver`, `fct:phikill`, `fct:edge-ibp`) are used directly or enter through the
@@ -130,14 +134,6 @@ noncomputable def ctWtot (PhiHat D : ℝ → ℝ → ℂ → ℂ) (B : ℝ → �
     ((K0 * c ^ (-(4 / 3 : ℝ)) : ℝ) : ℂ) * ctWfl Kfl ε c ζ + ctWbump (B ε c K1) ε c ζ
 
 /-! ### The origin values (proved) -/
-
-lemma ctHG_zero (ε : ℝ) : ctHG ε 0 = 0 := by
-  simp [ctHG, Complex.zero_cpow]
-
-/-- `W̃^{warp}(0) = 0`.  (Lean's value at `0` is the junk value of `ctHG`; it is the paper's value because `Φ̂_c(ζ) = O(ζ³)` makes
-the multiplier continuous there, which `FctMainHankelInputs.admissible` asserts for the total multiplier.) -/
-lemma ctWwarp_zero (PhiHat D : ℝ → ℝ → ℂ → ℂ) (ε c : ℝ) : ctWwarp PhiHat D ε c 0 = 0 := by
-  simp [ctWwarp, ctHG_zero]
 
 lemma ctTg1_zero : ctTg1 0 = (ceK : ℂ) := by
   unfold ctTg1 airyTwistedLaplaceC
@@ -235,6 +231,191 @@ lemma ctWfl_zero_bound : ∃ C : ℝ, ∀ K ε c : ℝ, 0 ≤ K → 0 < c → (�
       exact h1
   exact (Complex.abs_re_le_norm _).trans hnorm
 
+/-! ### Limits at the corner `ζ = 0` (no junk values) -/
+
+/-- The punctured closed strip at the origin. -/
+lemma neBot_strip0 : (𝓝[closedStrip \ {0}] (0 : ℂ)).NeBot := by
+  rw [← mem_closure_iff_nhdsWithin_neBot, Metric.mem_closure_iff]
+  intro e he
+  have hm : 0 < min e 1 / 2 := by positivity
+  refine ⟨((min e 1 / 2 : ℝ) : ℂ), ⟨⟨?_, ?_⟩, ?_⟩, ?_⟩
+  · simpa using hm.le
+  · simp; linarith [min_le_right e 1]
+  · simpa using hm.ne'
+  · rw [dist_zero_left, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hm]
+    linarith [min_le_left e 1]
+
+/-- If `W` satisfies (M2) at `0` and tends to `v` along the strip, then `W 0 = v`: the value at the corner is the limit. -/
+lemma strip_zero_eq_of_tendsto {W : ℂ → ℂ} (hW : StripAdmissFullData (1 / 2) W) {v : ℂ}
+    (h : Tendsto W (𝓝[closedStrip \ {0}] 0) (𝓝 v)) : W 0 = v := by
+  have := neBot_strip0
+  obtain ⟨CH, hCH⟩ := hW.holder0
+  have hnorm : Tendsto (fun ζ : ℂ => ‖ζ‖ ^ (1 / 2 : ℝ)) (𝓝[closedStrip \ {0}] 0) (𝓝 0) := by
+    have h1 : Tendsto (fun ζ : ℂ => ‖ζ‖) (𝓝 (0 : ℂ)) (𝓝 0) := by
+      simpa using (continuous_norm.tendsto (0 : ℂ))
+    have h2 : Tendsto (fun x : ℝ => x ^ (1 / 2 : ℝ)) (𝓝 0) (𝓝 0) := by
+      simpa using (Real.continuousAt_rpow_const 0 (1 / 2 : ℝ) (Or.inr (by norm_num))).tendsto
+    exact (h2.comp h1).mono_left nhdsWithin_le_nhds
+  have hW0 : Tendsto W (𝓝[closedStrip \ {0}] 0) (𝓝 (W 0)) := by
+    rw [tendsto_iff_norm_sub_tendsto_zero]
+    refine squeeze_zero_norm' ?_ (by simpa using hnorm.const_mul CH)
+    filter_upwards [self_mem_nhdsWithin, mem_nhdsWithin_of_mem_nhds (Metric.closedBall_mem_nhds (0 : ℂ) (by norm_num : (0 : ℝ) < 1 / 2))]
+      with ζ hζ hb
+    have := hCH ζ hζ.1.1 hζ.1.2 (by simpa using hb)
+    simpa [norm_norm] using this
+  exact tendsto_nhds_unique hW0 h
+
+lemma ctHG_bound (ε : ℝ) : ∃ M : ℝ, ∀ᶠ ζ in 𝓝[closedStrip \ {0}] (0 : ℂ),
+    ‖ctHG ε ζ‖ ≤ M * ‖ζ‖ ^ (-(5 / 2 : ℝ)) := by
+  have hS0 : (0 : ℂ) ∈ closedStrip := ⟨by simp, by simp⟩
+  have hZc : ContinuousWithinAt (uctSeedZ ε) (closedStrip \ {0}) 0 :=
+    (((differentiableOn_uctSeedZ ε).continuousOn.mono fun ζ (hζ : ζ ∈ closedStrip) =>
+      (⟨by linarith [hζ.1], by linarith [hζ.2]⟩ : -1 < ζ.re ∧ ζ.re < 2)).continuousWithinAt hS0).mono Set.sdiff_subset
+  have hEc : ContinuousWithinAt (fun ζ => Complex.exp (-outerHbar ζ)) (closedStrip \ {0}) 0 :=
+    ((continuousOn_outerHbar.continuousWithinAt hS0).neg.cexp).mono Set.sdiff_subset
+  have hZ : ∀ᶠ ζ in 𝓝[closedStrip \ {0}] (0 : ℂ), ‖uctSeedZ ε ζ‖ ≤ 2 := by
+    have := hZc.tendsto.eventually (Metric.closedBall_mem_nhds (uctSeedZ ε 0) (by norm_num : (0 : ℝ) < 1))
+    filter_upwards [this] with ζ hζ
+    rw [uctSeedZ_zero, dist_eq_norm] at hζ
+    calc ‖uctSeedZ ε ζ‖ ≤ ‖(1 : ℂ)‖ + ‖uctSeedZ ε ζ - 1‖ := by
+          simpa using norm_le_insert' (uctSeedZ ε ζ) 1
+      _ ≤ 2 := by simp; linarith
+  have hE : ∀ᶠ ζ in 𝓝[closedStrip \ {0}] (0 : ℂ), ‖Complex.exp (-outerHbar ζ)‖ ≤ 2 := by
+    have h0 : Complex.exp (-outerHbar 0) = 1 := by simp [outerHbar_zero]
+    have := hEc.tendsto.eventually (Metric.closedBall_mem_nhds (Complex.exp (-outerHbar 0)) (by norm_num : (0 : ℝ) < 1))
+    filter_upwards [this] with ζ hζ
+    rw [h0, dist_eq_norm] at hζ
+    calc ‖Complex.exp (-outerHbar ζ)‖ ≤ ‖(1 : ℂ)‖ + ‖Complex.exp (-outerHbar ζ) - 1‖ := by
+          simpa using norm_le_insert' (Complex.exp (-outerHbar ζ)) 1
+      _ ≤ 2 := by simp; linarith
+  have hq : (0 : ℝ) < (1 / 2 : ℝ) ^ (5 / 2 : ℝ) := by positivity
+  refine ⟨4 / (1 / 2 : ℝ) ^ (5 / 2 : ℝ), ?_⟩
+  filter_upwards [hZ, hE, self_mem_nhdsWithin,
+    mem_nhdsWithin_of_mem_nhds (Metric.closedBall_mem_nhds (0 : ℂ) (by norm_num : (0 : ℝ) < 1 / 2))] with ζ hZ' hE' hζ hb
+  have hζ0 : ζ ≠ 0 := hζ.2
+  have hn : 0 < ‖ζ‖ := norm_pos_iff.mpr hζ0
+  have hb' : ‖ζ‖ ≤ 1 / 2 := by simpa using hb
+  have h1ζ : (1 / 2 : ℝ) ≤ ‖1 - ζ‖ := by
+    have := norm_sub_norm_le (1 : ℂ) ζ
+    simp at this; linarith
+  have h1ne : (1 - ζ) ≠ 0 := by intro h; rw [h] at h1ζ; simp at h1ζ; linarith
+  have e1 : ‖(ζ : ℂ) ^ (5 / 2 : ℂ)‖ = ‖ζ‖ ^ (5 / 2 : ℝ) := by
+    rw [Complex.norm_cpow_of_ne_zero hζ0]; simp
+  have e2 : ‖(1 - ζ : ℂ) ^ (5 / 2 : ℂ)‖ = ‖1 - ζ‖ ^ (5 / 2 : ℝ) := by
+    rw [Complex.norm_cpow_of_ne_zero h1ne]; simp
+  have e3 : (1 / 2 : ℝ) ^ (5 / 2 : ℝ) ≤ ‖1 - ζ‖ ^ (5 / 2 : ℝ) :=
+    Real.rpow_le_rpow (by norm_num) h1ζ (by norm_num)
+  unfold ctHG
+  rw [norm_div, norm_mul, norm_mul, e1, e2]
+  have hp1 : 0 < ‖ζ‖ ^ (5 / 2 : ℝ) := Real.rpow_pos_of_pos hn _
+  have hnn : ‖ζ‖ ^ (-(5 / 2 : ℝ)) = (‖ζ‖ ^ (5 / 2 : ℝ))⁻¹ := Real.rpow_neg hn.le _
+  rw [hnn]
+  have hnum : ‖uctSeedZ ε ζ‖ * ‖Complex.exp (-outerHbar ζ)‖ ≤ 4 := by nlinarith [norm_nonneg (uctSeedZ ε ζ), norm_nonneg (Complex.exp (-outerHbar ζ))]
+  have hden : (1 / 2 : ℝ) ^ (5 / 2 : ℝ) * ‖ζ‖ ^ (5 / 2 : ℝ) ≤ ‖ζ‖ ^ (5 / 2 : ℝ) * ‖1 - ζ‖ ^ (5 / 2 : ℝ) := by
+    nlinarith
+  rw [div_le_iff₀ (mul_pos hp1 (lt_of_lt_of_le hq e3))]
+  calc ‖uctSeedZ ε ζ‖ * ‖Complex.exp (-outerHbar ζ)‖ ≤ 4 := hnum
+    _ = 4 / (1 / 2 : ℝ) ^ (5 / 2 : ℝ) * (‖ζ‖ ^ (5 / 2 : ℝ))⁻¹ * ((1 / 2 : ℝ) ^ (5 / 2 : ℝ) * ‖ζ‖ ^ (5 / 2 : ℝ)) := by
+        field_simp
+    _ ≤ _ := by
+        apply mul_le_mul_of_nonneg_left hden
+        positivity
+
+/-- `W̃^warp → 0` at the corner, from `Φ̂_c = O(ζ³)` (`fct:splitting` (1)), local boundedness of `Φ̂_c(1-ζ)` and `D_{τ₁}`:
+`|ζ³| |ζ|^{-5/2} = |ζ|^{1/2}`. -/
+lemma ctWwarp_tendsto_zero (PhiHat D : ℝ → ℝ → ℂ → ℂ) (ε c : ℝ)
+    (h : ∃ C r : ℝ, 0 < r ∧ ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖ζ‖ ≤ r →
+      ‖PhiHat ε c ζ‖ ≤ C * ‖ζ‖ ^ 3 ∧ ‖PhiHat ε c (1 - ζ)‖ ≤ C ∧ ‖D ε c ζ‖ ≤ C) :
+    Tendsto (ctWwarp PhiHat D ε c) (𝓝[closedStrip \ {0}] 0) (𝓝 0) := by
+  obtain ⟨C, r, hr, hC⟩ := h
+  obtain ⟨M, hM⟩ := ctHG_bound ε
+  have hnorm : Tendsto (fun ζ : ℂ => ‖ζ‖ ^ (1 / 2 : ℝ)) (𝓝[closedStrip \ {0}] 0) (𝓝 0) := by
+    have h1 : Tendsto (fun ζ : ℂ => ‖ζ‖) (𝓝 (0 : ℂ)) (𝓝 0) := by
+      simpa using (continuous_norm.tendsto (0 : ℂ))
+    have h2 : Tendsto (fun x : ℝ => x ^ (1 / 2 : ℝ)) (𝓝 0) (𝓝 0) := by
+      simpa using (Real.continuousAt_rpow_const 0 (1 / 2 : ℝ) (Or.inr (by norm_num))).tendsto
+    exact (h2.comp h1).mono_left nhdsWithin_le_nhds
+  set Cc : ℝ := |uctCAi * c ^ (-(5 / 6 : ℝ))| with hCc
+  rw [tendsto_zero_iff_norm_tendsto_zero]
+  refine squeeze_zero' (Eventually.of_forall fun _ => norm_nonneg _) ?_ (by have := hnorm.const_mul (Cc * (|C| * |C| * |C|) * |M|); rwa [mul_zero] at this)
+  filter_upwards [hM, self_mem_nhdsWithin,
+    mem_nhdsWithin_of_mem_nhds (Metric.closedBall_mem_nhds (0 : ℂ) hr)] with ζ hM' hζ hb
+  have hζ0 : ζ ≠ 0 := hζ.2
+  have hn : 0 < ‖ζ‖ := norm_pos_iff.mpr hζ0
+  obtain ⟨h1, h2, h3⟩ := hC ζ hζ.1.1 hζ.1.2 (by simpa using hb)
+  unfold ctWwarp
+  rw [norm_mul, Complex.norm_real, Real.norm_eq_abs, norm_mul, norm_mul, norm_mul]
+  have e : ‖ζ‖ ^ 3 * ‖ζ‖ ^ (-(5 / 2 : ℝ)) = ‖ζ‖ ^ (1 / 2 : ℝ) := by
+    rw [show ‖ζ‖ ^ 3 = ‖ζ‖ ^ ((3 : ℕ) : ℝ) from (Real.rpow_natCast _ 3).symm, ← Real.rpow_add hn]; norm_num
+  have hA : ‖PhiHat ε c ζ‖ * ‖PhiHat ε c (1 - ζ)‖ * ‖D ε c ζ‖ ≤ |C| * ‖ζ‖ ^ 3 * |C| * |C| := by
+    have a1 : ‖PhiHat ε c ζ‖ ≤ |C| * ‖ζ‖ ^ 3 := h1.trans (mul_le_mul_of_nonneg_right (le_abs_self C) (by positivity))
+    have a2 : ‖PhiHat ε c (1 - ζ)‖ ≤ |C| := h2.trans (le_abs_self C)
+    have a3 : ‖D ε c ζ‖ ≤ |C| := h3.trans (le_abs_self C)
+    exact mul_le_mul (mul_le_mul a1 a2 (norm_nonneg _) (by positivity)) a3 (norm_nonneg _) (by positivity)
+  have hH : ‖ctHG ε ζ‖ ≤ |M| * ‖ζ‖ ^ (-(5 / 2 : ℝ)) :=
+    hM'.trans (mul_le_mul_of_nonneg_right (le_abs_self M) (by positivity))
+  calc Cc * (‖PhiHat ε c ζ‖ * ‖PhiHat ε c (1 - ζ)‖ * ‖D ε c ζ‖ * ‖ctHG ε ζ‖)
+      ≤ Cc * ((|C| * ‖ζ‖ ^ 3 * |C| * |C|) * (|M| * ‖ζ‖ ^ (-(5 / 2 : ℝ)))) := by
+        exact mul_le_mul_of_nonneg_left (mul_le_mul hA hH (norm_nonneg _) (by positivity)) (abs_nonneg _)
+    _ = Cc * (|C| * |C| * |C|) * |M| * (‖ζ‖ ^ 3 * ‖ζ‖ ^ (-(5 / 2 : ℝ))) := by ring
+    _ = _ := by rw [e]
+
+lemma continuousOn_liftSymbol {X : ℝ → ℝ} (hX : HasU2 X) (δ₀ : ℝ) (m : ℕ) :
+    ContinuousOn (liftSymbol X δ₀ m) {w : ℂ | 0 ≤ w.re} := by
+  unfold liftSymbol liftMultiplier
+  refine ContinuousOn.mul ((differentiable_bsplineE1.continuous.comp (by fun_prop : Continuous fun w : ℂ => (((ceCs * δ₀ / m : ℝ) : ℂ) * w))).pow m).continuousOn ?_
+  exact hX.continuousOn.comp (by fun_prop : Continuous fun w : ℂ => (ceCs : ℂ) * w).continuousOn
+    fun w hw => by
+      show 0 ≤ ((ceCs : ℂ) * w).re
+      simp only [Complex.re_ofReal_mul]; exact mul_nonneg ceCs_pos.le hw
+
+lemma re_mul_real_nonneg {a : ℝ} (ha : 0 ≤ a) {ζ : ℂ} (hζ : 0 ≤ ζ.re) : 0 ≤ (((a : ℝ) : ℂ) * ζ).re := by
+  simp only [Complex.re_ofReal_mul]; exact mul_nonneg ha hζ
+
+lemma ctWfl_continuousOn (K ε : ℝ) {c : ℝ} (hc : 0 < c) : ContinuousOn (ctWfl K ε c) closedStrip := by
+  have ha : 0 ≤ c ^ (1 / 3 : ℝ) := by positivity
+  have h1 : ContinuousOn (fun ζ : ℂ => liftSymbol uctSpos (ceBeta1 * K * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ) : ℂ) * ζ)) closedStrip :=
+    (continuousOn_liftSymbol hasU2_uctSpos _ 4).comp (by fun_prop : Continuous fun ζ : ℂ => (((c ^ (1 / 3 : ℝ) : ℝ) : ℂ) * ζ)).continuousOn
+      fun ζ hζ => re_mul_real_nonneg ha hζ.1
+  have h2 : ContinuousOn (fun ζ : ℂ => liftSymbol uctSpos (ceBeta1 * K * liftEps c / 2) 4 (((c ^ (1 / 3 : ℝ) : ℝ) : ℂ) * (1 - ζ))) closedStrip :=
+    (continuousOn_liftSymbol hasU2_uctSpos _ 4).comp (by fun_prop : Continuous fun ζ : ℂ => (((c ^ (1 / 3 : ℝ) : ℝ) : ℂ) * (1 - ζ))).continuousOn
+      fun ζ hζ => re_mul_real_nonneg ha (by simp; linarith [hζ.2])
+  unfold ctWfl
+  exact h1.add (continuousOn_const.mul h2)
+
+lemma ctWg1_continuousOn (ε : ℝ) {c : ℝ} (hc : 0 < c) : ContinuousOn (ctWg1 ε c) closedStrip := by
+  have ha := seedScale_pos hc
+  have hZ : ContinuousOn (uctSeedZ ε) closedStrip :=
+    (differentiableOn_uctSeedZ ε).continuousOn.mono fun ζ (hζ : ζ ∈ closedStrip) =>
+      (⟨by linarith [hζ.1], by linarith [hζ.2]⟩ : -1 < ζ.re ∧ ζ.re < 2)
+  have hH : ContinuousOn outerHbar closedStrip := continuousOn_outerHbar
+  have hmul : ∀ ζ ∈ closedStrip, 0 ≤ ((seedScale c : ℂ) * ζ).re := fun ζ hζ => re_mul_real_nonneg ha.le hζ.1
+  have hmul1 : ∀ ζ ∈ closedStrip, 0 ≤ ((seedScale c : ℂ) * (1 - ζ)).re :=
+    fun ζ hζ => re_mul_real_nonneg ha.le (by simp; linarith [hζ.2])
+  have hT1 : ContinuousOn (fun ζ : ℂ => seedT 0 ((seedScale c : ℂ) * ζ)) closedStrip :=
+    (seedT_continuousOn 0).comp (by fun_prop : Continuous fun ζ : ℂ => (seedScale c : ℂ) * ζ).continuousOn hmul
+  have hT2 : ContinuousOn (fun ζ : ℂ => seedT 0 ((seedScale c : ℂ) * (1 - ζ))) closedStrip :=
+    (seedT_continuousOn 0).comp (by fun_prop : Continuous fun ζ : ℂ => (seedScale c : ℂ) * (1 - ζ)).continuousOn hmul1
+  have hg1 : ContinuousOn (fun ζ : ℂ => ctTg1 ((seedScale c : ℂ) * ζ)) closedStrip :=
+    hasU2_ceG1.continuousOn.comp (by fun_prop : Continuous fun ζ : ℂ => (seedScale c : ℂ) * ζ).continuousOn hmul
+  have hg2 : ContinuousOn (fun ζ : ℂ => ctTg1 ((seedScale c : ℂ) * (1 - ζ))) closedStrip :=
+    hasU2_ceG1.continuousOn.comp (by fun_prop : Continuous fun ζ : ℂ => (seedScale c : ℂ) * (1 - ζ)).continuousOn hmul1
+  unfold ctWg1
+  exact (((hZ.mul hH.neg.cexp).mul ((hg1.mul hT2).add (hT1.mul hg2)))).const_mul _
+
+lemma ctWbump_continuousOn {B : ℝ → ℝ} {b δ M α β : ℝ} {K : ℕ → ℝ} (hB : BumpProfile b δ M α β K B)
+    (hb0 : 0 ≤ b * δ) (hbδ : b * δ ≤ 1) (hβ : 1 < β) (ε : ℝ) {c : ℝ} (hc : 0 < c) :
+    ContinuousOn (ctWbump B ε c) closedStrip := by
+  have hL := hB.continuousOn_laplace hb0 hbδ hβ
+  have h1 : ContinuousOn (fun ζ : ℂ => bumpLaplace B ((c : ℂ) * ζ)) closedStrip :=
+    hL.comp (by fun_prop : Continuous fun ζ : ℂ => (c : ℂ) * ζ).continuousOn
+      fun ζ hζ => re_mul_real_nonneg hc.le hζ.1
+  have h2 : ContinuousOn (fun ζ : ℂ => bumpLaplace B ((c : ℂ) * (1 - ζ))) closedStrip :=
+    hL.comp (by fun_prop : Continuous fun ζ : ℂ => (c : ℂ) * (1 - ζ)).continuousOn
+      fun ζ hζ => re_mul_real_nonneg hc.le (by simp; linarith [hζ.2])
+  unfold ctWbump bumpDW
+  exact (continuousOn_const.mul h1).add (continuousOn_const.mul (continuousOn_const.mul h2))
+
 /-! ### The inputs -/
 
 /-- **The open inputs of `fct:main-hankel`.**  The multipliers `ctWg1`, `ctWfl`, `ctWbump`, `ctWwarp`, `ctWtot` are concrete; the
@@ -256,6 +437,15 @@ structure FctMainHankelInputs where
   Bphys : ℝ → ℝ → ℝ → ℝ → ℝ
   /-- `T₁` (`fct:warp-asymp` (1)). -/
   T1 : ℝ → ℝ → ℝ
+  /-- `fct:splitting` (1) (`Φ̂_c(ζ) = O(ζ³)` at `ζ = 0`), the bound `|Φ̂_c| ≤ C(K₄) log log(4 + |τ|)` of `fct:splitting` (2) near `ζ = 1`, and
+  `D_{τ₁}(0) = 1` with `D_{τ₁}` continuous (`fct:comp-D`): the corner behaviour that makes `ctWwarp → 0` at `ζ = 0`
+  (`ctWwarp_tendsto_zero`; the singularity `ζ^{-5/2}` of `H_*/G_ε` is cancelled). -/
+  splitting_origin : ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → ∃ C r : ℝ, 0 < r ∧ ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 → ‖ζ‖ ≤ r →
+    ‖PhiHat ε c ζ‖ ≤ C * ‖ζ‖ ^ 3 ∧ ‖PhiHat ε c (1 - ζ)‖ ≤ C ∧ ‖Dcomp ε c ζ‖ ≤ C
+  /-- `fct:bump-5` (1) with `fct:bump-sym-check`: the physical bump is a `BumpProfile` (`uct:bump-symbol`: smooth, supported in
+  `[3δ_L/2, ∞)`, symbol bounds), so that its Laplace transform is continuous on the closed strip. -/
+  bump_profile : ∀ K1 : ℝ, 0 < K1 → ∃ c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c →
+    ∃ (δ M α β : ℝ) (K : ℕ → ℝ), 0 < δ ∧ 3 / 2 * δ ≤ 1 ∧ 3 / 2 ≤ β ∧ BumpProfile (3 / 2) δ M α β K (Bphys ε c K1)
   /-- `fct:comp-D`, `fct:comp-cfu`, `fct:inner-symbols`, `fct:warp-asymp` (1) (with `ct:langer-inv`, `ct:five-term-node`):
   the zero solve places the first zero at `T₁ = Δ₅^ε(c) + O(c^{-1})` (`K₄ = K₄^{(0)}` fixed). -/
   warp_zero : ∃ C c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → |T1 ε c - ctDelta5 ε c| ≤ C * c⁻¹
@@ -282,14 +472,28 @@ structure FctMainHankelInputs where
 
 /-! ### The assembly -/
 
-/-- The real part of the total multiplier at the origin (vacuum condition of `Step 1`):
-`Re W̃(0) = -k d + η₀ Re W̃^fl(0) + Re W̃^bump(0)`, `k = ceK`. -/
-lemma ctWtot_origin_re (PhiHat D : ℝ → ℝ → ℂ → ℂ) (B : ℝ → ℝ → ℝ → ℝ → ℝ) {ε c : ℝ} (hT : seedT 0 (seedScale c : ℂ) ≠ 0)
-    (Kfl K0 K1 Kd : ℝ) :
-    (ctWtot PhiHat D B ε c Kfl K0 K1 Kd 0).re =
-      -(Kd * c ^ (-(13 / 12 : ℝ))) * ceK + K0 * c ^ (-(4 / 3 : ℝ)) * (ctWfl Kfl ε c 0).re +
-        (ctWbump (B ε c K1) ε c 0).re := by
-  simp [ctWtot, ctWwarp_zero, ctWg1_zero ε hT]
+/-- The value of the total multiplier at the corner `0`, as the limit along the strip (no junk values: `W 0` is pinned by the Hölder
+clause of `StripAdmissFullData` and the limits of the four summands): `W̃(0) = -k d + η₀ W̃^fl(0) + W̃^bump(0)`, `k = ceK`. -/
+lemma ctWtot_zero_eq (PhiHat D : ℝ → ℝ → ℂ → ℂ) (B : ℝ → ℝ → ℝ → ℝ → ℝ) {ε c Kfl K0 K1 Kd : ℝ} (hc : 0 < c)
+    (hT : seedT 0 (seedScale c : ℂ) ≠ 0)
+    (hW : StripAdmissFullData (1 / 2) (ctWtot PhiHat D B ε c Kfl K0 K1 Kd))
+    (hwarp : Tendsto (ctWwarp PhiHat D ε c) (𝓝[closedStrip \ {0}] 0) (𝓝 0))
+    (hbump : ContinuousOn (ctWbump (B ε c K1) ε c) closedStrip) :
+    ctWtot PhiHat D B ε c Kfl K0 K1 Kd 0 =
+      -((Kd * c ^ (-(13 / 12 : ℝ)) : ℝ) : ℂ) * (ceK : ℂ) + ((K0 * c ^ (-(4 / 3 : ℝ)) : ℝ) : ℂ) * ctWfl Kfl ε c 0 +
+        ctWbump (B ε c K1) ε c 0 := by
+  have hS0 : (0 : ℂ) ∈ closedStrip := ⟨by simp, by simp⟩
+  have t2 : Tendsto (ctWg1 ε c) (𝓝[closedStrip \ {0}] 0) (𝓝 (ctWg1 ε c 0)) :=
+    (((ctWg1_continuousOn ε hc).continuousWithinAt hS0).mono Set.sdiff_subset).tendsto
+  have t3 : Tendsto (ctWfl Kfl ε c) (𝓝[closedStrip \ {0}] 0) (𝓝 (ctWfl Kfl ε c 0)) :=
+    (((ctWfl_continuousOn Kfl ε hc).continuousWithinAt hS0).mono Set.sdiff_subset).tendsto
+  have t4 : Tendsto (ctWbump (B ε c K1) ε c) (𝓝[closedStrip \ {0}] 0) (𝓝 (ctWbump (B ε c K1) ε c 0)) :=
+    ((hbump.continuousWithinAt hS0).mono Set.sdiff_subset).tendsto
+  have key := ((hwarp.sub (t2.const_mul ((Kd * c ^ (-(13 / 12 : ℝ)) : ℝ) : ℂ))).add
+    (t3.const_mul ((K0 * c ^ (-(4 / 3 : ℝ)) : ℝ) : ℂ))).add t4
+  have := strip_zero_eq_of_tendsto hW key
+  rw [this, ctWg1_zero ε hT]
+  ring
 
 /-- **`fct:main-hankel`** (Paper I, `constant_terms_five.tex`): conditional on `FctMainHankelInputs`,
 `T_c^ε ≤ Δ₅^ε(c) + C₊ c^{-3/4}` for `ε = ±1` and all real `c ≥ c₀`.  Proved (assembly) under the explicit hypothesis
@@ -311,14 +515,15 @@ theorem fct_main_hankel (I : FctMainHankelInputs) :
     linarith
   obtain ⟨cb, hcb⟩ := hbud K1 hK1
   obtain ⟨cp, hcp⟩ := hpos Kd hKdpos
+  obtain ⟨cbp, hcbp⟩ := I.bump_profile K1 hK1
   obtain ⟨ca1, hca1⟩ := I.admissible 1 Kfl K0 K1 Kd (Or.inl rfl) hK0 hK1 hKdpos
   obtain ⟨ca2, hca2⟩ := I.admissible (-1) Kfl K0 K1 Kd (Or.inr rfl) hK0 hK1 hKdpos
   have hβ := hankelBeta1_pos
   refine ⟨|C1| + 2 * Kd / hankelBeta1 + 1,
-    max (max (max (max (max cw clow) (max cb cp)) (max ca1 ca2)) cT) 2, by positivity, ?_⟩
+    max (max (max (max (max cw clow) (max cb cp)) (max ca1 ca2)) (max cT cbp)) 2, by positivity, ?_⟩
   intro ε c hε hc
   simp only [max_le_iff] at hc
-  obtain ⟨⟨⟨⟨⟨hcw, hcl⟩, hcb', hcp'⟩, hcaa1, hcaa2⟩, hcT'⟩, hc2⟩ := hc
+  obtain ⟨⟨⟨⟨⟨hcw, hcl⟩, hcb', hcp'⟩, hcaa1, hcaa2⟩, hcT', hcbp'⟩, hc2⟩ := hc
   have hc1 : 1 ≤ c := by linarith
   obtain ⟨hadm, hsym⟩ : StripAdmissFullData (1 / 2) (ctWtot I.PhiHat I.Dcomp I.Bphys ε c Kfl K0 K1 Kd) ∧
       ∀ ζ : ℂ, 0 ≤ ζ.re → ζ.re ≤ 1 →
@@ -333,7 +538,12 @@ theorem fct_main_hankel (I : FctMainHankelInputs) :
   have hrpos : 0 < c ^ (-(13 / 12 : ℝ)) := Real.rpow_pos_of_pos (by linarith) _
   have hrpos' : 0 ≤ c ^ (-(4 / 3 : ℝ)) := (Real.rpow_pos_of_pos (by linarith) _).le
   have hvac : (ctWtot I.PhiHat I.Dcomp I.Bphys ε c Kfl K0 K1 Kd 0).re < 0 := by
-    rw [ctWtot_origin_re _ _ _ (hcT c hcT')]
+    obtain ⟨δ, M, α, β, K, hδ, hδ1, hβ, hprof⟩ := hcbp ε c hε hcbp'
+    have hbump := ctWbump_continuousOn hprof (by positivity) (by linarith) (by linarith) ε (by linarith : 0 < c)
+    have hzero := ctWtot_zero_eq I.PhiHat I.Dcomp I.Bphys (by linarith : 0 < c) (hcT c hcT') hadm
+      (ctWwarp_tendsto_zero _ _ ε c (I.splitting_origin ε c hε)) hbump
+    rw [hzero]
+    simp only [Complex.add_re, Complex.neg_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
     have h1 := hcb ε c hε hcb'
     have h2 := hCfl Kfl ε c (by linarith) (by linarith) hε
     have h3 : K0 * c ^ (-(4 / 3 : ℝ)) * (ctWfl Kfl ε c 0).re ≤ K0 * |Cfl| * c ^ (-(13 / 12 : ℝ)) := by
@@ -379,6 +589,18 @@ theorem fct_main_hankel_upper (I : FctMainHankelInputs) :
     ∃ Cp c₀ : ℝ, ∀ ε c : ℝ, (ε = 1 ∨ ε = -1) → c₀ ≤ c → hankelT ε c - ctDelta5 ε c ≤ Cp * c ^ (-(3 / 4 : ℝ)) := by
   obtain ⟨Cp, c₀, -, h⟩ := fct_main_hankel I
   exact ⟨Cp, c₀, fun ε c hε hc => by linarith [h ε c hε hc]⟩
+
+/-- info: 'FormalResearch.SignUncertainty.strip_zero_eq_of_tendsto' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms strip_zero_eq_of_tendsto
+
+/-- info: 'FormalResearch.SignUncertainty.ctWwarp_tendsto_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ctWwarp_tendsto_zero
+
+/-- info: 'FormalResearch.SignUncertainty.ctWtot_zero_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ctWtot_zero_eq
 
 /-- info: 'FormalResearch.SignUncertainty.ctWg1_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
