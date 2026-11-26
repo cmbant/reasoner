@@ -262,6 +262,12 @@ Statements that Lean proves only for a special case, so that nobody cites them a
   `CtMorse*`. Each is reused as it is, not re-proved. A core both lanes still need (half-disc Cauchy/Poisson representation, good-circle
   selection, the dyadic absorption step) is written once, phase-free, under `Complex/` or `Asymptotics/`, by whichever lane needs it first.
   The other lane imports it. Before writing such a lemma, `git grep` both trees.
+- **Five-term upper bound and skeletons (same rule as Paper I's M10).** FIVE-U's exact-CFU geometry (`cts:upper-design`, `cts:shifted-langer`)
+  instantiates Paper I's abstract divided-difference chart (`FctCfuTheta.cfu_chart`, `FctHomotopy*`, `FctJCBound`, `FctWeighted`) rather than a second CFU
+  stack; `cts:tip-shared` checks `Special/AiryCft2DerivHadamard`, `AiryAsym*`, `CtAiryHplus`, `CtAiryG0`, `CtOuterG3*` first; FIVE-L's `cts:cauchy-dual`
+  reuses `CtSd*`, `CtMorse*`, `CtOsc*`, `CtCfu*`. Each lane's next module is its skeleton: FIVE-L states `cts:lower-main` as
+  `LowerMainInputs -> LowerPhaseStatement` (fields: `cts:cauchy-dual`, `cts:rosc-uncond`, `cts:boas` Steps 1-2, `ctl:dyadic`, `ctl:pass2`, `ctl:freeze`);
+  FIVE-U splits `SharpUpperFamily` into the TeX lemmas C11-C14, `cts:tip-shared`, `cts:smooth-env` (2)-(3). Later modules discharge or shrink a field.
 - TE.0' beyond `alpha = 0`: Paper I's M8 is the Hankel type-(I) instance for polynomial `(P,Q)`; Paper II does the Airy type-(II) constant-Clark-pair
   instance in `ConcreteBootstrap/QuantC1Clark.lean` (done) and does not edit `QuantC1Airy.lean`, which Paper I's `HankelQuantC1` imports.
 - Shared files: the umbrella `FormalResearch/ModularBootstrap.lean` and `THEOREM_MAP.md` (targeted edits after merging `origin/master`;
