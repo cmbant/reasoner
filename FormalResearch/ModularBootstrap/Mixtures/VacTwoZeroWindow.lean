@@ -56,7 +56,7 @@ lemma twoZero_Wr_bound {n : ℕ} {𝒦 : Set (TwoZeroDesign n)} (hK : IsCompactF
   have hS : 0 ≤ R / kappaAiry := by positivity
   obtain ⟨S₁, hS₁0, hS₁⟩ := hK.exists_sigmaP_bound
   obtain ⟨B₀, hB₀, hBb⟩ := CompactCombFamily.tildeW_bound (toModifiedFamily hK hA) hS
-  refine ⟨(R / kappaAiry + S₁) * B₀, by positivity, fun d hd u hu => ?_⟩
+  refine ⟨B₀ * (R / kappaAiry + S₁), by positivity, fun d hd u hu => ?_⟩
   have hσ : -u / kappaAiry ∈ Icc (-(R / kappaAiry)) (R / kappaAiry) := by
     constructor
     · have e : -(R / kappaAiry) = -R / kappaAiry := by ring
@@ -210,7 +210,9 @@ theorem twoZeroBump_window_limit_src (C : CommonSource) (bd : BumpData) {n : ℕ
     unfold psiAiry; rw [hk]; ring
   have e2 : (twoZeroFSrc C.src c)⁻¹ * psiAirySrc C.src c g u = k / As * g t * Vs := by
     have hs : twoZeroFSrc C.src c = As * Ft := twoZeroFSrc_eq C.src c
-    unfold psiAirySrc; rw [hs, hk]; field_simp
+    unfold psiAirySrc; rw [hs, hk]
+    show (As * Ft)⁻¹ * (g t * Vs * J) = Ft⁻¹ * J / As * g t * Vs
+    field_simp
   rw [e1] at hP
   rw [e2]
   have hW : |twoZeroC₂ * d.Wr u| ≤ M := by
@@ -232,5 +234,13 @@ theorem twoZeroBump_window_limit_src (C : CommonSource) (bd : BumpData) {n : ℕ
               mul_le_mul_of_nonneg_left hPabs (div_nonneg hδ.le hAs.le)
           _ ≤ ε / 2 := hδM
     _ = ε := by ring
+
+/-- info: 'FormalResearch.ModularBootstrap.Mixtures.twoZeroBump_window_comb_src' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms twoZeroBump_window_comb_src
+
+/-- info: 'FormalResearch.ModularBootstrap.Mixtures.twoZeroBump_window_limit_src' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms twoZeroBump_window_limit_src
 
 end FormalResearch.ModularBootstrap.Mixtures

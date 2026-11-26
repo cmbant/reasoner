@@ -210,4 +210,12 @@ theorem bump_psi_uniform_src (C : CommonSource) (d : BumpData) (N : ℕ) (hN : 1
           _ ≤ ε / 2 := hδM
     _ = ε := by ring
 
+/-- info: 'FormalResearch.ModularBootstrap.Mixtures.bump_part1_src' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms bump_part1_src
+
+/-- info: 'FormalResearch.ModularBootstrap.Mixtures.bump_psi_uniform_src' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms bump_psi_uniform_src
+
 end FormalResearch.ModularBootstrap.Mixtures

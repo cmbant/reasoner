@@ -250,4 +250,16 @@ theorem integrable_psiAirySrc {C : CommonSource} {c : ℝ} (hc : 0 < c) (hA : C.
 #guard_msgs (whitespace := lax) in
 #print axioms cmp_window
 
+/-- info: 'FormalResearch.ModularBootstrap.Mixtures.cmp_global' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms cmp_global
+
+/-- info: 'FormalResearch.ModularBootstrap.Mixtures.integral_psiAirySrc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms integral_psiAirySrc
+
+/-- info: 'FormalResearch.ModularBootstrap.Mixtures.integrable_psiAirySrc' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms integrable_psiAirySrc
+
 end FormalResearch.ModularBootstrap.Mixtures

@@ -274,4 +274,12 @@ theorem pmix_vac_f1 (C : CommonSource) (N : ℕ) (hN : 1 ≤ N) {η : ℝ} (hη 
 #guard_msgs (whitespace := lax) in
 #print axioms pmix_vac_f1
 
+/-- info: 'FormalResearch.ModularBootstrap.Mixtures.bumpG_good_src' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms bumpG_good_src
+
+/-- info: 'FormalResearch.ModularBootstrap.Mixtures.bump_psi_limsup_src' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms bump_psi_limsup_src
+
 end FormalResearch.ModularBootstrap.Mixtures
