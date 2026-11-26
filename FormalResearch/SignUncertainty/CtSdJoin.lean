@@ -154,4 +154,12 @@ theorem head_bdry {c lam R s1 a U : ℝ} {Nc N1 g' : ℂ} {gs : ℂ → ℂ} {gW
     rw [h2s]
     field_simp
 
+/-- info: 'FormalResearch.SignUncertainty.CtSd.tail_bdry' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms tail_bdry
+
+/-- info: 'FormalResearch.SignUncertainty.CtSd.head_bdry' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms head_bdry
+
 end FormalResearch.SignUncertainty.CtSd

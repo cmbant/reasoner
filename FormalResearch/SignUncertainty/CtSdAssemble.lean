@@ -464,4 +464,8 @@ theorem outer_assembly {c lam s1 s1' rr a Ua Uh psi q0 hh L R₀ : ℝ} {Nc N1 :
   calc |(-(N1 * chint).re - Main) - Rest.re| ≤ |-(N1 * chint).re - Main| + |Rest.re| := abs_sub _ _
     _ ≤ _ := by linarith
 
+/-- info: 'FormalResearch.SignUncertainty.CtSd.outer_assembly' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms outer_assembly
+
 end FormalResearch.SignUncertainty.CtSd

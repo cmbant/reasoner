@@ -71,4 +71,8 @@ theorem deform_real {R₀ R : ℝ} (hR0 : 0 < R₀) (hRR : R < R₀) (hR : 0 < R
   rw [a1, a2, segZ0_add_segD, a4]
   ring
 
+/-- info: 'FormalResearch.SignUncertainty.CtSd.deform_real' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms deform_real
+
 end FormalResearch.SignUncertainty.CtSd

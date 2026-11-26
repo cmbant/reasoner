@@ -242,4 +242,8 @@ theorem piece3 (hM : MData C0 m m1 m2 m3) {γ KB lam L a : ℝ} (hγ : 0 < γ) (
 
 end
 
+/-- info: 'FormalResearch.SignUncertainty.CtOsc.piece3_gen' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms piece3_gen
+
 end FormalResearch.SignUncertainty.CtOsc

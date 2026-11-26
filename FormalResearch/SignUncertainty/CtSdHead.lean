@@ -172,4 +172,8 @@ theorem head_eq {c lam s1 R a U KB : ℝ} {T T1 : ℝ → ℝ} {B : ℝ → ℂ}
         Complex.exp (Complex.I * PhU U (0 + (x : ℂ) * 1)) * 1) := intervalIntegral.integral_congr h5
     _ = _ := intervalIntegral.integral_const_mul _ _
 
+/-- info: 'FormalResearch.SignUncertainty.CtSd.head_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms head_eq
+
 end FormalResearch.SignUncertainty.CtSd

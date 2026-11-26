@@ -98,4 +98,8 @@ theorem gW_data {gs : ℂ → ℂ} {s1 lam R C : ℝ} (hs1 : 0 < s1) (hlam : 0 <
           rw [e]
           apply div_le_div_of_nonneg_right _ (by positivity); nlinarith
 
+/-- info: 'FormalResearch.SignUncertainty.CtSd.gW_data' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms gW_data
+
 end FormalResearch.SignUncertainty.CtSd

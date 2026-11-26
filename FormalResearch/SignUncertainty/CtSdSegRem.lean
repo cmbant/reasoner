@@ -464,4 +464,8 @@ theorem seg_rem (hρ : 0 < ρ) (hCg : 0 ≤ Cg) (hU : kap * |U| ≤ (ρ ^ 2) ^ 2
     rw [e]; simp
 
 
+/-- info: 'FormalResearch.SignUncertainty.CtSd.seg_rem' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms seg_rem
+
 end FormalResearch.SignUncertainty.CtSd
