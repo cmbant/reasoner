@@ -155,9 +155,11 @@ taper estimate): for `c ≥ c₀`, a feasible `f` with `M[f] = 1` and `T < cξ(a
 theorem ct_boas_moments_top : ∃ K c₀ : ℝ, 0 ≤ K ∧ ∀ (c ε T : ℝ) (f : ℝ → ℝ), c₀ ≤ c →
     IsHankelFeasible c ε T f → (ε = 1 ∨ ε = -1) → hankelMass c f = 1 →
     T < c * hankelXi c (airyZero 1) →
-    ∃ LJ : ℝ, 0 < LJ ∧ Real.exp LJ - 1 ≤ 5e-4 ∧
+    ∃ LJ Lt : ℝ, 0 < LJ ∧ Real.exp LJ - 1 ≤ 5e-4 ∧
       (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) ≤ ctVprime c LJ ∧
       ctVprime c LJ ≤ (1 / 100 : ℝ) ^ 2 * c ^ (2 / 3 : ℝ) + 1 ∧
+      0 ≤ Lt ∧ Lt ≤ LJ ∧ Real.exp Lt - 1 ≤ 5e-4 ∧ ctVprime c Lt ≤ 3 ∧
+      (∀ L, Lt ≤ L → T ≤ c * (Real.exp L / π ^ 2)) ∧ T * π ^ 2 ≤ c * (1 + 5e-4) ∧
       (∫ L in Ioc 0 LJ, ctVprime c L * |hankelHL c f L|) ≤ K * c ^ (1 / 3 : ℝ) ∧
       (∫ L in Ioi LJ, |hankelHL c f L|) ≤ K * c ^ (-(1 / 3 : ℝ)) := by
   obtain ⟨K₀, cK, hK0, hK⟩ := hankel_top_moments
@@ -219,7 +221,19 @@ theorem ct_boas_moments_top : ∃ K c₀ : ℝ, 0 ≤ K ∧ ∀ (c ε T : ℝ) (
     exact mul_le_mul_of_nonneg_left h2 hc0.le
   have hhint := integrable_hankelHL hc0 hfe
   have hmass1 : ∫ L, |hankelHL c f L| = 1 := by rw [integral_abs_hankelHL hc0 hfe, hmass]
-  refine ⟨LJ, hLJ0, hLJe, by rw [hLJv]; exact hR1, by rw [hLJv]; exact hR2, ?_, ?_⟩
+  have hTL : ∀ L, Lt ≤ L → T ≤ c * (Real.exp L / π ^ 2) := by
+    intro L hL
+    have h1 : Real.exp Lt ≤ Real.exp L := Real.exp_le_exp.2 hL
+    rw [hexpLt] at h1
+    have h2 : hankelXi c u_T ≤ Real.exp L / π ^ 2 := by
+      rw [le_div_iff₀ (by positivity)]; linarith
+    rw [← hT]
+    exact mul_le_mul_of_nonneg_left h2 hc0.le
+  have hTπ : T * π ^ 2 ≤ c * (1 + 5e-4) := by
+    have : T * π ^ 2 = c * Real.exp Lt := by rw [← hT, hexpLt]; ring
+    rw [this]; exact mul_le_mul_of_nonneg_left (by linarith) hc0.le
+  refine ⟨LJ, Lt, hLJ0, hLJe, by rw [hLJv]; exact hR1, by rw [hLJv]; exact hR2, hLt0, hLtJ, hLte,
+    by rw [hvt]; linarith, hTL, hTπ, ?_, ?_⟩
   · -- first moment
     set G1 : ℝ → ℝ := (Icc Lt LJ).indicator (fun L => ctVprime c L * max (hankelHL c f L) 0) with hG1
     have hG1int : Integrable G1 := by
@@ -321,8 +335,50 @@ theorem ct_boas_moments_top : ∃ K c₀ : ℝ, 0 ≤ K ∧ ∀ (c ε T : ℝ) (
           linarith
       _ ≤ (K₀ + 3) * c ^ (-(1 / 3 : ℝ)) := mul_le_mul_of_nonneg_right (by linarith) hc13.le
 
+/-- `v'|h|` is integrable on `[0, L_J]`. -/
+lemma integrableOn_vprime_mul_abs {c LJ : ℝ} {h : ℝ → ℝ} (hh : Integrable h) (hLJ : Real.exp LJ - 1 ≤ 5e-4) :
+    IntegrableOn (fun L => ctVprime c L * |h L|) (Icc 0 LJ) :=
+  (hh.abs.integrableOn.mul_continuousOn (ctVprime_continuousOn hLJ) isCompact_Icc).congr_fun
+    (fun L _ => mul_comm _ _) measurableSet_Icc
+
+/-- **Chebyshev for the tail** (`B₂(R') ≤ R'⁻¹ ∫ v'|dm| + B₂(R_J)`): if `v' ≥ R' > 0` on `(Λ, L_J]`, `0 ≤ Λ ≤ L_J`, then
+`∫_{L > Λ}|h| ≤ M/R' + B` from `∫_{(0, L_J]} v'|h| ≤ M` and `∫_{L > L_J}|h| ≤ B`. -/
+lemma tail_chebyshev {c LJ Λ R' M B : ℝ} {h : ℝ → ℝ} (hh : Integrable h) (hc : 0 < c) (hLJ : Real.exp LJ - 1 ≤ 5e-4)
+    (hΛ0 : 0 ≤ Λ) (hΛ : Λ ≤ LJ) (hR' : 0 < R') (hv : ∀ L ∈ Ioc Λ LJ, R' ≤ ctVprime c L)
+    (hM : ∫ L in Ioc 0 LJ, ctVprime c L * |h L| ≤ M) (hB : ∫ L in Ioi LJ, |h L| ≤ B) :
+    ∫ L in Ioi Λ, |h L| ≤ M / R' + B := by
+  have hint := integrableOn_vprime_mul_abs (c := c) hh hLJ
+  have hsplit : Ioi Λ = Ioc Λ LJ ∪ Ioi LJ := (Ioc_union_Ioi_eq_Ioi hΛ).symm
+  rw [hsplit, setIntegral_union (Ioc_disjoint_Ioi le_rfl) measurableSet_Ioi hh.abs.integrableOn hh.abs.integrableOn]
+  have h1 : ∫ L in Ioc Λ LJ, |h L| ≤ M / R' := by
+    have hnn : ∀ L ∈ Ioc 0 LJ, 0 ≤ ctVprime c L * |h L| := fun L hL =>
+      mul_nonneg (ctVprime_nonneg hc hL.1.le (by linarith [Real.exp_le_exp.2 hL.2])) (abs_nonneg _)
+    have hI : IntegrableOn (fun L => ctVprime c L * |h L|) (Ioc 0 LJ) :=
+      hint.mono_set (Ioc_subset_Icc_self)
+    calc ∫ L in Ioc Λ LJ, |h L| ≤ ∫ L in Ioc Λ LJ, R'⁻¹ * (ctVprime c L * |h L|) := by
+          refine setIntegral_mono_on hh.abs.integrableOn ((hI.mono_set (Ioc_subset_Ioc_left hΛ0)).const_mul _)
+            measurableSet_Ioc fun L hL => ?_
+          have h0 := abs_nonneg (h L)
+          have hge : 1 ≤ ctVprime c L / R' := (one_le_div hR').2 (hv L hL)
+          have e : R'⁻¹ * (ctVprime c L * |h L|) = (ctVprime c L / R') * |h L| := by
+            rw [div_eq_inv_mul]; ring
+          rw [e]
+          nlinarith
+      _ = R'⁻¹ * ∫ L in Ioc Λ LJ, ctVprime c L * |h L| := integral_const_mul _ _
+      _ ≤ R'⁻¹ * ∫ L in Ioc 0 LJ, ctVprime c L * |h L| := by
+          refine mul_le_mul_of_nonneg_left ?_ (inv_nonneg.2 hR'.le)
+          exact setIntegral_mono_set hI ((ae_restrict_iff' measurableSet_Ioc).2 (ae_of_all _ hnn))
+            (ae_of_all _ (Ioc_subset_Ioc_left hΛ0))
+      _ ≤ R'⁻¹ * M := mul_le_mul_of_nonneg_left hM (inv_nonneg.2 hR'.le)
+      _ = M / R' := by rw [div_eq_inv_mul]
+  linarith
+
 /-- info: 'FormalResearch.SignUncertainty.ct_boas_moments_top' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms ct_boas_moments_top
+
+/-- info: 'FormalResearch.SignUncertainty.tail_chebyshev' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms tail_chebyshev
 
 end FormalResearch.SignUncertainty

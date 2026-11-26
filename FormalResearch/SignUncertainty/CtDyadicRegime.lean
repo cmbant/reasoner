@@ -69,9 +69,10 @@ lemma sigma_regime_three_le {c : ℝ} (hc : Real.exp 6 ≤ c) : 3 ≤ Real.log (
   have : Real.exp 1 ^ 3 ≤ 2.7182818286 ^ 3 := by gcongr
   nlinarith
 
-/-- `L_far + 2 ≤ 2 log c` for `c ≥ e⁶`. -/
-lemma sigma_regime_two_log {c : ℝ} (hc : Real.exp 6 ≤ c) : Real.log (π ^ 2 * Real.log c) + 2 ≤ 2 * Real.log c := by
-  have ht : 6 ≤ Real.log c := (Real.le_log_iff_exp_le (by linarith [Real.exp_pos 6])).2 hc
+/-- `L_far + 3 ≤ 2 log c` for `c ≥ e⁷`. -/
+lemma sigma_regime_two_log {c : ℝ} (hc : Real.exp 7 ≤ c) : Real.log (π ^ 2 * Real.log c) + 3 ≤ 2 * Real.log c := by
+  have ht : 7 ≤ Real.log c := (Real.le_log_iff_exp_le (by linarith [Real.exp_pos 7])).2 hc
+  have ht6 : 6 ≤ Real.log c := by linarith
   have ht0 : 0 < Real.log c := by linarith
   have hπ := Real.pi_pos
   rw [Real.log_mul (by positivity) ht0.ne', Real.log_pow]
@@ -120,15 +121,16 @@ lemma sigma_regime_reg {κ c a : ℝ} (hκ : 0 < κ) (hc : max 1 (84000 ^ 2 / κ
           nlinarith
   exact (pow_le_pow_iff_left₀ (by positivity) (by positivity) (by norm_num : (2 : ℕ) ≠ 0)).1 hsqle
 
-/-- **`boas_s_classes` in the regime `c ≥ c₀(κ)`** (`ct:Bj-pointwise` (e)): for `c ≥ max (e⁶) (84000²/κ)`, `κ c^{-2/21} ≤ a ≤ 1`,
-`L_far = log(π² log c)` and a block with `L_j ≤ L_far + 1`, `s_j` is in one of the two classes; no regime hypothesis remains. -/
-theorem boas_s_classes_large {κ c a : ℝ} (hκ : 0 < κ) (hc : max (Real.exp 6) (max 1 (84000 ^ 2 / κ)) ≤ c)
+/-- **`boas_s_classes` in the regime `c ≥ c₀(κ)`** (`ct:Bj-pointwise` (e)): for `c ≥ max (e⁷) (84000²/κ)`, `κ c^{-2/21} ≤ a ≤ 1`,
+`L_far = log(π² log c)` and a block with `L_j ≤ L_far + 2`, `s_j` is in one of the two classes; no regime hypothesis remains. -/
+theorem boas_s_classes_large {κ c a : ℝ} (hκ : 0 < κ) (hc : max (Real.exp 7) (max 1 (84000 ^ 2 / κ)) ≤ c)
     (ha : κ * c ^ (-(2 / 21) : ℝ) ≤ a) (ha1 : a ≤ 1) {j : ℕ}
-    (hj : tentNode a (j + 1) ≤ Real.log (π ^ 2 * Real.log c) + 1) :
+    (hj : tentNode a (j + 1) ≤ Real.log (π ^ 2 * Real.log c) + 2) :
     tapMsig c a j * boasW c a j ≤ Real.exp (-(Real.log c ^ 2)) ∨
       (tapMsig c a j * boasW c a j ≤ 2000 * Real.log c / c ∧
         tentQ a j ⊆ Ici (Real.log (π ^ 2 * Real.log c) - 5 / 2)) := by
-  have h6 : Real.exp 6 ≤ c := (le_max_left _ _).trans hc
+  have h7 : Real.exp 7 ≤ c := (le_max_left _ _).trans hc
+  have h6 : Real.exp 6 ≤ c := (Real.exp_le_exp.2 (by norm_num)).trans h7
   have hm : max 1 (84000 ^ 2 / κ) ≤ c := (le_max_right _ _).trans hc
   have hex : (3 : ℝ) ≤ c := by
     have : (3 : ℝ) ≤ Real.exp 6 := by
@@ -138,7 +140,7 @@ theorem boas_s_classes_large {κ c a : ℝ} (hκ : 0 < κ) (hc : max (Real.exp 6
   have ht : 0 < Real.log c := Real.log_pos (by linarith)
   have ha0 : 0 < a := lt_of_lt_of_le (by positivity) ha
   exact boas_s_classes hex ha0 ha1 (Real.exp_log (by positivity)) (sigma_regime_three_le h6)
-    (sigma_regime_two_log h6) (sigma_regime_reg hκ hm ha) hj
+    (sigma_regime_two_log h7) (sigma_regime_reg hκ hm ha) hj
 
 /-- info: 'FormalResearch.SignUncertainty.taperBand_regime' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
