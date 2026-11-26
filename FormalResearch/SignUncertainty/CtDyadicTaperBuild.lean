@@ -14,8 +14,8 @@ public import FormalResearch.SignUncertainty.CtDyadicUhat
 * `hankel_band_edge`: `Λ > 0`, `e^Λ - 1 ≤ 5·10⁻⁴`, `K g(Λ) = r`;
 * `exists_deriv_ratio`: if `f > 0` on `(0, Λ]` has `f' ≥ 0` and `L f' ≤ 2f` then `f(L') ≤ (L'/L)² f(L)`;
 * **`taperBand_of_window`**: `TaperBand` (`TaperChartInputs ε c R 2` and `v' ≤ v ≤ v' + 1/2`) from the `ψ_ε`-window (`PsiWin`), `c ≥ 3`, `2M ≤ c`, `λM ≤ 1/2`,
-  `1 ≤ R`, `[-R, 0)` in the window and `R ≤ A`, and the named input `UhatInjOn` (bijectivity of `û`, `ct:cfu`);
-* **`taperBand`, `taperChartInputs`**: the same, with the regime as `∃ ρ₁ c₀`: for `c ≥ c₀` and `1 ≤ R ≤ ρ₁ c^{2/3}`.
+  `1 ≤ R`, `[-R, 0)` in the window and `R ≤ A` (no injectivity input: `ctPhi` is inverted on `ctPhiDom`);
+* **`taperBand`, `taperChartInputs`**: the same (unconditional), with the regime as `∃ ρ₁ c₀`: for `c ≥ c₀` and `1 ≤ R ≤ ρ₁ c^{2/3}`.
 
 The logarithmic-derivative constant is `A_v = 2` (the chart gives `L g' ≤ 1.01 g`, `û' ≤ 3/2`); the paper's
 `A_v = (1 + o(1))A_Φ ≤ 1.53` is for the larger band `L ≤ Λ₂`, here `L ≤ 5·10⁻⁴`.
@@ -135,15 +135,15 @@ structure TaperBand (ε c R : ℝ) : Prop where
 /-- **`TaperBand` from the `ψ_ε`-window** (`ct:dyadic` (4), `ct:taper-harnack` (c), first half), with `A_v = 2`.
 Hypotheses: the window facts of `ctPsi_window` (`PsiWin ε ρ M`: `ψ_ε < 0`, `|ψ_ε|, |ψ_ε'| ≤ M` on `(-ρ, 0)`), `c ≥ 3`,
 `2M ≤ c`, `λM ≤ 1/2` (`λ = 2^{-2/3}c^{-1/3}`), `1 ≤ R`, `[-R, 0)` inside the window (`μ R < ρ`, `μ = 2^{2/3}c^{-2/3}`) and in the
-Langer disc (`R ≤ A`), and the named input `UhatInjOn ε c` (bijectivity of `û`, `ct:cfu`). -/
+Langer disc (`R ≤ A`).  Unconditional: `ctPhi` is inverted on the window domain `ctPhiDom`, where `û` is injective. -/
 theorem taperBand_of_window {ε c R ρ M : ℝ} (hW : PsiWin ε ρ M) (hc3 : 3 ≤ c) (hcM : 2 * M ≤ c)
-    (hlam : ctLam c * M ≤ 1 / 2) (hR1 : 1 ≤ R) (hRw : -ρ < ctMu c * (-R)) (hRA : R ≤ langerRadius c)
-    (hinj : UhatInjOn ε c) : TaperBand ε c R := by
+    (hlam : ctLam c * M ≤ 1 / 2) (hR1 : 1 ≤ R) (hRw : -ρ < ctMu c * (-R)) (hRA : R ≤ langerRadius c) :
+    TaperBand ε c R := by
   have hc : 0 < c := by linarith
   have hK := langerScale_pos hc
   have hmu := ctMu_pos hc
   obtain ⟨u, hu, hv⟩ := exists_ctUhat_eq hW hc hlam hR1 hRw
-  have hphi := ctPhi_eq hinj hRA hu hv
+  have hphi := ctPhi_eq hW hc hcM hRw hu hv
   have hr_eq : ctRprime ε c R = -u := by
     show -ctPhi ε c (-R) = -u
     rw [hphi]
@@ -284,17 +284,17 @@ lemma rpow_third_ge {c M : ℝ} (hM : 0 ≤ M) (hc : (2 * M + 1) ^ 3 ≤ c) : 2 
 
 /-- **`TaperBand` (hence `TaperChartInputs ε c R 2`) in the paper's regime** (`ct:dyadic` (4), `ct:cfu`): there are `ρ₁ > 0` and
 `c₀ ≥ 3` (the paper's "`c` large" and "`c₁` small": `R ≤ 4c₁²c^{2/3}` with `4c₁² ≤ ρ₁`) such that for `c ≥ c₀` and every radius
-`1 ≤ R ≤ ρ₁ c^{2/3}`, the concrete taper `v = -û∘ũ∘ξ` satisfies the chart inputs of `ct:taper-harnack` (c) with `A_v = 2`, given the
-named input `UhatInjOn ε c` (bijectivity of `û` on the Langer disc, `ct:cfu`). -/
+`1 ≤ R ≤ ρ₁ c^{2/3}`, the concrete taper `v = -û∘ũ∘ξ` satisfies the chart inputs of `ct:taper-harnack` (c) with `A_v = 2`, .
+Unconditional (`ctPhi` is inverted on the window domain `ctPhiDom`, where `û` is injective, `ctUhat_injOn_dom`). -/
 theorem taperBand {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
     ∃ ρ₁ c₀ : ℝ, 0 < ρ₁ ∧ 3 ≤ c₀ ∧ ∀ c : ℝ, c₀ ≤ c → ∀ R : ℝ, 1 ≤ R → R ≤ ρ₁ * c ^ (2 / 3 : ℝ) →
-      UhatInjOn ε c → TaperBand ε c R := by
+      TaperBand ε c R := by
   obtain ⟨ρ, M, hρ, hM, hwin⟩ := ctPsi_window hε
   have hW : PsiWin ε ρ M := ⟨hρ, hM, hwin⟩
   have hκ := langerKappa_pos
   refine ⟨min (ρ / 4) (langerKappa * 4.94e-4), max 3 ((2 * M + 1) ^ 3),
     lt_min (by positivity) (by positivity), le_max_left _ _, ?_⟩
-  intro c hcc R hR1 hR hinj
+  intro c hcc R hR1 hR
   have hc3 : 3 ≤ c := (le_max_left _ _).trans hcc
   have hcM3 : (2 * M + 1) ^ 3 ≤ c := (le_max_right _ _).trans hcc
   have hc : 0 < c := by linarith
@@ -332,15 +332,15 @@ theorem taperBand {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
       rw [← hμ]; ring
     have : ρ / 4 * (2 : ℝ) ^ ((2 : ℝ) / 3) ≤ ρ / 4 * 2 := mul_le_mul_of_nonneg_left h22 (by positivity)
     nlinarith
-  exact (taperBand_of_window hW hc3 hcM hlam hR1 hRw hRA hinj)
+  exact (taperBand_of_window hW hc3 hcM hlam hR1 hRw hRA)
 
 /-- **The chart inputs of the taper** (`ct:taper-harnack` (c)): `TaperChartInputs ε c R 2` for the concrete `ctTaperV`, `ctRprime`,
-`ctTaperLam`, in the regime of `taperBand` and under the named input `UhatInjOn ε c` (bijectivity of `û`, `ct:cfu`). -/
+`ctTaperLam`, in the regime of `taperBand`; unconditional. -/
 theorem taperChartInputs {ε : ℝ} (hε : ε = 1 ∨ ε = -1) :
     ∃ ρ₁ c₀ : ℝ, 0 < ρ₁ ∧ 3 ≤ c₀ ∧ ∀ c : ℝ, c₀ ≤ c → ∀ R : ℝ, 1 ≤ R → R ≤ ρ₁ * c ^ (2 / 3 : ℝ) →
-      UhatInjOn ε c → TaperChartInputs ε c R 2 := by
+      TaperChartInputs ε c R 2 := by
   obtain ⟨ρ₁, c₀, h1, h2, h⟩ := taperBand hε
-  exact ⟨ρ₁, c₀, h1, h2, fun c hc R hR hRR hinj => (h c hc R hR hRR hinj).inputs⟩
+  exact ⟨ρ₁, c₀, h1, h2, fun c hc R hR hRR => (h c hc R hR hRR).inputs⟩
 
 /-- info: 'FormalResearch.SignUncertainty.taperBand' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
