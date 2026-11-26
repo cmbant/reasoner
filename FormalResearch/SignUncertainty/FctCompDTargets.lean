@@ -88,179 +88,102 @@ lemma stripR0_eq_div {kind : StripKernelChoice} {τ : ℝ} (hτ : 0 < τ) :
   · rw [hrpow]; field_simp [uctAlphaFl_pos.ne', (uctMderiv_pos hτ).ne', (Real.rpow_pos_of_pos hm_pos _).ne']
   · rw [hrpow]; field_simp [uctAlphaFl_pos.ne', (uctMderiv_pos hτ).ne', (Real.rpow_pos_of_pos hm_pos _).ne']
 
-/-! ### Holomorphic local extensions of `ℓ(w)`, `ℓ(w)/w²`, and `ℓ'(w)/w` near `0` -/
+lemma uctM_even (t : ℝ) : uctM (-t) = uctM t := by
+  unfold uctM ceEll
+  rw [show π * -t / 2 = -(π * t / 2) by ring, Real.tanh_neg, neg_div_neg_eq]
 
-/-- Holomorphic `ℓ(w) = log(cosh w / sinhQ w)` on `ball (0 : ℂ) (1/2)`. -/
-noncomputable def compEllC (w : ℂ) : ℂ := Complex.log (Complex.cosh w / CtOuter.sinhQ w)
+lemma uctMderiv_odd (t : ℝ) : uctMderiv (-t) = -uctMderiv t := by
+  unfold uctMderiv uctEllDeriv
+  rw [show π * -t / 2 = -(π * t / 2) by ring,
+    show 2 * -(π * t / 2) = -(2 * (π * t / 2)) by ring, Real.sinh_neg, div_neg, div_neg]
+  ring
 
-/-- Holomorphic `ℓ(w)/w²` on `ball (0 : ℂ) (1/2)`. -/
-noncomputable def compEllQ (w : ℂ) : ℂ := dslope (dslope compEllC 0) 0 w
+lemma stripR0_even (kind : StripKernelChoice) (t : ℝ) : stripR0 kind (-t) = stripR0 kind t := by
+  by_cases ht0 : t = 0
+  · simp [ht0]
+  · unfold stripR0
+    rw [ite_eq_right_iff.mpr fun h0 => absurd h0 (neg_ne_zero.mpr ht0),
+      ite_eq_right_iff.mpr fun h0 => absurd h0 ht0, abs_neg]
+    congr 2; congr 1
+    cases kind
+    · dsimp only [stripH0]; unfold uctHstar
+      rw [Complex.ofReal_neg, neg_mul, mul_neg, Complex.cos_neg, Complex.sin_neg, neg_sq]
+    · dsimp only [stripH0]; unfold uctHCE
+      rw [Complex.ofReal_neg, neg_mul, mul_neg, neg_div, Complex.sin_neg, neg_sq]
 
-/-- Holomorphic `ℓ'(w)/w` on `ball (0 : ℂ) (1/2)`. -/
-noncomputable def compEllD (w : ℂ) : ℂ := dslope (deriv compEllC) 0 w
+lemma stripR0_eq_div_of_ne_zero {kind : StripKernelChoice} {t : ℝ} (ht : t ≠ 0) :
+    stripR0 kind t = stripIosc kind (uctM t) / uctIfl (uctM t) := by
+  rcases lt_or_gt_of_ne ht with h | h
+  · rw [← stripR0_even, ← uctM_even]
+    exact stripR0_eq_div (neg_pos.mpr h)
+  · exact stripR0_eq_div h
 
-lemma compEllC_even (w : ℂ) : compEllC (-w) = compEllC w := by
-  unfold compEllC
-  rw [Complex.cosh_neg]
-  have hq : CtOuter.sinhQ (-w) = CtOuter.sinhQ w := by
-    unfold CtOuter.sinhQ
-    refine tsum_congr fun n => ?_
-    rw [(even_two_mul n).neg_pow]
-  rw [hq]
+/-! ### Holomorphic local extension `ℓ'(w)/w` near `0` (reusing `FctPhiKill.ellC`, `ellQ`) -/
 
-lemma differentiableOn_compEllC : DifferentiableOn ℂ compEllC (Metric.ball (0 : ℂ) (1 / 2)) := by
-  intro w hw
-  rw [mem_ball_zero_iff] at hw
-  have hw2 : ‖w‖ ≤ 2 := by linarith
-  have hQ_re : 0 < (CtOuter.sinhQ w).re := CtOuter.re_sinhQ_pos hw2
-  have hQ_ne : CtOuter.sinhQ w ≠ 0 := fun h => by rw [h, Complex.zero_re] at hQ_re; linarith
-  have hQ_sub : ‖CtOuter.sinhQ w - 1‖ ≤ 1 / 4 := by
-    have hT := CtOuter.sinhQ_sub_one w
-    have hT_bd : ‖CtOuter.sinhT w‖ ≤ 1 := by
-      have h1 := CtOuter.norm_six_sinhT_sub_one_lt_one hw2
-      have htri := norm_sub_norm_le (6 * CtOuter.sinhT w) 1
-      rw [norm_mul, Complex.norm_ofNat, norm_one] at htri
-      linarith
-    rw [hT, norm_mul, norm_pow]
-    have : ‖w‖ ^ 2 ≤ 1 / 4 := by nlinarith [norm_nonneg w]
-    nlinarith [norm_nonneg (CtOuter.sinhT w)]
-  have hQ_norm_ge : 3 / 4 ≤ ‖CtOuter.sinhQ w‖ := by
-    have htri := norm_sub_norm_le (1 : ℂ) (1 - CtOuter.sinhQ w)
-    rw [sub_sub_cancel, norm_one, norm_sub_rev] at htri
-    linarith
-  have hcosh_sub : ‖Complex.cosh w - 1‖ ≤ 1 / 4 := by
-    have h2p := Complex.exp_bound (x := w) (by linarith) (n := 2) (by norm_num)
-    have h2m := Complex.exp_bound (x := -w) (by rw [norm_neg]; linarith) (n := 2) (by norm_num)
-    simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add, pow_zero, pow_one,
-      Nat.factorial, Nat.cast_one, div_one, Nat.cast_ofNat, norm_neg] at h2p h2m
-    have hcb : Complex.cosh w - 1 = ((Complex.exp w - (1 + w)) + (Complex.exp (-w) - (1 + -w))) / 2 := by
-      rw [Complex.cosh]; ring
-    rw [hcb, norm_div, Complex.norm_ofNat]
-    have htri := norm_add_le (Complex.exp w - (1 + w)) (Complex.exp (-w) - (1 + -w))
-    have hwsq : ‖w‖ ^ 2 ≤ 1 / 4 := by nlinarith [norm_nonneg w]
-    norm_num at h2p h2m
-    linarith
-  have hrat_re : 0 < (Complex.cosh w / CtOuter.sinhQ w).re := by
-    have hdiff : Complex.cosh w / CtOuter.sinhQ w - 1 =
-        ((Complex.cosh w - 1) - (CtOuter.sinhQ w - 1)) / CtOuter.sinhQ w := by
-      field_simp [hQ_ne]; ring
-    have hnorm_lt : ‖Complex.cosh w / CtOuter.sinhQ w - 1‖ < 1 := by
-      rw [hdiff, norm_div, div_lt_one (by linarith)]
-      have htri := norm_sub_le (Complex.cosh w - 1) (CtOuter.sinhQ w - 1)
-      linarith
-    have hre := (Complex.abs_re_le_norm (Complex.cosh w / CtOuter.sinhQ w - 1)).trans_lt hnorm_lt
-    rw [Complex.sub_re, Complex.one_re] at hre
-    linarith [(abs_lt.mp hre).1]
-  have hd_quot : DifferentiableAt ℂ (fun u => Complex.cosh u / CtOuter.sinhQ u) w :=
-    (Complex.differentiable_cosh w).div (CtOuter.differentiable_sinhQ w) hQ_ne
-  exact (hd_quot.clog (Or.inl hrat_re)).differentiableWithinAt
-
-lemma compEllC_zero : compEllC 0 = 0 := by
-  simp [compEllC, CtOuter.sinhQ_zero]
-
-lemma deriv_compEllC_zero : deriv compEllC 0 = 0 := by
-  have hd : HasDerivAt compEllC (deriv compEllC 0) 0 :=
-    (differentiableOn_compEllC.differentiableAt (Metric.isOpen_ball.mem_nhds (Metric.mem_ball_self (by norm_num)))).hasDerivAt
-  have hd' : HasDerivAt compEllC (deriv compEllC (-0)) (-0) := by simpa using hd
-  have hneg : HasDerivAt (fun w => compEllC (-w)) (-deriv compEllC 0) 0 := by
-    have h := hd'.comp (0 : ℂ) (hasDerivAt_neg (0 : ℂ))
-    simp only [neg_zero, mul_neg, mul_one] at h
-    exact h
-  have hneg' : HasDerivAt (fun w => compEllC (-w)) (deriv compEllC 0) 0 := by
-    simpa [compEllC_even] using hd
-  have heq := hneg.unique hneg'
-  have h2 : (2 : ℂ) * deriv compEllC 0 = 0 := by linear_combination -heq
-  exact (mul_eq_zero.mp h2).resolve_left two_ne_zero
-
-lemma differentiableOn_compEllQ : DifferentiableOn ℂ compEllQ (Metric.ball (0 : ℂ) (1 / 2)) := by
-  have h1 : DifferentiableOn ℂ (dslope compEllC 0) (Metric.ball (0 : ℂ) (1 / 2)) :=
-    (Complex.differentiableOn_dslope (Metric.isOpen_ball.mem_nhds (Metric.mem_ball_self (by norm_num)))).mpr
-      differentiableOn_compEllC
-  exact (Complex.differentiableOn_dslope (Metric.isOpen_ball.mem_nhds (Metric.mem_ball_self (by norm_num)))).mpr h1
+/-- Holomorphic `ℓ'(w)/w` on `ball (0 : ℂ) (1/2)`, built from `FctPhiKill.ellC`. -/
+noncomputable def compEllD (w : ℂ) : ℂ := dslope (deriv ellC) 0 w
 
 lemma differentiableOn_compEllD : DifferentiableOn ℂ compEllD (Metric.ball (0 : ℂ) (1 / 2)) := by
-  have hana : AnalyticOnNhd ℂ compEllC (Metric.ball (0 : ℂ) (1 / 2)) :=
-    differentiableOn_compEllC.analyticOnNhd Metric.isOpen_ball
-  have hdiff' : DifferentiableOn ℂ (deriv compEllC) (Metric.ball (0 : ℂ) (1 / 2)) :=
+  have hana : AnalyticOnNhd ℂ ellC (Metric.ball (0 : ℂ) (1 / 2)) :=
+    differentiableOn_ellC.analyticOnNhd Metric.isOpen_ball
+  have hdiff' : DifferentiableOn ℂ (deriv ellC) (Metric.ball (0 : ℂ) (1 / 2)) :=
     fun z hz => (hana z hz).deriv.differentiableAt.differentiableWithinAt
   exact (Complex.differentiableOn_dslope (Metric.isOpen_ball.mem_nhds (Metric.mem_ball_self (by norm_num)))).mpr hdiff'
 
-lemma compEllC_ofReal {x : ℝ} (hx0 : 0 < x) :
-    compEllC (x : ℂ) = ((ceEll x : ℝ) : ℂ) := by
-  unfold compEllC ceEll
-  rw [← Complex.ofReal_cosh, CtOuter.sinhQ_ofReal hx0.ne']
-  have hsh_pos : 0 < Real.sinh x := Real.sinh_pos_iff.mpr hx0
-  have hch_pos : 0 < Real.cosh x := Real.cosh_pos x
-  have h1 : ((Real.cosh x : ℝ) : ℂ) / ((Real.sinh x / x : ℝ) : ℂ) = ((x / Real.tanh x : ℝ) : ℂ) := by
-    rw [Real.tanh_eq_sinh_div_cosh]
-    push_cast
-    field_simp [Complex.ofReal_ne_zero.mpr hsh_pos.ne', Complex.ofReal_ne_zero.mpr hx0.ne',
-      Complex.ofReal_ne_zero.mpr hch_pos.ne']
-  rw [h1, Complex.ofReal_log (by
-    rw [Real.tanh_eq_sinh_div_cosh]
-    exact div_nonneg hx0.le (div_nonneg hsh_pos.le hch_pos.le))]
-
-lemma compEllQ_eq_div {w : ℂ} (hw : w ≠ 0) : compEllQ w = compEllC w / w ^ 2 := by
-  unfold compEllQ
-  rw [dslope_of_ne _ hw]
-  simp only [slope, vsub_eq_sub, sub_zero, smul_eq_mul, dslope_of_ne _ hw, dslope_same,
-    compEllC_zero, deriv_compEllC_zero]
-  field_simp [hw]
-
-lemma compEllD_eq_div {w : ℂ} (hw : w ≠ 0) : compEllD w = deriv compEllC w / w := by
+lemma compEllD_eq_div {w : ℂ} (hw : w ≠ 0) : compEllD w = deriv ellC w / w := by
   unfold compEllD
   rw [dslope_of_ne _ hw]
-  simp only [slope, vsub_eq_sub, sub_zero, smul_eq_mul, deriv_compEllC_zero]
+  simp only [slope, vsub_eq_sub, sub_zero, smul_eq_mul, deriv_ellC_zero]
   field_simp [hw]
 
-lemma compEllQ_even (w : ℂ) : compEllQ (-w) = compEllQ w := by
+lemma ellQ_even (w : ℂ) : ellQ (-w) = ellQ w := by
   by_cases hw : w = 0
   · simp [hw]
-  · rw [compEllQ_eq_div (neg_ne_zero.mpr hw), compEllQ_eq_div hw, compEllC_even, neg_sq]
+  · rw [ellQ_eq_div (neg_ne_zero.mpr hw), ellQ_eq_div hw, ellC_even, neg_sq]
 
 lemma compEllD_even {w : ℂ} (hw : w ∈ Metric.ball (0 : ℂ) (1 / 2)) : compEllD (-w) = compEllD w := by
   by_cases hw0 : w = 0
   · simp [hw0]
   · rw [compEllD_eq_div (neg_ne_zero.mpr hw0), compEllD_eq_div hw0]
     have hmw : -w ∈ Metric.ball (0 : ℂ) (1 / 2) := by simpa [mem_ball_zero_iff] using hw
-    have hd : HasDerivAt compEllC (deriv compEllC (-w)) (-w) :=
-      (differentiableOn_compEllC.differentiableAt (Metric.isOpen_ball.mem_nhds hmw)).hasDerivAt
-    have hcomp : HasDerivAt (fun u => compEllC (-u)) (-deriv compEllC (-w)) w := by
+    have hd : HasDerivAt ellC (deriv ellC (-w)) (-w) :=
+      (differentiableOn_ellC.differentiableAt (Metric.isOpen_ball.mem_nhds hmw)).hasDerivAt
+    have hcomp : HasDerivAt (fun u => ellC (-u)) (-deriv ellC (-w)) w := by
       have h := hd.comp w (hasDerivAt_neg w)
       simp only [mul_neg, mul_one] at h
       exact h
-    have hcomp' : HasDerivAt (fun u => compEllC (-u)) (deriv compEllC w) w := by
-      have hd2 := (differentiableOn_compEllC.differentiableAt (Metric.isOpen_ball.mem_nhds hw)).hasDerivAt
-      simpa [compEllC_even] using hd2
-    have hodd : deriv compEllC (-w) = -deriv compEllC w := by
+    have hcomp' : HasDerivAt (fun u => ellC (-u)) (deriv ellC w) w := by
+      have hd2 := (differentiableOn_ellC.differentiableAt (Metric.isOpen_ball.mem_nhds hw)).hasDerivAt
+      simpa [ellC_even] using hd2
+    have hodd : deriv ellC (-w) = -deriv ellC w := by
       have := hcomp.unique hcomp'; linear_combination -this
     rw [hodd, neg_div_neg_eq]
 
-lemma deriv_compEllC_ofReal {x : ℝ} (hx0 : 0 < x) (hx1 : x < 1 / 2) :
-    deriv compEllC (x : ℂ) = ((uctEllDeriv x : ℝ) : ℂ) := by
+lemma deriv_ellC_ofReal {x : ℝ} (hx0 : 0 < x) (hx1 : x < 1 / 2) :
+    deriv ellC (x : ℂ) = ((uctEllDeriv x : ℝ) : ℂ) := by
   have hx_ball : (x : ℂ) ∈ Metric.ball (0 : ℂ) (1 / 2) := by
     rw [mem_ball_zero_iff, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hx0]; exact hx1
-  have hd_C : HasDerivAt (fun t : ℝ => compEllC (t : ℂ)) (deriv compEllC (x : ℂ)) x := by
-    have hd := (differentiableOn_compEllC.differentiableAt (Metric.isOpen_ball.mem_nhds hx_ball)).hasDerivAt
+  have hd_C : HasDerivAt (fun t : ℝ => ellC (t : ℂ)) (deriv ellC (x : ℂ)) x := by
+    have hd := (differentiableOn_ellC.differentiableAt (Metric.isOpen_ball.mem_nhds hx_ball)).hasDerivAt
     simpa using hd.comp_ofReal
   have hd_R : HasDerivAt (fun t : ℝ => ((ceEll t : ℝ) : ℂ)) ((uctEllDeriv x : ℝ) : ℂ) x := by
     have h1 := ceEll_hasDerivAt hx0
     exact h1.ofReal_comp
-  have hev : (fun t : ℝ => compEllC (t : ℂ)) =ᶠ[𝓝 x] fun t : ℝ => ((ceEll t : ℝ) : ℂ) := by
-    filter_upwards [Ioi_mem_nhds hx0] with t ht using compEllC_ofReal ht
+  have hev : (fun t : ℝ => ellC (t : ℂ)) =ᶠ[𝓝 x] fun t : ℝ => ((ceEll t : ℝ) : ℂ) := by
+    filter_upwards [Ioi_mem_nhds hx0] with t ht using ellC_ofReal ht
   exact hd_C.unique (hd_R.congr_of_eventuallyEq hev)
 
 /-! ### Real smooth factors `mQ(t) = m(t)/t²` and `mD(t) = m'(t)/t` on `(-1/4, 1/4)` -/
 
 /-- Even `C^∞` factor `mQ(t) = m(t)/t²` on `(-1/4, 1/4)`, with `mQ(0) = π²/12`. -/
-noncomputable def mQ (t : ℝ) : ℝ := (π / 2) ^ 2 * (compEllQ ((π * t / 2 : ℝ) : ℂ)).re
+noncomputable def mQ (t : ℝ) : ℝ := (π / 2) ^ 2 * (ellQ ((π * t / 2 : ℝ) : ℂ)).re
 
 /-- Even `C^∞` factor `mD(t) = m'(t)/t` on `(-1/4, 1/4)`, with `mD(0) = π²/6`. -/
 noncomputable def mD (t : ℝ) : ℝ := (π / 2) ^ 2 * (compEllD ((π * t / 2 : ℝ) : ℂ)).re
 
 lemma mQ_even (t : ℝ) : mQ (-t) = mQ t := by
   unfold mQ
-  rw [show (π * -t / 2 : ℝ) = -(π * t / 2) by ring, Complex.ofReal_neg, compEllQ_even]
+  rw [show (π * -t / 2 : ℝ) = -(π * t / 2) by ring, Complex.ofReal_neg, ellQ_even]
 
 lemma mD_even {t : ℝ} (ht : |t| < 1 / 4) : mD (-t) = mD t := by
   unfold mD
@@ -274,7 +197,7 @@ lemma mD_even {t : ℝ} (ht : |t| < 1 / 4) : mD (-t) = mD t := by
 lemma uctM_eq_sq_mul_mQ {t : ℝ} (ht0 : 0 < t) : uctM t = t ^ 2 * mQ t := by
   unfold uctM mQ
   have hx : 0 < π * t / 2 := by positivity
-  rw [compEllQ_eq_div (Complex.ofReal_ne_zero.mpr hx.ne'), compEllC_ofReal hx, ← Complex.ofReal_pow,
+  rw [ellQ_eq_div (Complex.ofReal_ne_zero.mpr hx.ne'), ellC_ofReal hx, ← Complex.ofReal_pow,
     ← Complex.ofReal_div, Complex.ofReal_re]
   field_simp [Real.pi_ne_zero, ht0.ne']
 
@@ -282,16 +205,16 @@ lemma uctMderiv_eq_mul_mD {t : ℝ} (ht0 : 0 < t) (ht1 : t < 1 / 4) : uctMderiv 
   unfold uctMderiv mD
   have hx0 : 0 < π * t / 2 := by positivity
   have hx1 : π * t / 2 < 1 / 2 := by nlinarith [Real.pi_lt_four]
-  rw [compEllD_eq_div (Complex.ofReal_ne_zero.mpr hx0.ne'), deriv_compEllC_ofReal hx0 hx1,
+  rw [compEllD_eq_div (Complex.ofReal_ne_zero.mpr hx0.ne'), deriv_ellC_ofReal hx0 hx1,
     ← Complex.ofReal_div, Complex.ofReal_re]
   field_simp [Real.pi_ne_zero, ht0.ne']
 
 lemma contDiffOn_mQ : ContDiffOn ℝ (⊤ : ℕ∞) mQ (Ioo (-1 / 4) (1 / 4)) := by
-  have hana : AnalyticOnNhd ℂ compEllQ (Metric.ball (0 : ℂ) (1 / 2)) :=
-    differentiableOn_compEllQ.analyticOnNhd Metric.isOpen_ball
-  have hcd_C : ContDiffOn ℂ (⊤ : ℕ∞) compEllQ (Metric.ball (0 : ℂ) (1 / 2)) :=
+  have hana : AnalyticOnNhd ℂ ellQ (Metric.ball (0 : ℂ) (1 / 2)) :=
+    differentiableOn_ellQ.analyticOnNhd Metric.isOpen_ball
+  have hcd_C : ContDiffOn ℂ (⊤ : ℕ∞) ellQ (Metric.ball (0 : ℂ) (1 / 2)) :=
     hana.contDiffOn Metric.isOpen_ball.uniqueDiffOn
-  have hcd_R : ContDiffOn ℝ (⊤ : ℕ∞) (fun w : ℂ => (compEllQ w).re) (Metric.ball (0 : ℂ) (1 / 2)) :=
+  have hcd_R : ContDiffOn ℝ (⊤ : ℕ∞) (fun w : ℂ => (ellQ w).re) (Metric.ball (0 : ℂ) (1 / 2)) :=
     Complex.reCLM.contDiff.comp_contDiffOn (hcd_C.restrict_scalars ℝ)
   have hmap : ContDiffOn ℝ (⊤ : ℕ∞) (fun t : ℝ => ((π * t / 2 : ℝ) : ℂ)) (Ioo (-1 / 4) (1 / 4)) :=
     (Complex.ofRealCLM.contDiff.comp ((contDiff_const.mul contDiff_id).div_const 2)).contDiffOn
@@ -317,44 +240,10 @@ lemma contDiffOn_mD : ContDiffOn ℝ (⊤ : ℕ∞) mD (Ioo (-1 / 4) (1 / 4)) :=
   nlinarith [Real.pi_lt_four, abs_nonneg t]
 
 lemma mQ_zero : mQ 0 = π ^ 2 / 12 := by
-  have hcont : ContinuousAt mQ 0 :=
-    (contDiffOn_mQ.continuousOn).continuousAt (isOpen_Ioo.mem_nhds (by norm_num : (0 : ℝ) ∈ Ioo (-1 / 4) (1 / 4)))
-  have htend1 : Tendsto mQ (𝓝[>] (0 : ℝ)) (𝓝 (mQ 0)) := hcont.tendsto.mono_left nhdsWithin_le_nhds
-  have htend2 : Tendsto mQ (𝓝[>] (0 : ℝ)) (𝓝 (π ^ 2 / 12)) := by
-    rw [tendsto_iff_norm_sub_tendsto_zero]
-    refine squeeze_zero' (Filter.Eventually.of_forall fun _ => norm_nonneg _) ?_
-      (show Tendsto (fun t : ℝ => (6 * π ^ 4 / 16) * t ^ 2) (𝓝[>] (0 : ℝ)) (𝓝 0) by
-        simpa using (((continuous_id.pow 2).tendsto (0 : ℝ)).mono_left nhdsWithin_le_nhds).const_mul (6 * π ^ 4 / 16))
-    filter_upwards [Ioo_mem_nhdsGT (show (0 : ℝ) < 1 / 4 by norm_num)] with t ht
-    have ht0 : 0 < t := ht.1
-    have hx0 : 0 < π * t / 2 := by positivity
-    have hx1 : π * t / 2 ≤ 1 / 2 := by nlinarith [Real.pi_lt_four, ht.2]
-    have h4 := ceEll_taylor4 hx0 hx1
-    have hmq : mQ t = ceEll (π * t / 2) / t ^ 2 := by
-      have := uctM_eq_sq_mul_mQ ht0
-      unfold uctM at this
-      field_simp [ht0.ne'] at this ⊢; linarith
-    rw [Real.norm_eq_abs, hmq]
-    have hsub : ceEll (π * t / 2) / t ^ 2 - π ^ 2 / 12 =
-        ((ceEll (π * t / 2) - ((π * t / 2) ^ 2 / 3 - 7 / 90 * (π * t / 2) ^ 4)) - 7 / 90 * (π * t / 2) ^ 4) / t ^ 2 := by
-      field_simp [ht0.ne']; ring
-    rw [hsub, abs_div, abs_pow, abs_of_pos ht0]
-    have htri := abs_sub (ceEll (π * t / 2) - ((π * t / 2) ^ 2 / 3 - 7 / 90 * (π * t / 2) ^ 4)) (7 / 90 * (π * t / 2) ^ 4)
-    have h4' : |7 / 90 * (π * t / 2) ^ 4| = 7 / 90 * (π * t / 2) ^ 4 := abs_of_nonneg (by positivity)
-    have h6 : (π * t / 2) ^ 6 ≤ (1 / 4) * (π * t / 2) ^ 4 := by
-      have : (π * t / 2) ^ 2 ≤ 1 / 4 := by nlinarith
-      nlinarith [pow_nonneg hx0.le 4]
-    have hnum : |(ceEll (π * t / 2) - ((π * t / 2) ^ 2 / 3 - 7 / 90 * (π * t / 2) ^ 4)) - 7 / 90 * (π * t / 2) ^ 4| ≤
-        6 * (π * t / 2) ^ 4 := by
-      have htri' : |(ceEll (π * t / 2) - ((π * t / 2) ^ 2 / 3 - 7 / 90 * (π * t / 2) ^ 4)) - 7 / 90 * (π * t / 2) ^ 4| ≤
-          |ceEll (π * t / 2) - ((π * t / 2) ^ 2 / 3 - 7 / 90 * (π * t / 2) ^ 4)| + |7 / 90 * (π * t / 2) ^ 4| :=
-        abs_sub _ _
-      have hx4 : 0 ≤ (π * t / 2) ^ 4 := pow_nonneg hx0.le 4
-      linarith [h4, htri', h4', h6, hx4]
-    calc |(ceEll (π * t / 2) - ((π * t / 2) ^ 2 / 3 - 7 / 90 * (π * t / 2) ^ 4)) - 7 / 90 * (π * t / 2) ^ 4| / t ^ 2
-        ≤ (6 * (π * t / 2) ^ 4) / t ^ 2 := div_le_div_of_nonneg_right hnum (sq_nonneg t)
-      _ = (6 * π ^ 4 / 16) * t ^ 2 := by field_simp [ht0.ne']; ring
-  exact tendsto_nhds_unique htend1 htend2
+  unfold mQ
+  have hre : ((1 / 3 : ℂ)).re = 1 / 3 := by norm_num
+  simp only [mul_zero, zero_div, Complex.ofReal_zero, ellQ_zero, hre]
+  ring
 
 lemma mD_zero : mD 0 = π ^ 2 / 6 := by
   have hcontD : ContinuousAt mD 0 :=
@@ -705,6 +594,10 @@ noncomputable def divT2_theta1 (θ : ℝ → ℝ) (t : ℝ) : ℝ :=
 noncomputable def deltaCurvSmooth (c : ℝ) (θ : ℝ → ℝ) (t : ℝ) : ℝ :=
   (1 / (2 * c)) * (divT_theta2 θ t / mD t - divT2_theta1 θ t / mQ t)
 
+/-- Curvature correction `Δ_curv(t) = (1/(2c)) (ϑ_{D₀}''(t)/m'(t) - ϑ_{D₀}'(t)/m(t))` on `t ≠ 0`. -/
+noncomputable def stripDeltaCurv (c : ℝ) (θ : ℝ → ℝ) (t : ℝ) : ℝ :=
+  (1 / (2 * c)) * (iteratedDeriv 2 θ t / uctMderiv t - deriv θ t / uctM t)
+
 lemma divT_theta2_eq_div {θ : ℝ → ℝ} (hθ : ContDiff ℝ (⊤ : ℕ∞) θ) (hθ20 : iteratedDeriv 2 θ 0 = 0)
     {t : ℝ} (ht : t ≠ 0) :
     divT_theta2 θ t = iteratedDeriv 2 θ t / t := by
@@ -778,6 +671,26 @@ lemma deltaCurvSmooth_even {c : ℝ} {θ : ℝ → ℝ} (hθ_odd : ∀ t, θ (-t
     rw [mul_neg, h3_even]
   unfold deltaCurvSmooth
   rw [h1, h2, mD_even ht, mQ_even]
+
+lemma stripDeltaCurv_even {c : ℝ} {θ : ℝ → ℝ} (hθ_odd : ∀ t, θ (-t) = -θ t) (t : ℝ) :
+    stripDeltaCurv c θ (-t) = stripDeltaCurv c θ t := by
+  have h2_odd : iteratedDeriv 2 θ (-t) = -iteratedDeriv 2 θ t := by
+    have h := iteratedDeriv_odd_fn θ hθ_odd 2 t; norm_num at h; exact h
+  have h1_even : deriv θ (-t) = deriv θ t := by
+    have h := iteratedDeriv_odd_fn θ hθ_odd 1 t; norm_num at h; exact h
+  unfold stripDeltaCurv
+  rw [h2_odd, uctMderiv_odd, neg_div_neg_eq, h1_even, uctM_even]
+
+lemma deltaCurvSmooth_eq_stripDeltaCurv {c : ℝ} {θ : ℝ → ℝ} (hθ : ContDiff ℝ (⊤ : ℕ∞) θ)
+    (hθ_odd : ∀ t, θ (-t) = -θ t) (hθ10 : deriv θ 0 = 0)
+    {t : ℝ} (ht0 : t ≠ 0) (ht1 : |t| < 1 / 4) :
+    deltaCurvSmooth c θ t = stripDeltaCurv c θ t := by
+  have hθ20 : iteratedDeriv 2 θ 0 = 0 := by
+    simpa using iteratedDeriv_even_zero_of_odd hθ_odd 1
+  rcases lt_or_gt_of_ne ht0 with h | h
+  · rw [← deltaCurvSmooth_even hθ_odd ht1, ← stripDeltaCurv_even hθ_odd]
+    exact deltaCurvSmooth_eq hθ hθ10 hθ20 (neg_pos.mpr h) (by rwa [abs_of_neg h] at ht1)
+  · exact deltaCurvSmooth_eq hθ hθ10 hθ20 h (by rwa [abs_of_pos h] at ht1)
 
 /-- Derivative under the integral sign for `t ↦ ∫₀¹ w(s) f(s t) ds` for any smooth `f` and continuous `w`. -/
 lemma hasDerivAt_hadamard_integral {w f : ℝ → ℝ} (hw : Continuous w) (hf : ContDiff ℝ (⊤ : ℕ∞) f) (t : ℝ) :

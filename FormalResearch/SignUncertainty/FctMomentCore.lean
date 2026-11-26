@@ -1,6 +1,7 @@
 module
 
 public import FormalResearch.SignUncertainty.CtOuterEntire
+public import FormalResearch.SignUncertainty.CtOuterBdryDeriv
 public import Mathlib.Analysis.Calculus.ParametricIntegral
 public import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv
@@ -18,8 +19,9 @@ and the quantitative phase estimate in the proof of Lemma `fct:moment-solver`.
 For a real smooth compactly supported function `v : ℝ → ℝ`:
 * `fctWeight t = cosh(πt) / sinh(πt)^2` (the even positive weight `w(t)` on `ℝ \ {0}`);
 * `fctThetaD v τ = ∫ z, (v (τ + z) - v τ) / sinh (π * z)` (the boundary phase `ϑ_D(τ)`, equal to
-  `p.v. ∫ v(t) / sinh(π(t - τ)) dt` since `1/sinh(πz)` is odd);
-* `fctMoment k v = (1 / π) * ∫_{t > 0} v^{(2k+1)}(t) / sinh(πt) dt` (the moment functional `ℳ_k[v]`).
+  `CtOuter.bdryF v τ` by `fctThetaD_eq_bdryF`, and to `p.v. ∫ v(t) / sinh(π(t - τ)) dt` since `1/sinh(πz)` is odd);
+* `fctMoment k v = (1 / π) * ∫_{t > 0} v^{(2k+1)}(t) / sinh(πt) dt` (the integrated-by-parts form of the
+  paper's Hadamard finite-part moment `ℳ_k[v] = f.p. ∫_0^∞ v(t) w^{(2k)}(t) dt` in `(fct:moments)`).
 
 Class: proved, no hypotheses.
 -/
@@ -35,13 +37,27 @@ namespace FormalResearch.SignUncertainty.FctMoment
 noncomputable def fctWeight (t : ℝ) : ℝ :=
   Real.cosh (π * t) / Real.sinh (π * t) ^ 2
 
-/-- The boundary phase `ϑ_D(τ) = ∫ (v(τ+z) - v(τ)) / sinh(πz) dz` of `(fct:thD-def)`. -/
+/-- The boundary phase `ϑ_D(τ) = ∫ (v(τ+z) - v(τ)) / sinh(πz) dz` of `(fct:thD-def)`.
+Identical to `CtOuter.bdryF v τ` (`fctThetaD_eq_bdryF`). -/
 noncomputable def fctThetaD (v : ℝ → ℝ) (τ : ℝ) : ℝ :=
   ∫ z : ℝ, (v (τ + z) - v τ) / Real.sinh (π * z)
 
-/-- The moment functional `ℳ_k[v] = (1/π) ∫_{t > 0} v^{(2k+1)}(t) / sinh(πt) dt` of `(fct:moments)`.
-By repeated integration by parts, this coincides with the Hadamard finite part
-`f.p. ∫_0^∞ v(t) w^{(2k)}(t) dt`, and equals the ordinary integral when `v` vanishes near `0`. -/
+/-- `fctThetaD` coincides identically with `CtOuter.bdryF`
+(`F_a(τ) = ∫ (a(t) - a(τ)) / sinh(π(t - τ)) dt`), via the translation `z = t - τ` (`CtOuter.bdryF_eq_shift`). -/
+lemma fctThetaD_eq_bdryF (v : ℝ → ℝ) (τ : ℝ) :
+    fctThetaD v τ = FormalResearch.SignUncertainty.CtOuter.bdryF v τ :=
+  (FormalResearch.SignUncertainty.CtOuter.bdryF_eq_shift v τ).symm
+
+lemma fctThetaD_eq_bdryF_fun :
+    fctThetaD = FormalResearch.SignUncertainty.CtOuter.bdryF :=
+  funext fun v => funext fun τ => fctThetaD_eq_bdryF v τ
+
+/-- The moment functional `ℳ_k[v] = (1/π) ∫_{t > 0} v^{(2k+1)}(t) / sinh(πt) dt`, which is the
+integrated-by-parts form of the paper's Hadamard finite-part moment
+`ℳ_k[v] := f.p. ∫_0^∞ v(t) w^{(2k)}(t) dt` in `(fct:moments)`.
+Using `w(t) = -(1/π) ∂_t(sinh(πt)⁻¹)` and integrating by parts `2k + 1` times on `(ε, ∞)` as `ε ↓ 0`,
+for smooth even `v` with compact support and `v(0) = 0` all odd-pole boundary terms at `0` cancel the
+Hadamard finite-part subtraction and boundary terms at `∞` vanish (`ibp_sinh_odd_pole`). -/
 noncomputable def fctMoment (k : ℕ) (v : ℝ → ℝ) : ℝ :=
   (1 / π) * ∫ t in Ioi (0 : ℝ), iteratedDeriv (2 * k + 1) v t / Real.sinh (π * t)
 

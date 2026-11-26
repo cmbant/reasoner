@@ -34,6 +34,7 @@ open scoped Real BigOperators
 namespace FormalResearch.SignUncertainty.FctCompD
 
 open FormalResearch.SignUncertainty
+open FormalResearch.SignUncertainty.CtOuter
 open FormalResearch.SignUncertainty.FctMoment
 open FormalResearch.CohnElkies
 
@@ -237,6 +238,38 @@ lemma hasCompactSupport_of_support_Ioo {w : ℝ → ℝ} {a b : ℝ} (hsupp : Fu
   HasCompactSupport.of_support_subset_isCompact (isCompact_Icc (a := a) (b := b))
     (fun _ ht => Ioo_subset_Icc_self (hsupp ht))
 
+lemma tsupport_momentSolver_subset {N : ℕ} {τ₁ : ℝ} (hτ₁ : 0 < τ₁) (f : ℝ → ℝ) :
+    tsupport (momentSolver N τ₁ f) ⊆ Ioo (-10 * τ₁) (10 * τ₁) := by
+  have hsub : Function.support (momentSolver N τ₁ f) ⊆ Icc (-8 * τ₁) (8 * τ₁) := by
+    intro t ht
+    by_contra hnot
+    have hge8 : 8 ≤ |t / τ₁| := by
+      rw [abs_div, abs_of_pos hτ₁, le_div_iff₀ hτ₁]
+      rw [mem_Icc] at hnot; push Not at hnot
+      rcases le_or_gt (-8 * τ₁) t with h | h
+      · rw [abs_of_nonneg (by linarith [hnot h])]; linarith [hnot h]
+      · rw [abs_of_neg (by linarith)]; linarith
+    apply ht
+    unfold momentSolver tildeF
+    rw [etaCut_eq_zero (by linarith), zero_mul, zero_add]
+    have hsum0 : ∑ j : Fin N, solverCoeff N τ₁ f j * bumpPhi N j (t / τ₁) = 0 :=
+      Finset.sum_eq_zero fun j _ => by rw [bumpPhi_zero_of_abs_ge_eight N j hge8, mul_zero]
+    rw [hsum0, mul_zero]
+  exact (closure_minimal hsub isClosed_Icc).trans fun t ht => ⟨by linarith [ht.1], by linarith [ht.2]⟩
+
+lemma tsupport_linear_subset {w₁ w₂ : ℝ → ℝ} {U : Set ℝ}
+    (h₁ : tsupport w₁ ⊆ U) (h₂ : tsupport w₂ ⊆ U) (a b : ℝ) :
+    tsupport (fun s => a * w₁ s + b * w₂ s) ⊆ U := by
+  have hcl : tsupport (fun s => a * w₁ s + b * w₂ s) ⊆ tsupport w₁ ∪ tsupport w₂ := by
+    refine closure_minimal ?_ ((isClosed_tsupport w₁).union (isClosed_tsupport w₂))
+    intro t ht
+    by_contra hnot
+    rw [mem_union] at hnot; push Not at hnot
+    have z1 : w₁ t = 0 := by by_contra hne; exact hnot.1 (subset_tsupport w₁ hne)
+    have z2 : w₂ t = 0 := by by_contra hne; exact hnot.2 (subset_tsupport w₂ hne)
+    exact ht (by simp [z1, z2])
+  exact hcl.trans (union_subset h₁ h₂)
+
 /-! ### Main Part (1) theorem: `fct_comp_D_part1` -/
 
 set_option maxHeartbeats 400000 in
@@ -274,19 +307,36 @@ theorem fct_comp_D_part1 (kind : StripKernelChoice) :
            Function.support va ⊆ Ioo (-10 * τ₁) (10 * τ₁) ∧
            Function.support vb1 ⊆ Ioo (-10 * τ₁) (10 * τ₁) ∧
            Function.support vm1 ⊆ Ioo (-10 * τ₁) (10 * τ₁) ∧
-           Function.support v ⊆ Ioo (-10 * τ₁) (10 * τ₁)) ∧
+           Function.support v ⊆ Ioo (-10 * τ₁) (10 * τ₁) ∧
+           tsupport vb0 ⊆ Ioo (-10 * τ₁) (10 * τ₁) ∧
+           tsupport vm0 ⊆ Ioo (-10 * τ₁) (10 * τ₁) ∧
+           tsupport va ⊆ Ioo (-10 * τ₁) (10 * τ₁) ∧
+           tsupport vb1 ⊆ Ioo (-10 * τ₁) (10 * τ₁) ∧
+           tsupport vm1 ⊆ Ioo (-10 * τ₁) (10 * τ₁) ∧
+           tsupport v0' ⊆ Ioo (-10 * τ₁) (10 * τ₁) ∧
+           tsupport v1' ⊆ Ioo (-10 * τ₁) (10 * τ₁) ∧
+           tsupport v ⊆ Ioo (-10 * τ₁) (10 * τ₁) ∧
+           HasCompactSupport vb0 ∧ HasCompactSupport vm0 ∧ HasCompactSupport va ∧
+           HasCompactSupport vb1 ∧ HasCompactSupport vm1 ∧ HasCompactSupport v0' ∧
+           HasCompactSupport v1' ∧ HasCompactSupport v) ∧
           -- Five zeroed odd moments (`j = 0..4`) and vanishing odd phase derivatives
           (∀ k < 5, fctMoment k v0' = 0 ∧ fctMoment k v1' = 0 ∧ fctMoment k va = 0 ∧ fctMoment k v = 0 ∧
             iteratedDeriv (2 * k + 1) (fctThetaD v0') 0 = 0 ∧
             iteratedDeriv (2 * k + 1) (fctThetaD v1') 0 = 0 ∧
             iteratedDeriv (2 * k + 1) (fctThetaD va) 0 = 0 ∧
             iteratedDeriv (2 * k + 1) (fctThetaD v) 0 = 0) ∧
-          -- Exact inner form `(fct:v-inner)` on `|t| ≤ 2 τ₁`
+          -- Exact inner form `(fct:v-inner)` on `|t| ≤ 2 τ₁` (smooth extensions and explicit paper ratios)
           (∀ t, |t| ≤ 2 * τ₁ →
             vb0 t = f0Base kind t ∧
             vm0 t = -(t ^ 4) ∧
             va t = α * t ^ 2 ∧
-            v1' t = -deltaCurvSmooth c (fctThetaD v0') t) ∧
+            v1' t = -deltaCurvSmooth c (fctThetaD v0') t ∧
+            vb0 t = -Real.log (stripR0 kind t) ∧
+            (t ≠ 0 →
+              vb0 t = -Real.log (stripIosc kind (uctM t) / uctIfl (uctM t)) ∧
+              v1' t = -stripDeltaCurv c (fctThetaD v0') t ∧
+              v t = -Real.log (stripIosc kind (uctM t) / uctIfl (uctM t)) -
+                K4 * t ^ 4 - stripDeltaCurv c (fctThetaD v0') t + α * t ^ 2)) ∧
           -- All-order derivative bounds `(fct:v-derivs)`–`(fct:v1-derivs)`
           (∀ r t,
             |iteratedDeriv r vb0 t| ≤ C_v0b r * τ₁ ^ ((2 : ℤ) - r) ∧
@@ -658,10 +708,25 @@ theorem fct_comp_D_part1 (kind : StripKernelChoice) :
         have := mul_le_mul_of_nonneg_right this hfac_nn
         linarith)
   -- Assemble all conclusions
+  have hb0_ts : tsupport (v0Base kind τ₁) ⊆ Ioo (-10 * τ₁) (10 * τ₁) := tsupport_momentSolver_subset hτ₁ _
+  have hm0_ts : tsupport (v0Marg τ₁) ⊆ Ioo (-10 * τ₁) (10 * τ₁) := tsupport_momentSolver_subset hτ₁ _
+  have ha0_ts : tsupport (vAlpha α τ₁) ⊆ Ioo (-10 * τ₁) (10 * τ₁) := tsupport_momentSolver_subset hτ₁ _
+  have hb1_ts : tsupport (v1Base kind c τ₁) ⊆ Ioo (-10 * τ₁) (10 * τ₁) := tsupport_momentSolver_subset hτ₁ _
+  have hm1_ts : tsupport (v1Marg c τ₁) ⊆ Ioo (-10 * τ₁) (10 * τ₁) := tsupport_momentSolver_subset hτ₁ _
+  have hv0_ts : tsupport (v0 kind K4 τ₁) ⊆ Ioo (-10 * τ₁) (10 * τ₁) := by
+    unfold v0; simpa only [one_mul] using tsupport_linear_subset hb0_ts hm0_ts 1 K4
+  have hv1_ts : tsupport (v1 kind K4 c τ₁) ⊆ Ioo (-10 * τ₁) (10 * τ₁) := by
+    unfold v1; simpa only [one_mul] using tsupport_linear_subset hb1_ts hm1_ts 1 K4
+  have hv_ts : tsupport (vTotal kind K4 c α τ₁) ⊆ Ioo (-10 * τ₁) (10 * τ₁) := by
+    have h01 : tsupport (fun s => v0 kind K4 τ₁ s + v1 kind K4 c τ₁ s) ⊆ Ioo (-10 * τ₁) (10 * τ₁) := by
+      simpa only [one_mul] using tsupport_linear_subset hv0_ts hv1_ts 1 1
+    unfold vTotal; simpa only [one_mul] using tsupport_linear_subset h01 ha0_ts 1 1
   refine ⟨⟨hb0_cd, hm0_cd, ha0_cd, hb1_cd, hm1_cd, hv_cd⟩,
     ⟨hb0_even, hm0_even, ha0_even, hb1_even, hm1_even, hv_even⟩,
     ⟨hb0_0, hm0_0, ha0_0, hb1_0, hm1_0, by simp [vTotal, v0, v1, hb0_0, hm0_0, hb1_0, hm1_0, ha0_0]⟩,
-    ⟨hb0_supp, hm0_supp, ha0_supp, hb1_supp, hm1_supp, hv_supp⟩,
+    ⟨hb0_supp, hm0_supp, ha0_supp, hb1_supp, hm1_supp, hv_supp,
+      hb0_ts, hm0_ts, ha0_ts, hb1_ts, hm1_ts, hv0_ts, hv1_ts, hv_ts,
+      hb0_cs, hm0_cs, ha0_cs, hb1_cs, hm1_cs, hv0_cs, hv1_cs, hv_cs⟩,
     ?_, ?_, hderivs, ⟨hL1_0b', hL1_0m', hL1_a', hL1_1b', hL1_1m'⟩, hth_in, hth_tail, ?_, ?_, ?_⟩
   · -- Five zeroed moments and odd phase derivatives
     intro k hk
@@ -690,12 +755,36 @@ theorem fct_comp_D_part1 (kind : StripKernelChoice) :
     · rw [iteratedDeriv_odd_fctThetaD_zero hv_cd hv_cs hv_even k, hm_v, mul_zero]
   · -- Exact inner form `(fct:v-inner)` on `|t| ≤ 2 τ₁`
     intro t ht
-    refine ⟨hb0_eq t ht, hm0_eq t ht, ha0_eq t ht, ?_⟩
-    unfold v1
-    rw [hb1_eq t ht, hm1_eq t ht, hθ0_eq]
-    have hlin := deltaCurvSmooth_linear (c := c) hθ0b_cd hθ0m_cd 1 K4 t
-    simp only [one_mul] at hlin
-    rw [hlin]; ring
+    have ht14 : |t| < 1 / 4 := by linarith [hτ₁_20]
+    have hv1_sm : v1 kind K4 c τ₁ t = -deltaCurvSmooth c (fctThetaD (v0 kind K4 τ₁)) t := by
+      unfold v1
+      rw [hb1_eq t ht, hm1_eq t ht, hθ0_eq]
+      have hlin := deltaCurvSmooth_linear (c := c) hθ0b_cd hθ0m_cd 1 K4 t
+      simp only [one_mul] at hlin
+      rw [hlin]; ring
+    have hvb0_r0 : v0Base kind τ₁ t = -Real.log (stripR0 kind t) := by
+      rw [hb0_eq t ht]; unfold f0Base; rw [r0Smooth_eq_stripR0 ht14]
+    refine ⟨hb0_eq t ht, hm0_eq t ht, ha0_eq t ht, hv1_sm, hvb0_r0, fun ht0 => ?_⟩
+    have hvb0_osc : v0Base kind τ₁ t = -Real.log (stripIosc kind (uctM t) / uctIfl (uctM t)) := by
+      rw [hvb0_r0, stripR0_eq_div_of_ne_zero ht0]
+    have hθ0_cd : ContDiff ℝ (⊤ : ℕ∞) (fctThetaD (v0 kind K4 τ₁)) := contDiff_fctThetaD hv0_cd hv0_cs
+    have hθ0_odd : ∀ s, fctThetaD (v0 kind K4 τ₁) (-s) = -fctThetaD (v0 kind K4 τ₁) s := fctThetaD_odd hv0_even
+    have hθ0_10 : deriv (fctThetaD (v0 kind K4 τ₁)) 0 = 0 := by
+      rw [← iteratedDeriv_one, hθ0_eq]
+      have hd1 : ContDiffAt ℝ (1 : WithTop ℕ∞) (fctThetaD (v0Base kind τ₁)) 0 := hθ0b_cd.contDiffAt.of_le (WithTop.coe_le_coe.mpr le_top)
+      have hd2 : ContDiffAt ℝ (1 : WithTop ℕ∞) (fun s => K4 * fctThetaD (v0Marg τ₁) s) 0 :=
+        (contDiff_const.mul hθ0m_cd).contDiffAt.of_le (WithTop.coe_le_coe.mpr le_top)
+      have b0_1 : iteratedDeriv 1 (fctThetaD (v0Base kind τ₁)) 0 = 0 := hb0_th0 0 (by norm_num)
+      have m0_1 : iteratedDeriv 1 (fctThetaD (v0Marg τ₁)) 0 = 0 := hm0_th0 0 (by norm_num)
+      change iteratedDeriv 1 (fctThetaD (v0Base kind τ₁) + fun s => K4 * fctThetaD (v0Marg τ₁) s) 0 = 0
+      rw [iteratedDeriv_add hd1 hd2, iteratedDeriv_const_mul_field, b0_1, m0_1]
+      ring
+    have hv1_curv : v1 kind K4 c τ₁ t = -stripDeltaCurv c (fctThetaD (v0 kind K4 τ₁)) t := by
+      rw [hv1_sm, deltaCurvSmooth_eq_stripDeltaCurv hθ0_cd hθ0_odd hθ0_10 ht0 ht14]
+    refine ⟨hvb0_osc, hv1_curv, ?_⟩
+    change (v0Base kind τ₁ t + K4 * v0Marg τ₁ t) + v1 kind K4 c τ₁ t + vAlpha α τ₁ t = _
+    rw [hvb0_osc, hm0_eq t ht, hv1_curv, ha0_eq t ht]
+    ring
   · -- Interior strip bound `(fct:gD-int)`
     intro r ζ hre1 hre2
     have h := hC_int_bd r hv_cd (R := 10 * τ₁) (by positivity) (by linarith) (by simpa only [neg_mul] using hv_supp) ζ hre1 hre2

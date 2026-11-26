@@ -827,12 +827,21 @@ lemma floor_tail_integral_and_asymp :
 /-! ### Holomorphic local extension of `t⁴ |H_0(it)| / m(t)` near `0` and Laurent expansions -/
 
 /-- Holomorphic `ℓ(w) = log(cosh w / sinhQ w)` on `ball (0 : ℂ) (1/2)`. -/
-private noncomputable def ellC (w : ℂ) : ℂ := Complex.log (Complex.cosh w / CtOuter.sinhQ w)
+noncomputable def ellC (w : ℂ) : ℂ := Complex.log (Complex.cosh w / CtOuter.sinhQ w)
 
 /-- Holomorphic `ℓ(w) / w²` on `ball (0 : ℂ) (1/2)` via two applications of `dslope`. -/
-private noncomputable def ellQ (w : ℂ) : ℂ := dslope (dslope ellC 0) 0 w
+noncomputable def ellQ (w : ℂ) : ℂ := dslope (dslope ellC 0) 0 w
 
-private lemma differentiableOn_ellC : DifferentiableOn ℂ ellC (Metric.ball (0 : ℂ) (1 / 2)) := by
+lemma ellC_even (w : ℂ) : ellC (-w) = ellC w := by
+  unfold ellC
+  rw [Complex.cosh_neg]
+  have hq : CtOuter.sinhQ (-w) = CtOuter.sinhQ w := by
+    unfold CtOuter.sinhQ
+    refine tsum_congr fun n => ?_
+    rw [(even_two_mul n).neg_pow]
+  rw [hq]
+
+lemma differentiableOn_ellC : DifferentiableOn ℂ ellC (Metric.ball (0 : ℂ) (1 / 2)) := by
   intro w hw
   rw [mem_ball_zero_iff] at hw
   have hw2 : ‖w‖ ≤ 2 := by linarith
@@ -880,7 +889,7 @@ private lemma differentiableOn_ellC : DifferentiableOn ℂ ellC (Metric.ball (0 
     (Complex.differentiable_cosh w).div (CtOuter.differentiable_sinhQ w) hQ_ne
   exact (hd_quot.clog (Or.inl hrat_re)).differentiableWithinAt
 
-private lemma ellC_ofReal {x : ℝ} (hx0 : 0 < x) (hx1 : x < 1 / 2) :
+lemma ellC_ofReal {x : ℝ} (hx0 : 0 < x) :
     ellC (x : ℂ) = ((ceEll x : ℝ) : ℂ) := by
   unfold ellC ceEll
   rw [← Complex.ofReal_cosh, CtOuter.sinhQ_ofReal hx0.ne']
@@ -895,40 +904,31 @@ private lemma ellC_ofReal {x : ℝ} (hx0 : 0 < x) (hx1 : x < 1 / 2) :
     rw [Real.tanh_eq_sinh_div_cosh]
     exact div_nonneg hx0.le (div_nonneg hsh_pos.le (by linarith [one_le_cosh_real x])))]
 
-private lemma differentiableOn_ellQ : DifferentiableOn ℂ ellQ (Metric.ball (0 : ℂ) (1 / 2)) := by
+lemma differentiableOn_ellQ : DifferentiableOn ℂ ellQ (Metric.ball (0 : ℂ) (1 / 2)) := by
   have h1 : DifferentiableOn ℂ (dslope ellC 0) (Metric.ball (0 : ℂ) (1 / 2)) :=
     (Complex.differentiableOn_dslope (Metric.isOpen_ball.mem_nhds (Metric.mem_ball_self (by norm_num)))).mpr
       differentiableOn_ellC
   exact (Complex.differentiableOn_dslope (Metric.isOpen_ball.mem_nhds (Metric.mem_ball_self (by norm_num)))).mpr h1
 
-private lemma ellC_zero : ellC 0 = 0 := by
+lemma ellC_zero : ellC 0 = 0 := by
   simp [ellC, CtOuter.sinhQ_zero]
 
-private lemma deriv_ellC_zero : deriv ellC 0 = 0 := by
-  have heven : ∀ w : ℂ, ellC (-w) = ellC w := by
-    intro w
-    unfold ellC
-    rw [Complex.cosh_neg]
-    have hq : CtOuter.sinhQ (-w) = CtOuter.sinhQ w := by
-      unfold CtOuter.sinhQ
-      refine tsum_congr fun n => ?_
-      rw [even_two_mul n |>.neg_pow]
-    rw [hq]
+lemma deriv_ellC_zero : deriv ellC 0 = 0 := by
   have h1 := deriv_comp_neg ellC 0
-  have hfun : (fun w => ellC (-w)) = ellC := funext heven
+  have hfun : (fun w => ellC (-w)) = ellC := funext ellC_even
   rw [hfun, neg_zero] at h1
   -- `deriv ellC 0 = - deriv ellC 0`
   have h2 : deriv ellC 0 + deriv ellC 0 = 0 := by linear_combination h1
   have h2' : (2 : ℂ) * deriv ellC 0 = 0 := by linear_combination h2
   exact (mul_eq_zero.mp h2').resolve_left (by norm_num)
 
-private lemma ellQ_eq_div {w : ℂ} (hw : w ≠ 0) : ellQ w = ellC w / w ^ 2 := by
+lemma ellQ_eq_div {w : ℂ} (hw : w ≠ 0) : ellQ w = ellC w / w ^ 2 := by
   unfold ellQ
   rw [dslope_of_ne _ hw, slope_def_field, dslope_of_ne _ hw, dslope_same, deriv_ellC_zero,
     slope_def_field, ellC_zero, sub_zero, sub_zero, sub_zero]
   field_simp [hw]
 
-private lemma ellQ_zero : ellQ 0 = (1 / 3 : ℂ) := by
+lemma ellQ_zero : ellQ 0 = (1 / 3 : ℂ) := by
   have hcont : ContinuousAt ellQ 0 :=
     (differentiableOn_ellQ.differentiableAt (Metric.isOpen_ball.mem_nhds (Metric.mem_ball_self (by norm_num)))).continuousAt
   have ht1 : Tendsto (fun x : ℝ => ellQ (x : ℂ)) (𝓝[>] (0 : ℝ)) (𝓝 (ellQ 0)) :=
@@ -964,7 +964,7 @@ private lemma ellQ_zero : ellQ 0 = (1 / 3 : ℂ) := by
       simpa using h1
     refine hC.congr' ?_
     filter_upwards [Ioo_mem_nhdsGT (show (0 : ℝ) < 1 / 2 by norm_num)] with x hx
-    rw [ellQ_eq_div (Complex.ofReal_ne_zero.mpr hx.1.ne'), ellC_ofReal hx.1 hx.2]
+    rw [ellQ_eq_div (Complex.ofReal_ne_zero.mpr hx.1.ne'), ellC_ofReal hx.1]
     push_cast; rfl
   exact tendsto_nhds_unique ht1 ht2
 
@@ -1260,13 +1260,9 @@ lemma laurent_FCE :
     intro t ht
     have ht0 : 0 < t := ht.1
     have hx0 : 0 < π * t / 2 := by positivity
-    have hx12 : π * t / 2 < 1 / 2 := by
-      have hpi4 : π < 4 := Real.pi_lt_four
-      have hr1 : r ≤ 1 / 8 := min_le_left _ _
-      nlinarith [ht.2]
     have hshQ := CtOuter.sinhQ_ofReal hx0.ne'
     have hell := ellQ_eq_div (Complex.ofReal_ne_zero.mpr hx0.ne')
-    rw [ellC_ofReal hx0 hx12] at hell
+    rw [ellC_ofReal hx0] at hell
     simp only [g, gC]
     have harg : (π : ℂ) * (t : ℂ) / 2 = ((π * t / 2 : ℝ) : ℂ) := by push_cast; ring
     rw [harg, hshQ, hell]
@@ -1648,13 +1644,8 @@ lemma laurent_Fstar :
   have hhR_eq : ∀ t ∈ Ioo (0 : ℝ) r, hR t = t ^ 4 * ΔF t := by
     intro t ht
     have hx0 : 0 < π * t / 2 := by have := ht.1; positivity
-    have hx12 : π * t / 2 < 1 / 2 := by
-      have hpi4 : π < 4 := Real.pi_lt_four
-      have hr1 : r ≤ 1 / 8 := min_le_left _ _
-      have ht_lt : t < 1 / 8 := lt_of_lt_of_le ht.2 hr1
-      nlinarith [ht.1]
     have hell := ellQ_eq_div (Complex.ofReal_ne_zero.mpr hx0.ne')
-    rw [ellC_ofReal hx0 hx12] at hell
+    rw [ellC_ofReal hx0] at hell
     simp only [hR, hC]
     have harg : (π : ℂ) * (t : ℂ) / 2 = ((π * t / 2 : ℝ) : ℂ) := by push_cast; ring
     rw [harg, ← Complex.ofReal_cosh, hell]
