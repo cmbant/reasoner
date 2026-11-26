@@ -22,6 +22,8 @@ passage `a = c^{-1/12}`, `c ≥ c₀`.
 Remaining hypotheses (fields of `VacDisp`, each a display of `fct:comp-D`/`fct:phikill` for the instantiated datum): `(fct:Dstar-inner)`
 consequences (`hDin`, `hDmid`, `hDfar`), `(fct:cos-pen)` (`hDint`, `hCfl`, `hcos`, `hin`), `(fct:bump-1L)` (`hb1`), `(fct:bump-2L)` (`hb2`),
 the finite-part cancellation of `(fct:bump-1L)` with `fct:phikill` (3) in the `L`-variable (`hcancel`), and the size/positivity facts of the datum.
+For the concrete datum all of them except the size facts, measurability and positivity of `P` and `hDin`, `hDmid`, `hDfar` are proved in
+`FctVacuumCancel` (`fct_vac_cancel` = `hcancel`) and `FctVacuumConcrete` (`vacDisp_concrete`, `vacuum_integral_concrete`).
 
 Class: proved under the explicit hypotheses `hO` (the definition of `O` on the support of the cutoff) and `hdisp`.
 -/
