@@ -89,7 +89,7 @@ structure BoasSetting (h X ν wt sf : ℝ → ℝ) : Prop where
   through `ct:phase-far`, `ct:outer`(3); not yet assembled).
 * `trunc_hi`, `εhi` — Step 3 truncation above `L_far + 1`: `Ω_near ≤ 1 - 𝔰_far ≤ e^{-2(log c)²}` there and `∫|h| ≤ 1`.
 * `trunc_lo`, `εlo` — Step 3 truncation below `L_min`: the taper estimate `∫_{ξ(0)}^{ξ(-v₀)} w̃_R |dm| = O(c^{-29/21})` of `ct:dyadic`(1),
-  with `Ω_near ≤ w̃_R`.
+  with `Ω_near ≤ w̃_R` (the taper `w̃_R` is extended by `0` below `ξ(0)`).
 * `P_lb`, `Pb` — `ct:P-lb` (Step 4): `P_j(L₀) ≥ -C c^{-4}√log c` for every `L₀` with `ω_j(L₀) > 0`, in the frozen form
   `∫ G_{W_j}(L - L₀) h(L) T_{L₀}(L) dL ≥ -Pb` (`hankel_frozen_P_lb`; `T_{L₀}` as `1 + 2cos(ω₀L + φ₀ - ω₀L₀)` with `φ₀ = π/2 + X(L₀)`,
   `ω₀ = cτ₀(L₀)`, the block comparison `τ_j/3 ≤ τ₀(L₀) ≤ 3τ_j` being `tau0_ratio`).
