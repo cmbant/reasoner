@@ -48,11 +48,11 @@ def CeHankelPair : Prop :=
       T ≤ ((d : ℝ) / 2) / π ^ 2 + airyOrderCoeff * ((d : ℝ) / 2) ^ (1 / 3 : ℝ) + K₀
 
 /-- **`ce_hb_lift_m1` from the Hankel pair** (`thm:ce-hb-lift`, `m₀ = 1`, `N = Ai`): `CeHankelPair → CeHbLift ShellHBData.airy`.
-Conditional on the open `CeHankelPair`; the odd-card premise is `m = 1`, the shell conditions are vacuous and the offsets
-unused. -/
+Conditional on the open `CeHankelPair`; the weak Laplace premise is discharged by the strict positivity
+`airy_laplace_negG_pos` (`m = 1`), the shell conditions are vacuous and the offsets unused. -/
 theorem ce_hb_lift_airy_of_hankelPair (H : CeHankelPair) : CeHbLift ShellHBData.airy := by
-  intro _ hlap R_off _
-  obtain ⟨K₀, d₀, hd₀⟩ := H hlap
+  intro _ R_off _
+  obtain ⟨K₀, d₀, hd₀⟩ := H fun y hy => airy_laplace_negG_pos hy
   have hA : -(ShellHBData.airy.tm / hankelBeta1) = airyOrderCoeff := by
     unfold airyOrderCoeff
     rw [abs_of_neg (airyZero_neg 1)]

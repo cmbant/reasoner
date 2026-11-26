@@ -13,10 +13,10 @@ Declarations are in namespace `FormalResearch.ModularBootstrap.LP`.
 |---|---|---|
 | (engine) positive extension of a positive functional on polynomial-growth functions to a Radon measure, also finite-group-invariant | `Measure.exists_measure_of_positive_polyGrowth`, `exists_invariant_measure_of_positive_polyGrowth` (`Measure/PolyGrowthExtension`) | proved |
 | Laguerre bounds, generating function, Cayley expansion | `lagP_lower`, `abs_lagP_le` (`Laguerre`); `abs_lagPsi_le`, `hasSum_cayley` (`LaguerreGen`) | proved |
-| `ds:mom`, abstract odd family `OddFam C p` | `ds_mom` (`Moments`) | proved |
+| `ds:mom`, abstract odd family `OddFam C p` | `ds_mom` (`Moments`; arbitrary odd targets, corollary `ds_mom_ref`) | proved |
 | `ds:mom`, Laguerre instance | `lagP_oddFam`, `ds_mom_laguerre` (`Moments`) | proved |
 | `ds:mom`, mass bound | `ds_mom_mass` (`Moments`) | proved |
-| `dsl:poly-compact`, abstract family, with majorant `p_0`, `e^{εt}` moment | `poly_compact` (`PolyCompact`) | proved |
+| `dsl:poly-compact`, abstract family, with majorant `p_0`, `e^{εt}` moment | `poly_compact` (`PolyCompact`; odd-target hypothesis, corollary `poly_compact_ref`) | proved |
 | `dsl:poly-compact`, finite-group clause | `poly_compact_invariant` (`PolyCompact`) | proved |
 | `ds:cay` | `ds_cay_series`, `ds_cay_iff` (`Cayley`) | proved |
 | `ds:cont` | `ds_cont` (real-analytic `v`), `ds_cont_complex` (holomorphic `v`) (`Continuation`) | proved |

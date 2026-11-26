@@ -280,16 +280,20 @@ theorem positive_ray (hw : 0 < w) (hT₀ : 0 < T₀) : PositiveRayStatement w T�
       rw [ge_iff_le, ← div_eq_inv_mul, le_div_iff₀ (by linarith)]
       nlinarith only [hg x]
     linarith
-  have hodd : RefOdd (lagPC w) t V (0 : Measure ℝ) L := by
-    intro v j hj hvj
-    rw [integral_zero_measure]
+  have hodd0 : ∀ (j : ℕ), Odd j → ∀ (v : polyUnion V),
+      (v : C(Ici T₀, ℝ)) = pc (lagPC w) j t → L v = 0 := by
+    intro j hj v hvj
     have : (v : C(Ici T₀, ℝ)) - (0 : ℝ) • 1 ∈ A := by
       rw [hvj, zero_smul, sub_zero]
       exact Submodule.subset_span ⟨j, hj, rfl⟩
     exact hLval v 0 this
+  have hodd : ∀ j : ℕ, Odd j → ∀ v : polyUnion V,
+      (v : C(Ici T₀, ℝ)) = pc (lagPC w) j t → |L v| ≤ ((1 : ℝ) * j) ^ j := by
+    intro j hj v hvj
+    rw [hodd0 j hj v hvj, abs_zero]
+    positivity
   have : LocallyCompactSpace (Ici T₀) := isClosed_Ici.locallyCompactSpace
-  obtain ⟨μ, hreg, hpoly, hrep, ε, hε, hexp⟩ := poly_compact hT 0 (by simp)
-    (integrable_zero_measure) L hLpos hodd
+  obtain ⟨μ, hreg, hpoly, hrep, ε, hε, hexp⟩ := poly_compact hT one_pos L hLpos hodd
   -- the probability measure on `ℝ`
   have h1V : (1 : C(Ici T₀, ℝ)) ∈ polyUnion V :=
     le_polyUnion odd_one (Submodule.subset_span (Or.inl rfl))
@@ -320,7 +324,7 @@ theorem positive_ray (hw : 0 < w) (hT₀ : 0 < T₀) : PositiveRayStatement w T�
   · intro k hk
     rw [integral_map hmeas.aemeasurable (continuous_lagP w k).aestronglyMeasurable]
     have := hrep ⟨pc (lagPC w) k t, hT.pc_mem hk⟩
-    rw [hodd ⟨pc (lagPC w) k t, hT.pc_mem hk⟩ k hk rfl, integral_zero_measure] at this
+    rw [hodd0 k hk ⟨pc (lagPC w) k t, hT.pc_mem hk⟩ rfl] at this
     exact this
 
 end Ray

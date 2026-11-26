@@ -201,10 +201,10 @@ def RefOdd (p : ℕ → C(ℝ, ℝ)) (t : C(X, ℝ)) (V : ℕ → Submodule ℝ 
 
 omit [T2Space X] [LocallyCompactSpace X] in
 /-- Exponential moment of any representing measure (the `ds:mom` half of the proof). -/
-lemma exists_exp_moment (h : PolyCompactHyp C p T₀ t V) (μ₀ : Measure ℝ) (hμ₀ : μ₀ (Iio 0) = 0)
-    (hint : Integrable (fun s => Real.exp (π * s)) μ₀)
+lemma exists_exp_moment (h : PolyCompactHyp C p T₀ t V) {C₂ : ℝ} (hC₂ : 0 < C₂)
     (L : polyUnion V →ₗ[ℝ] ℝ) (hL : ∀ v : polyUnion V, (∀ x, 0 ≤ v.1 x) → 0 ≤ L v)
-    (hodd : RefOdd p t V μ₀ L) (μ : Measure X)
+    (hodd : ∀ j : ℕ, Odd j → ∀ v : polyUnion V, (v : C(X, ℝ)) = pc p j t → |L v| ≤ (C₂ * j) ^ j)
+    (μ : Measure X)
     (hpoly : ∀ f ∈ FormalResearch.Measure.polyGrowth t, Integrable f μ)
     (hrep : ∀ v : polyUnion V, ∫ x, v.1 x ∂μ = L v) :
     ∃ ε : ℝ, 0 < ε ∧ Integrable (fun x => Real.exp (ε * t x)) μ := by
@@ -213,7 +213,7 @@ lemma exists_exp_moment (h : PolyCompactHyp C p T₀ t V) (μ₀ : Measure ℝ) 
   have hLp₀ : 0 ≤ L ⟨p₀, hp₀U⟩ := hL _ fun x => (hη.trans_le (hp₀η x)).le
   set M : ℝ := L ⟨p₀, hp₀U⟩ / η with hM
   have hM0 : 0 ≤ M := by rw [hM]; positivity
-  obtain ⟨C₁, hC₁, hbound, hexp⟩ := ds_mom h.fam μ₀ hμ₀ hint hM0
+  obtain ⟨C₁, hC₁, hbound, hexp⟩ := ds_mom h.fam hC₂ hM0
   have htm : Measurable t := t.continuous.measurable
   set ν : Measure ℝ := Measure.map t μ with hν
   have hνIio : ν (Iio 0) = 0 := by
@@ -239,13 +239,16 @@ lemma exists_exp_moment (h : PolyCompactHyp C p T₀ t V) (μ₀ : Measure ℝ) 
     intro k
     rw [hν, integrable_map_measure (by fun_prop) htm.aemeasurable]
     exact hpoly (t ^ k) (pow_mem_polyGrowth t k)
-  have hodd' : ∀ k : ℕ, Odd k → ∫ s, p k s ∂ν = ∫ s, p k s ∂μ₀ := by
+  let b : ℕ → ℝ := fun k => if hk : Odd k then L ⟨pc p k t, h.pc_mem hk⟩ else 0
+  have hb : ∀ k, Odd k → |b k| ≤ (C₂ * k) ^ k := fun k hk => by
+    simp only [b, hk, ↓reduceDIte]
+    exact hodd k hk ⟨pc p k t, h.pc_mem hk⟩ rfl
+  have hodd' : ∀ k : ℕ, Odd k → ∫ s, p k s ∂ν = b k := by
     intro k hk
     rw [hν, integral_map htm.aemeasurable (p k).continuous.aestronglyMeasurable]
-    have := hrep ⟨pc p k t, h.pc_mem hk⟩
-    rw [hodd ⟨pc p k t, h.pc_mem hk⟩ k hk rfl] at this
-    exact this
-  obtain ⟨hI, -⟩ := hexp ν hνIio hνmass hpow hodd'
+    simp only [b, hk, ↓reduceDIte]
+    exact hrep ⟨pc p k t, h.pc_mem hk⟩
+  obtain ⟨hI, -⟩ := hexp b hb ν hνIio hνmass hpow hodd'
   refine ⟨1 / (2 * Real.exp 1 * C₁), by positivity, ?_⟩
   rw [hν, integrable_map_measure (by fun_prop) htm.aemeasurable] at hI
   refine hI.congr (Eventually.of_forall fun x => ?_)
@@ -253,31 +256,28 @@ lemma exists_exp_moment (h : PolyCompactHyp C p T₀ t V) (μ₀ : Measure ℝ) 
 
 /-- **Lemma LP-P** (`dsl:poly-compact`).  Under the hypotheses `PolyCompactHyp` (items (i)-(iii)),
 let `L` be a linear functional on `V = ⋃ V_N`, nonnegative on every `q ∈ V` with `q ≥ 0` on `X`, with
-`L(p_j ∘ t) = ∫ p_j dμ₀` for all odd `j`, where `μ₀` is supported on `[0, ∞)` and
-`∫ e^{π t} dμ₀ < ∞`.  Then there is a positive Radon measure `μ` on `X` representing `L` on `V`
-(every continuous function of polynomial growth in `t` is `μ`-integrable) with
-`∫ e^{ε t} dμ < ∞` for some `ε > 0`.  `X` is any locally compact Hausdorff space (a closed subset
-of one is again one). -/
-theorem poly_compact (h : PolyCompactHyp C p T₀ t V) (μ₀ : Measure ℝ) (hμ₀ : μ₀ (Iio 0) = 0)
-    (hint : Integrable (fun s => Real.exp (π * s)) μ₀)
+`|L(p_j ∘ t)| ≤ (C₂ j)^j` for all odd `j` and some `C₂ > 0`.  Then there is a positive Radon measure
+`μ` on `X` representing `L` on `V` (every continuous function of polynomial growth in `t` is
+`μ`-integrable) with `∫ e^{ε t} dμ < ∞` for some `ε > 0`.  `X` is any locally compact Hausdorff space
+(a closed subset of one is again one). -/
+theorem poly_compact (h : PolyCompactHyp C p T₀ t V) {C₂ : ℝ} (hC₂ : 0 < C₂)
     (L : polyUnion V →ₗ[ℝ] ℝ) (hL : ∀ v : polyUnion V, (∀ x, 0 ≤ v.1 x) → 0 ≤ L v)
-    (hodd : RefOdd p t V μ₀ L) :
+    (hodd : ∀ j : ℕ, Odd j → ∀ v : polyUnion V, (v : C(X, ℝ)) = pc p j t → |L v| ≤ (C₂ * j) ^ j) :
     ∃ μ : Measure X, μ.Regular ∧
       (∀ f ∈ FormalResearch.Measure.polyGrowth t, Integrable f μ) ∧
       (∀ v : polyUnion V, ∫ x, v.1 x ∂μ = L v) ∧
       ∃ ε : ℝ, 0 < ε ∧ Integrable (fun x => Real.exp (ε * t x)) μ := by
   obtain ⟨μ, hreg, hpoly, hrep⟩ := FormalResearch.Measure.exists_measure_of_positive_polyGrowth
     t.continuous h.compact_le (polyUnion V) h.union_le_polyGrowth h.exists_coercive L hL
-  exact ⟨μ, hreg, hpoly, hrep, exists_exp_moment h μ₀ hμ₀ hint L hL hodd μ hpoly hrep⟩
+  exact ⟨μ, hreg, hpoly, hrep, exists_exp_moment h hC₂ L hL hodd μ hpoly hrep⟩
 
 /-- **Lemma LP-P, finite-group clause**: if a finite group `G` acts continuously on `X`, preserving
 `t`, every `V_N` and `L`, the representing measure may be chosen `G`-invariant. -/
 theorem poly_compact_invariant {G : Type*} [Group G] [Finite G] [MulAction G X]
     [ContinuousConstSMul G X]
-    (h : PolyCompactHyp C p T₀ t V) (μ₀ : Measure ℝ) (hμ₀ : μ₀ (Iio 0) = 0)
-    (hint : Integrable (fun s => Real.exp (π * s)) μ₀)
+    (h : PolyCompactHyp C p T₀ t V) {C₂ : ℝ} (hC₂ : 0 < C₂)
     (L : polyUnion V →ₗ[ℝ] ℝ) (hL : ∀ v : polyUnion V, (∀ x, 0 ≤ v.1 x) → 0 ≤ L v)
-    (hodd : RefOdd p t V μ₀ L)
+    (hodd : ∀ j : ℕ, Odd j → ∀ v : polyUnion V, (v : C(X, ℝ)) = pc p j t → |L v| ≤ (C₂ * j) ^ j)
     (htg : ∀ (g : G) (x : X), t (g • x) = t x)
     (hVg : ∀ (g : G) (N : ℕ), Odd N → ∀ v ∈ V N, FormalResearch.Measure.actComp g v ∈ V N)
     (hLg : ∀ (g : G) (v v' : polyUnion V),
@@ -297,7 +297,40 @@ theorem poly_compact_invariant {G : Type*} [Group G] [Finite G] [MulAction G X]
       t.continuous h.compact_le htg (polyUnion V) h.union_le_polyGrowth h.exists_coercive
       (fun g v hv => hVg' g v hv) L hL
       (fun g v => hLg g v _ rfl)
-  exact ⟨μ, hreg, hpoly, hrep, exists_exp_moment h μ₀ hμ₀ hint L hL hodd μ hpoly hrep, hinv⟩
+  exact ⟨μ, hreg, hpoly, hrep, exists_exp_moment h hC₂ L hL hodd μ hpoly hrep, hinv⟩
+
+/-- **Lemma LP-P, reference-measure corollary**: `poly_compact` for `L(p_j ∘ t) = ∫ p_j dμ₀`. -/
+theorem poly_compact_ref (h : PolyCompactHyp C p T₀ t V) (μ₀ : Measure ℝ) (hμ₀ : μ₀ (Iio 0) = 0)
+    (hint : Integrable (fun s => Real.exp (π * s)) μ₀)
+    (L : polyUnion V →ₗ[ℝ] ℝ) (hL : ∀ v : polyUnion V, (∀ x, 0 ≤ v.1 x) → 0 ≤ L v)
+    (hodd : RefOdd p t V μ₀ L) :
+    ∃ μ : Measure X, μ.Regular ∧
+      (∀ f ∈ FormalResearch.Measure.polyGrowth t, Integrable f μ) ∧
+      (∀ v : polyUnion V, ∫ x, v.1 x ∂μ = L v) ∧
+      ∃ ε : ℝ, 0 < ε ∧ Integrable (fun x => Real.exp (ε * t x)) μ :=
+  poly_compact h (momC2_pos h.fam.C_pos μ₀) L hL fun j hj v hv => by
+    rw [hodd v j hj hv]
+    exact abs_integral_p_mu0_le h.fam hμ₀ hint hj
+
+/-- **Lemma LP-P, reference-measure finite-group corollary**. -/
+theorem poly_compact_invariant_ref {G : Type*} [Group G] [Finite G] [MulAction G X]
+    [ContinuousConstSMul G X]
+    (h : PolyCompactHyp C p T₀ t V) (μ₀ : Measure ℝ) (hμ₀ : μ₀ (Iio 0) = 0)
+    (hint : Integrable (fun s => Real.exp (π * s)) μ₀)
+    (L : polyUnion V →ₗ[ℝ] ℝ) (hL : ∀ v : polyUnion V, (∀ x, 0 ≤ v.1 x) → 0 ≤ L v)
+    (hodd : RefOdd p t V μ₀ L)
+    (htg : ∀ (g : G) (x : X), t (g • x) = t x)
+    (hVg : ∀ (g : G) (N : ℕ), Odd N → ∀ v ∈ V N, FormalResearch.Measure.actComp g v ∈ V N)
+    (hLg : ∀ (g : G) (v v' : polyUnion V),
+      (v' : C(X, ℝ)) = FormalResearch.Measure.actComp g v → L v' = L v) :
+    ∃ μ : Measure X, μ.Regular ∧
+      (∀ f ∈ FormalResearch.Measure.polyGrowth t, Integrable f μ) ∧
+      (∀ v : polyUnion V, ∫ x, v.1 x ∂μ = L v) ∧
+      (∃ ε : ℝ, 0 < ε ∧ Integrable (fun x => Real.exp (ε * t x)) μ) ∧
+      ∀ g : G, Measure.map (fun x => g • x) μ = μ :=
+  poly_compact_invariant h (momC2_pos h.fam.C_pos μ₀) L hL (fun j hj v hv => by
+    rw [hodd v j hj hv]
+    exact abs_integral_p_mu0_le h.fam hμ₀ hint hj) htg hVg hLg
 
 /-- info: 'FormalResearch.ModularBootstrap.LP.poly_compact' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
@@ -306,6 +339,14 @@ theorem poly_compact_invariant {G : Type*} [Group G] [Finite G] [MulAction G X]
 /-- info: 'FormalResearch.ModularBootstrap.LP.poly_compact_invariant' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms poly_compact_invariant
+
+/-- info: 'FormalResearch.ModularBootstrap.LP.poly_compact_ref' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms poly_compact_ref
+
+/-- info: 'FormalResearch.ModularBootstrap.LP.poly_compact_invariant_ref' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms poly_compact_invariant_ref
 
 end Main
 
