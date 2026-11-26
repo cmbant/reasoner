@@ -772,12 +772,11 @@ lemma ceShellRho_tendsto {D : ShellHBData} {r : ℝ → ℕ → ℝ} {τ : ℝ}
 lemma uSh_eq_tm_of_canonical {D : ShellHBData} {t : ℕ → ℝ} (I : CeCanonicalInputs D t)
     (hi : ∀ y : ℝ, 0 < y → 0 ≤ airyLaplace (fun u => -(D.G (u : ℂ)).re) y) : uSh D = (D.tm : EReal) := by
   have hb := (uLP_eq_tm_iff D).2 hi
-  obtain ⟨hint, -, hpos⟩ := I.terminal_deflation hi
-  refine (airy_active_height D).quotient_mass D.tm hb _ (negG_witness D hi) ?_ ?_
-  · simpa using hint
-  · have : (∫ u : ℝ, (((fun z => -D.G z) (u : ℂ)).re) / (u - D.tm)) =
-        ∫ u : ℝ, (-(D.G (u : ℂ)).re) / (u - D.tm) := by simp
-    rw [this]; exact hpos.le
+  obtain ⟨-, -, hpos⟩ := I.terminal_deflation hi
+  refine (airy_active_height D).quotient_mass D.tm hb _ (negG_witness D hi) ?_
+  have : (∫ u : ℝ, (((fun z => -D.G z) (u : ℂ)).re) / (u - D.tm)) =
+      ∫ u : ℝ, (-(D.G (u : ℂ)).re) / (u - D.tm) := by simp
+  rw [this]; exact hpos.le
 
 
 lemma qpow_pos (d : ℕ) (hd : 1 ≤ d) : 0 < ((d : ℝ) / 2) ^ (1 / 3 : ℝ) :=
@@ -1013,8 +1012,8 @@ theorem thm_ce_canonical_iff (D : ShellHBData) (t : ℕ → ℝ) (ht : IsHbZeroE
     exact ⟨y, hy, h⟩
   · exact fun b hb H hH z hz hz0 hs => (airy_active_height D).deflation hlt b hb H hH z hz hz0 hs
   · intro b hb hbt H hH hc
-    rcases hc with ⟨hint, hnn⟩ | hno
-    · exact (airy_active_height D).quotient_mass b hb H hH hint hnn
+    rcases hc with ⟨-, hnn⟩ | hno
+    · exact (airy_active_height D).quotient_mass b hb H hH hnn
     · exact I.node_sign.1 b hb hbt H hH hno
   · exact fun h => uSh_eq_of_node_bound I h
   · intro h5

@@ -238,9 +238,12 @@ theorem airySquareAttained (D : ShellHBData) : AirySquareAttained D := by
 /-- `lem:airy-active-height` (`ce_airy_lp_proofs.tex`, strictification and deflation), parts (1)–(4), for the
 configuration `D` (proved unconditionally as `airy_active_height` in `AiryActiveHeight.lean`); "optimizer" means a weak
 witness `H` at `b = u_LP` (`uLP D = b` real). Part (1) is stated in the
-form "whenever `L_H(y) > 0` for all `y > 0`" (any buffer of `lem:airy-shell-buffer` then works). In (3) and (4)
-the quotient is required to be integrable (it is in `𝒢` for an optimizer; for a non-integrable quotient the
-Lean integral would be the junk value `0`). -/
+form "whenever `L_H(y) > 0` for all `y > 0`" (any buffer of `lem:airy-shell-buffer` then works); the general
+buffer form (`L_B > 0` at the positive zeros of `L_H`) is `airy_active_height_strictify_buffer`. Part (2) states the
+existence of the common height and the even-order Laplace zero, not the paper's extra location clause `L_B(y_*) ≤ 0`
+for a fixed buffer `B` (not used by `thm:ce-canonical-iff`). The quotient of (3) and (4) is automatically integrable
+(`deflation_inAiryClass`), so (3) needs no integrability hypothesis, and (4) asserts a strictly negative value, which
+a junk integral `0` would not give. -/
 structure AiryActiveHeight (D : ShellHBData) : Prop where
   /-- (1) a weak witness at `v < t_m` with `L_H(y) > 0` for all `y > 0` gives `u_sh > v`. -/
   strictify : ∀ v : ℝ, v < D.tm → ∀ H : ℂ → ℂ, OneProfileFeasibleWitness D v H →
@@ -255,7 +258,6 @@ structure AiryActiveHeight (D : ShellHBData) : Prop where
       deriv (laplaceL (fun u => (H (u : ℂ)).re)) y = 0
   /-- (3) an optimizer with `∫ H/(u - b) ≥ 0` gives `u_sh = b`. -/
   quotient_mass : ∀ b : ℝ, uLP D = (b : EReal) → ∀ H : ℂ → ℂ, OneProfileFeasibleWitness D b H →
-    MeasureTheory.Integrable (fun u : ℝ => (H (u : ℂ)).re / (u - b)) →
     0 ≤ ∫ u : ℝ, (H (u : ℂ)).re / (u - b) → uSh D = (b : EReal)
   /-- (4) if `b < t_m`, at every real zero `z > b` of an optimizer that is not a site, or is a site with
   `H'(z) ≤ 0`, the quotient `H/(u - z)` has strictly negative integral. -/

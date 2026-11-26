@@ -28,6 +28,10 @@ Main results:
   proves `AiryActiveHeight D` unconditionally (both the general buffer strictification of part (1)
   and the field type of `CeCanonicalDefs.AiryActiveHeight`), discharging the former `active_height`
   field of `CeCanonicalInputs`.
+
+Not formalised: the generalised `(J, S)` form of `lem:airy-shell-buffer` (arbitrary node set `J` and
+finite site set `S`; only `J = {1, …, m}`, `S = shellSites D` is proved) and the location clause
+`L_B(y_*) ≤ 0` of part (2) for a prescribed buffer `B`; neither is used by `thm:ce-canonical-iff`.
 -/
 
 @[expose] public section
@@ -1340,7 +1344,7 @@ theorem airy_active_height (D : ShellHBData) : AiryActiveHeight D := by
       (fun t ht => hH.2.2.2.2 t ht.le) hLy0
     exact ⟨han, heven, hLy0, hderiv0⟩
   -- Part (3): quotient_mass (`∫ H/(u - b) ≥ 0 ⇒ u_sh = b`, valid for all `b ≤ D.tm` including `b = D.tm`)
-  · intro b hb H hH _hint hmass_nn
+  · intro b hb H hH hmass_nn
     have hbtm : b ≤ D.tm := EReal.coe_le_coe_iff.mp (hb ▸ uLP_le_tm_aux D)
     -- First show `(H b).re = 0` by maximality of `b = uLP D`.
     have hHb0 : (H (b : ℂ)).re = 0 := by
