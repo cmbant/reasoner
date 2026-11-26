@@ -54,6 +54,8 @@ A and B are done (section 3). C is the bulk of the work and is **not** done: it 
 | `UpperPhaseChart` | `tauPhase`, `dimension_chart_expansion` (`|Delta - (c/Lambda_V + (2 xi/3) c eps + K_2 c eps^2)| <= 6 c eps^3`), `phase_poly_bound`, **`dimension_le_of_phase_le`**: `tau(x) <= tau_* + C c^{-2} log c  =>  c/12 + c x^2/3 <=` five-term `+ C_+ c^{-1} log c`, generic in `(c_0, gamma_0)` | `gp:E5`, end of `eq:gp-upper-final` |
 | `UpperTipMatch` | `tip_match` (unconditional): the slit coordinate expansion from `cosh(pi x) = sqrt2 (1+y^2)/(1-y^2)`, `kTip = 32 (sqrt Y)^3/(9 pi^2)`, and the tip-dipole estimate `O(c'^{-1} (lambda S)^{1/2})` in the paper's variables, `kappaComb` (`kappa^{3/2} = 3 pi/2`) | `pm:tip-match` (C14_0) |
 | `UpperDetuning` | `fStar_edge_eq` (`K F_*(e^{-i psi}) = q F_*(iy)`, generic in the datum), `fDelta_edge_ratio` (`|F_d(iy)+K F_d| = D_d |F_d(iy)|`, `|K F_d| = R_d |F_d(iy)|`), `detuneD_bounds` (`1 < D <= 1+R`, `R/10 <= D-1`, `D <= 1+sqrt2`), `detuneR_pow4_bounds`, `1+sqrt2 < cosh(pi/2)` | `cts:smooth-env` (3), `R_delta`, `D_delta` |
+| `UpperPairPhi`, `UpperPairTaylor`, `UpperPairDrift`, `UpperPairGamma`, `UpperTipSharedD` | `pair_cancel`, `ScaleHyp.taylor`, `pair_drift` (b1, explicit constants, with weight-jump terms), `pair_drift_gamma` (b2), `tipShared_d` | `cts:tip-shared` (b1), (b2), (d) |
+| `UpperMainInputs` | skeleton: `UpperMainInputs` (fields `c11_membership`, `c11_first_site`, `c12_regionII`, `c13_regionI`, `c14_vacuum` over an abstract comb `h0`; the test is `upperTest = pairOdd u (hankelTransform w u)`), `sharpUpperFamily_of_inputs`, `sharp_upper_of_inputs`, `spinless_upper_of_inputs`; concrete open statements `AiryLinearMoment` (tip-shared (a)), `AiryPrimitiveDecay` (tip-shared (c)) | skeleton |
 | `UpperAssembly` | `SharpUpperFamily`; **`sharp_upper_of_family`** (any `ShiftSource`) and **`spinless_upper_of_family`** (`Delta_best <= ... + c0Star + c1Langer c^{-1/3} + d2Star c^{-2/3} + C c^{-1} log c`) | `cts:transfer` and `thm:spinless-expansion`, upper half, **modulo `SharpUpperFamily`** |
 
 ## 4. What remains (all inside `SharpUpperFamily`), in the paper's dependency order
@@ -96,3 +98,13 @@ elementary); the blockers for a *session* are size and the K7-with-envelope gene
 * `thm:spinless-expansion` is stated for `Delta_best(c)` with `c' = c - 1`; in Lean the argument is `c'` throughout
   (`Delta_best c' = c'/12 + T_V c'`), which is the paper's convention in the supplement.
 * `cts:smooth-env` (1) holds for every `delta in (0,1)` (not only `< delta_0`), with the absolute constant `25 alpha_C`.
+
+## 6. Finding (K7 is not applied verbatim)
+
+`cts:upper-design` (3) says K7 "applies verbatim" to `h_0 = E_delta B_D`. K7's hypotheses (i)-(ii) (analytic on
+`|Im b| < 7/8`, `|B| <= 1` on `|Im b| <= 1/2`, `Phi_1` bounded with two derivatives on `|Im b - 1/2| <= 1/4`) fail for
+`E_delta B_D`: `E_delta` has the branch point `i(1/2 + eta_delta)`, `eta_delta ~ delta`, inside that strip, and
+`|E_delta|` is unbounded near it. What the Lean K7 chain really needs is the decay bound of the paper's five-piece
+deformation (part (2)); `fwM_of_decay` (membership from decay) and the vacuum identity are independent of `InnerCombHyp`.
+So the amplitude-carrying version is: take the decay estimate as the input of `c11_membership`, not re-derive it from
+`InnerCombHyp`.
