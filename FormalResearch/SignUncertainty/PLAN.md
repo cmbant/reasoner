@@ -145,6 +145,13 @@ An "Airy-order `o(d^{1/3})` radius at fixed `delta`" is not a shortcut: the fixe
 ## 4. Strategy and working rules
 
 - **Skeleton first, and inputs must shrink.** Each headline is proved from one input structure whose fields are, one to one, TeX theorems; progress is the number of open fields. A module is merged only if it discharges or shrinks a field, or is a package of section 2 on a critical path; toy non-vacuity witnesses are not progress.
+- **M10 skeletons.** By 2026-11-26, F1 and F2a held about 70k lines of leaves (`Ct*` about 32k, `Uct*`/`Fct*` about 38k) but no Lean statement of either target. The next commit of each lane is therefore its skeleton:
+  - F1: `CtLower` states `thm:ct-lower` (`eq:ct-lower`) from `CtLowerInputs`, whose fields are the open TeX lemmas (`ct:dyadic`, `ct:boas`, ...).
+  - F2a: `FctMainHankel` states `fct:main-hankel` from `FctMainHankelInputs`.
+  
+  Every later merge discharges or shrinks a named field. No new abstract layer is added unless a field consumes it; in particular `CfuTheta` is instantiated from `fct:comp-D` before comp-cfu goes deeper.
+  
+  `ct:dyadic` P1 starts with a reuse audit that maps each ingredient to existing Hankel bootstrap declarations (`teb_bootstrap_hb`, `hankelBootHB`, `HankelBoot*`, `HankelWindow*`) and to item 7 of section 5; only the gap is built.
 - **No second proof of a closed route.** Before opening a step run `tools/find_result.py` in QIprojects and check this file's coverage table (section 6); an `OPEN` in a PR state is not evidence that nobody has proved it.
 - **Conditional results are named as such.** A statement that takes an input structure says so in its docstring and in `docs/lean_status.md`; unused arguments (as in `thm_intro_gap_ii`) are removed.
 - **Process.** The manager alone edits the status rows of this file; agents report in handoffs, `THEOREM_MAP.md` and umbrella rows. A clean-context reviewer builds the headline module of its step, not the umbrella; the umbrella build is the manager's after each merge round, merges are batched. At most two Sonnet lanes, three Haiku agents and one reviewer build at once (two build slots); every Haiku module and every large development gets a clean-context review before merge. New worktrees are made with `scratch/mkwt.sh`, which deletes build outputs whose source differs from the copied build: a hardlinked stale `.olean` shows as "Unknown identifier" or "Application type mismatch" for something that exists.
@@ -163,6 +170,10 @@ An "Airy-order `o(d^{1/3})` radius at fixed `delta`" is not a shortcut: the fixe
 4. The two rigidity proofs differ (profile compactness with Hermite-Biehler uniqueness here, vague limits of design measures there); only the interface is shared.
 5. Langer charts and Mellin strips are separate objects in the two papers (Hankel/Bessel density `gt:7.7b/c/p` and `MellinStrip*` here; Virasoro comb density and `FixedWeightBand/Mellin*W` there). The Hankel `BootstrapHBInstance` follows the pattern of `FixedWeightBand/BootstrapW*`; Paper II does not refactor `ConcreteBootstrap/` or `TwoEdgeBootstrap/`, and Paper I does not edit `QuantC1Airy.lean`/`QuantC1Clark.lean` (Paper II's, imported here).
 6. Fold-tip Theorem FT is part of Paper I (Section 4); its Lean code is `ModularBootstrap/FoldTip/`, and the Paper II plan has packages FT-0..FT-2 (done), FT-H4b and FT-CC (package G, section 6.1). It plans nothing beyond FT-CC for `FT-3..6` and has no `FT-7`: `ft:L1`, `ft:L2`, `ft:riesz`, `fto1:mellin` are planned here with M8 (section 1.3a). `lem:qual-compact` is not in Lean; it is the shared elementary step for `ft:L2` and the CE shell transfers (check `SignUncertainty/` before adding).
+7. **Five-term lower bound, shared analytic cores.** F1 (`ct:dyadic`, `ct:boas`) and Paper II's FIVE-L (`ctl:dyadic`, `ctl:pass2`, `cts:rosc-uncond`, `cts:boas`, in `ModularBootstrap/FiveTerm/Lower*`) apply the same mechanism to two phases, so phase-free cores have one copy.
+   - Already on master in Paper II: `boas_residue_zero`, `rect_boundary_zero` (`LowerBoasResidue`) and `markov_select`, `dyadic_term_le` (`LowerDyadic`). F1 reuses these instead of re-proving them.
+   - Already on master in Paper I: `CtHalfDiscPoisson`, `CtFejer`, `sd_eval`/`CtSd*`, `CtCfu*`, `CtMorse*`. FIVE-L reuses these, as its design note plans.
+   - Still missing on both sides: the half-disc Cauchy and Poisson representation, good-circle selection and the dyadic absorption step. Each is written once, phase-free, under `Complex/` or `Asymptotics/`, by whichever lane needs it first. Before writing one, `git grep` both trees.
 
 ## 6. Coverage of the paper (reference)
 

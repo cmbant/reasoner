@@ -255,6 +255,13 @@ Statements that Lean proves only for a special case, so that nobody cites them a
   `lem:qual-compact` (qualitative mass transfer, new in `airy_extremal.tex`) is not in Lean; check `SignUncertainty/` before adding it for
   FT-3..6 or `bl:norm`.
 - Paper I does not plan Lemma WP, Lemma WR or `teb:quant_c1_near`; here they are FT-H4b and FIVE-L.
+- **Five-term lower bound: shared analytic cores (agreed in `SignUncertainty/PLAN.md` section 5, item 7).** FIVE-L
+  (`ctl:dyadic`, `ctl:pass2`, `cts:rosc-uncond`, `cts:boas`) and Paper I's F1 (`ct:dyadic`, `ct:boas`) are the same mechanism for two phases.
+  Phase-free cores have one copy. Already on master: here, `FiveTerm/LowerBoasResidue` (`boas_residue_zero`, `rect_boundary_zero`) and
+  `LowerDyadic` (`markov_select`, `dyadic_term_le`); in Paper I, `CtHalfDiscPoisson`, `CtFejer`, `CtSd*` (`sd_eval`), `CtCfu*`,
+  `CtMorse*`. Each is reused as it is, not re-proved. A core both lanes still need (half-disc Cauchy/Poisson representation, good-circle
+  selection, the dyadic absorption step) is written once, phase-free, under `Complex/` or `Asymptotics/`, by whichever lane needs it first.
+  The other lane imports it. Before writing such a lemma, `git grep` both trees.
 - TE.0' beyond `alpha = 0`: Paper I's M8 is the Hankel type-(I) instance for polynomial `(P,Q)`; Paper II does the Airy type-(II) constant-Clark-pair
   instance in `ConcreteBootstrap/QuantC1Clark.lean` (done) and does not edit `QuantC1Airy.lean`, which Paper I's `HankelQuantC1` imports.
 - Shared files: the umbrella `FormalResearch/ModularBootstrap.lean` and `THEOREM_MAP.md` (targeted edits after merging `origin/master`;
