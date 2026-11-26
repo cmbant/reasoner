@@ -93,36 +93,40 @@ Delivered (all built under the lock, axioms `[propext, Classical.choice, Quot.so
 6. `LowerEdgeHankel`: `cts:edge-hankel`(1) at Virasoro with absolute constants (`edge_hankel_exp_small` generic in `prob`,
    `edge_hankel_integral_sharp`, `edge_hankel_sup_sharp`, bundle `edge_hankel_one_virasoro`).
 
-Not delivered, in dependency order (exact next steps in section 6): `cts:edge-hankel`(2), `cts:cauchy-dual`, `cts:rosc-uncond`
-and `ctl:pass2` (analytic content), `cts:boas` Steps 1-2 and the Gaussian assembly, `cts:lower-main`, the `u~ <-> tau` bridge,
-`teb:quant_c1_near`.
+7. `LowerBesselTwoTerm`: the two-term complex Laplace asymptotic of `I_0`, `besselI0C_two_term`
+   (`‖I_0(w) - e^w/√(2πw)(1 + 1/(8w))‖ ≤ 70 e^{Re w}|w|^{-5/2} + 2` for `Re w ≥ 1`): the Bessel input of `cts:edge-hankel`(2).
+8. `LowerMain` (**skeleton, first deliverable after the 2026-11-26 plan change**): the structure `LowerMainInputs prob c0 γ0` whose
+   fields are the open TeX lemmas as used in the proof of C9 (see the table of section 6), and `lowerPhase_of_inputs`:
+   `LowerMainInputs prob c0 γ0` and `c0 < 0` give `LowerPhaseStatement prob c0 γ0 C` (Passes 1-2 `lower_pass_upper`, first node,
+   Langer identification at `u_*`).  Every later module discharges or shrinks a field.
+9. `LowerMainVirasoro`: `lowerPrelim_virasoro`, `lowerPhase_virasoro` and `spinless_lower_of_inputs` (lower half of
+   `thm:spinless-expansion` modulo `LowerMainInputs`).
 
 ## 6. Status
 
+Fields of `LowerMainInputs` (each is one open TeX lemma; nothing else is assumed):
+
+| field | TeX | consumed by | to discharge it |
+|---|---|---|---|
+| `chart : LowerChart` | `cts:cauchy-dual`(1): shifted Airy chart `φ_c = û⁻¹`, `φ_c' = 1+O(1/c)`, `φ_c(a_1)` expansion | `lowerPhase_of_inputs` (reference point `u_*`, monotone chart) | CFU chart of the Paper II phase from Paper I (`FctCfuTheta`, `CtCfu*`, `CtSd*`) + `LowerEdgeHankel`, `LowerBesselTwoTerm` (C5) + `Special/Airy*` |
+| `firstGood : LowerFirstGood` | `cts:rosc-uncond`(1) first good circle | `lower_pass_upper` (pass 1) | half-disc Poisson (`CtHalfDiscPoisson`) + good-circle selection (phase-free core to be written under `Complex/`) + `LowerDyadic.markov_select` |
+| `combined : LowerCombined` | `cts:rosc-uncond`(4) combined dual identity (4a) general, (4b) under the pass-1 hypothesis | `lower_pass_upper` | Cauchy duality on `Ω` (C6 identity), `Special/AiryCftDefect` (Theorem D), `ctl:dyadic` (band moments), `LowerDyadic` |
+| `pass2 : LowerPass2` | `ctl:pass2` | `lower_pass_upper` (pass 2) | second good circle at the sharpened scale (`LowerDyadic.pass2_exponents`, `markov_select`) |
+| `boas : LowerBoas` | `cts:boas` (Steps 1-2 and the Gaussian assembly) | `lower_pass_upper` | `LowerBoasResidue` (`boas_local_lower`, `boasTop_norm_le`, `boasVert_norm_le`), `LowerDyadic.gauss_*`; conformal coordinate `ζ(b)` and `h-growth` still to build |
+| `langer : LowerLangerPhase` | `cts:langer` / Theorem L*: `-ũ = β c^{2/3} τ(x)` on the real band (the `ũ ↔ τ` bridge) | `lowerPhase_of_inputs` | identify `A(b-ξ_*)^{3/2}` of `lemmaGPotentialInput_virasoro` with `N(x)` (`Upper/Comb`) |
+
+Already-proved inputs (not fields): `LowerPrelim` (`rem:corL`(b), `lemmaQ_part3`; `lowerPrelim_virasoro`), `c0Star_neg`,
+`dimension_ge_of_phase_ge`.  `ctl:dyadic`, `ctl:freeze` enter as sub-structures when `combined` and `boas` are split.
+
 | label | status | Lean |
 |---|---|---|
-| `rem:corL` | proved at Virasoro (item (d) with `c'^{-1/3}`, stronger than the paper; the `C^1`-convergence clause of (c) is not exported) | `LowerCorL.corL_virasoro` |
-| `teb:quant_c1_near` | not formalised; true as stated; bypassed at Virasoro because `c0Star < 0` | `LowerSign.c0Star_neg` |
-| `rem:thmOloc` | not formalised; not on the critical path | none |
-| `cts:edge-hankel` (1) | proved at Virasoro (absolute constants; `G` is the defined Hankel integral, Hankel inversion not formalised) | `LowerEdgeHankel.edge_hankel_one_virasoro` |
-| `cts:edge-hankel` (2) | NOT proved (two-term complex Bessel asymptotics) | none |
-| `cts:boas` | Step 3 residue core proved (`prob`-free); Steps 1-2 (conformal phase coordinate, `h-growth`) and the Gaussian assembly NOT proved | `LowerBoasResidue` |
-| `ctl:dyadic`, `ctl:pass2`, `ctl:freeze` | only the exponent bookkeeping and the Markov selection are proved; the analytic estimates are NOT | `LowerDyadic` |
-| `cts:cauchy-dual`, `cts:rosc-uncond`, `cts:lower-main` | NOT proved | none |
-| lower half of `thm:spinless-expansion` | proved only modulo the named hypothesis `LowerPhaseStatement` (`gp:L`); the conversion from phase to dimension is unconditional | `LowerPhaseChart.spinless_lower_of_phase` |
-
-Exact next steps.
-* `cts:edge-hankel` (2): the two-term expansion `J_0(z) = e^{i pi/4} e^{c'L}/sqrt(2 pi z) (1 + 3i/(32 pi x c'(v+i/2)) + O(|z|^{-2}))`
-  uniformly for `arg z in (0, pi/2]`, plus the three-term `V(t(x))` expansion; `ComplexBessel/BesselI0Sector` (889 lines) has the
-  leading term only and is the template.
-* `cts:boas` Steps 1-2: `zeta(b) = (c'/(2 pi i))(Phi_0(b) + L(b))` on `D_*^-` and its univalence (Noshiro-Warschawski, not in Mathlib),
-  then the complex Poisson-Jensen bound on all of `D_*^-` (Lean has `stripPoissonJensen_complex_general` only at tip points
-  `|z - sigma_*| <= 0.1`), giving `h-growth`.  Step 3 then combines `boas_local_lower`, `gauss_top_le`, `gauss_vert_le`.
-* `cts:cauchy-dual`: the `b <-> z` transport (`w = cosh(pi b)`, `z = zeta_D(b)`), then the CFU / steepest-descent stack for the
-  Paper II phase, reusing the abstract parts of Paper I (`sd_eval`, `outer_band`, `stat_phase`, `morse_expansion`, `scalar_ift`).
-* `ctl:dyadic`, `ctl:pass2`: the strip-band reduction of Proposition C7a (van der Corput, `teb:kernel`) and the sine-pairing
-  estimates; the measure of `{r in [r_0, 2 r_0] : |sin(2 r^3/3 + pi/4)| >= 1/2}` (about `7/18 r_0`) feeds `markov_select`.
-* `teb:quant_c1_near`: copy-adapt `QuantC1Airy` (about 1300 lines), replacing `a_1 < u_T` by `a_1 - K_1 c'^{-1/3} <= u_T`.
-  Needed only if the sign of `c_0^*` is unknown, which is not the case at Virasoro.
-* The `u~ <-> tau` bridge: the exact relation between `virasoroDeltaChart` and `cumulN` on the band, linking the Airy-chart
-  displacement to `LowerPhaseStatement`.
+| lower half of `thm:spinless-expansion` | proved modulo the structure `LowerMainInputs` (and no other hypothesis) | `LowerMainVirasoro.spinless_lower_of_inputs` |
+| `cts:lower-main` (the contradiction argument, Pass 1, Pass 2, node slope, `ũ ↔ τ` arithmetic) | proved from the fields | `LowerMain.lowerPhase_of_inputs`, `lower_pass_upper` |
+| `rem:corL` | proved at Virasoro | `LowerCorL.corL_virasoro` |
+| `teb:quant_c1_near` | bypassed at Virasoro (`c0Star < 0`) | `LowerSign.c0Star_neg` |
+| `rem:thmOloc` | not on the critical path | none |
+| `cts:edge-hankel` (1) | proved at Virasoro | `LowerEdgeHankel.edge_hankel_one_virasoro` |
+| `cts:edge-hankel` (2) | Bessel step proved (`besselI0C_two_term`); real three-term `V` expansion and assembly not done | `LowerBesselTwoTerm` |
+| `cts:boas` | residue core proved, rest a field | `LowerBoasResidue`, field `boas` |
+| `ctl:dyadic`, `ctl:pass2`, `ctl:freeze` | exponent bookkeeping and Markov selection proved; estimates are fields | `LowerDyadic` |
+| `cts:cauchy-dual`, `cts:rosc-uncond` | fields | none |
