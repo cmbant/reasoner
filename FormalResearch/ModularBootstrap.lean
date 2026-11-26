@@ -6,6 +6,20 @@ public import FormalResearch.ModularBootstrap.FiveTerm.Langer
 public import FormalResearch.ModularBootstrap.FiveTerm.LangerExpansion
 public import FormalResearch.ModularBootstrap.FiveTerm.PhaseLock
 public import FormalResearch.ModularBootstrap.FiveTerm.HalfDisc
+public import FormalResearch.ModularBootstrap.FiveTerm.StripCauchy
+public import FormalResearch.ModularBootstrap.FiveTerm.StripCoord
+public import FormalResearch.ModularBootstrap.FiveTerm.HalfDiscCauchy
+public import FormalResearch.ModularBootstrap.FiveTerm.HalfDiscCauchyEdge
+public import FormalResearch.ModularBootstrap.FiveTerm.HalfDiscCauchyIdentity
+public import FormalResearch.ModularBootstrap.FiveTerm.DefectIdentity
+public import FormalResearch.ModularBootstrap.FiveTerm.CombClass
+public import FormalResearch.ModularBootstrap.FiveTerm.CombProduct
+public import FormalResearch.ModularBootstrap.FiveTerm.CombFunctional
+public import FormalResearch.ModularBootstrap.FiveTerm.CombMinimum
+public import FormalResearch.ModularBootstrap.FiveTerm.Regulariser
+public import FormalResearch.ModularBootstrap.FiveTerm.RegulariserDefect
+public import FormalResearch.ModularBootstrap.FiveTerm.CombRegularisation
+public import FormalResearch.ModularBootstrap.FiveTerm.CombEquality
 public import FormalResearch.ModularBootstrap.Crossing.Setup
 public import FormalResearch.ModularBootstrap.Crossing.SumRule
 public import FormalResearch.ModularBootstrap.Crossing.LemmaInputs
@@ -47,6 +61,21 @@ public import FormalResearch.ModularBootstrap.Duality.Compactness
 public import FormalResearch.ModularBootstrap.Duality.LimitMeasure
 public import FormalResearch.ModularBootstrap.Duality.StrongDuality
 public import FormalResearch.ModularBootstrap.Duality.OptimalMeasure
+public import FormalResearch.ModularBootstrap.Duality.VagueCompactness
+public import FormalResearch.ModularBootstrap.Duality.FiniteAtomic
+public import FormalResearch.ModularBootstrap.Duality.PositiveExtension
+public import FormalResearch.ModularBootstrap.Duality.SpanTests
+public import FormalResearch.ModularBootstrap.Duality.ThermalSeparation
+public import FormalResearch.ModularBootstrap.Duality.ConstrainedFeasible
+public import FormalResearch.ModularBootstrap.Duality.ConstrainedThreshold
+public import FormalResearch.ModularBootstrap.Duality.VagueDomination
+public import FormalResearch.ModularBootstrap.Duality.ReserveSeparation
+public import FormalResearch.ModularBootstrap.Duality.Primal.CompactMass
+public import FormalResearch.ModularBootstrap.Duality.Primal.HankelLimit
+public import FormalResearch.ModularBootstrap.Duality.Primal.FixedCharge
+public import FormalResearch.ModularBootstrap.Duality.Primal.StripLimit
+public import FormalResearch.ModularBootstrap.Duality.Primal.PositiveThreshold
+public import FormalResearch.ModularBootstrap.Duality.Primal.Attainment
 public import FormalResearch.ModularBootstrap.ComplexBessel.BesselI0Sector
 public import FormalResearch.ModularBootstrap.ComplexBessel.ComplexExpansion
 public import FormalResearch.ModularBootstrap.ComplexBessel.StirlingOmega
@@ -337,6 +366,17 @@ public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumBands
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuumIntegral
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedVacuum
 public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedFinal
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpSeparation
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpFloors
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpRegionII
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpRegionI
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpPositive
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpTheta
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpPointwise
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpWindowPart
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpVacuumBands
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpVacuum
+public import FormalResearch.ModularBootstrap.Upper.Ramped.RampedBumpFinal
 public import FormalResearch.ModularBootstrap.Upper.Assembly.N1
 public import FormalResearch.ModularBootstrap.FoldTip.Concordance
 public import FormalResearch.ModularBootstrap.FoldTip.TwoEdgeChart
@@ -351,8 +391,22 @@ public import FormalResearch.ModularBootstrap.TwoLevel.TheoremTwoOne
 public import FormalResearch.ModularBootstrap.FoldTip.Hypotheses
 public import FormalResearch.ModularBootstrap.FoldTip.Instances
 public import FormalResearch.ModularBootstrap.FoldTip.InstancesAllWeights
+public import FormalResearch.ModularBootstrap.FoldTip.InstancesAllWeightsUnconditional
 public import FormalResearch.ModularBootstrap.TwoLevel.ConstrainedDuality
 public import FormalResearch.ModularBootstrap.TwoLevel.CorollaryTwoFour
+public import FormalResearch.ModularBootstrap.TwoLevel.CorollaryTwoFourAllWeights
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroBump
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroBumpRegionOne
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroBumpRegionTwo
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroBumpPositivity
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroBumpWindow
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroBumpLobe
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroBumpBands
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroBumpVacuumWindow
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroBumpVacuum
+public import FormalResearch.ModularBootstrap.TwoLevel.TwoZeroTransferW
+public import FormalResearch.ModularBootstrap.TwoLevel.WOneFiveClarkAll
+public import FormalResearch.ModularBootstrap.TwoLevel.SoftEdgeCrossingCorollary
 public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumFunction
 public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimum
 public import FormalResearch.ModularBootstrap.TwoLevel.WindowOptimumNodes
@@ -1239,4 +1293,9 @@ Formalization of modular bootstrap Airy-scale lower bounds and spectral rigidity
 * `Upper.Positivity.PropositionIIIRegionII`, `Upper.Positivity.PropositionIII` (`upper_transfer.tex` Proposition III `ut:III`, `fw:e1.3`, `fw:e1.6`, `fw:e2.2`, `fw:e2.3`, `fw:e3.5`; positivity of `g_w = ½(h₀ - 𝓗_w h₀)` for the bumped fixed designs at every integer weight `w = p + 1`): `twoGW p` (`RegionII`; `twoGW_zero : twoGW 0 = twoG`) is the order-`p` test; **`bumped_regionII`** (Region II for any `f ≥ 1` and any compact family of finite modifications with the bump of `rpParams p`: `Lev/20 ≤ 2 g_w` for `x ≥ ξ_* + c'^{-2/5}`, in the near-tip range from the floor `0.6965` and `R_bump ≥ 1` against `ρ_∞ R_p ≤ 0.10`, in the macroscopic range from `bump_floor_family` against `M_amp` and `bumpFloor η_big > 2 M_amp + 1`, in the far range against `ρ_∞ R_p ≤ 0.60`; `norm_le_rhoRp_mul_lev` is `fw:e1.6`, `phaseHyp_compact` with `bumped_phaseHyp` and `phase_packageP` give the order-`p` transform bound), **`bumped_regionI_pos`** (Region I: the bump raises `h₀` on the real axis, `twoGW_pos_of_lower` closes it with the order-`p` global bound `fw:e1.3`), **`proposition_III_sig`**, `proposition_III_sig_t`, `proposition_III_design`, `proposition_III_design_t` (the `f = 1` designs at fixed sites, all `t ≥ t_f + 1`, any cut above the block) and **`proposition_III`**, `proposition_III_regionII`, `proposition_III_nonvacuous` for a `FixedWeightProblem` (`p = prob.w - 1`); `RegionOne` and `RegionOneAssembly` are generalised in place (`twoGW_pos_of_lower`, `proposition_I_a_sig_lower`, `proposition_I_b_sig_lower`, `tForm_gap`, `designWidth1_admissible`), and `proposition_I_a_sig`, `proposition_I_b_sig`, `proposition_I_sig_t` are re-derived with unchanged statements.
 * `FiveTerm.{Constants, Langer, LangerExpansion, PhaseLock, HalfDisc}` (Paper II `cts:langer`, `cts:phaselock`, `ctu:consts`; the first part of FIVE-0): the Virasoro closed forms `c0Star`, `gamma0`, `d2Star`, `c1Langer` and their jet-parametrised versions `c0StarOf`, `gamma0Of`, `d2StarOf` (so the fixed-weight cases instantiate the jets), the tip expansions `rhoU_tip_expansion`, `cumulN_tip_expansion`, `tau_tip_expansion`, the Langer node `xLanger_spec` and `langer_node_expansion` (`Delta_Langer(c) = c'/Lambda_V + A_opt c'^{1/3} + c1Langer c'^{-1/3} + O(1/c')`), the phase-locking identity `phaseLock_identity` and `absentCharge_phase` (polar form), `cosh_two_pi_etaStar`, `etaStar_lt_quarter`, and the half-disc conformal geometry of `cts:involution` (`zetaHD_bijOn`, `sigmaHD_sigmaHD`); the outer function `G_outer` and `cts:main` are not in Lean.
 * `Upper.Positivity.VacuumBumped`, `Upper.Assembly.BumpedDesignWindow`, `FoldTip.InstancesAllWeights` (W-P5, design side at every weight): Lemma T and Proposition V with the multiplier/bump (`lemma_T_sig1_prob_mul`, `vacuum_core_mul`, `proposition_V_i_bumped`, `proposition_V_ii_bumped`), Property (P) `designPropertyP_probW`, `displacedPropertyP_probW`, `Sigma_0`, `Sigma` (`sigmaZero_unconditional_probW`, `sigma_unconditional_probW`) and H4b `fwH4bW` for every `FixedWeightProblem`; the fold-tip bundle `ft_fixedWeight_modH3` is the weight-`w` statement modulo H3 (`TheoremC15UpperInput`, W-P6).
+* `Upper.Ramped.RampedBump{Separation, Floors, RegionII, RegionI, Positive, Theta, Pointwise, WindowPart, VacuumBands, Vacuum, Final}`, `FoldTip.InstancesAllWeightsUnconditional`, `TwoLevel.CorollaryTwoFourAllWeights` (W-P6, the `O(1)` upper bound at every weight; `n2_ramped_comb.tex` Lemma U*(w) `fw:Ustar`, `pmix:ramped` at one component): the bumped ramped comb `rampedBumpComb` (the ramped comb of Region I/II times the bump multiplier of `rpParams (w-1)`), its positivity (`rampedBumped_regionI`, `rampedBumped_regionII`, `rampedBumped_positive`), the vacuum identity with the bump (`theta_boundW`, `rampedBump_pointwise`, `rampedBumpVacuum`), feasibility `rampedBumpG_isFeasible_prob`, and **`theoremC15UpperInput_probW`** (`TheoremC15UpperInput prob` for every `prob : FixedWeightProblem`, no hypothesis); hence `ft_fixedWeight_all`, `fw_foldTip_hypotheses_all`, `corollary_E1_all` (`ds:E1`) and `corollary_two_four_all` (`gt:2.4`(a)) at every weight.
+* `Duality.{VagueCompactness, VagueDomination, FiniteAtomic, PositiveExtension, SpanTests, ThermalSeparation, ConstrainedFeasible, ConstrainedThreshold, ReserveSeparation}` (DU-G; `ds:farkas`, `ds:E`(a), (b), (c)): vague limits along an ultrafilter (`exists_vagueLimitAlong`), exact atomic measures with at most `card B + 1` atoms (`exists_atomic_exact`), the Farkas separation `farkas_separation`, `farkas_finite`, `farkas_compactness`, `theorem_E_a` (existence of a crossing measure iff no feasible test, at most `|B|+1` atoms, decreasing supports), `theorem_E_b_compact` and `theorem_E_b_compact_empty` (compact `F`, `T_F = max`, `nu(F) > 0` above `T_V`; extra hypothesis `0 < T_V`, `T_V_pos_of_strip`), `theorem_E_c_separation`, `theorem_E_c_reserve`, `theorem_E_c_reserve_testClass` (reserve separation and the exact reserve formula with attainment), for every `(w,Q)`. The symmetry clause of `ds:farkas` is not formalised.
+* `Duality.Primal.{CompactMass, HankelLimit, FixedCharge, StripLimit, PositiveThreshold, Attainment}` (PA1; `dsl:compact-mass`, `dsl:strip-fixed`(b), `ds:primal`): `compact_negative_mass`, `radialLift_fourier_odd_of_limit`, the hypothesis structure `FixedChargeStrip prob c` (the fixed-charge strip bound of `dsl:strip-fixed`(a)), proved for `c >= c0(w,Q)` by `fixedChargeStrip_of_large`, `exists_primal_limit`, `T_V_pos_of_strip`, `theorem_primal` (`ds:primal`(a)-(d): the weak extremal `g_*` with locally finite zero set, atomic crossing measures, atom at `T_F`, convergence of normalised minimising sequences), proved for `c >= c0(w,Q)` and conditional on `FixedChargeStrip` below that; the range `12 S <= c < c0` (fixed-charge asymptotics of `V`) is open.
+* `TwoLevel.TwoZeroBump{, RegionOne, RegionTwo, Positivity, Window, Lobe, Bands, VacuumWindow, Vacuum}`, `TwoLevel.TwoZeroTransferW`, `TwoLevel.WOneFiveClarkAll`, `TwoLevel.SoftEdgeCrossingCorollary` (W-T2w for the `f = 2`, `r = 1` two-simple-zero case, and SE3; `upper_transfer.tex` Theorem T2 `ut:T2`, Propositions `ut:IIF`, `ut:III`, `ut:Vac` at `(f,r) = (2,1)`, `virasoro_two_level.tex` `gt:2.5`, `gt:2.6`, `wone:clark`(c), `se:3.3`): the test `g_w = (h^{(p)} - H_w h^{(p)})/2` with the bumped two-zero comb for every `FixedWeightProblem` (`twoZeroBumpG`, `probBump`, `bumpComb_ofReal`), K7 and the order-`p` transform (`twoZeroBump_k7W`, `twoZeroBump_transformP`), Regions I and II and positivity (`twoZeroBump_regionOne`, `twoZeroBump_regionII`, `twoZeroBump_pos_g`), the window limit, lobe, band and far-band bounds, the vacuum core (`twoZeroBump_vacuum_core`), and **`twoSimpleZeroTransfer_all`** (`TwoSimpleZeroTransfer prob` for every `prob`), `designPropertyP_twoZero_all`, `theorem_two_five_all`, `theorem_two_six_all`, `tendsto_atom_weight_all`, `wone_clark_two_level_boundary_all`, and `se_crossing_corollary` (the crossing measure with mass at `t_1`, without the offset form `se:lip`). General `m` (`ut:ideal`, `ut:Vac` for `f >= 2`, real-factor `ut:IIF`, `ut:I`, `ut:III`) is not formalised.
+* `FiveTerm.{StripCauchy, StripCoord, HalfDiscCauchy, HalfDiscCauchyEdge, HalfDiscCauchyIdentity, DefectIdentity, CombClass, CombProduct, CombFunctional, CombMinimum, Regulariser, RegulariserDefect, CombRegularisation, CombEquality}` (FIVE-0 continued; `cts:main`, `ctu:common-functional`, `cts:eta-opt`, conditional on an outer-function datum): the Cauchy theorem on the strip in the coordinates `z = tan(pi s/4)` (`strip_edge_cauchy`), the indented half-disc contour identity `halfDisc_cauchy_identity` and the defect identity `halfDisc_defect_identity`, the class `HAdm` of admissible combs and the abstract datum `OuterDatum W K g1 G` (everything `cts:main` uses of the outer function: holomorphic, zero-free, real-symmetric, the endpoint bounds, `|G(iy)| = W(y)` and the coupling relation), the functional `combJ` with `comb_defect_identity`, `comb_lower_bound`, the minimiser `fStar` and `comb_minimum` (`IsLeast`, value `c0StarOf g1`), the regularisation `comb_regularisation` (`alpha_tip g1 <= J[F_eps] <= alpha_tip g1 + 25 alpha_C eps^2`), the equality criterion `comb_equality_iff` and `fStar_detuning`. Satisfiability of `OuterDatum` for the Virasoro weights is not proved (the construction of `G_outer`, `cts:involution` parts (1)-(3), the jets `g1`, `g3` as integrals) and is the main remaining FIVE-0 gap.
 -/
